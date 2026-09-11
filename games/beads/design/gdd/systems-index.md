@@ -187,7 +187,7 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 - **FSM**：`core/fsm` 提供状态机；S1 六状态（BOOT/PLAYING/PAUSED/LEVEL_CLEAR/GAME_OVER/FINISH）直接映射。
 - **事件**：`core/events` 事件总线承载 §4 全部事件；系统间**禁止直接互调**，一律走事件。
 - **存档**：`core/save` 同步本地存储；键名归代码（`wxgame.beads.*`），结构由 S8 GDD + `save-schema` 定义。
-- **激励视频**：假设 `platform/weapp` 暴露 `createRewardedVideoAd` 适配接口；**该接口是否存在需工程确认，存在前 AD_PLACEMENTS 只做占位** `[待工程对齐]`。
+- **激励视频**：~~假设 `platform/weapp` 暴露 `createRewardedVideoAd` 适配接口~~ → **工程确认（WXG-T-010，2026-09-11）：该接口不存在**（Platform 接口仅 storage/audio/screen/lifecycle，全仓 grep 零命中）。MVP 维持 `AD_PLACEMENTS` 角标占位不拉起；适配层接口形状已预埋于 `ADR-0006`（RewardedAdProvider，工作量级 S），实施待拉起逻辑拍板。
 - **音频**：`core/audio` 提供 bgm/sfx 开关，供 S9 设置直连。
 
 ## 6. 变更记录
