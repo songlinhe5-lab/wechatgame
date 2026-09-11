@@ -6,6 +6,7 @@ description: 做游戏项目技术架构决策与架构文档时使用。当用�
 # wxgame 架构决策法（ADR 三件套）
 
 本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 `my-skills/INDEX.md`）；实例见文末「实例参照」。
+跨域或全流程请求先交 `wxgame-orchestration`；本 skill 只处理单域交付物。
 
 ## 1. ADR 模板（`docs/architecture/adr/ADR-<编号>-<主题>.md`）
 

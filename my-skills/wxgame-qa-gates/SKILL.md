@@ -5,7 +5,8 @@ description: 产出游戏 QA 五件套文档（测试计划/硬判据用例/冒�
 
 # wxgame QA 门禁法（风险驱动五件套）
 
-提炼自 Breakout demo 的 QA 流程（实例见 `production/qa/`），适用于本仓库任何游戏。
+本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 `my-skills/INDEX.md`）；实例见 `production/qa/`。
+跨域或全流程请求先交 `wxgame-orchestration`；本 skill 只产 QA 文档与判据，不裁定阶段 PASS/CONCERNS/FAIL。
 核心原则：**判据不发明，全部从 `games/<game>/design/gdd/*.md` §8 验收标准导出**；
 环境决定范围——先声明本轮哪些测试可执行、哪些被环境阻塞。
 

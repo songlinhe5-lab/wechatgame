@@ -6,6 +6,7 @@ description: 写本仓库八节体系 GDD 时使用。当用户要求一页纸�
 # wxgame GDD 编写法（工作室验证过的四件套流程）
 
 本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 `my-skills/INDEX.md`）；实例见文末「实例参照」。
+跨域或全流程请求先交 `wxgame-orchestration`；本 skill 只处理单域交付物。
 
 ## 总流程（顺序执行，前一步是后一步的输入）
 

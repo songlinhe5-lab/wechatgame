@@ -7,7 +7,7 @@
 
 | 层级 | skill | 职责 |
 |---|---|---|
-| 编排 | `wxgame-orchestration` | 九阶段（0–8）流水线、spawn 模板（含第 8 要素"必读 skill 路径"）、成员→skill 路由表、质量门判定 |
+| 编排 | `wxgame-orchestration` | 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路径）、成员→skill 路由表、PASS/CONCERNS/FAIL 与 G1–G4 挂钩 |
 | 域·策划 | `wxgame-gdd-writer` | 一页纸概念 → systems-index（冻结常量）→ 八节 GDD → 十查评审 |
 | 域·策划 | `wxgame-ux-spec` | Screen Flow、ASCII 线框、状态×输入矩阵、动效毫秒表、微信首 10 秒留存 |
 | 域·技术 | `wxgame-adr-arch` | ADR 五节、主架构、控制清单 |
@@ -18,7 +18,7 @@
 | 域·发布 | `wxgame-release-checklist` | 六阶段发布、微信上架、版本策略、回滚预案 |
 | 执行 | `indie-game-ost-pack` | 生成 8–15 首原创配乐（audio-spec 的执行层） |
 | 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层） |
-| 点名兜底 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；仅明确点名时使用，references 按需单文件读取，自动触发已由 description 降权禁用 |
+| 点名兜底 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；`disable-model-invocation: true`，仅明确点名时加载；references 按需单文件读取 |
 | 存档 | `game-dev-tool-free` | 市场 Boilerplate，不可用；未挂链接，留档备查 |
 
 > **共享层 `_beatra-runtime/`**（下划线开头、无 SKILL.md，不参与触发）：存放 ost / voice
@@ -32,6 +32,7 @@
   对应成员（prompt 必附该成员的 SKILL.md 路径）→ 质量门 → 汇编。
 - **不走全 SOP**（孤立小问题）：直调对应域 skill 或成员，无需阶段诊断；
   判断标准——问题是否横跨两个以上职责域，是则回全 SOP。
+  各域 skill 正文均含「跨域或全流程请求先交 `wxgame-orchestration`」。
 
 ## 3. Skill 优先级（冲突时高者胜）
 
@@ -52,6 +53,9 @@ wxgame-orchestration（流程与裁决）
 | 发布产物 | `production/release/` |
 | Epic/冲刺 | `production/epics/` · `production/sprints/` |
 | skill 正本 | `my-skills/<name>/`（四 IDE 目录均为相对符号链接） |
+| SubAgent 正本 | `my-agents/<name>.md`（四 IDE `.*/agents/` 相对符号链接；见 `my-agents/INDEX.md`） |
+| 项目常驻记忆 | 根目录 `AGENTS.md`（四 IDE alwaysApply 指针见该文件文首） |
+| 长期笔记 | `memory/MEMORY.md`（四 IDE 经 `.*/memory` 索引，见 `AGENTS.md`） |
 
 ## 5. 冲突裁决链
 

@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "gameId": "breakout",
+  "description": "打砖块前 5 关关卡数据。行序从上到下，每行长度必须等于 grid.cols。'.' 表示空位。",
+  "designResolution": {
+    "width": 750,
+    "height": 1334,
+    "fitMode": "FIXED_WIDTH"
+  },
+  "grid": {
+    "cols": 10,
+    "brickW": 62,
+    "brickH": 34,
+    "gapX": 6,
+    "gapY": 6,
+    "originX": 38,
+    "topY": 1200,
+    "rowPitch": 40
+  },
+  "brickTypes": {
+    "N": {
+      "code": "N",
+      "name": "普通砖",
+      "hp": 1,
+      "score": 100,
+      "indestructible": false
+    },
+    "T": {
+      "code": "T",
+      "name": "硬砖",
+      "hp": 2,
+      "score": 250,
+      "indestructible": false,
+      "damagedVisual": true
+    },
+    "S": {
+      "code": "S",
+      "name": "钢砖",
+      "hp": null,
+      "score": 0,
+      "indestructible": true
+    },
+    "B": {
+      "code": "B",
+      "name": "炸弹砖",
+      "hp": 1,
+      "score": 150,
+      "indestructible": false,
+      "explode": {
+        "radius": 68,
+        "damage": 1,
+        "maxChain": 8
+      }
+    },
+    "G": {
+      "code": "G",
+      "name": "金砖",
+      "hp": 1,
+      "score": 500,
+      "indestructible": false,
+      "dropRateMultiplier": 3
+    }
+  },
+  "powerupPool": {
+    "expand": {
+      "id": "expand",
+      "name": "加宽挡板",
+      "weight": 30,
+      "durationMs": 15000,
+      "params": { "paddleWidthMultiplier": 1.4 }
+    },
+    "multi": {
+      "id": "multi",
+      "name": "三球",
+      "weight": 25,
+      "durationMs": 0,
+      "params": { "splitCount": 3, "splitAngleDeg": 25, "maxBalls": 9 }
+    },
+    "life": {
+      "id": "life",
+      "name": "加命",
+      "weight": 8,
+      "durationMs": 0,
+      "params": { "maxLives": 5, "overflowScore": 500 }
+    },
+    "slow": {
+      "id": "slow",
+      "name": "减速球",
+      "weight": 20,
+      "durationMs": 10000,
+      "params": { "speedMultiplier": 0.75, "minSpeed": 240 }
+    },
+    "sticky": {
+      "id": "sticky",
+      "name": "磁吸挡板",
+      "weight": 10,
+      "durationMs": 12000,
+      "params": {}
+    },
+    "laser": {
+      "id": "laser",
+      "name": "激光挡板",
+      "weight": 7,
+      "durationMs": 10000,
+      "params": { "cooldownMs": 500 }
+    }
+  },
+  "levels": [
+    {
+      "id": 1,
+      "name": "热身",
+      "ballSpeed": 480,
+      "paddleWidth": 140,
+      "powerupDropRate": 0.1,
+      "livesOnEnter": 3,
+      "clearCondition": "all-destructible",
+      "powerupPool": ["expand", "multi", "life"],
+      "hint": "拖动屏幕移动挡板",
+      "rows": [
+        "NNNNNNNNNN",
+        "NNNNNNNNNN",
+        "NNNNNNNNNN"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "硬骨头",
+      "ballSpeed": 500,
+      "paddleWidth": 140,
+      "powerupDropRate": 0.14,
+      "clearCondition": "all-destructible",
+      "powerupPool": ["expand", "multi", "life"],
+      "rows": [
+        "TTTTTTTTTT",
+        "NNNNNNNNNN",
+        "NNNNNNNNNN",
+        "NNNNNNNNNN"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "钢之回廊",
+      "ballSpeed": 520,
+      "paddleWidth": 140,
+      "powerupDropRate": 0.12,
+      "clearCondition": "all-destructible",
+      "powerupPool": ["expand", "multi", "life", "slow"],
+      "rows": [
+        "SSNNNNNNSS",
+        "NNTTNNTTNN",
+        "NNNNNNNNNN",
+        ".NNNNNNNN.",
+        "..NNNNNN.."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "连锁爆破",
+      "ballSpeed": 540,
+      "paddleWidth": 140,
+      "powerupDropRate": 0.14,
+      "clearCondition": "all-destructible",
+      "powerupPool": ["expand", "multi", "life", "slow"],
+      "rows": [
+        "TTTTTTTTTT",
+        "TTNNNNNNTT",
+        "NBBNNNNBBN",
+        "NNTNNNNTNN"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "霓虹终章",
+      "ballSpeed": 560,
+      "paddleWidth": 140,
+      "powerupDropRate": 0.12,
+      "clearCondition": "all-destructible",
+      "powerupPool": ["expand", "multi", "life", "slow", "sticky"],
+      "rows": [
+        "SSTTTTTTSS",
+        "TTNNGGNNTT",
+        "NBBNNNNBBN",
+        "NNTNNTNNTT",
+        ".NNNNNNNN."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Breakout · 浏览器验证器 (dev harness)</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0c0b1e;
+        --surface: #171a33;
+        --border: #2c3355;
+        --text: #ffffff;
+        --dim: #a6aec8;
+        --accent: #38e1ff;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        overflow: hidden;
+        overscroll-behavior: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      #stage {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        touch-action: none;
+      }
+      .panel {
+        position: fixed;
+        background: color-mix(in srgb, var(--surface) 88%, transparent);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        backdrop-filter: blur(6px);
+      }
+      #hud {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: var(--dim);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #hud strong { color: var(--accent); }
+      #controls {
+        top: 56px;
+        left: 10px;
+        padding: 8px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        max-width: 260px;
+      }
+      button {
+        font: inherit;
+        color: var(--text);
+        background: #1e2544;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+      button:hover { border-color: var(--accent); color: var(--accent); }
+      button:active { transform: translateY(1px); }
+      #help {
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: var(--dim);
+      }
+      #help b { color: var(--text); }
+      #fatal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        padding: 24px;
+        background: #2a0d12;
+        color: #ffd7d9;
+        font-size: 13px;
+        white-space: pre-wrap;
+        overflow: auto;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+
+    <div id="hud" class="panel">booting…</div>
+
+    <div id="controls" class="panel">
+      <button data-level="1">L1</button>
+      <button data-level="2">L2</button>
+      <button data-level="3">L3</button>
+      <button data-level="4">L4</button>
+      <button data-level="5">L5</button>
+      <button id="restart">重新开始</button>
+    </div>
+
+    <div id="help" class="panel">
+      <b>← →</b> 或拖拽移动挡板　·　<b>空格</b> 发球 / 重试 / 继续　·　<b>1–5</b> 跳关
+    </div>
+
+    <pre id="fatal"></pre>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@wxgame/framework": "./dist/packages/framework/src/index.js",
+          "@wxgame/framework/": "./dist/packages/framework/src/"
+        }
+      }
+    </script>
+    <script type="module">
+      // Surface boot failures on screen: a silent console error in a canvas app
+      // looks identical to "the game froze".
+      window.addEventListener('error', (event) => {
+        const fatal = document.getElementById('fatal');
+        if (!fatal) return;
+        fatal.style.display = 'block';
+        fatal.textContent = `harness boot failed:\n\n${event.message}\n\n${event.error?.stack ?? ''}`;
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        const fatal = document.getElementById('fatal');
+        if (!fatal) return;
+        fatal.style.display = 'block';
+        fatal.textContent = `harness boot failed (unhandled rejection):\n\n${String(event.reason)}`;
+      });
+    </script>
+    <script type="module" src="./dist/dev/harness/main.js"></script>
+  </body>
+</html>

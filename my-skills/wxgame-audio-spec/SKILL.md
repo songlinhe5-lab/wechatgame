@@ -5,6 +5,9 @@ description: 设计游戏音频规格（事件表/混音/实现策略）时使�
 
 # wxgame 音频规格法（五件套 · 框架版）
 
+本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 `my-skills/INDEX.md`）。
+跨域或全流程请求先交 `wxgame-orchestration`；本 skill 只处理音频规格骨架。
+
 > **本 skill 是框架骨架**：源自专家团音频域职责结构 + Breakout UX 动效表的音效列，
 > 项目专属数值（曲目、响度、格式预算）均标 `[TODO]`，首款游戏实做音频时由
 > 音频负责人填充并回写本 skill。执行层工具：配乐用 `indie-game-ost-pack`，

@@ -1,0 +1,27 @@
+{
+  "name": "@wxgame/framework",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Engine-agnostic game framework core + Cocos/Canvas2D adapters + platform layer for the WeChat mini-game studio.",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.ts",
+    "./core": "./src/core/index.ts",
+    "./adapters/canvas2d": "./src/adapters/canvas2d/index.ts",
+    "./adapters/cocos": "./src/adapters/cocos/index.ts",
+    "./platform": "./src/platform/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

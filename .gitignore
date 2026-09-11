@@ -1,0 +1,47 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 构建产物
+build/
+dist/
+out/
+*.tsbuildinfo
+
+# 浏览器验证器的临时副本
+dev/harness/.smoke/
+
+# 测试与覆盖率
+coverage/
+
+# Cocos Creator 本地生成物（assets/ 与 settings/ 必须提交，含 .meta）
+games/*/cocos/library/
+games/*/cocos/temp/
+games/*/cocos/local/
+games/*/cocos/profiles/
+games/*/cocos/native/
+games/*/cocos/build/
+games/*/cocos/.creator/
+
+# 微信小游戏产物
+games/*/build/wechatgame/
+mini-game-build/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# 日志
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# 环境变量
+.env
+.env.local

@@ -1,6 +1,6 @@
 ---
 name: indie-game-ost-pack
-description: 为独立游戏一次做出8到15首原创游戏配乐。这个游戏原声带和游戏BGM工具会按标题、探索、战斗、商店和胜利写出可循环的游戏音乐，音乐归你所有、可直接商用，交付带标签的原声带，进引擎前先试听。适用于独立游戏配乐、游戏背景音乐、战斗音乐、探索音乐、商店音乐和原创游戏原声带。 属 wxgame-audio-spec 的执行层——生成配乐前先查其音频事件表（SFX/BGM 事件 ID）；音频规格与混音设计不走本 skill。
+description: 当用户要生成游戏配乐/BGM 音频文件时使用：一次做出 8 到 15 首可循环原创器乐（标题/探索/战斗/商店/胜利等槽位），交付带标签原声带。属 wxgame-audio-spec 的执行层——生成前先查其音频事件表（SFX/BGM 事件 ID）；音频规格与混音设计不走本 skill。
 ---
 
 > **本仓运行纪律（家族约定，见 `my-skills/INDEX.md`）**
@@ -13,11 +13,11 @@ description: 为独立游戏一次做出8到15首原创游戏配乐。这个游�
 
 把游戏简报做成带标签的原创原声带。常规交付是 8 到 15 首器乐底乐，不是一首歌。
 
-## 适用范围与相邻路线
+## 适用范围与边界
 
 独立游戏、小游戏或互动作品需要一套可复用、便于循环、工作室可商用的原创器乐时，使用本 Skill。
 
-给某一条成片写一条器乐转到 `short-video-bgm-studio`。直播间或门店歌单转到 `livestream-bgm-pack`。品牌广告歌或声音Logo转到 `brand-jingle-studio`。短剧单集配乐转到 `short-drama-score-pack`。带歌词的歌曲转到 `beatra-ai-music-creator`。游戏台词转到 `game-script-voice-pack`。
+**本仓未安装的相邻 Beatra 包一律不路由**（成片单曲、直播歌单、品牌 jingle、短剧配乐、带词歌曲、剧情对白等）。用户提出这类需求时：停止并如实告知「本仓未安装对应包、不可伪调用」；不要发明回退路径或 REST 调用。UI 口播走本仓已安装的 `game-ui-voice-pack`；音频规格设计走 `wxgame-audio-spec`。
 
 ## 输入与默认值
 

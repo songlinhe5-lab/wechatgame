@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/before-shell.mjs",
+        "failClosed": true,
+        "timeout": 45
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "node .cursor/hooks/pre-tool-use.mjs",
+        "matcher": "Write|Delete|StrReplace",
+        "failClosed": true,
+        "timeout": 10
+      }
+    ]
+  }
+}

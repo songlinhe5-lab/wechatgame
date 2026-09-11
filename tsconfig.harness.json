@@ -1,0 +1,30 @@
+{
+  "//": "Emit-only config for the browser dev harness. The repo's normal tsconfigs are noEmit; this one produces runnable ES modules under dev/harness/dist so `node tools/scripts/serve-harness.mjs` can serve them without any bundler.",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": false,
+    "sourceMap": true,
+    "outDir": "dev/harness/dist",
+    "rootDir": ".",
+    "types": [],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
+    "paths": {
+      "@wxgame/framework": ["packages/framework/src/index.ts"],
+      "@wxgame/framework/*": ["packages/framework/src/*"]
+    }
+  },
+  "include": [
+    "packages/framework/src/**/*.ts",
+    "games/breakout/src/**/*.ts",
+    "games/breakout/types/**/*.d.ts",
+    "dev/harness/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dev/harness/dist",
+    "packages/framework/src/adapters/cocos/bindings.ts"
+  ]
+}

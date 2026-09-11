@@ -1,0 +1,30 @@
+{
+  "name": "wechatgame-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "微信小游戏矩阵：共用游戏框架 + 每款游戏独立目录（策划 / 程序 / 美术 / 构建）",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "scripts": {
+    "prepare": "node tools/scripts/install-githooks.mjs",
+    "test": "pnpm -r run test",
+    "typecheck": "pnpm -r run typecheck",
+    "check:arch": "node tools/scripts/check-architecture.mjs",
+    "check:links": "node tools/scripts/check-ide-links.mjs",
+    "levels:sync": "node tools/scripts/sync-levels-data.mjs",
+    "levels:check": "node tools/scripts/sync-levels-data.mjs --check",
+    "harness": "node tools/scripts/serve-harness.mjs",
+    "harness:build": "node tools/scripts/serve-harness.mjs --build-only",
+    "harness:smoke": "node tools/scripts/smoke-harness.mjs",
+    "preview:frames": "node tools/scripts/render-harness-frame.mjs",
+    "preview:clip": "node tools/scripts/render-harness-clip.mjs",
+    "verify": "pnpm run check:arch && pnpm run check:links && pnpm run levels:check && pnpm run typecheck && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

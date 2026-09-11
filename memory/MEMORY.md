@@ -1,0 +1,42 @@
+# wechatgame 项目长期笔记
+
+> **正本路径**：仓库根 `memory/MEMORY.md`。  
+> 四 IDE 索引：`.workbuddy/memory` · `.codebuddy/memory` · `.qoder/memory` 为目录符号链接；Cursor 为 `.cursor/memory/MEMORY.md` 入口指针（请读本文件）。  
+> **分层**：常驻铁律与默认流程 → 根目录 `AGENTS.md`；本文件放**会随项目演进更新**的运行时约定、脚本备忘与已知限制。
+
+## 项目约定
+- 仓库是 pnpm monorepo：`packages/framework`（共用框架）+ `games/breakout`（首款示例游戏）。
+- Game 相关 Agent Skills 的**正本在项目根 `my-skills/`**：`.workbuddy/skills/`、`.codebuddy/skills/`、`.cursor/skills/`、`.qoder/skills/` 四处均为相对符号链接 `../../my-skills/<name>`，随仓库提交（用户明确要求不放全局目录）。新增 skill 时：正本放 `my-skills/<name>/`，四处各建链接。Qoder 官方支持标准 SKILL.md（.qoder/skills/，name 限小写字母数字连字符 ≤64 字符）。
+- **项目长期笔记正本在 `memory/`**：同上四 IDE 索引；日记可放 `memory/YYYY-MM-DD.md`。
+- git 仓库 2026-09-11 才初始化；首个提交 `8263e58` 只含 skill 路径，项目代码基线尚未提交。
+- 框架核心 `packages/framework/src/core` 禁止依赖 DOM / `cc` / `wx`，保证能在 Node 里单元测试。
+- Cocos 绑定 `packages/framework/src/adapters/cocos/bindings.ts` 不进入框架 barrel，不能由浏览器 harness 直接编译。
+- 浏览器验证器：`dev/harness` 通过 `tsconfig.harness.json` 单独编译为 ESM，用 `<script type="importmap">` 解析 `@wxgame/framework`。
+- 运行入口：`pnpm harness` 或 `node tools/scripts/serve-harness.mjs`。
+- 关卡数据以 JSON 为准（`design/levels/levels-01-05.json`），生成到 `games/breakout/src/config/levels-data.ts`，由 `tools/scripts/sync-levels-data.mjs` 同步。
+- 全量验证命令：`pnpm run verify`（架构守卫 + 关卡同步 + 类型检查 + 测试 + harness 编译 + 运行时冒烟）。
+
+## 常用脚本
+- `pnpm run harness` — 启动浏览器验证器。
+- `pnpm run harness:build` / `pnpm run harness:smoke` — 编译产物 / 运行时冒烟。
+- `pnpm run preview:frames` — 生成 5 个关卡的 SVG 预览。
+- `pnpm run preview:clip --level 1 --seconds 8` — 生成该关卡的 MP4 实录（需要 ffmpeg + 隔离空间里的 @resvg/resvg-js）。
+- `pnpm run check:links` — 四 IDE 符号链接/指针完整性；`.githooks/pre-commit` 在每次 `git commit` 强制执行。
+- `pnpm run verify` — 完整门禁（含 check:links）。
+- `node tools/scripts/install-githooks.mjs`（或 `pnpm install` 的 prepare）— 设置 `core.hooksPath=.githooks`。
+
+## Hooks
+- 实践正本：`docs/agent/hooks-best-practices.md`
+- 跨 IDE 拦提交：`.githooks/pre-commit` → `check:links`；Cursor 另见 `.cursor/hooks.json`（Agent 侧禁 `--no-verify` / L1）。
+
+## Headless / CI
+- 正本：`docs/agent/headless-ci-pr-review.md`
+- Workflows：`.github/workflows/ci.yml`（`verify`）· `pr-review.yml`（`agent -p` → PR 评论；**必过门禁**）
+- 门禁：`VERDICT: FAIL` / 无合法 VERDICT / 缺 `CURSOR_API_KEY` → job 失败；`PASS`/`CONCERNS` 通过
+- 分支保护须勾选 required：`CI / verify`、`PR Review (Headless) / review`
+- 本地预审：`./tools/scripts/ci-pr-review.sh origin/main`（需 `CURSOR_API_KEY`）
+- Secret：`CURSOR_API_KEY`；可选 Variable：`CURSOR_REVIEW_MODEL`
+
+## 已知限制
+- 需要安装 `@resvg/resvg-js` 到 WorkBuddy 托管 Node workspace：`cd ~/.workbuddy/binaries/node/workspace && npm install @resvg/resvg-js`。
+- 小游戏真机构建 `build:wx` 尚未接入 Cocos Creator CLI，目前由浏览器 harness 覆盖游戏逻辑与渲染验证。

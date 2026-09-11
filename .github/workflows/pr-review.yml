@@ -1,0 +1,83 @@
+# Headless PR 审查（受限自治）+ 必过门禁
+# VERDICT: FAIL / 无合法 VERDICT / 缺 CURSOR_API_KEY → job 失败（可在分支保护设为 required）
+# 文档：docs/agent/headless-ci-pr-review.md
+name: PR Review (Headless)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require CURSOR_API_KEY
+        id: key
+        run: |
+          if [ -z "${{ secrets.CURSOR_API_KEY }}" ]; then
+            echo "::error::CURSOR_API_KEY secret is required (headless review is a merge gate)."
+            exit 1
+          fi
+          echo "present=true" >> "$GITHUB_OUTPUT"
+
+      - name: Install Cursor CLI
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Headless review
+        id: review
+        continue-on-error: true
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          CURSOR_REVIEW_MODEL: ${{ vars.CURSOR_REVIEW_MODEL }}
+          BASE: origin/${{ github.base_ref }}
+        run: |
+          chmod +x tools/scripts/ci-pr-review.sh
+          git fetch origin "${{ github.base_ref }}" --depth=1 || true
+          ./tools/scripts/ci-pr-review.sh "origin/${{ github.base_ref }}"
+
+      - name: Comment on PR
+        if: always() && hashFiles('review.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          STATUS="${{ steps.review.outcome }}"
+          {
+            echo "## Cursor Headless review"
+            echo
+            if [ "$STATUS" = "success" ]; then
+              echo "**Gate:** passed (PASS or CONCERNS)"
+            else
+              echo "**Gate:** **FAILED** (VERDICT: FAIL or missing verdict) — merge blocked until fixed"
+            fi
+            echo
+            echo "_Required check · restricted autonomy · \`docs/agent/headless-ci-pr-review.md\`_"
+            echo
+            cat review.md
+          } > /tmp/pr-review-body.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/pr-review-body.md
+
+      - name: Enforce review gate
+        if: always()
+        run: |
+          if [ "${{ steps.review.outcome }}" != "success" ]; then
+            echo "::error::Headless review gate failed (see review.md / PR comment)."
+            exit 1
+          fi
+          echo "Headless review gate OK"

@@ -6,6 +6,7 @@ description: 做游戏 Epic/Story 拆分与冲刺规划时使用。当用户要�
 # wxgame Epic/Story 拆分法（拓扑序 + 引用式验收）
 
 本 skill 属 wxgame 家族（见 `my-skills/INDEX.md`）；实例：`production/epics/epics-breakout.md`（10 Epic / 40 Story）。
+跨域或全流程请求先交 `wxgame-orchestration`；本 skill 只处理单域交付物。
 核心纪律：**Epic 顺序由依赖决定，验收标准由设计决定，拆分者不发明任何判据。**
 
 ## 1. 前置输入（缺一不拆）
