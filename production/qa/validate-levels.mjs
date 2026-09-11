@@ -1,23 +1,23 @@
 /**
- * 关卡数据静态校验器 — WXG-T-004
+ * 关卡数据静态校验器（文件级 / 跨关 / 玩法约束）— WXG-T-004 / WXG-T-011
  *
- * 纯静态：只读取 design/levels/levels-01-05.json，不 import 任何工程代码。
- * 口径（对齐 levels-spec.md §3/§4/§5 与 systems-index §3）：
- *   - 关卡数 5，id 连续 1..5
- *   - 每行长度严格 == grid.cols (10)
- *   - 字符集 ⊆ { '.', 'N', 'T', 'S', 'B', 'G' }（'.' = 空位，非砖）
- *   - 可破坏 HP == [30, 50, 44, 56, 58]（S=0，不参与；'.' 不生成砖）
- *   - ballSpeed == [480, 500, 520, 540, 560] 且 <= BALL_SPEED_MAX(720)
- *   - paddleWidth 全 == 140
- *   - 钢砖 S 占比 <= 20%
- *   - 每关至少 1 行"完整可破坏砖"（整行无 '.' 且无 'S'）
- *   - 可破坏砖不被钢砖完全封闭（连通性：从砖阵外缘可经非钢砖格 8 邻域到达）
+ * ⚠️ 校验分工（唯一权威裁定，见 levels-spec.md §5.1）：
+ *   - **per-level 结构校验（唯一权威）** → `games/breakout/design/levels/levels.schema.ts::validateLevel()`
+ *     （字符集 ⊆ LEVEL_CHARSET、每行长度 === grid.cols、行数 ≤ BRICK_MAX_ROWS、rows 非空）
+ *     本文件**不复制**这些规则，直接消费 `validateLevel()` 与 `LEVEL_CHARSET` 常量。
+ *   - **文件级 / 跨关 / 玩法约束（本文件独有）**：
+ *     关卡数、id 连续、可破坏 HP 序列、ballSpeed 序列单调、paddleWidth、S 占比 ≤20%、
+ *     ≥1 行完整可破坏砖、可破坏砖未被钢砖封闭（BFS）。
  *
- * 用法：node production/qa/validate-levels.mjs
+ * TS 互操作：Node ≥22.18 默认启用 type-stripping，直接 `import ... from '*.ts'`。
+ * 若运行环境较旧，加 `node --experimental-strip-types`。
+ *
+ * 用法：node production/qa/validate-levels.mjs   （退出码 0 = 全通过）
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { validateLevel, LEVEL_CHARSET, BRICK_MAX_ROWS } from '../../games/breakout/design/levels/levels.schema.ts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const JSON_PATH = resolve(HERE, '../../games/breakout/design/levels/levels-01-05.json');
@@ -34,8 +34,8 @@ function check(name, ok, detail = '') {
 
 const data = JSON.parse(readFileSync(JSON_PATH, 'utf8'));
 const cols = data.grid.cols;
-const ALLOWED = new Set(['.', 'N', 'T', 'S', 'B', 'G']);
-const DESTRUCTIBLE = new Set(['N', 'T', 'B', 'G']); // S 不可破坏
+// 仅用于玩法分类（是否可破坏），不用于字符集校验——字符集唯一权威是 validateLevel()
+const DESTRUCTIBLE = new Set(['N', 'T', 'B', 'G']);
 const hpOf = (code) => {
   const def = data.brickTypes[code];
   return def && !def.indestructible && typeof def.hp === 'number' ? def.hp : 0;
@@ -45,35 +45,37 @@ const EXPECTED_HP = [30, 50, 44, 56, 58];
 const EXPECTED_SPEED = [480, 500, 520, 540, 560];
 const EXPECTED_PADDLE = 140;
 
-// ── 结构 ──────────────────────────────────────────────────────────
+// ── 文件级 ────────────────────────────────────────────────────────
 check('关卡数为 5', data.levels.length === 5, `actual=${data.levels.length}`);
 check(
   'id 连续 1..5',
   data.levels.every((lv, i) => lv.id === i + 1),
   data.levels.map((lv) => lv.id).join(','),
 );
+check(
+  `LEVEL_CHARSET 常量已消费（权威来源 levels.schema.ts）`,
+  LEVEL_CHARSET === '.NTSBG',
+  `LEVEL_CHARSET='${LEVEL_CHARSET}'`,
+);
 
 const perLevel = [];
 for (const lv of data.levels) {
   const idx = lv.id - 1;
-  const rows = lv.rows;
-  const errs = [];
 
-  // 行长度
-  const badLen = rows.map((r, i) => (r.length !== cols ? `row${i}=${r.length}` : null)).filter(Boolean);
-  check(`L${lv.id} 每行长度 == ${cols}`, badLen.length === 0, badLen.join(' '));
+  // ★ per-level 结构校验：复用唯一权威 validateLevel()（字符集/行长/行数上限/rows非空）
+  const structErrors = validateLevel(lv, data.grid);
+  check(
+    `L${lv.id} 结构校验（validateLevel 权威）`,
+    structErrors.length === 0,
+    structErrors.join(' / ') || `行长=${cols} 行数=${lv.rows.length}≤${BRICK_MAX_ROWS}`,
+  );
 
-  // 字符集
-  const badChars = new Set();
-  for (const r of rows) for (const ch of r) if (!ALLOWED.has(ch)) badChars.add(ch);
-  check(`L${lv.id} 字符集 ⊆ .NTSBG`, badChars.size === 0, `非法字符: ${[...badChars].join(',') || '无'}`);
-
-  // 逐格统计
+  // ── 玩法约束（本文件独有）──
   let destructibleHp = 0;
   let bricks = 0;
   let steel = 0;
   const counts = { N: 0, T: 0, S: 0, B: 0, G: 0, '.': 0 };
-  for (const r of rows) {
+  for (const r of lv.rows) {
     for (const ch of r) {
       counts[ch] = (counts[ch] ?? 0) + 1;
       if (ch === '.') continue;
@@ -83,49 +85,25 @@ for (const lv of data.levels) {
     }
   }
 
-  check(
-    `L${lv.id} 可破坏 HP == ${EXPECTED_HP[idx]}`,
-    destructibleHp === EXPECTED_HP[idx],
-    `actual=${destructibleHp}`,
-  );
-  check(
-    `L${lv.id} ballSpeed == ${EXPECTED_SPEED[idx]}`,
-    lv.ballSpeed === EXPECTED_SPEED[idx],
-    `actual=${lv.ballSpeed}`,
-  );
-  check(
-    `L${lv.id} ballSpeed <= 720`,
-    lv.ballSpeed <= 720,
-    `actual=${lv.ballSpeed}`,
-  );
-  check(
-    `L${lv.id} paddleWidth == ${EXPECTED_PADDLE}`,
-    lv.paddleWidth === EXPECTED_PADDLE,
-    `actual=${lv.paddleWidth}`,
-  );
-  check(`L${lv.id} 行数 <= 6`, rows.length <= 6, `rows=${rows.length}`);
+  check(`L${lv.id} 可破坏 HP == ${EXPECTED_HP[idx]}`, destructibleHp === EXPECTED_HP[idx], `actual=${destructibleHp}`);
+  check(`L${lv.id} ballSpeed == ${EXPECTED_SPEED[idx]}`, lv.ballSpeed === EXPECTED_SPEED[idx], `actual=${lv.ballSpeed}`);
+  check(`L${lv.id} ballSpeed <= BALL_SPEED_MAX(720)`, lv.ballSpeed <= 720, `actual=${lv.ballSpeed}`);
+  check(`L${lv.id} paddleWidth == ${EXPECTED_PADDLE}`, lv.paddleWidth === EXPECTED_PADDLE, `actual=${lv.paddleWidth}`);
 
   const steelRatio = bricks === 0 ? 0 : steel / bricks;
-  check(
-    `L${lv.id} 钢砖占比 <= 20%`,
-    steelRatio <= 0.2 + 1e-9,
-    `${steel}/${bricks} = ${(steelRatio * 100).toFixed(1)}%`,
-  );
+  check(`L${lv.id} 钢砖占比 <= 20%`, steelRatio <= 0.2 + 1e-9, `${steel}/${bricks} = ${(steelRatio * 100).toFixed(1)}%`);
 
-  // 至少 1 行完整可破坏砖（整行无 '.' 且无 'S'）
-  const fullRow = rows.some((r) => [...r].every((ch) => DESTRUCTIBLE.has(ch)));
+  const fullRow = lv.rows.some((r) => [...r].every((ch) => DESTRUCTIBLE.has(ch)));
   check(`L${lv.id} 至少 1 行完整可破坏砖`, fullRow);
 
-  // 连通性：可破坏砖不被钢砖完全封闭
-  // passable = 非钢砖格；从砖阵外缘（四周）8 邻域 BFS
-  const R = rows.length;
-  const open = (r, c) => r >= 0 && r < R && c >= 0 && c < cols && rows[r][c] !== 'S';
+  // 连通性：可破坏砖不被钢砖完全封闭（外缘 8 邻域 BFS；passable = 非钢砖）
+  const R = lv.rows.length;
+  const open = (r, c) => r >= 0 && r < R && c >= 0 && c < cols && lv.rows[r][c] !== 'S';
   const seen = Array.from({ length: R }, () => Array(cols).fill(false));
   const queue = [];
   for (let r = 0; r < R; r++)
     for (let c = 0; c < cols; c++) {
-      const border = r === 0 || r === R - 1 || c === 0 || c === cols - 1;
-      if (border && open(r, c)) {
+      if ((r === 0 || r === R - 1 || c === 0 || c === cols - 1) && open(r, c)) {
         seen[r][c] = true;
         queue.push([r, c]);
       }
@@ -145,28 +123,26 @@ for (const lv of data.levels) {
   const enclosed = [];
   for (let r = 0; r < R; r++)
     for (let c = 0; c < cols; c++)
-      if (DESTRUCTIBLE.has(rows[r][c]) && !seen[r][c]) enclosed.push(`(${r},${c})`);
+      if (DESTRUCTIBLE.has(lv.rows[r][c]) && !seen[r][c]) enclosed.push(`(${r},${c})`);
   check(`L${lv.id} 可破坏砖未被钢砖封闭`, enclosed.length === 0, enclosed.join(' '));
 
   perLevel.push({
-    id: lv.id,
-    name: lv.name,
-    rows: rows.length,
-    bricks,
-    destructibleHp,
-    steel,
-    tCount: counts.T,
-    tRatio: bricks ? +(counts.T / bricks).toFixed(3) : 0,
-    speed: lv.ballSpeed,
-    paddle: lv.paddleWidth,
-    dropRate: lv.powerupDropRate,
-    counts,
-    errs,
+    id: lv.id, name: lv.name, rows: lv.rows.length, bricks,
+    destructibleHp, steel, tCount: counts.T, tRatio: bricks ? +(counts.T / bricks).toFixed(3) : 0,
+    speed: lv.ballSpeed, paddle: lv.paddleWidth, dropRate: lv.powerupDropRate,
   });
 }
 
+// ballSpeed 单调递增（跨关）
+const speeds = data.levels.map((lv) => lv.ballSpeed);
+check(
+  'ballSpeed 全局单调递增',
+  speeds.every((s, i) => i === 0 || s > speeds[i - 1]),
+  speeds.join('→'),
+);
+
 // ── 输出 ──────────────────────────────────────────────────────────
-console.log('关卡数据静态校验 — levels-01-05.json');
+console.log('关卡数据静态校验 — levels-01-05.json（结构=validateLevel 权威 / 玩法=本文件）');
 console.log('='.repeat(72));
 for (const r of results) console.log(`${r.ok ? PASS : FAIL}  ${r.name}${r.detail ? `  [${r.detail}]` : ''}`);
 console.log('='.repeat(72));

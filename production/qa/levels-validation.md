@@ -7,7 +7,15 @@
 
 ## 结论
 
-> **52 项检查全部通过（52/52，失败 0）。** 关卡数据符合 `levels-spec.md §3/§4/§5` 与 `systems-index §3` 的口径。**可判定为数据侧 PASS。**
+> **改造后（WXG-T-011 附加执行项）44/44 项全部通过，退出码 0，五关全过。** 数据侧 PASS。
+
+### v2 改造记录（对齐 levels-spec §5.1 校验分工裁定）
+
+- **per-level 结构校验（字符集 / 行长 / 行数上限 / rows 非空）改为复用唯一权威 `levels.schema.ts::validateLevel()`**，本文件不再自维护字符集与行长规则（原 52 项中每关 3 项结构检查收敛为 1 项委托检查）。
+- 显式消费 `LEVEL_CHARSET` 常量（校验 `'.'+NTSBG`），并新增 2 项跨关检查：LEVEL_CHARSET 消费一致性、ballSpeed 全局单调递增。
+- **负向验证**：向 `validateLevel()` 注入非法字符 / 错误行长，确认报错格式含 `level.id + row + col + 违规字符`（非静默通过）。
+- 保留本文件独有玩法约束：关卡数、id 连续、可破坏 HP 序列、ballSpeed 序列、paddleWidth、S 占比 ≤20%、≥1 行完整可破坏砖、钢砖封闭 BFS。
+- 复现：`node production/qa/validate-levels.mjs`（Node ≥22.18 默认支持 TS type-stripping 直接 import `.ts`；更旧环境加 `--experimental-strip-types`）。
 
 ### ⚠️ 更正声明（QA 自我纠错）
 
