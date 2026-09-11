@@ -3,7 +3,7 @@
 > 本文件是 `my-skills/` 全家族的统一约定（人读 + 编排者读）。
 > 各 IDE 只扫描含 `SKILL.md` 的子目录，本文件不参与自动触发。
 
-## 1. 现役清单（11 个，四 IDE 链接生效）与存档（2 个，仅本目录留档）
+## 1. 清单（现役 12 个挂四 IDE 链接；存档 1 个仅本目录留档）
 
 | 层级 | skill | 职责 |
 |---|---|---|
@@ -18,8 +18,8 @@
 | 域·发布 | `wxgame-release-checklist` | 六阶段发布、微信上架、版本策略、回滚预案 |
 | 执行 | `indie-game-ost-pack` | 生成 8–15 首原创配乐（audio-spec 的执行层） |
 | 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层） |
-| 存档 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；与本仓方法论冲突，已下链接，点名查档；references 按需单文件读取 |
-| 存档 | `game-dev-tool-free` | 市场 Boilerplate，不可用；留档备查 |
+| 点名兜底 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；仅明确点名时使用，references 按需单文件读取，自动触发已由 description 降权禁用 |
+| 存档 | `game-dev-tool-free` | 市场 Boilerplate，不可用；未挂链接，留档备查 |
 
 > **共享层 `_beatra-runtime/`**（下划线开头、无 SKILL.md，不参与触发）：存放 ost / voice
 > 两包逐字一致的 7 份参考文档正本（安装/计费/任务/MCP 连接等）；两包 references 内对应
