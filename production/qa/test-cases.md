@@ -264,6 +264,8 @@
 
 ## C1 · 优先级 P0（承重墙，任一失败即拦截）
 
+> **回归结果（WXG-T-012，2026-09-12）**：13 条中 11 条 PASS（一次通过），TC-A11Y-01/02 因 `reduceMotion` 未实现不可测（缺陷 D-01）。逐条证据见 `g4-regression-report.md`；回归测试已固化为 `games/breakout/tests/g4-regression.test.ts`。**G4 维持 CONCERNS**。
+
 | 序 | 用例 | 验证什么 | 来源 |
 |---|---|---|---|
 | 1 | `TC-BOMB-01` | 炸弹边界 `d²=4624 ≤ 4624` **含边界**波及 | `bricks.md §2.6 B` |

@@ -196,7 +196,7 @@ S1 核心循环（状态机骨架）
 | 事件 | 载荷 | 发出者 → 订阅者 |
 |---|---|---|
 | `ball:hitPaddle` | `{ x: number }` | S3 → S5（重置连击）、S9（音效） |
-| `ball:hitBrick` | `{ brickId, hpAfter }` | S4 → S5（若非破碎则不计分） |
+| `ball:hitBrick` | `{ brickId, hpAfter }` | S4 → S5（若非破碎则不计分）。**实现口径（G4 回归裁定 2026-09-11）**：拆分为 `steel:hit`（钢砖）/ `brick:damaged`（扣血未碎）/ `brick:destroyed`（破碎）三事件，语义全覆盖本行——代码不改，文档按实现回写 |
 | `brick:destroyed` | `{ brickId, type, x, y }` | S4 → S5（计分）、S7（掉落）、S1（检查清关） |
 | `ball:lost` | `{ ballId }` | S3 → S6 |
 | `life:changed` | `{ lives }` | S6 → S1（HUD） |
