@@ -190,6 +190,18 @@ rowCenterY(i) = topY − brickH/2 − i*rowPitch        = 1183 − 40*i   // i =
 8. **钢砖总量 ≤ 20%**：过量的不可破坏砖会让节奏拖沓。
 9. **字符集限定 `.NTSBG`**：关卡 `rows` 只允许这 6 个字符（`.`=空位，`N/T/S/B/G`=砖型）。出现其他任何字符（含空格、小写字母、中文、数字）均视为**错误**，`validateLevel()` / 校验器应报错。
 
+### 5.1 校验分工（validateLevel vs QA validate-levels.mjs）
+
+> 裁定来源：主理人 2026-09-11「`validateLevel()` 为 per-level 结构校验唯一权威」。
+> `validate-levels.mjs` **不得硬编码第二份字符集/结构规则**，必须消费 `LEVEL_CHARSET` 并复用 `validateLevel()`。
+
+| 校验层 | 归属 | 内容 | 时机 |
+|---|---|---|---|
+| **per-level 结构校验（唯一权威）** | `levels.schema.ts::validateLevel()` | ① 字符集 ⊆ `LEVEL_CHARSET`（错误信息含 level.id + 行号 + 列号 + 违规字符）② 每行长度 === `grid.cols` ③ 行数 ≤ `BRICK_MAX_ROWS` ④ rows 非空 | BOOT / 开发期断言 |
+| **文件级 / 跨关校验** | QA `validate-levels.mjs` | 关卡数、id 连续、可破坏 HP 序列、ballSpeed 序列单调、S 占比 ≤20%、≥1 行可破坏砖、AABB 连通性（§5 约束 1/5/8 等玩法约束） | CI / 提交前 |
+
+> 分工原则：**结构（能解析、能落格）归 `validateLevel()`；玩法（能玩、难得住）归 `validate-levels.mjs`**。运行时合法性（如"可破坏砖清空即判清关"）归 S1/S3 类系统，不属静态校验。
+
 ## 6. 程序消费伪代码（供程基岩参考）
 
 ```ts

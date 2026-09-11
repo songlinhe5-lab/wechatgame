@@ -157,19 +157,25 @@ export const rowCenterY = (grid: GridDef, i: number): number =>
 /** 关卡 rows 允许的字符集：'.'=空位，其余为砖型 code */
 export const LEVEL_CHARSET = '.NTSBG';
 
-/** 校验单关布局合法性（开发期断言） */
+/** 关卡最大行数（来源：gdd/systems-index.md §3.3 BRICK_MAX_ROWS；超限将与 HUD 重叠） */
+export const BRICK_MAX_ROWS = 6;
+
+/** 校验单关布局合法性（开发期断言；错误信息定位到 level.id + 行号 + 列号 + 违规字符） */
 export function validateLevel(level: LevelDef, grid: GridDef): string[] {
   const errors: string[] = [];
   if (level.rows.length === 0) errors.push(`L${level.id}: rows 为空`);
+  if (level.rows.length > BRICK_MAX_ROWS) {
+    errors.push(`L${level.id}: 行数 ${level.rows.length} 超过上限 BRICK_MAX_ROWS=${BRICK_MAX_ROWS}`);
+  }
   level.rows.forEach((row, i) => {
     if (row.length !== grid.cols) {
       errors.push(`L${level.id} row${i}: 长度 ${row.length} !== cols ${grid.cols}`);
     }
-    for (const ch of row) {
+    [...row].forEach((ch, j) => {
       if (!LEVEL_CHARSET.includes(ch)) {
-        errors.push(`L${level.id} row${i}: 非法字符 '${ch}'（仅允许 ${LEVEL_CHARSET}）`);
+        errors.push(`L${level.id} row${i} col${j}: 非法字符 '${ch}'（仅允许 ${LEVEL_CHARSET}）`);
       }
-    }
+    });
   });
   return errors;
 }
