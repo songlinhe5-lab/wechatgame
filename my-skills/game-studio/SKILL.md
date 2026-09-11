@@ -1,6 +1,6 @@
 ---
 name: "game-studio"
-description: "游戏开发工作室 AI 助手 - 包含 49 个专业代理和 73 个工作技能。用于从头开始开发游戏、设计游戏系统、编写代码、代码审查等。支持 Godot/Unity/Unreal 引擎。"
+description: 通用游戏开发工作室知识库（49 专业代理 / 73 工作技能，Godot/Unity/Unreal，本仓库存档保留）。仅当用户明确点名「game-studio」，且任务超出本仓库 wxgame-* 系列覆盖范围（引擎通用知识如 Godot/Unity/Unreal 具体用法）时才使用。不要因「从零开发游戏」「写 GDD」「代码审查」「游戏设计」等泛化关键词自动触发本 skill——那些任务走 wxgame-* 系列。
 ---
 
 # 🎮 Game Studio - 游戏开发工作室 AI 助手
