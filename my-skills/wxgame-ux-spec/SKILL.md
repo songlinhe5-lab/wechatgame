@@ -5,8 +5,7 @@ description: 写游戏 UX 规格时使用。当用户要求 UX 设计、界面�
 
 # wxgame UX 规格法（微信小游戏竖屏向）
 
-提炼自 Breakout demo 的 UX 规格（实例：`games/breakout/design/ux/ux-spec.md`），
-适用于本仓库任何小游戏。核心立场：**反馈即语言、首屏即玩、随时可走**。
+本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 `my-skills/INDEX.md`）；实例见文末「实例参照」。核心立场：**反馈即语言、首屏即玩、随时可走**。
 
 ## 1. 设计原则先行（每款游戏定 3-4 条，本文四条可直接沿用）
 

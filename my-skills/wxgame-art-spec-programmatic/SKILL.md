@@ -5,7 +5,7 @@ description: 制定游戏美术规格时使用，尤其是零外部资产的程�
 
 # wxgame 程序化美术规格法（三件套）
 
-提炼自 Breakout demo 的美术流程（实例见 `games/breakout/art/`），适用于本仓库任何游戏。
+本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 `my-skills/INDEX.md`）；实例见文末「实例参照」。
 核心策略：**demo 阶段零外部美术文件，全部程序化绘制 / 纯色几何占位**
 （Cocos 侧 Graphics 或纯色 Sprite，浏览器侧 Canvas2D）；规格先行，
 程序据此落码；为未来替换真实资产预留提示词与图集策略。

@@ -1,12 +1,11 @@
 ---
 name: wxgame-gdd-writer
-description: 写游戏 GDD（游戏设计文档）时使用。当用户要求写游戏概念、系统拆解、系统设计文档、数值冻结、设计评审，或提到 GDD、MDA、设计支柱、systems-index、一页纸概念时触发。输出「一页纸概念 → 系统索引（冻结常量）→ 逐系统八节 GDD → 理论评审」四件套。
+description: 写本仓库八节体系 GDD 时使用。当用户要求一页纸概念、系统拆解、systems-index 冻结常量、逐系统八节 GDD、数值冻结、设计评审，或提到 GDD、MDA、设计支柱时触发。输出「一页纸概念 → 系统索引（冻结常量）→ 八节 GDD → 理论评审」四件套；泛用格式或其他体系的 GDD 不走本 skill。
 ---
 
 # wxgame GDD 编写法（工作室验证过的四件套流程）
 
-本方法论提炼自 Breakout demo 的完整设计流程（实例见 `games/breakout/design/`），
-适用于本 monorepo 中任何一款新游戏。
+本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 `my-skills/INDEX.md`）；实例见文末「实例参照」。
 
 ## 总流程（顺序执行，前一步是后一步的输入）
 
