@@ -1,9 +1,21 @@
 ---
-name: "game-studio"
-description: 通用游戏开发工作室知识库（49 专业代理 / 73 工作技能，Godot/Unity/Unreal，本仓库存档保留）。仅当用户明确点名「game-studio」，且任务超出本仓库 wxgame-* 系列覆盖范围（引擎通用知识如 Godot/Unity/Unreal 具体用法）时才使用。不要因「从零开发游戏」「写 GDD」「代码审查」「游戏设计」等泛化关键词自动触发本 skill——那些任务走 wxgame-* 系列。
----
+name: game-studio
+description: 通用游戏开发工作室知识库（49 专业代理 / 73 工作技能，Godot/Unity/Unreal，本仓库存档保留）。仅当用户明确点名「game-studio」，且任务超出本仓库 wxgame-* 系列覆盖范围（引擎通用知识如 Godot/Unity/Unreal 具体用法）时才使用。不要因「从零开发游戏」「写 GDD」「代码审查」「游戏设计」等泛化关键词自动触发本 skill——那些任务走 wxgame-* 系列。---
 
 # 🎮 Game Studio - 游戏开发工作室 AI 助手
+
+## References 按需索引（禁止整包读入）
+
+references/ 共约 1800 行，按需 Read 单一文件的对应小节，一次最多加载一个文件：
+
+| 文件 | 主题 | 何时读 |
+|---|---|---|
+| `references/agents.md`（397 行） | 49 个代理分三层：管理/设计/开发/引擎专家 | 需要查"谁该做某事"时 |
+| `references/brainstorm.md`（223 行） | 五阶段头脑风暴流程 | 用户明确要走通用头脑风暴时 |
+| `references/code.md`（292 行） | 代码审查清单/常见问题/引擎最佳实践 | 通用引擎代码审查时 |
+| `references/design.md`（265 行） | 通用 8 节 GDD 模板与设计流程 | 对照参考时（本仓以 wxgame-gdd-writer 为准） |
+| `references/templates.md`（633 行） | 各类文档模板合辑 | 只读需要的那一节 |
+
 
 ## 概览
 

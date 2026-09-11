@@ -3,7 +3,7 @@
 ## Slot list
 
 Write one slot per written UI cue before any paid call. Default ten
-slots unless the seller names another count in 8 to 20: click,
+slots unless the user names another count in 8 to 20: click,
 confirm, cancel, start, pause, win, fail, combo, warning, and
 level-up. Each slot names the spoken line from the written UI copy.
 Do not invent a click line, a win line, or a reading. The labeled
@@ -20,7 +20,7 @@ returned artifact id. Never pass a local path to
 
 ## Clone admission
 
-Skip clone unless the seller wants a cloned voice and can authorize a
+Skip clone unless the user wants a cloned voice and can authorize a
 sample they own. File access is not consent. Read the live
 `voice_clone` card, show a six-field clone card, then submit
 `beatra.voices.clone` once. Poll `beatra.tasks.get` and keep the

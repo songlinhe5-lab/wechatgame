@@ -10,6 +10,8 @@ description: 制定游戏美术规格时使用，尤其是零外部资产的程�
 （Cocos 侧 Graphics 或纯色 Sprite，浏览器侧 Canvas2D）；规格先行，
 程序据此落码；为未来替换真实资产预留提示词与图集策略。
 
+> 若在 SOP 流程中：由编排者 spawn 使用；动笔前先读上游 `concept.md`（视觉锚点）与 `systems-index.md`（冻结常量），勿跳过。
+
 ## 1. 美术圣经（`<game>/art/art-bible.md`）
 
 ```

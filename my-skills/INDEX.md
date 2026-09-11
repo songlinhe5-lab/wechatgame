@@ -18,8 +18,13 @@
 | 域·发布 | `wxgame-release-checklist` | 六阶段发布、微信上架、版本策略、回滚预案 |
 | 执行 | `indie-game-ost-pack` | 生成 8–15 首原创配乐（audio-spec 的执行层） |
 | 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层） |
-| 存档 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；与本仓方法论冲突，已下链接，点名查档 |
+| 存档 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；与本仓方法论冲突，已下链接，点名查档；references 按需单文件读取 |
 | 存档 | `game-dev-tool-free` | 市场 Boilerplate，不可用；留档备查 |
+
+> **共享层 `_beatra-runtime/`**（下划线开头、无 SKILL.md，不参与触发）：存放 ost / voice
+> 两包逐字一致的 7 份参考文档正本（安装/计费/任务/MCP 连接等）；两包 references 内对应
+> 文件为相对符号链接，`scripts/` 因含各包安装常量而各自独立。运行纪律见两包 SKILL.md
+> 开头（默认 `--auto off`、不路由第三方包）。
 
 ## 2. 默认管线顺序与何时不走全 SOP
 
