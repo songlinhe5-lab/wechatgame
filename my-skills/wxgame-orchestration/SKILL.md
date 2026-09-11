@@ -35,7 +35,27 @@ description: 运行游戏开发工作室专家团流程时使用。当用户要�
 5. 权威来源清单（必读文档 + "冲突以 X 为准"，防止成员凭记忆发明数值）
 6. Deliverables（逐文件列明，含内容结构要求）
 7. Output Path（精确到目录，spawn 时即指定，禁止"产出找不到"）
+8. 必读 skill（**附 SKILL.md 的仓库相对路径**，如 `my-skills/wxgame-gdd-writer/SKILL.md`，
+   并要求成员开工前先 Read——查下表，不附路径 = 主理人失职）
 ```
+
+## 成员 → Skill 路由表（硬表，spawn 前必查）
+
+| 角色 | 阶段职责 | 必读 skill（spawn prompt 必附路径） |
+|---|---|---|
+| 文策渊 design-strategist | 概念 / GDD / 评审 / UX | `my-skills/wxgame-gdd-writer/SKILL.md` → `my-skills/wxgame-ux-spec/SKILL.md` |
+| 程基岩 engineering-lead | 架构 ADR / Epic 拆分 / 引擎实现 | `my-skills/wxgame-adr-arch/SKILL.md` + `my-skills/wxgame-epic-split/SKILL.md` |
+| 林绘澄 art-director | 美术三件套（圣经/资产规格/可访问性） | `my-skills/wxgame-art-spec-programmatic/SKILL.md` |
+| 阮和鸣 audio-director | 音频五件套（框架版） | `my-skills/wxgame-audio-spec/SKILL.md`；配乐/配音执行层用 `indie-game-ost-pack` / `game-ui-voice-pack` |
+| 严守真 quality-lead | QA 五件套 / 质量门 | `my-skills/wxgame-qa-gates/SKILL.md` |
+| 路远行 release-ops-lead | 发布四件套 / 回滚 | `my-skills/wxgame-release-checklist/SKILL.md` |
+
+**执行纪律**：
+- spawn 子任务 prompt **必须附上对应 SKILL.md 路径**并要求成员先 Read 再动笔；
+  成员未加载对应方法就产出 = 格式漂移，主理人打回重做。
+- 本表与角色一一对应，编排者自己**禁止**替代成员执行表内产出（铁律 1 的落地开关）：
+  想亲自写 GDD 时，查此表 → spawn 对应成员并把 skill 路径发给他。
+- 某角色对应多个 skill 时按表中顺序加载（如文策渊先 GDD 后 UX）。
 
 ## 质量门判定（阶段切换处触发）
 
