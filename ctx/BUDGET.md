@@ -18,26 +18,26 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `memory/2026-09-12.md` | 7212 | 90 | normal |
-| 2 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
-| 3 | `production/qa/test-cases.md` | 7097 | 296 | normal |
-| 4 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
-| 5 | `games/beads/design/gdd/systems-index.md` | 5909 | 227 | hot |
+| 1 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 2 | `production/qa/test-cases.md` | 7097 | 296 | normal |
+| 3 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
+| 4 | `games/beads/design/gdd/systems-index.md` | 5909 | 227 | hot |
+| 5 | `memory/2026-09-12.md` | 5877 | 60 | normal |
 | 6 | `memory/2026-09-11.md` | 5617 | 115 | normal |
-| 7 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
-| 8 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
-| 9 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
-| 10 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
-| 11 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
-| 12 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
-| 13 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
-| 14 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
+| 7 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
+| 8 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
+| 9 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
+| 10 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
+| 11 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
+| 12 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
+| 13 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
+| 14 | `ctx/ROUTES.md` | 4420 | 172 | normal |
 | 15 | `production/qa/test-plan.md` | 4334 | 195 | normal |
 | 16 | `docs/architecture/architecture.md` | 4322 | 239 | normal |
-| 17 | `ctx/ROUTES.md` | 4230 | 167 | normal |
-| 18 | `docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md` | 4220 | 142 | normal |
-| 19 | `my-skills/game-dev-tool-free/SKILL.md` | 4153 | 488 | normal |
-| 20 | `games/breakout/design/levels/levels-spec.md` | 3964 | 244 | normal |
+| 17 | `docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md` | 4220 | 142 | normal |
+| 18 | `my-skills/game-dev-tool-free/SKILL.md` | 4153 | 488 | normal |
+| 19 | `games/breakout/design/levels/levels-spec.md` | 3964 | 244 | normal |
+| 20 | `production/release/release-checklist.md` | 3853 | 202 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

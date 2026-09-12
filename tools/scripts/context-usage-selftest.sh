@@ -18,6 +18,9 @@
 #            • ctx:usage 输出比率字段（jitter.rate / bigFullReads.rate）+ reads-summary 含「样本代表性边界」「会话口径」段；
 #            • ctx:check E2 展示**比率 + 原始计数**；E3 走**比率口径硬门**（劣于基线 >5pt → exit 1）；
 #            • baseline v2 结构（version/est/sampleWindow）字段缺失 → 配置错误 exit 1。
+#         ⑩ 索引新鲜度契约（WXG-T-026 修复）：在**独立 git 桩仓库**内验证 —— dirty（有未提交
+#            改动）文件按 **HEAD blob** 索引/校验（sha256 == `git show HEAD:<path>`，≠ 工作树内容）；
+#            未跟踪新 .md **不入索引**且不误报「未收录」；`--working-tree` 逃生阀标注「非默认模式」。
 #
 # 用法：tools/scripts/context-usage-selftest.sh
 # 产物：仅 stdout 报告；临时目录在退出时清理，不污染仓库 / 本机转录。
@@ -29,6 +32,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COLLECT="$SCRIPT_DIR/collect-context-reads.mjs"
 ANALYZE="$SCRIPT_DIR/analyze-context-usage.mjs"
 CHECK="$SCRIPT_DIR/check-context-budget.mjs"
+BUILD="$SCRIPT_DIR/build-context-index.mjs"
 PASS=0
 FAIL=0
 
@@ -272,7 +276,9 @@ mkdir -p "$CR/tools/scripts/lib" "$CR/my-rules" "$CR/ctx"
 cp "$CHECK" "$CR/tools/scripts/"
 cp "$SCRIPT_DIR/lib/context-index.mjs" "$CR/tools/scripts/lib/"
 cp "$SCRIPT_DIR/lib/context-tokens.mjs" "$CR/tools/scripts/lib/"
+cp "$BUILD" "$CR/tools/scripts/"
 CHECK_STUB="$CR/tools/scripts/check-context-budget.mjs"
+BUILD_STUB="$CR/tools/scripts/build-context-index.mjs"
 
 # 桩仓库 .md + ctx/index.json（sha256 与磁盘一致，保证 C 门新鲜）+ ROUTES 桩
 node - "$CR" <<'NODE_EOF'
@@ -427,6 +433,81 @@ writeFileSync(p, JSON.stringify(j, null, 2) + '\n', 'utf8');
 NODE_EOF
 node "$CHECK_STUB" >"$WORK/checkE2.txt" 2>&1
 assert_eq "$?" "0" "⑧E 补回 est → exit 0"
+
+# ── [7] 索引新鲜度契约（WXG-T-026 修复）：dirty 文件按 HEAD 内容索引 / 校验 ──────
+# 做法：把 $CR（[6] 的假仓库根）初始化为**独立 git 仓库**（不触碰真实仓库），提交既有桩，
+#       再制造真实 dirty 场景，验证：dirty→HEAD、未跟踪新文件不入索引、--working-tree 逃生阀。
+echo
+echo "[7] ctx:build / ctx:check 契约（git 桩仓库）：dirty→HEAD / 未跟踪新文件不入索引 / --working-tree"
+git -C "$CR" init -q
+git -C "$CR" add -A
+git -C "$CR" -c user.email=selftest@example.com -c user.name=selftest commit -q -m "selftest stub baseline"
+assert_eq "$(git -C "$CR" status --porcelain | wc -l | tr -d ' ')" "0" "⑦ 桩仓库已初始化且工作树干净"
+
+# 7.0 干净检出：默认 build → 默认 check 必须 exit 0（修复前 dirty 索引会判过期 exit 1）
+node "$BUILD_STUB" >"$WORK/b7_0.txt" 2>&1
+assert_eq "$?" "0" "⑦ 干净检出 build 退出码 0"
+git -C "$CR" add -A
+git -C "$CR" -c user.email=selftest@example.com -c user.name=selftest commit -q -m "selftest stub index+budget"
+node "$CHECK_STUB" >"$WORK/c7_0.txt" 2>&1
+assert_eq "$?" "0" "⑦ 干净检出 ctx:check exit 0"
+
+# 7.1 dirty（已跟踪 .md 有未提交改动）→ 默认 build 按 HEAD blob 索引；check 仍 exit 0
+cp "$CR/AGENTS.md" "$WORK/agents.orig"
+printf '\n新增一行，模拟并发会话未提交改动（WXG-T-026 自测）。\n' >>"$CR/AGENTS.md"
+node "$BUILD_STUB" >"$WORK/b7_1.txt" 2>&1
+assert_eq "$?" "0" "⑦ dirty 场景 build 退出码 0"
+assert_contains "$(cat "$WORK/b7_1.txt")" "HEAD 内容" "⑦ build 输出列出「dirty 文件按 HEAD 内容索引」"
+node - "$CR" "$WORK/t7_1.txt" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+const [root, out] = process.argv.slice(2);
+const sha = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
+const idx = JSON.parse(readFileSync(root + '/ctx/index.json', 'utf8'));
+const rec = idx.files.find((f) => f.path === 'AGENTS.md');
+const head = execFileSync('git', ['show', 'HEAD:AGENTS.md'], { cwd: root, encoding: 'utf8' });
+const wt = readFileSync(root + '/AGENTS.md', 'utf8');
+const checks = [
+  ['索引 sha256 == HEAD blob（dirty→HEAD）', rec?.sha256 === sha(head)],
+  ['索引 sha256 != 工作树 dirty 内容（未误用未提交内容）', rec?.sha256 !== sha(wt)],
+];
+writeFileSync(out, checks.map(([l, c]) => `${c ? 'PASS' : 'FAIL'}\t${l}`).join('\n') + '\n');
+NODE_EOF
+while IFS=$'\t' read -r st label; do
+  if [ "$st" = "PASS" ]; then ok "⑦ $label"; else bad "⑦ $label"; fi
+done <"$WORK/t7_1.txt"
+node "$CHECK_STUB" >"$WORK/c7_1.txt" 2>&1
+assert_eq "$?" "0" "⑦ dirty 工作树下 ctx:check exit 0（不再因未提交改动判过期）"
+assert_contains "$(cat "$WORK/c7_1.txt")" "dirty 文件按 HEAD 内容校验" "⑦ check 输出标注「dirty 文件按 HEAD 内容校验」"
+
+# 7.2 逃生阀 --working-tree：强制按工作树内容，输出标注「非默认模式」
+node "$BUILD_STUB" --working-tree >"$WORK/b7_2.txt" 2>&1
+assert_eq "$?" "0" "⑦ --working-tree build 退出码 0"
+assert_contains "$(cat "$WORK/b7_2.txt")" "非默认模式" "⑦ --working-tree build 标注「非默认模式」"
+node "$CHECK_STUB" --working-tree >"$WORK/c7_2.txt" 2>&1
+assert_eq "$?" "0" "⑦ --working-tree check（按工作树）exit 0"
+assert_contains "$(cat "$WORK/c7_2.txt")" "非默认模式" "⑦ --working-tree check 标注「非默认模式」"
+
+# 7.3 未跟踪新 .md：不入索引（不误报「未收录」）；恢复 AGENTS.md 后默认重建
+cp "$WORK/agents.orig" "$CR/AGENTS.md"
+mkdir -p "$CR/docs"
+printf '# 未跟踪新文件（WXG-T-026 自测）\n\n正文。\n' >"$CR/docs/new-untracked.md"
+node "$BUILD_STUB" >"$WORK/b7_3.txt" 2>&1
+assert_eq "$?" "0" "⑦ 含未跟踪新 .md 时 build 退出码 0"
+assert_contains "$(cat "$WORK/b7_3.txt")" "未入索引" "⑦ build 明示「未提交新文件未入索引」"
+node - "$CR" "$WORK/t7_3.txt" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+const [root, out] = process.argv.slice(2);
+const idx = JSON.parse(readFileSync(root + '/ctx/index.json', 'utf8'));
+const has = idx.files.some((f) => f.path === 'docs/new-untracked.md');
+writeFileSync(out, `${has ? 'FAIL' : 'PASS'}\t未跟踪新文件不在索引中\n`);
+NODE_EOF
+while IFS=$'\t' read -r st label; do
+  if [ "$st" = "PASS" ]; then ok "⑦ $label"; else bad "⑦ $label"; fi
+done <"$WORK/t7_3.txt"
+node "$CHECK_STUB" >"$WORK/c7_3.txt" 2>&1
+assert_eq "$?" "0" "⑦ 有未跟踪新 .md 时 ctx:check 仍 exit 0（不误报未收录）"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

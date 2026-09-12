@@ -17,14 +17,27 @@
  * `pnpm run ctx:usage` 从本机读事件账本生成，**WXG-T-026**）；样本不足时回退
  * `ctx/ROUTES.md` 锚点集并在报表标注「样本不足」，不再做任何硬编码前缀匹配。
  *
- * USAGE
- *   node tools/scripts/build-context-index.mjs          # write index + report
- *   node tools/scripts/build-context-index.mjs --check  # verify freshness, exit 1 on drift
+ * FRESHNESS CONTRACT (WXG-T-026, 2026-09-12)
+ * ------------------------------------------
+ * The index describes **committed content (HEAD)**, so a clean CI checkout is
+ * always fresh even while other sessions have uncommitted `.md` in the tree:
+ *   • clean files        → working-tree bytes (identical to HEAD);
+ *   • dirty files        → the **HEAD blob** (`git show HEAD:<path>`);
+ *   • dirty + new files  → **not indexed** (counted in `newFilesSkipped`).
+ * The build prints a prominent list of any dirty files indexed from HEAD, and
+ * warns that local line numbers may drift until you commit and re-run.
+ * Escape hatch: `--working-tree` forces every file to working-tree bytes.
  *
- * `--check` recomputes each file's sha256 and compares it to the committed
- * index; any mismatch (or a brand-new `.md`) is reported and exits 1 so CI can
- * catch a stale index. The index itself is **byte-stable** — no timestamps — so
- * two consecutive builds produce identical bytes.
+ * USAGE
+ *   node tools/scripts/build-context-index.mjs                    # write index + report
+ *   node tools/scripts/build-context-index.mjs --check            # verify freshness, exit 1 on drift
+ *   node tools/scripts/build-context-index.mjs --working-tree     # 逃生阀：按本地未提交内容索引
+ *
+ * `--check` recomputes each file's content (per the contract above) and compares
+ * it to the committed index; any mismatch (or a tracked-but-unindexed `.md`) is
+ * reported and exits 1 so CI can catch a stale index. The index itself is
+ * **byte-stable** — no timestamps — so two consecutive builds produce identical
+ * bytes.
  *
  * Token figures are **estimates** (see tools/scripts/lib/context-tokens.mjs).
  */
@@ -44,6 +57,8 @@ import {
 } from './lib/context-index.mjs';
 
 const CHECK = process.argv.includes('--check');
+/** 逃生阀（WXG-T-026）：强制全部按工作树内容（含未提交改动）；输出标注「非默认模式」。 */
+const WORKING_TREE = process.argv.includes('--working-tree');
 
 /** §4 最少样本数：低于此值则以「ROUTES 锚点集」回退并在报表标注「样本不足」。 */
 const USAGE_MIN_SAMPLES = LIMITS.usageMinSamples;
@@ -189,7 +204,20 @@ function runCheck() {
     );
     process.exit(1);
   }
-  const { stale, unindexed } = freshnessIssues(index);
+  const fresh = freshnessIssues(index, { workingTree: WORKING_TREE });
+  const { stale, unindexed } = fresh;
+
+  // ── 契约提示（WXG-T-026）──
+  if (WORKING_TREE) {
+    console.log('⚠️  非默认模式（--working-tree）：按**工作树**内容校验（含未提交改动）。');
+  } else if (!fresh.git) {
+    console.log('⚠️  未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');
+  } else if (fresh.headChecked.length > 0) {
+    console.log(
+      `ℹ️  ${fresh.headChecked.length} 个 dirty 文件按 **HEAD 内容**校验（索引描述已提交内容；本地行号可能漂移）。`,
+    );
+  }
+
   if (stale.length === 0 && unindexed.length === 0) {
     console.log(`✅ 上下文索引新鲜 — ${index.files.length} 个 .md 与 ctx/index.json 一致`);
     process.exit(0);
@@ -212,9 +240,10 @@ function runBuild() {
   // 1) write the report first (from a provisional index), then 2) re-index so the
   // freshly written `ctx/BUDGET.md` is itself covered by the index. BUDGET only
   // reports on the always/hot/top-20 tiers, so it never references its own token
-  // count — the two passes converge and the output is byte-stable.
-  writeFileSync(BUDGET_MD_PATH, renderBudget(buildIndex()), 'utf8');
-  const index = buildIndex();
+  // count — the two passes converge and the output is byte-stable. (BUDGET.md is
+  // WORKTREE_AUTHORITATIVE, so the dirty→HEAD rule never shadows the new bytes.)
+  writeFileSync(BUDGET_MD_PATH, renderBudget(buildIndex({ workingTree: WORKING_TREE }).index), 'utf8');
+  const { index, meta } = buildIndex({ workingTree: WORKING_TREE });
   writeFileSync(INDEX_PATH, serializeIndex(index), 'utf8');
 
   const byTier = { always: 0, hot: 0, normal: 0 };
@@ -224,6 +253,23 @@ function runBuild() {
     `✅ ctx/index.json 已写入 — 文件 ${index.files.length}（always ${byTier.always} / hot ${byTier.hot} / normal ${byTier.normal}），章节 ${sections}`,
   );
   console.log('✅ ctx/BUDGET.md 已写入');
+
+  // ── 契约提示：dirty 文件按 HEAD 索引 & 未提交新文件被跳过（WXG-T-026）──────────
+  if (meta.workingTree) {
+    console.log('⚠️  非默认模式（--working-tree）：**全部**文件按工作树内容索引（含未提交改动）。');
+  } else if (!meta.git) {
+    console.log('⚠️  未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');
+  } else {
+    if (meta.headIndexed.length > 0) {
+      console.log(`ℹ️  ${meta.headIndexed.length} 个 dirty 文件按 **HEAD 内容**索引（索引描述已提交内容）：`);
+      for (const p of meta.headIndexed) console.log(`     - ${p}`);
+      console.log('   提示：本地工作树这些文件的行号可能与索引不一致；提交后重跑 `pnpm run ctx:build` 即对齐。');
+    }
+    if (meta.newFilesSkipped.length > 0) {
+      console.log(`ℹ️  ${meta.newFilesSkipped.length} 个未提交新文件未入索引（HEAD 无此文件）：`);
+      for (const p of meta.newFilesSkipped) console.log(`     - ${p}`);
+    }
+  }
 }
 
 if (CHECK) runCheck();

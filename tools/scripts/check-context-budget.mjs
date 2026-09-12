@@ -6,7 +6,10 @@
  *   A 常驻预算  AGENTS.md ≤ 3200 tokens；my-rules/*.md 单文件 ≤ 500 tokens
  *               （阈值口径见 lib/context-index.mjs 的 LIMITS 注释）
  *   B 单文件上限 任意 .md > 8000 tokens 视为超限（除非 ctx/budget-exempt.json 白名单）
- *   C 索引新鲜度 复用 build-context-index.mjs --check 的能力（共享函数，不 shell 外调）
+ *   C 索引新鲜度 复用 build-context-index.mjs --check 的能力（共享函数，不 shell 外调）；
+ *               **契约（WXG-T-026，2026-09-12）：索引描述「已提交内容（HEAD）」** ——
+ *               dirty 文件按 HEAD blob 校验（`git show HEAD:<path>`），未跟踪新文件不算
+ *               「未收录」。故干净检出恒绿，本地 dirty 树亦通过（本地行号可能漂移）。
  *   D ROUTES 锚点 解析 ctx/ROUTES.md 的 `路径#锚点` 引用，校验路径在索引中且锚点可命中
  *               （非锚点式整文件引用须在该行尾标注 `<!-- no-anchor -->` 显式豁免）
  *   E 节省率/护栏/基线（WXG-T-026 ④，纯查表计算，消费 ctx/usage-distribution.json）：
@@ -31,6 +34,7 @@
  * Token figures are **estimates** (see tools/scripts/lib/context-tokens.mjs).
  *
  * 用法：node tools/scripts/check-context-budget.mjs
+ *       node tools/scripts/check-context-budget.mjs --working-tree   # 逃生阀：按本地未提交内容校验
  *       node tools/scripts/check-context-budget.mjs --update-baseline --reason="…" --task-id="WXG-T-…"
  */
 
@@ -55,6 +59,8 @@ const pct = (x) => `${(x * 100).toFixed(1)}%`;
 // ── CLI ────────────────────────────────────────────────────────────────────────
 const ARGV = process.argv.slice(2);
 const UPDATE_BASELINE = ARGV.includes('--update-baseline');
+/** 逃生阀（WXG-T-026）：C 门按工作树内容（含未提交改动）校验；输出标注「非默认模式」。 */
+const WORKING_TREE = ARGV.includes('--working-tree');
 function argValue(name) {
   const hit = ARGV.find((a) => a === `--${name}` || a.startsWith(`--${name}=`));
   if (!hit) return null;
@@ -233,12 +239,13 @@ function checkFreshness() {
   const index = readIndex();
   if (!index) {
     failures.push('C: 未找到 ctx/index.json —— 先生成：pnpm run ctx:build');
-    return { stale: [], unindexed: [] };
+    return { stale: [], unindexed: [], headChecked: [], git: false, workingTree: WORKING_TREE };
   }
-  const { stale, unindexed } = freshnessIssues(index);
-  for (const s of stale) failures.push(`C: 索引过期 — ${s.path}（${s.reason}）`);
-  for (const p of unindexed) failures.push(`C: 未收录的新 .md — ${p}`);
-  return { stale, unindexed };
+  // 共用契约（WXG-T-026）：dirty 文件按 HEAD blob 校验；未跟踪新文件不算「未收录」。
+  const fresh = freshnessIssues(index, { workingTree: WORKING_TREE });
+  for (const s of fresh.stale) failures.push(`C: 索引过期 — ${s.path}（${s.reason}）`);
+  for (const p of fresh.unindexed) failures.push(`C: 未收录的新 .md — ${p}`);
+  return fresh;
 }
 
 /** ── D. ROUTES.md anchor references ─────────────────────────────────────── */
@@ -551,7 +558,9 @@ if (!index) {
   overRows = checkFileMax(index);
   routeRows = checkRoutes(index);
 }
-const freshness = index ? checkFreshness() : { stale: [], unindexed: [] };
+const freshness = index
+  ? checkFreshness()
+  : { stale: [], unindexed: [], headChecked: [], git: false, workingTree: WORKING_TREE };
 const eReport = checkE();
 
 // ─────────────────────────────────────────────────────────────── report ──────
@@ -581,11 +590,20 @@ if (overRows.length === 0) {
 }
 console.log('');
 
-console.log('C 索引新鲜度 — ctx/index.json 与工作树一致');
+console.log('C 索引新鲜度 — ctx/index.json 描述**已提交内容（HEAD）**；dirty 文件按 HEAD blob 校验');
 if (index && freshness.stale.length === 0 && freshness.unindexed.length === 0) {
   console.log(`✅ 索引新鲜（${index.files.length} 个 .md）`);
 } else {
   console.log(line(false, `索引已过期：${freshness.stale.length} 个变更，${freshness.unindexed.length} 个新文件`));
+}
+if (freshness.workingTree) {
+  console.log('   ⚠️ 非默认模式（--working-tree）：按**工作树**内容校验（含未提交改动）。');
+} else if (freshness.git === false) {
+  console.log('   ⚠️ 未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');
+} else if (freshness.headChecked.length > 0) {
+  console.log(
+    `   ℹ️ ${freshness.headChecked.length} 个 dirty 文件按 HEAD 内容校验（本地行号可能与索引漂移，提交后重跑 ctx:build 即对齐）。`,
+  );
 }
 console.log('');
 
@@ -682,7 +700,8 @@ console.error(`ctx:check FAILED（${failures.length}）`);
 for (const f of failures) console.error(`  - ${f}`);
 console.error('');
 console.error(
-  '修复提示：改动任何被索引的 .md 后重跑 `pnpm run ctx:build` 让索引与工作树一致；\n' +
+  '修复提示：索引描述**已提交内容（HEAD）**——改动任何被索引的 .md 并提交后重跑 `pnpm run ctx:build`；\n' +
+    '         若只想按本地未提交内容校验，用 `pnpm run ctx:check -- --working-tree`（非默认模式）。\n' +
     '         E 项劣于基线若为真实退化请修复，否则 `pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"` 更新。',
 );
 process.exit(1);
