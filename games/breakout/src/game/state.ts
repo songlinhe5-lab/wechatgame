@@ -11,6 +11,7 @@ import type { CompiledBrick } from '@wxgame/framework';
 import type { BreakoutTuning } from '../config/tuning.js';
 import type { MotionEffects } from '../systems/motion.js';
 import { MOTION_FULL } from '../systems/motion.js';
+import type { FallingPowerup } from '../systems/powerups.js';
 
 export type BreakoutPhase =
   | 'ready'
@@ -83,6 +84,11 @@ export interface BreakoutSnapshot {
   /** Recent ball positions for the trail, oldest first (empty when reduced). */
   ballTrail: readonly { readonly x: number; readonly y: number }[];
 
+  /** Powerup capsules currently falling toward the paddle (S7). */
+  fallingPowerups: readonly FallingPowerup[];
+  /** Seconds left on the `expand` paddle buff; 0 = inactive. */
+  expandRemaining: number;
+
   bricks: readonly CompiledBrick[];
 
   /** Banner text for the current phase ('' when none). */
@@ -125,6 +131,8 @@ export function createSnapshot(tuning: BreakoutTuning): BreakoutSnapshot {
     motion: MOTION_FULL,
     shakeAmplitude: 0,
     ballTrail: [],
+    fallingPowerups: [],
+    expandRemaining: 0,
     bricks: [],
     banner: '',
     subBanner: '',

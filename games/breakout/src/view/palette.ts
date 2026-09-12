@@ -35,6 +35,11 @@ export interface BreakoutPalette {
 
   /** Colour used when a brick has taken partial damage. */
   readonly brickDamagedTint: string;
+
+  /** Powerup capsule glyph colours (assets-spec §1.4; shape is the primary cue). */
+  readonly powerupExpand: string;
+  readonly powerupMulti: string;
+  readonly powerupLife: string;
 }
 
 /**
@@ -67,6 +72,10 @@ export const DEFAULT_PALETTE: BreakoutPalette = {
   lifeEmpty: '#2a3155',
 
   brickDamagedTint: '#000000',
+
+  powerupExpand: '#5ee08a',
+  powerupMulti: '#4cc9f0',
+  powerupLife: '#ff5e7a',
 };
 
 /**

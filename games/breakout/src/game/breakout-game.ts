@@ -25,11 +25,28 @@ import {
 } from '@wxgame/framework';
 
 import { DEFAULT_TUNING, ballSpeedForLevel, type BreakoutTuning } from '../config/tuning.js';
-import { BRICK_BEHAVIOR, LEVELS, levelDataById, type BrickTypeCode } from '../config/levels.js';
-import type { LevelData } from '../config/levels-data.js';
+import {
+  BRICK_BEHAVIOR,
+  LEVELS,
+  LEVEL_DATA,
+  levelIdOf,
+  powerupWeights,
+  type BrickTypeCode,
+} from '../config/levels.js';
+import { LEVELS_DATA, type LevelData, type PowerupId } from '../config/levels-data.js';
 import { Ball } from '../entities/ball.js';
 import { Paddle } from '../entities/paddle.js';
 import { Scorer, levelClearBonus } from '../systems/scoring.js';
+import {
+  PICKUP_SETTLE_ORDER,
+  POWERUP_SIZE,
+  effectiveDropRate,
+  overlapsPaddle,
+  pickPowerupId,
+  rollDrop,
+  splitVelocities,
+  type FallingPowerup,
+} from '../systems/powerups.js';
 import {
   WallHit,
   createStepResult,
@@ -93,6 +110,12 @@ export interface BreakoutEvents extends Record<string, unknown> {
   'save:written': { key: string };
   /** A settings toggle changed at runtime (settings UI / dev harness). */
   'settings:changed': { reduceMotion: boolean };
+  /** A powerup capsule spawned at a destroyed brick (S7 drop roll won). */
+  'powerup:dropped': { type: PowerupId; x: number; y: number };
+  /** The paddle caught a falling powerup; the effect is applied immediately. */
+  'powerup:picked': { type: PowerupId };
+  /** A falling powerup fell past the pickup line and vanished (no penalty). */
+  'powerup:missed': { type: PowerupId };
 }
 
 export interface BreakoutGameOptions {
@@ -102,6 +125,12 @@ export interface BreakoutGameOptions {
   readonly palette?: BreakoutPalette;
   /** Level table. Defaults to the shipped {@link LEVELS}. */
   readonly levels?: readonly LevelDef[];
+  /**
+   * Design records (drop rate, powerup pool, hint) aligned by index with
+   * `levels`. Defaults to the shipped `LEVEL_DATA`; tests inject custom
+   * records so TC-PWR criteria can pin drop rates and pools per board.
+   */
+  readonly levelData?: readonly LevelData[];
   /** Save key; overridable so tests get isolated storage. */
   readonly saveKey?: string;
 }
@@ -115,6 +144,7 @@ export class BreakoutGame implements Game {
   readonly ball: Ball;
 
   private readonly _levelDefs: readonly LevelDef[];
+  private readonly _levelData: readonly LevelData[];
   private readonly _registry = new DataRegistry<LevelDef>('breakout-levels');
   private readonly _saveKey: string;
   private _levels: readonly CompiledLevel[] = [];
@@ -146,6 +176,13 @@ export class BreakoutGame implements Game {
   private _elapsedBeforePause = 0;
   private readonly _unsubs: (() => void)[] = [];
 
+  /** Balls beyond the primary, created by the `multi` powerup (§2.2 multi). */
+  private readonly _extraBalls: Ball[] = [];
+  /** Powerup capsules currently falling toward the paddle (§2.1). */
+  private readonly _falling: FallingPowerup[] = [];
+  /** Seconds left on the `expand` effect; 0 = inactive (§2.4 refresh rule). */
+  private _expandRemaining = 0;
+
   /** Scratch point for screen → design conversion (never retained). */
   private readonly _pointer = { x: 0, y: 0 };
   /** Last design-space pointer X seen, or null when the player never touched. */
@@ -166,6 +203,7 @@ export class BreakoutGame implements Game {
     this.palette = options.palette ?? DEFAULT_PALETTE;
     this._saveKey = options.saveKey ?? SAVE_KEY;
     this._levelDefs = options.levels ?? LEVELS;
+    this._levelData = options.levelData ?? LEVEL_DATA;
 
     this.paddle = new Paddle(
       this.tuning.width / 2,
@@ -251,8 +289,7 @@ export class BreakoutGame implements Game {
    * Needed because `LevelDef` cannot carry the game-specific fields.
    */
   get levelData(): LevelData | undefined {
-    const id = this._levels[this._levelIndex]?.def.id;
-    return id === undefined ? undefined : levelDataById(id);
+    return this._levelDataFor(this._levelIndex);
   }
 
   get save(): Readonly<BreakoutSave> | null {
@@ -441,6 +478,7 @@ export class BreakoutGame implements Game {
         onUpdate: (game, dt) => {
           game._followPointer(dt);
           game._stepPhysics(dt);
+          game._updatePowerups(dt);
           game._updateMotion(dt);
         },
       })
@@ -617,6 +655,11 @@ export class BreakoutGame implements Game {
     this._scorer.resetCombo();
     this._trail.length = 0;
     this._shakeTimer = 0;
+    // S7 state never leaks across boards: no stale capsules, no extra balls,
+    // no expand timer (the paddle width itself is restored just below).
+    this._extraBalls.length = 0;
+    this._falling.length = 0;
+    this._expandRemaining = 0;
 
     this.paddle.setWidth(level.def.paddleWidth ?? this.tuning.paddle.width, this.tuning);
     this.paddle.resetTo(this.tuning.width / 2, this.tuning);
@@ -636,6 +679,18 @@ export class BreakoutGame implements Game {
     const level = this._levels[this._levelIndex];
     // Levels always carry their own speed (§2.4); the fallback is a clamp only.
     return level?.def.ballSpeed ?? ballSpeedForLevel(this.tuning);
+  }
+
+  /** Design record for board `index` (drop rate / pool), or undefined. */
+  private _levelDataFor(index: number): LevelData | undefined {
+    const def = this._levels[index]?.def;
+    if (!def) return undefined;
+    return this._levelData.find((d) => levelIdOf(d) === def.id);
+  }
+
+  /** The width the paddle returns to when `expand` expires (§2.4). */
+  private _paddleBaseWidth(): number {
+    return this._levels[this._levelIndex]?.def.paddleWidth ?? this.tuning.paddle.width;
   }
 
   private _restBall(): void {
@@ -720,8 +775,52 @@ export class BreakoutGame implements Game {
   }
 
   private _stepPhysics(dt: number): void {
+    // One ball at a time: `multi` can put up to `maxBalls` balls in flight, and
+    // each gets its own full physics+scoring pass (the scratch result is reused
+    // sequentially, never shared across balls in the same step).
+    const primaryLost = this._stepOneBall(this.ball, dt);
+    // Lost extras are removed immediately; backwards iteration keeps the
+    // indices valid while splicing. Every ball that leaves play is reported.
+    for (let i = this._extraBalls.length - 1; i >= 0; i--) {
+      if (this._stepOneBall(this._extraBalls[i]!, dt)) {
+        this._extraBalls.splice(i, 1);
+        this._emit('ball:lost', { remainingLives: this._lives });
+      }
+    }
+
+    // §6.2 (life-gameover): a clear beats a lost ball on the same frame.
+    if (this._remainingBricks <= 0) {
+      this._machine.transition('level-clear');
+      return;
+    }
+
+    // Ball bookkeeping for lost balls. A lost EXTRA is simply removed; the
+    // primary is kept alive by adopting the first extra (life-gameover §2.1:
+    // only the LAST ball costs a life). Adopt-or-lose is mutually exclusive:
+    // if an extra was adopted, the primary is still in play.
+    if (primaryLost) {
+      const adopt = this._extraBalls.shift();
+      if (adopt) {
+        this.ball.x = adopt.x;
+        this.ball.y = adopt.y;
+        this.ball.vx = adopt.vx;
+        this.ball.vy = adopt.vy;
+        this.ball.radius = adopt.radius;
+        this.ball.launched = adopt.launched;
+        this._emit('ball:lost', { remainingLives: this._lives });
+      } else {
+        this._onBallLost();
+      }
+    }
+  }
+
+  /**
+   * Advance one ball by `dt`: physics, walls, paddle, bricks, bomb chains,
+   * scoring and powerup drops. @returns true when this ball fell out of play.
+   */
+  private _stepOneBall(ball: Ball, dt: number): boolean {
     const result = stepBall(
-      this.ball,
+      ball,
       dt,
       this._arena,
       this.paddle,
@@ -731,12 +830,12 @@ export class BreakoutGame implements Game {
     );
 
     if ((result.wallHits & WallHit.Top) !== 0) {
-      this._emit('wall:hit', { x: this.ball.x, y: this.ball.y });
+      this._emit('wall:hit', { x: ball.x, y: ball.y });
     }
 
     if (result.paddleBounced) {
       this._scorer.onPaddleHit();
-      this._emit('paddle:hit', { x: this.ball.x, y: this.ball.y });
+      this._emit('paddle:hit', { x: ball.x, y: ball.y });
       this._emit('combo:changed', {
         combo: this._scorer.combo,
         multiplier: this._scorer.multiplier,
@@ -798,13 +897,7 @@ export class BreakoutGame implements Game {
       this._emit('brick:damaged', { x: brick.x, y: brick.y, color: brick.color, hp: brick.hp });
     }
 
-    if (result.lost) {
-      this._onBallLost();
-      return;
-    }
-    if (this._remainingBricks <= 0) {
-      this._machine.transition('level-clear');
-    }
+    return result.lost;
   }
 
   /** Fold one destroyed brick into score, progress and the event stream. */
@@ -823,6 +916,171 @@ export class BreakoutGame implements Game {
       combo: this._scorer.combo,
       multiplier: this._scorer.multiplier,
     });
+    // S7 drop roll (powerups.md §2.1): fires on every destroyed brick — ball
+    // kills and blast kills alike — unless the field is already at its cap.
+    this._maybeDropPowerup(brick);
+  }
+
+  /** §2.1 drop roll for one destroyed brick. Never throws; RNG-safe pre-init. */
+  private _maybeDropPowerup(brick: BrickLike): void {
+    if (!this._rng) return;
+    if (this._falling.length >= this.tuning.powerups.maxOnField) return;
+
+    const data = this._levelDataFor(this._levelIndex);
+    const base = data ? data.powerupDropRate : this.tuning.powerups.dropBase;
+    const multiplier =
+      BRICK_BEHAVIOR[brick.type as BrickTypeCode]?.dropRateMultiplier ?? 1;
+    const rate = effectiveDropRate(base, multiplier);
+    if (!rollDrop(this._rng, rate)) return;
+
+    const id = this._pickPowerupId(data);
+    if (!id) return;
+
+    const powerup: FallingPowerup = {
+      id,
+      x: brick.x,
+      y: brick.y,
+      width: POWERUP_SIZE,
+      height: POWERUP_SIZE,
+    };
+    this._falling.push(powerup);
+    this._emit('powerup:dropped', { type: id, x: powerup.x, y: powerup.y });
+  }
+
+  /**
+   * Weighted pick among the board's *implemented* candidates (§3.6):
+   * `level.powerupPool ∩ IMPLEMENTED_POWERUPS`, weights re-normalised by
+   * `powerupWeights`. Unimplemented ids are silently skipped, never an error.
+   */
+  private _pickPowerupId(data: LevelData | undefined): PowerupId | null {
+    if (!this._rng) return null;
+    if (data) return pickPowerupId(powerupWeights(data), this._rng.next());
+    // No design record (bare test levels): MVP pool with shipped catalog weights.
+    const weights = this.tuning.powerups.implemented.map((id) => ({
+      id: id as PowerupId,
+      weight: LEVELS_DATA.powerupPool[id]?.weight ?? 0,
+    }));
+    return pickPowerupId(weights, this._rng.next());
+  }
+
+  /**
+   * Per-frame S7 housekeeping (playing state only → frozen on pause AND on
+   * ready, per powerups.md §2.4 "可暂停计时器"). Falls, pickups, misses and
+   * the expand timer.
+   */
+  private _updatePowerups(dt: number): void {
+    // Expand timer: refresh-on-pickup, never stacked (§2.4). Expiry restores
+    // the board's own paddle width.
+    if (this._expandRemaining > 0) {
+      this._expandRemaining = Math.max(0, this._expandRemaining - dt);
+      if (this._expandRemaining === 0) {
+        this.paddle.setWidth(this._paddleBaseWidth(), this.tuning);
+      }
+    }
+
+    if (this._falling.length === 0) return;
+
+    const fallSpeed = this.tuning.powerups.fallSpeed;
+    const missY = this.tuning.powerups.missY;
+    const caught: FallingPowerup[] = [];
+    const missed: FallingPowerup[] = [];
+    for (let i = this._falling.length - 1; i >= 0; i--) {
+      const p = this._falling[i]!;
+      // Pickup check comes first: a capsule reaching the paddle band is caught
+      // even in the step it would otherwise expire (§2.3 AABB test).
+      if (overlapsPaddle(p, this.paddle)) {
+        caught.push(p);
+        this._falling.splice(i, 1);
+      } else {
+        p.y -= fallSpeed * dt;
+        if (p.y < missY) {
+          missed.push(p);
+          this._falling.splice(i, 1);
+        }
+      }
+    }
+
+    // §6.4: settle same-frame pickups in a fixed order (life → multi → expand).
+    caught.sort((a, b) => PICKUP_SETTLE_ORDER.indexOf(a.id) - PICKUP_SETTLE_ORDER.indexOf(b.id));
+    for (const p of caught) {
+      this._applyPowerup(p.id);
+      this._emit('powerup:picked', { type: p.id });
+    }
+    for (const p of missed) {
+      this._emit('powerup:missed', { type: p.id });
+    }
+  }
+
+  /** Apply a caught powerup's effect (§2.2 MVP rows; values from the data). */
+  private _applyPowerup(id: PowerupId): void {
+    const def = LEVELS_DATA.powerupPool[id];
+    switch (id) {
+      case 'expand': {
+        // ×1.4 → 196; a repeat pickup refreshes the timer instead of stacking.
+        this._expandRemaining = (def?.durationMs ?? 15000) / 1000;
+        this.paddle.setWidth(this.tuning.paddle.expandedWidth, this.tuning);
+        break;
+      }
+      case 'multi': {
+        // Every ball in flight splits into 3 (±splitAngleDeg), capped at
+        // `maxBalls` total (§6.1 multi-ball protection).
+        const splitCount = Math.max(0, def?.params.splitCount ?? 3);
+        const angle = def?.params.splitAngleDeg ?? 25;
+        const cap = this.tuning.powerups.maxBalls;
+        const clonesPerSource = Math.max(0, splitCount - 1);
+        if (clonesPerSource === 0) break;
+        const sources = [this.ball, ...this._extraBalls];
+        for (const source of sources) {
+          if (!source.launched || this._totalBallCount() >= cap) continue;
+          const clones = splitVelocities(source.vx, source.vy, angle);
+          for (let k = 0; k < clonesPerSource && k < clones.length; k++) {
+            if (this._totalBallCount() >= cap) break;
+            const c = clones[k]!;
+            const ball = new Ball(source.x, source.y, source.radius);
+            ball.vx = c.vx;
+            ball.vy = c.vy;
+            ball.launched = true;
+            this._extraBalls.push(ball);
+          }
+        }
+        break;
+      }
+      case 'life': {
+        // +1 up to MAX_LIVES; overflow converts to bonus score (§2.2 life row).
+        const overflow = def?.params.overflowScore ?? 500;
+        if (this._lives < this.tuning.rules.maxLives) {
+          this._lives += 1;
+        } else {
+          const total = this._scorer.addBonus(overflow);
+          this._emit('score:changed', { score: total, delta: overflow });
+        }
+        break;
+      }
+      default:
+        // Defined-but-unimplemented ids can never reach here: §3.6 filters
+        // them out of the candidate pool before a drop can spawn.
+        break;
+    }
+  }
+
+  /** Total balls in flight, primary included. */
+  private _totalBallCount(): number {
+    return 1 + this._extraBalls.length;
+  }
+
+  /** Total balls in flight (primary + `multi` extras). Drives the HUD ball pips. */
+  get ballCount(): number {
+    return this._totalBallCount();
+  }
+
+  /**
+   * Apply a powerup effect directly, bypassing the drop/pickup chain.
+   * Debug + dev-harness hook (mirrors `movePaddleTo`): lets tools and tests
+   * exercise effect semantics without choreographing physics. Effects, timers
+   * and caps behave exactly as a picked-up capsule.
+   */
+  grantPowerup(id: PowerupId): void {
+    this._applyPowerup(id);
   }
 
   private _onBallLost(): void {
@@ -911,6 +1169,21 @@ export class BreakoutGame implements Game {
     s.ballY = this.ball.y;
     s.ballRadius = this.ball.radius;
     s.ballResting = !this.ball.launched;
+
+    // S7 view data: falling capsules + the expand buff countdown.
+    s.expandRemaining = this._expandRemaining;
+    if (s.fallingPowerups.length !== this._falling.length) {
+      s.fallingPowerups = this._falling.slice();
+    } else {
+      for (let i = 0; i < this._falling.length; i++) {
+        const f = this._falling[i]!;
+        const sf = s.fallingPowerups[i]!;
+        if (sf.x !== f.x || sf.y !== f.y || sf.id !== f.id) {
+          s.fallingPowerups = this._falling.slice();
+          break;
+        }
+      }
+    }
 
     // Accessibility/motion (assets-spec §6): the switch plus its effect table.
     s.reduceMotion = this._reduceMotion;

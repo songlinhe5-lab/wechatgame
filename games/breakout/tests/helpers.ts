@@ -20,6 +20,7 @@ import {
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { BreakoutGame } from '../src/game/breakout-game.js';
 import type { LevelDef } from '@wxgame/framework';
+import type { LevelData } from '../src/config/levels-data.js';
 
 export interface Harness {
   readonly services: GameServices;
@@ -43,6 +44,10 @@ export interface HarnessOptions {
   seed?: string;
   saveKey?: string;
   levels?: readonly LevelDef[];
+  /** Design records aligned with `levels` (drop rate / powerup pool per board). */
+  levelData?: readonly LevelData[];
+  /** Gameplay tuning override (e.g. fast-fall for powerup chain tests). */
+  tuning?: import('../src/config/tuning.js').BreakoutTuning;
   /**
    * Share a storage instance between harnesses to simulate a relaunch: two
    * harnesses backed by the same `Storage` see each other's saved documents.
@@ -72,6 +77,8 @@ export function createHarness(options: HarnessOptions = {}): Harness {
   const game = new BreakoutGame({
     saveKey: options.saveKey ?? 'wxgame.breakout.test.save',
     ...(options.levels ? { levels: options.levels } : {}),
+    ...(options.levelData ? { levelData: options.levelData } : {}),
+    ...(options.tuning ? { tuning: options.tuning } : {}),
   });
 
   const emitted: { type: string; payload: unknown }[] = [];
@@ -92,6 +99,9 @@ export function createHarness(options: HarnessOptions = {}): Harness {
     'victory',
     'save:written',
     'settings:changed',
+    'powerup:dropped',
+    'powerup:picked',
+    'powerup:missed',
   ];
   for (const type of tracked) {
     events.on(type, (payload) => emitted.push({ type, payload }));

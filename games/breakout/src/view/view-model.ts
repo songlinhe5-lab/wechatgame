@@ -57,9 +57,64 @@ export function buildBreakoutView(
   drawBricks(builder, snap, palette, offX, offY);
   drawBall(builder, snap, palette, offX, offY);
   drawPaddle(builder, snap, palette, offX, offY);
+  drawPowerups(builder, snap, palette);
   drawHud(builder, snap, palette);
   drawCombo(builder, snap, palette);
   drawBanners(builder, snap, palette);
+}
+
+/**
+ * Falling powerup capsules (S7). Icons are distinguished by SHAPE first
+ * (accessibility A4 — colour is only an aid): expand = wide bar, multi =
+ * three dots, life = heart. Sizes follow assets-spec §1.4 (64×64 capsule).
+ */
+function drawPowerups(
+  builder: RenderModelBuilder,
+  snap: BreakoutSnapshot,
+  palette: BreakoutPalette,
+): void {
+  const colors: Record<string, string> = {
+    expand: palette.powerupExpand,
+    multi: palette.powerupMulti,
+    life: palette.powerupLife,
+  };
+  for (const p of snap.fallingPowerups) {
+    const color = colors[p.id] ?? palette.textAccent;
+    const left = p.x - p.width / 2;
+    const bottom = p.y - p.height / 2;
+    // Capsule backplate so the glyph reads on any brick colour.
+    builder.rect(left, bottom, p.width, p.height, {
+      fill: withAlpha(palette.backplate, 0.85),
+      stroke: color,
+      lineWidth: 3,
+      radius: 14,
+    });
+    const cx = p.x;
+    const cy = p.y;
+    switch (p.id) {
+      case 'expand':
+        // A wide bar: "the paddle grows".
+        builder.rect(cx - 22, cy - 5, 44, 10, { fill: color, radius: 5 });
+        break;
+      case 'multi':
+        // Three dots: "one becomes three".
+        builder.circle(cx - 14, cy + 8, 6, { fill: color });
+        builder.circle(cx + 14, cy + 8, 6, { fill: color });
+        builder.circle(cx, cy - 10, 6, { fill: color });
+        break;
+      case 'life':
+        // Heart: two circles + a downward triangle.
+        builder.circle(cx - 8, cy - 5, 9, { fill: color });
+        builder.circle(cx + 8, cy - 5, 9, { fill: color });
+        builder.polygon([cx - 16, cy - 1, cx + 16, cy - 1, cx, cy + 16], { fill: color });
+        break;
+      default:
+        // Defined-but-unimplemented ids never spawn (§3.6); draw a dot anyway
+        // so a future id is visible instead of an invisible catchable.
+        builder.circle(cx, cy, 8, { fill: color });
+        break;
+    }
+  }
 }
 
 function drawArena(
