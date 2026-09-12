@@ -13,6 +13,10 @@
  *
  * It also writes a human-readable report, `ctx/BUDGET.md`.
  *
+ * §4「真实最常用章节 + 分布加权节省率」消费 `ctx/usage-distribution.json`（由
+ * `pnpm run ctx:usage` 从本机读事件账本生成，**WXG-T-026**）；样本不足时回退
+ * `ctx/ROUTES.md` 锚点集并在报表标注「样本不足」，不再做任何硬编码前缀匹配。
+ *
  * USAGE
  *   node tools/scripts/build-context-index.mjs          # write index + report
  *   node tools/scripts/build-context-index.mjs --check  # verify freshness, exit 1 on drift
@@ -33,20 +37,86 @@ import {
   LIMITS,
   buildIndex,
   freshnessIssues,
+  readDistribution,
   readIndex,
+  routesAnchorRefs,
   serializeIndex,
 } from './lib/context-index.mjs';
 
 const CHECK = process.argv.includes('--check');
 
-/** Curated "most-read" section per hot file, for the savings table. */
-const COMMON_SECTION_PREFIX = {
-  'games/beads/design/gdd/systems-index.md': '§3.7',
-  'docs/architecture/architecture-beads.md': '§5 事件装配图',
-  'docs/architecture/control-manifest.md': '§0 五条铁律',
-  'production/qa/beads/test-cases.md': '§A 硬判据用例',
-  'memory/MEMORY.md': '§已知限制',
-};
+/** §4 最少样本数：低于此值则以「ROUTES 锚点集」回退并在报表标注「样本不足」。 */
+const USAGE_MIN_SAMPLES = LIMITS.usageMinSamples;
+
+const pct = (x) => `${(x * 100).toFixed(1)}%`;
+
+/**
+ * §4：真实最常用章节 + 真实分布加权节省率（消费 `ctx/usage-distribution.json`）。
+ * 样本不足（文件缺失或读数 < USAGE_MIN_SAMPLES）时回退 ROUTES 锚点集并显式标注，
+ * **不静默沿用旧常量、不伪造数字**。所有 token 标注「估算」。
+ */
+function renderSavingsSection() {
+  const L = [];
+  L.push('## 4. 真实最常用章节与分布加权节省率（估算）');
+  L.push('');
+  const dist = readDistribution();
+  const reads = dist?.samples?.reads ?? 0;
+
+  if (!dist || reads < USAGE_MIN_SAMPLES) {
+    L.push(
+      `> ⚠️ **样本不足（${reads} 次读取，回退 ROUTES 锚点）**——真实读数低于阈值 ${USAGE_MIN_SAMPLES}，` +
+        '下表为 `ctx/ROUTES.md` 的锚点集，**不代表真实使用分布**。',
+    );
+    L.push('> 生成真实分布：`pnpm run ctx:reads`（采本机会话）→ `pnpm run ctx:usage`。');
+    L.push('');
+    const refs = routesAnchorRefs(15);
+    if (refs.length === 0) {
+      L.push('（ROUTES 锚点集为空）');
+    } else {
+      L.push('| # | 锚点 | 文件 |');
+      L.push('|---:|---|---|');
+      refs.forEach((r, i) => L.push(`| ${i + 1} | \`${r.anchor}\` | \`${r.path}\` |`));
+    }
+    L.push('');
+    return L;
+  }
+
+  // 真实最常用章节：按真实 reads 排序（不再做前缀匹配）。
+  const secs = [];
+  for (const f of dist.files ?? []) {
+    for (const s of f.sections ?? []) secs.push({ ...s, path: f.path });
+  }
+  secs.sort((a, b) => b.reads - a.reads || b.estTokens - a.estTokens || a.path.localeCompare(b.path));
+
+  L.push(
+    `> 数据源：\`ctx/usage-distribution.json\`（真实读事件账本），样本 **${reads}** 次读取 / ` +
+      `${dist.samples?.sessions ?? '—'} 会话；token 一律为**估算**。`,
+  );
+  L.push('');
+  L.push('| # | 锚点 | 文件 | 命中读数 | 归属估算 tokens |');
+  L.push('|---:|---|---|---:|---:|');
+  secs.slice(0, 15).forEach((s, i) => {
+    L.push(`| ${i + 1} | \`${s.anchor}\` | \`${s.path}\` | ${s.reads} | ${s.estTokens} |`);
+  });
+  L.push('');
+
+  const m = dist.metrics?.savings;
+  if (m) {
+    L.push(
+      `**真实分布加权节省率**（估算）：Σ 实际读入 **${m.sumActual}** ÷ Σ 全文 **${m.sumFull}** = ` +
+        `**${pct(m.overall)}**（样本 ${m.samples} 次读取）`,
+    );
+    L.push('');
+    L.push(
+      `> 单次节省率：含整文件读的整体中位数 ${pct(m.median)}、仅局部读中位数 ${pct(m.medianPartial)}、` +
+        `仅局部读 P10 ${pct(m.p10Partial)}——护栏与阈值见 \`pnpm run ctx:check\` E 项。`,
+    );
+  } else {
+    L.push(`> 样本 ${reads} 次读取（分布文件未携带聚合指标；重跑 \`pnpm run ctx:usage\` 补齐）。`);
+  }
+  L.push('');
+  return L;
+}
 
 function today() {
   const d = new Date();
@@ -57,7 +127,6 @@ function today() {
 function renderBudget(index) {
   const files = index.files;
   const resident = files.filter((f) => f.tier === 'always');
-  const hot = files.filter((f) => f.tier === 'hot');
   const top = [...files].sort((a, b) => b.tokens - a.tokens || a.path.localeCompare(b.path));
 
   const overLimit = top.filter((f) => f.tokens > LIMITS.fileMax);
@@ -107,25 +176,7 @@ function renderBudget(index) {
   }
   L.push('');
 
-  L.push('## 4. hot 层章节可节省量（全文 vs 最常用章节）');
-  L.push('');
-  L.push('| 文件 | 全文 tokens | 常用章节 | 章节 tokens | 节省 |');
-  L.push('|---|---:|---|---:|---:|');
-  for (const f of hot) {
-    const prefix = COMMON_SECTION_PREFIX[f.path];
-    const sec = prefix ? f.sections.find((s) => s.anchor.startsWith(prefix)) : null;
-    if (sec) {
-      const pct = f.tokens > 0 ? Math.round((1 - sec.tokens / f.tokens) * 100) : 0;
-      L.push(
-        `| \`${f.path}\` | ${f.tokens} | \`${sec.anchor}\` | ${sec.tokens} | ${pct}% |`,
-      );
-    } else {
-      L.push(`| \`${f.path}\` | ${f.tokens} | —（整文件即最小单元） | — | — |`);
-    }
-  }
-  L.push('');
-  L.push('> 「最常用章节」由 `build-context-index.mjs` 的 `COMMON_SECTION_PREFIX` 指定，与 `ctx/ROUTES.md` 的路由一致。');
-  L.push('');
+  L.push(...renderSavingsSection());
   return L.join('\n');
 }
 

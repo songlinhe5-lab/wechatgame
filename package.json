@@ -18,6 +18,8 @@
     "levels:check": "node tools/scripts/sync-levels-data.mjs --check",
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
+    "ctx:reads": "node tools/scripts/collect-context-reads.mjs",
+    "ctx:usage": "node tools/scripts/analyze-context-usage.mjs",
     "harness": "node tools/scripts/serve-harness.mjs",
     "harness:build": "node tools/scripts/serve-harness.mjs --build-only",
     "harness:smoke": "node tools/scripts/smoke-harness.mjs",

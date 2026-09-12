@@ -1,7 +1,7 @@
 # WXG 任务台账（SSOT）
 
 > 单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前**先读本文件领号**，完成后回填状态——根治跨 IDE 撞号（教训：2026-09-12 CodeBuddy 独立会话撞用 T-013/T-014）。
-> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-023**，下一可用号 **WXG-T-024**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
+> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-028**，下一可用号 **WXG-T-029**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
 |---|---|---|---|---|
@@ -30,7 +30,18 @@
 | WXG-T-023 | 系统工程化：质量门 skill（含工具调用报告格式）+ knowledge/ 知识库 + AGENTS.md §9 协议 | 主理人 | ✅ 完成 | wxgame-quality-gate（四 IDE 链接，skills=13）+ knowledge/INDEX+lessons+patterns + AGENTS.md §9（**任务号误编 021，以本行 023 为准**） |
 | WXG-T-024 | 上下文分级索引 P0：ctx:build 章节索引 + ctx:check 四重守卫（常驻预算/单文件上限/索引新鲜度/ROUTES 锚点）+ CI 接入 | 程基岩 | ✅ 完成 | ctx/{index.json,ROUTES.md,BUDGET.md,budget-exempt.json} · tools/scripts/{build-context-index,check-context-budget}.mjs · tools/scripts/lib/context-{tokens,index}.mjs · ci.yml 新增 ctx job（并入 gate） · AGENTS.md §8 +1 行（去重后 203→196 行/2980 tokens，阈值 3200） · **附：`develop` 纳入 CI 与 commit-lint 触发（裁定 A 方案）+ push 区间 lint** |
 | WXG-T-025 | 修复 headless review 门 ARG_MAX 崩溃（大 diff 传参）+ diff 排除生成物 + 体积兜底 | 程基岩 | ✅ 完成（端到端待 CI 验证） | tools/scripts/ci-pr-review.sh（diff 落 .review/ + argv 与 diff 体积解耦 + 7 项排除 + 300KB 截断）· ci-pr-review-selftest.sh（桩自测 22/22 PASS）· docs/agent/headless-ci-pr-review.md §7 · .gitignore；裁定：保留 `--trust`、阈值 300KB、空 diff fail-open + 透明化 |
+| WXG-T-026 | 分层上下文节省效果验证装置：读入账本采集 + 真实使用分布分析 + 替换硬编码前缀 + E 项节省率/返工护栏守卫 + 四 IDE 埋点调研（含复验缺陷修复轮） | 程基岩 + 严守真（独立复验） | ✅ 完成 | 采集/分析器 + `lib/reads-ledger.mjs` + `ctx/{reads-ledger.jsonl(457),usage-distribution.json,reads-summary.md,savings-baseline.json v2}` + E 项（E1/E2 报告项、E3 硬门）+ `context-instrumentation-survey.md` + selftest **PASS=64**；**实测结论**：局部读节省率中位数 **75.1% ✅** / P10 **30.0% ❌** / 整体加权 **38.5%**（整文件读占 56.7%）→ **策略局部有效、整体未达标**；复验 D-01（改 ROUTES 未重跑 ctx:build 致 C 门红）已闭环，F-01~F-04 全修 |
+| WXG-T-027 | beads 冲刺模式垂直切片工程实现（beads src 首个实现冲刺：P0 骨架 S1/S2/S3/S4/S5 + S7 冲刺连击/爬梯/计分 + Game 装配 + harness 接入 + vitest） | 程基岩 | 🔄 进行中（2026-09-12 领号） | games/beads/{package.json,tsconfig.json,vitest.config.ts} · src/{config,entities,systems,game,view} · tests/** · dev/harness 接入 |
+| WXG-T-028 | beads 冲刺模式测试用例与冒烟清单扩展（S7 §8 十一条判据 + C1–C8 常量 + 四枚冲刺事件；docs-only） | 严守真 | 🔄 进行中（2026-09-12 领号） | production/qa/beads/{test-cases.md v1.2 §B,smoke-tests.md 冲刺段} |
 
 > 注 1：T-016/T-017 的产出实际由 CodeBuddy 侧会话完成（用户授权路径），本台账为跨 IDE 统一追认。
 > 注 2（第二次撞号追认）：CodeBuddy 会话后续又将 CI/CD 与 ADR-0009 误编为 016/017，已按 T-021/T-022 归位；其提交信息与任务单内嵌旧号不回改，以本台账为准。
 > 注 3：多会话并行时领号纪律——开工前读本文件取「下一可用号」并立即回填占位，完成后再更新状态行。
+
+## 待排（backlog，无号，立项时领取）
+
+| 事项 | 来源 | 说明 |
+|---|---|---|
+| **净收益口径** | WXG-T-026 复验提出（严守真） | 现节省率是**毛节省**——未计入装置自身开销（`ctx/ROUTES.md` ≈3352 估算 tokens 常驻 + `ctx/index.json`）。需补「净节省」口径再下结论 |
+| **压缩整文件读** | WXG-T-026 实测结论 | 整文件读占 **259/457（56.7%）**、大文件（≥3000 估算 tokens）整文件读 **65 次** → 拉低 P10（30.0%）。手段：`ROUTES.md §0` 增设「大文件禁止整文件读」硬约束 + 采新样本复测 P10（阶段目标 ≥40%） |
+| **IDE 埋点接入** | `docs/agent/context-instrumentation-survey.md` | 四 IDE 均有 read 埋点能力（Cursor `beforeReadFile` / 其余 `PreToolUse`），**offset/limit 均 `[待实测]`**；建议先对 Cursor 写 log-only hook 实测粒度，再评估推广 |
