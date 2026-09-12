@@ -4,17 +4,17 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "tokens": 2980,
-      "lines": 195,
-      "sha256": "9aec06d1a1c070741cf3782c84fa493781c1128075626d8abd15f093d19a56f8",
+      "tokens": 3199,
+      "lines": 200,
+      "sha256": "c908702cfc037d0466712e7fd529689b239d2816a47923bc57446e5f3a53a758",
       "tier": "always",
       "sections": [
         {
           "anchor": "§AGENTS.md — wechatgame 项目级 Agent 指引",
           "level": 1,
           "startLine": 1,
-          "endLine": 196,
-          "tokens": 2967,
+          "endLine": 201,
+          "tokens": 3185,
           "summary": "本文件是项目常驻记忆层：新开对话应先读这里，再按需加载 skill / 深文档。",
           "keywords": [
             "AGENTS",
@@ -176,8 +176,8 @@
           "anchor": "§9 知识库与调用透明（WXG-T-023）",
           "level": 2,
           "startLine": 181,
-          "endLine": 196,
-          "tokens": 405,
+          "endLine": 201,
+          "tokens": 624,
           "summary": "知识库读写协议（knowledge/，正本 knowledge/INDEX.md）：",
           "keywords": [
             "WXG",
@@ -193,7 +193,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1262,
       "lines": 70,
-      "sha256": "84e7aa3025d5385e0fb20cb0eb679875ee8a0d1e7db87ad2c5210431c18e13f5",
+      "sha256": "f8735af49c47e1bd9d204da4fda1c7d26c1ba0708a977b019adfaee205b348de",
       "tier": "normal",
       "sections": [
         {
@@ -218,7 +218,7 @@
           "startLine": 7,
           "endLine": 16,
           "tokens": 123,
-          "summary": "AGENTS.md 2980 195 3200 ✅",
+          "summary": "AGENTS.md 3199 200 3200 ✅",
           "keywords": [
             "always",
             "AGENTS",
@@ -10874,18 +10874,64 @@
       ]
     },
     {
+      "path": "knowledge/CHANGELOG.md",
+      "tokens": 222,
+      "lines": 13,
+      "sha256": "7962b98b6de291ce8bdeccce0a5ee89f6882d59e9c01731b66a2ff8d7360f399",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 14,
+          "tokens": 208,
+          "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
+          "keywords": [
+            "knowledge",
+            "CHANGELOG",
+            "pnpm",
+            "run",
+            "sync",
+            "知识库变更日"
+          ]
+        },
+        {
+          "anchor": "§2026-09-12",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 14,
+          "tokens": 66,
+          "summary": "",
+          "keywords": []
+        },
+        {
+          "anchor": "§WXG-T-029",
+          "level": 3,
+          "startLine": 11,
+          "endLine": 14,
+          "tokens": 62,
+          "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
+          "keywords": [
+            "WXG",
+            "added"
+          ]
+        }
+      ]
+    },
+    {
       "path": "knowledge/INDEX.md",
-      "tokens": 559,
-      "lines": 38,
-      "sha256": "0d56d100fd7676cbf059d909b895d9d5456f193621a576f10f466eccbf2287de",
+      "tokens": 2732,
+      "lines": 114,
+      "sha256": "b334e1e035a120bc362a69b2339adf669b3ce28ba821d572ac2235e8a9fcc916",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 39,
-          "tokens": 544,
+          "endLine": 115,
+          "tokens": 2717,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -10912,8 +10958,8 @@
           "anchor": "§2 写入协议（任务收尾）",
           "level": 2,
           "startLine": 13,
-          "endLine": 27,
-          "tokens": 183,
+          "endLine": 33,
+          "tokens": 469,
           "summary": "每个 WXG 任务收尾时，执行者随交付回传 0–3 条沉淀候选（没有可传「无」）；主理人汇编去重后入账。",
           "keywords": [
             "WXG",
@@ -10924,9 +10970,9 @@
         {
           "anchor": "§3 文件分工",
           "level": 2,
-          "startLine": 28,
-          "endLine": 34,
-          "tokens": 62,
+          "startLine": 34,
+          "endLine": 42,
+          "tokens": 176,
           "summary": "lessons.md 教训库：踩过的坑与规避（按类别排序，最新在后）",
           "keywords": [
             "lessons",
@@ -10936,29 +10982,105 @@
         {
           "anchor": "§4 维护",
           "level": 2,
-          "startLine": 35,
-          "endLine": 39,
-          "tokens": 56,
+          "startLine": 43,
+          "endLine": 48,
+          "tokens": 105,
           "summary": "主理人负责汇编与去重；条目不删改只追加，废弃条目标 [已过时：原因]。",
           "keywords": [
             "维护"
+          ]
+        },
+        {
+          "anchor": "§5 生命周期（访问记账 → 归档 → 重新激活）",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 78,
+          "tokens": 708,
+          "summary": "",
+          "keywords": [
+            "生命周期",
+            "访问记账",
+            "归档",
+            "重新激活"
+          ]
+        },
+        {
+          "anchor": "§5.1 命令表",
+          "level": 3,
+          "startLine": 51,
+          "endLine": 62,
+          "tokens": 348,
+          "summary": "pnpm run kb:sync 解析两个 md → 分配新条目 ID → 刷新 ledger.json 与下方活跃表（",
+          "keywords": [
+            "pnpm",
+            "run",
+            "sync",
+            "ledger",
+            "json",
+            "命令表"
+          ]
+        },
+        {
+          "anchor": "§5.2 归档阈值（用户 2026-09-12 裁定，存于 `ledger.json.thresholds`）",
+          "level": 3,
+          "startLine": 63,
+          "endLine": 71,
+          "tokens": 183,
+          "summary": "闲置 90 天 且访问次数 ≤ 1 → 列入归档候选；必须人工确认后才移动。",
+          "keywords": [
+            "ledger.json.thresholds",
+            "ledger",
+            "json",
+            "thresholds",
+            "归档阈值",
+            "用户"
+          ]
+        },
+        {
+          "anchor": "§5.3 重新激活与合并",
+          "level": 3,
+          "startLine": 72,
+          "endLine": 78,
+          "tokens": 138,
+          "summary": "1. 新增条目后跑 pnpm run kb:audit，若命中归档条目（相似度 ≥ 0.34）：",
+          "keywords": [
+            "pnpm",
+            "run",
+            "audit",
+            "重新激活与合"
+          ]
+        },
+        {
+          "anchor": "§6 活跃条目（自动生成）",
+          "level": 2,
+          "startLine": 79,
+          "endLine": 115,
+          "tokens": 983,
+          "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
+          "keywords": [
+            "active",
+            "start",
+            "pnpm",
+            "run",
+            "sync",
+            "活跃条目"
           ]
         }
       ]
     },
     {
       "path": "knowledge/lessons.md",
-      "tokens": 1855,
-      "lines": 61,
-      "sha256": "839cf62fe88aa3203496d086f178dd565c7ed601884481abd1f289798566dd7c",
+      "tokens": 2689,
+      "lines": 81,
+      "sha256": "6a4426bdb9527e86f56ba42d8278e248536eae0d06b6dcd230c0516b9236fa26",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons.md — 教训库（追加式，最新在后）",
           "level": 1,
           "startLine": 1,
-          "endLine": 62,
-          "tokens": 1838,
+          "endLine": 82,
+          "tokens": 2671,
           "summary": "",
           "keywords": [
             "lessons",
@@ -10971,56 +11093,50 @@
           "anchor": "§工具链",
           "level": 2,
           "startLine": 3,
-          "endLine": 32,
-          "tokens": 1087,
-          "summary": "[工具链] commitlint 自定义规则必须经 plugins 数组注册（来源 WXG-T-021 / 修复 com",
+          "endLine": 42,
+          "tokens": 1543,
+          "summary": "[工具链][K-001] commitlint 自定义规则必须经 plugins 数组注册（来源 WXG-T-021 /",
           "keywords": [
             "commitlint",
             "plugins",
             "WXG",
-            "com",
             "工具链"
           ]
         },
         {
           "anchor": "§跨 IDE",
           "level": 2,
-          "startLine": 33,
-          "endLine": 49,
-          "tokens": 479,
-          "summary": "[跨IDE] Qoder 把 model: inherit 当具体模型 ID 解析（来源 commit 2665d10，",
+          "startLine": 43,
+          "endLine": 69,
+          "tokens": 853,
+          "summary": "[工具链][K-029] 自增 ID 的下界必须取自既有数据，不能只看计数器（来源 WXG-T-029，2026-09-",
           "keywords": [
             "IDE",
-            "Qoder",
-            "model",
-            "inherit",
-            "commit",
-            "d10"
+            "WXG"
           ]
         },
         {
           "anchor": "§环境",
           "level": 2,
-          "startLine": 50,
-          "endLine": 56,
-          "tokens": 135,
-          "summary": "[环境] WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）（来源 WXG-T",
+          "startLine": 70,
+          "endLine": 76,
+          "tokens": 137,
+          "summary": "[环境][K-010] WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）（来",
           "keywords": [
             "WorkBuddy",
             "bash",
             "grep",
             "exit",
-            "WXG",
             "环境"
           ]
         },
         {
           "anchor": "§流程",
           "level": 2,
-          "startLine": 57,
-          "endLine": 62,
-          "tokens": 124,
-          "summary": "[流程] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
+          "startLine": 77,
+          "endLine": 82,
+          "tokens": 126,
+          "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
             "WXG",
             "流程"
@@ -11030,17 +11146,17 @@
     },
     {
       "path": "knowledge/patterns.md",
-      "tokens": 1398,
-      "lines": 60,
-      "sha256": "6ea1ca598bb44d3133b53f9598645de0574a606ba55740d549a4f8a5dc9398f4",
+      "tokens": 1744,
+      "lines": 69,
+      "sha256": "839b5e91854c535527be1784358053729bd5e50df9e1c2708046b2e26f4af5f9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§patterns.md — 模式库（本仓已验证可复用的做法，追加式）",
           "level": 1,
           "startLine": 1,
-          "endLine": 61,
-          "tokens": 1373,
+          "endLine": 70,
+          "tokens": 1719,
           "summary": "",
           "keywords": [
             "patterns",
@@ -11055,8 +11171,8 @@
           "level": 2,
           "startLine": 3,
           "endLine": 12,
-          "tokens": 189,
-          "summary": "冻结常量 SSOT 模式（breakout/beads 双实例验证）",
+          "tokens": 193,
+          "summary": "[K-012] 冻结常量 SSOT 模式（breakout/beads 双实例验证）",
           "keywords": [
             "SSOT",
             "breakout",
@@ -11069,8 +11185,8 @@
           "level": 2,
           "startLine": 13,
           "endLine": 25,
-          "tokens": 258,
-          "summary": "决策表模式（breakout src/systems/motion.ts 实例）",
+          "tokens": 264,
+          "summary": "[K-014] 决策表模式（breakout src/systems/motion.ts 实例）",
           "keywords": [
             "breakout",
             "src",
@@ -11084,8 +11200,8 @@
           "level": 2,
           "startLine": 26,
           "endLine": 49,
-          "tokens": 678,
-          "summary": "章节级上下文索引（ctx/ 体系，WXG-T-024）",
+          "tokens": 688,
+          "summary": "[K-017] 章节级上下文索引（ctx/ 体系，WXG-T-024）",
           "keywords": [
             "ctx",
             "WXG",
@@ -11097,9 +11213,9 @@
           "anchor": "§流程",
           "level": 2,
           "startLine": 50,
-          "endLine": 61,
-          "tokens": 226,
-          "summary": "八要素 spawn 模板：角色声明 / Task ID / 项目上下文 / 环境事实（做不了的要明说）/ 权威来源清单",
+          "endLine": 70,
+          "tokens": 552,
+          "summary": "[K-022] 八要素 spawn 模板：角色声明 / Task ID / 项目上下文 / 环境事实（做不了的要明说）/",
           "keywords": [
             "spawn",
             "Task",
@@ -16870,9 +16986,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2686,
+      "tokens": 2778,
       "lines": 49,
-      "sha256": "023f4132f65eda42a945606768898a76bb6d8ab653738e32e338855e1deca510",
+      "sha256": "d66765c272f69eebf0040e13c1e4ed607243381cc6e0876dabda27e9d8a4fc05",
       "tier": "hot",
       "sections": [
         {
@@ -16880,7 +16996,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 50,
-          "tokens": 2677,
+          "tokens": 2769,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
