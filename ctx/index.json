@@ -3182,17 +3182,17 @@
     },
     {
       "path": "docs/ci/commit-and-review-rules.md",
-      "tokens": 2490,
-      "lines": 158,
-      "sha256": "79e82ab250e5f51889a02d2edb2a2f126bb7cbbfeb699efbd83470cbef539c91",
+      "tokens": 2603,
+      "lines": 161,
+      "sha256": "155fc661ac5b54dd1d4b0dca6f6a53f8c08d1730903dcceb53f40238f60eeee6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提交与 Code Review 拦截规则 — WXG-T-016",
           "level": 1,
           "startLine": 1,
-          "endLine": 159,
-          "tokens": 2475,
+          "endLine": 162,
+          "tokens": 2588,
           "summary": "目标：每个提交可追溯到任务单，且 type/scope 粒度与仓库分区一致；PR 有模板、责任人与标签；合并由分支保护统",
           "keywords": [
             "Code",
@@ -3223,8 +3223,8 @@
           "anchor": "§2 提交信息规则（commitlint，`commitlint.config.mjs`）",
           "level": 2,
           "startLine": 19,
-          "endLine": 105,
-          "tokens": 921,
+          "endLine": 108,
+          "tokens": 1034,
           "summary": "Header 形如：",
           "keywords": [
             "commitlint.config.mjs",
@@ -3254,8 +3254,8 @@
           "anchor": "§2.2 scope 对照表（适用路径）",
           "level": 3,
           "startLine": 43,
-          "endLine": 66,
-          "tokens": 269,
+          "endLine": 69,
+          "tokens": 382,
           "summary": "framework packages/framework/",
           "keywords": [
             "scope",
@@ -3268,8 +3268,8 @@
         {
           "anchor": "§2.3 其他 header 规则",
           "level": 3,
-          "startLine": 67,
-          "endLine": 73,
+          "startLine": 70,
+          "endLine": 76,
           "tokens": 57,
           "summary": "header-max-length: 100",
           "keywords": [
@@ -3283,8 +3283,8 @@
         {
           "anchor": "§2.4 task-id-required（自定义规则）",
           "level": 3,
-          "startLine": 74,
-          "endLine": 82,
+          "startLine": 77,
+          "endLine": 85,
           "tokens": 65,
           "summary": "整条提交信息（header + body + footer 任意位置）必须包含：",
           "keywords": [
@@ -3299,8 +3299,8 @@
         {
           "anchor": "§2.5 正例 / 反例",
           "level": 3,
-          "startLine": 83,
-          "endLine": 105,
+          "startLine": 86,
+          "endLine": 108,
           "tokens": 271,
           "summary": "正例（沿用仓库既有风格）：",
           "keywords": [
@@ -3311,8 +3311,8 @@
         {
           "anchor": "§3 PR 规则",
           "level": 2,
-          "startLine": 106,
-          "endLine": 122,
+          "startLine": 109,
+          "endLine": 125,
           "tokens": 302,
           "summary": "",
           "keywords": [
@@ -3322,8 +3322,8 @@
         {
           "anchor": "§3.1 PR 模板（`.github/pull_request_template.md`）",
           "level": 3,
-          "startLine": 108,
-          "endLine": 111,
+          "startLine": 111,
+          "endLine": 114,
           "tokens": 92,
           "summary": "新建 PR 自动带出，含：变更类型勾选、Task ID 必填、影响范围、G 门自检（G1 架构守卫 / G2 关卡同步 ",
           "keywords": [
@@ -3337,8 +3337,8 @@
         {
           "anchor": "§3.2 CODEOWNERS（`.github/CODEOWNERS`）",
           "level": 3,
-          "startLine": 112,
-          "endLine": 115,
+          "startLine": 115,
+          "endLine": 118,
           "tokens": 77,
           "summary": "按路径细粒度，当前 owner 统一 @stephenhe（为未来协作者预留结构）。覆盖：/packages/frame",
           "keywords": [
@@ -3353,8 +3353,8 @@
         {
           "anchor": "§3.3 自动标签（`.github/labeler.yml` + `.github/workflows/labeler.yml`）",
           "level": 3,
-          "startLine": 116,
-          "endLine": 122,
+          "startLine": 119,
+          "endLine": 125,
           "tokens": 83,
           "summary": "PR 按变更路径自动打标签：framework、game:breakout、game:beads、design、qa、e",
           "keywords": [
@@ -3369,8 +3369,8 @@
         {
           "anchor": "§4 分支保护（`tools/scripts/setup-branch-protection.sh`）",
           "level": 2,
-          "startLine": 123,
-          "endLine": 151,
+          "startLine": 126,
+          "endLine": 154,
           "tokens": 670,
           "summary": "脚本用 gh api 幂等写入 master 保护规则（自动从 git remote get-url origin 解析",
           "keywords": [
@@ -3385,8 +3385,8 @@
         {
           "anchor": "§4.1 分支模型（WXG-T-024 裁定 A 方案）",
           "level": 3,
-          "startLine": 140,
-          "endLine": 151,
+          "startLine": 143,
+          "endLine": 154,
           "tokens": 188,
           "summary": "master ✅ 三 required check + 必须走 PR + 线性历史 push + PR 唯一受保护主线，",
           "keywords": [
@@ -3401,8 +3401,8 @@
         {
           "anchor": "§5 CI 粒度细化（`.github/workflows/ci.yml`）",
           "level": 2,
-          "startLine": 152,
-          "endLine": 159,
+          "startLine": 155,
+          "endLine": 162,
           "tokens": 221,
           "summary": "dorny/paths-filter@v3 检测变更组：framework / game / tools / ctx（f",
           "keywords": [
