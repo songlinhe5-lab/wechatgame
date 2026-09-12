@@ -4,13 +4,14 @@
 # changes filter 组：
 #   framework → packages/framework/**
 #   game      → games/*/src/**、games/*/design/levels/**、tools/scripts/sync-levels-data.mjs
-#   docs      → **/*.md、docs/**
 #   tools     → tools/**、package.json、pnpm-lock.yaml、.githooks/**
+#   ctx       → **/*.md、package.json、tools/scripts/**、ctx/**（上下文预算 / 索引 / ROUTES 锚点）
 name: CI
 
 on:
   push:
-    branches: [main, master]
+    # develop 也跑 CI（WXG-T-024 裁定 A 方案）：长期分支上就拦截，避免未过验证的提交堆积到 PR 时才暴露
+    branches: [main, master, develop]
   pull_request:
 
 concurrency:
@@ -25,8 +26,8 @@ jobs:
     outputs:
       framework: ${{ steps.filter.outputs.framework }}
       game: ${{ steps.filter.outputs.game }}
-      docs: ${{ steps.filter.outputs.docs }}
       tools: ${{ steps.filter.outputs.tools }}
+      ctx: ${{ steps.filter.outputs.ctx }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,14 +46,16 @@ jobs:
               - 'games/*/src/**'
               - 'games/*/design/levels/**'
               - 'tools/scripts/sync-levels-data.mjs'
-            docs:
-              - '**/*.md'
-              - 'docs/**'
             tools:
               - 'tools/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - '.githooks/**'
+            ctx:
+              - '**/*.md'
+              - 'package.json'
+              - 'tools/scripts/**'
+              - 'ctx/**'
 
   # ① 架构守卫 + 四 IDE 链接：纯 Node 零依赖，始终运行（门禁底线）
   arch-guard:
@@ -163,11 +166,36 @@ jobs:
       - name: harness:smoke
         run: pnpm run harness:smoke
 
-  # ⑤ 收口：任一「被触发且失败」的 job → gate 失败；未触发（skipped）不算失败。
+  # ⑤ 上下文预算 / 索引新鲜度 / ROUTES 锚点：docs / tools / ctx 变更时运行
+  #    （只校验仓库内已入库的 ctx/index.json，零安装、不先 build）
+  ctx:
+    name: Context budget
+    needs: changes
+    if: needs.changes.outputs.ctx == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: ctx:check
+        run: pnpm run ctx:check
+
+  # ⑥ 收口：任一「被触发且失败」的 job → gate 失败；未触发（skipped）不算失败。
   #    分支保护 required check 只挂 "gate"。
   gate:
     name: gate
-    needs: [arch-guard, levels, unit, harness]
+    needs: [arch-guard, levels, unit, harness, ctx]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -188,6 +216,7 @@ jobs:
           check "levels"     "${{ needs.levels.result }}"
           check "unit"       "${{ needs.unit.result }}"
           check "harness"    "${{ needs.harness.result }}"
+          check "ctx"        "${{ needs.ctx.result }}"
           if [ "$fail" -ne 0 ]; then
             echo "::error::GATE FAILED —— 存在被触发且失败的 job，合并被阻止"
             exit 1

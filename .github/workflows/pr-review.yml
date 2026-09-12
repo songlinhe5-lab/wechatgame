@@ -49,7 +49,7 @@ jobs:
           BASE: origin/${{ github.base_ref }}
         run: |
           chmod +x tools/scripts/ci-pr-review.sh
-          git fetch origin "${{ github.base_ref }}" --depth=1 || true
+          git fetch origin "${{ github.base_ref }}" || true
           ./tools/scripts/ci-pr-review.sh "origin/${{ github.base_ref }}"
 
       - name: Comment on PR

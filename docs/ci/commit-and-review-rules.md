@@ -10,7 +10,7 @@
 | 层 | 实现 | 触发时机 | 兜底 |
 |---|---|---|---|
 | **本地** | `.githooks/commit-msg`（经 `core.hooksPath=.githooks` 全 IDE 生效，`pnpm install` 的 `prepare` 钩子自动安装） | 每次本机 `git commit` | `pnpm` 缺失或依赖不全 → 明确报错要求先 `pnpm install` |
-| **CI** | `.github/workflows/commit-lint.yml`（check 名 `lint`） | PR：lint `base..HEAD` 全部新增提交；push 到 `master`：只 lint HEAD 提交 | 无 |
+| **CI** | `.github/workflows/commit-lint.yml`（check 名 `lint`） | PR：lint `base..HEAD` 全部新增提交；push 到 `master`/`develop`：lint 推送区间（首推/强推基点缺失时回退只 lint HEAD） | 无 |
 
 **已知豁免**：CI 只查**新增**提交，**不回溯历史**。仓库历史提交可能不完全符合新规（如旧提交未带 `WXG-T-` 号），属预期行为，不构成 CI 失败。
 
@@ -137,12 +137,22 @@ PR 按变更路径自动打标签：`framework`、`game:breakout`、`game:beads`
 
 **执行纪律**：本脚本改动远端保护属高影响动作，须由主理人带用户执行，勿在 CI 中自动运行。
 
+### 4.1 分支模型（WXG-T-024 裁定 A 方案）
+
+| 分支 | 保护 | CI 触发 | 用途 |
+|---|---|---|---|
+| `master` | ✅ 三 required check + 必须走 PR + 线性历史 | push + PR | 唯一受保护主线，合并即受门禁 |
+| `develop` | ❌ 未保护（可直推） | **push + PR（本次裁定新增）** | 日常集成分支：在长驻分支上就拦截，避免未过验证的提交堆积到 PR 才暴露 |
+| `feat/*` 等临时分支 | ❌ | PR | 短期特性分支 |
+
+**纪律**：直推 `develop` 虽无保护，但 CI（含 `gate`、`lint`）会跑——**红了就地修，不要带着红状态往 master 提 PR**；`master` 的合并一律走 PR。
+
 ---
 
 ## 5. CI 粒度细化（`.github/workflows/ci.yml`）
 
-- `dorny/paths-filter@v3` 检测变更组：`framework` / `game` / `docs` / `tools`（filter 定义见 workflow 头注释）
-- Job 拆分：`arch-guard`（始终跑，纯 Node 零依赖）→ `levels` / `unit`（framework/game/tools 触发）→ `harness`（framework/game 触发）
+- `dorny/paths-filter@v3` 检测变更组：`framework` / `game` / `tools` / `ctx`（filter 定义见 workflow 头注释；`docs` 组已删——文档变更由常驻 `arch-guard` 的 `check:links` 覆盖）
+- Job 拆分：`arch-guard`（始终跑，纯 Node 零依赖）→ `levels` / `unit`（framework/game/tools 触发）→ `harness`（framework/game 触发）→ `ctx`（`**/*.md` / `package.json` / `tools/scripts/**` / `ctx/**` 触发）
 - 收口 job `gate`：`needs` 全部 + `if: always()` 汇总——任一被触发且失败则 gate 失败；`skipped`（未触发）不算失败
 - **分支保护只需挂 `gate` 一个 required check**（CI 内部粒度变化不影响保护配置）
 - 本地语义不变：`pnpm run verify` 仍是全量门禁唯一入口

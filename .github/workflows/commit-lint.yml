@@ -1,12 +1,12 @@
 # 提交信息拦截（CI 层）— WXG-T-016
-# 只查「新增」提交：PR 查 base..HEAD，push 到 master 只查 HEAD——不回溯历史
-# （历史提交可能不符合新规，属已知豁免；本地拦截层见 .githooks/commit-msg）
+# 只查「新增」提交：PR 查 base..HEAD，push 到 master/develop 查推送区间（基点缺失时回退只查 HEAD）
+# ——不回溯历史（历史提交可能不符合新规，属已知豁免；本地拦截层见 .githooks/commit-msg）
 # 规则文档：docs/ci/commit-and-review-rules.md
 name: Commit Lint
 
 on:
   push:
-    branches: [master]
+    branches: [master, develop]
   pull_request:
 
 concurrency:
@@ -44,6 +44,18 @@ jobs:
         if: github.event_name == 'pull_request'
         run: npx commitlint --from=${{ github.event.pull_request.base.sha }} --to=HEAD
 
-      - name: Lint HEAD commit (push to master)
+      - name: Lint pushed commits (push to master/develop)
         if: github.event_name == 'push'
-        run: git log -1 --pretty=%B | npx commitlint
+        run: |
+          set -u
+          BEFORE="${{ github.event.before }}"
+          # 首推 / 强推 / 基点不可达 → 回退为只 lint HEAD，避免因基点缺失直接红
+          if [ -z "$BEFORE" ] \
+             || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+            echo "无法定位推送前基点（首推/强推），回退为只 lint HEAD"
+            git log -1 --pretty=%B | npx commitlint
+          else
+            echo "lint 推送区间 ${BEFORE}..${{ github.sha }}"
+            npx commitlint --from="$BEFORE" --to="${{ github.sha }}"
+          fi

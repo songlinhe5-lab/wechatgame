@@ -11,6 +11,9 @@ out/
 # 浏览器验证器的临时副本
 dev/harness/.smoke/
 
+# Headless PR 审查的临时 diff / agent 输出（WXG-T-025；运行 ci-pr-review.sh 时产生）
+.review/
+
 # 测试与覆盖率
 coverage/
 

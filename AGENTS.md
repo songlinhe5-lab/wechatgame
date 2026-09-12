@@ -15,8 +15,6 @@
 | WorkBuddy | `.workbuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
 | Qoder | `.qoder/rules/agents-md.md` → `../../my-rules/agents-md.md` |
 
-项目铁律与流程正本仍是根目录 **`AGENTS.md`**；`my-rules/agents-md.md` 只是短指针摘要。清单见 `my-rules/INDEX.md`。
-
 ## 长期笔记 MEMORY（四 IDE 可索引）
 
 | 角色 | 路径 |
@@ -26,8 +24,6 @@
 | CodeBuddy | `.codebuddy/memory` → `../memory` |
 | Qoder | `.qoder/memory` → `../memory` |
 | Cursor | `.cursor/memory/MEMORY.md`（入口指针；内容请读正本） |
-
-`AGENTS.md` = 常驻铁律与默认流程；`memory/MEMORY.md` = 会演进的运行时约定 / 脚本备忘 / 已知限制。需要活笔记时 **Read `memory/MEMORY.md`**。
 
 ---
 
@@ -46,14 +42,12 @@
 |---|---|
 | 全流程 / 跨域 / 阶段诊断 / 质量门裁决 | `wxgame-orchestration`（先读 `my-skills/wxgame-orchestration/SKILL.md`） |
 | 单域交付物（GDD / UX / ADR / Epic / 美术 / QA / 发布…） | 对应 `my-skills/wxgame-*`；家族清单与优先级见 `my-skills/INDEX.md` |
-| **工作室成员委派（SubAgent）** | 正本 `my-agents/`（6 成员 + `studio-orchestrator`）。四 IDE：`.cursor\|.codebuddy\|.workbuddy\|.qoder/agents/<name>.md` → `../../my-agents/<name>.md`。清单见 `my-agents/INDEX.md` |
+| **工作室成员委派（SubAgent）** | 正本 `my-agents/`（6 成员 + `studio-orchestrator`）；委派时 `subagent_type` = `<name>`。四 IDE：`.cursor\|.codebuddy\|.workbuddy\|.qoder/agents/<name>.md` → `../../my-agents/<name>.md`。清单见 `my-agents/INDEX.md` |
 | 生成配乐 / UI 口播**文件** | `indie-game-ost-pack` / `game-ui-voice-pack`（先查 `wxgame-audio-spec` 事件表） |
 | Godot/Unity/Unreal 通用引擎查漏 | 仅当用户**明确点名** `game-studio`（已 `disable-model-invocation`） |
 | 市场版「游戏开发助手免费版」 | **不用**；`game-dev-tool-free` 仅存档、未挂 IDE 链接 |
 
-- **Studio 成员** → `.cursor/agents/<name>.md`（正本 `my-agents/<name>.md`；委派时 `subagent_type` = `<name>`）
-- **Hooks / 提交门禁** → `docs/agent/hooks-best-practices.md`（`.githooks` 拦全 IDE `git commit` + `.cursor/hooks` 加固 Agent）
-- **Headless / PR 流水线** → `docs/agent/headless-ci-pr-review.md`（`agent -p` 审查 + `.github/workflows`）
+- **Hooks / 提交门禁**、**Headless / PR 流水线**、Cursor Hooks → 见 §8 分层阅读指引。
 
 **主理人触发条件（条件式，非默认人格）**：
 
@@ -76,13 +70,13 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 
 新增 skill：正本进 `my-skills/`，四处各建 `../../my-skills/<name>` 链接。
 
-跨域或「整款游戏从哪开始」→ 先交编排，不要自己跳着写全套文档（见上表「主理人触发条件」）。
+跨域或「整款游戏从哪开始」→ 先交编排，不要自己跳着写全套文档。
 
 ---
 
 ## 3. 不可违反的工程铁律
 
-完整表与评审清单：`docs/architecture/control-manifest.md`。摘要：
+完整表与评审清单：`docs/architecture/`（`control-manifest.md`、`architecture.md`、`adr/`）。摘要：
 
 | # | 规则 |
 |---|---|
@@ -97,8 +91,6 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 - **热路径零分配**：`update` / `step` / `buildRenderModel` 内不随意 `new` / `map`/`filter` 造集合。
 - **数据驱动**：魔法数字进 `tuning` / 关卡 JSON；颜色进 `palette.ts`。
 - **Cocos bindings**（`adapters/cocos/bindings.ts`）**不进**框架 barrel，harness 不可直接编译它。
-
-架构与 ADR：`docs/architecture/`（含 `architecture.md`、`adr/`、`control-manifest.md`）。
 
 ---
 
@@ -132,6 +124,7 @@ dev/harness/         浏览器验证器
 my-skills/           Agent Skills 正本 + INDEX.md
 my-agents/           SubAgent 正本 + INDEX.md
 my-rules/            跨 IDE alwaysApply 规则正本 + INDEX.md
+knowledge/           知识库（教训 lessons / 模式 patterns + INDEX 读写协议）
 tools/scripts/       架构守卫 · 关卡同步 · harness · 预览
 ```
 
@@ -169,6 +162,7 @@ Node ≥ 20；包管理器以根 `package.json` 的 `packageManager` 为准（pn
 
 | 需要… | 读 |
 |---|---|
+| 找"该读哪个文件的哪一节" | ctx/ROUTES.md（章节级锚点路由表，先读它再分段读） |
 | 项目入口与铁律 | **本文件**（`AGENTS.md`） |
 | 长期笔记 / 脚本备忘 / 已知限制 | `memory/MEMORY.md` |
 | Skill 清单 / 优先级 / 路径约定 | `my-skills/INDEX.md` |
@@ -180,3 +174,22 @@ Node ≥ 20；包管理器以根 `package.json` 的 `packageManager` 为准（pn
 | 跨 IDE 常驻规则摘要 | `my-rules/agents-md.md`（见 `my-rules/INDEX.md`） |
 | Cursor Hooks / 跨 IDE 提交门禁 | `docs/agent/hooks-best-practices.md` |
 | Headless CI / 自动 PR 审查 | `docs/agent/headless-ci-pr-review.md` |
+| 教训 / 可复用模式 | `knowledge/INDEX.md`（lessons / patterns，WXG-T-023） |
+
+---
+
+## 9. 知识库与调用透明（WXG-T-023）
+
+**知识库读写协议**（`knowledge/`，正本 `knowledge/INDEX.md`）：
+1. **开发前期**：实现/修复/接入/发布类任务开工前，先读 `knowledge/lessons.md` 同域条目，
+   相关条目列入任务单必读（spawn 八要素的权威来源清单带上路径）。
+2. **任务收尾**：执行者随交付回传 0–3 条沉淀候选（踩坑修复 / 反直觉行为 / 可复用做法；没有传「无」），
+   由主理人去重汇编入 `lessons.md` / `patterns.md`，条目必须带 Task ID 可追溯。
+3. 只追加不删改；废弃条目标 `[已过时：原因]`；沉淀动作在会话结论的工具调用清单中体现。
+
+**工具调用报告纪律**（会话结论强制）：
+1. 每次会话结论必须附**工具调用清单**：凡调用的 skill、spawn 的子代理（成员名 + Task ID + 产物路径）、
+   脚本命令、外部能力（图像/音视频生成、web 检索等）逐条列出——格式见 `wxgame-quality-gate` skill §2。
+2. 每条给**结果摘要**（成功/失败、passed/failed 数字、commit hash、产物路径），失败项必须给原因与下一步，
+   禁止静默省略或「一切正常」式空话。
+3. 实现任务收尾自验走 `wxgame-quality-gate`（verify 全量门禁），报告随 commit 回传。
