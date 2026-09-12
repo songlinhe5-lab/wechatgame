@@ -191,18 +191,18 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1262,
-      "lines": 70,
-      "sha256": "f8735af49c47e1bd9d204da4fda1c7d26c1ba0708a977b019adfaee205b348de",
+      "tokens": 1298,
+      "lines": 72,
+      "sha256": "fad4925382667756aaf3ec86811ff766c7d5812169e0a31b58cf4f4c38011ea1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 71,
-          "tokens": 1249,
-          "summary": "生成：2026-09-12 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "endLine": 73,
+          "tokens": 1285,
+          "summary": "生成：2026-09-13 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -230,35 +230,38 @@
           "level": 2,
           "startLine": 17,
           "endLine": 41,
-          "tokens": 350,
-          "summary": "1 production/epics/epics-breakout.md 7135 316 normal",
+          "tokens": 351,
+          "summary": "1 memory/2026-09-12.md 10141 151 normal",
           "keywords": [
             "Top",
             "tokens",
-            "production",
-            "epics",
-            "breakout",
-            "normal"
+            "memory",
+            "normal",
+            "大文件",
+            "估算"
           ]
         },
         {
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 42,
-          "endLine": 45,
-          "tokens": 7,
-          "summary": "无超限文件。",
+          "endLine": 47,
+          "tokens": 43,
+          "summary": "memory/2026-09-12.md 10141 见 ctx/budget-exempt.json（无豁免则 ❌ 需",
           "keywords": [
             "tokens",
-            "超限清单",
-            "单文件上限"
+            "memory",
+            "ctx",
+            "budget",
+            "exempt",
+            "json"
           ]
         },
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 46,
-          "endLine": 71,
+          "startLine": 48,
+          "endLine": 73,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -5113,18 +5116,18 @@
     },
     {
       "path": "games/beads/design/gdd/pause-settings.md",
-      "tokens": 2456,
-      "lines": 102,
-      "sha256": "ae22955af0289419527a6e7998629e63ddae66f1b732a4e5ddecebba72b6d6e2",
+      "tokens": 3807,
+      "lines": 119,
+      "sha256": "2892fd2b55fdf453009eaf2f11a2a8568725c9866bbc6a9298c1253c30664924",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S9 暂停与设置（Pause & Settings）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 103,
-          "tokens": 2440,
-          "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-015",
+          "endLine": 120,
+          "tokens": 3790,
+          "summary": "项目：games/beads · 版本 v1.2 · 任务号 WXG-T-015",
           "keywords": [
             "GDD",
             "Pause",
@@ -5149,8 +5152,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 13,
-          "endLine": 40,
-          "tokens": 724,
+          "endLine": 41,
+          "tokens": 847,
           "summary": "",
           "keywords": [
             "机制"
@@ -5176,8 +5179,8 @@
           "anchor": "§2.2 暂停面板（内容清单，冻结范围）",
           "level": 3,
           "startLine": 22,
-          "endLine": 34,
-          "tokens": 244,
+          "endLine": 35,
+          "tokens": 347,
           "summary": "继续 game:resumed → S1 回 PLAYING 主按钮",
           "keywords": [
             "game",
@@ -5191,9 +5194,9 @@
         {
           "anchor": "§2.3 冻结语义（复用 ADR-0007 单点裁决）",
           "level": 3,
-          "startLine": 35,
-          "endLine": 40,
-          "tokens": 215,
+          "startLine": 36,
+          "endLine": 41,
+          "tokens": 234,
           "summary": "进入 PAUSED：S5 计时冻结（含告急判定与连击窗口的 sprint 扩展）、S4 供料心跳冻结；表现层不冻结（脉冲",
           "keywords": [
             "ADR",
@@ -5207,8 +5210,8 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 41,
-          "endLine": 49,
+          "startLine": 42,
+          "endLine": 50,
           "tokens": 95,
           "summary": "玩家（经 S2 优先级 1） 齿轮点击 → 暂停请求",
           "keywords": [
@@ -5218,8 +5221,8 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 50,
-          "endLine": 59,
+          "startLine": 51,
+          "endLine": 60,
           "tokens": 178,
           "summary": "game:paused / game:resumed 齿轮/继续按钮（§4 既有事件，S9 是唯一发布方之一） syst",
           "keywords": [
@@ -5234,8 +5237,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 60,
-          "endLine": 66,
+          "startLine": 61,
+          "endLine": 67,
           "tokens": 119,
           "summary": "引用 §3.1：HUD_BAND（齿轮带位）、CAPSULE_AVOID（面板右侧避让——面板宽不得侵入胶囊区）。",
           "keywords": [
@@ -5248,9 +5251,9 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 67,
-          "endLine": 84,
-          "tokens": 476,
+          "startLine": 68,
+          "endLine": 89,
+          "tokens": 921,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -5259,8 +5262,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 85,
-          "endLine": 90,
+          "startLine": 90,
+          "endLine": 95,
           "tokens": 158,
           "summary": "上游：S1（状态机 PAUSED 节点）、S2（齿轮与面板按钮路由）、S8（设置读写）。",
           "keywords": [
@@ -5271,9 +5274,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 91,
-          "endLine": 103,
-          "tokens": 423,
+          "startLine": 96,
+          "endLine": 112,
+          "tokens": 683,
           "summary": "1. PLAYING 点齿轮 → game:paused 恰 1 次、S1=PAUSED、面板可见、遮罩覆盖棋盘与托盘；",
           "keywords": [
             "PLAYING",
@@ -5282,6 +5285,18 @@
             "PAUSED",
             "验收标准",
             "可测试硬判据"
+          ]
+        },
+        {
+          "anchor": "§9 变更记录",
+          "level": 2,
+          "startLine": 113,
+          "endLine": 120,
+          "tokens": 517,
+          "summary": "v1.0 WXG-T-015 交付 初版八节定稿（含 P1 冻结：暂停面板能力 / 双模式共用齿轮 / 重玩本关五项重置",
+          "keywords": [
+            "WXG",
+            "变更记录"
           ]
         }
       ]
@@ -6187,18 +6202,18 @@
     },
     {
       "path": "games/beads/design/gdd/timer-gameover.md",
-      "tokens": 1774,
-      "lines": 98,
-      "sha256": "378f474653a7e303f4e75a11131f390727d9ef9df62e5aaf95231746a65dc2d0",
+      "tokens": 2190,
+      "lines": 110,
+      "sha256": "0f38fc65e1a70d001ca32cb31a5dd8711156373c2741dc222ddbe3ad0dbb08d6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S5 倒计时与失败（Timer / GameOver）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 1757,
-          "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-009",
+          "endLine": 111,
+          "tokens": 2173,
+          "summary": "项目：games/beads · 版本 v1.1 · 任务号 WXG-T-009",
           "keywords": [
             "GDD",
             "Timer",
@@ -6340,8 +6355,8 @@
           "anchor": "§6 边界条件",
           "level": 2,
           "startLine": 65,
-          "endLine": 81,
-          "tokens": 354,
+          "endLine": 84,
+          "tokens": 529,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -6350,8 +6365,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 82,
-          "endLine": 86,
+          "startLine": 85,
+          "endLine": 89,
           "tokens": 82,
           "summary": "上游：S1（状态机启停/重置）、S9（暂停/恢复）、关卡数据（LEVEL_TIME）。",
           "keywords": [
@@ -6362,9 +6377,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 87,
-          "endLine": 99,
-          "tokens": 388,
+          "startLine": 90,
+          "endLine": 104,
+          "tokens": 390,
           "summary": "1. 默认关卡进 PLAYING 后 remaining 从 LEVEL_TIME_DEFAULT 递减；60 秒实测误",
           "keywords": [
             "PLAYING",
@@ -6373,6 +6388,19 @@
             "验收标准",
             "可测试硬判据",
             "直接造用例"
+          ]
+        },
+        {
+          "anchor": "§9 变更记录",
+          "level": 2,
+          "startLine": 105,
+          "endLine": 111,
+          "tokens": 234,
+          "summary": "v1.0 WXG-T-009 交付 初版八节定稿：计时模型 / 告急双通道 / PAUSED 冻结语义 / 整关重置五项",
+          "keywords": [
+            "WXG",
+            "PAUSED",
+            "变更记录"
           ]
         }
       ]
@@ -11441,17 +11469,17 @@
     },
     {
       "path": "memory/2026-09-12.md",
-      "tokens": 5877,
-      "lines": 60,
-      "sha256": "2cdbd3c05a2a63321aff38bc8c463ce297dde1b28b6fead85a458d6e15a5f26c",
+      "tokens": 10141,
+      "lines": 151,
+      "sha256": "a9ab32d2693503650b93090d3e08b1ab57538ffe53b083ba67c206ef24f3c5f3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-12",
           "level": 1,
           "startLine": 1,
-          "endLine": 61,
-          "tokens": 5873,
+          "endLine": 152,
+          "tokens": 10138,
           "summary": "",
           "keywords": []
         },
@@ -11517,6 +11545,147 @@
             "permissionMode",
             "skills",
             "Curs"
+          ]
+        },
+        {
+          "anchor": "§PR #1 合并闭环完成（13:50）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 66,
+          "tokens": 162,
+          "summary": "PR #1（develop→master）已于 12:58Z 确认 MERGED，16 项检查全绿（含 Headless",
+          "keywords": [
+            "develop",
+            "master",
+            "MERGED",
+            "Headless",
+            "合并闭环完成"
+          ]
+        },
+        {
+          "anchor": "§冲刺模式工程实现派发（21:10）",
+          "level": 2,
+          "startLine": 67,
+          "endLine": 75,
+          "tokens": 431,
+          "summary": "关键事实确认：games/beads/src 零代码（architecture-beads §9 记为「⬜ 未开始」），",
+          "keywords": [
+            "§9",
+            "games",
+            "beads",
+            "src",
+            "architecture",
+            "冲刺模式工程"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-028 交付 + 冲刺事件 payload 真源裁定（21:25）",
+          "level": 2,
+          "startLine": 76,
+          "endLine": 85,
+          "tokens": 411,
+          "summary": "严守真（quality-lead-2）交付 T-028：test-cases.md v1.2（新增 §C 11 条 TC",
+          "keywords": [
+            "WXG",
+            "payload",
+            "quality",
+            "lead",
+            "test",
+            "cases"
+          ]
+        },
+        {
+          "anchor": "§score-combo 事件 payload 回写完成 + 独立核验（21:40）",
+          "level": 2,
+          "startLine": 86,
+          "endLine": 91,
+          "tokens": 267,
+          "summary": "design-strategist 完成回写（7 处，仅 score-combo.md；未 commit）：①§2.5 ",
+          "keywords": [
+            "§2.5",
+            "score",
+            "combo",
+            "payload",
+            "design",
+            "strategist"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-027 里程碑 + 3 项实现裁决（21:55）",
+          "level": 2,
+          "startLine": 92,
+          "endLine": 104,
+          "tokens": 530,
+          "summary": "工程侧（engineering-lead-3）里程碑：step 1–6 完成（包脚手架三件套 + config 三件套 ",
+          "keywords": [
+            "WXG",
+            "engineering",
+            "lead",
+            "step",
+            "config",
+            "里程碑"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-027 完成 + 全量独立验证（22:20）",
+          "level": 2,
+          "startLine": 105,
+          "endLine": 118,
+          "tokens": 605,
+          "summary": "工程侧（engineering-lead-3）完成 step 7–9。独立验证（我自己跑，非采信汇报）：",
+          "keywords": [
+            "WXG",
+            "engineering",
+            "lead",
+            "step",
+            "完成",
+            "全量独立验证"
+          ]
+        },
+        {
+          "anchor": "§T-027 提交推送 + 环境事故修复 + WXG-T-030 派发（23:15）",
+          "level": 2,
+          "startLine": 119,
+          "endLine": 130,
+          "tokens": 706,
+          "summary": "用户批准「分两笔提交」。我自己执行提交（并行会话在同一仓库活跃提交，精确 pathspec 控制必须自己来）：",
+          "keywords": [
+            "WXG",
+            "pathspec",
+            "提交推送",
+            "环境事故修复",
+            "派发"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-030 完成与裁决（23:50）",
+          "level": 2,
+          "startLine": 131,
+          "endLine": 142,
+          "tokens": 706,
+          "summary": "工程侧（engineering-lead-3）完成 S9 暂停面板 + 音乐/音效。独立验证：beads 40/40（6",
+          "keywords": [
+            "WXG",
+            "engineering",
+            "lead",
+            "beads",
+            "完成与裁决"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-030 提交与 T-031 真源对齐（23:56）",
+          "level": 2,
+          "startLine": 143,
+          "endLine": 152,
+          "tokens": 302,
+          "summary": "提交 62ad9c5（第一笔·工程侧，已 push develop）：8 文件 +1195。pre-commit che",
+          "keywords": [
+            "WXG",
+            "ad9c5",
+            "push",
+            "develop",
+            "pre",
+            "commit"
           ]
         }
       ]
@@ -16986,17 +17155,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2778,
-      "lines": 49,
-      "sha256": "d66765c272f69eebf0040e13c1e4ed607243381cc6e0876dabda27e9d8a4fc05",
+      "tokens": 3278,
+      "lines": 51,
+      "sha256": "996e5dcd11c9c549852dd69bf91c7034e1a815b6bb92fd20e1a44a3c5007a869",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 50,
-          "tokens": 2769,
+          "endLine": 52,
+          "tokens": 3270,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -17010,9 +17179,9 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 43,
-          "endLine": 50,
-          "tokens": 253,
+          "startLine": 44,
+          "endLine": 52,
+          "tokens": 476,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [
             "backlog",

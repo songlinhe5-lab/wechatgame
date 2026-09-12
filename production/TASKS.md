@@ -1,7 +1,7 @@
 # WXG 任务台账（SSOT）
 
 > 单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前**先读本文件领号**，完成后回填状态——根治跨 IDE 撞号（教训：2026-09-12 CodeBuddy 独立会话撞用 T-013/T-014）。
-> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-030**，下一可用号 **WXG-T-031**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
+> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-032**，下一可用号 **WXG-T-033**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
 |---|---|---|---|---|
@@ -36,6 +36,7 @@
 | WXG-T-028 | beads 冲刺模式测试用例与冒烟清单扩展（S7 §8 十一条判据 + C1–C8 常量 + 四枚冲刺事件；docs-only） | 严守真 | ✅ 完成 | production/qa/beads/{test-cases.md v1.2 §C（TC-SPRINT-01..11，判据 50→61）,smoke-tests.md v1.1（SC-SP-01）}；提交 `519cc9c` |
 | WXG-T-030 | beads S9 暂停与设置：暂停面板（继续/重玩/重新冲刺/音乐/音效）+ 齿轮热区路由 + 单调度器双逻辑音频通道（架构缺口已登记：GameServices 未暴露 audioBackend）+ settings 持久化 + §8 十条判据测试 | 程基岩 | ✅ 完成 | games/beads/src/{systems/pause-panel.ts（面板纯逻辑）,view/view-model.ts（遮罩+面板+按钮文案）,game/beads-game.ts（齿轮路由前置+五按钮）,game/save-schema.ts（settings 字段）,config/tuning.ts（S9 表现常量）,game/state.ts,index.ts} · tests/pause-settings.test.ts（§8 十条）· 提交 `62ad9c5`（工程侧）+ 本笔（文档侧）· 验证：beads 40/40、breakout 239/239、check:arch OK、tsc 0 |
 | WXG-T-031 | beads 暂停/归零「同帧裁决」真源对齐（docs-only）：timer-gameover §6 对齐 pause-settings §6 帧内序 + pause-settings §8-6 措辞可观测化 + §2.3 注记更新 | 文策渊 | ✅ 完成 | games/beads/design/gdd/{timer-gameover.md §6+§9,pause-settings.md §2.3/§6/§8-6/§9} · 确立**帧内序 = 输入（段内序：状态指令 → 玩法事件）→ 连击窗 → 供料 → 计时**、同帧暂停优先；timer-gameover §6 由「先结算归零再暂停」对齐 · 附：core-loop §6 两处同类「到达序」残留已登记 backlog（S6 未落地、S1 已声明串行序权威）· 本笔提交 |
+| WXG-T-032 | CI 解锁 + 拦截前移 + AGENTS.md 瘦身拆分：① 重建索引解锁 develop C 门 ② `memory/2026-09-12.md` 登记 B 门豁免（追加式日记）③ `ctx:check --staged`（校验暂存区内容）挂入 pre-commit（把「改 md 未重建索引」的拦截从 CI 前移到本地提交前）④ AGENTS.md 按章节拆分瘦身（§5/§6/§9 迁出至 docs/agent/，目标 ≤1700 估算 tokens） | 主理人 + 程基岩 | 🔄 进行中（2026-09-13 领号） | ctx/budget-exempt.json · ctx/{index.json,BUDGET.md} · tools/scripts/check-context-budget.mjs · .githooks/pre-commit · AGENTS.md · docs/agent/{repo-layout,commands}.md · ctx/ROUTES.md |
 
 > 注 1：T-016/T-017 的产出实际由 CodeBuddy 侧会话完成（用户授权路径），本台账为跨 IDE 统一追认。
 > 注 2（第二次撞号追认）：CodeBuddy 会话后续又将 CI/CD 与 ADR-0009 误编为 016/017，已按 T-021/T-022 归位；其提交信息与任务单内嵌旧号不回改，以本台账为准。

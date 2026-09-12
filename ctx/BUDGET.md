@@ -1,6 +1,6 @@
 # 上下文预算报表（ctx/BUDGET.md）
 
-> 生成：2026-09-12 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
+> 生成：2026-09-13 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
 > token 为**估算值**（CJK≈1/字、ASCII≈1/4 字符；非精确 tokenizer），仅用于排行与阈值护栏。
 > 面向 agent 的阅读入口是 `ctx/ROUTES.md`；本表用于**人**复核预算与超限。
 
@@ -18,11 +18,11 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
-| 2 | `production/qa/test-cases.md` | 7097 | 296 | normal |
-| 3 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
-| 4 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
-| 5 | `memory/2026-09-12.md` | 5877 | 60 | normal |
+| 1 | `memory/2026-09-12.md` | 10141 | 151 | normal |
+| 2 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 3 | `production/qa/test-cases.md` | 7097 | 296 | normal |
+| 4 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
+| 5 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
 | 6 | `memory/2026-09-11.md` | 5617 | 115 | normal |
 | 7 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
 | 8 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
@@ -41,7 +41,9 @@
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
-无超限文件。
+| 文件 | tokens | 处置 |
+|---|---:|:--:|
+| `memory/2026-09-12.md` | 10141 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 
 ## 4. 真实最常用章节与分布加权节省率（估算）
 
