@@ -7,6 +7,16 @@
   根因：把自定义规则函数直接内联进 `rules` 表——commitlint 不支持，只认配置项；自定义规则实现必须经 `plugins: [{ rules: {...} }]` 注册，`rules` 表只写 `[级别, 'always']`。
   规避：新装 lint 类钩子后，先用一条正常消息 + 一条违规消息双测再投入使用；「实测可用」的注释要能复现。
 
+- **[工具链] bash heredoc 定界符未加引号 + JSON 内写注释 = 双重坑**（来源 WXG-T-021 / 修复 `tools/scripts/setup-branch-protection.sh`，2026-09-12）
+  现象：分支保护脚本报 `review: command not found` 且 `gh api` 返回 HTTP 400（Problems parsing JSON）。
+  根因：① `<<JSON` 定界符**未加引号** → heredoc 正文里的反引号 `` `review` `` 被当命令替换执行；② JSON 规范不支持注释，说明文字写进了 payload 体内。
+  规避：payload heredoc 一律用 `<<'JSON'`；注释/裁定依据一律写进 heredoc **之外**的 bash 注释；写脚本后先 `bash -n` 再实跑一次。
+
+- **[工具链] 常驻上下文预算阈值必须与 token 估算公式同口径**（来源 WXG-T-024 / `ctx:check`，2026-09-12）
+  现象：新加常驻预算守卫首跑即报 `AGENTS.md` 超限（3167 > 3000），但该文件此前被认为"很克制"。
+  根因：阈值 3000 是按 `bytes/4` 口径拍的，而守卫用的是 CJK≈1 token/字公式——口径不一致产生**假性超限**。
+  规避：阈值常量处必须注释「口径 + 裁定依据 + Task ID」；引入体积类守卫时先用真实样本校准阈值再上线。
+
 ## 跨 IDE
 
 - **[跨IDE] Qoder 把 `model: inherit` 当具体模型 ID 解析**（来源 commit 2665d10，2026-09-11）
