@@ -6,16 +6,16 @@
 
 ## IDE 常驻指针（alwaysApply）
 
-各 IDE 用短规则指向本文件（**正本只此一处**，规则内不复制全文）：
+提示词正文正本：`my-rules/agents-md.md`（并集 frontmatter）。各 IDE 路径为相对符号链接，**不要**在 `.cursor/rules` 等处改摘要：
 
-| IDE | 指针路径 |
+| IDE | 链接路径 |
 |---|---|
-| Cursor | `.cursor/rules/agents-md.mdc` |
-| CodeBuddy | `.codebuddy/rules/agents-md/RULE.mdc` |
-| WorkBuddy | `.workbuddy/rules/agents-md/RULE.mdc` |
-| Qoder | `.qoder/rules/agents-md.md`（`trigger: always_on`） |
+| Cursor | `.cursor/rules/agents-md.mdc` → `../../my-rules/agents-md.md` |
+| CodeBuddy | `.codebuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
+| WorkBuddy | `.workbuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
+| Qoder | `.qoder/rules/agents-md.md` → `../../my-rules/agents-md.md` |
 
-修改项目约定时只改本文件；四份指针仅在路径/摘要过时时再同步。
+项目铁律与流程正本仍是根目录 **`AGENTS.md`**；`my-rules/agents-md.md` 只是短指针摘要。清单见 `my-rules/INDEX.md`。
 
 ## 长期笔记 MEMORY（四 IDE 可索引）
 
@@ -55,6 +55,15 @@
 - **Hooks / 提交门禁** → `docs/agent/hooks-best-practices.md`（`.githooks` 拦全 IDE `git commit` + `.cursor/hooks` 加固 Agent）
 - **Headless / PR 流水线** → `docs/agent/headless-ci-pr-review.md`（`agent -p` 审查 + `.github/workflows`）
 
+**主理人触发条件（条件式，非默认人格）**：
+
+| 命中则… | 条件 |
+|---|---|
+| 先做阶段 0 诊断，或 `@studio-orchestrator` / 读 `wxgame-orchestration` | 跨 **≥2** 职责域；**新游戏 / 新系统**；发布决策；用户点名九阶段 / 专家团 / 编排 |
+| **不要**拉满九阶段 | 孤立单域小改（修 typo、单文件、单 skill 交付）；直调对应 `wxgame-*` 或单成员 |
+
+`studio-orchestrator` 是**可召唤的 SubAgent**，不会自动占据主对话。主对话遵守上表即可；需要完整编排人格时再显式委派。
+
 **Skill 优先级（冲突时高者胜）**：
 
 ```text
@@ -67,7 +76,7 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 
 新增 skill：正本进 `my-skills/`，四处各建 `../../my-skills/<name>` 链接。
 
-跨域或「整款游戏从哪开始」→ 先交编排，不要自己跳着写全套文档。
+跨域或「整款游戏从哪开始」→ 先交编排，不要自己跳着写全套文档（见上表「主理人触发条件」）。
 
 ---
 
@@ -121,6 +130,8 @@ docs/architecture/   主架构 · ADR · 控制清单
 production/qa|release|epics|sprints/
 dev/harness/         浏览器验证器
 my-skills/           Agent Skills 正本 + INDEX.md
+my-agents/           SubAgent 正本 + INDEX.md
+my-rules/            跨 IDE alwaysApply 规则正本 + INDEX.md
 tools/scripts/       架构守卫 · 关卡同步 · harness · 预览
 ```
 
@@ -166,5 +177,6 @@ Node ≥ 20；包管理器以根 `package.json` 的 `packageManager` 为准（pn
 | 某域完整模板 | 对应 `my-skills/wxgame-*/SKILL.md` |
 | 冻结数值 | `games/<game>/design/gdd/systems-index.md` §3 |
 | SubAgent 角色设定 | `my-agents/<name>.md`（见 `my-agents/INDEX.md`） |
+| 跨 IDE 常驻规则摘要 | `my-rules/agents-md.md`（见 `my-rules/INDEX.md`） |
 | Cursor Hooks / 跨 IDE 提交门禁 | `docs/agent/hooks-best-practices.md` |
 | Headless CI / 自动 PR 审查 | `docs/agent/headless-ci-pr-review.md` |

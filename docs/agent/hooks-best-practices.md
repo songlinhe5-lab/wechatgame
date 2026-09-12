@@ -36,14 +36,19 @@ pnpm run check:links        # 应 OK
 
 ## 3. `check:links` 查什么
 
-脚本：`tools/scripts/check-ide-links.mjs`
+脚本：`tools/scripts/check-ide-links.mjs`（**清单由扫描得出，勿在脚本内硬编码成员名**）
 
-- 四 IDE `agents/<name>.md` → `../../my-agents/<name>.md`（7 成员，无断链、无多余项）
-- 四 IDE `skills/<name>` → `../../my-skills/<name>`（12 现役；**禁止**挂 `game-dev-tool-free`）
+- 扫描 `my-agents/*.md`（除 INDEX）与 `my-skills/*/SKILL.md`（除 `_` 前缀与存档 `game-dev-tool-free`）
+- frontmatter：`name`=文件名、`description` 非空；`studio-orchestrator` / `quality-lead` 必须 `readonly: true`
+- `my-agents/INDEX.md` 表名与正本一致；`wxgame-orchestration` 路由表覆盖全部 subagent name
+- 四 IDE `agents/<name>.md` → `../../my-agents/<name>.md`（无断链、无多余项）
+- 四 IDE `skills/<name>` → `../../my-skills/<name>`；**禁止**挂存档 skill
 - `.codebuddy|.workbuddy|.qoder/memory` → `../memory`；`.cursor/memory/MEMORY.md` 入口存在
-- 四 IDE `AGENTS.md` alwaysApply 指针文件存在
+- 四 IDE 规则路径 → `my-rules/agents-md.md`（相对符号链接）
+- 根目录 `AGENTS.md` 存在
 
-新增 agent/skill：正本进 `my-agents/` / `my-skills/`，四处建相对符号链接，并更新本脚本清单。
+新增 agent/skill：正本进 `my-agents/` / `my-skills/`，四处建相对符号链接，并更新 `INDEX.md` / 编排路由表（脚本会验）。  
+新增 / 改 alwaysApply 摘要：只改 `my-rules/agents-md.md`。
 
 ## 4. Cursor Hooks 实践清单
 

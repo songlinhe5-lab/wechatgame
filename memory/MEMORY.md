@@ -21,9 +21,16 @@
 - `pnpm run harness:build` / `pnpm run harness:smoke` — 编译产物 / 运行时冒烟。
 - `pnpm run preview:frames` — 生成 5 个关卡的 SVG 预览。
 - `pnpm run preview:clip --level 1 --seconds 8` — 生成该关卡的 MP4 实录（需要 ffmpeg + 隔离空间里的 @resvg/resvg-js）。
-- `pnpm run check:links` — 四 IDE 符号链接/指针完整性；`.githooks/pre-commit` 在每次 `git commit` 强制执行。
+- `pnpm run check:links` — 扫描 `my-agents`/`my-skills` 为真源；验 frontmatter、INDEX、编排路由表、四 IDE 符号链接；`.githooks/pre-commit` 强制。
 - `pnpm run verify` — 完整门禁（含 check:links）。
 - `node tools/scripts/install-githooks.mjs`（或 `pnpm install` 的 prepare）— 设置 `core.hooksPath=.githooks`。
+
+## SubAgent
+- 正本 `my-agents/`；Cursor 已实测跟随 agents symlink。勿在共享 frontmatter 加未验证的 `tools`/`permissionMode`/`skills`。
+- 主理人触发条件见 `AGENTS.md` §2（条件式，非默认人格）。
+
+## Rules
+- 常驻规则正本：`my-rules/agents-md.md`；四 IDE `rules/` 为相对符号链接（见 `my-rules/INDEX.md`）。
 
 ## Hooks
 - 实践正本：`docs/agent/hooks-best-practices.md`
