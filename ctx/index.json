@@ -2782,17 +2782,17 @@
     },
     {
       "path": "docs/ci/commit-and-review-rules.md",
-      "tokens": 2225,
-      "lines": 148,
-      "sha256": "8379d7bdc780a125752ae1220691a8c9e64876f336f5b684f3040a5125b4ebd6",
+      "tokens": 2490,
+      "lines": 158,
+      "sha256": "79e82ab250e5f51889a02d2edb2a2f126bb7cbbfeb699efbd83470cbef539c91",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提交与 Code Review 拦截规则 — WXG-T-016",
           "level": 1,
           "startLine": 1,
-          "endLine": 149,
-          "tokens": 2210,
+          "endLine": 159,
+          "tokens": 2475,
           "summary": "目标：每个提交可追溯到任务单，且 type/scope 粒度与仓库分区一致；PR 有模板、责任人与标签；合并由分支保护统",
           "keywords": [
             "Code",
@@ -2808,7 +2808,7 @@
           "level": 2,
           "startLine": 8,
           "endLine": 18,
-          "tokens": 195,
+          "tokens": 214,
           "summary": "本地 .githooks/commit-msg（经 core.hooksPath=.githooks 全 IDE 生效，",
           "keywords": [
             "githooks",
@@ -2970,8 +2970,8 @@
           "anchor": "§4 分支保护（`tools/scripts/setup-branch-protection.sh`）",
           "level": 2,
           "startLine": 123,
-          "endLine": 141,
-          "tokens": 468,
+          "endLine": 151,
+          "tokens": 670,
           "summary": "脚本用 gh api 幂等写入 master 保护规则（自动从 git remote get-url origin 解析",
           "keywords": [
             "tools",
@@ -2983,12 +2983,28 @@
           ]
         },
         {
+          "anchor": "§4.1 分支模型（WXG-T-024 裁定 A 方案）",
+          "level": 3,
+          "startLine": 140,
+          "endLine": 151,
+          "tokens": 188,
+          "summary": "master ✅ 三 required check + 必须走 PR + 线性历史 push + PR 唯一受保护主线，",
+          "keywords": [
+            "WXG",
+            "master",
+            "required",
+            "check",
+            "push",
+            "分支模型"
+          ]
+        },
+        {
           "anchor": "§5 CI 粒度细化（`.github/workflows/ci.yml`）",
           "level": 2,
-          "startLine": 142,
-          "endLine": 149,
-          "tokens": 177,
-          "summary": "dorny/paths-filter@v3 检测变更组：framework / game / docs / tools（",
+          "startLine": 152,
+          "endLine": 159,
+          "tokens": 221,
+          "summary": "dorny/paths-filter@v3 检测变更组：framework / game / tools / ctx（f",
           "keywords": [
             ".github/workflows/ci.yml",
             "github",

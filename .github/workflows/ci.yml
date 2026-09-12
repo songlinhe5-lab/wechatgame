@@ -10,7 +10,8 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    # develop 也跑 CI（WXG-T-024 裁定 A 方案）：长期分支上就拦截，避免未过验证的提交堆积到 PR 时才暴露
+    branches: [main, master, develop]
   pull_request:
 
 concurrency:
