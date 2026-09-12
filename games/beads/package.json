@@ -1,0 +1,27 @@
+{
+  "name": "@wxgame/beads",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Beads (拼豆填色消除) — game logic, levels and view model for the WeChat mini-game matrix.",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tuning": "./src/config/tuning.ts",
+    "./levels": "./src/config/levels.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@wxgame/framework": "file:../../packages/framework"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

@@ -19,6 +19,7 @@
   "include": [
     "packages/framework/src/**/*.ts",
     "games/breakout/src/**/*.ts",
+    "games/beads/src/**/*.ts",
     "games/breakout/types/**/*.d.ts",
     "dev/harness/**/*.ts"
   ],

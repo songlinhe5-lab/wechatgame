@@ -1,0 +1,255 @@
+/**
+ * Beads tuning — every gameplay number lives here, none in the systems.
+ *
+ * ⚠️ AUTHORITY: every constant below is a mirror of
+ * `design/gdd/systems-index.md §3` (the frozen single source of truth; sprint
+ * constants C1–C8 frozen in §3.10, WXG-T-020). If a value here disagrees with
+ * §3, **§3 wins** and this file is the bug. Do not invent values here; add them
+ * to §3 first.
+ *
+ * Units are *design-space* units (see the framework `Viewport`). The design
+ * resolution is 750 × 1334 (portrait). Design-space origin is the
+ * **bottom-left**, y grows upward.
+ */
+
+// ──────────────────────────────────────── §3.1 canvas, safe area & layout bands
+/** Design resolution width (px). */
+export const DESIGN_W = 750;
+/** Design resolution height (px), portrait. */
+export const DESIGN_H = 1334;
+/** Top safe-area height: y ∈ [1214, 1334]. */
+export const SAFE_TOP_H = 120;
+/** HUD band: settings gear left, timer capsule centre, capsule-avoid right. */
+export const HUD_BAND = { yMin: 1214, yMax: 1334 } as const;
+/** WeChat capsule avoidance zone (top-right). */
+export const CAPSULE_AVOID = { xMin: 560, xMax: 750, yMin: 1214, yMax: 1334 } as const;
+/** Puzzle band — the pattern matrix is centred inside it (both axes). */
+export const PUZZLE_BAND = { yMin: 480, yMax: 1120 } as const;
+/** Tray band (white rounded panel). */
+export const TRAY_BAND = { yMin: 230, yMax: 420 } as const;
+/** Powerup band (3 white cards — structure reserved this sprint, S6 excluded). */
+export const POWERUP_BAND = { yMin: 48, yMax: 200 } as const;
+
+// ──────────────────────────────────────────────── §3.2 palette & bead charset
+/** Pattern row charset: `.`=空位 `x`=锁定格 `1-9`+`A`=色板索引 1–10. */
+export const BEAD_CHARSET = '.x1-9A';
+/** Per-level colour-count ceiling (demo levels use 3–8). */
+export const BEAD_COLOR_MAX = 8;
+/** Per-level decoy-count ceiling (decoys never participate in the pattern). */
+export const DECOY_COLORS_MAX = 2;
+/** Spawn weight for a "still needed" colour. */
+export const NEEDED_WEIGHT = 3;
+/** Spawn weight for a decoy colour. */
+export const DECOY_WEIGHT = 1;
+
+// ──────────────────────────────────────────────────────────── §3.3 bead grid
+/** Bead edge length (square). */
+export const BEAD_CELL = 50;
+/** Gap between beads. */
+export const BEAD_GAP = 2;
+/** Grid pitch = `BEAD_CELL + BEAD_GAP` = 52. */
+export const BEAD_PITCH = BEAD_CELL + BEAD_GAP;
+/** Max columns per level. */
+export const GRID_MAX_COLS = 13;
+/** Max rows per level. */
+export const GRID_MAX_ROWS = 12;
+/** Demo minimum columns. */
+export const GRID_MIN_COLS = 6;
+/** Demo minimum rows. */
+export const GRID_MIN_ROWS = 5;
+
+// ───────────────────────────────────────────────────────────── §3.4 tray
+/** Base tray capacity (1 solid row). */
+export const TRAY_BASE_SLOTS = 12;
+/** Expansion capacity (1 dashed row, per-level only, resets on retry). */
+export const TRAY_EXPAND_SLOTS = 12;
+/** Slots per tray row. */
+export const TRAY_COLS = 12;
+/** Slot edge length. */
+export const TRAY_SLOT = 48;
+/** Slot gap. */
+export const TRAY_GAP = 6;
+/** Default spawn interval (s); levels may override within [SPAWN_INTERVAL_MIN, MAX]. */
+export const SPAWN_INTERVAL_DEFAULT = 4.0;
+/** Spawn interval legal minimum (s). */
+export const SPAWN_INTERVAL_MIN = 2.0;
+/** Spawn interval legal maximum (s). */
+export const SPAWN_INTERVAL_MAX = 6.0;
+
+// ──────────────────────────────────────────────────────── §3.5 timer / fail
+/** Default level countdown (s); levels may override within [MIN, MAX]. */
+export const LEVEL_TIME_DEFAULT = 300;
+/** Level time legal minimum (s). */
+export const LEVEL_TIME_MIN = 180;
+/** Level time legal maximum (s). */
+export const LEVEL_TIME_MAX = 420;
+/** Urgent threshold (s): timer switches to danger presentation. */
+export const TIMER_URGENT_T = 10;
+/** Display refresh granularity (s); internal accumulation is per-dt. */
+export const TIMER_TICK = 1.0;
+/** Failure condition is *only* the countdown reaching zero (tray full never fails). */
+
+// ──────────────────────────────────────────────────────── §3.7 stars & settle
+/** ratio = remaining/total ≥ 0.40 → 3★. */
+export const STAR3_RATIO = 0.4;
+/** ratio ≥ 0.20 → 2★, otherwise 1★ (clearing always yields ≥1★). */
+export const STAR2_RATIO = 0.2;
+/** Demo level count. */
+export const DEMO_LEVEL_COUNT = 8;
+
+// ──────────────────────────────────────────────────────── §3.8 accessibility
+/** Min hit area for *UI controls* (buttons/cards/gear). */
+export const TOUCH_MIN = 88;
+/**
+ * Board/tray beads are the documented exception: hit area = nominal size
+ * expanded 8px (grid bead 66², tray bead 62²), overlapping hits resolved by
+ * nearest cell centre (ties → smaller row).
+ */
+export const GRID_HIT_SIZE = 66;
+export const TRAY_HIT_SIZE = 62;
+
+// ──────────────────────────────────────────────────────── §3.10 sprint (C1–C8)
+/** Sprint run length (s); legal [90, 120], out-of-range falls back to default (C1). */
+export const SPRINT_TIME_DEFAULT = 120;
+export const SPRINT_TIME_MIN = 90;
+export const SPRINT_TIME_MAX = 120;
+/** Combo window: max gap between two correct placements (s) (C2). */
+export const COMBO_WINDOW_S = 5.0;
+/** streak thresholds → ×2/×3/×5; multiplier cap ×5 (C3). */
+export const COMBO_STREAK_TIERS = [2, 4, 7] as const;
+export const COMBO_TIER_MULTIPLIERS = [2, 3, 5] as const;
+export const COMBO_MULT_MAX = 5;
+/** Base score per correct placement, before the multiplier (C4). */
+export const SCORE_PER_BEAD = 10;
+/** Stage-completion time bonus (s) (C5). */
+export const STAGE_BONUS_TIME = 15;
+/** Stage-completion score = base + step × stageIndex (C5). */
+export const STAGE_CLEAR_BONUS_BASE = 200;
+export const STAGE_CLEAR_BONUS_STEP = 50;
+
+/** Normal-mode settle score weights (C7, not shown in-run). */
+export const SETTLE_STAR_WEIGHT = 1000;
+export const SETTLE_RATIO_SCALE = 1000;
+export const SETTLE_POWERUP_PENALTY = 50;
+export const SETTLE_NO_EXPAND_BONUS = 200;
+
+/** One sprint stage's mechanical parameters (C6 ladder rung). */
+export interface StageParams {
+  /** Distinct colours on the stage pattern. */
+  readonly colors: number;
+  /** Fillable-cell target for the stage. */
+  readonly cells: number;
+  /** Spawn interval for the stage (s). */
+  readonly interval: number;
+}
+
+/** C6 ladder — stage `n` (0-based) parameters, endpoints aligned to §3.2/3.3/3.4. */
+export function stageParamsFor(n: number): StageParams {
+  const index = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+  return {
+    colors: Math.min(3 + Math.floor(index / 2), BEAD_COLOR_MAX),
+    cells: Math.min(30 + 10 * index, GRID_MAX_COLS * GRID_MAX_ROWS),
+    interval: Math.max(6.0 - 0.5 * index, SPAWN_INTERVAL_MIN),
+  };
+}
+
+/** Stage-clear score bonus for the stage that was just completed (C5). */
+export function stageClearBonus(stageIndex: number): number {
+  return STAGE_CLEAR_BONUS_BASE + STAGE_CLEAR_BONUS_STEP * stageIndex;
+}
+
+/**
+ * C7 normal-mode settle score (not shown in-run; for ranking/segments).
+ * `settleScore = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用扩展 ? 200 : 0)`
+ */
+export function normalSettleScore(
+  stars: number,
+  ratio: number,
+  powerupsUsed: number,
+  expandUsed: boolean,
+): number {
+  const s = Math.max(0, Math.min(3, Math.floor(stars)));
+  const r = Number.isFinite(ratio) ? Math.max(0, Math.min(1, ratio)) : 0;
+  const p = Number.isFinite(powerupsUsed) && powerupsUsed > 0 ? Math.floor(powerupsUsed) : 0;
+  return (
+    s * SETTLE_STAR_WEIGHT +
+    Math.round(r * SETTLE_RATIO_SCALE) -
+    p * SETTLE_POWERUP_PENALTY +
+    (expandUsed ? 0 : SETTLE_NO_EXPAND_BONUS)
+  );
+}
+
+// ──────────────────────────────────────── presentation timings (非冻结真源)
+/**
+ * Level-clear banner auto-advance delay. Presentation-only (breakout `timings`
+ * 判例：not pinned by §3); the *state flow* is frozen, this delay is not.
+ */
+export const LEVEL_CLEAR_DELAY_S = 1.4;
+
+// ─────────────────────────────────────────────────────── grid layout derivation
+/** Derived geometry for one level's grid, centred inside `PUZZLE_BAND`. */
+export interface GridLayout {
+  /** Left edge x of column 0. */
+  readonly left: number;
+  /** Top edge y of row 0 (row 0 is the top row; y grows upward). */
+  readonly top: number;
+  /** Bottom edge y of the last row. */
+  readonly bottom: number;
+  readonly cols: number;
+  readonly rows: number;
+  /** `colCenterX(j) = gridLeft + BEAD_CELL/2 + BEAD_PITCH * j` (§3.3). */
+  colCenterX(j: number): number;
+  /** `rowCenterY(i) = gridTop − BEAD_CELL/2 − BEAD_PITCH * i` (§3.3). */
+  rowCenterY(i: number): number;
+}
+
+/**
+ * Derive the band-centred grid geometry for a `cols × rows` pattern.
+ *
+ * Horizontal: centred in 750 (left ≥ 30 holds up to 13 cols: (750−674)/2 = 38).
+ * Vertical: centred in PUZZLE_BAND (top ≤ 1120 and bottom ≥ 480 hold up to
+ * 12 rows: 1111 / 489).
+ */
+export function gridLayoutFor(cols: number, rows: number): GridLayout {
+  const width = cols * BEAD_PITCH - BEAD_GAP;
+  const height = rows * BEAD_PITCH - BEAD_GAP;
+  const left = (DESIGN_W - width) / 2;
+  const bandMidY = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
+  const top = bandMidY + height / 2;
+  const bottom = top - height;
+  return {
+    left,
+    top,
+    bottom,
+    cols,
+    rows,
+    colCenterX: (j: number) => left + BEAD_CELL / 2 + BEAD_PITCH * j,
+    rowCenterY: (i: number) => top - BEAD_CELL / 2 - BEAD_PITCH * i,
+  };
+}
+
+/** Tuning bundle handed to the game (mirrors the breakout `BreakoutTuning` shape). */
+export interface BeadsTuning {
+  readonly width: number;
+  readonly height: number;
+  /** Sprint run length after C1 validation (out-of-range overrides fall back). */
+  readonly sprintTime: number;
+  /** Level-clear banner delay (presentation, see above). */
+  readonly levelClearDelay: number;
+}
+
+export const DEFAULT_TUNING: BeadsTuning = {
+  width: DESIGN_W,
+  height: DESIGN_H,
+  sprintTime: SPRINT_TIME_DEFAULT,
+  levelClearDelay: LEVEL_CLEAR_DELAY_S,
+};
+
+/** C1 validation: sprint time overrides outside [90, 120] fall back to default. */
+export function validatedSprintTime(value: number | undefined): number {
+  if (value === undefined || !Number.isFinite(value)) return SPRINT_TIME_DEFAULT;
+  if (value < SPRINT_TIME_MIN || value > SPRINT_TIME_MAX) {
+    return SPRINT_TIME_DEFAULT; // BOOT rejects the override, falls back (score-combo §6)
+  }
+  return value;
+}
