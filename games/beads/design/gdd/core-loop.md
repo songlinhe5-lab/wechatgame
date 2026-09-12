@@ -47,6 +47,12 @@ BOOT ──► PLAYING ⇄ PAUSED
 
 **循环闭环**：供料制造"空间压力"，填色释放压力并推进图案，完成瞬间同时清空时间与空间压力 → 一个可无限重复的自洽循环。
 
+### 2.3 冲刺模式补记（2026-09-12 用户拍板，C8 条款；细则见 `gdd/score-combo.md` 与 systems-index §3.10）
+
+- 冲刺模式 = PLAYING 内的**模式标志**（`mode: 'sprint'`），本节六状态机**零改动**，全部裁决复用上文。
+- **stage 切换不断连**：梯级小图案填满即换下一 stage（`sprint:stage`），连击 streak 与倍率**跨 stage 延续**，不结算不弹窗。
+- **加时与归零同帧，stage 优先**：stage 填满瞬间单局倒计时同时归零 → 先结算 stage 加时（`STAGE_BONUS_TIME`）；加时后 remaining > 0 继续爬梯，仍 ≤ 0 才判负（§6 cleared 优先裁决的 sprint 变体）。
+
 ## 3. 输入
 
 | 来源 | 内容 | 去向 |

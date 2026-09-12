@@ -1,6 +1,6 @@
 # 系统清单与依赖索引（Systems Index）· beads
 
-- 项目：`games/beads`（拼豆填色消除）· 版本 v1.5 · 任务号 WXG-T-007
+- 项目：`games/beads`（拼豆填色消除）· 版本 v1.8 · 任务号 WXG-T-007
 - 用途：定义系统边界、依赖顺序、以及**全局数值基线**（所有 GDD 引用此处的常量，避免数值漂移）
 - 数值纪律：本文数值全部依 `design/concept.md` 附录 A 提案定稿；标 `[待确认]` 者未冻结、不得据以实现。
 
@@ -11,14 +11,14 @@
 | # | 系统 | 文件 | 优先级 | 一句话职责 |
 |---|---|---|---|---|
 | S1 | 核心循环 | `gdd/core-loop.md` | P0 | 定义游戏状态机与关内主循环时序，串起所有系统 |
-| S2 | 输入与操控 | `gdd/input-control.md`（待写） | P0 | 托盘选珠、网格落子、道具/暂停等触摸路由与热区 |
-| S3 | 拼图网格与填色 | `gdd/bead-grid.md`（待写） | P0 | 图案矩阵数据、颜色匹配校验、落座/锁定格、完成判定 |
-| S4 | 供料与槽位托盘 | `gdd/tray-spawner.md`（待写） | P0 | 定时供料、容量管理、扩展行、满槽告警 |
-| S5 | 倒计时与失败 | `gdd/timer-gameover.md`（待写） | P0 | 关卡倒计时、告急表现、归零判负、重试 |
+| S2 | 输入与操控 | `gdd/input-control.md` | P0 | 托盘选珠、网格落子、道具/暂停等触摸路由与热区 |
+| S3 | 拼图网格与填色 | `gdd/bead-grid.md` | P0 | 图案矩阵数据、颜色匹配校验、落座/锁定格、完成判定 |
+| S4 | 供料与槽位托盘 | `gdd/tray-spawner.md` | P0 | 定时供料、容量管理、扩展行、满槽告警 |
+| S5 | 倒计时与失败 | `gdd/timer-gameover.md` | P0 | 关卡倒计时、告急表现、归零判负、重试 |
 | S6 | 道具系统 | `gdd/powerups.md` | P1 | 区域消除/槽位清空/随机消除三道具 + 激励视频位 |
-| S7 | 星级与结算 | `gdd/score-stars.md`（待写） | P1 | 过关星级判定、结算面板数据、关卡解锁推进 |
-| S8 | 存档与进度 | `gdd/save-progress.md`（待写） | P1 | 本地持久化：进度/星级/设置 |
-| S9 | 暂停与设置 | `gdd/pause-settings.md`（待写） | P1 | 暂停状态、音乐/音效开关 |
+| S7 | 计分连击与结算 | `gdd/score-combo.md` | P1 | 过关星级判定、冲刺模式连击计分（WXG-T-015）、结算面板数据、关卡解锁推进 |
+| S8 | 存档与进度 | `gdd/save-progress.md` | P1 | 本地持久化：进度/星级/设置（v1.1 追加字段提案见该文） |
+| S9 | 暂停与设置 | `gdd/pause-settings.md` | P1 | 暂停状态、音乐/音效开关 |
 
 > 说明：S1 为"编排层"，S2~S9 为"被编排系统"。关卡数据（图案矩阵 JSON + TypeScript 接口，含 `BEAD_CHARSET` 校验）作为**配置来源**被 S3 读取，不单独作为系统——形态沿用 breakout 的 `LEVEL_CHARSET` + `validateLevel()` 判例。
 
@@ -162,6 +162,22 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | 主包内部目标 | **2000 KB** | 团队内部目标（沿用 breakout §3.8 口径） |
 | 资产策略 | 程序化绘制 | 珠子 3D 感全程序化合成（art-bible §8），无贴图字体资产；关卡数据为 JSON 文本 |
 
+### 3.10 冲刺模式（Sprint）· 2026-09-12 用户拍板冻结（WXG-T-020）
+| 常量 | 值 | 说明 |
+|---|---|---|
+| `SPRINT_TIME_DEFAULT` | 120 s | 冲刺单局时长；合法区间 [90, 120]，越界回退默认（C1） |
+| `COMBO_WINDOW_S` | 5.0 s | 连击窗口：两次正确落子最大间隔；超窗 = 犹豫断连（C2） |
+| `COMBO_STREAK_TIERS` | [2, 4, 7] | streak 阈值 → 倍率 ×2/×3/×5；倍率上限 ×5（C3） |
+| `SCORE_PER_BEAD` | 10 分 | 冲刺基础落子分（乘倍率前）（C4） |
+| `STAGE_BONUS_TIME` | +15 s | 梯级 stage 完成加时（C5） |
+| `STAGE_CLEAR_BONUS` | 200 + 50 × stageIndex 分 | 梯级 stage 完成得分（C5） |
+| 梯级公式 | 色数 min(3+⌊n/2⌋, `BEAD_COLOR_MAX`)；格数 min(30+10n, 156)；供料间隔 max(6.0−0.5n, 2.0) | n=0 起；端点对齐 §3.2/§3.3/§3.4 冻结区间（C6） |
+| `SETTLE_SCORE` 公式 | stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用扩展 ? 200 : 0) | 普通模式结算分，局内不显示，供排行/段位（C7） |
+| 裁决条款 | stage 切换**不断连**；stage 加时与单局归零同帧 **stage 优先** | C8；已同步 core-loop §2.3 补记 |
+| 伪震屏 | scale 1.00→1.015→1.00，150ms | 连击 Lv2（×3）特效；**§3.8"屏震不使用"冻结令维持不改**（U3） |
+
+> 冲刺模式细则（连击/特效分级/事件提案 `combo:*`、`sprint:*`）见 `gdd/score-combo.md`；元游戏框架（连胜礼盒/排行/签到）见 `proposals/meta-framework.md` v1.0——M4 大厅 Won't、M5 生命体力永不采纳（2026-09-12 用户定案）。
+
 ## 4. 事件总线约定（供程序落码参考）
 
 沿用 breakout 的事件命名风格 `<域>:<事件>`，payload 一律带 `levelId`：
@@ -180,6 +196,12 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | `level:cleared` | `{levelId, remaining, ratio, stars}` | S1 → S7、S8 |
 | `level:failed` | `{levelId}` | S1 → S8 |
 | `game:paused` / `game:resumed` | `{}` | S9 → S1（冻结 dt） |
+| `combo:up` | `{streak, multiplier, tier}` | S7 → 视觉/音频（特效按 tier 分级，§3.10 C3） |
+| `combo:break` | `{reason: 'wrong'\|'timeout'}` | S7 → 视觉/音频（角标灰缩） |
+| `sprint:stage` | `{stageIndex, nextParams}` | S7 → S3/S4/S5（换 stage 参数注入，跨 stage 不断连） |
+| `sprint:ended` | `{score, bestStage, settleScore}` | S7 → S8（v1.1 字段写入） |
+
+> 上方 4 个冲刺事件为 **v1.8 机械登记**（2026-09-12）：源自 score-combo §2.5 冻结设计与 §8 判据（core-loop §2.3 已引用 `sprint:stage`），payload 为登记时定稿；实现如需增删字段须走 §6 变更。
 
 ## 5. 与框架层的接口假设
 
@@ -200,3 +222,6 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | v1.3 | 2026-09-12 | S6 GDD 交付（WXG-T-014，文策渊）：§1 去掉 S6「待写」标记；§4 `tray:expanded` 广播方消歧为 S4 唯一。**§3 数值零改动**。待决 Q1–Q5（空作用扣次 / clearAll 是否立常量 / 连点冷却 / 广告未接入口径 / region 单步 vs 两步）未冻结，不得据以实现 | powerups.md 回传 + 主理人核对 |
 | v1.4 | 2026-09-12 | **Q1–Q5 全部裁决完毕**（标记已回写 powerups.md）：Q1 空作用拒用不扣 / Q2 clearAll 由 §3.4 容量派生不立常量 / Q3 无独立冷却沿用 S2 去抖 / Q4 广告未接=MVP 角标占位零事件零扣次 / Q5 单步自动锚点，两步瞄准列 Should。**改值提案登记（未生效）**：STAR3_RATIO 0.50→0.40——暂缓理由：关卡数据未产出、3★ 廉价度待 playtest、2★ 带压缩须与 STAR2_RATIO 一并由 S7 GDD 整体设计。另：concept.md D6 错引 §3.6→§3.7 已修正。仍挂起：扩展位解锁路径、激励视频拉起逻辑（均待用户拍板） | quality-lead（Qoder L3 拒写）+ 主理人裁决 |
 | v1.5 | 2026-09-12 | **STAR3_RATIO 0.50→0.40 生效**（§3.7）：剩余时间 / 关卡总时长 ≥ 40% → 3★。`STAR2_RATIO` 0.20 不动。依据 = 用户 2026-09-12 明示裁定，豁免 v1.4 登记的三条暂缓理由（逐条照录：①关卡数据未产出；②3★ 廉价度待 playtest；③2★ 带压缩须与 STAR2_RATIO 一并由 S7 GDD 整体设计）——用户知情豁免，3★ 廉价度与 2★ 带影响转 playtest 验证。登记人 = 主理人（执笔 文策渊） | WXG-T-014，用户 2026-09-12 明示裁定 |
+| v1.6 | 2026-09-12 | **§1 目录维护**：S2–S5「待写」标记清除（文件早已交付，标记过期）；S7 文件名 `score-stars.md` → `score-combo.md`（A+ 路线扩容：冲刺模式连击计分并入 S7，用户 2026-09-12 拍板）+ 职责描述更新；S8/S9 标记清除（WXG-T-015 交付）。**§3 数值零改动**。WXG-T-015 六件套新常量 C1–C8 / v1.1 存档字段 / U1–U4 / MF1–MF7 均为 `[待确认]` 提案，冻结需用户拍板后主理人回写 | WXG-T-015 交付 + 主理人机械回写 |
+| v1.7 | 2026-09-12 | **WXG-T-015 三十项决策点用户 2026-09-12 拍板冻结，S7 冲刺模式常量组生效**（新增 §3.10：C1–C8 + U3 伪震屏，§3 既有常量零改动）；C8 条款同步 core-loop §2.3 补记；S8 v1.1 字段 / S9 P1 / UX U1–U4 转冻结；元游戏 M4 大厅 = Won't 定案、M5 生命体力 = 永不采纳定案，meta-framework 升 v1.0，整体 v1.1 排期，MVP 只留礼盒进度条 + 置灰排行入口两钩子。登记人 = 主理人（执笔 文策渊） | WXG-T-020，用户 2026-09-12 拍板 |
+| v1.8 | 2026-09-12 | **§4 机械登记 4 个冲刺事件**（`combo:up` / `combo:break` / `sprint:stage` / `sprint:ended`）：依据 = score-combo §2.5 冻结设计 + §8 判据 + core-loop §2.3 已引用 `sprint:stage`（不登记即真源自相矛盾）。payload 为登记时定稿，实现如需增删字段须走 §6 变更。§3/既有事件零改动 | 主理人机械登记（WXG-T-020 验收收尾） |
