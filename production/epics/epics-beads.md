@@ -170,7 +170,7 @@
 ### EP-07 星级与结算（S7）`[待 GDD §8]`
 
 **EP07-S1 星级判定与结算面板** `[待 GDD §8]`
-- 描述：`stars = f(remaining/LEVEL_TIME)`（STAR3_RATIO 0.50 / STAR2_RATIO 0.20，过关至少 1★，扩展不扣星）；结算面板数据组装。
+- 描述：`stars = f(remaining/LEVEL_TIME)`（STAR3_RATIO 0.40 / STAR2_RATIO 0.20，过关至少 1★，扩展不扣星）；结算面板数据组装。
 - 验收：`level:cleared` payload 的 ratio/stars 字段语义已在 S1 GDD §4 契约内；**星级具体用例判据待 S7 GDD §8**。
 - 依赖：EP02-S4、EP05-S1。估点：**M**。
 
