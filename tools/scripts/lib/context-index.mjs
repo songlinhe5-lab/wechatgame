@@ -40,8 +40,15 @@ export const BASELINE_PATH = join(ROOT, 'ctx', 'savings-baseline.json');
 
 export const INDEX_VERSION = 1;
 
-/** Directory names skipped anywhere in the tree. */
-const SKIP_DIRS = new Set([
+/**
+ * Directory names skipped anywhere in the tree.
+ *
+ * `archive`（WXG-T-029）：知识库归档目录 `knowledge/archive/` **不进索引面**——
+ * 归档条目已从活跃读取协议移除，不应再出现在 `ctx/index.json` / `ctx/ROUTES.md` 的可用
+ * 章节集合里；置于 SKIP_DIRS 还顺带覆盖未来的 `memory/archive/`。`kb:check` ③ 断言本集合
+ * 含 `archive`（导出供其校验，避免两处各写一份）。
+ */
+export const SKIP_DIRS = new Set([
   'node_modules',
   '.git',
   'build',
@@ -53,6 +60,7 @@ const SKIP_DIRS = new Set([
   'profiles',
   'native',
   '.smoke',
+  'archive',
 ]);
 
 /** Files that ride in the always-on resident layer. */

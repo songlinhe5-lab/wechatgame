@@ -191,9 +191,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1266,
+      "tokens": 1262,
       "lines": 70,
-      "sha256": "2d1d4e90d37b464b209d152ea58f59ff15185c10b3d20f8e9fe657fa3452d665",
+      "sha256": "84e7aa3025d5385e0fb20cb0eb679875ee8a0d1e7db87ad2c5210431c18e13f5",
       "tier": "normal",
       "sections": [
         {
@@ -201,7 +201,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 71,
-          "tokens": 1253,
+          "tokens": 1249,
           "summary": "生成：2026-09-12 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -230,7 +230,7 @@
           "level": 2,
           "startLine": 17,
           "endLine": 41,
-          "tokens": 354,
+          "tokens": 350,
           "summary": "1 production/epics/epics-breakout.md 7135 316 normal",
           "keywords": [
             "Top",
@@ -4564,17 +4564,17 @@
     },
     {
       "path": "games/beads/design/gdd/bead-grid.md",
-      "tokens": 1950,
-      "lines": 101,
-      "sha256": "22d837922854a686052118b09d5d0de5f730d8a59e86ffe8e2f74a5cef114115",
+      "tokens": 2073,
+      "lines": 102,
+      "sha256": "39105dea68c2a4e6a20024634eb0c20937c69aab8033275f856b6dfcc2719171",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S3 拼图网格与填色（Bead Grid）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 102,
-          "tokens": 1934,
+          "endLine": 103,
+          "tokens": 2056,
           "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-009",
           "keywords": [
             "GDD",
@@ -4600,8 +4600,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 13,
-          "endLine": 45,
-          "tokens": 634,
+          "endLine": 46,
+          "tokens": 756,
           "summary": "",
           "keywords": [
             "机制"
@@ -4612,8 +4612,8 @@
           "level": 3,
           "startLine": 15,
           "endLine": 20,
-          "tokens": 184,
-          "summary": "关卡以行字符串数组描述图案，字符集 = BEAD_CHARSET（来源 §3.2）：.=空位（待填）、x=锁定格（不可填",
+          "tokens": 239,
+          "summary": "关卡以行字符串数组描述图案，字符集 = BEAD_CHARSET（来源 §3.2）：.=空位（无图案位：不可填、不计完成",
           "keywords": [
             "§3.2",
             "JSON",
@@ -4627,8 +4627,8 @@
           "anchor": "§2.2 格子状态机",
           "level": 3,
           "startLine": 21,
-          "endLine": 31,
-          "tokens": 152,
+          "endLine": 32,
+          "tokens": 218,
           "summary": "",
           "keywords": [
             "格子状态机"
@@ -4637,8 +4637,8 @@
         {
           "anchor": "§2.3 落子裁决（核心规则）",
           "level": 3,
-          "startLine": 32,
-          "endLine": 39,
+          "startLine": 33,
+          "endLine": 40,
           "tokens": 172,
           "summary": "输入：(row, col, colorIdx)——来自 S2，colorIdx 为托盘选中珠颜色。",
           "keywords": [
@@ -4652,8 +4652,8 @@
         {
           "anchor": "§2.4 定位派生（来源 §3.3 公式，本文只引用）",
           "level": 3,
-          "startLine": 40,
-          "endLine": 45,
+          "startLine": 41,
+          "endLine": 46,
           "tokens": 70,
           "summary": "colCenterX(j) = gridLeft + BEAD_CELL/2 + 52 * j",
           "keywords": [
@@ -4668,8 +4668,8 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 46,
-          "endLine": 54,
+          "startLine": 47,
+          "endLine": 55,
           "tokens": 117,
           "summary": "S2 (row, col, colorIdx) 落子请求 每次最多 1 个在途请求（见 §6 并发）",
           "keywords": [
@@ -4683,8 +4683,8 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 55,
-          "endLine": 63,
+          "startLine": 56,
+          "endLine": 64,
           "tokens": 128,
           "summary": "bead:placed 裁决通过 落座动画 vfx_fill_pop（assets-spec §1.6）+ 音效",
           "keywords": [
@@ -4699,8 +4699,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 64,
-          "endLine": 67,
+          "startLine": 65,
+          "endLine": 68,
           "tokens": 72,
           "summary": "全部引用 systems-index §3：§3.2（BEAD_CHARSET、BEAD_COLOR_MAX、BEAD_",
           "keywords": [
@@ -4715,8 +4715,8 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 68,
-          "endLine": 84,
+          "startLine": 69,
+          "endLine": 85,
           "tokens": 327,
           "summary": "极端值",
           "keywords": [
@@ -4726,8 +4726,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 85,
-          "endLine": 89,
+          "startLine": 86,
+          "endLine": 90,
           "tokens": 100,
           "summary": "上游：S1（装配/状态机）、S2（落子请求）、S4（托盘持有状态复核）、关卡数据（BOOT 静态校验后输入）。",
           "keywords": [
@@ -4738,8 +4738,8 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 90,
-          "endLine": 102,
+          "startLine": 91,
+          "endLine": 103,
           "tokens": 361,
           "summary": "1. 装载合法关卡后，empty 格数 + locked 格数 === cols×rows，且 ≥1 格为 empty。",
           "keywords": [
@@ -5713,17 +5713,17 @@
     },
     {
       "path": "games/beads/design/gdd/score-combo.md",
-      "tokens": 3652,
-      "lines": 134,
-      "sha256": "b4d8f40cf7ba7aa4cafca5c283e2e4e81132bc0e772dad6946e819c8ff521cd9",
+      "tokens": 4248,
+      "lines": 137,
+      "sha256": "16702fbae1dd9b6bd411e8694d55046370412f92850aaaedf69b8f963c558364",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S7 计分连击（Score & Combo）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 135,
-          "tokens": 3637,
+          "endLine": 138,
+          "tokens": 4233,
           "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-015",
           "keywords": [
             "GDD",
@@ -5750,8 +5750,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 14,
-          "endLine": 55,
-          "tokens": 1291,
+          "endLine": 56,
+          "tokens": 1489,
           "summary": "",
           "keywords": [
             "机制"
@@ -5789,7 +5789,7 @@
           "level": 3,
           "startLine": 33,
           "endLine": 38,
-          "tokens": 264,
+          "tokens": 349,
           "summary": "单局结构：1 局 = SPRINT_TIME_DEFAULT 秒倒计时（附录 C1）＋ 串行小图案阶梯。每梯级（stag",
           "keywords": [
             "SPRINT_TIME_DEFAULT",
@@ -5815,8 +5815,8 @@
           "anchor": "§2.5 特效分级与事件",
           "level": 3,
           "startLine": 50,
-          "endLine": 55,
-          "tokens": 245,
+          "endLine": 56,
+          "tokens": 357,
           "summary": "特效三档，随倍率档触发：Lv1（×2）粒子星光（复用 vfx_fill_pop 强化，assets-spec §1.6）",
           "keywords": [
             "§1.6",
@@ -5830,8 +5830,8 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 56,
-          "endLine": 65,
+          "startLine": 57,
+          "endLine": 66,
           "tokens": 142,
           "summary": "S3 bead:placed / bead:rejected（连击唯一的计数进/断出）",
           "keywords": [
@@ -5844,9 +5844,9 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 66,
-          "endLine": 76,
-          "tokens": 180,
+          "startLine": 67,
+          "endLine": 77,
+          "tokens": 187,
           "summary": "level:cleared {levelId, remaining, ratio, stars} 普通模式过关（S1 发",
           "keywords": [
             "level",
@@ -5860,8 +5860,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 77,
-          "endLine": 81,
+          "startLine": 78,
+          "endLine": 82,
           "tokens": 100,
           "summary": "冻结引用：§3.7（STAR3_RATIO=0.40、STAR2_RATIO=0.20、DEMO_LEVEL_COUNT",
           "keywords": [
@@ -5875,9 +5875,9 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 82,
-          "endLine": 100,
-          "tokens": 505,
+          "startLine": 83,
+          "endLine": 101,
+          "tokens": 510,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -5886,8 +5886,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 101,
-          "endLine": 106,
+          "startLine": 102,
+          "endLine": 107,
           "tokens": 186,
           "summary": "上游：S1（模式标志、状态门禁、cleared/failed）、S3（placed/rejected）、S5（sprin",
           "keywords": [
@@ -5902,9 +5902,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例；附录 C1–C8 已于 2026-09-12 冻结（systems-index §3.10），全部判据可执行）",
           "level": 2,
-          "startLine": 107,
-          "endLine": 120,
-          "tokens": 481,
+          "startLine": 108,
+          "endLine": 121,
+          "tokens": 527,
           "summary": "1. 普通模式局内全程零分数 HUD 元素；过关后 level:cleared payload 的 stars 与 §3",
           "keywords": [
             "§3.10",
@@ -5918,9 +5918,9 @@
         {
           "anchor": "§9 附录：冲刺模式新常量（❄️ 已冻结）",
           "level": 2,
-          "startLine": 121,
-          "endLine": 135,
-          "tokens": 341,
+          "startLine": 122,
+          "endLine": 138,
+          "tokens": 674,
           "summary": "冻结状态：2026-09-12 用户拍板（WXG-T-020），全部回写 systems-index §3.10（唯一真",
           "keywords": [
             "§3.10",
@@ -5935,18 +5935,18 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 5909,
-      "lines": 227,
-      "sha256": "220f6989a6ba254e8ef38ef81116f490492e07500a28d5ecf36509e85071f32b",
+      "tokens": 6321,
+      "lines": 228,
+      "sha256": "b5e3a129e206b1cae228d57557896fef0195eb318762ada0799d15e788264193",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§系统清单与依赖索引（Systems Index）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 228,
-          "tokens": 5892,
-          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.8 · 任务号 WXG-T-007",
+          "endLine": 229,
+          "tokens": 6304,
+          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.9 · 任务号 WXG-T-007",
           "keywords": [
             "Systems",
             "Index",
@@ -5988,7 +5988,7 @@
           "level": 2,
           "startLine": 55,
           "endLine": 180,
-          "tokens": 2871,
+          "tokens": 3035,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -6019,7 +6019,7 @@
           "level": 3,
           "startLine": 83,
           "endLine": 92,
-          "tokens": 235,
+          "tokens": 290,
           "summary": "BEAD_PALETTE 10 色 全量色板 HEX/符号/明度见 art/art-bible.md §3.2（奶白…炭",
           "keywords": [
             "§3.2",
@@ -6129,7 +6129,7 @@
           "level": 3,
           "startLine": 165,
           "endLine": 180,
-          "tokens": 440,
+          "tokens": 549,
           "summary": "SPRINT_TIME_DEFAULT 120 s 冲刺单局时长；合法区间 [90, 120]，越界回退默认（C1）",
           "keywords": [
             "Sprint",
@@ -6174,8 +6174,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 215,
-          "endLine": 228,
-          "tokens": 1200,
+          "endLine": 229,
+          "tokens": 1448,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -6565,9 +6565,9 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 2603,
+      "tokens": 2707,
       "lines": 192,
-      "sha256": "41aaf2930f32a205516b964124579a657df26d401f2c954abb11a0f7d8715f87",
+      "sha256": "2928ef879df27a5bf951294d334029eba84b162f899e83cf5630ddceff187c9c",
       "tier": "normal",
       "sections": [
         {
@@ -6575,7 +6575,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 193,
-          "tokens": 2590,
+          "tokens": 2694,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.0 · 任务号 WXG-T-015",
           "keywords": [
             "Levels",
@@ -6591,7 +6591,7 @@
           "level": 2,
           "startLine": 11,
           "endLine": 31,
-          "tokens": 300,
+          "tokens": 352,
           "summary": "",
           "keywords": [
             "文件结构总览"
@@ -6790,7 +6790,7 @@
           "level": 2,
           "startLine": 190,
           "endLine": 193,
-          "tokens": 65,
+          "tokens": 117,
           "summary": "sprint 梯级图案从本文件 8 关图案池循环取用（gdd/score-combo.md §2.3），不另建图案库；梯",
           "keywords": [
             "§2.3",
@@ -16870,17 +16870,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2344,
-      "lines": 47,
-      "sha256": "100464a11a8c796bf3ae8d07842d86d0231090e14545710815a140ee490528fe",
+      "tokens": 2686,
+      "lines": 49,
+      "sha256": "023f4132f65eda42a945606768898a76bb6d8ab653738e32e338855e1deca510",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 48,
-          "tokens": 2335,
+          "endLine": 50,
+          "tokens": 2677,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -16894,8 +16894,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 41,
-          "endLine": 48,
+          "startLine": 43,
+          "endLine": 50,
           "tokens": 253,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [
@@ -17668,18 +17668,18 @@
     },
     {
       "path": "production/qa/beads/smoke-tests.md",
-      "tokens": 1510,
-      "lines": 73,
-      "sha256": "8e5e401dd8920d14dffa322ee9e04f45b45d48ce7797cf3c7d74ea07c806c849",
+      "tokens": 2255,
+      "lines": 94,
+      "sha256": "de6e461e702e77d948d111c2bb60a021861619da7e89f059694855798017abc9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆填色消除》(beads) 冒烟测试清单 · Smoke Test Suite",
           "level": 1,
           "startLine": 1,
-          "endLine": 74,
-          "tokens": 1488,
-          "summary": "任务号：WXG-T-011 ｜ 作者：严守真 ｜ 版本 v1.0 ｜ 日期 2026-09-11",
+          "endLine": 95,
+          "tokens": 2234,
+          "summary": "任务号：WXG-T-011 / WXG-T-028 ｜ 作者：严守真 ｜ 版本 v1.1 ｜ 日期 2026-09-12",
           "keywords": [
             "beads",
             "Smoke",
@@ -17908,11 +17908,40 @@
           ]
         },
         {
-          "anchor": "§冒烟汇总表",
+          "anchor": "§冲刺模式冒烟段（v1.1 新增，WXG-T-028）",
           "level": 2,
           "startLine": 55,
           "endLine": 74,
-          "tokens": 285,
+          "tokens": 647,
+          "summary": "",
+          "keywords": [
+            "WXG",
+            "冲刺模式冒烟",
+            "新增"
+          ]
+        },
+        {
+          "anchor": "§SC-SP-01 冲刺单局最短通关链路 `[Node]`（逻辑断言归 TC-SPRINT-01..11）/ `[Harness]`（人工操作）/ `[DevTools]`（帧检/特效）",
+          "level": 3,
+          "startLine": 57,
+          "endLine": 74,
+          "tokens": 601,
+          "summary": "前置：清存档或预置已通关 1 关；DevTools 可用注入面板控制 mode 与计时。",
+          "keywords": [
+            "[Node]",
+            "[Harness]",
+            "[DevTools]",
+            "Node",
+            "SPRINT",
+            "Harness"
+          ]
+        },
+        {
+          "anchor": "§冒烟汇总表",
+          "level": 2,
+          "startLine": 75,
+          "endLine": 95,
+          "tokens": 335,
           "summary": "SC-01 冷启动无菜单 Node 分流 + DevTools 画面 就绪待执行",
           "keywords": [
             "Node",
@@ -17924,18 +17953,18 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 3697,
-      "lines": 124,
-      "sha256": "a87ac4e351d5c7c5d6cb678434d9949707fa004ab4832b87f2d7fa040c1b1817",
+      "tokens": 5372,
+      "lines": 146,
+      "sha256": "9aa303dcb4f79dea2e834bb6bba74ec92e449f5f78b50f80c3789a64a0f018e9",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§《拼豆填色消除》(beads) 测试用例 · Test Cases",
           "level": 1,
           "startLine": 1,
-          "endLine": 11,
-          "tokens": 298,
-          "summary": "任务号：WXG-T-011 ｜ 作者：严守真 ｜ 版本 v1.1 ｜ 日期 2026-09-12",
+          "endLine": 12,
+          "tokens": 502,
+          "summary": "任务号：WXG-T-011 / WXG-T-028 ｜ 作者：严守真 ｜ 版本 v1.2 ｜ 日期 2026-09-12",
           "keywords": [
             "beads",
             "Test",
@@ -17948,8 +17977,8 @@
         {
           "anchor": "§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）",
           "level": 1,
-          "startLine": 12,
-          "endLine": 90,
+          "startLine": 13,
+          "endLine": 91,
           "tokens": 2507,
           "summary": "",
           "keywords": [
@@ -17961,8 +17990,8 @@
         {
           "anchor": "§A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`",
           "level": 2,
-          "startLine": 14,
-          "endLine": 28,
+          "startLine": 15,
+          "endLine": 29,
           "tokens": 526,
           "summary": "TC-LOOP-01 §8.1 冷启动分流 [Node] 无存档→第 1 关 PLAYING，无主菜单；有存档→续进已解",
           "keywords": [
@@ -17977,8 +18006,8 @@
         {
           "anchor": "§A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10`",
           "level": 2,
-          "startLine": 29,
-          "endLine": 43,
+          "startLine": 30,
+          "endLine": 44,
           "tokens": 480,
           "summary": "TC-GRID-01 §8.1 装配不变量 [Node] empty+locked === cols×rows，且 ≥1",
           "keywords": [
@@ -17993,8 +18022,8 @@
         {
           "anchor": "§A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`",
           "level": 2,
-          "startLine": 44,
-          "endLine": 58,
+          "startLine": 45,
+          "endLine": 59,
           "tokens": 450,
           "summary": "TC-TRAY-01 §8.1 供料间隔 [Node] 默认下 60s tray:spawned 恰 15 次（±1），",
           "keywords": [
@@ -18009,8 +18038,8 @@
         {
           "anchor": "§A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`",
           "level": 2,
-          "startLine": 59,
-          "endLine": 73,
+          "startLine": 60,
+          "endLine": 74,
           "tokens": 449,
           "summary": "TC-INP-01 §8.1 五类路由 [Node] 暂停→S9；道具卡→S6；扩展→S4；托盘珠→tray:selec",
           "keywords": [
@@ -18025,8 +18054,8 @@
         {
           "anchor": "§A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`",
           "level": 2,
-          "startLine": 74,
-          "endLine": 90,
+          "startLine": 75,
+          "endLine": 91,
           "tokens": 502,
           "summary": "TC-TIMER-01 §8.1 计时精度 [Node] 从 LEVEL_TIME_DEFAULT 递减；60s 实测误",
           "keywords": [
@@ -18041,9 +18070,9 @@
         {
           "anchor": "§B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）",
           "level": 1,
-          "startLine": 91,
-          "endLine": 125,
-          "tokens": 825,
+          "startLine": 92,
+          "endLine": 110,
+          "tokens": 554,
           "summary": "TC-CONST-01 扩展槽规格 [Node] 扩展容量 = TRAY_EXPAND_SLOTS(12)，虚线→实线；",
           "keywords": [
             "§3",
@@ -18055,17 +18084,19 @@
           ]
         },
         {
-          "anchor": "§统计与覆盖矩阵",
-          "level": 2,
-          "startLine": 110,
-          "endLine": 125,
-          "tokens": 262,
-          "summary": "A1 core-loop 10 10 9×Node + 1×Node(存档)",
+          "anchor": "§C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）",
+          "level": 1,
+          "startLine": 111,
+          "endLine": 147,
+          "tokens": 1704,
+          "summary": "事件 payload 以 systems-index §4 登记定稿为准（combo:up {streak, multi",
           "keywords": [
-            "core",
-            "loop",
-            "Node",
-            "统计与覆盖矩"
+            "score-combo.md §8.1..11",
+            "§8.1",
+            "§4",
+            "score",
+            "combo",
+            "WXG"
           ]
         }
       ]

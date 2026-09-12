@@ -184,8 +184,13 @@ Node ≥ 20；包管理器以根 `package.json` 的 `packageManager` 为准（pn
 1. **开发前期**：实现/修复/接入/发布类任务开工前，先读 `knowledge/lessons.md` 同域条目，
    相关条目列入任务单必读（spawn 八要素的权威来源清单带上路径）。
 2. **任务收尾**：执行者随交付回传 0–3 条沉淀候选（踩坑修复 / 反直觉行为 / 可复用做法；没有传「无」），
-   由主理人去重汇编入 `lessons.md` / `patterns.md`，条目必须带 Task ID 可追溯。
+   由主理人去重汇编入 `lessons.md` / `patterns.md`，条目必须带 Task ID 可追溯；
+   汇编后跑 `pnpm run kb:sync --task=WXG-T-0xx`，把输出的**沉淀统计（新增 / 修改 / 激活 / 归档）**摘入会话结论与台账产出列。
 3. 只追加不删改；废弃条目标 `[已过时：原因]`；沉淀动作在会话结论的工具调用清单中体现。
+4. **条目生命周期（WXG-T-029）**：条目带行内 ID `[K-xxx]`；命中条目后记访问用 `pnpm run kb:touch -- K-xxx`
+   （Cursor/WorkBuddy 的读取亦由 `pnpm run kb:collect` 自动记账）；`pnpm run kb:audit` 出「闲置 ≥90 天且访问 ≤1 次」归档候选
+   与「归档相似命中」清单，**归档必须人工确认**（`kb:archive`，移入 `knowledge/archive/` 且**不进 ctx 索引**）；
+   新增条目后须跑 `kb:audit`，命中归档条目则 `kb:reactivate` 重新激活并合并。协议详见 `knowledge/INDEX.md` §5。
 
 **工具调用报告纪律**（会话结论强制）：
 1. 每次会话结论必须附**工具调用清单**：凡调用的 skill、spawn 的子代理（成员名 + Task ID + 产物路径）、
