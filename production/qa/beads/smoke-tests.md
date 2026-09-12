@@ -1,7 +1,7 @@
 # 《拼豆填色消除》(beads) 冒烟测试清单 · Smoke Test Suite
 
-- 任务号：WXG-T-011 ｜ 作者：严守真 ｜ 版本 v1.0 ｜ 日期 2026-09-11
-- 判据来源：`games/beads/design/gdd/*.md` §8、`systems-index §3`、`concept.md §7`（MVP 验收线）
+- 任务号：WXG-T-011 / WXG-T-028 ｜ 作者：严守真 ｜ 版本 v1.1 ｜ 日期 2026-09-12
+- 判据来源：`games/beads/design/gdd/*.md` §8、`systems-index §3`、`concept.md §7`（MVP 验收线）；v1.1 新增冲刺段：`score-combo.md §8` + `systems-index §3.10` + `ux-spec §5`（动效毫秒）
 
 **图例**：`[Node]` vitest 可覆盖（本轮环境具备）｜ `[DevTools]` 微信开发者工具（**待 Cocos 编辑器**，场景装配/渲染类）｜ `[Device]` 真机。
 
@@ -52,6 +52,26 @@
 ### SC-13 后台切换 `[Device]`
 - **预期**：`onHide` 自动暂停，`onShow` 停留 PAUSED 不自动继续（F1 冻结补偿，沿用 breakout 判例）。
 
+## 冲刺模式冒烟段（v1.1 新增，WXG-T-028）
+
+### SC-SP-01 冲刺单局最短通关链路 `[Node]`（逻辑断言归 TC-SPRINT-01..11）/ `[Harness]`（人工操作）/ `[DevTools]`（帧检/特效）
+
+**前置**：清存档或预置已通关 1 关；DevTools 可用注入面板控制 `mode` 与计时。
+
+**步骤（[Harness] 操作 → 预期观察点）**：
+1. **进 sprint**：完成 L1 → LEVEL_CLEAR 面板点「去冲刺」（`ux-spec §4` U1 入口）→ 起局。
+   - 观察：倒计时自 **120s** 起跳（`systems-index §3.10` `SPRINT_TIME_DEFAULT`）；HUD 出现 分数+倍率+连击数（`score-combo §2.1`）；stage 1 图案已装载；倍率角标此刻**不显示**（streak<2 零噪声，`score-combo §4`）。
+2. **起连击升档**：连续正确落子 2 次 → 倍率 ×2 角标出现 + Lv1 星光粒子（ux-spec §5 200ms）；streak=4 → ×3 伪震屏（scale 1.00→1.015→1.00 / 150ms）；streak=7 → ×5 全屏爆发（350ms）。
+   - 观察：每档切换恰 1 次；HUD 分数增量 = **10 × 当前倍率**（`§3.10` C4）。
+3. **stage 切换不断连**：保持 ×3+ 连击填满 stage 1 图案。
+   - 观察：立即换 stage 2、**不弹结算窗**（`score-combo §2.3`）；连击数/倍率不变（C8：stage 切换不断连）；倒计时 **+15s**（`§3.10` C5）；分数跳增 **200**（200+50×0）。
+4. **故意超窗断连**：×3 档下停手 >**5.0s**（`§3.10` `COMBO_WINDOW_S`）。
+   - 观察：倍率角标灰缩消失（150ms）、streak 清零回 ×1；分数**不清零不扣分**（`score-combo §2.4`）。
+5. **单局结束 + 破纪录判定**：等倒计时归零（或 DevTools 快进）。
+   - 观察：进结算 → 显示 单局分 + 最佳梯位 + `sprint:ended{score, bestStage, settleScore}` 广播（`systems-index §4`）；本次分 > S8 存档最佳 → **NEW BEST** 角标且存档写入；随后再开一局故意低分 → 无 NEW BEST、存档值不变（`score-combo §8.11`）。
+
+**判定**：任一观察点 FAIL 即停、按复现步骤开 Bug（严重度参照 qa 计划分级）。逻辑层断言（事件恰次/公式复算/同帧裁决）由 §C 用例 `[Node]` 自动化，本段为人工链路验收。
+
 ## 冒烟汇总表
 
 | ID | 链路 | 环境 | 本轮 |
@@ -69,5 +89,6 @@
 | SC-11 | 杀进程续进 | Device | DEFERRED |
 | SC-12 | 存档降级 | Node | 就绪待执行 |
 | SC-13 | 后台切换 | Device | DEFERRED |
+| SC-SP-01 | 冲刺单局全链路（进局→升档→跨 stage→断连→结算/破纪录） | Node + Harness + DevTools | 就绪待执行 |
 
-> **本轮可执行口径**：13 条中 11 条的判定逻辑可由 vitest 覆盖（实现落地后）；SC-11/SC-13 及各条的画面断言需 Cocos 编辑器/真机。
+> **本轮可执行口径**：14 条中 12 条的判定逻辑可由 vitest 覆盖（实现落地后）；SC-11/SC-13 及各条的画面断言、SC-SP-01 的特效帧检需 Cocos 编辑器/真机。
