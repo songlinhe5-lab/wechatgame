@@ -17,6 +17,7 @@ export * from './entities/paddle.js';
 export * from './systems/physics.js';
 export * from './systems/explosion.js';
 export * from './systems/scoring.js';
+export * from './systems/motion.js';
 
 export * from './game/state.js';
 export * from './game/save-schema.js';

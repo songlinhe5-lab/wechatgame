@@ -357,17 +357,96 @@ describe('G4 · pause/resume preserves phase timers (pause-settings.md §6.2)', 
 
 // ───────────────────────────────────────────── A7 · reduce-motion (a11y)
 
-describe.skip('G4 · reduce-motion switch (assets-spec.md §6.1/§6.2) — NOT IMPLEMENTED', () => {
-  // These two criteria are untestable as of WXG-T-012: `reduceMotion` does not
-  // exist anywhere under src/ (zero grep hits), so the §6.1 shutdown list and
-  // §6.2 keep list cannot be exercised. Filed as a defect in
-  // production/qa/g4-regression-report.md — do not delete these tests; they
-  // activate the moment the setting ships.
-  it.skip('TC-A11Y-01: with reduce-motion on, the 9 shutdown-list effects never play', () => {
-    expect.fail('reduceMotion is not implemented — see production/qa/g4-regression-report.md');
+/**
+ * The two A11Y criteria from `test-cases.md §A7`. Skipped as placeholders in
+ * WXG-T-012 because `reduceMotion` did not exist; shipped in WXG-T-013
+ * (`src/systems/motion.ts` + `settings.reduceMotion`), so both are now live.
+ */
+describe('G4 · reduce-motion switch (assets-spec.md §6.1/§6.2)', () => {
+  /** Harness whose save document has `reduceMotion: true` preloaded. */
+  function reducedHarness(levels: readonly LevelDef[]) {
+    const platform = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 });
+    const storage = platform.createStorage();
+    storage.set(
+      SAVE_KEY,
+      JSON.stringify({
+        version: 1,
+        currentLevel: 1,
+        maxUnlockedLevel: 1,
+        settings: { reduceMotion: true },
+        stats: { runs: 1 },
+      }),
+    );
+    return createHarness({ storage, saveKey: SAVE_KEY, levels });
+  }
+
+  it('TC-A11Y-01: with reduce-motion on, the 9 shutdown-list effects never play', () => {
+    const h = reducedHarness([
+      {
+        id: 'qa-a11y',
+        name: 'A11Y',
+        layout: ['NB'],
+        legend: {
+          N: { hp: 1, score: 100, color: '#4cc9f0' },
+          B: { hp: 1, score: 150, color: '#ff6b3d' },
+        },
+      },
+    ]);
+    const m = h.game.snapshot.motion;
+    expect(h.game.reduceMotion).toBe(true);
+
+    // §6.1 — all nine items verified against the live effect table.
+    expect(m.shakeAmplitudePx).toBe(0); // 1. screen shake
+    expect(m.brickBurstParticles).toBe(0); // 2. brick-burst particles
+    expect(m.steelSparkParticles).toBe(0); // 3. steel spark
+    expect(m.confettiParticles).toBe(0); // 4. level-clear confetti
+    expect(m.ballTrailLayers).toBe(0); // 5. ball trail
+    expect(m.bombShockwave).toBe(false); // 6. bomb shockwave ring
+    expect(m.panelScale).toBe(false); // 7. panel scale (pure fade instead)
+    expect(m.ambientPulse).toBe(false); // 8. breathing/pulse loops
+    expect(m.comboPulse).toBe(false); // 9. combo-multiplier pulse
+
+    // Live proof on the loudest source: the bomb blast produces zero shake.
+    h.game.launch();
+    const bomb = h.game.bricks.find((b) => b.type === 'B')!;
+    aimAt(h.game, bomb);
+    h.advance(0.3);
+    expect(h.game.snapshot.shakeAmplitude).toBe(0);
+    expect(h.game.snapshot.ballTrail).toHaveLength(0);
   });
 
-  it.skip('TC-A11Y-02: with reduce-motion on, the 7 keep-list effects still play', () => {
-    expect.fail('reduceMotion is not implemented — see production/qa/g4-regression-report.md');
+  it('TC-A11Y-02: with reduce-motion on, the 7 keep-list effects still play', () => {
+    const h = reducedHarness([
+      {
+        id: 'qa-a11y',
+        name: 'A11Y',
+        layout: ['NT'],
+        legend: {
+          N: { hp: 1, score: 100, color: '#4cc9f0' },
+          T: { hp: 2, score: 250, color: '#a96bff' },
+        },
+      },
+    ]);
+    const m = h.game.snapshot.motion;
+    expect(h.game.reduceMotion).toBe(true);
+
+    // §6.2 — all seven items stay on with the switch on.
+    expect(m.hitFlash).toBe(true);
+    expect(m.brickFadeOut).toBe(true);
+    expect(m.scorePopup).toBe(true);
+    expect(m.damagedState).toBe(true);
+    expect(m.hudStatusUpdates).toBe(true);
+    expect(m.uiFade).toBe(true);
+    expect(m.ballMotion).toBe(true);
+
+    // Live proof: hit feedback and damaged-state readability survive.
+    h.game.launch();
+    const tough = h.game.bricks.find((b) => b.type === 'T')!;
+    aimAt(h.game, tough);
+    h.advance(0.3);
+    expect(tough.destroyed).toBe(false); // T takes 2 hits…
+    expect(tough.hp).toBe(1); // …so this hit leaves a damaged state
+    expect(h.count('brick:damaged')).toBeGreaterThanOrEqual(1);
+    expect(h.game.ball.launched).toBe(true); // ball motion unchanged
   });
 });

@@ -45,6 +45,12 @@ import {
   type ExplosionResult,
 } from '../systems/explosion.js';
 import {
+  MOTION_DEFAULTS,
+  MOTION_FULL,
+  resolveMotionEffects,
+  type MotionEffects,
+} from '../systems/motion.js';
+import {
   PHASE_TRANSITIONS,
   bannerFor,
   createSnapshot,
@@ -85,6 +91,8 @@ export interface BreakoutEvents extends Record<string, unknown> {
   'game:over': { score: number; levelIndex: number; bestScore: number; isNewBest: boolean };
   victory: { score: number; bestScore: number; isNewBest: boolean };
   'save:written': { key: string };
+  /** A settings toggle changed at runtime (settings UI / dev harness). */
+  'settings:changed': { reduceMotion: boolean };
 }
 
 export interface BreakoutGameOptions {
@@ -142,6 +150,16 @@ export class BreakoutGame implements Game {
   private readonly _pointer = { x: 0, y: 0 };
   /** Last design-space pointer X seen, or null when the player never touched. */
   private _pointerX: number | null = null;
+
+  /** Accessibility D1 switch (assets-spec §6) — adopted from settings at boot. */
+  private _reduceMotion = false;
+  /** Per-effect motion levels derived from `_reduceMotion`. */
+  private _motion: MotionEffects = MOTION_FULL;
+  /** Seconds of screen shake left; 0 = steady. Frozen while paused. */
+  private _shakeTimer = 0;
+
+  /** Ring buffer of recent ball positions for the trail (§B3). Reused. */
+  private readonly _trail: { x: number; y: number }[] = [];
 
   constructor(options: BreakoutGameOptions = {}) {
     this.tuning = options.tuning ?? DEFAULT_TUNING;
@@ -282,6 +300,7 @@ export class BreakoutGame implements Game {
 
     this._bestScore = normalized.save.bestScore;
     services.audio.setMuted(!normalized.save.settings.sfx);
+    this._adoptReduceMotion(normalized.save.settings.reduceMotion);
     this._subscribe();
     this._boot();
   }
@@ -361,6 +380,38 @@ export class BreakoutGame implements Game {
     this._newRun();
   }
 
+  /**
+   * Toggle the reduced-motion switch (accessibility D1, assets-spec §6).
+   * Persists through the settings channel so the choice survives relaunch,
+   * then re-derives the §6.1/§6.2 effect table.
+   */
+  setReduceMotion(value: boolean): void {
+    if (value === this._reduceMotion) return;
+    this._adoptReduceMotion(value);
+    const save = this._save;
+    if (save) {
+      save.patch({ settings: { ...save.data.settings, reduceMotion: value } });
+      save.save();
+      this._emit('save:written', { key: this._saveKey });
+    }
+    this._emit('settings:changed', { reduceMotion: value });
+  }
+
+  get reduceMotion(): boolean {
+    return this._reduceMotion;
+  }
+
+  /** Derive the §6.1/§6.2 effect table from the switch (no I/O here). */
+  private _adoptReduceMotion(value: boolean): void {
+    this._reduceMotion = value;
+    this._motion = resolveMotionEffects(value);
+    if (value) {
+      // Shutdown takes effect immediately: drop any live shake and trail.
+      this._shakeTimer = 0;
+      this._trail.length = 0;
+    }
+  }
+
   /** Skip straight to a board. Used by level-select UI and tests. */
   goToLevel(index: number): void {
     const clamped = Math.max(0, Math.min(index, this._levels.length - 1));
@@ -390,6 +441,7 @@ export class BreakoutGame implements Game {
         onUpdate: (game, dt) => {
           game._followPointer(dt);
           game._stepPhysics(dt);
+          game._updateMotion(dt);
         },
       })
       .addState('life-lost', {
@@ -563,6 +615,8 @@ export class BreakoutGame implements Game {
     this._totalBricks = level.brickCount;
     this._remainingBricks = level.brickCount;
     this._scorer.resetCombo();
+    this._trail.length = 0;
+    this._shakeTimer = 0;
 
     this.paddle.setWidth(level.def.paddleWidth ?? this.tuning.paddle.width, this.tuning);
     this.paddle.resetTo(this.tuning.width / 2, this.tuning);
@@ -586,6 +640,42 @@ export class BreakoutGame implements Game {
 
   private _restBall(): void {
     this.ball.restOn(this.paddle.x, this.paddle.y + this.tuning.ball.restOffsetY);
+  }
+
+  /**
+   * Per-frame motion housekeeping (playing state only, so everything freezes
+   * on pause — §6.2 keeps ball motion, but shake/trail are playing-state VFX).
+   */
+  private _updateMotion(dt: number): void {
+    // Ball trail (§B3 / §6.1 item 5): sample once per step, cap at the table's
+    // layer count. When reduce-motion zeroes the budget the buffer stays empty.
+    const maxLayers = this._motion.ballTrailLayers;
+    if (maxLayers <= 0) {
+      this._trail.length = 0;
+    } else if (this.ball.launched) {
+      this._trail.push({ x: this.ball.x, y: this.ball.y });
+      while (this._trail.length > maxLayers) this._trail.shift();
+    } else {
+      this._trail.length = 0;
+    }
+
+    // Screen shake decay (§6.1 item 1): linear ramp back to 0 over the budget.
+    if (this._shakeTimer > 0) {
+      this._shakeTimer = Math.max(0, this._shakeTimer - dt);
+    }
+  }
+
+  /** Kick a screen shake, honouring the reduced-motion amplitude (0 = off). */
+  private _triggerShake(): void {
+    if (this._motion.shakeAmplitudePx <= 0) return;
+    this._shakeTimer = MOTION_DEFAULTS.shakeDurationS;
+  }
+
+  /** Current shake amplitude in px — 0 when steady or motion-reduced. */
+  private get _shakeAmplitude(): number {
+    if (this._shakeTimer <= 0 || this._motion.shakeAmplitudePx <= 0) return 0;
+    const k = this._shakeTimer / MOTION_DEFAULTS.shakeDurationS; // 1 → 0
+    return this._motion.shakeAmplitudePx * k;
   }
 
   private _keepBallOnPaddle(): void {
@@ -660,6 +750,10 @@ export class BreakoutGame implements Game {
       const behavior = BRICK_BEHAVIOR[brick.type as BrickTypeCode];
       const explode = behavior?.explode;
       if (!explode) continue;
+
+      // §6.1 item 1: a bomb blast is the one shake source. Reduced motion
+      // clamps the amplitude to 0, making this a no-op.
+      this._triggerShake();
 
       const blast = resolveExplosion(
         brick as ExplodableBrick,
@@ -817,6 +911,23 @@ export class BreakoutGame implements Game {
     s.ballY = this.ball.y;
     s.ballRadius = this.ball.radius;
     s.ballResting = !this.ball.launched;
+
+    // Accessibility/motion (assets-spec §6): the switch plus its effect table.
+    s.reduceMotion = this._reduceMotion;
+    s.motion = this._motion;
+    s.shakeAmplitude = this._shakeAmplitude;
+    if (s.ballTrail.length !== this._trail.length) {
+      s.ballTrail = this._trail.slice();
+    } else {
+      for (let i = 0; i < this._trail.length; i++) {
+        const t = this._trail[i]!;
+        const st = s.ballTrail[i]!;
+        if (st.x !== t.x || st.y !== t.y) {
+          s.ballTrail = this._trail.slice();
+          break;
+        }
+      }
+    }
 
     s.bricks = this._bricks;
 

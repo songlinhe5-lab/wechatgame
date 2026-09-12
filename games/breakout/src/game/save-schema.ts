@@ -28,6 +28,12 @@ export interface BreakoutSettings {
   vibrate: boolean;
   /** How the paddle follows the pointer. */
   controlMode: ControlMode;
+  /**
+   * Reduced-motion switch (accessibility D1, `assets-spec.md §6`).
+   * `true` shuts down the §6.1 list (shake/particles/trail/…) and keeps the
+   * §6.2 readability feedback. Persisted so the choice survives relaunch.
+   */
+  reduceMotion: boolean;
 }
 
 export interface BreakoutStats {
@@ -64,7 +70,7 @@ export const BACKUP_KEY = 'wxgame.breakout.save.bak';
 export const SAVE_VERSION = 1;
 
 export function defaultSettings(): BreakoutSettings {
-  return { sfx: true, music: true, vibrate: true, controlMode: 'absolute' };
+  return { sfx: true, music: true, vibrate: true, controlMode: 'absolute', reduceMotion: false };
 }
 
 export function defaultStats(): BreakoutStats {
@@ -139,6 +145,7 @@ export function normalizeBreakoutSave(raw: unknown, levelCount: number): Normali
     music: bool(settingsRaw['music'], true),
     vibrate: bool(settingsRaw['vibrate'], true),
     controlMode: settingsRaw['controlMode'] === 'relative' ? 'relative' : 'absolute',
+    reduceMotion: bool(settingsRaw['reduceMotion'], false),
   };
 
   const stats: BreakoutStats = {
@@ -170,6 +177,7 @@ export function normalizeBreakoutSave(raw: unknown, levelCount: number): Normali
     settingsRaw['music'] !== settings.music ||
     settingsRaw['vibrate'] !== settings.vibrate ||
     settingsRaw['controlMode'] !== settings.controlMode ||
+    settingsRaw['reduceMotion'] !== settings.reduceMotion ||
     !isRecord(raw['settings']) ||
     !isRecord(raw['stats']) ||
     statsRaw['runs'] !== stats.runs ||

@@ -91,6 +91,7 @@ export function createHarness(options: HarnessOptions = {}): Harness {
     'game:over',
     'victory',
     'save:written',
+    'settings:changed',
   ];
   for (const type of tracked) {
     events.on(type, (payload) => emitted.push({ type, payload }));

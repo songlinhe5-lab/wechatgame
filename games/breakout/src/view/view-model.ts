@@ -47,10 +47,16 @@ export function buildBreakoutView(
   palette: BreakoutPalette = DEFAULT_PALETTE,
 ): void {
   builder.setBackground(palette.background);
-  drawArena(builder, snap, palette);
-  drawBricks(builder, snap, palette);
-  drawBall(builder, snap, palette);
-  drawPaddle(builder, snap, palette);
+  // Screen shake (§6.1 item 1): the whole world rattles by the decaying
+  // amplitude. Reduced motion pins the amplitude to 0, so this collapses to
+  // a plain identity offset and nothing else in the pipeline changes.
+  const shake = snap.shakeAmplitude;
+  const offX = shake > 0 ? shake * 0.6 : 0; // fixed direction — deterministic
+  const offY = shake > 0 ? -shake * 0.4 : 0;
+  drawArena(builder, snap, palette, offX, offY);
+  drawBricks(builder, snap, palette, offX, offY);
+  drawBall(builder, snap, palette, offX, offY);
+  drawPaddle(builder, snap, palette, offX, offY);
   drawHud(builder, snap, palette);
   drawCombo(builder, snap, palette);
   drawBanners(builder, snap, palette);
@@ -60,20 +66,24 @@ function drawArena(
   builder: RenderModelBuilder,
   snap: BreakoutSnapshot,
   palette: BreakoutPalette,
+  offX: number,
+  offY: number,
 ): void {
   const { width, height } = snap.tuning;
   // Faint frame so the play area reads as a cabinet even on a bright screen.
-  builder.rect(0, 0, width, height, { fill: withAlpha(palette.backplate, 0.55) });
-  builder.line(0, 0, width, 0, withAlpha(palette.textDim, 0.35), 2);
-  builder.line(0, height, width, height, withAlpha(palette.textDim, 0.35), 2);
-  builder.line(0, 0, 0, height, withAlpha(palette.textDim, 0.35), 2);
-  builder.line(width, 0, width, height, withAlpha(palette.textDim, 0.35), 2);
+  builder.rect(offX, offY, width, height, { fill: withAlpha(palette.backplate, 0.55) });
+  builder.line(offX, offY, offX + width, offY, withAlpha(palette.textDim, 0.35), 2);
+  builder.line(offX, offY + height, offX + width, offY + height, withAlpha(palette.textDim, 0.35), 2);
+  builder.line(offX, offY, offX, offY + height, withAlpha(palette.textDim, 0.35), 2);
+  builder.line(offX + width, offY, offX + width, offY + height, withAlpha(palette.textDim, 0.35), 2);
 }
 
 function drawBricks(
   builder: RenderModelBuilder,
   snap: BreakoutSnapshot,
   palette: BreakoutPalette,
+  offX: number,
+  offY: number,
 ): void {
   const bricks = snap.bricks;
   for (let i = 0; i < bricks.length; i++) {
@@ -81,11 +91,11 @@ function drawBricks(
     if (brick.destroyed) continue;
 
     // Damaged bricks are darkened so the player can read remaining hp at a
-    // glance without a separate hp bar.
+    // glance without a separate hp bar (§6.2 keep item — never gated).
     const damaged = !brick.indestructible && brick.hp < brick.maxHp;
     const fill = damaged ? shade(brick.color, -0.45) : brick.color;
-    const left = brick.x - brick.width / 2;
-    const bottom = brick.y - brick.height / 2;
+    const left = brick.x - brick.width / 2 + offX;
+    const bottom = brick.y - brick.height / 2 + offY;
 
     builder.rect(left, bottom, brick.width, brick.height, {
       fill,
@@ -116,13 +126,29 @@ function drawBall(
   builder: RenderModelBuilder,
   snap: BreakoutSnapshot,
   palette: BreakoutPalette,
+  offX: number,
+  offY: number,
 ): void {
-  builder.circle(snap.ballX, snap.ballY, snap.ballRadius + 6, {
+  const x = snap.ballX + offX;
+  const y = snap.ballY + offY;
+  const layers = snap.motion.ballTrailLayers;
+  if (layers > 0) {
+    // Trail (§B3): oldest ghosts first, fading toward the body. The count is
+    // driven by the motion table — reduce-motion zeroes it (§6.1 item 5).
+    for (let i = 0; i < snap.ballTrail.length; i++) {
+      const p = snap.ballTrail[i]!;
+      const fade = (i + 1) / (snap.ballTrail.length + 1);
+      builder.circle(p.x + offX, p.y + offY, snap.ballRadius * (0.5 + 0.4 * fade), {
+        fill: withAlpha(palette.ballGlow, 0.18 * fade),
+      });
+    }
+  }
+  builder.circle(x, y, snap.ballRadius + 6, {
     fill: withAlpha(palette.ballGlow, 0.22),
   });
-  builder.circle(snap.ballX, snap.ballY, snap.ballRadius, { fill: palette.ball });
+  builder.circle(x, y, snap.ballRadius, { fill: palette.ball });
   // A single dark arc sells rotation on a flat circle.
-  builder.circle(snap.ballX - snap.ballRadius * 0.3, snap.ballY + snap.ballRadius * 0.3, snap.ballRadius * 0.28, {
+  builder.circle(x - snap.ballRadius * 0.3, y + snap.ballRadius * 0.3, snap.ballRadius * 0.28, {
     fill: withAlpha(palette.textDim, 0.35),
   });
 }
@@ -131,9 +157,11 @@ function drawPaddle(
   builder: RenderModelBuilder,
   snap: BreakoutSnapshot,
   palette: BreakoutPalette,
+  offX: number,
+  offY: number,
 ): void {
-  const left = snap.paddleX - snap.paddleWidth / 2;
-  const bottom = snap.paddleY - snap.paddleHeight / 2;
+  const left = snap.paddleX - snap.paddleWidth / 2 + offX;
+  const bottom = snap.paddleY - snap.paddleHeight / 2 + offY;
   builder.rect(left, bottom, snap.paddleWidth, snap.paddleHeight, {
     fill: palette.paddle,
     stroke: palette.paddleEdge,
@@ -216,6 +244,10 @@ function drawCombo(
   palette: BreakoutPalette,
 ): void {
   if (snap.multiplier <= 1) return;
+  // §6.2 keep item: the combo number always changes (readability). §6.1 item 9
+  // only gates the 1.3× scale pulse — this renderer draws the number statically
+  // either way, so `motion.comboPulse === false` is satisfied by construction
+  // (documented so a future pulse effect knows where to branch).
   const label = `COMBO x${snap.multiplier.toFixed(1)}`;
   builder.text(snap.tuning.width / 2, HUD.comboY, label, {
     fill: palette.textAccent,
@@ -273,7 +305,9 @@ function drawTapHint(
   const top = snap.paddleY + 210;
   const halfW = 18;
   const h = 22;
-  const bob = Math.sin(snap.phaseElapsed * 4) * 8;
+  // The bob is periodic ambient motion (§6.1 item 8, "呼吸/脉冲"): with
+  // reduced motion it freezes to a static chevron instead of oscillating.
+  const bob = snap.motion.ambientPulse ? Math.sin(snap.phaseElapsed * 4) * 8 : 0;
 
   // Flat [x0,y0, x1,y1, x2,y2] triangle pointing down.
   builder.polygon([cx - halfW, top + bob, cx + halfW, top + bob, cx, top - h + bob], {

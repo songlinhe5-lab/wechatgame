@@ -9,6 +9,8 @@
 
 import type { CompiledBrick } from '@wxgame/framework';
 import type { BreakoutTuning } from '../config/tuning.js';
+import type { MotionEffects } from '../systems/motion.js';
+import { MOTION_FULL } from '../systems/motion.js';
 
 export type BreakoutPhase =
   | 'ready'
@@ -72,6 +74,15 @@ export interface BreakoutSnapshot {
   ballRadius: number;
   ballResting: boolean;
 
+  /** Accessibility D1 switch (assets-spec §6). Mirrors `settings.reduceMotion`. */
+  reduceMotion: boolean;
+  /** Per-effect motion levels derived from `reduceMotion` (§6.1/§6.2 table). */
+  motion: MotionEffects;
+  /** Live screen-shake amplitude in px (decays to 0; 0 when motion reduced). */
+  shakeAmplitude: number;
+  /** Recent ball positions for the trail, oldest first (empty when reduced). */
+  ballTrail: readonly { readonly x: number; readonly y: number }[];
+
   bricks: readonly CompiledBrick[];
 
   /** Banner text for the current phase ('' when none). */
@@ -110,6 +121,10 @@ export function createSnapshot(tuning: BreakoutTuning): BreakoutSnapshot {
     ballY: 0,
     ballRadius: tuning.ball.radius,
     ballResting: true,
+    reduceMotion: false,
+    motion: MOTION_FULL,
+    shakeAmplitude: 0,
+    ballTrail: [],
     bricks: [],
     banner: '',
     subBanner: '',
