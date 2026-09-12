@@ -69,6 +69,16 @@ export interface BeadsSnapshot {
   trayExpanded: boolean;
   traySelected: number;
 
+  /** S9 pause panel: visible = anything drawn (incl. the exit fade). */
+  panelVisible: boolean;
+  /** Panel animation progress, 0→1 entering, 1→0 leaving. */
+  panelProgress: number;
+  /** True only while the panel accepts taps (not during the exit fade). */
+  panelInteractive: boolean;
+  /** S9 audio toggles for immediate visual echo (no restart needed). */
+  bgmMuted: boolean;
+  sfxMuted: boolean;
+
   /** Sprint HUD — normal mode leaves these at zero and the view hides them. */
   score: number;
   multiplier: number;
@@ -110,6 +120,11 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     traySlots: [],
     trayExpanded: false,
     traySelected: -1,
+    panelVisible: false,
+    panelProgress: 0,
+    panelInteractive: false,
+    bgmMuted: false,
+    sfxMuted: false,
     score: 0,
     multiplier: 1,
     streak: 0,

@@ -15,8 +15,12 @@ import type { RenderModelBuilder } from '@wxgame/framework';
 import {
   BEAD_CELL,
   BEAD_PITCH,
+  DESIGN_H,
   DESIGN_W,
   HUD_BAND,
+  PANEL_SCALE_FROM,
+  PANEL_SCRIM_ALPHA,
+  PANEL_SCRIM_RGB,
   POWERUP_BAND,
   TRAY_BAND,
   TRAY_COLS,
@@ -24,6 +28,7 @@ import {
   TRAY_SLOT,
 } from '../config/tuning.js';
 import type { BeadsSnapshot } from '../game/state.js';
+import { pausePanelLayout, type PanelButton } from '../systems/pause-panel.js';
 import { beadColor, mix, withAlpha, type BeadsPalette } from './palette.js';
 
 const FONT = {
@@ -32,7 +37,27 @@ const FONT = {
   hudSmall: '22px sans-serif',
   banner: 'bold 62px sans-serif',
   sub: '28px sans-serif',
+  panelTitle: 'bold 40px sans-serif',
+  panelButton: 'bold 30px sans-serif',
 } as const;
+
+/** Panel button copy — sprint swaps one label (pause-settings §2.2, P1). */
+function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
+  switch (button.id) {
+    case 'resume':
+      return '继续';
+    case 'restart':
+      return snap.mode === 'sprint' ? '重新冲刺' : '重玩本关';
+    case 'toggle-bgm':
+      return `音乐  ${snap.bgmMuted ? '关' : '开'}`;
+    case 'toggle-sfx':
+      return `音效  ${snap.sfxMuted ? '关' : '开'}`;
+    case 'start-sprint':
+      return '▶ 去冲刺';
+    default:
+      return '';
+  }
+}
 
 /** Render one frame of Beads. Read-only over the snapshot by construction. */
 export function buildBeadsView(
@@ -45,7 +70,74 @@ export function buildBeadsView(
   drawGrid(builder, snap, palette);
   drawTray(builder, snap, palette);
   drawPowerupBand(builder, palette);
+  drawPausePanel(builder, snap, palette);
   drawBanners(builder, snap, palette);
+}
+
+// ───────────────────────────────────────────────── S9 pause panel (ux-spec §3.3)
+
+/**
+ * Scrim + dialog, drawn last but before banners so an overlaid banner (e.g. the
+ * PAUSED caption) still reads above it. Read-only: everything comes from the
+ * snapshot and the static `pausePanelLayout()` used by the router too.
+ *
+ * Animation: scrim alpha and plate scale ramp monotonically with
+ * `snap.panelProgress` for `PANEL_IN_MS` ms in / `PANEL_OUT_MS` ms out
+ * (ux-spec §5) — a single ramp per direction, so nothing can exceed the
+ * ≤3 Hz flicker red line.
+ */
+function drawPausePanel(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  if (!snap.panelVisible) return;
+  const t = Math.max(0, Math.min(1, snap.panelProgress));
+  const layout = pausePanelLayout(snap.mode);
+
+  // Scrim covers the whole canvas — therefore always the board *and* the tray
+  // (pause-settings §2.2: 防误触 + 防偷看).
+  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+    fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA * t})`,
+  });
+
+  // Plate: scale 0.9→1.0 about its centre (ux-spec §5).
+  const plate = layout.panel;
+  const cx = (plate.xMin + plate.xMax) / 2;
+  const cy = (plate.yMin + plate.yMax) / 2;
+  const scale = PANEL_SCALE_FROM + (1 - PANEL_SCALE_FROM) * t;
+  const w = (plate.xMax - plate.xMin) * scale;
+  const h = (plate.yMax - plate.yMin) * scale;
+  const left = cx - w / 2;
+  const bottom = cy - h / 2;
+  builder.rect(left, bottom, w, h, { fill: palette.panel, radius: 24 });
+
+  builder.text(cx, layout.titleY, '暂停', {
+    fill: palette.text,
+    font: FONT.panelTitle,
+    align: 'center',
+    baseline: 'middle',
+  });
+
+  for (const button of layout.buttons) {
+    const bw = (button.rect.xMax - button.rect.xMin) * scale;
+    const bh = (button.rect.yMax - button.rect.yMin) * scale;
+    const bx = cx + (button.rect.xMin - cx) * scale;
+    const by = cy + (button.rect.yMin - cy) * scale;
+    const primary = button.id === 'resume';
+    builder.rect(bx, by, bw, bh, {
+      fill: primary ? palette.textAccent : palette.slot,
+      stroke: primary ? palette.textAccent : palette.slotBorder,
+      lineWidth: 2,
+      radius: 14,
+    });
+    builder.text(bx + bw / 2, by + bh / 2, panelLabel(button, snap), {
+      fill: primary ? palette.panel : palette.text,
+      font: FONT.panelButton,
+      align: 'center',
+      baseline: 'middle',
+    });
+  }
 }
 
 // ───────────────────────────────────────────────────────────────────── HUD
@@ -268,7 +360,9 @@ function drawBanners(
   snap: BeadsSnapshot,
   palette: BeadsPalette,
 ): void {
-  if (!snap.banner) return;
+  // The pause dialog carries its own 暂停 title — don't double-print the phase
+  // banner on top of it (ux-spec §3.3 shows one caption, not two).
+  if (!snap.banner || snap.panelVisible) return;
   const bannerY = 700;
   builder.rect(0, bannerY - 90, DESIGN_W, 200, {
     fill: withAlpha(palette.bannerBackdrop, 0.55),

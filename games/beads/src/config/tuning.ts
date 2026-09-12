@@ -186,6 +186,39 @@ export function normalSettleScore(
  */
 export const LEVEL_CLEAR_DELAY_S = 1.4;
 
+// ──────────────────── §3.8 S9 暂停面板几何（来源：ux-spec §3.3 线框，本篇不派生）
+/** Pause settings gear hit area — a TOUCH_MIN square anchored left in HUD_BAND. */
+export const GEAR_HIT_SIZE = TOUCH_MIN;
+/** Panel size: 560 × 480 (`panel_dialog`, ux-spec §3.3). */
+export const PANEL_SIZE = { w: 560, h: 480 } as const;
+/** Scrim over board+tray: rgba(42,46,67,0.5) (ux-spec §3.3). */
+export const PANEL_SCRIM_RGB = { r: 42, g: 46, b: 67 } as const;
+export const PANEL_SCRIM_ALPHA = 0.5;
+/** Panel button height — every row honours the TOUCH_MIN control floor (§3.8). */
+export const PANEL_BUTTON_H = TOUCH_MIN;
+/** Primary button ("继续") width (ux-spec §3.3: 240×88 主钮). */
+export const PANEL_PRIMARY_W = 240;
+/** Inner horizontal padding inside the panel. */
+export const PANEL_PADDING = 20;
+/** Vertical gap between panel rows. */
+export const PANEL_ROW_GAP = 30;
+/** Vertical space reserved above the primary row for the title band. */
+export const PANEL_TITLE_BAND_H = 100;
+
+// ─────────────────────── 面板动效（来源：ux-spec §5「面板入 / 出 200 / 150」）
+/** Panel enter animation duration (ms). */
+export const PANEL_IN_MS = 200;
+/** Panel exit animation duration (ms). */
+export const PANEL_OUT_MS = 150;
+/** Enter scale start → 1.0 (ux-spec §5: scale 0.9→1.0). */
+export const PANEL_SCALE_FROM = 0.9;
+
+// ───────────────────────── 音频 clip id（无冻结真源，仅为通道标识）
+/** BGM clip played with `loop: true` on the bgm channel (architecture §2). */
+export const AUDIO_CLIP_BGM = 'bgm_main';
+/** UI tap sfx — every panel button uses it (ux-spec §5 抽屉音). */
+export const AUDIO_CLIP_UI_TAP = 'sfx_ui_tap';
+
 // ─────────────────────────────────────────────────────── grid layout derivation
 /** Derived geometry for one level's grid, centred inside `PUZZLE_BAND`. */
 export interface GridLayout {

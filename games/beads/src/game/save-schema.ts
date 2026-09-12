@@ -11,6 +11,18 @@
 
 import type { SaveDocument, Storage } from '@wxgame/framework';
 
+/**
+ * S9 audio settings (save-progress §2.2): two independent channels, persisted
+ * the instant they are toggled. Missing fields degrade **per field** to false —
+ * a document is never discarded because `settings` lacks a key.
+ */
+export interface BeadsSettings {
+  /** Music channel muted (`bgmMuted`). */
+  readonly bgmMuted: boolean;
+  /** Sfx channel muted (`sfxMuted`). */
+  readonly sfxMuted: boolean;
+}
+
 export interface BeadsSave extends SaveDocument {
   version: 1;
   /** Runs started — the "first launch" test is `runs === 0` (S1 §8-1). */
@@ -23,6 +35,8 @@ export interface BeadsSave extends SaveDocument {
   sprintBestScore: number;
   /** Best sprint stage index ever reached (0-based). */
   sprintBestStage: number;
+  /** S9 audio toggles (save-progress §2.2; written on every switch). */
+  settings: BeadsSettings;
 }
 
 /** Storage key — namespaced (architecture-beads §2: `wxgame.beads.save.v1`). */
@@ -39,11 +53,30 @@ export function defaultBeadsSave(): BeadsSave {
     currentLevel: 1,
     sprintBestScore: 0,
     sprintBestStage: 0,
+    settings: { bgmMuted: false, sfxMuted: false },
   };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Read one boolean field, degrading per-field (save-progress §2.2: 缺字段按单
+ * 字段默认 false，不弃整档).
+ */
+function boolField(raw: unknown, key: string, fallback: boolean): boolean {
+  if (!isRecord(raw)) return fallback;
+  const value = raw[key];
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+/** Normalise the `settings` sub-document — never throws, never drops the save. */
+export function normalizeSettings(raw: unknown): BeadsSettings {
+  return {
+    bgmMuted: boolField(raw, 'bgmMuted', false),
+    sfxMuted: boolField(raw, 'sfxMuted', false),
+  };
 }
 
 /** Non-negative finite number, else `fallback`. */
@@ -81,6 +114,7 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     currentLevel: current ?? 1,
     sprintBestScore: num(raw['sprintBestScore'], 0),
     sprintBestStage: num(raw['sprintBestStage'], 0),
+    settings: normalizeSettings(raw['settings']),
   };
 
   const changed =
@@ -88,7 +122,10 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     raw['maxUnlockedLevel'] !== save.maxUnlockedLevel ||
     raw['currentLevel'] !== save.currentLevel ||
     raw['sprintBestScore'] !== save.sprintBestScore ||
-    raw['sprintBestStage'] !== save.sprintBestStage;
+    raw['sprintBestStage'] !== save.sprintBestStage ||
+    raw['settings'] === undefined ||
+    save.settings.bgmMuted !== boolField(raw['settings'], 'bgmMuted', false) ||
+    save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false);
 
   return { save, changed };
 }

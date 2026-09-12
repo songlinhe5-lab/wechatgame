@@ -25,7 +25,11 @@ import {
 } from '@wxgame/framework';
 
 import {
+  AUDIO_CLIP_BGM,
+  AUDIO_CLIP_UI_TAP,
   DEFAULT_TUNING,
+  GEAR_HIT_SIZE,
+  HUD_BAND,
   STAR2_RATIO,
   STAR3_RATIO,
   STAGE_BONUS_TIME,
@@ -57,6 +61,7 @@ import { judgePlacement } from '../systems/placement.js';
 import { Spawner } from '../systems/spawner.js';
 import { GameTimer } from '../systems/timer.js';
 import { SprintTracker } from '../systems/sprint.js';
+import { PausePanel, type PausePanelAction } from '../systems/pause-panel.js';
 import {
   PHASE_TRANSITIONS,
   bannerFor,
@@ -126,6 +131,8 @@ export class BeadsGame implements Game {
   private readonly _spawner = new Spawner(4.0);
   private readonly _timer = new GameTimer(300);
   private readonly _sprint = new SprintTracker();
+  /** S9 pause panel: geometry + hit testing only; never gameplay state. */
+  private readonly _panel = new PausePanel();
 
   private _grid: BeadGrid = new BeadGrid(['..11..', '.1111.', '111111', '.1111.', '..11..']);
   private _layout: GridLayout = gridLayoutFor(6, 5);
@@ -142,6 +149,9 @@ export class BeadsGame implements Game {
   private _sprintBestScore = 0;
   private _sprintBestStage = 0;
   private _isNewBest = false;
+  /** S9 settings mirror (S8 is the authority; these are the in-memory copy). */
+  private _bgmMuted = false;
+  private _sfxMuted = false;
   /** BOOT validation errors — non-empty means the game refuses PLAYING. */
   private _bootErrors: string[] = [];
 
@@ -215,6 +225,19 @@ export class BeadsGame implements Game {
     return this._isNewBest;
   }
 
+  /** S9 panel logic (exposed for tests — layout/hit-testing only). */
+  get panel(): PausePanel {
+    return this._panel;
+  }
+
+  get bgmMuted(): boolean {
+    return this._bgmMuted;
+  }
+
+  get sfxMuted(): boolean {
+    return this._sfxMuted;
+  }
+
   /** BOOT validation failures ('' when the level data is clean). */
   get bootError(): string {
     return this._bootErrors.join('; ');
@@ -257,6 +280,9 @@ export class BeadsGame implements Game {
 
     this._sprintBestScore = normalized.save.sprintBestScore;
     this._sprintBestStage = normalized.save.sprintBestStage;
+    this._bgmMuted = normalized.save.settings.bgmMuted;
+    this._sfxMuted = normalized.save.settings.sfxMuted;
+    this._applyAudioChannels();
 
     this._subscribe();
     this._boot();
@@ -265,6 +291,9 @@ export class BeadsGame implements Game {
   update(dt: number): void {
     if (!this._services) return;
     this._machine.update(dt);
+    // Panel animation is presentation, not gameplay: it keeps running while the
+    // world is frozen so the enter/exit ramp never stalls (ux-spec §5).
+    this._panel.update(dt * 1000);
   }
 
   buildRenderModel(builder: RenderModelBuilder): void {
@@ -320,6 +349,21 @@ export class BeadsGame implements Game {
     this._emit('tray:expanded', {});
     return true;
   }
+
+  /**
+   * Debug/dev hook: route a design-space tap through the real S2 priority
+   * router (gear → tray → grid). Lets tests and the harness exercise routing
+   * without faking platform pointer events.
+   * @returns true only when the tap was consumed (never == "something changed").
+   */
+  tapDesign(x: number, y: number): boolean {
+    const before = this._machine.current;
+    this._handleTap(x, y);
+    return this._machine.current !== before || this._consumedTap;
+  }
+
+  /** True when the last `_handleTap` route consumed the tap without a phase change. */
+  private _consumedTap = false;
 
   /** Debug/dev hook: drop a specific colour into the first free slot (S4 path). */
   giveTrayBead(colorIdx: number): number {
@@ -385,7 +429,10 @@ export class BeadsGame implements Game {
       .addState('boot', {})
       .addState('playing', {
         onEnter: (game, from) => {
-          if (from === 'paused') game._emit('game:resumed', {});
+          if (from === 'paused') {
+            game._panel.close();
+            game._emit('game:resumed', {});
+          }
         },
         onUpdate: (game, dt) => {
           game._stepPlaying(dt);
@@ -393,6 +440,7 @@ export class BeadsGame implements Game {
       })
       .addState('paused', {
         onEnter: (game) => {
+          game._panel.open();
           game._emit('game:paused', {});
         },
       })
@@ -554,13 +602,21 @@ export class BeadsGame implements Game {
   }
 
   private _handleTap(x: number, y: number): void {
+    this._consumedTap = false;
+    // S2 route 1 — the gear is evaluated **before** the phase router and it is
+    // only meaningful while PLAYING (pause-settings §2.1: 其余状态点齿轮 = 忽略).
+    // Crucially the tap is *swallowed* rather than falling through to the
+    // phase's generic behaviour, which is what §8-7 asserts (no retry-with-the-
+    // pause-button edge in GAME_OVER, no accidental restart in FINISH).
+    if (this._hitGear(x, y)) {
+      if (this._machine.current === 'playing') {
+        this._consumedTap = true;
+        this.onPause();
+      }
+      return;
+    }
     switch (this._machine.current) {
       case 'playing': {
-        // 1. Pause button (HUD band, left of the capsule-avoid zone).
-        if (y >= 1214 && x <= 140) {
-          this.onPause();
-          return;
-        }
         // 2. Tray bead (62² hit area, nearest slot centre wins).
         const slot = this._hitTraySlot(x, y);
         if (slot >= 0) {
@@ -580,12 +636,69 @@ export class BeadsGame implements Game {
       case 'finish':
         this.restartRun();
         return;
-      case 'paused':
-        this.onResume();
+      case 'paused': {
+        // PAUSED answers to panel buttons **only** — the scrim eats everything
+        // else (board / tray / cards / gear, pause-settings §2.2 + §8-1).
+        const action = this._panel.hitTest(x, y, this._mode);
+        if (action) {
+          this._consumedTap = true;
+          this._applyPanelAction(action);
+        }
+        return;
+      }
+      default:
+        return; // boot / level-clear: taps ignored (panel answers are PAUSED-only)
+    }
+  }
+
+  /** Gear hot zone: TOUCH_MIN square at the left edge of HUD_BAND. */
+  private _hitGear(x: number, y: number): boolean {
+    return x >= 0 && x <= GEAR_HIT_SIZE && y >= HUD_BAND.yMin && y <= HUD_BAND.yMax;
+  }
+
+  /**
+   * Execute a resolved panel action. Buttons that change the world leave PAUSED
+   * (→ PLAYING directly, never through GAME_OVER, §8-3); the audio toggles only
+   * write the setting (§8-4) and leave the phase untouched.
+   */
+  private _applyPanelAction(action: PausePanelAction): void {
+    this._sfx(AUDIO_CLIP_UI_TAP);
+    switch (action) {
+      case 'resume':
+        this._machine.transition('playing');
+        return;
+      case 'restart':
+        this._resetLevelForArtifact();
+        return;
+      case 'toggle-bgm':
+        this._setBgmMuted(!this._bgmMuted);
+        return;
+      case 'toggle-sfx':
+        this._setSfxMuted(!this._sfxMuted);
+        return;
+      case 'start-sprint':
+        // U1 secondary entry: leave PAUSED straight into a fresh sprint run.
+        this._mode = 'sprint';
+        this._setupSprintRun();
+        this._machine.reset('playing');
         return;
       default:
-        return; // boot / level-clear: taps ignored (panel UI out of this slice)
+        return;
     }
+  }
+
+  /**
+   * 「重玩本关」/「重新冲刺」= 整关重置五项 (§3.5: 倒计时回满 / 图案清空但
+   * locked 不动 / 托盘清空 / 扩展重置 / 道具免费次数回 POWERUP_FREE_USES).
+   * Sprint also drops the combo state (P1 frozen 2026-09-12).
+   */
+  private _resetLevelForArtifact(): void {
+    if (this._mode === 'sprint') {
+      this._setupSprintRun();
+    } else {
+      this._setupLevel(this._levelIndex);
+    }
+    this._machine.transition('playing');
   }
 
   /** The S2 → S3 route: place the selected bead, then handle every outcome. */
@@ -682,6 +795,67 @@ export class BeadsGame implements Game {
     }
     // settleScore: for a sprint run the leaderboard value IS the run score.
     this._emit('sprint:ended', { score, bestStage, settleScore: score });
+  }
+
+  // ──────────────────────────────────────────────── S9 settings & audio channels
+
+  /**
+   * Persist a settings change immediately (save-progress §2.2: 开关切换即写).
+   * The whole `settings` object is patched in one write, so a same-frame pair
+   * of toggles never produces two documents (§6 idempotence).
+   */
+  private _persistSettings(): void {
+    const save = this._save;
+    if (!save) return;
+    save.patch({
+      settings: { bgmMuted: this._bgmMuted, sfxMuted: this._sfxMuted },
+    });
+    save.save();
+  }
+
+  /** Music channel toggle — see `_applyAudioChannels` for the two-channel note. */
+  private _setBgmMuted(muted: boolean): void {
+    this._bgmMuted = muted;
+    this._applyAudioChannels();
+    this._persistSettings();
+  }
+
+  /** Sfx channel toggle — fully independent of the music channel (§8-4). */
+  private _setSfxMuted(muted: boolean): void {
+    this._sfxMuted = muted;
+    this._persistSettings();
+  }
+
+  /**
+   * Apply both channels to the audio layer.
+   *
+   * Deviation note (reported to the lead): architecture-beads §2 proposes two
+   * `AudioScheduler` instances sharing one `AudioBackend`, but a game only ever
+   * receives `GameServices.audio` — the `Platform` (which owns
+   * `createAudioBackend()`, `platform/platform.ts:37`) is created inside `App`
+   * (`compose/app.ts:76`) and is not reachable from `GameServices`
+   * (`core/game/game.ts:51,56`). Building a second scheduler would therefore
+   * require a framework change — out of bounds here.
+   *
+   * Instead the two channels are realised over the single scheduler:
+   *   - **bgm** = one looping clip; muting stops it, un-muting re-requests it;
+   *   - **sfx** = a request gate; a muted sfx channel never queues anything.
+   * Both behaviours are observable independently, which is what §8-4 asserts.
+   */
+  private _applyAudioChannels(): void {
+    const services = this._services;
+    if (!services) return;
+    if (this._bgmMuted) {
+      services.audio.stop(AUDIO_CLIP_BGM);
+    } else {
+      services.audio.play(AUDIO_CLIP_BGM, { loop: true });
+    }
+  }
+
+  /** Sfx request gate (never touched by the music toggle, §8-4). */
+  private _sfx(clipId: string): void {
+    if (this._sfxMuted) return;
+    this._services?.audio.play(clipId, { minInterval: 0.05 });
   }
 
   /** Normal-mode clear → unlock progression (write on key events only). */
@@ -828,6 +1002,12 @@ export class BeadsGame implements Game {
     s.stageIndex = this._stageIndex;
     s.sprintBestScore = this._sprintBestScore;
     s.isNewBest = this._isNewBest;
+
+    s.panelVisible = this._panel.visible;
+    s.panelProgress = this._panel.progress;
+    s.panelInteractive = this._panel.interactive;
+    s.bgmMuted = this._bgmMuted;
+    s.sfxMuted = this._sfxMuted;
 
     const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);
     s.banner = copy.banner;

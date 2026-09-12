@@ -18,6 +18,7 @@ export * from './systems/placement.js';
 export * from './systems/spawner.js';
 export * from './systems/timer.js';
 export * from './systems/sprint.js';
+export * from './systems/pause-panel.js';
 
 export * from './game/state.js';
 export * from './game/save-schema.js';
