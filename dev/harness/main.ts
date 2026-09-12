@@ -11,7 +11,8 @@
  */
 
 import { App, Canvas2DRenderer } from '@wxgame/framework';
-import { createBreakoutGame } from '../../games/breakout/src/index.js';
+import { createBreakoutGame, type BreakoutGame } from '../../games/breakout/src/index.js';
+import { createBeadsGame, type BeadsGame } from '../../games/beads/src/index.js';
 
 // ─────────────────────────────────────────────────────────────── DOM handles
 
@@ -29,7 +30,16 @@ const hud = must<HTMLDivElement>('#hud');
 
 // ─────────────────────────────────────────────────────────────────── the game
 
-const game = createBreakoutGame();
+// Game selection: `?game=beads` boots beads; everything else stays breakout
+// (the long-standing default — existing bookmarks/links keep working).
+// `window.location` is read defensively: the smoke-test DOM stub has none.
+const harnessQuery =
+  typeof window.location?.search === 'string' ? window.location.search : '';
+const isBeads = new URLSearchParams(harnessQuery).get('game') === 'beads';
+const game = isBeads ? createBeadsGame() : createBreakoutGame();
+/** Narrowed aliases — every use site is guarded by `isBeads`. */
+const breakout = game as BreakoutGame;
+const beads = game as BeadsGame;
 const app = new App({
   game,
   designWidth: 750,
@@ -116,25 +126,43 @@ let keyboardX = 375;
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-    held.add(event.key);
-    event.preventDefault();
+    if (!isBeads) {
+      held.add(event.key);
+      event.preventDefault();
+    }
     return;
   }
   if (event.key === ' ' || event.key === 'Enter') {
     event.preventDefault();
     // Same intent as a tap, expressed through the public command API.
-    switch (game.phase) {
+    if (isBeads) {
+      switch (beads.phase) {
+        case 'paused':
+          beads.onResume();
+          break;
+        case 'game-over':
+          beads.retryLevel();
+          break;
+        case 'finish':
+          beads.restartRun();
+          break;
+        default:
+          break;
+      }
+      return;
+    }
+    switch (breakout.phase) {
       case 'ready':
-        game.launch();
+        breakout.launch();
         break;
       case 'game-over':
-        game.retryLevel();
+        breakout.retryLevel();
         break;
       case 'victory':
-        game.restartRun();
+        breakout.restartRun();
         break;
       case 'paused':
-        game.onResume();
+        breakout.onResume();
         break;
       default:
         break;
@@ -152,6 +180,7 @@ window.addEventListener('keyup', (event) => {
 
 /** Feed held arrow keys into the paddle every frame. */
 function applyKeyboard(dt: number): void {
+  if (isBeads) return; // beads has no paddle — taps only
   const SPEED = 900; // design units per second
   let moved = false;
   if (held.has('ArrowLeft')) {
@@ -163,10 +192,10 @@ function applyKeyboard(dt: number): void {
     moved = true;
   }
   if (moved) {
-    game.movePaddleTo(keyboardX);
+    breakout.movePaddleTo(keyboardX);
   } else {
     // Keep the keyboard cursor aligned with wherever the pointer left the paddle.
-    keyboardX = game.paddle.x;
+    keyboardX = breakout.paddle.x;
   }
   if (lastPointerId !== 0 && !app.input.isDown) lastPointerId = 0;
 }
@@ -174,7 +203,21 @@ function applyKeyboard(dt: number): void {
 // ────────────────────────────────────────────────────────── debug HUD + buttons
 
 function renderHud(): void {
-  const s = game.snapshot;
+  if (isBeads) {
+    const s = beads.snapshot;
+    const holding = s.traySlots.filter((t) => t.state !== 'free').length;
+    const where =
+      s.mode === 'sprint'
+        ? `stage ${s.stageIndex + 1}`
+        : `level ${s.levelIndex + 1}/${s.levelCount}`;
+    hud.textContent =
+      `[beads] phase ${s.phase} · ${s.mode} · ${where} · ` +
+      `${Math.ceil(s.remaining)}s${s.urgent ? ' !!!' : ''} · ` +
+      `score ${s.score} · ×${s.multiplier} (streak ${s.streak}) · ` +
+      `tray ${holding}/${s.traySlots.length}${s.trayExpanded ? '+扩展' : ''}`;
+    return;
+  }
+  const s = breakout.snapshot;
   hud.textContent =
     `phase ${s.phase}  ·  level ${s.levelIndex + 1}/${s.levelCount}  ·  ` +
     `score ${s.score}  ·  lives ${s.lives}  ·  combo ${s.combo} (×${s.multiplier})  ·  ` +
@@ -210,17 +253,27 @@ function frame(): void {
 }
 
 app.start();
+
+// Sprint entry: ?game=beads&mode=sprint boots straight into the endless ladder.
+if (isBeads && new URLSearchParams(harnessQuery).get('mode') === 'sprint') {
+  beads.startSprint();
+}
+
 requestAnimationFrame(frame);
 
 // Expose for console poking during development.
 Object.assign(window as unknown as Record<string, unknown>, {
-  __breakout: { app, game, fitCanvas },
+  __breakout: { app, game: breakout, fitCanvas },
+  __beads: { app, game: beads, fitCanvas },
 });
 
 // eslint-disable-next-line no-console
 console.info(
-  '%c Breakout harness ready ',
+  '%c wxgame harness ready ',
   'background:#4cc9f0;color:#0b1021;font-weight:bold',
-  '\n  ←/→ or drag to move · Space to launch/retry · 1–5 to jump levels',
-  '\n  window.__breakout exposes { app, game, fitCanvas }',
+  `\n  game: ${isBeads ? 'beads' : 'breakout'} · add ?game=beads to the URL to switch`,
+  isBeads
+    ? '\n  tap a tray bead then a board cell · Space pauses/resumes'
+    : '\n  ←/→ or drag to move · Space to launch/retry · 1–5 to jump levels',
+  '\n  window.__breakout / window.__beads expose { app, game, fitCanvas }',
 );

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Breakout · 浏览器验证器 (dev harness)</title>
+    <title>wxgame dev harness · breakout / beads</title>
     <style>
       :root {
         color-scheme: dark;
@@ -70,6 +70,17 @@
         cursor: pointer;
       }
       button:hover { border-color: var(--accent); color: var(--accent); }
+      a.switch {
+        font: inherit;
+        color: var(--dim);
+        background: #1e2544;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 5px 10px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      a.switch:hover { border-color: var(--accent); color: var(--accent); }
       button:active { transform: translateY(1px); }
       #help {
         bottom: 10px;
@@ -100,6 +111,8 @@
     <div id="hud" class="panel">booting…</div>
 
     <div id="controls" class="panel">
+      <a class="switch" href="./index.html">breakout</a>
+      <a class="switch" href="./index.html?game=beads">beads</a>
       <button data-level="1">L1</button>
       <button data-level="2">L2</button>
       <button data-level="3">L3</button>
@@ -109,7 +122,8 @@
     </div>
 
     <div id="help" class="panel">
-      <b>← →</b> 或拖拽移动挡板　·　<b>空格</b> 发球 / 重试 / 继续　·　<b>1–5</b> 跳关
+      <b>breakout：</b><b>← →</b> 或拖拽移动挡板　·　<b>空格</b> 发球 / 重试 / 继续　·　<b>1–5</b> 跳关
+      <br /><b>beads：</b>点托盘珠选中 → 点棋盘落子　·　<b>空格</b> 暂停/继续　·　冲刺模式点「冲刺」按钮（?game=beads&amp;mode=sprint）
     </div>
 
     <pre id="fatal"></pre>

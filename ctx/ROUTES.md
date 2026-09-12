@@ -8,6 +8,35 @@
 > 未标注豁免的整文件引用会被判失败。
 > 「估算 token」为**粗略值**（CJK≈1/字、ASCII≈1/4 字符），仅用于取舍；准确行区间以 `ctx/index.json` 为准。
 
+### 量化与自证（本表的效果由「分层上下文节省装置」实测，WXG-T-026）
+
+> ① **估算口径**：本表与装置涉及的 token 一律为**估算**（CJK≈1/字、ASCII≈1/4 字符，
+> 见 `tools/scripts/lib/context-tokens.mjs`），**非**精确 tokenizer，仅用于排行与阈值护栏。
+> ② **数据来源**：本机 IDE 会话转录（Cursor / WorkBuddy）→ 读事件账本 `ctx/reads-ledger.jsonl`
+> （**仅元数据**：path/offset/limit/行数/字节/估算 token，**绝不落正文**；仓库外路径丢弃）。
+> 采集需**本机会话文件**：`pnpm run ctx:reads`。
+> ③ **如何复算**：`pnpm run ctx:usage` → 分布 `ctx/usage-distribution.json`（聚合指标）+ 人读报告
+> `ctx/reads-summary.md`；报表 `ctx/BUDGET.md §4` 与门禁 `pnpm run ctx:check`（E 项）均消费该分布。
+> ④ **基线如何更新**：`pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"`
+> （更新 `ctx/savings-baseline.json`，**必须**写明 `reason` 与 `taskId`；缺字段视为配置错误）。
+> ⑤ **去重口径限制**：账本按 `(ide,session,path,offset,limit)` **去重**——**抖动指标只反映不同区间的小读，
+> 同区间重复读已被去重合并**；故 E2 抖动计数为**下界**，护栏强度弱于字面，读者勿高估。
+> ⑥ **埋点能力与接入调研**：`docs/agent/context-instrumentation-survey.md`（四 IDE read 事件埋点能力矩阵；
+> **本轮不改任何 IDE 配置**，接入属后续独立任务）。
+> ⑦ **门禁语义分层（主理人裁定 WXG-T-026，2026-09-12）**：**结构门硬**——A 常驻预算 / B 单文件上限 /
+> C 索引新鲜度 / D ROUTES 锚点 / **E3 基线回归**（劣于基线即 `FAIL` 阻断）；**行为门软（报告项）**——
+> **E1 节省率**（局部读中位数 ≥70%、P10 ≥40%）与 **E2 护栏**（抖动组数、大文件整文件读次数）
+> **如实展示 ❌ 与数字但不阻断 CI**，理由：行为指标取决于历史会话分布，不应作为无关 PR 的合并硬门。
+> ⑧ **观察目标（非门）**：当前实测（457 读事件 / 20 会话，估算）为 E1 局部读中位数 **75.1% ✅**、
+> **P10 30.0% ❌**、整体分布加权 **38.5%**、抖动 **9 组/26 次**、大文件整文件读 **65 次**；
+> **阶段观察目标**：P10 ≥ 40%、抖动组 ≤ 5、大文件整文件读 ≤ 30（收敛手段见后续「压缩整文件读」任务）。
+> ⑧·补 **样本代表性边界（WXG-T-026 复验 F-01/F-02）**：上述实测**仅来自 2 个根会话**——Cursor 根 `6f7a9a03…`（163 读 / 35.7%）+ WorkBuddy 根 `d2983589…`（294 读 / 64.3%），其余 18 条为**子代理**；且 **WorkBuddy 根为进行中的活动会话**（边写边采、样本非平稳、**重跑即漂移**，故 E2/E3 的抖动与大文件判定已改用**比率口径**）。**单仓库、非独立重复采样 → 不可外推**到「一般 agent 工作流」；明细见 `ctx/reads-summary.md`。
+> ⑨ **索引新鲜度契约（WXG-T-026，2026-09-12）**：`ctx/index.json` 描述的是**已提交内容（HEAD）**——
+> dirty（有未提交改动 / 未跟踪）文件按 **HEAD blob** 参与哈希与行数计算，未跟踪的**新文件不入索引**。
+> 因此 CI（干净检出）恒绿；但**本地 dirty 文件的行号可能与索引漂移**（索引描述已提交内容，不描述你的
+> 未提交改动），提交后重跑 `pnpm run ctx:build` 即对齐。逃生阀 `--working-tree`（生成器与门禁均支持）
+> 强制按工作树内容，输出会标注「非默认模式」。
+
 ## 0. 上下文读取协议（强制）
 
 1. 读本表 → 命中**精确锚点**（文件 + 小节标题）。
@@ -103,7 +132,6 @@
 | A4 输入操控判据 | production/qa/beads/test-cases.md#§A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10` | 449 | |
 | A5 倒计时判据 | production/qa/beads/test-cases.md#§A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10` | 502 | |
 | **派生用例** | production/qa/beads/test-cases.md#§B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源） | 825 | 来源标注 |
-| 统计与覆盖矩阵 | production/qa/beads/test-cases.md#§统计与覆盖矩阵 | 262 | |
 
 ### 1.6 任务台账与长期记忆（hot）
 

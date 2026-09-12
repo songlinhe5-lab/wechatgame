@@ -3,7 +3,7 @@
 - 项目：`games/beads` · 版本 v1.0 · 任务号 WXG-T-015
 - 数值纪律：冻结数值只引用 `systems-index §3`（星级 §3.7、托盘 §3.4、倒计时 §3.5、可访问性 §3.8、**冲刺 §3.10**）；冲刺常量 C1–C8 已于 2026-09-12 用户拍板冻结并回写 §3.10（唯一真源），本篇 §9 附录为推导记录。
 - 依赖锚点：`core-loop.md` §2.2 微循环（placed/rejected 事件）、`bead-grid.md` §2.3（裁决）、`tray-spawner.md` §2.2（供料）、`timer-gameover.md` §2.1（计时真源）。
-- 文件名说明：本文件即 systems-index §1 所列 S7（原规划名 `score-stars.md`，随路线 A+ 扩展更名 `score-combo.md`，**待主理人回写 §1**，本篇不擅改真源）。
+- 文件名说明：本文件即 systems-index §1 所列 S7（原规划名 `score-stars.md`，随路线 A+ 扩展更名 `score-combo.md`；§1 已于 systems-index v1.6 完成回写，本节已对齐，无悬置项）。
 
 ---
 
@@ -32,7 +32,7 @@
 
 ### 2.3 冲刺模式：无尽爬梯
 
-- 单局结构：1 局 = `SPRINT_TIME_DEFAULT` 秒倒计时（附录 C1）＋ 串行小图案阶梯。每梯级（stage）装载一个小图案（复用 S3/S4/S3 全套机制，参数按梯级公式生成，附录 C6）；**stage 填满 → 立即换下一 stage**（广播提案事件 `sprint:stage`，见 §2.5），不结算不弹窗，节奏不断。
+- 单局结构：1 局 = `SPRINT_TIME_DEFAULT` 秒倒计时（附录 C1）＋ 串行小图案阶梯。每梯级（stage）装载一个小图案（复用 S3/S4/S3 全套机制，参数按梯级公式生成，附录 C6——公式为**预算口径**：色数/格数是该 stage 的上限预算（用于选池与校验），实际棋盘取池图案本身，见 §9 C6 设计说明）；**stage 填满 → 立即换下一 stage**（广播 `sprint:stage`，见 §2.5），不结算不弹窗，节奏不断；**换 stage 时托盘清空**（新图新供料，裁定依据见 §9 C8 补记）、连击不断（C8 例外条款）。
 - 难度爬梯（附录 C6 公式，已冻结 2026-09-12）：梯级 n 的 色数 = min(3+⌊n/2⌋, `BEAD_COLOR_MAX`)；格数 = min(6×5+…) 上限 13×12（§3.3）；供料间隔 = max(6.0−0.5n, 2.0)（区间端点对齐 §3.4）。图案库从 levels-spec 8 关图案池循环取用（原创图案，规避 IP 风险——参考分析 §8）。
 - stage 完成奖励：加时 `STAGE_BONUS_TIME` 秒（附录 C5）+ 固定分（附录 C5），倒计时与爬梯双向形成"越玩越紧"的心流坡。
 
@@ -51,7 +51,8 @@
 
 - 特效三档，随倍率档触发：**Lv1（×2）粒子星光**（复用 `vfx_fill_pop` 强化，assets-spec §1.6）→ **Lv2（×3）伪震屏**（整屏 scale 脉冲 1.00→1.015→1.00，**无位移抖动**——§3.8 冻结"屏震不使用"，伪震屏规避红线，若用户坚持真震屏须走 §3.8 变更）→ **Lv3（×5）全屏爆发**（边缘径向光 + 珠面波浪，复用 `vfx_complete_wave` 语言）。
 - 全部动效毫秒值归 UX 规格（`ux/ux-spec.md` §5），本篇不自写；闪烁红线 ≤3Hz（§3.8）对 Lv3 同样生效。
-- **新增事件（提案，不进 §4，待主理人汇编后统一登记）**：`combo:up {mult, streak}`、`combo:break {reason: 'wrong'|'timeout'}`、`sprint:stage {index}`、`sprint:ended {score, bestStage, reason}`——命名沿用 §4 `xxx:yyy` 风格。
+- **新增事件（已登记 `systems-index.md §4`，v1.8 机械登记 2026-09-12）**：`combo:up {streak, multiplier, tier}`、`combo:break {reason: 'wrong'|'timeout'}`、`sprint:stage {stageIndex, nextParams}`、`sprint:ended {score, bestStage, settleScore}`——命名沿用 §4 `xxx:yyy` 风格。
+- **payload 对齐说明**：以上 payload 与 `systems-index.md §4` 登记定稿一致（2026-09-12 主理人裁定：事件 payload 以 §4 为唯一真源）。`tier` = 倍率档位序号（[2,4,7] 阈值依次 1/2/3）；`stageIndex` = 新 stage 索引；`sprint:ended` 不含 `reason`（sprint 结束唯一原因 = 倒计时归零，§3.5）。
 
 ## 3. 输入
 
@@ -68,11 +69,11 @@
 | 输出 | 条件 | 对齐 |
 |---|---|---|
 | `level:cleared {levelId, remaining, ratio, stars}` | 普通模式过关（S1 发，S7 算好 stars 注入） | §4 既有 |
-| 提案事件 §2.5 四枚 | sprint 模式对应时机 | 不进 §4，待登记 |
+| §2.5 四枚冲刺事件 | sprint 模式对应时机 | 已登记 §4（v1.8 机械登记，2026-09-12） |
 | 倍率 HUD | sprint 且 streak ≥ 2 才显示（首倍率前零噪声） | ux-spec §3 HUD 注记 |
 | 特效三档 | ×2/×3/×5 档位切换瞬间 | §2.5 分级 + assets-spec §1.6 |
 | NEW BEST 角标 | sprint 结算分 > S8 存档最佳 | ux-spec §3 结算线框 |
-| 音效 | 连击升档/断连 | 音频层消费提案事件；音色归音频规格 |
+| 音效 | 连击升档/断连 | 音频层消费 §2.5 事件；音色归音频规格 |
 
 ## 5. 数值
 
@@ -91,7 +92,7 @@
 - `bead:placed` 与 `bead:rejected` 同帧：按到达序处理——先 placed 后 rejected，连击先升后断（最终态 = 断连）；先 rejected 后 placed，断连后重新起算。事件总线串行保证可预测（architecture-beads §2 注意②）。
 - 连击窗口到期与正确落子同帧：**落子先到判有效**（窗口判定以事件到达时序为准，同一帧内不穿透）。
 - `sprint:ended` 与 `combo:up` 同帧：ended 后到达的 combo 事件丢弃（S1 离开 PLAYING，core-loop §6 同款裁决）。
-- stage 切换与道具请求同帧：先切 stage（托盘是否清空见附录 C8）再处理道具；S6 单步结算无中间态（S6 §2.3），无叠加风险。
+- stage 切换与道具请求同帧：先切 stage（**托盘清空**，裁定见 §2.3 / §9 C8 补记）再处理道具；S6 单步结算无中间态（S6 §2.3），无叠加风险。
 
 **非法输入**
 - sprint 模式收到普通模式 `level:cleared`（stage 完成不走该事件，走 `sprint:stage`）：防御忽略 + 警告。
@@ -111,12 +112,12 @@
 3. sprint 单局时长 = `SPRINT_TIME_DEFAULT`（未覆盖时），误差 ≤ ±0.5s（联合 S5§8-1）。
 4. streak 达 C3 各阈值瞬间倍率切换为 ×2/×3/×5，`combo:up` 恰各 1 次；超过最高档 streak 继续增长但倍率封顶 ×5。
 5. 断连三分支各 1 例：放错（rejected 后 streak=0、`combo:break{reason:'wrong'}`）、窗口超时（> `COMBO_WINDOW_S` 无落子，reason='timeout'）、无第三分支误触发。
-6. stage 填满 → `sprint:stage{index+1}` 恰 1 次、新图案 ≤1 帧装载、**连击跨 stage 延续**（streak 值不变）。
+6. stage 填满 → `sprint:stage{stageIndex}` 恰 1 次（`stageIndex` = 新 stage 索引，即已完成 stage 索引 + 1）、新图案 ≤1 帧装载、**连击跨 stage 延续**（streak 值不变）。
 7. stage 完成加时后 remaining = 原值 + `STAGE_BONUS_TIME`（钳单局上限）；加时与归零同帧按 C8 裁决。
 8. sprint 单局得分 = Σ(SCORE_PER_BEAD×倍率) + Σ stage 奖励，注入 20 次落子序列逐分可复算。
 9. 特效档位与倍率档一一对应（×2 粒子/×3 伪震屏/×5 全屏爆发），全程无 >3Hz 闪烁、无真位移震屏（§3.8 红线，DevTools 帧检）。
 10. PAUSED 期间连击窗口计时冻结（恢复后窗口从暂停值续算）；普通/冲刺模式互窜注入（sprint 中发 level:cleared）→ 防御忽略 + 警告。
-11. 破纪录：sprint 结算分 > S8 最佳 → NEW BEST 显示且 S8 写入新值；≤ 最佳 → 不写不显示。
+11. 破纪录：sprint 结算分 > S8 最佳 → NEW BEST 显示且 S8 写入新值；≤ 最佳 → 不写不显示。（"sprint 结算分"即 `sprint:ended.settleScore`，与 §8.8 的单局分同值）
 
 ## 9. 附录：冲刺模式新常量（❄️ 已冻结）
 
@@ -131,4 +132,6 @@
 | C5 | `STAGE_BONUS_TIME` / `STAGE_CLEAR_BONUS` | +15 s / 200+50×stageIndex 分 | stage 完成加时与得分 |
 | C6 | 梯级公式 | 色数 min(3+⌊n/2⌋, 8)；格数 min(30+10n, 156)；间隔 max(6.0−0.5n, 2.0) | n=0 起；端点对齐 §3.2/3.3/3.4 冻结区间 |
 | C7 | 普通结算分 | `stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用扩展 ? 200 : 0)` | 局内不显示，供排行 |
-| C8 | 两条裁决 | stage 切换不断连；stage 加时与归零同帧 stage 优先 | 若采纳须同步 core-loop 补记（经主理人） |
+| C8 | 三条裁决 | stage 切换不断连；stage 加时与归零同帧 stage 优先；stage 切换**托盘清空**（新图新供料，2026-09-12 补记） | 前两条已同步 core-loop §2.3 补记；第三条为 v1.9 补记，消解 §6 → C8 的悬空引用，依据见 systems-index §3.10 裁决条款 |
+
+> **C6 设计说明（预算 vs 实际，2026-09-12 澄清，WXG-T-027）**：C6 的「色数/格数」是该 stage 的**上限预算 / 选池约束**，**不是必须精确等于的生成目标**。原因：§2.3 图案库从 levels-spec 8 关图案池循环取用，池图案的形状与格数是冻结的——若公式为精确生成目标，则"公式输出"与"池图案冻结"两条不可能同时成立（字面冲突，WXG-T-027 工程实现暴露，曾误把 C6 预算值原样塞进 `sprint:stage.nextParams`）。**实际装载 = 池图案 ∩ 预算**（池图案天然满足端点约束，预算用于选池与校验）；供料间隔公式为精确注入值，不受此影响。因此 `sprint:stage.nextParams` 报**实际装载值**（色数/格数取实际棋盘，非 C6 公式值）——这是 `systems-index §4` 对 nextParams 的定义「换 stage 参数注入」的必然要求。

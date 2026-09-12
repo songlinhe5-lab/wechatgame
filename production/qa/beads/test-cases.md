@@ -1,11 +1,12 @@
 # 《拼豆填色消除》(beads) 测试用例 · Test Cases
 
-- 任务号：WXG-T-011 ｜ 作者：严守真 ｜ 版本 v1.1 ｜ 日期 2026-09-12
-- **判据来源**：`games/beads/design/gdd/{core-loop,bead-grid,tray-spawner,input-control,timer-gameover}.md` 各 §8（每份 10 条，**合计 50 条**）+ `systems-index.md §3` + `art/accessibility.md`。**全部逐条标注来源，零自造数值。**
+- 任务号：WXG-T-011 / WXG-T-028 ｜ 作者：严守真 ｜ 版本 v1.2 ｜ 日期 2026-09-12
+- **判据来源**：`games/beads/design/gdd/{core-loop,bead-grid,tray-spawner,input-control,timer-gameover}.md` 各 §8（每份 10 条）+ `games/beads/design/gdd/score-combo.md` §8（冲刺 11 条，v1.2 新增）——**合计 61 条**；常量引 `systems-index.md §3`（含 §3.10）+ `art/accessibility.md`。**全部逐条标注来源，零自造数值。**
 - 常量速查（来源 `systems-index §3`）：`TRAY_BASE_SLOTS=12`、`SPAWN_INTERVAL_DEFAULT=4.0s`（区间 [2.0,6.0]）、`NEEDED:DECOY=3:1`、`LEVEL_TIME_DEFAULT=300s`（区间 [180,420]）、`TIMER_URGENT_T=10s`、`TIMER_TICK=1.0s`、`GRID_MAX=13×12`、`STAR3_RATIO=0.40`、`STAR2_RATIO=0.20`、`DEMO_LEVEL_COUNT=8`、`POWERUP_FREE_USES=1`、`REGION_CLEAR_SLOTS=6`、`RANDOM_CLEAR_COUNT=5`、命中区外扩 8px（66²/62²）。
+- 常量速查·冲刺（来源 `systems-index §3.10`，2026-09-12 冻结）：`SPRINT_TIME_DEFAULT=120s`（区间 [90,120]，越界回退默认）、`COMBO_WINDOW_S=5.0s`、`COMBO_STREAK_TIERS=[2,4,7]`→倍率 ×2/×3/×5（上限 ×5）、`SCORE_PER_BEAD=10`、`STAGE_BONUS_TIME=+15s`、`STAGE_CLEAR_BONUS=200+50×stageIndex`、C7 结算分 `stars×1000+round(ratio×1000)−powerupsUsed×50+(未用扩展?200:0)`、C8 裁决（stage 切换不断连；stage 加时与归零同帧 stage 优先）、伪震屏 scale 1.00→1.015→1.00 / 150ms。
 
 **图例**：`[Node]` vitest ｜ `[Harness]` 浏览器 ｜ `[DevTools]` 开发者工具（需编辑器）｜ `[Device]` 真机。
-**状态**：本轮 beads 实现 0 行 → 全部标 **`待实现`**（判据已冻结，WXG-T-001 流水线落地后回归）。
+**状态**：本轮 beads 实现 0 行 → 全部标 **`待实现`**（判据已冻结，WXG-T-001 流水线落地后回归；v1.2 注：冲刺侧工程实现由 WXG-T-027 进行中）。
 
 ---
 
@@ -107,7 +108,25 @@
 
 ---
 
-## 统计与覆盖矩阵
+# §C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）
+
+> 事件 payload 以 `systems-index §4` 登记定稿为准（`combo:up {streak, multiplier, tier}`、`combo:break {reason}`、`sprint:stage {stageIndex, nextParams}`、`sprint:ended {score, bestStage, settleScore}`）。
+
+| ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
+|---|---|---|---|---|---|
+| TC-SPRINT-01 | §8.1 | 普通模式零计分 HUD + 星级四点采样 | `[Node]` + `[DevTools]` | 普通模式（mode='normal'）局内全程 DOM 中**零分数 HUD 元素**；构造 ratio=0.40→3★ / 0.399→2★ / 0.20→2★ / 0.199→1★，`level:cleared.stars` 四点逐一吻合（来源 `systems-index §3.7`，`STAR3_RATIO=0.40`/`STAR2_RATIO=0.20`） | 待实现 |
+| TC-SPRINT-02 | §8.2 | 结算分 C7 四因子各 1 例复算 | `[Node]` | 构造 4 组（stars/ratio/powerupsUsed/扩展组合各 1 例）：例 ①stars=3, ratio=0.50, powerupsUsed=2, 用扩展 → 3000+500−100+0=3400；例 ②stars=1, ratio=0.10, powerupsUsed=0, 未用扩展 → 1000+100+0+200=1300（公式来源 `systems-index §3.10` C7；局内不显示，仅结算/排行消费） | 待实现 |
+| TC-SPRINT-03 | §8.3 | sprint 单局时长 = 默认值 | `[Node]` | 未覆盖 `SPRINT_TIME` 起局，计时实测 =120s，误差 ≤±0.5s（联合 `timer-gameover §8.1` 口径；来源 `systems-index §3.10` `SPRINT_TIME_DEFAULT`）；越界覆盖（<90 或 >120）→ BOOT 拒绝回退默认（`score-combo §6`） | 待实现 |
+| TC-SPRINT-04 | §8.4 | streak 阈值升档恰一次 + 封顶 | `[Node]` | 正确落子 streak 依次达 2/4/7（`systems-index §3.10` `COMBO_STREAK_TIERS=[2,4,7]`）→ 倍率切 ×2/×3/×5，`combo:up` 恰各 1 次（总计 3 次）；streak 8/9/10… 继续增长但倍率封顶 ×5、`combo:up` 不再发出 | 待实现 |
+| TC-SPRINT-05 | §8.5 | 断连三分支 | `[Node]` | ①放错：`bead:rejected` 后 streak=0、倍率回 ×1、`combo:break{reason:'wrong'}` 恰 1 次；②超窗：正确落子后间隔 >`COMBO_WINDOW_S`(5.0s) 无落子 → `combo:break{reason:'timeout'}` 恰 1 次；③无第三分支误触发：stage 切换、`game:paused/resumed`、`powerup:used`（清槽）均**不发** `combo:break`（stage 不断连 = C8 裁决，`systems-index §3.10`） | 待实现 |
+| TC-SPRINT-06 | §8.6 | stage 切换三断言 | `[Node]` | 填满 stage n → `sprint:stage{stageIndex:n+1}` 恰 1 次（含 `nextParams`）；新图案 ≤1 帧装载完成；**连击跨 stage 延续**：streak 值不变、倍率不变、无 `combo:break`（C8 条款，`systems-index §3.10`） | 待实现 |
+| TC-SPRINT-07 | §8.7 | stage 加时 + 同帧 C8 裁决 | `[Node]` | stage 完成加时后 remaining = 原值 + `STAGE_BONUS_TIME`(15s)，钳单局上限 120s（`systems-index §3.10`）；构造 stage 填满与倒计时归零**同帧** → **stage 优先结算再加时**：加时后 >0 继续爬梯不判负，仍 ≤0 才判负（C8，`score-combo §6`） | 待实现 |
+| TC-SPRINT-08 | §8.8 | 单局得分 20 落子序列逐步复算 | `[Node]` | 注入 20 次落子序列（含升档/断连/至少 1 次 stage 切换），逐步断言：每次正确落子增量 = `SCORE_PER_BEAD`(10)×当前倍率；stage 完成增量 = `STAGE_CLEAR_BONUS`(200+50×stageIndex)；单局总分 = Σ(10×倍率) + Σ stage 奖励（`systems-index §3.10` C4/C5） | 待实现 |
+| TC-SPRINT-09 | §8.9 | 特效三档对应 + 红线帧检 | `[DevTools]` | ×2 → 珠面星光粒子（ux-spec §5 200ms）；×3 → 伪震屏 scale 1.00→1.015→1.00 / 150ms（`systems-index §3.10` U3）；×5 → 全屏爆发（边缘径向光+珠面波浪，ux-spec §5 350ms）——档位与倍率一一对应、无错档；全程帧检：无 >3Hz 闪烁、**无真位移震屏**（`systems-index §3.8` 红线） | 待实现 |
+| TC-SPRINT-10 | §8.10 | PAUSED 冻结窗口 + 模式互窜防御 | `[Node]` | ①连击进行中 `game:paused` → 窗口计时冻结（复用 S5 冻结语义），恢复后从暂停值续算、不追溯断连（`score-combo §6`）；②sprint 中注入 `level:cleared`（stage 完成不走该事件）→ 防御忽略 + 警告日志，状态机无变化；反向：普通模式连击计数恒 0（mode 从 S1 单向读取） | 待实现 |
+| TC-SPRINT-11 | §8.11 | 破纪录判定 | `[Node]` + `[DevTools]` | 预置 S8 冲刺最佳分 B：①结算分 >B → NEW BEST 角标显示（结算面板，ux-spec §3）且 `sprint:ended` 后 S8 写入新值；②结算分 ≤B → 不写不显示、S8 值不变（`score-combo §8.11`） | 待实现 |
+
+---
 
 | 分组 | 判据条数 | 用例数 | 环境分布 |
 |---|---|---|---|
@@ -117,8 +136,11 @@
 | A4 input-control | 10 | 10 | 7×Node + 1×DevTools + 1×Device + 1×Node |
 | A5 timer-gameover | 10 | 10 | 9×Node + 1×DevTools |
 | §B 派生 | — | 12 | 7×Node + 4×DevTools/Device + 1×Node |
-| **合计** | **50（判据 100% 覆盖）** | **62** | Node 56 / Harness+DevTools 4 / Device 2 |
+| §C 冲刺（score-combo §8） | 11 | 11 | 9×Node + 2×DevTools（含 1 条 Node+DevTools 联合） |
+| **合计** | **61（判据 100% 覆盖）** | **73** | Node 65 / DevTools 6 / Device 2 |
 
-**指定边界例落点**：cleared/failed 同帧 → TC-LOOP-05 + TC-TIMER-04；满槽跳过 → TC-LOOP-03 + TC-TRAY-04；双击幂等 → TC-TRAY-06 + TC-INP-06；存档越界降级 → TC-LOOP-10。
+**指定边界例落点**：cleared/failed 同帧 → TC-LOOP-05 + TC-TIMER-04；满槽跳过 → TC-LOOP-03 + TC-TRAY-04；双击幂等 → TC-TRAY-06 + TC-INP-06；存档越界降级 → TC-LOOP-10；sprint 加时/归零同帧（C8）→ TC-SPRINT-07；模式互窜注入 → TC-SPRINT-10。
 
 > **R1 缺口**：S6 道具行为细节、S7 星级计算、S8 存档结构、S9 面板细节的 GDD 未写，§3 常量仅支撑 §B 派生层判据；G4 完整判定须待四份 GDD 补齐（已回报主理人）。
+>
+> **v1.2 注（WXG-T-028，2026-09-12）**：R1 缺口中 **S7 GDD 已交付并冻结**（`score-combo.md` v1.0，冲刺常量 C1–C8 回写 `systems-index §3.10`），冲刺判据以 §C 11 条覆盖。§B `TC-CONST-05` 的「⚠️ 无 S7 GDD」标注已过期，按"追加不覆盖"纪律 v1.1 原文保留不改，仅在此登记。

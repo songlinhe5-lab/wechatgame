@@ -188,8 +188,10 @@ jobs:
         with:
           node-version: "20"
 
+      # 直接 node 执行，勿走 `pnpm run`：该脚本零依赖，而 pnpm 在 node_modules 缺失时
+      # 会以「did you mean to install?」拒绝执行并 exit 1（本次 gate 变红即此原因）
       - name: ctx:check
-        run: pnpm run ctx:check
+        run: node tools/scripts/check-context-budget.mjs
 
   # ⑥ 收口：任一「被触发且失败」的 job → gate 失败；未触发（skipped）不算失败。
   #    分支保护 required check 只挂 "gate"。

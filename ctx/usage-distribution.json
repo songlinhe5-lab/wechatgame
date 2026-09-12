@@ -1,0 +1,4465 @@
+{
+  "version": 1,
+  "samples": {
+    "sessions": 20,
+    "reads": 457,
+    "dropped": 53,
+    "unrecognized": 0,
+    "sessionsWithReadEvents": 21
+  },
+  "metrics": {
+    "est": true,
+    "reads": 457,
+    "sessions": 20,
+    "fullFileReads": 259,
+    "nonFullReads": 198,
+    "partialSamples": 197,
+    "savings": {
+      "samples": 456,
+      "sumActual": 721893,
+      "sumFull": 1173387,
+      "overall": 0.384778,
+      "median": 0,
+      "p10": 0,
+      "medianPartial": 0.751493,
+      "p10Partial": 0.300181
+    },
+    "jitter": {
+      "smallReadLines": 150,
+      "threshold": 3,
+      "groups": 9,
+      "excess": 26,
+      "groupKeys": 107,
+      "rate": 0.084112
+    },
+    "bigFullReads": {
+      "thresholdTokens": 3000,
+      "count": 65,
+      "totalReads": 457,
+      "rate": 0.142232
+    }
+  },
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "tokens": 2980,
+      "sections": [
+        {
+          "anchor": "§AGENTS.md — wechatgame 项目级 Agent 指引",
+          "reads": 16,
+          "estTokens": 47472
+        },
+        {
+          "anchor": "§IDE 常驻指针（alwaysApply）",
+          "reads": 7,
+          "estTokens": 987
+        },
+        {
+          "anchor": "§长期笔记 MEMORY（四 IDE 可索引）",
+          "reads": 8,
+          "estTokens": 720
+        },
+        {
+          "anchor": "§1 项目是什么",
+          "reads": 7,
+          "estTokens": 1169
+        },
+        {
+          "anchor": "§2 默认怎么干活",
+          "reads": 8,
+          "estTokens": 5112
+        },
+        {
+          "anchor": "§3 不可违反的工程铁律",
+          "reads": 4,
+          "estTokens": 1068
+        },
+        {
+          "anchor": "§4 冲突裁决与数值真源",
+          "reads": 2,
+          "estTokens": 256
+        },
+        {
+          "anchor": "§5 目录与产物落位",
+          "reads": 4,
+          "estTokens": 1124
+        },
+        {
+          "anchor": "§6 验证与常用命令",
+          "reads": 5,
+          "estTokens": 965
+        },
+        {
+          "anchor": "§7 协作纪律",
+          "reads": 5,
+          "estTokens": 860
+        },
+        {
+          "anchor": "§8 分层阅读指引（避免一次灌进全文）",
+          "reads": 6,
+          "estTokens": 1728
+        },
+        {
+          "anchor": "§9 知识库与调用透明（WXG-T-023）",
+          "reads": 3,
+          "estTokens": 1215
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/headless-ci-pr-review.md",
+      "tokens": 2747,
+      "sections": [
+        {
+          "anchor": "§Headless 模式 · 应用场景 · 自动化 PR 审查 · 流水线",
+          "reads": 1,
+          "estTokens": 2726
+        },
+        {
+          "anchor": "§2 应用场景（本仓）",
+          "reads": 1,
+          "estTokens": 210
+        },
+        {
+          "anchor": "§3 流水线分层（推荐拓扑）",
+          "reads": 1,
+          "estTokens": 261
+        },
+        {
+          "anchor": "§4 仓库产物",
+          "reads": 1,
+          "estTokens": 140
+        },
+        {
+          "anchor": "§5 启用步骤",
+          "reads": 1,
+          "estTokens": 230
+        },
+        {
+          "anchor": "§6 审查判据（写入 prompt 的硬约束）",
+          "reads": 1,
+          "estTokens": 230
+        },
+        {
+          "anchor": "§7 diff 注入方式 · 排除清单 · 体积兜底（WXG-T-025）",
+          "reads": 1,
+          "estTokens": 905
+        },
+        {
+          "anchor": "§7.1 为什么不把 diff 内联进 prompt（根因）",
+          "reads": 1,
+          "estTokens": 198
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/hooks-best-practices.md",
+      "tokens": 1260,
+      "sections": [
+        {
+          "anchor": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践",
+          "reads": 2,
+          "estTokens": 2490
+        },
+        {
+          "anchor": "§1 分层：谁拦什么",
+          "reads": 1,
+          "estTokens": 186
+        },
+        {
+          "anchor": "§2 启用 Git hooks（每人 / 每 clone 一次）",
+          "reads": 2,
+          "estTokens": 242
+        },
+        {
+          "anchor": "§3 `check:links` 查什么",
+          "reads": 2,
+          "estTokens": 600
+        },
+        {
+          "anchor": "§4 Cursor Hooks 实践清单",
+          "reads": 1,
+          "estTokens": 357
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0004-beads-level-data-rowstrings.md",
+      "tokens": 1088,
+      "sections": [
+        {
+          "anchor": "§ADR-0004 — beads 关卡数据形态：BEAD_CHARSET 行字符串数组",
+          "reads": 2,
+          "estTokens": 2134
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "reads": 2,
+          "estTokens": 264
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "reads": 2,
+          "estTokens": 856
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "reads": 2,
+          "estTokens": 126
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "reads": 2,
+          "estTokens": 602
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "reads": 2,
+          "estTokens": 186
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0007-beads-timer-dt-ownership.md",
+      "tokens": 1404,
+      "sections": [
+        {
+          "anchor": "§ADR-0007 — beads 供料计时与暂停冻结：dt 管理归游戏侧（S1 状态机门禁），不改框架",
+          "reads": 1,
+          "estTokens": 1370
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "reads": 1,
+          "estTokens": 188
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "reads": 1,
+          "estTokens": 462
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "reads": 1,
+          "estTokens": 118
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "reads": 1,
+          "estTokens": 434
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "reads": 1,
+          "estTokens": 117
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/architecture-beads.md",
+      "tokens": 3819,
+      "sections": [
+        {
+          "anchor": "§微信小游戏矩阵 — beads（拼豆填色消除）架构文档",
+          "reads": 4,
+          "estTokens": 15188
+        },
+        {
+          "anchor": "§1 beads 特有约束（在矩阵约束之上）",
+          "reads": 4,
+          "estTokens": 1044
+        },
+        {
+          "anchor": "§2 9 系统 → 框架模块映射（systems-index §5 逐条对账）",
+          "reads": 4,
+          "estTokens": 2892
+        },
+        {
+          "anchor": "§3 `games/beads/src` 目录结构",
+          "reads": 4,
+          "estTokens": 2164
+        },
+        {
+          "anchor": "§4 渲染层方案（ADR-0005 摘要）",
+          "reads": 4,
+          "estTokens": 1564
+        },
+        {
+          "anchor": "§5 事件装配图（systems-index §4 全部 13 事件）",
+          "reads": 3,
+          "estTokens": 1515
+        },
+        {
+          "anchor": "§6 BOOT 装配与关卡加载流",
+          "reads": 3,
+          "estTokens": 1113
+        },
+        {
+          "anchor": "§7 激励视频占位（ADR-0006 摘要）",
+          "reads": 3,
+          "estTokens": 747
+        },
+        {
+          "anchor": "§8 风险登记册（beads 增量）",
+          "reads": 3,
+          "estTokens": 930
+        },
+        {
+          "anchor": "§9 当前实现状态",
+          "reads": 3,
+          "estTokens": 357
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/architecture.md",
+      "tokens": 4322,
+      "sections": [
+        {
+          "anchor": "§微信小游戏矩阵 — 主架构文档",
+          "reads": 2,
+          "estTokens": 8616
+        },
+        {
+          "anchor": "§1 目标与约束",
+          "reads": 1,
+          "estTokens": 292
+        },
+        {
+          "anchor": "§1.1 产品目标",
+          "reads": 1,
+          "estTokens": 51
+        },
+        {
+          "anchor": "§1.2 硬约束",
+          "reads": 1,
+          "estTokens": 141
+        },
+        {
+          "anchor": "§1.3 非目标（本轮）",
+          "reads": 1,
+          "estTokens": 79
+        },
+        {
+          "anchor": "§2 分层与依赖方向",
+          "reads": 1,
+          "estTokens": 1074
+        },
+        {
+          "anchor": "§依赖规则（可机械校验）",
+          "reads": 1,
+          "estTokens": 144
+        },
+        {
+          "anchor": "§为什么这样切",
+          "reads": 1,
+          "estTokens": 118
+        },
+        {
+          "anchor": "§3 模块职责表（core）",
+          "reads": 1,
+          "estTokens": 505
+        },
+        {
+          "anchor": "§4 数据流（一帧）",
+          "reads": 1,
+          "estTokens": 343
+        },
+        {
+          "anchor": "§5 包体预算分配（微信小游戏）",
+          "reads": 2,
+          "estTokens": 996
+        },
+        {
+          "anchor": "§5.1 本项目的体积极简优势",
+          "reads": 2,
+          "estTokens": 292
+        },
+        {
+          "anchor": "§6 构建链",
+          "reads": 2,
+          "estTokens": 1032
+        },
+        {
+          "anchor": "§7 扩展点（为矩阵后续游戏预留）",
+          "reads": 2,
+          "estTokens": 426
+        },
+        {
+          "anchor": "§8 风险登记册",
+          "reads": 2,
+          "estTokens": 774
+        },
+        {
+          "anchor": "§9 当前实现状态（本轮）",
+          "reads": 2,
+          "estTokens": 500
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/control-manifest.md",
+      "tokens": 3013,
+      "sections": [
+        {
+          "anchor": "§控制清单 — 可立即执行的一页规则",
+          "reads": 4,
+          "estTokens": 11988
+        },
+        {
+          "anchor": "§0 五条铁律（违反 = 直接打回）",
+          "reads": 4,
+          "estTokens": 1012
+        },
+        {
+          "anchor": "§1 目录与落位",
+          "reads": 4,
+          "estTokens": 572
+        },
+        {
+          "anchor": "§2 热路径零分配",
+          "reads": 3,
+          "estTokens": 783
+        },
+        {
+          "anchor": "§3 数据驱动，不硬编码",
+          "reads": 3,
+          "estTokens": 465
+        },
+        {
+          "anchor": "§4 事件是通知，不是状态",
+          "reads": 3,
+          "estTokens": 492
+        },
+        {
+          "anchor": "§5 存档",
+          "reads": 3,
+          "estTokens": 402
+        },
+        {
+          "anchor": "§6 输入",
+          "reads": 2,
+          "estTokens": 204
+        },
+        {
+          "anchor": "§7 状态机",
+          "reads": 2,
+          "estTokens": 230
+        },
+        {
+          "anchor": "§8 渲染",
+          "reads": 2,
+          "estTokens": 370
+        },
+        {
+          "anchor": "§9 平台差异",
+          "reads": 2,
+          "estTokens": 178
+        },
+        {
+          "anchor": "§10 网络与安全（后续游戏适用）",
+          "reads": 2,
+          "estTokens": 274
+        },
+        {
+          "anchor": "§11 测试",
+          "reads": 2,
+          "estTokens": 408
+        },
+        {
+          "anchor": "§12 提交前自查表",
+          "reads": 2,
+          "estTokens": 318
+        },
+        {
+          "anchor": "§13 反模式速查（见到就打回）",
+          "reads": 2,
+          "estTokens": 546
+        },
+        {
+          "anchor": "§14 Cocos MCP 编辑器接入（ADR-0009）",
+          "reads": 2,
+          "estTokens": 896
+        }
+      ]
+    },
+    {
+      "path": "docs/reference/popit-pindou-gameplay-ui-analysis.md",
+      "tokens": 2511,
+      "sections": [
+        {
+          "anchor": "§参考游戏分析：《奇妙拼豆》微信小游戏（视频实录拆解）",
+          "reads": 1,
+          "estTokens": 2484
+        },
+        {
+          "anchor": "§1 游戏定位",
+          "reads": 1,
+          "estTokens": 156
+        },
+        {
+          "anchor": "§2 核心玩法拆解（关卡内循环）",
+          "reads": 1,
+          "estTokens": 656
+        },
+        {
+          "anchor": "§2.1 玩法规则（从帧序列反推）",
+          "reads": 1,
+          "estTokens": 241
+        },
+        {
+          "anchor": "§2.2 约束与压力源",
+          "reads": 1,
+          "estTokens": 142
+        },
+        {
+          "anchor": "§2.3 关卡内 HUD 布局（竖屏）",
+          "reads": 1,
+          "estTokens": 239
+        },
+        {
+          "anchor": "§3 元游戏（关卡外）系统清单——本作的差异化重点",
+          "reads": 1,
+          "estTokens": 468
+        },
+        {
+          "anchor": "§3.1 主页（f_034）",
+          "reads": 1,
+          "estTokens": 214
+        },
+        {
+          "anchor": "§3.2 结算页（f_032）",
+          "reads": 1,
+          "estTokens": 150
+        },
+        {
+          "anchor": "§3.3 推定的商业化闭环",
+          "reads": 1,
+          "estTokens": 77
+        },
+        {
+          "anchor": "§4 视觉与 UI 设计语言",
+          "reads": 1,
+          "estTokens": 230
+        },
+        {
+          "anchor": "§5 数值观察（实录可见部分）",
+          "reads": 1,
+          "estTokens": 126
+        },
+        {
+          "anchor": "§6 复刻评估（对照仓库现有 games/beads）",
+          "reads": 1,
+          "estTokens": 264
+        },
+        {
+          "anchor": "§7 复刻路线建议（二选一，待拍板）",
+          "reads": 1,
+          "estTokens": 201
+        },
+        {
+          "anchor": "§8 风险登记",
+          "reads": 1,
+          "estTokens": 162
+        }
+      ]
+    },
+    {
+      "path": "games/beads/art/accessibility.md",
+      "tokens": 1763,
+      "sections": [
+        {
+          "anchor": "§《拼豆》可访问性规范（Accessibility Spec）",
+          "reads": 2,
+          "estTokens": 3490
+        },
+        {
+          "anchor": "§1 分级选择",
+          "reads": 2,
+          "estTokens": 280
+        },
+        {
+          "anchor": "§2 特性矩阵",
+          "reads": 2,
+          "estTokens": 2058
+        },
+        {
+          "anchor": "§3 落地范围小结",
+          "reads": 2,
+          "estTokens": 232
+        },
+        {
+          "anchor": "§4 与 UX 规格的接口（`[待 ux-spec 对齐]`）",
+          "reads": 2,
+          "estTokens": 232
+        },
+        {
+          "anchor": "§5 待用户审批项（2026-09-11 已全部拍板）",
+          "reads": 1,
+          "estTokens": 181
+        }
+      ]
+    },
+    {
+      "path": "games/beads/art/art-bible.md",
+      "tokens": 4511,
+      "sections": [
+        {
+          "anchor": "§《拼豆》美术圣经（视觉身份规范）",
+          "reads": 7,
+          "estTokens": 31458
+        },
+        {
+          "anchor": "§1 视觉锚点",
+          "reads": 3,
+          "estTokens": 1197
+        },
+        {
+          "anchor": "§2 情绪板（文字描述）",
+          "reads": 3,
+          "estTokens": 774
+        },
+        {
+          "anchor": "§3 配色系统（含具体 HEX）",
+          "reads": 5,
+          "estTokens": 5650
+        },
+        {
+          "anchor": "§3.1 基础色板",
+          "reads": 3,
+          "estTokens": 906
+        },
+        {
+          "anchor": "§3.2 珠子色板（**核心**，10 色）",
+          "reads": 4,
+          "estTokens": 1476
+        },
+        {
+          "anchor": "§3.3 珠子三重编码（色盲友好硬要求）",
+          "reads": 3,
+          "estTokens": 492
+        },
+        {
+          "anchor": "§3.4 珠子状态视觉语义（对齐玩法状态；S3/S4 状态定义已核对，v1.1 确认）",
+          "reads": 4,
+          "estTokens": 904
+        },
+        {
+          "anchor": "§4 构图与布局",
+          "reads": 4,
+          "estTokens": 2080
+        },
+        {
+          "anchor": "§4.1 设计分辨率（权威定义）",
+          "reads": 2,
+          "estTokens": 116
+        },
+        {
+          "anchor": "§4.2 安全区（微信平台）",
+          "reads": 3,
+          "estTokens": 225
+        },
+        {
+          "anchor": "§4.3 纵向布局（已对齐 `systems-index.md` §3.1 布局带，v1.0 冻结值）",
+          "reads": 3,
+          "estTokens": 1008
+        },
+        {
+          "anchor": "§5 形状语言",
+          "reads": 3,
+          "estTokens": 513
+        },
+        {
+          "anchor": "§6 元素视觉语言（逐项）",
+          "reads": 3,
+          "estTokens": 1236
+        },
+        {
+          "anchor": "§7 动效气质（毫秒值，已对齐 `design/ux/ux-spec.md` §5）",
+          "reads": 2,
+          "estTokens": 1872
+        },
+        {
+          "anchor": "§7.1 冲刺模式连击三档特效（视觉语言增补）",
+          "reads": 2,
+          "estTokens": 930
+        },
+        {
+          "anchor": "§8 材质与光照",
+          "reads": 2,
+          "estTokens": 504
+        },
+        {
+          "anchor": "§9 变更记录",
+          "reads": 2,
+          "estTokens": 296
+        }
+      ]
+    },
+    {
+      "path": "games/beads/art/assets-spec.md",
+      "tokens": 2861,
+      "sections": [
+        {
+          "anchor": "§《拼豆》资产规格表（Asset Spec）",
+          "reads": 3,
+          "estTokens": 8541
+        },
+        {
+          "anchor": "§0 前置约定（程基岩落码直接引用）",
+          "reads": 3,
+          "estTokens": 489
+        },
+        {
+          "anchor": "§1 资产清单（可见元素规格表）",
+          "reads": 3,
+          "estTokens": 4962
+        },
+        {
+          "anchor": "§1.1 珠子绘制参数卡（**核心，逐层落码**）",
+          "reads": 3,
+          "estTokens": 1746
+        },
+        {
+          "anchor": "§1.2 珠子状态参数",
+          "reads": 3,
+          "estTokens": 666
+        },
+        {
+          "anchor": "§1.3 槽位托盘",
+          "reads": 3,
+          "estTokens": 465
+        },
+        {
+          "anchor": "§1.4 道具图标（64 × 64，**靠形状区分**）",
+          "reads": 3,
+          "estTokens": 903
+        },
+        {
+          "anchor": "§1.5 HUD 元素",
+          "reads": 3,
+          "estTokens": 579
+        },
+        {
+          "anchor": "§1.6 VFX",
+          "reads": 3,
+          "estTokens": 423
+        },
+        {
+          "anchor": "§2 未来真实资产替换提示词（AI 生成备用）",
+          "reads": 3,
+          "estTokens": 504
+        },
+        {
+          "anchor": "§3 图集策略",
+          "reads": 3,
+          "estTokens": 282
+        },
+        {
+          "anchor": "§4 命名规范",
+          "reads": 3,
+          "estTokens": 396
+        },
+        {
+          "anchor": "§5 包体预算表（微信红线 vs 内部目标，**分清两条线**）",
+          "reads": 3,
+          "estTokens": 564
+        },
+        {
+          "anchor": "§6 交付与验收",
+          "reads": 3,
+          "estTokens": 690
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/concept.md",
+      "tokens": 2796,
+      "sections": [
+        {
+          "anchor": "§《拼豆填色消除》一页纸概念",
+          "reads": 3,
+          "estTokens": 8346
+        },
+        {
+          "anchor": "§1 一句话定位",
+          "reads": 3,
+          "estTokens": 189
+        },
+        {
+          "anchor": "§2 为什么是它（Demo 验证价值）",
+          "reads": 3,
+          "estTokens": 714
+        },
+        {
+          "anchor": "§3 设计支柱（≤3，后续决策对照）",
+          "reads": 3,
+          "estTokens": 471
+        },
+        {
+          "anchor": "§4 MDA 分析",
+          "reads": 3,
+          "estTokens": 681
+        },
+        {
+          "anchor": "§5 目标玩家（Bartle）",
+          "reads": 3,
+          "estTokens": 327
+        },
+        {
+          "anchor": "§6 心流与难度曲线思路",
+          "reads": 3,
+          "estTokens": 660
+        },
+        {
+          "anchor": "§7 范围分层",
+          "reads": 3,
+          "estTokens": 1080
+        },
+        {
+          "anchor": "§8 视觉锚点（一句话，交美术方向）",
+          "reads": 3,
+          "estTokens": 228
+        },
+        {
+          "anchor": "§9 决策记录（已裁定 / 本文定稿）",
+          "reads": 3,
+          "estTokens": 1233
+        },
+        {
+          "anchor": "§10 下一步",
+          "reads": 3,
+          "estTokens": 375
+        },
+        {
+          "anchor": "§附录 A：槽位机制提案（待确认项汇总）",
+          "reads": 3,
+          "estTokens": 1530
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/bead-grid.md",
+      "tokens": 1950,
+      "sections": [
+        {
+          "anchor": "§GDD · S3 拼图网格与填色（Bead Grid）· beads",
+          "reads": 6,
+          "estTokens": 11604
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 5,
+          "estTokens": 300
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 5,
+          "estTokens": 3170
+        },
+        {
+          "anchor": "§2.1 数据结构（关卡 JSON → 运行时矩阵）",
+          "reads": 5,
+          "estTokens": 920
+        },
+        {
+          "anchor": "§2.2 格子状态机",
+          "reads": 5,
+          "estTokens": 760
+        },
+        {
+          "anchor": "§2.3 落子裁决（核心规则）",
+          "reads": 5,
+          "estTokens": 860
+        },
+        {
+          "anchor": "§2.4 定位派生（来源 §3.3 公式，本文只引用）",
+          "reads": 5,
+          "estTokens": 350
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 5,
+          "estTokens": 585
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 5,
+          "estTokens": 640
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 5,
+          "estTokens": 360
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 6,
+          "estTokens": 1962
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 5,
+          "estTokens": 500
+        },
+        {
+          "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
+          "reads": 5,
+          "estTokens": 1805
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/core-loop.md",
+      "tokens": 2425,
+      "sections": [
+        {
+          "anchor": "§GDD · S1 核心循环（Core Loop）· beads",
+          "reads": 7,
+          "estTokens": 16884
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 6,
+          "estTokens": 354
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 7,
+          "estTokens": 6930
+        },
+        {
+          "anchor": "§2.1 游戏级状态机（六状态，沿用 breakout 判例，无主菜单）",
+          "reads": 6,
+          "estTokens": 2634
+        },
+        {
+          "anchor": "§2.2 关内微循环（PLAYING 的每秒心跳）",
+          "reads": 7,
+          "estTokens": 2135
+        },
+        {
+          "anchor": "§2.3 冲刺模式补记（2026-09-12 用户拍板，C8 条款；细则见 `gdd/score-combo.md` 与 systems-index §3.10）",
+          "reads": 7,
+          "estTokens": 1169
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 6,
+          "estTokens": 798
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 6,
+          "estTokens": 1224
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 6,
+          "estTokens": 678
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 4,
+          "estTokens": 1240
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 4,
+          "estTokens": 332
+        },
+        {
+          "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
+          "reads": 4,
+          "estTokens": 1668
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/input-control.md",
+      "tokens": 1793,
+      "sections": [
+        {
+          "anchor": "§GDD · S2 输入与操控（Input Control）· beads",
+          "reads": 4,
+          "estTokens": 7108
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 4,
+          "estTokens": 220
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 4,
+          "estTokens": 2528
+        },
+        {
+          "anchor": "§2.1 触摸路由表（单指点击，无拖拽/长按——复刻参考玩法）",
+          "reads": 4,
+          "estTokens": 720
+        },
+        {
+          "anchor": "§2.2 热区规则（来源 §3.8）",
+          "reads": 4,
+          "estTokens": 584
+        },
+        {
+          "anchor": "§2.3 状态门禁（什么状态下点什么有效）",
+          "reads": 4,
+          "estTokens": 508
+        },
+        {
+          "anchor": "§2.4 非法输入处理（对齐 core-loop §6）",
+          "reads": 4,
+          "estTokens": 424
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 4,
+          "estTokens": 192
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 4,
+          "estTokens": 464
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 4,
+          "estTokens": 256
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 4,
+          "estTokens": 1144
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 4,
+          "estTokens": 292
+        },
+        {
+          "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
+          "reads": 4,
+          "estTokens": 1460
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/powerups.md",
+      "tokens": 5036,
+      "sections": [
+        {
+          "anchor": "§GDD · S6 道具系统（Powerups）· beads",
+          "reads": 3,
+          "estTokens": 15069
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 3,
+          "estTokens": 246
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 3,
+          "estTokens": 5496
+        },
+        {
+          "anchor": "§2.1 作用域与线性索引",
+          "reads": 3,
+          "estTokens": 570
+        },
+        {
+          "anchor": "§2.2 三道具效果与目标选取",
+          "reads": 3,
+          "estTokens": 1218
+        },
+        {
+          "anchor": "§2.3 结算时序（一次点击 = 一次原子结算，无瞄准中间态）",
+          "reads": 2,
+          "estTokens": 680
+        },
+        {
+          "anchor": "§2.4 与 S4 的事件契约",
+          "reads": 2,
+          "estTokens": 564
+        },
+        {
+          "anchor": "§2.5 免费次数计数模型",
+          "reads": 2,
+          "estTokens": 334
+        },
+        {
+          "anchor": "§2.6 激励视频位与 MVP 边界（诚实口径）",
+          "reads": 2,
+          "estTokens": 722
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 2,
+          "estTokens": 378
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 2,
+          "estTokens": 704
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 2,
+          "estTokens": 600
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 2,
+          "estTokens": 1708
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 2,
+          "estTokens": 478
+        },
+        {
+          "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例；未标环境者均 `[Node]` vitest 可断言）",
+          "reads": 2,
+          "estTokens": 1828
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/score-combo.md",
+      "tokens": 3820,
+      "sections": [
+        {
+          "anchor": "§GDD · S7 计分连击（Score & Combo）· beads",
+          "reads": 3,
+          "estTokens": 11418
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 3,
+          "estTokens": 279
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 3,
+          "estTokens": 4197
+        },
+        {
+          "anchor": "§2.1 双模式总览",
+          "reads": 3,
+          "estTokens": 798
+        },
+        {
+          "anchor": "§2.2 普通模式：星级（冻结）与结算分（提案）",
+          "reads": 3,
+          "estTokens": 441
+        },
+        {
+          "anchor": "§2.3 冲刺模式：无尽爬梯",
+          "reads": 3,
+          "estTokens": 780
+        },
+        {
+          "anchor": "§2.4 冲刺模式：连击系统",
+          "reads": 3,
+          "estTokens": 927
+        },
+        {
+          "anchor": "§2.5 特效分级与事件",
+          "reads": 3,
+          "estTokens": 1071
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 3,
+          "estTokens": 426
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 3,
+          "estTokens": 561
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 3,
+          "estTokens": 300
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 3,
+          "estTokens": 1515
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 3,
+          "estTokens": 558
+        },
+        {
+          "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例；附录 C1–C8 已于 2026-09-12 冻结（systems-index §3.10），全部判据可执行）",
+          "reads": 3,
+          "estTokens": 1581
+        },
+        {
+          "anchor": "§9 附录：冲刺模式新常量（❄️ 已冻结）",
+          "reads": 3,
+          "estTokens": 1023
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/systems-index.md",
+      "tokens": 5909,
+      "sections": [
+        {
+          "anchor": "§系统清单与依赖索引（Systems Index）· beads",
+          "reads": 15,
+          "estTokens": 88380
+        },
+        {
+          "anchor": "§1 系统清单",
+          "reads": 9,
+          "estTokens": 4005
+        },
+        {
+          "anchor": "§2 依赖排序（Dependency Order）",
+          "reads": 9,
+          "estTokens": 3672
+        },
+        {
+          "anchor": "§3 全局数值基线（Global Constants）· ❄️ 冻结令",
+          "reads": 13,
+          "estTokens": 37323
+        },
+        {
+          "anchor": "§3.1 画布、坐标、安全区与布局带",
+          "reads": 8,
+          "estTokens": 2528
+        },
+        {
+          "anchor": "§3.2 色板与图案字符集",
+          "reads": 8,
+          "estTokens": 1880
+        },
+        {
+          "anchor": "§3.3 珠子网格（Bead Grid）",
+          "reads": 9,
+          "estTokens": 2061
+        },
+        {
+          "anchor": "§3.4 槽位托盘（Tray）",
+          "reads": 9,
+          "estTokens": 1971
+        },
+        {
+          "anchor": "§3.5 倒计时与失败",
+          "reads": 10,
+          "estTokens": 1820
+        },
+        {
+          "anchor": "§3.6 道具（Powerups）",
+          "reads": 10,
+          "estTokens": 2300
+        },
+        {
+          "anchor": "§3.7 星级与结算",
+          "reads": 10,
+          "estTokens": 1370
+        },
+        {
+          "anchor": "§3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级）",
+          "reads": 10,
+          "estTokens": 2560
+        },
+        {
+          "anchor": "§3.9 包体预算",
+          "reads": 11,
+          "estTokens": 1177
+        },
+        {
+          "anchor": "§3.10 冲刺模式（Sprint）· 2026-09-12 用户拍板冻结（WXG-T-020）",
+          "reads": 11,
+          "estTokens": 4840
+        },
+        {
+          "anchor": "§4 事件总线约定（供程序落码参考）",
+          "reads": 10,
+          "estTokens": 4650
+        },
+        {
+          "anchor": "§5 与框架层的接口假设",
+          "reads": 9,
+          "estTokens": 2880
+        },
+        {
+          "anchor": "§6 变更记录",
+          "reads": 9,
+          "estTokens": 10800
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/timer-gameover.md",
+      "tokens": 1774,
+      "sections": [
+        {
+          "anchor": "§GDD · S5 倒计时与失败（Timer / GameOver）· beads",
+          "reads": 3,
+          "estTokens": 5271
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 3,
+          "estTokens": 156
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 3,
+          "estTokens": 1530
+        },
+        {
+          "anchor": "§2.1 计时模型",
+          "reads": 3,
+          "estTokens": 351
+        },
+        {
+          "anchor": "§2.2 告急双通道（`remaining ≤ TIMER_URGENT_T` 时激活）",
+          "reads": 3,
+          "estTokens": 387
+        },
+        {
+          "anchor": "§2.3 PAUSED 冻结语义",
+          "reads": 3,
+          "estTokens": 249
+        },
+        {
+          "anchor": "§2.4 整关重置清单（来源 §3.5 末行，五项，S1 调度、各系统执行）",
+          "reads": 3,
+          "estTokens": 354
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 3,
+          "estTokens": 213
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 3,
+          "estTokens": 336
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 3,
+          "estTokens": 165
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 3,
+          "estTokens": 1062
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 3,
+          "estTokens": 246
+        },
+        {
+          "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
+          "reads": 3,
+          "estTokens": 1164
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/tray-spawner.md",
+      "tokens": 1939,
+      "sections": [
+        {
+          "anchor": "§GDD · S4 供料与槽位托盘（Tray Spawner）· beads",
+          "reads": 4,
+          "estTokens": 7688
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 4,
+          "estTokens": 220
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 4,
+          "estTokens": 2032
+        },
+        {
+          "anchor": "§2.1 托盘模型",
+          "reads": 4,
+          "estTokens": 416
+        },
+        {
+          "anchor": "§2.2 供料节律（PLAYING 驱动）",
+          "reads": 4,
+          "estTokens": 708
+        },
+        {
+          "anchor": "§2.3 扩展行",
+          "reads": 4,
+          "estTokens": 420
+        },
+        {
+          "anchor": "§2.4 珠子离槽（三个出口）",
+          "reads": 4,
+          "estTokens": 348
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 4,
+          "estTokens": 404
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 4,
+          "estTokens": 572
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 4,
+          "estTokens": 352
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 4,
+          "estTokens": 1712
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 4,
+          "estTokens": 360
+        },
+        {
+          "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
+          "reads": 4,
+          "estTokens": 1532
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/levels/levels-spec.md",
+      "tokens": 2603,
+      "sections": [
+        {
+          "anchor": "§关卡数据规范（Levels Spec）· beads",
+          "reads": 3,
+          "estTokens": 7770
+        },
+        {
+          "anchor": "§1 文件结构总览",
+          "reads": 1,
+          "estTokens": 300
+        },
+        {
+          "anchor": "§2 单关字段与硬约束（BOOT 校验，architecture-beads §6）",
+          "reads": 2,
+          "estTokens": 498
+        },
+        {
+          "anchor": "§3 前 8 关参数总表",
+          "reads": 2,
+          "estTokens": 770
+        },
+        {
+          "anchor": "§4 砖块构成明细（逐关权威核对表，防手工数错）",
+          "reads": 3,
+          "estTokens": 552
+        },
+        {
+          "anchor": "§5 难度与时长预估（待 playtest 校准）",
+          "reads": 2,
+          "estTokens": 308
+        },
+        {
+          "anchor": "§6 布局可视化（图例：`·`=空位　`▓`=锁定 x　`1`–`8`=色板索引对应色）",
+          "reads": 1,
+          "estTokens": 640
+        },
+        {
+          "anchor": "§L1 暖心（6×5）",
+          "reads": 1,
+          "estTokens": 27
+        },
+        {
+          "anchor": "§L2 小屋（8×6）",
+          "reads": 1,
+          "estTokens": 43
+        },
+        {
+          "anchor": "§L3 摆尾小鱼（9×6）",
+          "reads": 1,
+          "estTokens": 41
+        },
+        {
+          "anchor": "§L4 结果的树（10×7）",
+          "reads": 1,
+          "estTokens": 56
+        },
+        {
+          "anchor": "§L5 猫脸（11×8）",
+          "reads": 1,
+          "estTokens": 81
+        },
+        {
+          "anchor": "§L6 顺风帆船（12×9）",
+          "reads": 1,
+          "estTokens": 101
+        },
+        {
+          "anchor": "§L7 升空热气球（13×10）",
+          "reads": 1,
+          "estTokens": 99
+        },
+        {
+          "anchor": "§L8 星际火箭（13×12）",
+          "reads": 1,
+          "estTokens": 124
+        },
+        {
+          "anchor": "§7 关卡设计约束（新增关卡必须遵守）",
+          "reads": 1,
+          "estTokens": 223
+        },
+        {
+          "anchor": "§8 校验分工",
+          "reads": 1,
+          "estTokens": 104
+        },
+        {
+          "anchor": "§9 冲刺模式（sprint）图案来源",
+          "reads": 1,
+          "estTokens": 65
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/ux/ux-spec.md",
+      "tokens": 3602,
+      "sections": [
+        {
+          "anchor": "§UX 规格（UX Spec）· beads",
+          "reads": 2,
+          "estTokens": 7184
+        },
+        {
+          "anchor": "§4 状态流转 × 输入响应矩阵（QA 直接转用例；与 input-control §2.3 门禁互为镜像）",
+          "reads": 1,
+          "estTokens": 520
+        },
+        {
+          "anchor": "§5 交互反馈与动效时长表（权威毫秒值，回写 art-bible §7 占位）",
+          "reads": 2,
+          "estTokens": 864
+        },
+        {
+          "anchor": "§6 首屏留存策略（微信前 10 秒）",
+          "reads": 2,
+          "estTokens": 380
+        },
+        {
+          "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
+          "reads": 2,
+          "estTokens": 404
+        },
+        {
+          "anchor": "§8 决策记录与裁决项",
+          "reads": 1,
+          "estTokens": 280
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/art/accessibility.md",
+      "tokens": 1838,
+      "sections": [
+        {
+          "anchor": "§《砖阵》可访问性规范（Accessibility Spec）",
+          "reads": 4,
+          "estTokens": 7284
+        },
+        {
+          "anchor": "§1 分级选择",
+          "reads": 2,
+          "estTokens": 266
+        },
+        {
+          "anchor": "§2 特性矩阵",
+          "reads": 4,
+          "estTokens": 4400
+        },
+        {
+          "anchor": "§3 落地范围小结",
+          "reads": 3,
+          "estTokens": 336
+        },
+        {
+          "anchor": "§4 与 UX 规格的接口（已对齐 `ux-spec.md` §7）",
+          "reads": 3,
+          "estTokens": 459
+        },
+        {
+          "anchor": "§5 待用户审批项",
+          "reads": 3,
+          "estTokens": 543
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/art/art-bible.md",
+      "tokens": 4852,
+      "sections": [
+        {
+          "anchor": "§《砖阵》美术圣经（视觉身份规范）",
+          "reads": 5,
+          "estTokens": 24175
+        },
+        {
+          "anchor": "§1 视觉锚点",
+          "reads": 1,
+          "estTokens": 347
+        },
+        {
+          "anchor": "§2 情绪板（文字描述）",
+          "reads": 1,
+          "estTokens": 229
+        },
+        {
+          "anchor": "§3 配色系统（含具体 HEX）",
+          "reads": 4,
+          "estTokens": 8180
+        },
+        {
+          "anchor": "§3.1 基础色板",
+          "reads": 2,
+          "estTokens": 700
+        },
+        {
+          "anchor": "§3.2 砖块类型配色（**核心**）",
+          "reads": 2,
+          "estTokens": 906
+        },
+        {
+          "anchor": "§3.3 类型三重编码（色盲友好硬要求）",
+          "reads": 2,
+          "estTokens": 238
+        },
+        {
+          "anchor": "§3.4 特殊砖块视觉语义锚定（对齐 `bricks.md` §2.6）",
+          "reads": 4,
+          "estTokens": 4260
+        },
+        {
+          "anchor": "§4 构图与布局",
+          "reads": 2,
+          "estTokens": 1052
+        },
+        {
+          "anchor": "§4.1 设计分辨率（**权威定义，对齐 `systems-index.md` §3.1**）",
+          "reads": 1,
+          "estTokens": 136
+        },
+        {
+          "anchor": "§4.2 安全区（微信平台）",
+          "reads": 1,
+          "estTokens": 115
+        },
+        {
+          "anchor": "§4.3 场地布局（权威常量，对齐 `systems-index.md` §3.2/§3.3）",
+          "reads": 2,
+          "estTokens": 436
+        },
+        {
+          "anchor": "§5 形状语言",
+          "reads": 1,
+          "estTokens": 158
+        },
+        {
+          "anchor": "§6 元素视觉语言（逐项）",
+          "reads": 1,
+          "estTokens": 467
+        },
+        {
+          "anchor": "§7 动效气质（毫秒值，对齐 `ux-spec.md` §5）",
+          "reads": 1,
+          "estTokens": 457
+        },
+        {
+          "anchor": "§8 材质与光照",
+          "reads": 1,
+          "estTokens": 137
+        },
+        {
+          "anchor": "§9 预算与命名原则（摘要）",
+          "reads": 1,
+          "estTokens": 212
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/art/assets-spec.md",
+      "tokens": 4993,
+      "sections": [
+        {
+          "anchor": "§《砖阵》资产规格表（Asset Spec）",
+          "reads": 7,
+          "estTokens": 34853
+        },
+        {
+          "anchor": "§0 前置约定（程基岩落码直接引用）",
+          "reads": 2,
+          "estTokens": 528
+        },
+        {
+          "anchor": "§1 资产清单（可见元素规格表）",
+          "reads": 3,
+          "estTokens": 6132
+        },
+        {
+          "anchor": "§1.1 背景 / 场地",
+          "reads": 2,
+          "estTokens": 332
+        },
+        {
+          "anchor": "§1.2 砖块（5 类型）",
+          "reads": 2,
+          "estTokens": 626
+        },
+        {
+          "anchor": "§1.3 挡板 / 球",
+          "reads": 3,
+          "estTokens": 735
+        },
+        {
+          "anchor": "§1.4 道具图标（64 × 64，**靠图标形状区分**）",
+          "reads": 3,
+          "estTokens": 1062
+        },
+        {
+          "anchor": "§1.5 VFX 粒子",
+          "reads": 2,
+          "estTokens": 842
+        },
+        {
+          "anchor": "§1.6 HUD 与 UI",
+          "reads": 2,
+          "estTokens": 906
+        },
+        {
+          "anchor": "§2 未来真实资产替换提示词（AI 生成备用）",
+          "reads": 2,
+          "estTokens": 866
+        },
+        {
+          "anchor": "§3 图集策略",
+          "reads": 2,
+          "estTokens": 244
+        },
+        {
+          "anchor": "§4 命名规范",
+          "reads": 2,
+          "estTokens": 478
+        },
+        {
+          "anchor": "§5 包体预算表（微信小游戏铁律）",
+          "reads": 4,
+          "estTokens": 1920
+        },
+        {
+          "anchor": "§5.1 主包预算分配（demo 目标）",
+          "reads": 3,
+          "estTokens": 660
+        },
+        {
+          "anchor": "§5.2 分包与未来资产预算",
+          "reads": 3,
+          "estTokens": 330
+        },
+        {
+          "anchor": "§5.3 美术对包体的承诺",
+          "reads": 4,
+          "estTokens": 352
+        },
+        {
+          "anchor": "§6 「减弱动效」规格（demo 实装 · 可实现级）",
+          "reads": 5,
+          "estTokens": 3775
+        },
+        {
+          "anchor": "§6.1 关停清单（`reduceMotion = true` 时关闭）",
+          "reads": 4,
+          "estTokens": 1276
+        },
+        {
+          "anchor": "§6.2 保留清单（减弱后**必须仍生效**）",
+          "reads": 3,
+          "estTokens": 474
+        },
+        {
+          "anchor": "§6.3 与可访问性红线的一致性",
+          "reads": 4,
+          "estTokens": 452
+        },
+        {
+          "anchor": "§7 交付与验收",
+          "reads": 5,
+          "estTokens": 2050
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/art/runtime/README.md",
+      "tokens": 1064,
+      "sections": [
+        {
+          "anchor": "§运行时资源目录约定（art/runtime）",
+          "reads": 1,
+          "estTokens": 1050
+        },
+        {
+          "anchor": "§2 目录结构（未来真实资产落位）",
+          "reads": 1,
+          "estTokens": 293
+        },
+        {
+          "anchor": "§3 命名规则（强制）",
+          "reads": 1,
+          "estTokens": 176
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/concept.md",
+      "tokens": 3110,
+      "sections": [
+        {
+          "anchor": "§《弹球打砖块》一页纸概念（Concept One-Pager）",
+          "reads": 15,
+          "estTokens": 46365
+        },
+        {
+          "anchor": "§1 一句话定位",
+          "reads": 12,
+          "estTokens": 540
+        },
+        {
+          "anchor": "§2 为什么是它（Demo 验证价值）",
+          "reads": 12,
+          "estTokens": 2736
+        },
+        {
+          "anchor": "§3 设计支柱（Design Pillars）",
+          "reads": 12,
+          "estTokens": 2520
+        },
+        {
+          "anchor": "§4 MDA 分析（Mechanics → Dynamics → Aesthetics）",
+          "reads": 12,
+          "estTokens": 6432
+        },
+        {
+          "anchor": "§Mechanics（机制 · 系统做了什么）",
+          "reads": 12,
+          "estTokens": 1512
+        },
+        {
+          "anchor": "§Dynamics（动态 · 玩家实际产生的行为）",
+          "reads": 12,
+          "estTokens": 2244
+        },
+        {
+          "anchor": "§Aesthetics（美学 · 玩家获得的情感）",
+          "reads": 12,
+          "estTokens": 2112
+        },
+        {
+          "anchor": "§5 目标玩家（Bartle 类型）",
+          "reads": 12,
+          "estTokens": 2088
+        },
+        {
+          "anchor": "§6 心流与难度曲线思路",
+          "reads": 13,
+          "estTokens": 4251
+        },
+        {
+          "anchor": "§7 范围分层（Scope Layering）",
+          "reads": 13,
+          "estTokens": 8112
+        },
+        {
+          "anchor": "§MVP（必须，Demo 验收线）",
+          "reads": 13,
+          "estTokens": 3757
+        },
+        {
+          "anchor": "§应有（Should，时间允许则做）",
+          "reads": 12,
+          "estTokens": 924
+        },
+        {
+          "anchor": "§可选（Could，锦上添花）",
+          "reads": 12,
+          "estTokens": 324
+        },
+        {
+          "anchor": "§明确砍掉（Won't · 本期不做，附理由）",
+          "reads": 12,
+          "estTokens": 2112
+        },
+        {
+          "anchor": "§8 视觉锚点（一句话）",
+          "reads": 10,
+          "estTokens": 1160
+        },
+        {
+          "anchor": "§9 决策记录（已裁定）",
+          "reads": 11,
+          "estTokens": 6116
+        },
+        {
+          "anchor": "§10 下一步",
+          "reads": 10,
+          "estTokens": 790
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/design-review.md",
+      "tokens": 5081,
+      "sections": [
+        {
+          "anchor": "§设计自查与理论评审（Design Review）",
+          "reads": 8,
+          "estTokens": 40528
+        },
+        {
+          "anchor": "§1 MDA 自洽性检查",
+          "reads": 2,
+          "estTokens": 360
+        },
+        {
+          "anchor": "§2 支柱漂移检查（Pillar Drift）",
+          "reads": 2,
+          "estTokens": 556
+        },
+        {
+          "anchor": "§3 难度曲线平滑性",
+          "reads": 3,
+          "estTokens": 834
+        },
+        {
+          "anchor": "§4 主导策略检查（Dominant Strategy）",
+          "reads": 2,
+          "estTokens": 552
+        },
+        {
+          "anchor": "§5 经济平衡检查",
+          "reads": 3,
+          "estTokens": 726
+        },
+        {
+          "anchor": "§6 认知过载检查",
+          "reads": 2,
+          "estTokens": 394
+        },
+        {
+          "anchor": "§7 范围膨胀检查（Scope Creep）",
+          "reads": 1,
+          "estTokens": 187
+        },
+        {
+          "anchor": "§8 跨文档一致性核对",
+          "reads": 2,
+          "estTokens": 584
+        },
+        {
+          "anchor": "§9 待处理风险与建议",
+          "reads": 4,
+          "estTokens": 7632
+        },
+        {
+          "anchor": "§9.1 R1 定案记录：**C 方案（已落地于 `levels-01-05.json`）**",
+          "reads": 4,
+          "estTokens": 6220
+        },
+        {
+          "anchor": "§10 结论",
+          "reads": 1,
+          "estTokens": 99
+        },
+        {
+          "anchor": "§附：评审清单（Checklist）",
+          "reads": 1,
+          "estTokens": 162
+        },
+        {
+          "anchor": "§11 ✅ 已解决：设计分辨率冲突（决议：维持 750 × 1334）",
+          "reads": 1,
+          "estTokens": 708
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/bricks.md",
+      "tokens": 2914,
+      "sections": [
+        {
+          "anchor": "§GDD · S4 砖块类型与命中规则（Bricks）",
+          "reads": 4,
+          "estTokens": 11592
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 3,
+          "estTokens": 231
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 3,
+          "estTokens": 5883
+        },
+        {
+          "anchor": "§2.1 砖块类型",
+          "reads": 3,
+          "estTokens": 783
+        },
+        {
+          "anchor": "§2.2 命中判定（圆–矩形）",
+          "reads": 3,
+          "estTokens": 312
+        },
+        {
+          "anchor": "§2.3 命中结算",
+          "reads": 3,
+          "estTokens": 198
+        },
+        {
+          "anchor": "§2.4 炸弹连锁",
+          "reads": 3,
+          "estTokens": 294
+        },
+        {
+          "anchor": "§2.5 清关条件",
+          "reads": 3,
+          "estTokens": 120
+        },
+        {
+          "anchor": "§2.6 特殊砖块逐类定义（`N` / `T` / `S` / `B` / `G`）",
+          "reads": 3,
+          "estTokens": 4011
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 3,
+          "estTokens": 150
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 3,
+          "estTokens": 393
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 3,
+          "estTokens": 294
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 3,
+          "estTokens": 849
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 3,
+          "estTokens": 234
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 4,
+          "estTokens": 588
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/core-loop.md",
+      "tokens": 1781,
+      "sections": [
+        {
+          "anchor": "§GDD · S1 核心循环（Core Loop）",
+          "reads": 7,
+          "estTokens": 12383
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 4,
+          "estTokens": 216
+        },
+        {
+          "anchor": "§2 机制（状态机）",
+          "reads": 4,
+          "estTokens": 2728
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 2,
+          "estTokens": 224
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 2,
+          "estTokens": 102
+        },
+        {
+          "anchor": "§5 数值（固定 update 顺序）",
+          "reads": 3,
+          "estTokens": 870
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 3,
+          "estTokens": 840
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 4,
+          "estTokens": 216
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 4,
+          "estTokens": 696
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/input-control.md",
+      "tokens": 1147,
+      "sections": [
+        {
+          "anchor": "§GDD · S2 输入与操控（Input & Control）",
+          "reads": 1,
+          "estTokens": 1133
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 1,
+          "estTokens": 46
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 1,
+          "estTokens": 284
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 1,
+          "estTokens": 171
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 1,
+          "estTokens": 85
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 1,
+          "estTokens": 87
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 1,
+          "estTokens": 230
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 1,
+          "estTokens": 55
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 1,
+          "estTokens": 113
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/life-gameover.md",
+      "tokens": 1175,
+      "sections": [
+        {
+          "anchor": "§GDD · S6 生命与失败重开（Life / Game Over / Retry）",
+          "reads": 3,
+          "estTokens": 3471
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 2,
+          "estTokens": 124
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 3,
+          "estTokens": 1092
+        },
+        {
+          "anchor": "§2.1 生命",
+          "reads": 2,
+          "estTokens": 136
+        },
+        {
+          "anchor": "§2.2 失球 → 复位流程",
+          "reads": 3,
+          "estTokens": 258
+        },
+        {
+          "anchor": "§2.3 失败与结束",
+          "reads": 3,
+          "estTokens": 435
+        },
+        {
+          "anchor": "§2.4 进度保持",
+          "reads": 3,
+          "estTokens": 114
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 3,
+          "estTokens": 144
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 3,
+          "estTokens": 444
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 2,
+          "estTokens": 118
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 2,
+          "estTokens": 458
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 2,
+          "estTokens": 110
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 2,
+          "estTokens": 254
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/paddle-ball-physics.md",
+      "tokens": 1525,
+      "sections": [
+        {
+          "anchor": "§GDD · S3 挡板与球物理（Paddle & Ball Physics）",
+          "reads": 2,
+          "estTokens": 3016
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 2,
+          "estTokens": 144
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 2,
+          "estTokens": 1280
+        },
+        {
+          "anchor": "§2.1 挡板跟随（指数平滑）",
+          "reads": 2,
+          "estTokens": 174
+        },
+        {
+          "anchor": "§2.2 球运动",
+          "reads": 2,
+          "estTokens": 172
+        },
+        {
+          "anchor": "§2.3 反弹规则",
+          "reads": 2,
+          "estTokens": 678
+        },
+        {
+          "anchor": "§2.4 反弹后防退化（Anti-Degenerate）",
+          "reads": 2,
+          "estTokens": 182
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 2,
+          "estTokens": 92
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 2,
+          "estTokens": 152
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 2,
+          "estTokens": 330
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 2,
+          "estTokens": 462
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 2,
+          "estTokens": 154
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 2,
+          "estTokens": 276
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/pause-settings.md",
+      "tokens": 1460,
+      "sections": [
+        {
+          "anchor": "§GDD · S9 暂停与设置（Pause & Settings）",
+          "reads": 5,
+          "estTokens": 7230
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 2,
+          "estTokens": 130
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 3,
+          "estTokens": 1557
+        },
+        {
+          "anchor": "§2.1 暂停",
+          "reads": 3,
+          "estTokens": 642
+        },
+        {
+          "anchor": "§2.2 自动暂停",
+          "reads": 3,
+          "estTokens": 138
+        },
+        {
+          "anchor": "§2.3 设置项（最小集）",
+          "reads": 3,
+          "estTokens": 714
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 3,
+          "estTokens": 165
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 3,
+          "estTokens": 354
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 3,
+          "estTokens": 255
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 3,
+          "estTokens": 879
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 3,
+          "estTokens": 159
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 4,
+          "estTokens": 768
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/powerups.md",
+      "tokens": 1501,
+      "sections": [
+        {
+          "anchor": "§GDD · S7 道具系统（Power-ups）",
+          "reads": 6,
+          "estTokens": 8940
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 4,
+          "estTokens": 224
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 6,
+          "estTokens": 3510
+        },
+        {
+          "anchor": "§2.1 掉落",
+          "reads": 5,
+          "estTokens": 435
+        },
+        {
+          "anchor": "§2.2 道具表",
+          "reads": 6,
+          "estTokens": 1992
+        },
+        {
+          "anchor": "§2.3 拾取",
+          "reads": 5,
+          "estTokens": 310
+        },
+        {
+          "anchor": "§2.4 叠加与计时",
+          "reads": 4,
+          "estTokens": 336
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 4,
+          "estTokens": 168
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 4,
+          "estTokens": 584
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 4,
+          "estTokens": 512
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 4,
+          "estTokens": 1080
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 4,
+          "estTokens": 292
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 4,
+          "estTokens": 504
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/save-progress.md",
+      "tokens": 2476,
+      "sections": [
+        {
+          "anchor": "§GDD · S8 存档与进度（Save & Progress）",
+          "reads": 8,
+          "estTokens": 19696
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 4,
+          "estTokens": 204
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 4,
+          "estTokens": 1084
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 5,
+          "estTokens": 185
+        },
+        {
+          "anchor": "§4 存档结构（**最终版 · 工程侧照此实现**）与启动续进",
+          "reads": 8,
+          "estTokens": 6992
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 5,
+          "estTokens": 680
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 5,
+          "estTokens": 3360
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 4,
+          "estTokens": 228
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 4,
+          "estTokens": 1096
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/score-combo.md",
+      "tokens": 1107,
+      "sections": [
+        {
+          "anchor": "§GDD · S5 计分与连击（Score & Combo）",
+          "reads": 3,
+          "estTokens": 3279
+        },
+        {
+          "anchor": "§1 目标",
+          "reads": 2,
+          "estTokens": 126
+        },
+        {
+          "anchor": "§2 机制",
+          "reads": 2,
+          "estTokens": 568
+        },
+        {
+          "anchor": "§2.1 得分结算",
+          "reads": 2,
+          "estTokens": 64
+        },
+        {
+          "anchor": "§2.2 连击（Combo）",
+          "reads": 2,
+          "estTokens": 402
+        },
+        {
+          "anchor": "§2.3 最高分",
+          "reads": 2,
+          "estTokens": 66
+        },
+        {
+          "anchor": "§3 输入",
+          "reads": 2,
+          "estTokens": 78
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "reads": 2,
+          "estTokens": 260
+        },
+        {
+          "anchor": "§5 数值",
+          "reads": 2,
+          "estTokens": 178
+        },
+        {
+          "anchor": "§6 边界条件",
+          "reads": 2,
+          "estTokens": 446
+        },
+        {
+          "anchor": "§7 依赖",
+          "reads": 2,
+          "estTokens": 148
+        },
+        {
+          "anchor": "§8 验收标准",
+          "reads": 3,
+          "estTokens": 378
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/gdd/systems-index.md",
+      "tokens": 4600,
+      "sections": [
+        {
+          "anchor": "§系统清单与依赖索引（Systems Index）",
+          "reads": 16,
+          "estTokens": 73360
+        },
+        {
+          "anchor": "§1 系统清单",
+          "reads": 9,
+          "estTokens": 3267
+        },
+        {
+          "anchor": "§2 依赖排序（Dependency Order）",
+          "reads": 10,
+          "estTokens": 4100
+        },
+        {
+          "anchor": "§3 全局数值基线（Global Constants）· ❄️ 冻结令",
+          "reads": 15,
+          "estTokens": 39840
+        },
+        {
+          "anchor": "§3.1 画布、坐标与安全区",
+          "reads": 13,
+          "estTokens": 5005
+        },
+        {
+          "anchor": "§3.2 场地（Playfield）",
+          "reads": 12,
+          "estTokens": 1296
+        },
+        {
+          "anchor": "§3.3 砖块网格（Brick Grid）",
+          "reads": 13,
+          "estTokens": 2886
+        },
+        {
+          "anchor": "§3.4 挡板与球",
+          "reads": 12,
+          "estTokens": 2760
+        },
+        {
+          "anchor": "§3.5 通用规则量",
+          "reads": 10,
+          "estTokens": 1420
+        },
+        {
+          "anchor": "§3.6 道具规格（定义 6 / 实装 3）",
+          "reads": 10,
+          "estTokens": 2720
+        },
+        {
+          "anchor": "§3.7 可访问性（承诺等级 Standard）",
+          "reads": 9,
+          "estTokens": 1863
+        },
+        {
+          "anchor": "§3.8 包体预算（⚠️ 区分「平台红线」与「内部目标」，勿混用）",
+          "reads": 9,
+          "estTokens": 2790
+        },
+        {
+          "anchor": "§3.9 砖块分值表（**权威**；代码若不符以此为准）",
+          "reads": 8,
+          "estTokens": 1888
+        },
+        {
+          "anchor": "§4 事件总线约定（供程序落码参考）",
+          "reads": 9,
+          "estTokens": 2934
+        },
+        {
+          "anchor": "§5 与框架层的接口假设（待程基岩确认）",
+          "reads": 8,
+          "estTokens": 1872
+        },
+        {
+          "anchor": "§6 变更记录",
+          "reads": 8,
+          "estTokens": 3712
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/levels/levels-spec.md",
+      "tokens": 3964,
+      "sections": [
+        {
+          "anchor": "§关卡数据规范（Levels Spec）",
+          "reads": 10,
+          "estTokens": 39520
+        },
+        {
+          "anchor": "§1 文件结构总览",
+          "reads": 4,
+          "estTokens": 744
+        },
+        {
+          "anchor": "§2 字段说明",
+          "reads": 5,
+          "estTokens": 5945
+        },
+        {
+          "anchor": "§2.1 `grid`（网格 → 像素坐标）",
+          "reads": 4,
+          "estTokens": 780
+        },
+        {
+          "anchor": "§2.2 `brickTypes`（砖块类型目录）",
+          "reads": 4,
+          "estTokens": 1772
+        },
+        {
+          "anchor": "§2.3 `powerupPool`（道具目录）",
+          "reads": 5,
+          "estTokens": 1240
+        },
+        {
+          "anchor": "§2.4 `levels[]`（单关）",
+          "reads": 5,
+          "estTokens": 1280
+        },
+        {
+          "anchor": "§3 前 5 关参数总表",
+          "reads": 9,
+          "estTokens": 7785
+        },
+        {
+          "anchor": "§4 各关布局可视化",
+          "reads": 8,
+          "estTokens": 4424
+        },
+        {
+          "anchor": "§L1 热身（3×10，全普通）",
+          "reads": 8,
+          "estTokens": 184
+        },
+        {
+          "anchor": "§L2 硬骨头（4×10，顶行全硬砖）",
+          "reads": 7,
+          "estTokens": 210
+        },
+        {
+          "anchor": "§L3 钢之回廊（5×10，钢砖封角 + 阶梯空位）",
+          "reads": 6,
+          "estTokens": 480
+        },
+        {
+          "anchor": "§L4 连锁爆破（4×10，炸弹砖成对 · R1-C）",
+          "reads": 5,
+          "estTokens": 700
+        },
+        {
+          "anchor": "§L5 霓虹终章（5×10，全类型综合 · R1-C）",
+          "reads": 5,
+          "estTokens": 845
+        },
+        {
+          "anchor": "§5 关卡设计约束（新增关卡时必须遵守）",
+          "reads": 5,
+          "estTokens": 3300
+        },
+        {
+          "anchor": "§5.1 校验分工（validateLevel vs QA validate-levels.mjs）",
+          "reads": 5,
+          "estTokens": 1590
+        },
+        {
+          "anchor": "§6 程序消费伪代码（供程基岩参考）",
+          "reads": 5,
+          "estTokens": 1200
+        },
+        {
+          "anchor": "§7 扩展预留（v2 方向，本期不实现）",
+          "reads": 4,
+          "estTokens": 352
+        }
+      ]
+    },
+    {
+      "path": "games/breakout/design/ux/ux-spec.md",
+      "tokens": 3836,
+      "sections": [
+        {
+          "anchor": "§UX 规格（UX Spec）",
+          "reads": 10,
+          "estTokens": 38280
+        },
+        {
+          "anchor": "§1 设计原则（UX）",
+          "reads": 4,
+          "estTokens": 576
+        },
+        {
+          "anchor": "§2 界面流程（Screen Flow）",
+          "reads": 6,
+          "estTokens": 3330
+        },
+        {
+          "anchor": "§3 关键界面线框（ASCII）",
+          "reads": 4,
+          "estTokens": 4292
+        },
+        {
+          "anchor": "§3.1 通关画面 FINISH（唯一「新增」界面；主菜单已移除）",
+          "reads": 4,
+          "estTokens": 984
+        },
+        {
+          "anchor": "§3.2 游戏中 HUD（叠加在 PLAYING 上）",
+          "reads": 4,
+          "estTokens": 1120
+        },
+        {
+          "anchor": "§3.3 暂停面板 PAUSED（设置的唯一入口）",
+          "reads": 4,
+          "estTokens": 1132
+        },
+        {
+          "anchor": "§3.4 结算面板 GAME_OVER（命尽）",
+          "reads": 4,
+          "estTokens": 780
+        },
+        {
+          "anchor": "§4 状态流转与输入响应矩阵",
+          "reads": 5,
+          "estTokens": 1610
+        },
+        {
+          "anchor": "§5 交互反馈与动效时长建议",
+          "reads": 5,
+          "estTokens": 2370
+        },
+        {
+          "anchor": "§6 首屏与新手引导策略（微信首 10 秒留存）",
+          "reads": 4,
+          "estTokens": 2440
+        },
+        {
+          "anchor": "§6.1 首 10 秒时间轴",
+          "reads": 4,
+          "estTokens": 748
+        },
+        {
+          "anchor": "§6.2 新手引导原则",
+          "reads": 4,
+          "estTokens": 868
+        },
+        {
+          "anchor": "§6.3 启动路径（仅 2 条 + 通关画面）",
+          "reads": 4,
+          "estTokens": 568
+        },
+        {
+          "anchor": "§7 可访问性（Accessibility）",
+          "reads": 5,
+          "estTokens": 975
+        },
+        {
+          "anchor": "§8 决策记录与待确认项",
+          "reads": 4,
+          "estTokens": 1136
+        }
+      ]
+    },
+    {
+      "path": "memory/2026-09-12.md",
+      "tokens": 7212,
+      "sections": [
+        {
+          "anchor": "§2026-09-12",
+          "reads": 1,
+          "estTokens": 7209
+        },
+        {
+          "anchor": "§专家团 vs my-agents 跨平台复用评估（调研结论）",
+          "reads": 1,
+          "estTokens": 335
+        },
+        {
+          "anchor": "§实施纠偏（核对后落地）",
+          "reads": 1,
+          "estTokens": 231
+        },
+        {
+          "anchor": "§Rules 合并到 my-rules",
+          "reads": 1,
+          "estTokens": 79
+        },
+        {
+          "anchor": "§Review 通过并落地（用户自改，主理人 review + 提交）",
+          "reads": 1,
+          "estTokens": 5166
+        }
+      ]
+    },
+    {
+      "path": "memory/MEMORY.md",
+      "tokens": 1190,
+      "sections": [
+        {
+          "anchor": "§wechatgame 项目长期笔记",
+          "reads": 2,
+          "estTokens": 2360
+        },
+        {
+          "anchor": "§项目约定",
+          "reads": 2,
+          "estTokens": 920
+        },
+        {
+          "anchor": "§常用脚本",
+          "reads": 2,
+          "estTokens": 394
+        },
+        {
+          "anchor": "§SubAgent",
+          "reads": 2,
+          "estTokens": 130
+        },
+        {
+          "anchor": "§Rules",
+          "reads": 2,
+          "estTokens": 70
+        },
+        {
+          "anchor": "§Hooks",
+          "reads": 2,
+          "estTokens": 106
+        },
+        {
+          "anchor": "§Headless / CI",
+          "reads": 2,
+          "estTokens": 286
+        },
+        {
+          "anchor": "§已知限制",
+          "reads": 2,
+          "estTokens": 160
+        }
+      ]
+    },
+    {
+      "path": "my-agents/art-director.md",
+      "tokens": 650,
+      "sections": [
+        {
+          "anchor": "§林绘澄 · art-director",
+          "reads": 1,
+          "estTokens": 535
+        },
+        {
+          "anchor": "§开工前必读（按序 Read）",
+          "reads": 1,
+          "estTokens": 108
+        }
+      ]
+    },
+    {
+      "path": "my-agents/audio-director.md",
+      "tokens": 670,
+      "sections": [
+        {
+          "anchor": "§阮和鸣 · audio-director",
+          "reads": 1,
+          "estTokens": 540
+        },
+        {
+          "anchor": "§开工前必读（按序 Read）",
+          "reads": 1,
+          "estTokens": 129
+        }
+      ]
+    },
+    {
+      "path": "my-agents/design-strategist.md",
+      "tokens": 674,
+      "sections": [
+        {
+          "anchor": "§文策渊 · design-strategist",
+          "reads": 5,
+          "estTokens": 2785
+        },
+        {
+          "anchor": "§开工前必读（按序 Read）",
+          "reads": 5,
+          "estTokens": 435
+        },
+        {
+          "anchor": "§职责范围",
+          "reads": 5,
+          "estTokens": 400
+        },
+        {
+          "anchor": "§不做",
+          "reads": 5,
+          "estTokens": 400
+        },
+        {
+          "anchor": "§执行纪律",
+          "reads": 5,
+          "estTokens": 660
+        },
+        {
+          "anchor": "§回传主理人（固定结构）",
+          "reads": 5,
+          "estTokens": 425
+        }
+      ]
+    },
+    {
+      "path": "my-agents/engineering-lead.md",
+      "tokens": 640,
+      "sections": [
+        {
+          "anchor": "§程基岩 · engineering-lead",
+          "reads": 1,
+          "estTokens": 533
+        },
+        {
+          "anchor": "§开工前必读（按序 Read）",
+          "reads": 1,
+          "estTokens": 92
+        }
+      ]
+    },
+    {
+      "path": "my-agents/INDEX.md",
+      "tokens": 877,
+      "sections": [
+        {
+          "anchor": "§my-agents — 工作室 SubAgent 正本",
+          "reads": 3,
+          "estTokens": 2598
+        },
+        {
+          "anchor": "§现役成员（6）+ 编排（1）",
+          "reads": 3,
+          "estTokens": 792
+        },
+        {
+          "anchor": "§四 IDE 链接",
+          "reads": 3,
+          "estTokens": 243
+        },
+        {
+          "anchor": "§与编排的关系",
+          "reads": 3,
+          "estTokens": 450
+        },
+        {
+          "anchor": "§Frontmatter 约定（共享正本）",
+          "reads": 3,
+          "estTokens": 543
+        },
+        {
+          "anchor": "§符号链接",
+          "reads": 3,
+          "estTokens": 258
+        }
+      ]
+    },
+    {
+      "path": "my-agents/quality-lead.md",
+      "tokens": 772,
+      "sections": [
+        {
+          "anchor": "§严守真 · quality-lead",
+          "reads": 5,
+          "estTokens": 3250
+        },
+        {
+          "anchor": "§开工前必读（按序 Read）",
+          "reads": 5,
+          "estTokens": 325
+        },
+        {
+          "anchor": "§职责范围",
+          "reads": 5,
+          "estTokens": 580
+        },
+        {
+          "anchor": "§不做",
+          "reads": 5,
+          "estTokens": 340
+        },
+        {
+          "anchor": "§执行纪律",
+          "reads": 5,
+          "estTokens": 450
+        },
+        {
+          "anchor": "§回传主理人（固定结构）",
+          "reads": 5,
+          "estTokens": 545
+        }
+      ]
+    },
+    {
+      "path": "my-agents/release-ops-lead.md",
+      "tokens": 624,
+      "sections": [
+        {
+          "anchor": "§路远行 · release-ops-lead",
+          "reads": 1,
+          "estTokens": 498
+        },
+        {
+          "anchor": "§开工前必读（按序 Read）",
+          "reads": 1,
+          "estTokens": 87
+        }
+      ]
+    },
+    {
+      "path": "my-agents/studio-orchestrator.md",
+      "tokens": 747,
+      "sections": [
+        {
+          "anchor": "§主理人 · studio-orchestrator",
+          "reads": 1,
+          "estTokens": 625
+        },
+        {
+          "anchor": "§开工前必读（按序 Read）",
+          "reads": 1,
+          "estTokens": 85
+        },
+        {
+          "anchor": "§职责范围",
+          "reads": 1,
+          "estTokens": 129
+        },
+        {
+          "anchor": "§不做",
+          "reads": 1,
+          "estTokens": 71
+        },
+        {
+          "anchor": "§执行纪律",
+          "reads": 1,
+          "estTokens": 85
+        },
+        {
+          "anchor": "§回传用户（固定结构）",
+          "reads": 1,
+          "estTokens": 68
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-dev-tool-free/skill-card.md",
+      "tokens": 543,
+      "sections": [
+        {
+          "anchor": "§Description: <br>",
+          "reads": 1,
+          "estTokens": 56
+        },
+        {
+          "anchor": "§Publisher: <br>",
+          "reads": 1,
+          "estTokens": 22
+        },
+        {
+          "anchor": "§License/Terms of Use: <br>",
+          "reads": 1,
+          "estTokens": 3
+        },
+        {
+          "anchor": "§Use Case: <br>",
+          "reads": 1,
+          "estTokens": 69
+        },
+        {
+          "anchor": "§Deployment Geography for Use: <br>",
+          "reads": 1,
+          "estTokens": 3
+        },
+        {
+          "anchor": "§Known Risks and Mitigations: <br>",
+          "reads": 1,
+          "estTokens": 145
+        },
+        {
+          "anchor": "§Reference(s): <br>",
+          "reads": 1,
+          "estTokens": 21
+        },
+        {
+          "anchor": "§Skill Output: <br>",
+          "reads": 1,
+          "estTokens": 109
+        },
+        {
+          "anchor": "§Skill Version(s): <br>",
+          "reads": 1,
+          "estTokens": 12
+        },
+        {
+          "anchor": "§Ethical Considerations: <br>",
+          "reads": 1,
+          "estTokens": 61
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-dev-tool-free/SKILL.md",
+      "tokens": 4153,
+      "sections": [
+        {
+          "anchor": "§游戏开发助手 (免费版)",
+          "reads": 4,
+          "estTokens": 16016
+        },
+        {
+          "anchor": "§概述",
+          "reads": 2,
+          "estTokens": 270
+        },
+        {
+          "anchor": "§核心能力",
+          "reads": 2,
+          "estTokens": 1392
+        },
+        {
+          "anchor": "§核心功能执行",
+          "reads": 2,
+          "estTokens": 190
+        },
+        {
+          "anchor": "§参数配置与调用",
+          "reads": 1,
+          "estTokens": 98
+        },
+        {
+          "anchor": "§结果处理与输出",
+          "reads": 1,
+          "estTokens": 290
+        },
+        {
+          "anchor": "§使用场景",
+          "reads": 2,
+          "estTokens": 2536
+        },
+        {
+          "anchor": "§场景一: 游戏设计文档",
+          "reads": 1,
+          "estTokens": 519
+        },
+        {
+          "anchor": "§场景二: 编码架构指导",
+          "reads": 2,
+          "estTokens": 874
+        },
+        {
+          "anchor": "§场景三: 测试与发布",
+          "reads": 1,
+          "estTokens": 281
+        },
+        {
+          "anchor": "§快速开始",
+          "reads": 1,
+          "estTokens": 310
+        },
+        {
+          "anchor": "§Step 1: 定义项目",
+          "reads": 1,
+          "estTokens": 57
+        },
+        {
+          "anchor": "§Step 2: 选择技术栈",
+          "reads": 1,
+          "estTokens": 101
+        },
+        {
+          "anchor": "§Step 3: 制定开发计划",
+          "reads": 1,
+          "estTokens": 128
+        },
+        {
+          "anchor": "§示例",
+          "reads": 1,
+          "estTokens": 333
+        },
+        {
+          "anchor": "§项目配置文件",
+          "reads": 1,
+          "estTokens": 126
+        },
+        {
+          "anchor": "§代码规范",
+          "reads": 1,
+          "estTokens": 194
+        },
+        {
+          "anchor": "§最佳实践",
+          "reads": 2,
+          "estTokens": 840
+        },
+        {
+          "anchor": "§1 最小可行产品 (MVP)",
+          "reads": 2,
+          "estTokens": 242
+        },
+        {
+          "anchor": "§2 版本控制",
+          "reads": 1,
+          "estTokens": 97
+        },
+        {
+          "anchor": "§3 性能预算",
+          "reads": 1,
+          "estTokens": 80
+        },
+        {
+          "anchor": "§4 持续集成",
+          "reads": 1,
+          "estTokens": 95
+        },
+        {
+          "anchor": "§常见问题",
+          "reads": 1,
+          "estTokens": 209
+        },
+        {
+          "anchor": "§Q1: 免费版支持多人协作吗?",
+          "reads": 1,
+          "estTokens": 37
+        },
+        {
+          "anchor": "§Q2: 推荐哪个游戏引擎?",
+          "reads": 1,
+          "estTokens": 27
+        },
+        {
+          "anchor": "§Q3: 如何获取美术资源?",
+          "reads": 1,
+          "estTokens": 32
+        },
+        {
+          "anchor": "§Q4: 发布到哪些平台?",
+          "reads": 1,
+          "estTokens": 28
+        },
+        {
+          "anchor": "§Q5: 测试应该花多少时间?",
+          "reads": 1,
+          "estTokens": 29
+        },
+        {
+          "anchor": "§依赖说明",
+          "reads": 1,
+          "estTokens": 295
+        },
+        {
+          "anchor": "§运行环境",
+          "reads": 1,
+          "estTokens": 59
+        },
+        {
+          "anchor": "§依赖详情",
+          "reads": 1,
+          "estTokens": 78
+        },
+        {
+          "anchor": "§API Key 配置",
+          "reads": 1,
+          "estTokens": 57
+        },
+        {
+          "anchor": "§可用性分类",
+          "reads": 1,
+          "estTokens": 79
+        },
+        {
+          "anchor": "§错误处理",
+          "reads": 1,
+          "estTokens": 152
+        },
+        {
+          "anchor": "§已知限制",
+          "reads": 1,
+          "estTokens": 46
+        },
+        {
+          "anchor": "§输出格式",
+          "reads": 1,
+          "estTokens": 89
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-studio/references/agents.md",
+      "tokens": 2605,
+      "sections": [
+        {
+          "anchor": "§👥 Game Studio Agent 索引",
+          "reads": 1,
+          "estTokens": 2534
+        },
+        {
+          "anchor": "§概览",
+          "reads": 1,
+          "estTokens": 45
+        },
+        {
+          "anchor": "§🏛️ Tier 1 - 管理层（战略决策）",
+          "reads": 1,
+          "estTokens": 436
+        },
+        {
+          "anchor": "§Creative Director（创意总监）",
+          "reads": 1,
+          "estTokens": 146
+        },
+        {
+          "anchor": "§Technical Director（技术总监）",
+          "reads": 1,
+          "estTokens": 126
+        },
+        {
+          "anchor": "§Producer（制作人）",
+          "reads": 1,
+          "estTokens": 133
+        },
+        {
+          "anchor": "§🎨 Tier 2 - 设计层（专业设计）",
+          "reads": 1,
+          "estTokens": 714
+        },
+        {
+          "anchor": "§Game Designer（游戏设计师）",
+          "reads": 1,
+          "estTokens": 134
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-studio/SKILL.md",
+      "tokens": 954,
+      "sections": [
+        {
+          "anchor": "§Game Studio（本仓：引擎查漏知识库，非主流程）",
+          "reads": 3,
+          "estTokens": 2400
+        },
+        {
+          "anchor": "§References 按需索引（禁止整包读入）",
+          "reads": 3,
+          "estTokens": 699
+        },
+        {
+          "anchor": "§概览",
+          "reads": 3,
+          "estTokens": 450
+        },
+        {
+          "anchor": "§Agent 索引（摘要）",
+          "reads": 3,
+          "estTokens": 243
+        },
+        {
+          "anchor": "§与本仓 wxgame 的边界",
+          "reads": 3,
+          "estTokens": 381
+        },
+        {
+          "anchor": "§协作原则（若被点名启用）",
+          "reads": 3,
+          "estTokens": 210
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-ui-voice-pack/SKILL.md",
+      "tokens": 2451,
+      "sections": [
+        {
+          "anchor": "§游戏配音·UI语音",
+          "reads": 3,
+          "estTokens": 6351
+        },
+        {
+          "anchor": "§适用范围与边界",
+          "reads": 3,
+          "estTokens": 492
+        },
+        {
+          "anchor": "§收集界面短句",
+          "reads": 3,
+          "estTokens": 522
+        },
+        {
+          "anchor": "§先做免费槽表",
+          "reads": 2,
+          "estTokens": 616
+        },
+        {
+          "anchor": "§确认克隆，再确认旁白",
+          "reads": 1,
+          "estTokens": 604
+        },
+        {
+          "anchor": "§审听、交付与恢复",
+          "reads": 1,
+          "estTokens": 139
+        },
+        {
+          "anchor": "§执行",
+          "reads": 1,
+          "estTokens": 163
+        },
+        {
+          "anchor": "§按任务查阅的参考",
+          "reads": 1,
+          "estTokens": 192
+        },
+        {
+          "anchor": "§运行时与安全的自动更新",
+          "reads": 1,
+          "estTokens": 262
+        }
+      ]
+    },
+    {
+      "path": "my-skills/INDEX.md",
+      "tokens": 1321,
+      "sections": [
+        {
+          "anchor": "§wxgame skill 家族 INDEX",
+          "reads": 11,
+          "estTokens": 14443
+        },
+        {
+          "anchor": "§1 清单（现役 13 个挂四 IDE 链接；存档 1 个仅本目录留档）",
+          "reads": 11,
+          "estTokens": 6941
+        },
+        {
+          "anchor": "§2 默认管线顺序与何时不走全 SOP",
+          "reads": 11,
+          "estTokens": 1540
+        },
+        {
+          "anchor": "§3 Skill 优先级（冲突时高者胜）",
+          "reads": 10,
+          "estTokens": 630
+        },
+        {
+          "anchor": "§4 路径约定",
+          "reads": 8,
+          "estTokens": 1664
+        },
+        {
+          "anchor": "§5 冲突裁决链",
+          "reads": 8,
+          "estTokens": 680
+        },
+        {
+          "anchor": "§6 Provenance 说明",
+          "reads": 8,
+          "estTokens": 480
+        }
+      ]
+    },
+    {
+      "path": "my-skills/indie-game-ost-pack/SKILL.md",
+      "tokens": 2026,
+      "sections": [
+        {
+          "anchor": "§游戏配乐·独立游戏原声带",
+          "reads": 3,
+          "estTokens": 5040
+        },
+        {
+          "anchor": "§适用范围与边界",
+          "reads": 3,
+          "estTokens": 516
+        },
+        {
+          "anchor": "§输入与默认值",
+          "reads": 3,
+          "estTokens": 939
+        },
+        {
+          "anchor": "§标准路径",
+          "reads": 1,
+          "estTokens": 384
+        },
+        {
+          "anchor": "§需要确认的决策",
+          "reads": 1,
+          "estTokens": 63
+        },
+        {
+          "anchor": "§故障恢复",
+          "reads": 1,
+          "estTokens": 100
+        },
+        {
+          "anchor": "§按任务查阅参考",
+          "reads": 1,
+          "estTokens": 214
+        },
+        {
+          "anchor": "§运行时与安全的自动更新",
+          "reads": 1,
+          "estTokens": 345
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-adr-arch/SKILL.md",
+      "tokens": 818,
+      "sections": [
+        {
+          "anchor": "§wxgame 架构决策法（ADR 三件套）",
+          "reads": 4,
+          "estTokens": 2732
+        },
+        {
+          "anchor": "§1 ADR 模板（`docs/architecture/adr/ADR-<编号>-<主题>.md`）",
+          "reads": 4,
+          "estTokens": 1424
+        },
+        {
+          "anchor": "§2 主架构文档（`docs/architecture/architecture.md`）",
+          "reads": 3,
+          "estTokens": 204
+        },
+        {
+          "anchor": "§3 控制清单（`control-manifest.md`）",
+          "reads": 3,
+          "estTokens": 258
+        },
+        {
+          "anchor": "§实例参照",
+          "reads": 3,
+          "estTokens": 138
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-art-spec-programmatic/SKILL.md",
+      "tokens": 986,
+      "sections": [
+        {
+          "anchor": "§wxgame 程序化美术规格法（三件套）",
+          "reads": 3,
+          "estTokens": 2532
+        },
+        {
+          "anchor": "§1 美术圣经（`<game>/art/art-bible.md`）",
+          "reads": 3,
+          "estTokens": 669
+        },
+        {
+          "anchor": "§2 资产规格表（`assets-spec.md`）",
+          "reads": 2,
+          "estTokens": 408
+        },
+        {
+          "anchor": "§3 可访问性分级（`accessibility.md`）",
+          "reads": 2,
+          "estTokens": 214
+        },
+        {
+          "anchor": "§纪律",
+          "reads": 2,
+          "estTokens": 144
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-audio-spec/SKILL.md",
+      "tokens": 1209,
+      "sections": [
+        {
+          "anchor": "§wxgame 音频规格法（五件套 · 框架版）",
+          "reads": 3,
+          "estTokens": 3144
+        },
+        {
+          "anchor": "§1 音频方向基调（Music Direction）`[TODO: 每款游戏定]`",
+          "reads": 3,
+          "estTokens": 231
+        },
+        {
+          "anchor": "§2 音频事件表（SFX Event Table）—— 本 skill 的灵魂",
+          "reads": 2,
+          "estTokens": 456
+        },
+        {
+          "anchor": "§3 音乐结构（BGM Structure）`[TODO]`",
+          "reads": 1,
+          "estTokens": 95
+        },
+        {
+          "anchor": "§4 混音规范（Mix）`[TODO]`",
+          "reads": 1,
+          "estTokens": 119
+        },
+        {
+          "anchor": "§5 实现策略（Implementation）",
+          "reads": 1,
+          "estTokens": 178
+        },
+        {
+          "anchor": "§6 交付与验收",
+          "reads": 1,
+          "estTokens": 101
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-epic-split/SKILL.md",
+      "tokens": 1024,
+      "sections": [
+        {
+          "anchor": "§wxgame Epic/Story 拆分法（拓扑序 + 引用式验收）",
+          "reads": 4,
+          "estTokens": 3536
+        },
+        {
+          "anchor": "§1 前置输入（缺一不拆）",
+          "reads": 4,
+          "estTokens": 500
+        },
+        {
+          "anchor": "§2 文档结构（六段固定，编号 0–5）",
+          "reads": 4,
+          "estTokens": 496
+        },
+        {
+          "anchor": "§3 Epic 层规则",
+          "reads": 2,
+          "estTokens": 256
+        },
+        {
+          "anchor": "§4 Story 层四要素（每个 Story 必含）",
+          "reads": 2,
+          "estTokens": 218
+        },
+        {
+          "anchor": "§5 第一冲刺 = 最小可玩垂直切片",
+          "reads": 2,
+          "estTokens": 174
+        },
+        {
+          "anchor": "§6 环境约束声明",
+          "reads": 2,
+          "estTokens": 162
+        },
+        {
+          "anchor": "§后续衔接",
+          "reads": 2,
+          "estTokens": 104
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-gdd-writer/SKILL.md",
+      "tokens": 1274,
+      "sections": [
+        {
+          "anchor": "§wxgame GDD 编写法（工作室验证过的四件套流程）",
+          "reads": 13,
+          "estTokens": 14599
+        },
+        {
+          "anchor": "§总流程（顺序执行，前一步是后一步的输入）",
+          "reads": 13,
+          "estTokens": 1092
+        },
+        {
+          "anchor": "§1 一页纸概念模板（十节）",
+          "reads": 12,
+          "estTokens": 2364
+        },
+        {
+          "anchor": "§2 系统索引模板（核心是 §3 冻结令）",
+          "reads": 11,
+          "estTokens": 2794
+        },
+        {
+          "anchor": "§3 逐系统 GDD 八节模板（每系统一份，一节不多一节不少）",
+          "reads": 11,
+          "estTokens": 1848
+        },
+        {
+          "anchor": "§4 设计评审十查（design-review 模板）",
+          "reads": 11,
+          "estTokens": 1914
+        },
+        {
+          "anchor": "§工作方式",
+          "reads": 11,
+          "estTokens": 847
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-orchestration/SKILL.md",
+      "tokens": 2194,
+      "sections": [
+        {
+          "anchor": "§wxgame 工作室编排法（九阶段流水线，编号 0–8）",
+          "reads": 6,
+          "estTokens": 12306
+        },
+        {
+          "anchor": "§九阶段（0–8）流水线",
+          "reads": 3,
+          "estTokens": 1584
+        },
+        {
+          "anchor": "§Spawn 任务模板（每个成员任务必含八要素）",
+          "reads": 5,
+          "estTokens": 1220
+        },
+        {
+          "anchor": "§成员 → Skill / SubAgent 路由表（硬表，spawn 前必查）",
+          "reads": 6,
+          "estTokens": 3264
+        },
+        {
+          "anchor": "§质量门判定（阶段切换处触发）",
+          "reads": 6,
+          "estTokens": 1704
+        },
+        {
+          "anchor": "§与工程门 G1–G4 的挂钩（定义见 `wxgame-qa-gates`）",
+          "reads": 5,
+          "estTokens": 925
+        },
+        {
+          "anchor": "§铁律",
+          "reads": 2,
+          "estTokens": 442
+        },
+        {
+          "anchor": "§实例参照",
+          "reads": 2,
+          "estTokens": 136
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-qa-gates/SKILL.md",
+      "tokens": 1299,
+      "sections": [
+        {
+          "anchor": "§wxgame QA 门禁法（风险驱动五件套）",
+          "reads": 7,
+          "estTokens": 7973
+        },
+        {
+          "anchor": "§1 测试计划（`production/qa/test-plan.md`）",
+          "reads": 7,
+          "estTokens": 1295
+        },
+        {
+          "anchor": "§2 测试用例（`test-cases.md`）——两段式",
+          "reads": 6,
+          "estTokens": 594
+        },
+        {
+          "anchor": "§3 冒烟测试清单（`smoke-tests.md`）",
+          "reads": 6,
+          "estTokens": 642
+        },
+        {
+          "anchor": "§4 缺陷分级（`bug-severity.md`）",
+          "reads": 6,
+          "estTokens": 972
+        },
+        {
+          "anchor": "§5 Playtest 计划（`playtest-plan.md`）",
+          "reads": 6,
+          "estTokens": 624
+        },
+        {
+          "anchor": "§门编号（G1–G4，定义与源文档 `test-plan.md` 门控表一致）",
+          "reads": 6,
+          "estTokens": 984
+        },
+        {
+          "anchor": "§门禁纪律",
+          "reads": 6,
+          "estTokens": 504
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-release-checklist/SKILL.md",
+      "tokens": 1089,
+      "sections": [
+        {
+          "anchor": "§wxgame 发布清单法（微信小游戏四件套）",
+          "reads": 2,
+          "estTokens": 1882
+        },
+        {
+          "anchor": "§1 发布清单（`release-checklist.md`）——六阶段 + Go/No-Go 门控",
+          "reads": 2,
+          "estTokens": 414
+        },
+        {
+          "anchor": "§2 上架材料（`wechat-submission.md`）",
+          "reads": 1,
+          "estTokens": 147
+        },
+        {
+          "anchor": "§3 版本策略（`version-strategy.md`）",
+          "reads": 1,
+          "estTokens": 149
+        },
+        {
+          "anchor": "§4 回滚预案（`rollback.md`）",
+          "reads": 1,
+          "estTokens": 175
+        },
+        {
+          "anchor": "§实例参照",
+          "reads": 1,
+          "estTokens": 29
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-ux-spec/SKILL.md",
+      "tokens": 1340,
+      "sections": [
+        {
+          "anchor": "§wxgame UX 规格法（微信小游戏竖屏向）",
+          "reads": 3,
+          "estTokens": 3621
+        },
+        {
+          "anchor": "§1 设计原则先行（每款游戏定 3-4 条，本文四条可直接沿用）",
+          "reads": 3,
+          "estTokens": 342
+        },
+        {
+          "anchor": "§2 界面流程（Screen Flow）",
+          "reads": 2,
+          "estTokens": 362
+        },
+        {
+          "anchor": "§3 关键界面线框（ASCII，逐屏）",
+          "reads": 2,
+          "estTokens": 256
+        },
+        {
+          "anchor": "§4 状态流转 × 输入响应矩阵（本 skill 的灵魂）",
+          "reads": 2,
+          "estTokens": 266
+        },
+        {
+          "anchor": "§5 交互反馈与动效时长表",
+          "reads": 2,
+          "estTokens": 234
+        },
+        {
+          "anchor": "§6 首屏留存策略（微信小游戏首 10 秒决定留存）",
+          "reads": 2,
+          "estTokens": 252
+        },
+        {
+          "anchor": "§7 可访问性（与美术规格对接口）",
+          "reads": 2,
+          "estTokens": 122
+        },
+        {
+          "anchor": "§8 决策记录与待确认项",
+          "reads": 2,
+          "estTokens": 94
+        },
+        {
+          "anchor": "§纪律",
+          "reads": 2,
+          "estTokens": 90
+        }
+      ]
+    },
+    {
+      "path": "production/epics/epics-beads.md",
+      "tokens": 7034,
+      "sections": [
+        {
+          "anchor": "§beads · Epic / Story 拆分（epics-beads）",
+          "reads": 3,
+          "estTokens": 21063
+        },
+        {
+          "anchor": "§0 阅读约定（拆分纪律）",
+          "reads": 2,
+          "estTokens": 782
+        },
+        {
+          "anchor": "§1 Epic 列表（按 systems-index §2 依赖拓扑序）",
+          "reads": 2,
+          "estTokens": 972
+        },
+        {
+          "anchor": "§2 Story 拆分",
+          "reads": 3,
+          "estTokens": 15510
+        },
+        {
+          "anchor": "§EP-01 核心循环骨架（S1）",
+          "reads": 2,
+          "estTokens": 956
+        },
+        {
+          "anchor": "§EP-02 拼图网格与填色（S3）",
+          "reads": 2,
+          "estTokens": 1760
+        },
+        {
+          "anchor": "§EP-03 供料与槽位托盘（S4）",
+          "reads": 1,
+          "estTokens": 747
+        },
+        {
+          "anchor": "§EP-04 输入与操控（S2）",
+          "reads": 1,
+          "estTokens": 734
+        },
+        {
+          "anchor": "§EP-05 倒计时与失败（S5）",
+          "reads": 1,
+          "estTokens": 769
+        },
+        {
+          "anchor": "§EP-06 道具系统（S6）`[待 GDD §8——S6 GDD 未产出，判据到位后回填]`",
+          "reads": 1,
+          "estTokens": 346
+        },
+        {
+          "anchor": "§EP-07 星级与结算（S7）`[待 GDD §8]`",
+          "reads": 2,
+          "estTokens": 436
+        },
+        {
+          "anchor": "§EP-08 存档与进度（S8）`[待 GDD §8——S8 GDD 未产出]`",
+          "reads": 2,
+          "estTokens": 552
+        },
+        {
+          "anchor": "§EP-09 暂停与设置（S9）`[待 GDD §8]`",
+          "reads": 2,
+          "estTokens": 398
+        },
+        {
+          "anchor": "§EP-10 Cocos 集成与微信构建 `[Blocked: 待编辑器]`",
+          "reads": 2,
+          "estTokens": 744
+        },
+        {
+          "anchor": "§3 第一个冲刺建议（最小可玩垂直切片）",
+          "reads": 2,
+          "estTokens": 880
+        },
+        {
+          "anchor": "§4 环境约束声明",
+          "reads": 2,
+          "estTokens": 436
+        },
+        {
+          "anchor": "§5 统计",
+          "reads": 2,
+          "estTokens": 204
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/smoke-tests.md",
+      "tokens": 2255,
+      "sections": [
+        {
+          "anchor": "§《拼豆填色消除》(beads) 冒烟测试清单 · Smoke Test Suite",
+          "reads": 1,
+          "estTokens": 2234
+        },
+        {
+          "anchor": "§冒烟主链路",
+          "reads": 1,
+          "estTokens": 1018
+        },
+        {
+          "anchor": "§SC-01 冷启动（首次，无存档）`[Node]`（分流逻辑）/ `[DevTools]`（画面）",
+          "reads": 1,
+          "estTokens": 103
+        },
+        {
+          "anchor": "§SC-02 供料心跳 `[Node]`",
+          "reads": 1,
+          "estTokens": 40
+        },
+        {
+          "anchor": "§SC-03 选珠 → 落子 → 拒绝（微循环闭环）`[Node]` / `[DevTools]`（动画）",
+          "reads": 1,
+          "estTokens": 92
+        },
+        {
+          "anchor": "§SC-04 暂停冻结（计时 + 供料）`[Node]` / `[DevTools]`（面板）",
+          "reads": 1,
+          "estTokens": 93
+        },
+        {
+          "anchor": "§SC-05 满槽 → 清槽恢复 `[Node]`",
+          "reads": 1,
+          "estTokens": 57
+        },
+        {
+          "anchor": "§SC-06 道具三种 + 扩展占位 `[Node]` / `[DevTools]`（角标）",
+          "reads": 1,
+          "estTokens": 83
+        },
+        {
+          "anchor": "§SC-07 扩展行 `[Node]`",
+          "reads": 1,
+          "estTokens": 47
+        },
+        {
+          "anchor": "§SC-08 过关 LEVEL_CLEAR `[Node]` / `[DevTools]`（庆祝表现）",
+          "reads": 1,
+          "estTokens": 60
+        },
+        {
+          "anchor": "§SC-09 通关 FINISH `[Node]`",
+          "reads": 1,
+          "estTokens": 40
+        },
+        {
+          "anchor": "§SC-10 倒计时归零 GAME_OVER + 整关重置 `[Node]`",
+          "reads": 1,
+          "estTokens": 49
+        },
+        {
+          "anchor": "§SC-11 杀进程重启续进 `[Device]`",
+          "reads": 1,
+          "estTokens": 44
+        },
+        {
+          "anchor": "§SC-12 存档降级 `[Node]`",
+          "reads": 1,
+          "estTokens": 63
+        },
+        {
+          "anchor": "§SC-13 后台切换 `[Device]`",
+          "reads": 1,
+          "estTokens": 39
+        },
+        {
+          "anchor": "§冲刺模式冒烟段（v1.1 新增，WXG-T-028）",
+          "reads": 1,
+          "estTokens": 647
+        },
+        {
+          "anchor": "§SC-SP-01 冲刺单局最短通关链路 `[Node]`（逻辑断言归 TC-SPRINT-01..11）/ `[Harness]`（人工操作）/ `[DevTools]`（帧检/特效）",
+          "reads": 1,
+          "estTokens": 601
+        },
+        {
+          "anchor": "§冒烟汇总表",
+          "reads": 1,
+          "estTokens": 335
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/test-cases.md",
+      "tokens": 5372,
+      "sections": [
+        {
+          "anchor": "§《拼豆填色消除》(beads) 测试用例 · Test Cases",
+          "reads": 2,
+          "estTokens": 1004
+        },
+        {
+          "anchor": "§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）",
+          "reads": 2,
+          "estTokens": 5014
+        },
+        {
+          "anchor": "§A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`",
+          "reads": 2,
+          "estTokens": 1052
+        },
+        {
+          "anchor": "§A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10`",
+          "reads": 2,
+          "estTokens": 960
+        },
+        {
+          "anchor": "§A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`",
+          "reads": 2,
+          "estTokens": 900
+        },
+        {
+          "anchor": "§A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`",
+          "reads": 2,
+          "estTokens": 898
+        },
+        {
+          "anchor": "§A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`",
+          "reads": 1,
+          "estTokens": 502
+        },
+        {
+          "anchor": "§B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）",
+          "reads": 1,
+          "estTokens": 554
+        },
+        {
+          "anchor": "§C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）",
+          "reads": 1,
+          "estTokens": 1704
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/test-plan.md",
+      "tokens": 2262,
+      "sections": [
+        {
+          "anchor": "§《拼豆填色消除》(beads) 测试计划 · Test Plan",
+          "reads": 1,
+          "estTokens": 2244
+        },
+        {
+          "anchor": "§0 本轮环境事实",
+          "reads": 1,
+          "estTokens": 275
+        },
+        {
+          "anchor": "§1 测试目标与质量门（G1–G4 在 beads 的适用口径）",
+          "reads": 1,
+          "estTokens": 305
+        },
+        {
+          "anchor": "§2 测试分层",
+          "reads": 1,
+          "estTokens": 176
+        },
+        {
+          "anchor": "§3 测试范围",
+          "reads": 1,
+          "estTokens": 174
+        },
+        {
+          "anchor": "§4 入口 / 退出条件",
+          "reads": 1,
+          "estTokens": 111
+        },
+        {
+          "anchor": "§5 机型与基础库矩阵",
+          "reads": 1,
+          "estTokens": 112
+        }
+      ]
+    },
+    {
+      "path": "production/qa/g4-regression-report.md",
+      "tokens": 1762,
+      "sections": [
+        {
+          "anchor": "§Breakout G4 正式回归报告（WXG-T-012）",
+          "reads": 1,
+          "estTokens": 1748
+        },
+        {
+          "anchor": "§1 结论",
+          "reads": 1,
+          "estTokens": 92
+        },
+        {
+          "anchor": "§2 逐条结果",
+          "reads": 1,
+          "estTokens": 712
+        },
+        {
+          "anchor": "§3 命名/语义偏差（非缺陷，避免误报，按主理人要求记录实际口径）",
+          "reads": 1,
+          "estTokens": 275
+        },
+        {
+          "anchor": "§4 缺陷条目（按 `bug-severity.md` 分级）",
+          "reads": 1,
+          "estTokens": 309
+        },
+        {
+          "anchor": "§5 回归基线（C4）证据",
+          "reads": 1,
+          "estTokens": 164
+        },
+        {
+          "anchor": "§6 升 PASS 的剩余条件",
+          "reads": 1,
+          "estTokens": 43
+        }
+      ]
+    },
+    {
+      "path": "production/qa/playtest-plan.md",
+      "tokens": 2872,
+      "sections": [
+        {
+          "anchor": "§《砖阵》(Breakout) Playtest 计划 · Playtest Plan",
+          "reads": 6,
+          "estTokens": 17136
+        },
+        {
+          "anchor": "§目标",
+          "reads": 2,
+          "estTokens": 156
+        },
+        {
+          "anchor": "§观察框架（每轮通用）",
+          "reads": 4,
+          "estTokens": 1452
+        },
+        {
+          "anchor": "§⏱ 时长目标（判定线基准 · 来源 `levels-spec.md §3` + `design-review.md §9.1`）",
+          "reads": 4,
+          "estTokens": 564
+        },
+        {
+          "anchor": "§第 1 轮 · 新玩家首次体验（First-Time User Experience）",
+          "reads": 4,
+          "estTokens": 1716
+        },
+        {
+          "anchor": "§第 2 轮 · 中盘系统与难度曲线（Mid-game & Difficulty Curve）",
+          "reads": 4,
+          "estTokens": 2092
+        },
+        {
+          "anchor": "§第 3 轮 · 韧性 / 中断恢复 / 可访问性（Resilience & Accessibility）",
+          "reads": 2,
+          "estTokens": 922
+        },
+        {
+          "anchor": "§记录模板",
+          "reads": 1,
+          "estTokens": 390
+        },
+        {
+          "anchor": "§汇总分析表（每轮末）",
+          "reads": 1,
+          "estTokens": 115
+        },
+        {
+          "anchor": "§判定线汇总（\"什么算通过 / 需调参\"）",
+          "reads": 2,
+          "estTokens": 404
+        },
+        {
+          "anchor": "§执行前提与本轮状态",
+          "reads": 2,
+          "estTokens": 408
+        }
+      ]
+    },
+    {
+      "path": "production/qa/test-cases.md",
+      "tokens": 7097,
+      "sections": [
+        {
+          "anchor": "§《砖阵》(Breakout) 测试用例 · Test Cases",
+          "reads": 1,
+          "estTokens": 851
+        },
+        {
+          "anchor": "§统计总览",
+          "reads": 1,
+          "estTokens": 337
+        },
+        {
+          "anchor": "§B 其余功能用例",
+          "reads": 1,
+          "estTokens": 1845
+        },
+        {
+          "anchor": "§B7 · 架构守卫 — 来源 `control-manifest.md`",
+          "reads": 1,
+          "estTokens": 116
+        },
+        {
+          "anchor": "§B8 · 输入与 UI — 来源 `input-control.md`、`ux-spec.md §3/§4`",
+          "reads": 1,
+          "estTokens": 134
+        },
+        {
+          "anchor": "§覆盖矩阵（判据 → 层 → 来源）",
+          "reads": 1,
+          "estTokens": 262
+        },
+        {
+          "anchor": "§C 实现落地后「最小验证集」（WXG-T-001 完成后必跑）",
+          "reads": 2,
+          "estTokens": 1416
+        },
+        {
+          "anchor": "§C1 · 优先级 P0（承重墙，任一失败即拦截）",
+          "reads": 2,
+          "estTokens": 880
+        },
+        {
+          "anchor": "§C2 · 优先级 P1（链路与数据）",
+          "reads": 2,
+          "estTokens": 112
+        },
+        {
+          "anchor": "§C3 · 冒烟链路（`smoke-tests.md`）",
+          "reads": 2,
+          "estTokens": 98
+        },
+        {
+          "anchor": "§C4 · 回归基线",
+          "reads": 2,
+          "estTokens": 102
+        }
+      ]
+    },
+    {
+      "path": "production/qa/test-plan.md",
+      "tokens": 4334,
+      "sections": [
+        {
+          "anchor": "§《砖阵》(Breakout) 测试计划 · Test Plan",
+          "reads": 3,
+          "estTokens": 12957
+        },
+        {
+          "anchor": "§6 ⚠️ 风险登记（风险驱动优先级依据）",
+          "reads": 1,
+          "estTokens": 1107
+        },
+        {
+          "anchor": "§6.1 优先级排序（风险驱动，裁定后更新）",
+          "reads": 1,
+          "estTokens": 195
+        },
+        {
+          "anchor": "§7 证据留存要求（Evidence）",
+          "reads": 2,
+          "estTokens": 746
+        },
+        {
+          "anchor": "§8 本轮可执行 / 需真机 占比",
+          "reads": 2,
+          "estTokens": 528
+        },
+        {
+          "anchor": "§9 变更记录",
+          "reads": 1,
+          "estTokens": 143
+        }
+      ]
+    },
+    {
+      "path": "production/TASKS.md",
+      "tokens": 1986,
+      "sections": [
+        {
+          "anchor": "§WXG 任务台账（SSOT）",
+          "reads": 3,
+          "estTokens": 5934
+        }
+      ]
+    }
+  ]
+}

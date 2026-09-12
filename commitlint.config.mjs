@@ -67,6 +67,10 @@ export default {
         'tools',
         'agents',
         'ci',
+        // WXG-T-029 补：ctx/ knowledge/ skills/ 已是真实分区，此前只能用 tools/ci 兜底
+        'ctx',
+        'knowledge',
+        'skills',
         'deps',
       ],
     ],

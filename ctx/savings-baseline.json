@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "taskId": "WXG-T-026",
+  "reason": "E3 判定改为比率口径（抖动率/大文件整文件读率）——防活动会话重采导致计数自然增长误报假回归（WXG-T-026 复验 F-02）",
+  "est": true,
+  "sampleWindow": {
+    "since": null,
+    "until": null,
+    "note": "账本为字节稳定、无时间戳设计（见 lib/reads-ledger.mjs）→ 无法记录窗口起止；以「采集当时的账本快照」为窗口。"
+  },
+  "tolerance": {
+    "savings": "节省率（中位数 / P10）劣于基线 > 2.0pt → FAIL",
+    "rate": "抖动率 / 大文件整文件读率劣于基线 > 5.0pt → FAIL（比率口径，WXG-T-026 复验 F-02）",
+    "counts": "抖动组数 / 超限次数 / 大文件整文件读次数：仅如实展示，不作判定"
+  },
+  "metrics": {
+    "medianPartial": 0.751493,
+    "p10Partial": 0.300181,
+    "jitterRate": 0.084112,
+    "bigFullReadRate": 0.142232,
+    "jitterGroups": 9,
+    "jitterExcess": 26,
+    "bigFullReads": 65
+  }
+}

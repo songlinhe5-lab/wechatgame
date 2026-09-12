@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "source": "all",
+  "root": "/Users/stephenhe/Development/workspace/wechatgame",
+  "files": 21,
+  "records": 6813,
+  "readEvents": 552,
+  "uniqueReads": 457,
+  "malformed": 0,
+  "unrecognizedRecords": 0,
+  "badReads": 0,
+  "unrecognized": 0,
+  "recognitionRate": 1,
+  "dropped": 53,
+  "stale": 1,
+  "byIde": {
+    "cursor": {
+      "sessions": 12,
+      "reads": 202,
+      "unique": 163
+    },
+    "workbuddy": {
+      "sessions": 9,
+      "reads": 350,
+      "unique": 294
+    }
+  },
+  "bySession": {
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/6f7a9a03-9571-408d-9fdc-f1c7c879f464": {
+      "reads": 134,
+      "unique": 97
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/243742bd-725c-47b7-9dcc-7922028f8989": {
+      "reads": 9,
+      "unique": 9
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/36b04f9d-da1b-4e1e-913c-2c0cadfa5f25": {
+      "reads": 6,
+      "unique": 6
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/4505ba54-8b68-47ea-9151-0cf620449bed": {
+      "reads": 1,
+      "unique": 0
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/5b4b99ea-2c99-4ea9-a1ac-87821508f6f7": {
+      "reads": 6,
+      "unique": 6
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/5f1ba605-e5eb-49fe-9925-2ffb04a8ec52": {
+      "reads": 4,
+      "unique": 4
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/687bd1ce-e530-4ebf-aa87-626262fe04fa": {
+      "reads": 7,
+      "unique": 6
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/7ed2874d-0cc6-4a0d-8aa3-7950d220ca4b": {
+      "reads": 7,
+      "unique": 7
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/c557bba0-8237-48fa-bdcf-4526231c6e0d": {
+      "reads": 4,
+      "unique": 4
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/cecd6423-3a49-4d36-bfa6-6e7a4b1db0fc": {
+      "reads": 3,
+      "unique": 3
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/daef8855-14d3-49d0-84c4-0d42f0b4c7b1": {
+      "reads": 11,
+      "unique": 11
+    },
+    "6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/f15440f8-7692-4438-b25e-e12986a97c9d": {
+      "reads": 10,
+      "unique": 10
+    },
+    "d2983589-5929-4ae7-8766-93377384382e": {
+      "reads": 115,
+      "unique": 76
+    },
+    "d2983589-5929-4ae7-8766-93377384382e/subagents/agent-02cb0791": {
+      "reads": 31,
+      "unique": 31
+    },
+    "d2983589-5929-4ae7-8766-93377384382e/subagents/agent-08c7bd79": {
+      "reads": 5,
+      "unique": 5
+    },
+    "d2983589-5929-4ae7-8766-93377384382e/subagents/agent-3366cb1d": {
+      "reads": 53,
+      "unique": 47
+    },
+    "d2983589-5929-4ae7-8766-93377384382e/subagents/agent-38e6af01": {
+      "reads": 6,
+      "unique": 6
+    },
+    "d2983589-5929-4ae7-8766-93377384382e/subagents/agent-45bb201c": {
+      "reads": 63,
+      "unique": 54
+    },
+    "d2983589-5929-4ae7-8766-93377384382e/subagents/agent-6fd11320": {
+      "reads": 30,
+      "unique": 30
+    },
+    "d2983589-5929-4ae7-8766-93377384382e/subagents/agent-9aaf6185": {
+      "reads": 25,
+      "unique": 25
+    },
+    "d2983589-5929-4ae7-8766-93377384382e/subagents/agent-fe766a3b": {
+      "reads": 22,
+      "unique": 20
+    }
+  },
+  "sessionsWithReadEvents": 21,
+  "sessionsInLedger": 20,
+  "sessionCountNote": "会话口径二义（WXG-T-026 复验 F-03）：sessionsWithReadEvents = 采集期识别到 ≥1 次读调用的会话（含读路径全在仓库外、丢弃后 0 行入账者）；sessionsInLedger = 去重后账本仍留有读事件的会话。两者定义不同，差值 = 读全被丢弃的会话数。"
+}
