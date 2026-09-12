@@ -24,18 +24,21 @@ REPO="$(printf '%s' "$REMOTE_URL" | sed -E 's#^https://github\.com/##; s#^git@gi
 echo "仓库: $REPO    分支: $BRANCH"
 echo "required checks: $CONTEXTS"
 
-PAYLOAD="$(cat <<JSON
+# 裁定留痕（WXG-T-016，主理人）：
+# - enforce_admins=false：单人仓库，若对管理员同样生效，任何 check 故障/误配都会
+#   把自己锁死且无第二人可解锁——保留紧急处置通道。
+# - approvals=0：单人仓库无第二人可批准，1 个 approval 即自批死锁；
+#   合并拦截由 required check `review`（Headless 评审）承担，不依赖人工 approval。
+# 注意：定界符必须带引号（<<'JSON'）——否则反引号会被 bash 当命令替换执行；
+#       JSON 不支持注释，说明文字一律放这里，不得写进 PAYLOAD。
+PAYLOAD="$(cat <<'JSON'
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": $CONTEXTS
+    "contexts": ["gate", "review", "lint"]
   },
-  # enforce_admins=false（WXG-T-016 主理人裁定）：单人仓库，若对管理员同样生效，
-  # 任何 required check 故障 / 规则误配都会把自己锁死，无第二人可解锁——保留紧急处置通道。
   "enforce_admins": false,
   "required_pull_request_reviews": {
-    # approvals=0（WXG-T-016 主理人裁定）：单人仓库无第二人可批准，1 个 approval 即自批死锁；
-    # 合并拦截由 required check `review`（Headless 评审）承担，不依赖人工 approval。
     "required_approving_review_count": 0,
     "dismiss_stale_reviews": true,
     "require_code_owner_reviews": false
