@@ -1,7 +1,7 @@
 # WXG 任务台账（SSOT）
 
 > 单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前**先读本文件领号**，完成后回填状态——根治跨 IDE 撞号（教训：2026-09-12 CodeBuddy 独立会话撞用 T-013/T-014）。
-> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-022**，下一可用号 **WXG-T-023**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）。
+> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-023**，下一可用号 **WXG-T-024**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
 |---|---|---|---|---|
@@ -25,8 +25,9 @@
 | WXG-T-018 | beads art-bible §7 动效对齐 ux-spec §5 + 连击三档特效增补 | 林绘澄 | ✅ 完成 | art-bible.md v1.1 |
 | WXG-T-019 | breakout G4 门独立复验（D-01/D-02 修复后） | 严守真 | ✅ 完成 | G4 正式 PASS（F-01 Minor 已闭环 407da28） |
 | WXG-T-020 | beads 30 项决策点冻结回写（用户 2026-09-12 全按推荐拍板） | 文策渊 | ✅ 完成 | systems-index v1.7（§3.10 冲刺常量组）+ §6 v1.8 事件登记 + 六文档冻结标注 |
-| WXG-T-021 | CI/CD 拦截体系：commitlint + commit-msg hook + 细粒度 CI + PR 规范 + 分支保护脚本 | 程基岩 | ✅ 完成 | commitlint.config.mjs / .githooks/commit-msg / workflows×3 / CODEOWNERS / TASKS 修正（commits 084fa04+ca4f508；**提交信息内嵌号误编 016，以本行 021 为准**） |
+| WXG-T-021 | CI/CD 拦截体系：commitlint + commit-msg hook + 细粒度 CI + PR 规范 + 分支保护脚本 | 程基岩 | ✅ 完成 | commitlint.config.mjs / .githooks/commit-msg / workflows×3 / CODEOWNERS / TASKS 修正（commits 084fa04+ca4f508；**提交信息内嵌号误编 016，以本行 021 为准**）；评审脚本 merge-base 修复（7caafa7，develop） |
 | WXG-T-022 | ADR-0009 Cocos MCP 编辑器接入决策 | 程基岩 | ✅ 完成 | adr/ADR-0009（方案 A + P0–P2 用例分层 + 工具白名单）+ control-manifest §14 + architecture.md 链接（**任务单误编 017，以本行 022 为准**） |
+| WXG-T-023 | 系统工程化：质量门 skill（含工具调用报告格式）+ knowledge/ 知识库 + AGENTS.md §9 协议 | 主理人 | ✅ 完成 | wxgame-quality-gate（四 IDE 链接，skills=13）+ knowledge/INDEX+lessons+patterns + AGENTS.md §9（**任务号误编 021，以本行 023 为准**） |
 
 > 注 1：T-016/T-017 的产出实际由 CodeBuddy 侧会话完成（用户授权路径），本台账为跨 IDE 统一追认。
 > 注 2（第二次撞号追认）：CodeBuddy 会话后续又将 CI/CD 与 ADR-0009 误编为 016/017，已按 T-021/T-022 归位；其提交信息与任务单内嵌旧号不回改，以本台账为准。

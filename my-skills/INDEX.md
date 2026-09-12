@@ -3,7 +3,7 @@
 > 本文件是 `my-skills/` 全家族的统一约定（人读 + 编排者读）。
 > 各 IDE 只扫描含 `SKILL.md` 的子目录，本文件不参与自动触发。
 
-## 1. 清单（现役 12 个挂四 IDE 链接；存档 1 个仅本目录留档）
+## 1. 清单（现役 13 个挂四 IDE 链接；存档 1 个仅本目录留档）
 
 | 层级 | skill | 职责 |
 |---|---|---|
@@ -15,6 +15,7 @@
 | 域·美术 | `wxgame-art-spec-programmatic` | 程序化美术三件套、色盲三重编码、包体预算承诺 |
 | 域·音频 | `wxgame-audio-spec` | 音频五件套**框架版**（数值 `[TODO]`，实做后回写） |
 | 域·QA | `wxgame-qa-gates` | 测试计划/硬判据用例/冒烟/缺陷分级/Playtest |
+| 域·QA | `wxgame-quality-gate` | 执行 verify 全量门禁 + **强制工具调用报告表**（会话结论透明化，WXG-T-021） |
 | 域·发布 | `wxgame-release-checklist` | 六阶段发布、微信上架、版本策略、回滚预案 |
 | 执行 | `indie-game-ost-pack` | 生成 8–15 首原创配乐（audio-spec 的执行层） |
 | 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层） |

@@ -132,6 +132,7 @@ dev/harness/         浏览器验证器
 my-skills/           Agent Skills 正本 + INDEX.md
 my-agents/           SubAgent 正本 + INDEX.md
 my-rules/            跨 IDE alwaysApply 规则正本 + INDEX.md
+knowledge/           知识库（教训 lessons / 模式 patterns + INDEX 读写协议）
 tools/scripts/       架构守卫 · 关卡同步 · harness · 预览
 ```
 
@@ -180,3 +181,22 @@ Node ≥ 20；包管理器以根 `package.json` 的 `packageManager` 为准（pn
 | 跨 IDE 常驻规则摘要 | `my-rules/agents-md.md`（见 `my-rules/INDEX.md`） |
 | Cursor Hooks / 跨 IDE 提交门禁 | `docs/agent/hooks-best-practices.md` |
 | Headless CI / 自动 PR 审查 | `docs/agent/headless-ci-pr-review.md` |
+| 教训 / 可复用模式 | `knowledge/INDEX.md`（lessons / patterns，WXG-T-023） |
+
+---
+
+## 9. 知识库与调用透明（WXG-T-023）
+
+**知识库读写协议**（`knowledge/`，正本 `knowledge/INDEX.md`）：
+1. **开发前期**：实现/修复/接入/发布类任务开工前，先读 `knowledge/lessons.md` 同域条目，
+   相关条目列入任务单必读（spawn 八要素的权威来源清单带上路径）。
+2. **任务收尾**：执行者随交付回传 0–3 条沉淀候选（踩坑修复 / 反直觉行为 / 可复用做法；没有传「无」），
+   由主理人去重汇编入 `lessons.md` / `patterns.md`，条目必须带 Task ID 可追溯。
+3. 只追加不删改；废弃条目标 `[已过时：原因]`；沉淀动作在会话结论的工具调用清单中体现。
+
+**工具调用报告纪律**（会话结论强制）：
+1. 每次会话结论必须附**工具调用清单**：凡调用的 skill、spawn 的子代理（成员名 + Task ID + 产物路径）、
+   脚本命令、外部能力（图像/音视频生成、web 检索等）逐条列出——格式见 `wxgame-quality-gate` skill §2。
+2. 每条给**结果摘要**（成功/失败、passed/failed 数字、commit hash、产物路径），失败项必须给原因与下一步，
+   禁止静默省略或「一切正常」式空话。
+3. 实现任务收尾自验走 `wxgame-quality-gate`（verify 全量门禁），报告随 commit 回传。
