@@ -94,8 +94,8 @@ EOF
 )
 
 echo "Running headless review (model=$MODEL, base=$BASE_REF)..."
-# No --force: review text only on stdout
-agent -p --model "$MODEL" --output-format text "$PROMPT" >"$OUT"
+# --trust：CI 全新 runner 上无交互可用，须显式信任工作区（runner 为一次性环境，仅评审只读任务）
+agent -p --trust --model "$MODEL" --output-format text "$PROMPT" >"$OUT"
 
 echo "Wrote $OUT ($(wc -c <"$OUT" | tr -d ' ') bytes)"
 
