@@ -13,16 +13,19 @@ import { spawnSync } from 'node:child_process';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const hooksDir = join(ROOT, '.githooks');
-const preCommit = join(hooksDir, 'pre-commit');
+// 需要安装（含 chmod）的全部 hook；新增 hook 时在此登记
+const HOOKS = ['pre-commit', 'commit-msg'];
 
 if (!existsSync(join(ROOT, '.git'))) {
   process.stdout.write('install-githooks: 非 git 仓库，跳过\n');
   process.exit(0);
 }
 
-if (!existsSync(preCommit)) {
-  process.stderr.write('install-githooks: 缺少 .githooks/pre-commit\n');
-  process.exit(1);
+for (const hook of HOOKS) {
+  if (!existsSync(join(hooksDir, hook))) {
+    process.stderr.write(`install-githooks: 缺少 .githooks/${hook}\n`);
+    process.exit(1);
+  }
 }
 
 const r = spawnSync('git', ['config', 'core.hooksPath', '.githooks'], {
@@ -35,10 +38,12 @@ if (r.status !== 0) {
   process.exit(1);
 }
 
-try {
-  chmodSync(preCommit, 0o755);
-} catch {
-  /* Windows / 无权限时 git 仍可通过 sh 调用 */
+for (const hook of HOOKS) {
+  try {
+    chmodSync(join(hooksDir, hook), 0o755);
+  } catch {
+    /* Windows / 无权限时 git 仍可通过 sh 调用 */
+  }
 }
 
 process.stdout.write('install-githooks: core.hooksPath=.githooks OK\n');

@@ -21,9 +21,12 @@
     "harness:smoke": "node tools/scripts/smoke-harness.mjs",
     "preview:frames": "node tools/scripts/render-harness-frame.mjs",
     "preview:clip": "node tools/scripts/render-harness-clip.mjs",
+    "commitlint": "commitlint",
     "verify": "pnpm run check:arch && pnpm run check:links && pnpm run levels:check && pnpm run typecheck && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
     "typescript": "^5.6.3",
     "vitest": "^2.1.8"
   }

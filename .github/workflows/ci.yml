@@ -1,4 +1,11 @@
-# 确定性门禁：架构 / 四 IDE 链接 / 关卡 / 类型 / 测试 / harness
+# CI 细粒度拆分 — WXG-T-016
+# 与本地 `pnpm run verify`（全量门禁唯一入口）语义保持一致，仅按变更路径增量触发；
+# 收口 job `gate` 汇总判定：分支保护只需挂 `gate` 一个 required check。
+# changes filter 组：
+#   framework → packages/framework/**
+#   game      → games/*/src/**、games/*/design/levels/**、tools/scripts/sync-levels-data.mjs
+#   docs      → **/*.md、docs/**
+#   tools     → tools/**、package.json、pnpm-lock.yaml、.githooks/**
 name: CI
 
 on:
@@ -11,7 +18,92 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      framework: ${{ steps.filter.outputs.framework }}
+      game: ${{ steps.filter.outputs.game }}
+      docs: ${{ steps.filter.outputs.docs }}
+      tools: ${{ steps.filter.outputs.tools }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Paths filter
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          token: ${{ github.token }}
+          filters: |
+            framework:
+              - 'packages/framework/**'
+            game:
+              - 'games/*/src/**'
+              - 'games/*/design/levels/**'
+              - 'tools/scripts/sync-levels-data.mjs'
+            docs:
+              - '**/*.md'
+              - 'docs/**'
+            tools:
+              - 'tools/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - '.githooks/**'
+
+  # ① 架构守卫 + 四 IDE 链接：纯 Node 零依赖，始终运行（门禁底线）
+  arch-guard:
+    name: Arch guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: check:arch
+        run: node tools/scripts/check-architecture.mjs
+
+      - name: check:links
+        run: node tools/scripts/check-ide-links.mjs
+
+  # ② 关卡同步检查：framework / game / tools 变更时运行（levels JSON → levels-data.ts 漂移）
+  levels:
+    name: Levels check
+    needs: changes
+    if: >-
+      needs.changes.outputs.framework == 'true' ||
+      needs.changes.outputs.game == 'true' ||
+      needs.changes.outputs.tools == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: levels:check
+        run: node tools/scripts/sync-levels-data.mjs --check
+
+  # ③ 类型 + 单测：framework / game / tools 变更时运行
+  unit:
+    name: Unit
+    needs: changes
+    if: >-
+      needs.changes.outputs.framework == 'true' ||
+      needs.changes.outputs.game == 'true' ||
+      needs.changes.outputs.tools == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -30,7 +122,74 @@ jobs:
           cache: pnpm
 
       - name: Install
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Verify
-        run: pnpm run verify
+      - name: typecheck
+        run: pnpm run typecheck
+
+      - name: test
+        run: pnpm run test
+
+  # ④ harness 编译 + 冒烟：framework / game 变更时运行
+  harness:
+    name: Harness
+    needs: changes
+    if: >-
+      needs.changes.outputs.framework == 'true' ||
+      needs.changes.outputs.game == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: harness:build
+        run: pnpm run harness:build
+
+      - name: harness:smoke
+        run: pnpm run harness:smoke
+
+  # ⑤ 收口：任一「被触发且失败」的 job → gate 失败；未触发（skipped）不算失败。
+  #    分支保护 required check 只挂 "gate"。
+  gate:
+    name: gate
+    needs: [arch-guard, levels, unit, harness]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Aggregate results
+        run: |
+          set -u
+          fail=0
+          check() {
+            local name="$1" result="$2"
+            echo "$name: $result"
+            case "$result" in
+              success|skipped) ;;   # skipped = 本次变更未触发，非失败
+              *) fail=1 ;;
+            esac
+          }
+          check "arch-guard" "${{ needs.arch-guard.result }}"
+          check "levels"     "${{ needs.levels.result }}"
+          check "unit"       "${{ needs.unit.result }}"
+          check "harness"    "${{ needs.harness.result }}"
+          if [ "$fail" -ne 0 ]; then
+            echo "::error::GATE FAILED —— 存在被触发且失败的 job，合并被阻止"
+            exit 1
+          fi
+          echo "GATE OK —— 全部触发的 job 均 success（其余未触发）"

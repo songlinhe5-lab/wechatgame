@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# commit-msg 钩子：commitlint 细粒度校验（type/scope/header/task-id）— WXG-T-016
+# 启用：git config core.hooksPath .githooks（见 tools/scripts/install-githooks.mjs，prepare 自动生效）
+# 规则文档：docs/ci/commit-and-review-rules.md
+
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+MSG_FILE="${1:?usage: commit-msg <msg-file>}"
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "[commit-msg] ❌ 未找到 pnpm，无法运行 commitlint。" >&2
+  echo "             请先安装 pnpm，然后在仓库根目录执行: pnpm install" >&2
+  exit 1
+fi
+
+if [ ! -x node_modules/.bin/commitlint ] && [ ! -d node_modules/@commitlint ]; then
+  echo "[commit-msg] ❌ 缺少 @commitlint 依赖（node_modules 不完整）。" >&2
+  echo "             请先在仓库根目录执行: pnpm install" >&2
+  exit 1
+fi
+
+if pnpm exec commitlint --edit "$MSG_FILE"; then
+  echo "[commit-msg] ✅ commitlint 通过"
+else
+  STATUS=$?
+  echo "" >&2
+  echo "[commit-msg] ❌ 提交信息不符合仓库规则（type / scope / header 长度 / 句号 / task-id）。" >&2
+  echo "             规则与正反示例见: docs/ci/commit-and-review-rules.md" >&2
+  echo "             快速自查: header 形如 <type>(<scope>): <subject>，全文须含 WXG-T-<数字> 或 #<数字>。" >&2
+  exit "$STATUS"
+fi

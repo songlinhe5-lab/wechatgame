@@ -1,0 +1,49 @@
+# 提交信息拦截（CI 层）— WXG-T-016
+# 只查「新增」提交：PR 查 base..HEAD，push 到 master 只查 HEAD——不回溯历史
+# （历史提交可能不符合新规，属已知豁免；本地拦截层见 .githooks/commit-msg）
+# 规则文档：docs/ci/commit-and-review-rules.md
+name: Commit Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: commit-lint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    # 注意：required check 名匹配的是 job 名（此处即 "lint"）
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      # commitlint.config.mjs extends @commitlint/config-conventional，
+      # 配置解析需要本地依赖，必须先 install（不能裸 npx 拉缓存）
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint PR commits (base..HEAD)
+        if: github.event_name == 'pull_request'
+        run: npx commitlint --from=${{ github.event.pull_request.base.sha }} --to=HEAD
+
+      - name: Lint HEAD commit (push to master)
+        if: github.event_name == 'push'
+        run: git log -1 --pretty=%B | npx commitlint

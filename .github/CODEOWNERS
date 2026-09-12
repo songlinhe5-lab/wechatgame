@@ -1,0 +1,21 @@
+# CODEOWNERS — WXG-T-016
+# 按路径细粒度；当前 owner 统一 @stephenhe，为未来协作者预留结构（届时逐行拆分）。
+# 规则文档：docs/ci/commit-and-review-rules.md
+
+# 共用框架
+/packages/framework/          @stephenhe
+
+# 游戏（每款游戏独立 owner，未来可分派）
+/games/breakout/              @stephenhe
+/games/beads/                 @stephenhe
+# beads 设计文档单独一行，保留与代码不同的评审粒度
+/games/beads/design/          @stephenhe
+
+# 工程产物
+/production/qa/               @stephenhe
+/production/epics/            @stephenhe
+
+# 文档与基建
+/docs/                        @stephenhe
+/.github/                     @stephenhe
+/tools/                       @stephenhe

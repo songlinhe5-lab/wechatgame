@@ -1,0 +1,34 @@
+# PR 自动打标签规则（actions/labeler@v5 格式）— WXG-T-016
+# 细粒度按路径；新增游戏时在此追加 game:<name> 组即可
+framework:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/framework/**'
+
+game:breakout:
+  - changed-files:
+      - any-glob-to-any-file: 'games/breakout/**'
+
+game:beads:
+  - changed-files:
+      - any-glob-to-any-file: 'games/beads/**'
+
+design:
+  - changed-files:
+      - any-glob-to-any-file: 'games/*/design/**'
+
+qa:
+  - changed-files:
+      - any-glob-to-any-file: 'production/qa/**'
+
+epics:
+  - changed-files:
+      - any-glob-to-any-file: 'production/epics/**'
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file: 'docs/**'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+      - any-glob-to-any-file: '.githooks/**'
