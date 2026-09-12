@@ -59,7 +59,10 @@ Header 形如：
 | `release` | `production/release/**` |
 | `tools` | `tools/**` |
 | `agents` | `my-agents/**`、`.codebuddy/agents/**` 等智能体定义分区 |
+| `skills` | `my-skills/**`（Skill 正本与四 IDE 链接 `.cursor\|.codebuddy\|.workbuddy\|.qoder/skills/`） |
 | `ci` | `.github/**`、`.githooks/**` |
+| `ctx` | `ctx/**`——分级上下文索引产物（索引/路由表/预算报表/读入账本/基线）与对应生成器 |
+| `knowledge` | `knowledge/**`——教训库 / 模式库 / 台账 `ledger.json` / 归档区 / `CHANGELOG.md`（`kb:*` 命令本体改动归 `tools`） |
 | `deps` | `package.json`、`pnpm-lock.yaml` 等依赖变更 |
 
 **强制规则**：`scope-empty: never`——不允许裸 type（`fix: xxx` ❌）。粒度要求：scope 必须指明分区。
