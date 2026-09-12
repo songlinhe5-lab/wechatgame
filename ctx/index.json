@@ -193,7 +193,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 885,
       "lines": 57,
-      "sha256": "261597294f3582aec6a0d7f46ba228a5d724bba00d723b90e43b657399afd07c",
+      "sha256": "c3573923d2d885da171b58454e67343a460c23baad7420570a4dcdc5abbe4ee9",
       "tier": "normal",
       "sections": [
         {
@@ -561,17 +561,17 @@
     },
     {
       "path": "docs/agent/headless-ci-pr-review.md",
-      "tokens": 1692,
-      "lines": 126,
-      "sha256": "1e51b5c39e6d01974d6ae08729ee7f4667b9e96acb46b0360092765607d4e868",
+      "tokens": 2747,
+      "lines": 185,
+      "sha256": "32088ce323988dc90354cb6b9f302538b16713c394569e4703fd4485524d1cde",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Headless 模式 · 应用场景 · 自动化 PR 审查 · 流水线",
           "level": 1,
           "startLine": 1,
-          "endLine": 127,
-          "tokens": 1671,
+          "endLine": 186,
+          "tokens": 2726,
           "summary": "本仓采用 Cursor CLI Headless（agent -p / --print）做 CI 侧审查，不用 IDE ",
           "keywords": [
             "Headless",
@@ -628,8 +628,8 @@
           "anchor": "§4 仓库产物",
           "level": 2,
           "startLine": 50,
-          "endLine": 57,
-          "tokens": 64,
+          "endLine": 59,
+          "tokens": 140,
           "summary": ".github/workflows/ci.yml 确定性 pnpm run verify",
           "keywords": [
             "github",
@@ -643,8 +643,8 @@
         {
           "anchor": "§5 启用步骤",
           "level": 2,
-          "startLine": 58,
-          "endLine": 79,
+          "startLine": 60,
+          "endLine": 81,
           "tokens": 230,
           "summary": "1. GitHub → Settings → Secrets → Actions → 新建 CURSOR_API_KEY",
           "keywords": [
@@ -659,8 +659,8 @@
         {
           "anchor": "§6 审查判据（写入 prompt 的硬约束）",
           "level": 2,
-          "startLine": 80,
-          "endLine": 101,
+          "startLine": 82,
+          "endLine": 103,
           "tokens": 230,
           "summary": "Agent 必须优先对照：",
           "keywords": [
@@ -672,10 +672,85 @@
           ]
         },
         {
-          "anchor": "§7 与 Bugbot / Autopilot 的分工",
+          "anchor": "§7 diff 注入方式 · 排除清单 · 体积兜底（WXG-T-025）",
           "level": 2,
-          "startLine": 102,
-          "endLine": 109,
+          "startLine": 104,
+          "endLine": 159,
+          "tokens": 905,
+          "summary": "本节说明 tools/scripts/ci-pr-review.sh 如何把 diff 交给审查 agent，以及为什么",
+          "keywords": [
+            "diff",
+            "WXG",
+            "tools",
+            "scripts",
+            "review",
+            "agent"
+          ]
+        },
+        {
+          "anchor": "§7.1 为什么不把 diff 内联进 prompt（根因）",
+          "level": 3,
+          "startLine": 108,
+          "endLine": 118,
+          "tokens": 198,
+          "summary": "旧实现把「内联整份 diff 的 prompt」当命令行参数传给 Cursor CLI（agent -p \"$PROMP",
+          "keywords": [
+            "diff",
+            "prompt",
+            "Cursor",
+            "CLI",
+            "agent",
+            "PROMP"
+          ]
+        },
+        {
+          "anchor": "§7.2 diff 排除清单（生成物 / 锁文件）",
+          "level": 3,
+          "startLine": 119,
+          "endLine": 135,
+          "tokens": 310,
+          "summary": "生成物与锁文件体积大、由生成器决定、评审无信息量，纳入 diff 只会挤爆参数与上下文。",
+          "keywords": [
+            "diff",
+            "排除清单",
+            "生成物",
+            "锁文件"
+          ]
+        },
+        {
+          "anchor": "§7.3 体积兜底（截断）",
+          "level": 3,
+          "startLine": 136,
+          "endLine": 146,
+          "tokens": 114,
+          "summary": "排除后 diff 仍超 300KB（DIFF_MAX_BYTES）时截断，并在文件末尾追加醒目标记：",
+          "keywords": [
+            "diff",
+            "DIFF_MAX_BYTES",
+            "体积兜底",
+            "截断"
+          ]
+        },
+        {
+          "anchor": "§7.4 本地自测方法",
+          "level": 3,
+          "startLine": 147,
+          "endLine": 159,
+          "tokens": 196,
+          "summary": "无需真实 CURSOR_API_KEY / CLI：用桩冒充 agent，在临时 git 仓库里跑端到端自测。",
+          "keywords": [
+            "CURSOR_API_KEY",
+            "CLI",
+            "agent",
+            "git",
+            "本地自测方法"
+          ]
+        },
+        {
+          "anchor": "§8 与 Bugbot / Autopilot 的分工",
+          "level": 2,
+          "startLine": 160,
+          "endLine": 167,
           "tokens": 101,
           "summary": "本仓 Headless pr-review 项目铁律 / 微信小游戏 monorepo 定制审查",
           "keywords": [
@@ -688,27 +763,27 @@
           ]
         },
         {
-          "anchor": "§8 成本与安全",
+          "anchor": "§9 成本与安全",
           "level": 2,
-          "startLine": 110,
-          "endLine": 116,
-          "tokens": 76,
-          "summary": "审查 job 设 timeout-minutes；大 diff 可改为仅 git diff --stat + 限文件列表",
+          "startLine": 168,
+          "endLine": 174,
+          "tokens": 79,
+          "summary": "审查 job 设 timeout-minutes；大 diff 走 §7.3 的「排除生成物 + 300KB 截断」兜底",
           "keywords": [
+            "§7.3",
             "job",
             "timeout",
             "minutes",
             "diff",
-            "git",
-            "stat"
+            "成本与安全"
           ]
         },
         {
-          "anchor": "§9 故障排查",
+          "anchor": "§10 故障排查",
           "level": 2,
-          "startLine": 117,
-          "endLine": 127,
-          "tokens": 179,
+          "startLine": 175,
+          "endLine": 186,
+          "tokens": 230,
           "summary": "CURSOR_API_KEY 缺失 / 401 检查 Secret；缺失时 job 直接失败（门禁）",
           "keywords": [
             "CURSOR_API_KEY",
@@ -16470,17 +16545,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 1499,
-      "lines": 35,
-      "sha256": "13adacc9ffbe4e2ea5170ca1567734f6fc250cf33415dfdb77906ebb27e15e49",
+      "tokens": 1659,
+      "lines": 36,
+      "sha256": "0fe62cfb9dffae69271cf54d7cffd13491726e1e4871ddbcb5f0aff30c6a4b6b",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 36,
-          "tokens": 1490,
+          "endLine": 37,
+          "tokens": 1650,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",

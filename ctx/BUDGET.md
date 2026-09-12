@@ -51,7 +51,7 @@
 | `docs/architecture/control-manifest.md` | 3013 | `§0 五条铁律（违反 = 直接打回）` | 253 | 92% |
 | `games/beads/design/gdd/systems-index.md` | 5909 | `§3.7 星级与结算` | 137 | 98% |
 | `memory/MEMORY.md` | 1190 | `§已知限制` | 80 | 93% |
-| `production/TASKS.md` | 1499 | —（整文件即最小单元） | — | — |
+| `production/TASKS.md` | 1659 | —（整文件即最小单元） | — | — |
 | `production/qa/beads/test-cases.md` | 3697 | `§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）` | 2507 | 32% |
 
 > 「最常用章节」由 `build-context-index.mjs` 的 `COMMON_SECTION_PREFIX` 指定，与 `ctx/ROUTES.md` 的路由一致。
