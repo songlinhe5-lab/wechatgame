@@ -19,6 +19,7 @@ import { DEFAULT_TUNING } from '../src/config/tuning.js';
 import type { LevelData } from '../src/config/levels-data.js';
 import type { LevelDef } from '@wxgame/framework';
 import {
+  PICKUP_SETTLE_ORDER,
   POWERUP_SIZE,
   effectiveDropRate,
   pickPowerupId,
@@ -235,9 +236,10 @@ describe('TC-PWR-04: life +1 up to 5; overflow converts to +500 score', () => {
 
 describe('TC-PWR-05: same-type repeats refresh, never stack', () => {
   it('expand is covered in TC-PWR-02; here the settle order is pinned', () => {
-    // §6.4: same-frame pickups settle life → multi → expand. The order lives
-    // in PICKUP_SETTLE_ORDER; pin it so "确定后写死" stays true.
-    expect([...['life', 'multi', 'expand']]).toEqual(['life', 'multi', 'expand']);
+    // §6.4: same-frame pickups settle life → multi → expand. Assert the
+    // *implementation constant* (F-01: the previous assertion compared a
+    // literal to itself and never touched the shipped order).
+    expect(PICKUP_SETTLE_ORDER).toEqual(['life', 'multi', 'expand']);
   });
 });
 
