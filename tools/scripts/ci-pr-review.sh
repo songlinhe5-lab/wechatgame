@@ -200,8 +200,9 @@ else
   echo "Review diff: $DIFF_FILE (${DIFF_BYTES} bytes)"
 fi
 
-# No --force: review text only on stdout
-"$AGENT_BIN" -p --model "$MODEL" --output-format text "$PROMPT" >"$AGENT_OUT"
+# --trust：CI 全新 runner 无交互可用，须显式信任工作区（一次性环境 + 只读评审任务）
+# 其余受限：不使用 --yolo/-f（避免静默放行命令执行；受限自治纪律见文件头）
+"$AGENT_BIN" -p --trust --model "$MODEL" --output-format text "$PROMPT" >"$AGENT_OUT"
 
 # ── 组装 review.md：头部透明化（排除清单 + 命中 + 截断） + agent 正文 ─────────
 {
