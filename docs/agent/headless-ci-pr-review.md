@@ -53,7 +53,9 @@ push / PR
 |---|---|
 | `.github/workflows/ci.yml` | 确定性 `pnpm run verify` |
 | `.github/workflows/pr-review.yml` | Headless PR 审查 + `gh pr comment` |
-| `tools/scripts/ci-pr-review.sh` | 本地 / CI 共用审查脚本 |
+| `tools/scripts/ci-pr-review.sh` | 本地 / CI 共用审查脚本（diff 落盘 + 排除 + 截断） |
+| `tools/scripts/ci-pr-review-selftest.sh` | 本地桩自测（不依赖真实 CLI / 密钥；CI 不跑） |
+| `.review/` | 运行时临时目录（`diff.patch` / agent 输出），**已 gitignore**，脚本 `trap` 清理 |
 
 ## 5. 启用步骤
 
@@ -99,7 +101,63 @@ VERDICT: PASS | CONCERNS | FAIL
 | CONCERNS | ✅ | 允许；风险留在评论 |
 | FAIL | ❌ | 阻塞 |
 | 缺失/非法 | ❌ | 阻塞（fail closed） |
-## 7. 与 Bugbot / Autopilot 的分工
+## 7. diff 注入方式 · 排除清单 · 体积兜底（WXG-T-025）
+
+> 本节说明 `tools/scripts/ci-pr-review.sh` **如何把 diff 交给审查 agent**，以及为什么这样设计。
+
+### 7.1 为什么不把 diff 内联进 prompt（根因）
+
+旧实现把「内联整份 diff 的 prompt」当**命令行参数**传给 Cursor CLI（`agent -p "$PROMPT"`）。
+当 PR 含大生成物时（本次：`ctx/index.json` ~590KB），单参数体积超内核 `ARG_MAX`
+→ `Argument list too long`（exit 126），review 未产出 → fail-closed → required check `review` 必然红。
+
+**现约定（核心原则）**：传给 agent 的**参数体积必须与 diff 体积无关**。
+
+- diff 写入仓库内临时文件 `.review/diff.patch`（已 gitignore；`trap` 收尾清理）。
+- prompt 只含**小体积指令文本**，要求 agent 用文件读取工具按该路径自行读取；正文不再进 argv。
+
+### 7.2 diff 排除清单（生成物 / 锁文件）
+
+生成物与锁文件体积大、由生成器决定、评审无信息量，纳入 diff 只会挤爆参数与上下文。
+脚本以常量数组 `EXCLUDE_PATHS` 集中维护，经 `:(exclude,glob)` 转为 git pathspec：
+
+| 排除路径 | 为什么排除 |
+|---|---|
+| `ctx/index.json` | 上下文分级索引生成物（`ctx:build` 产出，~590KB，本次崩溃元凶） |
+| `ctx/BUDGET.md` | 同上，自动生成报表 |
+| `pnpm-lock.yaml` | 依赖锁文件（机械生成，评审无意义） |
+| `**/levels-data.ts` | `levels:sync` 生成物（真源是关卡 JSON） |
+| `coverage/**` · `build/**` · `dist/**` | 构建 / 覆盖率产物 |
+
+**透明化（脚本必做）**：stdout 与 `review.md` 头部都会注明「已排除的路径清单 + 命中数量」，
+并把本次 diff 中**确实变更**的被排除路径**逐条列出**——评审人据此知道省略了什么。
+（排除的是「生成物本身的变更」，而非「对生成逻辑的审查」：生成脚本仍在 diff 内。）
+
+### 7.3 体积兜底（截断）
+
+排除后 diff 仍超 **300KB**（`DIFF_MAX_BYTES`）时截断，并在文件末尾追加醒目标记：
+
+```text
+==== DIFF TRUNCATED（原始 N 字节，已截断为 300KB）====
+```
+
+stdout 同步提示。目的是保证**任何 PR 都能跑到 VERDICT 阶段**，不再崩在参数层。
+截断意味着评测存在盲区，评审输出应显式说明该限制。
+
+### 7.4 本地自测方法
+
+无需真实 `CURSOR_API_KEY` / CLI：用桩冒充 `agent`，在临时 git 仓库里跑端到端自测。
+
+```bash
+# 一键自测（临时仓库内构造大 diff / 生成物 / 截断场景，跑完自动清理）
+tools/scripts/ci-pr-review-selftest.sh
+```
+
+桩通过环境变量 `AGENT_BIN` 注入（默认仍是 `agent`，CI 不受影响），记录 argv 体积、diff 文件
+存在性与大小，并产出一段含合法 `VERDICT` 的评审文本。自测覆盖：①大 diff 下 argv 体积恒定；
+②桩能读到 diff 文件且大小正确；③截断生效且标记存在；④排除清单生效；⑤门禁四种 VERDICT 语义。
+
+## 8. 与 Bugbot / Autopilot 的分工
 
 | 工具 | 用途 |
 |---|---|
@@ -107,18 +165,19 @@ VERDICT: PASS | CONCERNS | FAIL
 | Cursor Bugbot | 产品化 PR 机器人（若团队已开）；可与本 workflow **并存**，注意去重 |
 | Autopilot skill | 人在 IDE 里把 PR 推到可合并（修冲突 / 评论 / CI）；**不是** CI Headless |
 
-## 8. 成本与安全
+## 9. 成本与安全
 
-- 审查 job 设 `timeout-minutes`；大 diff 可改为仅 `git diff --stat` + 限文件列表
+- 审查 job 设 `timeout-minutes`；大 diff 走 §7.3 的「排除生成物 + 300KB 截断」兜底
 - Secret 只进 env，prompt 禁止打印 env
 - `permissions:` 最小化：`contents: read` + `pull-requests: write`
 - 不要把 `CURSOR_API_KEY` 写进仓库或 `AGENTS.md`
 
-## 9. 故障排查
+## 10. 故障排查
 
 | 现象 | 处理 |
 |---|---|
 | `CURSOR_API_KEY` 缺失 / 401 | 检查 Secret；缺失时 job **直接失败**（门禁） |
+| `agent: Argument list too long`（exit 126） | 说明 prompt 又内联了 diff 正文（回归）：确认脚本用 `.review/diff.patch` + 只传指令文本（§7.1） |
 | `agent: command not found` | 确认 install 后把 `$HOME/.cursor/bin` 写入 `GITHUB_PATH` |
 | 无 PR 评论 | job 权限 `pull-requests: write`；`gh` 用 `github.token`；确认写出了 `review.md` |
 | 审查空泛 | 确认 checkout 含足够 history（`fetch-depth: 0`）且 diff 非空 |
