@@ -29,16 +29,21 @@ if ! command -v agent >/dev/null 2>&1; then
   exit 1
 fi
 
-# Resolve base for diff
+# Resolve base for diff（注意：--depth=1 会把 base 浅化，导致 '...' 无 merge base → 128）
 if ! git rev-parse --verify "$BASE_REF" >/dev/null 2>&1; then
-  git fetch --no-tags --depth=1 origin "$(echo "$BASE_REF" | sed 's#^origin/##')" 2>/dev/null || true
+  git fetch --no-tags origin "$(echo "$BASE_REF" | sed 's#^origin/##')" 2>/dev/null || true
 fi
 
 DIFF_FILE="$(mktemp)"
 trap 'rm -f "$DIFF_FILE"' EXIT
 
 if git rev-parse --verify "$BASE_REF" >/dev/null 2>&1; then
-  git diff "$BASE_REF"...HEAD >"$DIFF_FILE"
+  if BASE_COMMIT="$(git merge-base "$BASE_REF" HEAD 2>/dev/null)"; then
+    git diff "$BASE_COMMIT" HEAD >"$DIFF_FILE"
+  else
+    # 浅历史找不到 merge base：两点直比（线性 PR 语义等价）
+    git diff "$BASE_REF" HEAD >"$DIFF_FILE"
+  fi
 else
   git diff HEAD~1...HEAD >"$DIFF_FILE" 2>/dev/null || git diff >"$DIFF_FILE"
 fi
