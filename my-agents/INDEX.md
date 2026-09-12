@@ -35,6 +35,7 @@
 ## Frontmatter 约定（共享正本）
 
 Cursor 官方字段：`name` · `description` · `model` · `readonly` · `is_background`。  
+**Qoder 实测（2026-09-12）**：不认 `model: inherit`（当模型 ID 解析，报 40506）→ 正本**省略 model 字段**；Cursor/CodeBuddy 省略时默认继承主对话模型，三平台语义一致。  
 **不要**在共享正本里加未经四 IDE 实测的 `tools:` / `permissionMode:` / `skills:`（Cursor 不认；其它家方言未验证）。Skill 加载靠 spawn prompt 必附路径 + `check:links` 校验。
 
 `studio-orchestrator` / `quality-lead` 必须 `readonly: true`（由 `pnpm run check:links` 强制）。

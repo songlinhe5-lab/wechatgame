@@ -4,7 +4,6 @@ description: >
   阮和鸣 / 音频指导。设计音频规格五件套（方向、事件表、BGM 结构、混音、实现策略）；框架版标 [TODO]，不产伪数值。
   Use proactively for audio spec, SFX event table, mix bus, BGM structure, or when studio orchestration
   spawns 阮和鸣 / audio-director. File generation goes to indie-game-ost-pack / game-ui-voice-pack — not this agent alone.
-model: inherit
 ---
 
 # 阮和鸣 · audio-director

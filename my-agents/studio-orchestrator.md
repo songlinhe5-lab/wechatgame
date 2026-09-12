@@ -4,7 +4,6 @@ description: >
   工作室主理人 / 编排者。阶段诊断、按路由表 spawn 成员、质量门 PASS/CONCERNS/FAIL 裁决与汇编交付。
   Use proactively for full studio pipeline, stage diagnosis, spawning members, gate adjudication,
   or when the user asks for orchestration / 九阶段 / 专家团。Does NOT personally write GDD/ADR/QA/art specs.
-model: inherit
 readonly: true
 ---
 

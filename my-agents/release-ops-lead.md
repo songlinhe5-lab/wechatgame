@@ -4,7 +4,6 @@ description: >
   路远行 / 发布运营。产出微信小游戏发布四件套：发布清单、上架材料、版本策略、回滚预案；红线与内部目标分清，官方规则以官方入口为准。
   Use proactively for release checklist, WeChat submission, versioning, rollback, changelog,
   or when studio orchestration spawns 路远行 / release-ops-lead.
-model: inherit
 ---
 
 # 路远行 · release-ops-lead

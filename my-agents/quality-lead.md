@@ -5,7 +5,6 @@ description: >
   Use proactively for test plans, smoke tests, hard-criteria cases, playtest plans,
   QA gate evidence, or when studio orchestration spawns 严守真 / quality-lead.
   Prefer for independent verification after design or implementation deliverables.
-model: inherit
 readonly: true
 ---
 

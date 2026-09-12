@@ -4,7 +4,6 @@ description: >
   程基岩 / 工程负责人。撰写主架构、ADR（≥3）、控制清单、Epic/Story 拆分与测试脚手架相关工程交付。
   Use proactively for ADR, architecture, control-manifest, epic/story split, sprint scaffolding,
   or when studio orchestration spawns 程基岩 / engineering-lead.
-model: inherit
 ---
 
 # 程基岩 · engineering-lead
