@@ -22,32 +22,40 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `memory/2026-09-12.md` | 10141 | 151 | normal |
-| 2 | `production/TASKS.md` | 7886 | 69 | hot |
-| 3 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
-| 4 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
-| 5 | `production/qa/test-cases.md` | 7097 | 296 | normal |
-| 6 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
-| 7 | `ctx/ROUTES.md` | 6535 | 225 | normal |
-| 8 | `docs/agent/context-instrumentation-survey.md` | 6374 | 270 | normal |
-| 9 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
-| 10 | `memory/2026-09-13.md` | 6312 | 136 | normal |
-| 11 | `memory/2026-09-11.md` | 5617 | 115 | normal |
-| 12 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
-| 13 | `knowledge/lessons.md` | 5202 | 105 | normal |
-| 14 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
-| 15 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
-| 16 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
-| 17 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
-| 18 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
-| 19 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
-| 20 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
+| 1 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
+| 2 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
+| 3 | `memory/2026-09-12.md` | 10141 | 151 | normal |
+| 4 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
+| 5 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 6 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 7 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 8 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
+| 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 525 | normal |
+| 10 | `production/TASKS.md` | 7886 | 69 | hot |
+| 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
+| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
+| 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
+| 14 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
+| 15 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 16 | `production/qa/test-cases.md` | 7097 | 296 | normal |
+| 17 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
+| 18 | `ctx/ROUTES.md` | 6535 | 225 | normal |
+| 19 | `memory/2026-09-13.md` | 6455 | 148 | normal |
+| 20 | `docs/agent/context-instrumentation-survey.md` | 6374 | 270 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
+| `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-09-12.md` | 10141 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 
 ## 4. 真实最常用章节与分布加权节省率（估算）
 

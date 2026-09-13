@@ -8,91 +8,91 @@
         {
           "category": "scene",
           "name": "scene_management",
-          "enabled": true,
+          "enabled": false,
           "description": "SCENE MANAGEMENT: Core scene operations for project workflow. COMMON TASKS: get_current for active scene info, get_list to see all scenes, open to switch scenes, save to persist changes, create for new scenes. WORKFLOW: Always save before switching scenes to avoid data loss."
         },
         {
           "category": "scene",
           "name": "scene_hierarchy",
-          "enabled": true,
+          "enabled": false,
           "description": "SCENE HIERARCHY: Get the complete hierarchy of current scene with optional component information. Use this to inspect scene structure."
         },
         {
           "category": "scene",
           "name": "scene_execution_control",
-          "enabled": true,
+          "enabled": false,
           "description": "EXECUTION CONTROL: Execute component methods, scene scripts, or restore prefab instances. Use this for running custom logic and managing prefab synchronization."
         },
         {
           "category": "scene",
           "name": "scene_state_management",
-          "enabled": true,
+          "enabled": false,
           "description": "STATE MANAGEMENT: Create snapshots, manage undo/redo operations, and control scene reload. Use this for version control and state tracking."
         },
         {
           "category": "scene",
           "name": "scene_query_system",
-          "enabled": true,
+          "enabled": false,
           "description": "QUERY SYSTEM: Get scene status, available classes/components, and find nodes by asset usage. Use this for scene inspection and analysis."
         },
         {
           "category": "node",
           "name": "node_query",
-          "enabled": true,
+          "enabled": false,
           "description": "NODE SEARCH & INFORMATION: Essential tool for finding and inspecting scene nodes. CRITICAL WORKFLOW: Always use this FIRST to get node UUIDs before any modifications. Use \"find\" for partial name search, \"find_by_name\" for exact match, \"info\" for detailed node data, \"list_all\" to see entire scene structure."
         },
         {
           "category": "node",
           "name": "node_lifecycle",
-          "enabled": true,
+          "enabled": false,
           "description": "NODE CREATION & DELETION: Create new nodes or delete existing ones. CRITICAL WORKFLOW for create: 1) Use node_query to find parent UUID, 2) Provide parentUuid (scene root if omitted), 3) Add components or instantiate from prefab. Delete only needs node UUID."
         },
         {
           "category": "node",
           "name": "node_transform",
-          "enabled": true,
+          "enabled": false,
           "description": "MODIFY NODE PROPERTIES: Use this to change node name, visibility, position, rotation, scale, or other properties. Automatically handles 2D/3D differences. ALWAYS provide uuid (get from node_query first)."
         },
         {
           "category": "node",
           "name": "node_hierarchy",
-          "enabled": true,
+          "enabled": false,
           "description": "MOVE OR COPY NODES: Use this to change node parent (move in hierarchy) or duplicate nodes. For move: changes which node is the parent. For duplicate: creates a copy of the node."
         },
         {
           "category": "node",
           "name": "node_clipboard",
-          "enabled": true,
+          "enabled": false,
           "description": "CLIPBOARD OPERATIONS: Copy, paste, cut nodes and manage node clipboard operations. Use this for duplicating and moving nodes within the scene hierarchy."
         },
         {
           "category": "node",
           "name": "node_property_management",
-          "enabled": true,
+          "enabled": false,
           "description": "PROPERTY MANAGEMENT: Reset node properties, transform values, or component settings to defaults. Use this to restore original values and clean up modifications."
         },
         {
           "category": "node",
           "name": "node_array_management",
-          "enabled": true,
+          "enabled": false,
           "description": "ARRAY MANAGEMENT: Move or remove elements in node array properties like component lists. Use this for reordering components or removing array items."
         },
         {
           "category": "node",
           "name": "node_script_management",
-          "enabled": true,
+          "enabled": false,
           "description": "NODE SCRIPT MANAGEMENT: Attach or remove custom TypeScript/JavaScript components to/from nodes. WORKFLOW: 1) Use \"attach\" with scriptPath for new scripts, 2) Use component_query from component-tools to see attached scripts, 3) Use \"remove\" with scriptCid to detach. Scripts are node-based components with UUID-format CIDs."
         },
         {
           "category": "component",
           "name": "component_manage",
-          "enabled": true,
+          "enabled": false,
           "description": "COMPONENT MANAGEMENT: Add or remove built-in Cocos Creator components (cc.Sprite, cc.Button, etc.). WORKFLOW: 1) Use node_query to get nodeUuid, 2) Add components with componentType, 3) Use component_query to verify. For custom scripts use node_script_management from node-tools instead."
         },
         {
           "category": "component",
           "name": "component_query",
-          "enabled": true,
+          "enabled": false,
           "description": "COMPONENT QUERY: Get component information, list all components on node, or get available component types. Use this FIRST to find component CIDs before removing!"
         },
         {
@@ -110,25 +110,25 @@
         {
           "category": "prefab",
           "name": "prefab_browse",
-          "enabled": true,
+          "enabled": false,
           "description": "PREFAB BROWSER: Query and analyze prefab files in your project. WORKFLOW: Use \"list\" to discover all prefabs → \"info\" to get detailed prefab data → \"validate\" to check file integrity. Essential for prefab management and debugging. Common use: finding prefabs before instantiation."
         },
         {
           "category": "prefab",
           "name": "prefab_lifecycle",
-          "enabled": true,
+          "enabled": false,
           "description": "PREFAB LIFECYCLE: Create prefabs from existing nodes or delete prefab files. WORKFLOW: For create → select source node → specify name and save path → creates reusable prefab. For delete → specify prefab path → removes file permanently. Use with caution for delete operations."
         },
         {
           "category": "prefab",
           "name": "prefab_instance",
-          "enabled": true,
+          "enabled": false,
           "description": "PREFAB INSTANCES: Manage prefab instances in the scene. WORKFLOW: \"instantiate\" to create instances → modify as needed → \"apply\" to save changes back to prefab OR \"unlink\" to break connection OR \"revert\" to restore original. Critical for prefab-based development."
         },
         {
           "category": "prefab",
           "name": "prefab_edit",
-          "enabled": true,
+          "enabled": false,
           "description": "PREFAB EDIT WORKFLOW: Edit prefab content in dedicated editing mode. CRITICAL WORKFLOW: 1) \"enter\" edit mode (switches to prefab scene) → 2) make modifications using other tools → 3) \"save\" changes → 4) \"exit\" back to main scene. IMPORTANT: Always save before exit to persist changes."
         },
         {
@@ -206,31 +206,31 @@
         {
           "category": "sceneView",
           "name": "scene_view_gizmo_management",
-          "enabled": true,
+          "enabled": false,
           "description": "GIZMO MANAGEMENT: Control scene manipulation tools and transformation handles. USAGE: Change between position/rotation/scale tools, switch coordinate systems (local/global), adjust pivot points. Essential for precise scene editing and object manipulation in the editor."
         },
         {
           "category": "sceneView",
           "name": "scene_view_mode_control",
-          "enabled": true,
+          "enabled": false,
           "description": "VIEW MODE CONTROL: Switch scene editor between 2D and 3D modes and control visual aids. USAGE: Toggle 2D/3D perspective for different editing contexts, show/hide grid for alignment reference. 2D mode for UI/sprite editing, 3D mode for 3D scene construction."
         },
         {
           "category": "sceneView",
           "name": "scene_view_icon_gizmo",
-          "enabled": true,
+          "enabled": false,
           "description": "ICON GIZMO CONTROL: Configure visual representation of scene nodes and components. USAGE: Adjust icon display mode (2D/3D) and size for better visibility. Useful for managing visual clutter and improving scene navigation when working with many objects."
         },
         {
           "category": "sceneView",
           "name": "scene_view_camera_control",
-          "enabled": true,
+          "enabled": false,
           "description": "CAMERA CONTROL: Navigate and position the scene view camera for better editing workflow. USAGE: Focus on specific objects, align camera angles, and synchronize view positions. Essential for efficient scene navigation and precise editing of complex scenes."
         },
         {
           "category": "sceneView",
           "name": "scene_view_status_management",
-          "enabled": true,
+          "enabled": false,
           "description": "STATUS MANAGEMENT: Monitor scene view configuration and restore default settings. USAGE: \"get_status\" for comprehensive view state information, \"reset_view\" to restore default camera position and settings. Useful for troubleshooting view issues and standardizing editor state."
         },
         {
@@ -307,7 +307,7 @@
         }
       ],
       "createdAt": "2026-09-13T13:49:01.989Z",
-      "updatedAt": "2026-09-13T13:49:01.989Z"
+      "updatedAt": "2026-09-13T14:06:08.164Z"
     }
   ],
   "currentConfigId": "cef508fd-4f70-4cb6-a949-b10277944178",
