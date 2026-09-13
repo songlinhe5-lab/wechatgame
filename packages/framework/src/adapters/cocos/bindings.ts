@@ -55,6 +55,10 @@ export class Bootstrap extends Component {
   private _renderer: CocosRenderModelRenderer | null = null;
   private _bridge: CocosInputBridge | null = null;
   private _labels: PooledLabelSource | null = null;
+  private _resizeBound = false;
+
+  /** Bound once in `launch()`; re-fits the viewport when the page resizes. */
+  private readonly _onWindowResize = (): void => this._fitToGameCanvas();
 
   /** Subclasses / games override this to supply their Game implementation. */
   protected createGame(): Game {
@@ -92,12 +96,22 @@ export class Bootstrap extends Component {
     };
 
     this._app = app;
-    this._fitToGameCanvas();
     this._bindRenderer();
     this._bindInput();
     this._loop = new CocosLoopBridge(app, this);
     this._loop.start();
-  }
+    // Must run AFTER the loop starts: CocosLoopBridge.start() calls App.start(),
+    // which re-fits the viewport to platform.getScreenSize(). Doing this any
+    // earlier gets silently overwritten (observed 2026-09-13).
+    this._fitToGameCanvas();
+    if (!this._resizeBound) {
+      const target = (globalThis as { addEventListener?: (t: string, l: () => void) => void })
+        .addEventListener;
+      if (target) {
+        target.call(globalThis, 'resize', this._onWindowResize);
+        this._resizeBound = true;
+      }
+    }
 
   /**
    * Align the framework screen space with `EventTouch.getLocation()`.
@@ -119,6 +133,12 @@ export class Bootstrap extends Component {
 
   /** ⚠ Called by the engine when the component's node is destroyed. */
   onDestroy(): void {
+    if (this._resizeBound) {
+      const target = (globalThis as { removeEventListener?: (t: string, l: () => void) => void })
+        .removeEventListener;
+      target?.call(globalThis, 'resize', this._onWindowResize);
+      this._resizeBound = false;
+    }
     this._loop?.stop();
     this._app?.dispose();
     this._app = null;
