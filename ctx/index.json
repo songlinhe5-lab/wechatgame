@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1880,
       "lines": 84,
-      "sha256": "4b0f448793926c50c0115fad509ae57c2062fb717a949ae5bb54d2f798fe87c9",
+      "sha256": "91aa358546a9a7dddc9ddd83dd7065c56d73af4f3681b4554ca35cc5694a7523",
       "tier": "normal",
       "sections": [
         {
@@ -21479,17 +21479,17 @@
     },
     {
       "path": "memory/2026-09-13.md",
-      "tokens": 6455,
-      "lines": 148,
-      "sha256": "f8ebcef8002f81c5d567fc0b4edcd401731428ba8de2714e06e8cb3846c30efe",
+      "tokens": 6645,
+      "lines": 149,
+      "sha256": "e6dea8693be952b4f4d6735901c59c51ba8cc457ced46828276d08e6bd62ef87",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-13",
           "level": 1,
           "startLine": 1,
-          "endLine": 149,
-          "tokens": 6452,
+          "endLine": 150,
+          "tokens": 6642,
           "summary": "",
           "keywords": []
         },
@@ -21822,8 +21822,8 @@
           "anchor": "§G2 验收通过 + G4 输入链路三连修（22:30-23:05，主理会话）",
           "level": 2,
           "startLine": 140,
-          "endLine": 149,
-          "tokens": 594,
+          "endLine": 150,
+          "tokens": 784,
           "summary": "G2 关闭：用户编辑器把 GameRoot Position 改 (0,0,0) 后，playwright 截图+场景树",
           "keywords": [
             "GameRoot",

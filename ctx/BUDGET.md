@@ -39,8 +39,8 @@
 | 15 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 16 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 | 17 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
-| 18 | `ctx/ROUTES.md` | 6535 | 225 | normal |
-| 19 | `memory/2026-09-13.md` | 6455 | 148 | normal |
+| 18 | `memory/2026-09-13.md` | 6645 | 149 | normal |
+| 19 | `ctx/ROUTES.md` | 6535 | 225 | normal |
 | 20 | `docs/agent/context-instrumentation-survey.md` | 6374 | 270 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
