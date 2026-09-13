@@ -31,9 +31,9 @@
 | 11 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
 | 12 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
 | 13 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
-| 14 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
-| 15 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
-| 16 | `memory/2026-09-13.md` | 4616 | 110 | normal |
+| 14 | `memory/2026-09-13.md` | 4865 | 116 | normal |
+| 15 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
+| 16 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
 | 17 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
 | 18 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
 | 19 | `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md` | 4543 | 251 | normal |

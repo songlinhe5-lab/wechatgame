@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1304,
       "lines": 72,
-      "sha256": "58991bd03f6d81f0a3efb526b0be51b4f4879ca17e969efc001fa62f3a91e97d",
+      "sha256": "cf2bf5291bf9cfd3658de6b519c297d3d8989e22c2853567d43a9e0e690574a3",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3947,
       "lines": 145,
-      "sha256": "b9a33b6e16515e60579e661d2cc37d5eafb3cb095d6daea49c45e3f52cb280df",
+      "sha256": "7b0fb7fbb327b7dd093ddc20f8a3c55b3d0b82fc9defaeb9d09a2ba161f1e30a",
       "tier": "normal",
       "sections": [
         {
@@ -12544,17 +12544,17 @@
     },
     {
       "path": "memory/2026-09-13.md",
-      "tokens": 4616,
-      "lines": 110,
-      "sha256": "80992c5e3d6d3dc3a3abe9b05adf28a19029c8419a2520f5af5b25dd5ece1a06",
+      "tokens": 4865,
+      "lines": 116,
+      "sha256": "66539a592c7aaf3f8efb858fe412c3ea15b578db38e4320c3e8e2f06a54e4872",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-13",
           "level": 1,
           "startLine": 1,
-          "endLine": 111,
-          "tokens": 4613,
+          "endLine": 117,
+          "tokens": 4862,
           "summary": "",
           "keywords": []
         },
@@ -12764,6 +12764,20 @@
           "level": 2,
           "startLine": 106,
           "endLine": 111,
+          "tokens": 230,
+          "summary": "前置核实：T-032 已收口（尾批随 263533b 落库）、T-036 计量装置落地（c7ae9a7）、工作区干净 →",
+          "keywords": [
+            "backlog",
+            "c7ae9a7",
+            "对策正式登记",
+            "主理会话"
+          ]
+        },
+        {
+          "anchor": "§R1-R5 对策正式登记 backlog（09:30，主理会话） (2)",
+          "level": 2,
+          "startLine": 112,
+          "endLine": 117,
           "tokens": 230,
           "summary": "前置核实：T-032 已收口（尾批随 263533b 落库）、T-036 计量装置落地（c7ae9a7）、工作区干净 →",
           "keywords": [

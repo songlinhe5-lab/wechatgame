@@ -126,8 +126,8 @@
 - `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md`（7166 tok）
 - `production/epics/epics-breakout.md`（7135 tok）
 - `memory/2026-09-11.md`（5617 tok）
+- `memory/2026-09-13.md`（4865 tok）
 - `games/beads/design/proposals/daily-challenge.md`（4657 tok）
-- `memory/2026-09-13.md`（4616 tok）
 - `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md`（4543 tok）
 - `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md`（4543 tok）
 - `docs/agent/context-instrumentation-survey.md`（4311 tok）
