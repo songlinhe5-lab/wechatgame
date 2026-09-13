@@ -9947,6 +9947,109 @@
       ]
     },
     {
+      "path": "games/breakout/cocos/SETUP-CHECKLIST.md",
+      "tokens": 1343,
+      "lines": 60,
+      "sha256": "45dfbb56a6787d23f67ba3217adfe48d94c1c67ec4a97cbaa682bb8b1d7d0d86",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Breakout Cocos 工程操作单（3.8.8 实机逐击版）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 61,
+          "tokens": 1325,
+          "summary": "2026-09-13 · 主理人整理。UI 文案取自本机插件源码 i18n（~/.CocosCreator/extens",
+          "keywords": [
+            "Breakout",
+            "Cocos",
+            "i18n",
+            "CocosCreator",
+            "extens",
+            "工程操作单"
+          ]
+        },
+        {
+          "anchor": "§0 当前状态与一次性迁移（主理人代做）",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 10,
+          "tokens": 145,
+          "summary": "编辑器当前开的是 games/breakout/cocos/NewProject/（Dashboard 新建时不允许选非",
+          "keywords": [
+            "games",
+            "breakout",
+            "cocos",
+            "NewProject",
+            "Dashboard",
+            "当前状态与一"
+          ]
+        },
+        {
+          "anchor": "§1 阶段 B — 工程设置（编辑器里 5 分钟）",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 32,
+          "tokens": 409,
+          "summary": "打开工程后：",
+          "keywords": [
+            "阶段",
+            "工程设置",
+            "编辑器里",
+            "分钟"
+          ]
+        },
+        {
+          "anchor": "§2 阶段 D — 启动 MCP 服务（1 分钟）",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 41,
+          "tokens": 208,
+          "summary": "1. 菜单 扩展 → 扩展管理器 → 上方切 全局 标签 → 列表里找 cocos-mcp-server（名称显示「Co",
+          "keywords": [
+            "MCP",
+            "cocos",
+            "mcp",
+            "server",
+            "阶段",
+            "启动"
+          ]
+        },
+        {
+          "anchor": "§3 阶段 F — 工具白名单（L1 防线，2 分钟）",
+          "level": 2,
+          "startLine": 42,
+          "endLine": 50,
+          "tokens": 186,
+          "summary": "1. MCP 面板里点 工具管理器（或菜单 扩展 → Cocos MCP Server → 打开工具管理器——i18n：",
+          "keywords": [
+            "MCP",
+            "Cocos",
+            "Server",
+            "i18n",
+            "阶段",
+            "工具白名单"
+          ]
+        },
+        {
+          "anchor": "§4 排错速查",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 61,
+          "tokens": 210,
+          "summary": "扩展管理器看不到插件 确认目录 ~/.CocosCreator/extensions/cocos-mcp-server/",
+          "keywords": [
+            "CocosCreator",
+            "extensions",
+            "cocos",
+            "mcp",
+            "server",
+            "排错速查"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/breakout/design/concept.md",
       "tokens": 3110,
       "lines": 143,
