@@ -48,6 +48,16 @@ pnpm run check:mcp
 
 `check:mcp` 的 **C5** 会拦"存在但未登记"的 MCP 配置——将来新增 `.qoder/mcp.json` / `.workbuddy/mcp.json` 时，**必须**先在 `targets` 登记，否则门禁 FAIL（防止"清单是人写的枚举、漏项静默失效"，`knowledge/lessons.md` K-031）。
 
+## 5. Qoder 接入（WXG-T-046：零新文件方案）
+
+Qoder 官方文档（docs.qoder.com/cli/mcp-reference）明确项目级支持读 **`/.mcp.json`**（要求顶层 `mcpServers` 键，首次使用需 IDE 内批准）——与 CodeBuddy `explicit` 方言的现有产物**字段完全兼容**（stdio 显式 `type:"stdio"`、http `type:"http"` 均为 Qoder 文档支持的写法），故**不新增 target、不新增方言**，复用根 `.mcp.json` 即可。三条路径按优先级：
+
+1. **项目级（零改动）**：Qoder 打开本仓库 → Agent 内发起 MCP 调用 → IDE 弹出项目 `.mcp.json` 批准提示 → 批准后两个 server 生效。
+2. **用户级（已同步）**：`~/.qoder/mcp.json` 已由主理会话写入同语义两 server（与正本 `servers.json` 一致，2026-09-13）——用户级对所有项目生效，无需批准。**注意**：此文件在仓库外，正本仍是 `my-mcp/servers.json`；升级 MCP 包版本时需手动同步此处（`check:plugins` 只管仓库内锚，管不到用户级文件）。
+3. **兜底（UI 添加）**：Qoder 设置 → MCP → My Servers → 粘贴同 JSON。
+
+格式依据：Qoder CLI 参考的 `mcpServers` 字段表（`command`/`args`/`env`/`cwd` + 可选 `type`；http 用 `{"type":"http","url":...}`）。本机实证：`~/.qoder/mcp.json` 原为 `{"mcpServers":{}}` 空壳（IDE 级文件即此路径）。
+
 ## 5. 红线：HTTP 仅回环（C3 机械化）
 
 `control-manifest.md §14` 红线 2「HTTP 仅回环」已由门禁 **C3** 机械执行：`transport:"http"` 的 `url` 主机非 `127.0.0.1` / `localhost` / `::1` 即 FAIL。改端口或改绑定会被拦。

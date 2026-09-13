@@ -10,8 +10,8 @@
 | **Skills（17 个）** | `my-skills/<name>/` | `.codebuddy/skills/` 符号链接 ×17 | `.cursor/skills/` ×17 | `.qoder/skills/` ×17 | `.workbuddy/skills/` ×17 | ✅ 四侧全同（含 wxgame-* 全套 + 外来现役 6 个） |
 | **Agents（7 个）** | `my-agents/*.md`（6 角色含 audio-director + orchestrator） | `.codebuddy/agents/` ×7 | `.cursor/agents/` ×7 | `.qoder/agents/` ×7 | `.workbuddy/agents/` ×7 | ✅ 四侧全同（符号链接） |
 | **Rules（always-on）** | `my-rules/agents-md.md` | `.codebuddy/rules/agents-md` + 根 `AGENTS.md` | `.cursor/rules/agents-md.mdc` | `.qoder/rules/agents-md.md` | `.workbuddy/rules/agents-md` | ✅ 四侧全同（同一正本） |
-| **MCP：weixin-minigame-helper** | `my-mcp/servers.json`（锚 0.1.13） | `.codebuddy/mcp.json` ✅ | `.cursor/mcp.json` ✅ | **无 target** | 经 my-plugins 插件通道 | ✅ 三侧已迁；**Qoder ⏳**（见 §3） |
-| **MCP：cocos-creator** | 同上（http 127.0.0.1:3000） | ✅ | ✅ | **无 target** | 同上 | ✅/⏳ 同行；另需 Cocos 编辑器在线（ADR-0009） |
+| **MCP：weixin-minigame-helper** | `my-mcp/servers.json`（锚 0.1.13） | `.codebuddy/mcp.json` ✅ | `.cursor/mcp.json` ✅ | ✅ 项目级复用根 `.mcp.json`（零新文件，需 IDE 内批准）+ 用户级 `~/.qoder/mcp.json` 已同步 | 经 my-plugins 插件通道 | ✅ 四侧已通（WXG-T-046） |
+| **MCP：cocos-creator** | 同上（http 127.0.0.1:3000） | ✅ | ✅ | ✅ 同上 | 同上 | ✅/⏳ 同行；另需 Cocos 编辑器在线（ADR-0009） |
 | **MCP 配置生成/门禁** | `mcp:build` + `check:mcp`（C1–C5 漏登记拦截） | — | — | — | — | ✅ 已完成（WXG-T-043） |
 | **插件 vendor 治理** | `my-plugins/weixin-minigame-helper/0.1.4` | ❌（注册表/缓存制，走 MCP 同源即可） | ❌ 同 | ❌ 同 | ✅ 宿主插件 | ✅ 按 ADR-0010 C+D′ 定案：能力靠 MCP 同源，vendor 仅留档 |
 | **读埋点 hooks** | `docs/agent/context-instrumentation-survey.md` | ⏳ 需 settings + 用户信任 | ✅ log-only 探针已部署 | ⏳ 配置路径待实测 | ⏳ | 部分完成（计量装置对 Cursor 可测，CodeBuddy/Qoder 待授权） |
@@ -28,7 +28,7 @@
 
 ## 3. 遗留缺口（转入 IDE 开发前建议处理）
 
-1. **⏳ Qoder MCP 未接入**：`my-mcp/servers.json` targets 只有 root/.cursor/.codebuddy 三份——Qoder 的项目级 MCP 配置格式未实证（本机 `~/.qoder/` 未发现既有 mcp 配置样例）。`check:mcp` C5 已兜底：一旦新增 `.qoder/mcp.json` 必须先登记 targets 否则 FAIL。**动作**：查 Qoder 官方文档确认格式 → 加 target + 方言 → `mcp:build`。
+1. **✅ Qoder MCP 已接入（WXG-T-046）**：官方文档实证项目级读根 `/.mcp.json`（与现有 explicit 方言字段兼容）→ **零新文件**；用户级 `~/.qoder/mcp.json` 已同步同语义两 server。注意用户级文件在仓库外，升级 MCP 版本时手动同步（README §5）。首次在 Qoder 使用项目级配置需 IDE 内批准。
 2. **⏳ CodeBuddy/Qoder 读埋点**：需改 settings 并经用户信任（属改配置，须独立任务 + 授权）；不阻塞开发，仅影响计量覆盖面。
 3. **⏳ Cocos Creator 编辑器未装**：`docs/agent/cocos-setup.md`（T-042）是安装引导真源；`cocos-creator` MCP 在编辑器插件启动前不可用——beads/breakout 的 Cocos 侧预览依赖它。
 4. **⚠️ 用户级重复 skill**：`~/.workbuddy/skills/` 存在 skillhub 旧副本（game-material-precheck/numeric-design 等），与 `my-skills/` 正本同名不同源；WorkBuddy 侧项目级链接优先级更高（INDEX §3），但建议择机清理避免误用旧版。
@@ -36,6 +36,6 @@
 
 ## 4. 分工对照速查
 
-- **CodeBuddy/Cursor/Qoder（写代码 + 跑验证）**：17 skills + 7 agents + always-on rules + 2 MCP（Qoder 待接）+ ctx 产物只读 —— 机器可验全绿。
+- **CodeBuddy/Cursor/Qoder（写代码 + 跑验证）**：17 skills + 7 agents + always-on rules + 2 MCP（Qoder 复用根 `.mcp.json` + 用户级同步，WXG-T-046）+ ctx 产物只读 —— 机器可验全绿。
 - **WorkBuddy（调研 + 方案 + 设计 + 文档）**：专家团编排、文档连接器、调研类技能、计量分析 —— 保留不动。
 - **跨 IDE 一致性保证**：`check:links` / `check:mcp` / `check:plugins` 三门禁随 pre-commit + CI 强制，正本单一，产物机器生成。

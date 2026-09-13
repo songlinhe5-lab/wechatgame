@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1488,
       "lines": 76,
-      "sha256": "33737117ef7bd5e52e05a5627761c7e91cb71ca5df9ace92c04e3d0ddb357b47",
+      "sha256": "688ba51d04bd56b859feab0d4efbffaf9df2845331504eac7904ba716728a494",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3780,
       "lines": 94,
-      "sha256": "df11f3928309d44f4bfc79089453e4bbeb879ec44c4e0054540829b1d324b30c",
+      "sha256": "a0f6fcf2cbaddc240a974ca9b27c40e9128f820d98cd6e15db324d8bd89b0330",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 68 行 / 7861 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 69 行 / 7886 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+69 · §待排（backlog，无号，立项时领取）=61+9",
+          "summary": "§WXG 任务台账（SSOT）=1+70 · §待排（backlog，无号，立项时领取）=62+9",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -2069,9 +2069,9 @@
     },
     {
       "path": "docs/agent/ide-capability-matrix.md",
-      "tokens": 1607,
+      "tokens": 1643,
       "lines": 41,
-      "sha256": "522e375020d6d8447002e163d4ffb9d37b3852a1c8c275d86f58776f83d93a1e",
+      "sha256": "73870a5ea87e4e2d298554fded0b96415e6e5db0702fdba4b9a41dc6d75405cf",
       "tier": "normal",
       "sections": [
         {
@@ -2079,7 +2079,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 42,
-          "tokens": 1588,
+          "tokens": 1624,
           "summary": "来源：主理人盘点（2026-09-13，WXG-T-045）。结论先行的分工：开发在 CodeBuddy / Curso",
           "keywords": [
             "IDE",
@@ -2095,7 +2095,7 @@
           "level": 2,
           "startLine": 6,
           "endLine": 19,
-          "tokens": 553,
+          "tokens": 579,
           "summary": "Skills（17 个） my-skills/<name>/ .codebuddy/skills/ 符号链接 ×17 .",
           "keywords": [
             "WorkBuddy",
@@ -2127,14 +2127,14 @@
           "level": 2,
           "startLine": 29,
           "endLine": 36,
-          "tokens": 378,
-          "summary": "1. ⏳ Qoder MCP 未接入：my-mcp/servers.json targets 只有 root/.curs",
+          "tokens": 375,
+          "summary": "1. ✅ Qoder MCP 已接入（WXG-T-046）：官方文档实证项目级读根 /.mcp.json（与现有 exp",
           "keywords": [
             "IDE",
             "Qoder",
             "MCP",
+            "WXG",
             "mcp",
-            "servers",
             "json"
           ]
         },
@@ -2143,7 +2143,7 @@
           "level": 2,
           "startLine": 37,
           "endLine": 42,
-          "tokens": 139,
+          "tokens": 152,
           "summary": "CodeBuddy/Cursor/Qoder（写代码 + 跑验证）：17 skills + 7 agents + alw",
           "keywords": [
             "CodeBuddy",
@@ -14456,17 +14456,17 @@
     },
     {
       "path": "my-mcp/README.md",
-      "tokens": 1196,
-      "lines": 59,
-      "sha256": "4475e400e77d9abd315642f1fd79f05307ec24fb6426fa1b749b13365b1cb3f3",
+      "tokens": 1610,
+      "lines": 69,
+      "sha256": "f3dcf42306bb791917e669af75a185ef160ea525bd7b3d2a2bf8959f775b51c0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§my-mcp — MCP 服务器配置的单一正本（WXG-T-043）",
           "level": 1,
           "startLine": 1,
-          "endLine": 60,
-          "tokens": 1177,
+          "endLine": 70,
+          "tokens": 1591,
           "summary": "改 MCP 服务器，只改这里：my-mcp/servers.json → pnpm run mcp:build → 提交",
           "keywords": [
             "mcp",
@@ -14539,10 +14539,26 @@
           ]
         },
         {
-          "anchor": "§5 红线：HTTP 仅回环（C3 机械化）",
+          "anchor": "§5 Qoder 接入（WXG-T-046：零新文件方案）",
           "level": 2,
           "startLine": 51,
-          "endLine": 54,
+          "endLine": 60,
+          "tokens": 398,
+          "summary": "Qoder 官方文档（docs.qoder.com/cli/mcp-reference）明确项目级支持读 /.mcp.j",
+          "keywords": [
+            "Qoder",
+            "WXG",
+            "docs",
+            "qoder",
+            "com",
+            "cli"
+          ]
+        },
+        {
+          "anchor": "§5 红线：HTTP 仅回环（C3 机械化）",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 64,
           "tokens": 61,
           "summary": "control-manifest.md §14 红线 2「HTTP 仅回环」已由门禁 C3 机械执行：transport",
           "keywords": [
@@ -14557,8 +14573,8 @@
         {
           "anchor": "§6 本次已知未验证项（诚实记录）",
           "level": 2,
-          "startLine": 55,
-          "endLine": 60,
+          "startLine": 65,
+          "endLine": 70,
           "tokens": 157,
           "summary": "1. Cursor 侧 type 写法未经真机实测：本文档依据 Cursor 官方 MCP 文档的字段说明（stdio ",
           "keywords": [
@@ -22260,17 +22276,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 7861,
-      "lines": 68,
-      "sha256": "bede492d0e9fb62c1b377f79dfa9f30d06dba3bb8946aa50a0a7b0df1d29aff2",
+      "tokens": 7886,
+      "lines": 69,
+      "sha256": "cc65a799e922f3d142bb5f89bd7d4c3fafd2b3e831bb55f78b5b2961c2c03617",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 69,
-          "tokens": 7853,
+          "endLine": 70,
+          "tokens": 7878,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -22284,8 +22300,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 61,
-          "endLine": 69,
+          "startLine": 62,
+          "endLine": 70,
           "tokens": 476,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [
