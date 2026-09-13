@@ -4,23 +4,22 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "tokens": 3199,
-      "lines": 200,
-      "sha256": "c908702cfc037d0466712e7fd529689b239d2816a47923bc57446e5f3a53a758",
+      "tokens": 1699,
+      "lines": 120,
+      "sha256": "c427fae0c00968df02dcece8d35ed8cf94511158657ec48378a683cc06298092",
       "tier": "always",
       "sections": [
         {
           "anchor": "§AGENTS.md — wechatgame 项目级 Agent 指引",
           "level": 1,
           "startLine": 1,
-          "endLine": 201,
-          "tokens": 3185,
-          "summary": "本文件是项目常驻记忆层：新开对话应先读这里，再按需加载 skill / 深文档。",
+          "endLine": 121,
+          "tokens": 1685,
+          "summary": "本文件是项目常驻记忆层：新开对话先读这里。",
           "keywords": [
             "AGENTS",
             "wechatgame",
             "Agent",
-            "skill",
             "项目级",
             "指引"
           ]
@@ -28,8 +27,8 @@
         {
           "anchor": "§IDE 常驻指针（alwaysApply）",
           "level": 2,
-          "startLine": 7,
-          "endLine": 17,
+          "startLine": 6,
+          "endLine": 16,
           "tokens": 141,
           "summary": "提示词正文正本：my-rules/agents-md.md（并集 frontmatter）。各 IDE 路径为相对符号链",
           "keywords": [
@@ -44,8 +43,8 @@
         {
           "anchor": "§长期笔记 MEMORY（四 IDE 可索引）",
           "level": 2,
-          "startLine": 18,
-          "endLine": 29,
+          "startLine": 17,
+          "endLine": 28,
           "tokens": 90,
           "summary": "正本 memory/MEMORY.md（日记：memory/YYYY-MM-DD.md）",
           "keywords": [
@@ -60,8 +59,8 @@
         {
           "anchor": "§1 项目是什么",
           "level": 2,
-          "startLine": 30,
-          "endLine": 38,
+          "startLine": 29,
+          "endLine": 37,
           "tokens": 167,
           "summary": "pnpm monorepo：共用框架 packages/framework + 每款游戏 games/<game>/（首",
           "keywords": [
@@ -74,24 +73,25 @@
           ]
         },
         {
-          "anchor": "§2 默认怎么干活",
+          "anchor": "§2 默认怎么干活（路由表）",
           "level": 2,
-          "startLine": 39,
-          "endLine": 76,
-          "tokens": 639,
-          "summary": "全流程 / 跨域 / 阶段诊断 / 质量门裁决 wxgame-orchestration（先读 my-skills/wx",
+          "startLine": 38,
+          "endLine": 58,
+          "tokens": 351,
+          "summary": "全流程 / 跨域 / 质量门裁决 wxgame-orchestration（先读其 SKILL.md）",
           "keywords": [
             "wxgame",
             "orchestration",
-            "skills",
-            "默认怎么干活"
+            "SKILL",
+            "默认怎么干活",
+            "路由表"
           ]
         },
         {
           "anchor": "§3 不可违反的工程铁律",
           "level": 2,
-          "startLine": 77,
-          "endLine": 96,
+          "startLine": 59,
+          "endLine": 78,
           "tokens": 267,
           "summary": "完整表与评审清单：docs/architecture/（control-manifest.md、architecture",
           "keywords": [
@@ -106,8 +106,8 @@
         {
           "anchor": "§4 冲突裁决与数值真源",
           "level": 2,
-          "startLine": 97,
-          "endLine": 107,
+          "startLine": 79,
+          "endLine": 89,
           "tokens": 128,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 = 数值唯一真源",
           "keywords": [
@@ -122,35 +122,40 @@
         {
           "anchor": "§5 目录与产物落位",
           "level": 2,
-          "startLine": 108,
-          "endLine": 134,
-          "tokens": 281,
-          "summary": "",
+          "startLine": 90,
+          "endLine": 93,
+          "tokens": 21,
+          "summary": "→ docs/agent/repo-layout.md（原 §5 逐字迁出，WXG-T-032）。",
           "keywords": [
-            "目录与产物落"
+            "§5",
+            "docs",
+            "agent",
+            "repo",
+            "layout",
+            "WXG"
           ]
         },
         {
           "anchor": "§6 验证与常用命令",
           "level": 2,
-          "startLine": 135,
-          "endLine": 150,
-          "tokens": 193,
-          "summary": "pnpm run verify 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck ",
+          "startLine": 94,
+          "endLine": 99,
+          "tokens": 21,
+          "summary": "→ docs/agent/commands.md（原 §6 逐字迁出，WXG-T-032）。",
           "keywords": [
-            "pnpm",
-            "run",
-            "verify",
-            "IDE",
-            "check",
-            "typecheck"
+            "§6",
+            "docs",
+            "agent",
+            "commands",
+            "WXG",
+            "验证与常用命"
           ]
         },
         {
           "anchor": "§7 协作纪律",
           "level": 2,
-          "startLine": 151,
-          "endLine": 160,
+          "startLine": 100,
+          "endLine": 109,
           "tokens": 172,
           "summary": "先问再写：创建/大改文件前先确认路径与范围（编排铁律同此）。",
           "keywords": [
@@ -158,51 +163,53 @@
           ]
         },
         {
-          "anchor": "§8 分层阅读指引（避免一次灌进全文）",
+          "anchor": "§8 分层阅读指引（已精简）",
           "level": 2,
-          "startLine": 161,
-          "endLine": 180,
-          "tokens": 288,
-          "summary": "找\"该读哪个文件的哪一节\" ctx/ROUTES.md（章节级锚点路由表，先读它再分段读）",
+          "startLine": 110,
+          "endLine": 115,
+          "tokens": 38,
+          "summary": "分节阅读路由见 ctx/ROUTES.md（机器可读锚点）；细节见 docs/agent/{repo-layout,co",
           "keywords": [
             "ctx",
             "ROUTES",
-            "分层阅读指引",
-            "避免一次灌进",
-            "全文"
+            "docs",
+            "agent",
+            "repo",
+            "layout"
           ]
         },
         {
-          "anchor": "§9 知识库与调用透明（WXG-T-023）",
+          "anchor": "§9 知识库与调用透明（WXG-T-023 摘要）",
           "level": 2,
-          "startLine": 181,
-          "endLine": 201,
-          "tokens": 624,
-          "summary": "知识库读写协议（knowledge/，正本 knowledge/INDEX.md）：",
+          "startLine": 116,
+          "endLine": 121,
+          "tokens": 117,
+          "summary": "读：实现/修复/接入/发布类任务开工前，先读 knowledge/lessons.md 同域条目，列入必读。",
           "keywords": [
             "WXG",
             "knowledge",
-            "INDEX",
+            "lessons",
             "知识库与调用",
-            "透明"
+            "透明",
+            "摘要"
           ]
         }
       ]
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1262,
-      "lines": 70,
-      "sha256": "f8735af49c47e1bd9d204da4fda1c7d26c1ba0708a977b019adfaee205b348de",
+      "tokens": 1310,
+      "lines": 72,
+      "sha256": "8d1a167b1d0935ea309a57e9876433b8ee866a1e5ac16043f87192fcab7bfc9d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 71,
-          "tokens": 1249,
-          "summary": "生成：2026-09-12 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "endLine": 73,
+          "tokens": 1297,
+          "summary": "生成：2026-09-13 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -218,7 +225,7 @@
           "startLine": 7,
           "endLine": 16,
           "tokens": 123,
-          "summary": "AGENTS.md 3199 200 3200 ✅",
+          "summary": "AGENTS.md 1699 120 2000 ✅",
           "keywords": [
             "always",
             "AGENTS",
@@ -230,35 +237,38 @@
           "level": 2,
           "startLine": 17,
           "endLine": 41,
-          "tokens": 350,
-          "summary": "1 production/epics/epics-breakout.md 7135 316 normal",
+          "tokens": 363,
+          "summary": "1 memory/2026-09-12.md 10141 151 normal",
           "keywords": [
             "Top",
             "tokens",
-            "production",
-            "epics",
-            "breakout",
-            "normal"
+            "memory",
+            "normal",
+            "大文件",
+            "估算"
           ]
         },
         {
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 42,
-          "endLine": 45,
-          "tokens": 7,
-          "summary": "无超限文件。",
+          "endLine": 47,
+          "tokens": 43,
+          "summary": "memory/2026-09-12.md 10141 见 ctx/budget-exempt.json（无豁免则 ❌ 需",
           "keywords": [
             "tokens",
-            "超限清单",
-            "单文件上限"
+            "memory",
+            "ctx",
+            "budget",
+            "exempt",
+            "json"
           ]
         },
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 46,
-          "endLine": 71,
+          "startLine": 48,
+          "endLine": 73,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -274,17 +284,17 @@
     },
     {
       "path": "ctx/ROUTES.md",
-      "tokens": 4420,
-      "lines": 172,
-      "sha256": "fd735b2d11bee98652232807e5d26f626d0b4f44b451376455a790093961077f",
+      "tokens": 4857,
+      "lines": 183,
+      "sha256": "b8e4ada45ee26efe6da99ac227f1f4da5e72a69990cbd348298a337ec36bfa38",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文路由表（ctx/ROUTES.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 173,
-          "tokens": 4408,
+          "endLine": 184,
+          "tokens": 4845,
           "summary": "给 agent 的第一跳：开工前先读本表，命中锚点后用 read_file(path, offset, limit) 只",
           "keywords": [
             "ctx",
@@ -299,8 +309,8 @@
           "anchor": "§量化与自证（本表的效果由「分层上下文节省装置」实测，WXG-T-026）",
           "level": 3,
           "startLine": 11,
-          "endLine": 39,
-          "tokens": 1065,
+          "endLine": 45,
+          "tokens": 1266,
           "summary": "① 估算口径：本表与装置涉及的 token 一律为估算（CJK≈1/字、ASCII≈1/4 字符，",
           "keywords": [
             "WXG",
@@ -314,8 +324,8 @@
         {
           "anchor": "§0 上下文读取协议（强制）",
           "level": 2,
-          "startLine": 40,
-          "endLine": 53,
+          "startLine": 46,
+          "endLine": 59,
           "tokens": 267,
           "summary": "1. 读本表 → 命中精确锚点（文件 + 小节标题）。",
           "keywords": [
@@ -326,34 +336,35 @@
         {
           "anchor": "§1 路由表",
           "level": 2,
-          "startLine": 54,
-          "endLine": 166,
-          "tokens": 2685,
+          "startLine": 60,
+          "endLine": 177,
+          "tokens": 2921,
           "summary": "",
           "keywords": [
             "路由表"
           ]
         },
         {
-          "anchor": "§1.1 项目入口与铁律（承自 AGENTS.md §8）",
+          "anchor": "§1.1 项目入口与铁律（AGENTS.md 骨架 + docs/agent/ 迁出文件，WXG-T-032）",
           "level": 3,
-          "startLine": 56,
-          "endLine": 67,
-          "tokens": 220,
-          "summary": "项目是什么 / 平台与引擎策略 AGENTS.md#§1 项目是什么 167",
+          "startLine": 62,
+          "endLine": 78,
+          "tokens": 446,
+          "summary": "项目是什么 / 平台与引擎策略 AGENTS.md#§1 项目是什么 173",
           "keywords": [
-            "§8",
             "§1",
             "AGENTS",
-            "项目入口与铁",
-            "承自"
+            "docs",
+            "agent",
+            "WXG",
+            "项目入口与铁"
           ]
         },
         {
           "anchor": "§1.2 冻结数值（hot · games/beads/design/gdd/systems-index.md）",
           "level": 3,
-          "startLine": 68,
-          "endLine": 88,
+          "startLine": 79,
+          "endLine": 99,
           "tokens": 573,
           "summary": "整个 §3 冻结令 games/beads/design/gdd/systems-index.md#§3 全局数值基线（",
           "keywords": [
@@ -368,8 +379,8 @@
         {
           "anchor": "§1.3 架构（hot）",
           "level": 3,
-          "startLine": 89,
-          "endLine": 106,
+          "startLine": 100,
+          "endLine": 117,
           "tokens": 443,
           "summary": "分层与依赖方向 docs/architecture/architecture.md#§2 分层与依赖方向 1074 主架",
           "keywords": [
@@ -383,8 +394,8 @@
         {
           "anchor": "§1.4 工程细则（hot · docs/architecture/control-manifest.md）",
           "level": 3,
-          "startLine": 107,
-          "endLine": 123,
+          "startLine": 118,
+          "endLine": 134,
           "tokens": 369,
           "summary": "五条铁律 L1–L5（完整） docs/architecture/control-manifest.md#§0 五条铁律",
           "keywords": [
@@ -399,8 +410,8 @@
         {
           "anchor": "§1.5 QA 判据（hot · production/qa/beads/test-cases.md）",
           "level": 3,
-          "startLine": 124,
-          "endLine": 135,
+          "startLine": 135,
+          "endLine": 146,
           "tokens": 316,
           "summary": "硬判据总表（50 条） production/qa/beads/test-cases.md#§A 硬判据用例（50 条 ",
           "keywords": [
@@ -415,8 +426,8 @@
         {
           "anchor": "§1.6 任务台账与长期记忆（hot）",
           "level": 3,
-          "startLine": 136,
-          "endLine": 146,
+          "startLine": 147,
+          "endLine": 157,
           "tokens": 144,
           "summary": "领号 / 任务台账 production/TASKS.md#§WXG 任务台账（SSOT） 1439 开工先领号",
           "keywords": [
@@ -431,10 +442,10 @@
         {
           "anchor": "§1.7 Skill / Agent / 知识库 / 门禁",
           "level": 3,
-          "startLine": 147,
-          "endLine": 166,
+          "startLine": 158,
+          "endLine": 177,
           "tokens": 515,
-          "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 13 个挂四 IDE 链接；存档 ",
+          "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 17 个挂四 IDE 链接；存档 ",
           "keywords": [
             "§1",
             "Skill",
@@ -447,8 +458,8 @@
         {
           "anchor": "§2 维护",
           "level": 2,
-          "startLine": 167,
-          "endLine": 173,
+          "startLine": 178,
+          "endLine": 184,
           "tokens": 104,
           "summary": "本表锚点须与 ctx/index.json 的 anchor 一致；改任一被索引 .md 的标题后，重跑 pnpm ru",
           "keywords": [
@@ -675,6 +686,47 @@
             "html",
             "importmap",
             "目录约定"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/commands.md",
+      "tokens": 298,
+      "lines": 18,
+      "sha256": "940fe5669de1c7576589a3b35a6efc4b63368a5d90a2eae088b82e2685b806f7",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§验证与常用命令（docs/agent/commands.md）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 19,
+          "tokens": 283,
+          "summary": "来源：自 AGENTS.md §6「验证与常用命令」逐字迁出 · 日期 2026-09-13 · Task ID WXG",
+          "keywords": [
+            "§6",
+            "docs",
+            "agent",
+            "commands",
+            "AGENTS",
+            "Task"
+          ]
+        },
+        {
+          "anchor": "§验证与常用命令",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 19,
+          "tokens": 191,
+          "summary": "pnpm run verify 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck ",
+          "keywords": [
+            "pnpm",
+            "run",
+            "verify",
+            "IDE",
+            "check",
+            "typecheck"
           ]
         }
       ]
@@ -1121,17 +1173,17 @@
     },
     {
       "path": "docs/agent/hooks-best-practices.md",
-      "tokens": 1260,
-      "lines": 92,
-      "sha256": "a6f43dd7318c8cc65f00a56111f1306dcb1beb0a492ef9749a4f61c45c06cc27",
+      "tokens": 1581,
+      "lines": 100,
+      "sha256": "f8908f5117614b99ea1efaec864cdb8321e16aa090ae3631a82896061eadc731",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践",
           "level": 1,
           "startLine": 1,
-          "endLine": 93,
-          "tokens": 1245,
+          "endLine": 101,
+          "tokens": 1566,
           "summary": "本仓约定：Hooks 加固 AGENTS.md / L1–L5，不替代编排与 SubAgent。",
           "keywords": [
             "Cursor",
@@ -1146,8 +1198,8 @@
           "anchor": "§1 分层：谁拦什么",
           "level": 2,
           "startLine": 6,
-          "endLine": 15,
-          "tokens": 186,
+          "endLine": 23,
+          "tokens": 507,
           "summary": "Git pre-commit .githooks/pre-commit 任意 IDE / 终端的 git commit ",
           "keywords": [
             "Git",
@@ -1161,8 +1213,8 @@
         {
           "anchor": "§2 启用 Git hooks（每人 / 每 clone 一次）",
           "level": 2,
-          "startLine": 16,
-          "endLine": 36,
+          "startLine": 24,
+          "endLine": 44,
           "tokens": 121,
           "summary": "仓库已提交 .githooks/。本地必须把 hooks 路径指过去：",
           "keywords": [
@@ -1177,8 +1229,8 @@
         {
           "anchor": "§3 `check:links` 查什么",
           "level": 2,
-          "startLine": 37,
-          "endLine": 52,
+          "startLine": 45,
+          "endLine": 60,
           "tokens": 300,
           "summary": "脚本：tools/scripts/check-ide-links.mjs（清单由扫描得出，勿在脚本内硬编码成员名）",
           "keywords": [
@@ -1193,8 +1245,8 @@
         {
           "anchor": "§4 Cursor Hooks 实践清单",
           "level": 2,
-          "startLine": 53,
-          "endLine": 71,
+          "startLine": 61,
+          "endLine": 79,
           "tokens": 357,
           "summary": "1. 项目级优先：政策进 .cursor/hooks.json（可进云 Agent）；个人实验放 ~/.cursor/。",
           "keywords": [
@@ -1209,8 +1261,8 @@
         {
           "anchor": "§本仓已启用",
           "level": 3,
-          "startLine": 63,
-          "endLine": 71,
+          "startLine": 71,
+          "endLine": 79,
           "tokens": 123,
           "summary": "beforeShellExecution .cursor/hooks/before-shell.mjs git comm",
           "keywords": [
@@ -1225,8 +1277,8 @@
         {
           "anchor": "§5 与 `verify` 的关系",
           "level": 2,
-          "startLine": 72,
-          "endLine": 79,
+          "startLine": 80,
+          "endLine": 87,
           "tokens": 68,
           "summary": "pnpm run check:links 每次 commit（快）",
           "keywords": [
@@ -1241,12 +1293,145 @@
         {
           "anchor": "§6 失败怎么修",
           "level": 2,
-          "startLine": 80,
-          "endLine": 93,
+          "startLine": 88,
+          "endLine": 101,
           "tokens": 113,
           "summary": "",
           "keywords": [
             "失败怎么修"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/repo-layout.md",
+      "tokens": 390,
+      "lines": 29,
+      "sha256": "f694d438c468e677de0a73ab3d2dafa25c59f084dbdb67bc0febb274176b40b7",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§仓库目录与产物落位（docs/agent/repo-layout.md）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 30,
+          "tokens": 372,
+          "summary": "来源：自 AGENTS.md §5「目录与产物落位」逐字迁出 · 日期 2026-09-13 · Task ID WXG",
+          "keywords": [
+            "§5",
+            "docs",
+            "agent",
+            "repo",
+            "layout",
+            "AGENTS"
+          ]
+        },
+        {
+          "anchor": "§目录与产物落位",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 30,
+          "tokens": 280,
+          "summary": "",
+          "keywords": [
+            "目录与产物落"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/routing.md",
+      "tokens": 547,
+      "lines": 37,
+      "sha256": "dad1987ddace5ef61ed8e68558dcc0f5e2a183690395a0a03edac0190bf93715",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§默认路由细节（docs/agent/routing.md）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 38,
+          "tokens": 533,
+          "summary": "来源：自 AGENTS.md §2「默认怎么干活」迁出的细节部分（skill 优先级、四 IDE 路径、新增 skill",
+          "keywords": [
+            "§2",
+            "docs",
+            "agent",
+            "routing",
+            "AGENTS",
+            "skill"
+          ]
+        },
+        {
+          "anchor": "§Hooks / 提交门禁 / Headless 指针",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 11,
+          "tokens": 56,
+          "summary": "Hooks / 提交门禁：docs/agent/hooks-best-practices.md（自原 §8 分层阅读指引",
+          "keywords": [
+            "§8",
+            "Hooks",
+            "Headless",
+            "docs",
+            "agent",
+            "hooks"
+          ]
+        },
+        {
+          "anchor": "§Skill 优先级（冲突时高者胜）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 17,
+          "tokens": 26,
+          "summary": "",
+          "keywords": [
+            "Skill",
+            "优先级",
+            "冲突时高者胜"
+          ]
+        },
+        {
+          "anchor": "§Skill 正本与四 IDE 链接",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 25,
+          "tokens": 80,
+          "summary": "Skill 正本：my-skills/<name>/。四处 IDE 链接（相对符号链接，随仓库提交）：",
+          "keywords": [
+            "Skill",
+            "IDE",
+            "skills",
+            "name",
+            "正本与四",
+            "链接"
+          ]
+        },
+        {
+          "anchor": "§SubAgent 四 IDE 路径",
+          "level": 2,
+          "startLine": 26,
+          "endLine": 30,
+          "tokens": 71,
+          "summary": "工作室成员委派：正本 my-agents/（6 成员 + studio-orchestrator）；委派时 subage",
+          "keywords": [
+            "SubAgent",
+            "IDE",
+            "agents",
+            "studio",
+            "orchestrator",
+            "subage"
+          ]
+        },
+        {
+          "anchor": "§跨域先交编排",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 38,
+          "tokens": 119,
+          "summary": "跨域或「整款游戏从哪开始」→ 先交编排，不要自己跳着写全套文档。",
+          "keywords": [
+            "跨域先交编排"
           ]
         }
       ]
@@ -2576,6 +2761,406 @@
             "Review",
             "Triggers",
             "复评触发条件"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md",
+      "tokens": 7166,
+      "lines": 212,
+      "sha256": "40879d05dc4dc223a9d7728c921a2642718fc61e19fd7ed0990b062fc876620a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0010 — weixin-minigame-helper 插件集成（四 IDE 能力同源与共享正本形态）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 213,
+          "tokens": 7137,
+          "summary": "状态：提议（Proposed，待用户批准）",
+          "keywords": [
+            "ADR",
+            "weixin",
+            "minigame",
+            "helper",
+            "IDE",
+            "Proposed"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）——为什么现在要做这个决策，约束是什么",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 65,
+          "tokens": 2086,
+          "summary": "",
+          "keywords": [
+            "Context",
+            "上下文",
+            "为什么现在要",
+            "做这个决策",
+            "约束是什么"
+          ]
+        },
+        {
+          "anchor": "§1.1 需求与用户问题",
+          "level": 3,
+          "startLine": 14,
+          "endLine": 19,
+          "tokens": 175,
+          "summary": "腾讯官方 CodeBuddy 插件 weixin-minigame-helper（v0.1.4，MIT，源 git.wo",
+          "keywords": [
+            "CodeBuddy",
+            "weixin",
+            "minigame",
+            "helper",
+            "MIT",
+            "git"
+          ]
+        },
+        {
+          "anchor": "§1.2 仓库现状（事实）",
+          "level": 3,
+          "startLine": 20,
+          "endLine": 27,
+          "tokens": 472,
+          "summary": "既有共享正本体系：my-skills/、my-agents/、my-rules/ 为正本，.cursor / .code",
+          "keywords": [
+            "skills",
+            "agents",
+            "rules",
+            "cursor",
+            "code",
+            "仓库现状"
+          ]
+        },
+        {
+          "anchor": "§1.3 插件本体构成（8 文件解剖）",
+          "level": 3,
+          "startLine": 28,
+          "endLine": 39,
+          "tokens": 269,
+          "summary": ".codebuddy-plugin/plugin.json 声明 skills/agents/commands/hook",
+          "keywords": [
+            "codebuddy",
+            "plugin",
+            "json",
+            "skills",
+            "agents",
+            "commands"
+          ]
+        },
+        {
+          "anchor": "§1.4 事实勘误（对任务简报的一处修正）",
+          "level": 3,
+          "startLine": 40,
+          "endLine": 43,
+          "tokens": 93,
+          "summary": "任务简报提到验证 \"Cursor / Qoder / Windsurf\" 的 MCP 配置。本仓库四 IDE 体系是 C",
+          "keywords": [
+            "Cursor",
+            "Qoder",
+            "Windsurf",
+            "MCP",
+            "IDE",
+            "事实勘误"
+          ]
+        },
+        {
+          "anchor": "§1.5 验证记录（关键可行性，逐条带证据）",
+          "level": 3,
+          "startLine": 44,
+          "endLine": 56,
+          "tokens": 862,
+          "summary": "V1 MCP 公网包是否存在、是否活跃 存在，MIT，latest 0.1.13（2026-04-23 发布，持续更新中",
+          "keywords": [
+            "MCP",
+            "MIT",
+            "latest",
+            "验证记录",
+            "关键可行性",
+            "逐条带证据"
+          ]
+        },
+        {
+          "anchor": "§1.6 约束",
+          "level": 3,
+          "startLine": 57,
+          "endLine": 65,
+          "tokens": 140,
+          "summary": "不自研 MCP server（用户倾向 + 造价评估见方案 B）。",
+          "keywords": [
+            "MCP",
+            "server",
+            "约束"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 117,
+          "tokens": 1586,
+          "summary": "版本号为 2026-09-13 核实值。对比围绕四个裁决点展开：①同名冲突消解；②版本漂移治理；③四 IDE 能力同源；",
+          "keywords": [
+            "Alternatives",
+            "IDE",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§方案 A：纯 CodeBuddy 插件集成（my-skills 副本摘除）",
+          "level": 3,
+          "startLine": 70,
+          "endLine": 78,
+          "tokens": 202,
+          "summary": "做法：依赖宿主用户级安装的插件（本机已启用），删除 my-skills/weixin-minigame-helper/。",
+          "keywords": [
+            "CodeBuddy",
+            "skills",
+            "weixin",
+            "minigame",
+            "helper",
+            "方案"
+          ]
+        },
+        {
+          "anchor": "§方案 B：全拆分自研 MCP server",
+          "level": 3,
+          "startLine": 79,
+          "endLine": 85,
+          "tokens": 232,
+          "summary": "做法：不用官方包，自研等价 MCP（预览 dev server + miniprogram-ci 上传 + 截图 + 日",
+          "keywords": [
+            "MCP",
+            "server",
+            "dev",
+            "miniprogram",
+            "方案",
+            "全拆分自研"
+          ]
+        },
+        {
+          "anchor": "§方案 C：混合——官方 MCP 包 + my-skills 副本改造为仓库适配层 skill",
+          "level": 3,
+          "startLine": 86,
+          "endLine": 95,
+          "tokens": 318,
+          "summary": "做法：",
+          "keywords": [
+            "MCP",
+            "skills",
+            "skill",
+            "方案",
+            "混合",
+            "官方"
+          ]
+        },
+        {
+          "anchor": "§方案 D：用户原案——`my-plugins/` 公共正本 + 四 IDE 符号链接引用",
+          "level": 3,
+          "startLine": 96,
+          "endLine": 104,
+          "tokens": 489,
+          "summary": "可行性如实评估：按字面不可行（V7）。四家 IDE 的插件加载均为注册表/缓存制，符号链接无法让任一家把仓库目录当作插件",
+          "keywords": [
+            "my-plugins/",
+            "plugins",
+            "IDE",
+            "方案",
+            "用户原案",
+            "公共正本"
+          ]
+        },
+        {
+          "anchor": "§对比总表",
+          "level": 3,
+          "startLine": 105,
+          "endLine": 117,
+          "tokens": 200,
+          "summary": "四 IDE 能力同源 ❌ 两家裸奔 ✅ ✅ ✅（但加载机制不存在） ✅（借 C 的接线）",
+          "keywords": [
+            "IDE",
+            "对比总表"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 118,
+          "endLine": 133,
+          "tokens": 564,
+          "summary": "",
+          "keywords": [
+            "Decision",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§3.1 一句话",
+          "level": 3,
+          "startLine": 120,
+          "endLine": 123,
+          "tokens": 157,
+          "summary": "采用方案 C，叠加 D' 最小形态：能力层以官方 @weadmin/weixin-minigame-helper-mcp",
+          "keywords": [
+            "weadmin",
+            "weixin",
+            "minigame",
+            "helper",
+            "mcp",
+            "一句话"
+          ]
+        },
+        {
+          "anchor": "§3.2 要点",
+          "level": 3,
+          "startLine": 124,
+          "endLine": 133,
+          "tokens": 397,
+          "summary": "1. 不自研 MCP（裁决点④）：方案 B 的造价/收益比在闭环价值验证前不成立，理由留档于 §2-B；复评触发见 §5",
+          "keywords": [
+            "§2",
+            "§5",
+            "MCP",
+            "要点"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 134,
+          "endLine": 164,
+          "tokens": 1137,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 136,
+          "endLine": 144,
+          "tokens": 218,
+          "summary": "Cursor / Qoder 从零能力变为与 CodeBuddy 同源的微信小游戏预览/日志/截图/真机/上传工具面，两",
+          "keywords": [
+            "Cursor",
+            "Qoder",
+            "CodeBuddy",
+            "正面"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面（已知成本，不是风险——白纸黑字）",
+          "level": 3,
+          "startLine": 145,
+          "endLine": 154,
+          "tokens": 625,
+          "summary": "1. 依赖公网 npm 包（供应链暴露）：能力主通道锚定在 @weadmin/weixin-minigame-helpe",
+          "keywords": [
+            "npm",
+            "weadmin",
+            "weixin",
+            "minigame",
+            "helpe",
+            "负面"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 155,
+          "endLine": 164,
+          "tokens": 262,
+          "summary": "知识缺口：WorkBuddy 项目级 MCP/插件机制——未找到文档，也未在 settings schema 中观察到；",
+          "keywords": [
+            "WorkBuddy",
+            "MCP",
+            "settings",
+            "schema",
+            "中性",
+            "待观察"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 165,
+          "endLine": 175,
+          "tokens": 332,
+          "summary": "1. 上游包断维护或行为劣化（≥6 个月无更新 / 某锚定版本出现破坏性 bug 且无新版）→ 复评方案 B（自研接管）",
+          "keywords": [
+            "Review",
+            "Triggers",
+            "bug",
+            "复评触发条件"
+          ]
+        },
+        {
+          "anchor": "§6 控制清单条目草案（供合入 control-manifest.md，不直接修改）",
+          "level": 2,
+          "startLine": 176,
+          "endLine": 203,
+          "tokens": 846,
+          "summary": "建议新增 §15，并在 §13 反模式速查表追加两行。",
+          "keywords": [
+            "§15",
+            "§13",
+            "control",
+            "manifest",
+            "控制清单条目",
+            "草案"
+          ]
+        },
+        {
+          "anchor": "§15 微信小游戏 MCP 接入（ADR-0010）",
+          "level": 3,
+          "startLine": 180,
+          "endLine": 193,
+          "tokens": 693,
+          "summary": "✅ MCP 包版本必须锚定：根 .mcp.json 与 .cursor/mcp.json 中 @weadmin/weix",
+          "keywords": [
+            "§15",
+            "MCP",
+            "ADR",
+            "mcp",
+            "json",
+            "cursor"
+          ]
+        },
+        {
+          "anchor": "§13 反模式速查追加",
+          "level": 3,
+          "startLine": 194,
+          "endLine": 203,
+          "tokens": 107,
+          "summary": "MCP 配置里写 @weadmin/...-mcp@latest 版本锚定（如 @0.1.13），升级走显式提交",
+          "keywords": [
+            "§13",
+            "MCP",
+            "weadmin",
+            "mcp",
+            "latest",
+            "反模式速查追"
+          ]
+        },
+        {
+          "anchor": "§7 实施清单概览（供下轮派工，本 ADR 不实施）",
+          "level": 2,
+          "startLine": 204,
+          "endLine": 213,
+          "tokens": 297,
+          "summary": "1. my-skills/weixin-minigame-helper → 改名 wxgame-minigame-bri",
+          "keywords": [
+            "ADR",
+            "skills",
+            "weixin",
+            "minigame",
+            "helper",
+            "wxgame"
           ]
         }
       ]
@@ -5113,18 +5698,18 @@
     },
     {
       "path": "games/beads/design/gdd/pause-settings.md",
-      "tokens": 2456,
-      "lines": 102,
-      "sha256": "ae22955af0289419527a6e7998629e63ddae66f1b732a4e5ddecebba72b6d6e2",
+      "tokens": 3807,
+      "lines": 119,
+      "sha256": "2892fd2b55fdf453009eaf2f11a2a8568725c9866bbc6a9298c1253c30664924",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S9 暂停与设置（Pause & Settings）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 103,
-          "tokens": 2440,
-          "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-015",
+          "endLine": 120,
+          "tokens": 3790,
+          "summary": "项目：games/beads · 版本 v1.2 · 任务号 WXG-T-015",
           "keywords": [
             "GDD",
             "Pause",
@@ -5149,8 +5734,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 13,
-          "endLine": 40,
-          "tokens": 724,
+          "endLine": 41,
+          "tokens": 847,
           "summary": "",
           "keywords": [
             "机制"
@@ -5176,8 +5761,8 @@
           "anchor": "§2.2 暂停面板（内容清单，冻结范围）",
           "level": 3,
           "startLine": 22,
-          "endLine": 34,
-          "tokens": 244,
+          "endLine": 35,
+          "tokens": 347,
           "summary": "继续 game:resumed → S1 回 PLAYING 主按钮",
           "keywords": [
             "game",
@@ -5191,9 +5776,9 @@
         {
           "anchor": "§2.3 冻结语义（复用 ADR-0007 单点裁决）",
           "level": 3,
-          "startLine": 35,
-          "endLine": 40,
-          "tokens": 215,
+          "startLine": 36,
+          "endLine": 41,
+          "tokens": 234,
           "summary": "进入 PAUSED：S5 计时冻结（含告急判定与连击窗口的 sprint 扩展）、S4 供料心跳冻结；表现层不冻结（脉冲",
           "keywords": [
             "ADR",
@@ -5207,8 +5792,8 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 41,
-          "endLine": 49,
+          "startLine": 42,
+          "endLine": 50,
           "tokens": 95,
           "summary": "玩家（经 S2 优先级 1） 齿轮点击 → 暂停请求",
           "keywords": [
@@ -5218,8 +5803,8 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 50,
-          "endLine": 59,
+          "startLine": 51,
+          "endLine": 60,
           "tokens": 178,
           "summary": "game:paused / game:resumed 齿轮/继续按钮（§4 既有事件，S9 是唯一发布方之一） syst",
           "keywords": [
@@ -5234,8 +5819,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 60,
-          "endLine": 66,
+          "startLine": 61,
+          "endLine": 67,
           "tokens": 119,
           "summary": "引用 §3.1：HUD_BAND（齿轮带位）、CAPSULE_AVOID（面板右侧避让——面板宽不得侵入胶囊区）。",
           "keywords": [
@@ -5248,9 +5833,9 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 67,
-          "endLine": 84,
-          "tokens": 476,
+          "startLine": 68,
+          "endLine": 89,
+          "tokens": 921,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -5259,8 +5844,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 85,
-          "endLine": 90,
+          "startLine": 90,
+          "endLine": 95,
           "tokens": 158,
           "summary": "上游：S1（状态机 PAUSED 节点）、S2（齿轮与面板按钮路由）、S8（设置读写）。",
           "keywords": [
@@ -5271,9 +5856,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 91,
-          "endLine": 103,
-          "tokens": 423,
+          "startLine": 96,
+          "endLine": 112,
+          "tokens": 683,
           "summary": "1. PLAYING 点齿轮 → game:paused 恰 1 次、S1=PAUSED、面板可见、遮罩覆盖棋盘与托盘；",
           "keywords": [
             "PLAYING",
@@ -5282,6 +5867,18 @@
             "PAUSED",
             "验收标准",
             "可测试硬判据"
+          ]
+        },
+        {
+          "anchor": "§9 变更记录",
+          "level": 2,
+          "startLine": 113,
+          "endLine": 120,
+          "tokens": 517,
+          "summary": "v1.0 WXG-T-015 交付 初版八节定稿（含 P1 冻结：暂停面板能力 / 双模式共用齿轮 / 重玩本关五项重置",
+          "keywords": [
+            "WXG",
+            "变更记录"
           ]
         }
       ]
@@ -6187,18 +6784,18 @@
     },
     {
       "path": "games/beads/design/gdd/timer-gameover.md",
-      "tokens": 1774,
-      "lines": 98,
-      "sha256": "378f474653a7e303f4e75a11131f390727d9ef9df62e5aaf95231746a65dc2d0",
+      "tokens": 2190,
+      "lines": 110,
+      "sha256": "0f38fc65e1a70d001ca32cb31a5dd8711156373c2741dc222ddbe3ad0dbb08d6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S5 倒计时与失败（Timer / GameOver）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 1757,
-          "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-009",
+          "endLine": 111,
+          "tokens": 2173,
+          "summary": "项目：games/beads · 版本 v1.1 · 任务号 WXG-T-009",
           "keywords": [
             "GDD",
             "Timer",
@@ -6340,8 +6937,8 @@
           "anchor": "§6 边界条件",
           "level": 2,
           "startLine": 65,
-          "endLine": 81,
-          "tokens": 354,
+          "endLine": 84,
+          "tokens": 529,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -6350,8 +6947,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 82,
-          "endLine": 86,
+          "startLine": 85,
+          "endLine": 89,
           "tokens": 82,
           "summary": "上游：S1（状态机启停/重置）、S9（暂停/恢复）、关卡数据（LEVEL_TIME）。",
           "keywords": [
@@ -6362,9 +6959,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 87,
-          "endLine": 99,
-          "tokens": 388,
+          "startLine": 90,
+          "endLine": 104,
+          "tokens": 390,
           "summary": "1. 默认关卡进 PLAYING 后 remaining 从 LEVEL_TIME_DEFAULT 递减；60 秒实测误",
           "keywords": [
             "PLAYING",
@@ -6373,6 +6970,19 @@
             "验收标准",
             "可测试硬判据",
             "直接造用例"
+          ]
+        },
+        {
+          "anchor": "§9 变更记录",
+          "level": 2,
+          "startLine": 105,
+          "endLine": 111,
+          "tokens": 234,
+          "summary": "v1.0 WXG-T-009 交付 初版八节定稿：计时模型 / 告急双通道 / PAUSED 冻结语义 / 整关重置五项",
+          "keywords": [
+            "WXG",
+            "PAUSED",
+            "变更记录"
           ]
         }
       ]
@@ -11070,17 +11680,17 @@
     },
     {
       "path": "knowledge/lessons.md",
-      "tokens": 2689,
-      "lines": 81,
-      "sha256": "6a4426bdb9527e86f56ba42d8278e248536eae0d06b6dcd230c0516b9236fa26",
+      "tokens": 2903,
+      "lines": 82,
+      "sha256": "e5795eff8b1862fe00a2309ca3cc590d796fe8423ac5802dd67f8fcc1f682cd1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons.md — 教训库（追加式，最新在后）",
           "level": 1,
           "startLine": 1,
-          "endLine": 82,
-          "tokens": 2671,
+          "endLine": 83,
+          "tokens": 2886,
           "summary": "",
           "keywords": [
             "lessons",
@@ -11093,8 +11703,8 @@
           "anchor": "§工具链",
           "level": 2,
           "startLine": 3,
-          "endLine": 42,
-          "tokens": 1543,
+          "endLine": 43,
+          "tokens": 1757,
           "summary": "[工具链][K-001] commitlint 自定义规则必须经 plugins 数组注册（来源 WXG-T-021 /",
           "keywords": [
             "commitlint",
@@ -11106,8 +11716,8 @@
         {
           "anchor": "§跨 IDE",
           "level": 2,
-          "startLine": 43,
-          "endLine": 69,
+          "startLine": 44,
+          "endLine": 70,
           "tokens": 853,
           "summary": "[工具链][K-029] 自增 ID 的下界必须取自既有数据，不能只看计数器（来源 WXG-T-029，2026-09-",
           "keywords": [
@@ -11118,8 +11728,8 @@
         {
           "anchor": "§环境",
           "level": 2,
-          "startLine": 70,
-          "endLine": 76,
+          "startLine": 71,
+          "endLine": 77,
           "tokens": 137,
           "summary": "[环境][K-010] WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）（来",
           "keywords": [
@@ -11133,8 +11743,8 @@
         {
           "anchor": "§流程",
           "level": 2,
-          "startLine": 77,
-          "endLine": 82,
+          "startLine": 78,
+          "endLine": 83,
           "tokens": 126,
           "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
@@ -11441,17 +12051,17 @@
     },
     {
       "path": "memory/2026-09-12.md",
-      "tokens": 5877,
-      "lines": 60,
-      "sha256": "2cdbd3c05a2a63321aff38bc8c463ce297dde1b28b6fead85a458d6e15a5f26c",
+      "tokens": 10141,
+      "lines": 151,
+      "sha256": "a9ab32d2693503650b93090d3e08b1ab57538ffe53b083ba67c206ef24f3c5f3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-12",
           "level": 1,
           "startLine": 1,
-          "endLine": 61,
-          "tokens": 5873,
+          "endLine": 152,
+          "tokens": 10138,
           "summary": "",
           "keywords": []
         },
@@ -11517,6 +12127,318 @@
             "permissionMode",
             "skills",
             "Curs"
+          ]
+        },
+        {
+          "anchor": "§PR #1 合并闭环完成（13:50）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 66,
+          "tokens": 162,
+          "summary": "PR #1（develop→master）已于 12:58Z 确认 MERGED，16 项检查全绿（含 Headless",
+          "keywords": [
+            "develop",
+            "master",
+            "MERGED",
+            "Headless",
+            "合并闭环完成"
+          ]
+        },
+        {
+          "anchor": "§冲刺模式工程实现派发（21:10）",
+          "level": 2,
+          "startLine": 67,
+          "endLine": 75,
+          "tokens": 431,
+          "summary": "关键事实确认：games/beads/src 零代码（architecture-beads §9 记为「⬜ 未开始」），",
+          "keywords": [
+            "§9",
+            "games",
+            "beads",
+            "src",
+            "architecture",
+            "冲刺模式工程"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-028 交付 + 冲刺事件 payload 真源裁定（21:25）",
+          "level": 2,
+          "startLine": 76,
+          "endLine": 85,
+          "tokens": 411,
+          "summary": "严守真（quality-lead-2）交付 T-028：test-cases.md v1.2（新增 §C 11 条 TC",
+          "keywords": [
+            "WXG",
+            "payload",
+            "quality",
+            "lead",
+            "test",
+            "cases"
+          ]
+        },
+        {
+          "anchor": "§score-combo 事件 payload 回写完成 + 独立核验（21:40）",
+          "level": 2,
+          "startLine": 86,
+          "endLine": 91,
+          "tokens": 267,
+          "summary": "design-strategist 完成回写（7 处，仅 score-combo.md；未 commit）：①§2.5 ",
+          "keywords": [
+            "§2.5",
+            "score",
+            "combo",
+            "payload",
+            "design",
+            "strategist"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-027 里程碑 + 3 项实现裁决（21:55）",
+          "level": 2,
+          "startLine": 92,
+          "endLine": 104,
+          "tokens": 530,
+          "summary": "工程侧（engineering-lead-3）里程碑：step 1–6 完成（包脚手架三件套 + config 三件套 ",
+          "keywords": [
+            "WXG",
+            "engineering",
+            "lead",
+            "step",
+            "config",
+            "里程碑"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-027 完成 + 全量独立验证（22:20）",
+          "level": 2,
+          "startLine": 105,
+          "endLine": 118,
+          "tokens": 605,
+          "summary": "工程侧（engineering-lead-3）完成 step 7–9。独立验证（我自己跑，非采信汇报）：",
+          "keywords": [
+            "WXG",
+            "engineering",
+            "lead",
+            "step",
+            "完成",
+            "全量独立验证"
+          ]
+        },
+        {
+          "anchor": "§T-027 提交推送 + 环境事故修复 + WXG-T-030 派发（23:15）",
+          "level": 2,
+          "startLine": 119,
+          "endLine": 130,
+          "tokens": 706,
+          "summary": "用户批准「分两笔提交」。我自己执行提交（并行会话在同一仓库活跃提交，精确 pathspec 控制必须自己来）：",
+          "keywords": [
+            "WXG",
+            "pathspec",
+            "提交推送",
+            "环境事故修复",
+            "派发"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-030 完成与裁决（23:50）",
+          "level": 2,
+          "startLine": 131,
+          "endLine": 142,
+          "tokens": 706,
+          "summary": "工程侧（engineering-lead-3）完成 S9 暂停面板 + 音乐/音效。独立验证：beads 40/40（6",
+          "keywords": [
+            "WXG",
+            "engineering",
+            "lead",
+            "beads",
+            "完成与裁决"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-030 提交与 T-031 真源对齐（23:56）",
+          "level": 2,
+          "startLine": 143,
+          "endLine": 152,
+          "tokens": 302,
+          "summary": "提交 62ad9c5（第一笔·工程侧，已 push develop）：8 文件 +1195。pre-commit che",
+          "keywords": [
+            "WXG",
+            "ad9c5",
+            "push",
+            "develop",
+            "pre",
+            "commit"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/2026-09-13.md",
+      "tokens": 2369,
+      "lines": 72,
+      "sha256": "2f03245f38b376d43e958d25e5ee976687784a7caf94cc41c20c30018ecc3d8c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§2026-09-13",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 73,
+          "tokens": 2365,
+          "summary": "",
+          "keywords": []
+        },
+        {
+          "anchor": "§my-skills 补缺调研（WXG-T-032 候选项盘点）",
+          "level": 2,
+          "startLine": 3,
+          "endLine": 34,
+          "tokens": 828,
+          "summary": "结论：有 4 个本地已装但未纳入 my-skills/ 的可用 skill；远程市场无 Cocos 专项，仅 1 个出海",
+          "keywords": [
+            "skills",
+            "WXG",
+            "skill",
+            "Cocos",
+            "补缺调研",
+            "候选项盘点"
+          ]
+        },
+        {
+          "anchor": "§现状",
+          "level": 3,
+          "startLine": 7,
+          "endLine": 10,
+          "tokens": 115,
+          "summary": "my-skills/ 现役 13 + 存档 1，覆盖：编排 / GDD / UX / ADR架构 / Epic拆分 / ",
+          "keywords": [
+            "skills",
+            "GDD",
+            "ADR",
+            "Epic",
+            "现状"
+          ]
+        },
+        {
+          "anchor": "§缺口（my-skills 现有覆盖不到）",
+          "level": 3,
+          "startLine": 11,
+          "endLine": 15,
+          "tokens": 130,
+          "summary": "1. 真机预览 / 上传开发版的执行层 —— wxgame-release-checklist 只有文档清单，没有能真正",
+          "keywords": [
+            "skills",
+            "wxgame",
+            "release",
+            "checklist",
+            "缺口",
+            "现有覆盖不到"
+          ]
+        },
+        {
+          "anchor": "§候选（本地已装，零安装成本）",
+          "level": 3,
+          "startLine": 16,
+          "endLine": 23,
+          "tokens": 234,
+          "summary": "weixin-minigame-helper CodeBuddy 插件缓存（腾讯官方，verified 腾讯科技（深圳）",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "CodeBuddy",
+            "verified",
+            "候选"
+          ]
+        },
+        {
+          "anchor": "§远程（SkillHub）",
+          "level": 3,
+          "startLine": 24,
+          "endLine": 27,
+          "tokens": 95,
+          "summary": "微信小游戏出海本地化翻译（腾讯系）：中→英/韩/泰、提取中文、生成语言包。仅在有出海计划时才装。",
+          "keywords": [
+            "SkillHub",
+            "远程"
+          ]
+        },
+        {
+          "anchor": "§明确排除",
+          "level": 3,
+          "startLine": 28,
+          "endLine": 31,
+          "tokens": 83,
+          "summary": "godot-* 全系（7 个）、unity-ecs-patterns、gdscript-codegen、game-dev",
+          "keywords": [
+            "godot",
+            "unity",
+            "ecs",
+            "patterns",
+            "gdscript",
+            "codegen"
+          ]
+        },
+        {
+          "anchor": "§踩坑",
+          "level": 3,
+          "startLine": 32,
+          "endLine": 34,
+          "tokens": 80,
+          "summary": "~/.workbuddy/skills/ 下 SkillHub 安装的目录带 __skillhub 后缀（如 game-",
+          "keywords": [
+            "workbuddy",
+            "skills",
+            "SkillHub",
+            "skillhub",
+            "game",
+            "踩坑"
+          ]
+        },
+        {
+          "anchor": "§四个 skill 已正式纳入 my-skills（07:35）",
+          "level": 2,
+          "startLine": 35,
+          "endLine": 49,
+          "tokens": 468,
+          "summary": "用户拍板：4 个全收（weixin-minigame-helper / game-numeric-design / ga",
+          "keywords": [
+            "skill",
+            "skills",
+            "weixin",
+            "minigame",
+            "helper",
+            "game"
+          ]
+        },
+        {
+          "anchor": "§上下文膨胀审计（07:52，用户提问驱动）",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 62,
+          "tokens": 505,
+          "summary": "TASKS.md 定论：53 行 / 13KB / 估算 3749 tokens，非常驻层、整读频次低（未进 457 次",
+          "keywords": [
+            "TASKS",
+            "tokens",
+            "上下文膨胀审",
+            "用户提问驱动"
+          ]
+        },
+        {
+          "anchor": "§ADR-0010 完成（08:20，WXG-T-034，engineering-lead-4）",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 73,
+          "tokens": 496,
+          "summary": "结论：用户方案 D（my-plugins 符号链接→四 IDE 各自加载）字面不可行——四 IDE 插件机制互不兼容且全",
+          "keywords": [
+            "ADR",
+            "WXG",
+            "engineering",
+            "lead",
+            "plugins",
+            "IDE"
           ]
         }
       ]
@@ -12365,6 +13287,895 @@
       ]
     },
     {
+      "path": "my-plugins/README.md",
+      "tokens": 1279,
+      "lines": 56,
+      "sha256": "eee89995f58e0b4964c1adb599d825c6f1984b25cee776b1ae1dcc3d648130f9",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§my-plugins — 外部插件 vendor 留档正本",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 57,
+          "tokens": 1265,
+          "summary": "定位（ADR-0010 §2 方案 D′ 最小形态）：本目录是留档 + 版本锚 + CodeBuddy 本地",
+          "keywords": [
+            "§2",
+            "plugins",
+            "vendor",
+            "ADR",
+            "CodeBuddy",
+            "外部插件"
+          ]
+        },
+        {
+          "anchor": "§1 版本锚定关系（vendor ≠ 运行版本，两者都受控）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 19,
+          "tokens": 251,
+          "summary": "my-plugins/weixin-minigame-helper/0.1.4/ 0.1.4 插件完整快照（vendor",
+          "keywords": [
+            "vendor",
+            "plugins",
+            "weixin",
+            "minigame",
+            "helper",
+            "版本锚定关系"
+          ]
+        },
+        {
+          "anchor": "§2 组件矩阵裁决记录（ADR-0010 §3）",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 29,
+          "tokens": 308,
+          "summary": "MCP server（plugin.json 的 mcpServers → npm 包） ✅ 接入（能力主通道） 唯一有",
+          "keywords": [
+            "§3",
+            "ADR",
+            "MCP",
+            "server",
+            "plugin",
+            "json"
+          ]
+        },
+        {
+          "anchor": "§3 四 IDE 能力来源表",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 42,
+          "tokens": 248,
+          "summary": "CodeBuddy 项目级 MCP 根 .mcp.json 与 Qoder 共读同一文件",
+          "keywords": [
+            "IDE",
+            "CodeBuddy",
+            "MCP",
+            "mcp",
+            "json",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§4 CodeBuddy 本地 marketplace 可选通道",
+          "level": 2,
+          "startLine": 43,
+          "endLine": 49,
+          "tokens": 120,
+          "summary": "my-plugins/ 可注册为 CodeBuddy 本地 marketplace（codebuddy plugin m",
+          "keywords": [
+            "CodeBuddy",
+            "marketplace",
+            "plugins",
+            "codebuddy",
+            "plugin",
+            "本地"
+          ]
+        },
+        {
+          "anchor": "§5 刻意的边界",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 57,
+          "tokens": 153,
+          "summary": "本目录不挂进 check-ide-links.mjs 扫描范围：目录无 SKILL.md 正本（SKILL.md 在",
+          "keywords": [
+            "check",
+            "ide",
+            "links",
+            "mjs",
+            "SKILL",
+            "刻意的边界"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/README.md",
+      "tokens": 682,
+      "lines": 67,
+      "sha256": "7db666d28865ded5051be3a0c18c2b7c1c290554bb0a6b00b1be0c3bc7bcd855",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WeiXin Mini Game Helper",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 68,
+          "tokens": 676,
+          "summary": "微信小游戏 AI 开发助手 —— 预览、调试、真机测试、发布一站式解决。",
+          "keywords": [
+            "WeiXin",
+            "Mini",
+            "Game",
+            "Helper"
+          ]
+        },
+        {
+          "anchor": "§✨ 功能概览",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 12,
+          "tokens": 123,
+          "summary": "🎮 浏览器预览：本地实时运行微信小游戏，支持多机型模拟",
+          "keywords": [
+            "功能概览"
+          ]
+        },
+        {
+          "anchor": "§🚀 快速上手",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 35,
+          "tokens": 158,
+          "summary": "安装插件后，AI 会自动获得小游戏开发能力，无需额外配置。",
+          "keywords": [
+            "快速上手"
+          ]
+        },
+        {
+          "anchor": "§自然语言交互",
+          "level": 3,
+          "startLine": 17,
+          "endLine": 27,
+          "tokens": 59,
+          "summary": "直接告诉 AI 你想做什么：",
+          "keywords": [
+            "自然语言交互"
+          ]
+        },
+        {
+          "anchor": "§斜杠命令",
+          "level": 3,
+          "startLine": 28,
+          "endLine": 35,
+          "tokens": 59,
+          "summary": "/weixin-minigame-helper:preview 启动游戏预览",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "preview",
+            "斜杠命令"
+          ]
+        },
+        {
+          "anchor": "§📱 真机测试 & 发布配置",
+          "level": 2,
+          "startLine": 36,
+          "endLine": 43,
+          "tokens": 120,
+          "summary": "真机测试和发布需要配置微信 AppID 和上传密钥：",
+          "keywords": [
+            "AppID",
+            "真机测试",
+            "发布配置"
+          ]
+        },
+        {
+          "anchor": "§📋 项目结构要求",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 53,
+          "tokens": 71,
+          "summary": "确保你的微信小游戏项目包含以下文件：",
+          "keywords": [
+            "项目结构要求"
+          ]
+        },
+        {
+          "anchor": "§❓ 常见问题",
+          "level": 2,
+          "startLine": 54,
+          "endLine": 68,
+          "tokens": 138,
+          "summary": "Q: 提示\"这不是一个标准的微信小游戏结构\"",
+          "keywords": [
+            "常见问题"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/SKILL.md",
+      "tokens": 4543,
+      "lines": 251,
+      "sha256": "0c9aedd9b7157da995f5b5b56533c77ae41b8008ba77f52a4c46b1da613f9269",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WeChat Mini Game Preview — Skill 使用指南",
+          "level": 1,
+          "startLine": 30,
+          "endLine": 251,
+          "tokens": 3800,
+          "summary": "",
+          "keywords": [
+            "WeChat",
+            "Mini",
+            "Game",
+            "Preview",
+            "Skill",
+            "使用指南"
+          ]
+        },
+        {
+          "anchor": "§🔴 最重要的规则（必须严格遵守）",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 67,
+          "tokens": 818,
+          "summary": "自动预览规则（最高优先级）：",
+          "keywords": [
+            "最重要的规则",
+            "必须严格遵守"
+          ]
+        },
+        {
+          "anchor": "§概述",
+          "level": 2,
+          "startLine": 68,
+          "endLine": 77,
+          "tokens": 120,
+          "summary": "这个 Skill 让你能够：",
+          "keywords": [
+            "Skill",
+            "概述"
+          ]
+        },
+        {
+          "anchor": "§MCP 工具参考",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 87,
+          "tokens": 143,
+          "summary": "run_game 启动游戏预览 workspacePath: 游戏目录绝对路径（必须含 game.js）",
+          "keywords": [
+            "MCP",
+            "run_game",
+            "workspacePath",
+            "game",
+            "工具参考"
+          ]
+        },
+        {
+          "anchor": "§工作流程",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 141,
+          "tokens": 968,
+          "summary": "",
+          "keywords": [
+            "工作流程"
+          ]
+        },
+        {
+          "anchor": "§场景一：生成/修改小游戏代码后自动预览（最常见、最重要）",
+          "level": 3,
+          "startLine": 90,
+          "endLine": 110,
+          "tokens": 454,
+          "summary": "这是最典型的场景。任何时候你修改了小游戏代码，都必须自动触发预览。",
+          "keywords": [
+            "场景一",
+            "生成",
+            "修改小游戏代",
+            "码后自动预览",
+            "最常见",
+            "最重要"
+          ]
+        },
+        {
+          "anchor": "§场景二：查看日志调试问题",
+          "level": 3,
+          "startLine": 111,
+          "endLine": 117,
+          "tokens": 64,
+          "summary": "当游戏运行中出现问题时：",
+          "keywords": [
+            "场景二",
+            "查看日志调试",
+            "问题"
+          ]
+        },
+        {
+          "anchor": "§场景三：真机预览",
+          "level": 3,
+          "startLine": 118,
+          "endLine": 133,
+          "tokens": 263,
+          "summary": "当用户要求在真机上预览、体验、测试时：",
+          "keywords": [
+            "场景三",
+            "真机预览"
+          ]
+        },
+        {
+          "anchor": "§场景四：上传开发版/上传体验版/发布到微信",
+          "level": 3,
+          "startLine": 134,
+          "endLine": 141,
+          "tokens": 116,
+          "summary": "1. 确认用户要发布的版本号和描述",
+          "keywords": [
+            "场景四",
+            "上传开发版",
+            "上传体验版",
+            "发布到微信"
+          ]
+        },
+        {
+          "anchor": "§完整使用示例",
+          "level": 2,
+          "startLine": 142,
+          "endLine": 199,
+          "tokens": 887,
+          "summary": "",
+          "keywords": [
+            "完整使用示例"
+          ]
+        },
+        {
+          "anchor": "§示例 1：用户说\"帮我做一个打砖块小游戏\"",
+          "level": 3,
+          "startLine": 144,
+          "endLine": 154,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "帮我做一个打",
+            "砖块小游戏"
+          ]
+        },
+        {
+          "anchor": "§示例 2：用户说\"把颜色改成红色\"（代码修改后自动预览）",
+          "level": 3,
+          "startLine": 155,
+          "endLine": 165,
+          "tokens": 164,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "把颜色改成红",
+            "代码修改后自",
+            "动预览"
+          ]
+        },
+        {
+          "anchor": "§示例 2.5：用户说\"帮我加个得分系统\"（较大代码修改后自动预览）",
+          "level": 3,
+          "startLine": 166,
+          "endLine": 177,
+          "tokens": 222,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "帮我加个得分",
+            "系统",
+            "较大代码修改",
+            "后自动预览"
+          ]
+        },
+        {
+          "anchor": "§示例 3：用户说\"真机体验测试下\"",
+          "level": 3,
+          "startLine": 178,
+          "endLine": 188,
+          "tokens": 112,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "真机体验测试"
+          ]
+        },
+        {
+          "anchor": "§示例 4：用户说\"上传到微信\"",
+          "level": 3,
+          "startLine": 189,
+          "endLine": 199,
+          "tokens": 109,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "上传到微信"
+          ]
+        },
+        {
+          "anchor": "§微信小游戏项目结构",
+          "level": 2,
+          "startLine": 200,
+          "endLine": 211,
+          "tokens": 81,
+          "summary": "一个标准的微信小游戏项目应包含：",
+          "keywords": [
+            "微信小游戏项",
+            "目结构"
+          ]
+        },
+        {
+          "anchor": "§注意事项",
+          "level": 2,
+          "startLine": 212,
+          "endLine": 219,
+          "tokens": 134,
+          "summary": "游戏目录必须包含 game.js 文件",
+          "keywords": [
+            "game",
+            "注意事项"
+          ]
+        },
+        {
+          "anchor": "§⚠️ 重要约束",
+          "level": 2,
+          "startLine": 220,
+          "endLine": 251,
+          "tokens": 592,
+          "summary": "真机预览（real_device_preview）和上传开发版（publish）成功后，禁止调用 run_game、re",
+          "keywords": [
+            "real_device_preview",
+            "publish",
+            "run_game",
+            "重要约束"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/agents/weixin-minigame-helper.md",
+      "tokens": 1176,
+      "lines": 95,
+      "sha256": "eb636b6dce466f37661578f6ddcdce8aa1c843f0128d9ff5520a40f184b1b4e7",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Mini Game Previewer Agent",
+          "level": 1,
+          "startLine": 12,
+          "endLine": 96,
+          "tokens": 998,
+          "summary": "你是微信小游戏预览和调试的专用 Agent。你的职责是帮助用户运行、调试、测试和发布微信小游戏。",
+          "keywords": [
+            "Mini",
+            "Game",
+            "Previewer",
+            "Agent"
+          ]
+        },
+        {
+          "anchor": "§⚡ 启动前置检查（每次执行任何操作前必须完成）",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 38,
+          "tokens": 305,
+          "summary": "在执行预览、日志、真机测试、发布等任何操作之前，必须按顺序完成以下两步检查：",
+          "keywords": [
+            "启动前置检查",
+            "每次执行任何",
+            "操作前必须完"
+          ]
+        },
+        {
+          "anchor": "§第一步：检查 Skill 是否已加载",
+          "level": 3,
+          "startLine": 20,
+          "endLine": 25,
+          "tokens": 67,
+          "summary": "1. 检查 weixin-minigame-helper:minigame-dev Skill 是否已加载",
+          "keywords": [
+            "Skill",
+            "weixin",
+            "minigame",
+            "helper",
+            "dev",
+            "第一步"
+          ]
+        },
+        {
+          "anchor": "§第二步：检查 MCP 是否已拉起",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 38,
+          "tokens": 171,
+          "summary": "1. 尝试调用任意一个 MCP 工具（如 get_logs）来探测 MCP 服务是否在线",
+          "keywords": [
+            "MCP",
+            "get_logs",
+            "第二步",
+            "检查",
+            "是否已拉起"
+          ]
+        },
+        {
+          "anchor": "§核心能力",
+          "level": 2,
+          "startLine": 39,
+          "endLine": 45,
+          "tokens": 85,
+          "summary": "1. 预览管理 — 启动/重载游戏预览",
+          "keywords": [
+            "核心能力"
+          ]
+        },
+        {
+          "anchor": "§工作原则",
+          "level": 2,
+          "startLine": 46,
+          "endLine": 52,
+          "tokens": 107,
+          "summary": "快速响应：完成前置检查后立即执行操作，不做多余确认",
+          "keywords": [
+            "工作原则"
+          ]
+        },
+        {
+          "anchor": "§可用 MCP 工具",
+          "level": 2,
+          "startLine": 53,
+          "endLine": 62,
+          "tokens": 104,
+          "summary": "run_game 启动游戏预览（传入 workspacePath）",
+          "keywords": [
+            "MCP",
+            "run_game",
+            "workspacePath",
+            "可用",
+            "工具"
+          ]
+        },
+        {
+          "anchor": "§典型工作流",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 89,
+          "tokens": 250,
+          "summary": "",
+          "keywords": [
+            "典型工作流"
+          ]
+        },
+        {
+          "anchor": "§启动预览",
+          "level": 3,
+          "startLine": 65,
+          "endLine": 71,
+          "tokens": 78,
+          "summary": "1. 完成前置检查（Skill 加载 + MCP 拉起）",
+          "keywords": [
+            "Skill",
+            "MCP",
+            "启动预览"
+          ]
+        },
+        {
+          "anchor": "§调试问题",
+          "level": 3,
+          "startLine": 72,
+          "endLine": 79,
+          "tokens": 54,
+          "summary": "1. 完成前置检查（Skill 加载 + MCP 拉起）",
+          "keywords": [
+            "Skill",
+            "MCP",
+            "调试问题"
+          ]
+        },
+        {
+          "anchor": "§真机测试",
+          "level": 3,
+          "startLine": 80,
+          "endLine": 89,
+          "tokens": 102,
+          "summary": "1. 完成前置检查（Skill 加载 + MCP 拉起）",
+          "keywords": [
+            "Skill",
+            "MCP",
+            "真机测试"
+          ]
+        },
+        {
+          "anchor": "§限制",
+          "level": 2,
+          "startLine": 90,
+          "endLine": 96,
+          "tokens": 56,
+          "summary": "不能创建、修改或删除文件",
+          "keywords": [
+            "限制"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/commands/device-test.md",
+      "tokens": 545,
+      "lines": 50,
+      "sha256": "44dcf6dd3df325a4275f4430df6412131045817b4a70f8a0b2374ba6c5f8d192",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§/weixin-minigame-helper:device-test — 真机测试",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 51,
+          "tokens": 477,
+          "summary": "",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "device",
+            "test",
+            "真机测试"
+          ]
+        },
+        {
+          "anchor": "§执行步骤",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 51,
+          "tokens": 472,
+          "summary": "",
+          "keywords": [
+            "执行步骤"
+          ]
+        },
+        {
+          "anchor": "§1 确定游戏目录",
+          "level": 3,
+          "startLine": 10,
+          "endLine": 15,
+          "tokens": 42,
+          "summary": "如果用户提供了参数，使用该路径",
+          "keywords": [
+            "确定游戏目录"
+          ]
+        },
+        {
+          "anchor": "§2 确保预览服务已启动",
+          "level": 3,
+          "startLine": 16,
+          "endLine": 20,
+          "tokens": 50,
+          "summary": "先调用 run_game 启动预览服务（如果尚未启动）",
+          "keywords": [
+            "run_game",
+            "确保预览服务",
+            "已启动"
+          ]
+        },
+        {
+          "anchor": "§3 执行真机预览",
+          "level": 3,
+          "startLine": 21,
+          "endLine": 25,
+          "tokens": 28,
+          "summary": "调用 MCP 工具 real_device_preview，传入游戏目录绝对路径",
+          "keywords": [
+            "MCP",
+            "real_device_preview",
+            "执行真机预览"
+          ]
+        },
+        {
+          "anchor": "§4 处理结果",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 51,
+          "tokens": 318,
+          "summary": "成功的情况：",
+          "keywords": [
+            "处理结果"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/commands/preview.md",
+      "tokens": 396,
+      "lines": 37,
+      "sha256": "e54c464100383ce6cd17ba79e8644de8cc38126fa2210cd8670e23a42416ced1",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§/weixin-minigame-helper:preview — 启动小游戏预览",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 38,
+          "tokens": 325,
+          "summary": "",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "preview",
+            "启动小游戏预"
+          ]
+        },
+        {
+          "anchor": "§执行步骤",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 38,
+          "tokens": 320,
+          "summary": "",
+          "keywords": [
+            "执行步骤"
+          ]
+        },
+        {
+          "anchor": "§1 确定游戏目录",
+          "level": 3,
+          "startLine": 10,
+          "endLine": 17,
+          "tokens": 117,
+          "summary": "如果用户提供了参数（游戏目录路径），使用该路径",
+          "keywords": [
+            "确定游戏目录"
+          ]
+        },
+        {
+          "anchor": "§2 启动预览",
+          "level": 3,
+          "startLine": 18,
+          "endLine": 23,
+          "tokens": 41,
+          "summary": "加载 weixin-minigame-helper skill",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "skill",
+            "启动预览"
+          ]
+        },
+        {
+          "anchor": "§3 打开浏览器",
+          "level": 3,
+          "startLine": 24,
+          "endLine": 31,
+          "tokens": 62,
+          "summary": "使用 preview_url 工具打开返回的预览 URL",
+          "keywords": [
+            "preview_url",
+            "URL",
+            "打开浏览器"
+          ]
+        },
+        {
+          "anchor": "§4 错误处理",
+          "level": 3,
+          "startLine": 32,
+          "endLine": 38,
+          "tokens": 74,
+          "summary": "如果 run_game 失败，检查错误信息并给出修复建议",
+          "keywords": [
+            "run_game",
+            "错误处理"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/commands/publish.md",
+      "tokens": 470,
+      "lines": 53,
+      "sha256": "495b8d8b72d2143c74266e3d1282be2747e49090e367fd3d662ca6d68ecfa91f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§/weixin-minigame-helper:publish — 发布小游戏",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 54,
+          "tokens": 407,
+          "summary": "",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "publish",
+            "发布小游戏"
+          ]
+        },
+        {
+          "anchor": "§执行步骤",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 54,
+          "tokens": 401,
+          "summary": "",
+          "keywords": [
+            "执行步骤"
+          ]
+        },
+        {
+          "anchor": "§1 解析参数",
+          "level": 3,
+          "startLine": 10,
+          "endLine": 16,
+          "tokens": 83,
+          "summary": "从用户输入中提取版本号（如 \"1.0.0\"）",
+          "keywords": [
+            "解析参数"
+          ]
+        },
+        {
+          "anchor": "§2 确定游戏目录",
+          "level": 3,
+          "startLine": 17,
+          "endLine": 21,
+          "tokens": 23,
+          "summary": "搜索当前工作目录中的 game.js",
+          "keywords": [
+            "game",
+            "确定游戏目录"
+          ]
+        },
+        {
+          "anchor": "§3 确认发布",
+          "level": 3,
+          "startLine": 22,
+          "endLine": 30,
+          "tokens": 79,
+          "summary": "向用户确认：",
+          "keywords": [
+            "确认发布"
+          ]
+        },
+        {
+          "anchor": "§4 执行发布",
+          "level": 3,
+          "startLine": 31,
+          "endLine": 37,
+          "tokens": 45,
+          "summary": "调用 MCP 工具 publish，传入：",
+          "keywords": [
+            "MCP",
+            "publish",
+            "执行发布"
+          ]
+        },
+        {
+          "anchor": "§5 处理结果",
+          "level": 3,
+          "startLine": 38,
+          "endLine": 54,
+          "tokens": 139,
+          "summary": "成功：",
+          "keywords": [
+            "处理结果"
+          ]
+        }
+      ]
+    },
+    {
       "path": "my-rules/INDEX.md",
       "tokens": 254,
       "lines": 20,
@@ -12431,17 +14242,17 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 1321,
-      "lines": 71,
-      "sha256": "c1f8793abe1ae9b70ad542ee540502b75bb393eb5d465aa21d66bfa793f6b3fb",
+      "tokens": 1701,
+      "lines": 78,
+      "sha256": "a6237f7919cd5ef49cf098687121e1376fdabbbbb1051c2c0d7cd01ef754e43f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame skill 家族 INDEX",
           "level": 1,
           "startLine": 1,
-          "endLine": 72,
-          "tokens": 1313,
+          "endLine": 79,
+          "tokens": 1693,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -12452,11 +14263,11 @@
           ]
         },
         {
-          "anchor": "§1 清单（现役 13 个挂四 IDE 链接；存档 1 个仅本目录留档）",
+          "anchor": "§1 清单（现役 17 个挂四 IDE 链接；存档 1 个仅本目录留档）",
           "level": 2,
           "startLine": 6,
-          "endLine": 29,
-          "tokens": 631,
+          "endLine": 33,
+          "tokens": 938,
           "summary": "编排 wxgame-orchestration 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路",
           "keywords": [
             "IDE",
@@ -12470,8 +14281,8 @@
         {
           "anchor": "§2 默认管线顺序与何时不走全 SOP",
           "level": 2,
-          "startLine": 30,
-          "endLine": 37,
+          "startLine": 34,
+          "endLine": 41,
           "tokens": 140,
           "summary": "全 SOP（新游戏/大功能）：orchestration 阶段诊断 → 按九阶段表 spawn",
           "keywords": [
@@ -12485,9 +14296,9 @@
         {
           "anchor": "§3 Skill 优先级（冲突时高者胜）",
           "level": 2,
-          "startLine": 38,
-          "endLine": 46,
-          "tokens": 63,
+          "startLine": 42,
+          "endLine": 53,
+          "tokens": 137,
           "summary": "",
           "keywords": [
             "Skill",
@@ -12498,8 +14309,8 @@
         {
           "anchor": "§4 路径约定",
           "level": 2,
-          "startLine": 47,
-          "endLine": 60,
+          "startLine": 54,
+          "endLine": 67,
           "tokens": 208,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
@@ -12513,8 +14324,8 @@
         {
           "anchor": "§5 冲突裁决链",
           "level": 2,
-          "startLine": 61,
-          "endLine": 67,
+          "startLine": 68,
+          "endLine": 74,
           "tokens": 85,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 是数值唯一真源",
           "keywords": [
@@ -12529,8 +14340,8 @@
         {
           "anchor": "§6 Provenance 说明",
           "level": 2,
-          "startLine": 68,
-          "endLine": 72,
+          "startLine": 75,
+          "endLine": 79,
           "tokens": 60,
           "summary": "除 audio-spec（框架版）外，各 wxgame-* 均提炼自 Breakout demo 的实际产物，",
           "keywords": [
@@ -12891,6 +14702,186 @@
             "separate",
             "disconnect",
             "all"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-ai-design/SKILL.md",
+      "tokens": 2027,
+      "lines": 186,
+      "sha256": "1e4a6ad480f293025e14836ff17f00c2bbed15b6d038e9ce556479425f971565",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Game AI: decisions, steering, and pathfinding",
+          "level": 1,
+          "startLine": 25,
+          "endLine": 186,
+          "tokens": 1873,
+          "summary": "Build believable NPC behavior from three separable layers: d",
+          "keywords": [
+            "Game",
+            "decisions",
+            "steering",
+            "and",
+            "pathfinding",
+            "Build"
+          ]
+        },
+        {
+          "anchor": "§When to use",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 46,
+          "tokens": 172,
+          "summary": "Use when implementing enemy/NPC logic: patrols, chase/flee, ",
+          "keywords": [
+            "When",
+            "use",
+            "Use",
+            "when",
+            "implementing",
+            "enemy"
+          ]
+        },
+        {
+          "anchor": "§Core workflow",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 64,
+          "tokens": 259,
+          "summary": "1. Pick the decision model by complexity. 2–5 states with ob",
+          "keywords": [
+            "Core",
+            "workflow",
+            "Pick",
+            "the",
+            "decision",
+            "model"
+          ]
+        },
+        {
+          "anchor": "§Patterns",
+          "level": 2,
+          "startLine": 65,
+          "endLine": 156,
+          "tokens": 933,
+          "summary": "",
+          "keywords": [
+            "Patterns"
+          ]
+        },
+        {
+          "anchor": "§1 Finite state machine (one state object, explicit transitions)",
+          "level": 3,
+          "startLine": 67,
+          "endLine": 93,
+          "tokens": 245,
+          "summary": "",
+          "keywords": [
+            "Finite",
+            "state",
+            "machine",
+            "one",
+            "object",
+            "explicit"
+          ]
+        },
+        {
+          "anchor": "§2 Behavior tree tick (composite nodes return a status)",
+          "level": 3,
+          "startLine": 94,
+          "endLine": 120,
+          "tokens": 258,
+          "summary": "",
+          "keywords": [
+            "Behavior",
+            "tree",
+            "tick",
+            "composite",
+            "nodes",
+            "return"
+          ]
+        },
+        {
+          "anchor": "§3 Steering: seek and arrive (smooth, frame-rate independent)",
+          "level": 3,
+          "startLine": 121,
+          "endLine": 140,
+          "tokens": 206,
+          "summary": "",
+          "keywords": [
+            "Steering",
+            "seek",
+            "and",
+            "arrive",
+            "smooth",
+            "frame"
+          ]
+        },
+        {
+          "anchor": "§4 A* heuristic must not overestimate (or paths stop being shortest)",
+          "level": 3,
+          "startLine": 141,
+          "endLine": 156,
+          "tokens": 157,
+          "summary": "",
+          "keywords": [
+            "heuristic",
+            "must",
+            "not",
+            "overestimate",
+            "paths",
+            "stop"
+          ]
+        },
+        {
+          "anchor": "§Pitfalls",
+          "level": 2,
+          "startLine": 157,
+          "endLine": 173,
+          "tokens": 254,
+          "summary": "Pathfinding every frame tanks the frame rate. Recompute on a",
+          "keywords": [
+            "Pitfalls",
+            "Pathfinding",
+            "every",
+            "frame",
+            "tanks",
+            "the"
+          ]
+        },
+        {
+          "anchor": "§References",
+          "level": 2,
+          "startLine": 174,
+          "endLine": 180,
+          "tokens": 67,
+          "summary": "references/pathfinding.md — complete A* (priority queue, rec",
+          "keywords": [
+            "References",
+            "references",
+            "pathfinding",
+            "complete",
+            "priority",
+            "queue"
+          ]
+        },
+        {
+          "anchor": "§Related skills",
+          "level": 2,
+          "startLine": 181,
+          "endLine": 186,
+          "tokens": 72,
+          "summary": "unity-navmesh, unreal-behavior-trees — concrete engine AI/na",
+          "keywords": [
+            "Related",
+            "skills",
+            "unity",
+            "navmesh",
+            "unreal",
+            "behavior"
           ]
         }
       ]
@@ -13500,6 +15491,1375 @@
             "should",
             "evaluate",
             "whether"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/SKILL.md",
+      "tokens": 3878,
+      "lines": 187,
+      "sha256": "32cc77cd111e397ef952f739093bd476ef6a69045029b2f29cd570d799f84fd3",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§游戏素材预审",
+          "level": 1,
+          "startLine": 8,
+          "endLine": 188,
+          "tokens": 3728,
+          "summary": "",
+          "keywords": [
+            "游戏素材预审"
+          ]
+        },
+        {
+          "anchor": "§Purpose",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 13,
+          "tokens": 153,
+          "summary": "封装一套面向中国大陆游戏宣发素材的审核流程：优先使用 Skill 内置本地知识库，必要时再读取乐享知识库「zzanezh",
+          "keywords": [
+            "Purpose",
+            "Skill",
+            "zzanezh"
+          ]
+        },
+        {
+          "anchor": "§Trigger",
+          "level": 2,
+          "startLine": 14,
+          "endLine": 22,
+          "tokens": 156,
+          "summary": "在以下场景使用本技能：",
+          "keywords": [
+            "Trigger"
+          ]
+        },
+        {
+          "anchor": "§Required workflow",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 162,
+          "tokens": 2510,
+          "summary": "",
+          "keywords": [
+            "Required",
+            "workflow"
+          ]
+        },
+        {
+          "anchor": "§1 明确审核输入",
+          "level": 3,
+          "startLine": 25,
+          "endLine": 36,
+          "tokens": 261,
+          "summary": "先收集或识别以下信息：",
+          "keywords": [
+            "明确审核输入"
+          ]
+        },
+        {
+          "anchor": "§2 读取本地内置知识库",
+          "level": 3,
+          "startLine": 37,
+          "endLine": 54,
+          "tokens": 322,
+          "summary": "默认优先读取 Skill 自带的本地知识库，不要求使用者连接 zzanezhu 的乐享空间。",
+          "keywords": [
+            "Skill",
+            "zzanezhu",
+            "读取本地内置",
+            "知识库"
+          ]
+        },
+        {
+          "anchor": "§3 可选：从乐享知识库刷新",
+          "level": 3,
+          "startLine": 55,
+          "endLine": 91,
+          "tokens": 545,
+          "summary": "仅在以下情况读取乐享知识库：",
+          "keywords": [
+            "可选",
+            "从乐享知识库",
+            "刷新"
+          ]
+        },
+        {
+          "anchor": "§4 外部公开信息交叉验证",
+          "level": 3,
+          "startLine": 92,
+          "endLine": 102,
+          "tokens": 221,
+          "summary": "根据素材内容与发布日期进行联网检索，至少覆盖：",
+          "keywords": [
+            "外部公开信息",
+            "交叉验证"
+          ]
+        },
+        {
+          "anchor": "§5 审核维度",
+          "level": 3,
+          "startLine": 103,
+          "endLine": 116,
+          "tokens": 382,
+          "summary": "至少从以下维度给出结论：",
+          "keywords": [
+            "审核维度"
+          ]
+        },
+        {
+          "anchor": "§6 风险等级",
+          "level": 3,
+          "startLine": 117,
+          "endLine": 126,
+          "tokens": 156,
+          "summary": "统一使用以下等级：",
+          "keywords": [
+            "风险等级"
+          ]
+        },
+        {
+          "anchor": "§7 输出报告",
+          "level": 3,
+          "startLine": 127,
+          "endLine": 143,
+          "tokens": 343,
+          "summary": "默认生成 HTML 报告，使用 references/report-template.md 中的结构。报告必须包含：",
+          "keywords": [
+            "HTML",
+            "references",
+            "report",
+            "template",
+            "输出报告"
+          ]
+        },
+        {
+          "anchor": "§8 HTML视觉要求",
+          "level": 3,
+          "startLine": 144,
+          "endLine": 153,
+          "tokens": 119,
+          "summary": "报告风格保持专业、清晰、适合汇报：",
+          "keywords": [
+            "HTML",
+            "视觉要求"
+          ]
+        },
+        {
+          "anchor": "§9 交付要求",
+          "level": 3,
+          "startLine": 154,
+          "endLine": 162,
+          "tokens": 87,
+          "summary": "完成后必须：",
+          "keywords": [
+            "交付要求"
+          ]
+        },
+        {
+          "anchor": "§References",
+          "level": 2,
+          "startLine": 163,
+          "endLine": 179,
+          "tokens": 641,
+          "summary": "references/source-docs.md：本地知识库目录与更新说明。",
+          "keywords": [
+            "References",
+            "references",
+            "source",
+            "docs"
+          ]
+        },
+        {
+          "anchor": "§Important cautions",
+          "level": 2,
+          "startLine": 180,
+          "endLine": 188,
+          "tokens": 249,
+          "summary": "不要把无法确认的素材直接判定为违规；使用「疑似」「需确认」「建议复核」表达不确定性。",
+          "keywords": [
+            "Important",
+            "cautions"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/knowledge-baseline.md",
+      "tokens": 4188,
+      "lines": 295,
+      "sha256": "7ca13c08d7b45ff24b0bfc2d96e5f105a94b44a059ef8160e1afd812eb3815bd",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§游戏素材合规审核知识基线",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 296,
+          "tokens": 4175,
+          "summary": "本文件沉淀自「zzanezhu的个人知识库 / 游戏合规安全知识库」已读取内容及本次审核流程实践，用于技能离线兜底。正式",
+          "keywords": [
+            "zzanezhu",
+            "游戏素材合规",
+            "审核知识基线"
+          ]
+        },
+        {
+          "anchor": "§已读取的乐享知识库条目",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 19,
+          "tokens": 153,
+          "summary": "游戏合规安全知识库",
+          "keywords": [
+            "已读取的乐享",
+            "知识库条目"
+          ]
+        },
+        {
+          "anchor": "§一、中国大陆游戏内容合规高频红线",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 104,
+          "tokens": 1229,
+          "summary": "",
+          "keywords": [
+            "中国大陆游戏",
+            "内容合规高频",
+            "红线"
+          ]
+        },
+        {
+          "anchor": "§1 危害国家安全与社会秩序",
+          "level": 3,
+          "startLine": 22,
+          "endLine": 37,
+          "tokens": 218,
+          "summary": "重点排查：",
+          "keywords": [
+            "危害国家安全",
+            "与社会秩序"
+          ]
+        },
+        {
+          "anchor": "§2 色情低俗与不良价值观",
+          "level": 3,
+          "startLine": 38,
+          "endLine": 77,
+          "tokens": 737,
+          "summary": "重点排查：",
+          "keywords": [
+            "色情低俗与不",
+            "良价值观"
+          ]
+        },
+        {
+          "anchor": "§3 赌博、射幸与变现风险",
+          "level": 3,
+          "startLine": 78,
+          "endLine": 91,
+          "tokens": 125,
+          "summary": "重点排查：",
+          "keywords": [
+            "赌博",
+            "射幸与变现风"
+          ]
+        },
+        {
+          "anchor": "§4 暴力、恐怖与血腥",
+          "level": 3,
+          "startLine": 92,
+          "endLine": 104,
+          "tokens": 103,
+          "summary": "重点排查：",
+          "keywords": [
+            "暴力",
+            "恐怖与血腥"
+          ]
+        },
+        {
+          "anchor": "§二、运营与广告合规",
+          "level": 2,
+          "startLine": 105,
+          "endLine": 132,
+          "tokens": 238,
+          "summary": "",
+          "keywords": [
+            "运营与广告合"
+          ]
+        },
+        {
+          "anchor": "§1 个人信息与数据安全",
+          "level": 3,
+          "startLine": 107,
+          "endLine": 114,
+          "tokens": 51,
+          "summary": "重点排查：",
+          "keywords": [
+            "个人信息与数",
+            "据安全"
+          ]
+        },
+        {
+          "anchor": "§2 未成年人保护",
+          "level": 3,
+          "startLine": 115,
+          "endLine": 123,
+          "tokens": 68,
+          "summary": "重点排查：",
+          "keywords": [
+            "未成年人保护"
+          ]
+        },
+        {
+          "anchor": "§3 广告宣传",
+          "level": 3,
+          "startLine": 124,
+          "endLine": 132,
+          "tokens": 93,
+          "summary": "重点排查：",
+          "keywords": [
+            "广告宣传"
+          ]
+        },
+        {
+          "anchor": "§三、知识产权风险",
+          "level": 2,
+          "startLine": 133,
+          "endLine": 147,
+          "tokens": 188,
+          "summary": "重点排查：",
+          "keywords": [
+            "知识产权风险"
+          ]
+        },
+        {
+          "anchor": "§四、战争/军事/国旗元素风险",
+          "level": 2,
+          "startLine": 148,
+          "endLine": 163,
+          "tokens": 182,
+          "summary": "重点排查：",
+          "keywords": [
+            "战争",
+            "军事",
+            "国旗元素风险"
+          ]
+        },
+        {
+          "anchor": "§五、文化、宗教、民族风险",
+          "level": 2,
+          "startLine": 164,
+          "endLine": 176,
+          "tokens": 134,
+          "summary": "重点排查：",
+          "keywords": [
+            "文化",
+            "宗教",
+            "民族风险"
+          ]
+        },
+        {
+          "anchor": "§六、舆情风险",
+          "level": 2,
+          "startLine": 177,
+          "endLine": 193,
+          "tokens": 193,
+          "summary": "常见触发点：",
+          "keywords": [
+            "舆情风险"
+          ]
+        },
+        {
+          "anchor": "§七、敏感日期通用避让清单（中国大陆）",
+          "level": 2,
+          "startLine": 194,
+          "endLine": 207,
+          "tokens": 264,
+          "summary": "如果素材包含战争、军人、国旗、灾难、历史、牺牲、爆炸、末日、废墟等元素，应避开以下日期及其前后窗口：",
+          "keywords": [
+            "敏感日期通用",
+            "避让清单",
+            "中国大陆"
+          ]
+        },
+        {
+          "anchor": "§八、风险等级定义",
+          "level": 2,
+          "startLine": 208,
+          "endLine": 215,
+          "tokens": 136,
+          "summary": "P0 红线风险：建议不得上线；涉及违法违规、重大敏感、严重侵权、色情赌博等。",
+          "keywords": [
+            "风险等级定义"
+          ]
+        },
+        {
+          "anchor": "§九、本次样例素材沉淀",
+          "level": 2,
+          "startLine": 216,
+          "endLine": 233,
+          "tokens": 214,
+          "summary": "",
+          "keywords": [
+            "本次样例素材",
+            "沉淀"
+          ]
+        },
+        {
+          "anchor": "§SC-11 监控室/复古像素屏幕",
+          "level": 3,
+          "startLine": 218,
+          "endLine": 225,
+          "tokens": 95,
+          "summary": "识别风险：显示类似《超级马里奥》的复古像素游戏画面。",
+          "keywords": [
+            "监控室",
+            "复古像素屏幕"
+          ]
+        },
+        {
+          "anchor": "§真人CG战斗/英国国旗/悬浮立方体",
+          "level": 3,
+          "startLine": 226,
+          "endLine": 233,
+          "tokens": 92,
+          "summary": "识别风险：国旗元素、真人写实士兵、战争场景。",
+          "keywords": [
+            "真人",
+            "战斗",
+            "英国国旗",
+            "悬浮立方体"
+          ]
+        },
+        {
+          "anchor": "§十、补充导入文档的审核使用要点",
+          "level": 2,
+          "startLine": 234,
+          "endLine": 296,
+          "tokens": 1040,
+          "summary": "",
+          "keywords": [
+            "补充导入文档",
+            "的审核使用要"
+          ]
+        },
+        {
+          "anchor": "§1 2026年全球游戏行业法律监管动态",
+          "level": 3,
+          "startLine": 236,
+          "endLine": 246,
+          "tokens": 153,
+          "summary": "来源文件：source-docs-2026-global-game-legal-regulatory.md",
+          "keywords": [
+            "source",
+            "docs",
+            "global",
+            "game",
+            "legal",
+            "regulatory"
+          ]
+        },
+        {
+          "anchor": "§2 全球游戏市场合规监管趋势分析",
+          "level": 3,
+          "startLine": 247,
+          "endLine": 256,
+          "tokens": 154,
+          "summary": "来源文件：source-docs-global-game-compliance-trends.md",
+          "keywords": [
+            "source",
+            "docs",
+            "global",
+            "game",
+            "compliance",
+            "trends"
+          ]
+        },
+        {
+          "anchor": "§3 网络游戏公司全流程合规指南",
+          "level": 3,
+          "startLine": 257,
+          "endLine": 266,
+          "tokens": 173,
+          "summary": "来源文件：source-docs-online-game-company-full-process-compliance",
+          "keywords": [
+            "source",
+            "docs",
+            "online",
+            "game",
+            "company",
+            "full"
+          ]
+        },
+        {
+          "anchor": "§4 游戏公司危机公关应对策略",
+          "level": 3,
+          "startLine": 267,
+          "endLine": 276,
+          "tokens": 140,
+          "summary": "来源文件：source-docs-game-company-crisis-pr.md",
+          "keywords": [
+            "source",
+            "docs",
+            "game",
+            "company",
+            "crisis",
+            "游戏公司危机"
+          ]
+        },
+        {
+          "anchor": "§5 游戏知识产权保护与侵权案例",
+          "level": 3,
+          "startLine": 277,
+          "endLine": 286,
+          "tokens": 158,
+          "summary": "来源文件：source-docs-game-ip-protection-cases.md",
+          "keywords": [
+            "source",
+            "docs",
+            "game",
+            "protection",
+            "cases",
+            "游戏知识产权"
+          ]
+        },
+        {
+          "anchor": "§6 中国游戏行业政策汇总",
+          "level": 3,
+          "startLine": 287,
+          "endLine": 296,
+          "tokens": 173,
+          "summary": "来源文件：source-docs-china-game-policy-summary.md",
+          "keywords": [
+            "source",
+            "docs",
+            "china",
+            "game",
+            "policy",
+            "summary"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/report-template.md",
+      "tokens": 1378,
+      "lines": 213,
+      "sha256": "02c14e62f43c1445a75b7813d16bdce08711e9bb9e46c63c0cc87c8829f35da4",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§HTML审核报告模板规范",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 214,
+          "tokens": 1368,
+          "summary": "生成游戏素材合规审核报告时，按以下结构组织。可自由调整样式，但必须保留核心信息。",
+          "keywords": [
+            "HTML",
+            "审核报告模板",
+            "规范"
+          ]
+        },
+        {
+          "anchor": "§文件命名",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 18,
+          "tokens": 56,
+          "summary": "建议文件名：",
+          "keywords": [
+            "文件命名"
+          ]
+        },
+        {
+          "anchor": "§HTML结构",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 123,
+          "tokens": 769,
+          "summary": "",
+          "keywords": [
+            "HTML",
+            "结构"
+          ]
+        },
+        {
+          "anchor": "§1 头部信息",
+          "level": 3,
+          "startLine": 21,
+          "endLine": 32,
+          "tokens": 67,
+          "summary": "包含：",
+          "keywords": [
+            "头部信息"
+          ]
+        },
+        {
+          "anchor": "§2 素材预览区",
+          "level": 3,
+          "startLine": 33,
+          "endLine": 48,
+          "tokens": 143,
+          "summary": "每个素材生成一个卡片：",
+          "keywords": [
+            "素材预览区"
+          ]
+        },
+        {
+          "anchor": "§3 风险总览表",
+          "level": 3,
+          "startLine": 49,
+          "endLine": 63,
+          "tokens": 72,
+          "summary": "字段：",
+          "keywords": [
+            "风险总览表"
+          ]
+        },
+        {
+          "anchor": "§4 单素材风险明细",
+          "level": 3,
+          "startLine": 64,
+          "endLine": 82,
+          "tokens": 94,
+          "summary": "字段：",
+          "keywords": [
+            "单素材风险明"
+          ]
+        },
+        {
+          "anchor": "§5 敏感日期排查",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 94,
+          "tokens": 97,
+          "summary": "若发布日期已定：",
+          "keywords": [
+            "敏感日期排查"
+          ]
+        },
+        {
+          "anchor": "§6 外部舆情与平台规则参考",
+          "level": 3,
+          "startLine": 95,
+          "endLine": 104,
+          "tokens": 117,
+          "summary": "列出核心参考来源名称：",
+          "keywords": [
+            "外部舆情与平",
+            "台规则参考"
+          ]
+        },
+        {
+          "anchor": "§7 综合结论与下一步动作",
+          "level": 3,
+          "startLine": 105,
+          "endLine": 115,
+          "tokens": 38,
+          "summary": "输出：",
+          "keywords": [
+            "综合结论与下",
+            "一步动作"
+          ]
+        },
+        {
+          "anchor": "§8 免责声明",
+          "level": 3,
+          "startLine": 116,
+          "endLine": 123,
+          "tokens": 75,
+          "summary": "固定添加：",
+          "keywords": [
+            "免责声明"
+          ]
+        },
+        {
+          "anchor": "§推荐CSS风格",
+          "level": 2,
+          "startLine": 124,
+          "endLine": 205,
+          "tokens": 393,
+          "summary": "",
+          "keywords": [
+            "CSS",
+            "推荐",
+            "风格"
+          ]
+        },
+        {
+          "anchor": "§报告语气",
+          "level": 2,
+          "startLine": 206,
+          "endLine": 214,
+          "tokens": 90,
+          "summary": "保持专业、明确、可执行：",
+          "keywords": [
+            "报告语气"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs-2026-global-game-legal-regulatory.md",
+      "tokens": 1802,
+      "lines": 103,
+      "sha256": "0d970b96f5e02231fa251fa9392c9115b7137a7a5a37cbc9604b29798b65fb7a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§2026年全球游戏行业法律监管动态",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 104,
+          "tokens": 1787,
+          "summary": "导入时间：2026-05-08",
+          "keywords": [
+            "年全球游戏行",
+            "业法律监管动"
+          ]
+        },
+        {
+          "anchor": "§正文抽取",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 104,
+          "tokens": 1706,
+          "summary": "2026年全球游戏行业法律监管动态",
+          "keywords": [
+            "正文抽取"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs-china-game-policy-summary.md",
+      "tokens": 1540,
+      "lines": 130,
+      "sha256": "1dd50ff99c0afa9840ea9ae367573d487576db5914a9926a22876be695927df5",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§中国游戏行业政策汇总",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 131,
+          "tokens": 1529,
+          "summary": "导入时间：2026-05-08",
+          "keywords": [
+            "中国游戏行业",
+            "政策汇总"
+          ]
+        },
+        {
+          "anchor": "§正文抽取",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 131,
+          "tokens": 1452,
+          "summary": "中国游戏行业政策汇总",
+          "keywords": [
+            "正文抽取"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs-female-exposure-rules.md",
+      "tokens": 938,
+      "lines": 58,
+      "sha256": "29ef14a5dd204166b986ff31ee1516448da377c4e9ffc6fe81f0cc6343011cef",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§女性角色局部露肤审核细化规则",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 59,
+          "tokens": 923,
+          "summary": "导入时间：2026-05-08",
+          "keywords": [
+            "女性角色局部",
+            "露肤审核细化",
+            "规则"
+          ]
+        },
+        {
+          "anchor": "§规则来源",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 9,
+          "tokens": 72,
+          "summary": "本规则来自用户对素材审核口径的明确补充：在女性角色胸部位置，两条红线中间的位置禁止露肤。后续审核女性角色宣发素材时，应将",
+          "keywords": [
+            "规则来源"
+          ]
+        },
+        {
+          "anchor": "§适用范围",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 17,
+          "tokens": 92,
+          "summary": "适用于以下素材：",
+          "keywords": [
+            "适用范围"
+          ]
+        },
+        {
+          "anchor": "§核心判定",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 28,
+          "tokens": 135,
+          "summary": "以 assets/female-exposure-redline-example.png 为基准，女性胸部位置两条红线中",
+          "keywords": [
+            "assets",
+            "female",
+            "exposure",
+            "redline",
+            "example",
+            "png"
+          ]
+        },
+        {
+          "anchor": "§风险等级",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 35,
+          "tokens": 164,
+          "summary": "若红线区内出现明显连续肤色裸露：至少判定为 P1 高风险，不建议直接上线。",
+          "keywords": [
+            "风险等级"
+          ]
+        },
+        {
+          "anchor": "§审核步骤",
+          "level": 2,
+          "startLine": 36,
+          "endLine": 43,
+          "tokens": 111,
+          "summary": "1. 先定位女性角色胸部位置。",
+          "keywords": [
+            "审核步骤"
+          ]
+        },
+        {
+          "anchor": "§修改建议",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 51,
+          "tokens": 142,
+          "summary": "增加内搭、胸前护甲、拉链、围巾、战术装备遮挡红线区。",
+          "keywords": [
+            "修改建议"
+          ]
+        },
+        {
+          "anchor": "§报告写法",
+          "level": 2,
+          "startLine": 52,
+          "endLine": 59,
+          "tokens": 149,
+          "summary": "推荐表述：",
+          "keywords": [
+            "报告写法"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs-game-company-crisis-pr.md",
+      "tokens": 2166,
+      "lines": 224,
+      "sha256": "68281abefc754e37beb159f2677e0f7d79c6842168267c48623af821f0343c26",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§游戏公司危机公关应对策略",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 225,
+          "tokens": 2153,
+          "summary": "导入时间：2026-05-08",
+          "keywords": [
+            "游戏公司危机",
+            "公关应对策略"
+          ]
+        },
+        {
+          "anchor": "§正文抽取",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 225,
+          "tokens": 2074,
+          "summary": "游戏公司危机公关应对策略",
+          "keywords": [
+            "正文抽取"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs-game-ip-protection-cases.md",
+      "tokens": 2134,
+      "lines": 162,
+      "sha256": "53ddc712eaf0cd255aad84156546938b79fee280fbf4d5d561e791bd45244755",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§游戏知识产权保护与侵权案例",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 163,
+          "tokens": 2120,
+          "summary": "导入时间：2026-05-08",
+          "keywords": [
+            "游戏知识产权",
+            "保护与侵权案"
+          ]
+        },
+        {
+          "anchor": "§正文抽取",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 163,
+          "tokens": 2040,
+          "summary": "游戏知识产权保护与侵权案例",
+          "keywords": [
+            "正文抽取"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs-global-cultural-risk.md",
+      "tokens": 3013,
+      "lines": 59,
+      "sha256": "468a6c5a2686759f6e096547698aa3a5df1bdfb5113934efe204c24fe35bea5e",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§【FOR CODM】全球文化、宗教、合规等风险提示手册（持续更新）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 60,
+          "tokens": 2985,
+          "summary": "来源文件：D:/WorkSpace/合规文档/【FOR CODM】全球文化、宗教、合规等风险提示手册（持续更新）.xls",
+          "keywords": [
+            "FOR",
+            "CODM",
+            "WorkSpace",
+            "xls",
+            "全球文化",
+            "宗教"
+          ]
+        },
+        {
+          "anchor": "§说明（Excel第2行）",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 12,
+          "tokens": 263,
+          "summary": "【DF】全球文化、宗教、合规等风险提示手册说明<br><br>在全球发行的背景下，不同文化、法律合规要求、宗教信仰认知的",
+          "keywords": [
+            "Excel",
+            "说明"
+          ]
+        },
+        {
+          "anchor": "§说明（Excel第3行）",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 18,
+          "tokens": 348,
+          "summary": "敏感等级评级标准：<br>🚫高危，不可触碰：直接违反法律或触碰政策底线，请删改<br>⚠️中高危，尽量修：可能引发区域",
+          "keywords": [
+            "Excel",
+            "说明"
+          ]
+        },
+        {
+          "anchor": "§风险条目表",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 55,
+          "tokens": 2204,
+          "summary": "1 血液、血渍 WW 高危，不可触碰 1、溅血效果及画面表现都比较暴力血腥<br>2、越南游戏合规要求不能有血液展示 文",
+          "keywords": [
+            "风险条目表"
+          ]
+        },
+        {
+          "anchor": "§抽取统计",
+          "level": 2,
+          "startLine": 56,
+          "endLine": 60,
+          "tokens": 18,
+          "summary": "风险条目数量：32",
+          "keywords": [
+            "抽取统计"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs-global-game-compliance-trends.md",
+      "tokens": 1895,
+      "lines": 123,
+      "sha256": "bcbd68949597b42e5acab6c658885e287d53f144c25137784b7c5da4a09a46d0",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§全球游戏市场合规监管趋势分析",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 124,
+          "tokens": 1880,
+          "summary": "导入时间：2026-05-08",
+          "keywords": [
+            "全球游戏市场",
+            "合规监管趋势",
+            "分析"
+          ]
+        },
+        {
+          "anchor": "§正文抽取",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 124,
+          "tokens": 1799,
+          "summary": "全球游戏市场合规监管趋势分析",
+          "keywords": [
+            "正文抽取"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs-online-game-company-full-process-compliance.md",
+      "tokens": 2007,
+      "lines": 116,
+      "sha256": "1166c8a6e59d71ab92fb93978231fb230533a13d925d61eb5d0d7753c151ec6f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§网络游戏公司全流程合规指南",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 117,
+          "tokens": 1993,
+          "summary": "导入时间：2026-05-08",
+          "keywords": [
+            "网络游戏公司",
+            "全流程合规指"
+          ]
+        },
+        {
+          "anchor": "§正文抽取",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 117,
+          "tokens": 1913,
+          "summary": "网络游戏公司全流程合规指南",
+          "keywords": [
+            "正文抽取"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-material-precheck/references/source-docs.md",
+      "tokens": 1075,
+      "lines": 41,
+      "sha256": "024f2d93582cf8c151828b1924f20f5ac0a94056e9cd856a382b81b6a329d90c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§本地知识库原文区",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 42,
+          "tokens": 1066,
+          "summary": "本文件用于粘贴、沉淀和更新「游戏素材预审」使用的原始/半原始知识库内容。",
+          "keywords": [
+            "本地知识库原",
+            "文区"
+          ]
+        },
+        {
+          "anchor": "§使用方式",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 16,
+          "tokens": 160,
+          "summary": "将乐享知识库中的文档正文直接粘贴到本文件。",
+          "keywords": [
+            "使用方式"
+          ]
+        },
+        {
+          "anchor": "§待补充文档目录",
+          "level": 2,
+          "startLine": 17,
+          "endLine": 27,
+          "tokens": 100,
+          "summary": "建议优先补充以下内容：",
+          "keywords": [
+            "待补充文档目"
+          ]
+        },
+        {
+          "anchor": "§已导入文档",
+          "level": 2,
+          "startLine": 28,
+          "endLine": 38,
+          "tokens": 643,
+          "summary": "source-docs-global-cultural-risk.md：已从 D:/WorkSpace/合规文档/【FO",
+          "keywords": [
+            "source",
+            "docs",
+            "global",
+            "cultural",
+            "risk",
+            "WorkSpace"
+          ]
+        },
+        {
+          "anchor": "§当前状态",
+          "level": 2,
+          "startLine": 39,
+          "endLine": 42,
+          "tokens": 103,
+          "summary": "已导入全球文化、宗教、合规风险提示手册、女性角色胸部红线区禁止露肤细化规则，以及 6 份乐享知识库 Word 文档。技能",
+          "keywords": [
+            "Word",
+            "当前状态"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/game-numeric-design/SKILL.md",
+      "tokens": 1540,
+      "lines": 255,
+      "sha256": "8154834c7f84b2ce7bf615ed07420d914d95aaf6bb6310b60445e07dd35a7502",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§游戏数值策划技能",
+          "level": 1,
+          "startLine": 11,
+          "endLine": 256,
+          "tokens": 1455,
+          "summary": "基于《游戏数值设定入门》的方法论，提供游戏数值设计工具。",
+          "keywords": [
+            "游戏数值策划",
+            "技能"
+          ]
+        },
+        {
+          "anchor": "§核心方法论",
+          "level": 2,
+          "startLine": 15,
+          "endLine": 38,
+          "tokens": 191,
+          "summary": "",
+          "keywords": [
+            "核心方法论"
+          ]
+        },
+        {
+          "anchor": "§五特性模型",
+          "level": 3,
+          "startLine": 17,
+          "endLine": 28,
+          "tokens": 138,
+          "summary": "任何数值模块都具备五个特性：",
+          "keywords": [
+            "五特性模型"
+          ]
+        },
+        {
+          "anchor": "§数值设定流程",
+          "level": 3,
+          "startLine": 29,
+          "endLine": 38,
+          "tokens": 39,
+          "summary": "",
+          "keywords": [
+            "数值设定流程"
+          ]
+        },
+        {
+          "anchor": "§公式工具库",
+          "level": 2,
+          "startLine": 39,
+          "endLine": 105,
+          "tokens": 340,
+          "summary": "",
+          "keywords": [
+            "公式工具库"
+          ]
+        },
+        {
+          "anchor": "§1 加减乘除",
+          "level": 3,
+          "startLine": 41,
+          "endLine": 55,
+          "tokens": 76,
+          "summary": "适用于：线性变化、直观数值",
+          "keywords": [
+            "加减乘除"
+          ]
+        },
+        {
+          "anchor": "§2 幂函数",
+          "level": 3,
+          "startLine": 56,
+          "endLine": 70,
+          "tokens": 78,
+          "summary": "适用于：成长曲线、边际效应",
+          "keywords": [
+            "幂函数"
+          ]
+        },
+        {
+          "anchor": "§3 数组/数列",
+          "level": 3,
+          "startLine": 71,
+          "endLine": 85,
+          "tokens": 79,
+          "summary": "适用于：固定数值表、阶段成长",
+          "keywords": [
+            "数组",
+            "数列"
+          ]
+        },
+        {
+          "anchor": "§4 正态分布",
+          "level": 3,
+          "startLine": 86,
+          "endLine": 105,
+          "tokens": 84,
+          "summary": "适用于：随机几率、波动数值",
+          "keywords": [
+            "正态分布"
+          ]
+        },
+        {
+          "anchor": "§模块设计模板",
+          "level": 2,
+          "startLine": 106,
+          "endLine": 198,
+          "tokens": 464,
+          "summary": "",
+          "keywords": [
+            "模块设计模板"
+          ]
+        },
+        {
+          "anchor": "§属性模块",
+          "level": 3,
+          "startLine": 108,
+          "endLine": 126,
+          "tokens": 124,
+          "summary": "",
+          "keywords": [
+            "属性模块"
+          ]
+        },
+        {
+          "anchor": "§怪物模块",
+          "level": 3,
+          "startLine": 127,
+          "endLine": 148,
+          "tokens": 106,
+          "summary": "",
+          "keywords": [
+            "怪物模块"
+          ]
+        },
+        {
+          "anchor": "§装备模块",
+          "level": 3,
+          "startLine": 149,
+          "endLine": 172,
+          "tokens": 79,
+          "summary": "",
+          "keywords": [
+            "装备模块"
+          ]
+        },
+        {
+          "anchor": "§经济系统",
+          "level": 3,
+          "startLine": 173,
+          "endLine": 198,
+          "tokens": 134,
+          "summary": "",
+          "keywords": [
+            "经济系统"
+          ]
+        },
+        {
+          "anchor": "§数值方向确定",
+          "level": 2,
+          "startLine": 199,
+          "endLine": 235,
+          "tokens": 258,
+          "summary": "",
+          "keywords": [
+            "数值方向确定"
+          ]
+        },
+        {
+          "anchor": "§方法",
+          "level": 3,
+          "startLine": 201,
+          "endLine": 206,
+          "tokens": 49,
+          "summary": "1. 确定目标：玩家在X级时能完成Y",
+          "keywords": [
+            "方法"
+          ]
+        },
+        {
+          "anchor": "§示例：战斗平衡",
+          "level": 3,
+          "startLine": 207,
+          "endLine": 235,
+          "tokens": 197,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "战斗平衡"
+          ]
+        },
+        {
+          "anchor": "§快速参考",
+          "level": 2,
+          "startLine": 236,
+          "endLine": 246,
+          "tokens": 83,
+          "summary": "升级经验 幂函数 (i<1 先易后难)",
+          "keywords": [
+            "快速参考"
+          ]
+        },
+        {
+          "anchor": "§使用示例",
+          "level": 2,
+          "startLine": 247,
+          "endLine": 256,
+          "tokens": 56,
+          "summary": "当需要设计游戏数值时：",
+          "keywords": [
+            "使用示例"
           ]
         }
       ]
@@ -16420,6 +19780,634 @@
       ]
     },
     {
+      "path": "my-skills/wxgame-minigame-bridge/README.md",
+      "tokens": 344,
+      "lines": 26,
+      "sha256": "9aed7103d56dc00f86b4d11e951fd21c4df3f76244a3a20771b5806922ce40a5",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame-minigame-bridge",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 27,
+          "tokens": 338,
+          "summary": "微信小游戏 MCP 的仓库适配层 skill。使用指南见 [SKILL.md](./SKILL.md)。",
+          "keywords": [
+            "wxgame",
+            "minigame",
+            "bridge",
+            "MCP",
+            "skill",
+            "SKILL"
+          ]
+        },
+        {
+          "anchor": "§目录",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 12,
+          "tokens": 74,
+          "summary": "",
+          "keywords": [
+            "目录"
+          ]
+        },
+        {
+          "anchor": "§留档来源",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 22,
+          "tokens": 163,
+          "summary": "references/ 两文件为 2026-09-13 从 CodeBuddy 插件",
+          "keywords": [
+            "references",
+            "CodeBuddy",
+            "留档来源"
+          ]
+        },
+        {
+          "anchor": "§演进",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 27,
+          "tokens": 62,
+          "summary": "原 my-skills/weixin-minigame-helper（v0.1.4 快照副本）于 WXG-T-035 改",
+          "keywords": [
+            "skills",
+            "weixin",
+            "minigame",
+            "helper",
+            "WXG",
+            "演进"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-minigame-bridge/SKILL.md",
+      "tokens": 2123,
+      "lines": 120,
+      "sha256": "1addc4c98627519baeb78fea7b56f2747fedc00da4f721984ab092578c90e0df",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame-minigame-bridge — 微信小游戏 MCP 仓库适配层",
+          "level": 1,
+          "startLine": 13,
+          "endLine": 121,
+          "tokens": 1884,
+          "summary": "定位：适配层，不是工具手册。工具能力全部来自 MCP server",
+          "keywords": [
+            "wxgame",
+            "minigame",
+            "bridge",
+            "MCP",
+            "server",
+            "微信小游戏"
+          ]
+        },
+        {
+          "anchor": "§1 仓库适配三件事（官方文档与本仓库不匹配处，以本节为准）",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 61,
+          "tokens": 601,
+          "summary": "",
+          "keywords": [
+            "仓库适配三件",
+            "官方文档与本",
+            "仓库不匹配处",
+            "以本节为准"
+          ]
+        },
+        {
+          "anchor": "§① 入口路径映射——`workspacePath` 一律指构建产物",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 42,
+          "tokens": 228,
+          "summary": "官方假设游戏目录含 game.js。本仓库是 monorepo，仓库根与 Cocos 工程根都没有 game.js，",
+          "keywords": [
+            "workspacePath",
+            "game",
+            "monorepo",
+            "Cocos",
+            "入口路径映射",
+            "一律指构建产"
+          ]
+        },
+        {
+          "anchor": "§② Cocos 构建前置（当前未通）",
+          "level": 3,
+          "startLine": 43,
+          "endLine": 53,
+          "tokens": 178,
+          "summary": "MCP 能力链起点是构建产物，而构建链依赖 Cocos Creator 编辑器（ADR-0009 P2）。",
+          "keywords": [
+            "Cocos",
+            "MCP",
+            "Creator",
+            "ADR",
+            "构建前置",
+            "当前未通"
+          ]
+        },
+        {
+          "anchor": "§③ WorkBuddy 例外",
+          "level": 3,
+          "startLine": 54,
+          "endLine": 61,
+          "tokens": 155,
+          "summary": "四 IDE 中 CodeBuddy / Cursor / Qoder 的能力来自仓库内 MCP 配置（根 .mcp.js",
+          "keywords": [
+            "WorkBuddy",
+            "IDE",
+            "CodeBuddy",
+            "Cursor",
+            "Qoder",
+            "MCP"
+          ]
+        },
+        {
+          "anchor": "§2 工具面（不复制清单，防漂移）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 71,
+          "tokens": 181,
+          "summary": "约 10 个工具由 MCP 配置自动注入，前缀因宿主而异（CodeBuddy/Qoder/Cursor/WorkBudd",
+          "keywords": [
+            "MCP",
+            "CodeBuddy",
+            "Qoder",
+            "Cursor",
+            "WorkBudd",
+            "工具面"
+          ]
+        },
+        {
+          "anchor": "§3 四场景工作流（沿用官方，路径已按①修正）",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 107,
+          "tokens": 645,
+          "summary": "",
+          "keywords": [
+            "四场景工作流",
+            "沿用官方",
+            "路径已按",
+            "修正"
+          ]
+        },
+        {
+          "anchor": "§场景一：构建产物更新后预览 + 日志循环（最常用）",
+          "level": 3,
+          "startLine": 74,
+          "endLine": 86,
+          "tokens": 260,
+          "summary": "1. 确认 games/<game>/build/wechatgame/ 存在（不存在 → 走 ADR-0009 构建链",
+          "keywords": [
+            "games",
+            "game",
+            "build",
+            "wechatgame",
+            "ADR",
+            "场景一"
+          ]
+        },
+        {
+          "anchor": "§场景二：看日志调试",
+          "level": 3,
+          "startLine": 87,
+          "endLine": 90,
+          "tokens": 36,
+          "summary": "get_logs + filter 正则；日志格式 [时间戳] [级别] 消息。配合截图类工具可取证画面。",
+          "keywords": [
+            "get_logs",
+            "filter",
+            "场景二",
+            "看日志调试"
+          ]
+        },
+        {
+          "anchor": "§场景三：真机预览",
+          "level": 3,
+          "startLine": 91,
+          "endLine": 99,
+          "tokens": 166,
+          "summary": "1. real_device_preview（workspacePath = 构建产物）",
+          "keywords": [
+            "real_device_preview",
+            "workspacePath",
+            "场景三",
+            "真机预览"
+          ]
+        },
+        {
+          "anchor": "§场景四：上传开发版",
+          "level": 3,
+          "startLine": 100,
+          "endLine": 107,
+          "tokens": 130,
+          "summary": "1. 高影响动作（control-manifest §15）：调 publish 前必须用户人工确认版本号与描述；",
+          "keywords": [
+            "§15",
+            "control",
+            "manifest",
+            "publish",
+            "场景四",
+            "上传开发版"
+          ]
+        },
+        {
+          "anchor": "§4 纪律速查（详见 control-manifest §15）",
+          "level": 2,
+          "startLine": 108,
+          "endLine": 115,
+          "tokens": 110,
+          "summary": "MCP 配置中包版本锚定（当前 0.1.13），禁止 @latest；升级 = 改锚 +",
+          "keywords": [
+            "§15",
+            "control",
+            "manifest",
+            "MCP",
+            "latest",
+            "纪律速查"
+          ]
+        },
+        {
+          "anchor": "§5 跨域与升级",
+          "level": 2,
+          "startLine": 116,
+          "endLine": 121,
+          "tokens": 69,
+          "summary": "跨域或全流程请求先交 wxgame-orchestration（本 skill 属域·平台执行层）",
+          "keywords": [
+            "wxgame",
+            "orchestration",
+            "skill",
+            "跨域与升级"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-minigame-bridge/references/official-readme-0.1.4.md",
+      "tokens": 682,
+      "lines": 67,
+      "sha256": "7db666d28865ded5051be3a0c18c2b7c1c290554bb0a6b00b1be0c3bc7bcd855",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WeiXin Mini Game Helper",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 68,
+          "tokens": 676,
+          "summary": "微信小游戏 AI 开发助手 —— 预览、调试、真机测试、发布一站式解决。",
+          "keywords": [
+            "WeiXin",
+            "Mini",
+            "Game",
+            "Helper"
+          ]
+        },
+        {
+          "anchor": "§✨ 功能概览",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 12,
+          "tokens": 123,
+          "summary": "🎮 浏览器预览：本地实时运行微信小游戏，支持多机型模拟",
+          "keywords": [
+            "功能概览"
+          ]
+        },
+        {
+          "anchor": "§🚀 快速上手",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 35,
+          "tokens": 158,
+          "summary": "安装插件后，AI 会自动获得小游戏开发能力，无需额外配置。",
+          "keywords": [
+            "快速上手"
+          ]
+        },
+        {
+          "anchor": "§自然语言交互",
+          "level": 3,
+          "startLine": 17,
+          "endLine": 27,
+          "tokens": 59,
+          "summary": "直接告诉 AI 你想做什么：",
+          "keywords": [
+            "自然语言交互"
+          ]
+        },
+        {
+          "anchor": "§斜杠命令",
+          "level": 3,
+          "startLine": 28,
+          "endLine": 35,
+          "tokens": 59,
+          "summary": "/weixin-minigame-helper:preview 启动游戏预览",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "preview",
+            "斜杠命令"
+          ]
+        },
+        {
+          "anchor": "§📱 真机测试 & 发布配置",
+          "level": 2,
+          "startLine": 36,
+          "endLine": 43,
+          "tokens": 120,
+          "summary": "真机测试和发布需要配置微信 AppID 和上传密钥：",
+          "keywords": [
+            "AppID",
+            "真机测试",
+            "发布配置"
+          ]
+        },
+        {
+          "anchor": "§📋 项目结构要求",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 53,
+          "tokens": 71,
+          "summary": "确保你的微信小游戏项目包含以下文件：",
+          "keywords": [
+            "项目结构要求"
+          ]
+        },
+        {
+          "anchor": "§❓ 常见问题",
+          "level": 2,
+          "startLine": 54,
+          "endLine": 68,
+          "tokens": 138,
+          "summary": "Q: 提示\"这不是一个标准的微信小游戏结构\"",
+          "keywords": [
+            "常见问题"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md",
+      "tokens": 4543,
+      "lines": 251,
+      "sha256": "0c9aedd9b7157da995f5b5b56533c77ae41b8008ba77f52a4c46b1da613f9269",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WeChat Mini Game Preview — Skill 使用指南",
+          "level": 1,
+          "startLine": 30,
+          "endLine": 251,
+          "tokens": 3800,
+          "summary": "",
+          "keywords": [
+            "WeChat",
+            "Mini",
+            "Game",
+            "Preview",
+            "Skill",
+            "使用指南"
+          ]
+        },
+        {
+          "anchor": "§🔴 最重要的规则（必须严格遵守）",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 67,
+          "tokens": 818,
+          "summary": "自动预览规则（最高优先级）：",
+          "keywords": [
+            "最重要的规则",
+            "必须严格遵守"
+          ]
+        },
+        {
+          "anchor": "§概述",
+          "level": 2,
+          "startLine": 68,
+          "endLine": 77,
+          "tokens": 120,
+          "summary": "这个 Skill 让你能够：",
+          "keywords": [
+            "Skill",
+            "概述"
+          ]
+        },
+        {
+          "anchor": "§MCP 工具参考",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 87,
+          "tokens": 143,
+          "summary": "run_game 启动游戏预览 workspacePath: 游戏目录绝对路径（必须含 game.js）",
+          "keywords": [
+            "MCP",
+            "run_game",
+            "workspacePath",
+            "game",
+            "工具参考"
+          ]
+        },
+        {
+          "anchor": "§工作流程",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 141,
+          "tokens": 968,
+          "summary": "",
+          "keywords": [
+            "工作流程"
+          ]
+        },
+        {
+          "anchor": "§场景一：生成/修改小游戏代码后自动预览（最常见、最重要）",
+          "level": 3,
+          "startLine": 90,
+          "endLine": 110,
+          "tokens": 454,
+          "summary": "这是最典型的场景。任何时候你修改了小游戏代码，都必须自动触发预览。",
+          "keywords": [
+            "场景一",
+            "生成",
+            "修改小游戏代",
+            "码后自动预览",
+            "最常见",
+            "最重要"
+          ]
+        },
+        {
+          "anchor": "§场景二：查看日志调试问题",
+          "level": 3,
+          "startLine": 111,
+          "endLine": 117,
+          "tokens": 64,
+          "summary": "当游戏运行中出现问题时：",
+          "keywords": [
+            "场景二",
+            "查看日志调试",
+            "问题"
+          ]
+        },
+        {
+          "anchor": "§场景三：真机预览",
+          "level": 3,
+          "startLine": 118,
+          "endLine": 133,
+          "tokens": 263,
+          "summary": "当用户要求在真机上预览、体验、测试时：",
+          "keywords": [
+            "场景三",
+            "真机预览"
+          ]
+        },
+        {
+          "anchor": "§场景四：上传开发版/上传体验版/发布到微信",
+          "level": 3,
+          "startLine": 134,
+          "endLine": 141,
+          "tokens": 116,
+          "summary": "1. 确认用户要发布的版本号和描述",
+          "keywords": [
+            "场景四",
+            "上传开发版",
+            "上传体验版",
+            "发布到微信"
+          ]
+        },
+        {
+          "anchor": "§完整使用示例",
+          "level": 2,
+          "startLine": 142,
+          "endLine": 199,
+          "tokens": 887,
+          "summary": "",
+          "keywords": [
+            "完整使用示例"
+          ]
+        },
+        {
+          "anchor": "§示例 1：用户说\"帮我做一个打砖块小游戏\"",
+          "level": 3,
+          "startLine": 144,
+          "endLine": 154,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "帮我做一个打",
+            "砖块小游戏"
+          ]
+        },
+        {
+          "anchor": "§示例 2：用户说\"把颜色改成红色\"（代码修改后自动预览）",
+          "level": 3,
+          "startLine": 155,
+          "endLine": 165,
+          "tokens": 164,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "把颜色改成红",
+            "代码修改后自",
+            "动预览"
+          ]
+        },
+        {
+          "anchor": "§示例 2.5：用户说\"帮我加个得分系统\"（较大代码修改后自动预览）",
+          "level": 3,
+          "startLine": 166,
+          "endLine": 177,
+          "tokens": 222,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "帮我加个得分",
+            "系统",
+            "较大代码修改",
+            "后自动预览"
+          ]
+        },
+        {
+          "anchor": "§示例 3：用户说\"真机体验测试下\"",
+          "level": 3,
+          "startLine": 178,
+          "endLine": 188,
+          "tokens": 112,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "真机体验测试"
+          ]
+        },
+        {
+          "anchor": "§示例 4：用户说\"上传到微信\"",
+          "level": 3,
+          "startLine": 189,
+          "endLine": 199,
+          "tokens": 109,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "上传到微信"
+          ]
+        },
+        {
+          "anchor": "§微信小游戏项目结构",
+          "level": 2,
+          "startLine": 200,
+          "endLine": 211,
+          "tokens": 81,
+          "summary": "一个标准的微信小游戏项目应包含：",
+          "keywords": [
+            "微信小游戏项",
+            "目结构"
+          ]
+        },
+        {
+          "anchor": "§注意事项",
+          "level": 2,
+          "startLine": 212,
+          "endLine": 219,
+          "tokens": 134,
+          "summary": "游戏目录必须包含 game.js 文件",
+          "keywords": [
+            "game",
+            "注意事项"
+          ]
+        },
+        {
+          "anchor": "§⚠️ 重要约束",
+          "level": 2,
+          "startLine": 220,
+          "endLine": 251,
+          "tokens": 592,
+          "summary": "真机预览（real_device_preview）和上传开发版（publish）成功后，禁止调用 run_game、re",
+          "keywords": [
+            "real_device_preview",
+            "publish",
+            "run_game",
+            "重要约束"
+          ]
+        }
+      ]
+    },
+    {
       "path": "my-skills/wxgame-orchestration/SKILL.md",
       "tokens": 2194,
       "lines": 104,
@@ -16986,17 +20974,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2778,
-      "lines": 49,
-      "sha256": "d66765c272f69eebf0040e13c1e4ed607243381cc6e0876dabda27e9d8a4fc05",
+      "tokens": 4145,
+      "lines": 56,
+      "sha256": "83fd444df4e3e93582852f6045aab8be6cef0d3595a73688116dbfcd30c98673",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 50,
-          "tokens": 2769,
+          "endLine": 57,
+          "tokens": 4136,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -17010,9 +20998,9 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 43,
-          "endLine": 50,
-          "tokens": 253,
+          "startLine": 49,
+          "endLine": 57,
+          "tokens": 476,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [
             "backlog",

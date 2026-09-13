@@ -28,10 +28,26 @@
  * warns that local line numbers may drift until you commit and re-run.
  * Escape hatch: `--working-tree` forces every file to working-tree bytes.
  *
+ * STAGED-BLOBS MODE (WXG-T-032 ⑤, 2026-09-13)
+ * -------------------------------------------
+ * The interception-style pre-commit was proven **structurally unpassable**: the
+ * index describes HEAD, so any commit touching an indexed `.md` has staged
+ * content ≠ index → `--staged` could only be bypassed via `--no-verify`.
+ * `--staged-blobs` implements the replacement semantics ("auto rebuild +
+ * re-stage", used by `.githooks/pre-commit`):
+ *   • staged `.md`            → indexed from their **staged blob**
+ *     (`git show :<path>` — exactly what is about to be committed);
+ *   • staged new files        → indexed as well (same source);
+ *   • everything else         → committed contract (unstaged dirty → HEAD blob,
+ *     clean → working tree).
+ * Output is still byte-stable (`ctx/index.json` + `ctx/BUDGET.md`); the hook
+ * re-stages both products so they are committed with the change.
+ *
  * USAGE
  *   node tools/scripts/build-context-index.mjs                    # write index + report
  *   node tools/scripts/build-context-index.mjs --check            # verify freshness, exit 1 on drift
  *   node tools/scripts/build-context-index.mjs --working-tree     # 逃生阀：按本地未提交内容索引
+ *   node tools/scripts/build-context-index.mjs --staged-blobs     # pre-commit 自动重建：暂存 .md 按暂存 blob 索引
  *
  * `--check` recomputes each file's content (per the contract above) and compares
  * it to the committed index; any mismatch (or a tracked-but-unindexed `.md`) is
@@ -59,6 +75,18 @@ import {
 const CHECK = process.argv.includes('--check');
 /** 逃生阀（WXG-T-026）：强制全部按工作树内容（含未提交改动）；输出标注「非默认模式」。 */
 const WORKING_TREE = process.argv.includes('--working-tree');
+/** pre-commit 自动重建模式（WXG-T-032 ⑤）：暂存 .md 按暂存 blob 内容索引；输出标注「非默认模式」。 */
+const STAGED_BLOBS = process.argv.includes('--staged-blobs');
+if (WORKING_TREE && STAGED_BLOBS) {
+  console.error('❌ --working-tree 与 --staged-blobs 互斥：前者按工作树，后者按暂存区 blob。');
+  process.exit(2);
+}
+if (CHECK && STAGED_BLOBS) {
+  console.error('❌ --staged-blobs 仅用于重建（不带 --check）；新鲜度校验请用默认模式或 --working-tree。');
+  process.exit(2);
+}
+/** 统一 mode：committed（默认）/ working-tree（逃生阀）/ staged-blobs（pre-commit 自动重建）。 */
+const MODE = STAGED_BLOBS ? 'staged-blobs' : WORKING_TREE ? 'working-tree' : 'committed';
 
 /** §4 最少样本数：低于此值则以「ROUTES 锚点集」回退并在报表标注「样本不足」。 */
 const USAGE_MIN_SAMPLES = LIMITS.usageMinSamples;
@@ -237,25 +265,59 @@ function runCheck() {
 function runBuild() {
   mkdirSync(dirname(INDEX_PATH), { recursive: true });
 
-  // 1) write the report first (from a provisional index), then 2) re-index so the
-  // freshly written `ctx/BUDGET.md` is itself covered by the index. BUDGET only
-  // reports on the always/hot/top-20 tiers, so it never references its own token
-  // count — the two passes converge and the output is byte-stable. (BUDGET.md is
+  // 1) converge: `ctx/BUDGET.md` is itself an indexed file and can rank in the
+  // Top-20 table — its self-row makes the old two-pass build lag the fixed point
+  // by one rebuild (first-build transient / newly added file rows). Loop until the
+  // rendered BUDGET bytes stop changing (≤4 rounds; converges in 2–3), so the
+  // products are a true byte-level fixed point: re-running the build at any time
+  // yields identical bytes (pre-commit 复算一致性依赖此性质, WXG-T-032 ⑤).
+  // 2) then write index.json from a final pass over the stable BUDGET.md, so the
+  // index's BUDGET record matches the exact bytes on disk. (BUDGET.md is
   // WORKTREE_AUTHORITATIVE, so the dirty→HEAD rule never shadows the new bytes.)
-  writeFileSync(BUDGET_MD_PATH, renderBudget(buildIndex({ workingTree: WORKING_TREE }).index), 'utf8');
-  const { index, meta } = buildIndex({ workingTree: WORKING_TREE });
-  writeFileSync(INDEX_PATH, serializeIndex(index), 'utf8');
+  let index = null;
+  let prevBudget = null;
+  for (let round = 0; round < 4; round += 1) {
+    ({ index } = buildIndex({ mode: MODE }));
+    const budget = renderBudget(index);
+    if (budget === prevBudget) break; // 本轮读到的 BUDGET 与上轮写出的一致 → 已到不动点
+    prevBudget = budget;
+    writeFileSync(BUDGET_MD_PATH, budget, 'utf8');
+  }
+  const { index: finalIndex, meta } = buildIndex({ mode: MODE });
+  writeFileSync(INDEX_PATH, serializeIndex(finalIndex), 'utf8');
 
   const byTier = { always: 0, hot: 0, normal: 0 };
-  for (const f of index.files) byTier[f.tier] += 1;
-  const sections = index.files.reduce((n, f) => n + f.sections.length, 0);
+  for (const f of finalIndex.files) byTier[f.tier] += 1;
+  const sections = finalIndex.files.reduce((n, f) => n + f.sections.length, 0);
   console.log(
-    `✅ ctx/index.json 已写入 — 文件 ${index.files.length}（always ${byTier.always} / hot ${byTier.hot} / normal ${byTier.normal}），章节 ${sections}`,
+    `✅ ctx/index.json 已写入 — 文件 ${finalIndex.files.length}（always ${byTier.always} / hot ${byTier.hot} / normal ${byTier.normal}），章节 ${sections}`,
   );
   console.log('✅ ctx/BUDGET.md 已写入');
 
-  // ── 契约提示：dirty 文件按 HEAD 索引 & 未提交新文件被跳过（WXG-T-026）──────────
-  if (meta.workingTree) {
+  // ── 契约提示：dirty 文件按 HEAD 索引 & 未提交新文件被跳过（WXG-T-026）；──────
+  // ── staged-blobs：暂存 .md 按暂存 blob 索引（WXG-T-032 ⑤，pre-commit 自动重建）──
+  if (meta.stagedBlobs) {
+    console.log(
+      '⚠️  非默认模式（--staged-blobs）：暂存区中的 .md 按**暂存 blob**内容索引' +
+        '（= 即将提交的内容；pre-commit 自动重建用，WXG-T-032 ⑤）。',
+    );
+    if (!meta.git) {
+      console.log('⚠️  未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');
+    } else {
+      if (meta.stagedIndexed.length > 0) {
+        console.log(`ℹ️  ${meta.stagedIndexed.length} 个文件按暂存内容索引：`);
+        for (const p of meta.stagedIndexed) console.log(`     - ${p}`);
+      }
+      if (meta.headIndexed.length > 0) {
+        console.log(`ℹ️  ${meta.headIndexed.length} 个未暂存 dirty 文件仍按 **HEAD 内容**索引（committed 契约不变）：`);
+        for (const p of meta.headIndexed) console.log(`     - ${p}`);
+      }
+      if (meta.newFilesSkipped.length > 0) {
+        console.log(`ℹ️  ${meta.newFilesSkipped.length} 个未暂存新文件未入索引（暂存区 / HEAD 均无）：`);
+        for (const p of meta.newFilesSkipped) console.log(`     - ${p}`);
+      }
+    }
+  } else if (meta.workingTree) {
     console.log('⚠️  非默认模式（--working-tree）：**全部**文件按工作树内容索引（含未提交改动）。');
   } else if (!meta.git) {
     console.log('⚠️  未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');
@@ -263,7 +325,7 @@ function runBuild() {
     if (meta.headIndexed.length > 0) {
       console.log(`ℹ️  ${meta.headIndexed.length} 个 dirty 文件按 **HEAD 内容**索引（索引描述已提交内容）：`);
       for (const p of meta.headIndexed) console.log(`     - ${p}`);
-      console.log('   提示：本地工作树这些文件的行号可能与索引不一致；提交后重跑 `pnpm run ctx:build` 即对齐。');
+      console.log('   提示：本地工作树这些文件的行号可能与索引不一致；提交时 pre-commit 会自动重建索引并重新暂存。');
     }
     if (meta.newFilesSkipped.length > 0) {
       console.log(`ℹ️  ${meta.newFilesSkipped.length} 个未提交新文件未入索引（HEAD 无此文件）：`);

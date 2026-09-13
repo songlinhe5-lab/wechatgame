@@ -14,6 +14,7 @@
     "typecheck": "pnpm -r run typecheck",
     "check:arch": "node tools/scripts/check-architecture.mjs",
     "check:links": "node tools/scripts/check-ide-links.mjs",
+    "check:plugins": "node tools/scripts/check-plugin-anchor.mjs",
     "levels:sync": "node tools/scripts/sync-levels-data.mjs",
     "levels:check": "node tools/scripts/sync-levels-data.mjs --check",
     "ctx:build": "node tools/scripts/build-context-index.mjs",

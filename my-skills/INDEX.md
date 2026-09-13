@@ -3,7 +3,7 @@
 > 本文件是 `my-skills/` 全家族的统一约定（人读 + 编排者读）。
 > 各 IDE 只扫描含 `SKILL.md` 的子目录，本文件不参与自动触发。
 
-## 1. 清单（现役 13 个挂四 IDE 链接；存档 1 个仅本目录留档）
+## 1. 清单（现役 17 个挂四 IDE 链接；存档 1 个仅本目录留档）
 
 | 层级 | skill | 职责 |
 |---|---|---|
@@ -17,6 +17,10 @@
 | 域·QA | `wxgame-qa-gates` | 测试计划/硬判据用例/冒烟/缺陷分级/Playtest |
 | 域·QA | `wxgame-quality-gate` | 执行 verify 全量门禁 + **强制工具调用报告表**（会话结论透明化，WXG-T-021） |
 | 域·发布 | `wxgame-release-checklist` | 六阶段发布、微信上架、版本策略、回滚预案 |
+| 域·数值 | `game-numeric-design` | 数值策划方法论（五特性模型 / 设定流程 / 公式工具库）；**冻结值仍以 systems-index §3 为准，本 skill 只供方法论** |
+| 域·合规 | `game-material-precheck` | 中国大陆宣发素材合规审核（合法/IP/文化宗教/敏感日期/舆情）→ HTML 报告；发布阶段配套 |
+| 域·平台 | `wxgame-minigame-bridge` | 微信小游戏**执行层·本仓适配**：预览 / 热重载 / 日志 / 真机二维码 / 上传开发版。能力同源 `@weadmin/weixin-minigame-helper-mcp@0.1.13`（根 `.mcp.json` + `.cursor/mcp.json` 锚定；vendor 留档 `my-plugins/`）。**现状：双前置未通——Cocos 编辑器未装、构建链未通（ADR-0009 P2），`games/<g>/build/wechatgame/` 不存在 → 全场景暂不可用**。原 `weixin-minigame-helper` 副本已改名改造消解同名双注册（ADR-0010） |
+| 域·AI | `game-ai-design` | NPC AI 三层解耦（decide/steer/path）、行为树、寻路；当前无 NPC 玩法，备用 |
 | 执行 | `indie-game-ost-pack` | 生成 8–15 首原创配乐（audio-spec 的执行层） |
 | 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层） |
 | 点名兜底 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；`disable-model-invocation: true`，仅明确点名时加载；references 按需单文件读取 |
@@ -40,8 +44,11 @@
 ```
 wxgame-orchestration（流程与裁决）
   > wxgame-* 域 skill（本仓方法论）
-    > 执行 pack（indie-game-ost-pack / game-ui-voice-pack）
-      > 外来通用（game-studio 等存档，仅点名）
+    > 外来现役（game-numeric-design / game-material-precheck /
+      wxgame-minigame-bridge / game-ai-design——外部方法论与平台执行，
+      与 wxgame-* 冲突时以后者为准：如数值冻结值一律以 systems-index §3 为准）
+      > 执行 pack（indie-game-ost-pack / game-ui-voice-pack）
+        > 外来通用（game-studio 等存档，仅点名）
 ```
 
 ## 4. 路径约定

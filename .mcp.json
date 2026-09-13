@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "weixin-minigame-helper": {
+      "command": "npx",
+      "args": ["-y", "@weadmin/weixin-minigame-helper-mcp@0.1.13"]
+    }
+  }
+}

@@ -17,6 +17,9 @@ dev/harness/.smoke/
 # 测试与覆盖率
 coverage/
 
+# IDE 会话工具产物（Agent 运行时计划文件，非项目资产）
+.codebuddy/plans/
+
 # Cocos Creator 本地生成物（assets/ 与 settings/ 必须提交，含 .meta）
 games/*/cocos/library/
 games/*/cocos/temp/

@@ -21,6 +21,13 @@
 #         ⑩ 索引新鲜度契约（WXG-T-026 修复）：在**独立 git 桩仓库**内验证 —— dirty（有未提交
 #            改动）文件按 **HEAD blob** 索引/校验（sha256 == `git show HEAD:<path>`，≠ 工作树内容）；
 #            未跟踪新 .md **不入索引**且不误报「未收录」；`--working-tree` 逃生阀标注「非默认模式」。
+#         ⑪ 暂存区校验（WXG-T-032 ③）：`--staged` 三态 —— 暂存内容与索引一致 → exit 0；
+#            不一致 → exit 1；暂存索引外新 .md → exit 1；无暂存 .md → 零暂存校验 exit 0。
+#         ⑫ pre-commit 自动重建（WXG-T-032 ⑤）：`--staged-blobs` 契约 —— 暂存内容被哈希入索引
+#            （暂存 ≠ 工作树时取暂存 blob）、暂存新文件入索引、未暂存 dirty 文件仍按 HEAD；
+#            真实 pre-commit 场景 —— 改 md → git add → commit 成功且提交树含重建后的
+#            index/BUDGET（提交后复算重建字节一致）、并发在制文件不受影响；兜底 —— 重建后
+#            再改暂存内容 / 手工改坏产物 → `--staged` 终校验 FAIL；再次提交由 hook 自愈成功。
 #
 # 用法：tools/scripts/context-usage-selftest.sh
 # 产物：仅 stdout 报告；临时目录在退出时清理，不污染仓库 / 本机转录。
@@ -508,6 +515,191 @@ while IFS=$'\t' read -r st label; do
 done <"$WORK/t7_3.txt"
 node "$CHECK_STUB" >"$WORK/c7_3.txt" 2>&1
 assert_eq "$?" "0" "⑦ 有未跟踪新 .md 时 ctx:check 仍 exit 0（不误报未收录）"
+
+# ── [8] 暂存区校验（WXG-T-032 ③）：--staged 三态 + 无暂存 .md 零暂存校验 ─────────
+# 做法：沿用 [7] 的独立 git 桩仓库 $CR（HEAD 已含与磁盘一致的 ctx/index.json），制造真实暂存场景。
+echo
+echo "[8] ctx:check --staged：一致 exit 0 / 不一致 exit 1 / 新文件未入索引 exit 1 / 无暂存 .md 零校验"
+
+# 8.0 无暂存 .md → C 项零暂存校验，exit 0（pre-commit 零开销路径的语义等价物）
+git -C "$CR" reset -q
+node "$CHECK_STUB" --staged >"$WORK/c8_0.txt" 2>&1
+assert_eq "$?" "0" "⑪ 无暂存 .md → --staged exit 0（零暂存校验）"
+assert_contains "$(cat "$WORK/c8_0.txt")" "--staged" "⑪ 输出标注 --staged 非默认模式"
+assert_contains "$(cat "$WORK/c8_0.txt")" "零暂存校验" "⑪ 输出含「零暂存校验」"
+
+# 8.1 三态之一「一致」：改 AGENTS.md → 按 --working-tree 重建索引 → .md 与索引一起暂存 → exit 0
+printf '\n暂存一致性场景（WXG-T-032 自测）。\n' >>"$CR/AGENTS.md"
+node "$BUILD_STUB" --working-tree >/dev/null 2>&1
+git -C "$CR" add AGENTS.md ctx/index.json
+node "$CHECK_STUB" --staged >"$WORK/c8_1.txt" 2>&1
+assert_eq "$?" "0" "⑪A 暂存内容与索引一致 → exit 0（重建后一起 git add 的正确姿势）"
+
+# 8.2 三态之二「不一致」：再改 AGENTS.md 并暂存但不重建索引 → exit 1 + 修复指引
+printf '再次修改，模拟「改了 md 忘了重建索引」（WXG-T-032 自测）。\n' >>"$CR/AGENTS.md"
+git -C "$CR" add AGENTS.md
+node "$CHECK_STUB" --staged >"$WORK/c8_2.txt" 2>&1
+assert_eq "$?" "1" "⑪B 暂存内容与索引不一致 → exit 1"
+assert_contains "$(cat "$WORK/c8_2.txt")" "暂存内容与索引不一致" "⑪B 输出含「暂存内容与索引不一致」"
+assert_contains "$(cat "$WORK/c8_2.txt")" "pnpm run ctx:build" "⑪B 输出含重建索引修复指引"
+
+# 8.3 三态之三「新文件未入索引」：暂存一个索引中不存在的新 .md → exit 1
+printf '# 新暂存文件（WXG-T-032 自测）\n\n正文。\n' >"$CR/docs/staged-new.md"
+git -C "$CR" add docs/staged-new.md
+node "$CHECK_STUB" --staged >"$WORK/c8_3.txt" 2>&1
+assert_eq "$?" "1" "⑪C 暂存了索引中不存在的新 .md → exit 1"
+assert_contains "$(cat "$WORK/c8_3.txt")" "新文件未入索引" "⑪C 输出含「新文件未入索引」"
+
+# ── [9] pre-commit 自动重建（WXG-T-032 ⑤）：staged-blobs 契约 / 真实 commit / 兜底 ─
+# 做法：沿用 [7]/[8] 的独立 git 桩仓库 $CR。真实 .githooks/pre-commit **原样复制**进桩仓库运行；
+#       用 PATH 桩 `pnpm`（只对 hook ① 的 `pnpm run check:links` 放行）跳过 links 门——
+#       links 门由专项脚本覆盖，本段只验 ② ctx 自动重建链路；hook 的 ② 全链路真实执行。
+echo
+echo "[9] pre-commit 自动重建（WXG-T-032 ⑤）：--staged-blobs 契约 + commit 成功含产物 + 兜底拦截"
+
+# 回到干净基线（清掉 [8] 遗留的暂存与未跟踪文件）。
+# 7.0 首建的 ctx/BUDGET.md 处于「自引用行落后一步」的瞬态；收敛式 build 会得到与 HEAD
+# 不同的字节 → 重建后归一入库，保证 [9] 的基线 = 产物不动点（后续复算断言才确定性成立）。
+git -C "$CR" reset -q --hard HEAD
+rm -rf "$CR/docs"
+node "$BUILD_STUB" >/dev/null 2>&1
+git -C "$CR" add -A
+git -C "$CR" -c user.email=selftest@example.com -c user.name=selftest \
+  commit -q -m "selftest: [9] baseline (converged ctx products)" >/dev/null 2>&1 || true
+node "$BUILD_STUB" >/dev/null 2>&1
+assert_eq "$(git -C "$CR" status --porcelain | wc -l | tr -d ' ')" "0" "⑫ [9] 桩仓库回到产物不动点基线（重建幂等）"
+
+# PATH 桩 pnpm + 真实 hook 原样复制 + core.hooksPath 指向桩仓库
+mkdir -p "$WORK/bin" "$CR/.githooks"
+printf '#!/usr/bin/env sh\n# selftest PATH 桩：pre-commit ① links 门放行（专项脚本覆盖）；② ctx 链路保持真实执行\nexit 0\n' >"$WORK/bin/pnpm"
+chmod +x "$WORK/bin/pnpm"
+cp "$SCRIPT_DIR/../../.githooks/pre-commit" "$CR/.githooks/pre-commit"
+git -C "$CR" config core.hooksPath .githooks
+
+# 9.1 契约：暂存内容被哈希入索引（暂存 ≠ 工作树时取暂存 blob）/ 未暂存 dirty 仍按 HEAD
+printf '\nstaged-blobs 契约测试（WXG-T-032 ⑤ 自测）。\n' >>"$CR/AGENTS.md"
+git -C "$CR" add AGENTS.md
+printf 'staged 之后的未暂存追加行。\n' >>"$CR/AGENTS.md"                     # 暂存内容 ≠ 工作树
+printf '\n并发会话未暂存改动（9.1 不暂存）。\n' >>"$CR/my-rules/INDEX.md"     # 未暂存 dirty
+node "$BUILD_STUB" --staged-blobs >"$WORK/b9_1.txt" 2>&1
+assert_eq "$?" "0" "⑫A --staged-blobs build 退出码 0"
+assert_contains "$(cat "$WORK/b9_1.txt")" "暂存 blob" "⑫A build 输出标注 --staged-blobs 非默认模式"
+node - "$CR" "$WORK/t9_1.txt" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+const [root, out] = process.argv.slice(2);
+const sha = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
+const g = (a) => execFileSync('git', a, { cwd: root, encoding: 'utf8' });
+const idx = JSON.parse(readFileSync(root + '/ctx/index.json', 'utf8'));
+const recOf = (p) => idx.files.find((f) => f.path === p);
+const stagedAg = g(['show', ':AGENTS.md']);
+const wtAg = readFileSync(root + '/AGENTS.md', 'utf8');
+const headRules = g(['show', 'HEAD:my-rules/INDEX.md']);
+const wtRules = readFileSync(root + '/my-rules/INDEX.md', 'utf8');
+const checks = [
+  ['AGENTS.md 索引 sha == 暂存 blob（暂存内容被哈希入索引）', recOf('AGENTS.md')?.sha256 === sha(stagedAg)],
+  ['AGENTS.md 索引 sha != 工作树内容（未误用未暂存改动）', recOf('AGENTS.md')?.sha256 !== sha(wtAg)],
+  ['my-rules/INDEX.md 索引 sha == HEAD blob（未暂存 dirty 仍按 HEAD 契约）', recOf('my-rules/INDEX.md')?.sha256 === sha(headRules)],
+  ['my-rules/INDEX.md 索引 sha != 工作树 dirty 内容', recOf('my-rules/INDEX.md')?.sha256 !== sha(wtRules)],
+];
+writeFileSync(out, checks.map(([l, c]) => `${c ? 'PASS' : 'FAIL'}\t${l}`).join('\n') + '\n', 'utf8');
+NODE_EOF
+while IFS=$'\t' read -r st label; do
+  if [ "$st" = "PASS" ]; then ok "⑫ $label"; else bad "⑫ $label"; fi
+done <"$WORK/t9_1.txt"
+
+# 暂存新文件入索引
+mkdir -p "$CR/docs"
+printf '# 暂存新文件（WXG-T-032 ⑤ 自测）\n\n正文。\n' >"$CR/docs/staged-new.md"
+git -C "$CR" add docs/staged-new.md
+node "$BUILD_STUB" --staged-blobs >/dev/null 2>&1
+node - "$CR" "$WORK/t9_1b.txt" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+const [root, out] = process.argv.slice(2);
+const sha = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
+const g = (a) => execFileSync('git', a, { cwd: root, encoding: 'utf8' });
+const staged = g(['show', ':docs/staged-new.md']);
+const idx = JSON.parse(readFileSync(root + '/ctx/index.json', 'utf8'));
+const rec = idx.files.find((f) => f.path === 'docs/staged-new.md');
+const checks = [
+  ['暂存新文件入索引', rec != null],
+  ['暂存新文件索引 sha == 暂存 blob', rec?.sha256 === sha(staged)],
+];
+writeFileSync(out, checks.map(([l, c]) => `${c ? 'PASS' : 'FAIL'}\t${l}`).join('\n') + '\n', 'utf8');
+NODE_EOF
+while IFS=$'\t' read -r st label; do
+  if [ "$st" = "PASS" ]; then ok "⑫ $label"; else bad "⑫ $label"; fi
+done <"$WORK/t9_1b.txt"
+
+# 9.2 pre-commit 场景：改 md → git add → commit 成功，提交树含重建后的 index/BUDGET
+printf '\npre-commit 自动重建场景（WXG-T-032 ⑤ 自测）。\n' >>"$CR/AGENTS.md"
+printf '\n并发会话未暂存改动（9.2 不暂存，应保持 dirty 且按 HEAD 锚定）。\n' >>"$CR/my-rules/INDEX.md"
+git -C "$CR" add AGENTS.md
+PATH="$WORK/bin:$PATH" git -C "$CR" \
+  -c user.email=selftest@example.com -c user.name=selftest \
+  commit -q -m "selftest: pre-commit auto rebuild (WXG-T-032)" >"$WORK/c9_2.txt" 2>&1
+assert_eq "$?" "0" "⑫B 改 md → git add → commit 成功（hook 自动重建，无需先 ctx:build / 无 --no-verify）"
+node - "$CR" "$WORK/t9_2.txt" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+const [root, out] = process.argv.slice(2);
+const sha = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
+const g = (a) => execFileSync('git', a, { cwd: root, encoding: 'utf8' });
+const headIdxRaw = g(['show', 'HEAD:ctx/index.json']);
+const headBudget = g(['show', 'HEAD:ctx/BUDGET.md']);
+const idx = JSON.parse(headIdxRaw);
+const recOf = (p) => idx.files.find((f) => f.path === p);
+const headAg = g(['show', 'HEAD:AGENTS.md']);
+const headRules = g(['show', 'HEAD:my-rules/INDEX.md']);
+const status = g(['status', '--porcelain']);
+const checks = [
+  ['提交树含重建后的 ctx/index.json（合法索引 JSON，非空文件集）', (idx.files?.length ?? 0) > 0],
+  ['提交树含重建后的 ctx/BUDGET.md', headBudget.includes('上下文预算报表')],
+  ['提交内 index 的 AGENTS.md sha == 提交内 AGENTS.md 内容（暂存 blob 如实入库）', recOf('AGENTS.md')?.sha256 === sha(headAg)],
+  ['提交内 index 的 my-rules/INDEX.md sha == HEAD blob（并发在制文件不受 staged 重建影响）', recOf('my-rules/INDEX.md')?.sha256 === sha(headRules)],
+  ['并发在制文件提交后仍为 dirty（未被 hook 吞掉）', status.split('\n').some((l) => l.endsWith('my-rules/INDEX.md'))],
+];
+writeFileSync(out, checks.map(([l, c]) => `${c ? 'PASS' : 'FAIL'}\t${l}`).join('\n') + '\n', 'utf8');
+NODE_EOF
+while IFS=$'\t' read -r st label; do
+  if [ "$st" = "PASS" ]; then ok "⑫ $label"; else bad "⑫ $label"; fi
+done <"$WORK/t9_2.txt"
+# 提交后复算重建：默认 build 产物与提交树中的 index/BUDGET 字节一致（HEAD 锚定契约保持，CI 视角恒绿）
+node "$BUILD_STUB" >/dev/null 2>&1
+assert_eq "$(shasum -a 256 "$CR/ctx/index.json" | awk '{print $1}')" \
+  "$(git -C "$CR" show HEAD:ctx/index.json | shasum -a 256 | awk '{print $1}')" \
+  "⑫B 提交树 ctx/index.json 与 HEAD 复算重建字节一致"
+assert_eq "$(shasum -a 256 "$CR/ctx/BUDGET.md" | awk '{print $1}')" \
+  "$(git -C "$CR" show HEAD:ctx/BUDGET.md | shasum -a 256 | awk '{print $1}')" \
+  "⑫B 提交树 ctx/BUDGET.md 与 HEAD 复算重建字节一致"
+
+# 9.3 兜底：重建后再改暂存内容（竞态/人为破坏）→ --staged 终校验 FAIL；再次提交由 hook 自愈
+git -C "$CR" reset -q --hard HEAD
+rm -f "$CR/docs/staged-new.md"
+node "$BUILD_STUB" >/dev/null 2>&1
+printf '\n兜底场景改动（WXG-T-032 ⑤ 自测）。\n' >>"$CR/AGENTS.md"
+git -C "$CR" add AGENTS.md
+node "$BUILD_STUB" --staged-blobs >/dev/null 2>&1        # 复刻 hook 第一步：重建
+git -C "$CR" add ctx/index.json ctx/BUDGET.md            # 复刻 hook 第二步：重新暂存
+printf '重建之后暂存内容又被改动（竞态/人为破坏）。\n' >>"$CR/AGENTS.md"
+git -C "$CR" add AGENTS.md
+node "$CHECK_STUB" --staged >"$WORK/c9_3.txt" 2>&1
+assert_eq "$?" "1" "⑫C 重建后再改暂存 .md（模拟竞态/破坏）→ --staged 兜底终校验 exit 1"
+assert_contains "$(cat "$WORK/c9_3.txt")" "暂存内容与索引不一致" "⑫C 输出含「暂存内容与索引不一致」"
+# 「手工改坏产物后暂存」变体：坏 index.json 暂存 + 有暂存 .md → 兜底终校验同样拦截
+printf '{"broken": true' >"$CR/ctx/index.json"
+git -C "$CR" add ctx/index.json
+node "$CHECK_STUB" --staged >"$WORK/c9_3b.txt" 2>&1
+assert_eq "$?" "1" "⑫C 手工改坏 ctx/index.json 并暂存 → --staged exit 1（不假绿）"
+# 自愈：破坏状态下重新提交 → hook 主路径自动重建 → 兜底恒绿 → commit 成功
+PATH="$WORK/bin:$PATH" git -C "$CR" \
+  -c user.email=selftest@example.com -c user.name=selftest \
+  commit -q -m "selftest: self-heal after tamper (WXG-T-032)" >"$WORK/c9_3c.txt" 2>&1
+assert_eq "$?" "0" "⑫C 破坏状态下重新提交 → hook 自动重建自愈 → commit 成功"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

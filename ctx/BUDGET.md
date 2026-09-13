@@ -1,6 +1,6 @@
 # 上下文预算报表（ctx/BUDGET.md）
 
-> 生成：2026-09-12 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
+> 生成：2026-09-13 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
 > token 为**估算值**（CJK≈1/字、ASCII≈1/4 字符；非精确 tokenizer），仅用于排行与阈值护栏。
 > 面向 agent 的阅读入口是 `ctx/ROUTES.md`；本表用于**人**复核预算与超限。
 
@@ -8,40 +8,42 @@
 
 | 文件 | 估算 tokens | 行数 | 上限 | 状态 |
 |---|---:|---:|---:|:--:|
-| `AGENTS.md` | 3199 | 200 | 3200 | ✅ |
+| `AGENTS.md` | 1699 | 120 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 327 | 23 | 500 | ✅ |
 
-> AGENTS.md 常驻阈值 **3200**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
+> AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
 
 ## 2. Top 20 大文件（估算 tokens）
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
-| 2 | `production/qa/test-cases.md` | 7097 | 296 | normal |
-| 3 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
-| 4 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
-| 5 | `memory/2026-09-12.md` | 5877 | 60 | normal |
-| 6 | `memory/2026-09-11.md` | 5617 | 115 | normal |
-| 7 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
-| 8 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
-| 9 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
-| 10 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
-| 11 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
-| 12 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
-| 13 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
-| 14 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
-| 15 | `ctx/ROUTES.md` | 4420 | 172 | normal |
-| 16 | `production/qa/test-plan.md` | 4334 | 195 | normal |
-| 17 | `docs/architecture/architecture.md` | 4322 | 239 | normal |
-| 18 | `games/beads/design/gdd/score-combo.md` | 4248 | 137 | normal |
-| 19 | `docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md` | 4220 | 142 | normal |
-| 20 | `my-skills/game-dev-tool-free/SKILL.md` | 4153 | 488 | normal |
+| 1 | `memory/2026-09-12.md` | 10141 | 151 | normal |
+| 2 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
+| 3 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 4 | `production/qa/test-cases.md` | 7097 | 296 | normal |
+| 5 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
+| 6 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
+| 7 | `memory/2026-09-11.md` | 5617 | 115 | normal |
+| 8 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
+| 9 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
+| 10 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
+| 11 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
+| 12 | `ctx/ROUTES.md` | 4857 | 183 | normal |
+| 13 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
+| 14 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
+| 15 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
+| 16 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
+| 17 | `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md` | 4543 | 251 | normal |
+| 18 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
+| 19 | `production/qa/test-plan.md` | 4334 | 195 | normal |
+| 20 | `docs/architecture/architecture.md` | 4322 | 239 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
-无超限文件。
+| 文件 | tokens | 处置 |
+|---|---:|:--:|
+| `memory/2026-09-12.md` | 10141 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 
 ## 4. 真实最常用章节与分布加权节省率（估算）
 
