@@ -14,6 +14,7 @@
 | `pnpm run harness:build` / `harness:smoke` | 只编译 / 运行时冒烟 |
 | `pnpm run ctx:rotate` | 读账本 `ctx/reads-ledger.jsonl` 分窗轮转（WXG-T-037 R1；默认窗口 20 会话，溢出才落盘） |
 | `pnpm run tasks:archive` | 任务台账 `production/TASKS.md` 完成 ≥30 天的 ✅ 行归档（WXG-T-040 R3；默认 dry-run，`--write` 落盘；头注号校准为「主表∪归档全局最大号+1」防并行重号） |
+| `pnpm run memory:distill` | memory 日志满 30 天蒸馏轮转（WXG-T-041 R2；默认 dry-run，`--write` 移入 `memory/archive/` 并在 MEMORY.md 追加待蒸馏提醒；脚本只做机械轮转，蒸馏进 MEMORY.md 由人/会话负责，规程见 `docs/agent/memory-distill.md`） |
 | `pnpm run preview:frames` | 关卡 SVG 预览 |
 | `pnpm run preview:clip --level 1 --seconds 8` | MP4 实录（需 ffmpeg 与可用的 `@resvg/resvg-js`） |
 

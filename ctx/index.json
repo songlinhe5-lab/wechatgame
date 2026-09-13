@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1488,
       "lines": 76,
-      "sha256": "3b65bb7fe4810bf47fcd452b298da9d3af9e39731ced9406acde7b57aa3c303a",
+      "sha256": "2841641a520c6a51ca0bf9450934bf368176c6cc54593665266b5a5666b014ff",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3766,
+      "tokens": 3780,
       "lines": 94,
-      "sha256": "73479fd1ee6af0af24dfe710c0136dfd99d13f8849afd7f59bf3e8d2b92a91b5",
+      "sha256": "a1aa6ae043d36d7d86a56710bed8217901dc90cc04371c767a7c4ff77c46ba76",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 3738,
+          "tokens": 3752,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -545,23 +545,23 @@
           ]
         },
         {
-          "anchor": "§`memory/MEMORY.md` — 49 行 / 1190 tok / 实测读 16 次",
+          "anchor": "§`memory/MEMORY.md` — 52 行 / 1349 tok / 实测读 16 次",
           "level": 2,
           "startLine": 22,
           "endLine": 25,
-          "tokens": 50,
-          "summary": "§wechatgame 项目长期笔记=1+50 · §项目约定=7+12 · §常用脚本=19+9 · §SubAgen",
+          "tokens": 65,
+          "summary": "§wechatgame 项目长期笔记=1+53 · §日志蒸馏规程（R2 · WXG-T-041）=7+3 · §项目约",
           "keywords": [
             "memory/MEMORY.md",
             "memory",
             "MEMORY",
             "tok",
             "wechatgame",
-            "SubAgen"
+            "WXG"
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 67 行 / 7501 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 67 行 / 7931 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -705,12 +705,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/commands.md` — 20 行 / 405 tok",
+          "anchor": "§`docs/agent/commands.md` — 21 行 / 490 tok",
           "level": 2,
           "startLine": 62,
           "endLine": 65,
           "tokens": 27,
-          "summary": "§验证与常用命令（docs/agent/commands.md）=1+21 · §验证与常用命令=6+16",
+          "summary": "§验证与常用命令（docs/agent/commands.md）=1+22 · §验证与常用命令=6+17",
           "keywords": [
             "docs/agent/commands.md",
             "docs",
@@ -1320,17 +1320,17 @@
     },
     {
       "path": "docs/agent/commands.md",
-      "tokens": 405,
-      "lines": 20,
-      "sha256": "0b0546ac5d893bab00e2979efc7d572ba16f2e92160f3612d463f7042f0ca713",
+      "tokens": 490,
+      "lines": 21,
+      "sha256": "d4e84367f08c588a32d14de4a061f7e1bcf6faf6b3d86f7f8820bcc2afcd3ff9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§验证与常用命令（docs/agent/commands.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 21,
-          "tokens": 390,
+          "endLine": 22,
+          "tokens": 474,
           "summary": "来源：自 AGENTS.md §6「验证与常用命令」逐字迁出 · 日期 2026-09-13 · Task ID WXG",
           "keywords": [
             "§6",
@@ -1345,8 +1345,8 @@
           "anchor": "§验证与常用命令",
           "level": 2,
           "startLine": 6,
-          "endLine": 21,
-          "tokens": 298,
+          "endLine": 22,
+          "tokens": 383,
           "summary": "pnpm run verify 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck ",
           "keywords": [
             "pnpm",
@@ -2063,6 +2063,133 @@
           "summary": "",
           "keywords": [
             "失败怎么修"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/memory-distill.md",
+      "tokens": 1223,
+      "lines": 53,
+      "sha256": "818cf6a961b68858ac06ae102796bd9aca3a8861a4b0089b1515ca4d9d2fbfe4",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§memory 日志 30 天蒸馏规程（R2 · WXG-T-041）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 54,
+          "tokens": 1207,
+          "summary": "对策 R2（2026-09-13 上下文膨胀审计）落地文档。命令：pnpm run memory:distill（too",
+          "keywords": [
+            "memory",
+            "WXG",
+            "pnpm",
+            "run",
+            "distill",
+            "too"
+          ]
+        },
+        {
+          "anchor": "§1 为什么需要这个机制",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 8,
+          "tokens": 117,
+          "summary": "memory/YYYY-MM-DD.md 是 AI 会话日记：每日追加、只增不减。审计认定这是真雷——memory/20",
+          "keywords": [
+            "memory",
+            "YYYY",
+            "为什么需要这",
+            "个机制"
+          ]
+        },
+        {
+          "anchor": "§2 核心裁决：脚本只做机械部分，蒸馏责任在人/会话",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 16,
+          "tokens": 163,
+          "summary": "蒸馏是语义工作，脚本能做的只是机械轮转 + 防丢护栏。因此：",
+          "keywords": [
+            "核心裁决",
+            "脚本只做机械",
+            "部分",
+            "蒸馏责任在人",
+            "会话"
+          ]
+        },
+        {
+          "anchor": "§3 标准流程",
+          "level": 2,
+          "startLine": 17,
+          "endLine": 29,
+          "tokens": 226,
+          "summary": "",
+          "keywords": [
+            "标准流程"
+          ]
+        },
+        {
+          "anchor": "§4 归档路径与索引排除（裁决）",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 33,
+          "tokens": 119,
+          "summary": "归档目录为 memory/archive/：命中 tools/scripts/lib/context-index.mjs",
+          "keywords": [
+            "memory",
+            "archive",
+            "tools",
+            "scripts",
+            "lib",
+            "context"
+          ]
+        },
+        {
+          "anchor": "§5 B 门豁免联动裁决（WXG-T-041）",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 41,
+          "tokens": 171,
+          "summary": "ctx/budget-exempt.json 中 memory/2026-09-12.md 的 B 门豁免（WXG-T-",
+          "keywords": [
+            "WXG",
+            "ctx",
+            "budget",
+            "exempt",
+            "json",
+            "memory"
+          ]
+        },
+        {
+          "anchor": "§6 安全边界（脚本保证）",
+          "level": 2,
+          "startLine": 42,
+          "endLine": 50,
+          "tokens": 216,
+          "summary": "默认 dry-run，--write 才落盘；0 候选时空转不落盘（连 archive 目录、MEMORY.md 都不碰",
+          "keywords": [
+            "dry",
+            "run",
+            "write",
+            "archive",
+            "MEMORY",
+            "安全边界"
+          ]
+        },
+        {
+          "anchor": "§7 并行会话提交纪律",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 54,
+          "tokens": 65,
+          "summary": "仓库多 IDE 会话并行，memory/2026-09-13.md（当日日志）可能有外来未提交改动——提交本机制产物时不",
+          "keywords": [
+            "IDE",
+            "memory",
+            "并行会话提交",
+            "纪律"
           ]
         }
       ]
@@ -13335,17 +13462,17 @@
     },
     {
       "path": "memory/MEMORY.md",
-      "tokens": 1190,
-      "lines": 49,
-      "sha256": "796a67b477adecc5877270dc0123c45f06364378b4d6d9015e08f049520f5cc7",
+      "tokens": 1349,
+      "lines": 52,
+      "sha256": "ededf04d08b64bf1bf1f0bdc5e508bb6f00cf39b5666de48db2990318b852488",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§wechatgame 项目长期笔记",
           "level": 1,
           "startLine": 1,
-          "endLine": 50,
-          "tokens": 1180,
+          "endLine": 53,
+          "tokens": 1340,
           "summary": "正本路径：仓库根 memory/MEMORY.md。",
           "keywords": [
             "wechatgame",
@@ -13355,10 +13482,26 @@
           ]
         },
         {
-          "anchor": "§项目约定",
+          "anchor": "§日志蒸馏规程（R2 · WXG-T-041）",
           "level": 2,
           "startLine": 7,
-          "endLine": 18,
+          "endLine": 9,
+          "tokens": 147,
+          "summary": "memory/YYYY-MM-DD.md 满 30 天 → pnpm run memory:distill（dry-ru",
+          "keywords": [
+            "WXG",
+            "memory",
+            "YYYY",
+            "pnpm",
+            "run",
+            "distill"
+          ]
+        },
+        {
+          "anchor": "§项目约定",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 21,
           "tokens": 460,
           "summary": "仓库是 pnpm monorepo：packages/framework（共用框架）+ games/breakout（首",
           "keywords": [
@@ -13373,8 +13516,8 @@
         {
           "anchor": "§常用脚本",
           "level": 2,
-          "startLine": 19,
-          "endLine": 27,
+          "startLine": 22,
+          "endLine": 30,
           "tokens": 197,
           "summary": "pnpm run harness — 启动浏览器验证器。",
           "keywords": [
@@ -13387,8 +13530,8 @@
         {
           "anchor": "§SubAgent",
           "level": 2,
-          "startLine": 28,
-          "endLine": 31,
+          "startLine": 31,
+          "endLine": 34,
           "tokens": 65,
           "summary": "正本 my-agents/；Cursor 已实测跟随 agents symlink。勿在共享 frontmatter 加",
           "keywords": [
@@ -13402,8 +13545,8 @@
         {
           "anchor": "§Rules",
           "level": 2,
-          "startLine": 32,
-          "endLine": 34,
+          "startLine": 35,
+          "endLine": 37,
           "tokens": 35,
           "summary": "常驻规则正本：my-rules/agents-md.md；四 IDE rules/ 为相对符号链接（见 my-rules",
           "keywords": [
@@ -13416,8 +13559,8 @@
         {
           "anchor": "§Hooks",
           "level": 2,
-          "startLine": 35,
-          "endLine": 38,
+          "startLine": 38,
+          "endLine": 41,
           "tokens": 53,
           "summary": "实践正本：docs/agent/hooks-best-practices.md",
           "keywords": [
@@ -13432,8 +13575,8 @@
         {
           "anchor": "§Headless / CI",
           "level": 2,
-          "startLine": 39,
-          "endLine": 46,
+          "startLine": 42,
+          "endLine": 49,
           "tokens": 143,
           "summary": "正本：docs/agent/headless-ci-pr-review.md",
           "keywords": [
@@ -13447,8 +13590,8 @@
         {
           "anchor": "§已知限制",
           "level": 2,
-          "startLine": 47,
-          "endLine": 50,
+          "startLine": 50,
+          "endLine": 53,
           "tokens": 80,
           "summary": "需要安装 @resvg/resvg-js 到 WorkBuddy 托管 Node workspace：cd ~/.wor",
           "keywords": [
@@ -21982,9 +22125,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 7501,
+      "tokens": 7931,
       "lines": 67,
-      "sha256": "7b8980a25a3f154ce27b0241f063083316ced5ab9ac12b0dced183fbdc1776b7",
+      "sha256": "d4db2de970aa714592f01af454f97118782b1e70822cafdc62f16e6c134ca886",
       "tier": "hot",
       "sections": [
         {
@@ -21992,7 +22135,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 68,
-          "tokens": 7492,
+          "tokens": 7922,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",

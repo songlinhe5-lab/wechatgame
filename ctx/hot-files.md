@@ -19,11 +19,11 @@
 
 §系统清单与依赖索引（Systems Index）· beads=1+229 · §1 系统清单=9+16 · §2 依赖排序（Dependency Order）=25+30 · §3 全局数值基线（Global Constants）· ❄️ 冻结令=55+126 · §3.1 画布、坐标、安全区与布局带=67+16 · §3.2 色板与图案字符集=83+10 · §3.3 珠子网格（Bead Grid）=93+16 · §3.4 槽位托盘（Tray）=109+12 · §3.5 倒计时与失败=121+9 · §3.6 道具（Powerups）=130+10 · §3.7 星级与结算=140+8 · §3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级）=148+10 · §3.9 包体预算=158+7 · §3.10 冲刺模式（Sprint）· 2026-09-12 用户拍板冻结（WXG-T-020）=165+16 · §4 事件总线约定（供程序落码参考）=181+25 · §5 与框架层的接口假设=206+9 · §6 变更记录=215+15
 
-## `memory/MEMORY.md` — 49 行 / 1190 tok / 实测读 16 次
+## `memory/MEMORY.md` — 52 行 / 1349 tok / 实测读 16 次
 
-§wechatgame 项目长期笔记=1+50 · §项目约定=7+12 · §常用脚本=19+9 · §SubAgent=28+4 · §Rules=32+3 · §Hooks=35+4 · §Headless / CI=39+8 · §已知限制=47+4
+§wechatgame 项目长期笔记=1+53 · §日志蒸馏规程（R2 · WXG-T-041）=7+3 · §项目约定=10+12 · §常用脚本=22+9 · §SubAgent=31+4 · §Rules=35+3 · §Hooks=38+4 · §Headless / CI=42+8 · §已知限制=50+4
 
-## `production/TASKS.md` — 67 行 / 7501 tok / 实测读 4 次
+## `production/TASKS.md` — 67 行 / 7931 tok / 实测读 4 次
 
 §WXG 任务台账（SSOT）=1+68 · §待排（backlog，无号，立项时领取）=59+10
 
@@ -59,9 +59,9 @@
 
 §仓库目录与产物落位（docs/agent/repo-layout.md）=1+30 · §目录与产物落位=6+25
 
-## `docs/agent/commands.md` — 20 行 / 405 tok
+## `docs/agent/commands.md` — 21 行 / 490 tok
 
-§验证与常用命令（docs/agent/commands.md）=1+21 · §验证与常用命令=6+16
+§验证与常用命令（docs/agent/commands.md）=1+22 · §验证与常用命令=6+17
 
 ## `docs/agent/routing.md` — 37 行 / 547 tok
 

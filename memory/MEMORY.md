@@ -4,6 +4,9 @@
 > 四 IDE 索引：`.workbuddy/memory` · `.codebuddy/memory` · `.qoder/memory` 为目录符号链接；Cursor 为 `.cursor/memory/MEMORY.md` 入口指针（请读本文件）。  
 > **分层**：常驻铁律与默认流程 → 根目录 `AGENTS.md`；本文件放**会随项目演进更新**的运行时约定、脚本备忘与已知限制。
 
+## 日志蒸馏规程（R2 · WXG-T-041）
+- `memory/YYYY-MM-DD.md` 满 30 天 → `pnpm run memory:distill`（dry-run 看候选）→ **AI/人工先把日志中长期有效的内容蒸馏进本文件相应章节** → `pnpm run memory:distill --write` 归档至 `memory/archive/`（原文逐字节保留、git 永久可查、不进 ctx 索引面）。脚本只做机械轮转，**蒸馏内容责任在人/会话**；完整规程见 `docs/agent/memory-distill.md`，归档待蒸馏项见文末「⏳ 归档待蒸馏提醒」段。
+
 ## 项目约定
 - 仓库是 pnpm monorepo：`packages/framework`（共用框架）+ `games/breakout`（首款示例游戏）。
 - Game 相关 Agent Skills 的**正本在项目根 `my-skills/`**：`.workbuddy/skills/`、`.codebuddy/skills/`、`.cursor/skills/`、`.qoder/skills/` 四处均为相对符号链接 `../../my-skills/<name>`，随仓库提交（用户明确要求不放全局目录）。新增 skill 时：正本放 `my-skills/<name>/`，四处各建链接。Qoder 官方支持标准 SKILL.md（.qoder/skills/，name 限小写字母数字连字符 ≤64 字符）。
