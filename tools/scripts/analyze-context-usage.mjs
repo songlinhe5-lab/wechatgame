@@ -22,7 +22,7 @@ import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, normalize } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { estimateTokens } from './lib/context-tokens.mjs';
-import { createFileCache, toPosix, validateReadEvent } from './lib/reads-ledger.mjs';
+import { IMPLICIT_FULL_LINE_RATIO, classifyRead, countLines, createFileCache, toPosix, validateReadEvent } from './lib/reads-ledger.mjs';
 
 /** 「小读」行数阈值——判据来源 ctx/ROUTES.md §0「同一会话对同一文件反复小读超过 3 次」。 */
 const SMALL_READ_LINES = 150;
@@ -101,17 +101,34 @@ if (STRICT && rows.length === 0) {
 
 // ── 分析 ────────────────────────────────────────────────────────────────
 const fileCache = createFileCache();
-const fullTokensOf = new Map(); // path → number|null
-function fullTokens(path) {
-  if (fullTokensOf.has(path)) return fullTokensOf.get(path);
+const fileTextOf = new Map(); // path → string|null（整文件文本，每文件只读一次）
+function fileText(path) {
+  if (fileTextOf.has(path)) return fileTextOf.get(path);
   let t = null;
   try {
-    t = estimateTokens(readFileSync(join(ROOT, path), 'utf8'));
+    t = readFileSync(join(ROOT, path), 'utf8');
   } catch {
     t = null;
   }
-  fullTokensOf.set(path, t);
+  fileTextOf.set(path, t);
   return t;
+}
+const fullTokensOf = new Map(); // path → number|null
+function fullTokens(path) {
+  if (fullTokensOf.has(path)) return fullTokensOf.get(path);
+  const t = fileText(path);
+  const v = t == null ? null : estimateTokens(t);
+  fullTokensOf.set(path, v);
+  return v;
+}
+/** 全文行数——判「实质整读」（classifyRead）所需（WXG-T-036）。 */
+const fullLinesOf = new Map(); // path → number|null
+function fullLines(path) {
+  if (fullLinesOf.has(path)) return fullLinesOf.get(path);
+  const t = fileText(path);
+  const v = t == null ? null : countLines(t);
+  fullLinesOf.set(path, v);
+  return v;
 }
 
 const sessions = new Set();
@@ -122,10 +139,13 @@ const sectionAgg = new Map(); // path → { anchor → {reads, estTokens, startL
 const jitter = new Map(); // session\u0000path → smallReads
 const bigFullReads = [];
 const ratios = []; // {ratio, label}
-const ratiosPartial = [];
+const ratiosPartial = []; // 严格：仅 classifyRead==='partial'（E1 判定依据，WXG-T-036 起）
+const ratiosPartialLoose = []; // 宽松：历史 `!fullFile` 口径——仅供双列对照与追溯
+const ratiosImplicitFull = [];
 let sumActual = 0;
 let sumFull = 0;
 let fullFileReads = 0;
+let implicitFullReads = 0;
 let nonFullReads = 0;
 let exactHits = 0;
 let containedHits = 0;
@@ -142,35 +162,45 @@ for (const e of rows) {
   const ftok = fullTokens(e.path);
   if (ftok == null) staleRows += 1;
 
+  // WXG-T-036 口径精修：`fullFile` 标志位不足以判「整读」——「给了 limit 无 offset、
+  // 读满全文」的读取会被记为 fullFile:false 而混进 E1 样本（判据原文为「仅锚点式
+  // 局部读」）。全流程统一改由 classifyRead 三分法判定，避免同一读事件在不同指标里
+  // 被归到不同类别。
+  const kind = classifyRead(e, fullLines(e.path));
+  const isFull = kind !== 'partial';
+
   // ② 真实读入 vs 全文（估算）
   if (e.estTokens != null && ftok != null && ftok > 0) {
     const ratio = Math.min(1, e.estTokens / ftok);
     sumActual += e.estTokens;
     sumFull += ftok;
     savingsRows += 1;
-    const rec = { ratio, label: labelFor(e, indexByPath), path: e.path, actual: e.estTokens, full: ftok };
+    const rec = { ratio, label: labelFor(e, indexByPath, kind), path: e.path, actual: e.estTokens, full: ftok };
     ratios.push(rec);
-    if (!e.fullFile) ratiosPartial.push(rec);
+    if (kind === 'partial') ratiosPartial.push(rec);
+    else if (kind === 'implicitFull') ratiosImplicitFull.push(rec);
+    if (!e.fullFile) ratiosPartialLoose.push(rec);
   }
 
   // ③ / 归属
   const idxFile = indexByPath.get(e.path);
-  const start = e.fullFile ? 1 : Math.max(1, e.offset ?? 1);
-  const end = e.fullFile ? (e.lines ?? start) + start - 1 : start + Math.max(1, e.lines ?? 1) - 1;
-  if (e.fullFile) fullFileReads += 1;
+  const start = isFull ? 1 : Math.max(1, e.offset ?? 1);
+  const end = isFull ? (e.lines ?? start) + start - 1 : start + Math.max(1, e.lines ?? 1) - 1;
+  if (kind === 'full') fullFileReads += 1;
+  else if (kind === 'implicitFull') implicitFullReads += 1;
   else nonFullReads += 1;
 
   if (!idxFile) {
     unattributed += 1;
   } else {
     const sections = idxFile.sections ?? [];
-    if (!e.fullFile) {
+    if (kind === 'partial') {
       if (sections.find((s) => s.startLine === start && s.endLine === end)) exactHits += 1;
       // 「精确落在某章节行区间」取**包含**语义：读取区间完整落在单一 sections 区间内。
       if (sections.find((s) => s.startLine <= start && end <= s.endLine)) containedHits += 1;
     }
     for (const s of sections) {
-      const overlaps = e.fullFile || (Math.max(start, s.startLine) <= Math.min(end, s.endLine));
+      const overlaps = isFull || (Math.max(start, s.startLine) <= Math.min(end, s.endLine));
       if (!overlaps) continue;
       let bucket = sectionAgg.get(e.path);
       if (!bucket) {
@@ -184,13 +214,13 @@ for (const e of rows) {
     }
   }
 
-  // ④① 抖动
-  if (!e.fullFile && e.lines != null && e.lines <= SMALL_READ_LINES) {
+  // ④① 抖动（小读抖动）——整读不算「小读」，故同样按 partial 判定
+  if (kind === 'partial' && e.lines != null && e.lines <= SMALL_READ_LINES) {
     const k = `${e.session}\u0000${e.path}`;
     jitter.set(k, (jitter.get(k) ?? 0) + 1);
   }
-  // ④② 大文件整文件读
-  if (e.fullFile && ftok != null && ftok >= BIG_FILE_TOKENS) {
+  // ④② 大文件整文件读（含实质整读）
+  if (isFull && ftok != null && ftok >= BIG_FILE_TOKENS) {
     bigFullReads.push({ path: e.path, tokens: ftok, session: e.session });
   }
 }
@@ -240,13 +270,94 @@ const activeSessions = lineages.filter((l) => KNOWN_ACTIVE_SESSIONS.some((p) => 
 
 const savingsValues = ratios.map((r) => 1 - r.ratio).sort((a, b) => a - b);
 const savingsPartial = ratiosPartial.map((r) => 1 - r.ratio).sort((a, b) => a - b);
+const savingsPartialLoose = ratiosPartialLoose.map((r) => 1 - r.ratio).sort((a, b) => a - b);
 const median = percentile(savingsValues, 0.5);
 const p10 = percentile(savingsValues, 0.1);
+// ── E1 双列（WXG-T-036）─────────────────────────────────────────────────────
+// 严格口径 = **判定依据**：仅 classifyRead==='partial'（真正的锚点式局部读）。
 const medianPartial = percentile(savingsPartial, 0.5);
-// p10Partial：仅局部读的 P10 节省率（E1 硬门之一，WXG-T-026 ④）；既有字段不受影响。
 const p10Partial = percentile(savingsPartial, 0.1);
+// 宽松口径 = 历史（WXG-T-026–035）的 `!fullFile`：含「无 offset 却读满全文」者。
+// 保留仅用于**双列如实对照**——修正口径属零和：E1 变好，整读占比同时变差。
+const medianPartialLoose = percentile(savingsPartialLoose, 0.5);
+const p10PartialLoose = percentile(savingsPartialLoose, 0.1);
 const overallRatio = sumFull > 0 ? sumActual / sumFull : 1;
 const overallSavings = 1 - overallRatio;
+
+// ── ③ 锚点直达率 双列（WXG-T-036）──────────────────────────────────────────
+const fullFileRateLoose = rows.length > 0 ? fullFileReads / rows.length : 0;
+const fullReadsEffective = fullFileReads + implicitFullReads;
+const fullFileRateEffective = rows.length > 0 ? fullReadsEffective / rows.length : 0;
+const implicitFullTokens = ratiosImplicitFull.reduce((n, r) => n + r.actual, 0);
+
+// ── 净收益口径（WXG-T-036）────────────────────────────────────────────────
+// 「装置」= 为少读而必须**额外读**的东西，分两类，**归因含义完全不同**：
+//   • protocolArtifacts（`ctx/`）—— 路由/速查/报告等**被读才生效**的产物。
+//     只有它们被读，才谈得上「装置起了作用」→ `attributable` 只看这一类。
+//   • deviceCode（`tools/scripts/`）—— 装置**自身的源码**。读它是开发/维护开销，
+//     与「省了多少读」无因果关系，**不得**用于证明装置有效。
+// 毛节省率（metrics.savings.overall）**不扣**这两类开销，故给出两列：
+//   • measured：账本中**实际发生**的装置读事件量。毛数已在 sumActual 内含装置开销，
+//     故净额 === 毛节省率；但若 protocolArtifacts 读事件为 0 → `attributable:false`，
+//     意味着毛节省**不可归因于装置**（节省来自会话固有行为）。
+//   • protocol：按 ROUTES.md §0 协议**应然**每会话读一次 ROUTES + hot-files 的开销，
+//     给出「装置真被用起来」时的**保守下界**（假设装置不改变读行为）。
+const DEVICE_PREFIXES = ['ctx/', 'tools/scripts/'];
+const PROTOCOL_ARTIFACT_PREFIX = 'ctx/';
+const DEVICE_CODE_PREFIX = 'tools/scripts/';
+const deviceReadEvents = rows.filter((e) => DEVICE_PREFIXES.some((p) => e.path.startsWith(p)));
+const artifactReadEvents = deviceReadEvents.filter((e) => e.path.startsWith(PROTOCOL_ARTIFACT_PREFIX));
+const codeReadEvents = deviceReadEvents.filter((e) => e.path.startsWith(DEVICE_CODE_PREFIX));
+const sumTokensOf = (list) => list.reduce((n, e) => n + (e.estTokens ?? 0), 0);
+const tokenOf = (rel) => {
+  const t = fileText(rel);
+  return t == null ? 0 : estimateTokens(t);
+};
+const ROUTES_TOKENS = tokenOf('ctx/ROUTES.md');
+const HOT_FILES_TOKENS = tokenOf('ctx/hot-files.md');
+// 会话口径二义（F-03，WXG-T-026 复验补）——必须在使用前求值：
+//   • sessionsWithReadEvents —— 采集期「有任意读事件」的会话（含读全被丢弃者；来自采集侧车 byIde）。
+//   • sessions（dist.samples）—— 账本保留行覆盖的会话（「有账本行的会话」）。
+// 两者定义不同，差值 = 读事件全为仓库外路径被丢弃的会话数。
+const metaSessionsTotal = meta.byIde
+  ? Object.values(meta.byIde).reduce((n, v) => n + (v?.sessions ?? 0), 0)
+  : null;
+const protocolSessions = metaSessionsTotal ?? sessions.size;
+// 应然口径拆两行，**禁止**把新产物偷偷折进用户已拍板的那一行：
+//   • baseline —— 用户 q-2 口径原样：每会话读一次 `ctx/ROUTES.md`（基线，可比）。
+//   • withHotFiles —— 追加 `ctx/hot-files.md`（WXG-T-036 q-1 新增的常驻第二跳）后的净额，
+//     单独成行，使该产物的成本**可见且可单独归因**。
+const netOf = (tok) => r6(sumFull > 0 ? 1 - (sumActual + tok) / sumFull : 0);
+const protocolTokens = ROUTES_TOKENS * protocolSessions;
+const protocolTokensWithHotFiles = (ROUTES_TOKENS + HOT_FILES_TOKENS) * protocolSessions;
+const netSavingsBlock = {
+  devicePrefixes: DEVICE_PREFIXES,
+  protocolArtifactPrefix: PROTOCOL_ARTIFACT_PREFIX,
+  deviceCodePrefix: DEVICE_CODE_PREFIX,
+  measured: {
+    deviceReadEvents: deviceReadEvents.length,
+    deviceTokens: sumTokensOf(deviceReadEvents),
+    // 归因只看「协议产物是否被读」：读装置源码不构成装置有效的证据。
+    artifactReadEvents: artifactReadEvents.length,
+    artifactTokens: sumTokensOf(artifactReadEvents),
+    codeReadEvents: codeReadEvents.length,
+    codeTokens: sumTokensOf(codeReadEvents),
+    // 装置开销已含在 sumActual 内，故此处净额 = 毛节省率（无需再减）。
+    net: r6(overallSavings),
+    attributable: artifactReadEvents.length > 0,
+  },
+  protocol: {
+    sessions: protocolSessions,
+    routesTokens: ROUTES_TOKENS,
+    hotFilesTokens: HOT_FILES_TOKENS,
+    deviceTokens: protocolTokens,
+    net: netOf(protocolTokens),
+    withHotFiles: {
+      deviceTokens: protocolTokensWithHotFiles,
+      net: netOf(protocolTokensWithHotFiles),
+    },
+  },
+};
 
 const worst = [...ratios].sort((a, b) => b.ratio - a.ratio || a.path.localeCompare(b.path)).slice(0, 10);
 
@@ -267,14 +378,6 @@ for (const [path, bucket] of [...sectionAgg.entries()].sort((a, b) => a[0].local
     .map((s) => ({ anchor: s.anchor, reads: s.reads, estTokens: s.estTokens }));
   filesOut.push({ path, tokens: idxFile?.tokens ?? 0, sections });
 }
-// 会话口径二义（F-03，WXG-T-026 复验补）：
-//   • sessionsWithReadEvents —— 采集期「有任意读事件」的会话（含读全被丢弃者；来自采集侧车 byIde）。
-//   • sessions（本块）        —— 账本保留行覆盖的会话（「有账本行的会话」）。
-// 两者定义不同，差值 = 读事件全为仓库外路径被丢弃的会话数。
-const metaSessionsTotal = meta.byIde
-  ? Object.values(meta.byIde).reduce((n, v) => n + (v?.sessions ?? 0), 0)
-  : null;
-
 const dist = {
   version: 1,
   samples: {
@@ -292,8 +395,10 @@ const dist = {
     reads: rows.length,
     sessions: sessions.size,
     fullFileReads,
+    implicitFullReads,
     nonFullReads,
     partialSamples: ratiosPartial.length,
+    partialSamplesLoose: ratiosPartialLoose.length,
     savings: {
       samples: savingsRows,
       sumActual,
@@ -301,9 +406,27 @@ const dist = {
       overall: r6(overallSavings),
       median: r6(median),
       p10: r6(p10),
+      // —— E1 判定依据（严格口径，WXG-T-036 起）：仅锚点式局部读 ——
       medianPartial: r6(medianPartial),
       p10Partial: r6(p10Partial),
+      // —— 宽松口径（历史 `!fullFile`，WXG-T-026–035）：供双列对照与追溯 ——
+      medianPartialLoose: r6(medianPartialLoose),
+      p10PartialLoose: r6(p10PartialLoose),
+      implicitFull: {
+        lineRatio: IMPLICIT_FULL_LINE_RATIO,
+        samples: ratiosImplicitFull.length,
+        tokens: implicitFullTokens,
+      },
     },
+    anchor: {
+      fullFileReads,
+      implicitFullReads,
+      fullReadsEffective,
+      fullReadsLoose: fullFileReads,
+      fullFileRateLoose: r6(fullFileRateLoose),
+      fullFileRateEffective: r6(fullFileRateEffective),
+    },
+    netSavings: netSavingsBlock,
     jitter: {
       smallReadLines: SMALL_READ_LINES,
       threshold: JITTER_THRESHOLD,
@@ -338,8 +461,11 @@ console.log(`  会话数：${sessions.size}（账本行）｜读事件：${rows.
 console.log(`  会话树（F-01）：根会话 ${lineages.length} ｜子代理 ${subagentSessions.length} ｜${lineages.map((l) => `\`${l.root.slice(0, 8)}…\`(${l.ide}) ${l.reads} 读/${pct(l.share)}`).join('，')}`);
 console.log(`  仓库外丢弃：${dropped}｜未识别：${unrecognized}（来自采集侧车）`);
 console.log(`  stale（文件已不存在）读事件：${staleRows}`);
-console.log(`  ② 真实分布加权节省率（估算）：整体 ${pct(overallSavings)}｜中位数 ${pct(median)}｜P10 ${pct(p10)}（样本 ${savingsRows}）；仅局部读中位数 ${pct(medianPartial)}（样本 ${ratiosPartial.length}）`);
-console.log(`  ③ 锚点直达：整文件读占比 ${pct(rows.length ? fullFileReads / rows.length : 0)}（${fullFileReads}/${rows.length}）｜落在单一章节内 ${pct(nonFullReads ? containedHits / nonFullReads : 0)}（${containedHits}/${nonFullReads}）｜严格等于章节区间 ${exactHits}｜未归属 ${unattributed}`);
+console.log(`  ② 真实分布加权节省率（估算）：整体 ${pct(overallSavings)}｜中位数 ${pct(median)}｜P10 ${pct(p10)}（样本 ${savingsRows}）`);
+console.log(`     E1 仅锚点式局部读（严格口径）：中位数 ${pct(medianPartial)}｜P10 ${pct(p10Partial)}（样本 ${ratiosPartial.length}）`);
+console.log(`     ↳ 对照 宽松口径（含无 offset 读满全文者）：中位数 ${pct(medianPartialLoose)}｜P10 ${pct(p10PartialLoose)}（样本 ${ratiosPartialLoose.length}）`);
+console.log(`  ③ 锚点直达：整读占比 ${pct(fullFileRateEffective)}（${fullReadsEffective}/${rows.length}，含实质整读 ${implicitFullReads}）｜宽松口径 ${pct(fullFileRateLoose)}（${fullFileReads}/${rows.length}）｜落在单一章节内 ${pct(nonFullReads ? containedHits / nonFullReads : 0)}（${containedHits}/${nonFullReads}）｜严格等于章节区间 ${exactHits}｜未归属 ${unattributed}`);
+console.log(`  ⑥ 净收益：毛节省 ${pct(overallSavings)}｜实测净额 ${pct(netSavingsBlock.measured.net)}（协议产物 ${netSavingsBlock.measured.artifactReadEvents} 次／装置源码 ${netSavingsBlock.measured.codeReadEvents} 次，可归因=${netSavingsBlock.measured.attributable}）｜应然·基线 ${pct(netSavingsBlock.protocol.net)}（ROUTES ${ROUTES_TOKENS} tok × ${protocolSessions} 会话）｜应然·含速查 ${pct(netSavingsBlock.protocol.withHotFiles.net)}（再加 hot-files ${HOT_FILES_TOKENS} tok）`);
 console.log(`  ④ 反模式（比率口径，F-02）：抖动 ${jitterGroups} 组 / ${jitterGroupKeys} 组 = ${pct(jitterRate)}（超限 ${jitterExcess} 次）｜大文件（≥${BIG_FILE_TOKENS}）整文件读 ${bigFullReads.length} / ${rows.length} = ${pct(bigFullReadRate)}`);
 console.log(`  ⑤ 最常用章节 Top：见 ${toPosix(OUT_MD)}`);
 console.log(`  产出：${toPosix(OUT_JSON)}｜${toPosix(OUT_MD)}`);
@@ -404,9 +530,74 @@ function renderReport() {
   L.push(`| **整体节省率** | **${(overallSavings * 100).toFixed(1)}%** |`);
   L.push(`| 单次节省率 中位数 | ${(median * 100).toFixed(1)}% |`);
   L.push(`| 单次节省率 P10 | ${(p10 * 100).toFixed(1)}% |`);
-  L.push(`| 仅**局部读**单次节省率 中位数 | ${(medianPartial * 100).toFixed(1)}%（样本 ${ratiosPartial.length}） |`);
+  L.push(`| **E1** 仅锚点式局部读 中位数（严格口径） | ${(medianPartial * 100).toFixed(1)}%（样本 ${ratiosPartial.length}） |`);
+  L.push(`| **E1** 仅锚点式局部读 P10（严格口径） | **${(p10Partial * 100).toFixed(1)}%**（目标 ≥ 40%） |`);
+  L.push(`| E1 对照：宽松口径 中位数 | ${(medianPartialLoose * 100).toFixed(1)}%（样本 ${ratiosPartialLoose.length}） |`);
+  L.push(`| E1 对照：宽松口径 P10 | ${(p10PartialLoose * 100).toFixed(1)}% |`);
   L.push('');
-  L.push('> 中位数/P10 为 0% 说明样本里**整文件读**占比高（见 §③）——这正是本装置要继续压降的对象。');
+  L.push(
+    `> **E1 双列与口径精修（WXG-T-036）**：判据原文是「**仅锚点式局部读**的单次节省率」，` +
+      '但历史实现按 `fullFile` 标志位取样本；而该标志位在「**给了 limit、没给 offset**」时' +
+      '（如 Cursor `Read{limit}`）恒为 `false`——即使它**从第 1 行起读满了整个文件**。' +
+      `本样本中这类读取有 **${ratiosImplicitFull.length}** 次（行覆盖 ≥ ${(IMPLICIT_FULL_LINE_RATIO * 100).toFixed(0)}% 全文，` +
+      `合计 ${implicitFullTokens} 估算 tokens），且**全部是小文件**——整读小文件本就更省，故它们**并非浪费**。`,
+  );
+  L.push('>');
+  L.push(
+    `> 严格口径把它们归入**整读**后：E1 的 P10 由 ${(p10PartialLoose * 100).toFixed(1)}% 变为 **${(p10Partial * 100).toFixed(1)}%**，` +
+      `同时**整读占比由 ${(fullFileRateLoose * 100).toFixed(1)}% 升到 ${(fullFileRateEffective * 100).toFixed(1)}%**（见 §③）。` +
+      '这是一次**零和的口径纠正、不是读行为的改善**——两侧数字都如实保留，**不得只报 E1 变好**。',
+  );
+  L.push('');
+  L.push('> 中位数/P10 整体为 0% 说明样本里**整文件读**占比高（见 §③）——这正是本装置要继续压降的对象。');
+  L.push('');
+  L.push('### ②.1 净收益（毛节省 vs 扣除装置自身开销，WXG-T-036）');
+  L.push('');
+  L.push(`「装置」= 为少读而**必须额外读**的东西，分两类且**归因含义不同**：`);
+  L.push('');
+  L.push(`- **协议产物**（\`${PROTOCOL_ARTIFACT_PREFIX}\`：路由、速查、报告）——被读才生效，**只有它被读才谈得上装置起了作用**。`);
+  L.push(`- **装置源码**（\`${DEVICE_CODE_PREFIX}\`）——读它是开发/维护开销，与「省了多少读」**无因果关系**，**不得**用来证明装置有效。`);
+  L.push('');
+  L.push('| 口径 | 装置开销（估算 tokens） | 净节省率 | 说明 |');
+  L.push('|---|---:|---:|---|');
+  L.push(
+    `| **实测** | 协议产物 ${netSavingsBlock.measured.artifactTokens}（${netSavingsBlock.measured.artifactReadEvents} 次）／` +
+      `装置源码 ${netSavingsBlock.measured.codeTokens}（${netSavingsBlock.measured.codeReadEvents} 次） | ` +
+      `**${(netSavingsBlock.measured.net * 100).toFixed(1)}%** | 装置开销已含在 Σ 实际读入内，故净额 = 毛节省率 |`,
+  );
+  L.push(
+    `| **应然 · 协议基线** | ${protocolTokens}（每会话 ROUTES ${ROUTES_TOKENS} tok × ${protocolSessions} 会话） | ` +
+      `**${(netSavingsBlock.protocol.net * 100).toFixed(1)}%** | 用户 q-2 口径原样（只算 ROUTES），可与既有结论比对 |`,
+  );
+  L.push(
+    `| **应然 · 含行号速查** | ${netSavingsBlock.protocol.withHotFiles.deviceTokens}` +
+      `（再加 hot-files ${HOT_FILES_TOKENS} tok × ${protocolSessions} 会话） | ` +
+      `**${(netSavingsBlock.protocol.withHotFiles.net * 100).toFixed(1)}%** | 新增常驻产物（WXG-T-036 q-1）的` +
+      '成本**单独成行**，不折进上一行 |',
+  );
+  L.push('');
+  L.push('> 两行「应然」都在假设「装置不改变读行为」下的**保守下界**；差值即 `ctx/hot-files.md` 的常驻代价。');
+  L.push('');
+  if (netSavingsBlock.measured.attributable) {
+    L.push(
+      `> **归因声明**：本样本中协议产物（\`${PROTOCOL_ARTIFACT_PREFIX}\`）被读 ` +
+        `${netSavingsBlock.measured.artifactReadEvents} 次，装置**处于可归因状态**。`,
+    );
+  } else {
+    L.push(
+      `> ⚠️ **归因声明（必读）**：本样本中协议产物（\`${PROTOCOL_ARTIFACT_PREFIX}\`）读事件为 **0**——` +
+        `装置**从未被读过**，故 **${(netSavingsBlock.measured.net * 100).toFixed(1)}%** 的毛节省**不可归因于本装置**，` +
+        '它来自会话固有行为。同表右列的**应然**数字才是「装置真被用起来」时的估计；装置的真实收益须待 IDE 埋点' +
+        '（`docs/agent/context-instrumentation-survey.md`）落地后方可测得。',
+    );
+  }
+  if (netSavingsBlock.measured.codeReadEvents > 0) {
+    L.push('');
+    L.push(
+      `> 另有 ${netSavingsBlock.measured.codeReadEvents} 次读的是**装置源码**（\`${DEVICE_CODE_PREFIX}\`），` +
+        '属开发维护开销，**不计入**归因。',
+    );
+  }
   L.push('');
   L.push(`**最差 10 次读（节省率最低，最接近全文）**：`);
   L.push('');
@@ -419,12 +610,13 @@ function renderReport() {
 
   L.push('## ③ 锚点直达率');
   L.push('');
-  const fullRate = rows.length ? fullFileReads / rows.length : 0;
   const containedRate = nonFullReads ? containedHits / nonFullReads : 0;
   L.push('| 指标 | 值 |');
   L.push('|---|---:|');
   L.push(`| 总读数 | ${rows.length} |`);
-  L.push(`| 整文件读取 | ${fullFileReads}（占 ${(fullRate * 100).toFixed(1)}%） |`);
+  L.push(`| 显式整文件读取（\`fullFile:true\`） | ${fullFileReads}（占 ${(fullFileRateLoose * 100).toFixed(1)}%，宽松口径） |`);
+  L.push(`| 实质整读（无 offset 且读满全文） | ${implicitFullReads} |`);
+  L.push(`| **整读合计（判定口径）** | **${fullReadsEffective}（占 ${(fullFileRateEffective * 100).toFixed(1)}%）** |`);
   L.push(`| 局部（带区间）读取 | ${nonFullReads} |`);
   L.push(`| 读取完整落在单一章节行区间内（锚点直达） | ${containedHits}（占局部读 ${(containedRate * 100).toFixed(1)}%） |`);
   L.push(`| 其中严格等于某 sections 区间 | ${exactHits} |`);
@@ -484,8 +676,9 @@ function renderReport() {
   return L.join('\n');
 }
 
-function labelFor(e, idxByPath) {
-  if (e.fullFile) return '整文件';
+function labelFor(e, idxByPath, kind) {
+  if (kind === 'implicitFull') return '整文件（实质）';
+  if (kind === 'full' || e.fullFile) return '整文件';
   const f = idxByPath.get(e.path);
   if (!f) return '（未归属）';
   const start = Math.max(1, e.offset ?? 1);

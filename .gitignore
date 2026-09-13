@@ -20,6 +20,10 @@ coverage/
 # IDE 会话工具产物（Agent 运行时计划文件，非项目资产）
 .codebuddy/plans/
 
+# Cursor 读埋点探针日志（WXG-T-036，log-only 诊断产物，非项目资产）
+.cursor/hooks/.read-probe.jsonl
+.cursor/hooks/.read-probe.jsonl.1
+
 # Cocos Creator 本地生成物（assets/ 与 settings/ 必须提交，含 .meta）
 games/*/cocos/library/
 games/*/cocos/temp/

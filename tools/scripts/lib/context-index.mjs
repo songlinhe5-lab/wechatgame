@@ -31,6 +31,15 @@ export const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 
 export const INDEX_PATH = join(ROOT, 'ctx', 'index.json');
 export const BUDGET_MD_PATH = join(ROOT, 'ctx', 'BUDGET.md');
+/**
+ * 热门大文件「章节 → 精确行号」速查（WXG-T-036，q-1）。
+ *
+ * 为什么需要它：ROUTES.md 给的是「意图 → 文件#锚点」，`ctx/index.json` 给的是锚点 → 行号，
+ * 但 index.json 是**机器读的全量 JSON**（全部 .md），agent 直接读它代价极高。协议缺的正是
+ * 「anchor → startLine/endLine」这一跳。本文件把**热 + 大**文件的这一跳单独摘出来，
+ * 使 agent 能 `ROUTES.md → hot-files.md → read_file(offset,limit)` 三步闭链。
+ */
+export const HOT_FILES_MD_PATH = join(ROOT, 'ctx', 'hot-files.md');
 export const EXEMPT_PATH = join(ROOT, 'ctx', 'budget-exempt.json');
 export const ROUTES_PATH = join(ROOT, 'ctx', 'ROUTES.md');
 /** 真实使用分布（由 analyze-context-usage.mjs 生成，build/check 消费）。 */
@@ -108,7 +117,7 @@ const HOT_FILES = new Set([
  * 理由：这些文件在 build 期间被本进程写出；若套用 dirty→HEAD 规则，会把「刚写出的新
  * 内容」误判为「应按 HEAD 索引」，从而破坏 `--check` 一致性与字节稳定性。
  */
-const WORKTREE_AUTHORITATIVE = new Set(['ctx/BUDGET.md']);
+const WORKTREE_AUTHORITATIVE = new Set(['ctx/BUDGET.md', 'ctx/hot-files.md']);
 
 /** 只读运行 git（调用方负责兜底异常）；cwd 固定为仓库根。 */
 function git(args) {
@@ -296,6 +305,27 @@ export const LIMITS = {
   agentsMd: 2000,
   ruleFile: 500,
   fileMax: 8000,
+
+  /*
+   * ── hot-files.md 预算（WXG-T-036，q-1）───────────────────────────────────────
+   *
+   * 口径：`ctx/hot-files.md` 是**协议常驻的第二跳**（每会话读一次，与 ROUTES.md 同性质），
+   *       因此它的体积会**直接扣减净收益**（见 analyze-context-usage.mjs 的 `netSavings.protocol`）。
+   *       生成器**按优先级贪心填充**，超预算的候选文件**不写入**，并在文末「未收录」清单中
+   *       如实列出（agent 改用 `ctx/index.json` 查那些文件），保证文件不会无声膨胀。
+   *
+   * 定值依据（实测，2026-09-13）：
+   *   • 必收录集（`tier:hot` 6 文件 × 62 节）紧凑编码后 ≈2.6k tokens ——**无损**收录。
+   *   • 可选池（实测热读或 ≥3000 tok 的非 hot 文件）共 88 个、全收 ≈35k tokens —— 显然不能全收。
+   *   • 取 4000 = 必收录集 + 约 1.4k 可选额度（优先「实测读次数高 ∧ 体积大」者，ROI 最高）。
+   * 代价须公开：本文件按协议**每会话读一次**计，抬升上限会**直接扣减**应然净收益
+   * （`ctx/reads-summary.md §②.1` 同时列出「协议基线（仅 ROUTES）」与「含本表」两行，
+   * 便于单独看到本表带来的那部分成本）。该值是**单常量**，增减一行即可调整。
+   *
+   * 该值同时是 `check-context-budget.mjs` A 项的判定上限；生成器与门禁**共用本常量**，
+   * 因此正常路径恒绿，只有手改 / 索引爆炸才会触发。
+   */
+  hotFilesMaxTokens: 4000,
 
   /*
    * ── E 项阈值（WXG-T-026 ④）：分层上下文节省装置的「效果」护栏 ────────────────
@@ -669,4 +699,140 @@ export function routesAnchorRefs(limit = 15) {
     }
   }
   return out;
+}
+
+/* ── ctx/hot-files.md：热门大文件「章节 → 精确行号」速查（WXG-T-036，q-1）────────────
+ *
+ * 职责边界（避免与既有产物重复）：
+ *   • `ctx/ROUTES.md`      —— 意图 → `路径#锚点`（**不**给行号）
+ *   • `ctx/index.json`     —— 全量锚点 → 行号（机器读，体量大，agent 不宜直读）
+ *   • `ctx/hot-files.md`（本函数）—— **热 + 大**文件的「锚点 → offset/limit」一跳
+ * 三者拼起来才是完整链路：ROUTES → hot-files → `read_file(offset, limit)`。
+ *
+ * 生成规则（确定性 + 字节稳定）：
+ *   • **必收录**：`tier === 'hot'` 的文件（协议主路由指向的目标，收了才闭环）。
+ *   • **可选收录**：实测被读过（`dist.files[].sections[].reads`）或体积 ≥ HOT_FILE_MIN_TOKENS
+ *     的 `.md`，按「实测读次数 ↓ / 体积 ↓ / 路径 ↑」贪心填充。
+ *   • **排除** `ctx/` 下的生成物（自引用会把装置开销滚成雪球）。
+ *   • 超预算候选**不写入**，但在文末「未收录」如实列出（并指向 `ctx/index.json`），
+ *     确保文件不会无声膨胀 —— 它的体积会**直接扣减净收益**（见 analyze-context-usage.mjs）。
+ *   • 不带日期：本文件是索引的**纯函数**，才可参与 build 的不动点收敛与 pre-commit 复算。
+ */
+
+/** 单文件达到此估算 token 即视为「大文件」，值得配行号速查。 */
+export const HOT_FILE_MIN_TOKENS = 3000;
+
+/**
+ * 从真实使用分布取「每个文件的实测读次数」。
+ * @param {object | null} dist `ctx/usage-distribution.json` 内容
+ * @returns {Map<string, number>} path → reads
+ */
+export function fileReadsFromDist(dist) {
+  const m = new Map();
+  for (const f of dist?.files ?? []) {
+    const reads = (f.sections ?? []).reduce((n, s) => n + (s.reads ?? 0), 0);
+    if (reads > 0) m.set(f.path, reads);
+  }
+  return m;
+}
+
+/** 渲染一个文件的行号速查块（不含文档头尾）。 */
+function renderHotFileBlock(f, reads) {
+  const L = [];
+  L.push(
+    `## \`${f.path}\` — ${f.lines} 行 / ${f.tokens} tok${reads > 0 ? ` / 实测读 ${reads} 次` : ''}`,
+  );
+  L.push('');
+  if (f.sections.length === 0) {
+    L.push('（无可路由小节：整文件读取）');
+    L.push('');
+    return L;
+  }
+  // 紧凑单行编码：`锚点=offset+limit`（分隔符 ` · `）。
+  // 为什么不用表格：62 行的表格每行多花 ~10 tokens 的管道/对齐开销，
+  // 实测 2769 tok（超预算）；紧凑编码在不删任何小节的前提下压到 ~1.9k。
+  L.push(f.sections.map((s) => `${s.anchor}=${s.startLine}+${s.endLine - s.startLine + 1}`).join(' · '));
+  L.push('');
+  return L;
+}
+
+/**
+ * 渲染 `ctx/hot-files.md` 全文（确定性 + 字节稳定，无时间戳）。
+ * @param {{files: object[]}} index `ctx/index.json` 内容
+ * @param {object | null} [dist] 真实使用分布；缺失 → 退化为「仅按体积选大文件」
+ * @returns {string}
+ */
+export function renderHotFiles(index, dist = null) {
+  const reads = fileReadsFromDist(dist);
+  const files = index?.files ?? [];
+  const excluded = (p) => p.startsWith('ctx/');
+
+  const required = files.filter((f) => f.tier === 'hot' && !excluded(f.path));
+  const requiredPaths = new Set(required.map((f) => f.path));
+  const optional = files
+    .filter(
+      (f) =>
+        !excluded(f.path) &&
+        !requiredPaths.has(f.path) &&
+        ((reads.get(f.path) ?? 0) > 0 || f.tokens >= HOT_FILE_MIN_TOKENS),
+    )
+    .sort(
+      (a, b) =>
+        (reads.get(b.path) ?? 0) - (reads.get(a.path) ?? 0) ||
+        b.tokens - a.tokens ||
+        a.path.localeCompare(b.path),
+    );
+
+  const render = (chosen, omitted, overBudget = false) => {
+    const L = [];
+    L.push('# 热门大文件行号速查（自动生成，勿手改；重建 `pnpm run ctx:build`）');
+    L.push('');
+    L.push('> **协议第二跳**：`ctx/ROUTES.md` 给「意图 → `文件#锚点`」，本表把锚点换算成可直接用的 `offset` / `limit`。');
+    L.push('> 读法：`read_file(path, offset, limit)` —— **只取该节**，勿对大文件无条件整读。');
+    L.push('> 行内格式：`锚点=offset+limit`（`limit` 已算好）；` · ` 分隔小节。');
+    L.push('> 只收录**热文件与大文件**；查不到 → `ctx/index.json`（全量，机器读更划算）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。');
+    L.push('');
+    L.push(
+      `> 体积预算 ≤ ${LIMITS.hotFilesMaxTokens} 估算 tokens（当前 ${chosen.length} 个文件）：本表是协议常驻开销，` +
+        '会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。',
+    );
+    if (overBudget) {
+      // 诚实失败：必收录集（tier:hot）不可裁撤，若它自己就超预算，只能越界并在门禁 A 项 FAIL。
+      L.push(
+        '> ⚠️ **已超预算**：必收录集（`tier:hot` 的 6 个文件）本身超出预算，且它们的行号不可省略。' +
+          '请调大 `LIMITS.hotFilesMaxTokens`（代价见 §②.1）或裁剪 hot 文件的章节结构。',
+      );
+    }
+    L.push('');
+    for (const f of chosen) L.push(...renderHotFileBlock(f, reads.get(f.path) ?? 0));
+    if (omitted.length > 0) {
+      L.push('## 未收录（超出体积预算或未命中热度 / 体积门槛）');
+      L.push('');
+      L.push('> 这些文件的锚点 → 行号请查 `ctx/index.json`（全量索引；机器读更划算）。');
+      L.push('');
+      for (const f of omitted) L.push(`- \`${f.path}\`（${f.tokens} tok）`);
+      L.push('');
+    }
+    return L.join('\n');
+  };
+
+  // 选收录集：在 optional 前缀上取「最大的 L 使文档 ≤ 预算」。
+  //
+  // 为什么是**前缀扫描**而不是逐个贪心：文末「未收录」清单本身占体积，且**后跳过的文件会追加进该清单**。
+  // 逐个贪心时，接受第 k 个文件用的是「当时的 omitted」，而后续跳过的文件会把清单撑大 →
+  // 最终文档比当时估计的**更大**，从而越界（实测踩坑：自评 ≤4000、落盘 4540）。
+  // 前缀扫描保证：每个候选要么进本表、要么进未收录清单，二者只居其一，估计与落盘一致。
+  // 大小关于 L 单调（入选块 ≈30×节数 ≫ 未收录行 ≈12 tok），故首次越界即可停。
+  let best = 0;
+  for (let L = 1; L <= optional.length; L += 1) {
+    const doc = render([...required, ...optional.slice(0, L)], optional.slice(L));
+    if (estimateTokens(doc) > LIMITS.hotFilesMaxTokens) break;
+    best = L;
+  }
+  const chosen = [...required, ...optional.slice(0, best)];
+  const omitted = optional.slice(best);
+  const doc = render(chosen, omitted);
+  // 兜底：必收录集自身超预算时如实标注（不得静默越界），由门禁 A 项 FAIL 暴露。
+  if (estimateTokens(doc) > LIMITS.hotFilesMaxTokens) return render(chosen, omitted, true);
+  return doc;
 }

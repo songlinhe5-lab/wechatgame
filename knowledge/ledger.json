@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 31,
+  "nextId": 33,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -64,7 +64,7 @@
       "file": "knowledge/lessons.md",
       "category": "工具链",
       "title": "改过被索引的 `.md` 后必须重跑 `ctx:build`，否则 C 门必红",
-      "contentHash": "00c1a713d1de487c3eb84146de6cbbd5d93dc77cd72b5c267aacff49b7f5ed13",
+      "contentHash": "86adccaf9c8d6444479778e1e780bff16ebd8d0b12e1a858e7d7874eb40dce02",
       "sourceTask": "WXG-T-026",
       "addedDate": "2026-09-12",
       "lastAccess": "2026-09-12",
@@ -516,6 +516,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-031",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "工具链",
+      "title": "多产物生成器新增产物时，必须同任务登记 pre-commit 的 `git add` 清单",
+      "contentHash": "96017a157e3d9388b30ada67292a278eca07816d0ffb1592233c2bd58f5df22e",
+      "sourceTask": "WXG-T-036",
+      "addedDate": "2026-09-13",
+      "lastAccess": "2026-09-13",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-032",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "工具链",
+      "title": "「逃生阀」两侧都支持时，文档必须写成",
+      "contentHash": "4e743127a9f288f3a93123eed5ef665580ddf1e2c937a140d4938dae839ebcbb",
+      "sourceTask": "WXG-T-036",
+      "addedDate": "2026-09-13",
+      "lastAccess": "2026-09-13",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -526,6 +560,33 @@
       "ids": [
         "K-029",
         "K-030"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-031"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-004"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-032"
       ],
       "note": null
     }

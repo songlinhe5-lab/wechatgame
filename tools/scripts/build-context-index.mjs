@@ -47,6 +47,8 @@
  *   node tools/scripts/build-context-index.mjs                    # write index + report
  *   node tools/scripts/build-context-index.mjs --check            # verify freshness, exit 1 on drift
  *   node tools/scripts/build-context-index.mjs --working-tree     # 逃生阀：按本地未提交内容索引
+ *        ⚠️ 须与 `check-context-budget.mjs --working-tree` **成对**使用（见其头注释）；只重建不校验、
+ *           或只切校验侧，都会得到与索引模式不匹配的假诊断。
  *   node tools/scripts/build-context-index.mjs --staged-blobs     # pre-commit 自动重建：暂存 .md 按暂存 blob 索引
  *
  * `--check` recomputes each file's content (per the contract above) and compares
@@ -62,12 +64,14 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import {
   BUDGET_MD_PATH,
+  HOT_FILES_MD_PATH,
   INDEX_PATH,
   LIMITS,
   buildIndex,
   freshnessIssues,
   readDistribution,
   readIndex,
+  renderHotFiles,
   routesAnchorRefs,
   serializeIndex,
 } from './lib/context-index.mjs';
@@ -276,15 +280,23 @@ function runBuild() {
   // WORKTREE_AUTHORITATIVE, so the dirty→HEAD rule never shadows the new bytes.)
   let index = null;
   let prevBudget = null;
+  let prevHot = null;
   for (let round = 0; round < 4; round += 1) {
     ({ index } = buildIndex({ mode: MODE }));
     const budget = renderBudget(index);
-    if (budget === prevBudget) break; // 本轮读到的 BUDGET 与上轮写出的一致 → 已到不动点
+    const hot = renderHotFiles(index, readDistribution());
+    // 两个产物都参与不动点：它们本身是被索引的 .md，其体积/行数会反过来影响索引。
+    if (budget === prevBudget && hot === prevHot) break;
     prevBudget = budget;
+    prevHot = hot;
     writeFileSync(BUDGET_MD_PATH, budget, 'utf8');
+    writeFileSync(HOT_FILES_MD_PATH, hot, 'utf8');
   }
   const { index: finalIndex, meta } = buildIndex({ mode: MODE });
   writeFileSync(INDEX_PATH, serializeIndex(finalIndex), 'utf8');
+  // 索引已固定后再写一次 hot-files（确保其行号描述的正是最终索引），并复核预算。
+  const finalHot = renderHotFiles(finalIndex, readDistribution());
+  writeFileSync(HOT_FILES_MD_PATH, finalHot, 'utf8');
 
   const byTier = { always: 0, hot: 0, normal: 0 };
   for (const f of finalIndex.files) byTier[f.tier] += 1;

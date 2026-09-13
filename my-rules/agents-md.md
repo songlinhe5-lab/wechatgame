@@ -16,6 +16,7 @@ trigger: always_on
 
 - 全流程 / 跨域 / 新游戏或新系统 / 发布决策 → 先阶段 0 或 `@studio-orchestrator`（见 `AGENTS.md` §2 触发条件）；单域小改直调 `wxgame-*`
 - 工程铁律 L1–L5 → `docs/architecture/control-manifest.md`
+- 读文件协议 → **第一跳** `ctx/ROUTES.md` 命中锚点，**第二跳** `ctx/hot-files.md` 取 `offset`/`limit`；**禁止**对大文件无条件整读
 - 数值真源 → `games/<game>/design/gdd/systems-index.md` §3
 - 全量验证 → `pnpm run verify`；提交前链接门 → `pnpm run check:links`（见 `docs/agent/hooks-best-practices.md`）
 - 先问再写；不伪造编辑器产物；不擅自 commit/push

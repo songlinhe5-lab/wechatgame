@@ -6,7 +6,10 @@
 #          必然 ≠ HEAD 锚定的旧索引 → 旧的拦截式 `ctx:check --staged` **结构性不可通过**
 #          （实测只能靠 --no-verify 绕过）。故 ② 不再拦截，改为：
 #            a. `ctx:build --staged-blobs`（暂存 .md 按**暂存 blob** 内容索引，暂存新文件一并纳入）；
-#            b. `git add ctx/index.json ctx/BUDGET.md`（重新暂存产物，随本次提交入库）；
+#            b. `git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md`（重新暂存产物，随本次提交入库）；
+#               ⚠️ 三个产物必须一起暂存：`ctx/hot-files.md` 是 `ctx:build` 生成的**新文件**（WXG-T-036 q-1），
+#                  首次提交若漏 add 则永不入库 → CI 干净检出缺该文件，`ctx/ROUTES.md §0` 第二跳（锚点→
+#                  offset/limit）直接断链，且 A 项预算表缺行。新增 ctx 产物时**必须同步登记到本行**。
 #            c. `ctx:check --staged` 仅作**兜底终校验**（正常路径恒绿，仅竞态/意外时拦截）。
 # 启用：git config core.hooksPath .githooks（见 tools/scripts/install-githooks.mjs）
 
@@ -38,7 +41,7 @@ if [ -n "$STAGED_MD" ]; then
     echo "   修复：手动执行 pnpm run ctx:build 后重试；仍失败请上报主理人（勿用 --no-verify）。"
     exit 1
   fi
-  git add ctx/index.json ctx/BUDGET.md
+  git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md
   echo "[pre-commit] 已自动重建索引并重新暂存（--staged-blobs）"
   echo "[pre-commit] node tools/scripts/check-context-budget.mjs --staged（兜底终校验）"
   if ! node tools/scripts/check-context-budget.mjs --staged; then

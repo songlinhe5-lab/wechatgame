@@ -5,6 +5,8 @@
  *
  *   A 常驻预算  AGENTS.md ≤ 3200 tokens；my-rules/*.md 单文件 ≤ 500 tokens
  *               （阈值口径见 lib/context-index.mjs 的 LIMITS 注释）
+ *               **WXG-T-036 追加**：`ctx/hot-files.md` ≤ hotFilesMaxTokens —— 它是协议**常驻
+ *               第二跳**（每会话读一次），体积直接扣减净收益（见 E4），故与 AGENTS.md 同列预算。
  *   B 单文件上限 任意 .md > 8000 tokens 视为超限（除非 ctx/budget-exempt.json 白名单）
  *   C 索引新鲜度 复用 build-context-index.mjs --check 的能力（共享函数，不 shell 外调）；
  *               **契约（WXG-T-026，2026-09-12）：索引描述「已提交内容（HEAD）」** ——
@@ -24,7 +26,12 @@
  *               E2 护栏（**比率**：抖动率 = 抖动组 ÷ 不同 (ide,session,path) 小读组；大文件整文件读率 =
  *                  次数 ÷ 总读次数；原始计数仍如实展示；常驻预算引用 A 项）；
  *               E3 与 ctx/savings-baseline.json 回归比对（**v2 比率口径**，容忍带见 LIMITS 注释；
- *                  旧版计数口径基线 version<2 走兼容分支）。
+ *                  旧版计数口径基线 version<2 走兼容分支）；
+ *               E4 净收益双列（**WXG-T-036，q-2**，报告项）：毛节省率不扣装置开销，故并列
+ *                  「实测（账本实际发生的装置读取）」与「协议应然（每会话读一次 ROUTES+hot-files）」；
+ *                  并以 `netSavings.measured.attributable` 驱动**归因声明**——协议产物（`ctx/`）
+ *                  读事件为 0 时必须显式声明「毛节省不可归因于本装置」，禁止引用实测列宣称装置有效。
+ *                  读装置**源码**（`tools/scripts/`）不计入归因（开发开销，无因果关系）。
  *
  *   ── 裁定留痕（WXG-T-026，2026-09-12）───────────────────────────────────────
  *               依据：E1/E2 是**行为类指标**，其取值取决于**历史会话分布**（读哪些文件、
@@ -42,6 +49,10 @@
  *
  * 用法：node tools/scripts/check-context-budget.mjs
  *       node tools/scripts/check-context-budget.mjs --working-tree   # 逃生阀：按本地未提交内容校验
+ *           ⚠️ 必须与 `build-context-index.mjs --working-tree` **成对**使用：默认索引描述 HEAD 内容
+ *              （dirty 文件按 HEAD blob），若只把校验侧切到工作树，C 项对每个 dirty 文件必然报
+ *              「索引过期」，且照提示重跑**默认** `ctx:build` 也消除不了 → 困在错误恢复路径。
+ *              正确姿势：`ctx:build --working-tree && ctx:check --working-tree`。
  *       node tools/scripts/check-context-budget.mjs --staged         # 非默认模式：仅按暂存区内容校验 C 项（pre-commit 自动重建后的兜底终校验，WXG-T-032 ③⑤）
  *       node tools/scripts/check-context-budget.mjs --update-baseline --reason="…" --task-id="WXG-T-…"
  */
@@ -61,6 +72,9 @@ import {
   sha256,
   stagedSet,
 } from './lib/context-index.mjs';
+
+/** A 项里 hot-files.md 的索引相对路径（生成器与门禁共用同一常量，避免字面量漂移）。 */
+const HOT_FILES_REL = 'ctx/hot-files.md';
 
 const failures = [];
 const notes = [];
@@ -187,6 +201,22 @@ function checkResident(index) {
       failures.push(`A: ${rel} 常驻体积 ${rec.tokens} tokens > 上限 ${LIMITS.ruleFile} —— 只放短指针，正文移正本`);
     }
   }
+
+  // 协议常驻第二跳（WXG-T-036，q-1）：ctx/hot-files.md。
+  // 它由 ctx:build 生成且**按同一常量贪心控量**，故正常路径恒绿；越限只可能是手改或索引爆炸。
+  const hotRec = byPath.get(HOT_FILES_REL);
+  if (!hotRec) {
+    failures.push(`A: 索引中缺少 ${HOT_FILES_REL} —— 重跑 pnpm run ctx:build 生成`);
+  } else {
+    const ok = hotRec.tokens <= LIMITS.hotFilesMaxTokens;
+    rows.push({ file: HOT_FILES_REL, tokens: hotRec.tokens, limit: LIMITS.hotFilesMaxTokens, ok });
+    if (!ok) {
+      failures.push(
+        `A: ${HOT_FILES_REL} 常驻体积 ${hotRec.tokens} tokens > 上限 ${LIMITS.hotFilesMaxTokens} —— ` +
+          '它是协议每会话都读的一跳，必须控量：调小 LIMITS.hotFilesMaxTokens 或降低收录门槛（生成器会自动裁撤低优先文件）',
+      );
+    }
+  }
   return rows;
 }
 
@@ -298,7 +328,7 @@ function checkStagedFreshness() {
         failures.push(
           `C(--staged): 暂存了删除，但索引仍收录该文件 — ${path} —— ` +
             '直接重新提交即可（pre-commit 自动重建会同步移除，WXG-T-032 ⑤）；' +
-            '手动修复：pnpm run ctx:build && git add ctx/index.json',
+            '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
         );
       }
       continue;
@@ -307,7 +337,7 @@ function checkStagedFreshness() {
       failures.push(
         `C(--staged): 新文件未入索引 — ${path} —— ` +
           '直接重新提交即可（pre-commit 会自动把暂存新文件纳入索引，WXG-T-032 ⑤）；' +
-          '手动修复：pnpm run ctx:build && git add ctx/index.json',
+          '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
       );
       continue;
     }
@@ -320,7 +350,7 @@ function checkStagedFreshness() {
       failures.push(
         `C(--staged): 暂存内容与索引不一致 — ${path} —— ` +
           '直接重新提交即可（pre-commit 会以 --staged-blobs 自动重建并重新暂存，WXG-T-032 ⑤）；' +
-          '手动修复：pnpm run ctx:build && git add ctx/index.json',
+          '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
       );
     }
   }
@@ -415,6 +445,8 @@ function checkE() {
     samples: null,
     e1: [],
     e2: [],
+    e4: [], // E4 净收益双列（WXG-T-036，q-2）
+    netAttributable: null, // 装置（ctx/ 协议产物）是否被读过 → 毛节省可否归因
     e3: [],
     behavioralMisses, // E1 未达标报告项（模块级，驱动 WARN 文案与报告标题）
     e2Counts: null, // E2 护栏计数（供汇总行的行为类指标描述）
@@ -487,6 +519,58 @@ function checkE() {
     jitterRate: m.jitter?.rate ?? 0,
     bigFullReadRate: m.bigFullReads?.rate ?? 0,
   };
+
+  // E4 净收益双列（WXG-T-036，q-2）——**报告项**（info，不设门禁、不进基线）。
+  // 口径：毛节省率**不扣**装置自身开销，故必须并列两个数字，禁止只报好看的那个：
+  //   • 实测——账本里**实际发生**的装置读取；但装置是否**起作用**只看 `ctx/`（协议产物）是否被读。
+  //     若为 0 → 毛节省**不可归因于装置**（归因声明必须同步输出）。
+  //   • 应然——按协议每会话读一次 ROUTES + hot-files 的**保守下界**。
+  const ns = m.netSavings;
+  if (!ns) {
+    report.e4 = [{ label: '净收益', value: '分布缺 netSavings 块（重跑 pnpm run ctx:usage）', kind: 'info', ok: null }];
+    notes.push('E4: ctx/usage-distribution.json 缺 metrics.netSavings → 无法给出净收益双列（重跑 pnpm run ctx:usage）');
+  } else {
+    report.netAttributable = ns.measured?.attributable === true;
+    report.e4 = [
+      {
+        label: '净收益 · 实测（装置开销已含在 Σ 实际读入内，故净额 = 毛节省率）',
+        value: pct(ns.measured?.net ?? 0),
+        limit: '仅展示',
+        ok: null,
+        kind: 'info',
+        detail:
+          `协议产物 ${ns.measured?.artifactReadEvents ?? 0} 次（${ns.measured?.artifactTokens ?? 0} tok）／` +
+          `装置源码 ${ns.measured?.codeReadEvents ?? 0} 次（${ns.measured?.codeTokens ?? 0} tok）`,
+      },
+      {
+        label: `净收益 · 应然/协议基线（每会话读一次 ROUTES ${ns.protocol?.routesTokens ?? 0} tok × ${ns.protocol?.sessions ?? 0} 会话）`,
+        value: pct(ns.protocol?.net ?? 0),
+        limit: '仅展示',
+        ok: null,
+        kind: 'info',
+        detail: 'q-2 口径原样（只算 ROUTES）；保守下界：假设装置不改变读行为',
+      },
+      {
+        label: `净收益 · 应然/含行号速查（再加 hot-files ${ns.protocol?.hotFilesTokens ?? 0} tok × ${ns.protocol?.sessions ?? 0} 会话）`,
+        value: pct(ns.protocol?.withHotFiles?.net ?? 0),
+        limit: '仅展示',
+        ok: null,
+        kind: 'info',
+        detail: '新增常驻产物（WXG-T-036 q-1）的成本单独成行，不折进上一行',
+      },
+    ];
+    if (!report.netAttributable) {
+      notes.push(
+        `E4: 装置归因声明 —— 协议产物（ctx/）读事件为 0，故实测净收益 ${pct(ns.measured?.net ?? 0)} **不可归因于本装置**；` +
+          `同列「协议应然」${pct(ns.protocol?.net ?? 0)} 才是装置真被用起来时的估计`,
+      );
+    }
+    if ((ns.measured?.codeReadEvents ?? 0) > 0) {
+      notes.push(
+        `E4: 另有 ${ns.measured.codeReadEvents} 次读的是**装置源码**（tools/scripts/），属开发维护开销，**不计入**归因`,
+      );
+    }
+  }
 
   // E3 基线回归 —— **硬门**（WXG-T-026，2026-09-12 裁定：指标劣于基线容忍带 → FAIL + exit 1，不变）
   const bl = readBaseline();
@@ -695,6 +779,13 @@ if (STAGED) {
   console.log('   ⚠️ 非默认模式（--staged）：只看暂存区；未暂存的 dirty 文件不参与校验。');
 } else if (freshness.workingTree) {
   console.log('   ⚠️ 非默认模式（--working-tree）：按**工作树**内容校验（含未提交改动）。');
+  if (freshness.stale.length > 0) {
+    console.log(
+      `   💡 若这 ${freshness.stale.length} 个文件你并未改动，属**索引模式不匹配**：ctx/index.json 由默认（HEAD）模式构建。` +
+        '成对执行即可 —— `node tools/scripts/build-context-index.mjs --working-tree`' +
+        ' && `node tools/scripts/check-context-budget.mjs --working-tree`。',
+    );
+  }
 } else if (freshness.git === false) {
   console.log('   ⚠️ 未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');
 } else if (freshness.headChecked && freshness.headChecked.length > 0) {
@@ -741,6 +832,22 @@ if (eReport.insufficient) {
   console.log('| 指标 | 当前 |');
   console.log('|---|---|');
   for (const r of eReport.e2) console.log(`| ${r.label} | ${r.value} |`);
+  console.log('');
+  // E4 净收益双列（WXG-T-036，q-2）——报告项，禁只报好看的那个；归因不成立时须显式警告。
+  console.log('E4 净收益（报告项，不阻断）— 毛节省不扣装置开销，故并列「实测 / 协议应然」两列，详见 ctx/reads-summary.md §②.1');
+  console.log('| 口径 | 净节省率 | 说明 |');
+  console.log('|---|---:|---|');
+  for (const r of eReport.e4) {
+    console.log(`| ${r.label} | ${r.value} | ${r.kind === 'info' ? r.limit : (r.limit ?? '')}${r.detail ? ` — ${r.detail}` : ''} |`);
+  }
+  if (eReport.netAttributable === false) {
+    console.log('');
+    console.log('⚠️ 归因声明：协议产物（ctx/）读事件为 0 → 实测净收益**不可归因于本装置**（来自会话固有行为）；');
+    console.log('   请以右列「协议应然」为准，勿引用实测列宣称装置有效。装置真实收益须待 IDE 埋点落地后方可测。');
+  } else if (eReport.netAttributable === true) {
+    console.log('');
+    console.log('归因声明：协议产物（ctx/）有读事件 → 装置处于可归因状态（但仍不构成因果证明）。');
+  }
   console.log('');
   console.log(
     'E3 基线回归（硬门）— ctx/savings-baseline.json（容忍带：节省率 −' +
@@ -798,8 +905,10 @@ for (const f of failures) console.error(`  - ${f}`);
 console.error('');
 console.error(
   '修复提示：索引描述**已提交内容（HEAD）**——改动任何被索引的 .md 并提交后重跑 `pnpm run ctx:build`；\n' +
-    '         若只想按本地未提交内容校验，用 `pnpm run ctx:check -- --working-tree`（非默认模式）；\n' +
-    '         --staged 模式下请先 `pnpm run ctx:build` 再把变更的 .md 与 ctx/index.json 一起 `git add`。\n' +
+    '         若只想按本地未提交内容校验，**必须成对**：`pnpm run ctx:build -- --working-tree &&\n' +
+    '         pnpm run ctx:check -- --working-tree`（只切校验侧 → C 项对每个 dirty 文件必 FAIL）；\n' +
+    '         --staged 模式下请先 `pnpm run ctx:build` 再把变更的 .md 与 ctx/index.json、ctx/BUDGET.md、\n' +
+    '         ctx/hot-files.md（三个产物必须一起暂存；漏 add 会致后续提交永不入库）一起 `git add`。\n' +
     '         E 项劣于基线若为真实退化请修复，否则 `pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"` 更新。',
 );
 process.exit(1);

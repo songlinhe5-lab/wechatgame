@@ -109,7 +109,7 @@
 
 ## 8. 分层阅读指引（已精简）
 
-分节阅读路由见 `ctx/ROUTES.md`（机器可读锚点）；细节见 `docs/agent/{repo-layout,commands,routing}.md`。
+分节阅读路由见 `ctx/ROUTES.md`（**第一跳**：意图 → 锚点）→ `ctx/hot-files.md`（**第二跳**：锚点 → `offset`/`limit` 速查，仅热文件与大文件，由 `pnpm run ctx:build` 生成）；细节见 `docs/agent/{repo-layout,commands,routing}.md`。
 
 ---
 

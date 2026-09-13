@@ -20,10 +20,10 @@
 | 配置文件位置 | 项目 `.cursor/hooks.json` / 用户 `~/.cursor/hooks.json` | 用户/项目 `.codebuddy/settings.json`（直写）或插件 `hooks/hooks.json`（包裹 `{"hooks":{…}}`） | `.workbuddy/settings.json`（格式同 CodeBuddy）`[待实测]` | settings 文件注册（官方 `hooks` 段）`[待实测]` 具体文件 |
 | 读文件事件 | ✅ `beforeReadFile`（matcher `Read`/`TabRead`）；或 `preToolUse`/`postToolUse` matcher=`Read` | ✅ `PreToolUse`/`PostToolUse` matcher=`Read` | ✅ 同 CodeBuddy | ✅ `PreToolUse` matcher=`Read` |
 | 能拿到 **path** | ✅（hook 载荷含 tool input 路径） | ✅（`.tool_input.file_path`） | ✅（同 CodeBuddy）`[待实测]` | ✅（`.tool_input`）`[待实测]` 键名 |
-| 能拿到 **offset/limit** | `[待实测]`（`beforeReadFile` 载荷字段未在随附文档列明） | `[待实测]`（Read 工具 input 是否含 offset/limit） | `[待实测]` | `[待实测]` |
+| 能拿到 **offset/limit** | 🔬 **探针已部署、待一次实测**（`beforeReadFile` 载荷字段未在随附文档列明；log-only 探针见 §3.1 末） | `[待实测]`（Read 工具 input 是否含 offset/limit） | `[待实测]` | `[待实测]` |
 | 需用户授权/信任 | ✅ hooks 受信任管理；`failClosed` 可选 | ✅ 插件 hook 随插件启用；用户设置 hook 需信任 | ✅（同 CodeBuddy） | ✅（官方 hook 需在设置注册） |
 | 跨平台 | ✅（命令 hook；用 node 脚本即可） | ✅（node/python/bash；$CODEBUDDY_PLUGIN_ROOT） | ✅（同 CodeBuddy） | ✅（官方建议 node/python 替代 bash+jq） |
-| 仓库现状 | `.cursor/hooks.json` **已启用**（`beforeShellExecution` + `preToolUse`，**无读事件**） | 无 hooks | 无 hooks | 无 hooks |
+| 仓库现状 | `.cursor/hooks.json` **已启用**（`beforeShellExecution` + `preToolUse`；**读事件探针** `beforeReadFile` 已于 WXG-T-036 q-3 加装，log-only） | 无 hooks | 无 hooks | 无 hooks |
 | 本单现有采集 | 转录 `agent-transcripts/**/*.jsonl`（tool_use Read，含 offset/limit） | 无 | 转录 `<slug>/**/*.jsonl`（function_call Read） | 转录无工具级细节（故未采集） |
 
 > 注：WorkBuddy 与 CodeBuddy 共用插件市场 `codebuddy-plugins-official`，且插件 hooks 使用同一
@@ -56,6 +56,14 @@
   ——证明 **preToolUse 载荷可拿到路径**。`beforeReadFile` 的载荷字段 `[待实测]`。
 - **offset/limit**：`[待实测]`（随附文档只列 matcher，不列载荷字段；需写一个 log-only hook 跑一次读，
   观察 stdin JSON 是否含 `offset`/`limit`）。
+  - **🔬 探针已部署（WXG-T-036 q-3，2026-09-13）**：`.cursor/hooks/before-read-file.mjs`，
+    已注册进 `.cursor/hooks.json` 的 `beforeReadFile`（matcher `Read|TabRead`，`failClosed:false`）。
+    设计为**零风险 log-only**：恒返回 `{"permission":"allow"}`（坏 JSON / 异常也放行）、
+    **不写** `ctx/reads-ledger.jsonl`（不碰采集口径）、日志只记**键名/类型/长度**且正文键一律
+    `<redacted>`、超 1MB 自动截断，落 `.cursor/hooks/.read-probe.jsonl`（已 gitignore）。
+    自测（注入三组合成载荷）已通过：区间字段识别 ✅ / 坏 JSON 仍放行 ✅ / 正文未落盘 ✅。
+    **待办**：在 Cursor 发起一次**带 offset 的读**后读该日志——
+    `hasRange:true` → 可拿精确区间；`hasRange:false` → 只能拿 `path`（结论回填本表与 §4）。
 - **配置位置**：项目 `.cursor/hooks.json`（本仓已存在）+ `.cursor/hooks/*`；用户 `~/.cursor/hooks.json`
   （本机**不存在**）。项目 hook 相对项目根、用户 hook 相对 `~/.cursor/`。
 - **授权**：hook 有信任管理；`failClosed: true` 可在崩溃/超时/坏 JSON 时阻断。改 `hooks.json` 自动热载。
@@ -117,6 +125,10 @@
 **共同缺口**：**offset/limit** 在四家的随附文档中均未列明 → 若 hook 只能拿到 `path`（无行区间），
 则 hook 埋点**只能补「整文件 vs 局部」的一阶信号**，拿不到精确区间——精确区间仍以**转录解析**（现状）为准。
 **建议后续接入任务的第一步：写一个 log-only hook，对一次「带 offset 的读」打印 stdin JSON，实测是否含区间字段。**
+→ **已执行（WXG-T-036 q-3，2026-09-13）**：Cursor 侧 log-only 探针已部署并自测通过（见 §3.1 末），
+   只差**在 Cursor 里发起一次带 offset 的真实读**即可回填本表 `[待实测]`。
+   注意：探针**只写独立日志**（`.cursor/hooks/.read-probe.jsonl`），**不写** `ctx/reads-ledger.jsonl`
+   ——即本轮**不引入双源**，故 §5「双源冲突」风险仍未被触发。
 
 ---
 
@@ -137,6 +149,12 @@
 ---
 
 ## 6. 本轮未做（明确声明）
+
+> **口径变更（WXG-T-036 q-3，2026-09-13）**：本节描述的是**本调研任务（WXG-T-025/026 一轮）**的边界，
+> 那一轮确实零改动。随后的 **q-3 试点**已在**用户拍板后**新增了一条 **log-only 探针**（见 §3.1 末）：
+> 仅改 `.cursor/hooks.json` 加 `beforeReadFile` 项 + 新增 `.cursor/hooks/before-read-file.mjs`（恒放行、
+> 不碰账本、不落正文）。以下三条**仍然成立**：未动 CodeBuddy/WorkBuddy/Qoder 任何配置，
+> 未使用户级配置，**未接入任何真实埋点**（探针只记自有日志，与转录账本**无混算**）。
 
 - ❌ 未修改 `.cursor/hooks.json` / `.codebuddy/settings.json` / `.workbuddy/settings.json` / `.qoder/settings.json`
   或任何用户级 hook 配置。
