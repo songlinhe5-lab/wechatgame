@@ -1,7 +1,7 @@
 # WXG 任务台账（SSOT）
 
 > 单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前**先读本文件领号**，完成后回填状态——根治跨 IDE 撞号（教训：2026-09-12 CodeBuddy 独立会话撞用 T-013/T-014）。
-> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-044**（✅ 已完成），下一可用号 **WXG-T-045**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
+> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-045**（✅ 已完成），下一可用号 **WXG-T-046**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
 > 勘误（2026-09-13）：本注此前长期停在「已分配至 T-032」而表内已排到 T-035，曾致撞号（教训见 memory 记录）；WXG-T-040 归档落地后改为——**领号认本注（下一可用号），本注由 `tasks:archive` 校准**为「主表 ∪ 归档全局最大号 + 1」（归档会把老行移出主表，只看主表最大号必重号）；手工领号后请顺手核对本注（可运行 `pnpm run tasks:archive` 校准，0 行时不落盘）。
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
@@ -51,6 +51,8 @@
 | WXG-T-042 | Cocos Creator + MCP 安装引导落盘（插件装**全局扩展目录** + 三处 IDE 端点登记） | 程基岩 | ✅ 完成 | docs/agent/cocos-setup.md · .mcp.json · .cursor/mcp.json · .codebuddy/mcp.json（新建）· ctx/ROUTES.md 锚点 · 本台账 |
 | WXG-T-043 | Cocos MCP 配置收口：三处手写 → **单一正本** + 生成器 + 漂移门禁（用户裁定方案 C）。正本 `my-mcp/servers.json`（语义 + targets）→ 生成器 `build-mcp-configs.mjs`（方言 `explicit`/`cursor`，因两侧官方文档字段写法不同，**不可**用 my-skills 式 symlink 共享）+ `check:mcp` 五重校验（C1 正本 / C2 targets / C3 语义 + **回环红线机械化** / C4 产物漂移 / C5 **漏登记**，K-031 根治形态）+ 接入 pre-commit · CI `arch-guard` · `verify`；顺带修两个现存缺陷：`.cursor/mcp.json` stdio 条目缺 `type`、`docs/agent/cocos-setup.md` §7 关于 Cursor `type` 的错误结论 | 程基岩 | ✅ 完成 | my-mcp/{servers.json,README.md} · tools/scripts/build-mcp-configs.mjs（selftest 6/6）· .mcp.json · .cursor/mcp.json · .codebuddy/mcp.json（三份转为生成物）· package.json(mcp:build / check:mcp / verify 追加) · .githooks/pre-commit · .github/workflows/ci.yml · docs/agent/cocos-setup.md §2+§7 · docs/agent/hooks-best-practices.md · 本台账 |
 | WXG-T-044 | ctx 多层加载收口 R6：第二跳覆盖 ROUTES 引用面（D2 口径 6/16=37.5% → 16/16=100%）+ 未收录清单瘦身（回收 ≈1190 tok）+ D2 覆盖率硬门（结构门） | 程基岩(CodeBuddy) | ✅ 已完成 | `tools/scripts/lib/context-index.mjs`（新增 `routesReferencedPaths()`；选池加「ROUTES 引用优先」、排序改「引用 ↓/读次数 ↓/体积 ↑」；未收录段只列路由落选者）· `tools/scripts/check-context-budget.mjs`（新增 D2 硬门 + 报告）· `ctx/ROUTES.md`（⑪·补协议文案）· 验证：`ctx:check --working-tree` 全绿、D2 17/17=100%；默认模式仅剩 D 项 1/79（`cocos-setup.md` 未入库，提交即绿）· 代价：ROUTES 常驻 5881→6235 tok，应然净收益 28.9%→28.3%（-0.6pt）· 知识沉淀：K-034（`kb:sync --task=WXG-T-044`；新增 1 / 修改 0 / 激活 0 / 归档 0；`kb:audit` 无候选、无相似命中）· 勘误：本行原记「62%→100%」不可复现，已按 D2 分母口径复算更正为 6/16→16/16 |
+
+| WXG-T-045 | IDE 能力迁移矩阵盘点（用户分工拍板：开发=CodeBuddy/Cursor/Qoder，WorkBuddy=调研/方案/设计/文档）：组件级核对 WorkBuddy 开发辅助能力向三 IDE 的迁移完成度 | 主理人 | ✅ 完成 | docs/agent/ide-capability-matrix.md（组件矩阵：skills 17/agents 7/rules/MCP×2/plugins/hooks × 四 IDE，✅ 已完成项全部有 check:links + check:mcp 门禁背书；WorkBuddy 保留项；遗留缺口 4 项——Qoder MCP 未接入（C5 已兜底）、CodeBuddy/Qoder 读埋点待授权、Cocos 编辑器未装（T-042 引导）、用户级 skillhub 旧副本待清理）· 本笔提交 |
 
 > 注 1：T-016/T-017 的产出实际由 CodeBuddy 侧会话完成（用户授权路径），本台账为跨 IDE 统一追认。
 > 注 2（第二次撞号追认）：CodeBuddy 会话后续又将 CI/CD 与 ADR-0009 误编为 016/017，已按 T-021/T-022 归位；其提交信息与任务单内嵌旧号不回改，以本台账为准。

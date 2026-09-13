@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1488,
       "lines": 76,
-      "sha256": "cc93da26c0b1898944b8449784c4e85bea1c799e52262faf8f7d4cd774fcfc27",
+      "sha256": "33737117ef7bd5e52e05a5627761c7e91cb71ca5df9ace92c04e3d0ddb357b47",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3780,
       "lines": 94,
-      "sha256": "6bd05cc303ea76203097c76e3156c851e0dc5793bf9e75d71befadb09db17509",
+      "sha256": "df11f3928309d44f4bfc79089453e4bbeb879ec44c4e0054540829b1d324b30c",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 66 行 / 7671 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 68 行 / 7861 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+67 · §待排（backlog，无号，立项时领取）=59+9",
+          "summary": "§WXG 任务台账（SSOT）=1+69 · §待排（backlog，无号，立项时领取）=61+9",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -2063,6 +2063,95 @@
           "summary": "",
           "keywords": [
             "失败怎么修"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/ide-capability-matrix.md",
+      "tokens": 1607,
+      "lines": 41,
+      "sha256": "522e375020d6d8447002e163d4ffb9d37b3852a1c8c275d86f58776f83d93a1e",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§IDE 能力迁移矩阵（docs/agent/ide-capability-matrix.md）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 42,
+          "tokens": 1588,
+          "summary": "来源：主理人盘点（2026-09-13，WXG-T-045）。结论先行的分工：开发在 CodeBuddy / Curso",
+          "keywords": [
+            "IDE",
+            "docs",
+            "agent",
+            "ide",
+            "capability",
+            "matrix"
+          ]
+        },
+        {
+          "anchor": "§1 组件级迁移矩阵（✅=已完成且门禁可验 / ⏳=待办 / ❌=不迁移，留 WorkBuddy）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 19,
+          "tokens": 553,
+          "summary": "Skills（17 个） my-skills/<name>/ .codebuddy/skills/ 符号链接 ×17 .",
+          "keywords": [
+            "WorkBuddy",
+            "Skills",
+            "skills",
+            "name",
+            "codebuddy",
+            "组件级迁移矩"
+          ]
+        },
+        {
+          "anchor": "§2 WorkBuddy 保留项（按新分工，留在 WorkBuddy、不迁移）",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 28,
+          "tokens": 273,
+          "summary": "专家团编排（TeamCreate/spawn 六角色 + 质量门裁决） 依赖 WorkBuddy 多智能体运行时；三 I",
+          "keywords": [
+            "WorkBuddy",
+            "TeamCreate",
+            "spawn",
+            "保留项",
+            "按新分工",
+            "留在"
+          ]
+        },
+        {
+          "anchor": "§3 遗留缺口（转入 IDE 开发前建议处理）",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 36,
+          "tokens": 378,
+          "summary": "1. ⏳ Qoder MCP 未接入：my-mcp/servers.json targets 只有 root/.curs",
+          "keywords": [
+            "IDE",
+            "Qoder",
+            "MCP",
+            "mcp",
+            "servers",
+            "json"
+          ]
+        },
+        {
+          "anchor": "§4 分工对照速查",
+          "level": 2,
+          "startLine": 37,
+          "endLine": 42,
+          "tokens": 139,
+          "summary": "CodeBuddy/Cursor/Qoder（写代码 + 跑验证）：17 skills + 7 agents + alw",
+          "keywords": [
+            "CodeBuddy",
+            "Cursor",
+            "Qoder",
+            "skills",
+            "agents",
+            "alw"
           ]
         }
       ]
@@ -22171,17 +22260,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 7671,
-      "lines": 66,
-      "sha256": "8cd8f271fb7a0a7bed63514b0877feb3ba7b025025c7d22315c73f8b75575c84",
+      "tokens": 7861,
+      "lines": 68,
+      "sha256": "bede492d0e9fb62c1b377f79dfa9f30d06dba3bb8946aa50a0a7b0df1d29aff2",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 67,
-          "tokens": 7662,
+          "endLine": 69,
+          "tokens": 7853,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -22195,8 +22284,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 59,
-          "endLine": 67,
+          "startLine": 61,
+          "endLine": 69,
           "tokens": 476,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [

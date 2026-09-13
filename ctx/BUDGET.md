@@ -23,7 +23,7 @@
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
 | 1 | `memory/2026-09-12.md` | 10141 | 151 | normal |
-| 2 | `production/TASKS.md` | 7671 | 66 | hot |
+| 2 | `production/TASKS.md` | 7861 | 68 | hot |
 | 3 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
 | 4 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 5 | `production/qa/test-cases.md` | 7097 | 296 | normal |
