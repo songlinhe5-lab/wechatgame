@@ -8,7 +8,7 @@
 
 | 文件 | 估算 tokens | 行数 | 上限 | 状态 |
 |---|---:|---:|---:|:--:|
-| `AGENTS.md` | 3199 | 200 | 2000 | ❌ |
+| `AGENTS.md` | 1699 | 120 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 327 | 23 | 500 | ✅ |
 
@@ -30,10 +30,10 @@
 | 10 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
 | 11 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
 | 12 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
-| 13 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
-| 14 | `my-skills/weixin-minigame-helper/SKILL.md` | 4543 | 251 | normal |
-| 15 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
-| 16 | `ctx/ROUTES.md` | 4420 | 172 | normal |
+| 13 | `ctx/ROUTES.md` | 4656 | 177 | normal |
+| 14 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
+| 15 | `my-skills/weixin-minigame-helper/SKILL.md` | 4543 | 251 | normal |
+| 16 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
 | 17 | `production/qa/test-plan.md` | 4334 | 195 | normal |
 | 18 | `docs/architecture/architecture.md` | 4322 | 239 | normal |
 | 19 | `games/beads/design/gdd/score-combo.md` | 4248 | 137 | normal |

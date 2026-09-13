@@ -4,23 +4,22 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "tokens": 3199,
-      "lines": 200,
-      "sha256": "c908702cfc037d0466712e7fd529689b239d2816a47923bc57446e5f3a53a758",
+      "tokens": 1699,
+      "lines": 120,
+      "sha256": "c427fae0c00968df02dcece8d35ed8cf94511158657ec48378a683cc06298092",
       "tier": "always",
       "sections": [
         {
           "anchor": "§AGENTS.md — wechatgame 项目级 Agent 指引",
           "level": 1,
           "startLine": 1,
-          "endLine": 201,
-          "tokens": 3185,
-          "summary": "本文件是项目常驻记忆层：新开对话应先读这里，再按需加载 skill / 深文档。",
+          "endLine": 121,
+          "tokens": 1685,
+          "summary": "本文件是项目常驻记忆层：新开对话先读这里。",
           "keywords": [
             "AGENTS",
             "wechatgame",
             "Agent",
-            "skill",
             "项目级",
             "指引"
           ]
@@ -28,8 +27,8 @@
         {
           "anchor": "§IDE 常驻指针（alwaysApply）",
           "level": 2,
-          "startLine": 7,
-          "endLine": 17,
+          "startLine": 6,
+          "endLine": 16,
           "tokens": 141,
           "summary": "提示词正文正本：my-rules/agents-md.md（并集 frontmatter）。各 IDE 路径为相对符号链",
           "keywords": [
@@ -44,8 +43,8 @@
         {
           "anchor": "§长期笔记 MEMORY（四 IDE 可索引）",
           "level": 2,
-          "startLine": 18,
-          "endLine": 29,
+          "startLine": 17,
+          "endLine": 28,
           "tokens": 90,
           "summary": "正本 memory/MEMORY.md（日记：memory/YYYY-MM-DD.md）",
           "keywords": [
@@ -60,8 +59,8 @@
         {
           "anchor": "§1 项目是什么",
           "level": 2,
-          "startLine": 30,
-          "endLine": 38,
+          "startLine": 29,
+          "endLine": 37,
           "tokens": 167,
           "summary": "pnpm monorepo：共用框架 packages/framework + 每款游戏 games/<game>/（首",
           "keywords": [
@@ -74,24 +73,25 @@
           ]
         },
         {
-          "anchor": "§2 默认怎么干活",
+          "anchor": "§2 默认怎么干活（路由表）",
           "level": 2,
-          "startLine": 39,
-          "endLine": 76,
-          "tokens": 639,
-          "summary": "全流程 / 跨域 / 阶段诊断 / 质量门裁决 wxgame-orchestration（先读 my-skills/wx",
+          "startLine": 38,
+          "endLine": 58,
+          "tokens": 351,
+          "summary": "全流程 / 跨域 / 质量门裁决 wxgame-orchestration（先读其 SKILL.md）",
           "keywords": [
             "wxgame",
             "orchestration",
-            "skills",
-            "默认怎么干活"
+            "SKILL",
+            "默认怎么干活",
+            "路由表"
           ]
         },
         {
           "anchor": "§3 不可违反的工程铁律",
           "level": 2,
-          "startLine": 77,
-          "endLine": 96,
+          "startLine": 59,
+          "endLine": 78,
           "tokens": 267,
           "summary": "完整表与评审清单：docs/architecture/（control-manifest.md、architecture",
           "keywords": [
@@ -106,8 +106,8 @@
         {
           "anchor": "§4 冲突裁决与数值真源",
           "level": 2,
-          "startLine": 97,
-          "endLine": 107,
+          "startLine": 79,
+          "endLine": 89,
           "tokens": 128,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 = 数值唯一真源",
           "keywords": [
@@ -122,35 +122,40 @@
         {
           "anchor": "§5 目录与产物落位",
           "level": 2,
-          "startLine": 108,
-          "endLine": 134,
-          "tokens": 281,
-          "summary": "",
+          "startLine": 90,
+          "endLine": 93,
+          "tokens": 21,
+          "summary": "→ docs/agent/repo-layout.md（原 §5 逐字迁出，WXG-T-032）。",
           "keywords": [
-            "目录与产物落"
+            "§5",
+            "docs",
+            "agent",
+            "repo",
+            "layout",
+            "WXG"
           ]
         },
         {
           "anchor": "§6 验证与常用命令",
           "level": 2,
-          "startLine": 135,
-          "endLine": 150,
-          "tokens": 193,
-          "summary": "pnpm run verify 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck ",
+          "startLine": 94,
+          "endLine": 99,
+          "tokens": 21,
+          "summary": "→ docs/agent/commands.md（原 §6 逐字迁出，WXG-T-032）。",
           "keywords": [
-            "pnpm",
-            "run",
-            "verify",
-            "IDE",
-            "check",
-            "typecheck"
+            "§6",
+            "docs",
+            "agent",
+            "commands",
+            "WXG",
+            "验证与常用命"
           ]
         },
         {
           "anchor": "§7 协作纪律",
           "level": 2,
-          "startLine": 151,
-          "endLine": 160,
+          "startLine": 100,
+          "endLine": 109,
           "tokens": 172,
           "summary": "先问再写：创建/大改文件前先确认路径与范围（编排铁律同此）。",
           "keywords": [
@@ -158,33 +163,35 @@
           ]
         },
         {
-          "anchor": "§8 分层阅读指引（避免一次灌进全文）",
+          "anchor": "§8 分层阅读指引（已精简）",
           "level": 2,
-          "startLine": 161,
-          "endLine": 180,
-          "tokens": 288,
-          "summary": "找\"该读哪个文件的哪一节\" ctx/ROUTES.md（章节级锚点路由表，先读它再分段读）",
+          "startLine": 110,
+          "endLine": 115,
+          "tokens": 38,
+          "summary": "分节阅读路由见 ctx/ROUTES.md（机器可读锚点）；细节见 docs/agent/{repo-layout,co",
           "keywords": [
             "ctx",
             "ROUTES",
-            "分层阅读指引",
-            "避免一次灌进",
-            "全文"
+            "docs",
+            "agent",
+            "repo",
+            "layout"
           ]
         },
         {
-          "anchor": "§9 知识库与调用透明（WXG-T-023）",
+          "anchor": "§9 知识库与调用透明（WXG-T-023 摘要）",
           "level": 2,
-          "startLine": 181,
-          "endLine": 201,
-          "tokens": 624,
-          "summary": "知识库读写协议（knowledge/，正本 knowledge/INDEX.md）：",
+          "startLine": 116,
+          "endLine": 121,
+          "tokens": 117,
+          "summary": "读：实现/修复/接入/发布类任务开工前，先读 knowledge/lessons.md 同域条目，列入必读。",
           "keywords": [
             "WXG",
             "knowledge",
-            "INDEX",
+            "lessons",
             "知识库与调用",
-            "透明"
+            "透明",
+            "摘要"
           ]
         }
       ]
@@ -193,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1299,
       "lines": 72,
-      "sha256": "a1af60efab5a62a16af985896e42a7682f1ecf071445f46a3f2523f95a652100",
+      "sha256": "35fcd8a151b172ad90ab595e6a3accc3c8933de99704d5a920b6d2f4d88b9de6",
       "tier": "normal",
       "sections": [
         {
@@ -218,7 +225,7 @@
           "startLine": 7,
           "endLine": 16,
           "tokens": 123,
-          "summary": "AGENTS.md 3199 200 2000 ❌",
+          "summary": "AGENTS.md 1699 120 2000 ✅",
           "keywords": [
             "always",
             "AGENTS",
@@ -277,17 +284,17 @@
     },
     {
       "path": "ctx/ROUTES.md",
-      "tokens": 4420,
-      "lines": 172,
-      "sha256": "fd735b2d11bee98652232807e5d26f626d0b4f44b451376455a790093961077f",
+      "tokens": 4656,
+      "lines": 177,
+      "sha256": "8fae69b0a9aa37c808071a7ec4598734c8cbea3a1f3bf5f7cf26d228e846ec68",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文路由表（ctx/ROUTES.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 173,
-          "tokens": 4408,
+          "endLine": 178,
+          "tokens": 4644,
           "summary": "给 agent 的第一跳：开工前先读本表，命中锚点后用 read_file(path, offset, limit) 只",
           "keywords": [
             "ctx",
@@ -330,33 +337,34 @@
           "anchor": "§1 路由表",
           "level": 2,
           "startLine": 54,
-          "endLine": 166,
-          "tokens": 2685,
+          "endLine": 171,
+          "tokens": 2921,
           "summary": "",
           "keywords": [
             "路由表"
           ]
         },
         {
-          "anchor": "§1.1 项目入口与铁律（承自 AGENTS.md §8）",
+          "anchor": "§1.1 项目入口与铁律（AGENTS.md 骨架 + docs/agent/ 迁出文件，WXG-T-032）",
           "level": 3,
           "startLine": 56,
-          "endLine": 67,
-          "tokens": 220,
-          "summary": "项目是什么 / 平台与引擎策略 AGENTS.md#§1 项目是什么 167",
+          "endLine": 72,
+          "tokens": 446,
+          "summary": "项目是什么 / 平台与引擎策略 AGENTS.md#§1 项目是什么 173",
           "keywords": [
-            "§8",
             "§1",
             "AGENTS",
-            "项目入口与铁",
-            "承自"
+            "docs",
+            "agent",
+            "WXG",
+            "项目入口与铁"
           ]
         },
         {
           "anchor": "§1.2 冻结数值（hot · games/beads/design/gdd/systems-index.md）",
           "level": 3,
-          "startLine": 68,
-          "endLine": 88,
+          "startLine": 73,
+          "endLine": 93,
           "tokens": 573,
           "summary": "整个 §3 冻结令 games/beads/design/gdd/systems-index.md#§3 全局数值基线（",
           "keywords": [
@@ -371,8 +379,8 @@
         {
           "anchor": "§1.3 架构（hot）",
           "level": 3,
-          "startLine": 89,
-          "endLine": 106,
+          "startLine": 94,
+          "endLine": 111,
           "tokens": 443,
           "summary": "分层与依赖方向 docs/architecture/architecture.md#§2 分层与依赖方向 1074 主架",
           "keywords": [
@@ -386,8 +394,8 @@
         {
           "anchor": "§1.4 工程细则（hot · docs/architecture/control-manifest.md）",
           "level": 3,
-          "startLine": 107,
-          "endLine": 123,
+          "startLine": 112,
+          "endLine": 128,
           "tokens": 369,
           "summary": "五条铁律 L1–L5（完整） docs/architecture/control-manifest.md#§0 五条铁律",
           "keywords": [
@@ -402,8 +410,8 @@
         {
           "anchor": "§1.5 QA 判据（hot · production/qa/beads/test-cases.md）",
           "level": 3,
-          "startLine": 124,
-          "endLine": 135,
+          "startLine": 129,
+          "endLine": 140,
           "tokens": 316,
           "summary": "硬判据总表（50 条） production/qa/beads/test-cases.md#§A 硬判据用例（50 条 ",
           "keywords": [
@@ -418,8 +426,8 @@
         {
           "anchor": "§1.6 任务台账与长期记忆（hot）",
           "level": 3,
-          "startLine": 136,
-          "endLine": 146,
+          "startLine": 141,
+          "endLine": 151,
           "tokens": 144,
           "summary": "领号 / 任务台账 production/TASKS.md#§WXG 任务台账（SSOT） 1439 开工先领号",
           "keywords": [
@@ -434,10 +442,10 @@
         {
           "anchor": "§1.7 Skill / Agent / 知识库 / 门禁",
           "level": 3,
-          "startLine": 147,
-          "endLine": 166,
+          "startLine": 152,
+          "endLine": 171,
           "tokens": 515,
-          "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 13 个挂四 IDE 链接；存档 ",
+          "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 17 个挂四 IDE 链接；存档 ",
           "keywords": [
             "§1",
             "Skill",
@@ -450,8 +458,8 @@
         {
           "anchor": "§2 维护",
           "level": 2,
-          "startLine": 167,
-          "endLine": 173,
+          "startLine": 172,
+          "endLine": 178,
           "tokens": 104,
           "summary": "本表锚点须与 ctx/index.json 的 anchor 一致；改任一被索引 .md 的标题后，重跑 pnpm ru",
           "keywords": [
@@ -678,6 +686,47 @@
             "html",
             "importmap",
             "目录约定"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/commands.md",
+      "tokens": 298,
+      "lines": 18,
+      "sha256": "940fe5669de1c7576589a3b35a6efc4b63368a5d90a2eae088b82e2685b806f7",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§验证与常用命令（docs/agent/commands.md）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 19,
+          "tokens": 283,
+          "summary": "来源：自 AGENTS.md §6「验证与常用命令」逐字迁出 · 日期 2026-09-13 · Task ID WXG",
+          "keywords": [
+            "§6",
+            "docs",
+            "agent",
+            "commands",
+            "AGENTS",
+            "Task"
+          ]
+        },
+        {
+          "anchor": "§验证与常用命令",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 19,
+          "tokens": 191,
+          "summary": "pnpm run verify 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck ",
+          "keywords": [
+            "pnpm",
+            "run",
+            "verify",
+            "IDE",
+            "check",
+            "typecheck"
           ]
         }
       ]
@@ -1124,17 +1173,17 @@
     },
     {
       "path": "docs/agent/hooks-best-practices.md",
-      "tokens": 1260,
-      "lines": 92,
-      "sha256": "a6f43dd7318c8cc65f00a56111f1306dcb1beb0a492ef9749a4f61c45c06cc27",
+      "tokens": 1459,
+      "lines": 97,
+      "sha256": "f8299d2c489b69135faadfa5dc6a280e7478c288fc67addbabb7c7139980968f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践",
           "level": 1,
           "startLine": 1,
-          "endLine": 93,
-          "tokens": 1245,
+          "endLine": 98,
+          "tokens": 1444,
           "summary": "本仓约定：Hooks 加固 AGENTS.md / L1–L5，不替代编排与 SubAgent。",
           "keywords": [
             "Cursor",
@@ -1149,8 +1198,8 @@
           "anchor": "§1 分层：谁拦什么",
           "level": 2,
           "startLine": 6,
-          "endLine": 15,
-          "tokens": 186,
+          "endLine": 20,
+          "tokens": 385,
           "summary": "Git pre-commit .githooks/pre-commit 任意 IDE / 终端的 git commit ",
           "keywords": [
             "Git",
@@ -1164,8 +1213,8 @@
         {
           "anchor": "§2 启用 Git hooks（每人 / 每 clone 一次）",
           "level": 2,
-          "startLine": 16,
-          "endLine": 36,
+          "startLine": 21,
+          "endLine": 41,
           "tokens": 121,
           "summary": "仓库已提交 .githooks/。本地必须把 hooks 路径指过去：",
           "keywords": [
@@ -1180,8 +1229,8 @@
         {
           "anchor": "§3 `check:links` 查什么",
           "level": 2,
-          "startLine": 37,
-          "endLine": 52,
+          "startLine": 42,
+          "endLine": 57,
           "tokens": 300,
           "summary": "脚本：tools/scripts/check-ide-links.mjs（清单由扫描得出，勿在脚本内硬编码成员名）",
           "keywords": [
@@ -1196,8 +1245,8 @@
         {
           "anchor": "§4 Cursor Hooks 实践清单",
           "level": 2,
-          "startLine": 53,
-          "endLine": 71,
+          "startLine": 58,
+          "endLine": 76,
           "tokens": 357,
           "summary": "1. 项目级优先：政策进 .cursor/hooks.json（可进云 Agent）；个人实验放 ~/.cursor/。",
           "keywords": [
@@ -1212,8 +1261,8 @@
         {
           "anchor": "§本仓已启用",
           "level": 3,
-          "startLine": 63,
-          "endLine": 71,
+          "startLine": 68,
+          "endLine": 76,
           "tokens": 123,
           "summary": "beforeShellExecution .cursor/hooks/before-shell.mjs git comm",
           "keywords": [
@@ -1228,8 +1277,8 @@
         {
           "anchor": "§5 与 `verify` 的关系",
           "level": 2,
-          "startLine": 72,
-          "endLine": 79,
+          "startLine": 77,
+          "endLine": 84,
           "tokens": 68,
           "summary": "pnpm run check:links 每次 commit（快）",
           "keywords": [
@@ -1244,12 +1293,145 @@
         {
           "anchor": "§6 失败怎么修",
           "level": 2,
-          "startLine": 80,
-          "endLine": 93,
+          "startLine": 85,
+          "endLine": 98,
           "tokens": 113,
           "summary": "",
           "keywords": [
             "失败怎么修"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/repo-layout.md",
+      "tokens": 390,
+      "lines": 29,
+      "sha256": "f694d438c468e677de0a73ab3d2dafa25c59f084dbdb67bc0febb274176b40b7",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§仓库目录与产物落位（docs/agent/repo-layout.md）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 30,
+          "tokens": 372,
+          "summary": "来源：自 AGENTS.md §5「目录与产物落位」逐字迁出 · 日期 2026-09-13 · Task ID WXG",
+          "keywords": [
+            "§5",
+            "docs",
+            "agent",
+            "repo",
+            "layout",
+            "AGENTS"
+          ]
+        },
+        {
+          "anchor": "§目录与产物落位",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 30,
+          "tokens": 280,
+          "summary": "",
+          "keywords": [
+            "目录与产物落"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/agent/routing.md",
+      "tokens": 547,
+      "lines": 37,
+      "sha256": "dad1987ddace5ef61ed8e68558dcc0f5e2a183690395a0a03edac0190bf93715",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§默认路由细节（docs/agent/routing.md）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 38,
+          "tokens": 533,
+          "summary": "来源：自 AGENTS.md §2「默认怎么干活」迁出的细节部分（skill 优先级、四 IDE 路径、新增 skill",
+          "keywords": [
+            "§2",
+            "docs",
+            "agent",
+            "routing",
+            "AGENTS",
+            "skill"
+          ]
+        },
+        {
+          "anchor": "§Hooks / 提交门禁 / Headless 指针",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 11,
+          "tokens": 56,
+          "summary": "Hooks / 提交门禁：docs/agent/hooks-best-practices.md（自原 §8 分层阅读指引",
+          "keywords": [
+            "§8",
+            "Hooks",
+            "Headless",
+            "docs",
+            "agent",
+            "hooks"
+          ]
+        },
+        {
+          "anchor": "§Skill 优先级（冲突时高者胜）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 17,
+          "tokens": 26,
+          "summary": "",
+          "keywords": [
+            "Skill",
+            "优先级",
+            "冲突时高者胜"
+          ]
+        },
+        {
+          "anchor": "§Skill 正本与四 IDE 链接",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 25,
+          "tokens": 80,
+          "summary": "Skill 正本：my-skills/<name>/。四处 IDE 链接（相对符号链接，随仓库提交）：",
+          "keywords": [
+            "Skill",
+            "IDE",
+            "skills",
+            "name",
+            "正本与四",
+            "链接"
+          ]
+        },
+        {
+          "anchor": "§SubAgent 四 IDE 路径",
+          "level": 2,
+          "startLine": 26,
+          "endLine": 30,
+          "tokens": 71,
+          "summary": "工作室成员委派：正本 my-agents/（6 成员 + studio-orchestrator）；委派时 subage",
+          "keywords": [
+            "SubAgent",
+            "IDE",
+            "agents",
+            "studio",
+            "orchestrator",
+            "subage"
+          ]
+        },
+        {
+          "anchor": "§跨域先交编排",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 38,
+          "tokens": 119,
+          "summary": "跨域或「整款游戏从哪开始」→ 先交编排，不要自己跳着写全套文档。",
+          "keywords": [
+            "跨域先交编排"
           ]
         }
       ]
@@ -19201,17 +19383,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 3615,
-      "lines": 53,
-      "sha256": "d7fb8f863eafd7fbbb82fa89a0ef8824193bf6e219e664561842c2ba9470e48e",
+      "tokens": 3784,
+      "lines": 54,
+      "sha256": "a9bab7fd30c3bafc0b1fc6aef1f39939b491e36f5e3e6c916eec7030d1ae5ee8",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 54,
-          "tokens": 3606,
+          "endLine": 55,
+          "tokens": 3775,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -19225,8 +19407,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 46,
-          "endLine": 54,
+          "startLine": 47,
+          "endLine": 55,
           "tokens": 476,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [
