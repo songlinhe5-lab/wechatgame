@@ -231,12 +231,15 @@ function main() {
   }
 
   // 清理源里已不存在的拷贝件；对应孤儿 .meta 一起删。
+  // ⚠ 目录也有 .meta（如 `core.meta` 对应 `core/` 目录），其 sibling 是目录，
+  //   不在 manifest/existingSet（均只含文件）里——必须用 existsSync 兜底，
+  //   否则每次同步都会误删全部目录级 .meta（2026-09-13 实测事故）。
   let removed = 0;
   for (const abs of existingAll) {
     if (manifest.has(abs)) continue;
     if (abs.endsWith('.meta')) {
       const sibling = abs.replace(/\.meta$/, '');
-      if (manifest.has(sibling) || existingSet.has(sibling)) continue; // 还有主，保留
+      if (manifest.has(sibling) || existsSync(sibling)) continue; // 还有主，保留
     }
     rmSync(abs);
     removed += 1;
