@@ -30,7 +30,7 @@
 
 1. **✅ Qoder MCP 已接入（WXG-T-046）**：官方文档实证项目级读根 `/.mcp.json`（与现有 explicit 方言字段兼容）→ **零新文件**；用户级 `~/.qoder/mcp.json` 已同步同语义两 server。注意用户级文件在仓库外，升级 MCP 版本时手动同步（README §5）。首次在 Qoder 使用项目级配置需 IDE 内批准。
 2. **⏳ CodeBuddy/Qoder 读埋点**：需改 settings 并经用户信任（属改配置，须独立任务 + 授权）；不阻塞开发，仅影响计量覆盖面。
-3. **⏳ Cocos Creator 编辑器未装**：`docs/agent/cocos-setup.md`（T-042）是安装引导真源；`cocos-creator` MCP 在编辑器插件启动前不可用——beads/breakout 的 Cocos 侧预览依赖它。
+3. **⏳ Cocos 链路（2026-09-13 更新）**：Creator **3.8.8 已装**（/Applications/Cocos/Creator/3.8.8）+ MCP 插件 **v1.5.4 已装全局**（~/.CocosCreator/extensions，dist 已构建）。剩 GUI 步骤（cocos-setup.md）：B 建 `games/breakout/cocos/` 工程 → D 扩展管理器启用 + 启动 3000 端口 → F 白名单禁写前缀；curl 探测必须 `--noproxy '*'`（本机全局代理劫持回环，实测 502 假象）。
 4. **⚠️ 用户级重复 skill**：`~/.workbuddy/skills/` 存在 skillhub 旧副本（game-material-precheck/numeric-design 等），与 `my-skills/` 正本同名不同源；WorkBuddy 侧项目级链接优先级更高（INDEX §3），但建议择机清理避免误用旧版。
 5. **✅ 能力前置已就绪的部分**：微信小游戏 MCP（0.1.13 锚）三 IDE 配置就绪、冒烟通过；`wxgame-minigame-bridge` 使用前置=上条 Cocos 安装 + AppID/私钥/白名单（环境项）。
 

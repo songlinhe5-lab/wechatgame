@@ -106,10 +106,12 @@ cd ~/.CocosCreator/extensions/cocos-mcp-server && npm install && npm run build
 `扩展 → Cocos MCP Server` → 面板内：**端口** `3000`（默认，勿改）→ **自动启动** ✅ → **「启动服务器」**。
 
 ```bash
-curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/mcp
+curl -sS --noproxy '*' -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3000/mcp
 ```
 
 返回码非 `000` 即服务已起（无鉴权，4xx 也算可达）。
+
+> ⚠️ **代理陷阱（2026-09-13 实测）**：本机设了全局代理（`HTTP_PROXY/HTTPS_PROXY` 指向 `127.0.0.1:<port>`）时，**不带 `--noproxy '*'` 的 curl 会把回环请求也发给代理**，返回 502 假象（服务明明没起却"有响应"）。同理建议给 shell 加 `export NO_PROXY=127.0.0.1,localhost`——否则任何走代理感知 HTTP 客户端的 MCP http 连接都可能被劫持。
 
 ---
 

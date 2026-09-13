@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3780,
       "lines": 94,
-      "sha256": "a0f6fcf2cbaddc240a974ca9b27c40e9128f820d98cd6e15db324d8bd89b0330",
+      "sha256": "1036f6c8d76330444e8bef858a7f962d91fe2f48ac270198db2ba5d3cdf2464c",
       "tier": "normal",
       "sections": [
         {
@@ -752,12 +752,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/cocos-setup.md` — 234 行 / 3944 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 236 行 / 4073 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
           "tokens": 222,
-          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+235 ·",
+          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+237 ·",
           "keywords": [
             "docs/agent/cocos-setup.md",
             "docs",
@@ -1067,17 +1067,17 @@
     },
     {
       "path": "docs/agent/cocos-setup.md",
-      "tokens": 3944,
-      "lines": 234,
-      "sha256": "aa00655634f39cb775a4d8fab2c6521431afa412e9c1851f9e9a7519cf62adb9",
+      "tokens": 4073,
+      "lines": 236,
+      "sha256": "4b073f0f9058de806402859c4cde6db0bb4cc97e38435b35ff30fc56e8787a29",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 235,
-          "tokens": 3926,
+          "endLine": 237,
+          "tokens": 4055,
           "summary": "来源：ADR-0009 §3.4「四 IDE 接入方式」的可执行展开 · 2026-09-13 · Task ID WX",
           "keywords": [
             "§3.4",
@@ -1213,8 +1213,8 @@
           "anchor": "§6 阶段 D — 启动 MCP 服务",
           "level": 2,
           "startLine": 104,
-          "endLine": 115,
-          "tokens": 86,
+          "endLine": 117,
+          "tokens": 215,
           "summary": "扩展 → Cocos MCP Server → 面板内：端口 3000（默认，勿改）→ 自动启动 ✅ → 「启动服务器」",
           "keywords": [
             "MCP",
@@ -1228,8 +1228,8 @@
         {
           "anchor": "§7 阶段 E — 四 IDE 端点登记（已落盘，且已收口为单一正本）",
           "level": 2,
-          "startLine": 116,
-          "endLine": 180,
+          "startLine": 118,
+          "endLine": 182,
           "tokens": 1127,
           "summary": "ADR-0009 §3.4 的「一份配置，四处生效」指 URL 统一；实际落地时各 IDE 的文件位置与字段写法不同。自",
           "keywords": [
@@ -1244,8 +1244,8 @@
         {
           "anchor": "§8 阶段 F — 工具白名单（L1 机械防线）",
           "level": 2,
-          "startLine": 181,
-          "endLine": 198,
+          "startLine": 183,
+          "endLine": 200,
           "tokens": 284,
           "summary": "在插件面板工具管理标签页按前缀设置（ADR-0009 §3.3；实测后按 v1.5.4 实际工具名微调）：",
           "keywords": [
@@ -1259,8 +1259,8 @@
         {
           "anchor": "§9 阶段 G — 验证顺序与回填",
           "level": 2,
-          "startLine": 199,
-          "endLine": 209,
+          "startLine": 201,
+          "endLine": 211,
           "tokens": 128,
           "summary": "按 VERSION.md §5 的依赖顺序跑（前一步失败会阻塞后一步）：",
           "keywords": [
@@ -1273,8 +1273,8 @@
         {
           "anchor": "§10 升级流程",
           "level": 2,
-          "startLine": 210,
-          "endLine": 217,
+          "startLine": 212,
+          "endLine": 219,
           "tokens": 101,
           "summary": "1. cd ~/.CocosCreator/extensions/cocos-mcp-server && git pul",
           "keywords": [
@@ -1289,8 +1289,8 @@
         {
           "anchor": "§11 排错",
           "level": 2,
-          "startLine": 218,
-          "endLine": 229,
+          "startLine": 220,
+          "endLine": 231,
           "tokens": 183,
           "summary": "扩展管理器里看不到插件 目录放错（应在 extensions/<插件名>/ 下，且该目录内含 package.json）",
           "keywords": [
@@ -1303,8 +1303,8 @@
         {
           "anchor": "§12 本次已知未完成项（诚实记录）",
           "level": 2,
-          "startLine": 230,
-          "endLine": 235,
+          "startLine": 232,
+          "endLine": 237,
           "tokens": 181,
           "summary": "1. Qoder / WorkBuddy 的 MCP 配置文件位置未核实，故 §7 只登记了三处。",
           "keywords": [
@@ -2069,9 +2069,9 @@
     },
     {
       "path": "docs/agent/ide-capability-matrix.md",
-      "tokens": 1643,
+      "tokens": 1710,
       "lines": 41,
-      "sha256": "73870a5ea87e4e2d298554fded0b96415e6e5db0702fdba4b9a41dc6d75405cf",
+      "sha256": "fc1b7aaa2fec0ee82108ec03e9eb6d07cb38518536e259d02d8899a3e5002a20",
       "tier": "normal",
       "sections": [
         {
@@ -2079,7 +2079,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 42,
-          "tokens": 1624,
+          "tokens": 1692,
           "summary": "来源：主理人盘点（2026-09-13，WXG-T-045）。结论先行的分工：开发在 CodeBuddy / Curso",
           "keywords": [
             "IDE",
@@ -2127,7 +2127,7 @@
           "level": 2,
           "startLine": 29,
           "endLine": 36,
-          "tokens": 375,
+          "tokens": 443,
           "summary": "1. ✅ Qoder MCP 已接入（WXG-T-046）：官方文档实证项目级读根 /.mcp.json（与现有 exp",
           "keywords": [
             "IDE",
