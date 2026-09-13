@@ -7,6 +7,10 @@
  *               （阈值口径见 lib/context-index.mjs 的 LIMITS 注释）
  *               **WXG-T-036 追加**：`ctx/hot-files.md` ≤ hotFilesMaxTokens —— 它是协议**常驻
  *               第二跳**（每会话读一次），体积直接扣减净收益（见 E4），故与 AGENTS.md 同列预算。
+ *               **WXG-T-039 R5 追加**：`ctx/ROUTES.md` ≤ routesMd（7500）—— 它是协议**常驻第二跳**
+ *               且为**手维护路由表**（非生成物、无生成器控量），审计认定其为无护栏增长点，
+ *               故与 hot-files 同列硬门；另并列**常驻总量观察哨**（A 项所有常驻行合计 vs
+ *               residentTotalSoft，报告项：超阈只醒目提示、不阻断，硬阻断只挂单文件）。
  *   B 单文件上限 任意 .md > 8000 tokens 视为超限（除非 ctx/budget-exempt.json 白名单）
  *   C 索引新鲜度 复用 build-context-index.mjs --check 的能力（共享函数，不 shell 外调）；
  *               **契约（WXG-T-026，2026-09-12）：索引描述「已提交内容（HEAD）」** ——
@@ -68,12 +72,14 @@ import {
   BASELINE_PATH,
   EXEMPT_PATH,
   LIMITS,
+  RESIDENT_PROTOCOL_FILES,
   ROOT,
   ROUTES_PATH,
   freshnessIssues,
   readDistribution,
   readIndex,
   readStagedBlob,
+  residentLimit,
   routesReferencedPaths,
   sha256,
   stagedSet,
@@ -210,20 +216,51 @@ function checkResident(index) {
 
   // 协议常驻第二跳（WXG-T-036，q-1）：ctx/hot-files.md。
   // 它由 ctx:build 生成且**按同一常量贪心控量**，故正常路径恒绿；越限只可能是手改或索引爆炸。
+  // WXG-T-039 R5：上限取值经 residentLimit() 单一真源（与 BUDGET.md §1 表同源）。
   const hotRec = byPath.get(HOT_FILES_REL);
   if (!hotRec) {
     failures.push(`A: 索引中缺少 ${HOT_FILES_REL} —— 重跑 pnpm run ctx:build 生成`);
   } else {
-    const ok = hotRec.tokens <= LIMITS.hotFilesMaxTokens;
-    rows.push({ file: HOT_FILES_REL, tokens: hotRec.tokens, limit: LIMITS.hotFilesMaxTokens, ok });
+    const hotLimit = residentLimit(HOT_FILES_REL);
+    const ok = hotRec.tokens <= hotLimit;
+    rows.push({ file: HOT_FILES_REL, tokens: hotRec.tokens, limit: hotLimit, ok });
     if (!ok) {
       failures.push(
-        `A: ${HOT_FILES_REL} 常驻体积 ${hotRec.tokens} tokens > 上限 ${LIMITS.hotFilesMaxTokens} —— ` +
+        `A: ${HOT_FILES_REL} 常驻体积 ${hotRec.tokens} tokens > 上限 ${hotLimit} —— ` +
           '它是协议每会话都读的一跳，必须控量：调小 LIMITS.hotFilesMaxTokens 或降低收录门槛（生成器会自动裁撤低优先文件）',
       );
     }
   }
-  return rows;
+
+  // 协议常驻第二跳（WXG-T-039 R5）：ctx/ROUTES.md。
+  // 它是**手维护路由表**（被索引但非生成物，无生成器控量），此前没有任何体积上限——
+  // 审计（2026-09-13）认定其为无护栏增长点。本门是它的唯一硬护栏；上限取值经
+  // residentLimit() 单一真源（= LIMITS.routesMd = 7500，低于 B 项通用 8000）。
+  for (const rel of RESIDENT_PROTOCOL_FILES) {
+    if (rel === HOT_FILES_REL) continue; // hot-files 已在上方按同一映射收录
+    const rec = byPath.get(rel);
+    if (!rec) {
+      failures.push(`A: 索引中缺少 ${rel} —— 重跑 pnpm run ctx:build`);
+      continue;
+    }
+    const lim = residentLimit(rel);
+    const ok = rec.tokens <= lim;
+    rows.push({ file: rel, tokens: rec.tokens, limit: lim, ok });
+    if (!ok) {
+      failures.push(
+        `A: ${rel} 常驻体积 ${rec.tokens} tokens > 上限 ${lim} —— ` +
+          '它是协议每会话都读的第二跳（手维护路由表，无生成器控量），必须瘦身：' +
+          '合并重复路由 / 删除失效锚点引用 / 长说明移入 docs/；' +
+          '勿以「直接调大 LIMITS.routesMd」代替瘦身（如需调阈须按程序留痕并同步文档）',
+      );
+    }
+  }
+
+  // 常驻总量观察哨（WXG-T-039 R5，报告项）：A 项所有常驻行合计。
+  // 单文件上限各自为政时总量仍可漂移（各文件同时逼近各自上限的合计 = 14500），
+  // 总量行是观察哨：超软阈值只醒目提示、不阻断（硬阻断只挂上方各单文件门）。
+  const residentTotal = rows.reduce((n, r) => n + r.tokens, 0);
+  return { rows, total: residentTotal, totalOver: residentTotal > LIMITS.residentTotalSoft };
 }
 
 /** ── B. per-file ceiling + exemption whitelist ──────────────────────────── */
@@ -810,13 +847,15 @@ if (UPDATE_BASELINE) updateBaseline();
 // ─────────────────────────────────────────────────────────────── run ─────────
 const index = readIndex();
 let residentRows = [];
+let residentTotal = 0;
+let residentTotalOver = false;
 let overRows = [];
 let routeRows = [];
 let covReport = null;
 if (!index) {
   failures.push('无法读取 ctx/index.json —— 先运行 pnpm run ctx:build');
 } else {
-  residentRows = checkResident(index);
+  ({ rows: residentRows, total: residentTotal, totalOver: residentTotalOver } = checkResident(index));
   overRows = checkFileMax(index);
   routeRows = checkRoutes(index);
   covReport = checkHotFilesCoverage(index);
@@ -833,11 +872,27 @@ const line = (ok, text) => `${ok ? '✅' : '❌'} ${text}`;
 
 console.log('上下文预算守卫（ctx:check）');
 console.log('');
-console.log(`A 常驻预算 — AGENTS.md ≤ ${LIMITS.agentsMd}；my-rules/*.md 单文件 ≤ ${LIMITS.ruleFile}`);
+console.log(
+  `A 常驻预算 — AGENTS.md ≤ ${LIMITS.agentsMd}；my-rules/*.md 单文件 ≤ ${LIMITS.ruleFile}；` +
+    `ctx/hot-files.md ≤ ${LIMITS.hotFilesMaxTokens}（生成器同源控量）；` +
+    `ctx/ROUTES.md ≤ ${LIMITS.routesMd}（WXG-T-039 R5，手维护路由表的唯一硬护栏）`,
+);
 if (residentRows.length) {
   console.log('| 文件 | tokens | 上限 | |');
   console.log('|---|---:|---:|:--:|');
   for (const r of residentRows) console.log(`| ${r.file} | ${r.tokens} | ${r.limit} | ${r.ok ? '✅' : '❌'} |`);
+  // 常驻总量观察哨（WXG-T-039 R5，报告项）：并列一行展示每会话固定常驻开销合计。
+  console.log(
+    `常驻总量（每会话固定开销 = AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md）：` +
+      `${residentTotal} tokens（观察哨软阈值 ≤ ${LIMITS.residentTotalSoft}）${residentTotalOver ? '⚠️' : '✅'}`,
+  );
+  if (residentTotalOver) {
+    console.log(
+      `   ⚠️ 常驻总量 ${residentTotal} > 软阈值 ${LIMITS.residentTotalSoft} —— ` +
+        '各单文件上限各自为政时总量仍可漂移，此为观察哨提示（不阻断，硬阻断只挂上方各单文件门）；' +
+        '请评估常驻文件瘦身，或按程序留痕后重议 LIMITS.residentTotalSoft。',
+    );
+  }
 } else {
   console.log('（未取得数据）');
 }

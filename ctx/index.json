@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1296,
-      "lines": 72,
-      "sha256": "4973f023771f705fe47c4e442d7afc38c27244c0616e081255adb0d6d1a5ae2a",
+      "tokens": 1488,
+      "lines": 76,
+      "sha256": "2df7215782fdf1f8071f050a87774eaca40110d9c17a11bfafd31473b5c96093",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 73,
-          "tokens": 1283,
+          "endLine": 77,
+          "tokens": 1475,
           "summary": "生成：2026-09-13 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -223,8 +223,8 @@
           "anchor": "§1 常驻层体积（always-on）",
           "level": 2,
           "startLine": 7,
-          "endLine": 16,
-          "tokens": 123,
+          "endLine": 20,
+          "tokens": 315,
           "summary": "AGENTS.md 1743 120 2000 ✅",
           "keywords": [
             "always",
@@ -235,8 +235,8 @@
         {
           "anchor": "§2 Top 20 大文件（估算 tokens）",
           "level": 2,
-          "startLine": 17,
-          "endLine": 41,
+          "startLine": 21,
+          "endLine": 45,
           "tokens": 349,
           "summary": "1 memory/2026-09-12.md 10141 151 normal",
           "keywords": [
@@ -251,8 +251,8 @@
         {
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
-          "startLine": 42,
-          "endLine": 47,
+          "startLine": 46,
+          "endLine": 51,
           "tokens": 43,
           "summary": "memory/2026-09-12.md 10141 见 ctx/budget-exempt.json（无豁免则 ❌ 需",
           "keywords": [
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 48,
-          "endLine": 73,
+          "startLine": 52,
+          "endLine": 77,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -284,17 +284,17 @@
     },
     {
       "path": "ctx/ROUTES.md",
-      "tokens": 6235,
-      "lines": 217,
-      "sha256": "1c832065d99abafd69ba3ec265d1a3927234193d9c7b2d47f4349adbd104e869",
+      "tokens": 6535,
+      "lines": 225,
+      "sha256": "58e2b8ab93c0f8fed29bfc9c0b52c251d3d3e5c3a4929499ad52283ff103a617",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文路由表（ctx/ROUTES.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 218,
-          "tokens": 6223,
+          "endLine": 226,
+          "tokens": 6523,
           "summary": "给 agent 的第一跳：开工前先读本表，命中锚点后用 read_file(path, offset, limit) 只",
           "keywords": [
             "ctx",
@@ -309,8 +309,8 @@
           "anchor": "§量化与自证（本表的效果由「分层上下文节省装置」实测，WXG-T-026）",
           "level": 3,
           "startLine": 14,
-          "endLine": 74,
-          "tokens": 2284,
+          "endLine": 81,
+          "tokens": 2556,
           "summary": "① 估算口径：本表与装置涉及的 token 一律为估算（CJK≈1/字、ASCII≈1/4 字符，",
           "keywords": [
             "WXG",
@@ -324,8 +324,8 @@
         {
           "anchor": "§0 上下文读取协议（强制）",
           "level": 2,
-          "startLine": 75,
-          "endLine": 91,
+          "startLine": 82,
+          "endLine": 98,
           "tokens": 402,
           "summary": "1. 读本表 → 命中精确锚点（文件 + 小节标题）。",
           "keywords": [
@@ -336,8 +336,8 @@
         {
           "anchor": "§1 路由表",
           "level": 2,
-          "startLine": 92,
-          "endLine": 210,
+          "startLine": 99,
+          "endLine": 217,
           "tokens": 2971,
           "summary": "",
           "keywords": [
@@ -347,8 +347,8 @@
         {
           "anchor": "§1.1 项目入口与铁律（AGENTS.md 骨架 + docs/agent/ 迁出文件，WXG-T-032）",
           "level": 3,
-          "startLine": 94,
-          "endLine": 111,
+          "startLine": 101,
+          "endLine": 118,
           "tokens": 496,
           "summary": "项目是什么 / 平台与引擎策略 AGENTS.md#§1 项目是什么 173",
           "keywords": [
@@ -363,8 +363,8 @@
         {
           "anchor": "§1.2 冻结数值（hot · games/beads/design/gdd/systems-index.md）",
           "level": 3,
-          "startLine": 112,
-          "endLine": 132,
+          "startLine": 119,
+          "endLine": 139,
           "tokens": 573,
           "summary": "整个 §3 冻结令 games/beads/design/gdd/systems-index.md#§3 全局数值基线（",
           "keywords": [
@@ -379,8 +379,8 @@
         {
           "anchor": "§1.3 架构（hot）",
           "level": 3,
-          "startLine": 133,
-          "endLine": 150,
+          "startLine": 140,
+          "endLine": 157,
           "tokens": 443,
           "summary": "分层与依赖方向 docs/architecture/architecture.md#§2 分层与依赖方向 1074 主架",
           "keywords": [
@@ -394,8 +394,8 @@
         {
           "anchor": "§1.4 工程细则（hot · docs/architecture/control-manifest.md）",
           "level": 3,
-          "startLine": 151,
-          "endLine": 167,
+          "startLine": 158,
+          "endLine": 174,
           "tokens": 369,
           "summary": "五条铁律 L1–L5（完整） docs/architecture/control-manifest.md#§0 五条铁律",
           "keywords": [
@@ -410,8 +410,8 @@
         {
           "anchor": "§1.5 QA 判据（hot · production/qa/beads/test-cases.md）",
           "level": 3,
-          "startLine": 168,
-          "endLine": 179,
+          "startLine": 175,
+          "endLine": 186,
           "tokens": 316,
           "summary": "硬判据总表（50 条） production/qa/beads/test-cases.md#§A 硬判据用例（50 条 ",
           "keywords": [
@@ -426,8 +426,8 @@
         {
           "anchor": "§1.6 任务台账与长期记忆（hot）",
           "level": 3,
-          "startLine": 180,
-          "endLine": 190,
+          "startLine": 187,
+          "endLine": 197,
           "tokens": 144,
           "summary": "领号 / 任务台账 production/TASKS.md#§WXG 任务台账（SSOT） 1439 开工先领号",
           "keywords": [
@@ -442,8 +442,8 @@
         {
           "anchor": "§1.7 Skill / Agent / 知识库 / 门禁",
           "level": 3,
-          "startLine": 191,
-          "endLine": 210,
+          "startLine": 198,
+          "endLine": 217,
           "tokens": 515,
           "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 17 个挂四 IDE 链接；存档 ",
           "keywords": [
@@ -458,9 +458,9 @@
         {
           "anchor": "§2 维护",
           "level": 2,
-          "startLine": 211,
-          "endLine": 218,
-          "tokens": 163,
+          "startLine": 218,
+          "endLine": 226,
+          "tokens": 192,
           "summary": "本表锚点须与 ctx/index.json 的 anchor 一致；改任一被索引 .md 的标题后，重跑 pnpm ru",
           "keywords": [
             "ctx",
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3766,
       "lines": 94,
-      "sha256": "7afe95b653c6ad90cdf05ec9a36920a74054747cdd0f1eff55b7fe80e7d63424",
+      "sha256": "489381957b8ad2e18ed12bb824feb23ec0dabcb1a0e753cfc5b32eb81368c4e6",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 67 行 / 6602 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 67 行 / 6932 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -1361,17 +1361,17 @@
     },
     {
       "path": "docs/agent/context-instrumentation-survey.md",
-      "tokens": 5492,
-      "lines": 232,
-      "sha256": "dc469bd2d8e91df0a732313a2209660eb683c2779c0eec4d9a5911722e86cc82",
+      "tokens": 6374,
+      "lines": 270,
+      "sha256": "e861bbe8e4b2852d8f23dfaad90e336ef340e9370e421aa4c487acb0b66eaef4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§四 IDE「read 事件埋点」能力调研（WXG-T-026 ⑤）",
           "level": 1,
           "startLine": 1,
-          "endLine": 233,
-          "tokens": 5473,
+          "endLine": 271,
+          "tokens": 6355,
           "summary": "范围声明：本文只调研、不改配置。四 IDE 的 hook 事件名、能否拿到 path + offset/limit、",
           "keywords": [
             "IDE",
@@ -1563,8 +1563,8 @@
           "anchor": "§9 账本分窗轮转（WXG-T-037 R1，2026-09-13）",
           "level": 2,
           "startLine": 186,
-          "endLine": 233,
-          "tokens": 1164,
+          "endLine": 235,
+          "tokens": 1166,
           "summary": "背景：2026-09-13 上下文膨胀审计判定 ctx/reads-ledger.jsonl 为「只增不减」的真雷",
           "keywords": [
             "WXG",
@@ -1623,9 +1623,56 @@
           "anchor": "§9.4 自测",
           "level": 3,
           "startLine": 226,
-          "endLine": 233,
-          "tokens": 155,
+          "endLine": 235,
+          "tokens": 156,
           "summary": "tools/scripts/context-usage-selftest.sh §[10]（⑬A–⑬H）：树原子轮转与窗",
+          "keywords": [
+            "tools",
+            "scripts",
+            "context",
+            "usage",
+            "selftest",
+            "自测"
+          ]
+        },
+        {
+          "anchor": "§10 ROUTES.md 常驻体积上限 + 常驻总量观察哨（WXG-T-039 R5，2026-09-13）",
+          "level": 2,
+          "startLine": 236,
+          "endLine": 271,
+          "tokens": 855,
+          "summary": "背景：2026-09-13 审计认定 ctx/ROUTES.md 为无护栏增长点——它是协议常驻第二跳",
+          "keywords": [
+            "ROUTES",
+            "WXG",
+            "ctx",
+            "常驻体积上限",
+            "常驻总量观察"
+          ]
+        },
+        {
+          "anchor": "§10.1 机制",
+          "level": 3,
+          "startLine": 242,
+          "endLine": 264,
+          "tokens": 609,
+          "summary": "单文件硬门：LIMITS.routesMd = 7500（tools/scripts/lib/context-index",
+          "keywords": [
+            "LIMITS",
+            "routesMd",
+            "tools",
+            "scripts",
+            "lib",
+            "context"
+          ]
+        },
+        {
+          "anchor": "§10.2 自测",
+          "level": 3,
+          "startLine": 265,
+          "endLine": 271,
+          "tokens": 121,
+          "summary": "tools/scripts/context-usage-selftest.sh §[11]（⑭A–⑭C）：低于上限 ex",
           "keywords": [
             "tools",
             "scripts",
@@ -21935,9 +21982,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6602,
+      "tokens": 6932,
       "lines": 67,
-      "sha256": "5d6600181646a2c32e83ed5db7bb7e0da4efef43e73115e2f01bbecd1fcc2916",
+      "sha256": "31a11b4d72eccec24af454d1822b985dbdd2d4b532df7d71658b6aaac8bb52b0",
       "tier": "hot",
       "sections": [
         {
@@ -21945,7 +21992,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 68,
-          "tokens": 6593,
+          "tokens": 6923,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",

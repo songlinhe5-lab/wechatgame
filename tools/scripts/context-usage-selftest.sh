@@ -34,6 +34,12 @@
 #            metrics.cumulative（窗口⊕历史）且分位数与手工合并一致；ctx:check E1/E3
 #            以累计口径判定（基线一致 exit 0 / 劣化 exit 1 / 窗口小样本不误报不足）。
 #
+#         ⑭ ROUTES 常驻上限（WXG-T-039 R5）：A 项 `ctx/ROUTES.md` ≤ routesMd（7500）硬门 ——
+#            低于上限 exit 0（A 项表 + BUDGET.md §1 同源同读数展示）；超限 exit 1 + 瘦身修复
+#            指引（桩文件卡在 7500~8000 之间，使失败唯一归因 ROUTES 门而非 B 项通用门）；
+#            常驻总量观察哨：各文件均低于各自上限但合计超 residentTotalSoft（13500）→ 仍
+#            exit 0，仅 ⚠️ 提示不阻断（硬阻断只挂各单文件门）。
+#
 # 用法：tools/scripts/context-usage-selftest.sh
 # 产物：仅 stdout 报告；临时目录在退出时清理，不污染仓库 / 本机转录。
 
@@ -937,6 +943,91 @@ node "$CHECK_STUB" >"$WORK/check-rotB.txt" 2>&1
 assert_eq "$?" "1" "⑬H 累计口径 P10 劣于基线 → exit 1（E3 硬门在累计口径下依然成立）"
 assert_contains "$(cat "$WORK/check-rotB.txt")" "劣于基线" "⑬H 输出含「劣于基线」诊断"
 set_baseline_metric p10Partial 0.45
+
+# ── [11] ROUTES 常驻体积硬门 + 常驻总量观察哨（WXG-T-039 R5）─────────────────────
+# 做法：沿用 $CR 桩仓库（[10] 末已恢复 E1/E3 一致基线）。
+#   ⑭A 低于上限（桩 ROUTES.md 为几行小文件）→ exit 0；A 项标题标注上限 7500（LIMITS.routesMd
+#      单一真源）、A 项表含 ROUTES 行、常驻总量行出现；BUDGET.md §1 表（ctx:build 生成）
+#      含同一 ROUTES 行（读数/上限/状态与门禁同源，无两处硬编码）。
+#   ⑭B 超限：写入 ≈7740 估算 tok 的 ROUTES.md（故意卡在 7500 与 B 项 8000 之间，使失败
+#      唯一归因 ROUTES 门）→ 提交 → HEAD 重建 → exit 1，诊断含「常驻体积 / 上限 7500 /
+#      瘦身」修复指引；BUDGET.md 同步展示 ❌。
+#   ⑭C 观察哨：只抬 index.json 各文件 token 读数（sha 不动 → C 门仍绿）到「均低于各自上限
+#      但合计 14100 > 软阈 13500」→ 仍 exit 0，输出 ⚠️ + 「不阻断」；恢复后回到 exit 0。
+echo
+echo "[11] ctx:check A 项：ROUTES ≤ routesMd 硬门 / BUDGET.md 同源 / 常驻总量观察哨"
+
+# 11.1 低于上限：exit 0 + A 项表 / BUDGET.md 同源
+node "$CHECK_STUB" >"$WORK/c11_0.txt" 2>&1
+assert_eq "$?" "0" "⑭A ROUTES 低于上限（桩为几行小文件）→ exit 0"
+OUTA11="$(cat "$WORK/c11_0.txt")"
+assert_contains "$OUTA11" "ctx/ROUTES.md ≤ 7500" "⑭A A 项标题标注 ROUTES 上限 7500（LIMITS.routesMd 单一真源）"
+ROUTES_ROW_A="$(printf '%s\n' "$OUTA11" | grep -F '| ctx/ROUTES.md |' | head -1)"
+case "$ROUTES_ROW_A" in
+  *'| 7500 | ✅ |'*) ok "⑭A A 项表含 ROUTES 行（上限 7500 / ✅，读数为桩真实估算）";;
+  *) bad "⑭A A 项表 ROUTES 行异常：[$ROUTES_ROW_A]";;
+esac
+assert_contains "$OUTA11" "常驻总量" "⑭A 输出含常驻总量观察哨行"
+node "$BUILD_STUB" >/dev/null 2>&1
+BUDGET_ROW="$(grep -F '| `ctx/ROUTES.md` |' "$CR/ctx/BUDGET.md" | head -1)"
+case "$BUDGET_ROW" in
+  *'| 7500 |'*'✅'*) ok "⑭A BUDGET.md §1 表 ROUTES 行与门禁同源（上限 7500 / ✅，读数同源）";;
+  *) bad "⑭A BUDGET.md §1 表 ROUTES 行与门禁不同源：[$BUDGET_ROW]";;
+esac
+assert_contains "$(cat "$CR/ctx/BUDGET.md")" "常驻总量" "⑭A BUDGET.md 含常驻总量观察哨行"
+
+# 11.2 超限 → exit 1 + 修复指引（桩 645 行 × 48 ASCII 字符 = 30960/4 ≈ 7740 tok ∈ (7500, 8000)）
+awk 'BEGIN{for(i=1;i<=645;i++) printf "padding padding padding padding padding padding\n"}' >"$CR/ctx/ROUTES.md"
+git -C "$CR" add ctx/ROUTES.md
+git -C "$CR" -c user.email=selftest@example.com -c user.name=selftest \
+  commit -q --no-verify -m "selftest: [11] ROUTES over-limit stub (WXG-T-039)" >/dev/null 2>&1
+node "$BUILD_STUB" >/dev/null 2>&1
+node "$CHECK_STUB" >"$WORK/c11_1.txt" 2>&1
+assert_eq "$?" "1" "⑭B ROUTES 超限（≈7740 tok > 7500）→ exit 1（A 项硬门）"
+OUTB11="$(cat "$WORK/c11_1.txt")"
+assert_contains "$OUTB11" "ctx/ROUTES.md 常驻体积" "⑭B 诊断点名 ctx/ROUTES.md 常驻体积"
+assert_contains "$OUTB11" "7500" "⑭B 诊断含上限 7500"
+assert_contains "$OUTB11" "瘦身" "⑭B 诊断含「瘦身」修复指引（非调阈）"
+assert_contains "$OUTB11" "| ctx/ROUTES.md | 7740 | 7500 | ❌ |" "⑭B A 项表 ROUTES 行标 ❌"
+BUDGET_ROW_OVER="$(grep -F '| `ctx/ROUTES.md` |' "$CR/ctx/BUDGET.md" | head -1)"
+case "$BUDGET_ROW_OVER" in
+  *'| 7740 |'*'| 7500 |'*'❌'*) ok "⑭B BUDGET.md §1 表同步展示 ❌（与门禁同源）";;
+  *) bad "⑭B BUDGET.md §1 表未同步展示超限：[$BUDGET_ROW_OVER]";;
+esac
+# 回滚超限桩提交与其连带重建的产物（BUILD_STUB 在提交后又改写过 index/BUDGET，
+# reset --hard 一并归位到 [9] 末的产物不动点），给 ⑭C 一个干净基线。
+# 注意：reset --hard 会把 [9] 遗留的 tracked-but-deleted 桩 docs/staged-new.md 复原到磁盘
+# （它在 self-heal 提交树里、却不在其重建索引里）→ C 门「未收录」；rm 复现 [10] 末的
+# 磁盘状态（tracked-deleted，C 门不扫描磁盘上不存在的文件）。
+git -C "$CR" reset -q --hard HEAD~1
+rm -f "$CR/docs/staged-new.md"
+
+# 11.3 常驻总量观察哨：合计 14100 > 软阈 13500，但各文件均低于各自上限 → exit 0 仅 ⚠️
+node - "$CR" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+const root = process.argv[2];
+const p = join(root, 'ctx/index.json');
+const idx = JSON.parse(readFileSync(p, 'utf8'));
+// 只改 tokens 读数、不动 sha256 → C 门仍绿；A 门判定读同一字段。
+const bump = {
+  'AGENTS.md': 1900,           // ≤ 2000
+  'my-rules/INDEX.md': 450,    // ≤ 500
+  'my-rules/agents-md.md': 450,
+  'ctx/hot-files.md': 3900,    // ≤ 4000
+  'ctx/ROUTES.md': 7400,       // ≤ 7500
+};
+for (const f of idx.files) if (bump[f.path] != null) f.tokens = bump[f.path];
+writeFileSync(p, JSON.stringify(idx, null, 2) + '\n', 'utf8');
+NODE_EOF
+node "$CHECK_STUB" >"$WORK/c11_2.txt" 2>&1
+assert_eq "$?" "0" "⑭C 各文件均低于各自上限、仅总量超软阈 → 仍 exit 0（观察哨不阻断）"
+OUTC11="$(cat "$WORK/c11_2.txt")"
+assert_contains "$OUTC11" "14100 tokens（观察哨软阈值 ≤ 13500）⚠️" "⑭C 常驻总量行如实展示 14100 > 13500 并标 ⚠️"
+assert_contains "$OUTC11" "不阻断" "⑭C 观察哨提示声明不阻断（硬阻断只挂单文件门）"
+git -C "$CR" checkout -q -- ctx/index.json
+node "$CHECK_STUB" >/dev/null 2>&1
+assert_eq "$?" "0" "⑭C 恢复 index.json 后回到 exit 0"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

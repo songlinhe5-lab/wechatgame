@@ -11,8 +11,12 @@
 | `AGENTS.md` | 1743 | 120 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 374 | 24 | 500 | ✅ |
+| `ctx/hot-files.md` | 3766 | 94 | 4000 | ✅ |
+| `ctx/ROUTES.md` | 6535 | 225 | 7500 | ✅ |
 
 > AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
+> `ctx/ROUTES.md` 常驻阈值 **7500**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，且低于 B 项通用单文件上限 8000——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。
+> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **12672** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
 
 ## 2. Top 20 大文件（估算 tokens）
 
@@ -23,11 +27,11 @@
 | 3 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 4 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 | 5 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
-| 6 | `production/TASKS.md` | 6602 | 67 | hot |
-| 7 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
-| 8 | `ctx/ROUTES.md` | 6235 | 217 | normal |
-| 9 | `memory/2026-09-11.md` | 5617 | 115 | normal |
-| 10 | `docs/agent/context-instrumentation-survey.md` | 5492 | 232 | normal |
+| 6 | `production/TASKS.md` | 6932 | 67 | hot |
+| 7 | `ctx/ROUTES.md` | 6535 | 225 | normal |
+| 8 | `docs/agent/context-instrumentation-survey.md` | 6374 | 270 | normal |
+| 9 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
+| 10 | `memory/2026-09-11.md` | 5617 | 115 | normal |
 | 11 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
 | 12 | `knowledge/lessons.md` | 5202 | 105 | normal |
 | 13 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |

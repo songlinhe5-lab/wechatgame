@@ -335,6 +335,35 @@ export const LIMITS = {
   hotFilesMaxTokens: 4000,
 
   /*
+   * ── ROUTES.md 常驻预算（WXG-T-039 R5）────────────────────────────────────────
+   *
+   * 口径：`ctx/ROUTES.md` 是**协议常驻第二跳**（每会话必读一次），其体积直接扣减
+   *       净收益（E4 应然列）。审计（2026-09-13）认定其为**无护栏增长点**——它是
+   *       **手维护路由表**（被索引但非生成物），此前没有任何体积上限，唯一可能
+   *       拦住它的是 B 项通用单文件上限 8000，对现值 6235 形同虚设。
+   *
+   * 定值依据（实测 2026-09-13，估算 tokens）：
+   *   • 现值 6235（WXG-T-044 提交记录：5881 → 6235，协议应然净收益 28.9% → 28.3%）。
+   *   • 上限须 ≥ 现值且留合理余量，但要有**真实约束能力**：取 7500 ≈ 现值 +20.3%
+   *     （给定建议区间 +15~25% 的中位），且**低于** B 项通用上限 8000——保证
+   *     ROUTES 永远先于通用门被拦下，不依赖豁免流程。
+   * 该值同时是 check-context-budget.mjs A 项判定上限与 build-context-index.mjs
+   * BUDGET.md A 项表展示上限（两侧经 residentLimit() 单一真源，禁止另写一份）。
+   */
+  routesMd: 7500,
+
+  /*
+   * ── 常驻总量观察哨（WXG-T-039 R5，报告项，不阻断）────────────────────────────
+   *
+   * AGENTS.md + my-rules/*.md + ctx/hot-files.md + ctx/ROUTES.md 是每次会话的
+   * **固定常驻开销**。单文件上限各自为政时，总量仍可漂移——各文件同时逼近各自
+   * 上限的合计可达 2000 + 500×2 + 4000 + 7500 = 14500。取 **13500** = 现值
+   * 12372（2026-09-13 HEAD 实测）的 ≈ +9%、上限合计的 ≈ −7%：先于「上限合计」
+   * 触发醒目提示，给瘦身动作留出窗口。**仅提示不阻断**（硬阻断只挂各单文件门）。
+   */
+  residentTotalSoft: 13500,
+
+  /*
    * ── 第二跳覆盖率下限（WXG-T-044）─────────────────────────────────────────────
    *
    * 口径：`ctx/ROUTES.md` 引用到的文件（去掉 `ctx/` 生成物与 always 常驻层），
@@ -398,6 +427,28 @@ export const LIMITS = {
   baselineCountAbsTol: 2,
   baselineCountRelTol: 0.2,
 };
+
+/**
+ * A 项常驻层单文件的**上限映射**（WXG-T-039 R5）。
+ *
+ * `build-context-index.mjs`（BUDGET.md §1 表的「上限」列）与
+ * `check-context-budget.mjs`（A 项判定）**共用本函数**，保证门禁读数与报表展示
+ * 同源、不出现两处硬编码上限。
+ *
+ * 覆盖面 = always 层（AGENTS.md、my-rules/*.md）+ 协议常驻第二跳两个产物
+ * （`ctx/hot-files.md`、`ctx/ROUTES.md`——后者是手维护路由表，唯一护栏即本映射）。
+ * @param {string} relPath 仓库相对路径
+ * @returns {number} 估算 tokens 上限
+ */
+export function residentLimit(relPath) {
+  if (relPath === 'AGENTS.md') return LIMITS.agentsMd;
+  if (relPath === 'ctx/ROUTES.md') return LIMITS.routesMd;
+  if (relPath === 'ctx/hot-files.md') return LIMITS.hotFilesMaxTokens;
+  return LIMITS.ruleFile;
+}
+
+/** 常驻总量观察哨覆盖的**协议常驻第二跳**文件（WXG-T-039 R5；always 层之外追加进 A 项的行）。 */
+export const RESIDENT_PROTOCOL_FILES = ['ctx/hot-files.md', 'ctx/ROUTES.md'];
 
 export function sha256(text) {
   return createHash('sha256').update(text, 'utf8').digest('hex');

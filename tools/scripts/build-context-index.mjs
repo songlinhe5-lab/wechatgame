@@ -67,11 +67,13 @@ import {
   HOT_FILES_MD_PATH,
   INDEX_PATH,
   LIMITS,
+  RESIDENT_PROTOCOL_FILES,
   buildIndex,
   freshnessIssues,
   readDistribution,
   readIndex,
   renderHotFiles,
+  residentLimit,
   routesAnchorRefs,
   serializeIndex,
 } from './lib/context-index.mjs';
@@ -173,7 +175,14 @@ function today() {
 
 function renderBudget(index) {
   const files = index.files;
-  const resident = files.filter((f) => f.tier === 'always');
+  // A 项常驻层（WXG-T-039 R5）：always 层 + 协议常驻第二跳（hot-files / ROUTES），
+  // 与 check-context-budget.mjs A 项判定**同源**（上限列取 residentLimit() 单一真源）。
+  // ROUTES.md 是手维护路由表（被索引但非生成物），唯一护栏即门禁 A 项；本表同步展示其读数。
+  const byPath = new Map(files.map((f) => [f.path, f]));
+  const resident = [
+    ...files.filter((f) => f.tier === 'always'),
+    ...RESIDENT_PROTOCOL_FILES.map((p) => byPath.get(p)).filter(Boolean),
+  ];
   const top = [...files].sort((a, b) => b.tokens - a.tokens || a.path.localeCompare(b.path));
 
   const overLimit = top.filter((f) => f.tokens > LIMITS.fileMax);
@@ -191,13 +200,25 @@ function renderBudget(index) {
   L.push('| 文件 | 估算 tokens | 行数 | 上限 | 状态 |');
   L.push('|---|---:|---:|---:|:--:|');
   for (const f of resident) {
-    const limit = f.path === 'AGENTS.md' ? LIMITS.agentsMd : LIMITS.ruleFile;
+    const limit = residentLimit(f.path);
     L.push(`| \`${f.path}\` | ${f.tokens} | ${f.lines} | ${limit} | ${f.tokens <= limit ? '✅' : '❌'} |`);
   }
   L.push('');
   L.push(
     `> AGENTS.md 常驻阈值 **${LIMITS.agentsMd}**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，` +
       '与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。',
+  );
+  L.push(
+    `> \`ctx/ROUTES.md\` 常驻阈值 **${LIMITS.routesMd}**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，` +
+      '且低于 B 项通用单文件上限 8000——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。',
+  );
+  // 常驻总量观察哨（WXG-T-039 R5，报告项）：单文件上限各自为政时总量仍可漂移，
+  // 此行是观察哨；超软阈值不阻断，硬阻断只挂各单文件门（与门禁 A 项的总量行同源同判）。
+  const residentTotal = resident.reduce((n, f) => n + f.tokens, 0);
+  L.push(
+    `> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= ` +
+      `**${residentTotal}** 估算 tokens（观察哨软阈值 ≤ ${LIMITS.residentTotalSoft}${residentTotal > LIMITS.residentTotalSoft ? '，⚠️ 已超——请评估瘦身' : ''}）：` +
+      '单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。',
   );
   L.push('');
 
