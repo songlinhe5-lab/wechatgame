@@ -27,17 +27,17 @@
 | 7 | `ctx/ROUTES.md` | 5831 | 208 | normal |
 | 8 | `memory/2026-09-11.md` | 5617 | 115 | normal |
 | 9 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
-| 10 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
-| 11 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
-| 12 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
-| 13 | `production/TASKS.md` | 4982 | 58 | hot |
+| 10 | `production/TASKS.md` | 5227 | 59 | hot |
+| 11 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
+| 12 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
+| 13 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
 | 14 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
 | 15 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
-| 16 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
-| 17 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
-| 18 | `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md` | 4543 | 251 | normal |
-| 19 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
-| 20 | `memory/2026-09-13.md` | 4367 | 104 | normal |
+| 16 | `memory/2026-09-13.md` | 4616 | 110 | normal |
+| 17 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
+| 18 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
+| 19 | `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md` | 4543 | 251 | normal |
+| 20 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

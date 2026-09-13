@@ -23,9 +23,9 @@
 
 §wechatgame 项目长期笔记=1+50 · §项目约定=7+12 · §常用脚本=19+9 · §SubAgent=28+4 · §Rules=32+3 · §Hooks=35+4 · §Headless / CI=39+8 · §已知限制=47+4
 
-## `production/TASKS.md` — 58 行 / 4982 tok / 实测读 4 次
+## `production/TASKS.md` — 59 行 / 5227 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+59 · §待排（backlog，无号，立项时领取）=51+9
+§WXG 任务台账（SSOT）=1+60 · §待排（backlog，无号，立项时领取）=51+10
 
 ## `production/qa/beads/test-cases.md` — 146 行 / 5372 tok / 实测读 15 次
 
@@ -127,9 +127,9 @@
 - `production/epics/epics-breakout.md`（7135 tok）
 - `memory/2026-09-11.md`（5617 tok）
 - `games/beads/design/proposals/daily-challenge.md`（4657 tok）
+- `memory/2026-09-13.md`（4616 tok）
 - `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md`（4543 tok）
 - `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md`（4543 tok）
-- `memory/2026-09-13.md`（4367 tok）
 - `docs/agent/context-instrumentation-survey.md`（4311 tok）
 - `docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md`（4220 tok）
 - `my-skills/game-material-precheck/references/knowledge-baseline.md`（4188 tok）

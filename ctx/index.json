@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1304,
       "lines": 72,
-      "sha256": "8babd957a9b0069f54a53fba728945004075368f1912fcef5c78f0c3cb92ec9a",
+      "sha256": "58991bd03f6d81f0a3efb526b0be51b4f4879ca17e969efc001fa62f3a91e97d",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3947,
       "lines": 145,
-      "sha256": "0ec118f9c28afac8c19c61e7258bb29c0310708a3663919943043a7232dead5b",
+      "sha256": "b9a33b6e16515e60579e661d2cc37d5eafb3cb095d6daea49c45e3f52cb280df",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 58 行 / 4982 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 59 行 / 5227 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+59 · §待排（backlog，无号，立项时领取）=51+9",
+          "summary": "§WXG 任务台账（SSOT）=1+60 · §待排（backlog，无号，立项时领取）=51+10",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -12544,17 +12544,17 @@
     },
     {
       "path": "memory/2026-09-13.md",
-      "tokens": 4367,
-      "lines": 104,
-      "sha256": "6748931d321a9850d56b1bfbb8bc756094144d5e8f972a6a9f424217af706745",
+      "tokens": 4616,
+      "lines": 110,
+      "sha256": "80992c5e3d6d3dc3a3abe9b05adf28a19029c8419a2520f5af5b25dd5ece1a06",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-13",
           "level": 1,
           "startLine": 1,
-          "endLine": 105,
-          "tokens": 4364,
+          "endLine": 111,
+          "tokens": 4613,
           "summary": "",
           "keywords": []
         },
@@ -12757,6 +12757,20 @@
             "dc65038",
             "squash",
             "遗留问题闭环"
+          ]
+        },
+        {
+          "anchor": "§R1-R5 对策正式登记 backlog（09:30，主理会话）",
+          "level": 2,
+          "startLine": 106,
+          "endLine": 111,
+          "tokens": 230,
+          "summary": "前置核实：T-032 已收口（尾批随 263533b 落库）、T-036 计量装置落地（c7ae9a7）、工作区干净 →",
+          "keywords": [
+            "backlog",
+            "c7ae9a7",
+            "对策正式登记",
+            "主理会话"
           ]
         }
       ]
@@ -21292,17 +21306,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4982,
-      "lines": 58,
-      "sha256": "1be2f2ed9ad4b1063f0cb6c03df96ad4761f70c42dfbcec38b54472513b8105f",
+      "tokens": 5227,
+      "lines": 59,
+      "sha256": "bfbae65f75d000a3af9842c60208f7d862e0acb7d5fefa7d459da395f57c5f9d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 59,
-          "tokens": 4973,
+          "endLine": 60,
+          "tokens": 5218,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -21317,8 +21331,8 @@
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
           "startLine": 51,
-          "endLine": 59,
-          "tokens": 476,
+          "endLine": 60,
+          "tokens": 736,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [
             "backlog",
