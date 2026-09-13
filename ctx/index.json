@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1304,
+      "tokens": 1296,
       "lines": 72,
-      "sha256": "29ed9e7b7369c10d57ee3e2c64f1f7ffc044e00ac959ba89a3afef861d9194e3",
+      "sha256": "eb92d73b74de8e7a354c1a640f3a304a74bee5efc2d784f9fd98ce2ee50fb3db",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 73,
-          "tokens": 1291,
+          "tokens": 1283,
           "summary": "生成：2026-09-13 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 17,
           "endLine": 41,
-          "tokens": 357,
+          "tokens": 349,
           "summary": "1 memory/2026-09-12.md 10141 151 normal",
           "keywords": [
             "Top",
@@ -284,17 +284,17 @@
     },
     {
       "path": "ctx/ROUTES.md",
-      "tokens": 5831,
-      "lines": 208,
-      "sha256": "1c7e0fd924b97f7b3a22c80cea2e8cde7ce25feb7c50271185d466921d6b6560",
+      "tokens": 6235,
+      "lines": 217,
+      "sha256": "1c832065d99abafd69ba3ec265d1a3927234193d9c7b2d47f4349adbd104e869",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文路由表（ctx/ROUTES.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 209,
-          "tokens": 5819,
+          "endLine": 218,
+          "tokens": 6223,
           "summary": "给 agent 的第一跳：开工前先读本表，命中锚点后用 read_file(path, offset, limit) 只",
           "keywords": [
             "ctx",
@@ -308,9 +308,9 @@
         {
           "anchor": "§量化与自证（本表的效果由「分层上下文节省装置」实测，WXG-T-026）",
           "level": 3,
-          "startLine": 13,
-          "endLine": 68,
-          "tokens": 2090,
+          "startLine": 14,
+          "endLine": 74,
+          "tokens": 2284,
           "summary": "① 估算口径：本表与装置涉及的 token 一律为估算（CJK≈1/字、ASCII≈1/4 字符，",
           "keywords": [
             "WXG",
@@ -324,9 +324,9 @@
         {
           "anchor": "§0 上下文读取协议（强制）",
           "level": 2,
-          "startLine": 69,
-          "endLine": 84,
-          "tokens": 342,
+          "startLine": 75,
+          "endLine": 91,
+          "tokens": 402,
           "summary": "1. 读本表 → 命中精确锚点（文件 + 小节标题）。",
           "keywords": [
             "上下文读取协",
@@ -336,9 +336,9 @@
         {
           "anchor": "§1 路由表",
           "level": 2,
-          "startLine": 85,
-          "endLine": 202,
-          "tokens": 2921,
+          "startLine": 92,
+          "endLine": 210,
+          "tokens": 2971,
           "summary": "",
           "keywords": [
             "路由表"
@@ -347,9 +347,9 @@
         {
           "anchor": "§1.1 项目入口与铁律（AGENTS.md 骨架 + docs/agent/ 迁出文件，WXG-T-032）",
           "level": 3,
-          "startLine": 87,
-          "endLine": 103,
-          "tokens": 446,
+          "startLine": 94,
+          "endLine": 111,
+          "tokens": 496,
           "summary": "项目是什么 / 平台与引擎策略 AGENTS.md#§1 项目是什么 173",
           "keywords": [
             "§1",
@@ -363,8 +363,8 @@
         {
           "anchor": "§1.2 冻结数值（hot · games/beads/design/gdd/systems-index.md）",
           "level": 3,
-          "startLine": 104,
-          "endLine": 124,
+          "startLine": 112,
+          "endLine": 132,
           "tokens": 573,
           "summary": "整个 §3 冻结令 games/beads/design/gdd/systems-index.md#§3 全局数值基线（",
           "keywords": [
@@ -379,8 +379,8 @@
         {
           "anchor": "§1.3 架构（hot）",
           "level": 3,
-          "startLine": 125,
-          "endLine": 142,
+          "startLine": 133,
+          "endLine": 150,
           "tokens": 443,
           "summary": "分层与依赖方向 docs/architecture/architecture.md#§2 分层与依赖方向 1074 主架",
           "keywords": [
@@ -394,8 +394,8 @@
         {
           "anchor": "§1.4 工程细则（hot · docs/architecture/control-manifest.md）",
           "level": 3,
-          "startLine": 143,
-          "endLine": 159,
+          "startLine": 151,
+          "endLine": 167,
           "tokens": 369,
           "summary": "五条铁律 L1–L5（完整） docs/architecture/control-manifest.md#§0 五条铁律",
           "keywords": [
@@ -410,8 +410,8 @@
         {
           "anchor": "§1.5 QA 判据（hot · production/qa/beads/test-cases.md）",
           "level": 3,
-          "startLine": 160,
-          "endLine": 171,
+          "startLine": 168,
+          "endLine": 179,
           "tokens": 316,
           "summary": "硬判据总表（50 条） production/qa/beads/test-cases.md#§A 硬判据用例（50 条 ",
           "keywords": [
@@ -426,8 +426,8 @@
         {
           "anchor": "§1.6 任务台账与长期记忆（hot）",
           "level": 3,
-          "startLine": 172,
-          "endLine": 182,
+          "startLine": 180,
+          "endLine": 190,
           "tokens": 144,
           "summary": "领号 / 任务台账 production/TASKS.md#§WXG 任务台账（SSOT） 1439 开工先领号",
           "keywords": [
@@ -442,8 +442,8 @@
         {
           "anchor": "§1.7 Skill / Agent / 知识库 / 门禁",
           "level": 3,
-          "startLine": 183,
-          "endLine": 202,
+          "startLine": 191,
+          "endLine": 210,
           "tokens": 515,
           "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 17 个挂四 IDE 链接；存档 ",
           "keywords": [
@@ -458,9 +458,9 @@
         {
           "anchor": "§2 维护",
           "level": 2,
-          "startLine": 203,
-          "endLine": 209,
-          "tokens": 104,
+          "startLine": 211,
+          "endLine": 218,
+          "tokens": 163,
           "summary": "本表锚点须与 ctx/index.json 的 anchor 一致；改任一被索引 .md 的标题后，重跑 pnpm ru",
           "keywords": [
             "ctx",
@@ -475,17 +475,17 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3947,
-      "lines": 145,
-      "sha256": "0517c91a5fb655a49020b4e63836eb28a382a2ddbd6a4d69ceee32e9a1a4f0f9",
+      "tokens": 3750,
+      "lines": 94,
+      "sha256": "81221f4c9f9ae7d77b2ba8e0f4e9098f6d6e8b18c2586b023597d89df8ac5021",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§热门大文件行号速查（自动生成，勿手改；重建 `pnpm run ctx:build`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 146,
-          "tokens": 3919,
+          "endLine": 95,
+          "tokens": 3722,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 64 行 / 5449 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 67 行 / 6336 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+65 · §待排（backlog，无号，立项时领取）=56+10",
+          "summary": "§WXG 任务台账（SSOT）=1+68 · §待排（backlog，无号，立项时领取）=59+10",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -593,10 +593,185 @@
           ]
         },
         {
-          "anchor": "§`games/breakout/design/concept.md` — 143 行 / 3110 tok / 实测读 217 次",
+          "anchor": "§`my-skills/INDEX.md` — 78 行 / 1701 tok / 实测读 61 次",
           "level": 2,
           "startLine": 34,
           "endLine": 37,
+          "tokens": 93,
+          "summary": "§wxgame skill 家族 INDEX=1+79 · §1 清单（现役 17 个挂四 IDE 链接；存档 1 个仅",
+          "keywords": [
+            "my-skills/INDEX.md",
+            "§1",
+            "skills",
+            "INDEX",
+            "tok",
+            "wxgame"
+          ]
+        },
+        {
+          "anchor": "§`my-skills/wxgame-orchestration/SKILL.md` — 104 行 / 2194 tok / 实测读 35 次",
+          "level": 2,
+          "startLine": 38,
+          "endLine": 41,
+          "tokens": 130,
+          "summary": "§wxgame 工作室编排法（九阶段流水线，编号 0–8）=6+100 · §九阶段（0–8）流水线=12+20 · §",
+          "keywords": [
+            "skills",
+            "wxgame",
+            "orchestration",
+            "SKILL",
+            "tok",
+            "实测读"
+          ]
+        },
+        {
+          "anchor": "§`docs/architecture/architecture.md` — 239 行 / 4322 tok / 实测读 23 次",
+          "level": 2,
+          "startLine": 42,
+          "endLine": 45,
+          "tokens": 183,
+          "summary": "§微信小游戏矩阵 — 主架构文档=1+240 · §1 目标与约束=13+23 · §1.1 产品目标=15+3 · §",
+          "keywords": [
+            "§1",
+            "§1.1",
+            "docs",
+            "architecture",
+            "tok",
+            "实测读"
+          ]
+        },
+        {
+          "anchor": "§`my-agents/INDEX.md` — 46 行 / 877 tok / 实测读 18 次",
+          "level": 2,
+          "startLine": 46,
+          "endLine": 49,
+          "tokens": 63,
+          "summary": "§my-agents — 工作室 SubAgent 正本=1+47 · §现役成员（6）+ 编排（1）=6+12 · §",
+          "keywords": [
+            "my-agents/INDEX.md",
+            "agents",
+            "INDEX",
+            "tok",
+            "SubAgent",
+            "实测读"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/headless-ci-pr-review.md` — 185 行 / 2747 tok / 实测读 8 次",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 53,
+          "tokens": 203,
+          "summary": "§Headless 模式 · 应用场景 · 自动化 PR 审查 · 流水线=1+186 · §1 Headless 是什",
+          "keywords": [
+            "§1",
+            "docs",
+            "agent",
+            "headless",
+            "review",
+            "tok"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/hooks-best-practices.md` — 113 行 / 1919 tok / 实测读 6 次",
+          "level": 2,
+          "startLine": 54,
+          "endLine": 57,
+          "tokens": 106,
+          "summary": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+114 · §1 分层：谁拦什么=6+18 ·",
+          "keywords": [
+            "§1",
+            "docs",
+            "agent",
+            "hooks",
+            "best",
+            "practices"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/commands.md` — 18 行 / 298 tok",
+          "level": 2,
+          "startLine": 58,
+          "endLine": 61,
+          "tokens": 27,
+          "summary": "§验证与常用命令（docs/agent/commands.md）=1+19 · §验证与常用命令=6+14",
+          "keywords": [
+            "docs/agent/commands.md",
+            "docs",
+            "agent",
+            "commands",
+            "tok"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/repo-layout.md` — 29 行 / 390 tok",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 65,
+          "tokens": 30,
+          "summary": "§仓库目录与产物落位（docs/agent/repo-layout.md）=1+30 · §目录与产物落位=6+25",
+          "keywords": [
+            "docs/agent/repo-layout.md",
+            "docs",
+            "agent",
+            "repo",
+            "layout",
+            "tok"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/routing.md` — 37 行 / 547 tok",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 69,
+          "tokens": 74,
+          "summary": "§默认路由细节（docs/agent/routing.md）=1+38 · §Hooks / 提交门禁 / Headle",
+          "keywords": [
+            "docs/agent/routing.md",
+            "docs",
+            "agent",
+            "routing",
+            "tok",
+            "Hooks"
+          ]
+        },
+        {
+          "anchor": "§`knowledge/INDEX.md` — 118 行 / 2899 tok",
+          "level": 2,
+          "startLine": 70,
+          "endLine": 73,
+          "tokens": 134,
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+119 · §1 读取协议（开发前期）=7+6 · ",
+          "keywords": [
+            "knowledge/INDEX.md",
+            "§1",
+            "knowledge",
+            "INDEX",
+            "tok",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/cocos-setup.md` — 234 行 / 3944 tok",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 77,
+          "tokens": 222,
+          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+235 ·",
+          "keywords": [
+            "docs/agent/cocos-setup.md",
+            "docs",
+            "agent",
+            "cocos",
+            "setup",
+            "tok"
+          ]
+        },
+        {
+          "anchor": "§`games/breakout/design/concept.md` — 143 行 / 3110 tok / 实测读 217 次",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 81,
           "tokens": 259,
           "summary": "§《弹球打砖块》一页纸概念（Concept One-Pager）=1+144 · §1 一句话定位=11+4 · §2 ",
           "keywords": [
@@ -611,8 +786,8 @@
         {
           "anchor": "§`games/breakout/design/gdd/systems-index.md` — 232 行 / 4600 tok / 实测读 171 次",
           "level": 2,
-          "startLine": 38,
-          "endLine": 41,
+          "startLine": 82,
+          "endLine": 85,
           "tokens": 246,
           "summary": "§系统清单与依赖索引（Systems Index）=1+233 · §1 系统清单=8+16 · §2 依赖排序（Dep",
           "keywords": [
@@ -627,8 +802,8 @@
         {
           "anchor": "§`games/breakout/design/levels/levels-spec.md` — 244 行 / 3964 tok / 实测读 104 次",
           "level": 2,
-          "startLine": 42,
-          "endLine": 45,
+          "startLine": 86,
+          "endLine": 89,
           "tokens": 271,
           "summary": "§关卡数据规范（Levels Spec）=1+245 · §1 文件结构总览=10+14 · §2 字段说明=24+65",
           "keywords": [
@@ -643,9 +818,9 @@
         {
           "anchor": "§`my-skills/wxgame-gdd-writer/SKILL.md` — 83 行 / 1274 tok / 实测读 82 次",
           "level": 2,
-          "startLine": 46,
-          "endLine": 49,
-          "tokens": 130,
+          "startLine": 90,
+          "endLine": 95,
+          "tokens": 184,
           "summary": "§wxgame GDD 编写法（工作室验证过的四件套流程）=6+79 · §总流程（顺序执行，前一步是后一步的输入）=1",
           "keywords": [
             "skills",
@@ -655,62 +830,14 @@
             "SKILL",
             "tok"
           ]
-        },
-        {
-          "anchor": "§`games/breakout/design/ux/ux-spec.md` — 225 行 / 3836 tok / 实测读 75 次",
-          "level": 2,
-          "startLine": 50,
-          "endLine": 53,
-          "tokens": 235,
-          "summary": "§UX 规格（UX Spec）=1+226 · §1 设计原则（UX）=9+7 · §2 界面流程（Screen Flo",
-          "keywords": [
-            "§1",
-            "§2",
-            "games",
-            "breakout",
-            "design",
-            "spec"
-          ]
-        },
-        {
-          "anchor": "§`games/beads/design/gdd/core-loop.md` — 119 行 / 2425 tok / 实测读 70 次",
-          "level": 2,
-          "startLine": 54,
-          "endLine": 57,
-          "tokens": 164,
-          "summary": "§GDD · S1 核心循环（Core Loop）· beads=1+120 · §1 目标=8+4 · §2 机制=1",
-          "keywords": [
-            "§1",
-            "§2",
-            "games",
-            "beads",
-            "design",
-            "gdd"
-          ]
-        },
-        {
-          "anchor": "§未收录（超出体积预算或未命中热度 / 体积门槛）",
-          "level": 2,
-          "startLine": 58,
-          "endLine": 146,
-          "tokens": 1247,
-          "summary": "这些文件的锚点 → 行号请查 ctx/index.json（全量索引；机器读更划算）。",
-          "keywords": [
-            "ctx",
-            "index",
-            "json",
-            "未收录",
-            "超出体积预算",
-            "或未命中热度"
-          ]
         }
       ]
     },
     {
       "path": "ctx/reads-summary.md",
-      "tokens": 3753,
+      "tokens": 3744,
       "lines": 187,
-      "sha256": "d49b87710f707c152d1baa76e3b1d850f63a5fc8650524ad79a547e9de2e6664",
+      "sha256": "d6ca58532a083c3c8cac29b047ddb0608cbe61aa6580a7f91035ed0094a48f26",
       "tier": "normal",
       "sections": [
         {
@@ -718,7 +845,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 188,
-          "tokens": 3738,
+          "tokens": 3728,
           "summary": "生成：2026-09-13 · 由 tools/scripts/analyze-context-usage.mjs 生成",
           "keywords": [
             "ctx",
@@ -785,7 +912,7 @@
           "level": 2,
           "startLine": 125,
           "endLine": 152,
-          "tokens": 649,
+          "tokens": 639,
           "summary": "①「同一会话同一文件小读（≤150 行）> 3 次」抖动：9 组，累计超限 26 次（判据出处 ctx/ROUTES.m",
           "keywords": [
             "ctx",
@@ -939,6 +1066,259 @@
       ]
     },
     {
+      "path": "docs/agent/cocos-setup.md",
+      "tokens": 3944,
+      "lines": 234,
+      "sha256": "aa00655634f39cb775a4d8fab2c6521431afa412e9c1851f9e9a7519cf62adb9",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 235,
+          "tokens": 3926,
+          "summary": "来源：ADR-0009 §3.4「四 IDE 接入方式」的可执行展开 · 2026-09-13 · Task ID WX",
+          "keywords": [
+            "§3.4",
+            "Cocos",
+            "Creator",
+            "MCP",
+            "docs",
+            "agent"
+          ]
+        },
+        {
+          "anchor": "§1 前置事实与红线",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 29,
+          "tokens": 367,
+          "summary": "钉定版本 Cocos Creator 3.8.8（3.8.x 内可跟随，跨大版本需 ADR 复评） VERSION.md",
+          "keywords": [
+            "Cocos",
+            "Creator",
+            "ADR",
+            "VERSION",
+            "前置事实与红"
+          ]
+        },
+        {
+          "anchor": "§2 七步总览（速查）",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 43,
+          "tokens": 222,
+          "summary": "A 装 Cocos Dashboard → 装 Creator 3.8.8 用户（GUI） 官网只发 Dashboard",
+          "keywords": [
+            "Cocos",
+            "Dashboard",
+            "Creator",
+            "GUI",
+            "七步总览",
+            "速查"
+          ]
+        },
+        {
+          "anchor": "§3 阶段 A — 安装 Cocos Creator 3.8.8",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 57,
+          "tokens": 164,
+          "summary": "1. 打开 <https://www.cocos.com/creator-download> → 点 「下载 Cocos",
+          "keywords": [
+            "Cocos",
+            "Creator",
+            "https",
+            "www",
+            "cocos",
+            "com"
+          ]
+        },
+        {
+          "anchor": "§4 阶段 B — 创建工程",
+          "level": 2,
+          "startLine": 58,
+          "endLine": 70,
+          "tokens": 234,
+          "summary": "严格照 games/breakout/cocos/README.md §3 执行（已写逐步清单），要点复述：",
+          "keywords": [
+            "§3",
+            "games",
+            "breakout",
+            "cocos",
+            "README",
+            "阶段"
+          ]
+        },
+        {
+          "anchor": "§5 阶段 C — 安装 MCP 插件（全局扩展目录）",
+          "level": 2,
+          "startLine": 71,
+          "endLine": 103,
+          "tokens": 562,
+          "summary": "",
+          "keywords": [
+            "MCP",
+            "阶段",
+            "安装",
+            "插件",
+            "全局扩展目录"
+          ]
+        },
+        {
+          "anchor": "§5.1 为什么装全局而非项目级",
+          "level": 3,
+          "startLine": 73,
+          "endLine": 85,
+          "tokens": 321,
+          "summary": "路径 ~/.CocosCreator/extensions/ games/<game>/cocos/extensions",
+          "keywords": [
+            "CocosCreator",
+            "extensions",
+            "games",
+            "game",
+            "cocos",
+            "为什么装全局"
+          ]
+        },
+        {
+          "anchor": "§5.2 安装命令",
+          "level": 3,
+          "startLine": 86,
+          "endLine": 95,
+          "tokens": 134,
+          "summary": "",
+          "keywords": [
+            "安装命令"
+          ]
+        },
+        {
+          "anchor": "§5.3 启用",
+          "level": 3,
+          "startLine": 96,
+          "endLine": 103,
+          "tokens": 83,
+          "summary": "重启 Cocos Creator → 扩展 → 扩展管理器 → 找到 cocos-mcp-server → 启用。",
+          "keywords": [
+            "Cocos",
+            "Creator",
+            "cocos",
+            "mcp",
+            "server",
+            "启用"
+          ]
+        },
+        {
+          "anchor": "§6 阶段 D — 启动 MCP 服务",
+          "level": 2,
+          "startLine": 104,
+          "endLine": 115,
+          "tokens": 86,
+          "summary": "扩展 → Cocos MCP Server → 面板内：端口 3000（默认，勿改）→ 自动启动 ✅ → 「启动服务器」",
+          "keywords": [
+            "MCP",
+            "Cocos",
+            "Server",
+            "阶段",
+            "启动",
+            "服务"
+          ]
+        },
+        {
+          "anchor": "§7 阶段 E — 四 IDE 端点登记（已落盘，且已收口为单一正本）",
+          "level": 2,
+          "startLine": 116,
+          "endLine": 180,
+          "tokens": 1127,
+          "summary": "ADR-0009 §3.4 的「一份配置，四处生效」指 URL 统一；实际落地时各 IDE 的文件位置与字段写法不同。自",
+          "keywords": [
+            "§3.4",
+            "IDE",
+            "ADR",
+            "URL",
+            "阶段",
+            "端点登记"
+          ]
+        },
+        {
+          "anchor": "§8 阶段 F — 工具白名单（L1 机械防线）",
+          "level": 2,
+          "startLine": 181,
+          "endLine": 198,
+          "tokens": 284,
+          "summary": "在插件面板工具管理标签页按前缀设置（ADR-0009 §3.3；实测后按 v1.5.4 实际工具名微调）：",
+          "keywords": [
+            "§3.3",
+            "ADR",
+            "阶段",
+            "工具白名单",
+            "机械防线"
+          ]
+        },
+        {
+          "anchor": "§9 阶段 G — 验证顺序与回填",
+          "level": 2,
+          "startLine": 199,
+          "endLine": 209,
+          "tokens": 128,
+          "summary": "按 VERSION.md §5 的依赖顺序跑（前一步失败会阻塞后一步）：",
+          "keywords": [
+            "§5",
+            "VERSION",
+            "阶段",
+            "验证顺序与回"
+          ]
+        },
+        {
+          "anchor": "§10 升级流程",
+          "level": 2,
+          "startLine": 210,
+          "endLine": 217,
+          "tokens": 101,
+          "summary": "1. cd ~/.CocosCreator/extensions/cocos-mcp-server && git pul",
+          "keywords": [
+            "CocosCreator",
+            "extensions",
+            "cocos",
+            "mcp",
+            "server",
+            "git"
+          ]
+        },
+        {
+          "anchor": "§11 排错",
+          "level": 2,
+          "startLine": 218,
+          "endLine": 229,
+          "tokens": 183,
+          "summary": "扩展管理器里看不到插件 目录放错（应在 extensions/<插件名>/ 下，且该目录内含 package.json）",
+          "keywords": [
+            "extensions",
+            "package",
+            "json",
+            "排错"
+          ]
+        },
+        {
+          "anchor": "§12 本次已知未完成项（诚实记录）",
+          "level": 2,
+          "startLine": 230,
+          "endLine": 235,
+          "tokens": 181,
+          "summary": "1. Qoder / WorkBuddy 的 MCP 配置文件位置未核实，故 §7 只登记了三处。",
+          "keywords": [
+            "§7",
+            "Qoder",
+            "WorkBuddy",
+            "MCP",
+            "本次已知未完",
+            "成项"
+          ]
+        }
+      ]
+    },
+    {
       "path": "docs/agent/commands.md",
       "tokens": 298,
       "lines": 18,
@@ -981,17 +1361,17 @@
     },
     {
       "path": "docs/agent/context-instrumentation-survey.md",
-      "tokens": 4311,
-      "lines": 184,
-      "sha256": "c09f3a76f9d2561dae2d6918e7e07864c9ae887bdfdf9afe7d731b6e7095bcb2",
+      "tokens": 5492,
+      "lines": 232,
+      "sha256": "dc469bd2d8e91df0a732313a2209660eb683c2779c0eec4d9a5911722e86cc82",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§四 IDE「read 事件埋点」能力调研（WXG-T-026 ⑤）",
           "level": 1,
           "startLine": 1,
-          "endLine": 185,
-          "tokens": 4292,
+          "endLine": 233,
+          "tokens": 5473,
           "summary": "范围声明：本文只调研、不改配置。四 IDE 的 hook 事件名、能否拿到 path + offset/limit、",
           "keywords": [
             "IDE",
@@ -1177,6 +1557,82 @@
             "limit",
             "待实测",
             "清单"
+          ]
+        },
+        {
+          "anchor": "§9 账本分窗轮转（WXG-T-037 R1，2026-09-13）",
+          "level": 2,
+          "startLine": 186,
+          "endLine": 233,
+          "tokens": 1164,
+          "summary": "背景：2026-09-13 上下文膨胀审计判定 ctx/reads-ledger.jsonl 为「只增不减」的真雷",
+          "keywords": [
+            "WXG",
+            "ctx",
+            "reads",
+            "ledger",
+            "jsonl",
+            "账本分窗轮转"
+          ]
+        },
+        {
+          "anchor": "§9.1 机制",
+          "level": 3,
+          "startLine": 191,
+          "endLine": 211,
+          "tokens": 616,
+          "summary": "pnpm run ctx:rotate（tools/scripts/rotate-reads-ledger.mjs）：按",
+          "keywords": [
+            "pnpm",
+            "run",
+            "ctx",
+            "rotate",
+            "tools",
+            "scripts"
+          ]
+        },
+        {
+          "anchor": "§9.2 冻结语义与幂等（如实声明）",
+          "level": 3,
+          "startLine": 212,
+          "endLine": 219,
+          "tokens": 185,
+          "summary": "轮转出的会话冻结在轮转时刻：样本值按当时文件内容计算并固化；其后同根会话的新读",
+          "keywords": [
+            "冻结语义与幂",
+            "如实声明"
+          ]
+        },
+        {
+          "anchor": "§9.3 触发时机（裁决）",
+          "level": 3,
+          "startLine": 220,
+          "endLine": 225,
+          "tokens": 102,
+          "summary": "手动命令，不自动挂进 ctx:usage / pre-commit：分析器保持纯读（字节稳定输出、桩自测",
+          "keywords": [
+            "ctx",
+            "usage",
+            "pre",
+            "commit",
+            "触发时机",
+            "裁决"
+          ]
+        },
+        {
+          "anchor": "§9.4 自测",
+          "level": 3,
+          "startLine": 226,
+          "endLine": 233,
+          "tokens": 155,
+          "summary": "tools/scripts/context-usage-selftest.sh §[10]（⑬A–⑬H）：树原子轮转与窗",
+          "keywords": [
+            "tools",
+            "scripts",
+            "context",
+            "usage",
+            "selftest",
+            "自测"
           ]
         }
       ]
@@ -1418,17 +1874,17 @@
     },
     {
       "path": "docs/agent/hooks-best-practices.md",
-      "tokens": 1581,
-      "lines": 100,
-      "sha256": "f8908f5117614b99ea1efaec864cdb8321e16aa090ae3631a82896061eadc731",
+      "tokens": 1919,
+      "lines": 113,
+      "sha256": "7e90a077056148b2f03a0faac83f5117e7a5b970236d66e18b3875d9075a1618",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践",
           "level": 1,
           "startLine": 1,
-          "endLine": 101,
-          "tokens": 1566,
+          "endLine": 114,
+          "tokens": 1904,
           "summary": "本仓约定：Hooks 加固 AGENTS.md / L1–L5，不替代编排与 SubAgent。",
           "keywords": [
             "Cursor",
@@ -1444,7 +1900,7 @@
           "level": 2,
           "startLine": 6,
           "endLine": 23,
-          "tokens": 507,
+          "tokens": 545,
           "summary": "Git pre-commit .githooks/pre-commit 任意 IDE / 终端的 git commit ",
           "keywords": [
             "Git",
@@ -1475,8 +1931,8 @@
           "anchor": "§3 `check:links` 查什么",
           "level": 2,
           "startLine": 45,
-          "endLine": 60,
-          "tokens": 300,
+          "endLine": 72,
+          "tokens": 552,
           "summary": "脚本：tools/scripts/check-ide-links.mjs（清单由扫描得出，勿在脚本内硬编码成员名）",
           "keywords": [
             "check:links",
@@ -1488,10 +1944,26 @@
           ]
         },
         {
+          "anchor": "§3.1 `check:mcp` 查什么（WXG-T-043）",
+          "level": 3,
+          "startLine": 61,
+          "endLine": 72,
+          "tokens": 239,
+          "summary": "脚本：tools/scripts/build-mcp-configs.mjs --check（MCP 配置的单一正本是 ",
+          "keywords": [
+            "check:mcp",
+            "check",
+            "mcp",
+            "WXG",
+            "tools",
+            "scripts"
+          ]
+        },
+        {
           "anchor": "§4 Cursor Hooks 实践清单",
           "level": 2,
-          "startLine": 61,
-          "endLine": 79,
+          "startLine": 73,
+          "endLine": 91,
           "tokens": 357,
           "summary": "1. 项目级优先：政策进 .cursor/hooks.json（可进云 Agent）；个人实验放 ~/.cursor/。",
           "keywords": [
@@ -1506,8 +1978,8 @@
         {
           "anchor": "§本仓已启用",
           "level": 3,
-          "startLine": 71,
-          "endLine": 79,
+          "startLine": 83,
+          "endLine": 91,
           "tokens": 123,
           "summary": "beforeShellExecution .cursor/hooks/before-shell.mjs git comm",
           "keywords": [
@@ -1522,9 +1994,9 @@
         {
           "anchor": "§5 与 `verify` 的关系",
           "level": 2,
-          "startLine": 80,
-          "endLine": 87,
-          "tokens": 68,
+          "startLine": 92,
+          "endLine": 100,
+          "tokens": 116,
           "summary": "pnpm run check:links 每次 commit（快）",
           "keywords": [
             "verify",
@@ -1538,8 +2010,8 @@
         {
           "anchor": "§6 失败怎么修",
           "level": 2,
-          "startLine": 88,
-          "endLine": 101,
+          "startLine": 101,
+          "endLine": 114,
           "tokens": 113,
           "summary": "",
           "keywords": [
@@ -11730,17 +12202,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 336,
-      "lines": 21,
-      "sha256": "9d997fabfb36fedfdba266bb353879ccf8b8844cd8a8f028385566698d280731",
+      "tokens": 418,
+      "lines": 26,
+      "sha256": "d20423e4715bbd7e90b0aa4c660b0f5cd78a7f58bc34e145ca48a60681c49c66",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 22,
-          "tokens": 322,
+          "endLine": 27,
+          "tokens": 403,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -11755,8 +12227,8 @@
           "anchor": "§2026-09-13",
           "level": 2,
           "startLine": 9,
-          "endLine": 16,
-          "tokens": 111,
+          "endLine": 21,
+          "tokens": 192,
           "summary": "",
           "keywords": []
         },
@@ -11764,8 +12236,8 @@
           "anchor": "§（无任务号）",
           "level": 3,
           "startLine": 11,
-          "endLine": 16,
-          "tokens": 103,
+          "endLine": 17,
+          "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
             "added",
@@ -11777,10 +12249,22 @@
           ]
         },
         {
+          "anchor": "§WXG-T-044",
+          "level": 3,
+          "startLine": 18,
+          "endLine": 21,
+          "tokens": 49,
+          "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
+          "keywords": [
+            "WXG",
+            "added"
+          ]
+        },
+        {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 17,
-          "endLine": 22,
+          "startLine": 22,
+          "endLine": 27,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -11788,8 +12272,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 19,
-          "endLine": 22,
+          "startLine": 24,
+          "endLine": 27,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -11801,17 +12285,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 2810,
-      "lines": 116,
-      "sha256": "47dda16f75d154e13ac14892e78f4a0c1c2699217351163379e2827539b719e9",
+      "tokens": 2899,
+      "lines": 118,
+      "sha256": "83435ee9ec0d9f259cf362b0aca42c548496c806e0f5ca2c6da2cf754762d4b8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 117,
-          "tokens": 2796,
+          "endLine": 119,
+          "tokens": 2884,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -11934,8 +12418,8 @@
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
           "startLine": 79,
-          "endLine": 117,
-          "tokens": 1062,
+          "endLine": 119,
+          "tokens": 1150,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
             "active",
@@ -11950,17 +12434,17 @@
     },
     {
       "path": "knowledge/lessons.md",
-      "tokens": 3810,
-      "lines": 93,
-      "sha256": "617fe520e9dcb9ba586cc6ea1a32e83773fa387d0ba54d2a5a8ed17b10080d09",
+      "tokens": 5202,
+      "lines": 105,
+      "sha256": "1efc19701b399f2ab5dc9b260b241b0cd251d56e6ec4ea6e7bc2df87d7f84994",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons.md — 教训库（追加式，最新在后）",
           "level": 1,
           "startLine": 1,
-          "endLine": 94,
-          "tokens": 3792,
+          "endLine": 106,
+          "tokens": 5184,
           "summary": "",
           "keywords": [
             "lessons",
@@ -11973,8 +12457,8 @@
           "anchor": "§工具链",
           "level": 2,
           "startLine": 3,
-          "endLine": 43,
-          "tokens": 1757,
+          "endLine": 49,
+          "tokens": 2464,
           "summary": "[工具链][K-001] commitlint 自定义规则必须经 plugins 数组注册（来源 WXG-T-021 /",
           "keywords": [
             "commitlint",
@@ -11986,9 +12470,9 @@
         {
           "anchor": "§跨 IDE",
           "level": 2,
-          "startLine": 44,
-          "endLine": 81,
-          "tokens": 1760,
+          "startLine": 50,
+          "endLine": 93,
+          "tokens": 2445,
           "summary": "[工具链][K-029] 自增 ID 的下界必须取自既有数据，不能只看计数器（来源 WXG-T-029，2026-09-",
           "keywords": [
             "IDE",
@@ -11998,8 +12482,8 @@
         {
           "anchor": "§环境",
           "level": 2,
-          "startLine": 82,
-          "endLine": 88,
+          "startLine": 94,
+          "endLine": 100,
           "tokens": 137,
           "summary": "[环境][K-010] WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）（来",
           "keywords": [
@@ -12013,8 +12497,8 @@
         {
           "anchor": "§流程",
           "level": 2,
-          "startLine": 89,
-          "endLine": 94,
+          "startLine": 101,
+          "endLine": 106,
           "tokens": 126,
           "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
@@ -13628,6 +14112,124 @@
           "keywords": [
             "回传用户",
             "固定结构"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-mcp/README.md",
+      "tokens": 1196,
+      "lines": 59,
+      "sha256": "4475e400e77d9abd315642f1fd79f05307ec24fb6426fa1b749b13365b1cb3f3",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§my-mcp — MCP 服务器配置的单一正本（WXG-T-043）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 60,
+          "tokens": 1177,
+          "summary": "改 MCP 服务器，只改这里：my-mcp/servers.json → pnpm run mcp:build → 提交",
+          "keywords": [
+            "mcp",
+            "MCP",
+            "WXG",
+            "servers",
+            "json",
+            "pnpm"
+          ]
+        },
+        {
+          "anchor": "§1 为什么不学 `my-skills` 用符号链接",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 18,
+          "tokens": 292,
+          "summary": "my-skills 能\"一处正本 + 四 IDE 链接\"，是因为四个 IDE 消费的是内容完全相同的目录。MCP 配置做",
+          "keywords": [
+            "my-skills",
+            "skills",
+            "IDE",
+            "MCP",
+            "为什么不学",
+            "用符号链接"
+          ]
+        },
+        {
+          "anchor": "§2 分层职责",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 30,
+          "tokens": 307,
+          "summary": "正本（语义） my-mcp/servers.json servers 语义 + targets 清单（哪些 IDE 文件",
+          "keywords": [
+            "mcp",
+            "servers",
+            "json",
+            "targets",
+            "IDE",
+            "分层职责"
+          ]
+        },
+        {
+          "anchor": "§3 方言表（生成器实现）",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 37,
+          "tokens": 90,
+          "summary": "explicit {type:\"stdio\", command, args} {type:\"http\", url} Co",
+          "keywords": [
+            "explicit",
+            "type",
+            "stdio",
+            "command",
+            "args",
+            "http"
+          ]
+        },
+        {
+          "anchor": "§4 改一条 MCP 服务器",
+          "level": 2,
+          "startLine": 38,
+          "endLine": 50,
+          "tokens": 134,
+          "summary": "",
+          "keywords": [
+            "MCP",
+            "改一条",
+            "服务器"
+          ]
+        },
+        {
+          "anchor": "§5 红线：HTTP 仅回环（C3 机械化）",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 54,
+          "tokens": 61,
+          "summary": "control-manifest.md §14 红线 2「HTTP 仅回环」已由门禁 C3 机械执行：transport",
+          "keywords": [
+            "§14",
+            "HTTP",
+            "control",
+            "manifest",
+            "transport",
+            "红线"
+          ]
+        },
+        {
+          "anchor": "§6 本次已知未验证项（诚实记录）",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 60,
+          "tokens": 157,
+          "summary": "1. Cursor 侧 type 写法未经真机实测：本文档依据 Cursor 官方 MCP 文档的字段说明（stdio ",
+          "keywords": [
+            "Cursor",
+            "type",
+            "MCP",
+            "stdio",
+            "本次已知未验",
+            "证项"
           ]
         }
       ]
@@ -21320,17 +21922,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 5449,
-      "lines": 64,
-      "sha256": "94a702a56b6a1972a3f3fc2fb2945b129a02ab40bc780abaf930b3b03f2fd81d",
+      "tokens": 6336,
+      "lines": 67,
+      "sha256": "85f6af5fedc99937fcb73e1ce86b9ffb695a04e286f8436eb1e58fd7b7b77d55",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 65,
-          "tokens": 5440,
+          "endLine": 68,
+          "tokens": 6327,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -21344,8 +21946,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 56,
-          "endLine": 65,
+          "startLine": 59,
+          "endLine": 68,
           "tokens": 736,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [

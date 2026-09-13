@@ -21,6 +21,10 @@
  *               （避免误伤并发会话在制文件）；A/B/D/E 照常跑（数据源不变）。与 --working-tree 互斥。
  *   D ROUTES 锚点 解析 ctx/ROUTES.md 的 `路径#锚点` 引用，校验路径在索引中且锚点可命中
  *               （非锚点式整文件引用须在该行尾标注 `<!-- no-anchor -->` 显式豁免）
+ *   D2 第二跳覆盖率（WXG-T-044）ctx/ROUTES.md 引用到的文件（除 always 常驻层与尚未入索引的
+ *               新文件）须能在 ctx/hot-files.md 查到 offset/limit（下限 LIMITS.hotFilesCoverageMin）。
+ *               **硬门**：属产物衔接完备性（结构指标），不受 WXG-T-026 行为类裁定约束；
+ *               断链 = agent 只能退到全量 ctx/index.json（≈195k tok），协议在最需要处失效。
  *   E 节省率/护栏/基线（WXG-T-026 ④，纯查表计算，消费 ctx/usage-distribution.json）：
  *               E1 仅锚点式局部读的单次节省率 中位数 ≥70%、P10 ≥40%（含全文读的整体中位数仅展示）；
  *               E2 护栏（**比率**：抖动率 = 抖动组 ÷ 不同 (ide,session,path) 小读组；大文件整文件读率 =
@@ -43,7 +47,7 @@
  *                 • A/B/C/D 结构门 → **硬门**（不变）。
  *               样本不足 / 基线缺失 → WARN + exit 0（未判定、不假绿）。
  *
- * Exit 0 = 结构门 A–D 全通过 且 E3 未劣化（E1/E2 可为 WARN）；
+ * Exit 0 = 结构门 A–D + D2 全通过 且 E3 未劣化（E1/E2 可为 WARN）；
  *          exit 1 = 结构门失败 或 E3 劣于基线（Chinese diagnostics + fix hints）。
  * Token figures are **estimates** (see tools/scripts/lib/context-tokens.mjs).
  *
@@ -60,6 +64,7 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  ALWAYS_FILES,
   BASELINE_PATH,
   EXEMPT_PATH,
   LIMITS,
@@ -69,6 +74,7 @@ import {
   readDistribution,
   readIndex,
   readStagedBlob,
+  routesReferencedPaths,
   sha256,
   stagedSet,
 } from './lib/context-index.mjs';
@@ -437,6 +443,61 @@ function checkRoutes(index) {
   return rows;
 }
 
+/**
+ * ── D2. 第二跳覆盖率（WXG-T-044）────────────────────────────────────────────
+ *
+ * 判据：`ctx/ROUTES.md` 引用到的文件，有多大比例能在 `ctx/hot-files.md` 里查到
+ *      `offset`/`limit`。
+ *
+ * 分母怎么取（三个排除，缺一个就会得出错误结论）：
+ *   • 排除 always 常驻层（AGENTS.md 等）—— 它们每会话整文件进上下文，不需要节行号；
+ *   • 排除 `ctx/` 生成物 —— 自引用会把装置开销滚成雪球（与生成器同口径）；
+ *   • 排除**尚未入索引**的文件（未提交新 .md 按 WXG-T-026 契约不入索引）——
+ *     它们不是断链，等入索引后自然纳入；若计入分母，本地一有在制文件就误报 FAIL。
+ *
+ * 为什么是**硬门**（而非 E1/E2 那样的报告项）：本指标衡量两个产物之间的**衔接完备性**，
+ * 取值与「历史会话读了什么」无关，故不受 WXG-T-026「行为类指标降级」裁定约束。它的
+ * 退化形态是**确定性缺陷**——ROUTES 引用了新文件却忘了让它进第二跳——必须在 PR 拦下；
+ * 否则 agent 走到该锚点后只能退到机器读的全量 `ctx/index.json`（≈195k 估算 tokens）。
+ * @param {{files: object[]}} index `ctx/index.json` 内容
+ * @returns {{targets: string[], covered: string[], missing: string[], pending: string[],
+ *            ok: boolean, ratio: number}}
+ */
+function checkHotFilesCoverage(index) {
+  const routed = routesReferencedPaths();
+  const indexed = new Set(index.files.map((f) => f.path));
+  const isExcluded = (p) => ALWAYS_FILES.has(p) || p.startsWith('ctx/');
+  const targets = [...routed].filter((p) => !isExcluded(p) && indexed.has(p)).sort();
+  const pending = [...routed].filter((p) => !isExcluded(p) && !indexed.has(p)).sort();
+  if (targets.length === 0) {
+    return { targets, covered: [], missing: [], pending, ok: true, ratio: 1 };
+  }
+  let hotText;
+  try {
+    hotText = readFileSync(join(ROOT, HOT_FILES_REL), 'utf8');
+  } catch {
+    failures.push('D2: 未找到 ctx/hot-files.md —— 重跑 pnpm run ctx:build 生成（它是协议第二跳）');
+    return { targets, covered: [], missing: targets, pending, ok: false, ratio: 0 };
+  }
+  // 收录块的标题形如 `## \`<path>\` — 120 行 / 345 tok[ / 实测读 N 次]`；
+  // 文末「未收录」段的行以 `- ` 开头，不会被本正则误捕。
+  const coveredSet = new Set([...hotText.matchAll(/^## `([^`]+)`/gm)].map((m) => m[1]));
+  const covered = targets.filter((p) => coveredSet.has(p));
+  const missing = targets.filter((p) => !coveredSet.has(p));
+  const ratio = covered.length / targets.length;
+  const ok = ratio >= LIMITS.hotFilesCoverageMin;
+  if (!ok) {
+    failures.push(
+      `D2: 第二跳覆盖率 ${pct(ratio)} < 下限 ${pct(LIMITS.hotFilesCoverageMin)} —— ` +
+        '下列 ROUTES 引用文件在 ctx/hot-files.md 中查不到 offset/limit，agent 只能退到全量 ' +
+        `ctx/index.json（机器读）：${missing.map((p) => `\`${p}\``).join('、')}。` +
+        '生成器已按「ROUTES 引用优先 + 体积升序」收录；仍落选即预算不足 → ' +
+        '调大 LIMITS.hotFilesMaxTokens（代价见 ctx/reads-summary.md §②.1），或从 ROUTES.md 移除该引用',
+    );
+  }
+  return { targets, covered, missing, pending, ok, ratio };
+}
+
 /** ── E. 节省率 + 护栏 + 基线回归（WXG-T-026 ④，消费 ctx/usage-distribution.json）── */
 function checkE() {
   const report = {
@@ -461,13 +522,25 @@ function checkE() {
     setE('WARN');
     return report;
   }
-  if (reads < LIMITS.usageMinSamples) {
+  const m = dist.metrics;
+  // ── 累计口径（WXG-T-037 R1）─────────────────────────────────────────────────
+  // 存在 metrics.cumulative（当前窗口 ⊕ ctx/savings-history.json 历史聚合）时，
+  // E1/E3 判定与样本充足性均以**累计口径**为准：轮转只把窗口外样本搬进历史、不改
+  // 累计集合，故 E3 基线回归不因窗口滑动假绿/假红。无历史文件时回落窗口口径（等同
+  // WXG-T-036 既有行为）。E2 仍如实展示两套口径（报告项）。
+  const cum = m?.cumulative ?? null;
+  const sWin = m?.savings;
+  const s = cum?.savings ?? m?.savings;
+  const effJitter = cum?.jitter ?? m?.jitter;
+  const effBig = cum?.bigFullReads ?? m?.bigFullReads;
+  const effReads = cum?.reads ?? reads;
+  const scopeTag = cum ? '（累计口径）' : '';
+  if (effReads < LIMITS.usageMinSamples) {
     report.insufficient = true;
-    report.reason = `样本不足（${reads} 次读取 < 阈值 ${LIMITS.usageMinSamples}）`;
+    report.reason = `样本不足（${effReads} 次读取${cum ? `（累计，含历史 ${cum.historyEvents}）` : ''} < 阈值 ${LIMITS.usageMinSamples}）`;
     setE('WARN');
     return report;
   }
-  const m = dist.metrics;
   if (!m || !m.savings) {
     report.insufficient = true;
     report.reason = '分布文件缺 metrics.savings 聚合块（重跑 pnpm run ctx:usage）';
@@ -475,8 +548,11 @@ function checkE() {
     return report;
   }
 
-  const s = m.savings;
-  report.samples = { total: reads, partial: m.partialSamples ?? 0, sessions: dist.samples?.sessions ?? 0 };
+  report.samples = {
+    total: effReads,
+    partial: cum ? (cum.savings.partialSamples ?? 0) : (m.partialSamples ?? 0),
+    sessions: cum?.sessions ?? dist.samples?.sessions ?? 0,
+  };
 
   // E1 报告项（仅锚点式局部读）——裁定（WXG-T-026，2026-09-12）：行为类指标未达标
   // 只如实报告（❌ + 数字）并计 WARN，**不 push failures、不阻断**。
@@ -492,12 +568,19 @@ function checkE() {
     setE('WARN');
   }
   report.e1 = [
-    { label: '局部读 单次节省率 中位数', value: pct(s.medianPartial), limit: `≥ ${pct(LIMITS.savingsMedianPartial)}`, ok: medOk, kind: 'report' },
-    { label: '局部读 单次节省率 P10', value: pct(s.p10Partial), limit: `≥ ${pct(LIMITS.savingsP10Partial)}`, ok: p10Ok, kind: 'report' },
+    { label: `局部读 单次节省率 中位数${scopeTag}`, value: pct(s.medianPartial), limit: `≥ ${pct(LIMITS.savingsMedianPartial)}`, ok: medOk, kind: 'report' },
+    { label: `局部读 单次节省率 P10${scopeTag}`, value: pct(s.p10Partial), limit: `≥ ${pct(LIMITS.savingsP10Partial)}`, ok: p10Ok, kind: 'report' },
     // 诚实性：同时展示「含全文读的整体中位数」，避免只报局部读数字造成美化。
     { label: '（展示）含全文读 整体中位数', value: pct(s.median), limit: '仅展示', ok: null, kind: 'info' },
     { label: '（展示）分布加权整体节省率', value: pct(s.overall), limit: '仅展示', ok: null, kind: 'info' },
   ];
+  // 双口径诚实展示（WXG-T-037 R1）：判定走累计口径时，窗口口径数字同样如实并列。
+  if (cum && sWin) {
+    report.e1.push(
+      { label: '（展示）窗口口径 局部读 中位数', value: pct(sWin.medianPartial), limit: '仅展示', ok: null, kind: 'info' },
+      { label: '（展示）窗口口径 局部读 P10', value: pct(sWin.p10Partial), limit: '仅展示', ok: null, kind: 'info' },
+    );
+  }
 
   // E2 护栏（报告项，不阻断；退化另由 E3 基线判定；③ 常驻预算引用 A 项）。
   // 判定口径为**比率**（F-02）；原始计数（组数 / 次数）仍如实展示，仅供人看与追溯。
@@ -512,12 +595,19 @@ function checkE() {
     },
     { label: '③ 常驻预算（引用 A 项，不重复计算）', value: '见上方 A 常驻预算表' },
   ];
+  // 累计口径并列展示（WXG-T-037 R1，报告项）：与 E1/E3 判定口径一致的比率。
+  if (cum) {
+    report.e2.push(
+      { label: '抖动率（累计口径，判定同 E3）', value: `${pct(cum.jitter?.rate ?? 0)}（${cum.jitter?.groups ?? 0} 组 / ${cum.jitter?.groupKeys ?? 0} 组；超限 ${cum.jitter?.excess ?? 0} 次）` },
+      { label: '大文件整文件读率（累计口径，判定同 E3）', value: `${pct(cum.bigFullReads?.rate ?? 0)}（${cum.bigFullReads?.count ?? 0} / ${cum.bigFullReads?.totalReads ?? effReads} 次）` },
+    );
+  }
   report.e2Counts = {
-    jitterGroups: m.jitter?.groups ?? 0,
-    jitterExcess: m.jitter?.excess ?? 0,
-    bigFullReads: m.bigFullReads?.count ?? 0,
-    jitterRate: m.jitter?.rate ?? 0,
-    bigFullReadRate: m.bigFullReads?.rate ?? 0,
+    jitterGroups: effJitter?.groups ?? 0,
+    jitterExcess: effJitter?.excess ?? 0,
+    bigFullReads: effBig?.count ?? 0,
+    jitterRate: effJitter?.rate ?? 0,
+    bigFullReadRate: effBig?.rate ?? 0,
   };
 
   // E4 净收益双列（WXG-T-036，q-2）——**报告项**（info，不设门禁、不进基线）。
@@ -592,7 +682,8 @@ function checkE() {
 
   const bm = bl.data.metrics;
   const cmp = [];
-  for (const [key, label] of [['medianPartial', '局部读节省率中位数'], ['p10Partial', '局部读节省率 P10']]) {
+  // WXG-T-037 R1：判定值取累计口径（scopeTag 标注）；label 与数值双对应。
+  for (const [key, label] of [['medianPartial', `局部读节省率中位数${scopeTag}`], ['p10Partial', `局部读节省率 P10${scopeTag}`]]) {
     const cur = s[key];
     const base = bm[key];
     const worse = base - cur > LIMITS.baselineSavingsTol;
@@ -626,9 +717,10 @@ function checkE() {
     );
   } else {
     // 新版（v2）**比率口径**（F-02）：劣于基线超过 baselineRateTol 即 FAIL；原始计数仅展示。
+    // WXG-T-037 R1：判定值取**累计口径**（窗口+历史；无历史时即窗口口径）。
     for (const [key, label, cur, show] of [
-      ['jitterRate', '抖动率', m.jitter?.rate ?? 0, `${m.jitter?.groups ?? 0} / ${m.jitter?.groupKeys ?? 0} 组`],
-      ['bigFullReadRate', '大文件整文件读率', m.bigFullReads?.rate ?? 0, `${m.bigFullReads?.count ?? 0} / ${m.bigFullReads?.totalReads ?? reads} 次`],
+      ['jitterRate', `抖动率${scopeTag}`, effJitter?.rate ?? 0, `${effJitter?.groups ?? 0} / ${effJitter?.groupKeys ?? 0} 组`],
+      ['bigFullReadRate', `大文件整文件读率${scopeTag}`, effBig?.rate ?? 0, `${effBig?.count ?? 0} / ${effBig?.totalReads ?? effReads} 次`],
     ]) {
       const base = bm[key];
       const worse = cur - base > LIMITS.baselineRateTol;
@@ -659,22 +751,28 @@ function updateBaseline() {
     process.exit(2);
   }
   const dist = readDistribution();
-  const reads = dist?.samples?.reads ?? 0;
-  const hasRates = typeof dist?.metrics?.jitter?.rate === 'number' && typeof dist?.metrics?.bigFullReads?.rate === 'number';
-  if (!dist || reads < LIMITS.usageMinSamples || !dist.metrics?.savings || !hasRates) {
+  const mAll = dist?.metrics;
+  // WXG-T-037 R1：基线一律按**累计口径**（窗口+历史）写；无历史文件时即窗口口径。
+  const cumB = mAll?.cumulative ?? null;
+  const reads = cumB?.reads ?? dist?.samples?.reads ?? 0;
+  const jit = cumB?.jitter ?? mAll?.jitter;
+  const big = cumB?.bigFullReads ?? mAll?.bigFullReads;
+  const sv = cumB?.savings ?? mAll?.savings;
+  const hasRates = typeof jit?.rate === 'number' && typeof big?.rate === 'number';
+  if (!dist || reads < LIMITS.usageMinSamples || !sv || !hasRates) {
     console.error(
       `❌ 样本不足（${reads} 次读取 < ${LIMITS.usageMinSamples}）或缺 metrics（含比率字段 jitter.rate / bigFullReads.rate）` +
         ' —— 拒绝写基线；先跑 ctx:reads / ctx:usage',
     );
     process.exit(1);
   }
-  const m = dist.metrics;
   // v2 结构升级（WXG-T-026 复验 F-02/F-04）：版本号 + est + sampleWindow（字段须在） + 比率判定字段 + 原始计数（仅展示）。
   const out = {
     version: 2,
     taskId,
     reason,
     est: true,
+    scope: cumB ? 'cumulative(window+history)（WXG-T-037 R1：E1/E3 判定与基线均为累计口径）' : 'window',
     sampleWindow: {
       since: null,
       until: null,
@@ -686,15 +784,15 @@ function updateBaseline() {
       counts: '抖动组数 / 超限次数 / 大文件整文件读次数：仅如实展示，不作判定',
     },
     metrics: {
-      medianPartial: m.savings.medianPartial,
-      p10Partial: m.savings.p10Partial,
+      medianPartial: sv.medianPartial,
+      p10Partial: sv.p10Partial,
       // 比率口径（**判定依据**）
-      jitterRate: m.jitter.rate,
-      bigFullReadRate: m.bigFullReads.rate,
+      jitterRate: jit.rate,
+      bigFullReadRate: big.rate,
       // 原始计数（仅供人看 / 追溯）
-      jitterGroups: m.jitter.groups,
-      jitterExcess: m.jitter.excess,
-      bigFullReads: m.bigFullReads.count,
+      jitterGroups: jit.groups ?? 0,
+      jitterExcess: jit.excess ?? 0,
+      bigFullReads: big.count ?? 0,
     },
   };
   writeFileSync(BASELINE_PATH, `${JSON.stringify(out, null, 2)}\n`, 'utf8');
@@ -714,12 +812,14 @@ const index = readIndex();
 let residentRows = [];
 let overRows = [];
 let routeRows = [];
+let covReport = null;
 if (!index) {
   failures.push('无法读取 ctx/index.json —— 先运行 pnpm run ctx:build');
 } else {
   residentRows = checkResident(index);
   overRows = checkFileMax(index);
   routeRows = checkRoutes(index);
+  covReport = checkHotFilesCoverage(index);
 }
 const freshness = index
   ? STAGED
@@ -808,6 +908,28 @@ if (routeRows.length === 0) {
 }
 console.log('');
 
+console.log(
+  `D2 第二跳覆盖率（硬门）— ctx/ROUTES.md 引用面能在 ctx/hot-files.md 查到 offset/limit 的比例 ≥ ${pct(LIMITS.hotFilesCoverageMin)}`,
+);
+if (!covReport || covReport.targets.length === 0) {
+  console.log('（未取得数据）');
+} else if (covReport.ok) {
+  console.log(`✅ ${covReport.covered.length} / ${covReport.targets.length}（${pct(covReport.ratio)}）`);
+  if (covReport.missing.length > 0) {
+    console.log(`   ⚠️ 容忍带内未覆盖 ${covReport.missing.length} 个：${covReport.missing.join('、')}（该锚点须退 ctx/index.json 兜底）`);
+  }
+} else {
+  console.log(
+    line(false, `${covReport.covered.length} / ${covReport.targets.length}（${pct(covReport.ratio)}）—— 断链：${covReport.missing.join('、')}`),
+  );
+}
+if (covReport && covReport.pending.length > 0) {
+  console.log(
+    `   ℹ️ ${covReport.pending.length} 个 ROUTES 引用文件尚未入索引（未提交新文件），不计入分母：${covReport.pending.join('、')}`,
+  );
+}
+console.log('');
+
 // 报告标题：行为类指标（E1）未达标时显式标注 WARN + 未达标（防被误读为通过）。
 const e1Miss = eReport.behavioralMisses.length > 0;
 console.log(
@@ -872,7 +994,7 @@ for (const n of notes) console.log(`  note: ${n}`);
 if (notes.length) console.log('');
 
 if (failures.length === 0 && eStatus === 'PASS') {
-  console.log('ctx:check OK — 结构门 A/B/C/D 与 E3 基线回归全部通过（E1/E2 行为类指标亦达标）');
+  console.log('ctx:check OK — 结构门 A/B/C/D/D2 与 E3 基线回归全部通过（E1/E2 行为类指标亦达标）');
   process.exit(0);
 }
 if (failures.length === 0 && eStatus === 'WARN') {
@@ -892,10 +1014,10 @@ if (failures.length === 0 && eStatus === 'WARN') {
         : null,
     ].filter(Boolean);
     summary =
-      `ctx:check WARN — 结构门 A/B/C/D ✅、基线回归 E3 ${e3AllOk ? '✅' : '未判定'}；` +
+      `ctx:check WARN — 结构门 A/B/C/D/D2 ✅、基线回归 E3 ${e3AllOk ? '✅' : '未判定'}；` +
       `行为类指标未达标（${parts.join('；')}）——已如实报告，不阻断 CI`;
   } else {
-    summary = `ctx:check WARN — 结构门 A/B/C/D ✅；E 项未判定（${eReport.reason || '样本不足 / 基线缺失'}）——已如实报告，不阻断 CI`;
+    summary = `ctx:check WARN — 结构门 A/B/C/D/D2 ✅；E 项未判定（${eReport.reason || '样本不足 / 基线缺失'}）——已如实报告，不阻断 CI`;
   }
   console.log(summary);
   process.exit(0);

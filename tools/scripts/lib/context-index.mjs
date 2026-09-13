@@ -72,8 +72,15 @@ export const SKIP_DIRS = new Set([
   'archive',
 ]);
 
-/** Files that ride in the always-on resident layer. */
-const ALWAYS_FILES = new Set(['AGENTS.md', 'my-rules/INDEX.md', 'my-rules/agents-md.md']);
+/**
+ * Files that ride in the always-on resident layer.
+ *
+ * 导出（WXG-T-044）：`check-context-budget.mjs` 的 D2（第二跳覆盖率）要用它把
+ * always 层从「ROUTES 引用面」中剔除——它们本就每会话整文件进上下文，不需要
+ * `hot-files.md` 提供节行号，若计入分母会得到一个永远凑不满的覆盖率。
+ * 导出以保持单一真源（生成器与门禁共用同一集合）。
+ */
+export const ALWAYS_FILES = new Set(['AGENTS.md', 'my-rules/INDEX.md', 'my-rules/agents-md.md']);
 
 /** P0 high-frequency files — read often, big enough to be worth a section route. */
 const HOT_FILES = new Set([
@@ -326,6 +333,23 @@ export const LIMITS = {
    * 因此正常路径恒绿，只有手改 / 索引爆炸才会触发。
    */
   hotFilesMaxTokens: 4000,
+
+  /*
+   * ── 第二跳覆盖率下限（WXG-T-044）─────────────────────────────────────────────
+   *
+   * 口径：`ctx/ROUTES.md` 引用到的文件（去掉 `ctx/` 生成物与 always 常驻层），
+   *       有多大比例能在 `ctx/hot-files.md` 里查到 `offset`/`limit`。
+   *
+   * 为什么是**硬门**而非报告项：它衡量两个产物之间的**衔接完备性**（结构指标），
+   *       取值与「历史会话读了什么」无关，故不受 WXG-T-026「E1/E2 行为类指标降级为
+   *       报告项」裁定约束。它的退化是**本仓可修的确定性缺陷**——ROUTES 引用了新文件
+   *       却忘了让它进第二跳——必须在 PR 处拦下，否则 agent 只能退到机器读的全量
+   *       `ctx/index.json`（≈195k 估算 tokens），协议在最需要处断链。
+   *
+   * 阈值依据：ROUTES 引用面有限（当前 19 个文件），要求 1.0 会把「预算刚好差一行」
+   *       也判失败；跌到 0.9 以下意味着至少 2 个路由目标断链，属实质退化。
+   */
+  hotFilesCoverageMin: 0.9,
 
   /*
    * ── E 项阈值（WXG-T-026 ④）：分层上下文节省装置的「效果」护栏 ────────────────
@@ -701,6 +725,40 @@ export function routesAnchorRefs(limit = 15) {
   return out;
 }
 
+/**
+ * 解析 `ctx/ROUTES.md` 中被引用到的**文件路径集合**（WXG-T-044）。
+ *
+ * 为什么需要它：`ctx/hot-files.md` 存在的唯一理由是补齐「ROUTES 锚点 → `offset`/`limit`」
+ * 这一跳。若 ROUTES 引用到的文件却查不到行号，agent 只能退到 `ctx/index.json`
+ * （全量 JSON，≈195k 估算 tokens，机器读才划算）——协议链路**恰好在最需要的地方断开**。
+ * 故「ROUTES 引用面」必须是第二跳收录的**最高优先级**，并由门禁 D2（覆盖率硬门）守住。
+ *
+ * 与 `routesAnchorRefs()` 的分工：后者按行序返回**前 N 条** `路径#锚点` 供 BUDGET 报表展示；
+ * 本函数返回**全量去重路径集合**，作为生成器选池与门禁判据的**唯一真源**（两侧共用，
+ * 避免两处各写一份正则而漂移）。
+ *
+ * 排除项：`ctx/` 下的生成物（自引用会把装置开销滚成雪球，与 renderHotFiles 同口径）。
+ * @returns {Set<string>} 去重后的仓库相对路径
+ */
+export function routesReferencedPaths() {
+  let text;
+  try {
+    text = readFileSync(ROUTES_PATH, 'utf8');
+  } catch {
+    return new Set();
+  }
+  const paths = new Set();
+  const re = /((?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.md)#/g;
+  for (const line of text.split('\n')) {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(line)) !== null) {
+      if (!m[1].startsWith('ctx/')) paths.add(m[1]);
+    }
+  }
+  return paths;
+}
+
 /* ── ctx/hot-files.md：热门大文件「章节 → 精确行号」速查（WXG-T-036，q-1）────────────
  *
  * 职责边界（避免与既有产物重复）：
@@ -711,11 +769,15 @@ export function routesAnchorRefs(limit = 15) {
  *
  * 生成规则（确定性 + 字节稳定）：
  *   • **必收录**：`tier === 'hot'` 的文件（协议主路由指向的目标，收了才闭环）。
+ *   • **次必收录（WXG-T-044）**：`ctx/ROUTES.md` 引用到的文件——第二跳存在的唯一理由
+ *     就是补齐「ROUTES 锚点 → `offset`/`limit`」，故它们排在实测热度之前。
  *   • **可选收录**：实测被读过（`dist.files[].sections[].reads`）或体积 ≥ HOT_FILE_MIN_TOKENS
- *     的 `.md`，按「实测读次数 ↓ / 体积 ↓ / 路径 ↑」贪心填充。
- *   • **排除** `ctx/` 下的生成物（自引用会把装置开销滚成雪球）。
- *   • 超预算候选**不写入**，但在文末「未收录」如实列出（并指向 `ctx/index.json`），
- *     确保文件不会无声膨胀 —— 它的体积会**直接扣减净收益**（见 analyze-context-usage.mjs）。
+ *     的 `.md`，按「ROUTES 引用 ↓ / 实测读次数 ↓ / 体积 ↑ / 路径 ↑」贪心填充。
+ *   • **排除** `ctx/` 下的生成物（自引用会把装置开销滚成雪球）与 always 常驻层
+ *     （AGENTS.md 等本就每会话整文件进上下文，给「节行号」无意义）。
+ *   • 超预算候选**不写入**；文末「未收录」**只逐条列 ROUTES 引用到的落选文件**
+ *     （它们是协议链路真会断的节点），其余落选文件只给一行计数——旧版逐条列出 84 条
+ *     （≈1270 tok）中 77 条与路由读取无关，属纯常驻开销。
  *   • 不带日期：本文件是索引的**纯函数**，才可参与 build 的不动点收敛与 pre-commit 复算。
  */
 
@@ -765,7 +827,12 @@ function renderHotFileBlock(f, reads) {
 export function renderHotFiles(index, dist = null) {
   const reads = fileReadsFromDist(dist);
   const files = index?.files ?? [];
-  const excluded = (p) => p.startsWith('ctx/');
+  // 排除 `ctx/` 生成物（自引用会把装置开销滚成雪球）与 always 常驻层
+  // （它们本就每会话整文件进上下文，给「节行号」没有意义，只会白占第二跳预算）。
+  const excluded = (p) => p.startsWith('ctx/') || ALWAYS_FILES.has(p);
+  // ROUTES 引用面（WXG-T-044）：第二跳的意义就是补齐「ROUTES 锚点 → offset/limit」，
+  // 故被 ROUTES 引用到的文件必须优先收录，否则 agent 只能退机器读的全量 index.json。
+  const routed = routesReferencedPaths();
 
   const required = files.filter((f) => f.tier === 'hot' && !excluded(f.path));
   const requiredPaths = new Set(required.map((f) => f.path));
@@ -774,12 +841,24 @@ export function renderHotFiles(index, dist = null) {
       (f) =>
         !excluded(f.path) &&
         !requiredPaths.has(f.path) &&
-        ((reads.get(f.path) ?? 0) > 0 || f.tokens >= HOT_FILE_MIN_TOKENS),
+        // 准入（WXG-T-044 追加第一项）：ROUTES 引用的文件**无条件进池**。
+        // 旧规则只认「实测读过 ∨ ≥3000 tok」，会让 ROUTES 引用的中小文件
+        // （repo-layout / commands / routing / my-agents/INDEX…）全部落选，
+        // 协议链路恰好在**最需要它的地方**断开。
+        (routed.has(f.path) ||
+          (reads.get(f.path) ?? 0) > 0 ||
+          f.tokens >= HOT_FILE_MIN_TOKENS),
     )
     .sort(
       (a, b) =>
+        // ① ROUTES 引用优先（协议闭环 > 历史热度）
+        Number(routed.has(b.path)) - Number(routed.has(a.path)) ||
+        // ② 实测读次数降序
         (reads.get(b.path) ?? 0) - (reads.get(a.path) ?? 0) ||
-        b.tokens - a.tokens ||
+        // ③ 体积**升序**：同热度下先收小的 → 同预算覆盖更多文件。行号按节编码，
+        //    小文件常只有 1–3 节，收它几乎不花预算；旧的「大者优先」会把预算
+        //    耗尽在少数巨型文件上，反而降低路由目标的覆盖数。
+        a.tokens - b.tokens ||
         a.path.localeCompare(b.path),
     );
 
@@ -790,7 +869,7 @@ export function renderHotFiles(index, dist = null) {
     L.push('> **协议第二跳**：`ctx/ROUTES.md` 给「意图 → `文件#锚点`」，本表把锚点换算成可直接用的 `offset` / `limit`。');
     L.push('> 读法：`read_file(path, offset, limit)` —— **只取该节**，勿对大文件无条件整读。');
     L.push('> 行内格式：`锚点=offset+limit`（`limit` 已算好）；` · ` 分隔小节。');
-    L.push('> 只收录**热文件与大文件**；查不到 → `ctx/index.json`（全量，机器读更划算）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。');
+    L.push('> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`（全量，机器读更划算）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。');
     L.push('');
     L.push(
       `> 体积预算 ≤ ${LIMITS.hotFilesMaxTokens} 估算 tokens（当前 ${chosen.length} 个文件）：本表是协议常驻开销，` +
@@ -805,12 +884,27 @@ export function renderHotFiles(index, dist = null) {
     }
     L.push('');
     for (const f of chosen) L.push(...renderHotFileBlock(f, reads.get(f.path) ?? 0));
-    if (omitted.length > 0) {
-      L.push('## 未收录（超出体积预算或未命中热度 / 体积门槛）');
+    // 未收录清单（WXG-T-044 瘦身）：**只逐条列 ROUTES 引用到的落选文件**——
+    // 它们是协议链路上真会断的节点，agent 需要知道「这个路由目标要另查 index.json」。
+    // 其余落选文件（既非 ROUTES 引用、也未命中热度/体积门槛）对路由读取无动作可执行，
+    // 逐条列出纯属常驻开销（旧版 84 条 / ≈1270 tok，其中 77 条属此类）→ 只给一行计数。
+    const routedOmitted = omitted.filter((f) => routed.has(f.path));
+    const restOmitted = omitted.length - routedOmitted.length;
+    if (routedOmitted.length > 0) {
+      L.push('## 未收录 · ROUTES 引用的文件（超预算 → 查 `ctx/index.json`）');
       L.push('');
-      L.push('> 这些文件的锚点 → 行号请查 `ctx/index.json`（全量索引；机器读更划算）。');
+      L.push(
+        '> 下列文件被 `ctx/ROUTES.md` 引用，但未进本表；其锚点行号请查 `ctx/index.json`（全量索引，机器读更划算）。',
+      );
       L.push('');
-      for (const f of omitted) L.push(`- \`${f.path}\`（${f.tokens} tok）`);
+      for (const f of routedOmitted) L.push(`- \`${f.path}\`（${f.tokens} tok）`);
+      L.push('');
+    }
+    if (restOmitted > 0) {
+      L.push(
+        `> 另有 ${restOmitted} 个文件既未被 \`ctx/ROUTES.md\` 引用、也未命中热度/体积门槛，` +
+          '与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。',
+      );
       L.push('');
     }
     return L.join('\n');

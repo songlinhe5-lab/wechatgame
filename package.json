@@ -15,12 +15,15 @@
     "check:arch": "node tools/scripts/check-architecture.mjs",
     "check:links": "node tools/scripts/check-ide-links.mjs",
     "check:plugins": "node tools/scripts/check-plugin-anchor.mjs",
+    "mcp:build": "node tools/scripts/build-mcp-configs.mjs",
+    "check:mcp": "node tools/scripts/build-mcp-configs.mjs --check",
     "levels:sync": "node tools/scripts/sync-levels-data.mjs",
     "levels:check": "node tools/scripts/sync-levels-data.mjs --check",
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
     "ctx:reads": "node tools/scripts/collect-context-reads.mjs",
     "ctx:usage": "node tools/scripts/analyze-context-usage.mjs",
+    "ctx:rotate": "node tools/scripts/rotate-reads-ledger.mjs",
     "kb:sync": "node tools/scripts/kb-sync.mjs",
     "kb:collect": "node tools/scripts/kb-collect.mjs",
     "kb:touch": "node tools/scripts/kb-touch.mjs",
@@ -34,7 +37,7 @@
     "preview:frames": "node tools/scripts/render-harness-frame.mjs",
     "preview:clip": "node tools/scripts/render-harness-clip.mjs",
     "commitlint": "commitlint",
-    "verify": "pnpm run check:arch && pnpm run check:links && pnpm run levels:check && pnpm run typecheck && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
+    "verify": "pnpm run check:arch && pnpm run check:links && pnpm run check:mcp && pnpm run levels:check && pnpm run typecheck && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",

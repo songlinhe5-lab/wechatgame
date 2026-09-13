@@ -216,6 +216,14 @@ if (STRICT) {
 
 async function ingestFile(file, target) {
   const session = toPosix(file).slice(toPosix(target.dir).length).replace(/^\/+/, '').replace(/\.jsonl$/, '');
+  // 会话新近度（WXG-T-037 R1）：账本为字节稳定、无时间戳设计，唯一可靠的时间信号是
+  // 转录文件 mtime——写进侧车 bySession[s].lastMtime，供 ctx:rotate 分窗排序（缺失 → 0）。
+  let fileMtime = 0;
+  try {
+    fileMtime = statSync(file).mtimeMs;
+  } catch {
+    fileMtime = 0;
+  }
   const rl = createInterface({ input: createReadStream(file, { encoding: 'utf8' }), crlfDelay: Infinity });
   for await (const line of rl) {
     if (!line || !line.trim()) continue;
@@ -233,9 +241,10 @@ async function ingestFile(file, target) {
     stats.badReads += res.badReads;
     if (!ideSessions.has(target.ide)) ideSessions.set(target.ide, new Set());
     ideSessions.get(target.ide).add(session);
+    bump(stats.bySession, session, 'reads');
+    stats.bySession[session].lastMtime = Math.max(stats.bySession[session].lastMtime ?? 0, fileMtime);
     for (const r of res.reads) {
       stats.readEvents += 1;
-      bump(stats.bySession, session, 'reads');
       bump(stats.byIde, target.ide, 'reads');
       const norm = normalizePath(r.rawPath, { root: ROOT, cwd: ROOT });
       if (!norm.ok) {

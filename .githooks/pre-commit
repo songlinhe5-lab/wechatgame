@@ -31,6 +31,16 @@ else
   node tools/scripts/check-plugin-anchor.mjs
 fi
 
+# ①¾ MCP 配置漂移（WXG-T-043）：三份 IDE 配置须 == `my-mcp/servers.json` 渲染结果。
+#     与 ② 的 ctx 相反，此处**拦截而不自动重建**：MCP 配置错误的后果是 IDE 侧静默失效
+#     （本次 T-043 的起因就是三处手写漂移），静默重写比让人改正本更危险。
+echo "[pre-commit] pnpm run check:mcp"
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm run check:mcp
+else
+  node tools/scripts/build-mcp-configs.mjs --check
+fi
+
 # ② ctx 索引自动重建（WXG-T-032 ⑤）：先探测暂存区是否含 .md（≈0 开销）；有才执行。
 STAGED_MD="$(git diff --cached --name-only | grep '\.md$' || true)"
 if [ -n "$STAGED_MD" ]; then

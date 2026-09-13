@@ -19,13 +19,13 @@
     "savings": {
       "samples": 456,
       "sumActual": 721893,
-      "sumFull": 1183774,
-      "overall": 0.390177,
+      "sumFull": 1189148,
+      "overall": 0.392933,
       "median": 0,
       "p10": 0,
-      "medianPartial": 0.756885,
+      "medianPartial": 0.757933,
       "p10Partial": 0.453851,
-      "medianPartialLoose": 0.739688,
+      "medianPartialLoose": 0.749017,
       "p10PartialLoose": 0.308709,
       "implicitFull": {
         "lineRatio": 0.95,
@@ -55,18 +55,18 @@
         "artifactTokens": 0,
         "codeReadEvents": 8,
         "codeTokens": 12043,
-        "net": 0.390177,
+        "net": 0.392933,
         "attributable": false
       },
       "protocol": {
         "sessions": 21,
-        "routesTokens": 5681,
-        "hotFilesTokens": 3926,
-        "deviceTokens": 119301,
-        "net": 0.289396,
+        "routesTokens": 6235,
+        "hotFilesTokens": 3943,
+        "deviceTokens": 130935,
+        "net": 0.282824,
         "withHotFiles": {
-          "deviceTokens": 201747,
-          "net": 0.21975
+          "deviceTokens": 213738,
+          "net": 0.213192
         }
       }
     },
@@ -88,12 +88,12 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "tokens": 1699,
+      "tokens": 1743,
       "sections": [
         {
           "anchor": "§AGENTS.md — wechatgame 项目级 Agent 指引",
           "reads": 14,
-          "estTokens": 23590
+          "estTokens": 24206
         },
         {
           "anchor": "§IDE 常驻指针（alwaysApply）",
@@ -143,7 +143,7 @@
         {
           "anchor": "§8 分层阅读指引（已精简）",
           "reads": 4,
-          "estTokens": 152
+          "estTokens": 328
         },
         {
           "anchor": "§9 知识库与调用透明（WXG-T-023 摘要）",
@@ -4498,17 +4498,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4145,
+      "tokens": 5449,
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "reads": 3,
-          "estTokens": 12408
+          "estTokens": 16320
         },
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "reads": 1,
-          "estTokens": 476
+          "estTokens": 736
         }
       ]
     }

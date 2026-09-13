@@ -23,21 +23,21 @@
 | 3 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 4 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 | 5 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
-| 6 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
-| 7 | `ctx/ROUTES.md` | 5831 | 208 | normal |
-| 8 | `memory/2026-09-11.md` | 5617 | 115 | normal |
-| 9 | `production/TASKS.md` | 5449 | 64 | hot |
-| 10 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
-| 11 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
-| 12 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
-| 13 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
-| 14 | `memory/2026-09-13.md` | 4865 | 116 | normal |
-| 15 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
-| 16 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
-| 17 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
-| 18 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
-| 19 | `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md` | 4543 | 251 | normal |
-| 20 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
+| 6 | `production/TASKS.md` | 6336 | 67 | hot |
+| 7 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
+| 8 | `ctx/ROUTES.md` | 6235 | 217 | normal |
+| 9 | `memory/2026-09-11.md` | 5617 | 115 | normal |
+| 10 | `docs/agent/context-instrumentation-survey.md` | 5492 | 232 | normal |
+| 11 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
+| 12 | `knowledge/lessons.md` | 5202 | 105 | normal |
+| 13 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
+| 14 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
+| 15 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
+| 16 | `memory/2026-09-13.md` | 4865 | 116 | normal |
+| 17 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
+| 18 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
+| 19 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
+| 20 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -55,7 +55,7 @@
 | 2 | `§系统清单与依赖索引（Systems Index）· beads` | `games/beads/design/gdd/systems-index.md` | 15 | 94560 |
 | 3 | `§《弹球打砖块》一页纸概念（Concept One-Pager）` | `games/breakout/design/concept.md` | 15 | 46365 |
 | 4 | `§3 全局数值基线（Global Constants）· ❄️ 冻结令` | `games/breakout/design/gdd/systems-index.md` | 15 | 39840 |
-| 5 | `§AGENTS.md — wechatgame 项目级 Agent 指引` | `AGENTS.md` | 14 | 23590 |
+| 5 | `§AGENTS.md — wechatgame 项目级 Agent 指引` | `AGENTS.md` | 14 | 24206 |
 | 6 | `§3 全局数值基线（Global Constants）· ❄️ 冻结令` | `games/beads/design/gdd/systems-index.md` | 13 | 39455 |
 | 7 | `§wxgame GDD 编写法（工作室验证过的四件套流程）` | `my-skills/wxgame-gdd-writer/SKILL.md` | 13 | 14599 |
 | 8 | `§7 范围分层（Scope Layering）` | `games/breakout/design/concept.md` | 13 | 8112 |
@@ -67,6 +67,6 @@
 | 14 | `§4 MDA 分析（Mechanics → Dynamics → Aesthetics）` | `games/breakout/design/concept.md` | 12 | 6432 |
 | 15 | `§3.4 挡板与球` | `games/breakout/design/gdd/systems-index.md` | 12 | 2760 |
 
-**真实分布加权节省率**（估算）：Σ 实际读入 **721893** ÷ Σ 全文 **1183774** = **39.0%**（样本 456 次读取）
+**真实分布加权节省率**（估算）：Σ 实际读入 **721893** ÷ Σ 全文 **1189148** = **39.3%**（样本 456 次读取）
 
-> 单次节省率：含整文件读的整体中位数 0.0%、仅局部读中位数 75.7%、仅局部读 P10 45.4%——护栏与阈值见 `pnpm run ctx:check` E 项。
+> 单次节省率：含整文件读的整体中位数 0.0%、仅局部读中位数 75.8%、仅局部读 P10 45.4%——护栏与阈值见 `pnpm run ctx:check` E 项。

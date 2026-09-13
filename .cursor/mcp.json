@@ -1,8 +1,15 @@
 {
   "mcpServers": {
     "weixin-minigame-helper": {
+      "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@weadmin/weixin-minigame-helper-mcp@0.1.13"]
+      "args": [
+        "-y",
+        "@weadmin/weixin-minigame-helper-mcp@0.1.13"
+      ]
+    },
+    "cocos-creator": {
+      "url": "http://127.0.0.1:3000/mcp"
     }
   }
 }

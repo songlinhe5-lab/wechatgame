@@ -23,13 +23,16 @@ import { dirname, join, normalize } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { estimateTokens } from './lib/context-tokens.mjs';
 import { IMPLICIT_FULL_LINE_RATIO, classifyRead, countLines, createFileCache, toPosix, validateReadEvent } from './lib/reads-ledger.mjs';
-
-/** 「小读」行数阈值——判据来源 ctx/ROUTES.md §0「同一会话对同一文件反复小读超过 3 次」。 */
-const SMALL_READ_LINES = 150;
-/** 「大文件」估算 token 阈值（与 ROUTES.md / ctx:check 的 3000 口径一致）。 */
-const BIG_FILE_TOKENS = 3000;
-/** 反模式①的容忍上限：同会话同文件小读超过此数即计抖动。 */
-const JITTER_THRESHOLD = 3;
+// WXG-T-037 R1：阈值常量 / 分位数 / 单事件样本口径 / 累计口径上移 lib/savings-history.mjs 统一出处。
+import {
+  BIG_FILE_TOKENS,
+  JITTER_THRESHOLD,
+  SMALL_READ_LINES,
+  cumulativeMetrics,
+  percentileSorted as percentile,
+  readHistory,
+  savingsSampleOf,
+} from './lib/savings-history.mjs';
 
 /**
  * 「进行中（活动）会话」声明（F-01，WXG-T-026 复验补）。
@@ -55,6 +58,8 @@ const LEDGER = args.ledger ?? join(ROOT, 'ctx', 'reads-ledger.jsonl');
 const INDEX = args.index ?? join(ROOT, 'ctx', 'index.json');
 const OUT_JSON = args['out-json'] ?? join(ROOT, 'ctx', 'usage-distribution.json');
 const OUT_MD = args['out-md'] ?? join(ROOT, 'ctx', 'reads-summary.md');
+/** 历史聚合（WXG-T-037 R1）：窗口外样本的冻结聚合；存在时输出 metrics.cumulative（累计口径）。 */
+const HISTORY = args.history ?? join(ROOT, 'ctx', 'savings-history.json');
 const META = LEDGER.replace(/\.jsonl$/, '.meta.json');
 const STRICT = args.strict === true;
 
@@ -169,9 +174,11 @@ for (const e of rows) {
   const kind = classifyRead(e, fullLines(e.path));
   const isFull = kind !== 'partial';
 
-  // ② 真实读入 vs 全文（估算）
-  if (e.estTokens != null && ftok != null && ftok > 0) {
-    const ratio = Math.min(1, e.estTokens / ftok);
+  // ② 真实读入 vs 全文（估算）——单事件样本口径由 lib/savings-history.mjs 统一出处
+  // （WXG-T-037 起：轮转器聚合同用 savingsSampleOf，保证窗口/历史两处逐位一致）。
+  const smp = savingsSampleOf(e, ftok, fullLines(e.path));
+  if (smp) {
+    const ratio = smp.ratio;
     sumActual += e.estTokens;
     sumFull += ftok;
     savingsRows += 1;
@@ -369,6 +376,32 @@ for (const [path, bucket] of sectionAgg) {
 topSections.sort((a, b) => b.reads - a.reads || b.estTokens - a.estTokens || a.path.localeCompare(b.path));
 const top = topSections.slice(0, 15);
 
+// ── 累计口径（WXG-T-037 R1）：当前窗口 ⊕ 历史聚合（ctx/savings-history.json）────
+// 轮转（ctx:rotate）把窗口外会话的原始节省率样本冻结进历史；E1/E3 的判定口径 =
+// 累计（窗口 + 历史），窗口滑动不再造成基线回归假绿/假红。历史缺失/非法 → 仅窗口
+// 口径（等同既有行为），非法时显式告警（不静默、不假绿）。
+const histRead = readHistory(HISTORY);
+let cumulative = null;
+if (histRead.error) {
+  console.error(`⚠️ ${toPosix(HISTORY)} 结构非法——本轮**跳过累计口径**（不假绿）：${histRead.error.join('；')}`);
+} else if (histRead.data && (histRead.data.aggregate?.totalReads ?? 0) > 0) {
+  cumulative = cumulativeMetrics(
+    {
+      reads: rows.length,
+      sessions: sessions.size,
+      partialSamples: ratiosPartial.length,
+      savingsRows,
+      sumActual,
+      sumFull,
+      allSavings: savingsValues,
+      partialSavings: savingsPartial,
+      jitter: { groups: jitterGroups, groupKeys: jitterGroupKeys, excess: jitterExcess },
+      bigFullReads: { count: bigFullReads.length, totalReads: rows.length },
+    },
+    histRead.data.aggregate,
+  );
+}
+
 // ── 输出 1：usage-distribution.json（字节稳定）────────────────────────────
 const filesOut = [];
 for (const [path, bucket] of [...sectionAgg.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
@@ -447,6 +480,7 @@ const dist = {
   files: filesOut,
 };
 mkdirSync(dirname(OUT_JSON), { recursive: true });
+if (cumulative) dist.metrics.cumulative = cumulative;
 writeFileSync(OUT_JSON, `${JSON.stringify(dist, null, 2)}\n`, 'utf8');
 
 // ── 输出 2：reads-summary.md ────────────────────────────────────────────
@@ -468,6 +502,13 @@ console.log(`  ③ 锚点直达：整读占比 ${pct(fullFileRateEffective)}（$
 console.log(`  ⑥ 净收益：毛节省 ${pct(overallSavings)}｜实测净额 ${pct(netSavingsBlock.measured.net)}（协议产物 ${netSavingsBlock.measured.artifactReadEvents} 次／装置源码 ${netSavingsBlock.measured.codeReadEvents} 次，可归因=${netSavingsBlock.measured.attributable}）｜应然·基线 ${pct(netSavingsBlock.protocol.net)}（ROUTES ${ROUTES_TOKENS} tok × ${protocolSessions} 会话）｜应然·含速查 ${pct(netSavingsBlock.protocol.withHotFiles.net)}（再加 hot-files ${HOT_FILES_TOKENS} tok）`);
 console.log(`  ④ 反模式（比率口径，F-02）：抖动 ${jitterGroups} 组 / ${jitterGroupKeys} 组 = ${pct(jitterRate)}（超限 ${jitterExcess} 次）｜大文件（≥${BIG_FILE_TOKENS}）整文件读 ${bigFullReads.length} / ${rows.length} = ${pct(bigFullReadRate)}`);
 console.log(`  ⑤ 最常用章节 Top：见 ${toPosix(OUT_MD)}`);
+if (cumulative) {
+  console.log(
+    `  累计口径（窗口+历史，WXG-T-037 R1）：读事件 ${cumulative.reads}（其中历史 ${cumulative.historyEvents}）｜` +
+      `整体节省 ${pct(cumulative.savings.overall)}｜E1 局部读中位数 ${pct(cumulative.savings.medianPartial)}｜P10 ${pct(cumulative.savings.p10Partial)}｜` +
+      `抖动率 ${pct(cumulative.jitter.rate)}｜大文件整读率 ${pct(cumulative.bigFullReads.rate)} —— E3 基线回归以此口径判定`,
+  );
+}
 console.log(`  产出：${toPosix(OUT_JSON)}｜${toPosix(OUT_MD)}`);
 
 // ───────────────────────────────────────────────────────── render ─────────────
@@ -534,7 +575,25 @@ function renderReport() {
   L.push(`| **E1** 仅锚点式局部读 P10（严格口径） | **${(p10Partial * 100).toFixed(1)}%**（目标 ≥ 40%） |`);
   L.push(`| E1 对照：宽松口径 中位数 | ${(medianPartialLoose * 100).toFixed(1)}%（样本 ${ratiosPartialLoose.length}） |`);
   L.push(`| E1 对照：宽松口径 P10 | ${(p10PartialLoose * 100).toFixed(1)}% |`);
+  if (cumulative) {
+    L.push(`| **累计口径**（窗口+历史，历史 ${cumulative.historyEvents} 读事件）整体节省率 | ${(cumulative.savings.overall * 100).toFixed(1)}% |`);
+    L.push(`| **累计口径** 单次节省率 中位数 | ${(cumulative.savings.median * 100).toFixed(1)}% |`);
+    L.push(`| **累计口径** 单次节省率 P10 | ${(cumulative.savings.p10 * 100).toFixed(1)}% |`);
+    L.push(`| **累计口径 E1** 局部读 中位数 | ${(cumulative.savings.medianPartial * 100).toFixed(1)}%（样本 ${cumulative.savings.partialSamples}） |`);
+    L.push(`| **累计口径 E1** 局部读 P10 | **${(cumulative.savings.p10Partial * 100).toFixed(1)}%** |`);
+  }
   L.push('');
+  if (cumulative) {
+    L.push(
+      `> **分窗轮转与累计口径（WXG-T-037 R1）**：账本按会话分窗轮转（\`pnpm run ctx:rotate\`，见 ` +
+        'docs/agent/context-instrumentation-survey.md），窗口外会话的原始节省率样本冻结进 ' +
+        '`ctx/savings-history.json`。上表「累计口径」= 当前窗口 ⊕ 历史，是 **E3 基线回归的判定口径**——' +
+        '窗口滑动只搬移样本、不改累计集合，故基线回归不因轮转假绿/假红。' +
+        '轮转出的会话**冻结在轮转时刻**（其后同根会话的新读事件不再入账，见历史文件 note）。' +
+        `E4 净收益与 §① 样本量均为**窗口口径**（历史计数见累计行的历史读事件数）。`,
+    );
+    L.push('');
+  }
   L.push(
     `> **E1 双列与口径精修（WXG-T-036）**：判据原文是「**仅锚点式局部读**的单次节省率」，` +
       '但历史实现按 `fullFile` 标志位取样本；而该标志位在「**给了 limit、没给 offset**」时' +
@@ -696,15 +755,8 @@ function r6(x) {
   return Number.isFinite(x) ? Number(x.toFixed(6)) : 0;
 }
 
-function percentile(sorted, p) {
-  if (sorted.length === 0) return 0;
-  if (sorted.length === 1) return sorted[0];
-  const idx = (sorted.length - 1) * p;
-  const lo = Math.floor(idx);
-  const hi = Math.ceil(idx);
-  if (lo === hi) return sorted[lo];
-  return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
-}
+// percentile() 已上移至 lib/savings-history.mjs 的 percentileSorted（WXG-T-037），
+// 与轮转器/累计口径统一出处；本文件经 import 别名 percentile 使用，实现逐位不变。
 
 function safeRead(p) {
   try {

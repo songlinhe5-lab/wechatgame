@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 33,
+  "nextId": 35,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -550,6 +550,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-033",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "工具链",
+      "title": "能否用符号链接做「一处正本」，判据是",
+      "contentHash": "b16647f1316d54e564d907888304e261f3bc9801359cc28926e3f0e9b128764d",
+      "sourceTask": "WXG-T-043",
+      "addedDate": "2026-09-13",
+      "lastAccess": "2026-09-13",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-034",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "工具链",
+      "title": "协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）",
+      "contentHash": "26514d27ecfcaf752ccef408643af0f2c7fba7a697fbbd2300430adbf8c91c82",
+      "sourceTask": "WXG-T-044",
+      "addedDate": "2026-09-13",
+      "lastAccess": "2026-09-13",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -587,6 +621,24 @@
       "kind": "added",
       "ids": [
         "K-032"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-033"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": "WXG-T-044",
+      "kind": "added",
+      "ids": [
+        "K-034"
       ],
       "note": null
     }

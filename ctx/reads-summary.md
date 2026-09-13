@@ -60,13 +60,13 @@
 |---|---:|
 | 样本读数 | 456（文件已不存在者不计） |
 | Σ 实际读入（估算） | 721893 |
-| Σ 全文（估算） | 1183774 |
-| **整体节省率** | **39.0%** |
+| Σ 全文（估算） | 1189148 |
+| **整体节省率** | **39.3%** |
 | 单次节省率 中位数 | 0.0% |
 | 单次节省率 P10 | 0.0% |
-| **E1** 仅锚点式局部读 中位数（严格口径） | 75.7%（样本 186） |
+| **E1** 仅锚点式局部读 中位数（严格口径） | 75.8%（样本 186） |
 | **E1** 仅锚点式局部读 P10（严格口径） | **45.4%**（目标 ≥ 40%） |
-| E1 对照：宽松口径 中位数 | 74.0%（样本 197） |
+| E1 对照：宽松口径 中位数 | 74.9%（样本 197） |
 | E1 对照：宽松口径 P10 | 30.9% |
 
 > **E1 双列与口径精修（WXG-T-036）**：判据原文是「**仅锚点式局部读**的单次节省率」，但历史实现按 `fullFile` 标志位取样本；而该标志位在「**给了 limit、没给 offset**」时（如 Cursor `Read{limit}`）恒为 `false`——即使它**从第 1 行起读满了整个文件**。本样本中这类读取有 **11** 次（行覆盖 ≥ 95% 全文，合计 11924 估算 tokens），且**全部是小文件**——整读小文件本就更省，故它们**并非浪费**。
@@ -84,13 +84,13 @@
 
 | 口径 | 装置开销（估算 tokens） | 净节省率 | 说明 |
 |---|---:|---:|---|
-| **实测** | 协议产物 0（0 次）／装置源码 12043（8 次） | **39.0%** | 装置开销已含在 Σ 实际读入内，故净额 = 毛节省率 |
-| **应然 · 协议基线** | 119301（每会话 ROUTES 5681 tok × 21 会话） | **28.9%** | 用户 q-2 口径原样（只算 ROUTES），可与既有结论比对 |
-| **应然 · 含行号速查** | 201747（再加 hot-files 3926 tok × 21 会话） | **22.0%** | 新增常驻产物（WXG-T-036 q-1）的成本**单独成行**，不折进上一行 |
+| **实测** | 协议产物 0（0 次）／装置源码 12043（8 次） | **39.3%** | 装置开销已含在 Σ 实际读入内，故净额 = 毛节省率 |
+| **应然 · 协议基线** | 130935（每会话 ROUTES 6235 tok × 21 会话） | **28.3%** | 用户 q-2 口径原样（只算 ROUTES），可与既有结论比对 |
+| **应然 · 含行号速查** | 213738（再加 hot-files 3943 tok × 21 会话） | **21.3%** | 新增常驻产物（WXG-T-036 q-1）的成本**单独成行**，不折进上一行 |
 
 > 两行「应然」都在假设「装置不改变读行为」下的**保守下界**；差值即 `ctx/hot-files.md` 的常驻代价。
 
-> ⚠️ **归因声明（必读）**：本样本中协议产物（`ctx/`）读事件为 **0**——装置**从未被读过**，故 **39.0%** 的毛节省**不可归因于本装置**，它来自会话固有行为。同表右列的**应然**数字才是「装置真被用起来」时的估计；装置的真实收益须待 IDE 埋点（`docs/agent/context-instrumentation-survey.md`）落地后方可测得。
+> ⚠️ **归因声明（必读）**：本样本中协议产物（`ctx/`）读事件为 **0**——装置**从未被读过**，故 **39.3%** 的毛节省**不可归因于本装置**，它来自会话固有行为。同表右列的**应然**数字才是「装置真被用起来」时的估计；装置的真实收益须待 IDE 埋点（`docs/agent/context-instrumentation-survey.md`）落地后方可测得。
 
 > 另有 8 次读的是**装置源码**（`tools/scripts/`），属开发维护开销，**不计入**归因。
 
@@ -143,12 +143,12 @@
 | `games/beads/design/gdd/systems-index.md` | 6321 | `d2983589-5929-4ae7-8766-93377384382e/subagents/agent-3366cb1d` |
 | `games/beads/design/gdd/systems-index.md` | 6321 | `d2983589-5929-4ae7-8766-93377384382e/subagents/agent-45bb201c` |
 | `games/beads/design/gdd/systems-index.md` | 6321 | `d2983589-5929-4ae7-8766-93377384382e/subagents/agent-6fd11320` |
+| `production/TASKS.md` | 6099 | `d2983589-5929-4ae7-8766-93377384382e` |
 | `.workbuddy/memory/2026-09-11.md` | 5617 | `d2983589-5929-4ae7-8766-93377384382e` |
 | `production/qa/beads/test-cases.md` | 5372 | `d2983589-5929-4ae7-8766-93377384382e/subagents/agent-08c7bd79` |
 | `games/breakout/design/design-review.md` | 5081 | `6f7a9a03-9571-408d-9fdc-f1c7c879f464/subagents/36b04f9d-da1b-4e1e-913c-2c0cadfa5f25` |
 | `games/beads/design/gdd/powerups.md` | 5036 | `d2983589-5929-4ae7-8766-93377384382e` |
 | `games/beads/design/gdd/powerups.md` | 5036 | `d2983589-5929-4ae7-8766-93377384382e/subagents/agent-45bb201c` |
-| `games/breakout/art/assets-spec.md` | 4993 | `d2983589-5929-4ae7-8766-93377384382e/subagents/agent-3366cb1d` |
 
 ## ⑤ 最常用章节 Top 15（供替换硬编码前缀消费）
 
@@ -158,7 +158,7 @@
 | 2 | `§系统清单与依赖索引（Systems Index）· beads` | `games/beads/design/gdd/systems-index.md` | 15 | 94560 |
 | 3 | `§《弹球打砖块》一页纸概念（Concept One-Pager）` | `games/breakout/design/concept.md` | 15 | 46365 |
 | 4 | `§3 全局数值基线（Global Constants）· ❄️ 冻结令` | `games/breakout/design/gdd/systems-index.md` | 15 | 39840 |
-| 5 | `§AGENTS.md — wechatgame 项目级 Agent 指引` | `AGENTS.md` | 14 | 23590 |
+| 5 | `§AGENTS.md — wechatgame 项目级 Agent 指引` | `AGENTS.md` | 14 | 24206 |
 | 6 | `§3 全局数值基线（Global Constants）· ❄️ 冻结令` | `games/beads/design/gdd/systems-index.md` | 13 | 39455 |
 | 7 | `§wxgame GDD 编写法（工作室验证过的四件套流程）` | `my-skills/wxgame-gdd-writer/SKILL.md` | 13 | 14599 |
 | 8 | `§7 范围分层（Scope Layering）` | `games/breakout/design/concept.md` | 13 | 8112 |

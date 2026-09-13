@@ -3,9 +3,9 @@
 > **协议第二跳**：`ctx/ROUTES.md` 给「意图 → `文件#锚点`」，本表把锚点换算成可直接用的 `offset` / `limit`。
 > 读法：`read_file(path, offset, limit)` —— **只取该节**，勿对大文件无条件整读。
 > 行内格式：`锚点=offset+limit`（`limit` 已算好）；` · ` 分隔小节。
-> 只收录**热文件与大文件**；查不到 → `ctx/index.json`（全量，机器读更划算）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。
+> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`（全量，机器读更划算）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。
 
-> 体积预算 ≤ 4000 估算 tokens（当前 12 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
+> 体积预算 ≤ 4000 估算 tokens（当前 21 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
 
 ## `docs/architecture/architecture-beads.md` — 175 行 / 3819 tok / 实测读 35 次
 
@@ -23,13 +23,57 @@
 
 §wechatgame 项目长期笔记=1+50 · §项目约定=7+12 · §常用脚本=19+9 · §SubAgent=28+4 · §Rules=32+3 · §Hooks=35+4 · §Headless / CI=39+8 · §已知限制=47+4
 
-## `production/TASKS.md` — 64 行 / 5449 tok / 实测读 4 次
+## `production/TASKS.md` — 67 行 / 6336 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+65 · §待排（backlog，无号，立项时领取）=56+10
+§WXG 任务台账（SSOT）=1+68 · §待排（backlog，无号，立项时领取）=59+10
 
 ## `production/qa/beads/test-cases.md` — 146 行 / 5372 tok / 实测读 15 次
 
 §《拼豆填色消除》(beads) 测试用例 · Test Cases=1+12 · §A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）=13+79 · §A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`=15+15 · §A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10`=30+15 · §A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`=45+15 · §A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`=60+15 · §A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`=75+17 · §B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）=92+19 · §C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）=111+37
+
+## `my-skills/INDEX.md` — 78 行 / 1701 tok / 实测读 61 次
+
+§wxgame skill 家族 INDEX=1+79 · §1 清单（现役 17 个挂四 IDE 链接；存档 1 个仅本目录留档）=6+28 · §2 默认管线顺序与何时不走全 SOP=34+8 · §3 Skill 优先级（冲突时高者胜）=42+12 · §4 路径约定=54+14 · §5 冲突裁决链=68+7 · §6 Provenance 说明=75+5
+
+## `my-skills/wxgame-orchestration/SKILL.md` — 104 行 / 2194 tok / 实测读 35 次
+
+§wxgame 工作室编排法（九阶段流水线，编号 0–8）=6+100 · §九阶段（0–8）流水线=12+20 · §Spawn 任务模板（每个成员任务必含八要素）=32+15 · §成员 → Skill / SubAgent 路由表（硬表，spawn 前必查）=47+22 · §质量门判定（阶段切换处触发）=69+20 · §与工程门 G1–G4 的挂钩（定义见 `wxgame-qa-gates`）=76+13 · §铁律=89+11 · §实例参照=100+6
+
+## `docs/architecture/architecture.md` — 239 行 / 4322 tok / 实测读 23 次
+
+§微信小游戏矩阵 — 主架构文档=1+240 · §1 目标与约束=13+23 · §1.1 产品目标=15+3 · §1.2 硬约束=18+11 · §1.3 非目标（本轮）=29+7 · §2 分层与依赖方向=36+51 · §依赖规则（可机械校验）=71+10 · §为什么这样切=81+6 · §3 模块职责表（core）=87+19 · §4 数据流（一帧）=106+28 · §5 包体预算分配（微信小游戏）=134+30 · §5.1 本项目的体积极简优势=156+8 · §6 构建链=164+38 · §7 扩展点（为矩阵后续游戏预留）=202+12 · §8 风险登记册=214+13 · §9 当前实现状态（本轮）=227+14
+
+## `my-agents/INDEX.md` — 46 行 / 877 tok / 实测读 18 次
+
+§my-agents — 工作室 SubAgent 正本=1+47 · §现役成员（6）+ 编排（1）=6+12 · §四 IDE 链接=18+9 · §与编排的关系=27+8 · §Frontmatter 约定（共享正本）=35+8 · §符号链接=43+5
+
+## `docs/agent/headless-ci-pr-review.md` — 185 行 / 2747 tok / 实测读 8 次
+
+§Headless 模式 · 应用场景 · 自动化 PR 审查 · 流水线=1+186 · §1 Headless 是什么=7+10 · §2 应用场景（本仓）=17+11 · §3 流水线分层（推荐拓扑）=28+22 · §4 仓库产物=50+10 · §5 启用步骤=60+22 · §6 审查判据（写入 prompt 的硬约束）=82+22 · §7 diff 注入方式 · 排除清单 · 体积兜底（WXG-T-025）=104+56 · §7.1 为什么不把 diff 内联进 prompt（根因）=108+11 · §7.2 diff 排除清单（生成物 / 锁文件）=119+17 · §7.3 体积兜底（截断）=136+11 · §7.4 本地自测方法=147+13 · §8 与 Bugbot / Autopilot 的分工=160+8 · §9 成本与安全=168+7 · §10 故障排查=175+12
+
+## `docs/agent/hooks-best-practices.md` — 113 行 / 1919 tok / 实测读 6 次
+
+§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+114 · §1 分层：谁拦什么=6+18 · §2 启用 Git hooks（每人 / 每 clone 一次）=24+21 · §3 `check:links` 查什么=45+28 · §3.1 `check:mcp` 查什么（WXG-T-043）=61+12 · §4 Cursor Hooks 实践清单=73+19 · §本仓已启用=83+9 · §5 与 `verify` 的关系=92+9 · §6 失败怎么修=101+14
+
+## `docs/agent/commands.md` — 18 行 / 298 tok
+
+§验证与常用命令（docs/agent/commands.md）=1+19 · §验证与常用命令=6+14
+
+## `docs/agent/repo-layout.md` — 29 行 / 390 tok
+
+§仓库目录与产物落位（docs/agent/repo-layout.md）=1+30 · §目录与产物落位=6+25
+
+## `docs/agent/routing.md` — 37 行 / 547 tok
+
+§默认路由细节（docs/agent/routing.md）=1+38 · §Hooks / 提交门禁 / Headless 指针=7+5 · §Skill 优先级（冲突时高者胜）=12+6 · §Skill 正本与四 IDE 链接=18+8 · §SubAgent 四 IDE 路径=26+5 · §跨域先交编排=31+8
+
+## `knowledge/INDEX.md` — 118 行 / 2899 tok
+
+§knowledge/ — 工作室知识库（WXG-T-023）=1+119 · §1 读取协议（开发前期）=7+6 · §2 写入协议（任务收尾）=13+21 · §3 文件分工=34+9 · §4 维护=43+6 · §5 生命周期（访问记账 → 归档 → 重新激活）=49+30 · §5.1 命令表=51+12 · §5.2 归档阈值（用户 2026-09-12 裁定，存于 `ledger.json.thresholds`）=63+9 · §5.3 重新激活与合并=72+7 · §6 活跃条目（自动生成）=79+41
+
+## `docs/agent/cocos-setup.md` — 234 行 / 3944 tok
+
+§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+235 · §1 前置事实与红线=10+20 · §2 七步总览（速查）=30+14 · §3 阶段 A — 安装 Cocos Creator 3.8.8=44+14 · §4 阶段 B — 创建工程=58+13 · §5 阶段 C — 安装 MCP 插件（全局扩展目录）=71+33 · §5.1 为什么装全局而非项目级=73+13 · §5.2 安装命令=86+10 · §5.3 启用=96+8 · §6 阶段 D — 启动 MCP 服务=104+12 · §7 阶段 E — 四 IDE 端点登记（已落盘，且已收口为单一正本）=116+65 · §8 阶段 F — 工具白名单（L1 机械防线）=181+18 · §9 阶段 G — 验证顺序与回填=199+11 · §10 升级流程=210+8 · §11 排错=218+12 · §12 本次已知未完成项（诚实记录）=230+6
 
 ## `games/breakout/design/concept.md` — 143 行 / 3110 tok / 实测读 217 次
 
@@ -47,99 +91,4 @@
 
 §wxgame GDD 编写法（工作室验证过的四件套流程）=6+79 · §总流程（顺序执行，前一步是后一步的输入）=11+7 · §1 一页纸概念模板（十节）=18+16 · §2 系统索引模板（核心是 §3 冻结令）=34+18 · §3 逐系统 GDD 八节模板（每系统一份，一节不多一节不少）=52+14 · §4 设计评审十查（design-review 模板）=66+13 · §工作方式=79+6
 
-## `games/breakout/design/ux/ux-spec.md` — 225 行 / 3836 tok / 实测读 75 次
-
-§UX 规格（UX Spec）=1+226 · §1 设计原则（UX）=9+7 · §2 界面流程（Screen Flow）=16+27 · §3 关键界面线框（ASCII）=43+79 · §3.1 通关画面 FINISH（唯一「新增」界面；主菜单已移除）=45+18 · §3.2 游戏中 HUD（叠加在 PLAYING 上）=63+22 · §3.3 暂停面板 PAUSED（设置的唯一入口）=85+20 · §3.4 结算面板 GAME_OVER（命尽）=105+17 · §4 状态流转与输入响应矩阵=122+21 · §5 交互反馈与动效时长建议=143+30 · §6 首屏与新手引导策略（微信首 10 秒留存）=173+33 · §6.1 首 10 秒时间轴=177+12 · §6.2 新手引导原则=189+8 · §6.3 启动路径（仅 2 条 + 通关画面）=197+9 · §7 可访问性（Accessibility）=206+11 · §8 决策记录与待确认项=217+10
-
-## `games/beads/design/gdd/core-loop.md` — 119 行 / 2425 tok / 实测读 70 次
-
-§GDD · S1 核心循环（Core Loop）· beads=1+120 · §1 目标=8+4 · §2 机制=12+44 · §2.1 游戏级状态机（六状态，沿用 breakout 判例，无主菜单）=14+23 · §2.2 关内微循环（PLAYING 的每秒心跳）=37+13 · §2.3 冲刺模式补记（2026-09-12 用户拍板，C8 条款；细则见 `gdd/score-combo.md` 与 systems-index §3.10）=50+6 · §3 输入=56+9 · §4 输出与反馈=65+12 · §5 数值=77+9 · §6 边界条件=86+17 · §7 依赖=103+5 · §8 验收标准（可测试硬判据，QA 直接造用例）=108+13
-
-## 未收录（超出体积预算或未命中热度 / 体积门槛）
-
-> 这些文件的锚点 → 行号请查 `ctx/index.json`（全量索引；机器读更划算）。
-
-- `games/breakout/art/assets-spec.md`（4993 tok）
-- `games/beads/design/gdd/bead-grid.md`（2073 tok）
-- `AGENTS.md`（1743 tok）
-- `my-skills/INDEX.md`（1701 tok）
-- `games/breakout/design/gdd/powerups.md`（1501 tok）
-- `games/beads/art/art-bible.md`（4511 tok）
-- `games/beads/design/gdd/tray-spawner.md`（1939 tok）
-- `games/beads/design/gdd/input-control.md`（1793 tok）
-- `my-skills/wxgame-qa-gates/SKILL.md`（1299 tok）
-- `games/breakout/design/gdd/bricks.md`（2914 tok）
-- `games/breakout/design/gdd/save-progress.md`（2476 tok）
-- `my-skills/game-dev-tool-free/SKILL.md`（4153 tok）
-- `games/beads/design/gdd/score-combo.md`（4248 tok）
-- `games/beads/art/assets-spec.md`（2861 tok）
-- `games/beads/design/gdd/timer-gameover.md`（2190 tok）
-- `games/breakout/design/gdd/pause-settings.md`（1460 tok）
-- `games/breakout/design/design-review.md`（5081 tok）
-- `games/beads/design/concept.md`（2796 tok）
-- `games/beads/design/gdd/powerups.md`（5036 tok）
-- `my-skills/wxgame-orchestration/SKILL.md`（2194 tok）
-- `games/breakout/design/gdd/core-loop.md`（1781 tok）
-- `games/breakout/design/gdd/life-gameover.md`（1175 tok）
-- `production/epics/epics-beads.md`（7034 tok）
-- `games/breakout/art/art-bible.md`（4852 tok）
-- `production/qa/playtest-plan.md`（2872 tok）
-- `my-agents/quality-lead.md`（772 tok）
-- `my-agents/design-strategist.md`（674 tok）
-- `games/breakout/design/gdd/paddle-ball-physics.md`（1525 tok）
-- `games/breakout/design/gdd/score-combo.md`（1107 tok）
-- `games/beads/design/levels/levels-spec.md`（2707 tok）
-- `docs/architecture/architecture.md`（4322 tok）
-- `my-skills/wxgame-ux-spec/SKILL.md`（1340 tok）
-- `my-skills/wxgame-epic-split/SKILL.md`（1024 tok）
-- `games/breakout/art/accessibility.md`（1838 tok）
-- `production/qa/beads/smoke-tests.md`（2255 tok）
-- `my-skills/game-studio/SKILL.md`（954 tok）
-- `my-agents/INDEX.md`（877 tok）
-- `my-skills/wxgame-adr-arch/SKILL.md`（818 tok）
-- `production/qa/test-cases.md`（7097 tok）
-- `my-skills/game-ui-voice-pack/SKILL.md`（2451 tok）
-- `docs/reference/popit-pindou-gameplay-ui-analysis.md`（2511 tok）
-- `my-skills/indie-game-ost-pack/SKILL.md`（2026 tok）
-- `my-skills/wxgame-audio-spec/SKILL.md`（1209 tok）
-- `docs/architecture/adr/ADR-0004-beads-level-data-rowstrings.md`（1088 tok）
-- `my-skills/wxgame-art-spec-programmatic/SKILL.md`（986 tok）
-- `games/beads/art/accessibility.md`（1763 tok）
-- `production/qa/test-plan.md`（4334 tok）
-- `games/beads/design/ux/ux-spec.md`（3602 tok）
-- `my-skills/game-dev-tool-free/skill-card.md`（543 tok）
-- `games/breakout/design/gdd/input-control.md`（1147 tok）
-- `docs/agent/headless-ci-pr-review.md`（2747 tok）
-- `my-skills/game-studio/references/agents.md`（2605 tok）
-- `my-skills/wxgame-release-checklist/SKILL.md`（1089 tok）
-- `production/qa/beads/test-plan.md`（2262 tok）
-- `production/qa/g4-regression-report.md`（1762 tok）
-- `docs/agent/hooks-best-practices.md`（1581 tok）
-- `docs/architecture/adr/ADR-0007-beads-timer-dt-ownership.md`（1404 tok）
-- `my-agents/studio-orchestrator.md`（747 tok）
-- `memory/2026-09-12.md`（10141 tok）
-- `games/breakout/art/runtime/README.md`（1064 tok）
-- `my-agents/audio-director.md`（670 tok）
-- `my-agents/art-director.md`（650 tok）
-- `my-agents/engineering-lead.md`（640 tok）
-- `my-agents/release-ops-lead.md`（624 tok）
-- `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md`（7166 tok）
-- `production/epics/epics-breakout.md`（7135 tok）
-- `memory/2026-09-11.md`（5617 tok）
-- `memory/2026-09-13.md`（4865 tok）
-- `games/beads/design/proposals/daily-challenge.md`（4657 tok）
-- `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md`（4543 tok）
-- `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md`（4543 tok）
-- `docs/agent/context-instrumentation-survey.md`（4311 tok）
-- `docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md`（4220 tok）
-- `my-skills/game-material-precheck/references/knowledge-baseline.md`（4188 tok）
-- `my-skills/game-material-precheck/SKILL.md`（3878 tok）
-- `production/release/release-checklist.md`（3853 tok）
-- `knowledge/lessons.md`（3810 tok）
-- `games/beads/design/gdd/pause-settings.md`（3807 tok）
-- `my-skills/game-studio/references/templates.md`（3604 tok）
-- `docs/engine-reference/cocos/VERSION.md`（3596 tok）
-- `production/release/wechat-submission.md`（3409 tok）
-- `games/breakout/cocos/README.md`（3114 tok）
-- `production/release/rollback.md`（3088 tok）
-- `my-skills/game-material-precheck/references/source-docs-global-cultural-risk.md`（3013 tok）
+> 另有 79 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。

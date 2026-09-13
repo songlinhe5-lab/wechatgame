@@ -77,6 +77,11 @@ jobs:
       - name: check:links
         run: node tools/scripts/check-ide-links.mjs
 
+      # MCP 配置漂移（WXG-T-043）：三份 IDE 配置须 == my-mcp/servers.json 渲染结果。
+      # 零依赖纯 Node，故挂 arch-guard（始终运行）——干净检出也能拦住漂移。
+      - name: check:mcp
+        run: node tools/scripts/build-mcp-configs.mjs --check
+
   # ② 关卡同步检查：framework / game / tools 变更时运行（levels JSON → levels-data.ts 漂移）
   levels:
     name: Levels check

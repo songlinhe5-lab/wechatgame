@@ -7,7 +7,7 @@
 
 | 层 | 路径 | 覆盖面 | 职责 |
 |---|---|---|---|
-| **Git pre-commit** | `.githooks/pre-commit` | 任意 IDE / 终端的 `git commit` | ① **`pnpm run check:links`**；② 暂存区含 `.md` 时**自动重建上下文索引并重新暂存**（`ctx:build --staged-blobs` → `git add ctx/index.json ctx/BUDGET.md` → `ctx:check --staged` 兜底终校验；WXG-T-032 ⑤，无暂存 .md 零开销跳过）；兜底校验失败 → 非 0 退出 → **阻止提交** |
+| **Git pre-commit** | `.githooks/pre-commit` | 任意 IDE / 终端的 `git commit` | ① **`pnpm run check:links`** → ①½ **`check:plugins`**（T-035 版本锚）→ ①¾ **`check:mcp`**（T-043 MCP 配置漂移，**拦截式不自动重建**）；② 暂存区含 `.md` 时**自动重建上下文索引并重新暂存**（`ctx:build --staged-blobs` → `git add ctx/index.json ctx/BUDGET.md` → `ctx:check --staged` 兜底终校验；WXG-T-032 ⑤，无暂存 .md 零开销跳过）；兜底校验失败 → 非 0 退出 → **阻止提交** |
 | **Cursor Hooks** | `.cursor/hooks.json` + `.cursor/hooks/*` | Cursor Agent / Shell | Agent 侧再跑 links；禁 `--no-verify` / force-push / hard reset；L1 拦 `.scene`/`.prefab`/`.meta` |
 | **Rules / AGENTS** | `.cursor/rules` · `AGENTS.md` | 常驻提示 | 叙事与铁律；不保证机械拦截 |
 
@@ -58,6 +58,18 @@ pnpm run check:links        # 应 OK
 新增 agent/skill：正本进 `my-agents/` / `my-skills/`，四处建相对符号链接，并更新 `INDEX.md` / 编排路由表（脚本会验）。  
 新增 / 改 alwaysApply 摘要：只改 `my-rules/agents-md.md`。
 
+### 3.1 `check:mcp` 查什么（WXG-T-043）
+
+脚本：`tools/scripts/build-mcp-configs.mjs --check`（MCP 配置的**单一正本**是 `my-mcp/servers.json`，三份 IDE 配置均为**机器生成物，勿手改**）：
+
+- **C1** 正本存在且为合法 JSON
+- **C2** `targets` 非空、`path` 唯一、`dialect` 已实现（`explicit` / `cursor`）
+- **C3** `servers` 语义合法；且 `transport:"http"` 的 URL 主机**必须回环** —— `control-manifest §14` 红线「HTTP 仅回环」的**机械化**
+- **C4** 每份产物内容 == 正本渲染结果（漂移 → FAIL，提示跑 `pnpm run mcp:build`）
+- **C5** 「存在但未登记 targets」的已知 MCP 配置位置 → FAIL（防清单漏项静默失效，`K-031`）
+
+改动流程：`$EDITOR my-mcp/servers.json` → `pnpm run mcp:build` → 提交。理由与方言依据见 `my-mcp/README.md`。
+
 ## 4. Cursor Hooks 实践清单
 
 1. **项目级优先**：政策进 `.cursor/hooks.json`（可进云 Agent）；个人实验放 `~/.cursor/`。
@@ -83,6 +95,7 @@ pnpm run check:links        # 应 OK
 |---|---|
 | `pnpm run check:links` | **每次 commit**（快） |
 | `pnpm run check:arch` | 改框架/玩法后；全量 `verify` 含此步 |
+| `pnpm run check:mcp` | 改 MCP 服务器后（先 `pnpm run mcp:build`）；**每次 commit 也跑**（pre-commit）；CI `arch-guard` 与全量 `verify` 均含此步 |
 | `pnpm run verify` | 里程碑 / PR 前；**不要**塞进每次 commit |
 
 ## 6. 失败怎么修
