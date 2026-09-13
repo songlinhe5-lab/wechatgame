@@ -8,11 +8,11 @@
 
 | 文件 | 估算 tokens | 行数 | 上限 | 状态 |
 |---|---:|---:|---:|:--:|
-| `AGENTS.md` | 3199 | 200 | 3200 | ✅ |
+| `AGENTS.md` | 3199 | 200 | 2000 | ❌ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 327 | 23 | 500 | ✅ |
 
-> AGENTS.md 常驻阈值 **3200**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
+> AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
 
 ## 2. Top 20 大文件（估算 tokens）
 
@@ -31,13 +31,13 @@
 | 11 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
 | 12 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
 | 13 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
-| 14 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
-| 15 | `ctx/ROUTES.md` | 4420 | 172 | normal |
-| 16 | `production/qa/test-plan.md` | 4334 | 195 | normal |
-| 17 | `docs/architecture/architecture.md` | 4322 | 239 | normal |
-| 18 | `games/beads/design/gdd/score-combo.md` | 4248 | 137 | normal |
-| 19 | `docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md` | 4220 | 142 | normal |
-| 20 | `my-skills/game-dev-tool-free/SKILL.md` | 4153 | 488 | normal |
+| 14 | `my-skills/weixin-minigame-helper/SKILL.md` | 4543 | 251 | normal |
+| 15 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
+| 16 | `ctx/ROUTES.md` | 4420 | 172 | normal |
+| 17 | `production/qa/test-plan.md` | 4334 | 195 | normal |
+| 18 | `docs/architecture/architecture.md` | 4322 | 239 | normal |
+| 19 | `games/beads/design/gdd/score-combo.md` | 4248 | 137 | normal |
+| 20 | `docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md` | 4220 | 142 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

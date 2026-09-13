@@ -21,6 +21,8 @@
 #         ⑩ 索引新鲜度契约（WXG-T-026 修复）：在**独立 git 桩仓库**内验证 —— dirty（有未提交
 #            改动）文件按 **HEAD blob** 索引/校验（sha256 == `git show HEAD:<path>`，≠ 工作树内容）；
 #            未跟踪新 .md **不入索引**且不误报「未收录」；`--working-tree` 逃生阀标注「非默认模式」。
+#         ⑪ 暂存区校验（WXG-T-032 ③）：`--staged` 三态 —— 暂存内容与索引一致 → exit 0；
+#            不一致 → exit 1；暂存索引外新 .md → exit 1；无暂存 .md → 零暂存校验 exit 0。
 #
 # 用法：tools/scripts/context-usage-selftest.sh
 # 产物：仅 stdout 报告；临时目录在退出时清理，不污染仓库 / 本机转录。
@@ -508,6 +510,40 @@ while IFS=$'\t' read -r st label; do
 done <"$WORK/t7_3.txt"
 node "$CHECK_STUB" >"$WORK/c7_3.txt" 2>&1
 assert_eq "$?" "0" "⑦ 有未跟踪新 .md 时 ctx:check 仍 exit 0（不误报未收录）"
+
+# ── [8] 暂存区校验（WXG-T-032 ③）：--staged 三态 + 无暂存 .md 零暂存校验 ─────────
+# 做法：沿用 [7] 的独立 git 桩仓库 $CR（HEAD 已含与磁盘一致的 ctx/index.json），制造真实暂存场景。
+echo
+echo "[8] ctx:check --staged：一致 exit 0 / 不一致 exit 1 / 新文件未入索引 exit 1 / 无暂存 .md 零校验"
+
+# 8.0 无暂存 .md → C 项零暂存校验，exit 0（pre-commit 零开销路径的语义等价物）
+git -C "$CR" reset -q
+node "$CHECK_STUB" --staged >"$WORK/c8_0.txt" 2>&1
+assert_eq "$?" "0" "⑪ 无暂存 .md → --staged exit 0（零暂存校验）"
+assert_contains "$(cat "$WORK/c8_0.txt")" "--staged" "⑪ 输出标注 --staged 非默认模式"
+assert_contains "$(cat "$WORK/c8_0.txt")" "零暂存校验" "⑪ 输出含「零暂存校验」"
+
+# 8.1 三态之一「一致」：改 AGENTS.md → 按 --working-tree 重建索引 → .md 与索引一起暂存 → exit 0
+printf '\n暂存一致性场景（WXG-T-032 自测）。\n' >>"$CR/AGENTS.md"
+node "$BUILD_STUB" --working-tree >/dev/null 2>&1
+git -C "$CR" add AGENTS.md ctx/index.json
+node "$CHECK_STUB" --staged >"$WORK/c8_1.txt" 2>&1
+assert_eq "$?" "0" "⑪A 暂存内容与索引一致 → exit 0（重建后一起 git add 的正确姿势）"
+
+# 8.2 三态之二「不一致」：再改 AGENTS.md 并暂存但不重建索引 → exit 1 + 修复指引
+printf '再次修改，模拟「改了 md 忘了重建索引」（WXG-T-032 自测）。\n' >>"$CR/AGENTS.md"
+git -C "$CR" add AGENTS.md
+node "$CHECK_STUB" --staged >"$WORK/c8_2.txt" 2>&1
+assert_eq "$?" "1" "⑪B 暂存内容与索引不一致 → exit 1"
+assert_contains "$(cat "$WORK/c8_2.txt")" "暂存内容与索引不一致" "⑪B 输出含「暂存内容与索引不一致」"
+assert_contains "$(cat "$WORK/c8_2.txt")" "pnpm run ctx:build" "⑪B 输出含重建索引修复指引"
+
+# 8.3 三态之三「新文件未入索引」：暂存一个索引中不存在的新 .md → exit 1
+printf '# 新暂存文件（WXG-T-032 自测）\n\n正文。\n' >"$CR/docs/staged-new.md"
+git -C "$CR" add docs/staged-new.md
+node "$CHECK_STUB" --staged >"$WORK/c8_3.txt" 2>&1
+assert_eq "$?" "1" "⑪C 暂存了索引中不存在的新 .md → exit 1"
+assert_contains "$(cat "$WORK/c8_3.txt")" "新文件未入索引" "⑪C 输出含「新文件未入索引」"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

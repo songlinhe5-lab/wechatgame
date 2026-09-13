@@ -53,17 +53,22 @@
 
 ## 1. 路由表
 
-### 1.1 项目入口与铁律（承自 AGENTS.md §8）
+### 1.1 项目入口与铁律（AGENTS.md 骨架 + docs/agent/ 迁出文件，WXG-T-032）
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| 项目是什么 / 平台与引擎策略 | AGENTS.md#§1 项目是什么 | 167 | |
-| 工程铁律 L1–L5（摘要） | AGENTS.md#§3 不可违反的工程铁律 | 267 | 完整表见下 §1.4 |
-| 冲突裁决与数值真源 | AGENTS.md#§4 冲突裁决与数值真源 | 128 | §3 冻结常量唯一真源 |
-| 目录与产物落位 | AGENTS.md#§5 目录与产物落位 | 281 | |
-| 验证与常用命令 | AGENTS.md#§6 验证与常用命令 | 193 | verify 全量门禁 |
-| 协作纪律 | AGENTS.md#§7 协作纪律 | 172 | 先问再写 |
-| 知识库读写协议 | AGENTS.md#§9 知识库与调用透明（WXG-T-023） | 405 | |
+| 项目是什么 / 平台与引擎策略 | AGENTS.md#§1 项目是什么 | 173 | |
+| 默认怎么干活（路由表 + 触发条件） | AGENTS.md#§2 默认怎么干活（路由表） | 351 | 细节见下行 routing.md |
+| 工程铁律 L1–L5（摘要） | AGENTS.md#§3 不可违反的工程铁律 | 277 | 完整表见下 §1.4 |
+| 冲突裁决与数值真源 | AGENTS.md#§4 冲突裁决与数值真源 | 139 | §3 冻结常量唯一真源 |
+| 目录与产物落位 | docs/agent/repo-layout.md#§目录与产物落位 | 390 | 自 AGENTS.md §5 逐字迁出 |
+| 验证与常用命令 | docs/agent/commands.md#§验证与常用命令 | 298 | verify 全量门禁 |
+| 协作纪律 | AGENTS.md#§7 协作纪律 | 177 | 先问再写 |
+| skill 优先级 / 四 IDE 路径细节 | docs/agent/routing.md#§Skill 优先级（冲突时高者胜） | 547 | 自 AGENTS.md §2 迁出（整文件） | <!-- no-anchor -->
+| 知识库摘要（AGENTS 保留） | AGENTS.md#§9 知识库与调用透明（WXG-T-023 摘要） | 117 | kb:sync 统计必摘 |
+| 知识库读取协议 | knowledge/INDEX.md#§1 读取协议（开发前期） | 109 | 开工前同域先读 |
+| 知识库写入协议 | knowledge/INDEX.md#§2 写入协议（任务收尾） | 469 | 沉淀候选 0–3 条 |
+| 知识库生命周期 | knowledge/INDEX.md#§5 生命周期（访问记账 → 归档 → 重新激活） | 674 | 含 5.1–5.3 |
 
 ### 1.2 冻结数值（hot · games/beads/design/gdd/systems-index.md）
 
@@ -148,7 +153,7 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| Skill 家族清单与优先级 | my-skills/INDEX.md#§1 清单（现役 13 个挂四 IDE 链接；存档 1 个仅本目录留档） | 631 | |
+| Skill 家族清单与优先级 | my-skills/INDEX.md#§1 清单（现役 17 个挂四 IDE 链接；存档 1 个仅本目录留档） | 631 | |
 | Skill 优先级链 | my-skills/INDEX.md#§3 Skill 优先级（冲突时高者胜） | 63 | |
 | 路径约定 | my-skills/INDEX.md#§4 路径约定 | 208 | |
 | 九阶段（0–8）流水线 | my-skills/wxgame-orchestration/SKILL.md#§九阶段（0–8）流水线 | 528 | |

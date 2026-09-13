@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
-# 跨 IDE 统一：任意 git commit 前跑四 IDE 链接检查；失败则阻止提交。
+# 跨 IDE 统一：任意 git commit 前跑门禁；失败则阻止提交。
+# 步骤：① pnpm run check:links（四 IDE 指针完整性）
+#       ② 暂存区含 .md 时 → ctx:check --staged（暂存内容 vs ctx 索引；无暂存 .md 零开销跳过）
 # 启用：git config core.hooksPath .githooks（见 tools/scripts/install-githooks.mjs）
 
 set -e
@@ -10,4 +12,18 @@ if command -v pnpm >/dev/null 2>&1; then
   pnpm run check:links
 else
   node tools/scripts/check-ide-links.mjs
+fi
+
+# WXG-T-032 ③：把「改 md 未重建索引」的拦截从 CI 前移到本地提交前。
+# 先探测暂存区是否含 .md（≈0 开销）；有才执行 --staged 校验（纯查表，毫秒级）。
+STAGED_MD="$(git diff --cached --name-only | grep '\.md$' || true)"
+if [ -n "$STAGED_MD" ]; then
+  echo "[pre-commit] node tools/scripts/check-context-budget.mjs --staged"
+  if ! node tools/scripts/check-context-budget.mjs --staged; then
+    echo ""
+    echo "❌ 提交被阻止：暂存的 .md 与 ctx/index.json 不一致（或新 .md 未入索引）。"
+    echo "   修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md <你改的 .md>"
+    echo "   （详见上方 ctx:check --staged 输出；禁止用 --no-verify 绕过）"
+    exit 1
+  fi
 fi

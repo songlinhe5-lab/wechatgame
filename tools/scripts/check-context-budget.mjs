@@ -10,6 +10,11 @@
  *               **契约（WXG-T-026，2026-09-12）：索引描述「已提交内容（HEAD）」** ——
  *               dirty 文件按 HEAD blob 校验（`git show HEAD:<path>`），未跟踪新文件不算
  *               「未收录」。故干净检出恒绿，本地 dirty 树亦通过（本地行号可能漂移）。
+ *               **--staged（WXG-T-032 ③，非默认模式）**：C 项改为只校验**暂存区**中的 .md ——
+ *               暂存内容（`git show :<path>`）的 sha256 与 ctx/index.json 比对；不一致 / 暂存了
+ *               索引中不存在的新 .md / 暂存删除已收录文件 → FAIL（把「改 md 未重建索引」的拦截
+ *               前移到本地提交前）。未暂存的 dirty 文件**不参与**（避免误伤并发会话在制文件）；
+ *               A/B/D/E 照常跑（数据源不变）。与 --working-tree 互斥。
  *   D ROUTES 锚点 解析 ctx/ROUTES.md 的 `路径#锚点` 引用，校验路径在索引中且锚点可命中
  *               （非锚点式整文件引用须在该行尾标注 `<!-- no-anchor -->` 显式豁免）
  *   E 节省率/护栏/基线（WXG-T-026 ④，纯查表计算，消费 ctx/usage-distribution.json）：
@@ -35,6 +40,7 @@
  *
  * 用法：node tools/scripts/check-context-budget.mjs
  *       node tools/scripts/check-context-budget.mjs --working-tree   # 逃生阀：按本地未提交内容校验
+ *       node tools/scripts/check-context-budget.mjs --staged         # 非默认模式：仅按暂存区内容校验 C 项（pre-commit 用，WXG-T-032 ③）
  *       node tools/scripts/check-context-budget.mjs --update-baseline --reason="…" --task-id="WXG-T-…"
  */
 
@@ -49,6 +55,9 @@ import {
   freshnessIssues,
   readDistribution,
   readIndex,
+  readStagedBlob,
+  sha256,
+  stagedSet,
 } from './lib/context-index.mjs';
 
 const failures = [];
@@ -61,6 +70,12 @@ const ARGV = process.argv.slice(2);
 const UPDATE_BASELINE = ARGV.includes('--update-baseline');
 /** 逃生阀（WXG-T-026）：C 门按工作树内容（含未提交改动）校验；输出标注「非默认模式」。 */
 const WORKING_TREE = ARGV.includes('--working-tree');
+/** 暂存区模式（WXG-T-032 ③）：C 门只校验暂存区中的 .md；pre-commit 挂载，与 --working-tree 互斥。 */
+const STAGED = ARGV.includes('--staged');
+if (STAGED && WORKING_TREE) {
+  console.error('❌ --staged 与 --working-tree 互斥：前者只看暂存区，后者看整个工作树。');
+  process.exit(2);
+}
 function argValue(name) {
   const hit = ARGV.find((a) => a === `--${name}` || a.startsWith(`--${name}=`));
   if (!hit) return null;
@@ -246,6 +261,63 @@ function checkFreshness() {
   for (const s of fresh.stale) failures.push(`C: 索引过期 — ${s.path}（${s.reason}）`);
   for (const p of fresh.unindexed) failures.push(`C: 未收录的新 .md — ${p}`);
   return fresh;
+}
+
+/**
+ * ── C(staged). 索引新鲜度 · 暂存区模式（WXG-T-032 ③，非默认模式）──────────────
+ * 只校验暂存区中的 .md（A/B/D/E 数据源不变）；未暂存的 dirty 文件不参与——
+ * 避免把并发会话的在制文件算进来误伤。失败语义：
+ *   • 暂存内容 sha256 ≠ 索引记录 → 「暂存内容与索引不一致」
+ *   • 暂存了索引中不存在的新 .md → 「新文件未入索引」
+ *   • 暂存删除了索引仍收录的文件 → 一并 FAIL（提交后索引必过期）
+ * 非 git 环境：显式降级为 note（不假绿），不误报。
+ */
+function checkStagedFreshness() {
+  const index = readIndex();
+  if (!index) {
+    failures.push('C: 未找到 ctx/index.json —— 先生成：pnpm run ctx:build');
+    return { stagedFiles: [], git: false };
+  }
+  const st = stagedSet();
+  if (!st.ok) {
+    notes.push('C(--staged): 未能读取 git 暂存区（非 git 仓库 / git 不可用）→ 本次未做暂存校验（不判定、不假绿）');
+    return { stagedFiles: [], git: false };
+  }
+  const byPath = new Map(index.files.map((f) => [f.path, f]));
+  const checked = [];
+  for (const [path, code] of [...st.staged.entries()].sort(([a], [b]) => (a < b ? -1 : 1))) {
+    if (!path.endsWith('.md')) continue;
+    checked.push(path);
+    const rec = byPath.get(path);
+    if (code === 'D') {
+      if (rec) {
+        failures.push(
+          `C(--staged): 暂存了删除，但索引仍收录该文件 — ${path} —— ` +
+            '提交前请重跑 `pnpm run ctx:build` 并 `git add ctx/index.json`',
+        );
+      }
+      continue;
+    }
+    if (!rec) {
+      failures.push(
+        `C(--staged): 新文件未入索引 — ${path} —— ` +
+          '提交前请重跑 `pnpm run ctx:build` 并重新 `git add`（该 .md 与 ctx/index.json）',
+      );
+      continue;
+    }
+    const blob = readStagedBlob(path);
+    if (blob == null) {
+      failures.push(`C(--staged): 无法读取暂存内容 — ${path}（stage 0 无此条目）`);
+      continue;
+    }
+    if (sha256(blob) !== rec.sha256) {
+      failures.push(
+        `C(--staged): 暂存内容与索引不一致 — ${path} —— ` +
+          '提交前请重跑 `pnpm run ctx:build` 并重新 `git add`（该 .md 与 ctx/index.json）',
+      );
+    }
+  }
+  return { stagedFiles: checked, git: true };
 }
 
 /** ── D. ROUTES.md anchor references ─────────────────────────────────────── */
@@ -559,7 +631,9 @@ if (!index) {
   routeRows = checkRoutes(index);
 }
 const freshness = index
-  ? checkFreshness()
+  ? STAGED
+    ? checkStagedFreshness()
+    : checkFreshness()
   : { stale: [], unindexed: [], headChecked: [], git: false, workingTree: WORKING_TREE };
 const eReport = checkE();
 
@@ -590,17 +664,33 @@ if (overRows.length === 0) {
 }
 console.log('');
 
-console.log('C 索引新鲜度 — ctx/index.json 描述**已提交内容（HEAD）**；dirty 文件按 HEAD blob 校验');
-if (index && freshness.stale.length === 0 && freshness.unindexed.length === 0) {
-  console.log(`✅ 索引新鲜（${index.files.length} 个 .md）`);
+if (STAGED) {
+  console.log('C 索引新鲜度（--staged 非默认模式）— 只校验**暂存区**中的 .md：暂存内容 sha256 vs ctx/index.json');
+  if (index && freshness.stagedFiles.length === 0) {
+    console.log('✅ 暂存区无 .md —— 零暂存校验（≈0 开销）');
+  } else if (index) {
+    console.log(`ℹ️ 本次校验 ${freshness.stagedFiles.length} 个暂存 .md：${freshness.stagedFiles.join('、')}`);
+  }
+  if (freshness.stagedFiles.length === 0 && failures.every((f) => !f.startsWith('C'))) {
+    // 暂存区无 .md 且 C 门无其他失败 → 无需额外诊断行
+  } else if (failures.some((f) => f.startsWith('C'))) {
+    console.log(line(false, '暂存内容与 ctx/index.json 不一致（见下方诊断）'));
+  }
 } else {
-  console.log(line(false, `索引已过期：${freshness.stale.length} 个变更，${freshness.unindexed.length} 个新文件`));
+  console.log('C 索引新鲜度 — ctx/index.json 描述**已提交内容（HEAD）**；dirty 文件按 HEAD blob 校验');
+  if (index && freshness.stale.length === 0 && freshness.unindexed.length === 0) {
+    console.log(`✅ 索引新鲜（${index.files.length} 个 .md）`);
+  } else {
+    console.log(line(false, `索引已过期：${freshness.stale.length} 个变更，${freshness.unindexed.length} 个新文件`));
+  }
 }
-if (freshness.workingTree) {
+if (STAGED) {
+  console.log('   ⚠️ 非默认模式（--staged）：只看暂存区；未暂存的 dirty 文件不参与校验。');
+} else if (freshness.workingTree) {
   console.log('   ⚠️ 非默认模式（--working-tree）：按**工作树**内容校验（含未提交改动）。');
 } else if (freshness.git === false) {
   console.log('   ⚠️ 未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');
-} else if (freshness.headChecked.length > 0) {
+} else if (freshness.headChecked && freshness.headChecked.length > 0) {
   console.log(
     `   ℹ️ ${freshness.headChecked.length} 个 dirty 文件按 HEAD 内容校验（本地行号可能与索引漂移，提交后重跑 ctx:build 即对齐）。`,
   );
@@ -701,7 +791,8 @@ for (const f of failures) console.error(`  - ${f}`);
 console.error('');
 console.error(
   '修复提示：索引描述**已提交内容（HEAD）**——改动任何被索引的 .md 并提交后重跑 `pnpm run ctx:build`；\n' +
-    '         若只想按本地未提交内容校验，用 `pnpm run ctx:check -- --working-tree`（非默认模式）。\n' +
+    '         若只想按本地未提交内容校验，用 `pnpm run ctx:check -- --working-tree`（非默认模式）；\n' +
+    '         --staged 模式下请先 `pnpm run ctx:build` 再把变更的 .md 与 ctx/index.json 一起 `git add`。\n' +
     '         E 项劣于基线若为真实退化请修复，否则 `pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"` 更新。',
 );
 process.exit(1);

@@ -163,6 +163,47 @@ function readHeadBlob(relPath) {
 }
 
 /**
+ * 读取**暂存区**（index vs HEAD）的文件状态集合（WXG-T-032 ③，pre-commit 前置校验用）。
+ * 只读运行 git；非 git 仓库 / git 不可用 → ok=false（调用方显式降级，不假绿）。
+ * @returns {{ok: boolean, git: boolean, staged: Map<string, string>}}
+ *   Map<路径, 首字母状态（A/M/D…）>；`--no-renames` 下重命名拆为 D+A 两条。
+ */
+export function stagedSet() {
+  let out;
+  try {
+    out = git(['diff', '--cached', '--name-status', '-z', '--no-renames']);
+  } catch {
+    return { ok: false, git: false, staged: new Map() };
+  }
+  const staged = new Map();
+  // `-z` 下 `--name-status` 的状态码与路径是**相邻两条** NUL 记录（如 `M`、`AGENTS.md`）。
+  const recs = out.split('\0');
+  for (let i = 0; i < recs.length; i += 1) {
+    const rec = recs[i];
+    if (!rec) continue;
+    if (/^[ACDMRTUXB]{1,2}$/.test(rec)) {
+      const path = recs[i + 1];
+      i += 1;
+      if (path) staged.set(path, rec.slice(0, 1));
+      continue;
+    }
+    // 兜底：部分 git 版本为 `XY\tpath` 单条记录。
+    const m = /^([ACDMRTUXB]{1,2})\t(.+)$/.exec(rec);
+    if (m) staged.set(m[2], m[1].slice(0, 1));
+  }
+  return { ok: true, git: true, staged };
+}
+
+/** 读取暂存区（stage 0）中该路径的 blob 内容；暂存区无此文件（或非 git）→ null。 */
+export function readStagedBlob(relPath) {
+  try {
+    return git(['show', `:${relPath}`]);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * 按 WXG-T-026 契约解析某被索引文件的**内容来源**。
  * @returns {{source: 'worktree' | 'head' | 'skip', text: string | null}}
  *   worktree = 取工作树内容；head = 取 HEAD blob；skip = 不入索引（HEAD 无此新文件 / 缺失）。
@@ -187,15 +228,20 @@ export function resolveContent(relPath, gate) {
 /**
  * Budget thresholds (tokens, estimated).
  *
- * ⚠️ agentsMd 口径与裁定依据（WXG-T-024，主理人裁决）
+ * ⚠️ agentsMd 口径与裁定依据
  * ---------------------------------------------------
- * 3000 → **3200**。原 3000 疑似按「bytes / 4」口径校准，与本题的估算公式
- * （`context-tokens.mjs`：CJK ≈ 1 token/字、ASCII ≈ 1/4 字符）**口径不一致**，
- * 导致同一份中文常驻文件在两种口径间出现「假性超限」。3200 在 AGENTS.md 现状
- * （≈2980，CJK 口径）之上留 ~7% 余量。改动须同步 `ctx/BUDGET.md`（由 ctx:build 生成）。
+ * WXG-T-024（主理人裁决）：3000 → 3200。原 3000 疑似按「bytes / 4」口径校准，与本题的
+ * 估算公式（`context-tokens.mjs`：CJK ≈ 1 token/字、ASCII ≈ 1/4 字符）**口径不一致**，
+ * 导致同一份中文常驻文件在两种口径间出现「假性超限」。
+ * WXG-T-032（2026-09-13，主理人裁定）：3200 → **2000**。依据：
+ *   ① AGENTS.md 属 `always` 常驻层，**每会话整文件付费**，应只保留铁律 / 触发条件 / 路由指针；
+ *   ② T-032 把 §5/§6/§8/§9 与 §2 细节逐字迁出至 `docs/agent/{repo-layout,commands,routing}.md`
+ *      与 `ctx/ROUTES.md` / `knowledge/INDEX.md`，AGENTS.md 目标全文 ≤1700 估算 tokens；
+ *   ③ 2000 在目标值之上留 ~18% 余量（对照旧口径 3200/2980 ≈ 7% 余量的比例尺）。
+ * 改动须同步 `ctx/BUDGET.md`（由 ctx:build 生成）。
  */
 export const LIMITS = {
-  agentsMd: 3200,
+  agentsMd: 2000,
   ruleFile: 500,
   fileMax: 8000,
 

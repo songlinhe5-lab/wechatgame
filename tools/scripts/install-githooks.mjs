@@ -3,6 +3,8 @@
  * 为本仓库设置 `git config core.hooksPath .githooks`，
  * 使 Cursor / CodeBuddy / WorkBuddy / Qoder / 终端 共用同一套 pre-commit。
  *
+ * pre-commit 步骤（WXG-T-032 ③ 起）：① check:links ② 暂存区含 .md 时 ctx:check --staged。
+ *
  * 由 package.json `prepare` 触发；亦可手动：node tools/scripts/install-githooks.mjs
  */
 

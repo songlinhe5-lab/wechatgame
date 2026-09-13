@@ -1,8 +1,7 @@
 # AGENTS.md — wechatgame 项目级 Agent 指引
 
-> 本文件是**项目常驻记忆层**：新开对话应先读这里，再按需加载 skill / 深文档。
-> 方法论细节在 `my-skills/`；工程细则在 `docs/architecture/control-manifest.md`。
-> **不要**把本文件写成第二个 INDEX 或完整 GDD。
+> 本文件是**项目常驻记忆层**：新开对话先读这里。
+> 已瘦身拆分（WXG-T-032）：只保留常驻铁律与触发条件；分节路由见 `ctx/ROUTES.md`。
 
 ## IDE 常驻指针（alwaysApply）
 
@@ -36,18 +35,17 @@
 
 ---
 
-## 2. 默认怎么干活
+## 2. 默认怎么干活（路由表）
 
 | 意图 | 走哪里 |
 |---|---|
-| 全流程 / 跨域 / 阶段诊断 / 质量门裁决 | `wxgame-orchestration`（先读 `my-skills/wxgame-orchestration/SKILL.md`） |
-| 单域交付物（GDD / UX / ADR / Epic / 美术 / QA / 发布…） | 对应 `my-skills/wxgame-*`；家族清单与优先级见 `my-skills/INDEX.md` |
-| **工作室成员委派（SubAgent）** | 正本 `my-agents/`（6 成员 + `studio-orchestrator`）；委派时 `subagent_type` = `<name>`。四 IDE：`.cursor\|.codebuddy\|.workbuddy\|.qoder/agents/<name>.md` → `../../my-agents/<name>.md`。清单见 `my-agents/INDEX.md` |
+| 全流程 / 跨域 / 质量门裁决 | `wxgame-orchestration`（先读其 `SKILL.md`） |
+| 单域交付物（GDD/UX/ADR/Epic/美术/QA/发布…） | 对应 `my-skills/wxgame-*`；清单 `my-skills/INDEX.md` |
+| 成员委派（SubAgent） | 正本 `my-agents/`；`subagent_type` = `<name>` |
 | 生成配乐 / UI 口播**文件** | `indie-game-ost-pack` / `game-ui-voice-pack`（先查 `wxgame-audio-spec` 事件表） |
-| Godot/Unity/Unreal 通用引擎查漏 | 仅当用户**明确点名** `game-studio`（已 `disable-model-invocation`） |
-| 市场版「游戏开发助手免费版」 | **不用**；`game-dev-tool-free` 仅存档、未挂 IDE 链接 |
-
-- **Hooks / 提交门禁**、**Headless / PR 流水线**、Cursor Hooks → 见 §8 分层阅读指引。
+| Godot/Unity/Unreal 查漏 | 仅当用户**明确点名** `game-studio`（已 `disable-model-invocation`） |
+| 市场版「游戏开发助手免费版」 | **不用**；`game-dev-tool-free` 仅存档 |
+| 四 IDE 路径 / skill 优先级细节 | `docs/agent/routing.md`（自本节迁出，WXG-T-032） |
 
 **主理人触发条件（条件式，非默认人格）**：
 
@@ -55,22 +53,6 @@
 |---|---|
 | 先做阶段 0 诊断，或 `@studio-orchestrator` / 读 `wxgame-orchestration` | 跨 **≥2** 职责域；**新游戏 / 新系统**；发布决策；用户点名九阶段 / 专家团 / 编排 |
 | **不要**拉满九阶段 | 孤立单域小改（修 typo、单文件、单 skill 交付）；直调对应 `wxgame-*` 或单成员 |
-
-`studio-orchestrator` 是**可召唤的 SubAgent**，不会自动占据主对话。主对话遵守上表即可；需要完整编排人格时再显式委派。
-
-**Skill 优先级（冲突时高者胜）**：
-
-```text
-orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
-```
-
-**Skill 正本**：`my-skills/<name>/`。四处 IDE 链接（相对符号链接，随仓库提交）：
-
-- `.cursor/skills/` · `.codebuddy/skills/` · `.workbuddy/skills/` · `.qoder/skills/`
-
-新增 skill：正本进 `my-skills/`，四处各建 `../../my-skills/<name>` 链接。
-
-跨域或「整款游戏从哪开始」→ 先交编排，不要自己跳着写全套文档。
 
 ---
 
@@ -107,44 +89,11 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 
 ## 5. 目录与产物落位
 
-```text
-packages/framework/src/
-  core/        引擎无关（默认可单测）
-  adapters/    cocos / canvas2d 桥接
-  platform/    node / web / weapp
-games/<game>/
-  design/      概念 · GDD · UX · 关卡 JSON
-  art/         美术圣经 · 资产规格 · 可访问性
-  src/         玩法（引擎无关）
-  tests/       vitest（纯 Node）
-  cocos/       仅 Bootstrap 壳
-docs/architecture/   主架构 · ADR · 控制清单
-production/qa|release|epics|sprints/
-dev/harness/         浏览器验证器
-my-skills/           Agent Skills 正本 + INDEX.md
-my-agents/           SubAgent 正本 + INDEX.md
-my-rules/            跨 IDE alwaysApply 规则正本 + INDEX.md
-knowledge/           知识库（教训 lessons / 模式 patterns + INDEX 读写协议）
-tools/scripts/       架构守卫 · 关卡同步 · harness · 预览
-```
-
-关卡：**JSON 为准**（如 `games/breakout/design/levels/levels-01-05.json`）→ 生成 `src/config/levels-data.ts`，用 `pnpm run levels:sync` / `levels:check`。
-
----
+→ `docs/agent/repo-layout.md`（原 §5 逐字迁出，WXG-T-032）。
 
 ## 6. 验证与常用命令
 
-| 命令 | 用途 |
-|---|---|
-| `pnpm run verify` | 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck + test + harness 编译 + 冒烟 |
-| `pnpm run check:arch` | 架构守卫 |
-| `pnpm run check:links` | 四 IDE agents/skills/memory/规则指针完整性（**pre-commit 必跑**） |
-| `pnpm run harness` | 启动浏览器验证器 |
-| `pnpm run harness:build` / `harness:smoke` | 只编译 / 运行时冒烟 |
-| `pnpm run preview:frames` | 关卡 SVG 预览 |
-| `pnpm run preview:clip --level 1 --seconds 8` | MP4 实录（需 ffmpeg 与可用的 `@resvg/resvg-js`） |
-
-Node ≥ 20；包管理器以根 `package.json` 的 `packageManager` 为准（pnpm）。
+→ `docs/agent/commands.md`（原 §6 逐字迁出，WXG-T-032）。
 
 ---
 
@@ -158,43 +107,14 @@ Node ≥ 20；包管理器以根 `package.json` 的 `packageManager` 为准（pn
 
 ---
 
-## 8. 分层阅读指引（避免一次灌进全文）
+## 8. 分层阅读指引（已精简）
 
-| 需要… | 读 |
-|---|---|
-| 找"该读哪个文件的哪一节" | ctx/ROUTES.md（章节级锚点路由表，先读它再分段读） |
-| 项目入口与铁律 | **本文件**（`AGENTS.md`） |
-| 长期笔记 / 脚本备忘 / 已知限制 | `memory/MEMORY.md` |
-| Skill 清单 / 优先级 / 路径约定 | `my-skills/INDEX.md` |
-| 九阶段 SOP / 成员→skill 路由 | `my-skills/wxgame-orchestration/SKILL.md` |
-| 工程打回细则 | `docs/architecture/control-manifest.md` |
-| 某域完整模板 | 对应 `my-skills/wxgame-*/SKILL.md` |
-| 冻结数值 | `games/<game>/design/gdd/systems-index.md` §3 |
-| SubAgent 角色设定 | `my-agents/<name>.md`（见 `my-agents/INDEX.md`） |
-| 跨 IDE 常驻规则摘要 | `my-rules/agents-md.md`（见 `my-rules/INDEX.md`） |
-| Cursor Hooks / 跨 IDE 提交门禁 | `docs/agent/hooks-best-practices.md` |
-| Headless CI / 自动 PR 审查 | `docs/agent/headless-ci-pr-review.md` |
-| 教训 / 可复用模式 | `knowledge/INDEX.md`（lessons / patterns，WXG-T-023） |
+分节阅读路由见 `ctx/ROUTES.md`（机器可读锚点）；细节见 `docs/agent/{repo-layout,commands,routing}.md`。
 
 ---
 
-## 9. 知识库与调用透明（WXG-T-023）
+## 9. 知识库与调用透明（WXG-T-023 摘要）
 
-**知识库读写协议**（`knowledge/`，正本 `knowledge/INDEX.md`）：
-1. **开发前期**：实现/修复/接入/发布类任务开工前，先读 `knowledge/lessons.md` 同域条目，
-   相关条目列入任务单必读（spawn 八要素的权威来源清单带上路径）。
-2. **任务收尾**：执行者随交付回传 0–3 条沉淀候选（踩坑修复 / 反直觉行为 / 可复用做法；没有传「无」），
-   由主理人去重汇编入 `lessons.md` / `patterns.md`，条目必须带 Task ID 可追溯；
-   汇编后跑 `pnpm run kb:sync --task=WXG-T-0xx`，把输出的**沉淀统计（新增 / 修改 / 激活 / 归档）**摘入会话结论与台账产出列。
-3. 只追加不删改；废弃条目标 `[已过时：原因]`；沉淀动作在会话结论的工具调用清单中体现。
-4. **条目生命周期（WXG-T-029）**：条目带行内 ID `[K-xxx]`；命中条目后记访问用 `pnpm run kb:touch -- K-xxx`
-   （Cursor/WorkBuddy 的读取亦由 `pnpm run kb:collect` 自动记账）；`pnpm run kb:audit` 出「闲置 ≥90 天且访问 ≤1 次」归档候选
-   与「归档相似命中」清单，**归档必须人工确认**（`kb:archive`，移入 `knowledge/archive/` 且**不进 ctx 索引**）；
-   新增条目后须跑 `kb:audit`，命中归档条目则 `kb:reactivate` 重新激活并合并。协议详见 `knowledge/INDEX.md` §5。
-
-**工具调用报告纪律**（会话结论强制）：
-1. 每次会话结论必须附**工具调用清单**：凡调用的 skill、spawn 的子代理（成员名 + Task ID + 产物路径）、
-   脚本命令、外部能力（图像/音视频生成、web 检索等）逐条列出——格式见 `wxgame-quality-gate` skill §2。
-2. 每条给**结果摘要**（成功/失败、passed/failed 数字、commit hash、产物路径），失败项必须给原因与下一步，
-   禁止静默省略或「一切正常」式空话。
-3. 实现任务收尾自验走 `wxgame-quality-gate`（verify 全量门禁），报告随 commit 回传。
+- **读**：实现/修复/接入/发布类任务开工前，先读 `knowledge/lessons.md` 同域条目，列入必读。
+- **写**：收尾回传 0–3 条沉淀候选；`kb:sync` 的**沉淀统计（新增/修改/激活/归档）**必须摘入会话结论与台账。
+- 完整协议（记账/归档/激活与工具调用报告纪律）：`knowledge/INDEX.md §1/§2/§5`。

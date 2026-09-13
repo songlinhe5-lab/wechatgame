@@ -7,11 +7,16 @@
 
 | 层 | 路径 | 覆盖面 | 职责 |
 |---|---|---|---|
-| **Git pre-commit** | `.githooks/pre-commit` | 任意 IDE / 终端的 `git commit` | **`pnpm run check:links`**；失败 → 非 0 退出 → **阻止提交** |
+| **Git pre-commit** | `.githooks/pre-commit` | 任意 IDE / 终端的 `git commit` | ① **`pnpm run check:links`**；② 暂存区含 `.md` 时 **`ctx:check --staged`**（WXG-T-032 ③：暂存内容 vs `ctx/index.json`，无暂存 .md 零开销跳过）；失败 → 非 0 退出 → **阻止提交** |
 | **Cursor Hooks** | `.cursor/hooks.json` + `.cursor/hooks/*` | Cursor Agent / Shell | Agent 侧再跑 links；禁 `--no-verify` / force-push / hard reset；L1 拦 `.scene`/`.prefab`/`.meta` |
 | **Rules / AGENTS** | `.cursor/rules` · `AGENTS.md` | 常驻提示 | 叙事与铁律；不保证机械拦截 |
 
 跨 IDE（Cursor / CodeBuddy / WorkBuddy / Qoder）统一拦提交 → **只靠 Git hooks**，不要指望各 IDE 各自实现一套 Cursor Hooks。
+
+> ② 的拦截原理（WXG-T-032，2026-09-13）：`ctx/index.json` 描述**已提交内容（HEAD）**，故「改 `.md` 未重建索引」在本地
+> `ctx:check`（默认模式）恒绿、提交后 CI 才红。pre-commit 先探测暂存区是否含 `.md`（无则零开销跳过），有则跑
+> `ctx:check --staged`：用**暂存区内容**（`git show :<path>`）与索引比对——不一致 / 新 `.md` 未入索引 → 阻止提交，
+> 修复 = `pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md <你改的 .md>`。
 
 ## 2. 启用 Git hooks（每人 / 每 clone 一次）
 
