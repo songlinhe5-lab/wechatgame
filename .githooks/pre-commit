@@ -1,7 +1,13 @@
 #!/usr/bin/env sh
-# 跨 IDE 统一：任意 git commit 前跑门禁；失败则阻止提交。
+# 跨 IDE 统一：任意 git commit 前跑门禁。
 # 步骤：① pnpm run check:links（四 IDE 指针完整性）
-#       ② 暂存区含 .md 时 → ctx:check --staged（暂存内容 vs ctx 索引；无暂存 .md 零开销跳过）
+#       ② 暂存区含 .md 时 → **自动重建上下文索引并重新暂存**（WXG-T-032 ⑤，2026-09-13）：
+#          `ctx/index.json` 描述「已提交内容（HEAD）」，而任何「改被索引 .md 的提交」其暂存内容
+#          必然 ≠ HEAD 锚定的旧索引 → 旧的拦截式 `ctx:check --staged` **结构性不可通过**
+#          （实测只能靠 --no-verify 绕过）。故 ② 不再拦截，改为：
+#            a. `ctx:build --staged-blobs`（暂存 .md 按**暂存 blob** 内容索引，暂存新文件一并纳入）；
+#            b. `git add ctx/index.json ctx/BUDGET.md`（重新暂存产物，随本次提交入库）；
+#            c. `ctx:check --staged` 仅作**兜底终校验**（正常路径恒绿，仅竞态/意外时拦截）。
 # 启用：git config core.hooksPath .githooks（见 tools/scripts/install-githooks.mjs）
 
 set -e
@@ -14,16 +20,31 @@ else
   node tools/scripts/check-ide-links.mjs
 fi
 
-# WXG-T-032 ③：把「改 md 未重建索引」的拦截从 CI 前移到本地提交前。
-# 先探测暂存区是否含 .md（≈0 开销）；有才执行 --staged 校验（纯查表，毫秒级）。
+# ①½ my-plugins vendor 锚与 MCP 配置锚一致性（WXG-T-035）：防快照与运行版本漂移。
+echo "[pre-commit] pnpm run check:plugins"
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm run check:plugins
+else
+  node tools/scripts/check-plugin-anchor.mjs
+fi
+
+# ② ctx 索引自动重建（WXG-T-032 ⑤）：先探测暂存区是否含 .md（≈0 开销）；有才执行。
 STAGED_MD="$(git diff --cached --name-only | grep '\.md$' || true)"
 if [ -n "$STAGED_MD" ]; then
-  echo "[pre-commit] node tools/scripts/check-context-budget.mjs --staged"
+  echo "[pre-commit] node tools/scripts/build-context-index.mjs --staged-blobs（自动重建索引）"
+  if ! node tools/scripts/build-context-index.mjs --staged-blobs; then
+    echo ""
+    echo "❌ 提交被阻止：ctx 索引自动重建失败（见上方错误）。"
+    echo "   修复：手动执行 pnpm run ctx:build 后重试；仍失败请上报主理人（勿用 --no-verify）。"
+    exit 1
+  fi
+  git add ctx/index.json ctx/BUDGET.md
+  echo "[pre-commit] 已自动重建索引并重新暂存（--staged-blobs）"
+  echo "[pre-commit] node tools/scripts/check-context-budget.mjs --staged（兜底终校验）"
   if ! node tools/scripts/check-context-budget.mjs --staged; then
     echo ""
-    echo "❌ 提交被阻止：暂存的 .md 与 ctx/index.json 不一致（或新 .md 未入索引）。"
-    echo "   修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md <你改的 .md>"
-    echo "   （详见上方 ctx:check --staged 输出；禁止用 --no-verify 绕过）"
+    echo "❌ 提交被阻止：暂存内容与刚重建的索引仍不一致（异常情况，见上方诊断）。"
+    echo "   多为重建后暂存内容又被并发改动；确认无冲突后重新提交即可再次自动重建。"
     exit 1
   fi
 fi
