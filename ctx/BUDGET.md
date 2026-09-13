@@ -23,7 +23,7 @@
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
 | 1 | `memory/2026-09-12.md` | 10141 | 151 | normal |
-| 2 | `production/TASKS.md` | 7931 | 67 | hot |
+| 2 | `production/TASKS.md` | 7671 | 66 | hot |
 | 3 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
 | 4 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 5 | `production/qa/test-cases.md` | 7097 | 296 | normal |
@@ -31,13 +31,13 @@
 | 7 | `ctx/ROUTES.md` | 6535 | 225 | normal |
 | 8 | `docs/agent/context-instrumentation-survey.md` | 6374 | 270 | normal |
 | 9 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
-| 10 | `memory/2026-09-11.md` | 5617 | 115 | normal |
-| 11 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
-| 12 | `knowledge/lessons.md` | 5202 | 105 | normal |
-| 13 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
-| 14 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
-| 15 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
-| 16 | `memory/2026-09-13.md` | 4865 | 116 | normal |
+| 10 | `memory/2026-09-13.md` | 5768 | 129 | normal |
+| 11 | `memory/2026-09-11.md` | 5617 | 115 | normal |
+| 12 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
+| 13 | `knowledge/lessons.md` | 5202 | 105 | normal |
+| 14 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
+| 15 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
+| 16 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
 | 17 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
 | 18 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
 | 19 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
