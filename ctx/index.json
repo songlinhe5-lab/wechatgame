@@ -12274,17 +12274,17 @@
     },
     {
       "path": "memory/2026-09-13.md",
-      "tokens": 1332,
-      "lines": 48,
-      "sha256": "ea6304c041bf10a6900d305daf998b3a9264e90b4cca52dfbc6f62a60b23c80c",
+      "tokens": 2369,
+      "lines": 72,
+      "sha256": "2f03245f38b376d43e958d25e5ee976687784a7caf94cc41c20c30018ecc3d8c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-13",
           "level": 1,
           "startLine": 1,
-          "endLine": 49,
-          "tokens": 1329,
+          "endLine": 73,
+          "tokens": 2365,
           "summary": "",
           "keywords": []
         },
@@ -12409,6 +12409,36 @@
             "minigame",
             "helper",
             "game"
+          ]
+        },
+        {
+          "anchor": "§上下文膨胀审计（07:52，用户提问驱动）",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 62,
+          "tokens": 505,
+          "summary": "TASKS.md 定论：53 行 / 13KB / 估算 3749 tokens，非常驻层、整读频次低（未进 457 次",
+          "keywords": [
+            "TASKS",
+            "tokens",
+            "上下文膨胀审",
+            "用户提问驱动"
+          ]
+        },
+        {
+          "anchor": "§ADR-0010 完成（08:20，WXG-T-034，engineering-lead-4）",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 73,
+          "tokens": 496,
+          "summary": "结论：用户方案 D（my-plugins 符号链接→四 IDE 各自加载）字面不可行——四 IDE 插件机制互不兼容且全",
+          "keywords": [
+            "ADR",
+            "WXG",
+            "engineering",
+            "lead",
+            "plugins",
+            "IDE"
           ]
         }
       ]
