@@ -19,7 +19,7 @@
 | 域·发布 | `wxgame-release-checklist` | 六阶段发布、微信上架、版本策略、回滚预案 |
 | 域·数值 | `game-numeric-design` | 数值策划方法论（五特性模型 / 设定流程 / 公式工具库）；**冻结值仍以 systems-index §3 为准，本 skill 只供方法论** |
 | 域·合规 | `game-material-precheck` | 中国大陆宣发素材合规审核（合法/IP/文化宗教/敏感日期/舆情）→ HTML 报告；发布阶段配套 |
-| 域·平台 | `weixin-minigame-helper` | 微信小游戏**执行层**：预览 / 热重载 / 日志 / 真机二维码 / 上传开发版（MCP 工具由 CodeBuddy 插件 weixin-minigame-helper@0.1.4 提供）；需 Cocos 构建产物含 `game.js` |
+| 域·平台 | `wxgame-minigame-bridge` | 微信小游戏**执行层·本仓适配**：预览 / 热重载 / 日志 / 真机二维码 / 上传开发版。能力同源 `@weadmin/weixin-minigame-helper-mcp@0.1.13`（根 `.mcp.json` + `.cursor/mcp.json` 锚定；vendor 留档 `my-plugins/`）。**现状：双前置未通——Cocos 编辑器未装、构建链未通（ADR-0009 P2），`games/<g>/build/wechatgame/` 不存在 → 全场景暂不可用**。原 `weixin-minigame-helper` 副本已改名改造消解同名双注册（ADR-0010） |
 | 域·AI | `game-ai-design` | NPC AI 三层解耦（decide/steer/path）、行为树、寻路；当前无 NPC 玩法，备用 |
 | 执行 | `indie-game-ost-pack` | 生成 8–15 首原创配乐（audio-spec 的执行层） |
 | 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层） |
@@ -45,7 +45,7 @@
 wxgame-orchestration（流程与裁决）
   > wxgame-* 域 skill（本仓方法论）
     > 外来现役（game-numeric-design / game-material-precheck /
-      weixin-minigame-helper / game-ai-design——外部方法论与平台执行，
+      wxgame-minigame-bridge / game-ai-design——外部方法论与平台执行，
       与 wxgame-* 冲突时以后者为准：如数值冻结值一律以 systems-index §3 为准）
       > 执行 pack（indie-game-ost-pack / game-ui-voice-pack）
         > 外来通用（game-studio 等存档，仅点名）

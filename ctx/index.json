@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1306,
+      "tokens": 1310,
       "lines": 72,
-      "sha256": "faa67e0e333d3c918a0de8e726d3060f96bd5f0f225f21bced395459d622df47",
+      "sha256": "f9ebe536b5a18b942e5cb79d7581a2adf3952c58da9cd3442e9684efaaf7847b",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 73,
-          "tokens": 1293,
+          "tokens": 1297,
           "summary": "生成：2026-09-13 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 17,
           "endLine": 41,
-          "tokens": 359,
+          "tokens": 363,
           "summary": "1 memory/2026-09-12.md 10141 151 normal",
           "keywords": [
             "Top",
@@ -13257,6 +13257,895 @@
       ]
     },
     {
+      "path": "my-plugins/README.md",
+      "tokens": 1279,
+      "lines": 56,
+      "sha256": "eee89995f58e0b4964c1adb599d825c6f1984b25cee776b1ae1dcc3d648130f9",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§my-plugins — 外部插件 vendor 留档正本",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 57,
+          "tokens": 1265,
+          "summary": "定位（ADR-0010 §2 方案 D′ 最小形态）：本目录是留档 + 版本锚 + CodeBuddy 本地",
+          "keywords": [
+            "§2",
+            "plugins",
+            "vendor",
+            "ADR",
+            "CodeBuddy",
+            "外部插件"
+          ]
+        },
+        {
+          "anchor": "§1 版本锚定关系（vendor ≠ 运行版本，两者都受控）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 19,
+          "tokens": 251,
+          "summary": "my-plugins/weixin-minigame-helper/0.1.4/ 0.1.4 插件完整快照（vendor",
+          "keywords": [
+            "vendor",
+            "plugins",
+            "weixin",
+            "minigame",
+            "helper",
+            "版本锚定关系"
+          ]
+        },
+        {
+          "anchor": "§2 组件矩阵裁决记录（ADR-0010 §3）",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 29,
+          "tokens": 308,
+          "summary": "MCP server（plugin.json 的 mcpServers → npm 包） ✅ 接入（能力主通道） 唯一有",
+          "keywords": [
+            "§3",
+            "ADR",
+            "MCP",
+            "server",
+            "plugin",
+            "json"
+          ]
+        },
+        {
+          "anchor": "§3 四 IDE 能力来源表",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 42,
+          "tokens": 248,
+          "summary": "CodeBuddy 项目级 MCP 根 .mcp.json 与 Qoder 共读同一文件",
+          "keywords": [
+            "IDE",
+            "CodeBuddy",
+            "MCP",
+            "mcp",
+            "json",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§4 CodeBuddy 本地 marketplace 可选通道",
+          "level": 2,
+          "startLine": 43,
+          "endLine": 49,
+          "tokens": 120,
+          "summary": "my-plugins/ 可注册为 CodeBuddy 本地 marketplace（codebuddy plugin m",
+          "keywords": [
+            "CodeBuddy",
+            "marketplace",
+            "plugins",
+            "codebuddy",
+            "plugin",
+            "本地"
+          ]
+        },
+        {
+          "anchor": "§5 刻意的边界",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 57,
+          "tokens": 153,
+          "summary": "本目录不挂进 check-ide-links.mjs 扫描范围：目录无 SKILL.md 正本（SKILL.md 在",
+          "keywords": [
+            "check",
+            "ide",
+            "links",
+            "mjs",
+            "SKILL",
+            "刻意的边界"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/README.md",
+      "tokens": 682,
+      "lines": 67,
+      "sha256": "7db666d28865ded5051be3a0c18c2b7c1c290554bb0a6b00b1be0c3bc7bcd855",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WeiXin Mini Game Helper",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 68,
+          "tokens": 676,
+          "summary": "微信小游戏 AI 开发助手 —— 预览、调试、真机测试、发布一站式解决。",
+          "keywords": [
+            "WeiXin",
+            "Mini",
+            "Game",
+            "Helper"
+          ]
+        },
+        {
+          "anchor": "§✨ 功能概览",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 12,
+          "tokens": 123,
+          "summary": "🎮 浏览器预览：本地实时运行微信小游戏，支持多机型模拟",
+          "keywords": [
+            "功能概览"
+          ]
+        },
+        {
+          "anchor": "§🚀 快速上手",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 35,
+          "tokens": 158,
+          "summary": "安装插件后，AI 会自动获得小游戏开发能力，无需额外配置。",
+          "keywords": [
+            "快速上手"
+          ]
+        },
+        {
+          "anchor": "§自然语言交互",
+          "level": 3,
+          "startLine": 17,
+          "endLine": 27,
+          "tokens": 59,
+          "summary": "直接告诉 AI 你想做什么：",
+          "keywords": [
+            "自然语言交互"
+          ]
+        },
+        {
+          "anchor": "§斜杠命令",
+          "level": 3,
+          "startLine": 28,
+          "endLine": 35,
+          "tokens": 59,
+          "summary": "/weixin-minigame-helper:preview 启动游戏预览",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "preview",
+            "斜杠命令"
+          ]
+        },
+        {
+          "anchor": "§📱 真机测试 & 发布配置",
+          "level": 2,
+          "startLine": 36,
+          "endLine": 43,
+          "tokens": 120,
+          "summary": "真机测试和发布需要配置微信 AppID 和上传密钥：",
+          "keywords": [
+            "AppID",
+            "真机测试",
+            "发布配置"
+          ]
+        },
+        {
+          "anchor": "§📋 项目结构要求",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 53,
+          "tokens": 71,
+          "summary": "确保你的微信小游戏项目包含以下文件：",
+          "keywords": [
+            "项目结构要求"
+          ]
+        },
+        {
+          "anchor": "§❓ 常见问题",
+          "level": 2,
+          "startLine": 54,
+          "endLine": 68,
+          "tokens": 138,
+          "summary": "Q: 提示\"这不是一个标准的微信小游戏结构\"",
+          "keywords": [
+            "常见问题"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/SKILL.md",
+      "tokens": 4543,
+      "lines": 251,
+      "sha256": "0c9aedd9b7157da995f5b5b56533c77ae41b8008ba77f52a4c46b1da613f9269",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WeChat Mini Game Preview — Skill 使用指南",
+          "level": 1,
+          "startLine": 30,
+          "endLine": 251,
+          "tokens": 3800,
+          "summary": "",
+          "keywords": [
+            "WeChat",
+            "Mini",
+            "Game",
+            "Preview",
+            "Skill",
+            "使用指南"
+          ]
+        },
+        {
+          "anchor": "§🔴 最重要的规则（必须严格遵守）",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 67,
+          "tokens": 818,
+          "summary": "自动预览规则（最高优先级）：",
+          "keywords": [
+            "最重要的规则",
+            "必须严格遵守"
+          ]
+        },
+        {
+          "anchor": "§概述",
+          "level": 2,
+          "startLine": 68,
+          "endLine": 77,
+          "tokens": 120,
+          "summary": "这个 Skill 让你能够：",
+          "keywords": [
+            "Skill",
+            "概述"
+          ]
+        },
+        {
+          "anchor": "§MCP 工具参考",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 87,
+          "tokens": 143,
+          "summary": "run_game 启动游戏预览 workspacePath: 游戏目录绝对路径（必须含 game.js）",
+          "keywords": [
+            "MCP",
+            "run_game",
+            "workspacePath",
+            "game",
+            "工具参考"
+          ]
+        },
+        {
+          "anchor": "§工作流程",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 141,
+          "tokens": 968,
+          "summary": "",
+          "keywords": [
+            "工作流程"
+          ]
+        },
+        {
+          "anchor": "§场景一：生成/修改小游戏代码后自动预览（最常见、最重要）",
+          "level": 3,
+          "startLine": 90,
+          "endLine": 110,
+          "tokens": 454,
+          "summary": "这是最典型的场景。任何时候你修改了小游戏代码，都必须自动触发预览。",
+          "keywords": [
+            "场景一",
+            "生成",
+            "修改小游戏代",
+            "码后自动预览",
+            "最常见",
+            "最重要"
+          ]
+        },
+        {
+          "anchor": "§场景二：查看日志调试问题",
+          "level": 3,
+          "startLine": 111,
+          "endLine": 117,
+          "tokens": 64,
+          "summary": "当游戏运行中出现问题时：",
+          "keywords": [
+            "场景二",
+            "查看日志调试",
+            "问题"
+          ]
+        },
+        {
+          "anchor": "§场景三：真机预览",
+          "level": 3,
+          "startLine": 118,
+          "endLine": 133,
+          "tokens": 263,
+          "summary": "当用户要求在真机上预览、体验、测试时：",
+          "keywords": [
+            "场景三",
+            "真机预览"
+          ]
+        },
+        {
+          "anchor": "§场景四：上传开发版/上传体验版/发布到微信",
+          "level": 3,
+          "startLine": 134,
+          "endLine": 141,
+          "tokens": 116,
+          "summary": "1. 确认用户要发布的版本号和描述",
+          "keywords": [
+            "场景四",
+            "上传开发版",
+            "上传体验版",
+            "发布到微信"
+          ]
+        },
+        {
+          "anchor": "§完整使用示例",
+          "level": 2,
+          "startLine": 142,
+          "endLine": 199,
+          "tokens": 887,
+          "summary": "",
+          "keywords": [
+            "完整使用示例"
+          ]
+        },
+        {
+          "anchor": "§示例 1：用户说\"帮我做一个打砖块小游戏\"",
+          "level": 3,
+          "startLine": 144,
+          "endLine": 154,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "帮我做一个打",
+            "砖块小游戏"
+          ]
+        },
+        {
+          "anchor": "§示例 2：用户说\"把颜色改成红色\"（代码修改后自动预览）",
+          "level": 3,
+          "startLine": 155,
+          "endLine": 165,
+          "tokens": 164,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "把颜色改成红",
+            "代码修改后自",
+            "动预览"
+          ]
+        },
+        {
+          "anchor": "§示例 2.5：用户说\"帮我加个得分系统\"（较大代码修改后自动预览）",
+          "level": 3,
+          "startLine": 166,
+          "endLine": 177,
+          "tokens": 222,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "帮我加个得分",
+            "系统",
+            "较大代码修改",
+            "后自动预览"
+          ]
+        },
+        {
+          "anchor": "§示例 3：用户说\"真机体验测试下\"",
+          "level": 3,
+          "startLine": 178,
+          "endLine": 188,
+          "tokens": 112,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "真机体验测试"
+          ]
+        },
+        {
+          "anchor": "§示例 4：用户说\"上传到微信\"",
+          "level": 3,
+          "startLine": 189,
+          "endLine": 199,
+          "tokens": 109,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "上传到微信"
+          ]
+        },
+        {
+          "anchor": "§微信小游戏项目结构",
+          "level": 2,
+          "startLine": 200,
+          "endLine": 211,
+          "tokens": 81,
+          "summary": "一个标准的微信小游戏项目应包含：",
+          "keywords": [
+            "微信小游戏项",
+            "目结构"
+          ]
+        },
+        {
+          "anchor": "§注意事项",
+          "level": 2,
+          "startLine": 212,
+          "endLine": 219,
+          "tokens": 134,
+          "summary": "游戏目录必须包含 game.js 文件",
+          "keywords": [
+            "game",
+            "注意事项"
+          ]
+        },
+        {
+          "anchor": "§⚠️ 重要约束",
+          "level": 2,
+          "startLine": 220,
+          "endLine": 251,
+          "tokens": 592,
+          "summary": "真机预览（real_device_preview）和上传开发版（publish）成功后，禁止调用 run_game、re",
+          "keywords": [
+            "real_device_preview",
+            "publish",
+            "run_game",
+            "重要约束"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/agents/weixin-minigame-helper.md",
+      "tokens": 1176,
+      "lines": 95,
+      "sha256": "eb636b6dce466f37661578f6ddcdce8aa1c843f0128d9ff5520a40f184b1b4e7",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Mini Game Previewer Agent",
+          "level": 1,
+          "startLine": 12,
+          "endLine": 96,
+          "tokens": 998,
+          "summary": "你是微信小游戏预览和调试的专用 Agent。你的职责是帮助用户运行、调试、测试和发布微信小游戏。",
+          "keywords": [
+            "Mini",
+            "Game",
+            "Previewer",
+            "Agent"
+          ]
+        },
+        {
+          "anchor": "§⚡ 启动前置检查（每次执行任何操作前必须完成）",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 38,
+          "tokens": 305,
+          "summary": "在执行预览、日志、真机测试、发布等任何操作之前，必须按顺序完成以下两步检查：",
+          "keywords": [
+            "启动前置检查",
+            "每次执行任何",
+            "操作前必须完"
+          ]
+        },
+        {
+          "anchor": "§第一步：检查 Skill 是否已加载",
+          "level": 3,
+          "startLine": 20,
+          "endLine": 25,
+          "tokens": 67,
+          "summary": "1. 检查 weixin-minigame-helper:minigame-dev Skill 是否已加载",
+          "keywords": [
+            "Skill",
+            "weixin",
+            "minigame",
+            "helper",
+            "dev",
+            "第一步"
+          ]
+        },
+        {
+          "anchor": "§第二步：检查 MCP 是否已拉起",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 38,
+          "tokens": 171,
+          "summary": "1. 尝试调用任意一个 MCP 工具（如 get_logs）来探测 MCP 服务是否在线",
+          "keywords": [
+            "MCP",
+            "get_logs",
+            "第二步",
+            "检查",
+            "是否已拉起"
+          ]
+        },
+        {
+          "anchor": "§核心能力",
+          "level": 2,
+          "startLine": 39,
+          "endLine": 45,
+          "tokens": 85,
+          "summary": "1. 预览管理 — 启动/重载游戏预览",
+          "keywords": [
+            "核心能力"
+          ]
+        },
+        {
+          "anchor": "§工作原则",
+          "level": 2,
+          "startLine": 46,
+          "endLine": 52,
+          "tokens": 107,
+          "summary": "快速响应：完成前置检查后立即执行操作，不做多余确认",
+          "keywords": [
+            "工作原则"
+          ]
+        },
+        {
+          "anchor": "§可用 MCP 工具",
+          "level": 2,
+          "startLine": 53,
+          "endLine": 62,
+          "tokens": 104,
+          "summary": "run_game 启动游戏预览（传入 workspacePath）",
+          "keywords": [
+            "MCP",
+            "run_game",
+            "workspacePath",
+            "可用",
+            "工具"
+          ]
+        },
+        {
+          "anchor": "§典型工作流",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 89,
+          "tokens": 250,
+          "summary": "",
+          "keywords": [
+            "典型工作流"
+          ]
+        },
+        {
+          "anchor": "§启动预览",
+          "level": 3,
+          "startLine": 65,
+          "endLine": 71,
+          "tokens": 78,
+          "summary": "1. 完成前置检查（Skill 加载 + MCP 拉起）",
+          "keywords": [
+            "Skill",
+            "MCP",
+            "启动预览"
+          ]
+        },
+        {
+          "anchor": "§调试问题",
+          "level": 3,
+          "startLine": 72,
+          "endLine": 79,
+          "tokens": 54,
+          "summary": "1. 完成前置检查（Skill 加载 + MCP 拉起）",
+          "keywords": [
+            "Skill",
+            "MCP",
+            "调试问题"
+          ]
+        },
+        {
+          "anchor": "§真机测试",
+          "level": 3,
+          "startLine": 80,
+          "endLine": 89,
+          "tokens": 102,
+          "summary": "1. 完成前置检查（Skill 加载 + MCP 拉起）",
+          "keywords": [
+            "Skill",
+            "MCP",
+            "真机测试"
+          ]
+        },
+        {
+          "anchor": "§限制",
+          "level": 2,
+          "startLine": 90,
+          "endLine": 96,
+          "tokens": 56,
+          "summary": "不能创建、修改或删除文件",
+          "keywords": [
+            "限制"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/commands/device-test.md",
+      "tokens": 545,
+      "lines": 50,
+      "sha256": "44dcf6dd3df325a4275f4430df6412131045817b4a70f8a0b2374ba6c5f8d192",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§/weixin-minigame-helper:device-test — 真机测试",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 51,
+          "tokens": 477,
+          "summary": "",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "device",
+            "test",
+            "真机测试"
+          ]
+        },
+        {
+          "anchor": "§执行步骤",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 51,
+          "tokens": 472,
+          "summary": "",
+          "keywords": [
+            "执行步骤"
+          ]
+        },
+        {
+          "anchor": "§1 确定游戏目录",
+          "level": 3,
+          "startLine": 10,
+          "endLine": 15,
+          "tokens": 42,
+          "summary": "如果用户提供了参数，使用该路径",
+          "keywords": [
+            "确定游戏目录"
+          ]
+        },
+        {
+          "anchor": "§2 确保预览服务已启动",
+          "level": 3,
+          "startLine": 16,
+          "endLine": 20,
+          "tokens": 50,
+          "summary": "先调用 run_game 启动预览服务（如果尚未启动）",
+          "keywords": [
+            "run_game",
+            "确保预览服务",
+            "已启动"
+          ]
+        },
+        {
+          "anchor": "§3 执行真机预览",
+          "level": 3,
+          "startLine": 21,
+          "endLine": 25,
+          "tokens": 28,
+          "summary": "调用 MCP 工具 real_device_preview，传入游戏目录绝对路径",
+          "keywords": [
+            "MCP",
+            "real_device_preview",
+            "执行真机预览"
+          ]
+        },
+        {
+          "anchor": "§4 处理结果",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 51,
+          "tokens": 318,
+          "summary": "成功的情况：",
+          "keywords": [
+            "处理结果"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/commands/preview.md",
+      "tokens": 396,
+      "lines": 37,
+      "sha256": "e54c464100383ce6cd17ba79e8644de8cc38126fa2210cd8670e23a42416ced1",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§/weixin-minigame-helper:preview — 启动小游戏预览",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 38,
+          "tokens": 325,
+          "summary": "",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "preview",
+            "启动小游戏预"
+          ]
+        },
+        {
+          "anchor": "§执行步骤",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 38,
+          "tokens": 320,
+          "summary": "",
+          "keywords": [
+            "执行步骤"
+          ]
+        },
+        {
+          "anchor": "§1 确定游戏目录",
+          "level": 3,
+          "startLine": 10,
+          "endLine": 17,
+          "tokens": 117,
+          "summary": "如果用户提供了参数（游戏目录路径），使用该路径",
+          "keywords": [
+            "确定游戏目录"
+          ]
+        },
+        {
+          "anchor": "§2 启动预览",
+          "level": 3,
+          "startLine": 18,
+          "endLine": 23,
+          "tokens": 41,
+          "summary": "加载 weixin-minigame-helper skill",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "skill",
+            "启动预览"
+          ]
+        },
+        {
+          "anchor": "§3 打开浏览器",
+          "level": 3,
+          "startLine": 24,
+          "endLine": 31,
+          "tokens": 62,
+          "summary": "使用 preview_url 工具打开返回的预览 URL",
+          "keywords": [
+            "preview_url",
+            "URL",
+            "打开浏览器"
+          ]
+        },
+        {
+          "anchor": "§4 错误处理",
+          "level": 3,
+          "startLine": 32,
+          "endLine": 38,
+          "tokens": 74,
+          "summary": "如果 run_game 失败，检查错误信息并给出修复建议",
+          "keywords": [
+            "run_game",
+            "错误处理"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-plugins/weixin-minigame-helper/0.1.4/commands/publish.md",
+      "tokens": 470,
+      "lines": 53,
+      "sha256": "495b8d8b72d2143c74266e3d1282be2747e49090e367fd3d662ca6d68ecfa91f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§/weixin-minigame-helper:publish — 发布小游戏",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 54,
+          "tokens": 407,
+          "summary": "",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "publish",
+            "发布小游戏"
+          ]
+        },
+        {
+          "anchor": "§执行步骤",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 54,
+          "tokens": 401,
+          "summary": "",
+          "keywords": [
+            "执行步骤"
+          ]
+        },
+        {
+          "anchor": "§1 解析参数",
+          "level": 3,
+          "startLine": 10,
+          "endLine": 16,
+          "tokens": 83,
+          "summary": "从用户输入中提取版本号（如 \"1.0.0\"）",
+          "keywords": [
+            "解析参数"
+          ]
+        },
+        {
+          "anchor": "§2 确定游戏目录",
+          "level": 3,
+          "startLine": 17,
+          "endLine": 21,
+          "tokens": 23,
+          "summary": "搜索当前工作目录中的 game.js",
+          "keywords": [
+            "game",
+            "确定游戏目录"
+          ]
+        },
+        {
+          "anchor": "§3 确认发布",
+          "level": 3,
+          "startLine": 22,
+          "endLine": 30,
+          "tokens": 79,
+          "summary": "向用户确认：",
+          "keywords": [
+            "确认发布"
+          ]
+        },
+        {
+          "anchor": "§4 执行发布",
+          "level": 3,
+          "startLine": 31,
+          "endLine": 37,
+          "tokens": 45,
+          "summary": "调用 MCP 工具 publish，传入：",
+          "keywords": [
+            "MCP",
+            "publish",
+            "执行发布"
+          ]
+        },
+        {
+          "anchor": "§5 处理结果",
+          "level": 3,
+          "startLine": 38,
+          "endLine": 54,
+          "tokens": 139,
+          "summary": "成功：",
+          "keywords": [
+            "处理结果"
+          ]
+        }
+      ]
+    },
+    {
       "path": "my-rules/INDEX.md",
       "tokens": 254,
       "lines": 20,
@@ -13323,9 +14212,9 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 1616,
+      "tokens": 1701,
       "lines": 78,
-      "sha256": "14fb127078c28ff4ff0a84228157d21cbe47665afed9eb14d613dd825040ead4",
+      "sha256": "a6237f7919cd5ef49cf098687121e1376fdabbbbb1051c2c0d7cd01ef754e43f",
       "tier": "normal",
       "sections": [
         {
@@ -13333,7 +14222,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 79,
-          "tokens": 1608,
+          "tokens": 1693,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -13348,7 +14237,7 @@
           "level": 2,
           "startLine": 6,
           "endLine": 33,
-          "tokens": 852,
+          "tokens": 938,
           "summary": "编排 wxgame-orchestration 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路",
           "keywords": [
             "IDE",
@@ -18861,6 +19750,634 @@
       ]
     },
     {
+      "path": "my-skills/wxgame-minigame-bridge/README.md",
+      "tokens": 344,
+      "lines": 26,
+      "sha256": "9aed7103d56dc00f86b4d11e951fd21c4df3f76244a3a20771b5806922ce40a5",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame-minigame-bridge",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 27,
+          "tokens": 338,
+          "summary": "微信小游戏 MCP 的仓库适配层 skill。使用指南见 [SKILL.md](./SKILL.md)。",
+          "keywords": [
+            "wxgame",
+            "minigame",
+            "bridge",
+            "MCP",
+            "skill",
+            "SKILL"
+          ]
+        },
+        {
+          "anchor": "§目录",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 12,
+          "tokens": 74,
+          "summary": "",
+          "keywords": [
+            "目录"
+          ]
+        },
+        {
+          "anchor": "§留档来源",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 22,
+          "tokens": 163,
+          "summary": "references/ 两文件为 2026-09-13 从 CodeBuddy 插件",
+          "keywords": [
+            "references",
+            "CodeBuddy",
+            "留档来源"
+          ]
+        },
+        {
+          "anchor": "§演进",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 27,
+          "tokens": 62,
+          "summary": "原 my-skills/weixin-minigame-helper（v0.1.4 快照副本）于 WXG-T-035 改",
+          "keywords": [
+            "skills",
+            "weixin",
+            "minigame",
+            "helper",
+            "WXG",
+            "演进"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-minigame-bridge/SKILL.md",
+      "tokens": 2123,
+      "lines": 120,
+      "sha256": "1addc4c98627519baeb78fea7b56f2747fedc00da4f721984ab092578c90e0df",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame-minigame-bridge — 微信小游戏 MCP 仓库适配层",
+          "level": 1,
+          "startLine": 13,
+          "endLine": 121,
+          "tokens": 1884,
+          "summary": "定位：适配层，不是工具手册。工具能力全部来自 MCP server",
+          "keywords": [
+            "wxgame",
+            "minigame",
+            "bridge",
+            "MCP",
+            "server",
+            "微信小游戏"
+          ]
+        },
+        {
+          "anchor": "§1 仓库适配三件事（官方文档与本仓库不匹配处，以本节为准）",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 61,
+          "tokens": 601,
+          "summary": "",
+          "keywords": [
+            "仓库适配三件",
+            "官方文档与本",
+            "仓库不匹配处",
+            "以本节为准"
+          ]
+        },
+        {
+          "anchor": "§① 入口路径映射——`workspacePath` 一律指构建产物",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 42,
+          "tokens": 228,
+          "summary": "官方假设游戏目录含 game.js。本仓库是 monorepo，仓库根与 Cocos 工程根都没有 game.js，",
+          "keywords": [
+            "workspacePath",
+            "game",
+            "monorepo",
+            "Cocos",
+            "入口路径映射",
+            "一律指构建产"
+          ]
+        },
+        {
+          "anchor": "§② Cocos 构建前置（当前未通）",
+          "level": 3,
+          "startLine": 43,
+          "endLine": 53,
+          "tokens": 178,
+          "summary": "MCP 能力链起点是构建产物，而构建链依赖 Cocos Creator 编辑器（ADR-0009 P2）。",
+          "keywords": [
+            "Cocos",
+            "MCP",
+            "Creator",
+            "ADR",
+            "构建前置",
+            "当前未通"
+          ]
+        },
+        {
+          "anchor": "§③ WorkBuddy 例外",
+          "level": 3,
+          "startLine": 54,
+          "endLine": 61,
+          "tokens": 155,
+          "summary": "四 IDE 中 CodeBuddy / Cursor / Qoder 的能力来自仓库内 MCP 配置（根 .mcp.js",
+          "keywords": [
+            "WorkBuddy",
+            "IDE",
+            "CodeBuddy",
+            "Cursor",
+            "Qoder",
+            "MCP"
+          ]
+        },
+        {
+          "anchor": "§2 工具面（不复制清单，防漂移）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 71,
+          "tokens": 181,
+          "summary": "约 10 个工具由 MCP 配置自动注入，前缀因宿主而异（CodeBuddy/Qoder/Cursor/WorkBudd",
+          "keywords": [
+            "MCP",
+            "CodeBuddy",
+            "Qoder",
+            "Cursor",
+            "WorkBudd",
+            "工具面"
+          ]
+        },
+        {
+          "anchor": "§3 四场景工作流（沿用官方，路径已按①修正）",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 107,
+          "tokens": 645,
+          "summary": "",
+          "keywords": [
+            "四场景工作流",
+            "沿用官方",
+            "路径已按",
+            "修正"
+          ]
+        },
+        {
+          "anchor": "§场景一：构建产物更新后预览 + 日志循环（最常用）",
+          "level": 3,
+          "startLine": 74,
+          "endLine": 86,
+          "tokens": 260,
+          "summary": "1. 确认 games/<game>/build/wechatgame/ 存在（不存在 → 走 ADR-0009 构建链",
+          "keywords": [
+            "games",
+            "game",
+            "build",
+            "wechatgame",
+            "ADR",
+            "场景一"
+          ]
+        },
+        {
+          "anchor": "§场景二：看日志调试",
+          "level": 3,
+          "startLine": 87,
+          "endLine": 90,
+          "tokens": 36,
+          "summary": "get_logs + filter 正则；日志格式 [时间戳] [级别] 消息。配合截图类工具可取证画面。",
+          "keywords": [
+            "get_logs",
+            "filter",
+            "场景二",
+            "看日志调试"
+          ]
+        },
+        {
+          "anchor": "§场景三：真机预览",
+          "level": 3,
+          "startLine": 91,
+          "endLine": 99,
+          "tokens": 166,
+          "summary": "1. real_device_preview（workspacePath = 构建产物）",
+          "keywords": [
+            "real_device_preview",
+            "workspacePath",
+            "场景三",
+            "真机预览"
+          ]
+        },
+        {
+          "anchor": "§场景四：上传开发版",
+          "level": 3,
+          "startLine": 100,
+          "endLine": 107,
+          "tokens": 130,
+          "summary": "1. 高影响动作（control-manifest §15）：调 publish 前必须用户人工确认版本号与描述；",
+          "keywords": [
+            "§15",
+            "control",
+            "manifest",
+            "publish",
+            "场景四",
+            "上传开发版"
+          ]
+        },
+        {
+          "anchor": "§4 纪律速查（详见 control-manifest §15）",
+          "level": 2,
+          "startLine": 108,
+          "endLine": 115,
+          "tokens": 110,
+          "summary": "MCP 配置中包版本锚定（当前 0.1.13），禁止 @latest；升级 = 改锚 +",
+          "keywords": [
+            "§15",
+            "control",
+            "manifest",
+            "MCP",
+            "latest",
+            "纪律速查"
+          ]
+        },
+        {
+          "anchor": "§5 跨域与升级",
+          "level": 2,
+          "startLine": 116,
+          "endLine": 121,
+          "tokens": 69,
+          "summary": "跨域或全流程请求先交 wxgame-orchestration（本 skill 属域·平台执行层）",
+          "keywords": [
+            "wxgame",
+            "orchestration",
+            "skill",
+            "跨域与升级"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-minigame-bridge/references/official-readme-0.1.4.md",
+      "tokens": 682,
+      "lines": 67,
+      "sha256": "7db666d28865ded5051be3a0c18c2b7c1c290554bb0a6b00b1be0c3bc7bcd855",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WeiXin Mini Game Helper",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 68,
+          "tokens": 676,
+          "summary": "微信小游戏 AI 开发助手 —— 预览、调试、真机测试、发布一站式解决。",
+          "keywords": [
+            "WeiXin",
+            "Mini",
+            "Game",
+            "Helper"
+          ]
+        },
+        {
+          "anchor": "§✨ 功能概览",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 12,
+          "tokens": 123,
+          "summary": "🎮 浏览器预览：本地实时运行微信小游戏，支持多机型模拟",
+          "keywords": [
+            "功能概览"
+          ]
+        },
+        {
+          "anchor": "§🚀 快速上手",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 35,
+          "tokens": 158,
+          "summary": "安装插件后，AI 会自动获得小游戏开发能力，无需额外配置。",
+          "keywords": [
+            "快速上手"
+          ]
+        },
+        {
+          "anchor": "§自然语言交互",
+          "level": 3,
+          "startLine": 17,
+          "endLine": 27,
+          "tokens": 59,
+          "summary": "直接告诉 AI 你想做什么：",
+          "keywords": [
+            "自然语言交互"
+          ]
+        },
+        {
+          "anchor": "§斜杠命令",
+          "level": 3,
+          "startLine": 28,
+          "endLine": 35,
+          "tokens": 59,
+          "summary": "/weixin-minigame-helper:preview 启动游戏预览",
+          "keywords": [
+            "weixin",
+            "minigame",
+            "helper",
+            "preview",
+            "斜杠命令"
+          ]
+        },
+        {
+          "anchor": "§📱 真机测试 & 发布配置",
+          "level": 2,
+          "startLine": 36,
+          "endLine": 43,
+          "tokens": 120,
+          "summary": "真机测试和发布需要配置微信 AppID 和上传密钥：",
+          "keywords": [
+            "AppID",
+            "真机测试",
+            "发布配置"
+          ]
+        },
+        {
+          "anchor": "§📋 项目结构要求",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 53,
+          "tokens": 71,
+          "summary": "确保你的微信小游戏项目包含以下文件：",
+          "keywords": [
+            "项目结构要求"
+          ]
+        },
+        {
+          "anchor": "§❓ 常见问题",
+          "level": 2,
+          "startLine": 54,
+          "endLine": 68,
+          "tokens": 138,
+          "summary": "Q: 提示\"这不是一个标准的微信小游戏结构\"",
+          "keywords": [
+            "常见问题"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md",
+      "tokens": 4543,
+      "lines": 251,
+      "sha256": "0c9aedd9b7157da995f5b5b56533c77ae41b8008ba77f52a4c46b1da613f9269",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WeChat Mini Game Preview — Skill 使用指南",
+          "level": 1,
+          "startLine": 30,
+          "endLine": 251,
+          "tokens": 3800,
+          "summary": "",
+          "keywords": [
+            "WeChat",
+            "Mini",
+            "Game",
+            "Preview",
+            "Skill",
+            "使用指南"
+          ]
+        },
+        {
+          "anchor": "§🔴 最重要的规则（必须严格遵守）",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 67,
+          "tokens": 818,
+          "summary": "自动预览规则（最高优先级）：",
+          "keywords": [
+            "最重要的规则",
+            "必须严格遵守"
+          ]
+        },
+        {
+          "anchor": "§概述",
+          "level": 2,
+          "startLine": 68,
+          "endLine": 77,
+          "tokens": 120,
+          "summary": "这个 Skill 让你能够：",
+          "keywords": [
+            "Skill",
+            "概述"
+          ]
+        },
+        {
+          "anchor": "§MCP 工具参考",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 87,
+          "tokens": 143,
+          "summary": "run_game 启动游戏预览 workspacePath: 游戏目录绝对路径（必须含 game.js）",
+          "keywords": [
+            "MCP",
+            "run_game",
+            "workspacePath",
+            "game",
+            "工具参考"
+          ]
+        },
+        {
+          "anchor": "§工作流程",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 141,
+          "tokens": 968,
+          "summary": "",
+          "keywords": [
+            "工作流程"
+          ]
+        },
+        {
+          "anchor": "§场景一：生成/修改小游戏代码后自动预览（最常见、最重要）",
+          "level": 3,
+          "startLine": 90,
+          "endLine": 110,
+          "tokens": 454,
+          "summary": "这是最典型的场景。任何时候你修改了小游戏代码，都必须自动触发预览。",
+          "keywords": [
+            "场景一",
+            "生成",
+            "修改小游戏代",
+            "码后自动预览",
+            "最常见",
+            "最重要"
+          ]
+        },
+        {
+          "anchor": "§场景二：查看日志调试问题",
+          "level": 3,
+          "startLine": 111,
+          "endLine": 117,
+          "tokens": 64,
+          "summary": "当游戏运行中出现问题时：",
+          "keywords": [
+            "场景二",
+            "查看日志调试",
+            "问题"
+          ]
+        },
+        {
+          "anchor": "§场景三：真机预览",
+          "level": 3,
+          "startLine": 118,
+          "endLine": 133,
+          "tokens": 263,
+          "summary": "当用户要求在真机上预览、体验、测试时：",
+          "keywords": [
+            "场景三",
+            "真机预览"
+          ]
+        },
+        {
+          "anchor": "§场景四：上传开发版/上传体验版/发布到微信",
+          "level": 3,
+          "startLine": 134,
+          "endLine": 141,
+          "tokens": 116,
+          "summary": "1. 确认用户要发布的版本号和描述",
+          "keywords": [
+            "场景四",
+            "上传开发版",
+            "上传体验版",
+            "发布到微信"
+          ]
+        },
+        {
+          "anchor": "§完整使用示例",
+          "level": 2,
+          "startLine": 142,
+          "endLine": 199,
+          "tokens": 887,
+          "summary": "",
+          "keywords": [
+            "完整使用示例"
+          ]
+        },
+        {
+          "anchor": "§示例 1：用户说\"帮我做一个打砖块小游戏\"",
+          "level": 3,
+          "startLine": 144,
+          "endLine": 154,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "帮我做一个打",
+            "砖块小游戏"
+          ]
+        },
+        {
+          "anchor": "§示例 2：用户说\"把颜色改成红色\"（代码修改后自动预览）",
+          "level": 3,
+          "startLine": 155,
+          "endLine": 165,
+          "tokens": 164,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "把颜色改成红",
+            "代码修改后自",
+            "动预览"
+          ]
+        },
+        {
+          "anchor": "§示例 2.5：用户说\"帮我加个得分系统\"（较大代码修改后自动预览）",
+          "level": 3,
+          "startLine": 166,
+          "endLine": 177,
+          "tokens": 222,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "帮我加个得分",
+            "系统",
+            "较大代码修改",
+            "后自动预览"
+          ]
+        },
+        {
+          "anchor": "§示例 3：用户说\"真机体验测试下\"",
+          "level": 3,
+          "startLine": 178,
+          "endLine": 188,
+          "tokens": 112,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "真机体验测试"
+          ]
+        },
+        {
+          "anchor": "§示例 4：用户说\"上传到微信\"",
+          "level": 3,
+          "startLine": 189,
+          "endLine": 199,
+          "tokens": 109,
+          "summary": "",
+          "keywords": [
+            "示例",
+            "用户说",
+            "上传到微信"
+          ]
+        },
+        {
+          "anchor": "§微信小游戏项目结构",
+          "level": 2,
+          "startLine": 200,
+          "endLine": 211,
+          "tokens": 81,
+          "summary": "一个标准的微信小游戏项目应包含：",
+          "keywords": [
+            "微信小游戏项",
+            "目结构"
+          ]
+        },
+        {
+          "anchor": "§注意事项",
+          "level": 2,
+          "startLine": 212,
+          "endLine": 219,
+          "tokens": 134,
+          "summary": "游戏目录必须包含 game.js 文件",
+          "keywords": [
+            "game",
+            "注意事项"
+          ]
+        },
+        {
+          "anchor": "§⚠️ 重要约束",
+          "level": 2,
+          "startLine": 220,
+          "endLine": 251,
+          "tokens": 592,
+          "summary": "真机预览（real_device_preview）和上传开发版（publish）成功后，禁止调用 run_game、re",
+          "keywords": [
+            "real_device_preview",
+            "publish",
+            "run_game",
+            "重要约束"
+          ]
+        }
+      ]
+    },
+    {
       "path": "my-skills/wxgame-orchestration/SKILL.md",
       "tokens": 2194,
       "lines": 104,
@@ -19427,17 +20944,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 3784,
-      "lines": 54,
-      "sha256": "a9bab7fd30c3bafc0b1fc6aef1f39939b491e36f5e3e6c916eec7030d1ae5ee8",
+      "tokens": 4077,
+      "lines": 56,
+      "sha256": "572bf7d6354dc0966d825a32fa6061b6b5db615025a0c0f7bb0258b722199b1c",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 55,
-          "tokens": 3775,
+          "endLine": 57,
+          "tokens": 4068,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -19451,8 +20968,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 47,
-          "endLine": 55,
+          "startLine": 49,
+          "endLine": 57,
           "tokens": 476,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [

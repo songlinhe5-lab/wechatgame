@@ -33,11 +33,11 @@
 | 13 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
 | 14 | `ctx/ROUTES.md` | 4656 | 177 | normal |
 | 15 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
-| 16 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
-| 17 | `production/qa/test-plan.md` | 4334 | 195 | normal |
-| 18 | `docs/architecture/architecture.md` | 4322 | 239 | normal |
-| 19 | `games/beads/design/gdd/score-combo.md` | 4248 | 137 | normal |
-| 20 | `docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md` | 4220 | 142 | normal |
+| 16 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
+| 17 | `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md` | 4543 | 251 | normal |
+| 18 | `games/beads/art/art-bible.md` | 4511 | 220 | normal |
+| 19 | `production/qa/test-plan.md` | 4334 | 195 | normal |
+| 20 | `docs/architecture/architecture.md` | 4322 | 239 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
