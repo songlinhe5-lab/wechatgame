@@ -26,8 +26,8 @@
 | 6 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
 | 7 | `ctx/ROUTES.md` | 5831 | 208 | normal |
 | 8 | `memory/2026-09-11.md` | 5617 | 115 | normal |
-| 9 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
-| 10 | `production/TASKS.md` | 5227 | 59 | hot |
+| 9 | `production/TASKS.md` | 5449 | 64 | hot |
+| 10 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
 | 11 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
 | 12 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
 | 13 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
