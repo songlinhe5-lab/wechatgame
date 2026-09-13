@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1488,
       "lines": 76,
-      "sha256": "b65ee6b74f4c0f82a0bc7cc712fd6947dce02541760139d5a360a480d95885b1",
+      "sha256": "cc93da26c0b1898944b8449784c4e85bea1c799e52262faf8f7d4cd774fcfc27",
       "tier": "normal",
       "sections": [
         {
@@ -13215,17 +13215,17 @@
     },
     {
       "path": "memory/2026-09-13.md",
-      "tokens": 5768,
-      "lines": 129,
-      "sha256": "0f3a8545dc5528756ea902a6af327d024c59d9fdc6ebed6c4e5e1a6bf0388ab1",
+      "tokens": 6312,
+      "lines": 136,
+      "sha256": "bc10847aafc98f76e08622a437dec8ef70f9be96f76bcbfe50a265f8c0ac7fff",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-13",
           "level": 1,
           "startLine": 1,
-          "endLine": 130,
-          "tokens": 5765,
+          "endLine": 137,
+          "tokens": 6309,
           "summary": "",
           "keywords": []
         },
@@ -13479,6 +13479,21 @@
           "level": 2,
           "startLine": 124,
           "endLine": 130,
+          "tokens": 528,
+          "summary": "R5（WXG-T-039，e945060）：ROUTES.md 接入 A 项硬门 7500（现值 6235 的 +20.",
+          "keywords": [
+            "WXG",
+            "e945060",
+            "ROUTES",
+            "全部落地收官",
+            "主理会话"
+          ]
+        },
+        {
+          "anchor": "§R1-R5 全部落地收官（12:30，主理会话） (2)",
+          "level": 2,
+          "startLine": 131,
+          "endLine": 137,
           "tokens": 528,
           "summary": "R5（WXG-T-039，e945060）：ROUTES.md 接入 A 项硬门 7500（现值 6235 的 +20.",
           "keywords": [

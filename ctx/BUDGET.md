@@ -31,7 +31,7 @@
 | 7 | `ctx/ROUTES.md` | 6535 | 225 | normal |
 | 8 | `docs/agent/context-instrumentation-survey.md` | 6374 | 270 | normal |
 | 9 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
-| 10 | `memory/2026-09-13.md` | 5768 | 129 | normal |
+| 10 | `memory/2026-09-13.md` | 6312 | 136 | normal |
 | 11 | `memory/2026-09-11.md` | 5617 | 115 | normal |
 | 12 | `production/qa/beads/test-cases.md` | 5372 | 146 | hot |
 | 13 | `knowledge/lessons.md` | 5202 | 105 | normal |
