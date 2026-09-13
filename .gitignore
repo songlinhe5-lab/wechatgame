@@ -64,3 +64,12 @@ games/*/cocos/local/
 games/*/cocos/build/
 games/*/cocos/extensions/
 .DS_Store
+
+# Cocos Creator 工程本地缓存（编辑器生成，永不入库）
+games/*/cocos/library/
+games/*/cocos/temp/
+games/*/cocos/profiles/
+games/*/cocos/local/
+games/*/cocos/build/
+games/*/cocos/extensions/
+.DS_Store
