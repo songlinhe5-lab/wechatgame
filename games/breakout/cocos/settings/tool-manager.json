@@ -32,13 +32,13 @@
         {
           "category": "scene",
           "name": "scene_query_system",
-          "enabled": false,
+          "enabled": true,
           "description": "QUERY SYSTEM: Get scene status, available classes/components, and find nodes by asset usage. Use this for scene inspection and analysis."
         },
         {
           "category": "node",
           "name": "node_query",
-          "enabled": false,
+          "enabled": true,
           "description": "NODE SEARCH & INFORMATION: Essential tool for finding and inspecting scene nodes. CRITICAL WORKFLOW: Always use this FIRST to get node UUIDs before any modifications. Use \"find\" for partial name search, \"find_by_name\" for exact match, \"info\" for detailed node data, \"list_all\" to see entire scene structure."
         },
         {
@@ -92,25 +92,25 @@
         {
           "category": "component",
           "name": "component_query",
-          "enabled": false,
+          "enabled": true,
           "description": "COMPONENT QUERY: Get component information, list all components on node, or get available component types. Use this FIRST to find component CIDs before removing!"
         },
         {
           "category": "component",
           "name": "set_component_property",
-          "enabled": true,
+          "enabled": false,
           "description": "COMPONENT PROPERTY SETTER: Set component properties with strict type validation. CRITICAL WORKFLOW: 1) Use component_query to get exact componentType AND inspect property types, 2) Set properties with MANDATORY propertyType specification, 3) Verify results. SUPPORTS: All Cocos Creator built-in components (cc.Label, cc.Sprite, cc.Button) and custom script components. ⚠️ IMPORTANT: propertyType is REQUIRED - no automatic detection!"
         },
         {
           "category": "component",
           "name": "configure_click_event",
-          "enabled": true,
+          "enabled": false,
           "description": "Configure or remove click events for Button components. Supports adding new events, removing specific events, or clearing all events."
         },
         {
           "category": "prefab",
           "name": "prefab_browse",
-          "enabled": false,
+          "enabled": true,
           "description": "PREFAB BROWSER: Query and analyze prefab files in your project. WORKFLOW: Use \"list\" to discover all prefabs → \"info\" to get detailed prefab data → \"validate\" to check file integrity. Essential for prefab management and debugging. Common use: finding prefabs before instantiation."
         },
         {
@@ -134,7 +134,7 @@
         {
           "category": "project",
           "name": "project_manage",
-          "enabled": true,
+          "enabled": false,
           "description": "PROJECT MANAGEMENT: Core project operations and configuration. COMMON WORKFLOWS: get_info for project details, run for preview testing, build for deployment preparation, get_settings for configuration inspection. Note: Build operations require manual interaction due to API limitations."
         },
         {
@@ -164,7 +164,7 @@
         {
           "category": "preferences",
           "name": "preferences_manage",
-          "enabled": true,
+          "enabled": false,
           "description": "PREFERENCES MANAGEMENT: Configure Cocos Creator editor settings and open preferences panel. WORKFLOW: open_panel to access GUI settings, get_config to read current values, set_config to modify settings, reset_config to restore defaults. Supports global/local/default scopes."
         },
         {
@@ -176,7 +176,7 @@
         {
           "category": "preferences",
           "name": "preferences_backup",
-          "enabled": true,
+          "enabled": false,
           "description": "PREFERENCES BACKUP: Export current preferences to JSON format or prepare for backup operations. Use this for preference backup and restore workflows."
         },
         {
@@ -236,7 +236,7 @@
         {
           "category": "referenceImage",
           "name": "reference_image_management",
-          "enabled": true,
+          "enabled": false,
           "description": "REFERENCE IMAGE MANAGEMENT: Manage overlay reference images in the scene editor for design guidance. WORKFLOW: \"add\" images from file paths → \"switch\" between multiple references → \"remove\" when no longer needed OR \"clear_all\" to reset. Essential for UI design and scene layout matching."
         },
         {
@@ -248,7 +248,7 @@
         {
           "category": "referenceImage",
           "name": "reference_image_transform",
-          "enabled": true,
+          "enabled": false,
           "description": "REFERENCE IMAGE TRANSFORM: Adjust reference image display properties for better design alignment. USAGE: Fine-tune position, scale, and opacity to overlay images properly with scene content. Essential for precise UI design matching and layout guidance."
         },
         {
@@ -260,7 +260,7 @@
         {
           "category": "assetAdvanced",
           "name": "asset_manage",
-          "enabled": true,
+          "enabled": false,
           "description": "ASSET MANAGEMENT: Import, delete, save metadata, or generate URLs for assets. Use this for all asset creation/deletion/modification operations. WORKFLOW: First use asset_query to find assets, then perform operations. Import requires sourcePath+targetUrl, delete needs urls array, save_meta needs urlOrUUID+content, generate_url needs url parameter."
         },
         {
@@ -284,7 +284,7 @@
         {
           "category": "assetAdvanced",
           "name": "asset_operations",
-          "enabled": true,
+          "enabled": false,
           "description": "ASSET OPERATIONS: Create, copy, move, delete, save, and import assets. Use this for all asset file operations and modifications."
         },
         {
@@ -307,7 +307,7 @@
         }
       ],
       "createdAt": "2026-09-13T13:49:01.989Z",
-      "updatedAt": "2026-09-13T14:06:08.164Z"
+      "updatedAt": "2026-09-13T15:21:11.595Z"
     }
   ],
   "currentConfigId": "cef508fd-4f70-4cb6-a949-b10277944178",
