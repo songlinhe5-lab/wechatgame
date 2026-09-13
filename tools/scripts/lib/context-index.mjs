@@ -93,6 +93,14 @@ const HOT_FILES = new Set([
  *
  * 逃生阀：`--working-tree` 强制**全部**按工作树内容（生成器 / 门禁均支持），用于
  *        「我就是要按本地未提交内容看行号」的场景；此时输出显式标注「非默认模式」。
+ *
+ * 暂存区模式（WXG-T-032 ⑤，2026-09-13）：`--staged-blobs`——pre-commit 自动重建专用。
+ *        背景：拦截式 pre-commit 被证实**结构性不可通过**——索引描述「HEAD」，而任何改被索引
+ *        `.md` 的提交其暂存内容必然 ≠ HEAD 锚定的旧索引，只能靠 `--no-verify` 绕过。
+ *        故 pre-commit 改为「自动重建 + 重新暂存」：暂存区中的 .md 按**暂存 blob**
+ *        （`git show :<path>`，= 即将提交的内容）索引，暂存新文件一并纳入；其余文件维持
+ *        committed 契约（未暂存 dirty → HEAD、干净 → 工作树）。产物随本次提交入库，
+ *        `ctx:check --staged` 降为兜底终校验。
  */
 
 /**
@@ -113,35 +121,72 @@ function git(args) {
 }
 
 /**
- * 计算 git 工作区 dirty 文件集合（相对仓库根、POSIX 路径）。
- * dirty = 与 HEAD 有差异（已跟踪且改动/删除/新增）或**未跟踪**（`git status` 的 `??`）。
- * @param {{workingTree?: boolean}} [opts] workingTree=true → 视作「无 dirty」（逃生阀）。
- * @returns {{ok: boolean, git: boolean, workingTree: boolean,
- *            dirty: Set<string>, untracked: Set<string>}}
+ * 计算 git 工作区「内容来源判定」所需的集合（三分支模式，WXG-T-026 / WXG-T-032 ⑤）。
+ * @param {{mode?: 'committed' | 'working-tree' | 'staged-blobs'}} [opts]
+ *   committed（默认）  → 索引描述已提交内容（HEAD）：dirty→HEAD blob、未跟踪→skip；
+ *   working-tree      → 逃生阀：视作「无 dirty」，全部按工作树内容；
+ *   staged-blobs      → pre-commit 自动重建（WXG-T-032 ⑤）：暂存区中的 .md 按暂存 blob
+ *                       （`git show :<path>`，= 即将提交的内容）索引，暂存新文件一并纳入；
+ *                       其余文件维持 committed 契约（未暂存 dirty → HEAD、干净 → 工作树）。
+ * @returns {{ok: boolean, git: boolean, mode: string, workingTree: boolean,
+ *            stagedBlobs: boolean, dirty: Set<string>, untracked: Set<string>,
+ *            staged: Map<string, string>}}
  *   ok=false（非 git 仓库 / git 不可用）→ 调用方回退为纯工作树语义（等价干净检出）。
+ *   `workingTree`/`stagedBlobs` 为布尔镜像（既有消费方沿用）；`staged` 仅 staged-blobs 模式非空。
  */
-export function dirtySet({ workingTree = false } = {}) {
-  if (workingTree) {
-    return { ok: true, git: true, workingTree: true, dirty: new Set(), untracked: new Set() };
+export function dirtySet({ mode = 'committed' } = {}) {
+  /** committed 契约的 dirty / untracked 集合；git 不可用 → null。 */
+  const committedStatus = () => {
+    let out;
+    try {
+      // --no-renames：把重命名拆成 D+A 两条记录，避免 `-z` 下额外的源路径记录解析。
+      out = git(['status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames']);
+    } catch {
+      return null;
+    }
+    const dirty = new Set();
+    const untracked = new Set();
+    for (const rec of out.split('\0')) {
+      if (!rec) continue;
+      const code = rec.slice(0, 2);
+      const path = rec.slice(3);
+      if (!path) continue;
+      dirty.add(path);
+      if (code === '??') untracked.add(path);
+    }
+    return { dirty, untracked };
+  };
+  if (mode === 'working-tree') {
+    return {
+      ok: true, git: true, mode, workingTree: true, stagedBlobs: false,
+      dirty: new Set(), untracked: new Set(), staged: new Map(),
+    };
   }
-  let out;
-  try {
-    // --no-renames：把重命名拆成 D+A 两条记录，避免 `-z` 下额外的源路径记录解析。
-    out = git(['status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames']);
-  } catch {
-    return { ok: false, git: false, workingTree: false, dirty: new Set(), untracked: new Set() };
+  if (mode === 'staged-blobs') {
+    const base = committedStatus();
+    const st = stagedSet();
+    if (base == null || !st.ok) {
+      return {
+        ok: false, git: false, mode, workingTree: false, stagedBlobs: true,
+        dirty: new Set(), untracked: new Set(), staged: new Map(),
+      };
+    }
+    return {
+      ok: true, git: true, mode, workingTree: false, stagedBlobs: true,
+      dirty: base.dirty, untracked: base.untracked, staged: st.staged,
+    };
   }
-  const dirty = new Set();
-  const untracked = new Set();
-  for (const rec of out.split('\0')) {
-    if (!rec) continue;
-    const code = rec.slice(0, 2);
-    const path = rec.slice(3);
-    if (!path) continue;
-    dirty.add(path);
-    if (code === '??') untracked.add(path);
+  const base = committedStatus();
+  if (base == null) {
+    return {
+      ok: false, git: false, mode: 'committed', workingTree: false, stagedBlobs: false,
+      dirty: new Set(), untracked: new Set(), staged: new Map(),
+    };
   }
-  return { ok: true, git: true, workingTree: false, dirty, untracked };
+  return {
+    ok: true, git: true, mode: 'committed', workingTree: false, stagedBlobs: false,
+    dirty: base.dirty, untracked: base.untracked, staged: new Map(),
+  };
 }
 
 /** 读取工作树文件内容；缺失 / 读取失败 → null。 */
@@ -204,9 +249,10 @@ export function readStagedBlob(relPath) {
 }
 
 /**
- * 按 WXG-T-026 契约解析某被索引文件的**内容来源**。
- * @returns {{source: 'worktree' | 'head' | 'skip', text: string | null}}
- *   worktree = 取工作树内容；head = 取 HEAD blob；skip = 不入索引（HEAD 无此新文件 / 缺失）。
+ * 按 WXG-T-026 / WXG-T-032 ⑤ 契约解析某被索引文件的**内容来源**。
+ * @returns {{source: 'worktree' | 'head' | 'staged' | 'skip', text: string | null}}
+ *   worktree = 取工作树内容；head = 取 HEAD blob；staged = 取暂存 blob（staged-blobs 模式）；
+ *   skip = 不入索引（未跟踪新文件 / 内容源缺失）。
  */
 export function resolveContent(relPath, gate) {
   const fromWorktree = () => {
@@ -216,6 +262,12 @@ export function resolveContent(relPath, gate) {
   // 无 gate / 非 git / 逃生阀 / 本工具生成物 → 一律工作树。
   if (!gate || !gate.ok || gate.workingTree || WORKTREE_AUTHORITATIVE.has(relPath)) {
     return fromWorktree();
+  }
+  // staged-blobs 模式（WXG-T-032 ⑤）：暂存区条目按**暂存 blob**（= 即将提交的内容）。
+  // 暂存 blob 读取失败（不应发生）→ 显式 skip，不静默改用工作树（避免把未暂存内容混进提交索引）。
+  if (gate.stagedBlobs && gate.staged.has(relPath)) {
+    const text = readStagedBlob(relPath);
+    return text == null ? { source: 'skip', text: null } : { source: 'staged', text };
   }
   if (!gate.dirty.has(relPath)) return fromWorktree();
   // dirty：未跟踪（HEAD 无）→ 按契约不入索引。
@@ -464,14 +516,18 @@ export function buildFileRecord(relPath, gate = null) {
 
 /**
  * Build the whole index object (deterministic + byte-stable).
- * @param {{workingTree?: boolean}} [opts] workingTree=true → 逃生阀：全部按工作树内容。
- * @returns {{index: object, meta: {git: boolean, workingTree: boolean,
- *            headIndexed: string[], newFilesSkipped: string[]}}}
+ * @param {{mode?: 'committed' | 'working-tree' | 'staged-blobs'}} [opts]
+ *   mode 语义见 `dirtySet()`；默认 committed（索引描述已提交内容 HEAD，WXG-T-026）；
+ *   staged-blobs = pre-commit 自动重建（暂存 .md 按暂存 blob 内容，WXG-T-032 ⑤）。
+ * @returns {{index: object, meta: {git: boolean, mode: string, workingTree: boolean,
+ *            stagedBlobs: boolean, headIndexed: string[], stagedIndexed: string[],
+ *            newFilesSkipped: string[]}}}
  *   `index` 是可序列化产物（**不含** meta，保证字节稳定）；`meta` 仅供调用方打印提示。
  */
-export function buildIndex({ workingTree = false } = {}) {
-  const gate = dirtySet({ workingTree });
+export function buildIndex({ mode = 'committed' } = {}) {
+  const gate = dirtySet({ mode });
   const headIndexed = [];
+  const stagedIndexed = [];
   const newFilesSkipped = [];
   const files = [];
   for (const rel of listMarkdown()) {
@@ -481,6 +537,7 @@ export function buildIndex({ workingTree = false } = {}) {
       continue;
     }
     if (r.source === 'head') headIndexed.push(rel);
+    if (r.source === 'staged') stagedIndexed.push(rel);
     files.push(makeFileRecord(rel, r.text));
   }
   return {
@@ -489,7 +546,15 @@ export function buildIndex({ workingTree = false } = {}) {
       generatedBy: 'tools/scripts/build-context-index.mjs',
       files,
     },
-    meta: { git: gate.git, workingTree: gate.workingTree, headIndexed, newFilesSkipped },
+    meta: {
+      git: gate.git,
+      mode: gate.mode,
+      workingTree: gate.workingTree,
+      stagedBlobs: gate.stagedBlobs,
+      headIndexed,
+      stagedIndexed,
+      newFilesSkipped,
+    },
   };
 }
 
@@ -517,7 +582,9 @@ export function readIndex() {
  *            headChecked: string[], git: boolean, workingTree: boolean}}
  */
 export function freshnessIssues(index, { workingTree = false } = {}) {
-  const gate = dirtySet({ workingTree });
+  // 注：freshnessIssues 只支持 committed / working-tree 两模式；暂存区校验由
+  // check-context-budget.mjs 的 checkStagedFreshness() 承担（--staged，WXG-T-032 ③⑤）。
+  const gate = dirtySet(workingTree ? { mode: 'working-tree' } : {});
   const stale = [];
   const indexed = new Set();
   const headChecked = [];

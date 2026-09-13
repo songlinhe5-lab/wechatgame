@@ -29,9 +29,9 @@
 | 9 | `games/breakout/design/design-review.md` | 5081 | 257 | normal |
 | 10 | `games/beads/design/gdd/powerups.md` | 5036 | 141 | normal |
 | 11 | `games/breakout/art/assets-spec.md` | 4993 | 252 | normal |
-| 12 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
-| 13 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
-| 14 | `ctx/ROUTES.md` | 4656 | 177 | normal |
+| 12 | `ctx/ROUTES.md` | 4857 | 183 | normal |
+| 13 | `games/breakout/art/art-bible.md` | 4852 | 229 | normal |
+| 14 | `games/beads/design/proposals/daily-challenge.md` | 4657 | 174 | normal |
 | 15 | `games/breakout/design/gdd/systems-index.md` | 4600 | 232 | normal |
 | 16 | `my-plugins/weixin-minigame-helper/0.1.4/SKILL.md` | 4543 | 251 | normal |
 | 17 | `my-skills/wxgame-minigame-bridge/references/official-skill-0.1.4.md` | 4543 | 251 | normal |

@@ -10,11 +10,13 @@
  *               **契约（WXG-T-026，2026-09-12）：索引描述「已提交内容（HEAD）」** ——
  *               dirty 文件按 HEAD blob 校验（`git show HEAD:<path>`），未跟踪新文件不算
  *               「未收录」。故干净检出恒绿，本地 dirty 树亦通过（本地行号可能漂移）。
- *               **--staged（WXG-T-032 ③，非默认模式）**：C 项改为只校验**暂存区**中的 .md ——
- *               暂存内容（`git show :<path>`）的 sha256 与 ctx/index.json 比对；不一致 / 暂存了
- *               索引中不存在的新 .md / 暂存删除已收录文件 → FAIL（把「改 md 未重建索引」的拦截
- *               前移到本地提交前）。未暂存的 dirty 文件**不参与**（避免误伤并发会话在制文件）；
- *               A/B/D/E 照常跑（数据源不变）。与 --working-tree 互斥。
+ *               **--staged（WXG-T-032 ③⑤，非默认模式）**：C 项只校验**暂存区**中的 .md ——
+ *               暂存内容（`git show :<path>`）的 sha256 与 ctx/index.json 比对。**语义演进
+ *               （WXG-T-032 ⑤，2026-09-13）**：拦截式 pre-commit 被证实结构性不可通过
+ *               （改 .md 的提交其暂存内容必然 ≠ HEAD 锚定的旧索引），pre-commit 已改为
+ *               「--staged-blobs 自动重建 + 重新暂存」，本模式降为**兜底终校验**——正常路径恒绿，
+ *               仅竞态 / 暂存内容在重建后又被改动等意外情况 FAIL。未暂存的 dirty 文件**不参与**
+ *               （避免误伤并发会话在制文件）；A/B/D/E 照常跑（数据源不变）。与 --working-tree 互斥。
  *   D ROUTES 锚点 解析 ctx/ROUTES.md 的 `路径#锚点` 引用，校验路径在索引中且锚点可命中
  *               （非锚点式整文件引用须在该行尾标注 `<!-- no-anchor -->` 显式豁免）
  *   E 节省率/护栏/基线（WXG-T-026 ④，纯查表计算，消费 ctx/usage-distribution.json）：
@@ -40,7 +42,7 @@
  *
  * 用法：node tools/scripts/check-context-budget.mjs
  *       node tools/scripts/check-context-budget.mjs --working-tree   # 逃生阀：按本地未提交内容校验
- *       node tools/scripts/check-context-budget.mjs --staged         # 非默认模式：仅按暂存区内容校验 C 项（pre-commit 用，WXG-T-032 ③）
+ *       node tools/scripts/check-context-budget.mjs --staged         # 非默认模式：仅按暂存区内容校验 C 项（pre-commit 自动重建后的兜底终校验，WXG-T-032 ③⑤）
  *       node tools/scripts/check-context-budget.mjs --update-baseline --reason="…" --task-id="WXG-T-…"
  */
 
@@ -264,12 +266,14 @@ function checkFreshness() {
 }
 
 /**
- * ── C(staged). 索引新鲜度 · 暂存区模式（WXG-T-032 ③，非默认模式）──────────────
+ * ── C(staged). 索引新鲜度 · 暂存区模式（WXG-T-032 ③⑤，非默认模式）──────────────
  * 只校验暂存区中的 .md（A/B/D/E 数据源不变）；未暂存的 dirty 文件不参与——
- * 避免把并发会话的在制文件算进来误伤。失败语义：
- *   • 暂存内容 sha256 ≠ 索引记录 → 「暂存内容与索引不一致」
+ * 避免把并发会话的在制文件算进来误伤。**语义（WXG-T-032 ⑤）**：pre-commit 主路径已改为
+ * 「--staged-blobs 自动重建 + 重新暂存」，本函数降为**兜底终校验**（正常路径恒绿）。
+ * 失败语义（兜底只兜意外）：
+ *   • 暂存内容 sha256 ≠ 索引记录 → 「暂存内容与索引不一致」（如重建后暂存内容又被并发改动）
  *   • 暂存了索引中不存在的新 .md → 「新文件未入索引」
- *   • 暂存删除了索引仍收录的文件 → 一并 FAIL（提交后索引必过期）
+ *   • 暂存删除了索引仍收录的文件 → 一并 FAIL（正常重建会同步移除，见 hint）
  * 非 git 环境：显式降级为 note（不假绿），不误报。
  */
 function checkStagedFreshness() {
@@ -293,7 +297,8 @@ function checkStagedFreshness() {
       if (rec) {
         failures.push(
           `C(--staged): 暂存了删除，但索引仍收录该文件 — ${path} —— ` +
-            '提交前请重跑 `pnpm run ctx:build` 并 `git add ctx/index.json`',
+            '直接重新提交即可（pre-commit 自动重建会同步移除，WXG-T-032 ⑤）；' +
+            '手动修复：pnpm run ctx:build && git add ctx/index.json',
         );
       }
       continue;
@@ -301,7 +306,8 @@ function checkStagedFreshness() {
     if (!rec) {
       failures.push(
         `C(--staged): 新文件未入索引 — ${path} —— ` +
-          '提交前请重跑 `pnpm run ctx:build` 并重新 `git add`（该 .md 与 ctx/index.json）',
+          '直接重新提交即可（pre-commit 会自动把暂存新文件纳入索引，WXG-T-032 ⑤）；' +
+          '手动修复：pnpm run ctx:build && git add ctx/index.json',
       );
       continue;
     }
@@ -313,7 +319,8 @@ function checkStagedFreshness() {
     if (sha256(blob) !== rec.sha256) {
       failures.push(
         `C(--staged): 暂存内容与索引不一致 — ${path} —— ` +
-          '提交前请重跑 `pnpm run ctx:build` 并重新 `git add`（该 .md 与 ctx/index.json）',
+          '直接重新提交即可（pre-commit 会以 --staged-blobs 自动重建并重新暂存，WXG-T-032 ⑤）；' +
+          '手动修复：pnpm run ctx:build && git add ctx/index.json',
       );
     }
   }
@@ -665,7 +672,7 @@ if (overRows.length === 0) {
 console.log('');
 
 if (STAGED) {
-  console.log('C 索引新鲜度（--staged 非默认模式）— 只校验**暂存区**中的 .md：暂存内容 sha256 vs ctx/index.json');
+  console.log('C 索引新鲜度（--staged 非默认模式）— 兜底终校验：只校验**暂存区**中的 .md（暂存内容 sha256 vs ctx/index.json；主路径由 pre-commit --staged-blobs 自动重建，WXG-T-032 ⑤）');
   if (index && freshness.stagedFiles.length === 0) {
     console.log('✅ 暂存区无 .md —— 零暂存校验（≈0 开销）');
   } else if (index) {
@@ -692,7 +699,7 @@ if (STAGED) {
   console.log('   ⚠️ 未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');
 } else if (freshness.headChecked && freshness.headChecked.length > 0) {
   console.log(
-    `   ℹ️ ${freshness.headChecked.length} 个 dirty 文件按 HEAD 内容校验（本地行号可能与索引漂移，提交后重跑 ctx:build 即对齐）。`,
+    `   ℹ️ ${freshness.headChecked.length} 个 dirty 文件按 HEAD 内容校验（本地行号可能与索引漂移；提交时 pre-commit 会自动重建索引并重新暂存，WXG-T-032 ⑤）。`,
   );
 }
 console.log('');
