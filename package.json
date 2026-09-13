@@ -19,6 +19,8 @@
     "check:mcp": "node tools/scripts/build-mcp-configs.mjs --check",
     "levels:sync": "node tools/scripts/sync-levels-data.mjs",
     "levels:check": "node tools/scripts/sync-levels-data.mjs --check",
+    "framework:sync": "node tools/scripts/sync-framework-to-cocos.mjs",
+    "framework:sync:check": "node tools/scripts/sync-framework-to-cocos.mjs --check",
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
     "ctx:reads": "node tools/scripts/collect-context-reads.mjs",

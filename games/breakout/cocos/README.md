@@ -56,9 +56,39 @@ games/breakout/
 
 ---
 
-## 2. 如何引用 `packages/framework`（**待编辑器验证**）
+## 2. 如何引用 `packages/framework`（✅ 方案 C 已实施为基线）
 
-**这是当前最高优先级的未知项**（`VERSION.md` 缺口 G1）。三种候选方案，按推荐顺序：
+> **状态更新（缺口 G1）**：本工程当前采用 **方案 C（物理拷贝）** 作为基线，已于
+> 2026-09-13 落地并通过 Node 侧类型检查（详见 §2.1）。方案 A / B（及 tsconfig
+> paths 的方案 d）留待后续 ADR 评估能否替代。
+
+### 2.1 当前基线：方案 C（物理拷贝）
+
+```bash
+# 同步（幂等）：packages/framework/src → cocos/assets/scripts/framework/
+#             games/breakout/src     → cocos/assets/scripts/game/
+pnpm run framework:sync
+
+# CI 用一致性校验（漂移则 exit 1）
+pnpm run framework:sync:check
+```
+
+- **规则**：拷贝件只能由脚本生成，**禁止手工编辑**；改动框架/游戏源码后必须重跑同步。
+- **改写**：拷贝时脚本把游戏源码里的裸包名 `'@wxgame/framework'` 改写为指向
+  `framework/` 拷贝目录的相对路径（按文件深度计算）；框架拷贝件与源码逐字节一致。
+- **`.js` 后缀裁决**：**原样保留**（ESM 风格）。已实测 TS 5.6 在
+  `moduleResolution: "node"`（即编辑器 `temp/tsconfig.cocos.json` 的取值）下能
+  解析 `.js` → `.ts` 映射，且 `cocos/tsconfig.check.json` 的 `tsc --noEmit`
+  全量通过。**仍待验证**：Cocos 自有构建管线（编辑器内编译 / 微信小游戏构建）
+  是否同样解析——用户首次在编辑器里编译时观察控制台；若不认，脚本备有
+  `--strip-suffix` 开关可产出无后缀拷贝件（不影响 Node 侧测试，测试始终读
+  原始 `src/`）。
+- **红线**：脚本永不生成 / 改写 `.meta`；同步时保留编辑器已生成的 `.meta`
+  （UUID 丢了会断 Main.scene 里的组件引用），只清理源里已不存在的拷贝件。
+- **类型检查**：`cd games/breakout/cocos && ../../../node_modules/.bin/tsc -p tsconfig.check.json`
+  （依赖编辑器生成的 `temp/declarations/cc`，故需先打开过编辑器）。
+
+### 2.2 备选方案（留待后续 ADR）
 
 ### 方案 A：npm 包依赖（推荐，若编辑器支持）
 
@@ -74,7 +104,7 @@ games/breakout/
 ```ts
 // cocos/assets/scripts/BreakoutBootstrap.ts
 import { Bootstrap } from '@wxgame/framework/adapters/cocos';
-import { createBreakoutGame } from '../../../../src/index';  // ← 同样待验证
+import { createBreakoutGame } from '../../../../src/index';  // ← 注意：跨出 assets，方案 C 实测不可用；方案 A 若实施需另定
 ```
 
 - **未知**：Cocos 3.8 是否解析 `exports` map？是否编译 `node_modules` 里的 `.ts`？`type: "module"` 是否被接受？
@@ -143,13 +173,17 @@ rsync -a --delete packages/framework/src/ games/breakout/cocos/assets/scripts/fr
 
 ### 步骤 4：创建 `BreakoutBootstrap.ts`
 
-把下面的文件**原样**创建为 `games/breakout/cocos/assets/scripts/BreakoutBootstrap.ts`（用编辑器新建脚本后粘贴内容）：
+> ✅ **该文件已创建**（`games/breakout/cocos/assets/scripts/BreakoutBootstrap.ts`，
+> 随方案 C 基线一起入库）。内容如下——导入路径已是拷贝件的真实相对路径
+> （`Bootstrap` 由 `framework/adapters/cocos/bindings.ts` 导出、
+> `createBreakoutGame` 由 `game/index.ts` 再导出，均经源码核实）：
 
 ```ts
 import { _decorator } from 'cc';
-import { Bootstrap } from './framework/adapters/cocos/bindings';   // ← 路径取决于 §2 采用的方案
-import type { Game } from './framework/core/game/game';
-import { createBreakoutGame } from '../../../../src/index';         // ← 路径取决于 §2 采用的方案
+
+import { Bootstrap } from './framework/adapters/cocos/bindings.js';
+import type { Game } from './framework/core/game/game.js';
+import { createBreakoutGame } from './game/index.js';
 
 const { ccclass } = _decorator;
 
@@ -167,7 +201,9 @@ export class BreakoutBootstrap extends Bootstrap {
 }
 ```
 
-> ⚠️ 导入路径必须按 §2 最终选定的方案调整。这是**预期会出错**的地方之一（缺口 G1）。
+> ⚠️ `./framework/**` 与 `./game/**` 是**拷贝件**（`pnpm run framework:sync`
+> 生成），不要手工编辑。若编辑器控制台报 `.js` 后缀解析错误，见 §2.1 的
+> `--strip-suffix` 开关。
 
 ### 步骤 5：把 `Main` 设为启动场景
 

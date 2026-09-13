@@ -2,7 +2,7 @@
 
 - **钉定版本**：Cocos Creator **3.8 LTS**（当前最新 3.8.8，2025-12 发布）
 - **参考版本（不采用，仅观察）**：Cocos Creator 4（2025-11 开源）
-- **更新日期**：2026-09-11
+- **更新日期**：2026-09-13
 - **维护人**：程基岩
 - **对应决策**：ADR-0001 / ADR-0002 / ADR-0003
 
@@ -54,17 +54,18 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 
 > 每一条都是"我**无法**在无编辑器环境下确认"的事实。请在 Cocos Creator 3.8.8 就绪后按序验证并回填结论。
 
-### G1 — 框架源码如何被 Cocos 工程引用【最高优先级，阻塞整个工程搭建】
+### G1 — 框架源码如何被 Cocos 工程引用【基线已落地（方案 C），残余风险见下】
 
 - **问题**：`packages/framework` 是独立 npm 包（`@wxgame/framework`，`exports` 指向 `.ts` 源码）。Cocos 3.8 的工程**能否**直接 import 工作区内的 TS 源码包？`node_modules` 中的裸 TS 是否会被编辑器编译？
-- **候选方案**：
-  - (a) 依赖 `node_modules` 软链 / npm workspace，`import '@wxgame/framework'`；
-  - (b) 用构建产物（`dist/*.js` + `.d.ts`），`import '@wxgame/framework'`；
-  - (c) 把 `packages/framework/src` **物理拷贝**进 `cocos/assets/scripts/framework/`（最土但必然可行）；
-  - (d) `tsconfig.json` 的 `paths` 别名（需确认编辑器是否尊重该配置）。
-- **未确认**：(a)(b)(d) 是否被编辑器支持；`type: "module"` + `exports` map 是否被识别；`.js` 扩展名导入（`import './x.js'`）在 Cocos 编译链下是否解析。
-- **当前做法**：源码用 `.js` 后缀导入（ESM 规范），vitest 侧通过 alias 指向 `src/index.ts`。
-- **风险**：若 (a)(b)(d) 均不可行，退回 (c) 拷贝方案 → 需要在 `tools/scripts` 里加一个 sync 脚本。
+- **✅ 已实施基线（2026-09-13）——候选方案 (c) 物理拷贝**：
+  - `tools/scripts/sync-framework-to-cocos.mjs`（`pnpm run framework:sync` / `framework:sync:check`）把 `packages/framework/src` 拷到 `cocos/assets/scripts/framework/`、`games/breakout/src` 拷到 `cocos/assets/scripts/game/`；拷贝时把裸包名 `'@wxgame/framework'` 改写为指向框架拷贝目录的相对路径。
+  - 入口 `cocos/assets/scripts/BreakoutBootstrap.ts` 已创建，导入拷贝件真实路径。
+  - **类型检查已通过**：`cocos/tsconfig.check.json`（extends 编辑器生成的 `temp/tsconfig.cocos.json`，用真实 `cc` 声明）`tsc --noEmit` 全量通过，含唯一 import `cc` 的 `bindings.ts`。
+  - **`.js` 后缀实证（Node 侧）**：TS 5.6/5.9 在 `moduleResolution: "node"`（temp 配置取值）下能解析 `.js` → `.ts` 映射。拷贝件**保留** `.js` 后缀。
+- **未确认（残余风险，编辑器实测时逐项回填）**：
+  - Cocos **自有构建管线**（编辑器内编译 / 微信小游戏构建）是否解析 `.js` 后缀导入——若不认，sync 脚本备有 `--strip-suffix` 开关（只影响拷贝件，Node 侧测试读原始 `src/` 不受影响）。
+  - 候选方案 (a) npm 包依赖、(b) dist 构建产物、(d) tsconfig paths 是否被编辑器支持——留待后续 ADR 评估能否替代拷贝基线。
+- **当前做法**：源码用 `.js` 后缀导入（ESM 规范），vitest 侧通过 alias 指向 `src/index.ts`；Cocos 侧读拷贝件。
 
 ### G2 — `Graphics` API 的确切签名
 

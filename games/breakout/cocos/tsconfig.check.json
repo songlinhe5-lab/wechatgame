@@ -1,0 +1,17 @@
+{
+  /* 临时类型检查配置：只在 Node 侧跑 `tsc --noEmit` 用，Cocos 编辑器不读它。
+     类型声明来自编辑器生成的 temp/declarations/cc（见 temp/tsconfig.cocos.json）。 */
+  "extends": "./temp/tsconfig.cocos.json",
+  "compilerOptions": {
+    "strict": false,
+    "noEmit": true,
+    /* temp 基线 target=ES2015，但其默认 lib 不含 ES2017+ API；游戏源码用了
+       Object.entries / padStart 等（微信小游戏运行时原生支持）。只放宽 lib，
+       不动 target。 */
+    "lib": ["ES2020", "DOM"],
+    /* 引擎自带 cc.d.ts / jsb.d.ts 在独立 tsc 下有 ~60 个已知声明噪音（编辑器
+       内部编译不走此路径），跳过对 .d.ts 的检查。 */
+    "skipLibCheck": true
+  },
+  "include": ["assets/scripts/**/*"]
+}

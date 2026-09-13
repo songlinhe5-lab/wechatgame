@@ -4983,17 +4983,17 @@
     },
     {
       "path": "docs/engine-reference/cocos/VERSION.md",
-      "tokens": 3596,
-      "lines": 176,
-      "sha256": "4a93d0ed0ac99cc567e7b39e642b36571febbcaf43d42775dbade7c7ac21e86d",
+      "tokens": 3801,
+      "lines": 177,
+      "sha256": "52e922e79baade41c6695dad03707bc5bb51ea9fe9234d4e1b6c97153d4f6d13",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator — 引擎版本钉定与知识缺口清单",
           "level": 1,
           "startLine": 1,
-          "endLine": 177,
-          "tokens": 3578,
+          "endLine": 178,
+          "tokens": 3783,
           "summary": "钉定版本：Cocos Creator 3.8 LTS（当前最新 3.8.8，2025-12 发布）",
           "keywords": [
             "Cocos",
@@ -5046,8 +5046,8 @@
           "anchor": "§3 知识缺口清单（**必须在编辑器里逐条验证**）",
           "level": 2,
           "startLine": 53,
-          "endLine": 135,
-          "tokens": 1819,
+          "endLine": 136,
+          "tokens": 2023,
           "summary": "每一条都是\"我无法在无编辑器环境下确认\"的事实。请在 Cocos Creator 3.8.8 就绪后按序验证并回填结论。",
           "keywords": [
             "Cocos",
@@ -5058,11 +5058,11 @@
           ]
         },
         {
-          "anchor": "§G1 — 框架源码如何被 Cocos 工程引用【最高优先级，阻塞整个工程搭建】",
+          "anchor": "§G1 — 框架源码如何被 Cocos 工程引用【基线已落地（方案 C），残余风险见下】",
           "level": 3,
           "startLine": 57,
-          "endLine": 68,
-          "tokens": 317,
+          "endLine": 69,
+          "tokens": 519,
           "summary": "问题：packages/framework 是独立 npm 包（@wxgame/framework，exports 指向",
           "keywords": [
             "Cocos",
@@ -5076,8 +5076,8 @@
         {
           "anchor": "§G2 — `Graphics` API 的确切签名",
           "level": 3,
-          "startLine": 69,
-          "endLine": 78,
+          "startLine": 70,
+          "endLine": 79,
           "tokens": 212,
           "summary": "Graphics.rect(x, y, w, h)：x,y 是左下角还是左上角？ 框架设计空间是左下，若 Cocos 是",
           "keywords": [
@@ -5091,8 +5091,8 @@
         {
           "anchor": "§G3 — `Label` 的行为与对齐",
           "level": 3,
-          "startLine": 79,
-          "endLine": 88,
+          "startLine": 80,
+          "endLine": 89,
           "tokens": 245,
           "summary": "Label 的锚点默认值？（代码假设居中，并按估算文本宽度做偏移 —— 需要目视校正）",
           "keywords": [
@@ -5103,8 +5103,8 @@
         {
           "anchor": "§G4 — 触摸事件与坐标系",
           "level": 3,
-          "startLine": 89,
-          "endLine": 97,
+          "startLine": 90,
+          "endLine": 98,
           "tokens": 193,
           "summary": "Node.EventType.TOUCH_START 等常量的准确拼写（代码里暂时用字符串 'touch-start'）",
           "keywords": [
@@ -5119,8 +5119,8 @@
         {
           "anchor": "§G5 — 帧驱动与调度",
           "level": 3,
-          "startLine": 98,
-          "endLine": 105,
+          "startLine": 99,
+          "endLine": 106,
           "tokens": 142,
           "summary": "Component.schedule(cb, interval) 中 interval = 0 是否表示\"每帧\"？",
           "keywords": [
@@ -5133,8 +5133,8 @@
         {
           "anchor": "§G6 — 装饰器与脚本注册",
           "level": 3,
-          "startLine": 106,
-          "endLine": 112,
+          "startLine": 107,
+          "endLine": 113,
           "tokens": 100,
           "summary": "@ccclass('Bootstrap') 的名称是否需要全局唯一？与文件名/类名的关系？",
           "keywords": [
@@ -5147,8 +5147,8 @@
         {
           "anchor": "§G7 — 构建与包体",
           "level": 3,
-          "startLine": 113,
-          "endLine": 120,
+          "startLine": 114,
+          "endLine": 121,
           "tokens": 167,
           "summary": "构建产物（build/wechatgame/）的目录结构、主包/分包划分方式。",
           "keywords": [
@@ -5160,8 +5160,8 @@
         {
           "anchor": "§G8 — `wx` 适配层",
           "level": 3,
-          "startLine": 121,
-          "endLine": 127,
+          "startLine": 122,
+          "endLine": 128,
           "tokens": 174,
           "summary": "Cocos 的微信小游戏导出是否自带 wx 的 requestAnimationFrame 注入？（我们的 weapp.",
           "keywords": [
@@ -5175,8 +5175,8 @@
         {
           "anchor": "§G9 — `.meta` 与资源",
           "level": 3,
-          "startLine": 128,
-          "endLine": 135,
+          "startLine": 129,
+          "endLine": 136,
           "tokens": 119,
           "summary": ".meta 的 UUID 生成规则；手工新增 assets 下的文件是否会被编辑器自动补 .meta。",
           "keywords": [
@@ -5190,8 +5190,8 @@
         {
           "anchor": "§4 已在本轮\"无编辑器\"条件下完成的部分",
           "level": 2,
-          "startLine": 136,
-          "endLine": 155,
+          "startLine": 137,
+          "endLine": 156,
           "tokens": 305,
           "summary": "明确区分已验证与未验证，避免后续误判。",
           "keywords": [
@@ -5204,8 +5204,8 @@
         {
           "anchor": "§5 编辑器就绪后的验证顺序（建议）",
           "level": 2,
-          "startLine": 156,
-          "endLine": 170,
+          "startLine": 157,
+          "endLine": 171,
           "tokens": 294,
           "summary": "按依赖顺序执行，前一步失败会阻塞后一步：",
           "keywords": [
@@ -5217,8 +5217,8 @@
         {
           "anchor": "§6 维护约定",
           "level": 2,
-          "startLine": 171,
-          "endLine": 177,
+          "startLine": 172,
+          "endLine": 178,
           "tokens": 142,
           "summary": "任何在编辑器里发现与本文记载不符的地方，必须回来更新本文件（含\"实际行为\"与\"受影响文件\"）。",
           "keywords": [
@@ -9673,17 +9673,17 @@
     },
     {
       "path": "games/breakout/cocos/README.md",
-      "tokens": 3114,
-      "lines": 241,
-      "sha256": "d9e2c40030d1f981a6ad995454da80dfea70fd7287182275579d7dff47a2713b",
+      "tokens": 3741,
+      "lines": 277,
+      "sha256": "637ac8492cb97fbfc9c47158178b4d2908582dc2cabf4bdb50c158e81f034c54",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Breakout — Cocos Creator 工程落位与手工步骤",
           "level": 1,
           "startLine": 1,
-          "endLine": 242,
-          "tokens": 3097,
+          "endLine": 278,
+          "tokens": 3724,
           "summary": "引擎：Cocos Creator 3.8 LTS（3.8.8）",
           "keywords": [
             "Breakout",
@@ -9736,27 +9736,53 @@
           ]
         },
         {
-          "anchor": "§2 如何引用 `packages/framework`（**待编辑器验证**）",
+          "anchor": "§2 如何引用 `packages/framework`（✅ 方案 C 已实施为基线）",
           "level": 2,
           "startLine": 59,
-          "endLine": 104,
-          "tokens": 554,
-          "summary": "这是当前最高优先级的未知项（VERSION.md 缺口 G1）。三种候选方案，按推荐顺序：",
+          "endLine": 134,
+          "tokens": 1125,
+          "summary": "状态更新（缺口 G1）：本工程当前采用 方案 C（物理拷贝） 作为基线，已于",
           "keywords": [
             "packages/framework",
             "packages",
             "framework",
-            "VERSION",
             "如何引用",
-            "待编辑器验证"
+            "方案",
+            "已实施为基线"
+          ]
+        },
+        {
+          "anchor": "§2.1 当前基线：方案 C（物理拷贝）",
+          "level": 3,
+          "startLine": 65,
+          "endLine": 90,
+          "tokens": 474,
+          "summary": "",
+          "keywords": [
+            "当前基线",
+            "方案",
+            "物理拷贝"
+          ]
+        },
+        {
+          "anchor": "§2.2 备选方案（留待后续 ADR）",
+          "level": 3,
+          "startLine": 91,
+          "endLine": 92,
+          "tokens": 0,
+          "summary": "",
+          "keywords": [
+            "ADR",
+            "备选方案",
+            "留待后续"
           ]
         },
         {
           "anchor": "§方案 A：npm 包依赖（推荐，若编辑器支持）",
           "level": 3,
-          "startLine": 63,
-          "endLine": 81,
-          "tokens": 142,
+          "startLine": 93,
+          "endLine": 111,
+          "tokens": 163,
           "summary": "",
           "keywords": [
             "npm",
@@ -9769,8 +9795,8 @@
         {
           "anchor": "§方案 B：构建产物（`dist`）",
           "level": 3,
-          "startLine": 82,
-          "endLine": 88,
+          "startLine": 112,
+          "endLine": 118,
           "tokens": 62,
           "summary": "先 npm run build 产出 dist/*.js + .d.ts，再让工程依赖产物。",
           "keywords": [
@@ -9785,8 +9811,8 @@
         {
           "anchor": "§方案 C：物理拷贝（最土，但**必然可行**）",
           "level": 3,
-          "startLine": 89,
-          "endLine": 104,
+          "startLine": 119,
+          "endLine": 134,
           "tokens": 261,
           "summary": "",
           "keywords": [
@@ -9799,9 +9825,9 @@
         {
           "anchor": "§3 在编辑器中手工完成的步骤清单",
           "level": 2,
-          "startLine": 105,
-          "endLine": 193,
-          "tokens": 939,
+          "startLine": 135,
+          "endLine": 229,
+          "tokens": 992,
           "summary": "预计 5–10 分钟。不涉及任何节点摆放。",
           "keywords": [
             "在编辑器中手",
@@ -9812,8 +9838,8 @@
         {
           "anchor": "§步骤 1：创建工程",
           "level": 3,
-          "startLine": 109,
-          "endLine": 114,
+          "startLine": 139,
+          "endLine": 144,
           "tokens": 62,
           "summary": "1. Cocos Dashboard → 新建 → 选择 Empty（3D） 或 Empty（2D） 模板均可（我们不用",
           "keywords": [
@@ -9827,8 +9853,8 @@
         {
           "anchor": "§步骤 2：设置设计分辨率",
           "level": 3,
-          "startLine": 115,
-          "endLine": 130,
+          "startLine": 145,
+          "endLine": 160,
           "tokens": 158,
           "summary": "项目 → 项目设置 → 项目数据：",
           "keywords": [
@@ -9839,8 +9865,8 @@
         {
           "anchor": "§步骤 3：创建空场景",
           "level": 3,
-          "startLine": 131,
-          "endLine": 143,
+          "startLine": 161,
+          "endLine": 173,
           "tokens": 179,
           "summary": "1. assets/ 右键 → 创建 → 场景，命名 Main。",
           "keywords": [
@@ -9853,10 +9879,10 @@
         {
           "anchor": "§步骤 4：创建 `BreakoutBootstrap.ts`",
           "level": 3,
-          "startLine": 144,
-          "endLine": 171,
-          "tokens": 279,
-          "summary": "把下面的文件原样创建为 games/breakout/cocos/assets/scripts/BreakoutBoot",
+          "startLine": 174,
+          "endLine": 207,
+          "tokens": 332,
+          "summary": "✅ 该文件已创建（games/breakout/cocos/assets/scripts/BreakoutBootstr",
           "keywords": [
             "BreakoutBootstrap.ts",
             "BreakoutBootstrap",
@@ -9869,8 +9895,8 @@
         {
           "anchor": "§步骤 5：把 `Main` 设为启动场景",
           "level": 3,
-          "startLine": 172,
-          "endLine": 175,
+          "startLine": 208,
+          "endLine": 211,
           "tokens": 24,
           "summary": "项目 → 项目设置 → 项目数据 → 起始场景 → 选择 Main。",
           "keywords": [
@@ -9882,8 +9908,8 @@
         {
           "anchor": "§步骤 6：构建为微信小游戏",
           "level": 3,
-          "startLine": 176,
-          "endLine": 183,
+          "startLine": 212,
+          "endLine": 219,
           "tokens": 98,
           "summary": "1. 项目 → 构建发布。",
           "keywords": [
@@ -9895,8 +9921,8 @@
         {
           "anchor": "§步骤 7：体积校验",
           "level": 3,
-          "startLine": 184,
-          "endLine": 193,
+          "startLine": 220,
+          "endLine": 229,
           "tokens": 42,
           "summary": "",
           "keywords": [
@@ -9907,8 +9933,8 @@
         {
           "anchor": "§4 预期会踩的坑（提前告知）",
           "level": 2,
-          "startLine": 194,
-          "endLine": 210,
+          "startLine": 230,
+          "endLine": 246,
           "tokens": 421,
           "summary": "Cannot find module '@wxgame/framework' 或路径爆红 缺口 G1：框架引入方式未定 ",
           "keywords": [
@@ -9923,8 +9949,8 @@
         {
           "anchor": "§5 不需要编辑器就能做的事（先做这些）",
           "level": 2,
-          "startLine": 211,
-          "endLine": 227,
+          "startLine": 247,
+          "endLine": 263,
           "tokens": 163,
           "summary": "",
           "keywords": [
@@ -9936,8 +9962,8 @@
         {
           "anchor": "§6 检查表",
           "level": 2,
-          "startLine": 228,
-          "endLine": 242,
+          "startLine": 264,
+          "endLine": 278,
           "tokens": 182,
           "summary": "",
           "keywords": [
