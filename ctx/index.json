@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1488,
       "lines": 76,
-      "sha256": "2df7215782fdf1f8071f050a87774eaca40110d9c17a11bfafd31473b5c96093",
+      "sha256": "3b65bb7fe4810bf47fcd452b298da9d3af9e39731ced9406acde7b57aa3c303a",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3766,
       "lines": 94,
-      "sha256": "489381957b8ad2e18ed12bb824feb23ec0dabcb1a0e753cfc5b32eb81368c4e6",
+      "sha256": "73479fd1ee6af0af24dfe710c0136dfd99d13f8849afd7f59bf3e8d2b92a91b5",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 67 行 / 6932 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 67 行 / 7501 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -689,25 +689,10 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/commands.md` — 18 行 / 298 tok",
+          "anchor": "§`docs/agent/repo-layout.md` — 29 行 / 390 tok",
           "level": 2,
           "startLine": 58,
           "endLine": 61,
-          "tokens": 27,
-          "summary": "§验证与常用命令（docs/agent/commands.md）=1+19 · §验证与常用命令=6+14",
-          "keywords": [
-            "docs/agent/commands.md",
-            "docs",
-            "agent",
-            "commands",
-            "tok"
-          ]
-        },
-        {
-          "anchor": "§`docs/agent/repo-layout.md` — 29 行 / 390 tok",
-          "level": 2,
-          "startLine": 62,
-          "endLine": 65,
           "tokens": 30,
           "summary": "§仓库目录与产物落位（docs/agent/repo-layout.md）=1+30 · §目录与产物落位=6+25",
           "keywords": [
@@ -716,6 +701,21 @@
             "agent",
             "repo",
             "layout",
+            "tok"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/commands.md` — 20 行 / 405 tok",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 65,
+          "tokens": 27,
+          "summary": "§验证与常用命令（docs/agent/commands.md）=1+21 · §验证与常用命令=6+16",
+          "keywords": [
+            "docs/agent/commands.md",
+            "docs",
+            "agent",
+            "commands",
             "tok"
           ]
         },
@@ -1320,17 +1320,17 @@
     },
     {
       "path": "docs/agent/commands.md",
-      "tokens": 298,
-      "lines": 18,
-      "sha256": "940fe5669de1c7576589a3b35a6efc4b63368a5d90a2eae088b82e2685b806f7",
+      "tokens": 405,
+      "lines": 20,
+      "sha256": "0b0546ac5d893bab00e2979efc7d572ba16f2e92160f3612d463f7042f0ca713",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§验证与常用命令（docs/agent/commands.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 19,
-          "tokens": 283,
+          "endLine": 21,
+          "tokens": 390,
           "summary": "来源：自 AGENTS.md §6「验证与常用命令」逐字迁出 · 日期 2026-09-13 · Task ID WXG",
           "keywords": [
             "§6",
@@ -1345,8 +1345,8 @@
           "anchor": "§验证与常用命令",
           "level": 2,
           "startLine": 6,
-          "endLine": 19,
-          "tokens": 191,
+          "endLine": 21,
+          "tokens": 298,
           "summary": "pnpm run verify 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck ",
           "keywords": [
             "pnpm",
@@ -21982,9 +21982,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6932,
+      "tokens": 7501,
       "lines": 67,
-      "sha256": "31a11b4d72eccec24af454d1822b985dbdd2d4b532df7d71658b6aaac8bb52b0",
+      "sha256": "7b8980a25a3f154ce27b0241f063083316ced5ab9ac12b0dced183fbdc1776b7",
       "tier": "hot",
       "sections": [
         {
@@ -21992,7 +21992,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 68,
-          "tokens": 6923,
+          "tokens": 7492,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",

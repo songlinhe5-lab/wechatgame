@@ -23,7 +23,7 @@
 
 §wechatgame 项目长期笔记=1+50 · §项目约定=7+12 · §常用脚本=19+9 · §SubAgent=28+4 · §Rules=32+3 · §Hooks=35+4 · §Headless / CI=39+8 · §已知限制=47+4
 
-## `production/TASKS.md` — 67 行 / 6932 tok / 实测读 4 次
+## `production/TASKS.md` — 67 行 / 7501 tok / 实测读 4 次
 
 §WXG 任务台账（SSOT）=1+68 · §待排（backlog，无号，立项时领取）=59+10
 
@@ -55,13 +55,13 @@
 
 §Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+114 · §1 分层：谁拦什么=6+18 · §2 启用 Git hooks（每人 / 每 clone 一次）=24+21 · §3 `check:links` 查什么=45+28 · §3.1 `check:mcp` 查什么（WXG-T-043）=61+12 · §4 Cursor Hooks 实践清单=73+19 · §本仓已启用=83+9 · §5 与 `verify` 的关系=92+9 · §6 失败怎么修=101+14
 
-## `docs/agent/commands.md` — 18 行 / 298 tok
-
-§验证与常用命令（docs/agent/commands.md）=1+19 · §验证与常用命令=6+14
-
 ## `docs/agent/repo-layout.md` — 29 行 / 390 tok
 
 §仓库目录与产物落位（docs/agent/repo-layout.md）=1+30 · §目录与产物落位=6+25
+
+## `docs/agent/commands.md` — 20 行 / 405 tok
+
+§验证与常用命令（docs/agent/commands.md）=1+21 · §验证与常用命令=6+16
 
 ## `docs/agent/routing.md` — 37 行 / 547 tok
 
