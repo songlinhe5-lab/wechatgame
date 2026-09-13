@@ -73,3 +73,4 @@ games/*/cocos/local/
 games/*/cocos/build/
 games/*/cocos/extensions/
 .DS_Store
+games/*/cocos/native/
