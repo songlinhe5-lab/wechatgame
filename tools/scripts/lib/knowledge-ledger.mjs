@@ -71,6 +71,20 @@
  *   只汇总 `events` 中**运行日**已记录的 reactivated / archived。
  * • 兼容：旧 ledger 无 `contentHash` → 首次 sync **一次性补齐基线**，且**不生成 added event**
  *   （它们早已入库，避免伪造「本次新增」）；`events` 缺失 → 按空数组读入。
+ *
+ * ── accessSources 截断（R4，WXG-T-038，2026-09-13 审计对策）────────────────
+ * 缺陷：`accessSources` **只增不减**——每次访问追加去重后的来源标签，随日期 / 任务数
+ *   无限膨胀；该文件被 ctx 索引覆盖 → 属「真雷」。
+ * 对策：**lib 层统一收口**——`normalizeLedgerEntry`（所有写盘路径的必经序列化点，
+ *   见 `serializeLedger`）把 `accessSources` 截断为**保留尾部最近 `ACCESS_SOURCES_MAX` 个**；
+ *   写入方（kb:collect / kb:touch / kb:reactivate）统一走 `appendAccessSource`。
+ *   • `N=12`：来源标签已按 `kind:值` 去重，增长上限 ≈ 每条目每天 1 个 `ledger:<日>` +
+ *     显式动作标签；12 个最近来源足以覆盖两周级访问追溯（kb:audit 只用 lastAccess /
+ *     accessCount，**不用** accessSources），且把单条目来源块稳定在几百字节内。
+ *   • **语义不变**：`accessCount` 仍累计所有访问、`seen` **不截断**（⑥ 严格一致的前提）、
+ *     `lastAccess` 不变；截断只影响「来源留痕」这一展示性字段。
+ *   • **幂等**：截断是纯函数（超限 → slice 保留尾部；未超限 → 原样），重复运行不丢
+ *     accessCount、不二次截断。
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -400,14 +414,45 @@ function defaultForField(k) {
 const ARRAY_FIELDS = new Set(['accessSources', 'seen']);
 
 /**
+ * `accessSources` 截断上限（R4，WXG-T-038）：保留**尾部最近 N 个**来源标签。
+ * N=12 的依据见文件头「accessSources 截断」段；`seen` **不受此限**（⑥ 严格一致的前提）。
+ */
+export const ACCESS_SOURCES_MAX = 12;
+
+/**
+ * 截断来源标签数组至最近 `ACCESS_SOURCES_MAX` 个（纯函数；未超限原样返回）。
+ * 只用于 `accessSources`；`seen` 绝不截断。
+ */
+export function trimAccessSources(arr) {
+  const a = Array.isArray(arr) ? arr : [];
+  return a.length > ACCESS_SOURCES_MAX ? a.slice(a.length - ACCESS_SOURCES_MAX) : a;
+}
+
+/**
+ * 追加一个**去重**来源标签并截断保留最近 N 个（R4 统一收口）。
+ * 所有写 `accessSources` 的路径（kb:collect / kb:touch / kb:reactivate）一律走此函数，
+ * 不再各自内联 push；原「同标签不重复追加」语义保持不变。
+ * @returns {string[]} 截断后的 accessSources（原地引用）
+ */
+export function appendAccessSource(entry, tag) {
+  const arr = Array.isArray(entry.accessSources) ? entry.accessSources : [];
+  if (!arr.includes(tag)) arr.push(tag);
+  entry.accessSources = trimAccessSources(arr);
+  return entry.accessSources;
+}
+
+/**
  * 归一化单条目：补齐缺失键、固定键序。
  * 旧 ledger（无 `seen`）→ 按空数组读入，**不报错、不动既有访问数据**。
+ * R4（WXG-T-038）：`accessSources` 在此**统一截断**为最近 `ACCESS_SOURCES_MAX` 个
+ * （本函数是 `serializeLedger` 的必经点 → 所有写盘路径自动收敛；`seen` 不截断）。
  */
 export function normalizeLedgerEntry(e) {
   const out = {};
   for (const k of ENTRY_FIELDS) {
     let v = Object.prototype.hasOwnProperty.call(e, k) && e[k] !== undefined ? e[k] : defaultForField(k);
     if (ARRAY_FIELDS.has(k) && !Array.isArray(v)) v = [];
+    if (k === 'accessSources') v = trimAccessSources(v);
     out[k] = v;
   }
   return out;

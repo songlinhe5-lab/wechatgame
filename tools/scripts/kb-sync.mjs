@@ -7,6 +7,9 @@
  *   2. **给无行内 ID 的条目补号**（`nextId` 递增、不回收；只改标题行，不动正文与顺序）；
  *   3. 兼顾已有 ledger：**保留**访问字段（lastAccess / accessCount / accessSources / seen /
  *      archivedDate / archiveReason / reactivatedDate），只刷新结构字段；
+ *      **accessSources 另按 R4（WXG-T-038）截断保留最近 ACCESS_SOURCES_MAX 个**——
+ *      截断发生在 lib 层 `normalizeLedgerEntry`（所有写盘路径的必经点），本命令即
+ *      **存量回填入口**（幂等：重跑时超限条目为 0，不再打印、不再写盘）；
  *   4. **计算并写入 `contentHash`**（条目正文规范化后的 sha256，用于判定「修改」）；
  *   5. 现算本轮 **added / updated**，各合并为一条 `events` 记录（append-only，有变化才追加）；
  *   6. 重写 `knowledge/INDEX.md` 活跃块（只重写标记之间，块外协议文字不动）；
@@ -33,6 +36,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import {
+  ACCESS_SOURCES_MAX,
   ACTIVE_FILES,
   ARCHIVE_INDEX_PATH,
   CHANGELOG_PATH,
@@ -86,6 +90,26 @@ const ledger =
     events: [],
   };
 let nextId = Number.isFinite(ledger.nextId) ? ledger.nextId : 1;
+
+// ── 0b) R4 存量收敛统计（WXG-T-038）：在归一化**之前**从原始 ledger 统计 ────────
+// normalizeLedgerEntry 读入即截断，超限明细只在原始数据里可见；字节数为按序列化格式
+//（8 空格缩进 + 引号×2 + 逗号 + 换行 ≈ 每标签 len+12）的估算值。
+const r4Stats = (() => {
+  let entries = 0;
+  let tags = 0;
+  let bytes = 0;
+  for (const e of rawLedger?.entries ?? []) {
+    const a = Array.isArray(e?.accessSources) ? e.accessSources : [];
+    if (a.length > ACCESS_SOURCES_MAX) {
+      const removed = a.length - ACCESS_SOURCES_MAX; // 移除的是**头部最旧**标签（保尾部最新）
+      entries += 1;
+      tags += removed;
+      for (const t of a.slice(0, removed)) bytes += String(t).length + 12;
+    }
+  }
+  return { entries, tags, bytes };
+})();
+
 const byId = new Map((ledger.entries ?? []).map((e) => [e.id, normalizeLedgerEntry(e)]));
 
 // ── 1a) nextId **下界** = 既有 ID 最大值 + 1（活跃 md + 归档 md + ledger 台账）─────
@@ -249,6 +273,11 @@ for (const p of parsedFiles) {
 console.log(
   written.length > 0 ? `  写入：${written.join('｜')}` : '  写入：无（工作树与产物一致，未改写任何文件）',
 );
+if (r4Stats.entries > 0) {
+  console.log(
+    `  R4 accessSources 收敛：截断 ${r4Stats.entries} 条｜去除 ${r4Stats.tags} 个最旧来源标签｜瘦身约 ${r4Stats.bytes} 字节（保留最近 ${ACCESS_SOURCES_MAX} 个；accessCount/seen/lastAccess 语义不变）`,
+  );
+}
 console.log('  提示：改动 knowledge/*.md 后请重跑 `pnpm run ctx:build` 刷新索引面。');
 
 // ── 6) 沉淀统计区块（无任何变化 → 不打印）────────────────────────────────────

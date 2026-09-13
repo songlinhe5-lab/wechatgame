@@ -46,6 +46,7 @@ import {
   ACTIVE_FILES,
   LEDGER_PATH,
   ROOT,
+  appendAccessSource,
   normalizeLedgerEntry,
   parseArgs,
   parseKnowledgeFile,
@@ -124,7 +125,7 @@ for (const line of rawLines) {
     cur.accessCount = (cur.accessCount ?? 0) + 1;
     cur.lastAccess = today;
     const tag = `ledger:${today}`;
-    if (!cur.accessSources.includes(tag)) cur.accessSources.push(tag);
+    appendAccessSource(cur, tag); // R4：去重追加 + 截断保留最近 ACCESS_SOURCES_MAX 个
     byId.set(e.id, cur);
     attributed += 1;
     touched.set(e.id, (touched.get(e.id) ?? 0) + 1);

@@ -23,6 +23,7 @@
 
 import {
   LEDGER_PATH,
+  appendAccessSource,
   normalizeLedgerEntry,
   parseArgs,
   readLedger,
@@ -66,7 +67,7 @@ for (const id of ids) {
   const cur = normalizeLedgerEntry(le);
   cur.accessCount = (cur.accessCount ?? 0) + 1;
   cur.lastAccess = date;
-  if (!cur.accessSources.includes(tag)) cur.accessSources.push(tag);
+  appendAccessSource(cur, tag); // R4：去重追加 + 截断保留最近 ACCESS_SOURCES_MAX 个
   // 显式动作留痕（`touch:…` 主体）：+1 accessCount 必 +1 seen，使 ⑥ 对条目严格成立。
   cur.seen.push(seenToken(tag, date));
   byId.set(id, cur);

@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1296,
       "lines": 72,
-      "sha256": "eb92d73b74de8e7a354c1a640f3a304a74bee5efc2d784f9fd98ce2ee50fb3db",
+      "sha256": "4973f023771f705fe47c4e442d7afc38c27244c0616e081255adb0d6d1a5ae2a",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3750,
+      "tokens": 3766,
       "lines": 94,
-      "sha256": "81221f4c9f9ae7d77b2ba8e0f4e9098f6d6e8b18c2586b023597d89df8ac5021",
+      "sha256": "7afe95b653c6ad90cdf05ec9a36920a74054747cdd0f1eff55b7fe80e7d63424",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 3722,
+          "tokens": 3738,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 67 行 / 6336 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 67 行 / 6602 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -736,12 +736,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 118 行 / 2899 tok",
+          "anchor": "§`knowledge/INDEX.md` — 129 行 / 3170 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
-          "tokens": 134,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+119 · §1 读取协议（开发前期）=7+6 · ",
+          "tokens": 150,
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+130 · §1 读取协议（开发前期）=7+6 · ",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -12285,17 +12285,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 2899,
-      "lines": 118,
-      "sha256": "83435ee9ec0d9f259cf362b0aca42c548496c806e0f5ca2c6da2cf754762d4b8",
+      "tokens": 3170,
+      "lines": 129,
+      "sha256": "162570955d5c210fdade222680e0652f1478984134d59e98e4d1a402857bc34b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 119,
-          "tokens": 2884,
+          "endLine": 130,
+          "tokens": 3155,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -12358,8 +12358,8 @@
           "anchor": "§5 生命周期（访问记账 → 归档 → 重新激活）",
           "level": 2,
           "startLine": 49,
-          "endLine": 78,
-          "tokens": 708,
+          "endLine": 89,
+          "tokens": 979,
           "summary": "",
           "keywords": [
             "生命周期",
@@ -12415,10 +12415,23 @@
           ]
         },
         {
+          "anchor": "§5.4 `accessSources` 截断（R4，WXG-T-038）",
+          "level": 3,
+          "startLine": 79,
+          "endLine": 89,
+          "tokens": 257,
+          "summary": "条目来源标签 accessSources 只保留最近 N=12 个（保留尾部最新、弃头部最旧）；截断在",
+          "keywords": [
+            "accessSources",
+            "WXG",
+            "截断"
+          ]
+        },
+        {
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
-          "startLine": 79,
-          "endLine": 119,
+          "startLine": 90,
+          "endLine": 130,
           "tokens": 1150,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
@@ -21922,9 +21935,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6336,
+      "tokens": 6602,
       "lines": 67,
-      "sha256": "85f6af5fedc99937fcb73e1ce86b9ffb695a04e286f8436eb1e58fd7b7b77d55",
+      "sha256": "5d6600181646a2c32e83ed5db7bb7e0da4efef43e73115e2f01bbecd1fcc2916",
       "tier": "hot",
       "sections": [
         {
@@ -21932,7 +21945,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 68,
-          "tokens": 6327,
+          "tokens": 6593,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",

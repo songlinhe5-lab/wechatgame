@@ -23,7 +23,7 @@
 | 3 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 4 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 | 5 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
-| 6 | `production/TASKS.md` | 6336 | 67 | hot |
+| 6 | `production/TASKS.md` | 6602 | 67 | hot |
 | 7 | `games/beads/design/gdd/systems-index.md` | 6321 | 228 | hot |
 | 8 | `ctx/ROUTES.md` | 6235 | 217 | normal |
 | 9 | `memory/2026-09-11.md` | 5617 | 115 | normal |

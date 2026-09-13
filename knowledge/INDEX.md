@@ -76,6 +76,17 @@
 3. 二者确实不同 → 保留双条，并在新条目标注「与归档 K-xxx 的区别」防再次误判；
 4. 激活后原条目回到活跃表，下次任务即可被索引到。
 
+### 5.4 `accessSources` 截断（R4，WXG-T-038）
+
+- 条目来源标签 `accessSources` **只保留最近 N=12 个**（保留尾部最新、弃头部最旧）；截断在
+  lib 层 `normalizeLedgerEntry`（所有写盘路径的必经点）统一收口，写入方统一走 `appendAccessSource`。
+- **语义不变**：`accessCount` 仍累计所有访问、`seen` 不截断（`accessCount === seen.length` 严格
+  一致的前提）、`lastAccess` 不变；截断只影响展示性来源留痕。
+- **存量回填**：由 `kb:sync` 幂等完成（超限条目收敛并打印「R4 accessSources 收敛」报告）；
+  重跑无超限 → 不打印、不写盘。
+- N=12 依据：标签已按 `kind:值` 去重，增长上限 ≈ 每条目每天 1 个 `ledger:<日>` + 显式动作；
+  12 个最近来源足够覆盖两周级访问追溯（`kb:audit` 只用 `lastAccess` / `accessCount`）。
+
 ## 6. 活跃条目（自动生成）
 
 <!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->
