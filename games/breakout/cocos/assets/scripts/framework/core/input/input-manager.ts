@@ -126,8 +126,13 @@ export class InputManager {
     this._prevDown = this._isDown;
     this._prevX = this._x;
     this._prevY = this._y;
-    this._downThisFrame = false;
-    this._upThisFrame = false;
+    // NOTE: intentionally does NOT clear `_downThisFrame` / `_upThisFrame`.
+    // On event-driven hosts (Cocos) native input arrives *between* frames —
+    // after the previous `endFrame` and before the next `beginFrame` — so
+    // clearing here would wipe `justDown` before gameplay ever reads it
+    // (tap-to-launch never fired in the Cocos preview; fixed 2026-09-13).
+    // `endFrame` owns the one-shot flag lifecycle; synchronous hosts that push
+    // after `beginFrame` are unaffected.
   }
 
   /** Build the immutable snapshot for gameplay to read. */

@@ -62,6 +62,19 @@ export class Bootstrap extends Component {
   }
 
   start(): void {
+    // The renderer converts design space (bottom-left origin) to the canvas
+    // centre by subtracting designWidth/2, designHeight/2. That maths assumes
+    // THIS node sits exactly at the Canvas centre — i.e. position (0,0) for a
+    // default 3.x Canvas. Any other offset double-shifts the whole scene
+    // (observed 2026-09-13: bricks clipped to the bottom-left).
+    const p = this.node.position;
+    if (Math.abs(p.x) > 0.5 || Math.abs(p.y) > 0.5) {
+      console.warn(
+        `[Bootstrap] node position (${p.x}, ${p.y}) is not (0, 0). ` +
+          'The renderer assumes the Bootstrap node sits at the Canvas centre. ' +
+          'Reset Position to (0, 0, 0) in the Inspector or the scene will render offset.',
+      );
+    }
     this._buildGraph();
     if (this.autoStart) this.launch(this.createGame());
   }
@@ -79,10 +92,29 @@ export class Bootstrap extends Component {
     };
 
     this._app = app;
+    this._fitToGameCanvas();
     this._bindRenderer();
     this._bindInput();
     this._loop = new CocosLoopBridge(app, this);
     this._loop.start();
+  }
+
+  /**
+   * Align the framework screen space with `EventTouch.getLocation()`.
+   *
+   * getLocation() reports CSS px **relative to the game canvas element**,
+   * while the auto-detected Web platform reports the whole window — on the
+   * editor preview the canvas sits offset inside the page, so every input x/y
+   * was off by the canvas offset (observed 2026-09-13: click at page x=600
+   * delivered raw x=335). Resizing the viewport to the canvas element makes
+   * both spaces agree. On WeChat the canvas is fullscreen, so this is a no-op.
+   */
+  private _fitToGameCanvas(): void {
+    if (!this._app) return;
+    const canvas = (cc.game as unknown as { canvas?: { clientWidth: number; clientHeight: number } })
+      .canvas;
+    if (!canvas || !canvas.clientWidth || !canvas.clientHeight) return;
+    this._app.resize(canvas.clientWidth, canvas.clientHeight);
   }
 
   /** ⚠ Called by the engine when the component's node is destroyed. */
@@ -144,30 +176,41 @@ export class Bootstrap extends Component {
 
   private _bindInput(): void {
     if (!this._app) return;
+    // No mapPoint: RawPointerInput is screen CSS px (top-left origin) and
+    // getLocation() already delivers exactly that. Viewport.screenToDesign
+    // owns the screen→design conversion (incl. the y flip) — flipping y here
+    // too would cancel it out and invert the y axis (fixed 2026-09-13).
     const bridge = new CocosInputBridge(this._app.input, {
       now: () => Date.now(),
-      // ⚠ Cocos `getUILocation()` uses a bottom-left origin; verify and adjust.
-      mapPoint: (x, y) => ({ x, y: DESIGN_HEIGHT - y }),
     });
     this._bridge = bridge;
 
-    // ⚠ Event type constants: Node.EventType.TOUCH_START etc. Verify names.
-    this.node.on(
+    // Touch listeners only fire when touch-start lands inside the listening
+    // node's UITransform rect. `this.node` is the 750×1334 design rect, which
+    // leaves the letterbox bands dead on wide screens (observed 2026-09-13 in
+    // the desktop preview). Prefer the Canvas node — its UITransform always
+    // covers the full visible rect — and fall back to this.node.
+    const canvasNode = this.node.scene.getChildByName('Canvas');
+    const host = canvasNode ?? this.node;
+
+    // ⚠ Event type constants: Node.EventType.TOUCH_START etc. Verified in
+    // 3.8.8: the dash form ('touch-start') is correct.
+    host.on(
       'touch-start',
       (e: CocosTouchEvent) => bridge.onTouchStart(readTouch(e, this.node)),
       this,
     );
-    this.node.on(
+    host.on(
       'touch-move',
       (e: CocosTouchEvent) => bridge.onTouchMove(readTouch(e, this.node)),
       this,
     );
-    this.node.on(
+    host.on(
       'touch-end',
       (e: CocosTouchEvent) => bridge.onTouchEnd(readTouch(e, this.node)),
       this,
     );
-    this.node.on(
+    host.on(
       'touch-cancel',
       (e: CocosTouchEvent) => bridge.onTouchCancel(readTouch(e, this.node)),
       this,
@@ -178,15 +221,22 @@ export class Bootstrap extends Component {
 /** ⚠ Minimal structural view of `cc.EventTouch`; verify accessor names. */
 interface CocosTouchEvent {
   getID?(): number;
-  getUILocation?(): { x: number; y: number };
   getLocation?(): { x: number; y: number };
   getDelta?(): { x: number; y: number };
 }
 
-/** ⚠ Normalise a Cocos touch event into the framework's raw pointer shape. */
+/**
+ * Normalise a Cocos touch event into the framework's raw pointer shape.
+ *
+ * `getLocation()` returns screen CSS px with a top-left origin — exactly the
+ * `RawPointerInput` contract. Do NOT use `getUILocation()`: it returns UI
+ * space (bottom-left, Canvas-relative units) whose mapping depends on the
+ * host Canvas configuration. Empirically confirmed in 3.8.8 preview
+ * (2026-09-13): paddle x tracked getLocation coordinates exactly.
+ */
 function readTouch(e: CocosTouchEvent, _node: Node): { id: number; x: number; y: number } {
   const id = e.getID ? e.getID() : 0;
-  const p = e.getUILocation ? e.getUILocation() : e.getLocation ? e.getLocation() : { x: 0, y: 0 };
+  const p = e.getLocation ? e.getLocation() : { x: 0, y: 0 };
   return { id, x: p.x, y: p.y };
 }
 
