@@ -19,7 +19,7 @@
  *    two adjacent bombs cannot loop forever.
  */
 
-import type { BrickLike } from './physics.js';
+import type { BrickLike } from './physics';
 
 /** A brick that carries its level-data code — required to detect chain sources. */
 export interface ExplodableBrick extends BrickLike {

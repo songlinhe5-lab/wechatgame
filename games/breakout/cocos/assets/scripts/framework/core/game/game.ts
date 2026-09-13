@@ -13,13 +13,13 @@
  * what keeps the "UI holds no game state" guarantee honest (see ADR-0002).
  */
 
-import type { EventBus, EventMap } from '../events/event-bus.js';
-import type { InputManager } from '../input/input-manager.js';
-import type { AudioScheduler } from '../audio/audio.js';
-import type { Storage } from '../save/storage.js';
-import type { Rng } from '../math/rng.js';
-import type { Viewport } from '../render/viewport.js';
-import type { RenderModelBuilder } from '../render/render-model.js';
+import type { EventBus, EventMap } from '../events/event-bus';
+import type { InputManager } from '../input/input-manager';
+import type { AudioScheduler } from '../audio/audio';
+import type { Storage } from '../save/storage';
+import type { Rng } from '../math/rng';
+import type { Viewport } from '../render/viewport';
+import type { RenderModelBuilder } from '../render/render-model';
 
 /**
  * Opaque texture reference resolved by the render adapter. The core never

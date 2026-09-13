@@ -14,15 +14,15 @@
  * ```
  */
 
-import { EventBus, type EventMap } from '../core/events/event-bus.js';
-import { InputManager } from '../core/input/input-manager.js';
-import { AudioScheduler } from '../core/audio/audio.js';
-import { createRng, type Rng } from '../core/math/rng.js';
-import { Viewport } from '../core/render/viewport.js';
-import { RenderModelBuilder, type RenderModel } from '../core/render/render-model.js';
-import { FixedStepLoop } from '../core/loop/game-loop.js';
-import type { AssetProvider, Game, GameServices } from '../core/game/game.js';
-import { detectPlatform, type Platform } from '../platform/index.js';
+import { EventBus, type EventMap } from '../core/events/event-bus';
+import { InputManager } from '../core/input/input-manager';
+import { AudioScheduler } from '../core/audio/audio';
+import { createRng, type Rng } from '../core/math/rng';
+import { Viewport } from '../core/render/viewport';
+import { RenderModelBuilder, type RenderModel } from '../core/render/render-model';
+import { FixedStepLoop } from '../core/loop/game-loop';
+import type { AssetProvider, Game, GameServices } from '../core/game/game';
+import { detectPlatform, type Platform } from '../platform/index';
 
 export interface AppOptions {
   readonly game: Game;

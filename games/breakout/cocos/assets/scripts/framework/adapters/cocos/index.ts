@@ -7,7 +7,7 @@
  * `games/breakout/cocos/README.md`).
  */
 
-export * from './cocos-renderer.js';
-export * from './input-bridge.js';
-export * from './loop-bridge.js';
-export * from './label-pool.js';
+export * from './cocos-renderer';
+export * from './input-bridge';
+export * from './loop-bridge';
+export * from './label-pool';

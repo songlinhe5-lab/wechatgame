@@ -7,8 +7,8 @@
  * after warm-up.
  */
 
-import { ObjectPool } from '../../core/pool/object-pool.js';
-import type { CocosLabelLike, CocosLabelSource } from './cocos-renderer.js';
+import { ObjectPool } from '../../core/pool/object-pool';
+import type { CocosLabelLike, CocosLabelSource } from './cocos-renderer';
 
 export interface PooledLabelSourceOptions {
   /** Create a new (hidden) label node. */

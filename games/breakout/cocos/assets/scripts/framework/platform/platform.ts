@@ -10,10 +10,10 @@
  * See docs/architecture/architecture.md → "platform layer".
  */
 
-import type { Storage } from '../core/save/storage.js';
-import type { AudioBackend } from '../core/audio/audio.js';
-import type { AssetProvider, PlatformInfo } from '../core/game/game.js';
-import { NullAssetProvider } from '../core/game/game.js';
+import type { Storage } from '../core/save/storage';
+import type { AudioBackend } from '../core/audio/audio';
+import type { AssetProvider, PlatformInfo } from '../core/game/game';
+import { NullAssetProvider } from '../core/game/game';
 
 export interface ScreenSize {
   readonly width: number;

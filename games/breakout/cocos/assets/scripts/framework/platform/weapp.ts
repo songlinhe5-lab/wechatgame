@@ -13,10 +13,10 @@
  *    names must be verified against the target base library in WeChat DevTools.
  */
 
-import { MemoryStorage, type Storage } from '../core/save/storage.js';
-import { NullAudioBackend, type AudioBackend } from '../core/audio/audio.js';
-import type { PlatformInfo } from '../core/game/game.js';
-import { BasePlatform, type FrameHandle, type ScreenSize } from './platform.js';
+import { MemoryStorage, type Storage } from '../core/save/storage';
+import { NullAudioBackend, type AudioBackend } from '../core/audio/audio';
+import type { PlatformInfo } from '../core/game/game';
+import { BasePlatform, type FrameHandle, type ScreenSize } from './platform';
 
 /**
  * Shape shared by `getWindowInfo` (new) and `getSystemInfoSync` (deprecated).

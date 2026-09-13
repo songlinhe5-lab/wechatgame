@@ -14,7 +14,7 @@
  * data-driven rule from docs/architecture/control-manifest.md.
  */
 
-import type { GridLayout } from '../../framework/index.js';
+import type { GridLayout } from '../../framework/index';
 
 // ───────────────────────────────────────────────── §3.1 canvas & safe area
 /** Design resolution width (px). */

@@ -28,9 +28,13 @@
  *     把无主 `.meta` 报为导入错误）。
  *
  * USAGE
- *   node tools/scripts/sync-framework-to-cocos.mjs            # 同步（幂等）
+ *   node tools/scripts/sync-framework-to-cocos.mjs            # 同步（幂等；默认剥 .js 后缀）
  *   node tools/scripts/sync-framework-to-cocos.mjs --check    # 校验一致性，漂移则 exit 1（CI 用）
- *   node tools/scripts/sync-framework-to-cocos.mjs --strip-suffix  # 拷贝时去掉相对导入的 .js 后缀
+ *   node tools/scripts/sync-framework-to-cocos.mjs --keep-suffix  # 保留 .js 后缀（逃生阀）
+ *
+ *   ⚠️ 默认 strip 是实测裁决（2026-09-13）：Cocos 3.8.8 编辑器**编译期**可解析
+ *   `.js`→`.ts`（tsc 亦可通过），但**执行期** SystemJS 加载器按字面量找 `.js`
+ *   文件 → 23 个导入全挂、组件注册失败。无后缀导入是 Cocos 项目惯例。
  */
 
 import {
@@ -72,7 +76,7 @@ function walk(dir, base = dir, acc = []) {
   return acc;
 }
 
-const stripSuffix = process.argv.includes('--strip-suffix');
+const stripSuffix = !process.argv.includes('--keep-suffix');
 const checkOnly = process.argv.includes('--check');
 
 /**

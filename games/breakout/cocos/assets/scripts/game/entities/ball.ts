@@ -7,7 +7,7 @@
  * level's budget.
  */
 
-import { clamp, type Vec2Like } from '../../framework/index.js';
+import { clamp, type Vec2Like } from '../../framework/index';
 
 export class Ball implements Vec2Like {
   x: number;

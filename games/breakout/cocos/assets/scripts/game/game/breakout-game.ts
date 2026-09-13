@@ -22,9 +22,9 @@ import {
   type LevelDef,
   type RenderModelBuilder,
   type Rng,
-} from '../../framework/index.js';
+} from '../../framework/index';
 
-import { DEFAULT_TUNING, ballSpeedForLevel, type BreakoutTuning } from '../config/tuning.js';
+import { DEFAULT_TUNING, ballSpeedForLevel, type BreakoutTuning } from '../config/tuning';
 import {
   BRICK_BEHAVIOR,
   LEVELS,
@@ -32,11 +32,11 @@ import {
   levelIdOf,
   powerupWeights,
   type BrickTypeCode,
-} from '../config/levels.js';
-import { LEVELS_DATA, type LevelData, type PowerupId } from '../config/levels-data.js';
-import { Ball } from '../entities/ball.js';
-import { Paddle } from '../entities/paddle.js';
-import { Scorer, levelClearBonus } from '../systems/scoring.js';
+} from '../config/levels';
+import { LEVELS_DATA, type LevelData, type PowerupId } from '../config/levels-data';
+import { Ball } from '../entities/ball';
+import { Paddle } from '../entities/paddle';
+import { Scorer, levelClearBonus } from '../systems/scoring';
 import {
   PICKUP_SETTLE_ORDER,
   POWERUP_SIZE,
@@ -46,7 +46,7 @@ import {
   rollDrop,
   splitVelocities,
   type FallingPowerup,
-} from '../systems/powerups.js';
+} from '../systems/powerups';
 import {
   WallHit,
   createStepResult,
@@ -54,26 +54,26 @@ import {
   type Arena,
   type BrickLike,
   type StepResult,
-} from '../systems/physics.js';
+} from '../systems/physics';
 import {
   createExplosionResult,
   resolveExplosion,
   type ExplodableBrick,
   type ExplosionResult,
-} from '../systems/explosion.js';
+} from '../systems/explosion';
 import {
   MOTION_DEFAULTS,
   MOTION_FULL,
   resolveMotionEffects,
   type MotionEffects,
-} from '../systems/motion.js';
+} from '../systems/motion';
 import {
   PHASE_TRANSITIONS,
   bannerFor,
   createSnapshot,
   type BreakoutPhase,
   type BreakoutSnapshot,
-} from './state.js';
+} from './state';
 import {
   SAVE_KEY,
   SAVE_VERSION,
@@ -82,9 +82,9 @@ import {
   normalizeBreakoutSave,
   preserveCorruptBackup,
   type BreakoutSave,
-} from './save-schema.js';
-import { DEFAULT_PALETTE, type BreakoutPalette } from '../view/palette.js';
-import { buildBreakoutView } from '../view/view-model.js';
+} from './save-schema';
+import { DEFAULT_PALETTE, type BreakoutPalette } from '../view/palette';
+import { buildBreakoutView } from '../view/view-model';
 
 /** Events emitted on the framework bus. UI/analytics subscribe; gameplay never reads them. */
 export interface BreakoutEvents extends Record<string, unknown> {

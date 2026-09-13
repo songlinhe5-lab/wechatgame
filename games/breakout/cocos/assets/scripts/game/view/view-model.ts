@@ -7,11 +7,11 @@
  * same signature, not touching gameplay.
  */
 
-import type { RenderModelBuilder } from '../../framework/index.js';
-import type { CompiledBrick } from '../../framework/index.js';
-import type { BreakoutSnapshot } from '../game/state.js';
-import { LAUNCH_HINT } from '../game/state.js';
-import { DEFAULT_PALETTE, shade, withAlpha, type BreakoutPalette } from './palette.js';
+import type { RenderModelBuilder } from '../../framework/index';
+import type { CompiledBrick } from '../../framework/index';
+import type { BreakoutSnapshot } from '../game/state';
+import { LAUNCH_HINT } from '../game/state';
+import { DEFAULT_PALETTE, shade, withAlpha, type BreakoutPalette } from './palette';
 
 /** Vertical layout constants for the static HUD (design space). */
 const HUD = {

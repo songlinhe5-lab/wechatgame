@@ -7,8 +7,8 @@
  * corrupt save on a user's phone never bricks the game.
  */
 
-import type { Storage } from './storage.js';
-import { JsonStorage } from './storage.js';
+import type { Storage } from './storage';
+import { JsonStorage } from './storage';
 
 /** A save document must expose a numeric schema version and an id. */
 export interface SaveDocument {

@@ -29,13 +29,13 @@ import {
   UITransform,
 } from 'cc';
 
-import { App } from '../../compose/app.js';
-import type { Game } from '../../core/game/game.js';
-import { CocosRenderModelRenderer } from './cocos-renderer.js';
-import { CocosInputBridge } from './input-bridge.js';
-import { CocosLoopBridge } from './loop-bridge.js';
-import { PooledLabelSource } from './label-pool.js';
-import { detectPlatform } from '../../platform/index.js';
+import { App } from '../../compose/app';
+import type { Game } from '../../core/game/game';
+import { CocosRenderModelRenderer } from './cocos-renderer';
+import { CocosInputBridge } from './input-bridge';
+import { CocosLoopBridge } from './loop-bridge';
+import { PooledLabelSource } from './label-pool';
+import { detectPlatform } from '../../platform/index';
 
 const { ccclass, property } = _decorator;
 

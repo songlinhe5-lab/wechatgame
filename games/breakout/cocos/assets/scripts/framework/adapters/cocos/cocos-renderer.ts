@@ -15,8 +15,8 @@
  * labels are pooled and reused.
  */
 
-import type { DrawCommand, RenderModel } from '../../core/render/render-model.js';
-import type { Viewport } from '../../core/render/viewport.js';
+import type { DrawCommand, RenderModel } from '../../core/render/render-model';
+import type { Viewport } from '../../core/render/viewport';
 
 /** Structural colour (Cocos `Color` uses 0–255 channels). */
 export interface ColorLike {

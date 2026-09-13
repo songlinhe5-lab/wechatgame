@@ -12,8 +12,8 @@
  * so this file stays runnable under Node.
  */
 
-import type { DrawCommand, RenderModel } from '../../core/render/render-model.js';
-import type { Viewport } from '../../core/render/viewport.js';
+import type { DrawCommand, RenderModel } from '../../core/render/render-model';
+import type { Viewport } from '../../core/render/viewport';
 
 /**
  * A canvas paint style: a CSS colour string, or an opaque `CanvasGradient` /

@@ -10,7 +10,7 @@
  * rather than rewarding raw speed.
  */
 
-import type { BreakoutTuning } from '../config/tuning.js';
+import type { BreakoutTuning } from '../config/tuning';
 
 export interface ComboView {
   readonly combo: number;

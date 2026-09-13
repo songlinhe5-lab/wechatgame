@@ -6,18 +6,18 @@
  * `tools/scripts/verify.mjs`.
  */
 
-export * from './math/index.js';
-export * from './loop/game-loop.js';
-export * from './events/event-bus.js';
-export * from './fsm/state-machine.js';
-export * from './scene/scene-stack.js';
-export * from './input/input-manager.js';
-export * from './pool/object-pool.js';
-export * from './save/storage.js';
-export * from './save/save-manager.js';
-export * from './config/registry.js';
-export * from './config/level.js';
-export * from './audio/audio.js';
-export * from './render/viewport.js';
-export * from './render/render-model.js';
-export * from './game/game.js';
+export * from './math/index';
+export * from './loop/game-loop';
+export * from './events/event-bus';
+export * from './fsm/state-machine';
+export * from './scene/scene-stack';
+export * from './input/input-manager';
+export * from './pool/object-pool';
+export * from './save/storage';
+export * from './save/save-manager';
+export * from './config/registry';
+export * from './config/level';
+export * from './audio/audio';
+export * from './render/viewport';
+export * from './render/render-model';
+export * from './game/game';

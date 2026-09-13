@@ -10,7 +10,7 @@
  * and can be unit-tested with a fake scheduler.
  */
 
-import type { App } from '../../compose/app.js';
+import type { App } from '../../compose/app';
 
 /** Structural view of the `Component` scheduling API. */
 export interface SchedulerLike {

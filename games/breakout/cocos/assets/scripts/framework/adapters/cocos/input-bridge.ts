@@ -10,7 +10,7 @@
  * Keeping the phase/timestamp logic here means it is fully unit-testable.
  */
 
-import type { InputManager, PointerPhase, PointerSample } from '../../core/input/input-manager.js';
+import type { InputManager, PointerPhase, PointerSample } from '../../core/input/input-manager';
 
 export interface RawPointerInput {
   /** Touch id (>=1) or 0 for the mouse. */

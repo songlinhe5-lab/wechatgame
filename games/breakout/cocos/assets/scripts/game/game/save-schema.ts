@@ -14,7 +14,7 @@
  *    interrupted mid-board restarts that board.
  */
 
-import type { SaveDocument, Storage } from '../../framework/index.js';
+import type { SaveDocument, Storage } from '../../framework/index';
 
 /** Drag mode for the paddle. */
 export type ControlMode = 'absolute' | 'relative';

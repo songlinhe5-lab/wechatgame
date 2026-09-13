@@ -18,16 +18,16 @@
  * highest y.
  */
 
-import type { BrickTypeSpec, LevelDef } from '../../framework/index.js';
+import type { BrickTypeSpec, LevelDef } from '../../framework/index';
 import {
   LEVELS_DATA,
   type BrickTypeCode,
   type LevelData,
   type PowerupId,
-} from './levels-data.js';
-import { IMPLEMENTED_POWERUPS } from './tuning.js';
+} from './levels-data';
+import { IMPLEMENTED_POWERUPS } from './tuning';
 
-export type { BrickTypeCode, LevelData, PowerupId } from './levels-data.js';
+export type { BrickTypeCode, LevelData, PowerupId } from './levels-data';
 
 /** Every brick code the data may use. */
 export const BRICK_CODES = ['N', 'T', 'S', 'B', 'G'] as const;

@@ -6,9 +6,9 @@
  * entity free of platform concerns and trivially testable.
  */
 
-import { clamp, type Aabb } from '../../framework/index.js';
-import type { BreakoutTuning } from '../config/tuning.js';
-import { paddleLimits } from '../config/tuning.js';
+import { clamp, type Aabb } from '../../framework/index';
+import type { BreakoutTuning } from '../config/tuning';
+import { paddleLimits } from '../config/tuning';
 
 export class Paddle {
   /** Centre X. */

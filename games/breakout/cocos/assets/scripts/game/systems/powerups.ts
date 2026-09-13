@@ -10,8 +10,8 @@
  * silently filtered out of a level's pool and never spawn.
  */
 
-import type { Rng } from '../../framework/index.js';
-import type { PowerupId } from '../config/levels-data.js';
+import type { Rng } from '../../framework/index';
+import type { PowerupId } from '../config/levels-data';
 
 /** A powerup capsule falling toward the paddle (64×64 per assets-spec §1.4). */
 export interface FallingPowerup {

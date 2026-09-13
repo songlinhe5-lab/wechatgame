@@ -17,10 +17,10 @@
  *    pushing the ball clear is stable and cheap.
  */
 
-import { circleVsAabb, type Aabb, type CollisionAxis } from '../../framework/index.js';
-import type { BreakoutTuning } from '../config/tuning.js';
-import type { Ball } from '../entities/ball.js';
-import type { Paddle } from '../entities/paddle.js';
+import { circleVsAabb, type Aabb, type CollisionAxis } from '../../framework/index';
+import type { BreakoutTuning } from '../config/tuning';
+import type { Ball } from '../entities/ball';
+import type { Paddle } from '../entities/paddle';
 
 /** Arena bounds in design space. */
 export interface Arena {

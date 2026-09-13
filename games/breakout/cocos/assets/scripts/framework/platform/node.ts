@@ -6,10 +6,10 @@
  * tests instead of flaky.
  */
 
-import { MemoryStorage, type Storage } from '../core/save/storage.js';
-import { NullAudioBackend, type AudioBackend } from '../core/audio/audio.js';
-import type { PlatformInfo } from '../core/game/game.js';
-import { BasePlatform, type FrameHandle, type LogLevel, type ScreenSize } from './platform.js';
+import { MemoryStorage, type Storage } from '../core/save/storage';
+import { NullAudioBackend, type AudioBackend } from '../core/audio/audio';
+import type { PlatformInfo } from '../core/game/game';
+import { BasePlatform, type FrameHandle, type LogLevel, type ScreenSize } from './platform';
 
 export class NodePlatform extends BasePlatform {
   readonly info: PlatformInfo = {

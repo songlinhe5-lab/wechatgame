@@ -7,15 +7,15 @@
  *   3. otherwise → Node (tests/CI)
  */
 
-import type { Platform } from './platform.js';
-import { NodePlatform } from './node.js';
-import { WebPlatform } from './web.js';
-import { WeappPlatform, isWeapp } from './weapp.js';
+import type { Platform } from './platform';
+import { NodePlatform } from './node';
+import { WebPlatform } from './web';
+import { WeappPlatform, isWeapp } from './weapp';
 
-export * from './platform.js';
-export { NodePlatform } from './node.js';
-export { WebPlatform } from './web.js';
-export { WeappPlatform, WeappStorage, isWeapp } from './weapp.js';
+export * from './platform';
+export { NodePlatform } from './node';
+export { WebPlatform } from './web';
+export { WeappPlatform, WeappStorage, isWeapp } from './weapp';
 
 /** True when a DOM is available. */
 export function isBrowser(): boolean {

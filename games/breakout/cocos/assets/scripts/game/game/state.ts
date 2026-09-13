@@ -7,11 +7,11 @@
  * docs/architecture/control-manifest.md).
  */
 
-import type { CompiledBrick } from '../../framework/index.js';
-import type { BreakoutTuning } from '../config/tuning.js';
-import type { MotionEffects } from '../systems/motion.js';
-import { MOTION_FULL } from '../systems/motion.js';
-import type { FallingPowerup } from '../systems/powerups.js';
+import type { CompiledBrick } from '../../framework/index';
+import type { BreakoutTuning } from '../config/tuning';
+import type { MotionEffects } from '../systems/motion';
+import { MOTION_FULL } from '../systems/motion';
+import type { FallingPowerup } from '../systems/powerups';
 
 export type BreakoutPhase =
   | 'ready'

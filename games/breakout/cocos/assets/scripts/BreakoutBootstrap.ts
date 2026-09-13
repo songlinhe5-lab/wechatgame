@@ -7,15 +7,16 @@
  *
  * 导入指向 `assets/scripts/` 内的**拷贝件**（由
  * `pnpm run framework:sync` 从 packages/framework/src 与 games/breakout/src
- * 生成，禁止手改拷贝件）。相对导入带 `.js` 后缀，与拷贝件源码风格一致；
- * 已实测 TS 5.6 + moduleResolution "node" 可解析。
+ * 生成，禁止手改拷贝件）。相对导入**无 `.js` 后缀**——实测 Cocos 3.8.8
+ * 执行期模块加载器不解析 `.js` 后缀（编译期 tsc 可解析，两回事），
+ * 拷贝件统一由 `framework:sync`（默认 strip-suffix 语义）生成。
  */
 
 import { _decorator } from 'cc';
 
-import { Bootstrap } from './framework/adapters/cocos/bindings.js';
-import type { Game } from './framework/core/game/game.js';
-import { createBreakoutGame } from './game/index.js';
+import { Bootstrap } from './framework/adapters/cocos/bindings';
+import type { Game } from './framework/core/game/game';
+import { createBreakoutGame } from './game/index';
 
 const { ccclass } = _decorator;
 
