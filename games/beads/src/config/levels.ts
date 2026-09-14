@@ -152,15 +152,16 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
   }
 
   // time ∈ [180, 420] (§3.5), spawnInterval ∈ [2.0, 6.0] (§3.4).
-  if (
-    typeof level.time !== 'number' ||
-    level.time < LEVEL_TIME_MIN ||
-    level.time > LEVEL_TIME_MAX
-  ) {
+  //
+  // `Number.isFinite` (not `typeof === 'number'`): NaN **is** a number, and every
+  // comparison against it is false, so a NaN would slip through both bounds. The
+  // consequence is not cosmetic — a NaN countdown never reaches zero, so the only
+  // documented failure condition (timer-gameover §3.5) could never fire.
+  if (!Number.isFinite(level.time) || level.time < LEVEL_TIME_MIN || level.time > LEVEL_TIME_MAX) {
     errors.push(`${tag}: time ${level.time} outside [${LEVEL_TIME_MIN}, ${LEVEL_TIME_MAX}]`);
   }
   if (
-    typeof level.spawnInterval !== 'number' ||
+    !Number.isFinite(level.spawnInterval) ||
     level.spawnInterval < SPAWN_INTERVAL_MIN ||
     level.spawnInterval > SPAWN_INTERVAL_MAX
   ) {
