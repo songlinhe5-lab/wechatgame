@@ -134,7 +134,7 @@ node tools/scripts/check-architecture.mjs
 | **Q6** | 存档键名与结构不符 | `save-schema.ts`：`wxgame.breakout.save` + `bestScore/bestCombo/highestLevelIndex/runs/bricksDestroyed/muted` ／ 设计版：`bp.save.v1` + `maxUnlockedLevel/allCleared/currentLevel/bestScore/settings{...}` | ✅ **已裁定**：**键用 `wxgame.breakout.save`**（设计版键名作废）、**字段结构以设计版为准**（含 `currentLevel/allCleared/settings`）。→ `WXG-T-001` |
 | **Q7** | 事件名与文档不一致 | `systems-index §4` 规定 `ball:hitBrick`；实现派发 `brick:damaged`，无统一 `ball:lost` 载荷 | 🟡 **待回写**（文档自称"以最终实现为准，需回写"）——低优先，不阻断 |
 | **Q8** | 暂停恢复**重置** READY 计时 | `state-machine.ts`：`transition()` 内 `_elapsed=0`；`pause-settings.md §6.2` 要求"从剩余时间继续" | 🟡 **待实现确认**：已列 `TC-PAUSE-03/04`，`WXG-T-001` 需按"保留剩余"实现 |
-| **Q9** | harness / 构建脚本缺失 | `dev/harness/` 空；`serve-harness.mjs`、`build-wechat.mjs`、`check-bundle-size.mjs` 不存在 | 🟡 **仍成立**：L3 冒烟与包体校验本轮不可执行。→ 工程补齐 |
+| **Q9** | harness / 构建脚本缺失 | `dev/harness/` 空；`serve-harness.mjs`、`build-wechat.mjs`、`check-bundle-size.mjs` 不存在 | 🟢 **大部分已收口**（WXG-T-047 更新）：`serve-harness.mjs`/`smoke-harness.mjs` 已就位（`harness:build` + `harness:smoke` 全绿）、`check-bundle-size.mjs` 已补（`pnpm run check:size`，阈值真源 `systems-index §3.8`）。**唯一未收口**：微信构建**结构上不可自动化**（见 `ADR-0009 §3.2` P2 实测推翻）⇒ 真机链路仍需人工点构建，L3 冒烟的人工前置不变 |
 
 ### 6.1 优先级排序（风险驱动，裁定后更新）
 1. **P0 · 实现对齐**（Q1/Q2/Q3/Q6 → `WXG-T-001`）：一切功能判据依赖于此；**对齐后按 `test-cases.md §C` 最小验证集回归**。

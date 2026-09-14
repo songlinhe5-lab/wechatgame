@@ -33390,9 +33390,9 @@
     },
     {
       "path": "production/qa/test-plan.md",
-      "tokens": 4334,
+      "tokens": 4432,
       "lines": 195,
-      "sha256": "f72cad3f0ee8ba78a2af61dd2959d71ae0f08afb5ec3d01962ce49e793974968",
+      "sha256": "2623842719fc5a1a8c7bc4f9f2d7b2debabbd95dca983233d49170d6f9b76730",
       "tier": "normal",
       "sections": [
         {
@@ -33400,7 +33400,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 196,
-          "tokens": 4319,
+          "tokens": 4417,
           "summary": "项目：微信小游戏矩阵 · 首款 demo《砖阵》",
           "keywords": [
             "Breakout",
@@ -33527,7 +33527,7 @@
           "level": 2,
           "startLine": 123,
           "endLine": 148,
-          "tokens": 1107,
+          "tokens": 1205,
           "summary": "以下为 QA 在既有产物中核出的事实性发现。主理人已于 2026-09-11 逐条裁定（见下\"状态\"列）。",
           "keywords": [
             "风险登记",
