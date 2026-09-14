@@ -5,10 +5,9 @@
  * same snapshot in, same commands out (control-manifest §8; never mutates the
  * game). Layout bands/geometry come from `config/tuning.ts` (§3.1/§3.3/§3.4).
  *
- * Scope note for this slice: the full six-layer bead parameter card and the
- * 10 vector symbols live in `view/symbols.ts` + `view/bead-render.ts` (per
- * architecture §3) — deliberately deferred; colour + lightness channels are
- * drawn here, the symbol channel lands with those files.
+ * The bead itself — the six-layer parameter card and the 10-symbol channel —
+ * lives in `view/bead-render.ts` + `view/symbols.ts` (architecture §3). This file
+ * owns the *screen*: layout bands, HUD, tray chrome, pause panel and banners.
  */
 
 import type { RenderModelBuilder } from '@wxgame/framework';
@@ -29,7 +28,14 @@ import {
 } from '../config/tuning.js';
 import type { BeadsSnapshot } from '../game/state.js';
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel.js';
-import { beadColor, mix, withAlpha, type BeadsPalette } from './palette.js';
+import {
+  SELECTED_SHADOW_ALPHA,
+  TRAY_BEAD_SIZE,
+  drawEmptySocket,
+  drawFilledBead,
+  drawLockedBead,
+} from './bead-render.js';
+import { withAlpha, type BeadsPalette } from './palette.js';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -211,33 +217,21 @@ function drawGrid(
       if (cell.void) continue; // outside the pattern shape — background
       const cx = snap.gridLeft + BEAD_CELL / 2 + BEAD_PITCH * j;
       const cy = snap.gridTop - BEAD_CELL / 2 - BEAD_PITCH * i;
-      const left = cx - BEAD_CELL / 2;
-      const bottom = cy - BEAD_CELL / 2;
 
       if (cell.state === 'locked') {
-        // Locked: grey bead + 45° hatch (art-bible §3.4).
-        builder.rect(left, bottom, BEAD_CELL, BEAD_CELL, { fill: palette.locked, radius: 10 });
-        builder.line(left + 8, bottom + 8, left + BEAD_CELL - 8, bottom + BEAD_CELL - 8, withAlpha(palette.background, 0.9), 2);
-        builder.line(left + BEAD_CELL - 8, bottom + 8, left + 8, bottom + BEAD_CELL - 8, withAlpha(palette.background, 0.9), 2);
+        // Locked bead: flat locked fill + 45° hatch (§1.2) — no highlight, no symbol.
+        drawLockedBead(builder, cx, cy, palette);
         continue;
       }
 
       if (cell.state === 'empty') {
-        // Empty slot: recessed socket (inner shadow suggestion via darker rim).
-        builder.rect(left, bottom, BEAD_CELL, BEAD_CELL, {
-          fill: palette.slot,
-          stroke: palette.slotBorder,
-          lineWidth: 1,
-          radius: 10,
-        });
+        // Empty socket: recessed slot — an unfilled cell must not read as a bead (§1.2).
+        drawEmptySocket(builder, cx, cy, palette);
         continue;
       }
 
-      // Filled bead: colour + top highlight (lightness channel). The symbol
-      // channel arrives with view/symbols.ts.
-      const color = beadColor(cell.colorIdx);
-      builder.circle(cx, cy, BEAD_CELL / 2 - 1, { fill: color });
-      builder.circle(cx - 6, cy + 8, 8, { fill: withAlpha(mix(color, 0.65), 0.8) });
+      // Filled bead — full six-layer card incl. the L5 symbol channel (§1.1).
+      drawFilledBead(builder, cx, cy, cell.colorIdx);
     }
   }
 }
@@ -277,22 +271,19 @@ function drawTray(
         // RenderModel has no dash stroke — synthesize 6/4 segments (arch §4).
         drawDashedRect(builder, left + pitch * col, slotBottom, TRAY_SLOT, TRAY_SLOT, palette.slotBorder);
       } else {
-        builder.rect(left + pitch * col, slotBottom, TRAY_SLOT, TRAY_SLOT, {
-          fill: palette.slot,
-          stroke: palette.slotBorder,
-          lineWidth: 1,
-          radius: 10,
-        });
+        drawEmptySocket(builder, cx, cy, palette, TRAY_SLOT);
       }
       continue;
     }
 
     const selected = slot.state === 'selected';
-    // Selected: lift 4px + indicator dot (art-bible §3.4).
+    // Selected: lift 4px + darker L0 shadow + indicator dot (§1.2 selected row).
     const lift = selected ? 4 : 0;
-    const color = beadColor(slot.colorIdx);
-    builder.circle(cx, cy + lift, TRAY_SLOT / 2 - 2, { fill: color });
-    builder.circle(cx - 5, cy + lift + 7, 7, { fill: withAlpha(mix(color, 0.65), 0.8) });
+    drawFilledBead(builder, cx, cy, slot.colorIdx, {
+      size: TRAY_BEAD_SIZE,
+      lift,
+      ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),
+    });
     if (selected) {
       builder.circle(cx, slotBottom - 8, 4, { fill: palette.textAccent });
     }

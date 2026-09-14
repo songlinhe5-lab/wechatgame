@@ -81,6 +81,82 @@ export function withAlpha(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+/**
+ * Linear interpolation between two HEX colours — the `mix(A, B, t)` of
+ * `assets-spec.md` §0 (`t` is the weight of `B`: 0 → A, 1 → B).
+ *
+ * Distinct from {@link mix}, which only walks a single colour toward black/white.
+ * Pass the *backdrop* as `A` to composite a translucent ink over it.
+ */
+export function mixWith(a: string, b: string, t: number): string {
+  const x = parseHex(a);
+  const y = parseHex(b);
+  const k = Math.max(0, Math.min(1, t));
+  const lerp = (p: number, q: number) => Math.round(p + (q - p) * k);
+  return toHex(lerp(x.r, y.r), lerp(x.g, y.g), lerp(x.b, y.b));
+}
+
+/**
+ * Perceived brightness of a `#rrggbb` colour, 0..1 (Rec. 601 luma).
+ *
+ * This is the 「亮度」 of `assets-spec.md` §1.1 L5 — that rule is
+ * `亮度 > 0.6 → 深色墨`, so this definition is pinned by that threshold (do not
+ * swap it for {@link relativeLuminance} without re-deriving the symbol inks).
+ */
+export function luminance(hex: string): number {
+  const { r, g, b } = parseHex(hex);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+
+/** WCAG relative luminance (0..1) — the basis of {@link contrastRatio}. */
+export function relativeLuminance(hex: string): number {
+  const { r, g, b } = parseHex(hex);
+  const lin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** WCAG contrast ratio (1..21) between two **opaque** `#rrggbb` colours. */
+export function contrastRatio(a: string, b: string): number {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+// ─────────────────────────── bead parameter card colours (assets-spec §1.1) ──
+//
+// These are the only `#rrggbb` literals the bead card needs. They live here (not
+// in `view/bead-render.ts`) so that `view/` holds no colour literals at all
+// (control-manifest §3 self-check: hex literals appear only in `palette.ts`).
+
+/** L0 drop shadow (`#1E2033`). */
+export const BEAD_SHADOW_HEX = '#1E2033';
+export const BEAD_SHADOW_ALPHA = 0.15;
+/** L0 shadow while `selected` (§1.2: α 0.15 → 0.25). */
+export const BEAD_SHADOW_ALPHA_SELECTED = 0.25;
+/** L4 highlight bar (`#FFFFFF`, α 0.38). */
+export const BEAD_HIGHLIGHT_HEX = '#FFFFFF';
+export const BEAD_HIGHLIGHT_ALPHA = 0.38;
+/** L2 / L3 bevel tints of the bead base colour (§1.1: `mix(base, …)` amounts). */
+export const BEAD_BEVEL_DARK_MIX = -0.22;
+export const BEAD_BEVEL_LIGHT_MIX = 0.18;
+
+// ──────────────────────────────────────────────── symbol ink (assets-spec L5) ──
+/** Ink used on a bright bead: `mix(base, #000, 0.55)` → the mix amount. */
+export const SYMBOL_INK_DARK_MIX = -0.55;
+/** Ink used on a dark bead: `#FFFFFF @ 0.90`. */
+export const SYMBOL_INK_LIGHT = '#FFFFFF';
+export const SYMBOL_INK_LIGHT_ALPHA = 0.9;
+/** §1.1 L5 threshold on {@link luminance}: above it, ink goes dark. */
+export const SYMBOL_INK_LUMA_THRESHOLD = 0.6;
+/**
+ * Hard floor from `accessibility.md` B2 (「符号对珠面 ≥ 3:1」). Binding where it
+ * disagrees with the L5 threshold — see `symbolInk()` for the one colour affected.
+ */
+export const SYMBOL_CONTRAST_MIN = 3;
+
 function parseHex(hex: string): { r: number; g: number; b: number } {
   let h = hex.replace('#', '');
   if (h.length === 3) {
