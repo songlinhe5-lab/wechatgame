@@ -9,7 +9,7 @@
  *      path so Node's ESM resolver can follow it;
  *   2. a minimal DOM/canvas stub, just enough for `WebPlatform` + the Canvas2D
  *      renderer to boot;
- *   3. the `window.__breakout` handle the harness exposes.
+ *   3. the `window.__<game>` handle the harness exposes.
  *
  * The stub deliberately records draw-call counts so callers can assert that
  * something was actually painted.
@@ -126,7 +126,7 @@ function makeContext(calls) {
  *   clearScene: () => void,
  * }>}
  */
-export async function loadHarness() {
+export async function loadHarness({ game = 'breakout' } = {}) {
   if (!existsSync(join(DIST, 'dev', 'harness', 'main.js'))) {
     throw new Error('no compiled harness — run: node tools/scripts/serve-harness.mjs --build-only');
   }
@@ -158,12 +158,31 @@ export async function loadHarness() {
     };
   }
 
+  // In-memory `localStorage`: the browser really has one, and `WebPlatform`
+  // reaches for it on boot. Without the stub the save layer silently degrades —
+  // exactly the kind of difference that would make this smoke test lie.
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: (key) => (store.has(key) ? store.get(key) : null),
+    setItem: (key, value) => void store.set(key, String(value)),
+    removeItem: (key) => void store.delete(key),
+    clear: () => store.clear(),
+    key: (index) => [...store.keys()][index] ?? null,
+    get length() {
+      return store.size;
+    },
+  };
+
   globalThis.window = {
     innerWidth: 750,
     innerHeight: 1334,
     devicePixelRatio: 1,
     addEventListener() {},
     removeEventListener() {},
+    // `dev/harness/main.ts` selects the game from `location.search`; with no
+    // query it stays breakout (its documented default). Without this stub the
+    // runtime could only ever smoke the default game.
+    location: { search: game === 'breakout' ? '' : `?game=${encodeURIComponent(game)}` },
   };
   globalThis.document = {
     querySelector(selector) {
@@ -181,15 +200,20 @@ export async function loadHarness() {
   globalThis.requestAnimationFrame = () => 0;
   globalThis.cancelAnimationFrame = () => {};
 
-  const entry = pathToFileURL(join(STAGE, 'dev', 'harness', 'main.js')).href;
+  // The query string doubles as the ESM cache key: asking for a second game in
+  // the same process re-executes `main.js` (booting that game) instead of
+  // handing back the module already evaluated for the first one. Assert on a
+  // game *before* loading the next — every run rewrites both `window.__*` handles.
+  const entry = `${pathToFileURL(join(STAGE, 'dev', 'harness', 'main.js')).href}?game=${encodeURIComponent(game)}`;
   const namespace = await import(entry);
-  const exposed = globalThis.window.__breakout ?? namespace.__breakout;
+  const exposed =
+    globalThis.window[`__${game}`] ?? globalThis.window.__breakout ?? namespace.__breakout;
 
   if (!exposed?.app || !exposed?.game) {
     throw new Error('harness booted but did not expose { app, game } on window.__breakout');
   }
 
-  const { app, game } = exposed;
+  const { app, game: instance } = exposed;
 
   let model = null;
   const innerOnRender = app.onRender;
@@ -200,7 +224,7 @@ export async function loadHarness() {
 
   return {
     app,
-    game,
+    game: instance,
     calls,
     rewritten,
     strayBare,
