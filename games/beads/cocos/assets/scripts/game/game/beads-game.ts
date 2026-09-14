@@ -73,6 +73,7 @@ import { Tray } from '../entities/tray';
 import { PowerupSystem } from '../systems/powerups';
 import { FinishPanel, type FinishPanelAction } from '../systems/finish-panel';
 import { SprintSettlePanel, type SprintSettleAction } from '../systems/sprint-settle';
+import { comboVfxProgress, comboVfxSpec, type ComboVfxKind, type ComboVfxSpec } from '../view/combo-vfx';
 import {
   ClearPanel,
   type ClearPanelAction,
@@ -190,6 +191,11 @@ export class BeadsGame implements Game {
    * 续时主钮（§3.5 明文）。
    */
   private readonly _sprintSettle = new SprintSettlePanel();
+  /**
+   * S7 连击特效（`score-combo §2.5`）：当前正在播的那一档（**同时只存在一个** —— 多档重叠
+   * 时只播最高档，避免叠加成闪烁）。`row/col` 是 Lv1 粒子的锚点（落子格心）。
+   */
+  private _comboVfx: { spec: ComboVfxSpec; elapsedMs: number; row: number; col: number } | null = null;
   /**
    * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
    * Gear → `'manual'`; WeChat `onHide` → `'system'`. Both stay on the
@@ -411,6 +417,7 @@ export class BeadsGame implements Game {
     this._clearPanel.update(dt * 1000); // 结算面板同理：退出淡出要在离开 LEVEL_CLEAR 后跑完
     this._finishPanel.update(dt * 1000); // 通关画面同理
     this._sprintSettle.update(dt * 1000); // 冲刺结算面板同理
+    this._stepComboVfx(dt); // §2.5 连击特效：表现层，不被 PAUSED 冻结
   }
 
   buildRenderModel(builder: RenderModelBuilder): void {
@@ -1335,6 +1342,11 @@ export class BeadsGame implements Game {
         if (this._mode === 'sprint') {
           const score = this._sprint.onPlaced();
           if (score.tierUp !== null) {
+            // §2.5 特效三档随倍率档触发；派生项：重叠时只播**最高档**。
+            const spec = comboVfxSpec(score.tierUp);
+            if (spec && (!this._comboVfx || spec.tier >= this._comboVfx.spec.tier)) {
+              this._comboVfx = { spec, elapsedMs: 0, row: verdict.row, col: verdict.col };
+            }
             this._emit('combo:up', {
               streak: score.streak,
               multiplier: score.multiplier,
@@ -1575,6 +1587,23 @@ export class BeadsGame implements Game {
     return this._sprintSettle;
   }
 
+  /** S7 连击特效状态（暴露给测试；只读）。`null` = 当前无特效。 */
+  get comboVfx(): { kind: ComboVfxKind; tier: number; elapsedMs: number } | null {
+    const vfx = this._comboVfx;
+    return vfx ? { kind: vfx.spec.kind, tier: vfx.spec.tier, elapsedMs: vfx.elapsedMs } : null;
+  }
+
+  /**
+   * 连击特效推进：**表现层**，与面板动画同判例 —— PAUSED 冻结的是玩法（计时/供料/连击窗），
+   * 不是表现。播完即清；三档都是单次循环 ⇒ 本方法不自重复（`§3.8` 红线的来源不在这里）。
+   */
+  private _stepComboVfx(dt: number): void {
+    const vfx = this._comboVfx;
+    if (!vfx) return;
+    vfx.elapsedMs += Math.max(0, dt) * 1000;
+    if (vfx.elapsedMs >= vfx.spec.durationMs) this._comboVfx = null;
+  }
+
   /** 每关历史最好星级（`0` = 未通关）—— 通关画面总览的数据源（测试读它）。 */
   get starsByLevel(): readonly number[] {
     // 内部按需写入（稀疏）；对外一律**稠密**（未通关 = 0），与快照同一契约。
@@ -1662,6 +1691,14 @@ export class BeadsGame implements Game {
     s.sprintSettleInteractive = this._sprintSettle.interactive;
     s.sprintRunBestStage = this._sprint.bestStage;
     s.sprintRunBestStreak = this._sprint.bestStreak;
+
+    // S7 连击特效（§2.5）：形态 + 播放进度 + 锚点一起进快照，视图只读。
+    s.comboVfxKind = this._comboVfx ? this._comboVfx.spec.kind : '';
+    s.comboVfxProgress = this._comboVfx
+      ? comboVfxProgress(this._comboVfx.elapsedMs, this._comboVfx.spec.durationMs)
+      : 0;
+    s.comboVfxRow = this._comboVfx ? this._comboVfx.row : -1;
+    s.comboVfxCol = this._comboVfx ? this._comboVfx.col : -1;
 
     // Tray slots (rebuild on capacity change, i.e. expansion).
     if (s.traySlots.length !== this._tray.capacity) {

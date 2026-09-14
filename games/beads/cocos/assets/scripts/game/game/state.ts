@@ -164,6 +164,17 @@ export interface BeadsSnapshot {
   sprintRunBestStage: number;
   sprintRunBestStreak: number;
 
+  /**
+   * S7 连击特效（`score-combo §2.5`）：当前档位的**形态**与播放进度；`''` = 无特效。
+   * ⚠️ Lv2（`pseudoShake`）的「整屏 scale」需要**全局变换通道**，当前渲染管线没有 ⇒
+   * 该档只把值算对（见 `view/combo-vfx.ts` 的平台缺口说明），视图不为它假造替代画面。
+   */
+  comboVfxKind: '' | 'particles' | 'pseudoShake' | 'burst';
+  comboVfxProgress: number;
+  /** 特效锚点：Lv1 粒子的落子格心（无特效 = -1）。 */
+  comboVfxRow: number;
+  comboVfxCol: number;
+
   tuning: BeadsTuning;
 }
 
@@ -232,6 +243,10 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     sprintSettleInteractive: false,
     sprintRunBestStage: 0,
     sprintRunBestStreak: 0,
+    comboVfxKind: '',
+    comboVfxProgress: 0,
+    comboVfxRow: -1,
+    comboVfxCol: -1,
     tuning,
   };
 }

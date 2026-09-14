@@ -279,6 +279,22 @@ export const FINISH_STAR_GAP = 8;
  */
 export const FINISH_LEVEL_STEP_MS = 150;
 
+// ──────────────────────────────────────────────────── §2.5 combo VFX (Lv1–3)
+/**
+ * 连击特效三档时长与形态参数。**毫秒值全部来自 `ux/ux-spec.md §5`**（score-combo §2.5
+ * 明写「本篇不自写动效毫秒值」），形态来自 §2.5。常量镜像在此，供纯逻辑与测试共用。
+ */
+/** Lv1（×2）珠面星光粒子：200ms。 */
+export const COMBO_VFX_LV1_MS = 200;
+/** Lv2（×3）伪震屏：150ms。 */
+export const COMBO_VFX_LV2_MS = 150;
+/** Lv3（×5）边缘径向光 + 珠面波浪：350ms。 */
+export const COMBO_VFX_LV3_MS = 350;
+/** Lv2 整屏 scale 脉冲峰值（§2.5：1.00 → 1.015 → 1.00，**仅缩放、无位移**）。 */
+export const COMBO_SHAKE_SCALE_MAX = 1.015;
+/** Lv1 粒子枚数（§2.5 给的是 3–5 区间；本模块无 RNG ⇒ 取中值，确定性可测）。 */
+export const COMBO_PARTICLE_COUNT = 4;
+
 // ──────────────────────────────────────── presentation timings (非冻结真源)
 /**
  * ~~`LEVEL_CLEAR_DELAY_S`（过关横幅自动推进延迟）~~ —— **WXG-T-063 退休**：

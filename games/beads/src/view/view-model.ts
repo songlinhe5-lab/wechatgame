@@ -75,6 +75,7 @@ import {
   sprintSettleLayout,
   sprintSettleRows,
 } from '../systems/sprint-settle.js';
+import { comboBurst, comboParticleOffsets } from './combo-vfx.js';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -115,6 +116,7 @@ export function buildBeadsView(
   drawGrid(builder, snap, palette);
   drawTray(builder, snap, palette);
   drawPowerupBand(builder, snap, palette);
+  drawComboVfx(builder, snap, palette);
   drawClearPanel(builder, snap, palette);
   drawFinishPanel(builder, snap, palette);
   drawPausePanel(builder, snap, palette);
@@ -615,6 +617,54 @@ function drawClearPanel(
       },
     );
   }
+}
+
+// ──────────────────────────────────────── S7 combo VFX (score-combo §2.5)
+
+/**
+ * 连击特效三档的**可见部分**：Lv1 粒子（从落子格心散开）与 Lv3 全屏爆发（边缘径向光 + 波浪）。
+ *
+ * **Lv2（伪震屏）不在本函数画**：它需要「整屏 scale」而渲染管线没有全局变换通道（`_commands`
+ * 私有，`WXG-T-074` 登记）——视图**不为它假造替代画面**；快照里 `comboVfxProgress` 照常推进，
+ * 等宿主/适配层提供变换后即可生效。红线：三档都是**单次循环**，本函数无任何周期量 ⇒
+ * 无 >3Hz 闪烁来源（`§3.8`）。
+ */
+function drawComboVfx(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  if (!snap.comboVfxKind || snap.comboVfxProgress <= 0) return;
+  const p = snap.comboVfxProgress;
+
+  if (snap.comboVfxKind === 'particles' && snap.comboVfxRow >= 0 && snap.comboVfxCol >= 0) {
+    const cx = snap.gridLeft + BEAD_CELL / 2 + BEAD_PITCH * snap.comboVfxCol;
+    const cy = snap.gridTop - BEAD_CELL / 2 - BEAD_PITCH * snap.comboVfxRow;
+    for (const { x, y } of comboParticleOffsets(p)) {
+      builder.circle(cx + x, cy + y, 3 + BEAD_CELL * 0.1 * (1 - p), {
+        fill: withAlpha(palette.textAccent, 1 - p),
+      });
+    }
+    return;
+  }
+
+  if (snap.comboVfxKind === 'burst') {
+    const { radial, wave } = comboBurst(p);
+    // 边缘径向光：四边各一条随 radial 亮起的色条（程序化，零外部资产）。
+    builder.rect(0, 0, DESIGN_W, 12, { fill: withAlpha(palette.textAccent, 0.55 * radial) });
+    builder.rect(0, DESIGN_H - 12, DESIGN_W, 12, { fill: withAlpha(palette.textAccent, 0.55 * radial) });
+    builder.rect(0, 0, 12, DESIGN_H, { fill: withAlpha(palette.adBadge, 0.5 * radial) });
+    builder.rect(DESIGN_W - 12, 0, 12, DESIGN_H, { fill: withAlpha(palette.adBadge, 0.5 * radial) });
+    // 珠面波浪：一条自下而上扫过的浅色带（相位 = wave）。
+    const sweepY = wave * DESIGN_H;
+    const glow = 1 - Math.abs(wave - 0.5) * 2; // 中段最亮
+    builder.rect(0, sweepY - 48, DESIGN_W, 96, {
+      fill: withAlpha(palette.panel, 0.22 * glow),
+    });
+    return;
+  }
+
+  // 'pseudoShake'：见函数头注释（平台缺口，不假造）。
 }
 
 // ──────────────────────────────────────────── S7 finish screen (ux-spec §3.6)

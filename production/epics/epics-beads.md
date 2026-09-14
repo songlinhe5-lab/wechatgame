@@ -22,8 +22,7 @@
 >    实现（`systems/clear-panel.ts`），`LEVEL_CLEAR` 由「1.4s 自动推进」占位改为**等按钮**
 >    （下一关 / 去冲刺 U1），C7 结算分在过关当帧装配。**EP-07 仍未闭环**：冲刺结算面板
 >    连击特效三档（`score-combo §2.5`；其判据 §8-9 属 DevTools 帧检）。
-> 7. **S7 两个结算画面已落地**：FINISH 通关画面（WXG-T-066，`ux-spec §3.6`，判据
->    `core-loop §8-8`）与冲刺结算（WXG-T-067，§3.5 左列，判据 `score-combo §8-11`）。
+> 7. **EP-07 全部落地**：结算·过关面板（T-063）、FINISH（T-066）、冲刺结算（T-067）、连击特效可测半边（T-074；§8-9 帧检属真机）。
 > 5. **EP-06（S6 道具）已实现**（2026-09-14，WXG-T-060）：`src/systems/powerups.ts` 落码，
 >    `powerups.md §8` 十条判据全部有测试（`tests/powerups.test.ts`，16 条），S2 路由优先级 2
 >    已接、整关重置与崩溃档字段已通。**仍属 EP-06 未闭环**：`AD_PLACEMENTS=4` 的角标位按

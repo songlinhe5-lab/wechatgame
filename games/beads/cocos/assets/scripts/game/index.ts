@@ -23,6 +23,7 @@ export * from './systems/fail-panel';
 export * from './systems/powerups';
 export * from './systems/finish-panel';
 export * from './systems/sprint-settle';
+export * from './view/combo-vfx';
 
 export * from './game/state';
 export * from './game/save-schema';
