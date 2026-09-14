@@ -155,6 +155,8 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | 屏震 | 不使用 | 本作气质不需要（沿用 art-bible §7） |
 | 告急表达 | 图标+颜色+脉冲 | 倒计时告急不单靠颜色通道 |
 | 错误反馈 | 抖动+描边闪 ≤2 次/秒 | 对齐 art-bible §3.4 `wrong` 态 |
+| `EMPTY_TINT_MIX` | 0.35 | 空槽 E1 目标色底混合权重：`mixWith(slot_fill, beadColor(colorIdx), 0.35)`——目标色占 35% 混入中性槽底产柔和粉彩（可访问性 A2b 色盲冗余通道；art `assets-spec §1.2` E1，WXG-T-080 裁定，**落码归 T-085**） |
+| `EMPTY_GHOST_ALPHA` | 0.20 | 空槽 E4 幽灵符号不透明度：与 L5 同矢量 path、缩至 BEAD×0.32、α0.20 → 未填态即可对照符号找匹配槽（A2b Basic 层；`assets-spec §1.2` E4，WXG-T-080） |
 
 ### 3.9 包体预算
 | 常量 | 值 | 说明 |
@@ -188,6 +190,14 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | 续打语义 | 不走整关重置 | 保留网格 / 托盘 / 扩展 / 道具次数 / 供料累加器；仅 S5 写 `remaining += REVIVE_BONUS_SEC` 与续时记账（`reviveBonusSec` / `revived`） |
 | 冲刺 | 不续时 | 冲刺归零走冲刺结算，不进失败续时面板 |
 | Won't | 体力 / 强制插屏 / 未看完发奖 | M5 永不采纳；激励须玩家主动点失败主钮；仅 `onRewarded` 加时 |
+
+### 3.12 音频（Audio）· 2026-09-14 波次1建档（WXG-T-083 / 阮和鸣）
+| 常量 | 值 | 说明 |
+|---|---|---|
+| `AUDIO_SFX_MIN_INTERVAL` | 0.05 s | 高频短音（`sfx_place`/`sfx_select`）per-clip 最小重触发间隔默认档；`beads-game.ts` L1484 现状值转正 |
+| `AUDIO_REJECT_MIN_INTERVAL` | 0.5 s | `sfx_reject` 最小重触发间隔 = §3.8「错误反馈 ≤2 次/秒」音频侧换算；**修正现状违约**（统一 0.05s 致 reject 达 20 次/秒）。分档表见 `design/audio/audio-events.md` §3.2 |
+| 音频选型 | 程序化合成（**0 KB 主包**） | Web Audio 运行时合成 SFX + 序列化 BGM，无音频文件进产物（audio-spec §4.1 / 判据 A05-25）；采样路线破内部目标（§3.9 实测余量 32 KB）已否 |
+| 总线 | Music / SFX / UI 三条 | clip id 命名空间承载；`AUDIO_BUS_GAIN_BGM/SFX/UI`=`[TODO]`（后端可听 + 真机响度校准后定档，**不冻结伪 dB**）；19 clip 事件表见 `audio-events.md §1` |
 
 ## 4. 事件总线约定（供程序落码参考）
 
