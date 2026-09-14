@@ -43,6 +43,7 @@
  * USAGE
  *   node tools/scripts/archive-tasks.mjs                 # 默认 dry-run，30 天
  *   node tools/scripts/archive-tasks.mjs --write         # 真实归档落盘
+ *   node tools/scripts/archive-tasks.mjs --until-under=6000 --write   # 体积驱动（推荐用于治理撞门）
  *   node tools/scripts/archive-tasks.mjs --days=30 --tasks=<path> --archive=<path> --root=<path>
  *
  * 退出码：0 成功（含空转 / dry-run）；1 数据 / 参数错误（fail loud）。
@@ -52,6 +53,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { estimateTokens } from './lib/context-tokens.mjs';
 
 const argv = process.argv.slice(2);
 if (argv.includes('-h') || argv.includes('--help')) {
@@ -63,6 +65,16 @@ const DRY = !argv.includes('--write');
 const DAYS = Number(args.days ?? 30);
 if (!Number.isFinite(DAYS) || DAYS < 0) {
   console.error(`❌ --days 需为 ≥0 的数字（收到：${args.days ?? '（缺省）'}）`);
+  process.exit(1);
+}
+/**
+ * 体积驱动阈值（WXG-T-053）：给了它就不再按年龄筛，而是「最老优先」删到台账估值低于该值。
+ * 存在的理由：纯时间策略对**年轻但已满**的台账完全无效——2026-09-14 实测，台账全部行都
+ * 不到 24 小时（09-12 建档），`--days=1` 一行都归不了档，而它已撞 B 项 8000 门。
+ */
+const UNTIL_UNDER = args['until-under'] === undefined ? null : Number(args['until-under']);
+if (UNTIL_UNDER !== null && (!Number.isFinite(UNTIL_UNDER) || UNTIL_UNDER <= 0)) {
+  console.error(`❌ --until-under 需为 >0 的数字（收到：${args['until-under']}）`);
   process.exit(1);
 }
 const ROOT = normalize((args.root ?? gitRoot()).replace(/\/+$/, ''));
@@ -112,6 +124,34 @@ for (let i = 0; i < lines.length; i += 1) {
 }
 const fmt = (d) => d.toISOString().slice(0, 10);
 
+// ── 体积驱动候选（--until-under）：不看年龄，按号序（= 时间序）最老优先删到预算内 ──────
+if (UNTIL_UNDER !== null) {
+  const dated = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    const m = taskRowRe.exec(lines[i]);
+    if (!m) continue;
+    const cells = lines[i].split('|').map((c) => c.trim());
+    if (!(cells[4] ?? '').startsWith('✅')) continue;
+    const t = blame.get(i + 1);
+    if (t == null) continue; // 无日期证据 → 不当作候选（保留「宁漏勿错」）
+    dated.push({ idx: i, id: Number(m[1]), line: lines[i], date: new Date(t * 1000) });
+  }
+  const sizeOf = (excluded) => estimateTokens(lines.filter((_, i) => !excluded.has(i)).join(eol));
+  const startSize = estimateTokens(lines.join(eol));
+  const excluded = new Set();
+  for (const c of dated) {
+    if (sizeOf(excluded) < UNTIL_UNDER) break;
+    excluded.add(c.idx);
+  }
+  candidates.length = 0;
+  candidates.push(...dated.filter((c) => excluded.has(c.idx)));
+  console.log(
+    `  📉 体积驱动（--until-under=${UNTIL_UNDER}）：台账 ${startSize} tokens，` +
+      `计划归档 ${candidates.length} 行 → 预计 ${sizeOf(excluded)} tokens` +
+      (sizeOf(excluded) >= UNTIL_UNDER ? '（⚠️ 全部可归档行移出后仍超阈值）' : ''),
+  );
+}
+
 // ── 归档文件去重集（按表行 Task ID；批次标记行不计）────────────────────────────
 const archivedRowRe = /^\|\s*WXG-T-(\d+)\s*\|/;
 const existingArchiveIds = new Set();
@@ -139,10 +179,36 @@ for (const m of archiveText.matchAll(/WXG-T-(\d+)/g)) {
 }
 const fmtId = (n) => String(n).padStart(idWidth, '0');
 
+// ── 头注只进不退（台账纪律：单号递增不回收）──────────────────────────────────
+// 现有头注若**领先**于主表∪归档（典型场景：某会话先推进头注、对应行还没落盘，或行尚未
+// 提交被 blame 视为无证据），一律沿用头注值，**绝不回退**——回退会让已被占用的号再次
+// 可领。2026-09-14 实测过一次该形态：头注 T-051 而表内最大 T-050（我把计数器推了但没
+// 加行），此时若按表校准就会把号退回 T-050/T-051，直接制造重号。
+const headerLeadIdx = lines.findIndex(
+  (l) => l.includes('当前已分配至') && l.includes('下一可用号'),
+);
+const headerLeadMax =
+  headerLeadIdx >= 0
+    ? Number(/当前已分配至 \*\*WXG-T-(\d+)\*\*/.exec(lines[headerLeadIdx])?.[1] ?? NaN)
+    : NaN;
+const tableMax = globalMax;
+let headerLed = false;
+if (Number.isFinite(headerLeadMax) && headerLeadMax > globalMax) {
+  globalMax = headerLeadMax;
+  headerLed = true;
+}
+
 // ── 报告 ───────────────────────────────────────────────────────────────────────
 console.log(`TASKS 完成行 30 天归档（tasks:archive，WXG-T-040 R3）${DRY ? '—— dry-run（默认；加 --write 落盘）' : '—— --write 落盘'}`);
 console.log(`  台账：${rel(ROOT, TASKS)}（任务行 ${taskRowsBefore}）｜归档：${rel(ROOT, ARCHIVE)}（${existingArchiveIds.size} 行）`);
-console.log(`  完成判定：git blame committer-time ≤ ${fmt(new Date(cutoff * 1000))}（${DAYS} 天前）｜全局最大号（主表∪归档）：WXG-T-${fmtId(globalMax)}`);
+const ruleText =
+  UNTIL_UNDER !== null
+    ? `完成判定：**体积驱动**（--until-under=${UNTIL_UNDER}，**忽略年龄**）`
+    : `完成判定：git blame committer-time ≤ ${fmt(new Date(cutoff * 1000))}（${DAYS} 天前）`;
+console.log(
+  `  ${ruleText}｜全局最大号（主表∪归档）：WXG-T-${fmtId(globalMax)}` +
+    (headerLed ? `（表内最大 T-${fmtId(tableMax)}，**头注领先故沿用头注**）` : ''),
+);
 for (const c of candidates) {
   console.log(`  ${existingArchiveIds.has(c.id) ? '⚠️ 已在归档' : '→ 归档'}｜行 ${c.idx + 1}｜WXG-T-${c.id}｜最后修改 ${fmt(c.date)}｜${c.line.slice(0, 60)}…`);
 }
@@ -311,6 +377,10 @@ function printHelp() {
 选项：
   --write          真实归档落盘（缺省为 dry-run：只打印计划，不改任何文件）
   --days=<N>       完成天数阈值（默认 30；按 git blame committer-time 判定）
+  --until-under=<N>  体积驱动：忽略 --days，按号序「最老优先」归档 ✅ 行，
+                     直到台账估值 < N tokens（估算口径 = lib/context-tokens.mjs，
+                     与 ctx:check B 项**同一个函数**，避免两套计数漂移）。
+                     用于「台账已撞 B 项但行都还年轻」的治理场景。
   --tasks=<path>   台账（默认 production/TASKS.md）
   --archive=<path> 归档文件（默认 production/archive/TASKS-archive.md）
   --root=<path>    仓库根（默认 git rev-parse --show-toplevel）
