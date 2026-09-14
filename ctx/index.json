@@ -4,17 +4,17 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "tokens": 1743,
-      "lines": 120,
-      "sha256": "c08fe39dc872ae2a802d4969558e52fee5ac17592c6836f838b87ae854638466",
+      "tokens": 1859,
+      "lines": 121,
+      "sha256": "a1ce5aec238489c49dd60c5fe56eb8bea5d7d3e69e5d9d30c6185648250b5707",
       "tier": "always",
       "sections": [
         {
           "anchor": "§AGENTS.md — wechatgame 项目级 Agent 指引",
           "level": 1,
           "startLine": 1,
-          "endLine": 121,
-          "tokens": 1729,
+          "endLine": 122,
+          "tokens": 1846,
           "summary": "本文件是项目常驻记忆层：新开对话先读这里。",
           "keywords": [
             "AGENTS",
@@ -182,8 +182,8 @@
           "anchor": "§9 知识库与调用透明（WXG-T-023 摘要）",
           "level": 2,
           "startLine": 116,
-          "endLine": 121,
-          "tokens": 117,
+          "endLine": 122,
+          "tokens": 233,
           "summary": "读：实现/修复/接入/发布类任务开工前，先读 knowledge/lessons.md 同域条目，列入必读。",
           "keywords": [
             "WXG",
@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1918,
+      "tokens": 1919,
       "lines": 85,
-      "sha256": "e04aaecc71cbd56a41501c45ffe9e447b2227f53decf4045d122d380566ece87",
+      "sha256": "d8390efa86a9f8e8ad0e6928331c361a5d91445d1efb5495308154d267ea3e00",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 86,
-          "tokens": 1905,
+          "tokens": 1906,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -225,7 +225,7 @@
           "startLine": 7,
           "endLine": 20,
           "tokens": 315,
-          "summary": "AGENTS.md 1743 120 2000 ✅",
+          "summary": "AGENTS.md 1859 121 2000 ✅",
           "keywords": [
             "always",
             "AGENTS",
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3754,
+      "tokens": 3739,
       "lines": 90,
-      "sha256": "d8d419d87adbb86d65d44c051201f276c1d4f9750df9241679c7eee187ab6c2f",
+      "sha256": "36c6c89106be7fc17fffe177700f665cf6244dfaf6ece996b381cde3c6f31cdb",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 91,
-          "tokens": 3726,
+          "tokens": 3711,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 40 行 / 2610 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 37 行 / 2524 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+41 · §待排（backlog，无号，立项时领取）=28+14",
+          "summary": "§WXG 任务台账（SSOT）=1+38 · §待排（backlog，无号，立项时领取）=25+14",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -736,12 +736,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 129 行 / 3170 tok",
+          "anchor": "§`knowledge/INDEX.md` — 130 行 / 3319 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
           "tokens": 150,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+130 · §1 读取协议（开发前期）=7+6 · ",
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+131 · §1 读取协议（开发前期）=7+7 · ",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -752,10 +752,26 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 127 行 / 7068 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
+          "tokens": 71,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+128 · §WXG-T-059=18+8 · §WXG-T-062=",
+          "keywords": [
+            "production/TASKS-DETAIL.md",
+            "production",
+            "TASKS",
+            "DETAIL",
+            "tok",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 81,
           "tokens": 355,
           "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
@@ -765,22 +781,6 @@
             "cocos",
             "setup",
             "tok"
-          ]
-        },
-        {
-          "anchor": "§`production/TASKS-DETAIL.md` — 142 行 / 7488 tok",
-          "level": 2,
-          "startLine": 78,
-          "endLine": 81,
-          "tokens": 86,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+143 · §WXG-T-058=18+8 · §WXG-T-055=",
-          "keywords": [
-            "production/TASKS-DETAIL.md",
-            "production",
-            "TASKS",
-            "DETAIL",
-            "tok",
-            "WXG"
           ]
         },
         {
@@ -22410,17 +22410,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 3170,
-      "lines": 129,
-      "sha256": "162570955d5c210fdade222680e0652f1478984134d59e98e4d1a402857bc34b",
+      "tokens": 3319,
+      "lines": 130,
+      "sha256": "86ae639a5db446bd57c34ac66df85b0dc23b7fc83ae6779646d1004515ef0a15",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 130,
-          "tokens": 3155,
+          "endLine": 131,
+          "tokens": 3304,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -22433,8 +22433,8 @@
           "anchor": "§1 读取协议（开发前期）",
           "level": 2,
           "startLine": 7,
-          "endLine": 12,
-          "tokens": 109,
+          "endLine": 13,
+          "tokens": 258,
           "summary": "任务开工前：成员与主对话先读本 INDEX 与 lessons.md 中与本次任务同域的条目",
           "keywords": [
             "INDEX",
@@ -22446,8 +22446,8 @@
         {
           "anchor": "§2 写入协议（任务收尾）",
           "level": 2,
-          "startLine": 13,
-          "endLine": 33,
+          "startLine": 14,
+          "endLine": 34,
           "tokens": 469,
           "summary": "每个 WXG 任务收尾时，执行者随交付回传 0–3 条沉淀候选（没有可传「无」）；主理人汇编去重后入账。",
           "keywords": [
@@ -22459,8 +22459,8 @@
         {
           "anchor": "§3 文件分工",
           "level": 2,
-          "startLine": 34,
-          "endLine": 42,
+          "startLine": 35,
+          "endLine": 43,
           "tokens": 176,
           "summary": "lessons.md 教训库：踩过的坑与规避（按类别排序，最新在后）",
           "keywords": [
@@ -22471,8 +22471,8 @@
         {
           "anchor": "§4 维护",
           "level": 2,
-          "startLine": 43,
-          "endLine": 48,
+          "startLine": 44,
+          "endLine": 49,
           "tokens": 105,
           "summary": "主理人负责汇编与去重；条目不删改只追加，废弃条目标 [已过时：原因]。",
           "keywords": [
@@ -22482,8 +22482,8 @@
         {
           "anchor": "§5 生命周期（访问记账 → 归档 → 重新激活）",
           "level": 2,
-          "startLine": 49,
-          "endLine": 89,
+          "startLine": 50,
+          "endLine": 90,
           "tokens": 979,
           "summary": "",
           "keywords": [
@@ -22496,8 +22496,8 @@
         {
           "anchor": "§5.1 命令表",
           "level": 3,
-          "startLine": 51,
-          "endLine": 62,
+          "startLine": 52,
+          "endLine": 63,
           "tokens": 348,
           "summary": "pnpm run kb:sync 解析两个 md → 分配新条目 ID → 刷新 ledger.json 与下方活跃表（",
           "keywords": [
@@ -22512,8 +22512,8 @@
         {
           "anchor": "§5.2 归档阈值（用户 2026-09-12 裁定，存于 `ledger.json.thresholds`）",
           "level": 3,
-          "startLine": 63,
-          "endLine": 71,
+          "startLine": 64,
+          "endLine": 72,
           "tokens": 183,
           "summary": "闲置 90 天 且访问次数 ≤ 1 → 列入归档候选；必须人工确认后才移动。",
           "keywords": [
@@ -22528,8 +22528,8 @@
         {
           "anchor": "§5.3 重新激活与合并",
           "level": 3,
-          "startLine": 72,
-          "endLine": 78,
+          "startLine": 73,
+          "endLine": 79,
           "tokens": 138,
           "summary": "1. 新增条目后跑 pnpm run kb:audit，若命中归档条目（相似度 ≥ 0.34）：",
           "keywords": [
@@ -22542,8 +22542,8 @@
         {
           "anchor": "§5.4 `accessSources` 截断（R4，WXG-T-038）",
           "level": 3,
-          "startLine": 79,
-          "endLine": 89,
+          "startLine": 80,
+          "endLine": 90,
           "tokens": 257,
           "summary": "条目来源标签 accessSources 只保留最近 N=12 个（保留尾部最新、弃头部最旧）；截断在",
           "keywords": [
@@ -22555,8 +22555,8 @@
         {
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
-          "startLine": 90,
-          "endLine": 130,
+          "startLine": 91,
+          "endLine": 131,
           "tokens": 1150,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
@@ -23525,17 +23525,17 @@
     },
     {
       "path": "memory/2026-09-14.md",
-      "tokens": 9823,
-      "lines": 250,
-      "sha256": "4fc76b582addd09ac7c21df82d64fbe0cd1a2a04dc6aafb4a988c4781f32af24",
+      "tokens": 10514,
+      "lines": 273,
+      "sha256": "9ef8f9bd004684509a0cb3b668ba05deb5858d81ac8745a3c698e106b17c9f13",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 251,
-          "tokens": 9820,
+          "endLine": 274,
+          "tokens": 10510,
           "summary": "",
           "keywords": []
         },
@@ -23762,22 +23762,54 @@
             "日志分级加载",
             "摘要层"
           ]
+        },
+        {
+          "anchor": "§两库的使用触发协议入档（WXG-T-069）",
+          "level": 2,
+          "startLine": 252,
+          "endLine": 262,
+          "tokens": 329,
+          "summary": "用户问「每次新窗口加载 knowledge，那 memory 什么时候用？」——前提与实际相反：按 AGENTS.md:",
+          "keywords": [
+            "WXG",
+            "knowledge",
+            "memory",
+            "AGENTS",
+            "两库的使用触",
+            "发协议入档"
+          ]
+        },
+        {
+          "anchor": "§头注静默落后：把「下次注意」换成机械门禁（WXG-T-070）",
+          "level": 2,
+          "startLine": 263,
+          "endLine": 274,
+          "tokens": 320,
+          "summary": "抓到自己一个真错：T-067…T-069 三笔登记里我用 str.replace 改台账头注，静默没匹配上",
+          "keywords": [
+            "WXG",
+            "str",
+            "replace",
+            "头注静默落后",
+            "下次注意",
+            "换成机械门禁"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 3811,
-      "lines": 109,
-      "sha256": "fdf83fdfdb5d721fed6ac337d209ec1f90efcc9fabb6ef07dfaa304167928e31",
+      "tokens": 4373,
+      "lines": 126,
+      "sha256": "3b5ab31089b0b4a46fb72b152e9d2e3bc6534a5036ae3dafdb07de6b8ea3f6ef",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068）",
           "level": 1,
           "startLine": 1,
-          "endLine": 110,
-          "tokens": 3797,
+          "endLine": 127,
+          "tokens": 4359,
           "summary": "memory/ 是跨会话的运行时记忆：MEMORY.md 是蒸馏后的长期笔记（常驻摘要层），",
           "keywords": [
             "memory",
@@ -23787,21 +23819,24 @@
           ]
         },
         {
-          "anchor": "§1 读取协议",
+          "anchor": "§1 读取协议（分级加载）",
           "level": 2,
           "startLine": 7,
-          "endLine": 12,
-          "tokens": 99,
-          "summary": "开工/需要回忆时：先读本文件（含下方生成表），按摘要判断哪几节相关；",
+          "endLine": 27,
+          "tokens": 530,
+          "summary": "MEMORY.md 可常读（1.3k tok，常驻层：约定 / 脚本 / 已知限制）。日记（详情层）只在四种触发下查",
           "keywords": [
-            "读取协议"
+            "MEMORY",
+            "tok",
+            "读取协议",
+            "分级加载"
           ]
         },
         {
           "anchor": "§2 文件分工",
           "level": 2,
-          "startLine": 13,
-          "endLine": 21,
+          "startLine": 28,
+          "endLine": 36,
           "tokens": 148,
           "summary": "MEMORY.md 蒸馏后的长期笔记（约定 / 脚本 / 已知限制） 常驻摘要层，直接读",
           "keywords": [
@@ -23812,8 +23847,8 @@
         {
           "anchor": "§3 生命周期（与 `docs/agent/memory-distill.md` 同一套）",
           "level": 2,
-          "startLine": 22,
-          "endLine": 28,
+          "startLine": 37,
+          "endLine": 43,
           "tokens": 140,
           "summary": "日志满 30 天 ⇒ pnpm run memory:distill（dry-run）⇒ 先把长期有效内容蒸馏进 MEM",
           "keywords": [
@@ -23828,9 +23863,9 @@
         {
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
-          "startLine": 29,
-          "endLine": 110,
-          "tokens": 3264,
+          "startLine": 44,
+          "endLine": 127,
+          "tokens": 3389,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -23842,11 +23877,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 9,823 tok｜14 节｜**蒸馏到期 2026-10-14**（剩 30 天）",
+          "anchor": "§`memory/2026-09-14.md` — 10,514 tok｜16 节｜**蒸馏到期 2026-10-14**（剩 30 天）",
           "level": 3,
-          "startLine": 34,
-          "endLine": 52,
-          "tokens": 920,
+          "startLine": 49,
+          "endLine": 69,
+          "tokens": 1045,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–16 943 游戏在 Cocos",
           "keywords": [
             "memory/2026-09-14.md",
@@ -23860,8 +23895,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 29 天）",
           "level": 3,
-          "startLine": 53,
-          "endLine": 73,
+          "startLine": 70,
+          "endLine": 90,
           "tokens": 921,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 结论：有 4 个本地已装但未纳入 m",
           "keywords": [
@@ -23876,8 +23911,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 10,141 tok｜13 节｜**蒸馏到期 2026-10-12**（剩 28 天）",
           "level": 3,
-          "startLine": 74,
-          "endLine": 91,
+          "startLine": 91,
+          "endLine": 108,
           "tokens": 684,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 三 IDE 均原生支持项目级 subag",
           "keywords": [
@@ -23892,8 +23927,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 27 天）",
           "level": 3,
-          "startLine": 92,
-          "endLine": 110,
+          "startLine": 109,
+          "endLine": 127,
           "tokens": 573,
           "summary": "§完成的工作 3–19 510 修复 Canvas2DLike.fillStyle / strokeStyle 类型过窄",
           "keywords": [
@@ -25831,9 +25866,9 @@
     },
     {
       "path": "my-rules/agents-md.md",
-      "tokens": 374,
+      "tokens": 413,
       "lines": 24,
-      "sha256": "5402dc475cdb4788cccea989592798f058b65e3aa43f10a2734351987944b226",
+      "sha256": "3525144e42755d7f5506ee6c47260b7a58266b795fd775b0aaaba62b09675916",
       "tier": "always",
       "sections": [
         {
@@ -25841,7 +25876,7 @@
           "level": 1,
           "startLine": 8,
           "endLine": 25,
-          "tokens": 328,
+          "tokens": 368,
           "summary": "正本：my-rules/agents-md.md。四 IDE 规则路径均为指向本文件的相对符号链接（见 AGENTS.m",
           "keywords": [
             "AGENTS",
@@ -32588,17 +32623,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 7488,
-      "lines": 142,
-      "sha256": "0ff299c107ba774e919d6ae0213ebfe5fbf458e1675057b7c6bc390540a77d7f",
+      "tokens": 7068,
+      "lines": 127,
+      "sha256": "64681aefd86b232d520f46c7273cb41553002a0ba1d86d4f29a824f6ff81db68",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 143,
-          "tokens": 7471,
+          "endLine": 128,
+          "tokens": 7052,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -32610,48 +32645,10 @@
           ]
         },
         {
-          "anchor": "§WXG-T-058",
+          "anchor": "§WXG-T-059",
           "level": 2,
           "startLine": 18,
           "endLine": 25,
-          "tokens": 133,
-          "summary": "名称：beads Mock 续时实现（F1+F2+B1；零 wx 广告 API）",
-          "keywords": [
-            "WXG",
-            "beads",
-            "Mock",
-            "API"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-055",
-          "level": 2,
-          "startLine": 26,
-          "endLine": 33,
-          "tokens": 103,
-          "summary": "名称：beads 打断留存：回前台停面板（D-04）+ 局内快照提案（D-03）",
-          "keywords": [
-            "WXG",
-            "beads"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-056",
-          "level": 2,
-          "startLine": 34,
-          "endLine": 41,
-          "tokens": 84,
-          "summary": "名称：G4 复核：星级可达性用例缺口（注入 ratio 假绿）",
-          "keywords": [
-            "WXG",
-            "ratio"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-059",
-          "level": 2,
-          "startLine": 42,
-          "endLine": 49,
           "tokens": 465,
           "summary": "名称：beads 局内崩溃快照落码（D-03 实现轮；用户裁定「局内崩溃快照（D-03）任务执行」）：T-055 的提案",
           "keywords": [
@@ -32660,36 +32657,10 @@
           ]
         },
         {
-          "anchor": "§WXG-T-060",
-          "level": 2,
-          "startLine": 50,
-          "endLine": 57,
-          "tokens": 582,
-          "summary": "名称：beads S6 道具系统落码（EP-06，用户裁定「beads 游戏继续规划任务执行」）：① tuning.ts",
-          "keywords": [
-            "WXG",
-            "beads",
-            "tuning"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-061",
-          "level": 2,
-          "startLine": 58,
-          "endLine": 65,
-          "tokens": 704,
-          "summary": "名称：「到达序」判据清理（用户裁定，承接 WXG-T-031 已确立基准）：把 beads 各 GDD 里以「事件到达序",
-          "keywords": [
-            "WXG",
-            "beads",
-            "GDD"
-          ]
-        },
-        {
           "anchor": "§WXG-T-062",
           "level": 2,
-          "startLine": 66,
-          "endLine": 73,
+          "startLine": 26,
+          "endLine": 33,
           "tokens": 619,
           "summary": "名称：三项待裁定落地（用户裁定「按推荐」）：① 卡几何（方案 A：改卡高、不动带位） —— assets-spec §1",
           "keywords": [
@@ -32702,8 +32673,8 @@
         {
           "anchor": "§WXG-T-063",
           "level": 2,
-          "startLine": 74,
-          "endLine": 81,
+          "startLine": 34,
+          "endLine": 41,
           "tokens": 442,
           "summary": "名称：EP-07 结算·过关面板落地（用户裁定「开始 EP-07 结算面板」）：ux-spec §4 流转表要求 LEV",
           "keywords": [
@@ -32716,8 +32687,8 @@
         {
           "anchor": "§WXG-T-064",
           "level": 2,
-          "startLine": 82,
-          "endLine": 93,
+          "startLine": 42,
+          "endLine": 53,
           "tokens": 676,
           "summary": "名称：台账「标题制 + 详情分片」：治 TASKS.md 随任务数线性膨胀（用户 2026-09-14 反馈「详情写进索",
           "keywords": [
@@ -32728,8 +32699,8 @@
         {
           "anchor": "§WXG-T-065",
           "level": 2,
-          "startLine": 94,
-          "endLine": 104,
+          "startLine": 54,
+          "endLine": 64,
           "tokens": 653,
           "summary": "名称：归档器「成对搬运」机械化：把 WXG-T-064 登记的未闭环项闭环 —— archive-tasks.mjs 搬",
           "keywords": [
@@ -32742,8 +32713,8 @@
         {
           "anchor": "§WXG-T-066",
           "level": 2,
-          "startLine": 105,
-          "endLine": 117,
+          "startLine": 65,
+          "endLine": 77,
           "tokens": 842,
           "summary": "名称：EP-07 通关画面（FINISH）落地：ux-spec §3.6 的全屏庆祝 + 星级总览 + 双钮，接上判据 ",
           "keywords": [
@@ -32756,8 +32727,8 @@
         {
           "anchor": "§WXG-T-067",
           "level": 2,
-          "startLine": 118,
-          "endLine": 130,
+          "startLine": 78,
+          "endLine": 90,
           "tokens": 894,
           "summary": "名称：EP-07 冲刺结算面板落地：ux-spec §3.5 左列（单局 / 最高梯位 / 最高连击 + 双钮），接上判",
           "keywords": [
@@ -32769,31 +32740,58 @@
         {
           "anchor": "§WXG-T-068",
           "level": 2,
-          "startLine": 131,
-          "endLine": 143,
-          "tokens": 899,
+          "startLine": 91,
+          "endLine": 105,
+          "tokens": 901,
           "summary": "名称：memory/ 日志的分级加载：新增摘要层 memory/INDEX.md（生成物）——先读摘要，需要时按行区间只",
           "keywords": [
             "WXG",
             "memory",
             "INDEX"
           ]
+        },
+        {
+          "anchor": "§WXG-T-069",
+          "level": 2,
+          "startLine": 106,
+          "endLine": 118,
+          "tokens": 723,
+          "summary": "名称：把 knowledge/ 与 memory/ 的使用触发协议写进文档（回答「memory 该什么时候用」）。",
+          "keywords": [
+            "WXG",
+            "knowledge",
+            "memory"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-070",
+          "level": 2,
+          "startLine": 119,
+          "endLine": 128,
+          "tokens": 472,
+          "summary": "名称：台账头注落后的机械门禁（F 项）——check-tasks.mjs 断言头注号 ≥ 主表 ∪ 归档全局最大号。",
+          "keywords": [
+            "WXG",
+            "check",
+            "tasks",
+            "mjs"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2610,
-      "lines": 40,
-      "sha256": "1b3bf576139623c7db80c4cb697d1c488e8dd9726048a5468877f8a454fa1275",
+      "tokens": 2524,
+      "lines": 37,
+      "sha256": "5885c6a84b1d114e06d37b290babad8a5dd821d72bbc457873afee225d5e1c58",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 41,
-          "tokens": 2601,
+          "endLine": 38,
+          "tokens": 2515,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -32806,8 +32804,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 28,
-          "endLine": 41,
+          "startLine": 25,
+          "endLine": 38,
           "tokens": 1553,
           "summary": "事项 来源 说明",
           "keywords": [

@@ -15,51 +15,11 @@
 
 ---
 
-## WXG-T-058
-
-- **名称**：beads Mock 续时实现（F1+F2+B1；零 wx 广告 API）
-- **负责**：程基岩　**状态**：✅ 完成
-- **产出**：框架 `RewardedAdProvider` + Node/Web Mock + weapp Noop（**零 wx 广告 API**）；失败页主钮续时 / 次钮重试；`onRewarded` 后 +60s 同局续打、星级走 `starRemaining`；冲刺不续时。知识沉淀：候选 2 条未入账（`kb:sync` 新增 0 / 修改 0 / 激活 0 / 归档 0）
-
----
-
-## WXG-T-055
-
-- **名称**：beads 打断留存：回前台停面板（D-04）+ 局内快照提案（D-03）
-- **负责**：程基岩　**状态**：✅ 完成（快照未落码）
-- **产出**：D-04：`onResume` 不再解暂停（109 测绿）；D-03 提案 `games/beads/design/proposals/in-level-snapshot.md`（推荐另键 `wxgame.beads.crash.v1`）
-
----
-
-## WXG-T-056
-
-- **名称**：G4 复核：星级可达性用例缺口（注入 ratio 假绿）
-- **负责**：严守真　**状态**：✅ 完成（readonly）
-- **产出**：确认假绿；拟写 TC-CONST-09/10，**待 T-054 冻结后升格硬表**；D-03/D-04 当时无 §8 探针
-
----
-
 ## WXG-T-059
 
 - **名称**：beads 局内崩溃快照**落码**（D-03 实现轮；用户裁定「局内崩溃快照（D-03）任务执行」）：T-055 的提案自身写明「本轮禁止落运行时写档」+ §7 标「落码时，非本轮」⇒ 本轮**开新轮次**，不推翻其条款。范围：① 新增 `src/game/crash-snapshot.ts`（**另键** `wxgame.beads.crash.v1`，`save-schema.ts` 一字未改、S8 version 未升；字段级校验/降级、永不抛异常）；② `Spawner` 暴露 `acc` / `fullReported` 存取（原私有；恢复须在热路径外写，且须**先设 interval 再设 acc**，因为 interval setter 会重置累加器）；③ `BeadsGame.onPause` 末尾写快照（含「已 PAUSED 又 onHide」）；结算/过关/失败/finish/重玩/换关 **删**快照；④ BOOT 读快照 → 校验 → 装配 → 进 PAUSED（走 `machine.reset('paused')`，**不动** `PHASE_TRANSITIONS` 冻结表）；⑤ `tests/in-level-snapshot.test.ts`（提案 §6 六条判据，本轮据用户裁定去 `[待冻结]`）。**对提案 §2 的必要增补 2 项**（均有既有冻结依据，非发明）：`reviveCount`（T-057 已冻结 `REVIVE_MAX_PER_LEVEL=1`；不存则恢复后可再续一次、绕过该规则）、`reviveBonusSec`（参与 `computeClearStars`；不存则恢复后过关多给星）
 - **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
 - **产出**：games/beads/src/game/crash-snapshot.ts · games/beads/src/systems/spawner.ts · games/beads/src/game/beads-game.ts · games/beads/tests/in-level-snapshot.test.ts · 本台账
-
----
-
-## WXG-T-060
-
-- **名称**：beads S6 道具系统落码（EP-06，用户裁定「beads 游戏继续规划任务执行」）：① `tuning.ts` 补 §3.6 常量（`POWERUP_TYPES` / `REGION_CLEAR_SLOTS=6` / `RANDOM_CLEAR_COUNT=5` / `POWERUP_FREE_USES=1` / `AD_PLACEMENTS=4`）+ 卡片几何真源 `powerupCardRects()`（视图与 S2 命中测试**共用**，消灭双份常量）；② 新增 `systems/powerups.ts` —— 只读镜像（`tray:spawned`/`bead:placed`/`tray:expanded` + 选中锚点）、三道具效果（region 恒长窗口 + 两端钳制、clearAll 全容量、random 等概率无放回）、三计数独立、**点名归 S6、清槽归 S4**；③ `beads-game` 接线（S2 路由优先级 2 + `usePowerup` + 整关重置 + 崩溃档读写 + 快照字段）；④ 崩溃档 `powerupUses` **上限钳制**关闭（T-059 留的「待 S6 落地补」）；⑤ 视图落 **A4 三图标**（魔法棒/扫帚/磁铁，§1.4 程序化 path）+ 用尽变灰 + `×N` + 占位轻提示。**测试**：新增 `tests/powerups.test.ts` **16 条**（§8 十条判据 1:1 + 常量镜像），beads **129 → 145**。**顺带修两处假绿/失配**：A4 此前标「✅ 落地」而实现是 3 张空白卡（无图标无标签）；A1/A3 符号特征计数被新增图标同原语污染（断言限定进拼图带）。**未闭环**：① §8-4 判据（200 次 ±20%）统计上偏紧（12 槽族极大偏差期望 ≈22%，实测 6 seed 落在 0.104–0.256）⇒ 测试固定 seed 并登记修订建议；② §1.4 卡片几何（176×150 + 卡下方标签）与 §3.1 带高 152 **互相矛盾**，未擅自改尺寸，登记待裁定；③ 图标文字标签未落码
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **产出**：games/beads/src/systems/powerups.ts · src/config/tuning.ts · src/game/{beads-game,state,crash-snapshot}.ts · src/view/{view-model,palette}.ts · tests/powerups.test.ts · games/beads/art/accessibility.md（A4 改真）· 本台账
-
----
-
-## WXG-T-061
-
-- **名称**：**「到达序」判据清理**（用户裁定，承接 WXG-T-031 已确立基准）：把 beads 各 GDD 里以「事件到达序 / 以先到为准」为基准的「同帧」条款**统一换基准**为可观测的**帧内执行序**——`core-loop §2.2` 拆为「**玩法叙事序**（玩家感知的因果链，非执行序）」+「**帧内执行序**（规范，唯一真源）：输入（段内序：状态指令 → 玩法事件）→ 连击窗（仅冲刺）→ 供料 → 计时」，并**补齐玩法事件段内序**（落子回执 → 通关判定；`level:cleared`（输入段）恒先于 `level:failed`（计时段））与「cleared 优先」的**可观测机制**（输入段处理完已离开 PLAYING ⇒ 本帧直接返回，供料与计时都不执行）。改 `tray-spawner §6` / `powerups §6` / `score-combo §6` / `bead-grid §6` / `input-control §6` 共 **14 处**（**outcome 一一对应，非改判据、仅换基准**），并把 `pause-settings §6` / `timer-gameover §6` 的复述改为对 `core-loop §2.2.2` 的**归口引用**（两处各自复述正是 WXG-T-031 漂移的成因）。**顺带更正文档级错误**：`epics-beads.md` EP01-S2 把叙事序误读成「update 顺序」（原文「供料心跳 → 输入快照 → …」）——实现与基准都是**输入在前**（`_stepPlaying`）。**新增可执行证明**：`tests/frame-order.test.ts` **4 条**（真·同帧注入 + 探针实测供料帧号 + 对照组），钉住「暂停抑制同帧供料」「道具恒先于供料（新珠存活）」「最后一格 vs 同帧归零（仅 cleared、零 `timer:tick`）」与段序。**新发现**：`score-combo §6` 的「placed 与 rejected 同帧」、`input-control §6` 的「同帧先选珠后落子」等条款在「每帧最多 1 条输入指令」下**不可达**，已如实改为「不可能同帧」，不留假想分支
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **产出**：games/beads/design/gdd/core-loop.md（§2.2.2 规范真源 + §6 + §9 变更记录）· tray-spawner / powerups / score-combo / bead-grid / input-control / pause-settings / timer-gameover 各 §6 · production/epics/epics-beads.md · games/beads/tests/frame-order.test.ts · tests/helpers.ts（共享 `tapInFrame`）· systems-index §6 变更记录 · 本台账
 
 ---
 
@@ -140,3 +100,28 @@
 - **协议登记**：`memory/MEMORY.md` 规程补一条读法 · `ctx/ROUTES.md` 增入口行（指向 `memory/INDEX.md#§4. 摘要表（自动生成）`）· `docs/agent/memory-distill.md` 增 §8 分级读取。
 - **已知限制（如实登记）**：产物是「生成 + 读取既有文件」型 ⇒ 在 `--staged-blobs`（提交时）模式下，**手写前言**取工作树版本而非暂存版（日记表的行号仍按暂存 blob 索引 ✓）。前言极少改动，影响低。
 - **产出**：tools/scripts/lib/memory-index.mjs（**新增**）· tools/scripts/build-context-index.mjs · tools/scripts/check-context-budget.mjs · .githooks/pre-commit · memory/INDEX.md（**新增，生成物**）· memory/MEMORY.md · ctx/ROUTES.md · docs/agent/memory-distill.md · 本台账
+
+---
+
+## WXG-T-069
+
+- **名称**：把 `knowledge/` 与 `memory/` 的**使用触发协议**写进文档（回答「memory 该什么时候用」）。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **背景**：用户提问「每次新窗口加载 knowledge 确认经验教训，那 memory 什么时候用？」。查证后发现**用户的前提与现协议相反**：`AGENTS.md:118` 的 knowledge 读法是「**实现/修复/接入/发布类任务开工前**读 `lessons.md` **同域**条目」（按任务触发，非每窗口无条件）；而**被挂进四个 IDE** 的（三个符号链接 + Cursor 指针，`AGENTS.md:21-25`）是 `memory/MEMORY.md`。真正的缺口是 `my-rules/agents-md.md:13` 把 memory 的用法写成含糊的「需要活上下文时 Read」✗。
+- **落地（四处，各司其职、不重复）**：① `my-rules/agents-md.md`（常驻，最省字）只放**四个触发词**；② `AGENTS.md` 在 knowledge 段旁补**对称的 memory 段**（此前只有 knowledge 半边 ✗）；③ `memory/INDEX.md §1` 放**完整协议**（四触发 + grep 查法 + 例行用途 + 与 knowledge 的分工口诀）；④ `knowledge/INDEX.md §1` 加镜像一句分工。
+- **协议要点**：`MEMORY.md` 可常读；日记**只在四触发下查** —— **改旧政之前**（查当初为什么这么定）/ **接续未完成工作** / **追溯用户原话与裁定**（本层**独有**的权威记录）/ **排障找当初的确诊法**。查法 = `grep -n '<任务号或关键词>' memory/INDEX.md` 定位到「哪一天 / 哪一节 / 行区间」→ `read_file` **只读那一节**（几百 tok，而非 3.2 万）。例行用途只有一条：满 30 天蒸馏时重读那一天的节。
+- **预算纪律（本任务的主要约束）**：`AGENTS.md` 1743 → **1859 / 2000** ✅、`my-rules/agents-md.md` 374 → **413 / 500** ✅ —— 常驻层每个字**每次会话都付费** ⇒ **触发词进常驻、完整协议进按需层**；`memory/INDEX.md` 3811 → 4248、`knowledge/INDEX.md` 3170 → 3319（皆按需层、无硬门）。
+- **顺带验证机制**：改完 §1 后重跑 `ctx:build` ⇒ **手写前言原样保住、生成块完好** ⇒ WXG-T-068 的「手写协议在外、生成表在内」规格成立（这条不是推理，是跑出来的）。
+- **产出**：my-rules/agents-md.md · AGENTS.md · memory/INDEX.md · knowledge/INDEX.md · 本台账
+
+---
+
+## WXG-T-070
+
+- **名称**：台账头注**落后**的机械门禁（F 项）——`check-tasks.mjs` 断言头注号 **≥** 主表 ∪ 归档全局最大号。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **动机（真事，非假想）**：本次 T-067…T-069 三笔登记里，我用 `str.replace` 改台账头注**静默没匹配上**（真实文案是「…建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-066**，下一可用号…」，不含我假设的「（已完成）」✗；且那三处我**漏了 `assert`** ✗，别处却用了 ✓）⇒ 头注停在 **T-066** 而表内已到 **T-069**。唯一的告警方 `tasks:archive` **平时不跑** ⇒ 直到本次归档才暴露 —— 差一点就带着一个「已释放的号」继续领号（并行会话重号的经典成因）。
+- **落地**：`check-tasks.mjs` 新增 **F 项**：头注号**落后**于全局最大号即 FAIL；**领先合法**（`tasks:archive` 明写「头注只进不退」，某会话先推进头注而对应行未落盘是正常态）⇒ 领先只出一条 note。
+- **双向实测**：把头注改回 `WXG-T-066`（模拟落后）⇒ `check:tasks` FAILED 并给出修复命令；改回 ⇒ OK。
+- **为什么值得单独立项**：这是一次「**修自己**」——同一类错（脚本化改文档时 `replace` 静默 no-op）本任务之前已犯过 ✗，光说「下次注意」不算修复；把它变成门禁，下次它在**提交前**就会响。
+- **产出**：tools/scripts/check-tasks.mjs · 本台账

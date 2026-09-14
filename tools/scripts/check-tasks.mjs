@@ -118,6 +118,32 @@ for (const id of detailArchiveIds) {
   }
 }
 
+// F：头注号**不得落后**于「主表 ∪ 归档」的全局最大号（防领号重号，WXG-T-070）。
+// 动机（真事）：之前三次台账编辑用 `str.replace` 改头注，**静默没匹配上**（那三次漏了 `assert`），
+// 头注停在 T-066 而表内已到 T-069 —— 唯一会告警的 `tasks:archive` 平时不跑 ⇒ 没人发现。
+// 方向性：头注**领先**是合法的（某会话先推进头注、对应行还没落盘；archive 亦明写「只进不退」），
+// 只有**落后**才是危险的（等于把已占用的号重新释放）。
+const headerMax = (() => {
+  const m = /当前已分配至 \*\*WXG-T-(\d+)\*\*/.exec(ledgerLines.join('\n'));
+  return m ? Number.parseInt(m[1], 10) : null;
+})();
+const globalMax = Math.max(
+  0,
+  ...rows.map((r) => idNum(r.id)),
+  ...[...archiveText.matchAll(/^\|\s*(WXG-T-\d+)\s*\|/gm)].map((m) => idNum(m[1])),
+);
+const pad3 = (n) => `WXG-T-${String(n).padStart(3, '0')}`;
+if (headerMax === null) {
+  failures.push('F: 主表头注缺「当前已分配至 **WXG-T-xxx**」句式 —— tasks:archive 无法校准');
+} else if (headerMax < globalMax) {
+  failures.push(
+    `F: 头注号 ${pad3(headerMax)} **落后**于主表∪归档全局最大号 ${pad3(globalMax)} —— ` +
+      '潜在重号：跑 `pnpm run tasks:archive`（0 行时只告警不落盘）或手工改头注',
+  );
+} else if (headerMax > globalMax) {
+  notes.push(`F: 头注号 ${pad3(headerMax)} 领先全局最大号 ${pad3(globalMax)}（合法：头注只进不退）`);
+}
+
 // ── --prune：补搬（不是删）────────────────────────────────────────────────────
 // WXG-T-065 起语义变更：早先 --prune 是**删除**残留小节 ✗（会丢任务正文）。既然成对搬运
 // 已有落点（详情归档），补搬就是唯一不丢信息的修复动作。

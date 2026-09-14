@@ -10,7 +10,7 @@ trigger: always_on
 > **正本**：`my-rules/agents-md.md`。四 IDE 规则路径均为指向本文件的相对符号链接（见 `AGENTS.md` 文首表）。
 
 1. **常驻指引**：根目录 `AGENTS.md` — 若上下文尚无要点，先 Read。
-2. **长期笔记**：`memory/MEMORY.md` — 运行时约定、脚本备忘、已知限制；需要活上下文时 Read。
+2. **长期笔记**：`memory/MEMORY.md`（约定/脚本/已知限制，可常读）。日记详情**按触发定向查**（改旧政 / 接续未完 / 追溯用户裁定 / 排障找确诊法）：先 `memory/INDEX.md` 定位，再读那一节。
 
 摘要（细节以正本为准）：
 

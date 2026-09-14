@@ -66,3 +66,9 @@
 | WXG-T-053 | beads Cocos 宿主落地 | 主理人(CodeBuddy) | ✅ 完成（工程创建待人工 GUI） | 见详情 |
 | WXG-T-054 | beads 星级×关卡数值整组返工 | 文策渊 | ✅ 完成（组 C 已冻结） | 见详情 |
 | WXG-T-057 | beads 广告位重排 + 失败页续时裁决 | 文策渊 + 程基岩 | ✅ 完成（规则已冻结，实现另排） | 见详情 |
+> 归档批次 2026-09-14 15:02 +08:00 — 5 行（WXG-T-058、WXG-T-055、WXG-T-056、WXG-T-060、WXG-T-061）｜判定：git blame committer-time ≥ 30 天｜详情节同批搬入 production/archive/TASKS-DETAIL-archive.md
+| WXG-T-058 | beads Mock 续时实现 | 程基岩 | ✅ 完成 | 见详情 |
+| WXG-T-055 | beads 打断留存 | 程基岩 | ✅ 完成（快照未落码） | 见详情 |
+| WXG-T-056 | G4 复核：星级可达性用例缺口（注入 ratio 假绿） | 严守真 | ✅ 完成（readonly） | 见详情 |
+| WXG-T-060 | beads S6 道具系统落码 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+| WXG-T-061 | 「到达序」判据清理 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
