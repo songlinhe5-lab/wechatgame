@@ -22,40 +22,49 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
-| 2 | `memory/2026-09-14.md` | 12586 | 346 | normal |
-| 3 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
-| 4 | `memory/2026-09-12.md` | 10141 | 151 | normal |
-| 5 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
-| 6 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
-| 7 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
-| 8 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
-| 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
-| 10 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 525 | normal |
-| 11 | `production/epics/epics-beads.md` | 7916 | 293 | normal |
-| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
-| 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
-| 14 | `games/beads/design/proposals/star-level-rebalance.md` | 7487 | 387 | normal |
-| 15 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
-| 16 | `production/qa/beads/test-cases.md` | 7282 | 197 | hot |
-| 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
-| 18 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
-| 19 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
-| 20 | `production/qa/test-cases.md` | 7097 | 296 | normal |
+| 1 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
+| 2 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
+| 3 | `memory/2026-09-14.md` | 12586 | 346 | normal |
+| 4 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
+| 5 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
+| 6 | `games/beads/design/audio/audio-spec.md` | 10410 | 293 | normal |
+| 7 | `memory/2026-09-12.md` | 10141 | 151 | normal |
+| 8 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
+| 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
+| 10 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 12 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 14 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 15 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 16 | `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
+| 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
+| 18 | `games/beads/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 525 | normal |
+| 19 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 525 | normal |
+| 20 | `production/epics/epics-beads.md` | 7916 | 293 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
+| `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-09-14.md` | 12586 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/audio/audio-spec.md` | 10410 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-09-12.md` | 10141 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 
 ## 4. 真实最常用章节与分布加权节省率（估算）
