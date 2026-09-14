@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2351,
       "lines": 96,
-      "sha256": "50c1471334098ecb3417933877daa0dd65291cdabd45964242a4bbb8e13262b7",
+      "sha256": "92c5a102c01477b87939c0f16f0f25aea013a36253593f6e0bfc8a4e2e2dc139",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3762,
+      "tokens": 3781,
       "lines": 86,
-      "sha256": "b52296a5bc97f0d080a7f24e6f57ae35b66f402f8a37c7d0ac9105363752a030",
+      "sha256": "28252b3699eee5ac9f258b4af92d4082065f7e9495fcfbc8bdd983d54e50e438",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 3734,
+          "tokens": 3753,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -513,12 +513,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 199 行 / 3013 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 222 行 / 3839 tok / 实测读 42 次",
           "level": 2,
           "startLine": 14,
           "endLine": 17,
-          "tokens": 173,
-          "summary": "§控制清单 — 可立即执行的一页规则=1+200 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
+          "tokens": 192,
+          "summary": "§控制清单 — 可立即执行的一页规则=1+223 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
           "keywords": [
             "§0",
             "§1",
@@ -721,12 +721,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/commands.md` — 22 行 / 628 tok",
+          "anchor": "§`docs/agent/commands.md` — 23 行 / 742 tok",
           "level": 2,
           "startLine": 66,
           "endLine": 69,
           "tokens": 27,
-          "summary": "§验证与常用命令（docs/agent/commands.md）=1+23 · §验证与常用命令=6+18",
+          "summary": "§验证与常用命令（docs/agent/commands.md）=1+24 · §验证与常用命令=6+19",
           "keywords": [
             "docs/agent/commands.md",
             "docs",
@@ -1393,17 +1393,17 @@
     },
     {
       "path": "docs/agent/commands.md",
-      "tokens": 628,
-      "lines": 22,
-      "sha256": "ded52f1c268138e88bed859612b65cec7e2ecbc20bb4ed833330a4cd55fd1ef6",
+      "tokens": 742,
+      "lines": 23,
+      "sha256": "8a639c36eb04b656d66bb5c9de0d8e123242e5680687f0047c56099e1a659f63",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§验证与常用命令（docs/agent/commands.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 23,
-          "tokens": 613,
+          "endLine": 24,
+          "tokens": 727,
           "summary": "来源：自 AGENTS.md §6「验证与常用命令」逐字迁出 · 日期 2026-09-13 · Task ID WXG",
           "keywords": [
             "§6",
@@ -1418,16 +1418,16 @@
           "anchor": "§验证与常用命令",
           "level": 2,
           "startLine": 6,
-          "endLine": 23,
-          "tokens": 521,
-          "summary": "pnpm run verify 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck ",
+          "endLine": 24,
+          "tokens": 635,
+          "summary": "pnpm run verify 全量门禁：架构守卫 + ES5 展开守卫 + 四 IDE 链接 + 关卡 check +",
           "keywords": [
             "pnpm",
             "run",
             "verify",
+            "ES5",
             "IDE",
-            "check",
-            "typecheck"
+            "check"
           ]
         }
       ]
@@ -4251,6 +4251,104 @@
       ]
     },
     {
+      "path": "docs/architecture/adr/ADR-0012-es5-spread-language-contract.md",
+      "tokens": 3956,
+      "lines": 92,
+      "sha256": "9e29b056303b20c1c45cf2ca02d3f3c1824d72110da45ffe39d0835df33eb8da",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0012 — 构建层语言契约：源码层禁用对非数组的展开（Array.from 替代）+ 类型级 CI 守卫",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 93,
+          "tokens": 3919,
+          "summary": "编号：ADR-0012（0008 预约给「每日挑战」未落盘 = 跳空合规；0009/0010/0011 已用）",
+          "keywords": [
+            "ADR",
+            "Array",
+            "from",
+            "构建层语言契",
+            "源码层禁用对",
+            "非数组的展开"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 29,
+          "tokens": 741,
+          "summary": "Cocos Creator 3.8.8 的脚本打包（packer-driver + Babel）在所有平台上把 TS 源",
+          "keywords": [
+            "Context",
+            "Cocos",
+            "Creator",
+            "packer",
+            "driver",
+            "Babel"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 44,
+          "tokens": 581,
+          "summary": "方案甲（采用）：源码层 Array.from(x) 替换 + 类型级静态守卫",
+          "keywords": [
+            "Alternatives",
+            "Array",
+            "from",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 45,
+          "endLine": 53,
+          "tokens": 447,
+          "summary": "1. 全仓入库源码（framework src/ + games/*/src/）禁止对非数组可迭代对象使用展开语法；一律",
+          "keywords": [
+            "Decision",
+            "framework",
+            "src",
+            "games",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 54,
+          "endLine": 85,
+          "tokens": 1609,
+          "summary": "4.1 正面",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 86,
+          "endLine": 93,
+          "tokens": 341,
+          "summary": "真机出现 Array.from is not a function（或最低支持机型跌破 ES2015 built-ins",
+          "keywords": [
+            "Review",
+            "Triggers",
+            "Array",
+            "from",
+            "not",
+            "function"
+          ]
+        }
+      ]
+    },
+    {
       "path": "docs/architecture/architecture-beads.md",
       "tokens": 4357,
       "lines": 191,
@@ -4623,17 +4721,17 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 3013,
-      "lines": 199,
-      "sha256": "08e64611653a70fbe4e8f3b5e8922eb5f735ad81028f189b8ada122ad43afbec",
+      "tokens": 3839,
+      "lines": 222,
+      "sha256": "9f94294ca17751f4a6092b5751bd90c241e231223fc50c22d5a1ff9a71ec5f18",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§控制清单 — 可立即执行的一页规则",
           "level": 1,
           "startLine": 1,
-          "endLine": 200,
-          "tokens": 2997,
+          "endLine": 223,
+          "tokens": 3823,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -4811,8 +4909,8 @@
           "anchor": "§12 提交前自查表",
           "level": 2,
           "startLine": 154,
-          "endLine": 171,
-          "tokens": 159,
+          "endLine": 172,
+          "tokens": 195,
           "summary": "",
           "keywords": [
             "提交前自查表"
@@ -4821,9 +4919,9 @@
         {
           "anchor": "§13 反模式速查（见到就打回）",
           "level": 2,
-          "startLine": 172,
-          "endLine": 189,
-          "tokens": 273,
+          "startLine": 173,
+          "endLine": 191,
+          "tokens": 319,
           "summary": "在 update() 里 arr.filter(...) 原地遍历 + for 循环；池化临时数组",
           "keywords": [
             "update",
@@ -4837,15 +4935,31 @@
         {
           "anchor": "§14 Cocos MCP 编辑器接入（ADR-0009）",
           "level": 2,
-          "startLine": 190,
-          "endLine": 200,
-          "tokens": 448,
+          "startLine": 192,
+          "endLine": 204,
+          "tokens": 450,
           "summary": "接入定位：验证 / 构建 / 资源刷新闭环——不是\"用 AI 搭场景\"。插件在编辑器侧，运行时包体零影响。",
           "keywords": [
             "Cocos",
             "MCP",
             "ADR",
             "编辑器接入"
+          ]
+        },
+        {
+          "anchor": "§15 构建层语言契约（ADR-0012，根因 G10）",
+          "level": 2,
+          "startLine": 205,
+          "endLine": 223,
+          "tokens": 727,
+          "summary": "Cocos 脚本打包把所有平台降到 ES5，且 built-in 不 polyfill、语法照旧降级。其中一条不对称会静",
+          "keywords": [
+            "ADR",
+            "G10",
+            "Cocos",
+            "ES5",
+            "built",
+            "polyfill"
           ]
         }
       ]

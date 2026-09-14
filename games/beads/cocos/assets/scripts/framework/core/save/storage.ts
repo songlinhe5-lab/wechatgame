@@ -37,7 +37,11 @@ export class MemoryStorage implements Storage {
   }
 
   keys(): string[] {
-    return [...this._map.keys()];
+    // Convert the iterator with `Array.from`; a spread is not allowed here: the
+    // Cocos ES5 build lowers a spread of a non-array iterable into a concat form
+    // that does not expand it, so this returned a single key on device.
+    // See ADR-0012 and tools/scripts/check-es5-spread.mjs.
+    return Array.from(this._map.keys());
   }
 
   clear(): void {

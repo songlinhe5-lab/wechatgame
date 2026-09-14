@@ -66,7 +66,17 @@ export function decoyColorIndices(level: BeadsLevelRaw): number[] {
   return out;
 }
 
-/** The distinct pattern colour indices of a level (ascending). */
+/**
+ * The distinct pattern colour indices of a level (ascending).
+ *
+ * Must convert the Set with `Array.from`; spread syntax is not allowed here: the
+ * Cocos ES5 build lowers a spread of a non-array iterable into a concat form that
+ * does not expand it, so this returned exactly one colour on device,
+ * `validateBeadsLevel` rejected all 8 levels and BOOT never finished
+ * (G10 / ADR-0012; guarded by tools/scripts/check-es5-spread.mjs).
+ * Note: comments ship inside the bundle, so this one deliberately avoids the
+ * literal source forms — they would pollute artifact grep forensics.
+ */
 export function patternColors(pattern: readonly string[]): number[] {
   const seen = new Set<number>();
   for (const row of pattern) {
@@ -75,7 +85,7 @@ export function patternColors(pattern: readonly string[]): number[] {
       if (typeof idx === 'number') seen.add(idx);
     }
   }
-  return [...seen].sort((a, b) => a - b);
+  return Array.from(seen).sort((a, b) => a - b);
 }
 
 /** Distinct pattern colours of a single level record. */
@@ -178,7 +188,8 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
   for (const ch of level.decoys) {
     const idx = colorIndexOfChar(ch);
     if (idx === undefined) {
-      errors.push(`${tag}: decoy "${ch}" is not in charset ${BEAD_CHARSET}`);    } else if (typeof idx === 'number' && patternSet.has(idx)) {
+      errors.push(`${tag}: decoy "${ch}" is not in charset ${BEAD_CHARSET}`);
+    } else if (typeof idx === 'number' && patternSet.has(idx)) {
       errors.push(`${tag}: decoy "${ch}" overlaps pattern colour ${idx}`);
     }
   }
@@ -242,7 +253,10 @@ export function buildStagePattern(stageIndex: number): { pattern: string[]; colo
   }
 
   const pattern = base.map((row) =>
-    [...row]
+    // `row` is a **string**, so a spread would collapse the same way (ADR-0012).
+    // Contrast with STAGE_PATTERN_POOL above, where the spread operand really is
+    // an array and is therefore correct as-is.
+    Array.from(row)
       .map((ch) => {
         const idx = colorIndexOfChar(ch);
         return typeof idx === 'number' ? charOfColor(map.get(idx) ?? idx) : ch;

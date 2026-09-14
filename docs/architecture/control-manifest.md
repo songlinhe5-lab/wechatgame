@@ -165,6 +165,7 @@ node tools/scripts/check-architecture.mjs
 [ ] §5  存档变更带版本与迁移
 [ ] §11 新增代码有测试，且 tsc --noEmit 与 vitest 全绿
 [ ] §11 check-architecture.mjs 通过
+[ ] §15 没有对 Set / Map / 迭代器 / 字符串用展开语法（一律 Array.from）；check-es5-spread.mjs 通过
 ```
 
 ---
@@ -184,6 +185,7 @@ node tools/scripts/check-architecture.mjs
 | 手改场景文件"就调一个位置" | 位置进代码 / 数据表 |
 | 为通过评审而跳过测试 | 先写测试，再实现 |
 | 经 MCP 的 `scene_*` / `node_*` 写操作改场景 | 白名单禁用；验证走 `debug_*` / `validation_*`（ADR-0009） |
+| `[...someSet]` / `[...map.keys()]` / `[...str]` | `Array.from(someSet)`——Cocos ES5 构建会把非数组展开压成不展开的 concat 形式（ADR-0012） |
 
 ---
 
@@ -197,3 +199,24 @@ node tools/scripts/check-architecture.mjs
 - ✅ **许可证红线**：开源版（DaxianLee v1.5.4）自定义许可**禁止商用**。项目启动商业化（对外发布 / 产生收入）前，必须先按 ADR-0009 §5 完成复评（作者授权 / 方案 B 采购 / 方案 C 自研），否则**不得**在商业发布流程中使用该插件。
 - ✅ **临时开权限要登记**：P0 验证确需只读查询而临时开启被禁前缀时，须在 ADR 复评记录中登记工具名与原因，用完关闭；严禁开启写 action。
 - ✅ **升级流程**：插件升级 = 删除编辑器 settings 两个配置文件 + 重配 + 重核白名单映射，升级后先跑 P0 冒烟再继续使用。
+
+---
+
+## 15. 构建层语言契约（ADR-0012，根因 G10）
+
+> Cocos 脚本打包把所有平台降到 ES5，且 **built-in 不 polyfill、语法照旧降级**。其中一条不对称会静默改变语义：
+> `for-of` 走带 `Symbol.iterator` 分支的 helper（安全），而**展开语法**被压成不展开的 concat 调用（不安全）。
+> 后果曾在真机路径上让 beads **8 关全卡 `phase = "boot"`**（Node / vitest / harness 三路径均绿，故必须靠守卫拦）。
+
+- ❌ **禁止对非数组可迭代对象使用展开语法**：`[...set]`、`[...map]`、`[...map.keys()]`、`[...str]`、`f(...set)`、`const [a, ...r] = set` 全部禁止。
+- ✅ 统一改写 **`Array.from(x)`**（ES2015 built-in static，Babel 不转译；产物已实证原样保留）。
+- ✅ **展开一个真数组是安全的，不要“顺手清理”**（改它是噪声）：如 `[...rows]`（`string[]` 浅拷贝）、`[...this._commands]`。
+- ✅ 适用面 = **入库源码**（`packages/framework/src/**` + `games/*/src/**`）；tests / harness / 镜像拷贝件不进构建包。
+- ✅ 镜像副本只由 `pnpm run framework:sync` 产出，**绝不手改**；一致性由 `framework:sync:check` 保证（BD-20 教训）。
+- ✅ **守卫**：`node tools/scripts/check-es5-spread.mjs`（已进 `pnpm run verify`）。用 TypeScript **类型检查器 + AST** 而非正则，
+  三类展开位（数组展开 / 调用展开 / rest 解构）全覆盖；**不可证明为数组即红（fail-closed）**，`any`/`unknown`/`ArrayLike` 同样红。
+- ⚠️ 逃生阀：行内 `// es5-spread: allow <原因>`（可 grep）。使用需在设计/评审记录里说明，不得为“让守卫绿”而滥用。
+- ⚠️ **入库源码的注释里不得写上述字面形式**（`[...x]` / `[].concat(x)`）：注释会随 debug 构建进产物，**污染产物 grep 取证**；要引用回 ADR-0012 / 本清单。
+- ⚠️ **本契约只规避“展开”一个触发面**，不消除构建层的降级不对称；`Array.from` 在目标 runtime 是否真存在，靠产物旁证 + 守卫兜底，**非配置保证**（ADR-0012 §4.2）。
+
+**自查**：`node tools/scripts/check-es5-spread.mjs`；**守卫有效性自测**（红→绿双向可复现）`pnpm run check:es5spread:selftest`；产物旁证 `grep -o '\[\]\.concat(' games/<game>/cocos/build/web-mobile/assets/main/index.js | wc -l`（每一个命中都得确认展开对象就是数组；修好后 beads 侧应为 8 且全为真数组展开）。

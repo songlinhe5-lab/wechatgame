@@ -7,8 +7,9 @@
 
 | 命令 | 用途 |
 |---|---|
-| `pnpm run verify` | 全量门禁：架构守卫 + 四 IDE 链接 + 关卡 check + typecheck + test + harness 编译 + 冒烟 |
+| `pnpm run verify` | 全量门禁：架构守卫 + ES5 展开守卫 + 四 IDE 链接 + 关卡 check + typecheck + test + harness 编译 + 冒烟 |
 | `pnpm run check:arch` | 架构守卫 |
+| `pnpm run check:es5spread` | **构建层语言契约守卫**（ADR-0012 / 根因 G10）：用 TypeScript 类型检查器 + AST 禁掉对 Set/Map/迭代器/字符串的展开语法（含调用展开与 rest 解构），不可证明为数组即红；**不依赖 Cocos 即可跑**。`--dist` 为可选的产物扫描后置（只列命中不判红） |
 | `pnpm run check:links` | 四 IDE agents/skills/memory/规则指针完整性（**pre-commit 必跑**） |
 | `pnpm run harness` | 启动浏览器验证器 |
 | `pnpm run harness:build` / `harness:smoke` | 只编译 / 运行时冒烟 |

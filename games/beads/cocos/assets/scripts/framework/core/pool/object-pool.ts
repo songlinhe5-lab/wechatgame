@@ -109,7 +109,10 @@ export class ObjectPool<T> {
 
   /** Release everything currently checked out. */
   releaseAll(): void {
-    for (const item of [...this._inUse]) this.release(item);
+    // Snapshot with `Array.from`; a spread is not allowed here — the Cocos ES5
+    // build lowers a spread of a Set into a concat form that does not expand it
+    // (ADR-0012).
+    for (const item of Array.from(this._inUse)) this.release(item);
   }
 
   /** Drop all instances (idle + active references). Use on scene teardown. */

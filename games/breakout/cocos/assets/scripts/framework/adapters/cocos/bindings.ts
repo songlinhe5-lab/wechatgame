@@ -75,8 +75,8 @@ export class Bootstrap extends Component {
     if (Math.abs(p.x) > 0.5 || Math.abs(p.y) > 0.5) {
       console.warn(
         `[Bootstrap] node position (${p.x}, ${p.y}) is not (0, 0). ` +
-          'The renderer assumes the Bootstrap node sits at the Canvas centre. ' +
-          'Reset Position to (0, 0, 0) in the Inspector or the scene will render offset.',
+        'The renderer assumes the Bootstrap node sits at the Canvas centre. ' +
+        'Reset Position to (0, 0, 0) in the Inspector or the scene will render offset.',
       );
     }
     this._buildGraph();
@@ -284,11 +284,18 @@ function wrapLabel(label: Label) {
       label.color = new Color(c.r, c.g, c.b, c.a);
     },
     setAlign: (_align: 'left' | 'center' | 'right') => {
-      // ⚠ Enum mapping (Label.HorizontalAlign) to be confirmed.
+      // [G3 · 待编辑器半 / WXG-T-077] 空实现占位：需接 `cc.Label` 真实对齐枚举
+      // （HorizontalTextAlignment / VerticalTextAlignment，T-050 已纠正枚举真名）；
+      // [阻塞：无 Cocos Creator] 运行时/目视验证不可完成，故本轮不落码。
     },
     setVisible: (visible: boolean) => {
       label.node.active = visible;
     },
+    // [G3 · 待编辑器半 / WXG-T-077] 接入点：实现可选 `measureWidth(text, fontSize)`，
+    // 在 `label.string = text` 后回读 `label.node.getComponent(UITransform)!.width`
+    // 作为真实文本宽，供 `_anchorForText` 消费以消除估算降级。
+    // 未实现前，`cocos-renderer` 走 `FALLBACK_CHAR_WIDTH_RATIO` 估算 → G3 保持不关闭。
+    // [阻塞：无 Cocos Creator] 尺寸同步时序须编辑器目视校正后方可回填关闭 G3。
   };
 }
 

@@ -103,7 +103,11 @@ export class PowerupSystem {
 
   /** 镜像中的持有槽（升序）——测试与漂移排查用。 */
   get holding(): readonly number[] {
-    return [...this._holding].filter((i) => i >= 0 && i < this._capacity).sort((a, b) => a - b);
+    // 用 `Array.from` 把 Set 转成数组，不能用展开语法：Cocos ES5 构建会把
+    // 对 Set 的展开压成不展开的 concat 形式（长度恒为 1），见 ADR-0012。
+    return Array.from(this._holding)
+      .filter((i) => i >= 0 && i < this._capacity)
+      .sort((a, b) => a - b);
   }
 
   // ──────────────────────────────────────────────────────── mirror 输入
@@ -127,7 +131,8 @@ export class PowerupSystem {
   /** 生效容量变化（`tray:expanded` 与整关重置后的基线容量都走这里）。 */
   noteCapacity(capacity: number): void {
     this._capacity = Math.max(0, capacity);
-    for (const slot of [...this._holding]) {
+    // 快照同样用 `Array.from`（边遍历边 delete，与 `ObjectPool.releaseAll` 同理）。
+    for (const slot of Array.from(this._holding)) {
       if (slot >= this._capacity) this._holding.delete(slot);
     }
     if (this._anchor >= this._capacity) this._anchor = -1;
