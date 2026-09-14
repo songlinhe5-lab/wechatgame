@@ -40,8 +40,8 @@
 | 16 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 | 17 | `production/epics/epics-beads.md` | 7034 | 268 | normal |
 | 18 | `memory/2026-09-13.md` | 6645 | 149 | normal |
-| 19 | `ctx/ROUTES.md` | 6535 | 225 | normal |
-| 20 | `docs/agent/context-instrumentation-survey.md` | 6374 | 270 | normal |
+| 19 | `docs/engine-reference/cocos/VERSION.md` | 6554 | 290 | normal |
+| 20 | `ctx/ROUTES.md` | 6535 | 225 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

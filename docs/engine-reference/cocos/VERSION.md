@@ -61,9 +61,12 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
   - `tools/scripts/sync-framework-to-cocos.mjs`（`pnpm run framework:sync` / `framework:sync:check`）把 `packages/framework/src` 拷到 `cocos/assets/scripts/framework/`、`games/breakout/src` 拷到 `cocos/assets/scripts/game/`；拷贝时把裸包名 `'@wxgame/framework'` 改写为指向框架拷贝目录的相对路径。
   - 入口 `cocos/assets/scripts/BreakoutBootstrap.ts` 已创建，导入拷贝件真实路径。
   - **类型检查已通过**：`cocos/tsconfig.check.json`（extends 编辑器生成的 `temp/tsconfig.cocos.json`，用真实 `cc` 声明）`tsc --noEmit` 全量通过，含唯一 import `cc` 的 `bindings.ts`。
-  - **`.js` 后缀实证（Node 侧）**：TS 5.6/5.9 在 `moduleResolution: "node"`（temp 配置取值）下能解析 `.js` → `.ts` 映射。拷贝件**保留** `.js` 后缀。
+  - **`.js` 后缀实证（Node 侧）**：TS 5.6/5.9 在 `moduleResolution: "node"`（temp 配置取值）下能解析 `.js` → `.ts` 映射。
+    **⚠️ 2026-09-14 更正（WXG-T-047）**：拷贝件**默认已剥除** `.js` 后缀（`sync-framework-to-cocos.mjs` 实现为
+    `stripSuffix = !includes('--keep-suffix')`，**strip 是默认**）。本行此前写作「拷贝件**保留** `.js` 后缀」，与实现**相反**。
 - **未确认（残余风险，编辑器实测时逐项回填）**：
-  - Cocos **自有构建管线**（编辑器内编译 / 微信小游戏构建）是否解析 `.js` 后缀导入——若不认，sync 脚本备有 `--strip-suffix` 开关（只影响拷贝件，Node 侧测试读原始 `src/` 不受影响）。
+  - Cocos **自有构建管线**（编辑器内编译 / 微信小游戏构建）是否解析 `.js` 后缀导入——**该风险对本工程已不适用**（拷贝件默认无后缀，见上一条更正）；保留后缀的开关名是 `--keep-suffix`，**仓库中不存在 `--strip-suffix`**。
+  - **收窄后的真实残余风险**：`export * from …` 这类 **ESM 语法本身**在 Cocos 构建管线中的处理——需一次真实构建确认。
   - 候选方案 (a) npm 包依赖、(b) dist 构建产物、(d) tsconfig paths 是否被编辑器支持——留待后续 ADR 评估能否替代拷贝基线。
 - **当前做法**：源码用 `.js` 后缀导入（ESM 规范），vitest 侧通过 alias 指向 `src/index.ts`；Cocos 侧读拷贝件。
 
@@ -77,6 +80,12 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 - 是否存在 `Graphics.moveTo/lineTo` 之外需要的路径 API（`bezierCurveTo` 等）？
 - **影响文件**：`packages/framework/src/adapters/cocos/cocos-renderer.ts`、`bindings.ts`
 
+**✅ 2026-09-14 回填（WXG-T-050）**：`rect(x,y,w,h)` 的 `x,y` 是**矩形左上角**
+（JSDoc 原文 `top left point`）⇒ 框架左下设计空间**确实需要 y 翻转**，预览实测渲染正确说明现有实现是对的；
+`roundRect(x,y,w,h,r)` **存在**；`circle(cx,cy,r)` 为圆心+半径；`lineWidth`/`strokeColor`/`fillColor` 是
+**属性访问器**，且颜色 getter 返回 **`Readonly<Color>`** ⇒ **只能整体赋值**。
+逐条行号引用与完整表格见 **`api-verified.md` §G2**。
+
 ### G3 — `Label` 的行为与对齐
 
 - `Label` 的锚点默认值？（代码假设居中，并按估算文本宽度做偏移 —— **需要目视校正**）
@@ -87,6 +96,14 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 - **影响文件**：`cocos-renderer.ts` 的 `_anchorForText()`、`bindings.ts` 的 `wrapLabel()`
 - **已知局限**：`_anchorForText()` 用 `字符数 × 字号 × 0.55` 估算文本宽度 —— 这是**估算**，必须用真实 `Label` 尺寸替换（建议用 `UITransform.width` 回填）。
 
+**✅ 2026-09-14 回填（WXG-T-050）**：对齐枚举真名是 **`HorizontalTextAlignment` / `VerticalTextAlignment`**
+——**本文件此前写的 `Label.HorizontalAlign` 名称不存在**，这正是代码里留"空实现占位"的原因；
+不存在 `baseline` API（用它即 `VerticalTextAlignment.TOP/CENTER/BOTTOM`）；`Label.color` 亦为
+**只读属性访问器**。锚点默认值与 `UITransform` 依赖**声明不给答案**，由**实测**闭环（HUD 文字位置正确）。
+**⚠️ 真未闭环项**：`_anchorForText()` 仍用 `字符数 × 字号 × 0.55` 估算宽度（`cocos-renderer.ts:171`），
+本文件要求的真实 `Label` 尺寸替换**尚未执行** —— 目视通过但换字号/文本长度会跑偏，**不得记为已关闭**。
+完整表格与行号见 **`api-verified.md` §G3**。
+
 ### G4 — 触摸事件与坐标系
 
 - `Node.EventType.TOUCH_START` 等常量的**准确拼写**（代码里暂时用字符串 `'touch-start'`）。
@@ -96,6 +113,12 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 - 代码中的 `mapPoint: (x, y) => ({ x, y: DESIGN_HEIGHT - y })` 是一次**猜测性的 y 翻转**，必须验证后修正。
 - **影响文件**：`input-bridge.ts`（纯逻辑已测）、`bindings.ts` 的 `_bindInput()` / `readTouch()`
 
+**✅ 2026-09-14 回填（WXG-T-050）**：`Node.EventType.TOUCH_START` 的官方常量值**就是字符串 `"touch-start"`**
+（与代码里的字符串逐字一致，不是"暂时将就"）；`getUILocation()` 存在且返回 `Vec2`，但 JSDoc **未明说原点**；
+`getID(): number | null`（**可为 null**，消费方须处理）。坐标系原点由**实测**闭环——信箱区拖挡板
+（画布相对 495 → 设计 608）**与 letterbox 公式精确吻合**，同时间接证实返回的是 UI 坐标而非物理像素。
+**G4 关闭。** 完整表格与行号见 **`api-verified.md` §G4**。
+
 ### G5 — 帧驱动与调度
 
 - `Component.schedule(cb, interval)` 中 `interval = 0` 是否表示"每帧"？
@@ -104,6 +127,11 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 - 与 `director.getDeltaTime()` 相比，`schedule` 的 dt 是否有差异？
 - **影响文件**：`loop-bridge.ts`（纯逻辑已测）、`bindings.ts`
 
+**✅ 2026-09-14 回填（WXG-T-050）**：`schedule(callback, interval?, repeat?, delay?)`——**四参皆可选**；
+JSDoc 明写 `@param delay … **Unit: s**` ⇒ **整套调度单位为秒**；`interval = 0` 的语义**声明未明说**，
+由**实测**闭环（球速与预期一致 ⇒ "每帧触发 + dt 按秒"成立；若 dt 是毫秒球速会快约 1000 倍）。
+`unschedule` 需传**同一函数引用**（代码用闭包成立）。**G5 关闭。** 完整表格与行号见 **`api-verified.md` §G5**。
+
 ### G6 — 装饰器与脚本注册
 
 - `@ccclass('Bootstrap')` 的名称是否需要全局唯一？与文件名/类名的关系？
@@ -111,13 +139,84 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 - 脚本必须放在 `assets/` 下的哪个目录才会被编译？（`assets/scripts/**` 是惯例，需确认）
 - **影响文件**：`bindings.ts`
 
+**✅ 2026-09-14 回填（WXG-T-050）**：`@ccclass` 注册由**实测**确认（`Main.scene` 挂载的组件被实例化并运行）；
+`property` 声明存在三重载但**本作未使用**（符合 ADR-0003 无编辑器可配字段）；
+**脚本放在 `assets/` 下即可被编译、不限子目录**——实测拷贝件（`framework/**` + `game/**`）全部进入产物。
+**G6 实质关闭。** 详见 **`api-verified.md` §G6**。
+
 ### G7 — 构建与包体
 
 - 构建产物（`build/wechatgame/`）的目录结构、主包/分包划分方式。
 - 如何裁剪引擎模块？（编辑器"项目设置 → 功能裁剪"是否有 `graphics` / `label` 之外的被动依赖？）
 - 构建后主包实际体积基线（**空场景 + 一个 Bootstrap 脚本**）是多少？这是我们唯一的"零成本基线"数据点。
 - 微信开发者工具的最低基础库版本与我们用到的 API 是否兼容。
-- **影响文件**：`tools/scripts/build-cocos.mjs`（占位）、`check-bundle-size.mjs`
+- **影响文件**：`tools/scripts/build-cocos.mjs`、`check-bundle-size.mjs`
+
+**✅ 2026-09-14 实测回填（WXG-T-049）——G7 的包体基线部分关闭**
+
+构建方式（**已脚本化**）：`pnpm run build:cocos`（wechatgame）/ `build:cocos:web`（web-mobile）。
+两者都走 **Cocos 自带 CLI**：`CocosCreator --project <proj> --build "platform=<p>;debug=<bool>"`——
+实测 **无 AppID 也能构建出 wechatgame 产物**，且编辑器实例开着可并存。
+
+| 项 | 实测值 |
+|---|---|
+| 产物路径 | `games/<game>/cocos/build/wechatgame/`（**CLI 默认落工程内**，与 `architecture.md §1/§5` 的 `games/<game>/build/` 不同；`check:size` 两处都扫） |
+| 构建耗时 | debug 30.4s ／ **release 40.4s** ／ web-mobile 12.5s（首次） |
+| **主包基线（release）** | **3008.3 KB**（gzip 参考 809.0 KB，30 个文件） |
+| debug 对照 | 6332.2 KB ⇒ **release 约减半**。**包体数字只对 release 有意义**（debug 含 sourcemap 且不压缩） |
+| 判定 | 红线 4096 KB ✅ 通过（余量 1087.7 KB / 26.6%）；内部目标 2000 KB ⚠️ 超 1008 KB |
+| `architecture.md` R3 复评触发（>3.2 MB） | ✅ 未触发（2.94 MB） |
+| 分包 | `game.json` **无 `subpackages` 字段** ⇒ 当前无分包，全部计入主包 |
+
+**体积构成（release，顶层）：**
+
+| 分区 | 体积 | 说明 |
+|---|---|---|
+| `cocos-js/` | **2560 KB** | 引擎。**占主包 85%**，超 §3.8② 引擎预算（≤1800 KB）**760 KB** |
+| `assets/` | 308 KB | 业务与资源（其中 `assets/main/index.js` 112.2 KB = 我们的游戏代码） |
+| `src/` | 44 KB | settings/import-map 等 |
+| 根文件 | ~158 KB | `web-adapter.js` 87.9 / `engine-adapter.js` 19.9 / `first-screen.js` 17.9 / `logo.png` 14.2 / `slogan.png` 11.2 / … |
+
+**⚠️ 由此暴露的真实缺陷（已登记 backlog）：功能裁剪未执行。**
+`cocos/settings/v2/packages/engine.json` 的 `includeModules`（与构建日志的 `features=[…]` 逐个吻合）
+仍含 `spine-3.8`（**`assets/spine-*.wasm` 实测 200.4 KB**）、`dragon-bones`、`tiled-map`、`video`、
+`webview`、`particle-2d`、`physics-2d-box2d`、`mask`、`rich-text`、`animation` 等本作**未使用**的模块——
+而 `games/breakout/cocos/README.md` §3 步骤 2 明确要求取消它们。
+该配置**在版本控制内、可脚本化修改**（非 `.scene`/`.meta`，不受 L1 约束），
+但**禁用模块后必须回归实玩验收**（不排除误禁被动依赖）。
+
+**✅ 2026-09-14 裁剪已执行（WXG-T-051）——内部目标首次达成**
+
+**证据前置（先证"真的没用到"，再裁）**：全量 `cc` 导入符号实测**只有 7 个**——
+`Color` / `Component` / `Graphics` / `Label` / `Node` / `UITransform` / `_decorator`；
+待裁模块在 `packages/framework/src` + `games/breakout/src` + `cocos/assets/scripts` 中引用数 **全为 0**。
+（注意一个假命中：`Animation` 的 4 处匹配实为 **`requestAnimationFrame`**（浏览器 API），**不是**引擎 `Animation` 模块。）
+
+**改动**：`cocos/settings/v2/packages/engine.json` 的 `includeModules` **22 → 10**，关闭 **14 个** checkbox：
+`animation` / `audio` / `dragon-bones` / `mask` / `particle-2d` / `physics-2d` / `physics-2d-box2d` /
+`rich-text` / `spine` / `spine-3.8` / `tiled-map` / `tween` / `video` / `webview`。
+保留：`2d` / `affine-transform` / `base` / `custom-pipeline` / `gfx-webgl` / `gfx-webgl2` /
+`graphics` / `intersection-2d` / `profiler` / `ui`。
+改写方式为 **parse → set → serialize + 解析校验**，**不是手改文本**（对齐"编辑器拥有的状态文件入库前必须按 JSON 解析核对语义"的教训）。
+
+**效果（release，同口径对比）**：
+
+| | 裁剪前 | 裁剪后 | 变化 |
+|---|---|---|---|
+| 主包 | 3008.3 KB | **1815.1 KB** | **−1193.2 KB（−39.7%）** |
+| `cocos-js/`（引擎） | 2560 KB | **1356 KB** | **−1204 KB（−47%）** |
+| gzip 参考 | 809.0 KB | 490.1 KB | −318.9 KB |
+| 文件数 | 30 | 24 | −6 |
+| 判定 | ⚠️ 超内部目标 1008 KB | ✅ **达标**（1815.1 ≤ 2000） | 引擎亦回到预算内（1356 ≤ 1800） |
+
+红线 4096 KB 余量由 1087.7 KB 提升至 **2280.9 KB（55.7%）**；`architecture.md` R3 复评触发（>3.2 MB）更远。
+`pnpm run cocos:check`（对真实 `cc` 声明跑 tsc）**通过**。
+
+**⚠️ 未完成的一步（不得记为已关闭）**：**运行时实玩验收**。
+类型检查只覆盖编译期；禁模块的**运行时**行为（如被动依赖被裁）**类型检查抓不到**。
+按本文件 §6「缺口是资产」的精神，本条在实玩确认前保持**未完全关闭**。
+
+- 仍**未验证**：微信开发者工具的最低基础库版本兼容性（需真机 + AppID）。
 
 ### G8 — `wx` 适配层
 
@@ -148,9 +247,10 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 | 平台层 node/web/weapp | `vitest run`，16 用例（含 fake `wx`） | ✅ 已验证 |
 | 打砖块玩法全部逻辑 | `vitest run`，153 用例，覆盖 97.2% | ✅ 已验证 |
 | 类型检查（Node 侧） | `tsc --noEmit`（两个包） | ✅ 已验证 |
-| **`bindings.ts` 能否在编辑器里编译** | — | ❌ **未验证** |
-| **Cocos 工程能否 import 框架包** | — | ❌ **未验证**（G1） |
-| **真机帧率 / 包体 / draw call** | — | ❌ **未验证** |
+| **`bindings.ts` 能否在编辑器里编译** | 编辑器编译 + `pnpm run cocos:check`（对真实 `cc` 声明跑 tsc） | ✅ **已验证** |
+| **Cocos 工程能否 import 框架包** | wechatgame **release 构建成功**，产物 `assets/main/index.js` 命中 `BreakoutBootstrap` | ✅ **已验证**（G1 关闭） |
+| **包体** | `pnpm run build:cocos --release` + `pnpm run check:size` | ✅ **已验证**：主包 **3008.3 KB**（红线 4096 ✅ 通过；内部目标 2000 ⚠️ 超 1008 KB） |
+| **真机帧率 / draw call** | — | ❌ **未验证**（需 AppID + 真机） |
 
 ---
 
@@ -166,6 +266,19 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 6. **G8 平台**：在真机上验证 `weapp.ts` 的屏幕尺寸与安全区。
 7. **R3 包体**：构建并跑 `check-bundle-size.mjs`，确认主包 ≤ 4 MB。
 8. **R4 性能**：低端真机跑 5 分钟，记录帧率与内存；必要时调 `DEFAULT_TUNING`。
+
+**执行状态（2026-09-14 更新，WXG-T-049 / T-050）：**
+
+| # | 步骤 | 状态 |
+|---|---|---|
+| 1 | G7 基线 | ✅ 已取：release 主包 **3008.3 KB**。**注意**：这不是"空工程"基线，而是**含完整玩法**的真实产物——比原计划的空体积基线更有价值（它已包含业务代码与全部资源） |
+| 2 | G1 引用 | ✅ **关闭**：wechatgame release 构建成功，产物 `assets/main/index.js` 命中 `BreakoutBootstrap` |
+| 3 | G2 / G3 渲染 | ✅ 渲染目视通过；G2 由官方声明回填、G3 由声明 + 实测回填。**遗留一项**：`_anchorForText()` 的估算宽度未替换（见 G3 与 backlog） |
+| 4 | G4 输入 | ✅ **关闭**：信箱区换算精确吻合（495 → 608） |
+| 5 | G5 循环 | ✅ **关闭**：球速与预期一致 |
+| 6 | G8 平台 | ❌ **未做**（需 AppID + 真机） |
+| 7 | R3 包体 | ✅ 已跑：红线 4096 KB **通过**；⚠️ 内部目标 2000 KB **未达**（3008.3 KB）→ 见 backlog「引擎功能裁剪」 |
+| 8 | R4 性能 | ❌ **未做**（需真机） |
 
 ---
 

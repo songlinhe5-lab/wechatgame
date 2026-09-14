@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1880,
+      "tokens": 1878,
       "lines": 84,
-      "sha256": "58126b56d467888e67a03b434906cf7ccbf49979162c54c268ecd0e5634e2e47",
+      "sha256": "db05bb4b9785c4dc87db3f47c826ff5819aa3f743449816c56fc0a613a1353f7",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 85,
-          "tokens": 1867,
+          "tokens": 1865,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 422,
+          "tokens": 421,
           "summary": "1 games/breakout/cocos/extensions/cocos-mcp-server/README.ru",
           "keywords": [
             "Top",
@@ -4983,17 +4983,17 @@
     },
     {
       "path": "docs/engine-reference/cocos/VERSION.md",
-      "tokens": 3801,
-      "lines": 177,
-      "sha256": "52e922e79baade41c6695dad03707bc5bb51ea9fe9234d4e1b6c97153d4f6d13",
+      "tokens": 6554,
+      "lines": 290,
+      "sha256": "1adfc067c86848dabc9c7124e37702f8aa42277e807ac1f7ace463302cf385e8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator — 引擎版本钉定与知识缺口清单",
           "level": 1,
           "startLine": 1,
-          "endLine": 178,
-          "tokens": 3783,
+          "endLine": 291,
+          "tokens": 6536,
           "summary": "钉定版本：Cocos Creator 3.8 LTS（当前最新 3.8.8，2025-12 发布）",
           "keywords": [
             "Cocos",
@@ -5046,8 +5046,8 @@
           "anchor": "§3 知识缺口清单（**必须在编辑器里逐条验证**）",
           "level": 2,
           "startLine": 53,
-          "endLine": 136,
-          "tokens": 2023,
+          "endLine": 235,
+          "tokens": 4358,
           "summary": "每一条都是\"我无法在无编辑器环境下确认\"的事实。请在 Cocos Creator 3.8.8 就绪后按序验证并回填结论。",
           "keywords": [
             "Cocos",
@@ -5061,8 +5061,8 @@
           "anchor": "§G1 — 框架源码如何被 Cocos 工程引用【基线已落地（方案 C），残余风险见下】",
           "level": 3,
           "startLine": 57,
-          "endLine": 69,
-          "tokens": 519,
+          "endLine": 72,
+          "tokens": 657,
           "summary": "问题：packages/framework 是独立 npm 包（@wxgame/framework，exports 指向",
           "keywords": [
             "Cocos",
@@ -5076,9 +5076,9 @@
         {
           "anchor": "§G2 — `Graphics` API 的确切签名",
           "level": 3,
-          "startLine": 70,
-          "endLine": 79,
-          "tokens": 212,
+          "startLine": 73,
+          "endLine": 88,
+          "tokens": 363,
           "summary": "Graphics.rect(x, y, w, h)：x,y 是左下角还是左上角？ 框架设计空间是左下，若 Cocos 是",
           "keywords": [
             "Graphics",
@@ -5091,9 +5091,9 @@
         {
           "anchor": "§G3 — `Label` 的行为与对齐",
           "level": 3,
-          "startLine": 80,
-          "endLine": 89,
-          "tokens": 245,
+          "startLine": 89,
+          "endLine": 106,
+          "tokens": 490,
           "summary": "Label 的锚点默认值？（代码假设居中，并按估算文本宽度做偏移 —— 需要目视校正）",
           "keywords": [
             "Label",
@@ -5103,9 +5103,9 @@
         {
           "anchor": "§G4 — 触摸事件与坐标系",
           "level": 3,
-          "startLine": 90,
-          "endLine": 98,
-          "tokens": 193,
+          "startLine": 107,
+          "endLine": 121,
+          "tokens": 376,
           "summary": "Node.EventType.TOUCH_START 等常量的准确拼写（代码里暂时用字符串 'touch-start'）",
           "keywords": [
             "Node",
@@ -5119,9 +5119,9 @@
         {
           "anchor": "§G5 — 帧驱动与调度",
           "level": 3,
-          "startLine": 99,
-          "endLine": 106,
-          "tokens": 142,
+          "startLine": 122,
+          "endLine": 134,
+          "tokens": 294,
           "summary": "Component.schedule(cb, interval) 中 interval = 0 是否表示\"每帧\"？",
           "keywords": [
             "Component",
@@ -5133,9 +5133,9 @@
         {
           "anchor": "§G6 — 装饰器与脚本注册",
           "level": 3,
-          "startLine": 107,
-          "endLine": 113,
-          "tokens": 100,
+          "startLine": 135,
+          "endLine": 146,
+          "tokens": 232,
           "summary": "@ccclass('Bootstrap') 的名称是否需要全局唯一？与文件名/类名的关系？",
           "keywords": [
             "ccclass",
@@ -5147,9 +5147,9 @@
         {
           "anchor": "§G7 — 构建与包体",
           "level": 3,
-          "startLine": 114,
-          "endLine": 121,
-          "tokens": 167,
+          "startLine": 147,
+          "endLine": 220,
+          "tokens": 1500,
           "summary": "构建产物（build/wechatgame/）的目录结构、主包/分包划分方式。",
           "keywords": [
             "build",
@@ -5160,8 +5160,8 @@
         {
           "anchor": "§G8 — `wx` 适配层",
           "level": 3,
-          "startLine": 122,
-          "endLine": 128,
+          "startLine": 221,
+          "endLine": 227,
           "tokens": 174,
           "summary": "Cocos 的微信小游戏导出是否自带 wx 的 requestAnimationFrame 注入？（我们的 weapp.",
           "keywords": [
@@ -5175,8 +5175,8 @@
         {
           "anchor": "§G9 — `.meta` 与资源",
           "level": 3,
-          "startLine": 129,
-          "endLine": 136,
+          "startLine": 228,
+          "endLine": 235,
           "tokens": 119,
           "summary": ".meta 的 UUID 生成规则；手工新增 assets 下的文件是否会被编辑器自动补 .meta。",
           "keywords": [
@@ -5190,9 +5190,9 @@
         {
           "anchor": "§4 已在本轮\"无编辑器\"条件下完成的部分",
           "level": 2,
-          "startLine": 137,
-          "endLine": 156,
-          "tokens": 305,
+          "startLine": 236,
+          "endLine": 256,
+          "tokens": 409,
           "summary": "明确区分已验证与未验证，避免后续误判。",
           "keywords": [
             "已在本轮",
@@ -5204,9 +5204,9 @@
         {
           "anchor": "§5 编辑器就绪后的验证顺序（建议）",
           "level": 2,
-          "startLine": 157,
-          "endLine": 171,
-          "tokens": 294,
+          "startLine": 257,
+          "endLine": 284,
+          "tokens": 609,
           "summary": "按依赖顺序执行，前一步失败会阻塞后一步：",
           "keywords": [
             "编辑器就绪后",
@@ -5217,12 +5217,124 @@
         {
           "anchor": "§6 维护约定",
           "level": 2,
-          "startLine": 172,
-          "endLine": 178,
+          "startLine": 285,
+          "endLine": 291,
           "tokens": 142,
           "summary": "任何在编辑器里发现与本文记载不符的地方，必须回来更新本文件（含\"实际行为\"与\"受影响文件\"）。",
           "keywords": [
             "维护约定"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/engine-reference/cocos/api-verified.md",
+      "tokens": 2602,
+      "lines": 107,
+      "sha256": "c1c606f4ffa7c4d3d95753faa24c7043622e028ddbd6fc929d2f78b5680c942a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Cocos 3.8.8 API 取证 —— 已验证结论（G2–G6）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 108,
+          "tokens": 2586,
+          "summary": "定位：本文是 VERSION.md §3 知识缺口清单的详细取证附录。",
+          "keywords": [
+            "§3",
+            "Cocos",
+            "API",
+            "VERSION",
+            "取证",
+            "已验证结论"
+          ]
+        },
+        {
+          "anchor": "§G2 — `Graphics` API",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 33,
+          "tokens": 420,
+          "summary": "rect(x,y,w,h) 的 x,y 是哪个角 矩形左上角。JSDoc：@en The x-axis coordina",
+          "keywords": [
+            "Graphics",
+            "API",
+            "rect",
+            "JSDoc",
+            "The",
+            "axis"
+          ]
+        },
+        {
+          "anchor": "§G3 — `Label` 行为与对齐",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 54,
+          "tokens": 570,
+          "summary": "对齐枚举的确切名 ❌ 此前写作 Label.HorizontalAlign，该名称不存在。真名是两个独立枚举：Horiz",
+          "keywords": [
+            "Label",
+            "HorizontalAlign",
+            "Horiz",
+            "行为与对齐"
+          ]
+        },
+        {
+          "anchor": "§G4 — 触摸事件与坐标系",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 70,
+          "tokens": 371,
+          "summary": "Node.EventType.TOUCH_* 的准确拼写 官方常量值就是字符串：TOUCH_START = \"touch",
+          "keywords": [
+            "Node",
+            "EventType",
+            "TOUCH_",
+            "TOUCH_START",
+            "touch",
+            "触摸事件与坐"
+          ]
+        },
+        {
+          "anchor": "§G5 — 帧驱动与调度",
+          "level": 2,
+          "startLine": 71,
+          "endLine": 86,
+          "tokens": 426,
+          "summary": "schedule(cb, interval) 签名 schedule(callback: any, interval?:",
+          "keywords": [
+            "schedule",
+            "interval",
+            "callback",
+            "any",
+            "帧驱动与调度"
+          ]
+        },
+        {
+          "anchor": "§G6 — 装饰器与脚本注册",
+          "level": 2,
+          "startLine": 87,
+          "endLine": 101,
+          "tokens": 301,
+          "summary": "本条以运行时实测为准（声明侧未取到 ccclass 的独立声明）。",
+          "keywords": [
+            "ccclass",
+            "装饰器与脚本",
+            "注册"
+          ]
+        },
+        {
+          "anchor": "§与方法论相关的两条经验（供后续回填复用）",
+          "level": 2,
+          "startLine": 102,
+          "endLine": 108,
+          "tokens": 157,
+          "summary": "1. 先分层再动笔：能由声明回答的绝不用推测；声明回答不了的明确写「未明说」并交给实测；",
+          "keywords": [
+            "与方法论相关",
+            "的两条经验",
+            "供后续回填复"
           ]
         }
       ]
