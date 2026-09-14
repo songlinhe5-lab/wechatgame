@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 /**
- * sync-framework-to-cocos.mjs — 方案 C（物理拷贝）同步脚本。
+ * sync-framework-to-cocos.mjs — 方案 C（物理拷贝）同步脚本。**多游戏**。
  *
  * WHY THIS EXISTS
  * ---------------
  * Cocos Creator 只编译自己工程 `assets/` 目录下的脚本，而框架源码住在
- * `packages/framework/src/`、玩法源码住在 `games/breakout/src/`。要让 Cocos
+ * `packages/framework/src/`、玩法源码住在 `games/<game>/src/`。要让 Cocos
  * 工程编译它们，唯一零未知的方式是把源码**物理拷贝**进
- * `games/breakout/cocos/assets/scripts/`（README §2 方案 C，缺口 G1 的基线）。
+ * `games/<game>/cocos/assets/scripts/`（README §2 方案 C，缺口 G1 的基线）。
+ *
+ * 覆盖范围（WXG-T-053 泛化）：遍历 `games/*`，**只处理已存在 `cocos/` 目录的游戏**；
+ * 没建工程的一律**明确跳过并打印**（与 `check-cocos-scripts.mjs` 同一口径），
+ * 不静默当成"同步成功"。泛化前本脚本硬编码 `games/breakout`，beads 永远拿不到拷贝件。
  *
  * 拷贝不是 rsync 那么简单，因为两处源码的导入风格在拷贝件里会失效：
- *   1. `games/breakout/src/**` 用裸包名 `import ... from '@wxgame/framework'`
+ *   1. `games/<game>/src/**` 用裸包名 `import ... from '@wxgame/framework'`
  *      —— 拷贝件里没有 node_modules，必须改写为指向 `framework/` 拷贝目录
  *      的相对路径（按目标文件深度计算）。
  *   2. 所有相对导入带 `.js` 后缀（ESM 风格）。已实测 TS 5.6 在
@@ -23,7 +27,7 @@
  * 红线（L1）：`.meta` 只能由编辑器生成。本脚本：
  *   - 不生成、不改写任何 `.meta`；
  *   - 同步时**保留**已存在的 `.meta`（编辑器生成的 UUID 不得丢失，否则
- *     Main.scene 里对 BreakoutBootstrap 的组件引用会断）；
+ *     Main.scene 里对 Bootstrap 的组件引用会断）；
  *   - 只清理"源里已不存在"的拷贝文件；其孤儿 `.meta` 一并删除（编辑器会
  *     把无主 `.meta` 报为导入错误）。
  *
@@ -43,7 +47,6 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
-  statSync,
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -52,11 +55,8 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 
+const GAMES_DIR = resolve(repoRoot, 'games');
 const FRAMEWORK_SRC = resolve(repoRoot, 'packages/framework/src');
-const GAME_SRC = resolve(repoRoot, 'games/breakout/src');
-const SCRIPTS_OUT = resolve(repoRoot, 'games/breakout/cocos/assets/scripts');
-const FRAMEWORK_OUT = resolve(SCRIPTS_OUT, 'framework');
-const GAME_OUT = resolve(SCRIPTS_OUT, 'game');
 
 /** Never copy these; `.meta` is editor-owned (L1). */
 const EXCLUDED = new Set(['.DS_Store']);
@@ -78,6 +78,30 @@ function walk(dir, base = dir, acc = []) {
 
 const stripSuffix = !process.argv.includes('--keep-suffix');
 const checkOnly = process.argv.includes('--check');
+
+/**
+ * Every game directory, with its source tree and Cocos project root.
+ * A game without `cocos/` is still listed — the caller decides whether that is
+ * a skip (missing project) or a problem.
+ */
+function discoverGames() {
+  return readdirSync(GAMES_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort()
+    .map((game) => {
+      const root = join(GAMES_DIR, game);
+      const scriptsOut = join(root, 'cocos', 'assets', 'scripts');
+      return {
+        game,
+        gameSrc: join(root, 'src'),
+        cocosDir: join(root, 'cocos'),
+        scriptsOut,
+        frameworkOut: join(scriptsOut, 'framework'),
+        gameOut: join(scriptsOut, 'game'),
+      };
+    });
+}
 
 /**
  * Rewrite a bare-package import into a relative path into the framework copy.
@@ -131,26 +155,19 @@ function transformSource(text, srcKind, fileRel, frameworkFiles) {
 }
 
 /**
- * Compute the full sync manifest: { destAbsPath: content } for both trees,
- * plus the set of destination files that must exist after sync.
+ * Compute the full sync manifest for one game: { destAbsPath: content } for both
+ * trees, built from the framework tree and that game's own source tree.
  */
-function buildManifest() {
-  if (!existsSync(FRAMEWORK_SRC)) throw new Error(`framework src missing: ${FRAMEWORK_SRC}`);
-  if (!existsSync(GAME_SRC)) throw new Error(`game src missing: ${GAME_SRC}`);
-
-  const fwFiles = walk(FRAMEWORK_SRC);
-  const fwFileSet = new Set(fwFiles);
-  const gameFiles = walk(GAME_SRC);
-
+function buildManifest(spec, frameworkFiles, frameworkFileSet) {
   const manifest = new Map(); // destAbs -> content
 
-  for (const rel of fwFiles) {
+  for (const rel of frameworkFiles) {
     const text = readFileSync(join(FRAMEWORK_SRC, rel), 'utf8');
-    manifest.set(join(FRAMEWORK_OUT, rel), transformSource(text, 'framework', rel, fwFileSet));
+    manifest.set(join(spec.frameworkOut, rel), transformSource(text, 'framework', rel, frameworkFileSet));
   }
-  for (const rel of gameFiles) {
-    const text = readFileSync(join(GAME_SRC, rel), 'utf8');
-    manifest.set(join(GAME_OUT, rel), transformSource(text, 'game', rel, fwFileSet));
+  for (const rel of walk(spec.gameSrc)) {
+    const text = readFileSync(join(spec.gameSrc, rel), 'utf8');
+    manifest.set(join(spec.gameOut, rel), transformSource(text, 'game', rel, frameworkFileSet));
   }
   return manifest;
 }
@@ -167,51 +184,39 @@ function listExisting(dir, base = dir, acc = []) {
   return acc;
 }
 
-function main() {
-  const manifest = buildManifest();
-
-  // ---- 现状盘点（含 .meta）----
-  const existingFw = listExisting(FRAMEWORK_OUT);
-  const existingGame = listExisting(GAME_OUT);
-  const existingAll = [...existingFw.map((r) => join(FRAMEWORK_OUT, r)), ...existingGame.map((r) => join(GAME_OUT, r))];
-  const existingSet = new Set(existingAll);
-
-  // ---- --check：逐文件比对 + 检查多余拷贝件 ----
-  if (checkOnly) {
-    const problems = [];
-    for (const [dest, content] of manifest) {
-      let actual = null;
-      try {
-        actual = readFileSync(dest, 'utf8');
-      } catch {
-        /* missing */
-      }
-      if (actual !== content) {
-        problems.push(
-          `  OUT  ${relative(repoRoot, dest)}${actual === null ? ' (missing)' : ' (differs)'}`,
-        );
-      }
-    }
-    for (const abs of existingAll) {
-      if (!manifest.has(abs) && !abs.endsWith('.meta')) {
-        problems.push(`  EXTRA ${relative(repoRoot, abs)}（源里已不存在，应删除）`);
-      }
-    }
-    if (problems.length > 0) {
-      console.error(
-        `❌ cocos/assets/scripts/{framework,game} 与源码不同步（${problems.length} 处）：\n` +
-          problems.join('\n') +
-          '\n   运行: node tools/scripts/sync-framework-to-cocos.mjs',
-      );
-      process.exit(1);
-    }
-    console.log(
-      `✅ 拷贝件与源码一致（framework ${manifest.size - gameFilesCount(manifest)} 个 + game ${gameFilesCount(manifest)} 个文件）`,
-    );
-    return;
+/** Every file currently on disk under a game's `scripts/{framework,game}`. */
+function existingCopies(spec) {
+  const list = [];
+  for (const root of [spec.frameworkOut, spec.gameOut]) {
+    for (const rel of listExisting(root)) list.push(join(root, rel));
   }
+  return list;
+}
 
-  // ---- 同步 ----
+/** `--check` for one game → array of human-readable problems. */
+function checkGame(spec, manifest) {
+  const problems = [];
+  for (const [dest, content] of manifest) {
+    let actual = null;
+    try {
+      actual = readFileSync(dest, 'utf8');
+    } catch {
+      /* missing */
+    }
+    if (actual !== content) {
+      problems.push(`OUT  ${relative(repoRoot, dest)}${actual === null ? ' (missing)' : ' (differs)'}`);
+    }
+  }
+  for (const abs of existingCopies(spec)) {
+    if (!manifest.has(abs) && !abs.endsWith('.meta')) {
+      problems.push(`EXTRA ${relative(repoRoot, abs)}（源里已不存在，应删除）`);
+    }
+  }
+  return problems;
+}
+
+/** Write one game's manifest; returns {written, kept, removed}. */
+function applyGame(spec, manifest) {
   let written = 0;
   let kept = 0;
   for (const [dest, content] of manifest) {
@@ -232,10 +237,10 @@ function main() {
 
   // 清理源里已不存在的拷贝件；对应孤儿 .meta 一起删。
   // ⚠ 目录也有 .meta（如 `core.meta` 对应 `core/` 目录），其 sibling 是目录，
-  //   不在 manifest/existingSet（均只含文件）里——必须用 existsSync 兜底，
+  //   不在 manifest（只含文件）里——必须用 existsSync 兜底，
   //   否则每次同步都会误删全部目录级 .meta（2026-09-13 实测事故）。
   let removed = 0;
-  for (const abs of existingAll) {
+  for (const abs of existingCopies(spec)) {
     if (manifest.has(abs)) continue;
     if (abs.endsWith('.meta')) {
       const sibling = abs.replace(/\.meta$/, '');
@@ -246,20 +251,80 @@ function main() {
   }
 
   // 清空目录（可能因清理产生）
-  pruneEmptyDirs(FRAMEWORK_OUT);
-  pruneEmptyDirs(GAME_OUT);
+  pruneEmptyDirs(spec.frameworkOut);
+  pruneEmptyDirs(spec.gameOut);
 
-  console.log(
-    `✅ 同步完成：写入 ${written}、未变 ${kept}、删除 ${removed}` +
-      (stripSuffix ? '（.js 后缀已剥除）' : '') +
-      '。.meta 由编辑器生成，本脚本永不触碰。',
-  );
+  return { written, kept, removed };
 }
 
-function gameFilesCount(manifest) {
-  let n = 0;
-  for (const p of manifest.keys()) if (p.startsWith(GAME_OUT)) n += 1;
-  return n;
+function main() {
+  if (!existsSync(FRAMEWORK_SRC)) throw new Error(`framework src missing: ${FRAMEWORK_SRC}`);
+
+  const frameworkFiles = walk(FRAMEWORK_SRC);
+  const frameworkFileSet = new Set(frameworkFiles);
+
+  const synced = [];
+  const skipped = [];
+  const problems = [];
+
+  for (const spec of discoverGames()) {
+    if (!existsSync(spec.cocosDir)) {
+      skipped.push(spec.game);
+      continue;
+    }
+    if (!existsSync(spec.gameSrc)) {
+      problems.push(`${spec.game}: 有 cocos/ 工程但缺 src/ —— 无法同步玩法源码`);
+      continue;
+    }
+
+    const manifest = buildManifest(spec, frameworkFiles, frameworkFileSet);
+    const gameCount = [...manifest.keys()].filter((p) => p.startsWith(spec.gameOut)).length;
+    const fwCount = manifest.size - gameCount;
+
+    if (checkOnly) {
+      const found = checkGame(spec, manifest);
+      if (found.length > 0) {
+        problems.push(...found.map((p) => `${spec.game}: ${p}`));
+      } else {
+        synced.push(`${spec.game}（framework ${fwCount} + game ${gameCount}）`);
+      }
+      continue;
+    }
+
+    const { written, kept, removed } = applyGame(spec, manifest);
+    synced.push(`${spec.game}（framework ${fwCount} + game ${gameCount}｜写入 ${written}、未变 ${kept}、删除 ${removed}）`);
+  }
+
+  const skippedNote =
+    skipped.length > 0
+      ? `\nℹ️  跳过（尚无 cocos/ 工程）：${skipped.join('、')} —— 建工程见 docs/agent/cocos-setup.md §4`
+      : '';
+
+  if (checkOnly) {
+    if (problems.length > 0) {
+      console.error(
+        `❌ cocos/assets/scripts/{framework,game} 与源码不同步（${problems.length} 处）：\n` +
+          problems.map((p) => `  ${p}`).join('\n') +
+          '\n   运行: node tools/scripts/sync-framework-to-cocos.mjs' +
+          skippedNote,
+      );
+      process.exit(1);
+    }
+    if (synced.length === 0) {
+      console.log(`ℹ️  无可校验的 Cocos 工程（所有游戏均未建工程）。${skippedNote}`);
+      return;
+    }
+    console.log(`✅ 拷贝件与源码一致 — ${synced.join('；')}${skippedNote}`);
+    return;
+  }
+
+  const detail = synced.length > 0 ? synced.join('；') : '（无可同步的工程）';
+  console.log(
+    `✅ 同步完成：${detail}` +
+      (stripSuffix ? '\n   .js 后缀已剥除' : '\n   .js 后缀已保留（--keep-suffix）') +
+      '\n   .meta 由编辑器生成，本脚本永不触碰。' +
+      skippedNote,
+  );
 }
 
 function pruneEmptyDirs(dir) {
