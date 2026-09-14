@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1878,
       "lines": 84,
-      "sha256": "db05bb4b9785c4dc87db3f47c826ff5819aa3f743449816c56fc0a613a1353f7",
+      "sha256": "790f52cd30caf941daa8e3a077b6a9769f222a1e0bab39215472d0c87cfa5529",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3780,
+      "tokens": 3781,
       "lines": 94,
-      "sha256": "ceb740502d7214d307110c06c4a64e571c39bce04567345f6ee948030031808d",
+      "sha256": "e037b05e378982dfd182dac0dd31d0791ab0e960dd62bbdd7ef98dde243f960d",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 3752,
+          "tokens": 3753,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 69 行 / 7886 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 41 行 / 6854 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+70 · §待排（backlog，无号，立项时领取）=62+9",
+          "summary": "§WXG 任务台账（SSOT）=1+42 · §待排（backlog，无号，立项时领取）=30+13",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -30727,17 +30727,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 7886,
-      "lines": 69,
-      "sha256": "cc65a799e922f3d142bb5f89bd7d4c3fafd2b3e831bb55f78b5b2961c2c03617",
+      "tokens": 6854,
+      "lines": 41,
+      "sha256": "8a2f498cc8edca98504f6a485fe28d765a5b6c3a42398230012db86c13978259",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 70,
-          "tokens": 7878,
+          "endLine": 42,
+          "tokens": 6845,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -30751,9 +30751,9 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 62,
-          "endLine": 70,
-          "tokens": 476,
+          "startLine": 30,
+          "endLine": 42,
+          "tokens": 1364,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [
             "backlog",
