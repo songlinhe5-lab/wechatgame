@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3780,
       "lines": 94,
-      "sha256": "5f0a6bb44f69c97a4dbe1065ac5f02377999f7b18d47151bfafbd02d6f61ff68",
+      "sha256": "6ee26e310a456fb8314de5ab75d61feac129a457ece6684d4f679ff3fd022c55",
       "tier": "normal",
       "sections": [
         {
@@ -625,12 +625,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/architecture.md` — 239 行 / 4322 tok / 实测读 23 次",
+          "anchor": "§`docs/architecture/architecture.md` — 256 行 / 5127 tok / 实测读 23 次",
           "level": 2,
           "startLine": 42,
           "endLine": 45,
           "tokens": 183,
-          "summary": "§微信小游戏矩阵 — 主架构文档=1+240 · §1 目标与约束=13+23 · §1.1 产品目标=15+3 · §",
+          "summary": "§微信小游戏矩阵 — 主架构文档=1+257 · §1 目标与约束=13+23 · §1.1 产品目标=15+3 · §",
           "keywords": [
             "§1",
             "§1.1",
@@ -752,12 +752,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/cocos-setup.md` — 236 行 / 4073 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 244 行 / 4823 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
           "tokens": 222,
-          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+237 ·",
+          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+245 ·",
           "keywords": [
             "docs/agent/cocos-setup.md",
             "docs",
@@ -1067,17 +1067,17 @@
     },
     {
       "path": "docs/agent/cocos-setup.md",
-      "tokens": 4073,
-      "lines": 236,
-      "sha256": "4b073f0f9058de806402859c4cde6db0bb4cc97e38435b35ff30fc56e8787a29",
+      "tokens": 4823,
+      "lines": 244,
+      "sha256": "ff662e3062d0ce6b6bdf8ce9386d78780e1f6e30c228c2b686998fad33cce961",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 237,
-          "tokens": 4055,
+          "endLine": 245,
+          "tokens": 4805,
           "summary": "来源：ADR-0009 §3.4「四 IDE 接入方式」的可执行展开 · 2026-09-13 · Task ID WX",
           "keywords": [
             "§3.4",
@@ -1304,16 +1304,16 @@
           "anchor": "§12 本次已知未完成项（诚实记录）",
           "level": 2,
           "startLine": 232,
-          "endLine": 237,
-          "tokens": 181,
-          "summary": "1. Qoder / WorkBuddy 的 MCP 配置文件位置未核实，故 §7 只登记了三处。",
+          "endLine": 245,
+          "tokens": 931,
+          "summary": "1. Qoder 已实证收口（WXG-T-046）：官方文档确认项目级读根 /.mcp.json，字段与 explici",
           "keywords": [
-            "§7",
             "Qoder",
-            "WorkBuddy",
-            "MCP",
-            "本次已知未完",
-            "成项"
+            "WXG",
+            "mcp",
+            "json",
+            "explici",
+            "本次已知未完"
           ]
         }
       ]
@@ -3500,17 +3500,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0009-cocos-mcp-editor-integration.md",
-      "tokens": 4220,
-      "lines": 142,
-      "sha256": "dea1f30a8a7e9f5a247988e3d211e92fffbe452dd2e5b4a6547c82d6571714df",
+      "tokens": 5121,
+      "lines": 172,
+      "sha256": "2bd810ef382e83653c7e999bad45618a881cb8956718dcb0828dd5629072b939",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0009 — Cocos MCP 编辑器接入（智能体 ↔ Cocos Creator 验证闭环）",
           "level": 1,
           "startLine": 1,
-          "endLine": 143,
-          "tokens": 4195,
+          "endLine": 173,
+          "tokens": 5097,
           "summary": "状态：已决定（Accepted）",
           "keywords": [
             "ADR",
@@ -3612,8 +3612,8 @@
           "anchor": "§3 决定（Decision）",
           "level": 2,
           "startLine": 65,
-          "endLine": 105,
-          "tokens": 1122,
+          "endLine": 135,
+          "tokens": 2023,
           "summary": "",
           "keywords": [
             "Decision",
@@ -3640,8 +3640,8 @@
           "anchor": "§3.2 用例分层",
           "level": 3,
           "startLine": 71,
-          "endLine": 80,
-          "tokens": 416,
+          "endLine": 110,
+          "tokens": 1317,
           "summary": "P0 bindings.ts 首编译验证：MCP 触发构建 + debug_console 回读编译/运行错误，按 VE",
           "keywords": [
             "bindings",
@@ -3653,8 +3653,8 @@
         {
           "anchor": "§3.3 工具白名单 / 禁用清单",
           "level": 3,
-          "startLine": 81,
-          "endLine": 99,
+          "startLine": 111,
+          "endLine": 129,
           "tokens": 472,
           "summary": "以插件编辑器内的工具管理面板为准（默认禁用声明如下，实测后按 v1.5.4 实际工具名回填微调）：",
           "keywords": [
@@ -3665,8 +3665,8 @@
         {
           "anchor": "§3.4 四 IDE 接入方式",
           "level": 3,
-          "startLine": 100,
-          "endLine": 105,
+          "startLine": 130,
+          "endLine": 135,
           "tokens": 96,
           "summary": "HTTP transport 与 IDE 无关：四个 IDE 与终端的 MCP 配置统一指向同一个 URL（http:/",
           "keywords": [
@@ -3681,8 +3681,8 @@
         {
           "anchor": "§4 后果（Consequences）",
           "level": 2,
-          "startLine": 106,
-          "endLine": 134,
+          "startLine": 136,
+          "endLine": 164,
           "tokens": 935,
           "summary": "",
           "keywords": [
@@ -3693,8 +3693,8 @@
         {
           "anchor": "§4.1 正面",
           "level": 3,
-          "startLine": 108,
-          "endLine": 116,
+          "startLine": 138,
+          "endLine": 146,
           "tokens": 291,
           "summary": "G1–G6 从\"人肉目视验证\"变为\"智能体可驱动\"：构建触发 + debug_console 回读错误，bindings",
           "keywords": [
@@ -3706,8 +3706,8 @@
         {
           "anchor": "§4.2 负面（已知成本，不是风险——白纸黑字）",
           "level": 3,
-          "startLine": 117,
-          "endLine": 125,
+          "startLine": 147,
+          "endLine": 155,
           "tokens": 482,
           "summary": "1. 非商用许可直接阻塞商业化：开源版自定义许可禁止任何商用、转售。本项目一旦启动商业化或对外发布，必须（a）联系作者获",
           "keywords": [
@@ -3720,8 +3720,8 @@
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 126,
-          "endLine": 134,
+          "startLine": 156,
+          "endLine": 164,
           "tokens": 130,
           "summary": "3.8.8 上的实际兼容性：待 P0 实测回填（VERSION.md 验证矩阵同步更新）。",
           "keywords": [
@@ -3733,8 +3733,8 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 135,
-          "endLine": 143,
+          "startLine": 165,
+          "endLine": 173,
           "tokens": 248,
           "summary": "出现以下任一情况，重新评估本决策：",
           "keywords": [
@@ -4305,17 +4305,17 @@
     },
     {
       "path": "docs/architecture/architecture.md",
-      "tokens": 4322,
-      "lines": 239,
-      "sha256": "a9d0c41feb4eb2e4946b6099ac3370897a01e0b20bc082c404ed32f1c60fa950",
+      "tokens": 5127,
+      "lines": 256,
+      "sha256": "69a4375ef49395630eddb73bf27907d6f9251c77020510658d3a281b35514eae",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§微信小游戏矩阵 — 主架构文档",
           "level": 1,
           "startLine": 1,
-          "endLine": 240,
-          "tokens": 4308,
+          "endLine": 257,
+          "tokens": 5113,
           "summary": "版本：0.1.0",
           "keywords": [
             "微信小游戏矩",
@@ -4441,8 +4441,8 @@
           "anchor": "§5 包体预算分配（微信小游戏）",
           "level": 2,
           "startLine": 134,
-          "endLine": 163,
-          "tokens": 498,
+          "endLine": 167,
+          "tokens": 736,
           "summary": "主包 ≤ 4 MB 是硬红线，在编码阶段就要预算，不能等构建再优化。",
           "keywords": [
             "包体预算分配",
@@ -4453,8 +4453,8 @@
           "anchor": "§5.1 本项目的体积极简优势",
           "level": 3,
           "startLine": 156,
-          "endLine": 163,
-          "tokens": 146,
+          "endLine": 167,
+          "tokens": 384,
           "summary": "打砖块目前全部用矢量绘制（矩形 / 圆 / 多边形 / 文本），首屏图片资源为 0。这不是偷懒，而是刻意让第一款游戏把包",
           "keywords": [
             "本项目的体积",
@@ -4464,9 +4464,9 @@
         {
           "anchor": "§6 构建链",
           "level": 2,
-          "startLine": 164,
-          "endLine": 201,
-          "tokens": 516,
+          "startLine": 168,
+          "endLine": 218,
+          "tokens": 1083,
           "summary": "",
           "keywords": [
             "构建链"
@@ -4475,8 +4475,8 @@
         {
           "anchor": "§7 扩展点（为矩阵后续游戏预留）",
           "level": 2,
-          "startLine": 202,
-          "endLine": 213,
+          "startLine": 219,
+          "endLine": 230,
           "tokens": 213,
           "summary": "联网 / 排行榜 Platform 增加 http 能力；新增 core/net/ 服务端权威：客户端只做预测与表现（见",
           "keywords": [
@@ -4491,8 +4491,8 @@
         {
           "anchor": "§8 风险登记册",
           "level": 2,
-          "startLine": 214,
-          "endLine": 226,
+          "startLine": 231,
+          "endLine": 243,
           "tokens": 387,
           "summary": "R1 Cocos bindings.ts 未经编辑器验证 首次在编辑器运行时可能编译失败 高 每个可疑点已标 ⚠ 并登记",
           "keywords": [
@@ -4504,8 +4504,8 @@
         {
           "anchor": "§9 当前实现状态（本轮）",
           "level": 2,
-          "startLine": 227,
-          "endLine": 240,
+          "startLine": 244,
+          "endLine": 257,
           "tokens": 250,
           "summary": "框架 core（12 模块） ✅ 完成，226 单测通过，语句覆盖 94.45%",
           "keywords": [

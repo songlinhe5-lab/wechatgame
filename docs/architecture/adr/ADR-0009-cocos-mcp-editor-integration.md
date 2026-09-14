@@ -78,6 +78,36 @@ MCP 插件安装在编辑器侧（`extensions/`），**不进入微信小游戏�
 
 > 诚实修正：G8 与 EP-10 真机帧率/安全区验证**不在本决策能力范围内**（MCP 到编辑器为止，不到真机）。EP-10 的解锁 = P0（编辑器内验证）+ 人工真机步。
 
+> **⚠️ P2 实测推翻（2026-09-14，WXG-T-047）——上表 P2 行的描述与插件实现不符，以本注为准（不改写原行，保留决策当时的事实）。**
+>
+> 本表 P2 假设「经 `project_build_system` 类工具从命令行驱动编辑器构建」。实测 `cocos-mcp-server` **v1.5.4**：
+> 1. `project_build_system` 的 `action` 枚举**仅** `get_build_settings` / `open_build_panel` / `check_builder_status` —— **没有构建 action**；
+> 2. 唯一含 `build` 动作的 `project_manage` **在工具白名单中默认禁用**（本机 `settings/tool-manager.json` 实测 `✗禁用`）；
+> 3. 且其 `buildProject()` 实现只做 `Editor.Message.request('builder','open')`，源码注释原文：*Builder module only supports 'open' and 'query-worker-ready'. Building requires manual interaction through the build panel*。
+>
+> **结论**：「MCP 驱动构建」在当前版本**不可行**，P2 无法按原描述关闭 G7。实际可行路径 =
+> 「人工在构建面板点构建 → 智能体经 `debug_console` / `debug_logs` 回读错误 → `check:size` 校验产物体积」。
+> G7 的**产物目录结构 / 主包分包划分 / 空体积基线 / 微信基础库版本**仍需人工构建后逐项回填。
+>
+> **未受影响的部分**：P0（`bindings.ts` 首编译验证 + `debug_console` 回读）与 P1（`.meta` 闭环）不依赖构建触发，结论不变。
+> **反面提示**：本行是「把能力写成结论」的典型代价——若将来升级插件版本，须**先实测再回填**，不要沿用本表措辞。
+
+> **🔁 追加修正（2026-09-14 同日第二轮实测，WXG-T-049）——上条的「所以构建不可自动化」是被过度推广的，此处收窄。**
+>
+> 上条只证明了 **MCP 这条通道**不能构建，**不**等于"构建不能自动化"。同日实测：**Cocos Creator 自带 CLI 可以构建**——
+> `CocosCreator --project <proj> --build "platform=<p>;debug=true"`（官方手册《命令行发布项目》）；
+> 本机 `app-asar` 内含 `--project` / `--build` / `buildConfig`；实测 `platform=web-mobile`
+> **3.9 秒构建成功**（日志 `build Task (web-mobile) Finished in (3 s)`，产物含 `index.html` / `cocos-js/` / `assets/`），
+> 且**编辑器实例同时开着也不冲突**。
+>
+> ⇒ 准确结论：**「MCP 驱动构建」不可行，但"经编辑器 CLI 脚本化构建"可行**——P2 想达成的
+> "缩小 `build:wx` 与 CLI 无人值守构建的缺口"**经由 CLI 而非 MCP 实现**，已落为
+> `tools/scripts/build-cocos.mjs`（`pnpm run build:cocos` / `build:cocos:web`）。
+> P2 仍**不可由本 ADR 的 MCP 能力关闭**；MCP 在本仓的正确定位是「读构建设置 / 查状态 / 回读编译日志」，**不含构建**。
+>
+> **教训（比结论本身更重要）**：登记「能力不行」时必须写明**失败的是哪条通道、在哪一层**——
+> "MCP 不可"被写成"构建不可"，代价是让 `build:wx` 类缺口看起来无解，差点导致重复劳动。
+
 ### 3.3 工具白名单 / 禁用清单
 
 以插件编辑器内的**工具管理面板**为准（默认禁用声明如下，实测后按 v1.5.4 实际工具名回填微调）：

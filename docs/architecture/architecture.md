@@ -157,7 +157,11 @@
 
 打砖块目前**全部用矢量绘制**（矩形 / 圆 / 多边形 / 文本），首屏图片资源为 **0**。这不是偷懒，而是刻意让第一款游戏把包体基线压到最低，验证"主包 ≤ 4 MB 且不含任何图片"是可行的。后续游戏若要接入位图美术，预算表按上表逐项扣减。
 
-**体积校验脚本**：`tools/scripts/check-bundle-size.mjs`（对 `build/` 或 `dist/` 做 gzip 后统计，超限即失败）。
+**体积校验脚本**：`tools/scripts/check-bundle-size.mjs`（`pnpm run check:size`；产物不存在时自动跳过，故干净检出 / CI 均安全）。
+
+- **判定基准 = 原始字节（raw）**：微信平台按上传文件的实际大小卡口；gzip 体积仅作参考展示（逐文件求和，属估算）。本行此前写作「做 **gzip 后**统计」，与实现不符，已按 raw 判定修正——按 raw 卡严格更安全（宁假红不假绿）。
+- **阈值真源**：`games/<game>/design/gdd/systems-index.md` §3.8（红线 4096 / 30720 KB 与内部目标 2000 KB **分列不混用**）。本文件不复述数字，避免两处真源。
+- **分包判定**：优先读产物 `game.json` 的 `subpackages[].root`，取不到回退 `subpackages/` 启发式，再取不到则**全部计入主包**（保守）。Cocos 产物真实目录结构见 `VERSION.md` G7（未实测）。
 
 ---
 
@@ -191,11 +195,24 @@
 | 类型检查 | `npm run typecheck` | ❌ | ✅ |
 | 单测 | `npm test` | ❌ | ✅ |
 | 架构守卫 | `npm run check:arch` | ❌ | ✅ |
-| 体积校验 | `npm run check:size` | ❌（对已有产物） | ✅ |
+| 密钥守卫 | `npm run check:secrets` | ❌ | ✅ |
+| 体积校验 | `npm run check:size` | ❌（对已有产物；无产物自动跳过） | ✅ |
 | 浏览器试玩 | `npm run dev` | ❌ | ❌ |
-| Cocos 构建 | `npm run build:cocos`（占位） | **✅ 必须** | ⚠️ 需要带编辑器的构建机 |
+| Cocos 构建 | `pnpm run build:cocos`（默认 wechatgame）/ `build:cocos:web`（web-mobile，免 AppID） | ✅ | ⚠️ 非 CI（需装编辑器），但**可脚本化** |
 
 > **诚实说明**：微信小游戏的最终构建**必须**有 Cocos 编辑器。CI 能做的是"在提交时拦下类型错误、单测失败、架构违规、密钥泄露"，而不是产出安装包。这是 ADR-0001 记录的核心代价之一。
+>
+> **2026-09-14 实测修正（WXG-T-047）**：曾寄望经 Cocos MCP（`ADR-0009` §3.2 **P2**）「从命令行驱动编辑器构建」。实测 **`cocos-mcp-server` v1.5.4 不成立**：`project_build_system` 只有 `get_build_settings` / `open_build_panel` / `check_builder_status` 三个 action（**无构建**），唯一含 `build` 的 `project_manage` 被白名单禁用，且其实现仅 `Editor.Message.request('builder','open')`——扩展源码注释原文：*Builder module only supports 'open' and 'query-worker-ready'. Building requires manual interaction through the build panel*。⇒ **MCP 通道**不能构建；智能体经 MCP 只能「读构建设置 / 查状态 / 回读编译日志（`debug_console`）」。
+>
+> **同日第二轮实测——上面那句被推翻了（WXG-T-049）**：Cocos Creator **自带 CLI 可以构建**。
+> 官方手册《命令行发布项目》给出 `CocosCreator --project <proj> --build "platform=<p>;debug=true"`；
+> 本机 `app-asar` 内含 `--project` / `--build` / `buildConfig`；实测 `platform=web-mobile`
+> **3.9 秒构建成功**（产物含 `index.html` / `cocos-js/` / `assets/`，日志 `build Task (web-mobile) Finished in (3 s)`），
+> 且**编辑器实例同时开着也不冲突**。
+> ⇒ 正确表述是「**MCP 通道不可，编辑器 CLI 可**」。构建产物默认落**工程内** `cocos/build/<platform>/`
+> （与本文件 §1/§5 约定的 `games/<game>/build/` 不同，故 `check:size` 两处都扫，避免「产物在、门禁说没有」的静默跳过）。
+> G7 的**空体积基线**因此可通过 `pnpm run build:cocos` 直接取得，不再依赖人工点击。
+> **教训**：这是「把一次通道失败写成能力结论」的典型代价——登记偏差时要写清**失败的是哪条通道**。
 
 ---
 

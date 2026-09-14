@@ -231,6 +231,14 @@ ADR-0009 §3.4 的「一份配置，四处生效」指 **URL 统一**；实际�
 
 ## 12. 本次已知未完成项（诚实记录）
 
-1. **Qoder / WorkBuddy 的 MCP 配置文件位置未核实**，故 §7 只登记了三处。
-2. **插件未实际安装**（本机此前无 Cocos）——本文件是**引导**，§5–§8 的路径与工具名**未经本机实测**，装完须以实际界面为准并回填本文件。
-3. **构建脚本缺口**：`games/breakout/cocos/README.md` §3 步骤 7 引用的 `tools/scripts/check-bundle-size.mjs`、§2 方案 C 的 `sync-framework-to-cocos.mjs`，以及 `architecture.md` §6 的 `npm run build:cocos` —— **在仓库中均不存在**。此为独立缺陷，未在本任务范围内修复。
+1. **Qoder 已实证收口**（WXG-T-046）：官方文档确认项目级读根 `/.mcp.json`，字段与 `explicit` 方言兼容 ⇒ **未新增 targets**（零新文件零代码）。**WorkBuddy 侧位置仍未核实**，但本仓 WorkBuddy 定位为纯文档/设计 ⇒ **不追求** MCP 接入（见 `docs/agent/ide-capability-matrix.md`）。
+2. **插件已实际安装并实测可用**（本机 Cocos Creator 3.8.8 + `cocos-mcp-server` v1.5.4）：`POST http://127.0.0.1:3000/mcp` 返回 `serverInfo: cocos-mcp-server v1.5.4`；`GET /health` 返回 `{"status":"ok","tools":21}`；日志有 `✅ HTTP server started successfully on http://127.0.0.1:3000`。
+   - **§5–§8 已实测回填**：全局扩展目录可用；工具白名单实测为 **21/50 启用**（只读 + 构建类），写类（`scene_management` / 节点 / 组件 / prefab 写入）全部禁用——与 §8 的 L1 代偿设计一致。
+   - **⚠️ 新增实测约束：MCP 服务随扩展 `unload()` 停止** ⇒ **面板必须保持打开**（`main.ts` 的 `unload()` 调 `mcpServer.stop()`）。`autoStart:true` 只能解决「编辑器重启后需手点 Start」，**不解决「关面板即停」**。
+   - `settings/mcp-server.json` 已被 git 跟踪但**含未提交改动**：编辑器把键名 `debugLog` 改写成 `enableDebugLog`（与扩展 `settings.ts` 的 `DEFAULT_SETTINGS` 一致）——即**已提交版本用了扩展不认的键名**，该开关此前一直是失效的。
+   - **探活取 `/health` 而非 `/mcp`**：`GET /mcp` 本来就返回 404（MCP 的 initialize 只收 POST），拿它探活会误判成"服务没起"。
+3. **构建脚本缺口（WXG-T-047 / T-048 / T-049 收口）**：`sync-framework-to-cocos.mjs` 已存在；`check-bundle-size.mjs` 已补（`pnpm run check:size`，阈值真源 `systems-index §3.8`）；`build:cocos` 已实现（`tools/scripts/build-cocos.mjs`）= **前置检查 + 命令行构建 + 产物校验**。
+   - **构建能力来源（两轮实测，结论修正过一次）**：MCP 的 `project_build_system` **无构建 action**（`ADR-0009 §3.2` P2 偏差成立）；但 Cocos Creator **自带 CLI 可以构建**——`CocosCreator --project <proj> --build "platform=<p>;debug=true"`，实测 `platform=web-mobile` **3.9s 成功**，且**编辑器开着也能并存**。⇒ 正确表述是「**MCP 不可，编辑器 CLI 可**」，不是"构建不可自动化"。
+   - 产物默认落**工程内** `games/<game>/cocos/build/<platform>/`（与 `architecture.md §1/§5` 的 `games/<game>/build/` 不同）；`check:size` 两处都扫，避免"产物在、门禁说没有"的静默跳过。
+   - 仅看渲染/手感用 `pnpm run build:cocos:web`（web-mobile，**免 AppID**）；微信目标用 `pnpm run build:cocos`（需有效 AppID）。
+   - **多游戏调用约定**（WXG-T-048）：`build:cocos` 声明在**各游戏自己的 `package.json`**，根层用 `pnpm -r` 聚合（与既有 `test` / `typecheck` 同构）。理由：`games/<game>/cocos/` 是**每款游戏都有**的目录，根层裸 `build:cocos` 无法表达"构建哪一款"；per-package 声明让 cwd 自带 game 身份，且**新增游戏零改根脚本**。
