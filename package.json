@@ -13,6 +13,7 @@
     "test": "pnpm -r run test",
     "typecheck": "pnpm -r run typecheck",
     "check:arch": "node tools/scripts/check-architecture.mjs",
+    "check:secrets": "node tools/scripts/check-secrets.mjs",
     "check:links": "node tools/scripts/check-ide-links.mjs",
     "check:plugins": "node tools/scripts/check-plugin-anchor.mjs",
     "mcp:build": "node tools/scripts/build-mcp-configs.mjs",
@@ -22,6 +23,9 @@
     "framework:sync": "node tools/scripts/sync-framework-to-cocos.mjs",
     "framework:sync:check": "node tools/scripts/sync-framework-to-cocos.mjs --check",
     "cocos:check": "node tools/scripts/check-cocos-scripts.mjs",
+    "build:cocos": "pnpm -r run build:cocos",
+    "build:cocos:web": "pnpm -r run build:cocos:web",
+    "check:size": "node tools/scripts/check-bundle-size.mjs",
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
     "ctx:reads": "node tools/scripts/collect-context-reads.mjs",
@@ -42,7 +46,7 @@
     "preview:frames": "node tools/scripts/render-harness-frame.mjs",
     "preview:clip": "node tools/scripts/render-harness-clip.mjs",
     "commitlint": "commitlint",
-    "verify": "pnpm run check:arch && pnpm run check:links && pnpm run check:mcp && pnpm run levels:check && pnpm run typecheck && pnpm run framework:sync:check && pnpm run cocos:check && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
+    "verify": "pnpm run check:arch && pnpm run check:secrets && pnpm run check:links && pnpm run check:mcp && pnpm run levels:check && pnpm run typecheck && pnpm run framework:sync:check && pnpm run cocos:check && pnpm run check:size && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
