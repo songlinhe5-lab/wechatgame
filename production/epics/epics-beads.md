@@ -5,29 +5,11 @@
 - **权威来源**：`design/gdd/systems-index.md`（§2 依赖拓扑序、§3 冻结常量 v1.2）、S1–S5 P0 GDD §8（验收唯一出处）、`docs/architecture/architecture-beads.md` + ADR-0004…0007（技术边界）
 - **冲突裁定**：Story 与 systems-index §3 冻结常量冲突 → 以 §3 为准，回写本文档（经主理人中转）。
 
-> ⚠️ **状态时效声明（2026-09-14，WXG-T-052 对账）**：本文档的 Story 级标记**已过期**，请以本声明为准，
-> 标记本身按原文保留（避免逐条改写引入新错）：
->
-> 1. **`[待 GDD §8]` 对 S6–S9 已全部解除** —— `design/gdd/` 下 `powerups.md`、`score-combo.md`、
->    `save-progress.md`、`pause-settings.md` **均已产出**（§0 阅读约定第 2 条的前提已消失）。
-> 2. **`[Blocked: 待编辑器]`（EP-10）已不再是环境阻塞** —— Cocos Creator 3.8.8 已安装、预览与构建链
->    已实测跑通（`docs/engine-reference/cocos/VERSION.md`）。EP-10 的阻塞项变为**未立项建工程**，
->    而非「无编辑器」。
-> 3. **实现进度**：S1–S5、S8（schema + 降级）、S9（暂停面板与音频开关）、冲刺模式已交付并有测试
->    （12 个测试文件 / 107 用例）；**EP-06（S6 道具）仍未实现**（`src/systems/powerups.ts` 不存在，
->    现仅 `view-model` 画了 3 张卡 + `ad_badge` 角标占位）；EP-07 星级/结算的评分函数已落地
->    （`tuning.ts` 的 C7 公式，有测试），**结算面板未做**。
-> 4. **验收判据**：`[待 GDD §8]` 的引用位已可回填，但**回填属独立工作项**，本次对账不改写 Story 正文。
-> 6. **EP-07（S7）关面已落地**（2026-09-14，WXG-T-063）：结算·过关面板按 `ux-spec §3.4/§4`
->    实现（`systems/clear-panel.ts`），`LEVEL_CLEAR` 由「1.4s 自动推进」占位改为**等按钮**
->    （下一关 / 去冲刺 U1），C7 结算分在过关当帧装配。**EP-07 仍未闭环**：冲刺结算面板
->    连击特效三档（`score-combo §2.5`；其判据 §8-9 属 DevTools 帧检）。
-> 7. **EP-07 全部落地**：结算·过关面板（T-063）、FINISH（T-066）、冲刺结算（T-067）、连击特效可测半边（T-074；§8-9 帧检属真机）。
-> 5. **EP-06（S6 道具）已实现**（2026-09-14，WXG-T-060）：`src/systems/powerups.ts` 落码，
->    `powerups.md §8` 十条判据全部有测试（`tests/powerups.test.ts`，16 条），S2 路由优先级 2
->    已接、整关重置与崩溃档字段已通。**仍属 EP-06 未闭环**：`AD_PLACEMENTS=4` 的角标位按
->    §2.6 布局 A **仅占位不拉起**（故原文「激励视频占位接线」语义未变），扩展位解锁路径仍缺
->    （`btn_expand` 无免费次数概念又无广告发奖，扩容只能在测试/harness 注入验证）。
+> ⚠️ **状态时效声明 → 已拆出**：本文档 Story 级标记**已过期**，对账口径（含 `[待 GDD §8]`/`[Blocked]` 解除、
+> EP-06/07/10 实现进度、WXG-T-082 证据引用修正、G10（ADR-0012 方案甲）解除注与诚实边界）**整块移至**
+> [`epics-beads-status.md`](./epics-beads-status.md)。拆出依据：`production/TASKS.md` backlog（WXG-T-066）
+> standing 决定「epics-beads.md 结构性贴 B 门 → 把顶部『状态时效声明』拆独立文件；不适用豁免、不得删信息凑体积」。
+> **读取本文档时，凡涉及 Story 当前状态，一律以上述拆分件为准。**
 
 ---
 

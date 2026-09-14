@@ -273,7 +273,13 @@ console.info(
   'background:#4cc9f0;color:#0b1021;font-weight:bold',
   `\n  game: ${isBeads ? 'beads' : 'breakout'} · add ?game=beads to the URL to switch`,
   isBeads
-    ? '\n  tap a tray bead then a board cell · Space pauses/resumes'
+    ? // Aligned with the implementation above (L138-152) and gdd/pause-settings.md §2.1
+    // (single-channel pause: the HUD gear is the ONLY entry; there is no second one).
+    // The previous text claimed "Space pauses/resumes", which was wrong twice over:
+    // in `playing` the switch hits `default: break` (no pause), and in `paused`
+    // `onResume()` is a deliberate no-op (WXG-T-055 D-04 — the panel button is the
+    // only exit). WXG-T-082.
+    '\n  tap a tray bead then a board cell · Space = retry (game-over) / restart (finish) · pause is gear-only'
     : '\n  ←/→ or drag to move · Space to launch/retry · 1–5 to jump levels',
   '\n  window.__breakout / window.__beads expose { app, game, fitCanvas }',
 );

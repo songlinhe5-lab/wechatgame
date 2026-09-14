@@ -2,13 +2,30 @@
 
 - **钉定版本**：Cocos Creator **3.8 LTS**（当前最新 3.8.8，2025-12 发布）
 - **参考版本（不采用，仅观察）**：Cocos Creator 4（2025-11 开源）
-- **更新日期**：2026-09-13
+- **更新日期**：2026-09-14（WXG-T-082 据实修订）
 - **维护人**：程基岩
-- **对应决策**：ADR-0001 / ADR-0002 / ADR-0003
+- **对应决策**：ADR-0001 / ADR-0002 / ADR-0003 / ADR-0009（编辑器 MCP）/ ADR-0011（坐标空间契约）
 
 > ⚠️ **本文档的核心是第 3 节「知识缺口清单」。**
-> 本轮开发环境**没有安装 Cocos Creator 编辑器**，因此无法编译、无法运行、无法生成 `.scene` / `.prefab` / `.meta`。
 > 凡是无法确认的 API 与步骤，一律登记在此，**不臆造、不猜测、不写进代码当作已验证**。
+
+> ✅ **2026-09-14 环境事实修订（WXG-T-082）——本文档开篇此前写作「本轮开发环境没有安装 Cocos Creator
+> 编辑器，因此无法编译、无法运行、无法生成 `.scene` / `.prefab` / `.meta`」，该陈述已过时，据实更正为：**
+>
+> | 项 | 实测事实（2026-09-14） | 取证方式 |
+> |---|---|---|
+> | Cocos Creator | **3.8.8 已安装**，`/Applications/Cocos/Creator/3.8.8/` | `tools/scripts/build-cocos.mjs` L51 硬编码该路径且构建成功；运行时 `cc.ENGINE_VERSION === "3.8.8"` |
+> | 编译 / 构建 | **可** | `pnpm run build:cocos:web`（beads，**17.1s** 成功）／`build:cocos --release`（wechatgame，breakout 已实测） |
+> | 运行 | **可**（web-mobile 产物 + 浏览器） | `python3 -m http.server 8090` 服务 `games/beads/cocos/build/web-mobile/`，浏览器加载后场景图、`Label.string`、`viewport.fit`、`snapshot` 全部读出 |
+> | `.scene` / `.meta` 生成 | **可**（由编辑器生成，L1 禁手编） | `games/beads/cocos/assets/Main.scene` + `.meta`，uuid `9683d2dd-7e97-4fe3-a54d-3e2ef554406a` |
+> | beads Cocos 工程 | **已建**（不再是「未立项建工程」） | `games/beads/cocos/`：`assets/Main.scene`、`assets/scripts/BeadsBootstrap.ts`、`engine.json` 11 项 true（与 breakout 逐项相同） |
+> | 编辑器 MCP 服务 | **在线** | `curl http://127.0.0.1:3000/health` → `{"status":"ok","tools":21}`；`build:cocos:web` 日志亦探测到「编辑器 MCP 在线」⇒ **T-079 遗留的那一步 GUI 已完成** |
+> | `.prefab` | **仍未生成任何 prefab**（ADR-0003 空场景路线刻意不用） | 仓库内无 `.prefab` 文件 |
+> | **微信开发者工具** | ❌ **未安装** | 无法真机预览 / 扫码 / 上传 |
+> | **AppID + 上传私钥** | ❌ **仍缺** | `wechatgame` 产物可构建（CLI 不需要 AppID），但**无法上真机**；G8 / R4 因此仍未闭环 |
+>
+> **⇒ 阻塞面已从「无编辑器」收窄为「无微信开发者工具 + 无 AppID」。** 依赖编辑器产物的工作不再受阻；
+> 依赖**真机**的工作（G8 平台层、R4 性能、§8-9 DevTools 帧检）仍然受阻。
 
 ---
 
@@ -34,17 +51,17 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 
 只列我们**真的会用**的 API。构建时应据此裁剪模块。
 
-| 能力 | 使用的 API | 用途 | 状态 |
-| --- | --- | --- | --- |
-| 组件与节点 | `Component`, `Node`, `Node.addChild`, `Node.addComponent`, `Node.setPosition` | 代码构建节点树（ADR-0003） | ⚠️ 未验证 |
-| UI 变换 | `UITransform.setContentSize` | 设置设计分辨率与命中区域 | ⚠️ 未验证 |
-| 矢量绘制 | `Graphics.clear/rect/roundRect/circle/moveTo/lineTo/close/fill/stroke`, `fillColor`, `strokeColor`, `lineWidth` | 全部矢量图形（砖块/球/挡板/HUD） | ⚠️ 未验证 |
-| 颜色 | `Color(r,g,b,a)` | 把 `#rrggbb` 转成引擎颜色 | ⚠️ 未验证 |
-| 文本 | `Label.string`, `Label.fontSize`, `Label.color`, `Label.node.active` | 分数 / 连击 / 横幅 | ⚠️ 未验证 |
-| 触摸输入 | `Node.on('touch-start'/'touch-move'/'touch-end'/'touch-cancel')`, `EventTouch.getID/getUILocation` | 拖拽挡板、点击发射 | ⚠️ 未验证 |
-| 帧驱动 | `Component.schedule(cb, 0)`, `Component.unschedule(cb)` | 把引擎帧接进框架固定步长循环 | ⚠️ 未验证 |
-| 生命周期 | `start()`, `onDestroy()` | Bootstrap 入口与清理 | ⚠️ 未验证 |
-| 装饰器 | `_decorator.ccclass`, `_decorator.property` | 脚本注册与编辑器属性 | ⚠️ 未验证 |
+| 能力 | 使用的 API | 用途 | 状态 | 取证方式（2026-09-14 修订） |
+| --- | --- | --- | --- | --- |
+| 组件与节点 | `Component`, `Node`, `Node.addChild`, `Node.addComponent`, `Node.setPosition` | 代码构建节点树（ADR-0003） | ✅ 已实测 | 浏览器内遍历 `cc.director.getScene()`，得 `Main → Canvas(UITransform/Canvas/Widget) → Camera + GameRoot(UITransform + BeadsBootstrap) → Graphics + Labels(×8)` |
+| UI 变换 | `UITransform.setContentSize` | 设置设计分辨率与命中区域 | ✅ 已实测 | 同上遍历读到 `UITransform` 组件；`#GameCanvas` CSS 754×456 与 `viewport.fit` 逐项吻合 |
+| 矢量绘制 | `Graphics.clear/rect/roundRect/circle/moveTo/lineTo/close/fill/stroke`, `fillColor`, `strokeColor`, `lineWidth` | 全部矢量图形（砖块/球/挡板/HUD） | ✅ 签名已验证<br>⚠️ **像素级目视未取证** | 签名由官方声明回填（见 §3 G2）。**运行时像素未取证**：浏览器视图 `visibilityState=hidden`，截图接口返回 `NATIVE_BROWSER_VIEWPORT_UNAVAILABLE`；仅取到「`Graphics` 节点存在且被渲染器持有」这一层 |
+| 颜色 | `Color(r,g,b,a)` | 把 `#rrggbb` 转成引擎颜色 | ✅ 已验证 | 官方声明（§3 G2）：`fillColor`/`strokeColor` getter 返回 `Readonly<Color>` ⇒ 只能整体赋值；构建与运行均无相关报错 |
+| 文本 | `Label.string`, `Label.fontSize`, `Label.color`, `Label.node.active` | 分数 / 连击 / 横幅 | ✅ 已实测 | 读出 8 个池化 `Label` 的真实内容：`"05:00"` fs44 @(0,607)、`"LV 1/8"` fs22 @(119,607)、`"×1"`/`"区域消除"` fs28 @(−236,−569)/(−236,−603) 等。**y 为正=上**（设计 y=1274 → 节点 y=+607），确证原生左下原点、无 2D context 变换 |
+| 触摸输入 | `Node.on('touch-start'/'touch-move'/'touch-end'/'touch-cancel')`, `EventTouch.getID/getUILocation` | 拖拽挡板、点击发射 | ✅ 已实测（breakout）<br>⚠️ beads 未单独实测 | §3 G4 已关闭：信箱区拖挡板（画布相对 495 → 设计 608）与 letterbox 公式精确吻合。beads 侧本轮**未做点击实测**（GAP-07 反证走的是 `viewport` 数值对照，非真实触摸） |
+| 帧驱动 | `Component.schedule(cb, 0)`, `Component.unschedule(cb)` | 把引擎帧接进框架固定步长循环 | ✅ 已实测 | §3 G5 已关闭（球速与预期一致）。本轮另证：页面 `hidden` 时 `rAF` 不触发 ⇒ 导演停摆，改用 `app.tick(1/60)` **手动驱动**可正常推进状态机（`boot → playing`） |
+| 生命周期 | `start()`, `onDestroy()` | Bootstrap 入口与清理 | ✅ 已实测 | `BeadsBootstrap` 被实例化并运行：`GameRoot` 上可读到组件实例、其 `_app` 存在、游戏进入 `boot` 相 |
+| 装饰器 | `_decorator.ccclass`, `_decorator.property` | 脚本注册与编辑器属性 | ✅ 已实测 | §3 G6 已关闭：`Main.scene` 挂载的组件被实例化；`property` 本作未使用（符合 ADR-0003） |
 
 **未使用（刻意不用）**：内置 2D 物理、动画系统（`Animation`/`Tween`）、粒子、`Timeline`、`Widget` 布局、`ScrollView`、Asset Bundle（暂未接入）。理由：这些能力都被框架的 `RenderModel` / 数据驱动方案替代，且它们会引入新的场景文件依赖（ADR-0003）。
 
@@ -246,9 +263,122 @@ JSDoc 明写 `@param delay … **Unit: s**` ⇒ **整套调度单位为秒**；`
 - 资源目录移动会破坏引用（红色感叹号）→ 只能通过编辑器移动。
 - `.gitignore` 应忽略哪些（建议：`library/`, `local/`, `temp/`, `build/`, `profiles/`；**必须提交** `assets/**` 与其 `.meta`）。← 根 `.gitignore` 由主理人维护。
 
+**✅ 2026-09-14 部分回填（WXG-T-082）**：UUID 由编辑器生成并可读出——beads 的 `assets/Main.scene.meta`
+uuid = `9683d2dd-7e97-4fe3-a54d-3e2ef554406a`（breakout 同理），`.gitignore` 已按上述建议生效
+（`build/` 不入库，本轮重建产物未污染 `git status`）。
+**⚠️ 仍未验证**：「手工新增 `assets` 下文件是否被自动补 `.meta`」与「资源目录移动的红色感叹号」——
+两者都需要在编辑器 GUI 里手动操作，本轮未做（L1：`.meta` 不许手编，也不许脚本伪造）。
+
+### G10 — 【P0 · 已修 2026-09-14（WXG-T-090 / ADR-0012）】Cocos 构建的 ES5 转译把 `[...非数组可迭代对象]` 编成 `[].concat(x)`，导致 beads 在真机路径上不可玩
+
+> ✅ **修复状态（WXG-T-090，2026-09-14）**：采用**方案甲 = 源码层 `Array.from(x)` + 类型级 CI 守卫**，6 处真伤点已全部改造完毕。
+> 决策与负面后果见 **ADR-0012**（`docs/architecture/adr/ADR-0012-es5-spread-language-contract.md`）；守卫 =
+> `tools/scripts/check-es5-spread.mjs`，已进 `pnpm run verify` 链（`check:es5spread`）。下文 2026-09-14 取证原文**按原文保留**，
+> 其中「候选修法均未验证」一句已被 §G10-FIX 推翻。**遗留**：微信真机 runtime 与 web-mobile 浏览器加载复验仍未做（见 §4 表末行）。
+
+> 本节由 **WXG-T-082 取证过程意外撞到**。它**不是**坐标契约问题（那属 ADR-0011），而是**构建管线的语言层契约缺口**。
+
+- **现象（实测）**：beads 的 `web-mobile` 产物在浏览器里**永远停在 `phase = "boot"`**，控制台报
+  `[beads] level validation failed — refusing PLAYING: L1: pattern colour count 1 < 3; … L8: …`（**8 关全中**）。
+  另：`startSprint()` **硬崩溃** `TypeError: Cannot read properties of undefined (reading 'charCodeAt')`。
+- **真因（已定位到产物字节）**：Cocos 构建用 Babel 降到 ES5，把
+  ```js
+  return [...seen].sort((a, b) => a - b);          // 源码：levels.ts:78
+  ```
+  编成
+  ```js
+  return [].concat(seen).sort(function (a, b) { return a - b; });   // 产物原文（已 grep 确认）
+  ```
+  **`[].concat(aSet)` 不展开 Set**，结果是 `[Set]`——长度恒为 **1**。于是 `patternColors()` 对任何关卡都返回
+  长度 1 ⇒ `validateBeadsLevel` 的「色数 ∈ [3, BEAD_COLOR_MAX]」全部失败 ⇒ `_boot()`（`beads-game.ts:903-906`）早退。
+- **崩溃链（sprint）**：`buildStagePattern`（`levels.ts:245`）的 `[...row]` 同理变成 `[].concat(row)`。对字符串：
+  以**数字**开头的行（如 `"555555"`）会塌成 **1 字符**（`"555555" >= '1' && "555555" <= '9'` 为真 ⇒ 取首字符色），
+  以 **`.`** 开头的行（如 `".55.55"`）则原样保留 6 字符 ⇒ **锯齿 pattern**；`cols` 取 `pattern[0].length = 6`，
+  而短行只有 1 字符 ⇒ `grid.ts:50` 读 `row[col]` 得 `undefined` ⇒ `charCodeAt` 抛错。
+- **三点定论：这是构建特有，不是游戏层缺陷**：
+  | 路径 | 结果 |
+  |---|---|
+  | Node / vitest（`games/beads`） | ✅ **184 用例全绿**（含 `levels.test.ts` 18 项） |
+  | harness（`tsc` 编译，ES2020+） | ✅ `phase = "playing"`、`bootError = ""`、格子色 `[0,5,1,6]` 全对 |
+  | **Cocos web-mobile 产物** | ❌ 卡 `boot`；`startSprint()` 崩溃 |
+- **受影响面（已全量排查，14 处 `[].concat(` 中 **6 处真伤**）**：
+  | # | 位置 | 展开对象 | 真机后果 |
+  |---|---|---|---|
+  | 1 | `framework/src/core/save/storage.ts:40` | `Map.keys()` 迭代器 | `keys()` 返回 `[迭代器]` ⇒ **存档键枚举全废** |
+  | 2 | `framework/src/core/pool/object-pool.ts:112` | `Set`（`_inUse`） | `releaseAll()` 只拿到一个 Set 对象 ⇒ **池永不回收** |
+  | 3 | `beads/src/config/levels.ts:78` | `Set`（`seen`） | **全关 BOOT 校验失败 ⇒ 拒进 PLAYING**（已实测） |
+  | 4 | `beads/src/config/levels.ts:245` | `string`（`row`） | **冲刺模式硬崩溃**（已实测）+ 色数压缩模式产出锯齿 pattern |
+  | 5 | `beads/src/systems/powerups.ts:106` | `Set`（`_holding`） | `holding` getter 返回 `[Set].filter(…)` ⇒ **持有道具列表恒空** |
+  | 6 | `beads/src/systems/powerups.ts:130` | `Set`（`_holding`） | 迭代 1 次且值为 Set ⇒ **道具到期清理失效** |
+
+  安全（展开对象本就是数组，`[].concat(array)` 语义正确）：`render-model.ts:163`、`curve.ts:75`、
+  `levels.ts:209`、`beads-game.ts:402/1497`、`powerups.ts:200/211`。
+  **breakout 同样携带 #1 #2**（框架 core 共用），只是其游玩路径未调到 `storage.keys()` / `releaseAll()`，故未暴露。
+- **影响文件**：`cocos/settings/v2/packages/*`（构建目标 / Babel 配置）、`tsconfig`、上述 6 处源码
+- **⚠️ 本轮未修（越出面）**：WXG-T-082 的硬约束是「不改 `games/beads/src`」（属 T-085/086），且 `object-pool.ts`
+  属框架 core、`label-pool.ts` 相邻面属 T-077。**需主理人插单**。
+- **候选修法（仅登记，未裁决——需独立 ADR）**：(i) 把 Cocos 构建目标提到 ES2015+（保留原生迭代器）；
+  (ii) 源码层禁用 `[...非数组]`，改写为 `Array.from(x)`（**`Array.from` 在 ES5 转译下仍需 polyfill，需先实测**）；
+  (iii) 加一条 **CI 守卫**：扫产物里的 `[].concat(` 实参是否为非数组可迭代对象。
+  ⚠️ 三个候选都**未验证**，不得当结论引用。
+- **取证可重复命令**：
+  ```bash
+  pnpm run framework:sync && cd games/beads && pnpm run build:cocos:web
+  node -e "const s=require('fs').readFileSync('games/beads/cocos/build/web-mobile/assets/main/index.js','utf8');\
+           const i=s.indexOf('function patternColors'); console.log(s.slice(i,i+420))"
+  ```
+
+#### G10-FIX — 2026-09-14 修复回填（WXG-T-090，裁决 = 方案甲）
+
+**机制定性（比取证原文更精确的一处）**：降到 ES5 本身不是 bug，bug 是构建层**同一份 Babel 里两条路径不对称**——
+
+| 构造 | 产物 | 对 Set/Map/迭代器/字符串 |
+|---|---|---|
+| `for (const x of it)` | `_createForOfIteratorHelperLoose(o)`，**先查 `o[Symbol.iterator]`**（真身在 `cocos-js/cc.js`，已核对） | ✅ 保语义 |
+| `[...it]` / `f(...it)` | 直接 `[].concat(x)`（loose 展开；产物里**根本没有 `_toConsumableArray`** 助手，实测 grep = 0 命中） | ❌ 不展开 ⇒ 长度恒 1 |
+
+**被否方案**：丙（提构建 target ES2015+）——`builder.json` / `program.json` 实测只剩 `__version__`，**无工程级开关**，
+ES5 降级烧在 packer-driver 内部按平台固定 ⇒ 不可控，且属编辑器产物面（不得改 `games/*/cocos/settings/**`）。乙（纯显式循环）——
+改动面膨胀且不消除契约缺口。详见 ADR-0012 §2。
+**「`Array.from` 也许需 polyfill」的顾虑已被产物字节排除**：产物内 `new Set()` / `new Map()` 原生、全 bundle 无 core-js ⇒
+runtime 具备 ES2015 built-ins；`Array.from` 同级，Babel 不转译 built-in static（修复后产物内 `Array.from(` 原样命中 6 次，恰等 6 处真伤点）。
+
+**改动（6 处真伤点，数量未变）**：`storage.ts` `keys()` / `object-pool.ts` `releaseAll()` / `levels.ts` `patternColors()` 与
+`buildStagePattern()` / `powerups.ts` `get holding()` 与 `noteCapacity()` ⇒ 全改 `Array.from(x)`。**安全展开刻意不动**
+（展开对象本就多数组）：`render-model.ts` / `curve.ts` / `levels.ts` 的 `STAGE_PATTERN_POOL` / `beads-game.ts` 两处 /
+`powerups.ts` 两处 / `view-model.ts` 的 `arcPoints` 调用展开。守卫改用**类型级 AST 判定**（而非正则）复扫全量入库源码，
+含调用展开与 rest 解构，无第 7 处。
+
+**复验证据（重建产物，13.3s）**：下列比对由只读产物的临时脚本完成（未改仓库任何文件）：
+
+```text
+修复前：[].concat( 命中 14 次、Array.from( 0 次；patternColors 尾部 = return [].concat(seen).sort(...)
+修复后：[].concat( 命中  8 次（全为安全数组展开）、Array.from( 命中 6 次
+        已出现：return Array.from(seen).sort(...)   /  Array.from(row).map(...)
+                _Array$from = Array.from(this._inUse)  /  Array.from(this._holding)
+                Array.from(this._map.keys())
+        已消失：[].concat(seen)、[].concat(row)、[].concat(this._inUse)、
+                [].concat(this._holding)、[].concat(this._map.keys
+```
+取证面洁净度：注释会随 debug 构建进产物，故已把四处注释改写为不含展开语法与 concat 字面形式（否则 `Array.from(seen)` 会多一处
+注释命中、`[].concat(` 会多四条注释假阳性）——本轮实测踩过该坑，详见 ADR-0012 §4.2。
+**最强证据（直接执行产物字节）**：从 `build/web-mobile/assets/main/index.js` 里切出**转译后的** `patternColors` + `colorIndexOfChar`
+在 Node 里 eval，喂 `design/levels/levels-01-08.json` 真实关卡：L1–L8 依次得 `[1,5,6]` `[1,2,3,8]` `[1,2,5,7]` `[1,2,4,5,8]`
+`[1,3,5,6,7,8]` `[1,2,4,5,6,7,8]` `[1,2,3,4,5,6,7,8]` `[1,2,3,4,5,6,7,8]` ⇒ 全部 length ∈ [3,10]，BOOT 色数判据可过。
+**反证同法成立**：把切出的同一段手工换回 `[].concat(seen)` ⇒ 得 `[object Set]`、length = 1（G10 精确复现）。
+
+**⚠️ 仍欠的两级证据（不得当作已完成）**：① **浏览器加载产物**看 `phase` 真的离开 `boot` ——本轮沙箱**禁监听 socket**
+（`python3 -m http.server` 起不来，curl 超时）⇒ 未做；② **微信真机（iOS JSC / Android V8）**确认 `Array.from` 与可迭代
+`Set`/`Map` 原生可用——需 AppID + 真机。二者属发布/QA 阶段关闭项（ADR-0012 §4.3）。
+
+**breakout 侧同步（框架 #1/#2 共用）**：`games/breakout` 的 web-mobile 产物已一并重建（13.8s），
+`Array.from(this._inUse)` / `Array.from(this._map.keys())` 各命中 1、塌缩形态命中 0，剩余 `[].concat(` = 2（`curve.ts` 的 `keys`、
+`render-model.ts` 的 `_commands`，均为真数组）。**唯一未刷新项**：`games/breakout/cocos/build/wechatgame/`（release、已压缩）
+仍是旧产物，内含一处 `[].concat(n)` 无法静态判定——**重建需 AppID**（`build:cocos` 默认平台），待发布阶段一并重建后复核。
+
 ---
 
-## 4. 已在本轮"无编辑器"条件下完成的部分
+## 4. 已完成的部分（标题于 2026-09-14 修订：原标题为「已在本轮‘无编辑器’条件下完成的部分」，该前提已不成立）
 
 明确区分**已验证**与**未验证**，避免后续误判。
 
@@ -266,6 +396,10 @@ JSDoc 明写 `@param delay … **Unit: s**` ⇒ **整套调度单位为秒**；`
 | **Cocos 工程能否 import 框架包** | wechatgame **release 构建成功**，产物 `assets/main/index.js` 命中 `BreakoutBootstrap` | ✅ **已验证**（G1 关闭） |
 | **包体** | `pnpm run build:cocos --release` + `pnpm run check:size` | ✅ **已验证**：主包 **3008.3 KB**（红线 4096 ✅ 通过；内部目标 2000 ⚠️ 超 1008 KB） |
 | **真机帧率 / draw call** | — | ❌ **未验证**（需 AppID + 真机） |
+| **beads Cocos 工程可构建** | `pnpm run build:cocos:web`（**17.1s** 成功）+ 产物 grep 命中 `BeadsBootstrap`×8 / `drawComboVfx`×2 / `COMBO_PARTICLE_COUNT`×8 | ✅ **已验证**（2026-09-14） |
+| **beads web-mobile 可运行** | 浏览器加载产物：`cc.ENGINE_VERSION === "3.8.8"`、场景图读出 8 个池化 `Label`、`viewport.fit` = CSS px 754×456（backing 1508×912） | ✅ **已验证** |
+| **beads web-mobile 可玩** | 源码层修复（WXG-T-090 / ADR-0012）后重建产物，**直接执行产物字节的 `patternColors`**：L1–L8 得 3–8 个色（均 ∈ [3,10]）；反证换回 concat 形态则恒 length=1 | ⚠️ **根因已消除，但本行不得记为验收通过**：尚缺「浏览器加载产物看到 `phase` 离开 boot」（本轮沙箱禁监听 socket，未做）与真机复验；此前记录：卡 `boot`（见 §3 **G10** / G10-FIX），绕过门禁后 normal 可落子供料满槽、sprint 硬崩溃——两者均已在源码层修，待运行时复验关闭 |
+| **beads 包体** | — | ❌ **未测**：本轮只构建 web-mobile（免 AppID，用于看渲染/手感）；`build:cocos --release`（wechatgame）+ `check:size` **未跑** |
 
 ---
 
@@ -294,6 +428,21 @@ JSDoc 明写 `@param delay … **Unit: s**` ⇒ **整套调度单位为秒**；`
 | 6 | G8 平台 | ❌ **未做**（需 AppID + 真机） |
 | 7 | R3 包体 | ✅ 已跑：红线 4096 KB **通过**；⚠️ 内部目标 2000 KB **未达**（3008.3 KB）→ 见 backlog「引擎功能裁剪」 |
 | 8 | R4 性能 | ❌ **未做**（需真机） |
+
+**⚠️ 2026-09-14 补注（WXG-T-082）：本节标题「编辑器就绪后的验证顺序」的前提已满足。**
+编辑器已装、MCP 已在线（`127.0.0.1:3000/health` → `{"status":"ok","tools":21}`），因此上表 1–5 项已不再是
+「待编辑器就绪」而是「已做完（breakout）」；本轮另在 **beads** 上重跑了第 3 项（渲染）并得到两条新结论：
+
+1. **坐标分层在 Cocos 路径上是对的**（⇒ ADR-0011 的反证）：`#GameCanvas` CSS `754×456`、backing store `1508×912`
+   （DPR=2 被引擎在 backing 层吃掉），而 `viewport.fit.screenWidth/Height` 仍为 `754×456`（CSS px）。
+   文字走 8 个原生 `Label` 节点（y 为正=上），**不存在 canvas2d 的 y 翻转路径** ⇒ harness 的 GAP-07/GAP-08
+   在本路径**结构上不可能复现**。
+2. **新的阻塞不是坐标，而是 G10（转译）**：第 3 项的「目视校正」在 beads 上**无法按原计划完成**，
+   因为游戏根本进不了 PLAYING。本轮靠**运行时清空 `_bootErrors` 并重调 `_boot()`** 绕过门禁才取到渲染证据
+   （仅作用于构建产物，**未修改仓库任何文件**）。这是一个取证手段，**不是修复**；G10 未修前，
+   beads 的 Cocos 侧验收不得记为通过。
+   **→ 2026-09-14 更新（WXG-T-090）**：绕过手段已不再需要——G10 的**源码层根因已修**（`Array.from` + 守卫，见 §3 G10-FIX），
+   产物字节级复验通过；但本条的「Cocos 侧验收通过」仍需一次**真实的浏览器/真机加载**才能记，**未做**（环境阻塞：沙箱禁监听 socket）。
 
 ---
 

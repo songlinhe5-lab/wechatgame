@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2351,
-      "lines": 96,
-      "sha256": "92c5a102c01477b87939c0f16f0f25aea013a36253593f6e0bfc8a4e2e2dc139",
+      "tokens": 2381,
+      "lines": 97,
+      "sha256": "abd837ef646f2b7350dfb801d2edb98dc074eaa6487c602ef54e0f38680d6188",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 97,
-          "tokens": 2338,
+          "endLine": 98,
+          "tokens": 2368,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 449,
+          "tokens": 444,
           "summary": "1 production/qa/beads/g4-regression-report.md 20846 449 norm",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 71,
-          "tokens": 806,
+          "endLine": 72,
+          "tokens": 840,
           "summary": "production/qa/beads/g4-regression-report.md 20846 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 72,
-          "endLine": 97,
+          "startLine": 73,
+          "endLine": 98,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3781,
       "lines": 86,
-      "sha256": "28252b3699eee5ac9f258b4af92d4082065f7e9495fcfbc8bdd983d54e50e438",
+      "sha256": "c8ce42a7a905c675c8c15d715a2aa0b1ce73c15dd57961b6eef68a645c3071ea",
       "tier": "normal",
       "sections": [
         {
@@ -922,17 +922,17 @@
     },
     {
       "path": "dev/harness/README.md",
-      "tokens": 1457,
-      "lines": 124,
-      "sha256": "3773dd0dda303871cdde9dcf77342c861e3cd8cd3760dbd7c4c6b11ec54bd791",
+      "tokens": 3059,
+      "lines": 199,
+      "sha256": "df69664525b1b0560146bf40d35c2761e9687bf95bb216328519e87daf30e672",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§dev/harness — 浏览器验证器",
           "level": 1,
           "startLine": 1,
-          "endLine": 125,
-          "tokens": 1446,
+          "endLine": 200,
+          "tokens": 3048,
           "summary": "在浏览器里直接跑真实游戏，不需要 Cocos Creator 编辑器，也不需要微信开发者工具。",
           "keywords": [
             "dev",
@@ -945,8 +945,8 @@
         {
           "anchor": "§快速开始",
           "level": 2,
-          "startLine": 11,
-          "endLine": 36,
+          "startLine": 25,
+          "endLine": 50,
           "tokens": 222,
           "summary": "",
           "keywords": [
@@ -956,8 +956,8 @@
         {
           "anchor": "§常用参数",
           "level": 3,
-          "startLine": 26,
-          "endLine": 36,
+          "startLine": 40,
+          "endLine": 50,
           "tokens": 99,
           "summary": "--port 3000 换端口（默认 4173）",
           "keywords": [
@@ -966,21 +966,91 @@
           ]
         },
         {
-          "anchor": "§操作方式",
+          "anchor": "§操作方式（breakout）",
           "level": 2,
-          "startLine": 37,
-          "endLine": 59,
-          "tokens": 213,
+          "startLine": 51,
+          "endLine": 64,
+          "tokens": 142,
           "summary": "← → 移动挡板（键盘）",
           "keywords": [
+            "breakout",
             "操作方式"
+          ]
+        },
+        {
+          "anchor": "§beads（拼豆填色消除）",
+          "level": 2,
+          "startLine": 65,
+          "endLine": 131,
+          "tokens": 1225,
+          "summary": "",
+          "keywords": [
+            "beads",
+            "拼豆填色消除"
+          ]
+        },
+        {
+          "anchor": "§开两款 / 切换",
+          "level": 3,
+          "startLine": 67,
+          "endLine": 77,
+          "tokens": 120,
+          "summary": "<http://127.0.0.1:4173/> breakout（默认）",
+          "keywords": [
+            "http",
+            "breakout",
+            "开两款",
+            "切换"
+          ]
+        },
+        {
+          "anchor": "§操作（与 breakout 不同，别沿用上一节的表）",
+          "level": 3,
+          "startLine": 78,
+          "endLine": 96,
+          "tokens": 398,
+          "summary": "点托盘珠 选中该槽（再点一次取消） selectTraySlot(i)",
+          "keywords": [
+            "breakout",
+            "selectTraySlot",
+            "操作",
+            "不同",
+            "别沿用上一节",
+            "的表"
+          ]
+        },
+        {
+          "anchor": "§控制台",
+          "level": 3,
+          "startLine": 97,
+          "endLine": 115,
+          "tokens": 285,
+          "summary": "",
+          "keywords": [
+            "控制台"
+          ]
+        },
+        {
+          "anchor": "§beads 在 harness 上的已知缺口（不要当产品缺陷上报）",
+          "level": 3,
+          "startLine": 116,
+          "endLine": 131,
+          "tokens": 368,
+          "summary": "GAP-07 点击全不中 仅 harness 真因：main.ts L92-93 送 clientX * dpr（dev",
+          "keywords": [
+            "beads",
+            "harness",
+            "GAP",
+            "main",
+            "L92",
+            "clientX"
           ]
         },
         {
           "anchor": "§验证器验证了什么",
           "level": 2,
-          "startLine": 60,
-          "endLine": 80,
+          "startLine": 132,
+          "endLine": 152,
           "tokens": 304,
           "summary": "",
           "keywords": [
@@ -991,9 +1061,9 @@
         {
           "anchor": "§它是怎么工作的",
           "level": 2,
-          "startLine": 81,
-          "endLine": 112,
-          "tokens": 372,
+          "startLine": 153,
+          "endLine": 187,
+          "tokens": 464,
           "summary": "",
           "keywords": [
             "它是怎么工作"
@@ -1002,8 +1072,8 @@
         {
           "anchor": "§改了代码之后",
           "level": 3,
-          "startLine": 102,
-          "endLine": 112,
+          "startLine": 177,
+          "endLine": 187,
           "tokens": 76,
           "summary": "serve-harness.mjs 每次启动都会重新编译，并且 HTTP 响应带 cache-control: no-s",
           "keywords": [
@@ -1018,8 +1088,8 @@
         {
           "anchor": "§目录约定",
           "level": 2,
-          "startLine": 113,
-          "endLine": 125,
+          "startLine": 188,
+          "endLine": 200,
           "tokens": 170,
           "summary": "dev/harness/index.html ✅ 页面骨架 + importmap",
           "keywords": [
@@ -4251,6 +4321,347 @@
       ]
     },
     {
+      "path": "docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md",
+      "tokens": 5484,
+      "lines": 215,
+      "sha256": "5e99ac3f4e806dc22487ee16bd7f99bd6119276f62336e6141beefdbe62b9284",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0011 — 屏幕坐标空间契约 = CSS px，DPR 由 renderer 层承担（`App.start()` 不得覆盖宿主显式 viewport）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 216,
+          "tokens": 5446,
+          "summary": "状态：Accepted（裁决落码归 WXG-T-087，本 ADR 只定契约与验收断言）",
+          "keywords": [
+            "App.start()",
+            "ADR",
+            "CSS",
+            "DPR",
+            "renderer",
+            "App"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 94,
+          "tokens": 1385,
+          "summary": "",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§1.1 契约原文早已写明，但只写在一处",
+          "level": 3,
+          "startLine": 13,
+          "endLine": 29,
+          "tokens": 251,
+          "summary": "框架对\"屏幕坐标\"的定义是明确的：",
+          "keywords": [
+            "契约原文早已",
+            "写明",
+            "但只写在一处"
+          ]
+        },
+        {
+          "anchor": "§1.2 但 `App.start()` 的覆盖行为让\"越界\"变得不可见",
+          "level": 3,
+          "startLine": 30,
+          "endLine": 52,
+          "tokens": 294,
+          "summary": "compose/app.ts L102-105：",
+          "keywords": [
+            "App.start()",
+            "App",
+            "start",
+            "compose",
+            "app",
+            "L102"
+          ]
+        },
+        {
+          "anchor": "§1.3 harness 的实际错配（2026-09-14 实测，DPR=2）",
+          "level": 3,
+          "startLine": 53,
+          "endLine": 77,
+          "tokens": 380,
+          "summary": "harness 的设计意图是端到端 device px：fitCanvas()（L67-79）把 canvas.widt",
+          "keywords": [
+            "harness",
+            "DPR",
+            "device",
+            "fitCanvas",
+            "L67",
+            "canvas"
+          ]
+        },
+        {
+          "anchor": "§1.4 GAP-08 是同一次取证里独立确诊的第二处（仅 harness）",
+          "level": 3,
+          "startLine": 78,
+          "endLine": 85,
+          "tokens": 200,
+          "summary": "adapters/canvas2d/canvas2d-renderer.ts L82 用 setTransform(sc",
+          "keywords": [
+            "GAP",
+            "harness",
+            "adapters",
+            "canvas2d",
+            "renderer",
+            "L82"
+          ]
+        },
+        {
+          "anchor": "§1.5 约束",
+          "level": 3,
+          "startLine": 86,
+          "endLine": 94,
+          "tokens": 176,
+          "summary": "L2：core 禁 cc / DOM / wx ⇒ DPR 不能进 Viewport（它属 core）。",
+          "keywords": [
+            "core",
+            "DOM",
+            "DPR",
+            "Viewport",
+            "约束"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 95,
+          "endLine": 125,
+          "tokens": 964,
+          "summary": "",
+          "keywords": [
+            "Alternatives",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§方案 A：改框架契约为 device px（`Viewport`/`InputManager` 全面改口径）",
+          "level": 3,
+          "startLine": 97,
+          "endLine": 102,
+          "tokens": 268,
+          "summary": "事实对比：需要同时改 input-manager.ts 契约文本、bindings.ts L117-139（_fitTo",
+          "keywords": [
+            "Viewport",
+            "InputManager",
+            "device",
+            "input",
+            "manager",
+            "bindings"
+          ]
+        },
+        {
+          "anchor": "§方案 B：harness 全面改 CSS px，DPR 下沉到 `Canvas2DRenderer`，同时修 `App.start()` 的覆盖语义（**本 ADR 采用**）",
+          "level": 3,
+          "startLine": 103,
+          "endLine": 111,
+          "tokens": 181,
+          "summary": "事实对比：三处改动，互不重叠——",
+          "keywords": [
+            "Canvas2DRenderer",
+            "App.start()",
+            "harness",
+            "CSS",
+            "DPR",
+            "App"
+          ]
+        },
+        {
+          "anchor": "§方案 C：只改 harness 的 `pushPointer`（不乘 dpr），保留 `App.start()` 的覆盖行为",
+          "level": 3,
+          "startLine": 112,
+          "endLine": 117,
+          "tokens": 220,
+          "summary": "事实对比：单点改动即可让点击立刻可用——因为 start() 恰好把 viewport 拉回了 CSS px，与\"不乘 ",
+          "keywords": [
+            "pushPointer",
+            "App.start()",
+            "harness",
+            "dpr",
+            "App",
+            "start"
+          ]
+        },
+        {
+          "anchor": "§方案 D：`AppOptions` 增加 `screen?: ScreenSize`，由宿主在构造期声明尺寸与 DPR",
+          "level": 3,
+          "startLine": 118,
+          "endLine": 125,
+          "tokens": 167,
+          "summary": "事实对比：把意图表达提前到构造期，start() 只在宿主未声明时才用平台值。",
+          "keywords": [
+            "AppOptions",
+            "screen?: ScreenSize",
+            "screen",
+            "ScreenSize",
+            "DPR",
+            "start"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 126,
+          "endLine": 177,
+          "tokens": 1182,
+          "summary": "屏幕坐标空间的唯一契约是 CSS px（top-left origin）；DPR 只由 renderer/adapter",
+          "keywords": [
+            "Decision",
+            "CSS",
+            "top",
+            "left",
+            "origin",
+            "DPR"
+          ]
+        },
+        {
+          "anchor": "§(a) `App.start()` 改为「宿主显式尺寸优先，平台值降级为兜底」",
+          "level": 3,
+          "startLine": 130,
+          "endLine": 139,
+          "tokens": 218,
+          "summary": "不是\"干脆不 resize\"。理由：weapp 侧没有 document，bindings.ts::_fitToGame",
+          "keywords": [
+            "App.start()",
+            "App",
+            "start",
+            "resize",
+            "weapp",
+            "document"
+          ]
+        },
+        {
+          "anchor": "§(b) harness 改送 CSS px；框架契约不动",
+          "level": 3,
+          "startLine": 140,
+          "endLine": 143,
+          "tokens": 105,
+          "summary": "pushPointer 送 event.clientX / event.clientY（去掉 * dpr），fitCan",
+          "keywords": [
+            "harness",
+            "CSS",
+            "pushPointer",
+            "event",
+            "clientX",
+            "clientY"
+          ]
+        },
+        {
+          "anchor": "§(c) `getScreenSize().pixelRatio` 的唯一合法消费者是 renderer/adapter 层",
+          "level": 3,
+          "startLine": 144,
+          "endLine": 151,
+          "tokens": 269,
+          "summary": "当前该字段被所有调用方丢弃，这是契约漏洞而不是\"无用字段\"。裁决：",
+          "keywords": [
+            "getScreenSize().pixelRatio",
+            "getScreenSize",
+            "pixelRatio",
+            "renderer",
+            "adapter",
+            "的唯一合法消"
+          ]
+        },
+        {
+          "anchor": "§(d) 回归防线：一条可执行断言，防再退化",
+          "level": 3,
+          "startLine": 152,
+          "endLine": 177,
+          "tokens": 435,
+          "summary": "断言名：pointer round-trip hits the intended design cell at DPR=",
+          "keywords": [
+            "pointer",
+            "round",
+            "trip",
+            "hits",
+            "the",
+            "intended"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 178,
+          "endLine": 204,
+          "tokens": 1276,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 180,
+          "endLine": 186,
+          "tokens": 180,
+          "summary": "1. 三个宿主口径统一：harness / Cocos(web-mobile, wechatgame) / weapp ",
+          "keywords": [
+            "harness",
+            "Cocos",
+            "web",
+            "mobile",
+            "wechatgame",
+            "weapp"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面（已知成本，不是风险）",
+          "level": 3,
+          "startLine": 187,
+          "endLine": 196,
+          "tokens": 817,
+          "summary": "1. bindings.ts 的时序 workaround 会变成\"冗余但仍在\"的双真源。 L103-106 那段注释描",
+          "keywords": [
+            "bindings",
+            "workaround",
+            "L103",
+            "负面",
+            "已知成本",
+            "不是风险"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 197,
+          "endLine": 204,
+          "tokens": 251,
+          "summary": "Cocos 侧 DPR 由引擎处理，我们无法干预也无需干预——实测已确认分层正确。但若未来 Cocos 改变 #Game",
+          "keywords": [
+            "Cocos",
+            "DPR",
+            "Game",
+            "中性",
+            "待观察"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 205,
+          "endLine": 216,
+          "tokens": 435,
+          "summary": "出现以下任一情况，重新评估本决策：",
+          "keywords": [
+            "Review",
+            "Triggers",
+            "复评触发条件"
+          ]
+        }
+      ]
+    },
+    {
       "path": "docs/architecture/adr/ADR-0012-es5-spread-language-contract.md",
       "tokens": 3956,
       "lines": 92,
@@ -5202,17 +5613,17 @@
     },
     {
       "path": "docs/engine-reference/cocos/VERSION.md",
-      "tokens": 7007,
-      "lines": 305,
-      "sha256": "f134542c1951e1d22ca28b2640a51ec68a28fb0705839b158fc12502a44b4c41",
+      "tokens": 11967,
+      "lines": 454,
+      "sha256": "770c8d67a100a666ea9910ec92ec60a82f94ea85729137b82d96dfa1ae97d3f2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator — 引擎版本钉定与知识缺口清单",
           "level": 1,
           "startLine": 1,
-          "endLine": 306,
-          "tokens": 6989,
+          "endLine": 455,
+          "tokens": 11949,
           "summary": "钉定版本：Cocos Creator 3.8 LTS（当前最新 3.8.8，2025-12 发布）",
           "keywords": [
             "Cocos",
@@ -5225,8 +5636,8 @@
         {
           "anchor": "§1 版本策略",
           "level": 2,
-          "startLine": 15,
-          "endLine": 32,
+          "startLine": 32,
+          "endLine": 49,
           "tokens": 273,
           "summary": "钉定大版本 3.8 LTS",
           "keywords": [
@@ -5237,8 +5648,8 @@
         {
           "anchor": "§为什么是 3.8 LTS 而不是 4",
           "level": 3,
-          "startLine": 27,
-          "endLine": 32,
+          "startLine": 44,
+          "endLine": 49,
           "tokens": 94,
           "summary": "Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导出链路、真机表现、第三方插件生态均未经验证。",
           "keywords": [
@@ -5251,9 +5662,9 @@
         {
           "anchor": "§2 引擎能力清单（本项目实际依赖）",
           "level": 2,
-          "startLine": 33,
-          "endLine": 52,
-          "tokens": 469,
+          "startLine": 50,
+          "endLine": 69,
+          "tokens": 977,
           "summary": "只列我们真的会用的 API。构建时应据此裁剪模块。",
           "keywords": [
             "API",
@@ -5264,9 +5675,9 @@
         {
           "anchor": "§3 知识缺口清单（**必须在编辑器里逐条验证**）",
           "level": 2,
-          "startLine": 53,
-          "endLine": 250,
-          "tokens": 4811,
+          "startLine": 70,
+          "endLine": 380,
+          "tokens": 7778,
           "summary": "每一条都是\"我无法在无编辑器环境下确认\"的事实。请在 Cocos Creator 3.8.8 就绪后按序验证并回填结论。",
           "keywords": [
             "Cocos",
@@ -5279,8 +5690,8 @@
         {
           "anchor": "§G1 — 框架源码如何被 Cocos 工程引用【基线已落地（方案 C），残余风险见下】",
           "level": 3,
-          "startLine": 57,
-          "endLine": 72,
+          "startLine": 74,
+          "endLine": 89,
           "tokens": 657,
           "summary": "问题：packages/framework 是独立 npm 包（@wxgame/framework，exports 指向",
           "keywords": [
@@ -5295,8 +5706,8 @@
         {
           "anchor": "§G2 — `Graphics` API 的确切签名",
           "level": 3,
-          "startLine": 73,
-          "endLine": 88,
+          "startLine": 90,
+          "endLine": 105,
           "tokens": 363,
           "summary": "Graphics.rect(x, y, w, h)：x,y 是左下角还是左上角？ 框架设计空间是左下，若 Cocos 是",
           "keywords": [
@@ -5310,8 +5721,8 @@
         {
           "anchor": "§G3 — `Label` 的行为与对齐",
           "level": 3,
-          "startLine": 89,
-          "endLine": 106,
+          "startLine": 106,
+          "endLine": 123,
           "tokens": 490,
           "summary": "Label 的锚点默认值？（代码假设居中，并按估算文本宽度做偏移 —— 需要目视校正）",
           "keywords": [
@@ -5322,8 +5733,8 @@
         {
           "anchor": "§G4 — 触摸事件与坐标系",
           "level": 3,
-          "startLine": 107,
-          "endLine": 121,
+          "startLine": 124,
+          "endLine": 138,
           "tokens": 376,
           "summary": "Node.EventType.TOUCH_START 等常量的准确拼写（代码里暂时用字符串 'touch-start'）",
           "keywords": [
@@ -5338,8 +5749,8 @@
         {
           "anchor": "§G5 — 帧驱动与调度",
           "level": 3,
-          "startLine": 122,
-          "endLine": 134,
+          "startLine": 139,
+          "endLine": 151,
           "tokens": 294,
           "summary": "Component.schedule(cb, interval) 中 interval = 0 是否表示\"每帧\"？",
           "keywords": [
@@ -5352,8 +5763,8 @@
         {
           "anchor": "§G6 — 装饰器与脚本注册",
           "level": 3,
-          "startLine": 135,
-          "endLine": 146,
+          "startLine": 152,
+          "endLine": 163,
           "tokens": 232,
           "summary": "@ccclass('Bootstrap') 的名称是否需要全局唯一？与文件名/类名的关系？",
           "keywords": [
@@ -5366,8 +5777,8 @@
         {
           "anchor": "§G7 — 构建与包体",
           "level": 3,
-          "startLine": 147,
-          "endLine": 235,
+          "startLine": 164,
+          "endLine": 252,
           "tokens": 1954,
           "summary": "构建产物（build/wechatgame/）的目录结构、主包/分包划分方式。",
           "keywords": [
@@ -5379,8 +5790,8 @@
         {
           "anchor": "§G8 — `wx` 适配层",
           "level": 3,
-          "startLine": 236,
-          "endLine": 242,
+          "startLine": 253,
+          "endLine": 259,
           "tokens": 174,
           "summary": "Cocos 的微信小游戏导出是否自带 wx 的 requestAnimationFrame 注入？（我们的 weapp.",
           "keywords": [
@@ -5394,9 +5805,9 @@
         {
           "anchor": "§G9 — `.meta` 与资源",
           "level": 3,
-          "startLine": 243,
-          "endLine": 250,
-          "tokens": 119,
+          "startLine": 260,
+          "endLine": 271,
+          "tokens": 286,
           "summary": ".meta 的 UUID 生成规则；手工新增 assets 下的文件是否会被编辑器自动补 .meta。",
           "keywords": [
             ".meta",
@@ -5407,25 +5818,43 @@
           ]
         },
         {
-          "anchor": "§4 已在本轮\"无编辑器\"条件下完成的部分",
+          "anchor": "§G10 — 【P0 · 已修 2026-09-14（WXG-T-090 / ADR-0012）】Cocos 构建的 ES5 转译把 `[...非数组可迭代对象]` 编成 `[].concat(x)`，导致 beads 在真机路径上不可玩",
+          "level": 3,
+          "startLine": 272,
+          "endLine": 380,
+          "tokens": 2743,
+          "summary": "✅ 修复状态（WXG-T-090，2026-09-14）：采用方案甲 = 源码层 Array.from(x) + 类型级",
+          "keywords": [
+            "[...非数组可迭代对象]",
+            "[].concat(x)",
+            "G10",
+            "WXG",
+            "ADR",
+            "Cocos"
+          ]
+        },
+        {
+          "anchor": "§4 已完成的部分（标题于 2026-09-14 修订：原标题为「已在本轮‘无编辑器’条件下完成的部分」，该前提已不成立）",
           "level": 2,
-          "startLine": 251,
-          "endLine": 271,
-          "tokens": 409,
+          "startLine": 381,
+          "endLine": 405,
+          "tokens": 758,
           "summary": "明确区分已验证与未验证，避免后续误判。",
           "keywords": [
+            "已完成的部分",
+            "标题于",
+            "修订",
+            "原标题为",
             "已在本轮",
-            "无编辑器",
-            "条件下完成的",
-            "部分"
+            "无编辑器"
           ]
         },
         {
           "anchor": "§5 编辑器就绪后的验证顺序（建议）",
           "level": 2,
-          "startLine": 272,
-          "endLine": 299,
-          "tokens": 609,
+          "startLine": 406,
+          "endLine": 448,
+          "tokens": 1106,
           "summary": "按依赖顺序执行，前一步失败会阻塞后一步：",
           "keywords": [
             "编辑器就绪后",
@@ -5436,8 +5865,8 @@
         {
           "anchor": "§6 维护约定",
           "level": 2,
-          "startLine": 300,
-          "endLine": 306,
+          "startLine": 449,
+          "endLine": 455,
           "tokens": 142,
           "summary": "任何在编辑器里发现与本文记载不符的地方，必须回来更新本文件（含\"实际行为\"与\"受影响文件\"）。",
           "keywords": [
@@ -41950,18 +42379,43 @@
       ]
     },
     {
+      "path": "production/epics/epics-beads-status.md",
+      "tokens": 1873,
+      "lines": 53,
+      "sha256": "28e68f72f4ce35641f47ff5c94e0fdb449acec439e256bd3e122e93c177e9715",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads · Epic/Story 状态时效声明（epics-beads 拆分件）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 54,
+          "tokens": 1853,
+          "summary": "正本宿主：production/epics/epics-beads.md（本块原为其顶部「⚠️ 状态时效声明」）",
+          "keywords": [
+            "beads",
+            "Epic",
+            "Story",
+            "epics",
+            "production",
+            "状态时效声明"
+          ]
+        }
+      ]
+    },
+    {
       "path": "production/epics/epics-beads.md",
-      "tokens": 7916,
-      "lines": 293,
-      "sha256": "4edd74189c61c0af07db9c6b613c32a477a04be49f233dc31ce21e6c98604e38",
+      "tokens": 7360,
+      "lines": 275,
+      "sha256": "153a6b0576b6b55d357c65ea05d23a813467341a2cad47e7e14c9e1b84824916",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic / Story 拆分（epics-beads）",
           "level": 1,
           "startLine": 1,
-          "endLine": 294,
-          "tokens": 7903,
+          "endLine": 276,
+          "tokens": 7347,
           "summary": "项目：games/beads（拼豆填色消除）· 任务 WXG-T-010 · 版本 v1.0",
           "keywords": [
             "beads",
@@ -41975,8 +42429,8 @@
         {
           "anchor": "§0 阅读约定（拆分纪律）",
           "level": 2,
-          "startLine": 34,
-          "endLine": 44,
+          "startLine": 16,
+          "endLine": 26,
           "tokens": 391,
           "summary": "1. 验收标准编号：S<n>§8-<k> = gdd/<系统>.md §8 编号列表第 k 条（beads 各 GDD ",
           "keywords": [
@@ -41991,8 +42445,8 @@
         {
           "anchor": "§1 Epic 列表（按 systems-index §2 依赖拓扑序）",
           "level": 2,
-          "startLine": 45,
-          "endLine": 63,
+          "startLine": 27,
+          "endLine": 45,
           "tokens": 486,
           "summary": "EP-01 核心循环骨架 立起六状态状态机与关内时序编排，裁决暂停冻结与同帧 cleared 优先 S1 —",
           "keywords": [
@@ -42007,8 +42461,8 @@
         {
           "anchor": "§2 Story 拆分",
           "level": 2,
-          "startLine": 64,
-          "endLine": 252,
+          "startLine": 46,
+          "endLine": 234,
           "tokens": 5303,
           "summary": "",
           "keywords": [
@@ -42019,8 +42473,8 @@
         {
           "anchor": "§EP-01 核心循环骨架（S1）",
           "level": 3,
-          "startLine": 66,
-          "endLine": 84,
+          "startLine": 48,
+          "endLine": 66,
           "tokens": 569,
           "summary": "EP01-S1 六状态状态机骨架与 BOOT 装配",
           "keywords": [
@@ -42032,8 +42486,8 @@
         {
           "anchor": "§EP-02 拼图网格与填色（S3）",
           "level": 3,
-          "startLine": 85,
-          "endLine": 113,
+          "startLine": 67,
+          "endLine": 95,
           "tokens": 880,
           "summary": "EP02-S1 关卡装载与静态校验器",
           "keywords": [
@@ -42044,8 +42498,8 @@
         {
           "anchor": "§EP-03 供料与槽位托盘（S4）",
           "level": 3,
-          "startLine": 114,
-          "endLine": 136,
+          "startLine": 96,
+          "endLine": 118,
           "tokens": 747,
           "summary": "EP03-S1 托盘模型与加权抽色",
           "keywords": [
@@ -42056,8 +42510,8 @@
         {
           "anchor": "§EP-04 输入与操控（S2）",
           "level": 3,
-          "startLine": 137,
-          "endLine": 159,
+          "startLine": 119,
+          "endLine": 141,
           "tokens": 734,
           "summary": "EP04-S1 五类指令路由表",
           "keywords": [
@@ -42068,8 +42522,8 @@
         {
           "anchor": "§EP-05 倒计时与失败（S5）",
           "level": 3,
-          "startLine": 160,
-          "endLine": 181,
+          "startLine": 142,
+          "endLine": 163,
           "tokens": 769,
           "summary": "EP05-S1 计时器模型与暂停保存",
           "keywords": [
@@ -42080,8 +42534,8 @@
         {
           "anchor": "§EP-06 道具系统（S6）`[待 GDD §8——S6 GDD 未产出，判据到位后回填]`",
           "level": 3,
-          "startLine": 182,
-          "endLine": 193,
+          "startLine": 164,
+          "endLine": 175,
           "tokens": 346,
           "summary": "EP06-S1 三道具效果与免费次数 [待 GDD §8]",
           "keywords": [
@@ -42096,8 +42550,8 @@
         {
           "anchor": "§EP-07 星级与结算（S7）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 194,
-          "endLine": 206,
+          "startLine": 176,
+          "endLine": 188,
           "tokens": 259,
           "summary": "EP07-S1 星级判定与结算面板 [待 GDD §8]",
           "keywords": [
@@ -42111,8 +42565,8 @@
         {
           "anchor": "§EP-08 存档与进度（S8）`[待 GDD §8——S8 GDD 未产出]`",
           "level": 3,
-          "startLine": 207,
-          "endLine": 218,
+          "startLine": 189,
+          "endLine": 200,
           "tokens": 276,
           "summary": "EP08-S1 存档 schema 与校验降级 [待 GDD §8]",
           "keywords": [
@@ -42127,8 +42581,8 @@
         {
           "anchor": "§EP-09 暂停与设置（S9）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 219,
-          "endLine": 231,
+          "startLine": 201,
+          "endLine": 213,
           "tokens": 199,
           "summary": "EP09-S1 暂停面板 [待 GDD §8]",
           "keywords": [
@@ -42142,8 +42596,8 @@
         {
           "anchor": "§EP-10 Cocos 集成与微信构建 `[Blocked: 待编辑器]`",
           "level": 3,
-          "startLine": 232,
-          "endLine": 252,
+          "startLine": 214,
+          "endLine": 234,
           "tokens": 372,
           "summary": "依赖编辑器产物（.scene/.meta/构建/真机）。框架侧 bindings.ts 已写未验证（G1–G9 沿用矩阵",
           "keywords": [
@@ -42158,8 +42612,8 @@
         {
           "anchor": "§3 第一个冲刺建议（最小可玩垂直切片）",
           "level": 2,
-          "startLine": 253,
-          "endLine": 276,
+          "startLine": 235,
+          "endLine": 258,
           "tokens": 440,
           "summary": "目标：进 PLAYING → 供料入托盘 → 选珠 → 落子（匹配/拒绝）→ 填满进 LEVEL_CLEAR → 归零失",
           "keywords": [
@@ -42173,8 +42627,8 @@
         {
           "anchor": "§4 环境约束声明",
           "level": 2,
-          "startLine": 277,
-          "endLine": 285,
+          "startLine": 259,
+          "endLine": 267,
           "tokens": 218,
           "summary": "无 Cocos 编辑器：验证路径 = 引擎无关玩法跑 vitest（Node）+ dev harness（canvas2",
           "keywords": [
@@ -42189,8 +42643,8 @@
         {
           "anchor": "§5 统计",
           "level": 2,
-          "startLine": 286,
-          "endLine": 294,
+          "startLine": 268,
+          "endLine": 276,
           "tokens": 102,
           "summary": "Epic 数 10（EP-01…EP-09 系统 + EP-10 工程交付）",
           "keywords": [
