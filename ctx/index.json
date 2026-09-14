@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1881,
       "lines": 84,
-      "sha256": "5f6b3f5d82ff4e67698c368334895b15b23b9f0ea82ad59d6d098d4aa3f30fc7",
+      "sha256": "6445a46371d0f174000e7de51f554fff2004282e37a5a6e3930bb03ff396c5ce",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3913,
       "lines": 94,
-      "sha256": "bc5e3741bb68c714a983c0ba44539d4e363602f0c50762d818bb0179bc3099cb",
+      "sha256": "d14e7a0ddb3db08d15b7ffd54d3d67c7d80920c69875ee773e1e888d687abc06",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 42 行 / 7361 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 43 行 / 7849 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+43 · §待排（backlog，无号，立项时领取）=31+13",
+          "summary": "§WXG 任务台账（SSOT）=1+44 · §待排（backlog，无号，立项时领取）=32+13",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -30832,17 +30832,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 7361,
-      "lines": 42,
-      "sha256": "b4b0ceac7492586f8669c1d5cd4c5635b1cf7e1ae7ba2adfce4bd76dcd1f5c9b",
+      "tokens": 7849,
+      "lines": 43,
+      "sha256": "f43e42b714d3d519c8cffa04b042f5161ff5ce0c81d5e4332ae6e97f985aee65",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 43,
-          "tokens": 7353,
+          "endLine": 44,
+          "tokens": 7840,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -30856,8 +30856,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 31,
-          "endLine": 43,
+          "startLine": 32,
+          "endLine": 44,
           "tokens": 1364,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [

@@ -31,10 +31,10 @@
 | 7 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
 | 8 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
 | 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 525 | normal |
-| 10 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
-| 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
-| 12 | `production/epics/epics-beads.md` | 7426 | 282 | normal |
-| 13 | `production/TASKS.md` | 7361 | 42 | hot |
+| 10 | `production/TASKS.md` | 7849 | 43 | hot |
+| 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
+| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
+| 13 | `production/epics/epics-beads.md` | 7426 | 282 | normal |
 | 14 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
 | 15 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
 | 16 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
