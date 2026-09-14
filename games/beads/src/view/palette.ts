@@ -41,6 +41,8 @@ export interface BeadsPalette {
   readonly textAccent: string;
   /** Timer danger colour (§3.5 urgent channel). */
   readonly danger: string;
+  /** `hint` / 引导外描边蓝（art-bible §3.4 `accent_blue` #3D7BF5，非珠色）。 */
+  readonly hintBlue: string;
   /** Ad-badge placeholder (ADR-0006: badge only, no wx API). */
   readonly adBadge: string;
   /** Banner backdrop plate. */
@@ -58,6 +60,7 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   textDim: '#8B8578',
   textAccent: '#F59B23',
   danger: '#E84C3D',
+  hintBlue: '#3D7BF5',
   adBadge: '#FFCB3D',
   bannerBackdrop: '#33333D',
   bannerText: '#FDF6E9',

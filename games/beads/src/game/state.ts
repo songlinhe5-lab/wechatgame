@@ -175,6 +175,24 @@ export interface BeadsSnapshot {
   comboVfxRow: number;
   comboVfxCol: number;
 
+  /**
+   * GAP-04/03/10 反馈态相位（WXG-T-087）。均为**单调表现时钟**驱动，
+   * 与面板/连击特效同判例 —— PAUSED 冻结玩法不冻结表现。毫秒真源 ux-spec §5。
+   */
+  /** 单调表现时钟（ms）：循环脉冲（告急 α、hint 呼吸、满槽）的相位基准。 */
+  pulseClock: number;
+  /** GAP-04 `wrong` 态：被拒格心（无动画 = -1）与播放进度 0..1。 */
+  wrongRow: number;
+  wrongCol: number;
+  wrongProgress: number;
+  /** GAP-03 首屏引导是否激活（runs==0 且本会话未落过子）。 */
+  onboarding: boolean;
+  /** GAP-03/04 单一 `hint` 目标格（行主序首个匹配首珠色的空槽；无 = -1）。 */
+  hintRow: number;
+  hintCol: number;
+  /** GAP-03 首珠脉冲所在托盘槽（无 = -1）。 */
+  guideSlot: number;
+
   tuning: BeadsTuning;
 }
 
@@ -247,6 +265,14 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     comboVfxProgress: 0,
     comboVfxRow: -1,
     comboVfxCol: -1,
+    pulseClock: 0,
+    wrongRow: -1,
+    wrongCol: -1,
+    wrongProgress: 0,
+    onboarding: false,
+    hintRow: -1,
+    hintCol: -1,
+    guideSlot: -1,
     tuning,
   };
 }

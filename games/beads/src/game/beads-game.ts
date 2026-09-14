@@ -38,6 +38,7 @@ import {
   computeClearStars,
   normalSettleScore,
   TIMER_URGENT_T,
+  WRONG_FX_MS,
   TRAY_COLS,
   TRAY_GAP,
   TRAY_SLOT,
@@ -196,6 +197,15 @@ export class BeadsGame implements Game {
    * 时只播最高档，避免叠加成闪烁）。`row/col` 是 Lv1 粒子的锚点（落子格心）。
    */
   private _comboVfx: { spec: ComboVfxSpec; elapsedMs: number; row: number; col: number } | null = null;
+  /**
+   * GAP-04/03/10 反馈态（WXG-T-087）——均为**表现层**，与 `_comboVfx`/面板同判例。
+   * `_pulseClock` 单调推进（ms），驱动告急 α、hint 呼吸、满槽脉冲的循环相位。
+   */
+  private _pulseClock = 0;
+  /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
+  private _wrongFx: { row: number; col: number; elapsedMs: number } | null = null;
+  /** 首屏引导已完成（老玩家 BOOT 即 true；首次玩家首次落子后置 true）。一置不再重现。 */
+  private _onboardDone = true;
   /**
    * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
    * Gear → `'manual'`; WeChat `onHide` → `'system'`. Both stay on the
@@ -418,6 +428,8 @@ export class BeadsGame implements Game {
     this._finishPanel.update(dt * 1000); // 通关画面同理
     this._sprintSettle.update(dt * 1000); // 冲刺结算面板同理
     this._stepComboVfx(dt); // §2.5 连击特效：表现层，不被 PAUSED 冻结
+    this._pulseClock += Math.max(0, dt) * 1000; // GAP-04/03/10 循环脉冲基准（同判例不冻结）
+    this._stepWrongFx(dt);
   }
 
   buildRenderModel(builder: RenderModelBuilder): void {
@@ -698,15 +710,15 @@ export class BeadsGame implements Game {
       sprint:
         this._mode === 'sprint'
           ? {
-              streak: sprint.streak,
-              multiplier: sprint.multiplier,
-              tier: sprint.tier,
-              score: sprint.score,
-              stageIndex: sprint.stageIndex,
-              bestStage: sprint.bestStage,
-              bestStreak: sprint.bestStreak,
-              windowRemaining: sprint.windowRemaining,
-            }
+            streak: sprint.streak,
+            multiplier: sprint.multiplier,
+            tier: sprint.tier,
+            score: sprint.score,
+            stageIndex: sprint.stageIndex,
+            bestStage: sprint.bestStage,
+            bestStreak: sprint.bestStreak,
+            windowRemaining: sprint.windowRemaining,
+          }
           : null,
     };
   }
@@ -909,6 +921,10 @@ export class BeadsGame implements Game {
 
     this._levelIndex = Math.max(0, Math.min(target - 1, this._levels.length - 1));
     this._setupLevel(this._levelIndex);
+
+    // GAP-03 首屏引导（ux-spec §6.3）：本次 BOOT 前 `runs==0` 才为首玩。
+    // ——必须在下方自增**之前**取（否则首玩也变 1）；老玩家（runs>0）_onboardDone 永 true。
+    this._onboardDone = save ? save.data.runs > 0 : true;
 
     if (save) {
       save.patch({ runs: save.data.runs + 1 });
@@ -1338,6 +1354,7 @@ export class BeadsGame implements Game {
           colorIdx: verdict.colorIdx,
           slot: verdict.slot,
         });
+        this._onboardDone = true; // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）
 
         if (this._mode === 'sprint') {
           const score = this._sprint.onPlaced();
@@ -1374,6 +1391,11 @@ export class BeadsGame implements Game {
           col: verdict.col,
           colorIdx: verdict.colorIdx,
         });
+        // GAP-04 `wrong` 态：仅颜色不匹配（mismatch）触发拖动+danger 描边；
+        // `invalid-color`（越界编程错）只 console.warn，不给玩家反馈。
+        if (verdict.reason === 'mismatch') {
+          this._wrongFx = { row: verdict.row, col: verdict.col, elapsedMs: 0 };
+        }
         if (this._mode === 'sprint') {
           const reason = this._sprint.onRejected();
           this._emit('combo:break', { reason });
@@ -1604,6 +1626,17 @@ export class BeadsGame implements Game {
     if (vfx.elapsedMs >= vfx.spec.durationMs) this._comboVfx = null;
   }
 
+  /**
+   * GAP-04 `wrong` 态推进（WXG-T-087）：与 `_stepComboVfx` 同判例——表现层，不被
+   * PAUSED 冻结。单次播放 `WRONG_FX_MS`（200ms，≤ 2 次/秒红线）；播完即清。
+   */
+  private _stepWrongFx(dt: number): void {
+    const fx = this._wrongFx;
+    if (!fx) return;
+    fx.elapsedMs += Math.max(0, dt) * 1000;
+    if (fx.elapsedMs >= WRONG_FX_MS) this._wrongFx = null;
+  }
+
   /** 每关历史最好星级（`0` = 未通关）—— 通关画面总览的数据源（测试读它）。 */
   get starsByLevel(): readonly number[] {
     // 内部按需写入（稀疏）；对外一律**稠密**（未通关 = 0），与快照同一契约。
@@ -1739,6 +1772,48 @@ export class BeadsGame implements Game {
     s.revived = this._reviveCount > 0;
     s.watchingAd = this._watchingAd;
     s.failHint = this._failHint;
+
+    // ── GAP-04/03/10 反馈态相位（WXG-T-087）：表现时钟 + wrong 进度 + 引导目标。
+    //    相位基准（脉冲周期）由视图从 `pulseClock` 推导；此处只给单调时钟与单次进度。
+    s.pulseClock = this._pulseClock;
+    const wfx = this._wrongFx;
+    s.wrongRow = wfx ? wfx.row : -1;
+    s.wrongCol = wfx ? wfx.col : -1;
+    s.wrongProgress = wfx ? Math.min(1, wfx.elapsedMs / WRONG_FX_MS) : 0;
+
+    // GAP-03 首屏引导：仅普通模式 PLAYING、首玩且本会话未落过子时激活（§6.3）。
+    s.onboarding = this._mode === 'normal' && s.phase === 'playing' && !this._onboardDone;
+    if (s.onboarding) {
+      // 首珠 = 托盘当前持有的最前一颗（GAP-02 首供落点）；其色决定单一目标格。
+      let guideSlot = -1;
+      let firstColor = -1;
+      for (let i = 0; i < s.traySlots.length; i++) {
+        const sl = s.traySlots[i]!;
+        if (sl.state !== 'free') {
+          guideSlot = i;
+          firstColor = sl.colorIdx;
+          break;
+        }
+      }
+      s.guideSlot = guideSlot;
+      if (firstColor >= 0) {
+        // 行主序首个匹配该色的可填空槽（单一指向 = 引导设计原则，避免多格同亮）。
+        for (let i = 0; i < s.gridRows && s.hintRow < 0; i++) {
+          for (let j = 0; j < s.gridCols; j++) {
+            const c = s.cells[i * s.gridCols + j]!;
+            if (!c.void && c.state === 'empty' && c.colorIdx === firstColor) {
+              s.hintRow = i;
+              s.hintCol = j;
+              break;
+            }
+          }
+        }
+      }
+    } else {
+      s.hintRow = -1;
+      s.hintCol = -1;
+      s.guideSlot = -1;
+    }
   }
 
   private _emit<K extends keyof BeadsEvents>(type: K, payload: BeadsEvents[K]): void {

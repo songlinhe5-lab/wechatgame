@@ -235,3 +235,25 @@ export function drawLockedBead(
 
 /** L0 shadow opacity for a selected bead (§1.2 selected row). */
 export const SELECTED_SHADOW_ALPHA = BEAD_SHADOW_ALPHA_SELECTED;
+
+/**
+ * §1.2 状态外描边环（`hint` 蓝 / `wrong` danger 复用）：圆角矩形、**只描边不填充**
+ * → 中心透明，露出下层（目标色底 / 已填珠）。`alpha` 承载呼吸/闪灼相位。
+ */
+export function drawStateRing(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  size: number,
+  stroke: string,
+  alpha = 1,
+  lineWidth = 2,
+): void {
+  const radius = Math.round(size * BEAD_CARD.radius);
+  builder.rect(cx - size / 2, cy - size / 2, size, size, {
+    stroke,
+    lineWidth,
+    radius,
+    alpha,
+  });
+}

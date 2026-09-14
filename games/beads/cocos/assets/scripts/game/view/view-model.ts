@@ -37,6 +37,9 @@ import {
   TRAY_COLS,
   TRAY_GAP,
   TRAY_SLOT,
+  WRONG_SHAKE_PX,
+  HINT_PULSE_MS,
+  DANGER_PULSE_MS,
 } from '../config/tuning';
 import type { BeadsSnapshot } from '../game/state';
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel';
@@ -47,6 +50,7 @@ import {
   drawEmptySocket,
   drawFilledBead,
   drawLockedBead,
+  drawStateRing,
 } from './bead-render';
 import {
   BEAD_SHADOW_HEX,
@@ -364,6 +368,26 @@ function drawFailPanel(
 
 // ───────────────────────────────────────────────────────────────────── HUD
 
+/**
+ * 三角波呼吸：以 `clock` 为单调时基、`period` 为周期，在 `[lo, hi]` 间往返。
+ * 相位起点不影响观感（连续循环），频率与幅度才是规格锁定项（hint 1.67Hz、告急 1Hz）。
+ */
+function breathe(clock: number, period: number, lo: number, hi: number): number {
+  const p = (clock % period) / period; // 0..1
+  const tri = p < 0.5 ? p * 2 : 2 - p * 2; // 0→1→0
+  return lo + (hi - lo) * tri;
+}
+
+/** GAP-03/04 `hint` 呼吸 α：0.5↔1.0 @600ms。 */
+function hintAlpha(clock: number): number {
+  return breathe(clock, HINT_PULSE_MS, 0.5, 1);
+}
+
+/** GAP-10 告急 α 脉冲：0.6↔1.0 @1000ms（§7「1→0.6→1」，起点相位不定）。 */
+function dangerAlpha(clock: number): number {
+  return breathe(clock, DANGER_PULSE_MS, 0.6, 1);
+}
+
 function drawHud(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
@@ -371,13 +395,25 @@ function drawHud(
 ): void {
   const midY = (HUD_BAND.yMin + HUD_BAND.yMax) / 2;
 
-  // Timer capsule (centre): danger colour when urgent (§3.5 channel 1).
+  // GAP-10 倒计时告急三通道（§3.8「图标+颜色+脉冲」）：色已由 urgent→danger，
+  // 此处补上时钟图标（平时湖蓝、告急切 danger）与告急时的 α 脉冲。
+  const a = snap.urgent ? dangerAlpha(snap.pulseClock) : 1;
   const timerColor = snap.urgent ? palette.danger : palette.text;
+
+  // Clock icon (left of the number): circle outline + two hands.
+  const iconColor = snap.urgent ? palette.danger : palette.textDim;
+  const icx = DESIGN_W / 2 - 96;
+  const iconStroke = withAlpha(iconColor, a);
+  builder.circle(icx, midY, 14, { stroke: iconStroke, lineWidth: 3 });
+  builder.line(icx, midY, icx, midY + 8, iconStroke, 3); // 分针
+  builder.line(icx, midY, icx + 6, midY, iconStroke, 3); // 时针
+
   builder.text(DESIGN_W / 2, midY, formatTime(snap.remaining), {
     fill: timerColor,
     font: FONT.timer,
     align: 'center',
     baseline: 'middle',
+    alpha: a,
   });
 
   // Pause gear (left): a circle + notches; hit area handled by the game (S2).
@@ -434,21 +470,35 @@ function drawGrid(
       const cx = snap.gridLeft + BEAD_CELL / 2 + BEAD_PITCH * j;
       const cy = snap.gridTop - BEAD_CELL / 2 - BEAD_PITCH * i;
 
+      // GAP-04 `wrong` 态：被拒格整层水平抖动（±px，200ms 内摆 2 次）。
+      const isWrong = i === snap.wrongRow && j === snap.wrongCol && snap.wrongProgress > 0;
+      const dx = isWrong ? WRONG_SHAKE_PX * Math.sin(snap.wrongProgress * Math.PI * 4) : 0;
+      const bx = cx + dx;
+
       if (cell.state === 'locked') {
         // Locked bead: flat locked fill + 45° hatch (§1.2) — no highlight, no symbol.
-        drawLockedBead(builder, cx, cy, palette);
+        drawLockedBead(builder, bx, cy, palette);
         continue;
       }
 
       if (cell.state === 'empty') {
         // Empty socket — 传目标色 colorIdx 绘 E1 色底 + E4 幽灵符号（§1.2 / §3.8），
         // 使未填态即可读出该格要填的颜色；仍无投影/倒角/高光 → 不致误读为已填珠。
-        drawEmptySocket(builder, cx, cy, palette, BEAD_CELL, cell.colorIdx);
+        drawEmptySocket(builder, bx, cy, palette, BEAD_CELL, cell.colorIdx);
+        // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
+        if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
+          drawStateRing(builder, bx, cy, BEAD_CELL, palette.hintBlue, hintAlpha(snap.pulseClock));
+        }
+        // GAP-04 `wrong`：danger 描边闪 2 次（与抖动同格同帧）。
+        if (isWrong) {
+          const flash = 0.4 + 0.6 * Math.abs(Math.sin(snap.wrongProgress * Math.PI * 2));
+          drawStateRing(builder, bx, cy, BEAD_CELL, palette.danger, flash);
+        }
         continue;
       }
 
       // Filled bead — full six-layer card incl. the L5 symbol channel (§1.1).
-      drawFilledBead(builder, cx, cy, cell.colorIdx);
+      drawFilledBead(builder, bx, cy, cell.colorIdx);
     }
   }
 }
@@ -503,6 +553,10 @@ function drawTray(
     });
     if (selected) {
       builder.circle(cx, slotBottom - 8, 4, { fill: palette.textAccent });
+    }
+    // GAP-03 引导：首珠所在槽外描边脉冲呼吸（与目标格 `hint` 同周期、同色）。
+    if (snap.onboarding && idx === snap.guideSlot) {
+      drawStateRing(builder, cx, cy, TRAY_SLOT, palette.hintBlue, hintAlpha(snap.pulseClock));
     }
   }
 }

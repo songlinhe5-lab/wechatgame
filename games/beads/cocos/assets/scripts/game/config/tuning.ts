@@ -345,6 +345,16 @@ export const PANEL_OUT_MS = 150;
 /** Enter scale start → 1.0 (ux-spec §5: scale 0.9→1.0). */
 export const PANEL_SCALE_FROM = 0.9;
 
+// ────────────── §GAP-04/03/10 反馈态动效（来源：ux-spec §5 / art-bible §7，WXG-T-087）
+/** `wrong`（放错拒绝）：±px 抖动 ×2 + danger 描边闪 2 次的总时长（ux-spec §5 200）。 */
+export const WRONG_FX_MS = 200;
+/** `wrong` 水平抖动幅度（±px，art §7「位移 ±3px」；≤2 次/秒红线由 §3.8 保证）。 */
+export const WRONG_SHAKE_PX = 3;
+/** `hint` / 引导脉冲呼吸周期（α 0.5↔1.0，600ms ≈1.67Hz，落 §3.8 ≤3Hz 红线内）。 */
+export const HINT_PULSE_MS = 600;
+/** 倒计时告急 α 脉冲周期（1→0.6→1，ux-spec §5 / art §7「1000/循环」）。 */
+export const DANGER_PULSE_MS = 1000;
+
 /** Fail-panel primary/retry width (ux-spec §3.5: 480×88). */
 export const FAIL_PRIMARY_W = 480;
 export const FAIL_BUTTON_H = TOUCH_MIN;
