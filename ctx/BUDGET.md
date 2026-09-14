@@ -11,12 +11,12 @@
 | `AGENTS.md` | 1743 | 120 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 374 | 24 | 500 | ✅ |
-| `ctx/hot-files.md` | 3781 | 94 | 4000 | ✅ |
+| `ctx/hot-files.md` | 3913 | 94 | 4000 | ✅ |
 | `ctx/ROUTES.md` | 6535 | 225 | 7500 | ✅ |
 
 > AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
 > `ctx/ROUTES.md` 常驻阈值 **7500**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，且低于 B 项通用单文件上限 8000——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。
-> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **12687** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
+> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **12819** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
 
 ## 2. Top 20 大文件（估算 tokens）
 
@@ -39,9 +39,9 @@
 | 15 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
 | 16 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 17 | `production/qa/test-cases.md` | 7097 | 296 | normal |
-| 18 | `memory/2026-09-13.md` | 6645 | 149 | normal |
-| 19 | `docs/engine-reference/cocos/VERSION.md` | 6554 | 290 | normal |
-| 20 | `ctx/ROUTES.md` | 6535 | 225 | normal |
+| 18 | `docs/agent/cocos-setup.md` | 7054 | 364 | normal |
+| 19 | `memory/2026-09-13.md` | 6645 | 149 | normal |
+| 20 | `docs/engine-reference/cocos/VERSION.md` | 6554 | 290 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

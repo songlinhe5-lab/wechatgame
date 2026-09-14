@@ -172,7 +172,7 @@ compose/createApp(platform)                    # compose/app.ts（矩阵级，�
 | §5 假设对账（含激励视频读码确认） | ✅ 完成（1 条不成立已上报） |
 | Epic/Story 拆分 | ✅ `production/epics/epics-beads.md` |
 | games/beads/src 实现 | ✅ S1–S5 / S8 / S9 / 冲刺模式已交付（12 个测试文件 / 107 用例）；**S6 道具未实现** |
-| Cocos 工程 | ❌ 仍未创建（ADR-0003 判例；**编辑器已就绪**，阻塞项由「无编辑器」变为「未立项建工程」） |
+| Cocos 工程 | ❌ 仍未创建（ADR-0003 判例）——**编辑器已就绪**（Cocos 3.8.8 + 预览/构建链实测通过，见 `VERSION.md`），且**仓库侧前置已就绪**：`framework:sync` 已泛化为多游戏、`build:cocos` 已按 per-package 声明、逐步清单见 `docs/agent/cocos-setup.md §13`。剩余动作只有一项：**在编辑器 GUI 里创建工程**（L1 禁止伪造 `.scene`/`.meta`） |
 
 > **截至 2026-09-14 的与实现出入（WXG-T-052 对账，逐条已修正或登记）**
 >

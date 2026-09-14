@@ -242,3 +242,123 @@ ADR-0009 §3.4 的「一份配置，四处生效」指 **URL 统一**；实际�
    - 产物默认落**工程内** `games/<game>/cocos/build/<platform>/`（与 `architecture.md §1/§5` 的 `games/<game>/build/` 不同）；`check:size` 两处都扫，避免"产物在、门禁说没有"的静默跳过。
    - 仅看渲染/手感用 `pnpm run build:cocos:web`（web-mobile，**免 AppID**）；微信目标用 `pnpm run build:cocos`（需有效 AppID）。
    - **多游戏调用约定**（WXG-T-048）：`build:cocos` 声明在**各游戏自己的 `package.json`**，根层用 `pnpm -r` 聚合（与既有 `test` / `typecheck` 同构）。理由：`games/<game>/cocos/` 是**每款游戏都有**的目录，根层裸 `build:cocos` 无法表达"构建哪一款"；per-package 声明让 cwd 自带 game 身份，且**新增游戏零改根脚本**。
+
+---
+
+## 13. beads 工程落地清单（WXG-T-053）
+
+> 背景：`games/breakout/cocos/` 已存在并跑通预览/构建；**beads 的 Cocos 工程尚未创建**。
+> 本节是 beads 版的逐步清单。除「步骤 A」必须在编辑器 GUI 里做，其余全部可在仓库侧完成。
+
+### 13.1 顺序约定（**先读这条，否则会撞目录**）
+
+**仓库侧不预建 `games/beads/cocos/`。** 原因：编辑器「新建工程」会在目标路径下创建工程目录，
+若该目录已存在且非空，创建很可能直接失败。因此顺序是：
+
+```
+① 你在编辑器里建工程（步骤 A）  →  ② 仓库侧补齐其余文件（步骤 B）  →  ③ 同步 → 构建（步骤 C）
+```
+
+`tools/scripts/sync-framework-to-cocos.mjs` 与 `tools/scripts/check-cocos-scripts.mjs` 都已按
+`games/*` 遍历：**没有 `cocos/` 的游戏会被明确跳过并打印**（不静默当作"同步成功"）。
+
+### 13.2 步骤 A — 编辑器 GUI（唯一必须人工的一步，约 5 分钟）
+
+| # | 动作 | 值 |
+|---|---|---|
+| A1 | Cocos Dashboard → **新建** → Empty（2D）模板 | 工程落点 **`games/beads/cocos/`**（照 `games/breakout/cocos/README.md` §3） |
+| A2 | 项目设置 → 项目数据 | 设计宽度 `750`、设计高度 `1334`、适配 **Fit Height**（竖屏） |
+| A3 | 项目设置 → 功能裁剪 | **照抄 `games/breakout/cocos/settings/v2/packages/engine.json` 的 `includeModules`**（10 个模块：`2d`/`affine-transform`/`base`/`custom-pipeline`/`gfx-webgl`/`gfx-webgl2`/`graphics`/`intersection-2d`/`profiler`/`ui`）。<br>**依据**：beads 的 `games/beads/src/**` 按 L3 铁律**不 import `cc`**，实际用到的引擎能力全部来自 `packages/framework/src/adapters/cocos/**` —— 与 breakout **同一份适配器** ⇒ 模块集应当**完全相同**，不存在 beads 特有模块 |
+| A4 | `assets/` 右键 → 创建 → 场景，命名 `Main`；双击打开 | **不要**添加任何节点 |
+| A5 | 层级空白处右键 → 创建 → 空节点，命名 `GameRoot` | 选中后加组件 `UITransform`（内容尺寸 `750 × 1334`）+ `BeadsBootstrap`（见 13.3） |
+| A6 | 保存场景，然后**设为起始场景** | 项目设置 → 项目数据 → **起始场景 = `Main`** |
+| A7 | 构建面板：平台 **微信小游戏**；**输出目录改成 `games/beads/build/wechatgame`** | Cocos 默认落在工程内 `cocos/build/wechatgame`，与 `architecture.md §1/§5` 约定不同。（`pnpm run check:size` 两处都扫，故不改也不静默漏检，但建议改） |
+
+> ⚠️ **A6 不是可选项。** 起始场景若留「当前场景」，预览会依赖"编辑器此刻开着哪个场景"；
+> 编辑器刚重启、场景尚未恢复时收到预览请求 → `无法查到当前场景 JSON 数据(start_scene) = current_scene`
+> （2026-09-14 实测复现，见 `memory/2026-09-14.md`）。固定成 `Main` 后该竞态消失。
+>
+> ⚠️ **`.scene` / `.prefab` / `.meta` 必须由编辑器生成**（L1）。A4/A5 请在 GUI 里点出来，不要让我或脚本伪造。
+
+### 13.3 步骤 B — 仓库侧补齐（工程建好后**一次做完**）
+
+**B1 · `games/beads/cocos/assets/scripts/BeadsBootstrap.ts`**（照 breakout 范式，`ccclass` 名唯一）：
+
+```ts
+import { _decorator } from 'cc';
+
+import { Bootstrap } from './framework/adapters/cocos/bindings';
+import type { Game } from './framework/core/game/game';
+import { createBeadsGame } from './game/index';
+
+const { ccclass } = _decorator;
+
+@ccclass('BeadsBootstrap')
+export class BeadsBootstrap extends Bootstrap {
+  protected createGame(): Game {
+    return createBeadsGame();
+  }
+}
+```
+
+> 导入指向 `assets/scripts/` 内的**拷贝件**（`framework/**` 与 `game/**` 由 `framework:sync` 生成，
+> 禁止手改）。相对导入**无 `.js` 后缀**——Cocos 3.8.8 执行期模块加载器不解析 `.js` 后缀
+> （编译期 tsc 可解析，两回事）。
+
+**B2 · `games/beads/cocos/settings/`**：`mcp-server.json`、`tool-manager.json` 照 breakout 抄
+（编辑器也会写；键名以扩展 `settings.ts` 的 `DEFAULT_SETTINGS` 为准，`debugLog` 是**失效旧键**）。
+
+**B3 · `games/beads/cocos/README.md`** —— 照 `games/breakout/cocos/README.md` 改路径/命令，
+`build-cocos.mjs` 的前置检查提示会指向它。
+
+**B4 · 不在本步做的事**：不要复制 breakout 的 `assets/Main.scene`。场景里的节点 `id` 是相对顺序索引，
+带过来的是**另一个工程的引用**，必然断裂（ADR-0003）。
+
+### 13.4 步骤 C — 同步、检查、构建（命令）
+
+```bash
+# 1) 同步拷贝件（这一次会首次为 beads 生成 framework/** 与 game/**）
+pnpm run framework:sync
+pnpm run framework:sync:check       # 应变成「breakout…；beads…」两句一致
+
+# 2) Cocos 脚本类型检查（依赖编辑器生成的 temp/declarations，故必须在打开过工程之后）
+pnpm run cocos:check                # 应报「检查 2、跳过 0」
+
+# 3) 免 AppID 的落地路径：web-mobile（可同 Wi-Fi 手机浏览器看手感）
+pnpm run build:cocos:web            # 注意：beads 也已声明 build:cocos，根层 pnpm -r 会两款都跑
+
+# 4) 微信目标（需有效 AppID）
+pnpm run build:cocos --release      # 包体基线**必须** release，debug 含 sourcemap 且不压缩
+pnpm run check:size                 # 阈值真源：games/beads/design/gdd/systems-index.md §3.8
+```
+
+> `build-cocos.mjs` 的 `--game=` 可显式指定单款（任意 cwd）：
+> `node tools/scripts/build-cocos.mjs --game=beads --platform=web-mobile`。
+
+### 13.5 beads 的预期与特有风险
+
+| 项 | 预期 | 依据 / 风险 |
+|---|---|---|
+| 主包体积 | 与 breakout **同量级**（≈1815 KB 的引擎 + 更小的业务代码） | 引擎模块集相同 ⇒ `cocos-js/` 应接近；beads 零位图美术（`assets-spec §3`：主包美术位图 0 KB）。**这是预测，不是实测** |
+| 内部目标 | 主包 ≤ **2000 KB**（红线 4096 / 合计 30720） | `games/beads/design/gdd/systems-index.md` §3.8/§3.9（beads 自己的真源，勿套用了 breakout 的数字） |
+| **真机帧率** | **未知，且这次比 breakout 更重** | `architecture-beads.md` §8 **R1**。满格 13×12 时 `view-model` 产出 **≥1248 条指令/帧**（每珠 8 条：L0/L1/L2×2/L3×2/L4 + L5 符号）。**符号通道落地前每珠只有 2 条**，即 R1 的暴露面在 WXG-T-052 才真正变大 —— 这是本节最需要实测的一项，触发信号「真机 <30fps」 |
+| 文字居中 | 可能偏 | 缺口 G3（`_anchorForText` 用 `0.55` 估算宽度）在 breakout 侧**未闭环**；beads 的 HUD/面板文字同样走该路径 |
+| 玩法/手感 | 应无偏差 | 同一份 `RenderModel` 已在浏览器 harness 跑通（`?game=beads`），且 `harness:smoke` 已纳入 CI |
+
+### 13.6 检查表
+
+```
+[ ] A1 工程已创建于 games/beads/cocos/（设计分辨率 750×1334，Fit Height）
+[ ] A3 功能裁剪已与 breakout 的 engine.json 完全一致
+[ ] A4/A5 Main.scene 里只有 GameRoot + UITransform + BeadsBootstrap
+[ ] A6 起始场景已固定为 Main（不是「当前场景」）
+[ ] A7 构建输出目录已改为 games/beads/build/wechatgame
+[ ] B1 BeadsBootstrap.ts 已落盘，createGame() 返回 createBeadsGame()
+[ ] B3 games/beads/cocos/README.md 已落盘
+[ ] C  pnpm run framework:sync → framework:sync:check 两款游戏均一致
+[ ] C  pnpm run cocos:check 报「检查 2、跳过 0」
+[ ] C  pnpm run build:cocos --release 成功 → pnpm run check:size 通过
+[ ] C  真机跑一次，记录 R1 的实测帧率并回填 architecture-beads.md §8
+[ ] C  assets/** 与其 .meta 已提交（library/ temp/ local/ profiles/ build/ .creator/ 不入库）
+```
+

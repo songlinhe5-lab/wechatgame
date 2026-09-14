@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1878,
+      "tokens": 1881,
       "lines": 84,
-      "sha256": "e76e96efcee1241fe3bdd06b15467bd707c0e297eef2c927d55041ddc716fdf3",
+      "sha256": "5f6b3f5d82ff4e67698c368334895b15b23b9f0ea82ad59d6d098d4aa3f30fc7",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 85,
-          "tokens": 1865,
+          "tokens": 1868,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 421,
+          "tokens": 424,
           "summary": "1 games/breakout/cocos/extensions/cocos-mcp-server/README.ru",
           "keywords": [
             "Top",
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3781,
+      "tokens": 3913,
       "lines": 94,
-      "sha256": "69b84cf289d590c88b835db2ff37e866b2e254d46cde31763e0fe44520147be7",
+      "sha256": "bc5e3741bb68c714a983c0ba44539d4e363602f0c50762d818bb0179bc3099cb",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 3753,
+          "tokens": 3885,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -497,7 +497,7 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/architecture-beads.md` — 190 行 / 4248 tok / 实测读 35 次",
+          "anchor": "§`docs/architecture/architecture-beads.md` — 190 行 / 4328 tok / 实测读 35 次",
           "level": 2,
           "startLine": 10,
           "endLine": 13,
@@ -752,12 +752,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/cocos-setup.md` — 244 行 / 4823 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 364 行 / 7054 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
-          "tokens": 222,
-          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+245 ·",
+          "tokens": 355,
+          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+365 ·",
           "keywords": [
             "docs/agent/cocos-setup.md",
             "docs",
@@ -1067,17 +1067,17 @@
     },
     {
       "path": "docs/agent/cocos-setup.md",
-      "tokens": 4823,
-      "lines": 244,
-      "sha256": "ff662e3062d0ce6b6bdf8ce9386d78780e1f6e30c228c2b686998fad33cce961",
+      "tokens": 7054,
+      "lines": 364,
+      "sha256": "0dffdfeb9742e2ecbb71fc735eef1981c12aa51e91fa9829122e3ca38ff80292",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 245,
-          "tokens": 4805,
+          "endLine": 365,
+          "tokens": 7036,
           "summary": "来源：ADR-0009 §3.4「四 IDE 接入方式」的可执行展开 · 2026-09-13 · Task ID WX",
           "keywords": [
             "§3.4",
@@ -1304,8 +1304,8 @@
           "anchor": "§12 本次已知未完成项（诚实记录）",
           "level": 2,
           "startLine": 232,
-          "endLine": 245,
-          "tokens": 931,
+          "endLine": 247,
+          "tokens": 932,
           "summary": "1. Qoder 已实证收口（WXG-T-046）：官方文档确认项目级读根 /.mcp.json，字段与 explici",
           "keywords": [
             "Qoder",
@@ -1314,6 +1314,111 @@
             "json",
             "explici",
             "本次已知未完"
+          ]
+        },
+        {
+          "anchor": "§13 beads 工程落地清单（WXG-T-053）",
+          "level": 2,
+          "startLine": 248,
+          "endLine": 365,
+          "tokens": 2217,
+          "summary": "背景：games/breakout/cocos/ 已存在并跑通预览/构建；beads 的 Cocos 工程尚未创建。",
+          "keywords": [
+            "beads",
+            "WXG",
+            "games",
+            "breakout",
+            "cocos",
+            "Cocos"
+          ]
+        },
+        {
+          "anchor": "§13.1 顺序约定（**先读这条，否则会撞目录**）",
+          "level": 3,
+          "startLine": 253,
+          "endLine": 264,
+          "tokens": 173,
+          "summary": "仓库侧不预建 games/beads/cocos/。 原因：编辑器「新建工程」会在目标路径下创建工程目录，",
+          "keywords": [
+            "games",
+            "beads",
+            "cocos",
+            "顺序约定",
+            "先读这条",
+            "否则会撞目录"
+          ]
+        },
+        {
+          "anchor": "§13.2 步骤 A — 编辑器 GUI（唯一必须人工的一步，约 5 分钟）",
+          "level": 3,
+          "startLine": 265,
+          "endLine": 282,
+          "tokens": 597,
+          "summary": "A1 Cocos Dashboard → 新建 → Empty（2D）模板 工程落点 games/beads/cocos",
+          "keywords": [
+            "GUI",
+            "Cocos",
+            "Dashboard",
+            "Empty",
+            "games",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§13.3 步骤 B — 仓库侧补齐（工程建好后**一次做完**）",
+          "level": 3,
+          "startLine": 283,
+          "endLine": 316,
+          "tokens": 384,
+          "summary": "B1 · games/beads/cocos/assets/scripts/BeadsBootstrap.ts（照 br",
+          "keywords": [
+            "games",
+            "beads",
+            "cocos",
+            "assets",
+            "scripts",
+            "BeadsBootstrap"
+          ]
+        },
+        {
+          "anchor": "§13.4 步骤 C — 同步、检查、构建（命令）",
+          "level": 3,
+          "startLine": 317,
+          "endLine": 337,
+          "tokens": 282,
+          "summary": "",
+          "keywords": [
+            "步骤",
+            "同步",
+            "检查",
+            "构建",
+            "命令"
+          ]
+        },
+        {
+          "anchor": "§13.5 beads 的预期与特有风险",
+          "level": 3,
+          "startLine": 338,
+          "endLine": 347,
+          "tokens": 354,
+          "summary": "主包体积 与 breakout 同量级（≈1815 KB 的引擎 + 更小的业务代码） 引擎模块集相同 ⇒ cocos-",
+          "keywords": [
+            "beads",
+            "breakout",
+            "cocos",
+            "的预期与特有",
+            "风险"
+          ]
+        },
+        {
+          "anchor": "§13.6 检查表",
+          "level": 3,
+          "startLine": 348,
+          "endLine": 365,
+          "tokens": 249,
+          "summary": "",
+          "keywords": [
+            "检查表"
           ]
         }
       ]
@@ -4147,9 +4252,9 @@
     },
     {
       "path": "docs/architecture/architecture-beads.md",
-      "tokens": 4248,
+      "tokens": 4328,
       "lines": 190,
-      "sha256": "60c705a9fc7381bfc2c7069978fa7850f6691fedc5e3ec8568ffdf6f5b30cf9e",
+      "sha256": "9756cb1d2090a7131a39172a178b58eb0ba590f35fd0609adb87dc487ce4e321",
       "tier": "hot",
       "sections": [
         {
@@ -4157,7 +4262,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 191,
-          "tokens": 4226,
+          "tokens": 4306,
           "summary": "版本：0.1.0",
           "keywords": [
             "beads",
@@ -4294,7 +4399,7 @@
           "level": 2,
           "startLine": 167,
           "endLine": 191,
-          "tokens": 548,
+          "tokens": 628,
           "summary": "本架构文档 + ADR-0004…0007 ✅ 完成",
           "keywords": [
             "ADR",
