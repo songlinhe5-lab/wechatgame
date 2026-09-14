@@ -50,7 +50,13 @@
 | `spawnFullReported` | boolean | 满槽告警去重闩 | 缺省 `false` | — |
 | **道具次数** `powerupUses` | `{ region, clearAll, random }` 各 ∈ [0, `POWERUP_FREE_USES`] | S6 三计数；**S6 未入 src 前字段可缺省，缺省 = 初值** | 越界钳初值，不丢整份快照 | 不入 S8（仍遵守「不跨关累积」） |
 | **扩展态** | = `trayExpanded` | 不另开字段 | — | 与 §3.5 五项里的扩展同一事实 |
-| **sprint 运行时态** `sprint` | `null`（普通）或 `{ streak, multiplier, tier, score, stageIndex, bestStage, windowRemaining }` | 仅 `mode==='sprint'` | 普通关出现非 null → 丢；冲刺缺字段 → 丢 | `sprintBestScore` **不写这里**（那是 S8 长期最佳） |
+| **sprint 运行时态** `sprint` | `null`（普通）或 `{ streak, multiplier, tier, score, stageIndex, bestStage, bestStreak, windowRemaining }` | 仅 `mode==='sprint'` | 普通关出现非 null → 丢；冲刺缺字段 → 丢（**例外见下**） | `sprintBestScore` **不写这里**（那是 S8 长期最佳） |
+
+> **`bestStreak` 的例外（WXG-T-067 增补，2026-09-14）**：它是 `ux-spec §3.5` 左列「▸×5 最高连击 14」
+> 的**展示量**，**缺省 ⇒ 0，不弃整份快照**——为一行结算文案丢掉玩家整局恢复档不划算（与
+> `powerupUses` 的「越界钳初值、不丢整份快照」同判例）。其余 sprint 字段仍按上表「缺字段 → 丢」。
+> 连带口径：`SprintTracker.restore()` 取 `max(bestStreak, streak)`（不变量「历史最高 ≥ 当前」，
+> 与 `bestStage` 同）。
 
 **明确永不入快照**
 

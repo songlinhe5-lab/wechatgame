@@ -72,6 +72,7 @@ import {
 import { Tray } from '../entities/tray.js';
 import { PowerupSystem } from '../systems/powerups.js';
 import { FinishPanel, type FinishPanelAction } from '../systems/finish-panel.js';
+import { SprintSettlePanel, type SprintSettleAction } from '../systems/sprint-settle.js';
 import {
   ClearPanel,
   type ClearPanelAction,
@@ -183,6 +184,12 @@ export class BeadsGame implements Game {
   private readonly _starsByLevel: number[] = [];
   /** 已触发过入场音效的**关数**（每关一次，逐关 150ms）。 */
   private _finishRowsAnnounced = 0;
+  /**
+   * S7 冲刺结算面板（`ux-spec §3.5` **左列**，WXG-T-067）：冲刺归零时复用 `GAME_OVER`
+   * 相位展示「单局 / 最高梯位 / 最高连击」+ 双钮（再来一局 / 返回关卡），且**不出现**
+   * 续时主钮（§3.5 明文）。
+   */
+  private readonly _sprintSettle = new SprintSettlePanel();
   /**
    * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
    * Gear → `'manual'`; WeChat `onHide` → `'system'`. Both stay on the
@@ -401,6 +408,7 @@ export class BeadsGame implements Game {
     this._panel.update(dt * 1000);
     this._clearPanel.update(dt * 1000); // 结算面板同理：退出淡出要在离开 LEVEL_CLEAR 后跑完
     this._finishPanel.update(dt * 1000); // 通关画面同理
+    this._sprintSettle.update(dt * 1000); // 冲刺结算面板同理
   }
 
   buildRenderModel(builder: RenderModelBuilder): void {
@@ -531,6 +539,7 @@ export class BeadsGame implements Game {
     if (this._machine.current !== 'game-over') return false;
     this._watchingAd = false;
     this._failHint = '';
+    this._sprintSettle.close(); // 冲刺结算淡出由 `update()` 跑完（与其余面板同判例）
     this._crash?.clear(); // D-03（提案 §3）：重开本局 ⇒ 旧快照失效
     if (this._mode === 'sprint') {
       this._setupSprintRun();
@@ -594,6 +603,7 @@ export class BeadsGame implements Game {
   /** Leave sprint back to the normal campaign at the current level. */
   startNormal(): void {
     this._mode = 'normal';
+    this._sprintSettle.close(); // 「返回关卡」出口：面板退场（§3.5 左列副钮）
     this.goToLevel(this._levelIndex);
   }
 
@@ -685,6 +695,7 @@ export class BeadsGame implements Game {
               score: sprint.score,
               stageIndex: sprint.stageIndex,
               bestStage: sprint.bestStage,
+              bestStreak: sprint.bestStreak,
               windowRemaining: sprint.windowRemaining,
             }
           : null,
@@ -855,7 +866,10 @@ export class BeadsGame implements Game {
         onEnter: (game) => {
           const levelId = game._mode === 'sprint' ? 'sprint' : levelIdOf(game._levels[game._levelIndex]!);
           game._emit('level:failed', { levelId });
-          if (game._mode === 'sprint') game._recordSprintEnd();
+          if (game._mode === 'sprint') {
+            game._recordSprintEnd(); // 先结算（NEW BEST 与写盘），再开面板（§8-11 的显示依据）
+            game._sprintSettle.open();
+          }
           game._crash?.clear(); // D-03（提案 §3）：失败即删
         },
       })
@@ -1068,7 +1082,15 @@ export class BeadsGame implements Game {
       }
       case 'game-over':
         if (this._mode === 'sprint') {
-          this.retryLevel();
+          // `ux-spec §3.5` 左列冲刺结算：只认两个按钮（再来一局 / 返回关卡）——
+          // 面板外点击零响应。此前任意点击都直接重开本局 ✗（与 FINISH 的旧毛病同型）。
+          const settle: SprintSettleAction | null = this._sprintSettle.hitTest(x, y);
+          if (settle) {
+            this._consumedTap = true;
+            this._sfx(AUDIO_CLIP_UI_TAP);
+            if (settle === 'back') this.startNormal();
+            else this.retryLevel();
+          }
           return;
         }
         {
@@ -1544,6 +1566,11 @@ export class BeadsGame implements Game {
     return this._finishPanel;
   }
 
+  /** S7 冲刺结算面板逻辑（暴露给测试；只读用法，写路径走两个按钮动作）。 */
+  get sprintSettle(): SprintSettlePanel {
+    return this._sprintSettle;
+  }
+
   /** 每关历史最好星级（`0` = 未通关）—— 通关画面总览的数据源（测试读它）。 */
   get starsByLevel(): readonly number[] {
     // 内部按需写入（稀疏）；对外一律**稠密**（未通关 = 0），与快照同一契约。
@@ -1624,6 +1651,13 @@ export class BeadsGame implements Game {
     const finishRows = this._finishPanel.rowsShown(this._levels.length);
     s.finishRowsShown = finishRows;
     s.finishRowPopScale = finishRows > 0 ? this._finishPanel.rowPopScale(finishRows - 1) : 1;
+
+    // S7 冲刺结算面板（ux-spec §3.5 左列）：内容行数据 + 入/出进度一起进快照。
+    s.sprintSettleVisible = this._sprintSettle.visible;
+    s.sprintSettleProgress = this._sprintSettle.progress;
+    s.sprintSettleInteractive = this._sprintSettle.interactive;
+    s.sprintRunBestStage = this._sprint.bestStage;
+    s.sprintRunBestStreak = this._sprint.bestStreak;
 
     // Tray slots (rebuild on capacity change, i.e. expansion).
     if (s.traySlots.length !== this._tray.capacity) {

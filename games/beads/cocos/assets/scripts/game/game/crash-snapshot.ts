@@ -57,6 +57,11 @@ export interface CrashSprintState {
   readonly score: number;
   readonly stageIndex: number;
   readonly bestStage: number;
+  /**
+   * 本局最高连击（`ux-spec §3.5` 左列的展示量，WXG-T-067 增补；缺省 ⇒ 0，**不弃整份快照**
+   * ——纯展示量不值得为它丢一局恢复档）。
+   */
+  readonly bestStreak: number;
   readonly windowRemaining: number;
 }
 
@@ -251,6 +256,7 @@ export function parseCrashSnapshot(raw: unknown, ctx: CrashContext): CrashReadRe
       const score = need('score');
       const stageIndex = nonNegInt(sprintRaw['stageIndex']);
       const bestStage = nonNegInt(sprintRaw['bestStage']);
+      const bestStreak = nonNegInt(sprintRaw['bestStreak']) ?? 0;
       const windowRemaining = need('windowRemaining');
       if (
         streak === null ||
@@ -263,7 +269,16 @@ export function parseCrashSnapshot(raw: unknown, ctx: CrashContext): CrashReadRe
       ) {
         return bad('sprint 子字段缺失或非法');
       }
-      sprint = { streak, multiplier, tier, score, stageIndex, bestStage, windowRemaining };
+      sprint = {
+        streak,
+        multiplier,
+        tier,
+        score,
+        stageIndex,
+        bestStage,
+        bestStreak,
+        windowRemaining,
+      };
     } else if (sprintRaw !== null && sprintRaw !== undefined) {
       return bad('普通关携带了非空 sprint（提案 §4：丢）');
     }

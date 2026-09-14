@@ -68,6 +68,13 @@ import {
   finishPanelLabel,
   finishPanelLayout,
 } from '../systems/finish-panel';
+import {
+  SPRINT_SETTLE_NEW_BEST,
+  SPRINT_SETTLE_TITLE,
+  sprintSettleLabel,
+  sprintSettleLayout,
+  sprintSettleRows,
+} from '../systems/sprint-settle';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -112,6 +119,7 @@ export function buildBeadsView(
   drawFinishPanel(builder, snap, palette);
   drawPausePanel(builder, snap, palette);
   drawFailPanel(builder, snap, palette);
+  drawSprintSettle(builder, snap, palette);
   drawBanners(builder, snap, palette);
 }
 
@@ -183,6 +191,102 @@ function drawPausePanel(
 
 function usesFailOverlay(snap: BeadsSnapshot): boolean {
   return snap.phase === 'game-over' && snap.mode === 'normal';
+}
+
+// ─────────────────────────────────────── sprint settle (ux-spec §3.5 左列)
+
+/**
+ * 冲刺结算面板（`GAME_OVER` · 冲刺态）：三行内容（单局 / 最高梯位 / 最高连击）+ NEW BEST
+ * 角标（`score-combo §8-11`：**仅破纪录时渲染**）+ 双钮。**不画续时主钮**（§3.5 明文：
+ * 「冲刺归零：不出现续时主钮，只走左列冲刺结算」）。
+ *
+ * 几何取自 `sprintSettleLayout()`（与命中测试**同一真源**），文案取自 `sprintSettleRows()`
+ * （纯函数）——视图不自持数据、不自持计时。
+ */
+function drawSprintSettle(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  if (!snap.sprintSettleVisible) return;
+  const layout = sprintSettleLayout();
+  const plate = layout.panel;
+
+  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+    fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
+  });
+  builder.rect(plate.xMin, plate.yMin, plate.xMax - plate.xMin, plate.yMax - plate.yMin, {
+    fill: palette.panel,
+    stroke: palette.slotBorder,
+    lineWidth: 1,
+    radius: 24,
+  });
+
+  builder.text(DESIGN_W / 2, layout.titleY, SPRINT_SETTLE_TITLE, {
+    fill: palette.text,
+    font: FONT.panelTitle,
+    align: 'center',
+    baseline: 'middle',
+  });
+  if (snap.isNewBest) {
+    const badge = layout.badge;
+    builder.rect(badge.xMin, badge.yMin, badge.xMax - badge.xMin, badge.yMax - badge.yMin, {
+      fill: palette.textAccent,
+      radius: 8,
+    });
+    builder.text(
+      (badge.xMin + badge.xMax) / 2,
+      (badge.yMin + badge.yMax) / 2,
+      SPRINT_SETTLE_NEW_BEST,
+      { fill: palette.text, font: FONT.hudSmall, align: 'center', baseline: 'middle' },
+    );
+  }
+
+  const values = sprintSettleRows({
+    score: snap.score,
+    bestStage: snap.sprintRunBestStage,
+    bestStreak: snap.sprintRunBestStreak,
+  });
+  for (let i = 0; i < layout.rows.length; i++) {
+    const row = layout.rows[i]!;
+    if (row.label) {
+      builder.text(row.labelX, row.y, row.label, {
+        fill: palette.textDim,
+        font: FONT.sub,
+        align: 'center',
+        baseline: 'middle',
+      });
+    }
+    builder.text(row.valueX, row.y, values[i] ?? '', {
+      fill: palette.text,
+      font: FONT.hudSmall,
+      align: 'center',
+      baseline: 'middle',
+    });
+  }
+
+  for (const button of layout.buttons) {
+    const bw = button.rect.xMax - button.rect.xMin;
+    const bh = button.rect.yMax - button.rect.yMin;
+    const primary = button.id === 'again';
+    builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
+      fill: primary ? palette.textAccent : palette.panel,
+      stroke: primary ? palette.textAccent : palette.slotBorder,
+      lineWidth: 1,
+      radius: 20,
+    });
+    builder.text(
+      button.rect.xMin + bw / 2,
+      button.rect.yMin + bh / 2,
+      sprintSettleLabel(button.id),
+      {
+        fill: primary ? palette.text : palette.textDim,
+        font: FONT.panelButton,
+        align: 'center',
+        baseline: 'middle',
+      },
+    );
+  }
 }
 
 // ───────────────────────────────────────────────── fail overlay (ux-spec §3.5)
@@ -821,7 +925,16 @@ function drawBanners(
 ): void {
   // The pause dialog carries its own 暂停 title — don't double-print the phase
   // banner on top of it (ux-spec §3.3 shows one caption, not two).
-  if (!snap.banner || snap.panelVisible || snap.clearPanelVisible || snap.finishPanelVisible || usesFailOverlay(snap)) return;
+  if (
+    !snap.banner ||
+    snap.panelVisible ||
+    snap.clearPanelVisible ||
+    snap.finishPanelVisible ||
+    snap.sprintSettleVisible ||
+    usesFailOverlay(snap)
+  ) {
+    return;
+  }
   const bannerY = 700;
   builder.rect(0, bannerY - 90, DESIGN_W, 200, {
     fill: withAlpha(palette.bannerBackdrop, 0.55),
@@ -840,12 +953,6 @@ function drawBanners(
       baseline: 'middle',
     });
   }
-  if (snap.phase === 'game-over' && snap.mode === 'sprint') {
-    builder.text(DESIGN_W / 2, bannerY - 110, `SCORE ${snap.score}${snap.isNewBest ? ' · NEW BEST!' : ''}`, {
-      fill: palette.textAccent,
-      font: FONT.hudSmall,
-      align: 'center',
-      baseline: 'middle',
-    });
-  }
+  // 冲刺态的结算内容（单局 / 最高梯位 / 最高连击）已由 `drawSprintSettle` 承担：
+  // 本函数在结算面板可见时整体早退（见上方守卫），故此处不再画占位行。
 }

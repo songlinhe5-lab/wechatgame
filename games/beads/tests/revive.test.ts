@@ -28,6 +28,7 @@ import {
   type FailPanelAction,
 } from '../src/systems/fail-panel.js';
 import { rectsOverlap } from '../src/systems/pause-panel.js';
+import { sprintSettleLayout } from '../src/systems/sprint-settle.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import {
@@ -222,7 +223,7 @@ describe('ordinary fail-page revive', () => {
     expect(harness.game.snapshot.failHint).toBe('即将开放');
   });
 
-  it('sprint GAME_OVER has no revive and still retries on any tap', () => {
+  it('sprint GAME_OVER has no revive and answers the settle panel buttons only', () => {
     const harness = createBeadsHarness({
       sprintTime: 90,
       saveKey: 'wxgame.beads.test.revive.sprint',
@@ -230,8 +231,16 @@ describe('ordinary fail-page revive', () => {
     harness.game.startSprint();
     while (harness.game.phase === 'playing') harness.advance(1);
     expect(harness.game.phase).toBe('game-over');
-    expect(harness.game.requestRevive()).toBe(false);
-    expect(harness.game.tapDesign(20, 20)).toBe(true);
+    expect(harness.game.requestRevive()).toBe(false); // 冲刺无续时（§3.5）
+
+    // WXG-T-067 起的契约：面板外**零响应**（此前任意点击都重开本局 ✗，与 §2.3/§3.5 冲突）。
+    expect(harness.game.tapDesign(20, 20)).toBe(false);
+    expect(harness.game.phase).toBe('game-over');
+
+    const again = sprintSettleLayout().buttons.find((b) => b.id === 'again')!.rect;
+    expect(
+      harness.game.tapDesign((again.xMin + again.xMax) / 2, (again.yMin + again.yMax) / 2),
+    ).toBe(true);
     expect(harness.game.phase).toBe('playing');
     expect(harness.game.mode).toBe('sprint');
   });

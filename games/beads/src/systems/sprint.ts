@@ -83,6 +83,12 @@ export class SprintTracker {
   private _stageIndex = 0;
   /** Highest stage index reached this run (0-based; 0 means "stage 0 in progress"). */
   private _bestStage = 0;
+  /**
+   * Highest streak reached this run（`ux-spec §3.5` 左列「▸×5 最高连击 14」的数据源）。
+   * `streak` 会在断连时归零，故**必须单独记最大值**；它不进 `sprint:ended` payload
+   * ——该事件的字段集合受 `systems-index §6` 变更流程约束，而这是结算面板的**展示**量。
+   */
+  private _bestStreak = 0;
   /** Seconds left in the combo window; 0 when no streak is live. */
   private _window = 0;
 
@@ -111,6 +117,11 @@ export class SprintTracker {
     return this._bestStage;
   }
 
+  /** Highest streak reached this run（断连不清零，`reset()` 才归零）。 */
+  get bestStreak(): number {
+    return this._bestStreak;
+  }
+
   get windowRemaining(): number {
     return this._window;
   }
@@ -119,6 +130,7 @@ export class SprintTracker {
   onPlaced(): PlacementScore {
     this._window = COMBO_WINDOW_S;
     this._streak = Math.max(0, this._streak + 1);
+    this._bestStreak = Math.max(this._bestStreak, this._streak);
 
     let tierUp: number | null = null;
     for (let i = 0; i < COMBO_STREAK_TIERS.length; i++) {
@@ -174,6 +186,7 @@ export class SprintTracker {
     this._score = 0;
     this._stageIndex = 0;
     this._bestStage = 0;
+    this._bestStreak = 0;
     this._window = 0;
   }
 
@@ -200,6 +213,7 @@ export class SprintTracker {
     readonly score: number;
     readonly stageIndex: number;
     readonly bestStage: number;
+    readonly bestStreak: number;
     readonly windowRemaining: number;
   }): void {
     const streak = Number.isInteger(state.streak) && state.streak > 0 ? state.streak : 0;
@@ -212,6 +226,10 @@ export class SprintTracker {
     this._stageIndex = stageIndex;
     const bestStage = Number.isInteger(state.bestStage) && state.bestStage > 0 ? state.bestStage : 0;
     this._bestStage = Math.max(bestStage, stageIndex);
+    // 同 bestStage 口径：不变量是「历史最高 ≥ 当前」，故取 max 而非信任快照值。
+    const bestStreak =
+      Number.isInteger(state.bestStreak) && state.bestStreak > 0 ? state.bestStreak : 0;
+    this._bestStreak = Math.max(bestStreak, streak);
     this._window =
       Number.isFinite(state.windowRemaining) && state.windowRemaining > 0
         ? Math.min(state.windowRemaining, COMBO_WINDOW_S)

@@ -250,9 +250,12 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
       streak: game.sprintTracker.streak,
       score: game.sprintTracker.score,
       stageIndex: game.sprintTracker.stageIndex,
+      bestStreak: game.sprintTracker.bestStreak,
       window: game.sprintTracker.windowRemaining,
       remaining: game.remaining,
     };
+    // WXG-T-067：最高连击随快照往返（`ux-spec §3.5` 左列的展示量；提案 §4 例外：缺省 ⇒ 0）。
+    expect(before.bestStreak).toBeGreaterThanOrEqual(2);
     game.onPause();
     const relaunch = boot(inner, { levels: [simpleTestLevel()] });
     const restored = relaunch.game;
@@ -261,6 +264,7 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
     expect(restored.sprintTracker.streak).toBe(before.streak);
     expect(restored.sprintTracker.score).toBe(before.score);
     expect(restored.sprintTracker.stageIndex).toBe(before.stageIndex);
+    expect(restored.sprintTracker.bestStreak).toBe(before.bestStreak);
     // 口径：恢复**不信任**快照里的 multiplier/tier，而是由 streak **重算**（提案 §2）。
     // 故这里用同一个纯函数独立复核，而不是复述档位表（[2,4,7] → ×2/×3/×5）。
     expect(restored.sprintTracker.multiplier).toBe(multiplierForStreak(before.streak));

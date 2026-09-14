@@ -153,6 +153,17 @@ export interface BeadsSnapshot {
   /** 最新入场那一行的弹跳缩放（0→1.2→1；稳定 = 1）。 */
   finishRowPopScale: number;
 
+  /** S7 冲刺结算面板（`ux-spec §3.5` 左列，GAME_OVER · 冲刺态）：可见性 + 入/出进度。 */
+  sprintSettleVisible: boolean;
+  sprintSettleProgress: number;
+  sprintSettleInteractive: boolean;
+  /**
+   * 本局**最远梯位**（0-based；面板显示 `+1`）与**最高连击**（`ux-spec §3.5` 第 2/3 行）。
+   * 与 `sprintBestScore`（**历史最佳**，跨局）区分：这两个是**本局**的。
+   */
+  sprintRunBestStage: number;
+  sprintRunBestStreak: number;
+
   tuning: BeadsTuning;
 }
 
@@ -216,6 +227,11 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     finishStars: [],
     finishRowsShown: 0,
     finishRowPopScale: 1,
+    sprintSettleVisible: false,
+    sprintSettleProgress: 0,
+    sprintSettleInteractive: false,
+    sprintRunBestStage: 0,
+    sprintRunBestStreak: 0,
     tuning,
   };
 }
