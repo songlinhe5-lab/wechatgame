@@ -23,31 +23,11 @@
 
 ---
 
-## WXG-T-062
-
-- **名称**：**三项待裁定落地**（用户裁定「按推荐」）：① **卡几何（方案 A：改卡高、不动带位）** —— `assets-spec §1.4` 原「卡 176×150 + 卡下方标签 28」与 `systems-index §3.1` 的 `POWERUP_BAND` 高 **152** 无法同时成立（150+4+28 = 182 > 152）⇒ 卡改 **176×116**（+ 间隔 4 + 标签 28 = 148 ≤ 152），**§3.1 与底部留白 48 一字不动**；视图按 §1.4 补齐**角标 28×28 贴右上内缩 (8,8) + 白 ▶ 边 10、圆角 20、描边 1px、投影 α0.10、卡下方 28px 标签**，几何常量与 S2 命中测试共用 `powerupCardRects()` / `powerupLabelY()`；**A4 由此转真**（「形状唯一」+「文字标签并列」两半都在）。② **§8-4 判据改卡方检验** —— 原「各槽偏差 ≤ ±20%」在 n=200 / 12 槽下约一半概率误报（12 槽族极大偏差期望本身 ≈20–24%，单槽 σ ≈ 11%）⇒ 改为 **χ²（df=11、α=0.01、临界 24.725）**，与 seed 无关、误报率恒定 1%。③ **`region` 偶数窗口偏向升格明文** —— 原 §6「实现约定」升为 §2.2 表格内规定（含锚点在内、左 2 右 3），§6 改为指引以免两处漂移。**测试**：`view-model.test.ts` 新增 A4 几何/形状/标签判据、`powerups.test.ts` §8-4 改 χ²，beads **149 → 150**。**新增常量**：`POWERUP_CARD_W/H/RADIUS`、`POWERUP_LABEL_H/GAP`、`POWERUP_BADGE_*`（§1.4 的资产几何，非 §3 数值；**§3 全表零改动**）
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **产出**：games/beads/art/assets-spec.md（§1.4 + 裁定注）· art/accessibility.md（A4 转真 + 落地计数 13）· design/gdd/powerups.md（§2.2 明文 + §6 指引 + §8-4 卡方 + §9 变更记录）· src/config/tuning.ts · src/view/{view-model,palette}.ts · src/systems/powerups.ts（`POWERUP_LABELS`）· tests/{powerups,view-model}.test.ts · systems-index §6 变更记录 · 本台账。**观感复核追加**（同日）：三卡间距 **30 → 60**（三卡总宽 648、两侧余量 51），A4 判据补「整组不贴屏边」断言
-
----
-
 ## WXG-T-063
 
 - **名称**：**EP-07 结算·过关面板落地**（用户裁定「开始 EP-07 结算面板」）：`ux-spec §4` 流转表要求 `LEVEL_CLEAR` **等按钮**（下一关 / 去冲刺 U1），而实现一直是「1.4s 自动进下一关」的占位 ⇒ 新增 `systems/clear-panel.ts`（纯布局 + 命中 + 入/出 200/150ms + **星入场逐颗 150ms**，同 PausePanel 范式），按 §3.4 画遮罩 + `panel_dialog` 底板 + 金色缎带标题 + 逐颗弹跳星级 + 「剩余 mm:ss ｜ 道具 n/3」+ 主/副双钮；`LEVEL_CLEAR` 改为**等按钮**，`LEVEL_CLEAR_DELAY_S` 与 `tuning.levelClearDelay` **退休**（留墓碑注）；面板开时压掉相位横幅；C7 结算分在 `level:cleared` 当帧装配（`lastSettleScore`，§8-2）；星入场各触发一次 `sfx_star`。**测试**：新增 `tests/clear-panel.test.ts` **7 条**（含「3s 内不自动推进」回归闸门 + 两条按钮出口 + C7 精确值 4200 + §8-2 数据装配），另改两处依赖自动推进的旧用例（改点面板主钮）；beads **150 → 157**。**EP-07 未完**：冲刺结算面板（`ux-spec §3.5` 左列）+ FINISH 通关画面（§3.6）+ 连击特效三档（§2.5，判据 `score-combo §8-9` 属 DevTools）
 - **负责**：主理人(CodeBuddy)　**状态**：✅ 完成（EP07-S1 关面完成）
 - **产出**：games/beads/src/systems/clear-panel.ts · src/game/{beads-game,state}.ts · src/view/view-model.ts · src/config/tuning.ts · tests/clear-panel.test.ts · 本台账
-
----
-
-## WXG-T-064
-
-- **名称**：台账「标题制 + 详情分片」：治 `TASKS.md` 随任务数线性膨胀（用户 2026-09-14 反馈「详情写进索引文件、命中标题后再读详情」，并指出定期归档治不了膨胀）。
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **根因（实测）**：`TASKS.md` 曾 **81% 体积是任务行详情**——16 行 ≈ **5334 tok**（中位 389、最重 613），非任务行部分仅 ≈1207；`tasks:archive` 只清**已完成**行，**每个新任务仍带入 400–600 tok** ⇒ 必然反复撞 `ctx:check` B 项 8000（当时 7035、余量 965）。上一轮把 backlog 该条按「T-053 归档已治」结项**属误判**，本轮回检重开并结清。
-- **关键发现（装置无需新增机器）**：`ctx/index.json` **已按小节**输出 `anchor/level/startLine/endLine/tokens/summary/keywords` ⇒ 「命中标题后再读详情」＝先读主表标题、再按该小节的 `startLine`/`endLine` 精确 `read_file` ⇒ **详情索引就是 `ctx/index.json`**；此前失效是因为详情塞在**表格单元格**里，索引器只能把整文件当一个 blob。
-- **落地**：① 主表改**标题制**（名称 ≤ 60 字符，产出列改「见详情」）；② 正文迁 `production/TASKS-DETAIL.md`（16 节**原样搬、零改写**）；③ 顺带修两处真实格式缺陷——**我前几轮插行带进空行、把 Markdown 表格从 T-060 起截断**，以及表内夹注（3 条注移到表后）；④ 新增 `tools/scripts/check-tasks.mjs`（`pnpm run check:tasks`，已接进 `verify`）：名称超限 / 行不连续 / 行⇔小节不配对 / 详情残留已归档 id，四类即 FAIL，带 `--prune` 清理；⑤ 读取协议进 `ctx/ROUTES.md`（台账成本 **1439 → 2220** 修正 + 新增详情入口行）与主表头注。
-- **效果**：`TASKS.md` **7224 → 2220 tok（−69%）**；单任务详情按需读 ≈ **290 tok**（不再整读 7k）；主表体积不再随任务数线性膨胀。
-- **未闭环**：归档器**成对搬运**（行 + 小节）—— **已由 WXG-T-065 闭环**（见该节）。另注：本轮的 `--prune` 当时是**删除**语义，T-065 已改为**搬入**语义（删除会丢正文）。
 
 ---
 
@@ -138,3 +118,27 @@
 - **判据**：§8-2「`stars[n-1] = max(旧,新)`；**重启保留**」用共享 storage 的两个 harness 实测（真重启语义）；§2.4/§6 降级矩阵逐条断言（长度不符、越界、小数、非有限、非数组）。新增用例 3 条 ⇒ beads **176 → 179 全过**；`save-schema.test.ts` 的「合法文档」夹具随字段新增而更新（否则它不再是合法文档）。
 - **顺带清理（台账卫生）**：backlog 移除本项；另发现「台账随任务数线性膨胀」那行**其实已由 T-064/065/068 结项却仍挂在 backlog、数字也已过期** ✗ ⇒ 一并标注结项。
 - **产出**：game/save-schema.ts · config/tuning.ts · systems/finish-panel.ts · game/beads-game.ts · game/state.ts · tests/save-schema.test.ts · tests/finish-panel.test.ts · cocos 拷贝件 · 本台账
+
+---
+
+## WXG-T-072
+
+- **名称**：`ctx:build` 的**写入顺序闭环** —— 消除「每次提交都要手工重建一轮才过」的假失败。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **真因（读代码定位，非猜测）**：WXG-T-068 新加 `memory/INDEX.md` 产物时，我把它写在 `serializeIndex()` **之后** ✗ ⇒ `ctx/index.json` 记录的是**上一轮**的 `memory/INDEX.md` 哈希 ⇒ pre-commit 的 `C(--staged)` 每次都判「暂存与索引不一致」⇒ 当天连踩**四次**（每次都要手工 `ctx:build` + 重暂存一轮才过）。
+- **修法**：改成显式三步闭环 —— ① 先以最终内容落盘 `memory/INDEX.md`（它自己也是被索引的 .md）② **再**建一次索引把它纳入 ③ 最后才 `serializeIndex()` ⇒ 磁盘上的 INDEX.md 与 index.json 记的哈希必然同源。`hot-files.md` 用「写两遍」绕开了同一问题，本处不再依赖重试。
+- **实测**：修后本笔提交**首次即过**（此前连续四笔都需手工重试）。
+- **如实保留的不确定性**：手工逐步复现该序列时仍能造出一次不一致 ⇒ 除「写入顺序致哈希滞后」外**可能还有第二因子**，本次未穷尽。已记录，不宣称已彻底根治（下次再遇同类拦截时应先看是否仍是 `memory/INDEX.md`）。
+- **产出**：tools/scripts/build-context-index.mjs · 本台账
+
+---
+
+## WXG-T-073
+
+- **名称**：归档器新增 `--detail-until-under=<N>`（体积驱动 · **详情侧**），并抽出口径唯一的 `eligibleRows()`。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **动机（同一错位当天咬人两次）**：`--until-under` 量的是**台账**，而标题制（T-064）之后台账只剩 ~2.4k，B 项压力却在**详情文件**（8274）⇒ 用台账阈值去压详情只能「凭感觉挑一个很低的数」✗（第一次在 T-065 手挑 2400；这次 `--until-under=2500` 直接**空转** ✗）。本旋钮直接量详情文件，意图与手段一致。
+- **附带抽出的口径**：三条策略（默认 30 天 / `--until-under` / `--detail-until-under`）原本各自内联「可归档行」的筛选 ⇒ 我把新旋钮接到了**已被年龄筛过**的 `candidates` 上 ⇒ 默认口径下它是空的，**新旋钮静默什么都不搬** ✗。现抽成 `eligibleRows()` 单一出处，策略只负责「选多少」。
+- **另一处顺序教训**：候选重算必须在 `toArchive` **派生之前**，否则「报告列了候选、计划 0 行」——与本笔的 `ctx:build` 写入顺序（T-072）是**同一类**缺陷 ✗，一日内两次 ⇒ 已同时写进两处代码注释防复发。
+- **实测**：`--detail-until-under=7000` ⇒ 候选 2 行与「计划归档 2 行 + 详情节 2 节」一致（此前为 0 行）；本次即用它把详情压回 B 门内。
+- **产出**：tools/scripts/archive-tasks.mjs · 本台账

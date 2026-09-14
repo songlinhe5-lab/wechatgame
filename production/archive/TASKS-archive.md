@@ -72,3 +72,6 @@
 | WXG-T-056 | G4 复核：星级可达性用例缺口（注入 ratio 假绿） | 严守真 | ✅ 完成（readonly） | 见详情 |
 | WXG-T-060 | beads S6 道具系统落码 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
 | WXG-T-061 | 「到达序」判据清理 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+> 归档批次 2026-09-14 15:13 +08:00 — 2 行（WXG-T-062、WXG-T-064）｜判定：git blame committer-time ≥ 30 天｜详情节同批搬入 production/archive/TASKS-DETAIL-archive.md
+| WXG-T-062 | 三项待裁定落地 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+| WXG-T-064 | 台账标题制 + 详情分片（治膨胀） | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |

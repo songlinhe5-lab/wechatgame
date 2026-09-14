@@ -96,6 +96,22 @@ if (UNTIL_UNDER !== null && (!Number.isFinite(UNTIL_UNDER) || UNTIL_UNDER <= 0))
   console.error(`❌ --until-under 需为 >0 的数字（收到：${args['until-under']}）`);
   process.exit(1);
 }
+/**
+ * 体积驱动 · **详情侧**（WXG-T-073）：给了它就不再按年龄筛，而是按**详情文件**最老优先删到低于该值。
+ *
+ * 存在的理由（实测两次咬人）：标题制（WXG-T-064）之后台账只剩 ~2.4k，而 B 项压力常常在
+ * **详情文件**（一任务一节的正文，8k+）⇒ 拿台账阈值去压详情只能"凭感觉挑一个很低的数"✗，
+ * 意图与手段不一致。本旋钮直接量详情文件。
+ */
+const DETAIL_UNTIL_UNDER =
+  args['detail-until-under'] === undefined ? null : Number(args['detail-until-under']);
+if (
+  DETAIL_UNTIL_UNDER !== null &&
+  (!Number.isFinite(DETAIL_UNTIL_UNDER) || DETAIL_UNTIL_UNDER <= 0)
+) {
+  console.error(`❌ --detail-until-under 需为 >0 的数字（收到：${args['detail-until-under']}）`);
+  process.exit(1);
+}
 const ROOT = normalize((args.root ?? gitRoot()).replace(/\/+$/, ''));
 const TASKS = args.tasks ? resolve(ROOT, args.tasks) : join(ROOT, 'production', 'TASKS.md');
 const ARCHIVE = args.archive ? resolve(ROOT, args.archive) : join(ROOT, 'production', 'archive', 'TASKS-archive.md');
@@ -150,16 +166,7 @@ const fmt = (d) => d.toISOString().slice(0, 10);
 
 // ── 体积驱动候选（--until-under）：不看年龄，按号序（= 时间序）最老优先删到预算内 ──────
 if (UNTIL_UNDER !== null) {
-  const dated = [];
-  for (let i = 0; i < lines.length; i += 1) {
-    const m = taskRowRe.exec(lines[i]);
-    if (!m) continue;
-    const cells = lines[i].split('|').map((c) => c.trim());
-    if (!(cells[4] ?? '').startsWith('✅')) continue;
-    const t = blame.get(i + 1);
-    if (t == null) continue; // 无日期证据 → 不当作候选（保留「宁漏勿错」）
-    dated.push({ idx: i, id: Number(m[1]), line: lines[i], date: new Date(t * 1000) });
-  }
+  const dated = eligibleRows();
   const sizeOf = (excluded) => estimateTokens(lines.filter((_, i) => !excluded.has(i)).join(eol));
   const startSize = estimateTokens(lines.join(eol));
   const excluded = new Set();
@@ -217,6 +224,42 @@ const detailArchiveParsed = existsSync(DETAIL_ARCHIVE)
   : null;
 const archivedDetailIds = new Set((detailArchiveParsed?.sections ?? []).map((s) => s.id));
 if (detailExists) {
+  // ── 详情驱动候选（--detail-until-under）：不看年龄，按号序最老优先删到**详情**低于预算 ──
+  //
+  // ⚠️ 位置要求（WXG-T-073 的第二次教训）：必须在 `toArchive` **派生之前**重算候选，
+  // 否则改了 `candidates` 而 `toArchive` 早已定型 ⇒ 报告列了候选、计划却是 0 行（静默空转）。
+  if (DETAIL_UNTIL_UNDER !== null) {
+    const detailBaseline = estimateTokens(readFileSync(DETAIL, 'utf8'));
+    const scored = eligibleRows().map((c) => ({
+      ...c,
+      detailTokens: estimateTokens(
+        detailParsed.sections.find((s) => s.id === `WXG-T-${fmtId(c.id)}`)?.block ?? '',
+      ),
+    }));
+    const drop = [];
+    let shed = 0;
+    for (const c of scored) {
+      if (detailBaseline - shed < DETAIL_UNTIL_UNDER) break;
+      drop.push(c);
+      shed += c.detailTokens;
+    }
+    candidates.length = 0;
+    candidates.push(...drop);
+    console.log(
+      `  📉 详情驱动（--detail-until-under=${DETAIL_UNTIL_UNDER}）：详情 ${detailBaseline} tokens，` +
+        `计划归档 ${drop.length} 行 ⇒ 预计 ${detailBaseline - shed} tokens` +
+        (detailBaseline - shed >= DETAIL_UNTIL_UNDER ? '（⚠️ 全部可归档行移出后仍超阈值）' : ''),
+    );
+    // 复用「已在归档则跳过」的守卫（与上方同名分支同语义：保守、不重复入档）。
+    toArchive = drop.filter((c) => {
+      if (existingArchiveIds.has(c.id)) {
+        console.log(`  ⚠️ WXG-T-${c.id} 已存在于归档——跳过（不重复入档，宁漏勿错）`);
+        return false;
+      }
+      return true;
+    });
+  }
+
   toArchive = toArchive.filter((c) => {
     const id = `WXG-T-${fmtId(c.id)}`;
     if (archivedDetailIds.has(id)) {
@@ -398,6 +441,27 @@ console.log('   提醒：tasks:archive 是可选治理，不挂 pre-commit / CI�
 
 // ─────────────────────────────────────────────────────────────────── helpers ──
 
+/**
+ * 「可归档行」的唯一口径：表行 + 状态列以 ✅ 开头 + **有日期证据**（blame 命中），按文件序。
+ *
+ * 为什么抽成一处（WXG-T-073 的初版教训）：三种体积 / 年龄策略各自内联这段筛选时，
+ * 我把 `--detail-until-under` 接到了**已被年龄筛过**的 `candidates` 上 ⇒ 默认口径下它是空的，
+ * 新旋钮**静默什么都不搬** ✗。口径一处定义，策略只负责"选多少"。
+ */
+function eligibleRows() {
+  const out = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    const m = taskRowRe.exec(lines[i]);
+    if (!m) continue;
+    const cells = lines[i].split('|').map((c) => c.trim());
+    if (!(cells[4] ?? '').startsWith('✅')) continue;
+    const t = blame.get(i + 1);
+    if (t == null) continue; // 无日期证据 → 不当作候选（宁漏勿错）
+    out.push({ idx: i, id: Number(m[1]), line: lines[i], date: new Date(t * 1000) });
+  }
+  return out;
+}
+
 /** 一次 git blame --porcelain 取全文件行级 committer-time（秒）；无证据行 → null。
  *  ⚠️ porcelain 是**分组**语义：组头 `hash 起始行 行号 行数` 只出现一次（带元数据），
  *  组内后续行只以 `\t` 内容行输出——必须按组展开到每一行，否则只有组首行有日期。 */
@@ -476,6 +540,10 @@ function printHelp() {
 选项：
   --write          真实归档落盘（缺省为 dry-run：只打印计划，不改任何文件）
   --days=<N>       完成天数阈值（默认 30；按 git blame committer-time 判定）
+  --detail-until-under=<N>
+                    体积驱动 · **详情侧**：忽略 --days，按号序「最老优先」归档 ✅ 行（连同其详情
+                    小节成对搬走），直到 production/TASKS-DETAIL.md 估值 < N tokens。
+                    用于「台账已经很瘦、但详情文件撞 B 项 8000」的治理场景（WXG-T-073）。
   --until-under=<N>  体积驱动：忽略 --days，按号序「最老优先」归档 ✅ 行，
                      直到台账估值 < N tokens（估算口径 = lib/context-tokens.mjs，
                      与 ctx:check B 项**同一个函数**，避免两套计数漂移）。

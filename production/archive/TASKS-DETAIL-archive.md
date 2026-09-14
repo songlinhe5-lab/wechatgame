@@ -112,3 +112,23 @@
 - **名称**：**「到达序」判据清理**（用户裁定，承接 WXG-T-031 已确立基准）：把 beads 各 GDD 里以「事件到达序 / 以先到为准」为基准的「同帧」条款**统一换基准**为可观测的**帧内执行序**——`core-loop §2.2` 拆为「**玩法叙事序**（玩家感知的因果链，非执行序）」+「**帧内执行序**（规范，唯一真源）：输入（段内序：状态指令 → 玩法事件）→ 连击窗（仅冲刺）→ 供料 → 计时」，并**补齐玩法事件段内序**（落子回执 → 通关判定；`level:cleared`（输入段）恒先于 `level:failed`（计时段））与「cleared 优先」的**可观测机制**（输入段处理完已离开 PLAYING ⇒ 本帧直接返回，供料与计时都不执行）。改 `tray-spawner §6` / `powerups §6` / `score-combo §6` / `bead-grid §6` / `input-control §6` 共 **14 处**（**outcome 一一对应，非改判据、仅换基准**），并把 `pause-settings §6` / `timer-gameover §6` 的复述改为对 `core-loop §2.2.2` 的**归口引用**（两处各自复述正是 WXG-T-031 漂移的成因）。**顺带更正文档级错误**：`epics-beads.md` EP01-S2 把叙事序误读成「update 顺序」（原文「供料心跳 → 输入快照 → …」）——实现与基准都是**输入在前**（`_stepPlaying`）。**新增可执行证明**：`tests/frame-order.test.ts` **4 条**（真·同帧注入 + 探针实测供料帧号 + 对照组），钉住「暂停抑制同帧供料」「道具恒先于供料（新珠存活）」「最后一格 vs 同帧归零（仅 cleared、零 `timer:tick`）」与段序。**新发现**：`score-combo §6` 的「placed 与 rejected 同帧」、`input-control §6` 的「同帧先选珠后落子」等条款在「每帧最多 1 条输入指令」下**不可达**，已如实改为「不可能同帧」，不留假想分支
 - **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
 - **产出**：games/beads/design/gdd/core-loop.md（§2.2.2 规范真源 + §6 + §9 变更记录）· tray-spawner / powerups / score-combo / bead-grid / input-control / pause-settings / timer-gameover 各 §6 · production/epics/epics-beads.md · games/beads/tests/frame-order.test.ts · tests/helpers.ts（共享 `tapInFrame`）· systems-index §6 变更记录 · 本台账
+
+---
+
+## WXG-T-062
+
+- **名称**：**三项待裁定落地**（用户裁定「按推荐」）：① **卡几何（方案 A：改卡高、不动带位）** —— `assets-spec §1.4` 原「卡 176×150 + 卡下方标签 28」与 `systems-index §3.1` 的 `POWERUP_BAND` 高 **152** 无法同时成立（150+4+28 = 182 > 152）⇒ 卡改 **176×116**（+ 间隔 4 + 标签 28 = 148 ≤ 152），**§3.1 与底部留白 48 一字不动**；视图按 §1.4 补齐**角标 28×28 贴右上内缩 (8,8) + 白 ▶ 边 10、圆角 20、描边 1px、投影 α0.10、卡下方 28px 标签**，几何常量与 S2 命中测试共用 `powerupCardRects()` / `powerupLabelY()`；**A4 由此转真**（「形状唯一」+「文字标签并列」两半都在）。② **§8-4 判据改卡方检验** —— 原「各槽偏差 ≤ ±20%」在 n=200 / 12 槽下约一半概率误报（12 槽族极大偏差期望本身 ≈20–24%，单槽 σ ≈ 11%）⇒ 改为 **χ²（df=11、α=0.01、临界 24.725）**，与 seed 无关、误报率恒定 1%。③ **`region` 偶数窗口偏向升格明文** —— 原 §6「实现约定」升为 §2.2 表格内规定（含锚点在内、左 2 右 3），§6 改为指引以免两处漂移。**测试**：`view-model.test.ts` 新增 A4 几何/形状/标签判据、`powerups.test.ts` §8-4 改 χ²，beads **149 → 150**。**新增常量**：`POWERUP_CARD_W/H/RADIUS`、`POWERUP_LABEL_H/GAP`、`POWERUP_BADGE_*`（§1.4 的资产几何，非 §3 数值；**§3 全表零改动**）
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **产出**：games/beads/art/assets-spec.md（§1.4 + 裁定注）· art/accessibility.md（A4 转真 + 落地计数 13）· design/gdd/powerups.md（§2.2 明文 + §6 指引 + §8-4 卡方 + §9 变更记录）· src/config/tuning.ts · src/view/{view-model,palette}.ts · src/systems/powerups.ts（`POWERUP_LABELS`）· tests/{powerups,view-model}.test.ts · systems-index §6 变更记录 · 本台账。**观感复核追加**（同日）：三卡间距 **30 → 60**（三卡总宽 648、两侧余量 51），A4 判据补「整组不贴屏边」断言
+
+---
+
+## WXG-T-064
+
+- **名称**：台账「标题制 + 详情分片」：治 `TASKS.md` 随任务数线性膨胀（用户 2026-09-14 反馈「详情写进索引文件、命中标题后再读详情」，并指出定期归档治不了膨胀）。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **根因（实测）**：`TASKS.md` 曾 **81% 体积是任务行详情**——16 行 ≈ **5334 tok**（中位 389、最重 613），非任务行部分仅 ≈1207；`tasks:archive` 只清**已完成**行，**每个新任务仍带入 400–600 tok** ⇒ 必然反复撞 `ctx:check` B 项 8000（当时 7035、余量 965）。上一轮把 backlog 该条按「T-053 归档已治」结项**属误判**，本轮回检重开并结清。
+- **关键发现（装置无需新增机器）**：`ctx/index.json` **已按小节**输出 `anchor/level/startLine/endLine/tokens/summary/keywords` ⇒ 「命中标题后再读详情」＝先读主表标题、再按该小节的 `startLine`/`endLine` 精确 `read_file` ⇒ **详情索引就是 `ctx/index.json`**；此前失效是因为详情塞在**表格单元格**里，索引器只能把整文件当一个 blob。
+- **落地**：① 主表改**标题制**（名称 ≤ 60 字符，产出列改「见详情」）；② 正文迁 `production/TASKS-DETAIL.md`（16 节**原样搬、零改写**）；③ 顺带修两处真实格式缺陷——**我前几轮插行带进空行、把 Markdown 表格从 T-060 起截断**，以及表内夹注（3 条注移到表后）；④ 新增 `tools/scripts/check-tasks.mjs`（`pnpm run check:tasks`，已接进 `verify`）：名称超限 / 行不连续 / 行⇔小节不配对 / 详情残留已归档 id，四类即 FAIL，带 `--prune` 清理；⑤ 读取协议进 `ctx/ROUTES.md`（台账成本 **1439 → 2220** 修正 + 新增详情入口行）与主表头注。
+- **效果**：`TASKS.md` **7224 → 2220 tok（−69%）**；单任务详情按需读 ≈ **290 tok**（不再整读 7k）；主表体积不再随任务数线性膨胀。
+- **未闭环**：归档器**成对搬运**（行 + 小节）—— **已由 WXG-T-065 闭环**（见该节）。另注：本轮的 `--prune` 当时是**删除**语义，T-065 已改为**搬入**语义（删除会丢正文）。
