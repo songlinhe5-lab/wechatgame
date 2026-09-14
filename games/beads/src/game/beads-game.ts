@@ -1245,6 +1245,14 @@ export class BeadsGame implements Game {
       case 'toggle-sfx':
         this._setSfxMuted(!this._sfxMuted);
         return;
+      case 'toggle-reduce-motion':
+        // D1: write the setting only (leave PAUSED) — the view re-reads it off
+        // the snapshot, so the change is visible the moment we resume (WXG-T-088).
+        this._setReduceMotion(!this._reduceMotion);
+        return;
+      case 'toggle-large-text':
+        this._setLargeText(!this._largeText);
+        return;
       case 'start-sprint':
         // U1 secondary entry: leave PAUSED straight into a fresh sprint run.
         this._mode = 'sprint';
@@ -1496,6 +1504,18 @@ export class BeadsGame implements Game {
   /** Sfx channel toggle — fully independent of the music channel (§8-4). */
   private _setSfxMuted(muted: boolean): void {
     this._sfxMuted = muted;
+    this._persistSettings();
+  }
+
+  /** D1 减弱动效开关：写档 + 经 snapshot 回显给 view（不切相位）。 */
+  private _setReduceMotion(on: boolean): void {
+    this._reduceMotion = on;
+    this._persistSettings();
+  }
+
+  /** E2 大字号开关：写档 + 经 snapshot 回显给 view（不切相位）。 */
+  private _setLargeText(on: boolean): void {
+    this._largeText = on;
     this._persistSettings();
   }
 

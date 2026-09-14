@@ -32,12 +32,14 @@ import {
 } from '../config/tuning';
 import type { GameMode } from '../game/state';
 
-/** The five things a panel button can ask the game to do. */
+/** The things a panel button can ask the game to do. */
 export type PausePanelAction =
   | 'resume'
   | 'restart'
   | 'toggle-bgm'
   | 'toggle-sfx'
+  | 'toggle-reduce-motion'
+  | 'toggle-large-text'
   | 'start-sprint';
 
 /** Axis-aligned rectangle in design space (y grows upward). */
@@ -116,14 +118,22 @@ function normalLayout(): PausePanelLayout {
     });
   }
 
-  // Row 3 — sprint secondary entry (U1). Secondary styling: same width as the
-  // primary but never occupying its slot (it sits a full row below).
+  // Row 3 — accessibility toggles (D1 减弱动效 / E2 大字号, WXG-T-088) plus the
+  // sprint secondary entry (U1), sharing row 2's 3-cell grid so the panel stays
+  // 560×480 (ux-spec §3.3) with every cell ≥ TOUCH_MIN (§8-5).
   const row3Top = row2Bottom - PANEL_ROW_GAP;
   const row3Bottom = row3Top - PANEL_BUTTON_H;
-  buttons.push({
-    id: 'start-sprint',
-    rect: rect((DESIGN_W - PANEL_PRIMARY_W) / 2, row3Bottom, PANEL_PRIMARY_W, PANEL_BUTTON_H),
-  });
+  const row3Ids: PausePanelAction[] = [
+    'toggle-reduce-motion',
+    'toggle-large-text',
+    'start-sprint',
+  ];
+  for (let i = 0; i < row3Ids.length; i++) {
+    buttons.push({
+      id: row3Ids[i]!,
+      rect: rect(innerLeft + i * (cellW + gap), row3Bottom, cellW, PANEL_BUTTON_H),
+    });
+  }
 
   _normal = { panel: plate, buttons, titleY: plate.yMax - 60 };
   return _normal;

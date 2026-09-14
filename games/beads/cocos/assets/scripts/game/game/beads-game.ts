@@ -96,8 +96,10 @@ import {
 } from './state';
 import {
   SAVE_KEY,
+  SAVE_VERSION,
   bootLevel,
   defaultBeadsSave,
+  migrateV1ToV2,
   normalizeBeadsSave,
   preserveCorruptBackup,
   type BeadsSave,
@@ -241,6 +243,9 @@ export class BeadsGame implements Game {
   /** S9 settings mirror (S8 is the authority; these are the in-memory copy). */
   private _bgmMuted = false;
   private _sfxMuted = false;
+  /** WXG-T-088 accessibility mirror: D1 减弱动效 / E2 大字号（走 snapshot 暴露给 view）。 */
+  private _reduceMotion = false;
+  private _largeText = false;
   /** BOOT validation errors — non-empty means the game refuses PLAYING. */
   private _bootErrors: string[] = [];
 
@@ -360,6 +365,16 @@ export class BeadsGame implements Game {
     return this._sfxMuted;
   }
 
+  /** D1 减弱动效开关（view 经 snapshot 消费，抑制非必要位移/脉冲）。 */
+  get reduceMotion(): boolean {
+    return this._reduceMotion;
+  }
+
+  /** E2 大字号开关（view 经 snapshot 消费，正文类文本放大）。 */
+  get largeText(): boolean {
+    return this._largeText;
+  }
+
   /** BOOT validation failures ('' when the level data is clean). */
   get bootError(): string {
     return this._bootErrors.join('; ');
@@ -384,8 +399,11 @@ export class BeadsGame implements Game {
 
     this._save = new SaveManager<BeadsSave>(services.storage, {
       key: this._saveKey,
-      version: 1,
+      version: SAVE_VERSION,
       defaults: defaultBeadsSave,
+      // v1→v2（WXG-T-088 可访问性开关）：只升版本号，新字段交由 normalizeSettings
+      // 逐字段降级——不注册则 SaveManager 会把旧档判为待迁移而重置丢进度。
+      migrations: { 1: migrateV1ToV2 },
     });
 
     // D-03：崩溃恢复档是**另键** sidecar（提案 §5 方案 A）——S8 的键 / version /
@@ -412,6 +430,8 @@ export class BeadsGame implements Game {
     this._starsByLevel = [...normalized.save.starsByLevel];
     this._bgmMuted = normalized.save.settings.bgmMuted;
     this._sfxMuted = normalized.save.settings.sfxMuted;
+    this._reduceMotion = normalized.save.settings.reduceMotion;
+    this._largeText = normalized.save.settings.largeText;
     this._applyAudioChannels();
 
     this._subscribe();
@@ -1225,6 +1245,14 @@ export class BeadsGame implements Game {
       case 'toggle-sfx':
         this._setSfxMuted(!this._sfxMuted);
         return;
+      case 'toggle-reduce-motion':
+        // D1: write the setting only (leave PAUSED) — the view re-reads it off
+        // the snapshot, so the change is visible the moment we resume (WXG-T-088).
+        this._setReduceMotion(!this._reduceMotion);
+        return;
+      case 'toggle-large-text':
+        this._setLargeText(!this._largeText);
+        return;
       case 'start-sprint':
         // U1 secondary entry: leave PAUSED straight into a fresh sprint run.
         this._mode = 'sprint';
@@ -1456,7 +1484,12 @@ export class BeadsGame implements Game {
     const save = this._save;
     if (!save) return;
     save.patch({
-      settings: { bgmMuted: this._bgmMuted, sfxMuted: this._sfxMuted },
+      settings: {
+        bgmMuted: this._bgmMuted,
+        sfxMuted: this._sfxMuted,
+        reduceMotion: this._reduceMotion,
+        largeText: this._largeText,
+      },
     });
     save.save();
   }
@@ -1471,6 +1504,18 @@ export class BeadsGame implements Game {
   /** Sfx channel toggle — fully independent of the music channel (§8-4). */
   private _setSfxMuted(muted: boolean): void {
     this._sfxMuted = muted;
+    this._persistSettings();
+  }
+
+  /** D1 减弱动效开关：写档 + 经 snapshot 回显给 view（不切相位）。 */
+  private _setReduceMotion(on: boolean): void {
+    this._reduceMotion = on;
+    this._persistSettings();
+  }
+
+  /** E2 大字号开关：写档 + 经 snapshot 回显给 view（不切相位）。 */
+  private _setLargeText(on: boolean): void {
+    this._largeText = on;
     this._persistSettings();
   }
 
@@ -1762,6 +1807,8 @@ export class BeadsGame implements Game {
     s.panelInteractive = this._panel.interactive;
     s.bgmMuted = this._bgmMuted;
     s.sfxMuted = this._sfxMuted;
+    s.reduceMotion = this._reduceMotion;
+    s.largeText = this._largeText;
 
     const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);
     s.banner = copy.banner;

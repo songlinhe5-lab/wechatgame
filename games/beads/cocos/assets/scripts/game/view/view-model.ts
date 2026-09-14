@@ -89,7 +89,18 @@ const FONT = {
   sub: '28px sans-serif',
   panelTitle: 'bold 40px sans-serif',
   panelButton: 'bold 30px sans-serif',
+  /** Row-3 accessibility toggles: longer copy, so a smaller secondary face (§3.3). */
+  panelToggle: '22px sans-serif',
 } as const;
+
+/**
+ * E2 大字号（accessibility §5 基础版）：仅放大正文 / 说明类文本（×1.25，对齐
+ * 文档 32→40 比例）。数字 / 标题 / 按钮字号不随开关变化（弹窗排版重排延后 v1.1）。
+ */
+function bodyFont(snap: BeadsSnapshot, name: 'sub' | 'hudSmall'): string {
+  if (!snap.largeText) return FONT[name];
+  return name === 'sub' ? '35px sans-serif' : '27px sans-serif';
+}
 
 /** Panel button copy — sprint swaps one label (pause-settings §2.2, P1). */
 function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
@@ -102,6 +113,10 @@ function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
       return `音乐  ${snap.bgmMuted ? '关' : '开'}`;
     case 'toggle-sfx':
       return `音效  ${snap.sfxMuted ? '关' : '开'}`;
+    case 'toggle-reduce-motion':
+      return `减弱动效  ${snap.reduceMotion ? '开' : '关'}`;
+    case 'toggle-large-text':
+      return `大字号  ${snap.largeText ? '开' : '关'}`;
     case 'start-sprint':
       return '▶ 去冲刺';
     default:
@@ -180,6 +195,11 @@ function drawPausePanel(
     const bx = cx + (button.rect.xMin - cx) * scale;
     const by = cy + (button.rect.yMin - cy) * scale;
     const primary = button.id === 'resume';
+    // Row-3 accessibility toggles carry longer copy than the 160px cell can hold
+    // at the standard button face — a smaller secondary style keeps it inside
+    // the plate without touching the frozen panel geometry (§8-5).
+    const toggle =
+      button.id === 'toggle-reduce-motion' || button.id === 'toggle-large-text';
     builder.rect(bx, by, bw, bh, {
       fill: primary ? palette.textAccent : palette.slot,
       stroke: primary ? palette.textAccent : palette.slotBorder,
@@ -188,7 +208,7 @@ function drawPausePanel(
     });
     builder.text(bx + bw / 2, by + bh / 2, panelLabel(button, snap), {
       fill: primary ? palette.panel : palette.text,
-      font: FONT.panelButton,
+      font: toggle ? FONT.panelToggle : FONT.panelButton,
       align: 'center',
       baseline: 'middle',
     });
@@ -244,7 +264,7 @@ function drawSprintSettle(
       (badge.xMin + badge.xMax) / 2,
       (badge.yMin + badge.yMax) / 2,
       SPRINT_SETTLE_NEW_BEST,
-      { fill: palette.text, font: FONT.hudSmall, align: 'center', baseline: 'middle' },
+      { fill: palette.text, font: bodyFont(snap, 'hudSmall'), align: 'center', baseline: 'middle' },
     );
   }
 
@@ -258,14 +278,14 @@ function drawSprintSettle(
     if (row.label) {
       builder.text(row.labelX, row.y, row.label, {
         fill: palette.textDim,
-        font: FONT.sub,
+        font: bodyFont(snap, 'sub'),
         align: 'center',
         baseline: 'middle',
       });
     }
     builder.text(row.valueX, row.y, values[i] ?? '', {
       fill: palette.text,
-      font: FONT.hudSmall,
+      font: bodyFont(snap, 'hudSmall'),
       align: 'center',
       baseline: 'middle',
     });
@@ -325,7 +345,7 @@ function drawFailPanel(
   if (layout.subtitle) {
     builder.text(cx, layout.subtitleY, layout.subtitle, {
       fill: palette.textDim,
-      font: FONT.hudSmall,
+      font: bodyFont(snap, 'hudSmall'),
       align: 'center',
       baseline: 'middle',
     });
@@ -359,7 +379,7 @@ function drawFailPanel(
   if (snap.failHint) {
     builder.text(cx, plate.yMin + 16, snap.failHint, {
       fill: palette.textDim,
-      font: FONT.hudSmall,
+      font: bodyFont(snap, 'hudSmall'),
       align: 'center',
       baseline: 'middle',
     });
@@ -378,14 +398,14 @@ function breathe(clock: number, period: number, lo: number, hi: number): number 
   return lo + (hi - lo) * tri;
 }
 
-/** GAP-03/04 `hint` 呼吸 α：0.5↔1.0 @600ms。 */
-function hintAlpha(clock: number): number {
-  return breathe(clock, HINT_PULSE_MS, 0.5, 1);
+/** GAP-03/04 `hint` 呼吸 α：0.5↔1.0 @600ms；D1 减弱动效 → 静态描边（α=1）。 */
+function hintAlpha(clock: number, reduce: boolean): number {
+  return reduce ? 1 : breathe(clock, HINT_PULSE_MS, 0.5, 1);
 }
 
-/** GAP-10 告急 α 脉冲：0.6↔1.0 @1000ms（§7「1→0.6→1」，起点相位不定）。 */
-function dangerAlpha(clock: number): number {
-  return breathe(clock, DANGER_PULSE_MS, 0.6, 1);
+/** GAP-10 告急 α 脉冲：0.6↔1.0 @1000ms；D1 减弱动效 → 静态红字（α=1）。 */
+function dangerAlpha(clock: number, reduce: boolean): number {
+  return reduce ? 1 : breathe(clock, DANGER_PULSE_MS, 0.6, 1);
 }
 
 function drawHud(
@@ -397,7 +417,7 @@ function drawHud(
 
   // GAP-10 倒计时告急三通道（§3.8「图标+颜色+脉冲」）：色已由 urgent→danger，
   // 此处补上时钟图标（平时湖蓝、告急切 danger）与告急时的 α 脉冲。
-  const a = snap.urgent ? dangerAlpha(snap.pulseClock) : 1;
+  const a = snap.urgent ? dangerAlpha(snap.pulseClock, snap.reduceMotion) : 1;
   const timerColor = snap.urgent ? palette.danger : palette.text;
 
   // Clock icon (left of the number): circle outline + two hands.
@@ -425,7 +445,7 @@ function drawHud(
     snap.mode === 'sprint' ? `STAGE ${snap.stageIndex + 1}` : `LV ${snap.levelIndex + 1}/${snap.levelCount}`;
   builder.text(DESIGN_W - 220, midY, label, {
     fill: palette.textDim,
-    font: FONT.hudSmall,
+    font: bodyFont(snap, 'hudSmall'),
     align: 'right',
     baseline: 'middle',
   });
@@ -435,7 +455,7 @@ function drawHud(
   if (snap.mode === 'sprint') {
     builder.text(DESIGN_W - 220, midY + 44, `SCORE ${snap.score}`, {
       fill: palette.text,
-      font: FONT.hudSmall,
+      font: bodyFont(snap, 'hudSmall'),
       align: 'right',
       baseline: 'middle',
     });
@@ -472,7 +492,11 @@ function drawGrid(
 
       // GAP-04 `wrong` 态：被拒格整层水平抖动（±px，200ms 内摆 2 次）。
       const isWrong = i === snap.wrongRow && j === snap.wrongCol && snap.wrongProgress > 0;
-      const dx = isWrong ? WRONG_SHAKE_PX * Math.sin(snap.wrongProgress * Math.PI * 4) : 0;
+      // D1 减弱动效：错误抖动 → 位移归零，红描边改静态画出（见下方 flash）。
+      const dx =
+        isWrong && !snap.reduceMotion
+          ? WRONG_SHAKE_PX * Math.sin(snap.wrongProgress * Math.PI * 4)
+          : 0;
       const bx = cx + dx;
 
       if (cell.state === 'locked') {
@@ -487,11 +511,14 @@ function drawGrid(
         drawEmptySocket(builder, bx, cy, palette, BEAD_CELL, cell.colorIdx);
         // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
-          drawStateRing(builder, bx, cy, BEAD_CELL, palette.hintBlue, hintAlpha(snap.pulseClock));
+          drawStateRing(builder, bx, cy, BEAD_CELL, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
         }
         // GAP-04 `wrong`：danger 描边闪 2 次（与抖动同格同帧）。
         if (isWrong) {
-          const flash = 0.4 + 0.6 * Math.abs(Math.sin(snap.wrongProgress * Math.PI * 2));
+          // D1 减弱动效：描边闪烁 → 静态红描边（α 恒 1；300ms 时长归 game 侧）。
+          const flash = snap.reduceMotion
+            ? 1
+            : 0.4 + 0.6 * Math.abs(Math.sin(snap.wrongProgress * Math.PI * 2));
           drawStateRing(builder, bx, cy, BEAD_CELL, palette.danger, flash);
         }
         continue;
@@ -556,7 +583,7 @@ function drawTray(
     }
     // GAP-03 引导：首珠所在槽外描边脉冲呼吸（与目标格 `hint` 同周期、同色）。
     if (snap.onboarding && idx === snap.guideSlot) {
-      drawStateRing(builder, cx, cy, TRAY_SLOT, palette.hintBlue, hintAlpha(snap.pulseClock));
+      drawStateRing(builder, cx, cy, TRAY_SLOT, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
     }
   }
 }
@@ -634,7 +661,9 @@ function drawClearPanel(
   // 星级：只画已入场的那些；最新一颗按弹跳缩放（0→1.2→1）。
   const starR = (CLEAR_STAR_SIZE / 2) * 0.92;
   for (let i = 0; i < snap.clearStarsShown; i++) {
-    const scale = i === snap.clearStarsShown - 1 ? snap.clearStarPopScale : 1;
+    // D1 减弱动效：完成星弹跳缩放 → 静态高亮（最新一颗不再弹跳）。
+    const scale =
+      i === snap.clearStarsShown - 1 && !snap.reduceMotion ? snap.clearStarPopScale : 1;
     if (scale <= 0) continue;
     builder.polygon(starPoints(layout.starX[i]!, layout.starsY, starR * scale, 5, 90), {
       fill: palette.textAccent,
@@ -646,7 +675,7 @@ function drawClearPanel(
     DESIGN_W / 2,
     layout.infoY,
     `剩余 ${formatTime(snap.clearRemaining)} ｜ 道具 ${snap.clearPowerupsUsed}/${POWERUP_TYPES.length}`,
-    { fill: palette.textDim, font: FONT.sub, align: 'center', baseline: 'middle' },
+    { fill: palette.textDim, font: bodyFont(snap, 'sub'), align: 'center', baseline: 'middle' },
   );
 
   // 主/副双钮：主钮金底深字（对比度 ≈8:1），副钮白底深字；文案归 `clear-panel.ts`。
@@ -764,14 +793,15 @@ function drawFinishPanel(
     DESIGN_W / 2,
     layout.totalY,
     `共 ${total} / ${levelCount * FINISH_MAX_STARS_PER_LEVEL} ★`,
-    { fill: palette.textAccent, font: FONT.sub, align: 'center', baseline: 'middle' },
+    { fill: palette.textAccent, font: bodyFont(snap, 'sub'), align: 'center', baseline: 'middle' },
   );
 
   // 星级总览：逐关入场（`finishRowsShown`），最新一行按弹跳缩放；未得的星画暗色。
   const rowLeft = DESIGN_W / 2 - FINISH_ROW_W / 2;
   for (let i = 0; i < snap.finishRowsShown && i < layout.rows.length; i++) {
     const row = layout.rows[i]!;
-    const scale = i === snap.finishRowsShown - 1 ? snap.finishRowPopScale : 1;
+    // D1 减弱动效：通关行弹跳缩放 → 静态高亮。
+    const scale = i === snap.finishRowsShown - 1 && !snap.reduceMotion ? snap.finishRowPopScale : 1;
     if (scale <= 0) continue;
     builder.rect(rowLeft, row.y - FINISH_ROW_H / 2, FINISH_ROW_W, FINISH_ROW_H, {
       fill: withAlpha(palette.panel, 0.92),
@@ -781,7 +811,7 @@ function drawFinishPanel(
     });
     builder.text(row.labelX, row.y, `第 ${row.level} 关`, {
       fill: palette.text,
-      font: FONT.sub,
+      font: bodyFont(snap, 'sub'),
       align: 'center',
       baseline: 'middle',
     });
@@ -867,7 +897,7 @@ function drawPowerupBand(
     // 剩余免费次数（`POWERUP_FREE_USES = 1` ⇒ 「×1」/「×0」）。
     builder.text(x + w / 2, bottom + 16, `×${snap.powerupFreeUses[type]}`, {
       fill: withAlpha(palette.text, free ? 1 : 0.4),
-      font: FONT.sub,
+      font: bodyFont(snap, 'sub'),
       align: 'center',
       baseline: 'middle',
     });
@@ -891,7 +921,7 @@ function drawPowerupBand(
     // 卡下方标签：28px `text_primary`（§1.4）——「文字标签并列」的那一半。
     builder.text(x + w / 2, powerupLabelY(), POWERUP_LABELS[type], {
       fill: withAlpha(palette.text, free ? 1 : 0.45),
-      font: FONT.sub,
+      font: bodyFont(snap, 'sub'),
       align: 'center',
       baseline: 'middle',
     });
@@ -900,7 +930,7 @@ function drawPowerupBand(
     // 占位轻提示（§2.6）：置于道具带最下方，不遮挡标签。
     builder.text(DESIGN_W / 2, 24, snap.powerupHint, {
       fill: withAlpha(palette.text, 0.75),
-      font: FONT.sub,
+      font: bodyFont(snap, 'sub'),
       align: 'center',
       baseline: 'middle',
     });
@@ -1053,7 +1083,7 @@ function drawBanners(
   if (snap.subBanner) {
     builder.text(DESIGN_W / 2, bannerY - 64, snap.subBanner, {
       fill: withAlpha(palette.bannerText, 0.75),
-      font: FONT.sub,
+      font: bodyFont(snap, 'sub'),
       align: 'center',
       baseline: 'middle',
     });

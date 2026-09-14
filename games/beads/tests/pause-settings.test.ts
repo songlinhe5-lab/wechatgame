@@ -177,6 +177,9 @@ describe('S9 pause & settings', () => {
     expect(labels.some((t) => t.startsWith('音乐'))).toBe(true);
     expect(labels.some((t) => t.startsWith('音效'))).toBe(true);
     expect(labels.some((t) => t.includes('去冲刺'))).toBe(true);
+    // WXG-T-088：行3 可访问性开关与去冲刺同格共存。
+    expect(labels.some((t) => t.startsWith('减弱动效'))).toBe(true);
+    expect(labels.some((t) => t.startsWith('大字号'))).toBe(true);
 
     expect(tap(game, cell.x, cell.y)).toBe(false);
     expect(tap(game, tray.x, tray.y)).toBe(false);
@@ -388,6 +391,12 @@ describe('S9 pause & settings', () => {
     // Sprint swaps the restart label; the redundant sprint entry disappears.
     expect(pausePanelLayout('sprint').buttons.some((b) => b.id === 'start-sprint')).toBe(false);
     expect(pausePanelLayout('normal').buttons.some((b) => b.id === 'start-sprint')).toBe(true);
+    // WXG-T-088：两个可访问性开关行3 常驻（两模式均保留，仅去冲刺位退场）。
+    for (const mode of ['normal', 'sprint'] as const) {
+      const ids = pausePanelLayout(mode).buttons.map((b) => b.id);
+      expect(ids).toContain('toggle-reduce-motion');
+      expect(ids).toContain('toggle-large-text');
+    }
   });
 
   // §8.6 归零 vs 齿轮同帧两组用例。
@@ -599,6 +608,47 @@ describe('S9 pause & settings', () => {
     // The whole lifecycle stayed inside the frozen budget (ux-spec §5).
     expect(PANEL_IN_MS).toBeLessThanOrEqual(200);
     expect(PANEL_OUT_MS).toBeLessThanOrEqual(150);
+  });
+
+  // §8.11 WXG-T-088：D1/E2 开关各自持久化、重启回显、与音频通道互不影响。
+  it('§8-11 accessibility toggles persist, echo on reboot and stay independent of audio', () => {
+    const saveKey = 'wxgame.beads.test.s9c11';
+    const harness = createBeadsHarness({ saveKey });
+    const game = harness.game;
+    expect(game.reduceMotion).toBe(false);
+    expect(game.largeText).toBe(false);
+
+    tapGear(game);
+    expect(game.phase).toBe('paused');
+
+    // D1 减弱动效：切 ON 即写档、snapshot 同步回显。
+    const rm = buttonPoint('toggle-reduce-motion');
+    expect(tap(game, rm.x, rm.y)).toBe(true);
+    expect(game.reduceMotion).toBe(true);
+    expect(game.snapshot.reduceMotion).toBe(true);
+    // 不切相位——面板仍 PAUSED（与音频开关同纪律）。
+    expect(game.phase).toBe('paused');
+
+    // E2 大字号：再切一档。
+    const lt = buttonPoint('toggle-large-text');
+    expect(tap(game, lt.x, lt.y)).toBe(true);
+    expect(game.largeText).toBe(true);
+
+    const raw = harness.storage.get(saveKey);
+    expect(JSON.parse(raw as string).settings).toMatchObject({
+      reduceMotion: true,
+      largeText: true,
+      bgmMuted: false,
+      sfxMuted: false,
+    });
+
+    // 同存储重启 → 两开关回显，音频通道不受波及。
+    const rebooted = createBeadsHarness({ saveKey, storage: harness.storage });
+    expect(rebooted.game.reduceMotion).toBe(true);
+    expect(rebooted.game.largeText).toBe(true);
+    expect(rebooted.game.snapshot.reduceMotion).toBe(true);
+    expect(rebooted.game.bgmMuted).toBe(false);
+    expect(rebooted.game.sfxMuted).toBe(false);
   });
 
   // ── WXG-T-055 D-04: WeChat onShow must not leave PAUSED ──────────────

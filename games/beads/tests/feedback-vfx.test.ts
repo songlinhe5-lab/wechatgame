@@ -9,8 +9,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
-import { DESIGN_H, DESIGN_W } from '../src/config/tuning.js';
+import { RenderModelBuilder, type DrawCommand, type RectCommand, type TextCommand } from '@wxgame/framework';
+import { DESIGN_H, DESIGN_W, WRONG_SHAKE_PX } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel } from './helpers.js';
@@ -152,5 +152,99 @@ describe('T-087 GAP-10 告急脉冲', () => {
                     c.y < snapLo.gridTop,
             ),
         ).toBe(true);
+    });
+});
+
+describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
+    const firstRect = (
+        cmds: readonly DrawCommand[],
+        stroke: string,
+    ): RectCommand | undefined =>
+        cmds.find(
+            (c): c is RectCommand => c.kind === 'rect' && c.stroke === stroke && c.fill === undefined,
+        );
+    const textWith = (
+        cmds: readonly DrawCommand[],
+        pred: (t: TextCommand) => boolean,
+    ): TextCommand | undefined =>
+        cmds.find((c): c is TextCommand => c.kind === 'text' && pred(c));
+
+    it('D1 reduceMotion：告急脉冲静态化（α 恒 1，不再 0.6↔1）', () => {
+        const h = createBeadsHarness({ saveKey: 'wxgame.beads.test.t088-danger' });
+        const base = h.game.snapshot;
+        const danger = (cmds: readonly DrawCommand[]) =>
+            textWith(cmds, (t) => t.fill === DEFAULT_PALETTE.danger);
+
+        const pulsing = danger(renderSnap({ ...base, urgent: true, pulseClock: 0, reduceMotion: false }));
+        const still = danger(renderSnap({ ...base, urgent: true, pulseClock: 0, reduceMotion: true }));
+        expect(pulsing).toBeDefined();
+        expect(pulsing!.alpha).toBeCloseTo(0.6, 5); // breathe(0) → lo
+        expect(still!.alpha).toBeCloseTo(1, 5); // 减弱动效 → 静态红字
+    });
+
+    it('D1 reduceMotion：hint 呼吸描边退为静态（α 不再 0.5↔1）', () => {
+        const h = createBeadsHarness({
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.t088-hint',
+        });
+        h.advance(1 / 60); // 首供落地，引导目标格就位
+        const s = h.game.snapshot;
+        expect(s.onboarding).toBe(true);
+
+        const pulsing = firstRect(
+            renderSnap({ ...s, reduceMotion: false, pulseClock: 0 }),
+            DEFAULT_PALETTE.hintBlue,
+        );
+        const still = firstRect(
+            renderSnap({ ...s, reduceMotion: true, pulseClock: 0 }),
+            DEFAULT_PALETTE.hintBlue,
+        );
+        expect(pulsing!.alpha).toBeCloseTo(0.5, 5); // breathe(0) → lo
+        expect(still!.alpha).toBeCloseTo(1, 5); // 减弱动效 → 静态描边（保留）
+    });
+
+    it('D1 reduceMotion：错误抖动位移归零（±px → 0）', () => {
+        const h = createBeadsHarness({
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.t088-shake',
+        });
+        const game = h.game;
+        const slot = game.giveTrayBead(2); // (0,0) 要求色 1，给色 2 → 色不符拒绝
+        expect(game.selectTraySlot(slot)).toBe(true);
+        expect(game.tapGridCell(0, 0)).toBe(false);
+        h.advance(1 / 60);
+        const s = game.snapshot;
+        expect(s.wrongProgress).toBeGreaterThan(0);
+
+        // 同一相位（p=0.125 → sin(π/2)=1，位移最大）对比抖动与静态。
+        const shaken = firstRect(
+            renderSnap({ ...s, reduceMotion: false, wrongProgress: 0.125 }),
+            DEFAULT_PALETTE.danger,
+        );
+        const still = firstRect(
+            renderSnap({ ...s, reduceMotion: true, wrongProgress: 0.125 }),
+            DEFAULT_PALETTE.danger,
+        );
+        expect(shaken).toBeDefined();
+        expect(still).toBeDefined();
+        // 静态档无位移 → x 为落位；抖动档偏移一个 WRONG_SHAKE_PX。
+        expect(shaken!.x - still!.x).toBeCloseTo(WRONG_SHAKE_PX, 3);
+        // 减弱动效下红描边仍画（静态高亮），只是不再抖动/闪烁。
+        expect(still!.alpha).toBeCloseTo(1, 5);
+    });
+
+    it('E2 largeText：正文/说明类字号放大，数字与标题不受影响', () => {
+        const h = createBeadsHarness({ saveKey: 'wxgame.beads.test.t088-large' });
+        const base = h.game.snapshot;
+        const modeLabel = (snap: BeadsSnapshot) =>
+            textWith(renderSnap(snap), (t) => t.text.startsWith('LV'));
+
+        expect(modeLabel({ ...base, largeText: false })!.font).toBe('22px sans-serif');
+        expect(modeLabel({ ...base, largeText: true })!.font).toBe('27px sans-serif');
+
+        // 倒计时数字（正文以外）在开关下字号不变。
+        const timer = (snap: BeadsSnapshot) =>
+            textWith(renderSnap(snap), (t) => /^\d+:\d\d$/.test(t.text));
+        expect(timer({ ...base, largeText: true })!.font).toBe('bold 44px sans-serif');
     });
 });
