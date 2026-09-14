@@ -239,10 +239,11 @@
 ## WXG-T-089
 
 - **名称**：beads P0·**GAP-07/08 harness 坐标契约落码（ADR-0011 裁决落地）**（波次2）。承接 T-082 ADR-0011（坐标契约=CSS px，DPR 由 renderer 承担）。
-- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（framework 0e673d1 + harness eb0572d）
 - **Deliverables**：① GAP-07：`dev/harness/main.ts` `fitCanvas`/`pushPointer` 对齐 CSS px 契约（harness 是唯一越界者——框架 `compose/app.ts` L104-105 用 CSS px 正确，改 harness 送 CSS px 坐标，使点击映射回设计空间）；② GAP-08：`canvas2d-renderer.ts` L133-141 `fillText` 在 y-flip 下补偿（**收窄到 text case 内部**，禁改全局变换——矢量符号 ▲▽♥◐ 在 y-up 下自洽）。
 - **约束**：GAP-07 真凶定位经主理人纠正＝harness 越界非框架 bug ⇒ **只改 `dev/harness/`，不改 `packages/framework/src/compose/app.ts`**（框架契约正确）；GAP-08 修复禁全局 transform 改动（否则符号镜像）。改框架源后须 `framework:sync` 同步 cocos 镜像（BD-20 教训）。
 - **依赖**：硬前置 T-082（ADR-0011 + 取证）。仅影响 harness 路径（真机 Cocos 路径 GAP-07/08 结构上不复现，T-082 已反证）。
+- **落地证据**：GAP-07（harness 唯一越界者，框架契约正确→未改 `app.ts`）：`dev/harness/main.ts` `pushPointer` 改送 `event.clientX/clientY`（去 `* dpr`），`fitCanvas` 改 `app.resize(cssW, cssH)`，DPR 只留 `canvas.width = css×dpr` 交 `Canvas2DRenderer` 新 `pixelRatio` 选项吸收（整个 `setTransform` 缩放+两平移项按 dpr 前置，dpr=1 保持旧行为）。GAP-08：text 在 y-up 全局翻转下局部 `save/translate/scale(1,-1)` 复原，垂直 baseline `top↔bottom` 互换、`middle/alphabetic` 不变，`applyViewportTransform=false` 不补偿；禁改全局变换（符号 ▲▽♥◐ 依赖 y-up）。§3(d) 双牙：`viewport.test.ts` DPR=2 device-px 样本被 `containsScreenPoint` 拒收；`smoke-harness` 断言 `fit.screenWidth === canvas.clientWidth`（stub `devicePixelRatio`→2 + 镜像 `globalThis.innerWidth` 修正 `window!==globalThis` 致 `getScreenSize()` 落 1280 的旧失真）。canvas2d-renderer cocos 双镜像已 `framework:sync`。beads 192+framework 全绿、verify exit 0。
 
 ---
 

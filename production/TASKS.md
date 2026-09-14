@@ -27,7 +27,7 @@
 | WXG-T-086 | beads P0·GAP-02首供+GAP-06泄压阀A′+D落码 | 主理人(Qoder) | ✅ 完成 | 见详情 |
 | WXG-T-087 | beads P0·GAP-04VFX+wrong/hint态+GAP-03引导+GAP-10告警 | 主理人(Qoder) | ✅ 完成 | 见详情 |
 | WXG-T-088 | beads·R1甲 D1/E2可访问性开关落码 | 主理人(Qoder) | ⏳ 待启动 | 见详情 |
-| WXG-T-089 | beads P0·GAP-07/08 harness坐标落码(ADR-0011) | 主理人(Qoder) | ⏳ 待启动 | 见详情 |
+| WXG-T-089 | beads P0·GAP-07/08 harness坐标落码(ADR-0011) | 主理人(Qoder) | ✅ 完成 | 见详情 |
 | WXG-T-090 | G10 ES5转译修复(spike+ADR-0012+CI守卫) | 程基岩(eng) | ✅ 完成（本环境可验面全绿；真机 runtime 随 G4/AppID） | 见详情 |
 
 > 注 1：T-016/T-017 的产出实际由 CodeBuddy 侧会话完成（用户授权路径），本台账为跨 IDE 统一追认。
