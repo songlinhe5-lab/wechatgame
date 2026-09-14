@@ -441,8 +441,9 @@ function drawGrid(
       }
 
       if (cell.state === 'empty') {
-        // Empty socket: recessed slot — an unfilled cell must not read as a bead (§1.2).
-        drawEmptySocket(builder, cx, cy, palette);
+        // Empty socket — 传目标色 colorIdx 绘 E1 色底 + E4 幽灵符号（§1.2 / §3.8），
+        // 使未填态即可读出该格要填的颜色；仍无投影/倒角/高光 → 不致误读为已填珠。
+        drawEmptySocket(builder, cx, cy, palette, BEAD_CELL, cell.colorIdx);
         continue;
       }
 

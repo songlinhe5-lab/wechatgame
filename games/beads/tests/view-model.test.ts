@@ -10,7 +10,6 @@
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import {
-  BEAD_CELL,
   DESIGN_H,
   DESIGN_W,
   POWERUP_BAND,
@@ -23,7 +22,7 @@ import {
   powerupLabelY,
 } from '../src/config/tuning.js';
 import { POWERUP_LABELS } from '../src/systems/powerups.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, EMPTY_GHOST_ALPHA, beadColor, withAlpha } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
@@ -47,10 +46,9 @@ const isRingSymbol = (cmd: DrawCommand): boolean =>
 const isStarSymbol = (cmd: DrawCommand): boolean =>
   cmd.kind === 'polygon' && cmd.points.length === 20;
 const isDotSymbol = (cmd: DrawCommand): boolean =>
-  cmd.kind === 'circle' &&
-  cmd.stroke === undefined &&
-  cmd.fill !== undefined &&
-  Math.abs(cmd.r - (11 * BEAD_CELL) / 64) < 0.01;
+  cmd.kind === 'circle' && cmd.stroke === undefined && cmd.fill !== undefined;
+// 注：不校验精确 r——band 内的填充圆只可能来自 ● dot 符号（已填满墨与 E4 幽灵都计），
+// 幽灵符号尺寸缩至 ≈BEAD×0.32 会改变 r，故只按「band 内填充圆」识别（参 isRingSymbol 同理）。
 
 /** Vertical centre of a command (polygons have no centre field ⇒ vertex mean). */
 function centreY(cmd: DrawCommand): number {
@@ -108,8 +106,8 @@ describe('beads view model (control-manifest §8)', () => {
     expect(JSON.stringify(harness.game.snapshot)).toBe(before);
   });
 
-  // accessibility A1 的落地断言：L5 符号通道必须覆盖**每一个**已填格，而不是抽样。
-  it('A1 draws the L5 symbol for every filled cell and none for empty ones', () => {
+  // accessibility A1 的落地断言：L5 符号通道必须覆盖**每一个**已填格（整盘填满时逐格都有满墨符号）。
+  it('A1 draws the L5 symbol for every filled cell', () => {
     const harness = createBeadsHarness({
       levels: [simpleTestLevel()], // 3 colours ⇒ validator-legal; '123123' × 5 rows
       saveKey: 'wxgame.beads.test.vm-c',
@@ -125,22 +123,31 @@ describe('beads view model (control-manifest §8)', () => {
     expect(commands.filter((c) => onBoard(c) && isDotSymbol(c))).toHaveLength(10);
   });
 
-  // A3 灰度可辨：符号数是「已填格数」的函数，与颜色无关；空格不得带符号。
-  it('A3 keeps exactly one symbol per filled cell as the board fills up', () => {
+  // A3 灰度可辨（T-085 后）：每一格都带符号——已填格满墨、空格 E4 幽灵符号（α0.20），
+  // 符号总数恒等于格数、与颜色无关（色盲冗余通道：未填态即可按符号规划）。
+  it('A3 gives every cell a symbol channel: empty cells paint a ghost symbol (§3.8 E4)', () => {
     const harness = createBeadsHarness({
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-d',
     });
-    // 未填一格的棋盘上不存在任何符号。
-    expect(render(harness).filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(0);
+    // 未填一格 → 30 格全画 E4 幽灵符号，按色分布 10/10/10（不再“空格无符号”）。
+    const blank = render(harness);
+    expect(blank.filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(10);
+    expect(blank.filter((c) => onBoard(c) && isStarSymbol(c))).toHaveLength(10);
+    expect(blank.filter((c) => onBoard(c) && isDotSymbol(c))).toHaveLength(10);
+    // 幽灵符号墨色 = 目标色 @ EMPTY_GHOST_ALPHA（与已填满墨靠不透明度区分，非靠形状）。
+    expect(
+      blank.some(
+        (c) => onBoard(c) && c.kind === 'circle' && c.stroke === withAlpha(beadColor(1), EMPTY_GHOST_ALPHA),
+      ),
+    ).toBe(true);
 
-    for (let row = 0; row < harness.game.grid.rows; row++) {
-      placeColor(harness.game, 1, row, 0); // 每行第 0 列都是 ''1''（○）
-    }
-    const commands = render(harness);
-    expect(commands.filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(5); // 5 颗已填 → 5 个符号
-    expect(commands.filter((c) => onBoard(c) && isStarSymbol(c))).toHaveLength(0); // 其余 25 格仍为空
-    expect(commands.filter((c) => onBoard(c) && isDotSymbol(c))).toHaveLength(0);
+    // 填每行第 0 列（5 颗 '1'）→ 该 5 格转满墨符号、其余 25 格仍幽灵：符号总数恒 = 格数 30。
+    for (let row = 0; row < harness.game.grid.rows; row++) placeColor(harness.game, 1, row, 0);
+    const partial = render(harness);
+    expect(
+      partial.filter((c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c))),
+    ).toHaveLength(30);
   });
 
   // A4（WXG-T-062 转真）：三张道具卡**以形状为唯一识别** + 卡下方 28px **文字标签并列**，

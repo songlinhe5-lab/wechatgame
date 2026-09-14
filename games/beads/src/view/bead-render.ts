@@ -23,8 +23,11 @@ import {
   BEAD_SHADOW_ALPHA,
   BEAD_SHADOW_ALPHA_SELECTED,
   BEAD_SHADOW_HEX,
+  EMPTY_GHOST_ALPHA,
+  EMPTY_TINT_MIX,
   beadColor,
   mix,
+  mixWith,
   withAlpha,
   type BeadsPalette,
 } from './palette.js';
@@ -153,8 +156,20 @@ export function drawFilledBead(
 }
 
 /**
- * Draw an `empty` socket (§1.2): recessed slot fill + 1px border, no symbol and
- * no bevels — an unfilled cell must not read as a bead.
+ * §1.2 E4 幽灵符号相对 L5 满符号的缩小比例（「同矢量 path 但缩小 80%」）。
+ * L5 满符号占 ≈BEAD×0.406，×此比例→ glyph 占 ≈BEAD×0.32（与 §3.8 描述一致）。
+ * 几何比例（非 §3  gameplay 常量），与 {@link BEAD_CARD} 同族。
+ */
+const GHOST_SYMBOL_SCALE = 0.8;
+
+/**
+ * Draw an `empty` socket (§1.2). E2 描边（凹陷边界）常驻；传入 `colorIdx` 时另加
+ * **E1 目标色底** + **E4 幽灵符号**（两个 §3.8 冻结常量）——使未填态即可读出该格要
+ * 填的颜色（「同色入格」第一道解锁）。
+ *
+ * 与 `filled` 的形态区分（「must not read as a bead」）仍靠无 L0 投影 / 无 L2–L4
+ * 倒角高光 / 符号极淡（α 0.20）保证。不传 `colorIdx`（= 托盘空槽，无目标色）则保
+ * 持中性槽底、无幽灵符号。
  */
 export function drawEmptySocket(
   builder: RenderModelBuilder,
@@ -162,13 +177,32 @@ export function drawEmptySocket(
   cy: number,
   palette: BeadsPalette,
   size: number = BEAD_CELL,
+  colorIdx?: number,
 ): void {
-  builder.rect(cx - size / 2, cy - size / 2, size, size, {
-    fill: palette.slot,
+  const left = cx - size / 2;
+  const bottom = cy - size / 2;
+  const radius = Math.round(size * BEAD_CARD.radius);
+  // E1 目标色底：有目标色时按 §3.8 权重混入中性槽底；无目标色（托盘空槽）保持中性。
+  const fill =
+    colorIdx === undefined ? palette.slot : mixWith(palette.slot, beadColor(colorIdx), EMPTY_TINT_MIX);
+  // E2 描边 — 保持凹陷边界。
+  builder.rect(left, bottom, size, size, {
+    fill,
     stroke: palette.slotBorder,
     lineWidth: 1,
-    radius: Math.round(size * BEAD_CARD.radius),
+    radius,
   });
+  // E4 幽灵符号 — 与 L5 同矢量 path、缩至 ≈BEAD×0.32、α EMPTY_GHOST_ALPHA（色盲冗余通道）。
+  if (colorIdx !== undefined) {
+    emitSymbol(
+      builder,
+      beadSymbol(colorIdx),
+      cx,
+      cy,
+      size * GHOST_SYMBOL_SCALE,
+      withAlpha(beadColor(colorIdx), EMPTY_GHOST_ALPHA),
+    );
+  }
 }
 
 /**

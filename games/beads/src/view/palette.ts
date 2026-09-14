@@ -143,6 +143,22 @@ export const BEAD_HIGHLIGHT_ALPHA = 0.38;
 export const BEAD_BEVEL_DARK_MIX = -0.22;
 export const BEAD_BEVEL_LIGHT_MIX = 0.18;
 
+// ─────────────────────────── empty-socket target-colour hint (assets-spec §1.2 E1/E4) ──
+//
+// Two §3.8 冻结常量（`systems-index.md` §3.8，WXG-T-080 裁定）——「同色入格」可玩性
+// 的第一道视觉解锁：空槽显示目标色底 + 幽灵符号，使未填态即可读出该格要填的颜色。
+
+/**
+ * E1 目标色底混合权重：`mixWith(slot_fill, beadColor(colorIdx), EMPTY_TINT_MIX)` —
+ * 目标色占 35% 混入中性槽底色，产柔和粉彩（色盲冗余通道之一）。§3.8 冻结常量。
+ */
+export const EMPTY_TINT_MIX = 0.35;
+/**
+ * E4 幽灵符号不透明度：与 L5 同矢量 path、缩至 ≈BEAD×0.32、α 0.20 → 未填态
+ * 即可对照符号找匹配槽。§3.8 冻结常量。
+ */
+export const EMPTY_GHOST_ALPHA = 0.20;
+
 // ──────────────────────────────────────────────── symbol ink (assets-spec L5) ──
 /** Ink used on a bright bead: `mix(base, #000, 0.55)` → the mix amount. */
 export const SYMBOL_INK_DARK_MIX = -0.55;

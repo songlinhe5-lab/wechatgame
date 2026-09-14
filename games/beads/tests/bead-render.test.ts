@@ -25,8 +25,11 @@ import {
   BEAD_SHADOW_ALPHA,
   BEAD_SHADOW_HEX,
   DEFAULT_PALETTE,
+  EMPTY_GHOST_ALPHA,
+  EMPTY_TINT_MIX,
   beadColor,
   mix,
+  mixWith,
   withAlpha,
 } from '../src/view/palette.js';
 import { symbolInk } from '../src/view/symbols.js';
@@ -151,8 +154,9 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(bodyY(selected)).toBeCloseTo(bodyY(plain) + 4, 6);
   });
 
-  // §1.2 empty：仅主体 + 描边，**无符号无倒角**；§1.2 locked：主体 + 斜纹，**无高光无符号**。
-  it('§1.2 empty and locked states carry no symbol and no highlight', () => {
+  // §1.2 empty 且无目标色（= 托盘空槽）：仅主体 + 描边，**无符号无倒角**；
+  // §1.2 locked：主体 + 斜纹，**无高光无符号**。
+  it('§1.2 empty (no target) and locked states carry no symbol and no highlight', () => {
     const empty = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE));
     expect(empty).toHaveLength(1);
     expect(empty[0]).toMatchObject({
@@ -166,6 +170,27 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(locked.map((c) => c.kind)).toEqual(['rect', 'line', 'line']);
     // No highlight bar: the only fill commands are the body (L1 equivalent).
     expect(locked.some((c) => c.kind === 'rect' && c.fill === withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_HIGHLIGHT_ALPHA))).toBe(false);
+  });
+
+  // §1.2 empty + 目标色（T-085 / §3.8）：传入 colorIdx → E1 目标色底 + E4 幽灵符号（α0.20），
+  // 未填态即读出该格要填的颜色；形态仍无投影/倒角/高光 → 不误读为已填珠。
+  it('§1.2 empty socket with a target colour paints E1 tint + E4 ghost symbol', () => {
+    const idx = 1; // 奶白 ○
+    const cmds = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, idx));
+    const socket = cmds.find((c) => c.kind === 'rect');
+    expect(socket).toMatchObject({
+      kind: 'rect',
+      fill: mixWith(DEFAULT_PALETTE.slot, beadColor(idx), EMPTY_TINT_MIX),
+      stroke: DEFAULT_PALETTE.slotBorder,
+    });
+    // E4：同 L5 矢量 path（○ = stroke-only circle），ink = 目标色 @ EMPTY_GHOST_ALPHA。
+    const ghost = cmds.find((c) => c.kind === 'circle');
+    expect(ghost).toBeDefined();
+    expect(ghost!.kind === 'circle' && ghost!.stroke).toBe(withAlpha(beadColor(idx), EMPTY_GHOST_ALPHA));
+    // 形态区分仍在：无高光条。
+    expect(
+      cmds.some((c) => c.kind === 'rect' && c.fill === withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_HIGHLIGHT_ALPHA)),
+    ).toBe(false);
   });
 
   // §1.3：托盘珠 = 同 BEAD 内缩 4；尺寸常量必须由 TRAY_SLOT 派生，不能是散落的魔法数。
