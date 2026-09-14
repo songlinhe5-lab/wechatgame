@@ -7,7 +7,7 @@
  *
  * The bead itself — the six-layer parameter card and the 10-symbol channel —
  * lives in `view/bead-render.ts` + `view/symbols.ts` (architecture §3). This file
- * owns the *screen*: layout bands, HUD, tray chrome, pause panel and banners.
+ * owns the *screen*: layout bands, HUD, tray chrome, pause panel, fail overlay and banners.
  */
 
 import type { RenderModelBuilder } from '@wxgame/framework';
@@ -28,6 +28,7 @@ import {
 } from '../config/tuning.js';
 import type { BeadsSnapshot } from '../game/state.js';
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel.js';
+import { failPanelLabel, failPanelLayout } from '../systems/fail-panel.js';
 import {
   SELECTED_SHADOW_ALPHA,
   TRAY_BEAD_SIZE,
@@ -77,6 +78,7 @@ export function buildBeadsView(
   drawTray(builder, snap, palette);
   drawPowerupBand(builder, palette);
   drawPausePanel(builder, snap, palette);
+  drawFailPanel(builder, snap, palette);
   drawBanners(builder, snap, palette);
 }
 
@@ -140,6 +142,81 @@ function drawPausePanel(
     builder.text(bx + bw / 2, by + bh / 2, panelLabel(button, snap), {
       fill: primary ? palette.panel : palette.text,
       font: FONT.panelButton,
+      align: 'center',
+      baseline: 'middle',
+    });
+  }
+}
+
+function usesFailOverlay(snap: BeadsSnapshot): boolean {
+  return snap.phase === 'game-over' && snap.mode === 'normal';
+}
+
+// ───────────────────────────────────────────────── fail overlay (ux-spec §3.5)
+
+function drawFailPanel(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  if (!usesFailOverlay(snap)) return;
+  const layout = failPanelLayout(snap.reviveAvailable);
+
+  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+    fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
+  });
+
+  const plate = layout.panel;
+  const cx = (plate.xMin + plate.xMax) / 2;
+  builder.rect(plate.xMin, plate.yMin, plate.xMax - plate.xMin, plate.yMax - plate.yMin, {
+    fill: palette.panel,
+    radius: 24,
+  });
+
+  builder.text(cx, layout.titleY, '时间到', {
+    fill: palette.text,
+    font: FONT.panelTitle,
+    align: 'center',
+    baseline: 'middle',
+  });
+  if (layout.subtitle) {
+    builder.text(cx, layout.subtitleY, layout.subtitle, {
+      fill: palette.textDim,
+      font: FONT.hudSmall,
+      align: 'center',
+      baseline: 'middle',
+    });
+  }
+
+  for (const button of layout.buttons) {
+    const bw = button.rect.xMax - button.rect.xMin;
+    const bh = button.rect.yMax - button.rect.yMin;
+    const primary = button.id === 'revive';
+    const dimmed = primary && snap.watchingAd;
+    builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
+      fill: primary ? palette.textAccent : palette.slot,
+      stroke: primary ? palette.textAccent : palette.slotBorder,
+      lineWidth: 2,
+      radius: 14,
+    });
+    builder.text(button.rect.xMin + bw / 2, button.rect.yMin + bh / 2, failPanelLabel(button.id), {
+      fill: primary ? palette.panel : palette.text,
+      font: FONT.panelButton,
+      align: 'center',
+      baseline: 'middle',
+    });
+    if (dimmed) {
+      builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
+        fill: withAlpha(palette.panel, 0.35),
+        radius: 14,
+      });
+    }
+  }
+
+  if (snap.failHint) {
+    builder.text(cx, plate.yMin + 16, snap.failHint, {
+      fill: palette.textDim,
+      font: FONT.hudSmall,
       align: 'center',
       baseline: 'middle',
     });
@@ -353,7 +430,7 @@ function drawBanners(
 ): void {
   // The pause dialog carries its own 暂停 title — don't double-print the phase
   // banner on top of it (ux-spec §3.3 shows one caption, not two).
-  if (!snap.banner || snap.panelVisible) return;
+  if (!snap.banner || snap.panelVisible || usesFailOverlay(snap)) return;
   const bannerY = 700;
   builder.rect(0, bannerY - 90, DESIGN_W, 200, {
     fill: withAlpha(palette.bannerBackdrop, 0.55),

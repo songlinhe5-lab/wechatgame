@@ -17,6 +17,7 @@ import { MemoryStorage, type Storage } from '../core/save/storage';
 import { NullAudioBackend, type AudioBackend } from '../core/audio/audio';
 import type { PlatformInfo } from '../core/game/game';
 import { BasePlatform, type FrameHandle, type ScreenSize } from './platform';
+import { NoopRewardedAdProvider } from './rewarded-ad';
 
 /**
  * Shape shared by `getWindowInfo` (new) and `getSystemInfoSync` (deprecated).
@@ -136,6 +137,11 @@ export class WeappPlatform extends BasePlatform {
     // InnerAudioContext pooling is implemented with the first audio-bearing
     // game; the null backend keeps gameplay functional meanwhile.
     return new NullAudioBackend();
+  }
+
+  /** No wx ad API until the user approves a real pull (WXG-T-058). */
+  override createRewardedAdProvider() {
+    return new NoopRewardedAdProvider();
   }
 
   getScreenSize(): ScreenSize {

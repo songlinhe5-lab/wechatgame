@@ -18,7 +18,7 @@ export type GameMode = 'normal' | 'sprint';
 /**
  * Declared legal edges. Anything not listed is impossible by construction:
  * cleared/failed/pause all leave PLAYING; only PLAYING resumes from PAUSED;
- * only retry (game-over) and next-level (level-clear) re-enter PLAYING.
+ * retry / revive (game-over) and next-level (level-clear) re-enter PLAYING.
  */
 export const PHASE_TRANSITIONS: Readonly<Record<BeadsPhase, readonly BeadsPhase[]>> = {
   boot: ['playing'],
@@ -98,6 +98,15 @@ export interface BeadsSnapshot {
   /** BOOT validation failure — the game refuses to enter PLAYING (core-loop §2.1). */
   bootError: string;
 
+  /** Ordinary GAME_OVER: the fail overlay may still offer a revive. */
+  reviveAvailable: boolean;
+  /** True after a successful fail-page revive this attempt. */
+  revived: boolean;
+  /** True while a fail-page ad `show()` is in flight. */
+  watchingAd: boolean;
+  /** One-shot copy under the fail panel (e.g. Noop 「即将开放」). */
+  failHint: string;
+
   tuning: BeadsTuning;
 }
 
@@ -136,6 +145,10 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     banner: '',
     subBanner: '',
     bootError: '',
+    reviveAvailable: false,
+    revived: false,
+    watchingAd: false,
+    failHint: '',
     tuning,
   };
 }

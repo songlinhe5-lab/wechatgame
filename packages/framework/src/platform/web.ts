@@ -10,6 +10,7 @@ import { MemoryStorage, type Storage } from '../core/save/storage.js';
 import { NullAudioBackend, type AudioBackend } from '../core/audio/audio.js';
 import type { PlatformInfo } from '../core/game/game.js';
 import { BasePlatform, type FrameHandle, type ScreenSize } from './platform.js';
+import { MockRewardedAdProvider } from './rewarded-ad.js';
 
 interface GlobalWithDom {
   performance?: { now(): number };
@@ -57,6 +58,11 @@ export class WebPlatform extends BasePlatform {
     // Web Audio wiring lands with the first audio-bearing game; until then a
     // null backend keeps gameplay silent but fully functional.
     return new NullAudioBackend();
+  }
+
+  /** Browser harness: a tap on 续时 completes immediately (no WeChat SDK). */
+  override createRewardedAdProvider() {
+    return new MockRewardedAdProvider('complete');
   }
 
   getScreenSize(): ScreenSize {

@@ -13,6 +13,8 @@ import { WebPlatform } from './web';
 import { WeappPlatform, isWeapp } from './weapp';
 
 export * from './platform';
+export { MockRewardedAdProvider, NoopRewardedAdProvider } from './rewarded-ad';
+export type { MockAdOutcome } from './rewarded-ad';
 export { NodePlatform } from './node';
 export { WebPlatform } from './web';
 export { WeappPlatform, WeappStorage, isWeapp } from './weapp';

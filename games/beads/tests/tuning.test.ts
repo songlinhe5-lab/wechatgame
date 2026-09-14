@@ -30,6 +30,7 @@ import {
   TRAY_EXPAND_SLOTS,
   TRAY_GAP,
   TRAY_SLOT,
+  computeClearStars,
   gridLayoutFor,
   normalSettleScore,
   stageParamsFor,
@@ -123,6 +124,15 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     it('treats negative and non-finite stages as the first rung', () => {
       expect(stageParamsFor(-3)).toEqual(stageParamsFor(0));
       expect(stageParamsFor(Number.NaN)).toEqual(stageParamsFor(0));
+    });
+  });
+
+  describe('computeClearStars (§3.7 revive rating)', () => {
+    it('uses starRemaining / total and caps a revived run at 2★', () => {
+      expect(computeClearStars(96, 300, 0, false)).toEqual({ ratio: 0.32, stars: 3 });
+      expect(computeClearStars(35.7, 300, 0, false).stars).toBe(1);
+      expect(computeClearStars(60, 300, 60, true)).toEqual({ ratio: 0, stars: 1 });
+      expect(computeClearStars(200, 300, 60, true).stars).toBe(2);
     });
   });
 

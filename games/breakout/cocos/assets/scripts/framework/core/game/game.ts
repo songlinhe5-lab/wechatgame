@@ -20,6 +20,7 @@ import type { Storage } from '../save/storage';
 import type { Rng } from '../math/rng';
 import type { Viewport } from '../render/viewport';
 import type { RenderModelBuilder } from '../render/render-model';
+import type { RewardedAdProvider } from '../ads/rewarded-ad';
 
 /**
  * Opaque texture reference resolved by the render adapter. The core never
@@ -54,6 +55,8 @@ export interface GameServices {
   readonly viewport: Viewport;
   readonly assets: AssetProvider;
   readonly platform: PlatformInfo;
+  /** Optional rewarded-video. Always present; weapp ships a Noop until approved. */
+  readonly rewardedAd: RewardedAdProvider;
 }
 
 export interface Game {

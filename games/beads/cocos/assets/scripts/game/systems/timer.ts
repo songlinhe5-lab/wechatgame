@@ -38,7 +38,7 @@ export class GameTimer {
     return this._remaining;
   }
 
-  /** remaining / total — the star-rating input (§3.7). Clamped to [0, 1]. */
+  /** remaining / total — HUD ratio. Star rating after revive uses `computeClearStars`. */
   get ratio(): number {
     if (this._total <= 0) return 0;
     return Math.max(0, Math.min(1, this._remaining / this._total));

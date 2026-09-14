@@ -10,6 +10,7 @@ import { MemoryStorage, type Storage } from '../core/save/storage.js';
 import { NullAudioBackend, type AudioBackend } from '../core/audio/audio.js';
 import type { PlatformInfo } from '../core/game/game.js';
 import { BasePlatform, type FrameHandle, type LogLevel, type ScreenSize } from './platform.js';
+import { MockRewardedAdProvider } from './rewarded-ad.js';
 
 export class NodePlatform extends BasePlatform {
   readonly info: PlatformInfo = {
@@ -54,6 +55,10 @@ export class NodePlatform extends BasePlatform {
 
   createAudioBackend(): AudioBackend {
     return new NullAudioBackend();
+  }
+
+  override createRewardedAdProvider() {
+    return new MockRewardedAdProvider(null);
   }
 
   getScreenSize(): ScreenSize {

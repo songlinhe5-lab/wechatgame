@@ -587,4 +587,75 @@ describe('S9 pause & settings', () => {
     expect(PANEL_IN_MS).toBeLessThanOrEqual(200);
     expect(PANEL_OUT_MS).toBeLessThanOrEqual(150);
   });
+
+  // ── WXG-T-055 D-04: WeChat onShow must not leave PAUSED ──────────────
+  // pause-settings §6: 面板按钮是唯一出口. App.onShow still calls
+  // loop.reset() + game.onResume(); only the latter's state-machine
+  // behaviour changes (framework wiring stays).
+
+  it('D-04 manual pause then onPause+onResume stays PAUSED', () => {
+    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.d04-manual' });
+    const game = harness.game;
+    harness.advance(2);
+    const remaining = game.remaining;
+
+    expect(tapGear(game)).toBe(true);
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('manual');
+    expect(harness.count('game:paused')).toBe(1);
+    expect(game.panel.visible).toBe(true);
+
+    // Hide while already on the panel — no re-enter, intent stays manual.
+    game.onPause();
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('manual');
+    expect(harness.count('game:paused')).toBe(1);
+
+    game.onResume();
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('manual');
+    expect(harness.count('game:resumed')).toBe(0);
+
+    harness.advance(8);
+    expect(game.remaining).toBeCloseTo(remaining, 10);
+    expect(game.phase).toBe('paused');
+
+    const p = buttonPoint('resume');
+    expect(tap(game, p.x, p.y)).toBe(true);
+    expect(game.phase).toBe('playing');
+    expect(game.pauseIntent).toBeNull();
+    expect(harness.count('game:resumed')).toBe(1);
+  });
+
+  it('D-04 PLAYING onPause enters PAUSED and onResume stays PAUSED', () => {
+    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.d04-system' });
+    const game = harness.game;
+    expect(game.phase).toBe('playing');
+    expect(game.pauseIntent).toBeNull();
+    harness.advance(3);
+    const remaining = game.remaining;
+
+    game.onPause();
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('system');
+    expect(harness.count('game:paused')).toBe(1);
+    expect(game.panel.visible).toBe(true);
+    expect(game.panel.interactive).toBe(true);
+    const ticksAtPause = harness.count('timer:tick');
+
+    game.onResume();
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('system');
+    expect(harness.count('game:resumed')).toBe(0);
+
+    harness.advance(12);
+    expect(game.remaining).toBeCloseTo(remaining, 10);
+    expect(harness.count('timer:tick')).toBe(ticksAtPause);
+
+    const p = buttonPoint('resume');
+    expect(tap(game, p.x, p.y)).toBe(true);
+    expect(game.phase).toBe('playing');
+    expect(game.pauseIntent).toBeNull();
+    expect(harness.count('game:resumed')).toBe(1);
+  });
 });

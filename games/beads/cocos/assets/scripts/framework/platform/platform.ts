@@ -14,6 +14,8 @@ import type { Storage } from '../core/save/storage';
 import type { AudioBackend } from '../core/audio/audio';
 import type { AssetProvider, PlatformInfo } from '../core/game/game';
 import { NullAssetProvider } from '../core/game/game';
+import type { RewardedAdProvider } from '../core/ads/rewarded-ad';
+import { NoopRewardedAdProvider } from './rewarded-ad';
 
 export interface ScreenSize {
   readonly width: number;
@@ -36,6 +38,8 @@ export interface Platform {
   createStorage(): Storage;
   createAudioBackend(): AudioBackend;
   createAssetProvider(): AssetProvider;
+  /** Rewarded video. Node/web = Mock; weapp = Noop until a real pull is approved. */
+  createRewardedAdProvider(): RewardedAdProvider;
   getScreenSize(): ScreenSize;
   /** Schedule the next frame. The callback receives the delta in ms. */
   requestFrame(callback: (dtMs: number) => void): FrameHandle;
@@ -64,6 +68,11 @@ export abstract class BasePlatform implements Platform {
   /** Override to supply textures/atlases. Default is empty. */
   createAssetProvider(): AssetProvider {
     return this._assetProvider;
+  }
+
+  /** Default: never awards. Concrete hosts override with Mock or a weapp wrapper. */
+  createRewardedAdProvider(): RewardedAdProvider {
+    return new NoopRewardedAdProvider();
   }
 
   onHide(_callback: () => void): () => void {

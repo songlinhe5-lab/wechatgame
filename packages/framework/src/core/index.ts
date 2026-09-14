@@ -21,3 +21,4 @@ export * from './audio/audio.js';
 export * from './render/viewport.js';
 export * from './render/render-model.js';
 export * from './game/game.js';
+export * from './ads/rewarded-ad.js';

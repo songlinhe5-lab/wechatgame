@@ -79,6 +79,7 @@ export class App {
       viewport: this.viewport,
       assets: options.assets ?? this.platform.createAssetProvider(),
       platform: this.platform.info,
+      rewardedAd: this.platform.createRewardedAdProvider(),
     };
 
     this.loop = new FixedStepLoop(
@@ -128,6 +129,7 @@ export class App {
   /** Tear down the game as well (scene teardown / hot reload). */
   dispose(): void {
     this.stop();
+    this.services.rewardedAd.destroy();
     this.game.dispose?.();
     this.events.removeAll();
   }

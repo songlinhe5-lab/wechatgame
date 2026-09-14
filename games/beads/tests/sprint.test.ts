@@ -15,7 +15,18 @@ import {
   burnToRemaining,
 } from './helpers.js';
 import { normalSettleScore, stageParamsFor, STAGE_BONUS_TIME } from '../src/config/tuning.js';
+import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
+
+/** Continue is the only PAUSED exit (WXG-T-055 D-04: onResume stays paused). */
+function tapContinue(game: BeadsGame, mode: 'normal' | 'sprint' = 'sprint'): void {
+  const button = pausePanelLayout(mode).buttons.find((b) => b.id === 'resume');
+  if (!button) throw new Error('sprint: no resume button');
+  game.tapDesign(
+    (button.rect.xMin + button.rect.xMax) / 2,
+    (button.rect.yMin + button.rect.yMax) / 2,
+  );
+}
 
 type Harness = ReturnType<typeof createBeadsHarness>;
 
@@ -76,7 +87,7 @@ describe('S7 score-combo', () => {
   afterEach(() => vi.restoreAllMocks());
 
   // §8.1 普通模式局内全程零分数 HUD 元素；过关后 level:cleared payload 的 stars 与
-  // §3.7 阈值表逐一吻合（ratio=0.40/0.399/0.20/0.199 四点采样）。
+  // §3.7 阈值表逐一吻合（ratio=0.32/0.319/0.12/0.119 四点采样）。
   it('§8-1 normal mode has zero score HUD; stars match §3.7 thresholds at 4 sample ratios', () => {
     // Zero score HUD: render both modes and inspect text commands.
     const normal = createBeadsHarness({
@@ -105,10 +116,10 @@ describe('S7 score-combo', () => {
 
     // Star threshold sampling: clear with remaining just above each boundary.
     const samples: { remaining: number; stars: number }[] = [
-      { remaining: 120, stars: 3 }, // ratio ≈ 0.40 → 3★
-      { remaining: 119.7, stars: 2 }, // ratio ≈ 0.399 → 2★
-      { remaining: 60, stars: 2 }, // ratio ≈ 0.20 → 2★
-      { remaining: 59.7, stars: 1 }, // ratio ≈ 0.199 → 1★
+      { remaining: 96, stars: 3 }, // ratio = 0.32 → 3★
+      { remaining: 95.7, stars: 2 }, // ratio = 0.319 → 2★
+      { remaining: 36, stars: 2 }, // ratio = 0.12 → 2★
+      { remaining: 35.7, stars: 1 }, // ratio = 0.119 → 1★
     ];
     for (const sample of samples) {
       const harness = createBeadsHarness({
@@ -358,7 +369,7 @@ describe('S7 score-combo', () => {
     game.onPause();
     harness.advance(300); // ages while paused — nothing may break
     expect(harness.count('combo:break')).toBe(0);
-    game.onResume();
+    tapContinue(game, 'sprint');
     // Window resumes from its paused value (≈1.0 s), NOT from a fresh 5 s.
     harness.advance(0.9);
     expect(harness.count('combo:break')).toBe(0);

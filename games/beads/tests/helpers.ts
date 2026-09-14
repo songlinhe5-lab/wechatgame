@@ -16,6 +16,7 @@ import {
   Viewport,
   type EventMap,
   type GameServices,
+  type RewardedAdProvider,
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { BeadsGame } from '../src/game/beads-game.js';
@@ -49,6 +50,8 @@ export interface HarnessOptions {
   sprintTime?: number;
   /** Share a storage instance between harnesses to simulate a relaunch. */
   storage?: ReturnType<NodePlatform['createStorage']>;
+  /** Override the platform rewarded-ad (default = Node Mock pending settle). */
+  rewardedAd?: RewardedAdProvider;
 }
 
 export function createBeadsHarness(options: HarnessOptions = {}): Harness {
@@ -68,6 +71,7 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
     viewport: new Viewport(750, 1334),
     assets: new NullAssetProvider(),
     platform: platform.info,
+    rewardedAd: options.rewardedAd ?? platform.createRewardedAdProvider(),
   };
 
   const game = new BeadsGame({
