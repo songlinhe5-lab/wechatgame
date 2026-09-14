@@ -31,32 +31,6 @@
 
 ---
 
-## WXG-T-066
-
-- **名称**：EP-07 通关画面（FINISH）落地：`ux-spec §3.6` 的全屏庆祝 + 星级总览 + 双钮，接上判据 `core-loop §8-8`。
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **落地**：① 新增 `systems/finish-panel.ts`（纯逻辑：布局 / 命中 / 入出动画 / **逐关**入场；镜像 `clear-panel.ts` 的纪律——不碰网格 / 托盘 / 倒计时 / 存档）② `beads-game.ts`：`addState('finish')` 由**空壳**补全（onEnter 开面板 + `_stepFinish` 逐关音效）、点击路由改为**只认两个按钮**（此前**任意点击**都被当成「重玩第 1 关」✗ 面板外误触会重开整轮）③ 星级总览数据 = 每关**历史最好**（`_starsByLevel`，重玩取 max）④ 视图 `drawFinishPanel`（全屏遮罩 + 顶部三色带 + 逐关行 + 总星数 + 主副钮）⑤ 顺带修一处**真缺陷**：末关进 FINISH 时**结算面板不退场** ⇒ 它 150ms 的淡出会从通关画面后面透出来（两个面板都画全屏遮罩，叠着见两层）——现于交接处 `close()` 并有断言钉住。
-- **判据**：`core-loop §8-8` 三段全覆盖（n<8 推进 / 第 8 关进 FINISH / FINISH 重玩第 1 关）+ `ux-spec §4` 矩阵行（去冲刺 / 重玩第 1 关）+ `input-control §2.3`（面板外零响应，含淡出期）。新测试 `tests/finish-panel.test.ts` 10 例 ⇒ beads 全量 **157 → 167 全过**。
-- **派生项（GDD / UX 无明文，已登记）**：① §3.6 只有一句话、**未给几何** ⇒ 布局沿用结算面板的常量族与设计空间约定；② `ux-spec §5` 的「逐颗 150ms」是结算行 3 颗的时序，总览最多 8×3 = 24 颗（逐颗要 3.6s ✗）⇒ 改**逐关** 150ms（8 关 = 1.2s），同关 3 颗同时入场；③ 总览取值 = 每关历史最好（与 `maxUnlockedLevel` 的持久语义一致）。
-- **未闭环（EP-07 剩余）**：冲刺结算面板（`ux-spec §3.5` 左列，含 NEW BEST 与 §8-11）、连击特效三档（`score-combo §2.5`；判据 §8-9 属 DevTools 帧检）、星级表持久化（见 backlog）。
-- **文档回写**：`epics-beads.md` EP07-S1 里「STAR3_RATIO 0.40 / STAR2_RATIO 0.20」与 `systems-index §3` 的**冻结值**（T-054 重冻结：**0.32 / 0.12**）冲突 ⇒ 按该文档自身的裁定纪律「以 §3 为准，回写本文档」一并更正。**本轮实测踩到过**：ratio 0.15 应判 2★，按过期阈值会误判 1★（我的测试第一版就写错了，改用冻结常量取值）。
-- **产出**：games/beads/src/systems/finish-panel.ts（**新增**）· game/beads-game.ts · game/state.ts · config/tuning.ts · view/view-model.ts · src/index.ts · tests/finish-panel.test.ts（**新增**）· cocos 拷贝件（`framework:sync`：beads game 22 → 23）· production/epics/epics-beads.md · 本台账
-
----
-
-## WXG-T-067
-
-- **名称**：EP-07 冲刺结算面板落地：`ux-spec §3.5` **左列**（单局 / 最高梯位 / 最高连击 + 双钮），接上判据 `score-combo §8-11`。
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **落地**：① 新增 `systems/sprint-settle.ts`（纯逻辑：布局 / 命中 / 入出动画；文案与千位分隔为纯函数）② `beads-game.ts`：冲刺归零时 `_recordSprintEnd()` **先结算再开面板**（NEW BEST 与写盘有先后依赖），点击路由由「**任意点击即重开本局**」✗ 改为**只认两个按钮**（再来一局 / 返回关卡）；`retryLevel` / `startNormal` 补面板退场 ③ 视图 `drawSprintSettle` 顶掉 banner 里那行 `SCORE N · NEW BEST!` 占位（占位随本任务删除，banner 守卫改为认结算面板可见性）④ **`SprintTracker` 增 `bestStreak`**：§3.5 要「最高连击」而 `streak` 断连即归零 ⇒ 必须单独记最大值；它**不进 `sprint:ended` payload**（该事件字段受 `systems-index §6` 变更流程约束，而这是**展示量**）⑤ 崩溃快照增 `bestStreak`（提案 §4 **例外**：缺省 ⇒ 0、不弃整份快照——纯展示量不值得丢一局恢复档；其余 sprint 字段仍「缺字段 → 丢」）。
-- **判据**：`score-combo §8-11` **两半都钉住**——`> 最佳` ⇒ `isNewBest` + NEW BEST 渲染 + 写 S8；`≤ 最佳` ⇒ 不显示不写（用**共享 storage 的两个 harness** 造真「重启」语义，而非「0 > 0」的弱用例）；§3.5 双钮路由；§3.5「不出现续时主钮」（冲刺态 `requestRevive()` 为 no-op）；面板外零响应。新测试 `tests/sprint-settle.test.ts` 9 例 ⇒ beads **167 → 176 全过**。
-- **改了既有用例（如实登记）**：`tests/revive.test.ts` 的 `sprint GAME_OVER has no revive and **still retries on any tap**` 是在**钉住旧行为** ✗ —— 与 `§3.5` 及 `input-control §2.3` 直接冲突。已改名为 `…answers the settle panel buttons only`，断言改为「面板外零响应 + 只有双钮能离开本相位」，**覆盖没有削弱**（反而更严）。这是本轮唯一被改动的既有断言。
-- **派生项（已登记）**：① §3.5 左列**无标题行**（首行即「单局 N」）⇒ 增「冲刺结束」标题（沿用面板常量族）；② 「▸×M 最高连击 K」的 `M` 由 `K` **重算**（`multiplierForStreak`），不另存倍率字段；③ `§8-11` 只说显示 / 不显示、未给角标位置 ⇒ 贴标题行右侧。
-- **EP-07 剩余**：连击特效三档（`score-combo §2.5`；判据 §8-9 属 DevTools 帧检）、星级表持久化（见 backlog）。
-- **产出**：systems/sprint-settle.ts（**新增**）· systems/sprint.ts · game/beads-game.ts · game/state.ts · game/crash-snapshot.ts · view/view-model.ts · src/index.ts · tests/sprint-settle.test.ts（**新增**）· tests/revive.test.ts · tests/in-level-snapshot.test.ts · design/proposals/in-level-snapshot.md · cocos 拷贝件（game 23 → 24）· 本台账
-
----
-
 ## WXG-T-068
 
 - **名称**：`memory/` 日志的**分级加载**：新增摘要层 `memory/INDEX.md`（生成物）——先读摘要，需要时按行区间只读那一节。
@@ -156,3 +130,15 @@
 - **动机**：领号只需要头注里那一行（**≈30 tok**），而旧读法写的是「只读主表拿号」（≈2.4k）——每次领号多付约 80 倍。且头注所在**行号会随编辑漂移**，硬编码行号必错 ✗ ⇒ 用 `grep -n '当前已分配至'` 定位（与本仓 `memory/INDEX.md §1` 的 grep 法同判例）。
 - **落地**：① `ctx/ROUTES.md`「领号 / 任务台账」行改写（「看全部状态」仍保留整表读法）② 本文件前言条目 1 同步。
 - **产出**：ctx/ROUTES.md · production/TASKS-DETAIL.md · 本台账
+
+---
+
+## WXG-T-076
+
+- **名称**：台账 backlog 卫生门（`check-tasks` **G 项**）+ 主表行数观察哨（**H 项**，report-only）。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **动机（用户问出来的架构账）**：「分级读取后还需要 archive 吗？TASKS.md 还会膨胀吗？」——按段量化回答：头注 485（有界）/ 主表标题行 526（≈48/行、行数无门）/ **backlog 1,399（占全文 57%，唯一没有门的段）** ✗，其中一条**已结项**的删除线占位行就占 **383 tok（全文 16%）**。
+- **落地**：① backlog 段重写——结项行移除、7 行全部压到 ≤160 字符、**顺带修一处坏表**（原表头后缺 `|---|` 分隔 ⇒ 30–32 与 34–38 是两张断开的表 ✗）② `check-tasks.mjs` 新增 **G 项**：backlog 行**不得用删除线占位**（结项即移除）+ **行 ≤160 字符**（只写「是什么 / 谁发现 / 下一步动作」，长分析开任务再写）③ 新增 **H 项观察哨**：主表行数 >20 只 WARN 不阻断（对齐「结构门硬、行为门软」惯例，WXG-T-026）④ backlog 段头部写纪律——闸的「立法」与「执法」放在同一处。
+- **实测（双向，非假绿）**：正常态 OK；注入 246 字符行 + 删除线行 ⇒ **恰好两条 G 失败**（行长 / 删除线各一）、退出码 1；回滚 ⇒ OK。
+- **口径说明（会话中已向主理人说明）**：分级读取之后，B 项「单文件 8000」对这类文件的原初理由（整读读不起）已变弱；它现在的价值是兜底。是否降级为「节数门」属独立架构决定，本次不动。
+- **产出**：tools/scripts/check-tasks.mjs · production/TASKS.md（backlog 2,410 → 1,565 tok）· 本台账

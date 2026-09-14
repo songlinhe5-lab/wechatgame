@@ -11,19 +11,19 @@
 | `AGENTS.md` | 1859 | 121 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 413 | 24 | 500 | ✅ |
-| `ctx/hot-files.md` | 3750 | 90 | 4000 | ✅ |
+| `ctx/hot-files.md` | 3745 | 90 | 4000 | ✅ |
 | `ctx/ROUTES.md` | 6760 | 227 | 7500 | ✅ |
 
 > AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
 > `ctx/ROUTES.md` 常驻阈值 **7500**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，且低于 B 项通用单文件上限 8000——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。
-> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **13036** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
+> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **13031** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
 
 ## 2. Top 20 大文件（估算 tokens）
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
 | 1 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
-| 2 | `memory/2026-09-14.md` | 12059 | 326 | normal |
+| 2 | `memory/2026-09-14.md` | 12379 | 337 | normal |
 | 3 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
 | 4 | `memory/2026-09-12.md` | 10141 | 151 | normal |
 | 5 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
@@ -33,22 +33,22 @@
 | 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
 | 10 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 525 | normal |
 | 11 | `production/epics/epics-beads.md` | 7916 | 293 | normal |
-| 12 | `production/TASKS-DETAIL.md` | 7892 | 158 | normal |
-| 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
-| 14 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
-| 15 | `games/beads/design/proposals/star-level-rebalance.md` | 7487 | 387 | normal |
-| 16 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
-| 17 | `production/qa/beads/test-cases.md` | 7282 | 197 | hot |
-| 18 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
-| 19 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
-| 20 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
+| 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
+| 14 | `games/beads/design/proposals/star-level-rebalance.md` | 7487 | 387 | normal |
+| 15 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
+| 16 | `production/qa/beads/test-cases.md` | 7282 | 197 | hot |
+| 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
+| 18 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
+| 19 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 20 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `memory/2026-09-14.md` | 12059 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `memory/2026-09-14.md` | 12379 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-09-12.md` | 10141 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

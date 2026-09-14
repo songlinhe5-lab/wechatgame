@@ -13,6 +13,9 @@
  *   C. **配对**：主表每行 ⇔ 详情文件同名小节（`## WXG-T-0NN`）
  *   D. 详情**不得**残留已归档 id 的小节（正常由 `tasks:archive` 成对搬走；`--prune` 补搬）
  *   E. 详情归档**不得**有「行归档里不存在」的 id（成对搬运脱钩检测，WXG-T-065）
+ *   F. 头注号**不得落后**于主表 ∪ 归档全局最大号（防领号重号，WXG-T-070；领先合法只出 note）
+ *   G. **backlog 卫生**（WXG-T-076）：结项即移除（不留删除线占位）+ 每行 ≤160 字符
+ *   H. 主表行数**观察哨**（report-only，不阻断——「结构门硬、行为门软」惯例）
  *
  * 用法：
  *   node tools/scripts/check-tasks.mjs             # 校验（verify 内调用）
@@ -39,6 +42,8 @@ const rel = (p) => path.relative(ROOT, p);
 
 /** 名称单元格的字符上限（标题，不是段落）。 */
 const TITLE_MAX = 60;
+/** backlog 行字符上限（WXG-T-076）：只写「是什么 / 谁发现 / 下一步」，长分析开任务再写。 */
+const BACKLOG_ROW_MAX = 160;
 
 const read = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
 const idNum = (id) => Number.parseInt(id.replace('WXG-T-', ''), 10);
@@ -142,6 +147,41 @@ if (headerMax === null) {
   );
 } else if (headerMax > globalMax) {
   notes.push(`F: 头注号 ${pad3(headerMax)} 领先全局最大号 ${pad3(globalMax)}（合法：头注只进不退）`);
+}
+
+// G：backlog 卫生（WXG-T-076）——「结项即移除」+ 行长上限。
+// 动机（实测）：backlog 是台账里唯一没有门的段；一条**已结项**的删除线占位行曾占全文 16%（383 tok）。
+const backlogStart = ledgerLines.findIndex((l) => l.startsWith('## 待排'));
+if (backlogStart < 0) {
+  notes.push('G: 主表无 backlog 段（## 待排）——跳过 backlog 卫生检查');
+} else {
+  for (let i = backlogStart + 1; i < ledgerLines.length; i += 1) {
+    const line = ledgerLines[i];
+    if (line.startsWith('## ')) break; // 到下一节为止
+    if (!line.startsWith('| **')) continue; // 只看事项行（表头 / 分隔线不管）
+    if (line.includes('~~')) {
+      failures.push(
+        `G: backlog 行 ${i + 1} 用删除线占位「已结项」——结项即**移除**整行，不留尸体`,
+      );
+    }
+    const len = [...line].length;
+    if (len > BACKLOG_ROW_MAX) {
+      failures.push(
+        `G: backlog 行 ${i + 1} ${len} 字符 > 上限 ${BACKLOG_ROW_MAX} —— ` +
+          '只写「是什么 / 谁发现 / 下一步动作」，长分析开任务再写',
+      );
+    }
+  }
+}
+
+// H（观察哨，report-only）：主表行数提醒。只 WARN 不阻断 —— 对齐本仓「结构门硬、行为门软」
+// 惯例（WXG-T-026 裁定）：行数取决于开发节奏，不该成为无关提交的硬门。
+const ROW_SENTINEL = 20;
+if (rows.length > ROW_SENTINEL) {
+  notes.push(
+    `H: 主表 ${rows.length} 行 > 观察哨 ${ROW_SENTINEL} —— 该归档/收敛了：` +
+      '`pnpm run tasks:archive -- --detail-until-under=7000 --write`',
+  );
 }
 
 // ── --prune：补搬（不是删）────────────────────────────────────────────────────

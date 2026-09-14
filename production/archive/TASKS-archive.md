@@ -77,3 +77,6 @@
 | WXG-T-064 | 台账标题制 + 详情分片（治膨胀） | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
 > 归档批次 2026-09-14 15:23 +08:00 — 1 行（WXG-T-065）｜判定：git blame committer-time ≥ 30 天｜详情节同批搬入 production/archive/TASKS-DETAIL-archive.md
 | WXG-T-065 | 归档器成对搬运（行+详情节） | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+> 归档批次 2026-09-14 18:19 +08:00 — 2 行（WXG-T-066、WXG-T-067）｜判定：git blame committer-time ≥ 30 天｜详情节同批搬入 production/archive/TASKS-DETAIL-archive.md
+| WXG-T-066 | EP-07 通关画面（FINISH） | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+| WXG-T-067 | 冲刺结算面板（§3.5 左列） | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
