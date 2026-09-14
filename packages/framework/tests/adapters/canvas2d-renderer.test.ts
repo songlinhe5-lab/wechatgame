@@ -21,6 +21,8 @@ function mockCtx() {
     arc: record('arc'),
     moveTo: record('moveTo'),
     lineTo: record('lineTo'),
+    translate: record('translate'),
+    scale: record('scale'),
     fill: record('fill'),
     stroke: record('stroke'),
     fillText: record('fillText'),
@@ -107,17 +109,31 @@ describe('Canvas2DRenderer', () => {
     expect(calls).toContain('lineTo(5,10)');
   });
 
-  it('draws text with align/baseline/font and alpha', () => {
+  it('undoes the y-flip for text locally and swaps vertical baselines', () => {
     const { ctx, calls, renderer } = makeRenderer();
     const b = new RenderModelBuilder(100, 100);
     b.begin();
     b.text(10, 20, 'SCORE', { fill: '#ff0', font: '18px sans', align: 'center', baseline: 'top', alpha: 0.5 });
     renderer.draw(b.end());
-    expect(calls).toContain('fillText(SCORE,10,20)');
+    // GAP-08: the glyph is painted at the local origin after translate→(10,20)
+    // + scale(1,-1), so the anchor lives in the transform, not the fillText args.
+    expect(calls).toContain('translate(10,20)');
+    expect(calls).toContain('scale(1,-1)');
+    expect(calls).toContain('fillText(SCORE,0,0)');
+    // Re-flipping inverts the vertical baseline: 'top' → 'bottom'.
+    expect(ctx.textBaseline).toBe('bottom');
     expect(ctx.textAlign).toBe('center');
-    expect(ctx.textBaseline).toBe('top');
     expect(ctx.font).toBe('18px sans');
     expect(ctx.globalAlpha).toBe(0.5);
+  });
+
+  it('keeps horizontal/alphabetic baselines untouched under the local re-flip', () => {
+    const { ctx, renderer } = makeRenderer();
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    b.text(10, 20, 'OK', { baseline: 'middle' });
+    renderer.draw(b.end());
+    expect(ctx.textBaseline).toBe('middle');
   });
 
   it('can skip the viewport transform when the host already applied one', () => {
@@ -130,6 +146,32 @@ describe('Canvas2DRenderer', () => {
     expect(calls.some((c) => c.startsWith('setTransform('))).toBe(false);
   });
 
+  it('renders text un-flipped when the host already applied no viewport transform', () => {
+    const { ctx, calls } = mockCtx();
+    const viewport = new Viewport(100, 100);
+    const renderer = new Canvas2DRenderer(ctx, viewport, { applyViewportTransform: false });
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    b.text(10, 20, 'SCORE', { baseline: 'top' });
+    renderer.draw(b.end());
+    // No global flip to undo → paint at the raw anchor, baseline unchanged.
+    expect(calls).toContain('fillText(SCORE,10,20)');
+    expect(calls.some((c) => c.startsWith('scale('))).toBe(false);
+    expect(ctx.textBaseline).toBe('top');
+  });
+
+  it('prefixes the whole transform by pixelRatio to land in the device backing store', () => {
+    const { ctx, calls } = mockCtx();
+    const viewport = new Viewport(100, 100);
+    viewport.resize(200, 100); // letterbox: scale 1, offsetX 50, offsetY 0
+    const renderer = new Canvas2DRenderer(ctx, viewport, { pixelRatio: 2 });
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    renderer.draw(b.end());
+    // ADR-0011 §3: fit is CSS px; scale *and* both translation terms scale by dpr.
+    expect(calls[1]).toBe('setTransform(2,0,0,-2,100,200)');
+  });
+
   it('never leaks an unbalanced save/restore', () => {
     const { renderer, calls } = makeRenderer();
     const b = new RenderModelBuilder(100, 100);
@@ -138,7 +180,11 @@ describe('Canvas2DRenderer', () => {
     b.circle(0, 0, 1, { fill: '#fff' });
     b.text(0, 0, 'x');
     renderer.draw(b.end());
-    expect(calls.filter((c) => c === 'save()')).toHaveLength(1);
-    expect(calls.filter((c) => c === 'restore()')).toHaveLength(1);
+    const saves = calls.filter((c) => c === 'save()').length;
+    const restores = calls.filter((c) => c === 'restore()').length;
+    // Text now carries its own local pair (ADR-0011 §4.2.4), so >1 each…
+    expect(saves).toBeGreaterThan(1);
+    // …but every save is still matched by a restore.
+    expect(saves).toBe(restores);
   });
 });
