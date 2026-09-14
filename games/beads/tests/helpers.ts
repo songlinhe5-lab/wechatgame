@@ -175,6 +175,29 @@ export function placeColor(
 }
 
 /**
+ * Deliver a pointer sample **inside a frame** — `beginFrame()` clears the
+ * one-shot flags, so pushing before `advance()` would lose the tap.
+ *
+ * This is the only way to build a true "same frame" case: the tap must be
+ * visible to the `_readInput()` call that runs at the head of `_stepPlaying`
+ * (see `core-loop §2.2.2` 帧内序). Used by `frame-order.test.ts`.
+ * (`pause-settings.test.ts` carries a legacy file-local copy of this helper.)
+ */
+export function tapInFrame(harness: Harness, designX: number, designY: number): void {
+  const screen = { x: 0, y: 0 };
+  harness.services.viewport.designToScreen(screen, designX, designY);
+  const step = 1 / 60;
+  harness.input.beginFrame();
+  harness.input.push({ id: 1, x: screen.x, y: screen.y, phase: 'down', time: 0 });
+  harness.game.update(step);
+  harness.input.endFrame(step);
+  // Release immediately so no later frame sees a held pointer.
+  harness.input.beginFrame();
+  harness.input.push({ id: 1, x: screen.x, y: screen.y, phase: 'up', time: 0 });
+  harness.input.endFrame(step);
+}
+
+/**
  * Place one tray bead that matches any still-empty cell, if the tray holds
  * one. Returns true when a placement landed.
  */

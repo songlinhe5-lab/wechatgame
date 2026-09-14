@@ -1,7 +1,7 @@
 # WXG 任务台账（SSOT）
 
 > 单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前**先读本文件领号**，完成后回填状态——根治跨 IDE 撞号（教训：2026-09-12 CodeBuddy 独立会话撞用 T-013/T-014）。
-> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-060**（已完成），下一可用号 **WXG-T-061**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
+> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-061**（已完成），下一可用号 **WXG-T-062**。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
 > 勘误（2026-09-13）：本注此前长期停在「已分配至 T-032」而表内已排到 T-035，曾致撞号（教训见 memory 记录）；WXG-T-040 归档落地后改为——**领号认本注（下一可用号），本注由 `tasks:archive` 校准**为「主表 ∪ 归档全局最大号 + 1」（归档会把老行移出主表，只看主表最大号必重号）；手工领号后请顺手核对本注（可运行 `pnpm run tasks:archive` 校准，0 行时不落盘）。
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
@@ -29,6 +29,8 @@
 > 注 3：多会话并行时领号纪律——开工前读本文件取「下一可用号」并立即回填占位，完成后再更新状态行。
 
 | WXG-T-060 | beads S6 道具系统落码（EP-06，用户裁定「beads 游戏继续规划任务执行」）：① `tuning.ts` 补 §3.6 常量（`POWERUP_TYPES` / `REGION_CLEAR_SLOTS=6` / `RANDOM_CLEAR_COUNT=5` / `POWERUP_FREE_USES=1` / `AD_PLACEMENTS=4`）+ 卡片几何真源 `powerupCardRects()`（视图与 S2 命中测试**共用**，消灭双份常量）；② 新增 `systems/powerups.ts` —— 只读镜像（`tray:spawned`/`bead:placed`/`tray:expanded` + 选中锚点）、三道具效果（region 恒长窗口 + 两端钳制、clearAll 全容量、random 等概率无放回）、三计数独立、**点名归 S6、清槽归 S4**；③ `beads-game` 接线（S2 路由优先级 2 + `usePowerup` + 整关重置 + 崩溃档读写 + 快照字段）；④ 崩溃档 `powerupUses` **上限钳制**关闭（T-059 留的「待 S6 落地补」）；⑤ 视图落 **A4 三图标**（魔法棒/扫帚/磁铁，§1.4 程序化 path）+ 用尽变灰 + `×N` + 占位轻提示。**测试**：新增 `tests/powerups.test.ts` **16 条**（§8 十条判据 1:1 + 常量镜像），beads **129 → 145**。**顺带修两处假绿/失配**：A4 此前标「✅ 落地」而实现是 3 张空白卡（无图标无标签）；A1/A3 符号特征计数被新增图标同原语污染（断言限定进拼图带）。**未闭环**：① §8-4 判据（200 次 ±20%）统计上偏紧（12 槽族极大偏差期望 ≈22%，实测 6 seed 落在 0.104–0.256）⇒ 测试固定 seed 并登记修订建议；② §1.4 卡片几何（176×150 + 卡下方标签）与 §3.1 带高 152 **互相矛盾**，未擅自改尺寸，登记待裁定；③ 图标文字标签未落码 | 主理人(CodeBuddy) | ✅ 完成 | games/beads/src/systems/powerups.ts · src/config/tuning.ts · src/game/{beads-game,state,crash-snapshot}.ts · src/view/{view-model,palette}.ts · tests/powerups.test.ts · games/beads/art/accessibility.md（A4 改真）· 本台账 |
+
+| WXG-T-061 | **「到达序」判据清理**（用户裁定，承接 WXG-T-031 已确立基准）：把 beads 各 GDD 里以「事件到达序 / 以先到为准」为基准的「同帧」条款**统一换基准**为可观测的**帧内执行序**——`core-loop §2.2` 拆为「**玩法叙事序**（玩家感知的因果链，非执行序）」+「**帧内执行序**（规范，唯一真源）：输入（段内序：状态指令 → 玩法事件）→ 连击窗（仅冲刺）→ 供料 → 计时」，并**补齐玩法事件段内序**（落子回执 → 通关判定；`level:cleared`（输入段）恒先于 `level:failed`（计时段））与「cleared 优先」的**可观测机制**（输入段处理完已离开 PLAYING ⇒ 本帧直接返回，供料与计时都不执行）。改 `tray-spawner §6` / `powerups §6` / `score-combo §6` / `bead-grid §6` / `input-control §6` 共 **14 处**（**outcome 一一对应，非改判据、仅换基准**），并把 `pause-settings §6` / `timer-gameover §6` 的复述改为对 `core-loop §2.2.2` 的**归口引用**（两处各自复述正是 WXG-T-031 漂移的成因）。**顺带更正文档级错误**：`epics-beads.md` EP01-S2 把叙事序误读成「update 顺序」（原文「供料心跳 → 输入快照 → …」）——实现与基准都是**输入在前**（`_stepPlaying`）。**新增可执行证明**：`tests/frame-order.test.ts` **4 条**（真·同帧注入 + 探针实测供料帧号 + 对照组），钉住「暂停抑制同帧供料」「道具恒先于供料（新珠存活）」「最后一格 vs 同帧归零（仅 cleared、零 `timer:tick`）」与段序。**新发现**：`score-combo §6` 的「placed 与 rejected 同帧」、`input-control §6` 的「同帧先选珠后落子」等条款在「每帧最多 1 条输入指令」下**不可达**，已如实改为「不可能同帧」，不留假想分支 | 主理人(CodeBuddy) | ✅ 完成 | games/beads/design/gdd/core-loop.md（§2.2.2 规范真源 + §6 + §9 变更记录）· tray-spawner / powerups / score-combo / bead-grid / input-control / pause-settings / timer-gameover 各 §6 · production/epics/epics-beads.md · games/beads/tests/frame-order.test.ts · tests/helpers.ts（共享 `tapInFrame`）· systems-index §6 变更记录 · 本台账 |
 
 ## 待排（backlog，无号，立项时领取）
 
