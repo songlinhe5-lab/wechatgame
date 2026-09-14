@@ -51,6 +51,12 @@ export interface CocosLabelLike {
   setColor(color: ColorLike): void;
   setAlign(align: 'left' | 'center' | 'right'): void;
   setVisible(visible: boolean): void;
+  /**
+   * 可选的文本测量出口。正道是由宿主（`bindings.ts` 用真实 `cc.Label` /
+   * `UITransform`）实现，返回文本在当前字号下的**真实像素宽**（G3·待编辑器半）。
+   * 未提供时 `_anchorForText` 退化为按字符数估算（见 `FALLBACK_CHAR_WIDTH_RATIO`）。
+   */
+  measureWidth?(text: string, fontSize: number): number;
 }
 
 export interface CocosLabelSource {
@@ -72,6 +78,13 @@ export interface CocosRendererOptions {
    */
   readonly convertToCenteredOrigin?: boolean;
 }
+
+/**
+ * G3 降级估算系数：仅当宿主**未**注入 `label.measureWidth` 时用于估算文本宽。
+ * 对 CJK/等宽字体近似成立，对比例字体不准——这正是 G3 未关闭的根因，真实
+ * 测量由 `bindings.ts`（待编辑器半）接上后，本降级分支不再命中。
+ */
+const FALLBACK_CHAR_WIDTH_RATIO = 0.55;
 
 export class CocosRenderModelRenderer {
   private readonly _centered: boolean;
@@ -151,7 +164,7 @@ export class CocosRenderModelRenderer {
     const fontSize = parseFontSize(cmd.font);
     label.setFontSize(fontSize);
     label.setText(cmd.text);
-    const { x, y } = this._anchorForText(cmd);
+    const { x, y } = this._anchorForText(cmd, label);
     label.setPosition(x + ox, y + oy);
     label.setColor(this._colors.fromHex(cmd.fill ?? '#ffffff', cmd.alpha ?? 1));
     label.setAlign(cmd.align ?? 'left');
@@ -159,24 +172,43 @@ export class CocosRenderModelRenderer {
   }
 
   /**
-   * Cocos labels are positioned at their anchor point (default centre). We
-   * shift by half the (unknown) text extent, so multi-character strings with
-   * `align: 'left'` are nudged by an estimate and must be visually verified in
-   * the editor (see VERSION.md gap list).
+   * Cocos 标签默认以锚点（中心）定位：左对齐需把中心右移半字宽、右对齐左移半
+   * 字宽，才能让文本边缘落在 `cmd.x`。偏移量用**文本实测宽**（`_measureTextWidth`，
+   * 优先宿主注入的 `measureWidth`），而非旧的按字符数估算。
    */
-  private _anchorForText(cmd: Extract<DrawCommand, { kind: 'text' }>): { x: number; y: number } {
+  private _anchorForText(
+    cmd: Extract<DrawCommand, { kind: 'text' }>,
+    label: CocosLabelLike,
+  ): { x: number; y: number } {
     const align = cmd.align ?? 'left';
     const baseline = cmd.baseline ?? 'middle';
     const size = parseFontSize(cmd.font);
-    const estimatedWidth = cmd.text.length * size * 0.55;
+    const textWidth = this._measureTextWidth(cmd.text, size, label);
     let x = cmd.x;
     if (align === 'center') x += 0;
-    else if (align === 'left') x += estimatedWidth / 2;
-    else x -= estimatedWidth / 2;
+    else if (align === 'left') x += textWidth / 2;
+    else x -= textWidth / 2;
     let y = cmd.y;
     if (baseline === 'top') y -= size / 2;
     else if (baseline === 'bottom') y += size / 2;
     return { x, y };
+  }
+
+  /**
+   * 文本宽度：优先用宿主注入的实测出口（G3 正道），否则退回保守估算。
+   * 放在 `_drawText` 中 `setText` 之后调用，宿主可基于已设文本回读真实尺寸。
+   */
+  private _measureTextWidth(
+    text: string,
+    fontSize: number,
+    label: CocosLabelLike,
+  ): number {
+    const measure = label.measureWidth;
+    if (measure) {
+      const w = measure.call(label, text, fontSize);
+      if (typeof w === 'number' && w > 0) return w;
+    }
+    return text.length * fontSize * FALLBACK_CHAR_WIDTH_RATIO;
   }
 
   private _paint(fill: string | undefined, stroke: string | undefined, lineWidth: number, alpha: number | undefined): void {

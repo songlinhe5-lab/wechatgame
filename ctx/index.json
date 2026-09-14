@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1918,
-      "lines": 85,
-      "sha256": "24ca6119e0e8978c0dda9865d5e68730564b2e15d4ffc27230e6f00cc681a3c8",
+      "tokens": 1949,
+      "lines": 86,
+      "sha256": "2ae03e0cf43617f301d8058d62a313051ec3b4ba04567cdf459d496dfc61f448",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 86,
-          "tokens": 1905,
+          "endLine": 87,
+          "tokens": 1936,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 60,
-          "tokens": 391,
+          "endLine": 61,
+          "tokens": 422,
           "summary": "games/breakout/cocos/extensions/cocos-mcp-server/README.ru.m",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 61,
-          "endLine": 86,
+          "startLine": 62,
+          "endLine": 87,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3755,
       "lines": 90,
-      "sha256": "2ef12808db14915ea04e9aa5431bf33abbc51f7dca298b7ec0e786bf396ae86c",
+      "sha256": "99649b0741800c86289a1dcbc9df214836b29b6de7d4ec42ca923d0fb174063d",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 41 行 / 1466 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 41 行 / 1474 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 163 行 / 7750 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 164 行 / 8078 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 87,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+164 · §WXG-T-059=18+8 · §WXG-T-063=",
+          "tokens": 88,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+165 · §WXG-T-059=18+8 · §WXG-T-063=",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -32716,17 +32716,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 7750,
-      "lines": 163,
-      "sha256": "f82d8c06265234426bdf9c262f134bc397bcbe4ab3aa79239fe16a1f312a210c",
+      "tokens": 8078,
+      "lines": 164,
+      "sha256": "436929c8536e8e4c79468476bceb1cfc5ae5693d7ae19f572667f84a3d21c338",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 164,
-          "tokens": 7733,
+          "endLine": 165,
+          "tokens": 8061,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -32892,8 +32892,8 @@
           "anchor": "§WXG-T-077",
           "level": 2,
           "startLine": 148,
-          "endLine": 156,
-          "tokens": 531,
+          "endLine": 157,
+          "tokens": 859,
           "summary": "名称：Cocos G3 遗留收口——Label 真实宽度替换 + setAlign 空实现补齐（自 backlog「G3",
           "keywords": [
             "WXG",
@@ -32906,8 +32906,8 @@
         {
           "anchor": "§WXG-T-078",
           "level": 2,
-          "startLine": 157,
-          "endLine": 164,
+          "startLine": 158,
+          "endLine": 165,
           "tokens": 520,
           "summary": "名称：tasks:archive 同号守卫（自 backlog「归档器缺同号守卫」立项； WXG-T-061 归档复核发",
           "keywords": [
@@ -32921,9 +32921,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 1466,
+      "tokens": 1474,
       "lines": 41,
-      "sha256": "38fe20a090420c5d9e6c0564c8304b0324a30dffc780959d42f07d71e028200b",
+      "sha256": "30165a8d38c41a264eabf6035172f5636cbf265febf3d0a1faff9ba6528bfc89",
       "tier": "hot",
       "sections": [
         {
@@ -32931,7 +32931,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 42,
-          "tokens": 1457,
+          "tokens": 1465,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

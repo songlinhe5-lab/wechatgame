@@ -44,7 +44,7 @@ function fakeGraphics() {
   return { g, calls, state };
 }
 
-function fakeLabels() {
+function fakeLabels(measure?: (text: string, fontSize: number) => number) {
   const created: {
     text: string;
     x: number;
@@ -79,6 +79,7 @@ function fakeLabels() {
         setVisible: (v: boolean) => {
           rec.visible = v;
         },
+        ...(measure ? { measureWidth: (t: string, s: number) => measure(t, s) } : {}),
       };
     },
   });
@@ -93,9 +94,9 @@ const colors = {
   },
 };
 
-function makeSetup() {
+function makeSetup(measure?: (text: string, fontSize: number) => number) {
   const { g, calls } = fakeGraphics();
-  const { source, created } = fakeLabels();
+  const { source, created } = fakeLabels(measure);
   const viewport = new Viewport(200, 400);
   viewport.resize(200, 400);
   const renderer = new CocosRenderModelRenderer(g, source, colors, viewport);
@@ -227,5 +228,43 @@ describe('CocosRenderModelRenderer', () => {
     renderer.draw(empty.end());
     expect(created[0]!.visible).toBe(false);
     expect(renderer.lastLabelCount).toBe(0);
+  });
+
+  // ── G3 可测半（WXG-T-077）：`_anchorForText` 消费宿主注入的实测宽度 ──
+  it('nudges left/right text by the host-measured width, symmetrically (G3)', () => {
+    // 注入一个与 0.55 不同斜率的测量出口；若渲染器真消费它，偏移应与降级值不同。
+    const seen: [string, number][] = [];
+    const { renderer, created } = makeSetup((t, s) => {
+      seen.push([t, s]);
+      return t.length * s * 0.6; // 'ABCD' @20px → 48
+    });
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.text(10, 30, 'ABCD', { fill: '#fff', font: '20px sans', align: 'left' });
+    b.text(10, 60, 'ABCD', { fill: '#fff', font: '20px sans', align: 'right' });
+    renderer.draw(b.end());
+
+    const half = (4 * 20 * 0.6) / 2; // 24
+    // design→centered: ox = -100（viewport 200x400）。左对齐右移 half，右对齐左移 half。
+    expect(created[0]!.x).toBeCloseTo(10 + half - 100);
+    expect(created[1]!.x).toBeCloseTo(10 - half - 100);
+    expect(created[0]!.x - created[1]!.x).toBeCloseTo(2 * half); // 严格对称
+    // 测量入参为原文与解析后的字号（验证字号解析喂入测量）。
+    expect(seen).toEqual([
+      ['ABCD', 20],
+      ['ABCD', 20],
+    ]);
+  });
+
+  it('falls back to the character estimate when the host injects no measurement (G3 open)', () => {
+    const { renderer, created } = makeSetup(); // 无 measureWidth
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.text(10, 30, 'ABCD', { fill: '#fff', font: '20px sans', align: 'left' });
+    renderer.draw(b.end());
+    const estHalf = (4 * 20 * 0.55) / 2; // 22
+    expect(created[0]!.x).toBeCloseTo(10 + estHalf - 100);
+    // 与实测路径（10+24-100=-66）不同，证明两分支选型正确。
+    expect(created[0]!.x).not.toBeCloseTo(10 + 24 - 100);
   });
 });
