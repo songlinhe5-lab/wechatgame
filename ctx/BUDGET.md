@@ -25,8 +25,8 @@
 | 1 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
 | 2 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
 | 3 | `memory/2026-09-12.md` | 10141 | 151 | normal |
-| 4 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
-| 5 | `memory/2026-09-14.md` | 9287 | 234 | normal |
+| 4 | `memory/2026-09-14.md` | 9823 | 250 | normal |
+| 5 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
 | 6 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
 | 7 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
 | 8 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
@@ -50,8 +50,8 @@
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-09-12.md` | 10141 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `memory/2026-09-14.md` | 9823 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `memory/2026-09-14.md` | 9287 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
