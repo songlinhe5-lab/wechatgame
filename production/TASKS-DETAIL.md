@@ -218,10 +218,11 @@
 ## WXG-T-087
 
 - **名称**：beads P0·**GAP-04 四类 VFX + wrong/hint 态 + GAP-03 引导三通道 + GAP-10 告警脉冲落码**（波次2）。
-- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（2291203）
 - **Deliverables**：① GAP-04：落 `filled/empty/locked/hint/wrong/selected` 六态中缺失的视觉反馈（错误抖动+描边闪 ≤2 次/秒按 §3.8、hint 高亮、combo 连击 VFX）；② GAP-03：首屏引导三通道（0 文字教学按 T-081 裁定后的条文落地——视觉演示/手势/箭头，消解 ux-spec §1 vs §6 矛盾）；③ GAP-10：倒计时告急脉冲（图标+颜色+脉冲三通道，§3.8「告急表达」）。
 - **约束**：VFX 走命令层 emit、渲染层只读（L5）；时长走 ux-spec §5 动效毫秒表冻结值；BD-04 已由 R2 升 P0（关键反馈零通道）。可访问性 D1/E2 开关归 T-088，本单只做默认视觉反馈本体。
 - **依赖**：硬前置 T-081（引导裁定）+ T-084（可感知判据）。与 T-085 共享 `view-model.ts`/`bead-render.ts` → **须与 T-085 串行**（先 T-085 后 T-087，避同文件竞写）。
+- **落地证据**：相位循 `_comboVfx` 判例—game 层 `_pulseClock`/`_wrongFx` 计相位→snapshot→view 只读（守 L5）。GAP-04 wrong：`_placeSelected` mismatch 拒绝→`_wrongFx`（±3px 抖动+danger 闪 2 次，`WRONG_FX_MS`=200）；invalid-color 仍静默。GAP-04 hint / GAP-03 引导：`drawStateRing` 蓝环呼吸（accent_blue #3D7BF5，`palette.hintBlue`），`runs==0` 首玩（BOOT 自增前捕获）时首珠槽脉冲 + 行主序单一目标格 hint，首次落子即清永不再现。GAP-10：urgent 时钟图标（stroke-only circle+两指针）+ 数字/图标 α 0.6↔1.0 @`DANGER_PULSE_MS`=1000 脉冲。tuning 新增 ux-spec §5 时长常量（WRONG/HINT/DANGER_PULSE），非 §3 冻结→不动 systems-index。combo VFX（GAP-04 一类）已前序存在（`combo-vfx.ts`），本单未重复。**未接线项**：满槽告警（art §7 500ms 描边呼吸）不属 GAP-04/03/10 核心三通道，本单未做（待后续评估）。测试：`feedback-vfx.test.ts` 5 例（相位契约+命令级环断言），beads 192 全绿、verify 全绿。
 
 ---
 

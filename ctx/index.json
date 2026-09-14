@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2403,
       "lines": 98,
-      "sha256": "fbf96ece9ca0cc32538cd1b41eb7a716efcd39c07de59c35f8cbefa54fe05ae0",
+      "sha256": "5be5ef7afb45cf1372233dabce7b760ac35f066422247e1b0046eba923f2fc20",
       "tier": "normal",
       "sections": [
         {
@@ -209,7 +209,7 @@
           "startLine": 1,
           "endLine": 99,
           "tokens": 2390,
-          "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-09-15 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3842,
       "lines": 86,
-      "sha256": "5c5df3a075050819f22043c1e94e1bba3c3a86386bae84ba748c96afa9cf4590",
+      "sha256": "9b8a24870e0e4d74b4d747c0f7387b85818f200fda3b6a07419bf1e5de4ee43a",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 52 行 / 2110 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 52 行 / 2109 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 255 行 / 12011 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 256 行 / 12330 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 138,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+256 · §WXG-T-069=18+13 · §WXG-T-070",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+257 · §WXG-T-069=18+13 · §WXG-T-070",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -42158,17 +42158,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 12011,
-      "lines": 255,
-      "sha256": "fe9c2ceb9d79526cf108e13ef6dad5c6a260bbba47815a6593906580ac9a5601",
+      "tokens": 12330,
+      "lines": 256,
+      "sha256": "b2469a219c4da114667bf7df5b9e2b632c6009aed2f7a82fdce4063ddbca3c8f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 256,
-          "tokens": 11994,
+          "endLine": 257,
+          "tokens": 12313,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -42436,8 +42436,8 @@
           "anchor": "§WXG-T-087",
           "level": 2,
           "startLine": 218,
-          "endLine": 227,
-          "tokens": 332,
+          "endLine": 228,
+          "tokens": 651,
           "summary": "名称：beads P0·GAP-04 四类 VFX + wrong/hint 态 + GAP-03 引导三通道 + GA",
           "keywords": [
             "WXG",
@@ -42451,8 +42451,8 @@
         {
           "anchor": "§WXG-T-088",
           "level": 2,
-          "startLine": 228,
-          "endLine": 237,
+          "startLine": 229,
+          "endLine": 238,
           "tokens": 289,
           "summary": "名称：beads·R1=甲 D1/E2 可访问性开关落码（波次2，用户拍板 R1 全做）。根治 accessibilit",
           "keywords": [
@@ -42464,8 +42464,8 @@
         {
           "anchor": "§WXG-T-089",
           "level": 2,
-          "startLine": 238,
-          "endLine": 247,
+          "startLine": 239,
+          "endLine": 248,
           "tokens": 345,
           "summary": "名称：beads P0·GAP-07/08 harness 坐标契约落码（ADR-0011 裁决落地）（波次2）。承接 ",
           "keywords": [
@@ -42479,8 +42479,8 @@
         {
           "anchor": "§WXG-T-090",
           "level": 2,
-          "startLine": 248,
-          "endLine": 256,
+          "startLine": 249,
+          "endLine": 257,
           "tokens": 750,
           "summary": "名称：G10 ES5 转译致命缺陷修复（波次2·spike 先行；用户拍板「先验证 spike 再裁 ADR-0012」",
           "keywords": [
@@ -42495,9 +42495,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2110,
+      "tokens": 2109,
       "lines": 52,
-      "sha256": "a7883c5688368aeb4681ff74989eea98a38e1cfd9a11456eff6331bdf5c6e7e7",
+      "sha256": "fc8c9a476566d59789d1db35458be4df828ecb5179d648829e489e2de738d148",
       "tier": "hot",
       "sections": [
         {
@@ -42505,7 +42505,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 53,
-          "tokens": 2101,
+          "tokens": 2100,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
