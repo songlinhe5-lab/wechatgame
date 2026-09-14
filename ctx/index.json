@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2381,
-      "lines": 97,
-      "sha256": "abd837ef646f2b7350dfb801d2edb98dc074eaa6487c602ef54e0f38680d6188",
+      "tokens": 2403,
+      "lines": 98,
+      "sha256": "4fba51282d95edf6eb680a2d96cee0878e84452e5f78bbd501edb9f16980140a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 98,
-          "tokens": 2368,
+          "endLine": 99,
+          "tokens": 2390,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 444,
+          "tokens": 435,
           "summary": "1 production/qa/beads/g4-regression-report.md 20846 449 norm",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 72,
-          "tokens": 840,
+          "endLine": 73,
+          "tokens": 872,
           "summary": "production/qa/beads/g4-regression-report.md 20846 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 73,
-          "endLine": 98,
+          "startLine": 74,
+          "endLine": 99,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3781,
+      "tokens": 3842,
       "lines": 86,
-      "sha256": "c8ce42a7a905c675c8c15d715a2aa0b1ce73c15dd57961b6eef68a645c3071ea",
+      "sha256": "a2425452be9caeb2bb8a2dda1d51b25b67cc839e4da8983784fb75e26b6f4527",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 3753,
+          "tokens": 3814,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 39 行 / 1412 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 52 行 / 2112 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+40 · §待排（backlog，无号，立项时领取）=26+15",
+          "summary": "§WXG 任务台账（SSOT）=1+53 · §待排（backlog，无号，立项时领取）=39+15",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -752,26 +752,10 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 144 行 / 6726 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
-          "tokens": 77,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+145 · §WXG-T-069=18+13 · §WXG-T-070",
-          "keywords": [
-            "production/TASKS-DETAIL.md",
-            "production",
-            "TASKS",
-            "DETAIL",
-            "tok",
-            "WXG"
-          ]
-        },
-        {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
-          "level": 2,
-          "startLine": 78,
-          "endLine": 81,
           "tokens": 355,
           "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
@@ -781,6 +765,22 @@
             "cocos",
             "setup",
             "tok"
+          ]
+        },
+        {
+          "anchor": "§`production/TASKS-DETAIL.md` — 255 行 / 11912 tok",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 81,
+          "tokens": 138,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+256 · §WXG-T-069=18+13 · §WXG-T-070",
+          "keywords": [
+            "production/TASKS-DETAIL.md",
+            "production",
+            "TASKS",
+            "DETAIL",
+            "tok",
+            "WXG"
           ]
         },
         {
@@ -42158,17 +42158,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 6726,
-      "lines": 144,
-      "sha256": "5198048f70c63e488b7b437c6339bf9c44f2931e185255854e508219e7fc1105",
+      "tokens": 11912,
+      "lines": 255,
+      "sha256": "3d6ef56a4495326a273063d8017b828243dbc97dbe3a0fca2c99413187bcda12",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 145,
-          "tokens": 6710,
+          "endLine": 256,
+          "tokens": 11895,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -42324,8 +42324,8 @@
           "anchor": "§WXG-T-079",
           "level": 2,
           "startLine": 137,
-          "endLine": 145,
-          "tokens": 462,
+          "endLine": 147,
+          "tokens": 463,
           "summary": "名称：beads 工程接入 Cocos MCP —— 补齐 games/beads/cocos/settings/ 缺失",
           "keywords": [
             "WXG",
@@ -42335,22 +42335,177 @@
             "games",
             "cocos"
           ]
+        },
+        {
+          "anchor": "§WXG-T-080",
+          "level": 2,
+          "startLine": 148,
+          "endLine": 157,
+          "tokens": 503,
+          "summary": "名称：beads 可玩性 P0·GAP-01 空槽目标色美术规格裁定（阶段0全面复盘立项；用户拍板路线C「先修可玩性P0",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-081",
+          "level": 2,
+          "startLine": 158,
+          "endLine": 167,
+          "tokens": 472,
+          "summary": "名称：beads 可玩性 P0·GAP-02/03/06 设计裁定 + ux-spec 内部矛盾消解（路线C，波次1）。",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP",
+            "spec"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-082",
+          "level": 2,
+          "startLine": 168,
+          "endLine": 177,
+          "tokens": 633,
+          "summary": "名称：beads GAP-07/08 坐标空间契约 ADR + Cocos 双路径取证（路线C，波次1）。GAP-07 ",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP",
+            "ADR",
+            "Cocos"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-083",
+          "level": 2,
+          "startLine": 178,
+          "endLine": 187,
+          "tokens": 526,
+          "summary": "名称：beads GAP-05 音频规格从零建档（路线C，波次1；beads 首次派工阮和鸣）。现状：design/ 无",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP",
+            "design"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-084",
+          "level": 2,
+          "startLine": 188,
+          "endLine": 197,
+          "tokens": 612,
+          "summary": "名称：beads GAP-14 G4 首次执行 + 可感知判据补编 + GAP-09 假绿复核（路线C，波次1；G门证据",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-085",
+          "level": 2,
+          "startLine": 198,
+          "endLine": 207,
+          "tokens": 364,
+          "summary": "名称：beads P0·GAP-01 空槽目标色落码（波次2，路线C 首单）。承接 T-080 美术规格裁定：把 EMP",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP",
+            "EMP"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-086",
+          "level": 2,
+          "startLine": 208,
+          "endLine": 217,
+          "tokens": 325,
+          "summary": "名称：beads P0·GAP-02 首供提速 + GAP-06 尾部泄压阀落码（U8=A′+D）（波次2）。承接 T-",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-087",
+          "level": 2,
+          "startLine": 218,
+          "endLine": 227,
+          "tokens": 332,
+          "summary": "名称：beads P0·GAP-04 四类 VFX + wrong/hint 态 + GAP-03 引导三通道 + GA",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP",
+            "VFX",
+            "wrong",
+            "hint"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-088",
+          "level": 2,
+          "startLine": 228,
+          "endLine": 237,
+          "tokens": 289,
+          "summary": "名称：beads·R1=甲 D1/E2 可访问性开关落码（波次2，用户拍板 R1 全做）。根治 accessibilit",
+          "keywords": [
+            "WXG",
+            "beads",
+            "accessibilit"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-089",
+          "level": 2,
+          "startLine": 238,
+          "endLine": 247,
+          "tokens": 345,
+          "summary": "名称：beads P0·GAP-07/08 harness 坐标契约落码（ADR-0011 裁决落地）（波次2）。承接 ",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP",
+            "harness",
+            "ADR"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-090",
+          "level": 2,
+          "startLine": 248,
+          "endLine": 256,
+          "tokens": 750,
+          "summary": "名称：G10 ES5 转译致命缺陷修复（波次2·spike 先行；用户拍板「先验证 spike 再裁 ADR-0012」",
+          "keywords": [
+            "WXG",
+            "G10",
+            "ES5",
+            "spike",
+            "ADR"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 1412,
-      "lines": 39,
-      "sha256": "73b996a61c4422ff3ed90de12560f6c7872acededd3f14ac8689c2f3a3d5dd47",
+      "tokens": 2112,
+      "lines": 52,
+      "sha256": "05e6490638eb24d238d973e148eafaed16705d530e6a75f0aed655d0aedfb9ac",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 40,
-          "tokens": 1404,
+          "endLine": 53,
+          "tokens": 2103,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -42363,8 +42518,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 26,
-          "endLine": 40,
+          "startLine": 39,
+          "endLine": 53,
           "tokens": 407,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

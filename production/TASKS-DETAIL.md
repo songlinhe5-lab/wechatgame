@@ -142,3 +142,114 @@
 - **落地**：① `settings/mcp-server.json`——`port 3000 / autoStart true / enableDebugLog false / maxConnections 10`（`autoStart` 用 **true**，与 breakout 的 false 不同：实测可免「重启后手点 Start」，§12.2）② `settings/tool-manager.json`——照抄 breakout 的 **L1 白名单**（50 工具，21 启用 / 29 禁用；写类全禁）③ 顺带提交编辑器为 T-067 `combo-vfx.ts` 生成的 `.meta`。
 - **拦下一个回归**：编辑器把 beads `project.json` 的 `fitHeight: true` **删了**——breakout 有 ✓、框架代码不自设分辨率（grep 无 `setDesignResolutionSize`）⇒ 该键是 Fit Height 的**唯一落点**，提交即静默破坏竖屏适配 ✗。已恢复，**不跟随编辑器提交**；若反复被重写需查 GUI 是否有人动过分辨率设置。
 - **剩一步（GUI，无法代点）**：重启编辑器（`autoStart` 生效）或 扩展 → Cocos MCP Server → 启动服务器；探活 `GET http://127.0.0.1:3000/health`（**勿用 /mcp**，恒 404 会误判）。
+
+---
+
+## WXG-T-080
+
+- **名称**：beads 可玩性 P0·**GAP-01 空槽目标色美术规格裁定**（阶段0全面复盘立项；用户拍板路线C「先修可玩性P0」+全部并行派波次1）。根因：空槽不显示目标色 →「同色入格」玩法无从下手；定性=**设计规格缺口**（数据层 `grid.ts::GridCell.colorIdx`「required colour for fillable empty」已就绪、快照层已照抄，渲染层 `drawGrid`/`drawEmptySocket` 丢弃；源头＝`assets-spec §1.2` + `art-bible` L47-49/L93/L145 同源漏写参考作 §2.1「槽位着色」）。
+- **负责**：林绘澄(art-director)　**状态**：✅ 完成（波次1）。产出：`assets-spec §1.2` empty 目标色底 E1/E4 + locked 偏差追认、`art-bible` 三处同源、`accessibility` A2 三重编码重算+B3 假绿订正；回传常量 `EMPTY_TINT_MIX=0.35`/`EMPTY_GHOST_ALPHA=0.20` 由主对话 v1.16 串行落 §3.8。落码接口契约交 T-085。
+- **Deliverables**：`art/assets-spec.md` §1.2 `empty`（目标色底+明度/饱和衰减系数+保留「不可读作已填珠」凹陷感+色盲冗余通道+与 `hint` 态叠加优先级）、§1.2 `locked` 偏差追认；`art/art-bible.md` 三处同源；`art/accessibility.md` A2 三重编码重算+B3 假绿订正；回传「落码接口契约」(drawEmptySocket 新签名)+「QA 可感知判据」供 T-085/T-084 引用。
+- **约束**：**禁止直接写 `systems-index §3`**（与 T-081/T-083 并发竞写）——拟增常量（目标色衰减系数等）**回传主对话串行落盘**走 §6 变更记录。
+- **依赖**：无前置；T-085（GAP-01 落码）硬前置。必读 `my-skills/wxgame-art-spec-programmatic/SKILL.md`。
+
+---
+
+## WXG-T-081
+
+- **名称**：beads 可玩性 P0·**GAP-02/03/06 设计裁定 + ux-spec 内部矛盾消解**（路线C，波次1）。三裁定：①GAP-03 `ux-spec §1「0文字教学」vs §6「教学气泡」自相矛盾`+气泡零实现；②GAP-02 §6「1.5s珠已在托盘」但 `_setupLevel` 无立即 feed→开局空托盘；③GAP-06 杂色无终局出口→尾部软锁死（§4「玩家不会卡死」是假承诺），出泄压阀4方案(A供料过滤/B丢弃珠出口/C满槽自动清/D杂色置0)推荐+影响面（**最终用户拍板**）。
+- **负责**：文策渊(design-strategist)　**状态**：✅ 完成（波次1）。产出：`ux-spec` §1/§4/§6 冲突裁定与首屏留存可执行化、`tray-spawner §2.4` 出口表、`levels-spec §5` L7/L8 尾盘校验；泄压阀 4 方案推荐回传 → **用户拍板 U8=A′+D**（供料侧 held≤demand 不变量 + 杂色置0）。落码归 T-086。
+- **Deliverables**：`ux-spec.md` §1/§4/§6 冲突裁定（写成不可两读条文）+首屏留存路径可执行化；`gdd/tray-spawner.md` §2.4 出口表补行；参考作 §6「错豆挪移」立项裁决**建议**（路线C本轮不做，出预案不拍板）；`levels-spec.md` §5 L7/L8 尾盘满槽定性校验；泄压阀4方案推荐回传。
+- **约束**：**禁止直接写 `systems-index §3`**——泄压阀若触及冻结常量，**回传拟改**由主对话串行落盘走 §6。
+- **依赖**：无前置；T-086（GAP-02/03/04/10 落码）硬前置。必读 `my-skills/wxgame-ux-spec/SKILL.md`→`wxgame-gdd-writer/SKILL.md`。
+
+---
+
+## WXG-T-082
+
+- **名称**：beads **GAP-07/08 坐标空间契约 ADR + Cocos 双路径取证**（路线C，波次1）。GAP-07 真凶＝`compose/app.ts` L104-105 `start()` 用 `getScreenSize()`(CSS px) 覆盖 harness device-px fit，且输入送 device px→点击映射出设计空间→**托盘/格子全点不中**（契约本为 CSS px，harness 越界）；GAP-08＝`canvas2d-renderer.ts` L82 y-flip 下 L133-141 `fillText` 未补偿→文字镜像（仅 harness）。
+- **负责**：程基岩(engineering-lead)　**状态**：✅ 完成（波次1）。产出：`ADR-0011`（坐标契约=CSS px，DPR 由 renderer 承担，状态 Accepted）、`VERSION.md` 据实修订（Cocos 3.8.8 已装/MCP 在线/§2 能力 9 行 ⚠️→✅）、`epics-beads.md` 状态声明修订、`dev/harness/README.md` beads 章节 + `main.ts` L276；**Cocos 双路径取证**反证 GAP-07/08 仅 harness，并**新登 G10【P0】：真机路径 ES5 转译击穿 `patternColors()`→8 关 BOOT 全失败**（→ T-090）。执行 `framework:sync` 解除 BD-20 漂移、G1 转绿。
+- **Deliverables**：新增 ADR「屏幕坐标空间契约=CSS px，DPR 由 renderer 承担」（五节，编号顺延既有集；**0008 已预约未落盘、0009 已用→本 ADR 拟用 0010**，请查 `adr/` 确认）；据实修订 `docs/engine-reference/cocos/VERSION.md`（Cocos 3.8.8 已装/工程已建/web-mobile 已通，⚠️→✅）+ `epics-beads.md` 状态声明#2 错误证据引用；**Cocos 双路径取证报告**（`build:cocos:web` 产物+浏览器，实测 GAP-01/02/04/06 是否真机复现、反证 GAP-07/08 仅 harness）；`dev/harness/README.md` 补 beads 章节 + main.ts L276 提示对齐。
+- **约束**：**协调 WXG-T-077**（Cocos Label 进行中）——**不得改** `cocos-renderer.ts`/`label-pool.ts`（T-077 工作面）；坐标修复本体归波次2 T-087，本单只出 ADR+取证。MCP 编辑器预览需用户手动重启（T-079 遗留 GUI 步），取证优先走 `build:cocos:web`+浏览器。
+- **依赖**：无前置（先与 T-077 定先后序）；T-087（harness 落码）硬前置。必读 `my-skills/wxgame-adr-arch/SKILL.md`+`wxgame-minigame-bridge/SKILL.md`。
+
+---
+
+## WXG-T-083
+
+- **名称**：beads **GAP-05 音频规格从零建档**（路线C，波次1；beads 首次派工阮和鸣）。现状：`design/` 无 `audio/` 目录、`tuning.ts` 仅3 clip 引用而 ux-spec §5 隐含13类音效、`web.ts` 为 `NullAudioBackend`→harness 恒静音→「解压」支柱无法评估、阶段6 Playtest 会系统性失真。
+- **负责**：阮和鸣(audio-director)　**状态**：✅ 完成（波次1）。产出：`design/audio/audio-spec.md` + `audio-events.md`（19 clip 三总线事件表、`minInterval` 分档修正 reject 违约、包体实测 web-mobile 1968 KB/内部目标 2000→余量 32 KB、选型=程序化合成 0 KB）；回传常量 `AUDIO_SFX_MIN_INTERVAL=0.05s`/`AUDIO_REJECT_MIN_INTERVAL=0.5s` 主对话 v1.16 落 §3.12；发现 `assets-spec §5` 音频预算表自相矛盾（→ R5 重算）；Web Audio 后端需求单路由波次4。
+- **Deliverables**：`design/audio/audio-spec.md`（音频事件表 事件ID↔触发源↔时长↔与§5动效对齐↔优先级/抢占；混音规范 SFX/BGM/UI 总线+同时发声上限+voice-stealing；BGM 结构；实现策略 程序化合成vs采样+**包体预算数字+依据**；验证手段矩阵）+逐事件可执行验收判据；Web Audio 后端落地**需求单**（回传，不落码，路由给程基岩）。**框架版未定值标 `[TODO]`，不产伪数值**。
+- **约束**：**禁止直接写 `systems-index §3`**——音频冻结常量回传主对话串行落盘。本单**只出规格不生成音频文件**（文件走 `indie-game-ost-pack`/`game-ui-voice-pack` 执行层，后续另派）。
+- **依赖**：无前置（可与 T-080/081/082/084 全并行）；阶段6 Playtest 有效的必要条件。必读 `my-skills/wxgame-audio-spec/SKILL.md`。
+
+---
+
+## WXG-T-084
+
+- **名称**：beads **GAP-14 G4 首次执行 + 可感知判据补编 + GAP-09 假绿复核**（路线C，波次1；G门证据唯一合法来源）。根因：`qa/beads/test-cases.md` 61条判据全「待实现」且**无一条可感知型**→表现层缺陷结构上无法被门禁捕获；beads G4 从未执行（`production/qa/` 只有 breakout 报告）；GAP-09 accessibility D1/E2 第三次假绿（同 breakout D-01）。
+- **负责**：严守真(quality-lead)　**状态**：✅ 完成（波次1）。产出：新建 `qa/beads/g4-regression-report.md`（450 行/19 探针）+ `g4-probe.mjs`、`test-cases.md` v1.3 可感知判据补编、`bug-severity`/`playtest-plan`/`smoke-tests`/`test-plan` 修订。**裁定：G4=FAIL**（11 FAIL/5 PASS*/2 PASS/1⛔）、**G1=FAIL**（sync 漂移短路，程基岩 sync 后转绿）、G2=PASS 有缺口、G3 部分、G5 未执行。6 项 P0（BD-01/02/03/04/06/14）+ 关键 BD-20 漂移解除条件。未标任何假绿。
+- **Deliverables**：新建 `qa/beads/g4-regression-report.md`（沿 breakout 格式，逐条 PASS/⛔不可测/FAIL+证据+缺陷号，**给 beads G4 明确裁定**，不可测项写原因禁标绿）；`test-cases.md` 补「可感知性判据」章节（覆盖 GAP-01/02/03/04/05/06/10，每条标取证手段+前置依赖，v1.3）；G1–G3 全量证据（实跑 `pnpm run verify`/`harness:smoke`/`preview:frames`/`build:cocos:web`）；GAP-09 假绿复核（列全部「文档✅但代码零命中」+与 breakout D-01 同款性归因+防再犯）；14缺口按缺陷分级登记。
+- **约束**：harness 带 GAP-07(点不中)/GAP-08(镜像)→ T-087 修好前 `[Harness]` 结论不可信须标注；无真机/无音频后端→`[Device]`/音频判据**如实标不可测禁标绿**；裁定权属主理人，你出证据+建议裁定。
+- **依赖**：无前置（可立即出「现状基线 G4」=FAIL/CONCERNS）；可感知判据**执行**依赖波次2落地→建议分两次（现状基线+修复后复验）。必读 `my-skills/wxgame-qa-gates/SKILL.md`。
+
+---
+
+## WXG-T-085
+
+- **名称**：beads P0·**GAP-01 空槽目标色落码**（波次2，路线C 首单）。承接 T-080 美术规格裁定：把 `EMPTY_TINT_MIX=0.35`（E1 目标色底）+ `EMPTY_GHOST_ALPHA=0.20`（E4 幽灵符号）从规格落到渲染层。
+- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
+- **Deliverables**：`view/view-model.ts::drawGrid` 空槽分支传 `cell.colorIdx`；`view/bead-render.ts::drawEmptySocket` 扩签名接收目标色并按 §3.8 系数混色（`mixWith(slot_fill, beadColor(colorIdx), EMPTY_TINT_MIX)`）+ 叠 E4 幽灵符号（同 L5 矢量 path、缩至 BEAD×0.32、α0.20）；`tests/view-model.test.ts` L112 反向断言「empty 格不画符号」**同步改为正向断言**（empty 画目标色底+幽灵符号）；补色盲冗余通道可感知判据（对齐 T-084 test-cases）。
+- **约束**：守 L5（渲染不持状态，只读 `buildRenderModel`）+ 热路径零分配（混色复用暂存）；颜色系数走 §3.8 冻结常量，禁魔法数。**不改 `systems-index §3`**——常量已由主对话 v1.16 落盘。
+- **依赖**：硬前置 T-080（规格）+ t7（§3.8 常量已落）。GAP-01 是「同色入格」可玩性的第一道解锁。
+
+---
+
+## WXG-T-086
+
+- **名称**：beads P0·**GAP-02 首供提速 + GAP-06 尾部泄压阀落码（U8=A′+D）**（波次2）。承接 T-081 设计裁定 + 用户拍板 U8=A′+D。
+- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
+- **Deliverables**：① GAP-02：`beads-game.ts::_setupLevel` 开局立即 feed 首颗珠到托盘（消除 6.02s 空托盘→承诺 ≤1.5s，走 §3.4 `SPAWN_INTERVAL` 语义）；② GAP-06 A′：`spawner.ts` 供料侧不变量 `held ≤ demand`（只供当前棋盘仍需要的颜色，过滤杂色）；③ U8=D：`DECOY_COLORS_MAX` 2→0（`tuning.ts` + `levels.json` 清空 L1–L6 `decoys` 非空字段以过 `levels.ts:174` 校验）。**须同步登记 `systems-index v1.17`（§3.2 `DECOY_COLORS_MAX` 改值 + §6 变更记录）**。
+- **约束**：A′ 与 D 耦合 `levels.json`/`spawner.ts`，必须同批落否则 `levels:check` 红；改冻结常量走 §6 变更记录（本单由主对话串行落，非成员并发）；守 L4（RNG 走 `services.rng`）。
+- **依赖**：硬前置 T-081（泄压阀裁定）。与 T-085 无冲突（不同文件面）。
+
+---
+
+## WXG-T-087
+
+- **名称**：beads P0·**GAP-04 四类 VFX + wrong/hint 态 + GAP-03 引导三通道 + GAP-10 告警脉冲落码**（波次2）。
+- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
+- **Deliverables**：① GAP-04：落 `filled/empty/locked/hint/wrong/selected` 六态中缺失的视觉反馈（错误抖动+描边闪 ≤2 次/秒按 §3.8、hint 高亮、combo 连击 VFX）；② GAP-03：首屏引导三通道（0 文字教学按 T-081 裁定后的条文落地——视觉演示/手势/箭头，消解 ux-spec §1 vs §6 矛盾）；③ GAP-10：倒计时告急脉冲（图标+颜色+脉冲三通道，§3.8「告急表达」）。
+- **约束**：VFX 走命令层 emit、渲染层只读（L5）；时长走 ux-spec §5 动效毫秒表冻结值；BD-04 已由 R2 升 P0（关键反馈零通道）。可访问性 D1/E2 开关归 T-088，本单只做默认视觉反馈本体。
+- **依赖**：硬前置 T-081（引导裁定）+ T-084（可感知判据）。与 T-085 共享 `view-model.ts`/`bead-render.ts` → **须与 T-085 串行**（先 T-085 后 T-087，避同文件竞写）。
+
+---
+
+## WXG-T-088
+
+- **名称**：beads·**R1=甲 D1/E2 可访问性开关落码**（波次2，用户拍板 R1 全做）。根治 accessibility D1/E2 第三次假绿：三文档冲突消解 + 真实装设置字段。
+- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
+- **Deliverables**：① `BeadsSettings` 落 `reduceMotion` + `largeText` 字段（`save-schema.ts` + version 升位迁移）；② 回写 `pause-settings §2.2` 冻结清单 + `ux-spec §3.3` 线框使三文档一致；③ `accessibility.md` D1/E2 由假绿 ✅ 改为真实落地后 ✅；④ 消费端接线：`reduceMotion`→抑制 T-087 的 VFX/脉冲，`largeText`→字号放大系数。
+- **约束**：`save-schema` version 升位须带向后兼容迁移（旧档不炸）；E2 字号若触 §3 冻结常量走 §6 变更记录串行落。**不改** cocos bindings.ts（T-077 工作面）。
+- **依赖**：软前置 T-087（`reduceMotion` 要有可抑制的 VFX）。与 T-085/086 文件面不冲突。
+
+---
+
+## WXG-T-089
+
+- **名称**：beads P0·**GAP-07/08 harness 坐标契约落码（ADR-0011 裁决落地）**（波次2）。承接 T-082 ADR-0011（坐标契约=CSS px，DPR 由 renderer 承担）。
+- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
+- **Deliverables**：① GAP-07：`dev/harness/main.ts` `fitCanvas`/`pushPointer` 对齐 CSS px 契约（harness 是唯一越界者——框架 `compose/app.ts` L104-105 用 CSS px 正确，改 harness 送 CSS px 坐标，使点击映射回设计空间）；② GAP-08：`canvas2d-renderer.ts` L133-141 `fillText` 在 y-flip 下补偿（**收窄到 text case 内部**，禁改全局变换——矢量符号 ▲▽♥◐ 在 y-up 下自洽）。
+- **约束**：GAP-07 真凶定位经主理人纠正＝harness 越界非框架 bug ⇒ **只改 `dev/harness/`，不改 `packages/framework/src/compose/app.ts`**（框架契约正确）；GAP-08 修复禁全局 transform 改动（否则符号镜像）。改框架源后须 `framework:sync` 同步 cocos 镜像（BD-20 教训）。
+- **依赖**：硬前置 T-082（ADR-0011 + 取证）。仅影响 harness 路径（真机 Cocos 路径 GAP-07/08 结构上不复现，T-082 已反证）。
+
+---
+
+## WXG-T-090
+
+- **名称**：**G10 ES5 转译致命缺陷修复**（波次2·spike 先行；用户拍板「先验证 spike 再裁 ADR-0012」）。T-082 Cocos 取证新发现——**beads 在真机路径也不可玩**：Cocos 构建 Babel 降 ES5 把 `[...seen]`（Set）编成 `[].concat(seen)` 不展开 → `patternColors()` 长度恒 1 → **8 关 BOOT 校验全失败、永远停在启动画面**。
+- **负责**：程基岩(engineering-lead)　**状态**：✅ 完成（本环境可验面全绿；真机 runtime/微信 AppID 复验随 G4，未记假绿）
+- **实测（修法甲）**：Spike 产物字节实锤 `[].concat(seen)`（Set 不展开→长度恒 1）；产物 `new Set()` 原生无 polyfill → 推翻「Array.from 需 polyfill」顾虑、`Array.from` 可行；`builder.json`/`program.json` 仅剩 `__version__` → 修法丙（提 target）无工程级开关不可控→已否。**6 处**（framework `storage.ts:40`/`object-pool.ts:112` + beads `levels.ts:78/:245`/`powerups.ts:106/130`）改 `Array.from`，类型级 AST 全仓复扫 78 文件零第 7 处，安全展开未动。CI 守卫 `check-es5-spread.mjs`（TS 类型+AST，fail-closed，不依赖 Cocos）入 `verify` 链，selftest 红→绿双向。**复验**：`verify` exit 0（659）、`sync:check` 绿、重建 web-mobile `[].concat(seen)`=0/`Array.from(`=6；从 bundle 切出转译后 `patternColors` 在 Node eval 喂 L1–L8→色数 ∈[3,10]（BOOT 判据可过），反证换回 concat→`[object Set]` 长度 1。**未跑**浏览器加载（沙箱禁监听 socket）与真机 runtime → 归 G4/AppID（EP-10 保持环境阻塞）。
+- **Deliverables**：① **Spike**（先验证不裁 ADR）：确认目标平台最低 ES 版本、复现 `patternColors()` 降级失效、对比 `Array.from`/显式循环两种改法的转译产物；② 据 spike 结论**裁 ADR-0012**（转译目标 vs 源码规避 Set 展开）；③ 修复落码：`core`/`levels`/`powerups` 内所有 `[...set]`/`Set` 展开模式统一改法；④ **CI 守卫**：加检查（grep/lint）防 `[...Set]` 展开回归；⑤ `framework:sync` + 真机 `build:cocos:web` 复验 8 关 BOOT 通过。
+- **约束**：**spike 结论出来前不裁 ADR-0012、不落修复码**（用户明确「先验证再裁」）；改 core 守 L2（不碰 cc/DOM/wx）；修复须覆盖全部 Set 展开点（非仅 `patternColors`），否则漏点仍锁死。
+- **依赖**：硬前置 T-082（G10 发现 + 取证）。**优先级最高**——这是真机路径的第一道锁，早于 GAP-01（harness 路径）。
