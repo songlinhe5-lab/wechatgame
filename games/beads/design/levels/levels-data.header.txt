@@ -1,0 +1,35 @@
+/**
+ * ⚠️ GENERATED FILE — DO NOT EDIT BY HAND.
+ *
+ * Source of truth: games/beads/design/levels/levels-01-08.json
+ * Regenerate:      node tools/scripts/sync-levels-data.mjs --game=beads
+ * Drift guard:     pnpm run levels:check（pnpm run verify 内；覆盖面断言见 WXG-T-048）
+ *
+ * Why a generated module instead of importing the JSON directly: Cocos Creator
+ * only loads assets under its own `assets/` tree, and browsers cannot import
+ * JSON in an ES module without an import attribute. A plain TS module works
+ * everywhere — Cocos, vitest, tsc and the browser harness alike (breakout 判例).
+ */
+
+export interface BeadsLevelRaw {
+  readonly id: number;
+  readonly name: string;
+  readonly cols: number;
+  readonly rows: number;
+  readonly time: number;
+  readonly spawnInterval: number;
+  /** Decoy colour characters (pattern charset, never part of the pattern). */
+  readonly decoys: readonly string[];
+  /**
+   * Pattern rows, **top to bottom**. Charset `BEAD_CHARSET = ".x1-9A"`
+   * (`.` = empty slot, `x` = locked bead, `1-9`+`A` = palette index 1–10).
+   */
+  readonly pattern: readonly string[];
+}
+
+export interface LevelsData {
+  readonly version: number;
+  readonly gameId: string;
+  readonly description?: string;
+  readonly levels: readonly BeadsLevelRaw[];
+}

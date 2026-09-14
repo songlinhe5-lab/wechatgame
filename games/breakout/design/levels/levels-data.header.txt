@@ -1,0 +1,87 @@
+/**
+ * ⚠️ GENERATED FILE — DO NOT EDIT BY HAND.
+ *
+ * Source of truth: games/breakout/design/levels/levels-01-05.json
+ * Regenerate:      node tools/scripts/sync-levels-data.mjs
+ * Drift guard:     tests/levels-sync.test.ts (fails if this file disagrees)
+ *
+ * Why a generated module instead of importing the JSON directly: Cocos Creator
+ * only loads assets under its own `assets/` tree, and browsers cannot import
+ * JSON in an ES module without an import attribute. A plain TS module works
+ * everywhere — Cocos, vitest, tsc and the browser harness alike.
+ */
+
+export type BrickTypeCode = 'N' | 'T' | 'S' | 'B' | 'G';
+export type PowerupId = 'expand' | 'multi' | 'life' | 'slow' | 'sticky' | 'laser';
+
+export interface LevelsGrid {
+  readonly cols: number;
+  readonly brickW: number;
+  readonly brickH: number;
+  readonly gapX: number;
+  readonly gapY: number;
+  /** Column 0 brick *left edge* x. */
+  readonly originX: number;
+  /** Row 0 brick *top edge* y. */
+  readonly topY: number;
+  /** Row pitch = brickH + gapY. */
+  readonly rowPitch: number;
+}
+
+export interface ExplodeDef {
+  readonly radius: number;
+  readonly damage: number;
+  readonly maxChain: number;
+}
+
+export interface BrickTypeData {
+  readonly code: BrickTypeCode;
+  readonly name: string;
+  /** `null` means indestructible (infinite HP). */
+  readonly hp: number | null;
+  readonly score: number;
+  readonly indestructible: boolean;
+  readonly damagedVisual?: boolean;
+  readonly explode?: ExplodeDef;
+  readonly dropRateMultiplier?: number;
+}
+
+export interface PowerupData {
+  readonly id: PowerupId;
+  readonly name: string;
+  readonly weight: number;
+  readonly durationMs: number;
+  readonly params: Readonly<Record<string, number>>;
+}
+
+export interface LevelData {
+  readonly id: number;
+  readonly name: string;
+  readonly ballSpeed: number;
+  readonly paddleWidth: number;
+  readonly powerupDropRate: number;
+  readonly livesOnEnter?: number;
+  readonly clearCondition: string;
+  readonly powerupPool: readonly PowerupId[];
+  readonly hint?: string;
+  /**
+   * Layout rows, **top to bottom**. Character set: `.NTSBG`
+   * (`.` = empty cell, the rest are `brickTypes` keys).
+   */
+  readonly rows: readonly string[];
+}
+
+export interface LevelsData {
+  readonly version: number;
+  readonly gameId: string;
+  readonly description?: string;
+  readonly designResolution: {
+    readonly width: number;
+    readonly height: number;
+    readonly fitMode: string;
+  };
+  readonly grid: LevelsGrid;
+  readonly brickTypes: Readonly<Record<BrickTypeCode, BrickTypeData>>;
+  readonly powerupPool: Readonly<Record<string, PowerupData>>;
+  readonly levels: readonly LevelData[];
+}
