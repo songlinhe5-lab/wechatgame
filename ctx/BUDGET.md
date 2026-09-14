@@ -31,17 +31,17 @@
 | 7 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
 | 8 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
 | 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 525 | normal |
-| 10 | `production/TASKS.md` | 7849 | 43 | hot |
-| 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
-| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
-| 13 | `games/beads/design/proposals/star-level-rebalance.md` | 7487 | 387 | normal |
-| 14 | `production/epics/epics-beads.md` | 7426 | 282 | normal |
-| 15 | `games/beads/design/gdd/systems-index.md` | 7394 | 242 | hot |
-| 16 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
-| 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
-| 18 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
-| 19 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
-| 20 | `production/qa/test-cases.md` | 7097 | 296 | normal |
+| 10 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
+| 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
+| 12 | `games/beads/design/proposals/star-level-rebalance.md` | 7487 | 387 | normal |
+| 13 | `production/epics/epics-beads.md` | 7426 | 282 | normal |
+| 14 | `games/beads/design/gdd/systems-index.md` | 7394 | 242 | hot |
+| 15 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
+| 16 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
+| 17 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
+| 18 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 19 | `production/qa/test-cases.md` | 7097 | 296 | normal |
+| 20 | `docs/engine-reference/cocos/VERSION.md` | 7007 | 305 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

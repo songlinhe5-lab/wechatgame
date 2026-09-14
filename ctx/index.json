@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1889,
+      "tokens": 1895,
       "lines": 84,
-      "sha256": "7f4105a17704608329a6be95ed84ddf1c36817356de2d0436ebf1163e4f40933",
+      "sha256": "08f6575d609ba6e5f678c0a45b2acded940a6ee23c96414c55ed5b83c6a42810",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 85,
-          "tokens": 1876,
+          "tokens": 1882,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 431,
+          "tokens": 437,
           "summary": "1 games/breakout/cocos/extensions/cocos-mcp-server/README.ru",
           "keywords": [
             "Top",
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3941,
       "lines": 94,
-      "sha256": "49a6b8a9bbedb9d06b11cefac031ecd97958cf7be8675cda3eb3d5bca93d7352",
+      "sha256": "c8ac8b7dbbe9e44570b84f4151e2e6440d11d2d75ac07c209bc96fdedc673d11",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 43 行 / 7849 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 42 行 / 6436 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+44 · §待排（backlog，无号，立项时领取）=32+13",
+          "summary": "§WXG 任务台账（SSOT）=1+43 · §待排（backlog，无号，立项时领取）=31+13",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -9368,6 +9368,211 @@
           "keywords": [
             "WXG",
             "C10",
+            "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/in-level-snapshot.md",
+      "tokens": 4918,
+      "lines": 230,
+      "sha256": "1d33f7187716f4a520479a7745b03c0c079981e75ac697e1a2388fbbae4874ed",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§设计提案 · 局内崩溃恢复快照（In-level Snapshot）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 231,
+          "tokens": 4896,
+          "summary": "项目：games/beads · 版本 v0.1（全文未冻结） · 任务号 WXG-T-055（D-03）",
+          "keywords": [
+            "level",
+            "Snapshot",
+            "beads",
+            "games",
+            "WXG",
+            "设计提案"
+          ]
+        },
+        {
+          "anchor": "§1 问题与范围",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 28,
+          "tokens": 348,
+          "summary": "冲突：save-progress.md §2.3 为防双真源，明确不入档「道具免费次数、扩展态、托盘/网格局内态、com",
+          "keywords": [
+            "§2.3",
+            "save",
+            "progress",
+            "com",
+            "问题与范围"
+          ]
+        },
+        {
+          "anchor": "§2 字段语义（崩溃恢复档，非 S8 常规档）",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 64,
+          "tokens": 1124,
+          "summary": "权威状态在 BeadsGame（网格 / 托盘 / 计时 / 供料累加器 / 冲刺 tracker / 暂停意图）。快照",
+          "keywords": [
+            "BeadsGame",
+            "tracker",
+            "字段语义",
+            "崩溃恢复档",
+            "常规档"
+          ]
+        },
+        {
+          "anchor": "§3 写入时机（只挂 `onHide`，不破 §2.5）",
+          "level": 2,
+          "startLine": 65,
+          "endLine": 89,
+          "tokens": 408,
+          "summary": "App 现有顺序（不要拆）：platform.onHide → game.onPause()；onShow → loop",
+          "keywords": [
+            "onHide",
+            "§2.5",
+            "App",
+            "platform",
+            "game",
+            "onPause"
+          ]
+        },
+        {
+          "anchor": "§4 BOOT 恢复优先级与降级",
+          "level": 2,
+          "startLine": 90,
+          "endLine": 127,
+          "tokens": 590,
+          "summary": "沿用 core-loop §2.1 / S8 §2.4：损坏不中断启动。崩溃档是可丢的；S8 常规档是进度真源。",
+          "keywords": [
+            "§2.1",
+            "§2.4",
+            "BOOT",
+            "core",
+            "loop",
+            "恢复优先级与"
+          ]
+        },
+        {
+          "anchor": "§5 与 S8 现有字段隔离：2 选项 + 推荐",
+          "level": 2,
+          "startLine": 128,
+          "endLine": 155,
+          "tokens": 563,
+          "summary": "S8 键已冻结语义为 wxgame.beads.save.v1（architecture-beads / SAVE_KE",
+          "keywords": [
+            "wxgame",
+            "beads",
+            "save",
+            "architecture",
+            "SAVE_KE",
+            "现有字段隔离"
+          ]
+        },
+        {
+          "anchor": "§方案 A — 另键（推荐）",
+          "level": 3,
+          "startLine": 132,
+          "endLine": 138,
+          "tokens": 126,
+          "summary": "新键占位：wxgame.beads.crash.v1（终稿归代码）",
+          "keywords": [
+            "wxgame",
+            "beads",
+            "crash",
+            "方案",
+            "另键",
+            "推荐"
+          ]
+        },
+        {
+          "anchor": "§方案 B — 同档子对象",
+          "level": 3,
+          "startLine": 139,
+          "endLine": 145,
+          "tokens": 143,
+          "summary": "在 BeadsSave 上追加 inLevel?: … null，升 S8 version + 迁移",
+          "keywords": [
+            "BeadsSave",
+            "inLevel",
+            "null",
+            "version",
+            "方案",
+            "同档子对象"
+          ]
+        },
+        {
+          "anchor": "§推荐",
+          "level": 3,
+          "startLine": 146,
+          "endLine": 155,
+          "tokens": 194,
+          "summary": "方案 A。理由：① 对齐「局内态不入常规档」的收窄口径；② 损坏隔离（丢局内、不中断、不动进度）；③ 不迫使 S8 升版",
+          "keywords": [
+            "推荐"
+          ]
+        },
+        {
+          "anchor": "§6 待实现判据草稿（未来归 save-progress §8）",
+          "level": 2,
+          "startLine": 156,
+          "endLine": 168,
+          "tokens": 389,
+          "summary": "以下 不是 现行验收。QA 不得据以开 G1 用例。主理人冻结并回写 GDD 后方可去标。编号预留为 S8§8-11 起",
+          "keywords": [
+            "§8",
+            "save",
+            "progress",
+            "GDD",
+            "待实现判据草",
+            "未来归"
+          ]
+        },
+        {
+          "anchor": "§7 工程增量（落码时，非本轮）",
+          "level": 2,
+          "startLine": 169,
+          "endLine": 181,
+          "tokens": 220,
+          "summary": "Spawner / 未来 S6 计数器暴露 get/set（热路径外；关卡加载与 hide 序列化）",
+          "keywords": [
+            "Spawner",
+            "get",
+            "set",
+            "hide",
+            "工程增量",
+            "落码时"
+          ]
+        },
+        {
+          "anchor": "§8 ADR 五节草稿（请主理人领号；勿占用 ADR-0008）",
+          "level": 2,
+          "startLine": 182,
+          "endLine": 225,
+          "tokens": 814,
+          "summary": "ADR-0008 已预约给「每日挑战本地确定性派生」。0009 / 0010 已落盘。建议本决策领 ADR-0011。本",
+          "keywords": [
+            "ADR",
+            "五节草稿",
+            "请主理人领号",
+            "勿占用"
+          ]
+        },
+        {
+          "anchor": "§9 变更记录",
+          "level": 2,
+          "startLine": 226,
+          "endLine": 231,
+          "tokens": 76,
+          "summary": "v0.1 2026-09-14 初稿：字段语义、仅 onHide 写、BOOT 降级、另键 vs 同档子对象、6 条 [",
+          "keywords": [
+            "onHide",
+            "BOOT",
             "变更记录"
           ]
         }
@@ -32030,17 +32235,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 7849,
-      "lines": 43,
-      "sha256": "f43e42b714d3d519c8cffa04b042f5161ff5ce0c81d5e4332ae6e97f985aee65",
+      "tokens": 6436,
+      "lines": 42,
+      "sha256": "11d345eba3530b34f8e2791d8bc8925c9e50189e509a248bea2c4f07cd63bbeb",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 44,
-          "tokens": 7840,
+          "endLine": 43,
+          "tokens": 6428,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -32054,8 +32259,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 32,
-          "endLine": 44,
+          "startLine": 31,
+          "endLine": 43,
           "tokens": 1364,
           "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
           "keywords": [

@@ -55,6 +55,28 @@ export class Spawner {
     this._decoys = decoys;
   }
 
+  /**
+   * Serialization accessors for the crash snapshot (D-03, WXG-T-059).
+   *
+   * ⚠️ 恢复顺序：**先 `interval`，再 `acc`** —— `interval` 的 setter 会把累加器清零
+   * （阶段切换语义），反过来设会把刚恢复的进度抹掉。
+   */
+  get acc(): number {
+    return this._acc;
+  }
+
+  set acc(value: number) {
+    if (Number.isFinite(value) && value >= 0) this._acc = value;
+  }
+
+  get fullReported(): boolean {
+    return this._fullReported;
+  }
+
+  set fullReported(value: boolean) {
+    this._fullReported = value === true;
+  }
+
   /** Reset the accumulator (level load / stage switch / retry). */
   reset(): void {
     this._acc = 0;

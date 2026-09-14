@@ -16,6 +16,7 @@
  */
 
 import {
+  REWARDED_PLACEMENT,
   SaveManager,
   StateMachine,
   type Game,
@@ -30,9 +31,10 @@ import {
   DEFAULT_TUNING,
   GEAR_HIT_SIZE,
   HUD_BAND,
-  STAR2_RATIO,
-  STAR3_RATIO,
+  REVIVE_BONUS_SEC,
+  REVIVE_MAX_PER_LEVEL,
   STAGE_BONUS_TIME,
+  computeClearStars,
   TIMER_URGENT_T,
   TRAY_COLS,
   TRAY_GAP,
@@ -56,12 +58,19 @@ import {
   type BeadsLevelRaw,
 } from '../config/levels';
 import { BeadGrid } from '../entities/grid';
+import {
+  CrashSnapshotStore,
+  decodeFilledBits,
+  encodeFilledBits,
+  type CrashSnapshot,
+} from './crash-snapshot';
 import { Tray } from '../entities/tray';
 import { judgePlacement } from '../systems/placement';
 import { Spawner } from '../systems/spawner';
 import { GameTimer } from '../systems/timer';
 import { SprintTracker } from '../systems/sprint';
 import { PausePanel, type PausePanelAction } from '../systems/pause-panel';
+import { hitFailPanel } from '../systems/fail-panel';
 import {
   PHASE_TRANSITIONS,
   bannerFor,
@@ -133,12 +142,28 @@ export class BeadsGame implements Game {
   private readonly _sprint = new SprintTracker();
   /** S9 pause panel: geometry + hit testing only; never gameplay state. */
   private readonly _panel = new PausePanel();
+  /**
+   * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
+   * Gear → `'manual'`; WeChat `onHide` → `'system'`. Both stay on the
+   * panel until 继续 — `onResume` (foreground) never exits PAUSED.
+   */
+  private _pauseIntent: 'manual' | 'system' | null = null;
+  /** Successful fail-page revives this attempt (reset on full level restart). */
+  private _reviveCount = 0;
+  /** Seconds of fail-page bonus still attached to the playable clock. */
+  private _reviveBonusSec = 0;
+  /** True while `rewardedAd.show()` for fail-continue is in flight. */
+  private _watchingAd = false;
+  /** Fail-panel hint (Noop / rejected show). Cleared on the next overlay action. */
+  private _failHint = '';
 
   private _grid: BeadGrid = new BeadGrid(['..11..', '.1111.', '111111', '.1111.', '..11..']);
   private _layout: GridLayout = gridLayoutFor(6, 5);
 
   private _services: GameServices | null = null;
   private _save: SaveManager<BeadsSave> | null = null;
+  /** D-03 崩溃恢复档（另键 sidecar，WXG-T-059；与 S8 常规档物理隔离）。 */
+  private _crash: CrashSnapshotStore | null = null;
   private _rng: Rng | null = null;
 
   private _mode: GameMode = 'normal';
@@ -181,6 +206,29 @@ export class BeadsGame implements Game {
 
   get phase(): BeadsPhase {
     return this._machine.current;
+  }
+
+  /**
+   * Pause source while `phase === 'paused'`, else `null`.
+   * Distinguishes player gear from WeChat `onHide` (D-04 / D-03 hook).
+   */
+  get pauseIntent(): 'manual' | 'system' | null {
+    return this._pauseIntent;
+  }
+
+  /** True after a successful fail-page revive this attempt. */
+  get revived(): boolean {
+    return this._reviveCount > 0;
+  }
+
+  /** Bonus seconds currently subtracted from remaining when rating stars. */
+  get reviveBonusSec(): number {
+    return this._reviveBonusSec;
+  }
+
+  /** True while a fail-page ad is showing (tests settle the Mock). */
+  get watchingAd(): boolean {
+    return this._watchingAd;
   }
 
   get mode(): GameMode {
@@ -264,6 +312,10 @@ export class BeadsGame implements Game {
       defaults: defaultBeadsSave,
     });
 
+    // D-03：崩溃恢复档是**另键** sidecar（提案 §5 方案 A）——S8 的键 / version /
+    // `normalizeBeadsSave` 零改动，`save-schema.ts` 一字未动。
+    this._crash = new CrashSnapshotStore(services.storage);
+
     // BOOT static validation of every level: broken data must fail at boot,
     // never mid-run (core-loop §2.1 — no entering PLAYING with bad data).
     this._bootErrors = [];
@@ -301,17 +353,30 @@ export class BeadsGame implements Game {
     buildBeadsView(builder, this._snapshot, this.palette);
   }
 
-  /** App moved to the background (WeChat `onHide`) — same as a player pause. */
+  /**
+   * App moved to the background (WeChat `onHide`). PLAYING → PAUSED as a
+   * system pause; already-PAUSED (manual gear) stays put — no re-enter,
+   * no second `game:paused`. D-03 crash snapshot will hook this path and
+   * must still run when already paused (see `design/proposals/in-level-snapshot.md`).
+   */
   onPause(): void {
-    if (this._machine.current === 'playing') {
-      this._machine.transition('paused');
-    }
+    this._requestPause('system');
+    // D-03（WXG-T-059）：写崩溃快照。**必须在 `_requestPause` 之后**——那时 phase 已是
+    // PAUSED、倒计时已冻结；而「手动暂停后再 onHide」时 `_requestPause` 会早退，
+    // 写盘仍必须执行（提案 §3：已 PAUSED 的 hide 也要覆盖写）。
+    this._writeCrashSnapshot();
   }
 
+  /**
+   * App returned to the foreground (WeChat `onShow`).
+   *
+   * Pause-settings §6: panel buttons are the **only** exit from PAUSED.
+   * Both system hide and manual gear therefore stay on the pause panel
+   * until the player taps 继续. `App` still calls `loop.reset()` then
+   * this hook — we do not split that framework wiring.
+   */
   onResume(): void {
-    if (this._machine.current === 'paused') {
-      this._machine.transition('playing');
-    }
+    // State-machine no-op by design (WXG-T-055 D-04).
   }
 
   dispose(): void {
@@ -376,6 +441,9 @@ export class BeadsGame implements Game {
   /** Retry after game over: normal → same level fresh; sprint → new run. */
   retryLevel(): boolean {
     if (this._machine.current !== 'game-over') return false;
+    this._watchingAd = false;
+    this._failHint = '';
+    this._crash?.clear(); // D-03（提案 §3）：重开本局 ⇒ 旧快照失效
     if (this._mode === 'sprint') {
       this._setupSprintRun();
     } else {
@@ -385,10 +453,32 @@ export class BeadsGame implements Game {
     return true;
   }
 
+  /**
+   * Fail-page 续时: load + show the fail-continue placement. Stays in
+   * GAME_OVER until `onRewarded`. Sprint / cap / in-flight show → no-op.
+   */
+  requestRevive(): boolean {
+    if (this._machine.current !== 'game-over') return false;
+    if (this._mode !== 'normal') return false;
+    if (this._reviveCount >= REVIVE_MAX_PER_LEVEL) return false;
+    if (this._watchingAd) return false;
+    const ad = this._services?.rewardedAd;
+    if (!ad) return false;
+    this._failHint = '';
+    this._watchingAd = true;
+    ad.load(REWARDED_PLACEMENT.failContinue);
+    ad.show();
+    if (this._watchingAd) return true;
+    if (this._machine.current !== 'game-over') return true;
+    this._failHint = '即将开放';
+    return false;
+  }
+
   /** From the FINISH screen: replay the whole normal campaign from level 1. */
   restartRun(): boolean {
     if (this._machine.current !== 'finish') return false;
     this._mode = 'normal';
+    this._crash?.clear(); // D-03：整轮重玩 ⇒ 旧快照失效
     this._setupLevel(0);
     this._machine.transition('playing');
     return true;
@@ -399,6 +489,7 @@ export class BeadsGame implements Game {
     this._mode = 'normal';
     const clamped = Math.max(0, Math.min(index, this._levels.length - 1));
     this._levelIndex = clamped;
+    this._crash?.clear(); // D-03：跳关 ⇒ 旧快照失效
     this._setupLevel(clamped);
     this._machine.reset('playing');
   }
@@ -406,6 +497,7 @@ export class BeadsGame implements Game {
   /** Enter a fresh sprint run (endless ladder). */
   startSprint(): void {
     this._mode = 'sprint';
+    this._crash?.clear(); // D-03：开新冲刺 run ⇒ 旧快照失效
     this._setupSprintRun();
     this._machine.reset('playing');
   }
@@ -420,6 +512,189 @@ export class BeadsGame implements Game {
 
   private readonly _unsubs: (() => void)[] = [];
 
+  // ───────────────────────────────────────── D-03 崩溃快照（WXG-T-059）──────────
+
+  /** 该关可填格数（快照位图长度校验用）；索引非法 → 0。 */
+  private _crashFillableCountFor(index: number): number {
+    const level = this._levels[index];
+    if (!level) return 0;
+    return new BeadGrid(level.pattern).fillableTotal;
+  }
+
+  /**
+   * 快照位图应有长度：普通关按关卡表，**冲刺按舞台图案**
+   * （`buildStagePattern(stageIndex)`——与 `levelIndex` 无关；见 `CrashContext` 注释）。
+   */
+  private _fillableCountFor(mode: GameMode, levelIndex: number, stageIndex: number): number {
+    if (mode === 'sprint') {
+      return new BeadGrid(buildStagePattern(stageIndex).pattern).fillableTotal;
+    }
+    return this._crashFillableCountFor(levelIndex);
+  }
+
+  /**
+   * 只在 PLAYING / PAUSED 写快照；其余相位（BOOT / LEVEL_CLEAR / GAME_OVER / FINISH）
+   * **删除**既有快照（提案 §3 表）——否则过关前的残局会覆盖下次启动。
+   */
+  private _writeCrashSnapshot(): void {
+    const store = this._crash;
+    if (!store) return;
+    const phase = this._machine.current;
+    if (phase !== 'playing' && phase !== 'paused') {
+      store.clear();
+      return;
+    }
+    // 写失败静默（微信 storage 配额）：本局内存态继续，与 S8 §6 同口径。
+    store.write(this._captureCrashSnapshot());
+  }
+
+  /** 抓取局内可序列化子集（提案 §2 字段表 + 2 项增补，见 `crash-snapshot.ts` 文件头）。 */
+  private _captureCrashSnapshot(): CrashSnapshot {
+    // 只收**可填格**：`locked`（x）与 `.` void 由图案重建，禁止另存（防双真源）。
+    const filled: boolean[] = [];
+    for (let r = 0; r < this._grid.rows; r++) {
+      for (let c = 0; c < this._grid.cols; c++) {
+        const cell = this._grid.cell(r, c);
+        if (!cell || cell.void || cell.state === 'locked') continue;
+        filled.push(cell.state === 'filled');
+      }
+    }
+
+    const traySlots: { colorIdx: number }[] = [];
+    for (let i = 0; i < this._tray.capacity; i++) {
+      const slot = this._tray.slot(i);
+      traySlots.push({ colorIdx: slot && slot.state !== 'free' ? slot.colorIdx : 0 });
+    }
+
+    const sprint = this._sprint;
+    return {
+      version: 1,
+      // 提案写 `platform.now()`；`GameServices` 未暴露时钟，且 TTL 未启用 ⇒ 用 Date.now()。
+      writtenAtMs: Date.now(),
+      mode: this._mode,
+      levelIndex: this._levelIndex,
+      pauseIntent: this._pauseIntent ?? 'system',
+      gridFilled: encodeFilledBits(filled),
+      traySlots,
+      trayExpanded: this._tray.expanded,
+      traySelected: this._tray.selectedSlot,
+      remaining: this._timer.remaining,
+      timeTotal: this._timer.total,
+      spawnAcc: this._spawner.acc,
+      spawnInterval: this._spawner.interval,
+      spawnFullReported: this._spawner.fullReported,
+      // S6 尚未入 `src`（无 POWERUP_FREE_USES）⇒ 恒 0；提案 §2：字段可缺省，缺省 = 初值。
+      powerupUses: { region: 0, clearAll: 0, random: 0 },
+      reviveCount: this._reviveCount,
+      reviveBonusSec: this._reviveBonusSec,
+      sprint:
+        this._mode === 'sprint'
+          ? {
+              streak: sprint.streak,
+              multiplier: sprint.multiplier,
+              tier: sprint.tier,
+              score: sprint.score,
+              stageIndex: sprint.stageIndex,
+              bestStage: sprint.bestStage,
+              windowRemaining: sprint.windowRemaining,
+            }
+          : null,
+    };
+  }
+
+  /**
+   * BOOT 恢复（提案 §4）：校验通过则装配局内态并**停在 PAUSED**，返回 true；
+   * 否则返回 false，由 `_boot()` 走常规新局（坏档已被 `read()` 清掉）。
+   *
+   * `machine.reset('paused')` 会触发 `paused.onEnter`（开面板 + 发 `game:paused`）——
+   * 正是提案要的「与 D-04 回前台语义一致」，也避免 BOOT 当帧 dt 吃掉 remaining。
+   */
+  private _restoreCrashSnapshot(): boolean {
+    const store = this._crash;
+    if (!store) return false;
+    const snapshot = store.read({
+      levelCount: this._levels.length,
+      fillableCountFor: (spec) =>
+        this._fillableCountFor(spec.mode, spec.levelIndex, spec.stageIndex),
+    });
+    if (!snapshot) return false;
+
+    if (!this._applyCrashSnapshot(snapshot)) {
+      store.clear();
+      return false;
+    }
+    // 杀进程后一律按「系统打断」展示面板（提案 §2）。
+    this._pauseIntent = 'system';
+    this._machine.reset('paused');
+    return true;
+  }
+
+  /** 把校验过的快照盖回权威状态；返回 false = 与现行关卡表对不上（丢快照）。 */
+  private _applyCrashSnapshot(snapshot: CrashSnapshot): boolean {
+    const bits = decodeFilledBits(
+      snapshot.gridFilled,
+      this._fillableCountFor(snapshot.mode, snapshot.levelIndex, snapshot.sprint?.stageIndex ?? 0),
+    );
+    if (!bits) return false;
+
+    this._mode = snapshot.mode;
+    if (snapshot.mode === 'sprint') {
+      const sprint = snapshot.sprint;
+      if (!sprint) return false;
+      this._sprint.reset();
+      this._loadStage(sprint.stageIndex);
+      this._sprint.restore(sprint);
+      this._timer.reset(Math.max(snapshot.timeTotal, 0));
+    } else {
+      const level = this._levels[snapshot.levelIndex];
+      if (!level) return false;
+      // 普通关：供料心跳须与现行关卡表一致，否则视为对不上（提案 §2）。
+      const expected = level.spawnInterval ?? 4.0;
+      if (Math.abs(expected - snapshot.spawnInterval) > 1e-9) return false;
+      this._levelIndex = snapshot.levelIndex;
+      this._setupLevel(snapshot.levelIndex);
+      this._timer.reset(Math.max(snapshot.timeTotal, 0));
+    }
+
+    // 倒计时：`GameTimer` 没有 remaining setter ⇒ 用 `reset(total)` 再 `tick` 掉差值
+    // （差值 ≥ 0；tick 内部 clamp 到 0，其返回值此处无需消费）。
+    const delta = snapshot.timeTotal - snapshot.remaining;
+    if (delta > 0) this._timer.tick(delta);
+
+    // 位图按图案 zip 盖回（只盖可填格）。
+    let k = 0;
+    for (let r = 0; r < this._grid.rows; r++) {
+      for (let c = 0; c < this._grid.cols; c++) {
+        const cell = this._grid.cell(r, c);
+        if (!cell || cell.void || cell.state === 'locked') continue;
+        if (bits[k]) this._grid.fill(r, c);
+        k += 1;
+      }
+    }
+    if (k !== bits.length) return false;
+
+    // needed[] **重算**（提案 §2：绝不从快照恢复，防双真源）。
+    this._tray.initNeeded(this._grid.neededColorCounts());
+
+    // 托盘：先扩容，再逐槽还原（`colorIdx = 0` 即 free）。
+    if (snapshot.trayExpanded && !this._tray.expanded) this._tray.expand();
+    for (let i = 0; i < snapshot.traySlots.length; i++) {
+      const colorIdx = snapshot.traySlots[i]!.colorIdx;
+      if (colorIdx > 0) this._tray.spawnInto(i, colorIdx);
+    }
+    if (snapshot.traySelected >= 0) this._tray.select(snapshot.traySelected);
+
+    // 供料：**先 interval 再 acc**（`interval` setter 会把累加器清零）。
+    this._spawner.interval = snapshot.spawnInterval;
+    this._spawner.acc = snapshot.spawnAcc;
+    this._spawner.fullReported = snapshot.spawnFullReported;
+
+    this._reviveCount = snapshot.reviveCount;
+    this._reviveBonusSec = snapshot.reviveBonusSec;
+    this._isNewBest = false;
+    return true;
+  }
+
   private _buildStateMachine(): StateMachine<BeadsGame, BeadsPhase> {
     const machine = new StateMachine<BeadsGame, BeadsPhase>(this, 'boot', {
       transitions: PHASE_TRANSITIONS,
@@ -430,6 +705,7 @@ export class BeadsGame implements Game {
       .addState('playing', {
         onEnter: (game, from) => {
           if (from === 'paused') {
+            game._pauseIntent = null;
             game._panel.close();
             game._emit('game:resumed', {});
           }
@@ -449,11 +725,16 @@ export class BeadsGame implements Game {
           const level = game._levels[game._levelIndex]!;
           const levelId = levelIdOf(level);
           const remaining = game._timer.remaining;
-          const ratio = game._timer.ratio;
-          const stars = ratio >= STAR3_RATIO ? 3 : ratio >= STAR2_RATIO ? 2 : 1;
+          const { ratio, stars } = computeClearStars(
+            remaining,
+            game._timer.total,
+            game._reviveBonusSec,
+            game._reviveCount > 0,
+          );
           game._lastStars = stars;
           game._emit('level:cleared', { levelId, remaining, ratio, stars });
           game._persistProgress();
+          game._crash?.clear(); // D-03（提案 §3）：过关即删，避免残局覆盖下次启动
         },
         onUpdate: (game) => {
           if (game._machine.elapsed < game.tuning.levelClearDelay) return;
@@ -471,6 +752,7 @@ export class BeadsGame implements Game {
           const levelId = game._mode === 'sprint' ? 'sprint' : levelIdOf(game._levels[game._levelIndex]!);
           game._emit('level:failed', { levelId });
           if (game._mode === 'sprint') game._recordSprintEnd();
+          game._crash?.clear(); // D-03（提案 §3）：失败即删
         },
       })
       .addState('finish', {});
@@ -497,6 +779,11 @@ export class BeadsGame implements Game {
       save.patch({ runs: save.data.runs + 1 });
       save.save();
     }
+
+    // D-03（提案 §4）：校验通过的崩溃档优先——装配局内态并**停在 PAUSED**。
+    // 校验失败/缺失 → `read()` 已清掉坏档，走常规新局 PLAYING。
+    if (this._restoreCrashSnapshot()) return;
+
     this._machine.reset('playing');
   }
 
@@ -521,6 +808,17 @@ export class BeadsGame implements Game {
         }
       }),
     );
+
+    const ad = services.rewardedAd;
+    this._unsubs.push(
+      ad.onRewarded(() => this._onReviveRewarded()),
+      ad.onClose(() => {
+        this._watchingAd = false;
+      }),
+      ad.onError(() => {
+        this._watchingAd = false;
+      }),
+    );
   }
 
   /** Load a normal level: fresh grid/tray/rhythm/timer (S5 §2.4 reset list). */
@@ -538,6 +836,7 @@ export class BeadsGame implements Game {
     this._sprint.reset();
     this._stageIndex = 0;
     this._isNewBest = false;
+    this._clearReviveBookkeeping();
   }
 
   /** Fresh sprint run: stage 0 + full countdown. */
@@ -547,6 +846,7 @@ export class BeadsGame implements Game {
     this._isNewBest = false;
     this._loadStage(0);
     this._timer.reset(this._sprintCap);
+    this._clearReviveBookkeeping();
     this._emit('sprint:stage', { stageIndex: 0, nextParams: stageParamsFor(0) });
   }
 
@@ -611,7 +911,7 @@ export class BeadsGame implements Game {
     if (this._hitGear(x, y)) {
       if (this._machine.current === 'playing') {
         this._consumedTap = true;
-        this.onPause();
+        this._requestPause('manual');
       }
       return;
     }
@@ -631,7 +931,23 @@ export class BeadsGame implements Game {
         return;
       }
       case 'game-over':
-        this.retryLevel();
+        if (this._mode === 'sprint') {
+          this.retryLevel();
+          return;
+        }
+        {
+          const reviveAvailable = this._reviveCount < REVIVE_MAX_PER_LEVEL;
+          const action = hitFailPanel(x, y, reviveAvailable);
+          if (action === 'revive') {
+            this._consumedTap = true;
+            this._sfx(AUDIO_CLIP_UI_TAP);
+            this.requestRevive();
+          } else if (action === 'retry') {
+            this._consumedTap = true;
+            this._sfx(AUDIO_CLIP_UI_TAP);
+            this.retryLevel();
+          }
+        }
         return;
       case 'finish':
         this.restartRun();
@@ -649,6 +965,16 @@ export class BeadsGame implements Game {
       default:
         return; // boot / level-clear: taps ignored (panel answers are PAUSED-only)
     }
+  }
+
+  /**
+   * Enter PAUSED from PLAYING with a recorded intent. Idempotent while
+   * already paused (no re-enter, no second notification).
+   */
+  private _requestPause(intent: 'manual' | 'system'): void {
+    if (this._machine.current !== 'playing') return;
+    this._pauseIntent = intent;
+    this._machine.transition('paused');
   }
 
   /** Gear hot zone: TOUCH_MIN square at the left edge of HUD_BAND. */
@@ -693,11 +1019,40 @@ export class BeadsGame implements Game {
    * Sprint also drops the combo state (P1 frozen 2026-09-12).
    */
   private _resetLevelForArtifact(): void {
+    this._crash?.clear(); // D-03：重玩本关 / 重新冲刺 ⇒ 旧快照失效
     if (this._mode === 'sprint') {
       this._setupSprintRun();
     } else {
       this._setupLevel(this._levelIndex);
     }
+    this._machine.transition('playing');
+  }
+
+  private _clearReviveBookkeeping(): void {
+    this._reviveCount = 0;
+    this._reviveBonusSec = 0;
+    this._watchingAd = false;
+    this._failHint = '';
+  }
+
+  private _onReviveRewarded(): void {
+    this._watchingAd = false;
+    this._continueFromReward();
+  }
+
+  /**
+   * Same-run continue: add bonus seconds, keep grid/tray/spawner, enter PLAYING.
+   * No-op unless we are still on the ordinary GAME_OVER overlay.
+   */
+  private _continueFromReward(): void {
+    if (this._machine.current !== 'game-over') return;
+    if (this._mode !== 'normal') return;
+    if (this._reviveCount >= REVIVE_MAX_PER_LEVEL) return;
+    const cap = Math.max(this._timer.total, REVIVE_BONUS_SEC);
+    this._timer.addTime(REVIVE_BONUS_SEC, cap);
+    this._reviveBonusSec += REVIVE_BONUS_SEC;
+    this._reviveCount += 1;
+    this._failHint = '';
     this._machine.transition('playing');
   }
 
@@ -1013,6 +1368,11 @@ export class BeadsGame implements Game {
     s.banner = copy.banner;
     s.subBanner = copy.sub;
     s.bootError = this._bootErrors.join('; ');
+    s.reviveAvailable =
+      s.phase === 'game-over' && this._mode === 'normal' && this._reviveCount < REVIVE_MAX_PER_LEVEL;
+    s.revived = this._reviveCount > 0;
+    s.watchingAd = this._watchingAd;
+    s.failHint = this._failHint;
   }
 
   private _emit<K extends keyof BeadsEvents>(type: K, payload: BeadsEvents[K]): void {
