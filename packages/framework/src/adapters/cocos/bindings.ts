@@ -112,6 +112,7 @@ export class Bootstrap extends Component {
         this._resizeBound = true;
       }
     }
+  }
 
   /**
    * Align the framework screen space with `EventTouch.getLocation()`.
@@ -125,8 +126,14 @@ export class Bootstrap extends Component {
    */
   private _fitToGameCanvas(): void {
     if (!this._app) return;
-    const canvas = (cc.game as unknown as { canvas?: { clientWidth: number; clientHeight: number } })
-      .canvas;
+    // `cc.game.canvas` is typed inconsistently across editor-generated
+    // declarations, so read the element from the DOM instead. WeChat has no
+    // `document` — there the canvas is fullscreen and the platform-reported
+    // screen size is already correct, so this is a no-op.
+    const doc = (globalThis as {
+      document?: { querySelector(s: string): { clientWidth: number; clientHeight: number } | null };
+    }).document;
+    const canvas = doc?.querySelector('#GameCanvas');
     if (!canvas || !canvas.clientWidth || !canvas.clientHeight) return;
     this._app.resize(canvas.clientWidth, canvas.clientHeight);
   }
