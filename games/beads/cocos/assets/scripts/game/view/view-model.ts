@@ -20,8 +20,14 @@ import {
   PANEL_SCALE_FROM,
   PANEL_SCRIM_ALPHA,
   PANEL_SCRIM_RGB,
+  POWERUP_BADGE_GLYPH_EDGE,
+  POWERUP_BADGE_INSET,
+  POWERUP_BADGE_RADIUS,
+  POWERUP_BADGE_SIZE,
+  POWERUP_CARD_RADIUS,
   POWERUP_TYPES,
   powerupCardRects,
+  powerupLabelY,
   TRAY_BAND,
   TRAY_COLS,
   TRAY_GAP,
@@ -38,14 +44,18 @@ import {
   drawLockedBead,
 } from './bead-render';
 import {
+  BEAD_SHADOW_HEX,
+  POWERUP_BADGE_GLYPH,
   POWERUP_INK_CAP,
   POWERUP_INK_MAGNET,
   POWERUP_INK_STAR,
   POWERUP_INK_STRAW,
   POWERUP_INK_WAND,
+  POWERUP_SHADOW_ALPHA,
   withAlpha,
   type BeadsPalette,
 } from './palette';
+import { POWERUP_LABELS } from '../systems/powerups';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -403,14 +413,19 @@ function drawDashedRect(
 
 // ──────────────────────────────────────────────────────── powerup band
 
+/** 投影竖向偏移：RenderModel 无模糊 ⇒ 用偏移圆角矩形近似（§1.4 的 α0.10 见 palette）。 */
+const POWERUP_SHADOW_OFFSET_Y = 3;
+
 /**
- * S6 道具带 —— 三张常驻白卡，每卡一枚**靠形状识别**的图标（§1.4：魔法棒 / 扫帚 /
- * 磁铁）+ 剩余免费次数；次数用尽的卡变灰（超限入口只剩常驻 `ad_badge`，§2.6）。
+ * S6 道具带 —— 三张常驻白卡。每卡 = **形状唯一**的图标 + 剩余免费次数 + 常驻
+ * `ad_badge`；卡**下方**是 28px 标签（`assets-spec §1.4`；`accessibility.md` A4 的
+ * 「以形状为唯一识别 **+ 文字标签并列**」两半都在这里落地）。
  *
- * 几何取自 `powerupCardRects()` —— 与 S2 命中测试**同一真源**：画出来的卡不可能
- * 与点击落点不一致（此前的双份常量在 WXG-T-060 合并）。
+ * 几何取自 `powerupCardRects()` / `powerupLabelY()` —— 与 S2 命中测试**同一真源**：
+ * 画出来的卡不可能与点击落点不一致（双份常量在 WXG-T-060 合并，规格补齐在 T-062）。
+ * 次数用尽的卡变灰（超限入口只剩角标，§2.6 布局 A）。
  *
- * 零外部资产、零 wx API 调用（ADR-0006 布局 A：四个局内位全是角标占位）。
+ * 零外部资产、零 wx API 调用（ADR-0006：四个局内位全是角标占位）。
  */
 function drawPowerupBand(
   builder: RenderModelBuilder,
@@ -423,27 +438,57 @@ function drawPowerupBand(
     const type = POWERUP_TYPES[i];
     if (!type) continue;
     const free = snap.powerupFreeUses[type] > 0;
-    builder.rect(x, bottom, w, h, {
-      fill: free ? palette.panel : withAlpha(palette.panel, 0.5),
-      stroke: free ? palette.slotBorder : withAlpha(palette.slotBorder, 0.4),
-      lineWidth: 2,
-      radius: 14,
+    const dim = free ? 1 : 0.35;
+
+    // L0 投影（§1.4 α0.10）。RenderModel 无模糊 ⇒ 用偏移圆角矩形近似（bead L0 判例）。
+    builder.rect(x, bottom - POWERUP_SHADOW_OFFSET_Y, w, h, {
+      fill: withAlpha(BEAD_SHADOW_HEX, POWERUP_SHADOW_ALPHA),
+      radius: POWERUP_CARD_RADIUS,
     });
-    drawPowerupGlyph(builder, i, x + w / 2, bottom + h / 2 + 8, free ? 1 : 0.35);
+    // 白卡：圆角 20 + 描边 1px（§1.4）。
+    builder.rect(x, bottom, w, h, {
+      fill: free ? palette.panel : withAlpha(palette.panel, 0.55),
+      stroke: free ? palette.slotBorder : withAlpha(palette.slotBorder, 0.4),
+      lineWidth: 1,
+      radius: POWERUP_CARD_RADIUS,
+    });
+
+    drawPowerupGlyph(builder, i, x + w / 2, bottom + h / 2 + 6, dim);
+
     // 剩余免费次数（`POWERUP_FREE_USES = 1` ⇒ 「×1」/「×0」）。
-    builder.text(x + w / 2, bottom + 12, `×${snap.powerupFreeUses[type]}`, {
-      fill: free ? palette.text : withAlpha(palette.text, 0.4),
+    builder.text(x + w / 2, bottom + 16, `×${snap.powerupFreeUses[type]}`, {
+      fill: withAlpha(palette.text, free ? 1 : 0.4),
       font: FONT.sub,
       align: 'center',
       baseline: 'middle',
     });
-    // Ad badge (top-right corner of each card) —— 常驻，不随次数变化（§2.6）。
-    builder.rect(x + w - 40, bottom + h - 26, 32, 18, {
+
+    // `ad_badge`：28×28 圆角 8、贴卡右上内缩 (8,8)、白色 ▶ 边 10（§1.4）。
+    // 常驻，不随次数变化（§2.6 布局 A：超限入口只剩它）。
+    const badgeX = x + w - POWERUP_BADGE_INSET - POWERUP_BADGE_SIZE;
+    const badgeY = bottom + h - POWERUP_BADGE_INSET - POWERUP_BADGE_SIZE;
+    builder.rect(badgeX, badgeY, POWERUP_BADGE_SIZE, POWERUP_BADGE_SIZE, {
       fill: palette.adBadge,
-      radius: 4,
+      radius: POWERUP_BADGE_RADIUS,
+    });
+    const bx = badgeX + POWERUP_BADGE_SIZE / 2;
+    const by = badgeY + POWERUP_BADGE_SIZE / 2;
+    const edge = POWERUP_BADGE_GLYPH_EDGE;
+    builder.polygon(
+      [bx - edge / 2, by - edge / 2, bx - edge / 2, by + edge / 2, bx + edge / 2, by],
+      { fill: withAlpha(POWERUP_BADGE_GLYPH, free ? 1 : 0.5) },
+    );
+
+    // 卡下方标签：28px `text_primary`（§1.4）——「文字标签并列」的那一半。
+    builder.text(x + w / 2, powerupLabelY(), POWERUP_LABELS[type], {
+      fill: withAlpha(palette.text, free ? 1 : 0.45),
+      font: FONT.sub,
+      align: 'center',
+      baseline: 'middle',
     });
   }
   if (snap.powerupHint) {
+    // 占位轻提示（§2.6）：置于道具带最下方，不遮挡标签。
     builder.text(DESIGN_W / 2, 24, snap.powerupHint, {
       fill: withAlpha(palette.text, 0.75),
       font: FONT.sub,

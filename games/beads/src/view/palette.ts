@@ -174,6 +174,10 @@ export const POWERUP_INK_STRAW = '#A5652C';
 export const POWERUP_INK_MAGNET = '#E84C3D';
 /** 磁极端帽 (`item_random_clear`, §1.4「白/浅蓝端帽」). */
 export const POWERUP_INK_CAP = '#D8D5E6';
+/** 角标 `ad_badge` 里的白色 ▶（§1.4「白色 ▶（边 10px）」）。 */
+export const POWERUP_BADGE_GLYPH = '#FFFFFF';
+/** 卡片投影 α（§1.4「投影 α0.10」）——墨色复用 {@link BEAD_SHADOW_HEX}。 */
+export const POWERUP_SHADOW_ALPHA = 0.1;
 
 function parseHex(hex: string): { r: number; g: number; b: number } {
   let h = hex.replace('#', '');

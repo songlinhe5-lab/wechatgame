@@ -8,9 +8,9 @@
  * ⚠️ 两条测试基建事实（踩过才知道，写下来防复发）：
  *  1. **一律用 `simpleTestLevel()`**（6×5、三色、`spawnInterval 4.0`、`(0,0)` 是可填格）。
  *     出货关卡 1 是 `spawnInterval 6` 且首行含 `.`/`x` —— 用它测供料恢复会静默失败。
- *  2. **§8-4 的 seed 是刻意的**：该判据容差（200 次、±20%）在统计上偏紧——12 槽族
- *     极大偏差的期望本身就有 ≈22%（σ ≈ 11%/槽）⇒ 换 seed 会随机失败。本测试用
- *     实测通过的 seed `s6-uniform-ok`，判据本身的修订建议已登记 backlog（WXG-T-060）。
+ *  2. **§8-4 已由「偏差 ≤ ±20%」改为卡方检验**（WXG-T-062 裁定，df = 11、α = 0.01、
+ *     临界 24.725）：原容差在统计上偏紧 —— 12 槽族的极大偏差期望本身就有 ≈20–24%
+ *     （单槽 σ ≈ 11%），约一半概率误报。卡方与 seed 无关，故此处 seed 只求「可复现」。
  */
 
 import { describe, expect, it } from 'vitest';
@@ -38,6 +38,9 @@ import {
 } from './helpers.js';
 
 type UsedPayload = { type: string; affectedSlots: readonly number[] };
+
+/** χ² 临界值（df = 11、α = 0.01）—— `powerups.md §8-4` 的判据阈值。 */
+const CHI_SQUARE_DF11_ALPHA001 = 24.725;
 
 // ─────────────────────────────────────────────────────────────────── helpers
 
@@ -208,21 +211,20 @@ describe('S6 §8-4 random 唯一随机源', () => {
     return out;
   }
 
-  it('is deterministic per seed and equidistributed over 200 draws', () => {
-    expect(draw('s6-uniform-ok', 5)).toEqual(draw('s6-uniform-ok', 5));
+  it('is deterministic per seed and chi-square uniform over 200 draws', () => {
+    expect(draw('s6-uniform', 5)).toEqual(draw('s6-uniform', 5));
 
     const counts = new Array<number>(TRAY_BASE_SLOTS).fill(0);
-    for (const slots of draw('s6-uniform-ok', 200)) {
+    for (const slots of draw('s6-uniform', 200)) {
       expect(slots).toHaveLength(RANDOM_CLEAR_COUNT);
       expect(new Set(slots).size).toBe(RANDOM_CLEAR_COUNT); // 无放回
       for (const slot of slots) counts[slot] += 1;
     }
-    // 200 次 × 5 颗 = 1000 次抽取 / 12 槽 ⇒ 期望 83.3，均匀偏差 ≤ ±20%（§8-4）。
-    // 该容差偏紧（见文件头第 2 条），故 seed 固定；判据修订建议已登记 backlog。
+    // §8-4（WXG-T-062 修订）：200 次 × 5 颗 = 1000 次抽取 / 12 槽 ⇒ 每槽期望 83.3；
+    // 卡方统计量 < 临界 24.725（df = 11、α = 0.01）即与均匀分布无显著差异。
     const expected = (200 * RANDOM_CLEAR_COUNT) / TRAY_BASE_SLOTS;
-    for (const n of counts) {
-      expect(Math.abs(n - expected) / expected).toBeLessThanOrEqual(0.2);
-    }
+    const chiSquare = counts.reduce((sum, n) => sum + (n - expected) ** 2 / expected, 0);
+    expect(chiSquare).toBeLessThan(CHI_SQUARE_DF11_ALPHA001);
   });
 });
 

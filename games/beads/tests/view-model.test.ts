@@ -9,7 +9,20 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
-import { BEAD_CELL, DESIGN_H, DESIGN_W, PUZZLE_BAND } from '../src/config/tuning.js';
+import {
+  BEAD_CELL,
+  DESIGN_H,
+  DESIGN_W,
+  POWERUP_BAND,
+  POWERUP_CARD_H,
+  POWERUP_CARD_W,
+  POWERUP_LABEL_H,
+  PUZZLE_BAND,
+  TOUCH_MIN,
+  powerupCardRects,
+  powerupLabelY,
+} from '../src/config/tuning.js';
+import { POWERUP_LABELS } from '../src/systems/powerups.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
@@ -41,8 +54,9 @@ const isDotSymbol = (cmd: DrawCommand): boolean =>
 
 /** Vertical centre of a command (polygons have no centre field ⇒ vertex mean). */
 function centreY(cmd: DrawCommand): number {
-  if (cmd.kind === 'circle') return cmd.y;
+  if (cmd.kind === 'circle' || cmd.kind === 'text') return cmd.y;
   if (cmd.kind === 'rect') return cmd.y + cmd.h / 2;
+  if (cmd.kind === 'line') return (cmd.y1 + cmd.y2) / 2;
   if (cmd.kind === 'polygon') {
     const ys = cmd.points.filter((_, i) => i % 2 === 1);
     return ys.reduce((a, b) => a + b, 0) / ys.length;
@@ -127,6 +141,70 @@ describe('beads view model (control-manifest §8)', () => {
     expect(commands.filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(5); // 5 颗已填 → 5 个符号
     expect(commands.filter((c) => onBoard(c) && isStarSymbol(c))).toHaveLength(0); // 其余 25 格仍为空
     expect(commands.filter((c) => onBoard(c) && isDotSymbol(c))).toHaveLength(0);
+  });
+
+  // A4（WXG-T-062 转真）：三张道具卡**以形状为唯一识别** + 卡下方 28px **文字标签并列**，
+  // 且「卡 + 标签」整块几何落在 POWERUP_BAND 内（§1.4 与 §3.1 曾冲突，裁定见 T-062）。
+  it('A4 draws three shape-unique powerup glyphs with 28px labels inside the band', () => {
+    const harness = createBeadsHarness({
+      levels: [simpleTestLevel()],
+      saveKey: 'wxgame.beads.test.vm-a4',
+    });
+    const commands = render(harness);
+    const inBand = (cmd: DrawCommand): boolean => {
+      const y = centreY(cmd);
+      return y >= POWERUP_BAND.yMin && y <= POWERUP_BAND.yMax;
+    };
+    const centreX = (cmd: DrawCommand): number => {
+      if (cmd.kind === 'circle' || cmd.kind === 'text') return cmd.x;
+      if (cmd.kind === 'rect') return cmd.x + cmd.w / 2;
+      if (cmd.kind === 'line') return (cmd.x1 + cmd.x2) / 2;
+      if (cmd.kind === 'polygon') {
+        const xs = cmd.points.filter((_, i) => i % 2 === 0);
+        return xs.reduce((a, b) => a + b, 0) / xs.length;
+      }
+      return Number.NaN;
+    };
+
+    // ① 三张标签文案逐字出现（§1.4 原文）。
+    for (const label of Object.values(POWERUP_LABELS)) {
+      expect(
+        commands.some((c) => c.kind === 'text' && inBand(c) && c.text === label),
+        `缺标签「${label}」`,
+      ).toBe(true);
+    }
+
+    // ② 几何：卡与标签都落在带内；卡高 ≥ TOUCH_MIN（§1.4「整卡即热区」）。
+    const rects = powerupCardRects();
+    expect(rects).toHaveLength(3);
+    for (const r of rects) {
+      expect(r.w).toBe(POWERUP_CARD_W);
+      expect(r.h).toBe(POWERUP_CARD_H);
+      expect(r.h).toBeGreaterThanOrEqual(TOUCH_MIN);
+      expect(r.bottom).toBeGreaterThanOrEqual(POWERUP_BAND.yMin);
+      expect(r.bottom + r.h).toBeLessThanOrEqual(POWERUP_BAND.yMax);
+    }
+    const labelY = powerupLabelY();
+    expect(labelY + POWERUP_LABEL_H / 2).toBeLessThanOrEqual(rects[0]!.bottom); // 标签在卡**下方**
+    expect(labelY - POWERUP_LABEL_H / 2).toBeGreaterThanOrEqual(POWERUP_BAND.yMin);
+
+    // ③ 「以形状为唯一识别」：三张卡内的图元组合互不相同。
+    const signature = (r: { x: number; w: number; bottom: number; h: number }): string =>
+      commands
+        .filter(
+          (c) =>
+            inBand(c) &&
+            centreX(c) >= r.x &&
+            centreX(c) <= r.x + r.w &&
+            centreY(c) >= r.bottom &&
+            centreY(c) <= r.bottom + r.h,
+        )
+        .map((c) => c.kind)
+        .sort()
+        .join(',');
+    const sigs = rects.map(signature);
+    expect(new Set(sigs).size).toBe(3);
+    for (const sig of sigs) expect(sig).toContain('polygon'); // 每张都有图标本体
   });
 
   // architecture-beads §4 规模账：满格 13×12 = 156 珠，每珠 ≥ 6 层 → 指令数随格数线性增长。

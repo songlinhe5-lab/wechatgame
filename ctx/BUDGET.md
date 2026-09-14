@@ -31,17 +31,17 @@
 | 7 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
 | 8 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
 | 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 525 | normal |
-| 10 | `games/beads/design/gdd/systems-index.md` | 7888 | 244 | hot |
-| 11 | `production/epics/epics-beads.md` | 7693 | 287 | normal |
-| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
-| 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
-| 14 | `games/beads/design/proposals/star-level-rebalance.md` | 7487 | 387 | normal |
-| 15 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
-| 16 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
-| 17 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
-| 18 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
-| 19 | `production/qa/test-cases.md` | 7097 | 296 | normal |
-| 20 | `production/TASKS.md` | 7035 | 45 | hot |
+| 10 | `production/epics/epics-beads.md` | 7693 | 287 | normal |
+| 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
+| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
+| 13 | `games/beads/design/proposals/star-level-rebalance.md` | 7487 | 387 | normal |
+| 14 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
+| 15 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
+| 16 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
+| 17 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 18 | `production/qa/test-cases.md` | 7097 | 296 | normal |
+| 19 | `docs/engine-reference/cocos/VERSION.md` | 7007 | 305 | normal |
+| 20 | `production/TASKS.md` | 6747 | 42 | hot |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

@@ -30,14 +30,31 @@ export const TRAY_BAND = { yMin: 230, yMax: 420 } as const;
 /** Powerup band (3 white cards — S6 landed in WXG-T-060). */
 export const POWERUP_BAND = { yMin: 48, yMax: 200 } as const;
 /**
- * Powerup card geometry. Presentation-only (no §3 constant — the *band* is the
- * frozen part); declared here because **both** the renderer and the S2 hit test
- * must agree, and a second copy would be a silent drift (the `gridLayoutFor`
- * precedent). `POWERUP_CARD_H` ≥ `TOUCH_MIN`, so the card is its own hit area.
+ * 道具卡几何。**不是 §3 冻结常量**（冻结的是带位 `POWERUP_BAND`），但渲染与 S2 命中
+ * 测试必须**共用同一份** —— 各写一份就会出现「画出来的卡」与「点击落点」不一致的静默
+ * 漂移（`gridLayoutFor` 判例）。
+ *
+ * ⚠️ 与 `assets-spec §1.4` 的关系（WXG-T-062 主理人裁定 = 方案 A「改卡高、不动带位」）：
+ *  §1.4 原写「卡 **176×150** + **卡下方**标签 28px」，而 §3.1 的 `POWERUP_BAND` 只有
+ *  **152** 高 —— 150 + 4 + 28 = 182 > 152，两条冻结规格**无法同时成立**。裁定取
+ *  「卡 **176×116**（宽仍用 §1.4 的 176，高按带位反推）+ 间隔 4 + 标签 28 = 148 ≤ 152」，
+ *  这样 §3.1 与底部留白 48 一字不动、A4 的「文字标签并列」得以落地。§1.4 已同步改数并注明。
+ *
+ * `POWERUP_CARD_H` ≥ `TOUCH_MIN`，且 §1.4 规定「整卡即热区」⇒ 卡自身就是命中区。
  */
-export const POWERUP_CARD_W = 150;
-export const POWERUP_CARD_H = 110;
+export const POWERUP_CARD_W = 176;
+export const POWERUP_CARD_H = 116;
 export const POWERUP_CARD_GAP = 30;
+export const POWERUP_CARD_RADIUS = 20; // §1.4「圆角 20」
+/** §1.4「卡下方标签 28px」（亦满足 §3.8 文字最小 28）。 */
+export const POWERUP_LABEL_H = 28;
+/** 卡与标签的竖向间隔：§1.4 未规定，本项派生（取 4 使整块 148 ≤ 带高 152）。 */
+export const POWERUP_LABEL_GAP = 4;
+/** §1.4 视频角标 `ad_badge`：28×28 圆角 8，贴卡右上角内缩 (8,8)，白色 ▶ 边 10。 */
+export const POWERUP_BADGE_SIZE = 28;
+export const POWERUP_BADGE_RADIUS = 8;
+export const POWERUP_BADGE_INSET = 8;
+export const POWERUP_BADGE_GLYPH_EDGE = 10;
 
 // ──────────────────────────────────────────────── §3.2 palette & bead charset
 /** Pattern row charset: `.`=空位 `x`=锁定格 `1-9`+`A`=色板索引 1–10. */
@@ -325,14 +342,29 @@ export interface PowerupCardRect {
 }
 
 /**
- * The three card rects, centred in `POWERUP_BAND` — the single geometry source
- * shared by `view/view-model.ts` (draw) and the S2 tap router (hit test), so a
- * drawn card can never disagree with where taps land.
+ * 竖向整块的底基准 y：`[标签 28] + [间隔 4] + [卡 116]` 共 148，在带内**整体居中**
+ * （带高 152 ⇒ 上下各余 2）。卡底 = 基准 + 标签 + 间隔，标签中心另见 `powerupLabelY()`。
+ */
+function powerupBlockBaseY(): number {
+  const blockH = POWERUP_LABEL_H + POWERUP_LABEL_GAP + POWERUP_CARD_H;
+  const bandH = POWERUP_BAND.yMax - POWERUP_BAND.yMin;
+  return POWERUP_BAND.yMin + (bandH - blockH) / 2;
+}
+
+/** 标签中心 y（§1.4「卡下方标签」，落在卡外、带内）。 */
+export function powerupLabelY(): number {
+  return powerupBlockBaseY() + POWERUP_LABEL_H / 2;
+}
+
+/**
+ * The three card rects — the single geometry source shared by
+ * `view/view-model.ts` (draw) and the S2 tap router (hit test), so a drawn card
+ * can never disagree with where taps land. Cards sit **above** the label row.
  */
 export function powerupCardRects(): PowerupCardRect[] {
   const totalW = POWERUP_CARD_W * 3 + POWERUP_CARD_GAP * 2;
   const startX = (DESIGN_W - totalW) / 2;
-  const bottom = (POWERUP_BAND.yMin + POWERUP_BAND.yMax) / 2 - POWERUP_CARD_H / 2;
+  const bottom = powerupBlockBaseY() + POWERUP_LABEL_H + POWERUP_LABEL_GAP;
   const rects: PowerupCardRect[] = [];
   for (let i = 0; i < POWERUP_TYPES.length; i++) {
     rects.push({

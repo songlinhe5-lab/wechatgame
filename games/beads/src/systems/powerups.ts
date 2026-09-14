@@ -38,6 +38,16 @@ export type PowerupOutcome =
 const isPowerupType = (value: unknown): value is PowerupType =>
   typeof value === 'string' && (POWERUP_TYPES as readonly string[]).includes(value);
 
+/**
+ * 卡下方标签文案（`assets-spec §1.4` 指定，逐字取用）。放在本系统而非视图层，
+ * 与 `pause-panel` 承载自家按钮文案同判例：**文案归拥有它的系统**。
+ */
+export const POWERUP_LABELS: Readonly<Record<PowerupType, string>> = {
+  region: '区域消除',
+  clearAll: '槽位清空',
+  random: '随机消除',
+};
+
 export class PowerupSystem {
   /** 只读镜像：当前 hold 着珠的槽（线性索引，行主序，跨基线/扩展行）。 */
   private readonly _holding = new Set<number>();
