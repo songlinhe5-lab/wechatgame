@@ -13,19 +13,25 @@ import type { SaveDocument, Storage } from '@wxgame/framework';
 import { STAR_MAX } from '../config/tuning.js';
 
 /**
- * S9 audio settings (save-progress §2.2): two independent channels, persisted
- * the instant they are toggled. Missing fields degrade **per field** to false —
- * a document is never discarded because `settings` lacks a key.
+ * Persisted toggles (save-progress §2.2 + accessibility D1/E2, WXG-T-088): four
+ * independent channels, persisted the instant they are toggled. Missing fields
+ * degrade **per field** to false — a document is never discarded because
+ * `settings` lacks a key. This per-field default is exactly what lets the v1→v2
+ * bump (adding `reduceMotion` / `largeText`) stay backward compatible.
  */
 export interface BeadsSettings {
   /** Music channel muted (`bgmMuted`). */
   readonly bgmMuted: boolean;
   /** Sfx channel muted (`sfxMuted`). */
   readonly sfxMuted: boolean;
+  /** D1 减弱动效：关停非必要位移 / 脉冲（accessibility §4）。 */
+  readonly reduceMotion: boolean;
+  /** E2 大字号：正文 / 说明类文本放大（accessibility §5）。 */
+  readonly largeText: boolean;
 }
 
 export interface BeadsSave extends SaveDocument {
-  version: 1;
+  version: 2;
   /** Runs started — the "first launch" test is `runs === 0` (S1 §8-1). */
   runs: number;
   /** Highest unlocked level, 1-based, clamped to `[1, levelCount]`. */
@@ -50,7 +56,16 @@ export interface BeadsSave extends SaveDocument {
 export const SAVE_KEY = 'wxgame.beads.save.v1';
 /** Where an unreadable document is preserved before being discarded. */
 export const BACKUP_KEY = 'wxgame.beads.save.v1.bak';
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
+
+/**
+ * v1 → v2（WXG-T-088）：新增可访问性开关 `reduceMotion`（D1）与 `largeText`
+ * （E2）。迁移**只升版本号并原样透传旧字段**——缺省的新字段交由 `normalizeSettings`
+ * 逐字段降级为 false，因此旧档进度与原 settings 全保留、绝不重置（旧档不炸）。
+ */
+export function migrateV1ToV2(doc: Record<string, unknown>): Record<string, unknown> {
+  return { ...doc, version: SAVE_VERSION };
+}
 
 export function defaultBeadsSave(): BeadsSave {
   return {
@@ -62,7 +77,7 @@ export function defaultBeadsSave(): BeadsSave {
     sprintBestStage: 0,
     // 长度在 `normalizeBeadsSave(raw, levelCount)` 里按关卡表补齐（出厂默认不知关卡数）。
     starsByLevel: [],
-    settings: { bgmMuted: false, sfxMuted: false },
+    settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false },
   };
 }
 
@@ -85,6 +100,8 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
   return {
     bgmMuted: boolField(raw, 'bgmMuted', false),
     sfxMuted: boolField(raw, 'sfxMuted', false),
+    reduceMotion: boolField(raw, 'reduceMotion', false),
+    largeText: boolField(raw, 'largeText', false),
   };
 }
 
@@ -160,7 +177,9 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     !sameNumbers(rawStars as number[], save.starsByLevel) ||
     raw['settings'] === undefined ||
     save.settings.bgmMuted !== boolField(raw['settings'], 'bgmMuted', false) ||
-    save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false);
+    save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false) ||
+    save.settings.reduceMotion !== boolField(raw['settings'], 'reduceMotion', false) ||
+    save.settings.largeText !== boolField(raw['settings'], 'largeText', false);
 
   return { save, changed };
 }

@@ -82,6 +82,9 @@ export interface BeadsSnapshot {
   /** S9 audio toggles for immediate visual echo (no restart needed). */
   bgmMuted: boolean;
   sfxMuted: boolean;
+  /** WXG-T-088 accessibility toggles (view reads these off the snapshot). */
+  reduceMotion: boolean;
+  largeText: boolean;
 
   /** Sprint HUD — normal mode leaves these at zero and the view hides them. */
   score: number;
@@ -220,6 +223,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     panelInteractive: false,
     bgmMuted: false,
     sfxMuted: false,
+    reduceMotion: false,
+    largeText: false,
     score: 0,
     multiplier: 1,
     streak: 0,

@@ -7,6 +7,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { SaveManager } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import {
   BACKUP_KEY,
@@ -14,9 +15,11 @@ import {
   SAVE_VERSION,
   bootLevel,
   defaultBeadsSave,
+  migrateV1ToV2,
   normalizeBeadsSave,
   normalizeSettings,
   preserveCorruptBackup,
+  type BeadsSave,
 } from '../src/game/save-schema.js';
 
 const LEVEL_COUNT = 8;
@@ -29,7 +32,7 @@ const validSave = () => ({
   sprintBestScore: 1200,
   sprintBestStage: 5,
   starsByLevel: [3, 2, 1, 0, 0, 0, 0, 0],
-  settings: { bgmMuted: true, sfxMuted: false },
+  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false },
 });
 
 const storage = () => new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createStorage();
@@ -44,13 +47,13 @@ describe('beads save schema', () => {
       sprintBestScore: 0,
       sprintBestStage: 0,
       starsByLevel: [],
-      settings: { bgmMuted: false, sfxMuted: false },
+      settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false },
     });
   });
 
   // 「降级，不抛异常」—— 任何垃圾输入都要得到一个可用存档，且标记为「需要写回」。
   it('degrades any non-document input to the default and reports the change', () => {
-    for (const raw of [null, undefined, 42, 'save', [], true, () => {}]) {
+    for (const raw of [null, undefined, 42, 'save', [], true, () => { }]) {
       const result = normalizeBeadsSave(raw, LEVEL_COUNT);
       expect(result.save).toEqual(defaultBeadsSave());
       expect(result.changed).toBe(true);
@@ -119,14 +122,81 @@ describe('beads save schema', () => {
   // save-progress §2.2 的核心：settings 缺字段按**单字段**降级，绝不弃整档。
   it('degrades settings per field instead of discarding the document', () => {
     const missing = normalizeBeadsSave({ ...validSave(), settings: undefined }, LEVEL_COUNT);
-    expect(missing.save.settings).toEqual({ bgmMuted: false, sfxMuted: false });
+    expect(missing.save.settings).toEqual({
+      bgmMuted: false,
+      sfxMuted: false,
+      reduceMotion: false,
+      largeText: false,
+    });
     expect(missing.save.currentLevel).toBe(3); // progression survived
     expect(missing.changed).toBe(true);
 
-    expect(normalizeSettings({ bgmMuted: true })).toEqual({ bgmMuted: true, sfxMuted: false });
-    expect(normalizeSettings({ sfxMuted: true })).toEqual({ bgmMuted: false, sfxMuted: true });
-    expect(normalizeSettings('nonsense')).toEqual({ bgmMuted: false, sfxMuted: false });
-    expect(normalizeSettings({ bgmMuted: 'yes' })).toEqual({ bgmMuted: false, sfxMuted: false });
+    expect(normalizeSettings({ bgmMuted: true })).toEqual({
+      bgmMuted: true,
+      sfxMuted: false,
+      reduceMotion: false,
+      largeText: false,
+    });
+    expect(normalizeSettings({ sfxMuted: true })).toEqual({
+      bgmMuted: false,
+      sfxMuted: true,
+      reduceMotion: false,
+      largeText: false,
+    });
+    expect(normalizeSettings('nonsense')).toEqual({
+      bgmMuted: false,
+      sfxMuted: false,
+      reduceMotion: false,
+      largeText: false,
+    });
+    expect(normalizeSettings({ bgmMuted: 'yes' })).toEqual({
+      bgmMuted: false,
+      sfxMuted: false,
+      reduceMotion: false,
+      largeText: false,
+    });
+  });
+
+  // WXG-T-088：v1→v2 升位——旧档（无 reduceMotion / largeText）装载后进度全保留、
+  // 新开关逐字段降级 false，绝不因“版本号落后”而重置（旧档不炸）。
+  it('migrates a v1 document to v2 without discarding progress', () => {
+    const store = storage();
+    const v1 = {
+      version: 1,
+      runs: 7,
+      maxUnlockedLevel: 5,
+      currentLevel: 5,
+      sprintBestScore: 9999,
+      sprintBestStage: 4,
+      starsByLevel: [3, 3, 2, 1, 0, 0, 0, 0],
+      settings: { bgmMuted: true, sfxMuted: true },
+    };
+    store.set(SAVE_KEY, JSON.stringify(v1));
+
+    const manager = new SaveManager<BeadsSave>(store, {
+      key: SAVE_KEY,
+      version: SAVE_VERSION,
+      defaults: defaultBeadsSave,
+      migrations: { 1: migrateV1ToV2 },
+    });
+    const loaded = manager.load();
+    expect(loaded.wasReset).toBe(false);
+    expect(loaded.migrationsApplied).toContain(SAVE_VERSION);
+
+    const normalized = normalizeBeadsSave(loaded.data, LEVEL_COUNT);
+    // 进度、原开关一字未动；新开关逐字段降级 false。
+    expect(normalized.save.version).toBe(SAVE_VERSION);
+    expect(normalized.save.runs).toBe(7);
+    expect(normalized.save.maxUnlockedLevel).toBe(5);
+    expect(normalized.save.currentLevel).toBe(5);
+    expect(normalized.save.sprintBestScore).toBe(9999);
+    expect(normalized.save.starsByLevel).toEqual([3, 3, 2, 1, 0, 0, 0, 0]);
+    expect(normalized.save.settings).toEqual({
+      bgmMuted: true,
+      sfxMuted: true,
+      reduceMotion: false,
+      largeText: false,
+    });
   });
 
   // S1 §8-1：无存档 → 第 1 关；有进度 → 续进已解锁最远关。

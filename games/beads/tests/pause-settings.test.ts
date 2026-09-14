@@ -340,7 +340,12 @@ describe('S9 pause & settings', () => {
     expect(tap(game, p.x, p.y)).toBe(true); // now mute bgm too
     expect(game.bgmMuted).toBe(true);
     expect(game.sfxMuted).toBe(true);
-    expect(readSettings()).toEqual({ bgmMuted: true, sfxMuted: true });
+    expect(readSettings()).toEqual({
+      bgmMuted: true,
+      sfxMuted: true,
+      reduceMotion: false,
+      largeText: false,
+    });
 
     // Relaunch on the same storage → both toggles echo back.
     const rebooted = createBeadsHarness({ saveKey, storage: harness.storage });
