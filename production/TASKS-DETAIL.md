@@ -229,10 +229,10 @@
 ## WXG-T-088
 
 - **名称**：beads·**R1=甲 D1/E2 可访问性开关落码**（波次2，用户拍板 R1 全做）。根治 accessibility D1/E2 第三次假绿：三文档冲突消解 + 真实装设置字段。
-- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（save-schema 0ccba7a + 面板/view/文档同批）
 - **Deliverables**：① `BeadsSettings` 落 `reduceMotion` + `largeText` 字段（`save-schema.ts` + version 升位迁移）；② 回写 `pause-settings §2.2` 冻结清单 + `ux-spec §3.3` 线框使三文档一致；③ `accessibility.md` D1/E2 由假绿 ✅ 改为真实落地后 ✅；④ 消费端接线：`reduceMotion`→抑制 T-087 的 VFX/脉冲，`largeText`→字号放大系数。
-- **约束**：`save-schema` version 升位须带向后兼容迁移（旧档不炸）；E2 字号若触 §3 冻结常量走 §6 变更记录串行落。**不改** cocos bindings.ts（T-077 工作面）。
 - **依赖**：软前置 T-087（`reduceMotion` 要有可抑制的 VFX）。与 T-085/086 文件面不冲突。
+- **落地证据**：① `save-schema.ts` BeadsSettings 加 `reduceMotion`/`largeText`，SAVE_VERSION 1→2，`migrateV1ToV2` 只升版本号透传旧字段 + `normalizeSettings` 逐字段降级 false（旧档不炸）；beads-game SaveManager 改 `version: SAVE_VERSION` + `migrations{1}`。② `pause-panel.ts` 行3 由单居中去冲刺改为三格 `[减弱动效|大字号|去冲刺]`（复用行2 cellW≈160≥TOUCH_MIN，面板维持 560×480，§8-5 不变量不破；sprint 下去冲刺退场、两开关常驻）；beads-game 接 两 setter + `_applyPanelAction` 两 case + 镜像/getters/_persistSettings/_syncSnapshot；state 快照加两字段。③ view-model：panelLabel 两标签（次要小字号 panelToggle），reduceMotion 令 dangerAlpha/hintAlpha/wrong 抖动dx/wrong flash/clearStarPopScale/finishRowPopScale 全退静态，largeText 经 `bodyFont` 放大 `sub`(28→35)/`hudSmall`(22→27)。④ 三文档回写：pause§2.2 两行 / ux§3.3 行3 线框 / accessibility D1、E2 由假绿改 ✅+§2 复核（诚实标「落座回弹/消除溶解」本作无对应动画=N/A）。测：save-schema v1→v2 迁移保进度牙 + feedback-vfx 4 消费牙 + pause §8-1/§8-5/§8-11。**未触 §3 冻结常量**（FONT 为 view 局部项，非 systems-index §3）。beads 198 全绿、framework:sync 镜像 5 文件、verify exit 0。
 
 ---
 
