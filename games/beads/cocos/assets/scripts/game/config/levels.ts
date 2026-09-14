@@ -188,7 +188,8 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
   for (const ch of level.decoys) {
     const idx = colorIndexOfChar(ch);
     if (idx === undefined) {
-      errors.push(`${tag}: decoy "${ch}" is not in charset ${BEAD_CHARSET}`);    } else if (typeof idx === 'number' && patternSet.has(idx)) {
+      errors.push(`${tag}: decoy "${ch}" is not in charset ${BEAD_CHARSET}`);
+    } else if (typeof idx === 'number' && patternSet.has(idx)) {
       errors.push(`${tag}: decoy "${ch}" overlaps pattern colour ${idx}`);
     }
   }

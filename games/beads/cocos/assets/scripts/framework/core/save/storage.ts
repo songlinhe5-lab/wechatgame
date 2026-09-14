@@ -56,7 +56,7 @@ export class MemoryStorage implements Storage {
  * because a high-score table could not be written.
  */
 export class JsonStorage {
-  constructor(private readonly _storage: Storage) {}
+  constructor(private readonly _storage: Storage) { }
 
   get raw(): Storage {
     return this._storage;
