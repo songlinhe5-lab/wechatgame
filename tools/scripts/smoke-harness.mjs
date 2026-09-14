@@ -89,7 +89,7 @@ for (const game of GAMES) {
     continue;
   }
 
-  const { app, game: instance, calls, rewritten, render } = harness;
+  const { app, game: instance, calls, rewritten, render, canvas } = harness;
   console.log('✅ module graph evaluated');
   console.log(`   rewrote ${rewritten} × "@wxgame/framework" to per-file relative paths`);
 
@@ -112,6 +112,24 @@ for (const game of GAMES) {
     problems.push('nothing was painted to the canvas');
   }
   if (calls.fillText <= 0) problems.push('no text was drawn (HUD missing?)');
+
+  // ADR-0011 §3(d) second tooth: the viewport is fitted in CSS px while the
+  // backing store is CSS px × DPR. At DPR≠1 (the stub injects 2) these diverge,
+  // so `fit.screenWidth` must equal `clientWidth`, never `canvas.width`.
+  const fit = app.viewport?.fit;
+  if (!fit) problems.push('no viewport fit reported');
+  else {
+    if (canvas?.clientWidth !== undefined && fit.screenWidth !== canvas.clientWidth) {
+      problems.push(
+        `viewport screenWidth ${fit.screenWidth} !== canvas.clientWidth ${canvas.clientWidth} (CSS-px contract broken)`,
+      );
+    }
+    if (canvas?.width !== undefined && fit.screenWidth === canvas.width && canvas.clientWidth !== canvas.width) {
+      problems.push(
+        `viewport screenWidth tracks the device-px backing store (${canvas.width}), not CSS px (${canvas.clientWidth})`,
+      );
+    }
+  }
 
   if (problems.length > 0) {
     console.error(`❌ ${game.id} smoke failed:\n  - ${problems.join('\n  - ')}`);

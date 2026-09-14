@@ -47,10 +47,10 @@ const app = new App({
   seed: 'harness',
 });
 
-const renderer = new Canvas2DRenderer(ctx, app.viewport);
-
 /** Device pixel ratio, capped so a 3× phone does not melt the canvas. */
 const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+const renderer = new Canvas2DRenderer(ctx, app.viewport, { pixelRatio: dpr });
 
 app.onRender = (model) => {
   renderer.draw(model);
@@ -59,10 +59,12 @@ app.onRender = (model) => {
 /**
  * Match the canvas backing store to the window.
  *
- * The viewport is told the size in *device* pixels, so `fit.scale` already
- * includes the DPR and the renderer's transform lands correctly. Pointer events
- * arrive in CSS pixels, so they are scaled up before being fed to the input
- * manager — that keeps a single consistent coordinate space.
+ * Screen space is CSS px end-to-end (ADR-0011): the viewport is told the CSS
+ * size, and `App.start()` re-fits it from `platform.getScreenSize()` — which is
+ * CSS px on every host — so a pointer event's `clientX/clientY` maps straight
+ * through. The extra resolution lives only in the backing store (`cssW * dpr`),
+ * which `Canvas2DRenderer` absorbs via its `pixelRatio`; DPR never reaches the
+ * viewport or the input manager.
  */
 function fitCanvas(): void {
   const cssW = window.innerWidth;
@@ -75,7 +77,7 @@ function fitCanvas(): void {
   canvas.style.width = `${cssW}px`;
   canvas.style.height = `${cssH}px`;
 
-  app.resize(w, h);
+  app.resize(cssW, cssH);
 }
 
 window.addEventListener('resize', fitCanvas);
@@ -87,10 +89,13 @@ let lastPointerId = 0;
 
 function pushPointer(event: PointerEvent, phase: 'down' | 'move' | 'up' | 'cancel'): void {
   lastPointerId = event.pointerId;
+  // `clientX/clientY` are already CSS px — the exact screen space the viewport
+  // fits to. Multiplying by DPR here was GAP-07: the input manager maps the
+  // device-px value through a CSS-px viewport and lands off-board.
   app.input.push({
     id: event.pointerId,
-    x: event.clientX * dpr,
-    y: event.clientY * dpr,
+    x: event.clientX,
+    y: event.clientY,
     phase,
     time: performance.now(),
   });
