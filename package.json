@@ -21,6 +21,7 @@
     "levels:check": "node tools/scripts/sync-levels-data.mjs --check",
     "framework:sync": "node tools/scripts/sync-framework-to-cocos.mjs",
     "framework:sync:check": "node tools/scripts/sync-framework-to-cocos.mjs --check",
+    "cocos:check": "node tools/scripts/check-cocos-scripts.mjs",
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
     "ctx:reads": "node tools/scripts/collect-context-reads.mjs",
@@ -41,7 +42,7 @@
     "preview:frames": "node tools/scripts/render-harness-frame.mjs",
     "preview:clip": "node tools/scripts/render-harness-clip.mjs",
     "commitlint": "commitlint",
-    "verify": "pnpm run check:arch && pnpm run check:links && pnpm run check:mcp && pnpm run levels:check && pnpm run typecheck && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
+    "verify": "pnpm run check:arch && pnpm run check:links && pnpm run check:mcp && pnpm run levels:check && pnpm run typecheck && pnpm run framework:sync:check && pnpm run cocos:check && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
