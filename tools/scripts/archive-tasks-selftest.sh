@@ -15,6 +15,10 @@
 #         ⑧ 0 行可归档：提示无可归档、不写盘、归档文件不创建
 #         ⑨ fail loud：头注缺「当前已分配至…下一可用号」句式 → exit 1 不落盘
 #         ⑩ 重复号防护：主表被手工塞回已在归档的行 → 跳过告警、不重复入档
+#         ⑪ 成对搬运（WXG-T-065）：详情文件存在时，主表行与其详情小节**同批**搬走
+#            （行→TASKS-archive.md、节→TASKS-DETAIL-archive.md），正文逐字节不变、
+#            在办行小节不动、批次留痕写明成对、重跑幂等
+#         ⑫ 宁漏勿错：主表有行但详情无对应小节 → **跳过该行**（搬了会丢正文）并告警
 #
 # 用法：tools/scripts/archive-tasks-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库。
@@ -200,6 +204,97 @@ OUT="$(node "$ARCHIVE_CMD" --root="$REPO" --write 2>&1)"; RC=$?
 assert_eq "$RC" "0" "[6] 重复号退出码 0"
 assert_contains "$OUT" "已存在于归档" "[6] 告警重复号"
 assert_eq "$(grep -cF "$ROW_T001" "$ARCHIVE_FILE")" "1" "[6] 归档中 T-001 仅 1 份（不重复入档）"
+
+# ── [7] 成对搬运：主表行归档 ⇒ 详情小节同批搬走（WXG-T-065）────────────────────
+echo "—— [7] 成对搬运（行 + 详情节）"
+REPO4="$WORK/repo4"
+new_repo "$REPO4"
+T4="$REPO4/production/TASKS.md"
+D4="$REPO4/production/TASKS-DETAIL.md"
+DA4="$REPO4/production/archive/TASKS-DETAIL-archive.md"
+cat >"$T4" <<EOF
+# WXG 任务台账（桩 4）
+
+> 当前已分配至 **WXG-T-002**（🔄 进行中），下一可用号 **WXG-T-003**。
+> 勘误：领号认本注，本注由 tasks:archive 校准。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-001 | 老完成行 | 甲 | ✅ 完成 | 见详情 |
+| WXG-T-002 | 在办行 | 乙 | 🔄 进行中 | 见详情 |
+EOF
+cat >"$D4" <<EOF
+# WXG 任务台账 · 详情（桩 4）
+
+---
+
+## WXG-T-001
+
+- **名称**：老完成行的长正文（必须逐字节随行搬走）
+
+---
+
+## WXG-T-002
+
+- **名称**：在办行的正文（不得被搬走）
+EOF
+stub_commit "$REPO4" "$OLD_DATE"
+B4T="$(sha "$T4")"; B4D="$(sha "$D4")"
+
+# [7a] dry-run：不落盘、明示成对
+OUT="$(node "$ARCHIVE_CMD" --root="$REPO4" 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[7a] dry-run 退出码 0"
+assert_contains "$OUT" "成对搬运" "[7a] 计划明示成对搬运"
+assert_contains "$OUT" "详情节 1 节" "[7a] dry-run 报出节数"
+assert_eq "$(sha "$T4")" "$B4T" "[7a] dry-run 台账字节不变"
+assert_eq "$(sha "$D4")" "$B4D" "[7a] dry-run 详情字节不变"
+
+# [7b] --write：行与节同批搬走
+OUT="$(node "$ARCHIVE_CMD" --root="$REPO4" --write 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[7b] --write 退出码 0"
+assert_contains "$OUT" "守恒校验通过" "[7b] 行守恒通过"
+assert_contains "$OUT" "详情节成对搬运" "[7b] 报告明示成对搬运"
+grep -qF '| WXG-T-001 |' "$T4" && bad "[7b] T-001 行仍在主表" || ok "[7b] 行已移出主表"
+grep -qF '## WXG-T-001' "$D4" && bad "[7b] T-001 小节仍在详情文件" || ok "[7b] 小节已移出详情文件"
+if [ -f "$DA4" ]; then ok "[7b] 详情归档已创建"; else bad "[7b] 详情归档缺失"; fi
+grep -qF '## WXG-T-001' "$DA4" && ok "[7b] 小节入详情归档" || bad "[7b] 详情归档找不到该节"
+grep -qF '必须逐字节随行搬走' "$DA4" && ok "[7b] 正文逐字节搬走（未改写）" || bad "[7b] 正文被改写"
+grep -qF '## WXG-T-002' "$D4" && ok "[7b] 在办行小节保留" || bad "[7b] 在办行小节被误搬"
+grep -qF '在办行的正文（不得被搬走）' "$D4" && ok "[7b] 在办行正文保留" || bad "[7b] 在办行正文丢失"
+assert_contains "$(head -3 "$DA4")" "详情归档" "[7b] 详情归档含说明头"
+assert_contains "$(cat "$REPO4/production/archive/TASKS-archive.md")" "详情节同批搬入" "[7b] 行归档批次留痕写明成对"
+
+# [7c] 幂等：重跑 0 行空转，四个文件字节不变
+A7T="$(sha "$T4")"; A7D="$(sha "$D4")"; A7A="$(sha "$DA4")"
+OUT="$(node "$ARCHIVE_CMD" --root="$REPO4" --write 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[7c] 重跑退出码 0"
+assert_eq "$(sha "$T4")" "$A7T" "[7c] 台账字节不变"
+assert_eq "$(sha "$D4")" "$A7D" "[7c] 详情字节不变"
+assert_eq "$(sha "$DA4")" "$A7A" "[7c] 详情归档字节不变"
+
+# [7d] 宁漏勿错：主表有行但详情无小节 → 跳过（搬了会丢正文）
+REPO5="$WORK/repo5"
+new_repo "$REPO5"
+T5="$REPO5/production/TASKS.md"
+cat >"$T5" <<EOF
+# WXG 任务台账（桩 5）
+
+> 当前已分配至 **WXG-T-001**（✅ 已完成），下一可用号 **WXG-T-002**。
+> 勘误：领号认本注，本注由 tasks:archive 校准。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-001 | 老完成行但详情缺小节 | 甲 | ✅ 完成 | 见详情 |
+EOF
+printf '# WXG 任务台账 · 详情（桩 5，无小节）\n' >"$REPO5/production/TASKS-DETAIL.md"
+stub_commit "$REPO5" "$OLD_DATE"
+B5="$(sha "$T5")"
+OUT="$(node "$ARCHIVE_CMD" --root="$REPO5" --write 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[7d] 缺小节退出码 0"
+assert_contains "$OUT" "主表有行但" "[7d] 告警：主表有行但详情无小节"
+grep -qF '| WXG-T-001 |' "$T5" && ok "[7d] 行保留在主表（未误搬）" || bad "[7d] 行被搬走（会丢正文）"
+assert_eq "$(sha "$T5")" "$B5" "[7d] 台账字节不变"
+if [ ! -e "$REPO5/production/archive/TASKS-archive.md" ]; then ok "[7d] 归档文件未创建"; else bad "[7d] 不应创建归档"; fi
 
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"

@@ -10,7 +10,8 @@
 >    `read_file(path, offset, limit)` **只读那一节**（中位 ≈ 290 tok）——**不要整读本文件**。
 >
 > **配对纪律（由 `pnpm run check:tasks` 机械强制）**：主表有行 ⇔ 本文件有同名小节；
-> 归档时**行与小节成对搬走**（故本文件只留在办 / 近期任务）。
+> 归档时**行与小节成对搬走** —— 由 `pnpm run tasks:archive` 机械执行（WXG-T-065：行进
+> `archive/TASKS-archive.md`、节进 `archive/TASKS-DETAIL-archive.md`，节数 == 行数），故本文件只留在办 / 近期任务。
 
 ---
 
@@ -105,7 +106,7 @@
 ## WXG-T-059
 
 - **名称**：beads 局内崩溃快照**落码**（D-03 实现轮；用户裁定「局内崩溃快照（D-03）任务执行」）：T-055 的提案自身写明「本轮禁止落运行时写档」+ §7 标「落码时，非本轮」⇒ 本轮**开新轮次**，不推翻其条款。范围：① 新增 `src/game/crash-snapshot.ts`（**另键** `wxgame.beads.crash.v1`，`save-schema.ts` 一字未改、S8 version 未升；字段级校验/降级、永不抛异常）；② `Spawner` 暴露 `acc` / `fullReported` 存取（原私有；恢复须在热路径外写，且须**先设 interval 再设 acc**，因为 interval setter 会重置累加器）；③ `BeadsGame.onPause` 末尾写快照（含「已 PAUSED 又 onHide」）；结算/过关/失败/finish/重玩/换关 **删**快照；④ BOOT 读快照 → 校验 → 装配 → 进 PAUSED（走 `machine.reset('paused')`，**不动** `PHASE_TRANSITIONS` 冻结表）；⑤ `tests/in-level-snapshot.test.ts`（提案 §6 六条判据，本轮据用户裁定去 `[待冻结]`）。**对提案 §2 的必要增补 2 项**（均有既有冻结依据，非发明）：`reviveCount`（T-057 已冻结 `REVIVE_MAX_PER_LEVEL=1`；不存则恢复后可再续一次、绕过该规则）、`reviveBonusSec`（参与 `computeClearStars`；不存则恢复后过关多给星）
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成（归档器成对搬运待机械）
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
 - **产出**：games/beads/src/game/crash-snapshot.ts · games/beads/src/systems/spawner.ts · games/beads/src/game/beads-game.ts · games/beads/tests/in-level-snapshot.test.ts · 本台账
 
 ---
@@ -137,7 +138,7 @@
 ## WXG-T-063
 
 - **名称**：**EP-07 结算·过关面板落地**（用户裁定「开始 EP-07 结算面板」）：`ux-spec §4` 流转表要求 `LEVEL_CLEAR` **等按钮**（下一关 / 去冲刺 U1），而实现一直是「1.4s 自动进下一关」的占位 ⇒ 新增 `systems/clear-panel.ts`（纯布局 + 命中 + 入/出 200/150ms + **星入场逐颗 150ms**，同 PausePanel 范式），按 §3.4 画遮罩 + `panel_dialog` 底板 + 金色缎带标题 + 逐颗弹跳星级 + 「剩余 mm:ss ｜ 道具 n/3」+ 主/副双钮；`LEVEL_CLEAR` 改为**等按钮**，`LEVEL_CLEAR_DELAY_S` 与 `tuning.levelClearDelay` **退休**（留墓碑注）；面板开时压掉相位横幅；C7 结算分在 `level:cleared` 当帧装配（`lastSettleScore`，§8-2）；星入场各触发一次 `sfx_star`。**测试**：新增 `tests/clear-panel.test.ts` **7 条**（含「3s 内不自动推进」回归闸门 + 两条按钮出口 + C7 精确值 4200 + §8-2 数据装配），另改两处依赖自动推进的旧用例（改点面板主钮）；beads **150 → 157**。**EP-07 未完**：冲刺结算面板（`ux-spec §3.5` 左列）+ FINISH 通关画面（§3.6）+ 连击特效三档（§2.5，判据 `score-combo §8-9` 属 DevTools）
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成（归档器成对搬运待机械）（EP07-S1 关面完成）
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成（EP07-S1 关面完成）
 - **产出**：games/beads/src/systems/clear-panel.ts · src/game/{beads-game,state}.ts · src/view/view-model.ts · src/config/tuning.ts · tests/clear-panel.test.ts · 本台账
 
 ---
@@ -145,9 +146,20 @@
 ## WXG-T-064
 
 - **名称**：台账「标题制 + 详情分片」：治 `TASKS.md` 随任务数线性膨胀（用户 2026-09-14 反馈「详情写进索引文件、命中标题后再读详情」，并指出定期归档治不了膨胀）。
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成（归档器成对搬运待机械）
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
 - **根因（实测）**：`TASKS.md` 曾 **81% 体积是任务行详情**——16 行 ≈ **5334 tok**（中位 389、最重 613），非任务行部分仅 ≈1207；`tasks:archive` 只清**已完成**行，**每个新任务仍带入 400–600 tok** ⇒ 必然反复撞 `ctx:check` B 项 8000（当时 7035、余量 965）。上一轮把 backlog 该条按「T-053 归档已治」结项**属误判**，本轮回检重开并结清。
 - **关键发现（装置无需新增机器）**：`ctx/index.json` **已按小节**输出 `anchor/level/startLine/endLine/tokens/summary/keywords` ⇒ 「命中标题后再读详情」＝先读主表标题、再按该小节的 `startLine`/`endLine` 精确 `read_file` ⇒ **详情索引就是 `ctx/index.json`**；此前失效是因为详情塞在**表格单元格**里，索引器只能把整文件当一个 blob。
 - **落地**：① 主表改**标题制**（名称 ≤ 60 字符，产出列改「见详情」）；② 正文迁 `production/TASKS-DETAIL.md`（16 节**原样搬、零改写**）；③ 顺带修两处真实格式缺陷——**我前几轮插行带进空行、把 Markdown 表格从 T-060 起截断**，以及表内夹注（3 条注移到表后）；④ 新增 `tools/scripts/check-tasks.mjs`（`pnpm run check:tasks`，已接进 `verify`）：名称超限 / 行不连续 / 行⇔小节不配对 / 详情残留已归档 id，四类即 FAIL，带 `--prune` 清理；⑤ 读取协议进 `ctx/ROUTES.md`（台账成本 **1439 → 2220** 修正 + 新增详情入口行）与主表头注。
 - **效果**：`TASKS.md` **7224 → 2220 tok（−69%）**；单任务详情按需读 ≈ **290 tok**（不再整读 7k）；主表体积不再随任务数线性膨胀。
-- **未闭环**：归档器**成对搬运**（行 + 小节）尚未机械进 `archive-tasks.mjs` —— 现由 `check-tasks` 的 D 项 + `--prune` 半自动兜住（归档后跑一次 prune）。
+- **未闭环**：归档器**成对搬运**（行 + 小节）—— **已由 WXG-T-065 闭环**（见该节）。另注：本轮的 `--prune` 当时是**删除**语义，T-065 已改为**搬入**语义（删除会丢正文）。
+
+---
+
+## WXG-T-065
+
+- **名称**：归档器「**成对搬运**」机械化：把 WXG-T-064 登记的未闭环项闭环 —— `archive-tasks.mjs` 搬行时**同批搬走详情小节**，详情文件不再只增不减。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **落地**：① 新增共享解析库 `tools/scripts/lib/tasks-detail.mjs`（preamble / 节的 parse·serialize·take·append + 详情归档头常量）—— **单一真源**：归档器与门禁都走它；两边各写一套切分逻辑必然漂移，而漂移的后果是**静默丢任务正文**（不可接受）② `archive-tasks.mjs`：行 → `production/archive/TASKS-archive.md`、节 → `production/archive/TASKS-DETAIL-archive.md`（同目录、同样被 `SKIP_DIRS` 排除索引面），**节数 == 行数**（不等即 fail loud、**两个文件都不写**），批次留痕写明成对；③ `check-tasks.mjs`：新增 **E 项**（详情归档有节 ⇒ 行归档必须有行 = 成对脱钩检测），并把 `--prune` 语义从「**删除**残留小节」改为「**搬入**详情归档」—— 删除会丢正文，与成对搬运语义相反（本轮顺带纠正的一处**危险默认**）。
+- **三条安全边界**：**宁漏勿错**（主表有行但详情无小节 ⇒ **跳过该行**并告警，搬了会丢正文）｜**退化**（详情文件不存在 ⇒ 只搬行并明示；老仓库与桩自测不受影响）｜**幂等**（节已在详情归档则跳过，重跑四文件字节不变）。
+- **证据**：① 桩自测 `archive-tasks-selftest.sh` 新增 **[7] 组**（dry-run 不落盘 / 行与节同批走 / 正文逐字节不变 / 在办行小节不动 / 重跑字节不变 / 缺小节跳过）⇒ 全量 **PASS 41 → 67**；② 解析库对**真实** `TASKS-DETAIL.md` 实测 `serialize(parse(x)) === x`（幂等 ⇒ 归档写盘不会 churn 文件）；③ 真实仓库 dry-run：`--until-under=2000` 报「计划归档 **14 行 + 详情节 14 节**」（数量守恒）且未落盘。
+- **未执行**：真实归档写入（`--until-under=2000 --write` 会搬走 14 行、含 T-060…T-062）—— 属治理动作，等主理人发令。

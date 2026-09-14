@@ -45,6 +45,12 @@
       "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md",
       "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
       "taskId": "WXG-T-042"
+    },
+    {
+      "path": "memory/2026-09-14.md",
+      "reason": "追加式每日会话日记（非设计/规范文档），按时间序累积且并发会话正在写入，拆分会破坏时序与并发安全；已被 ctx 索引按章节锚点覆盖，开工查询走锚点即可（当日含 T-060…T-065 多轮条目）",
+      "note": "同 WXG-T-041 对 2026-09-12 的收窄裁决：本豁免仅对 ≤30 天日志生效——满 30 天后应先蒸馏进 MEMORY.md，再由 memory:distill --write 归档至 memory/archive/（不进索引面），不得靠豁免硬扛。",
+      "taskId": "WXG-T-065"
     }
   ]
 }

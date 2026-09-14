@@ -40,11 +40,23 @@
  * • 守恒校验：主表减少的任务行数 == 归档新增的任务行数，不等则不落盘（fail loud）；
  * • **可选治理**：本命令不挂 pre-commit / CI 强制执行（TASKS.md 手工编辑路径不受影响）。
  *
+ * ── 详情节的成对搬运（WXG-T-065）───────────────────────────────────────────────
+ * `production/TASKS.md` 自 WXG-T-064 起为**标题制**，正文在 `production/TASKS-DETAIL.md`
+ * 一任务一节。若只搬行不搬节，详情文件会**只增不减**（正是本机制要治的病）。故：
+ * • 成对：搬走的行 ⊆ 搬走的节（同一批），行数 == 节数（守恒，不等不落盘）；
+ * • 落点：`production/archive/TASKS-DETAIL-archive.md`（与行归档同目录、同样被 SKIP_DIRS
+ *   排除索引面）；批次留痕只写在行归档那一条 `> 归档批次` 里，本文件**保持纯节结构**
+ *   （利于幂等解析——见 `lib/tasks-detail.mjs`）；
+ * • 宁漏勿错：主表有行但详情文件**无对应小节** → **不搬该行**并告警（搬了会丢正文），
+ *   提示先跑 `pnpm run check:tasks` 补齐配对；
+ * • **退化为只搬行**：详情文件不存在时（老仓库 / 桩自测的纯行台账）跳过成对逻辑并在报告里明示。
+ *
  * USAGE
  *   node tools/scripts/archive-tasks.mjs                 # 默认 dry-run，30 天
  *   node tools/scripts/archive-tasks.mjs --write         # 真实归档落盘
  *   node tools/scripts/archive-tasks.mjs --until-under=6000 --write   # 体积驱动（推荐用于治理撞门）
- *   node tools/scripts/archive-tasks.mjs --days=30 --tasks=<path> --archive=<path> --root=<path>
+ *   node tools/scripts/archive-tasks.mjs --days=30 --tasks=<path> --archive=<path>
+ *   node tools/scripts/archive-tasks.mjs --detail=<path> --detail-archive=<path>   # 详情侧路径（WXG-T-065）
  *
  * 退出码：0 成功（含空转 / dry-run）；1 数据 / 参数错误（fail loud）。
  * 桩自测：tools/scripts/archive-tasks-selftest.sh
@@ -54,6 +66,13 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { estimateTokens } from './lib/context-tokens.mjs';
+import {
+  DETAIL_ARCHIVE_HEADER,
+  appendDetailSections,
+  parseDetail,
+  serializeDetail,
+  takeDetailSections,
+} from './lib/tasks-detail.mjs';
 
 const argv = process.argv.slice(2);
 if (argv.includes('-h') || argv.includes('--help')) {
@@ -80,6 +99,11 @@ if (UNTIL_UNDER !== null && (!Number.isFinite(UNTIL_UNDER) || UNTIL_UNDER <= 0))
 const ROOT = normalize((args.root ?? gitRoot()).replace(/\/+$/, ''));
 const TASKS = args.tasks ? resolve(ROOT, args.tasks) : join(ROOT, 'production', 'TASKS.md');
 const ARCHIVE = args.archive ? resolve(ROOT, args.archive) : join(ROOT, 'production', 'archive', 'TASKS-archive.md');
+/** 详情侧（WXG-T-065 成对搬运）：正文文件 + 它的归档文件。 */
+const DETAIL = args.detail ? resolve(ROOT, args.detail) : join(ROOT, 'production', 'TASKS-DETAIL.md');
+const DETAIL_ARCHIVE = args['detail-archive']
+  ? resolve(ROOT, args['detail-archive'])
+  : join(ROOT, 'production', 'archive', 'TASKS-DETAIL-archive.md');
 
 // ── 读入台账 ───────────────────────────────────────────────────────────────────
 let tasksText;
@@ -161,7 +185,7 @@ if (existsSync(ARCHIVE)) {
     if (m) existingArchiveIds.add(Number(m[1]));
   }
 }
-const toArchive = candidates.filter((c) => {
+let toArchive = candidates.filter((c) => {
   if (existingArchiveIds.has(c.id)) {
     console.log(`  ⚠️ WXG-T-${c.id} 已存在于归档——跳过（不重复入档，宁漏勿错；请人工核查为何主表仍有该行）`);
     return false;
@@ -178,6 +202,39 @@ for (const m of archiveText.matchAll(/WXG-T-(\d+)/g)) {
   idWidth = Math.max(idWidth, m[1].length);
 }
 const fmtId = (n) => String(n).padStart(idWidth, '0');
+
+// ── 详情节：成对搬运的另一半（WXG-T-065）──────────────────────────────────────
+// 只用**已格式化**的 id（`WXG-T-048` 而非 `WXG-T-48`）比对——节标题是三位零填充。
+const detailExists = existsSync(DETAIL);
+let detailParsed = null;
+const detailIds = new Set();
+if (detailExists) {
+  detailParsed = parseDetail(readFileSync(DETAIL, 'utf8'));
+  for (const s of detailParsed.sections) detailIds.add(s.id);
+}
+const detailArchiveParsed = existsSync(DETAIL_ARCHIVE)
+  ? parseDetail(readFileSync(DETAIL_ARCHIVE, 'utf8'))
+  : null;
+const archivedDetailIds = new Set((detailArchiveParsed?.sections ?? []).map((s) => s.id));
+if (detailExists) {
+  toArchive = toArchive.filter((c) => {
+    const id = `WXG-T-${fmtId(c.id)}`;
+    if (archivedDetailIds.has(id)) {
+      console.log(`  ⚠️ ${id} 详情节已在归档——跳过（不重复搬运，宁漏勿错）`);
+      return false;
+    }
+    if (!detailIds.has(id)) {
+      console.log(
+        `  ⚠️ 行 ${c.idx + 1}｜${id}｜主表有行但 ${rel(ROOT, DETAIL)} 无小节——**跳过**` +
+          '（搬行会丢正文，宁漏勿错；先跑 `pnpm run check:tasks` 查配对）',
+      );
+      return false;
+    }
+    return true;
+  });
+} else {
+  console.log(`  ℹ️ 未找到 ${rel(ROOT, DETAIL)}——本次**只搬行**（不成对；老仓库 / 纯行台账场景）`);
+}
 
 // ── 头注只进不退（台账纪律：单号递增不回收）──────────────────────────────────
 // 现有头注若**领先**于主表∪归档（典型场景：某会话先推进头注、对应行还没落盘，或行尚未
@@ -200,7 +257,12 @@ if (Number.isFinite(headerLeadMax) && headerLeadMax > globalMax) {
 
 // ── 报告 ───────────────────────────────────────────────────────────────────────
 console.log(`TASKS 完成行 30 天归档（tasks:archive，WXG-T-040 R3）${DRY ? '—— dry-run（默认；加 --write 落盘）' : '—— --write 落盘'}`);
-console.log(`  台账：${rel(ROOT, TASKS)}（任务行 ${taskRowsBefore}）｜归档：${rel(ROOT, ARCHIVE)}（${existingArchiveIds.size} 行）`);
+console.log(
+  `  台账：${rel(ROOT, TASKS)}（任务行 ${taskRowsBefore}）｜归档：${rel(ROOT, ARCHIVE)}（${existingArchiveIds.size} 行）` +
+    (detailExists
+      ? `｜详情：${rel(ROOT, DETAIL)}（${detailIds.size} 节 → 成对搬运）`
+      : '｜详情：未找到（只搬行）'),
+);
 const ruleText =
   UNTIL_UNDER !== null
     ? `完成判定：**体积驱动**（--until-under=${UNTIL_UNDER}，**忽略年龄**）`
@@ -224,12 +286,17 @@ if (candidates.length === 0) {
   process.exit(0);
 }
 if (DRY) {
-  console.log(`（dry-run：计划归档 ${toArchive.length} 行、头注校准为 当前已分配至 WXG-T-${fmtId(globalMax)} / 下一可用号 WXG-T-${fmtId(globalMax + 1)}；未落盘）`);
+  console.log(
+    `（dry-run：计划归档 ${toArchive.length} 行` +
+      (detailExists ? ` + 详情节 ${toArchive.length} 节` : '（无详情文件，只搬行）') +
+      `、头注校准为 当前已分配至 WXG-T-${fmtId(globalMax)} / 下一可用号 WXG-T-${fmtId(globalMax + 1)}；未落盘）`,
+  );
   process.exit(0);
 }
 if (toArchive.length === 0) {
-  // 候选全部是归档重复号：无新增行 → 不写任何文件（含头注也不动，保持「0 行不落盘」语义）。
-  console.log('✅ 候选行均已存在于归档——本次无新增，不落盘（幂等）。');
+  // 候选全被跳过（已在归档 / 详情文件缺对应小节）：无新增 → 不写任何文件
+  // （含头注也不动，保持「0 行不落盘」语义）。
+  console.log('✅ 候选行均被跳过（已存在于归档 / 详情缺小节）——本次无新增，不落盘（幂等）。');
   process.exit(0);
 }
 
@@ -272,9 +339,30 @@ if (taskRowsBefore - taskRowsAfter !== movedRows.length || movedRows.length !== 
   console.error(`❌ 行数守恒校验失败：主表 ${taskRowsBefore} → ${taskRowsAfter}（减 ${taskRowsBefore - taskRowsAfter}）≠ 归档新增 ${movedRows.length}——不落盘（fail loud）。`);
   process.exit(1);
 }
+// ── 详情节成对搬运（WXG-T-065）：行搬走则节同批搬走，节数必须等于行数 ──────────
+let detailKeptOut = null;
+let detailArchiveOut = null;
+let takenSections = [];
+if (detailExists) {
+  const movedIds = toArchive.map((c) => `WXG-T-${fmtId(c.id)}`);
+  const { kept, taken } = takeDetailSections(detailParsed, movedIds);
+  takenSections = taken;
+  if (taken.length !== movedRows.length) {
+    console.error(
+      `❌ 详情节守恒校验失败：搬走的行 ${movedRows.length} ≠ 搬走的节 ${taken.length}——不落盘` +
+        '（fail loud）。**台账与归档文件均未被修改**。',
+    );
+    process.exit(1);
+  }
+  detailKeptOut = serializeDetail(kept);
+  const base = detailArchiveParsed ?? { preamble: DETAIL_ARCHIVE_HEADER, sections: [] };
+  detailArchiveOut = serializeDetail(appendDetailSections(base, taken));
+}
 // 归档文件：不存在则带头创建；存在则追加批次。
 const batchStamp = new Date(Date.now() + 8 * 3600 * 1000).toISOString().replace('T', ' ').slice(0, 16) + ' +08:00';
-const batchLine = `> 归档批次 ${batchStamp} — ${movedRows.length} 行（${toArchive.map((c) => `WXG-T-${c.id}`).join('、')}）｜判定：git blame committer-time ≥ ${DAYS} 天`;
+const batchIds = toArchive.map((c) => `WXG-T-${fmtId(c.id)}`).join('、');
+const batchLine = `> 归档批次 ${batchStamp} — ${movedRows.length} 行（${batchIds}）｜判定：git blame committer-time ≥ ${DAYS} 天` +
+  (detailExists ? `｜详情节同批搬入 ${rel(ROOT, DETAIL_ARCHIVE)}` : '｜（无详情文件，只搬行）');
 let archiveOut = archiveText;
 if (!archiveText) {
   archiveOut =
@@ -293,7 +381,18 @@ archiveOut = `${archiveOut.replace(/\n*$/, '\n')}${batchLine}\n${movedRows.join(
 mkdirSync(dirname(ARCHIVE), { recursive: true });
 writeFileSync(TASKS, keepLines.join(eol), 'utf8');
 writeFileSync(ARCHIVE, archiveOut, 'utf8');
+if (detailKeptOut !== null) {
+  mkdirSync(dirname(DETAIL_ARCHIVE), { recursive: true });
+  writeFileSync(DETAIL, detailKeptOut, 'utf8');
+  writeFileSync(DETAIL_ARCHIVE, detailArchiveOut, 'utf8');
+}
 console.log(`✅ 归档完成：主表任务行 ${taskRowsBefore} → ${taskRowsAfter}（减 ${movedRows.length}，守恒校验通过）；归档 → ${rel(ROOT, ARCHIVE)}（现 ${existingArchiveIds.size + movedRows.length} 行）`);
+if (detailKeptOut !== null) {
+  console.log(
+    `   详情节成对搬运：${takenSections.length} 节 → ${rel(ROOT, DETAIL_ARCHIVE)}` +
+      `（现 ${archivedDetailIds.size + takenSections.length} 节）｜${rel(ROOT, DETAIL)} 剩 ${detailIds.size - takenSections.length} 节`,
+  );
+}
 console.log(`   头注已校准：当前已分配至 **WXG-T-${fmtId(globalMax)}**，下一可用号 **WXG-T-${fmtId(globalMax + 1)}**（全局最大号含归档文件）${erratumIdx >= 0 ? '；勘误行已改为「领号认本注」纪律' : '（勘误行已为新纪律，未改动）'}`);
 console.log('   提醒：tasks:archive 是可选治理，不挂 pre-commit / CI；请把台账与归档文件一并提交。');
 
@@ -383,6 +482,8 @@ function printHelp() {
                      用于「台账已撞 B 项但行都还年轻」的治理场景。
   --tasks=<path>   台账（默认 production/TASKS.md）
   --archive=<path> 归档文件（默认 production/archive/TASKS-archive.md）
+  --detail=<path>          详情文件（默认 production/TASKS-DETAIL.md）
+  --detail-archive=<path>  详情归档（默认 production/archive/TASKS-DETAIL-archive.md）
   --root=<path>    仓库根（默认 git rev-parse --show-toplevel）
 
 口径：
@@ -390,6 +491,9 @@ function printHelp() {
   • 完成日期 = 行级 git blame committer-time（该行最后修改的提交时间）；无日期证据 → 不动（宁漏勿错）。
   • 真实归档时校准头注：当前已分配至 / 下一可用号 = 主表 ∪ 归档全局最大号（+1），
     勘误行改为「领号认本注，本注由 tasks:archive 校准」——防并行会话只看主表重号。
-  • 幂等：归档已有同号跳过；0 行可归档 → 空转不落盘；行数守恒校验失败 → fail loud 不落盘。
+  • **成对搬运（WXG-T-065）**：主表行 → TASKS-archive.md，其详情小节 → TASKS-DETAIL-archive.md，
+    同一批、节数 == 行数（不等不落盘）；主表有行但详情无小节 → 跳过该行（搬了会丢正文）。
+    详情文件不存在 → 退化为「只搬行」并明示。
+  • 幂等：归档已有同号跳过；0 行可归档 → 空转不落盘；行数/节数守恒校验失败 → fail loud 不落盘。
   • 可选治理：不挂 pre-commit / CI 强制执行。`);
 }

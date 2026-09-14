@@ -11,20 +11,31 @@
  *   A. 主表任务行的**名称单元格 ≤ 60 字符**（标题，不是段落）
  *   B. 主表任务行**连续**（表内不得有空行打断 Markdown 表格——历史上真实发生过）
  *   C. **配对**：主表每行 ⇔ 详情文件同名小节（`## WXG-T-0NN`）
- *   D. 详情**不得**残留已归档 id 的小节（`--prune` 修复）
+ *   D. 详情**不得**残留已归档 id 的小节（正常由 `tasks:archive` 成对搬走；`--prune` 补搬）
+ *   E. 详情归档**不得**有「行归档里不存在」的 id（成对搬运脱钩检测，WXG-T-065）
  *
  * 用法：
  *   node tools/scripts/check-tasks.mjs             # 校验（verify 内调用）
- *   node tools/scripts/check-tasks.mjs --prune     # 删除已归档 id 的详情小节
+ *   node tools/scripts/check-tasks.mjs --prune     # 把「已归档却仍留在详情文件」的小节**搬进**
+ *                                                  # 详情归档（**搬，不是删**——删会丢任务正文）
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import {
+  DETAIL_ARCHIVE_HEADER,
+  appendDetailSections,
+  parseDetail,
+  serializeDetail,
+  takeDetailSections,
+} from './lib/tasks-detail.mjs';
 
 const ROOT = process.cwd();
 const LEDGER = path.join(ROOT, 'production/TASKS.md');
 const DETAIL = path.join(ROOT, 'production/TASKS-DETAIL.md');
 const ARCHIVE = path.join(ROOT, 'production/archive/TASKS-archive.md');
+const DETAIL_ARCHIVE = path.join(ROOT, 'production/archive/TASKS-DETAIL-archive.md');
+const rel = (p) => path.relative(ROOT, p);
 
 /** 名称单元格的字符上限（标题，不是段落）。 */
 const TITLE_MAX = 60;
@@ -73,18 +84,17 @@ for (let k = 1; k < rows.length; k++) {
 }
 
 // ── 详情 ─────────────────────────────────────────────────────────────────────
-const detailText = read(DETAIL);
-const detailIds = new Set(
-  [...detailText.matchAll(/^##\s+(WXG-T-\d+)\s*$/gm)].map((m) => m[1]),
-);
+const detailParsed = parseDetail(read(DETAIL));
+const detailIds = new Set(detailParsed.sections.map((s) => s.id));
 const archiveText = read(ARCHIVE);
 const archivedIds = new Set(
   [...archiveText.matchAll(/^\|\s*(WXG-T-\d+)\s*\|/gm)].map((m) => m[1]),
 );
+const detailArchiveIds = new Set(parseDetail(read(DETAIL_ARCHIVE)).sections.map((s) => s.id));
 
 for (const { id } of rows) {
   if (!detailIds.has(id)) {
-    failures.push(`C: 主表有 ${id}，但 ${path.relative(ROOT, DETAIL)} 里没有 ## ${id} 小节`);
+    failures.push(`C: 主表有 ${id}，但 ${rel(DETAIL)} 里没有 ## ${id} 小节`);
   }
 }
 
@@ -92,30 +102,42 @@ const rowIds = new Set(rows.map((r) => r.id));
 const staleSections = [...detailIds].filter((id) => !rowIds.has(id));
 for (const id of staleSections) {
   if (archivedIds.has(id)) {
-    failures.push(`D: ${id} 已归档，详情小节应一并移走 —— 跑「pnpm run check:tasks -- --prune」`);
+    failures.push(
+      `D: ${id} 已归档，详情小节应一并搬走 —— 跑「pnpm run tasks:archive --write」` +
+        `（成对搬运）；已归档行补搬用「pnpm run check:tasks -- --prune」`,
+    );
   } else {
     failures.push(`C: 详情有 ## ${id} 小节，但主表无此行（孤儿详情）`);
   }
 }
 
-// ── --prune ──────────────────────────────────────────────────────────────────
+// E：详情归档的 id 必须在行归档里有行（否则成对搬运脱钩——两个归档各说一套）。
+for (const id of detailArchiveIds) {
+  if (!archivedIds.has(id)) {
+    failures.push(`E: 详情归档有 ${id} 的节，但行归档无该行 —— 成对搬运脱钩，请人工核对两个归档`);
+  }
+}
+
+// ── --prune：补搬（不是删）────────────────────────────────────────────────────
+// WXG-T-065 起语义变更：早先 --prune 是**删除**残留小节 ✗（会丢任务正文）。既然成对搬运
+// 已有落点（详情归档），补搬就是唯一不丢信息的修复动作。
 if (process.argv.includes('--prune')) {
-  const pruned = staleSections.filter((id) => archivedIds.has(id));
-  if (pruned.length === 0) {
-    console.log('check:tasks --prune — 无需清理（没有「已归档但详情仍在」的条目）');
+  const stale = staleSections.filter((id) => archivedIds.has(id));
+  if (stale.length === 0) {
+    console.log('check:tasks --prune — 无需补搬（没有「已归档但详情仍在」的条目）');
     process.exit(0);
   }
-  const kept = detailText
-    .split(/^---$/m)
-    .map((block, index) => {
-      const m = /^##\s+(WXG-T-\d+)\s*$/m.exec(block);
-      if (index === 0 || !m) return block; // 文件头与前言保留
-      return pruned.includes(m[1]) ? null : block;
-    })
-    .filter((block) => block !== null)
-    .join('---');
-  writeFileSync(DETAIL, kept.trimEnd() + '\n', 'utf8');
-  console.log(`check:tasks --prune — 已移出 ${pruned.length} 节：${pruned.join('、')}`);
+  const { kept, taken } = takeDetailSections(detailParsed, stale);
+  const base = existsSync(DETAIL_ARCHIVE)
+    ? parseDetail(read(DETAIL_ARCHIVE))
+    : { preamble: DETAIL_ARCHIVE_HEADER, sections: [] };
+  writeFileSync(DETAIL, serializeDetail(kept), 'utf8');
+  mkdirSync(path.dirname(DETAIL_ARCHIVE), { recursive: true });
+  writeFileSync(DETAIL_ARCHIVE, serializeDetail(appendDetailSections(base, taken)), 'utf8');
+  console.log(
+    `check:tasks --prune — 已把 ${taken.length} 个残留小节**搬入** ${rel(DETAIL_ARCHIVE)}` +
+      `（正文未丢）：${taken.map((s) => s.id).join('、')}`,
+  );
   process.exit(0);
 }
 
@@ -127,6 +149,7 @@ if (failures.length > 0) {
 }
 console.log(
   `✅ check:tasks OK —— 主表 ${rows.length} 行（名称均 ≤ ${TITLE_MAX} 字符且连续）、` +
-    `详情 ${detailIds.size} 节，配对完整`,
+    `详情 ${detailIds.size} 节，配对完整` +
+    (detailArchiveIds.size > 0 ? `；详情归档 ${detailArchiveIds.size} 节与行归档成对` : ''),
 );
 for (const n of notes) console.log(`  note: ${n}`);
