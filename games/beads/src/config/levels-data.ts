@@ -120,7 +120,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "猫脸",
       cols: 11,
       rows: 8,
-      time: 280,
+      time: 360,
       spawnInterval: 4,
       decoys: [
         "4",
@@ -141,7 +141,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "顺风帆船",
       cols: 12,
       rows: 9,
-      time: 260,
+      time: 360,
       spawnInterval: 3.5,
       decoys: [
         "3",
@@ -163,7 +163,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "升空热气球",
       cols: 13,
       rows: 10,
-      time: 240,
+      time: 380,
       spawnInterval: 3,
       decoys: [],
       pattern: [
@@ -184,7 +184,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "星际火箭",
       cols: 13,
       rows: 12,
-      time: 240,
+      time: 280,
       spawnInterval: 2.5,
       decoys: [],
       pattern: [

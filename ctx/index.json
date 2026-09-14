@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1881,
+      "tokens": 1889,
       "lines": 84,
-      "sha256": "d414ff1fa252f63005ced588963211e9a810234b66302c0782bcde768830cdb3",
+      "sha256": "7f4105a17704608329a6be95ed84ddf1c36817356de2d0436ebf1163e4f40933",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 85,
-          "tokens": 1868,
+          "tokens": 1876,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 424,
+          "tokens": 431,
           "summary": "1 games/breakout/cocos/extensions/cocos-mcp-server/README.ru",
           "keywords": [
             "Top",
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3913,
+      "tokens": 3941,
       "lines": 94,
-      "sha256": "febda0ec0b3c00efc18b40b4206607bf1e0c14efcf6fb22c4b63b238458be0b8",
+      "sha256": "04aa3538d6087e7afb68074648997aaaf56a0f398ba18a6c208457be6c72032f",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 3885,
+          "tokens": 3913,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -529,12 +529,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 228 行 / 6321 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 242 行 / 7394 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
-          "tokens": 239,
-          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+229 · §1 系统清单=9+16 · §2 依",
+          "tokens": 266,
+          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+243 · §1 系统清单=9+16 · §2 依",
           "keywords": [
             "§1",
             "§2",
@@ -7161,9 +7161,9 @@
     },
     {
       "path": "games/beads/design/gdd/powerups.md",
-      "tokens": 5036,
+      "tokens": 5044,
       "lines": 141,
-      "sha256": "152686d8e7e6ba18a926ba64e7c03c39012d859089e5db66b8ae7277451c39f6",
+      "sha256": "dbc30b07e52f28a43936d83d370337ac2b22fd3efacd60fec5967beb3d8a6bcd",
       "tier": "normal",
       "sections": [
         {
@@ -7171,8 +7171,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 142,
-          "tokens": 5023,
-          "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-014",
+          "tokens": 5031,
+          "summary": "项目：games/beads · 版本 v1.1 · 任务号 WXG-T-014（布局 A 对齐 WXG-T-057）",
           "keywords": [
             "GDD",
             "Powerups",
@@ -7198,7 +7198,7 @@
           "level": 2,
           "startLine": 14,
           "endLine": 67,
-          "tokens": 1832,
+          "tokens": 1798,
           "summary": "",
           "keywords": [
             "机制"
@@ -7279,11 +7279,11 @@
           ]
         },
         {
-          "anchor": "§2.6 激励视频位与 MVP 边界（诚实口径）",
+          "anchor": "§2.6 激励视频位与 MVP 边界（诚实口径 · 布局 A）",
           "level": 3,
           "startLine": 61,
           "endLine": 67,
-          "tokens": 361,
+          "tokens": 324,
           "summary": "AD_PLACEMENTS = 4 位（来源 §3.6）：3 道具卡 + btn_expand。S6 拥有 3 个道具位",
           "keywords": [
             "§3.6",
@@ -7352,7 +7352,7 @@
           "level": 2,
           "startLine": 124,
           "endLine": 129,
-          "tokens": 239,
+          "tokens": 257,
           "summary": "上游：S1（状态门禁 + 重置复位）、S2（道具卡与扩展位点击路由）、S4（托盘槽态与生效容量，经 §4 事件建只读镜像",
           "keywords": [
             "§4",
@@ -7586,9 +7586,9 @@
     },
     {
       "path": "games/beads/design/gdd/score-combo.md",
-      "tokens": 4248,
+      "tokens": 4282,
       "lines": 137,
-      "sha256": "16702fbae1dd9b6bd411e8694d55046370412f92850aaaedf69b8f963c558364",
+      "sha256": "0ede29b54144f870f60315a2806051f7bd8c40e149c127bc9ef50dc0e560297a",
       "tier": "normal",
       "sections": [
         {
@@ -7596,7 +7596,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 138,
-          "tokens": 4233,
+          "tokens": 4268,
           "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-015",
           "keywords": [
             "GDD",
@@ -7624,7 +7624,7 @@
           "level": 2,
           "startLine": 14,
           "endLine": 56,
-          "tokens": 1489,
+          "tokens": 1519,
           "summary": "",
           "keywords": [
             "机制"
@@ -7646,8 +7646,8 @@
           "level": 3,
           "startLine": 28,
           "endLine": 32,
-          "tokens": 147,
-          "summary": "星级 = f(剩余时间占比)，来源 §3.7：ratio ≥ STAR3_RATIO(0.40) → 3★；≥ STAR",
+          "tokens": 178,
+          "summary": "星级 = f(剩余时间占比)，来源 §3.7：ratio ≥ STAR3_RATIO(0.32) → 3★；≥ STAR",
           "keywords": [
             "§3.7",
             "ratio",
@@ -7735,8 +7735,8 @@
           "level": 2,
           "startLine": 78,
           "endLine": 82,
-          "tokens": 100,
-          "summary": "冻结引用：§3.7（STAR3_RATIO=0.40、STAR2_RATIO=0.20、DEMO_LEVEL_COUNT",
+          "tokens": 104,
+          "summary": "冻结引用：§3.7（STAR3_RATIO=0.32、STAR2_RATIO=0.12、DEMO_LEVEL_COUNT",
           "keywords": [
             "§3.7",
             "STAR3_RATIO",
@@ -7808,18 +7808,18 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 6321,
-      "lines": 228,
-      "sha256": "b5e3a129e206b1cae228d57557896fef0195eb318762ada0799d15e788264193",
+      "tokens": 7394,
+      "lines": 242,
+      "sha256": "8bc117c6fe292a18d4ae1983a1bec82c806e0c5b42dffba7739de54669cdbc10",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§系统清单与依赖索引（Systems Index）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 229,
-          "tokens": 6304,
-          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.9 · 任务号 WXG-T-007",
+          "endLine": 243,
+          "tokens": 7377,
+          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.12 · 任务号 WXG-T-007",
           "keywords": [
             "Systems",
             "Index",
@@ -7834,7 +7834,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 24,
-          "tokens": 445,
+          "tokens": 450,
           "summary": "S1 核心循环 gdd/core-loop.md P0 定义游戏状态机与关内主循环时序，串起所有系统",
           "keywords": [
             "gdd",
@@ -7860,8 +7860,8 @@
           "anchor": "§3 全局数值基线（Global Constants）· ❄️ 冻结令",
           "level": 2,
           "startLine": 55,
-          "endLine": 180,
-          "tokens": 3035,
+          "endLine": 191,
+          "tokens": 3517,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -7935,7 +7935,7 @@
           "level": 3,
           "startLine": 121,
           "endLine": 129,
-          "tokens": 182,
+          "tokens": 215,
           "summary": "LEVEL_TIME_DEFAULT 300 s 关卡默认倒计时（≈参考图 04:55）；关卡可覆盖，合法区间 [180",
           "keywords": [
             "LEVEL_TIME_DEFAULT",
@@ -7947,7 +7947,7 @@
           "level": 3,
           "startLine": 130,
           "endLine": 139,
-          "tokens": 230,
+          "tokens": 249,
           "summary": "POWERUP_TYPES ['region','clearAll','random'] 区域消除 / 槽位清空 / 随",
           "keywords": [
             "Powerups",
@@ -7962,9 +7962,9 @@
           "anchor": "§3.7 星级与结算",
           "level": 3,
           "startLine": 140,
-          "endLine": 147,
-          "tokens": 137,
-          "summary": "STAR3_RATIO 0.40 剩余时间 / 关卡总时长 ≥ 40% → 3★（A7 已确认 2026-09-11）（",
+          "endLine": 148,
+          "tokens": 280,
+          "summary": "STAR3_RATIO 0.32 剩余时间 / 关卡总时长 ≥ 32% → 3★（A7 已确认 2026-09-11；v",
           "keywords": [
             "STAR3_RATIO",
             "星级与结算"
@@ -7973,8 +7973,8 @@
         {
           "anchor": "§3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级）",
           "level": 3,
-          "startLine": 148,
-          "endLine": 157,
+          "startLine": 149,
+          "endLine": 158,
           "tokens": 256,
           "summary": "三重编码 颜色+符号+明度 珠子识别硬要求，见 art/art-bible.md §3.3；S3 校验只认索引、与颜色通",
           "keywords": [
@@ -7989,8 +7989,8 @@
         {
           "anchor": "§3.9 包体预算",
           "level": 3,
-          "startLine": 158,
-          "endLine": 164,
+          "startLine": 159,
+          "endLine": 165,
           "tokens": 107,
           "summary": "主包红线 4096 KB 微信主包平台红线，不可逾越",
           "keywords": [
@@ -8000,9 +8000,9 @@
         {
           "anchor": "§3.10 冲刺模式（Sprint）· 2026-09-12 用户拍板冻结（WXG-T-020）",
           "level": 3,
-          "startLine": 165,
-          "endLine": 180,
-          "tokens": 549,
+          "startLine": 166,
+          "endLine": 181,
+          "tokens": 559,
           "summary": "SPRINT_TIME_DEFAULT 120 s 冲刺单局时长；合法区间 [90, 120]，越界回退默认（C1）",
           "keywords": [
             "Sprint",
@@ -8013,10 +8013,26 @@
           ]
         },
         {
+          "anchor": "§3.11 失败续时（Revive）· 2026-09-14 用户拍板冻结（WXG-T-057 / T-B）",
+          "level": 3,
+          "startLine": 182,
+          "endLine": 191,
+          "tokens": 253,
+          "summary": "REVIVE_BONUS_SEC 60 s 失败页激励视频看完（onRewarded）后写入可玩钟的秒数",
+          "keywords": [
+            "Revive",
+            "WXG",
+            "REVIVE_BONUS_SEC",
+            "onRewarded",
+            "失败续时",
+            "用户拍板冻结"
+          ]
+        },
+        {
           "anchor": "§4 事件总线约定（供程序落码参考）",
           "level": 2,
-          "startLine": 181,
-          "endLine": 205,
+          "startLine": 192,
+          "endLine": 216,
           "tokens": 465,
           "summary": "沿用 breakout 的事件命名风格 <域>:<事件>，payload 一律带 levelId：",
           "keywords": [
@@ -8030,9 +8046,9 @@
         {
           "anchor": "§5 与框架层的接口假设",
           "level": 2,
-          "startLine": 206,
-          "endLine": 214,
-          "tokens": 320,
+          "startLine": 217,
+          "endLine": 225,
+          "tokens": 325,
           "summary": "引擎/平台：Cocos Creator 3.8 LTS + 微信小游戏（adapters/cocos + platfor",
           "keywords": [
             "Cocos",
@@ -8046,9 +8062,9 @@
         {
           "anchor": "§6 变更记录",
           "level": 2,
-          "startLine": 215,
-          "endLine": 229,
-          "tokens": 1448,
+          "startLine": 226,
+          "endLine": 243,
+          "tokens": 2028,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -8060,18 +8076,18 @@
     },
     {
       "path": "games/beads/design/gdd/timer-gameover.md",
-      "tokens": 2190,
-      "lines": 110,
-      "sha256": "0f38fc65e1a70d001ca32cb31a5dd8711156373c2741dc222ddbe3ad0dbb08d6",
+      "tokens": 3275,
+      "lines": 132,
+      "sha256": "987baa3dd883e1af8923218f2da70302b65278a58d652f05dc850adbbbf0e767",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S5 倒计时与失败（Timer / GameOver）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 111,
-          "tokens": 2173,
-          "summary": "项目：games/beads · 版本 v1.1 · 任务号 WXG-T-009",
+          "endLine": 133,
+          "tokens": 3258,
+          "summary": "项目：games/beads · 版本 v1.2 · 任务号 WXG-T-009（续时语义 WXG-T-057）",
           "keywords": [
             "GDD",
             "Timer",
@@ -8086,8 +8102,8 @@
           "level": 2,
           "startLine": 9,
           "endLine": 12,
-          "tokens": 52,
-          "summary": "提供关卡倒计时的唯一时间真源：驱动 HUD 显示与告急表现，归零时触发唯一失败条件，并定义整关重置的完整语义。",
+          "tokens": 73,
+          "summary": "提供关卡倒计时的唯一时间真源：驱动 HUD 显示与告急表现，归零时触发唯一失败条件，定义整关重置，并在普通模式失败页提供",
           "keywords": [
             "HUD",
             "目标"
@@ -8097,8 +8113,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 13,
-          "endLine": 43,
-          "tokens": 510,
+          "endLine": 56,
+          "tokens": 950,
           "summary": "",
           "keywords": [
             "机制"
@@ -8150,39 +8166,57 @@
           ]
         },
         {
-          "anchor": "§2.4 整关重置清单（来源 §3.5 末行，五项，S1 调度、各系统执行）",
+          "anchor": "§2.4 整关重置清单（来源 §3.5 末行，S1 调度、各系统执行）",
           "level": 3,
           "startLine": 35,
-          "endLine": 43,
-          "tokens": 118,
-          "summary": "失败重试 / 暂停重玩 / 换关时按序执行：",
+          "endLine": 44,
+          "tokens": 154,
+          "summary": "失败重试 / 暂停重玩 / 换关时按序执行（续时成功不走本清单）：",
           "keywords": [
             "§3.5",
             "整关重置清单",
             "来源",
             "末行",
-            "五项",
-            "调度"
+            "调度",
+            "各系统执行"
+          ]
+        },
+        {
+          "anchor": "§2.5 失败续时（普通模式，来源 §3.11）",
+          "level": 3,
+          "startLine": 45,
+          "endLine": 56,
+          "tokens": 390,
+          "summary": "失败唯一条件仍是归零（§2.1 / D7）。续时不是新的失败条件，只是 GAME_OVER 上的一条可选挽回。",
+          "keywords": [
+            "§3.11",
+            "§2.1",
+            "GAME_OVER",
+            "失败续时",
+            "普通模式",
+            "来源"
           ]
         },
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 44,
-          "endLine": 51,
-          "tokens": 71,
-          "summary": "S1 状态切换（PLAYING 进入即启动；离开即停表）、整关重置指令",
+          "startLine": 57,
+          "endLine": 65,
+          "tokens": 124,
+          "summary": "S1 状态切换（PLAYING 进入即启动；离开即停表）、整关重置指令、续时成功指令（GAME_OVER → PLAYI",
           "keywords": [
             "PLAYING",
+            "GAME_OVER",
+            "PLAYI",
             "输入"
           ]
         },
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 52,
-          "endLine": 60,
-          "tokens": 112,
+          "startLine": 66,
+          "endLine": 74,
+          "tokens": 133,
           "summary": "timer:tick {remaining} PLAYING 中每 TIMER_TICK HUD 数字刷新",
           "keywords": [
             "timer",
@@ -8196,25 +8230,25 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 61,
-          "endLine": 64,
-          "tokens": 55,
-          "summary": "全部引用 systems-index §3.5：LEVEL_TIME_DEFAULT（[180, 420]）、TIMER",
+          "startLine": 75,
+          "endLine": 78,
+          "tokens": 94,
+          "summary": "全部引用 systems-index §3.5 与 §3.11：LEVEL_TIME_DEFAULT（[180, 420",
           "keywords": [
             "§3.5",
+            "§3.11",
             "systems",
             "index",
             "LEVEL_TIME_DEFAULT",
-            "TIMER",
             "数值"
           ]
         },
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 65,
-          "endLine": 84,
-          "tokens": 529,
+          "startLine": 79,
+          "endLine": 102,
+          "tokens": 648,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -8223,10 +8257,10 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 85,
-          "endLine": 89,
-          "tokens": 82,
-          "summary": "上游：S1（状态机启停/重置）、S9（暂停/恢复）、关卡数据（LEVEL_TIME）。",
+          "startLine": 103,
+          "endLine": 108,
+          "tokens": 168,
+          "summary": "上游：S1（状态机启停/重置/续时成功指令）、S9（暂停/恢复）、关卡数据（LEVEL_TIME）、失败面板输入（经 S",
           "keywords": [
             "LEVEL_TIME",
             "依赖"
@@ -8235,9 +8269,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 90,
-          "endLine": 104,
-          "tokens": 390,
+          "startLine": 109,
+          "endLine": 125,
+          "tokens": 559,
           "summary": "1. 默认关卡进 PLAYING 后 remaining 从 LEVEL_TIME_DEFAULT 递减；60 秒实测误",
           "keywords": [
             "PLAYING",
@@ -8251,9 +8285,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 105,
-          "endLine": 111,
-          "tokens": 234,
+          "startLine": 126,
+          "endLine": 133,
+          "tokens": 337,
           "summary": "v1.0 WXG-T-009 交付 初版八节定稿：计时模型 / 告急双通道 / PAUSED 冻结语义 / 整关重置五项",
           "keywords": [
             "WXG",
@@ -8451,9 +8485,9 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 2707,
+      "tokens": 2788,
       "lines": 192,
-      "sha256": "2928ef879df27a5bf951294d334029eba84b162f899e83cf5630ddceff187c9c",
+      "sha256": "a4faa34a5b9f25d0d95c2a5fd582a1b46b10aa77c9eb2138e3cd497a8f9be2f8",
       "tier": "normal",
       "sections": [
         {
@@ -8461,7 +8495,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 193,
-          "tokens": 2694,
+          "tokens": 2774,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.0 · 任务号 WXG-T-015",
           "keywords": [
             "Levels",
@@ -8504,8 +8538,8 @@
           "level": 2,
           "startLine": 47,
           "endLine": 64,
-          "tokens": 385,
-          "summary": "难度三旋钮（concept §6）：①尺寸 ②色数 ③供料间隔，逐关单调收紧；时限 300→240 配合（均在 [180",
+          "tokens": 403,
+          "summary": "难度三旋钮（concept §6）：①尺寸 ②色数 ③供料间隔，逐关单调收紧；时限 300→280（L8）配合，后四关覆",
           "keywords": [
             "§6",
             "concept",
@@ -8530,7 +8564,7 @@
           "level": 2,
           "startLine": 80,
           "endLine": 85,
-          "tokens": 154,
+          "tokens": 216,
           "summary": "手速假设：2–3 秒/珠（含选珠）。预估清关 = 可填格 × 2.5s ± 容差：L1 ≈ 55s … L7 ≈ 198",
           "keywords": [
             "playtest",
@@ -9024,19 +9058,308 @@
       ]
     },
     {
+      "path": "games/beads/design/proposals/star-level-rebalance.md",
+      "tokens": 7487,
+      "lines": 387,
+      "sha256": "aa887e405ab788ca5e0f4e4b7ff17f483fc5699915c8b38972e2a569c4668fbe",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§提案 · 星级 × 关卡数值整组返工（D-01 / D-05）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 388,
+          "tokens": 7466,
+          "summary": "组 C 已拍板 2026-09-14，冻结路径已执行（WXG-T-054）。真源以 gdd/systems-index.",
+          "keywords": [
+            "beads",
+            "WXG",
+            "gdd",
+            "systems",
+            "index",
+            "提案"
+          ]
+        },
+        {
+          "anchor": "§0 结论先行",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 23,
+          "tokens": 188,
+          "summary": "D-01 成立。按 JSON 实参，后四关在现行 STAR3_RATIO=0.40 下 3★ 均不可达；L7 最高 1★",
+          "keywords": [
+            "JSON",
+            "STAR3_RATIO",
+            "结论先行"
+          ]
+        },
+        {
+          "anchor": "§1 D-01 现象复算",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 94,
+          "tokens": 1431,
+          "summary": "",
+          "keywords": [
+            "现象复算"
+          ]
+        },
+        {
+          "anchor": "§1.1 口径与假设（先于表）",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 45,
+          "tokens": 408,
+          "summary": "供料实现（tray-spawner.md §2.2 / Spawner.tick）：_acc 从 0 累加，第一次供料发",
+          "keywords": [
+            "§2.2",
+            "tray",
+            "spawner",
+            "Spawner",
+            "tick",
+            "acc"
+          ]
+        },
+        {
+          "anchor": "§1.2 JSON 实参（与 levels-spec §3 逐关核对，几何一致）",
+          "level": 3,
+          "startLine": 46,
+          "endLine": 58,
+          "tokens": 131,
+          "summary": "L1 暖心 22 1 0.75 300 6.0",
+          "keywords": [
+            "§3",
+            "JSON",
+            "levels",
+            "spec",
+            "实参",
+            "逐关核对"
+          ]
+        },
+        {
+          "anchor": "§1.3 现行阈值下每关最快通关与最高星",
+          "level": 3,
+          "startLine": 59,
+          "endLine": 79,
+          "tokens": 476,
+          "summary": "ratio 保留一位小数百分比；t > T → 不可通关（0★）。",
+          "keywords": [
+            "ratio",
+            "现行阈值下每",
+            "关最快通关与",
+            "最高星"
+          ]
+        },
+        {
+          "anchor": "§1.4 与主理人预算对账（预算不当真源）",
+          "level": 3,
+          "startLine": 80,
+          "endLine": 94,
+          "tokens": 347,
+          "summary": "主理人预算：L5 max 1★ (15.7%)、L6 max 1★ (17.9%)、L7 max 1★ (2.5%)、L",
+          "keywords": [
+            "max",
+            "与主理人预算",
+            "对账",
+            "预算不当真源"
+          ]
+        },
+        {
+          "anchor": "§2 D-05 处置：`LEVEL_TIME_DEFAULT` 300s vs 竞品 180/209s",
+          "level": 2,
+          "startLine": 95,
+          "endLine": 114,
+          "tokens": 472,
+          "summary": "§3.5 现行 LEVEL_TIME_DEFAULT=300s，关卡可覆盖 ∈[180, 420] 供料心跳 + 托盘 ",
+          "keywords": [
+            "LEVEL_TIME_DEFAULT",
+            "§3.5",
+            "处置",
+            "竞品"
+          ]
+        },
+        {
+          "anchor": "§3 候选方案（四组，每组同时给阈值 / 逐关 time·interval / 可达星 / C7 / 续时预留）",
+          "level": 2,
+          "startLine": 115,
+          "endLine": 293,
+          "tokens": 3005,
+          "summary": "共同约束：",
+          "keywords": [
+            "time",
+            "interval",
+            "候选方案",
+            "四组",
+            "每组同时给阈",
+            "逐关"
+          ]
+        },
+        {
+          "anchor": "§3.5 T-B 续时预留口径（四组共用，不设计广告位）",
+          "level": 3,
+          "startLine": 127,
+          "endLine": 143,
+          "tokens": 244,
+          "summary": "现行星级 ratio = remaining / T。若 T-B 把续时加进同一条 remaining，续命后 rema",
+          "keywords": [
+            "ratio",
+            "remaining",
+            "rema",
+            "续时预留口径",
+            "四组共用",
+            "不设计广告位"
+          ]
+        },
+        {
+          "anchor": "§组 A · 只调阈值",
+          "level": 3,
+          "startLine": 144,
+          "endLine": 176,
+          "tokens": 432,
+          "summary": "意图：不动关卡钟与供料，只把星线降到硬上限能摸到的位置。",
+          "keywords": [
+            "只调阈值"
+          ]
+        },
+        {
+          "anchor": "§组 B · 只调关卡 `time` / `I`（间隔不动，只加时）",
+          "level": 3,
+          "startLine": 177,
+          "endLine": 208,
+          "tokens": 531,
+          "summary": "意图：阈值保持用户已裁定的 0.40/0.20；用合法区间上沿把硬上限 ratio 抬过 40%。",
+          "keywords": [
+            "time",
+            "I",
+            "ratio",
+            "只调关卡",
+            "间隔不动",
+            "只加时"
+          ]
+        },
+        {
+          "anchor": "§组 C · 阈值 + 时限一起（**推荐**）",
+          "level": 3,
+          "startLine": 209,
+          "endLine": 246,
+          "tokens": 723,
+          "summary": "意图：星线略降（仍明显严于「过关即 3★」），后四关加到 6 分钟上下，硬上限全员 3★、3:1 熟练全员至少 2★（L",
+          "keywords": [
+            "阈值",
+            "时限一起",
+            "推荐"
+          ]
+        },
+        {
+          "anchor": "§组 D · 换星级口径（剩余时间相对 par + 失误）",
+          "level": 3,
+          "startLine": 247,
+          "endLine": 293,
+          "tokens": 849,
+          "summary": "意图：D6「按剩余时间比例给星」在 L7 这种 T ≈ F×I 的关上没有 3★ 带宽。把比较基准从「钟的全长」改成「相",
+          "keywords": [
+            "par",
+            "换星级口径",
+            "剩余时间相对",
+            "失误"
+          ]
+        },
+        {
+          "anchor": "§4 推荐组：C（**已拍板 2026-09-14，已回写 §3 v1.10**）",
+          "level": 2,
+          "startLine": 294,
+          "endLine": 314,
+          "tokens": 350,
+          "summary": "推荐 C，因为产品目标是沉浸打关而不是「把星线拧到能算过」或「把单关拖到 7 分钟」。",
+          "keywords": [
+            "§3",
+            "推荐组",
+            "已拍板",
+            "已回写"
+          ]
+        },
+        {
+          "anchor": "§5 冻结路径与待拍板回写清单",
+          "level": 2,
+          "startLine": 315,
+          "endLine": 337,
+          "tokens": 500,
+          "summary": "组 C 已于 2026-09-14 拍板并回写（本文推导记录保留）。src/ / tuning.ts 由程基岩同步，不在",
+          "keywords": [
+            "src",
+            "tuning",
+            "冻结路径与待",
+            "拍板回写清单"
+          ]
+        },
+        {
+          "anchor": "§6 待用户拍板（2–4 选项）",
+          "level": 2,
+          "startLine": 338,
+          "endLine": 357,
+          "tokens": 296,
+          "summary": "已裁定：选项 1 组 C（2026-09-14）。下列为拍板前菜单，留档不再生效。",
+          "keywords": [
+            "待用户拍板",
+            "选项"
+          ]
+        },
+        {
+          "anchor": "§7 风险与缓解",
+          "level": 2,
+          "startLine": 358,
+          "endLine": 369,
+          "tokens": 290,
+          "summary": "理论最快假设「立刻落子、托盘永不跳过」；真实 L8 手速 3s/珠时 t=195s，C 的 T=280 仍有 30.4%",
+          "keywords": [
+            "风险与缓解"
+          ]
+        },
+        {
+          "anchor": "§8 沉淀候选（0–3，知识库写入协议）",
+          "level": 2,
+          "startLine": 370,
+          "endLine": 379,
+          "tokens": 369,
+          "summary": "主理人汇编去重后入账；ID 由 kb:sync 分配。",
+          "keywords": [
+            "sync",
+            "沉淀候选",
+            "知识库写入协"
+          ]
+        },
+        {
+          "anchor": "§9 建议下一 Task",
+          "level": 2,
+          "startLine": 380,
+          "endLine": 388,
+          "tokens": 145,
+          "summary": "用户拍板后：§3 + JSON + spec + score-combo 回写 主理人调度文策渊 / 程基岩 选项 1/",
+          "keywords": [
+            "§3",
+            "Task",
+            "JSON",
+            "spec",
+            "score",
+            "combo"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 3602,
-      "lines": 197,
-      "sha256": "497b950c6199a615ecf694c9e4a08e30696614011ab623ae280740e90c6e95d3",
+      "tokens": 4242,
+      "lines": 214,
+      "sha256": "1a320fe5235912a863c8b9bb4eb38a6a9670c94b36b7e036f0130f9dbd22f901",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 198,
-          "tokens": 3592,
-          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.0 · 任务号 WXG-T-015",
+          "endLine": 215,
+          "tokens": 4233,
+          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.1 · 任务号 WXG-T-015（失败续时 U5：WXG-",
           "keywords": [
             "Spec",
             "beads",
@@ -9066,7 +9389,7 @@
           "level": 2,
           "startLine": 17,
           "endLine": 39,
-          "tokens": 353,
+          "tokens": 387,
           "summary": "",
           "keywords": [
             "Screen",
@@ -9078,8 +9401,8 @@
           "anchor": "§3 关键界面线框（750×1334，坐标 y 向上，来源 §3.1 布局带）",
           "level": 2,
           "startLine": 40,
-          "endLine": 116,
-          "tokens": 1120,
+          "endLine": 124,
+          "tokens": 1378,
           "summary": "",
           "keywords": [
             "§3.1",
@@ -9142,24 +9465,22 @@
           ]
         },
         {
-          "anchor": "§3.5 结算·冲刺（提案）与失败",
+          "anchor": "§3.5 结算·冲刺与失败",
           "level": 3,
           "startLine": 100,
-          "endLine": 113,
-          "tokens": 197,
+          "endLine": 121,
+          "tokens": 459,
           "summary": "",
           "keywords": [
             "结算",
-            "冲刺",
-            "提案",
-            "与失败"
+            "冲刺与失败"
           ]
         },
         {
           "anchor": "§3.6 通关画面（FINISH，8 关全清）",
           "level": 3,
-          "startLine": 114,
-          "endLine": 116,
+          "startLine": 122,
+          "endLine": 124,
           "tokens": 29,
           "summary": "全屏庆祝 + 星级总览（8 关星数和）+「去冲刺」+「重玩第 1 关」。",
           "keywords": [
@@ -9171,9 +9492,9 @@
         {
           "anchor": "§4 状态流转 × 输入响应矩阵（QA 直接转用例；与 input-control §2.3 门禁互为镜像）",
           "level": 2,
-          "startLine": 117,
-          "endLine": 140,
-          "tokens": 520,
+          "startLine": 125,
+          "endLine": 154,
+          "tokens": 730,
           "summary": "BOOT （无交互） 读档分流；校验失败→降级 L1 玩法·普通",
           "keywords": [
             "§2.3",
@@ -9187,9 +9508,9 @@
         {
           "anchor": "§5 交互反馈与动效时长表（权威毫秒值，回写 art-bible §7 占位）",
           "level": 2,
-          "startLine": 141,
-          "endLine": 162,
-          "tokens": 432,
+          "startLine": 155,
+          "endLine": 178,
+          "tokens": 494,
           "summary": "统一缓动：进入 ease-out、退出 ease-in。红线：反馈 ≤400ms（庆祝/结算除外）；关键反馈视觉+音效双",
           "keywords": [
             "§7",
@@ -9203,8 +9524,8 @@
         {
           "anchor": "§6 首屏留存策略（微信前 10 秒）",
           "level": 2,
-          "startLine": 163,
-          "endLine": 175,
+          "startLine": 179,
+          "endLine": 191,
           "tokens": 190,
           "summary": "0s 点击图标",
           "keywords": [
@@ -9215,8 +9536,8 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 176,
-          "endLine": 186,
+          "startLine": 192,
+          "endLine": 202,
           "tokens": 202,
           "summary": "触控 UI 控件 ≥88px（TOUCH_MIN）；棋盘/托盘珠命中区=名义外扩 8px、重叠按格心最近（§3.8 v1",
           "keywords": [
@@ -9231,9 +9552,9 @@
         {
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
-          "startLine": 187,
-          "endLine": 198,
-          "tokens": 280,
+          "startLine": 203,
+          "endLine": 215,
+          "tokens": 334,
           "summary": "已裁定（沿袭）：无主菜单两路径（core-loop 判例）；齿轮单通道入口；道具 MVP 占位口径（S6 §2.6）；面",
           "keywords": [
             "§2.6",

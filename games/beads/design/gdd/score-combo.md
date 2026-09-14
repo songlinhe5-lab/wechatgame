@@ -27,7 +27,7 @@
 
 ### 2.2 普通模式：星级（冻结）与结算分（提案）
 
-- 星级 = f(剩余时间占比)，来源 §3.7：`ratio ≥ STAR3_RATIO(0.40) → 3★`；`≥ STAR2_RATIO(0.20) → 2★`；过关即 ≥1★；扩展行不扣星。`level:cleared` payload 的 `stars` 由 S7 计算后随事件分发（§4 既有事件，零新增）。
+- 星级 = f(剩余时间占比)，来源 §3.7：`ratio ≥ STAR3_RATIO(0.32) → 3★`；`≥ STAR2_RATIO(0.12) → 2★`；过关即 ≥1★；扩展行不扣星。`ratio` 分子现行 = `remaining`；T-B 落地后改用 `starRemaining`（§3.7 `[T-B / 待确认]`）。`level:cleared` payload 的 `stars` 由 S7 计算后随事件分发（§4 既有事件，零新增）。
 - 结算分（用于未来排行/段位，**局内不显示**）：`settleScore = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用扩展 ? 200 : 0)`——全部系数列附录 C7（已冻结，2026-09-12 用户拍板）。
 
 ### 2.3 冲刺模式：无尽爬梯
@@ -77,7 +77,7 @@
 
 ## 5. 数值
 
-- **冻结引用**：§3.7（`STAR3_RATIO=0.40`、`STAR2_RATIO=0.20`、`DEMO_LEVEL_COUNT`、解锁规则）；§3.4（sprint 梯级供料区间端点）；§3.3（sprint 梯级格数上限）；§3.8（特效红线：≤3Hz、无真屏震）。
+- **冻结引用**：§3.7（`STAR3_RATIO=0.32`、`STAR2_RATIO=0.12`、`DEMO_LEVEL_COUNT`、解锁规则；v1.10 组 C）；§3.4（sprint 梯级供料区间端点）；§3.3（sprint 梯级格数上限）；§3.8（特效红线：≤3Hz、无真屏震）。
 - **提案数值**：全部在 §9 附录（C1–C8），**未冻结不得实现**。
 
 ## 6. 边界条件
@@ -107,7 +107,7 @@
 
 ## 8. 验收标准（可测试硬判据，QA 直接造用例；附录 C1–C8 已于 2026-09-12 冻结（systems-index §3.10），全部判据可执行）
 
-1. 普通模式局内全程零分数 HUD 元素；过关后 `level:cleared` payload 的 stars 与 §3.7 阈值表逐一吻合（ratio=0.40/0.399/0.20/0.199 四点采样）。
+1. 普通模式局内全程零分数 HUD 元素；过关后 `level:cleared` payload 的 stars 与 §3.7 阈值表逐一吻合（ratio=0.32/0.319/0.12/0.119 四点采样）。
 2. 普通模式结算分 = 附录 C7 公式逐项可复算（构造 stars/ratio/powerupsUsed/扩展四因子组合各 1 例）。
 3. sprint 单局时长 = `SPRINT_TIME_DEFAULT`（未覆盖时），误差 ≤ ±0.5s（联合 S5§8-1）。
 4. streak 达 C3 各阈值瞬间倍率切换为 ×2/×3/×5，`combo:up` 恰各 1 次；超过最高档 streak 继续增长但倍率封顶 ×5。

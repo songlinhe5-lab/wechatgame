@@ -1,6 +1,6 @@
 # 系统清单与依赖索引（Systems Index）· beads
 
-- 项目：`games/beads`（拼豆填色消除）· 版本 v1.9 · 任务号 WXG-T-007
+- 项目：`games/beads`（拼豆填色消除）· 版本 v1.12 · 任务号 WXG-T-007
 - 用途：定义系统边界、依赖顺序、以及**全局数值基线**（所有 GDD 引用此处的常量，避免数值漂移）
 - 数值纪律：本文数值全部依 `design/concept.md` 附录 A 提案定稿；标 `[待确认]` 者未冻结、不得据以实现。
 
@@ -14,7 +14,7 @@
 | S2 | 输入与操控 | `gdd/input-control.md` | P0 | 托盘选珠、网格落子、道具/暂停等触摸路由与热区 |
 | S3 | 拼图网格与填色 | `gdd/bead-grid.md` | P0 | 图案矩阵数据、颜色匹配校验、落座/锁定格、完成判定 |
 | S4 | 供料与槽位托盘 | `gdd/tray-spawner.md` | P0 | 定时供料、容量管理、扩展行、满槽告警 |
-| S5 | 倒计时与失败 | `gdd/timer-gameover.md` | P0 | 关卡倒计时、告急表现、归零判负、重试 |
+| S5 | 倒计时与失败 | `gdd/timer-gameover.md` | P0 | 关卡倒计时、告急表现、归零判负、失败续时、重试 |
 | S6 | 道具系统 | `gdd/powerups.md` | P1 | 区域消除/槽位清空/随机消除三道具 + 激励视频位 |
 | S7 | 计分连击与结算 | `gdd/score-combo.md` | P1 | 过关星级判定、冲刺模式连击计分（WXG-T-015）、结算面板数据、关卡解锁推进 |
 | S8 | 存档与进度 | `gdd/save-progress.md` | P1 | 本地持久化：进度/星级/设置（v1.1 追加字段提案见该文） |
@@ -125,7 +125,7 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | `TIMER_URGENT_T` | 10 s | 告急阈值：数字与图标切 `danger` 色 + 1000ms 周期脉冲（表现参数以 art-bible §6 为准） |
 | `TIMER_TICK` | 1.0 s | 倒计时刷新粒度（显示用；内部按 dt 累计） |
 | 失败条件 | **唯一**：倒计时归零 | 托盘满不判负（决策 D7） |
-| 失败重开 | 整关重置 | 倒计时回满、图案清空、托盘清空、扩展重置、道具免费次数重置 |
+| 失败重开 | 整关重置 | 倒计时回满、图案清空、托盘清空、扩展重置、道具免费次数重置、**续时记账清零**（`reviveBonusSec=0` / `revived=false`）。**续时成功不走本行**（§3.11） |
 
 ### 3.6 道具（Powerups）
 | 常量 | 值 | 说明 |
@@ -134,16 +134,17 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | `REGION_CLEAR_SLOTS` | 6 | 区域消除：框选托盘**连续 6 槽**清空（A6 已确认 2026-09-11：三道具均仅作用托盘） |
 | `RANDOM_CLEAR_COUNT` | 5 | 随机消除：随机移除托盘 5 颗（A6 已确认） |
 | `POWERUP_FREE_USES` | 1 | 每关每道具免费次数；超出拉激励视频（A5 已确认 2026-09-11） |
-| `AD_PLACEMENTS` | 4 | 激励视频位：3 道具 + 托盘扩展；**MVP 仅角标占位，拉起与发奖逻辑 `[待用户确认]`** |
+| `AD_PLACEMENTS` | 4 | 局内激励视频位：3 道具 + 托盘扩展。**布局 A（v1.11 / WXG-T-057）**：仅 `ad_badge` 角标，本轮不拉起；唯一 live 位 = 失败页续时（§3.11） |
 | 道具目标 | 仅托盘珠 | 三道具均不清除网格已填格（已填格 = 玩家进度，不可回退） |
 
 ### 3.7 星级与结算
 | 常量 | 值 | 说明 |
 |---|---|---|
-| `STAR3_RATIO` | 0.40 | 剩余时间 / 关卡总时长 ≥ 40% → 3★（A7 已确认 2026-09-11）（2026-09-12 用户裁定改值） |
-| `STAR2_RATIO` | 0.20 | ≥ 20% → 2★，否则 1★；过关即至少 1★；扩展行不扣星（A7 已确认） |
+| `STAR3_RATIO` | 0.32 | 剩余时间 / 关卡总时长 ≥ 32% → 3★（A7 已确认 2026-09-11；v1.5 曾 0.50→0.40；**v1.10 用户 2026-09-14 拍板组 C：0.40→0.32**，交叉约束见 `proposals/star-level-rebalance.md`） |
+| `STAR2_RATIO` | 0.12 | ≥ 12% → 2★，否则 1★；过关即至少 1★；扩展行不扣星（A7 已确认；**v1.10 0.20→0.12**） |
 | `DEMO_LEVEL_COUNT` | 8 | demo 关卡数（用户拍板 5–10 区间取 8） |
 | 解锁规则 | 线性 | 通过第 n 关解锁第 n+1 关；星级只记录不做门槛 |
+| 星级 remaining 口径 | `starRemaining = max(0, remaining − reviveBonusSec)`；星级与 §3.10 C7 的 `ratio` 均用 `starRemaining / 关卡总时长`；`revived` 局 `stars = min(stars, 2)` | **v1.11 冻结**（WXG-T-057 / T-B）。HUD 倒计时显示 `remaining`（含续时），不显示 `starRemaining`。未续时时 `reviveBonusSec=0`、`revived=false`，与一命局 v1.10 等价 |
 
 ### 3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级）
 | 常量 | 值 | 说明 |
@@ -176,7 +177,17 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | 裁决条款 | stage 切换**不断连**；stage 加时与单局归零同帧 **stage 优先**；stage 切换**托盘清空**（新图新供料） | C8 三条；前两条已同步 core-loop §2.3 补记，第三条为 v1.9 补记（消解 score-combo §6 → C8 悬空引用，依据见 score-combo §9 C8） |
 | 伪震屏 | scale 1.00→1.015→1.00，150ms | 连击 Lv2（×3）特效；**§3.8"屏震不使用"冻结令维持不改**（U3） |
 
-> 冲刺模式细则（连击/特效分级/事件提案 `combo:*`、`sprint:*`）见 `gdd/score-combo.md`；元游戏框架（连胜礼盒/排行/签到）见 `proposals/meta-framework.md` v1.0——M4 大厅 Won't、M5 生命体力永不采纳（2026-09-12 用户定案）。
+> 冲刺模式细则（连击/特效分级/事件提案 `combo:*`、`sprint:*`）见 `gdd/score-combo.md`；元游戏框架（连胜礼盒/排行/签到）见 `proposals/meta-framework.md` v1.0——M4 大厅 Won't、M5 生命体力永不采纳（2026-09-12 用户定案）。**冲刺不续时**（§3.11）。
+
+### 3.11 失败续时（Revive）· 2026-09-14 用户拍板冻结（WXG-T-057 / T-B）
+| 常量 | 值 | 说明 |
+|---|---|---|
+| `REVIVE_BONUS_SEC` | 60 s | 失败页激励视频看完（`onRewarded`）后写入可玩钟的秒数 |
+| `REVIVE_MAX_PER_LEVEL` | 1 | 同一次尝试（进关或重试起，至下一次整关重置）成功续时上限 |
+| 激励主位 | 失败页续时 | **布局 A**：唯一 live 激励位。局内 `AD_PLACEMENTS=4`（3 道具+扩展）仅 `ad_badge`，本轮不拉起 |
+| 续打语义 | 不走整关重置 | 保留网格 / 托盘 / 扩展 / 道具次数 / 供料累加器；仅 S5 写 `remaining += REVIVE_BONUS_SEC` 与续时记账（`reviveBonusSec` / `revived`） |
+| 冲刺 | 不续时 | 冲刺归零走冲刺结算，不进失败续时面板 |
+| Won't | 体力 / 强制插屏 / 未看完发奖 | M5 永不采纳；激励须玩家主动点失败主钮；仅 `onRewarded` 加时 |
 
 ## 4. 事件总线约定（供程序落码参考）
 
@@ -209,7 +220,7 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 - **FSM**：`core/fsm` 提供状态机；S1 六状态（BOOT/PLAYING/PAUSED/LEVEL_CLEAR/GAME_OVER/FINISH）直接映射。
 - **事件**：`core/events` 事件总线承载 §4 全部事件；系统间**禁止直接互调**，一律走事件。
 - **存档**：`core/save` 同步本地存储；键名归代码（`wxgame.beads.*`），结构由 S8 GDD + `save-schema` 定义。
-- **激励视频**：~~假设 `platform/weapp` 暴露 `createRewardedVideoAd` 适配接口~~ → **工程确认（WXG-T-010，2026-09-11）：该接口不存在**（Platform 接口仅 storage/audio/screen/lifecycle，全仓 grep 零命中）。MVP 维持 `AD_PLACEMENTS` 角标占位不拉起；适配层接口形状已预埋于 `ADR-0006`（RewardedAdProvider，工作量级 S），实施待拉起逻辑拍板。
+- **激励视频**：~~假设 `platform/weapp` 暴露 `createRewardedVideoAd` 适配接口~~ → **工程确认（WXG-T-010）不存在**。**WXG-T-058 Mock 已落地**：`RewardedAdProvider` + Node/Web Mock + weapp **Noop**；失败页续时走 `GameServices.rewardedAd`（`onRewarded` 后 +60s 同局续打）。**全仓仍无 `wx.createRewardedVideoAd`**（W1 须另批）。局内 `AD_PLACEMENTS=4` 仍角标不拉起。详见 `ADR-0006` §6。
 - **音频**：`core/audio` 提供 bgm/sfx 开关，供 S9 设置直连。
 
 ## 6. 变更记录
@@ -226,3 +237,6 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | v1.7 | 2026-09-12 | **WXG-T-015 三十项决策点用户 2026-09-12 拍板冻结，S7 冲刺模式常量组生效**（新增 §3.10：C1–C8 + U3 伪震屏，§3 既有常量零改动）；C8 条款同步 core-loop §2.3 补记；S8 v1.1 字段 / S9 P1 / UX U1–U4 转冻结；元游戏 M4 大厅 = Won't 定案、M5 生命体力 = 永不采纳定案，meta-framework 升 v1.0，整体 v1.1 排期，MVP 只留礼盒进度条 + 置灰排行入口两钩子。登记人 = 主理人（执笔 文策渊） | WXG-T-020，用户 2026-09-12 拍板 |
 | v1.8 | 2026-09-12 | **§4 机械登记 4 个冲刺事件**（`combo:up` / `combo:break` / `sprint:stage` / `sprint:ended`）：依据 = score-combo §2.5 冻结设计 + §8 判据 + core-loop §2.3 已引用 `sprint:stage`（不登记即真源自相矛盾）。payload 为登记时定稿，实现如需增删字段须走 §6 变更。§3/既有事件零改动 | 主理人机械登记（WXG-T-020 验收收尾） |
 | v1.9 | 2026-09-12 | **语义澄清（无数值变更）**：① §3.10 梯级公式「色数/格数」明确为该阶**上限预算**（用于选池与校验），实际棋盘取池图案本身，供料间隔公式仍为精确注入值——工程实现暴露"公式生成 vs 池图案冻结"的字面冲突；② §3.10 C8 裁决补第三条「stage 切换**托盘清空**（新图新供料）」，消解 score-combo §6 → C8 的悬空引用；③ §3.2 `.` 措辞由「空位（待填）」改为「无图案位（不可填/不计完成/渲染为空白）」，`.` 与 `x` 运行时语义同为 `locked`、差异仅在表现层（`x` 斜纹收边渲染，levels-spec §6 图例）。**§3 全部数值零改动** | WXG-T-027 工程实现暴露 + 主理人裁定（执笔 文策渊） |
+| v1.10 | 2026-09-14 | **组 C 星级×关卡整组生效**（WXG-T-054）：§3.7 `STAR3_RATIO` 0.40→**0.32**、`STAR2_RATIO` 0.20→**0.12**；`LEVEL_TIME_DEFAULT` **仍 300**（D-05：竞品 180/209s 不可对齐供料循环）。关卡覆盖 L5 `time` 280→360、L6 260→360、L7 240→380、L8 240→280（`spawnInterval` 全不动）。**D-01 交叉约束已用 `levels-01-08.json` 实参复算**（等间隔硬上限 + 3:1 期望）：现行 0.40 下 L5–L8 3★ 均不可达、L5/L6 期望不可通关 → v1.5「关卡数据未产出」豁免前提**已不成立**，本版关闭该豁免。§3.10 C7 `SETTLE_SCORE` 公式结构不改；四点采样改为 0.32/0.319/0.12/0.119。§3.7 增 T-B 预留口径（`starRemaining = remaining − reviveBonusSec`；续命局 2★ 封顶）标 **[T-B / 待确认]**，不冻结续时常量。登记人 = 主理人（执笔 文策渊） | WXG-T-054，用户 2026-09-14 明示拍板组 C |
+| v1.11 | 2026-09-14 | **T-B 失败续时冻结**（WXG-T-057，spec_only）：新增 §3.11 `REVIVE_BONUS_SEC=60`、`REVIVE_MAX_PER_LEVEL=1`；布局 A（失败页唯一 live 激励位，局内 4 角标不拉起）；续时=同局续打不走整关重置；冲刺不续时；Won't=体力/强制插屏/未看完发奖。§3.7 星级口径解标冻结（`starRemaining` + `revived` 2★ 封顶）。§3.5 失败重开追加续时记账清零。§3.6 `AD_PLACEMENTS=4` **值不动**，说明改为布局 A 休眠。`STAR3_RATIO` / `STAR2_RATIO` / 关卡 `time` **零改动**。实现另排，禁止改 `src/`、禁止伪造 wx 广告 API。登记人 = 主理人（执笔 文策渊） | WXG-T-057，用户 2026-09-14 明示拍板 T-B |
+| v1.12 | 2026-09-14 | **Mock 续时落地**（WXG-T-058）：§3 数值零改动。框架 `RewardedAdProvider` + Mock/Noop 注入；失败页主钮续时 / 次钮重试；`onRewarded` 后 +60s 同局续打。weapp 仍 Noop，**禁止伪造 wx 广告 API**。登记人 = 程基岩 | WXG-T-058 |

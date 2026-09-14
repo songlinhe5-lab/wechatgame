@@ -89,11 +89,17 @@ export const TIMER_URGENT_T = 10;
 export const TIMER_TICK = 1.0;
 /** Failure condition is *only* the countdown reaching zero (tray full never fails). */
 
+// ──────────────────────────────────────────────────────── §3.11 fail revive
+/** Seconds written onto the playable clock after a completed fail-page ad. */
+export const REVIVE_BONUS_SEC = 60;
+/** Successful revives allowed per attempt (reset on full level restart). */
+export const REVIVE_MAX_PER_LEVEL = 1;
+
 // ──────────────────────────────────────────────────────── §3.7 stars & settle
-/** ratio = remaining/total ≥ 0.40 → 3★. */
-export const STAR3_RATIO = 0.4;
-/** ratio ≥ 0.20 → 2★, otherwise 1★ (clearing always yields ≥1★). */
-export const STAR2_RATIO = 0.2;
+/** ratio = remaining/total ≥ 0.32 → 3★. */
+export const STAR3_RATIO = 0.32;
+/** ratio ≥ 0.12 → 2★, otherwise 1★ (clearing always yields ≥1★). */
+export const STAR2_RATIO = 0.12;
 /** Demo level count. */
 export const DEMO_LEVEL_COUNT = 8;
 
@@ -179,6 +185,23 @@ export function normalSettleScore(
   );
 }
 
+/**
+ * §3.7 star rating after a possible revive.
+ * HUD still shows `remaining`; stars use `starRemaining / total`.
+ */
+export function computeClearStars(
+  remaining: number,
+  total: number,
+  reviveBonusSec: number,
+  revived: boolean,
+): { ratio: number; stars: number } {
+  const starRemaining = Math.max(0, remaining - Math.max(0, reviveBonusSec));
+  const ratio = total > 0 ? Math.max(0, Math.min(1, starRemaining / total)) : 0;
+  let stars = ratio >= STAR3_RATIO ? 3 : ratio >= STAR2_RATIO ? 2 : 1;
+  if (revived) stars = Math.min(stars, 2);
+  return { ratio, stars };
+}
+
 // ──────────────────────────────────────── presentation timings (非冻结真源)
 /**
  * Level-clear banner auto-advance delay. Presentation-only (breakout `timings`
@@ -212,6 +235,11 @@ export const PANEL_IN_MS = 200;
 export const PANEL_OUT_MS = 150;
 /** Enter scale start → 1.0 (ux-spec §5: scale 0.9→1.0). */
 export const PANEL_SCALE_FROM = 0.9;
+
+/** Fail-panel primary/retry width (ux-spec §3.5: 480×88). */
+export const FAIL_PRIMARY_W = 480;
+export const FAIL_BUTTON_H = TOUCH_MIN;
+export const FAIL_BUTTON_GAP = 24;
 
 // ───────────────────────── 音频 clip id（无冻结真源，仅为通道标识）
 /** BGM clip played with `loop: true` on the bgm channel (architecture §2). */
