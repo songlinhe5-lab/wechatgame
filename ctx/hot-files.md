@@ -7,9 +7,9 @@
 
 > 体积预算 ≤ 4000 估算 tokens（当前 21 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
 
-## `docs/architecture/architecture-beads.md` — 175 行 / 3819 tok / 实测读 35 次
+## `docs/architecture/architecture-beads.md` — 190 行 / 4248 tok / 实测读 35 次
 
-§微信小游戏矩阵 — beads（拼豆填色消除）架构文档=1+176 · §1 beads 特有约束（在矩阵约束之上）=13+14 · §2 9 系统 → 框架模块映射（systems-index §5 逐条对账）=27+20 · §3 `games/beads/src` 目录结构=47+32 · §4 渲染层方案（ADR-0005 摘要）=79+18 · §5 事件装配图（systems-index §4 全部 13 事件）=97+25 · §6 BOOT 装配与关卡加载流=122+24 · §7 激励视频占位（ADR-0006 摘要）=146+9 · §8 风险登记册（beads 增量）=155+12 · §9 当前实现状态=167+10
+§微信小游戏矩阵 — beads（拼豆填色消除）架构文档=1+191 · §1 beads 特有约束（在矩阵约束之上）=13+14 · §2 9 系统 → 框架模块映射（systems-index §5 逐条对账）=27+20 · §3 `games/beads/src` 目录结构=47+32 · §4 渲染层方案（ADR-0005 摘要）=79+18 · §5 事件装配图（systems-index §4 全部 13 事件）=97+25 · §6 BOOT 装配与关卡加载流=122+24 · §7 激励视频占位（ADR-0006 摘要）=146+9 · §8 风险登记册（beads 增量）=155+12 · §9 当前实现状态=167+25
 
 ## `docs/architecture/control-manifest.md` — 199 行 / 3013 tok / 实测读 42 次
 

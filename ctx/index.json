@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1878,
       "lines": 84,
-      "sha256": "790f52cd30caf941daa8e3a077b6a9769f222a1e0bab39215472d0c87cfa5529",
+      "sha256": "0e992051560edc4ea7558d09e360ced3a481711164b2de0d52120133214a563d",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3781,
       "lines": 94,
-      "sha256": "e037b05e378982dfd182dac0dd31d0791ab0e960dd62bbdd7ef98dde243f960d",
+      "sha256": "91da670b6c9784f66f7fafdae2ab3a3e3230aeb6e23bf5722acb117bcb5fe1ac",
       "tier": "normal",
       "sections": [
         {
@@ -497,12 +497,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/architecture-beads.md` — 175 行 / 3819 tok / 实测读 35 次",
+          "anchor": "§`docs/architecture/architecture-beads.md` — 190 行 / 4248 tok / 实测读 35 次",
           "level": 2,
           "startLine": 10,
           "endLine": 13,
           "tokens": 165,
-          "summary": "§微信小游戏矩阵 — beads（拼豆填色消除）架构文档=1+176 · §1 beads 特有约束（在矩阵约束之上）=",
+          "summary": "§微信小游戏矩阵 — beads（拼豆填色消除）架构文档=1+191 · §1 beads 特有约束（在矩阵约束之上）=",
           "keywords": [
             "§1",
             "docs",
@@ -4147,17 +4147,17 @@
     },
     {
       "path": "docs/architecture/architecture-beads.md",
-      "tokens": 3819,
-      "lines": 175,
-      "sha256": "f708e4bb848268a98d9a2cf18f89f432c58568d7139885d145181dff5b5cf7fe",
+      "tokens": 4248,
+      "lines": 190,
+      "sha256": "60c705a9fc7381bfc2c7069978fa7850f6691fedc5e3ec8568ffdf6f5b30cf9e",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§微信小游戏矩阵 — beads（拼豆填色消除）架构文档",
           "level": 1,
           "startLine": 1,
-          "endLine": 176,
-          "tokens": 3797,
+          "endLine": 191,
+          "tokens": 4226,
           "summary": "版本：0.1.0",
           "keywords": [
             "beads",
@@ -4293,8 +4293,8 @@
           "anchor": "§9 当前实现状态",
           "level": 2,
           "startLine": 167,
-          "endLine": 176,
-          "tokens": 119,
+          "endLine": 191,
+          "tokens": 548,
           "summary": "本架构文档 + ADR-0004…0007 ✅ 完成",
           "keywords": [
             "ADR",
@@ -5543,17 +5543,17 @@
     },
     {
       "path": "games/beads/art/accessibility.md",
-      "tokens": 1763,
-      "lines": 82,
-      "sha256": "7ecdb8910f433de6595ba25dbd2bc9f3dc521cef3a2d46e474e1315f62234d61",
+      "tokens": 2353,
+      "lines": 104,
+      "sha256": "7495f3aa0ccbac8defc999a8ffc56f025e9ccb8d7c5179e144841884178762a6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》可访问性规范（Accessibility Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 83,
-          "tokens": 1745,
+          "endLine": 105,
+          "tokens": 2336,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Accessibility",
@@ -5580,8 +5580,8 @@
           "anchor": "§2 特性矩阵",
           "level": 2,
           "startLine": 25,
-          "endLine": 49,
-          "tokens": 1029,
+          "endLine": 71,
+          "tokens": 1619,
           "summary": "A1 色觉障碍友好 · 珠子颜色 「颜色 + 符号 + 明度」三重编码：10 色各绑唯一矢量符号（○★●■♥◐▽▲◆✚，",
           "keywords": [
             "特性矩阵"
@@ -5590,8 +5590,8 @@
         {
           "anchor": "§3 落地范围小结",
           "level": 2,
-          "startLine": 50,
-          "endLine": 61,
+          "startLine": 72,
+          "endLine": 83,
           "tokens": 116,
           "summary": "本 demo 落地（13 项）：A1 A2 A3 A4 B1 B2 B3 C2 D1 D2 E1 F1 F2",
           "keywords": [
@@ -5602,8 +5602,8 @@
         {
           "anchor": "§4 与 UX 规格的接口（`[待 ux-spec 对齐]`）",
           "level": 2,
-          "startLine": 62,
-          "endLine": 73,
+          "startLine": 84,
+          "endLine": 95,
           "tokens": 116,
           "summary": "UX 规格产出后须满足/引用：",
           "keywords": [
@@ -5616,8 +5616,8 @@
         {
           "anchor": "§5 待用户审批项（2026-09-11 已全部拍板）",
           "level": 2,
-          "startLine": 74,
-          "endLine": 83,
+          "startLine": 96,
+          "endLine": 105,
           "tokens": 181,
           "summary": "1. H1 符号显示开关：❌ 不提供（用户拍板）——三重编码默认开启保证色盲安全，demo 不设纯色模式；本项关闭，不再",
           "keywords": [
@@ -30768,17 +30768,17 @@
     },
     {
       "path": "production/epics/epics-beads.md",
-      "tokens": 7034,
-      "lines": 268,
-      "sha256": "0f7aa16556098b5712106daeab0cfe96a3497fb6191209c9f80f0a51ee87b975",
+      "tokens": 7426,
+      "lines": 282,
+      "sha256": "bc2aa286dcf0c7b992eafa4b11dc7fd4dc1dc24b1de5cc600500bbce385ccf61",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic / Story 拆分（epics-beads）",
           "level": 1,
           "startLine": 1,
-          "endLine": 269,
-          "tokens": 7021,
+          "endLine": 283,
+          "tokens": 7413,
           "summary": "项目：games/beads（拼豆填色消除）· 任务 WXG-T-010 · 版本 v1.0",
           "keywords": [
             "beads",
@@ -30792,8 +30792,8 @@
         {
           "anchor": "§0 阅读约定（拆分纪律）",
           "level": 2,
-          "startLine": 10,
-          "endLine": 20,
+          "startLine": 24,
+          "endLine": 34,
           "tokens": 391,
           "summary": "1. 验收标准编号：S<n>§8-<k> = gdd/<系统>.md §8 编号列表第 k 条（beads 各 GDD ",
           "keywords": [
@@ -30808,8 +30808,8 @@
         {
           "anchor": "§1 Epic 列表（按 systems-index §2 依赖拓扑序）",
           "level": 2,
-          "startLine": 21,
-          "endLine": 39,
+          "startLine": 35,
+          "endLine": 53,
           "tokens": 486,
           "summary": "EP-01 核心循环骨架 立起六状态状态机与关内时序编排，裁决暂停冻结与同帧 cleared 优先 S1 —",
           "keywords": [
@@ -30824,8 +30824,8 @@
         {
           "anchor": "§2 Story 拆分",
           "level": 2,
-          "startLine": 40,
-          "endLine": 227,
+          "startLine": 54,
+          "endLine": 241,
           "tokens": 5170,
           "summary": "",
           "keywords": [
@@ -30836,8 +30836,8 @@
         {
           "anchor": "§EP-01 核心循环骨架（S1）",
           "level": 3,
-          "startLine": 42,
-          "endLine": 60,
+          "startLine": 56,
+          "endLine": 74,
           "tokens": 478,
           "summary": "EP01-S1 六状态状态机骨架与 BOOT 装配",
           "keywords": [
@@ -30849,8 +30849,8 @@
         {
           "anchor": "§EP-02 拼图网格与填色（S3）",
           "level": 3,
-          "startLine": 61,
-          "endLine": 89,
+          "startLine": 75,
+          "endLine": 103,
           "tokens": 880,
           "summary": "EP02-S1 关卡装载与静态校验器",
           "keywords": [
@@ -30861,8 +30861,8 @@
         {
           "anchor": "§EP-03 供料与槽位托盘（S4）",
           "level": 3,
-          "startLine": 90,
-          "endLine": 112,
+          "startLine": 104,
+          "endLine": 126,
           "tokens": 747,
           "summary": "EP03-S1 托盘模型与加权抽色",
           "keywords": [
@@ -30873,8 +30873,8 @@
         {
           "anchor": "§EP-04 输入与操控（S2）",
           "level": 3,
-          "startLine": 113,
-          "endLine": 135,
+          "startLine": 127,
+          "endLine": 149,
           "tokens": 734,
           "summary": "EP04-S1 五类指令路由表",
           "keywords": [
@@ -30885,8 +30885,8 @@
         {
           "anchor": "§EP-05 倒计时与失败（S5）",
           "level": 3,
-          "startLine": 136,
-          "endLine": 157,
+          "startLine": 150,
+          "endLine": 171,
           "tokens": 769,
           "summary": "EP05-S1 计时器模型与暂停保存",
           "keywords": [
@@ -30897,8 +30897,8 @@
         {
           "anchor": "§EP-06 道具系统（S6）`[待 GDD §8——S6 GDD 未产出，判据到位后回填]`",
           "level": 3,
-          "startLine": 158,
-          "endLine": 169,
+          "startLine": 172,
+          "endLine": 183,
           "tokens": 346,
           "summary": "EP06-S1 三道具效果与免费次数 [待 GDD §8]",
           "keywords": [
@@ -30913,8 +30913,8 @@
         {
           "anchor": "§EP-07 星级与结算（S7）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 170,
-          "endLine": 181,
+          "startLine": 184,
+          "endLine": 195,
           "tokens": 218,
           "summary": "EP07-S1 星级判定与结算面板 [待 GDD §8]",
           "keywords": [
@@ -30928,8 +30928,8 @@
         {
           "anchor": "§EP-08 存档与进度（S8）`[待 GDD §8——S8 GDD 未产出]`",
           "level": 3,
-          "startLine": 182,
-          "endLine": 193,
+          "startLine": 196,
+          "endLine": 207,
           "tokens": 276,
           "summary": "EP08-S1 存档 schema 与校验降级 [待 GDD §8]",
           "keywords": [
@@ -30944,8 +30944,8 @@
         {
           "anchor": "§EP-09 暂停与设置（S9）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 194,
-          "endLine": 206,
+          "startLine": 208,
+          "endLine": 220,
           "tokens": 199,
           "summary": "EP09-S1 暂停面板 [待 GDD §8]",
           "keywords": [
@@ -30959,8 +30959,8 @@
         {
           "anchor": "§EP-10 Cocos 集成与微信构建 `[Blocked: 待编辑器]`",
           "level": 3,
-          "startLine": 207,
-          "endLine": 227,
+          "startLine": 221,
+          "endLine": 241,
           "tokens": 372,
           "summary": "依赖编辑器产物（.scene/.meta/构建/真机）。框架侧 bindings.ts 已写未验证（G1–G9 沿用矩阵",
           "keywords": [
@@ -30975,8 +30975,8 @@
         {
           "anchor": "§3 第一个冲刺建议（最小可玩垂直切片）",
           "level": 2,
-          "startLine": 228,
-          "endLine": 251,
+          "startLine": 242,
+          "endLine": 265,
           "tokens": 440,
           "summary": "目标：进 PLAYING → 供料入托盘 → 选珠 → 落子（匹配/拒绝）→ 填满进 LEVEL_CLEAR → 归零失",
           "keywords": [
@@ -30990,8 +30990,8 @@
         {
           "anchor": "§4 环境约束声明",
           "level": 2,
-          "startLine": 252,
-          "endLine": 260,
+          "startLine": 266,
+          "endLine": 274,
           "tokens": 218,
           "summary": "无 Cocos 编辑器：验证路径 = 引擎无关玩法跑 vitest（Node）+ dev harness（canvas2",
           "keywords": [
@@ -31006,8 +31006,8 @@
         {
           "anchor": "§5 统计",
           "level": 2,
-          "startLine": 261,
-          "endLine": 269,
+          "startLine": 275,
+          "endLine": 283,
           "tokens": 102,
           "summary": "Epic 数 10（EP-01…EP-09 系统 + EP-10 工程交付）",
           "keywords": [

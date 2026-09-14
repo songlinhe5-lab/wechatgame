@@ -5,6 +5,20 @@
 - **权威来源**：`design/gdd/systems-index.md`（§2 依赖拓扑序、§3 冻结常量 v1.2）、S1–S5 P0 GDD §8（验收唯一出处）、`docs/architecture/architecture-beads.md` + ADR-0004…0007（技术边界）
 - **冲突裁定**：Story 与 systems-index §3 冻结常量冲突 → 以 §3 为准，回写本文档（经主理人中转）。
 
+> ⚠️ **状态时效声明（2026-09-14，WXG-T-052 对账）**：本文档的 Story 级标记**已过期**，请以本声明为准，
+> 标记本身按原文保留（避免逐条改写引入新错）：
+>
+> 1. **`[待 GDD §8]` 对 S6–S9 已全部解除** —— `design/gdd/` 下 `powerups.md`、`score-combo.md`、
+>    `save-progress.md`、`pause-settings.md` **均已产出**（§0 阅读约定第 2 条的前提已消失）。
+> 2. **`[Blocked: 待编辑器]`（EP-10）已不再是环境阻塞** —— Cocos Creator 3.8.8 已安装、预览与构建链
+>    已实测跑通（`docs/engine-reference/cocos/VERSION.md`）。EP-10 的阻塞项变为**未立项建工程**，
+>    而非「无编辑器」。
+> 3. **实现进度**：S1–S5、S8（schema + 降级）、S9（暂停面板与音频开关）、冲刺模式已交付并有测试
+>    （12 个测试文件 / 107 用例）；**EP-06（S6 道具）仍未实现**（`src/systems/powerups.ts` 不存在，
+>    现仅 `view-model` 画了 3 张卡 + `ad_badge` 角标占位）；EP-07 星级/结算的评分函数已落地
+>    （`tuning.ts` 的 C7 公式，有测试），**结算面板未做**。
+> 4. **验收判据**：`[待 GDD §8]` 的引用位已可回填，但**回填属独立工作项**，本次对账不改写 Story 正文。
+
 ---
 
 ## 0. 阅读约定（拆分纪律）
