@@ -1,23 +1,47 @@
 # 《拼豆填色消除》(beads) 测试用例 · Test Cases
 
-- 任务号：WXG-T-011 / WXG-T-028 ｜ 作者：严守真 ｜ 版本 v1.2 ｜ 日期 2026-09-12
-- **判据来源**：`games/beads/design/gdd/{core-loop,bead-grid,tray-spawner,input-control,timer-gameover}.md` 各 §8（每份 10 条）+ `games/beads/design/gdd/score-combo.md` §8（冲刺 11 条，v1.2 新增）——**合计 61 条**；常量引 `systems-index.md §3`（含 §3.10）+ `art/accessibility.md`。**全部逐条标注来源，零自造数值。**
+- 任务号：WXG-T-011 / WXG-T-028 / **WXG-T-084** ｜ 作者：严守真 ｜ 版本 **v1.3** ｜ 日期 **2026-09-14**
+- **判据来源（v1.3 校正）**：9 份系统 GDD 各 §8 —— `core-loop / bead-grid / tray-spawner / input-control / timer-gameover / powerups / save-progress / pause-settings`（timer 12 条、其余各 10 条）+ `score-combo` §8（冲刺 11 条）⇒ **合计 93 条**（`awk '/^## 8\./,0' | grep -cE '^[0-9]+\.'` 逐文件 = 12/11/10/10/10/10/10/10/10）。**v1.2 头部写「合计 61 条」已过期，实际只映射 71 条、22 条零映射**（缺陷 **BD-21**，v1.3 由 §H 补齐）。常量引 `systems-index.md §3`（含 §3.10 冲刺 / §3.11 续时）+ `art/accessibility.md`。
+- **v1.3 新增判据来源（§G 可感知层）**：`design/ux/ux-spec.md §1-3 / §4 尾注 / §5 动效毫秒表 / §6.1–6.2 / §8 裁决表`（WXG-T-081）、`art/assets-spec.md §1.2`（`empty`/`wrong`/`hint` 三态规格）、`art/accessibility.md A2/A2b/A3/B3/C1/D1/E2`、`design/audio/audio-events.md §1 + §4 A05-01..27`（WXG-T-083，该文件明文「**供 WXG-T-084 引用**」）。**全部逐条标注来源，零自造数值。**
 - 常量速查（来源 `systems-index §3`）：`TRAY_BASE_SLOTS=12`、`SPAWN_INTERVAL_DEFAULT=4.0s`（区间 [2.0,6.0]）、`NEEDED:DECOY=3:1`、`LEVEL_TIME_DEFAULT=300s`（区间 [180,420]）、`TIMER_URGENT_T=10s`、`TIMER_TICK=1.0s`、`GRID_MAX=13×12`、`STAR3_RATIO=0.32`、`STAR2_RATIO=0.12`、`DEMO_LEVEL_COUNT=8`、`POWERUP_FREE_USES=1`、`REGION_CLEAR_SLOTS=6`、`RANDOM_CLEAR_COUNT=5`、命中区外扩 8px（66²/62²）。
 - 常量速查·冲刺（来源 `systems-index §3.10`，2026-09-12 冻结）：`SPRINT_TIME_DEFAULT=120s`（区间 [90,120]，越界回退默认）、`COMBO_WINDOW_S=5.0s`、`COMBO_STREAK_TIERS=[2,4,7]`→倍率 ×2/×3/×5（上限 ×5）、`SCORE_PER_BEAD=10`、`STAGE_BONUS_TIME=+15s`、`STAGE_CLEAR_BONUS=200+50×stageIndex`、C7 结算分 `stars×1000+round(ratio×1000)−powerupsUsed×50+(未用扩展?200:0)`、C8 裁决（stage 切换不断连；stage 加时与归零同帧 stage 优先）、伪震屏 scale 1.00→1.015→1.00 / 150ms。
 
-**图例**：`[Node]` vitest ｜ `[Harness]` 浏览器 ｜ `[DevTools]` 开发者工具（需编辑器）｜ `[Device]` 真机。
-**状态**：本轮 beads 实现 0 行 → 全部标 **`待实现`**（判据已冻结，WXG-T-001 流水线落地后回归；v1.2 注：冲刺侧工程实现由 WXG-T-027 进行中）。
+**图例（v1.3 扩展）**：`[Node]` vitest ｜ `[Probe]` **G4 探针脚本**（`production/qa/beads/g4-probe.mjs`，Node 装配真实 `BeadsGame` + `NodePlatform`，可读渲染指令流/事件流/存档）｜ `[Harness]` 浏览器（**当前被 BD-07 DPR 坐标 + BD-08 文字镜像污染，结论不可信**）｜ `[Cocos]` **web-mobile / wechatgame 构建产物 + 浏览器截图**（**当前被 BD-20 `framework:sync` 漂移阻塞**）｜ `[DevTools]` 微信开发者工具（**未装、无 AppID**）｜ `[Device]` 真机（**本轮不可执行**）。
+**状态（v1.3 改为四态，废除「一律待实现」）**：`已验` ＝ 本轮实测成立 ｜ `FAIL(BD-nn)` ＝ 本轮实测不成立 ｜ `待执行` ＝ 判据已冻结但本轮未跑 ｜ `⛔不可测(原因)` ＝ 环境/实现阻塞，**禁止标绿**。逐条实跑结论见 `production/qa/beads/g4-regression-report.md §4`（19 组探针）；本文 §A–§F 原「待实现」标注按**追加不覆盖**纪律保留，其真实状态以该报告与 §A.0 回填表为准。
 
 ---
 
 # §A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）
+
+## A.0 本轮（WXG-T-084）实测状态回填表
+
+> 只回填**本轮真正执行过**的行；未列出者一律为 `待执行`，**不得读作 PASS**。
+
+| 用例 ID | 判据 | 道次 | 本轮结论 | 缺陷 / 备注 |
+|---|---|---|---|---|
+| TC-INP-01 | `input-control §8-1` | `[Probe]` | ❌ FAIL | **BD-15**（五类路由缺第 3 类：扩展入口 UI 层不存在） |
+| TC-INP-02 / TC-INP-04 | `§8-2 / §8-4` | `[Probe]` | ⚠️ PASS\* | **BD-23**（§8-2 与 §8-4 在 `BEAD_PITCH < GRID_HIT_SIZE` 时互斥，实现遵循 §8-4） |
+| TC-INP-06 / 08 / 10 | `§8-6 / §8-8 / §8-10` | `[Probe]` | ⚠️ PASS\* | `tapDesign` 绕过 `InputManager`，§8-10 为弱化通过 |
+| TC-INP-07 | `§8-7` | `[Probe]` | ❌ FAIL | **BD-16**（「有轻提示」零实现，反馈帧增量为 0） |
+| TC-INP-09 | `§8-9` | `[Device]` | ⛔ 不可测 | 无真机 + 无 AppID |
+| TC-TRAY-02 / 04 / 05 | `tray-spawner §8-2 / §8-4 / §8-5` | `[Probe]` | ✅ PASS（§8-2 口径存疑） | **BD-22**（最大偏差 32.0% 字面 FAIL，卡方 11.20 < 临界 24.725；建议 §8-2 改卡方，同 `powerups §8-4` 判例） |
+| TC-GRID-08 | `bead-grid §8-8` | `[Probe]` | ⚠️ PASS\* | 156 格装载 + 五格中心公式复算通过；「误差 ≤0.5px」像素级判定待 `[Cocos]` |
+| TC-TIMER-07 | `timer-gameover §8-7` | `[Probe]` | ✅ PASS | 181/419/180/420 → playing；100/999 → BOOT 拒并报错含关卡 id |
+| TC-SAVE-07 | `save-progress §8-7` | `[Probe]` | ❌ FAIL | **BD-12**（`meta.winStreak*` 无字段位，src 命中 0） |
+| TC-SAVE-09 | `save-progress §8-9` | `[Probe]` | ⚠️ PASS\* | **BD-24**（「200 次落子」不可构造：`GRID_MAX_COLS×GRID_MAX_ROWS=156`；按 150 次验其实质通过） |
+| TC-A11Y-01 | `accessibility D1` | `[DevTools]` | ⛔ 不可测 | **BD-09d**（`reduceMotion` src/tests/framework 0 命中）+ D1/E2 三文档冲突待裁 |
+| TC-A11Y-02 | `accessibility C1` | `[Device]` | ⛔ 不可测 | 双重阻塞：无真机 + `btn_expand` 本体不存在（**BD-09e/BD-15**） |
+| TC-A11Y-03 / TC-GRID-10 | `accessibility A1/A2/A3` | `[Device]` | ⛔ 不可测 | 无真机；且 `empty`/`hint`/`wrong` 三态非颜色通道缺失（**BD-01/BD-11/BD-04**）⇒ 6 状态仅 3 态可辨 |
+| TC-TIMER-10 | `timer-gameover §8-10` | `[DevTools]` | ⛔ 不可测 | **BD-10**（脉冲与满槽告警双主体缺失，无物可帧检） |
+| TC-SPRINT-09 | `score-combo §8-9` | `[DevTools]` | ⛔ 不可测 | Lv2 伪震屏已登记平台缺口（WXG-T-074：渲染管线无全局变换通道） |
+| TC-LOOP-02 / TC-TRAY-01 | `core-loop §8-2 / tray §8-1` | `[Node]` | 待执行（**期望已改**） | **BD-25**：BD-02 修复后语义变为 1 首供 + 15 周期 = **16 颗**，旧容差 ±1 会恰好吞掉变更 ⇒ v1.3 显式改 16（±0） |
 
 ## A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`
 
 | ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
 |---|---|---|---|---|---|
 | TC-LOOP-01 | §8.1 | 冷启动分流 | `[Node]` | 无存档→第 1 关 PLAYING，**无主菜单**；有存档→续进已解锁最远关 | 待实现 |
-| TC-LOOP-02 | §8.2 | 供料节律 | `[Node]` | 默认间隔下 PLAYING 60s 托盘恰 +15 颗（±1）；来源 §3.4 `SPAWN_INTERVAL_DEFAULT` | 待实现 |
+| TC-LOOP-02 | §8.2 | 供料节律 | `[Node]` | ~~默认间隔下 PLAYING 60s 托盘恰 +15 颗（±1）~~ → **v1.3 改：PLAYING 首帧即 1 颗首供（U7），其后 60s 内周期供料 15 颗 ⇒ 合计恰 16 颗（±0）**；来源 §3.4 `SPAWN_INTERVAL_DEFAULT` + `ux-spec §6.2` U7 裁定。**改判依据 BD-25**：旧 ±1 容差区间 `[14,16]` 会恰好吞掉首供变更 ⇒ 修复后自动假绿 | 待执行（期望已改） |
 | TC-LOOP-03 | §8.3 | **满槽跳过不判负** | `[Node]` | 12 槽全占→停止供料 + `tray:full`，**不触发失败**（决策 D7）；任一清槽道具后供料恢复 | 待实现 |
 | TC-LOOP-04 | §8.4 | 落子双路反馈 | `[Node]` | 匹配→珠离托盘/格 `filled`/`bead:placed` 恰 1 次；不匹配→珠留原槽/格 `empty`/`bead:rejected` 恰 1 次 | 待实现 |
 | TC-LOOP-05 | §8.5 | **cleared/failed 同帧 → cleared 优先** | `[Node]` | 构造剩余 0.01s 放最后一颗 → 必进 LEVEL_CLEAR；只发 `level:cleared` 不发 `level:failed` | 待实现 |
@@ -46,7 +70,7 @@
 
 | ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
 |---|---|---|---|---|---|
-| TC-TRAY-01 | §8.1 | 供料间隔 | `[Node]` | 默认下 60s `tray:spawned` 恰 15 次（±1），间隔 4.0s ±0.1s | 待实现 |
+| TC-TRAY-01 | §8.1 | 供料间隔 | `[Node]` | ~~默认下 60s `tray:spawned` 恰 15 次（±1）~~ → **v1.3 改：默认下 60s `tray:spawned` 恰 16 次（±0）＝1 次首供 + 15 次周期供料**，周期间隔 `SPAWN_INTERVAL_DEFAULT` ±0.1s，**首供不计入间隔断言**（`ux-spec §6.2` U7）。**改判依据 BD-25**（同 TC-LOOP-02）。注：§8-3 抽色加权 3:1 受首供影响恰 1/100 样本，可忽略 | 待执行（期望已改） |
 | TC-TRAY-02 | §8.2 | 落槽均匀性 | `[Node]` | 200 次供料，任一槽频次与均匀分布偏差 ≤±20% | 待实现 |
 | TC-TRAY-03 | §8.3 | 抽色加权 3:1 | `[Node]` | "仍需 1 色 + 1 杂色"关卡 100 次供料，所需色占比 ≈75%（±10pp） | 待实现 |
 | TC-TRAY-04 | §8.4 | **满槽跳过/恢复** | `[Node]` | 满槽→`tray:full` 恰 1 次且满槽期间不重复；腾 1 槽后 ≤1 间隔恢复供料 | 待实现 |
@@ -137,7 +161,14 @@
 | A5 timer-gameover | 10 | 10 | 9×Node + 1×DevTools |
 | §B 派生 | — | 12 | 7×Node + 4×DevTools/Device + 1×Node |
 | §C 冲刺（score-combo §8） | 11 | 11 | 9×Node + 2×DevTools（含 1 条 Node+DevTools 联合） |
-| **合计** | **61（判据 100% 覆盖）** | **73** | Node 65 / DevTools 6 / Device 2 |
+| §D 道具（powerups §8） | 10 | 10 | 全 Node（末句角标视觉项 DevTools） |
+| §E 帧内执行序（基准条款） | — | 4 | 全 Node |
+| §F 结算·过关面板（ux-spec） | — | **8**（F1–F8） | 全 Node（面板几何可转 Cocos 复核） |
+| **§G 可感知性判据（v1.3 新增）** | —（规格层四件套） | **20**（8 主条 + 12 取证细化） | Probe 9 / Cocos 8 / Harness 3 / Node 6 / Device 4（多条多道次） |
+| **§H 未映射判据补编（v1.3 新增）** | **22** | 22 | 全 Node（含 2 条需替身注入） |
+| **合计** | **§8 判据 93（50+11+10+22，100% 映射）** | **137** | 以 Node/Probe 为主；Cocos 8 条被 **BD-20** 阻塞、Device 4 条被**无真机**阻塞 |
+
+> **v1.2 合计行为「61 判据 / 73 用例」，漏计 §D(10)+§E(4)+§F(8)** ⇒ 实际 95 用例（**BD-21②**）；v1.3 重算并补 §G/§H 后为 **137 用例 / 93 条 §8 判据**。
 
 **指定边界例落点**：cleared/failed 同帧 → TC-LOOP-05 + TC-TIMER-04；满槽跳过 → TC-LOOP-03 + TC-TRAY-04；双击幂等 → TC-TRAY-06 + TC-INP-06；存档越界降级 → TC-LOOP-10；sprint 加时/归零同帧（C8）→ TC-SPRINT-07；模式互窜注入 → TC-SPRINT-10。
 
@@ -181,7 +212,7 @@
 
 ---
 
-# §F 结算·过关面板用例（7 条；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`
+# §F 结算·过关面板用例（**8 条**，v1.3 修正标题计数（v1.2 写「7 条」而表内 8 行，BD-21③）；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`
 
 > 背景：`ux-spec §4` 流转表要求 `LEVEL_CLEAR` **等按钮**（下一关 / 去冲刺 U1），而实现曾是「1.4s 自动进下一关」占位。本组用例第一条即为**回归闸门**。
 
@@ -195,3 +226,114 @@
 | F6 | 入/出与淡出期门禁 | §5（入 200 / 出 150ms） | `progress` 0→1→0；`close()` 后 `interactive === false` ⇒ **淡出期点按钮无命中**，150ms 后 `visible === false` |
 | F7 | 星入场节奏与弹跳 | §5（逐颗 150ms / scale 0→1.2→1） | 第 1 颗 t=0 入场，其后每 150ms 一颗，封顶 = 星级；`starScale` 0 → 1.2（75ms）→ 1（150ms） |
 | F8 | 结算数据装配 | `score-combo §8-2`（C7） | 不推进时钟填空 ⇒ ratio = 1 ⇒ 3★；`lastSettleScore === normalSettleScore(3, 1, 0, false)` 且**恰为 4200**（3×1000 + 1000 − 0 + 200）；快照带 `clearStars` / `clearLastLevel` |
+
+---
+
+# §G 可感知性判据（20 条，v1.3 新增）—— **GAP-14 / BD-14 根治项**
+
+## G.0 为何需要 §G + 判据谱系声明
+
+> **根因**：§A–§F 共 95 条用例、映射 71 条 §8 判据，**全为「逻辑可断言型」（事件计数 / 状态机 / 公式复算）**——在 184 个 vitest 全绿的前提下，BD-01（空槽无目标色）/ BD-02（开局 6s 无珠）/ BD-03（零引导）/ BD-04（四类 VFX 全缺）/ BD-05（零音效）/ BD-10（告急不可辨）**结构上无法被任何一道门禁捕获**。§G 就是补这一类：**画面 / 音效 / 手感**判据。
+>
+> **判据谱系（诚实声明）**：9 份 GDD §8 共 93 条中**零条**为玩家可感知型（这正是 BD-14）。因此 §G 的判据来源**上移到规格层四件套**：`ux-spec §5`（动效毫秒表 21 行权威值）、`ux-spec §6.1–6.2`（首 10 秒时间轴 + U7 首供裁定）、`assets-spec §1.2`（`empty`/`wrong`/`hint` 三态规格）、`accessibility A2/A2b/A3/B3/C1/D1/E2`、`audio-events §1 + §4 A05-01..27`（该文件明文「**供 WXG-T-084 引用**」）。**所有毫秒 / 颜色 / 尺寸 / 频率均引规格层冻结值，零自造**；每条并回指其所服务的 §8 逻辑判据（例：TC-PER-01 是 TC-GRID-02「匹配落座」的**可辨识前提**，TC-PER-02 是 TC-TRAY-01「供料节律」的**首屏约束**）。
+>
+> **执行分轮**：§G 的**执行**依赖波次 2（T-085/086/087）落地 ⇒ 本轮只出「现状基线」（见「本轮结论」列，详证 `g4-regression-report.md §4`）；修复后出「复验 G4」。
+
+## G.1 主判据（8 条，1:1 对应 `g4-regression-report.md` 探针 P1–P7 / P19）
+
+| ID | 缺口 / 缺陷 | 可感知判据（画面 / 音效 / 手感） | 判据来源（规格层冻结值） | 取证手段 | 取证前置依赖 | 本轮结论 |
+|---|---|---|---|---|---|---|
+| **TC-PER-01** | GAP-01 / **BD-01** | **空槽可辨识目标色**：每个 `empty` 格须呈现「该格应填颜色」的**淡化色底**（E1）+ **内上阴影**（E3）+ **幽灵符号**（E4），使玩家在**不落子**的情况下即可判断「哪格填什么色」；同关使用的 3–8 色两两可辨 | `assets-spec §1.2` `empty` 行（`mixWith(slot_fill, beadColor(colorIdx), EMPTY_TINT_MIX)`、`EMPTY_GHOST_ALPHA`）；`accessibility A2`（每态有非颜色通道）；`ux-spec §1-3` 裁定 (a) 引导通道 ① | `[Probe]` 渲染指令流：统计拼图带内 `BEAD_CELL` 矩形的**填充色去重数 ≥ 该关色数**；`[Cocos]` web-mobile 产物截图**肉眼比对** | 实现：**T-085**（`drawEmptySocket` 补 `colorIdx` 形参）；`[Cocos]` 道次：**R1 + R2** | ❌ **FAIL**：22 个空槽填充色去重后**仅 1 种 `#EDE7DA`**；`bead-render.ts:159` 签名无 `colorIdx`；`EMPTY_TINT_MIX`/`EMPTY_GHOST_ALPHA` src 命中 **0** |
+| **TC-PER-02** | GAP-02 / **BD-02** | **开局 ≤1.5s 托盘已有珠**：BOOT 完成即 PLAYING 第 1 帧，托盘**已有 ≥1 颗珠**且该槽带 600ms 脉冲引导 ⇒ 玩家在第一屏内即有**可操作对象** | `ux-spec §6.1` 首 10 秒时间轴（「≤1.5s BOOT 完成；1.5s 首颗珠已在托盘 + 该槽 600ms 脉冲」）；`§6.2` **U7** 裁定（`reset()` → 赋 `interval` → **最后**置 `_acc = interval`） | `[Probe]` 逐帧读 `snapshot.tray` 持有数，断言 **t=1.5s（第 90 帧 @`fixedDt=1/60`）≥1 颗**；`[Cocos]` 产物**首屏截图**（load 后 1.5s） | 实现：**T-085** 落 U7；脉冲半边：**T-086**（BD-10）；`[Cocos]`：**R1 + R2** | ❌ **FAIL**：t=0 / 1.5s / 3.0s 持有 **0 / 0 / 0**；L1 首颗珠第 **361** 帧 = **6.02s**；对照组（`SPAWN_INTERVAL_DEFAULT`）第 241 帧 = 4.02s |
+| **TC-PER-03** | GAP-03 / **BD-03** | **无文字下引导可被理解**：玩家不需读任何文字，仅凭 ① 空槽目标色底+幽灵符号 ② 单一 `hint` 目标格（行主序最前 1 格）③ 首珠槽脉冲 三通道，即可在 3 秒内明白「把珠拖到同色格」；引导在**首次 `bead:placed` 即清**、`runs>0` **永不重现** | `ux-spec §1-3` 裁定 **(a) 0 文字教学** + 依赖登记；`§5` 教学引导三行（首珠脉冲 **600ms/循环 = 1.67Hz**、目标格 hint **600ms/循环**、引导终止条件） | `[Probe]` 断言开局 8s 渲染**文本去重集合不含任何教学句** + 三通道图元均存在；`[Cocos]` 首屏**连续 3 帧截图**交非作者观察者做**盲测复述**；`[Device]` 真人 FTUE | **三通道分别依赖 BD-01（T-085）/ BD-11（T-086）/ BD-10（T-086）⇒ 三缺一即整条不成立**；盲测：**R2**；真人：**M1-6 真机** | ❌ **FAIL**：开局 8s 文本去重 **14** 条全为 HUD/道具标签（`05:00`/`LV 1/8`/`×1`/三道具名/倒计时）；`banner`/`subBanner`/`powerupHint`/`failHint` 全空；三通道 ①②③ **全缺** |
+| **TC-PER-04** | GAP-04 / **BD-04** | **四类 VFX 各自可观察**（逐条见 TC-PER-09..12）：落座回弹 / 放错抖动 / 消除溶解 / 完成波浪——玩家在**每次操作后都能看到画面在动**，据此判断操作是否生效 | `ux-spec §5` 动效毫秒表；`assets-spec §1.2` `wrong` 行；`systems-index §3.8` 红线 | `[Probe]` **帧间渲染指令签名差分**：事件后连续 12 帧（200ms）指令序列须**逐帧变化**（恒定 ⇒ 无动效）；`[Cocos]` 产物**逐帧截图 6–12 张**视觉确认 | 实现：**T-086**（且需先扩 `CellState`，现无 `wrong`/`hint` 承载体）；`[Cocos]` 逐帧：**R2** | ❌ **FAIL**：落子后 12 帧 `[76×12]` **恒定**；拒绝后增量 `[8×12]` **恒定**；`entities/grid.ts:12` `CellState='empty'｜'filled'｜'locked'` |
+| **TC-PER-05** | GAP-05 / **BD-05** | **关键事件有音效且与动效同帧**：「同帧」= 同一次 `App.tick(frameDt)` 内事件广播 → `AudioScheduler._pending` → 帧末 `flush()`（**1 帧 = 16.67ms** @`fixedDt=1/60`）；19 个 clip **清单闭合**；两开关全关时**静音可通关** | `audio-events §4` **A05-01/04/05/07/11/14/16**（同帧派发）、**A05-23**（静音可玩）、**A05-24**（`tuning.ts` 音频常量集合 == §1 的 **19 个 id**）、**A05-25**（构建产物音频文件数=0、占用=0KB）；道次标记 `[N]/[B]/[C]/[R]/[P]` | `[Node]` 替身 backend 记 `played` 序列 + **帧号对齐**断言（A05-* 中 `[N]` 项**今天即可断言**）；`[Cocos]` 产物音频文件数（A05-25）；`[Device]`+**人耳**（`[R]/[P]`） | `[N]` 项无前置；`[B]/[P]/[R]` 项依赖 **BD-05b 三平台 `NullAudioBackend` 落地**（⚠️ **真机到位也不解除此阻塞**）；A05-25 依赖 **R1** | ❌ **FAIL**：脚本化全程 `audio.play` clip 去重**仅 2 种**（`bgm_main`/`sfx_ui_tap`）；`tuning.ts` 只 **3** 个 clip vs 要求 **19**；`_sfx()` 9 处调用全在 UI 按钮(7)+星入场(2) |
+| **TC-PER-06** | GAP-06 / **BD-06** | **手感·韧性**：尾盘（图案近满 + 托盘满 + 三道具免费次数用尽 + 无可落子色）时，画面上**存在 ≥1 条非「整关重置」出口**且玩家**能看见并点到**它；不得只能等归零判负 | `ux-spec §4` 尾注（「满槽+死珠=软锁死…**这是判负，不是兜底**」）；`§8` **U8 ⏳ 待用户拍板**（A′/B/C/D）；`tray-spawner §2.4` 出口表；`systems-index §3.11`（**`REVIVE_BONUS_SEC` 只加时间不清托盘 ⇒ 续时不能解此局**） | `[Probe]` 构造死局（灌满非需色珠 + 耗尽道具）→ **6px 栅格全盘扫描 750×1334** 统计可点出口数；再推 60s 看是否仍 `phase=playing` 满槽；`[Cocos]` 死局截图交观察者问「你现在能做什么」 | **判据刻意写成方案中立**（U8 任一方案落地均可验）；依赖**用户拍板 U8** → **T-085** 落码；扫描道次无前置 | ❌ **FAIL**：灌满 12/12 后 8s 仍满槽、`tray:full=1`；三道具第二轮全 `false` + `powerupHint=「即将开放」`（纯占位零效果）；全盘扫描命中 `tray:expanded`=**0 个点**；60s 仍满槽 → 归零 `game-over` ⇒ **0 条出口**（判据要求 ≥1） |
+| **TC-PER-07** | GAP-10 / **BD-10** | **告急脉冲与满槽告警可观察**：倒计时穿 `TIMER_URGENT_T` 后 HUD 呈 danger 色 **+ 1000ms α 脉冲循环**（≤3Hz 红线）；满槽时托盘**描边呼吸 500ms 循环 + 轻提示音 1 次**；色盲玩家**不单靠红色**也能辨告急 | `ux-spec §5`（倒计时告急 danger + **1000ms α 脉冲循环**；满槽告警 **托盘描边呼吸 500ms 循环 + 轻提示音 1 次**）；`timer-gameover §8-10`（周期 **1000ms±50ms**、同屏叠加无 >3Hz）；`accessibility B3`（**已诚实标 ⚠️「仅色变、脉冲未实现」**） | `[Probe]` 事件后连续 **60 帧**（=1.0s 一个完整周期）取 HUD 带**非文本指令签名去重数须 ≥2**；`[Cocos]` 连拍 **≥8 帧**（跨 1 周期）比对 α/描边变化 | 实现：**T-086**；`[Cocos]` 连拍：**R2** | ❌ **FAIL**：`urgent=true`、`timer:urgent=1` ✓，但 60 帧 HUD 非文本签名去重 **1 种**；`view-model.ts:374-375` 仅色切换；灌满前后托盘带内 13→49（增量**全为珠体**）⇒ **零告警图元** |
+| **TC-PER-08** | GAP-11 / **BD-11** | **`hint` 态可见**：目标格呈 `accent_blue` **2px 描边 + 600ms α0.5↔1.0 呼吸**；D1「减弱动效」开启后须**保留 hint 静态描边**（不因关停动效而丢引导） | `assets-spec §1.2` `hint` 行；`accessibility A2`（hint 蓝描边呼吸）+ **D1 保留清单**「hint 静态描边」；`ux-spec §1-3` 引导通道 ② + `§5` | `[Probe]` 断言 `CellState` 定义域含 `hint` + 使用 `accent_blue(#3D7BF5)` 的图元数 **>0** + 跨 600ms 的 α 变化；`[Cocos]` 连拍 4 帧 | 实现：**T-086** 扩 `CellState`；D1 分支依赖 **§6.3 三文档冲突裁定** | ❌ **FAIL**：`cellStates` 去重 `[locked, empty]`；`BeadsGame` hint 公开成员命中**（无）**；`accent_blue` 图元数 **0** ⇒ 数据模型/API/渲染层**三处均无承载体** |
+
+## G.2 取证细化子条（12 条）
+
+| ID | 判据 | 来源（冻结值） | 取证手段 | 前置依赖 | 本轮结论 |
+|---|---|---|---|---|---|
+| **TC-PER-09** | VFX-1 落座回弹：scale **1.06 → 1.0 / 120ms** | `ux-spec §5` `vfx_fill_pop` | `[Probe]` 落子后 7–8 帧（120ms@60fps）该格图元 scale 须单调 1.06→1.0；`[Cocos]` 连拍 3 帧 | T-086 | ❌ FAIL（主体缺失，同 TC-PER-04） |
+| **TC-PER-10** | VFX-2 放错抖动：**±3px ×2 + danger 闪 2 次 / 200ms**，且 **≤2 次/秒**、无 >3Hz 闪烁、无全屏白闪、不屏震 | `ux-spec §5`；`systems-index §3.8` 红线；`accessibility D2` | `[Probe]` `bead:rejected` 后 12 帧该格 `cx` 须出现 ±3px 交替、danger 色出现 **2** 次；**同帧统计全屏闪烁频率 ≤3Hz** | T-086 + `CellState` 扩 `wrong` | ❌ FAIL（拒绝后增量 `[8×12]` 恒定） |
+| **TC-PER-11** | VFX-3 消除溶解：scale → **0.6 / 200ms** | `ux-spec §5` `vfx_clear_dissolve` | `[Probe]` 区域/随机消除生效后 12 帧，被清珠 scale 递减至 0.6 且 α 衰减 | T-086 | ❌ FAIL（现实现为**瞬时移除**、无过渡） |
+| **TC-PER-12** | VFX-4 完成波浪：逐列 **20ms/列** · 总 **800ms**，≤3Hz | `ux-spec §5` `vfx_complete_wave`；`§3.8` | `[Probe]` 通关帧起按列序记录每列首次 scale 变化的帧号，**列间差 ≈1.2 帧（20ms）**、末列 ≈800ms；`[Cocos]` 连拍 | T-086 | ❌ FAIL（无 clear-wave 代码路径） |
+| **TC-PER-13** | **色盲模拟可辨**：色底色相差异在 **deuteranopia / protanopia** 模拟下仍可区分同关使用的 **3–8 色** | `accessibility A2b`（⚠️ 当前标「✅ 随 T-085 实现」= **自相矛盾型假绿，BD-09b**） | `[Cocos]` 产物截图 + **色盲滤镜**（Chrome DevTools rendering 面板 / Playwright `emulateMedia` / CSS filter 三选一）→ 逐色对**灰度明度差 + 符号差**双通道确认 | **R1 + R2 + R3**（色盲模拟取证手段）；实现侧 BD-01 | ⛔ **不可测**（三重阻塞：实现缺失 + 构建阻塞 + 无滤镜手段） |
+| **TC-PER-14** | **灰度下 6 状态可辨**：`empty`/`filled`/`locked`/`hint`/`wrong`/`selected` 凭符号+明度 100% 可区分 | `accessibility A3`（**部分假绿**：仅 `filled`/`locked`/`selected` 有非颜色通道）；`assets-spec §6` 验收 2 | `[Cocos]` 灰度截图（`filter: grayscale(1)`）+ **6 状态同屏构造** | R1 + R2 + **BD-01/BD-04/BD-11** | ⛔ **不可测**（6 状态中仅 3 态可构造） |
+| **TC-PER-15** | **音频清单闭合**：`tuning.ts` 音频常量集合 **==** `audio-events §1` 的 **19 个 id** | `audio-events §4` **A05-24** `[N]` | `[Node]` 静态导入 `tuning.ts` 集合比对（**无需音频后端，今天可跑**） | 无（可立即执行） | ❌ **FAIL**：实测 **3** 个 vs 要求 **19** |
+| **TC-PER-16** | **静音可玩**：`bgmMuted`+`sfxMuted` 全关时全流程**可通关** | `audio-events §4` **A05-23** `[N]` | `[Probe]` 预置存档两开关 true → 走完 L1 通关 | 无（今天可跑） | 待执行。⚠️ **本条即使 PASS 也不得作为「音频已落地」的证据**——当前为 `NullAudioBackend`，**静音与无声不可区分** |
+| **TC-PER-17** | **告急脉冲周期**：**1000ms ±50ms**、**≤3Hz** | `timer-gameover §8-10` + `ux-spec §5` | `[Probe]` 采 180 帧（3s）记录 α 极值帧号 → 相邻峰间隔须 **60±3 帧**；`[Cocos]` 连拍 8 帧 | T-086 | ⛔ **不可测**（无脉冲主体，BD-10） |
+| **TC-PER-18** | **满槽告警可观察**：托盘**描边呼吸 500ms 循环** + **轻提示音恰 1 次** | `ux-spec §5` 满槽告警行 | `[Probe]` `tray:full` 后 30 帧（500ms）托盘带描边图元须存在且 α 变化；音频侧断言该 tick 入队 `sfx_tray_full` **恰 1 次** | T-086 + BD-05 | ⛔ **不可测**（零告警图元） |
+| **TC-PER-19** | **引导终止条件**：首次 `bead:placed` 即清引导；**`runs>0` 永不重现** | `ux-spec §5` 引导终止行 | `[Probe]` ① 首落子后**下一帧** hint/脉冲图元数归 0；② 预置 `runs=1` 存档冷启 → 开局 5s 引导图元数**恒 0** | T-086（引导落地后） | 待执行 |
+| **TC-PER-20** | **首屏时间轴两锚点**：≤**1.5s** BOOT 完成并进 L1（首珠已在托盘 + 槽脉冲 + 单一目标格 hint）；**~5s** 首颗珠落座 = **首个爽点** | `ux-spec §6.1` | `[Probe]` 帧号锚点断言（**90 帧 / 300 帧**）；`[Cocos]` 产物 **load→1.5s→5s 三张截图**作为 FTUE 证据包 | R1 + R2 + BD-01/02/10/11 | ❌ **FAIL**：1.5s 锚点 **0** 颗珠；5s 锚点仍 **0** 颗（L1 首珠 6.02s） |
+
+## G.3 取证前置依赖汇总（gating，交主理人做 sequencing）
+
+| 前置 | 阻塞的 §G 用例 | 归属 |
+|---|---|---|
+| **R1** `pnpm run framework:sync` → G1 转绿 → `build:cocos:web` 通过 | 全部 `[Cocos]` 道次（TC-PER-01/02/03/04/07/13/14/17/18/20） | T-082 / 主理人 |
+| **R2** Cocos 取证基础设施 + 截图方法（无头截图、产物运行时坐标换算、命名约定 `evidence/shots/<case-id>-<frame>.png`） | 同上 | T-082 |
+| **R3** 色盲模拟 + 灰度滤镜取证手段 | TC-PER-13 / 14 | T-082 |
+| **T-085**（BD-01 空槽目标色 / BD-02 首供 U7 / BD-06 U8 泄压阀 / BD-15 扩展入口） | TC-PER-01 / 02 / 03① / 06 / 20 | T-085 |
+| **T-086**（BD-04 四类 VFX / BD-10 告急脉冲+满槽告警 / BD-11 hint / BD-16 轻提示） | TC-PER-03②③ / 04 / 07 / 08 / 09..12 / 17 / 18 / 19 | T-086 |
+| **T-087**（BD-07 DPR / BD-08 镜像 / BD-13 跳关键位） | 全部 `[Harness]` 道次 | T-087 |
+| **BD-05b** 音频后端（框架侧，三平台均 `NullAudioBackend`） | TC-PER-05 的 `[B]/[P]/[R]` 项、TC-PER-18 音频半边 | 框架 + T-085 |
+| **真机 + AppID** | TC-PER-03 真人 FTUE、TC-PER-13/14 的 `[Device]` 复核 | 用户 / 主理人 |
+| **用户拍板 U8**（GAP-06 泄压阀 A′/B/C/D） | TC-PER-06（判据已写成方案中立，拍板后可直接验） | 用户 |
+
+---
+
+# §H 未映射判据补编（22 条，v1.3 新增）—— **BD-21① 修复项**
+
+> 背景：9 份 GDD §8 共 **93** 条，v1.2 只映射 **71** 条 ⇒ **22 条零映射**（`save-progress §8` 10 + `pause-settings §8` 10 + `timer-gameover §8-11/12` 2）。本节逐条补齐，使 §8 判据映射率达 **100%**。
+
+## H1 · 存档与进度（S8）— 来源 `save-progress.md §8.1..10`
+
+| ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
+|---|---|---|---|---|---|
+| TC-SAVE-01 | §8-1 | 首启/二启 `runs` 与续进 | `[Node]` | 无存档 → `runs=1`、`unlockedLevel=1`、进 L1；二次启动 `runs=2` 且续进 `unlockedLevel` 最远关 | 待执行 |
+| TC-SAVE-02 | §8-2 | 解锁落档 + 星级取 max | `[Node]` | 过第 n 关（n<`DEMO_LEVEL_COUNT`）→ `unlockedLevel=n+1` 落档且**重启保留**；`stars[n-1] = max(旧, 新)`，**历史最高星不被低星覆盖** | 待执行 |
+| TC-SAVE-03 | §8-3 | 篡改矩阵逐条复现 §2.4 | `[Node]` | 解析失败 → 出厂默认进 L1；`unlockedLevel=99` → 钳 8；`=0` → 钳 1；`stars` 长度 3 → 重置全 0；**全部不中断启动**（联合 TC-LOOP-10 / `core-loop §8-10`） | 待执行 |
+| TC-SAVE-04 | §8-4 | 高版本档前向兼容 | `[Node]` | 注入 `version=2` 档 → 可读字段保留、照常启动、**无异常抛出**（SaveManager 永不抛异常契约） | 待执行 |
+| TC-SAVE-05 | §8-5 | v1 → v1.1 升级读取 | `[Node]` | 旧 v1 档直接升级读取，`sprint`/`meta` 字段取默认值、**v1 字段值无损**；新档写 v1.1 完整字段 | 待执行 |
+| TC-SAVE-06 | §8-6 | `sprint.bestScore` 写入条件 | `[Node]` | 新分 > 旧最佳 → 写入 + S7 NEW BEST 显示；≤ → **不写**（联合 TC-SPRINT-11 / `score-combo §8-11`） | 待执行 |
+| TC-SAVE-07 | §8-7 | 连胜字段 | `[Node]` | 连续过关 3 次 → `winStreakCurrent=3`、`Best=3`；第 4 关失败 → `Current=0`、`Best` 仍 3 | ❌ **FAIL(BD-12)**（本轮已实测，见 §A.0） |
+| TC-SAVE-08 | §8-8 | 设置开关即档 + 双通道独立 | `[Node]` | 切换音乐/音效 → **即档**、重启回显一致；两通道互不影响（双 AudioScheduler，`architecture §2`） | 待执行（⚠️ **回显可断言，实际静音效果依赖 BD-05b**） |
+| TC-SAVE-09 | §8-9 | PLAYING 零写档 / 结算帧恰 1 次 | `[Node]` | ~~注入 200 次落子~~ → **v1.3 改：注入 ≤`GRID_MAX_COLS×GRID_MAX_ROWS` 的最大可构造量（156；本轮取 150、留 6 格避免通关）**，PLAYING 全程写档 **0** 次；结算帧写档**恰 1** 次。**改判依据 BD-24**（200 不可构造） | ⚠️ **PASS\***（本轮已实测） |
+| TC-SAVE-10 | §8-10 | 整关重置不写档 | `[Node]` | 五项重置（`timer-gameover §2.4`）**均未**触发写档（关内态不入档） | 待执行 |
+
+## H2 · 暂停与设置面板（S9）— 来源 `pause-settings.md §8.1..10`
+
+| ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
+|---|---|---|---|---|---|
+| TC-PAUSE-01 | §8-1 | 齿轮 → 暂停 + 遮罩门禁 | `[Node]` | PLAYING 点齿轮 → `game:paused` 恰 1 次、S1=PAUSED、面板可见、**遮罩覆盖棋盘与托盘**；PAUSED 中点遮罩/棋盘/托盘/道具卡**全部零响应**（联合 TC-INP-08） | 待执行 |
+| TC-PAUSE-02 | §8-2 | PAUSED 300s 冻结 | `[Node]` | 300s 后继续 → `remaining` 与暂停前一致（≤1 帧 dt）；首个供料**不早于「暂停剩余间隔 +1 帧」**（联合 TC-TIMER-05 / TC-TRAY-08） | 待执行 |
+| TC-PAUSE-03 | §8-3 | 重玩本关五项重置 + 无中转 | `[Node]` | 五项逐一断言（倒计时回满 / 图案清空 / 托盘清空 / 扩展重置 / 道具次数回 `POWERUP_FREE_USES`）；S1 **直接回 PLAYING、无 GAME_OVER 中转**。GDD 原注记：第五项在 S6 落地前为「待 S6」真空项、**不得发明伪状态充数** ⇒ S6 已落地（`powerups.test.ts`），本条**现可全断言** | 待执行 |
+| TC-PAUSE-04 | §8-4 | 音乐/音效开关即档 + 互不影响 | `[Node]` | 各切 2 次：`settings.*` 即档、重启回显一致；**关音乐仍有音效、反之亦然** | 待执行（`tests/pause-settings.test.ts` 已部分覆盖，需核对是否含「互不影响」断言） |
+| TC-PAUSE-05 | §8-5 | 齿轮热区 + 胶囊避让 | `[Node]` | 齿轮热区 **≥88×88** 且**不侵入** `CAPSULE_AVOID`；面板任何元素**不与胶囊重叠**（布局断言） | 待执行 |
+| TC-PAUSE-06 | §8-6 | 归零 vs 齿轮（**帧内序**基准） | `[Node]` | 基准 = **帧内序：输入（段内序 状态指令 → 玩法事件）→ 连击窗 → 供料 → 计时**。**同帧** → 暂停生效、本帧 dt 不再累计、恢复前不判负；**跨帧**（此前帧已借归零进 GAME_OVER）→ GAME_OVER 生效、无暂停（联合 §E 帧内序用例组） | 待执行 |
+| TC-PAUSE-07 | §8-7 | 非 PLAYING 五状态门禁 | `[Node]` | BOOT / LEVEL_CLEAR / GAME_OVER / FINISH / PAUSED 注入齿轮请求 → **零事件零状态变化** | 待执行 |
+| TC-PAUSE-08 | §8-8 | 重复暂停幂等 | `[Node]` | PAUSED 中注入 `game:paused` → S5 保存值不变、恢复后 `remaining` 正确（联合 TC-TIMER-09） | 待执行 |
+| TC-PAUSE-09 | §8-9 | sprint 暂停冻结连击窗 | `[Node]` | 连击窗口计时冻结，恢复后从暂停值续算、**不追溯断连**（联合 TC-SPRINT-10 / C8） | 待执行 |
+| TC-PAUSE-10 | §8-10 | 面板入/出动效帧检 | `[Node]` + `[Cocos]` | 面板**入 ≤200ms** / **出 ≤150ms**（权威 `ux-spec §5`）；红线 ≤3Hz 闪烁。**Node 侧**可断言 `progress` 时间轴（已由 §F F6 覆盖淡出期门禁）；**像素级帧检须 `[Cocos]`** | 待执行（F6 已覆盖逻辑半边） |
+
+## H3 · 失败续时（S5 v1.2 增补）— 来源 `timer-gameover.md §8-11/12` + `systems-index §3.11`
+
+| ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
+|---|---|---|---|---|---|
+| TC-TIMER-11 | §8-11 | 续时同局续打 | `[Node]` | 构造普通关 GAME_OVER（格已填若干、托盘非空）→ 注入 `onRewarded` → `remaining = REVIVE_BONUS_SEC`、`reviveBonusSec = REVIVE_BONUS_SEC`、`revived=true`、S1 回 PLAYING；**网格 `filled` 计数与托盘槽态与失败前逐一相等**（不走 §2.4 整关重置） | 待执行 |
+| TC-TIMER-12 | §8-12 | 次数上限与未看完 | `[Node]`（需替身注入） | 同尝试第二次续时指令**被忽略**、`remaining` 不增加（`REVIVE_MAX_PER_LEVEL`）；未看完 / 错误回调 → `remaining` 仍为 0、停在 GAME_OVER；**冲刺归零注入续时 → 零加时**（`systems-index §3.10` 末注「冲刺不续时」） | 待执行 |
+
+> **TC-TIMER-12 取证纪律（重要，防假绿）**：harness 当前装的是 `MockRewardedAdProvider('complete')` ⇒ **「看完」分支必然成功**，该路径**不可作为真机广告行为证据**；「未看完 / 错误回调」分支**必须靠替身注入**（构造 `onError` / 不回调），**不得因替身总是 complete 就把该分支标绿**。同理：**续时不能解 BD-06 死局**（`REVIVE_BONUS_SEC` 只加时间不清托盘），验 TC-PER-06 时勿把「续时成功」误读为「已修复」（`ux-spec §4` 尾注已明文警示）。
+
+---
+
+## 变更记录
+
+| 版本 | 日期 | 变更 | 作者 |
+|---|---|---|---|
+| v1.0 | 2026-09-11 | 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 | 严守真 |
+| v1.2 | 2026-09-12 | 增 §C 冲刺 11 条（WXG-T-028）+ 冲刺常量速查（`systems-index §3.10`） | 严守真 |
+| **v1.3** | **2026-09-14** | **WXG-T-084（GAP-14 / BD-14 根治）**：① **新增 §G 可感知性判据 20 条**（8 主条 TC-PER-01..08 + 12 取证细化 TC-PER-09..20），覆盖 GAP-01/02/03/04/05/06/10/11，每条标**取证手段**与**取证前置依赖**，并附 §G.3 gating 表；② **新增 §H 未映射判据补编 22 条**（TC-SAVE-01..10 / TC-PAUSE-01..10 / TC-TIMER-11..12）⇒ §8 判据映射率 71/93 → **93/93 = 100%**；③ **新增 §A.0 实测状态回填表**（本轮真正执行过的 16 行）+ 状态列改**四态**（废除「一律待实现」）；④ 图例扩展 `[Probe]` / `[Cocos]` 并标注 harness 污染与 Cocos 阻塞；⑤ **修 BD-21 四处**：头部「61 条」→ **93 条**、合计表补 §D/§E/§F 并重算为 **137 用例**、§F 标题「7 条」→ **8 条**；⑥ **承接 BD-25**：TC-LOOP-02 / TC-TRAY-01 期望由「15（±1）」显式改为 **16（±0）**（U7 首供语义）；⑦ **承接 BD-24**：TC-SAVE-09 「200 次落子」改为「≤`GRID_MAX_COLS×GRID_MAX_ROWS` 的最大可构造量」；⑧ §H3 补 **TC-TIMER-12 取证纪律**（`MockRewardedAdProvider('complete')` 不得作真机证据、续时不解 BD-06）。**判据全部引规格层冻结值，零自造。** | 严守真 |

@@ -104,6 +104,18 @@
       "reason": "beads 音频规格（wxgame-audio-spec 五件套：方向/事件表引用/BGM 结构/混音/实现策略）单体产出，连贯性优先；逐事件表已独立成 audio-events.md；已被 ctx 按章节锚点覆盖，读取走锚点不整读，单文件 8000 上限对此类规格仅兜底",
       "note": "若后续内容进一步膨胀（>12000 tok），应按五件套拆为多文件；当前 10410 tok 依 TASKS-DETAIL 先例豁免。登记人 = 主理人",
       "taskId": "WXG-T-083"
+    },
+    {
+      "path": "production/qa/beads/g4-regression-report.md",
+      "reason": "beads G4 首执行的逐探针回归报告（19 探针·一次性取证快照），与日记/回归日志同类：按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
+      "note": "与 memory 日记同口径；若后续多轮回归使本文件跨轮累积，应按运行批次拆分为 g4-regression-<date>.md。登记人 = 主理人",
+      "taskId": "WXG-T-084"
+    },
+    {
+      "path": "production/qa/beads/test-cases.md",
+      "reason": "beads QA 硬判据表（9 系统 A1–H3 + §G 可感知判据），逐系统×逐判据天然长；已被 ctx 按章节锚点覆盖、读取走 §A1..§H3/§G 局部读不整读；本会话由 WXG-T-084 补可感知判据后肨至 16163 tok",
+      "note": "收紧条件（与 TASKS-DETAIL 同口径）：本豁免为波次1 交付权宜放行；下次 QA 修订（WXG-T-084 复验轮）应将本文件按系统域拆为 test-cases-<域>.md 使单文件自然降回 8000 下，拆后撤销本豁免。不得靠豁免放任无界膨胀。登记人 = 主理人",
+      "taskId": "WXG-T-084"
     }
   ]
 }

@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2287,
-      "lines": 94,
-      "sha256": "c8090009c27028734f9194c696ccad8c69db21e693c2c0feb927a56d37cae1ba",
+      "tokens": 2351,
+      "lines": 96,
+      "sha256": "b2ca003d0810c92ccc9a963097ba23541a357688b6632ec0cfafe796d7f1cb48",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 95,
-          "tokens": 2274,
+          "endLine": 97,
+          "tokens": 2338,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,38 +237,38 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 453,
-          "summary": "1 games/beads/cocos/extensions/cocos-mcp-server/README.ru.md",
+          "tokens": 449,
+          "summary": "1 production/qa/beads/g4-regression-report.md 20846 449 norm",
           "keywords": [
             "Top",
             "tokens",
-            "games",
+            "production",
             "beads",
-            "cocos",
-            "extensions"
+            "regression",
+            "report"
           ]
         },
         {
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 69,
-          "tokens": 738,
-          "summary": "games/beads/cocos/extensions/cocos-mcp-server/README.ru.md 1",
+          "endLine": 71,
+          "tokens": 806,
+          "summary": "production/qa/beads/g4-regression-report.md 20846 见 ctx/budg",
           "keywords": [
             "tokens",
-            "games",
+            "production",
             "beads",
-            "cocos",
-            "extensions",
-            "mcp"
+            "regression",
+            "report",
+            "ctx"
           ]
         },
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 70,
-          "endLine": 95,
+          "startLine": 72,
+          "endLine": 97,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -475,17 +475,17 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3745,
-      "lines": 90,
-      "sha256": "4c665acee0604cfc78d6364d9d334cb5ca288f0997a842d7c35d5c41de7d19ae",
+      "tokens": 3737,
+      "lines": 86,
+      "sha256": "cf9c492279912c7fa277ad352cd628507e3add7cce4b61bfca8555478a726044",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§热门大文件行号速查（自动生成，勿手改；重建 `pnpm run ctx:build`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 91,
-          "tokens": 3717,
+          "endLine": 87,
+          "tokens": 3709,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -577,12 +577,12 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 197 行 / 7282 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 339 行 / 16163 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
-          "tokens": 383,
-          "summary": "§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+12 · §A 硬判据用例（50 条 = 5 ",
+          "tokens": 644,
+          "summary": "§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+13 · §A 硬判据用例（50 条 = 5 ",
           "keywords": [
             "production",
             "beads",
@@ -787,8 +787,8 @@
           "anchor": "§`games/breakout/design/concept.md` — 143 行 / 3110 tok / 实测读 217 次",
           "level": 2,
           "startLine": 82,
-          "endLine": 85,
-          "tokens": 259,
+          "endLine": 87,
+          "tokens": 313,
           "summary": "§《弹球打砖块》一页纸概念（Concept One-Pager）=1+144 · §1 一句话定位=11+4 · §2 ",
           "keywords": [
             "games/breakout/design/concept.md",
@@ -797,22 +797,6 @@
             "games",
             "breakout",
             "design"
-          ]
-        },
-        {
-          "anchor": "§`games/breakout/design/gdd/systems-index.md` — 232 行 / 4600 tok / 实测读 171 次",
-          "level": 2,
-          "startLine": 86,
-          "endLine": 91,
-          "tokens": 300,
-          "summary": "§系统清单与依赖索引（Systems Index）=1+233 · §1 系统清单=8+16 · §2 依赖排序（Dep",
-          "keywords": [
-            "§1",
-            "§2",
-            "games",
-            "breakout",
-            "design",
-            "gdd"
           ]
         }
       ]
@@ -42328,18 +42312,18 @@
     },
     {
       "path": "production/qa/beads/bug-severity.md",
-      "tokens": 1654,
-      "lines": 83,
-      "sha256": "2fe4ae5d0827cf0f60b355086f8ab669450a550557ba0dc33eea656a9c281f16",
+      "tokens": 5169,
+      "lines": 152,
+      "sha256": "281df8629783412488c840b1a7be31d00565dfe6b1c2f40f7b9908f366484426",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆填色消除》(beads) 缺陷分级定义 · Bug Severity",
           "level": 1,
           "startLine": 1,
-          "endLine": 84,
-          "tokens": 1633,
-          "summary": "任务号：WXG-T-011 ｜ 作者：严守真 ｜ 版本 v1.0 ｜ 日期 2026-09-11",
+          "endLine": 153,
+          "tokens": 5149,
+          "summary": "任务号：WXG-T-011 / WXG-T-084 ｜ 作者：严守真 ｜ 版本 v1.1 ｜ 日期 2026-09-14",
           "keywords": [
             "beads",
             "Bug",
@@ -42352,9 +42336,9 @@
         {
           "anchor": "§分级表",
           "level": 2,
-          "startLine": 6,
-          "endLine": 15,
-          "tokens": 168,
+          "startLine": 7,
+          "endLine": 18,
+          "tokens": 440,
           "summary": "P0 Blocker 主链路不可用 / 崩溃 / 进度数据损坏；事件驱动架构的关键事件漏发；玩法真源被破坏（filled",
           "keywords": [
             "Blocker",
@@ -42365,9 +42349,9 @@
         {
           "anchor": "§beads 专项判定细则（按系统）",
           "level": 2,
-          "startLine": 16,
-          "endLine": 67,
-          "tokens": 1107,
+          "startLine": 19,
+          "endLine": 96,
+          "tokens": 2584,
           "summary": "",
           "keywords": [
             "beads",
@@ -42378,8 +42362,8 @@
         {
           "anchor": "§S1/S5 状态与裁决",
           "level": 3,
-          "startLine": 18,
-          "endLine": 27,
+          "startLine": 21,
+          "endLine": 30,
           "tokens": 229,
           "summary": "level:cleared / level:failed 漏发或同帧误判 failed（cleared 未优先） P0 ",
           "keywords": [
@@ -42392,8 +42376,8 @@
         {
           "anchor": "§S3 网格（玩法真源）",
           "level": 3,
-          "startLine": 28,
-          "endLine": 38,
+          "startLine": 31,
+          "endLine": 41,
           "tokens": 252,
           "summary": "filled 格可被道具消除或回退 P0 bead-grid §8.6、§3.6（已填格=玩家进度，不可回退）",
           "keywords": [
@@ -42408,8 +42392,8 @@
         {
           "anchor": "§S4 托盘与供料",
           "level": 3,
-          "startLine": 39,
-          "endLine": 50,
+          "startLine": 42,
+          "endLine": 53,
           "tokens": 290,
           "summary": "满槽判负 / 满槽继续供料导致 13 颗 P0/P1（判负=P0 破坏 D7；继续供料=P1 破坏容量不变量） core",
           "keywords": [
@@ -42420,8 +42404,8 @@
         {
           "anchor": "§S2 输入",
           "level": 3,
-          "startLine": 51,
-          "endLine": 59,
+          "startLine": 54,
+          "endLine": 62,
           "tokens": 159,
           "summary": "面板打开时玩法区仍可点击（误落子/误道具） P1 input-control §2.3/§8.3（门禁短路）",
           "keywords": [
@@ -42435,8 +42419,8 @@
         {
           "anchor": "§可访问性（横切）",
           "level": 3,
-          "startLine": 60,
-          "endLine": 67,
+          "startLine": 63,
+          "endLine": 70,
           "tokens": 138,
           "summary": "wrong 描边闪 >2 次/秒 / 告急脉冲 >3Hz / 出现全屏白闪 P1 systems-index §3.8、",
           "keywords": [
@@ -42449,11 +42433,40 @@
           ]
         },
         {
+          "anchor": "§可感知层（横切，**v1.1 新增** —— GAP-14 / BD-14 定级依据来源）",
+          "level": 3,
+          "startLine": 71,
+          "endLine": 87,
+          "tokens": 1126,
+          "summary": "本节是本轮 BD-01..BD-06 / BD-10 / BD-11 定级的唯一依据。原则：「整类反馈不存在」与「反馈参",
+          "keywords": [
+            "GAP",
+            "可感知层",
+            "横切",
+            "新增",
+            "定级依据来源"
+          ]
+        },
+        {
+          "anchor": "§取证工具链（横切，**v1.1 新增**）",
+          "level": 3,
+          "startLine": 88,
+          "endLine": 96,
+          "tokens": 310,
+          "summary": "harness 坐标换算错位 ⇒ 浏览器点击全打飞（一整类用例结论不可信） P0（工具链） 定级理由：「主链路不可用」限",
+          "keywords": [
+            "harness",
+            "取证工具链",
+            "横切",
+            "新增"
+          ]
+        },
+        {
           "anchor": "§报告必附",
           "level": 2,
-          "startLine": 68,
-          "endLine": 74,
-          "tokens": 91,
+          "startLine": 97,
+          "endLine": 107,
+          "tokens": 253,
           "summary": "rngSeed（供料随机槽 / 随机消除均走 services.rng，控制清单 L4）；",
           "keywords": [
             "rngSeed",
@@ -42463,12 +42476,52 @@
           ]
         },
         {
-          "anchor": "§与本作风险登记的对应（`beads/test-plan.md §6`）",
+          "anchor": "§本轮缺陷登记汇总（BD-01..BD-26，WXG-T-084）",
           "level": 2,
-          "startLine": 75,
-          "endLine": 84,
-          "tokens": 140,
-          "summary": "R1 S6–S9 四份 GDD 缺失 文档缺口（非运行时 Bug）；G4 完整判定前挂起",
+          "startLine": 108,
+          "endLine": 131,
+          "tokens": 866,
+          "summary": "完整复现步骤 / 期望 vs 实际 / 证据摘要见 g4-regression-report.md §5.1–§5.2。",
+          "keywords": [
+            "§5.1",
+            "§5.2",
+            "WXG",
+            "regression",
+            "report",
+            "本轮缺陷登记"
+          ]
+        },
+        {
+          "anchor": "§级别分布",
+          "level": 3,
+          "startLine": 113,
+          "endLine": 123,
+          "tokens": 453,
+          "summary": "P0 8 BD-01（空槽无目标色）、BD-02（开局空托盘）、BD-03（引导零实现）、BD-04（四类 VFX 全缺",
+          "keywords": [
+            "VFX",
+            "级别分布"
+          ]
+        },
+        {
+          "anchor": "§待主理人确认的定级（3 项）",
+          "level": 3,
+          "startLine": 124,
+          "endLine": 131,
+          "tokens": 289,
+          "summary": "BD-04 P0 P3（动效毫秒偏差）/ P2（反馈噪声） 本项不是毫秒偏差而是整类反馈不存在：落子/拒绝是玩法的唯一即",
+          "keywords": [
+            "待主理人确认",
+            "的定级"
+          ]
+        },
+        {
+          "anchor": "§与本作风险登记的对应（`beads/test-plan.md §6`，**v1.1 更新**）",
+          "level": 2,
+          "startLine": 132,
+          "endLine": 146,
+          "tokens": 357,
+          "summary": "R1 ~~S6–S9 四份 GDD 缺失~~ 文档缺口 ✅ 已关",
           "keywords": [
             "beads/test-plan.md §6",
             "§6",
@@ -42477,23 +42530,502 @@
             "plan",
             "GDD"
           ]
+        },
+        {
+          "anchor": "§变更记录",
+          "level": 2,
+          "startLine": 147,
+          "endLine": 153,
+          "tokens": 340,
+          "summary": "v1.0 2026-09-11 初稿：P0–P4 分级表 + S1/S2/S3/S4/S5 与可访问性专项细则 + 报告",
+          "keywords": [
+            "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/g4-regression-report.md",
+      "tokens": 20846,
+      "lines": 449,
+      "sha256": "33279ac9f7ffd32be42c2f56cb1b6c11a5d4233ce70efcc50e687b03838af332",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§《拼豆填色消除》(beads) G4 硬判据回归报告 · 现状基线轮",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 450,
+          "tokens": 20822,
+          "summary": "任务号：WXG-T-084（P0，波次 1）｜ 作者：严守真（质量负责人）｜ 版本 v1.0 ｜ 日期 2026-09-",
+          "keywords": [
+            "beads",
+            "WXG",
+            "拼豆填色消除",
+            "硬判据回归报",
+            "现状基线轮"
+          ]
+        },
+        {
+          "anchor": "§1 结论与建议裁定",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 49,
+          "tokens": 781,
+          "summary": "",
+          "keywords": [
+            "结论与建议裁"
+          ]
+        },
+        {
+          "anchor": "§1.1 G4 建议裁定：**FAIL**",
+          "level": 3,
+          "startLine": 14,
+          "endLine": 28,
+          "tokens": 401,
+          "summary": "一句依据：19 组探针中 11 组 FAIL，其中 6 项 P0 级「玩家可感知」判据（BD-01/02/03/04/0",
+          "keywords": [
+            "FAIL",
+            "建议裁定"
+          ]
+        },
+        {
+          "anchor": "§1.2 分轮建议（呼应任务单「分两次」）",
+          "level": 3,
+          "startLine": 29,
+          "endLine": 37,
+          "tokens": 112,
+          "summary": "本轮 = 现状基线 G4 Node 层可断言项 + 表现层规格 vs 实现机械核对 FAIL（本文）",
+          "keywords": [
+            "Node",
+            "FAIL",
+            "分轮建议",
+            "呼应任务单",
+            "分两次"
+          ]
+        },
+        {
+          "anchor": "§1.3 未过 / 未测门一览",
+          "level": 3,
+          "startLine": 38,
+          "endLine": 49,
+          "tokens": 230,
+          "summary": "G1 静态门 ❌ FAIL pnpm run verify 第 8/13 项 framework:sync:check ",
+          "keywords": [
+            "FAIL",
+            "pnpm",
+            "run",
+            "verify",
+            "framework",
+            "sync"
+          ]
+        },
+        {
+          "anchor": "§2 本轮可执行测试范围（先声明范围，再给结论）",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 63,
+          "tokens": 521,
+          "summary": "[Node] vitest + 只读探针 ✅ 可执行 本报告 19 组探针全部走此道次",
+          "keywords": [
+            "Node",
+            "vitest",
+            "本轮可执行测",
+            "试范围",
+            "先声明范围",
+            "再给结论"
+          ]
+        },
+        {
+          "anchor": "§3 G1–G3 全量实跑证据（13 项 `pnpm run verify` 逐项）",
+          "level": 2,
+          "startLine": 64,
+          "endLine": 99,
+          "tokens": 907,
+          "summary": "原始日志：production/qa/beads/evidence/g1-g3-verify.log（verify 全量",
+          "keywords": [
+            "pnpm run verify",
+            "pnpm",
+            "run",
+            "verify",
+            "production",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§3.1 额外实跑（不在 verify 链内，任务单③点名）",
+          "level": 3,
+          "startLine": 86,
+          "endLine": 93,
+          "tokens": 226,
+          "summary": "build:cocos:web（beads） ❌ FAIL ✅ Cocos 工程存在 ✅ Main.scene 存在 ℹ",
+          "keywords": [
+            "verify",
+            "build",
+            "cocos",
+            "web",
+            "beads",
+            "FAIL"
+          ]
+        },
+        {
+          "anchor": "§3.2 漂移归属（只登记事实，不追责）",
+          "level": 3,
+          "startLine": 94,
+          "endLine": 99,
+          "tokens": 112,
+          "summary": "git status 干净、漂移已提交在 HEAD（T-077 之后的提交），源码时间戳新于 Cocos 拷贝件 ⇒ 属",
+          "keywords": [
+            "git",
+            "status",
+            "HEAD",
+            "Cocos",
+            "漂移归属",
+            "只登记事实"
+          ]
+        },
+        {
+          "anchor": "§4 G4 逐条用例结果（19 组探针）",
+          "level": 2,
+          "startLine": 100,
+          "endLine": 157,
+          "tokens": 4436,
+          "summary": "取证工具：production/qa/beads/g4-probe.mjs v3（只读探针，不改 src/、design",
+          "keywords": [
+            "production",
+            "beads",
+            "probe",
+            "mjs",
+            "src",
+            "design"
+          ]
+        },
+        {
+          "anchor": "§4.1 计数",
+          "level": 3,
+          "startLine": 129,
+          "endLine": 137,
+          "tokens": 122,
+          "summary": "❌ FAIL 11 P1 P2 P3 P4 P5 P6 P7 P8 P10 P17 P19",
+          "keywords": [
+            "FAIL",
+            "P10",
+            "P17",
+            "P19",
+            "计数"
+          ]
+        },
+        {
+          "anchor": "§4.2 本轮**未执行**的 G4 判据（禁止标绿，逐条写原因 + 解除条件）",
+          "level": 3,
+          "startLine": 138,
+          "endLine": 157,
+          "tokens": 658,
+          "summary": "TC-INP-09 多点触控（双指同帧仅第一触点） [Device] 微信开发者工具未装、无 AppID 装工具 + 申",
+          "keywords": [
+            "INP",
+            "Device",
+            "AppID",
+            "本轮",
+            "未执行",
+            "判据"
+          ]
+        },
+        {
+          "anchor": "§5 缺陷登记（BD-nn）",
+          "level": 2,
+          "startLine": 158,
+          "endLine": 201,
+          "tokens": 4498,
+          "summary": "分级依据：production/qa/beads/bug-severity.md（P0 主链路不可用/崩溃/进度损坏/关",
+          "keywords": [
+            "production",
+            "beads",
+            "bug",
+            "severity",
+            "缺陷登记"
+          ]
+        },
+        {
+          "anchor": "§5.1 与 14 项缺口一一对应（BD-01..BD-14）",
+          "level": 3,
+          "startLine": 163,
+          "endLine": 182,
+          "tokens": 2675,
+          "summary": "BD-01 GAP-01 空槽无目标色：拼图核心信息通道（哪格填什么色）完全缺失 P0 bug-severity「主链路",
+          "keywords": [
+            "GAP",
+            "bug",
+            "severity",
+            "项缺口一一对"
+          ]
+        },
+        {
+          "anchor": "§5.2 本轮独立发现（BD-15..BD-26）",
+          "level": 3,
+          "startLine": 183,
+          "endLine": 201,
+          "tokens": 1600,
+          "summary": "BD-15 input-control §8-1 五类路由缺第 3 类：扩展入口在 UI 层不存在（btn_expand",
+          "keywords": [
+            "§8",
+            "input",
+            "control",
+            "btn_expand",
+            "本轮独立发现"
+          ]
+        },
+        {
+          "anchor": "§6 GAP-09 假绿复核报告",
+          "level": 2,
+          "startLine": 202,
+          "endLine": 325,
+          "tokens": 4900,
+          "summary": "",
+          "keywords": [
+            "GAP",
+            "假绿复核报告"
+          ]
+        },
+        {
+          "anchor": "§6.1 逐条核对：`art/accessibility.md` 落地状态列 vs `src/**` 实现",
+          "level": 3,
+          "startLine": 204,
+          "endLine": 227,
+          "tokens": 1733,
+          "summary": "A1 珠子颜色三重编码（10 符号 + 明度 5 档） ✅ 落地 view/symbols.ts + view/bead",
+          "keywords": [
+            "art/accessibility.md",
+            "src/**",
+            "art",
+            "accessibility",
+            "src",
+            "view"
+          ]
+        },
+        {
+          "anchor": "§6.2 「文档标 ✅ / 🔶 但代码零命中」全清单（本轮结论）",
+          "level": 3,
+          "startLine": 228,
+          "endLine": 241,
+          "tokens": 320,
+          "summary": "5 项假绿 + 2 项须重标注：",
+          "keywords": [
+            "文档标",
+            "但代码零命中",
+            "全清单",
+            "本轮结论"
+          ]
+        },
+        {
+          "anchor": "§6.3 与 breakout 缺陷 D-01 的同款性比对",
+          "level": 3,
+          "startLine": 242,
+          "endLine": 268,
+          "tokens": 988,
+          "summary": "特性 「减弱动效」开关 「减弱动效」开关（D1）+「大字号」开关（E2） ✅ 同一特性",
+          "keywords": [
+            "breakout",
+            "缺陷",
+            "的同款性比对"
+          ]
+        },
+        {
+          "anchor": "§6.4 「为何第四次重犯」的流程性归因",
+          "level": 3,
+          "startLine": 269,
+          "endLine": 298,
+          "tokens": 1158,
+          "summary": "谱系（本轮独立核对，比任务单口径「第三次」多一轮——诚实登记）：",
+          "keywords": [
+            "为何第四次重",
+            "的流程性归因"
+          ]
+        },
+        {
+          "anchor": "§6.5 拟沉淀 `knowledge/lessons.md` 条目（正文草稿——**按硬约束不落盘，交主对话决定**）",
+          "level": 3,
+          "startLine": 299,
+          "endLine": 325,
+          "tokens": 586,
+          "summary": "",
+          "keywords": [
+            "knowledge/lessons.md",
+            "knowledge",
+            "lessons",
+            "拟沉淀",
+            "条目",
+            "正文草稿"
+          ]
+        },
+        {
+          "anchor": "§7 探针自身缺陷自查记录（**诚实登记：13 处**）",
+          "level": 2,
+          "startLine": 326,
+          "endLine": 349,
+          "tokens": 1077,
+          "summary": "方法论纪律：拿自己的 bug 当实现缺陷，与「假绿」同罪。本轮探针迭代 v1 → v2 → v3，共自查出 13 处探针",
+          "keywords": [
+            "bug",
+            "探针自身缺陷",
+            "自查记录",
+            "诚实登记"
+          ]
+        },
+        {
+          "anchor": "§8 判据冲突 / 不可构造清单（**移交策划裁定，QA 不自裁**）",
+          "level": 2,
+          "startLine": 350,
+          "endLine": 364,
+          "tokens": 386,
+          "summary": "1 input-control §8-2 vs §8-4 BEAD_PITCH < GRID_HIT_SIZE 时互斥 ",
+          "keywords": [
+            "§8",
+            "input",
+            "control",
+            "BEAD_PITCH",
+            "GRID_HIT_SIZE",
+            "判据冲突"
+          ]
+        },
+        {
+          "anchor": "§9 Playtest 计划可执行性评估（Deliverable ⑥）",
+          "level": 2,
+          "startLine": 365,
+          "endLine": 410,
+          "tokens": 1582,
+          "summary": "",
+          "keywords": [
+            "Playtest",
+            "Deliverable",
+            "计划可执行性",
+            "评估"
+          ]
+        },
+        {
+          "anchor": "§9.1 结论：**现有 `playtest-plan.md` 三轮全部不可执行**（GAP-05 + GAP-07 + GAP-13 未修前）",
+          "level": 3,
+          "startLine": 367,
+          "endLine": 376,
+          "tokens": 591,
+          "summary": "第 1 轮 FTUE 真机、4–6 名新玩家、只玩 L1–L2；判定线含「3 秒看懂 ≥80%」「首次落子 ≤15s」「",
+          "keywords": [
+            "playtest-plan.md",
+            "playtest",
+            "plan",
+            "GAP",
+            "FTUE",
+            "结论"
+          ]
+        },
+        {
+          "anchor": "§9.2 「最小可 Playtest 配置」前置清单（交主理人做 sequencing）",
+          "level": 3,
+          "startLine": 377,
+          "endLine": 410,
+          "tokens": 934,
+          "summary": "M0 · 硬性前置（缺一不可，否则 Playtest 数据无意义）",
+          "keywords": [
+            "Playtest",
+            "sequencing",
+            "最小可",
+            "配置",
+            "前置清单",
+            "交主理人做"
+          ]
+        },
+        {
+          "anchor": "§10 升 PASS 的剩余条件（复验 G4 前置）+ 对 T-082 的需求",
+          "level": 2,
+          "startLine": 411,
+          "endLine": 444,
+          "tokens": 1071,
+          "summary": "",
+          "keywords": [
+            "PASS",
+            "的剩余条件",
+            "复验",
+            "前置",
+            "的需求"
+          ]
+        },
+        {
+          "anchor": "§10.1 复验 G4 的前置（按门分组）",
+          "level": 3,
+          "startLine": 413,
+          "endLine": 422,
+          "tokens": 238,
+          "summary": "G1 pnpm run framework:sync 使 framework:sync:check 转绿；建议同时修 B",
+          "keywords": [
+            "pnpm",
+            "run",
+            "framework",
+            "sync",
+            "check",
+            "复验"
+          ]
+        },
+        {
+          "anchor": "§10.2 本 QA 向 **T-082（程基岩）** 需要的取证支持（避免重复劳动，主理人中转）",
+          "level": 3,
+          "startLine": 423,
+          "endLine": 433,
+          "tokens": 496,
+          "summary": "R1 执行 pnpm run framework:sync（写 4 个受版本控制拷贝件）并回报 build:cocos:",
+          "keywords": [
+            "pnpm",
+            "run",
+            "framework",
+            "sync",
+            "build",
+            "cocos"
+          ]
+        },
+        {
+          "anchor": "§10.3 开放项（需主理人裁定 / 中转）",
+          "level": 3,
+          "startLine": 434,
+          "endLine": 444,
+          "tokens": 272,
+          "summary": "1. §6.3 D1/E2 三文档冲突：甲/乙/丙择一 → 影响 T-085 是否需落 settings 字段、acce",
+          "keywords": [
+            "§6.3",
+            "settings",
+            "acce",
+            "开放项",
+            "需主理人裁定",
+            "中转"
+          ]
+        },
+        {
+          "anchor": "§11 变更记录",
+          "level": 2,
+          "startLine": 445,
+          "endLine": 450,
+          "tokens": 154,
+          "summary": "v1.0 2026-09-14 beads 首份 G4 回归报告（现状基线轮，WXG-T-084）：19 组探针逐条结论",
+          "keywords": [
+            "beads",
+            "WXG",
+            "变更记录"
+          ]
         }
       ]
     },
     {
       "path": "production/qa/beads/playtest-plan.md",
-      "tokens": 2148,
-      "lines": 116,
-      "sha256": "a5aa3e37507b92725b388d9529175768828fac6db8a23715e1f968c3fd6d7a8e",
+      "tokens": 5241,
+      "lines": 197,
+      "sha256": "1ffbf3bbe93049569190388556ebcd99841b127dc66ebd56619a9ba924f03030",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆填色消除》(beads) Playtest 计划 · Playtest Plan",
           "level": 1,
           "startLine": 1,
-          "endLine": 117,
-          "tokens": 2129,
-          "summary": "任务号：WXG-T-011 ｜ 作者：严守真 ｜ 版本 v1.0 ｜ 日期 2026-09-11",
+          "endLine": 198,
+          "tokens": 5222,
+          "summary": "任务号：WXG-T-011 / WXG-T-084 ｜ 作者：严守真 ｜ 版本 v1.1 ｜ 日期 2026-09-14",
           "keywords": [
             "beads",
             "Playtest",
@@ -42504,16 +43036,75 @@
           ]
         },
         {
-          "anchor": "§观察框架（三轮通用）",
+          "anchor": "§0 可执行性评估（v1.1 新增，WXG-T-084）",
           "level": 2,
-          "startLine": 7,
-          "endLine": 19,
-          "tokens": 231,
-          "summary": "心流（核心） 单关时长体感是否 ~5 分钟；紧张与治愈是否平衡 concept §6（~5min）、支柱 1",
+          "startLine": 9,
+          "endLine": 73,
+          "tokens": 2081,
+          "summary": "",
+          "keywords": [
+            "WXG",
+            "可执行性评估",
+            "新增"
+          ]
+        },
+        {
+          "anchor": "§0.1 结论：**三轮均不可执行**",
+          "level": 3,
+          "startLine": 11,
+          "endLine": 20,
+          "tokens": 610,
+          "summary": "任务单问题：「现有 Playtest 计划在 GAP-05（静音）+ GAP-07（点不中）+ GAP-13（只到 L5",
+          "keywords": [
+            "Playtest",
+            "GAP",
+            "结论",
+            "三轮均不可执"
+          ]
+        },
+        {
+          "anchor": "§0.2 BLOCKED 口径（**采纳并升级** `audio-spec §5`）",
+          "level": 3,
+          "startLine": 21,
+          "endLine": 34,
+          "tokens": 344,
+          "summary": "audio-spec §5 明文：「任何 Playtest 报告不得对『解压/治愈』下 PASS 结论，只能记 BLOC",
+          "keywords": [
+            "audio-spec §5",
+            "§5",
+            "BLOCKED",
+            "audio",
+            "spec",
+            "Playtest"
+          ]
+        },
+        {
+          "anchor": "§0.3 最小可 Playtest 配置（**交主理人做 sequencing**）",
+          "level": 3,
+          "startLine": 35,
+          "endLine": 73,
+          "tokens": 1075,
+          "summary": "M0 · 硬性前置（6 项，缺任一则三轮均不可执行）",
+          "keywords": [
+            "Playtest",
+            "sequencing",
+            "最小可",
+            "配置",
+            "交主理人做"
+          ]
+        },
+        {
+          "anchor": "§观察框架（三轮通用，**v1.1 补可执行性列**）",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 87,
+          "tokens": 428,
+          "summary": "心流（核心） 单关时长体感是否 ~5 分钟；紧张与治愈是否平衡 concept §6（~5min）、支柱 1 ⛔ BLO",
           "keywords": [
             "§6",
             "concept",
             "min",
+            "BLO",
             "观察框架",
             "三轮通用"
           ]
@@ -42521,8 +43112,8 @@
         {
           "anchor": "§第 1 轮 · 新玩家首次体验（FTUE）",
           "level": 2,
-          "startLine": 20,
-          "endLine": 36,
+          "startLine": 88,
+          "endLine": 104,
           "tokens": 313,
           "summary": "目标：验证支柱 1\"3 秒看懂 + 治愈节奏\"；观察教学零成本。",
           "keywords": [
@@ -42533,8 +43124,8 @@
         {
           "anchor": "§第 2 轮 · 心流与难度曲线（三旋钮）",
           "level": 2,
-          "startLine": 37,
-          "endLine": 55,
+          "startLine": 105,
+          "endLine": 123,
           "tokens": 435,
           "summary": "目标：验证时间×空间双张力是否落在心流区；托满焦虑是否过度。",
           "keywords": [
@@ -42545,8 +43136,8 @@
         {
           "anchor": "§第 3 轮 · 韧性 / 可访问性 / 中断恢复",
           "level": 2,
-          "startLine": 56,
-          "endLine": 77,
+          "startLine": 124,
+          "endLine": 145,
           "tokens": 391,
           "summary": "目标：验证 F1 暂停冻结、D1 减弱动效、三重编码、杀进程续进。",
           "keywords": [
@@ -42558,8 +43149,8 @@
         {
           "anchor": "§记录模板",
           "level": 2,
-          "startLine": 78,
-          "endLine": 95,
+          "startLine": 146,
+          "endLine": 163,
           "tokens": 227,
           "summary": "",
           "keywords": [
@@ -42569,8 +43160,8 @@
         {
           "anchor": "§判定线汇总",
           "level": 2,
-          "startLine": 96,
-          "endLine": 106,
+          "startLine": 164,
+          "endLine": 174,
           "tokens": 137,
           "summary": "全部达线 PASS 进发布流程",
           "keywords": [
@@ -42579,33 +43170,50 @@
           ]
         },
         {
-          "anchor": "§执行前提",
+          "anchor": "§执行前提（**v1.1 全量更新**）",
           "level": 2,
-          "startLine": 107,
-          "endLine": 117,
-          "tokens": 142,
-          "summary": "Cocos 编辑器 + 真机构建 ⛔ 未就绪",
+          "startLine": 175,
+          "endLine": 191,
+          "tokens": 475,
+          "summary": "Cocos 编辑器 ⛔ 未就绪 ⚠️ 已装 3.8.8、工程已建，但 build:cocos:web 被 BD-20 阻",
           "keywords": [
             "Cocos",
-            "执行前提"
+            "build",
+            "cocos",
+            "web",
+            "执行前提",
+            "全量更新"
+          ]
+        },
+        {
+          "anchor": "§变更记录",
+          "level": 2,
+          "startLine": 192,
+          "endLine": 198,
+          "tokens": 373,
+          "summary": "v1.0 2026-09-11 初稿：三轮 Playtest（FTUE / 心流与难度 / 韧性可访问性）+ 观察框架 ",
+          "keywords": [
+            "Playtest",
+            "FTUE",
+            "变更记录"
           ]
         }
       ]
     },
     {
       "path": "production/qa/beads/smoke-tests.md",
-      "tokens": 2255,
-      "lines": 94,
-      "sha256": "de6e461e702e77d948d111c2bb60a021861619da7e89f059694855798017abc9",
+      "tokens": 4800,
+      "lines": 132,
+      "sha256": "918c50d1c94af2e85c7fa382305a25c2f5ee68fe96426b34e0bac86b1271341c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆填色消除》(beads) 冒烟测试清单 · Smoke Test Suite",
           "level": 1,
           "startLine": 1,
-          "endLine": 95,
-          "tokens": 2234,
-          "summary": "任务号：WXG-T-011 / WXG-T-028 ｜ 作者：严守真 ｜ 版本 v1.1 ｜ 日期 2026-09-12",
+          "endLine": 133,
+          "tokens": 4778,
+          "summary": "任务号：WXG-T-011 / WXG-T-028 / WXG-T-084 ｜ 作者：严守真 ｜ 版本 v1.2 ｜ 日",
           "keywords": [
             "beads",
             "Smoke",
@@ -42616,10 +43224,25 @@
           ]
         },
         {
+          "anchor": "§0 本轮实跑结论汇总（v1.2 新增）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 37,
+          "tokens": 1892,
+          "summary": "SC-01 冷启动无菜单 Node 分流 + DevTools 画面 就绪待执行 ⚠️ 逻辑半边 ✅ / 画面半边 ⛔：",
+          "keywords": [
+            "Node",
+            "DevTools",
+            "本轮实跑结论",
+            "汇总",
+            "新增"
+          ]
+        },
+        {
           "anchor": "§冒烟主链路",
           "level": 2,
-          "startLine": 10,
-          "endLine": 54,
+          "startLine": 38,
+          "endLine": 82,
           "tokens": 1018,
           "summary": "",
           "keywords": [
@@ -42629,8 +43252,8 @@
         {
           "anchor": "§SC-01 冷启动（首次，无存档）`[Node]`（分流逻辑）/ `[DevTools]`（画面）",
           "level": 3,
-          "startLine": 12,
-          "endLine": 16,
+          "startLine": 40,
+          "endLine": 44,
           "tokens": 103,
           "summary": "步骤：清存档启动。",
           "keywords": [
@@ -42645,8 +43268,8 @@
         {
           "anchor": "§SC-02 供料心跳 `[Node]`",
           "level": 3,
-          "startLine": 17,
-          "endLine": 19,
+          "startLine": 45,
+          "endLine": 47,
           "tokens": 40,
           "summary": "预期：默认间隔下每 4.0s ±0.1s 入 1 颗随机空闲槽，tray:spawned 逐次广播（tray-spawn",
           "keywords": [
@@ -42661,8 +43284,8 @@
         {
           "anchor": "§SC-03 选珠 → 落子 → 拒绝（微循环闭环）`[Node]` / `[DevTools]`（动画）",
           "level": 3,
-          "startLine": 20,
-          "endLine": 23,
+          "startLine": 48,
+          "endLine": 51,
           "tokens": 92,
           "summary": "步骤：点托盘珠（选中）→ 点匹配空格 → 再点不匹配空格。",
           "keywords": [
@@ -42677,8 +43300,8 @@
         {
           "anchor": "§SC-04 暂停冻结（计时 + 供料）`[Node]` / `[DevTools]`（面板）",
           "level": 3,
-          "startLine": 24,
-          "endLine": 27,
+          "startLine": 52,
+          "endLine": 55,
           "tokens": 93,
           "summary": "预期：PAUSED 期间 remaining 不变、零供料（core-loop §8.7、tray-spawner §8",
           "keywords": [
@@ -42693,8 +43316,8 @@
         {
           "anchor": "§SC-05 满槽 → 清槽恢复 `[Node]`",
           "level": 3,
-          "startLine": 28,
-          "endLine": 30,
+          "startLine": 56,
+          "endLine": 58,
           "tokens": 57,
           "summary": "预期：12 槽满→跳过供料 + tray:full 恰 1 次，不判负（D7）；用\"区域消除\"清 6 槽后 ≤1 间隔恢",
           "keywords": [
@@ -42709,8 +43332,8 @@
         {
           "anchor": "§SC-06 道具三种 + 扩展占位 `[Node]` / `[DevTools]`（角标）",
           "level": 3,
-          "startLine": 31,
-          "endLine": 33,
+          "startLine": 59,
+          "endLine": 61,
           "tokens": 83,
           "summary": "预期：region 清连续 6 槽 / clearAll 清全槽 / random 清 5 颗，均仅作用托盘、power",
           "keywords": [
@@ -42725,8 +43348,8 @@
         {
           "anchor": "§SC-07 扩展行 `[Node]`",
           "level": 3,
-          "startLine": 34,
-          "endLine": 36,
+          "startLine": 62,
+          "endLine": 64,
           "tokens": 47,
           "summary": "预期：解锁后 12+12 槽；重开/换关重置为未扩展（A1）；满槽期间解锁不补发跳过的供料（tray-spawner §",
           "keywords": [
@@ -42740,8 +43363,8 @@
         {
           "anchor": "§SC-08 过关 LEVEL_CLEAR `[Node]` / `[DevTools]`（庆祝表现）",
           "level": 3,
-          "startLine": 37,
-          "endLine": 39,
+          "startLine": 65,
+          "endLine": 67,
           "tokens": 60,
           "summary": "预期：最后一格填满瞬间 → LEVEL_CLEAR（即使剩余 0.01s，cleared 优先）；下一关 1.2s 级自",
           "keywords": [
@@ -42756,8 +43379,8 @@
         {
           "anchor": "§SC-09 通关 FINISH `[Node]`",
           "level": 3,
-          "startLine": 40,
-          "endLine": 42,
+          "startLine": 68,
+          "endLine": 70,
           "tokens": 40,
           "summary": "预期：第 8 关通过 → FINISH 通关画面；「重玩第 1 关」→ 整关重置回第 1 关（core-loop §8.",
           "keywords": [
@@ -42772,8 +43395,8 @@
         {
           "anchor": "§SC-10 倒计时归零 GAME_OVER + 整关重置 `[Node]`",
           "level": 3,
-          "startLine": 43,
-          "endLine": 45,
+          "startLine": 71,
+          "endLine": 73,
           "tokens": 49,
           "summary": "预期：归零未满图 → GAME_OVER（温和提示，不红闪不屏震）；重试后五项重置逐一生效（timer-gameover",
           "keywords": [
@@ -42788,8 +43411,8 @@
         {
           "anchor": "§SC-11 杀进程重启续进 `[Device]`",
           "level": 3,
-          "startLine": 46,
-          "endLine": 48,
+          "startLine": 74,
+          "endLine": 76,
           "tokens": 44,
           "summary": "预期：L3 进行中杀进程 → 重启直接续进已解锁最远关，无菜单（core-loop §8.1、S8 判例沿用 break",
           "keywords": [
@@ -42804,8 +43427,8 @@
         {
           "anchor": "§SC-12 存档降级 `[Node]`",
           "level": 3,
-          "startLine": 49,
-          "endLine": 51,
+          "startLine": 77,
+          "endLine": 79,
           "tokens": 63,
           "summary": "预期：unlockedLevel=99/stars 非法/损坏 JSON → 降级进第 1 关，不崩溃、不中断（core",
           "keywords": [
@@ -42820,8 +43443,8 @@
         {
           "anchor": "§SC-13 后台切换 `[Device]`",
           "level": 3,
-          "startLine": 52,
-          "endLine": 54,
+          "startLine": 80,
+          "endLine": 82,
           "tokens": 39,
           "summary": "预期：onHide 自动暂停，onShow 停留 PAUSED 不自动继续（F1 冻结补偿，沿用 breakout 判例",
           "keywords": [
@@ -42836,8 +43459,8 @@
         {
           "anchor": "§冲刺模式冒烟段（v1.1 新增，WXG-T-028）",
           "level": 2,
-          "startLine": 55,
-          "endLine": 74,
+          "startLine": 83,
+          "endLine": 102,
           "tokens": 647,
           "summary": "",
           "keywords": [
@@ -42849,8 +43472,8 @@
         {
           "anchor": "§SC-SP-01 冲刺单局最短通关链路 `[Node]`（逻辑断言归 TC-SPRINT-01..11）/ `[Harness]`（人工操作）/ `[DevTools]`（帧检/特效）",
           "level": 3,
-          "startLine": 57,
-          "endLine": 74,
+          "startLine": 85,
+          "endLine": 102,
           "tokens": 601,
           "summary": "前置：清存档或预置已通关 1 关；DevTools 可用注入面板控制 mode 与计时。",
           "keywords": [
@@ -42863,34 +43486,48 @@
           ]
         },
         {
-          "anchor": "§冒烟汇总表",
+          "anchor": "§冒烟汇总表（v1.0 原表，**状态列已过期**——真实结果见上方 §0）",
           "level": 2,
-          "startLine": 75,
-          "endLine": 95,
-          "tokens": 335,
+          "startLine": 103,
+          "endLine": 125,
+          "tokens": 456,
           "summary": "SC-01 冷启动无菜单 Node 分流 + DevTools 画面 就绪待执行",
           "keywords": [
+            "§0",
             "Node",
             "DevTools",
-            "冒烟汇总表"
+            "冒烟汇总表",
+            "原表",
+            "状态列已过期"
+          ]
+        },
+        {
+          "anchor": "§变更记录",
+          "level": 2,
+          "startLine": 126,
+          "endLine": 133,
+          "tokens": 312,
+          "summary": "v1.0 2026-09-11 初稿：SC-01..SC-13 主链路冒烟 + 汇总表 严守真",
+          "keywords": [
+            "变更记录"
           ]
         }
       ]
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 7282,
-      "lines": 197,
-      "sha256": "9d01fe773f08a53a4e398dd22272f3af997a302bfeb9814421c48b567946142b",
+      "tokens": 16163,
+      "lines": 339,
+      "sha256": "b966e3eb57ba857ab7f9930db095a2420674e16bf975a2965aaea504809954ce",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§《拼豆填色消除》(beads) 测试用例 · Test Cases",
           "level": 1,
           "startLine": 1,
-          "endLine": 12,
-          "tokens": 502,
-          "summary": "任务号：WXG-T-011 / WXG-T-028 ｜ 作者：严守真 ｜ 版本 v1.2 ｜ 日期 2026-09-12",
+          "endLine": 13,
+          "tokens": 924,
+          "summary": "任务号：WXG-T-011 / WXG-T-028 / WXG-T-084 ｜ 作者：严守真 ｜ 版本 v1.3 ｜ 日",
           "keywords": [
             "beads",
             "Test",
@@ -42903,9 +43540,9 @@
         {
           "anchor": "§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）",
           "level": 1,
-          "startLine": 13,
-          "endLine": 91,
-          "tokens": 2507,
+          "startLine": 14,
+          "endLine": 115,
+          "tokens": 3473,
           "summary": "",
           "keywords": [
             "硬判据用例",
@@ -42914,11 +43551,25 @@
           ]
         },
         {
+          "anchor": "§A.0 本轮（WXG-T-084）实测状态回填表",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 38,
+          "tokens": 768,
+          "summary": "只回填本轮真正执行过的行；未列出者一律为 待执行，不得读作 PASS。",
+          "keywords": [
+            "WXG",
+            "PASS",
+            "本轮",
+            "实测状态回填"
+          ]
+        },
+        {
           "anchor": "§A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`",
           "level": 2,
-          "startLine": 15,
-          "endLine": 29,
-          "tokens": 526,
+          "startLine": 39,
+          "endLine": 53,
+          "tokens": 612,
           "summary": "TC-LOOP-01 §8.1 冷启动分流 [Node] 无存档→第 1 关 PLAYING，无主菜单；有存档→续进已解",
           "keywords": [
             "core-loop.md §8.1..10",
@@ -42932,8 +43583,8 @@
         {
           "anchor": "§A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10`",
           "level": 2,
-          "startLine": 30,
-          "endLine": 44,
+          "startLine": 54,
+          "endLine": 68,
           "tokens": 480,
           "summary": "TC-GRID-01 §8.1 装配不变量 [Node] empty+locked === cols×rows，且 ≥1",
           "keywords": [
@@ -42948,10 +43599,10 @@
         {
           "anchor": "§A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`",
           "level": 2,
-          "startLine": 45,
-          "endLine": 59,
-          "tokens": 450,
-          "summary": "TC-TRAY-01 §8.1 供料间隔 [Node] 默认下 60s tray:spawned 恰 15 次（±1），",
+          "startLine": 69,
+          "endLine": 83,
+          "tokens": 548,
+          "summary": "TC-TRAY-01 §8.1 供料间隔 [Node] ~~默认下 60s tray:spawned 恰 15 次（±1",
           "keywords": [
             "tray-spawner.md §8.1..10",
             "§8.1",
@@ -42964,8 +43615,8 @@
         {
           "anchor": "§A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`",
           "level": 2,
-          "startLine": 60,
-          "endLine": 74,
+          "startLine": 84,
+          "endLine": 98,
           "tokens": 449,
           "summary": "TC-INP-01 §8.1 五类路由 [Node] 暂停→S9；道具卡→S6；扩展→S4；托盘珠→tray:selec",
           "keywords": [
@@ -42980,8 +43631,8 @@
         {
           "anchor": "§A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`",
           "level": 2,
-          "startLine": 75,
-          "endLine": 91,
+          "startLine": 99,
+          "endLine": 115,
           "tokens": 502,
           "summary": "TC-TIMER-01 §8.1 计时精度 [Node] 从 LEVEL_TIME_DEFAULT 递减；60s 实测误",
           "keywords": [
@@ -42996,8 +43647,8 @@
         {
           "anchor": "§B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）",
           "level": 1,
-          "startLine": 92,
-          "endLine": 110,
+          "startLine": 116,
+          "endLine": 134,
           "tokens": 554,
           "summary": "TC-CONST-01 扩展槽规格 [Node] 扩展容量 = TRAY_EXPAND_SLOTS(12)，虚线→实线；",
           "keywords": [
@@ -43012,9 +43663,9 @@
         {
           "anchor": "§C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）",
           "level": 1,
-          "startLine": 111,
-          "endLine": 149,
-          "tokens": 1705,
+          "startLine": 135,
+          "endLine": 180,
+          "tokens": 1952,
           "summary": "事件 payload 以 systems-index §4 登记定稿为准（combo:up {streak, multi",
           "keywords": [
             "score-combo.md §8.1..11",
@@ -43028,8 +43679,8 @@
         {
           "anchor": "§D 道具系统判据用例（10 条 = 判据 1:1）— 来源 `powerups.md §8.1..10`（WXG-T-060 落码；实现与自动化见 `games/beads/tests/powerups.test.ts`）",
           "level": 1,
-          "startLine": 150,
-          "endLine": 168,
+          "startLine": 181,
+          "endLine": 199,
           "tokens": 701,
           "summary": "D1 region 窗口恒长与集合正确 S6§8-1 无选中、8 颗持有 → affectedSlots = [0..5",
           "keywords": [
@@ -43044,8 +43695,8 @@
         {
           "anchor": "§E 帧内执行序用例（4 条；基准条款，无独立 §8 编号）— 来源 `core-loop.md §2.2.2`（WXG-T-061 换基准；自动化见 `games/beads/tests/frame-order.test.ts`）",
           "level": 1,
-          "startLine": 169,
-          "endLine": 183,
+          "startLine": 200,
+          "endLine": 214,
           "tokens": 544,
           "summary": "背景：原 core-loop §6 / tray-spawner §6 / powerups §6 / score-co",
           "keywords": [
@@ -43058,11 +43709,11 @@
           ]
         },
         {
-          "anchor": "§F 结算·过关面板用例（7 条；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`",
+          "anchor": "§F 结算·过关面板用例（**8 条**，v1.3 修正标题计数（v1.2 写「7 条」而表内 8 行，BD-21③）；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`",
           "level": 1,
-          "startLine": 184,
-          "endLine": 198,
-          "tokens": 509,
+          "startLine": 215,
+          "endLine": 231,
+          "tokens": 510,
           "summary": "背景：ux-spec §4 流转表要求 LEVEL_CLEAR 等按钮（下一关 / 去冲刺 U1），而实现曾是「1.4s",
           "keywords": [
             "ux-spec §3.4 / §4 / §5",
@@ -43072,23 +43723,174 @@
             "§8",
             "spec"
           ]
+        },
+        {
+          "anchor": "§G 可感知性判据（20 条，v1.3 新增）—— **GAP-14 / BD-14 根治项**",
+          "level": 1,
+          "startLine": 232,
+          "endLine": 287,
+          "tokens": 4626,
+          "summary": "",
+          "keywords": [
+            "GAP",
+            "可感知性判据",
+            "新增",
+            "根治项"
+          ]
+        },
+        {
+          "anchor": "§G.0 为何需要 §G + 判据谱系声明",
+          "level": 2,
+          "startLine": 234,
+          "endLine": 241,
+          "tokens": 443,
+          "summary": "根因：§A–§F 共 95 条用例、映射 71 条 §8 判据，全为「逻辑可断言型」（事件计数 / 状态机 / 公式复算",
+          "keywords": [
+            "§8",
+            "为何需要",
+            "判据谱系声明"
+          ]
+        },
+        {
+          "anchor": "§G.1 主判据（8 条，1:1 对应 `g4-regression-report.md` 探针 P1–P7 / P19）",
+          "level": 2,
+          "startLine": 242,
+          "endLine": 254,
+          "tokens": 2430,
+          "summary": "TC-PER-01 GAP-01 / BD-01 空槽可辨识目标色：每个 empty 格须呈现「该格应填颜色」的淡化色底",
+          "keywords": [
+            "g4-regression-report.md",
+            "regression",
+            "report",
+            "P19",
+            "PER",
+            "GAP"
+          ]
+        },
+        {
+          "anchor": "§G.2 取证细化子条（12 条）",
+          "level": 2,
+          "startLine": 255,
+          "endLine": 271,
+          "tokens": 1318,
+          "summary": "TC-PER-09 VFX-1 落座回弹：scale 1.06 → 1.0 / 120ms ux-spec §5 vfx",
+          "keywords": [
+            "§5",
+            "PER",
+            "VFX",
+            "scale",
+            "spec",
+            "vfx"
+          ]
+        },
+        {
+          "anchor": "§G.3 取证前置依赖汇总（gating，交主理人做 sequencing）",
+          "level": 2,
+          "startLine": 272,
+          "endLine": 287,
+          "tokens": 363,
+          "summary": "R1 pnpm run framework:sync → G1 转绿 → build:cocos:web 通过 全部 [",
+          "keywords": [
+            "gating",
+            "sequencing",
+            "pnpm",
+            "run",
+            "framework",
+            "sync"
+          ]
+        },
+        {
+          "anchor": "§H 未映射判据补编（22 条，v1.3 新增）—— **BD-21① 修复项**",
+          "level": 1,
+          "startLine": 288,
+          "endLine": 340,
+          "tokens": 2545,
+          "summary": "背景：9 份 GDD §8 共 93 条，v1.2 只映射 71 条 ⇒ 22 条零映射（save-progress §",
+          "keywords": [
+            "§8",
+            "GDD",
+            "save",
+            "progress",
+            "未映射判据补",
+            "新增"
+          ]
+        },
+        {
+          "anchor": "§H1 · 存档与进度（S8）— 来源 `save-progress.md §8.1..10`",
+          "level": 2,
+          "startLine": 292,
+          "endLine": 306,
+          "tokens": 700,
+          "summary": "TC-SAVE-01 §8-1 首启/二启 runs 与续进 [Node] 无存档 → runs=1、unlockedL",
+          "keywords": [
+            "save-progress.md §8.1..10",
+            "§8.1",
+            "§8",
+            "save",
+            "progress",
+            "SAVE"
+          ]
+        },
+        {
+          "anchor": "§H2 · 暂停与设置面板（S9）— 来源 `pause-settings.md §8.1..10`",
+          "level": 2,
+          "startLine": 307,
+          "endLine": 321,
+          "tokens": 830,
+          "summary": "TC-PAUSE-01 §8-1 齿轮 → 暂停 + 遮罩门禁 [Node] PLAYING 点齿轮 → game:pa",
+          "keywords": [
+            "pause-settings.md §8.1..10",
+            "§8.1",
+            "§8",
+            "pause",
+            "settings",
+            "PAUSE"
+          ]
+        },
+        {
+          "anchor": "§H3 · 失败续时（S5 v1.2 增补）— 来源 `timer-gameover.md §8-11/12` + `systems-index §3.11`",
+          "level": 2,
+          "startLine": 322,
+          "endLine": 332,
+          "tokens": 417,
+          "summary": "TC-TIMER-11 §8-11 续时同局续打 [Node] 构造普通关 GAME_OVER（格已填若干、托盘非空）→",
+          "keywords": [
+            "timer-gameover.md §8-11/12",
+            "systems-index §3.11",
+            "§8",
+            "§3.11",
+            "timer",
+            "gameover"
+          ]
+        },
+        {
+          "anchor": "§变更记录",
+          "level": 2,
+          "startLine": 333,
+          "endLine": 340,
+          "tokens": 453,
+          "summary": "v1.0 2026-09-11 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 严",
+          "keywords": [
+            "§8",
+            "变更记录"
+          ]
         }
       ]
     },
     {
       "path": "production/qa/beads/test-plan.md",
-      "tokens": 2262,
-      "lines": 89,
-      "sha256": "c253ca2dcb52e81d0a8594765b0925aed448892b619bead7a4eac6b4fca25ccd",
+      "tokens": 4699,
+      "lines": 114,
+      "sha256": "11d497214223b98ec051b6a9354f940b43595fe7ca23c87d88f33ee66ef530f3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆填色消除》(beads) 测试计划 · Test Plan",
           "level": 1,
           "startLine": 1,
-          "endLine": 90,
-          "tokens": 2244,
-          "summary": "项目：games/beads（第二款）｜ 任务号：WXG-T-011（P1）｜ 作者：严守真",
+          "endLine": 115,
+          "tokens": 4681,
+          "summary": "项目：games/beads（第二款）｜ 任务号：WXG-T-011（P1）/ WXG-T-084（P0）｜ 作者：严守",
           "keywords": [
             "beads",
             "Test",
@@ -43099,54 +43901,56 @@
           ]
         },
         {
-          "anchor": "§0 本轮环境事实",
+          "anchor": "§0 本轮环境事实（v1.1 全量更新）",
           "level": 2,
-          "startLine": 7,
-          "endLine": 16,
-          "tokens": 275,
-          "summary": "Node + vitest ✅ 可用（框架 @wxgame/framework 已就绪，31 文件 379 用例全绿判例",
+          "startLine": 8,
+          "endLine": 22,
+          "tokens": 630,
+          "summary": "Node + vitest ✅ 可用 beads 20 文件 / 184 用例全绿（1.40–2.15s）；breako",
           "keywords": [
             "Node",
             "vitest",
-            "wxgame",
-            "framework",
-            "本轮环境事实"
+            "beads",
+            "breako",
+            "本轮环境事实",
+            "全量更新"
           ]
         },
         {
-          "anchor": "§1 测试目标与质量门（G1–G4 在 beads 的适用口径）",
+          "anchor": "§1 测试目标与质量门（G1–G4 在 beads 的适用口径 + **v1.1 实跑结果**）",
           "level": 2,
-          "startLine": 17,
-          "endLine": 28,
-          "tokens": 305,
-          "summary": "G1 静态门 tsc 零错 + check-architecture NOT-RUN（无 src）；解除条件：beads",
+          "startLine": 23,
+          "endLine": 36,
+          "tokens": 581,
+          "summary": "G1 静态门 tsc 零错 + check-architecture pnpm run verify 13 项逐项 ❌ ",
           "keywords": [
             "beads",
             "tsc",
             "check",
             "architecture",
-            "NOT",
-            "RUN"
+            "pnpm",
+            "run"
           ]
         },
         {
-          "anchor": "§2 测试分层",
+          "anchor": "§2 测试分层（v1.1 扩展）",
           "level": 2,
-          "startLine": 29,
-          "endLine": 37,
-          "tokens": 176,
+          "startLine": 37,
+          "endLine": 47,
+          "tokens": 332,
           "summary": "L1 单元 [Node] S3 落子裁决/格子状态机、S4 供料节律/加权/满槽、S5 计时/告急/冻结、S1 状态机合",
           "keywords": [
             "Node",
-            "测试分层"
+            "测试分层",
+            "扩展"
           ]
         },
         {
           "anchor": "§3 测试范围",
           "level": 2,
-          "startLine": 38,
-          "endLine": 43,
-          "tokens": 174,
+          "startLine": 48,
+          "endLine": 53,
+          "tokens": 229,
           "summary": "In（MVP 验收线，来源 concept.md §7）：8 关；图案矩阵填色；托盘 12 槽+供料；倒计时+告急；3 ",
           "keywords": [
             "§7",
@@ -43158,10 +43962,10 @@
         {
           "anchor": "§4 入口 / 退出条件",
           "level": 2,
-          "startLine": 44,
-          "endLine": 49,
-          "tokens": 111,
-          "summary": "入口：GDD §8 判据就绪（✅ 已满足，50 条）；实现落地（⛔ 当前不满足 → 本轮为\"判据先行\"轮）。",
+          "startLine": 54,
+          "endLine": 60,
+          "tokens": 264,
+          "summary": "入口：GDD §8 判据就绪（✅ v1.1：93 条全部就绪且 100% 映射）；实现落地（✅ v1.1：已满足）⇒ 本",
           "keywords": [
             "§8",
             "GDD",
@@ -43172,8 +43976,8 @@
         {
           "anchor": "§5 机型与基础库矩阵",
           "level": 2,
-          "startLine": 50,
-          "endLine": 55,
+          "startLine": 61,
+          "endLine": 66,
           "tokens": 112,
           "summary": "沿用 ../test-plan.md §5 全部维度；beads 追加两条：",
           "keywords": [
@@ -43186,39 +43990,41 @@
           ]
         },
         {
-          "anchor": "§6 ⚠️ 风险登记（风险驱动优先级）",
+          "anchor": "§6 ⚠️ 风险登记（风险驱动优先级，**v1.1 全量重算**）",
           "level": 2,
-          "startLine": 56,
-          "endLine": 73,
-          "tokens": 605,
-          "summary": "R1 S6/S7/S8/S9 四份 GDD 未写（systems-index §1 标\"待写\"） systems-ind",
+          "startLine": 67,
+          "endLine": 91,
+          "tokens": 1402,
+          "summary": "R1 ~~S6/S7/S8/S9 四份 GDD 未写~~ — — ✅ 已关（powerups / score-combo",
           "keywords": [
-            "§1",
             "GDD",
-            "systems",
-            "index",
-            "ind",
-            "风险登记"
+            "powerups",
+            "score",
+            "combo",
+            "风险登记",
+            "风险驱动优先"
           ]
         },
         {
-          "anchor": "§6.1 优先级排序",
+          "anchor": "§6.1 优先级排序（v1.1 重排：**可感知层升至首位**）",
           "level": 3,
-          "startLine": 66,
-          "endLine": 73,
-          "tokens": 174,
-          "summary": "1. P0 · 落子裁决与格子状态机（S3 §8 全 10 条）：玩法真源，filled 终态不可回退是进度资产。",
+          "startLine": 82,
+          "endLine": 91,
+          "tokens": 337,
+          "summary": "1. P0 · 可感知层六项（§G TC-PER-01..07，= BD-01/02/03/04/05/06/10）：本",
           "keywords": [
-            "§8",
-            "filled",
-            "优先级排序"
+            "PER",
+            "优先级排序",
+            "重排",
+            "可感知层升至",
+            "首位"
           ]
         },
         {
           "anchor": "§7 证据留存要求",
           "level": 2,
-          "startLine": 74,
-          "endLine": 80,
+          "startLine": 92,
+          "endLine": 98,
           "tokens": 104,
           "summary": "沿用 ../test-plan.md §7；beads 追加：",
           "keywords": [
@@ -43230,27 +44036,27 @@
           ]
         },
         {
-          "anchor": "§8 本轮可执行 / 需真机 占比",
+          "anchor": "§8 本轮可执行 / 需真机 占比（v1.1 重算）",
           "level": 2,
-          "startLine": 81,
-          "endLine": 84,
-          "tokens": 117,
-          "summary": "明细见 beads/test-cases.md 统计。汇总：判据 50 条（§A）+ 派生 12 条（§B）= 62 条",
+          "startLine": 99,
+          "endLine": 108,
+          "tokens": 300,
+          "summary": "明细见 beads/test-cases.md v1.3 合计表。汇总：§8 判据 93 条（100% 映射） ⇒ 用例",
           "keywords": [
+            "§8",
             "beads",
             "test",
             "cases",
             "本轮可执行",
-            "需真机",
-            "占比"
+            "需真机"
           ]
         },
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 85,
-          "endLine": 90,
-          "tokens": 59,
+          "startLine": 109,
+          "endLine": 115,
+          "tokens": 366,
           "summary": "v1.0 2026-09-11 初稿：判据先行轮（S1–S5 共 50 条 §8 判据全覆盖 + 派生 12 条）；R1",
           "keywords": [
             "§8",

@@ -5,7 +5,7 @@
 > 行内格式：`锚点=offset+limit`（`limit` 已算好）；` · ` 分隔小节。
 > 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`（全量，机器读更划算）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。
 
-> 体积预算 ≤ 4000 估算 tokens（当前 20 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
+> 体积预算 ≤ 4000 估算 tokens（当前 19 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
 
 ## `docs/architecture/architecture-beads.md` — 191 行 / 4357 tok / 实测读 35 次
 
@@ -27,9 +27,9 @@
 
 §WXG 任务台账（SSOT）=1+40 · §待排（backlog，无号，立项时领取）=26+15
 
-## `production/qa/beads/test-cases.md` — 197 行 / 7282 tok / 实测读 15 次
+## `production/qa/beads/test-cases.md` — 339 行 / 16163 tok / 实测读 15 次
 
-§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+12 · §A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）=13+79 · §A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`=15+15 · §A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10`=30+15 · §A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`=45+15 · §A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`=60+15 · §A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`=75+17 · §B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）=92+19 · §C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）=111+39 · §D 道具系统判据用例（10 条 = 判据 1:1）— 来源 `powerups.md §8.1..10`（WXG-T-060 落码；实现与自动化见 `games/beads/tests/powerups.test.ts`）=150+19 · §E 帧内执行序用例（4 条；基准条款，无独立 §8 编号）— 来源 `core-loop.md §2.2.2`（WXG-T-061 换基准；自动化见 `games/beads/tests/frame-order.test.ts`）=169+15 · §F 结算·过关面板用例（7 条；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`=184+15
+§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+13 · §A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）=14+102 · §A.0 本轮（WXG-T-084）实测状态回填表=16+23 · §A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`=39+15 · §A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10`=54+15 · §A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`=69+15 · §A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`=84+15 · §A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`=99+17 · §B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）=116+19 · §C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）=135+46 · §D 道具系统判据用例（10 条 = 判据 1:1）— 来源 `powerups.md §8.1..10`（WXG-T-060 落码；实现与自动化见 `games/beads/tests/powerups.test.ts`）=181+19 · §E 帧内执行序用例（4 条；基准条款，无独立 §8 编号）— 来源 `core-loop.md §2.2.2`（WXG-T-061 换基准；自动化见 `games/beads/tests/frame-order.test.ts`）=200+15 · §F 结算·过关面板用例（**8 条**，v1.3 修正标题计数（v1.2 写「7 条」而表内 8 行，BD-21③）；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`=215+17 · §G 可感知性判据（20 条，v1.3 新增）—— **GAP-14 / BD-14 根治项**=232+56 · §G.0 为何需要 §G + 判据谱系声明=234+8 · §G.1 主判据（8 条，1:1 对应 `g4-regression-report.md` 探针 P1–P7 / P19）=242+13 · §G.2 取证细化子条（12 条）=255+17 · §G.3 取证前置依赖汇总（gating，交主理人做 sequencing）=272+16 · §H 未映射判据补编（22 条，v1.3 新增）—— **BD-21① 修复项**=288+53 · §H1 · 存档与进度（S8）— 来源 `save-progress.md §8.1..10`=292+15 · §H2 · 暂停与设置面板（S9）— 来源 `pause-settings.md §8.1..10`=307+15 · §H3 · 失败续时（S5 v1.2 增补）— 来源 `timer-gameover.md §8-11/12` + `systems-index §3.11`=322+11 · §变更记录=333+8
 
 ## `my-skills/INDEX.md` — 78 行 / 1701 tok / 实测读 61 次
 
@@ -83,8 +83,4 @@
 
 §《弹球打砖块》一页纸概念（Concept One-Pager）=1+144 · §1 一句话定位=11+4 · §2 为什么是它（Demo 验证价值）=15+16 · §3 设计支柱（Design Pillars）=31+8 · §4 MDA 分析（Mechanics → Dynamics → Aesthetics）=39+23 · §Mechanics（机制 · 系统做了什么）=41+7 · §Dynamics（动态 · 玩家实际产生的行为）=48+6 · §Aesthetics（美学 · 玩家获得的情感）=54+8 · §5 目标玩家（Bartle 类型）=62+8 · §6 心流与难度曲线思路=70+14 · §7 范围分层（Scope Layering）=84+34 · §MVP（必须，Demo 验收线）=86+12 · §应有（Should，时间允许则做）=98+6 · §可选（Could，锦上添花）=104+3 · §明确砍掉（Won't · 本期不做，附理由）=107+11 · §8 视觉锚点（一句话）=118+6 · §9 决策记录（已裁定）=124+15 · §10 下一步=139+6
 
-## `games/breakout/design/gdd/systems-index.md` — 232 行 / 4600 tok / 实测读 171 次
-
-§系统清单与依赖索引（Systems Index）=1+233 · §1 系统清单=8+16 · §2 依赖排序（Dependency Order）=24+28 · §3 全局数值基线（Global Constants）· ❄️ 冻结令=52+140 · §3.1 画布、坐标与安全区=64+16 · §3.2 场地（Playfield）=80+9 · §3.3 砖块网格（Brick Grid）=89+19 · §3.4 挡板与球=108+14 · §3.5 通用规则量=122+11 · §3.6 道具规格（定义 6 / 实装 3）=133+13 · §3.7 可访问性（承诺等级 Standard）=146+13 · §3.8 包体预算（⚠️ 区分「平台红线」与「内部目标」，勿混用）=159+20 · §3.9 砖块分值表（**权威**；代码若不符以此为准）=179+13 · §4 事件总线约定（供程序落码参考）=192+18 · §5 与框架层的接口假设（待程基岩确认）=210+13 · §6 变更记录=223+11
-
-> 另有 111 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。
+> 另有 115 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。
