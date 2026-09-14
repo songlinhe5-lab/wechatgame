@@ -76,13 +76,20 @@ pnpm run framework:sync:check
 - **规则**：拷贝件只能由脚本生成，**禁止手工编辑**；改动框架/游戏源码后必须重跑同步。
 - **改写**：拷贝时脚本把游戏源码里的裸包名 `'@wxgame/framework'` 改写为指向
   `framework/` 拷贝目录的相对路径（按文件深度计算）；框架拷贝件与源码逐字节一致。
-- **`.js` 后缀裁决**：**原样保留**（ESM 风格）。已实测 TS 5.6 在
-  `moduleResolution: "node"`（即编辑器 `temp/tsconfig.cocos.json` 的取值）下能
-  解析 `.js` → `.ts` 映射，且 `cocos/tsconfig.check.json` 的 `tsc --noEmit`
-  全量通过。**仍待验证**：Cocos 自有构建管线（编辑器内编译 / 微信小游戏构建）
-  是否同样解析——用户首次在编辑器里编译时观察控制台；若不认，脚本备有
-  `--strip-suffix` 开关可产出无后缀拷贝件（不影响 Node 侧测试，测试始终读
-  原始 `src/`）。
+- **`.js` 后缀裁决（2026-09-14 实测更正，WXG-T-047）**：**拷贝件默认已剥除 `.js` 后缀**。
+  实现是 `sync-framework-to-cocos.mjs` 里的 `const stripSuffix = !process.argv.includes('--keep-suffix')`
+  —— **strip 是默认行为，开关是 `--keep-suffix`（保留）**。本行此前写作「拷贝件**原样保留** `.js`
+  后缀 + 备有 `--strip-suffix` 开关」，与实现**相反**，故更正。
+
+  | | 源码 | 拷贝件 |
+  |---|---|---|
+  | 实测样例（2026-09-14） | `packages/framework/src/core/index.ts`：`export * from './math/index.js';` | `cocos/assets/scripts/framework/core/index.ts`：`export * from './math/index';` |
+
+  - ⇒ `VERSION.md` G1 的残余风险项「Cocos 构建管线是否解析 `.js` 后缀导入」**对本工程已不适用**（拷贝件没有后缀）。
+  - **反向坑**：想「回到保留后缀」须用 `--keep-suffix`；按旧文档去跑 `--strip-suffix` 是 **no-op**，永远保留不了。
+  - strip 只影响拷贝件；Node 侧 vitest / tsc 始终读原始 `src/`（经 paths alias），不受影响。
+  - 收窄后的真实残余风险：`export * from …` 这类 **ESM 语法本身**在 Cocos 构建管线中的处理——需一次真实构建确认
+    （`VERSION.md` G1 / `ADR-0009` §3.2 P2 偏差登记）。
 - **红线**：脚本永不生成 / 改写 `.meta`；同步时保留编辑器已生成的 `.meta`
   （UUID 丢了会断 Main.scene 里的组件引用），只清理源里已不存在的拷贝件。
 - **类型检查**：`cd games/breakout/cocos && ../../../node_modules/.bin/tsc -p tsconfig.check.json`
@@ -202,8 +209,8 @@ export class BreakoutBootstrap extends Bootstrap {
 ```
 
 > ⚠️ `./framework/**` 与 `./game/**` 是**拷贝件**（`pnpm run framework:sync`
-> 生成），不要手工编辑。若编辑器控制台报 `.js` 后缀解析错误，见 §2.1 的
-> `--strip-suffix` 开关。
+> 生成），不要手工编辑。拷贝件**默认已剥除 `.js` 后缀**；如需保留请用
+> `pnpm run framework:sync --keep-suffix`（详见 §2.1）。
 
 ### 步骤 5：把 `Main` 设为启动场景
 
@@ -232,7 +239,7 @@ node tools/scripts/check-bundle-size.mjs games/breakout/build/wechatgame
 | 现象 | 原因 | 处理 |
 | --- | --- | --- |
 | `Cannot find module '@wxgame/framework'` 或路径爆红 | 缺口 G1：框架引入方式未定 | 改用 §2 方案 C（物理拷贝） |
-| `Unexpected token 'export'` / `.js` 后缀解析失败 | Cocos 编译链不解析带 `.js` 后缀的 ESM 导入 | 需评估无后缀导入方案（会影响 Node 侧，改动前先讨论） |
+| `Unexpected token 'export'` | ESM 语法在 Cocos 构建管线中的处理**未验证**（**与 `.js` 后缀无关**——拷贝件默认已剥除后缀，实测见 §2.1） | 先取真实报错原文；**先判定是不是模块系统问题**，勿盲目改导入风格（会影响 Node 侧） |
 | 画面上下颠倒 | 缺口 G2：`Graphics.rect` 的 y 方向与框架设计空间（左下原点）不一致 | 调整 `CocosRenderModelRenderer` 的坐标转换（`convertToCenteredOrigin` / y 翻转），**不要**改游戏逻辑 |
 | 触摸位置上下颠倒 | 缺口 G4：`getUILocation()` 坐标系 | 修正 `bindings.ts` 里的 `mapPoint` |
 | 文字跑偏 / 不居中 | 缺口 G3：`Label` 锚点与对齐枚举 | 用 `UITransform.width` 回填真实宽度，替换 `_anchorForText` 的估算 |

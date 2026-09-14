@@ -9785,17 +9785,17 @@
     },
     {
       "path": "games/breakout/cocos/README.md",
-      "tokens": 3741,
-      "lines": 277,
-      "sha256": "637ac8492cb97fbfc9c47158178b4d2908582dc2cabf4bdb50c158e81f034c54",
+      "tokens": 3984,
+      "lines": 284,
+      "sha256": "825b3755bd9a6e831b3614b7ba9b60d03205aa17ea208772998e9ff5159494e8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Breakout — Cocos Creator 工程落位与手工步骤",
           "level": 1,
           "startLine": 1,
-          "endLine": 278,
-          "tokens": 3724,
+          "endLine": 285,
+          "tokens": 3968,
           "summary": "引擎：Cocos Creator 3.8 LTS（3.8.8）",
           "keywords": [
             "Breakout",
@@ -9851,8 +9851,8 @@
           "anchor": "§2 如何引用 `packages/framework`（✅ 方案 C 已实施为基线）",
           "level": 2,
           "startLine": 59,
-          "endLine": 134,
-          "tokens": 1125,
+          "endLine": 141,
+          "tokens": 1327,
           "summary": "状态更新（缺口 G1）：本工程当前采用 方案 C（物理拷贝） 作为基线，已于",
           "keywords": [
             "packages/framework",
@@ -9867,8 +9867,8 @@
           "anchor": "§2.1 当前基线：方案 C（物理拷贝）",
           "level": 3,
           "startLine": 65,
-          "endLine": 90,
-          "tokens": 474,
+          "endLine": 97,
+          "tokens": 676,
           "summary": "",
           "keywords": [
             "当前基线",
@@ -9879,8 +9879,8 @@
         {
           "anchor": "§2.2 备选方案（留待后续 ADR）",
           "level": 3,
-          "startLine": 91,
-          "endLine": 92,
+          "startLine": 98,
+          "endLine": 99,
           "tokens": 0,
           "summary": "",
           "keywords": [
@@ -9892,8 +9892,8 @@
         {
           "anchor": "§方案 A：npm 包依赖（推荐，若编辑器支持）",
           "level": 3,
-          "startLine": 93,
-          "endLine": 111,
+          "startLine": 100,
+          "endLine": 118,
           "tokens": 163,
           "summary": "",
           "keywords": [
@@ -9907,8 +9907,8 @@
         {
           "anchor": "§方案 B：构建产物（`dist`）",
           "level": 3,
-          "startLine": 112,
-          "endLine": 118,
+          "startLine": 119,
+          "endLine": 125,
           "tokens": 62,
           "summary": "先 npm run build 产出 dist/*.js + .d.ts，再让工程依赖产物。",
           "keywords": [
@@ -9923,8 +9923,8 @@
         {
           "anchor": "§方案 C：物理拷贝（最土，但**必然可行**）",
           "level": 3,
-          "startLine": 119,
-          "endLine": 134,
+          "startLine": 126,
+          "endLine": 141,
           "tokens": 261,
           "summary": "",
           "keywords": [
@@ -9937,9 +9937,9 @@
         {
           "anchor": "§3 在编辑器中手工完成的步骤清单",
           "level": 2,
-          "startLine": 135,
-          "endLine": 229,
-          "tokens": 992,
+          "startLine": 142,
+          "endLine": 236,
+          "tokens": 1000,
           "summary": "预计 5–10 分钟。不涉及任何节点摆放。",
           "keywords": [
             "在编辑器中手",
@@ -9950,8 +9950,8 @@
         {
           "anchor": "§步骤 1：创建工程",
           "level": 3,
-          "startLine": 139,
-          "endLine": 144,
+          "startLine": 146,
+          "endLine": 151,
           "tokens": 62,
           "summary": "1. Cocos Dashboard → 新建 → 选择 Empty（3D） 或 Empty（2D） 模板均可（我们不用",
           "keywords": [
@@ -9965,8 +9965,8 @@
         {
           "anchor": "§步骤 2：设置设计分辨率",
           "level": 3,
-          "startLine": 145,
-          "endLine": 160,
+          "startLine": 152,
+          "endLine": 167,
           "tokens": 158,
           "summary": "项目 → 项目设置 → 项目数据：",
           "keywords": [
@@ -9977,8 +9977,8 @@
         {
           "anchor": "§步骤 3：创建空场景",
           "level": 3,
-          "startLine": 161,
-          "endLine": 173,
+          "startLine": 168,
+          "endLine": 180,
           "tokens": 179,
           "summary": "1. assets/ 右键 → 创建 → 场景，命名 Main。",
           "keywords": [
@@ -9991,9 +9991,9 @@
         {
           "anchor": "§步骤 4：创建 `BreakoutBootstrap.ts`",
           "level": 3,
-          "startLine": 174,
-          "endLine": 207,
-          "tokens": 332,
+          "startLine": 181,
+          "endLine": 214,
+          "tokens": 341,
           "summary": "✅ 该文件已创建（games/breakout/cocos/assets/scripts/BreakoutBootstr",
           "keywords": [
             "BreakoutBootstrap.ts",
@@ -10007,8 +10007,8 @@
         {
           "anchor": "§步骤 5：把 `Main` 设为启动场景",
           "level": 3,
-          "startLine": 208,
-          "endLine": 211,
+          "startLine": 215,
+          "endLine": 218,
           "tokens": 24,
           "summary": "项目 → 项目设置 → 项目数据 → 起始场景 → 选择 Main。",
           "keywords": [
@@ -10020,8 +10020,8 @@
         {
           "anchor": "§步骤 6：构建为微信小游戏",
           "level": 3,
-          "startLine": 212,
-          "endLine": 219,
+          "startLine": 219,
+          "endLine": 226,
           "tokens": 98,
           "summary": "1. 项目 → 构建发布。",
           "keywords": [
@@ -10033,8 +10033,8 @@
         {
           "anchor": "§步骤 7：体积校验",
           "level": 3,
-          "startLine": 220,
-          "endLine": 229,
+          "startLine": 227,
+          "endLine": 236,
           "tokens": 42,
           "summary": "",
           "keywords": [
@@ -10045,9 +10045,9 @@
         {
           "anchor": "§4 预期会踩的坑（提前告知）",
           "level": 2,
-          "startLine": 230,
-          "endLine": 246,
-          "tokens": 421,
+          "startLine": 237,
+          "endLine": 253,
+          "tokens": 454,
           "summary": "Cannot find module '@wxgame/framework' 或路径爆红 缺口 G1：框架引入方式未定 ",
           "keywords": [
             "Cannot",
@@ -10061,8 +10061,8 @@
         {
           "anchor": "§5 不需要编辑器就能做的事（先做这些）",
           "level": 2,
-          "startLine": 247,
-          "endLine": 263,
+          "startLine": 254,
+          "endLine": 270,
           "tokens": 163,
           "summary": "",
           "keywords": [
@@ -10074,8 +10074,8 @@
         {
           "anchor": "§6 检查表",
           "level": 2,
-          "startLine": 264,
-          "endLine": 278,
+          "startLine": 271,
+          "endLine": 285,
           "tokens": 182,
           "summary": "",
           "keywords": [
