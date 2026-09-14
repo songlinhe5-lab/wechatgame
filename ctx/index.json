@@ -22843,17 +22843,17 @@
     },
     {
       "path": "my-mcp/README.md",
-      "tokens": 1610,
-      "lines": 69,
-      "sha256": "f3dcf42306bb791917e669af75a185ef160ea525bd7b3d2a2bf8959f775b51c0",
+      "tokens": 1786,
+      "lines": 70,
+      "sha256": "448e21696348a259f8b7bab8e98030baf505c41439e88b66bfcfce58fad8c571",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§my-mcp — MCP 服务器配置的单一正本（WXG-T-043）",
           "level": 1,
           "startLine": 1,
-          "endLine": 70,
-          "tokens": 1591,
+          "endLine": 71,
+          "tokens": 1767,
           "summary": "改 MCP 服务器，只改这里：my-mcp/servers.json → pnpm run mcp:build → 提交",
           "keywords": [
             "mcp",
@@ -22942,7 +22942,7 @@
           ]
         },
         {
-          "anchor": "§5 红线：HTTP 仅回环（C3 机械化）",
+          "anchor": "§6 红线：HTTP 仅回环（C3 机械化）",
           "level": 2,
           "startLine": 61,
           "endLine": 64,
@@ -22958,11 +22958,11 @@
           ]
         },
         {
-          "anchor": "§6 本次已知未验证项（诚实记录）",
+          "anchor": "§7 本次已知未验证项（诚实记录）",
           "level": 2,
           "startLine": 65,
-          "endLine": 70,
-          "tokens": 157,
+          "endLine": 71,
+          "tokens": 332,
           "summary": "1. Cursor 侧 type 写法未经真机实测：本文档依据 Cursor 官方 MCP 文档的字段说明（stdio ",
           "keywords": [
             "Cursor",

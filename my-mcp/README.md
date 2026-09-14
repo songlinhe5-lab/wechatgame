@@ -58,12 +58,13 @@ Qoder 官方文档（docs.qoder.com/cli/mcp-reference）明确项目级支持读
 
 格式依据：Qoder CLI 参考的 `mcpServers` 字段表（`command`/`args`/`env`/`cwd` + 可选 `type`；http 用 `{"type":"http","url":...}`）。本机实证：`~/.qoder/mcp.json` 原为 `{"mcpServers":{}}` 空壳（IDE 级文件即此路径）。
 
-## 5. 红线：HTTP 仅回环（C3 机械化）
+## 6. 红线：HTTP 仅回环（C3 机械化）
 
 `control-manifest.md §14` 红线 2「HTTP 仅回环」已由门禁 **C3** 机械执行：`transport:"http"` 的 `url` 主机非 `127.0.0.1` / `localhost` / `::1` 即 FAIL。改端口或改绑定会被拦。
 
-## 6. 本次已知未验证项（诚实记录）
+## 7. 本次已知未验证项（诚实记录）
 
 1. **Cursor 侧 `type` 写法未经真机实测**：本文档依据 Cursor 官方 MCP 文档的字段说明（stdio 的 `type` 标注必填、远程示例只给 `url`）。落地后须在 Cursor 的 **MCP 面板**确认两个服务器均列出。
-2. **Qoder / WorkBuddy 的 MCP 配置文件位置未核实**，故 `targets` 只登记三处。核实后**先登记 targets 再 `mcp:build`**（C5 会要求）。
+2. **Qoder 已收口**（WXG-T-046，见 §5）：项目级复用根 `.mcp.json`，**未新增 targets**。**WorkBuddy 位置仍未核实**——但本仓 WorkBuddy 定位为纯文档/设计，**判定为不追求 MCP 接入**（Not Planned），若将来改变分工须回填本节。核实新位置时**必须先登记 `targets` 再 `mcp:build`**（C5 会要求）。
 3. 安装与验证顺序见 `docs/agent/cocos-setup.md`；决策依据见 `docs/architecture/adr/ADR-0009`。
+4. **`cocos-creator`（HTTP）服务的可用性依赖编辑器进程 + 面板打开**（2026-09-14 实测）：MCP 服务随扩展 `unload()` 停止，编辑器没开或面板被关时该 server 连接失败——IDE 侧显示"连接失败"属**预期**，不是配置错。探活用 `GET http://127.0.0.1:3000/health`（**不要用 `/mcp`**，GET 恒 404 会误判）。
