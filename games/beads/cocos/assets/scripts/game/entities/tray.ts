@@ -87,6 +87,21 @@ export class Tray {
     return colorIdx >= 1 && colorIdx < this._needed.length ? this._needed[colorIdx]! : 0;
   }
 
+  /**
+   * How many beads of `colorIdx` the tray currently holds (holding + selected).
+   * Paired with {@link neededCount} by the spawner's A′ supply invariant
+   * `held ≤ demand` (tray-spawner §2.4 / WXG-T-086): a colour is only feedable
+   * while its held count stays below the board's remaining demand, so the tray
+   * can never accumulate undroppable overflow (the tail soft-lock GAP-06).
+   */
+  heldCount(colorIdx: number): number {
+    let n = 0;
+    for (const slot of this._slots) {
+      if (slot.state !== 'free' && slot.colorIdx === colorIdx) n++;
+    }
+    return n;
+  }
+
   /** True when at least one colour is still needed (defensive spawn guard). */
   hasNeededColors(): boolean {
     for (let i = 1; i < this._needed.length; i++) {

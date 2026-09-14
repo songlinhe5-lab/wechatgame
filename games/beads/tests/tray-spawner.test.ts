@@ -29,6 +29,45 @@ describe('S4 tray-spawner', () => {
     expect(spawns.length).toBeLessThanOrEqual(16);
   });
 
+  // GAP-02（WXG-T-086）：进 PLAYING 后首个 tick 立即供料——不再等一个
+  // spawnInterval（6.02s 空托盘 → ≤ 1 帧），且首供仅一次、不扰后续节奏。
+  it('GAP-02 first tick after level load feeds one bead immediately', () => {
+    const harness = createBeadsHarness({
+      levels: [simpleTestLevel()], // spawnInterval 4.0
+      saveKey: 'wxgame.beads.test.s4-firstfeed',
+    });
+    expect(harness.game.tray.holdingCount).toBe(0); // 开局空盘
+    expect(harness.count('tray:spawned')).toBe(0);
+
+    harness.advance(1 / 60); // 单帧即兑现首供，远早于 4.0s 间隔
+    expect(harness.count('tray:spawned')).toBe(1);
+    expect(harness.game.tray.holdingCount).toBe(1);
+
+    // 首供只一次：紧接着的一帧不应再即时补珠（仍靠间隔驱动）。
+    harness.advance(1 / 60);
+    expect(harness.count('tray:spawned')).toBe(1);
+  });
+
+  // GAP-06 A′（WXG-T-086）：供料侧不变量 `held ≤ demand`——某色持有量永不超过
+  // 棋盘对该色的剩余需求；需求满后不再供该色，不堆无法落子的杂色→尾部不软锁。
+  it('GAP-06 A′ never holds more of a colour than the board demands', () => {
+    const tray = new Tray();
+    tray.initNeeded([0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0]); // 仅色 5 需要 2 颗
+    const spawner = new Spawner(1.0);
+    const rng = createRng('s4-demand');
+
+    for (let i = 0; i < 40; i++) {
+      spawner.tick(1.0, tray, rng);
+      // 不变量：每色 held ≤ needed（未落子 ⇒ needed 恒为初值）。
+      for (let c = 1; c <= 10; c++) {
+        expect(tray.heldCount(c)).toBeLessThanOrEqual(tray.neededCount(c));
+      }
+    }
+    // 停在 held=2，绝不溢出成 3；且除色 5 外无任何杂色被供出。
+    expect(tray.heldCount(5)).toBe(2);
+    expect(tray.holdingCount).toBe(2);
+  });
+
   // §8.3 抽色权重：构造"仍需 1 色 + 1 杂色"关卡，100 次供料中所需色占比 ≈ 75%
   // （3:1，允许 ±10 个百分点）。
   it('§8-3 weighted draw: one needed colour + one decoy → ≈75% needed (±10pp)', () => {

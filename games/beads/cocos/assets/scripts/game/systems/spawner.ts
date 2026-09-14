@@ -35,6 +35,14 @@ export class Spawner {
   private _interval: number;
   private _acc = 0;
   private _fullReported = false;
+  /**
+   * GAP-02 first-supply flag (WXG-T-086): `reset()` (a fresh level/stage) arms it,
+   * and the first `tick()` in PLAYING feeds one bead immediately so the tray is
+   * never empty for a whole interval (ux-spec §6 “1.5s 珠已在托盘”). Not serialised
+   * for crash recovery — a restored mid-level tray already holds beads, so the
+   * recovery path never calls `reset()` and therefore never re-arms this.
+   */
+  private _firstFeed = false;
   /** Decoy colour indices for the current level/stage (≤ DECOY_COLORS_MAX). */
   private _decoys: readonly number[] = [];
 
@@ -81,6 +89,7 @@ export class Spawner {
   reset(): void {
     this._acc = 0;
     this._fullReported = false;
+    this._firstFeed = true; // GAP-02: arm the immediate first bead for the fresh level
   }
 
   /**
@@ -89,6 +98,16 @@ export class Spawner {
    * 15 feeds (S4 §8-1) regardless of frame rate.
    */
   tick(dt: number, tray: Tray, rng: Rng): SpawnOutcome {
+    // GAP-02: on the first tick after a level/stage load, feed one bead at once
+    // (≤ 1 frame) instead of waiting a full interval. The rhythm is untouched after.
+    if (this._firstFeed) {
+      const first = this._feedOnce(tray, rng);
+      if (first.spawned) {
+        this._firstFeed = false;
+        return first;
+      }
+      if (first.full) return first; // tray momentarily full — keep the flag, retry next tick
+    }
     this._acc += dt;
     while (this._acc >= this._interval) {
       this._acc -= this._interval;
@@ -118,16 +137,20 @@ export class Spawner {
   }
 
   /**
-   * Weighted draw (§3.2): still-needed colours at `NEEDED_WEIGHT` each,
-   * decoys at `DECOY_WEIGHT` each. When nothing is needed (board effectively
-   * complete) the draw degrades to decoys only — defensive, never a crash.
+   * Weighted draw (§3.2) under the A′ supply invariant `held ≤ demand`
+   * (tray-spawner §2.4 / WXG-T-086): a colour is a candidate only while the tray
+   * holds strictly fewer of it than the board still needs. This is what removes
+   * the tail soft-lock (GAP-06) — the feed can no longer stack undroppable
+   * overflow that clogs the tray. Decoys have `demand = 0`, so under v1.17
+   * (`DECOY_COLORS_MAX = 0`) they are never supplied and the decoy branch is inert.
    */
   private _drawColor(tray: Tray, rng: Rng): number {
     _weights.length = 0;
     let total = 0;
     for (let c = 1; c <= BEAD_COLOR_MAX; c++) {
       const needed = tray.neededCount(c);
-      if (needed > 0) {
+      // A′: only feed colour c while held(c) < demand(c).
+      if (needed > 0 && tray.heldCount(c) < needed) {
         _weights.push({ colorIdx: c, weight: NEEDED_WEIGHT });
         total += NEEDED_WEIGHT;
       }

@@ -163,8 +163,14 @@ describe('beads BOOT validator (architecture-beads §6)', () => {
     expect(hasError(validateBeadsLevel(simpleTestLevel({ decoys: ['2'] })), 'overlaps pattern colour 2')).toBe(true);
   });
 
-  it('accepts decoys that are in-charset and disjoint from the pattern', () => {
-    expect(validateBeadsLevel(simpleTestLevel({ decoys: ['5', 'A'] }))).toEqual([]);
+  // §3.2 v1.17（U8=D）：`DECOY_COLORS_MAX=0` 后不再有「合法杂色」——
+  // 空 decoys 合法，任何非空 decoys 均越界（供料侧不再参与图案的杂色）。
+  it('v1.17 DECOY_COLORS_MAX=0: accepts empty decoys, rejects any decoy colour', () => {
+    expect(validateBeadsLevel(simpleTestLevel({ decoys: [] }))).toEqual([]);
+    // 即便字符集合法、与图案不相交（'5' 非 simpleTestLevel 图案色 1/2/3），单一 decoy 也越 max=0。
+    expect(
+      hasError(validateBeadsLevel(simpleTestLevel({ decoys: ['5'] })), `> DECOY_COLORS_MAX(${DECOY_COLORS_MAX})`),
+    ).toBe(true);
   });
 
   it('exposes the framework-level id and index lookup used by the app', () => {

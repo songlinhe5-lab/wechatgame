@@ -93,7 +93,8 @@ describe('帧内执行序（core-loop §2.2.2）', () => {
   it('processes a gear tap (input) before the feed in the same frame', () => {
     const spawnFrame = framesUntilSpawn(mk('wxgame.beads.test.fo-probe-1'));
     // 对照组：不注入输入时，第 spawnFrame 帧**确实**供料（否则本测试会假通过）。
-    expect(spawnFrame).toBeGreaterThan(1);
+    // GAP-02（WXG-T-086）后首颗珠在第 1 帧即供出，故下界放宽到 1；帧号仍由探针实测。
+    expect(spawnFrame).toBeGreaterThanOrEqual(1);
 
     const h = mk('wxgame.beads.test.fo-1');
     advanceFrames(h, spawnFrame - 1);

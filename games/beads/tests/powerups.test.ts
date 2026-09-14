@@ -397,7 +397,7 @@ describe('S6 §8-10 同帧竞态守恒', () => {
   it('serialises against a same-frame spawn: the fresh bead is included', () => {
     const h = mk('wxgame.beads.test.s6-10a');
     hold(h, 5);
-    h.advance(4.05); // 本帧供料 1 颗（供料先到；测试关间隔 4.0s）
+    h.advance(1 / 60); // GAP-02（WXG-T-086）：首帧立即供料→本帧 1 颗（供料段产出、新珠已入盘）
     expect(heldSlots(h)).toHaveLength(6);
     expect(h.game.usePowerup('clearAll')).toBe(true);
     expect(h.last<UsedPayload>('powerup:used')!.affectedSlots).toHaveLength(6);

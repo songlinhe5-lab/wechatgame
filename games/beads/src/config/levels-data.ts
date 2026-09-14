@@ -46,9 +46,7 @@ export const LEVELS_DATA: LevelsData = {
       rows: 5,
       time: 300,
       spawnInterval: 6,
-      decoys: [
-        "4",
-      ],
+      decoys: [],
       pattern: [
         ".55.55",
         "555555",
@@ -64,9 +62,7 @@ export const LEVELS_DATA: LevelsData = {
       rows: 6,
       time: 300,
       spawnInterval: 5.5,
-      decoys: [
-        "6",
-      ],
+      decoys: [],
       pattern: [
         "...88...",
         "..8888..",
@@ -83,9 +79,7 @@ export const LEVELS_DATA: LevelsData = {
       rows: 6,
       time: 300,
       spawnInterval: 5,
-      decoys: [
-        "4",
-      ],
+      decoys: [],
       pattern: [
         "..7777..5",
         ".777777..",
@@ -102,9 +96,7 @@ export const LEVELS_DATA: LevelsData = {
       rows: 7,
       time: 300,
       spawnInterval: 4.5,
-      decoys: [
-        "6",
-      ],
+      decoys: [],
       pattern: [
         "....24....",
         "..414444..",
@@ -122,9 +114,7 @@ export const LEVELS_DATA: LevelsData = {
       rows: 8,
       time: 360,
       spawnInterval: 4,
-      decoys: [
-        "4",
-      ],
+      decoys: [],
       pattern: [
         ".33.....33.",
         ".353...353.",
@@ -143,9 +133,7 @@ export const LEVELS_DATA: LevelsData = {
       rows: 9,
       time: 360,
       spawnInterval: 3.5,
-      decoys: [
-        "3",
-      ],
+      decoys: [],
       pattern: [
         "..........22",
         "......84....",

@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3842,
       "lines": 86,
-      "sha256": "a2425452be9caeb2bb8a2dda1d51b25b67cc839e4da8983784fb75e26b6f4527",
+      "sha256": "b8592e050e26767e002d68fa6d6bb3086a4a47ef5f9dddd8281fcdbb44076583",
       "tier": "normal",
       "sections": [
         {
@@ -529,7 +529,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 239 行 / 5909 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 239 行 / 5983 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -17195,17 +17195,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 3197,
-      "lines": 28,
-      "sha256": "a7ab9b55db9980ac457e32d736304f2e13f5717b710b2eb051244fb26738e007",
+      "tokens": 3478,
+      "lines": 29,
+      "sha256": "6d8b279b3867453f19ad75d734b401b475159f3bf4221f04b4f3f4108837487e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 29,
-          "tokens": 3179,
+          "endLine": 30,
+          "tokens": 3460,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -17220,8 +17220,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 29,
-          "tokens": 3020,
+          "endLine": 30,
+          "tokens": 3302,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -17233,9 +17233,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 5909,
+      "tokens": 5983,
       "lines": 239,
-      "sha256": "f6d752c198472d7726257c17f63c7364dd7263a48e12d6418ef5b142da553280",
+      "sha256": "aefe823324808ea775e495ccb3093e8caef9a7a60d14b8bd9c9b05b9e810ca03",
       "tier": "hot",
       "sections": [
         {
@@ -17243,7 +17243,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 240,
-          "tokens": 5892,
+          "tokens": 5966,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.12 · 任务号 WXG-T-007",
           "keywords": [
             "Systems",
@@ -17286,7 +17286,7 @@
           "level": 2,
           "startLine": 55,
           "endLine": 201,
-          "tokens": 3953,
+          "tokens": 4027,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -17317,7 +17317,7 @@
           "level": 3,
           "startLine": 83,
           "endLine": 92,
-          "tokens": 290,
+          "tokens": 365,
           "summary": "BEAD_PALETTE 10 色 全量色板 HEX/符号/明度见 art/art-bible.md §3.2（奶白…炭",
           "keywords": [
             "§3.2",

@@ -66,11 +66,13 @@ export const POWERUP_BADGE_GLYPH_EDGE = 10;
 export const BEAD_CHARSET = '.x1-9A';
 /** Per-level colour-count ceiling (demo levels use 3–8). */
 export const BEAD_COLOR_MAX = 8;
-/** Per-level decoy-count ceiling (decoys never participate in the pattern). */
-export const DECOY_COLORS_MAX = 2;
+/** Per-level decoy-count ceiling. §3.2 v1.17 (U8=D, WXG-T-086): 2→0 — no decoys
+ * are supplied; the spawner's A′ invariant (`held ≤ demand`) removes the tail
+ * soft-lock at the source, so the decoy subsystem is inert (kept for the schema). */
+export const DECOY_COLORS_MAX = 0;
 /** Spawn weight for a "still needed" colour. */
 export const NEEDED_WEIGHT = 3;
-/** Spawn weight for a decoy colour. */
+/** Spawn weight for a decoy colour. Inert while `DECOY_COLORS_MAX = 0` (v1.17). */
 export const DECOY_WEIGHT = 1;
 
 // ──────────────────────────────────────────────────────────── §3.3 bead grid
