@@ -10,7 +10,11 @@
 
 import type { SlotState } from '../entities/tray.js';
 import type { CellState } from '../entities/grid.js';
-import type { BeadsTuning } from '../config/tuning.js';
+import {
+  POWERUP_FREE_USES,
+  type BeadsTuning,
+  type PowerupType,
+} from '../config/tuning.js';
 
 export type BeadsPhase = 'boot' | 'playing' | 'paused' | 'level-clear' | 'game-over' | 'finish';
 export type GameMode = 'normal' | 'sprint';
@@ -107,6 +111,17 @@ export interface BeadsSnapshot {
   /** One-shot copy under the fail panel (e.g. Noop 「即将开放」). */
   failHint: string;
 
+  /**
+   * S6 **剩余免费次数**，每道具一项（`0..POWERUP_FREE_USES`）。视图把 `0` 的卡
+   * 变灰，超限入口靠常驻 `ad_badge`（powerups §2.6 布局 A —— 仅角标，零 wx API）。
+   *
+   * 注意与崩溃快照的 `powerupUses`（语义 = **已用次数**）区分：这里给视图，
+   * 那里给恢复档，两者互为 `POWERUP_FREE_USES − x`。
+   */
+  powerupFreeUses: Record<PowerupType, number>;
+  /** One-shot light hint under the powerup band (over-limit tap only, §2.6). */
+  powerupHint: string;
+
   tuning: BeadsTuning;
 }
 
@@ -149,6 +164,12 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     revived: false,
     watchingAd: false,
     failHint: '',
+    powerupFreeUses: {
+      region: POWERUP_FREE_USES,
+      clearAll: POWERUP_FREE_USES,
+      random: POWERUP_FREE_USES,
+    },
+    powerupHint: '',
     tuning,
   };
 }

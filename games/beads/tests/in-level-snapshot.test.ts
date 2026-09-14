@@ -274,6 +274,7 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
   });
 
   // §8-16 道具次数：缺省字段不导致丢快照；越界按字段钳制而不丢整份。
+  // WXG-T-060（S6 落码）起上限也可钳：`POWERUP_FREE_USES` 常量已可用 ⇒ 钳到 [0, 1]。
   it('§8-16 treats powerupUses as an optional, field-clamped document', () => {
     const base = {
       version: 1,
@@ -299,7 +300,8 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
       { ...base, powerupUses: { region: -3, clearAll: 2.5, random: 7 } },
       ctx,
     );
-    expect(clamped.snapshot?.powerupUses).toEqual({ region: 0, clearAll: 0, random: 7 });
+    // 上限 = POWERUP_FREE_USES = 1（§3.6；同值由 powerups.test.ts 的常量镜像断言守卫）。
+    expect(clamped.snapshot?.powerupUses).toEqual({ region: 0, clearAll: 0, random: 1 });
   });
 
   // 提案 §2 的两项增补字段（T-057 冻结规则的必要载体）：缺省 0，且会被真正持久化。

@@ -60,7 +60,7 @@ games/beads/src/
 │   ├── placement.ts         # S3 落子裁决（匹配/拒绝/忽略/完成判定）
 │   ├── spawner.ts           # S4 供料节律 + 3:1 加权抽色 + 随机空闲槽
 │   ├── timer.ts             # S5 dt 累计 + 告急 + 归零（ADR-0007：游戏侧持有）
-│   └── powerups.ts          # S6 三道具（P1，GDD 待写）
+│   └── powerups.ts          # S6 三道具（P1，已落码 WXG-T-060）
 ├── game/
 │   ├── beads-game.ts        # Game 实现：S1 编排 + 事件订阅装配
 │   ├── state.ts             # 六状态转移表 + Snapshot + 同帧裁决（cleared 优先）
@@ -171,14 +171,15 @@ compose/createApp(platform)                    # compose/app.ts（矩阵级，�
 | 本架构文档 + ADR-0004…0007 | ✅ 完成 |
 | §5 假设对账（含激励视频读码确认） | ✅ 完成（1 条不成立已上报） |
 | Epic/Story 拆分 | ✅ `production/epics/epics-beads.md` |
-| games/beads/src 实现 | ✅ S1–S5 / S8 / S9 / 冲刺模式已交付（12 个测试文件 / 107 用例）；**S6 道具未实现** |
+| games/beads/src 实现 | ✅ S1–S5 / S6 / S8 / S9 / 冲刺模式已交付（15 个测试文件 / 145 用例；S6 于 WXG-T-060 落码，`systems/powerups.ts`）|
 | Cocos 工程 | ❌ 仍未创建（ADR-0003 判例）——**编辑器已就绪**（Cocos 3.8.8 + 预览/构建链实测通过，见 `VERSION.md`），且**仓库侧前置已就绪**：`framework:sync` 已泛化为多游戏、`build:cocos` 已按 per-package 声明、逐步清单见 `docs/agent/cocos-setup.md §13`。剩余动作只有一项：**在编辑器 GUI 里创建工程**（L1 禁止伪造 `.scene`/`.meta`） |
 
 > **截至 2026-09-14 的与实现出入（WXG-T-052 对账，逐条已修正或登记）**
 >
 > 1. **§3 目录结构的落地差异**：规划中的 `view/symbols.ts` 与 `view/bead-render.ts` **曾长期缺失**
 >    （本页 §4 的「渲染层方案」因此只落地了一半 —— 珠子只有色块，无 L5 符号），现已补齐；
->    规划中的 `systems/powerups.ts`（S6）**仍未实现**；实际另交付了规划外的 `systems/sprint.ts`
+>    规划中的 `systems/powerups.ts`（S6）**已于 WXG-T-060 落码**（`powerups.md §8` 十条判据全部有测试）；
+>    实际另交付了规划外的 `systems/sprint.ts`
 >    与 `systems/pause-panel.ts`（冲刺模式与 S9 面板）。
 > 2. **§4「每帧重建 RenderModel」的规模账已可实测**：满格 13×12 时 `view-model` 产出
 >    **≥ 8 条指令/珠**（L0/L1/L2×2/L3×2/L4 + L5），总量与 §4 的「900+ 指令/帧」一致，

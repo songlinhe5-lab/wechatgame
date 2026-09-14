@@ -20,7 +20,8 @@ import {
   PANEL_SCALE_FROM,
   PANEL_SCRIM_ALPHA,
   PANEL_SCRIM_RGB,
-  POWERUP_BAND,
+  POWERUP_TYPES,
+  powerupCardRects,
   TRAY_BAND,
   TRAY_COLS,
   TRAY_GAP,
@@ -36,7 +37,15 @@ import {
   drawFilledBead,
   drawLockedBead,
 } from './bead-render.js';
-import { withAlpha, type BeadsPalette } from './palette.js';
+import {
+  POWERUP_INK_CAP,
+  POWERUP_INK_MAGNET,
+  POWERUP_INK_STAR,
+  POWERUP_INK_STRAW,
+  POWERUP_INK_WAND,
+  withAlpha,
+  type BeadsPalette,
+} from './palette.js';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -76,7 +85,7 @@ export function buildBeadsView(
   drawHud(builder, snap, palette);
   drawGrid(builder, snap, palette);
   drawTray(builder, snap, palette);
-  drawPowerupBand(builder, palette);
+  drawPowerupBand(builder, snap, palette);
   drawPausePanel(builder, snap, palette);
   drawFailPanel(builder, snap, palette);
   drawBanners(builder, snap, palette);
@@ -395,30 +404,167 @@ function drawDashedRect(
 // ──────────────────────────────────────────────────────── powerup band
 
 /**
- * Structure reserve only (S6 excluded this sprint): three card outlines +
- * `ad_badge` corner marks, ADR-0006 — badge placeholders, zero wx API calls.
+ * S6 道具带 —— 三张常驻白卡，每卡一枚**靠形状识别**的图标（§1.4：魔法棒 / 扫帚 /
+ * 磁铁）+ 剩余免费次数；次数用尽的卡变灰（超限入口只剩常驻 `ad_badge`，§2.6）。
+ *
+ * 几何取自 `powerupCardRects()` —— 与 S2 命中测试**同一真源**：画出来的卡不可能
+ * 与点击落点不一致（此前的双份常量在 WXG-T-060 合并）。
+ *
+ * 零外部资产、零 wx API 调用（ADR-0006 布局 A：四个局内位全是角标占位）。
  */
-function drawPowerupBand(builder: RenderModelBuilder, palette: BeadsPalette): void {
-  const cardW = 150;
-  const cardH = 110;
-  const gap = 30;
-  const totalW = cardW * 3 + gap * 2;
-  const startX = (DESIGN_W - totalW) / 2;
-  const bottom = (POWERUP_BAND.yMin + POWERUP_BAND.yMax) / 2 - cardH / 2;
-  for (let i = 0; i < 3; i++) {
-    const x = startX + i * (cardW + gap);
-    builder.rect(x, bottom, cardW, cardH, {
-      fill: palette.panel,
-      stroke: palette.slotBorder,
+function drawPowerupBand(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  const rects = powerupCardRects();
+  for (let i = 0; i < rects.length; i++) {
+    const { x, bottom, w, h } = rects[i]!;
+    const type = POWERUP_TYPES[i];
+    if (!type) continue;
+    const free = snap.powerupFreeUses[type] > 0;
+    builder.rect(x, bottom, w, h, {
+      fill: free ? palette.panel : withAlpha(palette.panel, 0.5),
+      stroke: free ? palette.slotBorder : withAlpha(palette.slotBorder, 0.4),
       lineWidth: 2,
       radius: 14,
     });
-    // Ad badge (top-right corner of each card).
-    builder.rect(x + cardW - 40, bottom + cardH - 26, 32, 18, {
+    drawPowerupGlyph(builder, i, x + w / 2, bottom + h / 2 + 8, free ? 1 : 0.35);
+    // 剩余免费次数（`POWERUP_FREE_USES = 1` ⇒ 「×1」/「×0」）。
+    builder.text(x + w / 2, bottom + 12, `×${snap.powerupFreeUses[type]}`, {
+      fill: free ? palette.text : withAlpha(palette.text, 0.4),
+      font: FONT.sub,
+      align: 'center',
+      baseline: 'middle',
+    });
+    // Ad badge (top-right corner of each card) —— 常驻，不随次数变化（§2.6）。
+    builder.rect(x + w - 40, bottom + h - 26, 32, 18, {
       fill: palette.adBadge,
       radius: 4,
     });
   }
+  if (snap.powerupHint) {
+    builder.text(DESIGN_W / 2, 24, snap.powerupHint, {
+      fill: withAlpha(palette.text, 0.75),
+      font: FONT.sub,
+      align: 'center',
+      baseline: 'middle',
+    });
+  }
+}
+
+/**
+ * 三图标的程序化绘制（§1.4 的形状定义，64×64 参考框）。`dim` 为 1 时原色，
+ * 小于 1 时整体降不透明度（次数用尽态）。
+ *
+ * ⚠️ 已登记偏差：§1.4 写「卡 176×150 + **卡下方**标签 28px」，而
+ * `POWERUP_BAND` 只有 152 高（§3.1）——两条规格无法同时成立。本轮**不改卡尺寸**，
+ * 图标按现卡（150×110）缩放绘制，冲突留给主理人裁定（见本台账 backlog）。
+ */
+function drawPowerupGlyph(
+  builder: RenderModelBuilder,
+  index: number,
+  cx: number,
+  cy: number,
+  dim: number,
+): void {
+  const ink = (hex: string): string => withAlpha(hex, dim);
+  // §1.4 的图标形状定义在 64×64 参考框内；本卡高 110 ⇒ 1:1 取用即可（留白充足）。
+  const u = (v: number): number => v;
+
+  if (index === 0) {
+    // 魔法棒：6×40 斜置 −45° + 顶端五角星 r=12（§1.4 #1）。
+    const len = u(40);
+    const half = u(3);
+    const a = (-45 * Math.PI) / 180;
+    const ca = Math.cos(a);
+    const sa = Math.sin(a);
+    const rot = (px: number, py: number): [number, number] => [
+      cx + px * ca - py * sa,
+      cy + px * sa + py * ca,
+    ];
+    const p = [
+      rot(-len / 2, -half),
+      rot(len / 2, -half),
+      rot(len / 2, half),
+      rot(-len / 2, half),
+    ].flat();
+    builder.polygon(p, { fill: ink(POWERUP_INK_WAND) });
+    const [tipX, tipY] = rot(len / 2 + u(2), 0);
+    builder.polygon(starPoints(tipX, tipY, u(12), 5, 90), { fill: ink(POWERUP_INK_STAR) });
+    return;
+  }
+
+  if (index === 1) {
+    // 扫帚：柄 5×34 斜置 −30° + 扇形刷毛 + 3 条分缝线（§1.4 #2）。
+    const len = u(34);
+    const half = u(2.5);
+    const a = (-30 * Math.PI) / 180;
+    const ca = Math.cos(a);
+    const sa = Math.sin(a);
+    const rot = (px: number, py: number): [number, number] => [
+      cx + px * ca - py * sa,
+      cy + py * ca + px * sa,
+    ];
+    const p = [
+      rot(-len / 2, -half),
+      rot(len / 2, -half),
+      rot(len / 2, half),
+      rot(-len / 2, half),
+    ].flat();
+    builder.polygon(p, { fill: ink(POWERUP_INK_STRAW) });
+    // 刷毛：以柄下端为顶点的倒三角扇，附 3 条分缝线。
+    const [bx, by] = rot(-len / 2, 0);
+    const spread = u(15);
+    const drop = u(14);
+    builder.polygon([bx - spread, by, bx + spread, by, bx, by - drop], {
+      fill: ink(POWERUP_INK_STAR),
+    });
+    for (let k = -1; k <= 1; k++) {
+      builder.line(bx, by, bx + (k * spread * 2) / 3, by - drop, ink(POWERUP_INK_STRAW), u(1));
+    }
+    return;
+  }
+
+  // 磁铁：U 形（外弧 r=18 / 内弧 r=8，开口向上）+ 两极端帽（§1.4 #3）。
+  const outer = u(18);
+  const inner = u(8);
+  const ring = [
+    ...arcPoints(cx, cy, outer, 180, 360),
+    ...arcPoints(cx, cy, inner, 360, 180),
+  ];
+  builder.polygon(ring, { fill: ink(POWERUP_INK_MAGNET) });
+  builder.rect(cx - outer, cy + u(2), outer - inner, u(6), { fill: ink(POWERUP_INK_CAP), radius: u(2) });
+  builder.rect(cx + inner, cy + u(2), outer - inner, u(6), { fill: ink(POWERUP_INK_CAP), radius: u(2) });
+}
+
+/** Points along a circular arc (design space, y grows upward). */
+function arcPoints(cx: number, cy: number, r: number, fromDeg: number, toDeg: number): number[] {
+  const steps = 10;
+  const points: number[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const deg = fromDeg + ((toDeg - fromDeg) * i) / steps;
+    const rad = (deg * Math.PI) / 180;
+    points.push(cx + r * Math.cos(rad), cy + r * Math.sin(rad));
+  }
+  return points;
+}
+
+/** Regular n-point star polygon, first point at `startDeg`. */
+function starPoints(
+  cx: number,
+  cy: number,
+  r: number,
+  points: number,
+  startDeg: number,
+): number[] {
+  const coords: number[] = [];
+  for (let i = 0; i < points * 2; i++) {
+    const rad = ((startDeg + (i * 180) / points) * Math.PI) / 180;
+    const radius = i % 2 === 0 ? r : r * 0.382; // 五角星内接半径比
+    coords.push(cx + radius * Math.cos(rad), cy + radius * Math.sin(rad));
+  }
+  return coords;
 }
 
 // ─────────────────────────────────────────────────────────────────── banners

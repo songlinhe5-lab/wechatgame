@@ -22,7 +22,7 @@
  *   提案 §2 的其余字段**原样采用**；`writtenAtMs` 按提案默认**不设 TTL**。
  */
 
-import { TRAY_BASE_SLOTS, TRAY_EXPAND_SLOTS } from '../config/tuning.js';
+import { POWERUP_FREE_USES, TRAY_BASE_SLOTS, TRAY_EXPAND_SLOTS } from '../config/tuning.js';
 import type { Storage } from '@wxgame/framework';
 
 /** 另键（提案 §5 方案 A）。终稿归代码，此处为落码值。 */
@@ -38,9 +38,10 @@ export interface CrashTraySlot {
 }
 
 /**
- * S6 三计数。S6 **尚未入 `src`**（`tuning.ts` 无 `POWERUP_FREE_USES`）⇒ 本字段
- * **可缺省**，缺省 = 三项 0；越界按**字段级**钳到 `>= 0` 整数而不丢整份快照
- * （提案 §4 降级矩阵）。**上限钳制待 S6 落地补**——不在此发明 `POWERUP_FREE_USES`。
+ * S6 三计数 —— 语义 = **已用次数**（`0..POWERUP_FREE_USES`；WXG-T-060 起写真值，
+ * 此前恒 0）。字段**可缺省**，缺省 = 三项 0；越界按**字段级**钳到
+ * `[0, POWERUP_FREE_USES]` 而不丢整份快照（提案 §4 降级矩阵）。上限钳制所需的
+ * `POWERUP_FREE_USES` 已随 S6 落码可用，故 T-059 留的「待补」在本轮关闭。
  */
 export interface CrashPowerupUses {
   readonly region: number;
@@ -151,12 +152,12 @@ function nonNegInt(value: unknown): number | null {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : null;
 }
 
-/** 逐字段钳制（越界钳初值，不丢整份快照——提案 §4）。 */
+/** 逐字段钳制（越界钳到 `[0, POWERUP_FREE_USES]`，不丢整份快照——提案 §4）。 */
 function clampPowerups(raw: unknown): CrashPowerupUses {
   const pick = (key: keyof CrashPowerupUses): number => {
     if (!isRecord(raw)) return 0;
     const n = nonNegInt(raw[key]);
-    return n ?? 0;
+    return n === null ? 0 : Math.min(n, POWERUP_FREE_USES);
   };
   return { region: pick('region'), clearAll: pick('clearAll'), random: pick('random') };
 }

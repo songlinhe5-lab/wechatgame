@@ -42,11 +42,14 @@ import {
   TRAY_BAND,
   GRID_HIT_SIZE,
   TRAY_HIT_SIZE,
+  POWERUP_TYPES,
+  powerupCardRects,
   gridLayoutFor,
   stageParamsFor,
   validatedSprintTime,
   type BeadsTuning,
   type GridLayout,
+  type PowerupType,
   type StageParams,
 } from '../config/tuning';
 import {
@@ -65,6 +68,7 @@ import {
   type CrashSnapshot,
 } from './crash-snapshot';
 import { Tray } from '../entities/tray';
+import { PowerupSystem } from '../systems/powerups';
 import { judgePlacement } from '../systems/placement';
 import { Spawner } from '../systems/spawner';
 import { GameTimer } from '../systems/timer';
@@ -142,6 +146,13 @@ export class BeadsGame implements Game {
   private readonly _sprint = new SprintTracker();
   /** S9 pause panel: geometry + hit testing only; never gameplay state. */
   private readonly _panel = new PausePanel();
+  /**
+   * S6 道具系统（`powerups.md`）。持有**只读镜像**与三计数；清槽仍由 `_tray`
+   * 执行（§2.4），网格与时钟零接触（§2.2 明确边界）。
+   */
+  private readonly _powerups = new PowerupSystem();
+  /** Over-limit card tap hint（§2.6 布局 A 占位轻提示；成功使用 / 换关即清）。 */
+  private _powerupHint = '';
   /**
    * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
    * Gear → `'manual'`; WeChat `onHide` → `'system'`. Both stay on the
@@ -278,6 +289,16 @@ export class BeadsGame implements Game {
     return this._panel;
   }
 
+  /** S6 道具系统（暴露给测试；只读用法，写路径仍走 `usePowerup`）。 */
+  get powerups(): PowerupSystem {
+    return this._powerups;
+  }
+
+  /** 超限占位轻提示（'' = 无）。视图从快照读，测试从这里读。 */
+  get powerupHint(): string {
+    return this._powerupHint;
+  }
+
   get bgmMuted(): boolean {
     return this._bgmMuted;
   }
@@ -302,6 +323,8 @@ export class BeadsGame implements Game {
   init(services: GameServices): void {
     this._services = services;
     this._rng = services.rng;
+    // S6 的 `random` 只能抽自注入的 Rng（铁律 L4；§8-4 有架构守卫）。
+    this._powerups.attach(services.rng);
 
     // Preserve an unreadable document before SaveManager discards it — best effort.
     preserveCorruptBackup(services.storage, this._saveKey);
@@ -395,6 +418,7 @@ export class BeadsGame implements Game {
     if (result !== 'selected') return false;
     const color = this._tray.slot(slot)!.colorIdx;
     this._emit('tray:selected', { slot, colorIdx: color });
+    this._powerups.noteSelected(slot); // S6 镜像：region 的窗口锚点（§2.2）
     return true;
   }
 
@@ -408,16 +432,47 @@ export class BeadsGame implements Game {
     return this._placeSelected(row, col);
   }
 
+  /**
+   * S2 route 2 — 道具卡点击，一次原子结算（powerups §2.3）。
+   *
+   * 「点名归 S6、动手归 S4」：本方法拿 `affectedSlots` 后**由 `_tray` 执行清槽**
+   * （§2.4「清槽动作由 S4 执行」），再把**实际清空**的槽广播进 `powerup:used`
+   * （§8-1 要求 payload 与 S4 实际清空 1:1）。
+   *
+   * @returns 仅当效果真的生效时为 true；`exhausted` 另置占位轻提示（§2.6），
+   *          `empty` / `invalid` 为零事件零扣次的静默出口。
+   */
+  usePowerup(type: PowerupType): boolean {
+    if (this._machine.current !== 'playing') return false;
+    const outcome = this._powerups.request(type);
+    if (outcome.kind === 'exhausted') {
+      this._powerupHint = '即将开放';
+      return false;
+    }
+    if (outcome.kind !== 'used') return false;
+    this._powerupHint = '';
+    const cleared = this._tray.clearSlots(outcome.affectedSlots);
+    if (cleared.length !== outcome.affectedSlots.length) {
+      // 镜像漂移（S4 侧已 free）：幂等跳过并记警告供回归排查（§2.4 一致性硬要求）。
+      console.warn(
+        `[beads] S6 镜像漂移：点名 ${outcome.affectedSlots.length} 槽、实际清空 ${cleared.length} 槽`,
+      );
+    }
+    this._emit('powerup:used', { type: outcome.type, affectedSlots: cleared });
+    return true;
+  }
+
   /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
   expandTray(): boolean {
     if (!this._tray.expand()) return false;
     this._emit('tray:expanded', {});
+    this._powerups.noteCapacity(this._tray.capacity); // S6 镜像：生效容量（§2.1）
     return true;
   }
 
   /**
    * Debug/dev hook: route a design-space tap through the real S2 priority
-   * router (gear → tray → grid). Lets tests and the harness exercise routing
+   * router (gear → 道具卡 → tray → grid). Lets tests and the harness exercise routing
    * without faking platform pointer events.
    * @returns true only when the tap was consumed (never == "something changed").
    */
@@ -435,6 +490,7 @@ export class BeadsGame implements Game {
     const slot = this._tray.firstFree();
     if (slot < 0 || !this._tray.spawnInto(slot, colorIdx)) return -1;
     this._emit('tray:spawned', { slot, colorIdx });
+    this._powerups.noteSpawned(slot);
     return slot;
   }
 
@@ -583,8 +639,8 @@ export class BeadsGame implements Game {
       spawnAcc: this._spawner.acc,
       spawnInterval: this._spawner.interval,
       spawnFullReported: this._spawner.fullReported,
-      // S6 尚未入 `src`（无 POWERUP_FREE_USES）⇒ 恒 0；提案 §2：字段可缺省，缺省 = 初值。
-      powerupUses: { region: 0, clearAll: 0, random: 0 },
+      // S6 已入 `src`（WXG-T-060）⇒ 真值；字段语义 = **已用次数**（`0..POWERUP_FREE_USES`）。
+      powerupUses: this._powerups.used,
       reviveCount: this._reviveCount,
       reviveBonusSec: this._reviveBonusSec,
       sprint:
@@ -678,11 +734,17 @@ export class BeadsGame implements Game {
 
     // 托盘：先扩容，再逐槽还原（`colorIdx = 0` 即 free）。
     if (snapshot.trayExpanded && !this._tray.expanded) this._tray.expand();
+    // S6 镜像：**先容量、后逐槽**（否则扩展行槽会被容量守卫丢弃）。镜像本身绝不
+    // 从快照恢复——它只是托盘的投影，防双真源（与 `needed[]` 同口径，提案 §2）。
+    this._powerups.noteCapacity(this._tray.capacity);
     for (let i = 0; i < snapshot.traySlots.length; i++) {
       const colorIdx = snapshot.traySlots[i]!.colorIdx;
-      if (colorIdx > 0) this._tray.spawnInto(i, colorIdx);
+      if (colorIdx > 0 && this._tray.spawnInto(i, colorIdx)) this._powerups.noteSpawned(i);
     }
-    if (snapshot.traySelected >= 0) this._tray.select(snapshot.traySelected);
+    if (snapshot.traySelected >= 0 && this._tray.select(snapshot.traySelected) === 'selected') {
+      this._powerups.noteSelected(snapshot.traySelected);
+    }
+    this._powerups.restoreUses(snapshot.powerupUses);
 
     // 供料：**先 interval 再 acc**（`interval` setter 会把累加器清零）。
     this._spawner.interval = snapshot.spawnInterval;
@@ -822,12 +884,22 @@ export class BeadsGame implements Game {
   }
 
   /** Load a normal level: fresh grid/tray/rhythm/timer (S5 §2.4 reset list). */
+  /**
+   * S6 复位（§3.5 整关重置第 5 项 + §2.5）：三计数回 `POWERUP_FREE_USES`、镜像
+   * 随托盘一并清空、容量回基线，并丢掉超限占位提示。
+   */
+  private _resetPowerups(): void {
+    this._powerups.reset();
+    this._powerupHint = '';
+  }
+
   private _setupLevel(index: number): void {
     const level = this._levels[index];
     if (!level) throw new Error(`Beads: no level at index ${index}`);
     this._grid = new BeadGrid(level.pattern);
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows);
     this._tray.reset();
+    this._resetPowerups();
     this._tray.initNeeded(this._grid.neededColorCounts());
     this._spawner.reset();
     this._spawner.interval = level.spawnInterval ?? 4.0;
@@ -856,6 +928,7 @@ export class BeadsGame implements Game {
     this._grid = new BeadGrid(pattern);
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows);
     this._tray.reset();
+    this._resetPowerups(); // 冲刺换 stage = 换关语义，三计数一并复位（§2.5）
     this._tray.initNeeded(this._grid.neededColorCounts());
     this._spawner.reset();
     this._spawner.interval = stageParamsFor(n).interval;
@@ -879,7 +952,10 @@ export class BeadsGame implements Game {
     }
 
     const spawn = this._spawner.tick(dt, this._tray, this._rng!);
-    if (spawn.spawned) this._emit('tray:spawned', spawn.spawned);
+    if (spawn.spawned) {
+      this._emit('tray:spawned', spawn.spawned);
+      this._powerups.noteSpawned(spawn.spawned.slot); // S6 镜像（§2.4）
+    }
     if (spawn.full) this._emit('tray:full', {});
 
     const tick = this._timer.tick(dt);
@@ -917,13 +993,23 @@ export class BeadsGame implements Game {
     }
     switch (this._machine.current) {
       case 'playing': {
-        // 2. Tray bead (62² hit area, nearest slot centre wins).
+        // 2. 道具卡（input-control §2.1 优先级 2）。卡片自身即热区
+        //    （`POWERUP_CARD_H` ≥ TOUCH_MIN，§3.8）——超限 / 空作用也在本分支
+        //    内消化：零事件、不落到托盘与网格（§2.6 + 零噪声原则）。
+        const card = this._hitPowerupCard(x, y);
+        if (card) {
+          this._consumedTap = true;
+          this._sfx(AUDIO_CLIP_UI_TAP);
+          this.usePowerup(card);
+          return;
+        }
+        // 3. Tray bead (62² hit area, nearest slot centre wins).
         const slot = this._hitTraySlot(x, y);
         if (slot >= 0) {
           this.selectTraySlot(slot);
           return;
         }
-        // 3. Grid cell (66² hit area, nearest cell centre wins).
+        // 4. Grid cell (66² hit area, nearest cell centre wins).
         const cell = this._hitGridCell(x, y);
         if (cell) {
           this._placeSelected(cell.row, cell.col);
@@ -980,6 +1066,22 @@ export class BeadsGame implements Game {
   /** Gear hot zone: TOUCH_MIN square at the left edge of HUD_BAND. */
   private _hitGear(x: number, y: number): boolean {
     return x >= 0 && x <= GEAR_HIT_SIZE && y >= HUD_BAND.yMin && y <= HUD_BAND.yMax;
+  }
+
+  /**
+   * Powerup card hot zone — the *drawn* rect, from the shared
+   * `powerupCardRects()` (§3.8: card height ≥ TOUCH_MIN, so no extra expansion;
+   * a card tap is never ambiguous with the tray/grid bands).
+   */
+  private _hitPowerupCard(x: number, y: number): PowerupType | null {
+    const rects = powerupCardRects();
+    for (let i = 0; i < rects.length; i++) {
+      const r = rects[i]!;
+      if (x >= r.x && x <= r.x + r.w && y >= r.bottom && y <= r.bottom + r.h) {
+        return POWERUP_TYPES[i] ?? null;
+      }
+    }
+    return null;
   }
 
   /**
@@ -1066,6 +1168,7 @@ export class BeadsGame implements Game {
     switch (verdict.outcome) {
       case 'placed': {
         this._tray.takeBead(slot);
+        this._powerups.notePlaced(slot); // S6 镜像：该槽 free + 选中锚点失效（§2.4）
         this._emit('bead:placed', {
           row: verdict.row,
           col: verdict.col,
@@ -1333,6 +1436,13 @@ export class BeadsGame implements Game {
     }
     s.gridLeft = this._layout.left;
     s.gridTop = this._layout.top;
+
+    // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and
+    // leans on the always-on ad_badge, §2.6) + the one-shot over-limit hint.
+    s.powerupFreeUses.region = this._powerups.uses.region;
+    s.powerupFreeUses.clearAll = this._powerups.uses.clearAll;
+    s.powerupFreeUses.random = this._powerups.uses.random;
+    s.powerupHint = this._powerupHint;
 
     // Tray slots (rebuild on capacity change, i.e. expansion).
     if (s.traySlots.length !== this._tray.capacity) {

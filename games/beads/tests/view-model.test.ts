@@ -9,7 +9,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
-import { BEAD_CELL, DESIGN_H, DESIGN_W } from '../src/config/tuning.js';
+import { BEAD_CELL, DESIGN_H, DESIGN_W, PUZZLE_BAND } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
@@ -38,6 +38,27 @@ const isDotSymbol = (cmd: DrawCommand): boolean =>
   cmd.stroke === undefined &&
   cmd.fill !== undefined &&
   Math.abs(cmd.r - (11 * BEAD_CELL) / 64) < 0.01;
+
+/** Vertical centre of a command (polygons have no centre field ⇒ vertex mean). */
+function centreY(cmd: DrawCommand): number {
+  if (cmd.kind === 'circle') return cmd.y;
+  if (cmd.kind === 'rect') return cmd.y + cmd.h / 2;
+  if (cmd.kind === 'polygon') {
+    const ys = cmd.points.filter((_, i) => i % 2 === 1);
+    return ys.reduce((a, b) => a + b, 0) / ys.length;
+  }
+  return Number.NaN;
+}
+
+/**
+ * Bead symbols only ever appear **inside the puzzle band**. Needed since S6
+ * (WXG-T-060): the 魔法棒 card draws its own 5-point star — the same primitive
+ * as the bead ★ — so an unscoped signature would count powerup chrome as beads.
+ */
+const onBoard = (cmd: DrawCommand): boolean => {
+  const y = centreY(cmd);
+  return y >= PUZZLE_BAND.yMin && y <= PUZZLE_BAND.yMax;
+};
 
 /** Fill a level completely, one matching bead at a time. */
 function fillBoard(harness: Harness): number {
@@ -85,9 +106,9 @@ describe('beads view model (control-manifest §8)', () => {
 
     const commands = render(harness);
     // 30 格 = 10 个 ''1'' + 10 个 ''2'' + 10 个 ''3''，每色各 10 颗 → 10/10/10 个符号。
-    expect(commands.filter(isRingSymbol)).toHaveLength(10);
-    expect(commands.filter(isStarSymbol)).toHaveLength(10);
-    expect(commands.filter(isDotSymbol)).toHaveLength(10);
+    expect(commands.filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(10);
+    expect(commands.filter((c) => onBoard(c) && isStarSymbol(c))).toHaveLength(10);
+    expect(commands.filter((c) => onBoard(c) && isDotSymbol(c))).toHaveLength(10);
   });
 
   // A3 灰度可辨：符号数是「已填格数」的函数，与颜色无关；空格不得带符号。
@@ -97,15 +118,15 @@ describe('beads view model (control-manifest §8)', () => {
       saveKey: 'wxgame.beads.test.vm-d',
     });
     // 未填一格的棋盘上不存在任何符号。
-    expect(render(harness).filter(isRingSymbol)).toHaveLength(0);
+    expect(render(harness).filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(0);
 
     for (let row = 0; row < harness.game.grid.rows; row++) {
       placeColor(harness.game, 1, row, 0); // 每行第 0 列都是 ''1''（○）
     }
     const commands = render(harness);
-    expect(commands.filter(isRingSymbol)).toHaveLength(5); // 5 颗已填 → 5 个符号
-    expect(commands.filter(isStarSymbol)).toHaveLength(0); // 其余 25 格仍为空
-    expect(commands.filter(isDotSymbol)).toHaveLength(0);
+    expect(commands.filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(5); // 5 颗已填 → 5 个符号
+    expect(commands.filter((c) => onBoard(c) && isStarSymbol(c))).toHaveLength(0); // 其余 25 格仍为空
+    expect(commands.filter((c) => onBoard(c) && isDotSymbol(c))).toHaveLength(0);
   });
 
   // architecture-beads §4 规模账：满格 13×12 = 156 珠，每珠 ≥ 6 层 → 指令数随格数线性增长。
@@ -130,9 +151,9 @@ describe('beads view model (control-manifest §8)', () => {
     expect(commands.length).toBeGreaterThanOrEqual(900); // architecture-beads §4 规模账
     // 符号通道同样覆盖满格：156 格 ÷ 三色分布后，符号总数仍等于已填格数。
     const symbols =
-      commands.filter(isStarSymbol).length +
-      commands.filter(isDotSymbol).length +
-      commands.filter(isRingSymbol).length;
+      commands.filter((c) => onBoard(c) && isStarSymbol(c)).length +
+      commands.filter((c) => onBoard(c) && isDotSymbol(c)).length +
+      commands.filter((c) => onBoard(c) && isRingSymbol(c)).length;
     expect(symbols).toBe(156);
   });
 

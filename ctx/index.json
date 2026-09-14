@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1895,
+      "tokens": 1889,
       "lines": 84,
-      "sha256": "08f6575d609ba6e5f678c0a45b2acded940a6ee23c96414c55ed5b83c6a42810",
+      "sha256": "44fcdee1ddb4239e73ecb393e84624d2c15f1a4b40edb0437b2e6f74870c96ea",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 85,
-          "tokens": 1882,
+          "tokens": 1876,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 437,
+          "tokens": 431,
           "summary": "1 games/breakout/cocos/extensions/cocos-mcp-server/README.ru",
           "keywords": [
             "Top",
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3941,
+      "tokens": 3992,
       "lines": 94,
-      "sha256": "c8ac8b7dbbe9e44570b84f4151e2e6440d11d2d75ac07c209bc96fdedc673d11",
+      "sha256": "ca88d452d9caceffc973cc91b3d9d672f1a2ed0a772fd0ff6f0b6b2fc202bcf3",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 3913,
+          "tokens": 3964,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -497,12 +497,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/architecture-beads.md` — 190 行 / 4328 tok / 实测读 35 次",
+          "anchor": "§`docs/architecture/architecture-beads.md` — 191 行 / 4357 tok / 实测读 35 次",
           "level": 2,
           "startLine": 10,
           "endLine": 13,
           "tokens": 165,
-          "summary": "§微信小游戏矩阵 — beads（拼豆填色消除）架构文档=1+191 · §1 beads 特有约束（在矩阵约束之上）=",
+          "summary": "§微信小游戏矩阵 — beads（拼豆填色消除）架构文档=1+192 · §1 beads 特有约束（在矩阵约束之上）=",
           "keywords": [
             "§1",
             "docs",
@@ -529,12 +529,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 242 行 / 7394 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 243 行 / 7614 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
           "tokens": 266,
-          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+243 · §1 系统清单=9+16 · §2 依",
+          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+244 · §1 系统清单=9+16 · §2 依",
           "keywords": [
             "§1",
             "§2",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 42 行 / 6436 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 46 行 / 7084 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+43 · §待排（backlog，无号，立项时领取）=31+13",
+          "summary": "§WXG 任务台账（SSOT）=1+47 · §待排（backlog，无号，立项时领取）=33+15",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -577,11 +577,11 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 146 行 / 5372 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 165 行 / 6086 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
-          "tokens": 223,
+          "tokens": 275,
           "summary": "§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+12 · §A 硬判据用例（50 条 = 5 ",
           "keywords": [
             "production",
@@ -4268,17 +4268,17 @@
     },
     {
       "path": "docs/architecture/architecture-beads.md",
-      "tokens": 4328,
-      "lines": 190,
-      "sha256": "9756cb1d2090a7131a39172a178b58eb0ba590f35fd0609adb87dc487ce4e321",
+      "tokens": 4357,
+      "lines": 191,
+      "sha256": "a5093fd162c861f2422d92f1232e0dac48716b66eba1a43bb951c6aebd8e6cd0",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§微信小游戏矩阵 — beads（拼豆填色消除）架构文档",
           "level": 1,
           "startLine": 1,
-          "endLine": 191,
-          "tokens": 4306,
+          "endLine": 192,
+          "tokens": 4335,
           "summary": "版本：0.1.0",
           "keywords": [
             "beads",
@@ -4324,7 +4324,7 @@
           "level": 2,
           "startLine": 47,
           "endLine": 78,
-          "tokens": 541,
+          "tokens": 544,
           "summary": "",
           "keywords": [
             "games/beads/src",
@@ -4414,8 +4414,8 @@
           "anchor": "§9 当前实现状态",
           "level": 2,
           "startLine": 167,
-          "endLine": 191,
-          "tokens": 628,
+          "endLine": 192,
+          "tokens": 655,
           "summary": "本架构文档 + ADR-0004…0007 ✅ 完成",
           "keywords": [
             "ADR",
@@ -5664,17 +5664,17 @@
     },
     {
       "path": "games/beads/art/accessibility.md",
-      "tokens": 2353,
-      "lines": 104,
-      "sha256": "7495f3aa0ccbac8defc999a8ffc56f025e9ccb8d7c5179e144841884178762a6",
+      "tokens": 2532,
+      "lines": 106,
+      "sha256": "62826c3074cd52c89cb3690ac8cc9652386cc63933ec424c8045aab093e8da10",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》可访问性规范（Accessibility Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 105,
-          "tokens": 2336,
+          "endLine": 107,
+          "tokens": 2515,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Accessibility",
@@ -5702,7 +5702,7 @@
           "level": 2,
           "startLine": 25,
           "endLine": 71,
-          "tokens": 1619,
+          "tokens": 1760,
           "summary": "A1 色觉障碍友好 · 珠子颜色 「颜色 + 符号 + 明度」三重编码：10 色各绑唯一矢量符号（○★●■♥◐▽▲◆✚，",
           "keywords": [
             "特性矩阵"
@@ -5712,9 +5712,9 @@
           "anchor": "§3 落地范围小结",
           "level": 2,
           "startLine": 72,
-          "endLine": 83,
-          "tokens": 116,
-          "summary": "本 demo 落地（13 项）：A1 A2 A3 A4 B1 B2 B3 C2 D1 D2 E1 F1 F2",
+          "endLine": 85,
+          "tokens": 155,
+          "summary": "本 demo 落地（12 项）：A1 A2 A3 B1 B2 B3 C2 D1 D2 E1 F1 F2",
           "keywords": [
             "demo",
             "落地范围小结"
@@ -5723,8 +5723,8 @@
         {
           "anchor": "§4 与 UX 规格的接口（`[待 ux-spec 对齐]`）",
           "level": 2,
-          "startLine": 84,
-          "endLine": 95,
+          "startLine": 86,
+          "endLine": 97,
           "tokens": 116,
           "summary": "UX 规格产出后须满足/引用：",
           "keywords": [
@@ -5737,8 +5737,8 @@
         {
           "anchor": "§5 待用户审批项（2026-09-11 已全部拍板）",
           "level": 2,
-          "startLine": 96,
-          "endLine": 105,
+          "startLine": 98,
+          "endLine": 107,
           "tokens": 181,
           "summary": "1. H1 符号显示开关：❌ 不提供（用户拍板）——三重编码默认开启保证色盲安全，demo 不设纯色模式；本项关闭，不再",
           "keywords": [
@@ -7177,17 +7177,17 @@
     },
     {
       "path": "games/beads/design/gdd/powerups.md",
-      "tokens": 5044,
-      "lines": 141,
-      "sha256": "dbc30b07e52f28a43936d83d370337ac2b22fd3efacd60fec5967beb3d8a6bcd",
+      "tokens": 5177,
+      "lines": 147,
+      "sha256": "1fcac24f82926095f0028d81289df710dad3f99ae0159c31cc62aba384a127b0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S6 道具系统（Powerups）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 142,
-          "tokens": 5031,
+          "endLine": 148,
+          "tokens": 5164,
           "summary": "项目：games/beads · 版本 v1.1 · 任务号 WXG-T-014（布局 A 对齐 WXG-T-057）",
           "keywords": [
             "GDD",
@@ -7356,18 +7356,20 @@
           "anchor": "§6 边界条件",
           "level": 2,
           "startLine": 101,
-          "endLine": 123,
-          "tokens": 854,
-          "summary": "极端值",
+          "endLine": 129,
+          "tokens": 987,
+          "summary": "实现约定（WXG-T-060 落码时补，非数值改动）：§2.2 的「窗口以锚点为中心」在",
           "keywords": [
+            "§2.2",
+            "WXG",
             "边界条件"
           ]
         },
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 124,
-          "endLine": 129,
+          "startLine": 130,
+          "endLine": 135,
           "tokens": 257,
           "summary": "上游：S1（状态门禁 + 重置复位）、S2（道具卡与扩展位点击路由）、S4（托盘槽态与生效容量，经 §4 事件建只读镜像",
           "keywords": [
@@ -7378,8 +7380,8 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例；未标环境者均 `[Node]` vitest 可断言）",
           "level": 2,
-          "startLine": 130,
-          "endLine": 142,
+          "startLine": 136,
+          "endLine": 148,
           "tokens": 914,
           "summary": "1. region 窗口恒长与集合正确：构造生效容量内含若干 free 槽后使用 region → 窗口为连续 REGI",
           "keywords": [
@@ -7824,17 +7826,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 7394,
-      "lines": 242,
-      "sha256": "8bc117c6fe292a18d4ae1983a1bec82c806e0c5b42dffba7739de54669cdbc10",
+      "tokens": 7614,
+      "lines": 243,
+      "sha256": "7e19b48bdb9c13318d4edf7b3bbfa58d936abcbb116a0c57a097a04cc3fb024d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§系统清单与依赖索引（Systems Index）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 243,
-          "tokens": 7377,
+          "endLine": 244,
+          "tokens": 7597,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.12 · 任务号 WXG-T-007",
           "keywords": [
             "Systems",
@@ -8079,8 +8081,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 226,
-          "endLine": 243,
-          "tokens": 2028,
+          "endLine": 244,
+          "tokens": 2248,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -23458,17 +23460,17 @@
     },
     {
       "path": "memory/2026-09-14.md",
-      "tokens": 4024,
-      "lines": 64,
-      "sha256": "55389539597e891dcf3c88fe09ceeb33eb2983cfb6395a4207d7d61bfccc6cf0",
+      "tokens": 4830,
+      "lines": 90,
+      "sha256": "1621f7c8dcf9aaec9b3f1622c46eb2974ca4bf01ca38a10f960182cb02a45779",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 65,
-          "tokens": 4021,
+          "endLine": 91,
+          "tokens": 4827,
           "summary": "",
           "keywords": []
         },
@@ -23550,6 +23552,22 @@
             "引擎功能裁剪",
             "主包",
             "内部目标首次"
+          ]
+        },
+        {
+          "anchor": "§S6 道具系统落码：beads 最后一个未实现玩法系统归零（WXG-T-060）",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 91,
+          "tokens": 779,
+          "summary": "选点依据：侦察后确认 beads 只剩 EP-06（S6 道具） 未落码（src/systems/powerups.ts",
+          "keywords": [
+            "beads",
+            "WXG",
+            "src",
+            "systems",
+            "powerups",
+            "道具系统落码"
           ]
         }
       ]
@@ -32235,17 +32253,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6436,
-      "lines": 42,
-      "sha256": "11d345eba3530b34f8e2791d8bc8925c9e50189e509a248bea2c4f07cd63bbeb",
+      "tokens": 7084,
+      "lines": 46,
+      "sha256": "2672d6c01c244ed8a49dcc1e9896a71c227c65ae81cf22203abb3b8e1ffa468d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 43,
-          "tokens": 6428,
+          "endLine": 47,
+          "tokens": 7075,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -32259,34 +32277,34 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 31,
-          "endLine": 43,
-          "tokens": 1364,
-          "summary": "净收益口径 WXG-T-026 复验提出（严守真） 现节省率是毛节省——未计入装置自身开销（ctx/ROUTES.md ",
+          "startLine": 33,
+          "endLine": 47,
+          "tokens": 1444,
+          "summary": "道具卡几何冲突（规格自相矛盾） WXG-T-060 落码时发现 assets-spec §1.4 写「白卡 176×15",
           "keywords": [
+            "§1.4",
             "backlog",
             "WXG",
-            "ctx",
-            "ROUTES",
-            "待排",
-            "无号"
+            "assets",
+            "spec",
+            "待排"
           ]
         }
       ]
     },
     {
       "path": "production/epics/epics-beads.md",
-      "tokens": 7426,
-      "lines": 282,
-      "sha256": "bc2aa286dcf0c7b992eafa4b11dc7fd4dc1dc24b1de5cc600500bbce385ccf61",
+      "tokens": 7601,
+      "lines": 287,
+      "sha256": "b7f1569fdc0bd17a1d1754a853805656c33f0edd57f3c44d5d5978c7e70a73fc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic / Story 拆分（epics-beads）",
           "level": 1,
           "startLine": 1,
-          "endLine": 283,
-          "tokens": 7413,
+          "endLine": 288,
+          "tokens": 7588,
           "summary": "项目：games/beads（拼豆填色消除）· 任务 WXG-T-010 · 版本 v1.0",
           "keywords": [
             "beads",
@@ -32300,8 +32318,8 @@
         {
           "anchor": "§0 阅读约定（拆分纪律）",
           "level": 2,
-          "startLine": 24,
-          "endLine": 34,
+          "startLine": 29,
+          "endLine": 39,
           "tokens": 391,
           "summary": "1. 验收标准编号：S<n>§8-<k> = gdd/<系统>.md §8 编号列表第 k 条（beads 各 GDD ",
           "keywords": [
@@ -32316,8 +32334,8 @@
         {
           "anchor": "§1 Epic 列表（按 systems-index §2 依赖拓扑序）",
           "level": 2,
-          "startLine": 35,
-          "endLine": 53,
+          "startLine": 40,
+          "endLine": 58,
           "tokens": 486,
           "summary": "EP-01 核心循环骨架 立起六状态状态机与关内时序编排，裁决暂停冻结与同帧 cleared 优先 S1 —",
           "keywords": [
@@ -32332,8 +32350,8 @@
         {
           "anchor": "§2 Story 拆分",
           "level": 2,
-          "startLine": 54,
-          "endLine": 241,
+          "startLine": 59,
+          "endLine": 246,
           "tokens": 5170,
           "summary": "",
           "keywords": [
@@ -32344,8 +32362,8 @@
         {
           "anchor": "§EP-01 核心循环骨架（S1）",
           "level": 3,
-          "startLine": 56,
-          "endLine": 74,
+          "startLine": 61,
+          "endLine": 79,
           "tokens": 478,
           "summary": "EP01-S1 六状态状态机骨架与 BOOT 装配",
           "keywords": [
@@ -32357,8 +32375,8 @@
         {
           "anchor": "§EP-02 拼图网格与填色（S3）",
           "level": 3,
-          "startLine": 75,
-          "endLine": 103,
+          "startLine": 80,
+          "endLine": 108,
           "tokens": 880,
           "summary": "EP02-S1 关卡装载与静态校验器",
           "keywords": [
@@ -32369,8 +32387,8 @@
         {
           "anchor": "§EP-03 供料与槽位托盘（S4）",
           "level": 3,
-          "startLine": 104,
-          "endLine": 126,
+          "startLine": 109,
+          "endLine": 131,
           "tokens": 747,
           "summary": "EP03-S1 托盘模型与加权抽色",
           "keywords": [
@@ -32381,8 +32399,8 @@
         {
           "anchor": "§EP-04 输入与操控（S2）",
           "level": 3,
-          "startLine": 127,
-          "endLine": 149,
+          "startLine": 132,
+          "endLine": 154,
           "tokens": 734,
           "summary": "EP04-S1 五类指令路由表",
           "keywords": [
@@ -32393,8 +32411,8 @@
         {
           "anchor": "§EP-05 倒计时与失败（S5）",
           "level": 3,
-          "startLine": 150,
-          "endLine": 171,
+          "startLine": 155,
+          "endLine": 176,
           "tokens": 769,
           "summary": "EP05-S1 计时器模型与暂停保存",
           "keywords": [
@@ -32405,8 +32423,8 @@
         {
           "anchor": "§EP-06 道具系统（S6）`[待 GDD §8——S6 GDD 未产出，判据到位后回填]`",
           "level": 3,
-          "startLine": 172,
-          "endLine": 183,
+          "startLine": 177,
+          "endLine": 188,
           "tokens": 346,
           "summary": "EP06-S1 三道具效果与免费次数 [待 GDD §8]",
           "keywords": [
@@ -32421,8 +32439,8 @@
         {
           "anchor": "§EP-07 星级与结算（S7）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 184,
-          "endLine": 195,
+          "startLine": 189,
+          "endLine": 200,
           "tokens": 218,
           "summary": "EP07-S1 星级判定与结算面板 [待 GDD §8]",
           "keywords": [
@@ -32436,8 +32454,8 @@
         {
           "anchor": "§EP-08 存档与进度（S8）`[待 GDD §8——S8 GDD 未产出]`",
           "level": 3,
-          "startLine": 196,
-          "endLine": 207,
+          "startLine": 201,
+          "endLine": 212,
           "tokens": 276,
           "summary": "EP08-S1 存档 schema 与校验降级 [待 GDD §8]",
           "keywords": [
@@ -32452,8 +32470,8 @@
         {
           "anchor": "§EP-09 暂停与设置（S9）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 208,
-          "endLine": 220,
+          "startLine": 213,
+          "endLine": 225,
           "tokens": 199,
           "summary": "EP09-S1 暂停面板 [待 GDD §8]",
           "keywords": [
@@ -32467,8 +32485,8 @@
         {
           "anchor": "§EP-10 Cocos 集成与微信构建 `[Blocked: 待编辑器]`",
           "level": 3,
-          "startLine": 221,
-          "endLine": 241,
+          "startLine": 226,
+          "endLine": 246,
           "tokens": 372,
           "summary": "依赖编辑器产物（.scene/.meta/构建/真机）。框架侧 bindings.ts 已写未验证（G1–G9 沿用矩阵",
           "keywords": [
@@ -32483,8 +32501,8 @@
         {
           "anchor": "§3 第一个冲刺建议（最小可玩垂直切片）",
           "level": 2,
-          "startLine": 242,
-          "endLine": 265,
+          "startLine": 247,
+          "endLine": 270,
           "tokens": 440,
           "summary": "目标：进 PLAYING → 供料入托盘 → 选珠 → 落子（匹配/拒绝）→ 填满进 LEVEL_CLEAR → 归零失",
           "keywords": [
@@ -32498,8 +32516,8 @@
         {
           "anchor": "§4 环境约束声明",
           "level": 2,
-          "startLine": 266,
-          "endLine": 274,
+          "startLine": 271,
+          "endLine": 279,
           "tokens": 218,
           "summary": "无 Cocos 编辑器：验证路径 = 引擎无关玩法跑 vitest（Node）+ dev harness（canvas2",
           "keywords": [
@@ -32514,8 +32532,8 @@
         {
           "anchor": "§5 统计",
           "level": 2,
-          "startLine": 275,
-          "endLine": 283,
+          "startLine": 280,
+          "endLine": 288,
           "tokens": 102,
           "summary": "Epic 数 10（EP-01…EP-09 系统 + EP-10 工程交付）",
           "keywords": [
@@ -33318,9 +33336,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 5372,
-      "lines": 146,
-      "sha256": "8013a898682306e6b12c2f754139436676e0dfaee44171ed09bb7f23b8b562e8",
+      "tokens": 6086,
+      "lines": 165,
+      "sha256": "f451b041c5e2b53cf90bf8cb6f17253bdd58d71bea0bda5da87a1b7a33871424",
       "tier": "hot",
       "sections": [
         {
@@ -33452,8 +33470,8 @@
           "anchor": "§C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）",
           "level": 1,
           "startLine": 111,
-          "endLine": 147,
-          "tokens": 1704,
+          "endLine": 149,
+          "tokens": 1705,
           "summary": "事件 payload 以 systems-index §4 登记定稿为准（combo:up {streak, multi",
           "keywords": [
             "score-combo.md §8.1..11",
@@ -33462,6 +33480,22 @@
             "score",
             "combo",
             "WXG"
+          ]
+        },
+        {
+          "anchor": "§D 道具系统判据用例（10 条 = 判据 1:1）— 来源 `powerups.md §8.1..10`（WXG-T-060 落码；实现与自动化见 `games/beads/tests/powerups.test.ts`）",
+          "level": 1,
+          "startLine": 150,
+          "endLine": 166,
+          "tokens": 662,
+          "summary": "D1 region 窗口恒长与集合正确 S6§8-1 无选中、8 颗持有 → affectedSlots = [0..5",
+          "keywords": [
+            "powerups.md §8.1..10",
+            "§8.1",
+            "§8",
+            "powerups",
+            "WXG",
+            "games"
           ]
         }
       ]

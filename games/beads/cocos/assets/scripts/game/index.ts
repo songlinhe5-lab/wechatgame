@@ -20,6 +20,7 @@ export * from './systems/timer';
 export * from './systems/sprint';
 export * from './systems/pause-panel';
 export * from './systems/fail-panel';
+export * from './systems/powerups';
 
 export * from './game/state';
 export * from './game/save-schema';

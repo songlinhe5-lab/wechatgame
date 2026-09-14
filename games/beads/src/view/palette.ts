@@ -157,6 +157,24 @@ export const SYMBOL_INK_LUMA_THRESHOLD = 0.6;
  */
 export const SYMBOL_CONTRAST_MIN = 3;
 
+// ───────────────────────────────────── powerup icon inks (assets-spec §1.4)
+/**
+ * The three powerup glyphs carry **fixed** inks in §1.4 — they are assets, not
+ * theme tokens, so they are not read off `BeadsPalette`. They live in this file
+ * because `view/palette.ts` is the only `view/` module allowed to hold hex
+ * literals (control-manifest §3 self-check).
+ */
+/** 魔法棒 stick (`item_area_clear`). */
+export const POWERUP_INK_WAND = '#8E6FD9';
+/** 星 / 刷毛 (`item_area_clear` star, `item_tray_clear` bristles). */
+export const POWERUP_INK_STAR = '#FFD23F';
+/** 扫帚柄 (`item_tray_clear`). */
+export const POWERUP_INK_STRAW = '#A5652C';
+/** 磁铁本体 (`item_random_clear`). */
+export const POWERUP_INK_MAGNET = '#E84C3D';
+/** 磁极端帽 (`item_random_clear`, §1.4「白/浅蓝端帽」). */
+export const POWERUP_INK_CAP = '#D8D5E6';
+
 function parseHex(hex: string): { r: number; g: number; b: number } {
   let h = hex.replace('#', '');
   if (h.length === 3) {

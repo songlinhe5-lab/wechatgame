@@ -27,8 +27,17 @@ export const CAPSULE_AVOID = { xMin: 560, xMax: 750, yMin: 1214, yMax: 1334 } as
 export const PUZZLE_BAND = { yMin: 480, yMax: 1120 } as const;
 /** Tray band (white rounded panel). */
 export const TRAY_BAND = { yMin: 230, yMax: 420 } as const;
-/** Powerup band (3 white cards — structure reserved this sprint, S6 excluded). */
+/** Powerup band (3 white cards — S6 landed in WXG-T-060). */
 export const POWERUP_BAND = { yMin: 48, yMax: 200 } as const;
+/**
+ * Powerup card geometry. Presentation-only (no §3 constant — the *band* is the
+ * frozen part); declared here because **both** the renderer and the S2 hit test
+ * must agree, and a second copy would be a silent drift (the `gridLayoutFor`
+ * precedent). `POWERUP_CARD_H` ≥ `TOUCH_MIN`, so the card is its own hit area.
+ */
+export const POWERUP_CARD_W = 150;
+export const POWERUP_CARD_H = 110;
+export const POWERUP_CARD_GAP = 30;
 
 // ──────────────────────────────────────────────── §3.2 palette & bead charset
 /** Pattern row charset: `.`=空位 `x`=锁定格 `1-9`+`A`=色板索引 1–10. */
@@ -88,6 +97,24 @@ export const TIMER_URGENT_T = 10;
 /** Display refresh granularity (s); internal accumulation is per-dt. */
 export const TIMER_TICK = 1.0;
 /** Failure condition is *only* the countdown reaching zero (tray full never fails). */
+
+// ─────────────────────────────────────────────────────────── §3.6 powerups
+/** The three tray-clearing powerups, in card order left → right (§3.6). */
+export const POWERUP_TYPES = ['region', 'clearAll', 'random'] as const;
+/** `region`: clears a **contiguous** run of this many slots (§3.6, A6). */
+export const REGION_CLEAR_SLOTS = 6;
+/** `random`: removes at most this many held beads, equi-probable (§3.6, A6). */
+export const RANDOM_CLEAR_COUNT = 5;
+/** Free uses of *each* powerup per level — three independent counters (§3.6, A5). */
+export const POWERUP_FREE_USES = 1;
+/**
+ * In-level rewarded-video placements: 3 powerup cards + tray expansion (§3.6).
+ * Layout A (WXG-T-057): all four are `ad_badge` placeholders this round — the
+ * only live placement is the fail-page continue (§3.11).
+ */
+export const AD_PLACEMENTS = 4;
+/** A powerup identity — the frozen tuple's element type. */
+export type PowerupType = (typeof POWERUP_TYPES)[number];
 
 // ──────────────────────────────────────────────────────── §3.11 fail revive
 /** Seconds written onto the playable clock after a completed fail-page ad. */
@@ -287,6 +314,35 @@ export function gridLayoutFor(cols: number, rows: number): GridLayout {
     colCenterX: (j: number) => left + BEAD_CELL / 2 + BEAD_PITCH * j,
     rowCenterY: (i: number) => top - BEAD_CELL / 2 - BEAD_PITCH * i,
   };
+}
+
+/** One powerup card's rect (`x`/`bottom` = design-space bottom-left corner). */
+export interface PowerupCardRect {
+  readonly x: number;
+  readonly bottom: number;
+  readonly w: number;
+  readonly h: number;
+}
+
+/**
+ * The three card rects, centred in `POWERUP_BAND` — the single geometry source
+ * shared by `view/view-model.ts` (draw) and the S2 tap router (hit test), so a
+ * drawn card can never disagree with where taps land.
+ */
+export function powerupCardRects(): PowerupCardRect[] {
+  const totalW = POWERUP_CARD_W * 3 + POWERUP_CARD_GAP * 2;
+  const startX = (DESIGN_W - totalW) / 2;
+  const bottom = (POWERUP_BAND.yMin + POWERUP_BAND.yMax) / 2 - POWERUP_CARD_H / 2;
+  const rects: PowerupCardRect[] = [];
+  for (let i = 0; i < POWERUP_TYPES.length; i++) {
+    rects.push({
+      x: startX + i * (POWERUP_CARD_W + POWERUP_CARD_GAP),
+      bottom,
+      w: POWERUP_CARD_W,
+      h: POWERUP_CARD_H,
+    });
+  }
+  return rects;
 }
 
 /** Tuning bundle handed to the game (mirrors the breakout `BreakoutTuning` shape). */
