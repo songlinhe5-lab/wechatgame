@@ -75,6 +75,7 @@ import {
   RESIDENT_PROTOCOL_FILES,
   ROOT,
   ROUTES_PATH,
+  SKIP_DIRS,
   freshnessIssues,
   readDistribution,
   readIndex,
@@ -364,6 +365,15 @@ function checkStagedFreshness() {
   const checked = [];
   for (const [path, code] of [...st.staged.entries()].sort(([a], [b]) => (a < b ? -1 : 1))) {
     if (!path.endsWith('.md')) continue;
+    // 索引面**按设计排除**的目录（`SKIP_DIRS`：`archive` / `build` / `temp` / `library` …，
+    // 匹配语义见 lib/context-index.mjs:461-473 的逐段 `SKIP_DIRS.has(entry.name)`）——
+    // 这些路径永远不在 `index.files` 里。若把它们纳入候选，**归档目录下的新文件将永久无法提交**：
+    // C 项报「新文件未入索引」，而索引永远不可能收录它 ⇒ 提示的「直接重新提交即可」永远不成立。
+    // 本修复让 C 项候选集与索引面**同口径**（WXG-T-051 实测：`tasks:archive` 首次真跑即被此卡死）。
+    if (path.split('/').some((seg) => SKIP_DIRS.has(seg))) {
+      notes.push(`C(--staged): 跳过索引面排除目录 — ${path}（SKIP_DIRS 设计排除，不参与新鲜度判定）`);
+      continue;
+    }
     checked.push(path);
     const rec = byPath.get(path);
     if (code === 'D') {
