@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1888,
       "lines": 84,
-      "sha256": "cc19fcd3f7fa3c5cdf5c5d17a2718a44487d74dab35a2ec4b626b67312dbdc30",
+      "sha256": "4751959b9fe8b4e66497ce312dd43550d290527e7c480e3647e8711b4937d35d",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3773,
       "lines": 90,
-      "sha256": "38ad651a430202b45a0ee842157c709c5c54496ddc4d9d6fde9c3ee698adec89",
+      "sha256": "10fd7eb47d783a85c31114057700473144c658c683d753cee2947f1b54c942d3",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 42 行 / 2399 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 42 行 / 2410 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -752,7 +752,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 153 行 / 7154 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 153 行 / 7187 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
@@ -32366,9 +32366,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 7154,
+      "tokens": 7187,
       "lines": 153,
-      "sha256": "7b3911d893cc79ba9a9f7021d6d0d3a3084b8f09c0f9d0e84be5dd2c0f6dccbe",
+      "sha256": "e67329431ccc853cdc52c5820a8b9d09e3264a23486d356760709ba6b4f7e938",
       "tier": "normal",
       "sections": [
         {
@@ -32376,7 +32376,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 154,
-          "tokens": 7137,
+          "tokens": 7170,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -32537,7 +32537,7 @@
           "level": 2,
           "startLine": 105,
           "endLine": 112,
-          "tokens": 466,
+          "tokens": 477,
           "summary": "名称：beads 局内崩溃快照落码（D-03 实现轮；用户裁定「局内崩溃快照（D-03）任务执行」）：T-055 的提案",
           "keywords": [
             "WXG",
@@ -32589,7 +32589,7 @@
           "level": 2,
           "startLine": 137,
           "endLine": 144,
-          "tokens": 443,
+          "tokens": 454,
           "summary": "名称：EP-07 结算·过关面板落地（用户裁定「开始 EP-07 结算面板」）：ux-spec §4 流转表要求 LEV",
           "keywords": [
             "§4",
@@ -32603,7 +32603,7 @@
           "level": 2,
           "startLine": 145,
           "endLine": 154,
-          "tokens": 663,
+          "tokens": 674,
           "summary": "名称：台账「标题制 + 详情分片」：治 TASKS.md 随任务数线性膨胀（用户 2026-09-14 反馈「详情写进索",
           "keywords": [
             "WXG",
@@ -32614,9 +32614,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2399,
+      "tokens": 2410,
       "lines": 42,
-      "sha256": "2c3913d7a48e8f206ce7e627faa37e4163deee8fbe24e1fe37b132ada5d109e6",
+      "sha256": "44db3b6db90ea49eaa7efb083f84aa59f1c1881745c0294a8a8ef63dd214b6b1",
       "tier": "hot",
       "sections": [
         {
@@ -32624,7 +32624,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 43,
-          "tokens": 2390,
+          "tokens": 2401,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

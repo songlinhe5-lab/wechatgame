@@ -39,8 +39,8 @@
 | 15 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
 | 16 | `production/qa/beads/test-cases.md` | 7282 | 197 | hot |
 | 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
-| 18 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
-| 19 | `production/TASKS-DETAIL.md` | 7154 | 153 | normal |
+| 18 | `production/TASKS-DETAIL.md` | 7187 | 153 | normal |
+| 19 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
 | 20 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
