@@ -178,7 +178,7 @@ JSDoc 明写 `@param delay … **Unit: s**` ⇒ **整套调度单位为秒**；`
 | 根文件 | ~158 KB | `web-adapter.js` 87.9 / `engine-adapter.js` 19.9 / `first-screen.js` 17.9 / `logo.png` 14.2 / `slogan.png` 11.2 / … |
 
 **⚠️ 由此暴露的真实缺陷（已登记 backlog）：功能裁剪未执行。**
-`cocos/settings/v2/packages/engine.json` 的 `includeModules`（与构建日志的 `features=[…]` 逐个吻合）
+`cocos/settings/v2/packages/engine.json` 的模块开关（`modules.configs.defaultConfig.cache[*]._value`，与构建日志的 `features=[…]` 逐个吻合）
 仍含 `spine-3.8`（**`assets/spine-*.wasm` 实测 200.4 KB**）、`dragon-bones`、`tiled-map`、`video`、
 `webview`、`particle-2d`、`physics-2d-box2d`、`mask`、`rich-text`、`animation` 等本作**未使用**的模块——
 而 `games/breakout/cocos/README.md` §3 步骤 2 明确要求取消它们。
@@ -192,11 +192,26 @@ JSDoc 明写 `@param delay … **Unit: s**` ⇒ **整套调度单位为秒**；`
 待裁模块在 `packages/framework/src` + `games/breakout/src` + `cocos/assets/scripts` 中引用数 **全为 0**。
 （注意一个假命中：`Animation` 的 4 处匹配实为 **`requestAnimationFrame`**（浏览器 API），**不是**引擎 `Animation` 模块。）
 
-**改动**：`cocos/settings/v2/packages/engine.json` 的 `includeModules` **22 → 10**，关闭 **14 个** checkbox：
-`animation` / `audio` / `dragon-bones` / `mask` / `particle-2d` / `physics-2d` / `physics-2d-box2d` /
-`rich-text` / `spine` / `spine-3.8` / `tiled-map` / `tween` / `video` / `webview`。
-保留：`2d` / `affine-transform` / `base` / `custom-pipeline` / `gfx-webgl` / `gfx-webgl2` /
-`graphics` / `intersection-2d` / `profiler` / `ui`。
+**改动**：`cocos/settings/v2/packages/engine.json` 的模块开关 **24 → 11 项 `_value: true`**，关闭 **13 个**：
+`animation` / `audio` / `dragon-bones` / `mask` / `particle-2d` / `physics-2d` / `rich-text` /
+`spine` / `spine-3.8` / `tiled-map` / `tween` / `video` / `webview`。
+保留（11 项）：`2d` / `affine-transform` / `base` / `custom-pipeline` / `gfx-webgl` / `gfx-webgl2` /
+`graphics` / `intersection-2d` / `profiler` / `render-pipeline` / `ui`。
+
+> **本段更正（2026-09-14，WXG-T-053 复核）**：本节此前写作「`includeModules` **22 → 10** / 关闭 **14 个**」，
+> 三处与事实不符 —— ① **`includeModules` 这个键在该文件里根本不存在**，真实结构是
+> `modules.configs.defaultConfig.cache[<模块>]._value`（`globalConfigKey = "defaultConfig"`，共 **55 项**）；
+> ② 计数是 **24 → 11**（不是 22 → 10）；③ 保留清单**漏了 `render-pipeline`**，关闭清单**多列了
+> `physics-2d-box2d`**（它首版即为 false，实际关闭的是 `physics-2d`）。
+> **证据来源**：`git log --follow` 该文件 + **首个版本**（`70c667f`，Dashboard 生成物）与现值的逐项 diff。
+>
+> **归因已复核（曾怀疑，已排除）**：同平台实测 web-mobile **debug 4436 KB vs release 1948 KB（2.28×）**，
+> 口径差确实足以解释「3008 → 1815」，故一度怀疑那笔降幅来自口径而非裁剪 —— 但 `engine.json` 的改动在
+> git 历史里**真实存在**（`1b69b00`：14 insertions / 26 deletions），**T-051 的因果成立**，怀疑撤回。
+>
+> **矩阵级推论（beads 复用）**：`games/beads/cocos/settings/v2/packages/engine.json` 现值也是
+> **11 项 true，且与 breakout 裁剪后逐项相同** ⇒ **beads 无需再做功能裁剪**。理由不是"模板默认就裁好"
+> （breakout 首版是 24 项，两个工程的模板**并不相同**），而是**恰好已落在同一模块集**上。
 改写方式为 **parse → set → serialize + 解析校验**，**不是手改文本**（对齐"编辑器拥有的状态文件入库前必须按 JSON 解析核对语义"的教训）。
 
 **效果（release，同口径对比）**：

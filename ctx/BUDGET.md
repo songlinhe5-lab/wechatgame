@@ -40,8 +40,8 @@
 | 16 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 17 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 | 18 | `docs/agent/cocos-setup.md` | 7054 | 364 | normal |
-| 19 | `memory/2026-09-13.md` | 6645 | 149 | normal |
-| 20 | `docs/engine-reference/cocos/VERSION.md` | 6554 | 290 | normal |
+| 19 | `docs/engine-reference/cocos/VERSION.md` | 7007 | 305 | normal |
+| 20 | `memory/2026-09-13.md` | 6645 | 149 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

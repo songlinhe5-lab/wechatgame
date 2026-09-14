@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1881,
       "lines": 84,
-      "sha256": "6445a46371d0f174000e7de51f554fff2004282e37a5a6e3930bb03ff396c5ce",
+      "sha256": "2c56d23ac42d1e51b870049a72aeb685b19b20e90151ffa38faad9ffc3cca906",
       "tier": "normal",
       "sections": [
         {
@@ -5088,17 +5088,17 @@
     },
     {
       "path": "docs/engine-reference/cocos/VERSION.md",
-      "tokens": 6554,
-      "lines": 290,
-      "sha256": "1adfc067c86848dabc9c7124e37702f8aa42277e807ac1f7ace463302cf385e8",
+      "tokens": 7007,
+      "lines": 305,
+      "sha256": "f134542c1951e1d22ca28b2640a51ec68a28fb0705839b158fc12502a44b4c41",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator — 引擎版本钉定与知识缺口清单",
           "level": 1,
           "startLine": 1,
-          "endLine": 291,
-          "tokens": 6536,
+          "endLine": 306,
+          "tokens": 6989,
           "summary": "钉定版本：Cocos Creator 3.8 LTS（当前最新 3.8.8，2025-12 发布）",
           "keywords": [
             "Cocos",
@@ -5151,8 +5151,8 @@
           "anchor": "§3 知识缺口清单（**必须在编辑器里逐条验证**）",
           "level": 2,
           "startLine": 53,
-          "endLine": 235,
-          "tokens": 4358,
+          "endLine": 250,
+          "tokens": 4811,
           "summary": "每一条都是\"我无法在无编辑器环境下确认\"的事实。请在 Cocos Creator 3.8.8 就绪后按序验证并回填结论。",
           "keywords": [
             "Cocos",
@@ -5253,8 +5253,8 @@
           "anchor": "§G7 — 构建与包体",
           "level": 3,
           "startLine": 147,
-          "endLine": 220,
-          "tokens": 1500,
+          "endLine": 235,
+          "tokens": 1954,
           "summary": "构建产物（build/wechatgame/）的目录结构、主包/分包划分方式。",
           "keywords": [
             "build",
@@ -5265,8 +5265,8 @@
         {
           "anchor": "§G8 — `wx` 适配层",
           "level": 3,
-          "startLine": 221,
-          "endLine": 227,
+          "startLine": 236,
+          "endLine": 242,
           "tokens": 174,
           "summary": "Cocos 的微信小游戏导出是否自带 wx 的 requestAnimationFrame 注入？（我们的 weapp.",
           "keywords": [
@@ -5280,8 +5280,8 @@
         {
           "anchor": "§G9 — `.meta` 与资源",
           "level": 3,
-          "startLine": 228,
-          "endLine": 235,
+          "startLine": 243,
+          "endLine": 250,
           "tokens": 119,
           "summary": ".meta 的 UUID 生成规则；手工新增 assets 下的文件是否会被编辑器自动补 .meta。",
           "keywords": [
@@ -5295,8 +5295,8 @@
         {
           "anchor": "§4 已在本轮\"无编辑器\"条件下完成的部分",
           "level": 2,
-          "startLine": 236,
-          "endLine": 256,
+          "startLine": 251,
+          "endLine": 271,
           "tokens": 409,
           "summary": "明确区分已验证与未验证，避免后续误判。",
           "keywords": [
@@ -5309,8 +5309,8 @@
         {
           "anchor": "§5 编辑器就绪后的验证顺序（建议）",
           "level": 2,
-          "startLine": 257,
-          "endLine": 284,
+          "startLine": 272,
+          "endLine": 299,
           "tokens": 609,
           "summary": "按依赖顺序执行，前一步失败会阻塞后一步：",
           "keywords": [
@@ -5322,8 +5322,8 @@
         {
           "anchor": "§6 维护约定",
           "level": 2,
-          "startLine": 285,
-          "endLine": 291,
+          "startLine": 300,
+          "endLine": 306,
           "tokens": 142,
           "summary": "任何在编辑器里发现与本文记载不符的地方，必须回来更新本文件（含\"实际行为\"与\"受影响文件\"）。",
           "keywords": [
