@@ -271,12 +271,20 @@ ADR-0009 §3.4 的「一份配置，四处生效」指 **URL 统一**；实际�
 | A3 | 项目设置 → 功能裁剪 | **照抄 `games/breakout/cocos/settings/v2/packages/engine.json` 的 `includeModules`**（10 个模块：`2d`/`affine-transform`/`base`/`custom-pipeline`/`gfx-webgl`/`gfx-webgl2`/`graphics`/`intersection-2d`/`profiler`/`ui`）。<br>**依据**：beads 的 `games/beads/src/**` 按 L3 铁律**不 import `cc`**，实际用到的引擎能力全部来自 `packages/framework/src/adapters/cocos/**` —— 与 breakout **同一份适配器** ⇒ 模块集应当**完全相同**，不存在 beads 特有模块 |
 | A4 | `assets/` 右键 → 创建 → 场景，命名 `Main`；双击打开 | **不要**添加任何节点 |
 | A5 | 层级空白处右键 → 创建 → 空节点，命名 `GameRoot` | 选中后加组件 `UITransform`（内容尺寸 `750 × 1334`）+ `BeadsBootstrap`（见 13.3） |
-| A6 | 保存场景，然后**设为起始场景** | 项目设置 → 项目数据 → **起始场景 = `Main`** |
+| A6 | 保存场景，然后**设为起始场景** | 编辑器里「项目设置 → **预览** → 起始场景」选 `Main`。<br>**可校验判据**（不依赖菜单措辞）：`games/beads/cocos/profiles/v2/packages/preview.json` 的 **`start_scene`** 应等于 `assets/Main.scene.meta` 的 uuid |
 | A7 | 构建面板：平台 **微信小游戏**；**输出目录改成 `games/beads/build/wechatgame`** | Cocos 默认落在工程内 `cocos/build/wechatgame`，与 `architecture.md §1/§5` 约定不同。（`pnpm run check:size` 两处都扫，故不改也不静默漏检，但建议改） |
 
 > ⚠️ **A6 不是可选项。** 起始场景若留「当前场景」，预览会依赖"编辑器此刻开着哪个场景"；
 > 编辑器刚重启、场景尚未恢复时收到预览请求 → `无法查到当前场景 JSON 数据(start_scene) = current_scene`
 > （2026-09-14 实测复现，见 `memory/2026-09-14.md`）。固定成 `Main` 后该竞态消失。
+>
+> ⚠️ **但这条设置不随仓库共享**：落点在 `games/<game>/cocos/profiles/`，而 `games/*/cocos/profiles/`
+> 在 `.gitignore` 内 ⇒ **新检出 / 新机器必须重设一次**，否则竞态复发。
+> **已实测的权威格式（2026-09-14，WXG-T-053）**：键名 **`start_scene`**（snake_case），位于
+> **工程级** `profiles/v2/packages/preview.json`；两款游戏现均已设置
+> （beads = `9683d2dd-7e97-4fe3-a54d-3e2ef554406a`，breakout = `d6736ca4-…`）。
+> 注意**用户级** `~/.CocosCreator/profiles/v2/packages/preview.json` 是**另一个文件**，
+> 里面**没有** `start_scene`（只有 `rotate` / `debugMode` / `showFps`）—— 初次诊断时曾误读它。
 >
 > ⚠️ **`.scene` / `.prefab` / `.meta` 必须由编辑器生成**（L1）。A4/A5 请在 GUI 里点出来，不要让我或脚本伪造。
 
@@ -351,7 +359,7 @@ pnpm run check:size                 # 阈值真源：games/beads/design/gdd/syst
 [ ] A1 工程已创建于 games/beads/cocos/（设计分辨率 750×1334，Fit Height）
 [ ] A3 功能裁剪已与 breakout 的 engine.json 完全一致
 [ ] A4/A5 Main.scene 里只有 GameRoot + UITransform + BeadsBootstrap
-[ ] A6 起始场景已固定为 Main（不是「当前场景」）
+[ ] A6 起始场景已固定为 Main —— `cocos/profiles/v2/packages/preview.json` 的 `start_scene` === Main.scene 的 uuid（注意 profiles/ 不入库，新机器要重设）
 [ ] A7 构建输出目录已改为 games/beads/build/wechatgame
 [ ] B1 BeadsBootstrap.ts 已落盘，createGame() 返回 createBeadsGame()
 [ ] B3 games/beads/cocos/README.md 已落盘

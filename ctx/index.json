@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1881,
       "lines": 84,
-      "sha256": "2c56d23ac42d1e51b870049a72aeb685b19b20e90151ffa38faad9ffc3cca906",
+      "sha256": "d414ff1fa252f63005ced588963211e9a810234b66302c0782bcde768830cdb3",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3913,
       "lines": 94,
-      "sha256": "d14e7a0ddb3db08d15b7ffd54d3d67c7d80920c69875ee773e1e888d687abc06",
+      "sha256": "febda0ec0b3c00efc18b40b4206607bf1e0c14efcf6fb22c4b63b238458be0b8",
       "tier": "normal",
       "sections": [
         {
@@ -752,12 +752,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/cocos-setup.md` — 364 行 / 7054 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
           "tokens": 355,
-          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+365 ·",
+          "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
             "docs/agent/cocos-setup.md",
             "docs",
@@ -1067,17 +1067,17 @@
     },
     {
       "path": "docs/agent/cocos-setup.md",
-      "tokens": 7054,
-      "lines": 364,
-      "sha256": "0dffdfeb9742e2ecbb71fc735eef1981c12aa51e91fa9829122e3ca38ff80292",
+      "tokens": 7341,
+      "lines": 372,
+      "sha256": "b2420ee4985e842fab2c1a865d9ffa51f7cb208b9f2173f93f744bdf4d787555",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 365,
-          "tokens": 7036,
+          "endLine": 373,
+          "tokens": 7323,
           "summary": "来源：ADR-0009 §3.4「四 IDE 接入方式」的可执行展开 · 2026-09-13 · Task ID WX",
           "keywords": [
             "§3.4",
@@ -1320,8 +1320,8 @@
           "anchor": "§13 beads 工程落地清单（WXG-T-053）",
           "level": 2,
           "startLine": 248,
-          "endLine": 365,
-          "tokens": 2217,
+          "endLine": 373,
+          "tokens": 2503,
           "summary": "背景：games/breakout/cocos/ 已存在并跑通预览/构建；beads 的 Cocos 工程尚未创建。",
           "keywords": [
             "beads",
@@ -1352,8 +1352,8 @@
           "anchor": "§13.2 步骤 A — 编辑器 GUI（唯一必须人工的一步，约 5 分钟）",
           "level": 3,
           "startLine": 265,
-          "endLine": 282,
-          "tokens": 597,
+          "endLine": 290,
+          "tokens": 854,
           "summary": "A1 Cocos Dashboard → 新建 → Empty（2D）模板 工程落点 games/beads/cocos",
           "keywords": [
             "GUI",
@@ -1367,8 +1367,8 @@
         {
           "anchor": "§13.3 步骤 B — 仓库侧补齐（工程建好后**一次做完**）",
           "level": 3,
-          "startLine": 283,
-          "endLine": 316,
+          "startLine": 291,
+          "endLine": 324,
           "tokens": 384,
           "summary": "B1 · games/beads/cocos/assets/scripts/BeadsBootstrap.ts（照 br",
           "keywords": [
@@ -1383,8 +1383,8 @@
         {
           "anchor": "§13.4 步骤 C — 同步、检查、构建（命令）",
           "level": 3,
-          "startLine": 317,
-          "endLine": 337,
+          "startLine": 325,
+          "endLine": 345,
           "tokens": 282,
           "summary": "",
           "keywords": [
@@ -1398,8 +1398,8 @@
         {
           "anchor": "§13.5 beads 的预期与特有风险",
           "level": 3,
-          "startLine": 338,
-          "endLine": 347,
+          "startLine": 346,
+          "endLine": 355,
           "tokens": 354,
           "summary": "主包体积 与 breakout 同量级（≈1815 KB 的引擎 + 更小的业务代码） 引擎模块集相同 ⇒ cocos-",
           "keywords": [
@@ -1413,9 +1413,9 @@
         {
           "anchor": "§13.6 检查表",
           "level": 3,
-          "startLine": 348,
-          "endLine": 365,
-          "tokens": 249,
+          "startLine": 356,
+          "endLine": 373,
+          "tokens": 278,
           "summary": "",
           "keywords": [
             "检查表"
@@ -6179,17 +6179,17 @@
     },
     {
       "path": "games/beads/cocos/README.md",
-      "tokens": 1236,
-      "lines": 70,
-      "sha256": "7ad352f45c2acb00a2e013f298d1ca29c48a04362aab91099f214c18d9db2800",
+      "tokens": 1323,
+      "lines": 73,
+      "sha256": "2ff7c509d6a781f6a7655a71dfba688f419c15ec5f46c2f0adcce3d8129dfbf4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Beads — Cocos Creator 工程",
           "level": 1,
           "startLine": 1,
-          "endLine": 71,
-          "tokens": 1228,
+          "endLine": 74,
+          "tokens": 1315,
           "summary": "引擎：Cocos Creator 3.8 LTS（3.8.8）",
           "keywords": [
             "Beads",
@@ -6233,8 +6233,8 @@
           "anchor": "§3 编辑器里仍需人工完成的两步",
           "level": 2,
           "startLine": 45,
-          "endLine": 58,
-          "tokens": 226,
+          "endLine": 61,
+          "tokens": 313,
           "summary": "工程已创建，以下两步只能在 GUI 里做（L1：.scene 不许手编）：",
           "keywords": [
             "GUI",
@@ -6246,8 +6246,8 @@
         {
           "anchor": "§4 检查表",
           "level": 2,
-          "startLine": 59,
-          "endLine": 71,
+          "startLine": 62,
+          "endLine": 74,
           "tokens": 157,
           "summary": "",
           "keywords": [

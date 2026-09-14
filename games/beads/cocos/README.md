@@ -50,9 +50,12 @@ pnpm run check:size                # 主包/分包体积门禁（自动发现 ga
    选中 `GameRoot` → 属性检查器 → 添加组件 → `BeadsBootstrap`
    （该脚本已在 `assets/scripts/`，编辑器导入后应出现在组件列表里）
    完成后场景应是：`Main`(Scene) → `Canvas` → `Camera` / `GameRoot`(UITransform + BeadsBootstrap)
-2. **固定预览起始场景**：项目设置 → 项目数据 → **起始场景 = `Main`**
+2. **固定预览起始场景**：编辑器「项目设置 → 预览 → 起始场景」选 `Main`。
+   **校验判据**：`cocos/profiles/v2/packages/preview.json` 的 **`start_scene`** 应等于
+   `assets/Main.scene.meta` 的 uuid（实测值 `9683d2dd-7e97-4fe3-a54d-3e2ef554406a`）。
    不要留「当前场景」——留它时预览依赖"编辑器此刻开着哪个场景"，编辑器刚重启、场景未恢复时
    会报 `无法查到当前场景 JSON 数据(start_scene) = current_scene`（2026-09-14 实测复现）。
+   ⚠️ `profiles/` 在 `.gitignore` 内 ⇒ **该设置不随仓库共享，新检出须重设一次**。
 
 ---
 

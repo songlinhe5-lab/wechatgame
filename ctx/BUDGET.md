@@ -35,11 +35,11 @@
 | 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.zh-TW.md` | 7579 | 525 | normal |
 | 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.md` | 7524 | 525 | normal |
 | 13 | `production/epics/epics-beads.md` | 7426 | 282 | normal |
-| 14 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
-| 15 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
-| 16 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
-| 17 | `production/qa/test-cases.md` | 7097 | 296 | normal |
-| 18 | `docs/agent/cocos-setup.md` | 7054 | 364 | normal |
+| 14 | `docs/agent/cocos-setup.md` | 7341 | 372 | normal |
+| 15 | `games/breakout/cocos/extensions/cocos-mcp-server/README.EN.md` | 7240 | 525 | normal |
+| 16 | `docs/architecture/adr/ADR-0010-weixin-minigame-helper-integration.md` | 7166 | 212 | normal |
+| 17 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
+| 18 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 | 19 | `docs/engine-reference/cocos/VERSION.md` | 7007 | 305 | normal |
 | 20 | `memory/2026-09-13.md` | 6645 | 149 | normal |
 
