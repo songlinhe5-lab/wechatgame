@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1880,
       "lines": 84,
-      "sha256": "91aa358546a9a7dddc9ddd83dd7065c56d73af4f3681b4554ca35cc5694a7523",
+      "sha256": "58126b56d467888e67a03b434906cf7ccbf49979162c54c268ecd0e5634e2e47",
       "tier": "normal",
       "sections": [
         {
@@ -209,7 +209,7 @@
           "startLine": 1,
           "endLine": 85,
           "tokens": 1867,
-          "summary": "生成：2026-09-13 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -21831,6 +21831,40 @@
             "playwright",
             "验收通过",
             "输入链路三连",
+            "主理会话"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/2026-09-14.md",
+      "tokens": 768,
+      "lines": 12,
+      "sha256": "9b4079ef3a86dffb355f0e28342530e5a90a0bcc5f515bfb32aee4881e33dd08",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§2026-09-14",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 13,
+          "tokens": 765,
+          "summary": "",
+          "keywords": []
+        },
+        {
+          "anchor": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口）",
+          "level": 2,
+          "startLine": 3,
+          "endLine": 13,
+          "tokens": 740,
+          "summary": "游戏在 Cocos 预览完整可玩：发球 ✓、挡板跟手 ✓、撞砖得分 ✓（实测 score=300，砖墙被打掉多块）、li",
+          "keywords": [
+            "Cocos",
+            "WXG",
+            "score",
+            "预览全链路验",
+            "收通过",
             "主理会话"
           ]
         }
