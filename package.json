@@ -46,7 +46,8 @@
     "preview:frames": "node tools/scripts/render-harness-frame.mjs",
     "preview:clip": "node tools/scripts/render-harness-clip.mjs",
     "commitlint": "commitlint",
-    "verify": "pnpm run check:arch && pnpm run check:secrets && pnpm run check:links && pnpm run check:mcp && pnpm run levels:check && pnpm run typecheck && pnpm run framework:sync:check && pnpm run cocos:check && pnpm run check:size && pnpm run test && pnpm run harness:build && pnpm run harness:smoke"
+    "verify": "pnpm run check:arch && pnpm run check:secrets && pnpm run check:tasks && pnpm run check:links && pnpm run check:mcp && pnpm run levels:check && pnpm run typecheck && pnpm run framework:sync:check && pnpm run cocos:check && pnpm run check:size && pnpm run test && pnpm run harness:build && pnpm run harness:smoke",
+    "check:tasks": "node tools/scripts/check-tasks.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
