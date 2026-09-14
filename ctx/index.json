@@ -22134,17 +22134,17 @@
     },
     {
       "path": "memory/2026-09-14.md",
-      "tokens": 3821,
-      "lines": 61,
-      "sha256": "ec007da5e0b48ad517bfdc87b6117d9ccbd5327f3cb6794558ae7bf426cc17e7",
+      "tokens": 4024,
+      "lines": 64,
+      "sha256": "55389539597e891dcf3c88fe09ceeb33eb2983cfb6395a4207d7d61bfccc6cf0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 62,
-          "tokens": 3817,
+          "endLine": 65,
+          "tokens": 4021,
           "summary": "",
           "keywords": []
         },
@@ -22152,8 +22152,8 @@
           "anchor": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口）",
           "level": 2,
           "startLine": 3,
-          "endLine": 13,
-          "tokens": 740,
+          "endLine": 16,
+          "tokens": 943,
           "summary": "游戏在 Cocos 预览完整可玩：发球 ✓、挡板跟手 ✓、撞砖得分 ✓（实测 score=300，砖墙被打掉多块）、li",
           "keywords": [
             "Cocos",
@@ -22167,8 +22167,8 @@
         {
           "anchor": "§构建链前置补洞 + 多游戏粒度修正（WXG-T-047 / T-048，CodeBuddy 会话）",
           "level": 2,
-          "startLine": 14,
-          "endLine": 24,
+          "startLine": 17,
+          "endLine": 27,
           "tokens": 1041,
           "summary": "T-047 补两个缺失脚本：check-bundle-size.mjs（阈值真源 systems-index §3.8 ",
           "keywords": [
@@ -22183,8 +22183,8 @@
         {
           "anchor": "§构建自动化能力修正：**MCP 不可，但编辑器 CLI 可**（WXG-T-049）",
           "level": 2,
-          "startLine": 25,
-          "endLine": 37,
+          "startLine": 28,
+          "endLine": 40,
           "tokens": 737,
           "summary": "本会话上轮结论被自己推翻：我曾判定「微信构建结构上不可自动化」。那只对 MCP 通道成立。实测 Cocos Creato",
           "keywords": [
@@ -22199,8 +22199,8 @@
         {
           "anchor": "§里程碑：用户确认「已基本完成 breakout」→ 验收回填（WXG-T-050）",
           "level": 2,
-          "startLine": 38,
-          "endLine": 52,
+          "startLine": 41,
+          "endLine": 55,
           "tokens": 722,
           "summary": "触发：用户报「已经完成基本 breakout 游戏」。按本仓纪律，里程碑必须落到证据而非自报 ⇒ 先取已有实证，再补差额",
           "keywords": [
@@ -22215,8 +22215,8 @@
         {
           "anchor": "§引擎功能裁剪：主包 3008 → 1815 KB，内部目标首次达标（WXG-T-051）",
           "level": 2,
-          "startLine": 53,
-          "endLine": 62,
+          "startLine": 56,
+          "endLine": 65,
           "tokens": 443,
           "summary": "证据前置（先证\"真没用到\"再裁）：全量 cc 导入符号实测只有 7 个 —— Color / Component / G",
           "keywords": [
