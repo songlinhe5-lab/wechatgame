@@ -319,13 +319,20 @@ function runBuild() {
     writeFileSync(HOT_FILES_MD_PATH, hot, 'utf8');
     writeFileSync(MEMORY_INDEX_PATH, memIndex, 'utf8');
   }
+  // 1) 先以**最终内容**落盘 `memory/INDEX.md`（它自己也是被索引的 .md），
+  // 2) 再建一次索引把这份最终内容**纳入**，
+  // 3) 最后才序列化 —— 三步同源，磁盘上的 INDEX.md 必须与 index.json 记的哈希一致。
+  //
+  // ⚠️ 顺序不能反（WXG-T-072 的真因）：此前把 INDEX.md 写在 `serializeIndex()` **之后** ⇒
+  // index.json 记的是上一轮的 INDEX.md ⇒ pre-commit 的 C(--staged) 必然报「暂存与索引不一致」，
+  // 每次提交都要手工重建一轮才过（当天连踩四次）。hot-files.md 用「写两遍」绕开了同一问题，
+  // 这里改成显式闭环，不再依赖重试。
+  writeFileSync(MEMORY_INDEX_PATH, renderMemoryIndexText(buildIndex({ mode: MODE }).index), 'utf8');
   const { index: finalIndex, meta } = buildIndex({ mode: MODE });
   writeFileSync(INDEX_PATH, serializeIndex(finalIndex), 'utf8');
   // 索引已固定后再写一次 hot-files（确保其行号描述的正是最终索引），并复核预算。
   const finalHot = renderHotFiles(finalIndex, readDistribution());
   writeFileSync(HOT_FILES_MD_PATH, finalHot, 'utf8');
-  // memory/INDEX.md 同理：以**最终索引**再写一次，确保摘要表里的行号描述的正是最终索引。
-  writeFileSync(MEMORY_INDEX_PATH, renderMemoryIndexText(finalIndex), 'utf8');
 
   const byTier = { always: 0, hot: 0, normal: 0 };
   for (const f of finalIndex.files) byTier[f.tier] += 1;

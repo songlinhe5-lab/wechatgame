@@ -10,6 +10,7 @@
  */
 
 import type { SaveDocument, Storage } from '@wxgame/framework';
+import { STAR_MAX } from '../config/tuning.js';
 
 /**
  * S9 audio settings (save-progress §2.2): two independent channels, persisted
@@ -35,6 +36,12 @@ export interface BeadsSave extends SaveDocument {
   sprintBestScore: number;
   /** Best sprint stage index ever reached (0-based). */
   sprintBestStage: number;
+  /**
+   * 每关**历史最高星**（`0` = 未通关），长度 = 关卡数 —— S8 GDD §2.2 的 `stars`
+   * （代码侧命名 `starsByLevel`；键名与结构归代码，见该文文首「刻意例外」）。
+   * 语义 = 过关时 `max(旧, 新)`（§8-2「历史最高星不被低星覆盖」）。
+   */
+  starsByLevel: number[];
   /** S9 audio toggles (save-progress §2.2; written on every switch). */
   settings: BeadsSettings;
 }
@@ -53,6 +60,8 @@ export function defaultBeadsSave(): BeadsSave {
     currentLevel: 1,
     sprintBestScore: 0,
     sprintBestStage: 0,
+    // 长度在 `normalizeBeadsSave(raw, levelCount)` 里按关卡表补齐（出厂默认不知关卡数）。
+    starsByLevel: [],
     settings: { bgmMuted: false, sfxMuted: false },
   };
 }
@@ -97,6 +106,28 @@ export interface NormalizeResult {
   readonly changed: boolean;
 }
 
+/**
+ * 每关星级数组（S8 GDD §2.2 `stars` / §2.4 降级矩阵 / §6 边界）：
+ *   · **长度不符 → 重置全 0**（§2.4 明文，不是「钳到某个长度」）；
+ *   · 单值非有限数 → 0；小数**向下取整**（§6）；再钳 `[0, STAR_MAX]`。
+ * 逐项钳正、**绝不弃整档**（与 `settings` 同判例）。
+ */
+function normalizeStars(raw: unknown, levelCount: number): number[] {
+  const out = new Array<number>(levelCount).fill(0);
+  if (!Array.isArray(raw) || raw.length !== levelCount) return out;
+  for (let i = 0; i < levelCount; i += 1) {
+    const value = raw[i];
+    if (typeof value !== 'number' || !Number.isFinite(value)) continue;
+    out[i] = Math.max(0, Math.min(STAR_MAX, Math.floor(value)));
+  }
+  return out;
+}
+
+/** 逐项相等（长度不同即不等）——`changed` 判定用。 */
+function sameNumbers(a: readonly number[], b: readonly number[]): boolean {
+  return a.length === b.length && a.every((v, i) => v === b[i]);
+}
+
 /** Repair a loaded document into a valid one (degrade, never throw). */
 export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeResult {
   const boundedCount = Math.max(1, Math.floor(levelCount));
@@ -106,6 +137,7 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
 
   const maxUnlocked = levelIndex(raw['maxUnlockedLevel'], boundedCount);
   const current = levelIndex(raw['currentLevel'], boundedCount);
+  const rawStars = raw['starsByLevel'];
 
   const save: BeadsSave = {
     version: SAVE_VERSION,
@@ -114,6 +146,7 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     currentLevel: current ?? 1,
     sprintBestScore: num(raw['sprintBestScore'], 0),
     sprintBestStage: num(raw['sprintBestStage'], 0),
+    starsByLevel: normalizeStars(rawStars, boundedCount),
     settings: normalizeSettings(raw['settings']),
   };
 
@@ -123,6 +156,8 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     raw['currentLevel'] !== save.currentLevel ||
     raw['sprintBestScore'] !== save.sprintBestScore ||
     raw['sprintBestStage'] !== save.sprintBestStage ||
+    !Array.isArray(rawStars) ||
+    !sameNumbers(rawStars as number[], save.starsByLevel) ||
     raw['settings'] === undefined ||
     save.settings.bgmMuted !== boolField(raw['settings'], 'bgmMuted', false) ||
     save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false);

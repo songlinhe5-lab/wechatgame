@@ -275,6 +275,29 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     expect(snap.finishStars[4]).toBe(3);
   });
 
+  it('persists the per-level stars across a relaunch (S8 §2.2 stars / §8-2 重启保留)', () => {
+    // 共享 storage 的两个 harness = 真「重启」语义。
+    const shared = createBeadsHarness({
+      levels: EIGHT,
+      saveKey: 'wxgame.beads.test.fin-persist-seed',
+    }).platform.createStorage();
+    const KEY = 'wxgame.beads.test.fin-persist';
+
+    const first = createBeadsHarness({ levels: EIGHT, saveKey: KEY, storage: shared });
+    fillBoard(first); // L1 ⇒ 3★
+    first.game.goToLevel(4);
+    fillBoard(first); // L5 ⇒ 3★
+    expect(first.game.starsByLevel[0]).toBe(3);
+    expect(first.game.starsByLevel[4]).toBe(3);
+
+    const second = createBeadsHarness({ levels: EIGHT, saveKey: KEY, storage: shared });
+    expect(second.game.starsByLevel[0]).toBe(3); // 从存档装载，非局内累计
+    expect(second.game.starsByLevel[4]).toBe(3);
+    expect(second.game.starsByLevel[1]).toBe(0);
+    second.advance(1 / 60);
+    expect(second.game.snapshot.finishStars).toEqual([3, 0, 0, 0, 3, 0, 0, 0]);
+  });
+
   it('keeps the per-level max: a worse replay never downgrades the overview', () => {
     const h = createBeadsHarness({
       levels: [simpleTestLevel({ id: 213, time: 300 })],

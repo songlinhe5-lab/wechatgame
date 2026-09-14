@@ -151,6 +151,11 @@ export const STAR3_RATIO = 0.32;
 export const STAR2_RATIO = 0.12;
 /** Demo level count. */
 export const DEMO_LEVEL_COUNT = 8;
+/**
+ * 单关满星数（§3.7 星级 1–3 语义）。`computeClearStars` 的上限、S8 存档
+ * `stars` 数组的逐项钳制上界（save-progress §2.2/§6）、通关画面总览的分母共用它。
+ */
+export const STAR_MAX = 3;
 
 // ──────────────────────────────────────────────────────── §3.8 accessibility
 /** Min hit area for *UI controls* (buttons/cards/gear). */

@@ -28,6 +28,7 @@ const validSave = () => ({
   currentLevel: 3,
   sprintBestScore: 1200,
   sprintBestStage: 5,
+  starsByLevel: [3, 2, 1, 0, 0, 0, 0, 0],
   settings: { bgmMuted: true, sfxMuted: false },
 });
 
@@ -42,6 +43,7 @@ describe('beads save schema', () => {
       currentLevel: 1,
       sprintBestScore: 0,
       sprintBestStage: 0,
+      starsByLevel: [],
       settings: { bgmMuted: false, sfxMuted: false },
     });
   });
@@ -60,6 +62,34 @@ describe('beads save schema', () => {
     const result = normalizeBeadsSave(validSave(), LEVEL_COUNT);
     expect(result.changed).toBe(false);
     expect(result.save).toEqual(validSave());
+  });
+
+  // §2.2 `stars`（= 代码侧 `starsByLevel`）：每关历史最高星，长度 = 关卡数。
+  it('normalizes the stars table per §2.4/§6: length mismatch → all zero, else clamp per value', () => {
+    // §2.4：长度不符 → **重置全 0**（不是钳到某个长度）。
+    for (const bad of [undefined, null, 3, 'stars', [], [3, 2, 1], new Array(LEVEL_COUNT + 1).fill(3)]) {
+      const result = normalizeBeadsSave({ ...validSave(), starsByLevel: bad }, LEVEL_COUNT);
+      expect(result.save.starsByLevel).toEqual(new Array(LEVEL_COUNT).fill(0));
+    }
+    // §6：小数**向下取整**；越界 / 非有限数钳 0；上界 = STAR_MAX(3)。
+    const messy = [5, -1, 2.7, Number.NaN, 'x', null, Number.POSITIVE_INFINITY, 3];
+    expect(normalizeBeadsSave({ ...validSave(), starsByLevel: messy }, LEVEL_COUNT).save.starsByLevel)
+      .toEqual([3, 0, 2, 0, 0, 0, 0, 3]);
+    // 逐项钳正**不弃整档**：其余字段照常读出。
+    const repaired = normalizeBeadsSave({ ...validSave(), starsByLevel: messy }, LEVEL_COUNT);
+    expect(repaired.save.runs).toBe(3);
+    expect(repaired.save.maxUnlockedLevel).toBe(4);
+    expect(repaired.changed).toBe(true);
+  });
+
+  // §8-2：历史最高星不被低星覆盖 —— 钳制只做上下界，不做「取大」（取大在游戏侧过关时做）。
+  it('does not invent a max() over the stars table (that rule lives in the game, not the schema)', () => {
+    const lower = normalizeBeadsSave(
+      { ...validSave(), starsByLevel: [1, 0, 0, 0, 0, 0, 0, 0] },
+      LEVEL_COUNT,
+    );
+    expect(lower.save.starsByLevel[0]).toBe(1); // 原样保留，schema 不做 max
+    expect(lower.changed).toBe(false);
   });
 
   // S1 §8-10：越界值安全降级，不崩溃、不中断启动。

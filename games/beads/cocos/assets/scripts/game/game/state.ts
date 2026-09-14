@@ -145,7 +145,7 @@ export interface BeadsSnapshot {
   finishPanelInteractive: boolean;
   /**
    * 每关**历史最好**星级（长度 = 关卡数，`0` = 未通关）—— 通关画面的「星级总览」。
-   * 取值口径 = 每关 max（与 `maxUnlockedLevel` 的持久语义一致，登记台账）。
+   * 取值口径 = 每关 max；**权威在存档**（S8 §2.2 `stars`，WXG-T-071 起跨重启保持）。
    */
   finishStars: number[];
   /** 已入场的总览**关数**（`0..finishStars.length`，逐关 150ms）。 */

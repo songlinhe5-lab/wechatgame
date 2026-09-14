@@ -22,9 +22,8 @@
  *     面板的常量族与设计空间约定；
  *  2. `ux-spec §5`「逐颗 150ms」是**结算行 3 颗**的时序；总览最多 8×3 = 24 颗、逐颗要
  *     3.6s ✗ ⇒ 改为**逐关** 150ms（8 关 = 1.2s），同一关的 3 颗同时入场；
- *  3. 星级总览取值 = **每关历史最好**（重玩取 max，与 `maxUnlockedLevel` 的持久语义一致）；
- *     存档**无**星级表（S8 schema 未改，本轮不动 schema）⇒ 本次为**局内累计**，冷启动丢失
- *     （已登记 backlog）。
+ *  3. 星级总览取值 = **每关历史最好**（重玩取 max）；该表**随存档跨重启保持**
+ *     （S8 GDD §2.2 的 `stars`，WXG-T-071 落码 —— 此前为局内累计，冷启动丢失）。
  */
 
 import {
@@ -41,6 +40,7 @@ import {
   PANEL_BUTTON_H,
   PANEL_IN_MS,
   PANEL_OUT_MS,
+  STAR_MAX,
 } from '../config/tuning.js';
 import { rectContains, type PanelRect } from './pause-panel.js';
 
@@ -77,8 +77,8 @@ export interface FinishPanelLayout {
 
 /** 庆祝标题（`ux-spec §3.6` 全屏庆祝；文案为派生项）。 */
 export const FINISH_PANEL_TITLE = '🎊 全部通关';
-/** 每关满星数（`computeClearStars` 的上限）。 */
-export const FINISH_MAX_STARS_PER_LEVEL = 3;
+/** 每关满星数 —— 与存档 `stars` 的钳制上界同一常量（`tuning.ts §3.7` 的 `STAR_MAX`）。 */
+export const FINISH_MAX_STARS_PER_LEVEL = STAR_MAX;
 
 function rect(x: number, y: number, w: number, h: number): PanelRect {
   return { xMin: x, yMin: y, xMax: x + w, yMax: y + h };

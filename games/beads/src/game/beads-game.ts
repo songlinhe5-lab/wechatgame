@@ -178,10 +178,10 @@ export class BeadsGame implements Game {
   private readonly _finishPanel = new FinishPanel();
   /**
    * 每关**历史最好**星级（`0` = 未通关），下标 = `levelIndex`；通关画面总览的数据源。
-   * ⚠️ 目前是**局内累计**（存档无星级表，本轮不动 S8 schema；派生项已登记台账），
-   * 冷启动会清空——「星级表持久化」是 backlog 项。
+   * **权威在存档**（S8 GDD §2.2 的 `stars`，WXG-T-071 落码）：BOOT 装载、过关时随
+   * `_persistProgress()` 写回；本字段是内存**镜像**（与 `_sprintBestScore` 同判例）。
    */
-  private readonly _starsByLevel: number[] = [];
+  private _starsByLevel: number[] = [];
   /** 已触发过入场音效的**关数**（每关一次，逐关 150ms）。 */
   private _finishRowsAnnounced = 0;
   /**
@@ -392,6 +392,8 @@ export class BeadsGame implements Game {
 
     this._sprintBestScore = normalized.save.sprintBestScore;
     this._sprintBestStage = normalized.save.sprintBestStage;
+    // S8 §2.2 `stars`：装载为内存镜像（长度已由 `normalizeBeadsSave` 按关卡表补齐）。
+    this._starsByLevel = [...normalized.save.starsByLevel];
     this._bgmMuted = normalized.save.settings.bgmMuted;
     this._sfxMuted = normalized.save.settings.sfxMuted;
     this._applyAudioChannels();
@@ -1479,6 +1481,8 @@ export class BeadsGame implements Game {
     save.patch({
       maxUnlockedLevel: Math.max(save.data.maxUnlockedLevel, next),
       currentLevel: next,
+      // S8 §2.2 `stars` / §8-2：每关历史最高星（max 在过关记分处取，这里只负责落档）。
+      starsByLevel: [...this._starsByLevel],
     });
     save.save();
   }
