@@ -19,6 +19,8 @@
 #            （行→TASKS-archive.md、节→TASKS-DETAIL-archive.md），正文逐字节不变、
 #            在办行小节不动、批次留痕写明成对、重跑幂等
 #         ⑫ 宁漏勿错：主表有行但详情无对应小节 → **跳过该行**（搬了会丢正文）并告警
+#         ⑬ 同号守卫（WXG-T-078）：主表内出现同号 → 扫「主表∪归档」告警横幅；写盘时
+#            同批内同号**只归档首份**、其余保留主表（不自动合并），归档不放大成重复行
 #
 # 用法：tools/scripts/archive-tasks-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库。
@@ -295,6 +297,38 @@ assert_contains "$OUT" "主表有行但" "[7d] 告警：主表有行但详情无
 grep -qF '| WXG-T-001 |' "$T5" && ok "[7d] 行保留在主表（未误搬）" || bad "[7d] 行被搬走（会丢正文）"
 assert_eq "$(sha "$T5")" "$B5" "[7d] 台账字节不变"
 if [ ! -e "$REPO5/production/archive/TASKS-archive.md" ]; then ok "[7d] 归档文件未创建"; else bad "[7d] 不应创建归档"; fi
+
+# ── [8] 同号守卫（WXG-T-078）：主表内同号 → 告警 + 只归档首份、不自动合并 ────────
+echo "—— [8] 同号守卫"
+REPO6="$WORK/repo6"
+new_repo "$REPO6"
+T6="$REPO6/production/TASKS.md"
+cat >"$T6" <<EOF
+# WXG 任务台账（桩 6：同号）
+
+> 当前已分配至 **WXG-T-001**（✅ 已完成），下一可用号 **WXG-T-002**。
+> 勘误：领号认本注，本注由 tasks:archive 校准。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-001 | 甲会话行 | 甲 | ✅ 完成 | 撞号-甲 |
+| WXG-T-001 | 乙会话行 | 乙 | ✅ 完成 | 撞号-乙 |
+EOF
+stub_commit "$REPO6" "$OLD_DATE"
+B6="$(sha "$T6")"
+# [8a] dry-run：横幅告警、不落盘
+OUT="$(node "$ARCHIVE_CMD" --root="$REPO6" 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[8a] 同号 dry-run 退出码 0"
+assert_contains "$OUT" "同号守卫" "[8a] 输出含同号守卫横幅"
+assert_contains "$OUT" "WXG-T-001 出现 2 次（主表 + 主表）" "[8a] 报出主表同号 ×2"
+assert_eq "$(sha "$T6")" "$B6" "[8a] dry-run 台账字节不变"
+# [8b] --write：只归档首份，主表保留一份同号（不自动合并），归档不放大
+OUT="$(node "$ARCHIVE_CMD" --root="$REPO6" --write 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[8b] 同号 --write 退出码 0"
+assert_contains "$OUT" "本批内同号重复行" "[8b] 明示批次内同号只搬首份"
+A6="$REPO6/production/archive/TASKS-archive.md"
+assert_eq "$(grep -c '| WXG-T-001 |' "$A6")" "1" "[8b] 归档中 T-001 仅 1 份（未放大成重复）"
+assert_eq "$(grep -c '| WXG-T-001 |' "$T6")" "1" "[8b] 主表保留 1 份同号行（不自动合并）"
 
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"

@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1918,
       "lines": 85,
-      "sha256": "0f76e9e732e55f9f0f16cd94b81e55be3b9e3eaeee502f393be7f4995fa00011",
+      "sha256": "24ca6119e0e8978c0dda9865d5e68730564b2e15d4ffc27230e6f00cc681a3c8",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3750,
+      "tokens": 3755,
       "lines": 90,
-      "sha256": "3404a45a3c1e45ba92dfebca106b82cab1964d0f5cb341c3f868bb45ee69fbf5",
+      "sha256": "2ef12808db14915ea04e9aa5431bf33abbc51f7dca298b7ec0e786bf396ae86c",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 91,
-          "tokens": 3722,
+          "tokens": 3727,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 41 行 / 1499 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 41 行 / 1466 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+42 · §待排（backlog，无号，立项时领取）=27+16",
+          "summary": "§WXG 任务台账（SSOT）=1+42 · §待排（backlog，无号，立项时领取）=28+15",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -752,26 +752,10 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 153 行 / 7226 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
-          "tokens": 82,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+154 · §WXG-T-059=18+8 · §WXG-T-063=",
-          "keywords": [
-            "production/TASKS-DETAIL.md",
-            "production",
-            "TASKS",
-            "DETAIL",
-            "tok",
-            "WXG"
-          ]
-        },
-        {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
-          "level": 2,
-          "startLine": 78,
-          "endLine": 81,
           "tokens": 355,
           "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
@@ -781,6 +765,22 @@
             "cocos",
             "setup",
             "tok"
+          ]
+        },
+        {
+          "anchor": "§`production/TASKS-DETAIL.md` — 163 行 / 7750 tok",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 81,
+          "tokens": 87,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+164 · §WXG-T-059=18+8 · §WXG-T-063=",
+          "keywords": [
+            "production/TASKS-DETAIL.md",
+            "production",
+            "TASKS",
+            "DETAIL",
+            "tok",
+            "WXG"
           ]
         },
         {
@@ -32716,17 +32716,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 7226,
-      "lines": 153,
-      "sha256": "00e0db4af01167200fbfd8365d2d6922bc79398591803583e6949327adfb8bf2",
+      "tokens": 7750,
+      "lines": 163,
+      "sha256": "f82d8c06265234426bdf9c262f134bc397bcbe4ab3aa79239fe16a1f312a210c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 154,
-          "tokens": 7209,
+          "endLine": 164,
+          "tokens": 7733,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -32892,8 +32892,8 @@
           "anchor": "§WXG-T-077",
           "level": 2,
           "startLine": 148,
-          "endLine": 154,
-          "tokens": 530,
+          "endLine": 156,
+          "tokens": 531,
           "summary": "名称：Cocos G3 遗留收口——Label 真实宽度替换 + setAlign 空实现补齐（自 backlog「G3",
           "keywords": [
             "WXG",
@@ -32902,14 +32902,28 @@
             "setAlign",
             "backlog"
           ]
+        },
+        {
+          "anchor": "§WXG-T-078",
+          "level": 2,
+          "startLine": 157,
+          "endLine": 164,
+          "tokens": 520,
+          "summary": "名称：tasks:archive 同号守卫（自 backlog「归档器缺同号守卫」立项； WXG-T-061 归档复核发",
+          "keywords": [
+            "WXG",
+            "tasks",
+            "archive",
+            "backlog"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 1499,
+      "tokens": 1466,
       "lines": 41,
-      "sha256": "e78707800a299693edf9eeb3d6be6c94cf92a17cddbefb2f42aea95dd74e6399",
+      "sha256": "38fe20a090420c5d9e6c0564c8304b0324a30dffc780959d42f07d71e028200b",
       "tier": "hot",
       "sections": [
         {
@@ -32917,7 +32931,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 42,
-          "tokens": 1490,
+          "tokens": 1457,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -32930,9 +32944,9 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 27,
+          "startLine": 28,
           "endLine": 42,
-          "tokens": 475,
+          "tokens": 407,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
             "backlog",

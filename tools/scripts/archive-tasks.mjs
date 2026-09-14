@@ -37,6 +37,9 @@
  *   （按 `|` 切列，行内若含裸 `|` 会切错列 → 状态判非 ✅ → 跳过，仍落在「宁漏勿错」方向）
  * • 默认 **dry-run**，`--write` 才落盘；
  * • 幂等：归档文件已有同号 → 跳过并告警，不重复入档；归档后再跑 → 0 行空转；
+ * • **同号守卫**（WXG-T-078）：写盘前扫「主表 ∪ 归档」的号频次，凡出现 ≥2 次即**告警**
+ *   （dry-run 与 --write 都报，独立于能否归档）；合并语义需人判 ⇒ **只警告、不自动合并**，
+ *   同批内的同号行**只归档首份**、其余保留主表（防 T-032 式撞号被归档放大成重复行）；
  * • 守恒校验：主表减少的任务行数 == 归档新增的任务行数，不等则不落盘（fail loud）；
  * • **可选治理**：本命令不挂 pre-commit / CI 强制执行（TASKS.md 手工编辑路径不受影响）。
  *
@@ -178,8 +181,8 @@ if (UNTIL_UNDER !== null) {
   candidates.push(...dated.filter((c) => excluded.has(c.idx)));
   console.log(
     `  📉 体积驱动（--until-under=${UNTIL_UNDER}）：台账 ${startSize} tokens，` +
-      `计划归档 ${candidates.length} 行 → 预计 ${sizeOf(excluded)} tokens` +
-      (sizeOf(excluded) >= UNTIL_UNDER ? '（⚠️ 全部可归档行移出后仍超阈值）' : ''),
+    `计划归档 ${candidates.length} 行 → 预计 ${sizeOf(excluded)} tokens` +
+    (sizeOf(excluded) >= UNTIL_UNDER ? '（⚠️ 全部可归档行移出后仍超阈值）' : ''),
   );
 }
 
@@ -209,6 +212,35 @@ for (const m of archiveText.matchAll(/WXG-T-(\d+)/g)) {
   idWidth = Math.max(idWidth, m[1].length);
 }
 const fmtId = (n) => String(n).padStart(idWidth, '0');
+
+// ── 同号守卫（WXG-T-078，backlog「归档器缺同号守卫」）───────────────────────────
+// 此前只防「候选已在归档」（跨批次去重），**不防主表内部同号** ⇒ T-032 那种两会话
+// 撞用的重号，其两行会被当独立候选各自搬进归档 → 制造重复。本守卫在报告 / 早退
+// **之前**扫描「主表 ∪ 归档」的号频次，凡 ≥2 次即**告警**（dry-run 与 --write 都报）；
+// 合并语义需人判 ⇒ **只警告、不自动合并**（批次内同号只搬首份见下方二次过滤）。
+const idLoc = new Map(); // id -> 出现位置（'主表' / '归档'）
+const pushLoc = (id, where) => {
+  const arr = idLoc.get(id) ?? [];
+  arr.push(where);
+  idLoc.set(id, arr);
+};
+for (const id of allIds) pushLoc(id, '主表');
+for (const line of archiveText.split('\n')) {
+  const m = archivedRowRe.exec(line);
+  if (m) pushLoc(Number(m[1]), '归档');
+}
+const dupIds = [...idLoc.entries()]
+  .filter(([, locs]) => locs.length >= 2)
+  .sort((a, b) => a[0] - b[0]);
+if (dupIds.length > 0) {
+  console.log('⚠️ 同号守卫（tasks:archive **不自动合并**，合并语义需人工判定）：');
+  for (const [id, locs] of dupIds) {
+    console.log(
+      `   ⚠️ WXG-T-${fmtId(id)} 出现 ${locs.length} 次（${locs.join(' + ')}）` +
+      '——请人工核查是否撞号：同号行需**重新领号**，本工具仅告警并只归档首份。',
+    );
+  }
+}
 
 // ── 详情节：成对搬运的另一半（WXG-T-065）──────────────────────────────────────
 // 只用**已格式化**的 id（`WXG-T-048` 而非 `WXG-T-48`）比对——节标题是三位零填充。
@@ -247,8 +279,8 @@ if (detailExists) {
     candidates.push(...drop);
     console.log(
       `  📉 详情驱动（--detail-until-under=${DETAIL_UNTIL_UNDER}）：详情 ${detailBaseline} tokens，` +
-        `计划归档 ${drop.length} 行 ⇒ 预计 ${detailBaseline - shed} tokens` +
-        (detailBaseline - shed >= DETAIL_UNTIL_UNDER ? '（⚠️ 全部可归档行移出后仍超阈值）' : ''),
+      `计划归档 ${drop.length} 行 ⇒ 预计 ${detailBaseline - shed} tokens` +
+      (detailBaseline - shed >= DETAIL_UNTIL_UNDER ? '（⚠️ 全部可归档行移出后仍超阈值）' : ''),
     );
     // 复用「已在归档则跳过」的守卫（与上方同名分支同语义：保守、不重复入档）。
     toArchive = drop.filter((c) => {
@@ -269,7 +301,7 @@ if (detailExists) {
     if (!detailIds.has(id)) {
       console.log(
         `  ⚠️ 行 ${c.idx + 1}｜${id}｜主表有行但 ${rel(ROOT, DETAIL)} 无小节——**跳过**` +
-          '（搬行会丢正文，宁漏勿错；先跑 `pnpm run check:tasks` 查配对）',
+        '（搬行会丢正文，宁漏勿错；先跑 `pnpm run check:tasks` 查配对）',
       );
       return false;
     }
@@ -277,6 +309,24 @@ if (detailExists) {
   });
 } else {
   console.log(`  ℹ️ 未找到 ${rel(ROOT, DETAIL)}——本次**只搬行**（不成对；老仓库 / 纯行台账场景）`);
+}
+
+// ── 同号守卫·批次内（WXG-T-078）：同号只搬首份，其余留主表交人工合并 ──────────────
+// 与「已在归档则跳过」同源（宁漏勿错、不重复入档）；此处补的是**同一批内**同号：
+// 主表若有多行同号且均合格，只归档首份，其余行**保留主表**（不自动合并），下方守恒随之成立。
+{
+  const seenBatch = new Set();
+  toArchive = toArchive.filter((c) => {
+    const id = fmtId(c.id);
+    if (seenBatch.has(c.id)) {
+      console.log(
+        `  ⚠️ WXG-T-${id} 本批内同号重复行——只归档首份，此行**保留主表**（不自动合并同号，见同号守卫）`,
+      );
+      return false;
+    }
+    seenBatch.add(c.id);
+    return true;
+  });
 }
 
 // ── 头注只进不退（台账纪律：单号递增不回收）──────────────────────────────────
@@ -302,9 +352,9 @@ if (Number.isFinite(headerLeadMax) && headerLeadMax > globalMax) {
 console.log(`TASKS 完成行 30 天归档（tasks:archive，WXG-T-040 R3）${DRY ? '—— dry-run（默认；加 --write 落盘）' : '—— --write 落盘'}`);
 console.log(
   `  台账：${rel(ROOT, TASKS)}（任务行 ${taskRowsBefore}）｜归档：${rel(ROOT, ARCHIVE)}（${existingArchiveIds.size} 行）` +
-    (detailExists
-      ? `｜详情：${rel(ROOT, DETAIL)}（${detailIds.size} 节 → 成对搬运）`
-      : '｜详情：未找到（只搬行）'),
+  (detailExists
+    ? `｜详情：${rel(ROOT, DETAIL)}（${detailIds.size} 节 → 成对搬运）`
+    : '｜详情：未找到（只搬行）'),
 );
 const ruleText =
   UNTIL_UNDER !== null
@@ -312,7 +362,7 @@ const ruleText =
     : `完成判定：git blame committer-time ≤ ${fmt(new Date(cutoff * 1000))}（${DAYS} 天前）`;
 console.log(
   `  ${ruleText}｜全局最大号（主表∪归档）：WXG-T-${fmtId(globalMax)}` +
-    (headerLed ? `（表内最大 T-${fmtId(tableMax)}，**头注领先故沿用头注**）` : ''),
+  (headerLed ? `（表内最大 T-${fmtId(tableMax)}，**头注领先故沿用头注**）` : ''),
 );
 for (const c of candidates) {
   console.log(`  ${existingArchiveIds.has(c.id) ? '⚠️ 已在归档' : '→ 归档'}｜行 ${c.idx + 1}｜WXG-T-${c.id}｜最后修改 ${fmt(c.date)}｜${c.line.slice(0, 60)}…`);
@@ -331,8 +381,8 @@ if (candidates.length === 0) {
 if (DRY) {
   console.log(
     `（dry-run：计划归档 ${toArchive.length} 行` +
-      (detailExists ? ` + 详情节 ${toArchive.length} 节` : '（无详情文件，只搬行）') +
-      `、头注校准为 当前已分配至 WXG-T-${fmtId(globalMax)} / 下一可用号 WXG-T-${fmtId(globalMax + 1)}；未落盘）`,
+    (detailExists ? ` + 详情节 ${toArchive.length} 节` : '（无详情文件，只搬行）') +
+    `、头注校准为 当前已分配至 WXG-T-${fmtId(globalMax)} / 下一可用号 WXG-T-${fmtId(globalMax + 1)}；未落盘）`,
   );
   process.exit(0);
 }
@@ -393,7 +443,7 @@ if (detailExists) {
   if (taken.length !== movedRows.length) {
     console.error(
       `❌ 详情节守恒校验失败：搬走的行 ${movedRows.length} ≠ 搬走的节 ${taken.length}——不落盘` +
-        '（fail loud）。**台账与归档文件均未被修改**。',
+      '（fail loud）。**台账与归档文件均未被修改**。',
     );
     process.exit(1);
   }
@@ -433,7 +483,7 @@ console.log(`✅ 归档完成：主表任务行 ${taskRowsBefore} → ${taskRows
 if (detailKeptOut !== null) {
   console.log(
     `   详情节成对搬运：${takenSections.length} 节 → ${rel(ROOT, DETAIL_ARCHIVE)}` +
-      `（现 ${archivedDetailIds.size + takenSections.length} 节）｜${rel(ROOT, DETAIL)} 剩 ${detailIds.size - takenSections.length} 节`,
+    `（现 ${archivedDetailIds.size + takenSections.length} 节）｜${rel(ROOT, DETAIL)} 剩 ${detailIds.size - takenSections.length} 节`,
   );
 }
 console.log(`   头注已校准：当前已分配至 **WXG-T-${fmtId(globalMax)}**，下一可用号 **WXG-T-${fmtId(globalMax + 1)}**（全局最大号含归档文件）${erratumIdx >= 0 ? '；勘误行已改为「领号认本注」纪律' : '（勘误行已为新纪律，未改动）'}`);
@@ -563,5 +613,7 @@ function printHelp() {
     同一批、节数 == 行数（不等不落盘）；主表有行但详情无小节 → 跳过该行（搬了会丢正文）。
     详情文件不存在 → 退化为「只搬行」并明示。
   • 幂等：归档已有同号跳过；0 行可归档 → 空转不落盘；行数/节数守恒校验失败 → fail loud 不落盘。
+  • **同号守卫（WXG-T-078）**：写盘前扫「主表 ∪ 归档」号频次，≥2 次即告警；只警告、
+    不自动合并（合并需人判）——同批内同号只归档首份，其余行保留主表，请重新领号。
   • 可选治理：不挂 pre-commit / CI 强制执行。`);
 }
