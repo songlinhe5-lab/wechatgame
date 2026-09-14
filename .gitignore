@@ -32,6 +32,10 @@ games/*/cocos/profiles/
 games/*/cocos/native/
 games/*/cocos/build/
 games/*/cocos/.creator/
+# 预览页模板：编辑器在打开「项目设置 → 预览」时自动生成，内容为编辑器默认模板，
+# 本仓不自定义预览页 ⇒ 忽略（2026-09-14 裁定）。若将来要自定义（如强制竖屏 viewport），
+# 把它改回纳入版本控制并删掉本行。
+games/*/cocos/preview-template/
 
 # 微信小游戏产物
 games/*/build/wechatgame/
@@ -55,6 +59,17 @@ pnpm-debug.log*
 # 环境变量
 .env
 .env.local
+
+# 密钥与凭证（红线：严禁入仓）——真源 control-manifest §10 / ADR-0010 §4.2-5；
+# 机械守卫 tools/scripts/check-secrets.mjs（pre-commit / CI / verify 三处都跑）
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
 
 # Cocos Creator 工程本地缓存（编辑器生成，永不入库）
 games/*/cocos/library/
