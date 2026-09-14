@@ -1,0 +1,125 @@
+/**
+ * `game/save-schema.ts` — 存档修复与降级（save-progress §2.2 + S1 §8-1/§8-10）。
+ *
+ * The two design rules this file pins down are both invisible from a happy-path
+ * test: **degrade, never throw**, and **never discard a document because one field
+ * is missing** (per-field defaults for `settings`).
+ */
+
+import { describe, it, expect } from 'vitest';
+import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
+import {
+  BACKUP_KEY,
+  SAVE_KEY,
+  SAVE_VERSION,
+  bootLevel,
+  defaultBeadsSave,
+  normalizeBeadsSave,
+  normalizeSettings,
+  preserveCorruptBackup,
+} from '../src/game/save-schema.js';
+
+const LEVEL_COUNT = 8;
+
+const validSave = () => ({
+  version: SAVE_VERSION,
+  runs: 3,
+  maxUnlockedLevel: 4,
+  currentLevel: 3,
+  sprintBestScore: 1200,
+  sprintBestStage: 5,
+  settings: { bgmMuted: true, sfxMuted: false },
+});
+
+const storage = () => new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createStorage();
+
+describe('beads save schema', () => {
+  it('starts a first launch at level 1 with both audio channels on', () => {
+    expect(defaultBeadsSave()).toEqual({
+      version: SAVE_VERSION,
+      runs: 0,
+      maxUnlockedLevel: 1,
+      currentLevel: 1,
+      sprintBestScore: 0,
+      sprintBestStage: 0,
+      settings: { bgmMuted: false, sfxMuted: false },
+    });
+  });
+
+  // 「降级，不抛异常」—— 任何垃圾输入都要得到一个可用存档，且标记为「需要写回」。
+  it('degrades any non-document input to the default and reports the change', () => {
+    for (const raw of [null, undefined, 42, 'save', [], true, () => {}]) {
+      const result = normalizeBeadsSave(raw, LEVEL_COUNT);
+      expect(result.save).toEqual(defaultBeadsSave());
+      expect(result.changed).toBe(true);
+    }
+  });
+
+  // 完好文档不得触发多余的写回（否则每次启动都会写盘）。
+  it('reports no change for a document that is already valid', () => {
+    const result = normalizeBeadsSave(validSave(), LEVEL_COUNT);
+    expect(result.changed).toBe(false);
+    expect(result.save).toEqual(validSave());
+  });
+
+  // S1 §8-10：越界值安全降级，不崩溃、不中断启动。
+  it('degrades out-of-range level indices to 1', () => {
+    expect(normalizeBeadsSave({ ...validSave(), maxUnlockedLevel: 99 }, LEVEL_COUNT).save.maxUnlockedLevel).toBe(1);
+    expect(normalizeBeadsSave({ ...validSave(), currentLevel: 0 }, LEVEL_COUNT).save.currentLevel).toBe(1);
+    expect(normalizeBeadsSave({ ...validSave(), currentLevel: LEVEL_COUNT + 1 }, LEVEL_COUNT).save.currentLevel).toBe(1);
+    expect(normalizeBeadsSave({ ...validSave(), currentLevel: 2.5 }, LEVEL_COUNT).save.currentLevel).toBe(1);
+    expect(normalizeBeadsSave({ ...validSave(), maxUnlockedLevel: '4' }, LEVEL_COUNT).save.maxUnlockedLevel).toBe(1);
+  });
+
+  it('accepts both bounds of the legal level range', () => {
+    expect(normalizeBeadsSave({ ...validSave(), currentLevel: 1 }, LEVEL_COUNT).save.currentLevel).toBe(1);
+    expect(normalizeBeadsSave({ ...validSave(), currentLevel: LEVEL_COUNT }, LEVEL_COUNT).save.currentLevel).toBe(
+      LEVEL_COUNT,
+    );
+  });
+
+  it('degrades counters that are missing, negative or non-finite to 0', () => {
+    for (const bad of [undefined, -1, Number.NaN, Number.POSITIVE_INFINITY, '9']) {
+      const save = normalizeBeadsSave({ ...validSave(), runs: bad, sprintBestScore: bad }, LEVEL_COUNT).save;
+      expect(save.runs).toBe(0);
+      expect(save.sprintBestScore).toBe(0);
+    }
+  });
+
+  // save-progress §2.2 的核心：settings 缺字段按**单字段**降级，绝不弃整档。
+  it('degrades settings per field instead of discarding the document', () => {
+    const missing = normalizeBeadsSave({ ...validSave(), settings: undefined }, LEVEL_COUNT);
+    expect(missing.save.settings).toEqual({ bgmMuted: false, sfxMuted: false });
+    expect(missing.save.currentLevel).toBe(3); // progression survived
+    expect(missing.changed).toBe(true);
+
+    expect(normalizeSettings({ bgmMuted: true })).toEqual({ bgmMuted: true, sfxMuted: false });
+    expect(normalizeSettings({ sfxMuted: true })).toEqual({ bgmMuted: false, sfxMuted: true });
+    expect(normalizeSettings('nonsense')).toEqual({ bgmMuted: false, sfxMuted: false });
+    expect(normalizeSettings({ bgmMuted: 'yes' })).toEqual({ bgmMuted: false, sfxMuted: false });
+  });
+
+  // S1 §8-1：无存档 → 第 1 关；有进度 → 续进已解锁最远关。
+  it('§8-1 boots level 1 on a first run and resumes the stored level otherwise', () => {
+    expect(bootLevel(defaultBeadsSave())).toBe(1);
+    expect(bootLevel({ ...defaultBeadsSave(), runs: 1, currentLevel: 3 })).toBe(3);
+    // A first run always starts at level 1, whatever currentLevel says.
+    expect(bootLevel({ ...defaultBeadsSave(), runs: 0, currentLevel: 5 })).toBe(1);
+  });
+
+  it('preserves an unparseable document once and leaves valid JSON alone', () => {
+    const store = storage();
+    store.set(SAVE_KEY, '{not json');
+    expect(preserveCorruptBackup(store)).toBe(true);
+    expect(store.get(BACKUP_KEY)).toBe('{not json');
+
+    const healthy = storage();
+    healthy.set(SAVE_KEY, JSON.stringify(validSave()));
+    expect(preserveCorruptBackup(healthy)).toBe(false);
+    expect(healthy.get(BACKUP_KEY)).toBeNull();
+  });
+
+  it('is a no-op when there is nothing stored', () => {
+    expect(preserveCorruptBackup(storage())).toBe(false);
+  });
+});
