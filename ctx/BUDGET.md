@@ -41,7 +41,7 @@
 | 17 | `production/epics/epics-breakout.md` | 7135 | 316 | normal |
 | 18 | `production/qa/test-cases.md` | 7097 | 296 | normal |
 | 19 | `docs/engine-reference/cocos/VERSION.md` | 7007 | 305 | normal |
-| 20 | `production/TASKS.md` | 6747 | 42 | hot |
+| 20 | `production/TASKS.md` | 6795 | 42 | hot |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 

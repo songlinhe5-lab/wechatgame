@@ -187,6 +187,9 @@ describe('beads view model (control-manifest §8)', () => {
     const labelY = powerupLabelY();
     expect(labelY + POWERUP_LABEL_H / 2).toBeLessThanOrEqual(rects[0]!.bottom); // 标签在卡**下方**
     expect(labelY - POWERUP_LABEL_H / 2).toBeGreaterThanOrEqual(POWERUP_BAND.yMin);
+    // 两侧留白：整组不贴屏边（T-062 间距 30 → 60 后仍成立）。
+    expect(rects[0]!.x).toBeGreaterThanOrEqual(30);
+    expect(rects[2]!.x + rects[2]!.w).toBeLessThanOrEqual(DESIGN_W - 30);
 
     // ③ 「以形状为唯一识别」：三张卡内的图元组合互不相同。
     const signature = (r: { x: number; w: number; bottom: number; h: number }): string =>

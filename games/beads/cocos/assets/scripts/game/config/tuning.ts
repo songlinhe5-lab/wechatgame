@@ -44,7 +44,12 @@ export const POWERUP_BAND = { yMin: 48, yMax: 200 } as const;
  */
 export const POWERUP_CARD_W = 176;
 export const POWERUP_CARD_H = 116;
-export const POWERUP_CARD_GAP = 30;
+/**
+ * 三卡间距（**WXG-T-062 主理人观感复核后 30 → 60**）：三卡总宽 = 176×3 + 60×2 = 648，
+ * 两侧余量 51（比网格最紧的 38 更宽松）。间距区**无命中**（`input-control §6`
+ * 「触摸点落在布局带间隙：无命中，静默忽略」）⇒ 放大间距只产生中性死区，不改变可选性。
+ */
+export const POWERUP_CARD_GAP = 60;
 export const POWERUP_CARD_RADIUS = 20; // §1.4「圆角 20」
 /** §1.4「卡下方标签 28px」（亦满足 §3.8 文字最小 28）。 */
 export const POWERUP_LABEL_H = 28;

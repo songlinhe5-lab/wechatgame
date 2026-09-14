@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1889,
       "lines": 84,
-      "sha256": "067ea7afc37f9724d520b4611a6d17be56a5f3c0cd5b8ea49b43a7c28f8eb1b9",
+      "sha256": "516d3f7dbe20861fbbd095ecd52923e9b36dcf66321196675165e44d8f054189",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3898,
       "lines": 90,
-      "sha256": "90ea1e1a71ff0289d26395b09e2d74ae14cc087ef600f1c177aa47543d2929bb",
+      "sha256": "668fb8a1756c07672654103230d758d72e4d9032dd5d7d94f7b99d198a9c3e04",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 42 行 / 6747 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 42 行 / 6795 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -32334,9 +32334,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6747,
+      "tokens": 6795,
       "lines": 42,
-      "sha256": "a48453dd8ca00ea76308d6e2b541bf25c4e404ea26700dd0e1ac7181c9f8d29c",
+      "sha256": "76e89478cbb521cca33686eca912c9fce09c10bfe9b8859910582ee47a994595",
       "tier": "hot",
       "sections": [
         {
@@ -32344,7 +32344,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 43,
-          "tokens": 6739,
+          "tokens": 6786,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
