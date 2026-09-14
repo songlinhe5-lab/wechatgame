@@ -6178,6 +6178,85 @@
       ]
     },
     {
+      "path": "games/beads/cocos/README.md",
+      "tokens": 1236,
+      "lines": 70,
+      "sha256": "7ad352f45c2acb00a2e013f298d1ca29c48a04362aab91099f214c18d9db2800",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Beads — Cocos Creator 工程",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 71,
+          "tokens": 1228,
+          "summary": "引擎：Cocos Creator 3.8 LTS（3.8.8）",
+          "keywords": [
+            "Beads",
+            "Cocos",
+            "Creator",
+            "LTS",
+            "工程"
+          ]
+        },
+        {
+          "anchor": "§1 beads 特有事实",
+          "level": 2,
+          "startLine": 14,
+          "endLine": 26,
+          "tokens": 298,
+          "summary": "入口脚本 assets/scripts/BeadsBootstrap.ts（createGame() → createB",
+          "keywords": [
+            "beads",
+            "assets",
+            "scripts",
+            "BeadsBootstrap",
+            "createGame",
+            "createB"
+          ]
+        },
+        {
+          "anchor": "§2 命令（均在 monorepo 根执行）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 44,
+          "tokens": 276,
+          "summary": "",
+          "keywords": [
+            "monorepo",
+            "命令",
+            "均在",
+            "根执行"
+          ]
+        },
+        {
+          "anchor": "§3 编辑器里仍需人工完成的两步",
+          "level": 2,
+          "startLine": 45,
+          "endLine": 58,
+          "tokens": 226,
+          "summary": "工程已创建，以下两步只能在 GUI 里做（L1：.scene 不许手编）：",
+          "keywords": [
+            "GUI",
+            "scene",
+            "编辑器里仍需",
+            "人工完成的两"
+          ]
+        },
+        {
+          "anchor": "§4 检查表",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 71,
+          "tokens": 157,
+          "summary": "",
+          "keywords": [
+            "检查表"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/concept.md",
       "tokens": 2796,
       "lines": 100,
