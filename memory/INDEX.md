@@ -1,0 +1,108 @@
+# memory/ — 日志分级索引（WXG-T-068）
+
+> `memory/` 是跨会话的**运行时记忆**：`MEMORY.md` 是蒸馏后的长期笔记（常驻摘要层），
+> `YYYY-MM-DD.md` 是当日原始日志（详情层）。本文件是**日志的摘要层入口** ——
+> 目标是「先读摘要，命中后再读那一节」，而不是整读日记（单篇 5.6k–10.1k tok ✗）。
+
+## 1. 读取协议
+
+- **开工/需要回忆时**：先读本文件（含下方生成表），按摘要判断哪几节相关；
+- **命中后**：用表里的行区间只读那一节 —— 不要整读日记文件；
+- **更细粒度**：`##` 以下的 `###` 子节在 `ctx/index.json` 里（同源数据，本表只列到 `##`）。
+
+## 2. 文件分工
+
+| 文件 | 内容 | 读法 |
+|---|---|---|
+| `MEMORY.md` | 蒸馏后的**长期笔记**（约定 / 脚本 / 已知限制） | 常驻摘要层，直接读 |
+| `YYYY-MM-DD.md` | 当日原始日志（详情层，逐字节不动） | **按本表行区间读节**，勿整读 |
+| `INDEX.md` | 本文件：摘要层入口（生成块由 `ctx:build` 维护） | 先读这里 |
+| `archive/` | 满 30 天蒸馏后的归档（`memory:distill --write`） | 不进索引面；`git` 永久可查 |
+
+## 3. 生命周期（与 `docs/agent/memory-distill.md` 同一套）
+
+- 日志满 **30 天** ⇒ `pnpm run memory:distill`（dry-run）⇒ **先把长期有效内容蒸馏进 `MEMORY.md`**
+  ⇒ `pnpm run memory:distill --write` 归档。**蒸馏责任在人 / 会话**，脚本只做机械轮转。
+- 生成表里每篇标注「蒸馏到期」＝ 文件名日期 + 30 天：**到期不得靠 B 门豁免硬扛**（T-041 裁决）。
+- 全文归档后其摘要行会随索引自动消失（`memory/archive/` 命中 `SKIP_DIRS`）。
+
+## 4. 摘要表（自动生成）
+
+<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->
+> 摘要层覆盖 **4 篇日记 / 合计 31,690 tok**（整读本块 ≈ 数十行；整读日记 = 万级 tok ⇒ 别整读）。
+
+### `memory/2026-09-14.md` — 9,287 tok｜13 节｜**蒸馏到期 2026-10-14**（剩 30 天）
+
+| 节 | 行（含首尾） | tok | 摘要（节首句摘取，**非**人工撰写） |
+|---|---|---|---|
+| §Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） | 3–16 | 943 | 游戏在 Cocos 预览完整可玩：发球 ✓、挡板跟手 ✓、撞砖得分 ✓（实测 score=300，砖墙被打掉多块）、li |
+| §构建链前置补洞 + 多游戏粒度修正（WXG-T-047 / T-048，CodeBuddy 会话） | 17–27 | 1,041 | T-047 补两个缺失脚本：check-bundle-size.mjs（阈值真源 systems-index §3.8 |
+| §构建自动化能力修正：**MCP 不可，但编辑器 CLI 可**（WXG-T-049） | 28–40 | 737 | 本会话上轮结论被自己推翻：我曾判定「微信构建结构上不可自动化」。那只对 MCP 通道成立。实测 Cocos Creato |
+| §里程碑：用户确认「已基本完成 breakout」→ 验收回填（WXG-T-050） | 41–55 | 722 | 触发：用户报「已经完成基本 breakout 游戏」。按本仓纪律，里程碑必须落到证据而非自报 ⇒ 先取已有实证，再补差额 |
+| §引擎功能裁剪：主包 3008 → 1815 KB，内部目标首次达标（WXG-T-051） | 56–65 | 443 | 证据前置（先证"真没用到"再裁）：全量 cc 导入符号实测只有 7 个 —— Color / Component / G |
+| §S6 道具系统落码：beads 最后一个未实现玩法系统归零（WXG-T-060） | 66–91 | 779 | 选点依据：侦察后确认 beads 只剩 EP-06（S6 道具） 未落码（src/systems/powerups.ts |
+| §「到达序」判据清理：把不可测的「先到为准」统一换成帧内执行序（WXG-T-061） | 92–127 | 1,155 | 关键发现：正确基准早已存在。pause-settings.md §6 与 timer-gameover.md §6 在 |
+| §三项待裁定落地（WXG-T-062，用户「按推荐」） | 128–147 | 601 | ① 卡几何：改卡高、不动带位。assets-spec §1.4「卡 176×150 + 卡下方标签 28」与 |
+| §EP-07 结算·过关面板落地（WXG-T-063，EP-07 未完） | 148–167 | 596 | 发现的是"占位 vs 规格"错位：ux-spec §4 流转表写的是 |
+| §台账「标题制 + 详情分片」：治随任务数线性膨胀（WXG-T-064） | 168–185 | 510 | 用户反馈点是准的，而我上轮结项是误判：T-053 的「体积驱动归档」只清已完成行， |
+| §归档器「成对搬运」机械化（WXG-T-065，闭环 T-064 的未闭环项） | 186–203 | 525 | 为什么要机械化：T-064 把详情拆到 TASKS-DETAIL.md（一任务一节），但归档器只搬行 ✗ |
+| §EP-07 通关画面（FINISH）落地（WXG-T-066） | 204–220 | 485 | 做了什么：ux-spec §3.6 的全屏庆祝 + 星级总览 + 双钮（去冲刺 / 重玩第 1 关），接上 |
+| §EP-07 冲刺结算面板（WXG-T-067） | 221–235 | 428 | 判据 score-combo §8-11 的「数据半边」早就实现了（_recordSprintEnd 已算 NEW BE |
+
+### `memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 29 天）
+
+| 节 | 行（含首尾） | tok | 摘要（节首句摘取，**非**人工撰写） |
+|---|---|---|---|
+| §my-skills 补缺调研（WXG-T-032 候选项盘点） | 3–34 | 828 | 结论：有 4 个本地已装但未纳入 my-skills/ 的可用 skill；远程市场无 Cocos 专项，仅 1 个出海 |
+| §四个 skill 已正式纳入 my-skills（07:35） | 35–49 | 468 | 用户拍板：4 个全收（weixin-minigame-helper / game-numeric-design / ga |
+| §上下文膨胀审计（07:52，用户提问驱动） | 50–62 | 505 | TASKS.md 定论：53 行 / 13KB / 估算 3749 tokens，非常驻层、整读频次低（未进 457 次 |
+| §ADR-0010 完成（08:20，WXG-T-034） | 63–68 | 302 | 结论：用户方案 D（my-plugins 符号链接→四 IDE 各自加载）字面不可行——四 IDE 插件机制互不兼容且全 |
+| §T-035 实施落地 + 提交收官（08:50） | 69–76 | 302 | 组件级接入矩阵：MCP server ✅；SKILL.md ✅（bridge 改造）；agents ⚠️ 重写而非复制（ |
+| §WXG-T-036 收尾：协议第二跳落地 + 抓出 pre-commit 漏 add 缺陷（09:19，程基岩/CodeBuddy） | 77–84 | 301 | 四项拍板落地：① E1 三分法收紧 + P10 双列如实（严格 45.4% ✅／宽松 30.1% ❌；整读占比升属零和纠 |
+| §遗留问题闭环（PR #3 同步 + WXG-T-032/035 收口）（主理人会话） | 85–90 | 293 | PR #3 develop→master 同步完成：推送 dc65038（合并 master/PR #2 squash， |
+| §R1-R5 对策正式登记 backlog（09:30，主理会话） | 91–96 | 230 | 前置核实：T-032 已收口（尾批随 263533b 落库）、T-036 计量装置落地（c7ae9a7）、工作区干净 → |
+| §R1-R5 逐项处理（11:30-12:00，主理会话） | 97–102 | 343 | R1（WXG-T-037）：程基岩会话完成实现（ctx:rotate 分窗轮转 N=20、根会话树为原子单位、savin |
+| §R1-R5 全部落地收官（12:30，主理会话） | 103–109 | 528 | R5（WXG-T-039，e945060）：ROUTES.md 接入 A 项硬门 7500（现值 6235 的 +20. |
+| §IDE 能力迁移矩阵盘点（14:15，WXG-T-045，主理会话） | 110–114 | 216 | 用户拍板分工：开发 = CodeBuddy/Cursor/Qoder；WorkBuddy = 调研/方案/设计/文档。 |
+| §Qoder MCP 接入（14:40，WXG-T-046，主理会话） | 115–119 | 270 | 官方文档实证（docs.qoder.com/cli/mcp-reference）：Qoder 项目级支持读根 /.mcp |
+| §Cocos 环境核验（14:45，主理会话，关联 WXG-T-042 引导） | 120–125 | 216 | 用户已装 Cocos Creator 3.8.8（/Applications/Cocos/Creator/3.8.8，A |
+| §Cocos MCP 端点打通（22:00，主理会话，关联 WXG-T-042） | 126–131 | 330 | 阶段 D 完成：curl --noproxy '*' initialize 握手 返回 serverInfo: coco |
+| §G2 确诊：场景节点位置双重偏移（22:35，主理会话） | 132–139 | 410 | "砖墙在左下角"根因不是渲染器 y 翻转：playwright-cli 截图 + 预览页 eval 场景树实证——Can |
+| §G2 验收通过 + G4 输入链路三连修（22:30-23:05，主理会话） | 140–150 | 784 | G2 关闭：用户编辑器把 GameRoot Position 改 (0,0,0) 后，playwright 截图+场景树 |
+
+### `memory/2026-09-12.md` — 10,141 tok｜13 节｜**蒸馏到期 2026-10-12**（剩 28 天）
+
+| 节 | 行（含首尾） | tok | 摘要（节首句摘取，**非**人工撰写） |
+|---|---|---|---|
+| §专家团 vs my-agents 跨平台复用评估（调研结论） | 3–8 | 335 | 三 IDE 均原生支持项目级 subagent 目录：CodeBuddy .codebuddy/agents/（项目级优 |
+| §实施纠偏（核对后落地） | 9–15 | 231 | 不做：往共享 frontmatter 塞 tools: / permissionMode: / skills:（Curs |
+| §Rules 合并到 my-rules | 16–20 | 79 | 正本：my-rules/agents-md.md（frontmatter 并集：alwaysApply + enable |
+| §Review 通过并落地（用户自改，主理人 review + 提交） | 21–61 | 5,166 | 用户采纳 review 三建议的变体：①不加 tools/permissionMode/skills 方言字段（Curs |
+| §PR #1 合并闭环完成（13:50） | 62–66 | 162 | PR #1（develop→master）已于 12:58Z 确认 MERGED，16 项检查全绿（含 Headless |
+| §冲刺模式工程实现派发（21:10） | 67–75 | 431 | 关键事实确认：games/beads/src 零代码（architecture-beads §9 记为「⬜ 未开始」）， |
+| §WXG-T-028 交付 + 冲刺事件 payload 真源裁定（21:25） | 76–85 | 411 | 严守真（quality-lead-2）交付 T-028：test-cases.md v1.2（新增 §C 11 条 TC |
+| §score-combo 事件 payload 回写完成 + 独立核验（21:40） | 86–91 | 267 | design-strategist 完成回写（7 处，仅 score-combo.md；未 commit）：①§2.5 |
+| §WXG-T-027 里程碑 + 3 项实现裁决（21:55） | 92–104 | 530 | 工程侧（engineering-lead-3）里程碑：step 1–6 完成（包脚手架三件套 + config 三件套 |
+| §WXG-T-027 完成 + 全量独立验证（22:20） | 105–118 | 605 | 工程侧（engineering-lead-3）完成 step 7–9。独立验证（我自己跑，非采信汇报）： |
+| §T-027 提交推送 + 环境事故修复 + WXG-T-030 派发（23:15） | 119–130 | 706 | 用户批准「分两笔提交」。我自己执行提交（并行会话在同一仓库活跃提交，精确 pathspec 控制必须自己来）： |
+| §WXG-T-030 完成与裁决（23:50） | 131–142 | 706 | 工程侧（engineering-lead-3）完成 S9 暂停面板 + 音乐/音效。独立验证：beads 40/40（6 |
+| §WXG-T-030 提交与 T-031 真源对齐（23:56） | 143–152 | 302 | 提交 62ad9c5（第一笔·工程侧，已 push develop）：8 文件 +1195。pre-commit che |
+
+### `memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 27 天）
+
+| 节 | 行（含首尾） | tok | 摘要（节首句摘取，**非**人工撰写） |
+|---|---|---|---|
+| §完成的工作 | 3–19 | 510 | 修复 Canvas2DLike.fillStyle / strokeStyle 类型过窄导致真实 CanvasRende |
+| §新增/修改文件 | 20–36 | 131 | packages/framework/src/adapters/canvas2d/canvas2d-renderer.t |
+| §遗留 / 待后续 | 37–40 | 94 | 微信小游戏真机构建（build:wx）仍是占位，需要 Cocos Creator 项目配置或 CLI 接入后才能落地。 |
+| §跨 IDE skill 沉淀结论 | 43–48 | 234 | Agent Skills（agentskills.io）开放标准已获 Cursor 2.4+/Codex/Copilot |
+| §WorkBuddy 模型配置修复（已完成） | 49–56 | 366 | 根因：WorkBuddy 读 ~/.workbuddy/models.json（原为空 []），不是 ~/.codebu |
+| §Game skill 迁移到项目级（用户改向：不要放全局） | 57–83 | 2,673 | 用户拍板：game 相关 skill 放项目级目录，各 IDE 引用，不进全局，且要 git 提交。 |
+| §拼豆游戏（games/beads）阶段 1：美术线验收 + 两笔提交 | 84–90 | 362 | WXG-T-008（林绘澄）美术三件套验讫 PASS（提交 b0f8543）：assets-spec 六层珠子参数卡（L |
+| §拼豆阶段 2：设计线验收 + 数值全冻结 | 91–97 | 297 | WXG-T-007（文策渊）三件套验讫 PASS（提交 feat(beads)）：concept 十节 + system |
+| §拼豆阶段 2 全部闭环（WXG-T-009） | 98–103 | 213 | 文策渊交付 S3 bead-grid/S4 tray-spawner/S2 input-control/S5 timer |
+| §拼豆阶段 3 双线闭环（提交 f25c422 + test(beads)） | 104–110 | 321 | WXG-T-010 程基岩：architecture-beads.md（9 系统对账/13 事件装配/渲染方案）+ AD |
+| §breakout G4 回归闭环（WXG-T-012，提交 d65b04d） | 111–116 | 212 | 严守真 G4 正式回归：11/13 PASS = CONCERNS，零实现缺陷；新增 tests/g4-regressi |
+
+> **怎么用它读一节**：`read_file(path, offset = 行首, limit = 行尾 − 行首 + 1)`。
+<!-- memory:index:end -->

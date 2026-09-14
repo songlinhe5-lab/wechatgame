@@ -125,3 +125,18 @@
 - **派生项（已登记）**：① §3.5 左列**无标题行**（首行即「单局 N」）⇒ 增「冲刺结束」标题（沿用面板常量族）；② 「▸×M 最高连击 K」的 `M` 由 `K` **重算**（`multiplierForStreak`），不另存倍率字段；③ `§8-11` 只说显示 / 不显示、未给角标位置 ⇒ 贴标题行右侧。
 - **EP-07 剩余**：连击特效三档（`score-combo §2.5`；判据 §8-9 属 DevTools 帧检）、星级表持久化（见 backlog）。
 - **产出**：systems/sprint-settle.ts（**新增**）· systems/sprint.ts · game/beads-game.ts · game/state.ts · game/crash-snapshot.ts · view/view-model.ts · src/index.ts · tests/sprint-settle.test.ts（**新增**）· tests/revive.test.ts · tests/in-level-snapshot.test.ts · design/proposals/in-level-snapshot.md · cocos 拷贝件（game 23 → 24）· 本台账
+
+---
+
+## WXG-T-068
+
+- **名称**：`memory/` 日志的**分级加载**：新增摘要层 `memory/INDEX.md`（生成物）——先读摘要，需要时按行区间只读那一节。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **问题（用户 2026-09-14 提出）**：`memory/` 4 篇日记合计 **31,690 tok**（单篇 5.6k–10.1k；09-12 单篇 10,141 已靠 B 门豁免放行）⇒ 任何会话都读不起 ⇒ 事实上「知识库很大但没人敢读」。`knowledge/` 早已是正确形状（`INDEX.md` 3.2k 摘要 + `lessons.md`/`patterns.md` 详情），`memory/` 缺这一层；且 ROUTES 只登记了 `MEMORY.md` 的小节，**4 篇日记没有任何入口**。
+- **落地**：① 新增 `tools/scripts/lib/memory-index.mjs`：渲染 `<!-- memory:index:start -->` 标记块（**只列 `##` 级主题**：文件 → 行区间 + 体量 + 摘要素描；手写协议在块外，与 `knowledge/INDEX.md` 的 `kb:active` 同规格）② 摘要**取 `ctx/index.json` 里已有的** `firstSentence()`，**不写第二套摘要器**——两套必然漂移，而漂移后果是索引**指错行**（比没有索引更坏）③ `ctx:build` 写完索引后生成它，并**纳入不动点收敛**（它本身也是被索引的 .md；块内不含自身行 ⇒ 无自指反馈，通常一轮即达）④ pre-commit 的产物暂存行补 `memory/INDEX.md`（钩子注释明写「新增 ctx 产物必须登记到本行」，照办）⑤ `ctx:check` 新增 C 子项：**现算文本 vs 磁盘逐字节比对** + **蒸馏天数口径断言**（本模块的 `MEMORY_DIGEST_DAYS=30` 必须等于 `distill-memory.mjs` 的 `args.days ?? 30`——该默认值内联、无导出，故机械对账，防两处慢慢走散）。
+- **口径诚实声明（已写进产物与文档）**：摘要 = 节首句**摘取**，**不是**人工撰写的提要 ⇒ 用它判断「要不要读这一节」，别当结论。
+- **收益**：入口成本 **31,690 → 3,756 tok（8.4×）**，且**可路由**（行区间可直接喂 `read_file`）；产物头部写明「怎么用它读一节」。
+- **实测（门禁双向验证，非假绿）**：移走 `memory/INDEX.md` ⇒ `ctx:check` FAILED 并给出修复命令；移回 ⇒ OK。
+- **协议登记**：`memory/MEMORY.md` 规程补一条读法 · `ctx/ROUTES.md` 增入口行（指向 `memory/INDEX.md#§4. 摘要表（自动生成）`）· `docs/agent/memory-distill.md` 增 §8 分级读取。
+- **已知限制（如实登记）**：产物是「生成 + 读取既有文件」型 ⇒ 在 `--staged-blobs`（提交时）模式下，**手写前言**取工作树版本而非暂存版（日记表的行号仍按暂存 blob 索引 ✓）。前言极少改动，影响低。
+- **产出**：tools/scripts/lib/memory-index.mjs（**新增**）· tools/scripts/build-context-index.mjs · tools/scripts/check-context-budget.mjs · .githooks/pre-commit · memory/INDEX.md（**新增，生成物**）· memory/MEMORY.md · ctx/ROUTES.md · docs/agent/memory-distill.md · 本台账

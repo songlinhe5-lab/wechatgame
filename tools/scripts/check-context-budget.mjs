@@ -65,7 +65,7 @@
  *       node tools/scripts/check-context-budget.mjs --update-baseline --reason="…" --task-id="WXG-T-…"
  */
 
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   ALWAYS_FILES,
@@ -85,6 +85,12 @@ import {
   sha256,
   stagedSet,
 } from './lib/context-index.mjs';
+import {
+  MEMORY_DIGEST_DAYS,
+  MEMORY_INDEX_PATH,
+  MEMORY_INDEX_REL,
+  renderMemoryIndexText,
+} from './lib/memory-index.mjs';
 
 /** A 项里 hot-files.md 的索引相对路径（生成器与门禁共用同一常量，避免字面量漂移）。 */
 const HOT_FILES_REL = 'ctx/hot-files.md';
@@ -854,6 +860,38 @@ function updateBaseline() {
 
 if (UPDATE_BASELINE) updateBaseline();
 
+/**
+ * C 子项（WXG-T-068）：`memory/INDEX.md` 摘要层是否与当前索引**同源**。
+ *
+ * 为什么单列：它是 `ctx:build` 的产物，却**落在 `memory/` 而非 `ctx/`**（对 agent 更可发现）。
+ * 产物在别处 ⇒ 不跟着 `ctx:*` 的直觉走，必须显式校验：否则「改了日记 + 钩子没跑（CI 场景）」
+ * 会让摘要表**静默指错行**，那比没有索引更坏。
+ *
+ * 另附**口径一致性断言**：本产物标注的「蒸馏到期」天数必须等于 `distill-memory.mjs` 的默认值
+ * （该默认值内联在其 argv 解析里、无导出，故此处复述并机械对账，防两处慢慢走散）。
+ */
+function checkMemoryIndex(index) {
+  const staleMemory = [];
+  // ① 口径一致性：摘要层标注的到期天数 vs 蒸馏脚本的默认天数。
+  let digestDays = null;
+  try {
+    const src = readFileSync(join(ROOT, 'tools/scripts/distill-memory.mjs'), 'utf8');
+    const m = /args\.days \?\? (\d+)/.exec(src);
+    digestDays = m ? Number(m[1]) : null;
+  } catch {
+    digestDays = null; // 读不到 ⇒ 不断言（不假红）
+  }
+  const digestDaysOk = digestDays === null || digestDays === MEMORY_DIGEST_DAYS;
+
+  // ② 新鲜度：现算文本必须与磁盘逐字节一致（同一渲染函数 ⇒ 同口径、不会各算各的）。
+  if (!existsSync(MEMORY_INDEX_PATH)) {
+    staleMemory.push(`${MEMORY_INDEX_REL}（缺失）`);
+  } else if (renderMemoryIndexText(index) !== readFileSync(MEMORY_INDEX_PATH, 'utf8')) {
+    staleMemory.push(MEMORY_INDEX_REL);
+  }
+  return { staleMemory, digestDays, digestDaysOk };
+}
+
 // ─────────────────────────────────────────────────────────────── run ─────────
 const index = readIndex();
 let residentRows = [];
@@ -876,6 +914,21 @@ const freshness = index
     : checkFreshness()
   : { stale: [], unindexed: [], headChecked: [], git: false, workingTree: WORKING_TREE };
 const eReport = checkE();
+const memIndexReport = index
+  ? checkMemoryIndex(index)
+  : { staleMemory: [], digestDays: null, digestDaysOk: true };
+if (memIndexReport.staleMemory.length > 0) {
+  failures.push(
+    `C: ${memIndexReport.staleMemory.join('、')} 与当前索引不同源 —— ` +
+      '跑 `pnpm run ctx:build` 重新生成（它是生成物，勿手工编辑标记块内内容）',
+  );
+}
+if (!memIndexReport.digestDaysOk) {
+  failures.push(
+    `C: memory/INDEX.md 的蒸馏到期天数（${MEMORY_DIGEST_DAYS}）≠ ` +
+      `tools/scripts/distill-memory.mjs 的默认值（${memIndexReport.digestDays}）—— 两处口径必须一致`,
+  );
+}
 
 // ─────────────────────────────────────────────────────────────── report ──────
 const line = (ok, text) => `${ok ? '✅' : '❌'} ${text}`;

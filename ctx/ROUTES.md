@@ -190,6 +190,7 @@
 |---|---|---:|---|
 | 领号 / 任务台账 | production/TASKS.md#§WXG 任务台账（SSOT） | 2220 | **开工先领号**；**WXG-T-064 起为标题制**：只读本表拿号/看状态，详情按下一行的入口**只读命中那一节** |
 | 任务**详情**（按需，勿整读） | production/TASKS-DETAIL.md#§WXG 任务台账 · 详情（标题制正文侧） | 单节 ≈ 290 | 一任务一节（`## WXG-T-0NN`）；**先用 `ctx/index.json` 查该节 `startLine`/`endLine`**，再 `read_file(path, offset, limit)` |
+| **memory 日志摘要（先读这个）** | memory/INDEX.md | 3756 | 分级加载入口：文件 → `##` 主题的行区间 + 摘要；命中后按行区间 `read_file` 只读那一节（WXG-T-068） | <!-- no-anchor -->
 | 已知限制 | memory/MEMORY.md#§已知限制 | 80 | |
 | 常用脚本 | memory/MEMORY.md#§常用脚本 | 197 | |
 | 项目约定 | memory/MEMORY.md#§项目约定 | 460 | |

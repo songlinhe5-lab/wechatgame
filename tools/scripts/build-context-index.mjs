@@ -77,6 +77,7 @@ import {
   routesAnchorRefs,
   serializeIndex,
 } from './lib/context-index.mjs';
+import { MEMORY_INDEX_PATH, renderMemoryIndexText } from './lib/memory-index.mjs';
 
 const CHECK = process.argv.includes('--check');
 /** 逃生阀（WXG-T-026）：强制全部按工作树内容（含未提交改动）；输出标注「非默认模式」。 */
@@ -302,22 +303,29 @@ function runBuild() {
   let index = null;
   let prevBudget = null;
   let prevHot = null;
+  let prevMemIndex = null;
   for (let round = 0; round < 4; round += 1) {
     ({ index } = buildIndex({ mode: MODE }));
     const budget = renderBudget(index);
     const hot = renderHotFiles(index, readDistribution());
-    // 两个产物都参与不动点：它们本身是被索引的 .md，其体积/行数会反过来影响索引。
-    if (budget === prevBudget && hot === prevHot) break;
+    const memIndex = renderMemoryIndexText(index);
+    // 三个产物都参与不动点：它们本身都是被索引的 .md，其体积/行数会反过来影响索引。
+    // （memory/INDEX.md 的生成块只列日记、不列自身 ⇒ 无自指反馈，通常一轮即达。）
+    if (budget === prevBudget && hot === prevHot && memIndex === prevMemIndex) break;
     prevBudget = budget;
     prevHot = hot;
+    prevMemIndex = memIndex;
     writeFileSync(BUDGET_MD_PATH, budget, 'utf8');
     writeFileSync(HOT_FILES_MD_PATH, hot, 'utf8');
+    writeFileSync(MEMORY_INDEX_PATH, memIndex, 'utf8');
   }
   const { index: finalIndex, meta } = buildIndex({ mode: MODE });
   writeFileSync(INDEX_PATH, serializeIndex(finalIndex), 'utf8');
   // 索引已固定后再写一次 hot-files（确保其行号描述的正是最终索引），并复核预算。
   const finalHot = renderHotFiles(finalIndex, readDistribution());
   writeFileSync(HOT_FILES_MD_PATH, finalHot, 'utf8');
+  // memory/INDEX.md 同理：以**最终索引**再写一次，确保摘要表里的行号描述的正是最终索引。
+  writeFileSync(MEMORY_INDEX_PATH, renderMemoryIndexText(finalIndex), 'utf8');
 
   const byTier = { always: 0, hot: 0, normal: 0 };
   for (const f of finalIndex.files) byTier[f.tier] += 1;
@@ -326,6 +334,7 @@ function runBuild() {
     `✅ ctx/index.json 已写入 — 文件 ${finalIndex.files.length}（always ${byTier.always} / hot ${byTier.hot} / normal ${byTier.normal}），章节 ${sections}`,
   );
   console.log('✅ ctx/BUDGET.md 已写入');
+  console.log('✅ memory/INDEX.md 已写入（memory 摘要层；行号与最终索引一致）');
 
   // ── 契约提示：dirty 文件按 HEAD 索引 & 未提交新文件被跳过（WXG-T-026）；──────
   // ── staged-blobs：暂存 .md 按暂存 blob 索引（WXG-T-032 ⑤，pre-commit 自动重建）──

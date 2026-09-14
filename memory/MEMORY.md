@@ -6,6 +6,7 @@
 
 ## 日志蒸馏规程（R2 · WXG-T-041）
 - `memory/YYYY-MM-DD.md` 满 30 天 → `pnpm run memory:distill`（dry-run 看候选）→ **AI/人工先把日志中长期有效的内容蒸馏进本文件相应章节** → `pnpm run memory:distill --write` 归档至 `memory/archive/`（原文逐字节保留、git 永久可查、不进 ctx 索引面）。脚本只做机械轮转，**蒸馏内容责任在人/会话**；完整规程见 `docs/agent/memory-distill.md`，归档待蒸馏项见文末「⏳ 归档待蒸馏提醒」段。
+- **读日志先读 `memory/INDEX.md`**（摘要层，由 `pnpm run ctx:build` 生成）：它按「文件 → `##` 主题」列出**行区间 + 体量 + 摘要素描**；命中后再 `read_file(path, offset=行首, limit=行尾−行首+1)` **只读那一节** —— 别整读日记（单篇 5.6k–10.1k tok ✗）。摘要是**节首句摘取**、非人工提要，只用来判断「要不要读」。
 
 ## 项目约定
 - 仓库是 pnpm monorepo：`packages/framework`（共用框架）+ `games/breakout`（首款示例游戏）。

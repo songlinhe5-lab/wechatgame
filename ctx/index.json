@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1918,
       "lines": 85,
-      "sha256": "302f6eff7fe8f0dd2973dcd26bc8729de99cc391ada72283321cffccf7695e67",
+      "sha256": "e82006026a5f9469ebfcb0f38a8203630f9c363b1c8bf7d04621cbd7b45f9857",
       "tier": "normal",
       "sections": [
         {
@@ -284,17 +284,17 @@
     },
     {
       "path": "ctx/ROUTES.md",
-      "tokens": 6654,
-      "lines": 226,
-      "sha256": "39344b224d1a17eba9557dc0548d3d81288f3d239034108c8029bd37f53a9f41",
+      "tokens": 6720,
+      "lines": 227,
+      "sha256": "b458eb858ecab20707eb89a73e1bdbd8b8d8f13bc31f93979e810fc44a0b1673",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文路由表（ctx/ROUTES.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 227,
-          "tokens": 6642,
+          "endLine": 228,
+          "tokens": 6708,
           "summary": "给 agent 的第一跳：开工前先读本表，命中锚点后用 read_file(path, offset, limit) 只",
           "keywords": [
             "ctx",
@@ -337,8 +337,8 @@
           "anchor": "§1 路由表",
           "level": 2,
           "startLine": 99,
-          "endLine": 218,
-          "tokens": 3090,
+          "endLine": 219,
+          "tokens": 3157,
           "summary": "",
           "keywords": [
             "路由表"
@@ -427,8 +427,8 @@
           "anchor": "§1.6 任务台账与长期记忆（hot）",
           "level": 3,
           "startLine": 187,
-          "endLine": 198,
-          "tokens": 263,
+          "endLine": 199,
+          "tokens": 330,
           "summary": "领号 / 任务台账 production/TASKS.md#§WXG 任务台账（SSOT） 2220 开工先领号；WXG",
           "keywords": [
             "hot",
@@ -442,8 +442,8 @@
         {
           "anchor": "§1.7 Skill / Agent / 知识库 / 门禁",
           "level": 3,
-          "startLine": 199,
-          "endLine": 218,
+          "startLine": 200,
+          "endLine": 219,
           "tokens": 515,
           "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 17 个挂四 IDE 链接；存档 ",
           "keywords": [
@@ -458,8 +458,8 @@
         {
           "anchor": "§2 维护",
           "level": 2,
-          "startLine": 219,
-          "endLine": 227,
+          "startLine": 220,
+          "endLine": 228,
           "tokens": 192,
           "summary": "本表锚点须与 ctx/index.json 的 anchor 一致；改任一被索引 .md 的标题后，重跑 pnpm ru",
           "keywords": [
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3748,
+      "tokens": 3754,
       "lines": 90,
-      "sha256": "984ce314cb591934b1de536265fbce797b9cae1695e7aedd3aedf456480f4807",
+      "sha256": "d8d419d87adbb86d65d44c051201f276c1d4f9750df9241679c7eee187ab6c2f",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 91,
-          "tokens": 3720,
+          "tokens": 3726,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -545,12 +545,12 @@
           ]
         },
         {
-          "anchor": "§`memory/MEMORY.md` — 52 行 / 1349 tok / 实测读 16 次",
+          "anchor": "§`memory/MEMORY.md` — 53 行 / 1471 tok / 实测读 16 次",
           "level": 2,
           "startLine": 22,
           "endLine": 25,
           "tokens": 65,
-          "summary": "§wechatgame 项目长期笔记=1+53 · §日志蒸馏规程（R2 · WXG-T-041）=7+3 · §项目约",
+          "summary": "§wechatgame 项目长期笔记=1+54 · §日志蒸馏规程（R2 · WXG-T-041）=7+4 · §项目约",
           "keywords": [
             "memory/MEMORY.md",
             "memory",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 39 行 / 2579 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 40 行 / 2610 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+40 · §待排（backlog，无号，立项时领取）=27+14",
+          "summary": "§WXG 任务台账（SSOT）=1+41 · §待排（backlog，无号，立项时领取）=28+14",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -752,26 +752,10 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 127 行 / 6584 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
-          "tokens": 80,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+128 · §WXG-T-058=18+8 · §WXG-T-055=",
-          "keywords": [
-            "production/TASKS-DETAIL.md",
-            "production",
-            "TASKS",
-            "DETAIL",
-            "tok",
-            "WXG"
-          ]
-        },
-        {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
-          "level": 2,
-          "startLine": 78,
-          "endLine": 81,
           "tokens": 355,
           "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
@@ -781,6 +765,22 @@
             "cocos",
             "setup",
             "tok"
+          ]
+        },
+        {
+          "anchor": "§`production/TASKS-DETAIL.md` — 142 行 / 7488 tok",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 81,
+          "tokens": 86,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+143 · §WXG-T-058=18+8 · §WXG-T-055=",
+          "keywords": [
+            "production/TASKS-DETAIL.md",
+            "production",
+            "TASKS",
+            "DETAIL",
+            "tok",
+            "WXG"
           ]
         },
         {
@@ -2247,17 +2247,17 @@
     },
     {
       "path": "docs/agent/memory-distill.md",
-      "tokens": 1223,
-      "lines": 53,
-      "sha256": "818cf6a961b68858ac06ae102796bd9aca3a8861a4b0089b1515ca4d9d2fbfe4",
+      "tokens": 1497,
+      "lines": 64,
+      "sha256": "8215c505c52dff86e92d547a0c6409652c63f3dca24c353b4ec11a6cd1889e05",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory 日志 30 天蒸馏规程（R2 · WXG-T-041）",
           "level": 1,
           "startLine": 1,
-          "endLine": 54,
-          "tokens": 1207,
+          "endLine": 65,
+          "tokens": 1481,
           "summary": "对策 R2（2026-09-13 上下文膨胀审计）落地文档。命令：pnpm run memory:distill（too",
           "keywords": [
             "memory",
@@ -2368,6 +2368,22 @@
             "memory",
             "并行会话提交",
             "纪律"
+          ]
+        },
+        {
+          "anchor": "§8 分级读取：`memory/INDEX.md` 摘要层（WXG-T-068）",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 65,
+          "tokens": 256,
+          "summary": "为什么：memory/ 的日记合计 ≈3.2 万 tok，整读不可行 ⇒ 摘要层入口 memory/INDEX.md",
+          "keywords": [
+            "memory/INDEX.md",
+            "memory",
+            "INDEX",
+            "WXG",
+            "tok",
+            "分级读取"
           ]
         }
       ]
@@ -23734,18 +23750,160 @@
       ]
     },
     {
+      "path": "memory/INDEX.md",
+      "tokens": 3756,
+      "lines": 108,
+      "sha256": "6baa58fc21530bf0d24539dde21252e0e0b2558af8c04a7e906a8f14cfd40c9d",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§memory/ — 日志分级索引（WXG-T-068）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 109,
+          "tokens": 3742,
+          "summary": "memory/ 是跨会话的运行时记忆：MEMORY.md 是蒸馏后的长期笔记（常驻摘要层），",
+          "keywords": [
+            "memory",
+            "WXG",
+            "MEMORY",
+            "日志分级索引"
+          ]
+        },
+        {
+          "anchor": "§1 读取协议",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 12,
+          "tokens": 99,
+          "summary": "开工/需要回忆时：先读本文件（含下方生成表），按摘要判断哪几节相关；",
+          "keywords": [
+            "读取协议"
+          ]
+        },
+        {
+          "anchor": "§2 文件分工",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 21,
+          "tokens": 148,
+          "summary": "MEMORY.md 蒸馏后的长期笔记（约定 / 脚本 / 已知限制） 常驻摘要层，直接读",
+          "keywords": [
+            "MEMORY",
+            "文件分工"
+          ]
+        },
+        {
+          "anchor": "§3 生命周期（与 `docs/agent/memory-distill.md` 同一套）",
+          "level": 2,
+          "startLine": 22,
+          "endLine": 28,
+          "tokens": 140,
+          "summary": "日志满 30 天 ⇒ pnpm run memory:distill（dry-run）⇒ 先把长期有效内容蒸馏进 MEM",
+          "keywords": [
+            "docs/agent/memory-distill.md",
+            "docs",
+            "agent",
+            "memory",
+            "distill",
+            "pnpm"
+          ]
+        },
+        {
+          "anchor": "§4 摘要表（自动生成）",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 109,
+          "tokens": 3210,
+          "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
+          "keywords": [
+            "memory",
+            "index",
+            "start",
+            "pnpm",
+            "run",
+            "ctx"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-09-14.md` — 9,287 tok｜13 节｜**蒸馏到期 2026-10-14**（剩 30 天）",
+          "level": 3,
+          "startLine": 34,
+          "endLine": 51,
+          "tokens": 866,
+          "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–16 943 游戏在 Cocos",
+          "keywords": [
+            "memory/2026-09-14.md",
+            "memory",
+            "tok",
+            "Cocos",
+            "WXG",
+            "蒸馏到期"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 29 天）",
+          "level": 3,
+          "startLine": 52,
+          "endLine": 72,
+          "tokens": 921,
+          "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 结论：有 4 个本地已装但未纳入 m",
+          "keywords": [
+            "memory/2026-09-13.md",
+            "memory",
+            "tok",
+            "skills",
+            "WXG",
+            "蒸馏到期"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-09-12.md` — 10,141 tok｜13 节｜**蒸馏到期 2026-10-12**（剩 28 天）",
+          "level": 3,
+          "startLine": 73,
+          "endLine": 90,
+          "tokens": 684,
+          "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 三 IDE 均原生支持项目级 subag",
+          "keywords": [
+            "memory/2026-09-12.md",
+            "memory",
+            "tok",
+            "agents",
+            "IDE",
+            "subag"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 27 天）",
+          "level": 3,
+          "startLine": 91,
+          "endLine": 109,
+          "tokens": 573,
+          "summary": "§完成的工作 3–19 510 修复 Canvas2DLike.fillStyle / strokeStyle 类型过窄",
+          "keywords": [
+            "memory/2026-09-11.md",
+            "memory",
+            "tok",
+            "Canvas2DLike",
+            "fillStyle",
+            "strokeStyle"
+          ]
+        }
+      ]
+    },
+    {
       "path": "memory/MEMORY.md",
-      "tokens": 1349,
-      "lines": 52,
-      "sha256": "ededf04d08b64bf1bf1f0bdc5e508bb6f00cf39b5666de48db2990318b852488",
+      "tokens": 1471,
+      "lines": 53,
+      "sha256": "56a7a0439bbfa1c1dfffc5d2055998fed42f203fdd59df31615a019274f695f0",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§wechatgame 项目长期笔记",
           "level": 1,
           "startLine": 1,
-          "endLine": 53,
-          "tokens": 1340,
+          "endLine": 54,
+          "tokens": 1461,
           "summary": "正本路径：仓库根 memory/MEMORY.md。",
           "keywords": [
             "wechatgame",
@@ -23758,8 +23916,8 @@
           "anchor": "§日志蒸馏规程（R2 · WXG-T-041）",
           "level": 2,
           "startLine": 7,
-          "endLine": 9,
-          "tokens": 147,
+          "endLine": 10,
+          "tokens": 268,
           "summary": "memory/YYYY-MM-DD.md 满 30 天 → pnpm run memory:distill（dry-ru",
           "keywords": [
             "WXG",
@@ -23773,8 +23931,8 @@
         {
           "anchor": "§项目约定",
           "level": 2,
-          "startLine": 10,
-          "endLine": 21,
+          "startLine": 11,
+          "endLine": 22,
           "tokens": 460,
           "summary": "仓库是 pnpm monorepo：packages/framework（共用框架）+ games/breakout（首",
           "keywords": [
@@ -23789,8 +23947,8 @@
         {
           "anchor": "§常用脚本",
           "level": 2,
-          "startLine": 22,
-          "endLine": 30,
+          "startLine": 23,
+          "endLine": 31,
           "tokens": 197,
           "summary": "pnpm run harness — 启动浏览器验证器。",
           "keywords": [
@@ -23803,8 +23961,8 @@
         {
           "anchor": "§SubAgent",
           "level": 2,
-          "startLine": 31,
-          "endLine": 34,
+          "startLine": 32,
+          "endLine": 35,
           "tokens": 65,
           "summary": "正本 my-agents/；Cursor 已实测跟随 agents symlink。勿在共享 frontmatter 加",
           "keywords": [
@@ -23818,8 +23976,8 @@
         {
           "anchor": "§Rules",
           "level": 2,
-          "startLine": 35,
-          "endLine": 37,
+          "startLine": 36,
+          "endLine": 38,
           "tokens": 35,
           "summary": "常驻规则正本：my-rules/agents-md.md；四 IDE rules/ 为相对符号链接（见 my-rules",
           "keywords": [
@@ -23832,8 +23990,8 @@
         {
           "anchor": "§Hooks",
           "level": 2,
-          "startLine": 38,
-          "endLine": 41,
+          "startLine": 39,
+          "endLine": 42,
           "tokens": 53,
           "summary": "实践正本：docs/agent/hooks-best-practices.md",
           "keywords": [
@@ -23848,8 +24006,8 @@
         {
           "anchor": "§Headless / CI",
           "level": 2,
-          "startLine": 42,
-          "endLine": 49,
+          "startLine": 43,
+          "endLine": 50,
           "tokens": 143,
           "summary": "正本：docs/agent/headless-ci-pr-review.md",
           "keywords": [
@@ -23863,8 +24021,8 @@
         {
           "anchor": "§已知限制",
           "level": 2,
-          "startLine": 50,
-          "endLine": 53,
+          "startLine": 51,
+          "endLine": 54,
           "tokens": 80,
           "summary": "需要安装 @resvg/resvg-js 到 WorkBuddy 托管 Node workspace：cd ~/.wor",
           "keywords": [
@@ -32414,17 +32572,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 6584,
-      "lines": 127,
-      "sha256": "57a58241712a9dccca11332c3805b10a9363272b7369bb65948ab96a31edc229",
+      "tokens": 7488,
+      "lines": 142,
+      "sha256": "0ff299c107ba774e919d6ae0213ebfe5fbf458e1675057b7c6bc390540a77d7f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 128,
-          "tokens": 6567,
+          "endLine": 143,
+          "tokens": 7471,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -32583,30 +32741,43 @@
           "anchor": "§WXG-T-067",
           "level": 2,
           "startLine": 118,
-          "endLine": 128,
-          "tokens": 892,
+          "endLine": 130,
+          "tokens": 894,
           "summary": "名称：EP-07 冲刺结算面板落地：ux-spec §3.5 左列（单局 / 最高梯位 / 最高连击 + 双钮），接上判",
           "keywords": [
             "§3.5",
             "WXG",
             "spec"
           ]
+        },
+        {
+          "anchor": "§WXG-T-068",
+          "level": 2,
+          "startLine": 131,
+          "endLine": 143,
+          "tokens": 899,
+          "summary": "名称：memory/ 日志的分级加载：新增摘要层 memory/INDEX.md（生成物）——先读摘要，需要时按行区间只",
+          "keywords": [
+            "WXG",
+            "memory",
+            "INDEX"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2579,
-      "lines": 39,
-      "sha256": "64811539e175a69a3333e7fca3040e1bc294f3c080b7cc09bc5d4f0e2f3a71f2",
+      "tokens": 2610,
+      "lines": 40,
+      "sha256": "1b3bf576139623c7db80c4cb697d1c488e8dd9726048a5468877f8a454fa1275",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 40,
-          "tokens": 2570,
+          "endLine": 41,
+          "tokens": 2601,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -32619,8 +32790,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 27,
-          "endLine": 40,
+          "startLine": 28,
+          "endLine": 41,
           "tokens": 1553,
           "summary": "事项 来源 说明",
           "keywords": [
