@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3780,
       "lines": 94,
-      "sha256": "6ee26e310a456fb8314de5ab75d61feac129a457ece6684d4f679ff3fd022c55",
+      "sha256": "ceb740502d7214d307110c06c4a64e571c39bce04567345f6ee948030031808d",
       "tier": "normal",
       "sections": [
         {
@@ -21950,17 +21950,17 @@
     },
     {
       "path": "memory/2026-09-14.md",
-      "tokens": 768,
-      "lines": 12,
-      "sha256": "9b4079ef3a86dffb355f0e28342530e5a90a0bcc5f515bfb32aee4881e33dd08",
+      "tokens": 3821,
+      "lines": 61,
+      "sha256": "ec007da5e0b48ad517bfdc87b6117d9ccbd5327f3cb6794558ae7bf426cc17e7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 13,
-          "tokens": 765,
+          "endLine": 62,
+          "tokens": 3817,
           "summary": "",
           "keywords": []
         },
@@ -21978,6 +21978,70 @@
             "预览全链路验",
             "收通过",
             "主理会话"
+          ]
+        },
+        {
+          "anchor": "§构建链前置补洞 + 多游戏粒度修正（WXG-T-047 / T-048，CodeBuddy 会话）",
+          "level": 2,
+          "startLine": 14,
+          "endLine": 24,
+          "tokens": 1041,
+          "summary": "T-047 补两个缺失脚本：check-bundle-size.mjs（阈值真源 systems-index §3.8 ",
+          "keywords": [
+            "§3.8",
+            "WXG",
+            "CodeBuddy",
+            "check",
+            "bundle",
+            "size"
+          ]
+        },
+        {
+          "anchor": "§构建自动化能力修正：**MCP 不可，但编辑器 CLI 可**（WXG-T-049）",
+          "level": 2,
+          "startLine": 25,
+          "endLine": 37,
+          "tokens": 737,
+          "summary": "本会话上轮结论被自己推翻：我曾判定「微信构建结构上不可自动化」。那只对 MCP 通道成立。实测 Cocos Creato",
+          "keywords": [
+            "MCP",
+            "CLI",
+            "WXG",
+            "Cocos",
+            "Creato",
+            "构建自动化能"
+          ]
+        },
+        {
+          "anchor": "§里程碑：用户确认「已基本完成 breakout」→ 验收回填（WXG-T-050）",
+          "level": 2,
+          "startLine": 38,
+          "endLine": 52,
+          "tokens": 722,
+          "summary": "触发：用户报「已经完成基本 breakout 游戏」。按本仓纪律，里程碑必须落到证据而非自报 ⇒ 先取已有实证，再补差额",
+          "keywords": [
+            "breakout",
+            "WXG",
+            "里程碑",
+            "用户确认",
+            "已基本完成",
+            "验收回填"
+          ]
+        },
+        {
+          "anchor": "§引擎功能裁剪：主包 3008 → 1815 KB，内部目标首次达标（WXG-T-051）",
+          "level": 2,
+          "startLine": 53,
+          "endLine": 62,
+          "tokens": 443,
+          "summary": "证据前置（先证\"真没用到\"再裁）：全量 cc 导入符号实测只有 7 个 —— Color / Component / G",
+          "keywords": [
+            "WXG",
+            "Color",
+            "Component",
+            "引擎功能裁剪",
+            "主包",
+            "内部目标首次"
           ]
         }
       ]
