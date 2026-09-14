@@ -13,7 +13,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "build:cocos": "node ../../tools/scripts/build-cocos.mjs",
+    "build:cocos:web": "node ../../tools/scripts/build-cocos.mjs --platform=web-mobile"
   },
   "dependencies": {
     "@wxgame/framework": "file:../../packages/framework"
