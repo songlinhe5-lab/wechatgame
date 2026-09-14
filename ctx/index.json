@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1889,
       "lines": 84,
-      "sha256": "e22ba042b34e6a86f40152ef92303f833c1cec5f840fcb3858b9c9fe36cf891e",
+      "sha256": "a0d994addc13246d4d01a2f591e9db97a7459a3ff98dc86d06d7ba1a1e22da7e",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3898,
       "lines": 90,
-      "sha256": "2006480c26adbc88301bba0ca57954e80ab6de0e24b3f2e264583c1b55cfc497",
+      "sha256": "85f720f480c701dfaed3c0fde54e055febb13fdb7ede425716389afaefbc4dca",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 48 行 / 7773 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 45 行 / 7035 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+49 · §待排（backlog，无号，立项时领取）=35+15",
+          "summary": "§WXG 任务台账（SSOT）=1+46 · §待排（backlog，无号，立项时领取）=31+16",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -23456,17 +23456,17 @@
     },
     {
       "path": "memory/2026-09-14.md",
-      "tokens": 5732,
-      "lines": 118,
-      "sha256": "874dba6d37428ed58ee927613c007828920546e3fa70fe6e2bafafd9cd4bcd28",
+      "tokens": 6020,
+      "lines": 126,
+      "sha256": "c38f3328858c8d5a831097e57a3ef38eddb887b296dc47b8fcbbf95673ce1b38",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 119,
-          "tokens": 5728,
+          "endLine": 127,
+          "tokens": 6017,
           "summary": "",
           "keywords": []
         },
@@ -23570,8 +23570,8 @@
           "anchor": "§「到达序」判据清理：把不可测的「先到为准」统一换成帧内执行序（WXG-T-061）",
           "level": 2,
           "startLine": 92,
-          "endLine": 119,
-          "tokens": 867,
+          "endLine": 127,
+          "tokens": 1155,
           "summary": "关键发现：正确基准早已存在。pause-settings.md §6 与 timer-gameover.md §6 在",
           "keywords": [
             "§6",
@@ -32265,17 +32265,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 7773,
-      "lines": 48,
-      "sha256": "8e2dba324a3a9d45a138bbc8701602e472992bf3316d900126b460312fe04562",
+      "tokens": 7035,
+      "lines": 45,
+      "sha256": "e44cb2c3049d49070fd026416ec9fdf6820410a8d5ec998b946600f3b6411dac",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 49,
-          "tokens": 7765,
+          "endLine": 46,
+          "tokens": 7026,
           "summary": "单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前先读本文件领号，完成后",
           "keywords": [
             "WXG",
@@ -32289,17 +32289,15 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 35,
-          "endLine": 49,
-          "tokens": 1444,
-          "summary": "道具卡几何冲突（规格自相矛盾） WXG-T-060 落码时发现 assets-spec §1.4 写「白卡 176×15",
+          "startLine": 31,
+          "endLine": 46,
+          "tokens": 1658,
+          "summary": "事项 来源 说明",
           "keywords": [
-            "§1.4",
             "backlog",
-            "WXG",
-            "assets",
-            "spec",
-            "待排"
+            "待排",
+            "无号",
+            "立项时领取"
           ]
         }
       ]
