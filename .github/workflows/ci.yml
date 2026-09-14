@@ -74,6 +74,11 @@ jobs:
       - name: check:arch
         run: node tools/scripts/check-architecture.mjs
 
+      # 密钥入仓守卫（WXG-T-047）：零依赖纯 Node，故挂 arch-guard（始终运行、无路径过滤）
+      # —— 密钥可能出现在任何文件，按路径过滤会漏。
+      - name: check:secrets
+        run: node tools/scripts/check-secrets.mjs
+
       - name: check:links
         run: node tools/scripts/check-ide-links.mjs
 

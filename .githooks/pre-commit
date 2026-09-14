@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 # 跨 IDE 统一：任意 git commit 前跑门禁。
-# 步骤：① pnpm run check:links（四 IDE 指针完整性）
+# 步骤：⓪ pnpm run check:secrets（密钥入仓守卫，WXG-T-047；红线，**拦截不修复**）
+#       ① pnpm run check:links（四 IDE 指针完整性）
 #       ② 暂存区含 .md 时 → **自动重建上下文索引并重新暂存**（WXG-T-032 ⑤，2026-09-13）：
 #          `ctx/index.json` 描述「已提交内容（HEAD）」，而任何「改被索引 .md 的提交」其暂存内容
 #          必然 ≠ HEAD 锚定的旧索引 → 旧的拦截式 `ctx:check --staged` **结构性不可通过**
@@ -15,6 +16,16 @@
 
 set -e
 cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# ⓪ 密钥入仓守卫（WXG-T-047）：最严重的一类问题放最前——密钥一旦进入提交历史，
+#     改写历史远比拦下来昂贵。零依赖纯 Node；扫描面 =「会入仓的文件集」；
+#     红线无「自动修复」语义，故**拦截而不重建**（同 ①¾ check:mcp 的取向）。
+echo "[pre-commit] pnpm run check:secrets"
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm run check:secrets
+else
+  node tools/scripts/check-secrets.mjs
+fi
 
 echo "[pre-commit] pnpm run check:links"
 if command -v pnpm >/dev/null 2>&1; then
