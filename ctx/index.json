@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 1949,
-      "lines": 86,
-      "sha256": "2ae03e0cf43617f301d8058d62a313051ec3b4ba04567cdf459d496dfc61f448",
+      "tokens": 1919,
+      "lines": 85,
+      "sha256": "43130c2d11b60e3c6091d2c1b076cf98cba1f183500c32e5c41598e00680a4e0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 87,
-          "tokens": 1936,
+          "endLine": 86,
+          "tokens": 1906,
           "summary": "生成：2026-09-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 61,
-          "tokens": 422,
+          "endLine": 60,
+          "tokens": 391,
           "summary": "games/breakout/cocos/extensions/cocos-mcp-server/README.ru.m",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 62,
-          "endLine": 87,
+          "startLine": 61,
+          "endLine": 86,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3755,
+      "tokens": 3745,
       "lines": 90,
-      "sha256": "99649b0741800c86289a1dcbc9df214836b29b6de7d4ec42ca923d0fb174063d",
+      "sha256": "c9615ef625d6ad9b37a034fac9678ac358a969e81a25fd856d0e283d5741d81f",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 91,
-          "tokens": 3727,
+          "tokens": 3717,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 41 行 / 1474 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 39 行 / 1412 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+42 · §待排（backlog，无号，立项时领取）=28+15",
+          "summary": "§WXG 任务台账（SSOT）=1+40 · §待排（backlog，无号，立项时领取）=26+15",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -752,10 +752,26 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 144 行 / 6726 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
+          "tokens": 77,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+145 · §WXG-T-069=18+13 · §WXG-T-070",
+          "keywords": [
+            "production/TASKS-DETAIL.md",
+            "production",
+            "TASKS",
+            "DETAIL",
+            "tok",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 81,
           "tokens": 355,
           "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
@@ -765,22 +781,6 @@
             "cocos",
             "setup",
             "tok"
-          ]
-        },
-        {
-          "anchor": "§`production/TASKS-DETAIL.md` — 164 行 / 8078 tok",
-          "level": 2,
-          "startLine": 78,
-          "endLine": 81,
-          "tokens": 88,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+165 · §WXG-T-059=18+8 · §WXG-T-063=",
-          "keywords": [
-            "production/TASKS-DETAIL.md",
-            "production",
-            "TASKS",
-            "DETAIL",
-            "tok",
-            "WXG"
           ]
         },
         {
@@ -23525,17 +23525,17 @@
     },
     {
       "path": "memory/2026-09-14.md",
-      "tokens": 12379,
-      "lines": 337,
-      "sha256": "74de13c13b91ead2100c38bff0e586700897d1090630fa8dbe942070dfdb0f67",
+      "tokens": 12586,
+      "lines": 346,
+      "sha256": "334b85cd017359900f436cd07f6cfcff0a847bfe1238e78fb6a1e92e9ff2d761",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 338,
-          "tokens": 12376,
+          "endLine": 347,
+          "tokens": 12582,
           "summary": "",
           "keywords": []
         },
@@ -23887,22 +23887,38 @@
             "卫生门",
             "行数哨"
           ]
+        },
+        {
+          "anchor": "§beads 工程接入 Cocos MCP（WXG-T-079）",
+          "level": 2,
+          "startLine": 339,
+          "endLine": 347,
+          "tokens": 194,
+          "summary": "用户要求给 beads 装 Cocos MCP ⇒ 核查发现链路早已就位（编辑器/扩展/IDE 配置/工程），",
+          "keywords": [
+            "beads",
+            "Cocos",
+            "MCP",
+            "WXG",
+            "IDE",
+            "工程接入"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 4783,
-      "lines": 132,
-      "sha256": "75c0db6d33863c9a4962ff0e972188ff177ace5521b8548c71bb4efc0fb5f2af",
+      "tokens": 4837,
+      "lines": 133,
+      "sha256": "e1402ba13d8d1d40e8a27873d8b6127f44562293f0dac29c9110b42a83aac87b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068）",
           "level": 1,
           "startLine": 1,
-          "endLine": 133,
-          "tokens": 4769,
+          "endLine": 134,
+          "tokens": 4823,
           "summary": "memory/ 是跨会话的运行时记忆：MEMORY.md 是蒸馏后的长期笔记（常驻摘要层），",
           "keywords": [
             "memory",
@@ -23957,8 +23973,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 44,
-          "endLine": 133,
-          "tokens": 3800,
+          "endLine": 134,
+          "tokens": 3854,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -23970,11 +23986,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 12,379 tok｜22 节｜**蒸馏到期 2026-10-14**（剩 30 天）",
+          "anchor": "§`memory/2026-09-14.md` — 12,586 tok｜23 节｜**蒸馏到期 2026-10-14**（剩 30 天）",
           "level": 3,
           "startLine": 49,
-          "endLine": 75,
-          "tokens": 1455,
+          "endLine": 76,
+          "tokens": 1509,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–16 943 游戏在 Cocos",
           "keywords": [
             "memory/2026-09-14.md",
@@ -23988,8 +24004,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 29 天）",
           "level": 3,
-          "startLine": 76,
-          "endLine": 96,
+          "startLine": 77,
+          "endLine": 97,
           "tokens": 921,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 结论：有 4 个本地已装但未纳入 m",
           "keywords": [
@@ -24004,8 +24020,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 10,141 tok｜13 节｜**蒸馏到期 2026-10-12**（剩 28 天）",
           "level": 3,
-          "startLine": 97,
-          "endLine": 114,
+          "startLine": 98,
+          "endLine": 115,
           "tokens": 684,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 三 IDE 均原生支持项目级 subag",
           "keywords": [
@@ -24020,8 +24036,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 27 天）",
           "level": 3,
-          "startLine": 115,
-          "endLine": 133,
+          "startLine": 116,
+          "endLine": 134,
           "tokens": 573,
           "summary": "§完成的工作 3–19 510 修复 Canvas2DLike.fillStyle / strokeStyle 类型过窄",
           "keywords": [
@@ -32716,17 +32732,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 8078,
-      "lines": 164,
-      "sha256": "436929c8536e8e4c79468476bceb1cfc5ae5693d7ae19f572667f84a3d21c338",
+      "tokens": 6726,
+      "lines": 144,
+      "sha256": "5198048f70c63e488b7b437c6339bf9c44f2931e185255854e508219e7fc1105",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 165,
-          "tokens": 8061,
+          "endLine": 145,
+          "tokens": 6710,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -32738,49 +32754,10 @@
           ]
         },
         {
-          "anchor": "§WXG-T-059",
-          "level": 2,
-          "startLine": 18,
-          "endLine": 25,
-          "tokens": 465,
-          "summary": "名称：beads 局内崩溃快照落码（D-03 实现轮；用户裁定「局内崩溃快照（D-03）任务执行」）：T-055 的提案",
-          "keywords": [
-            "WXG",
-            "beads"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-063",
-          "level": 2,
-          "startLine": 26,
-          "endLine": 33,
-          "tokens": 442,
-          "summary": "名称：EP-07 结算·过关面板落地（用户裁定「开始 EP-07 结算面板」）：ux-spec §4 流转表要求 LEV",
-          "keywords": [
-            "§4",
-            "WXG",
-            "spec",
-            "LEV"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-068",
-          "level": 2,
-          "startLine": 34,
-          "endLine": 48,
-          "tokens": 901,
-          "summary": "名称：memory/ 日志的分级加载：新增摘要层 memory/INDEX.md（生成物）——先读摘要，需要时按行区间只",
-          "keywords": [
-            "WXG",
-            "memory",
-            "INDEX"
-          ]
-        },
-        {
           "anchor": "§WXG-T-069",
           "level": 2,
-          "startLine": 49,
-          "endLine": 61,
+          "startLine": 18,
+          "endLine": 30,
           "tokens": 723,
           "summary": "名称：把 knowledge/ 与 memory/ 的使用触发协议写进文档（回答「memory 该什么时候用」）。",
           "keywords": [
@@ -32792,8 +32769,8 @@
         {
           "anchor": "§WXG-T-070",
           "level": 2,
-          "startLine": 62,
-          "endLine": 73,
+          "startLine": 31,
+          "endLine": 42,
           "tokens": 473,
           "summary": "名称：台账头注落后的机械门禁（F 项）——check-tasks.mjs 断言头注号 ≥ 主表 ∪ 归档全局最大号。",
           "keywords": [
@@ -32806,8 +32783,8 @@
         {
           "anchor": "§WXG-T-071",
           "level": 2,
-          "startLine": 74,
-          "endLine": 86,
+          "startLine": 43,
+          "endLine": 55,
           "tokens": 773,
           "summary": "名称：星级表持久化 —— 实现 S8 GDD §2.2 早已冻结的 stars 字段（每关历史最高星），通关画面总览从此",
           "keywords": [
@@ -32820,8 +32797,8 @@
         {
           "anchor": "§WXG-T-072",
           "level": 2,
-          "startLine": 87,
-          "endLine": 98,
+          "startLine": 56,
+          "endLine": 67,
           "tokens": 426,
           "summary": "名称：ctx:build 的写入顺序闭环 —— 消除「每次提交都要手工重建一轮才过」的假失败。",
           "keywords": [
@@ -32833,8 +32810,8 @@
         {
           "anchor": "§WXG-T-073",
           "level": 2,
-          "startLine": 99,
-          "endLine": 110,
+          "startLine": 68,
+          "endLine": 79,
           "tokens": 459,
           "summary": "名称：归档器新增 --detail-until-under=<N>（体积驱动 · 详情侧），并抽出口径唯一的 eligi",
           "keywords": [
@@ -32848,8 +32825,8 @@
         {
           "anchor": "§WXG-T-074",
           "level": 2,
-          "startLine": 111,
-          "endLine": 125,
+          "startLine": 80,
+          "endLine": 94,
           "tokens": 847,
           "summary": "名称：EP-07 最后一项 —— 连击特效三档（score-combo §2.5）的可测半边落码：档位↔特效一一对应 +",
           "keywords": [
@@ -32862,8 +32839,8 @@
         {
           "anchor": "§WXG-T-075",
           "level": 2,
-          "startLine": 126,
-          "endLine": 135,
+          "startLine": 95,
+          "endLine": 104,
           "tokens": 228,
           "summary": "名称：领号协议精化 —— 「领号只读头注」写进 ctx/ROUTES.md 与本文件前言。",
           "keywords": [
@@ -32875,8 +32852,8 @@
         {
           "anchor": "§WXG-T-076",
           "level": 2,
-          "startLine": 136,
-          "endLine": 147,
+          "startLine": 105,
+          "endLine": 116,
           "tokens": 538,
           "summary": "名称：台账 backlog 卫生门（check-tasks G 项）+ 主表行数观察哨（H 项，report-only）",
           "keywords": [
@@ -32891,8 +32868,8 @@
         {
           "anchor": "§WXG-T-077",
           "level": 2,
-          "startLine": 148,
-          "endLine": 157,
+          "startLine": 117,
+          "endLine": 126,
           "tokens": 859,
           "summary": "名称：Cocos G3 遗留收口——Label 真实宽度替换 + setAlign 空实现补齐（自 backlog「G3",
           "keywords": [
@@ -32906,9 +32883,9 @@
         {
           "anchor": "§WXG-T-078",
           "level": 2,
-          "startLine": 158,
-          "endLine": 165,
-          "tokens": 520,
+          "startLine": 127,
+          "endLine": 136,
+          "tokens": 521,
           "summary": "名称：tasks:archive 同号守卫（自 backlog「归档器缺同号守卫」立项； WXG-T-061 归档复核发",
           "keywords": [
             "WXG",
@@ -32916,22 +32893,38 @@
             "archive",
             "backlog"
           ]
+        },
+        {
+          "anchor": "§WXG-T-079",
+          "level": 2,
+          "startLine": 137,
+          "endLine": 145,
+          "tokens": 462,
+          "summary": "名称：beads 工程接入 Cocos MCP —— 补齐 games/beads/cocos/settings/ 缺失",
+          "keywords": [
+            "WXG",
+            "beads",
+            "Cocos",
+            "MCP",
+            "games",
+            "cocos"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 1474,
-      "lines": 41,
-      "sha256": "30165a8d38c41a264eabf6035172f5636cbf265febf3d0a1faff9ba6528bfc89",
+      "tokens": 1412,
+      "lines": 39,
+      "sha256": "73b996a61c4422ff3ed90de12560f6c7872acededd3f14ac8689c2f3a3d5dd47",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 42,
-          "tokens": 1465,
+          "endLine": 40,
+          "tokens": 1404,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -32944,8 +32937,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 28,
-          "endLine": 42,
+          "startLine": 26,
+          "endLine": 40,
           "tokens": 407,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

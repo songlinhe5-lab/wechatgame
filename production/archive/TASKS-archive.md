@@ -80,3 +80,7 @@
 > 归档批次 2026-09-14 18:19 +08:00 — 2 行（WXG-T-066、WXG-T-067）｜判定：git blame committer-time ≥ 30 天｜详情节同批搬入 production/archive/TASKS-DETAIL-archive.md
 | WXG-T-066 | EP-07 通关画面（FINISH） | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
 | WXG-T-067 | 冲刺结算面板（§3.5 左列） | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+> 归档批次 2026-09-14 19:58 +08:00 — 3 行（WXG-T-059、WXG-T-063、WXG-T-068）｜判定：git blame committer-time ≥ 30 天｜详情节同批搬入 production/archive/TASKS-DETAIL-archive.md
+| WXG-T-059 | beads 局内崩溃快照落码 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+| WXG-T-063 | EP-07 结算·过关面板落地 | 主理人(CodeBuddy) | ✅ 完成（EP07-S1 关面完成） | 见详情 |
+| WXG-T-068 | memory 日志分级加载（摘要层） | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |

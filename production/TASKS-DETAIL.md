@@ -15,37 +15,6 @@
 
 ---
 
-## WXG-T-059
-
-- **名称**：beads 局内崩溃快照**落码**（D-03 实现轮；用户裁定「局内崩溃快照（D-03）任务执行」）：T-055 的提案自身写明「本轮禁止落运行时写档」+ §7 标「落码时，非本轮」⇒ 本轮**开新轮次**，不推翻其条款。范围：① 新增 `src/game/crash-snapshot.ts`（**另键** `wxgame.beads.crash.v1`，`save-schema.ts` 一字未改、S8 version 未升；字段级校验/降级、永不抛异常）；② `Spawner` 暴露 `acc` / `fullReported` 存取（原私有；恢复须在热路径外写，且须**先设 interval 再设 acc**，因为 interval setter 会重置累加器）；③ `BeadsGame.onPause` 末尾写快照（含「已 PAUSED 又 onHide」）；结算/过关/失败/finish/重玩/换关 **删**快照；④ BOOT 读快照 → 校验 → 装配 → 进 PAUSED（走 `machine.reset('paused')`，**不动** `PHASE_TRANSITIONS` 冻结表）；⑤ `tests/in-level-snapshot.test.ts`（提案 §6 六条判据，本轮据用户裁定去 `[待冻结]`）。**对提案 §2 的必要增补 2 项**（均有既有冻结依据，非发明）：`reviveCount`（T-057 已冻结 `REVIVE_MAX_PER_LEVEL=1`；不存则恢复后可再续一次、绕过该规则）、`reviveBonusSec`（参与 `computeClearStars`；不存则恢复后过关多给星）
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **产出**：games/beads/src/game/crash-snapshot.ts · games/beads/src/systems/spawner.ts · games/beads/src/game/beads-game.ts · games/beads/tests/in-level-snapshot.test.ts · 本台账
-
----
-
-## WXG-T-063
-
-- **名称**：**EP-07 结算·过关面板落地**（用户裁定「开始 EP-07 结算面板」）：`ux-spec §4` 流转表要求 `LEVEL_CLEAR` **等按钮**（下一关 / 去冲刺 U1），而实现一直是「1.4s 自动进下一关」的占位 ⇒ 新增 `systems/clear-panel.ts`（纯布局 + 命中 + 入/出 200/150ms + **星入场逐颗 150ms**，同 PausePanel 范式），按 §3.4 画遮罩 + `panel_dialog` 底板 + 金色缎带标题 + 逐颗弹跳星级 + 「剩余 mm:ss ｜ 道具 n/3」+ 主/副双钮；`LEVEL_CLEAR` 改为**等按钮**，`LEVEL_CLEAR_DELAY_S` 与 `tuning.levelClearDelay` **退休**（留墓碑注）；面板开时压掉相位横幅；C7 结算分在 `level:cleared` 当帧装配（`lastSettleScore`，§8-2）；星入场各触发一次 `sfx_star`。**测试**：新增 `tests/clear-panel.test.ts` **7 条**（含「3s 内不自动推进」回归闸门 + 两条按钮出口 + C7 精确值 4200 + §8-2 数据装配），另改两处依赖自动推进的旧用例（改点面板主钮）；beads **150 → 157**。**EP-07 未完**：冲刺结算面板（`ux-spec §3.5` 左列）+ FINISH 通关画面（§3.6）+ 连击特效三档（§2.5，判据 `score-combo §8-9` 属 DevTools）
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成（EP07-S1 关面完成）
-- **产出**：games/beads/src/systems/clear-panel.ts · src/game/{beads-game,state}.ts · src/view/view-model.ts · src/config/tuning.ts · tests/clear-panel.test.ts · 本台账
-
----
-
-## WXG-T-068
-
-- **名称**：`memory/` 日志的**分级加载**：新增摘要层 `memory/INDEX.md`（生成物）——先读摘要，需要时按行区间只读那一节。
-- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **问题（用户 2026-09-14 提出）**：`memory/` 4 篇日记合计 **31,690 tok**（单篇 5.6k–10.1k；09-12 单篇 10,141 已靠 B 门豁免放行）⇒ 任何会话都读不起 ⇒ 事实上「知识库很大但没人敢读」。`knowledge/` 早已是正确形状（`INDEX.md` 3.2k 摘要 + `lessons.md`/`patterns.md` 详情），`memory/` 缺这一层；且 ROUTES 只登记了 `MEMORY.md` 的小节，**4 篇日记没有任何入口**。
-- **落地**：① 新增 `tools/scripts/lib/memory-index.mjs`：渲染 `<!-- memory:index:start -->` 标记块（**只列 `##` 级主题**：文件 → 行区间 + 体量 + 摘要素描；手写协议在块外，与 `knowledge/INDEX.md` 的 `kb:active` 同规格）② 摘要**取 `ctx/index.json` 里已有的** `firstSentence()`，**不写第二套摘要器**——两套必然漂移，而漂移后果是索引**指错行**（比没有索引更坏）③ `ctx:build` 写完索引后生成它，并**纳入不动点收敛**（它本身也是被索引的 .md；块内不含自身行 ⇒ 无自指反馈，通常一轮即达）④ pre-commit 的产物暂存行补 `memory/INDEX.md`（钩子注释明写「新增 ctx 产物必须登记到本行」，照办）⑤ `ctx:check` 新增 C 子项：**现算文本 vs 磁盘逐字节比对** + **蒸馏天数口径断言**（本模块的 `MEMORY_DIGEST_DAYS=30` 必须等于 `distill-memory.mjs` 的 `args.days ?? 30`——该默认值内联、无导出，故机械对账，防两处慢慢走散）。
-- **口径诚实声明（已写进产物与文档）**：摘要 = 节首句**摘取**，**不是**人工撰写的提要 ⇒ 用它判断「要不要读这一节」，别当结论。
-- **收益**：入口成本 **31,690 → 3,756 tok（8.4×）**，且**可路由**（行区间可直接喂 `read_file`）；产物头部写明「怎么用它读一节」。
-- **实测（门禁双向验证，非假绿）**：移走 `memory/INDEX.md` ⇒ `ctx:check` FAILED 并给出修复命令；移回 ⇒ OK。
-- **协议登记**：`memory/MEMORY.md` 规程补一条读法 · `ctx/ROUTES.md` 增入口行（指向 `memory/INDEX.md#§4. 摘要表（自动生成）`）· `docs/agent/memory-distill.md` 增 §8 分级读取。
-- **已知限制（如实登记）**：产物是「生成 + 读取既有文件」型 ⇒ 在 `--staged-blobs`（提交时）模式下，**手写前言**取工作树版本而非暂存版（日记表的行号仍按暂存 blob 索引 ✓）。前言极少改动，影响低。
-- **产出**：tools/scripts/lib/memory-index.mjs（**新增**）· tools/scripts/build-context-index.mjs · tools/scripts/check-context-budget.mjs · .githooks/pre-commit · memory/INDEX.md（**新增，生成物**）· memory/MEMORY.md · ctx/ROUTES.md · docs/agent/memory-distill.md · 本台账
-
----
-
 ## WXG-T-069
 
 - **名称**：把 `knowledge/` 与 `memory/` 的**使用触发协议**写进文档（回答「memory 该什么时候用」）。
@@ -162,3 +131,14 @@
 - **位置与约束**：新增两段均在**报告/早退分支之前**，保证 0 候选与 dry-run 也能看到告警；批次去重放在 `toArchive` 定稿后、守恒校验前，守恒（行数 == 节数）自然成立。不改行内容、不删信息（宁漏勿错）。
 - **实测（双向，非假绿）**：`archive-tasks-selftest.sh` **PASS 67 → 75**（新 [8a]/[8b]）——[8a] 主表两行同号 ⇒ dry-run 出「同号守卫」横幅且台账字节不变；[8b] `--write` ⇒ 归档中 `WXG-T-001` 仅 1 份（未放大）、主表保留 1 份（不自动合并）。真实台账 dry-run：**无同号误报**（健康数据全部唯一），头注与全局最大号一致、空转不落盘。
 - **产出**：tools/scripts/archive-tasks.mjs（同号检测 + 批次去重 + doc/help）· tools/scripts/archive-tasks-selftest.sh（[8] 两例）· 本台账
+
+---
+
+## WXG-T-079
+
+- **名称**：beads 工程接入 Cocos MCP —— 补齐 `games/beads/cocos/settings/` 缺失的两件扩展设置（cocos-setup.md §13.3 B2 当时未做）。
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
+- **现状核查**：链路其余各环**早已就位**——编辑器 3.8.8 + Dashboard ✓、全局扩展 `cocos-mcp-server` v1.5.4（dist 已构建）✓、三份 IDE 配置含 `cocos-creator`（WXG-T-043 生成物）✓、beads 工程已创建且编辑器正开着 ✓。唯二缺口都在 beads 工程的 `settings/`。
+- **落地**：① `settings/mcp-server.json`——`port 3000 / autoStart true / enableDebugLog false / maxConnections 10`（`autoStart` 用 **true**，与 breakout 的 false 不同：实测可免「重启后手点 Start」，§12.2）② `settings/tool-manager.json`——照抄 breakout 的 **L1 白名单**（50 工具，21 启用 / 29 禁用；写类全禁）③ 顺带提交编辑器为 T-067 `combo-vfx.ts` 生成的 `.meta`。
+- **拦下一个回归**：编辑器把 beads `project.json` 的 `fitHeight: true` **删了**——breakout 有 ✓、框架代码不自设分辨率（grep 无 `setDesignResolutionSize`）⇒ 该键是 Fit Height 的**唯一落点**，提交即静默破坏竖屏适配 ✗。已恢复，**不跟随编辑器提交**；若反复被重写需查 GUI 是否有人动过分辨率设置。
+- **剩一步（GUI，无法代点）**：重启编辑器（`autoStart` 生效）或 扩展 → Cocos MCP Server → 启动服务器；探活 `GET http://127.0.0.1:3000/health`（**勿用 /mcp**，恒 404 会误判）。
