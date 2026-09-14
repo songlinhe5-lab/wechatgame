@@ -198,8 +198,8 @@
 ## WXG-T-085
 
 - **名称**：beads P0·**GAP-01 空槽目标色落码**（波次2，路线C 首单）。承接 T-080 美术规格裁定：把 `EMPTY_TINT_MIX=0.35`（E1 目标色底）+ `EMPTY_GHOST_ALPHA=0.20`（E4 幽灵符号）从规格落到渲染层。
-- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
-- **Deliverables**：`view/view-model.ts::drawGrid` 空槽分支传 `cell.colorIdx`；`view/bead-render.ts::drawEmptySocket` 扩签名接收目标色并按 §3.8 系数混色（`mixWith(slot_fill, beadColor(colorIdx), EMPTY_TINT_MIX)`）+ 叠 E4 幽灵符号（同 L5 矢量 path、缩至 BEAD×0.32、α0.20）；`tests/view-model.test.ts` L112 反向断言「empty 格不画符号」**同步改为正向断言**（empty 画目标色底+幽灵符号）；补色盲冗余通道可感知判据（对齐 T-084 test-cases）。
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（3abb4dc）
+- **落地证据**：`bead-render.ts::drawEmptySocket` 扩末位可选 `colorIdx`→E1 色底 `mixWith(slot,beadColor,EMPTY_TINT_MIX=0.35)` + E4 幽灵符号 `emitSymbol(size*0.8, withAlpha(beadColor,EMPTY_GHOST_ALPHA=0.20))`；`palette.ts` 落 §3.8 两常量；`view-model.ts::drawGrid` 透传 `cell.colorIdx`（托盘 `drawEmptySocket` 不传保持中性）。ghost dot 因 size×0.8 不被旧精确-r 校验命中→`isDotSymbol` 放宽为 band 内填充圆，A3 反向断言改正向。beads 187 全绿 tsc 干净；harness smoke 136 draw cmds。守 L5（渲染只读）、§3.8 冻结常量无魔法数。
 - **约束**：守 L5（渲染不持状态，只读 `buildRenderModel`）+ 热路径零分配（混色复用暂存）；颜色系数走 §3.8 冻结常量，禁魔法数。**不改 `systems-index §3`**——常量已由主对话 v1.16 落盘。
 - **依赖**：硬前置 T-080（规格）+ t7（§3.8 常量已落）。GAP-01 是「同色入格」可玩性的第一道解锁。
 
@@ -208,8 +208,8 @@
 ## WXG-T-086
 
 - **名称**：beads P0·**GAP-02 首供提速 + GAP-06 尾部泄压阀落码（U8=A′+D）**（波次2）。承接 T-081 设计裁定 + 用户拍板 U8=A′+D。
-- **负责**：主理人(Qoder)　**状态**：⏳ 待启动
-- **Deliverables**：① GAP-02：`beads-game.ts::_setupLevel` 开局立即 feed 首颗珠到托盘（消除 6.02s 空托盘→承诺 ≤1.5s，走 §3.4 `SPAWN_INTERVAL` 语义）；② GAP-06 A′：`spawner.ts` 供料侧不变量 `held ≤ demand`（只供当前棋盘仍需要的颜色，过滤杂色）；③ U8=D：`DECOY_COLORS_MAX` 2→0（`tuning.ts` + `levels.json` 清空 L1–L6 `decoys` 非空字段以过 `levels.ts:174` 校验）。**须同步登记 `systems-index v1.17`（§3.2 `DECOY_COLORS_MAX` 改值 + §6 变更记录）**。
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（c2ab5eb，镜像漂移 ac74b5c）
+- **落地偏差（诚实登记）**：GAP-02 首供实际落在 `spawner.ts`（`_firstFeed` 标记于 `reset()` 置位、首 tick 消费后 early-return，不预先 `_acc+=dt`）而非详情初稿写于 `beads-game._setupLevel`——供料逻辑内聚于 Spawner，且恢复路径（直接设 interval/acc 不调 reset）不误触首供（内聚供料逻辑于 Spawner）。GAP-06 A′：`_drawColor` needed 循环加 `held < needed` 过滤（`Tray.heldCount`），decoy 循环保留。U8=D：§3.2 `DECOY_COLORS_MAX` 2→0（`tuning.ts` + `levels-01-08.json` 清空 L1–L6 `decoys` + `levels:sync` 重生）；已登记 `systems-index v1.17`（changelog §6）。同批落保 `levels:check` 绿；beads 187 全绿，新增 tray-spawner 首供+A′ 锁定测试。
 - **约束**：A′ 与 D 耦合 `levels.json`/`spawner.ts`，必须同批落否则 `levels:check` 红；改冻结常量走 §6 变更记录（本单由主对话串行落，非成员并发）；守 L4（RNG 走 `services.rng`）。
 - **依赖**：硬前置 T-081（泄压阀裁定）。与 T-085 无冲突（不同文件面）。
 

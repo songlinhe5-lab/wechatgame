@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2403,
       "lines": 98,
-      "sha256": "4fba51282d95edf6eb680a2d96cee0878e84452e5f78bbd501edb9f16980140a",
+      "sha256": "fbf96ece9ca0cc32538cd1b41eb7a716efcd39c07de59c35f8cbefa54fe05ae0",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3842,
       "lines": 86,
-      "sha256": "b8592e050e26767e002d68fa6d6bb3086a4a47ef5f9dddd8281fcdbb44076583",
+      "sha256": "5c5df3a075050819f22043c1e94e1bba3c3a86386bae84ba748c96afa9cf4590",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 52 行 / 2112 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 52 行 / 2110 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -768,7 +768,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 255 行 / 11912 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 255 行 / 12011 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
@@ -42158,9 +42158,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 11912,
+      "tokens": 12011,
       "lines": 255,
-      "sha256": "3d6ef56a4495326a273063d8017b828243dbc97dbe3a0fca2c99413187bcda12",
+      "sha256": "fe9c2ceb9d79526cf108e13ef6dad5c6a260bbba47815a6593906580ac9a5601",
       "tier": "normal",
       "sections": [
         {
@@ -42168,7 +42168,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 256,
-          "tokens": 11895,
+          "tokens": 11994,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -42410,7 +42410,7 @@
           "level": 2,
           "startLine": 198,
           "endLine": 207,
-          "tokens": 364,
+          "tokens": 387,
           "summary": "名称：beads P0·GAP-01 空槽目标色落码（波次2，路线C 首单）。承接 T-080 美术规格裁定：把 EMP",
           "keywords": [
             "WXG",
@@ -42424,7 +42424,7 @@
           "level": 2,
           "startLine": 208,
           "endLine": 217,
-          "tokens": 325,
+          "tokens": 400,
           "summary": "名称：beads P0·GAP-02 首供提速 + GAP-06 尾部泄压阀落码（U8=A′+D）（波次2）。承接 T-",
           "keywords": [
             "WXG",
@@ -42495,9 +42495,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2112,
+      "tokens": 2110,
       "lines": 52,
-      "sha256": "05e6490638eb24d238d973e148eafaed16705d530e6a75f0aed655d0aedfb9ac",
+      "sha256": "a7883c5688368aeb4681ff74989eea98a38e1cfd9a11456eff6331bdf5c6e7e7",
       "tier": "hot",
       "sections": [
         {
@@ -42505,7 +42505,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 53,
-          "tokens": 2103,
+          "tokens": 2101,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

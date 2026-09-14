@@ -27,8 +27,8 @@
 | 3 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
 | 4 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
 | 5 | `memory/2026-09-14.md` | 12586 | 346 | normal |
-| 6 | `docs/engine-reference/cocos/VERSION.md` | 11967 | 454 | normal |
-| 7 | `production/TASKS-DETAIL.md` | 11912 | 255 | normal |
+| 6 | `production/TASKS-DETAIL.md` | 12011 | 255 | normal |
+| 7 | `docs/engine-reference/cocos/VERSION.md` | 11967 | 454 | normal |
 | 8 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
 | 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
 | 10 | `games/beads/design/audio/audio-spec.md` | 10410 | 293 | normal |
@@ -52,8 +52,8 @@
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-09-14.md` | 12586 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 12011 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/engine-reference/cocos/VERSION.md` | 11967 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS-DETAIL.md` | 11912 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 10410 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

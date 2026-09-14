@@ -23,8 +23,8 @@
 | WXG-T-082 | beads 坐标空间契约ADR+Cocos双路径取证(GAP-07/08) | 程基岩(eng) | ✅ 完成 | 见详情 |
 | WXG-T-083 | beads 音频规格从零建档(GAP-05) | 阮和鸣(audio) | ✅ 完成 | 见详情 |
 | WXG-T-084 | beads G4首执行+可感知判据补编(GAP-14) | 严守真(qa) | ✅ 完成 | 见详情 |
-| WXG-T-085 | beads P0·GAP-01空槽目标色落码 | 主理人(Qoder) | ⏳ 待启动 | 见详情 |
-| WXG-T-086 | beads P0·GAP-02首供+GAP-06泄压阀A′+D落码 | 主理人(Qoder) | ⏳ 待启动 | 见详情 |
+| WXG-T-085 | beads P0·GAP-01空槽目标色落码 | 主理人(Qoder) | ✅ 完成 | 见详情 |
+| WXG-T-086 | beads P0·GAP-02首供+GAP-06泄压阀A′+D落码 | 主理人(Qoder) | ✅ 完成 | 见详情 |
 | WXG-T-087 | beads P0·GAP-04VFX+wrong/hint态+GAP-03引导+GAP-10告警 | 主理人(Qoder) | ⏳ 待启动 | 见详情 |
 | WXG-T-088 | beads·R1甲 D1/E2可访问性开关落码 | 主理人(Qoder) | ⏳ 待启动 | 见详情 |
 | WXG-T-089 | beads P0·GAP-07/08 harness坐标落码(ADR-0011) | 主理人(Qoder) | ⏳ 待启动 | 见详情 |
