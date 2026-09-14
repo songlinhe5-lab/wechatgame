@@ -178,3 +178,20 @@
 | E4 | 玩法事件段内序 | `core-loop §2.2.2`（本轮补齐） | `bead:placed` 在事件日志中**先于** `level:cleared`；供料帧内 `tray:spawned` 先于 `timer:tick`（供料段先于计时段） |
 
 > 标定纪律（写进用例以防复发）：① 供料帧号由**探针实测**，不写死常数——累计 `1/60` 有浮点漂移，`240×1/60` 略小于 4.0，供料实际落在**第 241 帧**；② **`giveTrayBead()` 自身会发 `tray:spawned`**，计数断言必须用增量或对照组。
+
+---
+
+# §F 结算·过关面板用例（7 条；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`
+
+> 背景：`ux-spec §4` 流转表要求 `LEVEL_CLEAR` **等按钮**（下一关 / 去冲刺 U1），而实现曾是「1.4s 自动进下一关」占位。本组用例第一条即为**回归闸门**。
+
+| # | 用例 | 来源 | 自动化断言要点 |
+|---|---|---|---|
+| F1 | 过关后**不自动推进** | §4 流转表 | 填空整盘 → 相位 LEVEL_CLEAR 且面板可见；`advance(3)` 后**仍在 level-clear、`levelIndex` 不变**（旧实现 1.4s 即翻页） |
+| F2 | 主钮出口 → 下一关 | §3.4 + §4 | 2 关表：点主钮中心（真实 tap 路由）→ 相位 playing、`levelIndex` = 1 |
+| F3 | 副钮出口 → 去冲刺（U1） | §3.4 + §4 | 点「▶ 去冲刺」→ 相位 playing、`mode === 'sprint'` |
+| F4 | 面板几何 | §3.4（`panel_dialog`） | 底板 560×480 且画布居中；双钮各 = `PANEL_BUTTON_H` 且 ≥ `TOUCH_MIN`、落在底板内、**不重叠且主钮在左**；标题 → 星 → 信息三行自上而下 |
+| F5 | 命中范围 | §3.4 | 双钮中心各自解析为 `next` / `sprint`；**两钮间隙与画布任意处 → 无命中**（不推进） |
+| F6 | 入/出与淡出期门禁 | §5（入 200 / 出 150ms） | `progress` 0→1→0；`close()` 后 `interactive === false` ⇒ **淡出期点按钮无命中**，150ms 后 `visible === false` |
+| F7 | 星入场节奏与弹跳 | §5（逐颗 150ms / scale 0→1.2→1） | 第 1 颗 t=0 入场，其后每 150ms 一颗，封顶 = 星级；`starScale` 0 → 1.2（75ms）→ 1（150ms） |
+| F8 | 结算数据装配 | `score-combo §8-2`（C7） | 不推进时钟填空 ⇒ ratio = 1 ⇒ 3★；`lastSettleScore === normalSettleScore(3, 1, 0, false)` 且**恰为 4200**（3×1000 + 1000 − 0 + 200）；快照带 `clearStars` / `clearLastLevel` |

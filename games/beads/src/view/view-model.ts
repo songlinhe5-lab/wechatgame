@@ -24,6 +24,8 @@ import {
   POWERUP_BADGE_INSET,
   POWERUP_BADGE_RADIUS,
   POWERUP_BADGE_SIZE,
+  CLEAR_STAR_SIZE,
+  PANEL_PADDING,
   POWERUP_CARD_RADIUS,
   POWERUP_TYPES,
   powerupCardRects,
@@ -56,6 +58,7 @@ import {
   type BeadsPalette,
 } from './palette.js';
 import { POWERUP_LABELS } from '../systems/powerups.js';
+import { CLEAR_PANEL_TITLE, clearPanelLabel, clearPanelLayout } from '../systems/clear-panel.js';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -96,6 +99,7 @@ export function buildBeadsView(
   drawGrid(builder, snap, palette);
   drawTray(builder, snap, palette);
   drawPowerupBand(builder, snap, palette);
+  drawClearPanel(builder, snap, palette);
   drawPausePanel(builder, snap, palette);
   drawFailPanel(builder, snap, palette);
   drawBanners(builder, snap, palette);
@@ -411,6 +415,94 @@ function drawDashedRect(
   }
 }
 
+// ─────────────────────────────────── S7 结算·过关面板（ux-spec §3.4）
+
+/**
+ * 结算·过关面板：遮罩 + `panel_dialog` 底板（白底 / 1px 描边 / 圆角 24，assets-spec §1.5）
+ * + 金色缎带标题 + **逐颗入场**的星级 + 次要信息「剩余 mm:ss ｜ 道具 n/3」+ 主/副双钮。
+ *
+ * 几何/文案/动作全在 `systems/clear-panel.ts`（与命中测试同源）；本函数只画。
+ * 星级节奏来自快照（`clearStarsShown` / `clearStarPopScale`）——面板逻辑按
+ * ux-spec §5「逐颗 150ms」推进，视图**不自持计时**。
+ */
+function drawClearPanel(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  if (!snap.clearPanelVisible) return;
+  const layout = clearPanelLayout({ lastLevel: snap.clearLastLevel });
+  const plate = layout.panel;
+  const w = plate.xMax - plate.xMin;
+  const h = plate.yMax - plate.yMin;
+
+  // 遮罩（量值同 ux-spec §3.3，与暂停面板一致）。
+  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+    fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
+  });
+  builder.rect(plate.xMin, plate.yMin, w, h, {
+    fill: palette.panel,
+    stroke: palette.slotBorder,
+    lineWidth: 1,
+    radius: 24,
+  });
+
+  // 金色缎带横幅 + 标题（ux-spec §3.4 首行）。
+  const ribbonH = 84;
+  builder.rect(plate.xMin + PANEL_PADDING, layout.titleY - ribbonH / 2, w - PANEL_PADDING * 2, ribbonH, {
+    fill: withAlpha(palette.textAccent, 0.22),
+    radius: 16,
+  });
+  builder.text(DESIGN_W / 2, layout.titleY, CLEAR_PANEL_TITLE, {
+    fill: palette.text,
+    font: FONT.panelTitle,
+    align: 'center',
+    baseline: 'middle',
+  });
+
+  // 星级：只画已入场的那些；最新一颗按弹跳缩放（0→1.2→1）。
+  const starR = (CLEAR_STAR_SIZE / 2) * 0.92;
+  for (let i = 0; i < snap.clearStarsShown; i++) {
+    const scale = i === snap.clearStarsShown - 1 ? snap.clearStarPopScale : 1;
+    if (scale <= 0) continue;
+    builder.polygon(starPoints(layout.starX[i]!, layout.starsY, starR * scale, 5, 90), {
+      fill: palette.textAccent,
+    });
+  }
+
+  // 次要信息（ux-spec §3.4 第三行）。
+  builder.text(
+    DESIGN_W / 2,
+    layout.infoY,
+    `剩余 ${formatTime(snap.clearRemaining)} ｜ 道具 ${snap.clearPowerupsUsed}/${POWERUP_TYPES.length}`,
+    { fill: palette.textDim, font: FONT.sub, align: 'center', baseline: 'middle' },
+  );
+
+  // 主/副双钮：主钮金底深字（对比度 ≈8:1），副钮白底深字；文案归 `clear-panel.ts`。
+  for (const button of layout.buttons) {
+    const bw = button.rect.xMax - button.rect.xMin;
+    const bh = button.rect.yMax - button.rect.yMin;
+    const primary = button.id === 'next';
+    builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
+      fill: primary ? palette.textAccent : palette.panel,
+      stroke: primary ? palette.textAccent : palette.slotBorder,
+      lineWidth: 1,
+      radius: 20,
+    });
+    builder.text(
+      button.rect.xMin + bw / 2,
+      button.rect.yMin + bh / 2,
+      clearPanelLabel(button.id, snap.clearLastLevel),
+      {
+        fill: palette.text,
+        font: FONT.panelButton,
+        align: 'center',
+        baseline: 'middle',
+      },
+    );
+  }
+}
+
 // ──────────────────────────────────────────────────────── powerup band
 
 /** 投影竖向偏移：RenderModel 无模糊 ⇒ 用偏移圆角矩形近似（§1.4 的 α0.10 见 palette）。 */
@@ -621,7 +713,7 @@ function drawBanners(
 ): void {
   // The pause dialog carries its own 暂停 title — don't double-print the phase
   // banner on top of it (ux-spec §3.3 shows one caption, not two).
-  if (!snap.banner || snap.panelVisible || usesFailOverlay(snap)) return;
+  if (!snap.banner || snap.panelVisible || snap.clearPanelVisible || usesFailOverlay(snap)) return;
   const bannerY = 700;
   builder.rect(0, bannerY - 90, DESIGN_W, 200, {
     fill: withAlpha(palette.bannerBackdrop, 0.55),

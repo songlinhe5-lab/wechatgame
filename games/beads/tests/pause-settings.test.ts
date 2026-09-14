@@ -15,6 +15,7 @@ import {
   placeColor,
   type Harness,
 } from './helpers.js';
+import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import {
   pausePanelLayout,
   rectsOverlap,
@@ -450,13 +451,20 @@ describe('S9 pause & settings', () => {
     while (over.game.phase === 'playing') over.advance(0.5);
     phases.push({ name: 'game-over', harness: over });
 
-    // FINISH — let LEVEL_CLEAR auto-advance on the last level.
+    // FINISH — 结算面板主钮（末关文案「查看结果」）把 LEVEL_CLEAR 推进到 FINISH。
+    // WXG-T-063：LEVEL_CLEAR **不再自动推进**（ux-spec §4 流转表：等按钮）。
     const finished = createBeadsHarness({
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s9c7finish',
     });
     fillBoard(finished.game);
-    finished.advance(2);
+    expect(finished.game.phase).toBe('level-clear');
+    const clearPrimary = clearPanelLayout({ lastLevel: true }).buttons[0]!.rect;
+    tap(
+      finished.game,
+      (clearPrimary.xMin + clearPrimary.xMax) / 2,
+      (clearPrimary.yMin + clearPrimary.yMax) / 2,
+    );
     phases.push({ name: 'finish', harness: finished });
 
     // PAUSED — injected while already paused.

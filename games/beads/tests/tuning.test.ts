@@ -21,6 +21,7 @@ import {
   HUD_BAND,
   POWERUP_BAND,
   PUZZLE_BAND,
+  CLEAR_STAR_STEP_MS,
   SPAWN_INTERVAL_MAX,
   SPAWN_INTERVAL_MIN,
   SPRINT_TIME_DEFAULT,
@@ -54,9 +55,9 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     expect(DEFAULT_TUNING.width).toBe(DESIGN_W);
     expect(DEFAULT_TUNING.height).toBe(DESIGN_H);
     expect(DEFAULT_TUNING.sprintTime).toBe(SPRINT_TIME_DEFAULT);
-    // Presentation-only delay (not a §3-frozen number): only has to be sane.
-    expect(Number.isFinite(DEFAULT_TUNING.levelClearDelay)).toBe(true);
-    expect(DEFAULT_TUNING.levelClearDelay).toBeGreaterThan(0);
+    // WXG-T-063：`levelClearDelay`（自动推进占位）已退休，节奏改由「星入场逐颗 150ms」
+    // 承担（ux-spec §5）；此处钉住该值，防止有人再退回「到点自动翻页」。
+    expect(CLEAR_STAR_STEP_MS).toBe(150);
   });
 
   describe('gridLayoutFor', () => {

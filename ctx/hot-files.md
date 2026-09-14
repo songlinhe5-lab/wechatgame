@@ -23,13 +23,13 @@
 
 §wechatgame 项目长期笔记=1+53 · §日志蒸馏规程（R2 · WXG-T-041）=7+3 · §项目约定=10+12 · §常用脚本=22+9 · §SubAgent=31+4 · §Rules=35+3 · §Hooks=38+4 · §Headless / CI=42+8 · §已知限制=50+4
 
-## `production/TASKS.md` — 42 行 / 6795 tok / 实测读 4 次
+## `production/TASKS.md` — 44 行 / 7224 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+43 · §待排（backlog，无号，立项时领取）=33+11
+§WXG 任务台账（SSOT）=1+45 · §待排（backlog，无号，立项时领取）=35+11
 
-## `production/qa/beads/test-cases.md` — 180 行 / 6723 tok / 实测读 15 次
+## `production/qa/beads/test-cases.md` — 197 行 / 7282 tok / 实测读 15 次
 
-§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+12 · §A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）=13+79 · §A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`=15+15 · §A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10`=30+15 · §A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`=45+15 · §A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`=60+15 · §A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`=75+17 · §B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）=92+19 · §C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）=111+39 · §D 道具系统判据用例（10 条 = 判据 1:1）— 来源 `powerups.md §8.1..10`（WXG-T-060 落码；实现与自动化见 `games/beads/tests/powerups.test.ts`）=150+19 · §E 帧内执行序用例（4 条；基准条款，无独立 §8 编号）— 来源 `core-loop.md §2.2.2`（WXG-T-061 换基准；自动化见 `games/beads/tests/frame-order.test.ts`）=169+13
+§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+12 · §A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）=13+79 · §A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10`=15+15 · §A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10`=30+15 · §A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`=45+15 · §A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`=60+15 · §A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`=75+17 · §B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）=92+19 · §C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）=111+39 · §D 道具系统判据用例（10 条 = 判据 1:1）— 来源 `powerups.md §8.1..10`（WXG-T-060 落码；实现与自动化见 `games/beads/tests/powerups.test.ts`）=150+19 · §E 帧内执行序用例（4 条；基准条款，无独立 §8 编号）— 来源 `core-loop.md §2.2.2`（WXG-T-061 换基准；自动化见 `games/beads/tests/frame-order.test.ts`）=169+15 · §F 结算·过关面板用例（7 条；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`=184+15
 
 ## `my-skills/INDEX.md` — 78 行 / 1701 tok / 实测读 61 次
 

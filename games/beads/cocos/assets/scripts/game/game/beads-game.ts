@@ -27,6 +27,7 @@ import {
 
 import {
   AUDIO_CLIP_BGM,
+  AUDIO_CLIP_STAR,
   AUDIO_CLIP_UI_TAP,
   DEFAULT_TUNING,
   GEAR_HIT_SIZE,
@@ -35,6 +36,7 @@ import {
   REVIVE_MAX_PER_LEVEL,
   STAGE_BONUS_TIME,
   computeClearStars,
+  normalSettleScore,
   TIMER_URGENT_T,
   TRAY_COLS,
   TRAY_GAP,
@@ -69,6 +71,11 @@ import {
 } from './crash-snapshot';
 import { Tray } from '../entities/tray';
 import { PowerupSystem } from '../systems/powerups';
+import {
+  ClearPanel,
+  type ClearPanelAction,
+  type ClearPanelOptions,
+} from '../systems/clear-panel';
 import { judgePlacement } from '../systems/placement';
 import { Spawner } from '../systems/spawner';
 import { GameTimer } from '../systems/timer';
@@ -153,6 +160,15 @@ export class BeadsGame implements Game {
   private readonly _powerups = new PowerupSystem();
   /** Over-limit card tap hint（§2.6 布局 A 占位轻提示；成功使用 / 换关即清）。 */
   private _powerupHint = '';
+  /**
+   * S7 结算·过关面板（WXG-T-063）。`LEVEL_CLEAR` 由它**等按钮**推进
+   * （`ux-spec §4` 流转表），取代此前的「1.4s 自动进下一关」占位。
+   */
+  private readonly _clearPanel = new ClearPanel();
+  /** 本关结算分（C7，局内不显示；面板与测试读它）。 */
+  private _lastSettleScore = 0;
+  /** 已触发过入场音效的星数（每星一次，ux-spec §5）。 */
+  private _clearStarsAnnounced = 0;
   /**
    * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
    * Gear → `'manual'`; WeChat `onHide` → `'system'`. Both stay on the
@@ -369,6 +385,7 @@ export class BeadsGame implements Game {
     // Panel animation is presentation, not gameplay: it keeps running while the
     // world is frozen so the enter/exit ramp never stalls (ux-spec §5).
     this._panel.update(dt * 1000);
+    this._clearPanel.update(dt * 1000); // 结算面板同理：退出淡出要在离开 LEVEL_CLEAR 后跑完
   }
 
   buildRenderModel(builder: RenderModelBuilder): void {
@@ -771,6 +788,9 @@ export class BeadsGame implements Game {
             game._panel.close();
             game._emit('game:resumed', {});
           }
+          // 离开结算面板两出口（下一关 / 去冲刺）都经本状态 ⇒ 在此收起面板，
+          // 淡出由 `update()` 的 `_clearPanel.update()` 跑完（与 S9 面板同判例）。
+          if (from === 'level-clear') game._clearPanel.close();
         },
         onUpdate: (game, dt) => {
           game._stepPlaying(dt);
@@ -794,19 +814,22 @@ export class BeadsGame implements Game {
             game._reviveCount > 0,
           );
           game._lastStars = stars;
+          // C7 结算分（局内不显示，供排行/段位与面板外部读取）：四因子全在此刻可得。
+          game._lastSettleScore = normalSettleScore(
+            stars,
+            ratio,
+            game._powerups.usedCount,
+            game._tray.expanded,
+          );
           game._emit('level:cleared', { levelId, remaining, ratio, stars });
           game._persistProgress();
           game._crash?.clear(); // D-03（提案 §3）：过关即删，避免残局覆盖下次启动
+          // 结算面板开：`ux-spec §4` 要求 LEVEL_CLEAR **等按钮**（下一关 / 去冲刺）。
+          game._clearStarsAnnounced = 0;
+          game._clearPanel.open();
         },
-        onUpdate: (game) => {
-          if (game._machine.elapsed < game.tuning.levelClearDelay) return;
-          if (game._levelIndex >= game._levels.length - 1) {
-            game._machine.transition('finish');
-          } else {
-            game._levelIndex++;
-            game._setupLevel(game._levelIndex);
-            game._machine.transition('playing');
-          }
+        onUpdate: (game, dt) => {
+          game._stepLevelClear(dt);
         },
       })
       .addState('game-over', {
@@ -1035,6 +1058,17 @@ export class BeadsGame implements Game {
           }
         }
         return;
+      case 'level-clear': {
+        // S7 结算面板：只认自己的两个按钮（面板外点击无命中 ⇒ 不推进）。
+        const action: ClearPanelAction | null = this._clearPanel.hitTest(x, y, this._clearPanelOptions());
+        if (action) {
+          this._consumedTap = true;
+          this._sfx(AUDIO_CLIP_UI_TAP);
+          if (action === 'next') this._advanceAfterClear();
+          else this._startSprintRun();
+        }
+        return;
+      }
       case 'finish':
         this.restartRun();
         return;
@@ -1113,6 +1147,47 @@ export class BeadsGame implements Game {
       default:
         return;
     }
+  }
+
+  /** 面板几何/文案选项（末关把主钮文案切成「查看结果」）。 */
+  private _clearPanelOptions(): ClearPanelOptions {
+    return { lastLevel: this._levelIndex >= this._levels.length - 1 };
+  }
+
+  /**
+   * 结算面板每帧：只在**星级入场**时各触发一次音效（ux-spec §5「每星叮上行」）。
+   * 面板自身的入/出动画在 `update()` 里跑（表示层不停表，与 S9 面板同判例）。
+   */
+  private _stepLevelClear(_dt: number): void {
+    const shown = this._clearPanel.starsShown(this._lastStars);
+    while (this._clearStarsAnnounced < shown) {
+      this._clearStarsAnnounced++;
+      this._sfx(AUDIO_CLIP_STAR);
+    }
+  }
+
+  /**
+   * 结算面板「下一关 / 查看结果」：末关 → FINISH，否则推进到下一关。
+   * `ux-spec §4` 流转表 = `LEVEL_CLEAR → 下一关 / 去冲刺*(U1) → 玩法·n+1 / 玩法·冲刺`
+   * ——面板**等按钮**，此前的「1.4s 自动推进」占位已随本面板删除。
+   */
+  private _advanceAfterClear(): void {
+    if (this._machine.current !== 'level-clear') return;
+    if (this._levelIndex >= this._levels.length - 1) {
+      this._machine.transition('finish');
+      return;
+    }
+    this._levelIndex++;
+    this._setupLevel(this._levelIndex);
+    this._machine.transition('playing');
+  }
+
+  /** 结算面板「▶ 去冲刺」（U1 三处入口之第二处）：直接开一局新冲刺。 */
+  private _startSprintRun(): void {
+    this._mode = 'sprint';
+    this._crash?.clear();
+    this._setupSprintRun();
+    this._machine.reset('playing');
   }
 
   /**
@@ -1397,6 +1472,16 @@ export class BeadsGame implements Game {
     return this._lastStars;
   }
 
+  /** 本关 C7 结算分（局内不显示；排行/段位与测试读它，§8-2）。 */
+  get lastSettleScore(): number {
+    return this._lastSettleScore;
+  }
+
+  /** S7 结算面板逻辑（暴露给测试；只读用法，写路径走两个按钮动作）。 */
+  get clearPanel(): ClearPanel {
+    return this._clearPanel;
+  }
+
   private _syncSnapshot(): void {
     const s = this._snapshot;
     s.phase = this._machine.current;
@@ -1443,6 +1528,18 @@ export class BeadsGame implements Game {
     s.powerupFreeUses.clearAll = this._powerups.uses.clearAll;
     s.powerupFreeUses.random = this._powerups.uses.random;
     s.powerupHint = this._powerupHint;
+
+    // S7 结算·过关面板（ux-spec §3.4）：数据 + 动画进度一起进快照，视图只读。
+    s.clearPanelVisible = this._clearPanel.visible;
+    s.clearPanelProgress = this._clearPanel.progress;
+    s.clearPanelInteractive = this._clearPanel.interactive;
+    s.clearStars = this._lastStars;
+    const shown = this._clearPanel.starsShown(this._lastStars);
+    s.clearStarsShown = shown;
+    s.clearStarPopScale = shown > 0 ? this._clearPanel.starScale(shown - 1) : 1;
+    s.clearRemaining = this._timer.remaining;
+    s.clearPowerupsUsed = this._powerups.usedCount;
+    s.clearLastLevel = this._levelIndex >= this._levels.length - 1;
 
     // Tray slots (rebuild on capacity change, i.e. expansion).
     if (s.traySlots.length !== this._tray.capacity) {

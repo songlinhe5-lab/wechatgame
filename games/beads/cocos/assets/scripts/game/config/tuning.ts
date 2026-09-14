@@ -253,10 +253,11 @@ export function computeClearStars(
 
 // ──────────────────────────────────────── presentation timings (非冻结真源)
 /**
- * Level-clear banner auto-advance delay. Presentation-only (breakout `timings`
- * 判例：not pinned by §3); the *state flow* is frozen, this delay is not.
+ * ~~`LEVEL_CLEAR_DELAY_S`（过关横幅自动推进延迟）~~ —— **WXG-T-063 退休**：
+ * `ux-spec §4` 流转表要求 `LEVEL_CLEAR` **等按钮**（结算·过关面板），"1.4s 自动进下一关"
+ * 只是占位实现 ⇒ 占位与常量一并删除（留墓碑注以便追溯）。星入场节奏见
+ * `CLEAR_STAR_STEP_MS`（ux-spec §5「逐颗 150ms」）。
  */
-export const LEVEL_CLEAR_DELAY_S = 1.4;
 
 // ──────────────────── §3.8 S9 暂停面板几何（来源：ux-spec §3.3 线框，本篇不派生）
 /** Pause settings gear hit area — a TOUCH_MIN square anchored left in HUD_BAND. */
@@ -277,6 +278,19 @@ export const PANEL_ROW_GAP = 30;
 /** Vertical space reserved above the primary row for the title band. */
 export const PANEL_TITLE_BAND_H = 100;
 
+// ─────────── §3.8-companion 结算·过关面板几何（来源：ux-spec §3.4 线框）
+// 面板本体复用 `panel_dialog`（560×480）与 `PANEL_PADDING` / `PANEL_ROW_GAP`；
+// 只有星与按钮的排布是本面板专有。
+/** 每颗星入场的间隔（ms）—— ux-spec §5「结算星入场 逐颗 150ms（150×3）」。 */
+export const CLEAR_STAR_STEP_MS = 150;
+/** 单颗星的外接直径：ux-spec §3.4 未定尺寸 ⇒ 本项派生（三颗等距排在面板中部）。 */
+export const CLEAR_STAR_SIZE = 64;
+/** 星与星的水平间隔。 */
+export const CLEAR_STAR_GAP = 28;
+/** 主/副钮宽度：240 + 30 + 240 = 510 ≤ 560 − 2×20（面板内边距）⇒ 可并排落地。 */
+export const CLEAR_BUTTON_W = PANEL_PRIMARY_W;
+export const CLEAR_BUTTON_GAP = 30;
+
 // ─────────────────────── 面板动效（来源：ux-spec §5「面板入 / 出 200 / 150」）
 /** Panel enter animation duration (ms). */
 export const PANEL_IN_MS = 200;
@@ -295,6 +309,8 @@ export const FAIL_BUTTON_GAP = 24;
 export const AUDIO_CLIP_BGM = 'bgm_main';
 /** UI tap sfx — every panel button uses it (ux-spec §5 抽屉音). */
 export const AUDIO_CLIP_UI_TAP = 'sfx_ui_tap';
+/** 结算星入场音效（ux-spec §5「每星"叮"上行」，逐颗 150ms）。 */
+export const AUDIO_CLIP_STAR = 'sfx_star';
 
 // ─────────────────────────────────────────────────────── grid layout derivation
 /** Derived geometry for one level's grid, centred inside `PUZZLE_BAND`. */
@@ -388,15 +404,12 @@ export interface BeadsTuning {
   readonly height: number;
   /** Sprint run length after C1 validation (out-of-range overrides fall back). */
   readonly sprintTime: number;
-  /** Level-clear banner delay (presentation, see above). */
-  readonly levelClearDelay: number;
 }
 
 export const DEFAULT_TUNING: BeadsTuning = {
   width: DESIGN_W,
   height: DESIGN_H,
   sprintTime: SPRINT_TIME_DEFAULT,
-  levelClearDelay: LEVEL_CLEAR_DELAY_S,
 };
 
 /** C1 validation: sprint time overrides outside [90, 120] fall back to default. */

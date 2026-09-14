@@ -27,6 +27,7 @@ import {
   type PowerupType,
 } from '../src/config/tuning.js';
 import { PowerupSystem } from '../src/systems/powerups.js';
+import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import type { BeadGrid } from '../src/entities/grid.js';
 import {
   burnToRemaining,
@@ -377,7 +378,12 @@ describe('S6 §8-9 空作用 / 非法 type / 状态门禁', () => {
     const done = mk('wxgame.beads.test.s6-9f'); // 单关表 ⇒ 过关后进 FINISH
     clearBoard(done);
     expect(done.game.phase).toBe('level-clear');
-    done.advance(1.5);
+    // WXG-T-063：LEVEL_CLEAR 改由结算面板**等按钮**（末关主钮 =「查看结果」），
+    // 不再到点自动推进 ⇒ 走真实 tap 路由点面板主钮。
+    const primary = clearPanelLayout({ lastLevel: true }).buttons[0]!.rect;
+    expect(
+      done.game.tapDesign((primary.xMin + primary.xMax) / 2, (primary.yMin + primary.yMax) / 2),
+    ).toBe(true);
     expect(done.game.phase).toBe('finish');
     hold(done, 2);
     expect(done.game.usePowerup('clearAll')).toBe(false);

@@ -122,6 +122,23 @@ export interface BeadsSnapshot {
   /** One-shot light hint under the powerup band (over-limit tap only, §2.6). */
   powerupHint: string;
 
+  /** S7 结算·过关面板（`ux-spec §3.4`）：可见性 + 入/出进度 + 是否接受点击。 */
+  clearPanelVisible: boolean;
+  /** 面板入/出进度，0→1 进入、1→0 退出（与 S9 面板同口径）。 */
+  clearPanelProgress: number;
+  clearPanelInteractive: boolean;
+  /** 本关星级 1..3。 */
+  clearStars: number;
+  /** 已入场的星数（`0..clearStars`）—— 视图据此逐颗显示（ux-spec §5，逐颗 150ms）。 */
+  clearStarsShown: number;
+  /** 最新入场那颗星的弹跳缩放（0→1.2→1；已稳定 = 1）。 */
+  clearStarPopScale: number;
+  /** 次要信息「剩余 mm:ss ｜ 道具 n/3」的两项原料。 */
+  clearRemaining: number;
+  clearPowerupsUsed: number;
+  /** 末关 ⇒ 主钮文案「查看结果」（点后进 FINISH）。 */
+  clearLastLevel: boolean;
+
   tuning: BeadsTuning;
 }
 
@@ -170,6 +187,15 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
       random: POWERUP_FREE_USES,
     },
     powerupHint: '',
+    clearPanelVisible: false,
+    clearPanelProgress: 0,
+    clearPanelInteractive: false,
+    clearStars: 0,
+    clearStarsShown: 0,
+    clearStarPopScale: 1,
+    clearRemaining: 0,
+    clearPowerupsUsed: 0,
+    clearLastLevel: false,
     tuning,
   };
 }
