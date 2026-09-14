@@ -21,8 +21,10 @@
 > 6. **EP-07（S7）关面已落地**（2026-09-14，WXG-T-063）：结算·过关面板按 `ux-spec §3.4/§4`
 >    实现（`systems/clear-panel.ts`），`LEVEL_CLEAR` 由「1.4s 自动推进」占位改为**等按钮**
 >    （下一关 / 去冲刺 U1），C7 结算分在过关当帧装配。**EP-07 仍未闭环**：冲刺结算面板
->    （`ux-spec §3.5` 左列，含 NEW BEST 与 §8-11）、FINISH 通关画面（§3.6，星级总览）、
->    连击特效三档（`score-combo §2.5`；其判据 §8-9 属 DevTools 帧检）。
+>    （`ux-spec §3.5` 左列，含 NEW BEST 与 §8-11）、连击特效三档（`score-combo §2.5`；
+>    其判据 §8-9 属 DevTools 帧检）。
+> 7. **FINISH 通关画面已落地**（WXG-T-066）：`systems/finish-panel.ts` 按 `ux-spec §3.6`
+>    实现，判据 `core-loop §8-8` 三段覆盖。未闭环：总览星级为**局内累计**（存档无星级表，见 backlog）。
 > 5. **EP-06（S6 道具）已实现**（2026-09-14，WXG-T-060）：`src/systems/powerups.ts` 落码，
 >    `powerups.md §8` 十条判据全部有测试（`tests/powerups.test.ts`，16 条），S2 路由优先级 2
 >    已接、整关重置与崩溃档字段已通。**仍属 EP-06 未闭环**：`AD_PLACEMENTS=4` 的角标位按
@@ -194,7 +196,8 @@
 ### EP-07 星级与结算（S7）`[待 GDD §8]`
 
 **EP07-S1 星级判定与结算面板** `[待 GDD §8]`
-- 描述：`stars = f(remaining/LEVEL_TIME)`（STAR3_RATIO 0.40 / STAR2_RATIO 0.20，过关至少 1★，扩展不扣星）；结算面板数据组装。
+- 描述：`stars = f(remaining/LEVEL_TIME)`（STAR3_RATIO **0.32** / STAR2_RATIO **0.12**，过关至少 1★，扩展不扣星）；结算面板数据组装。
+  > ✏️ 勘误（WXG-T-066）：原文 0.40/0.20 与 §3 冻结值（T-054）冲突，按 §0 纪律「以 §3 为准」更正。
 - 验收：`level:cleared` payload 的 ratio/stars 字段语义已在 S1 GDD §4 契约内；**星级具体用例判据待 S7 GDD §8**。
 - 依赖：EP02-S4、EP05-S1。估点：**M**。
 

@@ -27,6 +27,9 @@ import {
   CLEAR_STAR_SIZE,
   PANEL_PADDING,
   POWERUP_CARD_RADIUS,
+  FINISH_ROW_H,
+  FINISH_ROW_W,
+  FINISH_STAR_SIZE,
   POWERUP_TYPES,
   powerupCardRects,
   powerupLabelY,
@@ -59,6 +62,12 @@ import {
 } from './palette.js';
 import { POWERUP_LABELS } from '../systems/powerups.js';
 import { CLEAR_PANEL_TITLE, clearPanelLabel, clearPanelLayout } from '../systems/clear-panel.js';
+import {
+  FINISH_MAX_STARS_PER_LEVEL,
+  FINISH_PANEL_TITLE,
+  finishPanelLabel,
+  finishPanelLayout,
+} from '../systems/finish-panel.js';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -100,6 +109,7 @@ export function buildBeadsView(
   drawTray(builder, snap, palette);
   drawPowerupBand(builder, snap, palette);
   drawClearPanel(builder, snap, palette);
+  drawFinishPanel(builder, snap, palette);
   drawPausePanel(builder, snap, palette);
   drawFailPanel(builder, snap, palette);
   drawBanners(builder, snap, palette);
@@ -503,6 +513,104 @@ function drawClearPanel(
   }
 }
 
+// ──────────────────────────────────────────── S7 finish screen (ux-spec §3.6)
+
+/**
+ * 通关画面（FINISH）：全屏庆祝 + 星级总览（每关最好星级 + 总星数）+ 双钮。
+ *
+ * 与结算面板同纪律：几何全部取自 `finishPanelLayout()`（与命中测试**同一真源**——
+ * 画出来的按钮不可能与点击落点不一致）；入场节奏取自快照（`finishRowsShown` /
+ * `finishRowPopScale`），**视图不自持计时**。数据只有 `snap.finishStars`（每关 0..3），
+ * 视图不推断任何玩法状态。
+ */
+function drawFinishPanel(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  if (!snap.finishPanelVisible) return;
+  const levelCount = snap.finishStars.length;
+  if (levelCount === 0) return;
+  const layout = finishPanelLayout(levelCount);
+
+  // 全屏遮罩（量值同 ux-spec §3.3，与两个面板一致）+ 顶部三条庆祝色带
+  // （程序化，零外部资产；呼应 §3.6「全屏庆祝」）。
+  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+    fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
+  });
+  const bands = [palette.textAccent, palette.adBadge, palette.textAccent];
+  for (let i = 0; i < bands.length; i++) {
+    builder.rect((i * DESIGN_W) / 3, DESIGN_H - 14, DESIGN_W / 3, 14, { fill: bands[i]! });
+  }
+
+  // 标题 + 总星数（「共 N / M ★」）。
+  builder.text(DESIGN_W / 2, layout.titleY, FINISH_PANEL_TITLE, {
+    fill: palette.text,
+    font: FONT.panelTitle,
+    align: 'center',
+    baseline: 'middle',
+  });
+  const total = snap.finishStars.reduce((a, b) => a + b, 0);
+  builder.text(
+    DESIGN_W / 2,
+    layout.totalY,
+    `共 ${total} / ${levelCount * FINISH_MAX_STARS_PER_LEVEL} ★`,
+    { fill: palette.textAccent, font: FONT.sub, align: 'center', baseline: 'middle' },
+  );
+
+  // 星级总览：逐关入场（`finishRowsShown`），最新一行按弹跳缩放；未得的星画暗色。
+  const rowLeft = DESIGN_W / 2 - FINISH_ROW_W / 2;
+  for (let i = 0; i < snap.finishRowsShown && i < layout.rows.length; i++) {
+    const row = layout.rows[i]!;
+    const scale = i === snap.finishRowsShown - 1 ? snap.finishRowPopScale : 1;
+    if (scale <= 0) continue;
+    builder.rect(rowLeft, row.y - FINISH_ROW_H / 2, FINISH_ROW_W, FINISH_ROW_H, {
+      fill: withAlpha(palette.panel, 0.92),
+      stroke: withAlpha(palette.slotBorder, 0.6),
+      lineWidth: 1,
+      radius: 14,
+    });
+    builder.text(row.labelX, row.y, `第 ${row.level} 关`, {
+      fill: palette.text,
+      font: FONT.sub,
+      align: 'center',
+      baseline: 'middle',
+    });
+    const stars = snap.finishStars[i] ?? 0;
+    const r = (FINISH_STAR_SIZE / 2) * 0.92 * scale;
+    for (let k = 0; k < 3; k++) {
+      builder.polygon(starPoints(row.starX[k]!, row.y, r, 5, 90), {
+        fill: k < stars ? palette.textAccent : withAlpha(palette.slotBorder, 0.45),
+      });
+    }
+  }
+
+  // 主 / 副双钮：主钮 = 「重玩第 1 关」（`core-loop §4` 本状态的推进出口），
+  // 副钮 = 「▶ 去冲刺」（U1：副按钮样式，不抢主钮）。
+  for (const button of layout.buttons) {
+    const bw = button.rect.xMax - button.rect.xMin;
+    const bh = button.rect.yMax - button.rect.yMin;
+    const primary = button.id === 'replay';
+    builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
+      fill: primary ? palette.textAccent : palette.panel,
+      stroke: primary ? palette.textAccent : palette.slotBorder,
+      lineWidth: 1,
+      radius: 20,
+    });
+    builder.text(
+      button.rect.xMin + bw / 2,
+      button.rect.yMin + bh / 2,
+      finishPanelLabel(button.id),
+      {
+        fill: primary ? palette.text : palette.textDim,
+        font: FONT.panelButton,
+        align: 'center',
+        baseline: 'middle',
+      },
+    );
+  }
+}
+
 // ──────────────────────────────────────────────────────── powerup band
 
 /** 投影竖向偏移：RenderModel 无模糊 ⇒ 用偏移圆角矩形近似（§1.4 的 α0.10 见 palette）。 */
@@ -713,7 +821,7 @@ function drawBanners(
 ): void {
   // The pause dialog carries its own 暂停 title — don't double-print the phase
   // banner on top of it (ux-spec §3.3 shows one caption, not two).
-  if (!snap.banner || snap.panelVisible || snap.clearPanelVisible || usesFailOverlay(snap)) return;
+  if (!snap.banner || snap.panelVisible || snap.clearPanelVisible || snap.finishPanelVisible || usesFailOverlay(snap)) return;
   const bannerY = 700;
   builder.rect(0, bannerY - 90, DESIGN_W, 200, {
     fill: withAlpha(palette.bannerBackdrop, 0.55),

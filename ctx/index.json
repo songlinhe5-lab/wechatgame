@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 1918,
       "lines": 85,
-      "sha256": "60595d1a5375871f1add65bd5ccc3d338bbf6cd38831faf845f71a7fc25a651a",
+      "sha256": "69069f3107d55a6894069e9b6a8824b02ae34b3e5ce2157937fa408901a980fc",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3779,
+      "tokens": 3743,
       "lines": 90,
-      "sha256": "a23f34594fe309836d5a679a822e4c91d3350106d7f487d5f9cf3270b8a26eef",
+      "sha256": "ca60f26da2dcbe3436983f685e442ab77655bf30bcae39032526ebdb2ecf2078",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 91,
-          "tokens": 3751,
+          "tokens": 3715,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 43 行 / 2429 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 38 行 / 2550 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+44 · §待排（backlog，无号，立项时领取）=33+12",
+          "summary": "§WXG 任务台账（SSOT）=1+39 · §待排（backlog，无号，立项时领取）=26+14",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -752,10 +752,26 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 114 行 / 5687 tok",
           "level": 2,
           "startLine": 74,
           "endLine": 77,
+          "tokens": 75,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+115 · §WXG-T-058=18+8 · §WXG-T-055=",
+          "keywords": [
+            "production/TASKS-DETAIL.md",
+            "production",
+            "TASKS",
+            "DETAIL",
+            "tok",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 81,
           "tokens": 355,
           "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
@@ -765,22 +781,6 @@
             "cocos",
             "setup",
             "tok"
-          ]
-        },
-        {
-          "anchor": "§`production/TASKS-DETAIL.md` — 165 行 / 7863 tok",
-          "level": 2,
-          "startLine": 78,
-          "endLine": 81,
-          "tokens": 111,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+166 · §WXG-T-048=18+8 · §WXG-T-049=",
-          "keywords": [
-            "production/TASKS-DETAIL.md",
-            "production",
-            "TASKS",
-            "DETAIL",
-            "tok",
-            "WXG"
           ]
         },
         {
@@ -23509,17 +23509,17 @@
     },
     {
       "path": "memory/2026-09-14.md",
-      "tokens": 8345,
-      "lines": 202,
-      "sha256": "ddd0423149eff911644b6666d577998bbc3a6ac6b5e79ca6726bc0a3600c3fe7",
+      "tokens": 8846,
+      "lines": 219,
+      "sha256": "667c588d720fe846685424d70e0f3c828216c2e5fad1da768a2e3abc176cd83a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 203,
-          "tokens": 8342,
+          "endLine": 220,
+          "tokens": 8843,
           "summary": "",
           "keywords": []
         },
@@ -23697,6 +23697,22 @@
             "归档器",
             "成对搬运",
             "机械化"
+          ]
+        },
+        {
+          "anchor": "§EP-07 通关画面（FINISH）落地（WXG-T-066）",
+          "level": 2,
+          "startLine": 204,
+          "endLine": 220,
+          "tokens": 485,
+          "summary": "做了什么：ux-spec §3.6 的全屏庆祝 + 星级总览 + 双钮（去冲刺 / 重玩第 1 关），接上",
+          "keywords": [
+            "§3.6",
+            "FINISH",
+            "WXG",
+            "spec",
+            "通关画面",
+            "落地"
           ]
         }
       ]
@@ -32382,17 +32398,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 7863,
-      "lines": 165,
-      "sha256": "0cb24cdcbff8ef62bff7da2c41cc6c7de33f8d978a938c33739b281e33e78c0d",
+      "tokens": 5687,
+      "lines": 114,
+      "sha256": "63b2b8b70dacf18acb68ed31d7dd39bf37e871eeb1233f1506becdc1f2859b8f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 166,
-          "tokens": 7846,
+          "endLine": 115,
+          "tokens": 5670,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -32404,117 +32420,10 @@
           ]
         },
         {
-          "anchor": "§WXG-T-048",
+          "anchor": "§WXG-T-058",
           "level": 2,
           "startLine": 18,
           "endLine": 25,
-          "tokens": 436,
-          "summary": "名称：多游戏粒度修正（两笔）：① build:cocos 定名纠偏 + 落地——原「根层裸命令」在多游戏矩阵下无法表达构",
-          "keywords": [
-            "WXG",
-            "build",
-            "cocos"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-049",
-          "level": 2,
-          "startLine": 26,
-          "endLine": 33,
-          "tokens": 437,
-          "summary": "名称：构建自动化能力修正 + CLI 构建落地：① 推翻本会话上轮的「构建结构上不可自动化」——MCP 的 projec",
-          "keywords": [
-            "WXG",
-            "CLI",
-            "MCP",
-            "projec"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-050",
-          "level": 2,
-          "startLine": 34,
-          "endLine": 41,
-          "tokens": 431,
-          "summary": "名称：里程碑验收回填（用户确认「已基本完成 breakout」）：把预览/构建的实测结论落盘到知识缺口清单——VERSI",
-          "keywords": [
-            "WXG",
-            "breakout",
-            "VERSI"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-051",
-          "level": 2,
-          "startLine": 42,
-          "endLine": 49,
-          "tokens": 476,
-          "summary": "名称：引擎功能裁剪 + 包体内部目标达标（backlog「引擎功能裁剪 + 包体回归」立项）：裁剪 cocos/sett",
-          "keywords": [
-            "WXG",
-            "backlog",
-            "cocos",
-            "sett"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-052",
-          "level": 2,
-          "startLine": 50,
-          "endLine": 57,
-          "tokens": 522,
-          "summary": "名称：beads 工程化对齐 breakout（用户裁定「参考 breakout 优化 beads 小游戏框架」，用户选",
-          "keywords": [
-            "WXG",
-            "beads",
-            "breakout"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-053",
-          "level": 2,
-          "startLine": 58,
-          "endLine": 65,
-          "tokens": 502,
-          "summary": "名称：beads Cocos 宿主落地（B 档，用户裁定「接着走 B 档」）——仓库侧前置三件：① sync-frame",
-          "keywords": [
-            "WXG",
-            "beads",
-            "Cocos",
-            "sync",
-            "frame"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-054",
-          "level": 2,
-          "startLine": 66,
-          "endLine": 73,
-          "tokens": 89,
-          "summary": "名称：beads 星级×关卡数值整组返工（阶段 0 缺口 D-01/D-05；阶段 5→6 FAIL 门）",
-          "keywords": [
-            "WXG",
-            "beads",
-            "FAIL"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-057",
-          "level": 2,
-          "startLine": 74,
-          "endLine": 81,
-          "tokens": 104,
-          "summary": "名称：beads 广告位重排 + 失败页续时裁决（阶段 0 D-02；依赖 T-054 组 C）",
-          "keywords": [
-            "WXG",
-            "beads"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-058",
-          "level": 2,
-          "startLine": 82,
-          "endLine": 89,
           "tokens": 133,
           "summary": "名称：beads Mock 续时实现（F1+F2+B1；零 wx 广告 API）",
           "keywords": [
@@ -32527,8 +32436,8 @@
         {
           "anchor": "§WXG-T-055",
           "level": 2,
-          "startLine": 90,
-          "endLine": 97,
+          "startLine": 26,
+          "endLine": 33,
           "tokens": 103,
           "summary": "名称：beads 打断留存：回前台停面板（D-04）+ 局内快照提案（D-03）",
           "keywords": [
@@ -32539,8 +32448,8 @@
         {
           "anchor": "§WXG-T-056",
           "level": 2,
-          "startLine": 98,
-          "endLine": 105,
+          "startLine": 34,
+          "endLine": 41,
           "tokens": 84,
           "summary": "名称：G4 复核：星级可达性用例缺口（注入 ratio 假绿）",
           "keywords": [
@@ -32551,8 +32460,8 @@
         {
           "anchor": "§WXG-T-059",
           "level": 2,
-          "startLine": 106,
-          "endLine": 113,
+          "startLine": 42,
+          "endLine": 49,
           "tokens": 465,
           "summary": "名称：beads 局内崩溃快照落码（D-03 实现轮；用户裁定「局内崩溃快照（D-03）任务执行」）：T-055 的提案",
           "keywords": [
@@ -32563,8 +32472,8 @@
         {
           "anchor": "§WXG-T-060",
           "level": 2,
-          "startLine": 114,
-          "endLine": 121,
+          "startLine": 50,
+          "endLine": 57,
           "tokens": 582,
           "summary": "名称：beads S6 道具系统落码（EP-06，用户裁定「beads 游戏继续规划任务执行」）：① tuning.ts",
           "keywords": [
@@ -32576,8 +32485,8 @@
         {
           "anchor": "§WXG-T-061",
           "level": 2,
-          "startLine": 122,
-          "endLine": 129,
+          "startLine": 58,
+          "endLine": 65,
           "tokens": 704,
           "summary": "名称：「到达序」判据清理（用户裁定，承接 WXG-T-031 已确立基准）：把 beads 各 GDD 里以「事件到达序",
           "keywords": [
@@ -32589,8 +32498,8 @@
         {
           "anchor": "§WXG-T-062",
           "level": 2,
-          "startLine": 130,
-          "endLine": 137,
+          "startLine": 66,
+          "endLine": 73,
           "tokens": 619,
           "summary": "名称：三项待裁定落地（用户裁定「按推荐」）：① 卡几何（方案 A：改卡高、不动带位） —— assets-spec §1",
           "keywords": [
@@ -32603,8 +32512,8 @@
         {
           "anchor": "§WXG-T-063",
           "level": 2,
-          "startLine": 138,
-          "endLine": 145,
+          "startLine": 74,
+          "endLine": 81,
           "tokens": 442,
           "summary": "名称：EP-07 结算·过关面板落地（用户裁定「开始 EP-07 结算面板」）：ux-spec §4 流转表要求 LEV",
           "keywords": [
@@ -32617,8 +32526,8 @@
         {
           "anchor": "§WXG-T-064",
           "level": 2,
-          "startLine": 146,
-          "endLine": 157,
+          "startLine": 82,
+          "endLine": 93,
           "tokens": 676,
           "summary": "名称：台账「标题制 + 详情分片」：治 TASKS.md 随任务数线性膨胀（用户 2026-09-14 反馈「详情写进索",
           "keywords": [
@@ -32629,9 +32538,9 @@
         {
           "anchor": "§WXG-T-065",
           "level": 2,
-          "startLine": 158,
-          "endLine": 166,
-          "tokens": 651,
+          "startLine": 94,
+          "endLine": 104,
+          "tokens": 653,
           "summary": "名称：归档器「成对搬运」机械化：把 WXG-T-064 登记的未闭环项闭环 —— archive-tasks.mjs 搬",
           "keywords": [
             "WXG",
@@ -32639,22 +32548,36 @@
             "tasks",
             "mjs"
           ]
+        },
+        {
+          "anchor": "§WXG-T-066",
+          "level": 2,
+          "startLine": 105,
+          "endLine": 115,
+          "tokens": 841,
+          "summary": "名称：EP-07 通关画面（FINISH）落地：ux-spec §3.6 的全屏庆祝 + 星级总览 + 双钮，接上判据 ",
+          "keywords": [
+            "§3.6",
+            "WXG",
+            "FINISH",
+            "spec"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2429,
-      "lines": 43,
-      "sha256": "a8ffb2431fc3b99ce2ddec85bad4f36bc66e6303a20679335284ef92859da3d4",
+      "tokens": 2550,
+      "lines": 38,
+      "sha256": "f57a74ff86cf537558e10b49f6a74e4467fbd6ed7fb764c16c5dcfb4300d463d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 44,
-          "tokens": 2421,
+          "endLine": 39,
+          "tokens": 2541,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -32667,9 +32590,9 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 33,
-          "endLine": 44,
-          "tokens": 1190,
+          "startLine": 26,
+          "endLine": 39,
+          "tokens": 1553,
           "summary": "事项 来源 说明",
           "keywords": [
             "backlog",
@@ -32682,17 +32605,17 @@
     },
     {
       "path": "production/epics/epics-beads.md",
-      "tokens": 7854,
-      "lines": 292,
-      "sha256": "8306f16fc30dca029132c3a1a8fdcef37f6c06377071d4898eb33d73cecbb379",
+      "tokens": 7952,
+      "lines": 295,
+      "sha256": "a45356e6c4add9213a9b08e4245b905238b0834a2fd2661ea65c84d84681b6cb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic / Story 拆分（epics-beads）",
           "level": 1,
           "startLine": 1,
-          "endLine": 293,
-          "tokens": 7841,
+          "endLine": 296,
+          "tokens": 7939,
           "summary": "项目：games/beads（拼豆填色消除）· 任务 WXG-T-010 · 版本 v1.0",
           "keywords": [
             "beads",
@@ -32706,8 +32629,8 @@
         {
           "anchor": "§0 阅读约定（拆分纪律）",
           "level": 2,
-          "startLine": 34,
-          "endLine": 44,
+          "startLine": 36,
+          "endLine": 46,
           "tokens": 391,
           "summary": "1. 验收标准编号：S<n>§8-<k> = gdd/<系统>.md §8 编号列表第 k 条（beads 各 GDD ",
           "keywords": [
@@ -32722,8 +32645,8 @@
         {
           "anchor": "§1 Epic 列表（按 systems-index §2 依赖拓扑序）",
           "level": 2,
-          "startLine": 45,
-          "endLine": 63,
+          "startLine": 47,
+          "endLine": 65,
           "tokens": 486,
           "summary": "EP-01 核心循环骨架 立起六状态状态机与关内时序编排，裁决暂停冻结与同帧 cleared 优先 S1 —",
           "keywords": [
@@ -32738,9 +32661,9 @@
         {
           "anchor": "§2 Story 拆分",
           "level": 2,
-          "startLine": 64,
-          "endLine": 251,
-          "tokens": 5262,
+          "startLine": 66,
+          "endLine": 254,
+          "tokens": 5303,
           "summary": "",
           "keywords": [
             "Story",
@@ -32750,8 +32673,8 @@
         {
           "anchor": "§EP-01 核心循环骨架（S1）",
           "level": 3,
-          "startLine": 66,
-          "endLine": 84,
+          "startLine": 68,
+          "endLine": 86,
           "tokens": 569,
           "summary": "EP01-S1 六状态状态机骨架与 BOOT 装配",
           "keywords": [
@@ -32763,8 +32686,8 @@
         {
           "anchor": "§EP-02 拼图网格与填色（S3）",
           "level": 3,
-          "startLine": 85,
-          "endLine": 113,
+          "startLine": 87,
+          "endLine": 115,
           "tokens": 880,
           "summary": "EP02-S1 关卡装载与静态校验器",
           "keywords": [
@@ -32775,8 +32698,8 @@
         {
           "anchor": "§EP-03 供料与槽位托盘（S4）",
           "level": 3,
-          "startLine": 114,
-          "endLine": 136,
+          "startLine": 116,
+          "endLine": 138,
           "tokens": 747,
           "summary": "EP03-S1 托盘模型与加权抽色",
           "keywords": [
@@ -32787,8 +32710,8 @@
         {
           "anchor": "§EP-04 输入与操控（S2）",
           "level": 3,
-          "startLine": 137,
-          "endLine": 159,
+          "startLine": 139,
+          "endLine": 161,
           "tokens": 734,
           "summary": "EP04-S1 五类指令路由表",
           "keywords": [
@@ -32799,8 +32722,8 @@
         {
           "anchor": "§EP-05 倒计时与失败（S5）",
           "level": 3,
-          "startLine": 160,
-          "endLine": 181,
+          "startLine": 162,
+          "endLine": 183,
           "tokens": 769,
           "summary": "EP05-S1 计时器模型与暂停保存",
           "keywords": [
@@ -32811,8 +32734,8 @@
         {
           "anchor": "§EP-06 道具系统（S6）`[待 GDD §8——S6 GDD 未产出，判据到位后回填]`",
           "level": 3,
-          "startLine": 182,
-          "endLine": 193,
+          "startLine": 184,
+          "endLine": 195,
           "tokens": 346,
           "summary": "EP06-S1 三道具效果与免费次数 [待 GDD §8]",
           "keywords": [
@@ -32827,9 +32750,9 @@
         {
           "anchor": "§EP-07 星级与结算（S7）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 194,
-          "endLine": 205,
-          "tokens": 218,
+          "startLine": 196,
+          "endLine": 208,
+          "tokens": 259,
           "summary": "EP07-S1 星级判定与结算面板 [待 GDD §8]",
           "keywords": [
             "[待 GDD §8]",
@@ -32842,8 +32765,8 @@
         {
           "anchor": "§EP-08 存档与进度（S8）`[待 GDD §8——S8 GDD 未产出]`",
           "level": 3,
-          "startLine": 206,
-          "endLine": 217,
+          "startLine": 209,
+          "endLine": 220,
           "tokens": 276,
           "summary": "EP08-S1 存档 schema 与校验降级 [待 GDD §8]",
           "keywords": [
@@ -32858,8 +32781,8 @@
         {
           "anchor": "§EP-09 暂停与设置（S9）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 218,
-          "endLine": 230,
+          "startLine": 221,
+          "endLine": 233,
           "tokens": 199,
           "summary": "EP09-S1 暂停面板 [待 GDD §8]",
           "keywords": [
@@ -32873,8 +32796,8 @@
         {
           "anchor": "§EP-10 Cocos 集成与微信构建 `[Blocked: 待编辑器]`",
           "level": 3,
-          "startLine": 231,
-          "endLine": 251,
+          "startLine": 234,
+          "endLine": 254,
           "tokens": 372,
           "summary": "依赖编辑器产物（.scene/.meta/构建/真机）。框架侧 bindings.ts 已写未验证（G1–G9 沿用矩阵",
           "keywords": [
@@ -32889,8 +32812,8 @@
         {
           "anchor": "§3 第一个冲刺建议（最小可玩垂直切片）",
           "level": 2,
-          "startLine": 252,
-          "endLine": 275,
+          "startLine": 255,
+          "endLine": 278,
           "tokens": 440,
           "summary": "目标：进 PLAYING → 供料入托盘 → 选珠 → 落子（匹配/拒绝）→ 填满进 LEVEL_CLEAR → 归零失",
           "keywords": [
@@ -32904,8 +32827,8 @@
         {
           "anchor": "§4 环境约束声明",
           "level": 2,
-          "startLine": 276,
-          "endLine": 284,
+          "startLine": 279,
+          "endLine": 287,
           "tokens": 218,
           "summary": "无 Cocos 编辑器：验证路径 = 引擎无关玩法跑 vitest（Node）+ dev harness（canvas2",
           "keywords": [
@@ -32920,8 +32843,8 @@
         {
           "anchor": "§5 统计",
           "level": 2,
-          "startLine": 285,
-          "endLine": 293,
+          "startLine": 288,
+          "endLine": 296,
           "tokens": 102,
           "summary": "Epic 数 10（EP-01…EP-09 系统 + EP-10 工程交付）",
           "keywords": [

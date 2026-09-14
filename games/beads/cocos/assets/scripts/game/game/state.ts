@@ -139,6 +139,20 @@ export interface BeadsSnapshot {
   /** 末关 ⇒ 主钮文案「查看结果」（点后进 FINISH）。 */
   clearLastLevel: boolean;
 
+  /** S7 通关画面（FINISH，`ux-spec §3.6`）：可见性 + 入/出进度 + 是否接受点击。 */
+  finishPanelVisible: boolean;
+  finishPanelProgress: number;
+  finishPanelInteractive: boolean;
+  /**
+   * 每关**历史最好**星级（长度 = 关卡数，`0` = 未通关）—— 通关画面的「星级总览」。
+   * 取值口径 = 每关 max（与 `maxUnlockedLevel` 的持久语义一致，登记台账）。
+   */
+  finishStars: number[];
+  /** 已入场的总览**关数**（`0..finishStars.length`，逐关 150ms）。 */
+  finishRowsShown: number;
+  /** 最新入场那一行的弹跳缩放（0→1.2→1；稳定 = 1）。 */
+  finishRowPopScale: number;
+
   tuning: BeadsTuning;
 }
 
@@ -196,6 +210,12 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     clearRemaining: 0,
     clearPowerupsUsed: 0,
     clearLastLevel: false,
+    finishPanelVisible: false,
+    finishPanelProgress: 0,
+    finishPanelInteractive: false,
+    finishStars: [],
+    finishRowsShown: 0,
+    finishRowPopScale: 1,
     tuning,
   };
 }

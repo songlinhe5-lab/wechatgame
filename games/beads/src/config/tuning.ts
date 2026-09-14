@@ -251,6 +251,29 @@ export function computeClearStars(
   return { ratio, stars };
 }
 
+// ─────────────────────────────────────────────────────── §3.6b finish screen
+/**
+ * S7 通关画面（FINISH）几何。`ux-spec §3.6` 只给「全屏庆祝 + 星级总览（8 关星数和）
+ * + 去冲刺 + 重玩第 1 关」一句话，**未给几何** ⇒ 本组是**派生常量**（沿用结算面板
+ * 的常量族与设计空间约定），登记于台账。
+ */
+/** 总览每行高度。 */
+export const FINISH_ROW_H = 64;
+/** 总览行间距。 */
+export const FINISH_ROW_GAP = 12;
+/** 总览每行宽度（居中，含标签与 3 颗星）。 */
+export const FINISH_ROW_W = 540;
+/** 总览星尺寸（小于结算行的 `CLEAR_STAR_SIZE`，8 行竖列需紧凑）。 */
+export const FINISH_STAR_SIZE = 34;
+/** 总览行内星间距。 */
+export const FINISH_STAR_GAP = 8;
+/**
+ * 总览**逐关**入场步长。`ux-spec §5` 的「逐颗 150ms」是结算行 3 颗的时序；
+ * 总览最多 8×3 = 24 颗，逐颗要 3.6s ✗ ⇒ 改为逐关 150ms（8 关 = 1.2s），
+ * 同一关的 3 颗同时入场（派生项，登记台账）。
+ */
+export const FINISH_LEVEL_STEP_MS = 150;
+
 // ──────────────────────────────────────── presentation timings (非冻结真源)
 /**
  * ~~`LEVEL_CLEAR_DELAY_S`（过关横幅自动推进延迟）~~ —— **WXG-T-063 退休**：

@@ -71,6 +71,7 @@ import {
 } from './crash-snapshot';
 import { Tray } from '../entities/tray';
 import { PowerupSystem } from '../systems/powerups';
+import { FinishPanel, type FinishPanelAction } from '../systems/finish-panel';
 import {
   ClearPanel,
   type ClearPanelAction,
@@ -169,6 +170,19 @@ export class BeadsGame implements Game {
   private _lastSettleScore = 0;
   /** 已触发过入场音效的星数（每星一次，ux-spec §5）。 */
   private _clearStarsAnnounced = 0;
+  /**
+   * S7 通关画面（FINISH，WXG-T-066）：`ux-spec §3.6` 全屏庆祝 + 星级总览 + 双钮
+   * （去冲刺 / 重玩第 1 关）。进入条件与出口见 `core-loop §4` 与判据 `§8-8`。
+   */
+  private readonly _finishPanel = new FinishPanel();
+  /**
+   * 每关**历史最好**星级（`0` = 未通关），下标 = `levelIndex`；通关画面总览的数据源。
+   * ⚠️ 目前是**局内累计**（存档无星级表，本轮不动 S8 schema；派生项已登记台账），
+   * 冷启动会清空——「星级表持久化」是 backlog 项。
+   */
+  private readonly _starsByLevel: number[] = [];
+  /** 已触发过入场音效的**关数**（每关一次，逐关 150ms）。 */
+  private _finishRowsAnnounced = 0;
   /**
    * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
    * Gear → `'manual'`; WeChat `onHide` → `'system'`. Both stay on the
@@ -386,6 +400,7 @@ export class BeadsGame implements Game {
     // world is frozen so the enter/exit ramp never stalls (ux-spec §5).
     this._panel.update(dt * 1000);
     this._clearPanel.update(dt * 1000); // 结算面板同理：退出淡出要在离开 LEVEL_CLEAR 后跑完
+    this._finishPanel.update(dt * 1000); // 通关画面同理
   }
 
   buildRenderModel(builder: RenderModelBuilder): void {
@@ -552,6 +567,7 @@ export class BeadsGame implements Game {
     if (this._machine.current !== 'finish') return false;
     this._mode = 'normal';
     this._crash?.clear(); // D-03：整轮重玩 ⇒ 旧快照失效
+    this._finishPanel.close(); // 淡出由 `update()` 跑完（与结算面板同判例）
     this._setupLevel(0);
     this._machine.transition('playing');
     return true;
@@ -814,6 +830,9 @@ export class BeadsGame implements Game {
             game._reviveCount > 0,
           );
           game._lastStars = stars;
+          // 通关画面总览：取**历史最好**（重玩不降级，与 `maxUnlockedLevel` 同语义）。
+          const li = game._levelIndex;
+          game._starsByLevel[li] = Math.max(game._starsByLevel[li] ?? 0, stars);
           // C7 结算分（局内不显示，供排行/段位与面板外部读取）：四因子全在此刻可得。
           game._lastSettleScore = normalSettleScore(
             stars,
@@ -840,7 +859,15 @@ export class BeadsGame implements Game {
           game._crash?.clear(); // D-03（提案 §3）：失败即删
         },
       })
-      .addState('finish', {});
+      .addState('finish', {
+        onEnter: (game) => {
+          game._finishRowsAnnounced = 0;
+          game._finishPanel.open();
+        },
+        onUpdate: (game, dt) => {
+          game._stepFinish(dt);
+        },
+      });
 
     return machine;
   }
@@ -1069,9 +1096,22 @@ export class BeadsGame implements Game {
         }
         return;
       }
-      case 'finish':
-        this.restartRun();
+      case 'finish': {
+        // `ux-spec §4` 矩阵行 `FINISH | 去冲刺* / 重玩第 1 关`；`input-control §2.3`
+        // 「FINISH：**仅**面板按钮」⇒ 面板外点击零响应（不推进、不误触）。
+        const action: FinishPanelAction | null = this._finishPanel.hitTest(
+          x,
+          y,
+          this._levels.length,
+        );
+        if (action) {
+          this._consumedTap = true;
+          this._sfx(AUDIO_CLIP_UI_TAP);
+          if (action === 'replay') this.restartRun();
+          else this._startSprintRun();
+        }
         return;
+      }
       case 'paused': {
         // PAUSED answers to panel buttons **only** — the scrim eats everything
         // else (board / tray / cards / gear, pause-settings §2.2 + §8-1).
@@ -1167,6 +1207,18 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * 通关画面每帧：只在**逐关入场**时各触发一次音效（与结算面板「每星叮上行」同判例）。
+   * 面板自身的入 / 出动画在 `update()` 里跑（表示层不停表）。
+   */
+  private _stepFinish(_dt: number): void {
+    const shown = this._finishPanel.rowsShown(this._levels.length);
+    while (this._finishRowsAnnounced < shown) {
+      this._finishRowsAnnounced++;
+      this._sfx(AUDIO_CLIP_STAR);
+    }
+  }
+
+  /**
    * 结算面板「下一关 / 查看结果」：末关 → FINISH，否则推进到下一关。
    * `ux-spec §4` 流转表 = `LEVEL_CLEAR → 下一关 / 去冲刺*(U1) → 玩法·n+1 / 玩法·冲刺`
    * ——面板**等按钮**，此前的「1.4s 自动推进」占位已随本面板删除。
@@ -1174,6 +1226,9 @@ export class BeadsGame implements Game {
   private _advanceAfterClear(): void {
     if (this._machine.current !== 'level-clear') return;
     if (this._levelIndex >= this._levels.length - 1) {
+      // 交接给通关画面：结算面板必须退场，否则它 150ms 的淡出会从通关画面后面透出来
+      // （两个面板都画全屏遮罩，叠着会看到两层）。
+      this._clearPanel.close();
       this._machine.transition('finish');
       return;
     }
@@ -1185,6 +1240,8 @@ export class BeadsGame implements Game {
   /** 结算面板「▶ 去冲刺」（U1 三处入口之第二处）：直接开一局新冲刺。 */
   private _startSprintRun(): void {
     this._mode = 'sprint';
+    this._clearPanel.close();
+    this._finishPanel.close(); // 两个面板都可能发起冲刺（结算页 / 通关画面，U1 三处之其二）
     this._crash?.clear();
     this._setupSprintRun();
     this._machine.reset('playing');
@@ -1482,6 +1539,19 @@ export class BeadsGame implements Game {
     return this._clearPanel;
   }
 
+  /** S7 通关画面逻辑（暴露给测试；只读用法，写路径走两个按钮动作）。 */
+  get finishPanel(): FinishPanel {
+    return this._finishPanel;
+  }
+
+  /** 每关历史最好星级（`0` = 未通关）—— 通关画面总览的数据源（测试读它）。 */
+  get starsByLevel(): readonly number[] {
+    // 内部按需写入（稀疏）；对外一律**稠密**（未通关 = 0），与快照同一契约。
+    const out: number[] = [];
+    for (let i = 0; i < this._levels.length; i++) out.push(this._starsByLevel[i] ?? 0);
+    return out;
+  }
+
   private _syncSnapshot(): void {
     const s = this._snapshot;
     s.phase = this._machine.current;
@@ -1540,6 +1610,20 @@ export class BeadsGame implements Game {
     s.clearRemaining = this._timer.remaining;
     s.clearPowerupsUsed = this._powerups.usedCount;
     s.clearLastLevel = this._levelIndex >= this._levels.length - 1;
+
+    // S7 通关画面（ux-spec §3.6）：总览数据 + 逐关入场进度一起进快照，视图只读。
+    s.finishPanelVisible = this._finishPanel.visible;
+    s.finishPanelProgress = this._finishPanel.progress;
+    s.finishPanelInteractive = this._finishPanel.interactive;
+    if (s.finishStars.length !== this._levels.length) {
+      s.finishStars = new Array<number>(this._levels.length).fill(0);
+    }
+    for (let i = 0; i < s.finishStars.length; i++) {
+      s.finishStars[i] = this._starsByLevel[i] ?? 0;
+    }
+    const finishRows = this._finishPanel.rowsShown(this._levels.length);
+    s.finishRowsShown = finishRows;
+    s.finishRowPopScale = finishRows > 0 ? this._finishPanel.rowPopScale(finishRows - 1) : 1;
 
     // Tray slots (rebuild on capacity change, i.e. expansion).
     if (s.traySlots.length !== this._tray.capacity) {

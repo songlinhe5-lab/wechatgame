@@ -57,3 +57,12 @@
 | WXG-T-045 | IDE 能力迁移矩阵盘点（分工拍板：开发=CodeBuddy/Cursor/Qoder，WorkBuddy=调研/方案/设计/文档） | 主理人 | ✅ 完成 | docs/agent/ide-capability-matrix.md（组件×四 IDE 矩阵，✅ 项有 check:links + check:mcp 门禁背书；WorkBuddy 保留项；缺口 4 项见文档 §3）· 本笔提交 |
 | WXG-T-046 | Qoder MCP 接入：官方实证项目级读根 `/.mcp.json`（字段与 explicit 方言兼容）→ **零新文件零代码** | 主理人 | ✅ 完成 | my-mcp/README.md §5（项目级复用 + 用户级 ~/.qoder/mcp.json 已同步同语义两 server + UI 兜底；用户级在仓库外，升级版本需手动同步）· 矩阵文档 Qoder 行 ⏳→✅ · 本笔提交 |
 | WXG-T-047 | 微信构建链前置补洞 + 两处文档漂移修正：① 补 `check-bundle-size.mjs`（阈值真源 `systems-index §3.8` 双口径：红线 4096/30720 KB、内部目标 2000 KB 分列不混用；分包判定三级回退 game.json→`subpackages/`→全计入主包；干净检出自动跳过）+ `check:size` 接入 `verify` ② 补 `check-secrets.mjs`——把 `control-manifest §10`/`ADR-0010 §4.2-5` 两条**只写在文档里、脚本却不存在**的红线机械化（扫描面 = `git ls-files --cached --others --exclude-standard`，即「会不会入仓」而非「磁盘上有没有」；故无需 `--staged` 模式）+ 接 pre-commit ⓪ 步 / CI `arch-guard` / `verify` + `.gitignore` 补密钥规则 ③ **实测推翻 ADR-0009 §3.2 P2**：`project_build_system` 仅 3 个只读 action、唯一含 `build` 的 `project_manage` 被禁用且实现只 `builder:open` ⇒ 「MCP 驱动构建」在 v1.5.4 **不成立**，G7 只能「人工构建 + 智能体回读日志/校验体积」 ④ 文档回填 6 处漂移（`cocos-setup §12`、`architecture §5/§6`、`ADR-0009 §3.2`、`test-plan Q9`、`cocos/README §2.1/§4`、`VERSION.md G1`） | 主理人(CodeBuddy) | ✅ 完成 | tools/scripts/{check-bundle-size,check-secrets}.mjs（自测 13+18 全绿）· package.json（`check:size`/`check:secrets`/`verify`）· .githooks/pre-commit（⓪ 步）· .github/workflows/ci.yml（arch-guard 加 step）· .gitignore（密钥与凭证段）· 上述 6 处文档 · 本台账 |
+> 归档批次 2026-09-14 14:33 +08:00 — 8 行（WXG-T-048、WXG-T-049、WXG-T-050、WXG-T-051、WXG-T-052、WXG-T-053、WXG-T-054、WXG-T-057）｜判定：git blame committer-time ≥ 30 天｜详情节同批搬入 production/archive/TASKS-DETAIL-archive.md
+| WXG-T-048 | 多游戏粒度修正 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+| WXG-T-049 | 构建自动化能力修正 + CLI 构建落地 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+| WXG-T-050 | 里程碑验收回填 | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+| WXG-T-051 | 引擎功能裁剪 + 包体内部目标达标 | 主理人(CodeBuddy) | ✅ 完成（实玩验收待补） | 见详情 |
+| WXG-T-052 | beads 工程化对齐 breakout | 主理人(CodeBuddy) | ✅ 完成 | 见详情 |
+| WXG-T-053 | beads Cocos 宿主落地 | 主理人(CodeBuddy) | ✅ 完成（工程创建待人工 GUI） | 见详情 |
+| WXG-T-054 | beads 星级×关卡数值整组返工 | 文策渊 | ✅ 完成（组 C 已冻结） | 见详情 |
+| WXG-T-057 | beads 广告位重排 + 失败页续时裁决 | 文策渊 + 程基岩 | ✅ 完成（规则已冻结，实现另排） | 见详情 |
