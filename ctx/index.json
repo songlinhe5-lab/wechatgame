@@ -33719,17 +33719,17 @@
     },
     {
       "path": "memory/2026-09-15.md",
-      "tokens": 4545,
-      "lines": 104,
-      "sha256": "d10d97c7ddaa0fc48f2b8638bd8ad527fed31ddf37db5cea03f6d02fa471168d",
+      "tokens": 3449,
+      "lines": 70,
+      "sha256": "8383d03c5ef1ddc5ed3295e6b857a82b4608999f191386f77a705ab56f6e8d83",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-15",
           "level": 1,
           "startLine": 1,
-          "endLine": 105,
-          "tokens": 4542,
+          "endLine": 70,
+          "tokens": 3445,
           "summary": "",
           "keywords": []
         },
@@ -33912,33 +33912,67 @@
           "anchor": "§WXG-T-112：装置自指类门禁缺陷评估（波次4 第九轮 · BD-38 关单）",
           "level": 2,
           "startLine": 68,
-          "endLine": 105,
-          "tokens": 1140,
-          "summary": "结论：BD-38 与 ctx/BUDGET.md / ctx/hot-files.md 是同一根因——ctx:build",
+          "endLine": 70,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-15-s12-t112.md（",
           "keywords": [
             "WXG",
-            "ctx",
-            "BUDGET",
-            "hot",
-            "files",
-            "build"
+            "memory",
+            "details",
+            "s12",
+            "t112",
+            "装置自指类门"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/2026-09-16.md",
+      "tokens": 73,
+      "lines": 5,
+      "sha256": "483b944bb7dc68860e06dab9883588905cadd4325cf457caedba204c5a2129cd",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§2026-09-16",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 5,
+          "tokens": 70,
+          "summary": "",
+          "keywords": []
+        },
+        {
+          "anchor": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话）",
+          "level": 2,
+          "startLine": 3,
+          "endLine": 5,
+          "tokens": 43,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-16-s01-t121.md（",
+          "keywords": [
+            "WXG",
+            "Qoder",
+            "memory",
+            "details",
+            "s01",
+            "t121"
           ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 6906,
-      "lines": 176,
-      "sha256": "bc37c2461162c7653a1135a4d49e596001025c44c3b240dcaa23970198d07a0a",
+      "tokens": 7073,
+      "lines": 182,
+      "sha256": "ad31263b9bdaa3cb0421513770afb672e126f45f0dbfb09548194752d3fc1ab2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 177,
-          "tokens": 6884,
+          "endLine": 183,
+          "tokens": 7051,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -34008,8 +34042,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 177,
-          "tokens": 5244,
+          "endLine": 183,
+          "tokens": 5411,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -34021,11 +34055,27 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 4,545 tok｜12 节｜5 节已外移｜**蒸馏到期 2026-10-15**（剩 30 天）",
+          "anchor": "§`memory/2026-09-16.md` — 73 tok｜1 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 31 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 89,
-          "tokens": 952,
+          "endLine": 78,
+          "tokens": 120,
+          "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
+          "keywords": [
+            "memory/2026-09-16.md",
+            "memory",
+            "tok",
+            "WXG",
+            "Qoder",
+            "mem"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 30 天）",
+          "level": 3,
+          "startLine": 79,
+          "endLine": 95,
+          "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
             "memory/2026-09-15.md",
@@ -34039,8 +34089,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 29 天）",
           "level": 3,
-          "startLine": 90,
-          "endLine": 117,
+          "startLine": 96,
+          "endLine": 123,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -34055,8 +34105,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 28 天）",
           "level": 3,
-          "startLine": 118,
-          "endLine": 138,
+          "startLine": 124,
+          "endLine": 144,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -34071,8 +34121,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 27 天）",
           "level": 3,
-          "startLine": 139,
-          "endLine": 156,
+          "startLine": 145,
+          "endLine": 162,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -34087,8 +34137,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 26 天）",
           "level": 3,
-          "startLine": 157,
-          "endLine": 177,
+          "startLine": 163,
+          "endLine": 183,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
@@ -34890,6 +34940,88 @@
             "二级详情层落",
             "波次",
             "第七轮"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-15-s12-t112.md",
+      "tokens": 1299,
+      "lines": 43,
+      "sha256": "686cf4e2c11ec7f52de3f162bcfe3e8d203063fe48171ff23538fc4f8ffdab10",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-15 · §WXG-T-112：装置自指类门禁缺陷评估（波次4 第九轮 · BD-38 关单）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 44,
+          "tokens": 1265,
+          "summary": "本节正文自 memory/2026-09-15.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "装置自指类门",
+            "禁缺陷评估",
+            "波次"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-112：装置自指类门禁缺陷评估（波次4 第九轮 · BD-38 关单）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 44,
+          "tokens": 1141,
+          "summary": "结论：BD-38 与 ctx/BUDGET.md / ctx/hot-files.md 是同一根因——ctx:build",
+          "keywords": [
+            "WXG",
+            "ctx",
+            "BUDGET",
+            "hot",
+            "files",
+            "build"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-16-s01-t121.md",
+      "tokens": 1023,
+      "lines": 13,
+      "sha256": "9d276eadcc59be5627286247a40cf4ff1659ec22ea09be8830a6792d786d3a20",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-16 · §WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 14,
+          "tokens": 990,
+          "summary": "本节正文自 memory/2026-09-16.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "Qoder",
+            "memory",
+            "隶属",
+            "装置自测分档",
+            "挂门禁"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 14,
+          "tokens": 868,
+          "summary": "用户裁定「甲」：BD-39 与 BD-40 并成一单，按实测耗时分两档 —— selftest:fast（六件自测 + ",
+          "keywords": [
+            "WXG",
+            "Qoder",
+            "selftest",
+            "fast",
+            "装置自测分档",
+            "挂门禁"
           ]
         }
       ]
