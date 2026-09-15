@@ -10,7 +10,11 @@
 #         ④ 幂等：--write 重跑 → 0 候选空转不落盘（MEMORY.md / 归档字节不变）
 #         ⑤ 0 候选仓库 --write：archive 目录不创建、MEMORY.md 不变
 #         ⑥ 防重复归档：memory/ 与 memory/archive/ 同名并存 → 跳过告警、不覆盖、不写 MEMORY.md
-#         ⑦ MEMORY.md 缺失 --write：fail loud exit 1、日志原件保留
+#         ⑦ 连座（WXG-T-106）：memory/details/<日期>-*.md 随该天日记同进同退
+#           · 候选天的详情件入 memory/archive/details/（逐字节）；非候选天的不动
+#           · 孤儿详情件（无对应日记）只告警不动
+#           · 连座组内任一重名 → **整组跳过**（日记不被拆走，不留孤儿）
+#         ⑧ MEMORY.md 缺失 --write：fail loud exit 1、日志原件保留
 #
 # 用法：tools/scripts/distill-memory-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库。
@@ -81,6 +85,20 @@ cp "$MEM/$OLD_NAME" "$WORK/old-body-backup.md"
 cp "$MEM/$MID_NAME" "$WORK/mid-backup.md"
 cp "$MEM/$TODAY_NAME" "$WORK/today-backup.md"
 cp "$MEM/notes.md" "$WORK/notes-backup.md"
+# ── 连座详情件（WXG-T-106）：候选天 2 件 / 非候选天 1 件 / 孤儿 1 件 ──
+OLD_DATE="${OLD_NAME%.md}"
+MID_DATE="${MID_NAME%.md}"
+DET_S1="${OLD_DATE}-alpha.md"
+DET_S2="${OLD_DATE}-beta.md"
+DET_KEEP="${MID_DATE}-keep.md"
+DET_ORPHAN="2026-01-02-orphan.md"
+mkdir -p "$MEM/details"
+printf '# 隶属 · %s · §S1 老日志第一节\n\n逐字节保留校验对象：✓ 中文 / emoji 🎨 / tab\t混排。\n' "$OLD_DATE" >"$MEM/details/$DET_S1"
+printf '# 隶属 · %s · §S2 老日志第二节\n\n第二节正文。\n' "$OLD_DATE" >"$MEM/details/$DET_S2"
+printf '# 隶属 · %s · §S1 未到期节\n\n29 天前的详情，不得被动。\n' "$MID_DATE" >"$MEM/details/$DET_KEEP"
+printf '# 隶属 · 2026-01-02 · §S9 孤儿节\n\n对应日记不存在。\n' >"$MEM/details/$DET_ORPHAN"
+cp "$MEM/details/$DET_S1" "$WORK/det-s1-backup.md"
+cp "$MEM/details/$DET_KEEP" "$WORK/det-keep-backup.md"
 
 # ── [1] dry-run（默认）：只列候选，不落盘 ──────────────────────────────────────
 echo "—— [1] dry-run（默认）不落盘"
@@ -94,8 +112,11 @@ assert_not_contains "$OUT" "→ 候选｜$TODAY_NAME" "[1] 今天日志不入候
 assert_contains "$OUT" "⏸ 保留｜$MID_NAME" "[1] 29 天日志列为保留"
 assert_contains "$OUT" "非 YYYY-MM-DD 命名" "[1] notes.md 判为命名不符不动"
 assert_contains "$OUT" "日期非法" "[1] 2026-13-40.md 判为日期非法不动"
-assert_eq "$(sha "$MEM/$OLD_NAME")" "$(sha "$WORK/old-body-backup.md")" "[1] 老日志字节不变"
+assert_contains "$OUT" "连座详情 2 件" "[1] 候选天报出连座详情 2 件"
+assert_contains "$OUT" "孤儿详情件｜details/$DET_ORPHAN" "[1] 孤儿详情件仅告警"
+assert_eq "$(sha "$MEM/details/$DET_S1")" "$(sha "$WORK/det-s1-backup.md")" "[1] dry-run 详情件字节不变"
 assert_eq "$(sha "$MEM/MEMORY.md")" "$(sha "$WORK/memory-md-backup.md")" "[1] MEMORY.md 字节不变"
+assert_eq "$(sha "$MEM/$OLD_NAME")" "$(sha "$WORK/old-body-backup.md")" "[1] 老日志字节不变"
 if [ ! -e "$MEM/archive" ]; then ok "[1] archive 目录未创建"; else bad "[1] archive 目录不应被创建"; fi
 
 # ── [2] --write：老日志归档（逐字节）、其余不动、MEMORY.md 追加占位 ─────────────
@@ -110,6 +131,15 @@ byte_same "$MEM/$MID_NAME" "$WORK/mid-backup.md" && ok "[2] 29 天日志逐字�
 byte_same "$MEM/$TODAY_NAME" "$WORK/today-backup.md" && ok "[2] 今天日志逐字节不动" || bad "[2] 今天日志被改动"
 byte_same "$MEM/notes.md" "$WORK/notes-backup.md" && ok "[2] 非日期命名文件不动" || bad "[2] notes.md 被改动"
 MEMTXT="$(cat "$MEM/MEMORY.md")"
+assert_contains "$OUT" "个连座详情件" "[2] 完成行报出连座详情件数"
+byte_same "$MEM/archive/details/$DET_S1" "$WORK/det-s1-backup.md" && ok "[2] 详情件逐字节归档" || bad "[2] 详情件归档内容不等"
+if [ ! -e "$MEM/details/$DET_S1" ] && [ ! -e "$MEM/details/$DET_S2" ]; then
+  ok "[2] 候选天详情件已随日记同进同退（原位无件）"
+else
+  bad "[2] 候选天详情件仍在原位（会变孤儿）"
+fi
+byte_same "$MEM/details/$DET_KEEP" "$WORK/det-keep-backup.md" && ok "[2] 非候选天详情件逐字节不动" || bad "[2] 非候选天详情件被改动"
+assert_contains "$MEMTXT" "memory/archive/details/$DET_S1" "[2] 占位提醒含详情件归档路径"
 assert_contains "$MEMTXT" "归档待蒸馏提醒" "[2] MEMORY.md 追加待蒸馏占位段"
 assert_contains "$MEMTXT" "memory/archive/$OLD_NAME" "[2] 占位提醒指向归档路径"
 assert_contains "$MEMTXT" "既有条目（不得被改动）。" "[2] MEMORY.md 原有内容保留"
@@ -153,7 +183,7 @@ cp "$M3/archive/$OLD_NAME" "$WORK/repo3-arch-backup.md"
 A="$(sha "$M3/MEMORY.md")"
 OUT="$(node "$DISTILL_CMD" --root="$REPO3" --write 2>&1)"; RC=$?
 assert_eq "$RC" "0" "[5] 重名场景退出码 0"
-assert_contains "$OUT" "同名文件——跳过" "[5] 告警归档重名"
+assert_contains "$OUT" "连座组内有归档重名" "[5] 告警归档重名（连座组口径）"
 byte_same "$M3/$OLD_NAME" "$WORK/repo3-old-backup.md" && ok "[5] 原位老日志未动" || bad "[5] 原位老日志被改动"
 byte_same "$M3/archive/$OLD_NAME" "$WORK/repo3-arch-backup.md" && ok "[5] 归档侧未被覆盖" || bad "[5] 归档侧被覆盖"
 assert_eq "$(sha "$M3/MEMORY.md")" "$A" "[5] MEMORY.md 未追加（无新增归档）"
@@ -169,6 +199,28 @@ OUT="$(node "$DISTILL_CMD" --root="$REPO4" --write 2>&1)"; RC=$?
 assert_eq "$RC" "1" "[6] MEMORY.md 缺失退出码 1"
 assert_contains "$OUT" "不存在" "[6] 明示 MEMORY.md 缺失"
 byte_same "$M4/$OLD_NAME" "$WORK/repo4-old-backup.md" && ok "[6] 日志原件保留" || bad "[6] 日志原件被动"
+
+# ── [7] 连座组内仅详情件重名 → **整组跳过**（日记不被拆走，不留孤儿）────────
+echo "—— [7] 连座：详情件重名 → 整组跳过"
+REPO5="$WORK/repo5"
+new_repo "$REPO5"
+M5="$REPO5/memory"
+printf '# 长期笔记（桩 5）\n' >"$M5/MEMORY.md"
+printf '老日志正文。\n' >"$M5/$OLD_NAME"
+mkdir -p "$M5/details" "$M5/archive/details"
+printf '# 隶属 · %s · §S1 节\n\n正文。\n' "$OLD_DATE" >"$M5/details/$DET_S1"
+printf '归档侧详情件（不得被覆盖）。\n' >"$M5/archive/details/$DET_S1"
+cp "$M5/details/$DET_S1" "$WORK/repo5-det-backup.md"
+cp "$M5/archive/details/$DET_S1" "$WORK/repo5-det-arch-backup.md"
+A="$(sha "$M5/MEMORY.md")"
+OUT="$(node "$DISTILL_CMD" --root="$REPO5" --write 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[7] 整组跳过退出码 0"
+assert_contains "$OUT" "整组跳过" "[7] 明示整组跳过"
+assert_contains "$OUT" "details/$DET_S1" "[7] 告警点名冲突的详情件"
+if [ -f "$M5/$OLD_NAME" ]; then ok "[7] 日记未被拆走（与详情件同退）"; else bad "[7] 日记被归档而详情件未同进退"; fi
+byte_same "$M5/details/$DET_S1" "$WORK/repo5-det-backup.md" && ok "[7] 详情件原位不动" || bad "[7] 详情件被改动"
+byte_same "$M5/archive/details/$DET_S1" "$WORK/repo5-det-arch-backup.md" && ok "[7] 归档侧详情件未被覆盖" || bad "[7] 归档侧详情件被覆盖"
+assert_eq "$(sha "$M5/MEMORY.md")" "$A" "[7] MEMORY.md 未追加（无新增归档）"
 
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"
