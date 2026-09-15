@@ -46,6 +46,7 @@
     "kb:archive": "node tools/scripts/kb-archive.mjs",
     "kb:reactivate": "node tools/scripts/kb-reactivate.mjs",
     "kb:check": "node tools/scripts/kb-check.mjs",
+    "kb:selftest": "bash tools/scripts/knowledge-selftest.sh",
     "harness": "node tools/scripts/serve-harness.mjs",
     "harness:build": "node tools/scripts/serve-harness.mjs --build-only",
     "harness:smoke": "node tools/scripts/smoke-harness.mjs",

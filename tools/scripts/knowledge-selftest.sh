@@ -112,7 +112,7 @@ echo "工作目录: $WORK"
 echo "=================================================================="
 
 # ── 造「假仓库 + 假知识库」───────────────────────────────────────────────────
-mkdir -p "$REPO/tools/scripts/lib" "$REPO/knowledge" "$REPO/ctx"
+mkdir -p "$REPO/tools/scripts/lib" "$REPO/knowledge" "$REPO/ctx" "$REPO/memory"
 cp "$SCRIPT_DIR"/kb-*.mjs "$REPO/tools/scripts/"
 cp "$LIB_DIR"/*.mjs "$REPO/tools/scripts/lib/"
 cp "$SCRIPT_DIR/build-context-index.mjs" "$REPO/tools/scripts/"
