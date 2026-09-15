@@ -197,11 +197,16 @@ export interface BeadsSnapshot {
   guideSlot: number;
   /**
    * 一次性「轻提示」（ux-spec §5 WXG-T-097；BD-16 无选中点格 / BD-15 扩展位占位共用）。
-   * `''` = 无；`tapHintRow/Col` = 锚点格（非格锚点 = -1，如扩展按钮）。L5：只读相位，不持状态。
+   * `''` = 无；`tapHintRow/Col` = 锚点格。L5：只读相位，不持状态。
    */
   tapHintText: string;
   tapHintRow: number;
   tapHintCol: number;
+  /**
+   * 轻提示锚点（§5）：`'cell'` = 落在被点的可落空格格心（BD-16）；
+   * `'expand'` = 落在 `btn_expand` 正下方的空白带隙（BD-15，`AD_HINT_TEXT_Y`）。
+   */
+  tapHintAnchor: 'cell' | 'expand';
 
   tuning: BeadsTuning;
 }
@@ -287,6 +292,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     tapHintText: '',
     tapHintRow: -1,
     tapHintCol: -1,
+    tapHintAnchor: 'cell',
     guideSlot: -1,
     tuning,
   };

@@ -61,11 +61,11 @@ import {
   TIMER_URGENT_T,
   TAP_HINT_MS,
   TAP_HINT_NO_SELECTION_TEXT,
+  AD_PLACEHOLDER_HINT_TEXT,
   WRONG_FX_MS,
   TRAY_COLS,
-  TRAY_GAP,
-  TRAY_SLOT,
-  TRAY_BAND,
+  expandButtonLayout,
+  trayLayout,
   GRID_HIT_SIZE,
   TRAY_HIT_SIZE,
   POWERUP_TYPES,
@@ -261,7 +261,13 @@ export class BeadsGame implements Game {
    * 一次性轻提示（BD-16 无选中点格 / BD-15 扩展位占位共用通道，ux-spec §5 WXG-T-097）。
    * 与 `_wrongFx` 同判例：表现层计时，`TAP_HINT_MS` 后自清，不占常驻分配。
    */
-  private _tapHint: { text: string; row: number; col: number; elapsedMs: number } | null = null;
+  private _tapHint: {
+    text: string;
+    row: number;
+    col: number;
+    anchor: 'cell' | 'expand';
+    elapsedMs: number;
+  } | null = null;
   /** 首屏引导已完成（老玩家 BOOT 即 true；首次玩家首次落子后置 true）。一置不再重现。 */
   private _onboardDone = true;
   /**
@@ -584,7 +590,8 @@ export class BeadsGame implements Game {
     if (this._machine.current !== 'playing') return false;
     const outcome = this._powerups.request(type);
     if (outcome.kind === 'exhausted') {
-      this._powerupHint = '即将开放';
+      // 占位文案与 `btn_expand` 同一常量（§2.6 布局 A：四处广告位同一语义）。
+      this._powerupHint = AD_PLACEHOLDER_HINT_TEXT;
       return false;
     }
     if (outcome.kind !== 'used') return false;
@@ -610,8 +617,8 @@ export class BeadsGame implements Game {
 
   /**
    * Debug/dev hook: route a design-space tap through the real S2 priority
-   * router (gear → 道具卡 → tray → grid). Lets tests and the harness exercise routing
-   * without faking platform pointer events.
+   * router (gear → 道具卡 → btn_expand → tray → grid). Lets tests and the harness
+   * exercise routing without faking platform pointer events.
    * @returns true only when the tap was consumed (never == "something changed").
    */
   tapDesign(x: number, y: number): boolean {
@@ -1217,13 +1224,23 @@ export class BeadsGame implements Game {
           this.usePowerup(card);
           return;
         }
-        // 3. Tray bead (62² hit area, nearest slot centre wins).
+        // 3. `btn_expand`（`input-control §2.1` 优先级 3）——**布局 A**（powerups §2.6）：
+        //    本轮无解锁路径 ⇒ 只给同道具超限的占位轻提示，**零事件、零槽变化、
+        //    零扣次、不调 wx 广告 API**（不 `expandTray()`、不发 `tray:expanded`）。
+        if (this._hitExpandButton(x, y)) {
+          this._consumedTap = true;
+          if (!this._tray.expanded) {
+            this._showTapHint(AD_PLACEHOLDER_HINT_TEXT, -1, -1, 'expand');
+          }
+          return;
+        }
+        // 4. Tray bead (62² hit area, nearest slot centre wins).
         const slot = this._hitTraySlot(x, y);
         if (slot >= 0) {
           this.selectTraySlot(slot);
           return;
         }
-        // 4. Grid cell (66² hit area, nearest cell centre wins).
+        // 5. Grid cell (66² hit area, nearest cell centre wins).
         const cell = this._hitGridCell(x, y);
         if (cell) {
           this._placeSelected(cell.row, cell.col);
@@ -1696,13 +1713,13 @@ export class BeadsGame implements Game {
     let best = -1;
     let bestD2 = half * half;
     const rows = Math.ceil(this._tray.capacity / TRAY_COLS);
+    // 与 `view-model.drawTray` 共用 `trayLayout()`（§3.4 单一真源，WXG-T-062 判例）。
+    const lay = trayLayout(rows, this.tuning.width);
     for (let idx = 0; idx < this._tray.capacity; idx++) {
       const row = Math.floor(idx / TRAY_COLS);
       const col = idx % TRAY_COLS;
-      const cx = this._traySlotX(col);
-      const cy = this._traySlotY(row, rows);
-      const dx = x - cx;
-      const dy = y - cy;
+      const dx = x - lay.slotCenterX(col);
+      const dy = y - lay.slotCenterY(row);
       const d2 = dx * dx + dy * dy;
       if (d2 < bestD2) {
         bestD2 = d2;
@@ -1710,6 +1727,21 @@ export class BeadsGame implements Game {
       }
     }
     return best;
+  }
+
+  /**
+   * `btn_expand` 命中框 = **132×88** 热区（§3.4 v1.20 ← `accessibility C1`：视觉
+   * 132×48，热区扩大）。几何与渲染同源 `expandButtonLayout()`；该热区与
+   * 托盘槽热区实测净空 11px ⇒ 不需要热区重叠仲裁（`input-control §8-2`）。
+   */
+  private _hitExpandButton(x: number, y: number): boolean {
+    const btn = expandButtonLayout();
+    return (
+      x >= btn.hitX &&
+      x <= btn.hitX + btn.hitW &&
+      y >= btn.hitBottom &&
+      y <= btn.hitBottom + btn.hitH
+    );
   }
 
   /** Nearest grid cell within the 66² hit area (ties → smaller row). */
@@ -1731,20 +1763,6 @@ export class BeadsGame implements Game {
       }
     }
     return bestRow >= 0 ? { row: bestRow, col: bestCol } : null;
-  }
-
-  /** Tray slot centre X for column `col` (panel centred in the design width). */
-  private _traySlotX(col: number): number {
-    const rowWidth = TRAY_COLS * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP;
-    const left = (this.tuning.width - rowWidth) / 2;
-    return left + TRAY_SLOT / 2 + (TRAY_SLOT + TRAY_GAP) * col;
-  }
-
-  /** Tray slot centre Y — base row at band centre, expansion row above it. */
-  private _traySlotY(row: number, totalRows: number): number {
-    const bandMid = (TRAY_BAND.yMin + TRAY_BAND.yMax) / 2;
-    const pitch = TRAY_SLOT + TRAY_GAP;
-    return bandMid + ((totalRows - 1) * pitch) / 2 - row * pitch;
   }
 
   // ─────────────────────────────────────────────────────────────── snapshot
@@ -1809,8 +1827,13 @@ export class BeadsGame implements Game {
    * `sfx_reject`——它是「前置缺口告知」而不是错误反馈（错误反馈频率上限属 §3.8，
    * 本通道不得被算进去）；`audio-events §1` 无对应 clip ⇒ **静默**。
    */
-  private _showTapHint(text: string, row: number, col: number): void {
-    this._tapHint = { text, row, col, elapsedMs: 0 };
+  private _showTapHint(
+    text: string,
+    row: number,
+    col: number,
+    anchor: 'cell' | 'expand' = 'cell',
+  ): void {
+    this._tapHint = { text, row, col, anchor, elapsedMs: 0 };
   }
 
   /** 轻提示推进：与 `_stepWrongFx` 同判例（表现层，不被 PAUSED 冻结），窗口 `TAP_HINT_MS`。 */
@@ -1971,6 +1994,7 @@ export class BeadsGame implements Game {
     s.tapHintText = th ? th.text : '';
     s.tapHintRow = th ? th.row : -1;
     s.tapHintCol = th ? th.col : -1;
+    s.tapHintAnchor = th ? th.anchor : 'cell';
 
     // GAP-03 首屏引导：仅普通模式 PLAYING、首玩且本会话未落过子时激活（§6.3）。
     s.onboarding = this._mode === 'normal' && s.phase === 'playing' && !this._onboardDone;

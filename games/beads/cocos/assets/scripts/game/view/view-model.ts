@@ -33,10 +33,16 @@ import {
   POWERUP_TYPES,
   powerupCardRects,
   powerupLabelY,
-  TRAY_BAND,
   TRAY_COLS,
-  TRAY_GAP,
   TRAY_SLOT,
+  AD_HINT_TEXT_Y,
+  expandButtonLayout,
+  EXPAND_BTN_GLYPH_EDGE,
+  EXPAND_BTN_GLYPH_GAP,
+  EXPAND_BTN_LABEL,
+  EXPAND_BTN_LABEL_W,
+  EXPAND_BTN_RADIUS,
+  trayLayout,
   WRONG_SHAKE_PX,
   HINT_PULSE_MS,
   DANGER_PULSE_MS,
@@ -54,6 +60,8 @@ import {
 } from './bead-render';
 import {
   BEAD_SHADOW_HEX,
+  EXPAND_BTN_INK,
+  EXPAND_BTN_TEXT,
   POWERUP_BADGE_GLYPH,
   POWERUP_INK_CAP,
   POWERUP_INK_MAGNET,
@@ -134,6 +142,7 @@ export function buildBeadsView(
   drawHud(builder, snap, palette);
   drawGrid(builder, snap, palette);
   drawTray(builder, snap, palette);
+  drawExpandButton(builder, snap, palette);
   drawPowerupBand(builder, snap, palette);
   drawComboVfx(builder, snap, palette);
   drawClearPanel(builder, snap, palette);
@@ -523,7 +532,12 @@ function drawGrid(
         }
         // BD-16（WXG-T-097）一次性轻提示：落在被点的**可落空格**格心（ux-spec §5）。
         // 只在 empty 分支画 ⇒ 天然满足 `input-control §8-5`（锁定/已填格零反馈帧）。
-        if (snap.tapHintText && i === snap.tapHintRow && j === snap.tapHintCol) {
+        if (
+          snap.tapHintText &&
+          snap.tapHintAnchor === 'cell' &&
+          i === snap.tapHintRow &&
+          j === snap.tapHintCol
+        ) {
           builder.text(bx, cy, snap.tapHintText, {
             fill: withAlpha(palette.text, 0.9),
             font: bodyFont(snap, 'sub'),
@@ -547,16 +561,12 @@ function drawTray(
   snap: BeadsSnapshot,
   palette: BeadsPalette,
 ): void {
-  const pitch = TRAY_SLOT + TRAY_GAP;
   const rows = Math.ceil(snap.traySlots.length / TRAY_COLS);
-  const rowWidth = TRAY_COLS * pitch - TRAY_GAP;
-  const left = (DESIGN_W - rowWidth) / 2;
-  const bandMid = (TRAY_BAND.yMin + TRAY_BAND.yMax) / 2;
+  // 几何单一真源（§3.4 v1.20）：与 S2 命中测试共用 `trayLayout()`。
+  const lay = trayLayout(rows);
 
-  // White rounded panel behind the slots.
-  const panelHeight = rows * pitch - TRAY_GAP + 24;
-  const panelBottom = bandMid - panelHeight / 2;
-  builder.rect(left - 12, panelBottom, rowWidth + 24, panelHeight, {
+  // White rounded panel behind the slots（面板**贴上沿** ⇒ 带下沿让给 `btn_expand`）。
+  builder.rect(lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, {
     fill: palette.panel,
     radius: 18,
   });
@@ -565,15 +575,15 @@ function drawTray(
     const slot = snap.traySlots[idx]!;
     const row = Math.floor(idx / TRAY_COLS);
     const col = idx % TRAY_COLS;
-    const cx = left + TRAY_SLOT / 2 + pitch * col;
-    const cy = bandMid + ((rows - 1) * pitch) / 2 - row * pitch;
+    const cx = lay.slotCenterX(col);
+    const cy = lay.slotCenterY(row);
     const slotBottom = cy - TRAY_SLOT / 2;
     const dashed = row > 0; // expansion row keeps the dashed-slot language
 
     if (slot.state === 'free') {
       if (dashed) {
         // RenderModel has no dash stroke — synthesize 6/4 segments (arch §4).
-        drawDashedRect(builder, left + pitch * col, slotBottom, TRAY_SLOT, TRAY_SLOT, palette.slotBorder);
+        drawDashedRect(builder, cx - TRAY_SLOT / 2, slotBottom, TRAY_SLOT, TRAY_SLOT, palette.slotBorder);
       } else {
         drawEmptySocket(builder, cx, cy, palette, TRAY_SLOT);
       }
@@ -595,6 +605,69 @@ function drawTray(
     if (snap.onboarding && idx === snap.guideSlot) {
       drawStateRing(builder, cx, cy, TRAY_SLOT, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
     }
+  }
+}
+
+/**
+ * `btn_expand`（§1.3 / §3.4 v1.20）：带下沿居底的 132×48 暗色胶囊 + ▶ 12px +
+ * 「扩展」28px 白字，右上角常驻 `ad_badge`（`AD_PLACEMENTS` 四位之一）。
+ *
+ * 命中框 = 132×**88**（`accessibility C1`「视觉不变、热区扩大」），与渲染同源
+ * `expandButtonLayout()` ⇒ 不存在「画出的框 ≠ 点击落点」漂移（WXG-T-062 判例）。
+ * 零 wx API、零解锁行为（`powerups §2.6` 布局 A）。
+ */
+function drawExpandButton(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  const btn = expandButtonLayout();
+  const cy = btn.bottom + btn.h / 2;
+  builder.rect(btn.x, btn.bottom, btn.w, btn.h, {
+    fill: EXPAND_BTN_INK,
+    radius: EXPAND_BTN_RADIUS,
+  });
+
+  // `ad_badge`（§1.4：28×28 圆角 8、右上角内缩 8,8、白 ▶ 边 10）——与三张道具卡同 token。
+  const badgeX = btn.x + btn.w - POWERUP_BADGE_INSET - POWERUP_BADGE_SIZE;
+  const badgeY = btn.bottom + btn.h - POWERUP_BADGE_INSET - POWERUP_BADGE_SIZE;
+  builder.rect(badgeX, badgeY, POWERUP_BADGE_SIZE, POWERUP_BADGE_SIZE, {
+    fill: palette.adBadge,
+    radius: POWERUP_BADGE_RADIUS,
+  });
+  const bgx = badgeX + POWERUP_BADGE_SIZE / 2;
+  const bgy = badgeY + POWERUP_BADGE_SIZE / 2;
+  const bedge = POWERUP_BADGE_GLYPH_EDGE;
+  builder.polygon(
+    [bgx - bedge / 2, bgy - bedge / 2, bgx - bedge / 2, bgy + bedge / 2, bgx + bedge / 2, bgy],
+    { fill: POWERUP_BADGE_GLYPH },
+  );
+
+  // ▶ + 文字整体在**角标以外**的剩余区间居中（132 宽内角标占右侧 36px）。
+  const groupW = EXPAND_BTN_GLYPH_EDGE + EXPAND_BTN_GLYPH_GAP + EXPAND_BTN_LABEL_W;
+  const groupLeft = btn.x + (badgeX - btn.x - EXPAND_BTN_GLYPH_GAP - groupW) / 2;
+  const gx = groupLeft + EXPAND_BTN_GLYPH_EDGE / 2;
+  const edge = EXPAND_BTN_GLYPH_EDGE;
+  builder.polygon(
+    [gx - edge / 2, cy - edge / 2, gx - edge / 2, cy + edge / 2, gx + edge / 2, cy],
+    { fill: EXPAND_BTN_TEXT },
+  );
+  builder.text(groupLeft + edge + EXPAND_BTN_GLYPH_GAP, cy, EXPAND_BTN_LABEL, {
+    fill: EXPAND_BTN_TEXT,
+    // §1.3 写定 28px 按钮字；E2 大字号只放大正文/说明类（见 `bodyFont` 注）。
+    font: FONT.sub,
+    align: 'left',
+    baseline: 'middle',
+  });
+
+  // BD-15（WXG-T-097）占位轻提示：同一轻提示通道，落在按钮正下方的空白带隙。
+  if (snap.tapHintText && snap.tapHintAnchor === 'expand') {
+    builder.text(DESIGN_W / 2, AD_HINT_TEXT_Y, snap.tapHintText, {
+      fill: withAlpha(palette.text, 0.9),
+      font: bodyFont(snap, 'sub'),
+      align: 'center',
+      baseline: 'middle',
+    });
   }
 }
 

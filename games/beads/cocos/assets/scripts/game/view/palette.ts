@@ -198,6 +198,16 @@ export const POWERUP_BADGE_GLYPH = '#FFFFFF';
 /** 卡片投影 α（§1.4「投影 α0.10」）——墨色复用 {@link BEAD_SHADOW_HEX}。 */
 export const POWERUP_SHADOW_ALPHA = 0.1;
 
+// ─────────────────────────────── btn_expand 资产色（`assets-spec §1.3`）
+/**
+ * 与道具图标同判例：§1.3 写定的固定色属于**资产参数**而非主题 token，
+ * 不进 `BeadsPalette`（本文件是 `view/` 下唯一允许持有 hex 字面量的模块）。
+ */
+/** `btn_expand` 胶囊底（§1.3：`#2A2E43`）。 */
+export const EXPAND_BTN_INK = '#2A2E43';
+/** `btn_expand` 的 ▶ 与「扩展」白字（§1.3：白）。 */
+export const EXPAND_BTN_TEXT = '#FFFFFF';
+
 function parseHex(hex: string): { r: number; g: number; b: number } {
   let h = hex.replace('#', '');
   if (h.length === 3) {

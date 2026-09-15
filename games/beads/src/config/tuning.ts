@@ -25,8 +25,8 @@ export const HUD_BAND = { yMin: 1214, yMax: 1334 } as const;
 export const CAPSULE_AVOID = { xMin: 560, xMax: 750, yMin: 1214, yMax: 1334 } as const;
 /** Puzzle band — the pattern matrix is centred inside it (both axes). */
 export const PUZZLE_BAND = { yMin: 480, yMax: 1120 } as const;
-/** Tray band (white rounded panel). */
-export const TRAY_BAND = { yMin: 230, yMax: 420 } as const;
+/** Tray band (white rounded panel). §3.1 v1.20：上沿 420→450，带下沿让给 `btn_expand`。 */
+export const TRAY_BAND = { yMin: 230, yMax: 450 } as const;
 /** Powerup band (3 white cards — S6 landed in WXG-T-060). */
 export const POWERUP_BAND = { yMin: 48, yMax: 200 } as const;
 /**
@@ -102,6 +102,32 @@ export const TRAY_COLS = 12;
 export const TRAY_SLOT = 48;
 /** Slot gap. */
 export const TRAY_GAP = 6;
+/** 托盘面板竖向内边距（面板高 = rows×54 − 6 + 2×12）。 */
+export const TRAY_PANEL_PAD = 12;
+/**
+ * `btn_expand` 视觉尺寸（§3.4 v1.20 ← `assets-spec §1.3`：132×48、圆角 24）。
+ * 热区高 88 来自 `accessibility C1`（48 < `TOUCH_MIN` ⇒ 视觉不变、热区扩大），
+ * 二者同心，因此视觉在带下沿居中于热区（y∈[250,298]，热区 y∈[230,318]）。
+ */
+export const EXPAND_BTN_W = 132;
+export const EXPAND_BTN_H = 48;
+export const EXPAND_BTN_RADIUS = 24;
+export const EXPAND_BTN_HIT_H = 88;
+/** 按钮内 ▶ 三角边长（§1.3：12px）。 */
+export const EXPAND_BTN_GLYPH_EDGE = 12;
+/** ▶ 与文字间距（§1.3 未定，本项派生）。 */
+export const EXPAND_BTN_GLYPH_GAP = 12;
+/** 「扩展」两字宽 = 2 × 字号 28（CJK 等宽近似，RenderModel 无文本度量）。 */
+export const EXPAND_BTN_LABEL_W = 56;
+/** 按钮文字（§1.3：「扩展」28px 白字）。 */
+export const EXPAND_BTN_LABEL = '扩展';
+/** 占位文案：与道具超限同一语义（`powerups §2.6` 布局 A：本轮无路径）。 */
+export const AD_PLACEHOLDER_HINT_TEXT = '即将开放';
+/**
+ * 扩展位占位提示的绘制 y：在 `POWERUP_BAND`（顶 200）与 `TRAY_BAND`（底 230）
+ * 之间的空白中线上——空间上贴着刚被点的按钮，且不压任何元素（`ux-spec §5`）。
+ */
+export const AD_HINT_TEXT_Y = 214;
 /** Default spawn interval (s); levels may override within [SPAWN_INTERVAL_MIN, MAX]. */
 export const SPAWN_INTERVAL_DEFAULT = 4.0;
 /** Spawn interval legal minimum (s). */
@@ -447,6 +473,82 @@ export function gridLayoutFor(cols: number, rows: number): GridLayout {
     rows,
     colCenterX: (j: number) => left + BEAD_CELL / 2 + BEAD_PITCH * j,
     rowCenterY: (i: number) => top - BEAD_CELL / 2 - BEAD_PITCH * i,
+  };
+}
+
+// ───────────────────────────────────────────────────────── §3.4 tray layout
+
+/**
+ * 托盘面板 / 槽位派生几何（§3.4）。**单一真源**：渲染（`view-model.drawTray`）与
+ * 命中（`beads-game._hitTraySlot`）必须共用本函数 —— 各写一份就会出现「画出来的槽」
+ * 与「点击落点」不一致的静默漂移（`powerupCardRects()` / `gridLayoutFor()` 判例，
+ * WXG-T-062）。
+ *
+ * 垂直锚定：面板**贴上沿**（v1.20，原「带内居中」）—— 槽簇上移后，带下沿才能
+ * 容下 `btn_expand` 的 88 热区而不与 62 槽热区重叠（实测净空 11px）。
+ */
+export interface TrayLayout {
+  readonly rows: number;
+  /** 槽间距 = `TRAY_SLOT + TRAY_GAP` = 54。 */
+  readonly pitch: number;
+  /** 一行槽的总宽（12 列 = 642）。 */
+  readonly rowWidth: number;
+  /** 槽行左缘（水平居中）。 */
+  readonly left: number;
+  readonly panelX: number;
+  readonly panelBottom: number;
+  readonly panelW: number;
+  readonly panelH: number;
+  /** 第 `col` 列槽心 x。 */
+  slotCenterX(col: number): number;
+  /** 第 `row` 行槽心 y（`row` 0 = 最上排，贴带上沿）。 */
+  slotCenterY(row: number): number;
+}
+
+export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
+  const pitch = TRAY_SLOT + TRAY_GAP;
+  const rowWidth = TRAY_COLS * pitch - TRAY_GAP;
+  const left = (width - rowWidth) / 2;
+  const panelH = rows * pitch - TRAY_GAP + TRAY_PANEL_PAD * 2;
+  return {
+    rows,
+    pitch,
+    rowWidth,
+    left,
+    panelX: left - TRAY_PANEL_PAD,
+    panelBottom: TRAY_BAND.yMax - panelH,
+    panelW: rowWidth + TRAY_PANEL_PAD * 2,
+    panelH,
+    slotCenterX: (col: number) => left + TRAY_SLOT / 2 + pitch * col,
+    slotCenterY: (row: number) =>
+      TRAY_BAND.yMax - TRAY_PANEL_PAD - TRAY_SLOT / 2 - pitch * row,
+  };
+}
+
+/**
+ * `btn_expand` 几何（§3.4 v1.20）：带**下沿**居底，视觉 132×48 居中于 132×88 热区。
+ * 热区 = 命中框（`input-control §2.2` 对「按钮类 ≥ 88 用名义框」的例外，依 `accessibility C1`）。
+ */
+export function expandButtonLayout(): {
+  readonly x: number;
+  readonly bottom: number;
+  readonly w: number;
+  readonly h: number;
+  readonly hitX: number;
+  readonly hitBottom: number;
+  readonly hitW: number;
+  readonly hitH: number;
+} {
+  const x = (DESIGN_W - EXPAND_BTN_W) / 2;
+  return {
+    x,
+    bottom: TRAY_BAND.yMin + (EXPAND_BTN_HIT_H - EXPAND_BTN_H) / 2,
+    w: EXPAND_BTN_W,
+    h: EXPAND_BTN_H,
+    hitX: x,
+    hitBottom: TRAY_BAND.yMin,
+    hitW: EXPAND_BTN_W,
+    hitH: EXPAND_BTN_HIT_H,
   };
 }
 
