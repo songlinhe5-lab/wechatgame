@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 46,
+  "nextId": 48,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -771,6 +771,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-046",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号",
+      "contentHash": "d0fd94d1f64843f9119bcfa56003e0372ec5db5f2d93f469945dfacf9ef93834",
+      "sourceTask": "WXG-T-106",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-047",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "幂等判据必锁「自己写出的产物字形」，写方与读方不同源时假绿与自毁同时存在",
+      "contentHash": "5f65ee093dc4bfea4009715260b9a488427ab49b99f2d38d3570833ff592da88",
+      "sourceTask": "WXG-T-106",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -939,6 +973,16 @@
       "kind": "updated",
       "ids": [
         "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-111",
+      "kind": "added",
+      "ids": [
+        "K-046",
+        "K-047"
       ],
       "note": null
     }
