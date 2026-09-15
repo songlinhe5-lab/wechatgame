@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3992,
       "lines": 86,
-      "sha256": "426f9bd1248be020ea8b64691b4f97bec5c926b1f41454687a76efb0b4f4e488",
+      "sha256": "890ff4013ebd2a8f4ed2bcc6503ea8ea2d5f8ec50f0eb39cb760b98cc8f849fb",
       "tier": "normal",
       "sections": [
         {
@@ -529,12 +529,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 247 行 / 6635 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 248 行 / 6882 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
           "tokens": 292,
-          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+248 · §1 系统清单=9+16 · §2 依",
+          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+249 · §1 系统清单=9+16 · §2 依",
           "keywords": [
             "§1",
             "§2",
@@ -17327,9 +17327,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 4166,
+      "tokens": 4630,
       "lines": 31,
-      "sha256": "11f2d0b9db35748dcd8e4728f67f6b14e587705c097d6c1e5f4e6239d9895977",
+      "sha256": "0d04df23368461c0f4e46752095b5448acef25dc698b6967b23f9591c2c06ca8",
       "tier": "normal",
       "sections": [
         {
@@ -17337,7 +17337,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 32,
-          "tokens": 4148,
+          "tokens": 4612,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -17353,7 +17353,7 @@
           "level": 2,
           "startLine": 7,
           "endLine": 32,
-          "tokens": 3989,
+          "tokens": 4453,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -17365,18 +17365,18 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 6635,
-      "lines": 247,
-      "sha256": "069ce59b8e84938b1e3ed55139152a3c26a8b808b33a7d30bd31ae911a51b12e",
+      "tokens": 6882,
+      "lines": 248,
+      "sha256": "d8649735e8aa99cad91cb7ae2a9a247999b96e1726fdd52c7d07477b5f387e1e",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§系统清单与依赖索引（Systems Index）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 248,
-          "tokens": 6618,
-          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.19 · 任务号 WXG-T-007（版本号与 system",
+          "endLine": 249,
+          "tokens": 6865,
+          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.20 · 任务号 WXG-T-007（版本号与 system",
           "keywords": [
             "Systems",
             "Index",
@@ -17417,8 +17417,8 @@
           "anchor": "§3 全局数值基线（Global Constants）· ❄️ 冻结令",
           "level": 2,
           "startLine": 55,
-          "endLine": 209,
-          "tokens": 4638,
+          "endLine": 210,
+          "tokens": 4885,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -17434,7 +17434,7 @@
           "level": 3,
           "startLine": 68,
           "endLine": 83,
-          "tokens": 316,
+          "tokens": 387,
           "summary": "DESIGN_W 750 设计分辨率宽（px），与 breakout 一致（已裁定）",
           "keywords": [
             "DESIGN_W",
@@ -17478,8 +17478,8 @@
           "anchor": "§3.4 槽位托盘（Tray）",
           "level": 3,
           "startLine": 110,
-          "endLine": 121,
-          "tokens": 219,
+          "endLine": 122,
+          "tokens": 395,
           "summary": "TRAY_BASE_SLOTS 12 基线容量（1 行实线槽）（A1 已确认 2026-09-11）",
           "keywords": [
             "Tray",
@@ -17490,8 +17490,8 @@
         {
           "anchor": "§3.5 倒计时与失败",
           "level": 3,
-          "startLine": 122,
-          "endLine": 130,
+          "startLine": 123,
+          "endLine": 131,
           "tokens": 215,
           "summary": "LEVEL_TIME_DEFAULT 300 s 关卡默认倒计时（≈参考图 04:55）；关卡可覆盖，合法区间 [180",
           "keywords": [
@@ -17502,8 +17502,8 @@
         {
           "anchor": "§3.6 道具（Powerups）",
           "level": 3,
-          "startLine": 131,
-          "endLine": 140,
+          "startLine": 132,
+          "endLine": 141,
           "tokens": 249,
           "summary": "POWERUP_TYPES ['region','clearAll','random'] 区域消除 / 槽位清空 / 随",
           "keywords": [
@@ -17518,8 +17518,8 @@
         {
           "anchor": "§3.7 星级与结算",
           "level": 3,
-          "startLine": 141,
-          "endLine": 149,
+          "startLine": 142,
+          "endLine": 150,
           "tokens": 280,
           "summary": "STAR3_RATIO 0.32 剩余时间 / 关卡总时长 ≥ 32% → 3★（A7 已确认 2026-09-11；v",
           "keywords": [
@@ -17530,8 +17530,8 @@
         {
           "anchor": "§3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级）",
           "level": 3,
-          "startLine": 150,
-          "endLine": 161,
+          "startLine": 151,
+          "endLine": 162,
           "tokens": 402,
           "summary": "三重编码 颜色+符号+明度 珠子识别硬要求，见 art/art-bible.md §3.3；S3 校验只认索引、与颜色通",
           "keywords": [
@@ -17546,8 +17546,8 @@
         {
           "anchor": "§3.9 包体预算",
           "level": 3,
-          "startLine": 162,
-          "endLine": 168,
+          "startLine": 163,
+          "endLine": 169,
           "tokens": 107,
           "summary": "主包红线 4096 KB 微信主包平台红线，不可逾越",
           "keywords": [
@@ -17557,8 +17557,8 @@
         {
           "anchor": "§3.10 冲刺模式（Sprint）· 2026-09-12 用户拍板冻结（WXG-T-020）",
           "level": 3,
-          "startLine": 169,
-          "endLine": 184,
+          "startLine": 170,
+          "endLine": 185,
           "tokens": 559,
           "summary": "SPRINT_TIME_DEFAULT 120 s 冲刺单局时长；合法区间 [90, 120]，越界回退默认（C1）",
           "keywords": [
@@ -17572,8 +17572,8 @@
         {
           "anchor": "§3.11 失败续时（Revive）· 2026-09-14 用户拍板冻结（WXG-T-057 / T-B）",
           "level": 3,
-          "startLine": 185,
-          "endLine": 194,
+          "startLine": 186,
+          "endLine": 195,
           "tokens": 253,
           "summary": "REVIVE_BONUS_SEC 60 s 失败页激励视频看完（onRewarded）后写入可玩钟的秒数",
           "keywords": [
@@ -17588,8 +17588,8 @@
         {
           "anchor": "§3.12 音频（Audio）· 2026-09-14 波次1建档（WXG-T-083 / 阮和鸣）",
           "level": 3,
-          "startLine": 195,
-          "endLine": 209,
+          "startLine": 196,
+          "endLine": 210,
           "tokens": 690,
           "summary": "AUDIO_SFX_MIN_INTERVAL 0.05 s 高频短音（sfx_place/sfx_select）per-",
           "keywords": [
@@ -17604,8 +17604,8 @@
         {
           "anchor": "§4 事件总线约定（供程序落码参考）",
           "level": 2,
-          "startLine": 210,
-          "endLine": 234,
+          "startLine": 211,
+          "endLine": 235,
           "tokens": 465,
           "summary": "沿用 breakout 的事件命名风格 <域>:<事件>，payload 一律带 levelId：",
           "keywords": [
@@ -17619,8 +17619,8 @@
         {
           "anchor": "§5 与框架层的接口假设",
           "level": 2,
-          "startLine": 235,
-          "endLine": 243,
+          "startLine": 236,
+          "endLine": 244,
           "tokens": 325,
           "summary": "引擎/平台：Cocos Creator 3.8 LTS + 微信小游戏（adapters/cocos + platfor",
           "keywords": [
@@ -17635,8 +17635,8 @@
         {
           "anchor": "§6 变更记录",
           "level": 2,
-          "startLine": 244,
-          "endLine": 248,
+          "startLine": 245,
+          "endLine": 249,
           "tokens": 107,
           "summary": "本节的全部内容已拆分为 systems-index-changelog.md（WXG-T-062，因本文累积超过 ctx",
           "keywords": [
