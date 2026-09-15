@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3754,
       "lines": 82,
-      "sha256": "ce1c2c98d317f02d55ac77302597a8b224d6b3ce7d11477f6d85394544a55d23",
+      "sha256": "414f3615a548aed9b438ebe76ef07fb462f9bc3b4b3fc376477554b1232115a7",
       "tier": "normal",
       "sections": [
         {
@@ -736,12 +736,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 154 行 / 4549 tok",
+          "anchor": "§`knowledge/INDEX.md` — 155 行 / 4598 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
           "tokens": 151,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+155 · §1 读取协议（开发前期）=7+10 ·",
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+156 · §1 读取协议（开发前期）=7+10 ·",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -31899,17 +31899,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 1270,
-      "lines": 51,
-      "sha256": "d15afe4785fb03143ab9e80d0bba7c20c565efd93584230a3e1ce6d44370c975",
+      "tokens": 1315,
+      "lines": 55,
+      "sha256": "d4041b7246d23e0602b01a14535da2269de3e38bbb75054e64a6e5d027f2a51e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 52,
-          "tokens": 1256,
+          "endLine": 56,
+          "tokens": 1301,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -31924,8 +31924,8 @@
           "anchor": "§2026-09-15",
           "level": 2,
           "startLine": 9,
-          "endLine": 33,
-          "tokens": 849,
+          "endLine": 37,
+          "tokens": 894,
           "summary": "",
           "keywords": []
         },
@@ -31967,10 +31967,23 @@
           ]
         },
         {
+          "anchor": "§WXG-T-112",
+          "level": 3,
+          "startLine": 34,
+          "endLine": 37,
+          "tokens": 41,
+          "summary": "新增（added）：K-048「装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛」",
+          "keywords": [
+            "WXG",
+            "added",
+            "add"
+          ]
+        },
+        {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 34,
-          "endLine": 46,
+          "startLine": 38,
+          "endLine": 50,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -31978,8 +31991,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 36,
-          "endLine": 42,
+          "startLine": 40,
+          "endLine": 46,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -31994,8 +32007,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 43,
-          "endLine": 46,
+          "startLine": 47,
+          "endLine": 50,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -32006,8 +32019,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 47,
-          "endLine": 52,
+          "startLine": 51,
+          "endLine": 56,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -32015,8 +32028,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 49,
-          "endLine": 52,
+          "startLine": 53,
+          "endLine": 56,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -32028,17 +32041,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 4549,
-      "lines": 154,
-      "sha256": "38f62a5629da162ed0846df13ea806d06315287db2c6fcbd6605a7e34386a386",
+      "tokens": 4598,
+      "lines": 155,
+      "sha256": "5e2d3fa26375c0518875a576231f5e9ba7007a0f903650457db2fed1c57d9349",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 155,
-          "tokens": 4535,
+          "endLine": 156,
+          "tokens": 4584,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -32173,8 +32186,8 @@
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
           "startLine": 102,
-          "endLine": 155,
-          "tokens": 1903,
+          "endLine": 156,
+          "tokens": 1952,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
             "active",
@@ -32405,17 +32418,17 @@
     },
     {
       "path": "knowledge/lessons/toolchain.md",
-      "tokens": 4884,
-      "lines": 84,
-      "sha256": "daf30d2bfd7ab3ecc3c4b817d386a96c531580e63084a8db09ba4cfdcc587db6",
+      "tokens": 5653,
+      "lines": 91,
+      "sha256": "dcd04b1e3fc61ecce60b356c8e99cbd02353c375c3ea394d46106fea6c41ba01",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `toolchain` 分片（标签 `工具链`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 85,
-          "tokens": 4868,
+          "endLine": 92,
+          "tokens": 5637,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "toolchain",
@@ -32430,8 +32443,8 @@
           "anchor": "§工具链",
           "level": 2,
           "startLine": 6,
-          "endLine": 85,
-          "tokens": 4792,
+          "endLine": 92,
+          "tokens": 5560,
           "summary": "[工具链][K-001] commitlint 自定义规则必须经 plugins 数组注册（来源 WXG-T-021 /",
           "keywords": [
             "commitlint",

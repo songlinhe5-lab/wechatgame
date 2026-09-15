@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 48,
+  "nextId": 49,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -805,6 +805,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-048",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛",
+      "contentHash": "464541de818fce47d7c17236368ba11210dd53af419b484befe738495abadac6",
+      "sourceTask": "WXG-T-112",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -992,6 +1009,15 @@
       "kind": "updated",
       "ids": [
         "K-047"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-112",
+      "kind": "added",
+      "ids": [
+        "K-048"
       ],
       "note": null
     }
