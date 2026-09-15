@@ -31,6 +31,7 @@
     "check:size:selftest": "node tools/scripts/check-bundle-size.mjs --selftest",
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
+    "ctx:selftest": "bash tools/scripts/worktree-authoritative-selftest.sh",
     "ctx:reads": "node tools/scripts/collect-context-reads.mjs",
     "ctx:usage": "node tools/scripts/analyze-context-usage.mjs",
     "ctx:rotate": "node tools/scripts/rotate-reads-ledger.mjs",
