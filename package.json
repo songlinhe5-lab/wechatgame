@@ -47,6 +47,8 @@
     "kb:reactivate": "node tools/scripts/kb-reactivate.mjs",
     "kb:check": "node tools/scripts/kb-check.mjs",
     "kb:selftest": "bash tools/scripts/knowledge-selftest.sh",
+    "knowledge:split": "node tools/scripts/split-knowledge-lessons.mjs",
+    "knowledge:split:selftest": "bash tools/scripts/split-knowledge-lessons-selftest.sh",
     "harness": "node tools/scripts/serve-harness.mjs",
     "harness:build": "node tools/scripts/serve-harness.mjs --build-only",
     "harness:smoke": "node tools/scripts/smoke-harness.mjs",
