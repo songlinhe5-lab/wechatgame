@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3939,
       "lines": 86,
-      "sha256": "2eb8f75e890476ea947abef35981f0827009b2a24c719b0763fbc550778099f0",
+      "sha256": "d523c0a6fc65c1fc2c87831909516cee8552255e72f5999d78355217e70486e3",
       "tier": "normal",
       "sections": [
         {
@@ -33471,17 +33471,17 @@
     },
     {
       "path": "memory/2026-09-15.md",
-      "tokens": 1991,
-      "lines": 32,
-      "sha256": "572f0e99f42000ca331fad24726259e91083c3102eeb38be3eaae5d94ddfd9e8",
+      "tokens": 3636,
+      "lines": 46,
+      "sha256": "3ffeea2c724deab4c9c4227446f73e066496dfd694ada4a1291a709a1a8b9ec9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-15",
           "level": 1,
           "startLine": 1,
-          "endLine": 33,
-          "tokens": 1987,
+          "endLine": 47,
+          "tokens": 3633,
           "summary": "",
           "keywords": []
         },
@@ -33545,22 +33545,38 @@
             "门禁自身可信",
             "度修复"
           ]
+        },
+        {
+          "anchor": "§WXG-T-096：beads 音频后端落码（BD-05 / BD-05b，路线 ADR-0013）",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 47,
+          "tokens": 1623,
+          "summary": "架构裁定（ADR-0013 新建）：合成引擎 SynthAudioBackend 住 packages/framewor",
+          "keywords": [
+            "WXG",
+            "beads",
+            "ADR",
+            "SynthAudioBackend",
+            "packages",
+            "framewor"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 5187,
-      "lines": 142,
-      "sha256": "5eb9de091e85d294564a6e4201ae5d0d19f6a65e82c62d5c8b4f1bd303cacab0",
+      "tokens": 5241,
+      "lines": 143,
+      "sha256": "38df6c686e5635a8e5ebbbf4f899540d023dfadee5e64f50003ce53d3d893cd0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068）",
           "level": 1,
           "startLine": 1,
-          "endLine": 143,
-          "tokens": 5173,
+          "endLine": 144,
+          "tokens": 5227,
           "summary": "memory/ 是跨会话的运行时记忆：MEMORY.md 是蒸馏后的长期笔记（常驻摘要层），",
           "keywords": [
             "memory",
@@ -33615,8 +33631,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 44,
-          "endLine": 143,
-          "tokens": 4204,
+          "endLine": 144,
+          "tokens": 4257,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -33628,11 +33644,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 1,991 tok｜4 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,636 tok｜5 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
           "level": 3,
           "startLine": 49,
-          "endLine": 57,
-          "tokens": 324,
+          "endLine": 58,
+          "tokens": 378,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 用",
           "keywords": [
             "memory/2026-09-15.md",
@@ -33646,8 +33662,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 12,586 tok｜23 节｜**蒸馏到期 2026-10-14**（剩 29 天）",
           "level": 3,
-          "startLine": 58,
-          "endLine": 85,
+          "startLine": 59,
+          "endLine": 86,
           "tokens": 1509,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–16 943 游戏在 Cocos",
           "keywords": [
@@ -33662,8 +33678,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 28 天）",
           "level": 3,
-          "startLine": 86,
-          "endLine": 106,
+          "startLine": 87,
+          "endLine": 107,
           "tokens": 921,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 结论：有 4 个本地已装但未纳入 m",
           "keywords": [
@@ -33678,8 +33694,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 10,141 tok｜13 节｜**蒸馏到期 2026-10-12**（剩 27 天）",
           "level": 3,
-          "startLine": 107,
-          "endLine": 124,
+          "startLine": 108,
+          "endLine": 125,
           "tokens": 684,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 三 IDE 均原生支持项目级 subag",
           "keywords": [
@@ -33694,8 +33710,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 26 天）",
           "level": 3,
-          "startLine": 125,
-          "endLine": 143,
+          "startLine": 126,
+          "endLine": 144,
           "tokens": 573,
           "summary": "§完成的工作 3–19 510 修复 Canvas2DLike.fillStyle / strokeStyle 类型过窄",
           "keywords": [
