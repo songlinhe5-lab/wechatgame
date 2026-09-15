@@ -31883,17 +31883,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 1223,
-      "lines": 50,
-      "sha256": "842acefb942200a4b26dd3b707b87a69b391a68cf129c63b97d34cac8b03cc09",
+      "tokens": 1270,
+      "lines": 51,
+      "sha256": "d15afe4785fb03143ab9e80d0bba7c20c565efd93584230a3e1ce6d44370c975",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 51,
-          "tokens": 1208,
+          "endLine": 52,
+          "tokens": 1256,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -31908,8 +31908,8 @@
           "anchor": "§2026-09-15",
           "level": 2,
           "startLine": 9,
-          "endLine": 32,
-          "tokens": 802,
+          "endLine": 33,
+          "tokens": 849,
           "summary": "",
           "keywords": []
         },
@@ -31942,8 +31942,8 @@
           "anchor": "§WXG-T-111",
           "level": 3,
           "startLine": 29,
-          "endLine": 32,
-          "tokens": 82,
+          "endLine": 33,
+          "tokens": 130,
           "summary": "新增（added）：K-046「领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号」、K-047「幂等判据必锁",
           "keywords": [
             "WXG",
@@ -31953,8 +31953,8 @@
         {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 33,
-          "endLine": 45,
+          "startLine": 34,
+          "endLine": 46,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -31962,8 +31962,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 35,
-          "endLine": 41,
+          "startLine": 36,
+          "endLine": 42,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -31978,8 +31978,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 42,
-          "endLine": 45,
+          "startLine": 43,
+          "endLine": 46,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -31990,8 +31990,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 46,
-          "endLine": 51,
+          "startLine": 47,
+          "endLine": 52,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -31999,8 +31999,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 48,
-          "endLine": 51,
+          "startLine": 49,
+          "endLine": 52,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -32197,17 +32197,17 @@
     },
     {
       "path": "knowledge/lessons/criteria.md",
-      "tokens": 2275,
-      "lines": 33,
-      "sha256": "50508870f251b51c620e1474b000e3437db54808b98e822be626440b29bfc1ee",
+      "tokens": 2364,
+      "lines": 32,
+      "sha256": "91e578de6be6c965fbe595df34fd8e3247a025b5cc2cae32fae684e893e09ed7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `criteria` 分片（标签 `判据`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 34,
-          "tokens": 2260,
+          "endLine": 33,
+          "tokens": 2349,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "criteria",
@@ -32221,9 +32221,9 @@
         {
           "anchor": "§判据",
           "level": 2,
-          "startLine": 7,
-          "endLine": 34,
-          "tokens": 2144,
+          "startLine": 6,
+          "endLine": 33,
+          "tokens": 2274,
           "summary": "[判据][K-040] 判据回写轮的三个读数陷阱：改严≠回归、作废≠平凡真、文档一致≠代码一致（来源 WXG-T-098",
           "keywords": [
             "WXG",
@@ -32234,17 +32234,17 @@
     },
     {
       "path": "knowledge/lessons/cross-ide.md",
-      "tokens": 615,
-      "lines": 22,
-      "sha256": "750be19ade48e3d3e453b3b07bdfbe20e595403322f3de942cdce92086909026",
+      "tokens": 574,
+      "lines": 21,
+      "sha256": "dfbe13d863c1742a6f948cfc355e42211d69f333fdb45555f47b476370cdf259",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `cross-ide` 分片（标签 `跨IDE`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 23,
-          "tokens": 600,
+          "endLine": 22,
+          "tokens": 559,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "cross-ide",
@@ -32258,8 +32258,8 @@
         {
           "anchor": "§跨IDE",
           "level": 2,
-          "startLine": 7,
-          "endLine": 23,
+          "startLine": 6,
+          "endLine": 22,
           "tokens": 484,
           "summary": "[跨IDE][K-007] Qoder 把 model: inherit 当具体模型 ID 解析（来源 commit 2",
           "keywords": [
@@ -32274,17 +32274,17 @@
     },
     {
       "path": "knowledge/lessons/environment.md",
-      "tokens": 269,
-      "lines": 12,
-      "sha256": "a412d05fd1c253654035c2fa2031006c5983500a92efc5f6630ca232dd756a9f",
+      "tokens": 228,
+      "lines": 11,
+      "sha256": "8cde80270ef477683603a3b86a0d24a839d50f18a17b331e3e50d5c277cec99c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `environment` 分片（标签 `环境`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 13,
-          "tokens": 253,
+          "endLine": 12,
+          "tokens": 212,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "environment",
@@ -32298,8 +32298,8 @@
         {
           "anchor": "§环境",
           "level": 2,
-          "startLine": 7,
-          "endLine": 13,
+          "startLine": 6,
+          "endLine": 12,
           "tokens": 137,
           "summary": "[环境][K-010] WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）（来",
           "keywords": [
@@ -32314,17 +32314,17 @@
     },
     {
       "path": "knowledge/lessons/process.md",
-      "tokens": 3500,
-      "lines": 53,
-      "sha256": "8f5fa829457ddbd8d0f5a8de372d01efbb00eec32cdd37d0278004462ef275b2",
+      "tokens": 3459,
+      "lines": 52,
+      "sha256": "ec5b8bb04f636b7709b7d3fe46ec1b76127872e85c7f047fb6cd57dfd6e7e9a0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `process` 分片（标签 `流程`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 54,
-          "tokens": 3486,
+          "endLine": 53,
+          "tokens": 3445,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "process",
@@ -32338,8 +32338,8 @@
         {
           "anchor": "§流程",
           "level": 2,
-          "startLine": 7,
-          "endLine": 54,
+          "startLine": 6,
+          "endLine": 53,
           "tokens": 3369,
           "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
@@ -32351,17 +32351,17 @@
     },
     {
       "path": "knowledge/lessons/testing.md",
-      "tokens": 1165,
-      "lines": 21,
-      "sha256": "b973fcda3ed3e1f776c24bf1dfedf8f7d4f85f49e5f9feddb8b6b44abddfd08c",
+      "tokens": 1124,
+      "lines": 20,
+      "sha256": "b67056039fe64e9ca1de149450882d58132d688796c90f068b77e6679b53dd5d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `testing` 分片（标签 `测试`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 22,
-          "tokens": 1150,
+          "endLine": 21,
+          "tokens": 1109,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "testing",
@@ -32375,8 +32375,8 @@
         {
           "anchor": "§测试",
           "level": 2,
-          "startLine": 7,
-          "endLine": 22,
+          "startLine": 6,
+          "endLine": 21,
           "tokens": 1034,
           "summary": "[测试][K-038] 自动化统一走「便捷旁路 API」，真输入链可以整段断链而全绿（来源 WXG-T-096 附带发现",
           "keywords": [
@@ -32389,17 +32389,17 @@
     },
     {
       "path": "knowledge/lessons/toolchain.md",
-      "tokens": 4925,
-      "lines": 85,
-      "sha256": "5ef28a649d3b4f0176dc56c5736b8bfb5138c0ef11348c041faff9ef22f68dd6",
+      "tokens": 4884,
+      "lines": 84,
+      "sha256": "daf30d2bfd7ab3ecc3c4b817d386a96c531580e63084a8db09ba4cfdcc587db6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `toolchain` 分片（标签 `工具链`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 86,
-          "tokens": 4909,
+          "endLine": 85,
+          "tokens": 4868,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "toolchain",
@@ -32413,8 +32413,8 @@
         {
           "anchor": "§工具链",
           "level": 2,
-          "startLine": 7,
-          "endLine": 86,
+          "startLine": 6,
+          "endLine": 85,
           "tokens": 4792,
           "summary": "[工具链][K-001] commitlint 自定义规则必须经 plugins 数组注册（来源 WXG-T-021 /",
           "keywords": [

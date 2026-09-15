@@ -795,7 +795,7 @@
       "file": "knowledge/lessons/criteria.md",
       "category": "判据",
       "title": "幂等判据必锁「自己写出的产物字形」，写方与读方不同源时假绿与自毁同时存在",
-      "contentHash": "5f65ee093dc4bfea4009715260b9a488427ab49b99f2d38d3570833ff592da88",
+      "contentHash": "a851937dd90d8aeceac4bcd51084230f986379cbe76c6a0fc1d822bc583af725",
       "sourceTask": "WXG-T-106",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -982,6 +982,15 @@
       "kind": "added",
       "ids": [
         "K-046",
+        "K-047"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-111",
+      "kind": "updated",
+      "ids": [
         "K-047"
       ],
       "note": null

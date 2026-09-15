@@ -1,8 +1,7 @@
 # lessons · `environment` 分片（标签 `环境`）
 
 > 由 `knowledge/lessons.md`（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目**按 ID 升序**。
-> 引用一律写 **K-0NN**（可附任务号），不写路径：ID → 分片见 `knowledge/INDEX.md` 活跃表「分片」列。
-> 本片同受 ctx B 门（8000 tok）约束，**不设豁免**；越阈 ⇒ 该标签内部按子标签再切。
+> 引用只写 **K-0NN**；口径正本（B 门不豁免 / 新标签 = 新片）见 `knowledge/INDEX.md` §1–§4。
 
 ## 环境
 
