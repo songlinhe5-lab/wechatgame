@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2403,
       "lines": 98,
-      "sha256": "468cdf0c63685fe564c88a4aaa9dae30759c84e3156c91529dbff4c07e83941e",
+      "sha256": "a99de843ec77ac0b9667e447a90c6f36747a8eccf401f0bdfb87051048e343da",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3920,
+      "tokens": 3939,
       "lines": 86,
-      "sha256": "a18940a8f0846bc653e4240d1f2898926dfd65f8ddf9fcb25b4fac85036b3c21",
+      "sha256": "a3c666cdd05b64dddf4ac592c290e62dad9fcd3c406cab701ce4d9db4e71a574",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 3892,
+          "tokens": 3911,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -513,12 +513,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 222 行 / 3839 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 243 行 / 4707 tok / 实测读 42 次",
           "level": 2,
           "startLine": 14,
           "endLine": 17,
-          "tokens": 192,
-          "summary": "§控制清单 — 可立即执行的一页规则=1+223 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
+          "tokens": 210,
+          "summary": "§控制清单 — 可立即执行的一页规则=1+244 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
           "keywords": [
             "§0",
             "§1",
@@ -625,7 +625,7 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/architecture.md` — 256 行 / 5127 tok / 实测读 23 次",
+          "anchor": "§`docs/architecture/architecture.md` — 256 行 / 5306 tok / 实测读 23 次",
           "level": 2,
           "startLine": 42,
           "endLine": 45,
@@ -4760,6 +4760,106 @@
       ]
     },
     {
+      "path": "docs/architecture/adr/ADR-0013-audio-backend-ownership.md",
+      "tokens": 4262,
+      "lines": 81,
+      "sha256": "5cc5b56039d9885bafaf6516e14d94d0c6d69d46479d0c8eb415ef1fb2530ee3",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0013 — 音频后端归属：合成引擎住框架 platform 层，voice 表由游戏侧注入",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 82,
+          "tokens": 4232,
+          "summary": "编号：ADR-0013（0008 预约给「每日挑战」未落盘 = 跳空合规；0009–0012 已用）",
+          "keywords": [
+            "ADR",
+            "platform",
+            "voice",
+            "音频后端归属",
+            "合成引擎住框",
+            "表由游戏侧注"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 20,
+          "tokens": 637,
+          "summary": "beads 的可玩性缺口里有一条是彻底静音：三平台的 createAudioBackend() 一律返回 NullAud",
+          "keywords": [
+            "Context",
+            "beads",
+            "createAudioBackend",
+            "NullAud",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 21,
+          "endLine": 38,
+          "tokens": 656,
+          "summary": "方案甲（采用）：引擎住 platform/audio-synth.ts，voice 表由游戏侧注入",
+          "keywords": [
+            "Alternatives",
+            "platform",
+            "audio",
+            "synth",
+            "voice",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 39,
+          "endLine": 48,
+          "tokens": 639,
+          "summary": "1. 唯一引擎：packages/framework/src/platform/audio-synth.ts 的 Syn",
+          "keywords": [
+            "Decision",
+            "packages",
+            "framework",
+            "src",
+            "platform",
+            "audio"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 73,
+          "tokens": 1605,
+          "summary": "4.1 正面",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 82,
+          "tokens": 371,
+          "summary": "真机取证证明 wx.createWebAudioContext 缺所需节点子集（Oscillator / Gain / ",
+          "keywords": [
+            "Review",
+            "Triggers",
+            "createWebAudioContext",
+            "Oscillator",
+            "Gain",
+            "复评触发条件"
+          ]
+        }
+      ]
+    },
+    {
       "path": "docs/architecture/architecture-beads.md",
       "tokens": 4357,
       "lines": 191,
@@ -4919,9 +5019,9 @@
     },
     {
       "path": "docs/architecture/architecture.md",
-      "tokens": 5127,
+      "tokens": 5306,
       "lines": 256,
-      "sha256": "69a4375ef49395630eddb73bf27907d6f9251c77020510658d3a281b35514eae",
+      "sha256": "5f0bcbbf21d307835d3cffd69a1b3d497ba571e6467ab81b11891f954170a9da",
       "tier": "normal",
       "sections": [
         {
@@ -4929,7 +5029,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 257,
-          "tokens": 5113,
+          "tokens": 5292,
           "summary": "版本：0.1.0",
           "keywords": [
             "微信小游戏矩",
@@ -5056,7 +5156,7 @@
           "level": 2,
           "startLine": 134,
           "endLine": 167,
-          "tokens": 736,
+          "tokens": 867,
           "summary": "主包 ≤ 4 MB 是硬红线，在编码阶段就要预算，不能等构建再优化。",
           "keywords": [
             "包体预算分配",
@@ -5132,17 +5232,17 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 3839,
-      "lines": 222,
-      "sha256": "9f94294ca17751f4a6092b5751bd90c241e231223fc50c22d5a1ff9a71ec5f18",
+      "tokens": 4707,
+      "lines": 243,
+      "sha256": "480c0f7afe600394e702bfa2efd1e63c1a41d322ee76ead09e6088587a38a241",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§控制清单 — 可立即执行的一页规则",
           "level": 1,
           "startLine": 1,
-          "endLine": 223,
-          "tokens": 3823,
+          "endLine": 244,
+          "tokens": 4691,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -5331,8 +5431,8 @@
           "anchor": "§13 反模式速查（见到就打回）",
           "level": 2,
           "startLine": 173,
-          "endLine": 191,
-          "tokens": 319,
+          "endLine": 193,
+          "tokens": 412,
           "summary": "在 update() 里 arr.filter(...) 原地遍历 + for 循环；池化临时数组",
           "keywords": [
             "update",
@@ -5346,8 +5446,8 @@
         {
           "anchor": "§14 Cocos MCP 编辑器接入（ADR-0009）",
           "level": 2,
-          "startLine": 192,
-          "endLine": 204,
+          "startLine": 194,
+          "endLine": 206,
           "tokens": 450,
           "summary": "接入定位：验证 / 构建 / 资源刷新闭环——不是\"用 AI 搭场景\"。插件在编辑器侧，运行时包体零影响。",
           "keywords": [
@@ -5360,9 +5460,9 @@
         {
           "anchor": "§15 构建层语言契约（ADR-0012，根因 G10）",
           "level": 2,
-          "startLine": 205,
-          "endLine": 223,
-          "tokens": 727,
+          "startLine": 207,
+          "endLine": 227,
+          "tokens": 729,
           "summary": "Cocos 脚本打包把所有平台降到 ES5，且 built-in 不 polyfill、语法照旧降级。其中一条不对称会静",
           "keywords": [
             "ADR",
@@ -5371,6 +5471,22 @@
             "ES5",
             "built",
             "polyfill"
+          ]
+        },
+        {
+          "anchor": "§16 音频后端契约（ADR-0013，根因 BD-05b）",
+          "level": 2,
+          "startLine": 228,
+          "endLine": 244,
+          "tokens": 756,
+          "summary": "选型已冻结：systems-index §3.12 = 程序化合成、主包音频 0 KB（判据 A05-25）。要出声只能",
+          "keywords": [
+            "§3.12",
+            "ADR",
+            "systems",
+            "index",
+            "A05",
+            "音频后端契约"
           ]
         }
       ]

@@ -186,6 +186,8 @@ node tools/scripts/check-architecture.mjs
 | 为通过评审而跳过测试 | 先写测试，再实现 |
 | 经 MCP 的 `scene_*` / `node_*` 写操作改场景 | 白名单禁用；验证走 `debug_*` / `validation_*`（ADR-0009） |
 | `[...someSet]` / `[...map.keys()]` / `[...str]` | `Array.from(someSet)`——Cocos ES5 构建会把非数组展开压成不展开的 concat 形式（ADR-0012） |
+| 框架里写 `sfx_place` 这类玩法 clip id | 音色表由游戏侧 `Game.audioVoices` 注入，框架只认结构不认玩法（ADR-0013） |
+| backend 遇到未登记 clip 就「随便发个声」 | **不发声** + 一次性 warn；音色是设计产出，不是引擎兜底项（ADR-0013 §3.3） |
 
 ---
 
@@ -220,3 +222,22 @@ node tools/scripts/check-architecture.mjs
 - ⚠️ **本契约只规避“展开”一个触发面**，不消除构建层的降级不对称；`Array.from` 在目标 runtime 是否真存在，靠产物旁证 + 守卫兜底，**非配置保证**（ADR-0012 §4.2）。
 
 **自查**：`node tools/scripts/check-es5-spread.mjs`；**守卫有效性自测**（红→绿双向可复现）`pnpm run check:es5spread:selftest`；产物旁证 `grep -o '\[\]\.concat(' games/<game>/cocos/build/web-mobile/assets/main/index.js | wc -l`（每一个命中都得确认展开对象就是数组；修好后 beads 侧应为 8 且全为真数组展开）。
+
+---
+
+## 16. 音频后端契约（ADR-0013，根因 BD-05b）
+
+> 选型已冻结：`systems-index §3.12` = **程序化合成、主包音频 0 KB**（判据 A05-25）。要出声只能运行时合成，
+> 而合成必须碰 `AudioContext` ⇒ 受 L2/L3 双层约束，归属不可摇。
+
+- ✅ **引擎位置唯一**：`packages/framework/src/platform/audio-synth.ts`（`SynthAudioBackend`）。**不得**进 `core/**`（L2：要触 DOM/runtime API），**不得**进 `games/*/src`（L3：纯 Node 可测面）。
+- ✅ **音色表归游戏侧**：`Game.audioVoices`（纯数据）→ `App` 透传 → `Platform.createAudioBackend({ voices })`。框架内搜不到一个 `sfx_*` / `bgm_*` id。
+- ✅ **能力缺失就静音**：web 缺 `AudioContext`、weapp 缺 `wx.createWebAudioContext`、或无 voice 表 ⇒ 回 `NullAudioBackend`（+ 一次性 warn）。**禁止**伪造「iOS 已能出声」。
+- ✅ **Node 平台恒 `NullAudioBackend`**（签名接受但忽略 `options`）⇒ 单测不依赖真实时钟与音频设备。
+- ✅ **context 延迟到首次手势**（`audio-spec §4.4`）；一次性音在解锁前丢弃，loop 走**期望态** `_wantedLoops`（解锁/回前台补起）⇒ BOOT 期 `bgm_main` 不丢。
+- ⚠️ **未登记 clip 静默失效**：唯一线索是一条一次性 warn，而 CI 跑在 Node（恒 Null）⇒ 永远绿。兜底靠**清单闭合测试**（A05-24：`tuning.ts` clip 集 ≡ `audio-events §1` ≡ voice 表 key 集）——新增音效必须同批改三处。
+- ⚠️ **数值不得回引为规格**：`audio-voices.ts` 里的 Hz / ms / 增益全属**工程占位**（`audio-spec §4.3` 数值一律 `[TODO]`；硬数值只有 `ux-spec §5` 时长上限）。总线增益 = 1.0（`AUDIO_BUS_GAIN_* = [TODO]`，不冻伪 dB）。
+- ⚠️ **热路径零分配在本层只能有界做到**：Web Audio 源节点一次性 ⇒ 最坏 ~24 个短命节点/帧（受 `AUDIO_MAX_PER_FRAME` 与每 clip 音数限界）；可复用面 = bus gain / per-clip filter / 噪声 buffer / 循环 buffer。**不得**拿“零分配”口号当已证结论，CPU 归 `[R]`（A05-27）。
+- ⚠️ **本轮不做**（不冒充交付）：`priority/steal`（需求单第 5 项）、weapp `InnerAudioContext` 文件池（与 0 KB 选型冲突，回退需先解除主包余量冲突，ADR-0013 §2 丁）。
+
+**自查**：`pnpm -F @wxgame/framework test tests/platform/audio-synth.test.ts`（引擎结构与契约 15 例）+ `pnpm -F @wxgame/beads test tests/audio-dispatch.test.ts`（19 clip 清单闭合与派发分档 26 例）。二者均只证 `[N]`；时长/响度/真机听感一律另计 `[B]/[C]/[R]/[P]`。
