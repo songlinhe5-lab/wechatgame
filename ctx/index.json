@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2430,
-      "lines": 99,
-      "sha256": "7ceabc060d6415c05b79588eb0fda29df8628fa57f9d2ea8f1133ee6d3d0adbe",
+      "tokens": 2449,
+      "lines": 100,
+      "sha256": "e362836d5d9c86f6ea7bd25c03fc6f7bcd2405aabe8fb72ada0bca1912142f1a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 100,
-          "tokens": 2417,
+          "endLine": 101,
+          "tokens": 2436,
           "summary": "生成：2026-09-15 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 429,
+          "tokens": 419,
           "summary": "1 production/qa/beads/g4-regression-report.md 51647 1057 nor",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 74,
-          "tokens": 904,
+          "endLine": 75,
+          "tokens": 934,
           "summary": "production/qa/beads/g4-regression-report.md 51647 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 75,
-          "endLine": 100,
+          "startLine": 76,
+          "endLine": 101,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3992,
       "lines": 86,
-      "sha256": "a2a34e29dee1cc677fcb73580fa7bae233ca17695d78d3ad35a93335eddb53c8",
+      "sha256": "9010e56756999d88ec67aac6d56bf5cf2843b0e312ec7b82a46e22d6af1803f8",
       "tier": "normal",
       "sections": [
         {
@@ -736,12 +736,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 135 行 / 3545 tok",
+          "anchor": "§`knowledge/INDEX.md` — 137 行 / 3631 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
           "tokens": 150,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+136 · §1 读取协议（开发前期）=7+7 · ",
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+138 · §1 读取协议（开发前期）=7+7 · ",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -31883,17 +31883,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 666,
-      "lines": 35,
-      "sha256": "b6c4d6bbe033b9182e00118411bf3341f6bb02e1ad587f01370fb02d5f3b87c3",
+      "tokens": 811,
+      "lines": 38,
+      "sha256": "0ded0a8ec46ff66da2d86efe60a78267a1cd56764984c7f9a2ad95ffeea4ff71",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 36,
-          "tokens": 652,
+          "endLine": 39,
+          "tokens": 797,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -31908,8 +31908,8 @@
           "anchor": "§2026-09-15",
           "level": 2,
           "startLine": 9,
-          "endLine": 17,
-          "tokens": 245,
+          "endLine": 20,
+          "tokens": 390,
           "summary": "",
           "keywords": []
         },
@@ -31917,8 +31917,8 @@
           "anchor": "§（无任务号）",
           "level": 3,
           "startLine": 11,
-          "endLine": 17,
-          "tokens": 238,
+          "endLine": 20,
+          "tokens": 382,
           "summary": "新增（added）：K-035「文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床」",
           "keywords": [
             "added",
@@ -31928,8 +31928,8 @@
         {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 18,
-          "endLine": 30,
+          "startLine": 21,
+          "endLine": 33,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -31937,8 +31937,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 20,
-          "endLine": 26,
+          "startLine": 23,
+          "endLine": 29,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -31953,8 +31953,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 27,
-          "endLine": 30,
+          "startLine": 30,
+          "endLine": 33,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -31965,8 +31965,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 31,
-          "endLine": 36,
+          "startLine": 34,
+          "endLine": 39,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -31974,8 +31974,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 33,
-          "endLine": 36,
+          "startLine": 36,
+          "endLine": 39,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -31987,17 +31987,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 3545,
-      "lines": 135,
-      "sha256": "df8d2d64b1b6f26e97bc670f15544a014cb02760054cbe9568c55ea5cffe54d9",
+      "tokens": 3631,
+      "lines": 137,
+      "sha256": "531149df20ac3bca38e3bef2a9b584a040f1435933a96b21885abd5d8aa9202e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 136,
-          "tokens": 3530,
+          "endLine": 138,
+          "tokens": 3617,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -32133,8 +32133,8 @@
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
           "startLine": 91,
-          "endLine": 136,
-          "tokens": 1376,
+          "endLine": 138,
+          "tokens": 1463,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
             "active",
@@ -32149,17 +32149,17 @@
     },
     {
       "path": "knowledge/lessons.md",
-      "tokens": 7752,
-      "lines": 141,
-      "sha256": "7738321c6d18ad1b9b33726b918d5e7fb85f12799521c0264c8857db0737639f",
+      "tokens": 9021,
+      "lines": 155,
+      "sha256": "53caca8a7c7b5abeee7726f792598503fdae86a710de16c7c51dccdf578076f8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons.md — 教训库（追加式，最新在后）",
           "level": 1,
           "startLine": 1,
-          "endLine": 142,
-          "tokens": 7735,
+          "endLine": 156,
+          "tokens": 9003,
           "summary": "",
           "keywords": [
             "lessons",
@@ -32213,8 +32213,8 @@
           "anchor": "§流程",
           "level": 2,
           "startLine": 101,
-          "endLine": 142,
-          "tokens": 2676,
+          "endLine": 156,
+          "tokens": 3945,
           "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
             "WXG",

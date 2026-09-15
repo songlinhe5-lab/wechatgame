@@ -35,13 +35,13 @@
 | 11 | `memory/2026-09-12.md` | 10141 | 151 | normal |
 | 12 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
 | 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
-| 14 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
-| 15 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
-| 16 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
-| 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
-| 18 | `games/beads/design/ux/ux-spec.md` | 8683 | 274 | normal |
-| 19 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
-| 20 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 14 | `knowledge/lessons.md` | 9021 | 155 | normal |
+| 15 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 16 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 17 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 18 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 19 | `games/beads/design/ux/ux-spec.md` | 8683 | 274 | normal |
+| 20 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -60,6 +60,7 @@
 | `memory/2026-09-12.md` | 10141 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `knowledge/lessons.md` | 9021 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

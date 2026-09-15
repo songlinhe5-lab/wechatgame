@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 40,
+  "nextId": 42,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -659,8 +659,42 @@
       "file": "knowledge/lessons.md",
       "category": "流程",
       "title": "报绿之后又动了源码：交付自述必须与最终状态同一时点",
-      "contentHash": "08da8c671d8f54358db6a7786da83109e1bb8a4dd4a37bd8e424afa018828f63",
+      "contentHash": "a71b2030ac4e24c295d830d0d1cc569cc711029860b07e981aefb8d3a4b3214b",
       "sourceTask": "WXG-T-096",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-040",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "判据",
+      "title": "判据回写轮的三个读数陷阱：改严≠回归、作废≠平凡真、文档一致≠代码一致",
+      "contentHash": "b300d40933c59f42df69a60d83c052ea139756226943257f8789b81b2509b695",
+      "sourceTask": "WXG-T-098",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-041",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "判据",
+      "title": "容差写法：不得吞掉被测变更，帧量化只进时刻轴",
+      "contentHash": "7e14b6eca35d848b9108ae0186b6e02700d0a930be20a57428746f60aa73e0f2",
+      "sourceTask": "WXG-T-098",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
       "accessCount": 0,
@@ -761,6 +795,34 @@
       "kind": "added",
       "ids": [
         "K-038",
+        "K-039"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-040",
+        "K-041"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-039"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
         "K-039"
       ],
       "note": null
