@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2449,
       "lines": 100,
-      "sha256": "ebd7478cb9f65312c23e51b0d41c94bc8cd60cefead4bddeefd56e5c7ec3719c",
+      "sha256": "5f994b4979aed01f5b8bba6ff458869ecc7c7f93043d84c94a409ce648887b71",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3992,
       "lines": 86,
-      "sha256": "5d1e430753c7d132474436b261578cd6094d4cab8dc0b7530eb1c7ceb9e1de77",
+      "sha256": "b1846675a3628bfa3c42c18250187eb8161d11b405f47fe4f3de8347b54aad46",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 74 行 / 3385 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 74 行 / 3391 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -736,12 +736,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 138 行 / 3679 tok",
+          "anchor": "§`knowledge/INDEX.md` — 141 行 / 3838 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
           "tokens": 150,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+139 · §1 读取协议（开发前期）=7+7 · ",
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+142 · §1 读取协议（开发前期）=7+7 · ",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 407 行 / 24031 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 413 行 / 25412 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 208,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+408 · §WXG-T-069=18+13 · §WXG-T-070",
+          "tokens": 209,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+414 · §WXG-T-069=18+13 · §WXG-T-070",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -31883,17 +31883,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 854,
-      "lines": 39,
-      "sha256": "4afe8373e70b9ac541045d8611ee26f5b34a379049516f5f8a965eaa88d44461",
+      "tokens": 1137,
+      "lines": 46,
+      "sha256": "75c155e3a92cc61e307c6da887e5bba46d2e2c8236f528d8468727bdeeb26bcc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 40,
-          "tokens": 840,
+          "endLine": 47,
+          "tokens": 1123,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -31908,8 +31908,8 @@
           "anchor": "§2026-09-15",
           "level": 2,
           "startLine": 9,
-          "endLine": 21,
-          "tokens": 433,
+          "endLine": 28,
+          "tokens": 716,
           "summary": "",
           "keywords": []
         },
@@ -31926,10 +31926,23 @@
           ]
         },
         {
+          "anchor": "§WXG-T-097",
+          "level": 3,
+          "startLine": 22,
+          "endLine": 28,
+          "tokens": 280,
+          "summary": "新增（added）：K-043「取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FA",
+          "keywords": [
+            "WXG",
+            "added",
+            "import"
+          ]
+        },
+        {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 22,
-          "endLine": 34,
+          "startLine": 29,
+          "endLine": 41,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -31937,8 +31950,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 24,
-          "endLine": 30,
+          "startLine": 31,
+          "endLine": 37,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -31953,8 +31966,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 31,
-          "endLine": 34,
+          "startLine": 38,
+          "endLine": 41,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -31965,8 +31978,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 35,
-          "endLine": 40,
+          "startLine": 42,
+          "endLine": 47,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -31974,8 +31987,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 37,
-          "endLine": 40,
+          "startLine": 44,
+          "endLine": 47,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -31987,17 +32000,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 3679,
-      "lines": 138,
-      "sha256": "01f3db465db9b4ad53b884f8c95d6039d9b14f8301f1ba05b3c7500a124466d2",
+      "tokens": 3838,
+      "lines": 141,
+      "sha256": "7c981adf05696e82918fc8f6ab33eb87c11f95d077a2e505a06d0b9cb95bf06a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 139,
-          "tokens": 3664,
+          "endLine": 142,
+          "tokens": 3824,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -32133,8 +32146,8 @@
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
           "startLine": 91,
-          "endLine": 139,
-          "tokens": 1510,
+          "endLine": 142,
+          "tokens": 1670,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
             "active",
@@ -32149,17 +32162,17 @@
     },
     {
       "path": "knowledge/lessons.md",
-      "tokens": 9569,
-      "lines": 162,
-      "sha256": "9f0026139df4806a7ca36ab08e739145fb663ce8beaecbe117ef39f3aae05db6",
+      "tokens": 10768,
+      "lines": 180,
+      "sha256": "5a108d02d6c3d90ec4be753fac15abd41b35c18538abdca308ba19191c4ff7b0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons.md — 教训库（追加式，最新在后）",
           "level": 1,
           "startLine": 1,
-          "endLine": 163,
-          "tokens": 9552,
+          "endLine": 181,
+          "tokens": 10751,
           "summary": "",
           "keywords": [
             "lessons",
@@ -32213,8 +32226,8 @@
           "anchor": "§流程",
           "level": 2,
           "startLine": 101,
-          "endLine": 163,
-          "tokens": 4493,
+          "endLine": 181,
+          "tokens": 5692,
           "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
             "WXG",
@@ -33485,17 +33498,17 @@
     },
     {
       "path": "memory/2026-09-15.md",
-      "tokens": 7295,
-      "lines": 81,
-      "sha256": "305480796f9cf551dbca4e1ff00c73c61abab281fbbc42e0a8a8ded8c7e1b1e5",
+      "tokens": 7876,
+      "lines": 92,
+      "sha256": "06bcf693adde4111aeb4008b73131a14584a99d447b428d667c59e2ffe2f3a65",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-15",
           "level": 1,
           "startLine": 1,
-          "endLine": 82,
-          "tokens": 7292,
+          "endLine": 93,
+          "tokens": 7873,
           "summary": "",
           "keywords": []
         },
@@ -33622,22 +33635,38 @@
             "波次",
             "第五轮"
           ]
+        },
+        {
+          "anchor": "§WXG-T-097（BD-10 满槽告警视觉通道）：结论摘要（波次4 第六轮）",
+          "level": 2,
+          "startLine": 83,
+          "endLine": 93,
+          "tokens": 554,
+          "summary": "本节按「摘要 + 指针」写（单日期文件超 ctx 8000 tok 上限，不靠豁免硬扛）。细节正本：",
+          "keywords": [
+            "WXG",
+            "ctx",
+            "tok",
+            "满槽告警视觉",
+            "通道",
+            "结论摘要"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 5443,
-      "lines": 146,
-      "sha256": "4aad04d4daea2e4dc6bf600386c86f5a52dd7d1a6e9f798d0a0dd0385219389e",
+      "tokens": 5513,
+      "lines": 147,
+      "sha256": "afa7174782e97b132d908bac7cc9f78dcaf810b745a5f514e3479d90e630d79d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068）",
           "level": 1,
           "startLine": 1,
-          "endLine": 147,
-          "tokens": 5430,
+          "endLine": 148,
+          "tokens": 5499,
           "summary": "memory/ 是跨会话的运行时记忆：MEMORY.md 是蒸馏后的长期笔记（常驻摘要层），",
           "keywords": [
             "memory",
@@ -33692,8 +33721,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 44,
-          "endLine": 147,
-          "tokens": 4460,
+          "endLine": 148,
+          "tokens": 4530,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -33705,11 +33734,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 7,295 tok｜8 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
+          "anchor": "§`memory/2026-09-15.md` — 7,876 tok｜9 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
           "level": 3,
           "startLine": 49,
-          "endLine": 61,
-          "tokens": 580,
+          "endLine": 62,
+          "tokens": 650,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 用",
           "keywords": [
             "memory/2026-09-15.md",
@@ -33723,8 +33752,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 12,586 tok｜23 节｜**蒸馏到期 2026-10-14**（剩 29 天）",
           "level": 3,
-          "startLine": 62,
-          "endLine": 89,
+          "startLine": 63,
+          "endLine": 90,
           "tokens": 1509,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–16 943 游戏在 Cocos",
           "keywords": [
@@ -33739,8 +33768,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 28 天）",
           "level": 3,
-          "startLine": 90,
-          "endLine": 110,
+          "startLine": 91,
+          "endLine": 111,
           "tokens": 921,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 结论：有 4 个本地已装但未纳入 m",
           "keywords": [
@@ -33755,8 +33784,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 10,141 tok｜13 节｜**蒸馏到期 2026-10-12**（剩 27 天）",
           "level": 3,
-          "startLine": 111,
-          "endLine": 128,
+          "startLine": 112,
+          "endLine": 129,
           "tokens": 684,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 三 IDE 均原生支持项目级 subag",
           "keywords": [
@@ -33771,8 +33800,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 26 天）",
           "level": 3,
-          "startLine": 129,
-          "endLine": 147,
+          "startLine": 130,
+          "endLine": 148,
           "tokens": 573,
           "summary": "§完成的工作 3–19 510 修复 Canvas2DLike.fillStyle / strokeStyle 类型过窄",
           "keywords": [
@@ -42467,17 +42496,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 24031,
-      "lines": 407,
-      "sha256": "ce82bec73052c13281b70bc3f2e79104103b0b592bc53c3103989fff8ae137a3",
+      "tokens": 25412,
+      "lines": 413,
+      "sha256": "ea524bf206f3c54b8e06b988dbdfe68c0debc462b4db92e6d752a130f414343e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 408,
-          "tokens": 24014,
+          "endLine": 414,
+          "tokens": 25396,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -42882,8 +42911,8 @@
           "anchor": "§WXG-T-097",
           "level": 2,
           "startLine": 333,
-          "endLine": 341,
-          "tokens": 661,
+          "endLine": 347,
+          "tokens": 2042,
           "summary": "名称：beads P1/P2 反馈与路由缺口工程单（BD-15/16 + BD-04 余类 + BD-10 半边 + B",
           "keywords": [
             "WXG",
@@ -42893,8 +42922,8 @@
         {
           "anchor": "§WXG-T-098",
           "level": 2,
-          "startLine": 342,
-          "endLine": 360,
+          "startLine": 348,
+          "endLine": 366,
           "tokens": 2186,
           "summary": "名称：B7 裁定包一次性回写（BD-27/28/29/30/31）——解除 BD-25 关单阻塞",
           "keywords": [
@@ -42904,8 +42933,8 @@
         {
           "anchor": "§WXG-T-099",
           "level": 2,
-          "startLine": 361,
-          "endLine": 368,
+          "startLine": 367,
+          "endLine": 374,
           "tokens": 371,
           "summary": "名称：取证通路补全（[Cocos] 像素/色盲滤镜 + preview:frames 支持 beads + §H 缺口进",
           "keywords": [
@@ -42919,8 +42948,8 @@
         {
           "anchor": "§WXG-T-100",
           "level": 2,
-          "startLine": 369,
-          "endLine": 378,
+          "startLine": 375,
+          "endLine": 384,
           "tokens": 618,
           "summary": "名称：beads 面板相位真输入断链（BD-34）——四相位收不到真链点击，可玩性硬断点",
           "keywords": [
@@ -42931,8 +42960,8 @@
         {
           "anchor": "§WXG-T-101",
           "level": 2,
-          "startLine": 379,
-          "endLine": 389,
+          "startLine": 385,
+          "endLine": 395,
           "tokens": 1108,
           "summary": "名称：pre-commit 增 Cocos 镜像漂移条件守卫（防 BD-20 再复发）",
           "keywords": [
@@ -42945,8 +42974,8 @@
         {
           "anchor": "§WXG-T-102",
           "level": 2,
-          "startLine": 390,
-          "endLine": 398,
+          "startLine": 396,
+          "endLine": 404,
           "tokens": 606,
           "summary": "名称：beads 放错拒绝描边改码（BD-29 下家）",
           "keywords": [
@@ -42957,8 +42986,8 @@
         {
           "anchor": "§WXG-T-103",
           "level": 2,
-          "startLine": 399,
-          "endLine": 408,
+          "startLine": 405,
+          "endLine": 414,
           "tokens": 793,
           "summary": "名称：音频裁定包补做（冲突 C1 / C3）——T-098 漏列项",
           "keywords": [
@@ -42969,9 +42998,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 3385,
+      "tokens": 3391,
       "lines": 74,
-      "sha256": "fe6043ca613f5054c9aeab48eaf74804bbdad7a45165673d83187b48500bf925",
+      "sha256": "e567bd55e87c882e348e181019b47e7deda7d8ce6292b0c7ce9374d24251efaa",
       "tier": "hot",
       "sections": [
         {
@@ -42979,7 +43008,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 75,
-          "tokens": 3376,
+          "tokens": 3382,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

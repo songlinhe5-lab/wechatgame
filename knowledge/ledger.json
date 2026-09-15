@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 43,
+  "nextId": 46,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -720,6 +720,57 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-043",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "工具链",
+      "title": "取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FAIL",
+      "contentHash": "cff95e64b041bee2aa57cf1e1062bc0489467810882d0de16151265a9f0754fb",
+      "sourceTask": "WXG-T-097",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-044",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "判据",
+      "title": "判定上限由「判据完备性」决定，不由实现进度决定；且不得把「缺通道」当预期写进 PASS 条件",
+      "contentHash": "f9ea5c77bdd79b4e0dfabe410fdf59774a7f3ab954c143fe8bed2f15259ead6c",
+      "sourceTask": "WXG-T-097",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-045",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "流程",
+      "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
+      "contentHash": "c07e535446f797a581ff5a15765b5b13ee67014433ee764fa86a689fcccd277e",
+      "sourceTask": "WXG-T-097",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -850,6 +901,44 @@
       "kind": "added",
       "ids": [
         "K-042"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-097",
+      "kind": "added",
+      "ids": [
+        "K-043",
+        "K-044"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-097",
+      "kind": "updated",
+      "ids": [
+        "K-043",
+        "K-044"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-097",
+      "kind": "added",
+      "ids": [
+        "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-097",
+      "kind": "updated",
+      "ids": [
+        "K-045"
       ],
       "note": null
     }
