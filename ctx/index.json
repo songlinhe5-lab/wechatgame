@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3992,
       "lines": 86,
-      "sha256": "f6de3bc9ccf272c246bfda2f2d8955dbbfdc3e3650563c13908c19d8393b0917",
+      "sha256": "5d1e430753c7d132474436b261578cd6094d4cab8dc0b7530eb1c7ceb9e1de77",
       "tier": "normal",
       "sections": [
         {
@@ -545,12 +545,12 @@
           ]
         },
         {
-          "anchor": "§`memory/MEMORY.md` — 53 行 / 1471 tok / 实测读 16 次",
+          "anchor": "§`memory/MEMORY.md` — 54 行 / 1640 tok / 实测读 16 次",
           "level": 2,
           "startLine": 22,
           "endLine": 25,
           "tokens": 65,
-          "summary": "§wechatgame 项目长期笔记=1+54 · §日志蒸馏规程（R2 · WXG-T-041）=7+4 · §项目约",
+          "summary": "§wechatgame 项目长期笔记=1+55 · §日志蒸馏规程（R2 · WXG-T-041）=7+4 · §项目约",
           "keywords": [
             "memory/MEMORY.md",
             "memory",
@@ -33788,17 +33788,17 @@
     },
     {
       "path": "memory/MEMORY.md",
-      "tokens": 1471,
-      "lines": 53,
-      "sha256": "56a7a0439bbfa1c1dfffc5d2055998fed42f203fdd59df31615a019274f695f0",
+      "tokens": 1640,
+      "lines": 54,
+      "sha256": "ca00ebfb3e6e89f09a432e822db79fa6865e34bc56d422d1c4e600696afadacb",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§wechatgame 项目长期笔记",
           "level": 1,
           "startLine": 1,
-          "endLine": 54,
-          "tokens": 1461,
+          "endLine": 55,
+          "tokens": 1631,
           "summary": "正本路径：仓库根 memory/MEMORY.md。",
           "keywords": [
             "wechatgame",
@@ -33886,8 +33886,8 @@
           "anchor": "§Hooks",
           "level": 2,
           "startLine": 39,
-          "endLine": 42,
-          "tokens": 53,
+          "endLine": 43,
+          "tokens": 223,
           "summary": "实践正本：docs/agent/hooks-best-practices.md",
           "keywords": [
             "Hooks",
@@ -33901,8 +33901,8 @@
         {
           "anchor": "§Headless / CI",
           "level": 2,
-          "startLine": 43,
-          "endLine": 50,
+          "startLine": 44,
+          "endLine": 51,
           "tokens": 143,
           "summary": "正本：docs/agent/headless-ci-pr-review.md",
           "keywords": [
@@ -33916,8 +33916,8 @@
         {
           "anchor": "§已知限制",
           "level": 2,
-          "startLine": 51,
-          "endLine": 54,
+          "startLine": 52,
+          "endLine": 55,
           "tokens": 80,
           "summary": "需要安装 @resvg/resvg-js 到 WorkBuddy 托管 Node workspace：cd ~/.wor",
           "keywords": [

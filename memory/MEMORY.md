@@ -39,6 +39,7 @@
 ## Hooks
 - 实践正本：`docs/agent/hooks-best-practices.md`
 - 跨 IDE 拦提交：`.githooks/pre-commit` → `check:links`；Cursor 另见 `.cursor/hooks.json`（Agent 侧禁 `--no-verify` / L1）。
+- ⚠ **待提交里含被索引 .md 时，先不要跑默认 `pnpm run ctx:build`**（默认模式按 **HEAD** 索引）：它会把 pre-commit 已生成的 `memory/INDEX.md` 回退成 HEAD 基线，而钩子那轮 `--staged-blobs` 又按暂存 blob 记账 ⇒ `ctx:check --staged` 反复报「暂存与索引不一致」（判例：WXG-T-097 连编 2 次被拦）。做法：**连跑 2–3 轮 `node tools/scripts/build-context-index.mjs --staged-blobs` + `git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md memory/INDEX.md`**，到 `check-context-budget.mjs --staged` 绿后再提交。
 
 ## Headless / CI
 - 正本：`docs/agent/headless-ci-pr-review.md`
