@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3730,
       "lines": 82,
-      "sha256": "f29ffdd1fb6f1d49a2be63cf5427973d993eded9a8fd9325551cdb15ec9730fb",
+      "sha256": "cf022ee3400ba7f3dcc4701e7346dd0f519f9fb19169efc23f9c90d113771154",
       "tier": "normal",
       "sections": [
         {
@@ -33690,17 +33690,17 @@
     },
     {
       "path": "memory/2026-09-15.md",
-      "tokens": 2745,
-      "lines": 57,
-      "sha256": "6dba256508098f29b277f0c1b5bcdc09eb066e400cb26aad10e1a22d031d36d3",
+      "tokens": 3378,
+      "lines": 66,
+      "sha256": "726cbd2963c583a38612199280bceb6324677c0c6703413dc73389ae45eeb3cb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-15",
           "level": 1,
           "startLine": 1,
-          "endLine": 57,
-          "tokens": 2742,
+          "endLine": 67,
+          "tokens": 3374,
           "summary": "",
           "keywords": []
         },
@@ -33862,22 +33862,38 @@
             "t106",
             "二级详情层落"
           ]
+        },
+        {
+          "anchor": "§WXG-T-111：knowledge 沉淀库按标签分片落地（波次4 第八轮 · 用户裁定「乙：本轮就地做」）",
+          "level": 2,
+          "startLine": 58,
+          "endLine": 67,
+          "tokens": 594,
+          "summary": "「摘要 + 指针」写法同 §WXG-T-097（BD-10）；细节正本 = production/TASKS-DETAI",
+          "keywords": [
+            "WXG",
+            "knowledge",
+            "production",
+            "TASKS",
+            "DETAI",
+            "沉淀库按标签"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 6777,
-      "lines": 174,
-      "sha256": "4891d978fdb4b273568dab960c8368ec810d90655a329e1142f3f7f536a77d60",
+      "tokens": 6849,
+      "lines": 175,
+      "sha256": "e6c82d120fceaa7aa5f1da929abbdd735442cc4466786901a5ad155f37711b15",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 175,
-          "tokens": 6755,
+          "endLine": 176,
+          "tokens": 6827,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -33947,8 +33963,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 175,
-          "tokens": 5116,
+          "endLine": 176,
+          "tokens": 5188,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -33960,11 +33976,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 2,745 tok｜10 节｜5 节已外移｜**蒸馏到期 2026-10-15**（剩 30 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,378 tok｜11 节｜5 节已外移｜**蒸馏到期 2026-10-15**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 87,
-          "tokens": 823,
+          "endLine": 88,
+          "tokens": 895,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
             "memory/2026-09-15.md",
@@ -33978,8 +33994,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 29 天）",
           "level": 3,
-          "startLine": 88,
-          "endLine": 115,
+          "startLine": 89,
+          "endLine": 116,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -33994,8 +34010,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 28 天）",
           "level": 3,
-          "startLine": 116,
-          "endLine": 136,
+          "startLine": 117,
+          "endLine": 137,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -34010,8 +34026,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 27 天）",
           "level": 3,
-          "startLine": 137,
-          "endLine": 154,
+          "startLine": 138,
+          "endLine": 155,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -34026,8 +34042,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 26 天）",
           "level": 3,
-          "startLine": 155,
-          "endLine": 175,
+          "startLine": 156,
+          "endLine": 176,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
