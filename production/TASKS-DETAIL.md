@@ -353,3 +353,23 @@
 - **范围**：① **B1** 无头截图 + 色盲/灰度滤镜脚本（§G 10 条像素半边、TC-PER-13/14 整条、P15 真实栅格化）；② **B8/BD-19** `render-harness-frame|clip` 去 breakout 硬编码 + `--game` 透传（现「不支持 beads」）；③ **BD-21 执行层剩余**：`test-cases §H` 中 `pause-settings §8` 10 条 + `timer §8-11/12` 2 条进探针；④ 证据入 `production/qa/beads/evidence/`（本轮起该目录已入库）。
 - **约束**：**不得**因 Node 全绿而抬升 `[Cocos]/[Device]/[R]` 综合结论；真机面仍卡 B4（AppID），解除条件写明不伪验。
 - **依赖**：T-095（可信门禁）、T-096（音频取证一并跑）；产出即 G4 升 PASS 的取证面。
+
+## WXG-T-100
+
+- **名称**：**beads 面板相位真输入断链（BD-34）**——四相位收不到真链点击，可玩性硬断点
+- **负责**：主理人(Qoder)　**状态**：📋 已占位（**用户 2026-09-15 拍板：本轮只立项不动码**，排在音频单之后）
+- **现象（WXG-T-096 附带发现，QA v1.2 §15.2）**：`_readInput()` 全仓唯一调用点在 `_stepPlaying()` 内 ⇒ `paused` / `level-clear` / `game-over` / `finish` 四相位不读输入；`App.tick` 为 `beginFrame → game.update → endFrame`，`endFrame()` 清一次性标志 ⇒ 面板相位的点击是**丢弃**而非延后。harness（`dev/harness/main.ts:95` `app.input.push`）与 Cocos（`adapters/cocos/bindings.ts` 的 `onTouchStart` 桥）**同走这条真链** ⇒ 真人在浏览器里过第一关后点不动结算面板。
+- **为什么三轮回归没测到**：面板相关单测与探针 P22 一律用 `game.tapDesign()`（便捷旁路，直连 `_handleTap`）⇒ 旁路恒绿、真链恒断（沉淀 **K-038**）。
+- **范围（建议施工序）**：① **先加红例**：经 `input.beginFrame()/push(down,up)/game.update()/input.endFrame()` 真链点面板按钮中心，断言四相位各自生效（与同坐标 `tapDesign()` 结果一致）；② 再改接线：把输入读取上提到 `update()` 的相位路由前（或给四面板态补 `onUpdate`），**语义须守** `input-control §2.3`「面板只认自己的按钮、面板外零响应」与 `pause-settings §2.2`「遮罩吃掉其余一切」；③ 保留旁路例做双口径对照（旁路只用于装配前置）；④ 回写 `input-control §8` 判据行与 QA 探针（改判据先改探针，报告 §18.3-6 惯例）。
+- **约束**：**禁**为凑绿删旁路例；`_handleTap` 的路由表是唯一裁决面，不得在 `App`/适配器侧另起一套命中逻辑；改动若触到 `§8` 判据 ⇒ 先改文档再改码。
+- **依赖**：无前置；后继 = QA 复跑 P8/P10/P22 与 Playtest M2 降级轮（本轮之前音频与面板交互维度均记 BLOCKED）。
+
+## WXG-T-101
+
+- **名称**：**pre-commit 增 Cocos 镜像漂移条件守卫（防 BD-20 再复发）**
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（2026-09-15，用户拍板「加条件步骤」）
+- **背景**：BD-20 已两次复发（v1.0 轮 4 处漂移入 HEAD ⇒ G1 FAIL + 全链路 Cocos 取证阻塞；WXG-T-096 轮 12 处）。成因固定：改了 `packages/framework/src/**` 忘记跑 `framework:sync`，而 `.githooks/pre-commit` 现只跑 secrets / links / plugins / mcp / ctx，**没有** `framework:sync:check` ⇒ 漂移可以顺利入 HEAD，等下一轮独立复验才发现（沉淀 **K-039**）。
+- **Deliverables**：① pre-commit 新增**条件步**：`git diff --cached` 含 `packages/framework/src/**/*.ts` 时才跑 `sync-framework-to-cocos.mjs --check`（无框架改动的提交零开销）；② **只拦不写**——理由与 `check:mcp` 同取向，且技术上必须如此：`git commit` 提交的是**索引**，钩子改写工作区不会进本次提交，静默重写只会造出「钩子说绿了但镜像仍漏在 HEAD 之外」的新坑；③ 失败提示须写清修复动作（`pnpm run framework:sync` + 重新暂存镜像）与「勿用 `--no-verify`」；④ 回写 `docs/agent/hooks-best-practices.md` 步骤表 + `control-manifest.md §15` 镜像条（把「靠人记得跑」升级为硬门）。
+- **验收**：红→绿双向手工实测——(a) 只暂存框架源码改动 ⇒ 钩子 exit=1 且点名 ①⁷⁄₈ 步；(b) 补跑 sync 并暂存镜像 ⇒ 同一步通过；(c) 不含框架源码的提交 ⇒ 该步整体不触发（零开销）。
+- **约束**：不改 `sync:check` 的比对口径；不为通过而放宽任何阈值。
+- **完成记录（2026-09-15）**：① `.githooks/pre-commit` 新增步骤 **①⁷⁄₈**（插在 ①¾ `check:mcp` 与 ② ctx 重建之间），`STAGED_FW` 命中才跑；头注步骤表同步。② **只拦不写**（技术上必需：提交的是索引，钩子改工作区不会入本次提交），失败提示写明 `pnpm run framework:sync` + 重暂存镜像 + 勿用 `--no-verify`。③ 回写：`docs/agent/hooks-best-practices.md` §1 表格行 + 新增取向注（含红→绿复现命令）、`control-manifest.md §15` 镜像条升为硬门。④ **验收实测**：(a) 只暂存 `core/audio/audio.ts` 换行改动 → `sh .githooks/pre-commit` **EXIT=1** 并点名四处 differs；(b) 补跑 sync 并暂存两份镜像 → **EXIT=0** 且步骤行正常打印；(c) 本单提交（仅 hook + .md，无框架源码）→ 日志中无 `sync-framework-to-cocos` 行，零开销成立。测试产生的临时改动已 `git checkout` 复位，事后 `framework:sync:check` ✅。⑤ **未做**：未脚本化自测（无 `*-selftest.sh`，靠文档里的复现命令），因为钩子依赖真实索引态，脚本化需临时仓库夹具，性价比待评。
