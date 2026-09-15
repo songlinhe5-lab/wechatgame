@@ -327,6 +327,12 @@ function runBuild() {
   // index.json 记的是上一轮的 INDEX.md ⇒ pre-commit 的 C(--staged) 必然报「暂存与索引不一致」，
   // 每次提交都要手工重建一轮才过（当天连踩四次）。hot-files.md 用「写两遍」绕开了同一问题，
   // 这里改成显式闭环，不再依赖重试。
+  //
+  // ⚠️ 但「先写产物、后建索引」的顺序**只完成了必要条件**（WXG-T-112 补）：第二步 `buildIndex()`
+  // 对 `memory/INDEX.md` 取源仍走 `resolveContent` 的 committed / staged-blobs 分支（dirty → HEAD blob、
+  // 已暂存 → 暂存 blob）⇒ 拿到的是**改写前的旧字节**，index.json 记旧哈希，而第一步刚落盘的是新字节。
+  // 真正闭合要靠把该产物列进 `lib/context-index.mjs::WORKTREE_AUTHORITATIVE`（无条件取工作树）；
+  // 当时只调顺序未查取源，所以 pre-commit 仍需跑两遍（判例 BD-38，2026-09-15 worktree 实测）。
   writeFileSync(MEMORY_INDEX_PATH, renderMemoryIndexText(buildIndex({ mode: MODE }).index), 'utf8');
   const { index: finalIndex, meta } = buildIndex({ mode: MODE });
   writeFileSync(INDEX_PATH, serializeIndex(finalIndex), 'utf8');

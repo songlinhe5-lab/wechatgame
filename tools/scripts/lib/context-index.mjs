@@ -31,6 +31,8 @@ export const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 
 export const INDEX_PATH = join(ROOT, 'ctx', 'index.json');
 export const BUDGET_MD_PATH = join(ROOT, 'ctx', 'BUDGET.md');
+/** 产物相对路径（索引以相对 POSIX 路径为键；导出供 `ctx:check` 与自指集合对账，WXG-T-112）。 */
+export const BUDGET_MD_REL = 'ctx/BUDGET.md';
 /**
  * 热门大文件「章节 → 精确行号」速查（WXG-T-036，q-1）。
  *
@@ -40,6 +42,8 @@ export const BUDGET_MD_PATH = join(ROOT, 'ctx', 'BUDGET.md');
  * 使 agent 能 `ROUTES.md → hot-files.md → read_file(offset,limit)` 三步闭链。
  */
 export const HOT_FILES_MD_PATH = join(ROOT, 'ctx', 'hot-files.md');
+/** 产物相对路径（同上，供对账用）。 */
+export const HOT_FILES_MD_REL = 'ctx/hot-files.md';
 export const EXEMPT_PATH = join(ROOT, 'ctx', 'budget-exempt.json');
 export const ROUTES_PATH = join(ROOT, 'ctx', 'ROUTES.md');
 /** 真实使用分布（由 analyze-context-usage.mjs 生成，build/check 消费）。 */
@@ -121,10 +125,21 @@ const HOT_FILES = new Set([
 
 /**
  * 由本工具自身生成、必须始终按**工作树**内容索引的文件。
- * 理由：这些文件在 build 期间被本进程写出；若套用 dirty→HEAD 规则，会把「刚写出的新
- * 内容」误判为「应按 HEAD 索引」，从而破坏 `--check` 一致性与字节稳定性。
+ *
+ * ⚠️ **凡 `ctx:build` 写盘的 .md 都必须列进本集合**（WXG-T-112；漏登记的后果 = 判例 BD-38）：
+ * 少一个 ⇒ 该产物在提交索引里记的是**上一轮字节**，而钩子随后的 `git add` 把它的**新字节**
+ * 送进暂存区 → `ctx:check --staged` 首遍必报「暂存内容与索引不一致」→ **每次涉及它的提交都要
+ * 提交两遍**（2026-09-15 在 worktree 实测：`memory/INDEX.md` 漏登记时，三种起手——只暂存自有
+ * 改动 / 手跑 build 并 add 产物 / 手跑 build 不 add产物——第一遍全红、第二遍才绿）。
+ * 该坑不在本地 build 暴露，只惩罚每个提交的人 ⇒ `ctx:check` 有一条机械对账门守住此不变式，勿靠人记。
+ * 下表写的是字面量而非 `MEMORY_INDEX_REL`：`lib/memory-index.mjs` 反向 import 本模块，引回来会成环；
+ * 两处字面量不漂移由那条对账门守。
  */
-const WORKTREE_AUTHORITATIVE = new Set(['ctx/BUDGET.md', 'ctx/hot-files.md']);
+export const WORKTREE_AUTHORITATIVE = new Set([
+  'ctx/BUDGET.md',
+  'ctx/hot-files.md',
+  'memory/INDEX.md',
+]);
 
 /** 只读运行 git（调用方负责兜底异常）；cwd 固定为仓库根。 */
 function git(args) {

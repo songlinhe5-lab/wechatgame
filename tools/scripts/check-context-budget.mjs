@@ -84,6 +84,9 @@ import {
   residentLimit,
   resolveContent,
   routesReferencedPaths,
+  WORKTREE_AUTHORITATIVE,
+  BUDGET_MD_REL,
+  HOT_FILES_MD_REL,
   sha256,
   stagedSet,
 } from './lib/context-index.mjs';
@@ -98,7 +101,7 @@ import {
 } from './lib/memory-index.mjs';
 
 /** A 项里 hot-files.md 的索引相对路径（生成器与门禁共用同一常量，避免字面量漂移）。 */
-const HOT_FILES_REL = 'ctx/hot-files.md';
+const HOT_FILES_REL = HOT_FILES_MD_REL;
 
 const failures = [];
 const notes = [];
@@ -969,6 +972,24 @@ if (!memIndexReport.digestDaysOk) {
   );
 }
 
+/*
+ * 装置自指对账（WXG-T-112）：`ctx:build` 写盘的**每一个 .md 产物**都必须列进
+ * `WORKTREE_AUTHORITATIVE`。漏登记在本地 build 完全不暴露，只在**提交时**表现为「第一遍必红、
+ * 第二遍才绿」（判例 BD-38：`memory/INDEX.md`），代价由此后每一次提交的人分摊 ⇒ 须机械守住。
+ * 覆盖面（据实核对，勿夸大）：本门随 `ctx:check` 跑在 **CI**（`.github/workflows/ci.yml` 的 ctx:check 步）
+ * 与 **pre-commit 兜底**两处；⚠️ `ctx:check` **不在** `verify` 的 15 项里（判例 BD-39 同族），本地要查请
+ * 显式 `pnpm run ctx:check`。两处都不依赖任何 `*-selftest.sh` 被执行。
+ */
+const GENERATED_MD = [BUDGET_MD_REL, HOT_FILES_MD_REL, MEMORY_INDEX_REL];
+const unregisteredGen = GENERATED_MD.filter((p) => !WORKTREE_AUTHORITATIVE.has(p));
+if (unregisteredGen.length > 0) {
+  failures.push(
+    'C: ctx:build 生成物未列进 WORKTREE_AUTHORITATIVE —— ' + unregisteredGen.join('、') + ' ⇒ ' +
+    '该产物在提交索引里记上一轮字节、新字节又被钩子 add 进暂存区 → pre-commit 单遍不收敛（判例 BD-38）。' +
+    '修法：在 tools/scripts/lib/context-index.mjs 的集合里补该相对路径',
+  );
+}
+
 // ─────────────────────────────────────────────────────────────── report ──────
 const line = (ok, text) => `${ok ? '✅' : '❌'} ${text}`;
 
@@ -1055,6 +1076,9 @@ if (index) {
   console.log(
     `   ${line(memIndexReport.detailIssues.length === 0, `memory 二级详情层（WXG-T-106）：${nDetails} 个详情文件，隶属/指针双向可解析`)}` +
     (nDetails === 0 ? '（暂无详情文件 ⇒ 本项平凡为真）' : ''),
+  );
+  console.log(
+    `   ${line(unregisteredGen.length === 0, `装置自指（WXG-T-112）：${GENERATED_MD.length} 个 ctx:build 生成物全部在工作树权威集合内 ⇒ 提交单遍收敛`)}`,
   );
 }
 console.log('');
