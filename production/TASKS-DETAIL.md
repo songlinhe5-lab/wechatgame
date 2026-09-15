@@ -509,3 +509,30 @@
      提交（三产物同语义，且属既存行为，非本单新增）；`memory/INDEX.md` 标记块**外**允许手写协议正文 ⇒ 手写后须与改动同次暂存。**未削弱既有守卫**：
      实测「手改 INDEX.md + 暂存」在基线与修法下都为绿（钩子本就会重建吸收），非本单引入的松动。
   - ⑨ **验收**：`ctx:check` exit 0 且打印「装置自指：3 个生成物全部在工作树权威集合内」｜`ctx:selftest` **9/0**｜`pnpm run verify` **PASS 14 ｜ SKIP 1（check:size）｜ FAIL 0**｜`kb:check` 八重 ✅（活跃 48）。
+
+## WXG-T-121
+
+- **名称**：**装置自测分档挂门禁（BD-39 · BD-40 并单）**
+- **负责**：主理人(Qoder)　**状态**：🔄 **部分交付**（2026-09-16：CI 侧两条已闭合；`verify` 本地半边受 WXG-T-110 在飞阻塞）
+- **并单依据（先取证再裁定）**：两条缺陷同根因（「门存在、但不跑」）、同处改（`verify` 步骤表 / CI）、同验收 ⇒ 并成一单。实测代价：
+  11 件装置自测合计 **29.4s**、`ctx:check` **0.51s**、`verify` 现有各项相加 **13.8s**；`grep selftest .github/workflows/ci.yml` **零命中**
+  ⇒ 本地与 CI **两条链都零覆盖**。全挂进 `verify` ⇒ 14s → 43s（+213%），反而诱发绕开门禁 ⇒ 结论 = **按实测耗时分两档**。
+- **动手前抓到一条正在腐烂的自测（本单的直接证据）**：`context-usage-selftest.sh` 在 `3fa3be4`（改动前）与 `e9664da`（改动后）
+  两个点同测都是 **FAIL=63** ⇒ 以「隔离 worktree 跑历史点」判定为**存量腐烂**，非本轮引入。两处根因同一形状「手写清单追不上正本扩张」：
+  ① 桩只 `cp` `lib/` 两件，而 `check-context-budget.mjs` 后来 import 了 `lib/memory-index.mjs` ⇒ 桩里 `ctx:check` 崩在 `ERR_MODULE_NOT_FOUND`；
+  ② 桩**手写** `ctx/index.json`（固定 5 文件）追不上生成物集合扩张（`ctx/BUDGET.md` 须入索引、`memory/INDEX.md` 须同源存在），且桩仓库无 `memory/`
+  时 `ctx:build` 写生成物直接 ENOENT。修法 = 依赖**整目录通配** + **索引由被测生成器播种**（跑一次桩 build 再注入本轮度量文件）+ 预置写盘目录 ⇒ **63 → 0**（172 断言全绿）。
+- **落码**：① 新增 `tools/scripts/selftests.mjs` 分档执行器 —— 三条规矩：**逐项执行永不短路**（K-036）、打 `STATUS: OK|SKIP|FAIL` 机读行
+  （⇒ `verify` 接入只需往 `STEPS` 加一项）、**完整性守卫**（磁盘上未入档的 `*-selftest.sh` / package.json 里未入档的 `*:selftest` 入口 / 档位项脱钩 ⇒ 当场红；
+  确实挂不上的须写进源码 `AWAITING` 并给理由 ⇒ 降为 SKIP，**不是通过而是没测**，`--strict` 判失败）。② `fast` 档 = 六件自测 **+ `ctx:check`**（BD-40 本体 0.3s，
+  并入而非另挂一项 ⇒ 将来补 `STEPS` 一行同时闭合两条缺陷）。③ `package.json` 补 5 个入口（`ctx:usage:selftest`、`tasks:archive:selftest`、`ci:review:selftest`、
+  `selftest:fast`、`selftest:heavy`）。④ CI `unit` job 加 fast+heavy 两步 ⇒ 自测覆盖 **11/11**。⑤ `worktree-authoritative-selftest.sh` 在 worktree 里播种
+  `node_modules` 软链（兜 pnpm 10 对未安装 worktree 拒执；本机 pnpm 9.15.9 容忍 ⇒ 该风险本地**未能复现**，如实标注）。⑥ 回写 `docs/agent/commands.md`。
+- **未改 `verify-all.mjs`（串行纪律）**：该文件正被并发 WXG-T-110 在飞改动（+43 行 `WARN` 态与新步骤）⇒ 同文件不抢改；
+  改为在执行器里 `noteVerifyCoverage()` **每次运行点名**该缺口，免得又变成一件「只有 CI 跑、本地腐烂无人见」的事。
+- **半入库登记**：HEAD 的 `package.json` 里 `check:host-tests` 入口指向**未跟踪**脚本（`git ls-files --error-unmatch` 证实）⇒
+  它的 `:selftest` 留在 `AWAITING`（SKIP），待 WXG-T-110 收口后并入 fast 档。
+- **验收（现场复跑）**：`selftest:fast` **PASS 7 ｜ FAIL 0**（≈6.5s）｜`selftest:heavy` **PASS 5 ｜ FAIL 0**（≈26s，断言 22/172/9/190）｜
+  `ctx:usage:selftest` **172 断言 0 红**（HEAD 存量 63 红）｜`ctx:selftest` 仍 **9/0**｜`--strict` 正确因 `AWAITING` 判失败｜`pnpm run verify` **PASS 14 ｜ SKIP 1（check:size）｜ FAIL 0**｜`kb:check` 八重 ✅（活跃 49）。
+- **沉淀 K-049**：自测夹具须由**被测生成器播种**、依赖按**整目录拷贝**，否则门禁一扩就整片假红；判「我改坏 vs 早就红」一律先取**历史点同测**证据。
+- **余项**：① `verify` STEPS 加 `selftest:fast`（待 T-110）；② `check:host-tests:selftest` 入档（同前）；③ CI 首跑观察 pnpm 10 环境下 `ctx:selftest` 的 worktree 执行。
