@@ -521,6 +521,16 @@ function drawGrid(
             : 0.4 + 0.6 * Math.abs(Math.sin(snap.wrongProgress * Math.PI * 2));
           drawStateRing(builder, bx, cy, BEAD_CELL, palette.danger, flash);
         }
+        // BD-16（WXG-T-097）一次性轻提示：落在被点的**可落空格**格心（ux-spec §5）。
+        // 只在 empty 分支画 ⇒ 天然满足 `input-control §8-5`（锁定/已填格零反馈帧）。
+        if (snap.tapHintText && i === snap.tapHintRow && j === snap.tapHintCol) {
+          builder.text(bx, cy, snap.tapHintText, {
+            fill: withAlpha(palette.text, 0.9),
+            font: bodyFont(snap, 'sub'),
+            align: 'center',
+            baseline: 'middle',
+          });
+        }
         continue;
       }
 

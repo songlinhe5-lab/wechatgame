@@ -195,6 +195,13 @@ export interface BeadsSnapshot {
   hintCol: number;
   /** GAP-03 首珠脉冲所在托盘槽（无 = -1）。 */
   guideSlot: number;
+  /**
+   * 一次性「轻提示」（ux-spec §5 WXG-T-097；BD-16 无选中点格 / BD-15 扩展位占位共用）。
+   * `''` = 无；`tapHintRow/Col` = 锚点格（非格锚点 = -1，如扩展按钮）。L5：只读相位，不持状态。
+   */
+  tapHintText: string;
+  tapHintRow: number;
+  tapHintCol: number;
 
   tuning: BeadsTuning;
 }
@@ -277,6 +284,9 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     onboarding: false,
     hintRow: -1,
     hintCol: -1,
+    tapHintText: '',
+    tapHintRow: -1,
+    tapHintCol: -1,
     guideSlot: -1,
     tuning,
   };

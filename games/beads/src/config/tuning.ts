@@ -352,6 +352,13 @@ export const WRONG_FX_MS = 200;
 export const WRONG_SHAKE_PX = 3;
 /** `hint` / 引导脉冲呼吸周期（α 0.5↔1.0，600ms ≈1.67Hz，落 §3.8 ≤3Hz 红线内）。 */
 export const HINT_PULSE_MS = 600;
+/**
+ * 一次性「轻提示」窗口（ux-spec §5「无效落点轻提示」行，WXG-T-097/BD-16）。
+ * **不是新数值**：取 §5 表头统一红线「反馈 ≤400 ms」的上界（BD-15 扩展位占位共用同一窗口）。
+ */
+export const TAP_HINT_MS = 400;
+/** 无选中珠点可落空格时的占位文案（`input-control §2.3` 落子前置；文案不属 §3 数值真源）。 */
+export const TAP_HINT_NO_SELECTION_TEXT = '先选一颗珠子';
 /** 倒计时告急 α 脉冲周期（1→0.6→1，ux-spec §5 / art §7「1000/循环」）。 */
 export const DANGER_PULSE_MS = 1000;
 

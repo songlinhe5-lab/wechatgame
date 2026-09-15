@@ -10,10 +10,18 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand, type RectCommand, type TextCommand } from '@wxgame/framework';
-import { DESIGN_H, DESIGN_W, WRONG_SHAKE_PX } from '../src/config/tuning.js';
+import {
+    BEAD_CELL,
+    BEAD_PITCH,
+    DESIGN_H,
+    DESIGN_W,
+    TAP_HINT_MS,
+    TAP_HINT_NO_SELECTION_TEXT,
+    WRONG_SHAKE_PX,
+} from '../src/config/tuning.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
-import { createBeadsHarness, simpleTestLevel } from './helpers.js';
+import { createBeadsHarness, placeAnyMatching, simpleTestLevel, tapInFrame } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
 function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
@@ -246,5 +254,83 @@ describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
         const timer = (snap: BeadsSnapshot) =>
             textWith(renderSnap(snap), (t) => /^\d+:\d\d$/.test(t.text));
         expect(timer({ ...base, largeText: true })!.font).toBe('bold 44px sans-serif');
+    });
+});
+
+describe('T-097 BD-16 无效落点轻提示（ux-spec §5 / input-control §8-7）', () => {
+    /** 复刻 view-model 的格心公式（§3.3 冻结常量），不引内部布局对象。 */
+    const cellCenter = (snap: BeadsSnapshot, row: number, col: number) => ({
+        x: snap.gridLeft + BEAD_CELL / 2 + BEAD_PITCH * col,
+        y: snap.gridTop - BEAD_CELL / 2 - BEAD_PITCH * row,
+    });
+
+    const textCmd = (cmds: readonly DrawCommand[], want: string): TextCommand | undefined =>
+        cmds.find((c) => c.kind === 'text' && c.text === want) as TextCommand | undefined;
+
+    it('无选中珠点可落空格 → 一次性轻提示；零请求、零事件、静默', () => {
+        const h = createBeadsHarness({
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.t097-hint-on',
+        });
+        h.advance(1 / 60); // GAP-02 首供：托盘持珠但**未选中**
+        const before = h.game.snapshot;
+        expect(before.traySelected).toBe(-1);
+        // §5 表头统一红线：该通道不许越过 400ms（数值真源同 tuning）。
+        expect(TAP_HINT_MS).toBeLessThanOrEqual(400);
+
+        const p = cellCenter(before, 2, 1);
+        const plays = h.audio.played.length;
+        tapInFrame(h, p.x, p.y);
+
+        const s = h.game.snapshot;
+        expect(s.tapHintText).toBe(TAP_HINT_NO_SELECTION_TEXT);
+        expect(s.tapHintRow).toBe(2);
+        expect(s.tapHintCol).toBe(1);
+        // §8-7 判据：S3 计数 0 —— 前置缺口不产生任何请求；通道**静默**
+        // （`audio-events §1` 无对应 clip，不得新造）。
+        expect(h.count('bead:placed')).toBe(0);
+        expect(h.count('bead:rejected')).toBe(0);
+        expect(h.audio.played).toHaveLength(plays);
+
+        // 视图层：文本落在被点那一格的格心（align/baseline 居中）。
+        const cmd = textCmd(renderSnap(s), TAP_HINT_NO_SELECTION_TEXT);
+        expect(cmd).toBeDefined();
+        expect(cmd!.x).toBeCloseTo(p.x, 3);
+        expect(cmd!.y).toBeCloseTo(p.y, 3);
+
+        // 窗口内恒亮、过窗即清（一次性，不需要玩家二次输入来清除）。
+        h.advance(0.2);
+        expect(h.game.snapshot.tapHintText).toBe(TAP_HINT_NO_SELECTION_TEXT);
+        h.advance(0.2);
+        expect(h.game.snapshot.tapHintText).toBe('');
+        expect(h.game.snapshot.tapHintRow).toBe(-1);
+        expect(h.game.snapshot.tapHintCol).toBe(-1);
+    });
+
+    it('已填格维持 §8-5 零反馈帧：无选中再点它不给轻提示', () => {
+        const h = createBeadsHarness({
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.t097-hint-filled',
+        });
+        h.advance(1 / 60);
+        expect(placeAnyMatching(h.game)).toBe(true);
+
+        const snap = h.game.snapshot;
+        const idx = snap.cells.findIndex((c) => c.state === 'filled');
+        expect(idx).toBeGreaterThanOrEqual(0);
+        const row = Math.floor(idx / snap.gridCols);
+        const col = idx % snap.gridCols;
+        const plays = h.audio.played.length;
+
+        tapInFrame(h, cellCenter(snap, row, col).x, cellCenter(snap, row, col).y);
+
+        const after = h.game.snapshot;
+        expect(after.cells[idx]!.state).toBe('filled'); // 世界态未被改动
+        expect(after.tapHintText).toBe('');
+        expect(after.tapHintRow).toBe(-1);
+        expect(h.count('bead:placed')).toBe(1); // 只有此前那一次合法落子
+        expect(h.count('bead:rejected')).toBe(0);
+        expect(h.audio.played).toHaveLength(plays);
+        expect(textCmd(renderSnap(after), TAP_HINT_NO_SELECTION_TEXT)).toBeUndefined();
     });
 });

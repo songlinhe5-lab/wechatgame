@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2449,
       "lines": 100,
-      "sha256": "8f72caaa3750ba62b940503223f500715419271bed8fc17f027f076eecf199fe",
+      "sha256": "17ec136b13c82b9fb1d10df68a7c03bf0e782f8da5e8a86c7943f9379bdaef0e",
       "tier": "normal",
       "sections": [
         {
@@ -16290,9 +16290,9 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 2022,
+      "tokens": 2145,
       "lines": 105,
-      "sha256": "eb31a69adfb5ab014c02b382415129ba0bf85cf5f49aac2795f39a85a6820287",
+      "sha256": "ebb354e71e75ebefe331eda6b77de405be053dcc6f70adf8bcc77a216538e675",
       "tier": "normal",
       "sections": [
         {
@@ -16300,7 +16300,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 106,
-          "tokens": 2006,
+          "tokens": 2129,
           "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-009",
           "keywords": [
             "GDD",
@@ -16465,7 +16465,7 @@
           "level": 2,
           "startLine": 94,
           "endLine": 106,
-          "tokens": 474,
+          "tokens": 597,
           "summary": "1. 5 类指令逐一验证路由正确：点暂停→PAUSED；点道具卡→S6 收请求；点扩展→S4 收请求；点托盘珠→tray",
           "keywords": [
             "PAUSED",
@@ -19925,17 +19925,17 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 8683,
-      "lines": 274,
-      "sha256": "edb9aff17c10176823b9930a6e32754e6d75b4beb5474544c7af2933e8259a94",
+      "tokens": 9014,
+      "lines": 276,
+      "sha256": "aa092c9430551e21b14eaf7ac0cde6f0b34eb8fc1bdd032229a62225ef3d3c02",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 275,
-          "tokens": 8674,
+          "endLine": 277,
+          "tokens": 9004,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.2 · 任务号 WXG-T-015（失败续时 U5：WXG-",
           "keywords": [
             "Spec",
@@ -20086,8 +20086,8 @@
           "anchor": "§5 交互反馈与动效时长表（权威毫秒值，回写 art-bible §7 占位）",
           "level": 2,
           "startLine": 170,
-          "endLine": 202,
-          "tokens": 1471,
+          "endLine": 204,
+          "tokens": 1801,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
             "§7",
@@ -20101,8 +20101,8 @@
         {
           "anchor": "§6 首屏留存策略（微信前 10 秒）· WXG-T-081 可执行化重写",
           "level": 2,
-          "startLine": 203,
-          "endLine": 240,
+          "startLine": 205,
+          "endLine": 242,
           "tokens": 1636,
           "summary": "",
           "keywords": [
@@ -20115,8 +20115,8 @@
         {
           "anchor": "§6.1 首 10 秒时间轴（0 文字；引导均为动效，毫秒值见 §5）",
           "level": 3,
-          "startLine": 205,
-          "endLine": 218,
+          "startLine": 207,
+          "endLine": 220,
           "tokens": 425,
           "summary": "0s 点击图标 —",
           "keywords": [
@@ -20130,8 +20130,8 @@
         {
           "anchor": "§6.2 首供语义裁定（GAP-02，不可两读）",
           "level": 3,
-          "startLine": 219,
-          "endLine": 232,
+          "startLine": 221,
+          "endLine": 234,
           "tokens": 988,
           "summary": "裁定：采「spawner.reset() 后置 _acc = interval」，不采「_setupLevel 内同步 ",
           "keywords": [
@@ -20146,8 +20146,8 @@
         {
           "anchor": "§6.3 启动路径表（skill §6 要求项，本次补齐）",
           "level": 3,
-          "startLine": 233,
-          "endLine": 240,
+          "startLine": 235,
+          "endLine": 242,
           "tokens": 161,
           "summary": "首次（runs==0） 玩法·普通 L1（BOOT 直进，无主菜单） §6.1 纯动效引导（首珠脉冲 + 单一 hint",
           "keywords": [
@@ -20162,8 +20162,8 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 241,
-          "endLine": 251,
+          "startLine": 243,
+          "endLine": 253,
           "tokens": 202,
           "summary": "触控 UI 控件 ≥88px（TOUCH_MIN）；棋盘/托盘珠命中区=名义外扩 8px、重叠按格心最近（§3.8 v1",
           "keywords": [
@@ -20178,8 +20178,8 @@
         {
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
-          "startLine": 252,
-          "endLine": 275,
+          "startLine": 254,
+          "endLine": 277,
           "tokens": 1023,
           "summary": "已裁定（沿袭）：无主菜单两路径（core-loop 判例）；齿轮单通道入口；道具 MVP 占位口径（S6 §2.6）；面",
           "keywords": [

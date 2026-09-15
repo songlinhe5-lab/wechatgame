@@ -59,6 +59,8 @@ import {
   computeClearStars,
   normalSettleScore,
   TIMER_URGENT_T,
+  TAP_HINT_MS,
+  TAP_HINT_NO_SELECTION_TEXT,
   WRONG_FX_MS,
   TRAY_COLS,
   TRAY_GAP,
@@ -255,6 +257,11 @@ export class BeadsGame implements Game {
   private _pulseClock = 0;
   /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
   private _wrongFx: { row: number; col: number; elapsedMs: number } | null = null;
+  /**
+   * 一次性轻提示（BD-16 无选中点格 / BD-15 扩展位占位共用通道，ux-spec §5 WXG-T-097）。
+   * 与 `_wrongFx` 同判例：表现层计时，`TAP_HINT_MS` 后自清，不占常驻分配。
+   */
+  private _tapHint: { text: string; row: number; col: number; elapsedMs: number } | null = null;
   /** 首屏引导已完成（老玩家 BOOT 即 true；首次玩家首次落子后置 true）。一置不再重现。 */
   private _onboardDone = true;
   /**
@@ -499,6 +506,7 @@ export class BeadsGame implements Game {
     this._stepComboVfx(dt); // §2.5 连击特效：表现层，不被 PAUSED 冻结
     this._pulseClock += Math.max(0, dt) * 1000; // GAP-04/03/10 循环脉冲基准（同判例不冻结）
     this._stepWrongFx(dt);
+    this._stepTapHint(dt); // BD-16/BD-15 一次性轻提示：同不冻结（表现层）
   }
 
   buildRenderModel(builder: RenderModelBuilder): void {
@@ -1467,7 +1475,15 @@ export class BeadsGame implements Game {
   /** The S2 → S3 route: place the selected bead, then handle every outcome. */
   private _placeSelected(row: number, col: number): boolean {
     const slot = this._tray.selectedSlot;
-    if (slot < 0) return false; // S2 gate: no bead selected → no request at all
+    if (slot < 0) {
+      // S2 gate: no bead selected → no request at all（`input-control §2.3`）。
+      // BD-16（WXG-T-097）：前置缺口要有告知——轻提示只在**可落空格**上给，
+      // 锁定/已填格维持 §8-5 的「零事件零反馈帧」（两判据的交界已由 §8-7 写明）。
+      if (this._grid.isFillable(row, col)) {
+        this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
+      }
+      return false;
+    }
     const colorIdx = this._tray.selectedColor;
     const verdict = judgePlacement(this._grid, row, col, colorIdx, slot);
 
@@ -1788,6 +1804,23 @@ export class BeadsGame implements Game {
     if (fx.elapsedMs >= WRONG_FX_MS) this._wrongFx = null;
   }
 
+  /**
+   * 发一次性轻提示（ux-spec §5 WXG-T-097）。**不**发任何玩法事件，也不走
+   * `sfx_reject`——它是「前置缺口告知」而不是错误反馈（错误反馈频率上限属 §3.8，
+   * 本通道不得被算进去）；`audio-events §1` 无对应 clip ⇒ **静默**。
+   */
+  private _showTapHint(text: string, row: number, col: number): void {
+    this._tapHint = { text, row, col, elapsedMs: 0 };
+  }
+
+  /** 轻提示推进：与 `_stepWrongFx` 同判例（表现层，不被 PAUSED 冻结），窗口 `TAP_HINT_MS`。 */
+  private _stepTapHint(dt: number): void {
+    const hint = this._tapHint;
+    if (!hint) return;
+    hint.elapsedMs += Math.max(0, dt) * 1000;
+    if (hint.elapsedMs >= TAP_HINT_MS) this._tapHint = null;
+  }
+
   /** 每关历史最好星级（`0` = 未通关）—— 通关画面总览的数据源（测试读它）。 */
   get starsByLevel(): readonly number[] {
     // 内部按需写入（稀疏）；对外一律**稠密**（未通关 = 0），与快照同一契约。
@@ -1933,6 +1966,11 @@ export class BeadsGame implements Game {
     s.wrongRow = wfx ? wfx.row : -1;
     s.wrongCol = wfx ? wfx.col : -1;
     s.wrongProgress = wfx ? Math.min(1, wfx.elapsedMs / WRONG_FX_MS) : 0;
+    // BD-16/BD-15 轻提示：只给文本与锚点格（无进度曲线——§5 未定淡入淡出，见该行的 `[待确认]`）。
+    const th = this._tapHint;
+    s.tapHintText = th ? th.text : '';
+    s.tapHintRow = th ? th.row : -1;
+    s.tapHintCol = th ? th.col : -1;
 
     // GAP-03 首屏引导：仅普通模式 PLAYING、首玩且本会话未落过子时激活（§6.3）。
     s.onboarding = this._mode === 'normal' && s.phase === 'playing' && !this._onboardDone;
