@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3759,
       "lines": 82,
-      "sha256": "48adb9edb1612ba7518e391256ba02b6a112b6b323ef01d690df75312b3f1f46",
+      "sha256": "594dd4662b8c20bf4a87cb0b3bf92fdc305b8b7e4c8e4f82cb25c732d5ba5709",
       "tier": "normal",
       "sections": [
         {
@@ -721,12 +721,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/commands.md` — 28 行 / 1848 tok",
+          "anchor": "§`docs/agent/commands.md` — 29 行 / 2197 tok",
           "level": 2,
           "startLine": 66,
           "endLine": 69,
           "tokens": 27,
-          "summary": "§验证与常用命令（docs/agent/commands.md）=1+29 · §验证与常用命令=6+24",
+          "summary": "§验证与常用命令（docs/agent/commands.md）=1+30 · §验证与常用命令=6+25",
           "keywords": [
             "docs/agent/commands.md",
             "docs",
@@ -1447,17 +1447,17 @@
     },
     {
       "path": "docs/agent/commands.md",
-      "tokens": 1848,
-      "lines": 28,
-      "sha256": "014fa6edd81ec5442b35999901a75373b434cbc3033cf3614f931e62dc4730b8",
+      "tokens": 2197,
+      "lines": 29,
+      "sha256": "c47b36bcf4d8243babc477bb7952bd36a8d806131ce5092c51b34534993232b6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§验证与常用命令（docs/agent/commands.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 29,
-          "tokens": 1833,
+          "endLine": 30,
+          "tokens": 2182,
           "summary": "来源：自 AGENTS.md §6「验证与常用命令」逐字迁出 · 日期 2026-09-13 · Task ID WXG",
           "keywords": [
             "§6",
@@ -1472,8 +1472,8 @@
           "anchor": "§验证与常用命令",
           "level": 2,
           "startLine": 6,
-          "endLine": 29,
-          "tokens": 1741,
+          "endLine": 30,
+          "tokens": 2090,
           "summary": "pnpm run verify 全量门禁 聚合器 tools/scripts/verify-all.mjs（WXG-T-",
           "keywords": [
             "pnpm",

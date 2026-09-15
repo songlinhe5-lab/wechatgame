@@ -63,9 +63,9 @@
 
 §默认路由细节（docs/agent/routing.md）=1+38 · §Hooks / 提交门禁 / Headless 指针=7+5 · §Skill 优先级（冲突时高者胜）=12+6 · §Skill 正本与四 IDE 链接=18+8 · §SubAgent 四 IDE 路径=26+5 · §跨域先交编排=31+8
 
-## `docs/agent/commands.md` — 28 行 / 1848 tok
+## `docs/agent/commands.md` — 29 行 / 2197 tok
 
-§验证与常用命令（docs/agent/commands.md）=1+29 · §验证与常用命令=6+24
+§验证与常用命令（docs/agent/commands.md）=1+30 · §验证与常用命令=6+25
 
 ## `knowledge/INDEX.md` — 156 行 / 4653 tok
 
