@@ -6641,9 +6641,9 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 3622,
+      "tokens": 3882,
       "lines": 187,
-      "sha256": "71718bb2d0272832fe8fcdc1b45f69ae9762ac9b2d6c00d799586bcb4d959ead",
+      "sha256": "c2f1d893129b58c5ce69b79acd91195823b03da710b60665eddea661a9b24c8a",
       "tier": "normal",
       "sections": [
         {
@@ -6651,7 +6651,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 188,
-          "tokens": 3608,
+          "tokens": 3868,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -6678,7 +6678,7 @@
           "level": 2,
           "startLine": 24,
           "endLine": 124,
-          "tokens": 2202,
+          "tokens": 2268,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -6744,7 +6744,7 @@
           "level": 3,
           "startLine": 101,
           "endLine": 111,
-          "tokens": 193,
+          "tokens": 259,
           "summary": "hud_timer_capsule 220 × 64，全圆角 白底 + panel_border 1px + 投影；内：",
           "keywords": [
             "HUD",
@@ -6829,7 +6829,7 @@
           "level": 2,
           "startLine": 173,
           "endLine": 188,
-          "tokens": 334,
+          "tokens": 529,
           "summary": "[ ] 全部元素程序化绘制，无外部图片引用。",
           "keywords": [
             "交付与验收"
