@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2429,
       "lines": 99,
-      "sha256": "670642532d8b4c5bff22fe65e9c410f00e56d5ef6eb481cff3826845c8dd8e82",
+      "sha256": "561e5b2116ae54761ed340d75c58ea4fee82f78af7c2a0007790ab8f775f8694",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3950,
+      "tokens": 3981,
       "lines": 86,
-      "sha256": "2dc1b7017c4e2359993642f39399dc5ce0aa788848b8101bde9e5c42b8b4a636",
+      "sha256": "2d07f95335f63ce3f4afc32d25d1ec257a26f0888e1b46013749a7b341f414e8",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 3922,
+          "tokens": 3953,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -577,11 +577,11 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 375 行 / 17894 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 390 行 / 20445 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
-          "tokens": 674,
+          "tokens": 705,
           "summary": "§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+13 · §A 硬判据用例（50 条 = 5 ",
           "keywords": [
             "production",
@@ -45083,9 +45083,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 17894,
-      "lines": 375,
-      "sha256": "4575ee367b0348318a238286afb28a81518a8baafe1da3f2324ba1ee33369e68",
+      "tokens": 20445,
+      "lines": 390,
+      "sha256": "bce72650dc604ee0108b91832a45de4adf6efe32db681d79385d2901b97ef8ae",
       "tier": "hot",
       "sections": [
         {
@@ -45108,8 +45108,8 @@
           "anchor": "§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射）",
           "level": 1,
           "startLine": 14,
-          "endLine": 115,
-          "tokens": 3473,
+          "endLine": 116,
+          "tokens": 4137,
           "summary": "",
           "keywords": [
             "硬判据用例",
@@ -45167,8 +45167,8 @@
           "anchor": "§A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10`",
           "level": 2,
           "startLine": 69,
-          "endLine": 83,
-          "tokens": 548,
+          "endLine": 84,
+          "tokens": 1212,
           "summary": "TC-TRAY-01 §8.1 供料间隔 [Node] ~~默认下 60s tray:spawned 恰 15 次（±1",
           "keywords": [
             "tray-spawner.md §8.1..10",
@@ -45182,8 +45182,8 @@
         {
           "anchor": "§A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10`",
           "level": 2,
-          "startLine": 84,
-          "endLine": 98,
+          "startLine": 85,
+          "endLine": 99,
           "tokens": 449,
           "summary": "TC-INP-01 §8.1 五类路由 [Node] 暂停→S9；道具卡→S6；扩展→S4；托盘珠→tray:selec",
           "keywords": [
@@ -45198,8 +45198,8 @@
         {
           "anchor": "§A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10`",
           "level": 2,
-          "startLine": 99,
-          "endLine": 115,
+          "startLine": 100,
+          "endLine": 116,
           "tokens": 502,
           "summary": "TC-TIMER-01 §8.1 计时精度 [Node] 从 LEVEL_TIME_DEFAULT 递减；60s 实测误",
           "keywords": [
@@ -45214,9 +45214,9 @@
         {
           "anchor": "§B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源）",
           "level": 1,
-          "startLine": 116,
-          "endLine": 134,
-          "tokens": 554,
+          "startLine": 117,
+          "endLine": 135,
+          "tokens": 884,
           "summary": "TC-CONST-01 扩展槽规格 [Node] 扩展容量 = TRAY_EXPAND_SLOTS(12)，虚线→实线；",
           "keywords": [
             "§3",
@@ -45230,8 +45230,8 @@
         {
           "anchor": "§C 冲刺模式判据用例（11 条，判据 1:1 映射）— 来源 `score-combo.md §8.1..11`（v1.2 新增，WXG-T-028）",
           "level": 1,
-          "startLine": 135,
-          "endLine": 180,
+          "startLine": 136,
+          "endLine": 181,
           "tokens": 1952,
           "summary": "事件 payload 以 systems-index §4 登记定稿为准（combo:up {streak, multi",
           "keywords": [
@@ -45246,8 +45246,8 @@
         {
           "anchor": "§D 道具系统判据用例（10 条 = 判据 1:1）— 来源 `powerups.md §8.1..10`（WXG-T-060 落码；实现与自动化见 `games/beads/tests/powerups.test.ts`）",
           "level": 1,
-          "startLine": 181,
-          "endLine": 199,
+          "startLine": 182,
+          "endLine": 200,
           "tokens": 701,
           "summary": "D1 region 窗口恒长与集合正确 S6§8-1 无选中、8 颗持有 → affectedSlots = [0..5",
           "keywords": [
@@ -45262,8 +45262,8 @@
         {
           "anchor": "§E 帧内执行序用例（4 条；基准条款，无独立 §8 编号）— 来源 `core-loop.md §2.2.2`（WXG-T-061 换基准；自动化见 `games/beads/tests/frame-order.test.ts`）",
           "level": 1,
-          "startLine": 200,
-          "endLine": 214,
+          "startLine": 201,
+          "endLine": 215,
           "tokens": 544,
           "summary": "背景：原 core-loop §6 / tray-spawner §6 / powerups §6 / score-co",
           "keywords": [
@@ -45278,8 +45278,8 @@
         {
           "anchor": "§F 结算·过关面板用例（**8 条**，v1.3 修正标题计数（v1.2 写「7 条」而表内 8 行，BD-21③）；来源 `ux-spec §3.4 / §4 / §5`，无独立 §8 编号）— WXG-T-063；自动化见 `games/beads/tests/clear-panel.test.ts`",
           "level": 1,
-          "startLine": 215,
-          "endLine": 231,
+          "startLine": 216,
+          "endLine": 232,
           "tokens": 510,
           "summary": "背景：ux-spec §4 流转表要求 LEVEL_CLEAR 等按钮（下一关 / 去冲刺 U1），而实现曾是「1.4s",
           "keywords": [
@@ -45294,9 +45294,9 @@
         {
           "anchor": "§G 可感知性判据（20 条，v1.3 新增）—— **GAP-14 / BD-14 根治项**",
           "level": 1,
-          "startLine": 232,
-          "endLine": 322,
-          "tokens": 5838,
+          "startLine": 233,
+          "endLine": 336,
+          "tokens": 6894,
           "summary": "",
           "keywords": [
             "GAP",
@@ -45308,8 +45308,8 @@
         {
           "anchor": "§G.0 为何需要 §G + 判据谱系声明",
           "level": 2,
-          "startLine": 234,
-          "endLine": 241,
+          "startLine": 235,
+          "endLine": 242,
           "tokens": 443,
           "summary": "根因：§A–§F 共 95 条用例、映射 71 条 §8 判据，全为「逻辑可断言型」（事件计数 / 状态机 / 公式复算",
           "keywords": [
@@ -45321,8 +45321,8 @@
         {
           "anchor": "§G.1 主判据（8 条，1:1 对应 `g4-regression-report.md` 探针 P1–P7 / P19）",
           "level": 2,
-          "startLine": 242,
-          "endLine": 254,
+          "startLine": 243,
+          "endLine": 255,
           "tokens": 2430,
           "summary": "TC-PER-01 GAP-01 / BD-01 空槽可辨识目标色：每个 empty 格须呈现「该格应填颜色」的淡化色底",
           "keywords": [
@@ -45337,9 +45337,9 @@
         {
           "anchor": "§G.2 取证细化子条（12 条）",
           "level": 2,
-          "startLine": 255,
-          "endLine": 271,
-          "tokens": 1318,
+          "startLine": 256,
+          "endLine": 272,
+          "tokens": 1637,
           "summary": "TC-PER-09 VFX-1 落座回弹：scale 1.06 → 1.0 / 120ms ux-spec §5 vfx",
           "keywords": [
             "§5",
@@ -45353,8 +45353,8 @@
         {
           "anchor": "§G.3 取证前置依赖汇总（gating，交主理人做 sequencing）",
           "level": 2,
-          "startLine": 272,
-          "endLine": 287,
+          "startLine": 273,
+          "endLine": 288,
           "tokens": 363,
           "summary": "R1 pnpm run framework:sync → G1 转绿 → build:cocos:web 通过 全部 [",
           "keywords": [
@@ -45369,9 +45369,9 @@
         {
           "anchor": "§G.4 复验轮回填（**v1.4 / WXG-T-092**）——逐条「本轮可验道次」结论",
           "level": 2,
-          "startLine": 288,
-          "endLine": 322,
-          "tokens": 1185,
+          "startLine": 289,
+          "endLine": 321,
+          "tokens": 1184,
           "summary": "取证工具：node production/qa/beads/g4-probe-v1.1.mjs（26 组，EXIT=0，",
           "keywords": [
             "WXG",
@@ -45383,11 +45383,27 @@
           ]
         },
         {
+          "anchor": "§G.5 裁定后增量回填（**v1.5 / WXG-T-098**）——只动受三条改判影响的行",
+          "level": 2,
+          "startLine": 322,
+          "endLine": 336,
+          "tokens": 709,
+          "summary": "写入规矩：不改写 §G.4（v1.4）历史表，只在此追加增量行；预期值一律取 T-098 回写后的 §8 / §5 现文",
+          "keywords": [
+            "§8",
+            "§5",
+            "WXG",
+            "裁定后增量回",
+            "只动受三条改",
+            "判影响的行"
+          ]
+        },
+        {
           "anchor": "§H 未映射判据补编（22 条，v1.3 新增）—— **BD-21① 修复项**",
           "level": 1,
-          "startLine": 323,
-          "endLine": 376,
-          "tokens": 2851,
+          "startLine": 337,
+          "endLine": 391,
+          "tokens": 3352,
           "summary": "背景：9 份 GDD §8 共 93 条，v1.2 只映射 71 条 ⇒ 22 条零映射（save-progress §",
           "keywords": [
             "§8",
@@ -45401,8 +45417,8 @@
         {
           "anchor": "§H1 · 存档与进度（S8）— 来源 `save-progress.md §8.1..10`",
           "level": 2,
-          "startLine": 327,
-          "endLine": 341,
+          "startLine": 341,
+          "endLine": 355,
           "tokens": 700,
           "summary": "TC-SAVE-01 §8-1 首启/二启 runs 与续进 [Node] 无存档 → runs=1、unlockedL",
           "keywords": [
@@ -45417,8 +45433,8 @@
         {
           "anchor": "§H2 · 暂停与设置面板（S9）— 来源 `pause-settings.md §8.1..10`",
           "level": 2,
-          "startLine": 342,
-          "endLine": 356,
+          "startLine": 356,
+          "endLine": 370,
           "tokens": 830,
           "summary": "TC-PAUSE-01 §8-1 齿轮 → 暂停 + 遮罩门禁 [Node] PLAYING 点齿轮 → game:pa",
           "keywords": [
@@ -45433,8 +45449,8 @@
         {
           "anchor": "§H3 · 失败续时（S5 v1.2 增补）— 来源 `timer-gameover.md §8-11/12` + `systems-index §3.11`",
           "level": 2,
-          "startLine": 357,
-          "endLine": 367,
+          "startLine": 371,
+          "endLine": 381,
           "tokens": 417,
           "summary": "TC-TIMER-11 §8-11 续时同局续打 [Node] 构造普通关 GAME_OVER（格已填若干、托盘非空）→",
           "keywords": [
@@ -45449,9 +45465,9 @@
         {
           "anchor": "§变更记录",
           "level": 2,
-          "startLine": 368,
-          "endLine": 376,
-          "tokens": 759,
+          "startLine": 382,
+          "endLine": 391,
+          "tokens": 1260,
           "summary": "v1.0 2026-09-11 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 严",
           "keywords": [
             "§8",

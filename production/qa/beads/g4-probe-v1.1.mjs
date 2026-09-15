@@ -3,13 +3,17 @@
  *
  * 定位：`g4-probe.mjs` v3 是**修复前基线**（报告 v1.0）。本文件把「波次 2 代码级自证」
  * 升级为「探针他证」，逐条 P1–P19 重判 + 新增 P20–P26 补测。
- * 判据来源一律取 **T-091 回写后的 GDD §8 现文**（不是 v1.0 报告里的旧预期值）。
+ * 判据来源一律取 **回写后的 GDD §8 / UX §5 现文**（不是上一轮报告里的旧预期值）。
+ * v1.1 取 T-091 回写后的 §8 现文；**WXG-T-098 起：P4 / P20 / P26 三条改取 T-098 回写后的
+ * `tray-spawner §8-1 / §8-3` 与 `ux-spec §5` 现文**（其余各组仍沿用各自最近一次复核的现文），见修订 38。
  *
  * 只读纪律：不改 `games/beads/src/**`、`design/**`、`art/**`；复用 `harness:build` 产物。
  * 运行：node production/qa/beads/g4-probe-v1.1.mjs
  * 产出：production/qa/beads/evidence/g4-reverify-v1.1.log
  *       （WXG-T-096 复跑轮：整轮 evidence/g4-reverify-v1.2.log + P5 段摘录
- *        evidence/g4-reverify-v1.2-p5-excerpt.log；**本轮只修订 P5 段预期值**，见修订 28）
+ *        evidence/g4-reverify-v1.2-p5-excerpt.log；**该轮只修订 P5 段预期值**，见修订 28）
+ *       （WXG-T-098 改判轮：evidence/g4-reverify-v1.3-t098.log；**该轮只改 P4/P20/P26 三条
+ *        预期值后整轮重跑**，见修订 38）
  *
  * ── v1.1 修订（承接 v3 的 1–13；本轮新增 **14–27**，全部为**探针自身**预期值/口径修正）──
  *  14. 【严防假 FAIL】P9/P12/P18 的期望值改取回写后 §8 现文：
@@ -142,6 +146,33 @@
  *      视觉半边另算新缺陷，也不反过来为了维持 PASS 而删掉正文那句叙述。
  *      同轮自检：修订 31 原先把 A05-17/23 也列为「混合道次」，实核 §4 原文两条均为纯 `[N]`（星数由
  *      冻结阈值独立复算、静音可玩只断 pendingCount 与通关链路）⇒ 维持 PASS，并把 31 的清单改成与实判一致。
+ *  38. 【**预期值取自 WXG-T-098 回写后的 §8 / §5 现文 · 三条改判 P20/P26/P4**】本轮**先改预期值、后重跑**
+ *      （顺序不可倒置——报告 §18.3-6 惯例；先跑再凑预期 = 假绿）。三条改判**全部来自判据现文变化**，
+ *      QA 不自加也不放宽任何阈值；实现未跟上的部分照实 FAIL。
+ *      ① **P20 / BD-27**：`tray-spawner §8-1` 现文已把**窗口**与**容差**按两轴分列——
+ *        **次数轴 ±0**（把窗口内事件按到达序一一映射到名义序号 i=1..16，第 i 次**名义时刻** = `4×(i−1)` s；
+ *        缺一次 = FAIL、出现名义第 17 次 = FAIL）与**时刻轴单列**（`0 ≤ t_actual − 4×(i−1) ≤ 2 帧`，
+ *        帧 = `GameLoop.fixedDt` 默认 `1/60 s ≈ 16.7 ms`，「帧」的定义正本 `systems-index §3 使用约定第 4 条`；
+ *        **负偏差（提前）= FAIL**）。窗口 **t ∈ [0,60] 闭区间**按**名义时刻**计 ⇒ 第 16 次（名义 60.0 s）**计入**，
+ *        其实际落点 60.033 s（滞后 2 帧）在新口径下合法 ⇒ v1.1 的 PASS\* 呈请随本条关闭。
+ *        **旧字面严格读法（按实际时刻截断）在同一样本上仍是 15≠16 ⇒ FAIL** ⇒ 证据两读并列，
+ *        避免把「口径变更」读成「数字变好看」。相邻间隔 `4.0 s ±0.1 s` 与「前提 = 供料不被满槽截断」（修订 22）沿用。
+ *      ② **P26 / BD-28**：`§8-3` 现文判为**作废**而非「平凡真」（理由正本在该条第 3 子文：杂色集恒空 ⇒
+ *        3:1 比例**不可观测**，给不可执行的断言盖章 = 伪绿）⇒ 探针侧**删除 3:1 断言**（脚本内不再有任何
+ *        占比/权重统计），主记录记 **⛔ 不可验**（不记 PASS、不记 FAIL）；另开**负向用例 `P26-N`**
+ *        （`decoys` 非空关卡 ⇒ 期望 BOOT 拒收、`phase=boot`、不进 PLAYING）。`P26-N` 属
+ *        `levels-spec §2 / src/config/levels.ts` 校验判据，**不属 S4 §8-3** ⇒ 不得回填成 S4 的绿。
+ *      ③ **P4 / BD-29**：`ux-spec §5`「放错拒绝」视觉列现文 = **单次脉冲**（α 0→1 淡入 60 / 峰值保持 80 /
+ *        淡出 60 = 200ms，**一个 fx 窗口内 α 极值点 ≤1、不往复**）+ 连续拒绝 **重启门 500ms** ⇒ 有效 ≤2 次/秒。
+ *        故把 v1.1 的成立条件「danger α 出现 ≥2 档（只证在闪）」升为两条**结构断言**：
+ *        (a) 一个 fx 窗口内 α **峰点数 ≤1**（plateau 合并后计，新增 helper `countPeaks`）；
+ *        (b) 连续拒绝时**两次脉冲起点间隔 ≥500 ms**（起点由 `snapshot.wrongProgress` 回零/回落判定，α 序列同帧并列）。
+ *        实测仍为「2 次闪 / 200 ms」（`view-model.ts:521` `0.4+0.6·|sin(progress·2π)|` ⇒ 2 峰 = 10 Hz；
+ *        `beads-game.ts:1524` 每次 mismatch 无条件重置 `_wrongFx.elapsedMs=0` ⇒ 无重启门）⇒ 本条**照实记 FAIL**，
+ *        并按 §5 表下「实现落差登记」（:201）写明 **非新回归**：BD-29 由「规格互斥」**转态为「实现落差」**，
+ *        改码已立项 **WXG-T-102**；`reduceMotion` 退静态半边（P22）已与新措辞一致 ⇒ **不重复开缺陷**。
+ *      同轮口径自查：本轮**未**因数字难看而放宽（P4 是收紧后 FAIL），也**未**因数字好看而把 ⛔ 写成 PASS；
+ *      未跑的门（G1–G3 全量、`[Cocos]/[Device]/[B]/[P]` 道次）继续按报告 §18.2 登记为未执行，不因本单改判。
  *
  * 环境事实（禁止伪造）：无 AppID / 无真机 ⇒ `[Device]/[R]` 一律 ⛔；`[Cocos]` 像素级判据——
  * 波次 3（v1.1）当时 `framework:sync:check` 为✅、web-mobile 产物 mtime 2026-09-15 08:48；
@@ -358,6 +389,25 @@ function pulsePeriodMs(samples) {
     return { periods: troughs.length - 1, periodMs: mean * (1000 / 60), distinct: new Set(samples.map((v) => v.toFixed(3))).size };
 }
 const chi2 = (obs, exp) => obs.reduce((a, o) => a + ((o - exp) ** 2) / exp, 0);
+/**
+ * 【修订 38③ 新增】把一个逐帧量（此处 = danger 描边 α）压缩成「平台合并后的折线」再数**峰点**。
+ * 用于 `ux-spec §5` 现文的结构性判据「一次 fx 窗口内 **α 极值点 ≤1（不往复）**」：
+ * 单次脉冲（淡入→保持→淡出）⇒ 峰数 1；旧实现「200ms 内闪 2 次」⇒ 峰数 2 ⇒ FAIL。
+ * 边界约定：序列首/尾视为基线（与 `-Infinity` 比较），故「从基线抬起再落回基线」恰计 1 峰；
+ * 峰值平台（连续多帧等值，对应现文「保持 80ms」）经去重后只计 1 峰——**这正是单次脉冲的形状**。
+ */
+function countPeaks(samples) {
+    const u = [];
+    for (const v of samples) if (!u.length || Math.abs(v - u[u.length - 1]) > 1e-9) u.push(v);
+    const peaks = [];
+    for (let i = 0; i < u.length; i++) {
+        const l = i === 0 ? -Infinity : u[i - 1];
+        const r = i === u.length - 1 ? -Infinity : u[i + 1];
+        if (u[i] > l && u[i] >= r) peaks.push({ at: i, v: u[i] });
+    }
+    const nz = samples.filter((v) => v > 0);
+    return { peaks: peaks.length, peakList: peaks, plateau: u.length, distinct: new Set(samples.map((v) => v.toFixed(3))).size, min: nz.length ? Math.min(...nz) : 0, max: nz.length ? Math.max(...nz) : 0 };
+}
 const CRIT_DF11_A005 = 19.675, CRIT_DF11_A001 = 24.725;
 
 const out = [];
@@ -498,17 +548,45 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const sn = { wrongRow: h.game.snapshot.wrongRow, wrongCol: h.game.snapshot.wrongCol, wrongProgress: h.game.snapshot.wrongProgress };
     const rejected = h.count('bead:rejected');
     const dangerHex = hex2(DEFAULT_PALETTE.danger);
-    const shake = [], flash = [];
-    for (let f = 0; f < 13; f++) {
+    // 【修订 38③ · P4 预期值重建】`ux-spec §5`「放错拒绝」视觉列现文（WXG-T-098）= **单次脉冲**
+    // （α 0→1 淡入 60ms / 峰值保持 80ms / 淡出 60ms = 200ms，**一个 fx 窗口内 α 极值点 ≤1、不往复**）
+    // + 连续拒绝 **重启门 500ms** ⇒ 有效 ≤2 次/秒。v1.1 只断「α 出现 ≥2 档」（= 在闪，被旧规格满足，
+    // 也被任何往复满足）⇒ 现升为两条**结构断言**：(a) 峰点数 ≤1；(b) 两次脉冲起点间隔 ≥500ms。
+    const shake = [], flash = [], progSeries = [];
+    for (let f = 0; f < 14; f++) {                     // 200ms = 12 帧 + 2 帧收尾（含描边环消失）
         const cs = cmds(h); const cur = h.game.snapshot;
         const [wx, wy] = cellXY(cur, wrongCell);
         const bead = cs.filter((k) => k.kind === 'rect' && Math.abs(k.w - T.BEAD_CELL) < 0.6 && Math.abs((k.y + k.h / 2) - wy) < 2 && Math.abs((k.x + k.w / 2) - wx) < 8).map((k) => (k.x + k.w / 2) - wx);
         shake.push(bead.length ? Number(bead[0].toFixed(2)) : 0);
-        const rg = rings(cs, dangerHex); flash.push(rg.length ? (rg[0].alpha ?? 1) : 0);
+        const rg = rings(cs, dangerHex).filter((k) => Math.abs((k.x + k.w / 2) - wx) < 10);
+        flash.push(rg.length ? Number((rg[0].alpha ?? 1).toFixed(3)) : 0);
+        progSeries.push(Number(cur.wrongProgress.toFixed(3)));
         h.frame();
     }
     const shakeMax = Math.max(...shake.map(Math.abs)), shakeDir = new Set(shake.filter((v) => Math.abs(v) > 0.4).map((v) => Math.sign(v))).size;
-    const fm = pulsePeriodMs(flash.filter((v) => v > 0));
+    const pk = countPeaks(flash);
+    const peakHz = (pk.peaks * 1000) / T.WRONG_FX_MS;
+    // (b) 连续拒绝 ⇒ 脉冲起点间隔（现文「重启门 500ms」）。起点用 `snapshot.wrongProgress` 的
+    //     「回零 / 回落」判定（fx 被重建才回落，比从 α 反推稳；α 序列与 progress 序列同帧并列打印供复核）。
+    const h3 = mk(); h3.frame();
+    const s3 = h3.game.snapshot;
+    const held3 = s3.traySlots.findIndex((x) => x.state !== 'free');
+    const c3 = s3.traySlots[held3].colorIdx;
+    const wrong3 = (() => { for (let i = 0; i < s3.cells.length; i++) { const x = s3.cells[i]; if (!x.void && x.state === 'empty' && x.colorIdx > 0 && x.colorIdx !== c3) return i; } return -1; })();
+    h3.game.tapDesign(...slotXY(held3)); h3.frame();
+    const starts = [], prog3 = [], tapFrames = [];
+    let prevProg = 0;
+    for (let f = 0; f < 54; f++) {                       // 0.9s 连续拒绝窗口
+        if (wrong3 >= 0 && f % 6 === 0) { h3.game.tapDesign(...cellXY(h3.game.snapshot, wrong3)); tapFrames.push(f); }
+        h3.frame();
+        const cur = h3.game.snapshot.wrongProgress;
+        prog3.push(Number(cur.toFixed(3)));
+        if (cur > 0 && (prevProg === 0 || cur < prevProg - 1e-6)) starts.push(f);
+        prevProg = cur;
+    }
+    const rejected3 = h3.count('bead:rejected');
+    const gapsMs = starts.slice(1).map((v, i) => (v - starts[i]) * (1000 / 60));
+    const minGapMs = gapsMs.length ? Math.min(...gapsMs) : null;
     // 其余三行：落座回弹 / 消除溶解 / 完成波浪 —— 落子后连续帧指令签名（剔 text）是否随时间轴变化
     const h2 = mk(); h2.frame();
     const s2 = h2.game.snapshot; const t2 = firstEmptyOf(s2, s2.traySlots.find((x) => x.state !== 'free')?.colorIdx ?? 1);
@@ -529,17 +607,23 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     if (popDistinct <= 1) residual.push('vfx_fill_pop(120ms)');
     if (!src.dissolve.length) residual.push('vfx_clear_dissolve(200ms)');
     if (!src.wave.length) residual.push('vfx_complete_wave(逐列20ms/800ms)');
-    const wrongOk = rejected === 1 && sn.wrongProgress > 0 && Math.abs(sn.wrongRow - Math.floor(wrongCell / s.gridCols)) <= 1 && shakeMax > 0 && shakeDir === 2 && fm.distinct >= 2;
-    const v = wrongOk && residual.length === 0 ? 'PASS' : (wrongOk ? 'PASS*' : 'FAIL');
-    rec('P4 / BD-04 · GAP-04 拒绝反馈（wrong 抖动+闪）与其余 VFX 行', v,
-        `① wrong 态：bead:rejected=${rejected}（期望 1）、wrongRow/Col=(${sn.wrongRow},${sn.wrongCol})、wrongProgress=${sn.wrongProgress.toFixed(2)}；`
-        + `被拒格 200ms 内水平位移样本=[${shake.join(',')}]px ⇒ 幅度 max=${shakeMax}px（ux-spec §5 = ±${T.WRONG_SHAKE_PX}px）、换号次数=${shakeDir}（期望 2 = ±×2）；`
-        + `danger(${dangerHex}) 描边环 α 样本=[${flash.join(',')}] ⇒ 呼吸档 ${fm.distinct} 种、周期 ${fm.periodMs ? fm.periodMs.toFixed(0) : '—'}ms（WRONG_FX_MS=${T.WRONG_FX_MS}ms 内闪 2 次）。`
-        + `　⚠️ **红线冲突待裁定（新登记）**：「200ms 内闪 2 次」= 10Hz 亮度变化，与 ux-spec §5 表头/§3.8「无 >3Hz 闪烁」红线口径冲突（表内「≤2 次/秒」原文挂在**音效**列）⇒ QA 不自裁。`
-        + `② 落座回弹：落子前/后连续 10 帧**剔 text** 指令签名去重=${popDistinct}（>1 才有时间轴）；`
-        + `③④ tuning 命中：FILL_POP=${src.fillPop.length} / DISSOLVE=${src.dissolve.length} / COMPLETE_WAVE=${src.wave.length} 个常量。`
-        + (residual.length ? ` ⇒ 仍缺行：${residual.join(' / ')}（ux-spec §5 其余三行，波次 2 未列 T-087 范围）⇒ 建议 BD-04 **降级不关闭**。` : ' ⇒ 四行全落地。')
-        + `　【探针口径】v1.0 以「CellState 无 wrong/hint」为实现缺失，本轮改判据为渲染层断言（修订 16）：载体实为 snapshot 覆盖层 hintRow/Col、wrongRow/Col/progress + view 只读消费（view-model.ts:493-521、584-587）。`);
+    const pulseStructOk = pk.peaks <= 1;                      // 现文：一个 fx 窗口内 α 极值点 ≤1
+    const gateStructOk = minGapMs === null || minGapMs >= 500 - 1e-9;   // 现文：连续拒绝重启门 500ms
+    const wrongOk = rejected === 1 && sn.wrongProgress > 0 && Math.abs(sn.wrongRow - Math.floor(wrongCell / s.gridCols)) <= 1 && shakeMax > 0 && shakeDir === 2 && pk.peaks >= 1;
+    const v = wrongOk && pulseStructOk && gateStructOk && residual.length === 0 ? 'PASS'
+        : (wrongOk && pulseStructOk && gateStructOk) ? 'PASS*' : 'FAIL';
+    rec('P4 (v1.3 改判) / BD-04 · BD-29 转态 · 拒绝反馈「单次脉冲 + 500ms 重启门」（ux-spec §5 现文，WXG-T-098）', v,
+        `① **单次脉冲**（现文：淡入 60 / 保持 80 / 淡出 60 = 200ms，一个 fx 窗口内 **α 极值点 ≤1**）：`
+        + `bead:rejected=${rejected}（期望 1）、wrongRow/Col=(${sn.wrongRow},${sn.wrongCol})、wrongProgress=${sn.wrongProgress.toFixed(2)}；`
+        + `被拒格 200ms 内水平位移样本=[${shake.join(',')}]px ⇒ 幅度 max=${shakeMax}px（ux-spec §5 = ±${T.WRONG_SHAKE_PX}px，**属位移、不在闪烁通道**）、换号次数=${shakeDir}（期望 2 = ±×2）；`
+        + `danger(${dangerHex}) 描边环 α 逐帧样本=[${flash.join(',')}]（同帧 wrongProgress 样本=[${progSeries.join(',')}]）⇒ **峰点数 = ${pk.peaks}**（plateau 合并后计，判据 ≤1）、折算峰频 **≈ ${peakHz.toFixed(1)} Hz**；α 取值集=[${[...new Set(flash)].join(',')}]、非零区间 α∈[${pk.min}, ${pk.max}]（现文 α 0→1 淡入⇒起点应为 0；实测下限 ${pk.min} ≠ 0 属**同一落差的附带观察**，不另计缺陷）。`
+        + `② **重启门**（现文：连续拒绝时**视觉脉冲重启门 500ms** ⇒ 有效 ≤2 次/秒）：每 100ms 注入一次同格误点，注入帧=[${tapFrames.join(',')}]⇒ bead:rejected=${rejected3}；脉冲起点帧=[${starts.join(',')}]（${starts.length} 个）、相邻起点间隔=[${gapsMs.map((g) => g.toFixed(0)).join(',')} ms] ⇒ **最小间隔 = ${minGapMs === null ? '—' : minGapMs.toFixed(0) + ' ms'}**（判据 ≥500 ms）。`
+        + `③ **两条结构断言实测**：(a) 峰点数 ≤1 = **${pulseStructOk}**（实测 ${pk.peaks}）；(b) 起点间隔 ≥500ms = **${gateStructOk}**（实测 ${minGapMs === null ? '—' : minGapMs.toFixed(0) + ' ms'}）⇒ **本条记 ${v}**。`
+        + '　【**转态声明 · 非新回归**】BD-29 在 v1.1 是「ux-spec §5 视觉列与同表红线 / systems-index §3.8 互斥」（当时记 PASS\*，因实现忠实于旧表格行「闪 2 次 / 200ms」）；WXG-T-098 已按主理人定向把视觉列改写为**与本判据一致的单次脉冲**（ux-spec §5:174 闪烁口径 + §5:180 视觉列），该**规格互斥已消解** ⇒ BD-29 由「规格互斥」**转态为「实现落差」**（即旧实现与新规格的差，**不是**本轮新发现的回归）。代码锚点：view-model.ts:521 「0.4 + 0.6·|sin(wrongProgress·2π)|」⇒ 200ms 内 2 峰 = 10Hz；beads-game.ts:1524 每次 mismatch 无条件将 _wrongFx.elapsedMs 重置为 0 ⇒ 无 500ms 门。§5 表下「实现落差登记」（:201）已明文：跟进落地前按**已知偏差**沿 BD-29 记录、**不重复开新缺陷** ⇒ 本轮**不占用新 BD 号**；改码已立项 **WXG-T-102**（production/TASKS.md:43）。（本 agent 只读，未改 src/。）'
+        + `　【reduceMotion 半边不重复计】§5 现文「退为静态红描边（200ms 保持后直接消失，0 往复）+ 抖动位移归零」已由 **P22** 实测成立（wrong 位移唯一值=1、fx 窗口内静态红环 ≥1）⇒ 与新措辞一致，**不另开缺陷**（AGENTS §7 一事一记）。`
+        + `④ **BD-04 其余三行沿用 v1.1 读数（本单未复核该半边预期值）**：落座回弹：落子前/后连续 10 帧剔 text 指令签名去重=${popDistinct}（>1 才有时间轴）；tuning 命中：FILL_POP=${src.fillPop.length} / DISSOLVE=${src.dissolve.length} / COMPLETE_WAVE=${src.wave.length} 个常量`
+        + (residual.length ? ` ⇒ 仍缺行：${residual.join(' / ')}（ux-spec §5 其余行，波次 2 未列 T-087 范围）⇒ BD-04 **降级不关闭**维持。` : ' ⇒ 四行全落地。')
+        + `　【探针口径】v1.0 以「CellState 无 wrong/hint」为实现缺失，改判据为渲染层断言（修订 16）：载体实为 snapshot 覆盖层 hintRow/Col、wrongRow/Col/progress + view 只读消费（view-model.ts:493-521、584-587）；本轮在此基础上**只按现文收紧、不放宽**（修订 38③）。`);
 }
 
 // ═════════════════════════════════════════════════════════ P5 · 音频
@@ -1887,12 +1971,15 @@ function hudPulse(h, n) {
 /** PanelRect = {xMin,yMin,xMax,yMax}（pause-panel.ts:67-69）；取中心设计坐标。 */
 const panelCenter = (b) => [(b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.rect.yMax) / 2];
 
-// ═════════════════════════════════════════════════════ P20 (新增) · §8-1 / core-loop §8-2 首供语义 16±0
+// ═════════════════════════════ P20 (v1.3 改判) · §8-1 现文（次数轴/时刻轴分列）
 {
+    // 【修订 38① · 预期值取自 WXG-T-098 回写后的 tray-spawner §8-1 现文】
+    // 窗口 **t ∈ [0, 60] 闭区间**；「±0」**只约束次数轴**（按调度名义时刻一一映射）；
+    // **时刻轴单列**：0 ≤ t_actual − 4×(i−1) ≤ 2 帧（帧 = GameLoop.fixedDt = 1/60 s ⇒ 上界 33.4 ms），负偏差即 FAIL。
+    const FRAME = 1 / 60, WIN_END = 60, LAG_HI = 2, EPS = 1e-6;
     const lvl = probeLevel(914, T.GRID_MAX_COLS, T.GRID_MAX_ROWS, 420, T.SPAWN_INTERVAL_DEFAULT, (i, j) => String(((i * T.GRID_MAX_COLS + j) % 3) + 1));
     const h = mk({ levels: [lvl], seed: 'sixteen' });
-    // 时基从「进入 PLAYING 的那一帧」起算；§8-1 的「60 秒内」按**闭区间 t∈[0,60]**取值
-    // （= 首供 1 @t=0 + 周期 15 @t=4,8,…,60），开/闭区间差 1 次，已登记为判据歧义（见报告 §12）。
+    // 时基从「进入 PLAYING 的那一帧」起算（模拟时间，非墙钟）。
     const times = [];
     let since = -1, seenN = 0;
     for (let f = 0; f < 60 * 64; f++) {
@@ -1900,23 +1987,42 @@ const panelCenter = (b) => [(b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.re
         if (h.game.snapshot.phase !== 'playing') break;
         since = since < 0 ? 1 : since + 1;
         const c = h.count('tray:spawned');
-        while (seenN < c) { seenN++; times.push(since / 60); }
+        while (seenN < c) { seenN++; times.push(since * FRAME); }
     }
-    const inWindow = times.filter((t) => t <= 60 + 1e-9);
-    const openWindow = times.filter((t) => t < 60 - 1e-9);
+    const S = T.SPAWN_INTERVAL_DEFAULT;
+    const nominal = (i) => S * (i - 1);
+    const nominalInWindow = Math.floor(WIN_END / S) + 1;                     // = 16：首供 i=1 @0s + 周期 i=2..16 @4..60s
+    const hi = WIN_END + LAG_HI * FRAME;                                      // 可采纳上界 = 60.0333s
+    const mapped = times.slice(0, nominalInWindow).map((t, idx) => ({ i: idx + 1, nom: nominal(idx + 1), t, lag: (t - nominal(idx + 1)) / FRAME }));
+    const inAdmissible = times.filter((t) => t <= hi + EPS).length;
+    const strictLe60 = times.filter((t) => t <= WIN_END + EPS).length;        // 旧字面严格读法（无帧量化）
+    const extra = times.slice(nominalInWindow);                               // 名义第 17 次及以后
     const deltas = times.slice(1).map((t, i) => t - times[i]);
-    const maxDev = deltas.length ? Math.max(...deltas.map((d) => Math.abs(d - T.SPAWN_INTERVAL_DEFAULT))) : null;
+    const maxDev = deltas.length ? Math.max(...deltas.map((d) => Math.abs(d - S))) : null;
+    const negLag = mapped.filter((m) => m.lag < -EPS);
+    const overLag = mapped.filter((m) => m.lag > LAG_HI + EPS);
+    const maxLag = mapped.length ? Math.max(...mapped.map((m) => m.lag)) : null;
     const placements = h.count('bead:placed');
-    const rhythmOk = times[0] === 1 / 60 && maxDev !== null && maxDev <= 0.1 && deltas.length >= 15;
-    const v = rhythmOk && times.length >= 16 ? 'PASS*' : 'FAIL';
-    rec('P20 (v1.1 新增) / BD-25 · S4 §8-1 + S1 §8-2 首供语义 16（±0）', v,
-        `注入 spawnInterval=SPAWN_INTERVAL_DEFAULT=${T.SPAWN_INTERVAL_DEFAULT}s、13×12 关卡（demand 充裕），自动落子保持盘面可落（修订 22）：`
-        + `首供时刻 t=${times[0] !== undefined ? times[0].toFixed(4) : '—'}s（期望 ${(1 / 60).toFixed(4)}s = 进入 PLAYING 第 1 帧）；` + `t≤60 闭区间内 tray:spawned **${inWindow.length}** 次、t<60 开区间=${openWindow.length} 次（判据现文 = **16 ±0** = 首供 1 + 周期 15），全部样本时刻=[${times.slice(0, 17).map((t) => t.toFixed(2)).join(', ')}]s。`
-        + `相邻间隔最大偏差 ${maxDev !== null ? maxDev.toFixed(4) : '—'}s（期望 ≤0.1s；第 1 个间隔多 1 帧 = 16.7ms，系离散帧时基下的固定舍入）；同期 bead:placed=${placements}（证明非「满槽停供」造成计数塔陷）。`
-        + `　⇒ 节律与首供本身均符合回写后判据；仅剩「±0 在 60.0s 边界上的开/闭区间定义」未写定（第 16 次落在 60.033s，超出闭区间上界 2 帧 = 33ms）⇒ 记 **PASS\*** 并登记 **BD-27（判据边界歧义，非实现缺陷）**：建议 §8-1 改写为「t∈[0,60] 且窗口边界允许 ±1 帧」或「60s 内恰 15 次间隔为 4.0s 的周期供料 + 1 次首供」。`
-        + `　【裁定请求 · QA 不自裁】若主理人采**字面严格读法**（「16 ±0」且窗口为闭区间 [0,60]，不允帧量化容差），则本条实测为 15≠16 ⇒ **应记 FAIL**；`
-        + `　若采「±1 帧量化容差」读法（帧时基下 60s 不可能整除 240 帧间隔 + 首供偏移 1 帧）⇒ 记 PASS。QA 按后者采 PASS* 呈请，**不据本条自行关单 BD-25**。`
-        + `　v1.0 冲突表 #4（旧 ±1 容差恰吞掉 +1 变更 = 前瞻性假绿）随回写 + 落码实测闭环 ⇒ **BD-25 建议关闭**（若主理人采纳上述边界注记）。`);
+    const sn = h.game.snapshot;
+    // 用例前提（§8-1 第 4 子文）：供料不被满槽截断，否则与 §8-4 混测。
+    const premiseOk = h.count('tray:full') === 0 && placements >= nominalInWindow - 1 && sn.phase === 'playing';
+    // (b) 次数轴 ±0：恰 16（缺一次 = FAIL；出现名义第 17 次 = FAIL，两侧都断言）
+    const countOk = inAdmissible === nominalInWindow && extra.every((t) => t > hi + EPS);
+    // (c) 时刻轴：一一映射成立 且 无负偏差 且 无 >2 帧滞后
+    const timeAxisOk = mapped.length === nominalInWindow && negLag.length === 0 && overLag.length === 0;
+    // (d) 相邻间隔 4.0s ±0.1s
+    const intervalOk = maxDev !== null && maxDev <= 0.1 + EPS;
+    const v = premiseOk && countOk && timeAxisOk && intervalOk ? 'PASS' : 'FAIL';
+    rec(`P20 (v1.3 改判) / BD-25 · BD-27 已裁定 · S4 §8-1 现文两轴分列（闭区间 + 次数 ±0 + 时刻 ≤2 帧）`, v,
+        `【判据现文（唯一来源，非 QA 自定）】tray-spawner §8-1（WXG-T-098 回写后）：窗口 **t ∈ [0, 60] 秒闭区间**（含两端；t = 进入 PLAYING 起算的**模拟时间**）内 tray:spawned **恰 16 次（次数 ±0）** = 首供 1 + 周期 15；「±0」**只约束事件次数**（缺任一次 = FAIL；出现名义第 17 次 = FAIL），**不约束时刻**；第 i 次的**名义时刻** = 4×(i−1) s ⇒ 第 16 次名义 t=60.0s 恰落在闭区间上界内 ⇒ **计入**（本句即 BD-27 的开/闭区间裁定）。**时刻轴**与次数轴分列：**0 ≤ t_actual − 4×(i−1) ≤ 2 帧**，帧 = GameLoop.fixedDt = 1/60 s ≈ 16.7 ms ⇒ 上界 33.4 ms，**出现负偏差（提前）即 FAIL**；相邻间隔仍 **4.0 s ±0.1 s**；用例前提 = 供料不被满槽截断。` + `　帧定义另见 systems-index §3 前言「使用约定」第 4 条（WXG-T-098）：帧量化只允许出现在**时刻轴**，不得出现在**次数轴**。`
+        + `【夹具与前提】注入 spawnInterval = SPAWN_INTERVAL_DEFAULT = ${S}s（未被覆盖 ⇒ 走默认语义）、13×12 关卡 demand 充裕、自动落子循环（修订 22）保持盘面可落；实测同期 bead:placed=${placements}（判据 ≥ ${nominalInWindow - 1}）、tray:full=${h.count('tray:full')}、末帧 phase=${sn.phase} ⇒ **前提成立 = ${premiseOk}**（非「满槽停供」造成计数塌陷，不与 §8-4 混测）。`
+        + `【16 个实际时刻 + 逐条滞后帧数（按到达序一一映射到名义序号）】` + mapped.map((m) => `i=${m.i}: 名义=${m.nom.toFixed(1)}s 实际=${m.t.toFixed(4)}s 滞后=${m.lag.toFixed(2)}帧`).join(' | ')
+        + `　⇒ 全部样本（含窗口外）实际时刻=[${times.map((t) => t.toFixed(3)).join(', ')}]s，共 ${times.length} 个事件。`
+        + `【次数轴推导（±0，闭区间按名义计数）】名义序号 i=1..${nominalInWindow} 的**名义时刻**均在闭区间 [0, ${WIN_END}] 内 ⇒ 期望事件数 = floor(${WIN_END}/${S}) + 1 = **${nominalInWindow}**；实测落在**可采纳上界** t ≤ ${WIN_END} + ${LAG_HI}帧 = ${hi.toFixed(4)}s 内的事件数 = **${inAdmissible}**；窗口外多余事件 = ${extra.length ? `[${extra.map((t) => t.toFixed(3)).join(', ')}]s（名义第 17 次起，>${hi.toFixed(4)}s ⇒ 合法且不构成「出现第 17 次」）` : '0 个'} ⇒ 次数轴 ±0 **${countOk}**（缺一次/多一次两个方向均已断言）。`
+        + `【时刻轴（单列）】最大滞后 = ${maxLag === null ? '—' : maxLag.toFixed(2)} 帧（判据 ≤ ${LAG_HI} 帧 = ${(LAG_HI * 1000 / 60).toFixed(1)} ms）；滞后 >2 帧的序号=[${overLag.map((m) => m.i).join(',') || '空'}]、负偏差（提前）序号=[${negLag.map((m) => m.i).join(',') || '空'}] ⇒ 时刻轴 **${timeAxisOk}**。首供 i=1 实际 t=${mapped.length ? mapped[0].t.toFixed(4) : '—'}s（= 进入 PLAYING 第 1 帧，滞后 ${mapped.length ? mapped[0].lag.toFixed(2) : '—'} 帧；ux-spec §6.2 (ii) 型「首供分支不累计 _acc」⇒ 1 帧，落在 2 帧上界内）。`
+        + `【间隔轴】相邻间隔最大偏差 ${maxDev === null ? '—' : maxDev.toFixed(4)}s（判据 ≤0.1s）⇒ **${intervalOk}**。`
+        + `【新旧读法差异 · 并列呈报，防「数字变好看」误读】旧**字面严格读法**（窗口闭区间 [0,60] 且**不允**任何帧量化）下 t ≤ 60.000s 的事件数 = **${strictLe60}** ≠ 16 ⇒ **按旧读法本条仍为 FAIL**，卡点就是第 16 次实际落 ${(mapped.length >= nominalInWindow ? mapped[nominalInWindow - 1].t : NaN).toFixed(4)}s（超上界 ${(mapped.length >= nominalInWindow ? mapped[nominalInWindow - 1].lag : NaN).toFixed(2)} 帧）。本轮由 v1.1 的 PASS* 变为 ${v} 的**唯一依据是判据现文变了**（§8-1 第 1 子文「第 16 次名义 t=60.0s 恰落在闭区间上界内 ⇒ 计入」+ 时刻轴单列 2 帧；且 §8-1 第 3 子文明文「次数轴维持 ±0 不放宽」），**QA 未放宽任何阈值、未删任何断言**（修订 38①）。`
+        + `【BD 处置建议（裁定权在主理人）】BD-27（60s 窗口开/闭区间歧义）已由 WXG-T-098 以「闭区间 + 名义计数 + 时刻轴 2 帧」回写裁定 ⇒ **建议关闭**；BD-25（v1.0 冲突表 #4：旧 ±1 容差恰吞掉首供带来的 +1 变更 = 前瞻性假绿）随「±0 只约束次数轴 / 时刻轴单独 2 帧」的分列回写 + 本轮落码实测闭环 ⇒ **建议关闭**。本条 verdict 不再以「判据歧义」挂星（判据已无歧义）；若任一子轴实测不过，本条即为 FAIL 而非 PASS*。`);
 }
 
 // ═════════════════════════════════════════════════════ P21 (新增) · A′ 不变量长跑 + §8-9 0 杂色
@@ -1943,7 +2049,7 @@ const panelCenter = (b) => [(b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.re
     rec('P21 (v1.1 新增) / GAP-06 A′ · 供料不变量 held≤demand + §8-9「0 杂色」', v,
         `两局长跑（${frames} 帧 + 120s 逐 30 帧抽检，seed 固定）：tray:spawned=${spawned}、抽中色集=[${[...seen].sort((a, b) => a - b).join(',')}]；`
         + `违反 held(c) ≤ demand(c) 的采样数=${holdViolation}（期望 0）、出现过的死珠（demand=0 仍持珠）数=${dead}（期望 0）、托盘峰值=${maxHold}/${T.TRAY_BASE_SLOTS}。`
-        + `§8-9（0 杂色关卡 ⇒ 供料 100% 为仍需色）：8 关 JSON decoys 全空=${trivial0}，D（DECOY_COLORS_MAX=${T.DECOY_COLORS_MAX}）下本条**平凡真**（见 P26 的判据可构造性登记）。`
+        + `§8-9（0 杂色关卡 ⇒ 供料 100% 为仍需色）：8 关 JSON decoys 全空=${trivial0}，D（DECOY_COLORS_MAX=${T.DECOY_COLORS_MAX}）下本条**平凡真**（§8-9 可直接观测 ⇒ 与 §8-3 的 ⛔ 不同类，见 P26 改判口径的区分声明）。`
         + `　代码锚点：spawner.ts _drawColor 入池条件 needed>0 && heldCount<needed（Tray.heldCount，tray.ts:97）；道具侧 powerups.ts 头注「绝不写网格」⇒ demand 只随落子下降，不变量可归纳保持。`);
 }
 
@@ -2061,16 +2167,26 @@ function stepGame(g, inp) { inp.beginFrame(); g.update(1 / 60); inp.endFrame(1 /
         + `　口径声明：本条只证**几何常量与文档一致**；真实触控误触率（60px 是否够用）属「[Device]/[R]」⛔，不因本条改判。`);
 }
 
-// ═════════════════════════════════════════════════════ P26 (新增) · 判据可构造性回归（D 的副作用）
+// ═════════════════════ P26 (v1.3 改判) · §8-3 作废 ⇒ ⛔ 不可验 + 负向用例 P26-N
 {
     const withDecoy = probeLevel(922, 6, 5, 300, 2.0, (i, j) => String(((i + j) % 3) + 1), ['4']);
-    const h = mk({ levels: [withDecoy] }); h.frame();
-    const err = h.game.snapshot.phase !== 'playing';
-    rec('P26 (v1.1 新增) / 新登记 BD-28 · S4 §8-3「3:1 抽色」在 D（DECOY_COLORS_MAX=0）下不可构造', '⛔（本轮不可验 · 移交裁定）',
-        `构造 §8-3 要求的「仍需 1 色 + 1 杂色」关卡（decoys=['4']）装载 → phase=${h.game.snapshot.phase}（BOOT 校验拒收：levels.ts:184 level.decoys.length > DECOY_COLORS_MAX(${T.DECOY_COLORS_MAX})）${err ? ' ⇒ 判据前置条件在冻结常量下**不可能成立**' : ''}。`
-        + `　tray-spawner §2.4.6 自认「§8.3（3:1 抽色）在 A′/D 下**作废或重写**、§8.9（0 杂色）在 D 下变为全关卡平凡真」，但 **§8 正文未随 v1.17 同步回写**（T-091 只改了 §8-1/§8-2）`
-        + `⇒ 本轮**不判实现缺陷**（代码按冻结常量做事正确），也不计入 FAIL；记 **⛔ 不可验**，移交主理人与 GDD 负责人回写（沿用 §8 冲突表体裁，编号 **BD-28**）。`
-        + `　QA 不自裁：建议 §8-3 改为「A′ 入池条件断言：demand(c)=0 的色永不被抽中（P21 已实测 0 例）」或删除；§8-9 加注「D 下平凡真，保留作回归钉」。`);
+    const h = mk({ levels: [withDecoy] }); h.frame(); h.advance(2);   // 再多推 2s：证明不只是一帧未到位，而是**不进 PLAYING**
+    const sn = h.game.snapshot;
+    const spawned = h.count('tray:spawned');
+    const rejectOk = sn.phase === 'boot' && spawned === 0;
+    // 【修订 38② · 主记录不再带 3:1 断言】§8-3 现文已判**作废**（非「平凡真」），本条改判为 ⛔ 不可验：
+    // 不记 PASS（伪绿）、也不记 FAIL（代码按冻结常量做事，无实现违约）。3:1 占比/权重断言已从本探针**撤销**。
+    rec('P26 (v1.3 改判) / BD-28 已裁定 · S4 §8-3「3:1 抽色」判据已作废 ⇒ ⛔ 不可验（不记 PASS、不记 FAIL）', '⛔（判据作废 · 不可验）',
+        `【判据现文（唯一来源）】tray-spawner §8-3（WXG-T-098 回写后）首行即 **「作废（v1.17 D 方案；WXG-T-098，BD-28）」**，原文（自该行起不再作 QA 判据）：“抽色权重：构造‘仍需 1 色 + 1 杂色’关卡，100 次供料中所需色占比 ≈ 75%（3:1，允许 ±10 个百分点）”。⇒ 本探针**原先的 3:1 断言已撤销、不再生效**，也不再参与任何 PASS 计数。`
+        + `【作废依据（§8-3 第 1 子文）】DECOY_COLORS_MAX = 0 已由 systems-index §3（v1.17，U8=D）冻结 ⇒ 合法关卡**一律不得声明杂色**，本条前置（“1 杂色”关卡）**不可构造**；实现侧 levels.ts:184 在 BOOT 即拒收 decoys.length > DECOY_COLORS_MAX(${T.DECOY_COLORS_MAX})。本探针实测（作**实现事实旁证**留存，不作为 §8-3 的验凭）：构造 decoys 非无关卡 → phase=${sn.phase}、tray:spawned=${spawned}、推进 +2s 后仍 phase=${sn.phase} ⇒ **不进 PLAYING**，与现文引用的 QA P26 实测一致。`
+        + `【⛔ 与「平凡真 PASS」的差别（为何不能记绿）】§8-3 第 2 子文已写明：本条主体是**加权比例 3:1**；杂色集恒空时该比例**无从观测**，记「平凡真 PASS」等于给一条不可执行的断言盖章（**伪绿**）。第 3 子文直接交 QA 口径：本条 = **⛔ 不可验（前置不可构造）**，撤销 P26 的 3:1 判据，**不得记 PASS、亦不记 FAIL**；括号内原文区分二者：⛔ = **无从判定、不产绿**；平凡真 = **判定成立但恒真**（两者不是同一种结果，不得互相代换）。`
+        + `【作废不产生判据真空（第 2 子文后半）】所需色一侧的合法性/均匀性已由 §8-2（随机空闲槽卡方，本探针 P12）与 §8-9（0 杂色 ⇒ 供料 100% 为仍需色，P21）覆盖 ⇒ 本条作废不扣总覆盖；§8-9 在 D 下仍为**平凡真**（该条主体就是“供料集合不含杂色”，可直接观测）⇒ 保持 PASS，**不沿用本条的 ⛔ 口径**（两例不得混为一谈）。`
+        + `【复活条件（第 4 子文，必读）】若 §3 将 DECOY_COLORS_MAX 自 0 改回 ≥1（需走 §6 变更记录、主对话串行落盘），本条**即时复活为硬判据**，原文数值沿用：**3:1、100 样本、±10 个百分点**，并需连带回写 §2.2 第 2 步的杂色分支 ⇒ 届时 QA 需重建本段断言（**不得**今日预先记绿）。`
+        + `【归属声明】本轮 P26 主记录在任何门禁计数中**只计入 ⛔**；不得因“本轮 FAIL 数下降”而误读为改善（FAIL→⛔ 是判据作废造成的口径变化，不是实现变化）。BD-28 处置建议：由「判据侧滞后残留」**关闭**（§8 正文已随 WXG-T-098 回写，残留已消），是否关单由主理人裁。`);
+    // 负向用例（§8-3 第 3 子文只允许的保留形式）：不测抽色，只测 BOOT 校验。
+    rec('P26-N (v1.3 新增·负向用例) / levels-spec §2 + levels.ts:184 decoys 上限校验（**不属 S4 §8-3**）', rejectOk ? 'PASS' : 'FAIL',
+        `构造 decoys 非空关卡（decoys=[${withDecoy.decoys.map((d) => `'${d}'`).join(',')}]）→ 期望 BOOT 拒收：phase=${sn.phase}（判据 boot）、tray:spawned=${spawned}（判据 0）、多推 2s 后 phase=${sn.phase}（不进 PLAYING）⇒ ${rejectOk ? '拒收成立' : '拒收未成立，属真回归'}。`
+        + `　【归属】本条验的是 **levels 装载校验**（levels-spec §2 / src/config/levels.ts:184），**不属** S4 tray-spawner §8 判据；不得回填成 §8-3 的绿（§8-3 = ⛔）。`);
 }
 
 // ═════════════════════════════════════════════════════════ 汇总
@@ -2085,10 +2201,16 @@ for (const r of out) {
 }
 const sum = (t) => `PASS ${t.PASS} / PASS* ${t['PASS*']} / FAIL ${t.FAIL} / ⛔ ${t['⛔']}`;
 const cntGrp = (pred) => out.filter((r) => pred(r.id)).length;
-console.log('\n================ 探针汇总（v1.1 复验轮 · P5 段按 WXG-T-096 重建预期值） ================');
+// 【修订 38】本轮修订面 = P4 / P20 / P26（含新增负向用例 P26-N）；其余组沿用各自最近一次复核的预期值。
+const inT098 = (id) => /^P4\b/.test(id) || /^P20\b/.test(id) || /^P26\b/.test(id);
+const tallyT098 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
+const tallyRest2 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
+for (const r of out) (inT098(r.id) ? tallyT098 : tallyRest2)[norm(r.verdict)]++;
+console.log('\n================ 探针汇总（v1.3 改判轮 · P4/P20/P26 预期值按 WXG-T-098 回写后的 §8-1/§8-3/§5 现文重建） ================');
 for (const r of out) console.log(`${norm(r.verdict).padEnd(6)} ${r.id}`);
-console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组）`);
-console.log(`【本轮修订面 · P5 段（预期值按 T-096 重建，${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
-console.log(`【未随 T-096 复核 · 其余 ${cntGrp((id) => !id.startsWith('P5'))} 组沿用 v1.1 预期值】：${sum(tallyRest)}`);
-console.log('　↑ 两段计数不得合并解读：只有 P5 段在 WXG-T-096 之后重跑过预期值，其余 25 组未随本单复核。');
+console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组；含 P26-N 负向用例，较 v1.2 多 1 条记录）`);
+console.log(`【上轮修订面 · P5 段（预期值按 T-096 重建，${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
+console.log(`【本轮修订面 · P4/P20/P26（含 P26-N，${cntGrp(inT098)} 条）】：${sum(tallyT098)}`);
+console.log(`【未随 T-098 复核 · 其余 ${cntGrp((id) => !inT098(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
+console.log('　↑ 三段计数不得合并解读：只有 P4/P20/P26 在本轮改过预期值；P5 段沿 T-096 口径，其余组沿 v1.1 口径。');
 console.log(`时间戳：${new Date().toISOString()}   Node ${process.version}`);
