@@ -1,6 +1,12 @@
 /**
  * beads G4 现状基线探针 v3（严守真 / WXG-T-084）
  *
+ * ⚠️ **已冻结（自 WXG-T-097 起）**：本文件 = 波次 1（v1.0 报告）的历史证据夹具，
+ *    预期值停在当时的事实（P3/P5/P6/P8/P10 等仍引用旧字段 `powerupHint`/`banner`
+ *    与旧源码行号），**不再随代码演进维护**。当前唯一在用的 G4 主证据探针是
+ *    `production/qa/beads/g4-probe-v1.1.mjs`（报告 v1.1 §18）。重跑本文件得出的
+ *    FAIL 不得当作现状结论，也不得在此逐条改预期（会造出半新半旧的证据链）。
+ *
  * 用途：为 `production/qa/beads/g4-regression-report.md` 提供**可复现**的实测证据。
  * 判据来源：`games/beads/design/gdd/*.md` §8 + `art/assets-spec.md §1.2` + `art/accessibility.md`。
  *

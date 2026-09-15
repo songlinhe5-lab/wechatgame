@@ -339,8 +339,14 @@ const cellXY = (s, i) => [
 ];
 const TRAY_PITCH = T.TRAY_SLOT + T.TRAY_GAP;
 const TRAY_LEFT = (T.DESIGN_W - (T.TRAY_COLS * TRAY_PITCH - T.TRAY_GAP)) / 2;
-const TRAY_MID_Y = (T.TRAY_BAND.yMin + T.TRAY_BAND.yMax) / 2;
-const slotXY = (i) => [TRAY_LEFT + T.TRAY_SLOT / 2 + TRAY_PITCH * i, TRAY_MID_Y];
+// v1.20（WXG-T-097/BD-15）：`TRAY_BAND` 上沿 420→450、托盘面板改**贴带上沿**，
+// 槽心不再在带中线。探针不在此重推公式，直接取单一真源 `trayLayout()`：
+// 旧版 `(yMin+yMax)/2` 在带加高后会整组脱靶 ⇒ 所有「点槽」类用例要么假 FAIL、
+// 要么退化为永真断言（点了个空处）。
+const slotXY = (i, rows = 1) => {
+    const lay = T.trayLayout(rows);
+    return [lay.slotCenterX(i % T.TRAY_COLS), lay.slotCenterY(Math.floor(i / T.TRAY_COLS))];
+};
 const GEAR_XY = [T.GEAR_HIT_SIZE / 2, (T.HUD_BAND.yMin + T.HUD_BAND.yMax) / 2];
 const CARD_XY = (i) => { const r = T.powerupCardRects()[i]; return [r.x + r.w / 2, r.bottom + r.h / 2]; };
 
@@ -1632,9 +1638,27 @@ function hudPulse(h, n) {
     const h2 = mk(); h2.game.giveTrayBead(1); h2.game.giveTrayBead(2); h2.frame();
     h2.game.tapDesign(...CARD_XY(1)); h2.frame();
     const cardOk = h2.count('powerup:used') === 1;
-    const h3 = mk(); h3.frame(); let expandHit = 0;
+    const h3 = mk(); h3.frame();
+    // BD-37（WXG-T-097/BD-15）：§8-1 字面要求「点扩展→S4 收请求」（tray:expanded），
+    // 但 `powerups §2.6` 布局 A + `ux-spec §4` 写定 MVP 无解锁路径 ⇒ 该出口**不可验**。
+    // 分两腿量：① 可点入口是否存在（命中即吞 + anchor==='expand' 轻提示）；
+    //         ② S4 出口 tray:expanded（若日后解锁路径上线，本腿转 ✓）。
+    let expandHit = 0;
+    let expandEntry = 0;
+    let expandHintText = '';
+    outerExpand:
     for (let y = T.TRAY_BAND.yMin - 80; y <= T.TRAY_BAND.yMax + 8; y += 6) {
-        for (let x = 0; x <= T.DESIGN_W; x += 6) { h3.game.tapDesign(x, y); if (h3.count('tray:expanded') > 0) { expandHit++; break; } }
+        for (let x = 0; x <= T.DESIGN_W; x += 6) {
+            const before = h3.count('tray:expanded');
+            const consumed = h3.game.tapDesign(x, y);
+            const sn = h3.game.snapshot;
+            if (h3.count('tray:expanded') > before) expandHit++;
+            if (consumed && sn.tapHintAnchor === 'expand' && sn.tapHintText) {
+                expandEntry++;
+                expandHintText = sn.tapHintText;
+            }
+            if (expandHit > 0 || expandEntry > 0) break outerExpand;
+        }
     }
     const h4 = mk(); h4.frame(); const i4 = h4.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
     h4.game.tapDesign(...slotXY(i4)); h4.frame();
@@ -1644,12 +1668,13 @@ function hudPulse(h, n) {
     const t5 = firstEmptyOf(h5.game.snapshot, h5.game.snapshot.traySlots[i5].colorIdx);
     h5.game.tapDesign(...cellXY(h5.game.snapshot, t5)); h5.frame();
     const placeOk = h5.count('bead:placed') === 1 && h5.count('bead:rejected') === 0;
-    const v = [gearOk, cardOk, selOk, placeOk].every(Boolean) && expandHit > 0 ? 'PASS' : 'FAIL';
+    const fourOk = [gearOk, cardOk, selOk, placeOk].every(Boolean);
+    const v = fourOk && expandHit > 0 ? 'PASS' : fourOk && expandEntry > 0 ? 'PASS*' : 'FAIL';
     rec('P8 / BD-15 · TC-INP-01 · S2 §8-1 五类路由', v,
         `① 齿轮→game:paused=${h1.count('game:paused')}(phase=${h1.game.snapshot.phase}) ${gearOk ? '✓' : '✗'}；② 道具卡→powerup:used=${h2.count('powerup:used')} ${cardOk ? '✓' : '✗'}；`
-        + `③ 扩展→tray:expanded 命中点=${expandHit}（6px 栅格扫托盘带上下 80px）${expandHit > 0 ? '✓' : '✗'}；④ 托盘珠→tray:selected=${h4.count('tray:selected')} ${selOk ? '✓' : '✗'}；`
+        + `③ 扩展→**入口已存**=${expandEntry > 0}（命中即吞 + 占位轻提示「${expandHintText}」、anchor=expand）、S4 出口 tray:expanded=${expandHit}；④ 托盘珠→tray:selected=${h4.count('tray:selected')} ${selOk ? '✓' : '✗'}；`
         + `⑤ 空格(有选中)→bead:placed=${h5.count('bead:placed')}/rejected=${h5.count('bead:rejected')} ${placeOk ? '✓' : '✗'}。`
-        + `　仍缺第 3 类：src/** grep btn_expand/_hitExpand 命中 0（仅 beads-game.ts:547 expandTray() 方法层，玩家不可达）⇒ **BD-15 维持开放**（波次 2 未列范围）。`);
+        + `　BD-15 已于 WXG-T-097 关单（btn_expand 渲染 + 132×88 热区 + 路由优先级 3 已入 src）；但其 S4 出口按 powerups §2.6 布局 A 本轮不可达 ⇒ 「点扩展→S4 收请求」记 **⛔ 不可验（BD-37）**，不得因占位实装而打 PASS。整条按 4/5 可验且通过定 **PASS\***，待解锁路径上线转 PASS。`);
 }
 
 // ═════════════════════════════════════════════════════════ P9 · 热区（§8-2 回写后）
@@ -1704,22 +1729,35 @@ function hudPulse(h, n) {
         if (tap) h.game.tapDesign(x, y);
         h.frame();
         const sn = h.game.snapshot;
+        const cs = cmds(h);
         return {
-            h, i, x, y, sig: sig(cmds(h)),
+            h, i, x, y, sig: sig(cs),
+            // BD-16（WXG-T-097）的轻提示走 **text** 通道，而 `sig` 刻意剔除 text
+            //（修订 7/17：防 mm:ss 伪满足）⇒ 另取一条**文本签名**同法配对差分。
+            // 两实例同 seed、同帧号 ⇒ 倒计时文本两侧相同，不构成假差异。
+            textSig: cs.filter((c) => c.kind === 'text')
+                .map((c) => `${Math.round(c.x)}_${Math.round(c.y)}:${c.text}`).join('|'),
+            hintTexts: cs.filter((c) => c.kind === 'text' && c.text === sn.tapHintText && sn.tapHintText).length,
             hints: { powerupHint: sn.powerupHint, failHint: sn.failHint, banner: sn.banner, subBanner: sn.subBanner },
+            hint: { text: sn.tapHintText, anchor: sn.tapHintAnchor, row: sn.tapHintRow, col: sn.tapHintCol },
+            cols: s.gridCols,
             placed: h.count('bead:placed'), rejected: h.count('bead:rejected'), selected: h.count('tray:selected'),
         };
     };
     const ctl = runP10(false), tst = runP10(true);
     const diff = ctl.sig !== tst.sig;
-    const hintOn = Object.values(tst.hints).some(Boolean);
-    const v = tst.placed === 0 && tst.rejected === 0 && tst.selected === 0 && (diff || hintOn) ? 'PASS' : 'FAIL';
+    const textDiff = ctl.textSig !== tst.textSig;
+    const hintOn = Boolean(tst.hint.text) || Object.values(tst.hints).some(Boolean);
+    const anchored = tst.hint.anchor === 'cell'
+        && tst.hint.row === Math.floor(tst.i / tst.cols) && tst.hint.col === tst.i % tst.cols;
+    const v = tst.placed === 0 && tst.rejected === 0 && tst.selected === 0 && hintOn && anchored && textDiff
+        ? 'PASS' : 'FAIL';
     rec('P10 / BD-16 · TC-INP-07 · S2 §8-7 无选中点网格 → 零请求 + 轻提示', v,
         `零请求 ✓：bead:placed=${tst.placed}、bead:rejected=${tst.rejected}、tray:selected=${tst.selected}（期望 0/0/0），点击点=空格 (i${tst.i}, ${tst.x.toFixed(1)},${tst.y.toFixed(1)})。`
-        + `轻提示 ✗：powerupHint=「${tst.hints.powerupHint}」failHint=「${tst.hints.failHint}」banner=「${tst.hints.banner}」subBanner=「${tst.hints.subBanner}」（全空）；`
-        + `配对差分（同 seed、同帧号， ctl 不点 / tst 点）非文本指令签名是否出现差异=${diff}（false ⇒ 该次点击**未产生任何专用反馈帧**）。`
-        + `　代码铁证（未改）：beads-game.ts:1371 \`if (slot < 0) return false; // S2 gate: no bead selected → no request at all\` ⇒ 前半条达标、后半条无实现 ⇒ **BD-16 维持开放**（P2）。`
-        + `　【探针自查】v1.0 与本文件早期版本均以「点击前后两帧签名不等」判有反馈，实测恒为 true（常态动画污染）⇒ 属**假 PASS 风险**，本轮已按修订 25 收紧。`);
+        + `轻提示 ✓（新通道）：tapHintText=「${tst.hint.text}」anchor=${tst.hint.anchor} 锚点=(${tst.hint.row},${tst.hint.col}) 与被点格一致=${anchored}；渲染指令里同文本图元数=${tst.hintTexts}；旧字段 powerupHint/failHint/banner/subBanner 均空（本行为不占那些通道）。`
+        + `配对差分（同 seed、同帧号，ctl 不点 / tst 点）：非文本签名差异=${diff}（轻提示不改图元形状，属预期）；**文本签名差异=${textDiff}**（反馈帧的实际载体）。`
+        + `　BD-16 已于 WXG-T-097 关单：`+`无选中点可落空格时走一次性轻提示通道（ux-spec §5 / input-control §8-7，静默、≤400ms）；锁定格/已填格仍按 §8-5 零反馈帧。`
+        + `　【探针自查】本条早期版本只看旧字段与非文本签名 ⇒ BD-16 已落地仍报 FAIL（**假 FAIL**）；轻提示这类以文字为载体的反馈必须同时差分 text 通道。`);
 }
 
 // ═════════════════════════════════════════════════════════ P11 · §8-6/8/10（真实 InputManager）
@@ -1805,7 +1843,7 @@ function hudPulse(h, n) {
         `§8-2 现文（WXG-T-091）：200 次供料落槽频次做**卡方拟合优度，α=0.05 不拒绝均匀**（旧 ±20% 弃用）。白盒排水夹具下 ${framesS} 帧采到 ${got} 样本，频次=[${slots.join(',')}]，期望 ${exp.toFixed(2)}/槽 ⇒ χ²=${x2.toFixed(2)}（df=${T.TRAY_BASE_SLOTS - 1}，α=0.05 临界 ${CRIT_DF11_A005}${x2 < CRIT_DF11_A005 ? ' ⇒ 不拒绝 ✓' : ' ⇒ 拒绝均匀 ✗'}）；`
         + `对照旧口径最大偏差 ${maxDev.toFixed(1)}%（若仍按 ±20% 会误报，即 BD-22 的误报本征）。`
         + `§8-4：满槽 → tray:full=${fullEv}（期望 1、不重复）、满槽期 3 间隔 tray:spawned 增量=${spawnDuring}（期望 0）✓；腾 1 槽后 ≤1 间隔恢复=${resumed >= 1 ? '✓' : '✗'}。`
-        + `§8-5：${cap0} 槽 → expandTray()=${ex} → ${h3.game.snapshot.traySlots.length} 槽（期望 ${T.TRAY_BASE_SLOTS + T.TRAY_EXPAND_SLOTS}）✓（**但玩家无入口，见 P8/BD-15**）。`);
+        + `§8-5：${cap0} 槽 → expandTray()=${ex} → ${h3.game.snapshot.traySlots.length} 槽（期望 ${T.TRAY_BASE_SLOTS + T.TRAY_EXPAND_SLOTS}）✓（入口自 WXG-T-097/BD-15 已存，但按布局 A 不发 tray:expanded ⇒ 玩家路径仍不可达，见 P8/BD-37）。`);
 }
 
 // ═════════════════════════════════════════════════════════ P13 · harness 坐标链路
@@ -2201,16 +2239,26 @@ for (const r of out) {
 }
 const sum = (t) => `PASS ${t.PASS} / PASS* ${t['PASS*']} / FAIL ${t.FAIL} / ⛔ ${t['⛔']}`;
 const cntGrp = (pred) => out.filter((r) => pred(r.id)).length;
-// 【修订 38】本轮修订面 = P4 / P20 / P26（含新增负向用例 P26-N）；其余组沿用各自最近一次复核的预期值。
+// 【修订 38】T-098 轮修订面 = P4 / P20 / P26（含新增负向用例 P26-N）。
+// 【修订 39】WXG-T-097 轮修订面 = P8 / P10：P8 的扩展腿拆为「入口存在 + S4 出口」（BD-15 已关、
+//   S4 出口按布局 A 不可验 = BD-37）；P10 改认新轻提示通道并对 **text 签名**差分（BD-16 已关）。
+//   同轮另有**夹具改动**（不是预期值改动）：全局 `slotXY()` 改取 §3.4 v1.20 单一真源
+//   `trayLayout()` ⇒ 所有「点槽」用例的取证坐标整体上移；旧版带中线公式在带加高后已脱靶。
 const inT098 = (id) => /^P4\b/.test(id) || /^P20\b/.test(id) || /^P26\b/.test(id);
+const inT097 = (id) => /^P8\b/.test(id) || /^P10\b/.test(id);
 const tallyT098 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
+const tallyT097 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyRest2 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
-for (const r of out) (inT098(r.id) ? tallyT098 : tallyRest2)[norm(r.verdict)]++;
-console.log('\n================ 探针汇总（v1.3 改判轮 · P4/P20/P26 预期值按 WXG-T-098 回写后的 §8-1/§8-3/§5 现文重建） ================');
+for (const r of out) {
+    const bucket = inT098(r.id) ? tallyT098 : inT097(r.id) ? tallyT097 : tallyRest2;
+    bucket[norm(r.verdict)]++;
+}
+console.log('\n================ 探针汇总（v1.4 改判轮 · P8/P10 预期值按 WXG-T-097（BD-15/BD-16）+ 同轮 §3.4 v1.20 回写重建） ================');
 for (const r of out) console.log(`${norm(r.verdict).padEnd(6)} ${r.id}`);
 console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组；含 P26-N 负向用例，较 v1.2 多 1 条记录）`);
-console.log(`【上轮修订面 · P5 段（预期值按 T-096 重建，${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
-console.log(`【本轮修订面 · P4/P20/P26（含 P26-N，${cntGrp(inT098)} 条）】：${sum(tallyT098)}`);
-console.log(`【未随 T-098 复核 · 其余 ${cntGrp((id) => !inT098(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
-console.log('　↑ 三段计数不得合并解读：只有 P4/P20/P26 在本轮改过预期值；P5 段沿 T-096 口径，其余组沿 v1.1 口径。');
+console.log(`【T-096 修订面 · P5 段（${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
+console.log(`【T-098 修订面 · P4/P20/P26（含 P26-N，${cntGrp(inT098)} 条）】：${sum(tallyT098)}`);
+console.log(`【T-097 修订面 · P8/P10（${cntGrp(inT097)} 条）】：${sum(tallyT097)}`);
+console.log(`【未随本轮复核 · 其余 ${cntGrp((id) => !inT098(id) && !inT097(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
+console.log('　↑ 四段计数不得合并解读：P5 段沿 T-096 口径，P4/P20/P26 沿 T-098 口径，P8/P10 沿 T-097 口径，其余组沿 v1.1 口径。');
 console.log(`时间戳：${new Date().toISOString()}   Node ${process.version}`);
