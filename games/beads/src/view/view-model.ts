@@ -46,6 +46,7 @@ import {
   WRONG_SHAKE_PX,
   HINT_PULSE_MS,
   DANGER_PULSE_MS,
+  TRAY_FULL_PULSE_MS,
 } from '../config/tuning.js';
 import type { BeadsSnapshot } from '../game/state.js';
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel.js';
@@ -417,6 +418,14 @@ function dangerAlpha(clock: number, reduce: boolean): number {
   return reduce ? 1 : breathe(clock, DANGER_PULSE_MS, 0.6, 1);
 }
 
+/**
+ * BD-10 满槽告警描边 α 呼吸：0.6↔1.0 @`TRAY_FULL_PULSE_MS`（幅度沿用告急同族，
+ * 不新造第三档）；D1 减弱动效 → 退为**静态描边**（α=1，描边本身保留）。
+ */
+function trayFullAlpha(clock: number, reduce: boolean): number {
+  return reduce ? 1 : breathe(clock, TRAY_FULL_PULSE_MS, 0.6, 1);
+}
+
 function drawHud(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
@@ -605,6 +614,23 @@ function drawTray(
     if (snap.onboarding && idx === snap.guideSlot) {
       drawStateRing(builder, cx, cy, TRAY_SLOT, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
     }
+  }
+
+  // BD-10（WXG-T-097）满槽告警：沿面板边缘 2px `danger` 描边 + 500ms α 呼吸
+  // （`ux-spec §5`「满槽告警」行 / `assets-spec §1.5 tray_panel_danger`）。
+  // 不持状态（L5）：「满」由 `traySlots` 派生；本通道也让 `timer-gameover §8-10`
+  // 的「同屏叠加无 >3Hz」半条有了第二主体可测。
+  let freeSlots = 0;
+  for (let idx = 0; idx < snap.traySlots.length; idx++) {
+    if (snap.traySlots[idx]!.state === 'free') freeSlots++;
+  }
+  if (snap.traySlots.length > 0 && freeSlots === 0) {
+    builder.rect(lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, {
+      stroke: palette.danger,
+      lineWidth: 2,
+      radius: 18,
+      alpha: trayFullAlpha(snap.pulseClock, snap.reduceMotion),
+    });
   }
 }
 

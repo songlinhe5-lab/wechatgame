@@ -387,6 +387,12 @@ export const TAP_HINT_MS = 400;
 export const TAP_HINT_NO_SELECTION_TEXT = '先选一颗珠子';
 /** 倒计时告急 α 脉冲周期（1→0.6→1，ux-spec §5 / art §7「1000/循环」）。 */
 export const DANGER_PULSE_MS = 1000;
+/**
+ * 托盘满槽告警描边呼吸周期（ux-spec §5「满槽告警」行：500ms/循环，BD-10）。
+ * ≈2Hz 落 §3.8 ≤3Hz 红线内；α 幅度沿用 `hud_timer_danger` 同族 0.6↔1.0（不新造第三档，
+ * 见 `assets-spec §1.5` `tray_panel_danger`）；`reduceMotion` 下退为静态描边（D1）。
+ */
+export const TRAY_FULL_PULSE_MS = 500;
 
 /** Fail-panel primary/retry width (ux-spec §3.5: 480×88). */
 export const FAIL_PRIMARY_W = 480;
