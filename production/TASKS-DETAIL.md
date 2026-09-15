@@ -311,12 +311,24 @@
 ## WXG-T-096
 
 - **名称**：**beads 音频后端落码（BD-05 clip 派发 + BD-05b 三平台 backend）**——支柱内最后一个零实现，P0。
-- **负责**：程基岩(eng)+主理人(Qoder)　**状态**：📋 已立项（待施工）
-- **背景（现物已核）**：`packages/framework/src/platform/web.ts:57`、`weapp.ts:136` 均 `return new NullAudioBackend()`（注释自认「待首个带音频的游戏」）⇒ harness 恒静音；G4 探针 P5 因此维持 FAIL，Playtest「解压/治愈」维度结构性不可评。现 `games/beads/src` 仅 3 个 clip 常量（`AUDIO_CLIP_BGM/UI_TAP/STAR`）。
+- **负责**：程基岩(eng)+主理人(Qoder)　**状态**：✅ 完成（2026-09-15；**Deliverable ① 部分交付**，见下方偏离①）
+- **背景（现物已核）**：`packages/framework/src/platform/{web,weapp}.ts` 的 `createAudioBackend()` 均 `return new NullAudioBackend()`（注释自认「待首个带音频的游戏」）⇒ harness 恒静音；G4 探针 P5 因此维持 FAIL，Playtest「解压/治愈」维度结构性不可评。现 `games/beads/src` 仅 3 个 clip 常量（`AUDIO_CLIP_BGM/UI_TAP/STAR`）。
 - **权威来源**：`games/beads/design/audio/audio-spec.md` **§6.2 后端需求单（6 项）** + `audio-events.md §1/§4`（A05-01..27）+ `systems-index §3` `AUDIO_*`（v1.16 已冻结）。
 - **Deliverables**：① 框架侧 WebAudio 程序化合成 backend（**零外部音频文件** ⇒ 守包体音频 0 KB 承诺）+ InnerAudioContext 池（weapp）+ node 侧保持 Null 以护单测；② 游戏侧 19 项事件→clip 映射与**同帧多事件**策略（BD-05）；③ 单测（L2：core 不碰 `cc`/DOM/`wx`）+ 热路径零分配；④ `framework:sync` 镜像 + `verify` 全绿；⑤ 交严守真复跑 P5（探针预期值先改再跑）。
 - **约束**：不产伪数值（音量/时长一律引 §3 与 audio-events）；配乐/口播**文件**生成走 `indie-game-ost-pack`/`game-ui-voice-pack`，本单只做后端与派发。
 - **依赖**：T-095（需可信门禁）；后继 Playtest 降级轮。
+- **完成记录（2026-09-15）**：
+  - ① **框架侧合成 backend**：新增 `packages/framework/src/platform/audio-synth.ts`（`SynthAudioBackend`，最小 Web Audio 结构面编程 ⇒ web 与 `wx.createWebAudioContext()` 共用）；三平台适配器按能力探测建 context 并以工厂回调注入，缺能力 ⇒ `NullAudioBackend`（node 恒 Null 以护单测）。归属与理由 = **ADR-0013**（新增）；反模式两行 + **§16 音频后端契约** 入 `control-manifest.md`。
+  - ② **游戏侧 19 clip**：`games/beads/src/config/audio-voices.ts`（音色表，数值一律标**工程占位**，不回引为规格）+ `beads-game.ts _subscribe()` 的 13 条事件→clip 派发 + `_sfx()` 双通道门控；同帧策略 = 入队序 + per-clip 限流（`AUDIO_MAX_PER_FRAME=6`，§1 已核算最坏 4 条）；`priority/steal` 与三总线**增益数值**按 §3.12 `[TODO]` 不发明。
+  - ③ **测试**：`framework/tests/platform/audio-synth.test.ts` **15 例**（假 Web Audio 记录型夹具：构造期不建 context / 未登记静默 / 三总线一次 / notes / buffer 复用 / loop 幂等 / suspend-resume 期望态 / setVolume 当场生效 / `usesExternalFiles()===false`）+ `beads/tests/audio-dispatch.test.ts` **27 例**（A05-01..24 中 `[N]` 可证面 + 清单闭合 + bus 前缀派生守卫）。全量 **framework 255 / beads 225** 例绿，L2 面由 `check:arch` 守。
+  - ④ **镜像与门禁**：`framework:sync` 已产（含 breakout 侧共用件），`pnpm run verify` = **PASS 13｜SKIP 1（`check:size`，无 `wechatgame` 产物）｜FAIL 0**。
+  - ⑤ **严守真复跑 P5**：报告升 **v1.2 §19**，预期值先改后跑 ⇒ **PASS 12 / PASS\* 8 / FAIL 0 / ⛔ 8**（⛔ = `[B]/[C]/[R]/[P]` 道次）；BD-05 → 部分关闭（仅 `[N]` 派发层）降 P2 不关单，BD-05b → 关闭（仅 `[N]` 结构层）；**G4 仍 = CONCERNS，不因 P5 转绿升 PASS**。
+- **偏离任务书三项（不冒充交付）**：
+  - **①（对 Deliverable ①）weapp `InnerAudioContext` 池未实现**——与 §3.12 冻结的「主包音频 0 KB」正面冲突（`audio-spec §4.1` 回退需主理人先解除内部目标余量冲突，本轮不成立）⇒ 采 ADR-0013 §2 丁之否因，记为部分交付；真机若证 `createWebAudioContext` 不可用，weapp 侧**无第二方案**。
+  - **② `sfx_ui_tap` 时长 40 ms 为占位**——`ux-spec §5` 无该行（Q-A05-1 未裁）⇒ 不参与 `[B]` 验收。
+  - **③ 听感未成立**——全部 Hz/ms/增益属占位（`BGM_LOOP_MS=8000` 系内存权衡而非规格）；三总线增益 1.0 ⇒ 真机可能削顶。解除条件：`AUDIO_BUS_GAIN_*` 冻结 + `[B]/[P]` 道次。
+- **QA 本轮附带发现（移交，不在本单修）**：**BD-33**（3 个新增镜像脚本缺 `.ts.meta`，`cocos:check` 不覆盖 ⇒ 静默漏报；`.meta` 只能由编辑器生成，§14 红线，本环境无编辑器 = 阻塞写明不伪造）；**BD-34**（`_readInput()` 唯一调用点在 `_stepPlaying` ⇒ PAUSED/LEVEL_CLEAR/GAME_OVER/FINISH 四相位在**真输入链**（harness 鼠标 / Cocos touch）下收不到点击，面板按钮点不动；`App.tick` = `beginFrame → game.update → endFrame`，一次性标志被 `endFrame` 清 ⇒ 是丢弃不是延后。QA 定级「需 `[B]/[R]`」偏保守——**本环境 harness 即可复现**，现有自动化全走 `tapDesign()` 旁路故长期无人测到）。⇒ 建议另立 **WXG-T-100**，不由本单顺带改玩法输入。
+- **BD-20 复发核实（结论：流程性，非工具 bug）**：v1.2 实跑 `framework:sync:check` EXIT=1（12 处 differs）为**真**——成因 = 我在末次 sync 之后又改了 `platform/{audio-synth,platform,weapp,web}.ts` 与 `core/audio/audio.ts`，未重跑 sync 就报了「verify 13 PASS」（该自述在当时为真、随后失效，**QA 限制声明 ⑥ 成立**）。已 `framework:sync` 复绿并**在同一状态下**重跑 verify 取证；`sync` 的拷贝是逐字复制，不存在 `{ }`→`{}` 规范化（既有 `{ }` 样式件反证），故不改工具。防复发建议（**待拍板，不擅自加门禁**）：pre-commit 增「暂存含 `packages/framework/src/**` 才跑 `framework:sync:check`」的条件步骤。
 
 ## WXG-T-097
 

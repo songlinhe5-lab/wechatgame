@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2403,
       "lines": 98,
-      "sha256": "35190ad2dabb30695fcf925aa1c7f7a785bae24c75cf2242347504d796933161",
+      "sha256": "14c2a8022b162ac061fced6c603c6f2d16fa5b0996c8949b6fbee642ac04b5d3",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3939,
       "lines": 86,
-      "sha256": "a3c666cdd05b64dddf4ac592c290e62dad9fcd3c406cab701ce4d9db4e71a574",
+      "sha256": "fb46c2a38608699a766303f8005a7334a83c88e15c2f176001432269c7d9c0e5",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 64 行 / 2836 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 67 行 / 2974 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+65 · §待排（backlog，无号，立项时领取）=49+17",
+          "summary": "§WXG 任务台账（SSOT）=1+68 · §待排（backlog，无号，立项时领取）=49+20",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 343 行 / 17326 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 355 行 / 18586 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 186,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+344 · §WXG-T-069=18+13 · §WXG-T-070",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+356 · §WXG-T-069=18+13 · §WXG-T-070",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -42390,17 +42390,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 17326,
-      "lines": 343,
-      "sha256": "0baa12da5f43397302f9177a2c50a797d8bdfc42f2e83d29aaeadc33d847dd90",
+      "tokens": 18586,
+      "lines": 355,
+      "sha256": "b2d9478d0c4d0e23d19fd1e02d5928807a9901ed25a2719e22e41ec62c3875ca",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 344,
-          "tokens": 17309,
+          "endLine": 356,
+          "tokens": 18569,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -42791,8 +42791,8 @@
           "anchor": "§WXG-T-096",
           "level": 2,
           "startLine": 311,
-          "endLine": 320,
-          "tokens": 449,
+          "endLine": 332,
+          "tokens": 1709,
           "summary": "名称：beads 音频后端落码（BD-05 clip 派发 + BD-05b 三平台 backend）——支柱内最后一个",
           "keywords": [
             "WXG",
@@ -42804,8 +42804,8 @@
         {
           "anchor": "§WXG-T-097",
           "level": 2,
-          "startLine": 321,
-          "endLine": 328,
+          "startLine": 333,
+          "endLine": 340,
           "tokens": 323,
           "summary": "名称：beads P1/P2 反馈与路由缺口工程单（BD-15/16 + BD-04 余类 + BD-10 半边 + B",
           "keywords": [
@@ -42816,8 +42816,8 @@
         {
           "anchor": "§WXG-T-098",
           "level": 2,
-          "startLine": 329,
-          "endLine": 336,
+          "startLine": 341,
+          "endLine": 348,
           "tokens": 306,
           "summary": "名称：B7 裁定包一次性回写（BD-27/28/29/30/31）——解除 BD-25 关单阻塞",
           "keywords": [
@@ -42827,8 +42827,8 @@
         {
           "anchor": "§WXG-T-099",
           "level": 2,
-          "startLine": 337,
-          "endLine": 344,
+          "startLine": 349,
+          "endLine": 356,
           "tokens": 280,
           "summary": "名称：取证通路补全（[Cocos] 像素/色盲滤镜 + preview:frames 支持 beads + §H 缺口进",
           "keywords": [
@@ -42843,17 +42843,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2836,
-      "lines": 64,
-      "sha256": "37733c7040b9e0df3a54e60399dfc163f468150e65fc3c0c2a94746f701dc5f8",
+      "tokens": 2974,
+      "lines": 67,
+      "sha256": "f3f9a34d88ea7a1a5bc15aeabbf44c7a751b96ff73094d282115358d18a83bfd",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 65,
-          "tokens": 2827,
+          "endLine": 68,
+          "tokens": 2965,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -42867,8 +42867,8 @@
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
           "startLine": 49,
-          "endLine": 65,
-          "tokens": 552,
+          "endLine": 68,
+          "tokens": 682,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
             "backlog",
