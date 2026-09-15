@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3759,
       "lines": 82,
-      "sha256": "594dd4662b8c20bf4a87cb0b3bf92fdc305b8b7e4c8e4f82cb25c732d5ba5709",
+      "sha256": "8e0a20518ee81beb209a5cd7da6031a7a6d39fbb04923723115ea5fc9553412f",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 79 行 / 3650 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 93 行 / 4458 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+80 · §待排（backlog，无号，立项时领取）=57+24",
+          "summary": "§WXG 任务台账（SSOT）=1+94 · §待排（backlog，无号，立项时领取）=70+25",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -44136,17 +44136,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 3650,
-      "lines": 79,
-      "sha256": "557e1d461554fc6c9d2a7ec9f5bd30279c04bf1d39c9b6884b2068526fd68444",
+      "tokens": 4458,
+      "lines": 93,
+      "sha256": "90310cf89479022755efc73af6be3adb7ec587d6cb794c0611ce5fb77714666f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 80,
-          "tokens": 3641,
+          "endLine": 94,
+          "tokens": 4449,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -44159,9 +44159,9 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 57,
-          "endLine": 80,
-          "tokens": 991,
+          "startLine": 70,
+          "endLine": 94,
+          "tokens": 1067,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
             "backlog",
