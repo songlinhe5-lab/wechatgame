@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 35,
+  "nextId": 36,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -584,6 +584,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-035",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "流程",
+      "title": "文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床",
+      "contentHash": "6c6e167c389bfacc473cd04bd1105a195316af38b0a7c78fd851c453e49540ed",
+      "sourceTask": "WXG-T-084",
+      "addedDate": "2026-09-14",
+      "lastAccess": "2026-09-14",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -639,6 +656,15 @@
       "kind": "added",
       "ids": [
         "K-034"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-035"
       ],
       "note": null
     }
