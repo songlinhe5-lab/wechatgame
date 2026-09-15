@@ -292,13 +292,15 @@ echo "[6] ctx:check：E1 未达标不阻断 / E3 比率+节省率劣化硬门 / 
 CR="$WORK/checkroot"
 mkdir -p "$CR/tools/scripts/lib" "$CR/my-rules" "$CR/ctx"
 cp "$CHECK" "$CR/tools/scripts/"
-cp "$SCRIPT_DIR/lib/context-index.mjs" "$CR/tools/scripts/lib/"
-cp "$SCRIPT_DIR/lib/context-tokens.mjs" "$CR/tools/scripts/lib/"
+# lib/ 整体拷入，勿再手写清单（WXG-T-121）：本桩曾因只列两件，
+# 而 check-context-budget.mjs 后来 import 了 lib/memory-index.mjs ⇒ ERR_MODULE_NOT_FOUND
+# ⇒ 组 [6] 十五条断言全灭却无人发现（该自测不在 verify / CI 内，判例 BD-39）。
+cp "$SCRIPT_DIR"/lib/*.mjs "$CR/tools/scripts/lib/"
 cp "$BUILD" "$CR/tools/scripts/"
 CHECK_STUB="$CR/tools/scripts/check-context-budget.mjs"
 BUILD_STUB="$CR/tools/scripts/build-context-index.mjs"
 
-# 桩仓库 .md + ctx/index.json（sha256 与磁盘一致，保证 C 门新鲜）+ ROUTES 桩
+# 桩仓库 .md + ROUTES 桩；索引**交给桩 build 播种**（WXG-T-121，见下一段）
 node - "$CR" <<'NODE_EOF'
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -317,17 +319,17 @@ write('ctx/ROUTES.md', '# ROUTES stub（无锚点引用）\n');
 // ctx/hot-files.md（WXG-T-036 q-1）是 A 门常驻预算项：缺失 → A 项 FAIL（修复本自测
 // 此前在 HEAD 上就存在的 4 个既有 FAIL——[6] 桩漏建该文件）。
 write('ctx/hot-files.md', '# hot-files stub\n');
-const index = {
-  version: 1,
-  files: ['AGENTS.md', 'my-rules/INDEX.md', 'my-rules/agents-md.md', 'ctx/ROUTES.md', 'ctx/hot-files.md'].map((path) => ({
-    path,
-    tokens: 50,
-    sha256: sha(readFileSync(join(root, path), 'utf8')),
-    sections: [],
-  })),
-};
-writeFileSync(join(root, 'ctx/index.json'), JSON.stringify(index, null, 2) + '\n', 'utf8');
+// memory/ 必须存在：ctx:build 要写生成物 memory/INDEX.md，缺目录时它直接 ENOENT 崩（实测）。
+write('memory/MEMORY.md', '# MEMORY stub\n');
 NODE_EOF
+
+// 播种索引（WXG-T-121）：不再手写 ctx/index.json。手写版会落后于「生成物集合」的扩张
+// （ctx/BUDGET.md 须入索引、memory/INDEX.md 须存在且与索引同源）⇒ C 门恒红，
+// 而本自测不在 verify / CI 内，于是 63 条断言在 HEAD 上红着无人见（判例 BD-39）。
+// 跑一次桩 build，产物与索引天然同源，桩不再需要跟着门禁改。
+node "$BUILD_STUB" >"$WORK/build-seed.txt" 2>&1
+assert_eq "$?" "0" "组[6] 前置：桩 build 播种 index.json 与三产物"
+assert_contains "$(cat "$WORK/build-seed.txt")" "memory/INDEX.md" "组[6] 前置：build 确已写 memory/INDEX.md"
 
 # 桩 distribution：局部读 P10=20.0% < 40.0%（E1 未达标）、中位数 75.0% ≥ 70.0%（达标）
 node - "$CR" <<'NODE_EOF'
