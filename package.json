@@ -36,6 +36,9 @@
     "ctx:rotate": "node tools/scripts/rotate-reads-ledger.mjs",
     "tasks:archive": "node tools/scripts/archive-tasks.mjs",
     "memory:distill": "node tools/scripts/distill-memory.mjs",
+    "memory:split": "node tools/scripts/split-memory-detail.mjs",
+    "memory:split:selftest": "bash tools/scripts/split-memory-detail-selftest.sh",
+    "memory:distill:selftest": "bash tools/scripts/distill-memory-selftest.sh",
     "kb:sync": "node tools/scripts/kb-sync.mjs",
     "kb:collect": "node tools/scripts/kb-collect.mjs",
     "kb:touch": "node tools/scripts/kb-touch.mjs",
@@ -52,7 +55,9 @@
     "verify": "node tools/scripts/verify-all.mjs",
     "verify:strict": "node tools/scripts/verify-all.mjs --strict",
     "verify:selftest": "bash tools/scripts/verify-all-selftest.sh",
-    "check:tasks": "node tools/scripts/check-tasks.mjs"
+    "check:tasks": "node tools/scripts/check-tasks.mjs",
+    "check:host-tests": "node tools/scripts/check-host-behavior-tests.mjs",
+    "check:host-tests:selftest": "node tools/scripts/check-host-behavior-tests.mjs --selftest"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",

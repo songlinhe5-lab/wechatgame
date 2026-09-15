@@ -596,8 +596,14 @@ function buildSections(text) {
   return sections;
 }
 
-/** Build one file record from a file's text (pure; reusable + testable). */
-function makeFileRecord(relPath, text) {
+/**
+ * Build one file record from a file's text (pure; reusable + testable).
+ *
+ * 导出（WXG-T-106）：`split-memory-detail.mjs` 与桩自测需要**与门禁逐字同口径**的节
+ * 解析（anchor / tokens）。此前该逻辑在被调方内联复制一份，两份一旦走散就会造出
+ * 「隶属标记对不上 anchor」的静默孤儿；改为共用本函数后不可能漂移。
+ */
+export function makeFileRecord(relPath, text) {
   const trimmed = text.endsWith('\n') ? text.slice(0, -1) : text;
   return {
     path: relPath,
