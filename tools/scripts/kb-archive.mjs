@@ -158,12 +158,16 @@ writeFileSync(ARCHIVE_INDEX_PATH, renderArchiveIndex(ledger.entries), 'utf8');
 console.log('知识库归档（kb:archive）');
 for (const id of archivedNow) {
   const e = byId.get(id);
-  console.log(`  ✅ ${id}「${e.title}」→ ${e.file === 'knowledge/lessons.md' ? 'knowledge/archive/lessons-archived.md' : 'knowledge/archive/patterns-archived.md'}（归档于 ${date}）`);
+  // 归档目的地**只能按条目 `file` 反查 ACTIVE_FILES**（WXG-T-111）：初版写死
+  // `file === 'knowledge/lessons.md' ? lessons : patterns` 三元 ⇒ lessons 分片条目一旦归档，
+  // 会被报成落到 `patterns-archived.md`（日志说谎，且后续查证据的人会找错面）。
+  const dest = ACTIVE_FILES.find((f) => f.file === e.file)?.archive ?? '（未知源文件）';
+  console.log(`  ✅ ${id}「${e.title}」→ ${dest}（归档于 ${date}）`);
 }
 console.log(`  原因：${reason}`);
 console.log(
   `  events：已追加 1 条 archived（${archivedNow.length} 条 ID，taskId=${task ?? 'null'}）——` +
-    '下次 `pnpm run kb:sync` 会把它汇总进「沉淀统计 / CHANGELOG」',
+  '下次 `pnpm run kb:sync` 会把它汇总进「沉淀统计 / CHANGELOG」',
 );
 console.log('  已刷新：knowledge/INDEX.md 活跃块、knowledge/archive/INDEX.md、knowledge/ledger.json');
 console.log('  提示：`pnpm run kb:check` 复核；`pnpm run ctx:build` 刷新索引面（归档目录已排除）。');

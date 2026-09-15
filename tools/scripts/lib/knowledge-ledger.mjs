@@ -87,7 +87,7 @@
  *     accessCount、不二次截断。
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { ROOT } from './context-index.mjs';
@@ -106,23 +106,85 @@ export const ARCHIVE_DIR = join(KNOWLEDGE_DIR, 'archive');
 export const ARCHIVE_INDEX_PATH = join(ARCHIVE_DIR, 'INDEX.md');
 
 /**
- * 活跃条目源文件（**列表顺序即补号顺序**：lessons → patterns，跨两文件连续编号）。
+ * 活跃条目源文件（**列表顺序即补号顺序**：lessons 各分片 → patterns，跨文件连续编号）。
  * 每条同时给出它的归档文件（同源文件条目归档到对应文件末尾）。
+ *
+ * **WXG-T-111：lessons 已按行内标签分片**到 `knowledge/lessons/<shard>.md`，故本表
+ * 改为**动态枚举**该目录（`knowledge/lessons.md` 只剩指针页、**不 entries** ⇒ 不入表）：
+ *   • 目录不存在 ⇒ 回退旧布局单文件 `knowledge/lessons.md`（**不假绿亦不砸错**：
+ *     新克隆或尚未跑迁移脚本时行为与分片前一致）；
+ *   • 已知片按 `LESSONS_SHARD_ORDER` 排（补号顺序**必须稳定**，否则新条目落位文件会漂），
+ *     未知片按名序追加在后（新标签自建片 ⇒ 无需改码即可被采集）；
+ *   • **归档仍单份**：各 lessons 片共用 `knowledge/archive/lessons-archived.md`
+ *     （`label` 一律 `lessons`，`archiveHeader(label)` 才不会长出多个归档抬头）。
+ * 条目身份仍是全局单一的 `[K-0NN]` 命名空间：分片只改**正文落位**，不改编号语义；
+ * `contentHash` 不含 `file` 等元数据 ⇒ 改落位**不算「修改」**，不会造出伪 `updated`。
  */
+export const LESSONS_DIR = join(KNOWLEDGE_DIR, 'lessons');
+/** 已知分片顺序（正本映射见 `tools/scripts/split-knowledge-lessons.mjs::TAG_TO_SHARD`，改一侧必同步另一侧）。 */
+export const LESSONS_SHARD_ORDER = ['toolchain', 'process', 'criteria', 'testing', 'cross-ide', 'environment'];
+const LESSONS_ARCHIVE = 'knowledge/archive/lessons-archived.md';
+const LESSONS_ARCHIVE_ABS = join(ARCHIVE_DIR, 'lessons-archived.md');
+
+/** 片名 → 展示标签（`INDEX.md` 活跃表「分片」列、kb:archive 日志）；未分片文件 → `null`。 */
+export function shardOf(file) {
+  const f = String(file ?? '');
+  if (!f.startsWith('knowledge/lessons/')) return null;
+  return f.slice('knowledge/lessons/'.length).replace(/\.md$/, '');
+}
+
+/** 活跃表「分片」列取值：lessons 片取片名，未分片（旧布局）落 `lessons`，patterns 落 `patterns`。 */
+export function shardCellOf(file) {
+  return shardOf(file) ?? (String(file ?? '') === 'knowledge/patterns.md' ? 'patterns' : 'lessons');
+}
+
+function lessonsSourceFiles() {
+  if (!existsSync(LESSONS_DIR)) {
+    return [
+      {
+        file: 'knowledge/lessons.md',
+        abs: join(KNOWLEDGE_DIR, 'lessons.md'),
+        archive: LESSONS_ARCHIVE,
+        archiveAbs: LESSONS_ARCHIVE_ABS,
+        label: 'lessons',
+        shard: null,
+      },
+    ];
+  }
+  const names = readdirSync(LESSONS_DIR)
+    .filter((n) => n.endsWith('.md'))
+    .sort((a, b) => {
+      const ai = LESSONS_SHARD_ORDER.indexOf(a.replace(/\.md$/, ''));
+      const bi = LESSONS_SHARD_ORDER.indexOf(b.replace(/\.md$/, ''));
+      if (ai !== -1 || bi !== -1) {
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      }
+      return a < b ? -1 : a > b ? 1 : 0;
+    });
+  return names.map((n) => {
+    const shard = n.replace(/\.md$/, '');
+    return {
+      file: `knowledge/lessons/${n}`,
+      abs: join(LESSONS_DIR, n),
+      archive: LESSONS_ARCHIVE,
+      archiveAbs: LESSONS_ARCHIVE_ABS,
+      label: 'lessons',
+      shard,
+    };
+  });
+}
+
 export const ACTIVE_FILES = [
-  {
-    file: 'knowledge/lessons.md',
-    abs: join(KNOWLEDGE_DIR, 'lessons.md'),
-    archive: 'knowledge/archive/lessons-archived.md',
-    archiveAbs: join(ARCHIVE_DIR, 'lessons-archived.md'),
-    label: 'lessons',
-  },
+  ...lessonsSourceFiles(),
   {
     file: 'knowledge/patterns.md',
     abs: join(KNOWLEDGE_DIR, 'patterns.md'),
     archive: 'knowledge/archive/patterns-archived.md',
     archiveAbs: join(ARCHIVE_DIR, 'patterns-archived.md'),
     label: 'patterns',
+    shard: 'patterns',
   },
 ];
 
@@ -630,12 +692,12 @@ export function renderActiveBlock(entries) {
   const rows = sortEntries(entries.filter((e) => e.state === 'active'));
   const L = [];
   L.push(ACTIVE_START);
-  L.push('| ID | 类别 | 标题 | 来源 | 最后访问 | 次数 | 状态 |');
-  L.push('|---|---|---|---|---|---|---|');
+  L.push('| ID | 类别 | 分片 | 标题 | 来源 | 最后访问 | 次数 | 状态 |');
+  L.push('|---|---|---|---|---|---|---|---|');
   for (const e of rows) {
     L.push(
-      `| ${e.id} | ${escCell(e.category)} | ${escCell(e.title)} | ${escCell(e.sourceTask)} | ` +
-        `${escCell(e.lastAccess)} | ${e.accessCount ?? 0} | ${e.state ?? 'active'} |`,
+      `| ${e.id} | ${escCell(e.category)} | ${escCell(shardCellOf(e.file))} | ${escCell(e.title)} | ${escCell(e.sourceTask)} | ` +
+      `${escCell(e.lastAccess)} | ${e.accessCount ?? 0} | ${e.state ?? 'active'} |`,
     );
   }
   L.push(ACTIVE_END);
@@ -669,7 +731,7 @@ export function renderArchiveIndex(entries) {
   for (const e of rows) {
     L.push(
       `| ${e.id} | ${escCell(e.category)} | ${escCell(e.title)} | ${escCell(e.archivedDate)} | ` +
-        `${escCell(e.archiveReason)} | ${e.accessCount ?? 0} |`,
+      `${escCell(e.archiveReason)} | ${e.accessCount ?? 0} |`,
     );
   }
   L.push('');
