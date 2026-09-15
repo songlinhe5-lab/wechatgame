@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2389,
       "lines": 97,
-      "sha256": "638d5781b0dcbd94b7bd101a1b2556603a66fc21df916eba1e7db2fd485fa08c",
+      "sha256": "2c5340de568f9e9027496b0f95f386848b68948c4575bee8cf46ded7035ef88e",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3729,
+      "tokens": 3730,
       "lines": 82,
-      "sha256": "8a5ae88af3b3b8aee9516e0a77209bf700b678d0269573c19020bb7bb0daae31",
+      "sha256": "f29ffdd1fb6f1d49a2be63cf5427973d993eded9a8fd9325551cdb15ec9730fb",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 3701,
+          "tokens": 3702,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -736,12 +736,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 143 行 / 4071 tok",
+          "anchor": "§`knowledge/INDEX.md` — 154 行 / 4549 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
-          "tokens": 150,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+144 · §1 读取协议（开发前期）=7+7 · ",
+          "tokens": 151,
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+155 · §1 读取协议（开发前期）=7+10 ·",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -32012,17 +32012,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 4071,
-      "lines": 143,
-      "sha256": "0aac9ec318c1eacb6611862added4f5600e29c087996478da2550e7dd6ce0960",
+      "tokens": 4549,
+      "lines": 154,
+      "sha256": "38f62a5629da162ed0846df13ea806d06315287db2c6fcbd6605a7e34386a386",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 144,
-          "tokens": 4057,
+          "endLine": 155,
+          "tokens": 4535,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -32035,12 +32035,11 @@
           "anchor": "§1 读取协议（开发前期）",
           "level": 2,
           "startLine": 7,
-          "endLine": 13,
-          "tokens": 258,
-          "summary": "任务开工前：成员与主对话先读本 INDEX 与 lessons.md 中与本次任务同域的条目",
+          "endLine": 16,
+          "tokens": 379,
+          "summary": "任务开工前：成员与主对话先读本 INDEX 的活跃表（含「分片」列）定位同域条目，再只读",
           "keywords": [
             "INDEX",
-            "lessons",
             "读取协议",
             "开发前期"
           ]
@@ -32048,9 +32047,9 @@
         {
           "anchor": "§2 写入协议（任务收尾）",
           "level": 2,
-          "startLine": 14,
-          "endLine": 34,
-          "tokens": 469,
+          "startLine": 17,
+          "endLine": 40,
+          "tokens": 577,
           "summary": "每个 WXG 任务收尾时，执行者随交付回传 0–3 条沉淀候选（没有可传「无」）；主理人汇编去重后入账。",
           "keywords": [
             "WXG",
@@ -32061,10 +32060,10 @@
         {
           "anchor": "§3 文件分工",
           "level": 2,
-          "startLine": 35,
-          "endLine": 43,
-          "tokens": 176,
-          "summary": "lessons.md 教训库：踩过的坑与规避（按类别排序，最新在后）",
+          "startLine": 41,
+          "endLine": 50,
+          "tokens": 274,
+          "summary": "lessons.md 指针页（不再放条目正文）：标签 → 分片文件表 + 引用口径",
           "keywords": [
             "lessons",
             "文件分工"
@@ -32073,9 +32072,9 @@
         {
           "anchor": "§4 维护",
           "level": 2,
-          "startLine": 44,
-          "endLine": 49,
-          "tokens": 105,
+          "startLine": 51,
+          "endLine": 60,
+          "tokens": 257,
           "summary": "主理人负责汇编与去重；条目不删改只追加，废弃条目标 [已过时：原因]。",
           "keywords": [
             "维护"
@@ -32084,8 +32083,8 @@
         {
           "anchor": "§5 生命周期（访问记账 → 归档 → 重新激活）",
           "level": 2,
-          "startLine": 50,
-          "endLine": 90,
+          "startLine": 61,
+          "endLine": 101,
           "tokens": 979,
           "summary": "",
           "keywords": [
@@ -32098,8 +32097,8 @@
         {
           "anchor": "§5.1 命令表",
           "level": 3,
-          "startLine": 52,
-          "endLine": 63,
+          "startLine": 63,
+          "endLine": 74,
           "tokens": 348,
           "summary": "pnpm run kb:sync 解析两个 md → 分配新条目 ID → 刷新 ledger.json 与下方活跃表（",
           "keywords": [
@@ -32114,8 +32113,8 @@
         {
           "anchor": "§5.2 归档阈值（用户 2026-09-12 裁定，存于 `ledger.json.thresholds`）",
           "level": 3,
-          "startLine": 64,
-          "endLine": 72,
+          "startLine": 75,
+          "endLine": 83,
           "tokens": 183,
           "summary": "闲置 90 天 且访问次数 ≤ 1 → 列入归档候选；必须人工确认后才移动。",
           "keywords": [
@@ -32130,8 +32129,8 @@
         {
           "anchor": "§5.3 重新激活与合并",
           "level": 3,
-          "startLine": 73,
-          "endLine": 79,
+          "startLine": 84,
+          "endLine": 90,
           "tokens": 138,
           "summary": "1. 新增条目后跑 pnpm run kb:audit，若命中归档条目（相似度 ≥ 0.34）：",
           "keywords": [
@@ -32144,8 +32143,8 @@
         {
           "anchor": "§5.4 `accessSources` 截断（R4，WXG-T-038）",
           "level": 3,
-          "startLine": 80,
-          "endLine": 90,
+          "startLine": 91,
+          "endLine": 101,
           "tokens": 257,
           "summary": "条目来源标签 accessSources 只保留最近 N=12 个（保留尾部最新、弃头部最旧）；截断在",
           "keywords": [
@@ -32157,8 +32156,8 @@
         {
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
-          "startLine": 91,
-          "endLine": 144,
+          "startLine": 102,
+          "endLine": 155,
           "tokens": 1903,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
