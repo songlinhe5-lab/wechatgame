@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2403,
       "lines": 98,
-      "sha256": "b4fe63ec258eaa82f69fe6896db109aab2bda91b54a9b557e38c5ba18ddb9dcc",
+      "sha256": "1ef9a0775fdbc23dc1e9290a8d97b1fbae4fb6968c63f1ca6b65a5f8fa04c3d5",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3847,
+      "tokens": 3858,
       "lines": 86,
-      "sha256": "e00a59ea93182024120b4f40ad516d5076695c60b8d3fdd3bc615dc980b57aed",
+      "sha256": "cdd0e75ac0b72c9bf150dd03fe4e7ce084164634405add3b0465d683e22b30be",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 3819,
+          "tokens": 3830,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 53 行 / 2141 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 56 行 / 2281 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+54 · §待排（backlog，无号，立项时领取）=40+15",
+          "summary": "§WXG 任务台账（SSOT）=1+57 · §待排（backlog，无号，立项时领取）=42+16",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 268 行 / 13639 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 286 行 / 14475 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 143,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+269 · §WXG-T-069=18+13 · §WXG-T-070",
+          "tokens": 154,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+287 · §WXG-T-069=18+13 · §WXG-T-070",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -6191,9 +6191,9 @@
     },
     {
       "path": "games/beads/art/accessibility.md",
-      "tokens": 3487,
+      "tokens": 3560,
       "lines": 119,
-      "sha256": "f496288671d912d99691587d92beb6d2e43d18d67be78cdfc2ac8a5974c91297",
+      "sha256": "e491b69ca9575440de2d469131b356971c5079cd8221c8d36029e50472e25bc1",
       "tier": "normal",
       "sections": [
         {
@@ -6201,7 +6201,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 120,
-          "tokens": 3470,
+          "tokens": 3542,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Accessibility",
@@ -6229,7 +6229,7 @@
           "level": 2,
           "startLine": 25,
           "endLine": 80,
-          "tokens": 2577,
+          "tokens": 2629,
           "summary": "A1 色觉障碍友好 · 珠子颜色 「颜色 + 符号 + 明度」三重编码：10 色各绑唯一矢量符号（○★●■♥◐▽▲◆✚，",
           "keywords": [
             "特性矩阵"
@@ -6240,8 +6240,8 @@
           "level": 2,
           "startLine": 81,
           "endLine": 98,
-          "tokens": 293,
-          "summary": "本 demo 落地（14 项）：A1 A2 A2b A3 A4 B1 B2 C2 D1 D2 E1 E2（基础版）F1 ",
+          "tokens": 313,
+          "summary": "本 demo 落地（15 项）：A1 A2 A2b A3 A4 B1 B2 B3 C2 D1 D2 E1 E2（基础版）",
           "keywords": [
             "demo",
             "A2b",
@@ -19795,9 +19795,9 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 7607,
+      "tokens": 7641,
       "lines": 269,
-      "sha256": "a388edf45289cba73e43fed1ca23da4e168fa1f3b7f4e6c545f2e64b950e2eb3",
+      "sha256": "16ec34af1971498c4391cff6f29d359535cf09bd7f7078c2b27e4534e9fae14b",
       "tier": "normal",
       "sections": [
         {
@@ -19805,7 +19805,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 270,
-          "tokens": 7598,
+          "tokens": 7632,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.2 · 任务号 WXG-T-015（失败续时 U5：WXG-",
           "keywords": [
             "Spec",
@@ -20050,7 +20050,7 @@
           "level": 2,
           "startLine": 247,
           "endLine": 270,
-          "tokens": 930,
+          "tokens": 964,
           "summary": "已裁定（沿袭）：无主菜单两路径（core-loop 判例）；齿轮单通道入口；道具 MVP 占位口径（S6 §2.6）；面",
           "keywords": [
             "§2.6",
@@ -42179,17 +42179,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 13639,
-      "lines": 268,
-      "sha256": "a69a5510062f6694a8fe9a2ea9cb573866c63285a5e008515f54d337b3223cf6",
+      "tokens": 14475,
+      "lines": 286,
+      "sha256": "1d59d90d151fe6dcae1fe165f630620873da5b4fbf12bcde1e5038a024fcc540",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 269,
-          "tokens": 13623,
+          "endLine": 287,
+          "tokens": 14458,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -42523,22 +42523,49 @@
             "WXG",
             "beads"
           ]
+        },
+        {
+          "anchor": "§WXG-T-092",
+          "level": 2,
+          "startLine": 270,
+          "endLine": 278,
+          "tokens": 462,
+          "summary": "名称：beads G4 复验——探针重跑 + 回归报告 v1.1（波次3·甲路线；用户拍板「先复验拿真相再定音频/Pla",
+          "keywords": [
+            "WXG",
+            "beads",
+            "Pla"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-093",
+          "level": 2,
+          "startLine": 279,
+          "endLine": 287,
+          "tokens": 368,
+          "summary": "名称：beads 文档漂移回写（ux-spec U8 / accessibility B3）+ 守卫登记（波次3·C 组",
+          "keywords": [
+            "WXG",
+            "beads",
+            "spec",
+            "accessibility"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2141,
-      "lines": 53,
-      "sha256": "8d4a046f2cbc27decc9b5e8931a9f2cbe550be3ea146500417059e8e4810d55f",
+      "tokens": 2281,
+      "lines": 56,
+      "sha256": "0441351ca94028da44e214378a765e3f585eec80f125cf720cb2528d79ebc4f5",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 54,
-          "tokens": 2133,
+          "endLine": 57,
+          "tokens": 2273,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -42551,9 +42578,9 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 40,
-          "endLine": 54,
-          "tokens": 407,
+          "startLine": 42,
+          "endLine": 57,
+          "tokens": 485,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
             "backlog",
