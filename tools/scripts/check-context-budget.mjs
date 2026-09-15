@@ -76,11 +76,13 @@ import {
   ROOT,
   ROUTES_PATH,
   SKIP_DIRS,
+  dirtySet,
   freshnessIssues,
   readDistribution,
   readIndex,
   readStagedBlob,
   residentLimit,
+  resolveContent,
   routesReferencedPaths,
   sha256,
   stagedSet,
@@ -89,6 +91,9 @@ import {
   MEMORY_DIGEST_DAYS,
   MEMORY_INDEX_PATH,
   MEMORY_INDEX_REL,
+  isMemoryDetail,
+  memoryDailies,
+  memoryDetailLinks,
   renderMemoryIndexText,
 } from './lib/memory-index.mjs';
 
@@ -234,7 +239,7 @@ function checkResident(index) {
     if (!ok) {
       failures.push(
         `A: ${HOT_FILES_REL} 常驻体积 ${hotRec.tokens} tokens > 上限 ${hotLimit} —— ` +
-          '它是协议每会话都读的一跳，必须控量：调小 LIMITS.hotFilesMaxTokens 或降低收录门槛（生成器会自动裁撤低优先文件）',
+        '它是协议每会话都读的一跳，必须控量：调小 LIMITS.hotFilesMaxTokens 或降低收录门槛（生成器会自动裁撤低优先文件）',
       );
     }
   }
@@ -256,9 +261,9 @@ function checkResident(index) {
     if (!ok) {
       failures.push(
         `A: ${rel} 常驻体积 ${rec.tokens} tokens > 上限 ${lim} —— ` +
-          '它是协议每会话都读的第二跳（手维护路由表，无生成器控量），必须瘦身：' +
-          '合并重复路由 / 删除失效锚点引用 / 长说明移入 docs/；' +
-          '勿以「直接调大 LIMITS.routesMd」代替瘦身（如需调阈须按程序留痕并同步文档）',
+        '它是协议每会话都读的第二跳（手维护路由表，无生成器控量），必须瘦身：' +
+        '合并重复路由 / 删除失效锚点引用 / 长说明移入 docs/；' +
+        '勿以「直接调大 LIMITS.routesMd」代替瘦身（如需调阈须按程序留痕并同步文档）',
       );
     }
   }
@@ -316,7 +321,7 @@ function checkFileMax(index) {
     if (!exempt) {
       failures.push(
         `B: \`${f.path}\` ${f.tokens} tokens > 单文件上限 ${LIMITS.fileMax} —— ` +
-          '要么拆分为多文件，要么在 ctx/budget-exempt.json 登记（须带 reason 与 taskId）',
+        '要么拆分为多文件，要么在 ctx/budget-exempt.json 登记（须带 reason 与 taskId）',
       );
     } else {
       notes.push(`B: \`${f.path}\` 超限但已豁免（${exempt.taskId}）：${exempt.reason}`);
@@ -386,8 +391,8 @@ function checkStagedFreshness() {
       if (rec) {
         failures.push(
           `C(--staged): 暂存了删除，但索引仍收录该文件 — ${path} —— ` +
-            '直接重新提交即可（pre-commit 自动重建会同步移除，WXG-T-032 ⑤）；' +
-            '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
+          '直接重新提交即可（pre-commit 自动重建会同步移除，WXG-T-032 ⑤）；' +
+          '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
         );
       }
       continue;
@@ -395,8 +400,8 @@ function checkStagedFreshness() {
     if (!rec) {
       failures.push(
         `C(--staged): 新文件未入索引 — ${path} —— ` +
-          '直接重新提交即可（pre-commit 会自动把暂存新文件纳入索引，WXG-T-032 ⑤）；' +
-          '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
+        '直接重新提交即可（pre-commit 会自动把暂存新文件纳入索引，WXG-T-032 ⑤）；' +
+        '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
       );
       continue;
     }
@@ -408,8 +413,8 @@ function checkStagedFreshness() {
     if (sha256(blob) !== rec.sha256) {
       failures.push(
         `C(--staged): 暂存内容与索引不一致 — ${path} —— ` +
-          '直接重新提交即可（pre-commit 会以 --staged-blobs 自动重建并重新暂存，WXG-T-032 ⑤）；' +
-          '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
+        '直接重新提交即可（pre-commit 会以 --staged-blobs 自动重建并重新暂存，WXG-T-032 ⑤）；' +
+        '手动修复：pnpm run ctx:build && git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md',
       );
     }
   }
@@ -455,7 +460,7 @@ function checkRoutes(index) {
     if (!hit) {
       failures.push(
         `D: ROUTES.md:${lineNo} 锚点失效 — \`${path}#${anchor}\`：该文件 sections 中无此小节 ` +
-          '（先重跑 `pnpm run ctx:build`，再同步 ROUTES.md 的标题）',
+        '（先重跑 `pnpm run ctx:build`，再同步 ROUTES.md 的标题）',
       );
     }
   };
@@ -489,7 +494,7 @@ function checkRoutes(index) {
     } else {
       failures.push(
         `D: ROUTES.md:${lineNo} 非锚点式引用 \`${path}\` 未标注豁免 — ` +
-          '整文件引用请在该行行尾加 `<!-- no-anchor -->`，或改为 `路径#锚点` 形式',
+        '整文件引用请在该行行尾加 `<!-- no-anchor -->`，或改为 `路径#锚点` 形式',
       );
     }
   }
@@ -542,10 +547,10 @@ function checkHotFilesCoverage(index) {
   if (!ok) {
     failures.push(
       `D2: 第二跳覆盖率 ${pct(ratio)} < 下限 ${pct(LIMITS.hotFilesCoverageMin)} —— ` +
-        '下列 ROUTES 引用文件在 ctx/hot-files.md 中查不到 offset/limit，agent 只能退到全量 ' +
-        `ctx/index.json（机器读）：${missing.map((p) => `\`${p}\``).join('、')}。` +
-        '生成器已按「ROUTES 引用优先 + 体积升序」收录；仍落选即预算不足 → ' +
-        '调大 LIMITS.hotFilesMaxTokens（代价见 ctx/reads-summary.md §②.1），或从 ROUTES.md 移除该引用',
+      '下列 ROUTES 引用文件在 ctx/hot-files.md 中查不到 offset/limit，agent 只能退到全量 ' +
+      `ctx/index.json（机器读）：${missing.map((p) => `\`${p}\``).join('、')}。` +
+      '生成器已按「ROUTES 引用优先 + 体积升序」收录；仍落选即预算不足 → ' +
+      '调大 LIMITS.hotFilesMaxTokens（代价见 ctx/reads-summary.md §②.1），或从 ROUTES.md 移除该引用',
     );
   }
   return { targets, covered, missing, pending, ok, ratio };
@@ -705,7 +710,7 @@ function checkE() {
     if (!report.netAttributable) {
       notes.push(
         `E4: 装置归因声明 —— 协议产物（ctx/）读事件为 0，故实测净收益 ${pct(ns.measured?.net ?? 0)} **不可归因于本装置**；` +
-          `同列「协议应然」${pct(ns.protocol?.net ?? 0)} 才是装置真被用起来时的估计`,
+        `同列「协议应然」${pct(ns.protocol?.net ?? 0)} 才是装置真被用起来时的估计`,
       );
     }
     if ((ns.measured?.codeReadEvents ?? 0) > 0) {
@@ -766,7 +771,7 @@ function checkE() {
     }
     notes.push(
       'E3: 基线为旧版计数口径（version<2）——已兼容读取；建议 ' +
-        '`pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"` 升级为比率口径（F-02）',
+      '`pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"` 升级为比率口径（F-02）',
     );
   } else {
     // 新版（v2）**比率口径**（F-02）：劣于基线超过 baselineRateTol 即 FAIL；原始计数仅展示。
@@ -782,7 +787,7 @@ function checkE() {
       if (worse) {
         failures.push(
           `E: ${label} 劣于基线（${pct(cur)} > ${pct(base)} + ${pct(LIMITS.baselineRateTol)}）—— ` +
-            '真实退化请修复，否则 --update-baseline 更新并写明 reason/taskId',
+          '真实退化请修复，否则 --update-baseline 更新并写明 reason/taskId',
         );
       }
     }
@@ -815,7 +820,7 @@ function updateBaseline() {
   if (!dist || reads < LIMITS.usageMinSamples || !sv || !hasRates) {
     console.error(
       `❌ 样本不足（${reads} 次读取 < ${LIMITS.usageMinSamples}）或缺 metrics（含比率字段 jitter.rate / bigFullReads.rate）` +
-        ' —— 拒绝写基线；先跑 ctx:reads / ctx:usage',
+      ' —— 拒绝写基线；先跑 ctx:reads / ctx:usage',
     );
     process.exit(1);
   }
@@ -852,8 +857,8 @@ function updateBaseline() {
   console.log(`✅ 已写基线 ctx/savings-baseline.json（version 2 · 比率口径；样本 ${reads} 次读取；taskId ${taskId}）`);
   console.log(
     `   medianPartial=${pct(out.metrics.medianPartial)}｜p10Partial=${pct(out.metrics.p10Partial)}｜` +
-      `抖动率=${pct(out.metrics.jitterRate)}（${out.metrics.jitterGroups} 组 / 超限 ${out.metrics.jitterExcess} 次）｜` +
-      `大文件整文件读率=${pct(out.metrics.bigFullReadRate)}（${out.metrics.bigFullReads} 次）`,
+    `抖动率=${pct(out.metrics.jitterRate)}（${out.metrics.jitterGroups} 组 / 超限 ${out.metrics.jitterExcess} 次）｜` +
+    `大文件整文件读率=${pct(out.metrics.bigFullReadRate)}（${out.metrics.bigFullReads} 次）`,
   );
   process.exit(0);
 }
@@ -869,6 +874,11 @@ if (UPDATE_BASELINE) updateBaseline();
  *
  * 另附**口径一致性断言**：本产物标注的「蒸馏到期」天数必须等于 `distill-memory.mjs` 的默认值
  * （该默认值内联在其 argv 解析里、无导出，故此处复述并机械对账，防两处慢慢走散）。
+ *
+ * C-③（WXG-T-106）**二级详情层双向可解析**：`memory/details/` 的 H1 隶属标记指不到现存日记节
+ * = 孤儿；日记正文里出现的 `memory/details/<…>.md` 路径不在索引面 = 断链（＝外移的正文已丢）。
+ * 两者都**硬拦不降级为 note**：降级等于让「指针有效、内容不存在」这种最坏状态静默通过（假绿）。
+ * 日记正文按 `resolveContent` 取源（与本文件其余各门同一契约），故暂存区模式下与索引同源。
  */
 function checkMemoryIndex(index) {
   const staleMemory = [];
@@ -889,7 +899,30 @@ function checkMemoryIndex(index) {
   } else if (renderMemoryIndexText(index) !== readFileSync(MEMORY_INDEX_PATH, 'utf8')) {
     staleMemory.push(MEMORY_INDEX_REL);
   }
-  return { staleMemory, digestDays, digestDaysOk };
+
+  // ③ 二级详情层（WXG-T-106）：孤儿 + 断链，两条方向都要可解析。
+  const { orphans } = memoryDetailLinks(index);
+  const detailIssues = orphans.map((o) => `孤儿详情文件 \`${o.path}\` —— ${o.reason}`);
+  const knownDetails = new Set(
+    index.files.filter((f) => isMemoryDetail(f.path)).map((f) => f.path),
+  );
+  if (knownDetails.size || orphans.length) {
+    const gate = dirtySet({
+      mode: STAGED ? 'staged-blobs' : WORKING_TREE ? 'working-tree' : 'committed',
+    });
+    for (const f of memoryDailies(index)) {
+      const { text } = resolveContent(f.path, gate);
+      if (text == null) continue; // 未跟踪新日记 → 按契约不入索引，不据此判红
+      for (const m of text.matchAll(/memory\/details\/\d{4}-\d{2}-\d{2}-[^`\s)）]+?\.md/g)) {
+        if (!knownDetails.has(m[0])) {
+          detailIssues.push(
+            `断链：\`${f.path}\` 指向 \`${m[0]}\`，但该文件不在索引面（正文已丢 ⇒ 补回或删指针）`,
+          );
+        }
+      }
+    }
+  }
+  return { staleMemory, detailIssues, digestDays, digestDaysOk };
 }
 
 // ─────────────────────────────────────────────────────────────── run ─────────
@@ -916,17 +949,23 @@ const freshness = index
 const eReport = checkE();
 const memIndexReport = index
   ? checkMemoryIndex(index)
-  : { staleMemory: [], digestDays: null, digestDaysOk: true };
+  : { staleMemory: [], detailIssues: [], digestDays: null, digestDaysOk: true };
+if (memIndexReport.detailIssues.length > 0) {
+  failures.push(
+    `C: memory 二级详情层不可解析（${memIndexReport.detailIssues.length} 处）—— ` +
+    memIndexReport.detailIssues.join('；'),
+  );
+}
 if (memIndexReport.staleMemory.length > 0) {
   failures.push(
     `C: ${memIndexReport.staleMemory.join('、')} 与当前索引不同源 —— ` +
-      '跑 `pnpm run ctx:build` 重新生成（它是生成物，勿手工编辑标记块内内容）',
+    '跑 `pnpm run ctx:build` 重新生成（它是生成物，勿手工编辑标记块内内容）',
   );
 }
 if (!memIndexReport.digestDaysOk) {
   failures.push(
     `C: memory/INDEX.md 的蒸馏到期天数（${MEMORY_DIGEST_DAYS}）≠ ` +
-      `tools/scripts/distill-memory.mjs 的默认值（${memIndexReport.digestDays}）—— 两处口径必须一致`,
+    `tools/scripts/distill-memory.mjs 的默认值（${memIndexReport.digestDays}）—— 两处口径必须一致`,
   );
 }
 
@@ -937,8 +976,8 @@ console.log('上下文预算守卫（ctx:check）');
 console.log('');
 console.log(
   `A 常驻预算 — AGENTS.md ≤ ${LIMITS.agentsMd}；my-rules/*.md 单文件 ≤ ${LIMITS.ruleFile}；` +
-    `ctx/hot-files.md ≤ ${LIMITS.hotFilesMaxTokens}（生成器同源控量）；` +
-    `ctx/ROUTES.md ≤ ${LIMITS.routesMd}（WXG-T-039 R5，手维护路由表的唯一硬护栏）`,
+  `ctx/hot-files.md ≤ ${LIMITS.hotFilesMaxTokens}（生成器同源控量）；` +
+  `ctx/ROUTES.md ≤ ${LIMITS.routesMd}（WXG-T-039 R5，手维护路由表的唯一硬护栏）`,
 );
 if (residentRows.length) {
   console.log('| 文件 | tokens | 上限 | |');
@@ -947,13 +986,13 @@ if (residentRows.length) {
   // 常驻总量观察哨（WXG-T-039 R5，报告项）：并列一行展示每会话固定常驻开销合计。
   console.log(
     `常驻总量（每会话固定开销 = AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md）：` +
-      `${residentTotal} tokens（观察哨软阈值 ≤ ${LIMITS.residentTotalSoft}）${residentTotalOver ? '⚠️' : '✅'}`,
+    `${residentTotal} tokens（观察哨软阈值 ≤ ${LIMITS.residentTotalSoft}）${residentTotalOver ? '⚠️' : '✅'}`,
   );
   if (residentTotalOver) {
     console.log(
       `   ⚠️ 常驻总量 ${residentTotal} > 软阈值 ${LIMITS.residentTotalSoft} —— ` +
-        '各单文件上限各自为政时总量仍可漂移，此为观察哨提示（不阻断，硬阻断只挂上方各单文件门）；' +
-        '请评估常驻文件瘦身，或按程序留痕后重议 LIMITS.residentTotalSoft。',
+      '各单文件上限各自为政时总量仍可漂移，此为观察哨提示（不阻断，硬阻断只挂上方各单文件门）；' +
+      '请评估常驻文件瘦身，或按程序留痕后重议 LIMITS.residentTotalSoft。',
     );
   }
 } else {
@@ -1000,8 +1039,8 @@ if (STAGED) {
   if (freshness.stale.length > 0) {
     console.log(
       `   💡 若这 ${freshness.stale.length} 个文件你并未改动，属**索引模式不匹配**：ctx/index.json 由默认（HEAD）模式构建。` +
-        '成对执行即可 —— `node tools/scripts/build-context-index.mjs --working-tree`' +
-        ' && `node tools/scripts/check-context-budget.mjs --working-tree`。',
+      '成对执行即可 —— `node tools/scripts/build-context-index.mjs --working-tree`' +
+      ' && `node tools/scripts/check-context-budget.mjs --working-tree`。',
     );
   }
 } else if (freshness.git === false) {
@@ -1009,6 +1048,13 @@ if (STAGED) {
 } else if (freshness.headChecked && freshness.headChecked.length > 0) {
   console.log(
     `   ℹ️ ${freshness.headChecked.length} 个 dirty 文件按 HEAD 内容校验（本地行号可能与索引漂移；提交时 pre-commit 会自动重建索引并重新暂存，WXG-T-032 ⑤）。`,
+  );
+}
+if (index) {
+  const nDetails = index.files.filter((f) => isMemoryDetail(f.path)).length;
+  console.log(
+    `   ${line(memIndexReport.detailIssues.length === 0, `memory 二级详情层（WXG-T-106）：${nDetails} 个详情文件，隶属/指针双向可解析`)}` +
+    (nDetails === 0 ? '（暂无详情文件 ⇒ 本项平凡为真）' : ''),
   );
 }
 console.log('');
@@ -1052,7 +1098,7 @@ console.log('');
 const e1Miss = eReport.behavioralMisses.length > 0;
 console.log(
   'E 节省率 / 护栏 / 基线回归（WXG-T-026 ④；消费 ctx/usage-distribution.json，纯查表计算）' +
-    (e1Miss && !eReport.insufficient ? '｜WARN：行为类指标未达标（报告项，不阻断 CI）' : ''),
+  (e1Miss && !eReport.insufficient ? '｜WARN：行为类指标未达标（报告项，不阻断 CI）' : ''),
 );
 if (eReport.insufficient) {
   console.log(`⚠️  WARN（样本不足，未判定）— ${eReport.reason}`);
@@ -1091,8 +1137,8 @@ if (eReport.insufficient) {
   console.log('');
   console.log(
     'E3 基线回归（硬门）— ctx/savings-baseline.json（容忍带：节省率 −' +
-      `${(LIMITS.baselineSavingsTol * 100).toFixed(1)}pt；比率类（抖动率 / 大文件整文件读率）+` +
-      `${(LIMITS.baselineRateTol * 100).toFixed(1)}pt；原始计数仅展示；劣于 → FAIL + exit 1）`,
+    `${(LIMITS.baselineSavingsTol * 100).toFixed(1)}pt；比率类（抖动率 / 大文件整文件读率）+` +
+    `${(LIMITS.baselineRateTol * 100).toFixed(1)}pt；原始计数仅展示；劣于 → FAIL + exit 1）`,
   );
   if (eReport.e3.some((r) => r.configError)) {
     for (const r of eReport.e3) console.log(`  ❌ ${r.value}`);
@@ -1145,10 +1191,10 @@ for (const f of failures) console.error(`  - ${f}`);
 console.error('');
 console.error(
   '修复提示：索引描述**已提交内容（HEAD）**——改动任何被索引的 .md 并提交后重跑 `pnpm run ctx:build`；\n' +
-    '         若只想按本地未提交内容校验，**必须成对**：`pnpm run ctx:build -- --working-tree &&\n' +
-    '         pnpm run ctx:check -- --working-tree`（只切校验侧 → C 项对每个 dirty 文件必 FAIL）；\n' +
-    '         --staged 模式下请先 `pnpm run ctx:build` 再把变更的 .md 与 ctx/index.json、ctx/BUDGET.md、\n' +
-    '         ctx/hot-files.md（三个产物必须一起暂存；漏 add 会致后续提交永不入库）一起 `git add`。\n' +
-    '         E 项劣于基线若为真实退化请修复，否则 `pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"` 更新。',
+  '         若只想按本地未提交内容校验，**必须成对**：`pnpm run ctx:build -- --working-tree &&\n' +
+  '         pnpm run ctx:check -- --working-tree`（只切校验侧 → C 项对每个 dirty 文件必 FAIL）；\n' +
+  '         --staged 模式下请先 `pnpm run ctx:build` 再把变更的 .md 与 ctx/index.json、ctx/BUDGET.md、\n' +
+  '         ctx/hot-files.md（三个产物必须一起暂存；漏 add 会致后续提交永不入库）一起 `git add`。\n' +
+  '         E 项劣于基线若为真实退化请修复，否则 `pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"` 更新。',
 );
 process.exit(1);

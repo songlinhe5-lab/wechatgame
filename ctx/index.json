@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2449,
-      "lines": 100,
-      "sha256": "e0dcbb47150532617cc19299a34796c1a58455bf6b3ea2c823b49c6561072616",
+      "tokens": 2409,
+      "lines": 98,
+      "sha256": "3ff391292ae61fc6b80cf814bc22231a3aeb16d3e3c5725dafbd23cbaba643ed",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 101,
-          "tokens": 2436,
+          "endLine": 99,
+          "tokens": 2396,
           "summary": "生成：2026-09-15 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 419,
+          "tokens": 438,
           "summary": "1 production/qa/beads/g4-regression-report.md 51647 1057 nor",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 75,
-          "tokens": 934,
+          "endLine": 73,
+          "tokens": 874,
           "summary": "production/qa/beads/g4-regression-report.md 51647 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 76,
-          "endLine": 101,
+          "startLine": 74,
+          "endLine": 99,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -32533,17 +32533,17 @@
     },
     {
       "path": "memory/2026-09-12.md",
-      "tokens": 10141,
-      "lines": 151,
-      "sha256": "a9ab32d2693503650b93090d3e08b1ab57538ffe53b083ba67c206ef24f3c5f3",
+      "tokens": 3132,
+      "lines": 84,
+      "sha256": "9141b84b5959fdc921836da9defeef2bdd4fb5c0472d70acc1ef796552d7383e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-12",
           "level": 1,
           "startLine": 1,
-          "endLine": 152,
-          "tokens": 10138,
+          "endLine": 85,
+          "tokens": 3129,
           "summary": "",
           "keywords": []
         },
@@ -32599,23 +32599,23 @@
           "anchor": "§Review 通过并落地（用户自改，主理人 review + 提交）",
           "level": 2,
           "startLine": 21,
-          "endLine": 61,
-          "tokens": 5166,
-          "summary": "用户采纳 review 三建议的变体：①不加 tools/permissionMode/skills 方言字段（Curs",
+          "endLine": 23,
+          "tokens": 42,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-12-s04.md（5166 ",
           "keywords": [
             "Review",
             "review",
-            "tools",
-            "permissionMode",
-            "skills",
-            "Curs"
+            "WXG",
+            "memory",
+            "details",
+            "s04"
           ]
         },
         {
           "anchor": "§PR #1 合并闭环完成（13:50）",
           "level": 2,
-          "startLine": 62,
-          "endLine": 66,
+          "startLine": 24,
+          "endLine": 28,
           "tokens": 162,
           "summary": "PR #1（develop→master）已于 12:58Z 确认 MERGED，16 项检查全绿（含 Headless",
           "keywords": [
@@ -32629,8 +32629,8 @@
         {
           "anchor": "§冲刺模式工程实现派发（21:10）",
           "level": 2,
-          "startLine": 67,
-          "endLine": 75,
+          "startLine": 29,
+          "endLine": 37,
           "tokens": 431,
           "summary": "关键事实确认：games/beads/src 零代码（architecture-beads §9 记为「⬜ 未开始」），",
           "keywords": [
@@ -32645,8 +32645,8 @@
         {
           "anchor": "§WXG-T-028 交付 + 冲刺事件 payload 真源裁定（21:25）",
           "level": 2,
-          "startLine": 76,
-          "endLine": 85,
+          "startLine": 38,
+          "endLine": 47,
           "tokens": 411,
           "summary": "严守真（quality-lead-2）交付 T-028：test-cases.md v1.2（新增 §C 11 条 TC",
           "keywords": [
@@ -32661,8 +32661,8 @@
         {
           "anchor": "§score-combo 事件 payload 回写完成 + 独立核验（21:40）",
           "level": 2,
-          "startLine": 86,
-          "endLine": 91,
+          "startLine": 48,
+          "endLine": 53,
           "tokens": 267,
           "summary": "design-strategist 完成回写（7 处，仅 score-combo.md；未 commit）：①§2.5 ",
           "keywords": [
@@ -32677,8 +32677,8 @@
         {
           "anchor": "§WXG-T-027 里程碑 + 3 项实现裁决（21:55）",
           "level": 2,
-          "startLine": 92,
-          "endLine": 104,
+          "startLine": 54,
+          "endLine": 66,
           "tokens": 530,
           "summary": "工程侧（engineering-lead-3）里程碑：step 1–6 完成（包脚手架三件套 + config 三件套 ",
           "keywords": [
@@ -32693,54 +32693,56 @@
         {
           "anchor": "§WXG-T-027 完成 + 全量独立验证（22:20）",
           "level": 2,
-          "startLine": 105,
-          "endLine": 118,
-          "tokens": 605,
-          "summary": "工程侧（engineering-lead-3）完成 step 7–9。独立验证（我自己跑，非采信汇报）：",
+          "startLine": 67,
+          "endLine": 69,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-12-s10-t027.md（",
           "keywords": [
             "WXG",
-            "engineering",
-            "lead",
-            "step",
-            "完成",
-            "全量独立验证"
+            "memory",
+            "details",
+            "s10",
+            "t027",
+            "完成"
           ]
         },
         {
           "anchor": "§T-027 提交推送 + 环境事故修复 + WXG-T-030 派发（23:15）",
           "level": 2,
-          "startLine": 119,
-          "endLine": 130,
-          "tokens": 706,
-          "summary": "用户批准「分两笔提交」。我自己执行提交（并行会话在同一仓库活跃提交，精确 pathspec 控制必须自己来）：",
+          "startLine": 70,
+          "endLine": 72,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-12-s11-t030.md（",
           "keywords": [
             "WXG",
-            "pathspec",
-            "提交推送",
-            "环境事故修复",
-            "派发"
+            "memory",
+            "details",
+            "s11",
+            "t030",
+            "提交推送"
           ]
         },
         {
           "anchor": "§WXG-T-030 完成与裁决（23:50）",
           "level": 2,
-          "startLine": 131,
-          "endLine": 142,
-          "tokens": 706,
-          "summary": "工程侧（engineering-lead-3）完成 S9 暂停面板 + 音乐/音效。独立验证：beads 40/40（6",
+          "startLine": 73,
+          "endLine": 75,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-12-s12-t030.md（",
           "keywords": [
             "WXG",
-            "engineering",
-            "lead",
-            "beads",
+            "memory",
+            "details",
+            "s12",
+            "t030",
             "完成与裁决"
           ]
         },
         {
           "anchor": "§WXG-T-030 提交与 T-031 真源对齐（23:56）",
           "level": 2,
-          "startLine": 143,
-          "endLine": 152,
+          "startLine": 76,
+          "endLine": 85,
           "tokens": 302,
           "summary": "提交 62ad9c5（第一笔·工程侧，已 push develop）：8 文件 +1195。pre-commit che",
           "keywords": [
@@ -33115,17 +33117,17 @@
     },
     {
       "path": "memory/2026-09-14.md",
-      "tokens": 12586,
-      "lines": 346,
-      "sha256": "334b85cd017359900f436cd07f6cfcff0a847bfe1238e78fb6a1e92e9ff2d761",
+      "tokens": 6911,
+      "lines": 232,
+      "sha256": "aac8d31fb44b8426bdf7c895131b3508d1522ca20418fa767dbbb4206b57b2bb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 347,
-          "tokens": 12582,
+          "endLine": 233,
+          "tokens": 6908,
           "summary": "",
           "keywords": []
         },
@@ -33133,71 +33135,71 @@
           "anchor": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口）",
           "level": 2,
           "startLine": 3,
-          "endLine": 16,
-          "tokens": 943,
-          "summary": "游戏在 Cocos 预览完整可玩：发球 ✓、挡板跟手 ✓、撞砖得分 ✓（实测 score=300，砖墙被打掉多块）、li",
+          "endLine": 5,
+          "tokens": 43,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-14-s01-t042.md（",
           "keywords": [
             "Cocos",
             "WXG",
-            "score",
-            "预览全链路验",
-            "收通过",
-            "主理会话"
+            "memory",
+            "details",
+            "s01",
+            "t042"
           ]
         },
         {
           "anchor": "§构建链前置补洞 + 多游戏粒度修正（WXG-T-047 / T-048，CodeBuddy 会话）",
           "level": 2,
-          "startLine": 17,
-          "endLine": 27,
-          "tokens": 1041,
-          "summary": "T-047 补两个缺失脚本：check-bundle-size.mjs（阈值真源 systems-index §3.8 ",
+          "startLine": 6,
+          "endLine": 8,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-14-s02-t047.md（",
           "keywords": [
-            "§3.8",
             "WXG",
             "CodeBuddy",
-            "check",
-            "bundle",
-            "size"
+            "memory",
+            "details",
+            "s02",
+            "t047"
           ]
         },
         {
           "anchor": "§构建自动化能力修正：**MCP 不可，但编辑器 CLI 可**（WXG-T-049）",
           "level": 2,
-          "startLine": 28,
-          "endLine": 40,
-          "tokens": 737,
-          "summary": "本会话上轮结论被自己推翻：我曾判定「微信构建结构上不可自动化」。那只对 MCP 通道成立。实测 Cocos Creato",
+          "startLine": 9,
+          "endLine": 11,
+          "tokens": 43,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-14-s03-t049.md（",
           "keywords": [
             "MCP",
             "CLI",
             "WXG",
-            "Cocos",
-            "Creato",
-            "构建自动化能"
+            "memory",
+            "details",
+            "s03"
           ]
         },
         {
           "anchor": "§里程碑：用户确认「已基本完成 breakout」→ 验收回填（WXG-T-050）",
           "level": 2,
-          "startLine": 41,
-          "endLine": 55,
-          "tokens": 722,
-          "summary": "触发：用户报「已经完成基本 breakout 游戏」。按本仓纪律，里程碑必须落到证据而非自报 ⇒ 先取已有实证，再补差额",
+          "startLine": 12,
+          "endLine": 14,
+          "tokens": 43,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-14-s04-t050.md（",
           "keywords": [
             "breakout",
             "WXG",
-            "里程碑",
-            "用户确认",
-            "已基本完成",
-            "验收回填"
+            "memory",
+            "details",
+            "s04",
+            "t050"
           ]
         },
         {
           "anchor": "§引擎功能裁剪：主包 3008 → 1815 KB，内部目标首次达标（WXG-T-051）",
           "level": 2,
-          "startLine": 56,
-          "endLine": 65,
+          "startLine": 15,
+          "endLine": 24,
           "tokens": 443,
           "summary": "证据前置（先证\"真没用到\"再裁）：全量 cc 导入符号实测只有 7 个 —— Color / Component / G",
           "keywords": [
@@ -33212,56 +33214,56 @@
         {
           "anchor": "§S6 道具系统落码：beads 最后一个未实现玩法系统归零（WXG-T-060）",
           "level": 2,
-          "startLine": 66,
-          "endLine": 91,
-          "tokens": 779,
-          "summary": "选点依据：侦察后确认 beads 只剩 EP-06（S6 道具） 未落码（src/systems/powerups.ts",
+          "startLine": 25,
+          "endLine": 27,
+          "tokens": 43,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-14-s06-t060.md（",
           "keywords": [
             "beads",
             "WXG",
-            "src",
-            "systems",
-            "powerups",
-            "道具系统落码"
+            "memory",
+            "details",
+            "s06",
+            "t060"
           ]
         },
         {
           "anchor": "§「到达序」判据清理：把不可测的「先到为准」统一换成帧内执行序（WXG-T-061）",
           "level": 2,
-          "startLine": 92,
-          "endLine": 127,
-          "tokens": 1155,
-          "summary": "关键发现：正确基准早已存在。pause-settings.md §6 与 timer-gameover.md §6 在",
+          "startLine": 28,
+          "endLine": 30,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-14-s07-t061.md（",
           "keywords": [
-            "§6",
             "WXG",
-            "pause",
-            "settings",
-            "timer",
-            "gameover"
+            "memory",
+            "details",
+            "s07",
+            "t061",
+            "到达序"
           ]
         },
         {
           "anchor": "§三项待裁定落地（WXG-T-062，用户「按推荐」）",
           "level": 2,
-          "startLine": 128,
-          "endLine": 147,
-          "tokens": 601,
-          "summary": "① 卡几何：改卡高、不动带位。assets-spec §1.4「卡 176×150 + 卡下方标签 28」与",
+          "startLine": 31,
+          "endLine": 33,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-14-s08-t062.md（",
           "keywords": [
-            "§1.4",
             "WXG",
-            "assets",
-            "spec",
-            "三项待裁定落",
-            "用户"
+            "memory",
+            "details",
+            "s08",
+            "t062",
+            "三项待裁定落"
           ]
         },
         {
           "anchor": "§EP-07 结算·过关面板落地（WXG-T-063，EP-07 未完）",
           "level": 2,
-          "startLine": 148,
-          "endLine": 167,
+          "startLine": 34,
+          "endLine": 53,
           "tokens": 596,
           "summary": "发现的是\"占位 vs 规格\"错位：ux-spec §4 流转表写的是",
           "keywords": [
@@ -33276,8 +33278,8 @@
         {
           "anchor": "§台账「标题制 + 详情分片」：治随任务数线性膨胀（WXG-T-064）",
           "level": 2,
-          "startLine": 168,
-          "endLine": 185,
+          "startLine": 54,
+          "endLine": 71,
           "tokens": 510,
           "summary": "用户反馈点是准的，而我上轮结项是误判：T-053 的「体积驱动归档」只清已完成行，",
           "keywords": [
@@ -33292,8 +33294,8 @@
         {
           "anchor": "§归档器「成对搬运」机械化（WXG-T-065，闭环 T-064 的未闭环项）",
           "level": 2,
-          "startLine": 186,
-          "endLine": 203,
+          "startLine": 72,
+          "endLine": 89,
           "tokens": 525,
           "summary": "为什么要机械化：T-064 把详情拆到 TASKS-DETAIL.md（一任务一节），但归档器只搬行 ✗",
           "keywords": [
@@ -33308,8 +33310,8 @@
         {
           "anchor": "§EP-07 通关画面（FINISH）落地（WXG-T-066）",
           "level": 2,
-          "startLine": 204,
-          "endLine": 220,
+          "startLine": 90,
+          "endLine": 106,
           "tokens": 485,
           "summary": "做了什么：ux-spec §3.6 的全屏庆祝 + 星级总览 + 双钮（去冲刺 / 重玩第 1 关），接上",
           "keywords": [
@@ -33324,8 +33326,8 @@
         {
           "anchor": "§EP-07 冲刺结算面板（WXG-T-067）",
           "level": 2,
-          "startLine": 221,
-          "endLine": 235,
+          "startLine": 107,
+          "endLine": 121,
           "tokens": 428,
           "summary": "判据 score-combo §8-11 的「数据半边」早就实现了（_recordSprintEnd 已算 NEW BE",
           "keywords": [
@@ -33340,8 +33342,8 @@
         {
           "anchor": "§memory 日志分级加载：摘要层 INDEX.md（WXG-T-068）",
           "level": 2,
-          "startLine": 236,
-          "endLine": 251,
+          "startLine": 122,
+          "endLine": 137,
           "tokens": 517,
           "summary": "问题：memory/ 4 篇日记合计 31,690 tok（单篇 5.6k–10.1k）⇒ 任何会话都读不起 ⇒",
           "keywords": [
@@ -33356,8 +33358,8 @@
         {
           "anchor": "§两库的使用触发协议入档（WXG-T-069）",
           "level": 2,
-          "startLine": 252,
-          "endLine": 262,
+          "startLine": 138,
+          "endLine": 148,
           "tokens": 329,
           "summary": "用户问「每次新窗口加载 knowledge，那 memory 什么时候用？」——前提与实际相反：按 AGENTS.md:",
           "keywords": [
@@ -33372,8 +33374,8 @@
         {
           "anchor": "§头注静默落后：把「下次注意」换成机械门禁（WXG-T-070）",
           "level": 2,
-          "startLine": 263,
-          "endLine": 274,
+          "startLine": 149,
+          "endLine": 160,
           "tokens": 320,
           "summary": "抓到自己一个真错：T-067…T-069 三笔登记里我用 str.replace 改台账头注，静默没匹配上",
           "keywords": [
@@ -33388,8 +33390,8 @@
         {
           "anchor": "§星级表持久化：按 GDD 已冻结字段落码（WXG-T-071）",
           "level": 2,
-          "startLine": 275,
-          "endLine": 285,
+          "startLine": 161,
+          "endLine": 171,
           "tokens": 319,
           "summary": "侦察纠正了我自己登记的第一步：backlog 写「先回写 save-progress GDD 增字段」✗，实测该 GDD",
           "keywords": [
@@ -33404,8 +33406,8 @@
         {
           "anchor": "§ctx:build 写入顺序闭环：把「每次都要重试」的假失败根治（WXG-T-072）",
           "level": 2,
-          "startLine": 286,
-          "endLine": 295,
+          "startLine": 172,
+          "endLine": 181,
           "tokens": 266,
           "summary": "症状：当天连续四笔提交都被 ctx 兜底门拦下（同一条笼统信息），每次都要手工 ctx:build + 重暂存才过 ✗。",
           "keywords": [
@@ -33420,8 +33422,8 @@
         {
           "anchor": "§归档器「详情侧」旋钮：把「凭感觉挑阈值」换成表达意图的开关（WXG-T-073）",
           "level": 2,
-          "startLine": 296,
-          "endLine": 307,
+          "startLine": 182,
+          "endLine": 193,
           "tokens": 342,
           "summary": "同一错位当天咬人两次：--until-under 量的是台账（标题制后仅 ~2.4k），而 B 项压力在",
           "keywords": [
@@ -33436,8 +33438,8 @@
         {
           "anchor": "§EP-07 最后一项：连击特效三档（WXG-T-074）",
           "level": 2,
-          "startLine": 308,
-          "endLine": 319,
+          "startLine": 194,
+          "endLine": 205,
           "tokens": 312,
           "summary": "侦察：combo:up 事件早已在发 ✗ 却没有任何消费方 —— 「事件在发」≠「已实现」。",
           "keywords": [
@@ -33450,8 +33452,8 @@
         {
           "anchor": "§领号只读头注：把协议写在成本所在的地方（WXG-T-075）",
           "level": 2,
-          "startLine": 320,
-          "endLine": 327,
+          "startLine": 206,
+          "endLine": 213,
           "tokens": 179,
           "summary": "旧读法「只读主表拿号」（≈2.4k）里，拿号只需要头注那一行（≈30 tok）——每次领号多付约 80 倍 ✗。",
           "keywords": [
@@ -33465,8 +33467,8 @@
         {
           "anchor": "§台账 backlog 卫生门 + 行数哨（WXG-T-076）",
           "level": 2,
-          "startLine": 328,
-          "endLine": 338,
+          "startLine": 214,
+          "endLine": 224,
           "tokens": 304,
           "summary": "用户问「分级读取后还需要 archive 吗」⇒ 按段量化回答：头注 485 有界 / 主表 526（行数无门）/",
           "keywords": [
@@ -33481,8 +33483,8 @@
         {
           "anchor": "§beads 工程接入 Cocos MCP（WXG-T-079）",
           "level": 2,
-          "startLine": 339,
-          "endLine": 347,
+          "startLine": 225,
+          "endLine": 233,
           "tokens": 194,
           "summary": "用户要求给 beads 装 Cocos MCP ⇒ 核查发现链路早已就位（编辑器/扩展/IDE 配置/工程），",
           "keywords": [
@@ -33498,17 +33500,17 @@
     },
     {
       "path": "memory/2026-09-15.md",
-      "tokens": 7876,
-      "lines": 92,
-      "sha256": "06bcf693adde4111aeb4008b73131a14584a99d447b428d667c59e2ffe2f3a65",
+      "tokens": 2745,
+      "lines": 57,
+      "sha256": "6dba256508098f29b277f0c1b5bcdc09eb066e400cb26aad10e1a22d031d36d3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-15",
           "level": 1,
           "startLine": 1,
-          "endLine": 93,
-          "tokens": 7873,
+          "endLine": 57,
+          "tokens": 2742,
           "summary": "",
           "keywords": []
         },
@@ -33564,36 +33566,39 @@
           "anchor": "§WXG-T-095：门禁自身可信度修复（BD-17 + BD-18）",
           "level": 2,
           "startLine": 24,
-          "endLine": 33,
-          "tokens": 685,
-          "summary": "用户拍板「甲」（第三度）：先做 T-095（纯脚本、本环境可全验，“之后所有的绿才可信”），紧接 T-096 音频后端。",
+          "endLine": 26,
+          "tokens": 43,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-15-s04-t095.md（",
           "keywords": [
             "WXG",
-            "门禁自身可信",
-            "度修复"
+            "memory",
+            "details",
+            "s04",
+            "t095",
+            "门禁自身可信"
           ]
         },
         {
           "anchor": "§WXG-T-096：beads 音频后端落码（BD-05 / BD-05b，路线 ADR-0013）",
           "level": 2,
-          "startLine": 34,
-          "endLine": 47,
-          "tokens": 1623,
-          "summary": "架构裁定（ADR-0013 新建）：合成引擎 SynthAudioBackend 住 packages/framewor",
+          "startLine": 27,
+          "endLine": 29,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-15-s05-t096.md（",
           "keywords": [
             "WXG",
             "beads",
             "ADR",
-            "SynthAudioBackend",
-            "packages",
-            "framewor"
+            "memory",
+            "details",
+            "s05"
           ]
         },
         {
           "anchor": "§WXG-T-100 占位 + WXG-T-101（pre-commit ①⁷⁄₈ 镜像守卫）",
           "level": 2,
-          "startLine": 48,
-          "endLine": 55,
+          "startLine": 30,
+          "endLine": 37,
           "tokens": 517,
           "summary": "用户第四度拍板（三项）：BD-34 只立 WXG-T-100 占位不动码（改的是玩法输入，须单独一轮：先加真链红例 → ",
           "keywords": [
@@ -33607,40 +33612,40 @@
         {
           "anchor": "§WXG-T-098 / T-103：B7 裁定包回写 + QA 改判（波次4 第三、四轮）",
           "level": 2,
-          "startLine": 56,
-          "endLine": 72,
-          "tokens": 1866,
-          "summary": "用户拍板「先 spawn T-098 裁定包，再接 T-097」 ⇒ 并行 spawn 文策渊（BD-27/28/29/",
+          "startLine": 38,
+          "endLine": 40,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-15-s07-t098.md（",
           "keywords": [
             "WXG",
-            "spawn",
-            "裁定包回写",
-            "改判",
-            "波次",
-            "第三"
+            "memory",
+            "details",
+            "s07",
+            "t098",
+            "裁定包回写"
           ]
         },
         {
           "anchor": "§WXG-T-097（BD-16 / BD-15）：扩展入口落位与一处测试假绿（波次4 第五轮）",
           "level": 2,
-          "startLine": 73,
-          "endLine": 82,
-          "tokens": 1203,
-          "summary": "用户约束：“不要影响核心区域玩法” ⇒ BD-15 三个候选里取 丙-A（TRAY_BAND 上沿 420→450、托盘",
+          "startLine": 41,
+          "endLine": 43,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-15-s08-t097.md（",
           "keywords": [
             "WXG",
-            "TRAY_BAND",
-            "扩展入口落位",
-            "与一处测试假",
-            "波次",
-            "第五轮"
+            "memory",
+            "details",
+            "s08",
+            "t097",
+            "扩展入口落位"
           ]
         },
         {
           "anchor": "§WXG-T-097（BD-10 满槽告警视觉通道）：结论摘要（波次4 第六轮）",
           "level": 2,
-          "startLine": 83,
-          "endLine": 93,
+          "startLine": 44,
+          "endLine": 54,
           "tokens": 554,
           "summary": "本节按「摘要 + 指针」写（单日期文件超 ctx 8000 tok 上限，不靠豁免硬扛）。细节正本：",
           "keywords": [
@@ -33651,37 +33656,54 @@
             "通道",
             "结论摘要"
           ]
+        },
+        {
+          "anchor": "§WXG-T-106：memory 二级详情层落地（波次4 第七轮 · 用户两项拍板）",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 57,
+          "tokens": 44,
+          "summary": "正文已外移（WXG-T-106，逐字节）→ memory/details/2026-09-15-s10-t106.md（",
+          "keywords": [
+            "WXG",
+            "memory",
+            "details",
+            "s10",
+            "t106",
+            "二级详情层落"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 5513,
-      "lines": 147,
-      "sha256": "afa7174782e97b132d908bac7cc9f78dcaf810b745a5f514e3479d90e630d79d",
+      "tokens": 6777,
+      "lines": 174,
+      "sha256": "4891d978fdb4b273568dab960c8368ec810d90655a329e1142f3f7f536a77d60",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§memory/ — 日志分级索引（WXG-T-068）",
+          "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 148,
-          "tokens": 5499,
-          "summary": "memory/ 是跨会话的运行时记忆：MEMORY.md 是蒸馏后的长期笔记（常驻摘要层），",
+          "endLine": 175,
+          "tokens": 6755,
+          "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
             "WXG",
             "MEMORY",
-            "日志分级索引"
+            "日志分级索引",
+            "二级详情层"
           ]
         },
         {
           "anchor": "§1 读取协议（分级加载）",
           "level": 2,
-          "startLine": 7,
-          "endLine": 27,
-          "tokens": 530,
-          "summary": "MEMORY.md 可常读（1.3k tok，常驻层：约定 / 脚本 / 已知限制）。日记（详情层）只在四种触发下查",
+          "startLine": 8,
+          "endLine": 46,
+          "tokens": 1012,
+          "summary": "MEMORY.md 可常读（1.3k tok，常驻层：约定 / 脚本 / 已知限制）。过程账（日记 + 详情件）只在四种",
           "keywords": [
             "MEMORY",
             "tok",
@@ -33690,11 +33712,25 @@
           ]
         },
         {
+          "anchor": "§1.1 外移口径（本层机械规则，不靠人自觉）",
+          "level": 3,
+          "startLine": 35,
+          "endLine": 46,
+          "tokens": 359,
+          "summary": "触发（两个口径不得混）：文件级＝该日记越 B 门或余量不足才动手；节级＝只外移正文 > 600 tok 的 ## 节（选",
+          "keywords": [
+            "tok",
+            "外移口径",
+            "本层机械规则",
+            "不靠人自觉"
+          ]
+        },
+        {
           "anchor": "§2 文件分工",
           "level": 2,
-          "startLine": 28,
-          "endLine": 36,
-          "tokens": 148,
+          "startLine": 47,
+          "endLine": 56,
+          "tokens": 201,
           "summary": "MEMORY.md 蒸馏后的长期笔记（约定 / 脚本 / 已知限制） 常驻摘要层，直接读",
           "keywords": [
             "MEMORY",
@@ -33704,9 +33740,9 @@
         {
           "anchor": "§3 生命周期（与 `docs/agent/memory-distill.md` 同一套）",
           "level": 2,
-          "startLine": 37,
-          "endLine": 43,
-          "tokens": 140,
+          "startLine": 57,
+          "endLine": 66,
+          "tokens": 245,
           "summary": "日志满 30 天 ⇒ pnpm run memory:distill（dry-run）⇒ 先把长期有效内容蒸馏进 MEM",
           "keywords": [
             "docs/agent/memory-distill.md",
@@ -33720,9 +33756,9 @@
         {
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
-          "startLine": 44,
-          "endLine": 148,
-          "tokens": 4530,
+          "startLine": 67,
+          "endLine": 175,
+          "tokens": 5116,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -33734,44 +33770,44 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 7,876 tok｜9 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
+          "anchor": "§`memory/2026-09-15.md` — 2,745 tok｜10 节｜5 节已外移｜**蒸馏到期 2026-10-15**（剩 30 天）",
           "level": 3,
-          "startLine": 49,
-          "endLine": 62,
-          "tokens": 650,
-          "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 用",
+          "startLine": 73,
+          "endLine": 87,
+          "tokens": 823,
+          "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
             "memory/2026-09-15.md",
             "memory",
             "tok",
             "WXG",
             "Qoder",
-            "蒸馏到期"
+            "节已外移"
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 12,586 tok｜23 节｜**蒸馏到期 2026-10-14**（剩 29 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 29 天）",
           "level": 3,
-          "startLine": 63,
-          "endLine": 90,
-          "tokens": 1509,
-          "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–16 943 游戏在 Cocos",
+          "startLine": 88,
+          "endLine": 115,
+          "tokens": 1651,
+          "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
             "memory/2026-09-14.md",
             "memory",
             "tok",
             "Cocos",
             "WXG",
-            "蒸馏到期"
+            "节已外移"
           ]
         },
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 28 天）",
           "level": 3,
-          "startLine": 91,
-          "endLine": 111,
-          "tokens": 921,
-          "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 结论：有 4 个本地已装但未纳入 m",
+          "startLine": 116,
+          "endLine": 136,
+          "tokens": 945,
+          "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
             "memory/2026-09-13.md",
             "memory",
@@ -33782,28 +33818,28 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 10,141 tok｜13 节｜**蒸馏到期 2026-10-12**（剩 27 天）",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 27 天）",
           "level": 3,
-          "startLine": 112,
-          "endLine": 129,
-          "tokens": 684,
-          "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 三 IDE 均原生支持项目级 subag",
+          "startLine": 137,
+          "endLine": 154,
+          "tokens": 764,
+          "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
             "memory/2026-09-12.md",
             "memory",
             "tok",
             "agents",
             "IDE",
-            "subag"
+            "sub"
           ]
         },
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 26 天）",
           "level": 3,
-          "startLine": 130,
-          "endLine": 148,
-          "tokens": 573,
-          "summary": "§完成的工作 3–19 510 修复 Canvas2DLike.fillStyle / strokeStyle 类型过窄",
+          "startLine": 155,
+          "endLine": 175,
+          "tokens": 672,
+          "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
             "memory/2026-09-11.md",
             "memory",
@@ -33956,6 +33992,653 @@
             "workspace",
             "wor",
             "已知限制"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-12-s04.md",
+      "tokens": 5309,
+      "lines": 46,
+      "sha256": "d749301223be175ce39b38b7fabadff3d148ff79abfa151cd3d80cd6bfa464ed",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-12 · §Review 通过并落地（用户自改，主理人 review + 提交）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 47,
+          "tokens": 5280,
+          "summary": "本节正文自 memory/2026-09-12.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "Review",
+            "review",
+            "memory",
+            "WXG",
+            "隶属",
+            "通过并落地"
+          ]
+        },
+        {
+          "anchor": "§Review 通过并落地（用户自改，主理人 review + 提交）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 47,
+          "tokens": 5167,
+          "summary": "用户采纳 review 三建议的变体：①不加 tools/permissionMode/skills 方言字段（Curs",
+          "keywords": [
+            "Review",
+            "review",
+            "tools",
+            "permissionMode",
+            "skills",
+            "Curs"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-12-s10-t027.md",
+      "tokens": 728,
+      "lines": 19,
+      "sha256": "9f012b24e623d25271089743c9bd36189ce9ef2133927d97c5a986cc2202db09",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-12 · §WXG-T-027 完成 + 全量独立验证（22:20）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 20,
+          "tokens": 706,
+          "summary": "本节正文自 memory/2026-09-12.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "完成",
+            "全量独立验证"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-027 完成 + 全量独立验证（22:20）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 20,
+          "tokens": 605,
+          "summary": "工程侧（engineering-lead-3）完成 step 7–9。独立验证（我自己跑，非采信汇报）：",
+          "keywords": [
+            "WXG",
+            "engineering",
+            "lead",
+            "step",
+            "完成",
+            "全量独立验证"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-12-s11-t030.md",
+      "tokens": 848,
+      "lines": 17,
+      "sha256": "a732b856d62777f38c8a50154559b7e372a870f743e1c9aea9a4464c3252413c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-12 · §T-027 提交推送 + 环境事故修复 + WXG-T-030 派发（23:15）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 18,
+          "tokens": 820,
+          "summary": "本节正文自 memory/2026-09-12.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "提交推送",
+            "环境事故修复",
+            "派发"
+          ]
+        },
+        {
+          "anchor": "§T-027 提交推送 + 环境事故修复 + WXG-T-030 派发（23:15）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 18,
+          "tokens": 707,
+          "summary": "用户批准「分两笔提交」。我自己执行提交（并行会话在同一仓库活跃提交，精确 pathspec 控制必须自己来）：",
+          "keywords": [
+            "WXG",
+            "pathspec",
+            "提交推送",
+            "环境事故修复",
+            "派发"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-12-s12-t030.md",
+      "tokens": 818,
+      "lines": 17,
+      "sha256": "dc2c7ea8d2276c9648c560c8ec02eba87bd06aa9256736b69f1918f57712d882",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-12 · §WXG-T-030 完成与裁决（23:50）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 18,
+          "tokens": 799,
+          "summary": "本节正文自 memory/2026-09-12.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "完成与裁决"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-030 完成与裁决（23:50）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 18,
+          "tokens": 706,
+          "summary": "工程侧（engineering-lead-3）完成 S9 暂停面板 + 音乐/音效。独立验证：beads 40/40（6",
+          "keywords": [
+            "WXG",
+            "engineering",
+            "lead",
+            "beads",
+            "完成与裁决"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-14-s01-t042.md",
+      "tokens": 1095,
+      "lines": 19,
+      "sha256": "95519d7c3afa7be5eecb7571d92252239958f8857cdc91bd2beb085b1d08edf3",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-14 · §Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 20,
+          "tokens": 1063,
+          "summary": "本节正文自 memory/2026-09-14.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "Cocos",
+            "WXG",
+            "memory",
+            "隶属",
+            "预览全链路验",
+            "收通过"
+          ]
+        },
+        {
+          "anchor": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 20,
+          "tokens": 943,
+          "summary": "游戏在 Cocos 预览完整可玩：发球 ✓、挡板跟手 ✓、撞砖得分 ✓（实测 score=300，砖墙被打掉多块）、li",
+          "keywords": [
+            "Cocos",
+            "WXG",
+            "score",
+            "预览全链路验",
+            "收通过",
+            "主理会话"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-14-s02-t047.md",
+      "tokens": 1200,
+      "lines": 16,
+      "sha256": "413a977431a3ec1e590a402592fdd96c1af17ff4ff1b7ce3e9e04ec11f85ae3b",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-14 · §构建链前置补洞 + 多游戏粒度修正（WXG-T-047 / T-048，CodeBuddy 会话）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 17,
+          "tokens": 1166,
+          "summary": "本节正文自 memory/2026-09-14.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "CodeBuddy",
+            "memory",
+            "隶属",
+            "构建链前置补",
+            "多游戏粒度修"
+          ]
+        },
+        {
+          "anchor": "§构建链前置补洞 + 多游戏粒度修正（WXG-T-047 / T-048，CodeBuddy 会话）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 17,
+          "tokens": 1042,
+          "summary": "T-047 补两个缺失脚本：check-bundle-size.mjs（阈值真源 systems-index §3.8 ",
+          "keywords": [
+            "§3.8",
+            "WXG",
+            "CodeBuddy",
+            "check",
+            "bundle",
+            "size"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-14-s03-t049.md",
+      "tokens": 893,
+      "lines": 18,
+      "sha256": "dcf5a841e7052166bad661f9bd1ec029484277c41c0b1d4a631a06db47ba3077",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-14 · §构建自动化能力修正：**MCP 不可，但编辑器 CLI 可**（WXG-T-049）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 19,
+          "tokens": 860,
+          "summary": "本节正文自 memory/2026-09-14.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "MCP",
+            "CLI",
+            "WXG",
+            "memory",
+            "隶属",
+            "构建自动化能"
+          ]
+        },
+        {
+          "anchor": "§构建自动化能力修正：**MCP 不可，但编辑器 CLI 可**（WXG-T-049）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 19,
+          "tokens": 738,
+          "summary": "本会话上轮结论被自己推翻：我曾判定「微信构建结构上不可自动化」。那只对 MCP 通道成立。实测 Cocos Creato",
+          "keywords": [
+            "MCP",
+            "CLI",
+            "WXG",
+            "Cocos",
+            "Creato",
+            "构建自动化能"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-14-s04-t050.md",
+      "tokens": 880,
+      "lines": 20,
+      "sha256": "730ba3530c9090d63a0a1173b3776fedce522ea9cbad16f2c6fdd93933701b32",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-14 · §里程碑：用户确认「已基本完成 breakout」→ 验收回填（WXG-T-050）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 21,
+          "tokens": 846,
+          "summary": "本节正文自 memory/2026-09-14.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "breakout",
+            "WXG",
+            "memory",
+            "隶属",
+            "里程碑",
+            "用户确认"
+          ]
+        },
+        {
+          "anchor": "§里程碑：用户确认「已基本完成 breakout」→ 验收回填（WXG-T-050）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 21,
+          "tokens": 723,
+          "summary": "触发：用户报「已经完成基本 breakout 游戏」。按本仓纪律，里程碑必须落到证据而非自报 ⇒ 先取已有实证，再补差额",
+          "keywords": [
+            "breakout",
+            "WXG",
+            "里程碑",
+            "用户确认",
+            "已基本完成",
+            "验收回填"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-14-s06-t060.md",
+      "tokens": 937,
+      "lines": 31,
+      "sha256": "c9dcde2d483d3b86954d5e12b8252f01aec41b993014411b2c1f585996b132e4",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-14 · §S6 道具系统落码：beads 最后一个未实现玩法系统归零（WXG-T-060）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 32,
+          "tokens": 903,
+          "summary": "本节正文自 memory/2026-09-14.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "beads",
+            "WXG",
+            "memory",
+            "隶属",
+            "道具系统落码",
+            "最后一个未实"
+          ]
+        },
+        {
+          "anchor": "§S6 道具系统落码：beads 最后一个未实现玩法系统归零（WXG-T-060）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 32,
+          "tokens": 779,
+          "summary": "选点依据：侦察后确认 beads 只剩 EP-06（S6 道具） 未落码（src/systems/powerups.ts",
+          "keywords": [
+            "beads",
+            "WXG",
+            "src",
+            "systems",
+            "powerups",
+            "道具系统落码"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-14-s07-t061.md",
+      "tokens": 1337,
+      "lines": 41,
+      "sha256": "9aaf8fad974f6e620f1fa3a0cabc4793089a90acb7938872025418d944caba77",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-14 · §「到达序」判据清理：把不可测的「先到为准」统一换成帧内执行序（WXG-T-061）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 42,
+          "tokens": 1295,
+          "summary": "本节正文自 memory/2026-09-14.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "到达序",
+            "判据清理",
+            "把不可测的"
+          ]
+        },
+        {
+          "anchor": "§「到达序」判据清理：把不可测的「先到为准」统一换成帧内执行序（WXG-T-061）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 42,
+          "tokens": 1155,
+          "summary": "关键发现：正确基准早已存在。pause-settings.md §6 与 timer-gameover.md §6 在",
+          "keywords": [
+            "§6",
+            "WXG",
+            "pause",
+            "settings",
+            "timer",
+            "gameover"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-14-s08-t062.md",
+      "tokens": 739,
+      "lines": 25,
+      "sha256": "4d49e1fa7766fb87716ee1e70f308a204d449ee03bded24b01e921765015e52f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-14 · §三项待裁定落地（WXG-T-062，用户「按推荐」）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 26,
+          "tokens": 712,
+          "summary": "本节正文自 memory/2026-09-14.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "三项待裁定落",
+            "用户",
+            "按推荐"
+          ]
+        },
+        {
+          "anchor": "§三项待裁定落地（WXG-T-062，用户「按推荐」）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 26,
+          "tokens": 602,
+          "summary": "① 卡几何：改卡高、不动带位。assets-spec §1.4「卡 176×150 + 卡下方标签 28」与",
+          "keywords": [
+            "§1.4",
+            "WXG",
+            "assets",
+            "spec",
+            "三项待裁定落",
+            "用户"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-15-s04-t095.md",
+      "tokens": 817,
+      "lines": 15,
+      "sha256": "fbd445738ae2d1e2a3ee7f7242a969c268df9f59b825c2cf8cb706f6755424ce",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-15 · §WXG-T-095：门禁自身可信度修复（BD-17 + BD-18）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 16,
+          "tokens": 792,
+          "summary": "本节正文自 memory/2026-09-15.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "门禁自身可信",
+            "度修复"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-095：门禁自身可信度修复（BD-17 + BD-18）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 16,
+          "tokens": 685,
+          "summary": "用户拍板「甲」（第三度）：先做 T-095（纯脚本、本环境可全验，“之后所有的绿才可信”），紧接 T-096 音频后端。",
+          "keywords": [
+            "WXG",
+            "门禁自身可信",
+            "度修复"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-15-s05-t096.md",
+      "tokens": 1767,
+      "lines": 19,
+      "sha256": "c4ce3508c3550ef317b105ac62cf71b4931f17eca8d4bd2b3074d6cb16bc2e9c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-15 · §WXG-T-096：beads 音频后端落码（BD-05 / BD-05b，路线 ADR-0013）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 20,
+          "tokens": 1737,
+          "summary": "本节正文自 memory/2026-09-15.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "beads",
+            "ADR",
+            "memory",
+            "隶属",
+            "音频后端落码"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-096：beads 音频后端落码（BD-05 / BD-05b，路线 ADR-0013）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 20,
+          "tokens": 1623,
+          "summary": "架构裁定（ADR-0013 新建）：合成引擎 SynthAudioBackend 住 packages/framewor",
+          "keywords": [
+            "WXG",
+            "beads",
+            "ADR",
+            "SynthAudioBackend",
+            "packages",
+            "framewor"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-15-s07-t098.md",
+      "tokens": 2017,
+      "lines": 22,
+      "sha256": "7253968271cb147757b1415362a88cfe4b777f8f85860096e115ddb653d71cbe",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-15 · §WXG-T-098 / T-103：B7 裁定包回写 + QA 改判（波次4 第三、四轮）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 23,
+          "tokens": 1985,
+          "summary": "本节正文自 memory/2026-09-15.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "裁定包回写",
+            "改判",
+            "波次"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-098 / T-103：B7 裁定包回写 + QA 改判（波次4 第三、四轮）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 23,
+          "tokens": 1866,
+          "summary": "用户拍板「先 spawn T-098 裁定包，再接 T-097」 ⇒ 并行 spawn 文策渊（BD-27/28/29/",
+          "keywords": [
+            "WXG",
+            "spawn",
+            "裁定包回写",
+            "改判",
+            "波次",
+            "第三"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-15-s08-t097.md",
+      "tokens": 1369,
+      "lines": 15,
+      "sha256": "9b8edbb522bca101134bd636448576ebd2f45555ba1b8b3b80b5553f93bbf8fa",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-15 · §WXG-T-097（BD-16 / BD-15）：扩展入口落位与一处测试假绿（波次4 第五轮）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 16,
+          "tokens": 1332,
+          "summary": "本节正文自 memory/2026-09-15.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "扩展入口落位",
+            "与一处测试假",
+            "波次"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-097（BD-16 / BD-15）：扩展入口落位与一处测试假绿（波次4 第五轮）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 16,
+          "tokens": 1203,
+          "summary": "用户约束：“不要影响核心区域玩法” ⇒ BD-15 三个候选里取 丙-A（TRAY_BAND 上沿 420→450、托盘",
+          "keywords": [
+            "WXG",
+            "TRAY_BAND",
+            "扩展入口落位",
+            "与一处测试假",
+            "波次",
+            "第五轮"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "memory/details/2026-09-15-s10-t106.md",
+      "tokens": 1181,
+      "lines": 17,
+      "sha256": "4c0f1cfa078e235f263ee6b774dfb8f5f9f18e405c317c48de68ba632aae529c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§隶属 · 2026-09-15 · §WXG-T-106：memory 二级详情层落地（波次4 第七轮 · 用户两项拍板）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 18,
+          "tokens": 1147,
+          "summary": "本节正文自 memory/2026-09-15.md 逐字节外移（WXG-T-106）；日记原位只余节标题 + 指向本件",
+          "keywords": [
+            "WXG",
+            "memory",
+            "隶属",
+            "二级详情层落",
+            "波次",
+            "第七轮"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-106：memory 二级详情层落地（波次4 第七轮 · 用户两项拍板）",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 18,
+          "tokens": 1022,
+          "summary": "用户拍板（一句内两项）：「布局取 memory/details/ 单层」+「批次2 本轮一起做完并撤销那两条豁免」⇒ 不",
+          "keywords": [
+            "WXG",
+            "memory",
+            "details",
+            "二级详情层落",
+            "波次",
+            "第七轮"
           ]
         }
       ]

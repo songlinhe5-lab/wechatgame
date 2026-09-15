@@ -27,21 +27,21 @@
 | 3 | `production/qa/beads/test-cases.md` | 20445 | 390 | hot |
 | 4 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
 | 5 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
-| 6 | `memory/2026-09-14.md` | 12586 | 346 | normal |
-| 7 | `docs/engine-reference/cocos/VERSION.md` | 11967 | 454 | normal |
-| 8 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
-| 9 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
-| 10 | `games/beads/design/audio/audio-spec.md` | 11064 | 297 | normal |
-| 11 | `knowledge/lessons.md` | 10768 | 180 | normal |
-| 12 | `memory/2026-09-12.md` | 10141 | 151 | normal |
-| 13 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
-| 14 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
-| 15 | `games/beads/design/ux/ux-spec.md` | 9014 | 276 | normal |
-| 16 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
-| 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
-| 18 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
-| 19 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
-| 20 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 6 | `docs/engine-reference/cocos/VERSION.md` | 11967 | 454 | normal |
+| 7 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
+| 8 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
+| 9 | `games/beads/design/audio/audio-spec.md` | 11064 | 297 | normal |
+| 10 | `knowledge/lessons.md` | 10768 | 180 | normal |
+| 11 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
+| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
+| 13 | `games/beads/design/ux/ux-spec.md` | 9014 | 276 | normal |
+| 14 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 15 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 16 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 18 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 19 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 20 | `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -52,13 +52,11 @@
 | `production/qa/beads/test-cases.md` | 20445 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `memory/2026-09-14.md` | 12586 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/engine-reference/cocos/VERSION.md` | 11967 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 11064 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `knowledge/lessons.md` | 10768 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `memory/2026-09-12.md` | 10141 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 9014 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

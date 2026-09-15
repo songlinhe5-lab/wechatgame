@@ -1,12 +1,6 @@
 {
   "exempt": [
     {
-      "path": "memory/2026-09-12.md",
-      "reason": "追加式每日会话日记（非设计/规范文档），按时间序累积且并发会话正在写入，拆分会破坏时序与并发安全；已被 ctx 索引按章节锚点覆盖，开工查询走锚点即可",
-      "note": "WXG-T-041（2026-09-13）收窄裁决：本豁免仅对 ≤30 天的日志生效——日志满 30 天后应先蒸馏进 MEMORY.md 再由 memory:distill --write 归档至 memory/archive/（不进索引面），不得靠豁免硬扛。本轮不改豁免行为（该日志距今仅 1 天，不触发）；下次 ctx 审计时若满 30 天日志仍留在 memory/ 顶层且靠豁免放行，视为违规并推动蒸馏+归档。",
-      "taskId": "WXG-T-030"
-    },
-    {
       "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.de.md",
       "reason": "第三方 vendor 插件（cocos-mcp-server v1.5.4）自带的官方多语言 README，非本仓创作文档；不得改写拆分（破坏与上游一致性），已被 ctx 索引按章节锚点覆盖",
       "taskId": "WXG-T-042"
@@ -45,12 +39,6 @@
       "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md",
       "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
       "taskId": "WXG-T-042"
-    },
-    {
-      "path": "memory/2026-09-14.md",
-      "reason": "追加式每日会话日记（非设计/规范文档），按时间序累积且并发会话正在写入，拆分会破坏时序与并发安全；已被 ctx 索引按章节锚点覆盖，开工查询走锚点即可（当日含 T-060…T-065 多轮条目）",
-      "note": "同 WXG-T-041 对 2026-09-12 的收窄裁决：本豁免仅对 ≤30 天日志生效——满 30 天后应先蒸馏进 MEMORY.md，再由 memory:distill --write 归档至 memory/archive/（不进索引面），不得靠豁免硬扛。",
-      "taskId": "WXG-T-065"
     },
     {
       "path": "production/TASKS-DETAIL.md",
