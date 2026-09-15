@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 36,
+  "nextId": 38,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -601,6 +601,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-036",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "流程",
+      "title": "多项串联的门禁若「失败即短路」且「缺对象仍报绿」，它的 ✅ 不构成任何证据",
+      "contentHash": "dd3cd97415a05a379cec1b6ec9ebae0e3e0c2d934b50ac4472062fb8ea6d1698",
+      "sourceTask": "WXG-T-084",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-037",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "流程",
+      "title": "「指令流层可证」≠「屏幕层可证」：Node 探针全绿不得抬升表现层结论",
+      "contentHash": "251309729d4d4cd43789f7f54a33ca1664b7ad98116d4568c0ee1cdccdef37bb",
+      "sourceTask": "WXG-T-092",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -665,6 +699,16 @@
       "kind": "added",
       "ids": [
         "K-035"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-036",
+        "K-037"
       ],
       "note": null
     }

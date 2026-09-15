@@ -286,3 +286,57 @@
 - **落地**：① `ux-spec §8` U8 行改 ✅（引 v1.17/T-086 事实）+ 尾注「待确认项归零」；② `accessibility §2` B3 行改 ✅ 附判定位置、§3 小结 14→15 项、部分落地行清空；③ `TASKS.md` backlog 新增「check:a11y 机械守卫（待立项）」行（来源 K-035，本单不实施只登记）。
 - **约束**：不改 §3、不改判据文本、不新增设计语义；纯事实同步。
 - **依赖**：前置 T-086/T-087/T-091；守卫实施工单待后续波次领号。
+
+## WXG-T-094
+
+- **名称**：**波次3 汇编——G4 主理人裁决 + 波次4 立项排期**（阶段 8 汇编段，编排者独占）。
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（2026-09-15）
+- **输入**：用户两度拍板「甲」（阶段0 推荐路线 = 先复验拿真相再定音频/Playtest 排期）⇒ T-092 他证 + T-093 回写。
+- **裁决**：**G4 = CONCERNS**（全文见 `production/qa/beads/g4-regression-report.md` **§18.5**）。放行：波次4 全部单 + M2 降级 Playtest + 波次2/3 修复的代码级冻结；**不放行**：阶段7 发布（包体无数据 + `[Cocos]/[Device]/[R]` 未验）、每日挑战评审（既定「PASS 前不评」）、对「解压/治愈」下 PASS。五条限制声明入档，任一未解除不得升 PASS。
+- **事实修正（重要）**：§18.2 **B2** 的解除条件不是「主理人授权代跑 `build:cocos`」——`tools/scripts/build-cocos.mjs` 头注明载 `wechatgame` 平台**需有效 AppID**；本环境只能产 `web-mobile`（beads 已有，1968 KB 代理值即出自它）⇒ B2 挂 B4（用户侧）。
+- **波次4 立项（一次占位防跨 IDE 撞号，见主表注 4 教训）**：T-095 门禁可信度 / T-096 音频后端 / T-097 P1 反馈缺口 / T-098 裁定包回写 / T-099 取证通路。**施工顺序**：T-095 →（T-096 ∥ T-098）→ T-097 → T-099 → Playtest 降级轮（领号待 T-096 后）。
+- **升 PASS 最小集**：T-095 + T-098（⇒ BD-25 关单）+ T-099 + AppID 到位后的 `wechatgame` 包体实测。
+- **约束**：本单零代码零设计交付物（裁决与立项属主理人独占段，不代成员产出）。
+
+## WXG-T-095
+
+- **名称**：**门禁自身可信度修复（BD-17 verify 短路 + BD-18 check:size 静默 ✅）**——波次4 首位，P0（成本最低、收益最大）。
+- **负责**：主理人(Qoder)　**状态**：📋 已立项（待施工）
+- **背景（仓库现物已核）**：`package.json:51` `verify` 仍以 `&&` 串 **14** 项 ⇒ 任一项失败后续门静默不跑（v1.0 轮在第 8/13 项即短路，9–13 项从未执行）；`check-bundle-size.mjs:82` 对缺产物只 `status:'skipped'` 打印后整体报 ✅ ⇒ 包体门只测到 breakout 1815.1KB。
+- **Deliverables**：① `verify` 改「**逐项收集 + 汇总退出码**」，尾部打印未通过/未执行清单（若保留现 `verify` 语义则新增 `verify:all`，**不得两套口径不一致**）；② `check:size` 遍历 `games/*`，缺 `wechatgame` 产物时**显式 SKIP + WARN 计数**，禁止静默 ✅；③ 两脚本各自 selftest 补例（沿用 `tools/scripts/*-selftest.sh` 惯例）+ `pnpm run verify` 全绿复跑；④ 回写：报告 §14 BD-17/18 状态行、`docs/agent/commands.md` verify 口径、`knowledge/lessons.md` 候选（门禁假绿谱系）。
+- **约束**：不改任何判据数值与 §3 冻结常量；门禁改动必须能被门禁自己验证；**禁**为凑绿而放宽阈值。
+- **依赖**：无前置（本环境可全验）；后继 T-099/T-100 的「绿」才可信。
+
+## WXG-T-096
+
+- **名称**：**beads 音频后端落码（BD-05 clip 派发 + BD-05b 三平台 backend）**——支柱内最后一个零实现，P0。
+- **负责**：程基岩(eng)+主理人(Qoder)　**状态**：📋 已立项（待施工）
+- **背景（现物已核）**：`packages/framework/src/platform/web.ts:57`、`weapp.ts:136` 均 `return new NullAudioBackend()`（注释自认「待首个带音频的游戏」）⇒ harness 恒静音；G4 探针 P5 因此维持 FAIL，Playtest「解压/治愈」维度结构性不可评。现 `games/beads/src` 仅 3 个 clip 常量（`AUDIO_CLIP_BGM/UI_TAP/STAR`）。
+- **权威来源**：`games/beads/design/audio/audio-spec.md` **§6.2 后端需求单（6 项）** + `audio-events.md §1/§4`（A05-01..27）+ `systems-index §3` `AUDIO_*`（v1.16 已冻结）。
+- **Deliverables**：① 框架侧 WebAudio 程序化合成 backend（**零外部音频文件** ⇒ 守包体音频 0 KB 承诺）+ InnerAudioContext 池（weapp）+ node 侧保持 Null 以护单测；② 游戏侧 19 项事件→clip 映射与**同帧多事件**策略（BD-05）；③ 单测（L2：core 不碰 `cc`/DOM/`wx`）+ 热路径零分配；④ `framework:sync` 镜像 + `verify` 全绿；⑤ 交严守真复跑 P5（探针预期值先改再跑）。
+- **约束**：不产伪数值（音量/时长一律引 §3 与 audio-events）；配乐/口播**文件**生成走 `indie-game-ost-pack`/`game-ui-voice-pack`，本单只做后端与派发。
+- **依赖**：T-095（需可信门禁）；后继 Playtest 降级轮。
+
+## WXG-T-097
+
+- **名称**：**beads P1/P2 反馈与路由缺口工程单（BD-15/16 + BD-04 余类 + BD-10 半边 + BD-32）**
+- **负责**：主理人(Qoder)　**状态**：📋 已立项（待施工）
+- **范围（四项 FAIL/开放项）**：① **BD-15** 扩展入口（`input-control §8-1` 一类路由缺；连带让 `accessibility C1` 有对象）；② **BD-16** 拒绝轻提示（`input-control §8-7` 零反馈；hint 通道 T-087 已就绪，改动极小）；③ **BD-04** 余两类 VFX；④ **BD-10** 满槽告警多通道半边；⑤ **BD-32** 引导判定：`beads-game.ts:947` 以 `runs > 0` 判老玩家而每次 BOOT 自增 ⇒ 开局即杀进程永久失引导，改「首次 `bead:placed`」或显式 `onboarded` 标记。
+- **约束**：BD-32 若改 `runs` 语义/新增字段 ⇒ 走 `save-schema` 版本升位向后兼容（判例 T-088 v1→v2）；**禁**手改 §3，需动常量回传主对话串行落盘 §6；每子项一条细粒度提交含 `WXG-T-097`。
+- **依赖**：T-096（音效与 VFX 同批验收更省一轮）；完成后由 QA 复跑 P8/P10/P4。
+
+## WXG-T-098
+
+- **名称**：**B7 裁定包一次性回写（BD-27/28/29/30/31）**——解除 BD-25 关单阻塞
+- **负责**：文策渊(design-strategist) + 林绘澄(art-director)　**状态**：📋 已立项（待 spawn）
+- **范围**：① **BD-27** `tray-spawner §8-1` 补「60s 窗口开/闭区间 + 帧量化容差」二句（现 ±0 在闭区间下=15 次）；② **BD-28** `§8-3` 标「作废（v1.17 D 方案）」或改写为平凡真；③ **BD-29** `ux-spec §5` 红线「无 >3Hz 闪烁」与 wrong 描边「2 次/200ms」(=10Hz) 互斥 ⇒ 二择一（改豁免或降频 ≤1.5Hz）；④ **BD-30** `ux-spec §6.2` 补注 `_firstFeed` 等价实现措辞；⑤ **BD-31** `assets-spec:106` 同类占位与 `:187` 过期尾注。
+- **约束**：成员**禁写** `systems-index §3`（BD-27 若需新容差 ⇒ 回传拟改，主对话串行落盘）；回写后**先改探针再跑**（报告 §18.3-6 惯例），由主理人中转 QA。
+- **依赖**：前置 T-092（登记来源）；后继 = BD-25 关单 + P20/P26 转判。
+
+## WXG-T-099
+
+- **名称**：**取证通路补全（`[Cocos]` 像素/色盲滤镜 + `preview:frames` 支持 beads + §H 缺口进探针）**
+- **负责**：程基岩(eng) + 严守真(qa)　**状态**：📋 已立项（待施工）
+- **范围**：① **B1** 无头截图 + 色盲/灰度滤镜脚本（§G 10 条像素半边、TC-PER-13/14 整条、P15 真实栅格化）；② **B8/BD-19** `render-harness-frame|clip` 去 breakout 硬编码 + `--game` 透传（现「不支持 beads」）；③ **BD-21 执行层剩余**：`test-cases §H` 中 `pause-settings §8` 10 条 + `timer §8-11/12` 2 条进探针；④ 证据入 `production/qa/beads/evidence/`（本轮起该目录已入库）。
+- **约束**：**不得**因 Node 全绿而抬升 `[Cocos]/[Device]/[R]` 综合结论；真机面仍卡 B4（AppID），解除条件写明不伪验。
+- **依赖**：T-095（可信门禁）、T-096（音频取证一并跑）；产出即 G4 升 PASS 的取证面。
