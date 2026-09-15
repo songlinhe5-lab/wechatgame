@@ -7,9 +7,14 @@
 
 | 层 | 路径 | 覆盖面 | 职责 |
 |---|---|---|---|
-| **Git pre-commit** | `.githooks/pre-commit` | 任意 IDE / 终端的 `git commit` | ① **`pnpm run check:links`** → ①½ **`check:plugins`**（T-035 版本锚）→ ①¾ **`check:mcp`**（T-043 MCP 配置漂移，**拦截式不自动重建**）；② 暂存区含 `.md` 时**自动重建上下文索引并重新暂存**（`ctx:build --staged-blobs` → `git add ctx/index.json ctx/BUDGET.md` → `ctx:check --staged` 兜底终校验；WXG-T-032 ⑤，无暂存 .md 零开销跳过）；兜底校验失败 → 非 0 退出 → **阻止提交** |
+| **Git pre-commit** | `.githooks/pre-commit` | 任意 IDE / 终端的 `git commit` | ① **`pnpm run check:links`** → ①½ **`check:plugins`**（T-035 版本锚）→ ①¾ **`check:mcp`**（T-043 MCP 配置漂移，**拦截式不自动重建**）→ ①⁷⁄₈ **`framework:sync --check`**（T-101 Cocos 镜像漂移，**条件步 + 只拦不写**）；② 暂存区含 `.md` 时**自动重建上下文索引并重新暂存**（`ctx:build --staged-blobs` → `git add ctx/index.json ctx/BUDGET.md` → `ctx:check --staged` 兜底终校验；WXG-T-032 ⑤，无暂存 .md 零开销跳过）；兜底校验失败 → 非 0 退出 → **阻止提交** |
 | **Cursor Hooks** | `.cursor/hooks.json` + `.cursor/hooks/*` | Cursor Agent / Shell | Agent 侧再跑 links；禁 `--no-verify` / force-push / hard reset；L1 拦 `.scene`/`.prefab`/`.meta` |
 | **Rules / AGENTS** | `.cursor/rules` · `AGENTS.md` | 常驻提示 | 叙事与铁律；不保证机械拦截 |
+
+> ①⁷⁄₈ 的条件与取向（WXG-T-101，2026-09-15）：仅当 `git diff --cached` 命中 `packages/framework/src/**/*.ts` 才跑 `sync-framework-to-cocos.mjs --check`
+> （无框架源码改动的提交零开销）。**只拦不写**有两个理由：① `git commit` 提交的是**索引**，钩子改写工作区不会进本次提交，静默重写只会造出「钩子绿了但镜像仍漏在 HEAD 之外」的新坑；
+> ② 与 ①¾ 同取向——镜像副本必须由作者自己 `pnpm run framework:sync` 后**与源码同次暂存**，让漂移在 diff 里可见。成因：BD-20 已两次复发（漂移入 HEAD ⇒ G1 FAIL + 全部 `[Cocos]` 取证阻塞）。
+> 红→绿复现：`printf '\n' >> packages/framework/src/core/audio/audio.ts && git add -A` → 跑钩子得 exit=1；再 `pnpm run framework:sync` 并重暂存 → exit=0。
 
 跨 IDE（Cursor / CodeBuddy / WorkBuddy / Qoder）统一拦提交 → **只靠 Git hooks**，不要指望各 IDE 各自实现一套 Cursor Hooks。
 

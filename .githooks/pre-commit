@@ -2,6 +2,8 @@
 # 跨 IDE 统一：任意 git commit 前跑门禁。
 # 步骤：⓪ pnpm run check:secrets（密钥入仓守卫，WXG-T-047；红线，**拦截不修复**）
 #       ① pnpm run check:links（四 IDE 指针完整性）
+#       ①⁷⁄₈ 暂存区含 `packages/framework/src/**.ts` 时 → `sync-framework-to-cocos.mjs --check`
+#          （WXG-T-101：Cocos 镜像漂移守卫，**只拦不写**，无框架改动的提交零开销）
 #       ② 暂存区含 .md 时 → **自动重建上下文索引并重新暂存**（WXG-T-032 ⑤，2026-09-13）：
 #          `ctx/index.json` 描述「已提交内容（HEAD）」，而任何「改被索引 .md 的提交」其暂存内容
 #          必然 ≠ HEAD 锚定的旧索引 → 旧的拦截式 `ctx:check --staged` **结构性不可通过**
@@ -52,6 +54,25 @@ if command -v pnpm >/dev/null 2>&1; then
   pnpm run check:mcp
 else
   node tools/scripts/build-mcp-configs.mjs --check
+fi
+
+# ①⁷⁄₈ Cocos 镜像一致性（WXG-T-101）：只在暂存区含框架源码时跑（≈0.2s）。
+#     背景：BD-20 已两次复发（改了 `packages/framework/src/**` 忘跑 `framework:sync` ⇒ 漂移入 HEAD，
+#     下一轮独立复验才发现，并连带阻塞全部 `[Cocos]` 取证）。此处**只拦不写**，两个理由：
+#       ① `git commit` 提交的是**索引**——钩子改写工作区不会进本次提交，静默重写只会造出
+#          「钩子绿了但镜像仍漏在 HEAD 之外」的新坑；
+#       ② 与 ①¾ `check:mcp` 同取向：镜像副本的正确写法是「作者自己 sync 后一并暂存」，
+#          让它在同一次提交里可见，而不是被钩子隐式捎带。
+STAGED_FW="$(git diff --cached --name-only | grep '^packages/framework/src/.*\.ts$' || true)"
+if [ -n "$STAGED_FW" ]; then
+  echo "[pre-commit] node tools/scripts/sync-framework-to-cocos.mjs --check（暂存含框架源码，核镜像）"
+  if ! node tools/scripts/sync-framework-to-cocos.mjs --check; then
+    echo ""
+    echo "❌ 提交被阻止：本次暂存改了 packages/framework/src/**，但 Cocos 镜像拷贝件未同步。"
+    echo "   修复：pnpm run framework:sync → 再把 games/*/cocos/assets/scripts/ 下的改动一并 git add。"
+    echo "   （镜像必须由 sync 产出、与源码同次提交；**勿用 --no-verify 绕过**，见 control-manifest §15）"
+    exit 1
+  fi
 fi
 
 # ② ctx 索引自动重建（WXG-T-032 ⑤）：先探测暂存区是否含 .md（≈0 开销）；有才执行。

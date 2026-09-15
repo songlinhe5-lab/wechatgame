@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3939,
       "lines": 86,
-      "sha256": "d523c0a6fc65c1fc2c87831909516cee8552255e72f5999d78355217e70486e3",
+      "sha256": "8d353d89877bf11b07e278d6ac0fb937b4a840b290f180cc9a036ab5e80e972a",
       "tier": "normal",
       "sections": [
         {
@@ -513,7 +513,7 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 243 行 / 4707 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 243 行 / 4770 tok / 实测读 42 次",
           "level": 2,
           "startLine": 14,
           "endLine": 17,
@@ -673,12 +673,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/hooks-best-practices.md` — 113 行 / 1919 tok / 实测读 6 次",
+          "anchor": "§`docs/agent/hooks-best-practices.md` — 118 行 / 2199 tok / 实测读 6 次",
           "level": 2,
           "startLine": 54,
           "endLine": 57,
           "tokens": 106,
-          "summary": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+114 · §1 分层：谁拦什么=6+18 ·",
+          "summary": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+119 · §1 分层：谁拦什么=6+23 ·",
           "keywords": [
             "§1",
             "docs",
@@ -2064,17 +2064,17 @@
     },
     {
       "path": "docs/agent/hooks-best-practices.md",
-      "tokens": 1919,
-      "lines": 113,
-      "sha256": "7e90a077056148b2f03a0faac83f5117e7a5b970236d66e18b3875d9075a1618",
+      "tokens": 2199,
+      "lines": 118,
+      "sha256": "70b9f10c72a1be7bb17ede6025c1370174c3d5ff4dd1cf1f15c27f2cebdbc6ef",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践",
           "level": 1,
           "startLine": 1,
-          "endLine": 114,
-          "tokens": 1904,
+          "endLine": 119,
+          "tokens": 2184,
           "summary": "本仓约定：Hooks 加固 AGENTS.md / L1–L5，不替代编排与 SubAgent。",
           "keywords": [
             "Cursor",
@@ -2089,8 +2089,8 @@
           "anchor": "§1 分层：谁拦什么",
           "level": 2,
           "startLine": 6,
-          "endLine": 23,
-          "tokens": 545,
+          "endLine": 28,
+          "tokens": 825,
           "summary": "Git pre-commit .githooks/pre-commit 任意 IDE / 终端的 git commit ",
           "keywords": [
             "Git",
@@ -2104,8 +2104,8 @@
         {
           "anchor": "§2 启用 Git hooks（每人 / 每 clone 一次）",
           "level": 2,
-          "startLine": 24,
-          "endLine": 44,
+          "startLine": 29,
+          "endLine": 49,
           "tokens": 121,
           "summary": "仓库已提交 .githooks/。本地必须把 hooks 路径指过去：",
           "keywords": [
@@ -2120,8 +2120,8 @@
         {
           "anchor": "§3 `check:links` 查什么",
           "level": 2,
-          "startLine": 45,
-          "endLine": 72,
+          "startLine": 50,
+          "endLine": 77,
           "tokens": 552,
           "summary": "脚本：tools/scripts/check-ide-links.mjs（清单由扫描得出，勿在脚本内硬编码成员名）",
           "keywords": [
@@ -2136,8 +2136,8 @@
         {
           "anchor": "§3.1 `check:mcp` 查什么（WXG-T-043）",
           "level": 3,
-          "startLine": 61,
-          "endLine": 72,
+          "startLine": 66,
+          "endLine": 77,
           "tokens": 239,
           "summary": "脚本：tools/scripts/build-mcp-configs.mjs --check（MCP 配置的单一正本是 ",
           "keywords": [
@@ -2152,8 +2152,8 @@
         {
           "anchor": "§4 Cursor Hooks 实践清单",
           "level": 2,
-          "startLine": 73,
-          "endLine": 91,
+          "startLine": 78,
+          "endLine": 96,
           "tokens": 357,
           "summary": "1. 项目级优先：政策进 .cursor/hooks.json（可进云 Agent）；个人实验放 ~/.cursor/。",
           "keywords": [
@@ -2168,8 +2168,8 @@
         {
           "anchor": "§本仓已启用",
           "level": 3,
-          "startLine": 83,
-          "endLine": 91,
+          "startLine": 88,
+          "endLine": 96,
           "tokens": 123,
           "summary": "beforeShellExecution .cursor/hooks/before-shell.mjs git comm",
           "keywords": [
@@ -2184,8 +2184,8 @@
         {
           "anchor": "§5 与 `verify` 的关系",
           "level": 2,
-          "startLine": 92,
-          "endLine": 100,
+          "startLine": 97,
+          "endLine": 105,
           "tokens": 116,
           "summary": "pnpm run check:links 每次 commit（快）",
           "keywords": [
@@ -2200,8 +2200,8 @@
         {
           "anchor": "§6 失败怎么修",
           "level": 2,
-          "startLine": 101,
-          "endLine": 114,
+          "startLine": 106,
+          "endLine": 119,
           "tokens": 113,
           "summary": "",
           "keywords": [
@@ -5232,9 +5232,9 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 4707,
+      "tokens": 4770,
       "lines": 243,
-      "sha256": "480c0f7afe600394e702bfa2efd1e63c1a41d322ee76ead09e6088587a38a241",
+      "sha256": "346fb6b35a9e5f95c7e38a9fe6daa7e5bab8e5c81c729f2cfb5444d9d4661d34",
       "tier": "hot",
       "sections": [
         {
@@ -5242,7 +5242,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 244,
-          "tokens": 4691,
+          "tokens": 4754,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -5462,7 +5462,7 @@
           "level": 2,
           "startLine": 207,
           "endLine": 227,
-          "tokens": 729,
+          "tokens": 792,
           "summary": "Cocos 脚本打包把所有平台降到 ES5，且 built-in 不 polyfill、语法照旧降级。其中一条不对称会静",
           "keywords": [
             "ADR",
