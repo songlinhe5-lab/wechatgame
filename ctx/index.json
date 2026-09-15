@@ -17859,17 +17859,17 @@
     },
     {
       "path": "games/beads/design/gdd/tray-spawner.md",
-      "tokens": 3387,
-      "lines": 111,
-      "sha256": "19684be6f87a6e4b34b48d320ce2a180e3331b03a4cc37c5f4b44603e2fcdb26",
+      "tokens": 4522,
+      "lines": 118,
+      "sha256": "1eef1a8c3d4618c6af460ff61490cb3f0c6956c51535f35931e4e2468921aa1f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S4 供料与槽位托盘（Tray Spawner）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 112,
-          "tokens": 3370,
+          "endLine": 119,
+          "tokens": 4505,
           "summary": "项目：games/beads · 版本 v1.1 · 任务号 WXG-T-009（§2.4 出口表完整性缺口登记：WXG",
           "keywords": [
             "§2.4",
@@ -17896,7 +17896,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 54,
-          "tokens": 1651,
+          "tokens": 1685,
           "summary": "",
           "keywords": [
             "机制"
@@ -17949,7 +17949,7 @@
           "level": 3,
           "startLine": 34,
           "endLine": 54,
-          "tokens": 1223,
+          "tokens": 1257,
           "summary": "落子成功 S3 bead:placed 回执含 slot 置 free，若为 selected 同时清除选中",
           "keywords": [
             "bead",
@@ -18008,7 +18008,7 @@
           "level": 2,
           "startLine": 78,
           "endLine": 94,
-          "tokens": 612,
+          "tokens": 669,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -18029,16 +18029,14 @@
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
           "startLine": 100,
-          "endLine": 112,
-          "tokens": 486,
-          "summary": "1. SPAWN_INTERVAL 未覆盖时，PLAYING 60 秒内 tray:spawned 恰 16 次（±0）",
+          "endLine": 119,
+          "tokens": 1511,
+          "summary": "1. SPAWN_INTERVAL 未覆盖时，窗口 t ∈ [0, 60] 秒（闭区间：含 t=0 与 t=60 两端；",
           "keywords": [
             "SPAWN_INTERVAL",
-            "PLAYING",
-            "tray",
-            "spawned",
             "验收标准",
-            "可测试硬判据"
+            "可测试硬判据",
+            "直接造用例"
           ]
         }
       ]
