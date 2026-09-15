@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2409,
-      "lines": 98,
-      "sha256": "f99bad68deda5f4eb8799249e30e719d4723cd0e23446a8d0ece97fb328ce2bf",
+      "tokens": 2389,
+      "lines": 97,
+      "sha256": "114367c7e77218706118393d319893b5908d7b361ef246fc6b32fc27f3c0961d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 2396,
+          "endLine": 98,
+          "tokens": 2376,
           "summary": "生成：2026-09-15 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 438,
+          "tokens": 448,
           "summary": "1 production/qa/beads/g4-regression-report.md 51647 1057 nor",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 73,
-          "tokens": 874,
+          "endLine": 72,
+          "tokens": 845,
           "summary": "production/qa/beads/g4-regression-report.md 51647 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 74,
-          "endLine": 99,
+          "startLine": 73,
+          "endLine": 98,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3729,
       "lines": 82,
-      "sha256": "f9d47d963f188b189fb017d6cb4b47ff88dd6b7d201d0ac225f7f3243a6a3036",
+      "sha256": "7bbd59b78054171de74171d9db2df306273811192247baec0d37b5005ee0c9f9",
       "tier": "normal",
       "sections": [
         {
@@ -736,7 +736,7 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 141 行 / 3838 tok",
+          "anchor": "§`knowledge/INDEX.md` — 141 行 / 3969 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
@@ -32000,9 +32000,9 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 3838,
+      "tokens": 3969,
       "lines": 141,
-      "sha256": "7c981adf05696e82918fc8f6ab33eb87c11f95d077a2e505a06d0b9cb95bf06a",
+      "sha256": "075c3ea2611b3f2376573076c8ec46bab1794863fcfcf3196dba3819561af1b5",
       "tier": "normal",
       "sections": [
         {
@@ -32010,7 +32010,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 142,
-          "tokens": 3824,
+          "tokens": 3955,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -32147,7 +32147,7 @@
           "level": 2,
           "startLine": 91,
           "endLine": 142,
-          "tokens": 1670,
+          "tokens": 1801,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
             "active",
@@ -32162,56 +32162,133 @@
     },
     {
       "path": "knowledge/lessons.md",
-      "tokens": 10768,
-      "lines": 180,
-      "sha256": "5a108d02d6c3d90ec4be753fac15abd41b35c18538abdca308ba19191c4ff7b0",
+      "tokens": 350,
+      "lines": 20,
+      "sha256": "264d7db6b161ed00b771a2c67447aa64c1e7f120c04379aad0469ce395b08a04",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§lessons.md — 教训库（追加式，最新在后）",
+          "anchor": "§lessons · 沉淀正本（已按标签分片）",
           "level": 1,
           "startLine": 1,
-          "endLine": 181,
-          "tokens": 10751,
-          "summary": "",
+          "endLine": 21,
+          "tokens": 335,
+          "summary": "本文件不再存放条目正文（WXG-T-111）。原单体已逐字节拆入 knowledge/lessons/；",
           "keywords": [
             "lessons",
-            "教训库",
-            "追加式",
-            "最新在后"
-          ]
-        },
-        {
-          "anchor": "§工具链",
-          "level": 2,
-          "startLine": 3,
-          "endLine": 49,
-          "tokens": 2464,
-          "summary": "[工具链][K-001] commitlint 自定义规则必须经 plugins 数组注册（来源 WXG-T-021 /",
-          "keywords": [
-            "commitlint",
-            "plugins",
             "WXG",
-            "工具链"
+            "knowledge",
+            "沉淀正本",
+            "已按标签分片"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "knowledge/lessons/criteria.md",
+      "tokens": 1647,
+      "lines": 27,
+      "sha256": "1dbeccdaf6f057181b4d8ff8c75190b9495605e98e24f8bfb258b7f38c745d13",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§lessons · `criteria` 分片（标签 `判据`）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 28,
+          "tokens": 1632,
+          "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
+          "keywords": [
+            "criteria",
+            "判据",
+            "lessons",
+            "knowledge",
+            "WXG",
+            "分片"
           ]
         },
         {
-          "anchor": "§跨 IDE",
+          "anchor": "§判据",
           "level": 2,
-          "startLine": 50,
-          "endLine": 93,
-          "tokens": 2445,
-          "summary": "[工具链][K-029] 自增 ID 的下界必须取自既有数据，不能只看计数器（来源 WXG-T-029，2026-09-",
+          "startLine": 7,
+          "endLine": 28,
+          "tokens": 1516,
+          "summary": "[判据][K-040] 判据回写轮的三个读数陷阱：改严≠回归、作废≠平凡真、文档一致≠代码一致（来源 WXG-T-098",
+          "keywords": [
+            "WXG",
+            "判据"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "knowledge/lessons/cross-ide.md",
+      "tokens": 615,
+      "lines": 22,
+      "sha256": "750be19ade48e3d3e453b3b07bdfbe20e595403322f3de942cdce92086909026",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§lessons · `cross-ide` 分片（标签 `跨IDE`）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 23,
+          "tokens": 600,
+          "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
+          "keywords": [
+            "cross-ide",
+            "跨IDE",
+            "lessons",
+            "cross",
+            "ide",
+            "IDE"
+          ]
+        },
+        {
+          "anchor": "§跨IDE",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 23,
+          "tokens": 484,
+          "summary": "[跨IDE][K-007] Qoder 把 model: inherit 当具体模型 ID 解析（来源 commit 2",
           "keywords": [
             "IDE",
-            "WXG"
+            "Qoder",
+            "model",
+            "inherit",
+            "commit"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "knowledge/lessons/environment.md",
+      "tokens": 269,
+      "lines": 12,
+      "sha256": "a412d05fd1c253654035c2fa2031006c5983500a92efc5f6630ca232dd756a9f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§lessons · `environment` 分片（标签 `环境`）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 13,
+          "tokens": 253,
+          "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
+          "keywords": [
+            "environment",
+            "环境",
+            "lessons",
+            "knowledge",
+            "WXG",
+            "分片"
           ]
         },
         {
           "anchor": "§环境",
           "level": 2,
-          "startLine": 94,
-          "endLine": 100,
+          "startLine": 7,
+          "endLine": 13,
           "tokens": 137,
           "summary": "[环境][K-010] WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）（来",
           "keywords": [
@@ -32221,17 +32298,119 @@
             "exit",
             "环境"
           ]
+        }
+      ]
+    },
+    {
+      "path": "knowledge/lessons/process.md",
+      "tokens": 2907,
+      "lines": 46,
+      "sha256": "1b963aa23e6c41583e272cddd0f71beff0dbee2e328388f0a1866165b6c7d1eb",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§lessons · `process` 分片（标签 `流程`）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 47,
+          "tokens": 2892,
+          "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
+          "keywords": [
+            "process",
+            "流程",
+            "lessons",
+            "knowledge",
+            "WXG",
+            "分片"
+          ]
         },
         {
           "anchor": "§流程",
           "level": 2,
-          "startLine": 101,
-          "endLine": 181,
-          "tokens": 5692,
+          "startLine": 7,
+          "endLine": 47,
+          "tokens": 2776,
           "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
             "WXG",
             "流程"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "knowledge/lessons/testing.md",
+      "tokens": 1165,
+      "lines": 21,
+      "sha256": "b973fcda3ed3e1f776c24bf1dfedf8f7d4f85f49e5f9feddb8b6b44abddfd08c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§lessons · `testing` 分片（标签 `测试`）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 22,
+          "tokens": 1150,
+          "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
+          "keywords": [
+            "testing",
+            "测试",
+            "lessons",
+            "knowledge",
+            "WXG",
+            "分片"
+          ]
+        },
+        {
+          "anchor": "§测试",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 22,
+          "tokens": 1034,
+          "summary": "[测试][K-038] 自动化统一走「便捷旁路 API」，真输入链可以整段断链而全绿（来源 WXG-T-096 附带发现",
+          "keywords": [
+            "API",
+            "WXG",
+            "测试"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "knowledge/lessons/toolchain.md",
+      "tokens": 4925,
+      "lines": 85,
+      "sha256": "5ef28a649d3b4f0176dc56c5736b8bfb5138c0ef11348c041faff9ef22f68dd6",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§lessons · `toolchain` 分片（标签 `工具链`）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 86,
+          "tokens": 4909,
+          "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
+          "keywords": [
+            "toolchain",
+            "工具链",
+            "lessons",
+            "knowledge",
+            "WXG",
+            "分片"
+          ]
+        },
+        {
+          "anchor": "§工具链",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 86,
+          "tokens": 4792,
+          "summary": "[工具链][K-001] commitlint 自定义规则必须经 plugins 数组注册（来源 WXG-T-021 /",
+          "keywords": [
+            "commitlint",
+            "plugins",
+            "WXG",
+            "工具链"
           ]
         }
       ]

@@ -10,7 +10,7 @@
     {
       "id": "K-001",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "commitlint 自定义规则必须经 plugins 数组注册",
       "contentHash": "7db6631b9b053c2bc8df05adf3691ce17f8d1a18ea28325d6d3cbb8d3bc2a18f",
@@ -27,7 +27,7 @@
     {
       "id": "K-002",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "bash heredoc 定界符未加引号 + JSON 内写注释 = 双重坑",
       "contentHash": "afaa1848e2ac60714a3b40e91c4c7ed2e8c2447d1bcf1e415256caecda386a72",
@@ -44,7 +44,7 @@
     {
       "id": "K-003",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "常驻上下文预算阈值必须与 token 估算公式同口径",
       "contentHash": "dce89e3c10909bd43a0cc92c7db813eee05cb453bfe26269cf357cbd02ef6acd",
@@ -61,7 +61,7 @@
     {
       "id": "K-004",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "改过被索引的 `.md` 后必须重跑 `ctx:build`，否则 C 门必红",
       "contentHash": "86adccaf9c8d6444479778e1e780bff16ebd8d0b12e1a858e7d7874eb40dce02",
@@ -78,7 +78,7 @@
     {
       "id": "K-005",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "含「活动会话」的采集型基线必须用比率口径，计数容忍带必然误报",
       "contentHash": "15ec432bd8013331a23d00ca2537ad8c8122e79980c46dc8882798bd64ccdb04",
@@ -95,7 +95,7 @@
     {
       "id": "K-006",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "冻结样本做 schema 升级，用「侧车重算」而不是全量重采",
       "contentHash": "d104b682fc20fea6904990470375a1a35e06377357f95bc3de107dde66fb9949",
@@ -112,7 +112,7 @@
     {
       "id": "K-007",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "Qoder 把 `model: inherit` 当具体模型 ID 解析",
       "contentHash": "2ec8c6a0ca2567b37e0404768b8c9219a738b89c009e5515aeb8df461e5a7522",
@@ -129,7 +129,7 @@
     {
       "id": "K-008",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "跨 IDE 并行会话会撞任务号与 §6 版本号",
       "contentHash": "255abd9384fad364a5bfdc306e9d271e552bcbea729129f64fa67f495fbd3774",
@@ -146,7 +146,7 @@
     {
       "id": "K-009",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "派单范围表述必须对照冻结真源复核",
       "contentHash": "cd3ce3cc02f9bf8711fd9868acf2be8fa40c351d9ad05658a049cbebf47b19ad",
@@ -163,7 +163,7 @@
     {
       "id": "K-010",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/environment.md",
       "category": "环境",
       "title": "WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）",
       "contentHash": "331d400f2ed5aa1b5d9363fd1e9576236e8b069e98c65772c3a406aa5a3cd078",
@@ -180,7 +180,7 @@
     {
       "id": "K-011",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "质量门复验者 ≠ 实现者",
       "contentHash": "f2614af109f9260f5c475bdb9ef66dd726de6549449463ef6e35d381f66ace11",
@@ -418,7 +418,7 @@
     {
       "id": "K-025",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "门禁里的「特殊豁免」要早删——它会把真实数据不一致静默吞掉",
       "contentHash": "e59ba7af540e64da03ed18d9ee5c2c8445243e91d264d05ed85eef129a38792d",
@@ -435,7 +435,7 @@
     {
       "id": "K-026",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "留痕日志混装多来源主体时，去重键必须按「主体类型」分流",
       "contentHash": "6b24e82e18917b21e63aa1f7602c620306857779a28e444d8f6f55143ae84698",
@@ -486,7 +486,7 @@
     {
       "id": "K-029",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "自增 ID 的下界必须取自既有数据，不能只看计数器",
       "contentHash": "d8f99cbed134819e38b5f57be5fc30d82c668d0b2d873a70deb37e94feb92712",
@@ -503,7 +503,7 @@
     {
       "id": "K-030",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "产物进索引前先确认「新鲜度契约」——脚本自测会假绿",
       "contentHash": "932262a424e69588a7ee6759e907beb84ae21d5d078b452a218d8b0802c7378f",
@@ -520,7 +520,7 @@
     {
       "id": "K-031",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "多产物生成器新增产物时，必须同任务登记 pre-commit 的 `git add` 清单",
       "contentHash": "96017a157e3d9388b30ada67292a278eca07816d0ffb1592233c2bd58f5df22e",
@@ -537,7 +537,7 @@
     {
       "id": "K-032",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "「逃生阀」两侧都支持时，文档必须写成",
       "contentHash": "4e743127a9f288f3a93123eed5ef665580ddf1e2c937a140d4938dae839ebcbb",
@@ -554,7 +554,7 @@
     {
       "id": "K-033",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "能否用符号链接做「一处正本」，判据是",
       "contentHash": "b16647f1316d54e564d907888304e261f3bc9801359cc28926e3f0e9b128764d",
@@ -571,7 +571,7 @@
     {
       "id": "K-034",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）",
       "contentHash": "26514d27ecfcaf752ccef408643af0f2c7fba7a697fbbd2300430adbf8c91c82",
@@ -588,7 +588,7 @@
     {
       "id": "K-035",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床",
       "contentHash": "6c6e167c389bfacc473cd04bd1105a195316af38b0a7c78fd851c453e49540ed",
@@ -605,7 +605,7 @@
     {
       "id": "K-036",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "多项串联的门禁若「失败即短路」且「缺对象仍报绿」，它的 ✅ 不构成任何证据",
       "contentHash": "0320aa47cf8906cc0c5f41724b2a0362cc8919ddfd08293df073f97ec8113a9f",
@@ -622,7 +622,7 @@
     {
       "id": "K-037",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "「指令流层可证」≠「屏幕层可证」：Node 探针全绿不得抬升表现层结论",
       "contentHash": "251309729d4d4cd43789f7f54a33ca1664b7ad98116d4568c0ee1cdccdef37bb",
@@ -639,7 +639,7 @@
     {
       "id": "K-038",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/testing.md",
       "category": "测试",
       "title": "自动化统一走「便捷旁路 API」，真输入链可以整段断链而全绿",
       "contentHash": "d71b841d97391e834029c4c2de716f52ec5157cb603518fad7cecb84f67db116",
@@ -656,7 +656,7 @@
     {
       "id": "K-039",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "报绿之后又动了源码：交付自述必须与最终状态同一时点",
       "contentHash": "a71b2030ac4e24c295d830d0d1cc569cc711029860b07e981aefb8d3a4b3214b",
@@ -673,7 +673,7 @@
     {
       "id": "K-040",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/criteria.md",
       "category": "判据",
       "title": "判据回写轮的三个读数陷阱：改严≠回归、作废≠平凡真、文档一致≠代码一致",
       "contentHash": "b300d40933c59f42df69a60d83c052ea139756226943257f8789b81b2509b695",
@@ -690,7 +690,7 @@
     {
       "id": "K-041",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/criteria.md",
       "category": "判据",
       "title": "容差写法：不得吞掉被测变更，帧量化只进时刻轴",
       "contentHash": "7e14b6eca35d848b9108ae0186b6e02700d0a930be20a57428746f60aa73e0f2",
@@ -707,7 +707,7 @@
     {
       "id": "K-042",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/testing.md",
       "category": "测试",
       "title": "几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫",
       "contentHash": "36658f81c6ed0e51c084826d0dca4a2d1789b57ed44d664e51e1e2ed670b8f8b",
@@ -724,7 +724,7 @@
     {
       "id": "K-043",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FAIL",
       "contentHash": "cff95e64b041bee2aa57cf1e1062bc0489467810882d0de16151265a9f0754fb",
@@ -741,7 +741,7 @@
     {
       "id": "K-044",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/criteria.md",
       "category": "判据",
       "title": "判定上限由「判据完备性」决定，不由实现进度决定；且不得把「缺通道」当预期写进 PASS 条件",
       "contentHash": "f9ea5c77bdd79b4e0dfabe410fdf59774a7f3ab954c143fe8bed2f15259ead6c",
@@ -758,7 +758,7 @@
     {
       "id": "K-045",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
       "contentHash": "c07e535446f797a581ff5a15765b5b13ee67014433ee764fa86a689fcccd277e",
