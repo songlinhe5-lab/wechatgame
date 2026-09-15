@@ -3,7 +3,8 @@
  * kb-sync.mjs — 知识库 ledger 同步器 + 变更统计（WXG-T-029）。
  *
  * 职责（幂等；不含生成时间戳，产物字节稳定）：
- *   1. 解析 `knowledge/lessons.md` + `knowledge/patterns.md` → 结构字段；
+ *   1. 解析 `knowledge/lessons/<标签>.md` **分片集**（`ACTIVE_FILES` 动态枚举；目录缺失 ⇒
+ *      回退旧布局单文件 `knowledge/lessons.md`）+ `knowledge/patterns.md` → 结构字段；
  *   2. **给无行内 ID 的条目补号**（`nextId` 递增、不回收；只改标题行，不动正文与顺序）；
  *   3. 兼顾已有 ledger：**保留**访问字段（lastAccess / accessCount / accessSources / seen /
  *      archivedDate / archiveReason / reactivatedDate），只刷新结构字段；
