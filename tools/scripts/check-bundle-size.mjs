@@ -33,14 +33,26 @@
  *   但**分项拆分需要知道产物目录里哪部分是引擎、哪部分是业务**——当前未知。
  *   故本脚本只判「主包合计 / 主包+分包合计」，分项判定待 G7 实测目录结构后再落地。
  *
+ * ── 覆盖面口径（WXG-T-095 / 缺陷 **BD-18** 的修正）───────────────────────
+ *   旧行为：只测「磁盘上存在的产物」，缺产物的游戏**根本不出现**在报告里 ⇒ 整体仍打「✅ 包体校验 OK」，
+ *   于是 beads 连续两轮「无数据却看似已测」。新行为：
+ *   ① 逐游戏给结论——`games/*` 每个目录都要么被实测，要么被列为**未覆盖（SKIP）**；
+ *   ② 「未覆盖」不是一种通过状态：总结论降为 **SKIP**（而非 OK），并打 WARN 清单与解除条件；
+ *   ③ 机读标记 `STATUS: OK|SKIP|FAIL`（供 `verify-all.mjs` 聚合并区分 PASS/SKIP，见 K-036）。
+ *   · 拿到 `wechatgame` 产物需有效 **AppID**（`build-cocos.mjs` 头注 09-14 实测）⇒ 缺产物属**环境阻塞**，
+ *     不是可以忽略的空项。
+ *
  * ── 用法 ────────────────────────────────────────────────────────────────
- *   node tools/scripts/check-bundle-size.mjs                     # 自动发现 games/<game>/build/wechatgame
+ *   node tools/scripts/check-bundle-size.mjs                     # 自动发现 games/<game>/{build,cocos/build}/wechatgame
  *   node tools/scripts/check-bundle-size.mjs <产物目录> [...]     # 显式指定
  *   node tools/scripts/check-bundle-size.mjs --json              # 机读输出（CI）
+ *   node tools/scripts/check-bundle-size.mjs --strict             # 有游戏未被覆盖 ⇒ 也判失败
  *   node tools/scripts/check-bundle-size.mjs --selftest          # 桩自测（临时目录，不碰真产物）
  *
- * 干净检出（CI / 未构建）：**自动跳过，exit 0** —— 与 `check-cocos-scripts.mjs` 同范式。
- * 退出码：0 = 通过或跳过；1 = 超平台红线；2 = 用法错误。
+ * 干净检出（CI / 未构建）：**打 `STATUS: SKIP` 并列出未覆盖游戏**；退出码仍为 0（不阻断未构建环境），
+ * 需要收紧时用 `--strict`（或走 `pnpm run verify:strict`）——与 `check-cocos-scripts.mjs` 同跳过范式。
+ * 退出码：0 = 全覆盖达标，或未全覆盖但**未**开 `--strict`（此时结论是 SKIP，绝不是 OK）；
+ *         1 = 超平台红线，或（`--strict` 下）存在未覆盖游戏；2 = 用法错误。
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -69,6 +81,7 @@ if (argv.includes('--selftest')) {
 }
 
 const JSON_OUT = argv.includes('--json');
+const STRICT = argv.includes('--strict');
 const explicit = argv.filter((a) => !a.startsWith('-'));
 const ROOT = gitRoot();
 
@@ -76,17 +89,34 @@ const ROOT = gitRoot();
 const targets = explicit.length ? explicit.map((p) => resolve(ROOT, p)) : discoverTargets();
 const found = targets.filter((t) => existsSync(t));
 
+/**
+ * 覆盖面（BD-18）：`games/*` 的**每一款**游戏都要有结论。
+ * 显式指定目录时不推断覆盖面（调用方自行负责），只把没匹配上的目录留空。
+ */
+const games = explicit.length ? [] : listGames();
+const covered = new Set(found.map((d) => gameOf(d, ROOT)).filter(Boolean));
+const missing = games.filter((g) => !covered.has(g));
+
 if (found.length === 0) {
-  const where = explicit.length ? targets.map((t) => rel(t)).join('、') : 'games/*/build/wechatgame';
+  const where = explicit.length ? targets.map((t) => rel(t)).join('、') : 'games/*/build/wechatgame（含 cocos/build 双路径）';
+  const status = overallStatus({ anyFail: false, missing });
   if (JSON_OUT) {
-    console.log(JSON.stringify({ status: 'skipped', reason: '产物目录不存在', looked: where }, null, 2));
+    console.log(
+      JSON.stringify(
+        { status, limits: LIMITS, results: [], covered: [...covered], missing, reason: '产物目录不存在', looked: where },
+        null,
+        2,
+      ),
+    );
   } else {
-    console.log('包体校验（微信小游戏）— 跳过');
-    console.log(`  未找到构建产物：${where}`);
-    console.log('  说明：干净检出 / 未构建时跳过属预期行为（构建产物不入库）。');
-    console.log('  构建见 games/breakout/cocos/README.md §3 步骤 6（必须在 Cocos 编辑器的构建面板完成）。');
+    console.log('包体校验（微信小游戏）— **未覆盖**（不是「通过」）');
+    console.log(`  未找到任何构建产物：${where}`);
+    if (missing.length) console.log(`  未覆盖游戏（${missing.length} 款）：${missing.join('、')}`);
+    console.log('  说明：干净检出 / 未构建时无产物可测属预期，但**结论必须写成 SKIP**（BD-18：旧版在此静默报 ✅）。');
+    console.log('  解除条件：`pnpm --filter <game> run build:cocos` 需有效 **AppID**（wechatgame 平台）；仅看渲染可用 web-mobile 产物，但**不计入主包红线判定**。');
   }
-  process.exit(0);
+  if (!JSON_OUT) console.log(`STATUS: ${status.toUpperCase()}`);
+  process.exit(STRICT && status !== 'ok' ? 1 : 0);
 }
 
 /** ── 逐产物测量与判定 ─────────────────────────────────────────────────── */
@@ -117,8 +147,9 @@ for (const dir of found) {
 }
 
 /** ── 报告 ─────────────────────────────────────────────────────────────── */
+const status = overallStatus({ anyFail, missing });
 if (JSON_OUT) {
-  console.log(JSON.stringify({ status: anyFail ? 'fail' : 'pass', limits: LIMITS, results }, null, 2));
+  console.log(JSON.stringify({ status, limits: LIMITS, results, covered: [...covered], missing }, null, 2));
 } else {
   console.log('包体校验（微信小游戏）— 阈值真源 systems-index §3.8');
   console.log(`  红线：主包 ≤ ${LIMITS.mainRedlineKb} KB ｜ 主包+分包 ≤ ${LIMITS.totalRedlineKb} KB`);
@@ -147,12 +178,48 @@ if (JSON_OUT) {
     console.log('❌ 包体校验 FAILED —— 超平台红线，**不可上线**。');
     console.log('   处置（按 §3.8 口径）：超出主包的内容走「分包 / 远程包」——关卡 2..N 美术走分包 levels、');
     console.log('   音乐/长音效走远程包；并核对「项目设置 → 功能裁剪」是否只勾了真正用到的模块。');
+  } else if (missing.length) {
+    console.log(`⚠️ 包体校验 **SKIP**（未全覆盖）—— 已测：${[...covered].join('、') || '（无）'}`);
+    console.log(`   未覆盖（${missing.length} 款，**不是通过**）：${missing.join('、')}`);
+    console.log('   解除条件：需有效 AppID 产出 `games/<game>/{build,cocos/build}/wechatgame`（见 `build-cocos.mjs` 头注）；');
+    console.log('   本轮已跑部分（见上）仍有效，但**不得把本项计入达标**。收紧：`pnpm run verify:strict` 或 `check:size --strict`。');
   } else {
-    console.log('✅ 包体校验 OK（未越任何平台红线）');
+    console.log('✅ 包体校验 OK（`games/*` 全覆盖，且未越任何平台红线）');
   }
+  console.log(`STATUS: ${status.toUpperCase()}`);
 }
 
-process.exit(anyFail ? 1 : 0);
+process.exit(anyFail || (STRICT && status !== 'ok') ? 1 : 0);
+
+// ─────────────────────────────────────────────────────────── 结论（纯函数）───
+
+/**
+ * 总结论（可单测）：**只要有游戏未被覆盖，结论就不是 ok**（BD-18）。
+ * 优先级：fail > skip > ok。`missing` = 无 `wechatgame` 产物的游戏名单。
+ */
+export function overallStatus({ anyFail, missing = [] }) {
+  if (anyFail) return 'fail';
+  if (missing.length) return 'skip';
+  return 'ok';
+}
+
+/** `games/<game>/...` → `<game>`；不在 games 下则返回 undefined（显式指定路径时）。 */
+function gameOf(absDir, root) {
+  const r = relative(root, absDir).split(sep);
+  return r[0] === 'games' ? r[1] : undefined;
+}
+
+/** 仓库内现有游戏目录名单（覆盖面分母）。 */
+function listGames() {
+  try {
+    return readdirSync(join(ROOT, 'games'), { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name)
+      .sort();
+  } catch {
+    return [];
+  }
+}
 
 // ─────────────────────────────────────────────────────────── 判定（纯函数）───
 
@@ -318,6 +385,18 @@ function runSelftest() {
     mkdirSync(join(p3, 'subpackages', 'x'), { recursive: true });
     writeFileSync(join(p3, 'subpackages', 'x', 'y.bin'), Buffer.alloc(16));
     assert('B6 game.json 缺失 → 回退目录启发式', subpackageRoots(p3, walk(p3, p3)).source.includes('启发式'));
+
+    // §C 覆盖面（**BD-18**：缺产物的游戏不得被当作通过）
+    assert('C1 全覆盖且无 fail → ok', overallStatus({ anyFail: false, missing: [] }) === 'ok');
+    assert('C2 有游戏未被覆盖 → skip（**不是 ok**）', overallStatus({ anyFail: false, missing: ['beads'] }) === 'skip');
+    assert('C3 超红线优先于未覆盖 → fail', overallStatus({ anyFail: true, missing: ['beads'] }) === 'fail');
+    assert('C4 missing 缺省为空 → ok（旧调用不回归）', overallStatus({ anyFail: false }) === 'ok');
+    const FAKE_ROOT = join(tmpdir(), 'wxg-fake-root');
+    assert(
+      'C5 产物路径能归到游戏名',
+      gameOf(join(FAKE_ROOT, 'games', 'beads', 'cocos', 'build', 'wechatgame'), FAKE_ROOT) === 'beads',
+    );
+    assert('C6 不在 games 下的路径 → undefined（不乱计覆盖面）', gameOf(join(FAKE_ROOT, 'tools', 'x'), FAKE_ROOT) === undefined);
   } finally {
     try {
       rmSync(tmp, { recursive: true, force: true });

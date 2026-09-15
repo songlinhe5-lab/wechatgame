@@ -28,6 +28,7 @@
     "build:cocos": "pnpm -r run build:cocos",
     "build:cocos:web": "pnpm -r run build:cocos:web",
     "check:size": "node tools/scripts/check-bundle-size.mjs",
+    "check:size:selftest": "node tools/scripts/check-bundle-size.mjs --selftest",
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
     "ctx:reads": "node tools/scripts/collect-context-reads.mjs",
@@ -48,7 +49,9 @@
     "preview:frames": "node tools/scripts/render-harness-frame.mjs",
     "preview:clip": "node tools/scripts/render-harness-clip.mjs",
     "commitlint": "commitlint",
-    "verify": "pnpm run check:arch && pnpm run check:es5spread && pnpm run check:secrets && pnpm run check:tasks && pnpm run check:links && pnpm run check:mcp && pnpm run levels:check && pnpm run typecheck && pnpm run framework:sync:check && pnpm run cocos:check && pnpm run check:size && pnpm run test && pnpm run harness:build && pnpm run harness:smoke",
+    "verify": "node tools/scripts/verify-all.mjs",
+    "verify:strict": "node tools/scripts/verify-all.mjs --strict",
+    "verify:selftest": "bash tools/scripts/verify-all-selftest.sh",
     "check:tasks": "node tools/scripts/check-tasks.mjs"
   },
   "devDependencies": {
