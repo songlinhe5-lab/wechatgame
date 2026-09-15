@@ -1,10 +1,10 @@
 # 关卡数据规范（Levels Spec）· beads
 
-- 项目：`games/beads`（拼豆填色消除）· 版本 v1.1 · 任务号 WXG-T-015（§5.1 尾盘满槽交叉校验：WXG-T-081）
+- 项目：`games/beads`（拼豆填色消除）· 版本 v1.1 · 任务号 WXG-T-015（§5.1 尾盘满槽交叉校验：WXG-T-081；§1/§2 `decoys` 上限追正 §3 v1.17：WXG-T-098）
 - 数据文件：`levels-01-08.json`（本目录）
 - 数据形态：**ADR-0004**——`BEAD_CHARSET` 行字符串数组 + 元数据字段
 - 消费方：S3（图案矩阵）、S4（供料间隔/杂色）、S5（时限）、S1（BOOT 校验装配，architecture-beads §6）
-- 数值纪律：范围常量全部来自 `gdd/systems-index.md` §3（v1.5），本篇不新增冻结数值。
+- 数值纪律：范围常量全部来自 `gdd/systems-index.md` §3（现版 **v1.19**；旧版本文停在 v1.5，属文档同步残留，WXG-T-098 追正），本篇不新增冻结数值。
 
 ---
 
@@ -20,7 +20,7 @@ LevelsFile（levels-01-08.json）
      ├─ cols / rows      网格尺寸（rows = pattern 行数，冗余自检字段）
      ├─ time             本关倒计时秒（合法区间 [180,420]，来源 §3.5）
      ├─ spawnInterval    供料间隔秒（合法区间 [2.0,6.0]，来源 §3.4）
-     ├─ decoys           杂色索引数组（≤ DECOY_COLORS_MAX=2，且 ∩ 图案色 = ∅）
+     ├─ decoys           杂色索引数组（≤ `DECOY_COLORS_MAX` = **0** ⇒ **一律为空数组**，且 ∩ 图案色 = ∅；§3 v1.17 U8=D）
      └─ pattern[]        行字符串数组，字符集 BEAD_CHARSET = `.x1-9A`
 ```
 
@@ -39,7 +39,7 @@ LevelsFile（levels-01-08.json）
 | 锁定格 | `x` 不计完成；关卡须 ≥1 可填格（全部关卡满足，x 仅装饰） | core-loop §6 / §3.2 |
 | 时限 | time ∈ [180, 420] | §3.5 |
 | 供料 | spawnInterval ∈ [2.0, 6.0] | §3.4 |
-| 杂色 | decoys.length ≤ `DECOY_COLORS_MAX`(2)，且与 pattern 用色**无交集** | §3.2 |
+| 杂色 | `decoys.length ≤ DECOY_COLORS_MAX`(**0**) ⇒ **必须为空数组**，非空即 BOOT 拒收（`src/config/levels.ts:184`，QA P26-N 实测 `phase=boot`）；且与 pattern 用色**无交集** | §3.2（**v1.17 U8=D**；本文旧版写 `(2)` 未随冻结回写，**WXG-T-098 追正**） |
 | 图案 | **全部原创**（房屋/爱心/动物/器物剪影），禁用任何第三方 IP 图案 | 参考分析 §8 |
 
 校验器形态沿用 breakout `validateLevel()` 判例（错误信息含关卡 id + 行列 + 违规字符）。

@@ -18043,9 +18043,9 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 3896,
+      "tokens": 4010,
       "lines": 214,
-      "sha256": "935a5d12e87e15dd55e0dd3e55fe75d6bf3de9ab9026541c340ab9308d255ff1",
+      "sha256": "8cfa35afb622078eebcd46e9964ba5676240a366568c87eb82ab94ddaddf18fb",
       "tier": "normal",
       "sections": [
         {
@@ -18053,7 +18053,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 215,
-          "tokens": 3882,
+          "tokens": 3996,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.1 · 任务号 WXG-T-015（§5.1 尾盘满槽交叉校",
           "keywords": [
             "§5.1",
@@ -18069,7 +18069,7 @@
           "level": 2,
           "startLine": 11,
           "endLine": 31,
-          "tokens": 352,
+          "tokens": 367,
           "summary": "",
           "keywords": [
             "文件结构总览"
@@ -18080,7 +18080,7 @@
           "level": 2,
           "startLine": 32,
           "endLine": 46,
-          "tokens": 249,
+          "tokens": 309,
           "summary": "尺寸 GRID_MIN_COLS(6) ≤ cols ≤ GRID_MAX_COLS(13)；GRID_MIN_ROWS",
           "keywords": [
             "§6",
