@@ -14,6 +14,9 @@
  *        evidence/g4-reverify-v1.2-p5-excerpt.log；**该轮只修订 P5 段预期值**，见修订 28）
  *       （WXG-T-098 改判轮：evidence/g4-reverify-v1.3-t098.log；**该轮只改 P4/P20/P26 三条
  *        预期值后整轮重跑**，见修订 38）
+ *       （WXG-T-097 轮：P8/P10（BD-15/BD-16，修订 39，evidence/g4-probe-v1.2-t097bd15.log）与
+ *        P7/P5·A05-14（BD-10，修订 40，evidence/g4-probe-v1.4-t097bd10.log）
+ *        四条改取回写后现文重建预期值后整轮重跑）
  *
  * ── v1.1 修订（承接 v3 的 1–13；本轮新增 **14–27**，全部为**探针自身**预期值/口径修正）──
  *  14. 【严防假 FAIL】P9/P12/P18 的期望值改取回写后 §8 现文：
@@ -173,6 +176,29 @@
  *        改码已立项 **WXG-T-102**；`reduceMotion` 退静态半边（P22）已与新措辞一致 ⇒ **不重复开缺陷**。
  *      同轮口径自查：本轮**未**因数字难看而放宽（P4 是收紧后 FAIL），也**未**因数字好看而把 ⛔ 写成 PASS；
  *      未跑的门（G1–G3 全量、`[Cocos]/[Device]/[B]/[P]` 道次）继续按报告 §18.2 登记为未执行，不因本单改判。
+ *  39. 【WXG-T-097/BD-15·BD-16 · P8/P10 改判（证据 evidence/g4-probe-v1.2-t097bd15.log）】
+ *      P8 的「扩展」腿拆为「入口存在（已验）+ S4 出口（按 powerups §2.6 布局 A 不可达 = **BD-37**）」
+ *      ⇒ 整条 4/5 可验且通过 = PASS*，不因占位实装而打 PASS；P10 改认新轻提示通道并对 **text 签名**
+ *      差分（旧版只看旧字段与非文本签名 ⇒ BD-16 已落地仍报假 FAIL）。同轮另有**夹具改动**（非预期值
+ *      改动）：`slotXY()` 改取 §3.4 v1.20 单一真源 `trayLayout()` ⇒ 所有「点槽」用例坐标整体上移。
+ *  40. 【WXG-T-097/BD-10 · P7 + P5/A05-14 改判（第二主体 = 满槽描边呼吸已实装）】先改预期后重跑；
+ *      两条改判均源于**实现变化**，不放宽阈值：
+ *      ① **P7**：旧④以「托盘带非文本签名去重种数 uniq≤1 才算 PASS*」为成立条件 = **把缺失当预期**，已删；
+ *        改为在主实例（本就是满槽 + 告急双主体同场）逐帧取 `tray_panel_danger` 描边 α，按
+ *        `ux-spec §5`「2px danger 描边呼吸 500ms」量周期（±50ms，与 §8-10 现文同界）⇒ 实测 500ms / 2.00Hz；
+ *        并新增⑤：`timer-gameover §8-10`「与满槽告警同屏叠加」由 **⛔ 不可测转可测**，按 `ux-spec §5:174`
+ *        口径正本「闪烁 = **同一区域内** α 的往复」分区读（托盘 2.00Hz / HUD 1.00Hz各自 ≤3Hz），
+ *        跨区域合成 3.00/s **不属该红线口径**但照实披露（既不据此判 FAIL、也不据此宣称在红线内）。
+ *      ② **P5/A05-14**：修订 37 记的 partial（「互不驱动」只能单向成立）随第二主体到位而解除——
+ *        补量ⓐ呼吸周期、ⓑ音不跟视觉循环（满槽期事件/请求增量均为 0，去重锁正本 `tray-spawner §8-4`）、
+ *        ⓒ视觉不跟音（经真路由面板 mute 后呼吸仍在）⇒ 三方向同周期 = PASS。
+ *      ③ 【首跑自曝：两处**探针自身缺陷**，不得转判为实现缺陷】(a) **装载顺序**：`loadHarness()` 内部才
+ *        `stageDist()`（rm -rf `.smoke` 后重拷 `dist`），而它写在模块 import **之后** ⇒ `T`/`buildBeadsView`
+ *        拿到上一轮旧 `.smoke`，新常量读成 `undefined`、新图元找不到（P7/A05-14 假 FAIL 直接根因）；
+ *        已把 `loadHarness` 前置到 import 之前，并加一道「新常量不在内存模块就硬抛」防呆（修订 34 的
+ *        dist↔src mtime 自证**不能**覆盖这个顺序问题）。(b) **夹具基线**：`tray:full` 不在满槽那帧发，
+ *        而在下一次供料尝试发现无空位时才发 ⇒ 不等首次广播就会把「首次广播」误读成「重复广播」（事件增量
+ *        0/1 看似违反 §8-4）；`fullTrayHarness()` 已改为等到首次广播，基线写进证据文案。
  *
  * 环境事实（禁止伪造）：无 AppID / 无真机 ⇒ `[Device]/[R]` 一律 ⛔；`[Cocos]` 像素级判据——
  * 波次 3（v1.1）当时 `framework:sync:check` 为✅、web-mobile 产物 mtime 2026-09-15 08:48；
@@ -188,6 +214,12 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..', '..');
 const { loadHarness, STAGE } = await import(`${ROOT}/tools/scripts/lib/harness-runtime.mjs`);
 
+// 【修订 40 新增·探针自身缺陷】`loadHarness()` 内部才 `stageDist()`（rm -rf .smoke 后重拷 dist）。
+// 上一版把 `loadHarness` 放在下面的模块 import **之后** ⇒ `T`/`buildBeadsView` 等命名空间拿到的是
+// **上一轮旧 `.smoke`**，新常量读成 `undefined`、新图元找不到（P7/A05-14 假 FAIL 的直接根因）。
+// 修正：先把 harness 装起（⇒ `.smoke` 与 `dist` 同步），再 import 被测模块。
+const boot = await loadHarness({ game: 'beads' });
+
 const fw = await import(`${STAGE}/packages/framework/src/index.js`);
 const { NodePlatform } = await import(`${STAGE}/packages/framework/src/platform/node.js`);
 const { BeadsGame } = await import(`${STAGE}/games/beads/src/game/beads-game.js`);
@@ -195,6 +227,11 @@ const { buildBeadsView } = await import(`${STAGE}/games/beads/src/view/view-mode
 const P = await import(`${STAGE}/games/beads/src/view/palette.js`);
 const { DEFAULT_PALETTE } = P;
 const T = await import(`${STAGE}/games/beads/src/config/tuning.js`);
+// 【修订 40】假 FAIL 防呆：只钉「本轮新依赖的常量已在内存模块里」，不判数值。
+// 若不满足，一律是「忘先 `pnpm run harness:build`」或上面那条装载顺序问题，而非被测代码缺陷。
+if (T.TRAY_FULL_PULSE_MS === undefined || T.trayLayout === undefined) {
+    throw new Error('[probe] .smoke 模块早于被测源码（TRAY_FULL_PULSE_MS/trayLayout 缺失）⇒ 先跑 pnpm run harness:build 再重跑探针');
+}
 const { LEVELS } = await import(`${STAGE}/games/beads/src/config/levels.js`);
 const { BEADS_AUDIO_VOICES } = await import(`${STAGE}/games/beads/src/config/audio-voices.js`);
 const { pausePanelLayout } = await import(`${STAGE}/games/beads/src/systems/pause-panel.js`);
@@ -203,7 +240,6 @@ const { failPanelLayout } = await import(`${STAGE}/games/beads/src/systems/fail-
 const { finishPanelLayout } = await import(`${STAGE}/games/beads/src/systems/finish-panel.js`);
 const { TRAY_BEAD_SIZE } = await import(`${STAGE}/games/beads/src/view/bead-render.js`);
 
-const boot = await loadHarness({ game: 'beads' });
 const bootModel = boot.render(5);
 console.log(`[boot] harness beads OK — draw cmds=${bootModel?.commands?.length ?? 0}`);
 
@@ -393,6 +429,41 @@ function pulsePeriodMs(samples) {
     const gaps = []; for (let i = 1; i < troughs.length; i++) gaps.push(troughs[i] - troughs[i - 1]);
     const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
     return { periods: troughs.length - 1, periodMs: mean * (1000 / 60), distinct: new Set(samples.map((v) => v.toFixed(3))).size };
+}
+/**
+ * 【修订 40 新增 · WXG-T-097/BD-10】真**满槽**夹具（供 P5·A05-14 与 P7④⑤ 共用）。
+ * 满槽由 **A′ 合法供料自然灌满**（12 行×13 列 = §3.5 最大棋盘 ⇒ demand 足够；不落子 ⇒ 只进不出），
+ * 不用 `giveTrayBead`（修订 21 同口径：白盒强灌会绕过供料不变量）。约 24s 满（`TRAY_BASE_SLOTS=12` × 2.0s）。
+ * `time` 由调用方定：只量呼吸选 420（不会被到期打断）；需「告急 + 满槽」同屏选 180。
+ * 【为何还要等到首次广播】`tray:full` 不在满槽那帧发，而是在**下一次供料尝试**发现无空位时才发
+ *   （spawner.ts:_feedOnce + _fullReported）⇒ 不等就会把「首次广播」误读成「重复广播」（本轮实测
+ *   踩到：事件增量 0/1 看似违反 §8-4）。两处周期数字来自同一几何与同一 `pulseClock` ⇒ 必须一致。
+ */
+function fullTrayHarness(id, time, opts = {}) {
+    const h = mk({
+        ...opts,
+        levels: [probeLevel(id, 13, 12, time, 2.0, (i, j) => String(((i + j) % 3) + 1))],
+    });
+    for (let f = 0; f < 60 * 60 && h.hold() < T.TRAY_BASE_SLOTS; f++) h.frame();
+    for (let f = 0; f < 60 * 5 && h.count('tray:full') === 0; f++) h.frame();
+    return h;
+}
+/** `tray_panel_danger`（BD-10）= 面板尺寸、无 fill、stroke=danger 的 rect；取其 α。 */
+function trayDangerRing(cs) {
+    const lay = T.trayLayout(1); // 几何单一真源（WXG-T-062）⇒ 探针不重推公式
+    return cs.find((c) => c.kind === 'rect' && !c.fill && c.stroke
+        && hex2(c.stroke) === hex2(DEFAULT_PALETTE.danger)
+        && Math.abs((c.w ?? 0) - lay.panelW) < 1e-6 && Math.abs((c.h ?? 0) - lay.panelH) < 1e-6);
+}
+/** 连续 `n` 帧的满槽描边 α 序列（缺描边 ⇒ NaN，由调用方按「零通道」计）。 */
+function trayBreathSeq(h, n) {
+    const seq = [];
+    for (let f = 0; f < n; f++) {
+        const ring = trayDangerRing(cmds(h));
+        seq.push(ring ? (ring.alpha ?? 1) : NaN);
+        h.frame();
+    }
+    return seq;
 }
 const chi2 = (obs, exp) => obs.reduce((a, o) => a + ((o - exp) ** 2) / exp, 0);
 /**
@@ -1009,7 +1080,7 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         + `② 续时回阈值以上（hU 链）：失败时 remaining=${remAtFail}s → requestRevive=${revU} + 广告 complete ⇒ phase=${phaseAfterRevive}、remaining=${remAfterRevive}s（加 REVIVE_BONUS_SEC=${T.REVIVE_BONUS_SEC}s，> TIMER_URGENT_T=${T.TIMER_URGENT_T}）`
         + `→ 再跑 5.0s（300 帧）新增拍=${beatsAfterRevive} ⇒ 停拍成立。`);
 
-    // ── A05-14 · tray:full 音只 1 次不循环（视觉 500ms 呼吸半边欠 BD-10）
+    // ── A05-14 · tray:full 音只 1 次不循环 + 与视觉呼吸**互不驱动**（修订 40：第二主体随 WXG-T-097/BD-10 到位）
     const h14 = ah(); h14.tickFrame(FR); h14.clearAudio();
     const perEmit = [];
     for (let k = 0; k < 3; k++) {
@@ -1021,12 +1092,44 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     }
     const req14 = h14.requests.filter((r) => r.id === C('AUDIO_CLIP_TRAY_FULL'));
     const ok14audio = perEmit.every((n) => n === 1) && req14.length === 3 && req14.every((r) => r.loop === false);
-    p5('A05-14', 'sfx_tray_full · 每次 tray:full 派发 1 次且不循环；与视觉呼吸互不驱动', ok14audio,
+    // 【修订 40】「互不驱动」不再只能单向成立：拿**真满槽实例**量两个方向。
+    // 〔层〕本段只取「音↔视觉」耦合关系（A05-14 正文子句）；呼吸本体的周期正量仍以 P7④ 为准。
+    const h14v = fullTrayHarness(914, 420, { flushAudio: true });
+    const reqBase = () => h14v.requests.filter((r) => r.id === C('AUDIO_CLIP_TRAY_FULL')).length;
+    const req0 = reqBase(), ev0 = h14v.count('tray:full');
+    const seq14a = trayBreathSeq(h14v, 90);                       // 1.5s = 3 个 500ms 周期
+    const pm14a = pulsePeriodMs(seq14a.filter((v) => !Number.isNaN(v)));
+    const reqDeltaQuiet = reqBase() - req0;                       // 呼吸期间（§8-4 去重 ⇒ 无新事件）应为 0
+    const evDeltaQuiet = h14v.count('tray:full') - ev0;
+    h14v.advance(2.2);                                            // 再跨一个供料间隔（仍满槽 ⇒ 仍不应重复广播）
+    const evDeltaNext = h14v.count('tray:full') - ev0;
+    const reqDeltaNext = reqBase() - req0;
+    const seq14b = trayBreathSeq(h14v, 90);
+    const pm14b = pulsePeriodMs(seq14b.filter((v) => !Number.isNaN(v)));
+    tapRouterAt(h14v, GEAR_XY[0], GEAR_XY[1]);                     // 经真路由关 SFX（恢复后再采样）
+    tapBtn(h14v, pausePanelLayout('normal'), 'toggle-sfx');
+    tapBtn(h14v, pausePanelLayout('normal'), 'resume');
+    const seq14c = trayBreathSeq(h14v, 90);
+    const pm14c = pulsePeriodMs(seq14c.filter((v) => !Number.isNaN(v)));
+    const ok14vis = !seq14a.some(Number.isNaN) && pm14a.distinct >= 2
+        && pm14a.periodMs !== null && Math.abs(pm14a.periodMs - 500) <= 50;
+    // ⓑ 音不跟呼吸：满槽期间事件被 `spawner._fullReported` 去重 ⇒ 两批呼吸窗口内请求增量均为 0；
+    //   而「音跟事件」的正向已由本条音频半边（3 次注入 ⇒ 3 次派发）覆盖，不在此重复。
+    const ok14decouple = ok14vis && evDeltaQuiet === 0 && reqDeltaQuiet === 0
+        && evDeltaNext === 0 && reqDeltaNext === 0
+        && pm14b.periodMs !== null && Math.abs(pm14b.periodMs - pm14a.periodMs) <= 20
+        && h14v.game.sfxMuted && !seq14c.some(Number.isNaN)
+        && pm14c.periodMs !== null && Math.abs(pm14c.periodMs - pm14a.periodMs) <= 20;
+    p5('A05-14', 'sfx_tray_full · 每次 tray:full 派发 1 次且不循环；与视觉呼吸互不驱动', ok14audio && ok14decouple,
         `【[N] 音频半边·派发层】隔 2.2s 注入 3 次 tray:full ⇒ 每次新增派发=${perEmit.join('/')}（恰 1）；`
         + `【[N] 音频半边·请求层】3 次请求的 loop 入参全=${u(req14.map((r) => r.loop)).join('/')} ⇒ **不循环**成立（minInterval=${u(req14.map((r) => r.minInterval)).join('/')} = AUDIO_TRAYFULL_MIN_INTERVAL=${T.AUDIO_TRAYFULL_MIN_INTERVAL}）。`
-        + `　【整条未闭】「托盘描边呼吸按 500ms 独立循环」同一轮 P7 已实测：满槽态 500ms 窗口内剔 text 签名去重=1 ⇒ **无呼吸时间轴**（已登记 **BD-10**，属表现层欠账，不在 P5 重复计新缺陷）。`
-        + `　⇒ 记 PASS*（修订 37：本条判据含「与视觉呼吸互不驱动」子句，而呼吸本身未实现 ⇒ 互不驱动无法双向成立）：音频半边绿不代表 A05-14 可关闭；该条关闭需 BD-10 修完 + 复跑。`,
-        { partial: true });
+        + `　【第二主体已到位·修订 40】真满槽实例（fullTrayHarness(914, 420s)：A′ 合法供料自然灌满、不落子，**并等到首次 tray:full 广播** ⇒ 基线 ev=${ev0}）上量两个方向：`
+        + `ⓐ 呼吸周期实测 ${pm14a.periodMs ? pm14a.periodMs.toFixed(0) : '—'}ms（ux-spec §5 = 500ms±50）、α 档数=${pm14a.distinct}；`
+        + `ⓑ **音不跟视觉循环**：连续两批呼吸窗口（90 帧 = 3 周期、再加 2.2s）内 tray:full 事件增量=${evDeltaQuiet}/${evDeltaNext}、clip 请求增量=${reqDeltaQuiet}/${reqDeltaNext}`
+        + `（全为 0 ⇒ 音不随呼吸重复触发；去重锁正本 = tray-spawner §8-4 + spawner.ts:_fullReported，而 α 仍在往复：第二段周期 ${pm14b.periodMs ? pm14b.periodMs.toFixed(0) : '—'}ms）；`
+        + `ⓒ **视觉不跟音**：经真路由面板 toggle-sfx 后（sfxMuted=${h14v.game.sfxMuted}）呼吸仍在，周期 ${pm14c.periodMs ? pm14c.periodMs.toFixed(0) : '—'}ms、档数=${pm14c.distinct}。`
+        + `　⇒ 修订 37 记的 partial（「互不驱动」无法双向成立）**随 BD-10 落地而解除**：改判源自**实现变化**，非口径放宽；P7④ 同轮取同一夹具 ⇒ 两处周期数字必须一致。`,
+        { partial: !(ok14audio && ok14decouple) });
 
     // ── A05-15 · sprint:stage 派发（双段属 [B]）
     const h15 = ah(); h15.tickFrame(FR); h15.clearAudio();
@@ -1600,23 +1703,38 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const pm = pulsePeriodMs(hudPulse(h, 130));
     const iconColors = [...new Set(icons.map((x) => x.split('@')[0]))];
     const iconAlphas = pulsePeriodMs(icons.map((x) => Number(x.split('@')[1] ?? 1)));
-    // 满槽告警通道（ux-spec §5 托盘描边呼吸 500ms）
-    const fullRing = (() => {
-        const h2 = mk({ levels: [probeLevel(907, 13, 12, 420, 2.0, (i, j) => String(((i * 13 + j) % 3) + 1))] });
-        for (let f = 0; f < 60 * 40 && h2.hold() < T.TRAY_BASE_SLOTS; f++) h2.frame();
-        h2.advance(2.2);   // 满槽后再跨过一个供料间隔 ⇒ tray:full 的去重语义才真正可观测（修订 27）
-        const seq = []; for (let f = 0; f < 60; f++) { seq.push(new Set(cmds(h2).filter((c) => c.kind !== 'text' && inBand(c, T.TRAY_BAND, 4)).map((c) => `${c.kind}${Math.round(c.x ?? 0)}${hex2(c.stroke ?? c.fill ?? '')}a${c.alpha ?? alphaOf(c.stroke ?? '')}`).join(','))); h2.frame(); }
-        const uniq = new Set([...seq].map((s) => [...s].sort().join('|'))).size;
-        return { full: h2.hold(), uniq, hasTrayFullEv: h2.count('tray:full') };
+    // 【修订 40 · BD-10】同屏叠加取证：P7 主实例 `h` 本就是「满槽 + 告急」双主体同场
+    // （6×5 = 30 格 demand 充裕、4.0s 供料 ⇒ 约 48s 自然灌满且不落子；170.5s 后进告急窗口），
+    // 不再另开只量「签名种数」的第事实例（旧④以 uniq≤1 为 PASS* 条件 = 把缺失当预期）。
+    const overlay = (() => {
+        const seq = trayBreathSeq(h, 120);
+        const clean = seq.filter((v) => !Number.isNaN(v));
+        return {
+            full: h.hold(), urgentNow: h.game.snapshot.urgent, phase: h.game.snapshot.phase,
+            hasTrayFullEv: h.count('tray:full'), missing: seq.length - clean.length,
+            pm: pulsePeriodMs(clean),
+        };
     })();
-    const v = urgent && ev === 1 && pm.distinct >= 2 && pm.periodMs !== null && Math.abs(pm.periodMs - T.DANGER_PULSE_MS) <= 50 && fullRing.uniq <= 1 ? 'PASS*' : (urgent && pm.distinct >= 2 ? 'PASS*' : 'FAIL');
+    const trayHz = overlay.pm.periodMs ? 1000 / overlay.pm.periodMs : null;
+    const hudHz = pm.periodMs ? 1000 / pm.periodMs : null;
+    const compositeHz = trayHz !== null && hudHz !== null ? trayHz + hudHz : null;
+    const okFull = overlay.missing === 0 && overlay.full === T.TRAY_BASE_SLOTS && overlay.urgentNow
+        && overlay.pm.distinct >= 2 && overlay.pm.periodMs !== null
+        && Math.abs(overlay.pm.periodMs - T.TRAY_FULL_PULSE_MS) <= 50;
+    const v = urgent && ev === 1 && pm.distinct >= 2 && pm.periodMs !== null
+        && Math.abs(pm.periodMs - T.DANGER_PULSE_MS) <= 50 && okFull ? 'PASS' : (urgent && pm.distinct >= 2 ? 'PASS*' : 'FAIL');
     rec('P7 / BD-10 · GAP-10 告急三通道（色+图标+脉冲）与满槽告警', v,
         `① 事件层：降穿 TIMER_URGENT_T=${T.TIMER_URGENT_T}s → timer:urgent=${ev}（期望恰 1）、snapshot.urgent=${urgent}。`
         + `② 颜色通道：HUD 时钟图标描边色去重=[${iconColors.join(', ')}]（平时 ${hex2(DEFAULT_PALETTE.textDim)} → 告急 ${hex2(DEFAULT_PALETTE.danger)}）、数字 fill 切 danger。`
         + `③ 脉冲通道：图标 α 序列（130 帧剔 text）distinct=${iconAlphas.distinct} 档、周期=${iconAlphas.periodMs ? iconAlphas.periodMs.toFixed(0) : '—'}ms；数字/图标合成脉冲样本 distinct=${pm.distinct}、周期=${pm.periodMs ? pm.periodMs.toFixed(0) : '—'}ms（ux-spec §5 = ${T.DANGER_PULSE_MS}ms±50）⇒ 频率 ${(1000 / (pm.periodMs ?? 1)).toFixed(2)}Hz ≤3Hz 红线。`
-        + `④ 满槽告警（ux-spec §5 托盘描边呼吸 ${500}ms）：满槽 ${fullRing.full}/${T.TRAY_BASE_SLOTS} 且 tray:full=${fullRing.hasTrayFullEv} 时，托盘带内非文本指令签名 60 帧去重=${fullRing.uniq} 种（>1 才算呼吸）⇒ ${fullRing.uniq > 1 ? '有通道' : '**零通道，仍缺**'}。`
-        + `　⇒ 建议 BD-10 **部分关闭**：告急三通道 ✅；满槽告警 500ms 呼吸仍开放（降级 P2，理由：A′ 下满槽非死局，仅反馈缺口）。`
-        + `　timer-gameover §8-10 的「与满槽告警同屏叠加无 >3Hz 闪烁」半条因缺第二主体仍 ⛔ 不可测；代码锚点 view-model.ts:407-431（dangerAlpha + iconColor + timerColor）。`);
+        + `④ 满槽告警视觉通道（ux-spec §5「托盘面板边缘 2px danger 描边呼吸 ${T.TRAY_FULL_PULSE_MS}ms」）：`
+        + `主实例同场取证 —— 满槽 ${overlay.full}/${T.TRAY_BASE_SLOTS}、tray:full 广播=${overlay.hasTrayFullEv} 次（spawner.ts:_fullReported 去重锁 ⇒ 满槽期间**不重复广播**，正本 tray-spawner §8-4，故此处期望 1）、phase=${overlay.phase}、urgent=${overlay.urgentNow}；`
+        + `120 帧逐帧取描边 α，取不到=${overlay.missing} 帧、${overlay.pm.distinct} 档、实测周期=${overlay.pm.periodMs ? overlay.pm.periodMs.toFixed(0) : '—'}ms（期望 ${T.TRAY_FULL_PULSE_MS}ms±50）⇒ 呼吸判定=${okFull ? 'PASS' : 'FAIL'}。`
+        + `⑤ §8-10「满槽告警与告急脉冲同屏叠加无 >3Hz 闪烁」（两主体同场，本条已可测，不再 ⛔）：`
+        + `按 ux-spec §5:174 口径正本「闪烁 = **同一区域内** α 的往复变化」分区读 —— 托盘带 ${trayHz ? trayHz.toFixed(2) : '—'}Hz、HUD 带 ${hudHz ? hudHz.toFixed(2) : '—'}Hz，两带不重叠（TRAY_BAND.yMax=${T.TRAY_BAND.yMax} < HUD_BAND.yMin=${T.HUD_BAND.yMin}）⇒ **分区各自 ≤3Hz 合规**；`
+        + `跨区域合成读数=${compositeHz ? compositeHz.toFixed(2) : '—'}/s，**不属该红线口径**（该口径按区域定义），照实披露不据此判 FAIL、也不据此宣称「合成值在红线内」。`
+        + `　⇒ BD-10 建议**关闭**：告急三通道 ✅ + 满槽告警呼吸 ✅（A05-14 音/视解耦另见 P5）。代码锚点 view-model.ts drawTray 末尾（trayFullAlpha + palette.danger, lineWidth 2, radius 18）与 tuning.ts:TRAY_FULL_PULSE_MS。`
+        + `　限制声明：本条全部在指令流层（RenderModel 指令 α 序列）可证，真机观感与「同屏不刺眼」的主观判据仍属 **[B]/[P]**，不得据指令读数宣称已验。`);
 }
 /** 单独取 HUD 非文本脉冲 α 序列（避免与 ①②③ 混用样本）。 */
 function hudPulse(h, n) {
@@ -2244,8 +2362,12 @@ const cntGrp = (pred) => out.filter((r) => pred(r.id)).length;
 //   S4 出口按布局 A 不可验 = BD-37）；P10 改认新轻提示通道并对 **text 签名**差分（BD-16 已关）。
 //   同轮另有**夹具改动**（不是预期值改动）：全局 `slotXY()` 改取 §3.4 v1.20 单一真源
 //   `trayLayout()` ⇒ 所有「点槽」用例的取证坐标整体上移；旧版带中线公式在带加高后已脱靶。
+// 【修订 40】WXG-T-097/BD-10 轮修订面**再加两条** = P7（满槽描边呼吸 + §8-10 叠加由 ⛔ 转可测）
+//   与 P5/A05-14（第二主体到位后「音/视互不驱动」由单向补为三方向）。两条均是**因实现变化而重建
+//   预期值**，不是放宽判据；旧 P7 的「非文本签名 uniq≤1 才算 PASS*」实质是把缺失当预期，已删。
+//   P5/A05-14 属双计条目：仍计入下方「P5 段」总计数，只是修订归属移到 T-097。
 const inT098 = (id) => /^P4\b/.test(id) || /^P20\b/.test(id) || /^P26\b/.test(id);
-const inT097 = (id) => /^P8\b/.test(id) || /^P10\b/.test(id);
+const inT097 = (id) => /^P7\b/.test(id) || /^P8\b/.test(id) || /^P10\b/.test(id) || /^P5\/A05-14\b/.test(id);
 const tallyT098 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT097 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyRest2 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
@@ -2253,12 +2375,12 @@ for (const r of out) {
     const bucket = inT098(r.id) ? tallyT098 : inT097(r.id) ? tallyT097 : tallyRest2;
     bucket[norm(r.verdict)]++;
 }
-console.log('\n================ 探针汇总（v1.4 改判轮 · P8/P10 预期值按 WXG-T-097（BD-15/BD-16）+ 同轮 §3.4 v1.20 回写重建） ================');
+console.log('\n================ 探针汇总（v1.4 改判轮 · WXG-T-097 修订面 = P8/P10（BD-15/BD-16 + §3.4 v1.20）+ P7/A05-14（BD-10 描边呼吸）预期值重建） ================');
 for (const r of out) console.log(`${norm(r.verdict).padEnd(6)} ${r.id}`);
 console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组；含 P26-N 负向用例，较 v1.2 多 1 条记录）`);
 console.log(`【T-096 修订面 · P5 段（${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
 console.log(`【T-098 修订面 · P4/P20/P26（含 P26-N，${cntGrp(inT098)} 条）】：${sum(tallyT098)}`);
-console.log(`【T-097 修订面 · P8/P10（${cntGrp(inT097)} 条）】：${sum(tallyT097)}`);
+console.log(`【T-097 修订面 · P7/P8/P10 + P5/A05-14（${cntGrp(inT097)} 条）】：${sum(tallyT097)}`);
 console.log(`【未随本轮复核 · 其余 ${cntGrp((id) => !inT098(id) && !inT097(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
-console.log('　↑ 四段计数不得合并解读：P5 段沿 T-096 口径，P4/P20/P26 沿 T-098 口径，P8/P10 沿 T-097 口径，其余组沿 v1.1 口径。');
+console.log('　↑ 四段计数不得合并解读：P5 段沿 T-096 口径（A05-14 仍计入该段，但修订归属已移到 T-097 ⇒ **双计条目**），P4/P20/P26 沿 T-098 口径，P7/P8/P10 沿 T-097 口径，其余组沿 v1.1 口径。');
 console.log(`时间戳：${new Date().toISOString()}   Node ${process.version}`);
