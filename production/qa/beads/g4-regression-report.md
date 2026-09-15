@@ -8,7 +8,18 @@
 - 缺陷编号：本报告启用 **`BD-nn`** 新序列（Beads Defect），与 breakout 的 `D-0n`、beads 阶段 0 的 `D-01..D-05`（见 `production/archive/TASKS-DETAIL-archive.md`）**物理隔离**，避免跨轮撞号。
 
 > ──────────────────────────────────────────────────────────────────────────
-> **当前版本 v1.1（复验轮，2026-09-15，WXG-T-092 / 严守真）**
+> **当前版本 v1.2（P5 音频段复跑，2026-09-15，WXG-T-096 / 严守真）**
+> **升版理由（而不是叫「v1.1 勘误」）**：本单推翻了 P5 / BD-05 的**事实前提**（框架侧已落 `SynthAudioBackend`、
+> beads 侧 19 个 clip 与事件→clip 派发已存在），因而改的是**门禁判据的结论**（v1.1 的 P5=FAIL 已成假 FAIL）；
+> 同时本单还暴露了探针**自己**对另一段预期值的污染（P4，修订 36）。内容已变 ⇒ 需可引用的版本号。
+> ❗ **范围铁声明：v1.2 只重跑了 P5 段（27 条 A05 + 1 条结构证据 = 28 条）。其余 25 组（P1–P4、P6–P26）
+> 未随 WXG-T-096 重跑，判定与预期值一律沿用 v1.1**（本轮仅作为回归对照确认 25/25 判定未漂移，
+> **这不等于全轮复验完成**，不得合并计数解读）。v1.2 正文 = **§19**；§1–§18 为历史谱系，
+> 只在被推翻处加【v1.2 注】标记，**不改写原文**。
+> 证据：`production/qa/beads/evidence/g4-reverify-v1.2.log`（§0 范围声明 / §1 探针 stdout / §2 命令与计数 /
+> §3 P5 逐条判定索引 / §4 诊断脚本 / §5 未执行・⛔ 清单 / §6 汇总核对）。
+
+> **上一版本 v1.1（复验轮，2026-09-15，WXG-T-092 / 严守真）**
 > §1–§11 是 **v1.0 修复前基线正文**，原样保留作历史谱系（其中「建议裁定 G4=FAIL」「13 处探针缺陷」「8 项判据冲突」均已被复验轮改写）。
 > **复验轮结论全部在 §12–§18**：逐探针改判表、BD-01..26 处置状、新缺陷 BD-27..32、§8 冲突关闭标记、§G 20 条可验道次、建议裁定与剩余阻塞清单；**§18.5 = 主理人正式裁决（G4 = CONCERNS + 放行范围 + 限制声明）**。
 > 证据：`production/qa/beads/evidence/g4-reverify-v1.1.log`（§1 探针 / §2 verify / §3 单点复跑 / §4 诊断脚本 / §5 未执行道次）。
@@ -62,7 +73,7 @@
 | `[Harness]` 浏览器（canvas2d） | ⚠️ **可执行但结论被污染** | GAP-07（DPR 坐标 ⇒ 点击全打飞）/ GAP-08（文字镜像）未修 ⇒ 本轮**所有 `[Harness]` 用例一律标「⛔ 污染」**，禁止标绿（BD-07/BD-08） |
 | `[Cocos]` 编辑器 / web-mobile 产物 | ⛔ **本轮被阻塞** | `build:cocos:web`（beads）前置检查报「拷贝件与源码不一致」⇒ 解除条件 = 先跑 `pnpm run framework:sync`（BD-20）。**任务单环境事实②「`build:cocos:web` 已通」在当前 HEAD 已不再成立** |
 | `[Device]` 真机 | ⛔ **不可执行** | 微信开发者工具未装、无 AppID ⇒ `TC-INP-09`（多点触控）、`TC-A11Y-02`（热区）、`SC-11`（杀进程续进）、`SC-13`（onHide）、A05-27 全部标「⛔ 不可测」，**不跳过、不标绿**（breakout D-01 教训） |
-| 音频（`[B]`/`[P]` 道次） | ⛔ **不可执行且真机不解除** | `packages/framework/src/platform/{node,web,weapp}.ts` **三者 audio backend 均为 `NullAudioBackend`**（node.ts:57 / web.ts:60 / weapp.ts:139）⇒ 真机到位也无声；解除条件 = 先落 Web Audio / `InnerAudioContext` 后端（BD-05b） |
+| 音频（`[B]`/`[P]` 道次） | ⛔ **不可执行且真机不解除** | `packages/framework/src/platform/{node,web,weapp}.ts` **三者 audio backend 均为 `NullAudioBackend`**（node.ts:57 / web.ts:60 / weapp.ts:139）⇒ 真机到位也无声；解除条件 = 先落 Web Audio / `InnerAudioContext` 后端（BD-05b）。**【v1.2 注：本行前提已被 WXG-T-096 推翻（web/weapp 具备能力时返回真合成后端），见 §19.4；本行作为 v1.0 基线事实原样保留】** |
 | L6–L8 关卡 | ✅ Node 可达 / ⛔ harness 不可达 | `BeadsGame.goToLevel(index)` **公开存在**（beads-game.ts:595）⇒ L6 锁定格、L7/L8 8 色满配可走 Node 注入取证；harness 只暴露 L1–L5（BD-13） |
 | 激励视频续时 | ⚠️ **不可作真机行为证据** | `MockRewardedAdProvider('complete')` ⇒ 续时必然成功；`ux-spec §4` 尾注已明示「续时后仍是同一个死局，验证时勿误读为已修复」 |
 
@@ -152,8 +163,8 @@
 | `TC-GRID-10` / `TC-A11Y-03` 灰度·三重编码 | `[Device]` | 无真机；且 `empty` 目标色通道缺失（BD-01）⇒ 6 状态只有 3 态有非颜色通道 | 真机 + BD-01/BD-11 落地 |
 | `TC-TIMER-10` 告急脉冲频率 1000ms±50ms | `[DevTools]` | **双主体缺失**（脉冲与满槽告警均未实现，BD-10） | T-086 落地后按 §5 帧检 |
 | `TC-SPRINT-09` 特效三档 + 红线帧检 | `[DevTools]` | Lv2 伪震屏已登记为平台缺口（WXG-T-074：渲染管线无全局变换通道） | 渲染管线补全局变换通道 |
-| A05-03/09/13/15/16/22/26 音频时长·听感 | `[B]`+`[P]` | **三平台 `NullAudioBackend`**（BD-05b） | 落 Web Audio / `InnerAudioContext` 后端 |
-| A05-25 音频包体 = 0 KB | `[C]` | Cocos 构建被阻塞（BD-20） | `pnpm run framework:sync` + 重跑 `build:cocos:web` |
+| A05-03/09/13/15/16/22/26 音频时长·听感 | `[B]`+`[P]` | **三平台 `NullAudioBackend`**（BD-05b）。【v1.2 注：后端前提已变，本组部分转 ⛔[B]/[P]、部分转 [N] 可验，见 §19.3】 | 落 Web Audio / `InnerAudioContext` 后端 |
+| A05-25 音频包体 = 0 KB | `[C]` | Cocos 构建被阻塞（BD-20） | `pnpm run framework:sync` + 重跑 `build:cocos:web`。**【v1.2 注：仍未跑构建，且发现 sync:check 反绿 ⇒ 本条继续 ⛔，见 §19.4】** |
 | A05-27 真机音频行为 | `[R]` | 无真机 + 无后端 | 双重解除 |
 | `SC-11` 杀进程续进 / `SC-13` onHide 冻结 | `[Device]` | 无真机 | 同上 |
 | `timer-gameover §8-11/12` 续时同局续打 / 次数上限 | `[Node]` | **可执行但本轮未排**（属 test-cases v1.2 未映射的 22 条之一，BD-21）；且 `MockRewardedAdProvider('complete')` 使「未看完」分支须靠替身注入 | 复验轮补入 §H；真机行为不作证据 |
@@ -455,6 +466,7 @@
 |---|---|---|---|
 | v1.0 | 2026-09-14 | beads **首份** G4 回归报告（现状基线轮，WXG-T-084）：19 组探针逐条结论 + G1–G3 13 项全量实跑 + BD-01..BD-26 缺陷登记 + GAP-09 假绿复核（5 项假绿 / 2 项须重标注 / 四轮谱系 / 5 条防再犯）+ 13 处探针自身缺陷自查 + 8 项判据冲突移交 + Playtest 三轮不可执行评估与最小可 Playtest 配置。建议裁定 **G4 = FAIL**、G1 = FAIL、G3 = 部分 | 严守真 |
 | **v1.1** | **2026-09-15** | **WXG-T-092 复验轮（波次 3）**：把波次 2（T-085..T-091）的「代码级自证」升级为**探针他证**。① 新探针 `g4-probe-v1.1.mjs`（**26 组**：P1–P19 全量重判 + P20–P26 补测），预期值一律取 **T-091 回写后的 §8 现文**；② 改判结果 **PASS 13 / PASS\* 8 / FAIL 4 / ⛔ 1**（v1.0 为 11 FAIL / 5 PASS\* / 2 PASS / 1 ⛔）——**7 项 FAIL 转绿、4 项 PASS\* 转 PASS、P13 由 ⛔ 转 PASS，4 项 FAIL 全部是波次 2 未列范围的既有缺陷，零新回归**；③ G1 转绿复核（`framework:sync:check` ✅ 本轮实跑 + web-mobile 产物为波次 2 留痕 ⇒ **BD-20 关闭 / R1・R7 需求已满足**）；④ BD-01..26 逐条处置状 + §8 八项冲突关闭标记；⑤ 新缺陷顺延登记 **BD-27..BD-32**；⑥ 探针自身缺陷再自查 **13 处**（另有 8 处预防性口径收紧；若不修正前者将造出 10 处假 FAIL + 1 处假 PASS + 1 处双向 + 1 处判据误读）；⑦ §G 20 条可感知判据逐条给「本轮可验道次」结论。建议裁定 **G4 = CONCERNS**（详见 §18） | 严守真 |
+| **v1.2** | **2026-09-15** | **WXG-T-096 专项复跑：仅 P5（音频）段重建预期值并重跑**（任务书 Deliverable ⑤）。① 旧 P5 预期值所依据的三个前提（玩法事件零派发 / `tuning.ts` 仅 3 clip / 三平台均 `NullAudioBackend`）已被本单实现推翻 ⇒ 不改预期值直接复跑会做成**假 FAIL**；② P5 段 28 条（27 A05 + 1 结构证据）判定一律改为**实算**，`[B]/[C]/[R]/[P]` 覆盖项记 **⛔** 并写明缺哪一道 ⇒ **PASS 12 / PASS\* 8 / FAIL 0 / ⛔ 8**（旧判定 FAIL）；③ BD-05 → **部分关闭（仅 [N] 派发层）降级 P2，不关单**；BD-05b → **关闭（仅 [N] 结构层）**；④ 同一命令反绿 ⇒ **建议重开 BD-20**（`framework:sync:check` EXIT=1，12 处 differs）；⑤ 新缺陷 **BD-33 / BD-34**（§15.2）；⑥ 探针自身缺陷再自查 **5 处**（修订 35/36/37，含本单新增 `AUDIO_CLIP_*` 对 P4 的**反向污染**=假绿）；⑦ **其余 25 组未重跑**，判定与 v1.1 逐条一致（仅作回归对照）。建议增量：**G4 仍 = CONCERNS，不得因 P5 转绿升 PASS**（详见 §19） | 严守真 |
 
 ---
 
@@ -467,8 +479,8 @@
 | 道次 | 命令 | 结果 |
 |---|---|---|
 | `[Probe]` **G4 主证据** | `node production/qa/beads/g4-probe-v1.1.mjs` | **EXIT=0，26 组**（时间戳 2026-09-15T01:24:22Z，Node v24.4.1）⇒ 原始输出 evidence §1；**01:55:44Z 复跑计数完全一致（逐行 diff 零差异）⇒ 结论可复现**，记 evidence §6 |
-| `[G]` **G1–G3 门链** | `pnpm run verify`（14 项 `&&` 串联） | **EXIT=0** ⇒ evidence §2 |
-| 单测拆分 | `pnpm -r run test`（verify 第 12 项内） | framework **240** / breakout **239** / **beads 198** = 677 全绿，21 个 beads 测试文件 |
+| `[G]` **G1–G3 门链** | `pnpm run verify`（14 项 `&&` 串联） | **EXIT=0** ⇒ evidence §2。**【v1.2 复跑：同一命令 EXIT=1，聚合后 PASS 12 / SKIP 1 / FAIL 1（`framework:sync:check`）——与 WXG-T-096 任务书自述的「13 PASS / 1 SKIP」不一致，见 §19.2】** |
+| 单测拆分 | `pnpm -r run test`（verify 第 12 项内） | framework **240** / breakout **239** / **beads 198** = 677 全绿，21 个 beads 测试文件。**【v1.2：718 全绿 = framework 255 / beads 224 / breakout 239（+41 来自本单两条新测试文件）；但按修订 33，单测绿不替代探针他证】** |
 | ES5 静态门 | `pnpm run check:es5spread` | OK —— **78 shipped source file(s), no non-array spread**（= P24 的静态半边证据） |
 | 包体门复核 | `ls games/{beads,breakout}/cocos/build` | beads **仅 web-mobile**，无 `wechatgame` ⇒ `check:size` 只测到 breakout 1815.1KB 仍打 ✅ ⇒ **BD-18 未修** ⇒ evidence §3 |
 | 帧预览复核 | `grep -n 'loadHarness()' tools/scripts/render-harness-frame.mjs` | `:37 loadHarness()` **无 `--game` 透传**；`:56 movePaddleTo` `:77 bricksDestroyed` ⇒ **BD-19/BD-13 残留未修** |
@@ -495,7 +507,7 @@
 | P2 | `ux-spec §6.1/§6.2` U7；GAP-02 | ❌ FAIL | ✅ **PASS** | L1（`spawnInterval=6s`）**第 1 帧**即 `tray:spawned=1`、持有 1 颗（修复前 361 帧/6.02s）；首珠 `colorIdx=6` 且 `demand=3>0` ⇒ **首珠可落子**；对照组 `SPAWN_INTERVAL_DEFAULT=4s` 亦第 1 帧供料。锚点 `spawner.ts` `reset()` → `_firstFeed` → 首 `tick()` 走 `_feedOnce` |
 | P3 | `ux-spec §1-3 (a)` + §5 三行；GAP-03 | ❌ FAIL | ⚠️ **PASS\*** | 三通道齐：① 目标色底（P1）② 首珠槽脉冲 `guideSlot=11` ③ 单一目标格 `hint=(r2,c1)` 且为**行主序最前匹配格**；渲染层 `accent_blue(#3d7bf5)` 描边环 **2 个**、呼吸周期 **600ms**（α 19 档/90 帧）；首次 `bead:placed` 后 `onboarding=false`、环数 0。降 PASS\* 原因 = **附带发现 BD-32**（§15） |
 | P4 | `ux-spec §5` 四行；GAP-04 | ❌ FAIL | ⚠️ **PASS\*** | wrong 态真实生效：`bead:rejected=1`、`wrongRow/Col=(0,1)`、200ms 内位移 `[±2.6px × 换号 2 次]`、danger 描边 α **4 档起伏**；落座回弹有时间轴（剔 text 签名去重 2）。仍缺 2 行：`vfx_clear_dissolve` / `vfx_complete_wave`（tuning 常量命中 0）⇒ **BD-04 降级不关闭**；另开 **BD-29**（红线互斥，§15） |
-| P5 | `audio-events §1/§4`；GAP-05 | ❌ FAIL | ❌ **FAIL（维持）** | 玩法事件仍**零音效派发**：clip 去重仅 `[bgm_main, sfx_ui_tap]`；`tuning.ts` 仍 3 个 vs 要求 19（A05-24 清单不闭合）；三平台 backend 仍 `NullAudioBackend`。**波次 2 无音频单 ⇒ 不属改判** |
+| P5 | `audio-events §1/§4`；GAP-05 | ❌ FAIL | ❌ **FAIL（维持）** | 【v1.2 已改判 → 本行的三个前提（零派发 / 3 vs 19 clip / 三平台 Null）均已被 WXG-T-096 推翻，**直接复用本行会得出假 FAIL**；逐条新判定见 §19.3】 玩法事件仍**零音效派发**：clip 去重仅 `[bgm_main, sfx_ui_tap]`；`tuning.ts` 仍 3 个 vs 要求 19（A05-24 清单不闭合）；三平台 backend 仍 `NullAudioBackend`。**波次 2 无音频单 ⇒ 不属改判** |
 | P6 | `ux-spec §8 U8`（已拍板 A′+D）+ `tray-spawner §2.4/§8-4`；GAP-06 | ❌ FAIL | ✅ **PASS** | **只用合法供料**（不用 `giveTrayBead`）：第 1321 帧（22.0s）满槽 12/12，满槽瞬间**可落子珠 12/12**；7933 个「槽×帧」采样中死珠 **0**、违反 `held≤demand` **0**；腾 1 槽后 ≤1 间隔恢复供料。⇒ 判据形态随 U8 拍板从「≥1 条出口」改为「合法供料路径死局不可达」 |
 | P7 | `ux-spec §5` 告急行 + `timer §8-10`；GAP-10 | ❌ FAIL | ⚠️ **PASS\*** | 告急**三通道成立**：`timer:urgent=1`、图标 `#8b8578→#e84c3d` + 数字切 danger、α **31 档**、周期 **1000ms = 1.00Hz**（≤3Hz 红线）。仍缺：**满槽告警 500ms 描边呼吸零通道**（满槽且 `tray:full=1` 时托盘带非文本签名 60 帧去重 = **1**）⇒ **BD-10 部分关闭**（剩余半边降级 P2） |
 | P8 | `input-control §8-1` 五类路由 | ❌ FAIL | ❌ **FAIL（维持）** | 5 类中 4 类✓（齿轮→paused；道具卡→used；托盘珠→selected；空格+选中→placed=1/rejected=0）；第 3 类**扩展入口全盘 6px 栅格扫描仍 0 命中**（`src/**` 无 `btn_expand`/`_hitExpand`）⇒ **BD-15 开放**（波次 2 未列） |
@@ -530,8 +542,8 @@
 | **BD-02** | 开局托盘全空 ≥1 供料间隔 | P0 | ✅ **关闭** | P2：L1 第 **1 帧**即供料、首珠 `colorIdx=6` 且 `demand=3` | — |
 | **BD-03** | 0 文字引导三通道全缺 | P0 | ⚠️ **建议附条件关闭**（随 **BD-32** 裁定） | P3：①②③ 三通道均实测成立（`guideSlot=11` / `hint=(r2,c1)` / 环×2 / 600ms / 落子即清） | 主载体成立，但 **BD-32**（`runs` 自增时机致引导可被永久跳过）须由主理人裁定是否作为独立缺陷另开单 |
 | **BD-04** | 四类 VFX 全缺 | P0 | 🔻 **部分关闭 → 降级 P2** | P4：落座回弹有时间轴、wrong 位移 ±2.6px×2 + danger α 4 档 | 仍缺 `vfx_clear_dissolve` / `vfx_complete_wave`（tuning 常量命中 0，ux-spec §5 两行无实现）⇒ 移交工程侧下一波 |
-| **BD-05** | 玩法事件零音效 | P1 | ❌ **维持开放** | P5：clip 去重仍 `[bgm_main, sfx_ui_tap]`；`tuning.ts` 3 vs 要求 19 | 波次 2 无音频单；须 `audio-events §1` 19 clip + 同帧派发 |
-| **BD-05b** | 框架级 `NullAudioBackend` × 3 平台 | P1 | ❌ **维持开放** | 本轮未复跑框架侧（无变更单）；A05-* 全 `[B]/[P]/[R]` ⛔ | 框架侧落 Web Audio / `InnerAudioContext` |
+| **BD-05** | 玩法事件零音效 | P1 | ❌ **维持开放**（v1.1 快照）→ 🔻 **v1.2：部分关闭（[N] 派发层）→ 降级 P2，不关单** | 【v1.2】P5/A05-01…A05-24 实跑：玩法事件不再零派发（详 §19.3）；A05-24 清单四方对账 19/19/19/19 成立 | 剩余 = [B]/[C]/[R]/[P] 四道：时长・包络（8 条 ⛔）、包体（A05-25）、真机（A05-27）、听感（A05-26）；另 BD-10（满槽呼吸）卡 A05-14 |
+| **BD-05b** | 框架级 `NullAudioBackend` × 3 平台 | P1 | ❌ **维持开放**（v1.1 快照）→ ✅ **已关闭（WXG-T-096，[N] 结构层）** | 【v1.2】`audio-synth.ts` 已存在；P5/S 实测：web+voices → Synth、web 无 voices → Null、node → Null（护单测）、weapp 有 `createWebAudioContext` → Synth（并挂 onTouchStart/onHide/onShow）、无能力 → 告警+Null | **结构层 ≠ 出声**：「真能听到」仍属 [B]/[R]；且微信子集行为与三总线增益（§3.12 [TODO]）未验 ⇒ 不据此升 PASS |
 | **BD-06** | 尾部软锁死、零非重置出口 | P0 | ✅ **关闭**（判据形态随 U8 拍板 A′+D 改写） | P6 + P21：7933 + 90 组采样 **死珠 0 / 违规 0**；满槽瞬间可落子 12/12；腾槽 ≤1 间隔恢复 | 若策划改回 B/C 方案须重开 |
 | **BD-07** | harness DPR 坐标错位 | P0(工具) | ✅ **关闭** | P13：三视口往返误差 ≤2.3e-13；端到端 CSS-px 点击命中期望槽 3；`dev/harness/main.ts:90-102`（ADR-0011） | — |
 | **BD-08** | harness 文字镜像 | P1 | ⛔ **不可验维持** | Node 侧 `DrawCommand` 无镜像语义，v1.0 亦标「未独立复现」 | 须 `[Cocos]` 截图通路（→ BD-19/BD-20 后续）；**文档称已修不作证据** |
@@ -546,7 +558,7 @@
 | **BD-17** | `verify` 用 `&&` 串联 ⇒ 后续门未跑 | P1 | ❌ 维持开放（v1.1 快照）→ ✅ **已关闭（WXG-T-095，v1.1 之后）** | `package.json` `verify` 已改指 `tools/scripts/verify-all.mjs`：14 项**逐项执行 + 汇总退出码**，不再短路；`--validate` 监控表与 `package.json` 不脱钩且拦住 `verify` 回退成 `&&`；`pnpm run verify:selftest` 实测「注入一项失败 ⇒ `[2/2]` 仍执行、总退出码非零、未通过项被点名」 | 无残留。**口径变更**：今后 `verify` 的 EXIT=0 才等价于「14 项都跑过」；SKIP 在汇总里点名，`verify:strict` 把 SKIP 判失败 |
 | **BD-18** | `check:size` 对 beads 零覆盖仍报 OK | P1 | ❌ 维持开放（v1.1 快照）→ ✅ **假绿部分已关闭（WXG-T-095）；beads 红线实测仍挂 B4** | 脚本新增覆盖面计算（`games/*` 逐游戏）+ `overallStatus({anyFail, missing})`：本轮真跑输出「⚠️ 包体校验 **SKIP**（未全覆盖）—— 已测：breakout ／ 未覆盖（1 款，**不是通过**）：beads」+ `STATUS: SKIP`；`--strict` 下 exit=1；`--selftest` §C1–C6（19/19） | **假绿已消**；beads 主包**数值**仍无数据（需 AppID，→ §18.2 B2/B4）——本轮**不因修了脚本而改判包体可证** |
 | **BD-19** | `preview:frames` 硬编码 breakout | P2 | ❌ **维持开放** | `render-harness-frame.mjs:37 loadHarness()` 无 `--game`；`:56 movePaddleTo`；`:77 bricksDestroyed` | 归 BD-13 同批 |
-| **BD-20** | `framework:sync` 漂移 ⇒ G1 FAIL + Cocos 阻塞 | P0(阻塞) | ✅ **关闭** | `pnpm run verify` 内 `framework:sync:check ✅`（beads+breakout 拷贝件一致）、`cocos:check ✅`、EXIT=0 ⇒ **R1 需求已满足** | — |
+| **BD-20** | `framework:sync` 漂移 ⇒ G1 FAIL + Cocos 阻塞 | P0(阻塞) | ✅ **关闭**（v1.1 快照）→ 🔴 **v1.2：建议重开** | v1.1：`framework:sync:check ✅` + EXIT=0。【v1.2】同一命令实跑 **EXIT=1，12 处 differs**（beads/breakout 各 6：core/audio/audio.ts、platform/{audio-synth,node,platform,weapp,web}.ts）⇒ 旧关单依据已反绿 | 跑 `pnpm run framework:sync` 后复验；连带 **BD-33**（新增镜像脚本缺 `.ts.meta`）与 A05-25 `[C]` |
 | **BD-21** | QA 自身产出缺陷（映射/合计/标题/头部） | P1 | ✅ **关闭**（文档层） | v1.3 四处已修（§H 补编、137 用例、§F 8 条、93 条） | **执行层剩余**：§H 22 条中 `pause-settings §8` 10 条与 `timer §8-11/12` 2 条本轮仍只在单测层，未进探针 ⇒ 登记为**未执行清单**（§18），不据此判 FAIL |
 | **BD-22** | `§8-2` ±20% 容差易误报 | P2 | ✅ **关闭**（已回写卡方） | `tray-spawner §8-2` 现文＝卡方拟合优度；P12 实测 χ²=5.32 < 19.675。旧口径同批数据最大偏差 28.0% ⇒ **正是误报本征的实证** | — |
 | **BD-23** | `§8-2` vs `§8-4` 互斥 | P2 | ✅ **关闭**（已裁定回写） | `input-control §8-2` 现文明写「重叠区以 §8-4 最近格心为准」；P9 全段实测一致 | 唯一遗留＝等距并列点（dx=26）§8-4 无定义 ⇒ 属 **BD-27** 类文字精度，非互斥 |
@@ -554,11 +566,17 @@
 | **BD-25** | 前瞻假绿：§8-1 未随首供改期望 | P1 | ⚠️ **建议附条件关闭** | v1.3 已改期望 **16（±0）**；`tray-spawner §8-1` 现文＝16 次(±0)。P20 实测首供 0.0167s + 样本 16，但**闭区间 60s 内 = 15** ⇒ 关单条件 = **BD-27** 的窗口口径裁定 | 主理人裁定「±1 帧量化容差」是否成文；未裁前不得写「完全关闭」 |
 | **BD-26** | `accessibility C2` 文档 32px 陈旧 | P3 | ✅ **关闭**（已回写 60px） | P25：`POWERUP_CARD_GAP=60`、相邻卡**边缘间距 [60,60]**、总宽 648 ≤ 750，文档↔实现一致 | 真机误触率 `[Device]` ⛔ |
 
-**处置计数**：关闭 **11**（BD-01/02/06/07/11/14/20/22/23/24/26）+ 附条件关闭 **2**（BD-03/25）· 部分关闭降级 **4**（BD-04/09/10/13）· 维持开放 **8**（BD-05/05b/12/15/16/17/18/19）· 不可验维持 **1**（BD-08）。（BD-21 文档层关闭、执行层剩余转入 §18 未执行清单。）
+**处置计数**（v1.1 原计数，保留）：关闭 **11**（BD-01/02/06/07/11/14/20/22/23/24/26）+ 附条件关闭 **2**（BD-03/25）· 部分关闭降级 **4**（BD-04/09/10/13）· 维持开放 **8**（BD-05/05b/12/15/16/17/18/19）· 不可验维持 **1**（BD-08）。（BD-21 文档层关闭、执行层剩余转入 §18 未执行清单。）
+
+> **【v1.2 改判后的口径（仅三项变化，其余沿用）**：BD-05 从「维持开放」→ **部分关闭/降级 P2**；
+> BD-05b 从「维持开放」→ **关闭（仅 [N] 结构层）**；BD-20 从「关闭」→ **建议重开**（同一命令反绿）。
+> 另新增 **BD-33 / BD-34**（§15.2）。⇒ 按 v1.2：关闭 **11**（20 移出、05b 移入）· 部分关闭降级 **5**
+> （+BD-05）· 维持开放 **7**（BD-12/15/16/17/18/19 + 重开的 BD-20 归此计数则 **8**）——**重开项请主理人在台账里单列**，
+> QA 不自定计数。
 
 ---
 
-## 15. 新缺陷登记（顺延 **BD-27..BD-32**）
+## 15. 新缺陷登记（v1.1 顺延 **BD-27..BD-32** ｜ v1.2 追加 **BD-33..BD-34**，见 §15.2）
 
 > 编号沿用 §5 序列，**不与 v1.0 重编**。其中 BD-27/28/30/31 属**判据·文档侧**（移交 GDD/美术/UX 负责人，非实现缺陷），BD-29/32 属**规格互斥·实现语义**类，须主理人裁定。
 
@@ -572,6 +590,18 @@
 | **BD-32** | **实现语义缺陷（附带发现）**：`beads-game.ts:947` 以 `save.data.runs > 0` 判「老玩家」，而 `:949-952` 在**每次 BOOT** 都 `runs + 1` 并落档 ⇒ 玩家**开局即杀进程**再进即被判老玩家、**永久失去引导**（GAP-03 三通道不再出现）；无「引导完成」持久化标记 | **P2**（可访问性/FTUE 承诺未兑现的边缘） | 代码：`beads-game.ts:947-952`（注释自认「必须在自增之前取」，但自增本身仍以 BOOT 计数）。诊断脚本 `evidence/diag-p3-onboarding.mjs`：一次 BOOT 后 `runs 0→1`，再 BOOT 时 `onboarding=false` | 建议以「首次 `bead:placed`」或显式 `onboarded` 标记持久化取代 BOOT 计数。**各 GDD §8 未覆盖此路径 ⇒ QA 不自裁为 FAIL**，探针 `P3`（编号非优先级）记 PASS\* 并登记本条 |
 
 **新缺陷计数**：6 条（BD-27..32）；其中移交 GDD/UX/美术 **4**（BD-27/28/30/31）、移交工程侧 **2**（BD-29 择案后、BD-32）。
+
+### 15.2 v1.2（WXG-T-096 复跑 P5 段）追加：**BD-33 / BD-34**
+
+> 编号从 **BD-33** 起（BD-27..32 已被 v1.1 占用；本仓未用号已核）。两条均由 P5 复跑**附带发现**，
+> 均**不**计入任何 A05 条目的 FAIL（避免把「非本判据主体」当音频缺陷）。
+
+| 编号 | 标题 | 级别（建议） | 依据（双证据） | 复现法 | 处置建议 |
+|---|---|---|---|---|---|
+| **BD-33** | **新增镜像脚本缺 `.ts.meta` 伴生文件，`cocos:check` 不覆盖⇒ 静默漏报** | **P2**（若上真机可升 P1） | 实测：`find games/*/cocos/assets/scripts -name '*.ts'` 逐个查同名 `${f}.meta` ⇒ **3 个无伴生文件**：`games/beads/…/framework/platform/audio-synth.ts`、`games/beads/…/game/config/audio-voices.ts`、`games/breakout/…/framework/platform/audio-synth.ts`（同目录其余脚本一律有）；**同一轮 `cocos:check` 打 ✅** ⇒ 工具覆盖面缺口 | `node -e "...上述 find+existsSync 循环"`（或看 evidence/g4-reverify-v1.2.log §2） | 归工程侧（阮和鸣 / T-082 同族）：跑 `framework:sync` 时一并生成 meta，或给 `cocos:check` 加「镜像脚本必须有 meta」断言。**QA 不自修复**（越只读面） |
+| **BD-34** | **面板相位下真指针事件到不了面板按钮（`_readInput()` 只在 `playing` 被调）** | **待定（需 [B]/[R] 定级；若宿主接线则 P1）** | 代码：`beads-game.ts:1147` 是 `_readInput()` 唯一调用点（在 `_stepPlaying` 内）；`paused`（`:919-925`）/`game-over`（`:960-971`）**无 onUpdate**；`input-manager.ts` `endFrame()` 清 `_downThisFrame`。实测（`evidence/diag-p5-fixtures.mjs`，同坐标 375,645、同帧序）：`hitTest()='toggle-bgm'`、`panelInteractive=true`、design↔screen 往返精确，但**经 `InputManager.push` 链**：`bgmMuted=false`、派发=（无）、stop=（无）；**经 `game.tapDesign()`**：`bgmMuted=true`、派发=`sfx_ui_tap`、stop=`bgm_main`。旁证：单测 `pause-settings.test.ts:69-71` 与探针 P22 一律用 `tapDesign` 驱动面板 ⇒ 现有自动化全部踩在“旁路”上，**长期无人测到真链** | 在 paused 相位用真 `input.beginFrame()/push(down,up)/game.update()/input.endFrame()` 序列点面板按钮中心（对比同坐标 `tapDesign()` 生效）| 不判 A05 条目 FAIL：音频派发主体仍成立。但需工程侧裁定口径：若“面板靠宿主转发 touch”是设计，请在 `S9 §8` 与 `input-control §8-8` 写明；若非，则需补 paused/game-over 的输入读取。**当前 `BeadsBootstrap.ts` 未接任何输入 ⇒ 真机是否“点不动面板”只能 [B]/[R] 定论** |
+
+**v1.2 新缺陷计数**：2 条（BD-33/34），**均移交工程侧/主理人裁定**；QA 未改任何 `src/**`。
 
 ---
 
@@ -618,7 +648,13 @@
 >
 > 另有 **8 处预防性口径收紧**（未在实际运行中造成误判，但按 v1.0 §7 教训提前修）：修订 14（旧预期值换 §8 现文）、15（P1 弱断言改逐色独立复算）、16（不以 `CellState` 无 hint/wrong 判实现缺失）、17（动效断言剔 text + 取 α 极值推周期，不取签名种数）、19（P11 走真实 InputManager）、20（A′ 探针不用 `giveTrayBead`）、21（满槽态自然灌注）、24（判据不可构造记 ⛔ 不记 FAIL）。
 
-**结论可信度声明**：本报告 §13 的 4 条 FAIL **均有代码级铁证（文件:行号）+ 探针实测双重支撑**；所有“文档声称已修”的项（GAP-01..10 / D1 / E2 / ADR-0011 / ADR-0012）均已经探针重测后才改判；`[Cocos]/[Device]/[R]` 道次一律维持 ⛔，未因“Node 全绿”而抬升任何综合结论。
+**结论可信度声明**（v1.1）：本报告 §13 的 4 条 FAIL **均有代码级铁证（文件:行号）+ 探针实测双重支撑**；所有“文档声称已修”的项（GAP-01..10 / D1 / E2 / ADR-0011 / ADR-0012）均已经探针重测后才改判；`[Cocos]/[Device]/[R]` 道次一律维持 ⛔，未因“Node 全绿”而抬升任何综合结论。
+
+> **【v1.2 追加的探针自身缺陷（5 处，与实现缺陷严格分开记账）】**——详见 §19.6，对应探针头注修订 35 / 36 / 37：
+> ① 自造关卡 5×4 / 2 色被 BOOT 拒收⇒ 8 条 A05 连锁假 FAIL；② `clearAudio()` 内部 `flush(0)` 抹账⇒ A05-21 恒 0；
+> ③ 面板驱动口径错（走 InputManager 链）⇒ 与 BD-34 纠缠；④ P4 正则被子串 `AUDIO_CLIP_DISSOLVE` 命中⇒ **假绿**；
+> ⑤ A05-14 判定与正文自相矛盾（头 PASS / 正文写 PASS*）⇒ 已收紧为 PASS*。
+> **其中 ①②③ 会造成假 FAIL（已修）；④ 会造成假绿（已修）；⑤ 是判定偏松（已收紧为 PASS*）。**
 
 ---
 
@@ -632,7 +668,7 @@
 | TC-PER-02 | 开局 ≤1.5s 已有珠 + 槽脉冲 | P2 P3 | ✅ `[Probe]` **PASS**（第 1 帧供料；首珠槽 `guideSlot` 环×2、600ms） | `[Cocos]` 首屏截图 ⛔ |
 | TC-PER-03 | 0 文字下引导可被理解 | P3 | ⚠️ `[Probe]` **PASS\***（三通道图元均存在且行主序正确） | `[Cocos]` 盲测复述 + `[Device]` 真人 FTUE ⛔；**BD-32** 待裁 |
 | TC-PER-04 | 四类 VFX 各自可观察 | P4 | ⚠️ `[Probe]` **PASS\***（2/4 类可观察：落座 + 放错） | 溶解/波浪未实现（TC-PER-11/12）；`[Cocos]` 逐帧 ⛔ |
-| TC-PER-05 | 关键事件音效与动效同帧 | P5 | ❌ `[Node]` **FAIL**（clip 去重 2 种；清单 3/19） | `[B]/[P]/[R]` ⛔（`NullAudioBackend`，真机到位也不解除） |
+| TC-PER-05 | 关键事件音效与动效同帧 | P5 | ❌ `[Node]` **FAIL**（clip 去重 2 种；清单 3/19）。【v1.2 → 🔻 **`[N]` 派发层 PASS/PASS\*为主、整条未闭**：见 §19.3（A05-01…24）】 | `[B]/[P]/[R]` ⛔（【v1.2】不再是“因为无后端”，而是“本环境无可听/录音通路”） |
 | TC-PER-06 | 尾盘存在可见的非重置出口 | P6 P21 | ✅ `[Probe]` **PASS**（U8 拍板后判据形态＝「合法供料下死局不可达」：死珠 0 / 违规 0） | `[Cocos]` 死局观察者问句 ⛔（但死局本身已不可构造） |
 | TC-PER-07 | 告急脉冲 + 满槽告警可观察 | P7 | ⚠️ `[Probe]` **PASS\***（告急半边 **PASS**；满槽描边呼吸 **零通道**） | `[Cocos]` 连拍 ⛔；满槽半边转 BD-10 残留 |
 | TC-PER-08 | `hint` 态可见 + D1 下保留静态描边 | P19 P22 | ✅ `[Probe]` **PASS**（`accent_blue` 2px 环×2；D1 开启后呼吸停、蓝描边仍保留） | `[Cocos]` 连拍 4 帧 ⛔ |
@@ -642,10 +678,10 @@
 | TC-PER-12 | 完成波浪 20ms/列・800ms | P4 | ❌ **FAIL**（无 clear-wave 代码路径） | — |
 | TC-PER-13 | 色盲模拟下 3–8 色可辨 | — | ⛔ **不可验**（实现半边已具备，但**无滤镜与截图通路**） | `[Cocos]` + R2/R3 手段（阻塞已从「三重」降为「一重」） |
 | TC-PER-14 | 灰度下 6 状态可辨 | P1 P4 P19 | ⛔ **不可验（但前置已解除）**：`empty/filled/locked/hint/wrong/selected` **六态本轮均可构造**（v1.0 仅 3 态） | `[Cocos]` 灰度截图 ⛔ |
-| TC-PER-15 | 音频清单闭合（== 19 id） | P5 | ❌ `[Node]` **FAIL**（3 vs 19，A05-24 不闭合） | —（无前置，今天可跑） |
-| TC-PER-16 | 静音可玩 | — | ⛔ **本轮未排**（且 `NullAudioBackend` 下「静音与无声不可区分」，v1.3 已注即使 PASS 也不得作音频证据） | 待音频后端落地后随 `[N]` 补跑 |
+| TC-PER-15 | 音频清单闭合（== 19 id） | P5 | ❌ `[Node]` **FAIL**（3 vs 19，A05-24 不闭合）。【v1.2 → ✅ **PASS**：四方对账 19/19/19/19、孤儿常量与直写字面量均 0（A05-24，§19.3）】 | —（本条 `[N]` 已闭） |
+| TC-PER-16 | 静音可玩 | — | ⛔ **本轮未排**（且 `NullAudioBackend` 下「静音与无声不可区分」，v1.3 已注即使 PASS 也不得作音频证据）。【v1.2 → ✅ **已排且 PASS**（A05-23：sfxMuted 门控 / 双通道独立 / 8 关+冲刺+续时零阻塞）——但因后端已非 Null，“静音不致否”不再平凡真，本条从「不可评」变「可评且已过」】 | 出声层面的「真静」仍属 `[B]/[R]` |
 | TC-PER-17 | 告急周期 1000±50ms 且 ≤3Hz | P7 | ✅ **PASS**（实测 **1000ms = 1.00Hz**；v1.0 的 ⛔「主体缺失」已不成立） | `[Cocos]` 连拍 8 帧 ⛔ |
-| TC-PER-18 | 满槽告警描边呼吸 500ms + 轻提示音 1 次 | P7 | ❌ **FAIL**（`tray:full=1` 且去重✓，但描边呼吸零通道：60 帧非文本签名去重 = 1） | 音频半边 ⛔（BD-05） |
+| TC-PER-18 | 满槽告警描边呼吸 500ms + 轻提示音 1 次 | P7 | ❌ **FAIL**（`tray:full=1` 且去重✓，但描边呼吸零通道：60 帧非文本签名去重 = 1）。【v1.2：音频半边已绿（A05-14 派发 1 次且不循环），故本条的**唯一残留 = 视觉呼吸半边（BD-10）**⇒ A05-14 记 PASS*，见修订 37】 | ~~音频半边 ⛔（BD-05）~~ → 只剩视觉半边 |
 | TC-PER-19 | 引导终止：首落子即清；`runs>0` 永不重现 | P3 + diag | ✅ **PASS**（① 首落后图元数归 0 ② 预置 `runs=1` 冷启后引导图元恒 0，`diag-p3-onboarding.mjs` 实测） | —（但判据**意图**与实现同受 **BD-32** 争议，需 UX 确认） |
 | TC-PER-20 | 首屏两锚点（1.5s 有珠 / ~5s 首落座） | P2 P20 | ⚠️ **PASS\***（1.5s 锚点✓（第 1 帧）；5s 锚点需自动落子夹具才成立，已在 P20 循环下成立） | `[Cocos]` load→1.5s→5s 三张截图 ⛔ |
 
@@ -683,7 +719,7 @@
 | B2 | beads 无 `wechatgame` 产物 ⇒ **G3 包体无数据** | 主包红线不可证；BD-18 假绿持续 | 授权执行 `pnpm --filter beads run build:cocos`（本 agent readonly **未代跑**） | 主理人授权 → T-082 |
 | B3 | `verify` 短路（BD-17）+ `check:size` skipped 静默（BD-18） | 任一后续轮都可能“全绿但漏门” | 改逐项收集 + 汇总退出码；skipped 至少打 WARN | ~~T-082~~ → **已解除（WXG-T-095）**：`verify-all.mjs` 永不短路 + `STATUS: OK\|SKIP\|FAIL` 契约 + SKIP 打 WARN 清单；自测 `pnpm run verify:selftest` / `check:size:selftest` |
 | B4 | 真机 + AppID | 所有 `[Device]/[R]`（触摸事件序、ES5 运行时、包体实况、FTUE） | 微信开发者工具 + 扫码真机 | 用户 / 主理人 |
-| B5 | 音频：BD-05（19 clip + 同帧派发）/ BD-05b（三平台 backend） | TC-PER-05/15/18 半边 + Playtest「解压/治愈」必记 BLOCKED | 框架侧 backend + 游戏侧 clip（**真机到位也不解除**） | 框架侧 + T-085 同族 |
+| B5 | 音频：BD-05（19 clip + 同帧派发）/ BD-05b（三平台 backend） | TC-PER-05/15/18 半边 + Playtest「解压/治愈」必记 BLOCKED | 框架侧 backend + 游戏侧 clip（**真机到位也不解除**）。**【v1.2：代码侧两项均已落（BD-05b 在 [N] 结构层关；BD-05 降级 P2）。B5 剩余 = `[B]/[C]/[R]/[P]` 取证通路 + A05-25 包体（卡在 BD-20 重开 / BD-33）+ 三总线增益 §3.12 [TODO] 数值，见 §19.5】** | 框架侧 + T-085 同族 → **【v1.2】转主理人排取证轮** |
 | B6 | BD-15 扩展入口 / BD-16 轻提示 / BD-12 meta 字段 / BD-04 余两类 VFX / BD-10 满槽告警 | §8-1 一类路由仍缺；`input-control §8-7` 零反馈 | 列入波次 4（均为 P1/P2，不阻断主链路） | 工程侧 |
 | B7 | 判据裁定：BD-27 / BD-28 / BD-29 / BD-30 / BD-31 / BD-32 | 分别卡住 BD-25 关单、P26 可验性、闪烁红线一致性、后续轮误报 | GDD/UX/美术各自回写（QA 不自裁） | 文策渊 / UX / 美术 |
 | B8 | `preview:frames` 不支持 beads（BD-19/BD-13 残留） | 帧预览与回归图无法入证据包 | 脚本去 breakout 硬编码 + `--game` 透传 | T-082 |
@@ -737,3 +773,144 @@
 - **未因本单改判 G4**：限制声明第 **2** 条（beads 主包红线无数据）**依旧成立**——修的是“把静默假绿改成显式 SKIP”，不是替 beads 测出体积。G4 仍为 **CONCERNS**，升 PASS 剩余集：T-098 + T-099 + AppID 后的实测包体。
 
 
+---
+
+# P5 音频段复跑（v1.2 / WXG-T-096 · 严守真）
+
+## 19. P5（音频）段复跑：预期值重建 + 重跑 + 改判
+
+> **本节是 v1.2 的全部新增内容**。执行的是 WXG-T-096 任务书 Deliverable ⑤：
+> 「**先改探针 P5 段预期值，再复跑**」。只读面：本轮只改 `production/qa/beads/` 下的探针与本报告、
+> 只写 `production/qa/beads/evidence/`（外加 gitignored 的 `dev/harness/{dist,.smoke}`）；
+> **未改** `games/beads/src/**`、`packages/framework/src/**`、`games/beads/design/**`、`production/TASKS*.md`、`memory/**`；未 commit / push。
+
+### 19.0 一句话结论
+
+P5 段 28 条判据在 **[N] 派发层 + 结构层** 实测成立：**PASS 12 / PASS\* 8 / FAIL 0 / ⛔ 8**；
+v1.1 那句「玩法事件零音效派发」已成**假 FAIL**（前提被 T-096 推翻），但「能出声 / 听感达标 / 已进包」**一条都没有被本轮证明**。
+
+### 19.1 为什么必须先改预期值（否则做成假 FAIL）
+
+v1.0 / v1.1 的 P5 判据是把「结果」写死的：探针里 `rec('P5 / BD-05 · …', 'FAIL', …)` **第二参硬编码**，
+证据串也只查两件事——① `audio.play` 收到的 clip 去重是否为 `[bgm_main, sfx_ui_tap]`，② 三平台是否仍 `NullAudioBackend`。
+T-096 之后：
+
+| 旧前提（v1.1 写下） | 本轮实测到的事实（同一条命令、同一环境） |
+|---|---|
+| 玩法事件**零**音效派发 | 11 类玩法事件逐条有派发（A05-01…A05-20），例如真帧点击落子 ⇒ 派发 `[sfx_place]`（A05-01） |
+| `tuning.ts` 只定义 **3** 个 clip，§1 要求 19 ⇒ 清单不闭合 | **19/19/19/19** 四方对账相等，孤儿常量 0、绕过常量直写 id 0（A05-24） |
+| 三平台 backend 均 `NullAudioBackend`（真机到位也不解除） | `audio-synth.ts` 存在；web+voices→Synth、weapp+能力→Synth、node→Null（护单测）（P5/S） |
+
+⇒ 沿用旧预期值复跑 = 把「判据更新」做成「缺陷」，违反探针修订 14 与 `AGENTS.md` 反假绿纪律。**处理方式**：
+判定一律由实测算出（`rec()` 第二参不再是字面量），并按 `audio-events.md §4` 逐条重建断言。
+**方向自查**：本轮同时**收紧**了 2 处（A05-14 由 PASS→PASS\*，P4 正则由假绿→逐字回到 v1.1），不是单向放宽。
+
+### 19.2 命令与计数（可复核）
+
+| 命令 | 结果 |
+|---|---|
+| `pnpm run harness:build`（**前置**，非可选） | ✅ build ok。理由：开跑前 `dev/harness/dist` 比 T-096 源码旧 38 分钟 ⇒ 不重建则探针量的是 **T-096 之前的字节**。新鲜度由探针内 `sRes.fresh.ok` 机验（最终轮 dist=06:05:47.033Z ≥ src 最新 mtime=04:05:18.473Z UTC） |
+| `node production/qa/beads/g4-probe-v1.1.mjs` | **EXIT=0**，53 组：**PASS 25 / PASS\* 16 / FAIL 3 / ⛔ 9**；其中 **P5 段（28 条）= PASS 12 / PASS\* 8 / FAIL 0 / ⛔ 8**，其余 25 组 = 13 / 8 / 3 / 1 ⇒ **两段计数不得合并解读** ⇒ evidence §1 |
+| 同命令独立二次运行 | 与首轮 **除时间戳行外零差异**（`evidence/g4-reverify-v1.2-rerun-consistency.log`） |
+| 其余 25 组 vs v1.1 | **判定 25/25 逐条一致**；证据文本 **24/25 逐字相同**，唯一实质差异 = P19 的 hint 目标格坐标 `r0,c1 → r3,c4`（供料时序变化，判定仍 PASS）⇒ 这是**回归对照**，**不是**重新复核预期值 |
+| `pnpm run verify` | **VERIFY_EXIT=1**：**PASS 12 / SKIP 1（`check:size`，beads 无 wechatgame 产物）/ FAIL 1（`framework:sync:check`）** ⇒ **与 WXG-T-096 任务书自述的「13 PASS / 1 SKIP」不一致**（未通过项被点名，聚合器不短路 ⇒ 14 项确已执行）⇒ `evidence/g1-g3-verify-v1.2.log` |
+| `node tools/scripts/sync-framework-to-cocos.mjs --check` | **EXIT=1，12 处 differs**（beads/breakout 各 6：`core/audio/audio.ts`、`platform/{audio-synth,node,platform,weapp,web}.ts`）⇒ 这是 v1.1 判 **BD-20 关闭** 的同一条依据，现已反绿 ⇒ 见 §19.5 与 §14 BD-20 行 |
+| 单测（verify 链内） | framework **255** / beads **224** / breakout **239** = **718 全绿**（v1.1 为 677，+41 = 本单 `audio-synth.test.ts` 15 + `audio-dispatch.test.ts` 26）。**按修订 33：单测绿不替代探针他证，反之亦然** |
+| 只读诊断 | `node evidence/diag-p5-fixtures.mjs` ⇒ 区分「探针夹具缺陷」与「实现缺陷」（evidence §4） |
+
+### 19.3 P5 逐条改判表（27 条 A05 + 1 条结构证据）
+
+> 道次铁律：**只测 `[N]`**。被 `[B]/[C]/[R]/[P]` 覆盖的条目一律 **⛔**，正文写明缺哪一道；
+> 混合道次条目只在 `[N]` 子句实测通过时记 **PASS\***。**「Node 里结构对」不等于「能出声」**。
+> 证据文本 = `evidence/g4-reverify-v1.2.log` §1（逐条含实测数字）。
+
+| A05 | 判据（缩） | v1.1 | **v1.2** | 一句依据（实测） |
+|---|---|---|---|---|
+| 01 | `sfx_place` 同帧入队 + 帧末派发 | ⛔（前提：零派发） | ⚠️ **PASS\*** | 真帧点击落子：`bead:placed=1`、flush **前** `pendingCount=1`、flush **后** 派发 `[sfx_place]`（同一 tick）。同帧视觉只到「图元存在」，**可闻**属 `[B]` |
+| 02 | `sfx_place` 端到端延迟 ≤1 帧 | 同上 | ✅ **PASS** | 广播后**一次** `flush(1/60)` 即落到 `backend.play`，剩余 pending=0 ⇒ ≤16.67 ms（§0 可断言定义） |
+| 03 | `sfx_place` ≤120ms + 软起音无爆音 | ⛔ | ⛔ **缺 `[B]+[P]`** | 本轮夹具 backend=`NullAudioBackend`、`typeof AudioContext=undefined` ⇒ 只有**声明值** 120ms，不是实测包络 |
+| 04 | `sfx_select` 入队派发 + 同帧上移 4px | 同上 | ⚠️ **PASS\*** | 真帧点槽：`tray:selected=1`、该帧派发 `[sfx_select]`；同一 tick 该槽珠 L1 中心 y **325 → 329（Δ=4 设计 px）**。时长 ≤100ms 属 `[B]` |
+| 05 | `sfx_reject` 连 10 次 ≤2 次/秒 | 同上 | ✅ **PASS** | 0.1s 间隔注入 10 次 ⇒ 请求层 10、**派发层 2**（=窗口秒数×2）⇒ 2.00 次/秒。**旧值对照**：若仍统一 0.05s，上限 20 次 ⇒ 直接违 §3.8 |
+| 06 | `sfx_reject` `minInterval === 0.5` | 同上 | ✅ **PASS** | 从 `audio.play()` **实参**读数（不读常量表）：reject=0.5 / place=0.05 / select=0.05 / urgent_beat=0.9 / tray_full=1.0 / clear=0 ⇒ 与 §3.12 分档逐条相符，非全局 0.05 |
+| 07 | `sfx_powerup` + `sfx_dissolve` 同帧不被去重吞；零效果零发声 | 同上 | ✅ **PASS** | 真点道具卡：同帧派发 `[sfx_ui_tap, sfx_powerup, sfx_dissolve]`（3 条 ≤ `AUDIO_MAX_PER_FRAME=6`）；`affectedSlots:[]` ⇒ 新增 0 条 |
+| 08 | combo t1/t2/t3 按 tier 分流、tier=0 静默 | 同上 | ✅ **PASS** | `tier1→[t1] tier2→[t2] tier3→[t3]`、tier=0 帧新增 0 条 |
+| 09 | `sfx_combo_t3` ≤350ms 且与伪震屏同帧 | ⛔ | ⛔ **缺 `[B]` + 判据主体待裁** | 派发侧已另由 A05-08 取证。**伪震屏属 Lv2**（§1 行 7 与实现 `combo-vfx.ts:46-50` 一致）⇒ 「与 t3 同帧」按现文**不可判定**，归 **文策渊**（§19.7），**不判实现缺陷** |
+| 10 | `combo_break` 两 reason 同 clip；wrong 同帧并存 reject | 同上 | ✅ **PASS** | 两 reason 各恰 1 条；**真实点击**（冲刺选错色珠→点格）⇒ 同 tick `[sfx_select, sfx_reject, sfx_combo_break]`，并存不互斥 |
+| 11 | `urgent_beat` 首拍由 `timer:urgent` 边沿驱动、间隔 1.0±0.05s | 同上 | ✅ **PASS** | 真关卡跑到失败（10799 帧=180.0s）：`timer:urgent=1`、**11 拍**、逐拍 1 次；首拍 **170.000s** = `time−TIMER_URGENT_T`；间隔 min/mean/max 全在 [0.95,1.05] |
+| 12 | 回阈值以上停拍；PAUSED 期间零拍 | 同上 | ✅ **PASS** | 暂停 3.0s 新增拍 **0**（`remaining` 7.8→7.8 冻结）、恢复后 3.0s 新增 **3**（排除「拍源已死」）；续时后 `remaining=60s`、再跑 5.0s 新增 **0** |
+| 13 | 拍频 ≤3Hz、主观不疲劳 | ⛔ | ⚠️ **PASS\*** | 均拍 1.000s ⇒ **1.000 Hz ≤ 3Hz** 成立；「不致疲劳」= `[P]`（阶段 6 未开始）⇒ 整条不得升 PASS |
+| 14 | `tray_full` 每次 1 条且不循环；与视觉呼吸互不驱动 | 同上 | ⚠️ **PASS\*** | 音频半边：3 次注入各派发 1、`loop=false`、`minInterval=1.0`。**判据正文含视觉半边**（500ms 描边呼吸），而该半边 P7 实测「无时间轴」= **BD-10** ⇒ 修订 37 记 PASS\*（见 §19.6） |
+| 15 | `sfx_stage` 帧内派发；250+250 双段与视觉分段对齐 | 同上 | ⛔ **缺 `[B]`** | 派发 1 次已证；「真分两段 + 相位对齐」需可听 + 逐帧 ⇒ 只有声明值 500ms（总长） |
+| 16 | `sfx_clear` ≤800ms 且与 `vfx_complete_wave` 首列同帧 | ⛔ | ⛔ **缺 `[B]` + 视觉主体缺失** | 派发 1 次已证；波浪常量命中 **0**（= BD-04 已登记缺行）⇒ 无第二主体可对齐 |
+| 17 | `sfx_star` 逐星各 1 不重播；通关逐关行各 1 | 同上 | ✅ **PASS** | 星数由冻结阈值**独立复算**（`remaining=179.9833/180` ⇒ ratio 1.000 ⇒ 3★，不用 `computeClearStars` 自证）；面板开启后 1.5s 派发 **3**，再 2.0s 新增 **0**；下一关 L2 填盘 ⇒ `sfx_star` +2、`sfx_stage`… |
+| 18 | `panel_in/out` 四态入/出首帧 + 遮罩零发声 | 同上 | ⚠️ **PASS\*** | 四态入/出均各 1 次（PAUSED / LEVEL_CLEAR / FINISH / GAME_OVER）；**遮罩子句经真 `_handleTap` 路由**（非输入链，否则平凡为真=假绿）：点网格派发 **0**、`consumed=false`。时长属 `[B]` |
+| 19 | `sfx_revive_ok` 只在真加时那一帧；未看完零派发 | 同上 | ⚠️ **PASS\*** | 正路：`requestRevive=true` + 广告 complete ⇒ 请求 1 次（`loop=false`）、派发 1、`remaining=60s`（实测为**置位**，非在 0s 上叠加）；反路：10 次 `settle(skip)` ⇒ 派发 **0**。总时长 ≤400ms 属 `[B]` |
+| 20 | `sfx_reject`（续时未看完）同一 0.5s 档、≤2 次/秒 | 同上 | ✅ **PASS** | game-over 下 10 次「续时→未看完」隔 0.1s：`requestRevive` 成功 10/10、请求 10（`minInterval=0.5`）、**派发 2** ⇒ 1.82 次/秒 |
+| 21 | `bgm_main` BOOT 恰 1 次 `{loop:true}` / 静音 stop / 解除重入队 | 同上 | ⚠️ **PASS\*** | BOOT 装配后 bgm 请求 **1** 次 `loop=true`、首帧帧末派发 1、再 3.0s 重入队 **0**（不逐帧重发）；点 `toggle-bgm` ⇒ `bgmMuted=true`、`backend.stop=[bgm_main]`；静音 3.0s 重入队 **0**；解除 ⇒ 重入队 1（`loop=true`）。**无缝循环点**属 `[B]` |
+| 22 | `bgm_main` 重复 `play({loop:true})` 不重启位置 | ⛔ | ⛔ **缺 `[B]+[R]`** | 「不重启位置」是运行期契约：假 context 只数节点（P5/S 已证 `_loops` 命中即 return、`activeLoops` 恒 1）= **结构半边**，不等于「人耳听不出重启」；微信子集行为另属 `[R]` |
+| 23 | 全表·静音可玩 | ⛔ | ✅ **PASS** | ① 只关 SFX：注入 11 类玩法事件 ⇒ Σ`pendingCount`=**0**、Σ派发=**0**、**请求层也 0**（门控在 `_sfx()`，`beads-game.ts:1656`）；② 只关 BGM：`sfx_select` 照常 1、bgm 重入队 0 ⇒ 双通道独立；③ 全关跑真 8 关：1→8 逐关 `level-clear`→`finish` + 冲刺 3.0s 托盘有珠 + 续时路径，新增请求/派发 **0/0** |
+| 24 | 全表·清单闭合（19 id 四方对账） | ❌ FAIL（3 vs 19） | ✅ **PASS** | `md §1` 解析=**19**（无重复）/ `AUDIO_CLIP_*` 字符串常量=**19** / voice 表=**19** / §3.12 `AUDIO_CLIP_TOTAL`=**19** ⇒ 三集合双向相等；孤儿常量 **0**、绕过常量直写 id **0** |
+| 25 | 全表·包体（产物内音频=0） | ⛔ | ⛔ **缺 `[C]`** | **本轮未重跑 Cocos 构建**。旁证：`games/beads/cocos/build` 19 文件 / 音频 **0 个 0.0 KB**，但产物 mtime **00:48:40Z 早于**音频源码 **04:05:18Z** ⇒ 不能据其判「合成引擎已进包」。解除条件见 §19.5 |
+| 26 | 全表·听感（连打不糊不炸 / 「软·治愈」） | ⛔ | ⛔ **缺 `[P]`** | 主观量在 Node **无可测替身**。相邻已测量（不等于本条）：A05-05 的计数结论、配方声明 `durationMs=120 / attackMs=4 / wave=sine`；「连打是否叠成墙」还需 bus 增益（§3.12 `AUDIO_BUS_GAIN_*` = **[TODO]**）+ `[B]` 实测混音 |
+| 27 | 全表·真机（iOS 首手势 / 后台恢复 / 泄漏） | ⛔ | ⛔ **缺 `[R]`** | 无 AppID、无真机（实测 `typeof wx=undefined / AudioContext=undefined / webkitAudioContext=undefined`）。**行为观察**：`suspend()` 保期望态、`resume()` **新建 BufferSource** ⇒ 回前台 BGM 从循环起点重来（`activeLoops 0→1`、bufSrc +1），是否可接受须 `[R]/[P]` |
+| **S** | `SynthAudioBackend` 装配与契约 —— **结构证据 ≠ 出声** | —（本轮新增） | ⚠️ **PASS\*** | 见 §19.4 |
+
+### 19.4 P5/S · 结构证据（单列，不计入任何 A05 的验收）
+
+用假 `AudioContext`（`FakeAudioContext`，只计 `createGain/Oscillator/BufferSource/createBuffer` 次数）注入取证，**不会出声**：
+
+- **三平台分支（ADR-0013 的「能力 + 音色表」双条件）**：web+voices → `SynthAudioBackend`；web 无 voices → `NullAudioBackend`；node（即便给 voices）→ `NullAudioBackend`（护单测）；weapp + 假 `createWebAudioContext` + voices → `SynthAudioBackend`（并挂 `onTouchStart`=1、`onHide`=1、`onShow`=1）；weapp 无该能力 → `NullAudioBackend`。**随后已还原 `globalThis`**，不污染其余 25 组。
+- **装配根**：`new App({game: BeadsGame, platform: WebPlatform})` ⇒ `services.audio._backend = SynthAudioBackend`，注入 voices **19** 条；`AudioScheduler._maxPerFrame=6`（= §3.12 冻结 `AUDIO_MAX_PER_FRAME`，App 未覆写）。
+- **契约**：构造期零节点；**解锁前** play ⇒ `contextReady=false`、`activeLoops=0`、新建节点 **0**（一次性丢弃 / loop 记期望态）；**`unlock()` 后** 补起循环 `[bgm_main]`、离线渲染 **1** 块 buffer。
+- **逐 clip 节点普查**（19/19 都能建出节点，`bgm_main:+0` 属幂等）；**惰性渲染**：census 跑完累计 buffer=**2** 块 ⇒ 噪声块在首播该 clip 时才建 ⇒「首次播放前的同步开销是否造成帧抖」**属 `[B]/[R]`，本轮不宣称已验**。
+- **未登记 id** ⇒ 新增节点 0 + `warn` 1 次（「框架不发明音色」）；三总线 gain 恒 `[music=1, sfx=1, ui=1]`（§3.12 未定义 ⇒ **不伪造 dB**）；`usesExternalFiles()=false`。
+- **红线**：本条**不解除** A05-03/09/13/15/16/18/19/21/22/26 的任何 `[B]/[P]/[R]` 子句；它只把「三平台仍全 `NullAudioBackend`」这条**旧 FAIL 前提**证伪。
+
+### 19.5 对 G4 门禁的建议增量（+ 必须保留的限制声明）
+
+**BD-05（玩法事件零音效，P1）**：建议 **部分关闭 → 降级 P2，不关单**。
+可关的部分 = `[N]` 派发层（19 clip 清单闭合 + 事件→clip 派发 + 分档限流 + 静音可玩）；
+不可关的部分 = 8 条 ⛔（时长·包络、双段对齐、包体、真机、听感）+ 8 条 PASS\*（都还欠 `[B]/[C]/[R]/[P]` 或视觉半边）。
+**BD-05b（框架级 Null）**：建议 **关闭，但限定在 `[N]` 结构层**——「真能听到」仍未被任何道次证明。
+**BD-20**：建议 **重开**（关单依据 `framework:sync:check` 本轮 **EXIT=1**，12 处 differs）。它同时是 A05-25 `[C]` 的阻塞前置。
+
+若主理人据此更新 G4：**G4 仍应为 CONCERNS，不因 P5 转绿升 PASS**，且必须保留以下限制声明（逐条不可省）：
+
+1. **P5 的「绿」只到派发层 + 结构层**：本轮夹具 backend=`NullAudioBackend`，Node 无 `AudioContext` ⇒ **不得写成「有音效 / 听感达标 / 已出声」**。
+2. **A05-25 包体未验**：本轮未重跑 Cocos 构建，现存产物**早于**音频实现；解除条件 = 修 `framework:sync`（BD-20）+ 补 3 个 `.ts.meta`（BD-33）→ `build:cocos:web` → 按 `[C]` 数产物内音频文件。
+3. **A05-22 / A05-27 属 `[R]`、A05-26 属 `[P]`**：真机与 Playtest 未开始 ⇒ 不得据「代码结构对」推定真机首手势出声 / 后台恢复可接受 / 不叠成墙。
+4. **三总线增益与混音 dB 未测**：§3.12 `AUDIO_BUS_GAIN_*` 在代码里**不存在**（[TODO]）⇒ 引擎恒 1.0；**QA 不填冻结常量**。
+5. **本轮只重跑了 P5 段**：其余 25 组沿用 v1.1 预期值与判定（25/25 判定一致仅作回归对照）⇒ 报告不得被读作「G4 全轮复验完成」。
+6. **`pnpm run verify` 现为 EXIT=1**（`framework:sync:check`）且任务书自述的「13 PASS / 1 SKIP」与实测不符 ⇒ 任何引用该自述的下游判断需回看。
+
+### 19.6 探针自身缺陷自查（本轮 **5 处**，与实现缺陷严格分开）
+
+| # | 位置 | 缺陷 | 若不修的后果 | 修正（对应修订号） |
+|---|---|---|---|---|
+| n | P5 part2 夹具 | 自造关卡 **5×4 + 2 色**被 BOOT 校验拒收（`levels.ts:120-158`）⇒ 实例**永久停在 boot** | **假 FAIL ×8**（A05-11/12/13/17/18/19/20/23） | 改 6×5 / 3 色，实测 `validateBeadsLevel → []` 机验（**修订 35①**） |
+| o | P5/A05-21 | `clearAudio()` 内部 `flush(0)` 会把 BOOT 的 bgm 派发推上去**后又清空** | **假 FAIL**（`bootDispatch` 恒 0） | 先读账再清（**修订 35②**） |
+| p | P5 面板按钮 | 面板驱动走 `InputManager` 链，而 `_readInput()` 只在 `playing` 被调（`beads-game.ts:1147`）⇒ `paused`/`game-over` 相位收不到真指针 | **假 FAIL**（A05-18/21/23）；反过来若拿它验「遮罩零发声」则**平凡为真 = 假绿** | 本段改 `game.tapDesign()`（= 真 `_handleTap` 路由，与报告 §3 约定、与单测同口径）；接线问题另记 **BD-34**，**不判任何 A05 FAIL**（**修订 35③**） |
+| q | **P4（非本段）** | P4 用 `/DISSOLVE/` 子串数「溶解动效常量」，被 T-096 新增的 `AUDIO_CLIP_DISSOLVE` 命中 | **假绿**（`DISSOLVE 0→1`、「仍缺行」2→1） | 统一排除 `AUDIO_` 前缀 ⇒ 逐字回到 v1.1 文本（**修订 36**） |
+| r | P5/A05-14 | 判定算成 PASS，正文却自陈「记 PASS\*」 | **判定偏松 + 叙述不一致**（读数的人会以为整条已闭） | 按**正文**不按标签补 `partial` ⇒ PASS\*（**修订 37**；这是收紧，不是放宽） |
+
+> 另有本轮的**夹具新鲜度自证**（修订 34）：开跑前 dist 早于 src 38 分钟，已重建并机验。
+> 只读诊断脚本 `evidence/diag-p5-fixtures.mjs` 用于区分「夹具缺陷」与「实现缺陷」，非门禁证据本体。
+
+### 19.7 冲突 / 观察登记（**不占缺陷号、不改冻结常量**）
+
+| # | 事实 | 归属 | QA 处置 |
+|---|---|---|---|
+| C1 | `A05-09` 把「伪震屏 scale 1.015」写成 `sfx_combo_t3` 的同帧主体；但 §1 行 7 与实现 `combo-vfx.ts:46-50`（tier=2→pseudoShake，tier=3→burst）表明**伪震屏属 Lv2** ⇒ 该子句按现文**不可判定** | **文策渊**（`audio-events §4` 正文） | A05-09 记 ⛔，不判实现缺陷 |
+| C2 | `sfx_revive_ok` 的 `bus='ui'`，而 §0 的前缀派生规则（`sfx_*`→sfx）不一致 | 音频表负责人 / 实现侧 | 仅作**附带审计**记入 A05-24 正文，不并判 |
+| C3 | `audio-events §1` 的时长列有 **7 处非纯数字**（`urgent_beat` / `tray_full` / `stage` / `star` / `revive_ok` / `ui_tap=TODO` / bgm 循环点=TODO）⇒ 这些条目的 `[B]` 实测无期望值可比 | **文策渊**（音频规格） | 相关条目一律记 ⛔/PASS\*，**不猜值** |
+| C4 | §3.12 `AUDIO_BUS_GAIN_*` 在 `tuning.ts` 内**不存在**（[TODO]），引擎三总线恒 1.0 | **主理人 / 阮和鸣**（冻结常量落地） | 探针不伪造 dB；写进限制声明第 4 条 |
+| C5 | `suspend()→resume()` 会**新建 BufferSource** ⇒ 回前台 BGM 从循环起点重来 | 实现侧（需 `[R]/[P]` 判是否可接受） | 已写入 A05-27 正文；**不自行判缺陷** |
+| C6 | 离线渲染是**惰性**的 ⇒ 首次播放某 clip 前有一次性同步开销（`audio-synth.ts` 头注自认「一次性源不可复用」） | 实现侧 | 归 `[B]/[R]`；A05-27 正文登记 |
+
+### 19.8 建议下一动作（排序由主理人定）
+
+1. `pnpm run framework:sync` 修镜像（**BD-20 重开**）+ 补 3 个 `.ts.meta`（**BD-33**）⇒ 解除 A05-25 的 `[C]` 前置。
+2. 起一轮 **[B] 浏览器取证**（harness 预览 + 录音 / 逐帧）：一次性覆盖 A05-03/09/13/15/16/18/19/21/22 的时长·包络·对齐子句——这是目前 P5 最大的空白面。
+3. **BD-34** 定级与口径裁定（面板相位输入）：影响 `[B]/[R]` 全部交互判据与 Playtest 可执行性。
+4. C1/C3（音频 §4 正文与 §1 时长列）随 **T-098** 一次性打包给文策渊，避免下轮再返工。
+5. Playtest 轮解锁后补 A05-26（听感）与「解压/治愈」支柱评估——**在此之前仍不得对该支柱下 PASS**。

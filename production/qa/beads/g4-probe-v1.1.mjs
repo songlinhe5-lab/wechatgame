@@ -8,6 +8,8 @@
  * 只读纪律：不改 `games/beads/src/**`、`design/**`、`art/**`；复用 `harness:build` 产物。
  * 运行：node production/qa/beads/g4-probe-v1.1.mjs
  * 产出：production/qa/beads/evidence/g4-reverify-v1.1.log
+ *       （WXG-T-096 复跑轮：整轮 evidence/g4-reverify-v1.2.log + P5 段摘录
+ *        evidence/g4-reverify-v1.2-p5-excerpt.log；**本轮只修订 P5 段预期值**，见修订 28）
  *
  * ── v1.1 修订（承接 v3 的 1–13；本轮新增 **14–27**，全部为**探针自身**预期值/口径修正）──
  *  14. 【严防假 FAIL】P9/P12/P18 的期望值改取回写后 §8 现文：
@@ -67,12 +69,87 @@
  *  27. 【前置不足不得当作“缺失”】P6/P7 早期版本在满槽当帧就停采样，后续未再跨过供料间隔，
  *      导致 tray:full=0 被误读为「事件缺失」。本轮 P7 的满槽告警子例程改为**满槽后再推 1 个间隔**，
  *      使去重语义真正发生；P6 则删掉对该子句的断言并明示由 P12 取证（一处一事）。
+ *  28. 【严防假 FAIL · WXG-T-096 复跑 P5】P5 段**预期值整体重建**（旧版 `rec()` 第二参写死
+ *      `'FAIL'`，那是探针缺陷而非实测结论）。旧预期值的四点前提本轮已逐条读码 + 实测复核为**失效**：
+ *      ① 框架侧已有真合成引擎 `platform/audio-synth.ts::SynthAudioBackend`；`web.ts:68-79` / `weapp.ts:155-179`
+ *        在具备能力时（runtime 有 `AudioContext`/`wx.createWebAudioContext` **且** 游戏注入 `voices`）返回它，
+ *        只有 `node.ts:64` 仍返回 `NullAudioBackend`（护单测）⇒ 旧文「三平台 backend 仍 NullAudioBackend」
+ *        不成立，BD-05b 须按平台分别重判（见 `P5·S`）。
+ *      ② 玩法音色表改由游戏侧注入：`Game.audioVoices` → `App`(`compose/app.ts:76-80`) →
+ *        `Platform.createAudioBackend({ voices })`（ADR-0013）⇒ 「框架不持有 clip 库」这一批评的对象已换位，
+ *        不得再据此判 FAIL。
+ *      ③ `tuning.ts` clip 常量 3 → 19，`beads-game.ts:_subscribe()`(1054-1089) 已按 §1 触发源逐事件派发
+ *        ⇒ 旧文「玩法事件音效**零派发**」与**同一条证据自己打印出的**
+ *        `clip 去重=[bgm_main, sfx_select, sfx_place, sfx_ui_tap]`（evidence/g4-reverify-v1.1.log:20）**自相矛盾**。
+ *      ④ 旧夹具 `mk().frame()` **从不调 `audio.flush()`**，而 `AudioScheduler` 的 `_time`/`_lastPlayed`
+ *        只在 `flush()` 里推进（`core/audio/audio.ts:169-187`）⇒ 限流分档、心跳周期、同帧去重
+ *        在这一轮之前**物理上不可测**；且包在 `audio.play` 外的 `played` 记的是**请求层**
+ *        （含被限流丢弃的项），不是派发层——拿它数「≤2 次/秒」会恒偏大。
+ *        本轮 `mk()` 增 `opts.flushAudio`（默认关 ⇒ 其余 25 组行为逐字不变）+ 派发层 `dispatched`
+ *        + 请求层 `requests{id,minInterval,loop}` + `stops`，帧内序复刻 `App.tick`（见修订 30）。
+ *  29. 【探针口径 bug】clip 常量统计 `startsWith('AUDIO_CLIP_')` 把**数字**常量 `AUDIO_CLIP_TOTAL=19`
+ *      当 clip id 计入（v1.1 实跑打印出「20 个」、清单里赫然一个 `19`）⇒ 本轮加 `typeof === 'string'` 过滤，
+ *      并把「三方集合相等」的账交给实测对账（A05-24），不再由探针自报数字。
+ *  30. 【「同帧」定义落地】按 `audio-events §0` + `compose/app.ts:147-151`：
+ *      `input.beginFrame() → game.update(dt) → audio.flush(dt) → input.endFrame(dt)` = **一个 tick**。
+ *      限流/周期类判据（A05-05/11/14/20）一律数**派发层**，参数类判据（A05-06 的 minInterval、
+ *      A05-14/21 的 loop）数**请求层**——两层混用正是改判前后的口径断裂处，正文逐条注明用的是哪层。
+ *  31. 【道次纪律】P5 只测 `[N]`：被 `[B]/[C]/[R]/[P]` 覆盖的条目（A05-03/09/15/16/22/25/26/27）一律记
+ *      **⛔（本轮不可验）**，正文写明缺的是哪一道、缺的**主体**是什么（例：A05-09 的伪震屏在
+ *      `view-model.ts:711` 明文未实现；A05-25 的 `[C]` 需重跑构建、本轮未跑）。混合道次条目
+ *      （A05-01/04/13/14/18/19/21，另 P5·S）只在 `[N]` 子句实测通过时记 **PASS\***，并显式声明
+ *      「**不**等于能出声／听感达标」（AGENTS §7 反假绿）。
+ *  32. 【结构证据与出声证据分开记账】新增 `P5·S` 记录：注入假 `AudioContext` 只能证「装配正确 +
+ *      节点确实被创建 + 未登记 clip 静默跳过 + loop 幂等走的是代码路径」，标题与正文均标
+ *      **结构证据 ≠ 出声**，其结论不计入任何 A05 条目的验收。
+ *  33. 【判据更新不得做成缺陷（沿用修订 14）】P5 改判源自**前提变化**，本身不算新缺陷；反过来，
+ *      实测真没做到的事（漏事件、限流违 §3.8、清单不闭合）照实 FAIL，且**不因**「T-096 已交
+ *      `audio-synth.test.ts` 15 例 + `audio-dispatch.test.ts` 26 例全绿」而替代探针他证（两条证据链分开记账）。
+ *  34. 【夹具新鲜度自证 + 本轮实测到的不新鲜】`P5·S` 末段实测 `dev/harness/dist` 与
+ *      `packages/framework/src/**`、`games/beads/src/**` 的 mtime。事实：本轮开跑前 dist 构于
+ *      11:27:14，而 T-096 的 12 个源文件 mtime 为 12:05:18 ⇒ **不重建则探针量的是 T-096 之前的字节**（假绿风险）。
+ *      因此本轮跑了一次 `pnpm run harness:build`（只写 gitignored 的 `dev/harness/dist`，不改任何跟踪文件），
+ *      重建后由 `sRes.fresh.ok` 机验「dist 不早于 src」。`framework:sync:check` 实跑 EXIT=1（镜像不同步）
+ *      与「新增镜像脚本无 .meta」两项**不自行修复**（越只读面），登记入报告 §15 建议 BD-33/BD-34。
+ *  35. 【首跑自曝：三处**夹具缺陷**不得转判为实现缺陷】本单首跑（evidence/g4-reverify-v1.2.log 存档于
+ *      `g4-reverify-v1.2-run1-fixturebugs.log`）除 P5·S 因变量作用域崩溃外，A05-11/12/13/17/18/19/20/21/23
+ *      全片红。逐条回到代码/实测定位，**根因全在探针侧**：
+ *      ① 自造关卡 5×4 + 2 色被 BOOT 校验拒收（实测三条 error，`levels.ts:120-158`）⇒ 实例永停 boot；
+ *        修＝6×5 + 3 色（`validateBeadsLevel → []`，见 evidence/diag-p5-fixtures.mjs）。
+ *      ② `clearAudio()` 内部 `flush(0)` 会把待账派发推上去**后又清空** ⇒ A05-21 的 BOOT bgm 派发恒 0；
+ *        修＝先读账再清。
+ *      ③ 面板按钮经 `InputManager` 链**收不到**：`_readInput()` 唯一调用点在 `playing` 的 onUpdate
+ *        （`beads-game.ts:1147`），`paused`/`game-over` 无 onUpdate，而 `input.endFrame()` 会清 `justDown`
+ *        ⇒ 齿轮后的 toggle-bgm / resume / 面板推进全部丢帧（实测：同坐标同帧下 `tapDesign()` 生效、
+ *        输入链零派发零变更）。修＝本段面板驱动改回 `tapDesign()`（= 真 `_handleTap` 优先级路由，
+ *        与报告 §3 驱动约定、与单测 `pause-settings.test.ts:69-71` 同口径）。
+ *        ⇒ 这**不是** P5 的判据主体，不据此判任何 A05 条目 FAIL；作为附带发现登记 **BD-34**（若宿主按
+ *        `input.push` 接线，四个面板态按钮均点不动；当前 `BeadsBootstrap.ts` 未接任何输入 ⇒ 需 [B]/[R] 定级）。
+ *        同时写明：A05-18「遮罩零发声」子句**不得**走输入链——否则会因「根本没读输入」而平凡为真（假绿）。
+ *  36. 【T-096 对本探针其他段的**反向污染**（P4 假绿，已修）】P4/BD-04 用 `/DISSOLVE/` 子串数「消除溶解动效常量
+ *      是否已落 tuning」，而 T-096 新增的 `AUDIO_CLIP_DISSOLVE = 'sfx_dissolve'` 被同一个正则命中：
+ *      实跑对比——v1.1 轮 `DISSOLVE=0`、本单首跑（未改 P4、仅重建夹具）变成 `DISSOLVE=1` 且「仍缺行」从两项
+ *      没成一项 ⇒ 这是**音频 clip id 冒充动效常量**的假绿，不是实现的进步。现统一排除 `AUDIO_` 前缀
+ *      （P5 自身两处正则一开始就带了 `!startsWith('AUDIO_CLIP_')`，本条是补上 P4 的遗漏）。
+ *      同轮附带事实：其余 25 组**判定与 v1.1 逐条一致**（25/25），但 v1.1 日志是旧夹具（dist 早于 T-096）跑的
+ *      ⇒ 本单重建夹具后 P4/P19 两处**证据文本**有差（P19：hint 目标格坐标 r0,c1→r3,c4，属关卡/供料时序变化，
+ *      判定不变）；两者均不等于「重做过预期值复核」，报告 §4 仍需标「仅 P5 段随 T-096 复核」。
+ *  37. 【终跑自检：判定与正文自相矛盾的一处，已收紧而不放宽】A05-14 在 `audio-events §4` 里**标签为
+ *      `[N]`**，但判据**正文**含第二主体「托盘描边呼吸视觉独立按 500ms 循环，两者互不驱动」；该视觉
+ *      半边同一轮由 P7 实测为「无呼吸时间轴」（= 已登记的 **BD-10**）⇒ 「互不驱动」无法双向成立。
+ *      首跑该条只按音频半边算了 PASS，而正文却自陈「记 PASS*」——属探针**自身**的判定/叙述不一致。
+ *      现按正文不按标签补 `partial` ⇒ 记 **PASS\***（P5 段计数随之变 PASS 12 / PASS* 8）；**不**把该
+ *      视觉半边另算新缺陷，也不反过来为了维持 PASS 而删掉正文那句叙述。
+ *      同轮自检：修订 31 原先把 A05-17/23 也列为「混合道次」，实核 §4 原文两条均为纯 `[N]`（星数由
+ *      冻结阈值独立复算、静音可玩只断 pendingCount 与通关链路）⇒ 维持 PASS，并把 31 的清单改成与实判一致。
  *
- * 环境事实（禁止伪造）：无 AppID / 无真机 ⇒ `[Device]/[R]` 一律 ⛔；`[Cocos]` 像素级判据
- * 本轮已解除 BD-20 阻塞（`framework:sync:check` ✅ 本轮实跑；web-mobile 产物存在且时间戳
- * 2026-09-15 08:48，早于本轮探针 09:24 ⇒ 属波次 2 verify 留痕，**本轮未重跑构建**），但
- * 沙箱禁监听 socket、无浏览器截图通路 ⇒ 像素/色盲模拟仍记 ⛔，不得改判。
+ * 环境事实（禁止伪造）：无 AppID / 无真机 ⇒ `[Device]/[R]` 一律 ⛔；`[Cocos]` 像素级判据——
+ * 波次 3（v1.1）当时 `framework:sync:check` 为✅、web-mobile 产物 mtime 2026-09-15 08:48；
+ * **本单（WXG-T-096 后）复跑同一命令得 EXIT=1**（12 处 differs，evidence/framework-sync-check-v1.2.log）
+ * 且构建产物未重跑（`cocos/build` 最新 mtime 仍 2026-09-15T00:48:40Z，早于音频实现）⇒ A05-25 仍记 **⛔**；
+ * 沙箱禁监听 socket、无浏览器截图通路 ⇒ 像素/色盲模拟同样维持 ⛔，不得改判。
  */
+import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
@@ -88,7 +165,12 @@ const P = await import(`${STAGE}/games/beads/src/view/palette.js`);
 const { DEFAULT_PALETTE } = P;
 const T = await import(`${STAGE}/games/beads/src/config/tuning.js`);
 const { LEVELS } = await import(`${STAGE}/games/beads/src/config/levels.js`);
+const { BEADS_AUDIO_VOICES } = await import(`${STAGE}/games/beads/src/config/audio-voices.js`);
 const { pausePanelLayout } = await import(`${STAGE}/games/beads/src/systems/pause-panel.js`);
+const { clearPanelLayout } = await import(`${STAGE}/games/beads/src/systems/clear-panel.js`);
+const { failPanelLayout } = await import(`${STAGE}/games/beads/src/systems/fail-panel.js`);
+const { finishPanelLayout } = await import(`${STAGE}/games/beads/src/systems/finish-panel.js`);
+const { TRAY_BEAD_SIZE } = await import(`${STAGE}/games/beads/src/view/bead-render.js`);
 
 const boot = await loadHarness({ game: 'beads' });
 const bootModel = boot.render(5);
@@ -102,15 +184,38 @@ const TRACKED = [
 
 // ───────────────────────────────────────────────────────── 装配 / 驱动 helpers
 let probeNo = 0;
+/**
+ * 修订 28④/30：音频派发层的可观测面。默认 `opts.backend` = `NullAudioBackend`、
+ * `opts.flushAudio` 不传 = **不 flush**⇒ 其余 25 组探针行为与 v1.1 逐字一致；
+ * 只有 P5 显式传 `flushAudio: true`，按 `App.tick` 的帧内序驱动。
+ */
+function mkBackend(opts, probe) {
+    const raw = opts.backend ?? new fw.NullAudioBackend();
+    probe.raw = raw;
+    return {
+        play: (id, o) => { probe.dispatched.push(id); raw.play(id, o); },
+        stop: (id) => { probe.stops.push(id); raw.stop(id); },
+        stopAll: () => { probe.stops.push('*ALL*'); raw.stopAll(); },
+    };
+}
 function mk(opts = {}) {
     const platform = new NodePlatform({ width: 750, height: 1334, pixelRatio: opts.pixelRatio ?? 2 });
     const storage = opts.storage ?? platform.createStorage();
     const events = new fw.EventBus();
     const input = new fw.InputManager();
-    const audio = new fw.AudioScheduler(new fw.NullAudioBackend());
-    const played = [];
+    const audioProbe = { dispatched: [], stops: [] };
+    const audio = new fw.AudioScheduler(mkBackend(opts, audioProbe));
+    // 修订 28④：音频取证**分三层记账，不得混用**——
+    //   requests   = 玩法侧**请求**（含被限流丢抛的）⇒ 证「哪个事件要求放哪个 clip、传了什么参数」
+    //   dispatched = backend 实际收到的**派发**（帧末 flush 之后）⇒ 限流/去重后的真相
+    //   stops      = backend.stop() 调用（BGM 静音通道判据 A05-21）
+    const played = [], requests = [];
     const origPlay = audio.play.bind(audio);
-    audio.play = (id, o) => { played.push(id); return origPlay(id, o); };
+    audio.play = (id, o) => {
+        played.push(id);
+        requests.push({ id, minInterval: o?.minInterval ?? 0, loop: o?.loop ?? false, volume: o?.volume ?? 1 });
+        return origPlay(id, o);
+    };
     const services = {
         events, input, audio, storage,
         rng: fw.createRng(opts.seed ?? `probe11-${++probeNo}`),
@@ -137,9 +242,15 @@ function mk(opts = {}) {
     const step = 1 / 60;
     return {
         game, services, events, input, storage, audio, played, emitted, saveKey,
+        dispatched: audioProbe.dispatched, stops: audioProbe.stops, requests,
+        get rawBackend() { return audioProbe.raw; },
         get writes() { return writeCount - baseline; },
         advance(seconds) { const n = Math.max(1, Math.round(seconds / step)); for (let i = 0; i < n; i++) this.frame(); },
-        frame() { input.beginFrame(); game.update(step); input.endFrame(step); },
+        /** 一个 tick = `App.tick` 的帧内序（修订 30）；仅 `opts.flushAudio` 时接音频派发。 */
+        tickFrame(dt) { input.beginFrame(); game.update(dt); if (opts.flushAudio) audio.flush(dt); input.endFrame(dt); },
+        frame() { this.tickFrame(step); },
+        /** 排空 + 清零（`flush(0)` 不推 `_time` ⇒ 不打扰限流时钟）。 */
+        clearAudio() { audio.flush(0); played.length = 0; requests.length = 0; audioProbe.dispatched.length = 0; audioProbe.stops.length = 0; },
         /** 真实输入链路：设计坐标 → CSS 屏幕坐标 → InputManager（修订 19）。 */
         tapScreen(dx, dy, id = ++pointerId) {
             services.viewport.designToScreen(pt, dx, dy);
@@ -407,9 +518,12 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const after = []; for (let f = 0; f < 10; f++) { h2.frame(); after.push(sig(cmds(h2))); }
     const popDistinct = new Set([before, ...after]).size;
     const src = {
-        fillPop: Object.keys(T).filter((k) => /FILL_POP|POP_MS/.test(k)),
-        dissolve: Object.keys(T).filter((k) => /DISSOLVE/.test(k)),
-        wave: Object.keys(T).filter((k) => /COMPLETE_WAVE|WAVE_MS/.test(k)),
+        // v1.2 修（**探针侧串段污染**，修订 36）：本段用 /DISSOLVE/ 等子串数「动效常量是否到位」，
+        // 而 T-096 新增了 `AUDIO_CLIP_DISSOLVE` 字符串常量 ⇒ 旧写法把**音频 clip id** 误计为溶解动效常量
+        // （实测 P4 证据从 DISSOLVE=0 变 1、“仍缺行”从两项变一项 = **假绿风险**）。统一排除 AUDIO_* 前缀。
+        fillPop: Object.keys(T).filter((k) => !k.startsWith('AUDIO_') && /FILL_POP|POP_MS/.test(k)),
+        dissolve: Object.keys(T).filter((k) => !k.startsWith('AUDIO_') && /DISSOLVE/.test(k)),
+        wave: Object.keys(T).filter((k) => !k.startsWith('AUDIO_') && /COMPLETE_WAVE|WAVE_MS/.test(k)),
     };
     const residual = [];
     if (popDistinct <= 1) residual.push('vfx_fill_pop(120ms)');
@@ -429,25 +543,915 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
 }
 
 // ═════════════════════════════════════════════════════════ P5 · 音频
+// 本段预期值由 **WXG-T-096 之后的真判据**重建（修订 28–34）：判定一律由实测算出，
+// 旧版第二参写死 'FAIL' 且前提（「零派发」「三平台仍 NullAudioBackend」）已失效 ⇒ 属假 FAIL。
 {
-    const h = mk();
-    h.frame();
-    const s = h.game.snapshot;
-    const i1 = h.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
-    h.game.tapDesign(...slotXY(i1)); h.frame();
-    const e = firstEmptyOf(h.game.snapshot, h.game.snapshot.traySlots[i1].colorIdx);
-    h.game.tapDesign(...cellXY(h.game.snapshot, e)); h.frame();
-    h.game.tapDesign(...CARD_XY(1)); h.frame();
-    const clips = [...new Set(h.played)];
-    const clipConst = Object.keys(T).filter((k) => k.startsWith('AUDIO_CLIP_'));
-    rec('P5 / BD-05 · GAP-05 关键事件音效与同帧派发', 'FAIL',
-        `事件：tray:selected=${h.count('tray:selected')}、bead:placed=${h.count('bead:placed')}、powerup:used=${h.count('powerup:used')}；`
-        + `同期 audio.play clip 去重=[${clips.join(', ') || '（无）'}] ⇒ 玩法事件音效**零派发**（仅 BGM/UI）。`
-        + `tuning.ts 现存 clip 常量 ${clipConst.length} 个（${clipConst.join('/')}=${clipConst.map((k) => T[k]).join(', ')}）；`
-        + `audio-events §1/§4 要求 19 个 clip id 与 A05-01/04/05/07/11/14/16 同帧派发。`
-        + `框架层 BD-05b 未变：三平台 audio backend 仍 NullAudioBackend（packages/framework/src/platform/{node,web,weapp}.ts）⇒ 真机不解除。`
-        + `　波次 2 无音频单（T-085..091 范围外）⇒ 本条维持 v1.0 FAIL，不属改判。`);
+    const FR = 1 / 60;
+    const C = (k) => T[k];                                   // AUDIO_CLIP_* 常量名 → clip id
+    const cnt = (arr, id) => arr.filter((x) => x === id).length;
+    const u = (arr) => [...new Set(arr)];
+    /** 判定由实测算出：block=被 [B]/[C]/[R]/[P] 盖住 ⇒ ⛔；partial=[N] 子句过但整条未闭 ⇒ PASS*。 */
+    const p5 = (no, title, ok, evidence, o = {}) => rec(`P5/${no} · ${title}`,
+        o.block ? `⛔（本轮不可验 · 缺 ${o.block}）` : (ok ? (o.partial ? 'PASS*' : 'PASS') : 'FAIL'), evidence);
+    /** 带音频派发面的夹具（修订 30：帧内序 = App.tick）。激励广告用 Mock，手动 settle。 */
+    const ah = (o = {}) => mk({ flushAudio: true, rewardedAd: new fw.MockRewardedAdProvider(), ...o });
+    let tapSeq = 0;
+    /** 一个真帧：beginFrame → push(down) → update → **取 flush 前的 pendingCount** → flush → endFrame。 */
+    function tapFrame(h, dx, dy, phase, id, t) {
+        const p = { x: 0, y: 0 };
+        h.services.viewport.designToScreen(p, dx, dy);
+        h.input.beginFrame();
+        h.input.push({ id, x: p.x, y: p.y, phase, time: t });
+        h.game.update(FR);
+        const pending = h.audio.pendingCount;
+        h.audio.flush(FR);
+        h.input.endFrame(FR);
+        return pending;
+    }
+    /** 真实点击（down 帧生效：`beads-game.ts:1180 if (!snap.justDown) return`），返回该帧的派发层结果。 */
+    function tapAt(h, dx, dy) {
+        const id = 900 + (++tapSeq), t = 1e6 + tapSeq;
+        const before = h.dispatched.length;
+        const pending = tapFrame(h, dx, dy, 'down', id, t);
+        tapFrame(h, dx, dy, 'up', id, t);
+        return { pending, dispatched: h.dispatched.slice(before) };
+    }
+    /** 面板按钮：走 `game.tapDesign()` = **真 `_handleTap` 优先级路由**（齿轮→卡→托盘→网格→面板）。
+     *  ⚠ 不用 InputManager 链（v1.2 改）：实测 `_readInput()` 只在 `playing` 的 onUpdate 里被调
+     *  （`beads-game.ts:1147` 唯一调用点；`paused`/`game-over` 无 onUpdate，`:919-925`/`:960-971`），
+     *  面板相位下真指针事件在 `endFrame` 里被清 ⇒ **点不到面板按钮**（附带发现，报告 §15 建议 BD-34）。
+     *  本单只验音频派发，驱动口径与报告 §3「玩法驱动一律走 `tapDesign`」一致；不据此宣称「真人点不动」已定论（需 [B]/[R] 复核）。 */
+    const tapBtn = (h, layout, id) => {
+        const b = layout.buttons.find((x) => x.id === id);
+        if (!b) throw new Error(`probe P5: 面板无按钮 ${id}`);
+        return tapRouterAt(h, (b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.rect.yMax) / 2);
+    };
+    /** 直接经 `_handleTap` 路由点一处（非面板按钮也用它，以便「遮罩吃掉点击」子句真落到路由上）。 */
+    function tapRouterAt(h, dx, dy) {
+        const before = h.dispatched.length;
+        const consumed = h.game.tapDesign(dx, dy);
+        h.tickFrame(FR);
+        return { consumed, dispatched: h.dispatched.slice(before) };
+    }
+    /** 托盘珠 L1 主体的中心 y（设计系 y 向上 ⇒ 值越大越靠上）。 */
+    function trayBeadY(h, idx) {
+        const [cx] = slotXY(idx);
+        const body = cmds(h).filter((k) => k.kind === 'rect' && Math.abs(k.w - TRAY_BEAD_SIZE) < 0.6
+            && Math.abs((k.x + k.w / 2) - cx) < 2);
+        return body.length ? Math.max(...body.map((k) => k.y + k.h / 2)) : null;
+    }
+    /** 只为构造 LEVEL_CLEAR 前置而直投托盘（修订 20 的**注明例外**：不用于 A′ 不变量类判据）。 */
+    function fillBoardAudio(h) {
+        const grid = h.game.grid;
+        for (let r = 0; r < grid.rows; r++) for (let c = 0; c < grid.cols; c++) {
+            if (!grid.isFillable(r, c)) continue;
+            const slot = h.game.giveTrayBead(grid.requiredColor(r, c));
+            if (slot < 0) return false;
+            h.game.selectTraySlot(slot);
+            if (!h.game.tapGridCell(r, c)) return false;
+        }
+        return true;
+    }
+    // 规格侧权威清单（从 `audio-events.md §1` 正文解析 ⇒ A05-24 是「文档↔代码」对账，不是探针自报）
+    const specClips = (() => {
+        const md = readFileSync(resolve(ROOT, 'games/beads/design/audio/audio-events.md'), 'utf8');
+        const seg = (md.split(/^## 2\. /m)[0] ?? '').split(/^## 1\. /m)[1] ?? '';
+        const ids = [];
+        for (const line of seg.split('\n')) {
+            const m = /^\|\s*`([a-z_0-9]+)`/.exec(line.trim());
+            if (m && !ids.includes(m[1])) ids.push(m[1]);
+        }
+        return ids;
+    })();
+    // 修订 29：只取**字符串**常量（旧版把数字 `AUDIO_CLIP_TOTAL=19` 当 clip id 计入）
+    const codeClipKeys = Object.keys(T).filter((k) => k.startsWith('AUDIO_CLIP_') && typeof T[k] === 'string');
+    const codeClips = codeClipKeys.map((k) => T[k]);
+    const voiceClips = Object.keys(BEADS_AUDIO_VOICES);
+    const vcDur = (id) => BEADS_AUDIO_VOICES[id]?.durationMs;
+    const NULLEDBACKEND = new fw.NullAudioBackend().constructor.name;
+
+    // ── A05-01 · `sfx_place`：`bead:placed` 那一 tick 内入队并帧末派发（+ 同 tick 视觉回弹）
+    const h1 = ah(); h1.tickFrame(FR);
+    const i1 = h1.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    tapAt(h1, ...slotXY(i1)); h1.clearAudio();
+    const cell1 = firstEmptyOf(h1.game.snapshot, h1.game.snapshot.traySlots[i1].colorIdx);
+    const t1res = tapAt(h1, ...cellXY(h1.game.snapshot, cell1));
+    const placedEv = h1.count('bead:placed');
+    const audio01 = placedEv === 1 && t1res.pending === 1
+        && t1res.dispatched.length === 1 && t1res.dispatched[0] === C('AUDIO_CLIP_PLACE');
+    // 视觉半边：落子后连续 8 帧该格图元尺寸（§5 要求 1.06→1.0 回弹 ⇒ 尺寸必随时间变）
+    const sizes = [];
+    for (let f = 0; f < 8; f++) {
+        const [cx, cy] = cellXY(h1.game.snapshot, cell1);
+        const body = cmds(h1).filter((k) => k.kind === 'rect' && Math.abs((k.x + k.w / 2) - cx) < 3 && Math.abs((k.y + k.h / 2) - cy) < 6);
+        sizes.push(body.length ? Number(Math.max(...body.map((k) => k.w)).toFixed(2)) : 0);
+        h1.tickFrame(FR);
+    }
+    const popRatio = Math.max(...sizes) / (Math.min(...sizes.filter((v) => v > 0)) || 1);
+    const popConst = Object.keys(T).filter((k) => !k.startsWith('AUDIO_CLIP_') && /FILL_POP|POP/.test(k));
+    p5('A05-01', 'sfx_place · 同帧入队并帧末派发（音视频同帧）', audio01,
+        `【派发层】真实点击链路（tapAt = beginFrame→push(down)→update→flush→endFrame）落子：bead:placed=${placedEv}、`
+        + `该帧 audio.flush() **之前** scheduler.pendingCount=${t1res.pending}（已入队未下发）、flush **之后** backend 新增派发=`
+        + `[${t1res.dispatched.join(', ') || '（无）'}] ⇒ 入队与派发在同一 tick 内，且「仅新增 sfx_place」成立=${audio01}。`
+        + `【视觉半边】落子后 8 帧该格图元宽=[${sizes.join(',')}] ⇒ 尺寸比 max/min=${popRatio.toFixed(3)}`
+        + `（§5 要求 1.06→1.0）、tuning 内 FILL_POP 类常量=${popConst.length ? popConst.join('/') : '0 个'}`
+        + ` ⇒ vfx_fill_pop 主体${popRatio >= 1.05 ? '存在' : '**未落地**（属 BD-04 已登记的缺行，本条不重复计为新缺陷）'}。`
+        + `　⇒ 因此本条记 PASS*：**只**代表「派发层同帧」已由实测证实，**不代表**可听、也不代表视觉回弹已做。`,
+        { partial: popRatio < 1.05 });
+
+    // ── A05-02 · 端到端延迟 ≤1 帧（不跨第二次 flush）
+    const h2 = ah(); h2.tickFrame(FR); h2.clearAudio();
+    h2.events.emit('bead:placed', { row: 0, col: 0, colorIdx: 1, slot: 0 });
+    const pend2 = h2.audio.pendingCount, d02 = h2.dispatched.length;
+    h2.audio.flush(FR);
+    const dlt2 = h2.dispatched.slice(d02), left2 = h2.audio.pendingCount;
+    p5('A05-02', 'sfx_place · 端到端延迟 ≤1 帧', pend2 === 1 && dlt2.length === 1 && left2 === 0,
+        `广播 bead:placed 后（尚未 flush）pendingCount=${pend2}、backend 新增派发=${dlt2.length} 条；`
+        + `执行**一次** flush(1/60) 后 backend 新增=[${dlt2.join(', ')}]、剩余 pending=${left2} ⇒ 从广播到 backend.play() `
+        + `未跨第二次 flush ⇒ 延迟 ≤1 帧 = ${(FR * 1000).toFixed(2)} ms（§0 可断言定义）。`
+        + `　【口径】本条用 bus 直发事件（判据原文即「从事件广播到 backend.play()」）；经真实点击的同帧已由 A05-01 覆盖。`);
+
+    // ── A05-03 · 实际发声时长 ≤120 ms、软起音无爆音 → [B]+[P]
+    const dur03 = vcDur(C('AUDIO_CLIP_PLACE'));
+    p5('A05-03', 'sfx_place · 发声时长 ≤120ms 与软起音无爆音', typeof dur03 === 'number' && dur03 <= 120,
+        `本轮夹具的后端实测为 ${h2.rawBackend.constructor.name}（= ${NULLEDBACKEND}，mk() 默认），且 harness 的 DOM stub `
+        + `无 AudioContext（实测 typeof globalThis.AudioContext=${typeof globalThis.AudioContext}）⇒ Node 里**不会发出任何声音**。`
+        + `能拿到的只有配方**声明值** sfx_place.durationMs=${vcDur(C('AUDIO_CLIP_PLACE'))}ms（结构证据，**不是**实测包络），`
+        + `「软起音/无 click 爆音」只能人耳或波形分析。缺的道次：**[B]**（浏览器/Web Audio 可听，需跑 harness:serve + 浏览器录音）`
+        + `+ **[P]**（阶段 6 Playtest）。本条按修订 31 记 ⛔，不得由「Node 里结构对」推为出声达标。`
+        + `（上面算出的 ok 仅供 **[B]** 复跑时参考：声明值 ≤120ms=${typeof dur03 === 'number' && dur03 <= 120}，**不是**本条验收结论）`,
+        { block: '[B]+[P]' });
+
+    // ── A05-04 · `sfx_select` 帧内入队 + 同帧上移 4px
+    const h4 = ah(); h4.tickFrame(FR);
+    const i4 = h4.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const yFree = trayBeadY(h4, i4);
+    const t4res = tapAt(h4, ...slotXY(i4));
+    const ySel = trayBeadY(h4, i4);
+    const liftPx = (yFree !== null && ySel !== null) ? Number((ySel - yFree).toFixed(2)) : null;
+    const audio04 = h4.count('tray:selected') === 1 && t4res.pending === 1 && cnt(t4res.dispatched, C('AUDIO_CLIP_SELECT')) === 1;
+    p5('A05-04', 'sfx_select · 帧内入队派发 + 同帧托盘珠上移 4px', audio04 && Math.abs(liftPx - 4) < 0.01,
+        `【派发层】真帧内点托盘槽：tray:selected=${h4.count('tray:selected')}、flush 前 pending=${t4res.pending}、`
+        + `该帧派发=[${t4res.dispatched.join(', ')}]。【同帧视觉】同一 tick 的 render model 里该槽珠 L1 主体中心 y：`
+        + `未选 ${yFree} → 选中 ${ySel} ⇒ Δy=${liftPx} 设计 px（设计系 y 向上 ⇒ 正值为**上移**；art §1.2 = 4px）。`
+        + `　【未闭子句】时长 ≤100 ms 属 **[B]**（本轮只有声明值 sfx_select.durationMs=${vcDur(C('AUDIO_CLIP_SELECT'))}ms）⇒ 记 PASS*。`
+        + `　【小观察（非 §3 冻结常量、不改判）】实现侧 view-model.ts:575「const lift = selected ? 4 : 0」是字面量，tuning 无对应常量名 ⇒ 归表示层待收。`,
+        { partial: true });
+
+    // ── A05-05 / A05-06 · `sfx_reject` 限流红线与分档参数
+    const h5 = ah(); h5.tickFrame(FR); h5.clearAudio();
+    for (let i = 0; i < 10; i++) { h5.events.emit('bead:rejected', { row: 0, col: 0, colorIdx: 1 }); h5.tickFrame(0.1); }
+    const reqR = h5.requests.filter((r) => r.id === C('AUDIO_CLIP_REJECT'));
+    const disR = cnt(h5.dispatched, C('AUDIO_CLIP_REJECT'));
+    const winS = 10 * 0.1;
+    const ok05 = reqR.length === 10 && disR >= 1 && disR <= 2 * winS + 1e-9;
+    p5('A05-05', 'sfx_reject · 连续 10 次拒绝 ≤ 2 次/秒（§3.8 红线）', ok05,
+        `【派发层，不是请求层】以 0.1 s 间隔注入 10 次 bead:rejected（窗口 ${winS.toFixed(1)} s）：`
+        + `玩法侧发出 ${reqR.length} 次请求、backend 实际收到 **${disR}** 次 sfx_reject ⇒ 上限 ${2 * winS} 次（= 窗口秒数×2）`
+        + `，实测 ${(disR / winS).toFixed(2)} 次/秒。scheduler._time 靠每帧 flush(dt) 推进（修订 28④：v1.1 旧夹具从不 flush ⇒ 本条当时不可测）。`
+        + `　对照旧缺陷：若仍用统一 minInterval=0.05（v1.0 现状），同一 1.0 s 窗口上限为 1/0.05=${(1 / 0.05).toFixed(0)} 次 ⇒ 直接违反 §3.8。`);
+
+    const miProbe = ah(); miProbe.tickFrame(FR); miProbe.clearAudio();
+    const emitAll = [
+        [C('AUDIO_CLIP_REJECT'), () => miProbe.events.emit('bead:rejected', { row: 0, col: 0, colorIdx: 1 })],
+        [C('AUDIO_CLIP_PLACE'), () => miProbe.events.emit('bead:placed', { row: 0, col: 0, colorIdx: 1, slot: 0 })],
+        [C('AUDIO_CLIP_SELECT'), () => miProbe.events.emit('tray:selected', { slot: 1, colorIdx: 1 })],
+        [C('AUDIO_CLIP_URGENT_BEAT'), () => miProbe.events.emit('timer:tick', { remaining: 1 })],
+        [C('AUDIO_CLIP_TRAY_FULL'), () => miProbe.events.emit('tray:full', {})],
+        [C('AUDIO_CLIP_CLEAR'), () => miProbe.events.emit('level:cleared', { levelId: 'L90', remaining: 1, ratio: 1, stars: 3 })],
+        [C('AUDIO_CLIP_COMBO_T3'), () => miProbe.events.emit('combo:up', { streak: 4, multiplier: 5, tier: 3 })],
+    ];
+    const miWant = {
+        [C('AUDIO_CLIP_REJECT')]: T.AUDIO_REJECT_MIN_INTERVAL,
+        [C('AUDIO_CLIP_PLACE')]: T.AUDIO_SFX_MIN_INTERVAL,
+        [C('AUDIO_CLIP_SELECT')]: T.AUDIO_SFX_MIN_INTERVAL,
+        [C('AUDIO_CLIP_URGENT_BEAT')]: T.AUDIO_URGENT_MIN_INTERVAL,
+        [C('AUDIO_CLIP_TRAY_FULL')]: T.AUDIO_TRAYFULL_MIN_INTERVAL,
+        [C('AUDIO_CLIP_CLEAR')]: 0, [C('AUDIO_CLIP_COMBO_T3')]: 0,
+    };
+    const miRows = [];
+    for (const [id, fire] of emitAll) {
+        miProbe.clearAudio(); fire();
+        const r = miProbe.requests.find((x) => x.id === id);
+        miRows.push(`${id}=${r ? r.minInterval : '无请求'}(期${miWant[id]})`);
+        miProbe.tickFrame(0.6);   // 逐 clip 过窗口，不让上一条的限流影响下一条
+    }
+    const ok06 = miRows.every((row) => { const m = /=([-\d.]+)\(期([-\d.]+)\)/.exec(row); return m && Math.abs(Number(m[1]) - Number(m[2])) < 1e-9; })
+        && reqR.every((r) => r.minInterval === T.AUDIO_REJECT_MIN_INTERVAL);
+    p5('A05-06', 'sfx_reject · minInterval === 0.5（分档表 §3.2，非全局 0.05）', ok06,
+        `【请求层】从 audio.play() 实参读数（不是读常量表）：reject 10 次请求的 minInterval 全=`
+        + `${u(reqR.map((r) => r.minInterval)).join('/')}，§3.12 冻结值 AUDIO_REJECT_MIN_INTERVAL=${T.AUDIO_REJECT_MIN_INTERVAL}。`
+        + `逐 clip 分档审计=[${miRows.join(' ')}]（期值均取自 §3.12 镜像常量：SFX=${T.AUDIO_SFX_MIN_INTERVAL}、`
+        + `URGENT=${T.AUDIO_URGENT_MIN_INTERVAL}、TRAYFULL=${T.AUDIO_TRAYFULL_MIN_INTERVAL}、一次性=${0}）。`);
+
+    // ── A07 · 道具帧两条并存 / affectedSlots 为空零发声
+    const h7 = ah(); h7.tickFrame(FR);
+    h7.game.giveTrayBead(1); h7.game.giveTrayBead(2); h7.clearAudio();
+    const t7res = tapAt(h7, ...CARD_XY(1));
+    const puEv = h7.count('powerup:used');
+    h7.clearAudio();
+    h7.events.emit('powerup:used', { type: 'random', affectedSlots: [] });
+    h7.audio.flush(FR);
+    const silentEmpty = h7.dispatched.length === 0 && h7.audio.pendingCount === 0;
+    const ok07 = puEv === 1 && t7res.dispatched.includes(C('AUDIO_CLIP_POWERUP'))
+        && t7res.dispatched.includes(C('AUDIO_CLIP_DISSOLVE')) && silentEmpty;
+    p5('A05-07', 'sfx_powerup + sfx_dissolve · 同帧分层不被去重吞掉；零效果零发声', ok07,
+        `【派发层】真实点击道具卡（托盘内先放 2 颗珠作为前置）：powerup:used=${puEv}、同帧 backend 收到=`
+        + `[${t7res.dispatched.join(', ') || '（无）'}]（共 ${t7res.dispatched.length} 条 ≤ 冻结上限 AUDIO_MAX_PER_FRAME=${T.AUDIO_MAX_PER_FRAME}）`
+        + ` ⇒ 两条 id 不同、未被 flush() 的同帧去重吞掉。`
+        + `【零噪声】注入 affectedSlots: [] 后 flush ⇒ 新增派发=${h7.dispatched.length} 条、pending=${h7.audio.pendingCount}（powerups §4）。`,
+        { partial: false });
+
+    // ── A05-08 · 连击三档分流不串音，tier=0 零发声
+    const h8 = ah(); h8.tickFrame(FR); h8.clearAudio();
+    const tierRows = [];
+    let zeroAt0 = true;
+    for (const tier of [1, 2, 3]) {
+        const before = h8.dispatched.length;
+        h8.events.emit('combo:up', { streak: tier + 1, multiplier: tier, tier });
+        h8.audio.flush(FR);
+        tierRows.push(`tier${tier}→[${h8.dispatched.slice(before).join(',')}]`);
+    }
+    {
+        const before = h8.dispatched.length;
+        h8.events.emit('combo:up', { streak: 1, multiplier: 1, tier: 0 });
+        h8.audio.flush(FR);
+        zeroAt0 = h8.dispatched.length === before;
+    }
+    const ok08 = tierRows[0] === `tier1→[${C('AUDIO_CLIP_COMBO_T1')}]`
+        && tierRows[1] === `tier2→[${C('AUDIO_CLIP_COMBO_T2')}]`
+        && tierRows[2] === `tier3→[${C('AUDIO_CLIP_COMBO_T3')}]` && zeroAt0;
+    p5('A05-08', 'sfx_combo_t1/t2/t3 · 按 tier 分流且不串音，tier=0 零发声', ok08,
+        `【派发层】逐档广播 combo:up 并单帧 flush：${tierRows.join(' ')}；tier=0 帧新增派发=${zeroAt0 ? '0 条' : '非零'}。`
+        + `　⇒ 三档各且仅各一条（无串音、无漏发）；未升档帧静默。`);
+
+    // ══ part 2：A05-09 … A05-27 + P5·S（结构证据）═══════════════════════
+    // v1.2 修（夹具缺陷，不得计为实现缺陷）：旧参数 5×4 + 2 色被 BOOT 校验**拒收**
+    // （实测 `cols 5 outside [6,13]` / `rows 4 outside [5,12]` / `pattern colour count 2 < 3`，
+    //  `levels.ts:120-158`）⇒ 实例永久停在 boot，A05-11/12/13/17/18/19/20/23 **连锁假 FAIL**。
+    // 现取最小合法尺寸 6×5、3 色（同 P22 `probeLevel(918, 6, 5, …)` 口径），实测 `validateBeadsLevel → []`。
+    const LVL = (id, time = 180, si = 6.0) => probeLevel(id, 6, 5, time, si, (i, j) => String(((i + 2 * j) % 3) + 1));
+    const runFrames = (h, n) => { for (let i = 0; i < n; i++) h.tickFrame(FR); };
+    /** 跑帧直到 pred 成立（返回实际帧数）；逐帧回调拿到本帧新增派发。 */
+    function runWhile(h, pred, maxFrames, onFrame) {
+        let n = 0;
+        while (n < maxFrames && !pred(h)) {
+            const before = h.dispatched.length;
+            h.tickFrame(FR);
+            if (onFrame) onFrame(h, h.dispatched.slice(before), FR);
+            n++;
+        }
+        return n;
+    }
+
+    // ── A05-09 · sfx_combo_t3（[B] 时长 + 判据主体待裁）
+    const h9 = ah(); h9.tickFrame(FR); h9.clearAudio();
+    const p9 = h9.dispatched.length;
+    h9.events.emit('combo:up', { streak: 7, multiplier: 5, tier: 3 });
+    h9.audio.flush(FR);
+    const t3n = cnt(h9.dispatched.slice(p9), C('AUDIO_CLIP_COMBO_T3'));
+    p5('A05-09', 'sfx_combo_t3 · 时长 ≤350ms 且与伪震屏（scale 1.015）同帧起始', t3n === 1,
+        `【本轮实测到的半边】广播 combo:up(tier=3) → 单帧 flush ⇒ sfx_combo_t3 新增派发 ${t3n} 次（三档分流另有 A05-08 独立取证）。`
+        + `　【缺哪一道】「时长 ≤350 ms」= **[B]**：本轮夹具无 AudioContext（实测 typeof globalThis.AudioContext=${typeof globalThis.AudioContext}），`
+        + `拿到的只是配方**声明值** durationMs=${vcDur(C('AUDIO_CLIP_COMBO_T3'))}ms，不是实测包络。`
+        + `　【判据自身冲突 · 移交裁定，不判实现缺陷】A05-09 把「伪震屏 scale ${T.COMBO_SHAKE_SCALE_MAX}」写成 sfx_combo_t3 的同帧主体，`
+        + `但 §1 行 7 与 §2.1 行 6/7/8 的对应关系、以及实现侧 combo-vfx.ts:46-50（tier=2 → kind=pseudoShake / ${T.COMBO_VFX_LV2_MS}ms；tier=3 → kind=burst / ${T.COMBO_VFX_LV3_MS}ms）`
+        + `都表明**伪震屏属 Lv2（sfx_combo_t2）**⇒「与 t3 同帧起始」按现文**不可判定**（主体写错，不是实现没做到）。归属：文策渊（§4 正文）。`
+        + `　另记（不重复计缺陷）：Lv2 伪震屏在 view-model.ts:711 明文**未接入绘制**，属 BD-04 已登记的动效缺行。`,
+        { block: '[B] + 判据主体待裁' });
+
+    // ── A05-10 · combo:break 两 reason 同 clip；真路 wrong 时与 reject 同帧并存
+    const h10 = ah(); h10.tickFrame(FR); h10.clearAudio();
+    const rows10 = [];
+    for (const reason of ['wrong', 'timeout']) {
+        h10.clearAudio();
+        h10.events.emit('combo:break', { reason });
+        h10.audio.flush(FR);
+        rows10.push(`${reason}→[${h10.dispatched.join(',')}]`);
+    }
+    const breakClip = C('AUDIO_CLIP_COMBO_BREAK');
+    const synth10ok = rows10.every((r) => (r.match(new RegExp(breakClip, 'g')) || []).length === 1);
+    // 真实路径（不是直发事件）：冲刺模式选一颗**错色**珠点到目标格 ⇒ 同帧 bead:rejected + combo:break
+    const hS = ah({ levels: [LVL(940)] }); hS.tickFrame(FR); hS.game.startSprint(); hS.tickFrame(FR);
+    const sS = hS.game.snapshot;
+    let target = -1, targetColor = 0;
+    for (let i = 0; i < sS.cells.length; i++) {
+        const c = sS.cells[i];
+        if (!c.void && c.state === 'empty' && c.colorIdx > 0) { target = i; targetColor = c.colorIdx; break; }
+    }
+    let wrongSlot = hS.game.snapshot.traySlots.findIndex((x) => x.state !== 'free' && x.colorIdx !== targetColor);
+    if (wrongSlot < 0) { const g = hS.game.giveTrayBead(targetColor === 1 ? 2 : 1); wrongSlot = g; }  // 修订 20 注明例外：仅作「有错色珠」前置夹具
+    if (wrongSlot >= 0) hS.game.selectTraySlot(wrongSlot);
+    const snS = hS.game.snapshot;
+    const t10 = target >= 0 ? tapAt(hS, ...cellXY(snS, target)) : { pending: 0, dispatched: [] };
+    const rejEv = hS.count('bead:rejected'), brkEv = hS.count('combo:break');
+    const realCoexist = t10.dispatched.includes(C('AUDIO_CLIP_REJECT')) && t10.dispatched.includes(breakClip);
+    p5('A05-10', 'sfx_combo_break · wrong/timeout 两 reason 同 clip 各 1；wrong 同帧另有条 reject', synth10ok && realCoexist,
+        `【派发层·合成事件】${rows10.join('；')} ⇒ 两 reason 均派发同一 clip 恰 1 次（handler 不读 reason，与 §5「只一行」同源）。`
+        + `　【派发层·**真实点击**】冲刺模式选错色珠（槽 ${wrongSlot}，色≠格 ${target} 所需 ${targetColor}）后真帧点击：bead:rejected=${rejEv}、combo:break=${brkEv}，`
+        + `同一 tick 派发=[${t10.dispatched.join(', ') || '（无）'}] ⇒ 两条并存不互斥（Q-A05-3 采「先并存」推荐项）。`
+        + `　听感是否糊属 **[B]/[P]**，本条只验「并存不吞」，不宣称听感达标。`);
+
+    // ── A05-11 / A05-12 / A05-13 · 告急心跳（同一条主体链：进入告急 → 心跳 → 暂停 → 续时停拍）
+    const beat = C('AUDIO_CLIP_URGENT_BEAT');
+    const hU = ah({ levels: [LVL(941, 180)] });
+    let clkU = 0;
+    hU.tickFrame(FR); clkU += FR;
+    const beatT = [];
+    const framesU = runWhile(hU, (h) => h.game.phase !== 'playing', 30000, (h, added) => {
+        clkU += FR;
+        const k = cnt(added, beat);
+        if (k > 0) beatT.push({ t: Number(clkU.toFixed(4)), k });
+    });
+    const lvlTime = 180, crossAt = lvlTime - T.TIMER_URGENT_T;
+    const gaps = [];
+    for (let i = 1; i < beatT.length; i++) gaps.push(beatT[i].t - beatT[i - 1].t);
+    const gmin = gaps.length ? Math.min(...gaps) : null, gmax = gaps.length ? Math.max(...gaps) : null;
+    const gmean = gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : null;
+    const ok11 = hU.count('timer:urgent') === 1 && beatT.length >= 5 && beatT.every((x) => x.k === 1)
+        && Math.abs(beatT[0].t - crossAt) <= 0.05 && gmin >= 0.95 && gmax <= 1.05;
+    p5('A05-11', 'sfx_urgent_beat · 首拍由 timer:urgent 边沿驱动，后续每拍 1 次且间隔 1.0±0.05s', ok11,
+        `【派发层】真关卡（time=${lvlTime}s，probe 关卡）以 fixedDt=1/60 跑到失败（${framesU} 帧 = ${(framesU * FR).toFixed(1)}s 仿真）：`
+        + `timer:urgent 事件数=${hU.count('timer:urgent')}（应为 1 = 边沿）、sfx_urgent_beat 派发 ${beatT.length} 拍（时刻=[${beatT.map((x) => x.t.toFixed(2)).join(' ')}]s，逐拍次数=${u(beatT.map((x) => x.k)).join('/')}）。`
+        + `　下穿阈值应发首拍的时刻 = time − TIMER_URGENT_T = ${crossAt}s，实测首拍 ${beatT.length ? beatT[0].t.toFixed(3) : '—'}s（偏 ${beatT.length ? (beatT[0].t - crossAt).toFixed(3) : '—'}s ≤ 1 帧）。`
+        + `　相邻拍间隔 min=${gmin === null ? '—' : gmin.toFixed(3)}s / mean=${gmean === null ? '—' : gmean.toFixed(3)}s / max=${gmax === null ? '—' : gmax.toFixed(3)}s ⇒ 区间 [0.95,1.05]=${gmin !== null && gmax !== null && gmin >= 0.95 && gmax <= 1.05}。`
+        + `　与 1000ms α 脉冲**同周期** = AUDIO_URGENT_BEAT_PERIOD=${T.AUDIO_URGENT_BEAT_PERIOD}s ≡ TIMER_TICK=${T.TIMER_TICK}s（同相属 **[B]** 可听，不在此宣称）。`);
+
+    const ok13 = gmean !== null && (1 / gmean) <= 3 + 1e-9;
+    p5('A05-13', 'sfx_urgent_beat · 拍频 ≤3 Hz（实为 1 Hz），不致听觉疲劳', ok13,
+        `【[N] 周期半边】实测均拍 ${gmean === null ? '—' : gmean.toFixed(3)}s ⇒ 拍频 ${(gmean === null ? NaN : 1 / gmean).toFixed(3)} Hz ≤ 3 Hz=${ok13}（与 §3.8 视觉闪烁红线同源同界）。`
+        + `　【缺哪一道】「主观不致疲劳」= **[P]**：本轮无 Playtest（阶段 6 未开始，无被试无录音）⇒ 整条记 PASS*，不得据周期达标宣称听感达标。`,
+        { partial: true });
+
+    // A05-12① PAUSED 期间零拍（独立实例：一次一事，修订 26）
+    const hP = ah({ levels: [LVL(942, 180)] });
+    let clkP = 0, beatsP = 0;
+    hP.tickFrame(FR); clkP += FR;
+    runWhile(hP, () => clkP > crossAt + 2.2, 30000, (h, added) => { clkP += FR; beatsP += cnt(added, beat); });
+    hP.clearAudio();
+    tapAt(hP, ...GEAR_XY); hP.tickFrame(FR);
+    const pausedPhase = hP.game.phase;
+    const remAtPause = Number(hP.game.remaining.toFixed(4));
+    let beatsPaused = 0;
+    for (let i = 0; i < 180; i++) { const b = hP.dispatched.length; hP.tickFrame(FR); beatsPaused += cnt(hP.dispatched.slice(b), beat); }
+    const remAfterPaused = Number(hP.game.remaining.toFixed(4));
+    const tickDuringPause = hP.count('timer:tick');
+    hP.clearAudio();
+    tapBtn(hP, pausePanelLayout('normal'), 'resume');
+    let beatsResumed = 0;
+    for (let i = 0; i < 180; i++) { const b = hP.dispatched.length; hP.tickFrame(FR); beatsResumed += cnt(hP.dispatched.slice(b), beat); }
+    const ok12a = beatsP >= 2 && pausedPhase === 'paused' && beatsPaused === 0 && remAfterPaused === remAtPause && beatsResumed >= 2;
+
+    // A05-12② 续时使 remaining 回到阈值以上 ⇒ 心跳停（沿用 hU 同一主体链的失败后状态）
+    const remAtFail = Number(hU.game.remaining.toFixed(4));
+    hU.clearAudio();
+    const revU = hU.game.requestRevive();
+    const adU = hU.services.rewardedAd;
+    adU.settle('complete');
+    const phaseAfterRevive = hU.game.phase, remAfterRevive = Number(hU.game.remaining.toFixed(2));
+    let beatsAfterRevive = 0;
+    for (let i = 0; i < 300; i++) { const b = hU.dispatched.length; hU.tickFrame(FR); beatsAfterRevive += cnt(hU.dispatched.slice(b), beat); }
+    const ok12b = remAtFail <= 0.05 && revU === true && phaseAfterRevive === 'playing'
+        && remAfterRevive > T.TIMER_URGENT_T && beatsAfterRevive === 0;
+    p5('A05-12', 'sfx_urgent_beat · 回到阈值以上后停拍；PAUSED 期间零拍', ok12a && ok12b,
+        `① PAUSED（真点齿轮，另一实例）：告急已发 ${beatsP} 拍后进 PAUSED（phase=${pausedPhase}），暂停 3.0s（180 帧）新增拍=${beatsPaused}、`
+        + `remaining ${remAtPause}s → ${remAfterPaused}s（冻结=${remAfterPaused === remAtPause}）、该实例 timer:tick 累计=${tickDuringPause} ⇒ 计时不走 ⇒ 无拍；恢复后 3.0s 新增拍=${beatsResumed}（证明不是「拍源已死」）。`
+        + `② 续时回阈值以上（hU 链）：失败时 remaining=${remAtFail}s → requestRevive=${revU} + 广告 complete ⇒ phase=${phaseAfterRevive}、remaining=${remAfterRevive}s（加 REVIVE_BONUS_SEC=${T.REVIVE_BONUS_SEC}s，> TIMER_URGENT_T=${T.TIMER_URGENT_T}）`
+        + `→ 再跑 5.0s（300 帧）新增拍=${beatsAfterRevive} ⇒ 停拍成立。`);
+
+    // ── A05-14 · tray:full 音只 1 次不循环（视觉 500ms 呼吸半边欠 BD-10）
+    const h14 = ah(); h14.tickFrame(FR); h14.clearAudio();
+    const perEmit = [];
+    for (let k = 0; k < 3; k++) {
+        const before = h14.dispatched.length;
+        h14.events.emit('tray:full', {});
+        h14.audio.flush(FR);
+        perEmit.push(cnt(h14.dispatched.slice(before), C('AUDIO_CLIP_TRAY_FULL')));
+        runFrames(h14, 132);           // 2.2s 间隔：不靠限流把人少发（事件天然间隔 ≥ SPAWN_INTERVAL_MIN）
+    }
+    const req14 = h14.requests.filter((r) => r.id === C('AUDIO_CLIP_TRAY_FULL'));
+    const ok14audio = perEmit.every((n) => n === 1) && req14.length === 3 && req14.every((r) => r.loop === false);
+    p5('A05-14', 'sfx_tray_full · 每次 tray:full 派发 1 次且不循环；与视觉呼吸互不驱动', ok14audio,
+        `【[N] 音频半边·派发层】隔 2.2s 注入 3 次 tray:full ⇒ 每次新增派发=${perEmit.join('/')}（恰 1）；`
+        + `【[N] 音频半边·请求层】3 次请求的 loop 入参全=${u(req14.map((r) => r.loop)).join('/')} ⇒ **不循环**成立（minInterval=${u(req14.map((r) => r.minInterval)).join('/')} = AUDIO_TRAYFULL_MIN_INTERVAL=${T.AUDIO_TRAYFULL_MIN_INTERVAL}）。`
+        + `　【整条未闭】「托盘描边呼吸按 500ms 独立循环」同一轮 P7 已实测：满槽态 500ms 窗口内剔 text 签名去重=1 ⇒ **无呼吸时间轴**（已登记 **BD-10**，属表现层欠账，不在 P5 重复计新缺陷）。`
+        + `　⇒ 记 PASS*（修订 37：本条判据含「与视觉呼吸互不驱动」子句，而呼吸本身未实现 ⇒ 互不驱动无法双向成立）：音频半边绿不代表 A05-14 可关闭；该条关闭需 BD-10 修完 + 复跑。`,
+        { partial: true });
+
+    // ── A05-15 · sprint:stage 派发（双段属 [B]）
+    const h15 = ah(); h15.tickFrame(FR); h15.clearAudio();
+    const b15 = h15.dispatched.length;
+    h15.events.emit('sprint:stage', { stage: 2 });
+    h15.audio.flush(FR);
+    const n15 = cnt(h15.dispatched.slice(b15), C('AUDIO_CLIP_STAGE'));
+    p5('A05-15', 'sfx_stage · sprint:stage 帧内派发；250+250 双段与淡出/淡入对齐', n15 === 1,
+        `【[N] 派发半边】广播 sprint:stage → 单帧 flush ⇒ sfx_stage 新增派发 ${n15} 次（=1）。`
+        + `　【缺哪一道】「250+250 双段结构与旧图淡出/新图淡入**分段对齐**」= **[B]**：本轮只能读到配方声明值 durationMs=${vcDur(C('AUDIO_CLIP_STAGE'))}ms（=250+250 的**总长**表达），`
+        + `是否真分成两段、两段相位是否与视觉分段对齐需要 Web Audio 可听 + 逐帧截图 ⇒ 记 ⛔。` + `　（无 AudioContext：typeof globalThis.AudioContext=${typeof globalThis.AudioContext}）`,
+        { block: '[B]' });
+
+    // ── A05-16 · level:cleared 帧内派发 + 时长/同帧视觉
+    const h16 = ah(); h16.tickFrame(FR); h16.clearAudio();
+    const b16 = h16.dispatched.length;
+    h16.events.emit('level:cleared', { levelId: 'L90', remaining: 90, ratio: 0.5, stars: 2 });
+    h16.audio.flush(FR);
+    const n16 = cnt(h16.dispatched.slice(b16), C('AUDIO_CLIP_CLEAR'));
+    const waveConst = Object.keys(T).filter((k) => /COMPLETE_WAVE|WAVE/.test(k) && !k.startsWith('AUDIO_CLIP_'));
+    p5('A05-16', 'sfx_clear · level:cleared 帧内派发；≤800ms 且与 vfx_complete_wave 首列同帧', n16 === 1,
+        `【[N] 派发半边】广播 level:cleared → 单帧 flush ⇒ sfx_clear 新增派发 ${n16} 次（真实过关链路的同帧派发见 A05-17/A05-18）。`
+        + `　【缺哪一道】「时长 ≤800 ms」= **[B]**（声明值 durationMs=${vcDur(C('AUDIO_CLIP_CLEAR'))}ms，无实测包络）；`
+        + `「与 vfx_complete_wave 首列弹跳同帧起始」= 视觉主体缺失（tuning 内 WAVE 类常量 ${waveConst.length} 个${waveConst.length ? '：' + waveConst.join('/') : ''}），属 BD-04 已登记缺行 ⇒ 记 ⛔。`,
+        { block: '[B] + 视觉主体缺失(BD-04)' });
+
+    // ── A05-17 · sfx_star：结算逐星 1 次不重播 + 通关画面逐关行 1 次
+    const lv17a = LVL(943), lv17b = LVL(944);
+    const h17 = ah({ levels: [lv17a, lv17b] });
+    h17.tickFrame(FR);
+    // v1.2 修：旧表达式 `snapshot.levelTimeMs ? 0 : 180` 无意义（snapshot 无该字段 ⇒ 恒 180 且系探针自报）。
+    // 现在分母直接用**自己造的关卡声明值**（当场拷标，修订 15bis(a) 同口径）。
+    const rem17 = Number(h17.game.remaining.toFixed(4)), total17 = lv17a.time;
+    const ratio17 = Math.max(0, Math.min(1, rem17 / total17));
+    const starsWant = ratio17 >= T.STAR3_RATIO ? 3 : ratio17 >= T.STAR2_RATIO ? 2 : 1;
+    const fillA = fillBoardAudio(h17), phaseA17 = h17.game.phase;
+    h17.clearAudio(); runFrames(h17, 90);
+    const starA = cnt(h17.dispatched, C('AUDIO_CLIP_STAR')), starsGot = h17.game.lastStars;
+    h17.clearAudio(); runFrames(h17, 120);
+    const starAReplay = cnt(h17.dispatched, C('AUDIO_CLIP_STAR'));
+    h17.clearAudio(); tapBtn(h17, clearPanelLayout({ lastLevel: false }), 'next');
+    const phaseB17 = h17.game.phase;
+    const fillB = h17.tickFrame(FR) ?? true;                        // 给新关卡一帧同步快照
+    const fillBok = fillBoardAudio(h17), phaseC17 = h17.game.phase;
+    h17.clearAudio(); runFrames(h17, 90);
+    const starC = cnt(h17.dispatched, C('AUDIO_CLIP_STAR'));
+    h17.clearAudio(); tapBtn(h17, clearPanelLayout({ lastLevel: true }), 'next');
+    const phaseD17 = h17.game.phase, lc17 = h17.game.levelCount;
+    runFrames(h17, 90);
+    const starD = cnt(h17.dispatched, C('AUDIO_CLIP_STAR'));
+    const ok17 = fillA && phaseA17 === 'level-clear' && starA === starsWant && starsGot === starsWant
+        && starAReplay === 0 && phaseB17 === 'playing' && fillBok && phaseC17 === 'level-clear' && starC === h17.game.lastStars
+        && phaseD17 === 'finish' && starD === lc17;
+    p5('A05-17', 'sfx_star · 结算面板逐星各 1 次（不重播）；通关画面逐关行各 1 次', ok17,
+        `【派发层·真过关链路】星数期值由冻结阈值**独立复算**（不用 computeClearStars）：remaining=${rem17}s / total=${total17}s ⇒ ratio=${ratio17.toFixed(3)}，STAR3_RATIO=${T.STAR3_RATIO}/STAR2_RATIO=${T.STAR2_RATIO} ⇒ 应=${starsWant} 星。`
+        + `　L1 填盘=${fillA} → phase=${phaseA17}；面板开启后 1.5s（90 帧）sfx_star 派发=${starA}（game.lastStars=${starsGot}）；`
+        + `再跑 2.0s（120 帧）新增=${starAReplay}（期望 0 ⇒ **不重播**）。「下一关」→ phase=${phaseB17}；L2 填盘=${fillBok} → ${phaseC17}，1.5s 派发=${starC}。`
+        + `　末关「查看结果」→ phase=${phaseD17}，1.5s 内 sfx_star 派发=${starD}（= 关卡数 ${lc17}，逐行入场各 1 次）。`
+        + `　本条道次 = [N]（判据原文「现状已可测」）；星数视觉（逐颗 scale 0→1.2→1）属表现层，不在本条范围内重复取证。`);
+
+    // ── A05-18 · 四个面板态入/出 + 遮罩零发声
+    const h18 = ah({ levels: [LVL(945), LVL(946)] });
+    h18.tickFrame(FR); h18.clearAudio();
+    tapAt(h18, ...GEAR_XY);
+    const inPaused = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_IN'));
+    const pausedOk = h18.game.phase === 'paused';
+    h18.clearAudio();
+    // 面板外（网格）⇒ 遮罩吃掉，零发声。经 `_handleTap` 真路由（非 InputManager，见 tapBtn 注）：
+    // 若走输入链，面板相位根本不读输入 ⇒ 「零发声」会因**收不到事件**而平凡为真（假绿，不得采用）。
+    const scrimTap = tapRouterAt(h18, ...cellXY(h18.game.snapshot, 0));
+    const scrimSilent = h18.dispatched.length === 0 && h18.audio.pendingCount === 0;
+    const scrimNew = h18.dispatched.length, scrimConsumed = scrimTap.consumed;
+    h18.clearAudio(); tapBtn(h18, pausePanelLayout('normal'), 'resume');
+    const outPaused = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_OUT'));
+    h18.clearAudio(); fillBoardAudio(h18);
+    h18.tickFrame(FR);                                          // v1.2 修：填盘是直投 API、不跨帧 ⇒ 不 flush 则 panel_in 永留 pending（实测旧版 inClear=0 假 FAIL）
+    const inClear = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_IN'));
+    h18.clearAudio(); tapBtn(h18, clearPanelLayout({ lastLevel: false }), 'next');
+    const outClear = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_OUT'));
+    h18.clearAudio(); fillBoardAudio(h18); runFrames(h18, 4);
+    h18.clearAudio(); tapBtn(h18, clearPanelLayout({ lastLevel: true }), 'next');
+    const inFinish = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_IN'));
+    h18.clearAudio(); tapBtn(h18, finishPanelLayout(h18.game.levelCount), 'replay');
+    const outFinish = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_OUT'));
+    const phaseAfterReplay = h18.game.phase;
+    // GAME_OVER 入/出（另一实例，跑到失败）：同帧面板入 + 面板出由 retry 驱动
+    const hF = ah({ levels: [LVL(947, 180)] });
+    hF.tickFrame(FR);
+    let clkF = 1 / 60, inGameOver = 0;
+    const framesF = runWhile(hF, (h) => h.game.phase !== 'playing', 30000, (h, added) => { clkF += FR; inGameOver += cnt(added, C('AUDIO_CLIP_PANEL_IN')); });
+    const phaseF = hF.game.phase;
+    hF.clearAudio();
+    // A05-20：未看完（skip）×10 次，每次隔 0.1s ⇒ 受同一 0.5s 限流
+    let rev20 = 0, skip20 = 0;
+    for (let i = 0; i < 10; i++) {
+        if (hF.game.requestRevive()) rev20++;
+        hF.services.rewardedAd.settle('skip'); skip20++;
+        hF.tickFrame(FR * 6);                                        // 0.1s
+    }
+    runFrames(hF, 6);
+    const reqReject = hF.requests.filter((r) => r.id === C('AUDIO_CLIP_REJECT'));
+    const disReject = cnt(hF.dispatched, C('AUDIO_CLIP_REJECT'));
+    const disReviveOk = cnt(hF.dispatched, C('AUDIO_CLIP_REVIVE_OK'));
+    const win20 = Number((10 * 0.1 + 6 * FR).toFixed(3));
+    const ok20 = rev20 === 10 && skip20 === 10 && reqReject.length === 10 && disReject >= 1 && disReject <= 2 * win20 + 1e-9
+        && disReviveOk === 0 && reqReject.every((r) => r.minInterval === T.AUDIO_REJECT_MIN_INTERVAL);
+    hF.clearAudio();
+    tapBtn(hF, failPanelLayout(true), 'retry');
+    const outGameOver = cnt(hF.dispatched, C('AUDIO_CLIP_PANEL_OUT'));
+    const phaseAfterRetry = hF.game.phase;
+    p5('A05-18', 'sfx_panel_in/out · 四个面板态入/出首帧均覆盖；遮罩拦截点击零发声', inGameOver >= 1 && outGameOver === 1 && pausedOk && scrimSilent && outPaused === 1 && inClear === 1 && outClear === 1 && inFinish === 1 && outFinish === 1 && phaseAfterReplay === 'playing' && phaseF === 'game-over',
+        `【派发层】PAUSED 入=${inPaused}（phase=${pausedOk ? 'paused ✓' : '✗'}，经真输入链点齿轮）/ 面板外路由点网格零发声=${scrimSilent}（新增派发=${scrimNew}）/ 恢复出=${outPaused}；`
+        + `LEVEL_CLEAR 入=${inClear} / 下一关出=${outClear}；FINISH 入=${inFinish} / 重玩出=${outFinish}（phase→${phaseAfterReplay}）；`
+        + `GAME_OVER：真跑到失败（${framesF} 帧）入=${inGameOver}（phase=${phaseF}）/ 重试出=${outGameOver}（phase→${phaseAfterRetry}）。`
+        + `　【遮罩子句】在 PAUSED 下经真路由点网格格 0：新增派发=${scrimNew}（期望 0）、路由返回 consumed=${scrimConsumed}（期望 false ⇒ 未落入任何分支）⇒ 遮罩吃掉点击且不落到任何音频请求。`
+        + `　【未闭】时长 ≤200/≤150 ms 属 **[B]**（声明值 in=${vcDur(C('AUDIO_CLIP_PANEL_IN'))} / out=${vcDur(C('AUDIO_CLIP_PANEL_OUT'))}ms），但**派发与面板态同帧**是本条 [N] 本体 ⇒ 整条仍含 [B] 子句。`,
+        { partial: true });
+
+    // ── A05-19 · sfx_revive_ok（正路 hU 链 / 反路 hF skip）
+    const revReq = hU.requests.filter((r) => r.id === C('AUDIO_CLIP_REVIVE_OK'));
+    const revDis = cnt(hU.dispatched, C('AUDIO_CLIP_REVIVE_OK'));
+    const ok19 = revReq.length === 1 && revDis === 1 && revU === true && phaseAfterRevive === 'playing'
+        // v1.2 修：旧表达式把「后续 300 帧」预先从期望里扣掉，但 remAfterRevive 是在 settle 后**立即**读的
+        // ⇒ 恒差 5s（假 FAIL）。现按实现语义直接对账：续时把 remaining **置为** REVIVE_BONUS_SEC（从 0 起算）。
+        && Math.abs(remAfterRevive - T.REVIVE_BONUS_SEC) < 1.5 && disReviveOk === 0;
+    p5('A05-19', 'sfx_revive_ok · 只在真加时那一帧派发；未看完 ⇒ 零派发', ok19,
+        `【正路】hU：失败时 remaining=${remAtFail}s → requestRevive=${revU} + 广告 complete ⇒ 本次请求=${revReq.length} 次（loop=${revReq.map((r) => r.loop).join('/')}）、`
+        + `随后 300 帧内派发=${revDis} 次，phase=${phaseAfterRevive}、remaining=${remAfterRevive}s（= REVIVE_BONUS_SEC=${T.REVIVE_BONUS_SEC}s，实测为**置位**而非在已耗尽的 0s 上叠加）。`
+        + `　【反路】hF：10 次续时均 settle(skip) ⇒ sfx_revive_ok 派发=${disReviveOk}（零加时零奖励音 ✓）；同时 panel 未离开 game-over。`
+        + `　【口径注】广告回调在 tick 外发生（真机也如此）⇒ 入队后**下一次 flush** 派发 = 同一个可观察帧（延迟≤1 帧，A05-02 通则）；本帧面板出（panel_out=${outGameOver >= 0 ? cnt(hU.dispatched, C('AUDIO_CLIP_PANEL_OUT')) : 0}）同帧发生。`
+        + `　【未闭】「反馈总时长 ≤400 ms」= **[B]**（声明值 ${vcDur(C('AUDIO_CLIP_REVIVE_OK'))}ms）+ 胶囊数字跳到 N 属视觉 ⇒ 记 PASS*。`,
+        { partial: true });
+
+    p5('A05-20', 'sfx_reject（续时未看完）· 受同一 0.5s 限流，连点不产生 >2 次/秒', ok20,
+        `【派发层】game-over 下连做 10 次「续时 → 未看完（skip）」，每次隔 0.1s（窗口共 ${win20}s）：`
+        + `requestRevive 成功=${rev20}/10、玩法侧请求=${reqReject.length} 次（minInterval 入参=${u(reqReject.map((r) => r.minInterval)).join('/')}）、backend 实际收到 sfx_reject=${disReject} 次 `
+        + `⇒ 上限 ${(2 * win20).toFixed(2)} 次、实测 ${(disReject / win20).toFixed(2)} 次/秒 ⇒ ≤2 次/秒=${disReject <= 2 * win20 + 1e-9}。`
+        + `　与 A05-05 同源（同一个 clip + 同一个 0.5s 档），不新增参数；本条另证「续时路径上确实发了 reject」（非直发事件）。`);
+
+    // ── A05-21 · bgm_main：BOOT 恰一次 {loop:true} + 静音 stop / 解除重入队
+    const hB = ah();
+    const bgmId = C('AUDIO_CLIP_BGM');
+    const bootReq = hB.requests.filter((r) => r.id === bgmId);
+    const bootOk = bootReq.length === 1 && bootReq[0].loop === true;
+    // v1.2 修（夹具缺陷）：旧版先 `clearAudio()` 再数派发 ⇒ `clearAudio` 内部的 `flush(0)` 会把 BOOT
+    // 那一次 bgm 派发**推上账面后又清空** ⇒ `bootDispatch` 恒 0（假 FAIL）。现在先读账再清。
+    hB.tickFrame(FR);
+    const bootDispatch = cnt(hB.dispatched, bgmId);
+    hB.clearAudio(); runFrames(hB, 3);
+    const bootRedispatch = cnt(hB.dispatched, bgmId);
+    tapAt(hB, ...GEAR_XY); hB.tickFrame(FR);
+    const gearPhase = hB.game.phase;
+    hB.clearAudio();
+    const muteTap1 = tapBtn(hB, pausePanelLayout('normal'), 'toggle-bgm');
+    const mutedNow = hB.game.bgmMuted, stopsOnMute = hB.stops.slice();
+    runFrames(hB, 180);
+    const reqWhileMuted = hB.requests.filter((r) => r.id === bgmId).length;
+    hB.clearAudio();
+    const unmuteTap = tapBtn(hB, pausePanelLayout('normal'), 'toggle-bgm');
+    const reqAfterUnmute = hB.requests.filter((r) => r.id === bgmId);
+    const ok21 = bootOk && bootDispatch === 1 && bootRedispatch === 0 && gearPhase === 'paused'
+        && muteTap1.consumed === true && unmuteTap.consumed === true
+        && mutedNow === true && stopsOnMute.includes(bgmId)
+        && reqWhileMuted === 0 && reqAfterUnmute.length === 1 && reqAfterUnmute[0].loop === true;
+    p5('A05-21', 'bgm_main · BOOT 入队 {loop:true} 恰 1 次；bgmMuted ⇒ stop 且零重入队；解除 ⇒ 重新入队', ok21,
+        `【请求层】init（BOOT 装配）后首次采样：bgm_main 请求=${bootReq.length} 次、loop=${bootReq.map((r) => r.loop).join('/')}；`
+        + `第一帧帧末**派发层**=${bootDispatch} 次；再跑 3.0s 后重入队=${bootRedispatch}（期望 0 ⇒ 不逐帧重发）。`
+        + `齿轮相位=${gearPhase}；静音开关（经「_handleTap 真路由」点 toggle-bgm，consumed=${muteTap1.consumed}、该帧派发=[${muteTap1.dispatched.join(',') || '（无）'}]）：`
+        + `bgmMuted=${mutedNow}、backend.stop 调用=[${stopsOnMute.join(',')}]；保持静音 3.0s（180 帧）期间 bgm 重入队=${reqWhileMuted}（期望 0）；`
+        + `解除后再点一次（consumed=${unmuteTap.consumed}）：重新入队=${reqAfterUnmute.length} 次、loop=${reqAfterUnmute.map((r) => r.loop).join('/')}。`
+        + `　【未闭】「无缝循环点」= **[B]**（本轮无 AudioContext；loopMs=${BEADS_AUDIO_VOICES[bgmId]?.loopMs}ms 仅声明值）⇒ 记 PASS*。`,
+        { partial: true });
+
+    // ── A05-22 · bgm_main 幂等（需真后端契约）
+    const loopCapable = typeof fw.SynthAudioBackend === 'function' && Number(BEADS_AUDIO_VOICES[bgmId]?.loopMs) > 0;
+    p5('A05-22', 'bgm_main · 重复 play({loop:true}) 不得重启播放位置', loopCapable,
+        `【缺哪一道】**[B]+[R]**。「不重启位置」是 backend 运行期契约，需要真 Web Audio 上下文里对 currentPosition / 缓冲偏移的可听或可测观测。`
+        + `本轮夹具 backend=${hB.rawBackend.constructor.name}（Null）⇒ 不可验。`
+        + `　已在 **P5·S** 里以**结构证据**补到一层：SynthAudioBackend 的 _loops 命中即 return（重复 loop 请求不新建源节点）。`
+        + `　但「Node 里没建新节点」≠「人耳听不出重启」（AGENTS §7），且微信侧 createWebAudioContext 子集行为另属 **[R]**（无 AppID/无真机）⇒ 不据此关单。`
+        + `（上面算出的 ok=${loopCapable} 仅为「已备 loopMs 且引擎已存」的 **[B]** 前置预检，**不是**本条验收结论）`,
+        { block: '[B]+[R]' });
+
+    // ── A05-23 · 全表·静音可玩（三子句：SFX 门控 / 双通道独立 / 全关零阻塞）
+    // 子句 ①：只关 SFX（一次一事，修订 26）⇒ 任意玩法事件注入后 pendingCount 恒 0
+    const h23a = ah(); h23a.tickFrame(FR);
+    tapAt(h23a, ...GEAR_XY); h23a.tickFrame(FR);
+    tapBtn(h23a, pausePanelLayout('normal'), 'toggle-sfx');
+    const sfxOffA = h23a.game.sfxMuted, bgmStillOnA = h23a.game.bgmMuted;
+    h23a.clearAudio();
+    const EV23 = [
+        ['bead:placed', { row: 0, col: 0, colorIdx: 1, slot: 0 }],
+        ['tray:selected', { slot: 0, colorIdx: 1 }],
+        ['bead:rejected', { row: 0, col: 0, reason: 'wrong' }],
+        ['powerup:used', { type: 'random', affectedSlots: [0, 1] }],
+        ['combo:up', { streak: 4, multiplier: 3, tier: 2 }],
+        ['combo:break', { streak: 4, reason: 'wrong' }],
+        ['tray:full', {}],
+        ['sprint:stage', { stage: 2 }],
+        ['timer:tick', { remaining: 5 }],
+        ['timer:urgent', { remaining: 5 }],
+        ['level:cleared', { levelId: 'L90', remaining: 90, ratio: 0.5, stars: 3 }],
+    ];
+    const rows23a = [];
+    let pendSum23a = 0, dispSum23a = 0;
+    for (const [type, payload] of EV23) {
+        const before = h23a.dispatched.length;
+        h23a.events.emit(type, payload);
+        const pend = h23a.audio.pendingCount;
+        h23a.audio.flush(FR);
+        pendSum23a += pend; dispSum23a += h23a.dispatched.length - before;
+        rows23a.push(`${type}→pending ${pend}/派发 +${h23a.dispatched.length - before}`);
+    }
+    const ok23a = sfxOffA === true && bgmStillOnA === false && pendSum23a === 0 && dispSum23a === 0 && h23a.requests.length === 0;
+
+    // 子句 ②：只关 BGM ⇒ SFX 照常（双通道独立）
+    const h23c = ah(); h23c.tickFrame(FR);
+    tapAt(h23c, ...GEAR_XY); h23c.tickFrame(FR);
+    tapBtn(h23c, pausePanelLayout('normal'), 'toggle-bgm');
+    const bgmOffC = h23c.game.bgmMuted, sfxStillOnC = h23c.game.sfxMuted;
+    tapBtn(h23c, pausePanelLayout('normal'), 'resume');
+    h23c.tickFrame(FR); h23c.clearAudio();
+    const i23c = h23c.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const t23c = tapAt(h23c, ...slotXY(i23c));
+    const bgmReqC = h23c.requests.filter((r) => r.id === C('AUDIO_CLIP_BGM')).length;
+    const ok23c = bgmOffC === true && sfxStillOnC === false && cnt(t23c.dispatched, C('AUDIO_CLIP_SELECT')) === 1 && bgmReqC === 0;
+
+    // 子句 ③：两开关全关 ⇒ 真·8 关全通 + 冲刺入口零阻塞（全程零音频请求）
+    const h23b = ah({ levels: LEVELS }); h23b.tickFrame(FR);
+    tapAt(h23b, ...GEAR_XY); h23b.tickFrame(FR);
+    tapBtn(h23b, pausePanelLayout('normal'), 'toggle-sfx');
+    tapBtn(h23b, pausePanelLayout('normal'), 'toggle-bgm');
+    const bothOff = h23b.game.sfxMuted && h23b.game.bgmMuted;
+    const reqBase23b = h23b.requests.length, disBase23b = h23b.dispatched.length;
+    tapBtn(h23b, pausePanelLayout('normal'), 'resume'); h23b.tickFrame(FR);
+    const chain23b = [];
+    let brokeAt23b = 0;
+    for (let lv = 0; lv < LEVELS.length; lv++) {
+        if (!fillBoardAudio(h23b)) { brokeAt23b = lv + 1; break; }
+        chain23b.push(`${lv + 1}:${h23b.game.phase}`);
+        runFrames(h23b, 40);                                   // 让逐星结算跑完（星音本应被门控）
+        tapBtn(h23b, clearPanelLayout({ lastLevel: lv === LEVELS.length - 1 }), 'next');
+        h23b.tickFrame(FR);
+        chain23b.push(h23b.game.phase);
+    }
+    const phaseFin23b = h23b.game.phase;
+    tapBtn(h23b, finishPanelLayout(h23b.game.levelCount), 'sprint'); h23b.tickFrame(FR);
+    const sprintPhase = h23b.game.phase, sprintMode = h23b.game.mode;
+    let sprintAlive = false;
+    for (let f = 0; f < 180; f++) { h23b.tickFrame(FR); if (h23b.game.snapshot.traySlots.some((x) => x.state !== 'free')) sprintAlive = true; }
+    const newReq23b = h23b.requests.length - reqBase23b, newDis23b = h23b.dispatched.length - disBase23b;
+
+    // 子句 ③′：全关下的续时路径（normal 模式，真跑到失败 → 看完广告）
+    const h23d = ah({ levels: [LVL(951, 180)] }); h23d.tickFrame(FR);
+    tapAt(h23d, ...GEAR_XY); h23d.tickFrame(FR);
+    tapBtn(h23d, pausePanelLayout('normal'), 'toggle-sfx');
+    tapBtn(h23d, pausePanelLayout('normal'), 'toggle-bgm');
+    const bothOffD = h23d.game.sfxMuted && h23d.game.bgmMuted;
+    const reqBase23d = h23d.requests.length, disBase23d = h23d.dispatched.length;
+    tapBtn(h23d, pausePanelLayout('normal'), 'resume');
+    const frames23d = runWhile(h23d, (h) => h.game.phase !== 'playing', 30000);
+    const phase23d = h23d.game.phase;
+    const rev23d = h23d.game.requestRevive();
+    h23d.services.rewardedAd.settle('complete');
+    h23d.tickFrame(FR);
+    const phaseAfter23d = h23d.game.phase, remAfter23d = Number(h23d.game.remaining.toFixed(1));
+    runFrames(h23d, 120);
+    const ok23d = bothOffD && phase23d === 'game-over' && rev23d === true && phaseAfter23d === 'playing'
+        && remAfter23d > T.TIMER_URGENT_T && h23d.requests.length === reqBase23d && h23d.dispatched.length === disBase23d;
+    const ok23 = ok23a && ok23c && bothOff && brokeAt23b === 0 && phaseFin23b === 'finish'
+        && sprintPhase === 'playing' && sprintMode === 'sprint' && sprintAlive && newReq23b === 0 && ok23d;
+    p5('A05-23', '全表·静音可玩 · sfxMuted 门控 / 双通道独立 / 全关下 8 关+冲刺+续时零阻塞', ok23,
+        `① 只关 SFX（经真路由点暂停面板 toggle-sfx，驱动口径见本段 tapBtn 注；bgmMuted 仍=${bgmStillOnA}）：注入 ${EV23.length} 类玩法事件（含 powerup 带 affectedSlots、告急两拍、过关）`
+        + `⇒ 逐事件「注入后 pendingCount / 该帧派发」= ${rows23a.join('；')}。Σpending=${pendSum23a}、Σ派发=${dispSum23a}、`
+        + `期间**请求层**也=0（audio.play 调用=${h23a.requests.length} 次）⇒ 门控发生在 _sfx()（beads-game.ts:1656），连入队都没有。`
+        + `② 只关 BGM（toggle-bgm 后恢复）：真点托盘槽 ⇒ sfx_select 派发=${cnt(t23c.dispatched, C('AUDIO_CLIP_SELECT'))}（照常），同窗 bgm_main 重新入队=${bgmReqC}（期望 0）⇒ **双通道独立**。`
+        + `③ 两开关全关（sfxMuted=${bothOff}）后跑**真实 8 关**：${chain23b.join(' → ')}${brokeAt23b ? ' ⇒ 第 ' + brokeAt23b + ' 关填盘失败' : ''}，末关「查看结果」→ phase=${phaseFin23b}；`
+        + `通关面板「去冲刺」→ phase=${sprintPhase}、mode=${sprintMode}、3.0s 后托盘有珠=${sprintAlive}（冲刺不因静音卡死）；`
+        + `自静音基线起新增请求=${newReq23b}、新增派发=${newDis23b}（期望 0/0）。③′ 另实例真跑到失败（${frames23d} 帧）→ 续时（广告 complete）⇒ phase ${phase23d}→${phaseAfter23d}、`
+        + `remaining=${remAfter23d}s（> TIMER_URGENT_T=${T.TIMER_URGENT_T}），全程新增请求/派发=${h23d.requests.length - reqBase23d}/${h23d.dispatched.length - disBase23d}。`
+        + `　【边界】本条只证「静音不阻塞玩法 + 不产生音频请求」；「静音后是否真的没出声」在本夹具下必然为真（backend=${NULLEDBACKEND}）⇒ **不构成听感证据**，A05-26 仍属 [P]。`);
+
+    // ── A05-24 · 全表·清单闭合（md §1 ↔ tuning 常量 ↔ voice 表 ↔ 调用点，四方对账）
+    const srcGame23 = readFileSync(`${STAGE}/games/beads/src/game/beads-game.js`, 'utf8');
+    const orphanConsts = codeClipKeys.filter((k) => !new RegExp('\\b' + k + '\\b').test(srcGame23));
+    const litIds = [...srcGame23.matchAll(/["'](bgm_[a-z0-9_]+|sfx_[a-z0-9_]+)["']/g)].map((m) => m[1]);
+    const strayLits = u(litIds).filter((x) => !codeClips.includes(x));
+    const noVoiceRefs = codeClips.filter((id) => !voiceClips.includes(id));
+    const dupSpec = specClips.length !== new Set(specClips).size;
+    const setEq24 = specClips.length === codeClips.length && codeClips.length === voiceClips.length
+        && specClips.every((id) => codeClips.includes(id)) && codeClips.every((id) => voiceClips.includes(id))
+        && voiceClips.every((id) => specClips.includes(id));
+    const totalEq24 = T.AUDIO_CLIP_TOTAL === specClips.length && typeof T.AUDIO_CLIP_TOTAL === 'number';
+    const ok24 = setEq24 && totalEq24 && !dupSpec && noVoiceRefs.length === 0 && orphanConsts.length === 0 && strayLits.length === 0;
+    // 附带审计（**不并入 A05-24 判定**：判据原文只管 id 集合）
+    const busWant = (id) => (id.startsWith('bgm_') ? 'music' : (/^sfx_(ui_|panel_)/.test(id) || id === 'sfx_star' ? 'ui' : 'sfx'));
+    const busDiff = voiceClips.filter((id) => BEADS_AUDIO_VOICES[id].bus !== busWant(id));
+    // §1 时长列机读对账：纯数字者逐个比，非纯数字者列「待裁」（不猜值）
+    const specDurRows = (() => {
+        const md = readFileSync(resolve(ROOT, 'games/beads/design/audio/audio-events.md'), 'utf8');
+        const seg = (md.split(/^## 2\. /m)[0] ?? '').split(/^## 1\. /m)[1] ?? '';
+        const map = new Map();
+        for (const line of seg.split('\n')) {
+            const m = /^\|\s*`([a-z_0-9]+)`/.exec(line.trim());
+            if (!m) continue;
+            const cells = line.trim().split('|').map((s) => s.trim());
+            if (!map.has(m[1])) map.set(m[1], cells[4] ?? '');
+        }
+        return map;
+    })();
+    const durHard = [], durSoft = [];
+    for (const id of voiceClips) {
+        const spec = String(specDurRows.get(id) ?? '（§1 无行）');
+        const code = String(BEADS_AUDIO_VOICES[id].durationMs);
+        if (/^\d+$/.test(spec)) { if (spec !== code) durHard.push(`${id} 表=${spec} 代码=${code}`); } else durSoft.push(`${id} 表=${spec} / 代码=${code}`);
+    }
+    p5('A05-24', '全表·清单闭合 · §1 的 19 id ↔ AUDIO_CLIP_* 常量 ↔ voice 表 ↔ 代码调用点', ok24,
+        `四方计数：md §1 解析=${specClips.length}（重复=${dupSpec}）/ tuning 字符串常量=${codeClips.length}/ voice 表=${voiceClips.length}/ `
+        + `§3.12 冻结 AUDIO_CLIP_TOTAL=${T.AUDIO_CLIP_TOTAL} ⇒ 三集合**双向相等**=${setEq24}、与冻结总数相等=${totalEq24}。`
+        + `　差集：常量有而表无=[${codeClips.filter((x) => !specClips.includes(x)).join(',') || '空'}]；表有而无 voice=[${specClips.filter((x) => !voiceClips.includes(x)).join(',') || '空'}]；`
+        + `无调用点的孤儿常量=[${orphanConsts.join(',') || '空'}]；绕过常量直写 id 的字面量=[${strayLits.join(',') || '空'}]（在 beads-game 编译产物里正则扫 sfx_*/bgm_* 字符串，命中 ${litIds.length} 处）。`
+        + `　【附带审计·不并判】(a) bus 归属 vs §0 前缀派生规则不符=${busDiff.length ? busDiff.map((id) => id + '(' + BEADS_AUDIO_VOICES[id].bus + '，按规则应=' + busWant(id) + ')').join(' ') : '无'}`
+        + ` ⇒ 属**表/代码谁回写**的裁定项（归属：音频表负责人回写 §0 例外，或实现改 bus），QA 不自裁、不改冻结常量；`
+        + `　(b) §1 时长列**非纯数字**（口径待裁，探针不猜）：${durSoft.join(' ; ') || '无'}；纯数字列与代码不等=${durHard.length ? durHard.join(' ') : '0 处'}。`
+        + `　注：本条是「文档↔代码」对账（表体解析自 md §1 正文），**不等于**「每个 clip 都能出声」（[B]/[R]）也不等于听感（[P]）。`);
+
+    // ── A05-25 · 全表·包体（零音频文件）→ [C]
+    const walkFiles = (dir, acc = []) => {
+        for (const e of readdirSync(dir, { withFileTypes: true })) {
+            const p = resolve(dir, e.name);
+            if (e.isDirectory()) walkFiles(p, acc); else acc.push(p);
+        }
+        return acc;
+    };
+    const buildRoot = resolve(ROOT, 'games/beads/cocos/build');
+    const AUD25 = /\.(mp3|wav|ogg|m4a|aac|flac|opus)$/i;
+    let b25 = { files: 0, audio: 0, bytes: 0, newest: 0 };
+    if (existsSync(buildRoot)) {
+        const ff = walkFiles(buildRoot);
+        b25 = {
+            files: ff.length,
+            audio: ff.filter((p) => AUD25.test(p)).length,
+            bytes: ff.filter((p) => AUD25.test(p)).reduce((n, p) => n + statSync(p).size, 0),
+            newest: Math.max(...ff.map((p) => statSync(p).mtimeMs)),
+        };
+    }
+    const SRC25 = ['packages/framework/src/platform/audio-synth.ts', 'games/beads/src/config/audio-voices.ts', 'games/beads/src/game/beads-game.ts'];
+    const srcNewest25 = Math.max(...SRC25.map((p) => statSync(resolve(ROOT, p)).mtimeMs));
+    p5('A05-25', '全表·包体 · Cocos 构建产物内音频文件数 = 0、音频 = 0 KB', b25.audio === 0 && b25.bytes === 0,
+        `【缺哪一道】**[C]**（Cocos 构建产物核对）。本轮**未重跑 Cocos 构建** ⇒ 现有产物不构成 T-096 之后的证据。`
+        + `　实测旁证（仅作旁证）：${existsSync(buildRoot) ? 'games/beads/cocos/build' : '（构建目录不存在）'} 内文件 ${b25.files} 个、其中音频扩展名文件 **${b25.audio} 个 / ${(b25.bytes / 1024).toFixed(1)} KB**，`
+        + `产物最新 mtime=${new Date(b25.newest).toISOString()}；而 T-096 音频源码 mtime=${new Date(srcNewest25).toISOString()} ⇒ **产物早于音频实现**，不能据其判「合成引擎已进包」。`
+        + `　代码级旁证（结构证据，非 [C]）：fw.SynthAudioBackend.usesExternalFiles()=${fw.SynthAudioBackend.usesExternalFiles()}（见 P5·S）⇒ 引擎按「零外部文件」路线实现。`
+        + `　【新登记的阻塞项，见报告 §15 建议 BD-33/BD-34】(1) beads/breakout 两游戏 Cocos 镜像里**新增**的 audio-synth.ts / audio-voices.ts 均**无 .ts.meta 伴生文件**（同目录其余脚本一律有）⇒ 无编辑器介入时是否被 asset-db 收录不可知；`
+        + `　(2) \`node tools/scripts/sync-framework-to-cocos.mjs --check\` 本轮实跑 **EXIT=1（12 处 differs）**，而该步是 verify 链第 8 项 ⇒ 其后的 harness:build/smoke 在该轮**不会执行**（evidence/framework-sync-check-v1.2.log）。`
+        + `　⇒ 记 ⛔：解除条件 = 主理人跑 framework:sync + 补 meta + 重跑 build:cocos:web 后按 [C] 复核产物。`,
+        { block: '[C]' });
+
+    // ── A05-26 · 全表·听感 → [P]
+    const dur26 = vcDur(C('AUDIO_CLIP_PLACE'));
+    p5('A05-26', '全表·听感 · 连打 8 颗珠（200ms）不糊不炸、sfx_place 主观「软/治愈」', typeof dur26 === 'number',
+        `【缺哪一道】**[P]**（阶段 6 Playtest 人耳）。本轮夹具 backend=${NULLEDBACKEND}、沙箱无浏览器录音通路 ⇒ 「糊/炸/机关枪感」「软 vs 硬」这类主观量**没有任何 Node 可测替身**。`
+        + `　已测到的相邻量（不等于本条）：A05-05 证「200ms 连点不被限流吞成 1 声、≤2 次/秒」为**计数**结论；配方声明 sfx_place durationMs=${vcDur(C('AUDIO_CLIP_PLACE'))}ms、attackMs=${BEADS_AUDIO_VOICES[C('AUDIO_CLIP_PLACE')].attackMs ?? '—'}ms、wave=${BEADS_AUDIO_VOICES[C('AUDIO_CLIP_PLACE')].wave ?? '—'}（P5·S 结构面）。`
+        + `　「同一 clip 连打 8 次会不会叠加成墙」还需要 bus 增益（§3.12 AUDIO_BUS_GAIN_* = [TODO] ⇒ 现恒 1.0，见 P5·S）与 [B] 实测混音。解除条件 = 阶段 6 + BD-19（Playtest 可执行性）。`
+        + `（上面算出的 ok 仅为「配方声明值可读」的 **[P]** 前置预检（dur=${dur26}ms），**不是**本条验收结论）`,
+        { block: '[P]' });
+
+    // ── A05-27 · 全表·真机 → [R]
+    const env27 = { wx: typeof globalThis.wx, ac: typeof globalThis.AudioContext, wk: typeof globalThis.webkitAudioContext };
+    p5('A05-27', '全表·真机 · 微信 iOS 首手势出声 / 退后台回前台 BGM 恢复 / 无节点泄漏',
+        env27.wx === 'undefined' && env27.ac === 'undefined' && env27.wk === 'undefined',
+        `【缺哪一道】**[R]**（真机 + AppID）。环境事实：本轮无 AppID、无 iOS/Android 真机、沙箱禁监听 socket ⇒ 三子句均不可验。`
+        + `　代码级旁证（结构证据，非 [R]）：weapp 侧 \`createAudioBackend\` 在「有 wx.createWebAudioContext + 有 voices」时返回 SynthAudioBackend，否则**告警 + Null**（P5·S 已用假 wx 双向实测，含 onTouchStart 解锁接线与 onHide/onShow 挂点）。`
+        + `　P5·S 另测到一处需在真机复核的**行为观察**：suspend() 停曲保留期望态、resume() 会**新建 BufferSource** ⇒ 回前台时 BGM 从循环缓冲起点重来（activeLoops 0→1、bufSrc +1，计数见 P5·S），是否可接受需 [R]/[P] 判。`
+        + `　「长玩 10 分钟内存平稳」另需一次性源（Web Audio 源节点不可复用，见 audio-synth.ts 头注「分配面」自认）的真机曲线 ⇒ 不因 Node 结构绿而关单。`
+        + `（上面算出的 ok = 环境位实测 typeof wx=${env27.wx} / AudioContext=${env27.ac} / webkitAudioContext=${env27.wk}，作用是证实「[R] 前置不存在」，**不是**本条验收结论）`,
+        { block: '[R]' });
+
+    // ══ P5·S · SynthAudioBackend **装配 / 契约的结构证据（≠ 出声）** ══════════
+    // 修订 32：单列一组、判定实算，且标题与正文都必须写明「结构证据 ≠ 可听」。
+    const FS = { gain: 0, osc: 0, bufSrc: 0, buffer: 0, start: 0, connect: 0 };
+    const fparam = () => ({ value: 0, setValueAtTime(v) { this.value = v; }, linearRampToValueAtTime(v) { this.value = v; } });
+    class FakeAudioContext {
+        constructor() { this.currentTime = 0; this.sampleRate = 44100; this.state = 'running'; this.destination = { connect() { }, disconnect() { } }; }
+        createGain() { FS.gain++; return { gain: fparam(), connect() { FS.connect++; }, disconnect() { } }; }
+        createOscillator() {
+            FS.osc++;
+            return { type: 'sine', frequency: fparam(), detune: fparam(), start() { FS.start++; }, stop() { FS.stop++; }, connect() { FS.connect++; }, disconnect() { } };
+        }
+        createBiquadFilter() { return { type: '', frequency: fparam(), connect() { FS.connect++; }, disconnect() { } }; }
+        createBufferSource() {
+            FS.bufSrc++;
+            return { buffer: null, loop: false, playbackRate: fparam(), start() { FS.start++; }, stop() { FS.stop++; }, connect() { FS.connect++; }, disconnect() { } };
+        }
+        createBuffer(ch, len, sr) { FS.buffer++; const data = new Float32Array(len); return { length: len, sampleRate: sr, getChannelData: () => data }; }
+        resume() { this.state = 'running'; }
+    }
+    const gAny = globalThis;
+    const saved25 = { AC: gAny.AudioContext, WK: gAny.webkitAudioContext, AE: gAny.addEventListener, RE: gAny.removeEventListener };
+    let sRes = {};
+    try {
+        gAny.AudioContext = FakeAudioContext;
+        delete gAny.webkitAudioContext;
+        // 摘掉 addEventListener：否则 WebPlatform._armAudioUnlock 会把监听器挂到真 globalThis，污染后续 25 组（修订 20 白盒隔离）
+        gAny.addEventListener = undefined;
+        gAny.removeEventListener = undefined;
+        const mkWeb = () => new fw.WebPlatform({ storage: new fw.MemoryStorage() });
+        sRes.webWithVoices = mkWeb().createAudioBackend({ voices: BEADS_AUDIO_VOICES }).constructor.name;
+        sRes.webNoVoices = mkWeb().createAudioBackend().constructor.name;
+        sRes.node = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createAudioBackend({ voices: BEADS_AUDIO_VOICES }).constructor.name;
+        const wxH = { touch: 0, hide: 0, show: 0 };
+        const fakeWx = {
+            createWebAudioContext: () => new FakeAudioContext(),
+            onTouchStart: () => { wxH.touch++; }, offTouchStart: () => { },
+            onHide: () => { wxH.hide++; }, onShow: () => { wxH.show++; },
+            getStorageSync: () => '', setStorageSync: () => { }, removeStorageSync: () => { },
+            getWindowInfo: () => ({}),
+        };
+        sRes.wx = new fw.WeappPlatform(fakeWx).createAudioBackend({ voices: BEADS_AUDIO_VOICES }).constructor.name;
+        sRes.wxNoCtx = new fw.WeappPlatform({ ...fakeWx, createWebAudioContext: undefined }).createAudioBackend({ voices: BEADS_AUDIO_VOICES }).constructor.name;
+        sRes.wxHooks = wxH;
+        const appAsm = new fw.App({ game: new BeadsGame({ saveKey: 'wxgame.beads.qa.p5s' }), platform: mkWeb() });
+        sRes.asmBackend = appAsm.services.audio['_backend'].constructor.name;
+        sRes.asmVoices = Object.keys(appAsm.game.audioVoices || {}).length;
+        sRes.maxPerFrame = new fw.AudioScheduler(new fw.NullAudioBackend())['_maxPerFrame'];
+        sRes.usesExt = fw.SynthAudioBackend.usesExternalFiles();
+        // 引擎契约面：解锁前零节点 → 解锁补 BGM → 逐 clip 节点普查 → 未登记 id 告警
+        const warns = [];
+        const be = new fw.SynthAudioBackend(() => new FakeAudioContext(), BEADS_AUDIO_VOICES, { warn: (m) => warns.push(m) });
+        const cStruct0 = { ...FS };
+        sRes.ctorQuiet = be.contextReady === false && (FS.gain + FS.osc + FS.bufSrc + FS.buffer) === 0;
+        be.play(C('AUDIO_CLIP_PLACE'), { volume: 1, loop: false });
+        be.play(C('AUDIO_CLIP_BGM'), { volume: 1, loop: true });
+        sRes.preUnlock = { ready: be.contextReady, loops: be.activeLoops().length, nodes: FS.gain + FS.osc + FS.bufSrc - cStruct0.gain - cStruct0.osc - cStruct0.bufSrc };
+        be.unlock();
+        sRes.postUnlock = { ready: be.contextReady, loops: be.activeLoops().join(',') || '（空）', buffers: FS.buffer, srcs: FS.bufSrc };
+        const census = [];
+        let zeroBuilt = [];
+        for (const id of voiceClips) {
+            const b = { osc: FS.osc, src: FS.bufSrc };
+            be.play(id, { volume: 1, loop: id === C('AUDIO_CLIP_BGM') });
+            const d = (FS.osc - b.osc) + (FS.bufSrc - b.src);
+            census.push(`${id}:+${d}`);
+            if (id !== C('AUDIO_CLIP_BGM') && d === 0) zeroBuilt.push(id);
+        }
+        sRes.zeroBuilt = zeroBuilt;
+        sRes.census = census;
+        // v1.2 修：离线渲染是**惰性**的 ⇒ unlock() 后只有 BGM 循环块（实测 1 块），
+        // 噪声块要等首个 noise:true 的 clip 被播时才渲染。旧期望 `buffers >= 2` 是探针猜值（假 FAIL）。
+        sRes.buffersFinal = FS.buffer;
+        const w0 = warns.length, n0 = FS.gain + FS.osc + FS.bufSrc;
+        be.play('sfx_not_in_table', { volume: 1, loop: false });
+        sRes.unreg = { warns: warns.length - w0, nodes: FS.gain + FS.osc + FS.bufSrc - n0, msg: warns[0] ?? '' };
+        const buses = be['_buses'];
+        sRes.buses = { n: buses.size, gains: [...buses.entries()].map(([k, v]) => `${k}=${v.gain.value}`).join(','), gainTodo: T.AUDIO_BUS_GAIN_SFX };
+        be.suspend();
+        const loopsSuspended = be.activeLoops().length, srcBeforeResume = FS.bufSrc;
+        be.resume();
+        sRes.suspendResume = { afterSuspend: loopsSuspended, afterResume: be.activeLoops().length, newSrcOnResume: FS.bufSrc - srcBeforeResume };
+        be.stop(C('AUDIO_CLIP_BGM'));
+        sRes.afterStop = be.activeLoops().length;
+        // 夹具新鲜度（修订 34）：dist 编译产物必须不早于被测源码
+        const distEntry = resolve(ROOT, 'dev/harness/dist/dev/harness/main.js');
+        sRes.fresh = {
+            dist: new Date(statSync(distEntry).mtimeMs).toISOString(),
+            srcNewest: new Date(Math.max(...[
+                'packages/framework/src/platform/audio-synth.ts', 'packages/framework/src/platform/web.ts',
+                'packages/framework/src/platform/weapp.ts', 'packages/framework/src/core/audio/audio.ts',
+                'packages/framework/src/compose/app.ts', 'games/beads/src/config/audio-voices.ts',
+                'games/beads/src/config/tuning.ts', 'games/beads/src/game/beads-game.ts',
+            ].map((p) => statSync(resolve(ROOT, p)).mtimeMs))).toISOString(),
+        };
+        sRes.fresh.ok = statSync(distEntry).mtimeMs >= Math.max(...[
+            'packages/framework/src/platform/audio-synth.ts', 'packages/framework/src/platform/web.ts',
+            'packages/framework/src/platform/weapp.ts', 'packages/framework/src/core/audio/audio.ts',
+            'packages/framework/src/compose/app.ts', 'games/beads/src/config/audio-voices.ts',
+            'games/beads/src/config/tuning.ts', 'games/beads/src/game/beads-game.ts',
+        ].map((p) => statSync(resolve(ROOT, p)).mtimeMs));
+        sRes.SYNTH = fw.SynthAudioBackend.name;
+    } finally {
+        if (saved25.AC === undefined) delete gAny.AudioContext; else gAny.AudioContext = saved25.AC;
+        if (saved25.WK === undefined) delete gAny.webkitAudioContext; else gAny.webkitAudioContext = saved25.WK;
+        gAny.addEventListener = saved25.AE; gAny.removeEventListener = saved25.RE;
+    }
+    const okS = sRes.webWithVoices === sRes.SYNTH && sRes.webNoVoices === NULLEDBACKEND
+        && sRes.node === NULLEDBACKEND && sRes.wx === sRes.SYNTH && sRes.wxNoCtx === NULLEDBACKEND
+        && sRes.asmBackend === sRes.SYNTH && sRes.asmVoices === voiceClips.length
+        && sRes.ctorQuiet && sRes.preUnlock.ready === false && sRes.preUnlock.loops === 0 && sRes.preUnlock.nodes === 0
+        && sRes.postUnlock.ready === true && sRes.postUnlock.loops === C('AUDIO_CLIP_BGM') && sRes.postUnlock.buffers >= 1
+        && sRes.buffersFinal >= 2
+        && sRes.zeroBuilt.length === 0
+        && sRes.unreg.warns === 1 && sRes.unreg.nodes === 0
+        && sRes.buses.n === 3 && /^[a-z]+=1(,[a-z]+=1)*$/.test(sRes.buses.gains)
+        && sRes.suspendResume.afterSuspend === 0 && sRes.suspendResume.afterResume === 1
+        && sRes.afterStop === 0 && sRes.usesExt === false
+        && sRes.maxPerFrame === T.AUDIO_MAX_PER_FRAME && sRes.fresh.ok === true;
+    rec('P5/S · SynthAudioBackend 装配与契约【**结构证据 ≠ 出声**】', okS ? 'PASS*' : 'FAIL',
+        `【三平台分支实测（假 AudioContext 注入，随后已还原 globalThis）】web + voices → ${sRes.webWithVoices}；web 无 voices → ${sRes.webNoVoices}；`
+        + `node（即便给 voices）→ ${sRes.node}；weapp + 假 wx.createWebAudioContext + voices → ${sRes.wx}（并挂上 onTouchStart=${sRes.wxHooks.touch} 次、onHide=${sRes.wxHooks.hide}、onShow=${sRes.wxHooks.show}）；`
+        + `weapp 无 createWebAudioContext → ${sRes.wxNoCtx} ⇒ ADR-0013 的「能力 + 音色表」双条件成立。`
+        + `　【装配根】new App({ game: BeadsGame, platform: WebPlatform })不 start ⇒ services.audio._backend = ${sRes.asmBackend}、注入进去的 voices 条数=${sRes.asmVoices}（= 游戏侧 voice 表 ${voiceClips.length} 条）；`
+        + `AudioScheduler 默认 _maxPerFrame=${sRes.maxPerFrame}（= §3.12 冻结 AUDIO_MAX_PER_FRAME=${T.AUDIO_MAX_PER_FRAME}，App 未覆写）。`
+        + `　【引擎契约（假 context 记账：gain/osc/bufferSource/buffer 创建计数）】构造期零节点=${sRes.ctorQuiet}；**解锁前** play(sfx_place)+play(bgm,loop) ⇒ contextReady=${sRes.preUnlock.ready}、activeLoops=${sRes.preUnlock.loops}、新建节点=${sRes.preUnlock.nodes}`
+        + `（autoplay 语义：一次性丢弃、loop 记期望态）；**unlock() 后** ready=${sRes.postUnlock.ready}、补起的循环=[${sRes.postUnlock.loops}]、离线渲染 buffer=${sRes.postUnlock.buffers} 块。`
+        + `　逐 clip 节点普查（loop 请求传该 clip 的 loopMs 条件）：${sRes.census.join(' ')}；建不出节点的 clip=[${sRes.zeroBuilt.join(',') || '空'}]（bgm_main 计 +0 是因已在 unlock 时补起，属幂等而非建不出）。`
+        + `　【离线渲染分配面】census 跑完后累计 buffer=${sRes.buffersFinal} 块（≥ 2 ⇒ 至少含 8000ms BGM 循环块与噪声块）⇒ **惰性渲染**：噪声/多音块在首次播放该 clip 时才建（结构事实）。该「首次播放前的同步渲染开销」是否会造成帧抖 ⇒ **[B]/[R]**，本轮不宣称已验（audio-synth.ts 头注「分配面」自认一次性源不可复用）。`
+        + `　**幂等（A05-22 的结构半边）**：bgm 已在播时再 play({loop:true}) ⇒ 该行增量仍计在普查内、activeLoops 恒 1（_loops 命中即 return，audio-synth.ts:415）。`
+        + `　未登记 id：play("sfx_not_in_table") ⇒ 新增节点=${sRes.unreg.nodes}、host.warn 次数=${sRes.unreg.warns}（「${String(sRes.unreg.msg).slice(0, 46)}…」）⇒ 「框架不发明音色」。`
+        + `　三总线增益=[${sRes.buses.gains}]（§3.12 AUDIO_BUS_GAIN_* 在代码里=${sRes.buses.gainTodo === undefined ? '未定义（[TODO] 状态）' : sRes.buses.gainTodo} ⇒ 引擎恒 1.0，不伪造 dB）。`
+        + `　suspend→回前台：activeLoops ${sRes.suspendResume.afterSuspend} → ${sRes.suspendResume.afterResume}、**新建源 ${sRes.suspendResume.newSrcOnResume} 个**（⇒ 位置从循环起点重来，行为观察已登记进 A05-27 正文）；stop(bgm) 后 activeLoops=${sRes.afterStop}；SynthAudioBackend.usesExternalFiles()=${sRes.usesExt}。`
+        + `　【夹具新鲜度自证（修订 34）】dist 编译产物=${sRes.fresh.dist}、被测源码最新 mtime=${sRes.fresh.srcNewest} ⇒ dist 不早于 src=${sRes.fresh.ok}。（本轮探针开跑前 dist 曾**早于** src 38 分钟，已用 \`pnpm run harness:build\` 重建，见报告 §12 与本 log 抬头。）`
+        + `　**红线**：本条全部是「节点被按 contract 创建/复用」的结构记账，假 context 不会出声；因此它**不解除** A05-03/09/13/15/16/18/19/21/22/26 的任何 [B]/[P]/[R] 子句，只把「三平台仍全 NullAudioBackend」这条**旧 FAIL 前提**证伪。`);
+
 }
+
 
 // ═════════════════════════════════════════════════════════ P6 · GAP-06 泄压阀（A′+D）
 {
@@ -1072,8 +2076,19 @@ function stepGame(g, inp) { inp.beginFrame(); g.update(1 / 60); inp.endFrame(1 /
 // ═════════════════════════════════════════════════════════ 汇总
 const norm = (v) => v.startsWith('⛔') ? '⛔' : (v === 'PASS' ? 'PASS' : v.startsWith('PASS*') ? 'PASS*' : 'FAIL');
 const tally = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
-for (const r of out) tally[norm(r.verdict)]++;
-console.log('\n================ 探针汇总（v1.1 复验轮 / WXG-T-092） ================');
+const tallyP5 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
+const tallyRest = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
+for (const r of out) {
+    const n = norm(r.verdict);
+    tally[n]++;
+    (r.id.startsWith('P5') ? tallyP5 : tallyRest)[n]++;
+}
+const sum = (t) => `PASS ${t.PASS} / PASS* ${t['PASS*']} / FAIL ${t.FAIL} / ⛔ ${t['⛔']}`;
+const cntGrp = (pred) => out.filter((r) => pred(r.id)).length;
+console.log('\n================ 探针汇总（v1.1 复验轮 · P5 段按 WXG-T-096 重建预期值） ================');
 for (const r of out) console.log(`${norm(r.verdict).padEnd(6)} ${r.id}`);
-console.log(`\n计数：PASS ${tally.PASS} / PASS* ${tally['PASS*']} / FAIL ${tally.FAIL} / ⛔ ${tally['⛔']}（共 ${out.length} 组）`);
+console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组）`);
+console.log(`【本轮修订面 · P5 段（预期值按 T-096 重建，${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
+console.log(`【未随 T-096 复核 · 其余 ${cntGrp((id) => !id.startsWith('P5'))} 组沿用 v1.1 预期值】：${sum(tallyRest)}`);
+console.log('　↑ 两段计数不得合并解读：只有 P5 段在 WXG-T-096 之后重跑过预期值，其余 25 组未随本单复核。');
 console.log(`时间戳：${new Date().toISOString()}   Node ${process.version}`);

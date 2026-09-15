@@ -22,7 +22,7 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/qa/beads/g4-regression-report.md` | 35735 | 739 | normal |
+| 1 | `production/qa/beads/g4-regression-report.md` | 44524 | 916 | normal |
 | 2 | `production/qa/beads/test-cases.md` | 17894 | 375 | hot |
 | 3 | `production/TASKS-DETAIL.md` | 17326 | 343 | normal |
 | 4 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
@@ -47,7 +47,7 @@
 
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
-| `production/qa/beads/g4-regression-report.md` | 35735 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/qa/beads/g4-regression-report.md` | 44524 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 17894 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/TASKS-DETAIL.md` | 17326 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
