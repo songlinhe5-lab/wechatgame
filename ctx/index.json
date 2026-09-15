@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3920,
       "lines": 86,
-      "sha256": "14e878865e11bbeb288dddd2a000f051da27de338aeba83f6713451869a882c8",
+      "sha256": "a18940a8f0846bc653e4240d1f2898926dfd65f8ddf9fcb25b4fac85036b3c21",
       "tier": "normal",
       "sections": [
         {
@@ -529,12 +529,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 239 行 / 5983 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 246 行 / 6407 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
-          "tokens": 291,
-          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+240 · §1 系统清单=9+16 · §2 依",
+          "tokens": 292,
+          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+247 · §1 系统清单=9+16 · §2 依",
           "keywords": [
             "§1",
             "§2",
@@ -17195,17 +17195,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 3478,
-      "lines": 29,
-      "sha256": "6d8b279b3867453f19ad75d734b401b475159f3bf4221f04b4f3f4108837487e",
+      "tokens": 3740,
+      "lines": 30,
+      "sha256": "05eabecf536fd5010f94d135ed444776266a09e3b1ee56d51b9dd03d4726f08f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 30,
-          "tokens": 3460,
+          "endLine": 31,
+          "tokens": 3722,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -17220,8 +17220,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 30,
-          "tokens": 3302,
+          "endLine": 31,
+          "tokens": 3563,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -17233,17 +17233,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 5983,
-      "lines": 239,
-      "sha256": "aefe823324808ea775e495ccb3093e8caef9a7a60d14b8bd9c9b05b9e810ca03",
+      "tokens": 6407,
+      "lines": 246,
+      "sha256": "cb572e8085166f0dd8d49a146ef8be7e397e2376acd5555fe5efe06629f0ccff",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§系统清单与依赖索引（Systems Index）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 240,
-          "tokens": 5966,
+          "endLine": 247,
+          "tokens": 6390,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.12 · 任务号 WXG-T-007",
           "keywords": [
             "Systems",
@@ -17285,8 +17285,8 @@
           "anchor": "§3 全局数值基线（Global Constants）· ❄️ 冻结令",
           "level": 2,
           "startLine": 55,
-          "endLine": 201,
-          "tokens": 4027,
+          "endLine": 208,
+          "tokens": 4451,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -17457,8 +17457,8 @@
           "anchor": "§3.12 音频（Audio）· 2026-09-14 波次1建档（WXG-T-083 / 阮和鸣）",
           "level": 3,
           "startLine": 194,
-          "endLine": 201,
-          "tokens": 266,
+          "endLine": 208,
+          "tokens": 690,
           "summary": "AUDIO_SFX_MIN_INTERVAL 0.05 s 高频短音（sfx_place/sfx_select）per-",
           "keywords": [
             "Audio",
@@ -17472,8 +17472,8 @@
         {
           "anchor": "§4 事件总线约定（供程序落码参考）",
           "level": 2,
-          "startLine": 202,
-          "endLine": 226,
+          "startLine": 209,
+          "endLine": 233,
           "tokens": 465,
           "summary": "沿用 breakout 的事件命名风格 <域>:<事件>，payload 一律带 levelId：",
           "keywords": [
@@ -17487,8 +17487,8 @@
         {
           "anchor": "§5 与框架层的接口假设",
           "level": 2,
-          "startLine": 227,
-          "endLine": 235,
+          "startLine": 234,
+          "endLine": 242,
           "tokens": 325,
           "summary": "引擎/平台：Cocos Creator 3.8 LTS + 微信小游戏（adapters/cocos + platfor",
           "keywords": [
@@ -17503,8 +17503,8 @@
         {
           "anchor": "§6 变更记录",
           "level": 2,
-          "startLine": 236,
-          "endLine": 240,
+          "startLine": 243,
+          "endLine": 247,
           "tokens": 107,
           "summary": "本节的全部内容已拆分为 systems-index-changelog.md（WXG-T-062，因本文累积超过 ctx",
           "keywords": [

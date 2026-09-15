@@ -196,8 +196,15 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 |---|---|---|
 | `AUDIO_SFX_MIN_INTERVAL` | 0.05 s | 高频短音（`sfx_place`/`sfx_select`）per-clip 最小重触发间隔默认档；`beads-game.ts` L1484 现状值转正 |
 | `AUDIO_REJECT_MIN_INTERVAL` | 0.5 s | `sfx_reject` 最小重触发间隔 = §3.8「错误反馈 ≤2 次/秒」音频侧换算；**修正现状违约**（统一 0.05s 致 reject 达 20 次/秒）。分档表见 `design/audio/audio-events.md` §3.2 |
+| `AUDIO_CLIP_TOTAL` | **19** | 18 SFX + 1 BGM；**新增音效应先改 `audio-events.md §1` 再改本表**（判据 A05-24：`tuning.ts` clip 集 ≡ §1 表，双向无孤儿） |
+| `AUDIO_MAX_PER_FRAME` | **6** | 单帧派发上限 = `core/audio/audio.ts` 默认值的**显式冻结**（防无声漂移）。audio-events §3.1 同帧最坏情形核算均 ≤6 ⇒ MVP 不依赖抢占 |
+| `AUDIO_URGENT_BEAT_PERIOD` | **1.0 s** | 告急心跳周期，**不新造数值** = `TIMER_TICK`；与 §5 视觉 1000ms 脉冲同周期同相（A05-11） |
+| `AUDIO_URGENT_MIN_INTERVAL` | 0.9 s | 派生值 = `AUDIO_URGENT_BEAT_PERIOD − 0.1 s` 余量（吸收 fixedStep 尾差，防偶发双拍）；出处 `audio-events §3.2` |
+| `AUDIO_TRAYFULL_MIN_INTERVAL` | 1.0 s | **防御档**（事件本身间隔 ≥ `SPAWN_INTERVAL` 下界 2.0 s，§3.4）；音只 1 次、视觉 500ms 循环互不驱动（A05-14） |
+| `AUDIO_HEARABLE_FLASH_HZ` | ≤ **3 Hz** | 听觉闪烁红线，与 §3.8 视觉闪烁红线同源同界（常量名沿用 `audio-spec §7.2` 原文，不另改名）。实发 1 Hz，A05-13 可机验 |
 | 音频选型 | 程序化合成（**0 KB 主包**） | Web Audio 运行时合成 SFX + 序列化 BGM，无音频文件进产物（audio-spec §4.1 / 判据 A05-25）；采样路线破内部目标（§3.9 实测余量 32 KB）已否 |
 | 总线 | Music / SFX / UI 三条 | clip id 命名空间承载；`AUDIO_BUS_GAIN_BGM/SFX/UI`=`[TODO]`（后端可听 + 真机响度校准后定档，**不冻结伪 dB**）；19 clip 事件表见 `audio-events.md §1` |
+| 音色实现参数（基频/包络/波形/噪声） | **不属于 §3** | 合成参数是**工程侧对 §5 文字描述的实现选择**（同「颜色不进 §3」判例），住在 `games/beads/src/config/audio-voices.ts`；**不得据此反填伪规格值**，听感达标由 A05-26 `[P]` 与 A05-03/09/15/16 的 `[B]` 道次验收 |
 
 ## 4. 事件总线约定（供程序落码参考）
 
