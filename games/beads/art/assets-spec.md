@@ -104,6 +104,7 @@ L5 符号    居中，尺寸 BEAD×0.40（示例 26px），线宽 ≥ 2px
 |---|---|---|
 | `hud_timer_capsule` | 220 × 64，全圆角 | 白底 + `panel_border` 1px + 投影；内：时钟图标 Ø36（圆环 `accent_blue` 3px + 指针 2px）+ 数字 44px `text_primary` |
 | `hud_timer_danger` | 同上 | 数字/图标切 `#E8434A` + 1000ms α 脉冲**循环**（周期/时长以 `ux-spec §5`「倒计时告急」行为权威，与 `ux-spec §3.1` HUD 告急条款同源；α 幅度两文均未定义 → 本表不自行发明。原 `[待 ux-spec 对齐]` 占位经 WXG-T-098 删除） |
+| `tray_panel_danger` | 沿 `tray_panel` 边缘 2px 描边（圆角随面板实装值 18） | `danger #E8434A` + **500ms α 呼吸循环**（周期以 `ux-spec §5`「满槽告警」行为权威 = 500ms/循环，≈2Hz 在 §3.8 ≤3Hz 红线内；α 幅度 ux-spec 未定 ⇒ **沿用同族既有实现值 0.6↔1.0**（`view-model.ts::dangerAlpha()` 已用的那组，本行不新造第三档；同上行口径，若 ux-spec 日后冻结幅度则以 ux-spec 为准）。WXG-T-097/BD-10 落地；`reduceMotion` 下退为**静态描边 α=1**，见 `accessibility` D1） |
 | `btn_settings` | 图标 Ø48，热区 88×88 | `accent_purple` 齿轮（8 齿，外径 48/内孔 r=10），左上 |
 | `panel_dialog` | 560 × 480，圆角 24 | 白 + `panel_border` + 投影（弹窗/结算） |
 | `btn_primary` | 240 × 88，圆角 20 | 底 `accent_blue`，白字 32px |

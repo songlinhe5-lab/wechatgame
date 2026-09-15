@@ -6307,9 +6307,9 @@
     },
     {
       "path": "games/beads/art/accessibility.md",
-      "tokens": 3668,
+      "tokens": 3716,
       "lines": 119,
-      "sha256": "0bcba8d90d4910d21572b470534ef594c86ef204664b00459abfd3fb82ed36b4",
+      "sha256": "a08fcbf1de0d2988ac12b126bd4ae906450a484edb1188ab585a55ee8ccf2f77",
       "tier": "normal",
       "sections": [
         {
@@ -6317,7 +6317,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 120,
-          "tokens": 3651,
+          "tokens": 3699,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Accessibility",
@@ -6345,7 +6345,7 @@
           "level": 2,
           "startLine": 25,
           "endLine": 80,
-          "tokens": 2665,
+          "tokens": 2713,
           "summary": "A1 色觉障碍友好 · 珠子颜色 「颜色 + 符号 + 明度」三重编码：10 色各绑唯一矢量符号（○★●■♥◐▽▲◆✚，",
           "keywords": [
             "特性矩阵"
@@ -6641,17 +6641,17 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 4102,
-      "lines": 187,
-      "sha256": "aa06c78aa3846ec4d74998d8338ed4c3fc67b36b574d060ba30e15b1b91a3d86",
+      "tokens": 4270,
+      "lines": 188,
+      "sha256": "192f2ff06b2654a64418019c9fd132bc13404ddeda4feacad14249f9fe6b14a3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》资产规格表（Asset Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 188,
-          "tokens": 4088,
+          "endLine": 189,
+          "tokens": 4256,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -6677,8 +6677,8 @@
           "anchor": "§1 资产清单（可见元素规格表）",
           "level": 2,
           "startLine": 24,
-          "endLine": 124,
-          "tokens": 2488,
+          "endLine": 125,
+          "tokens": 2655,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -6743,8 +6743,8 @@
           "anchor": "§1.5 HUD 元素",
           "level": 3,
           "startLine": 101,
-          "endLine": 111,
-          "tokens": 259,
+          "endLine": 112,
+          "tokens": 426,
           "summary": "hud_timer_capsule 220 × 64，全圆角 白底 + panel_border 1px + 投影；内：",
           "keywords": [
             "HUD",
@@ -6756,8 +6756,8 @@
         {
           "anchor": "§1.6 VFX",
           "level": 3,
-          "startLine": 112,
-          "endLine": 124,
+          "startLine": 113,
+          "endLine": 125,
           "tokens": 141,
           "summary": "vfx_fill_pop 珠子落座 scale 1.06→1.0，120ms ease-out-back",
           "keywords": [
@@ -6772,8 +6772,8 @@
         {
           "anchor": "§2 未来真实资产替换提示词（AI 生成备用）",
           "level": 2,
-          "startLine": 125,
-          "endLine": 135,
+          "startLine": 126,
+          "endLine": 136,
           "tokens": 168,
           "summary": "bead_set candy-like 3d perler bead set, rounded square beads",
           "keywords": [
@@ -6788,8 +6788,8 @@
         {
           "anchor": "§3 图集策略",
           "level": 2,
-          "startLine": 136,
-          "endLine": 144,
+          "startLine": 137,
+          "endLine": 145,
           "tokens": 94,
           "summary": "demo（当前） 不建图集，全 Graphics，主包美术位图 = 0 KB",
           "keywords": [
@@ -6801,8 +6801,8 @@
         {
           "anchor": "§4 命名规范",
           "level": 2,
-          "startLine": 145,
-          "endLine": 154,
+          "startLine": 146,
+          "endLine": 155,
           "tokens": 132,
           "summary": "全小写 + 下划线；模式 {域}_{实体}_{变体}_{状态}.{ext}。",
           "keywords": [
@@ -6813,8 +6813,8 @@
         {
           "anchor": "§5 包体预算表（微信红线 vs 内部目标，**分清两条线**）",
           "level": 2,
-          "startLine": 155,
-          "endLine": 172,
+          "startLine": 156,
+          "endLine": 173,
           "tokens": 295,
           "summary": "微信红线（不可越） 主包 ≤ 4096 KB",
           "keywords": [
@@ -6827,8 +6827,8 @@
         {
           "anchor": "§6 交付与验收",
           "level": 2,
-          "startLine": 173,
-          "endLine": 188,
+          "startLine": 174,
+          "endLine": 189,
           "tokens": 529,
           "summary": "[ ] 全部元素程序化绘制，无外部图片引用。",
           "keywords": [
