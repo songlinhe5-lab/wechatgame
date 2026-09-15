@@ -443,3 +443,30 @@
   - ⑨ **实际落库四笔与「为何不能再拆」**（`742752c` / `2e6ca7f` / `b7ae82d` / `3fa8c27`）：第一笔必为「生成器 + 门禁硬拦 + 三篇骨架 + 16 详情件 + 撤两条豁免」**同笔**——拆开必红：`ctx:check` 的豁免表是**读磁盘**，只要撤豁免这件事已在工作树里，未暂存的骨架就会让 B 门按 `HEAD:` blob 量到旧巨型日记（实测 10141 / 12586 tok 双红）；工具单独一笔亦不成立（理由同上）。剩下三笔按关心点拆：外移器+自测、连座归档、协议回写。
   - ⑩ **撞上一处既存门禁缺陷（非本单引入，已登 backlog）**：`memory/INDEX.md` 是**生成物又被索引**，但不在 `lib/context-index.mjs:127` 的 `WORKTREE_AUTHORITATIVE` 集合里 ⇒ `--staged-blobs` 下它的索引记录取的是**暂存旧字节**，而磁盘已被重写成新字节 ⇒ pre-commit 单遍「重建 → add → 校」对不上 `sha256`，报 `C(--staged): 暂存内容与索引不一致 — memory/INDEX.md`，**需再跑一遍 build+add 才收敛**（钩子提示的「直接重新提交即可」同源于此，但字面未解释为何）⇒ 登 **BD-38**（修法建议：把 `memory/INDEX.md` 加入 `WORKTREE_AUTHORITATIVE`，与 `ctx/BUDGET.md` 同处理）。
 - **本号归属声明（防跨会话歧义）**：并发会话 T-104 的「收尾裁定」文内写有「④ 派严守真固化 R1/R2/R3 取证 = **WXG-T-106**」，但该派单**实际已落在 `## WXG-T-108`**（同一会话另写的 control-manifest 单落 107）⇒ 那句是未订正的旧字面，**不构成本号冲突**。本号 106 的唯一归属 = memory 二级详情层（占位已随 `1f73e2b` 入库）。根因已入沉淀候选：**领号只看了 HEAD 的头注，而并发会话占的 105–108 当时仍全在工作树未提交** ⇒ 领号必以**工作树全文**（`grep '^## WXG-T-' TASKS-DETAIL.md` ∪ 主表行）全局最大号为准，不能只信已提交头注（与 K-045 同族）。
+
+## WXG-T-111
+
+- **名称**：**knowledge 沉淀库按行内标签分片（`knowledge/lessons/<tag>.md`）——结掉 WXG-T-098 豁免的硬到期条**
+- **负责**：主理人(Qoder)　**状态**：🔄 进行中（2026-09-15 开工；用户两项拍板：粒度＝**按行内标签切 6 片**；旧路径＝**保留 `lessons.md` 作指针页**）
+- **动机（实测）**：`knowledge/lessons.md` = **10768 tok**，而 WXG-T-098 豁免 note 的硬到期条件是「自登记基线 **9021** 起再增长 **>800 tok**」⇒ 已 **+1747 越线**（且本轮开工前就已越，不是本轮写进去的）。协议明写到期**不得续期豁免**，只许做结构性拆分评估；用户裁定「本轮就地做」⇒ 本单 = 评估 + 实施一体。
+- **实测结构（分片依据，不靠猜）**：条目**行内标签**与 `##` 小节**不一致**（`## 流程` 里挂着 `[测试]` / `[判据]` / `[工具链]` 条目），故按 `##` 切不干净。按行内标签统计：**工具链 15 条 4789 tok ／ 流程 6 条 2774 ／ 判据 3 条 1516 ／ 测试 2 条 1033 ／ 跨 IDE 3 条 483 ／ 环境 1 条 136**（条正文合计 10731，30 条）。⇒ 最片 4789，对 8000 余量 3.2k。
+- **布局口径（冻结）**：
+  - 一标签一文件：`knowledge/lessons/{toolchain,process,criteria,testing,cross-ide,environment}.md`；**条目正文逐字节搬运**（标题行 + 缩进子行 + 归档元信息行原样），`## <标签>` 行随条目进对应分片。
+  - **`knowledge/lessons.md` 保留为指针页**（≈250 tok，**不再放条目**）：布告「已分片 + 标签→文件表 + 引用口径」。理由：全仓 20+ 处脚本注释以「`knowledge/lessons.md` K-0NN」形式引用，保留指针页 ⇒ 旧引用仍解得出，**零无关文件搅动**。
+  - **引用口径**：引用一律写 **K-0NN**（可附任务号），**不写文件路径**；ID→分片由 `knowledge/INDEX.md` 活跃表的「分片」列机械解析。
+  - **K-0NN 命名空间 = 全局单一**（`ledger.nextId` 不变）：分片只改正文落位，**不改编号语义、不回收旧号**。
+  - **归档仍单份**：各分片共用 `knowledge/archive/lessons-archived.md`（`kb:archive` 按条目 `file` 反查所属 ACTIVE_FILES 项，**不得再写 `file === 'knowledge/lessons.md'` 硬编码三元**）。
+  - **防再膨胀**：分片同受 B 门（8000）约束，**不为其新增豁免**；某分片再越阈 ⇒ 该标签内部再按子标签切（口径入 `knowledge/INDEX.md`）。
+- **连动面（必改，逐项验收）**：① `lib/knowledge-ledger.mjs::ACTIVE_FILES` 改为**动态枚举** `knowledge/lessons/*.md` ∪ `patterns.md`（目录不存在 ⇒ 回退到单文件旧布局，**不假绿亦不砸错**）；② `kb-sync` / `kb-check` / `kb-collect` / `kb-audit` / `kb-archive` / `kb-reactivate` 六脚本（均 import 同一常量 ⇒ 预期只改 lib 与 archive 硬编码一处）；③ `ledger.json` 条目 `file` 改指分片（**`contentHash` 不含 `file`** ⇒ 不算「修改」，不造 30 条伪 updated）；④ `INDEX.md` 活跃表新增「分片」列；⑤ `ctx/budget-exempt.json` **删 WXG-T-098 对 lessons.md 的豁免条**；⑥ 协议回写：`knowledge/INDEX.md` 读取协议、`ctx/ROUTES.md`、`AGENTS.md §9`、`memory/MEMORY.md`、`docs/agent/*` 同族口径。
+- **Deliverables**：① 一次性迁移脚本（**dry-run 默认**，逐字节搬运 + 回读自证：拼回与 `git show HEAD:` 逐字节一致）；② `ACTIVE_FILES` 动态化 + `kb-archive` 硬编码修正；③ 分片桩自测（新标签/未知标签 fail loud、跨分片补号单调、归档同进同退）；④ 6 个分片文件 + 指针页；⑤ 写入 **K-046**（领号必以**工作树**全文全局最大号为准，不能只读已提交头注）与 **K-047**（幂等判据必锁「自己写出的产物字形」）；⑥ 撤销 WXG-T-098 豁免条（本轮**零新增豁免**）；⑦ 协议回写六处；⑧ `kb:sync` + `kb:audit` + `ctx:build` + `pnpm run verify` 全绿并沉淀统计入库。
+- **验收**：`pnpm run kb:check` 绿；`kb:audit` 条目总数 = **32**（原 30 + 新 2）无丢失；`ctx:check` B 门不再含 `knowledge/lessons.md` 行且无新增豁免；全仓 `grep -rn 'lessons.md'` 无断链（指针页存在）；`verify` 不短路全绿；迁移前后条目正文逐字节一致（自证脚本输出为准）。
+- **约束**：不动 `patterns.md`（1452 tok）；不靠删信息凑体积；不伪造分片后的旧引用校验；**不碰并发会话未提交内容**（台账两份仍走 blob 重建 + `update-index`，K-045）。
+- **代价诚实记录（预期）**：指针页 + 6 片头注 ≈ 新增常驻 200–300 tok；`INDEX.md` 活跃表多一列×32 行；分片后「跨标签同族互引」（如 K-035↔K-038↔K-039）需跳文件读，靠活跃表定位（WXG-T-098 当时以此为由不拆，本轮拆 = 用户裁定优先，代价在此登记）。
+
+## WXG-T-112
+
+- **名称**：**装置自指类门禁缺陷评估（含 BD-38：`memory/INDEX.md` 单遍不收敛）**
+- **负责**：主理人(Qoder)　**状态**：📋 已立项（**本轮不实施**，用户裁定「并入 T-111 一起处理」⇒ 同族一并评估，但排在 T-111 之后）
+- **动机**：凡「**自身被索引的生成物**」都有同一类时序坑：重建时它自己的索引记录取的是**旧字节**，写盘后又是**新字节** ⇒ 单遍「重建 → add → 校」必不一致。实测判例：① **BD-38** `memory/INDEX.md` 不在 `lib/context-index.mjs:127` 的 `WORKTREE_AUTHORITATIVE` 集合 ⇒ pre-commit 需跑**两遍**才收敛（本轮 2026-09-15 撞上，已登 backlog，钩子提示「直接重新提交即可」同源于此但未解释为何）；② `ctx/BUDGET.md` / `ctx/hot-files.md` 已靠该集合规避；③ WXG-T-111 新引入的 `knowledge/lessons.md` **指针页 + `INDEX.md` 生成块**属同一形态 ⇒ 本单必评估其暂存区语义。
+- **Deliverables**：① 判定三类形态是否应统一收口（候选修法：把生成物一律加入 `WORKTREE_AUTHORITATIVE`，或 pre-commit 改为「重建 → add → **再重建** → 校」双遍并写进钩子注释）；② 桩自测：暂存区模式下生成物与索引**单遍必收敛**；③ 按结论回写 `.githooks/pre-commit` 与 `docs/agent/hooks-best-practices.md`。
+- **约束**：不用 `--no-verify` 规避；不得为了「绿」把 C 项降级为 note。
