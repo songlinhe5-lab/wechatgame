@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2430,
       "lines": 99,
-      "sha256": "ae6121b21843d9a288013e597cc2064516b3b23b6f2a982b26f3a225f8405bf8",
+      "sha256": "1ffd0c316021a9fd9a1843b24dc170505821e6d4a7ed550b5b1f3b361ea92289",
       "tier": "normal",
       "sections": [
         {
@@ -15067,32 +15067,32 @@
     },
     {
       "path": "games/beads/design/audio/audio-events.md",
-      "tokens": 5820,
-      "lines": 172,
-      "sha256": "31f8ab50a4f04fec3cb13aa75836df49a9fdb148f13ff7d7f201e934c5b371fd",
+      "tokens": 7666,
+      "lines": 193,
+      "sha256": "6102ab877c07e740462645d54ccf6227dc2ac228472e30955dac0d9b8f151327",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§音频事件表（Audio Event Table）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 173,
-          "tokens": 5806,
-          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.0 · 任务号 WXG-T-083（GAP-05）",
+          "endLine": 194,
+          "tokens": 7652,
+          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.1 · 任务号 WXG-T-083（GAP-05）；§4 判",
           "keywords": [
+            "§4",
             "Audio",
             "Event",
             "Table",
             "beads",
-            "games",
-            "WXG"
+            "games"
           ]
         },
         {
           "anchor": "§0 前置约定",
           "level": 2,
-          "startLine": 11,
-          "endLine": 23,
+          "startLine": 13,
+          "endLine": 25,
           "tokens": 397,
           "summary": "clip id 命名 sfx_*（音效）/ bgm_*（音乐）；代码只引用 id，不引用文件名 src/config/t",
           "keywords": [
@@ -15107,9 +15107,9 @@
         {
           "anchor": "§1 事件表（覆盖 ux-spec §5 全部 17 行）",
           "level": 2,
-          "startLine": 24,
-          "endLine": 55,
-          "tokens": 1183,
+          "startLine": 26,
+          "endLine": 73,
+          "tokens": 2179,
           "summary": "§5 实为 17 行（任务单口径「13 类」为归并计数：连击三档合一、面板入/出合一、续时两态合一）。本篇按逐行对齐，不",
           "keywords": [
             "§5",
@@ -15120,10 +15120,26 @@
           ]
         },
         {
+          "anchor": "§1.1 时长列分流表（WXG-T-103 / 冲突 C3：原 7 处非纯数字逐条裁定）",
+          "level": 3,
+          "startLine": 56,
+          "endLine": 73,
+          "tokens": 997,
+          "summary": "分流规则：甲 = 可凭既有真源定值，真源只认三处（systems-index §3.12 的 AUDIO_*、ux-sp",
+          "keywords": [
+            "§3.12",
+            "WXG",
+            "systems",
+            "index",
+            "AUDIO_",
+            "时长列分流表"
+          ]
+        },
+        {
           "anchor": "§2 覆盖对账（双向闭合，零发明 / 零遗漏）",
           "level": 2,
-          "startLine": 56,
-          "endLine": 87,
+          "startLine": 74,
+          "endLine": 105,
           "tokens": 601,
           "summary": "",
           "keywords": [
@@ -15136,8 +15152,8 @@
         {
           "anchor": "§2.1 §5 → clip（正向：无遗漏）",
           "level": 3,
-          "startLine": 58,
-          "endLine": 79,
+          "startLine": 76,
+          "endLine": 97,
           "tokens": 363,
           "summary": "1 珠子落座 sfx_place 1:1",
           "keywords": [
@@ -15151,8 +15167,8 @@
         {
           "anchor": "§2.2 clip → §5（反向：无发明）",
           "level": 3,
-          "startLine": 80,
-          "endLine": 87,
+          "startLine": 98,
+          "endLine": 105,
           "tokens": 211,
           "summary": "19 个 clip 中，18 个可指向 §5 的某一行；唯一例外 = sfx_ui_tap（已落码、§5 无对应行）与 ",
           "keywords": [
@@ -15166,8 +15182,8 @@
         {
           "anchor": "§3 混音属性表（优先级 / 抢占 / 限流）",
           "level": 2,
-          "startLine": 88,
-          "endLine": 115,
+          "startLine": 106,
+          "endLine": 133,
           "tokens": 791,
           "summary": "",
           "keywords": [
@@ -15180,8 +15196,8 @@
         {
           "anchor": "§3.1 优先级与可抢占性",
           "level": 3,
-          "startLine": 90,
-          "endLine": 101,
+          "startLine": 108,
+          "endLine": 119,
           "tokens": 468,
           "summary": "事实前提：AudioScheduler.flush() 按 _pending 入队序取前 maxPerFrame（默认 ",
           "keywords": [
@@ -15196,8 +15212,8 @@
         {
           "anchor": "§3.2 限流（`AudioPlayOptions.minInterval`，单位 s）",
           "level": 3,
-          "startLine": 102,
-          "endLine": 115,
+          "startLine": 120,
+          "endLine": 133,
           "tokens": 295,
           "summary": "⚠️ 现状缺陷（必须修）：beads-game.ts L1484 的 _sfx() 对所有 clip 统一传 minIn",
           "keywords": [
@@ -15212,9 +15228,9 @@
         {
           "anchor": "§4 逐事件可执行验收判据（供 WXG-T-084 引用）",
           "level": 2,
-          "startLine": 116,
-          "endLine": 151,
-          "tokens": 1703,
+          "startLine": 134,
+          "endLine": 172,
+          "tokens": 2272,
           "summary": "判据以事件 ID 为键（SKILL §6：不另立体系）。道次标记见 §0。所有 [N] 判据今天即可写进 vitest（",
           "keywords": [
             "§6",
@@ -15228,8 +15244,8 @@
         {
           "anchor": "§5 未纳入清单（有意不做 + 待裁项）",
           "level": 2,
-          "startLine": 152,
-          "endLine": 173,
+          "startLine": 173,
+          "endLine": 194,
           "tokens": 808,
           "summary": "有意不做（§5 无行 ⇒ 不发明；如需必须先回写 ux-spec §5，经文策渊/主理人）",
           "keywords": [
@@ -15244,18 +15260,18 @@
     },
     {
       "path": "games/beads/design/audio/audio-spec.md",
-      "tokens": 10410,
-      "lines": 293,
-      "sha256": "387129ff42628970e3f24ea8410f1f3769dd9cbf1ebe98b2b298108410f13931",
+      "tokens": 11064,
+      "lines": 297,
+      "sha256": "eccadfac4920241e46af4124b4a77a70bb40d6c810e4b995581c2a04dd4ffb9a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§音频规格（Audio Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 294,
-          "tokens": 10399,
-          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.0 · 任务号 WXG-T-083（GAP-05：音频实质为",
+          "endLine": 298,
+          "tokens": 11052,
+          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.1 · 任务号 WXG-T-083（GAP-05：音频实质为",
           "keywords": [
             "Audio",
             "Spec",
@@ -15434,8 +15450,8 @@
           "anchor": "§4 实现策略（Implementation）",
           "level": 2,
           "startLine": 103,
-          "endLine": 186,
-          "tokens": 2781,
+          "endLine": 188,
+          "tokens": 3103,
           "summary": "",
           "keywords": [
             "Implementation",
@@ -15478,8 +15494,8 @@
           "anchor": "§4.3 资源清单与合成配方（骨架定，数值 `[TODO]`）",
           "level": 3,
           "startLine": 135,
-          "endLine": 159,
-          "tokens": 919,
+          "endLine": 161,
+          "tokens": 1242,
           "summary": "纪律：下表结构（波形候选/包络段/滤波类型）为规格裁决；所有数值（基频 Hz、attack/decay ms、增益、截止",
           "keywords": [
             "[TODO]",
@@ -15493,8 +15509,8 @@
         {
           "anchor": "§4.4 加载时机与首屏影响",
           "level": 3,
-          "startLine": 160,
-          "endLine": 169,
+          "startLine": 162,
+          "endLine": 171,
           "tokens": 359,
           "summary": "资产加载 无（合成路线零文件）⇒ 对 ux-spec §6「≤1.5s BOOT，程序化绘制零加载资产」零影响",
           "keywords": [
@@ -15508,8 +15524,8 @@
         {
           "anchor": "§4.5 存档联动（S8）",
           "level": 3,
-          "startLine": 170,
-          "endLine": 174,
+          "startLine": 172,
+          "endLine": 176,
           "tokens": 76,
           "summary": "无新增字段：settings.bgmMuted / settings.sfxMuted 已存在（save-schema，",
           "keywords": [
@@ -15524,8 +15540,8 @@
         {
           "anchor": "§4.6 可访问性",
           "level": 3,
-          "startLine": 175,
-          "endLine": 186,
+          "startLine": 177,
+          "endLine": 188,
           "tokens": 197,
           "summary": "静音可玩 红线，见 §2.5（判据 A05-23）",
           "keywords": [
@@ -15537,8 +15553,8 @@
         {
           "anchor": "§5 验证手段矩阵",
           "level": 2,
-          "startLine": 187,
-          "endLine": 203,
+          "startLine": 189,
+          "endLine": 205,
           "tokens": 752,
           "summary": "[N] Node vitest（NullAudioBackend.played + helpers.advance(1/",
           "keywords": [
@@ -15553,8 +15569,8 @@
         {
           "anchor": "§5.1 对阶段 6 的结论（必须写进 Playtest 计划）",
           "level": 3,
-          "startLine": 197,
-          "endLine": 203,
+          "startLine": 199,
+          "endLine": 205,
           "tokens": 205,
           "summary": "在 [B] 道次解除前，阶段 6 无法评估「解压」支柱——因为 harness 恒静音，双通道只剩视觉单通道。",
           "keywords": [
@@ -15569,8 +15585,8 @@
         {
           "anchor": "§6 实现前置条件与移交",
           "level": 2,
-          "startLine": 204,
-          "endLine": 232,
+          "startLine": 206,
+          "endLine": 234,
           "tokens": 953,
           "summary": "",
           "keywords": [
@@ -15581,8 +15597,8 @@
         {
           "anchor": "§6.1 前置条件（三条，缺一不可）",
           "level": 3,
-          "startLine": 206,
-          "endLine": 211,
+          "startLine": 208,
+          "endLine": 213,
           "tokens": 177,
           "summary": "1. Web Audio 后端（platform/web.ts）：createAudioBackend() 从 Null",
           "keywords": [
@@ -15597,8 +15613,8 @@
         {
           "anchor": "§6.2 Web Audio 后端落地需求单 → 程基岩（波次 4）",
           "level": 3,
-          "startLine": 212,
-          "endLine": 215,
+          "startLine": 214,
+          "endLine": 217,
           "tokens": 182,
           "summary": "完整正文见 WXG-T-083 回传第 ③ 节（本文件只留指针，避免两处漂移）。七项摘要：① WebAudioBacke",
           "keywords": [
@@ -15613,8 +15629,8 @@
         {
           "anchor": "§6.3 执行层 pack 触发条件（本单**不触发**）",
           "level": 3,
-          "startLine": 216,
-          "endLine": 222,
+          "startLine": 218,
+          "endLine": 224,
           "tokens": 150,
           "summary": "indie-game-ost-pack（BGM 文件） 本轮不需要 仅当 §4.1 回退条件命中（真机否决合成路线）⇒ ",
           "keywords": [
@@ -15629,8 +15645,8 @@
         {
           "anchor": "§6.4 移交林绘澄（WXG-T-080，**我不改 art/**）",
           "level": 3,
-          "startLine": 223,
-          "endLine": 232,
+          "startLine": 225,
+          "endLine": 234,
           "tokens": 373,
           "summary": "音频需要视觉侧同步的三处，请主理人转交：",
           "keywords": [
@@ -15643,9 +15659,9 @@
         {
           "anchor": "§7 决策记录、拟增常量与冲突登记",
           "level": 2,
-          "startLine": 233,
-          "endLine": 271,
-          "tokens": 1386,
+          "startLine": 235,
+          "endLine": 275,
+          "tokens": 1518,
           "summary": "",
           "keywords": [
             "决策记录",
@@ -15656,8 +15672,8 @@
         {
           "anchor": "§7.1 决策（A05-D*）",
           "level": 3,
-          "startLine": 235,
-          "endLine": 247,
+          "startLine": 237,
+          "endLine": 249,
           "tokens": 430,
           "summary": "A05-D1 实现路线 = 程序化合成，主包音频占用 0 KB；采样为回退且回退须先解除内部目标冲突 §4.1/§4.2",
           "keywords": [
@@ -15670,9 +15686,9 @@
         {
           "anchor": "§7.2 拟增 `systems-index.md` 常量（**回传，不落盘**；由主对话串行写入 §3 并登记 §6）",
           "level": 3,
-          "startLine": 248,
-          "endLine": 260,
-          "tokens": 422,
+          "startLine": 250,
+          "endLine": 264,
+          "tokens": 555,
           "summary": "§3.9 包体预算（新增行） 音频主包占用 0 KB（程序化合成，产物内零音频文件） 本篇 §4.1/§4.2；实测余量",
           "keywords": [
             "systems-index.md",
@@ -15686,8 +15702,8 @@
         {
           "anchor": "§7.3 冲突与漂移登记（不改他域文档，报主理人裁）",
           "level": 3,
-          "startLine": 261,
-          "endLine": 271,
+          "startLine": 265,
+          "endLine": 275,
           "tokens": 469,
           "summary": "C-A05-1 art/assets-spec.md §5 预算表内部矛盾：分项 1800+400+0+400 = 26",
           "keywords": [
@@ -15702,9 +15718,9 @@
         {
           "anchor": "§8 `[TODO]` 汇总（诚实清单：**本篇未定的全部数值**）",
           "level": 2,
-          "startLine": 272,
-          "endLine": 288,
-          "tokens": 472,
+          "startLine": 276,
+          "endLine": 292,
+          "tokens": 586,
           "summary": "T1 三条 bus 的相对增益 / dB 基准（AUDIO_BUS_GAIN_BGM/SFX/UI） [B] 后端可听后",
           "keywords": [
             "[TODO]",
@@ -15718,9 +15734,9 @@
         {
           "anchor": "§9 交付与验收（SKILL §6 对齐）",
           "level": 2,
-          "startLine": 289,
-          "endLine": 294,
-          "tokens": 343,
+          "startLine": 293,
+          "endLine": 298,
+          "tokens": 381,
           "summary": "每条音效/曲目交付物 = clip id + 事件映射（audio-events.md §1）+ 合成配方或文件（含 B",
           "keywords": [
             "§6",
