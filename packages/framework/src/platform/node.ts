@@ -7,7 +7,11 @@
  */
 
 import { MemoryStorage, type Storage } from '../core/save/storage.js';
-import { NullAudioBackend, type AudioBackend } from '../core/audio/audio.js';
+import {
+  NullAudioBackend,
+  type AudioBackend,
+  type AudioBackendOptions,
+} from '../core/audio/audio.js';
 import type { PlatformInfo } from '../core/game/game.js';
 import { BasePlatform, type FrameHandle, type LogLevel, type ScreenSize } from './platform.js';
 import { MockRewardedAdProvider } from './rewarded-ad.js';
@@ -53,7 +57,11 @@ export class NodePlatform extends BasePlatform {
     return new MemoryStorage();
   }
 
-  createAudioBackend(): AudioBackend {
+  /**
+   * Node 永远静音：voice 表被**接受并忽略**。单测依赖 `NullAudioBackend.played`
+   * 断言派发，不得触碰真时钟 / 真 `AudioContext`（ADR-0013）。
+   */
+  createAudioBackend(_options?: AudioBackendOptions): AudioBackend {
     return new NullAudioBackend();
   }
 

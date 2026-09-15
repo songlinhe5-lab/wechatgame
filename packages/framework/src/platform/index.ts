@@ -13,6 +13,18 @@ import { WebPlatform } from './web.js';
 import { WeappPlatform, isWeapp } from './weapp.js';
 
 export * from './platform.js';
+export { SynthAudioBackend } from './audio-synth.js';
+export type {
+  SynthBuffer,
+  SynthBufferSource,
+  SynthContext,
+  SynthFilter,
+  SynthGain,
+  SynthHost,
+  SynthNode,
+  SynthOsc,
+  SynthParam,
+} from './audio-synth.js';
 export { MockRewardedAdProvider, NoopRewardedAdProvider } from './rewarded-ad.js';
 export type { MockAdOutcome } from './rewarded-ad.js';
 export { NodePlatform } from './node.js';

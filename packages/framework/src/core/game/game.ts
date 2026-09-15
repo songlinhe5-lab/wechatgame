@@ -15,7 +15,7 @@
 
 import type { EventBus, EventMap } from '../events/event-bus.js';
 import type { InputManager } from '../input/input-manager.js';
-import type { AudioScheduler } from '../audio/audio.js';
+import type { AudioScheduler, AudioVoices } from '../audio/audio.js';
 import type { Storage } from '../save/storage.js';
 import type { Rng } from '../math/rng.js';
 import type { Viewport } from '../render/viewport.js';
@@ -62,6 +62,16 @@ export interface GameServices {
 export interface Game {
   /** Stable identifier, also used to namespace save keys. */
   readonly id: string;
+  /**
+   * Clip id → synthesis recipe for this game's sounds. Pure data, owned by the
+   * game (the framework must not know `sfx_place` exists); the App hands it to
+   * `Platform.createAudioBackend` so the adapter can render it.
+   *
+   * Absent ⇒ the backend has nothing to render, which is the honest state for a
+   * game that has not registered voices yet（未登记的 clip **不发声**，backend 不
+   * 代为发明音色）。决策记录：ADR-0013（WXG-T-096）。
+   */
+  readonly audioVoices?: AudioVoices;
   /** Called once, before the first `update`. */
   init(services: GameServices): void;
   /** Fixed-timestep simulation. `dt` is always the loop's `fixedDt`. */
