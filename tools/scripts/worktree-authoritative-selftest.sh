@@ -84,6 +84,13 @@ git -C "$ROOT" worktree add --detach "$WT" HEAD >/dev/null 2>&1
 if [ ! -d "$WT" ]; then
   bad "[4] 无法创建隔离 worktree ⇒ 端到端组未执行（不假绿）"
 else
+  # 被测的是**真 pre-commit**，它按项目约定走 `pnpm run check:*`。新建的 worktree 里没有
+  # node_modules：pnpm 9 容忍，pnpm 10（CI 用 10.28.2，见 ci.yml 的 Install 注释）会以
+  # 「did you mean to install?」拒绝执行 ⇒ 本组在 CI 上必红（本地却绿）。用软链把主工作树
+  # 已装的依赖接进去（node_modules 已被 .gitignore 忽略，不污染 worktree）。
+  if [ -d "$ROOT/node_modules" ]; then
+    ln -sfn "$ROOT/node_modules" "$WT/node_modules"
+  fi
   # 缺项版 lib（用于红测）：把登记行删掉，其余不动
   grep -v "^  'memory/INDEX\.md',$" "$ROOT/tools/scripts/lib/context-index.mjs" > "$RED_LIB"
   if ! grep -q "WORKTREE_AUTHORITATIVE = new Set(\[" "$RED_LIB"; then
