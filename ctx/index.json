@@ -6307,9 +6307,9 @@
     },
     {
       "path": "games/beads/art/accessibility.md",
-      "tokens": 3560,
+      "tokens": 3668,
       "lines": 119,
-      "sha256": "e491b69ca9575440de2d469131b356971c5079cd8221c8d36029e50472e25bc1",
+      "sha256": "0bcba8d90d4910d21572b470534ef594c86ef204664b00459abfd3fb82ed36b4",
       "tier": "normal",
       "sections": [
         {
@@ -6317,7 +6317,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 120,
-          "tokens": 3542,
+          "tokens": 3651,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Accessibility",
@@ -6345,7 +6345,7 @@
           "level": 2,
           "startLine": 25,
           "endLine": 80,
-          "tokens": 2629,
+          "tokens": 2665,
           "summary": "A1 色觉障碍友好 · 珠子颜色 「颜色 + 符号 + 明度」三重编码：10 色各绑唯一矢量符号（○★●■♥◐▽▲◆✚，",
           "keywords": [
             "特性矩阵"
@@ -6356,7 +6356,7 @@
           "level": 2,
           "startLine": 81,
           "endLine": 98,
-          "tokens": 313,
+          "tokens": 386,
           "summary": "本 demo 落地（15 项）：A1 A2 A2b A3 A4 B1 B2 B3 C2 D1 D2 E1 E2（基础版）",
           "keywords": [
             "demo",
@@ -6641,9 +6641,9 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 3882,
+      "tokens": 4102,
       "lines": 187,
-      "sha256": "c2f1d893129b58c5ce69b79acd91195823b03da710b60665eddea661a9b24c8a",
+      "sha256": "aa06c78aa3846ec4d74998d8338ed4c3fc67b36b574d060ba30e15b1b91a3d86",
       "tier": "normal",
       "sections": [
         {
@@ -6651,7 +6651,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 188,
-          "tokens": 3868,
+          "tokens": 4088,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -6678,7 +6678,7 @@
           "level": 2,
           "startLine": 24,
           "endLine": 124,
-          "tokens": 2268,
+          "tokens": 2488,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -6715,7 +6715,7 @@
           "level": 3,
           "startLine": 77,
           "endLine": 85,
-          "tokens": 155,
+          "tokens": 375,
           "summary": "tray_panel 690 × 190 [待 systems-index §3 对齐] 白 #FFFFFF，圆角 24",
           "keywords": [
             "§3",
@@ -16290,17 +16290,17 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 2145,
-      "lines": 105,
-      "sha256": "ebb354e71e75ebefe331eda6b77de405be053dcc6f70adf8bcc77a216538e675",
+      "tokens": 2642,
+      "lines": 107,
+      "sha256": "47056628e7a493eac7005a2f252cd0089ad02eb48f812a496f6afe9b98dabfe4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S2 输入与操控（Input Control）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 106,
-          "tokens": 2129,
+          "endLine": 108,
+          "tokens": 2626,
           "summary": "项目：games/beads · 版本 v1.0 · 任务号 WXG-T-009",
           "keywords": [
             "GDD",
@@ -16326,8 +16326,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 13,
-          "endLine": 50,
-          "tokens": 632,
+          "endLine": 52,
+          "tokens": 905,
           "summary": "",
           "keywords": [
             "机制"
@@ -16337,8 +16337,8 @@
           "anchor": "§2.1 触摸路由表（单指点击，无拖拽/长按——复刻参考玩法）",
           "level": 3,
           "startLine": 15,
-          "endLine": 26,
-          "tokens": 180,
+          "endLine": 27,
+          "tokens": 249,
           "summary": "1 暂停按钮（HUD 带，避开 CAPSULE_AVOID） 请求 S9 暂停 S9",
           "keywords": [
             "HUD",
@@ -16352,9 +16352,9 @@
         {
           "anchor": "§2.2 热区规则（来源 §3.8）",
           "level": 3,
-          "startLine": 27,
-          "endLine": 33,
-          "tokens": 146,
+          "startLine": 28,
+          "endLine": 35,
+          "tokens": 351,
           "summary": "最小热区 TOUCH_MIN = 88px（≈44pt）。",
           "keywords": [
             "§3.8",
@@ -16366,8 +16366,8 @@
         {
           "anchor": "§2.3 状态门禁（什么状态下点什么有效）",
           "level": 3,
-          "startLine": 34,
-          "endLine": 44,
+          "startLine": 36,
+          "endLine": 46,
           "tokens": 127,
           "summary": "PLAYING 上表全部",
           "keywords": [
@@ -16380,8 +16380,8 @@
         {
           "anchor": "§2.4 非法输入处理（对齐 core-loop §6）",
           "level": 3,
-          "startLine": 45,
-          "endLine": 50,
+          "startLine": 47,
+          "endLine": 52,
           "tokens": 106,
           "summary": "锁定格 / 已填格点击：路由到 S3 但 S3 静默忽略——S2 层同样不播任何反馈（零噪声原则）。",
           "keywords": [
@@ -16395,8 +16395,8 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 51,
-          "endLine": 58,
+          "startLine": 53,
+          "endLine": 60,
           "tokens": 48,
           "summary": "玩家 单指触摸（tap）",
           "keywords": [
@@ -16407,8 +16407,8 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 59,
-          "endLine": 67,
+          "startLine": 61,
+          "endLine": 69,
           "tokens": 116,
           "summary": "tray:selected {slot, colorIdx} 点 holding 槽 selected 态表现 asse",
           "keywords": [
@@ -16423,8 +16423,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 68,
-          "endLine": 71,
+          "startLine": 70,
+          "endLine": 73,
           "tokens": 64,
           "summary": "全部引用 systems-index §3：§3.8（TOUCH_MIN、错误反馈频率）、§3.1（HUD_BAND/T",
           "keywords": [
@@ -16439,8 +16439,8 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 72,
-          "endLine": 88,
+          "startLine": 74,
+          "endLine": 90,
           "tokens": 405,
           "summary": "极端值",
           "keywords": [
@@ -16450,8 +16450,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 89,
-          "endLine": 93,
+          "startLine": 91,
+          "endLine": 95,
           "tokens": 73,
           "summary": "上游：S1（状态门禁）、S4（selected 槽与 holding 状态查询）。",
           "keywords": [
@@ -16463,9 +16463,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 94,
-          "endLine": 106,
-          "tokens": 597,
+          "startLine": 96,
+          "endLine": 108,
+          "tokens": 821,
           "summary": "1. 5 类指令逐一验证路由正确：点暂停→PAUSED；点道具卡→S6 收请求；点扩展→S4 收请求；点托盘珠→tray",
           "keywords": [
             "PAUSED",
