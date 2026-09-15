@@ -190,7 +190,7 @@
 |---|---|---:|---|
 | 领号 / 任务台账 | production/TASKS.md#§WXG 任务台账（SSOT） | 2220 | **领号只读头注**：`grep -n '当前已分配至' production/TASKS.md` ⇒ 只读那一行（≈30 tok，下一可用号就在里面；WXG-T-075 起）；要看**全部任务状态**才读主表（≈2.4k tok）；详情按下一行的入口**只读命中那一节** |
 | 任务**详情**（按需，勿整读） | production/TASKS-DETAIL.md#§WXG 任务台账 · 详情（标题制正文侧） | 单节 ≈ 290 | 一任务一节（`## WXG-T-0NN`）；**先用 `ctx/index.json` 查该节 `startLine`/`endLine`**，再 `read_file(path, offset, limit)` |
-| **memory 日志摘要（先读这个）** | memory/INDEX.md | 3756 | 分级加载入口：文件 → `##` 主题的行区间 + 摘要；命中后按行区间 `read_file` 只读那一节（WXG-T-068） | <!-- no-anchor -->
+| **memory 日志摘要（先读这个）** | memory/INDEX.md | 6777 | 分级加载入口：文件 → `##` 主题的行区间 + 体量 + **「详情」列** + 节首句摘要；命中后先看「详情」列：`—` ⇒ 按行区间读日记那一节，非 `—` ⇒ 正文已外移，改读 `memory/details/<…>.md`（WXG-T-068；二级详情层 WXG-T-106） | <!-- no-anchor -->
 | 已知限制 | memory/MEMORY.md#§已知限制 | 80 | |
 | 常用脚本 | memory/MEMORY.md#§常用脚本 | 197 | |
 | 项目约定 | memory/MEMORY.md#§项目约定 | 460 | |

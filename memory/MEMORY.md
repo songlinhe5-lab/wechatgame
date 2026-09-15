@@ -6,7 +6,9 @@
 
 ## 日志蒸馏规程（R2 · WXG-T-041）
 - `memory/YYYY-MM-DD.md` 满 30 天 → `pnpm run memory:distill`（dry-run 看候选）→ **AI/人工先把日志中长期有效的内容蒸馏进本文件相应章节** → `pnpm run memory:distill --write` 归档至 `memory/archive/`（原文逐字节保留、git 永久可查、不进 ctx 索引面）。脚本只做机械轮转，**蒸馏内容责任在人/会话**；完整规程见 `docs/agent/memory-distill.md`，归档待蒸馏项见文末「⏳ 归档待蒸馏提醒」段。
-- **读日志先读 `memory/INDEX.md`**（摘要层，由 `pnpm run ctx:build` 生成）：它按「文件 → `##` 主题」列出**行区间 + 体量 + 摘要素描**；命中后再 `read_file(path, offset=行首, limit=行尾−行首+1)` **只读那一节** —— 别整读日记（单篇 5.6k–10.1k tok ✗）。摘要是**节首句摘取**、非人工提要，只用来判断「要不要读」。
+- **连座归档（WXG-T-106）**：归档某天 ⇒ 该天 `memory/details/<日期>-*` 一同进 `memory/archive/details/`；组内任一目标重名则**整组跳过**（日记与详情件同进同退，否则留孤儿）。
+- **读日志先读 `memory/INDEX.md`**（摘要层，由 `pnpm run ctx:build` 生成）：它按「文件 → `##` 主题」列出**行区间 + 体量 + 「详情」列 + 节首句素描**；命中后先看「详情」列：为 `—` ⇒ `read_file('memory/YYYY-MM-DD.md', offset=行首, limit=行尾−行首+1)` 只读那一节；非 `—` ⇒ 日记只余骨架，**正文按该列路径读 `memory/details/<…>.md`**。别整读（历史单篇最大 12.6k tok ✗）。摘要是**节首句摘取**、非人工提要，只用来判断「要不要读」。
+- **单节 >600 tok 即外移**（`node tools/scripts/split-memory-detail.mjs --date=<YYYY-MM-DD>`，默认 dry-run）：正文逐字节搬到 `memory/details/`、日记留「标题 + 指针」；详情件同受 B 门约束 ⇒ **机制自带防再膨胀，不得为其加豁免**（WXG-T-106）。
 
 ## 项目约定
 - 仓库是 pnpm monorepo：`packages/framework`（共用框架）+ `games/breakout`（首款示例游戏）。
@@ -25,6 +27,7 @@
 - `pnpm run harness:build` / `pnpm run harness:smoke` — 编译产物 / 运行时冒烟。
 - `pnpm run preview:frames` — 生成 5 个关卡的 SVG 预览。
 - `pnpm run preview:clip --level 1 --seconds 8` — 生成该关卡的 MP4 实录（需要 ffmpeg + 隔离空间里的 @resvg/resvg-js）。
+- `pnpm run memory:split` — 把日记里超阈的 `##` 节逐字节外移到 `memory/details/`（默认 dry-run，`--date=` 必填；桩自测 `memory:split:selftest`）。
 - `pnpm run check:links` — 扫描 `my-agents`/`my-skills` 为真源；验 frontmatter、INDEX、编排路由表、四 IDE 符号链接；`.githooks/pre-commit` 强制。
 - `pnpm run verify` — 完整门禁（含 check:links）。
 - `node tools/scripts/install-githooks.mjs`（或 `pnpm install` 的 prepare）— 设置 `core.hooksPath=.githooks`。
