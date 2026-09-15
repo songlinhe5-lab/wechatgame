@@ -10,16 +10,35 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand, type RectCommand, type TextCommand } from '@wxgame/framework';
+import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
+import type { RewardedAdProvider } from '@wxgame/framework';
 import {
+    AD_PLACEHOLDER_HINT_TEXT,
+    AD_HINT_TEXT_Y,
     BEAD_CELL,
     BEAD_PITCH,
     DESIGN_H,
     DESIGN_W,
+    EXPAND_BTN_H,
+    EXPAND_BTN_HIT_H,
+    EXPAND_BTN_LABEL,
+    EXPAND_BTN_W,
+    GEAR_HIT_SIZE,
+    HUD_BAND,
+    POWERUP_BAND,
+    POWERUP_BADGE_SIZE,
     TAP_HINT_MS,
     TAP_HINT_NO_SELECTION_TEXT,
+    TRAY_BAND,
+    TRAY_BASE_SLOTS,
+    TRAY_COLS,
+    TRAY_HIT_SIZE,
     WRONG_SHAKE_PX,
+    expandButtonLayout,
+    trayLayout,
 } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { EXPAND_BTN_INK } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeAnyMatching, simpleTestLevel, tapInFrame } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
@@ -34,6 +53,10 @@ function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
 /** A stroke-only rounded rect ring = a `drawStateRing` state outline. */
 const isRing = (cmd: DrawCommand, stroke: string): boolean =>
     cmd.kind === 'rect' && cmd.stroke === stroke && cmd.fill === undefined;
+
+/** 按字面找一条 `text` 指令（BD-16 / BD-15 两个轻提示 describe 共用）。 */
+const textCmd = (cmds: readonly DrawCommand[], want: string): TextCommand | undefined =>
+    cmds.find((c) => c.kind === 'text' && c.text === want) as TextCommand | undefined;
 
 describe('T-087 GAP-03 首屏引导', () => {
     it('first run (runs==0): pulses the first bead slot + hints its single matching cell', () => {
@@ -264,9 +287,6 @@ describe('T-097 BD-16 无效落点轻提示（ux-spec §5 / input-control §8-7�
         y: snap.gridTop - BEAD_CELL / 2 - BEAD_PITCH * row,
     });
 
-    const textCmd = (cmds: readonly DrawCommand[], want: string): TextCommand | undefined =>
-        cmds.find((c) => c.kind === 'text' && c.text === want) as TextCommand | undefined;
-
     it('无选中珠点可落空格 → 一次性轻提示；零请求、零事件、静默', () => {
         const h = createBeadsHarness({
             levels: [simpleTestLevel()],
@@ -332,5 +352,153 @@ describe('T-097 BD-16 无效落点轻提示（ux-spec §5 / input-control §8-7�
         expect(h.count('bead:rejected')).toBe(0);
         expect(h.audio.played).toHaveLength(plays);
         expect(textCmd(renderSnap(after), TAP_HINT_NO_SELECTION_TEXT)).toBeUndefined();
+    });
+});
+
+describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · powerups §2.6 布局 A）', () => {
+    const eb = expandButtonLayout();
+    /** 热区中心（= 视觉框中心，二者同心）。 */
+    const BTN_MID = { x: eb.hitX + eb.hitW / 2, y: eb.hitBottom + eb.hitH / 2 };
+
+    function adSpy(): { provider: RewardedAdProvider; calls: string[] } {
+        const calls: string[] = [];
+        const inner = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createRewardedAdProvider();
+        const provider = new Proxy(inner, {
+            get(target, prop, receiver) {
+                const value = Reflect.get(target, prop, receiver);
+                if (typeof value !== 'function') return value;
+                return (...args: unknown[]) => {
+                    calls.push(String(prop));
+                    return (value as (...a: unknown[]) => unknown).apply(target, args);
+                };
+            },
+        }) as RewardedAdProvider;
+        return { provider, calls };
+    }
+
+    const mk = (provider?: RewardedAdProvider) =>
+        createBeadsHarness({
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.t097-expand',
+            ...(provider ? { rewardedAd: provider } : {}),
+        });
+
+    it('未扩展态点热区中心 → 吞掉 + 一次性占位轻提示，且事件学全零', () => {
+        const spy = adSpy();
+        const h = mk(spy.provider);
+        h.advance(1 / 60); // 首供已在托盘（v1.17 GAP-02）
+
+        const emitted = h.emitted.length;
+        const capacity = h.game.tray.capacity;
+        const plays = h.audio.played.length;
+
+        tapInFrame(h, BTN_MID.x, BTN_MID.y);
+
+        // 吞掉：路由命中优先级 3，不落到槽/格（`input-control §2.1`）。
+        expect(h.game.tapDesign(BTN_MID.x, BTN_MID.y)).toBe(true);
+        // 零事件、零槽变化、零扣次、不拉广告（§8-1 的 S4 出口本轮不可达，BD-37）。
+        expect(h.emitted.length).toBe(emitted);
+        expect(h.game.tray.expanded).toBe(false);
+        expect(h.game.tray.capacity).toBe(capacity);
+        expect(capacity).toBe(TRAY_BASE_SLOTS);
+        expect(h.game.powerups.usedCount).toBe(0);
+        expect(spy.calls.filter((c) => c === 'load' || c === 'show')).toEqual([]);
+        // 静默：`audio-events §1` 无占位点击音，不得新造。
+        expect(h.audio.played).toHaveLength(plays);
+        // 与道具超限同文案同语义（§2.6 布局 A）。
+        const snap = h.game.snapshot;
+        expect(snap.tapHintText).toBe(AD_PLACEHOLDER_HINT_TEXT);
+        expect(snap.tapHintAnchor).toBe('expand');
+        expect(snap.tapHintRow).toBe(-1);
+        expect(snap.tapHintCol).toBe(-1);
+    });
+
+    it('提示在 TAP_HINT_MS 窗口后自清（与 BD-16 同通道同上限）', () => {
+        const h = mk();
+        h.advance(1 / 60);
+        tapInFrame(h, BTN_MID.x, BTN_MID.y);
+        expect(h.game.snapshot.tapHintText).toBe(AD_PLACEHOLDER_HINT_TEXT);
+
+        h.advance(TAP_HINT_MS / 1000 + 1 / 60);
+
+        const snap = h.game.snapshot;
+        expect(snap.tapHintText).toBe('');
+        expect(textCmd(renderSnap(snap), AD_PLACEHOLDER_HINT_TEXT)).toBeUndefined();
+    });
+
+    it('已扩展态（本轮不可达）点击仍吞掉但零提示 —— 语义已完成', () => {
+        const h = mk();
+        h.advance(1 / 60);
+        expect(h.game.expandTray()).toBe(true);
+        const emitted = h.emitted.length;
+
+        expect(h.game.tapDesign(BTN_MID.x, BTN_MID.y)).toBe(true);
+
+        expect(h.game.snapshot.tapHintText).toBe('');
+        expect(h.emitted.length).toBe(emitted);
+        expect(h.game.tray.capacity).toBeGreaterThan(TRAY_BASE_SLOTS); // 未被二次改写
+    });
+
+    it('PAUSED 下点扩展零响应（遮罩吞掉，§8-1）', () => {
+        const h = mk();
+        h.advance(1 / 60);
+        tapInFrame(h, GEAR_HIT_SIZE / 2, (HUD_BAND.yMin + HUD_BAND.yMax) / 2);
+        expect(h.game.phase).toBe('paused');
+        const emitted = h.emitted.length;
+
+        tapInFrame(h, BTN_MID.x, BTN_MID.y);
+
+        expect(h.game.snapshot.tapHintText).toBe('');
+        expect(h.emitted.length).toBe(emitted);
+        expect(h.game.phase).toBe('paused');
+    });
+
+    it('几何：热区 132×88（accessibility C1）、视觉同心、与槽热区/道具带零重叠', () => {
+        expect([eb.hitW, eb.hitH]).toEqual([EXPAND_BTN_W, EXPAND_BTN_HIT_H]);
+        expect([EXPAND_BTN_W, EXPAND_BTN_HIT_H]).toEqual([132, 88]);
+        // 视觉高 48 < 88 ⇒ 只扩热区不改视觉，二者同心。
+        expect([eb.w, eb.h]).toEqual([EXPAND_BTN_W, EXPAND_BTN_H]);
+        expect(eb.bottom + eb.h / 2).toBeCloseTo(eb.hitBottom + eb.hitH / 2, 6);
+        // 落在 `TRAY_BAND` 带下沿之内（§3.4 v1.20）。
+        expect(eb.hitBottom).toBeGreaterThanOrEqual(TRAY_BAND.yMin);
+        expect(eb.hitBottom + eb.hitH).toBeLessThanOrEqual(TRAY_BAND.yMax);
+        // 与 `POWERUP_BAND`（顶 200）不侵。
+        expect(eb.hitBottom).toBeGreaterThan(POWERUP_BAND.yMax);
+        // 与托盘槽热区（基线态 / 扩展态）零重叠 ⇒ 不需 §8-2 重叠仲裁。
+        const half = TRAY_HIT_SIZE / 2;
+        for (const rows of [1, Math.ceil((TRAY_BASE_SLOTS + 4) / TRAY_COLS)]) {
+            const lay = trayLayout(rows);
+            for (let row = 0; row < rows; row++) {
+                const cy = lay.slotCenterY(row);
+                expect(cy - half).toBeGreaterThan(eb.hitBottom + eb.hitH);
+            }
+        }
+        // 提示文字落在按钮下方的空白带隙，不压任何带。
+        expect(AD_HINT_TEXT_Y).toBeLessThan(eb.hitBottom);
+        expect(AD_HINT_TEXT_Y).toBeGreaterThan(POWERUP_BAND.yMax);
+    });
+
+    it('渲染：胶囊底 + 「扩展」白字 + 常驻 ad_badge 角标（§1.3 / §1.4）', () => {
+        const h = mk();
+        h.advance(1 / 60);
+        const cmds = renderSnap(h.game.snapshot);
+        const rects = cmds.filter((c): c is RectCommand => c.kind === 'rect');
+
+        const capsule = rects.find(
+            (r) => r.fill === EXPAND_BTN_INK && r.w === EXPAND_BTN_W && r.h === EXPAND_BTN_H,
+        );
+        expect(capsule).toBeDefined();
+        expect(capsule!.x).toBeCloseTo(eb.x, 6);
+        expect(capsule!.y).toBeCloseTo(eb.bottom, 6);
+
+        expect(textCmd(cmds, EXPAND_BTN_LABEL)).toBeDefined();
+
+        const badge = rects.find(
+            (r) => r.fill === DEFAULT_PALETTE.adBadge && r.w === POWERUP_BADGE_SIZE,
+        );
+        expect(badge).toBeDefined();
+        // 角标在胶囊内右上角（内缩 8,8）。
+        expect(badge!.x + badge!.w).toBeLessThanOrEqual(capsule!.x + capsule!.w);
+        expect(badge!.y).toBeGreaterThanOrEqual(capsule!.y);
     });
 });

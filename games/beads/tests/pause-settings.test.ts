@@ -35,8 +35,7 @@ import {
   TOUCH_MIN,
   TRAY_BAND,
   TRAY_COLS,
-  TRAY_GAP,
-  TRAY_SLOT,
+  trayLayout,
   gridLayoutFor,
 } from '../src/config/tuning.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
@@ -101,15 +100,16 @@ function gridPoint(game: BeadsGame, row: number, col: number): { x: number; y: n
   return { x: layout.colCenterX(col), y: layout.rowCenterY(row) };
 }
 
-/** A tray slot centre (§3.4 derivation). */
+/**
+ * A tray slot centre（§3.4）—— **取单一真源 `trayLayout()`**，不得在此重推公式：
+ * 旧版自写 `(TRAY_BAND.yMin + yMax) / 2` 在 v1.20 面板改贴带上沿后整组脱靶，
+ * 而本文件所有断言都是「点下去无反应」——脱靶的点击会把它变成**永真断言**（假绿）。
+ */
 function trayPoint(slot: number): { x: number; y: number } {
-  const pitch = TRAY_SLOT + TRAY_GAP;
-  const rowWidth = TRAY_COLS * pitch - TRAY_GAP;
-  const left = (750 - rowWidth) / 2;
-  const col = slot % TRAY_COLS;
+  const lay = trayLayout(1);
   return {
-    x: left + TRAY_SLOT / 2 + pitch * col,
-    y: (TRAY_BAND.yMin + TRAY_BAND.yMax) / 2,
+    x: lay.slotCenterX(slot % TRAY_COLS),
+    y: lay.slotCenterY(Math.floor(slot / TRAY_COLS)),
   };
 }
 
@@ -141,6 +141,21 @@ describe('S9 pause & settings', () => {
     const game = harness.game;
     expect(game.phase).toBe('playing');
 
+    // 正向对照（WXG-T-097/BD-15 副产物）：先证明「点该坐标」在 PLAYING 下**确实**会
+    // 选中一颗珠——否则下面的「PAUSED 点托盘零响应」只是点了个空处（永真断言）。
+    // 旧版 `trayPoint()` 自推带中线公式，v1.20 面板改贴带上沿后整组脱靶 ⇒ 该断言
+    // 已静默失效一轮，故此处补上真阳性基线。
+    const slotA = game.giveTrayBead(0);
+    const slotB = game.giveTrayBead(1);
+    expect(slotA).toBeGreaterThanOrEqual(0);
+    expect(slotB).toBeGreaterThanOrEqual(0);
+    const pointB = trayPoint(slotB);
+    // 注：选中不置 `_consumedTap`（该旗只表「吞掉且不落空」的分支），
+    // 真阳性以**事件**为准——这也是 §8 判据的口径。
+    tap(game, pointB.x, pointB.y);
+    expect(harness.count('tray:selected')).toBe(1);
+    expect(game.tray.selectedSlot).toBe(slotB);
+
     expect(tapGear(game)).toBe(true);
     expect(game.phase).toBe('paused');
     expect(harness.count('game:paused')).toBe(1);
@@ -150,7 +165,9 @@ describe('S9 pause & settings', () => {
     // Nothing may react while the panel owns the screen.
     const eventsBefore = harness.emitted.length;
     const cell = gridPoint(game, 0, 0);
-    const tray = trayPoint(0);
+    // 一颗**未被选中**的 holding 珠：若路由误穿过遮罩，本标点会产出第 2 次
+    // `tray:selected`（真阳性已由上方对照证明）——这才是硬断言。
+    const tray = trayPoint(slotA);
     const card = powerupPoint();
     // A point squarely between two buttons — i.e. the scrim itself.
     const scrimPoint = { x: 375, y: 907 - 40 };
@@ -190,7 +207,7 @@ describe('S9 pause & settings', () => {
     expect(harness.emitted.length).toBe(eventsBefore);
     expect(game.phase).toBe('paused');
     expect(harness.count('game:paused')).toBe(1);
-    expect(harness.count('tray:selected')).toBe(0);
+    expect(harness.count('tray:selected')).toBe(1); // 停在对照那一次，PAUSED 未新增
     expect(harness.count('bead:placed')).toBe(0);
     expect(harness.count('bead:rejected')).toBe(0);
   });
