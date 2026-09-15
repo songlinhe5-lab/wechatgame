@@ -11,7 +11,7 @@
  */
 
 import type { Storage } from '../core/save/storage';
-import type { AudioBackend } from '../core/audio/audio';
+import type { AudioBackend, AudioBackendOptions } from '../core/audio/audio';
 import type { AssetProvider, PlatformInfo } from '../core/game/game';
 import { NullAssetProvider } from '../core/game/game';
 import type { RewardedAdProvider } from '../core/ads/rewarded-ad';
@@ -36,7 +36,13 @@ export interface Platform {
   /** Wall-clock time in milliseconds (for logging/saves, not simulation). */
   wallClock(): number;
   createStorage(): Storage;
-  createAudioBackend(): AudioBackend;
+  /**
+   * Audio sink for this platform. `options.voices` is the game's clip → recipe
+   * table, forwarded by the App (`compose/app.ts`) — adapters must stay silent
+   * for ids they have no voice for rather than inventing a timbre.
+   * Node returns `NullAudioBackend` so unit tests never touch a real clock.
+   */
+  createAudioBackend(options?: AudioBackendOptions): AudioBackend;
   createAssetProvider(): AssetProvider;
   /** Rewarded video. Node/web = Mock; weapp = Noop until a real pull is approved. */
   createRewardedAdProvider(): RewardedAdProvider;
@@ -57,7 +63,7 @@ export abstract class BasePlatform implements Platform {
 
   abstract now(): number;
   abstract createStorage(): Storage;
-  abstract createAudioBackend(): AudioBackend;
+  abstract createAudioBackend(options?: AudioBackendOptions): AudioBackend;
   abstract getScreenSize(): ScreenSize;
   abstract requestFrame(callback: (dtMs: number) => void): FrameHandle;
 
@@ -76,11 +82,11 @@ export abstract class BasePlatform implements Platform {
   }
 
   onHide(_callback: () => void): () => void {
-    return () => {};
+    return () => { };
   }
 
   onShow(_callback: () => void): () => void {
-    return () => {};
+    return () => { };
   }
 
   log(level: LogLevel, message: string, ...args: unknown[]): void {

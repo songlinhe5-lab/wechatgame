@@ -14,10 +14,15 @@
  */
 
 import { MemoryStorage, type Storage } from '../core/save/storage';
-import { NullAudioBackend, type AudioBackend } from '../core/audio/audio';
+import {
+  NullAudioBackend,
+  type AudioBackend,
+  type AudioBackendOptions,
+} from '../core/audio/audio';
 import type { PlatformInfo } from '../core/game/game';
 import { BasePlatform, type FrameHandle, type ScreenSize } from './platform';
 import { NoopRewardedAdProvider } from './rewarded-ad';
+import { SynthAudioBackend, type SynthContext } from './audio-synth';
 
 /**
  * Shape shared by `getWindowInfo` (new) and `getSystemInfoSync` (deprecated).
@@ -43,6 +48,11 @@ interface WxApi {
   offHide?(cb: () => void): void;
   onShow?(cb: () => void): void;
   offShow?(cb: () => void): void;
+  /** 小游戏侧首次手势解锁用（audio-spec §4.4）。 */
+  onTouchStart?(cb: (ev?: unknown) => void): void;
+  offTouchStart?(cb: (ev?: unknown) => void): void;
+  /** Android 上可用的 WebAudio；iOS 基库版本门槛待真机核实（A05-27 `[R]`）。 */
+  createWebAudioContext?(): unknown;
   createInnerAudioContext?(): unknown;
 }
 
@@ -58,7 +68,7 @@ export function isWeapp(): boolean {
 
 /** Storage backed by `wx.*StorageSync`. Never throws on quota errors. */
 export class WeappStorage implements Storage {
-  constructor(private readonly _wx: WxApi) {}
+  constructor(private readonly _wx: WxApi) { }
 
   get(key: string): string | null {
     try {
@@ -133,10 +143,39 @@ export class WeappPlatform extends BasePlatform {
     return this._wx ? new WeappStorage(this._wx) : new MemoryStorage();
   }
 
-  createAudioBackend(): AudioBackend {
-    // InnerAudioContext pooling is implemented with the first audio-bearing
-    // game; the null backend keeps gameplay functional meanwhile.
-    return new NullAudioBackend();
+  /**
+   * weapp 音频后端（WXG-T-096 / audio-spec §6.2 需求单第 7 项）。
+   *
+   * 只走 WebAudio 一条路：本仓选型是**程序化合成 ⇒ 零音频文件**（§3.12），而
+   * `InnerAudioContext` 只能播文件（`src`），合成出的 PCM 无法交给它 ⇒ 回退方案
+   * 与本单前提矛盾，**不实现**（audio-spec §6.3 的采样回退属另一批，需先解除
+   * `§3.9` 主包余量冲突）。无 `createWebAudioContext` 时回 `NullAudioBackend` 并
+   * 一次性 log，**不伪造「接了 InnerAudioContext 就能出声」的结论**。
+   */
+  createAudioBackend(options?: AudioBackendOptions): AudioBackend {
+    const wx = this._wx;
+    const voices = options?.voices;
+    const createCtx = wx?.createWebAudioContext;
+    if (!wx || !voices || typeof createCtx !== 'function') {
+      this.log(
+        'warn',
+        '[audio] 无 wx.createWebAudioContext 或无 voice 表 ⇒ 静音（合成音非文件，'
+        + 'InnerAudioContext 回退需先改选型；A05-27 `[R]` 待真机）',
+      );
+      return new NullAudioBackend();
+    }
+    const backend = new SynthAudioBackend(() => createCtx.call(wx) as SynthContext, voices, {
+      warn: (message) => this.log('warn', `[audio] ${message}`),
+    });
+    // 首次手势解锁；退后台停曲、回前台补起（期望态在 backend 里，不丢 BGM）。
+    const unlock = () => {
+      backend.unlock();
+      wx.offTouchStart?.(unlock);
+    };
+    wx.onTouchStart?.(unlock);
+    wx.onHide?.(() => backend.suspend());
+    wx.onShow?.(() => backend.resume());
+    return backend;
   }
 
   /** No wx ad API until the user approves a real pull (WXG-T-058). */

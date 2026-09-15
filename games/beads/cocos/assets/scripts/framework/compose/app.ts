@@ -73,7 +73,11 @@ export class App {
     this.services = {
       events: this.events,
       input: this.input,
-      audio: new AudioScheduler(this.platform.createAudioBackend()),
+      audio: new AudioScheduler(
+        this.platform.createAudioBackend(
+          options.game.audioVoices ? { voices: options.game.audioVoices } : undefined,
+        ),
+      ),
       storage: this.platform.createStorage(),
       rng,
       viewport: this.viewport,

@@ -19,6 +19,7 @@ import {
   REWARDED_PLACEMENT,
   SaveManager,
   StateMachine,
+  type AudioVoices,
   type Game,
   type GameServices,
   type RenderModelBuilder,
@@ -27,8 +28,28 @@ import {
 
 import {
   AUDIO_CLIP_BGM,
+  AUDIO_CLIP_CLEAR,
+  AUDIO_CLIP_COMBO_BREAK,
+  AUDIO_CLIP_COMBO_T1,
+  AUDIO_CLIP_COMBO_T2,
+  AUDIO_CLIP_COMBO_T3,
+  AUDIO_CLIP_DISSOLVE,
+  AUDIO_CLIP_PANEL_IN,
+  AUDIO_CLIP_PANEL_OUT,
+  AUDIO_CLIP_PLACE,
+  AUDIO_CLIP_POWERUP,
+  AUDIO_CLIP_REJECT,
+  AUDIO_CLIP_REVIVE_OK,
+  AUDIO_CLIP_SELECT,
+  AUDIO_CLIP_STAGE,
   AUDIO_CLIP_STAR,
+  AUDIO_CLIP_TRAY_FULL,
   AUDIO_CLIP_UI_TAP,
+  AUDIO_CLIP_URGENT_BEAT,
+  AUDIO_REJECT_MIN_INTERVAL,
+  AUDIO_SFX_MIN_INTERVAL,
+  AUDIO_TRAYFULL_MIN_INTERVAL,
+  AUDIO_URGENT_MIN_INTERVAL,
   DEFAULT_TUNING,
   GEAR_HIT_SIZE,
   HUD_BAND,
@@ -55,6 +76,7 @@ import {
   type PowerupType,
   type StageParams,
 } from '../config/tuning';
+import { BEADS_AUDIO_VOICES } from '../config/audio-voices';
 import {
   LEVELS,
   buildStagePattern,
@@ -144,10 +166,37 @@ export interface BeadsGameOptions {
   readonly sprintTime?: number;
 }
 
+/**
+ * §3.2 限流分档（真源：`audio-events.md §3.2` ↔ `systems-index §3.12`）。
+ *
+ * **一刀切 0.05 是缺陷**（冲突登记 C-A05-4）：那会让 `sfx_reject` 跑到 20 次/秒，
+ * 直接违反 §3.8「错误反馈 ≤2 次/秒」。未列出的 clip = 一次性事件音 ⇒ `0`
+ * （不限流），因为状态机天然单次触发（过关 / 结算 / 面板 / 续时 / stage）。
+ */
+const SFX_MIN_INTERVAL: Readonly<Record<string, number>> = {
+  [AUDIO_CLIP_REJECT]: AUDIO_REJECT_MIN_INTERVAL,
+  [AUDIO_CLIP_URGENT_BEAT]: AUDIO_URGENT_MIN_INTERVAL,
+  [AUDIO_CLIP_TRAY_FULL]: AUDIO_TRAYFULL_MIN_INTERVAL,
+  [AUDIO_CLIP_PLACE]: AUDIO_SFX_MIN_INTERVAL,
+  [AUDIO_CLIP_SELECT]: AUDIO_SFX_MIN_INTERVAL,
+};
+
+/** §1「面板入 / 出」的宿主相位：四个面板态均覆盖（A05-18）。 */
+const PANEL_PHASES: readonly BeadsPhase[] = ['paused', 'level-clear', 'game-over', 'finish'];
+
+function isPanelPhase(phase: BeadsPhase | null): boolean {
+  return phase !== null && PANEL_PHASES.indexOf(phase) >= 0;
+}
+
 export class BeadsGame implements Game {
   readonly id = 'beads';
   readonly tuning: BeadsTuning;
   readonly palette: BeadsPalette;
+  /**
+   * clip → 合成配方（数值全为**工程占位**，见 `config/audio-voices.ts` 头注）。
+   * App 把它转交给 `Platform.createAudioBackend()`，框架不持有玩法音色库（ADR-0013）。
+   */
+  readonly audioVoices: AudioVoices = BEADS_AUDIO_VOICES;
 
   private readonly _levels: readonly BeadsLevelRaw[];
   private readonly _saveKey: string;
@@ -851,6 +900,9 @@ export class BeadsGame implements Game {
       .addState('boot', {})
       .addState('playing', {
         onEnter: (game, from) => {
+          // §1「面板出」= 从四个面板态回到 PLAYING 的那一帧（出场动效首帧）：
+          // 恢复 / 下一关 / 重试 / 续时 / 重玩 / 去冲刺 都经本入口（A05-18）。
+          if (isPanelPhase(from)) game._sfx(AUDIO_CLIP_PANEL_OUT);
           if (from === 'paused') {
             game._pauseIntent = null;
             game._panel.close();
@@ -867,6 +919,7 @@ export class BeadsGame implements Game {
       .addState('paused', {
         onEnter: (game) => {
           game._panel.open();
+          game._sfx(AUDIO_CLIP_PANEL_IN);
           game._emit('game:paused', {});
         },
       })
@@ -898,6 +951,7 @@ export class BeadsGame implements Game {
           // 结算面板开：`ux-spec §4` 要求 LEVEL_CLEAR **等按钮**（下一关 / 去冲刺）。
           game._clearStarsAnnounced = 0;
           game._clearPanel.open();
+          game._sfx(AUDIO_CLIP_PANEL_IN);
         },
         onUpdate: (game, dt) => {
           game._stepLevelClear(dt);
@@ -912,12 +966,14 @@ export class BeadsGame implements Game {
             game._sprintSettle.open();
           }
           game._crash?.clear(); // D-03（提案 §3）：失败即删
+          game._sfx(AUDIO_CLIP_PANEL_IN);
         },
       })
       .addState('finish', {
         onEnter: (game) => {
           game._finishRowsAnnounced = 0;
           game._finishPanel.open();
+          game._sfx(AUDIO_CLIP_PANEL_IN);
         },
         onUpdate: (game, dt) => {
           game._stepFinish(dt);
@@ -983,12 +1039,53 @@ export class BeadsGame implements Game {
     const ad = services.rewardedAd;
     this._unsubs.push(
       ad.onRewarded(() => this._onReviveRewarded()),
-      ad.onClose(() => {
+      ad.onClose((event) => {
+        // A05-20：未看完（`reason !== 'completed'`）⇒ 温和否定音，受**同一** 0.5s
+        // 限流（连点主钮不产生 >2 次/秒）。已发奖路径上 `_watchingAd` 已先被
+        // `onRewarded` 清掉 ⇒ 不会与 `sfx_revive_ok` 同时发。
+        if (this._watchingAd && event?.reason !== 'completed') this._sfx(AUDIO_CLIP_REJECT);
         this._watchingAd = false;
       }),
       ad.onError(() => {
         this._watchingAd = false;
       }),
+    );
+
+    // ── 音频派发（WXG-T-096 / BD-05）：clip 选择**只**按 `audio-events §1` 的触发源
+    // 事件，时长与限流不在这里发明（真源 = §1 表 + §3.2 分档 + §3.12 冻结值）。
+    this._unsubs.push(
+      bus.on('bead:placed', () => this._sfx(AUDIO_CLIP_PLACE)),
+      bus.on('tray:selected', () => this._sfx(AUDIO_CLIP_SELECT)),
+      bus.on('bead:rejected', () => this._sfx(AUDIO_CLIP_REJECT)),
+      // A05-07：道具生效帧两条并存（id 不同 ⇒ 不被同帧去重吞掉）；
+      //         `affectedSlots` 为空 ⇒ **零发声**（powerups §4 零噪声原则）。
+      bus.on('powerup:used', (payload) => {
+        const slots = (payload as { affectedSlots?: readonly number[] }).affectedSlots;
+        if (!slots || slots.length === 0) return;
+        this._sfx(AUDIO_CLIP_POWERUP);
+        this._sfx(AUDIO_CLIP_DISSOLVE);
+      }),
+      // A05-08：三档分流不串音；`tier=0`（未升档）零发声。
+      bus.on('combo:up', (payload) => {
+        const tier = (payload as { tier: number }).tier;
+        if (tier === 3) this._sfx(AUDIO_CLIP_COMBO_T3);
+        else if (tier === 2) this._sfx(AUDIO_CLIP_COMBO_T2);
+        else if (tier === 1) this._sfx(AUDIO_CLIP_COMBO_T1);
+      }),
+      // A05-10：两种 `reason` 同一 clip（§5 只一行）；`wrong` 时与 `sfx_reject` 同帧
+      //         并存不互斥（双通道红线优先，Q-A05-3 采推荐项）。
+      bus.on('combo:break', () => this._sfx(AUDIO_CLIP_COMBO_BREAK)),
+      // A05-D7：首拍由 `timer:urgent` **边沿**驱动，后续每拍由 `timer:tick` 驱动；
+      //         同帧两条都到 ⇒ scheduler 入队去重 + 0.9s 限流 ⇒ 仍恰一拍。
+      bus.on('timer:urgent', () => this._sfx(AUDIO_CLIP_URGENT_BEAT)),
+      bus.on('timer:tick', (payload) => {
+        const remaining = (payload as { remaining: number }).remaining;
+        if (remaining <= TIMER_URGENT_T) this._sfx(AUDIO_CLIP_URGENT_BEAT);
+      }),
+      // A05-14：每次 `tray:full` 恰 1 次（**不循环**；500ms 呼吸属视觉，互不驱动）。
+      bus.on('tray:full', () => this._sfx(AUDIO_CLIP_TRAY_FULL)),
+      bus.on('sprint:stage', () => this._sfx(AUDIO_CLIP_STAGE)),
+      bus.on('level:cleared', () => this._sfx(AUDIO_CLIP_CLEAR)),
     );
   }
 
@@ -1362,6 +1459,8 @@ export class BeadsGame implements Game {
     this._reviveBonusSec += REVIVE_BONUS_SEC;
     this._reviveCount += 1;
     this._failHint = '';
+    // A05-19：只在**真加时**的那一帧发奖励音（零加时 ⇒ 零 `sfx_revive_ok`）。
+    this._sfx(AUDIO_CLIP_REVIVE_OK);
     this._machine.transition('playing');
   }
 
@@ -1525,10 +1624,12 @@ export class BeadsGame implements Game {
    * Deviation note (reported to the lead): architecture-beads §2 proposes two
    * `AudioScheduler` instances sharing one `AudioBackend`, but a game only ever
    * receives `GameServices.audio` — the `Platform` (which owns
-   * `createAudioBackend()`, `platform/platform.ts:37`) is created inside `App`
-   * (`compose/app.ts:76`) and is not reachable from `GameServices`
-   * (`core/game/game.ts:51,56`). Building a second scheduler would therefore
-   * require a framework change — out of bounds here.
+   * `createAudioBackend()`, `platform/platform.ts`) is created inside `App`
+   * (`compose/app.ts`) and is not reachable from `GameServices`
+   * (`core/game/game.ts`). ADR-0013 (WXG-T-096) widened that factory to
+   * `createAudioBackend({ voices })` — the recipe table now flows game → App →
+   * Platform — but it deliberately did **not** hand the backend itself to the
+   * game, so the two-scheduler shape still needs a further framework decision.
    *
    * Instead the two channels are realised over the single scheduler:
    *   - **bgm** = one looping clip; muting stops it, un-muting re-requests it;
@@ -1545,10 +1646,15 @@ export class BeadsGame implements Game {
     }
   }
 
-  /** Sfx request gate (never touched by the music toggle, §8-4). */
+  /**
+   * Sfx request gate (never touched by the music toggle, §8-4).
+   *
+   * `minInterval` 按 clip 分档（§3.2）——**不得**回到统一 0.05（那会把 reject 推成
+   * 20 次/秒，违反 §3.8 红线，判据 A05-05/06）。
+   */
   private _sfx(clipId: string): void {
     if (this._sfxMuted) return;
-    this._services?.audio.play(clipId, { minInterval: 0.05 });
+    this._services?.audio.play(clipId, { minInterval: SFX_MIN_INTERVAL[clipId] ?? 0 });
   }
 
   /** Normal-mode clear → unlock progression (write on key events only). */

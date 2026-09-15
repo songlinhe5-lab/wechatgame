@@ -18,6 +18,74 @@ export interface AudioPlayOptions {
   readonly minInterval?: number;
 }
 
+/**
+ * Mix group a clip belongs to. Names come from `systems-index §3.12`（Music /
+ * SFX / UI 三总线）. The *gains* are deliberately absent: §3.12 freezes them as
+ * `[TODO]` until the backend is audible and loudness is calibrated on device, so
+ * a backend must treat every bus gain as 1 and say so rather than invent dB.
+ */
+export type AudioBus = 'music' | 'sfx' | 'ui';
+
+/**
+ * One tone inside a voice: a frequency, when it starts (ms from the clip's
+ * onset) and how long it sounds. `glideTo` sweeps linearly — that is what makes
+ * a 「嗒」 drop or a 「叮」 rise without extra nodes.
+ */
+export interface AudioNote {
+  readonly freq: number;
+  readonly startMs?: number;
+  readonly durMs?: number;
+  readonly glideTo?: number;
+  readonly gain?: number;
+}
+
+/**
+ * Recipe for a programmatically synthesised clip — the data half of the
+ * 「零音频文件进产物」 ruling（§3.12 选型 / 判据 A05-25）.
+ *
+ * WHO OWNS WHICH NUMBER: the *structure*（波形类别 / 包络分段 / 是否噪声）is
+ * design（`audio-spec §4.3`）; every concrete Hz / ms / gain lives in the game's
+ * own voice table and is a **工程占位** until the `[B]`/`[R]` 道次 定档 — §4.3
+ * marks them `[TODO]`, so no number here may be quoted back as spec. Durations
+ * are the one exception: they are capped by ux-spec §5 via `audio-events §1`.
+ *
+ * The core only *declares* this shape; rendering it is platform work
+ * (`platform/audio-synth.ts`), which keeps L2（core 不碰 DOM / `AudioContext`）.
+ */
+export interface AudioVoice {
+  readonly bus?: AudioBus;
+  /** Upper bound from `audio-events §1`（硬约束，不自行延长）。 */
+  readonly durationMs: number;
+  /** Relative level 0..1 *within the clip*（≠ 总线增益，后者 `[TODO]`）. */
+  readonly gain?: number;
+  readonly wave?: 'sine' | 'triangle' | 'square' | 'sawtooth';
+  readonly attackMs?: number;
+  readonly releaseMs?: number;
+  /** Single-shot tone list; omit for a plain tone at `freq`. */
+  readonly notes?: readonly AudioNote[];
+  readonly freq?: number;
+  readonly glideTo?: number;
+  /** Filter applied to the whole clip; `type` chosen per §4.3 结构列. */
+  readonly filter?: 'lowpass' | 'highpass' | 'bandpass';
+  readonly filterFreq?: number;
+  /** Noise-source clip（「沙」/「唰」）— buffer 复用，见 synth 头注. */
+  readonly noise?: boolean;
+  /**
+   * Loop period in ms. Set on BGM clips: the backend then renders **one** buffer
+   * of this length and loops it（无缝循环点，A05-22）instead of one-shots, so a
+   * repeated `play(id,{loop:true})` must not restart its position.
+   */
+  readonly loopMs?: number;
+}
+
+/** Clip id → recipe. Games own their ids; the framework ships no voice library. */
+export type AudioVoices = Readonly<Record<string, AudioVoice>>;
+
+/** Options handed to `Platform.createAudioBackend` by the composition root. */
+export interface AudioBackendOptions {
+  readonly voices?: AudioVoices;
+}
+
 /** Lowest-level sink implemented by platform adapters. */
 export interface AudioBackend {
   play(clipId: string, opts: Required<Pick<AudioPlayOptions, 'volume' | 'loop'>>): void;

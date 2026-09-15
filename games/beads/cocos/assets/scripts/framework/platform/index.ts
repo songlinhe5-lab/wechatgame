@@ -13,6 +13,18 @@ import { WebPlatform } from './web';
 import { WeappPlatform, isWeapp } from './weapp';
 
 export * from './platform';
+export { SynthAudioBackend } from './audio-synth';
+export type {
+  SynthBuffer,
+  SynthBufferSource,
+  SynthContext,
+  SynthFilter,
+  SynthGain,
+  SynthHost,
+  SynthNode,
+  SynthOsc,
+  SynthParam,
+} from './audio-synth';
 export { MockRewardedAdProvider, NoopRewardedAdProvider } from './rewarded-ad';
 export type { MockAdOutcome } from './rewarded-ad';
 export { NodePlatform } from './node';
