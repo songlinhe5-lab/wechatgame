@@ -89,3 +89,9 @@
   规避：① 新增 `ctx:build` 写盘的 .md 时，**同时**登记进 `WORKTREE_AUTHORITATIVE` 与钩子的 `git add` 清单，两处缺一不可；② 别指望「先写产物、后建索引」的顺序调整能修好（WXG-T-072 当时只做了这件事，实测仍需两遍）——决定项是**取源分支**，不是写入顺序；③ 也别归因成「作者手跑了 `ctx:build` 才脏」：隔离 worktree 实测三种起手（只暂存自有 .md / 手跑 build 并 add 产物 / 手跑 build 不 add 产物）**第一遍全红**，最规范的用法一样中招；④ 把不变式机械化——`ctx:check` 的「装置自指对账」`C:` 级项断言生成物集合 ⊆ 工作树权威集合，漏登记当场报红并直接给出修法位置，而不是留给下一个提交的人去撞。
   判据推广：生成器注释里任何「我这一步写完就与磁盘同源了」的断言，都必须有**跨模式**（committed / staged-blobs / working-tree）的取源断言背书，否则它就是下一个 BD-38；自测里要配一条**同流程的红灯**（删掉登记 ⇒ 必须变红），否则绿灯只是巧合。
   判例引用：BD-38（本条即其关单结论）；同族判例 = `ctx/BUDGET.md` 的 Top-20 自指导致两遍才达不动点（`build-context-index.mjs` 收敛循环注释）。
+
+- **[工具链][K-049] 自测夹具必须由被测生成器播种、依赖按整目录拷贝，否则门禁一扩就整片假红**（来源 WXG-T-121 / BD-39，改 `tools/scripts/context-usage-selftest.sh`，2026-09-16）
+  现象：`context-usage-selftest.sh` 在 `3fa3be4`（改动前）与 `e9664da`（改动后）两个点上都测出 **FAIL=63**（组 [6]~[11] 整片红），而它既不在 `verify` 步骤表也不在 CI ⇒ 红了很久无人知晓；BD-39 记的「`kb:selftest` 首跑即 4 FAIL」是同族第二例 ⇒ 判定为**存量腐烂**，不是本轮引入。
+  根因（两处，同一形状：**手写清单追不上正本扩张**）：① 桩只 `cp` 了 `lib/` 里两个模块，而 `check-context-budget.mjs` 后来 import 了 `lib/memory-index.mjs` ⇒ 桩里 `ctx:check` 直接 `ERR_MODULE_NOT_FOUND` 崩；② 桩**手写** `ctx/index.json`（固定列 5 个文件），而 ctx 门禁的「生成物集合」后来扩到 `ctx/BUDGET.md` + `memory/INDEX.md`，且 `ctx:check` 自身会回写 BUDGET/hot-files ⇒ C 门恒报「索引过期 / 未收录的新 .md / memory/INDEX.md 缺失」。附带一条：桩仓库没有 `memory/` 目录时 `ctx:build` 写生成物直接 ENOENT 崩。
+  规避：① 拷依赖用**整目录通配**（`cp "$SCRIPT_DIR"/lib/*.mjs`），不要手写文件清单——清单不会跟着 import 长；② 夹具里的**索引与产物不要手写**，跑一次被测生成器播种（build 之后再注入本轮要改的度量文件），门禁扩容时夹具自动跟上；③ 桩仓库必须预置生成器的**写盘目录**（`memory/` 等），缺目录会让被测工具崩在 ENOENT 上、把夹具问题伪装成工具缺陷；④ 修完 ①② 后 **63 → 0**（172 条断言全绿）；且动手前先取「历史点同测」证据（`git worktree` 跑同一自测），否则无法区分「我改坏了」与「早就红了」。
+  判例引用：BD-39（本条即其修法）；同族 K-036（短路后的 ✅ 不构成证据）、K-048（装置自指须取工作树字节）。

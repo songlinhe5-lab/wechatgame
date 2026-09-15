@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 49,
+  "nextId": 50,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -822,6 +822,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-049",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "自测夹具必须由被测生成器播种、依赖按整目录拷贝，否则门禁一扩就整片假红",
+      "contentHash": "48ecdc7d789100e91688ce874497289d90b49cf351412c1ec780a8b7169ea5ad",
+      "sourceTask": "WXG-T-121",
+      "addedDate": "2026-09-16",
+      "lastAccess": "2026-09-16",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1018,6 +1035,15 @@
       "kind": "added",
       "ids": [
         "K-048"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-16",
+      "taskId": "WXG-T-121",
+      "kind": "added",
+      "ids": [
+        "K-049"
       ],
       "note": null
     }
