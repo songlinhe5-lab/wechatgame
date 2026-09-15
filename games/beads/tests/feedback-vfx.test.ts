@@ -17,6 +17,7 @@ import {
     AD_HINT_TEXT_Y,
     BEAD_CELL,
     BEAD_PITCH,
+    DANGER_PULSE_MS,
     DESIGN_H,
     DESIGN_W,
     EXPAND_BTN_H,
@@ -33,14 +34,17 @@ import {
     TRAY_BASE_SLOTS,
     TRAY_COLS,
     TRAY_HIT_SIZE,
+    TRAY_FULL_PULSE_MS,
     WRONG_SHAKE_PX,
     expandButtonLayout,
     trayLayout,
 } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { EXPAND_BTN_INK } from '../src/view/palette.js';
+import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeAnyMatching, simpleTestLevel, tapInFrame } from './helpers.js';
+import type { Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
 function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
@@ -500,5 +504,186 @@ describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · 
         // 角标在胶囊内右上角（内缩 8,8）。
         expect(badge!.x + badge!.w).toBeLessThanOrEqual(capsule!.x + capsule!.w);
         expect(badge!.y).toBeGreaterThanOrEqual(capsule!.y);
+    });
+});
+
+// ══════════════════ T-097 BD-10 满槽告警面板描边（ux-spec §5 / assets-spec §1.5）══════════════════
+describe('T-097 BD-10 满槽告警面板描边', () => {
+    const lay1 = trayLayout(1);
+
+    /**
+     * 面板尺寸那条 danger 描边环。`wrong` 态用的也是 `palette.danger`
+     * （`drawStateRing` 单格尺寸）⇒ 只能按**几何**分辨，不按颜色。
+     */
+    const panelRing = (cmds: readonly DrawCommand[]): RectCommand | undefined =>
+        cmds.find(
+            (c): c is RectCommand =>
+                c.kind === 'rect' &&
+                c.fill === undefined &&
+                c.stroke === DEFAULT_PALETTE.danger &&
+                Math.abs(c.w - lay1.panelW) < 1e-6 &&
+                Math.abs(c.h - lay1.panelH) < 1e-6,
+        );
+
+    /** 灌满基线容量（白盒给料，绕开供料节奏——本条只测表现层通道）。 */
+    function mkFull(saveKey: string): Harness {
+        const h = createBeadsHarness({ levels: [simpleTestLevel()], saveKey });
+        h.advance(1 / 60);
+        for (let i = 0; i < TRAY_BASE_SLOTS; i++) h.game.giveTrayBead(1);
+        h.advance(1 / 60);
+        return h;
+    }
+
+    /** 连续 `n` 帧的描边 α 序列（每帧重跑 `buildBeadsView`，L5 纯函数）。 */
+    function alphaSeq(h: Harness, n: number): number[] {
+        const out: number[] = [];
+        for (let f = 0; f < n; f++) {
+            const ring = panelRing(renderSnap(h.game.snapshot));
+            out.push(ring ? ring.alpha ?? 1 : NaN);
+            h.advance(1 / 60);
+        }
+        return out;
+    }
+
+    it('满槽：面板边缘 2px danger 描边，几何与 trayLayout() 同源', () => {
+        const h = mkFull('wxgame.beads.test.t097-full');
+        const s = h.game.snapshot;
+        expect(s.traySlots.every((sl) => sl.state !== 'free')).toBe(true);
+
+        const ring = panelRing(renderSnap(s));
+        expect(ring).toBeDefined();
+        expect(ring!.lineWidth).toBe(2);
+        expect(ring!.x).toBeCloseTo(lay1.panelX, 6);
+        expect(ring!.y).toBeCloseTo(lay1.panelBottom, 6);
+    });
+
+    it('未满槽：零面板描边（不得常驻红框）', () => {
+        const h = createBeadsHarness({
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.t097-notfull',
+        });
+        h.advance(1 / 60);
+        h.game.giveTrayBead(1);
+        h.advance(1 / 60);
+        expect(h.game.snapshot.traySlots.some((sl) => sl.state === 'free')).toBe(true);
+        expect(panelRing(renderSnap(h.game.snapshot))).toBeUndefined();
+    });
+
+    it('呼吸：α 在 0.6↔1.0 间往返，周期 = TRAY_FULL_PULSE_MS（2Hz ≤3Hz）', () => {
+        const h = mkFull('wxgame.beads.test.t097-breathe');
+        const seq = alphaSeq(h, 90);
+        expect(seq.every((a) => !Number.isNaN(a))).toBe(true);
+
+        const periodFrames = Math.round(TRAY_FULL_PULSE_MS / (1000 / 60)); // 周期 = 30 帧
+        expect(periodFrames).toBe(30);
+        // 整周期同相（±0 容差 0.02）；半周期必有明显差值（三角波不会“常亮”）。
+        for (let f = 0; f + periodFrames < seq.length; f++) {
+            expect(Math.abs(seq[f]! - seq[f + periodFrames]!)).toBeLessThan(0.02);
+        }
+        const half = Math.round(periodFrames / 2); // 15 帧 = 半周期
+        let maxDelta = 0;
+        for (let f = 0; f + half < seq.length; f++) {
+            maxDelta = Math.max(maxDelta, Math.abs(seq[f]! - seq[f + half]!));
+        }
+        expect(maxDelta).toBeGreaterThan(0.1);
+        expect(Math.min(...seq)).toBeCloseTo(0.6, 1);
+        expect(Math.max(...seq)).toBeCloseTo(1, 1);
+        // 单周期 500ms ⇒ 1s 内两档往返，非「常亮」也非高频闪。
+        expect(new Set(seq.slice(0, 60).map((a) => a.toFixed(3))).size).toBeGreaterThanOrEqual(2);
+    });
+
+    it('D1 减弱动效：描边保留但 α 恒 1（退静态，不消失）', () => {
+        const h = mkFull('wxgame.beads.test.t097-reduce');
+        // 面板驱动一律走 `tapDesign()`（= 真 `_handleTap` 路由）：真指针链在
+        // 非 PLAYING 相位收不到点击（`_readInput()` 唯一调用点在 `_stepPlaying`）
+        // = **BD-34 / WXG-T-100 占位未动码**；本条与 `pause-settings.test.ts`、
+        // 探针 P22 同口径，**不得**据此判面板「真机可点」。
+        h.game.tapDesign(GEAR_HIT_SIZE / 2, (HUD_BAND.yMin + HUD_BAND.yMax) / 2);
+        expect(h.game.phase).toBe('paused');
+        const center = (id: string): [number, number] => {
+            const b = pausePanelLayout('normal').buttons.find((x) => x.id === id)!;
+            return [(b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.rect.yMax) / 2];
+        };
+
+        expect(h.game.tapDesign(...center('toggle-reduce-motion'))).toBe(true);
+        expect(h.game.reduceMotion).toBe(true);
+        expect(h.game.phase).toBe('paused');
+        h.game.tapDesign(...center('resume'));
+        expect(h.game.phase).toBe('playing');
+
+        const seq = alphaSeq(h, 40);
+        expect(seq.every((a) => !Number.isNaN(a))).toBe(true); // 通道仍在
+        expect(seq.every((a) => a === 1)).toBe(true); // 但不动
+    });
+
+    /**
+     * 自相关估周期：返回使 `seq[f] == seq[f+lag]` 对全部 `f` 成立的最小 `lag`（帧）。
+     * 不用「签名种数 ≥2」这种弱断言（可被其它动画伪满足，探针修订 17 同口径）。
+     */
+    function estPeriod(seq: readonly number[], tol = 0.02): number | null {
+        for (let lag = 5; lag * 2 <= seq.length; lag++) {
+            let same = true;
+            for (let f = 0; f + lag < seq.length; f++) {
+                if (Math.abs(seq[f]! - seq[f + lag]!) > tol) {
+                    same = false;
+                    break;
+                }
+            }
+            if (same) return lag;
+        }
+        return null;
+    }
+
+    /** HUD 时钟图标 α（`GAP-10` 通道；α 在 `stroke` 的 rgba 里，与 rect.alpha 不同源）。 */
+    function hudIconAlpha(cmds: readonly DrawCommand[]): number {
+        for (const c of cmds) {
+            if (c.kind !== 'circle' || c.y < HUD_BAND.yMin || c.y > HUD_BAND.yMax) continue;
+            const m = /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([\d.]+)\s*\)/.exec(String(c.stroke ?? ''));
+            return m ? Number(m[1]) : 1;
+        }
+        return 1;
+    }
+
+    it('叠加（timer-gameover §8-10）：告急与满槽两区各自往复，各自 ≤3Hz', () => {
+        // 单一实例内同时造出「告急 + 满槽」——两个主体同屏才有 §8-10 可谈。
+        // 夹具：12 行×13 列（§3.5 最大棋盘 ⇒ demand 足够，A′ 下合法供料可自然灌满，
+        // 不用 giveTrayBead——修订 21 同口径）+ 最短关 180s + 最快供料 2.0s；
+        // 不落子 ⇒ 槽位只进不出，约 24s 满槽（TRAY_BASE_SLOTS=12）、170s 告急。
+        const rows = Array.from({ length: 12 }, (_, i) =>
+            Array.from({ length: 13 }, (_, j) => String(((i + j) % 3) + 1)).join(''),
+        );
+        const h = createBeadsHarness({
+            levels: [simpleTestLevel({ id: 92, rows: 12, cols: 13, time: 180, spawnInterval: 2.0, pattern: rows })],
+            saveKey: 'wxgame.beads.test.t097-overlay',
+        });
+        for (let t = 0; t < 60 && h.game.snapshot.traySlots.some((sl) => sl.state === 'free'); t++) h.advance(1);
+        expect(h.game.snapshot.traySlots.every((sl) => sl.state !== 'free')).toBe(true);
+        for (let t = 0; t < 200 && !h.game.snapshot.urgent; t++) h.advance(1);
+        expect(h.game.snapshot.urgent).toBe(true);
+        expect(h.game.phase).toBe('playing');
+
+        const tray: number[] = [];
+        const hud: number[] = [];
+        for (let f = 0; f < 140; f++) {
+            const cs = renderSnap(h.game.snapshot);
+            const ring = panelRing(cs);
+            tray.push(ring ? ring.alpha ?? 1 : NaN);
+            hud.push(hudIconAlpha(cs));
+            h.advance(1 / 60);
+        }
+        // 两主体同时在场上（满槽描边在告急期间仍存在）。
+        expect(tray.every((a) => !Number.isNaN(a))).toBe(true);
+        // 分区计数（`ux-spec §5` 红线口径：闪烁 = 同一区域内 α 的往复）⇒ 两区不合并。
+        const trayLag = estPeriod(tray);
+        const hudLag = estPeriod(hud);
+        // 周期容差取 §8-10 / ux-spec §5 现文的 ±50 ms（= ±3 帧）；不自行加严。
+        // HUD 实测 59 帧属量化：告急脉冲相位源 = 倒计时累计，与 `_pulseClock` 不同累加。
+        const lagMs = (lag: number | null): number => (lag === null ? NaN : (lag * 1000) / 60);
+        expect(Math.abs(lagMs(trayLag) - TRAY_FULL_PULSE_MS)).toBeLessThanOrEqual(50);
+        expect(Math.abs(lagMs(hudLag) - DANGER_PULSE_MS)).toBeLessThanOrEqual(50);
+        expect(1000 / lagMs(trayLag)).toBeLessThanOrEqual(3);
+        expect(1000 / lagMs(hudLag)).toBeLessThanOrEqual(3);
+        // 两区不重叠（§3.4 v1.20 带定义）⇒ 不构成「同一区域双振荡器叠加」。
+        expect(TRAY_BAND.yMax).toBeLessThan(HUD_BAND.yMin);
     });
 });
