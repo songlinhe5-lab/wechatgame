@@ -22,7 +22,7 @@
  *     （--source 供桩自测在临时目录造夹具；--plan-only 只出映射不写指针页）
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, parseKnowledgeFile } from './lib/knowledge-ledger.mjs';
 
@@ -45,7 +45,7 @@ const outDirAbs = relOr(OUT_DIR_REL);
 
 /**
  * 行内标签 → 分片文件名。**顺序即 `ACTIVE_FILES` 列表序**（补号顺序，见 lib 注释），
- * 改动本表必须同步 `lib/knowledge-ledger.mjs::LESSONS_TAG_ORDER`。
+ * 改动本表必须同步 `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`。
  */
 export const TAG_TO_SHARD = new Map([
     ['工具链', 'toolchain'],
@@ -69,6 +69,20 @@ const fail = (msg) => {
 // ────────────────────────────────────────────────── 切分 ────────────────────────
 
 if (!existsSync(sourceAbs)) fail(`源文件不存在：${SOURCE_REL}`);
+
+// 一次性迁移工具必须有「已完成」判定，否则第二跑会以假故障吓人：此时源文件已是本脚本
+// 自己改写的**指针页**，其中的 `- **…**` 排版行会被 parseKnowledgeFile 当成语义条目 ⇒
+// 报「缺 [K-0NN]：先跑 kb:sync 补号」（判例 K-047⑤：重复执行判据要锁自己写出的产物字形，
+// 这里 = 片目录）。真要从旧布局重切请显式 `--force` 并配 `--source=`。
+if (!argv.includes('--force') && existsSync(outDirAbs)) {
+    const done = readdirSync(outDirAbs).filter((n) => n.endsWith('.md'));
+    if (done.length) {
+        console.log(`✅ ${OUT_DIR_REL}/ 已存在 ${done.length} 片：${done.map((n) => n.replace(/\.md$/, "")).join(" / ")}`);
+        console.log("   本工具 = 一次性迁移，不重复执行（布局口径正本见 production/TASKS-DETAIL.md §WXG-T-111）。");
+        console.log("   确需重切：加 --force，并用 --source= 指向未分片的旧 lessons.md（如 git show HEAD^:knowledge/lessons.md）。");
+        process.exit(0);
+    }
+}
 const srcText = readFileSync(sourceAbs, 'utf8');
 const src = parseKnowledgeFile(srcText, SOURCE_REL);
 if (!src.entries.length) fail(`${SOURCE_REL} 解析出 0 条目 —— 分片无意义（先查解析口径）`);
@@ -93,8 +107,7 @@ const shardHeader = (tag, shard) => [
     `# lessons · \`${shard}\` 分片（标签 \`${tag}\`）`,
     '',
     `> 由 \`knowledge/lessons.md\`（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目**按 ID 升序**。`,
-    `> 引用一律写 **K-0NN**（可附任务号），不写路径：ID → 分片见 \`knowledge/INDEX.md\` 活跃表「分片」列。`,
-    `> 本片同受 ctx B 门（8000 tok）约束，**不设豁免**；越阈 ⇒ 该标签内部按子标签再切。`,
+    `> 引用只写 **K-0NN**；口径正本（B 门不豁免 / 新标签 = 新片）见 \`knowledge/INDEX.md\` §1–§4。`,
     '',
 ];
 

@@ -11,6 +11,8 @@
 #       目录不存在 → 回退旧布局单文件（判例 K-030：产物清单与消费方必须同源）
 #   [7] 跨分片补号单调：分片后新增未编号条目 → 号 = 全局最大 +1，且落位文件 = 条目所在片
 #   [8] 归档共用单份：两个分片各归档一条 → 同一 `lessons-archived.md`，
+#   [9] 二跑守卫：已分片后再跑 → exit 0 且零字节改动；`--force --source=` 仍可重切；
+#       脚本注释里引用的 lib 符号名必须在 lib 真实导出（防 K-035 型「文档写了、码里没有」）
 #       且日志目的地按 `file` 反查得出（回归本轮修掉的硬编码三元）
 #
 # 用法：tools/scripts/split-knowledge-lessons-selftest.sh
@@ -193,6 +195,26 @@ A="$R/knowledge/archive/lessons-archived.md"
 if [ -f "$A" ]; then ok "[8] 共用归档文件已生成"; else bad "[8] 缺 knowledge/archive/lessons-archived.md"; fi
 assert_eq "$(grep -c '^- \*\*' "$A" 2>/dev/null || echo 0)" "2" "[8] 两条落在同一份归档（不是各长一份）"
 assert_eq "$(cd "$R" && node tools/scripts/kb-check.mjs >/dev/null 2>&1; echo $?)" "0" "[8] 归档后 kb:check 仍 exit 0"
+
+
+# ── [9] 二跑守卫 + 注释符号真实性 ──────────────────────────────────────────────
+R="$WORK/r9"; mk_repo "$R"; cp "$R/knowledge/lessons.md" "$R/knowledge/lessons.orig.md"
+(cd "$R" && node "$SPLIT" --write >/dev/null 2>&1)
+SHA_BEFORE="$(cd "$R" && cat knowledge/lessons/*.md | shasum -a 256 | cut -d' ' -f1)"
+OUT="$(cd "$R" && node "$SPLIT" 2>&1)"; RC=$?
+echo "—— [9] 一次性工具的二跑语义"
+assert_eq "$RC" "0" "[9] 已分片 → 二跑 exit 0（不是假故障）"
+assert_contains "$OUT" "一次性迁移" "[9] 明示「不重复执行」而非报错"
+assert_not_contains "$OUT" "先跑 pnpm run kb:sync" "[9] 不得把指针页的排版行误报成缺号条目"
+SHA_AFTER="$(cd "$R" && cat knowledge/lessons/*.md | shasum -a 256 | cut -d' ' -f1)"
+assert_eq "$SHA_AFTER" "$SHA_BEFORE" "[9] 二跑零字节改动"
+OUT="$(cd "$R" && node "$SPLIT" --force --source=knowledge/lessons.orig.md --write 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[9] --force 未被守卫堵死（旧布局可重切）"
+assert_contains "$OUT" "完成：2 片" "[9] --force 真跑了搬运（不是恒 0 的空守卫）"
+LIBSYM="$(cd "$R" && node -e 'import("./tools/scripts/lib/knowledge-ledger.mjs").then((m) => { const src = require("node:fs").readFileSync("tools/scripts/split-knowledge-lessons.mjs", "utf8"); const names = [...src.matchAll(/knowledge-ledger\.mjs::([A-Za-z_][A-Za-z0-9_]*)/g)].map((x) => x[1]); const miss = names.filter((n) => !(n in m)); console.log("refs=" + names.length + " miss=" + miss.length + (miss.length ? "(" + miss.join(",") + ")" : "")); });' 2>&1)"
+echo "$LIBSYM"
+assert_not_contains "$LIBSYM" "refs=0 " "[9] 注释里确有 lib::符号 引用（扫描非空转）"
+assert_eq "$(echo "$LIBSYM" | cut -d' ' -f2)" "miss=0" "[9] 注释引用的 lib 导出符号全部真实存在（K-035 型漂移）"
 
 echo "=================================================================="
 echo "结果：PASS=$PASS  FAIL=$FAIL"
