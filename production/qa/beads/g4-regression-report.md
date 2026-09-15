@@ -543,8 +543,8 @@
 | **BD-14** | 流程：QA 判据零可感知型 + beads G4 未执行 | P0(流程) | ✅ **关闭** | v1.0 首出报告；`test-cases.md` v1.3 补 §G 20 条 + §H 22 条 ⇒ §8 映射 93/93；本轮 §G 已实跑（见 §17） | 保持：新表现层判据入 §G 的流程约定 |
 | **BD-15** | 扩展入口 UI 不存在 | P1 | ❌ **维持开放** | P8 第 3 类路由全盘 6px 扫描 **0 命中**；`src/**` 无 `btn_expand`/`_hitExpand` | 波次 2 未列；连带 `accessibility C1` 无对象 |
 | **BD-16** | `§8-7` 无选中点网格零反馈 | P2 | ❌ **维持开放** | P10 配对差分 = **false**（同 seed 点/不点签名完全相同）；`beads-game.ts:1371` | hint/failHint 通道已具备（P19），**只差接这一条**，建议列波次 4 首项 |
-| **BD-17** | `verify` 用 `&&` 串联 ⇒ 后续门未跑 | P1 | ❌ **维持开放**（本轮未暴露） | 复核 `package.json:51` 仍是 `&&` 链（14 项）；本轮 EXIT=0 只因无失败项 | 改 `verify:all`（逐项收集 + 汇总退出码）或尾打「未执行项清单」 |
-| **BD-18** | `check:size` 对 beads 零覆盖仍报 OK | P1 | ❌ **维持开放** | §3 复核：`games/beads/cocos/build` **仅 web-mobile**，无 `wechatgame`；脚本对缺失产物 `status:'skipped'` 静默通过 ⇒ 包体门只测到 breakout 1815.1KB | 脚本须遍历 `games/*` 并对缺失产物显式 FAIL/SKIP 声明；beads 需产 `wechatgame` 产物（须授权代跑） |
+| **BD-17** | `verify` 用 `&&` 串联 ⇒ 后续门未跑 | P1 | ❌ 维持开放（v1.1 快照）→ ✅ **已关闭（WXG-T-095，v1.1 之后）** | `package.json` `verify` 已改指 `tools/scripts/verify-all.mjs`：14 项**逐项执行 + 汇总退出码**，不再短路；`--validate` 监控表与 `package.json` 不脱钩且拦住 `verify` 回退成 `&&`；`pnpm run verify:selftest` 实测「注入一项失败 ⇒ `[2/2]` 仍执行、总退出码非零、未通过项被点名」 | 无残留。**口径变更**：今后 `verify` 的 EXIT=0 才等价于「14 项都跑过」；SKIP 在汇总里点名，`verify:strict` 把 SKIP 判失败 |
+| **BD-18** | `check:size` 对 beads 零覆盖仍报 OK | P1 | ❌ 维持开放（v1.1 快照）→ ✅ **假绿部分已关闭（WXG-T-095）；beads 红线实测仍挂 B4** | 脚本新增覆盖面计算（`games/*` 逐游戏）+ `overallStatus({anyFail, missing})`：本轮真跑输出「⚠️ 包体校验 **SKIP**（未全覆盖）—— 已测：breakout ／ 未覆盖（1 款，**不是通过**）：beads」+ `STATUS: SKIP`；`--strict` 下 exit=1；`--selftest` §C1–C6（19/19） | **假绿已消**；beads 主包**数值**仍无数据（需 AppID，→ §18.2 B2/B4）——本轮**不因修了脚本而改判包体可证** |
 | **BD-19** | `preview:frames` 硬编码 breakout | P2 | ❌ **维持开放** | `render-harness-frame.mjs:37 loadHarness()` 无 `--game`；`:56 movePaddleTo`；`:77 bricksDestroyed` | 归 BD-13 同批 |
 | **BD-20** | `framework:sync` 漂移 ⇒ G1 FAIL + Cocos 阻塞 | P0(阻塞) | ✅ **关闭** | `pnpm run verify` 内 `framework:sync:check ✅`（beads+breakout 拷贝件一致）、`cocos:check ✅`、EXIT=0 ⇒ **R1 需求已满足** | — |
 | **BD-21** | QA 自身产出缺陷（映射/合计/标题/头部） | P1 | ✅ **关闭**（文档层） | v1.3 四处已修（§H 补编、137 用例、§F 8 条、93 条） | **执行层剩余**：§H 22 条中 `pause-settings §8` 10 条与 `timer §8-11/12` 2 条本轮仍只在单测层，未进探针 ⇒ 登记为**未执行清单**（§18），不据此判 FAIL |
@@ -681,7 +681,7 @@
 |---|---|---|---|---|
 | B1 | `[Cocos]` 像素取证通路（无头截图 + 色盲/灰度滤镜） | §G 10 条像素半边 + TC-PER-13/14 整条 + P15 真实栅格化 | 提供截图脚本与命名约定（v1.0 §10.2 **R2/R3** 原样沿用） | T-082 / 主理人 |
 | B2 | beads 无 `wechatgame` 产物 ⇒ **G3 包体无数据** | 主包红线不可证；BD-18 假绿持续 | 授权执行 `pnpm --filter beads run build:cocos`（本 agent readonly **未代跑**） | 主理人授权 → T-082 |
-| B3 | `verify` 短路（BD-17）+ `check:size` skipped 静默（BD-18） | 任一后续轮都可能“全绿但漏门” | 改逐项收集 + 汇总退出码；skipped 至少打 WARN | T-082 |
+| B3 | `verify` 短路（BD-17）+ `check:size` skipped 静默（BD-18） | 任一后续轮都可能“全绿但漏门” | 改逐项收集 + 汇总退出码；skipped 至少打 WARN | ~~T-082~~ → **已解除（WXG-T-095）**：`verify-all.mjs` 永不短路 + `STATUS: OK\|SKIP\|FAIL` 契约 + SKIP 打 WARN 清单；自测 `pnpm run verify:selftest` / `check:size:selftest` |
 | B4 | 真机 + AppID | 所有 `[Device]/[R]`（触摸事件序、ES5 运行时、包体实况、FTUE） | 微信开发者工具 + 扫码真机 | 用户 / 主理人 |
 | B5 | 音频：BD-05（19 clip + 同帧派发）/ BD-05b（三平台 backend） | TC-PER-05/15/18 半边 + Playtest「解压/治愈」必记 BLOCKED | 框架侧 backend + 游戏侧 clip（**真机到位也不解除**） | 框架侧 + T-085 同族 |
 | B6 | BD-15 扩展入口 / BD-16 轻提示 / BD-12 meta 字段 / BD-04 余两类 VFX / BD-10 满槽告警 | §8-1 一类路由仍缺；`input-control §8-7` 零反馈 | 列入波次 4（均为 P1/P2，不阻断主链路） | 工程侧 |
@@ -723,12 +723,17 @@
 
 1. 表现层「可感知判据」只证到**指令流层**，未证到屏幕层（§G 仍 3 条 ⛔：像素 / 色盲 / 真机）。
 2. beads 主包**红线（4096 KB）今日无数据**；只有 web-mobile `du -sk` 代理值 1968 KB（内部目标 2000 KB）——两口径不得混用。
-3. **门禁自身不可信**未修：BD-17（`verify` `&&` 短路）+ BD-18（`check:size` 缺产物静默 ✅）⇒ 列为波次 4 **第一位**（T-095）。
+3. **门禁自身不可信**未修：BD-17（`verify` `&&` 短路）+ BD-18（`check:size` 缺产物静默 ✅）⇒ 列为波次 4 **第一位**（T-095）。【裁决后更新：已由 **WXG-T-095** 修到，见本节末】
 4. 可访问性承诺仍有未兑现项：A2b/A3 无取证、C1 无对象（`btn_expand` 仍不存在，随 BD-15）、满槽告警单通道（BD-10 残留）。
 5. 判据侧 **BD-27/28/29 未裁** ⇒ **BD-25 不关单**，P20 停 PASS\*、P26 停 ⛔（随 T-098 一次性打包）。
 
 **对 §18.2 阻塞项 B2 的事实修正**（登记，不改 QA 原文）：B2 的解除条件**不是**「主理人授权代跑 `build:cocos`」。`tools/scripts/build-cocos.mjs` 头注（2026-09-14 实测）明载：**默认 `wechatgame` 平台需要有效 AppID 才能构建成功**，本环境可自动化的是 `--platform=web-mobile`（beads 产物已存在，且正是 1968 KB 代理值的来源）。⇒ B2 实际**挂在 B4（用户侧 AppID）之下**；本环境能做的只有「把『缺产物』从静默 ✅ 改成显式 SKIP + WARN」，即 T-095，红线实测数据待 AppID 到位一次取。
 
 **升 PASS 最小集**：T-095（门禁可信度）+ T-098（BD-27/28/29 回写 ⇒ BD-25 关单）+ T-099（`[Cocos]` 像素/色盲取证通路 + §H 缺口进探针）+ **AppID 到位后**的 `wechatgame` 产物包体实测（B4）。音频（T-096）不阻塞 G4 数字面，但阻塞「解压/治愈」支柱评估与 Playtest 音频维度 ⇒ 排 G4 升 PASS 之前优先做。
+
+**裁决后续更新（追加式 · 不改写上方原文）**：
+
+- **WXG-T-095**（2026-09-15）：限制声明第 **3** 条解除——`verify` 改逐项聚合（永不短路 + `STATUS` 契约 + 汇总退出码），`check:size` 逐游戏覆盖面且缺产物报 **SKIP 非 OK**。⇒ 自本单入库起，“`pnpm run verify` 绿”的含义从「首个失败项之前的若干项跑过」变为「**14 项全部跑过且无 FAIL**」；以往各轮报的 ✅ 需按此口径回看（详见 §14 BD-17/BD-18 行、§18.2 B3）。
+- **未因本单改判 G4**：限制声明第 **2** 条（beads 主包红线无数据）**依旧成立**——修的是“把静默假绿改成显式 SKIP”，不是替 beads 测出体积。G4 仍为 **CONCERNS**，升 PASS 剩余集：T-098 + T-099 + AppID 后的实测包体。
 
 

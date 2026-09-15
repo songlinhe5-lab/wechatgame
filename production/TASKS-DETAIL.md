@@ -301,11 +301,12 @@
 ## WXG-T-095
 
 - **名称**：**门禁自身可信度修复（BD-17 verify 短路 + BD-18 check:size 静默 ✅）**——波次4 首位，P0（成本最低、收益最大）。
-- **负责**：主理人(Qoder)　**状态**：📋 已立项（待施工）
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（2026-09-15）
 - **背景（仓库现物已核）**：`package.json:51` `verify` 仍以 `&&` 串 **14** 项 ⇒ 任一项失败后续门静默不跑（v1.0 轮在第 8/13 项即短路，9–13 项从未执行）；`check-bundle-size.mjs:82` 对缺产物只 `status:'skipped'` 打印后整体报 ✅ ⇒ 包体门只测到 breakout 1815.1KB。
 - **Deliverables**：① `verify` 改「**逐项收集 + 汇总退出码**」，尾部打印未通过/未执行清单（若保留现 `verify` 语义则新增 `verify:all`，**不得两套口径不一致**）；② `check:size` 遍历 `games/*`，缺 `wechatgame` 产物时**显式 SKIP + WARN 计数**，禁止静默 ✅；③ 两脚本各自 selftest 补例（沿用 `tools/scripts/*-selftest.sh` 惯例）+ `pnpm run verify` 全绿复跑；④ 回写：报告 §14 BD-17/18 状态行、`docs/agent/commands.md` verify 口径、`knowledge/lessons.md` 候选（门禁假绿谱系）。
 - **约束**：不改任何判据数值与 §3 冻结常量；门禁改动必须能被门禁自己验证；**禁**为凑绿而放宽阈值。
 - **依赖**：无前置（本环境可全验）；后继 T-099/T-100 的「绿」才可信。
+- **完成记录（2026-09-15）**：① 新增 `tools/scripts/verify-all.mjs`——**14 项逐项执行永不短路**，取子命令 stdout 末次 `STATUS: OK\|SKIP\|FAIL` 定性，尾打 `PASS/SKIP/FAIL` 汇总 + 未通过清单并据汇总定退出码；`--validate` 防步骤表与 `package.json` 脱钩并**拦住 `verify` 回退成 `&&`**。② `check-bundle-size.mjs` 按 `games/*` 算覆盖面 + `overallStatus()`，缺产物打 **SKIP（非 OK）**+ WARN 清单，新增 `--strict`。③ 自测：`verify:selftest`（新，5 段红→绿实测含「注入失败项后 `[2/2]` 仍执行」）、`check:size:selftest`（§C1–C6，**19/19**）、`verify-all --selftest` **9/9**；全量 `pnpm run verify` = **PASS 13｜SKIP 1｜FAIL 0**。④ 回写：`docs/agent/commands.md`、报告 §14 BD-17/18 + §18.2 B3 + §18.5 裁决后续更新、`test-plan.md` R8、`lessons.md` K-036 落地行。**未改判据与 §3；未因本单升 G4**（beads 红线仍无数据，挂 B4/AppID）。
 
 ## WXG-T-096
 

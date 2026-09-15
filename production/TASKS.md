@@ -33,7 +33,7 @@
 | WXG-T-092 | beads·G4复验探针重跑+报告v1.1(波次3) | 严守真(qa) | ✅ 完成（11 FAIL→4，零回归；主理人已裁 **G4=CONCERNS**，见 T-094） | 见详情 |
 | WXG-T-093 | beads·U8/B3文档漂移回写+守卫登记 | 主理人(Qoder) | ✅ 完成 | 见详情 |
 | WXG-T-094 | beads·波次3汇编G4主理人裁决CONCERNS+波次4立项 | 主理人(Qoder) | ✅ 完成 | 见详情 |
-| WXG-T-095 | 门禁可信度·verify逐项汇总+check:size显式SKIP | 主理人(Qoder) | 📋 已立项（待施工） | 见详情 |
+| WXG-T-095 | 门禁可信度·verify逐项汇总+check:size显式SKIP | 主理人(Qoder) | ✅ 完成（verify 不再短路；beads 缺产物现报 SKIP 非 ✅） | 见详情 |
 | WXG-T-096 | beads·音频后端落码(BD-05/05b 三平台+19clip) | 程基岩(eng)+主理人 | 📋 已立项（待施工） | 见详情 |
 | WXG-T-097 | beads·P1反馈缺口(BD-15/16+BD-04余类+BD-32) | 主理人(Qoder) | 📋 已立项（待施工） | 见详情 |
 | WXG-T-098 | beads·B7裁定包回写(BD-27/28/29/30/31) | 文策渊+林绘澄 | 📋 已立项（待 spawn） | 见详情 |

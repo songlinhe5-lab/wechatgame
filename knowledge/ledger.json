@@ -608,7 +608,7 @@
       "file": "knowledge/lessons.md",
       "category": "流程",
       "title": "多项串联的门禁若「失败即短路」且「缺对象仍报绿」，它的 ✅ 不构成任何证据",
-      "contentHash": "dd3cd97415a05a379cec1b6ec9ebae0e3e0c2d934b50ac4472062fb8ea6d1698",
+      "contentHash": "0320aa47cf8906cc0c5f41724b2a0362cc8919ddfd08293df073f97ec8113a9f",
       "sourceTask": "WXG-T-084",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -709,6 +709,15 @@
       "ids": [
         "K-036",
         "K-037"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-036"
       ],
       "note": null
     }
