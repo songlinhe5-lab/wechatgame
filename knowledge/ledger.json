@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 42,
+  "nextId": 43,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -703,6 +703,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-042",
+      "state": "active",
+      "file": "knowledge/lessons.md",
+      "category": "测试",
+      "title": "几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫",
+      "contentHash": "36658f81c6ed0e51c084826d0dca4a2d1789b57ed44d664e51e1e2ed670b8f8b",
+      "sourceTask": "WXG-T-097",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -824,6 +841,15 @@
       "kind": "updated",
       "ids": [
         "K-039"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-042"
       ],
       "note": null
     }

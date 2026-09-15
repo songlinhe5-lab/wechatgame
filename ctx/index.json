@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2449,
       "lines": 100,
-      "sha256": "005744acc83a3cd07662ff72bdceb704c885871fb1bc043c9b647316cd052699",
+      "sha256": "ebd7478cb9f65312c23e51b0d41c94bc8cd60cefead4bddeefd56e5c7ec3719c",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3992,
       "lines": 86,
-      "sha256": "e69bc926941348a23696a00b5d4752d912c11b6354805b7da626e388bc4a0820",
+      "sha256": "f6de3bc9ccf272c246bfda2f2d8955dbbfdc3e3650563c13908c19d8393b0917",
       "tier": "normal",
       "sections": [
         {
@@ -736,12 +736,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 137 行 / 3631 tok",
+          "anchor": "§`knowledge/INDEX.md` — 138 行 / 3679 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
           "tokens": 150,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+138 · §1 读取协议（开发前期）=7+7 · ",
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+139 · §1 读取协议（开发前期）=7+7 · ",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -31883,17 +31883,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 811,
-      "lines": 38,
-      "sha256": "0ded0a8ec46ff66da2d86efe60a78267a1cd56764984c7f9a2ad95ffeea4ff71",
+      "tokens": 854,
+      "lines": 39,
+      "sha256": "4afe8373e70b9ac541045d8611ee26f5b34a379049516f5f8a965eaa88d44461",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 39,
-          "tokens": 797,
+          "endLine": 40,
+          "tokens": 840,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -31908,8 +31908,8 @@
           "anchor": "§2026-09-15",
           "level": 2,
           "startLine": 9,
-          "endLine": 20,
-          "tokens": 390,
+          "endLine": 21,
+          "tokens": 433,
           "summary": "",
           "keywords": []
         },
@@ -31917,8 +31917,8 @@
           "anchor": "§（无任务号）",
           "level": 3,
           "startLine": 11,
-          "endLine": 20,
-          "tokens": 382,
+          "endLine": 21,
+          "tokens": 426,
           "summary": "新增（added）：K-035「文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床」",
           "keywords": [
             "added",
@@ -31928,8 +31928,8 @@
         {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 21,
-          "endLine": 33,
+          "startLine": 22,
+          "endLine": 34,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -31937,8 +31937,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 23,
-          "endLine": 29,
+          "startLine": 24,
+          "endLine": 30,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -31953,8 +31953,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 30,
-          "endLine": 33,
+          "startLine": 31,
+          "endLine": 34,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -31965,8 +31965,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 34,
-          "endLine": 39,
+          "startLine": 35,
+          "endLine": 40,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -31974,8 +31974,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 36,
-          "endLine": 39,
+          "startLine": 37,
+          "endLine": 40,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -31987,17 +31987,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 3631,
-      "lines": 137,
-      "sha256": "531149df20ac3bca38e3bef2a9b584a040f1435933a96b21885abd5d8aa9202e",
+      "tokens": 3679,
+      "lines": 138,
+      "sha256": "01f3db465db9b4ad53b884f8c95d6039d9b14f8301f1ba05b3c7500a124466d2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 138,
-          "tokens": 3617,
+          "endLine": 139,
+          "tokens": 3664,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -32133,8 +32133,8 @@
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
           "startLine": 91,
-          "endLine": 138,
-          "tokens": 1463,
+          "endLine": 139,
+          "tokens": 1510,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
             "active",
@@ -32149,17 +32149,17 @@
     },
     {
       "path": "knowledge/lessons.md",
-      "tokens": 9021,
-      "lines": 155,
-      "sha256": "53caca8a7c7b5abeee7726f792598503fdae86a710de16c7c51dccdf578076f8",
+      "tokens": 9569,
+      "lines": 162,
+      "sha256": "9f0026139df4806a7ca36ab08e739145fb663ce8beaecbe117ef39f3aae05db6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons.md — 教训库（追加式，最新在后）",
           "level": 1,
           "startLine": 1,
-          "endLine": 156,
-          "tokens": 9003,
+          "endLine": 163,
+          "tokens": 9552,
           "summary": "",
           "keywords": [
             "lessons",
@@ -32213,8 +32213,8 @@
           "anchor": "§流程",
           "level": 2,
           "startLine": 101,
-          "endLine": 156,
-          "tokens": 3945,
+          "endLine": 163,
+          "tokens": 4493,
           "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
             "WXG",
@@ -33485,17 +33485,17 @@
     },
     {
       "path": "memory/2026-09-15.md",
-      "tokens": 6063,
-      "lines": 71,
-      "sha256": "d5c91e9c8f09cd90ddd027232c0e07b17883ff34fa240a9e65514bf84a475544",
+      "tokens": 7295,
+      "lines": 81,
+      "sha256": "305480796f9cf551dbca4e1ff00c73c61abab281fbbc42e0a8a8ded8c7e1b1e5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-15",
           "level": 1,
           "startLine": 1,
-          "endLine": 72,
-          "tokens": 6060,
+          "endLine": 82,
+          "tokens": 7292,
           "summary": "",
           "keywords": []
         },
@@ -33606,22 +33606,38 @@
             "波次",
             "第三"
           ]
+        },
+        {
+          "anchor": "§WXG-T-097（BD-16 / BD-15）：扩展入口落位与一处测试假绿（波次4 第五轮）",
+          "level": 2,
+          "startLine": 73,
+          "endLine": 82,
+          "tokens": 1203,
+          "summary": "用户约束：“不要影响核心区域玩法” ⇒ BD-15 三个候选里取 丙-A（TRAY_BAND 上沿 420→450、托盘",
+          "keywords": [
+            "WXG",
+            "TRAY_BAND",
+            "扩展入口落位",
+            "与一处测试假",
+            "波次",
+            "第五轮"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 5371,
-      "lines": 145,
-      "sha256": "99b9687070fae47f354ad9b38f65fd6fee325b07a2111453a39b7591319a5bd9",
+      "tokens": 5443,
+      "lines": 146,
+      "sha256": "4aad04d4daea2e4dc6bf600386c86f5a52dd7d1a6e9f798d0a0dd0385219389e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068）",
           "level": 1,
           "startLine": 1,
-          "endLine": 146,
-          "tokens": 5357,
+          "endLine": 147,
+          "tokens": 5430,
           "summary": "memory/ 是跨会话的运行时记忆：MEMORY.md 是蒸馏后的长期笔记（常驻摘要层），",
           "keywords": [
             "memory",
@@ -33676,8 +33692,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 44,
-          "endLine": 146,
-          "tokens": 4387,
+          "endLine": 147,
+          "tokens": 4460,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -33689,11 +33705,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 6,063 tok｜7 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
+          "anchor": "§`memory/2026-09-15.md` — 7,295 tok｜8 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
           "level": 3,
           "startLine": 49,
-          "endLine": 60,
-          "tokens": 508,
+          "endLine": 61,
+          "tokens": 580,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 用",
           "keywords": [
             "memory/2026-09-15.md",
@@ -33707,8 +33723,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 12,586 tok｜23 节｜**蒸馏到期 2026-10-14**（剩 29 天）",
           "level": 3,
-          "startLine": 61,
-          "endLine": 88,
+          "startLine": 62,
+          "endLine": 89,
           "tokens": 1509,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–16 943 游戏在 Cocos",
           "keywords": [
@@ -33723,8 +33739,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 28 天）",
           "level": 3,
-          "startLine": 89,
-          "endLine": 109,
+          "startLine": 90,
+          "endLine": 110,
           "tokens": 921,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 结论：有 4 个本地已装但未纳入 m",
           "keywords": [
@@ -33739,8 +33755,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 10,141 tok｜13 节｜**蒸馏到期 2026-10-12**（剩 27 天）",
           "level": 3,
-          "startLine": 110,
-          "endLine": 127,
+          "startLine": 111,
+          "endLine": 128,
           "tokens": 684,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 三 IDE 均原生支持项目级 subag",
           "keywords": [
@@ -33755,8 +33771,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 26 天）",
           "level": 3,
-          "startLine": 128,
-          "endLine": 146,
+          "startLine": 129,
+          "endLine": 147,
           "tokens": 573,
           "summary": "§完成的工作 3–19 510 修复 Canvas2DLike.fillStyle / strokeStyle 类型过窄",
           "keywords": [
