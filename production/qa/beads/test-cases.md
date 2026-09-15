@@ -1,13 +1,13 @@
 # 《拼豆填色消除》(beads) 测试用例 · Test Cases
 
-- 任务号：WXG-T-011 / WXG-T-028 / **WXG-T-084** ｜ 作者：严守真 ｜ 版本 **v1.3** ｜ 日期 **2026-09-14**
+- 任务号：WXG-T-011 / WXG-T-028 / **WXG-T-084** / **WXG-T-092（复验轮）** ｜ 作者：严守真 ｜ 版本 **v1.4** ｜ 日期 **2026-09-15**
 - **判据来源（v1.3 校正）**：9 份系统 GDD 各 §8 —— `core-loop / bead-grid / tray-spawner / input-control / timer-gameover / powerups / save-progress / pause-settings`（timer 12 条、其余各 10 条）+ `score-combo` §8（冲刺 11 条）⇒ **合计 93 条**（`awk '/^## 8\./,0' | grep -cE '^[0-9]+\.'` 逐文件 = 12/11/10/10/10/10/10/10/10）。**v1.2 头部写「合计 61 条」已过期，实际只映射 71 条、22 条零映射**（缺陷 **BD-21**，v1.3 由 §H 补齐）。常量引 `systems-index.md §3`（含 §3.10 冲刺 / §3.11 续时）+ `art/accessibility.md`。
 - **v1.3 新增判据来源（§G 可感知层）**：`design/ux/ux-spec.md §1-3 / §4 尾注 / §5 动效毫秒表 / §6.1–6.2 / §8 裁决表`（WXG-T-081）、`art/assets-spec.md §1.2`（`empty`/`wrong`/`hint` 三态规格）、`art/accessibility.md A2/A2b/A3/B3/C1/D1/E2`、`design/audio/audio-events.md §1 + §4 A05-01..27`（WXG-T-083，该文件明文「**供 WXG-T-084 引用**」）。**全部逐条标注来源，零自造数值。**
-- 常量速查（来源 `systems-index §3`）：`TRAY_BASE_SLOTS=12`、`SPAWN_INTERVAL_DEFAULT=4.0s`（区间 [2.0,6.0]）、`NEEDED:DECOY=3:1`、`LEVEL_TIME_DEFAULT=300s`（区间 [180,420]）、`TIMER_URGENT_T=10s`、`TIMER_TICK=1.0s`、`GRID_MAX=13×12`、`STAR3_RATIO=0.32`、`STAR2_RATIO=0.12`、`DEMO_LEVEL_COUNT=8`、`POWERUP_FREE_USES=1`、`REGION_CLEAR_SLOTS=6`、`RANDOM_CLEAR_COUNT=5`、命中区外扩 8px（66²/62²）。
+- 常量速查（来源 `systems-index §3`，**v1.4 按 v1.17 现文校正**）：`TRAY_BASE_SLOTS=12`、`SPAWN_INTERVAL_DEFAULT=4.0s`（区间 [2.0,6.0]）、~~`NEEDED:DECOY=3:1`~~ → **v1.17 冻结 `DECOY_COLORS_MAX=0`（D 方案，杂色池关闭）** ⇒ 凡依赖 3:1 抽色的判据（**S4 §8-3**）现属**不可构造**，见 **BD-28**（本文不擅自删条，只标注）；`LEVEL_TIME_DEFAULT=300s`（区间 [180,420]）、`TIMER_URGENT_T=10s`、`TIMER_TICK=1.0s`、`GRID_MAX=13×12`、`STAR3_RATIO=0.32`、`STAR2_RATIO=0.12`、`DEMO_LEVEL_COUNT=8`、`POWERUP_FREE_USES=1`、`REGION_CLEAR_SLOTS=6`、`RANDOM_CLEAR_COUNT=5`、命中区外扩 8px（66²/62²，**重叠区归属以 §8-4 最近格心为准**，v1.4 按已裁口径补注）。
 - 常量速查·冲刺（来源 `systems-index §3.10`，2026-09-12 冻结）：`SPRINT_TIME_DEFAULT=120s`（区间 [90,120]，越界回退默认）、`COMBO_WINDOW_S=5.0s`、`COMBO_STREAK_TIERS=[2,4,7]`→倍率 ×2/×3/×5（上限 ×5）、`SCORE_PER_BEAD=10`、`STAGE_BONUS_TIME=+15s`、`STAGE_CLEAR_BONUS=200+50×stageIndex`、C7 结算分 `stars×1000+round(ratio×1000)−powerupsUsed×50+(未用扩展?200:0)`、C8 裁决（stage 切换不断连；stage 加时与归零同帧 stage 优先）、伪震屏 scale 1.00→1.015→1.00 / 150ms。
 
-**图例（v1.3 扩展）**：`[Node]` vitest ｜ `[Probe]` **G4 探针脚本**（`production/qa/beads/g4-probe.mjs`，Node 装配真实 `BeadsGame` + `NodePlatform`，可读渲染指令流/事件流/存档）｜ `[Harness]` 浏览器（**当前被 BD-07 DPR 坐标 + BD-08 文字镜像污染，结论不可信**）｜ `[Cocos]` **web-mobile / wechatgame 构建产物 + 浏览器截图**（**当前被 BD-20 `framework:sync` 漂移阻塞**）｜ `[DevTools]` 微信开发者工具（**未装、无 AppID**）｜ `[Device]` 真机（**本轮不可执行**）。
-**状态（v1.3 改为四态，废除「一律待实现」）**：`已验` ＝ 本轮实测成立 ｜ `FAIL(BD-nn)` ＝ 本轮实测不成立 ｜ `待执行` ＝ 判据已冻结但本轮未跑 ｜ `⛔不可测(原因)` ＝ 环境/实现阻塞，**禁止标绿**。逐条实跑结论见 `production/qa/beads/g4-regression-report.md §4`（19 组探针）；本文 §A–§F 原「待实现」标注按**追加不覆盖**纪律保留，其真实状态以该报告与 §A.0 回填表为准。
+**图例（v1.3 扩展，v1.4 更新阻塞现状）**：`[Node]` vitest ｜ `[Probe]` **G4 探针脚本**（复验轮 = `production/qa/beads/g4-probe-v1.1.mjs`；v1.0 基线 = `g4-probe.mjs`。Node 装配真实 `BeadsGame` + `NodePlatform`，可读渲染指令流/事件流/存档）｜ `[Harness]` 浏览器（✅ **v1.4：坐标污染已解除**——BD-07 已修（ADR-0011），本轮已可驱动真实 `InputManager`；唯 **BD-08 文字镜像仍不可验**（无像素通路）与 BD-19 `preview:frames` 不支持 beads）｜ `[Cocos]` 构建产物 + 浏览器截图（~~BD-20~~ **已关**；现被**屏幕层取证通路缺失**阻塞：无无头截图 / 无调色滤镜脚本，见报告 v1.1 §18.2 B1）｜ `[DevTools]` 微信开发者工具（**未装、无 AppID**）｜ `[Device]` 真机（**本轮不可执行**）。
+**状态（v1.3 改为四态，废除「一律待实现」）**：`已验` ＝ 本轮实测成立 ｜ `FAIL(BD-nn)` ＝ 本轮实测不成立 ｜ `待执行` ＝ 判据已冻结但本轮未跑 ｜ `⛔不可测(原因)` ＝ 环境/实现阻塞，**禁止标绿**。逐条实跑结论：v1.0 基线见 `g4-regression-report.md §4`（19 组探针）；**复验轮（v1.1，26 组）见该报告 §13 改判表 + §14 处置状 + §17 §G 逐条可验道次**（本文各表原结论行按**追加不覆盖**纪律保留，其现态以 §G.4 与报告 §13 为准）。
 
 ---
 
@@ -285,6 +285,41 @@
 
 ---
 
+## G.4 复验轮回填（**v1.4 / WXG-T-092**）——逐条「本轮可验道次」结论
+
+> 取证工具：`node production/qa/beads/g4-probe-v1.1.mjs`（26 组，EXIT=0，时间戳 2026-09-15T01:24:22Z）；原始输出 `evidence/g4-reverify-v1.1.log §1`。**预期值一律取 T-091 回写后的 §8 现文**。详证（含代码锚点与实测数字）在 `g4-regression-report.md` v1.1 **§13 / §17**，本表只给状态行以免两处真相。
+>
+> 图例：**✅** 本轮实跑道次全过｜**⚠️** 部分过（弱化通过，条件见表右）｜**❌** 不成立｜**⛔** 不可验（通路/环境阻塞，**不得标绿**）。
+
+| ID | v1.3 基线 | **v1.4 复验** | 本轮实跑道次 / 仍缺道次 |
+|---|---|---|---|
+| TC-PER-01 | ❌ FAIL | ✅ **已验**（`[Probe]`） | 三色逐格独立复算 + 22/22 幽灵 α0.2；⛔ `[Cocos]` 肉眼/色盲 |
+| TC-PER-02 | ❌ FAIL | ✅ **已验**（`[Probe]`） | 第 **1 帧**即供料且首珠可落子；⛔ `[Cocos]` 首屏截图 |
+| TC-PER-03 | ❌ FAIL | ⚠️ **部分**（`[Probe]`） | 三通道图元均存在；⛔ `[Cocos]` 盲测 + `[Device]` FTUE；附 **BD-32** 待裁 |
+| TC-PER-04 | ❌ FAIL | ⚠️ **部分**（2/4 类可观察） | 落座 + 放错✓；溶解/波浪仍缺（→ PER-11/12） |
+| TC-PER-05 | ❌ FAIL | ❌ **FAIL（维持，BD-05/05b）** | `[Node]` 复跑：clip 去重仍 2 种；⛔ `[B]/[P]/[R]`（`NullAudioBackend`） |
+| TC-PER-06 | ❌ FAIL | ✅ **已验**（判据形态随 U8 拍板 A′+D 改写） | 合法供料 7933 采样死珠 **0** / 违规 **0**；满槽瞬间可落子 12/12 |
+| TC-PER-07 | ❌ FAIL | ⚠️ **部分**（告急半边 ✅） | 1000ms / 1.00Hz / 三通道；**满槽描边呼吸零通道**（→ PER-18） |
+| TC-PER-08 | ❌ FAIL | ✅ **已验**（含 D1 保留静态描边） | `accent_blue` 2px 环×2；D1 开启后呼吸停、描边仍在（P22） |
+| TC-PER-09 | ❌ FAIL | ⚠️ **部分** | 剔 text 签名去重 2 ⇒ 有时间轴；**未逐值断言 scale 曲线**（需 `[Cocos]`） |
+| TC-PER-10 | ❌ FAIL | ⚠️ **部分** | 位移峰得 ±2.6px（帧采样相位低估，**不作 FAIL**）+ danger α 4 档；**BD-29** 红线互斥待裁 |
+| TC-PER-11 | ❌ FAIL | ❌ **FAIL（维持）** | 无 `vfx_clear_dissolve` 常量与代码路径（瞬时移除） |
+| TC-PER-12 | ❌ FAIL | ❌ **FAIL（维持）** | 无 clear-wave 代码路径 |
+| TC-PER-13 | ⛔ 不可测 | ⛔ **不可验（但阻塞从三重降为一重）** | 实现半边已具备；缺 `[Cocos]` + 色盲滤镜（报告 §18.2 B1） |
+| TC-PER-14 | ⛔ 不可测 | ⛔ **不可验（前置已解除）** | `empty/filled/locked/hint/wrong/selected` **六态本轮均可构造**（v1.0 仅 3 态）；缺灰度截图 |
+| TC-PER-15 | ❌ FAIL | ❌ **FAIL（维持）** | `[Node]` 今天可跑：3 vs 19，A05-24 不闭合 |
+| TC-PER-16 | 待执行 | ⛔ **本轮未排**（且无意义） | `NullAudioBackend` 下「静音与无声不可区分」；待音频后端落地后随 `[N]` 补跑 |
+| TC-PER-17 | ⛔ 不可测 | ✅ **已验**（主体已存在） | 实测 **1000ms = 1.00Hz**；⛔ `[Cocos]` 连拍 8 帧 |
+| TC-PER-18 | ⛔ 不可测 | ❌ **FAIL（可验了但不成立）** | `tray:full=1` 去重✓，然描边呼吸签名去重 = **1**；音频半边 ⛔ |
+| TC-PER-19 | 待执行 | ✅ **已验** | ① 首落子即清 ② 预置 `runs=1` 冷启后引导图元恒 0（`evidence/diag-p3-onboarding.mjs`）；**但判据意图受 BD-32 质疑** |
+| TC-PER-20 | ❌ FAIL | ⚠️ **部分** | 1.5s 锚点✓（第 1 帧）；~5s 首落座在自动落子夹具下成立（P20）；⛔ 三张首屏截图 |
+
+**计数**：✅ **6**・⚠️ **6**・❌ **5**（PER-05/11/12/15/18）・⛔ **3**（PER-13/14/16）= 20。
+
+> **与 §G.3 gating 表的差异（必须同步给主理人）**：G.3 的 **R1**（framework:sync → 构建）已关；**R2/R3（截图与滤镜）本轮仍未交付** ⇒ 所有 `[Cocos]` 道次继续 ⛔；**T-085 / T-086 / T-087 的实现前置已全部落地并经探针他证**（唯 BD-04 余两类 VFX、BD-10 满槽告警半边、BD-15/BD-16 属波次 2 未列范围）；**U8 已拍板 A′+D**；**真机 + AppID 仍缺**。
+
+---
+
 # §H 未映射判据补编（22 条，v1.3 新增）—— **BD-21① 修复项**
 
 > 背景：9 份 GDD §8 共 **93** 条，v1.2 只映射 **71** 条 ⇒ **22 条零映射**（`save-progress §8` 10 + `pause-settings §8` 10 + `timer-gameover §8-11/12` 2）。本节逐条补齐，使 §8 判据映射率达 **100%**。
@@ -337,3 +372,4 @@
 | v1.0 | 2026-09-11 | 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 | 严守真 |
 | v1.2 | 2026-09-12 | 增 §C 冲刺 11 条（WXG-T-028）+ 冲刺常量速查（`systems-index §3.10`） | 严守真 |
 | **v1.3** | **2026-09-14** | **WXG-T-084（GAP-14 / BD-14 根治）**：① **新增 §G 可感知性判据 20 条**（8 主条 TC-PER-01..08 + 12 取证细化 TC-PER-09..20），覆盖 GAP-01/02/03/04/05/06/10/11，每条标**取证手段**与**取证前置依赖**，并附 §G.3 gating 表；② **新增 §H 未映射判据补编 22 条**（TC-SAVE-01..10 / TC-PAUSE-01..10 / TC-TIMER-11..12）⇒ §8 判据映射率 71/93 → **93/93 = 100%**；③ **新增 §A.0 实测状态回填表**（本轮真正执行过的 16 行）+ 状态列改**四态**（废除「一律待实现」）；④ 图例扩展 `[Probe]` / `[Cocos]` 并标注 harness 污染与 Cocos 阻塞；⑤ **修 BD-21 四处**：头部「61 条」→ **93 条**、合计表补 §D/§E/§F 并重算为 **137 用例**、§F 标题「7 条」→ **8 条**；⑥ **承接 BD-25**：TC-LOOP-02 / TC-TRAY-01 期望由「15（±1）」显式改为 **16（±0）**（U7 首供语义）；⑦ **承接 BD-24**：TC-SAVE-09 「200 次落子」改为「≤`GRID_MAX_COLS×GRID_MAX_ROWS` 的最大可构造量」；⑧ §H3 补 **TC-TIMER-12 取证纪律**（`MockRewardedAdProvider('complete')` 不得作真机证据、续时不解 BD-06）。**判据全部引规格层冻结值，零自造。** | 严守真 |
+| **v1.4** | **2026-09-15** | **WXG-T-092（G4 复验轮回填，追加不覆盖）**：① 新增 **§G.4 复验回填表**——§G 20 条逐条给「本轮可验道次」结论（✅ 6 / ⚠️ 6 / ❌ 5 / ⛔ 3），并显式区分「实现缺失」与「取证通路缺失」（v1.0 的 **12 条「取证主体不存在」现降为 0**）；② 头部**图例校正**：`[Harness]` 坐标污染已解除（BD-07 关，ADR-0011）、`[Cocos]` 阻塞由「BD-20 构建不通」改写为「屏幕层取证通路缺失」（**不得混读为已解除**）、`[Probe]` 工具指向 `g4-probe-v1.1.mjs`；③ **常量速查按 v1.17 现文校正**：~~`NEEDED:DECOY=3:1`~~ → `DECOY_COLORS_MAX=0`（D 方案）⇒ 标 **S4 §8-3 不可构造（BD-28）**，并补注「重叠区归属以 §8-4 为准」（BD-23 已裁）；④ 状态行指向报告 v1.1 §13/§14/§17。**本轮新增待裁缺陷：BD-27（§8-1 窗口口径）・BD-28〜BD-32（均属判据/规格/文档侧，见报告 §15）。** | 严守真 |

@@ -30,7 +30,7 @@
 | WXG-T-089 | beads P0·GAP-07/08 harness坐标落码(ADR-0011) | 主理人(Qoder) | ✅ 完成 | 见详情 |
 | WXG-T-090 | G10 ES5转译修复(spike+ADR-0012+CI守卫) | 程基岩(eng) | ✅ 完成（本环境可验面全绿；真机 runtime 随 G4/AppID） | 见详情 |
 | WXG-T-091 | beads·R4判据冲突回写+R5包体重算+R6 lessons沉淀 | 主理人(Qoder) | ✅ 完成 | 见详情 |
-| WXG-T-092 | beads·G4复验探针重跑+报告v1.1(波次3) | 严守真(qa) | 🔄 进行中 | 见详情 |
+| WXG-T-092 | beads·G4复验探针重跑+报告v1.1(波次3) | 严守真(qa) | ✅ 完成（11 FAIL→4，零回归；建议 G4=CONCERNS 待主理人裁决） | 见详情 |
 | WXG-T-093 | beads·U8/B3文档漂移回写+守卫登记 | 主理人(Qoder) | ✅ 完成 | 见详情 |
 
 > 注 1：T-016/T-017 的产出实际由 CodeBuddy 侧会话完成（用户授权路径），本台账为跨 IDE 统一追认。
