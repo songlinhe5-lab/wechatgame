@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2403,
-      "lines": 98,
-      "sha256": "d4c72308d1790695fc1b4bacc39a396e69e4570ccfb902247549d9535a8a77bc",
+      "tokens": 2429,
+      "lines": 99,
+      "sha256": "670642532d8b4c5bff22fe65e9c410f00e56d5ef6eb481cff3826845c8dd8e82",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 2390,
+          "endLine": 100,
+          "tokens": 2416,
           "summary": "生成：2026-09-15 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 435,
+          "tokens": 429,
           "summary": "1 production/qa/beads/g4-regression-report.md 44524 916 norm",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 73,
-          "tokens": 872,
+          "endLine": 74,
+          "tokens": 904,
           "summary": "production/qa/beads/g4-regression-report.md 44524 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 74,
-          "endLine": 99,
+          "startLine": 75,
+          "endLine": 100,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -19909,17 +19909,17 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 7641,
-      "lines": 269,
-      "sha256": "16ec34af1971498c4391cff6f29d359535cf09bd7f7078c2b27e4534e9fae14b",
+      "tokens": 8683,
+      "lines": 274,
+      "sha256": "edb9aff17c10176823b9930a6e32754e6d75b4beb5474544c7af2933e8259a94",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 270,
-          "tokens": 7632,
+          "endLine": 275,
+          "tokens": 8674,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.2 · 任务号 WXG-T-015（失败续时 U5：WXG-",
           "keywords": [
             "Spec",
@@ -20070,8 +20070,8 @@
           "anchor": "§5 交互反馈与动效时长表（权威毫秒值，回写 art-bible §7 占位）",
           "level": 2,
           "startLine": 170,
-          "endLine": 198,
-          "tokens": 813,
+          "endLine": 202,
+          "tokens": 1471,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
             "§7",
@@ -20085,9 +20085,9 @@
         {
           "anchor": "§6 首屏留存策略（微信前 10 秒）· WXG-T-081 可执行化重写",
           "level": 2,
-          "startLine": 199,
-          "endLine": 235,
-          "tokens": 1338,
+          "startLine": 203,
+          "endLine": 240,
+          "tokens": 1636,
           "summary": "",
           "keywords": [
             "WXG",
@@ -20099,8 +20099,8 @@
         {
           "anchor": "§6.1 首 10 秒时间轴（0 文字；引导均为动效，毫秒值见 §5）",
           "level": 3,
-          "startLine": 201,
-          "endLine": 214,
+          "startLine": 205,
+          "endLine": 218,
           "tokens": 425,
           "summary": "0s 点击图标 —",
           "keywords": [
@@ -20114,9 +20114,9 @@
         {
           "anchor": "§6.2 首供语义裁定（GAP-02，不可两读）",
           "level": 3,
-          "startLine": 215,
-          "endLine": 227,
-          "tokens": 690,
+          "startLine": 219,
+          "endLine": 232,
+          "tokens": 988,
           "summary": "裁定：采「spawner.reset() 后置 _acc = interval」，不采「_setupLevel 内同步 ",
           "keywords": [
             "GAP",
@@ -20130,8 +20130,8 @@
         {
           "anchor": "§6.3 启动路径表（skill §6 要求项，本次补齐）",
           "level": 3,
-          "startLine": 228,
-          "endLine": 235,
+          "startLine": 233,
+          "endLine": 240,
           "tokens": 161,
           "summary": "首次（runs==0） 玩法·普通 L1（BOOT 直进，无主菜单） §6.1 纯动效引导（首珠脉冲 + 单一 hint",
           "keywords": [
@@ -20146,8 +20146,8 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 236,
-          "endLine": 246,
+          "startLine": 241,
+          "endLine": 251,
           "tokens": 202,
           "summary": "触控 UI 控件 ≥88px（TOUCH_MIN）；棋盘/托盘珠命中区=名义外扩 8px、重叠按格心最近（§3.8 v1",
           "keywords": [
@@ -20162,9 +20162,9 @@
         {
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
-          "startLine": 247,
-          "endLine": 270,
-          "tokens": 964,
+          "startLine": 252,
+          "endLine": 275,
+          "tokens": 1023,
           "summary": "已裁定（沿袭）：无主菜单两路径（core-loop 判例）；齿轮单通道入口；道具 MVP 占位口径（S6 §2.6）；面",
           "keywords": [
             "§2.6",
