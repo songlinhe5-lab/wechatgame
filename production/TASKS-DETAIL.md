@@ -477,7 +477,35 @@
 ## WXG-T-112
 
 - **名称**：**装置自指类门禁缺陷评估（含 BD-38：`memory/INDEX.md` 单遍不收敛）**
-- **负责**：主理人(Qoder)　**状态**：📋 已立项（**本轮不实施**，用户裁定「并入 T-111 一起处理」⇒ 同族一并评估，但排在 T-111 之后）
+- **负责**：主理人(Qoder)　**状态**：✅ **完成**（2026-09-15 收口；BD-38 关单）
 - **动机**：凡「**自身被索引的生成物**」都有同一类时序坑：重建时它自己的索引记录取的是**旧字节**，写盘后又是**新字节** ⇒ 单遍「重建 → add → 校」必不一致。实测判例：① **BD-38** `memory/INDEX.md` 不在 `lib/context-index.mjs:127` 的 `WORKTREE_AUTHORITATIVE` 集合 ⇒ pre-commit 需跑**两遍**才收敛（本轮 2026-09-15 撞上，已登 backlog，钩子提示「直接重新提交即可」同源于此但未解释为何）；② `ctx/BUDGET.md` / `ctx/hot-files.md` 已靠该集合规避；③ WXG-T-111 新引入的 `knowledge/lessons.md` **指针页 + `INDEX.md` 生成块**属同一形态 ⇒ 本单必评估其暂存区语义。
 - **Deliverables**：① 判定三类形态是否应统一收口（候选修法：把生成物一律加入 `WORKTREE_AUTHORITATIVE`，或 pre-commit 改为「重建 → add → **再重建** → 校」双遍并写进钩子注释）；② 桩自测：暂存区模式下生成物与索引**单遍必收敛**；③ 按结论回写 `.githooks/pre-commit` 与 `docs/agent/hooks-best-practices.md`。
 - **约束**：不用 `--no-verify` 规避；不得为了「绿」把 C 项降级为 note。
+- **完成记录（2026-09-15，主理人自证：隔离 `git worktree` 实测，不动在飞工作树）**：
+  - ① **判定（Deliverable ①）**：任务书列的三类形态里只有**类①成立**——`memory/INDEX.md` 与 `ctx/BUDGET.md` / `ctx/hot-files.md`
+    同根因（`ctx:build` 自产 .md 又被索引，而索引对它取的是**改写前**的 HEAD / 旧暂存 blob 字节），差别只在**是否登记进**
+    `lib/context-index.mjs::WORKTREE_AUTHORITATIVE` ⇒ 统一收口 = 补登记，**不需要**改钩子为双遍重建。
+  - ② **类③ 假设不成立（订正任务书）**：`knowledge/INDEX.md` 活跃块由 `kb:sync` 写、`knowledge/lessons.md` 指针页由一次性分片器写，
+    二者**都不在 `ctx:build` 写盘链内** ⇒ 无「build 期间被本进程改写」这一时序条件，其一致性已由 `kb:check` ④ 守护。实测（改 `knowledge/INDEX.md`
+    并暂存 → 跑 pre-commit）**第一遍即绿**，反证其不属本族 ⇒ 不收口、不扩面。
+  - ③ **取证数据**（基线 = `3fa3be4`，改日记一行 + 只 `add` 该日记 + 跑真 `.githooks/pre-commit`）：基线**三种起手第一遍全部 exit 1**，
+    诊断只点名一个文件 —— A 只暂存自有改动 / B 手跑 committed 模式 build 并 add 四产物 / C 手跑 build 不 add 产物；三方 sha 对账：
+    `idx=e6c82d12 == head` 而 `staged == worktree == 694e63d8`（另两个产物则 `idx == staged == worktree` 全等）⇒ 根因坐实到取源分支。
+    补登记后**同三起手第一遍全部 exit 0**。
+  - ④ **推翻两条既有认知（诚实）**：a) 本轮早先记的「不手跑 `ctx:build`、让钩子按暂存 blob 自建即一次通过」是**错的**——那次一次通过
+     因为前两遍失败时钩子已把产物 add 过；b) WXG-T-072 的「先落盘产物 → 再建索引 → 最后序列化，三步同源」在 committed / staged-blobs 模式
+     下**并不成立**（第二步取源仍走 HEAD/暂存分支），顺序调整只是必要条件 ⇒ 两处注释均已按实测订正，不留误导后人的错论。
+  - ⑤ **落码**：集合补 `memory/INDEX.md` 并 `export`（连带导出 `BUDGET_MD_REL` / `HOT_FILES_MD_REL`，消掉 `check-context-budget.mjs` 内
+    重复字面量）；`ctx:check` 新增**装置自指对账**项（`C:` 级 failure，**非 note**：生成物集合 ⊄ 工作树权威集合即拦，并直接给修法位置）；
+    新增 `tools/scripts/worktree-authoritative-selftest.sh`（入口 `pnpm run ctx:selftest`，**9/0**）；回写 `.githooks/pre-commit` ② 段与
+    `docs/agent/hooks-best-practices.md §7`；沉淀 **K-048**。
+  - ⑥ **自测为何可信**：含**判别力对照**（同一 gate 下普通 dirty 文件 → `head`、已暂存 → `staged`，否则「全部 worktree」的断言恒真）与
+    **红绿双向端到端**（在隔离 worktree 里把登记行删掉 → 同一流程必须 `exit 1` 且诊断点名；`ctx:check` 对账门亦须报红）⇒ 绿灯是被本修法挣来的。
+  - ⑦ **自查两处（本轮自犯）**：a) 新门注释初稿写「跑在 verify / CI / pre-commit 三处」—— 实测 `verify` 的 15 项里**没有** `ctx:check`
+     （grep 零命中），真实覆盖只有 CI（`ci.yml` ctx:check 步）+ 钩子兜底两处 ⇒ 三处措辞已全部订正，并另登 **BD-40**；b) 自测脚本初稿两处
+     假绿风险：红测那遍的补丁被 `run_hook_once` 每次拷回正确版冲掉、`String.replace` 替换串里 `$` 开头序列被特殊解释 ⇒ 改为显式传缺项源 +
+     函数型替换。
+  - ⑧ **代价（如实登记，不隐藏）**：集合内产物的索引记录跟随**工作树** ⇒ 钩子 `git add <产物>` 会把工作树中**未暂存**的产物改动一并纳入本次
+     提交（三产物同语义，且属既存行为，非本单新增）；`memory/INDEX.md` 标记块**外**允许手写协议正文 ⇒ 手写后须与改动同次暂存。**未削弱既有守卫**：
+     实测「手改 INDEX.md + 暂存」在基线与修法下都为绿（钩子本就会重建吸收），非本单引入的松动。
+  - ⑨ **验收**：`ctx:check` exit 0 且打印「装置自指：3 个生成物全部在工作树权威集合内」｜`ctx:selftest` **9/0**｜`pnpm run verify` **PASS 14 ｜ SKIP 1（check:size）｜ FAIL 0**｜`kb:check` 八重 ✅（活跃 48）。
