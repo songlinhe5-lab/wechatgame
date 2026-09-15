@@ -150,7 +150,8 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
       { freq: 659.25, startMs: 100, durMs: 100 },
     ],
   },
-  // §5「连击 ×3（Lv2）150ms｜三连上行音」。
+  // §5「连击 ×3（Lv2）150ms｜三连上行音」。**伪震屏（scale 1.015）与本 clip 同帧**（A05-09）
+  // ——梯级归属经 WXG-T-103 / 冲突 C1 追正：旧注误把伪震屏记在 T3（`combo-vfx.ts` tier=2→pseudoShake、tier=3→burst）。
   [AUDIO_CLIP_COMBO_T2]: {
     bus: 'sfx',
     durationMs: 150,
@@ -165,7 +166,7 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
       { freq: 783.99, startMs: 100, durMs: 50 },
     ],
   },
-  // §5「连击 ×5（Lv3）350ms｜和弦爆发」（与伪震屏同帧，A05-09）。
+  // §5「连击 ×5（Lv3）350ms｜和弦爆发」（与 `comboVfxKind === 'burst'` 同帧，A05-09b；伪震屏属 Lv2，见 T2 注——WXG-T-103 追正）。
   [AUDIO_CLIP_COMBO_T3]: {
     bus: 'sfx',
     durationMs: 350,
