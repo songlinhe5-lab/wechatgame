@@ -117,3 +117,29 @@ check:links FAILED
 4. 再跑 `pnpm run check:links` → 通过后再 commit
 
 **禁止** `git commit --no-verify`（Cursor shell hook 也会拦）。
+
+## 7. 装置自指：pre-commit 的单遍收敛不变式（WXG-T-112）
+
+`ctx:build` 是「**会被自己索引的生成物**」的写盘方：它按被索引 .md 计算索引，同时又要写出
+`ctx/BUDGET.md`、`ctx/hot-files.md`、`memory/INDEX.md` 三个 .md 产物。若产物在提交索引里取的是
+**改写前的旧字节**，而 pre-commit 随后 `git add` 把**新字节**送进暂存区，则「重建 → add → 校」
+**必然单遍不收敛**——表现为「同一份改动提交两次才过」。
+
+| 项 | 结论（2026-09-15 worktree 实测） |
+|---|---|
+| 唯一真源 | `tools/scripts/lib/context-index.mjs::WORKTREE_AUTHORITATIVE` —— 集合内文件任何模式都取**工作树**字节 |
+| 不变式 | `ctx:build` 写盘的**每个 .md 产物**都必须在该集合内 |
+| 机械守卫 | `ctx:check` 的「装置自指对账」项（`C:` 级，**非 note**）；随 **CI** 与 **pre-commit 兜底**跑。⚠️ `ctx:check` 不在 `verify` 15 项内（BD-39 同族），本地请显式 `pnpm run ctx:check` |
+| 可执行证据 | `pnpm run ctx:selftest`（9 断言，含隔离 worktree 里跑**真 pre-commit** 的红绿双向：登记在位 → 一遍绿；删掉登记 → 一遍红且诊断点名） |
+
+两条反直觉的实测结论，写在这里免得下一个人再猜：
+
+1. **「先写产物、后建索引」的顺序调整不足以收敛**（WXG-T-072 当时只做了这件事）：第二步 `buildIndex()`
+   对产物取源仍走 committed / staged-blobs 分支 ⇒ 拿到旧字节。顺序只是必要条件，取源分支才是决定项。
+2. **症状与作者习惯无关**：只暂存自己的 .md 改动（最规范的用法）同样第一遍必红。所以「让作者别手跑
+   `ctx:build`」不是修法，把产物登记进集合才是。
+
+代价（如实记）：集合内产物的索引记录跟随**工作树**，因此钩子 `git add <产物>` 会把工作树里**未暂存**的
+产物改动一并纳入本次提交。该语义对三个产物一致，且是既存行为（`ctx/BUDGET.md` / `hot-files.md` 一直如此）。
+对 `memory/INDEX.md` 再多一句：它的标记块**外**是允许手写的协议正文（`upsertMemoryIndex` 只重写块内）
+⇒ 手写后请让该文件与你的其他改动**同次暂存**，别指望索引只描述「已暂存的那一半」。

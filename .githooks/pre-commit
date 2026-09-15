@@ -15,6 +15,15 @@
 #               ⚠️ 三个产物必须一起暂存：`ctx/hot-files.md` 是 `ctx:build` 生成的**新文件**（WXG-T-036 q-1），
 #                  首次提交若漏 add 则永不入库 → CI 干净检出缺该文件，`ctx/ROUTES.md §0` 第二跳（锚点→
 #                  offset/limit）直接断链，且 A 项预算表缺行。新增 ctx 产物时**必须同步登记到本行**。
+#               ⚠️⚠️ 新增 `ctx:build` 生成的 .md 时，除登记到上面那行 add 清单，**还必须**列进
+#                  `tools/scripts/lib/context-index.mjs::WORKTREE_AUTHORITATIVE`（WXG-T-112）：
+#                  漏一个 ⇒ 本钩子的「重建 → add → 校」**单遍不收敛**——build 时该产物尚未暂存，
+#                  索引按 HEAD / 旧暂存 blob 记**上一轮字节**，而随后 add 进去的是刚写出的**新字节**，
+#                  终校验必报「暂存内容与刚重建的索引仍不一致」→ 每次提交都要提交两遍。
+#                  判例 BD-38（`memory/INDEX.md` 漏登记，2026-09-15 worktree 实测：只暂存自有改动 /
+#                  手跑 build 并 add 产物 / 手跑 build 不 add 三种起手第一遍全红）。该不变式由
+#                  `ctx:check` 的装置自指对账门机械守住（CI 与本钩子兜底两处都跑；ctx:check 不在
+#                  verify 15 项内，本地要查请显式 `pnpm run ctx:check`——判例 BD-39 同族）。
 #            c. `ctx:check --staged` 仅作**兜底终校验**（正常路径恒绿，仅竞态/意外时拦截）。
 # 启用：git config core.hooksPath .githooks（见 tools/scripts/install-githooks.mjs）
 

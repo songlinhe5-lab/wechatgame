@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2389,
       "lines": 97,
-      "sha256": "69373384888e166e4988c111599aae15937e240b21e0088894bc5e2667b9a9f0",
+      "sha256": "e9ab26fda8a009a6ffe8a0b739c4a4f34c90a9edd6e1887196c753e97e52bc75",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3730,
+      "tokens": 3754,
       "lines": 82,
-      "sha256": "5e9684f022f91f7127d33ecd8ebea951b66d3cf3923bd536c98681b2baf9a751",
+      "sha256": "ce1c2c98d317f02d55ac77302597a8b224d6b3ce7d11477f6d85394544a55d23",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 3702,
+          "tokens": 3726,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -673,12 +673,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/hooks-best-practices.md` — 119 行 / 2370 tok / 实测读 6 次",
+          "anchor": "§`docs/agent/hooks-best-practices.md` — 145 行 / 3087 tok / 实测读 6 次",
           "level": 2,
           "startLine": 54,
           "endLine": 57,
-          "tokens": 106,
-          "summary": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+120 · §1 分层：谁拦什么=6+24 ·",
+          "tokens": 130,
+          "summary": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+146 · §1 分层：谁拦什么=6+24 ·",
           "keywords": [
             "§1",
             "docs",
@@ -2048,17 +2048,17 @@
     },
     {
       "path": "docs/agent/hooks-best-practices.md",
-      "tokens": 2370,
-      "lines": 119,
-      "sha256": "3e617dfc26e19be2170891b4daf8552d1c6e8b8f3139eb2d39d9f3314f0ca4c0",
+      "tokens": 3087,
+      "lines": 145,
+      "sha256": "43ffd16a44c9a20cc180e8507820fdaf528cdeac63572d0369ba99b2ea2259a1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践",
           "level": 1,
           "startLine": 1,
-          "endLine": 120,
-          "tokens": 2355,
+          "endLine": 146,
+          "tokens": 3072,
           "summary": "本仓约定：Hooks 加固 AGENTS.md / L1–L5，不替代编排与 SubAgent。",
           "keywords": [
             "Cursor",
@@ -2190,6 +2190,22 @@
           "summary": "",
           "keywords": [
             "失败怎么修"
+          ]
+        },
+        {
+          "anchor": "§7 装置自指：pre-commit 的单遍收敛不变式（WXG-T-112）",
+          "level": 2,
+          "startLine": 121,
+          "endLine": 146,
+          "tokens": 696,
+          "summary": "ctx:build 是「会被自己索引的生成物」的写盘方：它按被索引 .md 计算索引，同时又要写出",
+          "keywords": [
+            "pre",
+            "commit",
+            "WXG",
+            "ctx",
+            "build",
+            "装置自指"
           ]
         }
       ]

@@ -51,9 +51,9 @@
 
 §Headless 模式 · 应用场景 · 自动化 PR 审查 · 流水线=1+186 · §1 Headless 是什么=7+10 · §2 应用场景（本仓）=17+11 · §3 流水线分层（推荐拓扑）=28+22 · §4 仓库产物=50+10 · §5 启用步骤=60+22 · §6 审查判据（写入 prompt 的硬约束）=82+22 · §7 diff 注入方式 · 排除清单 · 体积兜底（WXG-T-025）=104+56 · §7.1 为什么不把 diff 内联进 prompt（根因）=108+11 · §7.2 diff 排除清单（生成物 / 锁文件）=119+17 · §7.3 体积兜底（截断）=136+11 · §7.4 本地自测方法=147+13 · §8 与 Bugbot / Autopilot 的分工=160+8 · §9 成本与安全=168+7 · §10 故障排查=175+12
 
-## `docs/agent/hooks-best-practices.md` — 119 行 / 2370 tok / 实测读 6 次
+## `docs/agent/hooks-best-practices.md` — 145 行 / 3087 tok / 实测读 6 次
 
-§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+120 · §1 分层：谁拦什么=6+24 · §2 启用 Git hooks（每人 / 每 clone 一次）=30+21 · §3 `check:links` 查什么=51+28 · §3.1 `check:mcp` 查什么（WXG-T-043）=67+12 · §4 Cursor Hooks 实践清单=79+19 · §本仓已启用=89+9 · §5 与 `verify` 的关系=98+9 · §6 失败怎么修=107+14
+§Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+146 · §1 分层：谁拦什么=6+24 · §2 启用 Git hooks（每人 / 每 clone 一次）=30+21 · §3 `check:links` 查什么=51+28 · §3.1 `check:mcp` 查什么（WXG-T-043）=67+12 · §4 Cursor Hooks 实践清单=79+19 · §本仓已启用=89+9 · §5 与 `verify` 的关系=98+9 · §6 失败怎么修=107+14 · §7 装置自指：pre-commit 的单遍收敛不变式（WXG-T-112）=121+26
 
 ## `docs/agent/repo-layout.md` — 29 行 / 401 tok
 
