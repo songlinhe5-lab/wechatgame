@@ -143,6 +143,18 @@ jobs:
       - name: test
         run: pnpm run test
 
+      # 装置自测（WXG-T-121 / BD-39·BD-40）：11 件 `*-selftest` 此前在本地 verify 与 CI
+      # **两条链上都是零覆盖** ⇒ 桩腐烂无人见（实测 HEAD 上 ctx:usage 桩红着 63 条断言）。
+      # 分档判据 = 实测耗时：fast ≈6.7s（六件自测 + `ctx:check`，BD-40 并入本档）与 heavy ≈25s。
+      # 本地 verify 只挂 fast（保住 14s 量级的全量验证不被绕开），CI 不嫌慢 ⇒ 两档都跑，覆盖率 11/11。
+      # 本 job 已 `pnpm install` ⇒ 这里用 `pnpm run` 安全（下方 ctx job 无 install 步，才须直接 node 执行）。
+      # ⚠️ check:host-tests:selftest 暂未入档（被测脚本尚未入库），理由见 selftests.mjs::AWAITING。
+      - name: selftest:fast
+        run: pnpm run selftest:fast
+
+      - name: selftest:heavy
+        run: pnpm run selftest:heavy
+
   # ④ harness 编译 + 冒烟：framework / game 变更时运行
   harness:
     name: Harness
