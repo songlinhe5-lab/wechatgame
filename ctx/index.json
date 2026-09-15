@@ -33485,17 +33485,17 @@
     },
     {
       "path": "memory/2026-09-15.md",
-      "tokens": 5881,
-      "lines": 70,
-      "sha256": "f094dd0fddeece24f1fa6926e5e144068bb4220549f09370719d280a47dafc61",
+      "tokens": 6063,
+      "lines": 71,
+      "sha256": "d5c91e9c8f09cd90ddd027232c0e07b17883ff34fa240a9e65514bf84a475544",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-15",
           "level": 1,
           "startLine": 1,
-          "endLine": 71,
-          "tokens": 5878,
+          "endLine": 72,
+          "tokens": 6060,
           "summary": "",
           "keywords": []
         },
@@ -33595,8 +33595,8 @@
           "anchor": "§WXG-T-098 / T-103：B7 裁定包回写 + QA 改判（波次4 第三、四轮）",
           "level": 2,
           "startLine": 56,
-          "endLine": 71,
-          "tokens": 1684,
+          "endLine": 72,
+          "tokens": 1866,
           "summary": "用户拍板「先 spawn T-098 裁定包，再接 T-097」 ⇒ 并行 spawn 文策渊（BD-27/28/29/",
           "keywords": [
             "WXG",
@@ -33613,7 +33613,7 @@
       "path": "memory/INDEX.md",
       "tokens": 5371,
       "lines": 145,
-      "sha256": "6c376d03a40a1a77e0032e17c87033e97d37ced4f81ba01b96622c2d1b2154d0",
+      "sha256": "99b9687070fae47f354ad9b38f65fd6fee325b07a2111453a39b7591319a5bd9",
       "tier": "normal",
       "sections": [
         {
@@ -33689,7 +33689,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 5,881 tok｜7 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
+          "anchor": "§`memory/2026-09-15.md` — 6,063 tok｜7 节｜**蒸馏到期 2026-10-15**（剩 30 天）",
           "level": 3,
           "startLine": 49,
           "endLine": 60,
