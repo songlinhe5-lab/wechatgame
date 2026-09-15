@@ -1721,8 +1721,16 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const okFull = overlay.missing === 0 && overlay.full === T.TRAY_BASE_SLOTS && overlay.urgentNow
         && overlay.pm.distinct >= 2 && overlay.pm.periodMs !== null
         && Math.abs(overlay.pm.periodMs - T.TRAY_FULL_PULSE_MS) <= 50;
-    const v = urgent && ev === 1 && pm.distinct >= 2 && pm.periodMs !== null
-        && Math.abs(pm.periodMs - T.DANGER_PULSE_MS) <= 50 && okFull ? 'PASS' : (urgent && pm.distinct >= 2 ? 'PASS*' : 'FAIL');
+    const okPulse = urgent && ev === 1 && pm.distinct >= 2 && pm.periodMs !== null
+        && Math.abs(pm.periodMs - T.DANGER_PULSE_MS) <= 50;
+    // 【BD-35 钉住上限】`ux-spec §5` 告急行**未定义 α 幅度**（报告 §BD-35：「QA 与美术侧均不自造
+    // 常量」）⇒ 「脉冲到不到 1.0」无判据可验。因此即使可判定子句全过（含本轮新落地的满槽呼吸），
+    // 本条**仍是 PASS\* 而非 PASS**；升 PASS 的前置 = BD-35 由 UX 侧在 §5 告急行补 α 数值。
+    const v = !okPulse && !(urgent && pm.distinct >= 2)
+        ? 'FAIL'
+        : okPulse && okFull
+            ? 'PASS*'
+            : 'PASS*';
     rec('P7 / BD-10 · GAP-10 告急三通道（色+图标+脉冲）与满槽告警', v,
         `① 事件层：降穿 TIMER_URGENT_T=${T.TIMER_URGENT_T}s → timer:urgent=${ev}（期望恰 1）、snapshot.urgent=${urgent}。`
         + `② 颜色通道：HUD 时钟图标描边色去重=[${iconColors.join(', ')}]（平时 ${hex2(DEFAULT_PALETTE.textDim)} → 告急 ${hex2(DEFAULT_PALETTE.danger)}）、数字 fill 切 danger。`
@@ -1733,7 +1741,8 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         + `⑤ §8-10「满槽告警与告急脉冲同屏叠加无 >3Hz 闪烁」（两主体同场，本条已可测，不再 ⛔）：`
         + `按 ux-spec §5:174 口径正本「闪烁 = **同一区域内** α 的往复变化」分区读 —— 托盘带 ${trayHz ? trayHz.toFixed(2) : '—'}Hz、HUD 带 ${hudHz ? hudHz.toFixed(2) : '—'}Hz，两带不重叠（TRAY_BAND.yMax=${T.TRAY_BAND.yMax} < HUD_BAND.yMin=${T.HUD_BAND.yMin}）⇒ **分区各自 ≤3Hz 合规**；`
         + `跨区域合成读数=${compositeHz ? compositeHz.toFixed(2) : '—'}/s，**不属该红线口径**（该口径按区域定义），照实披露不据此判 FAIL、也不据此宣称「合成值在红线内」。`
-        + `　⇒ BD-10 建议**关闭**：告急三通道 ✅ + 满槽告警呼吸 ✅（A05-14 音/视解耦另见 P5）。代码锚点 view-model.ts drawTray 末尾（trayFullAlpha + palette.danger, lineWidth 2, radius 18）与 tuning.ts:TRAY_FULL_PULSE_MS。`
+        + `　⇒ **BD-10 的「满槽告警零通道」半边就此关闭**（告急三通道 ✅ + 满槽呼吸 ✅；A05-14 音/视解耦另见 P5）。代码锚点 view-model.ts drawTray 末尾（trayFullAlpha + palette.danger, lineWidth 2, radius 18）与 tuning.ts:TRAY_FULL_PULSE_MS。`
+        + `　**但 P7 整条维持 PASS\*（不因半边落地而升 PASS）**：卡点由「缺通道」换成 **BD-35「判据缺 α 幅度」**——ux-spec §5 告急行未给 α 起止值，本条只验了「脉冲存在 + 周期」，未验「幅度到不到 1.0」；本实现所用的 0.6↔1.0 是从告急同族现有值沿用（assets-spec 已注明），**不构成判据**。补齐前置 = UX 侧回写 §5。`
         + `　限制声明：本条全部在指令流层（RenderModel 指令 α 序列）可证，真机观感与「同屏不刺眼」的主观判据仍属 **[B]/[P]**，不得据指令读数宣称已验。`);
 }
 /** 单独取 HUD 非文本脉冲 α 序列（避免与 ①②③ 混用样本）。 */
