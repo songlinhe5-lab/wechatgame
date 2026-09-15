@@ -20,6 +20,8 @@
 | `pnpm run check:tasks` | 台账格式门（WXG-T-064，已进 `verify`）：主表名称 ≤60 字符 / 任务行连续 / **行⇔详情小节配对** / 无残留已归档小节 / 详情归档不脱钩；`--prune` 把残留小节**搬入**详情归档（搬，不删） |
 | `pnpm run memory:distill` | memory 日志满 30 天蒸馏轮转（WXG-T-041 R2；默认 dry-run，`--write` 移入 `memory/archive/` 并在 MEMORY.md 追加待蒸馏提醒；脚本只做机械轮转，蒸馏进 MEMORY.md 由人/会话负责，规程见 `docs/agent/memory-distill.md`；**连座归档**（WXG-T-106）：该天的 `memory/details/<日期>-*` 一同进 `archive/details/`，组内任一重名则整组跳过；自测 `pnpm run memory:distill:selftest`） |
 | `pnpm run memory:split` | memory 日记「长节 → 二级详情文件」外移（WXG-T-106）：单节 >600 tok 即逐字节搬到 `memory/details/<日期>-<slug>.md`（含原 `##` 标题行 ⇒ 锚点不失效），日记只留「标题 + 指针」骨架；详情件 H1 即隶属标记（索引「详情」列由它派生，`ctx:check` C-③ 双向硬拦孤儿/断链）；**默认 dry-run**，`--date=<YYYY-MM-DD>` 必填、`--write` 才落盘、目标重名则 fail loud；自测 `pnpm run memory:split:selftest` |
+| `pnpm run knowledge:split` | `knowledge/lessons.md` 按**行内标签**逐字节分片到 `knowledge/lessons/<标签>.md`，源文件降为指针页（WXG-T-111；**默认 dry-run**，`--write` 才落盘；未知标签 / 缺 `[K-0NN]` ⇒ fail loud 且零产物；落盘后与 `git show HEAD:` 回拼逐字节自证。**一次性迁移工具**，不挂 `verify`；自测 `pnpm run knowledge:split:selftest`） |
+| `pnpm run kb:selftest` | 知识库生命周期（`kb:*` 七脚本）本地桩自测：假仓库跑 sync/collect/touch/audit/archive/reactivate/check 八重校验与负例（原仅 `bash tools/scripts/knowledge-selftest.sh` 可跑、无入口 ⇒ 夹具腐烂 4 项长期无人见，WXG-T-111 修复） |
 | `pnpm run preview:frames` | 关卡 SVG 预览 |
 | `pnpm run preview:clip --level 1 --seconds 8` | MP4 实录（需 ffmpeg 与可用的 `@resvg/resvg-js`） |
 

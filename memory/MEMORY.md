@@ -13,7 +13,9 @@
 ## 项目约定
 - 仓库是 pnpm monorepo：`packages/framework`（共用框架）+ `games/breakout`（首款示例游戏）。
 - Game 相关 Agent Skills 的**正本在项目根 `my-skills/`**：`.workbuddy/skills/`、`.codebuddy/skills/`、`.cursor/skills/`、`.qoder/skills/` 四处均为相对符号链接 `../../my-skills/<name>`，随仓库提交（用户明确要求不放全局目录）。新增 skill 时：正本放 `my-skills/<name>/`，四处各建链接。Qoder 官方支持标准 SKILL.md（.qoder/skills/，name 限小写字母数字连字符 ≤64 字符）。
-- **项目长期笔记正本在 `memory/`**：同上四 IDE 索引；日记可放 `memory/YYYY-MM-DD.md`。
+- **项目长期笔记正本在 `memory/`**：同上四 IDE 索引；日记可放 `memory/YYYY-MM-DD.md`；单节 >600 tok 走 `memory:split` 外移到 `memory/details/`（WXG-T-106）。
+- **知识沉淀正本已分片**（WXG-T-111）：条目正文在 `knowledge/lessons/<标签>.md`（工具链/流程/判据/测试/跨IDE/环境），`knowledge/lessons.md` 只是**指针页**；`ACTIVE_FILES` 动态枚举该目录 ⇒ 新标签建片即被采集，无需改码。引用条目**只写 K-0NN**（路径会跟布局漂），ID → 分片查 `knowledge/INDEX.md` 活跃表「分片」列；各片共用单份归档面，且同受 B 门约束、**不得加豁免**。
+- **领号认工作树，不认已提交头注**（K-046）：号池真身 = 工作树 ∪ HEAD ∪ 归档的全局最大号 +1；并发会话未提交的号段只在树里，照 `TASKS.md` 头注领号必撞。
 - git 仓库 2026-09-11 才初始化；首个提交 `8263e58` 只含 skill 路径，项目代码基线尚未提交。
 - 框架核心 `packages/framework/src/core` 禁止依赖 DOM / `cc` / `wx`，保证能在 Node 里单元测试。
 - Cocos 绑定 `packages/framework/src/adapters/cocos/bindings.ts` 不进入框架 barrel，不能由浏览器 harness 直接编译。
@@ -28,6 +30,7 @@
 - `pnpm run preview:frames` — 生成 5 个关卡的 SVG 预览。
 - `pnpm run preview:clip --level 1 --seconds 8` — 生成该关卡的 MP4 实录（需要 ffmpeg + 隔离空间里的 @resvg/resvg-js）。
 - `pnpm run memory:split` — 把日记里超阈的 `##` 节逐字节外移到 `memory/details/`（默认 dry-run，`--date=` 必填；桩自测 `memory:split:selftest`）。
+- `pnpm run knowledge:split` — lessons 按行内标签分片（一次性迁移；默认 dry-run；自测 `knowledge:split:selftest`，生命周期桩自测 `kb:selftest`）。
 - `pnpm run check:links` — 扫描 `my-agents`/`my-skills` 为真源；验 frontmatter、INDEX、编排路由表、四 IDE 符号链接；`.githooks/pre-commit` 强制。
 - `pnpm run verify` — 完整门禁（含 check:links）。
 - `node tools/scripts/install-githooks.mjs`（或 `pnpm install` 的 prepare）— 设置 `core.hooksPath=.githooks`。

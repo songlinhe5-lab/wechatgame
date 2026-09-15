@@ -22,7 +22,7 @@ dev/harness/         浏览器验证器
 my-skills/           Agent Skills 正本 + INDEX.md
 my-agents/           SubAgent 正本 + INDEX.md
 my-rules/            跨 IDE alwaysApply 规则正本 + INDEX.md
-knowledge/           知识库（教训 lessons / 模式 patterns + INDEX 读写协议）
+knowledge/           知识库（教训 lessons/<标签>.md 分片 + patterns + INDEX 读写协议；lessons.md = 指针页）
 tools/scripts/       架构守卫 · 关卡同步 · harness · 预览
 ```
 

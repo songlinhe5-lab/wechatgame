@@ -188,7 +188,7 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| 领号 / 任务台账 | production/TASKS.md#§WXG 任务台账（SSOT） | 2220 | **领号只读头注**：`grep -n '当前已分配至' production/TASKS.md` ⇒ 只读那一行（≈30 tok，下一可用号就在里面；WXG-T-075 起）；要看**全部任务状态**才读主表（≈2.4k tok）；详情按下一行的入口**只读命中那一节** |
+| 领号 / 任务台账 | production/TASKS.md#§WXG 任务台账（SSOT） | 2220 | **领号认工作树全局最大号，不止已提交头注**（判例 K-046：并发会话未提交的号段只存在于工作树，照 HEAD 头注领号必撞）：`grep -o 'WXG-T-[0-9]\{3\}' production/TASKS.md production/TASKS-DETAIL.md \| sed 's/.*WXG-T-//' \| sort -n \| tail -1` ⇒ +1；要看**全部任务状态**才读主表（≈2.4k tok），详情按下一行入口**只读命中那一节** |
 | 任务**详情**（按需，勿整读） | production/TASKS-DETAIL.md#§WXG 任务台账 · 详情（标题制正文侧） | 单节 ≈ 290 | 一任务一节（`## WXG-T-0NN`）；**先用 `ctx/index.json` 查该节 `startLine`/`endLine`**，再 `read_file(path, offset, limit)` |
 | **memory 日志摘要（先读这个）** | memory/INDEX.md | 6777 | 分级加载入口：文件 → `##` 主题的行区间 + 体量 + **「详情」列** + 节首句摘要；命中后先看「详情」列：`—` ⇒ 按行区间读日记那一节，非 `—` ⇒ 正文已外移，改读 `memory/details/<…>.md`（WXG-T-068；二级详情层 WXG-T-106） | <!-- no-anchor -->
 | 已知限制 | memory/MEMORY.md#§已知限制 | 80 | |
@@ -214,7 +214,7 @@
 | Cursor Hooks 实践清单 | docs/agent/hooks-best-practices.md#§4 Cursor Hooks 实践清单 | 357 | |
 | Headless / PR 流水线拓扑 | docs/agent/headless-ci-pr-review.md#§3 流水线分层（推荐拓扑） | 261 | |
 | PR 审查硬判据 | docs/agent/headless-ci-pr-review.md#§6 审查判据（写入 prompt 的硬约束） | 230 | |
-| 教训库（同域先读） | knowledge/lessons.md（整文件） | 964 | 追加式 | <!-- no-anchor -->
+| 教训库（同域先读） | knowledge/lessons.md（**指针页**：标签 → 分片表） | 350 | 条目正文在 `knowledge/lessons/<标签>.md`；ID → 分片查 `knowledge/INDEX.md` 活跃表「分片」列；引用只写 K-0NN <!-- no-anchor --> |
 | 可复用模式库 | knowledge/patterns.md（整文件） | 711 | 追加式 | <!-- no-anchor -->
 
 ## 2. 维护

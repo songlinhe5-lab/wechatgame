@@ -19,9 +19,9 @@
 
 §系统清单与依赖索引（Systems Index）· beads=1+249 · §1 系统清单=9+16 · §2 依赖排序（Dependency Order）=25+30 · §3 全局数值基线（Global Constants）· ❄️ 冻结令=55+156 · §3.1 画布、坐标、安全区与布局带=68+16 · §3.2 色板与图案字符集=84+10 · §3.3 珠子网格（Bead Grid）=94+16 · §3.4 槽位托盘（Tray）=110+13 · §3.5 倒计时与失败=123+9 · §3.6 道具（Powerups）=132+10 · §3.7 星级与结算=142+9 · §3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级）=151+12 · §3.9 包体预算=163+7 · §3.10 冲刺模式（Sprint）· 2026-09-12 用户拍板冻结（WXG-T-020）=170+16 · §3.11 失败续时（Revive）· 2026-09-14 用户拍板冻结（WXG-T-057 / T-B）=186+10 · §3.12 音频（Audio）· 2026-09-14 波次1建档（WXG-T-083 / 阮和鸣）=196+15 · §4 事件总线约定（供程序落码参考）=211+25 · §5 与框架层的接口假设=236+9 · §6 变更记录=245+5
 
-## `memory/MEMORY.md` — 57 行 / 1895 tok / 实测读 16 次
+## `memory/MEMORY.md` — 60 行 / 2183 tok / 实测读 16 次
 
-§wechatgame 项目长期笔记=1+58 · §日志蒸馏规程（R2 · WXG-T-041）=7+6 · §项目约定=13+12 · §常用脚本=25+10 · §SubAgent=35+4 · §Rules=39+3 · §Hooks=42+5 · §Headless / CI=47+8 · §已知限制=55+4
+§wechatgame 项目长期笔记=1+61 · §日志蒸馏规程（R2 · WXG-T-041）=7+6 · §项目约定=13+14 · §常用脚本=27+11 · §SubAgent=38+4 · §Rules=42+3 · §Hooks=45+5 · §Headless / CI=50+8 · §已知限制=58+4
 
 ## `production/TASKS.md` — 78 行 / 3549 tok / 实测读 4 次
 
@@ -55,7 +55,7 @@
 
 §Cursor Hooks 与跨 IDE Git 门禁 — 最佳实践=1+120 · §1 分层：谁拦什么=6+24 · §2 启用 Git hooks（每人 / 每 clone 一次）=30+21 · §3 `check:links` 查什么=51+28 · §3.1 `check:mcp` 查什么（WXG-T-043）=67+12 · §4 Cursor Hooks 实践清单=79+19 · §本仓已启用=89+9 · §5 与 `verify` 的关系=98+9 · §6 失败怎么修=107+14
 
-## `docs/agent/repo-layout.md` — 29 行 / 390 tok
+## `docs/agent/repo-layout.md` — 29 行 / 401 tok
 
 §仓库目录与产物落位（docs/agent/repo-layout.md）=1+30 · §目录与产物落位=6+25
 
@@ -63,9 +63,9 @@
 
 §默认路由细节（docs/agent/routing.md）=1+38 · §Hooks / 提交门禁 / Headless 指针=7+5 · §Skill 优先级（冲突时高者胜）=12+6 · §Skill 正本与四 IDE 链接=18+8 · §SubAgent 四 IDE 路径=26+5 · §跨域先交编排=31+8
 
-## `docs/agent/commands.md` — 26 行 / 1639 tok
+## `docs/agent/commands.md` — 28 行 / 1848 tok
 
-§验证与常用命令（docs/agent/commands.md）=1+27 · §验证与常用命令=6+22
+§验证与常用命令（docs/agent/commands.md）=1+29 · §验证与常用命令=6+24
 
 ## `knowledge/INDEX.md` — 143 行 / 4071 tok
 
