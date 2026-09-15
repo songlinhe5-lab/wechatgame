@@ -11,10 +11,11 @@
 | **Cursor Hooks** | `.cursor/hooks.json` + `.cursor/hooks/*` | Cursor Agent / Shell | Agent 侧再跑 links；禁 `--no-verify` / force-push / hard reset；L1 拦 `.scene`/`.prefab`/`.meta` |
 | **Rules / AGENTS** | `.cursor/rules` · `AGENTS.md` | 常驻提示 | 叙事与铁律；不保证机械拦截 |
 
-> ①⁷⁄₈ 的条件与取向（WXG-T-101，2026-09-15）：仅当 `git diff --cached` 命中 `packages/framework/src/**/*.ts` 才跑 `sync-framework-to-cocos.mjs --check`
-> （无框架源码改动的提交零开销）。**只拦不写**有两个理由：① `git commit` 提交的是**索引**，钩子改写工作区不会进本次提交，静默重写只会造出「钩子绿了但镜像仍漏在 HEAD 之外」的新坑；
+> ①⁷⁄₈ 的条件与取向（守卫 WXG-T-101，覆盖面修正 WXG-T-098，2026-09-15）：仅当 `git diff --cached` 命中**镜像源**——`grep -E '^packages/framework/src/.*\.ts$\|^games/[^/]+/src/.*\.ts$'`——才跑 `sync-framework-to-cocos.mjs --check`
+> （无镜像源码改动的提交零开销）。⚠️ **触发面必须等于脚本的实际镜像源集合**：`sync-framework-to-cocos.mjs` 同时拷框架与玩法源码（一次 sync 报「beads framework 39 + game 26」）；初版只匹配框架路径，导致改 `games/beads/src/config/audio-voices.ts` 的提交不触发核镜像（守卫漏一半）。
+> **只拦不写**有两个理由：① `git commit` 提交的是**索引**，钩子改写工作区不会进本次提交，静默重写只会造出「钩子绿了但镜像仍漏在 HEAD 之外」的新坑；
 > ② 与 ①¾ 同取向——镜像副本必须由作者自己 `pnpm run framework:sync` 后**与源码同次暂存**，让漂移在 diff 里可见。成因：BD-20 已两次复发（漂移入 HEAD ⇒ G1 FAIL + 全部 `[Cocos]` 取证阻塞）。
-> 红→绿复现：`printf '\n' >> packages/framework/src/core/audio/audio.ts && git add -A` → 跑钩子得 exit=1；再 `pnpm run framework:sync` 并重暂存 → exit=0。
+> 红→绿复现（两类源各一次）：`printf '\n// probe\n' >> games/beads/src/config/tuning.ts && git add games/beads/src/config/tuning.ts` → 跑钩子得 exit=1（报 `game/config/tuning.ts differs`）；再 `pnpm run framework:sync` 并重暂存 → exit=0。框架侧同理，把路径换成 `packages/framework/src/core/audio/audio.ts`。
 
 跨 IDE（Cursor / CodeBuddy / WorkBuddy / Qoder）统一拦提交 → **只靠 Git hooks**，不要指望各 IDE 各自实现一套 Cursor Hooks。
 

@@ -214,7 +214,7 @@ node tools/scripts/check-architecture.mjs
 - ✅ 统一改写 **`Array.from(x)`**（ES2015 built-in static，Babel 不转译；产物已实证原样保留）。
 - ✅ **展开一个真数组是安全的，不要“顺手清理”**（改它是噪声）：如 `[...rows]`（`string[]` 浅拷贝）、`[...this._commands]`。
 - ✅ 适用面 = **入库源码**（`packages/framework/src/**` + `games/*/src/**`）；tests / harness / 镜像拷贝件不进构建包。
-- ✅ 镜像副本只由 `pnpm run framework:sync` 产出，**绝不手改**；一致性由 `framework:sync:check` 保证，**且已升级为提交前硬门**：`.githooks/pre-commit` 步骤 ①⁷⁄₈ 在暂存区含 `packages/framework/src/**/*.ts` 时自动跑 `--check` 并**只拦不写**（WXG-T-101；BD-20 已两次复发，靠人记 sync 不够）。
+- ✅ 镜像副本只由 `pnpm run framework:sync` 产出，**绝不手改**；一致性由 `framework:sync:check` 保证，**且已升级为提交前硬门**：`.githooks/pre-commit` 步骤 ①⁷⁄₈ 在暂存区含**镜像源**（`packages/framework/src/**/*.ts` **或** `games/*/src/**/*.ts`）时自动跑 `--check` 并**只拦不写**（守卫 WXG-T-101；覆盖面修正 WXG-T-098——sync 实际镜像「framework 39 + game 26」两类源，初版只匹配框架路径时改玩法源码不触发，与本节上方「适用面 = 入库源码」的口径本应一致）。BD-20 已两次复发，靠人记 sync 不够。
 - ✅ **守卫**：`node tools/scripts/check-es5-spread.mjs`（已进 `pnpm run verify`）。用 TypeScript **类型检查器 + AST** 而非正则，
   三类展开位（数组展开 / 调用展开 / rest 解构）全覆盖；**不可证明为数组即红（fail-closed）**，`any`/`unknown`/`ArrayLike` 同样红。
 - ⚠️ 逃生阀：行内 `// es5-spread: allow <原因>`（可 grep）。使用需在设计/评审记录里说明，不得为“让守卫绿”而滥用。
