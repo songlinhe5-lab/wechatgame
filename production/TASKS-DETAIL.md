@@ -1640,6 +1640,20 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - 边界裁决（诚实口径）：§3.2 冲刺 HUD 差异仍标「提案」——代码已落码（SCORE / ×multiplier / COMBO，view-model.ts 冲刺 HUD 块）但布局与提案线框有差（连击窗口进度条/梯级进度点未核）⇒ 提案转正需设计侧比对落码几何，**另立单**，本单不越界。
 - 验证：纯文档单（仅 ux-spec.md），零代码改动；check:links 过。
 
+## WXG-T-129
+
+- **名称**：**微信真机触摸坐标归一化错误（BD-48）—— 真机点托盘/网格全部无响应，可玩性 P0**
+- **负责**：程基岩(engineering-lead)　**状态**：📋 已立项（待施工）　**P0**（真机完全不可交互）
+- **现象（用户真机首验 · 2026-09-16）**：真机进入 L1 后——点托盘任意珠 ⇒ 游戏**回「请先选一颗珠子」**（提示属「点网格且无选中」分支 ⇒ 命中判定落在网格区域，**未落在托盘**）；点棋盘空格 ⇒ 无任何反应；错色放置从未发生 ⇒ wrong 态从未触发 ⇒ 「光敏性反馈完全没有」（用户 B 确认）。web 与工具模拟器渲染均正常，仅**交互命中**错位。
+- **根因（主理人代码级实锤，Cocos 3.8.8 引擎源码）**：
+  1. **引擎微信适配坐标量纲混合**：`pal/input/minigame/touch-input.ts:86-90` —— `x = clientX × dpr`（物理），`y = windowSize.height − clientY × dpr`，而 `windowSize` 来自 `wx.getWindowInfo()`（**逻辑像素**）⇒ y = 逻辑高 − 物理y，**量纲不一致**（web 版同位置用 canvas CSS 高，量纲一致 —— 微信版破坏了 T-104 实测的前提「getLocation 与 canvas CSS 高同量纲」）。
+  2. **`normalizeCocosTouch` 无 wx 分支**：T-104 按 web 实测写（÷dpr + 翻 y），文件头明文「微信宿主**未实测标 [R] 阻塞**」—— 本缺陷即该 `[R]` 风险引爆。
+- **修复方向（供施工参考，须真机数据验证）**：微信 touch 原始事件（`clientX/clientY`）天然是 **屏幕逻辑 px · 左上原点** = 框架契约空间（`RawPointerInput` 期望态）⇒ **weapp 平台的正确归一化 = 从引擎内部坐标逆变换回 clientX/clientY 后直接放行（不做 ÷dpr、不翻 y）**：`clientX = loc.x / dpr`；`clientY = (windowHeight − loc.y) / dpr`（`windowHeight` 取 `wx.getWindowInfo()`，bindings weapp 分支可读 `wx` 全局）。实现落 `touch-normalize.ts` 新增 wx 分支（纯函数可 Node 单测，延续 T-104 架构）；`bindings.ts` weapp 时传入 `windowHeight`。
+- **Deliverables**：① `touch-normalize.ts` wx 分支 + Node 单测（wx 语义：给 loc/窗口/dpr ⇒ 屏幕逻辑 px 左上）；② `bindings.ts` weapp 传参；③ `build:cocos:wx` 出包 + **用户真机复测**（点托盘珠可选中、错色放置出红描边 —— 复测人 = 用户）。
+- **Output Path**：`packages/framework/src/adapters/cocos/touch-normalize.ts`、`bindings.ts`、`packages/framework/tests/adapters/**`、镜像（sync）、`production/TASKS-DETAIL.md` 本节。
+- **验收**：① Node 单测绿；② 用户真机：点托盘珠选中 ✓、错色放置出红描边（单次脉冲）✓；③ web 回归不破坏（web 分支行为不变，`cocos-touch-*.test.ts` 全绿）。
+- **约束**：延续 T-104 架构（纯函数、Node 可测、不碰 `cc`）；不 commit/push。
+
 ## WXG-T-128
 
 **beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿）** · 负责：林绘澄(art) + 主理人(Qoder) · 状态：🔄 进行中
