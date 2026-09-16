@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2389,
       "lines": 97,
-      "sha256": "9baaceab46f0a340016bdc24710121899c70847fb931845619acc82be6fa5c8b",
+      "sha256": "6dccb752fd80e26572646337d4077fbaf1bc55113fe288358e4168583c2c38e7",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3770,
       "lines": 82,
-      "sha256": "7eb1dec59cd079b1018585eb5925c7815824a60adf723a72c8babe33cdae8a62",
+      "sha256": "0063e1fe0dfefd8b1dba774dc73c566822552b6beff8c8345b781c90642bdf6e",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 96 行 / 4640 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 96 行 / 4657 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 560 行 / 36305 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 561 行 / 36457 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 296,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+561 · §WXG-T-069=18+13 · §WXG-T-070",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+562 · §WXG-T-069=18+13 · §WXG-T-070",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -43695,17 +43695,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 36305,
-      "lines": 560,
-      "sha256": "0b2fff1bcd6854c2d0da067afcedfea46252a89376a9cc30ec6f4c7205a45f9e",
+      "tokens": 36457,
+      "lines": 561,
+      "sha256": "6c80493e6951ebb11d977912467bf7049ead24ec8adc0287bae28d872abb4550",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 561,
-          "tokens": 36288,
+          "endLine": 562,
+          "tokens": 36441,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -44262,9 +44262,9 @@
           "anchor": "§WXG-T-125",
           "level": 2,
           "startLine": 552,
-          "endLine": 561,
-          "tokens": 295,
-          "summary": "beads §3.8 幽灵符号可见性冻结变更单（F5，独立于风格单） · 负责：主理人(Qoder) · 状态：📋 已",
+          "endLine": 562,
+          "tokens": 447,
+          "summary": "beads §3.8 幽灵符号可见性冻结变更单（F5，独立于风格单） · 负责：主理人(Qoder) · 状态：✅ 完成",
           "keywords": [
             "§3.8",
             "WXG",
@@ -44276,9 +44276,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4640,
+      "tokens": 4657,
       "lines": 96,
-      "sha256": "1cc2f732c00cb7d3027e049ab4e36a52368a2fea2dde40a16b3a5f02d5d95341",
+      "sha256": "54873a7ba293890f690598d6637a2831da1454a05a4017394444c0c2152faef0",
       "tier": "hot",
       "sections": [
         {
@@ -44286,7 +44286,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 97,
-          "tokens": 4632,
+          "tokens": 4648,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
