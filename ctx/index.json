@@ -31899,17 +31899,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 1490,
-      "lines": 66,
-      "sha256": "c3e78612afc6e448c24bc6ff145bdbe22beb2318ad5eebc53c0f46c5627051c1",
+      "tokens": 1549,
+      "lines": 67,
+      "sha256": "8dae67c16ff487732e9b8a6f450be6e9875ad5ecb5b58361617d3946f6750c65",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 67,
-          "tokens": 1476,
+          "endLine": 68,
+          "tokens": 1535,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -31924,8 +31924,8 @@
           "anchor": "§2026-09-16",
           "level": 2,
           "startLine": 9,
-          "endLine": 19,
-          "tokens": 172,
+          "endLine": 20,
+          "tokens": 231,
           "summary": "",
           "keywords": []
         },
@@ -31933,8 +31933,8 @@
           "anchor": "§WXG-T-119",
           "level": 3,
           "startLine": 11,
-          "endLine": 15,
-          "tokens": 118,
+          "endLine": 16,
+          "tokens": 177,
           "summary": "新增（added）：K-050「缺陷号（BD-NN）与任务号同规：领号须读工作树全文，且「已登记 BD-xx」的声明必须",
           "keywords": [
             "WXG",
@@ -31944,8 +31944,8 @@
         {
           "anchor": "§WXG-T-121",
           "level": 3,
-          "startLine": 16,
-          "endLine": 19,
+          "startLine": 17,
+          "endLine": 20,
           "tokens": 47,
           "summary": "新增（added）：K-049「自测夹具必须由被测生成器播种、依赖按整目录拷贝，否则门禁一扩就整片假红」",
           "keywords": [
@@ -31956,8 +31956,8 @@
         {
           "anchor": "§2026-09-15",
           "level": 2,
-          "startLine": 20,
-          "endLine": 48,
+          "startLine": 21,
+          "endLine": 49,
           "tokens": 894,
           "summary": "",
           "keywords": []
@@ -31965,8 +31965,8 @@
         {
           "anchor": "§（无任务号）",
           "level": 3,
-          "startLine": 22,
-          "endLine": 32,
+          "startLine": 23,
+          "endLine": 33,
           "tokens": 426,
           "summary": "新增（added）：K-035「文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床」",
           "keywords": [
@@ -31977,8 +31977,8 @@
         {
           "anchor": "§WXG-T-097",
           "level": 3,
-          "startLine": 33,
-          "endLine": 39,
+          "startLine": 34,
+          "endLine": 40,
           "tokens": 280,
           "summary": "新增（added）：K-043「取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FA",
           "keywords": [
@@ -31990,8 +31990,8 @@
         {
           "anchor": "§WXG-T-111",
           "level": 3,
-          "startLine": 40,
-          "endLine": 44,
+          "startLine": 41,
+          "endLine": 45,
           "tokens": 130,
           "summary": "新增（added）：K-046「领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号」、K-047「幂等判据必锁",
           "keywords": [
@@ -32002,8 +32002,8 @@
         {
           "anchor": "§WXG-T-112",
           "level": 3,
-          "startLine": 45,
-          "endLine": 48,
+          "startLine": 46,
+          "endLine": 49,
           "tokens": 41,
           "summary": "新增（added）：K-048「装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛」",
           "keywords": [
@@ -32015,8 +32015,8 @@
         {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 49,
-          "endLine": 61,
+          "startLine": 50,
+          "endLine": 62,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -32024,8 +32024,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 51,
-          "endLine": 57,
+          "startLine": 52,
+          "endLine": 58,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -32040,8 +32040,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 58,
-          "endLine": 61,
+          "startLine": 59,
+          "endLine": 62,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -32052,8 +32052,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 62,
-          "endLine": 67,
+          "startLine": 63,
+          "endLine": 68,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -32061,8 +32061,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 64,
-          "endLine": 67,
+          "startLine": 65,
+          "endLine": 68,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -32376,9 +32376,9 @@
     },
     {
       "path": "knowledge/lessons/process.md",
-      "tokens": 4230,
+      "tokens": 4317,
       "lines": 60,
-      "sha256": "d9273cda2bc6060c375dcb4a5fc634da78c92e6216f7a3444cba67df59ad98e7",
+      "sha256": "8cb3da3063739e72e21203cd6505b8e57f05450ec085cd6c057c8cf42fe89390",
       "tier": "normal",
       "sections": [
         {
@@ -32386,7 +32386,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 61,
-          "tokens": 4215,
+          "tokens": 4303,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "process",
@@ -32402,7 +32402,7 @@
           "level": 2,
           "startLine": 6,
           "endLine": 61,
-          "tokens": 4140,
+          "tokens": 4227,
           "summary": "[流程][K-011] 质量门复验者 ≠ 实现者（来源 WXG-T-019，2026-09-12）",
           "keywords": [
             "WXG",
