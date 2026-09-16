@@ -1804,3 +1804,55 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - **编号说明**：本单原拟领 `WXG-T-131`，但并发会话在主理人核查（表内最大号 130）与写入之间领走 T-131（beads 美术质感规格，林绘澄）⇒ **改领 T-132**。撞号由幂等守卫拦下（worktree 侧未误插状态行），已落盘详情内 2 处 T-131 引用同批修正；诚实登记不掩盖。
 - **交叉依赖**：`art-bible §7.3.5`（v1.4-r2 定案段）现与并发会话的 **v1.5「纯色底 + 光影材质」**（T-131）叠加共存于同一文件，本单施工前须以**当时最新的 art-bible** 为准复核 §7.1 Lv2 行措辞是否仍为「整屏 scale 1.00→1.015→1.00，150ms」。
 - **主理人复核（2026-09-16，抽查）**：art-bible/assets-spec **v1.5「纯色底+光影材质」**基调与四层凹陷卡（S1 暗缘/S2 内缩坑底/S3 上内阴影/S4 下受光亮线）已核，数值级可落码 ✅；能力边界遵守（无渐变原语 ⇒ 平涂+α 叠层，承 §1.7/§1.8 判例）✅；**端点表预烘焙**（10 色×3 端点模块级一次构建，热路径零新增字符串分配）—— 这条是成员主动识别的每帧分配风险，处理正确 ✅；凹凸区分「比原方案更强」复核结论 + 验收断言钉住 ✅；零外部资产 ✅。路径纠正（任务书写 design/art/**、实际 games/beads/art/**）属实且处理正确。四小未决裁定：L1 增项默认不做；L5 符号随工程单；`SOCKET_*`/`TRAY_PLATE_*` 常量并入 T-130 工程 Epic；托盘 3 段内阴影保留。
+
+## WXG-T-133
+
+- **名称**：**beads · Epic：错位归位工程实现（WXG-T-130 v2.0 规格的落地）**
+- **负责**：主理人（编排）；Story 分派　**状态**：🔄 进行中　**P1**
+- **规格真源**：`systems-index v1.22`（§3.13 错位参数 / §3.6 解环器 / §3.8 E1 纯色+E4 作废 / §4 事件表）+ `core-loop v2.0` + `bead-grid v2.0` + `input-control v2.0` + `tray-spawner v2.0` + `levels-spec v1.2` + `art-bible/assets-spec v1.5`。
+- **Story 拓扑（文策渊建议，主理人核定）**：
+  - **E1 = T-134**：网格错位状态机（`filled(错位)⇄empty`）+ 取回/归位裁决 + 通关判定（零错位）+ `tray:stored` 事件管线
+  - **E2**：输入路由选择锚化（`selection ∈ {tray, board, none}`，路由 4/5 分支化）—— 依赖 E1 的 API 形状
+  - **E3**：供料摘除 + 托盘入槽收尾 —— 依赖 E1
+  - **E4**：解环器三型（solver/solverPlus/solverRandom；`bead:placed.slot` 可选化收尾）—— 依赖 E1
+  - **E5**：swaps 装配 + BOOT 校验器 + `levels-01-08.json` version 2 + 逐关 k 曲线 —— 依赖 E1
+  - **E6**：渲染改造（E1 纯色直填 + E4 删除/死路径开关 + T-131 四层凹陷卡 + 端点表预烘焙）—— **与美术实现归并同批改 `bead-render.ts`**
+  - **E7**：QA 判据迁移（供料 16 颗/3:1 抽色/满槽跳供/道具清槽四族改判 ⛔ + 新判据用例）—— 依赖 E1–E6
+  - 拓扑：**E1 → (E2, E3, E4, E5) → E6 → E7**；E2–E5 不同文件域可部分并行。
+- **Epic 验收总口径**：全部 GDD/UX v2.0 文 §8 判据可导出用例并通过；`pnpm run verify` FAIL 0；真机 `[R]` 仍 ⛔（无 AppID）。
+- **⚠️ 与并发会话的文件域区隔**：T-132（G5案B 渲染管线）在 `packages/framework/**` 跨域；本 Epic 全在 `games/beads/**` 游戏层 ⇒ 无文件冲突，但**提交时序**需主理人协调（本 Epic 不 commit，复核后统一提）。
+
+## WXG-T-134
+
+- **名称**：**beads · E1：网格错位状态机 + 取回/归位裁决（Epic T-133 之首）**
+- **负责**：程基岩(engineering-lead)　**状态**：🔄 进行中（2026-09-16 派工）　**P1**
+- **范围**：规格真源 = `bead-grid.md v2.0` §2.2（状态机）§2.3（取回裁决）§8（判据）+ `core-loop.md v2.0` §2.2 + `tray-spawner.md v2.0` §2.4（`tray:stored`）+ `systems-index v1.22` §4（事件 payload）。
+- **Deliverables**：
+  1. **网格状态机**：`filled` 拆分「就位（终态，色=底色）/ 错位（可取回）」；取回使格转 `empty`；锁定格不变。
+  2. **取回裁决**：新 API（形状自定，须与 E2 路由消费兼容并回传说明）：校验「错位珠 + 托盘有空槽」（满槽拒绝，极轻反馈零事件）→ 珠入槽、格转空 → 发 `tray:stored {slot, colorIdx, fromRow, fromCol}`。
+  3. **归位裁决**：`judgePlacement` 对齐 v2.0（`placed` = 托盘珠入颜色匹配空格；`rejected` = 不匹配，珠留托盘）；`bead:placed` 的 `slot` **改可选**（为 E4 铺路，本单 placed 仍恒带）。
+  4. **通关判定**：`isComplete()` 改「可填格全满 且 零错位」（`grid.ts:91` 现只查 filled 数）。
+  5. **托盘入槽**：`_tray` 增 store 通道（现仅 select/takeBead 出向）。
+  6. **单测**：状态机三态转换 + 取回前提（错位/空槽）+ 满槽拒取 + 归位匹配/不匹配 + `isComplete` 零错位负例（满盘含错位 = 未通关）+ `tray:stored` payload 断言。
+- **❗ 不做（后续 Story）**：输入路由（E2）、供料摘除（E3）、解环器（E4）、关卡 JSON/BOOT swaps 校验（E5）、渲染（E6）。测试手工构造局面，不依赖 JSON。
+- **⚠️ 陷阱**：① `_tray` 结构位置现场核实；② 选择锚统一是 E2 —— 本单 API 不得预设「只有托盘可选中」；③ 热路径零分配；④ 工作树并发（**勿动 T-132/T-122 等并发笔**）；⑤ 新常量落 `tuning.ts` 并回传说明，§3 已冻结的不动。
+- **Output Path**：`games/beads/src/game/**`、`games/beads/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-134` 小节（追加）。**禁改**：`src/view/**`（E6）、`design/**`、`packages/**`、`production/qa/**`。
+- **验收**：`pnpm -F @wxgame/beads test` 全绿；`pnpm run verify` FAIL 0；`framework:sync` + `:check`。**不 commit/push**（主理人复核后统一提）。
+- **主理人独立复核（2026-09-16，非采信自述）**：
+  - **测试**：beads **266/266 全绿**（新增 `misplaced.test.ts` 10 例：状态机三态、取回前提零事件、满槽拒取**零事件零状态写**、取回重归位双向性、`isComplete` 零错位**负例**、`tray:stored` payload 四字段 `toEqual` 精确断言、slot 可选）。
+  - **实现抽查**：`grid.ts` —— **不引入新 CellState 值**，`misplaced` 为派生谓词（`filled && beadColorIdx ≠ colorIdx`），`colorIdx` 收窄为底色语义，`_misplacedCount` 增量维护 ⇒ `isComplete` O(1)、26 处既有消费方零破坏 —— 这个「可派生量不做持久态」的取舍是对的（比加状态枚举干净）✅；`retrieveBead(row,col,targetSlot)` **显式收参零锚状态** ⇒ E2 路由可直接消费 ✅；`tray:stored` payload 与 §4 事件表逐字对齐 ✅；`spawnInto→storeInto` 委托保留供料死路径（E3 摘除时可干净移除）✅。
+  - **边界**：`src/view/**` 未动 ✅（E6 域）；`judgeRetrieve` 拒绝分支（not-misplaced/tray-full/slot-not-free/out-of-bounds）全零事件 ✅。
+  - **门禁**：`verify` = **PASS 14 ｜ FAIL 1** —— 唯一 FAIL = `check:size`（主包 4537.6KB > 4096 红线）。**定性 = 存量**：引擎包 3.3MB 属构建链未通（ADR-0009 P2），且该步此前长期 SKIP（T-118 轮即记「SKIP 1（check:size 未覆盖）」），本批被执行才显形；本单真实增量 ≈2KB。**裁定 = A 登记漂移交发布域**，不混入本单验收结论。
+- **主理人裁定（四项未决）**：① `retrieve.ts` **进 barrel**（与 placement 同列，外部可测导入一致性）；② `check:size` **登记漂移交发布域后置**（见上定性）；③ crash-snapshot 扩容 **E5 顺手**（采纳）；④ `setBead` 装配原语 **E5 直接消费**（认可，无需返工）。
+- **状态**：**✅ E1 完成**（`[N]` 层全绿；Epic T-133 进度 1/7）。
+- **✅ 完成记录（2026-09-16，程基岩）**：
+  - **状态机**（`src/entities/grid.ts`）：`GridCell` 增 `beadColorIdx`（占格珠色；`colorIdx` 语义收窄为**底色**）；`misplaced = filled 且 beadColorIdx ≠ colorIdx`；`_misplacedCount` 增量维护（O(1)，热路径零分配）；新增 `retrieve()`（唯一出边：`filled(错位)→empty`，**就位珠终态拒绝**）与 `setBead()`（BOOT 装配原语，E5 swaps 消费；装配发生在玩法状态机接管前，绕过 retrieve/place 边是设计使然）；`isComplete()` 改「可填格全满 **且** 零错位」。
+  - **取回裁决**（新文件 `src/systems/retrieve.ts`）：`judgeRetrieve(grid, tray, row, col, targetSlot)` 纯裁决+同调用栈原子双写（沿 `judgePlacement` 判例）；拒绝分支 `not-misplaced / tray-full / slot-not-free / out-of-bounds` 全零事件；`targetSlot` = 玩家选择（v2.0 无随机落槽）。**E2 消费口**：`BeadsGame.retrieveBead(row, col, targetSlot)` 公开命令——显式收 `(row,col,slot)`，**不持有选择锚**（`selection ∈ {tray, board, none}` 归 E2）。
+  - **归位裁决**（`src/systems/placement.ts`）：`slot` 参数与 verdict 字段改**可选**（v1.22 payload 变更，E4 解环器路径不带；本单托盘路径仍恒带）。
+  - **托盘入槽**（`src/entities/tray.ts`）：新增 `storeInto(slot, colorIdx)`（取回唯一入槽通道）；`spawnInto` 转委托（死路径保留，供料复活时自动生效）。
+  - **事件**（`beads-game.ts`）：`BeadsEvents` 增 `tray:stored {slot, colorIdx, fromRow, fromCol}`；`bead:placed.slot` 改可选。
+  - **快照**（`src/game/state.ts` + `_syncSnapshot`）：`SnapshotCell` 增 `beadColorIdx`（E6 渲染错位珠从它取色、底座从 `colorIdx` 取色；视图层零改动即编译通过）。
+  - **tuning**：**零新常量**（§3.13 冻结值未被本单消费——`MISPLACED_PAIRS` 区间是 E5 生成参数）。
+  - **单测**：新文件 `tests/misplaced.test.ts` **10 例**（状态机三态×3、取回前提零事件、满槽拒取零事件零状态写、取回重归位双向性 §8-6、`isComplete` 零错位**负例**满盘含错位=不通关、`tray:stored` payload 精确断言、placement slot 可选×2）；`helpers.ts` 事件追踪补 `tray:stored`。全包 **24 文件 266 例全绿**。
+  - **门禁**：`pnpm run verify` **PASS 14 / FAIL 1** —— 唯一 FAIL `check:size` 为**存量问题**（beads 构建产物 `cocos-js` 引擎包 3.3MB，产物时间戳早于本单开工，构建链未通 ADR-0009 P2；本单 src 增量 ~2KB，不构成翻转因素）。`framework:sync` 已执行（beads 写入 6 拷贝件）+ `:check` PASS。
+  - **遗留移交**：① E5 装配落地时 crash-snapshot 需扩存错位珠色（现 `gridFilled` 位图只记 filled 位，恢复时 `fill()` 默认按底色就位——E1 阶段真实玩法流不产生错位珠，不破现网）；② E6 渲染错位珠前视图仍按 `colorIdx`（底色）画已填珠，错位珠视觉失真属 E6 已知工作面。

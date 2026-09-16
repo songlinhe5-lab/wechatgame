@@ -151,13 +151,26 @@ export class Tray {
     return 'selected';
   }
 
-  /** Put a spawned bead into a free slot. Returns false when occupied/void. */
-  spawnInto(slotIndex: number, colorIdx: number): boolean {
+  /**
+   * Store a retrieved bead into a specific free slot (v2.0 retrieve path —
+   * tray-spawner §2.4「取回入槽」, the ONLY bead-entry channel while the
+   * spawner is off). The slot is player-chosen, NOT random. Returns false
+   * when occupied/free-mismatch (S4 复核兜底 lives in `judgeRetrieve`).
+   */
+  storeInto(slotIndex: number, colorIdx: number): boolean {
     const slot = this._slots[slotIndex];
     if (!slot || slot.state !== 'free') return false;
     slot.state = 'holding';
     slot.colorIdx = colorIdx;
     return true;
+  }
+
+  /**
+   * Dead path (v2.0 供料关停, kept for spawner revival): put a spawned bead
+   * into a free slot. Returns false when occupied/void.
+   */
+  spawnInto(slotIndex: number, colorIdx: number): boolean {
+    return this.storeInto(slotIndex, colorIdx);
   }
 
   /**

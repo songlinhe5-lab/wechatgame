@@ -36,7 +36,14 @@ export const PHASE_TRANSITIONS: Readonly<Record<BeadsPhase, readonly BeadsPhase[
 /** Mutable per-cell view struct — reused, never retained (hot-path rule). */
 export interface SnapshotCell {
   state: CellState;
+  /** 底色 — the colour the pattern requires at this cell (0 locked/void). */
   colorIdx: number;
+  /**
+   * Colour of the bead occupying the cell (v2.0 错位归位; 0 = empty). Differs
+   * from `colorIdx` exactly on misplaced cells — E6 renders the bead from
+   * this and the socket from `colorIdx`.
+   */
+  beadColorIdx: number;
   /** `.` cells: outside the pattern shape — render as background. */
   void: boolean;
 }

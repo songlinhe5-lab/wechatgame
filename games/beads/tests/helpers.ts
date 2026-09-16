@@ -84,6 +84,7 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
   const tracked = [
     'tray:spawned',
     'tray:selected',
+    'tray:stored',
     'bead:placed',
     'bead:rejected',
     'tray:full',

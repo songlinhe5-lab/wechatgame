@@ -105,6 +105,7 @@ import {
   type ClearPanelAction,
   type ClearPanelOptions,
 } from '../systems/clear-panel';
+import { judgeRetrieve } from '../systems/retrieve';
 import { judgePlacement } from '../systems/placement';
 import { Spawner } from '../systems/spawner';
 import { GameTimer } from '../systems/timer';
@@ -132,11 +133,14 @@ import {
 import { DEFAULT_PALETTE, type BeadsPalette } from '../view/palette';
 import { buildBeadsView } from '../view/view-model';
 
-/** Events emitted on the framework bus — the 17 registered in systems-index §4. */
+/** Events emitted on the framework bus — systems-index §4 (v1.22 event table). */
 export interface BeadsEvents extends Record<string, unknown> {
   'tray:spawned': { slot: number; colorIdx: number };
   'tray:selected': { slot: number; colorIdx: number };
-  'bead:placed': { row: number; col: number; colorIdx: number; slot: number };
+  /** v1.22 新增：取回入槽（S3/S4 同帧原子，不计分不断连）。 */
+  'tray:stored': { slot: number; colorIdx: number; fromRow: number; fromCol: number };
+  /** v1.22 payload 变更：`slot` 改可选（托盘路径必带；解环器路径不带，E4）。 */
+  'bead:placed': { row: number; col: number; colorIdx: number; slot?: number };
   'bead:rejected': { row: number; col: number; colorIdx: number };
   'tray:full': Record<string, never>;
   'tray:expanded': Record<string, never>;
@@ -590,6 +594,40 @@ export class BeadsGame implements Game {
   tapGridCell(row: number, col: number): boolean {
     if (this._machine.current !== 'playing') return false;
     return this._placeSelected(row, col);
+  }
+
+  /**
+   * v2.0 取回命令（Epic T-133 E1）— the S2 route 4b → S3/S4 pair-write as a
+   * public command. Takes the explicit misplaced cell `(row, col)` and the
+   * PLAYER-CHOSEN `targetSlot` (v2.0: no random drop); the caller (E2 router,
+   * tests) reads them off its selection anchor — this API deliberately does
+   * NOT own the anchor (input-control §2.1: `selection ∈ {tray, board, none}`
+   * is E2's routing state, see `retrieve.ts` for the adjudication).
+   *
+   * On success: grid `filled(错位)` → `empty` + slot `free` → `holding` in the
+   * same call stack, then `tray:stored {slot, colorIdx, fromRow, fromCol}`.
+   * Every refusal branch is ZERO-EVENT (满槽禁取珠 §3.13; locked/就位 taps get
+   * their 极轻反馈 from the S2/view layer, never from here).
+   *
+   * @returns true only when the retrieval was stored.
+   */
+  retrieveBead(row: number, col: number, targetSlot: number): boolean {
+    if (this._machine.current !== 'playing') return false;
+    const verdict = judgeRetrieve(this._grid, this._tray, row, col, targetSlot);
+    if (verdict.outcome === 'stored') {
+      this._emit('tray:stored', {
+        slot: verdict.slot,
+        colorIdx: verdict.colorIdx,
+        fromRow: verdict.fromRow,
+        fromCol: verdict.fromCol,
+      });
+      return true;
+    }
+    // All refusals are silent by design; only impossible coordinates log.
+    if (verdict.reason === 'out-of-bounds') {
+      console.warn(`[beads] retrieve out of bounds (${row},${col}) — ignored`);
+    }
+    return false;
   }
 
   /**
@@ -1919,7 +1957,7 @@ export class BeadsGame implements Game {
       s.gridRows = this._grid.rows;
       s.cells = [];
       for (let i = 0; i < cellsNeeded; i++) {
-        s.cells.push({ state: 'empty', colorIdx: 0, void: false });
+        s.cells.push({ state: 'empty', colorIdx: 0, beadColorIdx: 0, void: false });
       }
     }
     for (let i = 0; i < cellsNeeded; i++) {
@@ -1929,6 +1967,7 @@ export class BeadsGame implements Game {
       const out = s.cells[i]!;
       out.state = cell.state;
       out.colorIdx = cell.colorIdx;
+      out.beadColorIdx = cell.beadColorIdx;
       out.void = cell.void;
     }
     s.gridLeft = this._layout.left;
