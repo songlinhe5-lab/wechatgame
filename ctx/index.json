@@ -33961,17 +33961,17 @@
     },
     {
       "path": "memory/2026-09-16.md",
-      "tokens": 711,
-      "lines": 17,
-      "sha256": "eb05c011ae8534e5ec342c3f2c4e2ac146c7c9c5a6f3423897224e64d204f1d1",
+      "tokens": 1040,
+      "lines": 25,
+      "sha256": "4fc414b351457c89e18ddcac8273fec91d4625d541e6baa3bccaeaf4f219814b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-16",
           "level": 1,
           "startLine": 1,
-          "endLine": 18,
-          "tokens": 708,
+          "endLine": 26,
+          "tokens": 1037,
           "summary": "",
           "keywords": []
         },
@@ -33995,8 +33995,8 @@
           "anchor": "§主理人复核 WXG-T-119（并发会话施工 · 只读）+ BD-40 撞号消歧",
           "level": 2,
           "startLine": 6,
-          "endLine": 18,
-          "tokens": 613,
+          "endLine": 26,
+          "tokens": 942,
           "summary": "为什么不接施工：主表那行仍写 📋，但工作树实况是并发会话已跑到终轮（探针 1148 行未跟踪、报告已追加 §25 + ",
           "keywords": [
             "§25",
@@ -34006,6 +34006,22 @@
             "只读",
             "撞号消歧"
           ]
+        },
+        {
+          "anchor": "§追记（同日 08:14 复核，上面两条判断已被后续事实推翻，据实修正）",
+          "level": 3,
+          "startLine": 19,
+          "endLine": 26,
+          "tokens": 299,
+          "summary": "卫生项作废：evidence/beads-browser-probe.log 于 07:43:48 被并发会话复跑覆盖 ",
+          "keywords": [
+            "evidence",
+            "beads",
+            "browser",
+            "probe",
+            "log",
+            "追记"
+          ]
         }
       ]
     },
@@ -34013,7 +34029,7 @@
       "path": "memory/INDEX.md",
       "tokens": 7153,
       "lines": 183,
-      "sha256": "b72ca0a9344f1f56ec8df453dc438318f3e29596cf4c651cec3a3011ea03d4aa",
+      "sha256": "eed80027f63d3922004cc634855dc277a35a77f0b38ff0918a5faeb74c1b7b13",
       "tier": "normal",
       "sections": [
         {
@@ -34092,7 +34108,7 @@
           "level": 2,
           "startLine": 67,
           "endLine": 184,
-          "tokens": 5491,
+          "tokens": 5492,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -34104,7 +34120,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 711 tok｜2 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 30 天）",
+          "anchor": "§`memory/2026-09-16.md` — 1,040 tok｜2 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 79,
