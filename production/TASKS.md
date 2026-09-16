@@ -89,5 +89,6 @@
 | **BD-39 装置自测未挂 verify** | WXG-T-111 → WXG-T-121 | 修桩后由 `selftests.mjs` 分两档挂 CI（fast 7 件 ≈6.5s／heavy 5 件 ≈25s）；余项 = `verify` STEPS 加 `selftest:fast`，待 T-110 |
 | **BD-40 `ctx:check` 未挂 verify** | WXG-T-112 → WXG-T-121 | 已并入 fast 档（CI 另有 ctx job）⇒ CI 侧闭合；本地半边与 BD-39 同一次改动即闭合，执行器每次点名该缺口 |
 | **BD-41 宿主双驱动（仿真 ≈2× 墙钟）** | 严守真 / WXG-T-119 | App 自驱 + schedule 同推 `app.tick` ⇒ 比值 2.003 稳定复现；真机同源 ⇒ 首验 P0，仍 ≈2× 升 P1（成员原记 BD-40 系撞号，正本以此号为准） |
+| **BD-42 BD-40/41 撞号残留订正** | 主理人 / WXG-T-119 | §WXG-T-122 背景段「T-121 已挂 BD-40 门禁」失真（挂的是 ctx:check 装置门）；探针 CLK-01 行仍写 BD-40 ⇒ 正本号 BD-41；diag 脚本移出 evidence |
 
 （注：「台账随任务数线性膨胀」已由 WXG-T-064/065/068 结项移除，不再占位。）
