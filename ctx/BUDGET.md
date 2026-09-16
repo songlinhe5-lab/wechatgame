@@ -11,7 +11,7 @@
 | `AGENTS.md` | 1960 | 123 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 413 | 24 | 500 | ✅ |
-| `ctx/hot-files.md` | 3815 | 82 | 4000 | ✅ |
+| `ctx/hot-files.md` | 3815 | 84 | 4000 | ✅ |
 | `ctx/ROUTES.md` | 6889 | 227 | 7500 | ✅ |
 
 > AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
@@ -22,36 +22,37 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/qa/beads/g4-regression-report.md` | 83715 | 2123 | normal |
-| 2 | `production/qa/beads/test-cases.md` | 26692 | 496 | hot |
-| 3 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
-| 4 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
-| 5 | `docs/engine-reference/cocos/VERSION.md` | 11967 | 454 | normal |
-| 6 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
-| 7 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
-| 8 | `games/beads/design/audio/audio-spec.md` | 11064 | 297 | normal |
-| 9 | `games/beads/design/ux/ux-spec.md` | 9626 | 281 | normal |
-| 10 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
-| 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
-| 12 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
-| 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
-| 14 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
-| 15 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
-| 16 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
-| 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
-| 18 | `docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md` | 8446 | 303 | normal |
-| 19 | `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
-| 20 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 111213 | 1682 | normal |
+| 2 | `production/qa/beads/g4-regression-report.md` | 83715 | 2123 | normal |
+| 3 | `production/qa/beads/test-cases.md` | 26692 | 496 | hot |
+| 4 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
+| 5 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
+| 6 | `docs/engine-reference/cocos/VERSION.md` | 11980 | 454 | normal |
+| 7 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
+| 8 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
+| 9 | `games/beads/design/audio/audio-spec.md` | 11064 | 297 | normal |
+| 10 | `games/beads/design/ux/ux-spec.md` | 9626 | 281 | normal |
+| 11 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
+| 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
+| 13 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 14 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 525 | normal |
+| 15 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 16 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
+| 17 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 18 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
+| 19 | `docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md` | 8446 | 303 | normal |
+| 20 | `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
+| `production/TASKS-DETAIL.md` | 111213 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 83715 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 26692 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `docs/engine-reference/cocos/VERSION.md` | 11967 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `docs/engine-reference/cocos/VERSION.md` | 11980 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 11064 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
