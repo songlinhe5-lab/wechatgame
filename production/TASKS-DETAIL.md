@@ -1653,6 +1653,12 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - **Output Path**：`packages/framework/src/adapters/cocos/touch-normalize.ts`、`bindings.ts`、`packages/framework/tests/adapters/**`、镜像（sync）、`production/TASKS-DETAIL.md` 本节。
 - **验收**：① Node 单测绿；② 用户真机：点托盘珠选中 ✓、错色放置出红描边（单次脉冲）✓；③ web 回归不破坏（web 分支行为不变，`cocos-touch-*.test.ts` 全绿）。
 - **约束**：延续 T-104 架构（纯函数、Node 可测、不碰 `cc`）；不 commit/push。
+- **✅ 完成记录（2026-09-16 · 主理人代行 —— subagent 派单通道连续 4 次「参数解析失败」，与 T-099 工程半同因，已按代行先例记录）**：
+  - **修复**：① `touch-normalize.ts` 新增 **`normalizeCocosTouchWx`** 独立 wx 分支（纯函数、Node 可测）：逆变换 `clientX = loc.x/dpr`、`clientY = (windowHeight − loc.y)/dpr`，**不做 ÷dpr 收敛、不做 y 翻转**（wx 原始 touch = 屏幕逻辑 px · 左上原点 = 框架契约空间）；文档化引擎量纲混合根因。② `bindings.ts`：`_touchSpace()` 增 `windowHeight`（wx 取 `wx.getWindowInfo()`，非微信填占位）；`readTouch` 按 `globalThis.wx` 存在性判宿主走 wx 分支 —— **web 分支一字未变**。
+  - **单测**：新增 `tests/adapters/cocos-touch-wx.test.ts` 4 例 —— ① 四角+中心逆变换精确还原（toBeCloseTo 9 位）② **旧 web 公式同输入出错值**（判别力反例）③ space.dpr 非法退化有限值 ④ out 复用零分配。首版 ③ 例自摆乌龙（NaN 放进 raw 构造），已修正为「raw 由正常 dpr 产出、非法 dpr 只在 space 侧」。
+  - **自证**：framework 测试 **285/285**；`framework:sync`+`:check` OK（镜像回填）；`verify` **PASS 15 ｜ FAIL 0**（守卫 check:host-tests 缺口 0）；`build:cocos:wx` **17.9s 出包成功**（产物含修复，待用户真机复测）。
+  - **待办**：① **用户真机复测**（点托盘珠可选中 + 错色放置出红描边）⇒ 通过则 P0-2/P0-5 解除；② web 分支回归已由既有 cocos-touch-*.test.ts 守住（全绿）。
+  - **未 commit / 未 push**（主理人门禁入库）。
 
 ## WXG-T-128
 

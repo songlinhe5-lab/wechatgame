@@ -39,8 +39,8 @@ import { CocosRenderModelRenderer } from './cocos-renderer';
 import { CocosInputBridge } from './input-bridge';
 import { CocosLoopBridge } from './loop-bridge';
 import { PooledLabelSource } from './label-pool';
-import type { CocosTouchSpace } from './touch-normalize';
-import { normalizeCocosTouch } from './touch-normalize';
+import type { CocosTouchSpace, CocosTouchSpaceWx } from './touch-normalize';
+import { normalizeCocosTouch, normalizeCocosTouchWx } from './touch-normalize';
 import { detectPlatform } from '../../platform/index';
 
 const { ccclass, property } = _decorator;
@@ -221,11 +221,14 @@ export class Bootstrap extends Component {
    * DPR 取引擎自己的 `screen.devicePixelRatio`（web 封顶 2、小游戏不封顶），
    * 与 `pal/input` 的输入源同源 —— 不要在适配层复刻封顶规则。
    */
-  private _touchSpace(): CocosTouchSpace {
-    return {
-      canvasHeightCss: this._app ? this._app.viewport.fit.screenHeight : 0,
-      dpr: engineDpr(),
-    };
+  private _touchSpace(): CocosTouchSpaceWx {
+    const canvasHeightCss = this._app ? this._app.viewport.fit.screenHeight : 0;
+    const dpr = engineDpr();
+    // WXG-T-129：微信宿主需 `wx.getWindowInfo().windowHeight`（逻辑 px）参与引擎
+    // 混合式坐标的逆变换；非微信环境填 canvasHeightCss（占位，web 分支不读它）。
+    const wxGlobal = (globalThis as { wx?: { getWindowInfo?: () => { windowHeight: number } } }).wx;
+    const windowHeight = wxGlobal?.getWindowInfo?.().windowHeight ?? canvasHeightCss;
+    return { canvasHeightCss, dpr, windowHeight };
   }
 
   private _bindInput(): void {
@@ -325,11 +328,15 @@ function engineDpr(): number {
  */
 function readTouch(
   e: CocosTouchEvent,
-  space: CocosTouchSpace,
+  space: CocosTouchSpaceWx,
 ): { id: number; x: number; y: number } {
   const id = e.getID ? e.getID() : 0;
   const p = e.getLocation ? e.getLocation() : { x: 0, y: 0 };
-  const q = normalizeCocosTouch(p, space);
+  // WXG-T-129：微信宿主的引擎坐标是量纲混合态（见 touch-normalize.ts wx 分支注释），
+  // 须走 wx 逆变换；web 分支行为一字不变。以 wx 全局存在性判定宿主（构建产物运行
+  // 在微信环境下 `wx` 恒存在，且该判定与 pal/minigame 的 WECHAT 常量同源可靠）。
+  const isWx = typeof (globalThis as { wx?: unknown }).wx !== 'undefined';
+  const q = isWx ? normalizeCocosTouchWx(p, space) : normalizeCocosTouch(p, space);
   return { id, x: q.x, y: q.y };
 }
 

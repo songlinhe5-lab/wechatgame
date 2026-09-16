@@ -79,3 +79,46 @@ export function normalizeCocosTouch(
   target.y = space.canvasHeightCss - raw.y / dpr;
   return target;
 }
+
+/**
+ * WXG-T-129 · 微信小游戏宿主的 `getLocation()` 归一化（**独立于 web 分支**）。
+ *
+ * 引擎微信适配（`pal/input/minigame/touch-input.ts:86-90`，Cocos 3.8.8）：
+ * ```
+ *   x = clientX × dpr
+ *   y = windowSize.height − clientY × dpr      // windowSize 来自 wx.getWindowInfo()
+ * ```
+ * **量纲混合**：`windowSize.height` 是逻辑 px，而 `clientY × dpr` 是物理 px ——
+ * web 版同位置用 canvas CSS 高（量纲一致），微信版不成立（T-104「源码同形」
+ * 判断在真机被推翻，2026-09-16 用户真机实测引爆，登记 BD-48）。
+ *
+ * 逆变换回 wx 原始 `clientX/clientY`：
+ * ```
+ *   clientX = x / dpr
+ *   clientY = (windowHeight − y) / dpr
+ * ```
+ * 微信 touch 原始事件坐标天然是 **屏幕逻辑 px · 左上原点** = 框架契约空间
+ * （`RawPointerInput` 期望态）⇒ wx 分支**不做 ÷dpr 收敛、不做 y 翻转**，只做
+ * 引擎怪癖的逆变换。
+ *
+ * @param raw   `e.getLocation()` 的返回值（引擎微信适配输出，见上）
+ * @param space 宿主量；`windowHeight` = `wx.getWindowInfo().windowHeight`（逻辑 px）
+ * @param out   可选复用对象（零分配，同 web 分支）
+ * @returns 屏幕逻辑 px · 左上原点（= 框架契约空间）
+ */
+export interface CocosTouchSpaceWx extends CocosTouchSpace {
+  /** `wx.getWindowInfo().windowHeight`（**逻辑 px**）—— 引擎混合式里的同一常数。 */
+  readonly windowHeight: number;
+}
+
+export function normalizeCocosTouchWx(
+  raw: { readonly x: number; readonly y: number },
+  space: CocosTouchSpaceWx,
+  out?: CocosTouchPoint,
+): CocosTouchPoint {
+  const target = out ?? { x: 0, y: 0 };
+  const dpr = Number.isFinite(space.dpr) && space.dpr > 0 ? space.dpr : 1;
+  target.x = raw.x / dpr;
+  target.y = (space.windowHeight - raw.y) / dpr;
+  return target;
+}

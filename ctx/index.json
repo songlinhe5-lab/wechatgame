@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2432,
       "lines": 98,
-      "sha256": "b264bb1fe64b53f8dc050b0168e9464feb34416b49b37bb1e9d9b5386f580f7c",
+      "sha256": "f069c41dce89608d5cde6453192695c2b5dea50372c10bd07cd2956364154b0c",
       "tier": "normal",
       "sections": [
         {
@@ -238,7 +238,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 450,
-          "summary": "1 production/TASKS-DETAIL.md 111683 1690 normal",
+          "summary": "1 production/TASKS-DETAIL.md 112175 1696 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -254,7 +254,7 @@
           "startLine": 46,
           "endLine": 73,
           "tokens": 886,
-          "summary": "production/TASKS-DETAIL.md 111683 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 112175 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3815,
       "lines": 84,
-      "sha256": "cb2b3fc5fea1fd8961b697a01fce7d174ab29ae16f365d2adca07af4b95e436f",
+      "sha256": "ac1413c4a2a6def5cac3e822d6dfa50b08f8acaee7005a7d1d344fbe122d9c5a",
       "tier": "normal",
       "sections": [
         {
@@ -43790,17 +43790,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 111683,
-      "lines": 1690,
-      "sha256": "49ce64c20e2ac84b5a0d0792ab6450c84a17a623d18660e2a56d304b6f18b5cf",
+      "tokens": 112175,
+      "lines": 1696,
+      "sha256": "68b6558da7f78421480fcc01d9613c1ca6a92cc4d0bb18016b747b386288ef51",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1691,
-          "tokens": 111667,
+          "endLine": 1697,
+          "tokens": 112158,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -44665,8 +44665,8 @@
           "anchor": "§WXG-T-129",
           "level": 2,
           "startLine": 1643,
-          "endLine": 1656,
-          "tokens": 865,
+          "endLine": 1662,
+          "tokens": 1357,
           "summary": "名称：微信真机触摸坐标归一化错误（BD-48）—— 真机点托盘/网格全部无响应，可玩性 P0",
           "keywords": [
             "WXG"
@@ -44675,8 +44675,8 @@
         {
           "anchor": "§WXG-T-128",
           "level": 2,
-          "startLine": 1657,
-          "endLine": 1678,
+          "startLine": 1663,
+          "endLine": 1684,
           "tokens": 1008,
           "summary": "beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿） · 负责：林绘澄(art) + 主理人(Qo",
           "keywords": [
@@ -44688,8 +44688,8 @@
         {
           "anchor": "§真机首验包（待 AppID · 2026-09-16 登记 · 解除 DEV-01/B4）",
           "level": 2,
-          "startLine": 1679,
-          "endLine": 1691,
+          "startLine": 1685,
+          "endLine": 1697,
           "tokens": 438,
           "summary": "前置：① 有效 AppID ② pnpm --filter @wxgame/beads run build:cocos:",
           "keywords": [
