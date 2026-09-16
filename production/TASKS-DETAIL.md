@@ -372,6 +372,14 @@
 - **约束**：**不得**因 Node 全绿而抬升 `[Cocos]/[Device]/[R]` 综合结论；真机面仍卡 B4（AppID），解除条件写明不伪验。
 - **依赖**：T-095（可信门禁）、T-096（音频取证一并跑）；产出即 G4 升 PASS 的取证面。
 
+- **工程半完成记录（2026-09-16，主理人代行 —— 派单通道故障，subagent 调用连续三次参数解析失败）**：
+  - **② B8/BD-19 已修**：`render-harness-frame.mjs` / `render-harness-clip.mjs` —— ① **去 breakout 硬编码**（`launch`/`movePaddleTo` 按 `--game` 分支；beads 进关走 `goToLevel`，`BeadsGame` 本无 `launch`）；② **`--game=beads|breakout` 透传**（`loadHarness({ game })` 既有能力，本次接通）；③ **`--help`/无参 ⇒ 只输出用法、exit 0、不产出**（**移除无参默认 breakout**，根治覆写复发；`package.json` 的 `preview:frames`/`preview:clip` 显式带 `--game=breakout` 保持旧行为可用，另加 `preview:frames:beads`/`preview:clip:beads`）；④ `argValue` 支持 `--flag=value` 等号形式。
+  - **① B1 已落**：新增 **`tools/scripts/cocos-vision-shot.mjs`** —— 对 Cocos web-mobile 产物（真实引擎栅格化）起本地 http 服务 + playwright 截图，输出 **raw + protanopia/deuteranopia/tritanopia/灰度** 五张（SVG feColorMatrix 矩阵经 CSS filter，零新增依赖）；截图前 `cc.debug.setDisplayStats(false)` 关闭 debug stats 浮层（初版 `isShowStats` API 名不对，实测探得 `setDisplayStats` 后修正）；退出码契约 0/2/3（对齐 cocos-input-probe 范式）。
+  - **自证实跑**：frame —— beads **8 关**全渲染 ✓、breakout 5 关 ✓；clip —— beads MP4 ✓；vision-shot —— **beads 与 breakout 各 5 张** ✓（`production/qa/*/evidence/vision/`，png 已走 gitignore 留盘）。`pnpm run verify` PASS 14 / FAIL 0。
+  - **⚠️ caveat（已写进脚本头注）**：① 页面级 CSS filter 对**部分图元**（黄色星星珠 / ad 角标）未生效 —— 疑多 canvas/合成层，色盲判读须以 raw 对照并人工复核该类图元；② Cocos debug stats 浮层初版遮挡两卡，已用 `setDisplayStats(false)` 关闭。
+  - **探针半（③ BD-21 剩余 + §H 缺口进探针）**：⏳ 待严守真（派单通道故障未派成，登记在此）；像素半边的**判读**也待 QA —— 脚本只产取证物，不判 PASS。
+  - **未 commit / 未 push**。
+
 ## WXG-T-100
 
 - **名称**：**beads 面板相位真输入断链（BD-34）**——四相位收不到真链点击，可玩性硬断点
@@ -1650,3 +1658,17 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - **可行性关键**：`_wrongFx` 是现成可 1:1 复用判例（表现层计时 `{row,col,elapsedMs}` + view 消费 + 重启门 + PAUSED 不冻结 + 快照字段）；毫秒值全部已冻结在 ux-spec §5 权威表 ⇒ G1–G4 **不需新冻结变更、不动 framework**。
 - **性能口径（须入草案）**：动画期图元增量 G1 单颗 / G2 按批（数十颗）/ G4 全场 ≤156 珠逐列 scale；建议回退阀 = 动画进行中的珠子降层绘制（如溶解期只画 L1+L5），静态珠维持十层。
 - **诚实口径**：评审结论全部基于代码事实（grep 零命中 + 已实装项核对），**未经真机截图验证**（Cocos 构建阻塞，同 T-124/T-125 口径）。
+
+
+## 真机首验包（待 AppID · 2026-09-16 登记 · 解除 DEV-01/B4）
+
+> 前置：① 有效 AppID ② `pnpm --filter @wxgame/beads run build:cocos:wx` 出包 ③ 微信开发者工具 + 真机扫码 ④ 本包随包执行并回填。
+
+- **P0-1 时基同源复核（BD-40 关单前提）**：真机跑 `production/qa/beads/beads-browser-probe.mjs` 的 CLK-01 等价面 —— 仿真/墙钟须 **≈1.00±0.10**（修复后 web 实测 1.002/0.997；**若真机 ≈2 ⇒ BD-40 复活升产品级 P1**）。
+- **P0-2 光敏性观感**：wrong 态连点（观察单次脉冲非往复、无高频闪）+ 告急脉冲 + 满槽呼吸 —— 屏幕像素层 web 已验，真机亮度/刷新率差异须人眼复核。
+- **P0-3 T-124 丙案视觉**：十层卡/冷底/F6 白字路由/NEW BEST 角标（T-127 修后 168 底衬）/STAGE 标签（T-127 修后 `DESIGN_W−30` 锚）—— 真机字体回退下不回溢（T-127 风险条款）。
+- **P0-4 主包红线**：`build:cocos:wx` 实测包体 ≤4096 KB（§3 冻结；程序化合成 ⇒ 音频 0 KB 应天然满足）+ `check:size` 从 SKIP 转 OK。
+- **P0-5 四相位真链**：暂停/结算/失败面板真指针可用（web 已验，微信 touch 语义须复验）。
+- **P1-6 性能**：T-124 单帧最坏 +624 图元的帧率回退阀（林绘澄预授权条款）真机实测。
+- **P1-7 音频**：A05-26 听感（`[P]`）+ 首次手势后出声（A05-27）。
+- 以上全过 ⇒ G4 的 DEV-01 解除，可议升 PASS；任何一条红 ⇒ 按 BD-40 先例登记并回修。
