@@ -24,6 +24,7 @@ import {
   Color,
   Component,
   Graphics,
+  HorizontalTextAlignment,
   Label,
   Node,
   UITransform,
@@ -348,19 +349,27 @@ function wrapLabel(label: Label) {
       // ⚠ `Label.color` exists; may need `label.color = new Color(...)`.
       label.color = new Color(c.r, c.g, c.b, c.a);
     },
-    setAlign: (_align: 'left' | 'center' | 'right') => {
-      // [G3 · 待编辑器半 / WXG-T-077] 空实现占位：需接 `cc.Label` 真实对齐枚举
-      // （HorizontalTextAlignment / VerticalTextAlignment，T-050 已纠正枚举真名）；
-      // [阻塞：无 Cocos Creator] 运行时/目视验证不可完成，故本轮不落码。
+    setAlign: (align: 'left' | 'center' | 'right') => {
+      // [G3 · WXG-T-077 编辑器半落码] 接入 cc.Label 真实对齐枚举
+      // （HorizontalTextAlignment，T-050 已纠正枚举真名）。未知值回退 CENTER。
+      const mapped =
+        HorizontalTextAlignment[align.toUpperCase()] ?? HorizontalTextAlignment.CENTER;
+      label.horizontalAlign = mapped;
     },
     setVisible: (visible: boolean) => {
       label.node.active = visible;
     },
-    // [G3 · 待编辑器半 / WXG-T-077] 接入点：实现可选 `measureWidth(text, fontSize)`，
-    // 在 `label.string = text` 后回读 `label.node.getComponent(UITransform)!.width`
-    // 作为真实文本宽，供 `_anchorForText` 消费以消除估算降级。
-    // 未实现前，`cocos-renderer` 走 `FALLBACK_CHAR_WIDTH_RATIO` 估算 → G3 保持不关闭。
-    // [阻塞：无 Cocos Creator] 尺寸同步时序须编辑器目视校正后方可回填关闭 G3。
+    measureWidth: (text: string, fontSize: number) => {
+      // [G3 · WXG-T-077 编辑器半落码] 调用序保证 renderer 已先 setFontSize/setText
+      // （cocos-renderer.ts :165-166），此处回读 UITransform.width 即真实文本宽
+      // （T-050 判例：以引擎实测为准）。返回 0/负值时 _measureTextWidth 会自动
+      // 退回 FALLBACK_CHAR_WIDTH_RATIO 估算，故 UITransform 缺失无需额外防御。
+      void text;
+      void fontSize;
+      label.updateRenderData(true);
+      const ut = label.node.getComponent(UITransform);
+      return ut ? ut.width : 0;
+    },
   };
 }
 
