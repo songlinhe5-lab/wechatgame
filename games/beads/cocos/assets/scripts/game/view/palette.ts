@@ -29,16 +29,25 @@ export function beadColor(colorIdx: number): string {
 export interface BeadsPalette {
   /** Page background. */
   readonly background: string;
-  /** Tray panel fill. */
+  /** Tray panel fill (panel_surface). */
   readonly panel: string;
+  /** Panel stroke (panel_border, 1px)。 */
+  readonly panelBorder: string;
   /** Empty-slot inner fill + border. */
   readonly slot: string;
   readonly slotBorder: string;
+  /** Expansion-row dashed-slot stroke (slot_dashed)。 */
+  readonly slotDashed: string;
   /** Locked-cell hatch colour (art-bible §3.4: #B9B4CC). */
   readonly locked: string;
   readonly text: string;
   readonly textDim: string;
-  readonly textAccent: string;
+  /** 中性强调 accent_primary（§3.5：主按钮底/结算角标/连击字；v1.3 F6 取代已删除的 textAccent）。 */
+  readonly accentPrimary: string;
+  /** 设置齿轮紫（§3.1 accent_purple，小面积图标专用，F7②）。 */
+  readonly accentPurple: string;
+  /** 成功绿（§3.1 success；⚠ 与珠色4 同值待冻结变更，§3.5 登记不改项）。 */
+  readonly success: string;
   /** Timer danger colour (§3.5 urgent channel). */
   readonly danger: string;
   /** `hint` / 引导外描边蓝（art-bible §3.4 `accent_blue` #3D7BF5，非珠色）。 */
@@ -53,16 +62,20 @@ export interface BeadsPalette {
 export const DEFAULT_PALETTE: BeadsPalette = {
   // v1.3 丙案「双色温对撞」冷底 UI token（真源 = art-bible §3.1 v1.3 表；F1 消漂移）。
   background: '#ECEAF3', // bg_base 冷紫灰（v1.2 暖米白 #F6F1E7 作废）
-  panel: '#FFFFFF',
+  panel: '#FFFFFF', // panel_surface
+  panelBorder: '#E2DFF0', // panel_border 1px
   slot: '#F7F6FB', // slot_fill（v1.2 暖 #EDE7DA 作废）
   slotBorder: '#D8D5E6', // slot_border（v1.2 暖 #D8D0C0 作废）
+  slotDashed: '#C9C5DA', // slot_dashed 扩展行虚线
   locked: '#B9B4CC',
   text: '#2A2E43', // text_primary 深藏青（v1.2 #33333D=珠色10 作废，避免与炭黑珠混）
   textDim: '#6E7288', // text_secondary：28px 白底标签 4.74:1 达标（F7④ a11y 假绿根治；v1.2 暖 #8B8578≈3.7:1 作废）
-  // F6：textAccent（=珠色3 活力橙）收敛为中性需按 view-model 逐处路由（选中点→accent_blue /
-  // 连击径向光→白 / 结算星→金 / 主按钮·标签→深藏青），语义混杂不可盲改值；view-model.ts 正被
-  // 并发会话热写 ⇒ 本轮不改值，留待 view-model 阶段（台账 T-124 落码影响面已登记）。
-  textAccent: '#F59B23',
+  // F6 路由（view-model 阶段落地）：textAccent（=珠色3 活力橙）已删除——按消费语义
+  // 逐处分流到 accentPrimary（主按钮/角标/连击字，§3.5）/ hintBlue（选中点，环状 ≤8px）/
+  // STAR_GOLD（结算星/缎带，资产色）等；暖橙自此仅存在于珠子本体。
+  accentPrimary: '#2A2E43', // accent_primary（§3.5 中性强调）
+  accentPurple: '#7C6FD9', // accent_purple 设置齿轮（F7②）
+  success: '#3FBF6B', // success（⚠ 珠色4 同值待冻结变更，§3.5 登记不改项）
   danger: '#E8434A', // danger（对齐 art-bible §3.1；v1.2 #E84C3D=珠色5 作废，避免与玫红珠混）
   hintBlue: '#3D7BF5',
   adBadge: '#2A2E43', // ad_badge 深藏青（F6：v1.2 亮黄 #FFCB3D 抢焦点作废；白 ▶ 对比 13.4:1）
@@ -161,6 +174,21 @@ export const BEAD_BEVEL_DARK_MIX = -0.26;
 export const BEAD_BEVEL_LIGHT_MIX = 0.2;
 /** L3b rim 光混色（v1.3 新增：上内缘单线 `mix(base,#FFF,0.38)`）。 */
 export const BEAD_RIM_MIX = 0.38;
+
+// ───────────── container plate + glow band / background layers (§1.7/§1.8，F2/F3/F8) ──
+//
+// v1.3 丙案三组叠层的墨色（几何/α 在 `config/tuning`）。仅 `palette.ts` 持 hex
+//（control-manifest §3）；都走**叠层递减 α**，禁止实涂（§1.7/§1.8 头注）。
+
+/** 暖光 band 墨色（glow_warm `#FFF3E2`，仅拼图容器外缘，§3.5 暖光纪律）。 */
+export const GLOW_WARM_HEX = '#FFF3E2';
+/** 背景冷沉层（bg_depth `#E3E0EE`，全屏 α0.04，仅冷色，F8）。 */
+export const BG_DEPTH_HEX = '#E3E0EE';
+/** 背景中心提亮（bg_lift `#F4F2FA`，与 bg_base ΔL ≤4%，F8）。 */
+export const BG_LIFT_HEX = '#F4F2FA';
+/** 结算星/缎带金（资产色判例：v1.3 §3.1 无金 token，按 `POWERUP_INK_STAR` 同判例固定；
+ *  珠色2 柠黄同值但**语义不同源**——结算场景珠面不在场，无 §3.5 冲突）。 */
+export const STAR_GOLD = '#FFD23F';
 
 // ─────────────────────────── empty-socket target-colour hint (assets-spec §1.2 E1/E4) ──
 //

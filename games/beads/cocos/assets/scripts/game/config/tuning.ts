@@ -651,3 +651,45 @@ export function validatedSprintTime(value: number | undefined): number {
   }
   return value;
 }
+
+// ───── v1.3 丙案几何/α 常量（assets-spec §1.7/§1.8 + art-bible §6；F2/F3/F7/F8）──
+//
+// 与 WRONG_* 判例同族：**反馈/呈现层参数**，不进 systems-index §3。墨色在 view/palette
+//（GLOW_WARM_HEX 等，control-manifest §3：hex 只住 palette）。
+
+// §1.7 拼图容器板 + 暖光 band（F2/F3）。
+/** 容器板每边外扩（px）：plate = grid 外扩 2×8。 */
+export const PLATE_OUTSET = 8;
+/** 容器板圆角（art-bible §6 圆角规范「拼图容器板 20」）。 */
+export const PLATE_RADIUS = 20;
+/** B4 板投影偏移 (0,−3) / α 0.10（墨复用 BEAD_SHADOW_HEX）。 */
+export const PLATE_SHADOW_DY = 3;
+export const PLATE_SHADOW_ALPHA = 0.1;
+/** 暖光 band：三环 α 由外向内递增（贴板缘累计 ≈0.15，极淡不抢珠焦点）。 */
+export const GLOW_BAND_ALPHAS: readonly [number, number, number] = [0.04, 0.05, 0.06];
+/** bandOut 上限（§1.7 clamp：不越带、不越屏）。 */
+export const GLOW_BAND_OUT_MAX = 18;
+/** band 环圆角增量系数（环圆角 = 板圆角 + 外扩量×0.6，art-bible §6）。 */
+export const GLOW_BAND_RADIUS_SCALE = 0.6;
+/** B6 完成贴纸：板体外扩白描边宽度 / 投影 α（clear 面板可见时叠于板体）。 */
+export const PLATE_STICKER_OUTSET = 6;
+
+// §1.8 背景层次（F8）：全屏冷沉 + 中心两档提亮（ΔL ≤4%，禁止暖色入背景）。
+export const BG_DEPTH_ALPHA = 0.04;
+export const BG_LIFT_RECT = { w: 645, h: 830, radius: 48, alpha: 0.35 } as const;
+export const BG_CORE_RECT = { w: 470, h: 620, radius: 40, alpha: 0.3 } as const;
+
+// art-bible §6 HUD：倒计时白胶囊（F7①）+ 设置 8 齿齿轮（F7②）。
+export const TIMER_CAPSULE = { w: 220, h: 64, radius: 32 } as const;
+/** 胶囊投影偏移 (0,−2) / α 0.10。 */
+export const TIMER_CAPSULE_SHADOW_DY = 2;
+export const TIMER_CAPSULE_SHADOW_ALPHA = 0.1;
+/** 时钟图标外径（环 Ø36 3px，针同色）。 */
+export const CLOCK_ICON_DIA = 36;
+/** 齿轮：Ø48 = hub r13 + 8 齿线 r13→r21 线宽 6 + 中心孔 r5（F7②）。 */
+export const GEAR_TEETH = 8;
+export const GEAR_HUB_R = 13;
+export const GEAR_TEETH_R0 = 13;
+export const GEAR_TEETH_R1 = 21;
+export const GEAR_TEETH_W = 6;
+export const GEAR_HOLE_R = 5;

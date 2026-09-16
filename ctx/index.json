@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2389,
       "lines": 97,
-      "sha256": "2ec4f18e298790c0ae3f5b8515a87147c6cf0e7f5e069a222ef45deb4df3ebb6",
+      "sha256": "f8fe6343a88d2d11dad7927f177080a7085ec05741981c954c85d8bdf4d67d2e",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3770,
       "lines": 82,
-      "sha256": "44cc926127df1eaca369347740ba059e9ab266f9b01c4c5dcc0c911437d73159",
+      "sha256": "b619c0f1701a6a27e7b026280278ab608001283ec93ddc81390ecffc1d7b2ffb",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 96 行 / 4657 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 96 行 / 4662 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -768,7 +768,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 561 行 / 36457 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 561 行 / 36558 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
@@ -43726,9 +43726,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 36457,
+      "tokens": 36558,
       "lines": 561,
-      "sha256": "6c80493e6951ebb11d977912467bf7049ead24ec8adc0287bae28d872abb4550",
+      "sha256": "e9b4f7270971ca58676efd7c7331dbdd78893870e57f6b2059d8a2dd0187e881",
       "tier": "normal",
       "sections": [
         {
@@ -43736,7 +43736,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 562,
-          "tokens": 36441,
+          "tokens": 36541,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -44280,7 +44280,7 @@
           "level": 2,
           "startLine": 540,
           "endLine": 551,
-          "tokens": 597,
+          "tokens": 697,
           "summary": "beads 美术 v1.3「丙案·双色温对撞」风格单（三件套 + 落码） · 负责：林绘澄(art) + 主理人(Qod",
           "keywords": [
             "WXG",
@@ -44307,9 +44307,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4657,
+      "tokens": 4662,
       "lines": 96,
-      "sha256": "54873a7ba293890f690598d6637a2831da1454a05a4017394444c0c2152faef0",
+      "sha256": "44517f104e8611cc5ede4c5a6ced07167b26e8f275188aab602c999e006cb86c",
       "tier": "hot",
       "sections": [
         {
@@ -44317,7 +44317,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 97,
-          "tokens": 4648,
+          "tokens": 4653,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

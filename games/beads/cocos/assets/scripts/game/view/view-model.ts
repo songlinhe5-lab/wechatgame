@@ -33,6 +33,7 @@ import {
   POWERUP_TYPES,
   powerupCardRects,
   powerupLabelY,
+  PUZZLE_BAND,
   TRAY_COLS,
   TRAY_SLOT,
   AD_HINT_TEXT_Y,
@@ -51,6 +52,27 @@ import {
   HINT_PULSE_MS,
   DANGER_PULSE_MS,
   TRAY_FULL_PULSE_MS,
+  BG_CORE_RECT,
+  BG_DEPTH_ALPHA,
+  BG_LIFT_RECT,
+  CLOCK_ICON_DIA,
+  GEAR_HOLE_R,
+  GEAR_HUB_R,
+  GEAR_TEETH,
+  GEAR_TEETH_R0,
+  GEAR_TEETH_R1,
+  GEAR_TEETH_W,
+  GLOW_BAND_ALPHAS,
+  GLOW_BAND_OUT_MAX,
+  GLOW_BAND_RADIUS_SCALE,
+  PLATE_OUTSET,
+  PLATE_RADIUS,
+  PLATE_SHADOW_ALPHA,
+  PLATE_SHADOW_DY,
+  PLATE_STICKER_OUTSET,
+  TIMER_CAPSULE,
+  TIMER_CAPSULE_SHADOW_ALPHA,
+  TIMER_CAPSULE_SHADOW_DY,
 } from '../config/tuning';
 import type { BeadsSnapshot } from '../game/state';
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel';
@@ -64,9 +86,13 @@ import {
   drawStateRing,
 } from './bead-render';
 import {
+  BEAD_HIGHLIGHT_HEX,
   BEAD_SHADOW_HEX,
+  BG_DEPTH_HEX,
+  BG_LIFT_HEX,
   EXPAND_BTN_INK,
   EXPAND_BTN_TEXT,
+  GLOW_WARM_HEX,
   POWERUP_BADGE_GLYPH,
   POWERUP_INK_CAP,
   POWERUP_INK_MAGNET,
@@ -74,6 +100,7 @@ import {
   POWERUP_INK_STRAW,
   POWERUP_INK_WAND,
   POWERUP_SHADOW_ALPHA,
+  STAR_GOLD,
   withAlpha,
   type BeadsPalette,
 } from './palette';
@@ -97,7 +124,8 @@ import { comboBurst, comboParticleOffsets } from './combo-vfx';
 const FONT = {
   timer: 'bold 44px sans-serif',
   hud: 'bold 30px sans-serif',
-  hudSmall: '22px sans-serif',
+  // F7⑤：最小字号 28px——HUD 模式/分数小字 22px 作废（art-bible §6）。
+  hudSmall: '28px sans-serif',
   banner: 'bold 62px sans-serif',
   sub: '28px sans-serif',
   panelTitle: 'bold 40px sans-serif',
@@ -112,7 +140,7 @@ const FONT = {
  */
 function bodyFont(snap: BeadsSnapshot, name: 'sub' | 'hudSmall'): string {
   if (!snap.largeText) return FONT[name];
-  return name === 'sub' ? '35px sans-serif' : '27px sans-serif';
+  return name === 'sub' ? '35px sans-serif' : '35px sans-serif'; // 28 × 1.25（F7⑤ 后两档同基准）
 }
 
 /** Panel button copy — sprint swaps one label (pause-settings §2.2, P1). */
@@ -144,7 +172,9 @@ export function buildBeadsView(
   palette: BeadsPalette,
 ): void {
   builder.setBackground(palette.background);
+  drawBackgroundLayers(builder); // F8：冷沉 + 中心提亮（§1.8，珠/HUD 之下）
   drawHud(builder, snap, palette);
+  drawPuzzlePlate(builder, snap, palette); // F2/F3：容器板 + 暖光 band（§1.7）
   drawGrid(builder, snap, palette);
   drawTray(builder, snap, palette);
   drawExpandButton(builder, snap, palette);
@@ -214,9 +244,10 @@ function drawPausePanel(
     // the plate without touching the frozen panel geometry (§8-5).
     const toggle =
       button.id === 'toggle-reduce-motion' || button.id === 'toggle-large-text';
+    // F6：主按钮 → accent_primary（§3.5 中性强调；白字对比 12.6:1）。
     builder.rect(bx, by, bw, bh, {
-      fill: primary ? palette.textAccent : palette.slot,
-      stroke: primary ? palette.textAccent : palette.slotBorder,
+      fill: primary ? palette.accentPrimary : palette.slot,
+      stroke: primary ? palette.accentPrimary : palette.slotBorder,
       lineWidth: 2,
       radius: 14,
     });
@@ -271,14 +302,14 @@ function drawSprintSettle(
   if (snap.isNewBest) {
     const badge = layout.badge;
     builder.rect(badge.xMin, badge.yMin, badge.xMax - badge.xMin, badge.yMax - badge.yMin, {
-      fill: palette.textAccent,
+      fill: palette.accentPrimary, // F6：NEW BEST 角标 → accent_primary（§3.5）。
       radius: 8,
     });
     builder.text(
       (badge.xMin + badge.xMax) / 2,
       (badge.yMin + badge.yMax) / 2,
       SPRINT_SETTLE_NEW_BEST,
-      { fill: palette.text, font: bodyFont(snap, 'hudSmall'), align: 'center', baseline: 'middle' },
+      { fill: palette.panel, font: bodyFont(snap, 'hudSmall'), align: 'center', baseline: 'middle' },
     );
   }
 
@@ -310,8 +341,8 @@ function drawSprintSettle(
     const bh = button.rect.yMax - button.rect.yMin;
     const primary = button.id === 'again';
     builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-      fill: primary ? palette.textAccent : palette.panel,
-      stroke: primary ? palette.textAccent : palette.slotBorder,
+      fill: primary ? palette.accentPrimary : palette.panel, // F6：主钮 → accent_primary。
+      stroke: primary ? palette.accentPrimary : palette.slotBorder,
       lineWidth: 1,
       radius: 20,
     });
@@ -320,7 +351,7 @@ function drawSprintSettle(
       button.rect.yMin + bh / 2,
       sprintSettleLabel(button.id),
       {
-        fill: primary ? palette.text : palette.textDim,
+        fill: primary ? palette.panel : palette.textDim, // F6：主钮白字（深藏青底）。
         font: FONT.panelButton,
         align: 'center',
         baseline: 'middle',
@@ -371,8 +402,8 @@ function drawFailPanel(
     const primary = button.id === 'revive';
     const dimmed = primary && snap.watchingAd;
     builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-      fill: primary ? palette.textAccent : palette.slot,
-      stroke: primary ? palette.textAccent : palette.slotBorder,
+      fill: primary ? palette.accentPrimary : palette.slot, // F6：主钮 → accent_primary。
+      stroke: primary ? palette.accentPrimary : palette.slotBorder,
       lineWidth: 2,
       radius: 14,
     });
@@ -453,6 +484,83 @@ function trayFullAlpha(clock: number, reduce: boolean): number {
   return reduce ? 1 : breathe(clock, TRAY_FULL_PULSE_MS, 0.6, 1);
 }
 
+/**
+ * F8 背景层次（§1.8）：全屏冷沉 + 屏心两档提亮。全部冷色、ΔL ≤4%、极低对比
+ *（≈1.03–1.06:1）——只给冷紫灰底「有空气」的层次感，不抢珠子焦点（铁律 1）。
+ * 仅在背景之上、其余一切之下（buildBeadsView 首位）。
+ */
+function drawBackgroundLayers(builder: RenderModelBuilder): void {
+  // G2 冷沉层：全屏极淡压暗，破除「纯色无层次」。
+  builder.rect(0, 0, DESIGN_W, DESIGN_H, { fill: withAlpha(BG_DEPTH_HEX, BG_DEPTH_ALPHA) });
+  // G3/G4 中心提亮：两档同心圆角矩形叠层（外广内聚）。
+  builder.rect((DESIGN_W - BG_LIFT_RECT.w) / 2, (DESIGN_H - BG_LIFT_RECT.h) / 2, BG_LIFT_RECT.w, BG_LIFT_RECT.h, {
+    fill: withAlpha(BG_LIFT_HEX, BG_LIFT_RECT.alpha),
+    radius: BG_LIFT_RECT.radius,
+  });
+  builder.rect((DESIGN_W - BG_CORE_RECT.w) / 2, (DESIGN_H - BG_CORE_RECT.h) / 2, BG_CORE_RECT.w, BG_CORE_RECT.h, {
+    fill: withAlpha(BG_LIFT_HEX, BG_CORE_RECT.alpha),
+    radius: BG_CORE_RECT.radius,
+  });
+}
+
+/**
+ * F2/F3 拼图容器板 + 暖光 band（§1.7）：B1–B3 同心暖晕（由外向内 α 0.04→0.06）
+ * + B4 板投影 + B5 白板体。**全程态常驻**（含全空开局/中途态）——「中途态拼图无
+ * 承载板」由本通道根治；暖晕只允许出现在拼图容器外缘（§3.5 暖光纪律）。
+ *
+ * 几何自快照派生（与 drawGrid 同源同帧）：bandOut = max(0, min(18, availV, availH))
+ * clamp 不越 `PUZZLE_BAND`、不越屏；bandOut=0（近满带图案）时三环宽 0 不绘制。
+ */
+function drawPuzzlePlate(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  const gridW = (snap.gridCols - 1) * BEAD_PITCH + BEAD_CELL;
+  const gridH = (snap.gridRows - 1) * BEAD_PITCH + BEAD_CELL;
+  const cx = snap.gridLeft + gridW / 2;
+  const cy = snap.gridTop - gridH / 2; // y 轴向上，gridTop 是顶
+
+  // B1–B3 暖光 band：由外向内三环，α 单调递增（roundRect 叠层模拟伪径向光）。
+  const plateW = gridW + PLATE_OUTSET * 2;
+  const plateH = gridH + PLATE_OUTSET * 2;
+  const availV = (PUZZLE_BAND.yMax - PUZZLE_BAND.yMin - plateH) / 2;
+  const availH = (DESIGN_W - plateW) / 2 - 6;
+  const bandOut = Math.max(0, Math.min(GLOW_BAND_OUT_MAX, availV, availH));
+  for (let i = 0; i < GLOW_BAND_ALPHAS.length; i++) {
+    const e = (bandOut * (GLOW_BAND_ALPHAS.length - i)) / GLOW_BAND_ALPHAS.length;
+    if (e <= 0) continue;
+    builder.rect(cx - plateW / 2 - e, cy - plateH / 2 - e, plateW + e * 2, plateH + e * 2, {
+      fill: withAlpha(GLOW_WARM_HEX, GLOW_BAND_ALPHAS[i]!),
+      radius: PLATE_RADIUS + e * GLOW_BAND_RADIUS_SCALE,
+    });
+  }
+
+  // B4 板投影（墨复用 BEAD_SHADOW_HEX，无模糊 ⇒ 偏移圆角矩形近似）。
+  builder.rect(cx - plateW / 2, cy - plateH / 2 - PLATE_SHADOW_DY, plateW, plateH, {
+    fill: withAlpha(BEAD_SHADOW_HEX, PLATE_SHADOW_ALPHA),
+    radius: PLATE_RADIUS,
+  });
+  // B5 板体：白板 + 1px panel_border（面板同族 token，板感语言统一）。
+  builder.rect(cx - plateW / 2, cy - plateH / 2, plateW, plateH, {
+    fill: palette.panel,
+    stroke: palette.panelBorder,
+    lineWidth: 1,
+    radius: PLATE_RADIUS,
+  });
+
+  // B6 完成贴纸：clear 面板可见时板体外扩白描边 + α0.10 投影（v1.2 贴纸感，叠于板体上、珠下）。
+  if (snap.clearPanelVisible) {
+    builder.rect(
+      cx - plateW / 2 - PLATE_STICKER_OUTSET,
+      cy - plateH / 2 - PLATE_STICKER_OUTSET,
+      plateW + PLATE_STICKER_OUTSET * 2,
+      plateH + PLATE_STICKER_OUTSET * 2,
+      { stroke: palette.panel, lineWidth: PLATE_STICKER_OUTSET, radius: PLATE_RADIUS + PLATE_STICKER_OUTSET },
+    );
+  }
+}
+
 function drawHud(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
@@ -460,20 +568,33 @@ function drawHud(
 ): void {
   const midY = (HUD_BAND.yMin + HUD_BAND.yMax) / 2;
 
-  // GAP-10 倒计时告急三通道（§3.8「图标+颜色+脉冲」）：色已由 urgent→danger，
-  // 此处补上时钟图标（平时湖蓝、告急切 danger）与告急时的 α 脉冲。
+  // F7① 倒计时白胶囊（220×64 圆角 32，panel_surface + 1px panel_border + 投影 α0.10）。
+  const capLeft = DESIGN_W / 2 - TIMER_CAPSULE.w / 2;
+  const capBottom = midY - TIMER_CAPSULE.h / 2;
+  builder.rect(capLeft, capBottom - TIMER_CAPSULE_SHADOW_DY, TIMER_CAPSULE.w, TIMER_CAPSULE.h, {
+    fill: withAlpha(BEAD_SHADOW_HEX, TIMER_CAPSULE_SHADOW_ALPHA),
+    radius: TIMER_CAPSULE.radius,
+  });
+  builder.rect(capLeft, capBottom, TIMER_CAPSULE.w, TIMER_CAPSULE.h, {
+    fill: palette.panel,
+    stroke: palette.panelBorder,
+    lineWidth: 1,
+    radius: TIMER_CAPSULE.radius,
+  });
+
+  // GAP-10 倒计时告急三通道（§3.8「图标+颜色+脉冲」）：色由 accent_blue→danger，
+  // 补 α 脉冲；F7① 后时钟图标住胶囊内（环/针 accent_blue 3px，Ø36）。
   const a = snap.urgent ? dangerAlpha(snap.pulseClock, snap.reduceMotion) : 1;
   const timerColor = snap.urgent ? palette.danger : palette.text;
-
-  // Clock icon (left of the number): circle outline + two hands.
-  const iconColor = snap.urgent ? palette.danger : palette.textDim;
-  const icx = DESIGN_W / 2 - 96;
+  const iconColor = snap.urgent ? palette.danger : palette.hintBlue;
+  const icx = DESIGN_W / 2 - TIMER_CAPSULE.w / 2 + 48;
   const iconStroke = withAlpha(iconColor, a);
-  builder.circle(icx, midY, 14, { stroke: iconStroke, lineWidth: 3 });
-  builder.line(icx, midY, icx, midY + 8, iconStroke, 3); // 分针
-  builder.line(icx, midY, icx + 6, midY, iconStroke, 3); // 时针
+  const iconR = CLOCK_ICON_DIA / 2;
+  builder.circle(icx, midY, iconR, { stroke: iconStroke, lineWidth: 3 });
+  builder.line(icx, midY, icx, midY + iconR * 0.55, iconStroke, 3); // 分针
+  builder.line(icx, midY, icx + iconR * 0.45, midY, iconStroke, 3); // 时针
 
-  builder.text(DESIGN_W / 2, midY, formatTime(snap.remaining), {
+  builder.text(DESIGN_W / 2 + 14, midY, formatTime(snap.remaining), {
     fill: timerColor,
     font: FONT.timer,
     align: 'center',
@@ -481,15 +602,16 @@ function drawHud(
     alpha: a,
   });
 
-  // Pause gear (left): a circle + notches; hit area handled by the game (S2).
-  builder.circle(60, midY, 26, { fill: palette.panel, stroke: palette.textDim, lineWidth: 3 });
-  builder.circle(60, midY, 8, { fill: palette.textDim });
+  // F7② 设置齿轮（左）：accent_purple 8 齿 Ø48（hub r13 + 齿线 r13→r21 w6 +
+  // 中心孔 r5 填 panel_surface）；v1.2「circle+中心点」作废。热区 88×88 归 game（S2）。
+  drawGear(builder, 60, midY, palette);
 
-  // Mode / stage label (small, dim, right-aligned before the capsule zone).
+  // Mode / stage label（F7⑤：最小字号 28px；冷底小字用 text_primary，§3.1 行 58
+  // 「text_secondary 冷底禁用」）。右对齐，胶囊避让区之前。
   const label =
     snap.mode === 'sprint' ? `STAGE ${snap.stageIndex + 1}` : `LV ${snap.levelIndex + 1}/${snap.levelCount}`;
   builder.text(DESIGN_W - 220, midY, label, {
-    fill: palette.textDim,
+    fill: palette.text,
     font: bodyFont(snap, 'hudSmall'),
     align: 'right',
     baseline: 'middle',
@@ -506,13 +628,25 @@ function drawHud(
     });
     if (snap.streak >= 2) {
       builder.text(DESIGN_W / 2, midY - 52, `×${snap.multiplier}  COMBO ${snap.streak}`, {
-        fill: palette.textAccent,
+        fill: palette.accentPrimary, // F6：连击倍率字 → 中性强调（§3.5）
         font: FONT.hud,
         align: 'center',
         baseline: 'middle',
       });
     }
   }
+}
+
+/** F7② 8 齿齿轮（accent_purple，Ø48）：hub + 均匀齿线 + 中心孔（程序化，零资产）。 */
+function drawGear(builder: RenderModelBuilder, cx: number, cy: number, palette: BeadsPalette): void {
+  for (let i = 0; i < GEAR_TEETH; i++) {
+    const deg = ((i * 360) / GEAR_TEETH + 22.5) * (Math.PI / 180); // 半齿偏移避免针朝正上
+    const cos = Math.cos(deg);
+    const sin = Math.sin(deg);
+    builder.line(cx + GEAR_TEETH_R0 * cos, cy + GEAR_TEETH_R0 * sin, cx + GEAR_TEETH_R1 * cos, cy + GEAR_TEETH_R1 * sin, palette.accentPurple, GEAR_TEETH_W);
+  }
+  builder.circle(cx, cy, GEAR_HUB_R, { fill: palette.accentPurple });
+  builder.circle(cx, cy, GEAR_HOLE_R, { fill: palette.panel });
 }
 
 function formatTime(seconds: number): string {
@@ -633,7 +767,8 @@ function drawTray(
       ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),
     });
     if (selected) {
-      builder.circle(cx, slotBottom - 8, 4, { fill: palette.textAccent });
+      // F6：选中点 → accent_blue（§3.5 环状提示 ≤8px 圆点；暖橙仅存珠子本体）。
+      builder.circle(cx, slotBottom - 8, 4, { fill: palette.hintBlue });
     }
     // GAP-03 引导：首珠所在槽外描边脉冲呼吸（与目标格 `hint` 同周期、同色）。
     if (snap.onboarding && idx === snap.guideSlot) {
@@ -782,7 +917,7 @@ function drawClearPanel(
   // 金色缎带横幅 + 标题（ux-spec §3.4 首行）。
   const ribbonH = 84;
   builder.rect(plate.xMin + PANEL_PADDING, layout.titleY - ribbonH / 2, w - PANEL_PADDING * 2, ribbonH, {
-    fill: withAlpha(palette.textAccent, 0.22),
+    fill: withAlpha(STAR_GOLD, 0.22), // F6：缎带金 → STAR_GOLD（资产色，暖橙让位）。
     radius: 16,
   });
   builder.text(DESIGN_W / 2, layout.titleY, CLEAR_PANEL_TITLE, {
@@ -800,7 +935,7 @@ function drawClearPanel(
       i === snap.clearStarsShown - 1 && !snap.reduceMotion ? snap.clearStarPopScale : 1;
     if (scale <= 0) continue;
     builder.polygon(starPoints(layout.starX[i]!, layout.starsY, starR * scale, 5, 90), {
-      fill: palette.textAccent,
+      fill: STAR_GOLD, // F6：完成星 → STAR_GOLD（结算场景珠面不在场，无 §3.5 冲突）。
     });
   }
 
@@ -812,14 +947,15 @@ function drawClearPanel(
     { fill: palette.textDim, font: bodyFont(snap, 'sub'), align: 'center', baseline: 'middle' },
   );
 
-  // 主/副双钮：主钮金底深字（对比度 ≈8:1），副钮白底深字；文案归 `clear-panel.ts`。
+  // 主/副双钮：主钮 accent_primary 白字（F6：金底作废，§3.5 中性强调），副钮白底深字；
+  // 文案归 `clear-panel.ts`。
   for (const button of layout.buttons) {
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;
     const primary = button.id === 'next';
     builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-      fill: primary ? palette.textAccent : palette.panel,
-      stroke: primary ? palette.textAccent : palette.slotBorder,
+      fill: primary ? palette.accentPrimary : palette.panel,
+      stroke: primary ? palette.accentPrimary : palette.slotBorder,
       lineWidth: 1,
       radius: 20,
     });
@@ -828,7 +964,7 @@ function drawClearPanel(
       button.rect.yMin + bh / 2,
       clearPanelLabel(button.id, snap.clearLastLevel),
       {
-        fill: palette.text,
+        fill: primary ? palette.panel : palette.text, // F6：主钮白字（深藏青底）。
         font: FONT.panelButton,
         align: 'center',
         baseline: 'middle',
@@ -860,7 +996,7 @@ function drawComboVfx(
     const cy = snap.gridTop - BEAD_CELL / 2 - BEAD_PITCH * snap.comboVfxRow;
     for (const { x, y } of comboParticleOffsets(p)) {
       builder.circle(cx + x, cy + y, 3 + BEAD_CELL * 0.1 * (1 - p), {
-        fill: withAlpha(palette.textAccent, 1 - p),
+        fill: withAlpha(BEAD_HIGHLIGHT_HEX, 1 - p), // F6：连击光 → 白（§3.5 暖橙仅珠子本体）。
       });
     }
     return;
@@ -869,8 +1005,8 @@ function drawComboVfx(
   if (snap.comboVfxKind === 'burst') {
     const { radial, wave } = comboBurst(p);
     // 边缘径向光：四边各一条随 radial 亮起的色条（程序化，零外部资产）。
-    builder.rect(0, 0, DESIGN_W, 12, { fill: withAlpha(palette.textAccent, 0.55 * radial) });
-    builder.rect(0, DESIGN_H - 12, DESIGN_W, 12, { fill: withAlpha(palette.textAccent, 0.55 * radial) });
+    builder.rect(0, 0, DESIGN_W, 12, { fill: withAlpha(BEAD_HIGHLIGHT_HEX, 0.55 * radial) });
+    builder.rect(0, DESIGN_H - 12, DESIGN_W, 12, { fill: withAlpha(BEAD_HIGHLIGHT_HEX, 0.55 * radial) });
     builder.rect(0, 0, 12, DESIGN_H, { fill: withAlpha(palette.adBadge, 0.5 * radial) });
     builder.rect(DESIGN_W - 12, 0, 12, DESIGN_H, { fill: withAlpha(palette.adBadge, 0.5 * radial) });
     // 珠面波浪：一条自下而上扫过的浅色带（相位 = wave）。
@@ -910,7 +1046,7 @@ function drawFinishPanel(
   builder.rect(0, 0, DESIGN_W, DESIGN_H, {
     fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
   });
-  const bands = [palette.textAccent, palette.adBadge, palette.textAccent];
+  const bands = [palette.accentPrimary, palette.adBadge, palette.accentPrimary]; // F6：暖橙→中性强调。
   for (let i = 0; i < bands.length; i++) {
     builder.rect((i * DESIGN_W) / 3, DESIGN_H - 14, DESIGN_W / 3, 14, { fill: bands[i]! });
   }
@@ -927,7 +1063,7 @@ function drawFinishPanel(
     DESIGN_W / 2,
     layout.totalY,
     `共 ${total} / ${levelCount * FINISH_MAX_STARS_PER_LEVEL} ★`,
-    { fill: palette.textAccent, font: bodyFont(snap, 'sub'), align: 'center', baseline: 'middle' },
+    { fill: STAR_GOLD, font: bodyFont(snap, 'sub'), align: 'center', baseline: 'middle' }, // F6：星数金。
   );
 
   // 星级总览：逐关入场（`finishRowsShown`），最新一行按弹跳缩放；未得的星画暗色。
@@ -953,7 +1089,7 @@ function drawFinishPanel(
     const r = (FINISH_STAR_SIZE / 2) * 0.92 * scale;
     for (let k = 0; k < 3; k++) {
       builder.polygon(starPoints(row.starX[k]!, row.y, r, 5, 90), {
-        fill: k < stars ? palette.textAccent : withAlpha(palette.slotBorder, 0.45),
+        fill: k < stars ? STAR_GOLD : withAlpha(palette.slotBorder, 0.45), // F6：结算星金。
       });
     }
   }
@@ -965,8 +1101,8 @@ function drawFinishPanel(
     const bh = button.rect.yMax - button.rect.yMin;
     const primary = button.id === 'replay';
     builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-      fill: primary ? palette.textAccent : palette.panel,
-      stroke: primary ? palette.textAccent : palette.slotBorder,
+      fill: primary ? palette.accentPrimary : palette.panel, // F6：主钮 → accent_primary。
+      stroke: primary ? palette.accentPrimary : palette.slotBorder,
       lineWidth: 1,
       radius: 20,
     });
@@ -975,7 +1111,7 @@ function drawFinishPanel(
       button.rect.yMin + bh / 2,
       finishPanelLabel(button.id),
       {
-        fill: primary ? palette.text : palette.textDim,
+        fill: primary ? palette.panel : palette.textDim, // F6：主钮白字（深藏青底）。
         font: FONT.panelButton,
         align: 'center',
         baseline: 'middle',

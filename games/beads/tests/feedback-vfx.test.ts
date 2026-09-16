@@ -401,8 +401,9 @@ describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
         const modeLabel = (snap: BeadsSnapshot) =>
             textWith(renderSnap(snap), (t) => t.text.startsWith('LV'));
 
-        expect(modeLabel({ ...base, largeText: false })!.font).toBe('22px sans-serif');
-        expect(modeLabel({ ...base, largeText: true })!.font).toBe('27px sans-serif');
+        // F7⑤（v1.3）：HUD 小字最小 28px（22px 作废，art-bible §6 / a11y E1 floor）。
+        expect(modeLabel({ ...base, largeText: false })!.font).toBe('28px sans-serif');
+        expect(modeLabel({ ...base, largeText: true })!.font).toBe('35px sans-serif'); // 28 × 1.25
 
         // 倒计时数字（正文以外）在开关下字号不变。
         const timer = (snap: BeadsSnapshot) =>
