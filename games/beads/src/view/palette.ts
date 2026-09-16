@@ -169,14 +169,16 @@ export const BEAD_RIM_MIX = 0.38;
 
 /**
  * E1 目标色底混合权重：`mixWith(slot_fill, beadColor(colorIdx), EMPTY_TINT_MIX)` —
- * 目标色占 35% 混入中性槽底色，产柔和粉彩（色盲冗余通道之一）。§3.8 冻结常量。
+ * 目标色占 42% 混入中性槽底色，产柔和粉彩（色盲冗余通道之一）。§3.8 冻结常量
+ * （v1.21 由 0.35 上调，WXG-T-125 F5：真机偏淡削弱「同色入格」首道解锁，用户拍板甲）。
  */
-export const EMPTY_TINT_MIX = 0.35;
+export const EMPTY_TINT_MIX = 0.42;
 /**
- * E4 幽灵符号不透明度：与 L5 同矢量 path、缩至 ≈BEAD×0.32、α 0.20 → 未填态
- * 即可对照符号找匹配槽。§3.8 冻结常量。
+ * E4 幽灵符号不透明度：与 L5 同矢量 path、缩至 ≈BEAD×0.32、α 0.32 → 未填态
+ * 即可对照符号找匹配槽。§3.8 冻结常量
+ * （v1.21 由 0.20 上调，WXG-T-125 F5：真机几乎不可读，用户拍板甲）。
  */
-export const EMPTY_GHOST_ALPHA = 0.20;
+export const EMPTY_GHOST_ALPHA = 0.32;
 
 // ──────────────────────────────────────────────── symbol ink (assets-spec L5) ──
 /** Ink used on a bright bead: `mix(base, #000, 0.55)` → the mix amount. */

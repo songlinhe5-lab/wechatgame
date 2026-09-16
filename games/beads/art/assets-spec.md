@@ -76,13 +76,13 @@ L5 符号    居中，尺寸 BEAD×0.40，线宽 ≥ 2px
 | 状态 | 绘制差异（其余同 §1.1） |
 |---|---|
 | `filled` 已填 | 完整 6 层 |
-| `empty` 空位（**含目标色底**） | 分层绘制（无 L0 投影 / L2–L4 倒角高光 / L5 满符号 → 不可误读为已填珠）：<br>**E1 目标色底** `mixWith(slot_fill, beadColor(colorIdx), EMPTY_TINT_MIX=0.35)` — 目标色占 35% 权重混入中性槽底色，产出柔和粉彩色调；<br>**E2 描边** `slot_border #D8D5E6` 1px（保持凹陷边界）；<br>**E3 内上阴影** 上缘内侧 3px `#E4E1F0` 条（凹陷感不变）；<br>**E4 幽灵符号** 居中，尺寸 BEAD×0.32，ink = `beadColor(colorIdx)` @ α `EMPTY_GHOST_ALPHA=0.20`；与 L5 相同矢量 path 但缩小 80%、低不透明度 → 色盲冗余通道 + 解决奶白近白问题。<br>**设计意图**：「an unfilled cell must not read as a bead」——无高光条 / 无倒角 / 无投影 / 符号极淡 → 形态语言=「凹陷待填槽」而非「凸起已填珠」。<br>**与 `hint` 叠加**：hint 态 = 本 empty 全层 + **外描边** `accent_blue #3D7BF5` 2px + 600ms 呼吸（α 0.5↔1.0），外描边覆盖 E2、目标色底与幽灵符号保留可见。
+| `empty` 空位（**含目标色底**） | 分层绘制（无 L0 投影 / L2–L4 倒角高光 / L5 满符号 → 不可误读为已填珠）：<br>**E1 目标色底** `mixWith(slot_fill, beadColor(colorIdx), EMPTY_TINT_MIX=0.42)` — 目标色占 42% 权重混入中性槽底色，产出柔和粉彩色调；<br>**E2 描边** `slot_border #D8D5E6` 1px（保持凹陷边界）；<br>**E3 内上阴影** 上缘内侧 3px `#E4E1F0` 条（凹陷感不变）；<br>**E4 幽灵符号** 居中，尺寸 BEAD×0.32，ink = `beadColor(colorIdx)` @ α `EMPTY_GHOST_ALPHA=0.32`；与 L5 相同矢量 path 但缩小 80%、低不透明度 → 色盲冗余通道 + 解决奶白近白问题。<br>**设计意图**：「an unfilled cell must not read as a bead」——无高光条 / 无倒角 / 无投影 / 符号极淡 → 形态语言=「凹陷待填槽」而非「凸起已填珠」。<br>**与 `hint` 叠加**：hint 态 = 本 empty 全层 + **外描边** `accent_blue #3D7BF5` 2px + 600ms 呼吸（α 0.5↔1.0），外描边覆盖 E2、目标色底与幽灵符号保留可见。
 | `locked` 锁定 | 主体 `palette.locked`（`#B9B4CC`）**平涂**（locked 格 colorIdx=0 无语义基色，无法执行原规格 `mix(base,#B9B4CC,0.60)`，正式追认此偏差）+ 45° X 斜纹（`palette.background` @ α0.9，线宽 2，两条对角线）；**无高光无符号**。非颜色通道由 X 斜纹承担。 |
 | `hint` 提示 | 目标色底 `empty`（E1–E4 全层）+ 外描边 `accent_blue #3D7BF5` 2px + 600ms 呼吸（α 0.5↔1.0）；叠加优先级：外描边 > E2 描边 > E1 色底（毫秒与循环频率以 `ux-spec §5` 为权威（600ms α 0.5↔1.0）；原 `[待 ux-spec 对齐]` 占位经 WXG-T-091 删除） |
 | `wrong` 错误 | 当前珠 + 描边 `danger #E8434A` 2px 闪 2 次（≤2 次/秒）+ 位移 ±3px 抖动 200ms |
 | `selected` 选中 | 完整 6 层 + 整体上移 4px + L0 投影 α 0.15→0.25 + 珠下 6px 处 Ø8 圆点 `accent_blue` |
 
-> `[v1.3·F5]` **冻结常量引用声明**：`EMPTY_TINT_MIX=0.35` / `EMPTY_GHOST_ALPHA=0.20` 真机偏淡由**独立冻结变更单（甲案：0.35→0.42 / 0.20→0.32）**走 §6 冻结变更流程处理；本表 E1/E4 **保持 0.35 / 0.20 不变**，变更单落地后由主理人统一回写，本风格单不擅改。
+> `[v1.3·F5]` **冻结常量引用声明（已闭合，WXG-T-125）**：`EMPTY_TINT_MIX` **0.35→0.42** / `EMPTY_GHOST_ALPHA` **0.20→0.32** 已走 §6 冻结变更流程落地（systems-index v1.21，用户 2026-09-16 拍板甲），本表 E1/E4 已同步回写；此前版本（0.35/0.20）系真机偏淡致「同色入格」首道解锁削弱的历史口径。
 
 ### 1.3 槽位托盘
 

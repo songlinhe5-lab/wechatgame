@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3770,
       "lines": 82,
-      "sha256": "0063e1fe0dfefd8b1dba774dc73c566822552b6beff8c8345b781c90642bdf6e",
+      "sha256": "44cc926127df1eaca369347740ba059e9ab266f9b01c4c5dcc0c911437d73159",
       "tier": "normal",
       "sections": [
         {
@@ -529,7 +529,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 248 行 / 6882 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 248 行 / 6952 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -6677,9 +6677,9 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 6258,
+      "tokens": 6271,
       "lines": 244,
-      "sha256": "13fb67568bd583140eb7b6152debd95d94f19ac67f548af4ff68164f467af89e",
+      "sha256": "36e0c0bac6713f181e32d2b39d455b7a02497aac4a69492e4be1eaddf1abef3e",
       "tier": "normal",
       "sections": [
         {
@@ -6687,7 +6687,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 245,
-          "tokens": 6244,
+          "tokens": 6256,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -6714,7 +6714,7 @@
           "level": 2,
           "startLine": 25,
           "endLine": 176,
-          "tokens": 4354,
+          "tokens": 4367,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -6740,7 +6740,7 @@
           "level": 3,
           "startLine": 74,
           "endLine": 86,
-          "tokens": 702,
+          "tokens": 714,
           "summary": "filled 已填 完整 6 层",
           "keywords": [
             "filled",
@@ -17395,17 +17395,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 4630,
-      "lines": 31,
-      "sha256": "0d04df23368461c0f4e46752095b5448acef25dc698b6967b23f9591c2c06ca8",
+      "tokens": 4907,
+      "lines": 32,
+      "sha256": "84a95942a980737b231ed86ee1a418faa5d2086548b1a85b9d3c91abbb13c1ab",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 32,
-          "tokens": 4612,
+          "endLine": 33,
+          "tokens": 4889,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -17420,8 +17420,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 32,
-          "tokens": 4453,
+          "endLine": 33,
+          "tokens": 4730,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -17433,9 +17433,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 6882,
+      "tokens": 6952,
       "lines": 248,
-      "sha256": "d8649735e8aa99cad91cb7ae2a9a247999b96e1726fdd52c7d07477b5f387e1e",
+      "sha256": "8703996105318821bf0ad9a41c8ba9d462079f674712c631d183bcfea4c086dd",
       "tier": "hot",
       "sections": [
         {
@@ -17443,8 +17443,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 249,
-          "tokens": 6865,
-          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.20 · 任务号 WXG-T-007（版本号与 system",
+          "tokens": 6935,
+          "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.21 · 任务号 WXG-T-007（版本号与 system",
           "keywords": [
             "Systems",
             "Index",
@@ -17486,7 +17486,7 @@
           "level": 2,
           "startLine": 55,
           "endLine": 210,
-          "tokens": 4885,
+          "tokens": 4955,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -17600,7 +17600,7 @@
           "level": 3,
           "startLine": 151,
           "endLine": 162,
-          "tokens": 402,
+          "tokens": 471,
           "summary": "三重编码 颜色+符号+明度 珠子识别硬要求，见 art/art-bible.md §3.3；S3 校验只认索引、与颜色通",
           "keywords": [
             "§3.3",

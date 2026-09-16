@@ -1,6 +1,6 @@
 # 系统清单与依赖索引（Systems Index）· beads
 
-- 项目：`games/beads`（拼豆填色消除）· 版本 v1.20 · 任务号 WXG-T-007（**版本号与 `systems-index-changelog.md` 末行同步维护**；旧版此行停在 v1.12 系 WXG-T-098 核对时发现的漂移）
+- 项目：`games/beads`（拼豆填色消除）· 版本 v1.21 · 任务号 WXG-T-007（**版本号与 `systems-index-changelog.md` 末行同步维护**；旧版此行停在 v1.12 系 WXG-T-098 核对时发现的漂移）
 - 用途：定义系统边界、依赖顺序、以及**全局数值基线**（所有 GDD 引用此处的常量，避免数值漂移）
 - 数值纪律：本文数值全部依 `design/concept.md` 附录 A 提案定稿；标 `[待确认]` 者未冻结、不得据以实现。
 
@@ -157,8 +157,8 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | 屏震 | 不使用 | 本作气质不需要（沿用 art-bible §7） |
 | 告急表达 | 图标+颜色+脉冲 | 倒计时告急不单靠颜色通道 |
 | 错误反馈 | 抖动+描边闪 ≤2 次/秒 | 对齐 art-bible §3.4 `wrong` 态 |
-| `EMPTY_TINT_MIX` | 0.35 | 空槽 E1 目标色底混合权重：`mixWith(slot_fill, beadColor(colorIdx), 0.35)`——目标色占 35% 混入中性槽底产柔和粉彩（可访问性 A2b 色盲冗余通道；art `assets-spec §1.2` E1，WXG-T-080 裁定，**落码归 T-085**） |
-| `EMPTY_GHOST_ALPHA` | 0.20 | 空槽 E4 幽灵符号不透明度：与 L5 同矢量 path、缩至 BEAD×0.32、α0.20 → 未填态即可对照符号找匹配槽（A2b Basic 层；`assets-spec §1.2` E4，WXG-T-080） |
+| `EMPTY_TINT_MIX` | 0.42 | 空槽 E1 目标色底混合权重：`mixWith(slot_fill, beadColor(colorIdx), 0.42)`——目标色占 42% 混入中性槽底产柔和粉彩（可访问性 A2b 色盲冗余通道；art `assets-spec §1.2` E1，WXG-T-080 裁定，**落码归 T-085**；**v1.21 由 0.35 上调**，真机偏淡削弱「同色入格」首道解锁，WXG-T-125 F5 冻结变更，用户拍板甲） |
+| `EMPTY_GHOST_ALPHA` | 0.32 | 空槽 E4 幽灵符号不透明度：与 L5 同矢量 path、缩至 BEAD×0.32、α0.32 → 未填态即可对照符号找匹配槽（A2b Basic 层；`assets-spec §1.2` E4，WXG-T-080；**v1.21 由 0.20 上调**，真机几乎不可读，WXG-T-125 F5 冻结变更，用户拍板甲） |
 
 ### 3.9 包体预算
 | 常量 | 值 | 说明 |
