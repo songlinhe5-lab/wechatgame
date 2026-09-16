@@ -1,7 +1,10 @@
 # ADR-0011 — 屏幕坐标空间契约 = CSS px，DPR 由 renderer 层承担（`App.start()` 不得覆盖宿主显式 viewport）
 
 - **状态**：Accepted（裁决落码归 **WXG-T-087**，本 ADR 只定契约与验收断言）
-- **日期**：2026-09-14
+- **修订（2026-09-15 · WXG-T-104 阶段 B）**：订正 §1.1 里那句**已被实测推翻**的事实断言（`getLocation()` = 左上原点 CSS px）与 §3(c) 的「输入全程留在 CSS px」半句，并**新增 §3(e)「宿主归一化契约」**。
+  **决策主体未变**——屏幕坐标唯一契约仍是 CSS px（top-left origin），DPR 仍只由 renderer/adapter 承担；被推翻的只是「Cocos 输入源已经交付该契约」这一**事实依据**，违约方是 `readTouch()` 而不是契约本身。
+  论证与取舍见 `production/TASKS-DETAIL.md` → `## WXG-T-104`（B3）。
+- **日期**：2026-09-14（修订 2026-09-15）
 - **维护人**：程基岩
 - **关联**：ADR-0002（框架/引擎解耦）· ADR-0003（空场景代码驱动）· ADR-0009（Cocos MCP）· `docs/architecture/control-manifest.md` L2/L5 · `games/beads/design/gdd/systems-index.md` §3（设计空间 750×1334 / 原点左下 / y 向上 / FIXED_WIDTH）
 - **起因缺口**：GAP-07（harness 点击全不中）· GAP-08（harness 文字垂直镜像）
@@ -18,14 +21,35 @@
 |---|---|
 | `core/input/input-manager.ts` 文件头 | `Coordinates are always *screen* coordinates in CSS pixels; the Viewport converts them to design space.` |
 | `PointerSample.x` JSDoc | `Raw screen-space position in CSS pixels.` |
-| `adapters/cocos/bindings.ts` L204-213 | `RawPointerInput is screen CSS px (top-left origin) and getLocation() already delivers exactly that. Viewport.screenToDesign owns the screen→design conversion (incl. the y flip).` |
+| `adapters/cocos/bindings.ts` L204-213（**2026-09-15 订正：该断言已被实测推翻，注释已就地改写**） | ~~`RawPointerInput is screen CSS px (top-left origin) and getLocation() already delivers exactly that.`~~ |
 
-两个真实平台适配层都遵守它：
+> ⚠️ **2026-09-15 订正（WXG-T-104）**：上表第三行里「`getLocation()` 已经交付左上原点 CSS px」这句话是**假的**，
+> 它曾是本 ADR 的三条依据之一。真实语义（`Cocos 3.8.8 web-mobile` 实测，3 宿主配置 / 7 采样点）：
+>
+> | accessor | 原点 | 量纲 | 相对 |
+> |---|---|---|---|
+> | `getLocation()` / `getStartLocation()` | **左下** | **device px（× dpr）** | 画布 |
+> | `getUILocation()` | 左下 | 设计单位（dpr 无关，但**不减信箱偏移**，引擎按 FIXED_HEIGHT 适配） | 引擎 UI 空间 |
+>
+> `x = (clientX − rect.x) × dpr`、`y = (rect.y + rect.height − clientY) × dpr`，`dpr = screen.devicePixelRatio`
+> （web = `min(window.devicePixelRatio, 2)`；小游戏 = `getWindowInfo().pixelRatio`，无 2 封顶）。
+> 与左上原点假设相差**整屏高度**，不是边缘差。
+>
+> **订正不改变本 ADR 的结论，只改变它的落地方**：契约（CSS px + 左上原点）依然成立，
+> 只是「Cocos 输入源天生满足契约」不成立 —— 必须由 adapter 层归一化（见 §3(e)）。
+> 同一个 DPR 结论反而更强：正因为输入源给的是 device px，才更需要在 adapter 层除回去。
+
+两个真实平台适配层都遵守它（**平台层**的 CSS px 口径未被推翻）：
 
 - `platform/web.ts::getScreenSize()` → `window.innerWidth/innerHeight`（**CSS px**）+ `devicePixelRatio`
 - `platform/weapp.ts::getScreenSize()` → `wx.getWindowInfo().windowWidth/windowHeight`（微信的"逻辑像素"，即 **CSS px**）+ `pixelRatio`
 
-⇒ **契约在平台层是一致的，harness 是唯一的越界者，这不是框架 bug。**
+⇒ **契约在平台层是一致的，这不是平台层的 bug。**
+
+> ⚠️ **2026-09-15 订正**：原文此处接着写"harness 是**唯一**的越界者" —— **"唯一"是错的**。
+> 越界者有两个：harness（已由 T-087 修）与 **Cocos adapter 的输入路径** `readTouch()`
+> （把 device px + 左下原点当成 CSS px + 左上原点，本单阶段 B 修）。
+> 三者口径现在才真正统一：平台层 CSS px、renderer 承担 backing store、adapter 承担输入归一化（§3(e)）。
 
 ### 1.2 但 `App.start()` 的覆盖行为让"越界"变得不可见
 
@@ -88,6 +112,8 @@ harness 的设计意图是**端到端 device px**：`fitCanvas()`（L67-79）把
 - **L2**：core 禁 `cc` / DOM / `wx` ⇒ DPR 不能进 `Viewport`（它属 core）。
 - **L5**：UI/渲染不持有状态 ⇒ DPR 不能作为渲染器的可变状态被游戏层读写。
 - `bindings.ts` 是**真机输入路径**，改坏会污染微信侧 ⇒ 本决策不得要求修改它。
+  （**2026-09-15 注**：该约束对"修 harness"这类**改进**成立，对**已确证的事实缺陷**不成立 ——
+  WXG-T-104 阶段 B 已修改 `bindings.ts` 的输入归一化。代价见 §4.2(8)：修改面在微信侧**无真机可验**。）
 - 取证附带发现（不属本 ADR 主题，另立缺口）：Cocos 构建把 `[...非数组可迭代对象]` 转译为 `[].concat(x)`，导致 beads 在 web-mobile 产物里 BOOT 校验恒失败、冲刺模式硬崩溃。见 `docs/engine-reference/cocos/VERSION.md` §3 **G10**。
 
 ---
@@ -145,7 +171,12 @@ harness 的设计意图是**端到端 device px**：`fitCanvas()`（L67-79）把
 
 当前该字段**被所有调用方丢弃**，这是契约漏洞而不是"无用字段"。裁决：
 
-- **消费者**：`Canvas2DRenderer`（backing store + 变换前置缩放）；Cocos 侧**由引擎自己消费**——实测 `#GameCanvas` CSS `754×456` 而 backing store `1508×912`（DPR=2），同时 `fit.screenWidth/Height` 仍是 `754×456`，即**引擎已经在 backing store 层吃掉了 DPR，viewport 与输入全程留在 CSS px**。这条实测是本裁决 (整条 ADR) 的最强证据。
+- **消费者**：`Canvas2DRenderer`（backing store + 变换前置缩放）；Cocos 侧**由引擎自己消费**——实测 `#GameCanvas` CSS `754×456` 而 backing store `1508×912`（DPR=2），同时 `fit.screenWidth/Height` 仍是 `754×456`，即**引擎已经在 backing store 层吃掉了 DPR，viewport 全程留在 CSS px**。
+  ⚠️ **2026-09-15 订正**：原文此处还写了「**输入**全程留在 CSS px」—— **那一半是错的**。
+  实测 backing store 比 = `786/393 = 2`（与 `screen.devicePixelRatio` 一致），而同一时刻
+  `getLocation()` 返回的是 **device px**（见 §1.1 订正表）。正确的表述是：
+  **backing store 在 device px，viewport 在 CSS px，输入源也在 device px ⇒ 输入必须由 adapter 层 ÷dpr 归一。**
+  这条实测仍是本 ADR 关于**渲染侧分层**的最强证据，但不再能用来推断输入侧。
 - **禁止消费者**：`App`、`Viewport`、`InputManager`、任何 `games/*/src`（L2/L3）。
 - **补文档**：`platform/platform.ts` 的 `ScreenSize.pixelRatio` 目前**无 JSDoc**（L20-24），T-087 须补一行"仅供 renderer/adapter 层设定 backing store 使用；不得用于换算坐标"，并同步收紧 `InputSnapshot.x/y/dx/dy` 的注释（现写 "in screen pixels"，未限定 CSS px）。
 
@@ -171,6 +202,30 @@ expect(vp.containsScreenPoint(scr.x * 2, scr.y * 2)).toBe(false);
 
 配套第二条（宿主级，落点 `tools/scripts/smoke-harness.mjs`）：断言 harness 产物的 `viewport.fit.screenWidth === canvas.clientWidth`（**不是** `canvas.width`）——这一条直接钉死"viewport 用 CSS px、backing store 用 device px"的分层。
 
+### (e) 宿主归一化契约（**2026-09-15 新增**，WXG-T-104 阶段 B 落码）
+
+**(a)–(d) 只规定了"消费端"的口径；本条补足"生产端"：宿主 adapter 负责把引擎原生事件归一化成「CSS px + 左上原点」，再交给 `Viewport`。** 四条硬性要求：
+
+1. **归一化的位置**：在 `adapters/<引擎>/` 层，**不在** `core/`（L2）、**不在** `games/*/src`（L3）、**不在** `Viewport`。
+   `Viewport.screenToDesign()` 仍然只做 screen→design（含设计空间 y 向上那一次翻转）；
+   在 adapter 里再翻一次 y 是**必需**的，不是"双重翻转"——早期正是把这句话理解反了，才产生缺陷 C1。
+2. **必须同时处理两件事**：① y 翻转（左下→左上）② ÷ dpr（device px→CSS px）。**只做其一一半是错的**：
+   只翻 y ⇒ 真机（dpr≥2）上整屏放大 2 倍，点屏幕右侧即越界出屏。
+3. **dpr 必须与输入源同源**：取引擎自己的 `cc.screen.devicePixelRatio`（= `screenAdapter.devicePixelRatio`；
+   web `min(window.devicePixelRatio, 2)`、小游戏 `getWindowInfo().pixelRatio` 无封顶）。
+   **禁止**用平台层 `getScreenSize().pixelRatio`（web 侧未封顶，dpr=3 机上会留下 1.5 倍误差），
+   也**禁止**在 adapter 里复刻封顶规则（引擎改规则即静默失配）。
+4. **归一化必须是可在 Node 下测试的纯函数**：`packages/framework/src/adapters/cocos/touch-normalize.ts`
+   （不 `import 'cc'`、不读 DOM/全局）。理由是本单 A5 的血泪：`bindings.ts` 静态依赖 `cc`，
+   Node 下编译不了 ⇒ 上一轮只能用源码级正则守语义，而正则对"y 翻转"这类问题的**判别力为零**。
+   新增任何引擎适配器，必须同形态提供纯函数 + `tests/adapters/` 下的行为测试。
+
+**已落码**（阶段 B）：`touch-normalize.ts::normalizeCocosTouch(raw, { canvasHeightCss, dpr }, out?)`，
+`bindings.ts::readTouch()` 调用它；`canvasHeightCss` 取 `viewport.fit.screenHeight`
+（由 `_fitToGameCanvas()` 用 `canvas.clientHeight` 设置 ⇒ 与平台层同为 CSS px 口径）。
+**判据**（重建产物后实测，见 TASKS-DETAIL WXG-T-104 · 阶段 B）：点可见位置命中、点镜像位置不命中；
+`input.push` 收到的 `y ≈ pageY`；dpr=1/2/3(封顶 2) 下同一可见点落点一致。
+
 > ⚠️ **DPR 必须显式注入，不能读环境**：无头 CI 浏览器常见 `devicePixelRatio === 1`，届时"乘 dpr"与"不乘"结果相同，断言会退化为恒真而**静默失效**。测试须自建 `pixelRatio: 2` 的桩。
 
 ---
@@ -183,9 +238,18 @@ expect(vp.containsScreenPoint(scr.x * 2, scr.y * 2)).toBe(false);
 2. **消除顺序依赖**：`resize()` 的生效不再取决于它排在 `start()` 前还是后——§1.2 那类"silently overwritten"注释不再需要存在。
 3. **契约有了牙齿**：§3(d) 的两条断言把"CSS px"从注释升级为可执行判据，退化会红。
 4. **DPR 归属明确**：`pixelRatio` 从"被丢弃的字段"变成"有唯一合法消费者的字段"，后人不会再去 `Viewport` 里找它。
+5. （2026-09-15 修订附带）**契约从"注释"升级为"可执行接缝"**：§3(e) 的纯函数让坐标语义第一次能被 Node 行为测试
+   锁住（`tests/adapters/cocos-touch-normalize.test.ts`，9 例，覆盖 dpr=1/2/3 封顶、信箱、边界、非法 dpr、Viewport 往返），
+   取代了阶段 A 那条判别力为零的源码级正则断言。这是本次修订唯一"新增"的收益 —— 它不是原 ADR 的功劳，是补上的欠账。
 
 ### 4.2 负面（已知成本，不是风险）
 
+0. **§3(e) 引入一条新的静态引擎依赖：`cc.screen.devicePixelRatio`。** 框架 adapters 层此前只用
+   `cc` 的渲染/组件符号（`Component`/`Graphics`/`Label`/`Node`/`UITransform`），现在多了一个
+   **与输入语义强耦合**的取值。好处是与输入源同源（§3(e)-3）；代价是引擎若改名/移除它，
+   `cocos:check`（Cocos 工程 tsc）会在**构建期**红（可发现），但**微信侧该 API 的运行时取值无人验过**
+   （无 AppID、无真机 ⇒ `[R]`，解除条件见 §5-1）。退化分支（取到非正数 → 按 1 处理 + 一次 `warn`）
+   在 Node 下**不可测**（`bindings.ts` 被 `tsconfig` 排除、也被 vitest 排除），只能靠日志发现。
 1. **`bindings.ts` 的时序 workaround 会变成"冗余但仍在"的双真源。** L103-106 那段注释描述的行为（`start()` 会覆盖）在 (a) 落地后**不再成立**，但本 ADR 刻意不改 `bindings.ts`（真机输入路径 + 无真机可验证）。于是仓库里会同时存在"新语义"和"描述旧语义的注释"，**必须**由 T-087 在该注释上追加一行指向本 ADR，否则下一个人会照着旧注释推理。这是**已知的文档债**，不是意外。
 2. **兜底路径与显式路径长期并存 ⇒ 两条 resize 语义各自都要测。** (a) 保留了平台兜底（weapp 需要它），于是 `start()` 有两个分支。分支覆盖不足时，"宿主忘了 resize"这类错误会表现为静默用平台值——**比今天更难发现**，因为今天至少是稳定的错。
 3. **backing store 与 viewport 尺寸从此不相等 ⇒ 任何直接读 `canvas.width` 当 screen px 的代码会静默错位。** 现存嫌疑点：`dev/harness/main.ts` 的调试 HUD 绘制、`tools/scripts/smoke-harness.mjs` 的 Canvas 桩、`tools/scripts/render-harness-frame.mjs`（离屏出帧）。T-087 必须逐个核对，**这类错位不报错、只画歪**。
@@ -193,6 +257,20 @@ expect(vp.containsScreenPoint(scr.x * 2, scr.y * 2)).toBe(false);
 5. **修复面被刻意收窄，因此"看起来更简单的全局改法"被永久禁止。** 禁止改 L82 的全局 `setTransform`：▲/▽/♥/◐ 等矢量符号在 y-up 下形状自洽，翻转全局矩阵会破坏三重编码（形状 + 颜色 + 位置）中的形状那一重。这条禁令需要写进 `control-manifest.md`，否则会被当成"顺手优化"改掉。
 6. **本 ADR 只出裁决不落码 ⇒ 存在一个"harness 人工验证结论全部不可信"的窗口期。** 从本 ADR 落盘到 T-087 合入之间，任何基于 harness 目视/点击的 QA 结论都必须标注 `[Harness-坐标未修]`（`production/TASKS-DETAIL.md` T-084 已如此约束）。窗口期长短由 T-087 的排期决定，**这是本决策的直接代价**。
 7. **§3(d) 的断言在 DPR=1 环境下会静默失效**（见 §3(d) 末尾的 ⚠️）。若 T-087 图省事直接读 `window.devicePixelRatio`，防线等于没建。
+8. **本 ADR 曾把一条错的事实断言写进"最强证据"，代价是缺陷存活到 WXG-T-104 才暴露**（修订 2026-09-15）。
+   具体：§1.1 引用 `bindings.ts` 注释作为契约依据、§3(c) 断言"输入全程留在 CSS px"——两者都未经 y 敏感场景验证
+   （2026-09-13 的唯一验证是 breakout 挡板跟手，而**挡板只吃 x**，对 y 翻转判别力为零；当时桌面 dpr=1 又让 ×dpr 隐身）。
+   后果是 beads 在 web 产物上"每一次点击都落在上下镜像位置"、在真机上两轴全错，玩法整体不可用，且 P0 排查成本发生在发布前夕。
+   **这是本 ADR 已付出的真实成本，不是假设风险。** 缓解：§3(e)-4 要求归一化可 Node 行为测试（判别力由"正则"升为"执行"），
+   但**无法恢复已损失的验证窗口**。
+9. **翻转基准的取整差被刻意接受**：`canvasHeightCss` 取 `viewport.fit.screenHeight`（= `canvas.clientHeight`，整数 CSS px），
+   而引擎输入源用 `getBoundingClientRect().height`（可为小数）⇒ 亚像素级（≤1 px）偏差。
+   选前者的理由是它与 `screenToDesign` 的空间**同口径**；代价是极端边缘（画布高为 x.5 时）y 有 ≤1px 系统偏差。
+   未登记为缺陷：量级远小于最小命中盒（beads 托盘 62² 设计单位 ≈ 33 CSS px）。
+10. **"真机输入路径不得修改"的护栏被本单打破**（§1.5 注）。它保护的是"无真机 ⇒ 别乱动"这条纪律，
+    而本单动它的理由是**已确证的事实缺陷**，不是优化。风险并未消失：这次修改在微信侧**零验证**
+    （web-mobile 实测通过；minigame 只有源码同形 + 无真机 ⇒ `[R]`）。
+    ⇒ 真机首验必须把"点击落点 / 托盘选中"列为 **P0 检查项**，不能默认"web 过了所以真机也过"。
 
 ### 4.3 中性 / 待观察
 
@@ -213,3 +291,13 @@ expect(vp.containsScreenPoint(scr.x * 2, scr.y * 2)).toBe(false);
 5. **Cocos 构建目标从 ES5 提升**（关联 VERSION.md G10）⇒ §1.4 的 Label 实测坐标与 §1.3 的 canvas/backing 实测值全部需要重跑；本 ADR 的证据基线随之更新。
 6. **`bindings.ts` L103-106 的时序注释被删除或改写** ⇒ 必须同时确认 §4.2(1) 的文档债已清偿。
 7. **DPR ≠ 2 的目标设备成为主要机型**（例如 dpr=3 的安卓占比上升）⇒ §3(d) 断言的注入值需覆盖该档位，`Canvas2DRenderer` 的 backing store 上限策略（harness 现在 `min(dpr, 2)` 封顶）需重新评估。
+8. **真机可得（有效 AppID + 微信开发者工具 / 设备）** ⇒ **必须**复核 §3(e) 在 minigame 宿主上的两件事：
+   ① `pal/input/minigame/touch-input.ts` 的左下原点与 `× pixelRatio` 是否真与 web 同形；
+   ② `screen.devicePixelRatio` 在 minigame 是否等于输入源实际乘的那个值（该侧**无 2 封顶**）。
+   这是 §4.2(10) 那条未偿风险的唯一解除路径。
+9. **引擎升级后 `screen.devicePixelRatio` 改名 / 移除，或 web 侧的 2 封顶值改变** ⇒ §3(e)-3 的"同源取值"需重新确认；
+   若引擎改而 adapter 未同步，表现为"高端机输入整体缩放"，且 web 上**只在 dpr>2 的设备**复现（桌面 dpr=1/2 全绿）⇒ 极易漏。
+10. **引擎开始直接提供 CSS px 语义的输入 accessor**（或游戏项目改用自定义输入源）⇒ §3(e)-2 的 ÷dpr 必须**删除**，
+    否则会除第二次（表现为点击向原点收缩）。判定信号：`normalizeCocosTouch` 的行为测试仍在，但端到端"点可见位置"不再命中。
+11. **新增第三个引擎适配器 / 第二个宿主** ⇒ §3(e) 的归一化契约必须在该 adapter 上同形态复刻（纯函数 + Node 行为测试），
+    并补一条"同一页面点在两档 dpr 下落点一致"的端到端判据。

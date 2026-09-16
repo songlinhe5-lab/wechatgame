@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2400,
-      "lines": 97,
-      "sha256": "1097fe36aa548b9f551b86f109f355b8181774a7fdd690b1c58242b629ed9d13",
+      "tokens": 2442,
+      "lines": 98,
+      "sha256": "630cdcfba6887a0915f32652b59b72f2d581bc14c43f870f9b4e6e6152b684f7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 98,
-          "tokens": 2387,
+          "endLine": 99,
+          "tokens": 2429,
           "summary": "生成：2026-09-16 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 448,
+          "tokens": 450,
           "summary": "1 production/qa/beads/g4-regression-report.md 83715 2123 nor",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 72,
-          "tokens": 845,
+          "endLine": 73,
+          "tokens": 886,
           "summary": "production/qa/beads/g4-regression-report.md 83715 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 73,
-          "endLine": 98,
+          "startLine": 74,
+          "endLine": 99,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -4338,17 +4338,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md",
-      "tokens": 5484,
-      "lines": 215,
-      "sha256": "5e99ac3f4e806dc22487ee16bd7f99bd6119276f62336e6141beefdbe62b9284",
+      "tokens": 8446,
+      "lines": 303,
+      "sha256": "651f9801e05ceb812344c9b6a392ad07228a55e0cd323498a542d18504ca7560",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0011 — 屏幕坐标空间契约 = CSS px，DPR 由 renderer 层承担（`App.start()` 不得覆盖宿主显式 viewport）",
           "level": 1,
           "startLine": 1,
-          "endLine": 216,
-          "tokens": 5446,
+          "endLine": 304,
+          "tokens": 8407,
           "summary": "状态：Accepted（裁决落码归 WXG-T-087，本 ADR 只定契约与验收断言）",
           "keywords": [
             "App.start()",
@@ -4362,9 +4362,9 @@
         {
           "anchor": "§1 上下文（Context）",
           "level": 2,
-          "startLine": 11,
-          "endLine": 94,
-          "tokens": 1385,
+          "startLine": 14,
+          "endLine": 120,
+          "tokens": 1970,
           "summary": "",
           "keywords": [
             "Context",
@@ -4374,9 +4374,9 @@
         {
           "anchor": "§1.1 契约原文早已写明，但只写在一处",
           "level": 3,
-          "startLine": 13,
-          "endLine": 29,
-          "tokens": 251,
+          "startLine": 16,
+          "endLine": 53,
+          "tokens": 758,
           "summary": "框架对\"屏幕坐标\"的定义是明确的：",
           "keywords": [
             "契约原文早已",
@@ -4387,8 +4387,8 @@
         {
           "anchor": "§1.2 但 `App.start()` 的覆盖行为让\"越界\"变得不可见",
           "level": 3,
-          "startLine": 30,
-          "endLine": 52,
+          "startLine": 54,
+          "endLine": 76,
           "tokens": 294,
           "summary": "compose/app.ts L102-105：",
           "keywords": [
@@ -4403,8 +4403,8 @@
         {
           "anchor": "§1.3 harness 的实际错配（2026-09-14 实测，DPR=2）",
           "level": 3,
-          "startLine": 53,
-          "endLine": 77,
+          "startLine": 77,
+          "endLine": 101,
           "tokens": 380,
           "summary": "harness 的设计意图是端到端 device px：fitCanvas()（L67-79）把 canvas.widt",
           "keywords": [
@@ -4419,8 +4419,8 @@
         {
           "anchor": "§1.4 GAP-08 是同一次取证里独立确诊的第二处（仅 harness）",
           "level": 3,
-          "startLine": 78,
-          "endLine": 85,
+          "startLine": 102,
+          "endLine": 109,
           "tokens": 200,
           "summary": "adapters/canvas2d/canvas2d-renderer.ts L82 用 setTransform(sc",
           "keywords": [
@@ -4435,9 +4435,9 @@
         {
           "anchor": "§1.5 约束",
           "level": 3,
-          "startLine": 86,
-          "endLine": 94,
-          "tokens": 176,
+          "startLine": 110,
+          "endLine": 120,
+          "tokens": 254,
           "summary": "L2：core 禁 cc / DOM / wx ⇒ DPR 不能进 Viewport（它属 core）。",
           "keywords": [
             "core",
@@ -4450,8 +4450,8 @@
         {
           "anchor": "§2 备选方案（Alternatives）",
           "level": 2,
-          "startLine": 95,
-          "endLine": 125,
+          "startLine": 121,
+          "endLine": 151,
           "tokens": 964,
           "summary": "",
           "keywords": [
@@ -4462,8 +4462,8 @@
         {
           "anchor": "§方案 A：改框架契约为 device px（`Viewport`/`InputManager` 全面改口径）",
           "level": 3,
-          "startLine": 97,
-          "endLine": 102,
+          "startLine": 123,
+          "endLine": 128,
           "tokens": 268,
           "summary": "事实对比：需要同时改 input-manager.ts 契约文本、bindings.ts L117-139（_fitTo",
           "keywords": [
@@ -4478,8 +4478,8 @@
         {
           "anchor": "§方案 B：harness 全面改 CSS px，DPR 下沉到 `Canvas2DRenderer`，同时修 `App.start()` 的覆盖语义（**本 ADR 采用**）",
           "level": 3,
-          "startLine": 103,
-          "endLine": 111,
+          "startLine": 129,
+          "endLine": 137,
           "tokens": 181,
           "summary": "事实对比：三处改动，互不重叠——",
           "keywords": [
@@ -4494,8 +4494,8 @@
         {
           "anchor": "§方案 C：只改 harness 的 `pushPointer`（不乘 dpr），保留 `App.start()` 的覆盖行为",
           "level": 3,
-          "startLine": 112,
-          "endLine": 117,
+          "startLine": 138,
+          "endLine": 143,
           "tokens": 220,
           "summary": "事实对比：单点改动即可让点击立刻可用——因为 start() 恰好把 viewport 拉回了 CSS px，与\"不乘 ",
           "keywords": [
@@ -4510,8 +4510,8 @@
         {
           "anchor": "§方案 D：`AppOptions` 增加 `screen?: ScreenSize`，由宿主在构造期声明尺寸与 DPR",
           "level": 3,
-          "startLine": 118,
-          "endLine": 125,
+          "startLine": 144,
+          "endLine": 151,
           "tokens": 167,
           "summary": "事实对比：把意图表达提前到构造期，start() 只在宿主未声明时才用平台值。",
           "keywords": [
@@ -4526,9 +4526,9 @@
         {
           "anchor": "§3 决定（Decision）",
           "level": 2,
-          "startLine": 126,
-          "endLine": 177,
-          "tokens": 1182,
+          "startLine": 152,
+          "endLine": 232,
+          "tokens": 2028,
           "summary": "屏幕坐标空间的唯一契约是 CSS px（top-left origin）；DPR 只由 renderer/adapter",
           "keywords": [
             "Decision",
@@ -4542,8 +4542,8 @@
         {
           "anchor": "§(a) `App.start()` 改为「宿主显式尺寸优先，平台值降级为兜底」",
           "level": 3,
-          "startLine": 130,
-          "endLine": 139,
+          "startLine": 156,
+          "endLine": 165,
           "tokens": 218,
           "summary": "不是\"干脆不 resize\"。理由：weapp 侧没有 document，bindings.ts::_fitToGame",
           "keywords": [
@@ -4558,8 +4558,8 @@
         {
           "anchor": "§(b) harness 改送 CSS px；框架契约不动",
           "level": 3,
-          "startLine": 140,
-          "endLine": 143,
+          "startLine": 166,
+          "endLine": 169,
           "tokens": 105,
           "summary": "pushPointer 送 event.clientX / event.clientY（去掉 * dpr），fitCan",
           "keywords": [
@@ -4574,9 +4574,9 @@
         {
           "anchor": "§(c) `getScreenSize().pixelRatio` 的唯一合法消费者是 renderer/adapter 层",
           "level": 3,
-          "startLine": 144,
-          "endLine": 151,
-          "tokens": 269,
+          "startLine": 170,
+          "endLine": 182,
+          "tokens": 413,
           "summary": "当前该字段被所有调用方丢弃，这是契约漏洞而不是\"无用字段\"。裁决：",
           "keywords": [
             "getScreenSize().pixelRatio",
@@ -4590,9 +4590,9 @@
         {
           "anchor": "§(d) 回归防线：一条可执行断言，防再退化",
           "level": 3,
-          "startLine": 152,
-          "endLine": 177,
-          "tokens": 435,
+          "startLine": 183,
+          "endLine": 204,
+          "tokens": 361,
           "summary": "断言名：pointer round-trip hits the intended design cell at DPR=",
           "keywords": [
             "pointer",
@@ -4604,11 +4604,27 @@
           ]
         },
         {
+          "anchor": "§(e) 宿主归一化契约（**2026-09-15 新增**，WXG-T-104 阶段 B 落码）",
+          "level": 3,
+          "startLine": 205,
+          "endLine": 232,
+          "tokens": 750,
+          "summary": "(a)–(d) 只规定了\"消费端\"的口径；本条补足\"生产端\"：宿主 adapter 负责把引擎原生事件归一化成「CSS ",
+          "keywords": [
+            "WXG",
+            "adapter",
+            "CSS",
+            "宿主归一化契",
+            "新增",
+            "阶段"
+          ]
+        },
+        {
           "anchor": "§4 后果（Consequences）",
           "level": 2,
-          "startLine": 178,
-          "endLine": 204,
-          "tokens": 1276,
+          "startLine": 233,
+          "endLine": 282,
+          "tokens": 2217,
           "summary": "",
           "keywords": [
             "Consequences",
@@ -4618,9 +4634,9 @@
         {
           "anchor": "§4.1 正面",
           "level": 3,
-          "startLine": 180,
-          "endLine": 186,
-          "tokens": 180,
+          "startLine": 235,
+          "endLine": 244,
+          "tokens": 324,
           "summary": "1. 三个宿主口径统一：harness / Cocos(web-mobile, wechatgame) / weapp ",
           "keywords": [
             "harness",
@@ -4634,24 +4650,24 @@
         {
           "anchor": "§4.2 负面（已知成本，不是风险）",
           "level": 3,
-          "startLine": 187,
-          "endLine": 196,
-          "tokens": 817,
-          "summary": "1. bindings.ts 的时序 workaround 会变成\"冗余但仍在\"的双真源。 L103-106 那段注释描",
+          "startLine": 245,
+          "endLine": 274,
+          "tokens": 1614,
+          "summary": "0. §3(e) 引入一条新的静态引擎依赖：cc.screen.devicePixelRatio。 框架 adapter",
           "keywords": [
-            "bindings",
-            "workaround",
-            "L103",
+            "§3",
+            "screen",
+            "devicePixelRatio",
+            "adapter",
             "负面",
-            "已知成本",
-            "不是风险"
+            "已知成本"
           ]
         },
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 197,
-          "endLine": 204,
+          "startLine": 275,
+          "endLine": 282,
           "tokens": 251,
           "summary": "Cocos 侧 DPR 由引擎处理，我们无法干预也无需干预——实测已确认分层正确。但若未来 Cocos 改变 #Game",
           "keywords": [
@@ -4665,9 +4681,9 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 205,
-          "endLine": 216,
-          "tokens": 435,
+          "startLine": 283,
+          "endLine": 304,
+          "tokens": 836,
           "summary": "出现以下任一情况，重新评估本决策：",
           "keywords": [
             "Review",

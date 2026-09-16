@@ -40,8 +40,8 @@
 | 16 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 525 | normal |
 | 17 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
 | 18 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 525 | normal |
-| 19 | `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
-| 20 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
+| 19 | `docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md` | 8446 | 303 | normal |
+| 20 | `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 525 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -65,6 +65,7 @@
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md` | 8518 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md` | 8446 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
