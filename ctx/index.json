@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2432,
       "lines": 98,
-      "sha256": "2d917b42793d49a6f4fc521f0d515cac734928e49fa55cb671cefb9727e7444a",
+      "sha256": "f42013331aa72c40c67a1f6ac67f2a78f395f59f358c97e6fd7aad3415a53dad",
       "tier": "normal",
       "sections": [
         {
@@ -238,7 +238,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 450,
-          "summary": "1 production/TASKS-DETAIL.md 104715 1593 normal",
+          "summary": "1 production/TASKS-DETAIL.md 105726 1614 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -254,7 +254,7 @@
           "startLine": 46,
           "endLine": 73,
           "tokens": 886,
-          "summary": "production/TASKS-DETAIL.md 104715 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 105726 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3815,
       "lines": 84,
-      "sha256": "ec881d4f72cd4f95638d3817d841382f39edb8f93425b83574d18954d7e1ad71",
+      "sha256": "df17033af5c941f5c49b9a1e806627283ca76ad188d08d832f92c28b340c4ed3",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 98 行 / 4824 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 99 行 / 4901 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
-          "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+99 · §待排（backlog，无号，立项时领取）=74+26",
+          "tokens": 29,
+          "summary": "§WXG 任务台账（SSOT）=1+100 · §待排（backlog，无号，立项时领取）=75+26",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -43790,17 +43790,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 104715,
-      "lines": 1593,
-      "sha256": "9e643d12e276a03bfd9b9f3c60e50cdb23f3297c8ee32a4cc2be1787651e71f9",
+      "tokens": 105726,
+      "lines": 1614,
+      "sha256": "8c8fa7ad661bf977f2bf14bf510ff183951338eefc699ae770a0bb9e0272a9b8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1594,
-          "tokens": 104699,
+          "endLine": 1615,
+          "tokens": 105709,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -44648,22 +44648,35 @@
             "beads",
             "spec"
           ]
+        },
+        {
+          "anchor": "§WXG-T-127",
+          "level": 2,
+          "startLine": 1595,
+          "endLine": 1615,
+          "tokens": 1008,
+          "summary": "beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿） · 负责：林绘澄(art) + 主理人(Qo",
+          "keywords": [
+            "WXG",
+            "beads",
+            "art"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4824,
-      "lines": 98,
-      "sha256": "a5aa4efdb8a7c1990f71a4208012ec0e95e93a68393adc5a67e3f8fd386940af",
+      "tokens": 4901,
+      "lines": 99,
+      "sha256": "6386bd99ab5770212824b4d1202508e7e75c2b8260e896c5ea007b74788765cd",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 4815,
+          "endLine": 100,
+          "tokens": 4892,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -44676,8 +44689,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 74,
-          "endLine": 99,
+          "startLine": 75,
+          "endLine": 100,
           "tokens": 1138,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
