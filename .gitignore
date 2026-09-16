@@ -95,3 +95,7 @@ games/*/cocos/native/
 # *.log 已由上方全局规则忽略；json/png 为逐帧像素/包络/截图取样物，复核请读盘）
 production/qa/*/evidence/**/*.json
 production/qa/*/evidence/**/*.png
+
+# Cocos 工程配置含本地微信 AppID（WXG-T-099/B4：红线 control-manifest §10，不入仓；模板见 games/beads/cocos/project.config.example.json）
+games/*/project.config.json
+games/*/project.private.config.json
