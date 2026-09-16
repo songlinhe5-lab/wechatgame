@@ -2,7 +2,8 @@
 
 > 项目：微信小游戏矩阵 · 第二款《拼豆填色消除》
 > 引擎：Cocos Creator 3.8 LTS ｜ 平台：微信小游戏
-> 版本：v1.1（demo 阶段，程序化绘制占位）｜ 作者：林绘澄
+> 版本：v1.3（demo 阶段，程序化绘制占位）｜ 作者：林绘澄
+> v1.3：随 art-bible v1.3（丙案「双色温对撞」）增补 §1.1 珠子十层卡、§1.7 容器板+暖光 band 卡、§1.8 背景层次卡，修订 §1.3–§1.5 HUD/道具参数（评审 F1–F8）。UI token 真源 = `art-bible.md` §3.1 v1.3 表。
 > 配套：`art-bible.md`（视觉身份）、`accessibility.md`（可访问性）
 > **纪律**：`[待 systems-index §3 对齐]` 项不自行发明；本表其余数值可直接落码。
 
@@ -23,28 +24,33 @@
 
 ## 1. 资产清单（可见元素规格表）
 
-### 1.1 珠子绘制参数卡（**核心，逐层落码**）
+### 1.1 珠子绘制参数卡（**核心，逐层落码**；v1.3 十层质感升级 F4）
 
-> 单颗珠 = 以下 6 层按序绘制。所有层均为圆角矩形/矢量，无贴图无模糊。
+> 单颗珠 = 以下 10 层按序绘制。所有层均为圆角矩形/线/矢量，无贴图无模糊无真渐变；软高光/接触阴影一律靠叠层 + 递减 α 模拟（渲染原语面合规）。
 
 ```
-常量：BEAD = 珠子边长（冻结值 50，来源 systems-index §3.3；下方以 64 演算仅展示比例）
-      r    = round(BEAD × 0.22)          // 圆角半径，示例 14
+常量：BEAD = 珠子边长（冻结值 50，来源 systems-index §3.3；下文比例以 BEAD=1 归一）
+      r    = round(BEAD × 0.22)
       base = 珠子基色（art-bible §3.2 十色之一）
+      stroke(ratio) = max(2, BEAD × ratio)   // §1.1 最小特征约束：笔画 ≥2px
 
-L0 投影    roundRect(x, y−3, BEAD, BEAD, r)
+L0a 接触阴影 roundRect(x + 0.06, y − 0.02, 0.88, 0.10, r×0.5)
+           fill #1E2033, α 0.12          // 贴底窄条：珠"坐"在面上（F4 新增）
+L0b 投影    roundRect(x, y − 3/64, 1, 1, r)
            fill #1E2033, α 0.15
-L1 主体    roundRect(x, y, BEAD, BEAD, r)
-           fill base
-L2 暗倒角  沿下边+右边内缘描边（内缩 1.5px）
-           lineWidth 3, color mix(base, #000, 0.22)
-L3 亮倒角  沿上边+左边内缘描边（内缩 1px）
-           lineWidth 2, color mix(base, #FFF, 0.18)
-L4 高光条  roundRect(x + BEAD×0.10, y + BEAD×0.62, BEAD×0.80, BEAD×0.26, BEAD×0.13)
-           fill #FFFFFF, α 0.38
-L5 符号    居中，尺寸 BEAD×0.40（示例 26px），线宽 ≥ 2px
+L1 主体    roundRect(x, y, 1, 1, r)              fill base
+L2 暗倒角  下+右内缘（内缩 2/64）   lineWidth stroke(5/64), mix(base,#000,0.26)
+L3 亮倒角  上+左内缘（内缩 1.5/64） lineWidth stroke(4/64), mix(base,#FFF,0.20)
+L3b rim光  上内缘单线（内缩 1/64）  lineWidth stroke(2/64), mix(base,#FFF,0.38)
+L4a 软高光·广 roundRect(x+0.06, y+0.52, 0.82, 0.38, 0.19)  fill #FFF, α 0.08
+L4b 软高光·中 roundRect(x+0.10, y+0.60, 0.72, 0.26, 0.13)  fill #FFF, α 0.16
+L4c 软高光·核 roundRect(x+0.16, y+0.68, 0.56, 0.14, 0.07)  fill #FFF, α 0.30
+L5 符号    居中，尺寸 BEAD×0.40，线宽 ≥ 2px
            color = (base 亮度 > 0.6) ? mix(base, #000, 0.55) : #FFFFFF @ 0.90
+           （B2 地板 3:1 优先：草绿一色翻转深色墨，见 accessibility 偏差 1）
 ```
+
+> **F4 说明**：v1.2 的「L4 硬边单高光条 α0.38」作废，改为 L4a→L4c 三层**外扩递减、中心递增**叠层（累计中心 α≈0.48、边缘 α≈0.08）模拟柔光；倒角由 3/2px@64 加宽至 5/4px@64 并新增 L3b rim 光与 L0a 接触阴影，消解真机「塑料贴片感」。L4a–L4c 均在 L5 符号**之下**绘制，符号对比不受影响（accessibility A5 复算）。
 
 **符号矢量定义**（程序化 path，不依赖字体；占珠面 40%）：
 
@@ -61,7 +67,9 @@ L5 符号    居中，尺寸 BEAD×0.40（示例 26px），线宽 ≥ 2px
 | 深棕 `#6B3E1E` | ◆ 菱形 | 菱形对角线 26/16，填充 |
 | 炭黑 `#33333D` | ✚ 十字 | 两矩形 22×6 正交，填充 |
 
-**最小特征约束**：符号线宽 ≥ 2px、最窄填充 ≥ 6px、高光条高 ≥ 0.26×BEAD → 50% 缩放下仍可辨；**禁止**给符号加 <2px 细节。
+**最小特征约束**：符号线宽 ≥ 2px、最窄填充 ≥ 6px、软高光核高 ≥ 0.14×BEAD、倒角/rim 经 `stroke()` 钳至 ≥2px → 50% 缩放下仍可辨；**禁止**给符号加 <2px 细节。
+
+> **性能回退阀（登记）**：珠子层数 6→10，最坏 13×12=156 珠 ≈ +624 图元/帧；若真机掉帧，由主理人裁定对 `filled` 珠合并 L4a+L4b（降回 8 层），本表不自行降配。
 
 ### 1.2 珠子状态参数
 
@@ -73,6 +81,8 @@ L5 符号    居中，尺寸 BEAD×0.40（示例 26px），线宽 ≥ 2px
 | `hint` 提示 | 目标色底 `empty`（E1–E4 全层）+ 外描边 `accent_blue #3D7BF5` 2px + 600ms 呼吸（α 0.5↔1.0）；叠加优先级：外描边 > E2 描边 > E1 色底（毫秒与循环频率以 `ux-spec §5` 为权威（600ms α 0.5↔1.0）；原 `[待 ux-spec 对齐]` 占位经 WXG-T-091 删除） |
 | `wrong` 错误 | 当前珠 + 描边 `danger #E8434A` 2px 闪 2 次（≤2 次/秒）+ 位移 ±3px 抖动 200ms |
 | `selected` 选中 | 完整 6 层 + 整体上移 4px + L0 投影 α 0.15→0.25 + 珠下 6px 处 Ø8 圆点 `accent_blue` |
+
+> `[v1.3·F5]` **冻结常量引用声明**：`EMPTY_TINT_MIX=0.35` / `EMPTY_GHOST_ALPHA=0.20` 真机偏淡由**独立冻结变更单（甲案：0.35→0.42 / 0.20→0.32）**走 §6 冻结变更流程处理；本表 E1/E4 **保持 0.35 / 0.20 不变**，变更单落地后由主理人统一回写，本风格单不擅改。
 
 ### 1.3 槽位托盘
 
@@ -94,20 +104,22 @@ L5 符号    居中，尺寸 BEAD×0.40（示例 26px），线宽 ≥ 2px
 
 - 图标底：白卡 `#FFFFFF` 圆角 20（卡 **176 × 116**），描边 `panel_border` 1px，投影 α0.10。
   - ⚠️ **卡高 150 → 116（WXG-T-062 主理人裁定，方案 A「改卡高、不动带位」）**：原「176×150 + **卡下方**标签 28px」需 182 > `systems-index §3.1` 的 `POWERUP_BAND` 高 **152**，两条冻结规格**无法同时成立**。取 116 + 间隔 4 + 标签 28 = **148 ≤ 152** ⇒ `§3.1` 与底部留白 48 **一字不动**，A4 的「文字标签并列」得以落地。工程侧同源常量见 `tuning.ts` 的 `POWERUP_CARD_*` / `POWERUP_LABEL_*`。
-- 卡下方标签：28px `text_primary`（「区域消除 / 槽位清空 / 随机消除」），与卡间隔 **4px**（本节原未规定间隔，本项派生）。
-- **视频角标 `ad_badge`**：28 × 28 圆角 8，底 `#2A2E43`，白色 ▶（边 10px），贴卡**右上角**内缩 (8,8)。
+- 卡下方标签：28px **`text_secondary`（`#6E7288`，on 白 ≈4.75:1）**（「区域消除 / 槽位清空 / 随机消除」），与卡间隔 **4px**；卡内「×n」次数同 28px `text_secondary`。 `[v1.3·F7④]` **禁用 `textDim`**（on 白 ≈3.7:1 < 4.5:1，accessibility B1 假绿根源）；不升 32px 是因 `POWERUP_BAND` 高 152 冻结（116+4+32=152 零余量），**改色为唯一合规解**。
+- **视频角标 `ad_badge`**：28 × 28 圆角 8，底 **`#2A2E43` 深藏青**，白色 ▶（边 10px），贴卡**右上角**内缩 (8,8)。 `[v1.3·F6]` 代码亮黄 `#FFCB3D` 作废，以本行深藏青为准（palette.adBadge 同步）。
 - 触控热区：整卡 ≥ 88 × 88（实际 **176×116** 达标）。
 
 ### 1.5 HUD 元素
 
 | 名称 | 规格 | 参数 |
 |---|---|---|
-| `hud_timer_capsule` | 220 × 64，全圆角 | 白底 + `panel_border` 1px + 投影；内：时钟图标 Ø36（圆环 `accent_blue` 3px + 指针 2px）+ 数字 44px `text_primary` |
+| `hud_timer_capsule` | 220 × 64，圆角 32，中心 (375, HUD_BAND 中线) | **白胶囊板落地（F7①）**，层序：① 投影 roundRect 偏移 (0,−2) `#1E2033` α0.10 → ② fill `panel_surface` → ③ stroke `panel_border` 1px；内：时钟图标中心 (375−78, midY) Ø36（环 r16 stroke 3 + 分针 (0,+9) + 时针 (+7,0) stroke 3，`accent_blue`）+ 数字中心 (375+12, midY) 44px `text_primary`；告急时环/针/数字同切 `danger` + α 脉冲 |
 | `hud_timer_danger` | 同上 | 数字/图标切 `#E8434A` + 1000ms α 脉冲**循环**（周期/时长以 `ux-spec §5`「倒计时告急」行为权威，与 `ux-spec §3.1` HUD 告急条款同源；α 幅度两文均未定义 → 本表不自行发明。原 `[待 ux-spec 对齐]` 占位经 WXG-T-098 删除） |
 | `tray_panel_danger` | 沿 `tray_panel` 边缘 2px 描边（圆角随面板实装值 18） | `danger #E8434A` + **500ms α 呼吸循环**（周期以 `ux-spec §5`「满槽告警」行为权威 = 500ms/循环，≈2Hz 在 §3.8 ≤3Hz 红线内；α 幅度 ux-spec 未定 ⇒ **沿用同族既有实现值 0.6↔1.0**（`view-model.ts::dangerAlpha()` 已用的那组，本行不新造第三档；同上行口径，若 ux-spec 日后冻结幅度则以 ux-spec 为准）。WXG-T-097/BD-10 落地；`reduceMotion` 下退为**静态描边 α=1**，见 `accessibility` D1） |
-| `btn_settings` | 图标 Ø48，热区 88×88 | `accent_purple` 齿轮（8 齿，外径 48/内孔 r=10），左上 |
+| `btn_settings` | 图标 Ø48，中心 (60, midY)，热区 88×88 | **8 齿齿轮落地（F7②）**，层序：① hub 圆 r13 fill `accent_purple` → ② 8 齿 line（角度 k×45°，k=0..7，r13→r21，lineWidth 6，`accent_purple`）→ ③ 中心孔 圆 r5 fill `panel_surface`；外径 2×(21+3)=48 ✓；**v1.2「circle+中心点」无齿实装作废** |
+| HUD 图标笔画纪律 | — | 图标主笔画 ∈ {3,6}：Ø36 级（时钟环/针）=3、Ø48 级（齿轮齿）=6；面板描边 1 / 状态环 2 不属图标笔画；**禁止 1–2px 图标主笔画**（F7③ 粗细不统一根治） |
+| `hud_mode_label` | 28px（原 22px 作废） | 冷底小字用 `text_primary`（on `bg_base` ≈11.2:1）；`largeText` 下 35px（F7⑤ / accessibility E1 最小 28 floor） |
 | `panel_dialog` | 560 × 480，圆角 24 | 白 + `panel_border` + 投影（弹窗/结算） |
-| `btn_primary` | 240 × 88，圆角 20 | 底 `accent_blue`，白字 32px |
+| `btn_primary` | 240 × 88，圆角 20 | 底 **`accent_primary #2A2E43`**（v1.3 F6：`accent_blue` 让位给环状交互提示），白字 32px |
 | `text_body` | 字号 32（**最小 28**） | `text_secondary` |
 
 ### 1.6 VFX
@@ -119,7 +131,46 @@ L5 符号    居中，尺寸 BEAD×0.40（示例 26px），线宽 ≥ 2px
 | `vfx_wrong_shake` | 错误 | 位移 ±3px ×2，200ms |
 | `vfx_complete_wave` | 完成庆祝 | 按列波浪弹跳（scale 1→1.08→1），每列延迟 20ms，800ms |
 
-**统计**：可见元素约 **21 项 + 10 珠色 × 6 状态矩阵**，**外部美术文件 0 个，全部程序化绘制**。
+### 1.7 拼图容器板 + 暖光 band 参数卡（丙案核心，F2/F3） `[v1.3]`
+
+> 渲染原语无渐变/模糊 ⇒ 暖晕用**同心圆角 rect 叠层 + 由外向内递增 α** 模拟伪径向光；容器板复用面板同族 token（板感语言统一）。
+
+```
+输入：gridW = cols×52−2, gridH = rows×52−2（§3.3 派生）；gridCenter = PUZZLE_BAND 内居中点
+派生：plateW = gridW + 16, plateH = gridH + 16        // 容器板外扩 8px/边
+      plateRect 圆角 20，中心 = gridCenter
+      availV = (640 − plateH) / 2                     // PUZZLE_BAND 高 640（§3.1 冻结）
+      availH = (750 − plateW) / 2 − 6
+      bandOut = max(0, min(18, availV, availH))       // clamp：不越带、不越屏
+      e1 = bandOut, e2 = bandOut×2/3, e3 = bandOut×1/3
+
+层序（背→前）：
+B1 ring外  roundRect(plate 外扩 e1) 圆角 20+e1×0.6  fill glow_warm #FFF3E2 α 0.04
+B2 ring中  roundRect(plate 外扩 e2) 圆角 20+e2×0.6  fill glow_warm          α 0.05
+B3 ring内  roundRect(plate 外扩 e3) 圆角 20+e3×0.6  fill glow_warm          α 0.06
+B4 板投影  roundRect(plate 偏移 (0,−3)) 圆角 20       fill #1E2033           α 0.10
+B5 板体    roundRect(plate) 圆角 20                   fill panel_surface + stroke panel_border 1px
+B6 完成贴纸 完成区外扩 6px 白描边 + α0.10 投影（v1.2 贴纸感，叠于板体上）
+B7 珠/槽阵  §1.1 / §1.2 逐格
+```
+
+> - 叠层 α 由外向内 0.04→0.05→0.06 单调递增（贴板缘累计 ≈0.15）= "自带光" 但**极淡**，不抢珠子焦点（铁律 1）。
+> - `bandOut=0` 时（12 行满图案，plateH=638 近满带）B1–B3 宽 0 不绘制，**不越 `PUZZLE_BAND`**；demo 典型图案（如 L1 心形 7×6）avail 充足 → bandOut=18 全量。
+> - B4–B5 **全程态常驻**（含全空开局/中途态/完成态）→ 根治 F3「中途态拼图无承载板」；同时以板+晕填充 F2 的构图空旷（`BEAD_CELL` 冻结不可放大，只靠容器+背景层次充实）。
+
+### 1.8 背景层次参数卡（F8，解锁 v1.2「纯色无层次」自限） `[v1.3]`
+
+```
+层序（背→前，均在容器板/珠/托盘/HUD 之下）：
+G1 背景底   RenderModel.background = bg_base #ECEAF3
+G2 冷沉层   roundRect(0, 0, 750, 1334, 0)         fill bg_depth #E3E0EE α 0.04
+G3 中心提亮 roundRect(屏心, 645×830, r48)         fill bg_lift  #F4F2FA α 0.35
+G4 提亮·核  roundRect(屏心, 470×620, r40)         fill bg_lift  #F4F2FA α 0.30
+```
+
+> 约束（守铁律 1）：G2–G4 **仅冷色**、饱和 ≤8%、与 `bg_base` 明度差 ≤4%（WCAG 对比 ≈1.03–1.06:1，刻意极低）；**禁止暖色入背景**（暖只属于拼图 band 与珠子）；无网格无纹理无贴图。
+
+**统计**：可见元素约 **24 项（+容器板/暖光 band/背景层次 3 组叠层）+ 10 珠色 × 6 状态矩阵**，**外部美术文件 0 个，全部程序化绘制**；单帧新增图元：背景 +3、容器板/band +7、每珠 +4（6→10 层），性能回退阀见 §1.1 注。 `[v1.3]`
 
 ---
 
@@ -182,6 +233,11 @@ L5 符号    居中，尺寸 BEAD×0.40（示例 26px），线宽 ≥ 2px
 - [ ] 触控热区 ≥ 88×88；文字最小 28px。
 - [ ] 主包 ≤ 2000 KB（内部目标），红线 4096 KB 不越。
 - [ ] 命名符合 §4。
+- [ ] UI token 与 `art-bible.md` §3.1 v1.3 表逐字段一致（`palette.ts` 为 `view/` 唯一 hex 持有处）。 `[v1.3·F1]`
+- [ ] 拼图容器板全程态可见 + 暖光 band 不越 `PUZZLE_BAND`；12 行满图案时 band 自动退化不溢出。 `[v1.3·F3/丙案]`
+- [ ] 珠子十层卡落码后，10 色符号墨对「含软高光合成面」对比仍 ≥3:1（`bead-render.test` 钉住）。 `[v1.3·F4/B2]`
+- [ ] 全屏除珠子与拼图暖晕外无第二处高饱和暖色块；adBadge/主按钮为深藏青 `#2A2E43`。 `[v1.3·F6]`
+- [ ] 28px 标签/小字对比 ≥4.5:1（白底 `text_secondary` / 冷底 `text_primary`）；无 22px 文字；齿轮 8 齿、时钟胶囊白板落地。 `[v1.3·F7]`
 
 ---
 
