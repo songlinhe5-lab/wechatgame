@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2432,
       "lines": 98,
-      "sha256": "97afca50137ccdff43da0ff78453655f126331758bfdd0305aab07670dd3a975",
+      "sha256": "e03f4ae37ac7cd2381fe00c78b4deed5ebb06b6a128d91d34358cbfcb75d7de0",
       "tier": "normal",
       "sections": [
         {
@@ -5777,17 +5777,17 @@
     },
     {
       "path": "docs/engine-reference/cocos/VERSION.md",
-      "tokens": 11980,
-      "lines": 454,
-      "sha256": "e1b7a083eaf4cf9720fbc6e8e6b1557825259c6ad633496866fe82e8ff7970f9",
+      "tokens": 12203,
+      "lines": 456,
+      "sha256": "046ba073e8c2f67e5baf256e9fb8d738443bf303e8f40086fb71a6835747fc54",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Cocos Creator — 引擎版本钉定与知识缺口清单",
           "level": 1,
           "startLine": 1,
-          "endLine": 455,
-          "tokens": 11962,
+          "endLine": 457,
+          "tokens": 12185,
           "summary": "钉定版本：Cocos Creator 3.8 LTS（当前最新 3.8.8，2025-12 发布）",
           "keywords": [
             "Cocos",
@@ -5840,8 +5840,8 @@
           "anchor": "§3 知识缺口清单（**必须在编辑器里逐条验证**）",
           "level": 2,
           "startLine": 70,
-          "endLine": 380,
-          "tokens": 7778,
+          "endLine": 382,
+          "tokens": 8001,
           "summary": "每一条都是\"我无法在无编辑器环境下确认\"的事实。请在 Cocos Creator 3.8.8 就绪后按序验证并回填结论。",
           "keywords": [
             "Cocos",
@@ -5886,8 +5886,8 @@
           "anchor": "§G3 — `Label` 的行为与对齐",
           "level": 3,
           "startLine": 106,
-          "endLine": 123,
-          "tokens": 490,
+          "endLine": 125,
+          "tokens": 713,
           "summary": "Label 的锚点默认值？（代码假设居中，并按估算文本宽度做偏移 —— 需要目视校正）",
           "keywords": [
             "Label",
@@ -5897,8 +5897,8 @@
         {
           "anchor": "§G4 — 触摸事件与坐标系",
           "level": 3,
-          "startLine": 124,
-          "endLine": 138,
+          "startLine": 126,
+          "endLine": 140,
           "tokens": 376,
           "summary": "Node.EventType.TOUCH_START 等常量的准确拼写（代码里暂时用字符串 'touch-start'）",
           "keywords": [
@@ -5913,8 +5913,8 @@
         {
           "anchor": "§G5 — 帧驱动与调度",
           "level": 3,
-          "startLine": 139,
-          "endLine": 151,
+          "startLine": 141,
+          "endLine": 153,
           "tokens": 294,
           "summary": "Component.schedule(cb, interval) 中 interval = 0 是否表示\"每帧\"？",
           "keywords": [
@@ -5927,8 +5927,8 @@
         {
           "anchor": "§G6 — 装饰器与脚本注册",
           "level": 3,
-          "startLine": 152,
-          "endLine": 163,
+          "startLine": 154,
+          "endLine": 165,
           "tokens": 232,
           "summary": "@ccclass('Bootstrap') 的名称是否需要全局唯一？与文件名/类名的关系？",
           "keywords": [
@@ -5941,8 +5941,8 @@
         {
           "anchor": "§G7 — 构建与包体",
           "level": 3,
-          "startLine": 164,
-          "endLine": 252,
+          "startLine": 166,
+          "endLine": 254,
           "tokens": 1954,
           "summary": "构建产物（build/wechatgame/）的目录结构、主包/分包划分方式。",
           "keywords": [
@@ -5954,8 +5954,8 @@
         {
           "anchor": "§G8 — `wx` 适配层",
           "level": 3,
-          "startLine": 253,
-          "endLine": 259,
+          "startLine": 255,
+          "endLine": 261,
           "tokens": 174,
           "summary": "Cocos 的微信小游戏导出是否自带 wx 的 requestAnimationFrame 注入？（我们的 weapp.",
           "keywords": [
@@ -5969,8 +5969,8 @@
         {
           "anchor": "§G9 — `.meta` 与资源",
           "level": 3,
-          "startLine": 260,
-          "endLine": 271,
+          "startLine": 262,
+          "endLine": 273,
           "tokens": 286,
           "summary": ".meta 的 UUID 生成规则；手工新增 assets 下的文件是否会被编辑器自动补 .meta。",
           "keywords": [
@@ -5984,8 +5984,8 @@
         {
           "anchor": "§G10 — 【P0 · 已修 2026-09-14（WXG-T-090 / ADR-0012）】Cocos 构建的 ES5 转译把 `[...非数组可迭代对象]` 编成 `[].concat(x)`，导致 beads 在真机路径上不可玩",
           "level": 3,
-          "startLine": 272,
-          "endLine": 380,
+          "startLine": 274,
+          "endLine": 382,
           "tokens": 2743,
           "summary": "✅ 修复状态（WXG-T-090，2026-09-14）：采用方案甲 = 源码层 Array.from(x) + 类型级",
           "keywords": [
@@ -6000,8 +6000,8 @@
         {
           "anchor": "§4 已完成的部分（标题于 2026-09-14 修订：原标题为「已在本轮‘无编辑器’条件下完成的部分」，该前提已不成立）",
           "level": 2,
-          "startLine": 381,
-          "endLine": 405,
+          "startLine": 383,
+          "endLine": 407,
           "tokens": 758,
           "summary": "明确区分已验证与未验证，避免后续误判。",
           "keywords": [
@@ -6016,8 +6016,8 @@
         {
           "anchor": "§5 编辑器就绪后的验证顺序（建议）",
           "level": 2,
-          "startLine": 406,
-          "endLine": 448,
+          "startLine": 408,
+          "endLine": 450,
           "tokens": 1119,
           "summary": "按依赖顺序执行，前一步失败会阻塞后一步：",
           "keywords": [
@@ -6029,8 +6029,8 @@
         {
           "anchor": "§6 维护约定",
           "level": 2,
-          "startLine": 449,
-          "endLine": 455,
+          "startLine": 451,
+          "endLine": 457,
           "tokens": 142,
           "summary": "任何在编辑器里发现与本文记载不符的地方，必须回来更新本文件（含\"实际行为\"与\"受影响文件\"）。",
           "keywords": [

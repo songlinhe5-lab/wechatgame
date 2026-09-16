@@ -121,6 +121,8 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
 本文件要求的真实 `Label` 尺寸替换**尚未执行** —— 目视通过但换字号/文本长度会跑偏，**不得记为已关闭**。
 完整表格与行号见 **`api-verified.md` §G3**。
 
+**✅ 2026-09-16 闭环（WXG-T-077）**：真实尺寸替换**已执行** —— `bindings.ts wrapLabel` 实现 `measureWidth(text, fontSize)`（renderer `setFontSize`/`setText` 之后调用 ⇒ `updateRenderData(true)` 后回读 `UITransform.width`；返回 ≤0 时自动退回估算，防御内置），`_measureTextWidth` 优先实测值（`w > 0` 才采用）；`setAlign` 同步接 **`HorizontalTextAlignment`**（未知值回退 CENTER）。验证：`build:cocos:web` 无头构建通过（`cc` 类型真实编译）+ 产物截图（`cocos-vision-shot.mjs`，750×1334）白胶囊居中 / `LV x/x` 右对齐 / 全部 Label 无错位；**用户裁定「产物截图替代编辑器目视」** ⇒ **G3 关闭**。台账：`production/TASKS-DETAIL.md ## WXG-T-077`。
+
 ### G4 — 触摸事件与坐标系
 
 - `Node.EventType.TOUCH_START` 等常量的**准确拼写**（代码里暂时用字符串 `'touch-start'`）。
