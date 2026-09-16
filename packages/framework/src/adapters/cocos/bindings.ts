@@ -27,6 +27,9 @@ import {
   Label,
   Node,
   UITransform,
+  // WXG-T-104：`screen.devicePixelRatio` 是输入源（`pal/input`）同引擎同源的 DPR，
+  // 归一化必须用它，不要自己复刻 `min(dpr, 2)` 的封顶规则。
+  screen,
 } from 'cc';
 
 import { App } from '../../compose/app.js';
@@ -35,6 +38,8 @@ import { CocosRenderModelRenderer } from './cocos-renderer.js';
 import { CocosInputBridge } from './input-bridge.js';
 import { CocosLoopBridge } from './loop-bridge.js';
 import { PooledLabelSource } from './label-pool.js';
+import type { CocosTouchSpace } from './touch-normalize.js';
+import { normalizeCocosTouch } from './touch-normalize.js';
 import { detectPlatform } from '../../platform/index.js';
 
 const { ccclass, property } = _decorator;
@@ -100,9 +105,10 @@ export class Bootstrap extends Component {
     this._bindInput();
     this._loop = new CocosLoopBridge(app, this);
     this._loop.start();
-    // Must run AFTER the loop starts: CocosLoopBridge.start() calls App.start(),
-    // which re-fits the viewport to platform.getScreenSize(). Doing this any
-    // earlier gets silently overwritten (observed 2026-09-13).
+    // Must run AFTER the loop starts: CocosLoopBridge.start() calls
+    // App.startHostDriven() (WXG-T-122), which re-fits the viewport to
+    // platform.getScreenSize(). Doing this any earlier gets silently
+    // overwritten (observed 2026-09-13).
     this._fitToGameCanvas();
     if (!this._resizeBound) {
       const target = (globalThis as { addEventListener?: (t: string, l: () => void) => void })
@@ -117,12 +123,16 @@ export class Bootstrap extends Component {
   /**
    * Align the framework screen space with `EventTouch.getLocation()`.
    *
-   * getLocation() reports CSS px **relative to the game canvas element**,
-   * while the auto-detected Web platform reports the whole window — on the
-   * editor preview the canvas sits offset inside the page, so every input x/y
-   * was off by the canvas offset (observed 2026-09-13: click at page x=600
-   * delivered raw x=335). Resizing the viewport to the canvas element makes
-   * both spaces agree. On WeChat the canvas is fullscreen, so this is a no-op.
+   * getLocation() is **canvas-relative** but in *device* px (`× dpr`), not CSS
+   * px — corrected 2026-09-15 (WXG-T-104): the old text claimed CSS px, which
+   * is one half of the defect (the other half being the bottom-left origin).
+   * The canvas-relative part is still true and is why this matters: the
+   * auto-detected Web platform reports the whole window, so on the editor
+   * preview the canvas sits offset inside the page and every input x/y was off
+   * by the canvas offset (observed 2026-09-13: click at page x=600 delivered
+   * raw x=335). Resizing the viewport to the canvas element makes both spaces
+   * agree; the device-px part is undone in `readTouch()` (÷ dpr).
+   * On WeChat the canvas is fullscreen, so this is a no-op.
    */
   private _fitToGameCanvas(): void {
     if (!this._app) return;
@@ -201,12 +211,34 @@ export class Bootstrap extends Component {
     );
   }
 
+  /**
+   * 输入归一化所需的宿主量（WXG-T-104）。
+   *
+   * 高度取 `viewport.fit.screenHeight`：它由 `_fitToGameCanvas()` 用
+   * `#GameCanvas.clientHeight`（**CSS px**）设置，与 `platform.getScreenSize()`
+   * 同口径；微信侧无 `document` 时保持平台屏幕尺寸（同为 CSS px）。
+   * DPR 取引擎自己的 `screen.devicePixelRatio`（web 封顶 2、小游戏不封顶），
+   * 与 `pal/input` 的输入源同源 —— 不要在适配层复刻封顶规则。
+   */
+  private _touchSpace(): CocosTouchSpace {
+    return {
+      canvasHeightCss: this._app ? this._app.viewport.fit.screenHeight : 0,
+      dpr: engineDpr(),
+    };
+  }
+
   private _bindInput(): void {
     if (!this._app) return;
-    // No mapPoint: RawPointerInput is screen CSS px (top-left origin) and
-    // getLocation() already delivers exactly that. Viewport.screenToDesign
-    // owns the screen→design conversion (incl. the y flip) — flipping y here
-    // too would cancel it out and invert the y axis (fixed 2026-09-13).
+    // No mapPoint: the normalisation lives in `normalizeCocosTouch()` (a pure,
+    // Node-testable function) so that the coordinate contract can be *tested*
+    // instead of asserted in a comment.
+    //
+    // getLocation() is **canvas-relative · device px · BOTTOM-LEFT origin**
+    // (measured 2026-09-15, Cocos 3.8.8 web-mobile), while `RawPointerInput`
+    // wants **screen CSS px · top-left origin** ⇒ `readTouch()` must both
+    // flip y and divide by dpr. The previous comment claimed the opposite
+    // ("getLocation() already delivers top-left CSS px") — that was wrong and
+    // is the root cause of defect C1; see ADR-0011 §1.1 (corrected).
     const bridge = new CocosInputBridge(this._app.input, {
       now: () => Date.now(),
     });
@@ -224,22 +256,22 @@ export class Bootstrap extends Component {
     // 3.8.8: the dash form ('touch-start') is correct.
     host.on(
       'touch-start',
-      (e: CocosTouchEvent) => bridge.onTouchStart(readTouch(e, this.node)),
+      (e: CocosTouchEvent) => bridge.onTouchStart(readTouch(e, this._touchSpace())),
       this,
     );
     host.on(
       'touch-move',
-      (e: CocosTouchEvent) => bridge.onTouchMove(readTouch(e, this.node)),
+      (e: CocosTouchEvent) => bridge.onTouchMove(readTouch(e, this._touchSpace())),
       this,
     );
     host.on(
       'touch-end',
-      (e: CocosTouchEvent) => bridge.onTouchEnd(readTouch(e, this.node)),
+      (e: CocosTouchEvent) => bridge.onTouchEnd(readTouch(e, this._touchSpace())),
       this,
     );
     host.on(
       'touch-cancel',
-      (e: CocosTouchEvent) => bridge.onTouchCancel(readTouch(e, this.node)),
+      (e: CocosTouchEvent) => bridge.onTouchCancel(readTouch(e, this._touchSpace())),
       this,
     );
   }
@@ -252,19 +284,52 @@ interface CocosTouchEvent {
   getDelta?(): { x: number; y: number };
 }
 
+let _dprWarned = false;
+
+/**
+ * 引擎生效的 DPR（`pal/input` 的输入源用的就是 `screenAdapter.devicePixelRatio`：
+ * web = `min(window.devicePixelRatio, 2)`、小游戏 = `getWindowInfo().pixelRatio`）。
+ *
+ * 必须与输入源**同源**：用平台层那个未封顶的 `devicePixelRatio` 会在 dpr=3 的
+ * 机器上留下 1.5 倍缩放误差。取不到有效值时退化为 1（只翻 y，不缩放）并 **warn
+ * 一次** —— 静默错缩放比 warn 更难查。
+ */
+function engineDpr(): number {
+  const dpr = screen.devicePixelRatio;
+  if (Number.isFinite(dpr) && dpr > 0) return dpr;
+  if (!_dprWarned) {
+    _dprWarned = true;
+    console.warn(
+      `[Bootstrap] screen.devicePixelRatio = ${String(dpr)} 不可用于输入归一化，` +
+      '本次按 1 处理 —— 高 DPR 设备上点击会整体放大（WXG-T-104）。',
+    );
+  }
+  return 1;
+}
+
 /**
  * Normalise a Cocos touch event into the framework's raw pointer shape.
  *
- * `getLocation()` returns screen CSS px with a top-left origin — exactly the
- * `RawPointerInput` contract. Do NOT use `getUILocation()`: it returns UI
- * space (bottom-left, Canvas-relative units) whose mapping depends on the
- * host Canvas configuration. Empirically confirmed in 3.8.8 preview
- * (2026-09-13): paddle x tracked getLocation coordinates exactly.
+ * `getLocation()` is **canvas-relative · device px · bottom-left origin**
+ * (measured 2026-09-15 on a real web-mobile build; the old claim that it was
+ * top-left CSS px is false and is defect C1, WXG-T-104). `RawPointerInput`
+ * wants **screen CSS px · top-left origin**, so the value is normalised by
+ * {@link normalizeCocosTouch} (÷ dpr, then flip y). `Viewport.screenToDesign`
+ * still owns screen→design and its own y flip — flipping here is required, not
+ * a double flip.
+ *
+ * Do NOT use `getUILocation()`: it is the engine's FIXED_HEIGHT UI space
+ * (bottom-left, design units, dpr-independent) which does **not** subtract the
+ * letterbox offset, so it is not the framework's design space either.
  */
-function readTouch(e: CocosTouchEvent, _node: Node): { id: number; x: number; y: number } {
+function readTouch(
+  e: CocosTouchEvent,
+  space: CocosTouchSpace,
+): { id: number; x: number; y: number } {
   const id = e.getID ? e.getID() : 0;
   const p = e.getLocation ? e.getLocation() : { x: 0, y: 0 };
-  return { id, x: p.x, y: p.y };
+  const q = normalizeCocosTouch(p, space);
+  return { id, x: q.x, y: q.y };
 }
 
 /** Wrap a `cc.Label` in the structural `CocosLabelLike` interface. */

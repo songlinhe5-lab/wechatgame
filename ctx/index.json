@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2389,
       "lines": 97,
-      "sha256": "b0c2bf91b09ad57a5eeddd23aadf7358b4e9671a1dca7403383ad974e8ec12ca",
+      "sha256": "6e97c728586d7b34637279bb1480489fa9b7ba85f3ac76018883c37bbf5beb23",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3776,
+      "tokens": 3799,
       "lines": 82,
-      "sha256": "099af6e191f8699397111f891c433d0d01c0d0b180151626bb3d83f36991f684",
+      "sha256": "2f9904aa64d1235c254bcc59a574e0db57e8017e11de62032294214dceefada4",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 3748,
+          "tokens": 3771,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -513,12 +513,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 243 行 / 4852 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 305 行 / 6765 tok / 实测读 42 次",
           "level": 2,
           "startLine": 14,
           "endLine": 17,
-          "tokens": 210,
-          "summary": "§控制清单 — 可立即执行的一页规则=1+244 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
+          "tokens": 233,
+          "summary": "§控制清单 — 可立即执行的一页规则=1+306 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
           "keywords": [
             "§0",
             "§1",
@@ -5248,17 +5248,17 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 4852,
-      "lines": 243,
-      "sha256": "a3acc2a56ac55d009b4ada4b1cb02f489587b27159f788ebb8c40767b51f69d0",
+      "tokens": 6765,
+      "lines": 305,
+      "sha256": "458703ed868529175c93de6a793d42cc4c8c1aab482b12a77287d76b8dba185f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§控制清单 — 可立即执行的一页规则",
           "level": 1,
           "startLine": 1,
-          "endLine": 244,
-          "tokens": 4837,
+          "endLine": 306,
+          "tokens": 6749,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -5356,8 +5356,8 @@
           "anchor": "§6 输入",
           "level": 2,
           "startLine": 88,
-          "endLine": 96,
-          "tokens": 102,
+          "endLine": 97,
+          "tokens": 145,
           "summary": "✅ 游戏只读 InputManager.snapshot（逐帧不可变）",
           "keywords": [
             "InputManager",
@@ -5368,8 +5368,8 @@
         {
           "anchor": "§7 状态机",
           "level": 2,
-          "startLine": 97,
-          "endLine": 105,
+          "startLine": 98,
+          "endLine": 106,
           "tokens": 115,
           "summary": "✅ 用 StateMachine<S> 的转移表声明合法边；非法转移自动失败",
           "keywords": [
@@ -5380,8 +5380,8 @@
         {
           "anchor": "§8 渲染",
           "level": 2,
-          "startLine": 106,
-          "endLine": 116,
+          "startLine": 107,
+          "endLine": 117,
           "tokens": 185,
           "summary": "✅ 游戏只产出 RenderModel（rect / circle / line / text / polygon）",
           "keywords": [
@@ -5396,8 +5396,8 @@
         {
           "anchor": "§9 平台差异",
           "level": 2,
-          "startLine": 117,
-          "endLine": 124,
+          "startLine": 118,
+          "endLine": 125,
           "tokens": 89,
           "summary": "✅ 一切宿主差异写在 platform/{node,web,weapp}.ts 里，通过 Platform 接口暴露",
           "keywords": [
@@ -5412,8 +5412,8 @@
         {
           "anchor": "§10 网络与安全（后续游戏适用）",
           "level": 2,
-          "startLine": 125,
-          "endLine": 134,
+          "startLine": 126,
+          "endLine": 135,
           "tokens": 137,
           "summary": "✅ 服务端权威：客户端只做本地预测与表现，判定结果以服务端为准",
           "keywords": [
@@ -5424,8 +5424,8 @@
         {
           "anchor": "§11 测试",
           "level": 2,
-          "startLine": 135,
-          "endLine": 153,
+          "startLine": 136,
+          "endLine": 154,
           "tokens": 204,
           "summary": "✅ 验证驱动：先写测试，再实现",
           "keywords": [
@@ -5435,9 +5435,9 @@
         {
           "anchor": "§12 提交前自查表",
           "level": 2,
-          "startLine": 154,
-          "endLine": 172,
-          "tokens": 195,
+          "startLine": 155,
+          "endLine": 174,
+          "tokens": 226,
           "summary": "",
           "keywords": [
             "提交前自查表"
@@ -5446,9 +5446,9 @@
         {
           "anchor": "§13 反模式速查（见到就打回）",
           "level": 2,
-          "startLine": 173,
-          "endLine": 193,
-          "tokens": 412,
+          "startLine": 175,
+          "endLine": 197,
+          "tokens": 504,
           "summary": "在 update() 里 arr.filter(...) 原地遍历 + for 循环；池化临时数组",
           "keywords": [
             "update",
@@ -5462,8 +5462,8 @@
         {
           "anchor": "§14 Cocos MCP 编辑器接入（ADR-0009）",
           "level": 2,
-          "startLine": 194,
-          "endLine": 206,
+          "startLine": 198,
+          "endLine": 210,
           "tokens": 450,
           "summary": "接入定位：验证 / 构建 / 资源刷新闭环——不是\"用 AI 搭场景\"。插件在编辑器侧，运行时包体零影响。",
           "keywords": [
@@ -5476,8 +5476,8 @@
         {
           "anchor": "§15 构建层语言契约（ADR-0012，根因 G10）",
           "level": 2,
-          "startLine": 207,
-          "endLine": 227,
+          "startLine": 211,
+          "endLine": 231,
           "tokens": 874,
           "summary": "Cocos 脚本打包把所有平台降到 ES5，且 built-in 不 polyfill、语法照旧降级。其中一条不对称会静",
           "keywords": [
@@ -5492,9 +5492,9 @@
         {
           "anchor": "§16 音频后端契约（ADR-0013，根因 BD-05b）",
           "level": 2,
-          "startLine": 228,
-          "endLine": 244,
-          "tokens": 756,
+          "startLine": 232,
+          "endLine": 250,
+          "tokens": 758,
           "summary": "选型已冻结：systems-index §3.12 = 程序化合成、主包音频 0 KB（判据 A05-25）。要出声只能",
           "keywords": [
             "§3.12",
@@ -5503,6 +5503,22 @@
             "index",
             "A05",
             "音频后端契约"
+          ]
+        },
+        {
+          "anchor": "§17 宿主输入归一化（ADR-0011 §3(e)，根因 缺陷 C1）",
+          "level": 2,
+          "startLine": 251,
+          "endLine": 306,
+          "tokens": 1724,
+          "summary": "屏幕坐标的唯一契约 = 屏幕 CSS px · 左上原点；DPR 永不进 Viewport / InputManager",
+          "keywords": [
+            "§3",
+            "ADR",
+            "CSS",
+            "DPR",
+            "Viewport",
+            "InputManager"
           ]
         }
       ]

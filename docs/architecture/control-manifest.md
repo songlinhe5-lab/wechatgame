@@ -91,6 +91,7 @@ games/<game>/
 - ✅ 坐标一律经 `Viewport.screenToDesign()` 转换；游戏里不存在"屏幕坐标"
 - ✅ 需要测试/无头驱动时，用公开方法（如 `game.movePaddleTo(x)`）而不是伪造原生事件
 - ❌ 不在游戏里读 `window`、`wx`、`TouchEvent`、`MouseEvent`
+- ✅ 宿主归一化见 **§17**（引擎原生事件坐标必须经 adapter 变成 CSS px + 左上原点，不得直接喂 `InputManager`）
 
 ---
 
@@ -166,6 +167,7 @@ node tools/scripts/check-architecture.mjs
 [ ] §11 新增代码有测试，且 tsc --noEmit 与 vitest 全绿
 [ ] §11 check-architecture.mjs 通过
 [ ] §15 没有对 Set / Map / 迭代器 / 字符串用展开语法（一律 Array.from）；check-es5-spread.mjs 通过
+[ ] §17 宿主输入已 ÷dpr + 翻 y，且有 Node 行为测试（不是源码级正则断言）
 ```
 
 ---
@@ -188,6 +190,8 @@ node tools/scripts/check-architecture.mjs
 | `[...someSet]` / `[...map.keys()]` / `[...str]` | `Array.from(someSet)`——Cocos ES5 构建会把非数组展开压成不展开的 concat 形式（ADR-0012） |
 | 框架里写 `sfx_place` 这类玩法 clip id | 音色表由游戏侧 `Game.audioVoices` 注入，框架只认结构不认玩法（ADR-0013） |
 | backend 遇到未登记 clip 就「随便发个声」 | **不发声** + 一次性 warn；音色是设计产出，不是引擎兜底项（ADR-0013 §3.3） |
+| 把 `getLocation()` 直接喂 `InputManager` | 经 adapter 归一化成 **CSS px + 左上原点**（÷dpr + 翻 y）再喂（**§17**，ADR-0011 §3(e)） |
+| 用源码级正则断言锁「y 翻转」语义 | 正则判别力为零（缺陷 C1 就是这么漏的）；写 Node **行为测试**（§17） |
 
 ---
 
@@ -241,3 +245,61 @@ node tools/scripts/check-architecture.mjs
 - ⚠️ **本轮不做**（不冒充交付）：`priority/steal`（需求单第 5 项）、weapp `InnerAudioContext` 文件池（与 0 KB 选型冲突，回退需先解除主包余量冲突，ADR-0013 §2 丁）。
 
 **自查**：`pnpm -F @wxgame/framework test tests/platform/audio-synth.test.ts`（引擎结构与契约 15 例）+ `pnpm -F @wxgame/beads test tests/audio-dispatch.test.ts`（19 clip 清单闭合与派发分档 26 例）。二者均只证 `[N]`；时长/响度/真机听感一律另计 `[B]/[C]/[R]/[P]`。
+
+---
+
+## 17. 宿主输入归一化（ADR-0011 §3(e)，根因 缺陷 C1）
+
+> 屏幕坐标的唯一契约 = **屏幕 CSS px · 左上原点**；**DPR 永不进 `Viewport` / `InputManager` / 任何 core 类型**。
+> ADR-0011 §3(a)–(d) 定的是**消费端**口径，本条定的是**生产端**：谁负责把引擎原生事件变成这个契约。
+> 缺陷 C1 正是"只把断言写进代码注释与 ADR 引用、没进本清单"的产物 —— 后果是 beads 在 web 产物上
+> **每一次点击都落在上下镜像位置**、真机（dpr≥2）上**两轴全错**，玩法整体不可用（WXG-T-104 修复）。
+
+- ❌ **禁止把引擎原生事件坐标直接喂 `InputManager` / `RawPointerInput`。** Cocos 3.8.8 实测
+  （web-mobile + Chrome，3 宿主配置 / 7 采样点）：`getLocation()` / `getStartLocation()` =
+  画布相对 · **device px（× dpr）** · **左下原点**（`x = (clientX − rect.x) × dpr`、
+  `y = (rect.y + rect.height − clientY) × dpr`）。与契约相差**整屏高度 + 一个 dpr 因子**。
+  `getUILocation()` 同样不可用（设计单位 · 左下原点 · 引擎按 FIXED_HEIGHT 适配 ⇒ **不减信箱偏移**）。
+- ✅ **归一化全权归宿主 adapter**：写在 `adapters/<引擎>/` 层 —— **不在** `core/**`（L2）、
+  **不在** `games/*/src`（L3）、**不在** `Viewport`。且**必须同时做两件事**：
+  ① ÷dpr（device px → CSS px）② y 翻转（`y' = canvasHeightCss − y/dpr`，左下 → 左上）。
+  **只做一半是错的**：只翻 y ⇒ dpr≥2 时整屏放大 2 倍，点屏幕右侧即越界出屏。
+- ✅ `Viewport` / `InputManager` 只接受「屏幕 CSS px · 左上原点」；**DPR 永不进 `Viewport` 或任何 core 类型**。
+  `Viewport.screenToDesign()` 自身那次 y 翻转（设计空间 y 向上）**不是"重复翻转"** ——
+  早期正是把这句话理解反了，才产生缺陷 C1。
+- ✅ 归一化必须是 **Node 下可测的纯函数**（不 `import 'cc'`、不读 DOM / 全局）。
+  参照 `packages/framework/src/adapters/cocos/touch-normalize.ts::normalizeCocosTouch(raw, { canvasHeightCss, dpr }, out?)`。
+- ✅ **新宿主 / 新引擎适配器接入必须同形态复刻**：纯函数 + `packages/framework/tests/adapters/<引擎>-touch-normalize.test.ts` 的 **Node 行为测试**。
+- ❌ **禁止只用源码级正则 / 文本断言锁语义**：正则对"y 翻转"这类问题的**判别力近似为零**，
+  C1 就是这么漏过去的。源码级断言只能作**过渡形态**，行为测试落地后必须退役（T-104 阶段 B 已退役两条）。
+- ✅ **宿主量必须与 `platform.getScreenSize()` 的 CSS px 口径同源**：`canvasHeightCss` 取
+  `viewport.fit.screenHeight`（由 `_fitToGameCanvas()` 用 `#GameCanvas.clientHeight` 设置）；
+  **不要**用 `getBoundingClientRect().height`。
+- ✅ **dpr 必须与输入源同源**：取引擎生效值 **`cc.screen.devicePixelRatio`**（web 封顶 2；小游戏**无封顶**）。
+  **禁止**用平台层 `getScreenSize().pixelRatio`（web 侧未封顶，dpr=3 机上留 1.5 倍误差），
+  **禁止**在 adapter 里自行复刻封顶规则（引擎改规则即静默失配）。
+- ⚠️ **DPR 必须显式注入，不能读环境**：无头 CI 常见 `devicePixelRatio === 1`，届时"÷dpr"与"不除"结果相同
+  ⇒ 断言退化为**恒真而静默失效**。行为测试须自建 **dpr: 2 / 3 桩**并覆盖三档。
+- ⚠️ **微信小游戏侧 `[R]` 阻塞**：`pal/input/minigame/touch-input.ts` 与 web 源码**同形**，但
+  **无 AppID / 无真机 ⇒ 未实测**，**不得当已验证**写进结论；真机首验须把「点击落点 / 托盘选中 / dpr 缩放」
+  列 **P0 检查项**（与 ADR-0011 §4.2(10) 同口径）。
+
+**负面后果（已知成本，不是风险）**：
+
+1. **漏做归一化的症状是"点击整体偏移 / 上下镜像"，不报错、不红测试** ⇒ 第一现场常被误判成玩法 bug 或命中盒 bug
+   （C1 存活到 2026-09-15 才暴露，P0 排查成本发生在发布前夕），定位成本高；且**桌面 dpr=1 会让 ×dpr 那一半完全隐身**
+   （只吃 x 的挡板验证对 y 翻转判别力为零）。这是本条已付出的真实成本。
+2. **强制"纯函数 + 行为测试"抬高接入成本**：每个新宿主多一个模块 + 一个测试文件。收益只在**第二次接入**时才体现，
+   第一次接入时它看起来是纯开销 ⇒ 需要有评审清单（§12 已列一项）兜着，否则会被"先上线再说"绕过。
+3. **引入 `cc.screen.devicePixelRatio` 这条静态引擎依赖**：引擎改名 / 移除会在 `cocos:check` **构建期**红（可发现），
+   但**微信侧该 API 的运行时取值无人验过**；退化分支（取到非正数 → 按 1 处理 + 一次 `warn`）在 Node 下**不可测**
+   （`bindings.ts` 被 `tsconfig` 与 vitest 排除），只能靠日志发现。
+4. **`canvasHeightCss` 用整数 CSS px，而引擎输入源用可为小数的 `rect.height`** ⇒ ≤1px 亚像素偏差，
+   **刻意接受**（选前者的理由是它与 `screenToDesign` 同口径；量级远小于最小命中盒 —— beads 托盘 62² 设计单位 ≈ 33 CSS px）。
+   未登记为缺陷，见 ADR-0011 §4.2(9)。
+
+**自查**：`pnpm -F @wxgame/framework test tests/adapters/cocos-touch-normalize.test.ts`（9 例 Node 行为测试：
+dpr=1/2/3 封顶、信箱、边界、非法 dpr、Viewport 往返）。端到端复跑探针：
+`node production/qa/beads/cocos-input-probe.mjs`（WXG-T-108 落盘；自带断言与退出码 + **反例自检** ——
+它正是"新宿主必须补行为测试"这条要求的机械样例，**新宿主/新引擎适配器照它的形态复刻一份**）。
+二者均只证 `[N]`（web-mobile）；微信真机侧为 ⛔ `[R]`，不得记 PASS。
