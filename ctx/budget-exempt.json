@@ -152,6 +152,66 @@
       "reason": "beads 音频事件表正本（§1 事件表 17 行逐行对齐 + §2 反向无发明 + Q-A05 未决），音频域按表局部读",
       "note": "⚠️ 代登记（2026-09-16，主理人 T-130 提交批次）：本文件 8660 tok 超 660 系 WXG-T-128 批（§5 新增两行的对齐登记，+12 行）所致，该批未登记豁免致 commit 守卫阻断；归属 WXG-T-128，请该单收口时追认本条",
       "taskId": "WXG-T-128"
+    },
+    {
+      "path": "my-skills/_repos/mattpocock-skills/CHANGELOG.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/RELEASE-NOTES.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/docs/porting-to-a-new-harness.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/docs/superpowers/plans/2026-05-06-lift-drill-into-evals.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/docs/superpowers/plans/2026-06-11-visual-companion-final-hardening-fixup.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-06-sdd-plan-scoped-workspace.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-30-codex-efficiency-fixes.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/skills/subagent-driven-development/SKILL.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/_repos/superpowers/skills/writing-skills/anthropic-best-practices.md",
+      "reason": "第三方 skill 上游库快照（my-skills/_repos/**，vendor 引入：superpowers / mattpocock-skills 等），上游原文不改不拆；开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-16，主理人 E2 收口批次）：vendor 引入会话未登记豁免致 commit 守卫阻断；归属 = skills vendor 引入会话，请收口时追认。若后续要精简，优先从 _repos 删除非活跃上游",
+      "taskId": "vendor-skills"
     }
   ]
 }

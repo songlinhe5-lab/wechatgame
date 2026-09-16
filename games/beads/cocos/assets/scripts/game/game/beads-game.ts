@@ -137,6 +137,8 @@ import { buildBeadsView } from '../view/view-model';
 export interface BeadsEvents extends Record<string, unknown> {
   'tray:spawned': { slot: number; colorIdx: number };
   'tray:selected': { slot: number; colorIdx: number };
+  /** v1.22 新增：错位珠选中（选择锚置 `board`，与 `tray:selected` 互斥对称）。 */
+  'board:selected': { row: number; col: number; colorIdx: number };
   /** v1.22 新增：取回入槽（S3/S4 同帧原子，不计分不断连）。 */
   'tray:stored': { slot: number; colorIdx: number; fromRow: number; fromCol: number };
   /** v1.22 payload 变更：`slot` 改可选（托盘路径必带；解环器路径不带，E4）。 */
@@ -324,6 +326,15 @@ export class BeadsGame implements Game {
   /** Scratch point for screen → design conversion (never retained). */
   private readonly _pointer = { x: 0, y: 0 };
 
+  /**
+   * 统一选择锚 · board 侧（input-control §2.1 v2.0，Epic T-133 E2）。`null` = 无
+   * board 锚。与托盘的 `selected` 槽位态（S4）**三值互斥**：`selection ∈ {tray,
+   * board, none}` 至多一侧非空——建立一侧时必须清除另一侧（换选即转移，不叠选）。
+   * 生命周期 = PLAYING 局内态：`_setupLevel` / `_loadStage` 重置；不在崩溃快照里
+   * （恢复后锚 = tray-or-none，与 traySelected 同批管理，E5 扩错位珠色时再议）。
+   */
+  private _boardSelected: { row: number; col: number } | null = null;
+
   constructor(options: BeadsGameOptions = {}) {
     this.tuning = options.tuning ?? DEFAULT_TUNING;
     this.palette = options.palette ?? DEFAULT_PALETTE;
@@ -396,6 +407,22 @@ export class BeadsGame implements Game {
   /** Tray (authoritative; read-only usage expected). */
   get tray(): Tray {
     return this._tray;
+  }
+
+  /**
+   * 统一选择锚（input-control §2.1 v2.0）——派生只读，三值互斥不变式由本类所有
+   * 写点共同维持：`tray` = 托盘有 `selected` 槽；`board` = `_boardSelected` 非空；
+   * 两侧写点互为清除（换选即转移）。测试 / harness / E6 快照消费。
+   */
+  get selection(): 'tray' | 'board' | 'none' {
+    if (this._tray.selectedSlot >= 0) return 'tray';
+    if (this._boardSelected !== null) return 'board';
+    return 'none';
+  }
+
+  /** board 锚：选中的错位珠格坐标（无 = null）。与快照 `boardSelectedRow/Col` 同真源。 */
+  get boardSelected(): { readonly row: number; readonly col: number } | null {
+    return this._boardSelected;
   }
 
   get remaining(): number {
@@ -575,11 +602,15 @@ export class BeadsGame implements Game {
 
   // ────────────────────────────────────────────────────────── player commands
 
-  /** Select a tray slot (S2 route 4). Idempotent; re-selection moves the mark. */
+  /**
+   * Select a tray slot (S2 route 4a). Idempotent; re-selection moves the mark.
+   * v2.0：成功即建立 tray 锚并**清除 board 锚**（互斥换选，input-control §2.1）。
+   */
   selectTraySlot(slot: number): boolean {
     if (this._machine.current !== 'playing') return false;
     const result = this._tray.select(slot);
     if (result !== 'selected') return false;
+    this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._emit('tray:selected', { slot, colorIdx: color });
     this._powerups.noteSelected(slot); // S6 镜像：region 的窗口锚点（§2.2）
@@ -587,13 +618,54 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * v2.0 选错位珠命令（S2 route 5a 的公开形态，Epic T-133 E2；与 `selectTraySlot`
+   * / `retrieveBead` 同判例——测试与 harness 不伪造触摸）。仅 `filled(错位)` 可选中
+   * （判定直接用 grid 派生谓词 `isMisplaced`，不在路由层复制逻辑）；同一颗幂等
+   * （双击零新事件，§8-6 同型）；换选别的错位珠即转移锚。成功时清除托盘选中
+   * （互斥，静默零事件）并广播 `board:selected {row, col, colorIdx}`
+   * （systems-index §4；`colorIdx` = 珠色 `beadColorIdx`，与 `tray:selected` 的
+   * 「珠色」语义对称）。
+   *
+   * @returns true only when the anchor was established (or already on this bead).
+   */
+  selectBoardBead(row: number, col: number): boolean {
+    if (this._machine.current !== 'playing') return false;
+    if (!this._grid.isMisplaced(row, col)) return false;
+    const prev = this._boardSelected;
+    if (prev && prev.row === row && prev.col === col) return true; // 幂等：不重发
+    this._clearTraySelection(); // 互斥换选：board 锚建立 ⇒ tray 锚清除
+    this._boardSelected = { row, col };
+    this._emit('board:selected', {
+      row,
+      col,
+      colorIdx: this._grid.cell(row, col)!.beadColorIdx,
+    });
+    return true;
+  }
+
+  /**
+   * 静默清除托盘选中（锚互斥的 S4 侧半边，input-control §2.1「换选即转移」）。
+   * ⚠️ 槽位态 `selected → holding` 直写：Tray 尚无 deselect 通道（`src/entities/**`
+   * 属 E1 域本单禁改，已回传登记，建议后续批次给 Tray 补 `deselect()`）。S6 镜像
+   * **无需**反向通知——`_anchor` 语义只要求该槽仍 `holding`（powerups.ts §region
+   * 的回退读法），`selected → holding` 天然满足，无漂移。
+   */
+  private _clearTraySelection(): void {
+    const selected = this._tray.selectedSlot;
+    if (selected < 0) return;
+    this._tray.slot(selected)!.state = 'holding';
+  }
+
+  /**
    * Attempt to place the currently selected bead at (row, col) — the S2 → S3
    * route as a public command so tests and the harness never fake touch events.
+   * v2.0：与真链路由 5b 共用 `_routeGridEmpty`——「无托盘选中」的前置缺口轻提示
+   * （BD-16，§8-7）在路由层统一表达，旁路与真链同口径。
    * @returns true only when the placement was accepted.
    */
   tapGridCell(row: number, col: number): boolean {
     if (this._machine.current !== 'playing') return false;
-    return this._placeSelected(row, col);
+    return this._routeGridEmpty(row, col);
   }
 
   /**
@@ -1173,6 +1245,7 @@ export class BeadsGame implements Game {
     if (!level) throw new Error(`Beads: no level at index ${index}`);
     this._grid = new BeadGrid(level.pattern);
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows);
+    this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
     this._tray.reset();
     this._resetPowerups();
     this._tray.initNeeded(this._grid.neededColorCounts());
@@ -1202,6 +1275,7 @@ export class BeadsGame implements Game {
     const { pattern } = buildStagePattern(n);
     this._grid = new BeadGrid(pattern);
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows);
+    this._boardSelected = null; // 换 stage ⇒ 旧 board 锚指向的格已不存在
     this._tray.reset();
     this._resetPowerups(); // 冲刺换 stage = 换关语义，三计数一并复位（§2.5）
     this._tray.initNeeded(this._grid.neededColorCounts());
@@ -1290,16 +1364,18 @@ export class BeadsGame implements Game {
           }
           return;
         }
-        // 4. Tray bead (62² hit area, nearest slot centre wins).
+        // 4. Tray band (62² hit area, nearest slot centre wins) — v2.0 内部分支
+        //    4a holding / 4b 空槽，见 `_routeTraySlot`（带级次序不变）。
         const slot = this._hitTraySlot(x, y);
         if (slot >= 0) {
-          this.selectTraySlot(slot);
+          this._routeTraySlot(slot);
           return;
         }
-        // 5. Grid cell (66² hit area, nearest cell centre wins).
+        // 5. Grid cell (66² hit area, nearest cell centre wins) — v2.0 内部分支
+        //    5a 错位珠 / 5b 空格 / 5c locked・就位，见 `_routeGridCell`。
         const cell = this._hitGridCell(x, y);
         if (cell) {
-          this._placeSelected(cell.row, cell.col);
+          this._routeGridCell(cell.row, cell.col);
         }
         return;
       }
@@ -1370,6 +1446,73 @@ export class BeadsGame implements Game {
       default:
         return; // boot / level-clear: taps ignored (panel answers are PAUSED-only)
     }
+  }
+
+  /**
+   * 路由 4 · 托盘带内部分支（input-control §2.1 v2.0，Epic T-133 E2；带级次序不变）：
+   *  - **4a holding 槽** → 选中/换选（发 `tray:selected`，锚置 tray）。
+   *    **例外（§8-11 满槽禁取珠）**：锚 = board 且托盘无空槽时，点任意托盘槽 =
+   *    满槽取回拒绝 ⇒ 零事件零状态写、board 锚保持（§2.4 满槽取回条）。
+   *  - **4b 空槽 且 锚 = board** → 取回（`retrieveBead`，E1 API；成功即清 board
+   *    锚——珠已离格，锚不得指向空格）。
+   *  - **4b 空槽 且 锚 ∈ {tray, none}** → 零事件忽略。GDD 4b 对此写「无效落点
+   *    轻提示」，但轻提示通道 `_showTapHint` 只有 cell / expand 两种锚点几何，
+   *    托盘锚点属 E6 视觉面（本单禁改 view）⇒ 按任务口径先零事件忽略，已回传登记。
+   */
+  private _routeTraySlot(slot: number): void {
+    const traySlot = this._tray.slot(slot)!;
+    if (traySlot.state !== 'free') {
+      // 4a holding —— 先过 §8-11 满槽禁取珠门（托盘满 ⇒ 所有槽皆 holding）。
+      if (this._boardSelected !== null && this._tray.freeCount === 0) return;
+      this.selectTraySlot(slot);
+      return;
+    }
+    const anchor = this._boardSelected;
+    if (!anchor) return; // 4b 无 board 锚：零事件忽略（见方法头注）
+    if (this.retrieveBead(anchor.row, anchor.col, slot)) {
+      this._boardSelected = null; // 取回成功 ⇒ 珠离格，board 锚随之失效
+    }
+  }
+
+  /**
+   * 路由 5 · 网格带内部分支（input-control §2.1 v2.0；带级次序不变）：
+   *  - **5a `filled(错位)`** → `selectBoardBead`（锚置 board，发 `board:selected`）。
+   *    错位判定**只用 grid 派生谓词** `isMisplaced`，不在路由层复制逻辑。
+   *  - **5b `empty`** → 锚 = tray ⇒ `_placeSelected`（S3 裁决 placed/rejected）；
+   *    锚 ∈ {board, none} ⇒ 归位前置缺口轻提示（零事件，仅可落空格——§8-7），
+   *    分支体见 `_routeGridEmpty`（`_placeSelected` 的 slot<0 分支已迁来）。
+   *  - **5c locked / `filled(就位)`** → 极轻非惩罚反馈忽略（§2.4 裁定 4）。G7
+   *    极轻反馈通道（scale 1.00→0.96→1.00 + `sfx_denied`）尚无现成实现（全仓
+   *    无 press/denied 状态，WXG-T-128 属 E6/音频落码批次）⇒ 按任务口径
+   *    **零事件零状态写**，通道落码后在 5c 出口接入。
+   */
+  private _routeGridCell(row: number, col: number): void {
+    if (this._grid.isMisplaced(row, col)) {
+      this.selectBoardBead(row, col); // 5a
+      return;
+    }
+    if (this._grid.isFillable(row, col)) {
+      this._routeGridEmpty(row, col); // 5b
+      return;
+    }
+    // 5c：locked / void / filled(就位) —— 零事件零状态写（见方法头注）
+  }
+
+  /**
+   * 5b 空格分支体，真链（`_routeGridCell`）与旁路（`tapGridCell`）共用：
+   * 锚 = tray → 归位请求；否则归位前置缺口轻提示（BD-16，`TAP_HINT_NO_SELECTION_TEXT`，
+   * 仅 fillable 格给——锁定/就位格走 5c 的零事件口径，两判据交界 = §8-7；真链 5b
+   * 只在 empty 格到达本方法，fillable 复核是给旁路保住旧判据）。
+   * 自 `_placeSelected` 的 `slot<0` 分支**迁来**（v2.0：「无选中」语义由锚表达，
+   * S3 收到的归位请求必带 tray 锚；此处是迁移落点而非新增行为）。
+   * @returns true only when the placement was accepted.
+   */
+  private _routeGridEmpty(row: number, col: number): boolean {
+    if (this._tray.selectedSlot >= 0) return this._placeSelected(row, col);
+    if (this._grid.isFillable(row, col)) {
+      this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
+    }
+    return false;
   }
 
   /**
@@ -1545,18 +1688,15 @@ export class BeadsGame implements Game {
     this._machine.transition('playing');
   }
 
-  /** The S2 → S3 route: place the selected bead, then handle every outcome. */
+  /**
+   * The S2 → S3 route: place the selected bead, then handle every outcome.
+   * v2.0 E2：归位前置「锚 = tray」由调用方（`_routeGridEmpty`）保证；本方法收窄为
+   * 纯裁决应用——原 `slot<0` 轻提示分支已迁到路由层（`_routeGridEmpty` 方法头注），
+   * 这里只保留旁路防御（无选中零事件拒绝，不再提示）。
+   */
   private _placeSelected(row: number, col: number): boolean {
     const slot = this._tray.selectedSlot;
-    if (slot < 0) {
-      // S2 gate: no bead selected → no request at all（`input-control §2.3`）。
-      // BD-16（WXG-T-097）：前置缺口要有告知——轻提示只在**可落空格**上给，
-      // 锁定/已填格维持 §8-5 的「零事件零反馈帧」（两判据的交界已由 §8-7 写明）。
-      if (this._grid.isFillable(row, col)) {
-        this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
-      }
-      return false;
-    }
+    if (slot < 0) return false; // 防御：无锚不该到达（路由层已拦截并提示）
     const colorIdx = this._tray.selectedColor;
     const verdict = judgePlacement(this._grid, row, col, colorIdx, slot);
 
@@ -2039,6 +2179,10 @@ export class BeadsGame implements Game {
     }
     s.trayExpanded = this._tray.expanded;
     s.traySelected = this._tray.selectedSlot;
+    // v2.0 统一选择锚 · board 侧（E2）：E6 据此画错位珠高亮；-1 = 无。
+    // 与 traySelected 三值互斥（input-control §2.1），至多一侧 ≥ 0。
+    s.boardSelectedRow = this._boardSelected ? this._boardSelected.row : -1;
+    s.boardSelectedCol = this._boardSelected ? this._boardSelected.col : -1;
 
     // Sprint HUD (normal mode keeps zeros — the view hides the block).
     s.score = this._mode === 'sprint' ? this._sprint.score : 0;

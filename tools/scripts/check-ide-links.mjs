@@ -252,6 +252,11 @@ function expectNoExtraSymlinks(dir, allowedNames, label) {
   }
   for (const name of entries) {
     if (name === '.' || name === '..') continue;
+    // 守卫目标 = 「清单外 *symlink*」（防挂错/挂野链接）。IDE 会话可能在
+    // skills/ 下落**实体目录**（如 .qoder 生成带 hash 后缀的会话级 skill），
+    // 那是环境噪音而非链接拓扑破坏 —— 跳过实体目录，只对 symlink 做清单外检查。
+    const ent = join(dir, name);
+    if (!isSymlink(ent)) continue;
     if (!allowedNames.has(name)) {
       fail(`${label}: 多余条目 \`${name}\`（未在清单）→ ${relative(ROOT, join(dir, name))}`);
     }

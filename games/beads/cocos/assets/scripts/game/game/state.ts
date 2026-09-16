@@ -79,6 +79,13 @@ export interface BeadsSnapshot {
   traySlots: SnapshotSlot[];
   trayExpanded: boolean;
   traySelected: number;
+  /**
+   * v2.0 统一选择锚 · board 侧（Epic T-133 E2）：选中的错位珠格坐标，E6 据此
+   * 画高亮；`-1` = 无 board 锚。与 `traySelected`（tray 锚）**三值互斥**
+   * （input-control §2.1：`selection ∈ {tray, board, none}`）——至多一侧 ≥ 0。
+   */
+  boardSelectedRow: number;
+  boardSelectedCol: number;
 
   /** S9 pause panel: visible = anything drawn (incl. the exit fade). */
   panelVisible: boolean;
@@ -237,6 +244,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     traySlots: [],
     trayExpanded: false,
     traySelected: -1,
+    boardSelectedRow: -1,
+    boardSelectedCol: -1,
     panelVisible: false,
     panelProgress: 0,
     panelInteractive: false,

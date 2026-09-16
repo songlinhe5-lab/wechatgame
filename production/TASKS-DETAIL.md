@@ -1856,3 +1856,36 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
   - **单测**：新文件 `tests/misplaced.test.ts` **10 例**（状态机三态×3、取回前提零事件、满槽拒取零事件零状态写、取回重归位双向性 §8-6、`isComplete` 零错位**负例**满盘含错位=不通关、`tray:stored` payload 精确断言、placement slot 可选×2）；`helpers.ts` 事件追踪补 `tray:stored`。全包 **24 文件 266 例全绿**。
   - **门禁**：`pnpm run verify` **PASS 14 / FAIL 1** —— 唯一 FAIL `check:size` 为**存量问题**（beads 构建产物 `cocos-js` 引擎包 3.3MB，产物时间戳早于本单开工，构建链未通 ADR-0009 P2；本单 src 增量 ~2KB，不构成翻转因素）。`framework:sync` 已执行（beads 写入 6 拷贝件）+ `:check` PASS。
   - **遗留移交**：① E5 装配落地时 crash-snapshot 需扩存错位珠色（现 `gridFilled` 位图只记 filled 位，恢复时 `fill()` 默认按底色就位——E1 阶段真实玩法流不产生错位珠，不破现网）；② E6 渲染错位珠前视图仍按 `colorIdx`（底色）画已填珠，错位珠视觉失真属 E6 已知工作面。
+
+## WXG-T-135
+
+- **名称**：**beads · E2：输入路由选择锚化（Epic T-133 · 依赖 E1/T-134 已就绪）**
+- **负责**：程基岩(engineering-lead)　**状态**：🔄 进行中（2026-09-16 派工）　**P1**
+- **规格真源**：`input-control.md v2.0`（§2.1 路由表重排、统一选择锚、§2.3 门禁）+ `systems-index v1.22` §4（`board:selected {row,col,colorIdx}`）+ `ux-spec v1.4` §4 矩阵新增 3 行。
+- **范围**：
+  1. **统一选择锚**：`selection ∈ {tray(slot), board(row,col), none}`，互斥换选（换选即转移，同帧最多 1 条输入指令沿用既有裁决）。
+  2. **路由 4/5 内部分支化**（带级次序不变：齿轮→道具卡→btn_expand→托盘带→棋盘）：
+     - 4 托盘带：holding 槽 → 选中/换选（发 `tray:selected` 沿用）；**空槽 且 锚=board → `retrieveBead(row,col,targetSlot)`**（E1 API）；空槽且无锚 → 忽略。
+     - 5 棋盘：**错位珠 → 选中/换选（发 `board:selected`）**；空格 且 锚=tray → `_placeSelected`；**已就位珠/锁定格 → 极轻反馈忽略（零事件）**。
+  3. **快照同步**：`SnapshotCell` 已有 `beadColorIdx`（E1）；快照增 board 选中态（形状自定，E6 消费画高亮）。
+  4. **旧 `_placeSelected` 前置重构**：现实现自带 slot<0 轻提示分支（`beads-game.ts:1513`）——锚化后「无选中」语义由锚表达，提示分支迁到路由层（保持 fillable 才提示的判据）。
+  5. **单测**：锚互斥换选（tray→board→tray）、路由各分支命中、取回全链（锚=board 点空槽 → `tray:stored`）、归位全链（锚=tray 点匹配/不匹配空格 → placed/rejected）、已就位忽略零事件、`board:selected` payload。
+- **E1 就绪接口（直接消费，勿改动语义）**：`game.retrieveBead(row, col, targetSlot): boolean`、`judgeRetrieve`（拒绝分支零事件）、`judgePlacement(row, col, colorIdx, slot?)`、`tray:stored` 事件已发。**如需改 E1 API，先回传说明**。
+- **⚠️ 陷阱**：① 「错位珠」判定用 grid 派生谓词（勿复制逻辑）；② 齿轮/道具卡/扩展按钮的优先级 1–3 **不得变动**；③ 极轻反馈通道复用 G7 判例（有现成实现就复用，没有就零事件，**不得新增每帧分配**）；④ 工作树并发（勿动 T-132/T-122 等并发笔）。
+- **Output Path**：`games/beads/src/game/**`、`games/beads/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-135` 小节（追加）。**禁改**：`src/view/**`（E6）、`src/entities/**`、`src/systems/**`（E1 域，除非回传说明）、`design/**`、`packages/**`、`production/qa/**`。
+- **验收**：`pnpm -F @wxgame/beads test` 全绿（含 E1 的 266 例零回归）；`pnpm run verify`（`check:size` 存量漂移已裁定，不算本单）。**不 commit/push**。
+- **主理人独立复核（2026-09-16，非采信自述）**：**284/284 全绿**（E1 266 零回归 + 18 新增）✅；**边界**：`entities/systems/view` 未动 ✅；**锚互斥**为写点双向清除（`selectTraySlot` 成功清 board 锚 / `selectBoardBead` 静默清托盘选中，`beads-game.ts:613`）✅；`board:selected` payload 与 §4 事件表一致 ✅；路由 1–3 零变动且有用例钉住（§8-12）✅；**5c 已就位珠零事件**有 delta=0 断言（含「托盘锚不被吸走」）✅。特别认可：tray 侧**复用 `_tray.selectedSlot` 不建双真源**，`selection` 为派生只读 —— 与 E1 的「可派生量不做持久态」同一品味。
+- **主理人裁定（四项未决）**：① 4b 轻提示缺口 = **A 维持零事件，E6 批次补托盘锚几何**（届时同步 GDD §2.1 措辞）；② 轻提示文案「先选一颗珠子」语义偏 = **E6 批次新增「去托盘取回」类文案常量**（挂 tuning + ux-spec §4 对齐，随高亮一起做才可测）；③ `Tray.deselect()` = **E4 批次补**（E4 动 tray 消费面，一并收干净）；④ `check:links` 存量（`.qoder/skills/*` 并发目录）= **留给创建它的会话收口**，不代修；若后续提交被阻断再升级。
+- **状态**：**✅ E2 完成**（Epic T-133 进度 2/7；E3/E4/E5 可并行）。
+- **完成记录（2026-09-16，程基岩自述，待主理人独立复核）**：
+  - **实现**（`beads-game.ts`）：
+    1. **统一选择锚**：新增私有态 `_boardSelected: {row,col} | null` + 派生只读 getter `selection: 'tray'|'board'|'none'` / `boardSelected`。三值互斥由所有写点共同维持：`selectTraySlot` 成功即清 board 锚；新公开命令 **`selectBoardBead(row,col)`**（route 5a 公开形态，与 `selectTraySlot`/`retrieveBead` 同判例——测试/harness 不伪造触摸）成功即静默清托盘选中（`selected→holding` 槽位态直写，**未改 entities**——Tray 无 deselect 通道，已登记为待补项）。同颗错位珠幂等（零新事件），换选即转移。
+    2. **路由 4 分支化**（`_routeTraySlot`）：4a holding → `tray:selected` 沿用，**例外 = §8-11 满槽禁取珠**（锚=board 且 freeCount=0 点任意槽 → 零事件零状态、锚保持）；4b 空槽且锚=board → `retrieveBead`（成功即清 board 锚）；4b 空槽锚∈{tray,none} → 零事件忽略（GDD 4b 的「轻提示」通道 `_showTapHint` 只有 cell/expand 两种锚点几何，托盘锚点属 E6 视觉面 → 本单不扩，**偏差已登记**）。
+    3. **路由 5 分支化**（`_routeGridCell`）：5a `isMisplaced`（grid 派生谓词，零复制）→ `selectBoardBead`，发 **`board:selected {row, col, colorIdx=珠色beadColorIdx}`**（systems-index §4）；5b empty → `_routeGridEmpty`（锚=tray → `_placeSelected`；否则 BD-16 轻提示，**仅 fillable 格**——旧判据保持，旁路 `tapGridCell` 同体）；5c locked/就位 → **零事件零状态**（G7 极轻反馈通道全仓无现成实现，grep 无 press/denied，按任务口径走零事件，通道落码后在 5c 出口接入）。
+    4. **轻提示迁移**：`_placeSelected` 的 `slot<0` 分支摘除（收窄为纯裁决应用 + 防御性零事件拒绝），迁至 `_routeGridEmpty`（真链 5b 与旁路 `tapGridCell` 共用）；`tapGridCell` 语义与旧版逐位等价（含「仅 fillable 提示」）。
+    5. **生命周期**：`_setupLevel` / `_loadStage` 清 board 锚（换关换舞台）；board 锚不进崩溃快照（恢复后锚=tray-or-none，E5 扩错位珠色时再议）。
+  - **快照**（`state.ts`）：`BeadsSnapshot` 增 `boardSelectedRow/Col`（-1 = 无；与 `traySelected` 三值互斥，至多一侧 ≥0），E6 据此画错位珠高亮。已走官方同步脚本落 cocos 镜像（`framework:sync:check` ✅）。
+  - **单测**（`tests/selection-anchor.test.ts` 新增 **18 例**；`helpers.ts` 增追踪 `board:selected`）：锚互斥换选 tray→board→tray（双向 + 静默清除 + 快照通道）、带级次序不受锚影响（§8-12 道具卡分支）、同颗幂等/换选转移、4a 命中、**4b 取回全链**（真链 tapDesign：错位珠→空槽 → `tray:stored` 恰 1 次 payload 四字段 `toEqual` + 双写 + 锚清）、4b 无锚/锚=tray 零事件、**满槽禁取珠**（§8-11 全形态：零事件零状态锚保持 + 腾槽后同路径 stored）、**归位全链**（真链：匹配 → placed payload；不匹配 → rejected + 珠留托盘选中态保留 + 锚保持）、5b 无锚轻提示（仅 fillable，§8-7）、5b 锚=board 零事件、5c 就位珠/锁定格零事件零状态、旁路轻提示兼容、换关清锚、`selectBoardBead` 守卫（就位/空格/越界 false 零事件）。
+  - **门禁**：`pnpm -F @wxgame/beads test` **284/284 全绿**（E1 266 零回归 + E2 新增 18）；`pnpm run verify` **PASS 13 ｜ FAIL 2** —— `check:size` = 已裁定存量（不算本单）；`check:links` = `.qoder/skills/*` 符号链接缺失（工作树 `??` 未跟踪目录系并发会话产物，本单未触碰该域，**定性存量**）。`typecheck` 本单曾因未使用 import 红 1 项、已修复；`framework:sync:check` 本单改动引起、已同步转绿。
+  - **边界**：`src/view/**` / `src/entities/**` / `src/systems/**` / `design/**` / `packages/**` / `production/qa/**` 零触碰；E1 API（`retrieveBead`/`judgeRetrieve`/`judgePlacement`/`tray:stored`）语义零改动；路由 1–3（齿轮/道具卡/btn_expand）代码路径零改动；未 commit/未 push。
+  - **遗留移交**：① G7 极轻反馈（5c/满槽拒绝的 scale+sfx_denied）通道落码批次需在 `_routeGridCell` 5c 出口与 `_routeTraySlot` §8-11 出口接入（现状零事件已合规）；② GDD 4b「空槽锚∈{tray,none} → 轻提示」的托盘锚点几何属 E6 视觉面，现状零事件忽略；③ 建议后续批次给 `Tray` 补 `deselect()` 替代 `_clearTraySelection` 的槽位态直写。
