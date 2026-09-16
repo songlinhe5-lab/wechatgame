@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 50,
+  "nextId": 51,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -839,6 +839,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-050",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "缺陷号（`BD-NN`）与任务号同规：领号须读工作树全文，且「已登记 BD-xx」的声明必须回查台账是否真有正本行",
+      "contentHash": "097d6ebf8f1c0b18e0f00325f01dff8f9ed8b67c51fd49a360858ff912684051",
+      "sourceTask": "WXG-T-119",
+      "addedDate": "2026-09-16",
+      "lastAccess": "2026-09-16",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1044,6 +1061,15 @@
       "kind": "added",
       "ids": [
         "K-049"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-16",
+      "taskId": "WXG-T-119",
+      "kind": "added",
+      "ids": [
+        "K-050"
       ],
       "note": null
     }
