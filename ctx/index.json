@@ -33961,17 +33961,17 @@
     },
     {
       "path": "memory/2026-09-16.md",
-      "tokens": 73,
-      "lines": 5,
-      "sha256": "483b944bb7dc68860e06dab9883588905cadd4325cf457caedba204c5a2129cd",
+      "tokens": 711,
+      "lines": 17,
+      "sha256": "eb05c011ae8534e5ec342c3f2c4e2ac146c7c9c5a6f3423897224e64d204f1d1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-16",
           "level": 1,
           "startLine": 1,
-          "endLine": 5,
-          "tokens": 70,
+          "endLine": 18,
+          "tokens": 708,
           "summary": "",
           "keywords": []
         },
@@ -33990,22 +33990,38 @@
             "s01",
             "t121"
           ]
+        },
+        {
+          "anchor": "§主理人复核 WXG-T-119（并发会话施工 · 只读）+ BD-40 撞号消歧",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 18,
+          "tokens": 613,
+          "summary": "为什么不接施工：主表那行仍写 📋，但工作树实况是并发会话已跑到终轮（探针 1148 行未跟踪、报告已追加 §25 + ",
+          "keywords": [
+            "§25",
+            "WXG",
+            "主理人复核",
+            "并发会话施工",
+            "只读",
+            "撞号消歧"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 7073,
-      "lines": 182,
-      "sha256": "c41c8c19634172bf74169cf18036ebd9fc70cde7d6a5adb25b1966c168f3fff6",
+      "tokens": 7153,
+      "lines": 183,
+      "sha256": "b72ca0a9344f1f56ec8df453dc438318f3e29596cf4c651cec3a3011ea03d4aa",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 183,
-          "tokens": 7051,
+          "endLine": 184,
+          "tokens": 7131,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -34075,8 +34091,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 183,
-          "tokens": 5411,
+          "endLine": 184,
+          "tokens": 5491,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -34088,11 +34104,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 73 tok｜1 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 30 天）",
+          "anchor": "§`memory/2026-09-16.md` — 711 tok｜2 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 78,
-          "tokens": 120,
+          "endLine": 79,
+          "tokens": 200,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
             "memory/2026-09-16.md",
@@ -34106,8 +34122,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 29 天）",
           "level": 3,
-          "startLine": 79,
-          "endLine": 95,
+          "startLine": 80,
+          "endLine": 96,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -34122,8 +34138,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 28 天）",
           "level": 3,
-          "startLine": 96,
-          "endLine": 123,
+          "startLine": 97,
+          "endLine": 124,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -34138,8 +34154,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 27 天）",
           "level": 3,
-          "startLine": 124,
-          "endLine": 144,
+          "startLine": 125,
+          "endLine": 145,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -34154,8 +34170,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 26 天）",
           "level": 3,
-          "startLine": 145,
-          "endLine": 162,
+          "startLine": 146,
+          "endLine": 163,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -34170,8 +34186,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 25 天）",
           "level": 3,
-          "startLine": 163,
-          "endLine": 183,
+          "startLine": 164,
+          "endLine": 184,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
