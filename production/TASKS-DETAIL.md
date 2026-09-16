@@ -536,3 +536,25 @@
   `ctx:usage:selftest` **172 断言 0 红**（HEAD 存量 63 红）｜`ctx:selftest` 仍 **9/0**｜`--strict` 正确因 `AWAITING` 判失败｜`pnpm run verify` **PASS 14 ｜ SKIP 1（check:size）｜ FAIL 0**｜`kb:check` 八重 ✅（活跃 49）。
 - **沉淀 K-049**：自测夹具须由**被测生成器播种**、依赖按**整目录拷贝**，否则门禁一扩就整片假红；判「我改坏 vs 早就红」一律先取**历史点同测**证据。
 - **余项**：① `verify` STEPS 加 `selftest:fast`（待 T-110）；② `check:host-tests:selftest` 入档（同前）；③ CI 首跑观察 pnpm 10 环境下 `ctx:selftest` 的 worktree 执行。
+
+## WXG-T-124
+
+**beads 美术 v1.3「丙案·双色温对撞」风格单（三件套 + 落码）** · 负责：林绘澄(art) + 主理人(Qoder) · 状态：🔄 部分交付
+
+- 起因：用户「review 美术设计，对标行业领先，需独立风格与质感」。主理人三方对账（规格×代码×真机帧）得 F1–F8；用户裁定风格=丙（双色温对撞）、落地=派林绘澄出草案、F5=独立立项。
+- 本轮交付：
+  - art/ 三件套升 v1.3：art-bible §3.1 UI token 冷底真源(F1)/§3.5 强调色纪律(F6)/§4.3+§6 拼图容器板+暖光 band(F2/F3/丙案)/§6+§8 珠子十层质感(F4)/§6 HUD 白胶囊+8齿齿轮+图标笔画+标签字号色(F7)/§6+§8 背景层次解锁(F8)；assets-spec §1.1 十层卡/§1.7 容器板+band/§1.8 背景层次；accessibility A5 新增 + B1/E1 F7④ a11y 假绿根治。
+  - 落码（不撞并发两文件）：palette.ts DEFAULT_PALETTE 7 值换丙案冷底 token(F1) + 十层卡常量；bead-render.ts 六层→十层(L0a 接触阴影/L3b rim/L4a-c 软高光)；bead-render.test 重钉 13/13；framework:sync 镜像 2 件；beads 全量 typecheck 0 + 251 测试绿。
+- 本轮未落（排并发入库后）：view-model.ts 消费面——F6 textAccent 逐处路由(选中点→accent_blue/连击光→白/星→金/按钮标签→深藏青)、F2/F3 容器板+暖光 band 绘制、F7 HUD 白胶囊板+8齿齿轮+图标 re-route、F8 背景层次叠层；及 ux-spec §3 HUD 条款对齐(文策渊)。原因：view-model.ts/ux-spec.md 正被并发会话热写。
+- F1 过渡处置：textDim 值 #8B8578→#6E7288(严格更暗，闭合 F7④ 白底标签 4.74:1)；token 改名(text_secondary)与图标 re-route 留 view-model 阶段。textAccent 值本轮不动(语义混杂，盲改会误染选中点/连击光/星)。
+- 未决(待用户/后续)：① success #3FBF6B 与珠色4同值是否走冻结变更；② 十层卡真机性能回退阀(合并 L4a+b 降 8 层)是否预授权；③ 单帧最坏 +624 图元。
+
+## WXG-T-125
+
+**beads §3.8 幽灵符号可见性冻结变更单（F5，独立于风格单）** · 负责：主理人(Qoder) · 状态：📋 已立项（待施工）
+
+- 起因：art 评审 F5——EMPTY_GHOST_ALPHA=0.20 + EMPTY_TINT_MIX=0.35(§3.8 冻结常量)真机上空槽目标色/幽灵符号几乎不可读，削弱「同色入格」第一道解锁。
+- 拟变更：EMPTY_GHOST_ALPHA 0.20→0.32、EMPTY_TINT_MIX 0.35→0.42。
+- 流程(§6 冻结变更)：用户确认改值 → 主理人评估连带影响 → 落 systems-index §3.8 值 + §6 变更记录行 → palette.ts 两常量同步 → 探针 A2b 复验(幽灵符号可见性) → 下游(QA 判据/assets-spec §1.2 引用)对齐。
+- 与 T-124 解耦：本单只动两个 §3.8 冻结常量，不涉丙案风格；风格单 v1.3 文档已注明「幽灵符号可见性由本独立变更单处理」，不改值。
+- 待施工：需用户确认改值 + 主理人串行落盘(避免与并发竞写 systems-index)。
