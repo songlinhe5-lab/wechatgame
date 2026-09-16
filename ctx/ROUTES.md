@@ -126,7 +126,7 @@
 | 珠子网格 | games/beads/design/gdd/systems-index.md#§3.3 珠子网格（Bead Grid） | 229 | |
 | 槽位托盘 | games/beads/design/gdd/systems-index.md#§3.4 槽位托盘（Tray） | 219 | |
 | 倒计时与失败 | games/beads/design/gdd/systems-index.md#§3.5 倒计时与失败 | 182 | |
-| 道具常量 | games/beads/design/gdd/systems-index.md#§3.6 道具（Powerups） | 230 | |
+| 道具常量 | games/beads/design/gdd/systems-index.md#§3.6 道具（Powerups）· v1.22 反转为解环器 | 230 | |
 | **星级与结算** | games/beads/design/gdd/systems-index.md#§3.7 星级与结算 | 137 | STAR3/2_RATIO（最常用） |
 | 可访问性 | games/beads/design/gdd/systems-index.md#§3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级） | 256 | |
 | 包体预算 | games/beads/design/gdd/systems-index.md#§3.9 包体预算 | 107 | |
