@@ -56,13 +56,18 @@ const EMPTY: InputSnapshot = Object.freeze({
 /**
  * Collects pointer samples and produces per-frame snapshots.
  *
- * Usage inside the game loop:
+ * Usage inside the game loop (one *fixed step* == one input frame):
  * ```ts
- * input.beginFrame();          // move last frame's state into `previous`
- * input.push(sample);          // zero or more native events this frame
+ * input.beginFrame();          // move the previous step's state into `previous`
+ * input.push(sample);          // zero or more native events since last step
  * const snap = input.snapshot; // read during game.update()
- * input.endFrame();            // clear one-shot flags
+ * input.endFrame(dt);          // advance hold timers + clear one-shot flags
  * ```
+ *
+ * The framework `App` runs `beginFrame → game.update → endFrame` **per fixed
+ * substep** (see `compose/app.ts::_fixedUpdate`), not once per rendered tick: a
+ * dropped frame makes `loop.advance()` run several substeps, and each substep
+ * must see a one-shot down/up **exactly once** (input-control §8-3/§8-10).
  */
 export class InputManager {
   private _isDown = false;
@@ -154,7 +159,14 @@ export class InputManager {
     return this._snapshot;
   }
 
-  /** Advance hold timers and clear one-shot flags. Call at the end of the tick. */
+  /**
+   * Advance hold timers and clear the one-shot flags.
+   *
+   * Call at the end of **each fixed step** (right after `game.update()`), not
+   * once per rendered tick: the `App` may run several fixed substeps in a single
+   * tick after a dropped frame, and clearing only at the tick boundary would let
+   * every substep re-read the same tap (`input-control` §8-3/§8-10).
+   */
   endFrame(dt: number): void {
     if (this._isDown) this._holdTime += dt;
     this._downThisFrame = false;

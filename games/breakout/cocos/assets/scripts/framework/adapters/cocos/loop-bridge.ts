@@ -38,7 +38,15 @@ export class CocosLoopBridge {
   start(): void {
     if (this._started) return;
     this._started = true;
-    this._app.start();
+    // WXG-T-122 / BD-40: the Cocos scheduler below is the ONLY frame driver.
+    // `App.start()` would ALSO self-drive via `platform.requestFrame`, so every
+    // wall-clock frame advanced the fixed loop twice (measured sim/wall-clock
+    // ≈ 2.0, four probe rounds). `startHostDriven()` performs the same full
+    // initialisation (viewport re-fit from `platform.getScreenSize()`,
+    // `game.init`, onHide/onShow hookup) but leaves driving to `schedule()`.
+    // If the App is already self-driving, this throws instead of silently
+    // double-driving.
+    this._app.startHostDriven();
     this._scheduler.schedule(this._tick, 0);
   }
 
