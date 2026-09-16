@@ -90,3 +90,8 @@ games/*/cocos/extensions/
 .DS_Store
 games/*/cocos/native/
 .playwright-cli/
+
+# QA 取证物：留盘不入库（体例：production/qa/beads/evidence 只入库 .mjs 脚本，
+# *.log 已由上方全局规则忽略；json/png 为逐帧像素/包络/截图取样物，复核请读盘）
+production/qa/beads/evidence/**/*.json
+production/qa/beads/evidence/**/*.png
