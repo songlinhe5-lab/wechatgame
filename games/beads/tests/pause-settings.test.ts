@@ -212,21 +212,19 @@ describe('S9 pause & settings', () => {
     expect(harness.count('bead:rejected')).toBe(0);
   });
 
-  // §8.2 PAUSED 300s 后继续 → remaining 与暂停前一致（≤1 帧 dt），首个供料不早于
-  // "暂停剩余间隔 +1 帧"。
-  it('§8-2 resume after 300 s keeps remaining and resumes the feed rhythm', () => {
+  // §8.2 PAUSED 300s 后继续 → remaining 与暂停前一致（≤1 帧 dt）。
+  // v2.0（WXG-T-136）改写：供料关停 ⇒ 原「供料节律从暂停累加器续算」判据作废，
+  // 改为恢复后**零供料**反证（长跑 > 原 SPAWN_INTERVAL 仍零珠零事件）。
+  it('§8-2 resume after 300 s keeps remaining; the feed stays dead (zero spawn)', () => {
     const harness = createBeadsHarness({
       levels: [simpleTestLevel({ spawnInterval: 4.0 })],
       saveKey: 'wxgame.beads.test.s9c2',
     });
     const game = harness.game;
 
-    // Run until the first feed lands, so the spawner accumulator is ~0.
-    let guard = 0;
-    while (harness.count('tray:spawned') === 0 && game.phase === 'playing') {
-      harness.advance(STEP);
-      if (++guard > 600) throw new Error('no first feed');
-    }
+    harness.advance(1); // 进 PLAYING 稳定帧（供料关停后托盘恒空，无需等首供）
+    expect(harness.count('tray:spawned')).toBe(0);
+
     const beforePause = game.remaining;
     tapGear(game);
     expect(game.phase).toBe('paused');
@@ -242,15 +240,11 @@ describe('S9 pause & settings', () => {
     expect(game.remaining).toBeLessThanOrEqual(beforePause + STEP + 1e-9);
     expect(game.remaining).toBeGreaterThan(beforePause - STEP - 1e-9);
 
-    // The feed rhythm resumes from the paused accumulator, not from zero: with
-    // a 4.0 s interval the next bead needs ≥ (4.0 s − 1 frame) of steps.
-    const spawnedBefore = harness.count('tray:spawned');
-    let steps = 0;
-    while (harness.count('tray:spawned') === spawnedBefore && game.phase === 'playing') {
-      harness.advance(STEP);
-      if (++steps > 600) throw new Error('feed never resumed');
-    }
-    expect(steps + 1).toBeGreaterThanOrEqual(4.0 / STEP - 1);
+    // v2.0 零供料反证：恢复后再跑 6 s（> 原 SPAWN_INTERVAL 4.0s）——零珠零事件。
+    harness.advance(6);
+    expect(harness.count('tray:spawned')).toBe(0);
+    expect(harness.count('tray:full')).toBe(0);
+    expect(game.tray.holdingCount).toBe(0);
   });
 
   // §8.3 「重玩本关」→ 五项重置逐一断言，S1 直接回 PLAYING，无 GAME_OVER 中转。

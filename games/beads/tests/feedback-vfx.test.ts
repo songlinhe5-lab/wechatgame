@@ -48,7 +48,7 @@ import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { EXPAND_BTN_INK } from '../src/view/palette.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { buildBeadsView } from '../src/view/view-model.js';
-import { createBeadsHarness, placeAnyMatching, simpleTestLevel, tapInFrame } from './helpers.js';
+import { createBeadsHarness, placeColor, simpleTestLevel, tapInFrame } from './helpers.js';
 import type { Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
@@ -73,7 +73,7 @@ describe('T-087 GAP-03 首屏引导', () => {
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t087-first',
         });
-        h.advance(1 / 60); // GAP-02 first-feed lands the first bead
+        h.game.giveTrayBead(1); // v2.0（WXG-T-136）：供料关停 ⇒ 首珠由死路径夹具投放
         const s = h.game.snapshot;
         expect(s.phase).toBe('playing');
         expect(s.onboarding).toBe(true);
@@ -94,7 +94,7 @@ describe('T-087 GAP-03 首屏引导', () => {
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t087-clear',
         });
-        h.advance(1 / 60);
+        h.game.giveTrayBead(1); // v2.0：首珠由死路径夹具投放
         expect(h.game.snapshot.onboarding).toBe(true);
 
         // Legit placement: use the hinted bead on its hinted cell.
@@ -349,7 +349,7 @@ describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t088-hint',
         });
-        h.advance(1 / 60); // 首供落地，引导目标格就位
+        h.game.giveTrayBead(1); // v2.0（WXG-T-136）：供料关停 ⇒ 引导珠由死路径夹具投放
         const s = h.game.snapshot;
         expect(s.onboarding).toBe(true);
 
@@ -424,7 +424,7 @@ describe('T-097 BD-16 无效落点轻提示（ux-spec §5 / input-control §8-7�
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t097-hint-on',
         });
-        h.advance(1 / 60); // GAP-02 首供：托盘持珠但**未选中**
+        h.game.giveTrayBead(1); // v2.0（WXG-T-136）：供料关停 ⇒ 死路径塞珠：托盘持珠但**未选中**
         const before = h.game.snapshot;
         expect(before.traySelected).toBe(-1);
         // §5 表头统一红线：该通道不许越过 400ms（数值真源同 tuning）。
@@ -464,8 +464,8 @@ describe('T-097 BD-16 无效落点轻提示（ux-spec §5 / input-control §8-7�
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t097-hint-filled',
         });
-        h.advance(1 / 60);
-        expect(placeAnyMatching(h.game)).toBe(true);
+        // v2.0（WXG-T-136）：供料关停 ⇒ 夹具珠直接投放并落子（原「首供后 placeAnyMatching」作废）。
+        expect(placeColor(h.game, h.game.grid.requiredColor(0, 0), 0, 0)).toBe(true);
 
         const snap = h.game.snapshot;
         const idx = snap.cells.findIndex((c) => c.state === 'filled');
@@ -774,17 +774,18 @@ describe('T-097 BD-10 满槽告警面板描边', () => {
 
     it('叠加（timer-gameover §8-10）：告急与满槽两区各自往复，各自 ≤3Hz', () => {
         // 单一实例内同时造出「告急 + 满槽」——两个主体同屏才有 §8-10 可谈。
-        // 夹具：12 行×13 列（§3.5 最大棋盘 ⇒ demand 足够，A′ 下合法供料可自然灌满，
-        // 不用 giveTrayBead——修订 21 同口径）+ 最短关 180s + 最快供料 2.0s；
-        // 不落子 ⇒ 槽位只进不出，约 24s 满槽（TRAY_BASE_SLOTS=12）、170s 告急。
+        // 夹具（v2.0 修订，WXG-T-136）：供料关停 ⇒ 满槽改由 giveTrayBead 死路径直接
+        // 灌满（原「A′ 下合法供料自然灌满」前提作废）；告急仍由最短关 180s 自然流到阈值。
         const rows = Array.from({ length: 12 }, (_, i) =>
             Array.from({ length: 13 }, (_, j) => String(((i + j) % 3) + 1)).join(''),
         );
         const h = createBeadsHarness({
-            levels: [simpleTestLevel({ id: 92, rows: 12, cols: 13, time: 180, spawnInterval: 2.0, pattern: rows })],
+            levels: [simpleTestLevel({ id: 92, rows: 12, cols: 13, time: 180, pattern: rows })],
             saveKey: 'wxgame.beads.test.t097-overlay',
         });
-        for (let t = 0; t < 60 && h.game.snapshot.traySlots.some((sl) => sl.state === 'free'); t++) h.advance(1);
+        for (let i = 0; i < TRAY_BASE_SLOTS; i++) {
+            expect(h.game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
+        }
         expect(h.game.snapshot.traySlots.every((sl) => sl.state !== 'free')).toBe(true);
         for (let t = 0; t < 200 && !h.game.snapshot.urgent; t++) h.advance(1);
         expect(h.game.snapshot.urgent).toBe(true);

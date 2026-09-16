@@ -11,7 +11,7 @@ import {
   createBeadsHarness,
   simpleTestLevel,
   placeColor,
-  placeAnyMatching,
+  firstEmptyCell,
   burnToRemaining,
 } from './helpers.js';
 import { normalSettleScore, stageParamsFor, STAGE_BONUS_TIME } from '../src/config/tuning.js';
@@ -136,7 +136,11 @@ describe('S7 score-combo', () => {
         ).toBe(true);
       }
       burnToRemaining(harness, sample.remaining + 0.017);
-      expect(placeAnyMatching(game)).toBe(true);
+      // v2.0（WXG-T-136）：供料关停 ⇒ 最后一颗由夹具直接投放（原「托盘已被供料补上」前提作废）。
+      const last = firstEmptyCell(game)!;
+      expect(
+        placeColor(game, game.grid.requiredColor(last.row, last.col), last.row, last.col),
+      ).toBe(true);
       const payload = harness.last<{ ratio: number; stars: number }>('level:cleared')!;
       expect(payload.stars).toBe(sample.stars);
     }
@@ -270,8 +274,16 @@ describe('S7 score-combo', () => {
     fillN(exact, exact.game.grid.fillableTotal - 1);
     burnToRemaining(exact, 20.02);
     expect(exact.game.remaining).toBeGreaterThan(20);
-    // One colour still needed + no decoys → every tray bead matches.
-    expect(placeAnyMatching(exact.game)).toBe(true);
+    // v2.0：供料关停 ⇒ 最后一颗由夹具直接投放。
+    const lastExact = firstEmptyCell(exact.game)!;
+    expect(
+      placeColor(
+        exact.game,
+        exact.game.grid.requiredColor(lastExact.row, lastExact.col),
+        lastExact.row,
+        lastExact.col,
+      ),
+    ).toBe(true);
     expect(exact.game.remaining).toBeGreaterThanOrEqual(20 + STAGE_BONUS_TIME);
     expect(exact.game.remaining).toBeLessThanOrEqual(20 + STAGE_BONUS_TIME + 0.03);
 
@@ -281,7 +293,15 @@ describe('S7 score-combo', () => {
     fillN(sameFrame, sameFrame.game.grid.fillableTotal - 1);
     burnToRemaining(sameFrame, 0.02); // ≈0 but positive, no failure yet
     expect(sameFrame.game.remaining).toBeGreaterThan(0);
-    expect(placeAnyMatching(sameFrame.game)).toBe(true); // completes the stage
+    const lastSame = firstEmptyCell(sameFrame.game)!;
+    expect(
+      placeColor(
+        sameFrame.game,
+        sameFrame.game.grid.requiredColor(lastSame.row, lastSame.col),
+        lastSame.row,
+        lastSame.col,
+      ),
+    ).toBe(true); // completes the stage
     // Bonus applied BEFORE the frame's timer judgement → still alive.
     expect(sameFrame.game.phase).toBe('playing');
     expect(sameFrame.game.remaining).toBeGreaterThan(STAGE_BONUS_TIME - 0.1);

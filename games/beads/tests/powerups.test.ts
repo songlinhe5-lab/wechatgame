@@ -251,17 +251,18 @@ describe('S6 §8-5 random 不足数不补抽', () => {
 // ───────────────────────────────────────────────────────────────────── §8-6
 
 describe('S6 §8-6 clearAll 全容量清槽', () => {
-  it('clears every held slot (incl. selected) and feeding resumes in ≤1 interval', () => {
+  it('clears every held slot (incl. selected) and the tray accepts beads again', () => {
     const base = mk('wxgame.beads.test.s6-6a');
     hold(base, TRAY_BASE_SLOTS);
     expect(base.game.selectTraySlot(3)).toBe(true);
-    const spawnedBefore = base.count('tray:spawned');
     expect(base.game.usePowerup('clearAll')).toBe(true);
     expect(base.last<UsedPayload>('powerup:used')!.affectedSlots).toHaveLength(TRAY_BASE_SLOTS);
     expect(heldSlots(base)).toEqual([]);
     expect(base.game.tray.selectedSlot).toBe(-1);
-    base.advance(4.2); // ≤ 1 个 SPAWN_INTERVAL（测试关 = 4.0s）
-    expect(base.count('tray:spawned')).toBeGreaterThan(spawnedBefore); // 联合 S1§8-3
+    // v2.0（WXG-T-136）：供料关停 ⇒ 无「供料恢复」语义；改判据为「清槽后托盘可
+    // 再持有」（入槽唯一通道 = 取回；夹具走 giveTrayBead 死路径验证空槽可入）。
+    expect(base.game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
+    expect(heldSlots(base)).toHaveLength(1);
 
     const wide = mk('wxgame.beads.test.s6-6b');
     expect(wide.game.expandTray()).toBe(true);
@@ -394,10 +395,12 @@ describe('S6 §8-9 空作用 / 非法 type / 状态门禁', () => {
 // ──────────────────────────────────────────────────────────────────── §8-10
 
 describe('S6 §8-10 同帧竞态守恒', () => {
-  it('serialises against a same-frame spawn: the fresh bead is included', () => {
+  it('serialises against a same-frame tray entry: the fresh bead is included', () => {
     const h = mk('wxgame.beads.test.s6-10a');
     hold(h, 5);
-    h.advance(1 / 60); // GAP-02（WXG-T-086）：首帧立即供料→本帧 1 颗（供料段产出、新珠已入盘）
+    // v2.0（WXG-T-136）：供料段恒空 ⇒ 原 GAP-02 首供位改由死路径入槽代替
+    // （giveTrayBead 同发 tray:spawned 并喂 noteSpawned 镜像，语义等价）。
+    expect(h.game.giveTrayBead(1)).toBeGreaterThanOrEqual(0); // 新珠已入盘
     expect(heldSlots(h)).toHaveLength(6);
     expect(h.game.usePowerup('clearAll')).toBe(true);
     expect(h.last<UsedPayload>('powerup:used')!.affectedSlots).toHaveLength(6);

@@ -1,4 +1,14 @@
 /**
+ * ⛔ DEAD PATH — v2.0 定时供料关停（WXG-T-136，用户 2026-09-16 裁定案 A）。
+ *
+ * 错位珠是珠子唯一供给、托盘为纯解谜缓冲（tray-spawner v2.0 §2.2 全节作废、
+ * systems-index v1.22 §3.4「死路径保留」）⇒ **主循环不再调用 `tick()`**（供料段
+ * 恒空，beads-game `_stepPlaying`）。本类整体保留为死路径：供料复活（需走
+ * tray-spawner §6 变更 + 主理人确认）时零成本重启，届时 §8-1/2/3/9 判据原文随
+ * v2.0 复活条款自动重新生效。行为语义零改动——单测继续按单元级死路径锁定本类。
+ *
+ * ────────────────────────────────────────────────────────────（以下为原文档注释）
+ *
  * Spawner — the S4 feed rhythm: accumulate dt, spawn 1 bead into a *random
  * free slot* with 3:1 weighted colour drawing (tray-spawner §2.2).
  *

@@ -2,8 +2,8 @@
  * BeadsGame — the whole game, wired to the framework `Game` contract.
  *
  * Architecture in one paragraph: the class owns the *authoritative state*
- * (pattern grid, tray, spawner rhythm, countdown, sprint tracker, phase
- * machine). Systems (`placement` / `spawner` / `timer` / `sprint`) are pure
+ * (pattern grid, tray, countdown, sprint tracker, phase
+ * machine). Systems (`placement` / `timer` / `sprint`) are pure
  * mechanics that return outcomes; this class applies them and broadcasts the
  * registered events. Subscriptions live in `_subscribe()`, unwound in
  * `dispose()`. `buildRenderModel` only copies state into the snapshot — the
@@ -11,8 +11,14 @@
  * construction.
  *
  * Freeze discipline (ADR-0007): the state machine is the single arbiter —
- * PAUSED simply stops calling spawner/timer/combo-window ticks. The
+ * PAUSED simply stops calling timer/combo-window ticks. The
  * `game:paused` / `game:resumed` events are notifications only.
+ *
+ * ⛔ Feed (S4 spawner): dead since v2.0 (WXG-T-136, 定时供料关停·案 A) —
+ * misplaced beads are the ONLY supply and the tray is a pure buffer
+ * (tray-spawner v2.0). The `Spawner` instance survives as a documented dead
+ * path (snapshot fields / reset list / zero-cost revival); the main loop no
+ * longer ticks it, so `tray:spawned` / `tray:full` are never emitted.
  */
 
 import {
@@ -23,7 +29,6 @@ import {
   type Game,
   type GameServices,
   type RenderModelBuilder,
-  type Rng,
 } from '../../framework/index';
 
 import {
@@ -212,6 +217,12 @@ export class BeadsGame implements Game {
   private readonly _machine: StateMachine<BeadsGame, BeadsPhase>;
   private readonly _snapshot: BeadsSnapshot;
   private readonly _tray = new Tray();
+  /**
+   * ⛔ 供料死路径（v2.0 定时供料关停，WXG-T-136）：主循环不再 tick 供料（错位珠是
+   * 唯一供给，tray-spawner v2.0 §2.2）。实例保留仅为：① 重置/续时清单的字段保留
+   * （timer-gameover v1.3 §2.4 第 2 项注记）；② 崩溃快照 `spawnAcc` / `spawnInterval`
+   * / `spawnFullReported` 的往返一致性；③ 供料复活零成本重启。
+   */
   private readonly _spawner = new Spawner(4.0);
   private readonly _timer = new GameTimer(300);
   private readonly _sprint = new SprintTracker();
@@ -304,7 +315,6 @@ export class BeadsGame implements Game {
   private _save: SaveManager<BeadsSave> | null = null;
   /** D-03 崩溃恢复档（另键 sidecar，WXG-T-059；与 S8 常规档物理隔离）。 */
   private _crash: CrashSnapshotStore | null = null;
-  private _rng: Rng | null = null;
 
   private _mode: GameMode = 'normal';
   private _levelIndex = 0;
@@ -489,7 +499,9 @@ export class BeadsGame implements Game {
 
   init(services: GameServices): void {
     this._services = services;
-    this._rng = services.rng;
+    // ⛔ 供料死路径（WXG-T-136）：`_spawner.tick` 已摘除，游戏级 Rng 缓存随之移除；
+    // S6 `random` 直接 attach 注入 Rng（铁律 L4；§8-4 有架构守卫）。供料复活时
+    // 恢复 tick 调用即可（直接用 `services.rng`，无需重建字段）。
     // S6 的 `random` 只能抽自注入的 Rng（铁律 L4；§8-4 有架构守卫）。
     this._powerups.attach(services.rng);
 
@@ -756,7 +768,13 @@ export class BeadsGame implements Game {
   /** True when the last `_handleTap` route consumed the tap without a phase change. */
   private _consumedTap = false;
 
-  /** Debug/dev hook: drop a specific colour into the first free slot (S4 path). */
+  /**
+   * Debug/dev hook: drop a specific colour into the first free slot (S4 path).
+   *
+   * ⛔ v2.0 供料关停后这是**唯一**还走 `spawnInto` 死路径并广播 `tray:spawned`
+   * 的入口（测试 / harness 夹具专用，非玩法触发源；tray-spawner v2.0 §4 死路径
+   * 保留口径）。供料复活时主循环供料段恢复，本钩子语义自动并入。
+   */
   giveTrayBead(colorIdx: number): number {
     const slot = this._tray.firstFree();
     if (slot < 0 || !this._tray.spawnInto(slot, colorIdx)) return -1;
@@ -1224,6 +1242,10 @@ export class BeadsGame implements Game {
         if (remaining <= TIMER_URGENT_T) this._sfx(AUDIO_CLIP_URGENT_BEAT);
       }),
       // A05-14：每次 `tray:full` 恰 1 次（**不循环**；500ms 呼吸属视觉，互不驱动）。
+      // ⛔ v2.0 供料关停（WXG-T-136）：`tray:full` 玩法侧零发射（systems-index §4 作废），
+      // 本监听为**死路径保留**——满槽告警视觉改由槽态驱动（view-model 读 `freeSlots`），
+      // 不经本事件；供料复活时自动恢复发声。`AUDIO_CLIP_TRAY_FULL` 仍留在 A05-24
+      // 19-clip 闭合集内（audio-events §1 未删行，音频域文件本单禁改）。
       bus.on('tray:full', () => this._sfx(AUDIO_CLIP_TRAY_FULL)),
       bus.on('sprint:stage', () => this._sfx(AUDIO_CLIP_STAGE)),
       bus.on('level:cleared', () => this._sfx(AUDIO_CLIP_CLEAR)),
@@ -1285,7 +1307,7 @@ export class BeadsGame implements Game {
     this._stageIndex = n;
   }
 
-  /** One PLAYING frame: combo window → feed → countdown (input is read in `update()`). */
+  /** One PLAYING frame: combo window → countdown (input is read in `update()`). The feed segment is dead (v2.0). */
   private _stepPlaying(dt: number): void {
     // 输入段已在 `update()` 头部落下（相位无关，WXG-T-100 / BD-34）。此守卫保留
     // 原语义——「读输入后若已离开 PLAYING（放置/阶段完成可在输入段内切相位：
@@ -1302,12 +1324,13 @@ export class BeadsGame implements Game {
       if (broke) this._emit('combo:break', { reason: broke });
     }
 
-    const spawn = this._spawner.tick(dt, this._tray, this._rng!);
-    if (spawn.spawned) {
-      this._emit('tray:spawned', spawn.spawned);
-      this._powerups.noteSpawned(spawn.spawned.slot); // S6 镜像（§2.4）
-    }
-    if (spawn.full) this._emit('tray:full', {});
+    // ⛔ 供料段（v2.0 定时供料关停，WXG-T-136 / 用户 2026-09-16 裁定案 A）：
+    // 错位珠是珠子唯一供给，托盘为纯解谜缓冲（tray-spawner v2.0 §2.2 全节作废、
+    // core-loop §2.2.2「供料段恒空」）⇒ PLAYING 心跳里本段**恒空**。`tray:spawned`
+    // 与 `tray:full` 随之零发射（systems-index v1.22 §4 作废标注）。死路径保留：
+    // `Spawner` 类 / `Tray.spawnInto` / `giveTrayBead()` 调试钩子与快照字段不动，
+    // 供料复活（需走 tray-spawner §6 变更 + 主理人确认）时恢复本段即可。
+    // S6 `noteSpawned` 镜像（§2.4）同步失去主循环喂入口，仅为死路径/快照恢复保留。
 
     const tick = this._timer.tick(dt);
     if (tick.displayTick !== null) this._emit('timer:tick', { remaining: tick.displayTick });

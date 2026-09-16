@@ -21,7 +21,7 @@ import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { multiplierForStreak, tierForStreak } from '../src/systems/sprint.js';
 import {
   createBeadsHarness,
-  placeAnyMatching,
+  firstEmptyCell,
   placeColor,
   simpleTestLevel,
   type Harness,
@@ -236,12 +236,15 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
     const game = harness.game;
     game.startSprint();
     expect(game.mode).toBe('sprint');
-    // 先让 S4 供料把托盘喂上珠（冲刺开局托盘是空的），再连续命中。
-    // ⚠️ 不能要求「恰好落 N 颗」：某个颜色的空位可能已被填完，或托盘只投到该色的单格珠
-    // —— 那是合法的抽色结果，不是缺陷。目标是**有活的连击**（streak ≥ 2 才有 ×2 tier）。
-    harness.advance(30);
+    // v2.0（WXG-T-136）：供料关停 ⇒ 托盘珠由夹具直接投放（giveTrayBead 死路径），
+    // 连续命中凑 ≥2 次（streak ≥ 2 才有 ×2 tier）；落子直接喂，无供料依赖。
     let placed = 0;
-    for (let i = 0; i < 4 && placeAnyMatching(game); i++) placed += 1;
+    for (let i = 0; i < 4 && placed < 2; i++) {
+      const cell = firstEmptyCell(game)!;
+      if (placeColor(game, game.grid.requiredColor(cell.row, cell.col), cell.row, cell.col)) {
+        placed += 1;
+      }
+    }
     expect(placed).toBeGreaterThanOrEqual(2);
     expect(game.sprintTracker.streak).toBe(placed);
     harness.advance(1.5);

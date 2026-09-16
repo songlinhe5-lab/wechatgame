@@ -202,6 +202,20 @@ export function tapInFrame(harness: Harness, designX: number, designY: number): 
 }
 
 /**
+ * First fillable-and-empty cell (row-major scan), or null. v2.0 供料关停后，
+ * 需要托盘珠的测试夹具一律走 `giveTrayBead`（死路径）+ `placeColor` 直接投放，
+ * 本 helper 用于定位目标格。
+ */
+export function firstEmptyCell(game: BeadsGame): { row: number; col: number } | null {
+  for (let row = 0; row < game.grid.rows; row++) {
+    for (let col = 0; col < game.grid.cols; col++) {
+      if (game.grid.isFillable(row, col)) return { row, col };
+    }
+  }
+  return null;
+}
+
+/**
  * Place one tray bead that matches any still-empty cell, if the tray holds
  * one. Returns true when a placement landed.
  */

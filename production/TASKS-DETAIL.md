@@ -1889,3 +1889,33 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
   - **门禁**：`pnpm -F @wxgame/beads test` **284/284 全绿**（E1 266 零回归 + E2 新增 18）；`pnpm run verify` **PASS 13 ｜ FAIL 2** —— `check:size` = 已裁定存量（不算本单）；`check:links` = `.qoder/skills/*` 符号链接缺失（工作树 `??` 未跟踪目录系并发会话产物，本单未触碰该域，**定性存量**）。`typecheck` 本单曾因未使用 import 红 1 项、已修复；`framework:sync:check` 本单改动引起、已同步转绿。
   - **边界**：`src/view/**` / `src/entities/**` / `src/systems/**` / `design/**` / `packages/**` / `production/qa/**` 零触碰；E1 API（`retrieveBead`/`judgeRetrieve`/`judgePlacement`/`tray:stored`）语义零改动；路由 1–3（齿轮/道具卡/btn_expand）代码路径零改动；未 commit/未 push。
   - **遗留移交**：① G7 极轻反馈（5c/满槽拒绝的 scale+sfx_denied）通道落码批次需在 `_routeGridCell` 5c 出口与 `_routeTraySlot` §8-11 出口接入（现状零事件已合规）；② GDD 4b「空槽锚∈{tray,none} → 轻提示」的托盘锚点几何属 E6 视觉面，现状零事件忽略；③ 建议后续批次给 `Tray` 补 `deselect()` 替代 `_clearTraySelection` 的槽位态直写。
+
+## WXG-T-136
+
+- **名称**：**beads · E3：供料摘除 + 托盘纯缓冲收尾（Epic T-133 · 依赖 E1/E2 已就绪）**
+- **负责**：程基岩(engineering-lead)　**状态**：✅ 完成（2026-09-16，未 commit）　**P1**
+- **规格真源**：`tray-spawner.md v2.0`（定时供料**关停**（用户 2026-09-16 裁定案 A）：§8 判据逐条作废/改写标注；托盘 = 纯缓冲：容量管理、取回入槽、扩展行）+ `systems-index v1.22` §3.2/§3.4/§3.10f/§3.12g（供料常量作废）+ `core-loop v2.0` §2.2.2。
+- **范围**：
+  1. **关停定时供料**：spawner tick 从主循环摘除（`beads-game.ts:1193` 附近 `_spawner.tick`）；`SPAWN_INTERVAL_DEFAULT` 等 §3.4 已作废常量的代码侧消费一并摘除（tuning.ts 对应项注释标注「v1.22 作废，死值保留待 E6/E7 清理」或直接删，回传说明选择）。
+  2. **死路径清理**：E1 的 `spawnInto→storeInto` 委托（`tray.ts`）—— 评估直接移除 spawn 入口 vs 保留委托，回传说明。
+  3. **事件处置**：`tray:spawned` 作废（§4 已标）⇒ 代码侧移除发射点 + 消费方排查（**不得静默删**：grep 全部消费方，有视觉/音频消费则联动处置或登记）；`tray:full` **核实**（满槽语义仍存在 —— 取回被拒场景，视觉告警是否仍消费？按规格现场判定并回传）。
+  4. **重置语义**：重开/重试时托盘清空 + 无 spawn（`timer-gameover v1.3` 重置清单）。
+  5. **单测**：长时间运行零 spawn（反证）、重置清空、满槽拒取回归（E1/E2 已有，补 spawner 关停面）、`tray:full` 处置后消费方行为。
+- **❗ 不做**：解环器（E4）、swaps/JSON（E5）、渲染（E6）。
+- **⚠️ 陷阱**：① `tray:full` 可能牵动满槽告警视觉/`AUDIO_TRAYFULL`（§3.12g 已作废标注）—— 联动面先 grep 再动，越界回传；② 权限/powerup 的 noteSpawned 镜像（S6）随供料关停的语义核实；③ 热路径零分配；④ 工作树并发。
+- **Output Path**：`games/beads/src/game/**`、`games/beads/src/entities/tray.ts`、`games/beads/src/systems/spawner.ts`、`games/beads/src/config/tuning.ts`（仅供料常量）、`games/beads/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-136` 小节（追加）。**禁改**：`src/view/**`、`design/**`、`packages/**`、`production/qa/**`、`games/beads/design/audio/**`。
+- **验收**：`pnpm -F @wxgame/beads test` 全绿（284 例零回归）；`pnpm run verify`（check:size 存量漂移不算）。**不 commit/push**。
+- **主理人独立复核（2026-09-16，非采信自述）**：**286/286 全绿**（284 逐例保留改写不删例 + 新增 2 例）✅；spawner tick 摘除 + 三重死路径标注（spawner 头/`beads-game.ts:502`/tuning 7 项）✅；零 spawn 反证三连断言（`tray:spawned`/`tray:full`/`holdingCount`，另首帧/重置/满槽 30s 共 4 处反证面）✅；**联动面零静默改动**：`tray:full` 音频监听保留为标注死路径（音频域禁改 + A05-24 闭合不动，供料复活自动恢复发声）、视觉满槽告警为槽态驱动不消费事件 ✅；`spawnInto→storeInto` 委托保留（`giveTrayBead` 测试夹具唯一入槽死路径）✅。边界：`src/view/**`、`design/**` 未动 ✅。
+- **⚠️ 教训修正（「cancelled」判据）**：T-119 入册的是「cancelled 后仍继续跑 40 分钟」；本轮为第二种形态——**代理在被掐前已完成全部落盘，静默即收工**。⇒ 入册补全：**cancelled 消息一律不作「已停止/未完成」判据，唯盘上 mtime + 内容事实为准；且「mtime 静止」不等于「没干活」——须先读盘上内容再判**（本轮 18:41 的 mtime 就是上轮代理的完成笔，主理人一度误判为真死而重派，好在重派会话自行核实为「核验即收工」，未产生重复施工）。
+- **主理人裁定（四项未决，全部按移交口径维持）**：① `levels-data.ts`/`levels.ts` 残余消费 → **E5**；② `noteSpawned` 镜像失真 → **E4**；③ 满槽视觉语义变更 → 走设计变更单；④ `check:size` → 维持发布域后置。
+- **状态**：**✅ E3 完成**（Epic T-133 进度 3/7）。
+- **完成记录（2026-09-16）**：
+  - **① spawner 摘除方式**：`beads-game.ts::_stepPlaying` 的 `_spawner.tick` 调用块整体删除（PLAYING 心跳 = 输入段→连击窗→计时，供料段恒空，对齐 `core-loop §2.2.2`）；**`Spawner` 类整体保留为标注死路径**（systems-index §3.4「死路径保留」口径，复活零成本），`_spawner.reset()`/`interval` 赋值/快照 `spawnAcc`/`spawnInterval`/`spawnFullReported` 三字段往返均保留（timer-gameover v1.3 §2.4「供料累加器字段保留」注记）。游戏级 `_rng` 缓存随摘除移除（唯一消费方是 tick；S6 仍直连 `services.rng`，L4 不受影响）。
+  - **② tuning 常量处置**：选「**注释标注作废、死值保留**」（非直接删）——`SPAWN_INTERVAL_DEFAULT/MIN/MAX`、`NEEDED_WEIGHT`、`DECOY_WEIGHT`、`StageParams.interval`、`AUDIO_TRAYFULL_MIN_INTERVAL` 共 7 项加 ⛔ v1.22 作废标注。理由：① systems-index §3.4 明文保留死路径；② `levels.ts` 校验与 `levels-data.ts` 逐关 `spawnInterval` 字段（**不在本单 Output Path**，属 E5 swaps/JSON 批次）仍消费 MIN/MAX，直接删会级联越界改文件；③ `AUDIO_CLIP_TRAY_FULL` 不得删（A05-24 19-clip 闭合判据 ≡ `audio-events §1`，音频域禁改）。
+  - **③ 事件处置排查结论**（grep 全量）：
+    - `tray:spawned`：玩法侧发射点 2 处——`_stepPlaying`（已随 tick 摘除消失）+ `giveTrayBead()` 调试钩子（**保留**：测试/harness 夹具唯一入槽死路径，v2.0 §4 死路径口径；`BeadsEvents` 类型保留）。消费方排查：`powerups.ts` 头注释提及（文案未动，语义已由完成记录登记）、测试 harness 计数器、无视觉/音频消费。**S6 `noteSpawned` 镜像核实**：主循环喂入口消失，现存调用 = `giveTrayBead`（死路径）+ 快照恢复（合法：还原既有槽态）；**已知遗留**：E2 `retrieveBead` 入槽未喂镜像（v2.0 起真实对局镜像失真）——**登记不修**（E4 解环器反转后 S6 托盘零读写、`affectedSlots` 语义消失，现在补属白干，移交 E4 评估）。
+    - `tray:full`：玩法侧唯一发射点在 tick 块内（已消失）⇒ **玩法侧零发射**（dead path）。消费方 2 处：① 音频 `bus.on('tray:full')→sfx_tray_full`（**保留为死路径**：A05-24 闭合不动、`audio-dispatch.test` 既有 27 例零改动继续锁定其行为，供料复活自动恢复发声）；② 视觉满槽告警 = **槽态驱动**（view-model 读 `freeSlots===0`，不消费事件）⇒ **不受影响、按 v2.0 保留**（tray-spawner §6 只作废「告警**事件**」；ux-spec §5 满槽告警行未作废，`src/view/**` 禁改未动）。**视觉/音频联动面零改动**。
+  - **④ 重置语义**：`_loadLevel`/`_loadStage`/retry 链已有 `_tray.reset()`（全清+扩展回基线）+ `_spawner.reset()`，tick 摘除后「重置 + 无 spawn」结构成立；新增专测钉住（见 ⑤）。
+  - **⑤ 单测清单与数字**：**286 例全绿**（原 284 例逐例保留——改写不删例，新增 2 例）。改写（按 v2.0 §8 改写替代判据）：`tray-spawner.test` §8-1→**60s 零供料反证**（`tray:spawned`===0 + `tray:full`===0 + 托盘恒空，**有显式计数断言**）、GAP-02→首帧零供料、§8-3/GAP-06 降为 Spawner 类**死路径单元锁定**；`frame-order.test` fo-1/2/4→供料段恒空下的帧内序（输入段先于计时段）、fo-3 去掉供料前置；`pause-settings` §8-2→恢复后零供料反证（6s>原 interval）；`powerups` §8-6/§8-10→「清槽后可再持有 / 同帧入槽守恒」（giveTrayBead 死路径替代首供位）；`core-loop` §8-5、`sprint` §8-1/§8-7、`in-level-snapshot` §8-15、`feedback-vfx` 5 处→夹具珠改 `giveTrayBead`+`placeColor` 直投（helpers 增 `firstEmptyCell`）。**新增 2 例**：① 重试重置清空（托盘全空 + 扩展回基线 + 重置后 10s 零 spawn 零 full）；② 满槽长跑 30s 零 `tray:full`（满槽只禁取回、无告警事件，E1/E2 满槽拒取回归在 `misplaced.test` 继续覆盖）。`revive.test`/`audio-dispatch.test` 等 17 文件**零改动**通过。
+  - **⑥ 验证**：`pnpm -F @wxgame/beads test` 286/286 全绿；`pnpm run verify` 14 PASS + `check:size` FAIL（beads 主包 4537.6 KB>4096，**存量构建产物漂移，任务书已裁定不算**）；`framework:sync` 镜像已刷新（写入 3：tuning/beads-game/spawner），`framework:sync:check` ✅。热路径零分配（删代码无新增分配）；`src/view/**`/`design/**`/`packages/**`/`production/qa/**`/`design/audio/**` 零触碰；未 commit/push。
+  - **遗留移交**：① S6 镜像失真（E2 retrieve 不喂 `noteSpawned`）→ E4 解环器反转时一并消解；② `levels-data.ts` 逐关 `spawnInterval` 字段 + `levels.ts` 区间校验（作废常量的残余消费）→ E5 swaps/JSON 批次统一清理；③ E6 若需满槽告警视觉语义变更（如改文/取消），走设计变更单，本单未动。

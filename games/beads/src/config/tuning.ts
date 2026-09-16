@@ -70,6 +70,11 @@ export const BEAD_COLOR_MAX = 8;
  * are supplied; the spawner's A′ invariant (`held ≤ demand`) removes the tail
  * soft-lock at the source, so the decoy subsystem is inert (kept for the schema). */
 export const DECOY_COLORS_MAX = 0;
+/**
+ * ⛔ v1.22 作废（WXG-T-130 案 A 供料关停 / WXG-T-136 代码摘除）：抽色权重随供料
+ * 消失而失去消费方（`Spawner` 类整体转为死路径）。死值保留（systems-index §3.2
+ * 同款口径：供料复活零成本；删除需先清 `Spawner` 死路径 + levels 校验面）。
+ */
 /** Spawn weight for a "still needed" colour. */
 export const NEEDED_WEIGHT = 3;
 /** Spawn weight for a decoy colour. Inert while `DECOY_COLORS_MAX = 0` (v1.17). */
@@ -128,6 +133,13 @@ export const AD_PLACEHOLDER_HINT_TEXT = '即将开放';
  * 之间的空白中线上——空间上贴着刚被点的按钮，且不压任何元素（`ux-spec §5`）。
  */
 export const AD_HINT_TEXT_Y = 214;
+/**
+ * ⛔ v1.22 作废（WXG-T-130 案 A 供料关停 / WXG-T-136 代码摘除，systems-index §3.4
+ * 同款口径）：供料 tick 已从主循环摘除 ⇒ 三常量无活消费方。死值保留——①
+ * `Spawner` 死路径与快照 `spawnInterval` 字段往返仍引用；② `levels.ts` 校验与
+ * `levels-data.ts` 逐关 `spawnInterval` 字段（E5 swaps/JSON 批次统一清理）仍消费
+ * MIN/MAX。供料复活时三值自动恢复生效。
+ */
 /** Default spawn interval (s); levels may override within [SPAWN_INTERVAL_MIN, MAX]. */
 export const SPAWN_INTERVAL_DEFAULT = 4.0;
 /** Spawn interval legal minimum (s). */
@@ -227,11 +239,18 @@ export interface StageParams {
   readonly colors: number;
   /** Fillable-cell target for the stage. */
   readonly cells: number;
-  /** Spawn interval for the stage (s). */
+  /**
+   * Spawn interval for the stage (s). ⛔ v1.22 作废（C6 供料间隔公式段随供料关停
+   * 失去消费方，WXG-T-136）：stage 切换后新错位布置改由 `misplaced` 交换构造生成
+   * （systems-index §3.10f / §3.13），无供料可注入。公式与死值保留（供料复活零成本）。
+   */
   readonly interval: number;
 }
 
-/** C6 ladder — stage `n` (0-based) parameters, endpoints aligned to §3.2/3.3/3.4. */
+/**
+ * C6 ladder — stage `n` (0-based) parameters, endpoints aligned to §3.2/3.3/3.4.
+ * ⛔ v1.22：`interval` 段作废（同上），`colors` / `cells` 两段现行有效。
+ */
 export function stageParamsFor(n: number): StageParams {
   const index = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
   return {
@@ -460,7 +479,12 @@ export const AUDIO_REJECT_MIN_INTERVAL = 0.5;
 export const AUDIO_URGENT_BEAT_PERIOD = TIMER_TICK;
 /** 告急心跳派生限流 = 周期 − 0.1s 余量（吸收 fixedStep 尾差，防偶发双拍）。 */
 export const AUDIO_URGENT_MIN_INTERVAL = 0.9;
-/** 满槽告警防御档（事件天然间隔 ≥ `SPAWN_INTERVAL_MIN` = 2.0s）。 */
+/**
+ * 满槽告警防御档。⛔ v1.22 作废死值保留（§3.12g，WXG-T-130 案 A / WXG-T-136）：
+ * 触发源 `tray:full` 玩法侧零发射 ⇒ 本间隔无事件可限；死路径保留（供料复活自动
+ * 恢复生效）。**不删**——`AUDIO_CLIP_TRAY_FULL` 仍在 A05-24 19-clip 闭合集内，
+ * `audio-events §1`（音频域，本单禁改）未删行。
+ */
 export const AUDIO_TRAYFULL_MIN_INTERVAL = 1.0;
 /** 单帧派发上限（框架 `AudioScheduler` 默认值的显式冻结，不传参漂移）。 */
 export const AUDIO_MAX_PER_FRAME = 6;

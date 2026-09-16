@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createBeadsHarness, simpleTestLevel, placeAnyMatching, burnToRemaining } from './helpers.js';
+import { createBeadsHarness, simpleTestLevel, firstEmptyCell, placeColor, burnToRemaining } from './helpers.js';
 import { SAVE_KEY } from '../src/game/save-schema.js';
 
 describe('S1 core-loop', () => {
@@ -35,31 +35,36 @@ describe('S1 core-loop', () => {
   // §8.5 可填格全满瞬间无论剩余时间多少 → 必进 LEVEL_CLEAR（同帧归零场景以 cleared 优先，
   // 用例：设剩余 0.01s 时放最后一颗）。
   it('§8-5 clearing the last cell with ~0.01s left → LEVEL_CLEAR, cleared beats same-frame zero', () => {
-    // decoys: [] + 3 colours → every spawn is a still-needed colour, so the
-    // interleaved play below never deadlocks on a missing colour.
+    // v2.0（WXG-T-136）：供料关停 ⇒ 夹具珠一律走 giveTrayBead 死路径直接投放，
+    // 不再依赖「供料补珠」维持连打（原注释「every spawn is a still-needed colour」作废）。
     const harness = createBeadsHarness({
       levels: [simpleTestLevel({ decoys: [] })],
       saveKey: 'wxgame.beads.test.s1clear',
     });
     const game = harness.game;
 
-    // Play the pattern down to its LAST empty cell.
+    // Play the pattern down to its LAST empty cell (direct feed, no time passes).
     while (game.grid.filledCount < game.grid.fillableTotal - 1 && game.phase === 'playing') {
-      harness.advance(1 / 60);
-      placeAnyMatching(game);
+      const cell = firstEmptyCell(game)!;
+      expect(
+        placeColor(game, game.grid.requiredColor(cell.row, cell.col), cell.row, cell.col),
+      ).toBe(true);
     }
     expect(game.grid.filledCount).toBe(game.grid.fillableTotal - 1);
 
-    // Burn the countdown to ≈0.01–0.03 s (the tray may fill up — that never
-    // fails). The step target keeps the final 1/60 step from overshooting 0.
+    // Burn the countdown to ≈0.01–0.03 s. The step target keeps the final 1/60
+    // step from overshooting 0.
     burnToRemaining(harness, 0.03);
     expect(game.remaining).toBeGreaterThan(0);
     expect(game.remaining).toBeLessThanOrEqual(0.05);
     expect(game.phase).toBe('playing');
 
-    // The last cell: with only one colour still needed and no decoys, every
-    // bead in the tray matches. Place it — cleared wins the same-frame race.
-    expect(placeAnyMatching(game)).toBe(true);
+    // The last cell: seed the matching bead via the dead path and place it —
+    // cleared wins the same-frame race.
+    const last = firstEmptyCell(game)!;
+    expect(
+      placeColor(game, game.grid.requiredColor(last.row, last.col), last.row, last.col),
+    ).toBe(true);
     expect(game.phase).toBe('level-clear');
     expect(harness.count('level:cleared')).toBe(1);
     expect(harness.count('level:failed')).toBe(0);
