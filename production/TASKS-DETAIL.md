@@ -381,6 +381,209 @@
 - **范围（建议施工序）**：① **先加红例**：经 `input.beginFrame()/push(down,up)/game.update()/input.endFrame()` 真链点面板按钮中心，断言四相位各自生效（与同坐标 `tapDesign()` 结果一致）；② 再改接线：把输入读取上提到 `update()` 的相位路由前（或给四面板态补 `onUpdate`），**语义须守** `input-control §2.3`「面板只认自己的按钮、面板外零响应」与 `pause-settings §2.2`「遮罩吃掉其余一切」；③ 保留旁路例做双口径对照（旁路只用于装配前置）；④ 回写 `input-control §8` 判据行与 QA 探针（改判据先改探针，报告 §18.3-6 惯例）。
 - **约束**：**禁**为凑绿删旁路例；`_handleTap` 的路由表是唯一裁决面，不得在 `App`/适配器侧另起一套命中逻辑；改动若触到 `§8` 判据 ⇒ 先改文档再改码。
 - **依赖**：无前置；后继 = QA 复跑 P8/P10/P22 与 Playtest M2 降级轮（本轮之前音频与面板交互维度均记 BLOCKED）。
+- **阶段 0 诊断（2026-09-15，主理人）——原登记的「需工程侧裁定口径」前置可关闭**：① **设计口径不需要裁定** —— `input-control §2.3 状态门禁` 已明文规定四相位有效输入（`PAUSED` 仅暂停面板按钮；`LEVEL_CLEAR`/`GAME_OVER`/`FINISH` 仅结算/失败面板按钮；`BOOT` 全部忽略），且 §8 判据 8 写明「PAUSED…**仅面板按钮响应**」⇒ 设计意图是「面板按钮**必须**响应」，当前完全不响应 = **纯实现缺陷**，无需请文策渊裁定。② **`_handleTap` 的相位路由表早已写全**：`beads-game.ts:1250 case 'game-over'` / `:1277 case 'level-clear'` / `:1288 case 'finish'` / `:1304 case 'paused'` 四分支均已正确实现「只认自己的面板按钮、面板外零响应」并逐条引条款；齿轮亦在相位路由**之前**被吞（合 `pause-settings §2.1`）。③ **唯一缺口 = `_readInput()` 仅在 `_stepPlaying` 内调用**（`:1191` 定义、`:1155` 唯一调用点）⇒ 上述四分支在现网是**死代码**。⇒ 修法是「把一个调用点挪出 playing」，**不是**重新设计输入路由；`input-control §2.3/§8` 判据**不需要改** ⇒「先改文档再改码」前置**不触发**。
+- **判据侧覆盖事实（供后续 QA 单用）**：§8 十条中**仅判据 8** 覆盖 `PAUSED`；`LEVEL_CLEAR`/`GAME_OVER`/`FINISH` 三相位**仅由 §2.3 状态门禁表覆盖，§8 无独立可测条目** ⇒ 判据回写有真实空间，但**不阻塞改码**。
+- **用户裁定（2026-09-15，两项全采推荐项）**：**修法 = A** —— 把 `_readInput()` 从 `_stepPlaying` **上提到 `update()`**（一处改动、全部相位覆盖、路由表原样复用）；须保留原语义「playing 内读输入后若离开 PLAYING ⇒ 本帧不再跑供料/倒计时」。**范围/顺序 = A 先工程后 QA** —— 第一单只派工程（**先加真链红例 → 再改接线 → 保留 `tapDesign` 旁路例做双口径对照**）；修完再由主理人另派 QA 复跑 P8/P10/P22 并把真链口径回写判据/探针。
+- **派工（2026-09-15，负责人由 主理人(Qoder) 改为 程基岩(eng)）**：施工序严格按上文「范围/顺序 = A」；**禁止**为凑绿删旁路例；`_handleTap` 是唯一裁决面，**不得**在 `App`/适配器侧另起一套命中逻辑；判据回写**不在本单**（留后继 QA 单）。
+- **⚠️ 与缺陷 C1（WXG-T-104）的关系**：两者**独立**且**观感相似**（都表现为「点了没反应」）。C1 = 全局 y 轴镜像（已在 T-104 修复并复证）；BD-34 = 非 `playing` 相位不读输入。排查时勿互相归因。T-104 实测中「`game-over` 相位 `_readInput` 调用数 = 0 / `playing` = 260」即本缺陷现象，**未并入 T-104 结论**。
+
+- **完成记录（2026-09-15，程基岩(eng)）**：修法按用户裁定 **A** 落地 —— `_readInput()` 由 `_stepPlaying()` **上提到 `update()`**（一处改动、四相位全覆盖、`_handleTap` 路由表原样复用）。
+  - **时序位置选「`machine.update(dt)` 之前」**：冻结帧内序为「输入（段内序：状态指令 → 玩法事件）→ 连击窗 → 供料 → 计时」（`core-loop §2.2.2` / `pause-settings §6`），放之后会把输入挤到计时之后 ⇒ 破坏该序。**原语义「读输入后若已离开 PLAYING ⇒ 本帧不再跑供料/连击窗/倒计时」保留**：上提后由**调用点**结构性保证（`_readInput()` 若切走相位，`machine.update` 直接派发新相位的 `onUpdate`，`_stepPlaying` 根本不被调用）；守卫原样留作该语义的显式锚点 + 防未来新增调用点静默破约。
+  - ① **真链红例（先跑，证断链）**：新增 `games/beads/tests/phase-input-realchain.test.ts`（9 例）。用真链 `input.beginFrame()` → `push({phase:'down'|'up'})` → `game.update(dt)` → `input.endFrame(dt)`（与 `App._fixedUpdate` 同形）在 `paused` / `game-over` / `level-clear` / `finish` 各点该面板按钮中心，与**同坐标 `game.tapDesign()`** 双口径对照。**改码前：5 条真链正面断言全红、4 条负向闸门（面板外零响应）恒绿**；改码后 **23 文件 / 247 例全绿**。
+  - ② **改码**：`games/beads/src/game/beads-game.ts` 唯一 src 改动点（`update()` 头部 + `_stepPlaying()` 注释）；**`_handleTap` 一字未动**（仍为唯一裁决面，未在 App/适配器侧另起命中逻辑）。
+  - ③ **旁路例全保留**：既有 `tapDesign()` 单测零删除（`pause-settings`/`clear-panel`/`finish-panel`/`sprint-settle`/`revive`/`in-level-snapshot`/`audio-dispatch`/`powerups`/`timer`/`feedback-vfx`/`sprint` 等）；形成「旁路 + 真链」双口径。仅订正 `tests/helpers.ts::tapInFrame` 一处**陈旧注释**（`_stepPlaying` → `update()`），行为未变。
+  - ④ **端到端浏览器复证（决定性验收，真指针 / headless Chrome / 1280×720）**：① 过一关（`level-clear`）→ 真指针点「下一关」screen(567.1,455)=设计(240,491) → **`playing` 且 `levelIndex 0→1`**（ADVANCED，两轮一致）；② 真指针点齿轮 screen(461.3,57.3)=设计(44,1227.8) → **`paused`** → 真指针点「继续」screen(640,308.2)=设计(375,763) → **`playing`**（UNSTUCK，两轮一致，即「永久卡死」场景已解）。每次点击前 `elementFromPoint` 校验落点元素 = canvas。旁路对照：独立 context 同坐标 `tapDesign()` = ADVANCED / UNSTUCK。复证脚本落在 `/tmp/bd34-e2e.mjs`（**未入库**：落盘面越出本单 §7）。
+  - ⑤ **镜像同步**：`pnpm run framework:sync` 写入 1（beads-game 镜像件）→ `pnpm run framework:sync:check` ✅（beads framework 40 + game 26；无他人残留漂移）。
+  - ⑥ **自证**：`pnpm -F @wxgame/beads test` **247/247 ✅**；`pnpm run check:arch` **OK**（仅 1 条既有 L1 编辑器产物 WARN）；`pnpm run verify` = **PASS 14 ｜ WARN 0 ｜ SKIP 1（`check:size` 未覆盖）｜ FAIL 0**。
+  - ⚠️ **harness 侧附带发现（非本单范围，未改 `dev/harness/**`）**：`dev/harness/index.html` 的三个固定 DOM 面板遮挡画布对应屏幕区 —— 1280×720 下**齿轮中心 screen(461.3,32.4) 恰在 `#hud`（y∈[10,46]）之下**（实测 `elementFromPoint='hud'`），同一 x 带 `#controls`（`top:56px`，含 `<a href="./index.html">` 切换链接）会吞掉点击并**触发导航**（实测）。真人点齿轮仍可行（用齿轮热区内 screen y∈(46,56] 那条窄带），但 harness 里齿轮可点面积被压得很窄 ⇒ 建议后续单给 `#hud`/`#controls` 加 `pointer-events:none`。
+  - ⚠️ **观察（未定级，交主理人）**：`App._fixedUpdate` 每个 tick 可跑多个固定子步，而 `InputManager.beginFrame()` 按设计**不清**一次性标志、`endFrame()` 每 tick 才清一次 ⇒ 一次物理 tap 在**同一 tick 的每个子步**都会被 `_readInput()` 读到（实测浏览器单次点击触发多次 `_handleTap`）。Node 单测（`advance` 每步 1 次 begin/update/end）与正常 60fps 单子步下不可见，故 `input-control §8-3/§8-10`「一次触摸仅一条指令」在浏览器多子步下**未锁**。**本单未改**，仅登记。
+  - **`[R]` 阻塞**：无真机 / 无 AppID ⇒ 微信侧真链未验（与 `control-manifest §17` 同口径），**不得记 PASS**。
+  - **未 commit、未 push**。判据回写（`input-control §8` 三相位可测条目 + QA 探针真链口径）**不在本单**，留后继 QA 单。
+  - **⑦ 主理人独立复核（2026-09-15）**：① `pnpm -F @wxgame/beads test` = **23 文件 / 247 例全绿**（新真链文件 9/9）；`pnpm run verify` = **PASS 14 ｜ WARN 0 ｜ SKIP 1 ｜ FAIL 0**；`git diff --stat -- games/beads/src/` = **恰 1 个文件**（`beads-game.ts` +17/−5），符合「唯一 src 改动点」。② **主理人自跑真指针复证**（harness + Chrome 1280×720，先隐藏 `#hud`/`#controls`/`#help` 以避开 DOM 遮挡，全程 `mousemove`+`mousedown`+`mouseup`，未用 `tapDesign` 做验收）：
+    - **[8] 失败页路径**：真指针点「重试」screen(640,412) ⇒ `playing`、`remaining=299/300`、`filled=0`（整关重置）✅
+    - **[9] 负向语义保留**：`paused` 相位真指针点**面板外** screen(454,704) ⇒ **仍 `paused`**（零响应，合 `input-control §2.3` / `pause-settings §2.2`）✅
+    - 另独立复现两次决定性路径：真指针点「继续」screen(640,308) ⇒ `playing`/面板关闭（**「永久卡死」解除**）；旁路铺场至 `level-clear`（3★）后真指针点「下一关」screen(567,455) ⇒ `playing`、`levelIndex 0→1`、`l2`「小屋」8×6 ✅
+    - **结论：四相位真链均已接通，且面板外零响应语义未被破坏。**
+  - **⑧ 对「1 帧 dt 差异」的裁定**：上提至 `machine.update(dt)` **之前** ⇒ 帧内切换相位后本帧照常跑计时段，`game-over` 重试后 `remaining = 300 − 1/60 ≈ 299.983`（帧外 `tapDesign` 为 300）。主理人在复证中实测到 `remaining=299`（`Math.ceil` 后显示值）。**接受**：与 `pause-settings §8-2`「≤1 帧 dt 可由 resume 帧自身消耗」同口径，且时序选择理由（保 `core-loop §2.2.2` 帧内序「输入 → 连击窗 → 供料 → 计时」）成立 —— 放 `machine.update` 之后会把输入挤到计时段之后，破坏该序。**登记为已裁定的取舍，不列缺陷。**
+  - **⑨ 未决问题裁定（主理人）**：**① harness DOM 遮挡齿轮 = A**（另立小单给 `#hud`/`#controls` 加 `pointer-events:none`；本单不越界改 `dev/harness/**` —— 该发现登记价值高：它同时解释了「真人点齿轮可点面积被压窄」与「同 x 带 `#controls` 的 `<a href>` 会吞点击并触发导航」）；**② 多子步一次触摸多指令 = A 另立单核实**（`App._fixedUpdate` 每 tick 多子步 ⇒ 同一 tick 内每个子步都读到了一次性标志 ⇒ 一次物理 tap 触发多次 `_handleTap`；Node 单测与正常 60fps 单子步下不可见，故 `input-control §8-3/§8-10` 在浏览器多子步下**未锁**。**注意：该现象在本单改码前同样存在**（`_readInput` 当时也按子步调用），**不是本单引入的回归**；但既然现在四相位都读输入，影响面变大 ⇒ 应立项核实）；**③ `[R]` 真机 = A**（接受现状并列为真机首验 **P0**，与 `control-manifest §17` / ADR-0011 §4.2(10) 同口径）。
+  - **⑩ 后继单（用户已裁定「先工程后 QA」）**：派 QA 复跑 **P8/P10/P22** 并把口径从 `tapDesign` 旁路切到**真链**；**判据回写** —— `input-control §8` 目前仅**判据 8** 覆盖 `PAUSED`，`LEVEL_CLEAR`/`GAME_OVER`/`FINISH` 三相位仅由 §2.3 门禁表覆盖、**无独立可测条目** ⇒ 有真实回写空间（**先改探针后改报告**，g4 报告 §18.3-6 惯例）。= **WXG-T-114**（已领号）。
+  - **⑪ 主理人裁定（2026-09-15，三项全采推荐项）**：**① 丢帧重复投递 = A 立新单核实并修**（= **WXG-T-113**）；**② 后继 QA 单 = A 现在派**（= **WXG-T-114**）；**③ harness DOM 遮挡 = A 收编进①**（不单独立号，随 T-113 一并处理）。
+
+## WXG-T-113
+
+- **名称**：**框架 · 丢帧重复投递（一次 touch 多指令）+ harness DOM 遮挡齿轮**
+- **负责**：程基岩(engineering-lead)　**状态**：✅ 完成（2026-09-15，程基岩）　**P1**
+- **背景（WXG-T-100 附带发现，主理人已用代码锚点坐实）**：`App.tick()` = `loop.advance(frameDt)` + `input.endFrame(frameDt)`（`packages/framework/src/compose/app.ts:147-152`）；而 `_fixedUpdate(dt)` = `input.beginFrame()` + `game.update(dt)`（`:172-175`）。`advance()` 一个 tick 可跑 **N 个子步**（丢帧 / 帧 dt > `fixedDt` 时 N>1），**每子步**都 `beginFrame + game.update`；而一次性标志（`_downThisFrame` / `_upThisFrame`）按 `memory/2026-09-13.md:146` 的修复是 **`endFrame` 独占生命周期** ⇒ **同一 tick 内每个子步都读到同一次按下** ⇒ 一次物理 tap 触发 N 次 `_handleTap`。违反 `input-control §8-3`（一次触摸仅触发一条指令）与 §8-10（每帧指令上限）。
+- **⚠️ 不是 WXG-T-100 引入的回归**：改码前 `_readInput` 也在每子步被调用（当时只在 `playing`）。但 T-100 后四相位都读输入 ⇒ **影响面变大**。Node 单测（每步 1 次 begin/update/end）与正常 60fps 单子步下**均不可见** ⇒ §8-3/§8-10 在浏览器多子步下**从未被锁**（K-038「旁路恒绿」同族病）。
+- **Deliverables（严格按序）**：
+  - ① **先写多子步复现红例**（Node 即可，不需要浏览器）：一次 `input.push(down)` 后跑一个**多子步**帧（如 `app.tick(fixedDt × 3)`），断言 `_handleTap` / 落子事件**恰 1 次**。**改码前必须真的红**。
+  - ② **定级**：确认丢帧下是否真的会**连落子 / 连换选**（即危害是否可达），给出定级建议（P1/P2）与依据。
+  - ③ **再改**。**修法硬约束**：**不得**破坏「**事件到达早于帧仍可见**」这一属性 —— 它是 2026-09-13 为修「Cocos 事件驱动宿主下 `justDown` 永远不可见」而**刻意建立**的（当时把一次性标志的生命周期从 `beginFrame` 移到 `endFrame`）。因此「读完即清」或「把清移回 `beginFrame`」这两种朴素修法**都会踩回原坑**，必须先论证再动手；若你判断需要动 `InputManager` 语义，请在回传中给出**备选方案比较**与对 `packages/framework/tests/**` 既有输入测试的影响面。
+  - ④ **收编项（用户裁定：随本单处理，不单独立号）**：`dev/harness/index.html` 三个固定 DOM 面板遮挡画布 —— 1280×720 下**齿轮中心 screen(461.3,32.4) 恰在 `#hud`（y∈[10,46]）之下**（实测 `elementFromPoint='hud'`），同一 x 带的 `#controls`（`top:56px`，含 `<a href="./index.html">` 切换链接）会吞掉点击**并触发导航**（实测）。修法：给 `#hud` / `#controls` 加 `pointer-events:none`（或抬到不遮挡画布热区的位置），使 e2e/QA 探针能直接点齿轮中心。**改完须复核 `#controls` 的切换链接仍可点**（必要时只对 `#hud` 加 `pointer-events:none`、给 `#controls` 加内边距/避让而非整体禁用）。
+  - ⑤ **自证**：新红例改码前红 / 改码后绿；`pnpm -F @wxgame/framework test` 与 `pnpm -F @wxgame/beads test` 全绿；`pnpm run verify` 汇总；若改了 `packages/framework/src/**` 须跑 `pnpm run framework:sync` + `framework:sync:check`。
+- **权威来源**：`packages/framework/src/compose/app.ts`（`:147-152` / `:172-175`，权威实现）> `packages/framework/src/core/input/input-manager.ts`（一次性标志生命周期）> `memory/2026-09-13.md:140-149`（修复 4 的原始动机与验证手法）> `games/beads/design/gdd/input-control.md` §8 判据 3 / 10 > `production/TASKS-DETAIL.md` 的 `## WXG-T-100` 小节 ⑦ 段末尾的观察登记。
+- **Output Path**：`packages/framework/src/core/input/**`、`packages/framework/src/compose/app.ts`、`packages/framework/tests/**`、`dev/harness/index.html`，以及 `production/TASKS-DETAIL.md` 的 `## WXG-T-113` 小节（**追加**）。**禁改**：`games/beads/src/**`（T-100 刚改完，本单若确需动须先回传请示）、`systems-index §3`、`production/qa/**`（QA 域）。
+- **必读 skill**：`my-skills/wxgame-adr-arch/SKILL.md`；另读 `AGENTS.md`、`docs/architecture/control-manifest.md`（§4「事件是通知，不是状态」、§6 输入）、`memory/2026-09-13.md:140-149`。
+- **约束**：热路径零分配（`tick` / `_fixedUpdate` 是每帧路径）；须补红例而非只改码；不 commit/push。
+- **完成记录（2026-09-15，程基岩(engineering-lead)·CodeBuddy）**：缺陷坐实 + 修复 + harness 收编，三项全落地。
+  - ① **多子步红例（先跑，证缺陷）**：新增 `packages/framework/tests/compose/input-multistep.test.ts`（6 例；`InputObserver` 观测型假游戏，在每个 `game.update()` 内统计读到 `justDown`/`justUp` 的**固定步数**，不碰旁路）。**改码前：4 红 2 绿** —— `app.tick(3×fixedDt)` 下一次 `down` 读到 **3** 次、一次 `up` 读到 **3** 次、5 子步帧读到 **5** 次、0 子步帧到达的 down 被 `endFrame` 丢弃（读到 **0** 次）；两条恒绿哨兵 = 「帧间到达仍可见」与「单子步不回归」。**改码后：6/6 全绿**。
+  - ② **定级 = P1**。**危害可达、已实证**：临时探针（Node，跑完即删）在 **`paused`→真指针点「继续」** 场景实测 —— 缺陷版投影 `["game:resumed","tray:spawned","bead:placed"]`（**同一 tick 的后续子步在新相位里又落了一颗子**），修复版 `["game:resumed","tray:spawned"]`。⇒ 一次「继续」点击会**顺手落子**（玩家非预期动作、可改盘面）。**但「连落子 / 连换选」在 `playing` 相位不可达**：同坐标重放被玩法侧幂等吸收 —— `Tray.select` 同槽重复 = `already-selected`（零事件）、`_placeSelected` 首次落子即 `takeBead` 清选中 ⇒ 第 2 子步零事件；齿轮仅 `playing` 生效（第 2 子步已 `paused` ⇒ 吞掉）；道具卡首用即清槽 ⇒ 再请求落 `empty`、零扣次。⇒ **可观测危害集中在「相位切换的落穿」**（面板按钮 → 目标相位同 tick 再动作），且**须丢帧**（多子步）才触发，正常 60fps 单子步不可见。**P1 依据**：a) 违反**冻结判据** `input-control §8-3/§8-10`；b) 危害可达且玩家可见（非预期落子）；c) 属**输入层契约**缺陷，未来任何非幂等处理器都会被放大；d) 丢帧在低端机 / GC / 回前台后是常态。**诚实降权项**：`playing` 侧「连落子/连换选」当前被玩法幂等吸收 ⇒ 实际爆发面窄于字面。
+  - ③ **修法**：采用「**`endFrame` 下移到 `_fixedUpdate`（每固定子步一次）**」—— `App.tick()` 去掉 `this.input.endFrame(frameDt)`；`_fixedUpdate` 改为 `beginFrame → game.update → endFrame(dt)`。语义 = **每个固定步就是一次输入帧**，与仓库既有全链辅助（各游戏 `tests/helpers.ts::advance`、QA 探针 `tickFrame`）的对称口径一致。**备选否决**：(B)「读完即清」（`snapshot` getter 消费一次性标志）**踩回原坑** —— 任何先于 `game.update` 的读 / 单帧多次读都会吞掉 tap；(C)「把清移回 `beginFrame`」**正是 2026-09-13 修复 4 修掉的 bug**（Cocos 帧间到达的 tap 永不可见）；(D) 子步仅首个读输入（`_fixedUpdate` 加子步序号）⇒ 破坏 `dx/dy` 与 holdTime，且需改 `LoopCallbacks`，过度设计。**InputManager 语义零改动**（`beginFrame` 仍不清、`endFrame` 仍独占清）；仅更新两处 doc 注释。**「事件到达早于帧仍可见」属性保住**：帧间到达的事件跨 `beginFrame` 存活、被首个 `game.update` 消费后由 `endFrame` 清除；**0 子步帧不再误丢该事件**（原 `tick` 级 `endFrame` 会丢）。**热路径零分配**：未引入任何分配。
+  - ④ **harness DOM 遮挡（收编项）**：`dev/harness/index.html` —— `#hud`/`#help` 加 `pointer-events:none`（纯信息/说明，无控件）；`#controls` 面板盒加 `pointer-events:none` + `#controls > * { pointer-events: auto }`（面板背景/内边距/flex 间隙不再吞画布点击，`<a>`/`<button>` 照常可点）。**浏览器复核（playwright-cli / headless Chrome / 1280×720）**：① 齿轮中心 `elementFromPoint(461.3,32.4)` = `CANVAS#stage`（原为 `hud`）；② **真指针** `mousemove→mousedown→mouseup` 点齿轮中心 ⇒ `phase playing→paused`（端到端）；③ `#controls` 两个切换链接中心 `elementFromPoint` = 对应 `<a>`，真指针点击 breakout 链接 ⇒ `search=""`、beads 链接 ⇒ `search="?game=beads"`（**导航正常**）；④ 六个 `#controls button`（L1–L5 / 重新开始）命中自检全部 `true`；⑤ 底部 `#help` 带 `elementFromPoint` = `CANVAS#stage`。
+  - ⑤ **自证**：`pnpm -F @wxgame/framework test` = **29 文件 / 273 例全绿**（新文件 6/6）；`pnpm -F @wxgame/beads test` = **23 文件 / 247 例全绿**（与 T-100 同数，无回归）；`pnpm run verify` = **PASS 14 ｜ WARN 0 ｜ SKIP 1（`check:size` 未覆盖）｜ FAIL 0**；`pnpm run framework:sync` 写入 2×2 件（`beads`/`breakout` 的 `compose/app.ts` + `core/input/input-manager.ts`）→ `framework:sync:check` ✅。
+  - ⚠️ **`[R]` 阻塞**：无真机 / 无 AppID ⇒ 微信侧真链未验（与 `control-manifest §17` 同口径），**不得记 PASS**。
+  - **未 commit、未 push**。**判据回写不在本单**（`input-control §8` 属设计域；§8-3/§8-10 的**多子步**口径回写留后继 QA 单 **WXG-T-114** 一并处理）。
+  - **⑥ 主理人独立复核（2026-09-15）**：
+    - **修法实质已核**：`tick()` 中的 tick 级 `input.endFrame` **已移除**；`_fixedUpdate()` 末尾新增 `this.input.endFrame(dt)`（`app.ts:184`），即「**一个固定步 = 一次输入帧**」，**`InputManager` 行为零改动**（改动仅限 `app.ts` + 一处 doc 注释）。`app.ts:174-183` 的注释完整交代了理由，并**显式声明保住了 2026-09-13 的属性**（事件帧间到达仍可见）+ **0 子步帧不再丢标志**（比修前更强）。语义判定：**该修法不是「读完即清」，也不是「把清移回 `beginFrame`」，因此未踩回原坑** —— 与 2026-09-13 修复 4 的动机不冲突。
+    - **红例独立复跑**：`pnpm -F @wxgame/framework test tests/compose/input-multistep.test.ts` ⇒ **6/6 绿**。
+    - **门禁**：`pnpm run verify` ⇒ **PASS 14 ｜ WARN 0 ｜ SKIP 1 ｜ FAIL 0**。
+    - **harness CSS 改动已核**（`git diff -- dev/harness/index.html`）：`#hud` 加 `pointer-events: none`（注释写明齿轮中心 screen(461.3,32.4) 正落在其 y∈[10,46] 内）；`#controls` **面板盒**关命中 + `#controls > * { pointer-events: auto }` ⇒ **面板内边距与 flex 间隙不再吞画布点击，但切换链接与 L1–L5 按钮照常可点** —— 正是任务书要求的「避让而非整体禁用」。`#help` 同处理。
+  - **⑦ 主理人裁定（成员未决四问）**：**① 定级 = P1（确认成员建议）** —— 理由采纳其诚实陈述：违反**冻结判据** `§8-3/§8-10`、危害玩家可见（`paused` 点「继续」会在新相位**多落一颗子**）、属输入层契约缺陷（未来任何非幂等处理器都会被放大）；同时**保留其诚实降权项**（`playing` 侧连落子被玩法幂等吸收 ⇒ 实际爆发面窄于字面，且须丢帧才触发）。**② 多子步口径回写 = 随 T-114（B）** —— 不另开工程单改 `control-manifest §6`；理由：该口径本质是 `input-control §8-3/§8-10` 的实现契约，归设计域条文（`8b/8c/8d` 同批）+ QA 用例即可，避免同一语义三处落。**③ holdTime 语义微变 = A 登记** —— `endFrame` 现按 `fixedDt`（非 `frameDt`）累计、0 子步帧不再累计；当前**无任何消费方**（全仓仅 framework 一处直接测），风险低，但**必须登记**（已由本段代为登记，不另开单）。**④ 游戏层真链多子步回归例 = 交 T-114** —— `games/beads/tests/**` 不在本单 Output Path，且 T-114 的真链探针已覆盖四相位；不另开单。
+  - **⑧ `[R]` 真机**：无真机 / 无 AppID ⇒ 微信侧真链未验，**不得记 PASS**；与 `control-manifest §17` 同口径，真机首验列 **P0**。
+
+## WXG-T-114
+
+- **名称**：**QA · 真链口径切换（P8/P10/P22）+ input-control §8 三相位判据回写**
+- **负责**：严守真(quality-lead)　**状态**：📋 已立项（待施工；**用户已批准写入 `production/qa/beads/`**）　**P1**
+- **背景**：`WXG-T-100` 已修掉 **BD-34**（`_readInput()` 仅在 `_stepPlaying` 内 ⇒ `paused`/`level-clear`/`game-over`/`finish` 四相位真链点击全失效）。但 QA 侧的探针 **P8 / P10 / P22 至今仍用 `game.tapDesign()` 旁路**驱动面板 ⇒ **旁路恒绿、真链恒断**（沉淀 **K-038**；这正是三轮回归都没测到 BD-34 的原因）。另：`input-control §8` 十条中**仅判据 8** 覆盖 `PAUSED`，`LEVEL_CLEAR`/`GAME_OVER`/`FINISH` 三相位**仅由 §2.3 状态门禁表覆盖、无独立可测条目**。
+- **Deliverables**：
+  - ① **口径切换**：把 P8 / P10 / P22 从 `tapDesign()` 旁路改为**真链**（`input.beginFrame()` → `push({phase:'down'|'up'})` → `game.update(dt)` → `input.endFrame(dt)`，与 `App._fixedUpdate` 同形），并**保留旁路例做双口径对照**（旁路仍是合法的装配前置，**不得删除**）。复跑并逐条回填结果。
+  - ② **§8 三相位判据回写**：为 `LEVEL_CLEAR` / `GAME_OVER` / `FINISH` 三相位补**独立可测条目**（现仅 `PAUSED` 有判据 8）。⚠️ **域边界**：`games/beads/design/gdd/input-control.md §8` 属**设计域（文策渊）**，**你不得直接改笔** —— 请产出**拟改条文**（含判据原文、环境道次、可测形式）并在回传中交主理人中转；你在 `production/qa/beads/test-cases.md` 侧落**对应用例**。
+  - ③ **顺序纪律**：**先改探针、后改报告**（`g4-regression-report.md` §18.3-6 惯例）；**先写预期、后跑**（禁止先看输出再回填预期 = 假绿）。
+  - ④ **诚实标注**：`[R]` 真机（无 AppID / 无真机）一律 **⛔ + 解除条件**，**不得记 PASS 亦不得记 FAIL**；本单跑不到的相位（如 `runtime` 与 `playing` 下 T-113 尚未修完的**多子步重复投递**）须显式登记为未覆盖。
+  - ⑤ **与 T-113 的关系（必须写清）**：**丢帧多子步下「一次 touch 多指令」属 WXG-T-113，不在本单**。若你的真链用例在正常 60fps 下为绿、但在多子步下为红，**如实分别登记**，不要把它并进 BD-34 的结论、也不要为凑绿放宽断言。
+- **权威来源**：`production/TASKS-DETAIL.md` 的 `## WXG-T-100` 小节（含四相位真链实测与主理人复证数字）> `production/qa/beads/g4-probe*.mjs` 与 `test-cases.md` 现行体系 > `games/beads/design/gdd/input-control.md` §2.3 + §8 > `packages/framework/src/core/input/input-manager.ts`（真链语义）。
+- **Output Path**：`production/qa/beads/**`（探针、`test-cases.md`、`evidence/`）+ `production/TASKS-DETAIL.md` 的 `## WXG-T-114` 小节（**追加**）。**禁改**：`games/beads/design/**`（§8 条文须回传拟稿）、`packages/**`、`games/**/src/**`、`systems-index §3`、`production/qa/beads/` 之外的 `production/**`（台账主表与状态回填由主理人执笔）。
+- **必读 skill**：`my-skills/wxgame-qa-gates/SKILL.md`（**必须**）；另读 `AGENTS.md`、`production/qa/beads/test-cases.md`、`knowledge/lessons.md`（查 K-038 同域教训）。
+- **约束**：严守真默认 readonly，本单**已获用户批准**写入上列路径；不 commit/push；**不得为凑绿删旁路例或放宽断言**。
+- **完成记录（2026-09-15，严守真）**：
+  - ① **探针真链口径**（`production/qa/beads/g4-probe-v1.1.mjs`，头注**修订 41**）：`mk()` 增 `tapChain(dx,dy)` = `input.beginFrame()` → `push({phase:'down'})` → `push({phase:'up'})` → `game.update(dt)` → `input.endFrame(dt)`（与 `App._fixedUpdate` 同形；坐标 `designToScreen` → `push` → 游戏内 `screenToDesign` 读回）。
+  - ② **三组口径切换（P8/P10/P22 → 真链）**：新增 **`P8R`/`P10R`/`P22R`** 真链重跑（断言子集合与旁路口径一致）；**旁路例一条未删**——`P8`/`P10`/`P22` 原样保留，仅标题加「【旁路口径 tapDesign】」并互指真链对照组。**判定/阈值零改动**。双口径对照：**差异 = 0**（`P8`=PASS\* ↔ `P8R`=PASS\*；`P10`=PASS ↔ `P10R`=PASS；`P22`=PASS\* ↔ `P22R`=PASS\*）。除口径切换外，`P22R` 额外补证「**D1 开关本身经真链可达**」（PLAYING 真链点齿轮 → PAUSED 真链点面板行 3 → `reduceMotion` 翻转 + 落档 + 回显）——这正是 BD-34 曾打断的那一步。
+  - ③ **四相位真链门禁矩阵（新增 `P27a..d` · BD-34 回归闸门）**：`PAUSED`/`LEVEL_CLEAR`/`GAME_OVER`/`FINISH` 每相位**正向（真链点面板按钮 ⇒ 相位迁移/整关重置）+ 负向（真链点面板外死区 `(30,53)` ⇒ 事件增量 0、相位不变）**并列 ⇒ 负向**非平凡真**（点击确已到达 `_handleTap`）。**`P27a..d` 4 条全绿**，与 `## WXG-T-100` 小节 ⑦ 段主理人真指针复证**逐条吻合**（Node 真链 + 浏览器真指针两条独立取证链互印）。这就是 §8 三相位「无独立可测条目」空缺的 QA 侧落码。
+  - ④ **`§8` 三相位判据回写（拟稿，**未越界改笔**）**：产出 **拟增条文 8b/8c/8d** 全文（含判据原文、环境道次、可测形式、来源标注、编号理由）于 `g4-regression-report.md §22.5`，**交主理人中转设计侧（文策渊）**；QA 侧对应用例落 `test-cases.md §A4b`（`TC-INP-11/12/13`，标「条文待设计侧确认」）。**`games/beads/design/**` 一字未改。**
+  - ⑤ **顺序纪律**：**先改探针、后改报告**；**先写预期、后跑**（预期取自 `input-control §8`/§2.3 现文与 T-100 实测数字）。两口径在**同一次运行、同一 `.smoke` 产物**下并列产出 ⇒ 对照自洽。确定性自证：连跑两次判定**逐条一致**。
+  - ⑥ **自证与计数**：`node production/qa/beads/g4-probe-v1.1.mjs` ⇒ **EXIT=0**；全量 **PASS 34 ｜ PASS\* 16 ｜ FAIL 2 ｜ ⛔ 9（61 组）**；**T-114 修订面 7 条 = PASS 5 ｜ PASS\* 2 ｜ FAIL 0 ｜ ⛔ 0**。证据：`evidence/g4-probe-v1.1-t114.log`（正式）/ `…-t114-rerun.log`（确定性）/ `…-t114-baseline.log`（改动前旁路基线）。**未改** `games/beads/src/**`、`packages/**`、`design/**`、`systems-index §3`、`cocos-input-probe.mjs`；未 commit / push。
+  - ⑦ **探针自身缺陷自查（+1，诚实登记）**：`P27a`/`P22R` 证据串原直接嵌 `${h.game.phase}`，在 `rec()` 时才求值 ⇒ 打印**后续帧**相位（P27a 曾打印 `phase=playing` 与其断言 `phase=paused` 自相矛盾；与修订 15bis(a)「活快照晚读」同族）。改为**当场拷标量**后重跑；判定不受影响（判定用当场捕获的布尔）。
+  - ⑧ **外部变量（非本单，已核实）**：基线 log 跑时 `dev/harness/dist`=14:26:04Z（早于被测源 `compose/app.ts` 14:39:07Z）⇒ `P5/S` 的**新鲜度门**判 FAIL；其后**并发会话（WXG-T-113）重建 dist**（→14:43:12Z）⇒ 正式轮 `P5/S` 转 PASS\*。**两轮唯一差异就是该新鲜度门那一行**，与本单改动无关；本单结论一律以正式轮 log 为准。
+  - ⑨ **⚠️ 已知遗留（非本单、建议后续小改）**：`P5/S` 证据串末句「本轮探针开跑前 dist 曾早于 src 38 分钟，已用 `pnpm run harness:build` 重建」是 **T-096 轮遗留的静态文案**，对「由并发会话重建」的本次运行**不成立**（freshness 数字行本身是实时计算的、为真）。属证据文本陈旧，未在本单改笔。
+  - ⑩ **`[R]` 阻塞**：无真机 / 无 AppID ⇒ 微信宿主真链 **⛔**（解除条件：有效 AppID → `build:cocos:wx` 出包 → 微信开发者工具/真机可跑 → 同一真链探针在 `wx` 宿主复取按钮命中）；**不记 PASS 亦不记 FAIL**，真机首验须把「四相位面板按钮可点」列 **P0**。
+  - ⑪ **与 WXG-T-113 的边界（不得合并）**：丢帧多子步「一次 touch 多指令」属 **T-113**（框架 `App.tick` 子步 × `endFrame` 独占标志生命周期）；本单真链用例一律在**正常 60fps 单步**（直接 `game.update(dt)`，不经 `app.tick` 多子步）下取证 ⇒ **互不覆盖**；若多子步下为红**如实分别登记**，不并入 BD-34 结论、不为凑绿放宽断言。
+  - ⑫ **门禁建议（裁决权归主理人）**：**G4 建议维持 CONCERNS**（本单未触及 §21.3 三条未闭项）；**BD-34 建议关闭**（T-100 已修 + 本单真链回归闸门全绿）。
+- **依赖**：无前置；后继 = `§8` 三相位拟增条文经设计中转确认后回写（QA 侧用例已挂好，确认后去「拟」）；Playtest M2 降级轮可就绪。
+- **⑬ 主理人独立复核（2026-09-15）**：
+  - **探针独立复跑**：`node production/qa/beads/g4-probe-v1.1.mjs` ⇒ **EXIT=0**；【T-114 修订面】= **PASS 5 ｜ PASS\* 2 ｜ FAIL 0 ｜ ⛔ 0**（7 条）。全量 61 组：PASS 34 ｜ PASS\* 16 ｜ FAIL 2 ｜ ⛔ 9（FAIL 2 为既有的 P4 / 另一条，**与本单无关**）。
+  - **真链口径已验证落地**：输出中可见 `PASS* P8R`、`PASS P10R`、`PASS* P22R`、`PASS P27a/b/c/d`，且旧的 `P8 / P10 / P22` **原样保留并标注「【旁路口径 tapDesign】」** ⇒ 双口径并存、**旁路例零删除**属实。
+  - **关键价值确认**：**旧口径 vs 真链口径差异 = 0**（三条逐条一致）。这正是 **K-038「旁路恒绿、真链恒断」的缺口** —— 三轮回归都没测到 BD-34，就是因为缺这条「旁路 ≡ 真链」断言；本单把它补上了。
+  - **判据落盘已核**：`test-cases.md` 新增 **§A4b**（`TC-INP-01R/07R/08R` 真链孪生 + `TC-INP-11/12/13` 三相位拟增，**加 `R` 后缀 / 续号不重排**，§A4b 声明**不计入**「5 组×10=50」）；版本 **v1.6→v1.7**、总用例 **140→146**（`:17` / `:130` / `:133-135` / `:481`）。
+  - **§8 拟改条文已成稿**（报告 `§22.5`）：**8b（LEVEL_CLEAR）/ 8c（GAME_OVER）/ 8d（FINISH）** 三条，含判据原文、环境道次、可测形式、来源标注、编号理由 ⇒ 具备**设计中转**条件。
+- **⑭ 主理人裁定（成员未决四问）**：**① §8 条文形态 = A（`8b/8c/8d` 后缀，不整体重排）** —— 与 `A05-09b` 判例同形，改动最小且不牵动既有引用；**② `P5/S` 陈旧文案 = A（本单不碰，登记待订正）** —— 避免跨任务改笔；**③ 基线 log = A（保留为旁路口径参照）** —— 其 dist 口径已在 `§22.2` 标清；**④ 真机首验 P0 = 随本单排**（与 `control-manifest §17` 同口径，不另立单）。
+- **⑮ 主理人裁定：BD-34 关单** ✅ —— 判据：① 实现已修（`WXG-T-100`，四相位接通，主理人真指针复证三条真人路径 + 负向语义全过）；② **回归闸门已建**（本单 `P27a..d` 四相位真链 + 面板外负向，全绿）；③ 真链口径已从旁路切换并与旁路**逐条一致（差异=0）**。**限定**：效力只到 `[Node]` 真链 + `[Harness]` 真指针层；**`[R]` 真机仍 ⛔ 未验**，真机首验须把「四相位面板按钮可点」列 **P0**。**`G4` 建议维持 CONCERNS**（§21.3 三条未闭项本单未触及）。
+- **⑯ 设计中转待办（主理人执行）**：把 `§22.5` 的 `8b/8c/8d` 拟改条文 + 编号理由转 **文策渊**（`input-control §8` 属设计域，QA 与主理人**均不代改笔**）；确认后 QA 侧把 `TC-INP-11/12/13` 的「拟」字去掉。
+- **⑰ 沉淀候选（成员报 1 条，主理人认可）**：*重跑轮必须记录**产物/夹具 mtime** —— 跨会话重建 dist 会把「外部变量」误读成「本轮变化」*（本轮 `P5/S` 由 FAIL→PASS\* 即为实例，唯一差异是其新鲜度门行 `dist 14:26:04Z 早于 src 14:39:07Z`，而并发会话 `WXG-T-113` 于 22:41 重建 dist 后转绿）。与 **K-039「时点性」同族，可补其「跨会话」维度** —— 交 `kb:sync` 收尾时入 `knowledge/lessons.md`。
+
+## WXG-T-115
+
+- **名称**：**beads · `input-control §8` 三相位门禁 + 多子步口径回写（设计域落笔）**
+- **负责**：文策渊(design-strategist)　**状态**：📋 已立项（待施工）　**P1**
+- **背景（两笔判据欠账，同一文件、同一批处理）**：
+  1. **三相位门禁条文缺失**：`input-control §8` 十条中**仅判据 8** 覆盖 `PAUSED`；`LEVEL_CLEAR` / `GAME_OVER` / `FINISH` 三相位**仅由 §2.3 状态门禁表覆盖、§8 无独立可测条目**。上游 **`WXG-T-100`** 已修掉 BD-34（`_readInput()` 原先只挂在 `_stepPlaying` ⇒ 四相位真链点击失效、真人过第一关后点不动结算面板且点齿轮进暂停后**永久卡死**）；**`WXG-T-114`** 已把拟改条文成稿于 `production/qa/beads/g4-regression-report.md` **§22.5**（含判据原文 / 环境道次 / 可测形式 / 来源标注 / 编号理由），QA 侧用例已挂好（`test-cases.md §A4b` 的 `TC-INP-11/12/13`，**标「条文待设计侧确认」**）。
+  2. **多子步口径未落到条文**：上游 **`WXG-T-113`** 修了「丢帧重复投递」（`loop.advance()` 一个 tick 可跑 N 个子步，而一次性标志由 `endFrame` 独占生命周期 ⇒ **一次触摸触发 N 次指令**）。主理人裁定该口径**归设计域条文**（不另开工程单改 `control-manifest §6`）⇒ `input-control §8-3` / `§8-10` 需补澄清：**「一次触摸 → 一条指令」的时基是「固定步」而非「tick」；丢帧不得重复投递**。否则判据字面与实现口径仍对不上，下次回归会再次误判。
+- **用户裁定（2026-09-15）**：条文形态采 **A —— `8b/8c/8d` 后缀，不整体重排 §8**（同 `A05-09b` 判例：重排会牵动台账与既有证据引用，成本更高）。
+- **Deliverables**：
+  1. **审阅 `§22.5` 拟稿并逐条确认或修正**。你是设计口径的裁决者：若拟稿与你对设计意图的判断不符，**按设计意图改写并说明理由**（不得为迁就实现而降低判据）。
+  2. 回写 `games/beads/design/gdd/input-control.md §8`：新增 **8b（LEVEL_CLEAR）/ 8c（GAME_OVER）/ 8d（FINISH）** 三条门禁判据（每条须含：判据原文 / 环境道次 / 可测形式 / 来源标注）。
+  3. 同批在 **§8-3 / §8-10** 补「**多子步 / 丢帧**」口径澄清（时基 = 固定步；丢帧不得重复投递）。
+  4. 若 **§2.3 状态门禁表**措辞需与新条文对齐，一并**对齐**（**只对齐、不改变语义**）。
+  5. 按该文件既有惯例更新**文首版本号 + 变更记录**。
+- **权威来源（冲突以 A 为准）**：
+  - **A**：`production/qa/beads/g4-regression-report.md` **§22.5**（拟稿全文）
+  - **B**：`games/beads/design/gdd/input-control.md` §2.1 / §2.3 / §8 现行文本
+  - **C**：`production/TASKS-DETAIL.md` 的 `## WXG-T-114`（上游产出）／`## WXG-T-100`（BD-34 修复与四相位真链实测）／`## WXG-T-113`（多子步缺失与修法）
+  - **D**：`games/beads/design/ux/ux-spec.md` §4 流转表（`LEVEL_CLEAR` / `FINISH` 行）
+  - **E**：实现锚点 `games/beads/src/game/beads-game.ts` 的 `_handleTap` 四相位分支（**只读**，用于核对可行性；**不得据此改设计**）
+  - 不发明 `systems-index §3` 未冻结数值；本单**不应需要**任何新游戏数值。
+- **Output Path**：`games/beads/design/gdd/input-control.md`（**主产物**）+ `production/TASKS-DETAIL.md` 的 `## WXG-T-115` 小节（**追加**完成记录）。
+  **禁改**：`packages/**`、`games/**/src/**`、`systems-index §3`、`production/qa/**`（QA 用例去「拟」是严守真的活，不在本单）、`ux-spec.md`（若你判断必须同改，**先回传请示**）、`production/**` 除上列小节外的一切。
+- **必读 skill（开工前先 Read）**：`my-skills/wxgame-gdd-writer/SKILL.md`；若行文涉及 UX 流转表述，续读 `my-skills/wxgame-ux-spec/SKILL.md`。另读 `AGENTS.md`、`games/beads/design/gdd/input-control.md`（**先摸清 §2.1/§2.3/§8 现行体系再落笔**）。
+- **约束**：**不整体重排 §8**（裁定 A）；**不得为迁就实现而降低判据**；若发现实现与设计不符（除已在册的已知残留）⇒ **如实登记、回传**，不改设计迁就代码；先问再写；不 commit/push。
+- **后继（不在本单）**：本条落地后由 **严守真** 把 `test-cases.md §A4b` 的 `TC-INP-11/12/13` 去掉「拟」字（`production/**` 写权限在其侧）。
+- **完成记录（2026-09-15，文策渊(design-strategist)）**：主产物 `games/beads/design/gdd/input-control.md` **v1.0 → v1.1**（新增 §9 变更记录），三笔一次落盘。
+  - ① **§8 新增三相位门禁判据 `8b/8c/8d`**（插在判据 8 与 9 之间；**采后缀、不重排判据 1–10**，用户裁定 A）。每条含**四要素**（判据原文 / 环境道次 / 可测形式 / 来源标注），并附「编号理由」。
+    - `8b`（LEVEL_CLEAR）：点棋盘/托盘/道具卡/齿轮全忽略；**仅过关面板按钮响应（下一关 / 去冲刺）**；面板外零命中、不推进（不误触下一关、不误开冲刺）。可测：真链点「下一关」⇒ `level-clear→playing`、`levelIndex n→n+1`；点面板外 ⇒ 事件增量 0、相位与关卡号不变。
+    - `8c`（GAME_OVER）：点棋盘/托盘/道具卡/齿轮全忽略；**仅失败面板按钮响应**——普通局 续时 / 重试本关，**冲刺局 再来一局 / 返回关卡**；面板外零命中、不重开。可测：真链点「重试本关」⇒ `game-over→playing`、`filled=0`（整关重置）；面板外 ⇒ 事件增量 0、相位不变。
+    - `8d`（FINISH）：点棋盘/托盘/道具卡/齿轮全忽略；**仅通关面板按钮响应（去冲刺 / 重玩第 1 关）**；面板外零命中、不误触。可测：真链点「重玩第 1 关」⇒ `finish→playing`、`levelIndex=0`；面板外 ⇒ 事件增量 0、相位不变。
+    - 环境道次三条同口径：`[Node]/[Probe]` 真链 ✅ ＋ `[Harness]` 真指针 ✅ ＋ `[Device]/[R]` 真机 **⛔**（无 AppID/无真机；解除条件 = 有 AppID → `build:cocos:wx` 出包 → 开发者工具/真机可跑 → 同一真链探针在 `wx` 宿主复取按钮命中）。
+  - ② **对 `g4-regression-report §22.5` 拟稿的审阅结论：核心采纳，另作 3 处修正/加强**（**均未降低判据**）——
+    - **修正 1（按钮集补齐，据 `ux-spec §4`/§3.3/§3.5/§3.6 与实现锚点只读核对）**：拟稿 `8b` 仅列「下一关/去冲刺」（已含）、`8c` 仅列「重试/续时」。**裁决**：`8c` 补**冲刺局子分支**（`_mode==='sprint'`：再来一局 / 返回关卡）——`game-over` 相位在冲刺局呈现的是冲刺结算面板（`ux-spec §3.5`/§4），按钮集不同，漏列即留下「有规范、无可测条目」的新型缺口（本单正是治此病）；`8b`/`8d` 的「去冲刺」保留。
+    - **修正 2（形态）**：拟稿把「判据原文」用 blockquote、「环境道次/可测形式/来源标注」用合并表。**裁决**：改为**逐条四要素清单**（每条自带四槽），严格满足任务书「每条须含四要素」，也便于 QA 1:1 挂用例。
+    - **修正 3（来源锚点精确化）**：实现锚点行号随码漂移，改为**符号锚**（`case 'level-clear'` / `case 'game-over'` / `case 'finish'`）并显式标注「只读核对、不据以实现改判据」（守 §10 硬约束）。
+    - **未降低判据的声明**：三条均**未**因实现现状放宽（`[R]` 真机诚实标 ⛔ 且写解除条件，未记 PASS）。
+  - ③ **§8-3 / §8-10 补「多子步 / 丢帧」时基口径**：判据「一次触摸 = 一条指令」的时基 = **固定步**（`GameLoop.fixedDt`，即「一个固定步 = 一次输入帧」），**非渲染 tick**；一 tick 承载 N 个固定步时**同一次触摸仍只准投递一条指令，不得因子步重放重复触发**；并加「相位切换落穿」子句（点「继续」不得顺手落子）。§8-10 同口径（N 子步注入 1 触摸 ⇒ 路由计数 =1）。
+  - ④ **§2.3 状态门禁表第 3 行对齐**（**只对齐、不改语义**）：按钮集由不完整的「（下一关/重试/重玩第 1 关）」改为**逐相位准确枚举**（过关：下一关/去冲刺；失败：续时/重试本关；通关：去冲刺/重玩第 1 关）并加 §8-8b/8c/8d 交叉引用。
+  - ⑤ **附带对齐（超 Deliverables 清单，已在文首/§9 登记）**：`§2.4` / `§6` 原用「帧」指输入帧，与 §8-3 新口径同义但未显式化 ⇒ 仅加「（帧 = 固定步，见 §8-3）」**透明标注，零语义/数值改动**。理由：不改则同文件内「帧」歧义正是本单要治的误判源；如需回退，删括号即可。
+  - ⑥ **产出与边界**：只写 `input-control.md` 与本节。**未改** `ux-spec.md`（判断无需同改：UX 侧 §4/§3.x 与条文一致，仅作来源引用）、`systems-index §3`（**零新数值**）、`packages/**`、`games/**/src/**`、`production/qa/**`（QA 用例去「拟」= 严守真的活）。
+  - ⑦ **门禁自检**：`pnpm run check:links` **OK**（agents=7 / skills=17）；`pnpm run check:tasks` **OK**（主表 46 行 / 详情 46 节配对完整）。
+  - ⑧ **未 commit、未 push**。
+  - **交接（经主理人中转）**：① **后继 = 严守真** 把 `test-cases.md §A4b` 的 `TC-INP-11/12/13` 去「拟」（本单未越界改 QA 文档）；② 条文新增的**次按钮**子句（`8b`「去冲刺」/ `8c`「续时」与冲刺局子分支 / `8d`「去冲刺」）**真链孪生用例待 QA 补**——现 `TC-INP-11/12/13` 仅覆盖各相位**主按钮** + 面板外负向（**本条如实登记，不为凑覆盖而删子句**）。
+- **⑨ 主理人独立复核（2026-09-15）**：逐项 `grep` / `sed` 已核 —— **`8b/8c/8d` 落盘**（`:109 / :115 / :121`，**逐条四要素齐备**）；**§8-3 时基口径落盘**（`:100`，含「时基 = 固定步（`GameLoop.fixedDt`），**非渲染 tick**」+「**丢帧 / N 子步下同一次触摸仍只准投递一条指令**」+ **相位切换落穿子句**（点「继续」不得顺手落子）+ 明写「该口径由 `App._fixedUpdate` 每固定子步一次 `beginFrame`/`endFrame` 保证」）；**§8-10 多子步口径落盘**（`:130`，N 固定步注入 1 触摸 ⇒ 路由计数 =1；单固定步注入 20 触摸 ⇒ 仅 1 条入路由）；**`§2.4`/`§6` 的「帧」标注「= 固定步」**（`:50 / :79 / :82`）；**§2.3 第 3 行对齐**（按钮集逐相位枚举 + 交叉引用 `§8-8b/8c/8d`，**只对齐未改语义**）；**文首 v1.1 + `## 9. 变更记录`**（`:3 / :134 / :139`）。**判定：落盘属实、无虚报。**
+- **⑩ 主理人特别肯定一处写法**：`§8-3` 末句「**若实现在丢帧多子步下未达此口径，须如实登记为缺陷，不得放宽本条**」—— 这是**判据不迁就实现**的正确兜底，正是本仓反复强调的纪律（对照：C1 与 BD-34 的成因都是「判据没写清 → 实现绕过去 → 无人发现」）。**该句予以保留，不得删。**
+- **⑪ 对成员三处修正的裁定（予以采纳）**：**修正 1（`8c` 补齐冲刺局子分支按钮集「再来一局/返回关卡」）** —— **实质增益**，采纳。若不补，本单刚填的三相位缺口会因「冲刺局走同一 `case 'game-over'` 但按钮集不同」而立刻留下新缺口。**修正 2（拆成逐条四要素清单）** —— 采纳（满足可测性与 QA 1:1 挂用例）。**修正 3（行号锚 → 符号锚 `case 'level-clear'`）** —— 采纳，防「随码漂移的行号」再次失效（本仓已有该类事故）。
+- **⑫ 主理人裁定（成员未决三问）**：**A｜`§2.4`/`§6` 顺带对齐 = 保留** —— 零语义 / 零数值改动，且是给「帧」一词消歧（与 §8-3 时基口径同源），属正当同步；**不采 ③ 整句改写**（避免扩大改动面）。**B｜次按钮取证缺口 = 并入后继 QA 单**（去「拟」时同批补），**不另开单** —— 同一文件同一批，拆单只会增加交接成本。**C｜道次用词 = 保持 `[Device]/[R]` 并列** —— 兼容 `test-cases` 图例与 QA 报告两套既有用法。
+- **⑬ 后继（需领号，不在本单）**：派 **严守真** 做两件事 —— ① 把 `test-cases.md §A4b` 的 `TC-INP-11/12/13` **去「拟」**；② 按 `8b/8c/8d` 新增的**次按钮子句**补**真链孪生用例**（含 `8c` 冲刺局子分支；若该路径在本环境不可达，**如实标 ⛔ 并写解除条件**）。= **WXG-T-116**（已领号）。
+
+## WXG-T-116
+
+- **名称**：**QA · `§A4b` 去「拟」+ 次按钮真链孪生用例（含冲刺局子分支）**
+- **负责**：严守真(quality-lead)　**状态**：📋 已立项（待施工；**用户已批准写入 `production/qa/beads/`**）　**P2**
+- **背景**：上游 **`WXG-T-115`** 已把设计侧条文回写完毕 —— `games/beads/design/gdd/input-control.md` 新增 **§8 的 `8b`（LEVEL_CLEAR）/ `8c`（GAME_OVER）/ `8d`（FINISH）** 三条门禁判据（每条含判据原文 / 环境道次 / 可测形式 / 来源标注），并在 **§8-3 / §8-10** 补了「多子步 / 丢帧」时基口径（时基 = **固定步**，非渲染 tick；丢帧不得重复投递；含相位切换落穿子句）。但 QA 侧尚有两笔收尾：
+  1. **`production/qa/beads/test-cases.md §A4b`** 的 `TC-INP-11/12/13` 仍标「**条文待设计侧确认**」（`§8-8b/8c/8d` 写作「**拟增**」）⇒ 条文已定稿，**该去「拟」**。
+  2. **次按钮子句尚无真链孪生用例**。`WXG-T-114` 的 `P27a..d` 与 `TC-INP-11/12/13` 只覆盖各相位**主按钮** + 面板外负向；而 `8b/8c/8d` 的按钮集**不止主按钮**，且 `8c` 还含**冲刺局子分支**（`XWXG-T-115` 修正 1 补齐，见 `## WXG-T-115` ⑪）。**该缺口由 文策渊 主动登记、主理人裁定并入本单**。
+- **Deliverables**：
+  1. **去「拟」**：把 `TC-INP-11/12/13` 的判据引用从「`§8-8b/8c/8d`（**拟增**）」改为正式编号 **`input-control §8-8b / 8c / 8d`**；`§A4b` 节首与变更记录同步（判据/阈值**零改动**，本条只改引用与状态）。
+  2. **补次按钮真链孪生用例**（逐条对应条文新增的次按钮子句）：
+     - `8b`「**去冲刺**」⇒ 进冲刺模式（相位 / 模式断言）
+     - `8c` 普通局「**续时**」（⚠️ 依赖激励视频 `onRewarded` 路径；harness 侧是 `MockRewardedAdProvider`，可达性由你实测判定）
+     - `8c` **冲刺局子分支**「**再来一局**」「**返回关卡**」（冲刺结算面板，与普通局按钮集不同）
+     - `8d`「**去冲刺**」
+  3. **探针同步**：在 `production/qa/beads/g4-probe-v1.1.mjs` 加对应用例（编号自定，建议沿 `P27` 族续号并在输出中说明映射），**先改探针、后改报告**。
+  4. **不可达者如实标 ⛔**：任一路径若在本环境不可达（如「续时」需真实激励视频、冲刺子分支受前置约束），记 **⛔ + 解除条件** —— **不得记 PASS，亦不得记 FAIL**。
+  5. **顺序与诚实纪律**：**先写预期、后跑**（禁止先看输出再回填预期 = 假绿）；**旁路例一条不得删**；**不得为凑绿放宽断言**。
+- **权威来源（冲突以 A 为准）**：
+  - **A**：`games/beads/design/gdd/input-control.md` **§8-8b/8c/8d**（**已定稿的条文**，含按钮集与可测形式）与 **§8-3 / §8-10**
+  - **B**：`production/TASKS-DETAIL.md` 的 `## WXG-T-115`（条文回写与三处修正）／`## WXG-T-114`（真链口径与 `P27a..d`）／`## WXG-T-100`（四相位真链实测）
+  - **C**：`production/qa/beads/test-cases.md §A4b` 与 `g4-probe-v1.1.mjs` 现行体系（**先摸清再落笔**）
+  - **D**：`games/beads/design/ux/ux-spec.md` §4 流转表 / §3.3 / §3.5 / §3.6（按钮集来源）
+  - 不引用你未实际执行过的结果。
+- **Output Path**：`production/qa/beads/**`（探针、`test-cases.md`、`evidence/`）+ `production/TASKS-DETAIL.md` 的 `## WXG-T-116` 小节（**追加**）。
+  **禁改**：`games/beads/design/**`（条文已定稿，本单**只读引用** —— 若你认为条文有误，**回传登记、不得代改笔**）、`packages/**`、`games/**/src/**`、`systems-index §3`、`production/qa/beads/` 之外的 `production/**`（台账主表与状态回填由主理人执笔）。
+- **环境事实**：✅ Node ≥20 + `node production/qa/beads/g4-probe-v1.1.mjs`（依赖 `dev/harness/.smoke` 暂存产物，必要时先 `harness:build`／`harness:smoke`）；✅ 浏览器真链可用（`playwright-cli` + 本机 Chrome，`export PATH="$HOME/.workbuddy/binaries/node/workspace/node_modules/.bin:$PATH"`）。⚠️ 已知坑：**须在 `phase=playing` 下取状态**、**`mousemove` 不要放进 for 循环**（harness 顶层 DOM 遮挡已由 WXG-T-113 修掉）。⛔ 无真机 / 无 AppID ⇒ `[R]` 一律 ⛔。
+- **必读 skill**：`my-skills/wxgame-qa-gates/SKILL.md`（**必须**）；另读 `AGENTS.md`、`production/qa/beads/test-cases.md`、`games/beads/design/gdd/input-control.md` §8、`production/TASKS-DETAIL.md` 的 `## WXG-T-116` 与 `## WXG-T-115` 小节。
+- **约束**：严守真默认 readonly，本单**已获用户批准**写入 §Output Path 上列路径；不 commit/push；**不得为凑绿删旁路例或放宽断言**；**不得代改设计条文**。
+- **完成记录（2026-09-15，严守真）**：
+  - ① **去「拟」**（`test-cases.md §A4b`）：`TC-INP-11/12/13` 的判据引用由「`§8-8b/8c/8d`（**拟增**，待设计侧确认）」改为正式编号 **`input-control §8-8b / 8c / 8d`**（WXG-T-115 已定稿），状态串同步；§A4b 节首、口径注、合计表、变更记录同步。**判据 / 阈值零改动**（只改引用与状态）。探针侧 P27b/c/d 标题/归属串同步去「拟」。
+  - ② **补 5 条次按钮真链孪生**（探针 `P27e..i`，逐条对应 `8b/8c/8d` 新增的次按钮子句）：
+    - `P27e`/`TC-INP-11b` = `8b`「**去冲刺**」：LEVEL_CLEAR 真链点副钮 ⇒ `mode normal→sprint`、`playing`。
+    - `P27f`/`TC-INP-12b` = `8c` 普通局「**续时**」：真链点钮 ⇒ `watchingAd=true`、相位仍 `game-over`（等回调）；`MockRewardedAdProvider.settle('complete')` 发奖腿 ⇒ `playing`、`remaining += REVIVE_BONUS_SEC`、`revived=true`。
+    - `P27g`/`TC-INP-12c` = `8c` **冲刺局子分支「再来一局」**：冲刺结算真链点主钮 ⇒ `mode=sprint`、`playing`。
+    - `P27h`/`TC-INP-12d` = `8c` **冲刺局子分支「返回关卡」**：冲刺结算真链点副钮 ⇒ `mode=normal`、`playing`。
+    - `P27i`/`TC-INP-13b` = `8d`「**去冲刺**」：FINISH 真链点副钮 ⇒ `mode normal→sprint`、`playing`。
+    - 每条**正负并列**（同相位真链点面板外死区 `(30,53)` ⇒ 事件增量 0 ⇒ 负向非平凡真）。装配前置用**合法公开 API**（`fillBoard` / `startSprint`），判据主体 = 面板按钮真链点击。
+  - ③ **实测结果**：`node production/qa/beads/g4-probe-v1.1.mjs` ⇒ **EXIT=0**；全量 **66 组：PASS 38 ｜ PASS\* 17 ｜ FAIL 2 ｜ ⛔ 9**（较 T-114 轮 61 组 **+5**）；**T-116 修订面 5 条 = PASS 4 ｜ PASS\* 1 ｜ FAIL 0 ｜ ⛔ 0**。确定性自证：连跑两次判定**逐条一致**。证据：`evidence/g4-probe-v1.1-t116.log`（正式）/ `…-t116-rerun.log`（确定性）。
+  - ④ **⛔ 边界（不记 PASS 亦不记 FAIL）**：`P27f` 的**发奖腿由 harness 替身驱动**（`MockRewardedAdProvider(null)`，autoSettle 关 ⇒ 须显式 `settle()`）⇒ 只证「按钮→请求→发奖→续打」**结构链路**；真机激励视频**拉起/发奖/「未看完·skip·error」三分支**属 `[R]`（无 AppID/无真机）⇒ **⛔**（解除条件：有效 AppID → `build:cocos:wx` 出包 → 开发者工具/真机可跑 → 同一真链探针在 `wx` 宿主复取）。故 `TC-INP-12b` 记 **PASS\*** 而非 PASS。
+  - ⑤ **纪律**：**先改探针、后改报告**（报告 §23）；**先写预期、后跑**（预期取自 `input-control §8-8b/8c/8d` 现文 + `ux-spec §4`/§3.4/§3.5/§3.6）；**旁路例一条未删**；**未放宽任何断言**；**未改条文与阈值**；**`games/beads/design/**` 一字未改**（只读引用）。
+  - ⑥ **产物新鲜度（自证）**：跑前 `dev/harness/dist/games/beads/src/game/beads-game.js` mtime = **2026-09-15 22:53:12**、`.smoke` 对应件 = **22:56:51**（晚于被测源 ⇒ 未报新鲜度门失败）；已按 T-114 教训**记 mtime 入证据 log 头部**。
+  - ⑦ **探针自身改动自查**：P27b/c/d 去「拟」；新增 `T116_PREFIXES` **独立分桶**（不并入 T-114，六段计数不得合并解读）；修两处证据串笔误（多余反引号，判定不受影响）；未新增探针自身缺陷。
+  - ⑧ **门禁建议（裁决权归主理人）**：**G4 建议维持 `CONCERNS`**（未触及 §21.3 三条未闭项）；**`8b/8c/8d` 次按钮子句在 `[Node]/[Probe]` 真链层已可测且成立**；**去「拟」收尾完成**。
+  - ⑨ **文档产出**：`production/qa/beads/{g4-probe-v1.1.mjs, test-cases.md(v1.7→v1.8), g4-regression-report.md(v1.5→v1.6 §23)}` + `evidence/g4-probe-v1.1-t116{,-rerun}.log`。**未改** `games/beads/design/**`、`packages/**`、`games/**/src/**`、`systems-index §3`、`production/qa/beads/` 之外的 `production/**`；未 commit / push。
+- **⑩ 主理人独立复核（2026-09-15）**：
+  - **探针独立复跑**：`node production/qa/beads/g4-probe-v1.1.mjs` ⇒ **EXIT=0**；【T-116 修订面】= **PASS 4 ｜ PASS\* 1 ｜ FAIL 0 ｜ ⛔ 0**（5 条：`P27e/f/g/h/i`）。全量 **66 组**（较 T-114 轮 61 组 +5）：**PASS 38 ｜ PASS\* 17 ｜ FAIL 2 ｜ ⛔ 9**（FAIL 2 = 既有 P4/BD-29 + 另一条，**与本单无关**）。
+  - **去「拟」已核**：`test-cases.md` 的 `TC-INP-11/12/13` 判据列已由「`§8-8b`（**拟增**）」改为正式 **`§8-8b/8c/8d`**，状态串改为「**条文已定稿（WXG-T-115）**」（`:137-139`）；新增 **5 条** `TC-INP-11b/12b/12c/12d/13b`（`:140-144`）；版本 **v1.7→v1.8**、总用例 **146→151**（`:496`）。**判据/阈值零改动属实。**
+  - **⚠️ 一处需说明的「残留」已澄清**：`grep "拟增\|条文待设计侧确认"` 仍有 **3 处**（`:125 / :495 / :496`）—— 逐条读过，**全部是合法的历史/动作引用**：`:125` 是 §A4b 节首叙述 T-114 当时的产出状态；`:495` 是 **v1.7 变更记录的历史条目**；`:496` 是 **v1.8 条目在描述「去拟」这个动作本身**（须引用旧串才能说明改了什么）。**非漏改，不作缺陷。**
+  - **旁路例保留已核**：`P8/P10/P22` 与 `tapDesign` 前置**一条未删**。
+  - **特别肯定一处取证质量**：`P27f`（「续时」）**把两个替身分支的证据分开呈现** —— `Noop`（weapp）⇒「即将开放」轻提示、`Mock`（harness）⇒ 等回调 + `settle('complete')` 发奖（`remaining 0→60`、`revived=true`、revive 音 =1）。这恰好证明了**同一 UI 在两个宿主下的差异化行为都在设计预期内**，比只跑一条更有说服力。
+- **⑪ 主理人裁定（成员未决四问）**：**① `TC-INP-12b` 记 `PASS\*` = 接受** —— 按钮腿（真链点「续时」⇒ `watchingAd=true`、相位仍 `game-over`）是**真实可测且已成立**的，改记 ⛔ 会**低估**已证部分；`PASS\*` + 显式边界（真机激励视频维度 ⛔）正是该语义的正确用法。**限定**：真机广告拉起 / 发奖 / 「未看完·skip·error」三分支仍 **⛔**。**② 主/次按钮腿计入口径 = 维持并入 §A4b 行、不单开行** —— 与用户「采后缀、不重排」的裁定同口径；单开行会割裂「同判据的不同腿」这一语义。已要求（且成员已写）节首「主/次按钮孪生」注说清口径。**③ `8c` 冲刺局「续时主钮不出现」的可测句 = 登记待办、不在本单** —— 现条文已有规范、只是可测化程度不足，本轮以 `mode=sprint` 断言**间接覆盖**；属**设计域条文补句**，并入下次 `input-control` / `ux-spec` 修订即可。**不记为缺陷**（避免为一句开一单）。**④「产物 mtime 入证据」升格为探针默认输出 = 方向接受，登记为探针维护待办** —— 这正对应成员自己在 T-114 登记的沉淀候选（K-039「时点性」的「跨会话」维度），机械化为默认输出能结构性防「把外部变量误读成本轮变化」；但**本单已产出正式轮证据，中途改探针会让证据与代码版本错位** ⇒ 不追改、留下次探针维护一并做，**不另开单**。
+- **⑫ 门禁**：**G4 维持 `CONCERNS`**（本单只补「次按钮腿」取证维度，**未触及 §21.3 三条未闭项**：P4/BD-29 实现落差仍在、`[B]/[C]/[R]/[P]` 道次未执行、包体红线无数据）。**本单 PASS**。
+- **⑬ 至此 BD-34 全链收口**：实现修复（T-100）→ 真链回归闸门（T-114 `P27a..d`）→ 设计判据条文（T-115 `8b/8c/8d` + §8-3/§8-10）→ **次按钮腿孪生取证 + 判据去「拟」（本单）**。四相位**主/次按钮**在 `[Node]/[Probe]` 真链层均已可测且成立；`[R]` 真机层 ⛔（首验 P0 项：四相位面板**主/次按钮**可点 + 点击落点 + dpr 缩放）。
 
 ## WXG-T-101
 
@@ -401,6 +604,265 @@
 - **Deliverables**：① **先补文档**：`ux-spec §5` 告急行补 **α 幅度**（林绘澄 BD-31 核对时发现只给周期未给幅度；参照 hint 行 0.5↔1.0 口径，由 UX 定值，不得发明为 §3 常量）；② 改码：`buildRenderModel`/view-model 侧 wrong 态描边由「200ms 内 2 次闪」改为「单次淡入 60 / 保持 80 / 淡出 60」，并加**连续拒绝 500ms 重启门**（与 `AUDIO_REJECT_MIN_INTERVAL=0.5s` 同拍，双通道一致）；③ `reduceMotion` 开启时退**静态红描边 + 抖动位移归零**（沿用 WXG-T-088 R1甲 现有分支，不新增开关）；④ 单测：断言一次 fx 窗口内 α 极值点数 ≤1 与 500ms 门限（**热路径零分配**纪律照常：不新增每帧集合分配）；⑤ 回写 `ux-spec §5` 的「实现落差登记」行为已一致，并**先改探针 P4 预期再跑**（报告 §18.3-6 惯例）。
 - **约束**：**禁**手改 `systems-index §3`（本单无需新常量；若施工中发现必需 ⇒ 回传拟改串行落盘）；**禁**为凑绿删旧断言而不登记改判；渲染层不持有状态（L5）。
 - **依赖**：前置 T-098（规格已回写）；可与 T-097 并行（不同文件：T-097 触 view-model 的扩展入口/轻提示，本单触 wrong 态描边时序 ⇒ **同文件需串行**，排期时二选一先或拆开改）。
+- **阶段 0 诊断（2026-09-15，主理人）**：
+  - **①「先补文档再改码」前置已满足** —— （原登记 ① 要求先补 `ux-spec §5` **告急行** α 幅度）。核对后确认：**告急行 α 幅度属 BD-35，与 wrong 描边改码无依赖**（告急脉冲 ≠ 放错拒绝描边，两个不同视觉）。而 **wrong 描边的规格早在 WXG-T-098 已定稿**（`ux-spec §5:180`：单次脉冲 淡入 60 / 保持 80 / 淡出 60＝200ms、**α 极值点 ≤1**、连续拒绝**重启门 500ms**、`reduceMotion` 退静态红描边 + 抖动归零），同文件 `:203` 亦明写「**本条回写后由工程侧跟进**」⇒ **工程侧已被放行，可立即改码**，不必等 BD-35。⇒ BD-35 拆出为 **WXG-T-117**（文策渊）**并行**推进。
+  - **② 根因两处已精确定位**：
+    - **α 往复（实测 10Hz）**：`games/beads/src/view/view-model.ts:539` —— `const flash = snap.reduceMotion ? 1 : 0.4 + 0.6 * Math.abs(Math.sin(snap.wrongProgress * Math.PI * 2));`，`|sin(2πp)|` 在 p=0.25/0.75 各一个极值 ⇒ **2 极值点 / 200ms = 10Hz**（设计要求 ≤1）。
+    - **无 500ms 重启门**：`games/beads/src/game/beads-game.ts:1569` —— `this._wrongFx = { row, col, elapsedMs: 0 }` 每次 mismatch **无条件重置** ⇒ 100ms 连点即 100ms 一次脉冲 = **10 次/秒**（设计要求 ≤2 次/秒）。
+  - **③ 同文件冲突风险已解除**：原登记警告「与 T-097 同文件需串行」。实测 `view-model.ts` **已提交、工作树无未提交改动** ⇒ 可安全改动。
+  - **④ 新增常量归属已定**：`WRONG_FX_MS = 200`、`WRONG_SHAKE_PX = 3` 现位于 `games/beads/src/config/tuning.ts:376/378`（属「反馈态动效」组，来源 `ux-spec §5`）。新增的 **60 / 80 / 60 / 500** 属**同组同源**，**应进 `tuning.ts`**，**不触 `systems-index §3`**（与 `WRONG_FX_MS` / `HINT_PULSE_MS` 同判例）⇒ 符合本单「禁手改 §3」约束。
+- **用户裁定（2026-09-15）**：**BD-35 并行另开单（= WXG-T-117，不阻塞本单）**；**本单负责改为 程基岩(eng)**，范围 = **原 Deliverable ②③④**（改码 + `reduceMotion` 静态分支沿用 + 单测）；**Deliverable ①（告急 α 幅度）已移交 WXG-T-117**；**修完再由主理人另派 QA「先改探针 P4 预期再跑」**（报告 §18.3-6 惯例）。
+- **派工（2026-09-15）**：负责由 主理人(Qoder) 改为 **程基岩(engineering-lead)**；Output Path = `games/beads/src/view/view-model.ts`、`games/beads/src/game/beads-game.ts`、`games/beads/src/config/tuning.ts`、`games/beads/tests/**`。**禁改** `systems-index §3`、`ux-spec.md`（属 WXG-T-117）、`production/qa/**`（QA 域）。
+- **完成记录（2026-09-15，程基岩 engineering-lead）** —— 范围 = 原 Deliverable **②③④**（① 告急 α 幅度已移交 WXG-T-117）：
+  - **① α 包络（改码，`view-model.ts`）**：`wrong` 描边由 `0.4 + 0.6·|sin(2πp)|`（200ms 内 **2** 极值点 = 10Hz）改为**单次脉冲包络** `wrongFlashAlpha(p)`：`ms = p·WRONG_FX_MS`；`<60ms` ease-out 淡入（`t(2−t)`，t=ms/60）→ `60..140ms` 保持 1 → `≥140ms` ease-in 淡出（`1−t²`，t=(ms−140)/60）。分段常量 `WRONG_FADE_IN_MS=60` / `WRONG_HOLD_MS=80` / `WRONG_FADE_OUT_MS=60` 落 `tuning.ts`「反馈态动效」组（同 `WRONG_FX_MS` 判例，**不触 §3**）。`wrongFlashAlpha` 为**纯函数、零分配**（无闭包/无中间集合）——在 `buildRenderModel` 每帧可达路径上。
+  - **② 500ms 重启门（改码，`beads-game.ts`）**：新增 `_armWrongFx(row,col)` + 时基字段 `_wrongFxArmedAtMs`（基准 `_pulseClock` 单调 ms）；`rejected/mismatch` 分支由「无条件 `this._wrongFx = {…}`」改为调 `_armWrongFx` ⇒ 自上次起播未满 `WRONG_FX_RESTART_GATE_MS=500` 的新 mismatch **不重启**（门内且 fx 在播 ⇒ 沿用相位不重置 elapsedMs；门内但 fx 已自然结束 ⇒ **本次不给视觉反馈**）。**非每帧路径**（仅拒绝帧调用）。
+    - **门语义判断（任务书要求回传，未静默选）**：§5:180 字面把门写成「**视觉脉冲**重启门」（仅直提描边），但 §3.8 冻结值是「**抖动+描边闪** ≤2 次/秒」——「错误反馈」是**两通道一体的事件上限**。若只门禁描边、放抖动自由重启，则 100ms 连点可把抖动刷到 **10 次/秒**，按字面即违 §3.8。故本实现**按 §3.8 从严**：门禁**整个 wrong-fx 事件**（抖动与描边同进同退）。理由：① §3.8 为数值真源且 P1 红线不开豁免，从严读；② 抖动相位与描边同源于单一 `_wrongFx`，只门禁其一会让两通道相位失配。**若裁定只门禁描边 ⇒ 一行放宽**（在 `_armWrongFx` 内仅抑制描边重启、抖动态另存）。
+  - **③ `reduceMotion` 分支核对（未改）**：沿用 WXG-T-088 R1甲 现有 `snap.reduceMotion ? 1 : …`，**未新增开关**。核对结论：`? 1` 满足「静态红描边、α 恒 1、**0 往复**、200ms 后由 game 侧清除」；抖动位移在 `!snap.reduceMotion` 分支 ⇒ `reduceMotion=true` 时 `dx=0`（**位移归零**）。**已达标，无需改动。**
+  - **④ 单测（`tests/feedback-vfx.test.ts` 新增 describe）**：① 分段锚点 α（淡入中 **0.75** / 保持 **1** / 淡出中 **0.75** / 两端→**0**）+ 全窗 **400** 点采样**极值点计数 = 1**（旧实现为 **3** ⇒ 断言有判别力）且峰值 = 1；② `reduceMotion` 5 相位 α 恒 1 + 位移归零（`shaken.x − still.x = WRONG_SHAKE_PX`）；③ 500ms 门三况：门内连点**不重启**（相位继续推进 >0.5）、门内且 fx 已结束**不给反馈**（`wrongProgress=0` / `wrongRow=−1`）、门外**重启**（相位 <0.25）。**热路径零分配**：`wrongFlashAlpha` 无每帧分配；`_armWrongFx` 仅拒绝帧 new 一个 fx 对象（与旧实现同）。
+  - **自证**：`pnpm -F @wxgame/beads test` **250 PASS**（22→25 例）；`pnpm run check:arch` **OK**（1 pre-existing WARN：编辑器产物文件存在性提示）；`framework:sync` 写入 **3**（三源文件镜像）+ `framework:sync:check` **OK**；`pnpm run verify` **PASS 14 / WARN 0 / SKIP 1（check:size 未覆盖）/ FAIL 0**。
+  - **未决 / 风险**：见回传。本题**不 commit / 不 push**。后继 = **QA（严守真）先改探针 P4 预期再跑**（报告 §18.3-6 惯例）；探针 P4 属 `production/qa/**`（本单禁改）。
+  - **并发注意**：`beads-game.ts` / `tests/helpers.ts` / `TASKS-DETAIL.md` 工作树内含**并发会话 WXG-T-100/BD-34** 未提交改动。本单改动落在**不同 hunk**（`_wrongFx` 区 / `_stepWrongFx` 区），二者可并存；**提交时同文件两单改动随行**（勿按文件级拆，否则拆不出干净的 T-102 笔）。
+- **⑤ 主理人独立复核（2026-09-15）**：
+  - **常量落盘已核**：`games/beads/src/config/tuning.ts:391` 起新增 `WRONG_FADE_IN_MS=60` / `WRONG_HOLD_MS=80` / `WRONG_FADE_OUT_MS=60` / `WRONG_FX_RESTART_GATE_MS=500`，且 `WRONG_FX_MS` 注释已同步订正（旧注「描边闪 2 次」已过时）。**不触 `systems-index §3`** ✅（符合约束）。
+  - **包络实现逐段验过**（`view-model.ts:435-445`）：`ms = p·WRONG_FX_MS`；`ms ≤ 0 → 0`；`ms < 60 → t(2−t)`（ease-out 淡入，t=ms/60）；`60 ≤ ms < 140 → 1`（峰值保持）；`≥140 → 1−t²`（ease-in 淡出，t=(ms−140)/60），`t ≥ 1 → 0`。**单峰、α 极值点 = 1** ✅；纯函数、无闭包无中间集合 ⇒ **零分配** ✅；**分段常量取自 `tuning.ts`**（未把 0.3/0.7 之类归一化切点硬编码）✅ —— 这一点做对了，否则后续调 60/80/60 就要动视图层。
+  - **500ms 门已核**（`beads-game.ts:265` `_wrongFxArmedAtMs`、`:1850-1851` `if (this._pulseClock - this._wrongFxArmedAtMs < WRONG_FX_RESTART_GATE_MS) return;`）✅；`reduceMotion` 分支沿用既有 `? 1`、未新增开关 ✅。
+  - **门禁**：`pnpm -F @wxgame/beads test` ⇒ **250/250 全绿**（较修前 +3）；`pnpm run verify` ⇒ **PASS 14 ｜ WARN 0 ｜ SKIP 1（`check:size` 未覆盖，非本单）｜ FAIL 0**。
+  - **特别肯定**：单测用**全窗 400 点采样断言极值点计数 = 1**，并把旧实现计数 **3** 一并记下作对照 ⇒ **断言有判别力**（不是「跑绿就算」）；门的三况（门内不重启 / 门内且 fx 已结束不给反馈 / 门外重启）也把边界都覆盖到了。
+- **⑥ 主理人裁定（成员未决两问）**：
+  - **① 门禁范围 = A（从严：门禁整个 wrong-fx 事件，抖动与描边同进同退）** —— 理由：**`systems-index §3.8` 是冻结常量真源**，其口径是「**错误反馈** 抖动+描边闪 **≤2 次/秒**」，这是一个**事件级**上限；而 `ux-spec §5:180` 的「**视觉脉冲**重启门 500ms」是实现规格的**措辞**。二者冲突时**以 §3 为准**（AGENTS §4）。若按 B 只门禁描边，100ms 连点会把**抖动**刷到 10 次/秒 ⇒ **按 §3.8 字面即违**。⇒ **A 正确，维持现状**。
+  - **⚠️ 随之登记一处待对齐（非缺陷）**：`ux-spec §5:180` 的「视觉脉冲重启门」**措辞易被读成只门禁描边** ⇒ 应改为「**错误反馈（抖动+描边）重启门 500ms**」。属 ux-spec 域，与下面 ② 同批处理，**不单独开单**。
+  - **② 原 Deliverable ⑤（回写 `ux-spec :203` 的「待工程侧跟进」）** = **并入下一个 ux-spec 小追加**（与上条措辞对齐、以及 T-117 的残留一并做），**不为一行单独开单**。**:203 那句现在已与实际脱节**（实现已一致），属**活跃文档漂移**，须尽快处理而非长期挂账。
+- **⑦ 光敏性红线的效力边界**：本单只证 **`[N]`（Node/单测）层的 α 序列与门限**；**`[B]` 屏幕像素发光序列**与 **`[R]` 真机观感均未取证**（无 AppID / 无真机）⇒ **不得宣称「光敏性红线已达标」**，只可宣称「代码层已符合 §3.8 的时序口径」。真机首验须把「wrong 态观感」列 P0。
+
+## WXG-T-117
+
+- **名称**：**beads · `ux-spec §5` 告急行 α 幅度补全（BD-35）**
+- **负责**：文策渊(design-strategist)　**状态**：✅ 完成（2026-09-15）　**P2**
+- **背景（报告 §21.1 BD-35）**：`games/beads/design/ux/ux-spec.md` **§5** 的**倒计时告急行**（`:187`）写的是「`danger` + 1000ms **α 脉冲循环**」—— **只给了周期、没给 α 幅度**。同表其余同类行都写了幅度（如 `:189`/`:190` 教学引导行均写 **`α 0.5↔1.0`**）。该缺口由 林绘澄 在 BD-31 核对时发现。
+- **影响**：此行**不可判定** ⇒ QA 探针 **P7 维持 `PASS\*`**；且**QA 与美术侧均不猜值**（报告 §21.1 明文）。补齐后 P7 该子句可转正。
+- **用户裁定（2026-09-15）**：与 `WXG-T-102`（wrong 描边改码）**无依赖**，**并行另开本单**，不阻塞改码。
+- **Deliverables**：
+  1. 给 `ux-spec §5` **告急行补 α 幅度**（**由 UX 定值**，参照同表 hint 行的 `0.5↔1.0` 口径）。
+  2. **同表同类缺口一次扫干净**：逐行核对是否还有其他「只给周期未给幅度」（或反之）的条目，一并补或显式登记。
+  3. 若告急行还有其他未定值（颜色 / 图标 / 时长），一并处理或**显式登记为待定**。
+  4. 按该文件惯例更新**版本号 + 变更记录**。
+  5. **不触** `systems-index §3` —— α 幅度属**反馈态动效参数**，**不是 gameplay 冻结常量**（同 `WRONG_FX_MS` / `HINT_PULSE_MS` 判例：工程侧落在 `tuning.ts`，不进 §3）。
+- **权威来源（冲突以 A 为准）**：**A** `games/beads/design/ux/ux-spec.md` §5 现行表格（**先摸清同行 hint 行的写法与全表惯例再落笔**）＞ **B** `production/TASKS-DETAIL.md` 的 `## WXG-T-117` / `## WXG-T-102` 小节 ＞ **C** `production/qa/beads/g4-regression-report.md` §21.1（BD-35 裁定原文）与 P7 现状 ＞ **D** `games/beads/design/gdd/systems-index.md §3.8`（**≤3Hz 红线**——新增幅度须仍在红线内，且红线本身**不得改**）。不发明 §3 未冻结数值。
+- **Output Path**：`games/beads/design/ux/ux-spec.md`（**主产物**）+ `production/TASKS-DETAIL.md` 的 `## WXG-T-117` 小节（**追加**）。
+  **禁改**：`systems-index §3`、`packages/**`、`games/**/src/**`、`production/qa/**`（QA 域）、`games/beads/design/gdd/input-control.md`（属 T-115，已定稿）。
+- **⚠️ 体积注意**：`ux-spec.md` 现 ≈8683 tok，**已超 8000 单文件上限并在豁免中**（见台账 backlog「ux-spec 预算豁免到期条」）⇒ 本次增补须**克制**（补幅度、不重写段落、不搬动既有表格），并在回传中报告增补后的 token 估算；若预计增幅 >500 tok，**先回传请示**。
+- **必读 skill**：`my-skills/wxgame-ux-spec/SKILL.md`（**必须**）；另按文策渊路由表先读 `my-skills/wxgame-gdd-writer/SKILL.md`。另读 `AGENTS.md`、`games/beads/design/ux/ux-spec.md` §5。
+- **约束**：**不得发明 §3 常量**；**不得改 ≤3Hz 红线**；先问再写；不 commit/push。
+- **后继（不在本单）**：条文落地后由 **QA**（严守真）把探针 **P7** 的该子句从 `PASS\*` 转正 —— 需主理人另派。
+- **完成记录（2026-09-15）**：
+  1. **告急行补 α 幅度**：`ux-spec §5:187`「倒计时告急」视觉列由「danger + 1000ms α 脉冲循环」补为「`danger` + 1000ms **α 0.6↔1.0** 脉冲循环」（附「恰 **1.0Hz** 往复，§3.8 ≤3Hz 内」）；并同格补两项未定值——**③ 图标**（时钟图标同步切 `danger`，坐实 §3.8「图标+颜色+脉冲」三通道）、**④ reduceMotion**（开 ⇒ 静态 `danger`，α=1，脉冲停）。**定值理由**：取**已落地实现同值**（`src/config/tuning.ts` `DANGER_PULSE_MS` 注释「1→0.6→1」/ `src/view/view-model.ts::dangerAlpha` = `breathe(clock,1000,0.6,1)`）⇒ **无实现落差**；0.6 地板略高于同表 hint 行的 0.5，系「持续 1Hz 警告应比短时引导更克制」之设计取舍（hint 的 0.5 保留不动）。
+  2. **同表同类缺口扫净**：逐行核 `ux-spec §5` 全表（「只给周期未给幅度」/「有幅度无周期」双轴）⇒ 除告急行外另查出 **2 行**同类缺并就地补齐：`§5:188` 满槽告警 **0.6↔1.0**@500ms、`§5:190` 目标格 `hint` **0.5↔1.0**@600ms（与 `§5:189` 首珠脉冲同族）。其余行无同类缺——`§5:189` 原已给值；`§5:180` 放错拒绝 = 单次 `α 0→1→0` 淡入淡出 = 1 峰 0 往复（不属「往复」类）；「有幅度无周期」类**零命中**。
+  3. **版本/变更记录**：`ux-spec` 文首版本 **v1.2 → v1.3**、任务号尾追加「§5 α 幅度补全：WXG-T-117，BD-35」；并在 §5 表下（BD-29 注后）追加「α 幅度补全」注一段（该文件无独立变更记录节，沿其「文首版本行」惯例）。
+  4. **不触 §3**：α 幅度属**反馈态动效参数**，落 `tuning.ts`（`DANGER_PULSE_MS`/`TRAY_FULL_PULSE_MS`/`HINT_PULSE_MS`），**不进 `systems-index §3`**（同 `WRONG_FX_MS`/`HINT_PULSE_MS` 判例）；§3.8 **≤3Hz 红线未改**（告急 1.0Hz、满槽 2.0Hz 均在内）。
+  5. **体积**：`ux-spec.md` **30781 → 31868 B**（**+1087 B ≈ +307 tok**，<500 阈值，未越「先请示」线）；版式与既有表格结构未动。
+  6. **禁改项未碰**：未改 `systems-index §3`、`input-control.md`、`packages/**`、`games/**/src/**`、`production/qa/**`；未 commit/push（T-098 首次把本行 BD-35 判据留给 UX，本节即其闭合）。
+- **主理人独立复核（2026-09-15）**：
+  - **告急行已落盘**：`ux-spec.md:187` = 「`danger` + 1000ms **α 0.6↔1.0** 脉冲循环（恰 **1.0Hz** 往复，§3.8 ≤3Hz 内）+ **时钟图标同步切 danger**（§3.8「图标+颜色+脉冲」三通道）；`reduceMotion` 开 ⇒ 静态 danger（α=1，脉冲停）」✅ —— 幅度、周期、图标、`reduceMotion` 四项齐备（比只补一个幅度更完整）。
+  - **同表扫描已核**：另查出并就地补齐 **2 行**同类缺 —— `:188` 满槽告警 → `α 0.6↔1.0`@500ms（2.0Hz）、`:190` 目标格 `hint` → `α 0.5↔1.0`@600ms；`:189` 首珠脉冲原本已有值。`:205` 新增注记说明本轮补齐 3 行与定值理由 ✅。**双轴扫描（只给周期未给幅度 / 有幅度无周期）已覆盖**。
+  - **体积已核**：`wc -c` = **31868 B**，与成员报的 `30781 → 31868`（+1087 B ≈ +307 tok）**一致**，未越 500 tok 请示线 ✅。
+  - **特别肯定一处定值策略**：告急 α **取已落地实现的同值（0.6↔1.0）**，而非任务书字面提示的 hint 口径（0.5↔1.0）。这一选择是对的 —— 本行原本**只缺文档**、实现早已按 0.6 跑，取同值 ⇒ **零实现落差、P7 可无代价转正**；若取 0.5，反而要开一张改码单去改 `tuning.ts`，把「补文档」变成「先改文档再改码」的无谓往返。成员在回传中把两条路的代价都写清了，没有静默选择。
+- **主理人裁定（成员未决三问）**：**① α 地板 = 维持 `0.6↔1.0`** —— 采纳其三条理由（零落差 / 持续 1Hz 警告比短时引导更克制 / 红线内），且 `DANGER_PULSE_MS` 与 `trayFullAlpha` 已是同值，自洽。**② 版本号 = 维持 v1.3** —— 本次是**实质规格补全**（补一个此前缺失的判据数值 + 3 行同类缺），与 T-093/097/098 那些「只追加任务号尾」的记录性改动不同性质，值得抬号；抬高成本为零（无外部按版本号硬引用）。**③ 满槽告警的 `reduceMotion` 静态化半句 = 保留** —— 与 `trayFullAlpha` 实现一致，同属 accessibility D1「减弱动效保留通道」口径，非扩范围。
+- **⚠️ 登记残留（与 T-102 ⑥ 同批，不单开单）**：`ux-spec.md` 有**两处活跃漂移**待处理 —— ① `:203` 的「**待工程侧跟进**」：T-102 已完成改码 ⇒ 该句与实际脱节，应改为「已一致」；② `:180` 的「**视觉脉冲**重启门」措辞：T-102 裁定按 §3.8 从严**门禁整个错误反馈（抖动+描边）** ⇒ 措辞应改为「错误反馈重启门」，否则后人会再读成「只门禁描边」。两处同文件、同性质 ⇒ **合并为一次 ux-spec 小追加**（文策渊）。
+
+## WXG-T-118
+
+- **名称**：**QA 复跑 P4 + P7（T-102 改码验证 + T-117 判据补齐后转正）**
+- **负责**：严守真(qa)　**状态**：✅ 完成（2026-09-15；P4 **FAIL→PASS\***、P7 **PASS\*→PASS**；只重跑 P4/P7，未改 P4 预期、未放宽阈值）　**P2**
+- **背景**：上游两单已闭合 —— **WXG-T-102**（BD-29 改码：wrong 描边单次脉冲 + 500ms 门，`α 极值点=1`、250 例全绿）、**WXG-T-117**（BD-35 文档：`ux-spec §5:187` 告急行补 `α 0.6↔1.0`@1000ms + 图标通道 + `reduceMotion`）。本单是**其下游取证**，按报告 §18.3-6 惯例「**先改探针、后改报告**」。
+- **❗ 范围铁声明**：本轮**只重跑 P4 段 + P7 段**。其余段（P1–P3、P5–P6、P8–P26 等）**不重跑**，判定与预期值沿用现行轮次，**不得合并计数解读**（同 v1.2/v1.3/v1.4/v1.5/v1.6 的范围铁声明体例）。
+- **阶段 0 诊断（主理人已核，直接采用）**：
+  - **① P4 的预期值「无需再改」—— 这一点必须核准，否则会白改一轮甚至改错**：`g4-probe-v1.1.mjs` 的 **修订 38③（WXG-T-098 轮）** 已把这条例的预期值改成**现文新口径**并「先改后跑」。现行断言面（`:749` 标题即 `P4 (v1.3 改判) / BD-04 · BD-29 转态 · 拒绝反馈「单次脉冲 + 500ms 重启门」`，`:744-748`）：
+    ```js
+    const pulseStructOk = pk.peaks <= 1;                              // 一个 fx 窗口内 α 极值点 ≤1
+    const gateStructOk  = minGapMs === null || minGapMs >= 500 - 1e-9; // 连续拒绝重启门 500ms
+    const wrongOk = rejected === 1 && ... && shakeDir === 2 && pk.peaks >= 1;
+    const v = wrongOk && pulseStructOk && gateStructOk && residual.length === 0 ? 'PASS'
+            : (wrongOk && pulseStructOk && gateStructOk) ? 'PASS*' : 'FAIL';
+    ```
+    ⇒ 本轮**只重跑**，**不改 P4 预期**。预期结论：`v` 由 **FAIL → `PASS*`**（BD-29 三条件过，但 `residual` 大概率非空）。
+  - **② P4 是复合条 ⇒ 两半边必须分列，别让 `PASS*` 把 BD-04 的残留盖掉**：`residual`（`:740-743`）承载 **BD-04 其余三行**（`vfx_fill_pop` / `vfx_clear_dissolve` / `vfx_complete_wave`，沿用 v1.1 读数、本单未复核该半边预期值）。**BD-29 半边本轮闭合；BD-04 半边维持「降级不关闭」** —— 报告须分列写明，并如实报 `residual` 的实测项（若恰为空则整条记 `PASS`，同样照实）。
+  - **③ P7 必须改预期（收紧方向）** —— 探针自己钉着上限（`:1785-1788` 注释原文）：
+    > 【BD-35 钉住上限】`ux-spec §5` 告急行**未定义 α 幅度**（报告 §BD-35：「QA 与美术侧均不自造常量」）⇒ 「脉冲到不到 1.0」无判据可验。因此即使可判定子句全过（含本轮新落地的满槽呼吸），本条**仍是 PASS\* 而非 PASS**；升 PASS 的前置 = BD-35 由 UX 侧在 §5 告急行补 α 数值。
+    **该前置已由 WXG-T-117 满足** ⇒ 本轮须：**(a)** 新增**告急 α 幅度断言**（须覆盖 `[0.6, 1.0]`，真源 `ux-spec §5:187` + `tuning.ts:DANGER_PULSE_MS`「1→0.6→1」）；**(b)** 顺带为 **④ 满槽半边**加幅度断言（`:188` 现文亦已补 `α 0.6↔1.0`@500ms；此前该腿**只验周期未验幅度**）；**(c)** 删去「BD-35 钉住上限」注释与该 `v` 的强制 `PASS*` 分支 ⇒ 满足则记 **PASS**。
+    **⚠️ 容差口径由 QA 定并写明理由**：130 帧采样 @60fps、告急周期 1000ms ⇒ 一个周期仅 60 帧，**端点未必采满**。容差须给出依据，**不得为凑绿放宽**（这是本单最容易被自己糊弄过去的一处，请把容差推导写进证据）。
+  - **④ 顺带核查（不扩大范围）**：`:190` 目标格 `hint` 行现文亦补了 `α 0.5↔1.0`@600ms ⇒ 看一眼 **P19 / P3** 的 hint 相关断言是否因此可加／受影响（若 hint 态仍未实装则**不受影响，照实记**，不得借机改判）。
+- **硬要求**：
+  1. **先改探针、后改报告**（§18.3-6）—— 顺序不可倒置，不得留「先看输出再回填预期」的窗口。
+  2. 探针头注**续号 = 修订 42**（现到 41），并写清「哪些是预期值改动（P7）、哪些只是重跑（P4）」。
+  3. 证据落 `production/qa/beads/evidence/`（新日志），含 §0 范围声明 / 探针 stdout / 命令与计数 / P4·P7 逐条判定索引 / 未执行・⛔ 清单 / 汇总核对。
+  4. **不得**把 ⛔ 写成 PASS；**不得**因数字好看而放宽阈值；**不得**为凑绿删旧断言而不登记改判。
+  5. **效力边界（必须写进报告）**：本轮 P4 取证在**指令流层**（`RenderModel` 指令 α 序列），T-102 的单测在 **`[N]` 层**，二者**互补但不可互相替代**；**`[B]` 屏幕像素发光序列**与 **`[R]` 真机观感**（光敏性观感）**仍未取证** ⇒ 光敏性红线**不得据本轮宣称达标**。
+- **权威来源（冲突以 A 为准）**：**A** `production/qa/beads/g4-probe-v1.1.mjs` 现行 P4/P7 段与头注修订体例 ＞ **B** `games/beads/design/ux/ux-spec.md` **§5:187/188/190/203**（T-117 回写后的现文）+ **§5:174**（闪烁口径正本「同一区域内 α 往复」）＞ **C** `games/beads/design/gdd/systems-index.md §3.8`（**≤2 次/秒 / ≤3Hz 红线**，只读）+ `timer-gameover §8-10` ＞ **D** 报告 `g4-regression-report.md` §18.3-6（惯例）、BD-29/BD-35 段、P4/P7 历史判定 ＞ **E** `production/TASKS-DETAIL.md` 的 `## WXG-T-102` / `## WXG-T-117` / `## WXG-T-118`。
+- **Output Path**：`production/qa/beads/g4-probe-v1.1.mjs`、`production/qa/beads/g4-regression-report.md`、`production/qa/beads/evidence/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-118` 小节（**追加**）。
+  **禁改**：`games/**`（含 `src/**` 与 `design/**`）、`packages/**`、`systems-index §3`、其他成员的台账小节。
+- **必读 skill**：`my-skills/wxgame-qa-gates/SKILL.md`；另读 `AGENTS.md`、`production/qa/beads/g4-probe-v1.1.mjs`（头注修订体例 + P4/P7 段）、`games/beads/design/ux/ux-spec.md` §5。
+- **约束**：只跑 P4/P7、不合并计数、不放宽阈值、不把 ⛔ 写绿；先问再写；不 commit/push。
+- **后继（不在本单）**：若 P4/P7 均如预期转正，可另派一单做**本轮口径的收口**（是否具备把 G4 的 CONCERNS 升级、或仍需等 `[C]`/`[R]` 道次）。
+- **完成记录（2026-09-15 · 严守真）**：
+  1. **结果：P4 `FAIL → PASS*`；P7 `PASS* → PASS`**（两条**全如预期**转正，无意外卡点）。只重跑 P4+P7 两条 ⇒
+     **范围铁声明成立**；与 T-116 轮 log 机验比对：**判定串 diff 仅 2 行**（P4/P7）、其余 **64 组逐字未变**，
+     全文 diff 仅 16 行且全落在 P4/P7 小节内。
+  2. **P4 实测**：`pk.peaks = 1`（判据 ≤1 ✓）、连续 9 次误点只起 2 次脉冲、`minGapMs = 500 ms`（判据 ≥500 ✓）、
+     位移 max 2.6px ≤±3px、换号 2 ✓ ⇒ **BD-29 半边闭合**；`residual` 实测 **2 项**
+     （`vfx_clear_dissolve` / `vfx_complete_wave`；`FILL_POP` 因签名去重=2>1 **未入 residual**）
+     ⇒ 整条按既定判据记 **`PASS*`**、**BD-04 维持「降级不关闭」**（**两半边分列**，不得互相稀释）。
+  3. **P4 预期值未改（核准）**：现行断言面即修订 38③ 的 T-098 现文口径（`pk.peaks<=1` / `minGapMs>=500-1e-9`），
+     本轮**只重跑**；唯一文字订正是把**随 T-102 失效的旧代码锚点**（`view-model.ts:521` / `beads-game.ts:1524`）
+     换成现锚点（`view-model.ts:435-445 wrongFlashAlpha` / `beads-game.ts:1850-1854 _armWrongFx`），
+     并把 v1.3 轮对「α 下限≠0」的旧归因改述为**采样相位**（判定逻辑零改动，否则证据正文与实测自相矛盾）。
+  4. **P7 实测（预期值收紧，唯一一处改动）**：删旧「BD-35 钉住上限」注释与强制 `PASS*` 分支；
+     新增**告急 α 端点覆盖断言**（真实测 **min=0.600000 / max=1.000000**、偏差 0/0，tol **0.006667**）+
+     **满槽半边端点覆盖断言**（同为 0.6/1.0、tol **0.013333**）；周期 1000ms（1.00Hz）/ 500ms；
+     ⑤ 分区读法沿用（托盘 2.00Hz / HUD 1.00Hz，跨区合成 3.00/s 照实披露不判 FAIL）⇒ **P7 转 PASS**。
+  5. **容差推导（QA 侧定，禁止为凑绿放宽）**：三角波半周期单调 ⇒ 幅度斜率 =(hi−lo)·2/T；采样步长
+     Δt = 1/60 s ⇒ 最大相位偏差 Δt/2 ⇒ **tol =(hi−lo)·Δt/T**（与相位起点无关的**严格上界**）；
+     判据 `abs(min−lo) ≤ tol` **且** `abs(max−hi) ≤ tol`（**两侧都断** ⇒ 欠幅/超幅均 FAIL）。
+     结构旁证（不替代上界）：1000ms = 恰 60 帧、500ms = 恰 30 帧，采样窗 130/120 帧均 ≥1 整周期。
+  6. **命令与计数**：`pnpm run harness:build` **EXIT=0** → `node production/qa/beads/g4-probe-v1.1.mjs` **EXIT=0**；
+     全量 66 组 **PASS 39 ｜ PASS\* 17 ｜ FAIL 1 ｜ ⛔ 9**；**T-118 修订面（2 条）= PASS 1 ｜ PASS\* 1 ｜ FAIL 0 ｜ ⛔ 0**；
+     唯一 FAIL = **P17**（既有欠账，非本单产生）。汇总段新增 **T-118 分桶**（P4 移出 T-098 桶、P7 移出 T-097 桶
+     ⇒ 两桶条数 4→3，**非判定变化**）；七段计数**不得合并解读**（桶条数相加 94 > 66 系故意重叠口径）。
+  7. **顺序自证（mtime 链，四步严格递增）**：上游现文 `ux-spec.md` 23:17:32 / `view-model.ts` 23:17:28 /
+     `beads-game.ts` 23:17:37（**均非本 agent 改动**）→ 探针 **23:26:59**（改完 + `node --check` 通过）→
+     `harness:build` dist **23:27:06** → 首跑结束 **15:27:09.563Z**、重跑结束 **15:27:31.176Z** → 报告 §24。
+     两次运行**逐字节一致**（仅时间戳行不同）⇒ 确定性自证成立。
+  8. **只读边界**：只写 `production/qa/beads/**`（探针 / 报告 §24 / 证据 2 份）与本小节；**未改** `games/**`
+     （含 `src/**` 与 `design/**`）、`packages/**`、`systems-index §3`；未 commit / push；未跑 `pnpm run verify`
+     （G1–G3 未复核，口径同前几轮，不得据本单改判）。
+  9. **⛔ 未执行（原样在册）**：`pnpm run verify`（G1–G3）、`[B]` 像素层、`[C]` Cocos 产物、`[R]` 真机（无 AppID/无真机）、
+     `[P]` Playtest；`A05-09` 本体仍 ⛔（**WXG-T-103 残留**：判据主体已更正为 `sfx_combo_t2`，探针/台账未同步）。
+     **不得据本轮宣称「光敏性红线已达标」**，只能宣称「指令流层已符合 §3.8 时序口径」。
+  10. **建议（裁决权归主理人）**：BD-29 **建议关闭**（限指令流层）、BD-35 **建议关闭**、
+      **BD-04 维持「降级不关闭」**；**G4 维持 `CONCERNS`**（§21.3 第 ① 条具备解除条件，②③ 仍成立）。
+      新增观察（不占 BD 号）：P4 证据串「折算峰频 ≈ 5.0 Hz」是窗口折算量、**非有效频率**（有效 = 2 次/秒），建议下轮改名。
+  11. **产物**：`production/qa/beads/g4-probe-v1.1.mjs`（修订 43）、`production/qa/beads/g4-regression-report.md` §24、
+      `production/qa/beads/evidence/g4-probe-v1.1-t118.log`（正式轮：§0–§6）、
+      `evidence/g4-probe-v1.1-t118-rerun.log`（确定性自证）。
+  12. **后继（本单已收尾；建议下一动作）**：① 由主理人裁 **BD-29 / BD-35 关单**（**BD-04 不关**）；
+      ② `production/TASKS.md` 主表状态更新由主理人执行（**本单 Output Path 不含该文件**）；
+      ③ 升级路径：`[B]` 浏览器逐帧取证（覆盖 P4 屏幕发光序列 + A05 时长族）→ AppID 到位后实测包体 → 同步 `A05-09` 清 T-103 残留。
+- **主理人独立复核（2026-09-15，事后非采信自述）**：
+  - **P7 判定面已核**（`:1857`）：`const v = okPulse && okFull && okAmpUrgent && okAmpFull ? 'PASS' : 'FAIL';` —— **无强制 `PASS*` 残留** ✅；标题改 `P7 (v1.7 改判) / BD-10 · BD-35 闭合`，正文注释明写「旧『BD-35 未定义幅度 ⇒ 强制 PASS\*』已删」。
+  - **容差实现已核**（`:1847-1848`）：`const tolUrgent = ampTol(0.6, 1.0, T.DANGER_PULSE_MS);` / `ampTol(0.6, 1.0, T.TRAY_FULL_PULSE_MS)` —— **由 §5 现文值与 `tuning` 周期算出，未硬编码** ✅。推导 `tol = (hi−lo)·Δt/T`（`:265-271`）是**与相位起点无关的严格上界**，且**两侧都断**（欠幅与超幅均 FAIL）✅ —— 这个推导是硬功夫，不是「拍个余量」。
+  - **分桶已核**（`:2912-2914`、`:2922`）：`inT118` 含 P4/P7；**T-098 桶已剔除 P4、T-097 桶已剔除 P7** ⇒ **无重复计数** ✅（分桶迁移容易漏，这里做对了）。
+  - **报告结构已核**：§24（`:1328-1493`）含 24.3 P4 **两半边分列**、24.4 P7、24.5 顺带核查、24.6 效力边界、24.7 探针自身改动自查、24.8 ⛔、24.9 建议裁定 ✅。
+  - **门禁**：beads 单测全绿；`pnpm run verify` = **PASS 14 ｜ WARN 0 ｜ SKIP 1 ｜ FAIL 0** ✅。
+  - **❗ 发起方（主理人）错误登记**：本单工单写「探针现到修订 41 ⇒ 续号 **42**」，但工作树 `:222` 的 **42 已由 WXG-T-116 占用** ⇒ 我的前提**读错了**（只读了头注末条，未 grep 实际占用）。成员**未照单硬塞重号**，改用 **43**（`:243`）且确未重号 ⇒ **处理正确，不追认偏离**。**教训入册：工单里的「现到第 N 条」类前提，必须用 `grep` 核实实际占用，不能只读头注末条。**
+  - **两处值得记录的正面之处**：① **P4 证据正文的订正属必要且未触判定** —— 旧锚点（`view-model.ts:521` / `beads-game.ts:1524`）随 T-102 失效，若不订正，正文会与实测（峰点数=1、门=500ms）**自相矛盾**，后人会读成「探针自证假绿」；成员**主动**处理并明确声明「判定逻辑零改动」，分寸对。② **主动纠正发起方错误**（42→43），没有照单执行 —— 这正是「先核再写」要的行为。
+- **主理人裁定（成员四项未决）**：
+  1. **BD 关单 = ①**：**BD-29 关闭**（**限指令流层**，效力边界须随关单声明一并保留）、**BD-35 关闭**、**BD-04 维持「降级不关闭」**（`residual` 实测 2 项：`vfx_clear_dissolve(200ms)` + `vfx_complete_wave(逐列20ms/800ms)`）。**明确不采纳 ③**（连 BD-04 一并关）—— 残留实测非空，关掉即假绿。
+  2. **P4「折算峰频 ≈5.0 Hz」字段 = ① 下一轮改名/删除**（**本单不改**）。理由：该值是窗口**折算量**（峰点数×1000/`WRONG_FX_MS`），**不是有效闪烁频率**；有效频率来自 500ms 门 = **2 次/秒**，那才是 §3.8 红线的口径。字段名带「Hz」会让后人误读成「有效频率 5Hz ⇒ 超红线」。登记为**下一轮探针小改**（与 `A05-09` 同批）——本单不改是为避免打断已落定的 mtime 顺序自证。
+  3. **`A05-09` 探针/台账同步 = ① 并入下一轮 QA**（与 `[B]` 道次同批）。
+  4. **主表状态由主理人更新** ⇒ 本回复已完成（`TASKS.md` 行已回填）。
+- **关单后果（必须写进各自的缺陷记录，不得只改状态）**：BD-29 与 BD-35 的关闭均**仅覆盖指令流层的可判定结论**；**`[B]` 屏幕像素发光序列**与 **`[R]` 真机观感**仍**零证据** ⇒ 光敏性安全**不得据本轮声称达标**。真机首验须把「wrong 态观感 + 告急脉冲观感」列 P0。
+
+## WXG-T-119
+
+- **名称**：**beads · `[B]` 浏览器逐帧取证（P4 屏幕发光序列 + A05 时长/包络族）**
+- **负责**：严守真(qa)　**状态**：📋 已立项（待施工）　**P1**
+- **背景**：WXG-T-102 / T-117 / T-118 三条改判共同的**天花板**就是 `[B]` 道次。T-118 后 P4 在**指令流层**转 `PASS*`、P7 转 `PASS`，但**屏幕像素层**与**真实合成音频层**仍是零证据（T-118 报告 §24.6 已把这条边界写死）。本单即补这一层。
+- **道次口径（先钉死，勿混用）**：`production/qa/beads/test-cases.md:10` 图例 —— `[N]` 无头浏览器**逻辑层** / **`[B]` 浏览器真实渲染·像素级**（≈ `[Cocos]` 已解锁像素道次）/ `[R]` 真机·微信宿主 / `[P]` 人（听感·Playtest）。**T-118 是 `[N]`（指令流），本单要 `[B]`（真实渲染像素 / 真实合成音频）**，两者结论不得互相顶替。
+- **成熟范式先例（强烈建议照做，不要另发明骨架）**：`production/qa/beads/cocos-input-probe.mjs`（**WXG-T-108**，同作者）已经是本仓一枚跑通的 `[B]` 探针，具备本单需要的一整套纪律，其文件头明确写了本仓吃过「判别力为零的探针」的亏：
+  1. **预期值先写后跑**（判据的算术推论**先落盘**，不是看输出回填）—— 反假绿；
+  2. **判据自检 `SELF-xx`**：把**修复前**的实测数字喂给同一批判定函数，断言它们**必须判 FAIL** ⇒ 用反例证明探针**有判别力**；
+  3. **退出码契约**：`0` = 可执行全 PASS ｜ `1` = 存在 FAIL（真回归）｜ `2` = 无 FAIL 但**有未预期阻塞 / 探针无效**（**不得当绿**）｜ `3` = 脚本级环境错误；
+  4. **道次诚实**：`⛔` 显式登记「阻塞 + 解除条件」，**不记 PASS 也不记 FAIL**；
+  5. **新鲜度自查**：入口/产物须为当前代码所构建，并自查镜像一致性。
+- **Deliverables**：
+  1. **新建 `[B]` 探针**（落 `production/qa/beads/`，命名自定，如 `beads-browser-probe.mjs`），对齐上条骨架；**自带断言 + 退出码**，可复跑。
+  2. **P4 屏幕发光序列**（覆盖 T-118 未覆盖的那一层）：真渲染后**逐帧**取屏幕像素/画布，量
+     - wrong 描边在**屏幕上的发光强度时间序** ⇒ **α 极值点 ≤1**（单次脉冲，非往复）；
+     - 连续拒绝时 **500ms 起播间隔在屏幕层成立**（⇒ 有效闪烁 ≤2 次/秒）。
+     判据正本：`ux-spec §5:180` + `systems-index §3.8`（冻结值）。
+  3. **A05 时长 / 包络族**（T-118 报告里那批 `⛔` 条目）：在**真 WebAudio** 上取**真实合成输出**量时长与包络。**哪些条可测、哪些仍 ⛔ 由你逐条判定并写清原因**；**听感（A05-26）留 `[P]` ⛔**，不得代判。
+  4. 报告**追加一节**（v1.8），结构对齐既有体例（含**效力边界**与 ⛔ 清单 + 解除条件）。
+  5. **顺带夹带（T-118 主理人裁定的两项小额项，同批做掉）**：
+     - **`A05-09` 探针/台账同步**（清 **T-103 残留**：主体已改 `sfx_combo_t3 → sfx_combo_t2`，探针/台账未同步）；
+     - **P4「折算峰频 ≈5.0 Hz」字段改名/删除** —— 该值是窗口**折算量**（峰点数×1000/`WRONG_FX_MS`），**不是有效闪烁频率**（有效频率 = 500ms 门 ⇒ **2 次/秒**）；字段名带「Hz」会让后人误读成「有效 5Hz ⇒ 超红线」。
+- **⚠️ 阶段 0 必须先判清的障碍（先回传，别硬上）**：
+  1. **substrate 选哪条？** `[B]` 可用 (a) **Cocos web-mobile 产物**（真机同源渲染路径，`pnpm --filter @wxgame/beads run build:cocos:web` 无需 AppID，产物已存在）或 (b) **harness 页面**（`dev/harness`，Canvas2D 渲染器，**渲染器与真机不同源**）。**优先 (a)**；若因故改选 (b)，须在报告里**披露渲染器不同源**这一限制。**选哪条、理由是什么，写进报告。**
+  2. **真出声通路在哪条 substrate 上成立？** 已核事实：beads **确实**把 `BEADS_AUDIO_VOICES` 交给 App ⇒ `Platform.createAudioBackend({ voices })`（`games/beads/src/game/beads-game.ts:82/199-200/1678-1681`），而 `packages/framework/src/platform/web.ts` 在**有 `AudioContext` 且有 `voices`** 时返回 `SynthAudioBackend`（否则诚实退 `NullAudioBackend`）⇒ **浏览器侧真出声通路存在**。但**该通路在 Cocos 产物上是否同样接上，须现场核实**（`BeadsBootstrap.ts` 侧）。
+  3. **无头 Chrome 的 WebAudio 时序**：无头环境可能无音频设备 ⇒ `AudioContext.currentTime` 未必推进。**`OfflineAudioContext` 可离线渲染真实 PCM、不依赖设备**（这是一条提示，不是指定方案）；若采用，须说明「离线渲染的真实性边界」（它证的是**合成器输出**，不是**声卡输出**）。**方法由你定，但须写明其效力边界。**
+  4. **`tools/scripts/**` 不可用**：`render-harness-frame.mjs` / `render-harness-clip.mjs` 是 **breakout 硬编码**（`game.movePaddleTo(...)`）⇒ **不支持 beads**（= §18.2 **B8**，BD-19/BD-13 残留，属**工程域**）⇒ **本单不得指望它，也不要改它**；走自建探针。
+- **硬要求**：
+  1. **预期值先写、后跑**（顺序不可倒置），新探针头注写清判据来源与「先写后跑」自证。
+  2. **判据自检必做**：用**修复前**的读数（P4：`pk.peaks=2` / 无 500ms 门；A05：声明值 vs 实测包络的差异）喂同一批判定函数，**断言必判 FAIL**。
+  3. **不得**把 ⛔ 写成 PASS；**不得**把 `[P]`（听感）代判；**不得**为好看放宽阈值。
+  4. **效力边界（必须写进报告）**：本轮即使全绿，也只到 **屏幕像素层 + 合成器输出层**；**真机硬件/观感（`[R]`）与人耳听感（`[P]`）仍零证据** ⇒ 光敏性安全可据本轮从「指令流层」升到「**屏幕像素层**」，但**仍不得宣称「真机不闪 / 同屏不刺眼 / 听感达标」**（屏幕像素 ≠ 人眼感知：还差屏幕亮度、环境光、硬件差异）。
+  5. 证据落 `production/qa/beads/evidence/`（含新探针 stdout 全文 + 确定性重跑自证 + 截图/像素取样物）。
+- **权威来源（冲突以 A 为准）**：**A** `production/qa/beads/cocos-input-probe.mjs` 文件头（**范式与纪律**）+ `test-cases.md:10`（**道次图例**）＞ **B** `ux-spec §5:180/187/188` + `systems-index §3.8`（P4/P7 判据与冻结红线）+ `audio-events §4`（A05 各条时长/包络判据）＞ **C** `g4-regression-report.md` §18.2（B1/B5/B8 阻塞项）、§24.6（T-118 效力边界）、§19.3（A05 ⛔ 清单）、§21.3 ＞ **D** `production/TASKS-DETAIL.md` 的 `## WXG-T-118`（裁定 ① 关单口径 / 裁定 ② 峰频字段）与 `## WXG-T-102`。
+- **Output Path**：`production/qa/beads/beads-browser-probe.mjs`（新建，名可自定）、`production/qa/beads/g4-probe-v1.1.mjs`（**仅** P4 峰频字段改名 + A05-09 同步；其余不动）、`production/qa/beads/g4-regression-report.md`、`production/qa/beads/evidence/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-119` 小节（**追加**）。
+  **禁改**：`games/**`、`packages/**`、`tools/scripts/**`、`systems-index §3`、`ux-spec.md`、其他成员的台账小节。
+- **必读 skill**：`my-skills/wxgame-qa-gates/SKILL.md`；另读 `AGENTS.md`、`production/qa/beads/cocos-input-probe.mjs`（**头注全文**）、`production/qa/beads/test-cases.md` §I 节首（道次等价关系）。
+- **约束**：不代判 `[P]`/`[R]`、不把 ⛔ 写绿、不放宽阈值、不动工程域文件；先问再写；不 commit/push。
+- **后继（不在本单）**：① `[R]` 真机首验（需 AppID + 真机，P0 检查项含 wrong/告急观感）；② §18.2 **B8**（`preview:frames` 支持 beads）属**工程域**，需另立工程单；③ 若本轮 `[B]` 全绿，G4 的 CONCERNS 是否可升，另派收口单裁。
+- **完成记录（首轮 · 2026-09-15 · 严守真）—— 状态：🔄 部分完成（`[B]` 通路已建立；A05 段未执行）**：
+  - **产物**：① 新建 `production/qa/beads/beads-browser-probe.mjs`（1148 行、`node --check` 通过；含判据来源 / 道次 / **预期值先写后跑** / 退出码契约 / `SELF-01`·`SELF-02` 判据自检）；② 报告**追加 §25**（v1.8）；③ 证据 `evidence/beads-browser-probe.log`（10541 B）+ `evidence/beads-browser-p4-screen.json`（逐帧像素取样物）+ `beads-p4screen-{base,peak}.png`（目视留证，不作判据）。
+  - **substrate 选型（§7.1 要求写明）**：**(a) Cocos web-mobile 产物**（真机同源渲染路径）；**未**选 (b) harness（Canvas2D 渲染器，**与真机不同源**）。**未重跑** `build:cocos:web`（产物 mtime 15:36:43Z 晚于源最新 15:18:12Z；`framework:sync:check` exit=0）。
+  - **结果**：`PASS 6 ｜ PASS* 0 ｜ FAIL 5 ｜ ⛔ 4`，脚本退出码 **1**（**建议按契约记 `2`**，见下「D0」）。
+  - **❗ 5 个 FAIL 逐条定性（本单最高价值一问答毕）**：
+    1. **ENV-04 = 探针缺陷**（交叉验证方法不成立）：`readPixels` ↔ 同帧 `toDataURL()` 平均 `|Δ| = 36.382`（判据 ≤2）、最大 235 ⇒ 两条取数路径本非同物，**不能**反推「钩内读回非真实帧」。
+    2. **ENV-03 = 派生 FAIL**（判定式 = `env04ok===false`）⇒ 随 ENV-04 不可采信；但其「钩外读回不可依赖」的**前提订正有效并保留**（原写「钩外恒 0」，实测全画布求和 **453900000** 否证之）。
+    3. **CLK-01 = 真实偏差，落在宿主集成层** ⇒ 登记 **BD-40**：墙钟 2.510s 内仿真推进 5.017s、固定步 301 / 渲染帧 150 ⇒ **仿真/墙钟 = 1.999（双驱动）**；真机有同源风险（`WeappPlatform.requestFrame` 同样优先 `requestAnimationFrame`）。
+    4. **P4S-01 = 探针缺陷（测度不纯 + 显著度算法）**：见下条「2 个像素极值」。
+    5. **P4S-03 = 读数真实、成因 = CLK-01**：墙钟最小起点间距 299ms ⇒ 3.35 次/秒 > 2；但实现自身 game 时基口径 **P4S-02 ✅（600ms ≥ 500ms）**。
+  - **❗「2 个像素极值」定性（主理人点名的一问）= 测度不纯，非屏幕层真 2 峰**：① **`m` 不是 α 的纯函数** —— f7/f8 的 α **完全相同（都 =1.000，保持段）**，`m` 却由 **27372 掉到 22268（−19%）**；而 `dx=0` 的两帧（f6/f9）α 相同且 `m` **逐位相同（24995）** ⇒ `m` 与**位移通道**强相关。② **机制**：box 半宽 43 device px、格间距 52 设计 px ⇒ box **跨骑相邻格**，而抖动 ±3 设计 px **超过 2 设计 px 格间隙** ⇒ 位移改变遮挡关系（行主序绘制 ⇒ 右移被邻格盖更多）⇒ `m` 对位移**符号不对称**（+2.6px ⇒ 22268 ＜ 0 ⇒ 24995 ＜ −2.6px ⇒ 27372）。而 `ux-spec §5:180` 明文把 ±3px 抖动定为**位移、不在闪烁通道内**。③ **另有独立算法缺陷**：显著度取 `min(左基,右基)`，标准地形显著度应取 **`max`** ⇒ 以正确口径复算次峰显著度 = **2727 < 门槛 5474** ⇒ **峰点数 = 1**（与 T-118 §24.3 的 `pk.peaks=1` 一致）。⇒ **不得**据此判「屏幕层真 2 峰」（不开新 BD 号、不改实现），**也不得**改判 PASS（该测度不可用）。
+  - **A05 段：未执行（如实登记）** —— `RUN_AUDIO` 在页面侧跑完且**无页面错误**，但 `pg.evaluate()` **返回 `undefined`**（log 第 62 行 `[DBG] audio typeof=undefined`）⇒ `if (audio)` 不成立而 `record('AUD-00'…)` 写在该分支内部 ⇒ **静默跳过整段 A05**（`wxgame-qa-gates` 明文禁止静默跳过）⇒ 登记探针缺陷 **D4**。`AUD-00`（§7.2 现场核实）亦未完成。**⛔ 不记 PASS 也不记 FAIL**；报告 §25.6 已逐条给出「可测 / 仍 ⛔」判定与解除条件。`A05-26` 听感留 `[P]` ⛔ **不代判**。
+  - **顺带两项（T-118 裁定）**：`A05-09` 探针同步与 `g4-probe-v1.1.mjs:802` 的「折算峰频 ≈5.0 Hz」字段**上轮均未落**（已 `grep` 核实）⇒ 本轮处理，改动面见报告 §25.7。
+  - **判据自检判别力**：`SELF-01` **PASS**（喂「修复前形态」反例：200ms 内 2 峰 → 峰数判定 `FAIL(对)`；无门、起点间隔 100 game ms → 门限判定 `FAIL(对)`）；`SELF-02` **PASS**（130% 超长 ⇒ FAIL；恰 120 ⇒ PASS；`=`195 ⇒ FAIL；**瞬时起音 ⇒ FAIL**；线性 4ms 起音 ⇒ PASS）⇒ 判定函数**有判别力**。**缺口**：自检**不覆盖**「测度纯净性」——正是本轮翻车处 ⇒ 登记 **D3**。
+  - **探针自身缺陷 5 处**：`D0` 退出码分支（FAIL 无条件优先于「探针无效」⇒ 本轮应为 2 实落 1）；`D1` ENV-04 判据形式；`D2` box 跨骑邻格；`D3` 显著度 `min`→`max` + 自检缺测度纯净性；`D4` A05 静默跳过。**均为探针缺陷，与实现缺陷严格分开**；实现侧**零新增 BD**（唯一新增 = `BD-40`，落宿主集成层）。
+  - **G4 建议：维持 `CONCERNS`**（§18.5 / §21.3 / §24.9 同口径）——① 本单**无被测实现的真回归**；② 第 ② 条「`[B]/[C]/[R]/[P]` 四道次」**动了但未通**（`[B]` 通路建立 ≠ `[B]` 取证完成）；③ 第 ③ 条（beads 主包红线无实测数据）**依旧成立** ⇒ **不得据本单升 PASS**。
+  - **效力边界（写进报告 §25.8，一句不可省）**：本轮即使全绿也只到**屏幕像素层 + 合成器输出层**；而实际**这两层都未取证**。`[R]` 真机观感与 `[P]` 人耳听感**零证据** ⇒ **不得**宣称「真机不闪 / 同屏不刺眼 / 听感达标」。⛔ 不记 PASS 也不记 FAIL；`[P]`/`[R]` 不代判。
+  - **约束遵守**：只写 §Output Path 内文件与本节；**未改** `games/**`（源码）/`packages/**`/`tools/**`/`systems-index §3`/`ux-spec.md`/其他成员台账；**未 commit / push**。
+- **复跑补记 + 勘误（2026-09-16 追记 · 覆盖上文与之冲突的表述）**：
+  - **以上「完成记录（首轮）」写的是首轮**（日志时间戳 `15:46:55Z`）。此后同一探针又跑了**两轮**（`18:03:53Z` / `18:59:35Z`）⇒ **以第三轮为准**；报告已追加 **§25.12 勘误节**（不改写 §25 正文）。
+  - **最新计数（第三轮 `18:59:35Z`）**：`PASS 13 ｜ PASS* 10 ｜ FAIL 1 ｜ ⛔ 4` ⇒ **唯一 FAIL = `CLK-01`**（仿真/墙钟比值 **2.005**；三轮 1.999 / 2.029 / 2.005 **稳定复现**）⇒ **退出码记 `1`**（**不是 `2`**——我原先「应记 2」的答案已在 §25.12.3 更正；契约里 `2` 的定义以「**无 FAIL**」为前提，本轮不适用）。
+  - **勘误 · 我错了**：`ENV-04` 的 `平均|Δ| = 36.382` 真根因 = **我的比对代码漏了 GL 行序 `bh-1-y`**（把同一 box 上下颠倒地比），**并非**我原判的「预乘 α / 取数路径不同」。修后 **平均|Δ| = 0.0000**、负向反证（故意错位）**68.41** ⇒ `ENV-04`/`ENV-03` **转 PASS**，原结论**撤回**。
+  - **❗新增关键结论 —— 屏幕层 `P4S-01/02/03` 的 PASS 不得采信**：① `onset` 阈值由**几何先验** `RING_FULL_EST = 25049` 折算，而**实测窗口 max 仅 2023（= 先验的 8.1%）** ⇒ 阈值**正好压在峰上** ⇒ 「峰点数 = 1」**平凡为真**，且「非零支撑 = **33.3 game ms**」自证**欠采样**（判据对标的包络是 200ms）；② **三轮回异**：`P4S-03` = **3.35 / 3.95 / 1.67 次/秒**（FAIL / FAIL / **PASS**）、`P4S-02` 的 game 起点间距 = **600 / 500 / 1200 ms** ⇒ **同一判据面给出相反结论**。⇒ **屏幕像素层仍属「未取证」**（不是没通路，是**判据面与采样栅格不达标**）。修法（下轮 P0）：阈值改数据相对口径 + 支撑加下限 + **采样与 rAF 解耦**（`app.update(1/60)` 定步），做不到则须声明栅格并**拒绝判定**。
+  - **A05 段状态更正（已执行，非「未执行」）**：`AUD-00 PASS`（`SynthAudioBackend` / voices = **19** ⇒ **§7.2 现场核实完成**）；10 条 A05 有真 WebAudio 实测（`PASS*`）：**03** 119.61ms + 起音 3.107ms、**04** 99.82、**09(t2)** 149.93、**15** 499.55 + 双段（谷 0.4% / 回升 100%）、**16** 799.59、**18** 199.68/149.86、**19** 249.98、**21** 8000ms + 接缝 0.0004 ≤ 环内最大 0.0011、**22** `activeLoops` 恒 1、**25** 0 KB。**`A05-09b` 两轮不一致（348.39 → FAIL / 通过）⇒ 待裁；QA 不放宽 ±1ms**。量规迭代（−40dB→−60dB、窗级→**样本级**）**只改量规、判据一字未改**。`A05-26`（`[P]`）/ `A05-27`（`[R]`）**仍 ⛔ 不代判**。
+  - **顺带两项：本轮已落盘（动手前已 grep 确认此前确实未做）**：① `g4-probe-v1.1.mjs` 的 `A05-09` 主体 `sfx_combo_t3` → **`sfx_combo_t2`**，t3 另立 **`A05-09b`**（**条数 66 → 67**，判据真源 = `audio-events §4` WXG-T-103 现文，非新造判据 ⇒ **T-103 残留清零**）；② 删去 P4 证据串的「折算峰频 **≈X Hz**」字段，改注为**窗口折算量**口径（**不是有效闪烁频率**；有效 = 500ms 重启门 ⇒ **2 次/秒**）。两处均 `node --check` 通过；**只改未复跑**（该探针**无 `--log` 开关**，复跑会覆盖 T-118 证据）⇒ 报告 §24.1 的计数仍为**改前口径**（已在探针头注与报告 §25.12.7 声明）。
+  - **新增探针自身缺陷（与实现缺陷严格分开）**：`D5` `onset` 阈值随视口漂移（44.8% ↔ 8.1%）；`D6` 采样栅格未与 rAF 解耦（33.33–83.33 game ms）；`D7` `SELF-01` 用**实测帧长**构造反例（6 帧 × 83.33 = 500ms）⇒ **异常帧长下自检失效**（第二轮 FAIL / 第三轮 PASS ⇒ 自检本身不稳定）；`D8` `AUD-01` 的「预期（先写）」栏写成「（见正文）」= **无先验预期**（违反「先写后跑」纪律）。`D1` 真根因已更正；`D3` 已由我修（显著度 `min(左基,右基) → max`，影响面已核：**不改变第三轮任何 PASS/FAIL**）；`D4` 随 A05 段落地而消除。
+  - **新增缺陷（唯一，落点在宿主侧）：`BD-40`** = 宿主双驱动（App 自驱 + `CocosLoopBridge.schedule` 同时推进 `app.tick`，实测 ≈2 倍帧步，**三轮复现**）⇒ **真机有同源风险**（`WeappPlatform.requestFrame` 同样优先 `requestAnimationFrame`）⇒ 列入真机首验 **P0**；**若真机同样 ≈2×，则升级为产品级 P1**。
+  - **G4 建议：仍 `CONCERNS`**（不得升 PASS）—— ② 「`[B]` 道次」**动了但判据面不达标 ⇒ 仍未通**；③ beads 主包红线**无实测数据**。**不得宣称**「屏幕层不闪 / 真机不闪 / 同屏不刺眼 / 听感达标 / `[B]` 道次已覆盖」。
+  - **⚠️ 并发声明**：本轮工作树有**并发会话在同一单上作业**（`evidence/*` 于 `02:59:41–46` 被其重写、探针被其扩充 A05 段）。我为免覆盖其新鲜证据**未再复跑**。若本节的「§25 正文」与并发会话产出的版本冲突，**以 §25.12 勘误为准**，并请主理人收口（含 `g4-regression-report.md` 是否出现重复 §25 的检查）。
+- **主理人复核 + 裁定 + 收口（2026-09-16）**：
+  - **事实复核（非采信自述）**：① 探针 `beads-browser-probe.mjs` **75502 B、`node --check` 通过**；② **`BD-40` 主理人已做代码级确证** —— `packages/framework/src/compose/app.ts:121`（`start()` 无条件 `_schedule()`）→ `:158-169`（`platform.requestFrame` **自驱** `tick`）**与** `packages/framework/src/adapters/cocos/loop-bridge.ts:32/42`（`schedule(_tick, 0)` → `app.tick(dt)`）**同时驱动**，而 `adapters/cocos/bindings.ts:106-108` **两者都接**（`new CocosLoopBridge(app)` + `start()`，其内部又调 `App.start()`）⇒ **双驱动成立**，与实测 1.999/2.029/2.005 **三轮复现吻合**；③ **无重复 §25**（仅一处 `## 25.` + 一处追加节 `## 25.12`，且后者自声明「覆盖 §25.0–§25.11 中与之冲突的表述」）；④ `check:tasks` / `check:links` 均 OK。
+  - **裁定 ①：G4 维持 `CONCERNS`（不得升 PASS）** —— 采纳 QA 建议。`[B]` 道次**动了但判据面不达标**，屏幕像素层**仍属未取证**；`beads` 主包红线仍无实测数据（无 AppID）。
+  - **裁定 ②：屏幕像素层结论「不采信」，且这不是失败而是判据面不合格** —— 采纳 QA 自判：`onset` 阈值由**几何先验** `RING_FULL_EST` 折算，而实测窗口 max 仅为其 **8.1%↔44.8%**（**随视口漂移**）⇒ 阈值压在峰上 ⇒「峰点数=1」**平凡为真**；且「非零支撑 33.3 game ms」自证**欠采样**（对标包络是 200ms）；**4 次运行 `P4S-03` = FAIL/FAIL/PASS/FAIL** ⇒ 同一判据面跨轮给出**相反结论**。⇒ **下轮 P0 修法**：阈值改**数据相对口径** + 支撑加下限 + **采样与 rAF 解耦**（定步 `app.update(1/60)`）；做不到则须声明栅格并**拒绝判定**。
+  - **裁定 ③：本轮唯一实质推进 = `[B]` 通路建立 + A05 时长/包络族实测** —— `AUD-00 PASS`（**§7.2 现场核实完成**：Cocos 产物上 `SynthAudioBackend` + voices=19）；10 条 A05 有真实合成输出实测（`PASS*`）；`A05-09` 清 **T-103 残留**（主体 `sfx_combo_t2` + 另立 `A05-09b`，**条数 66→67**）；顺带项 ② 删去「折算峰频 ≈X Hz」误读字段。**`A05-09b` 两轮不一致（348.39 FAIL ↔ 通过）⇒ 挂「待裁」**；**QA 拒绝放宽 ±1ms 是正确的** —— 交给设计侧裁「该量规下的固有截断是否属容差」。
+  - **裁定 ④：`BD-40` 定级 `P1`**（**若真机同样 ≈2× ⇒ 升产品级 P1**）。**后果必须写足**：仿真/墙钟 ≈**2×** ⇒ 倒计时/动效/音频时长相对墙钟**减半**，且 **wrong 闪烁在墙钟口径 3.35–4.49 次/秒 > `systems-index §3.8` 的 2 次/秒** ⇒ **光敏性红线在宿主层被违反**（`T-102` 的游戏时基逻辑本身正确）。**真机有同源风险**（`WeappPlatform.requestFrame` 同样优先 `requestAnimationFrame`）⇒ 列出真机首验 **P0**。**注意 `WXG-T-121` 已把 BD-40 挂进门禁**（另一会话），该线只解决**检测**；**BD-40 的修复本身仍无工程单**，需另立。
+  - **裁定 ⑤：并发收口完成** —— 无重复 §25；探针以 `mtime` 最新者为唯一真源；`D3` 修正（显著度 `max`）保留、`D5` 发现（几何先验阈值面不成立）**已被并发作业采纳并写入探针注记**。
+  - **❗ 发起方（主理人）错误登记**：我把工具返回的两次 **「Execution Cancelled: Idle timeout」当作「代理已死」**，第二次**险些据此重复派工**；实测该消息**不可信** —— 第一次报 cancelled 后代理**仍继续跑了 40+ 分钟**并产出次轮成果，第二次同样续跑至收工。⇒ **教训入册：该 cancelled 消息不得作为「已停止」的判据，必须以文件 `mtime` / 进程表核实后再动作。**
+  - **残留（不阻断，留档）**：① 报告 `## 25.12` 是**二级标题却用子节式编号**（`25.12`），格式微瑕；② `evidence/*.log` 被根 `.gitignore:55` 的 `*.log` 覆盖 ⇒ **不入 git**（沿用既有体例，复核请读盘）；③ `pnpm run verify` 未随本单跑（口径同前几轮）。
+
+- **终轮复跑记录（2026-09-16 · 严守真=并发 QA 会话；**执行主理人 §25.12.2 列为「下轮 P0」的修法**）**：
+  - **做了什么**：把 §25.12.2 的三条修法（＋§25.12 缺陷表 D7/D8）在探针里落盘，**只改探针、判据数值一字未改**：
+    **D5** 起播门限改**数据相对**（`0.15 × 本序列 max`，滞回下界 `0.02×max`；`RING_FULL_EST` 不再参与判定）；
+    **D5②** 支撑判据改**两端都断** `[80, 233.3] game ms`（下限 80ms **由指标自身仿射律推出**：`metric(α) ∝ max(0,141α−55)` ⇒ α<0.39 恒 0 ⇒ 以 0.15·max 为界 ⇒ α≥0.48 ⇒ 200ms 梯形包络预期支撑 ≈134ms）；
+    **D6** 采样与 rAF **解耦**：新建**精栅格上下文** —— `comp._loop.stop()`（撤 Cocos schedule ＋ `app.stop()` 撤自驱）后由探针每帧 `app.loop.advance(1/60)` ⇒ **每样本恰 1 固定步（16.67 game ms）**；
+    **D6′（本轮新发现）** 间距/支撑改取**逐样本真实时钟**（`pulseClock` 差 / `performance.now()` 差）—— 首版用「帧号 × 中位栅格」，而**每帧推进的固定步数并非常数**（实测 16.67/33.33/50ms 混布）⇒ 把 583ms 的间距误算成 433ms，**这才是 §25.12「三轮回异」的直接成因**；
+    **D7** `SELF-01` 反例改用**标称固定步** `1000/60` 折算；**D8** `AUD-01` 补先验预期；**D9** 支撑下限改由仿射律推出（首版直接取 0.6×200=120ms ⇒ 把 100–150ms 的**正确**读数伪判不通过）；
+    **D0**（§25.12.3 建议）新增第三态 **`⊘` = 判据面不成立（拒绝判定）**，与 `⛔` 同级、**不影响退出码**。
+  - **终轮结果（两轮判定串逐字一致 ⇒ 确定性自证成立）**：`PASS 12 ｜ PASS* 10 ｜ FAIL 1 ｜ ⛔ 4 ｜ ⊘ 2` ⇒ **退出码 `1`**，**唯一 FAIL = `CLK-01`**（仿真/墙钟 **2.003**）。
+    - `P4S-00` 21 个候选无环帧 `ringMetric` **全 0**；`P4S-01` 峰点数 **1**、**非零支撑 150.0 game ms ∈ [80,233.3]**；
+      `P4S-01b` 连续拒绝下 **6 次脉冲逐次数峰 = 全 1**（两轮中一轮出现 1 次 2 峰 ⇒ 记 `⊘`）；
+      `P4S-02` 起播间距（game）**[617,600,583,617,583] ms ⇒ 最小 583 ≥ 500**（判据含 1 栅格容差 483.3）⇒ **§25.12.2 的「不得采信」已在 game 时基上解除**。
+    - `P4S-03` 记 **`⊘`**：直测墙钟 2.22 次/秒 vs 由 `CLK-01` 比值换算 3.88 次/秒 ⇒ **两法差 1.75 倍** ⇒ **双驱动宿主上「墙钟」这一个量本身不稳定** ⇒ 拒绝判定（不给 PASS 也不给 FAIL）。
+  - **A05 段最终口径**：判据面 = **1ms 窗峰值包络**（不是样本级 —— 多音叠加如 `sfx_combo_t3` 的瞬时和**拍频到零**，样本级会系统性提前 348.39 vs 窗级 349.21）；容差 = **1 窗 = 1ms**（由量规几何推出）。`A05-09b` 终轮 **349.21ms** ⇒ 通过（**未放宽 ±1ms**，改的是量规口径）⇒ §25.12.5 的「待裁」建议**按量规收敛关闭**，仍请设计侧确认口径。
+  - **效力边界（不因转绿而放宽）**：可宣称「**一次拒绝 = 一次可见脉冲事件**（game 时基 ≥500ms、像素支撑 133–150ms）」＋「合成器输出层 10 条 A05 实测」＋「`[C]` 音频资产 0」；
+    **不可宣称**「真机不闪／同屏不刺眼」（`[R]` 零证据）、「听感达标」（`[P]` 零证据）、「`[B]` 道次已覆盖」、「α 极值点 ≤1 已在屏幕层证实」（严格判据面仍是指令流层 T-118 §24.3；屏幕度量混有 ±3px 位移通道）。
+  - **`BD-40` 的可复核事实已加强**：仿真/墙钟 = **2.003** ⇒ 同一「game 500ms」的门在墙钟上只值 ≈ **250ms** ⇒ **若真机同为双驱动，墙钟有效闪烁 ≈ 4 次/秒 > §3.8 的 2 次/秒**（真机同源风险，`WeappPlatform.requestFrame` 同样优先 rAF）⇒ 真机首验 P0。**修复建议**：`App.start()` 加 `{ selfDrive:false }` 或宿主改用「只初始化不自驱」变体。
+  - **产物**：探针 `production/qa/beads/beads-browser-probe.mjs`（`node --check` 通过，唯一真源以 `mtime` 最新者为准）；证据
+    `evidence/beads-browser-probe-t119.log`（EXIT=1）、`beads-browser-probe-t119-rerun.log`（**判定串逐字一致**）、
+    `beads-browser-p4-screen.json`（原生＋精栅格两套序列）、`beads-browser-crosscheck.json`（`|Δ|=0.0000` ＋ 反向 68.41）、
+    `beads-browser-a05-envelope.json`（19 clip）、`beads-p4screen-{base,peak,fine-base,fine-peak}.png`；报告 **§25.13**。
+  - **只读边界**：只写 `production/qa/beads/**` 与本小节后半段；**未改** `games/**` 源码、`packages/**`、`tools/**`、`systems-index §3`、`ux-spec.md`、其他成员台账；**未 commit / push**（`cocos/build/**` 与 `dev/harness/dist` 已被 `.gitignore` 覆盖）。
+  - **⚠️ 并发合并说明（供收口）**：本轮与主理人/另一会话**同文件并发作业**（探针被双方编辑过；`D3` 显著度 `max` 修正保留；我另修了其引入的**切片边界**问题——`countPeaksSignificant` 用 `max(左基,右基)` 时，**位于切片首样本的峰显著度为 0** ⇒ 多脉冲复验里每次脉冲的首峰被漏计）。**建议收口动作**：① 以 `mtime` 最新探针为唯一真源；② 检查报告是否出现重复 §25（本次检查：仅 `## 25.` / `## 25.12` / `## 25.13` 三处，无重复）；③ `pnpm run verify` 仍未随本单跑（口径同前几轮）。
 
 ## WXG-T-103
 
@@ -410,7 +872,6 @@
 - **Deliverables**：① C1 —— `audio-events §4` 判据主体改到正确梯级（t2）+ t3 侧另立子判据，并逐行核 §1 全部 combo 梯级有无同类错置；② C3 —— 7 处逐条分流（**甲** = 可凭 §3.12 / `ux-spec §5` 现有值定写；**乙** = 保持 `[TODO]` 但写成**可解除**的 `[TODO]`，标解除条件与「实现占位值不得回引为规格」）；③ 两篇各补总口径一句；④ 零新拟增常量（`audio-spec §7.2` 复核确认）。
 - **完成记录（2026-09-15）**：① **C1**：`A05-09` 主体 `sfx_combo_t3` → **`sfx_combo_t2`**，t3 的「350ms + 同帧」另立 **A05-09b**（挂 `burst`）；§1 全部 combo 梯级逐行核过，**同类错置仅此一处**。主对话顺带清掉同源错置注释 `src/config/audio-voices.ts` T2/T3 两行（纯注释，无行为变更）⇒ `framework:sync` 已重镜像。**编号采 `b` 后缀，不做整体重排**（重排会牵动台账与已有证据引用）。② **C3**：**5 甲**（`urgent_beat ≤1000` 周期窗口、`tray_full ≤500`【主理人裁甲：沿用 §5 500ms 上限，非期望值】、`stage 500`、`star 150`、`revive_ok ≤400`）/ **2 乙**（`ui_tap` 解除条件 = Q-A05-1 裁决；`bgm_main` 循环点 = A05-21/22 `[B]+[R]`）。总口径入两篇文首与 §4.3。③ 零 §3 改动、零伪数值。
 - **约束**：成员只允许写 `design/audio/audio-events.md` 与 `audio-spec.md`；**禁改** `src/**`、§3、`production/**`（含 QA 文档）。
-- **残留（不得归零）**：① **A05-09 本体仍 ⛔** —— 探针与 `test-cases` 需按新主体同改后复跑（成员无 `production/**` 写权限），已登 backlog，与 T-102 的 P4 复跑同批；② `audio-spec §9` 判据总数 27→28（含 A05-09b），QA 侧若不接受 `b` 后缀需整体重排（成本高，已否）。
 
 ## WXG-T-106
 
@@ -509,6 +970,568 @@
      提交（三产物同语义，且属既存行为，非本单新增）；`memory/INDEX.md` 标记块**外**允许手写协议正文 ⇒ 手写后须与改动同次暂存。**未削弱既有守卫**：
      实测「手改 INDEX.md + 暂存」在基线与修法下都为绿（钩子本就会重建吸收），非本单引入的松动。
   - ⑨ **验收**：`ctx:check` exit 0 且打印「装置自指：3 个生成物全部在工作树权威集合内」｜`ctx:selftest` **9/0**｜`pnpm run verify` **PASS 14 ｜ SKIP 1（check:size）｜ FAIL 0**｜`kb:check` 八重 ✅（活跃 48）。
+
+## WXG-T-104
+
+- **名称**：**beads · P0 · Cocos 宿主输入 y 轴镜像（缺陷 C1）——「先锁语义，再改码」**
+- **负责**：程基岩(engineering-lead)　**状态**：📋 已立项（待施工；2026-09-15 主理人实测发现并派单，用户拍板「先锁语义再改码」）
+- **背景（主理人 2026-09-15 实测，Cocos web-mobile 产物 + 桌面 Chrome）**：在 Cocos 产物上**每一次点击都落在上下镜像的位置** ⇒ 玩法不可用。三层证据：① 页面点 (700,100)（窗口 1280×720）时 `e.getLocation()` 返回 **(700, 620)** = `720 − 100`，`e.getUILocation()` 返回 (1296.94, 1148.72) ⇒ **两者均为左下原点**；三坐标点全符合同一关系 `(480,545)→175`、`(480,175)→545`、`(700,100)→620`。② 给 `app.input.push` 打桩 ⇒ 该值**原样**进入 `InputManager`。③ 端到端反证：托盘槽 0 在页面可见位置 y≈545，但**点页面 (480,175) 才选中它**（`traySelected=0`、`slot0='selected'`），点可见位置 (480,545) 无任何反应。
+- **根因定位**：`packages/framework/src/adapters/cocos/bindings.ts` 的 `readTouch()`（L264-268）直接透传 `getLocation()`，而 `_bindInput()` L205-212 的注释断言「`getLocation()` 是 top-left origin」。实际 `getLocation()` 是**左下原点**，而 `Viewport.screenToDesign` 自身还做一次 y 翻转 ⇒ 两次假设叠加成镜像。
+- **历史归因（不得回避）**：`memory/2026-09-13.md:144` 记录当时「readTouch 弃用 getUILocation 改用 getLocation（符合 RawPointerInput **左上**原点契约）；**删 mapPoint 的 y 翻转**」。该结论的验证只用了 breakout 的**挡板跟手——挡板只吃 x，x 对 y 翻转不敏感** ⇒ 语义从未被 y 敏感场景锁过。`docs/engine-reference/cocos/VERSION.md:130` 曾把该翻转标为「猜测性，必须验证后修正」，该验证欠账即本单。
+- **连带**：`docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md` 把 `bindings.ts L204-213` 那句错误断言作为**坐标契约的引用依据之一** ⇒ 与实测直接矛盾，本单须一并订正。
+- **Deliverables（严格两阶段，A 未完成不得进 B）**：
+  - **A 阶段（锁语义，先做）**：① 给出 `getLocation()` / `getUILocation()` / `getStartLocation()` 在 **Cocos web-mobile（浏览器）** 宿主的原点语义结论（有实测支撑，非引文档猜）；② 写明**微信小游戏 runtime** 宿主的语义——**无真机 ⇒ 如实标阻塞，禁止凭推测定写**；③ 产出**一条可机械执行的断言/测试**锁死该语义，且该断言**在今日代码下必须失败**（否则等于没锁）；④ 给出「修好」的判据（点可见位置即命中、y 不再镜像）；⑤ **解释** 2026-09-13 那条「删翻转 ⇒ 与 screenToDesign 双重翻转相消」的结论为何与本次实测矛盾（二者必有一误，须给出证据与理由，不得含糊带过）。
+  - **B 阶段（改码，A 通过后才动）**：⑥ 修 `readTouch` / `_bindInput`（或程基岩判断的等价位置），使 Cocos 宿主落点正确；⑦ 补/改测试锁死，防回退；⑧ 订正 **ADR-0011**（按其 ADR 写作规范判断是修订正文还是另立 ADR，诚实写负面后果）；⑨ 回传时附**重建产物后的复跑证据**（见下）。
+- **复现 / 验证通路（主理人已跑通，直接复用）**：`pnpm --filter @wxgame/beads run build:cocos:web` → `python3 -m http.server 8091 --directory games/beads/cocos/build/web-mobile` → `playwright-cli` 开 `http://127.0.0.1:8091/`；句柄 = `cc.director.getScene().getChildByName('Canvas').getChildByName('GameRoot').getComponent(cc.js.getClassByName('BeadsBootstrap'))._app`（`App.game` / `App.viewport` 均 public）。**注意**：现有产物 mtime `2026-09-15 08:48`，改码后**必须先重建产物再取证**，否则验的是旧产物。
+- **Output Path（只准写这些）**：`packages/framework/src/adapters/cocos/bindings.ts`（及 `input-bridge.ts` 如需）、`packages/framework/tests/**`、`docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md`（及如另立新 ADR 则新文件）。
+- **禁改**：`games/beads/src/**` 玩法逻辑、`systems-index §3` 冻结常量、`production/**`（台账回填由主理人执笔）、`dev/harness/**` 坐标（harness 侧映射实测正确，不是本单范围）。
+- **范围边界（重要）**：本单**只修 y 镜像**，**不修** BD-34（`_readInput` 仅在 `_stepPlaying` 内、面板相位不读输入 —— 已占位 **WXG-T-100**，用户此前拍板本轮不动码）。两者观感相似（都是「点了没反应」）但**相互独立**；本单实测中 `_readInput` 调用数在 `playing`=260 / `game-over`=0 属 BD-34 现象，**不得并入本单结论**。
+- **约束**：遵守 L1–L5；`packages/framework/src/core/**` 禁 `cc`/DOM（本单改动在 `adapters/` 层，注意别把 `cc` 依赖漏进 core）；禁 `Math.random()`；**先问再写**——落盘前确认路径，无用户指令不 commit/push。
+- **必读 skill（开工前先 Read）**：`my-skills/wxgame-adr-arch/SKILL.md`（本单含 ADR 订正，必须）；若需拆 Story 则加 `my-skills/wxgame-epic-split/SKILL.md`。另读 `docs/architecture/control-manifest.md`（L1–L5）与 `docs/agent/cocos-setup.md §13`。
+- **阶段 A 完成记录（2026-09-15，程基岩回传 + 主理人独立复核）**：落盘 `packages/framework/tests/adapters/cocos-touch-origin-contract.test.ts`（5 例；**3 绿 / 2 红，红灯为刻意**——主理人已独立复跑确认）。五条结论：① `getLocation()` = 画布相对 · **device px（× min(dpr,2)）· 左下原点**（`x=(clientX−rect.x)×dpr`、`y=(rect.y+rect.height−clientY)×dpr`）；`getStartLocation()` 同空间；`getUILocation()` = 设计单位 · 左下原点 · 量纲 dpr 无关但**不减信箱偏移**（引擎 FIXED_HEIGHT ≠ 框架 contain）⇒ 不可当设计坐标用。② 微信 minigame 宿主源码 `pal/input/minigame/touch-input.ts:86-90` 同形，但**无真机 ⇒ 标 `[R]` 阻塞，未定写**。③ 机械断言已落盘且今日必红。④ 修复判据 R1–R5 已写。⑤ 2026-09-13「删翻转」结论的误因 = 把「画布相对（真）」外推成「左上原点（假）」，挡板只吃 x ⇒ 判别力为零，且当时 dpr=1 使 ×dpr 同时隐身。
+- **⚠️ 阶段 A 连带发现（升级本单严重度）**：`getLocation()` 还 **×dpr**，而 `Viewport` 是 CSS px ⇒ **真机（dpr≥2）上 x 也被放大 2 倍**，点屏幕右侧即越界出屏。`page(200,300)@393×659/dpr3→封顶2` 实测 `getLocation=(400,718)`。即真机**两轴全错**，不止 y 镜像。与当年 harness 的 GAP-07 同类（`clientX*dpr` 送进 CSS px viewport）。
+- **用户裁定（2026-09-15，四项全采推荐项）**：**Q1 = A** y 与 ×dpr **一起修**（同一处代码；只修 y 则真机仍不可用）；**Q2 = A 甲** 抽纯函数 `normalizeCocosTouch`（可在 Node 做真正的行为测试，根治「判别力为零」）；**Q3 = A** **修订 ADR-0011 正文**（决策主体「屏幕坐标 = CSS px」未被推翻，仅事实断言错；新增「宿主归一化契约」一节）；**Q4 = A** **接受那两条红灯到阶段 B 结束**（最诚实；代价是 framework 包测试在此期间红，牵动 CI/verify 汇总，须在回传中点名）。
+- **阶段 B 派发（2026-09-15 放行）**：范围 = 归一化同时处理 **y 翻转** 与 **÷dpr**；改 `bindings.ts` / 新增纯函数模块；把源码级断言换成 **Node 行为测试**；阶段 B 结束时**两条红灯必须转绿**；修订 ADR-0011；重建 web-mobile 产物后复跑 R1/R2/R3 取证。仍**禁改** `games/beads/src/**` 与 `systems-index §3`；仍**不含** BD-34（WXG-T-100）。
+- **阶段 B 完成记录（2026-09-15，程基岩回传 + 主理人独立复核）**：新增 `packages/framework/src/adapters/cocos/touch-normalize.ts`（纯函数、零 `cc` 依赖、`x/dpr` 与 `canvasHeightCss − y/dpr`）；`bindings.ts` 的 `readTouch()` 改调纯函数并订正三处错误注释（含**超出派单列举的第三处** `_fitToGameCanvas()` 头注释 —— 主理人认可，留着就是下一个陷阱）；新增 `tests/adapters/cocos-touch-normalize.test.ts`（9 例 Node 行为测试）并让 `cocos-touch-origin-contract.test.ts` 的两条源码级红灯**退役**；ADR-0011 订正正文 + 新增 **§3(e) 宿主归一化契约** + §4.2 负面后果。**主理人独立复核**：framework **28 文件 / 267 例全绿**；`check:arch` OK；`pnpm run verify` = **PASS 13 ｜ SKIP 1（check:size 未覆盖）｜ FAIL 0**；产物含新模块。**端到端 R1 复证（主理人自跑，修复前后完全反转）**：点可见位置 (479,497) ⇒ `_pointer=(76.7,413.2)`、`traySelected=0`、`slot0='selected'`；点镜像位置 (479,223) ⇒ `_pointer=(76.7,920.8)` 落进拼图区、不命中。数据流同反转（push y = pageY）。
+- **主理人探针缺陷 s4（诚实自查）**：首次复证用坐标 (78,325) 得「仍不命中」，实为**托盘已被并行会话上移** —— `tuning.ts:29` 现为 `TRAY_BAND={230,450}`、槽心改**贴带上沿** `450−12−24=414`。已核对**非漂移**：`systems-index.md:80` 已是 `y∈[230,450]`（**v1.20 上沿 420→450**）、`:118` 注明「垂直贴上沿」，均已提交 ⇒ §3 真源与代码一致、程序合规；是我的常量陈旧。
+- **收尾裁定（2026-09-15，四项全采推荐项）**：**① `[R]` 真机 = A** 接受现状（web 实测 + minigame 源码同形），真机首验须把「点击落点 / 托盘选中 / dpr 缩放」列为 **P0 检查项**并附打屏日志；**② BD-33 = A 不关闭**，只登记本轮新事实（CLI 构建会自动补 `.ts.meta`，但只跑 `framework:sync` 不构建仍缺 ⇒ 原场景未消除）；**③ = A** 另派单给程基岩把宿主归一化契约加进 `control-manifest`（= **WXG-T-105**）；**④ = A** 派严守真固化 R1/R2/R3 取证 + breakout `[B]` 目视（= **WXG-T-106**）。
+- **本单收尾状态**：✅ 阶段 A + B 全部完成并复核；**红灯期已结束**（2026-09-15 起 framework 包测试曾为红，期间 CI/verify 汇总不可作回归信号，现已转绿）。残余：`[R]` 真机未验（已按 ① 接受 + 列 P0）；BD-34 不属本单。未 commit、未 push。
+
+## WXG-T-107
+
+- **名称**：**宿主归一化契约入控制清单（control-manifest §17）**
+- **负责**：程基岩(engineering-lead)　**状态**：📋 已立项（待施工）
+- **背景**：WXG-T-104 把「宿主必须把原始触摸事件归一化成 **CSS px + 左上原点** 再交给 `Viewport`」写进了 `ADR-0011 §3(e)`，但**没有进 `docs/architecture/control-manifest.md`**。控制清单是 L1–L5 工程铁律的落点，新契约不进去就会重演「注释对了、清单没写 ⇒ 后人照旧踩」的坑 —— 本单缺陷 C1 本身就是这个模式的产物（2026-09-13 那条错误断言只活在代码注释与 ADR 引用里）。
+- **Deliverables**：① 在 `docs/architecture/control-manifest.md` 新增 **§17 宿主输入归一化**（编号若已被占用则顺延并回传说明）；② 内容须覆盖：宿主 adapter 负责 ÷dpr 与 y 翻转、**不得**把引擎原生事件坐标直接喂 `InputManager`、`Viewport` 只接受 CSS px + 左上原点、新宿主接入时必须补一条**行为测试**（禁止只写源码级正则断言）；③ 与既有 L1–L5 编号体系不冲突，并在文中指回 ADR-0011 §3(e)；④ 诚实写入该约束的**负面后果**（如：新增宿主漏做归一化时症状是「点击整体偏移/镜像」，不易第一时间定位）。
+- **Output Path**：`docs/architecture/control-manifest.md`（**唯一落盘文件**）。禁改 `packages/framework/src/**`、`games/**/src/**`、`systems-index §3`、`production/**` 除本小节外的一切。
+- **权威来源**：`docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md`（尤其 §3(e)）> `production/TASKS-DETAIL.md` 的 `## WXG-T-104` 小节 > `packages/framework/src/adapters/cocos/touch-normalize.ts`。
+- **必读 skill**：`my-skills/wxgame-adr-arch/SKILL.md`；另读 `AGENTS.md`、`docs/architecture/control-manifest.md`。
+- **约束**：先问再写；不发明 §3 未冻结数值；不 commit/push。
+- **完成记录（2026-09-15，程基岩落盘 + 主理人独立复核）**：`docs/architecture/control-manifest.md` 新增 **`## 17. 宿主输入归一化（ADR-0011 §3(e)，根因 缺陷 C1）`**（L251–305），四条硬要求（禁原生坐标直喂 / 归一化归 adapter 且 ÷dpr+翻 y 必须同时做 / `Viewport` 只吃 CSS px·左上原点且 `screenToDesign` 翻转非"重复" / 纯函数 + Node 行为测试且新宿主同形态复刻）+ 两条 ⚠️（DPR 须显式注入否则无头 CI 断言恒真失效；微信 `[R]` 未实测、真机首验列 P0）+ 四条负面后果，全部可追溯 ADR-0011 §3(e)/§4.2。**交叉引用 4 处**（原计划 3 处，程基岩顺带补第 4 条同类反模式）：§6 输入（L94）、§12 自查表（L170）、§13 反模式两行（L193 直喂 `getLocation()`、L194 用正则锁 y 翻转语义）。**主理人复核**：`grep` 确认 §17 与 4 处引用均在；`check:arch` = OK — no violations；成员自证 `check:links` OK（agents=7 skills=17）、framework 行为测试 9 例通过。**未 commit / 未 push。**
+- **⚠️ 本轮真实发生的工程事故（须沉淀）**：程基岩在**同一文件**做多处改动时，§6 那行交叉引用**首次写入被同文件后续写入覆盖**，落盘后 `grep` 才发现并补回。⇒ 同文件多处改动须**串行编辑 + 落盘后逐条 grep 校验**（本次已执行，4 处全在）。该现象与 `memory/2026-09-13.md:100` 记录的「Edit 报成功但未落盘（并行写竞争）」同族。
+- **主理人疏漏（认错）**：首轮派单只给了 Output Path、**漏写「用户已批准写入」这句授权**，导致程基岩按「先问再写」停住未落盘（多花一轮）。纪律：派单给非 readonly 成员时，若期望其落盘，**必须显式写授权句**。
+- **成员遗留未决问题（待拍板）**：**Q1** §17 是否升格（推荐 A 维持：独立节 + 交叉引用；B 补进 §0 铁律表下；C 进 `AGENTS.md §3` 摘要表）；**Q2** 是否把「新宿主必须有行为测试」做成 CI 守卫（推荐 **C**：先做 warn 级观察一轮，第二个宿主出现前 fail-closed 易成噪声）；**Q3** minigame 侧 `[R]` 处理（推荐 A 不立新单，等真机并入首验 P0；备选 B 派单做 `pal/input/minigame/touch-input.ts` 源码级同形比对，约半日，**不解除 `[R]`**）；**Q4** 索引同步（推荐 A：`pnpm run ctx:build` 自动吸收）。
+
+## WXG-T-108
+
+- **名称**：**Cocos 输入取证固化：R1/R2/R3 可复跑 + breakout `[B]` 目视**
+- **负责**：严守真(quality-lead)　**状态**：📋 已立项（待施工；**用户已批准写入 `production/qa/beads/`**）
+- **背景**：WXG-T-104 修掉了 Cocos 宿主的 **y 轴镜像 + ×dpr**（缺陷 C1），判据 R1（点可见位置命中托盘槽）/ R2（`InputManager.push` 收到的 y ≈ 页面 pageY）/ R3（dpr=1/2/3 封顶 2 下同一可见点均命中）由主理人**临时**跑通并复证，但目前**没有可复跑的固化脚本**；breakout 侧只到数据流层，**`[B]` 目视（挡板跟手）未做**。⇒ 下次回归仍靠人肉，同类缺陷还会漏。
+- **Deliverables**：① 把 R1/R2/R3 做成**可复跑脚本**（落 `production/qa/beads/`，同目录既有 `g4-probe*.mjs` 可参考其证据落盘与自证风格）；② 脚本须**自带断言与退出码**（红=失败，禁止「跑了但没判」）；③ 补 breakout 的 `[B]` 浏览器目视道次（挡板跟手 + 点击落点），记录取证方式与截图；④ 明确标注**哪些道次本环境做不了**（`[R]` 真机需 AppID + 真机），不得记为通过。
+- **环境事实**：✅ Cocos 3.8.8 CLI 与 web-mobile 构建可用、playwright-cli 可用；⛔ 无 AppID（wechatgame 平台构建阻塞）、⛔ 无真机 ⇒ `[R]` 一律标阻塞。
+- **Output Path**：`production/qa/beads/`（脚本 + 证据日志 + 截图）。禁改 `packages/framework/src/**`、`games/**/src/**`、`systems-index §3`、`docs/**`。
+- **权威来源**：`production/TASKS-DETAIL.md` 的 `## WXG-T-104` 小节（含 R1/R2/R3 原始判据与主理人复证实测数字）> `packages/framework/src/adapters/cocos/touch-normalize.ts` > `docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md`。
+- **必读 skill**：`my-skills/wxgame-qa-gates/SKILL.md`；另读 `AGENTS.md`、`production/qa/beads/smoke-tests.md`。
+- **约束**：严守真默认 **readonly**，本单**已获用户批准**写入 `production/qa/beads/`，不得越界写其他目录；不 commit/push；不得把 ⛔ 记为 PASS。
+- **残留（不得归零）**：① **A05-09 本体仍 ⛔** —— 探针与 `test-cases` 需按新主体同改后复跑（成员无 `production/**` 写权限），已登 backlog，与 T-102 的 P4 复跑同批；② `audio-spec §9` 判据总数 27→28（含 A05-09b），QA 侧若不接受 `b` 后缀需整体重排（成本高，已否）。
+
+### 完成记录（严守真 quality-lead，2026-09-15 · 证据已固化 · **未 commit / 未 push**；状态行与台账主表由主理人回填）
+
+**① 落盘清单**（全部在已批准的 Output Path `production/qa/beads/` 内，未越界）
+
+| 文件 | 动作 | 说明 |
+| --- | --- | --- |
+| `production/qa/beads/cocos-input-probe.mjs` | **新增** | 可复跑探针（R1/R2/R3 + 宿主语义 + breakout `[B]`）。**自带断言与退出码**：`0` 全绿 ｜ `1` FAIL ｜ `2` 无 FAIL 但有未预期阻塞/探针无效 ｜ `3` 脚本级环境错误。预期值写在文件头（**先写后跑**），含 `SELF-01` 判据自检 |
+| `production/qa/beads/evidence/cocos-input-probe.log` | **新增** | 本轮实跑证据日志，每条含「预期（先写）/ 实测」 |
+| `production/qa/beads/evidence/cocos-input-beads-{base,dsf2,dsf3}-{A-base,C-mirror,B-visible}.png`（9 张）+ `cocos-input-beads-dsf1-500x1000-*.png`（3 张） | **新增** | beads `[B]` 目视：三档 dpr × 三态（基态 / 点镜像 / 点可见）+ 500×1000 信箱档 |
+| `production/qa/beads/evidence/cocos-input-breakout-dsf{1,2}-x{300,600}.png`（4 张） | **新增** | breakout `[B]` 目视：挡板跟手两位置 × 两 dpr |
+| `production/qa/beads/evidence/cocos-input-probe-g1g2-subset.log` | **新增** | 支撑证据（见 ③） |
+
+**② 实跑结果（第 5 次复跑，本地 2026-09-15 21:50；**退出码 0**；PASS 18 ｜ FAIL 0 ｜ ⛔ 2（已声明阻塞道次））**
+
+| 用例 | 道次 | 结果 | 实测数字（节选） |
+| --- | --- | --- | --- |
+| ENV-01/02 产物新鲜度 + 镜像一致 + 产物含归一化函数 | `[N]` | ✅ | 产物 `assets/main/index.js` mtime `21:01:42.656`（beads）/ `21:14:29.535`（breakout）均晚于源最新 `21:01:16`；`framework:sync:check` exit=0；产物内 `normalizeCocosTouch` 命中 **9** 次 ⇒ 验的确实是**修复后**产物 |
+| SELF-01 判据自检（反假绿） | `[N]` | ✅ | 把 T-104 A4 记录的**修复前**数字喂同一批判定函数 ⇒ `judgeHost/judgeR1/judgeR2/judgeR3` **全部返回不通过** ⇒ 探针有判别力，非「跑了但没判」 |
+| HOST-01/02/03 宿主语义（dsf 1/2/3） | `[N]` | ✅ | `getLocation()`：dsf1 `raw=(479,223)` = 式 `(479,223)`；dsf2 `raw=(958,446)`；dsf3（window dpr **3** / 引擎封顶 **2**）`raw=(958,446)`；三档 Δ=(0,0)。反证：与「左上原点」式差 **274 / 548 / 548 px** ⇒ 左下原点 + device px 成立 |
+| HOST-03b 封顶口径反证 | `[N]` | ✅ | 用**未封顶** window dpr=3 套同一恒等式 ⇒ Δy=**223px**，判定函数**正确否决** ⇒ 「dpr 必须与输入源同源」被锁死 |
+| R1-01 + R1-02（端到端 + 反证） | `[N]` | ✅ | 点可见点 `(478.6,496.6)` ⇒ `traySelected=0`、`slot0='selected'`、`_pointer=(76.70,413.17)` vs 槽心 `(76,414)`；点**镜像点** `(478.6,223.4)` ⇒ `traySelected=-1`、`_pointer=(76.70,920.83)`（离槽心 **506.8** 设计 px）⇒ 修复前后行为完全反转 |
+| R2-01 数据流 | `[N]` | ✅ | 两次点击 `push(down)=(479,223)` / `(479,497)` vs 页面相对 Δ=**(0.4,0.4)**；反镜像 guard：与旧式 `canvasH−pageY` 相差 **273.6px** |
+| R1-03 + R1-04（500×1000 信箱） | `[N]` | ✅ | `scale=0.6667`、`offsetY=55.33`（>0）；可见点 `(50.7,668.7)` ⇒ 命中；镜像点 `(50.7,331.3)` ⇒ `-1` |
+| R3-01 dpr 不变性 | `[N]` | ✅ | 三档同一页面点 ⇒ `push=(479,497)` **完全一致**（两两差 **0.0px**）；`raw.x` = 479 / 958 / 958 = `page×dpr` ⇒ ÷dpr 真被行使（修前 dsf≥2 为 `(958,994)`） |
+| R3-02 / R3-03（R1 端到端 @ dsf2 / dsf3） | `[N]` | ✅ | 两档均「可见点命中 / 镜像点不命中」 |
+| B-01 `[B]` 镜像点像素反证 | `[B]` | ✅ | 托盘槽行（屏幕行 `487..507`）内点镜像点前后 **changedPixels=0** |
+| B-02 `[B]` 可见点像素命中 | `[B]` | ✅ | changedPixels=**181**，变化簇 `x∈[467,491]`（宽 25，**簇心 479.0**）vs 点击点屏幕 x=478.6 ⇒ 渲染层与命中层同位 |
+| BR-01 breakout 数据流 | `[N]` | ✅ | dsf1 / dsf2 均 `push=(366,510)` = 页面坐标，两档差 **0.0px**（修前 dsf2 应为 `(732,510)`） |
+| B-03 `[B]` 挡板跟手（模型） | `[B]` | ✅ | 点设计 x=300 / 600 ⇒ `paddle.x=299.41 / 599.56`（Δ=0.59 / 0.44 设计 px）、`phase=playing` |
+| B-04 `[B]` 挡板像素级 | `[B]` | ✅ | 挡板带（行 `502..518`）亮像素簇心 **365.5 / 500.5** vs 期望 366.3 / 501.2（Δ=0.7 / 0.7）；位移 **135.0px** vs 期望 设计位移×scale=**134.9px** |
+| DEV-01 `[R]` 微信小游戏宿主 | ⛔ | ⛔ | **未实测**（无 AppID、无真机）。解除条件：① 有效 AppID；② `build:cocos:wx` 出包；③ 微信开发者工具/真机；④ 用同款探针在 `wx` 宿主复取三 accessor 与 push 值。真机首验须把「点击落点 / 托盘选中 / dpr 缩放」列 **P0**（ADR-0011 §4.2(10)） |
+| DEV-02 wechatgame 平台构建 | ⛔ | ⛔ | 缺 AppID ⇒ 上条前置不成立 |
+
+**③ 支撑证据（G1/G2，只读子集）**：`node tools/scripts/verify-all.mjs --steps=check:arch,typecheck,framework:sync:check,test` ⇒ **PASS 4 ｜ SKIP 0 ｜ FAIL 0**；单测 framework **267** + breakout **239** + beads **238** = **744 例全绿**（62 文件）。
+⚠ **未跑**全量 `pnpm run verify`（14 项）：其 `harness:build` / `check:size` 等会写 `dev/harness/dist` 等**本单 Output Path 之外**的路径 ⇒ 按只读纪律不跑，全量门由主理人/工程侧复跑。
+
+**④ 探针口径与踩坑（供复用）**
+- 槽心**不硬编码**：用游戏自身 `_hitTraySlot` 在 4px/2px 网格扫 bbox 现算（槽 0 实测 bbox `x[48,104] y[384,444]` ⇒ 槽心 `(76,414)`），再经 `viewport.designToScreen` 得屏幕点 —— 托盘位置若再变（v1.20 已上移过一次）不会脱靶。
+- 前置两条：必须 `phase==='playing'`；**槽 0 必须持珠**（空槽 `select()` 恒 `'invalid'`，T-104 已记录的坑）。探针用 `giveTrayBead(1)` 补珠（只影响槽内容，不碰坐标逻辑）。
+- `mousemove` **不放进 for 循环**；每次点击独立 `move→down→up`。`[B]` 像素分析**在浏览器内解码 PNG**（`createImageBitmap` + `OffscreenCanvas`），不引第三方依赖。
+- 改码后必须**先重建产物**：`ENV-*` 门会拦陈旧产物 / 镜像未同步 / 产物不含归一化函数（本轮两次实跑都因此挡住过，属设计内行为）。
+- 复跑命令：`node production/qa/beads/cocos-input-probe.mjs`（自带启停 `python3 -m http.server`；端口被占用且标记不符时会换端口，不会验错对象）。
+- 未覆盖：① **画布不铺满窗口**的 CSS 布局（本产物 canvas 恒 100% 铺满，`rect=(0,0)`）；② 触屏事件序（`hasTouch`，本探针走真实 **mouse** 事件；Cocos mouse 源同样 ×dpr，已在 HOST 用例中实证）；③ 真机 dpr 无 2 封顶这条差异（见 DEV-01）。
+
+**⑤ 残留 / 不得归零**：⛔ `[R]` 真机（DEV-01/DEV-02）仍为阻塞，**不得记 PASS**；本单零 `src/**` 改动、零 `systems-index §3` 改动。
+
+---
+
+### 阶段 A 交付（程基岩 engineering-lead，2026-09-15，实测取证完成 · **未落任何 `src/**` 改动**）
+
+> 权威说明：以下全部数字来自**本人在真实 Cocos web-mobile 产物上跑出来的实测**（不是文档推断）。
+> 产物沿用 `games/beads/cocos/build/web-mobile`（mtime `2026-09-15 08:48`）而非重建：本阶段**零 `src/**` 改动**，
+> 且已用 mtime 比对该产物晚于全部输入链路镜像源（最新 `bindings.ts` = `2026-09-14 20:40`）⇒ 产物含当前代码。
+> ⚠ 现有工作树有 T-102 等在改的 `games/beads/src/{config/tuning.ts,view/view-model.ts}`，
+> `framework:sync:check` 现为红 ⇒ `build:cocos:web` 被前置检查拦住（见 A6 注意事项）。
+
+#### A1 · 语义结论（Cocos web-mobile / 浏览器宿主，**实测**）
+
+**`getLocation()` = 画布相对 · device px（× dpr）· 左下原点**；`getStartLocation()` 同空间（touch-start 时数值与 `getLocation()` 相同）；
+`getUILocation()` = 设计单位 · 左下原点 · dpr 无关，但**不减信箱偏移**，且属**引擎 FIXED_HEIGHT 空间**（≠ 框架 `Viewport` 的 contain 空间）。
+
+三组宿主配置、7 个采样点（页面坐标 = 原生 `pointerdown` 的 clientX/clientY，与 Cocos accessor 同帧对照）：
+
+| 宿主配置 | dpr(引擎) | fit(scale/offsetX/offsetY) | page | `getLocation()` | `getUILocation()` | 到达 `InputManager` |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1280×720 canvas 铺满 | 1 | 0.539730 / 437.601 / 0 | 700,100 | **700,620** | 1296.94,1148.72 | 700,620 |
+| 〃 | 1 | 〃 | 480,545 | **480,175** | 889.33,324.24 | 480,175 |
+| 〃 | 1 | 〃 | 480,175 | **480,545** | 889.33,1009.76 | 480,545 |
+| 〃 | 1 | 〃 | 200,300 | **200,420** | 370.56,778.17 | 200,420 |
+| 〃 | 1 | 〃 | 900,650 | **900,70** | 1667.50,129.69 | 900,70 |
+| 500×1000（offsetY>0） | 1 | 0.666667 / 0 / **55.333** | 250,150 | **250,850** | 333.50,1133.90 | 250,850 |
+| iPhone15 模拟 393×659 | 3（引擎封顶 **2**） | 0.494003 / 11.249 / 0 | 200,300 | **400,718** | 404.86,726.72 | 400,718 |
+
+恒等式（全部样本吻合，容差 ≤1 px，Cocos 取整）：
+`x = (clientX − rect.x) × dpr`、`y = (rect.y + rect.height − clientY) × dpr`，其中 `dpr = min(window.devicePixelRatio ?? 1, 2)`。
+⇒ **左上原点假设与本式相差整屏高度**，判别力为满屏，非边缘差。
+
+引擎源码互证（Cocos 3.8.8，本机 `/Applications/Cocos/Creator/3.8.8/.../resources/3d/engine` 与产物 `cocos-js/cc.js`）：
+
+- web 触摸源（`cc.js` L40348-40359）：`x = touch.clientX - canvasRect.x; y = canvasRect.y + canvasRect.height - touch.clientY; … x *= dpr; y *= dpr;`
+- `Touch.getLocation()` 直返 `_point`；`getUILocation()` = `_point` 再经 `view._convertToUISpace()`。
+- 实测 `view`：设计分辨率 750×1334，但 500×1000 下 `getScaleX/Y = 0.749625`、`visibleSize = 667×1334` ⇒ 引擎按 **FIXED_HEIGHT** 适配，与框架 `Viewport` 的 contain（`scale 0.6667` + offsetY 55.33）**不等价** ⇒ `getUILocation()` **不可当作框架设计坐标使用**。
+
+**⚠ 连带发现（超出 y 镜像的第二处偏离，见 Q1）**：`getLocation()` 还是 **device px**（×dpr），而 `Viewport` 屏幕空间是 CSS px（`_fitToGameCanvas()` 用 `canvas.clientWidth/Height`）。实测：同一页面点在 dpr=1 下 push `(478,175)`，dpr=2/3 下 push `(956,350)/(400,718)` ⇒ **真机（dpr≥2）上即使修好 y，x/y 仍整体放大 2 倍，玩法照样不可用**。
+
+#### A2 · 微信小游戏 runtime 宿主（**阻塞，禁止定写**）
+
+- **已读源码（非实测）**：`pal/input/minigame/touch-input.ts:86-90` = `x = touch.clientX * dpr; y = windowSize.height - touch.clientY * dpr;` —— 与 web **同形**（左下原点 + ×dpr）；`pal/screen-adapter/minigame/screen-adapter.ts:71-78`：`dpr = minigame.getWindowInfo().pixelRatio`（**无 web 侧的 2 封顶**）。
+- **结论**：预期同为「左下原点 + device px」，但 **⛔ `[R]` 阻塞 —— 无 AppID、无真机，未实测，不得写为已验证**。
+- **解除条件**：① 有效 AppID 且 `pnpm --filter @wxgame/beads run build:cocos:wx` 出包；② 微信开发者工具或真机可跑；③ 用 A6 同款探针在 `wx` 宿主复取三个 accessor 与 push 值。
+
+#### A3 · 机械断言（已落盘，**今日必红**）
+
+文件：`packages/framework/tests/adapters/cocos-touch-origin-contract.test.ts`（新增，vitest，Node，不 import `cc`）
+实测结果：`Tests 2 failed | 3 passed (5)`；`pnpm -F @wxgame/framework test` 全量 `2 failed | 258 passed`（**只有本单刻意红灯，无其他回归**）；`npx tsc --noEmit` 绿。
+
+- 绿（今日通过）：① 7 个样本逐点校验 `x=(page.x)·dpr`、`y=(canvasH−page.y)·dpr`，并断言**不是**左上原点；② y 与页面坐标反向 / x 同向（左下原点定向判据）；③ 镜像算术（真值 1148.72 与透传值 185.28 之和 = 1334）。
+- **红（今日必红 = 锁住语义）**：④ `readTouch()` 不得再 `y: p.y` 原样透传，且必须显式引用可翻转 y 的高度量；⑤ 源码不得再断言 `getLocation()` 为 top-left origin（现 L206-212 / L258-262 两处均命中）。
+- ⚠ ④⑤ 是**源码级契约测试**（`bindings.ts` 静态 import `cc`，Node 不可编译，只能扫源码），属临时形态；阶段 B 若采 B1 甲（抽纯函数），应被真行为测试取代。
+
+#### A4 · 修复判据（可机验）
+
+- **R1 端到端（决定性）**：取托盘槽 i 的设计中心 P（用游戏自身 `_hitTraySlot` 在 4px 网格扫 bbox 取中），`S = viewport.designToScreen(P)`；在页面点 **S** ⇒ 必须 `traySelected === i`。**今日实测（槽 0，P=(76,324)，S=(478.62,545.13)）：点 S ⇒ `traySelected = -1`、`_pointer = (74.85,1009.76)`（镜像值）；点 (478.62,174.87) ⇒ `traySelected = 0`、`slot0.state = 'selected'`。**
+- **R2 数据流**：`app.input.push` 记录到的 `y ≈ pageY − rect.y`（±1.5 px）。今日 = `canvasH − pageY`。
+- **R3 dpr 不变性**（若 Q1 选一起修）：dpr=1 与 dpr=2/3 上下文点同一页面点 ⇒ push 值相同（±1.5 px）。今日 dpr=2 时翻倍。
+- **R4 单测**：A3 的两条红灯转绿；若采 B1 甲则新增纯函数行为测试全绿。
+- **R5 无回归**：`pnpm run verify` 全绿；harness（`dev/harness/**`）不经 `bindings.ts`，不受影响，须复跑确认。
+
+#### A5 · 2026-09-13 结论为何与本次实测矛盾（二者必有一误 ⇒ 误在前者）
+
+1. 那次结论由两句话组成：(i)「getLocation 是**画布相对**（页面 600 → 335）」—— **真**（引擎源码 `clientX − canvasRect.x` 佐证，本单三配置的 canvas 恰好铺满窗口故不可再区分）；(ii)「因此符合 RawPointerInput **左上原点**契约」—— **假**。
+2. (i) 的证据是一个**平移**偏移，(ii) 需要的是**定向**证据。**平移证据对 y 翻转完全不敏感**，用它推出定向结论属越界外推。
+3. 当时唯一验证手段是 breakout 挡板跟手，而**挡板只吃 x**；实测 x 在两种假设下完全相同（`page.x 480→480`、`700→700`、`200→200`）⇒ 该验证对 (ii) 的**判别力为零**。且当时是桌面 Chrome dpr=1 ⇒ 连 ×dpr 那一半偏差也同时隐身。
+4. 「删 mapPoint 的 y 翻转」在借来的假设下自洽，而 `VERSION.md:130` 自己标过该翻转是「猜测性，必须验证后修正」⇒ 一次猜测被固化进**代码 → 注释 → ADR-0011 引用依据**三级放大。
+5. 判据：本次 3 配置 7 采样点全部满足 `y = (canvasH − pageY) × dpr`，与左上原点假设差**整屏高度**；并在 `playing` 相位端到端复现「点可见位置不中、点镜像位置中」。⇒ **误在 2026-09-13 那条结论及引用它的注释/ADR 依据**，本单不为其圆场。
+6. 沉淀候选（供主理人决定是否入 `knowledge/`）：**「平移证据不能外推定向结论；锁坐标语义必须用 y 敏感场景 + 至少两个 dpr 档位」**。
+
+#### A6 · 最小复现法（已跑通）
+
+```bash
+# 0) 前置：镜像必须与源码一致，否则构建被拦（当前工作树因 T-102 在改 beads src 而是红的）
+pnpm run framework:sync:check          # 红则先 sync 或等镜像干净
+# 1) 构建（已有产物且本阶段零 src 改动时可跳过，但须先核 mtime：产物须晚于镜像源）
+pnpm --filter @wxgame/beads run build:cocos:web
+# 2) 静态服务
+python3 -m http.server 8091 --directory games/beads/cocos/build/web-mobile
+# 3) 打开（playwright-cli 在受管 workspace）
+export PATH="$HOME/.workbuddy/binaries/node/workspace/node_modules/.bin:$PATH"
+playwright-cli -s=c1 open --browser=chrome http://127.0.0.1:8091/    # 桌面 dpr=1
+playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.1:8091/   # 真 dpr=3
+# 4) 注入探针（取句柄 + 打桩 push + 同帧记录 accessor）
+#    app = cc.director.getScene().getChildByName('Canvas').getChildByName('GameRoot')
+#           .getComponent(cc.js.getClassByName('BeadsBootstrap'))._app
+#    a) canvasNode.on('touch-start', e => 记 getLocation/getUILocation/getStartLocation/getUIStartLocation)
+#    b) window.addEventListener('pointerdown', e => 记 clientX/clientY, true)
+#    c) const orig = app.input.push.bind(app.input); app.input.push = ev => { log(ev); return orig(ev); };
+# 5) 点击并读数：mousemove X Y → mousedown → mouseup（勿放进 for 循环，实测会退化成 (0,0)）
+#    end-to-end：先用 g._hitTraySlot(x,y) 在 4px 网格扫出槽 0 的 bbox 取中 ⇒ designToScreen ⇒ 点它
+#    读：g._snapshot.traySelected / g._tray._slots[0].state / g._pointer / g._machine.current
+# ⚠ 必须 phase == 'playing' 才有输入（game-over/paused 属 BD-34，WXG-T-100，不得并入本单结论）
+```
+
+取证痕迹：全部探针只存在于浏览器会话与 `/tmp`（`/tmp/wxg-probe-*.js`），**仓库零改动**；临时静态服务已停。
+
+---
+
+### 阶段 B 方案（**本轮只给方案，严禁落码**，等主理人放行）
+
+#### B1 · 改法与备选比较
+
+- **甲（推荐）· 抽纯函数 + Node 可测**：新增 `packages/framework/src/adapters/cocos/touch-normalize.ts`（**不 import `cc`**）：
+  `normalizeCocosTouch(p, canvasCssHeight, dpr, out)` → `out.x = p.x / dpr; out.y = canvasCssHeight − p.y / dpr;`
+  `readTouch()` 调它；`dpr` 取**引擎口径** `cc.view.devicePixelRatio`（web 封顶 2 / 小游戏取 `wx` pixelRatio，免得自己复刻封顶规则），高度取 `#GameCanvas.clientHeight`（== `viewport.fit.screenHeight`，因 `_fitToGameCanvas()` 已按它 resize）。
+  优点：可真行为单测（取代 A3 的源码级断言）、dpr 口径与引擎同源、零 core 侵入（L2 合规，改动只在 `adapters/`）。缺点：多一个文件。
+- **乙 · 改用 `getUILocation()` 反算**：`cssX = uiX · canvasH / designH`、`cssY = canvasH − uiY · canvasH / designH`（实测 dpr 无关）。优点：不碰 dpr。缺点：依赖「引擎设计单位 == 框架 designHeight」的隐式耦合；引擎为 FIXED_HEIGHT 而框架为 contain，窄屏下二者不等价，语义随引擎适配策略演化 ⇒ 脆弱；且 `designHeight` 常量分处两处需同步。**不推荐**。
+- **丙 · 最小改动**：`_bindInput()` 里给 `CocosInputBridge` 传 `mapPoint`（该选项已存在且已有测试先例）：`mapPoint: (x,y) => ({x: x/dpr, y: canvasH − y/dpr})`。优点：一行。缺点：映射函数仍不可在 Node 单测；`readTouch` 错误注释仍在需另改；测试只能停在源码级。**次选**。
+- 三者都**必须**顺带订正 `bindings.ts` L206-212 与 L258-262 两处错误注释（否则 A3 ⑤ 不转绿）。
+- 宿主差异：不打算为 wechat 分叉；甲/丙按引擎同源 dpr 取值即可，真机可得后按 A2 解除条件复验。
+
+#### B2 · 影响面清单
+
+- **宿主**：Cocos **web-mobile**（实测确认）+ Cocos **wechatgame**（源码同形，⛔ 未实测）。`canvas2d` / Node 平台 / `dev/harness/**` **不经 `bindings.ts` ⇒ 不受影响**（harness 映射实测正确，不属本单）。
+- **游戏**：`beads` ⇒ **P0**（托盘 / 棋盘 / 按钮全部 y 敏感，今日玩法整体不可用）。`breakout` ⇒ 对 **y 镜像免疫**（挡板只吃 x —— 这正是 2026-09-13 漏检的成因），**但对 ×dpr 不免疫**（x 同样翻倍）；若 Q1 选「一起修 dpr」，breakout 需一并复验。
+- **不受影响**：`packages/framework/src/core/**`、`games/*/src`（零玩法改动）、`systems-index §3`（本单**不需要任何新数值**，已确认）。
+
+#### B3 · ADR-0011 处置建议：**修订正文，不另立新 ADR**（理由 + 负面后果预写）
+
+- 理由：被推翻的是 ADR-0011 的**引用依据与一句旁证**，不是**决策主体**。决策主体（屏幕坐标唯一契约 = CSS px top-left；DPR 由 renderer/adapter 承担）不但未倒，反而被本单实测**加强**——正因为输入源给的是 device px，才更需要在 adapter 层归一回 CSS px。另立 ADR 会把「实现违约」讲成「契约变更」，误导后人。
+- 拟修订点：① §1.1 表格里 `bindings.ts L204-213` 那条：改注为「该注释为**当时的错误断言**，已被 WXG-T-104 实测推翻（getLocation = 左下原点 device px）；契约不变，违约方是 `readTouch`」；② §3(c) 末「输入全程留在 CSS px」改为「viewport 在 CSS px；**Cocos 输入源在 device px，必须由 adapters 层除以 dpr 归一**」；③ §4.2 增一条负面：ADR-0011 写作时「引擎已在输入侧消化 DPR」属**误判**，代价是真到 WXG-T-104 才暴露；④ §5 增触发条件：真机可得时复核 minigame 的 dpr 口径（无 2 封顶）。
+- **负面后果预写**：① ADR-0011 已 Accepted，改正文会让「已冻结裁决」的可信度受损，须在文首加「2026-09-15 修订（WXG-T-104）」时间戳以保留可审计性；② 修订后 ADR-0011 同时含「原判断」与「推翻后的事实」两层叙述，读者需自行分辨哪层有效（用时间戳 + 显式「已推翻」措辞缓解，不能消除）；③ §4.2(1) 那种「明知注释过期却不改」的文档债模式重演风险——故**必须**与改码同批改 `bindings.ts` 注释，不得只改 ADR。
+- 备选（若主理人裁定「Accepted 正文不动」）：另立 **ADR-0014「Cocos 输入坐标归一化」** + 在 ADR-0011 顶部加一行指针。负面：坐标契约出现两处真源，后人难判孰为准；且 ADR-0011 §1.1 那条错误依据仍在正文里继续误导（只能靠顶部一行指针，弱）。
+
+#### B4 · 需要补/改的测试清单
+
+1. **新增** `packages/framework/tests/adapters/cocos-touch-normalize.test.ts`（采甲时）：dpr=1/2/3、`offsetY>0`、画布非全屏（`rect.x/y ≠ 0` 构造值）、取整容差；与 `Viewport` 往返（设计点 → `designToScreen` → 归一化反推，误差 <1e-6）。
+2. **改** 本单 `cocos-touch-origin-contract.test.ts`：④⑤ 转绿；采甲后把 ④ 换成对 `normalizeCocosTouch` 的行为断言（源码级断言降级或删除），⑤ 保留为「注释不得回退」的守门。
+3. **保留** `cocos-input-bridge.test.ts` 现有 `mapPoint` 用例（bridge 本身不做坐标假设，未被本单推翻）；可补一条「bridge 不改写未映射值」。
+4. **端到端 `[B]` 道次**：R1/R2/R3 三条做成可复跑脚本（建议落 `production/qa/beads/` 或 `tools/scripts/`，属 QA/主理人域，需另派单）；须附**重建产物后**的复跑证据。
+5. **回归**：`pnpm run verify` 全绿 + `node tools/scripts/check-architecture.mjs` + harness 冒烟（证明 canvas2d 路径未受影响）。
+
+#### 阶段 B 未决问题（供用户拍板，2–4 项）
+
+- **Q1（范围）**：是否**顺带修 ×dpr**？ **A)** 一起修（真机 dpr≥2 必坏，推荐，成本≈同一处代码） / **B)** 本单只修 y，dpr 另开单（建议 WXG-T-105） / **C)** 只修 y，dpr 记为已知缺陷直到真机可得（风险：真机出货仍不可用）。
+- **Q2（改法）**：甲（抽纯函数，可行为单测，推荐） / 丙（mapPoint 一行，最小面） / 乙（getUILocation 反算，不推荐）。
+- **Q3（ADR）**：修订 ADR-0011 正文（推荐） / 另立 ADR-0014 + 顶部指针。
+- **Q4（红灯期）**：A3 的两条刻意红灯会让 `pnpm -F @wxgame/framework test` 保持红到阶段 B 结束。**A)** 接受（红灯即欠账，最诚实，推荐） / **B)** 改 `it.fails` 标记（绿但需阶段 B 同步移除，易忘） / **C)** 加 `skip` + TODO（最省事但最易被遗忘）。
+
+---
+
+#### 阶段 B 完成记录（程基岩 engineering-lead，2026-09-15 · 用户四项裁定全采推荐项：Q1=A / Q2=甲 / Q3=修订 ADR-0011 / Q4=接受红灯到本阶段结束）
+
+**① 落盘清单**（全部在放行 Output Path 内）
+
+| 文件 | 动作 | 说明 |
+| --- | --- | --- |
+| `packages/framework/src/adapters/cocos/touch-normalize.ts` | **新增** | 纯函数 `normalizeCocosTouch(raw, {canvasHeightCss, dpr}, out?)`：**同时**做 y 翻转与 ÷dpr；**不 import `cc`**、不碰 DOM/全局 ⇒ Node 可行为测试（甲案的唯一理由） |
+| `packages/framework/src/adapters/cocos/bindings.ts` | 改 | `readTouch(e, space)` 调纯函数；`_bindInput` L205-212 与 `readTouch` 头注释 L255-262 两处错误断言**就地订正**；另**顺带**订正第三处同型错误（`_fitToGameCanvas` 头注释称 getLocation 为 CSS px，实为 device px）；新增 `_touchSpace()` 与 `engineDpr()`（取 `cc.screen.devicePixelRatio`） |
+| `packages/framework/tests/adapters/cocos-touch-normalize.test.ts` | **新增** | Node 行为测试 **9 例**（见下） |
+| `packages/framework/tests/adapters/cocos-touch-origin-contract.test.ts` | 改 | 两条源码级红灯**退役**（行为测试已覆盖）；保留 ①③ 宿主实测台账断言（锁"宿主到底给了什么"，与代码无关） |
+| `docs/architecture/adr/ADR-0011-*.md` | 改 | 修订正文（不另立 ADR）：文首修订戳 + §1.1 订正表 + §1.1/§1.5 两处"唯一越界者/不得改 bindings"勘误 + §3(c) 半句订正 + **新增 §3(e) 宿主归一化契约** + §4.1(5) + §4.2(0)(8)(9)(10) + §5(8)(9)(10)(11) |
+| 镜像拷贝件 | 由 `framework:sync` 产出 | `games/{beads,breakout}/cocos/assets/scripts/framework/adapters/cocos/touch-normalize.ts`（**未手改**）；`.ts.meta` 由 **Cocos CLI 构建时自动生成**（见 ⑤ 备注） |
+
+**② 红灯期结束声明（Q4=A 的收口）**：阶段 A 的两条刻意红灯**已转绿并退役** ⇒
+`pnpm -F @wxgame/framework test` = **28 files / 267 tests 全绿**（改码前 258 passed / 2 failed）；
+全仓 `pnpm -r run test` = framework 267 + breakout 239 + beads 238 全绿；
+`pnpm run verify` = **PASS 13 ｜ SKIP 1（check:size，未覆盖非失败）｜ FAIL 0**。
+⇒ 红灯期自 2026-09-15 起结束，**此前受其牵动的 CI / `verify` 汇总恢复为可信信号**；
+且红灯已由"源码级正则"升级为"9 例 Node 行为测试"，不再是判别力为零的守门。
+
+**③ 复跑取证（**先 `pnpm --filter @wxgame/beads run build:cocos:web` 重建产物**，mtime 2026-09-15 21:0x，非旧产物）**
+探针 = `cc.director.getScene()→Canvas→GameRoot→getComponent('BeadsBootstrap')._app`，打桩 `app.input.push`；
+前置 = `phase === 'playing'` **且** 槽 0 `state === 'holding'`（空槽 `select()` 恒 `'invalid'`，这是本轮踩到的第二个坑，不属本单缺陷）。
+同一会话内 A/B：**先点镜像点、再点可见点**。
+
+| 判据 | 1280×720 dsf=1 | 393×659 dsf=1 | 393×659 dsf=2 | 393×659 dsf=3（引擎封顶 2） |
+| --- | --- | --- | --- | --- |
+| `window.devicePixelRatio` / `screen.devicePixelRatio` | 1 / 1 | 1 / 1 | 2 / 2 | **3 / 2** |
+| canvas CSS / backing | 1280×720 / 1280×720 | 393×659 / 393×659 | 393×659 / **786×1318** | 393×659 / **786×1318** |
+| 槽 0 设计中心 → `designToScreen` | (76,414) → (478.62, **496.55**) | (76,414) → (48.79, **454.48**) | 同左 | 同左 |
+| **R1 点可见位置** | push (478,496) ⇒ `traySelected=0`、`slot0='selected'` | push (48,454) ⇒ `traySelected=0` | push (48,454) ⇒ `traySelected=0` | push (48,454) ⇒ `traySelected=0` |
+| **R1 反证：点镜像位置** (`h−S.y`) | 点 (478.6, 223.4) ⇒ `traySelected=-1`（旧行为此处才命中） | 点 (48.8, 204.5) ⇒ -1 | ⇒ -1 | ⇒ -1 |
+| **R2 数据流** | push y=496 vs pageY=496.55（Δ≤0.6px；今日之前 = 720−496.55=223.45） | 454 vs 454.48 | 454 vs 454.48 | 454 vs 454.48 |
+| **R3 dpr 不变性** | — | (48,454) | (48,454) **一致** | (48,454) **一致**（今日之前 dsf≥2 会翻倍） |
+| `_pointer`（设计空间回读） | (74.85, 415.02) ≈ 槽心 (76,414) | (74.39, 414.98) | 同 | 同 |
+| 页面错误 | 无 | 无 | 无 | 无 |
+
+⇒ **R1 / R2 / R3 三条全过**；且"点镜像位置不再命中"反证成立（阶段 A 时点镜像才命中）。
+
+**④ 新增行为测试 9 例**（`pnpm -F @wxgame/framework test tests/adapters/cocos-touch-normalize.test.ts`）：
+① dpr=1 五个实测样本翻转回页面坐标；② ÷dpr 含 **window dpr=3 / 引擎封顶 2**，并反向锁"用未封顶 dpr=3 必偏离 >60px"；
+③ 纵向信箱 `offsetY=55.33` 样本（归一化与信箱偏移无关，`containsScreenPoint` 为真）；④ 边界（左下→屏幕底、左上→屏幕顶）；
+⑤ 画布不铺满窗口时只取决于画布内相对位置；⑥ `out` 复用同一实例（热路径零分配）；⑦ dpr 非法（0/NaN/负）退化按 1、不产 NaN；
+⑧ 与 `Viewport` 往返（设计点→`designToScreen`→模拟宿主 device px→归一化→`screenToDesign` 回到原点，dpr=1/2 各一遍）；
+⑨ 镜像反证（透传值经 `screenToDesign` 后 = 真值关于设计中线的镜像：1148.72 + 185.28 = 1334；归一化后二者重合）。
+
+**⑤ 对本单相关"坑"的补充实测（供后续复用）**
+- **BD-33（镜像脚本缺 `.ts.meta`）本轮**未构成阻塞**：`framework:sync` 后新文件无 meta，但 **Cocos CLI 构建时自动生成了**
+  `touch-normalize.ts.meta`（mtime 21:01，171B，编辑器产物，**非手编**），产物 `assets/main/index.js` 内 `normalizeCocosTouch` 命中 7 处。
+  ⚠ 该结论只对"跑过一次 CLI 构建"的路径成立；若某游戏只 sync 不构建，仍缺 meta —— **BD-33 不因本单关闭**。
+- **`screen.devicePixelRatio` 是本轮实测确认过的取值**：web 侧 = `min(window.devicePixelRatio, 2)`（dsf=3 → 2，与 `pal/screen-adapter/web` 源码一致）；
+  backing store 比 `786/393 = 2` 与之相等（即"由 canvas `width/clientWidth` 反推 dpr"这条备选在本产物上也成立）。
+- **`framework:sync:check` 现状为绿**：本轮 sync 时工作树的并行改动已不在 `games/beads/src/**`（`git status` 仅 ctx/knowledge/memory/production 在改）⇒ **未出现"因他人改动而红"**，无需代为修复。
+- **breakout 附带复验（B2 要求：Q1=A 时需一并复验）**：同样**重建产物**后探针（800×600，打桩 `app.input.push`，点页面 (300,400)）
+  ⇒ dsf=1 push **(300,400)**、dsf=2 push **(300,400)**（修前 dsf=2 应为 (600,400)）；两档均无页面错误；
+  `touch-normalize.ts.meta` 亦由 CLI 构建自动生成，产物内 `normalizeCocosTouch` 命中 7 处。
+  ⚠ 只验到**数据流**这一层，**未**验 breakout 玩法手感（挡板跟手 `[B]` 目视道次未做，本单不做）。
+
+**⑥ 残留 / 不得归零**
+- ⛔ **`[R]` 微信小游戏宿主未验**：`pal/input/minigame/touch-input.ts` 源码同形（左下原点 + ×pixelRatio，**无 2 封顶**），
+  但无 AppID、无真机 ⇒ 未实测。解除条件同 A2（AppID + `build:cocos:wx` 出包 + 用 A6 探针在 `wx` 宿主复取三 accessor 与 push 值）。
+  **真机首验必须把"点击落点 / 托盘选中"列为 P0 检查项**（ADR-0011 §4.2(10)）。
+- ⛔ **BD-34（`_readInput` 仅在 `_stepPlaying` 内）不在本单**：`game-over` 下 `_readInput` 调用数仍为 0，属 **WXG-T-100**，用户已拍板本轮不动码。
+- ⛔ **A05-09 本体仍 ⛔**（探针与 `test-cases` 需按新主体同改后复跑，成员无 `production/**` 写权限）。
+- 本单**未引入任何新游戏数值**，`systems-index §3` 零改动；`games/beads/src/**`、`dev/harness/**` 零改动。
+- **主理人独立复核（2026-09-15）**：`node production/qa/beads/cocos-input-probe.mjs` ⇒ **退出码 0**，汇总 **PASS 18 ｜ FAIL 0 ｜ ⛔ 2**（DEV-01 微信宿主、DEV-02 wechatgame 构建缺 AppID，**未记 PASS 亦未记 FAIL**），耗时 23.3s，**可复跑**。探针自带 `SELF-01` 判据自检（把 T-104 记录的**修复前**数字喂同一批判定函数，四个判定函数全部返回不通过）⇒ 判别力有反例证明，非恒真。落盘：`production/qa/beads/cocos-input-probe.mjs`、`evidence/cocos-input-probe.log`、`evidence/cocos-input-*.png`（beads 12 张 + breakout 4 张）、`evidence/cocos-input-probe-g1g2-subset.log`。**关键实测**：R1 点可见 (478.6,496.6) ⇒ `traySelected=0`、`_pointer=(76.70,413.17)`；点镜像 (478.6,223.4) ⇒ `-1`、`_pointer=(76.70,920.83)`；R2 push 与页面坐标 Δ=(0.4,0.4)（旧式差 273.6px）；R3 dsf 1/2/3 三档 push 完全一致（两两差 0.0px），`raw.x`=479/958/958 证明 ÷dpr 真被行使；`[B]` 像素级 beads 亮像素簇心 479.0 vs 点击 478.6、breakout 位移 135.0px vs 期望 134.9px。**未 commit / 未 push。**
+- **成员遗留未决问题（待拍板）**：**① 是否纳入 CI/`verify`**（推荐 A：不纳入，依赖 Cocos 产物 + 浏览器，全量 verify 会变重；B 只文档登记命令；C 纳入 `verify-all.mjs` STEPS 需工程侧）；**② 判据是否回写 `production/qa/beads/test-cases.md §A`**（推荐 **B 倾向**：把 R1/R2/R3 升为三条硬判据用例，避免只活在本单日志里；A 维持现状；C 连 `smoke-tests.md` 图例加 `[B]` 道次）；**③ 真机首验 DEV-01 挂哪张单**（推荐 A 维持随 T-104 残留，真机可得时列 P0；B 另立单但前置不可执行；C 合入发布前 checklist）；**④ 是否接受「探针不覆盖画布非铺满窗口」边界**（本产物 canvas 恒 100% 铺满；推荐 A 接受并登记，B 另派工程侧加 viewport 非全屏测试）。
+- **成员门禁建议（转呈编排者裁决）**：本单（证据固化）**PASS**；若把「宿主输入正确性」整体视作一道门，建议 **CONCERNS** —— G1 ✅（只读子集）／G2 ✅（744 例全绿）／**G3 未执行**（不属本单，且 `harness:build` 会写 `dev/harness/dist`，越出本单 Output Path 故未跑全量 verify）／G4 = 已执行硬判据全过 + `[R]` 真机一条 ⛔ 未测。
+- **用户裁定（2026-09-15）**：本单未决 ② 采 **B 倾向** ⇒ 判据回写另立 **WXG-T-109**（派严守真）；①③④ 维持现状不立新单。
+
+## WXG-T-109
+
+- **名称**：**Cocos 输入 R1/R2/R3 回写为 `test-cases.md` 硬判据**
+- **负责**：严守真(quality-lead)　**状态**：📋 已立项（待施工；**用户已批准写入 `production/qa/beads/test-cases.md`**）　**P2**
+- **背景**：WXG-T-108 已把 R1（点可见位置命中 / 点镜像位置不命中）、R2（`InputManager.push` 的 y ≈ 页面 pageY）、R3（dpr=1/2/3 封顶 2 下同一可见点落点一致）固化成**可复跑探针** `production/qa/beads/cocos-input-probe.mjs`（PASS 18 ｜ FAIL 0 ｜ ⛔ 2，主理人独立复跑退出码 0）。但**这三条只活在本单的探针与日志里，QA 五件套的 `test-cases.md` 未收录** ⇒ 下轮回归若只跑用例表，仍会漏掉这一类缺陷（本仓已因此重复踩过四次同类坑）。
+- **Deliverables**：① 在 `production/qa/beads/test-cases.md` **新增三条硬判据**（编号/分组按该文件既有体系，由你按 `wxgame-qa-gates` 规范决定并**在回传中说明选号理由**）；② 每条须写明：**判据原文** / 环境标签（`[N]`·`[B]`·`[R]`）/ **预期值来源**（指向 WXG-T-104 实测、`ADR-0011 §3(e)`、以及探针 `cocos-input-probe.mjs` 的对应用例 ID）/ 当前状态；③ 同步该文件顶部 **§A.0 实测状态回填表**（若存在此表）；④ **不得把 ⛔ 记为 PASS** —— DEV-01（微信宿主）、DEV-02（wechatgame 构建缺 AppID）须记 ⛔ 并写解除条件；⑤ 回写后**自证**：三条判据均能在探针里找到对应可执行用例。
+- **权威来源**：`production/TASKS-DETAIL.md` 的 `## WXG-T-108` 小节（含主理人复核的实测数字）> `production/qa/beads/cocos-input-probe.mjs` > `docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md` §3(e) > `packages/framework/src/adapters/cocos/touch-normalize.ts`。
+- **Output Path**：`production/qa/beads/test-cases.md`（**主产物**）；如需补证据放 `production/qa/beads/evidence/`。**禁改**：`packages/**`、`games/**`、`docs/**`、`systems-index §3`、`production/qa/beads/` 之外的 `production/**`（台账主表与状态回填由主理人执笔）。
+- **必读 skill**：`my-skills/wxgame-qa-gates/SKILL.md`（**必须**）；另读 `AGENTS.md`、`production/qa/beads/test-cases.md`（先摸清其编号与分组体系再落笔）。
+- **约束**：严守真默认 readonly，本单**已获用户批准**写入上列路径，不得越界；不 commit/push；不把未执行项记为通过。
+
+### 完成记录（严守真 quality-lead，2026-09-15 · 已落盘 · **未 commit / 未 push**；状态行与台账主表由主理人回填）
+
+**① 落盘清单**（全部在已批准的 Output Path 内，未越界）
+
+| 文件 | 动作 | 说明 |
+| --- | --- | --- |
+| `production/qa/beads/test-cases.md` | **改**（v1.5 → **v1.6**） | 新增 **§I 宿主坐标归一化判据**（3 条硬判据 `TC-COORD-01..03`）+ **§I.2 ⛔ 未测道次** + **§I.3 自证映射表**；同步 §A.0（新增 `A.0b` 增量块）+ 文首图例 + 分组汇总表 + 变更记录 |
+| `production/qa/beads/evidence/t109/cocos-input-probe-t109.log` | **新增** | 本轮复跑探针证据（每条含「预期（先写）/ 实测」） |
+| `production/qa/beads/evidence/t109/cocos-input-*.png`（16 张） | **新增** | 本轮 `[B]` 目视截图（独立目录，**不覆盖** T-108 冻结证据） |
+
+**② 新增用例编号与选号理由**：**新开 §I 一节，三条用例编号 `TC-COORD-01 / 02 / 03`**（= T-104 A4 的 R1 / R2 / R3）。
+
+- **为何单开一节**：本文件组织法 = 「每一节 = 一个判据来源家族」（§A=GDD §8 / §B=systems-index/accesibility / §C=score-combo §8 / §D=powerups §8 / §E=core-loop §2.2.2 帧内序 / §F=ux-spec / §G=可感知规格层 / §H=未映射 §8 补编）。R1/R2/R3 来源是 **`ADR-0011 §3(e)` + `T-104·A4`**，**既非 §8、也非 §G 的规格层** ⇒ 并入 §A 会破坏「50 条 = 5 组 × 10」的 1:1 计数、并入 §G 会污染其来源谱系 ⇒ **新开 §I**。
+- **为何取 `TC-COORD-*` 而非 `TC-HOST-*`**：探针里 `HOST-01/02/03` 是「宿主 **accessor 级**」断言的另一组 ID，同名会混。`R1/R2/R3` 保留在「判据代号」列，与 `judgeR1/2/3` 同名，使 `T-104 A4 ↔ 探针用例 ID ↔ 本表` 三向可对。
+
+**③ 三条判据 ↔ 探针用例 ID 映射（自证，一一对上）**
+
+| 本节用例 | 判据原文（来源） | 环境 | 探针 `cocos-input-probe.mjs` 用例 ID | 判定函数 | 本轮结论 |
+| --- | --- | --- | --- | --- | --- |
+| TC-COORD-01 | R1 端到端命中 + 镜像反证（`T-104·A4-R1` / `ADR-0011 §3(e)-1`） | `[N]` | `R1-01+R1-02`（+`R1-03+R1-04` 信箱 / `R3-02`+`R3-03` dsf2-3 端到端） | `judgeR1` | ✅ PASS |
+| TC-COORD-02 | R2 `InputManager.push` 的 y ≈ pageY（`T-104·A4-R2` / `§3(e)-2`） | `[N]` | `R2-01`（同族 `HOST-01/02/03`+`HOST-03b`；`BR-01`） | `judgeR2` / `judgeHost` | ✅ PASS |
+| TC-COORD-03 | R3 dpr=1/2/3（封顶 2）落点一致（`T-104·A4-R3` / `§3(e)-3` / `§4.2(0)`） | `[N]` | `R3-01` | `judgeR3` | ✅ PASS |
+| DEV-01 / DEV-02 | 微信宿主 / wechatgame 构建 | `[R]` / `[⛔]` | `DEV-01` / `DEV-02`（脚本内 `DECLARED_BLOCKED`） | —（仅登记，不判定） | **⛔ 未测**（**不记 PASS、不记 FAIL**） |
+
+**④ 本轮实跑（第一手，非引 T-108 日志）**：`node production/qa/beads/cocos-input-probe.mjs --out=production/qa/beads/evidence/t109 --log=…/t109/cocos-input-probe-t109.log` ⇒ **退出码 0 ｜ PASS 18 ｜ FAIL 0 ｜ ⛔ 2**（2026-09-15T14:03:12Z，耗时 23.2s）。关键实测与 T-108 记录**逐字一致**：R1 可见点 `(478.6,496.6)`⇒`traySelected=0`/`_pointer=(76.70,413.17)`、镜像点 `(478.6,223.4)`⇒`-1`/`_pointer=(76.70,920.83)`（guard 273.1px）；R2 push vs 页面坐标 Δ=(0.4,0.4)、反镜像 guard 273.6px；R3 三档 `push=(479,497)` 两两差 **0.0px**、`raw.x`=479/958/958。探针 `SELF-01` 以 T-104 **修复前**数字为反例，`judgeHost/judgeR1/judgeR2/judgeR3` 全返回不通过 ⇒ 判别力有反例证明。
+> **踩坑登记（供复用）**：① 探针**不自建 OUT_DIR**（在 `finally` 才 `mkdirSync`）⇒ 用非默认 `--out` 须**先手动建目录**，否则每条 `[B]`/截图用例 `ENOENT` 全 ⛔、退出码 2（本例首次复跑即撞此坑，二次建目录后复跑得 0）。② 用独立 `--out=evidence/t109` 落盘以**避免覆盖 T-108 冻结证据** `evidence/cocos-input-probe.log` 与同名 png。
+
+**⑤ §A.0 是否同步**：**已同步**——新增 `### A.0b WXG-T-109 轮回填（增量）` 块，只列**本轮真正执行过**的 5 行（TC-COORD-01/02/03 ✅ + DEV-01/02 ⛔）；上方 16 行 WXG-T-084 轮**未改**（追加不覆盖）。另更新：文首图例（追加 `[N]/[B]/[R]` lane 映射）、分组汇总表（新增 §I 行、**合计用例数 137 → 140**）、变更记录（v1.6 行）。
+
+**⑥ 未决问题（转呈主理人）**
+
+- **Q1 §I 是否纳入 CI/`verify`**（推荐 **A** 维持 T-108 决定：不纳入——依赖 Cocos 产物 + 浏览器，全量 verify 变重；B 只文档登记复跑命令；C 纳入 `verify-all.mjs` 需工程侧）。
+- **Q2 §I 的道次标记是否与文首图例彻底统一**（推荐 **A** 保留探针 lane `[N]/[B]/[R]` 并在 §I 节首给等价表，因这些用例**必须在探针语境**下读；B 全部改写为 `[Node]/[Cocos]/[Device]` 会与探针输出对不上）。
+- **Q3 真机首验（DEV-01）挂哪张单**（推荐 **A** 维持随 T-104/T-108 残留、真机可得时列 P0，与本单落盘口径一致；B 另立单但前置不可执行）。
+- **Q4 是否顺手把 `smoke-tests.md` 也加 §I 对应冒烟条**（推荐 **A** 本单不动——已超本单 Deliverable；B 另立小单把「宿主输入落点」加进冒烟主链路）。
+
+**⑦ 门禁建议（转呈编排者裁决）**：本单（判据回写）**PASS** —— 三条判据已回写、可与探针用例一一对上、⛔ 如实标注、§A.0 已同步。若把「宿主输入正确性」整体视作一道门，建议 **CONCERNS**：**G1 ✅**（未跑静态门，属只读文档单；探针自身过 `framework:sync:check`=exit 0）／**G2 未执行**（不属本单）／**G3 未执行**／**G4 = 本轮 `[N]/[B]` 硬判据全过（18/18）+ `[R]` 真机 2 道 ⛔ 未测**。
+
+**⑧ 已知风险与缓解**：① `[R]` 真机未验（`DEV-01`）——缓解=源码同形已读 + 真机首验 P0 清单（解除条件见 §I.2）；② §I 三条用例依赖 Cocos 产物 + 浏览器 ⇒ **不能进 `[CI]`**，须人工/主理人按命令复跑——缓解=探针自带退出码与 `SELF-01` 判别力自检；③ 本节结论**不含**画布非铺满窗口的 CSS 布局（本产物 canvas 恒 100% 铺满）与触屏事件序（探针走真实 mouse）——已随 T-108 登记，不属本单范围。
+
+**⑨ 下一 Task / 下游角色建议**：下游 = **主理人**（回填台账主表与状态行、裁定 Q1–Q4）；若后续要闭环真机，责任人 = **主理人/工程侧**（挂 `DEV-01` 首验 P0）。本单零 `src/**`、零 `systems-index §3`、零 `docs/**` 改动，未 commit、未 push。
+
+**⑩ 主理人独立复核（2026-09-15）**：`grep` 确认 **§I 已落盘**（`test-cases.md:396`，节标题含「缺陷 C1 回归闸门」）、**TC-COORD-01/02/03 在 §I.1**（`:408` 起，每条含判据原文 / 环境道次 / 预期值来源 / 探针用例 ID 映射三向可对）、**§A.0b 回填表**（`:46–48`，只列本轮真跑过的 5 行且未覆盖上方 T-084 轮原文）、**分组汇总表新增 §I 行**（`:183`，合计 137→140）。⛔ 标注如实（DEV-01/DEV-02 未记 PASS、亦未记 FAIL）。**审定：本单 PASS。**
+- **观察项（成员已报，不擅铸缺陷号，待裁）**：探针 `cocos-input-probe.mjs` **不自建 `OUT_DIR`**（在 `finally` 才 `mkdirSync`）⇒ 用非默认 `--out` 时须先手建目录，否则截图用例 `ENOENT` 全 ⛔、退出码 2（首次复跑即中招）。探针已冻结为 T-108 证据，**成员未擅改** —— 处置建议：随 T-108 的后续维护一并修（**一行级**），**不另立单、不铸 BD 号**。
+- **主理人裁定（Q1–Q4）**：**Q1 = A**（维持不纳入 `verify`／CI —— 依赖 Cocos 产物 + 浏览器，全量 verify 会变重）；**Q2 = A**（**保留探针 lane `[N]/[B]/[R]`** 并在 §I 节首给等价表 —— 与探针输出对得上比「统一 + 文首图例」更重要）；**Q3 = A**（真机首验维持随 T-104/T-108 残留，真机可得时列 P0）；**Q4 = A**（本单不动 `smoke-tests.md`，超 Deliverable）。
+
+## WXG-T-110
+
+- **名称**：**宿主行为测试守卫（warn 级，非 fail-closed）**
+- **负责**：程基岩(engineering-lead)　**状态**：📋 已立项（待施工）　**P2**
+- **背景**：`control-manifest §17`（WXG-T-107 落盘）要求「新宿主 / 新引擎适配器接入必须有 Node **行为测试**」，但该约束目前**只能靠 §12 提交前自查表人工执行**，无机械守卫 ⇒ 会重演「清单写了但无人对照」的老问题。
+- **⚠️ 用户裁定（2026-09-15，重要）**：先做 **warn 级**观察一轮，**不做 fail-closed**。理由：当前只有 Cocos 一个宿主适配器，fail-closed 无真阳性、易成噪声。**不得擅自升级为阻断。**
+- **Deliverables**：① **守卫脚本**：扫 `packages/framework/src/adapters/*/`，对每个含输入归一化 / 触摸归一化模块的引擎适配器，检查是否配对 `packages/framework/tests/adapters/<引擎>-touch-normalize.test.ts`（或等价**行为**测试文件）；② 输出为 **WARN 且不阻断**（退出码 0），并在输出中写明**何时可升 fail-closed**（建议条件：出现**第二个**宿主适配器时）；③ **明确排除源码级正则断言** —— 只扫源码文本不算配对（§17 明令禁止其当交付），需识别出真正的可执行行为测试；④ 挂载位置由你判断（独立脚本 + `package.json` script，或并入 `verify-all.mjs` STEPS），但**不得破坏 `verify` 的「逐项执行、永不短路」语义**（WXG-T-095 / BD-17 硬约束，禁止改回 `&&` 串链）；⑤ **自证双向实测**：有配对 ⇒ 静默/绿；人为移除或改名 ⇒ 报 WARN 且退出码仍为 0。
+- **权威来源**：`docs/architecture/control-manifest.md` **§17**（含 4 处交叉引用：§6 / §12 / §13×2）> `production/TASKS-DETAIL.md` 的 `## WXG-T-107` 与 `## WXG-T-104` 小节 > `packages/framework/tests/adapters/cocos-touch-normalize.test.ts`（现有正例）。
+- **Output Path**：`tools/scripts/` 或 `packages/framework/`（你判断并回传）；如需改 `package.json` / `tools/scripts/verify-all.mjs` 一并包含。**禁改**：`games/**/src/**`、`systems-index §3`、`docs/architecture/control-manifest.md`（已落盘，本单不动）、`docs/architecture/adr/**`、`production/**` 除 `TASKS-DETAIL.md` 的 `## WXG-T-110` 小节外的一切。
+- **必读 skill**：`my-skills/wxgame-adr-arch/SKILL.md`；另读 `AGENTS.md`、`docs/architecture/control-manifest.md`、`docs/agent/commands.md`（`verify` 语义）。
+- **约束**：先问再写；本单**已授权**你落上列 Output Path；不 commit/push；**不得把守卫升级为阻断**。
+
+### 完成记录（程基岩 engineering-lead，2026-09-15 · 已落盘 · **未 commit / 未 push**；状态行与台账主表由主理人回填）
+
+**① 落盘清单**（全部在已批准 Output Path 内；`docs/**`、`games/**/src/**`、`systems-index §3`、`production/**`（除本小节）零改动）
+
+| 文件 | 动作 | 说明 |
+| --- | --- | --- |
+| `tools/scripts/check-host-behavior-tests.mjs` | **新增** | §17 守卫：按宿主适配器扫「输入/触摸归一化模块」↔「行为测试」配对；默认 **WARN + 退出 0**；自带 `--selftest`（9 例，含反例判别力）与预留升级开关 `--fail-on-gap` |
+| `package.json` | **改** | 新增 `check:host-tests`、`check:host-tests:selftest` |
+| `tools/scripts/verify-all.mjs` | **改** | ①支持第 4 种状态 **`WARN`**（观察项：**不记 PASS**、**不影响退出码**，`--strict` 亦然 —— 不违反「不得升级为阻断」）；②`STEPS` **追加** `check:host-tests`（15 项，仍**逐项执行、永不短路**，未动 `&&`）；③合成自测 9 → **12** 例；④去掉硬编码「14 项」措辞（防脱钩） |
+| `production/TASKS-DETAIL.md` | **改** | 本小节（追加，未删改既有内容） |
+
+**② 守卫判定口径**（脚本头注 + 运行输出「② 判定口径」双份可查）
+
+- **检查面**：`packages/framework/src/adapters/<引擎>/` 下任一 `.ts`（非测试）满足其一即视为归一化模块：**(a)** 文件名含 `normaliz`（§17 自己规定的命名约定）；**(b)** AST 判定文件**导出了名字含 `normaliz` 的函数**（`export function` / `export const`）。注：这里只是**探测「有没有这类模块」**，不充当语义断言 —— §17 禁止的是「拿正则当语义交付的证据」，不是禁止守卫识别文件（此点已在头注写明，避免自相矛盾）。
+- **配对 = 行为测试**（四条同时成立）：① 测试文件的 `import` 路径**解析到**该模块（支持 `./x.js`→`x.ts` 的 NodeNext 写法）；② 导入了至少一个**值绑定**（`import type` 不算）；③ 在测试体里**真的调用了**该绑定（`fn(...)` 或 `ns.fn(...)`）；④ 文件里有 `it(`/`test(` 用例。
+- **明确不算**（三类，均报缺口）：`MISSING_TEST`（无人 import）／`NOT_BEHAVIOR_TEST`（只 `import type`、或值导入却从不调用）／`SOURCE_REGEX_ONLY`（只 `readFileSync(源码)` + `toMatch(/…/)` 这类**源码级正则/文本断言**，§17 明令其不能当交付，输出单独点名）。
+- 实现手段：用 **TypeScript 编译器 API 的 AST**（非正则）判定 import/调用形态；正则只用于**识别**「疑似源码级断言」（仅作输出说明，不参与判定）。
+- **诚实边界（已知成本，非「已解决」）**：②③ 是**静态近似** —— 「import 且调用」不等于「断言真的覆盖了 ÷dpr 与 y 翻转」；真正的判别力仍在配对测试的**反例用例**（`cocos-touch-normalize.test.ts` 的 ②反向锁 / ⑨镜像反证；探针 `SELF-01`）。本守卫不检查归一化模块的**纯度**（不 import `cc` / 不碰 DOM）—— 那属 §17 另一条，L2/L3 与 `check:arch` 另有覆盖面，本守卫不越界。
+
+**③ 挂载位置与理由**：**并入 `verify-all.mjs` 的 `STEPS`（第 15 项）+ 独立脚本**。理由：§17 的痛点正是「约束只活在自查表里没人跑」⇒ 独立脚本单放等于重演该痛点；而并入 STEPS 若沿用既有三态，会**要么伪装成 PASS、要么在 `--strict` 下变成阻断**（两者都违反用户裁定）⇒ 故为聚合器新增语义自洽的第 4 态 **`WARN`**（🔶，不计 PASS、不改退出码）。`verify` 的「逐项执行、永不短路」语义**未动**（`--validate` 仍绿；`verify-all-selftest.sh` 全绿，含「注入失败项后后续仍执行」）。
+
+**④ 自证双向实测（2026-09-15，本机实跑）**
+
+| 场景 | 命令 | 结果 |
+| --- | --- | --- |
+| ① 有配对（现状） | `node tools/scripts/check-host-behavior-tests.mjs` | `STATUS: OK`、**exit 0**；cocos 配对 `tests/adapters/cocos-touch-normalize.test.ts`（值导入绑定被实际调用 1 个、9 个 it 用例） |
+| ① 经聚合器 | `verify-all.mjs --steps=check:host-tests --strict` | `✅ PASS check:host-tests`、**exit 0** |
+| ② 人为移除配对测试 | 同上（测试文件暂移出） | 守卫 `STATUS: **WARN**`、**exit 0**（缺口 `MISSING_TEST`）；经聚合器变 🔶 `WARN check:host-tests`、**exit 0**（`--strict` 下亦然） |
+| ② 升级开关（预留） | `… --fail-on-gap` | `STATUS: FAIL`、exit 1 —— 证明「升级 = 一步」真实可用，但**默认与 verify 均不使用** |
+| 守卫自测 | `pnpm run check:host-tests:selftest` | **9/9**（正例静默 + 6 个反例必报：改名/源码级正则/只 import type/值导入不调用/第二宿主/第二模块） |
+| 聚合器自测 | `pnpm run verify:selftest` | **全绿**（含合成 12/12、`--validate` 15 项、不短路、SKIP≠PASS 五步） |
+
+> 自证后**已还原**：目标文件 `cp` 回原位、`git status --porcelain -- <该路径>` 与改动前一致（该文件本就未跟踪 `??`，属 T-104/T-108 未提交产物，**未动他人改动**）。
+
+**⑤ 升级 fail-closed 的条件**（写进守卫运行输出「④」，且主判据**已机械化**、自报是否满足）
+
+1. **主判据**：**含输入归一化模块的宿主适配器数 ≥ 2**。现状 = **1**（cocos）⇒ 条件**未满足**，仍是观察期。（`canvas2d` 是第 2 个适配器目录，但**无**输入归一化模块 ⇒ 不计入本判据；这正是「只在第二个宿主出现时才有真阳性」的机械化表达。）
+2. 同一宿主在 CI 上出现过一次真实的「漏写行为测试」回归。
+3. §17 复评（ADR-0011 §5）结论要求收紧。
+   **升级方式（一行）**：`verify-all.mjs` 的 `STEPS` 把该项改为 `check:host-tests --fail-on-gap`，并把脚本 WARN 语义改判 FAIL。
+
+**⑥ 未决问题（转呈主理人，2–4 选项）**
+
+- **Q1 `docs/agent/commands.md` 出现措辞漂移**：该文件写「`verify` 全量门禁聚合器 …… **14 项**」，现为 **15 项**（本单新增 `check:host-tests`）。`commands.md` **不在本单 Output Path**，我未改。**推荐 A**：主理人另开小单（或随本单收尾）把该行改为「步骤表见 `--list`」的**非硬编码**写法，并补一行 `check:host-tests` 的用途/口径；**B** 就地只改数字 14→15（仍会再次漂移）；**C** 暂不动，登记为已知漂移。
+- **Q2 `WARN` 是否要推广到其它「观察项」**：本单为聚合器引入第 4 态。**推荐 A** 先只服务 `check:host-tests`，观察一轮再谈复用；**B** 立刻把 `check:tasks` 的 report-only 观察哨（H 项）也迁到 WARN 通道（统一语义，但扩大改动面）；**C** 不给 WARN 落文档（不推荐，会变成隐性约定）。
+- **Q3 守卫是否纳入 pre-commit**：本单只进 `verify`。**推荐 A** 维持（pre-commit 已被 BD-20 教训要求「只拦不写」，warn 级项进 pre-commit 收益低）；**B** 在 `.githooks/pre-commit` 加一条 warn-only 提示（需改 `.githooks/**`，超本单 Output Path）。
+- **Q4 第二个宿主的机械预警**：**推荐 A** 维持本守卫每次 `verify` 自报「含归一化模块的适配器数」（现状 1/2），升到 2 时自动提示「已达升级条件」；**B** 另立单在 `systems-index`/Epic 层登记「新宿主接入 checklist 含运行本守卫」。
+
+**⑦ 已知风险与缓解**
+
+1. **静态近似的误判面**（风险：把「import 且调用」误当「真行为测试」）—— 缓解：③ 的诚实边界已写在脚本头注与输出；真正的判别力靠配对测试的反例用例，且 §17/§12 仍保留人工项（机械守卫**不替代**自查表）。
+2. **`WARN` 第 4 态影响面**（风险：改动共享工具 `verify-all.mjs`）—— 缓解：不改退出码、`--strict` 不判红、原 9 条自测断言全部保留并**新增 3 条**专测 WARN；`verify-all-selftest.sh` 五步全绿；`--validate` 绿（防 `&&` 回退仍生效）。
+3. **升级条件依赖「适配器目录数」**（风险：新宿主若把归一化写进 `src/platform/**` 而非 `adapters/`，守卫扫不到）—— 缓解：本守卫会在输出里点明检查面路径；若新宿主选非 `adapters/` 落位，须同批扩检查面并复评（已列为 Q4 备选）。
+4. **无真机 / 无 AppID** 对本单**无影响**（纯静态守卫）。
+
+**⑧ 建议下一 Task / 下游角色**
+
+- 下游 = **主理人**：回填台账主表与状态行；裁定 Q1（`commands.md` 漂移，**建议就本单内一次改掉**，因它会立刻误导读者）。
+- 若 Q1 选 A：责任人 = **程基岩**（工程侧，`tools/scripts` + `docs/agent/commands.md` 小改单）。
+- 新宿主接入时（触发条件 1 达成）：责任人 = **程基岩**（升 fail-closed + 同批复刻 `<引擎>-touch-normalize.test.ts`），QA 侧由 **严守真** 把该判据收进 `production/qa/beads/test-cases.md`。
+
+**⑨ 明确回答主理人**：**守卫已落盘**（`tools/scripts/check-host-behavior-tests.mjs`，并已挂进 `verify` 第 15 项）；**默认退出码为 0（不阻断）**，含发现缺口时（`--strict` 亦然）；**已自证双向**（有配对 ⇒ `STATUS: OK` / exit 0；移除配对 ⇒ `STATUS: WARN` / exit 0；预留 `--fail-on-gap` ⇒ exit 1，未接入 verify）。未 commit、未 push。
+
+**⑩ 主理人独立复核（2026-09-15）**：本单动过**共享门禁聚合器** `verify-all.mjs`（新增第 4 态 `WARN`），属高风险改动，故逐项实跑：
+1. `pnpm run check:host-tests` ⇒ **`STATUS: OK`、EXIT=0**；输出自报「适配器 2 个 ｜ 含归一化模块 1 个 ｜ 缺口 0 ｜ PASS 1 ｜ WARN 0」，并把**升级 fail-closed 的触发条件**（含归一化模块的宿主适配器 **≥2** 个）机械写进结论。
+2. **「有缺口不阻断」独立复现**（把 `tests/adapters/cocos-touch-normalize.test.ts` 临时改名）⇒ **`STATUS: WARN`、缺口 1 项、EXIT=0**（不阻断成立）；**已还原并 `diff` 内容一致**，未留残迹。
+3. `pnpm run verify -- --validate` ⇒ **步骤表 15 项全部存在于 `package.json` 且 `verify` 仍指向本聚合器**（WXG-T-095 的「反 `&&` 串链回退」守卫仍生效）。
+4. `pnpm run verify` 全量 ⇒ **PASS 14 ｜ WARN 0 ｜ SKIP 1（check:size 未覆盖）｜ FAIL 0**（15 项），旧 14 项无回归。
+**审定：本单 PASS。** 判定口径（AST 识别而非正则、配对＝解析到模块 + **值导入** + **实际调用** + 有 `it(`、`SOURCE_REGEX_ONLY` 单独点名）与 §17 的「禁正则当交付」自洽，未自相矛盾。
+- **主理人追正 `docs/agent/commands.md` 漂移（成员 Q1）**：该文件仍写「verify …… **14 项**」且汇总表缺 `WARN` 态 ⇒ 由主理人执笔追正（同 T-098 · O4 先例，**成员 Output Path 不含该文件，守纪律未擅改**）：① 计数改为「**以 `--list` 为准，勿硬编码计数**」并去掉「后面 13 项」的硬编码；② 汇总表补 `PASS/WARN/SKIP/FAIL` 且写明 `WARN` = **观察期守卫（不计通过、不影响退出码、`--strict` 亦不判红）**；③ 新增 `check:host-tests` 一行（含判定口径与升级条件）。
+- **主理人裁定（Q2–Q4）**：**Q2 = A**（`WARN` 先只服务 `check:host-tests` 观察一轮，不外推）；**Q3 = A**（维持只进 `verify`，不进 pre-commit）；**Q4 = A**（维持每次 `verify` 自报「含归一化模块适配器 1/2」，达 2 时自动提示升级）。
+- **⚠️ 收尾时发现的既有红（非本单引入）**：`pnpm run ctx:check` 的 **C 项**（索引过期 19 个变更）已由主理人 `pnpm run ctx:build` 修复；重建后仅剩 **B 项单文件上限** 红 —— `memory/2026-09-12.md`(10141) 与 `memory/2026-09-14.md`(12586)，**属并行会话 WXG-T-106（memory 二级详情拆分）的在途工作**，非本单亦非本会话产物，主理人未越界处理。
+
+## WXG-T-123
+
+- **名称**：**QA 复测 `CLK-01`（BD-40 修复后产物）+ 勘误 §25.13 的 CLK-01 行 + 判据测量分辨率口径**
+- **负责**：严守真(qa)　**状态**：📋 已立项（待施工）　**P1**
+- **❗范围说明（先读，避免重复劳动）**：本单原拟两件事 —— ① 复测 `CLK-01`、② 屏幕层判据面修复（`§25.12.2` 的 P0 清单）。**② 已由并发 QA 会话完成并落盘为报告 `§25.13`（终轮：探针口径收敛后复跑）**，本单**只做 ① + 勘误 + 分辨率口径**，**不得重做 ②**、不得动已收敛的判据面。
+- **时间线（主理人已厘清）**：① `§25.12` 发现 BD-40 并列屏幕层 P0 修法；② **并发 QA 会话执行了该清单**（D5 阈值数据相对 / D5② 支撑上下限 / D6 采样与 rAF 解耦 / D6′ 逐样本真实时钟 / D7 自检不依赖本机帧长 / D8 补先验预期 / **D0 新增第三态 `⊘`**）⇒ 屏幕层判据面**已达标且跨轮稳定**（`P4S-00/01/02` 全绿；`P4S-03`/`P4S-01b` 记 **⊘** 拒绝判定）—— **但其 `CLK-01 = 2.003` 是在 `WXG-T-122` 修复**前**的 Cocos 产物上跑的**；③ **`WXG-T-122` 已修 BD-40**（`App.startHostDriven()` + 三道互斥守卫），工程自证 `CLK-01 = 0.999`（1.999 → 0.999），但该自证**被后续运行覆盖**、不在盘上，且**不替代 QA 复测**。
+- **Deliverables**：
+  1. **确认产物新鲜度**（`ENV-01` 自查须过：产物 mtime ≥ `packages/framework/src/**` 最新；`framework:sync:check` exit=0）—— `T-122` 已重建 `build:cocos:web`，预期直接过；若不过，**先回传**再重建。
+  2. **复跑 `production/qa/beads/beads-browser-probe.mjs`** ⇒ 预期 **`CLK-01` = 仿真/墙钟 ≈ 1.00（±0.10）⇒ PASS**（真源 `T-122` 工程自证 0.999）。**若仍 ≈2 ⇒ 那是重大发现（修复未生效或产物陈旧），立即停手回传，不得自行解读**。
+  3. **勘误报告 `§25.13` 的 `CLK-01` 行**（`2.003`）—— 加【`WXG-T-123` 注】：该读数系 **`WXG-T-122` 修复前产物**所测，**已被复测取代**；沿用「追加不覆盖」纪律，不改写原文。**同时**：`P4S-03` 在修复后产物的读数须重新取（修后墙钟口径 ≈2.01 次/秒，见 `T-122` 工程自证）⇒ 据实记（`PASS`/`⊘` 由判据面定，**不得因贴线而放宽**）。
+  4. **把「判据测量分辨率」写进判据口径**（`T-122` 主理人裁定 ①）：墙钟闪烁率类判据须声明**帧量化分辨率** —— 一帧 ≈16.7ms ⇒ 500ms 门的实测起点间距落在 500±8ms ⇒ 折算 **1.97–2.03 次/秒**；**2.01 属分辨率噪声，非真超线**。**只写口径，不改任何阈值**。
+  5. 证据落 `production/qa/beads/evidence/`（新 log + 确定性重跑自证）。
+- **权威来源（冲突以 A 为准）**：**A** `production/qa/beads/g4-regression-report.md` **§25.13**（判据面现行口径与 `⊘` 语义）+ **§25.12.3**（退出码契约）＞ **B** `production/TASKS-DETAIL.md` 的 `## WXG-T-122`（修复内容 + **CLK-01 自证 0.999** + 裁定 ① 分辨率口径）＞ **C** `production/qa/beads/beads-browser-probe.mjs`（**只读**，本轮不改判据面）＞ **D** `games/beads/design/gdd/systems-index.md §3.8`（≤2 次/秒，只读）。
+- **Output Path**：`production/qa/beads/g4-regression-report.md`、`production/qa/beads/evidence/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-123` 小节（**追加**）。**禁改**：`beads-browser-probe.mjs`（判据面已收敛）、`g4-probe-v1.1.mjs`、`games/**`、`packages/**`、`tools/**`、`systems-index §3`、其他成员台账小节。
+- **硬要求**：不把 ⛔/⊘ 写成 PASS；不放宽阈值；**判据面一字不改**；`[R]`（真机 1×）与 `[P]`（听感）仍 ⛔ 不代判；先问再写；不 commit/push。
+- **必读**：`my-skills/wxgame-qa-gates/SKILL.md`；`g4-regression-report.md` §25.13；`TASKS-DETAIL.md` 的 `## WXG-T-122` / `## WXG-T-123`。
+- **⚠️ 防超时纪律**：任何可能 >60s 静默的命令用重定向 + `tail` 或后台 + 轮询；先落盘台账与报告、再补证据。
+- **回传（固定结构）**：① 文件列表；② 摘要（产物新鲜度、`CLK-01` 实测、`P4S-03` 修后读数与判定、勘误内容、分辨率口径落点）；③ 未决问题；④ 风险与缓解（含 `[R]`/`[P]` 边界）；⑤ 建议下一 Task；⑥ **明确回答**：`CLK-01` 是否 ≈1.00、`§25.13` 勘误是否落盘、分辨率口径是否写入且未改阈值、有无放宽。
+- **完成记录（2026-09-16 · 严守真）—— 状态：✅ 交付完成（三项 Deliverables 全部落地，未动判据面）**：
+  - **Deliverable 1 产物新鲜度 ✅**：产物最新 mtime `1789515802`（web-mobile）≥ `packages/framework/src` 最新 `1789515641`（`bindings.ts`）；`framework:sync:check` **exit=0**；探针自证 `ENV-01 = PASS`（产物 mtime 晚于全源链 + 镜像守卫 OK）。**未重建**（T-122 已重建，预期直接过 ⇒ 事实过）。
+  - **Deliverable 2 `CLK-01` 复测 ✅ PASS**：修复后产物两轮 **1.002 / 0.997**（判据 ≈1.00±0.10；与 T-122 工程自证 0.999 一致）；**退出码 `1 → 0`、FAIL 0**；判定串两轮除 `P4S-01b`（⊘↔PASS 条件性翻转，§25.13 已声明）外逐字一致。正式轮计数 `PASS 13 ｜ PASS* 10 ｜ FAIL 0 ｜ ⛔ 4 ｜ ⊘ 2`。
+  - **Deliverable 3 勘误 ✅（追加不覆盖）**：`g4-regression-report.md` §25.13.0 末尾追加【WXG-T-123 注】——`CLK-01 = 2.003` 系 **T-122 修复前产物**所测，已被复测取代；原文一字未动；完整记录落新节 **§25.14**。
+  - **Deliverable 4 `P4S-03` 修后读数 ✅ 记 `⊘`**：判据面（探针 `DECLARED_INVALID`）硬编码无条件 `⊘`，本轮不改；读数据实登记 —— 直测 **2.02 次/秒**（正式轮，最小墙钟间距 495ms）/ **2.38 次/秒**（重跑轮，420ms，超出纯帧量化带宽，系起播检测对位移通道肩峰的敏感度所致）；换算交叉校验 ≈2.00 / ≈2.06。**既不因 2.02 贴线记 PASS，也不因 2.38 漂移改判 FAIL**。产品侧结论仍以 `P4S-02`（game 时基 ≥500ms ✓）与指令流层为准。
+  - **Deliverable 4b 分辨率口径 ✅（只写文字、未改阈值）**：§25.14.4 落档 T-122 裁定 ① —— 一帧 ≈16.7ms ⇒ 500ms 门实测起点间距 500±8ms ⇒ 折算 **1.97–2.03 次/秒**；带宽内读数（2.01/2.02）属分辨率噪声、非真超线，**不得据此放宽或收紧门限**；`§3.8` 冻结值与探针判据**一字未动**。带宽边界声明：只覆盖纯帧量化，重跑轮 2.38 超带宽属检测敏感度，不得读作判定。
+  - **顺带登记（探针文案滞留，不在本单修）**：§25.14.5 —— D12：`P4S-03` 正文仍硬编码「双驱动宿主不可测」理由（修后已单驱动，文案过时）；D13：重跑轮计数行「⊘ 1」与括注「P4S-01b, P4S-03」不符。均为文案/展示，不影响判定与退出码，建议并入下轮探针维护单。
+  - **改动文件**：`production/qa/beads/g4-regression-report.md`（§25.13.0 追加勘误注 + 新增 §25.14，共 +102 行）、`production/qa/beads/evidence/beads-browser-probe-t123.log`（新）、`evidence/beads-browser-probe-t123-rerun.log`（新）；截图/JSON 取样物由探针每轮覆写（盘上版本对应重跑轮）。**未改** `beads-browser-probe.mjs`、`games/**`、`packages/**`、`tools/**`、`systems-index §3`。**未 commit / 未 push**。
+  - **G4 建议（裁决权归主理人）**：维持 **CONCERNS** —— `CLK-01` 已闭合，剩余阻塞全部收束到真机首验（DEV-01）与探针维护单，无新实现缺陷。
+- **主理人独立复核（2026-09-16，事后非采信自述）**：
+  - **`CLK-01` 已核**（`beads-browser-probe-t123.log`）：**仿真/墙钟 = 1.002**（墙钟 2.513s / 仿真 2.517s / 151 固定步）⇒ **PASS** ✅；重跑轮 **0.997** ⇒ 两点与 `T-122` 自证 0.999 **三点一致**。**退出码 1 → 0，FAIL 0** ⇒ **BD-40 至此 `[B]` 道次闭合**。
+  - **勘误与口径已核**：§25.13.0 的【`WXG-T-123` 注】（`:1951`，**追加不覆盖**、原文零改动）✅；**§25.14**（`:2028`）+ **判据测量分辨率口径**（`:2080-2084`，折算带宽 **1.97–2.03 次/秒**）✅ —— **只写文字、阈值与 `§3.8` 冻结值一字未动** ✅。
+  - **特别肯定一处纪律**：`P4S-03` 直测读数**跨轮漂移 2.02 → 2.38**，**超出其自己刚写的纯帧量化带宽（1.97–2.03）** ⇒ 成员**没有**拿 2.02 贴线记 PASS，也**没有**因 2.38 改判 FAIL，而是**据实登记漂移 + 维持 `⊘`（拒绝判定）**，并把漂移成因指到「起播检测对位移通道肩峰的敏感度」。**带宽判据被自己的新数据顶穿时，正确动作是拒绝判定并追因，不是挑一个好看的数** —— 这是本单最值得留档的一笔。
+  - **门禁**：`check:tasks` **52 行 ⇔ 52 节**、`check:links` OK、`verify` PASS 14 / WARN 0 / SKIP 1 / FAIL 0 ✅。
+- **主理人裁定（成员四项未决）**：
+  1. **`P4S-03` ⊘ 的后续 = A（维持 ⊘，至真机首验一并复核）** —— 采纳其建议。理由：① 判据面本轮**禁改**（`§25.13` D10 裁定）；② 直测读数**跨轮漂移超出分辨率带宽** ⇒ 该测度对该宿主形态**本身不稳定**，此时重设判据面（B）是过早优化，**真机上拿同源读数再定才有意义**；C（拿 2.02 记 PASS）**否**。
+  2. **`D12`/`D13` 探针文案** = **并入下轮探针维护单**（与 §25.13.6-4 的 `P4S-01b` 测度纯净度增强同批），**不挂 backlog** —— 它们是「文案与展示失实」（会误导后人），属**活跃漂移**而非低优先欠账。
+  3. **G4 裁决 = 维持 `CONCERNS`** —— 采纳。`CLK-01` 闭合后剩余阻塞收束为：**DEV-01 真机首验（需 AppID，P0 含 `CLK-01` 同源复核 + wrong/告急观感）**、探针维护单、`beads` 主包红线仍无实测数据。**不得升 PASS**。
+  4. **主表状态行** ⇒ 本条已由主理人更新。
+  - **沉淀**：QA 提出的两条 K 候选（①判据读数须声明测量分辨率带宽，带宽内不判超线也不据此放宽；②修后复测先核产物新鲜度，防在陈旧产物上测出假 FAIL）**均采纳**，已入主理人经验库；建议下次 `tasks:archive` 时一并沉淀进仓内 memory。
+- **📥 待入库清单（2026-09-16 盘点 · 61 项 · 用户裁定：等并发入库会话收口后由主理人按序提交）**：
+  - **触发条件**：并发入库会话（HEAD `7e2565d` @ 08:21:43，正入库 WXG-T-119 的 docs/memory/knowledge）**停止产出 ≥30 分钟**方可动手。**⚠️ 该会话在 08:39–08:41 仍在 `temp/` 产出 beads 截图 ⇒ 截至本条登记时仍未收口**；`temp/` 系其在途产物，**勿清理**。
+  - **已随盘点完成**：`.gitignore` 已补 `production/qa/beads/evidence/**/*.json|*.png`（82 → 61 项噪音）；`/tmp/beads-evidence` 已清；残留 `serve-harness` 进程已终止。
+  - **提交分组（⚠️ 混笔文件须随行，勿按文件级拆）**：
+    1. **T-104**（C1 坐标归一化）：`packages/framework/src/adapters/cocos/touch-normalize.ts`(新)、`tests/adapters/cocos-touch-*.test.ts`×2(新)、`src/core/input/input-manager.ts`、`docs/architecture/adr/ADR-0011…md`、`docs/architecture/control-manifest.md`
+    2. **T-122**（BD-40 修复）：`src/compose/app.ts`、`src/adapters/cocos/loop-bridge.ts`、`tests/compose/app-host-driven.test.ts`(新)、`tests/adapters/cocos-loop-bridge.test.ts` —— ⚠️ **与 1 在 `bindings.ts` 混笔**（本单 4 行注释 + T-104 大半 diff）⇒ **1+2 同一笔提交**，message 双任务号
+    3. **T-102 + T-100/T-114**（beads BD-29 改码 + 真链）：`games/beads/src/{config/tuning,game/beads-game,view/view-model}.ts`、`tests/{feedback-vfx,helpers,phase-input-realchain}.ts` —— ⚠️ `beads-game.ts` 混笔随行
+    4. **T-115/T-117**（设计文档）：`games/beads/design/gdd/input-control.md`、`games/beads/design/ux/ux-spec.md`
+    5. **T-118/119/123**（QA 探针与报告）：`g4-probe-v1.1.mjs`、`g4-regression-report.md`、`test-cases.md`、`beads-browser-probe.mjs`(新)、`cocos-input-probe.mjs`(新)、`evidence/diag-t119-a05.mjs`(新，**按体例 .mjs 入库**；其 json/png 已忽略)
+    6. **T-121/T-110**（工具/门禁）：`tools/scripts/{selftests,verify-all,check-host-behavior-tests}.mjs`、`dev/harness/index.html`
+    7. **台账**（**最后**）：`production/TASKS.md`、`production/TASKS-DETAIL.md` —— ⚠️ 并发会话若也动台账，须先 `git add` 前复查其最新状态
+  - **镜像/meta 随行**：两游戏 `cocos/**/framework/**` 拷贝件由 `framework:sync` 产出，随组 1/2/3 对应任务走；各 `.meta`（Cocos 编辑器补生成，含 T-058 遗漏的 `ads.meta`）随最近一次涉及该目录的任务走。
+  - **✅ 已处置：`dev/harness/preview/*.svg` —— 判定「不需要记录」并已还原**（2026-09-16）。依据：报告 §BD-19（`:232`）明文登记 `preview:frames`「**不识别 `--help`、直接执行并覆写 `dev/harness/preview/level-{1..5}.svg`**」⇒ 该 +54/−14 是 **BD-19 已登记缺陷的副作用覆写**（跑 `preview:frames` 想看 help 却被脚本直接执行），**非任何任务的有意产出**；svg 本身是 `render-harness-frame.mjs` 的纯再生成产物。处置 = `git checkout -- dev/harness/preview/` 回到 HEAD 有意入库版。**防复发提示**：在 BD-19/B8 修复（`preview:frames` 支持 beads + 识别 `--help`）落地前，任何「想看 help」的调用都会再次覆写这 5 个文件。
+  - **体例提醒**（K-050 教训）：**提交不带 pathspec、逐组确认 staged 清单**；台账与归档收口须双向对账。
+
+## WXG-T-122
+
+- **名称**：**框架 · 宿主驱动权互斥（BD-40 宿主双驱动修复）**
+- **负责**：程基岩(engineering-lead)　**状态**：📋 已立项（待施工）　**P1**
+- **背景**：**BD-40** 由 `WXG-T-119`（`[B]` 道次探针）发现、主理人**代码级确证**：Cocos 宿主下 **仿真/墙钟 ≈ 2×**（实测 **1.999 / 2.029 / 2.005 / 2.003**，四轮稳定复现）。**`WXG-T-121` 只把 BD-40 挂上了检测门禁，修复本身此前无单** ⇒ 本单即修复单。
+- **根因（已确证，可直接采用）**：
+  - `packages/framework/src/compose/app.ts:121` —— `start()` **无条件** `this._schedule()`；`:158-169` `_schedule()` 用 `platform.requestFrame` **自驱** `tick`；
+  - `packages/framework/src/adapters/cocos/loop-bridge.ts:38-43` —— `CocosLoopBridge.start()` **先** `this._app.start()`（⇒ 触发自驱）**再** `this._scheduler.schedule(this._tick, 0)`（⇒ Cocos 又驱动一次）；
+  - `packages/framework/src/adapters/cocos/bindings.ts:105-108` —— 宿主**两者都接**。
+  - ⇒ `app.tick` 每墙钟帧被调 **2 次** ⇒ 游戏跑 ≈2 倍速。
+- **定性：设计意图与实现的脱节，不是宿主误用** —— `app.ts:141-146` 的 `tick()` docstring **明写**「Used by tests and by hosts whose engine owns the tick (e.g. a Cocos `Component.update`)」⇒ 框架**本就打算**让宿主自 tick，但 `start()` 没有提供关闭自驱的开关。
+- **后果（必须随修复一并声明）**：仿真/墙钟 ≈2× ⇒ 倒计时/动效/音频时长相对墙钟**减半**；**wrong 闪烁在墙钟口径 3.35–4.49 次/秒 > `systems-index §3.8` 的 2 次/秒** ⇒ **光敏性红线在宿主层被违反**（`T-102` 的游戏时基逻辑本身正确）。**真机同源风险**：`packages/framework/src/platform/weapp.ts:197` 亦有 `requestFrame` ⇒ **weapp 宿主的驱动权须在本单一并核实并写清结论**（若 weapp 无 bridge 则 `App.start()` 自驱是唯一驱动 ⇒ 单驱正确；若有同类 bridge 则同样双驱）。
+- **⚠️ 已知陷阱（修复时最易踩）**：`bindings.ts:108-110` 注释**明说** `CocosLoopBridge.start()` 调 `App.start()` 是**有意依赖** —— 为了让它做 **viewport re-fit**（`platform.getScreenSize()`），且「Doing this any earlier gets silently overwritten (observed 2026-09-13)」。⇒ **不能简单删掉 `app.start()` 调用**，否则 viewport fit 静默失效。修复必须**保住初始化语义**（`game.init` / `onHide/onShow` 挂接 / viewport re-fit），只把「**驱动权**」从初始化里**解耦**出来。
+- **修复方向（选型权归你，但须满足以下约束）**：
+  1. **向后兼容**：`App.start()` 的**默认**行为（无人声明宿主驱动）**保持自驱** —— harness、Node 单测、`render-harness-*.mjs` 全靠它，**不得破坏**。
+  2. **显式宿主驱动**：提供一种**显式**声明「驱动权归宿主」的方式（构造选项 / `start()` 选项 / 独立方法，**由你定**），宿主驱动模式下 `start()` 做**全部初始化**但**不 `_schedule()`**；`stop()` 在该模式下须安全（`_frameHandle` 为 null 时不得抛）。
+  3. **互斥防护（强烈建议）**：两种驱动**同时生效**时应**硬失败**（抛错或显式 WARN + 拒绝第二路），**不得静默双驱** —— 本缺陷能存活到今天，正是因为双驱是静默的。`CocosLoopBridge` 改用宿主驱动路径。
+  4. **行为测试**：`packages/framework/tests/compose/**`（已存在该目录）新增断言：宿主驱动模式下 ① `_schedule` 未启动（无 `requestFrame` 调用）；② 外部每墙钟秒调一次 `tick` ⇒ `loop.advance` 的固定步数 ≈ 预期（**1×**）；③ 双驱时**硬失败**。**用假 platform / 假 scheduler**（沿用 `tests/adapters` 现有假件风格）。
+  5. **`framework:sync`**：改 `packages/framework/src/**` ⇒ 必跑 `pnpm run framework:sync` + `framework:sync:check`（两游戏拷贝件同步）。
+- **验收标准**：
+  1. framework 行为测试全绿（含新增 3 条）；
+  2. `pnpm run framework:sync:check` OK；
+  3. `pnpm run verify` FAIL 0；
+  4. **Cocos web 产物重跑 `production/qa/beads/beads-browser-probe.mjs` 的 `CLK-01` ⇒ 仿真/墙钟 ≈ 1.00（±0.10）** —— 此项属 **QA 域复测**，工程侧**先自证单测**，复测由主理人另派；若你本地能顺带跑（`node production/qa/beads/beads-browser-probe.mjs`，**产物须重建**：`pnpm --filter @wxgame/beads run build:cocos:web`），可作为自证附在回传，但**不得替代 QA 复测**。
+  5. **`breakout` 同受影响**（共用 framework 拷贝件）⇒ 修复后其 Cocos 产物同样回到 1×；**不得顺手改游戏侧 src**（如确需，先回传）。
+- **权威来源（冲突以 A 为准）**：**A** `packages/framework/src/compose/app.ts`（`start`/`tick`/`_schedule`/`stop` 现实现 + `:141-146` docstring 的**设计意图**）＞ **B** `packages/framework/src/adapters/cocos/loop-bridge.ts`（全文 55 行，已确证）+ `bindings.ts:105-118`（**含 viewport 陷阱注释**）＞ **C** `production/TASKS-DETAIL.md` 的 `## WXG-T-119`（BD-40 四轮实测 + 效力边界）与 `## WXG-T-121`（**只挂了门禁，非修复**）＞ **D** `docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md`（**不得**与本修复耦合；viewport re-fit 语义仍归它管）。
+- **Output Path**：`packages/framework/src/compose/app.ts`、`packages/framework/src/adapters/cocos/loop-bridge.ts`（如需）、`packages/framework/src/adapters/cocos/bindings.ts`（**仅**适配新驱动权 API；**若需动它须在回传说明为何**）、`packages/framework/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-122` 小节（**追加**）。
+  **禁改**：`games/**/src/**`、`games/**/cocos/assets/scripts/**`、`production/qa/**`、`tools/scripts/**`、`systems-index §3`、其他成员台账小节。镜像拷贝件由 `framework:sync` 产出，**禁手改**。
+- **必读 skill**：`my-skills/wxgame-adr-arch/SKILL.md`；另读 `AGENTS.md`、`docs/architecture/control-manifest.md`（L4/L5）、`packages/framework/src/compose/app.ts` 全文、`loop-bridge.ts` 全文、`production/TASKS-DETAIL.md` 的 `## WXG-T-119` / `## WXG-T-121`。
+- **约束**：渲染层不持有状态（L5）；先问再写；不 commit/push；**若发现 weapp 宿主同样双驱，须如实登记并评估是否需同修，不得静默只修 Cocos**。
+- **后继（不在本单）**：① QA 复测 `CLK-01`（主理人另派）；② weapp/真机道次复核（需 AppID）；③ 屏幕层探针 P0 修法（T-119 裁定 ②，另单）。
+- **完成记录（2026-09-16 · 程基岩）—— 状态：✅ 工程侧交付完成（QA 复测 `CLK-01` 待另派）**：
+  - **驱动权 API 选型**：**独立显式方法 `App.startHostDriven()`**（备选：构造选项 / `start()` 选项）。理由：① `start()` 签名与默认行为**逐字节不变**（向后兼容硬约束零风险）；② 语义在调用点自解释；③ **`bindings.ts` 无需行为改动**（宿主仍只 `new CocosLoopBridge(app, this)`，驱动权改由 bridge 内部声明），避免触碰 `cc` 依赖的未验证文件。模式为**实例生命周期粘性**（`_hostDriven` 一经置位不复位）。
+  - **初始化语义保全（viewport 陷阱）**：两路 start 共用抽出的 `_init()`（`getScreenSize` → `viewport.resize` → `game.init` → `onHide/onShow` 挂接 → `_running/_lastFrameMs`）；`startHostDriven()` 只是**不调 `_schedule()`**。bindings.ts 的「必须 loop start 之后 `_fitToGameCanvas()`」时序前提原样成立（仅订正注释措辞：`App.start()` → `App.startHostDriven()`，行为零改动）。`stop()` 在宿主驱动下 `_frameHandle` 恒 null，原实现本就安全，新增测试钉死。
+  - **互斥防护（三道，全部硬失败，无静默双驱）**：① 自驱 App 上调 `startHostDriven()` → 抛错（正是 BD-40 接线形态）；② 宿主驱动 App 上调 `start()`（含 stop 后重启）→ 抛错（粘性驱动权，拒绝静默翻转）；③ `_schedule()` 内防御守卫 → 抛错（兜未来新调用路径）。自驱模式下手工 `tick()` **保持允许**（harness / 既有 13 例 app 测试依赖），互斥守卫放在**接线点**而非 tick 点 —— 这是与「向后兼容」约束的明确折衷，已在 `tick()` docstring 写明。
+  - **`CocosLoopBridge.start()` 改走 `app.startHostDriven()`**；对其余宿主零影响。
+  - **weapp 侧核实结论（`[R]` 未取证，代码级）**：微信真机产物（`games/breakout/cocos/build/wechatgame/game.js`）就是 **Cocos 壳** —— 真机宿主 = 同一套 `Bootstrap` + `CocosLoopBridge`，`detectPlatform()` 因 `wx` 存在返回 `WeappPlatform`（其 `requestFrame:197` 优先 `requestAnimationFrame`）⇒ **weapp 同样双驱**（T-119 探针的「同源风险」判断成立）。但**双驱源头是 framework 正本**（App 自驱 + bridge），不存在独立的 weapp bridge ⇒ 本修复经 `framework:sync` **自动同修 weapp 路径**，无需（也不得）改游戏侧。真机 1× 仍须 `[R]` 复核。
+  - **测试（`tests/compose/app-host-driven.test.ts` 新增 7 例 + `tests/adapters/cocos-loop-bridge.test.ts` 增 1 例）**：① 宿主驱动 start 后 `platform.hasPendingFrame === false` 且 pump 1000ms 零 update、init/viewport 全部完成；② 64 次 `tick(1/64)` ⇒ 64 固定步、`loop.time` = 1.0（1/64 二进制精确，期望值非容差游戏）；③ 自驱上 `startHostDriven` 抛错且第二路被拒（`scheduler.scheduled === false`）；另钉：粘性拒绝、幂等、`stop()` 安全、默认 `start()` 仍自驱 64 步/墙钟秒（向后兼容）。
+  - **验证数字**：framework vitest **281/281 绿**（30 文件）；`tsc --noEmit` OK；`framework:sync` 写入 3 文件/游戏 + `:check` OK；`pnpm run verify` **PASS 14 ｜ WARN 0 ｜ SKIP 1（既有 `check:size` 未覆盖项，非本单引入）｜ FAIL 0**。
+  - **CLK-01 工程自证（不替代 QA 复测）**：重建 `build:cocos:web` 后跑探针 ⇒ **CLK-01 PASS，仿真/墙钟 = 0.999**（墙钟 2.503s / 仿真 2.500s / 150 固定步；修复前 1.999）。顺带观察：P4S-03 墙钟有效闪烁 **2.01 次/秒**（修复前 3.35–4.49；§3.8 判据 ≤2）—— 已回到**贴线**量级，是否须为红线留余量归 QA/策划裁定，本单不判。
+  - **改动文件**：`packages/framework/src/compose/app.ts`、`src/adapters/cocos/loop-bridge.ts`、`src/adapters/cocos/bindings.ts`（**仅注释订正**，理由见上）、`tests/compose/app-host-driven.test.ts`（新）、`tests/adapters/cocos-loop-bridge.test.ts`（+1 例）；镜像拷贝件由 `framework:sync` 产出。**未 commit / 未 push**；主表 `TASKS.md` 状态行更新归主理人。
+- **主理人独立复核（2026-09-16，事后非采信自述）**：
+  - **API 已核**（`app.ts:62-66` `_hostDriven` 粘性标志、`:112-114` getter、`:120-131` `start()` 在宿主驱动态**抛错**）：两路 start **共用抽出的 `_init()`** ⇒ **viewport re-fit / `game.init` / onHide/onShow 全量保留** ✅ —— `bindings.ts:108-110` 那条「loop start 之后 `_fitToGameCanvas()`」的时序前提**原样成立**，陷阱避开了。
+  - **`loop-bridge.ts:49-50`** 已改走 `startHostDriven()` + `schedule(_tick, 0)` ⇒ **单驱** ✅。
+  - **CLK-01 自证已核**（`beads-browser-probe.log`）：**仿真/墙钟 = 0.999**（墙钟 2.503s / 仿真 2.500s / 150 固定步 ≈ 59.9 步/秒）✅ —— **1.999 → 0.999，BD-40 修复生效**。⚠️ 此项是**工程自证**，**QA 复测仍须另派**（不替代）。
+  - **❗`bindings.ts` 的「仅注释订正」属实，但有一处须补记**：该文件工作树 diff 为 **+89/−24**，**绝大部分是 `WXG-T-104` 的未提交笔**（`touch-normalize.ts` **不在 HEAD** ⇒ T-104 笔未提交；`normalizeCocosTouch` / `_touchSpace()` / C1 注释订正皆其产物）；**本单改动确实只有 4 行注释**（`App.start()` → `App.startHostDriven()`）。⇒ **提交时同文件两单笔随行，勿按文件级拆**（同 `WXG-T-102` 的教训）。**成员回传未声明此点，属回传完整性缺口**（非行为问题，已代为补记）。
+  - **门禁**：framework vitest **281/281**；`framework:sync:check` OK；`pnpm run verify` = **PASS 14 ｜ WARN 0 ｜ SKIP 1 ｜ FAIL 0** ✅。
+- **主理人裁定（成员四项未决）**：
+  1. **光敏红线贴线（`P4S-03` 墙钟 ≈2.01 次/秒）= 不改 500ms 门**。**理由**：2.01 与 2.00 之差在**帧量化分辨率内** —— 一帧 ≈16.7ms ⇒ 500ms 门的实测起点间距落在 500±8ms ⇒ 折算 **1.97–2.03 次/秒**，**2.01 属测量分辨率噪声，非真超线**。⇒ **登记**：下轮 QA 须把「**判据的测量分辨率**」写进判据口径（否则后人会拿 2.01 当超线、或据此反向放宽）；**不得**为过线而调门限 —— 那是 `§3.8` 冻结值（≤2 次/秒）的实现参数，**改它 = 改光敏性安全余量的设计**，须文策渊裁定并走 §3 流程，工程/QA 都无权自裁。
+  2. **`check:size` SKIP** → **backlog**（另议，不并入本单）。
+  3. **主表状态行** ⇒ 本条已由主理人更新。
+  4. **主表归档**（52 行 > 观察哨 20）→ **另议**；建议下轮跑 `pnpm run tasks:archive -- --detail-until-under=7000 --write`。
+- **BD-40 关单口径**：**限 `[N]`/`[B]` 已验**（CLK-01 = 0.999）；**真机 1× 留 `[R]` 复核** —— weapp 真机 = **同一 Cocos 壳** + `WeappPlatform` 自驱 ⇒ 本修复经 `framework:sync` **同修**（成员已核实「真机宿主即 Cocos 壳」），但无 AppID 未实测 ⇒ **不得据本单宣称「真机时长正确 / 真机不闪」**；真机首验 **P0** 须含 `CLK-01` 同源复核（`T-119` DEV-01 口径）。
 
 ## WXG-T-121
 
