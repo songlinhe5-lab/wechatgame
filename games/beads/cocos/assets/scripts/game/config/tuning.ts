@@ -372,10 +372,37 @@ export const PANEL_OUT_MS = 150;
 export const PANEL_SCALE_FROM = 0.9;
 
 // ────────────── §GAP-04/03/10 反馈态动效（来源：ux-spec §5 / art-bible §7，WXG-T-087）
-/** `wrong`（放错拒绝）：±px 抖动 ×2 + danger 描边闪 2 次的总时长（ux-spec §5 200）。 */
+/**
+ * `wrong`（放错拒绝）事件总时长（ux-spec §5:180 = 200）：±px 抖动 ×2（**位移通道**）与
+ * danger 描边**单次脉冲**共用同一 fx 窗口（`WRONG_FADE_IN_MS + WRONG_HOLD_MS +
+ * WRONG_FADE_OUT_MS` = 200）。
+ */
 export const WRONG_FX_MS = 200;
-/** `wrong` 水平抖动幅度（±px，art §7「位移 ±3px」；≤2 次/秒红线由 §3.8 保证）。 */
+/** `wrong` 水平抖动幅度（±px，art §7「位移 ±3px」；属位移，不在闪烁通道内，§5:180）。 */
 export const WRONG_SHAKE_PX = 3;
+/**
+ * `wrong` danger 描边**单次脉冲** α 包络分段（ux-spec §5:180，WXG-T-102/BD-29）：
+ * α 0→1 淡入 `WRONG_FADE_IN_MS`（ease-out）→ 峰值保持 `WRONG_HOLD_MS` → 1→0 淡出
+ * `WRONG_FADE_OUT_MS`（ease-in）。一次 fx 窗口内 **α 极值点 ≤1（不往复）** ⇒ 配合
+ * `WRONG_FX_RESTART_GATE_MS`，有效闪烁 ≤2 次/秒（`systems-index §3.8` 冻结值）。
+ * 属**反馈态动效参数**（同 `WRONG_FX_MS` / `HINT_PULSE_MS` 判例）⇒ 落 `tuning`，
+ * **不进 `systems-index §3`**。
+ */
+export const WRONG_FADE_IN_MS = 60;
+/** `wrong` 描边峰值保持段（ms，缓动的「峰值保持」项）。 */
+export const WRONG_HOLD_MS = 80;
+/** `wrong` 描边淡出段（ms，ease-in）。 */
+export const WRONG_FADE_OUT_MS = 60;
+/**
+ * 连续拒绝时的**反馈重启门**（ux-spec §5:180「视觉脉冲重启门 500ms」，与音频侧
+ * `AUDIO_REJECT_MIN_INTERVAL` = 0.5 s **同拍**，双通道一致）：自上次起播 `wrong` fx 起算，
+ * 门内到达的新 mismatch 不重启反馈，门外才重启 ⇒ 有效频次 ≤2 次/秒。
+ *
+ * ⚠️ 门禁**范围**的判断（描边 vs 抖动，见 `beads-game._armWrongFx`）：§5:180 字面把门
+ * 写成「**视觉脉冲**重启门」，但 §3.8 冻结值写的是「**抖动+描边闪** ≤2 次/秒」（两通道
+ * 一体的错误反馈事件上限）⇒ 本实现按 §3.8 **从严**，门禁**整个 wrong-fx 事件**。
+ */
+export const WRONG_FX_RESTART_GATE_MS = 500;
 /** `hint` / 引导脉冲呼吸周期（α 0.5↔1.0，600ms ≈1.67Hz，落 §3.8 ≤3Hz 红线内）。 */
 export const HINT_PULSE_MS = 600;
 /**

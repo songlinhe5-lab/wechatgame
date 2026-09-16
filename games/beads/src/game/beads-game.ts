@@ -63,6 +63,7 @@ import {
   TAP_HINT_NO_SELECTION_TEXT,
   AD_PLACEHOLDER_HINT_TEXT,
   WRONG_FX_MS,
+  WRONG_FX_RESTART_GATE_MS,
   TRAY_COLS,
   expandButtonLayout,
   trayLayout,
@@ -257,6 +258,11 @@ export class BeadsGame implements Game {
   private _pulseClock = 0;
   /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
   private _wrongFx: { row: number; col: number; elapsedMs: number } | null = null;
+  /**
+   * 上次起播 `wrong` fx 的时基（`_pulseClock` ms）。驱动**连续拒绝 500ms 重启门**
+   * （WXG-T-102/BD-29，`WRONG_FX_RESTART_GATE_MS`）；`-Infinity` ⇒ 首帧即允许起播。
+   */
+  private _wrongFxArmedAtMs = Number.NEGATIVE_INFINITY;
   /**
    * 一次性轻提示（BD-16 无选中点格 / BD-15 扩展位占位共用通道，ux-spec §5 WXG-T-097）。
    * 与 `_wrongFx` 同判例：表现层计时，`TAP_HINT_MS` 后自清，不占常驻分配。
@@ -502,6 +508,16 @@ export class BeadsGame implements Game {
 
   update(dt: number): void {
     if (!this._services) return;
+    // ── 输入段（相位无关，WXG-T-100 / BD-34）────────────────────────────────
+    // `_handleTap` 的相位路由表已写全四相位（`input-control §2.3 状态门禁`：
+    // PAUSED 仅暂停面板按钮；LEVEL_CLEAR / GAME_OVER / FINISH 仅各自面板按钮；
+    // BOOT 全部忽略），此前唯一缺口是 `_readInput()` 只被 `_stepPlaying()` 调用
+    // ⇒ 面板四相位收不到真链点击、面板按钮沦为空壳（真人永久卡死在暂停面板）。
+    // 读输入必须**先于** `machine.update()`：帧内序为
+    //   输入（段内序：状态指令 → 玩法事件）→ 连击窗 → 供料 → 计时
+    // （`core-loop §2.2.2` / `pause-settings §6`）；放到 `machine.update()` 之后
+    // 会把输入挤到计时之后，破坏该序。热路径零分配：`_readInput` 只写复用指针。
+    this._readInput();
     this._machine.update(dt);
     // Panel animation is presentation, not gameplay: it keeps running while the
     // world is frozen so the enter/exit ramp never stalls (ux-spec §5).
@@ -1157,12 +1173,14 @@ export class BeadsGame implements Game {
     this._stageIndex = n;
   }
 
-  /** One PLAYING frame: input → combo window → feed → countdown (fixed order). */
+  /** One PLAYING frame: combo window → feed → countdown (input is read in `update()`). */
   private _stepPlaying(dt: number): void {
-    this._readInput();
-
-    // Placement/stage completion can leave PLAYING within the input step
-    // (cleared-priority / C8 stage-first) — nothing else may run that frame.
+    // 输入段已在 `update()` 头部落下（相位无关，WXG-T-100 / BD-34）。此守卫保留
+    // 原语义——「读输入后若已离开 PLAYING（放置/阶段完成可在输入段内切相位：
+    // cleared-priority / C8 stage-first）⇒ 本帧不再跑供料 / 连击窗 / 倒计时」。
+    // 上提后该语义由**调用点**结构性地保证：`_readInput()` 若切走相位，
+    // `machine.update()` 会直接派发新相位的 `onUpdate` ⇒ 本函数根本不会被调用。
+    // 保留显式守卫作为该语义的锚点，并防未来新增调用点（如直接从别处驱动）时静默破约。
     if (this._machine.current !== 'playing') return;
 
     // Combo window (sprint only): placement already reset the window this
@@ -1554,7 +1572,7 @@ export class BeadsGame implements Game {
         // GAP-04 `wrong` 态：仅颜色不匹配（mismatch）触发拖动+danger 描边；
         // `invalid-color`（越界编程错）只 console.warn，不给玩家反馈。
         if (verdict.reason === 'mismatch') {
-          this._wrongFx = { row: verdict.row, col: verdict.col, elapsedMs: 0 };
+          this._armWrongFx(verdict.row, verdict.col);
         }
         if (this._mode === 'sprint') {
           const reason = this._sprint.onRejected();
@@ -1812,8 +1830,32 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * GAP-04 `wrong` 态起播（WXG-T-102 / BD-29）。连续拒绝受 **500ms 重启门**约束
+   * （`ux-spec §5:180`）：自上次起播（`_wrongFxArmedAtMs`）起算未满
+   * `WRONG_FX_RESTART_GATE_MS` 的新 mismatch **不重启**——
+   *   · 门内且当前 fx 仍在播 ⇒ 沿用其相位（不重置 elapsedMs）；
+   *   · 门内但 fx 已自然结束（>200ms）⇒ 本次**不给任何视觉反馈**。
+   * ⇒ 反馈有效频次 ≤2 次/秒，落 `systems-index §3.8`「错误反馈 抖动+描边闪 ≤2 次/秒」
+   * 冻结值（与音频侧 `AUDIO_REJECT_MIN_INTERVAL`=0.5s 同拍，双通道一致）。
+   *
+   * ⚠️ **门禁范围判断**（本单回传「500ms 门语义」）：§5:180 字面把门写成「**视觉脉冲**
+   * 重启门」，仅直接提描边；但 §3.8 冻结值是「**抖动+描边闪** ≤2 次/秒」——「错误反馈」
+   * 是**两通道一体的事件**。若只门禁描边、放抖动自由重启，则 100ms 连点可把抖动刷到
+   * 10 次/秒，按字面即违 §3.8。故本实现按 **§3.8 从严**：门禁**整个 wrong-fx 事件**
+   * （抖动与描边同进同退）。若裁定只门禁描边，去掉本方法的位移抑制即为一行放宽。
+   *
+   * 非每帧路径：仅在 mismatch 拒绝帧调用 ⇒ 无每帧分配顾虑（起播时才 new 一个 fx 对象，
+   * 与旧实现同）。
+   */
+  private _armWrongFx(row: number, col: number): void {
+    if (this._pulseClock - this._wrongFxArmedAtMs < WRONG_FX_RESTART_GATE_MS) return;
+    this._wrongFx = { row, col, elapsedMs: 0 };
+    this._wrongFxArmedAtMs = this._pulseClock;
+  }
+
+  /**
    * GAP-04 `wrong` 态推进（WXG-T-087）：与 `_stepComboVfx` 同判例——表现层，不被
-   * PAUSED 冻结。单次播放 `WRONG_FX_MS`（200ms，≤ 2 次/秒红线）；播完即清。
+   * PAUSED 冻结。单次播放 `WRONG_FX_MS`（200ms）；播完即清（重启门由 `_armWrongFx` 管）。
    */
   private _stepWrongFx(dt: number): void {
     const fx = this._wrongFx;

@@ -44,6 +44,10 @@ import {
   EXPAND_BTN_RADIUS,
   trayLayout,
   WRONG_SHAKE_PX,
+  WRONG_FX_MS,
+  WRONG_FADE_IN_MS,
+  WRONG_HOLD_MS,
+  WRONG_FADE_OUT_MS,
   HINT_PULSE_MS,
   DANGER_PULSE_MS,
   TRAY_FULL_PULSE_MS,
@@ -419,6 +423,29 @@ function dangerAlpha(clock: number, reduce: boolean): number {
 }
 
 /**
+ * `wrong` danger 描边**单次脉冲** α 包络（ux-spec §5:180，WXG-T-102/BD-29）：
+ * 淡入 `WRONG_FADE_IN_MS`（ease-out）→ 峰值保持 `WRONG_HOLD_MS` → 淡出
+ * `WRONG_FADE_OUT_MS`（ease-in），三段合计 `WRONG_FX_MS`＝200ms。一次 fx 窗口内
+ * **单峰**：α 极值点 = 1（不往复）⇒ 配合 game 侧 `WRONG_FX_RESTART_GATE_MS` 重启门，
+ * 有效闪烁 ≤2 次/秒（`systems-index §3.8`）。
+ *
+ * `p` = `wrongProgress` 归一化进度 0..1；按**毫秒分段**（分段常量取自 `config/tuning`），
+ * 纯函数、零分配（无闭包 / 无中间集合）——`buildRenderModel` 每帧可达路径。
+ */
+function wrongFlashAlpha(p: number): number {
+  const ms = p * WRONG_FX_MS;
+  if (ms <= 0) return 0;
+  if (ms < WRONG_FADE_IN_MS) {
+    const t = ms / WRONG_FADE_IN_MS; // 0..1
+    return t * (2 - t); // ease-out（进入）
+  }
+  const holdEnd = WRONG_FADE_IN_MS + WRONG_HOLD_MS;
+  if (ms < holdEnd) return 1; // 峰值保持
+  const t = (ms - holdEnd) / WRONG_FADE_OUT_MS; // 0..1
+  return t >= 1 ? 0 : 1 - t * t; // ease-in（退出）
+}
+
+/**
  * BD-10 满槽告警描边 α 呼吸：0.6↔1.0 @`TRAY_FULL_PULSE_MS`（幅度沿用告急同族，
  * 不新造第三档）；D1 减弱动效 → 退为**静态描边**（α=1，描边本身保留）。
  */
@@ -531,12 +558,10 @@ function drawGrid(
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
           drawStateRing(builder, bx, cy, BEAD_CELL, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
         }
-        // GAP-04 `wrong`：danger 描边闪 2 次（与抖动同格同帧）。
+        // GAP-04 `wrong`：danger 描边**单次脉冲**（与抖动同格同帧，WXG-T-102/BD-29）。
         if (isWrong) {
-          // D1 减弱动效：描边闪烁 → 静态红描边（α 恒 1；300ms 时长归 game 侧）。
-          const flash = snap.reduceMotion
-            ? 1
-            : 0.4 + 0.6 * Math.abs(Math.sin(snap.wrongProgress * Math.PI * 2));
+          // D1 减弱动效：单次脉冲 → 静态红描边（α 恒 1，**0 往复**；200ms 由 game 侧清除）。
+          const flash = snap.reduceMotion ? 1 : wrongFlashAlpha(snap.wrongProgress);
           drawStateRing(builder, bx, cy, BEAD_CELL, palette.danger, flash);
         }
         // BD-16（WXG-T-097）一次性轻提示：落在被点的**可落空格**格心（ux-spec §5）。

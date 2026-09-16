@@ -179,8 +179,10 @@ export function placeColor(
  * one-shot flags, so pushing before `advance()` would lose the tap.
  *
  * This is the only way to build a true "same frame" case: the tap must be
- * visible to the `_readInput()` call that runs at the head of `_stepPlaying`
- * (see `core-loop §2.2.2` 帧内序). Used by `frame-order.test.ts`.
+ * visible to the `_readInput()` call that runs at the head of `update()` — the
+ * phase-independent input segment (see `core-loop §2.2.2` 帧内序; moved out of
+ * `_stepPlaying` by WXG-T-100/BD-34). Used by `frame-order.test.ts` and
+ * `phase-input-realchain.test.ts`.
  * (`pause-settings.test.ts` carries a legacy file-local copy of this helper.)
  */
 export function tapInFrame(harness: Harness, designX: number, designY: number): void {

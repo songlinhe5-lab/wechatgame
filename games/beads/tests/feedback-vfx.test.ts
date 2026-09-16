@@ -36,6 +36,11 @@ import {
     TRAY_HIT_SIZE,
     TRAY_FULL_PULSE_MS,
     WRONG_SHAKE_PX,
+    WRONG_FX_MS,
+    WRONG_FADE_IN_MS,
+    WRONG_HOLD_MS,
+    WRONG_FADE_OUT_MS,
+    WRONG_FX_RESTART_GATE_MS,
     expandButtonLayout,
     trayLayout,
 } from '../src/config/tuning.js';
@@ -146,6 +151,128 @@ describe('T-087 GAP-04 wrong 态', () => {
         h.advance(0.35);
         expect(game.snapshot.wrongProgress).toBe(0);
         expect(game.snapshot.wrongRow).toBe(-1);
+    });
+});
+
+describe('WXG-T-102 wrong danger 描边单次脉冲 + 500ms 重启门（BD-29）', () => {
+    /** `wrong` 格的 danger 只描边环（与 view-model 的 `drawStateRing` 同形）。 */
+    const dangerRing = (cmds: readonly DrawCommand[]): RectCommand | undefined =>
+        cmds.find(
+            (c): c is RectCommand =>
+                c.kind === 'rect' && c.stroke === DEFAULT_PALETTE.danger && c.fill === undefined,
+        );
+
+    /** 给定归一化进度 `p`（0..1）时 danger 描边环的 α（无环 ⇒ 0）。 */
+    const alphaAt = (base: BeadsSnapshot, p: number, reduceMotion = false): number => {
+        const cmd = dangerRing(
+            renderSnap({ ...base, wrongRow: 0, wrongCol: 0, wrongProgress: p, reduceMotion }),
+        );
+        return cmd?.alpha ?? 0;
+    };
+
+    /** 造一个「已处于 wrong 态」的快照（(0,0) 空槽、需求色 1，给色 2 → mismatch）。 */
+    const wrongBase = (saveKey: string): BeadsSnapshot => {
+        const h = createBeadsHarness({ levels: [simpleTestLevel()], saveKey });
+        const slot = h.game.giveTrayBead(2);
+        expect(h.game.selectTraySlot(slot)).toBe(true);
+        expect(h.game.tapGridCell(0, 0)).toBe(false); // mismatch → 起播
+        h.advance(1 / 60);
+        const s = h.game.snapshot;
+        expect(s.wrongRow).toBe(0);
+        return s;
+    };
+
+    it('α 包络 = 淡入 60 → 保持 80 → 淡出 60，一次 fx 窗口内极值点 = 1（不往复）', () => {
+        // 分段常量自洽：三段和 = `WRONG_FX_MS`（规格 ux-spec §5:180「＝200ms」）。
+        expect(WRONG_FADE_IN_MS + WRONG_HOLD_MS + WRONG_FADE_OUT_MS).toBe(WRONG_FX_MS);
+
+        const base = wrongBase('wxgame.beads.test.t102-envelope');
+
+        // 分段锚点（ms）：淡入中点 → 0.75（ease-out）；保持中 → 1；淡出中点 → 0.75（ease-in）。
+        const inMid = WRONG_FADE_IN_MS / 2;
+        const holdMid = WRONG_FADE_IN_MS + WRONG_HOLD_MS / 2;
+        const outMid = WRONG_FADE_IN_MS + WRONG_HOLD_MS + WRONG_FADE_OUT_MS / 2;
+        expect(alphaAt(base, inMid / WRONG_FX_MS)).toBeCloseTo(0.75, 4);
+        expect(alphaAt(base, holdMid / WRONG_FX_MS)).toBeCloseTo(1, 6);
+        expect(alphaAt(base, outMid / WRONG_FX_MS)).toBeCloseTo(0.75, 4);
+        // 两端归零：窗口入口 α≈0、出口 α=0（单次脉冲 ⇒ 起点与终点同一水平）。
+        expect(alphaAt(base, 1 / WRONG_FX_MS)).toBeLessThan(0.05);
+        expect(alphaAt(base, 1)).toBeCloseTo(0, 6);
+
+        // 全窗采样 400 点：α 序列的**极值点**（峰 + 谷）计数 ≤1，且峰值命中 1。
+        const N = 400;
+        let prev = alphaAt(base, 1 / N);
+        let dir = 0; // +1 上升 / -1 下降 / 0 平台
+        let extrema = 0;
+        let max = prev;
+        for (let i = 2; i <= N; i++) {
+            const cur = alphaAt(base, i / N);
+            if (cur > max) max = cur;
+            const d = cur > prev ? 1 : cur < prev ? -1 : 0;
+            if (d !== 0) {
+                if (dir !== 0 && d !== dir) extrema++; // 方向翻转 = 一个极值点
+                dir = d;
+            }
+            prev = cur;
+        }
+        expect(extrema).toBe(1); // 旧实现 |sin(2πp)| 在此为 2 ⇒ 本断言锁死「单峰」回归
+        expect(max).toBeCloseTo(1, 6);
+    });
+
+    it('reduceMotion：退静态红描边（α 恒 1，0 往复）+ 抖动位移归零', () => {
+        const base = wrongBase('wxgame.beads.test.t102-reduce');
+
+        // 静态：窗口内多处相位 α 恒 1（无任何起伏 ⇒ 0 往复）。
+        for (const ms of [10, 60, 100, 140, 190]) {
+            expect(alphaAt(base, ms / WRONG_FX_MS, true)).toBeCloseTo(1, 6);
+        }
+
+        // 抖动位移归零：同相位下 reduceMotion 档的环 x == 落位 x（位移通道关闭）。
+        const at = (reduceMotion: boolean) =>
+            renderSnap({ ...base, reduceMotion, wrongProgress: 0.125 });
+        const shaken = dangerRing(at(false));
+        const still = dangerRing(at(true));
+        expect(shaken).toBeDefined();
+        expect(still).toBeDefined();
+        expect(shaken!.x - still!.x).toBeCloseTo(WRONG_SHAKE_PX, 3);
+    });
+
+    it('500ms 重启门：门内连点不重启（沿用相位 / 已结束则不给），门外重启', () => {
+        const h = createBeadsHarness({
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.t102-gate',
+        });
+        const game = h.game;
+        h.advance(1 / 60); // 进 PLAYING
+        const slot = game.giveTrayBead(2);
+
+        // t≈16.7ms：首次拒绝 → 起播 fx。此后连点都**不重新选中**（拒绝不取珠，选择留存）。
+        expect(game.selectTraySlot(slot)).toBe(true);
+        expect(game.tapGridCell(0, 0)).toBe(false);
+        h.advance(0.1); // +100ms ⇒ 相位 ≈ 100/200
+        expect(game.snapshot.wrongProgress).toBeCloseTo(0.5, 1);
+
+        // ① 门内、fx 仍在播（距起播 100ms < 500ms）：连点**不重启** ⇒ 相位继续推进。
+        expect(game.tapGridCell(0, 0)).toBe(false);
+        h.advance(1 / 60);
+        expect(game.snapshot.wrongRow).toBe(0);
+        expect(game.snapshot.wrongProgress).toBeGreaterThan(0.5); // 若重启会回落 ≈0.08
+
+        // ② 门内、fx 已自然结束（≈383ms，仍 <500ms）：连点**不给任何视觉反馈**。
+        h.advance(0.25);
+        expect(game.snapshot.wrongProgress).toBe(0); // 200ms 到点已清
+        expect(game.tapGridCell(0, 0)).toBe(false);
+        h.advance(1 / 60);
+        expect(game.snapshot.wrongProgress).toBe(0);
+        expect(game.snapshot.wrongRow).toBe(-1);
+
+        // ③ 跨过 500ms 门（≈950ms）：连点**重启** fx ⇒ 相位从小重新起。
+        h.advance(WRONG_FX_RESTART_GATE_MS / 1000 + 0.05);
+        expect(game.tapGridCell(0, 0)).toBe(false);
+        h.advance(1 / 60);
+        expect(game.snapshot.wrongRow).toBe(0);
+        expect(game.snapshot.wrongProgress).toBeGreaterThan(0);
+        expect(game.snapshot.wrongProgress).toBeLessThan(0.25); // 刚起播（非沿用旧相位）
     });
 });
 
