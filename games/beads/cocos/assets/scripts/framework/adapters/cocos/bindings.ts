@@ -231,6 +231,67 @@ export class Bootstrap extends Component {
     return { canvasHeightCss, dpr, windowHeight };
   }
 
+  /**
+   * WXG-T-129 诊断辅助：触摸 debug overlay（**运行时开关**，默认关闭、零开销）。
+   *
+   * 打开方式（微信开发者工具「真机调试」的 Console 里执行）：
+   *   `GameGlobal.__WXG_TOUCH_DEBUG = true`
+   *
+   * 画面：命中点画红色十字 + 圆圈（这就是游戏判定你点的位置 —— 若与手指实际
+   * 位置不符，偏移向量肉眼可见）；顶部 Label 显示三段数值：
+   *   loc = 引擎 getLocation() 原始输出（量纲混合态）
+   *   scr = 归一化后屏幕坐标（喂给输入管线的值）
+   *   dsn = scr 经 Viewport.screenToDesign 的设计坐标
+   * 把屏幕截图/数值发给主理人即可定位 BD-48 的真实变换公式。
+   */
+  private _drawTouchDebug(e: CocosTouchEvent, q: { id: number; x: number; y: number }): void {
+    const g = globalThis as {
+      __WXG_TOUCH_DEBUG?: boolean;
+      __wxgTouchDebug?: { gfx: Graphics; label: Label } | null;
+    };
+    if (!g.__WXG_TOUCH_DEBUG || !this._app) return;
+    try {
+      const canvas = this.node.scene.getChildByName('Canvas');
+      if (!canvas) return;
+      let dbg = g.__wxgTouchDebug;
+      if (!dbg || !dbg.gfx.isValid) {
+        const root = new Node('WXGTouchDebug');
+        canvas.addChild(root);
+        root.setSiblingIndex(root.parent!.children.length - 1);
+        const gfx = root.addComponent(Graphics);
+        const labelNode = new Node('WXGTouchDebugLabel');
+        root.addChild(labelNode);
+        const label = labelNode.addComponent(Label);
+        label.fontSize = 20;
+        label.color = new Color(255, 255, 255, 255);
+        labelNode.setPosition(0, 560);
+        dbg = { gfx, label };
+        g.__wxgTouchDebug = dbg;
+      }
+
+      const p = e.getLocation ? e.getLocation() : { x: 0, y: 0 };
+      const design = { x: 0, y: 0 };
+      this._app.viewport.screenToDesign(design, q.x, q.y);
+      // 设计空间（左下原点 750×1334）→ Canvas UI 空间（中心原点，y 向上）
+      const uiX = design.x - 375;
+      const uiY = design.y - 667;
+
+      dbg.gfx.clear();
+      dbg.gfx.lineWidth = 4;
+      dbg.gfx.strokeColor = new Color(255, 64, 64, 255);
+      dbg.gfx.moveTo(uiX - 24, uiY);
+      dbg.gfx.lineTo(uiX + 24, uiY);
+      dbg.gfx.moveTo(uiX, uiY - 24);
+      dbg.gfx.lineTo(uiX, uiY + 24);
+      dbg.gfx.circle(uiX, uiY, 26);
+      dbg.gfx.stroke();
+      dbg.label.string =
+        `loc ${p.x | 0},${p.y | 0} · scr ${q.x | 0},${q.y | 0} · dsn ${design.x | 0},${design.y | 0}`;
+    } catch {
+      // 调试辅助自身不得影响输入管线
+    }
+  }
+
   private _bindInput(): void {
     if (!this._app) return;
     // No mapPoint: the normalisation lives in `normalizeCocosTouch()` (a pure,
@@ -247,7 +308,6 @@ export class Bootstrap extends Component {
       now: () => Date.now(),
     });
     this._bridge = bridge;
-
     // Touch listeners only fire when touch-start lands inside the listening
     // node's UITransform rect. `this.node` is the 750×1334 design rect, which
     // leaves the letterbox bands dead on wide screens (observed 2026-09-13 in
@@ -260,7 +320,11 @@ export class Bootstrap extends Component {
     // 3.8.8: the dash form ('touch-start') is correct.
     host.on(
       'touch-start',
-      (e: CocosTouchEvent) => bridge.onTouchStart(readTouch(e, this._touchSpace())),
+      (e: CocosTouchEvent) => {
+        const q = readTouch(e, this._touchSpace());
+        bridge.onTouchStart(q);
+        this._drawTouchDebug(e, q);
+      },
       this,
     );
     host.on(

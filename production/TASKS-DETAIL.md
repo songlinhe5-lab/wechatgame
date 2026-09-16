@@ -1658,6 +1658,11 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
   - **单测**：新增 `tests/adapters/cocos-touch-wx.test.ts` 4 例 —— ① 四角+中心逆变换精确还原（toBeCloseTo 9 位）② **旧 web 公式同输入出错值**（判别力反例）③ space.dpr 非法退化有限值 ④ out 复用零分配。首版 ③ 例自摆乌龙（NaN 放进 raw 构造），已修正为「raw 由正常 dpr 产出、非法 dpr 只在 space 侧」。
   - **自证**：framework 测试 **285/285**；`framework:sync`+`:check` OK（镜像回填）；`verify` **PASS 15 ｜ FAIL 0**（守卫 check:host-tests 缺口 0）；`build:cocos:wx` **17.9s 出包成功**（产物含修复，待用户真机复测）。
   - **待办**：① **用户真机复测**（点托盘珠可选中 + 错色放置出红描边）⇒ 通过则 P0-2/P0-5 解除；② web 分支回归已由既有 cocos-touch-*.test.ts 守住（全绿）。
+- **🔧 诊断辅助：触摸 debug overlay（2026-09-16 · 主理人代行；用户真机复测报「点击事件仍对不上」）**：
+  - **触发**：BD-48 修复出包后用户真机复测仍偏移 ⇒ 需要可视化诊断手段（屏幕直读偏移向量 + 三段坐标数值），替代易被框架日志淹没的 console 采集。
+  - **实现**（`bindings.ts`，**运行时开关默认关闭、零常态开销**）：`_drawTouchDebug()` —— touch-start 时若 `GameGlobal.__WXG_TOUCH_DEBUG === true`：在 Canvas 下懒创建 `WXGTouchDebug` 节点（Graphics 十字+圆圈 @ 命中点设计位置 + Label 三段数值 `loc（引擎原始）/ scr（归一化后）/ dsn（设计坐标）`）；非微信同理可用。**不影响输入管线**（调试节点无触摸监听，不拦截事件；整段 try/catch）。
+  - **用法**：真机调试 Console 执行 `GameGlobal.__WXG_TOUCH_DEBUG = true` ⇒ 点屏幕任意处 ⇒ 十字标记即「游戏判定的点击位置」（与手指实际位置对比即偏移向量）+ 顶部数值。**采集到数值即可反推 BD-48 的真实变换公式**。
+  - 已随包构建验证（16.7s）；提交随本节。
   - **未 commit / 未 push**（主理人门禁入库）。
 
 ## WXG-T-128

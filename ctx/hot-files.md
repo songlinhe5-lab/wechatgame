@@ -79,6 +79,6 @@
 
 > 下列文件被 `ctx/ROUTES.md` 引用，但未进本表；其锚点行号请查 `ctx/index.json`（全量索引，机器读更划算）。
 
-- `production/TASKS-DETAIL.md`（112175 tok）
+- `production/TASKS-DETAIL.md`（112537 tok）
 
 > 另有 125 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。
