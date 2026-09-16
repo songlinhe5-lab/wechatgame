@@ -51,17 +51,21 @@ export interface BeadsPalette {
 }
 
 export const DEFAULT_PALETTE: BeadsPalette = {
-  background: '#F6F1E7',
+  // v1.3 丙案「双色温对撞」冷底 UI token（真源 = art-bible §3.1 v1.3 表；F1 消漂移）。
+  background: '#ECEAF3', // bg_base 冷紫灰（v1.2 暖米白 #F6F1E7 作废）
   panel: '#FFFFFF',
-  slot: '#EDE7DA',
-  slotBorder: '#D8D0C0',
+  slot: '#F7F6FB', // slot_fill（v1.2 暖 #EDE7DA 作废）
+  slotBorder: '#D8D5E6', // slot_border（v1.2 暖 #D8D0C0 作废）
   locked: '#B9B4CC',
-  text: '#33333D',
-  textDim: '#8B8578',
+  text: '#2A2E43', // text_primary 深藏青（v1.2 #33333D=珠色10 作废，避免与炭黑珠混）
+  textDim: '#6E7288', // text_secondary：28px 白底标签 4.74:1 达标（F7④ a11y 假绿根治；v1.2 暖 #8B8578≈3.7:1 作废）
+  // F6：textAccent（=珠色3 活力橙）收敛为中性需按 view-model 逐处路由（选中点→accent_blue /
+  // 连击径向光→白 / 结算星→金 / 主按钮·标签→深藏青），语义混杂不可盲改值；view-model.ts 正被
+  // 并发会话热写 ⇒ 本轮不改值，留待 view-model 阶段（台账 T-124 落码影响面已登记）。
   textAccent: '#F59B23',
-  danger: '#E84C3D',
+  danger: '#E8434A', // danger（对齐 art-bible §3.1；v1.2 #E84C3D=珠色5 作废，避免与玫红珠混）
   hintBlue: '#3D7BF5',
-  adBadge: '#FFCB3D',
+  adBadge: '#2A2E43', // ad_badge 深藏青（F6：v1.2 亮黄 #FFCB3D 抢焦点作废；白 ▶ 对比 13.4:1）
   bannerBackdrop: '#33333D',
   bannerText: '#FDF6E9',
 };
@@ -134,17 +138,29 @@ export function contrastRatio(a: string, b: string): number {
 // in `view/bead-render.ts`) so that `view/` holds no colour literals at all
 // (control-manifest §3 self-check: hex literals appear only in `palette.ts`).
 
-/** L0 drop shadow (`#1E2033`). */
+/** L0b drop shadow (`#1E2033`). */
 export const BEAD_SHADOW_HEX = '#1E2033';
 export const BEAD_SHADOW_ALPHA = 0.15;
-/** L0 shadow while `selected` (§1.2: α 0.15 → 0.25). */
+/** L0b shadow while `selected` (§1.2: α 0.15 → 0.25). */
 export const BEAD_SHADOW_ALPHA_SELECTED = 0.25;
-/** L4 highlight bar (`#FFFFFF`, α 0.38). */
+/**
+ * L0a 接触阴影（v1.3 十层卡 · F4）：贴底窄条让珠「坐」在面上；墨色复用 {@link BEAD_SHADOW_HEX}。
+ */
+export const BEAD_CONTACT_SHADOW_ALPHA = 0.12;
+/** L4 软高光墨色（`#FFFFFF`）——v1.3 三层 L4a/b/c 复用。 */
 export const BEAD_HIGHLIGHT_HEX = '#FFFFFF';
+/**
+ * v1.3 十层卡以 L4a/b/c 三层递减 α 软高光取代硬边单高光条（F4）。
+ * @deprecated 保留仅供 §1.2 empty/locked「无高光」断言与迁移期引用；bead-render 不再发射 α0.38 单条。
+ */
 export const BEAD_HIGHLIGHT_ALPHA = 0.38;
-/** L2 / L3 bevel tints of the bead base colour (§1.1: `mix(base, …)` amounts). */
-export const BEAD_BEVEL_DARK_MIX = -0.22;
-export const BEAD_BEVEL_LIGHT_MIX = 0.18;
+/** L4a/b/c 软高光三层不透明度（外扩递减、中心递增；累计中心 ≈0.48 / 边缘 ≈0.08）。 */
+export const BEAD_SOFT_HIGHLIGHT_ALPHAS: readonly number[] = Object.freeze([0.08, 0.16, 0.3]);
+/** L2 / L3 倒角混色（v1.3 加深/加亮：暗 −0.26、亮 +0.20；原 −0.22 / +0.18）。 */
+export const BEAD_BEVEL_DARK_MIX = -0.26;
+export const BEAD_BEVEL_LIGHT_MIX = 0.2;
+/** L3b rim 光混色（v1.3 新增：上内缘单线 `mix(base,#FFF,0.38)`）。 */
+export const BEAD_RIM_MIX = 0.38;
 
 // ─────────────────────────── empty-socket target-colour hint (assets-spec §1.2 E1/E4) ──
 //

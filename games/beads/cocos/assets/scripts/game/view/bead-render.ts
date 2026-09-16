@@ -2,8 +2,9 @@
  * Bead parameter card — the six layers of `assets-spec.md` §1.1, plus the two
  * non-`filled` state variants of §1.2.
  *
- * One bead = L0 投影 → L1 主体 → L2 暗倒角 → L3 亮倒角 → L4 高光条 → L5 符号, drawn
- * in that order. Everything here is a **pure function of its arguments**: it reads
+ * One bead = L0a 接触阴影 → L0b 投影 → L1 主体 → L2 暗倒角 → L3 亮倒角 → L3b rim 光
+ * → L4a/b/c 软高光（三层递减 α）→ L5 符号, drawn in that order (v1.3 十层卡 · F4 质感升级).
+ * Everything here is a **pure function of its arguments**: it reads
  * no game state and returns nothing (control-manifest §8) — which is what makes
  * the card testable by command inspection alone (`tests/bead-render.test.ts`).
  *
@@ -18,11 +19,13 @@ import { BEAD_CELL, TRAY_SLOT } from '../config/tuning';
 import {
   BEAD_BEVEL_DARK_MIX,
   BEAD_BEVEL_LIGHT_MIX,
-  BEAD_HIGHLIGHT_ALPHA,
+  BEAD_CONTACT_SHADOW_ALPHA,
   BEAD_HIGHLIGHT_HEX,
+  BEAD_RIM_MIX,
   BEAD_SHADOW_ALPHA,
   BEAD_SHADOW_ALPHA_SELECTED,
   BEAD_SHADOW_HEX,
+  BEAD_SOFT_HIGHLIGHT_ALPHAS,
   EMPTY_GHOST_ALPHA,
   EMPTY_TINT_MIX,
   beadColor,
@@ -41,22 +44,34 @@ import { beadSymbol, emitSymbol, symbolInk } from './symbols';
 export const BEAD_CARD = {
   /** Corner radius (`round(BEAD × 0.22)`). */
   radius: 0.22,
-  /** L0 shadow vertical offset (spec: `y − 3` in the 64 frame). */
+  /** L0a 接触阴影（v1.3 · F4）：贴底窄条，x/y/w/h 为边长比例，radius = 主圆角 × 0.5。 */
+  contactX: 0.06,
+  contactY: -0.02,
+  contactW: 0.88,
+  contactH: 0.1,
+  contactRadiusScale: 0.5,
+  /** L0b shadow vertical offset (spec: `y − 3` in the 64 frame). */
   shadowDy: 3 / 64,
-  /** L2 inset from the bottom/right inner edge (spec: 1.5). */
-  bevelInsetDark: 1.5 / 64,
-  /** L3 inset from the top/left inner edge (spec: 1). */
-  bevelInsetLight: 1 / 64,
-  /** L2 stroke width (spec: 3). */
-  bevelWidthDark: 3 / 64,
-  /** L3 stroke width (spec: 2). */
-  bevelWidthLight: 2 / 64,
-  /** L4 highlight bar: x / y / w / h / radius, all fractions of the edge. */
-  highlightX: 0.1,
-  highlightY: 0.62,
-  highlightW: 0.8,
-  highlightH: 0.26,
-  highlightRadius: 0.13,
+  /** L2 inset from the bottom/right inner edge (v1.3: 2/64, was 1.5). */
+  bevelInsetDark: 2 / 64,
+  /** L3 inset from the top/left inner edge (v1.3: 1.5/64, was 1). */
+  bevelInsetLight: 1.5 / 64,
+  /** L2 stroke width (v1.3: 5/64, was 3). */
+  bevelWidthDark: 5 / 64,
+  /** L3 stroke width (v1.3: 4/64, was 2). */
+  bevelWidthLight: 4 / 64,
+  /** L3b rim 光（v1.3 新增）：上内缘单线，内缩 1/64、线宽 2/64。 */
+  rimInset: 1 / 64,
+  rimWidth: 2 / 64,
+  /**
+   * L4a/b/c 软高光三层（v1.3 · F4，取代硬边单高光条）：外扩递减、中心递增叠层模拟柔光。
+   * x/y/w/h/radius 均为边长比例，α 见 {@link BEAD_SOFT_HIGHLIGHT_ALPHAS}。
+   */
+  softHighlight: Object.freeze([
+    { x: 0.06, y: 0.52, w: 0.82, h: 0.38, radius: 0.19 },
+    { x: 0.1, y: 0.6, w: 0.72, h: 0.26, radius: 0.13 },
+    { x: 0.16, y: 0.68, w: 0.56, h: 0.14, radius: 0.07 },
+  ] as const),
   /** §1.1 最小特征约束: no stroke below 2 design px. */
   minStroke: 2,
 } as const;
@@ -95,7 +110,19 @@ export function drawFilledBead(
   const radius = Math.round(size * BEAD_CARD.radius);
   const stroke = (ratio: number) => Math.max(BEAD_CARD.minStroke, size * ratio);
 
-  // L0 投影 — offset down by 3/64 of the edge, no stroke.
+  // L0a 接触阴影 — 贴底窄条，让珠"坐"在面上（v1.3 · F4）；固定 α，不随 selected 变化。
+  builder.rect(
+    left + size * BEAD_CARD.contactX,
+    bottom + size * BEAD_CARD.contactY,
+    size * BEAD_CARD.contactW,
+    size * BEAD_CARD.contactH,
+    {
+      fill: withAlpha(BEAD_SHADOW_HEX, BEAD_CONTACT_SHADOW_ALPHA),
+      radius: Math.round(radius * BEAD_CARD.contactRadiusScale),
+    },
+  );
+
+  // L0b 投影 — offset down by 3/64 of the edge, no stroke.
   builder.rect(left, bottom - size * BEAD_CARD.shadowDy, size, size, {
     fill: withAlpha(BEAD_SHADOW_HEX, options.shadowAlpha ?? BEAD_SHADOW_ALPHA),
     radius,
@@ -139,17 +166,27 @@ export function drawFilledBead(
     lightWidth,
   );
 
-  // L4 高光条 — one rounded bar in the upper third (left-top light).
-  builder.rect(
-    left + size * BEAD_CARD.highlightX,
-    bottom + size * BEAD_CARD.highlightY,
-    size * BEAD_CARD.highlightW,
-    size * BEAD_CARD.highlightH,
-    {
-      fill: withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_HIGHLIGHT_ALPHA),
-      radius: size * BEAD_CARD.highlightRadius,
-    },
+  // L3b rim 光 — top inner edge single line, brighter than L3 (v1.3 · F4).
+  const insetRim = size * BEAD_CARD.rimInset;
+  const rim = mix(base, BEAD_RIM_MIX);
+  builder.line(
+    left + insetRim,
+    bottom + size - insetRim,
+    left + size - insetRim,
+    bottom + size - insetRim,
+    rim,
+    stroke(BEAD_CARD.rimWidth),
   );
+
+  // L4a/b/c 软高光 — three stacked rounded bars，外扩递减 α / 中心递增 α 模拟柔光（v1.3 · F4，
+  // 取代 v1.2 硬边单高光条）。三层均在 L5 符号之下绘制 → 不影响符号对比（accessibility A5）。
+  for (let i = 0; i < BEAD_CARD.softHighlight.length; i++) {
+    const g = BEAD_CARD.softHighlight[i]!;
+    builder.rect(left + size * g.x, bottom + size * g.y, size * g.w, size * g.h, {
+      fill: withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_SOFT_HIGHLIGHT_ALPHAS[i]!),
+      radius: size * g.radius,
+    });
+  }
 
   // L5 符号 — the non-colour channel (colour-blind affordance).
   emitSymbol(builder, beadSymbol(colorIdx), cx, y, size, symbolInk(base).color);
