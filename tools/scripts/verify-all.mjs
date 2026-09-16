@@ -62,6 +62,9 @@ const STEPS = Object.freeze([
   'harness:build',
   'harness:smoke',
   // WXG-T-110：§17 宿主行为测试守卫。**新增门禁项一律追加在此，不加 `&&`**。
+  // WXG-T-121：装置自测分档 —— fast 档（≈6.5s）入常规门禁；heavy 档（≈26s）走 CI/手动。
+  'selftest:fast',
+  'check:host-tests:selftest',
   // 该步在 warn 观察期自报 `STATUS: WARN`（不阻断，见汇总表），升级判据见其自身输出。
   'check:host-tests',
 ]);
