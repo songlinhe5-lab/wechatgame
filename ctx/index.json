@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2432,
       "lines": 98,
-      "sha256": "82106fcc9340765665a988aa057c6db32dfd93e5cf2829de82980cd85ecb0c02",
+      "sha256": "0749cf4a52e69fa69e085dceb280aadb64e2a219011e7ec0f38527d8656a256a",
       "tier": "normal",
       "sections": [
         {
@@ -238,7 +238,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 450,
-          "summary": "1 production/TASKS-DETAIL.md 90693 1364 normal",
+          "summary": "1 production/TASKS-DETAIL.md 110815 1676 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -254,7 +254,7 @@
           "startLine": 46,
           "endLine": 73,
           "tokens": 886,
-          "summary": "production/TASKS-DETAIL.md 90693 见 ctx/budget-exempt.json（无豁",
+          "summary": "production/TASKS-DETAIL.md 110815 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3815,
       "lines": 84,
-      "sha256": "cc6fbc4595fa1887d498971a1442ca3aacf50bd3158a3338aa1a3d8de70678c3",
+      "sha256": "87638fcee97d2ddce6ec19c8d94c1dacbc5c8d78dd18a3656da6c69c46fe814a",
       "tier": "normal",
       "sections": [
         {
@@ -43790,17 +43790,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 90693,
-      "lines": 1364,
-      "sha256": "57536731e00202e3fa899ddfd4a35092cb03f910300b943591c15232fed138f4",
+      "tokens": 110815,
+      "lines": 1676,
+      "sha256": "2159f8d36424a570adf2a5ed89242a010b2bc48dff82e31c5e9111c9b435e13b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1365,
-          "tokens": 90676,
+          "endLine": 1677,
+          "tokens": 110798,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -43927,8 +43927,8 @@
           "anchor": "§WXG-T-077",
           "level": 2,
           "startLine": 117,
-          "endLine": 134,
-          "tokens": 1445,
+          "endLine": 126,
+          "tokens": 859,
           "summary": "名称：Cocos G3 遗留收口——Label 真实宽度替换 + setAlign 空实现补齐（自 backlog「G3",
           "keywords": [
             "WXG",
@@ -43941,8 +43941,8 @@
         {
           "anchor": "§WXG-T-078",
           "level": 2,
-          "startLine": 135,
-          "endLine": 144,
+          "startLine": 127,
+          "endLine": 136,
           "tokens": 521,
           "summary": "名称：tasks:archive 同号守卫（自 backlog「归档器缺同号守卫」立项； WXG-T-061 归档复核发",
           "keywords": [
@@ -43955,8 +43955,8 @@
         {
           "anchor": "§WXG-T-079",
           "level": 2,
-          "startLine": 145,
-          "endLine": 155,
+          "startLine": 137,
+          "endLine": 147,
           "tokens": 463,
           "summary": "名称：beads 工程接入 Cocos MCP —— 补齐 games/beads/cocos/settings/ 缺失",
           "keywords": [
@@ -43971,8 +43971,8 @@
         {
           "anchor": "§WXG-T-080",
           "level": 2,
-          "startLine": 156,
-          "endLine": 165,
+          "startLine": 148,
+          "endLine": 157,
           "tokens": 503,
           "summary": "名称：beads 可玩性 P0·GAP-01 空槽目标色美术规格裁定（阶段0全面复盘立项；用户拍板路线C「先修可玩性P0",
           "keywords": [
@@ -43984,8 +43984,8 @@
         {
           "anchor": "§WXG-T-081",
           "level": 2,
-          "startLine": 166,
-          "endLine": 175,
+          "startLine": 158,
+          "endLine": 167,
           "tokens": 472,
           "summary": "名称：beads 可玩性 P0·GAP-02/03/06 设计裁定 + ux-spec 内部矛盾消解（路线C，波次1）。",
           "keywords": [
@@ -43998,8 +43998,8 @@
         {
           "anchor": "§WXG-T-082",
           "level": 2,
-          "startLine": 176,
-          "endLine": 185,
+          "startLine": 168,
+          "endLine": 177,
           "tokens": 633,
           "summary": "名称：beads GAP-07/08 坐标空间契约 ADR + Cocos 双路径取证（路线C，波次1）。GAP-07 ",
           "keywords": [
@@ -44013,8 +44013,8 @@
         {
           "anchor": "§WXG-T-083",
           "level": 2,
-          "startLine": 186,
-          "endLine": 195,
+          "startLine": 178,
+          "endLine": 187,
           "tokens": 526,
           "summary": "名称：beads GAP-05 音频规格从零建档（路线C，波次1；beads 首次派工阮和鸣）。现状：design/ 无",
           "keywords": [
@@ -44027,8 +44027,8 @@
         {
           "anchor": "§WXG-T-084",
           "level": 2,
-          "startLine": 196,
-          "endLine": 205,
+          "startLine": 188,
+          "endLine": 197,
           "tokens": 612,
           "summary": "名称：beads GAP-14 G4 首次执行 + 可感知判据补编 + GAP-09 假绿复核（路线C，波次1；G门证据",
           "keywords": [
@@ -44040,8 +44040,8 @@
         {
           "anchor": "§WXG-T-085",
           "level": 2,
-          "startLine": 206,
-          "endLine": 215,
+          "startLine": 198,
+          "endLine": 207,
           "tokens": 387,
           "summary": "名称：beads P0·GAP-01 空槽目标色落码（波次2，路线C 首单）。承接 T-080 美术规格裁定：把 EMP",
           "keywords": [
@@ -44054,8 +44054,8 @@
         {
           "anchor": "§WXG-T-086",
           "level": 2,
-          "startLine": 216,
-          "endLine": 225,
+          "startLine": 208,
+          "endLine": 217,
           "tokens": 400,
           "summary": "名称：beads P0·GAP-02 首供提速 + GAP-06 尾部泄压阀落码（U8=A′+D）（波次2）。承接 T-",
           "keywords": [
@@ -44067,8 +44067,8 @@
         {
           "anchor": "§WXG-T-087",
           "level": 2,
-          "startLine": 226,
-          "endLine": 236,
+          "startLine": 218,
+          "endLine": 228,
           "tokens": 651,
           "summary": "名称：beads P0·GAP-04 四类 VFX + wrong/hint 态 + GAP-03 引导三通道 + GA",
           "keywords": [
@@ -44083,8 +44083,8 @@
         {
           "anchor": "§WXG-T-088",
           "level": 2,
-          "startLine": 237,
-          "endLine": 246,
+          "startLine": 229,
+          "endLine": 238,
           "tokens": 626,
           "summary": "名称：beads·R1=甲 D1/E2 可访问性开关落码（波次2，用户拍板 R1 全做）。根治 accessibilit",
           "keywords": [
@@ -44096,8 +44096,8 @@
         {
           "anchor": "§WXG-T-089",
           "level": 2,
-          "startLine": 247,
-          "endLine": 257,
+          "startLine": 239,
+          "endLine": 249,
           "tokens": 649,
           "summary": "名称：beads P0·GAP-07/08 harness 坐标契约落码（ADR-0011 裁决落地）（波次2）。承接 ",
           "keywords": [
@@ -44111,8 +44111,8 @@
         {
           "anchor": "§WXG-T-090",
           "level": 2,
-          "startLine": 258,
-          "endLine": 266,
+          "startLine": 250,
+          "endLine": 258,
           "tokens": 750,
           "summary": "名称：G10 ES5 转译致命缺陷修复（波次2·spike 先行；用户拍板「先验证 spike 再裁 ADR-0012」",
           "keywords": [
@@ -44126,8 +44126,8 @@
         {
           "anchor": "§WXG-T-091",
           "level": 2,
-          "startLine": 267,
-          "endLine": 277,
+          "startLine": 259,
+          "endLine": 269,
           "tokens": 665,
           "summary": "名称：beads 波次1 汇编 R4/R5/R6 文档回写销项（用户拍板「R4 全按 QA 改 / R5+R6 都做」；",
           "keywords": [
@@ -44138,8 +44138,8 @@
         {
           "anchor": "§WXG-T-092",
           "level": 2,
-          "startLine": 278,
-          "endLine": 288,
+          "startLine": 270,
+          "endLine": 280,
           "tokens": 740,
           "summary": "名称：beads G4 复验——探针重跑 + 回归报告 v1.1（波次3·甲路线；用户拍板「先复验拿真相再定音频/Pla",
           "keywords": [
@@ -44151,8 +44151,8 @@
         {
           "anchor": "§WXG-T-093",
           "level": 2,
-          "startLine": 289,
-          "endLine": 297,
+          "startLine": 281,
+          "endLine": 289,
           "tokens": 368,
           "summary": "名称：beads 文档漂移回写（ux-spec U8 / accessibility B3）+ 守卫登记（波次3·C 组",
           "keywords": [
@@ -44165,8 +44165,8 @@
         {
           "anchor": "§WXG-T-094",
           "level": 2,
-          "startLine": 298,
-          "endLine": 308,
+          "startLine": 290,
+          "endLine": 300,
           "tokens": 496,
           "summary": "名称：波次3 汇编——G4 主理人裁决 + 波次4 立项排期（阶段 8 汇编段，编排者独占）。",
           "keywords": [
@@ -44176,8 +44176,8 @@
         {
           "anchor": "§WXG-T-095",
           "level": 2,
-          "startLine": 309,
-          "endLine": 318,
+          "startLine": 301,
+          "endLine": 310,
           "tokens": 700,
           "summary": "名称：门禁自身可信度修复（BD-17 verify 短路 + BD-18 check:size 静默 ✅）——波次4 首",
           "keywords": [
@@ -44190,8 +44190,8 @@
         {
           "anchor": "§WXG-T-096",
           "level": 2,
-          "startLine": 319,
-          "endLine": 340,
+          "startLine": 311,
+          "endLine": 332,
           "tokens": 1709,
           "summary": "名称：beads 音频后端落码（BD-05 clip 派发 + BD-05b 三平台 backend）——支柱内最后一个",
           "keywords": [
@@ -44204,8 +44204,8 @@
         {
           "anchor": "§WXG-T-097",
           "level": 2,
-          "startLine": 341,
-          "endLine": 355,
+          "startLine": 333,
+          "endLine": 347,
           "tokens": 2042,
           "summary": "名称：beads P1/P2 反馈与路由缺口工程单（BD-15/16 + BD-04 余类 + BD-10 半边 + B",
           "keywords": [
@@ -44216,8 +44216,8 @@
         {
           "anchor": "§WXG-T-098",
           "level": 2,
-          "startLine": 356,
-          "endLine": 374,
+          "startLine": 348,
+          "endLine": 366,
           "tokens": 2186,
           "summary": "名称：B7 裁定包一次性回写（BD-27/28/29/30/31）——解除 BD-25 关单阻塞",
           "keywords": [
@@ -44227,8 +44227,8 @@
         {
           "anchor": "§WXG-T-099",
           "level": 2,
-          "startLine": 375,
-          "endLine": 390,
+          "startLine": 367,
+          "endLine": 382,
           "tokens": 994,
           "summary": "名称：取证通路补全（[Cocos] 像素/色盲滤镜 + preview:frames 支持 beads + §H 缺口进",
           "keywords": [
@@ -44242,8 +44242,8 @@
         {
           "anchor": "§WXG-T-100",
           "level": 2,
-          "startLine": 391,
-          "endLine": 427,
+          "startLine": 383,
+          "endLine": 419,
           "tokens": 3951,
           "summary": "名称：beads 面板相位真输入断链（BD-34）——四相位收不到真链点击，可玩性硬断点",
           "keywords": [
@@ -44254,8 +44254,8 @@
         {
           "anchor": "§WXG-T-113",
           "level": 2,
-          "startLine": 428,
-          "endLine": 459,
+          "startLine": 420,
+          "endLine": 451,
           "tokens": 3669,
           "summary": "名称：框架 · 丢帧重复投递（一次 touch 多指令）+ harness DOM 遮挡齿轮",
           "keywords": [
@@ -44268,8 +44268,8 @@
         {
           "anchor": "§WXG-T-114",
           "level": 2,
-          "startLine": 460,
-          "endLine": 499,
+          "startLine": 452,
+          "endLine": 491,
           "tokens": 3611,
           "summary": "名称：QA · 真链口径切换（P8/P10/P22）+ input-control §8 三相位判据回写",
           "keywords": [
@@ -44284,8 +44284,8 @@
         {
           "anchor": "§WXG-T-115",
           "level": 2,
-          "startLine": 500,
-          "endLine": 549,
+          "startLine": 492,
+          "endLine": 541,
           "tokens": 3873,
           "summary": "名称：beads · input-control §8 三相位门禁 + 多子步口径回写（设计域落笔）",
           "keywords": [
@@ -44299,8 +44299,8 @@
         {
           "anchor": "§WXG-T-116",
           "level": 2,
-          "startLine": 550,
-          "endLine": 603,
+          "startLine": 542,
+          "endLine": 595,
           "tokens": 3807,
           "summary": "名称：QA · §A4b 去「拟」+ 次按钮真链孪生用例（含冲刺局子分支）",
           "keywords": [
@@ -44311,8 +44311,8 @@
         {
           "anchor": "§WXG-T-101",
           "level": 2,
-          "startLine": 604,
-          "endLine": 614,
+          "startLine": 596,
+          "endLine": 606,
           "tokens": 1108,
           "summary": "名称：pre-commit 增 Cocos 镜像漂移条件守卫（防 BD-20 再复发）",
           "keywords": [
@@ -44325,8 +44325,8 @@
         {
           "anchor": "§WXG-T-102",
           "level": 2,
-          "startLine": 615,
-          "endLine": 652,
+          "startLine": 607,
+          "endLine": 644,
           "tokens": 3588,
           "summary": "名称：beads 放错拒绝描边改码（BD-29 下家）",
           "keywords": [
@@ -44337,8 +44337,8 @@
         {
           "anchor": "§WXG-T-117",
           "level": 2,
-          "startLine": 653,
-          "endLine": 687,
+          "startLine": 645,
+          "endLine": 679,
           "tokens": 2494,
           "summary": "名称：beads · ux-spec §5 告急行 α 幅度补全（BD-35）",
           "keywords": [
@@ -44351,8 +44351,8 @@
         {
           "anchor": "§WXG-T-118",
           "level": 2,
-          "startLine": 688,
-          "endLine": 779,
+          "startLine": 680,
+          "endLine": 771,
           "tokens": 4607,
           "summary": "名称：QA 复跑 P4 + P7（T-102 改码验证 + T-117 判据补齐后转正）",
           "keywords": [
@@ -44362,8 +44362,8 @@
         {
           "anchor": "§WXG-T-119",
           "level": 2,
-          "startLine": 780,
-          "endLine": 882,
+          "startLine": 772,
+          "endLine": 874,
           "tokens": 8598,
           "summary": "名称：beads · [B] 浏览器逐帧取证（P4 屏幕发光序列 + A05 时长/包络族）",
           "keywords": [
@@ -44375,8 +44375,8 @@
         {
           "anchor": "§WXG-T-103",
           "level": 2,
-          "startLine": 883,
-          "endLine": 891,
+          "startLine": 875,
+          "endLine": 883,
           "tokens": 689,
           "summary": "名称：音频裁定包补做（冲突 C1 / C3）——T-098 漏列项",
           "keywords": [
@@ -44386,8 +44386,8 @@
         {
           "anchor": "§WXG-T-106",
           "level": 2,
-          "startLine": 892,
-          "endLine": 923,
+          "startLine": 884,
+          "endLine": 915,
           "tokens": 3518,
           "summary": "名称：memory 二级详情文件索引（memory/details/）——治单日期文件反复越 B 门",
           "keywords": [
@@ -44399,8 +44399,8 @@
         {
           "anchor": "§WXG-T-111",
           "level": 2,
-          "startLine": 924,
-          "endLine": 953,
+          "startLine": 916,
+          "endLine": 945,
           "tokens": 3482,
           "summary": "名称：knowledge 沉淀库按行内标签分片（knowledge/lessons/<tag>.md）——结掉 WXG-",
           "keywords": [
@@ -44413,8 +44413,8 @@
         {
           "anchor": "§WXG-T-112",
           "level": 2,
-          "startLine": 954,
-          "endLine": 989,
+          "startLine": 946,
+          "endLine": 981,
           "tokens": 1744,
           "summary": "名称：装置自指类门禁缺陷评估（含 BD-38：memory/INDEX.md 单遍不收敛）",
           "keywords": [
@@ -44426,8 +44426,8 @@
         {
           "anchor": "§WXG-T-104",
           "level": 2,
-          "startLine": 990,
-          "endLine": 1015,
+          "startLine": 982,
+          "endLine": 1007,
           "tokens": 3083,
           "summary": "名称：beads · P0 · Cocos 宿主输入 y 轴镜像（缺陷 C1）——「先锁语义，再改码」",
           "keywords": [
@@ -44439,8 +44439,8 @@
         {
           "anchor": "§WXG-T-107",
           "level": 2,
-          "startLine": 1016,
-          "endLine": 1030,
+          "startLine": 1008,
+          "endLine": 1022,
           "tokens": 1341,
           "summary": "名称：宿主归一化契约入控制清单（control-manifest §17）",
           "keywords": [
@@ -44453,8 +44453,8 @@
         {
           "anchor": "§WXG-T-108",
           "level": 2,
-          "startLine": 1031,
-          "endLine": 1302,
+          "startLine": 1023,
+          "endLine": 1294,
           "tokens": 10646,
           "summary": "名称：Cocos 输入取证固化：R1/R2/R3 可复跑 + breakout [B] 目视",
           "keywords": [
@@ -44466,8 +44466,8 @@
         {
           "anchor": "§完成记录（严守真 quality-lead，2026-09-15 · 证据已固化 · **未 commit / 未 push**；状态行与台账主表由主理人回填）",
           "level": 3,
-          "startLine": 1044,
-          "endLine": 1091,
+          "startLine": 1036,
+          "endLine": 1083,
           "tokens": 1993,
           "summary": "① 落盘清单（全部在已批准的 Output Path production/qa/beads/ 内，未越界）",
           "keywords": [
@@ -44482,8 +44482,8 @@
         {
           "anchor": "§阶段 A 交付（程基岩 engineering-lead，2026-09-15，实测取证完成 · **未落任何 `src/**` 改动**）",
           "level": 3,
-          "startLine": 1092,
-          "endLine": 1189,
+          "startLine": 1084,
+          "endLine": 1181,
           "tokens": 2837,
           "summary": "权威说明：以下全部数字来自本人在真实 Cocos web-mobile 产物上跑出来的实测（不是文档推断）。",
           "keywords": [
@@ -44498,8 +44498,8 @@
         {
           "anchor": "§阶段 B 方案（**本轮只给方案，严禁落码**，等主理人放行）",
           "level": 3,
-          "startLine": 1190,
-          "endLine": 1302,
+          "startLine": 1182,
+          "endLine": 1294,
           "tokens": 4979,
           "summary": "#### B1 · 改法与备选比较",
           "keywords": [
@@ -44513,8 +44513,8 @@
         {
           "anchor": "§WXG-T-109",
           "level": 2,
-          "startLine": 1303,
-          "endLine": 1359,
+          "startLine": 1295,
+          "endLine": 1351,
           "tokens": 3146,
           "summary": "名称：Cocos 输入 R1/R2/R3 回写为 test-cases.md 硬判据",
           "keywords": [
@@ -44527,8 +44527,8 @@
         {
           "anchor": "§完成记录（严守真 quality-lead，2026-09-15 · 已落盘 · **未 commit / 未 push**；状态行与台账主表由主理人回填）",
           "level": 3,
-          "startLine": 1314,
-          "endLine": 1359,
+          "startLine": 1306,
+          "endLine": 1351,
           "tokens": 2367,
           "summary": "① 落盘清单（全部在已批准的 Output Path 内，未越界）",
           "keywords": [
@@ -44543,15 +44543,151 @@
         {
           "anchor": "§WXG-T-110",
           "level": 2,
-          "startLine": 1360,
-          "endLine": 1365,
-          "tokens": 193,
+          "startLine": 1352,
+          "endLine": 1437,
+          "tokens": 4525,
           "summary": "名称：宿主行为测试守卫（warn 级，非 fail-closed）",
           "keywords": [
             "WXG",
             "warn",
             "fail",
             "closed"
+          ]
+        },
+        {
+          "anchor": "§完成记录（程基岩 engineering-lead，2026-09-15 · 已落盘 · **未 commit / 未 push**；状态行与台账主表由主理人回填）",
+          "level": 3,
+          "startLine": 1365,
+          "endLine": 1437,
+          "tokens": 3610,
+          "summary": "① 落盘清单（全部在已批准 Output Path 内；docs/、games//src/、systems-index ",
+          "keywords": [
+            "engineering",
+            "lead",
+            "commit",
+            "push",
+            "Output",
+            "Path"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-123",
+          "level": 2,
+          "startLine": 1438,
+          "endLine": 1500,
+          "tokens": 5223,
+          "summary": "名称：QA 复测 CLK-01（BD-40 修复后产物）+ 勘误 §25.13 的 CLK-01 行 + 判据测量分辨率",
+          "keywords": [
+            "§25.13",
+            "WXG",
+            "CLK"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-127",
+          "level": 2,
+          "startLine": 1501,
+          "endLine": 1528,
+          "tokens": 2684,
+          "summary": "名称：beads 可玩性实测差距修复（BD-43 热区错位 P1 + BD-44/45/46/47）",
+          "keywords": [
+            "WXG",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-122",
+          "level": 2,
+          "startLine": 1529,
+          "endLine": 1582,
+          "tokens": 4062,
+          "summary": "名称：框架 · 宿主驱动权互斥（BD-40 宿主双驱动修复）",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-121",
+          "level": 2,
+          "startLine": 1583,
+          "endLine": 1610,
+          "tokens": 1343,
+          "summary": "名称：装置自测分档挂门禁（BD-39 · BD-40 并单）",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-124",
+          "level": 2,
+          "startLine": 1611,
+          "endLine": 1622,
+          "tokens": 697,
+          "summary": "beads 美术 v1.3「丙案·双色温对撞」风格单（三件套 + 落码） · 负责：林绘澄(art) + 主理人(Qod",
+          "keywords": [
+            "WXG",
+            "beads",
+            "art",
+            "Qod"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-125",
+          "level": 2,
+          "startLine": 1623,
+          "endLine": 1633,
+          "tokens": 447,
+          "summary": "beads §3.8 幽灵符号可见性冻结变更单（F5，独立于风格单） · 负责：主理人(Qoder) · 状态：✅ 完成",
+          "keywords": [
+            "§3.8",
+            "WXG",
+            "beads",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-126",
+          "level": 2,
+          "startLine": 1634,
+          "endLine": 1642,
+          "tokens": 428,
+          "summary": "beads ux-spec §3/§5/§7 HUD 条款对齐（v1.3 落码事实回写，F7①②⑤/F6） · 负责：主",
+          "keywords": [
+            "§3",
+            "§5",
+            "§7",
+            "WXG",
+            "beads",
+            "spec"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-128",
+          "level": 2,
+          "startLine": 1643,
+          "endLine": 1664,
+          "tokens": 1008,
+          "summary": "beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿） · 负责：林绘澄(art) + 主理人(Qo",
+          "keywords": [
+            "WXG",
+            "beads",
+            "art"
+          ]
+        },
+        {
+          "anchor": "§真机首验包（待 AppID · 2026-09-16 登记 · 解除 DEV-01/B4）",
+          "level": 2,
+          "startLine": 1665,
+          "endLine": 1677,
+          "tokens": 438,
+          "summary": "前置：① 有效 AppID ② pnpm --filter @wxgame/beads run build:cocos:",
+          "keywords": [
+            "AppID",
+            "DEV",
+            "pnpm",
+            "filter",
+            "wxgame",
+            "beads"
           ]
         }
       ]

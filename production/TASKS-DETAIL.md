@@ -118,14 +118,6 @@
 
 - **名称**：**Cocos G3 遗留收口——`Label` 真实宽度替换 + `setAlign` 空实现补齐**（自 backlog「G3 遗留」正式立项；根因由 WXG-T-050 验收回填时登记为「不得记为已关闭」）：`packages/framework/src/adapters/cocos/cocos-renderer.ts:171` 的 `_anchorForText()` 仍用 `text.length × fontSize × 0.55` **估算**文本宽度做左右对齐偏移，VERSION.md G3 要求换成真实 `Label` 尺寸（建议 `UITransform`/`getBoundingClientRect` 回填）；`bindings.ts` 的 `wrapLabel.setAlign` 目前是**空实现占位**（对齐枚举真名 T-050 已纠正为 `HorizontalTextAlignment`/`VerticalTextAlignment`）。**拆两半执行**：① **可测半**（纯逻辑、Node 单测可验，守 L2——core 不碰 `cc`，仅 adapter）：`CocosLabelLike` 增测量出口（`measureWidth(text,fontSize): number` 或 `get width()`），`_anchorForText` 改为**消费注入的实测宽度**、删除 `0.55` 估算，补 fake-label 单测断言左/右对齐按真实宽度对称偏移；② **待编辑器半**（`[阻塞：无 Cocos Creator]`）：`bindings.ts` 真接 `cc.Label` 尺寸 + 落 `setAlign` 枚举，**运行时/目视验证无编辑器不可完成**，解除条件＝在 Cocos Creator 跑最小场景目视校正后方可回填关闭 G3。
 - **负责**：主理人(Qoder)　**状态**：🔄 进行中——**可测半完成**，待编辑器半仍阻塞（G3 **保持不关闭**，符合下方验收）
-- **状态更新（2026-09-16）**：🔄 进行中——**可测半 ✓ + 编辑器半「落码部分」✓（含产物截图验证）**；仅剩编辑器/PREVIEW **目视**一步（G3 维持不关闭直至目视通过）。
-- **✅ 编辑器半「落码部分」完成（2026-09-16 · 主理人代行）**：**修正原认知 —— 落码不需要编辑器**（原「待编辑器落码」捆绑了「落码」与「目视」两件事）。本轮已落码 `bindings.ts wrapLabel`：
-  - ① **`measureWidth(text, fontSize)` 已实现**：调用序保证 renderer 先 `setFontSize`/`setText`（cocos-renderer.ts :165-166），故直接 `updateRenderData(true)` 后回读 `UITransform.width`；返回 0 时 `_measureTextWidth` 自动退回 `FALLBACK_CHAR_WIDTH_RATIO` 估算（零风险，防御已内置）。
-  - ② **`setAlign` 已实现**：映射 `HorizontalTextAlignment[align.toUpperCase()]`（T-050 纠正的枚举真名），未知值回退 CENTER。
-  - ③ **编译验证**：`pnpm --filter @wxgame/beads run build:cocos:web` 无头构建通过 —— bindings.ts 的 `cc` 类型被真实编译，枚举名/属性合法性由构建器背书。
-  - ④ **产物截图验证**（复用 T-099 B1 的 `cocos-vision-shot.mjs`，750×1334，`production/qa/beads/evidence/vision/raw.png`）：白胶囊 HUD 居中 ✓、`LV 1/8` 右对齐 ✓、全部 Label 文字无错位 ⇒ `setAlign`/`measureWidth` 上线零回归。已随 `d79d10c` 入库。
-- **剩余 = 仅目视**：① 原验收「编辑器 PREVIEW 目视」；② 或用户认可「Cocos 产物截图替代编辑器目视」⇒ G3 可关（截图已附）。
-- **✅ G3 关单（2026-09-16 · 用户裁定）**：**「G3 目视可以」** —— 用户接受「Cocos 产物截图替代编辑器目视」（`vision/raw.png`：白胶囊居中 / LV 右对齐 / 全部 Label 无错位）。⇒ 验收「两半都落」达成，**G3 关闭**；`VERSION.md` §G3 与阶段矩阵 §4 已同步回填（遗留项清除）。
 - **验收**：G3 关闭须**两半都落**——可测半进 `pnpm run verify` 绿 + bindings 半在编辑器目视通过并更新 VERSION.md §G3/§4 矩阵；**只落可测半时 G3 保持不关闭**（禁止以「假绿」记关）。
 - **实测（可测半，非假绿）**：`CocosLabelLike` 新增**可选** `measureWidth?(text,fontSize)` 出口（可选 ⇒ `bindings.ts` 本轮不动、不进 Node typecheck、Cocos 运行时不回归）；`_anchorForText(cmd, label)` 经 `_measureTextWidth` **优先消费注入实测宽**，无出口时退回显式常量 `FALLBACK_CHAR_WIDTH_RATIO=0.55`（即 G3 未关的降级根因）。vitest `cocos-renderer.test.ts` 新增 2 例（注入不同斜率测量证消费且左右严格对称 + 无出口证走降级），11→**13 全绿**；framework 全量 25 文件 **236 测试**绿；仓库 `typecheck` 3 项目 Done；harness `--build-only` OK。**未伪造**：`bindings.ts` 仅加 `[G3·待编辑器半]` 纯注释锚点（`setAlign` 枚举 + `measureWidth` 接 `UITransform` 接入点），未写任何 `cc` 代码。L2 合规（core 不碰 cc，仅 adapter）。
 - **产出**：packages/framework/src/adapters/cocos/cocos-renderer.ts（已改）· tests/adapters/cocos-renderer.test.ts（已测）· bindings.ts（仅注释锚点，待编辑器落码）·【待编辑器半】cc.Label 实测接入 + setAlign 枚举 + 更新 VERSION.md §G3/§4（须真机目视校正）· 本台账
@@ -1360,5 +1352,325 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 ## WXG-T-110
 
 - **名称**：**宿主行为测试守卫（warn 级，非 fail-closed）**
-- **负责**：程基岩(engineering-lead)　**状态**：✅ 完成（2026-09-15 落盘；2026-09-16 主理人复核落盘内容完整 + 主表回填）　**P2**
-- **✅ 主理人收口（2026-09-16）**：落盘内容复核完整（守卫脚本 `check-host-behavior-tests.mjs` + `package.json` 双 script + `verify-all.mjs` STEPS 第 15 项 `check:host-tests`（WARN 态）+ `--selftest` 9 例）。主表状态行漏回填系程基岩回传注明「状态行由主理人回填」而主理人遗漏，本轮补齐。`pnpm run verify` 含该门禁 **PASS 16 / FAIL 0**。
+- **负责**：程基岩(engineering-lead)　**状态**：✅ 完成（2026-09-15 落盘；2026-09-16 复核落盘完整 + 主表回填）　**P2**
+- **✅ 收口（2026-09-16）**：守卫脚本 `check-host-behavior-tests.mjs`（WARN 态 + `--selftest` 9 例）+ `package.json` 双 script + `verify-all.mjs` STEPS 第 15 项 `check:host-tests`。`pnpm run verify` 含该门禁 PASS 16 / FAIL 0。
+- **背景**：`control-manifest §17`（WXG-T-107 落盘）要求「新宿主 / 新引擎适配器接入必须有 Node **行为测试**」，但该约束目前**只能靠 §12 提交前自查表人工执行**，无机械守卫 ⇒ 会重演「清单写了但无人对照」的老问题。
+- **⚠️ 用户裁定（2026-09-15，重要）**：先做 **warn 级**观察一轮，**不做 fail-closed**。理由：当前只有 Cocos 一个宿主适配器，fail-closed 无真阳性、易成噪声。**不得擅自升级为阻断。**
+- **Deliverables**：① **守卫脚本**：扫 `packages/framework/src/adapters/*/`，对每个含输入归一化 / 触摸归一化模块的引擎适配器，检查是否配对 `packages/framework/tests/adapters/<引擎>-touch-normalize.test.ts`（或等价**行为**测试文件）；② 输出为 **WARN 且不阻断**（退出码 0），并在输出中写明**何时可升 fail-closed**（建议条件：出现**第二个**宿主适配器时）；③ **明确排除源码级正则断言** —— 只扫源码文本不算配对（§17 明令禁止其当交付），需识别出真正的可执行行为测试；④ 挂载位置由你判断（独立脚本 + `package.json` script，或并入 `verify-all.mjs` STEPS），但**不得破坏 `verify` 的「逐项执行、永不短路」语义**（WXG-T-095 / BD-17 硬约束，禁止改回 `&&` 串链）；⑤ **自证双向实测**：有配对 ⇒ 静默/绿；人为移除或改名 ⇒ 报 WARN 且退出码仍为 0。
+- **权威来源**：`docs/architecture/control-manifest.md` **§17**（含 4 处交叉引用：§6 / §12 / §13×2）> `production/TASKS-DETAIL.md` 的 `## WXG-T-107` 与 `## WXG-T-104` 小节 > `packages/framework/tests/adapters/cocos-touch-normalize.test.ts`（现有正例）。
+- **Output Path**：`tools/scripts/` 或 `packages/framework/`（你判断并回传）；如需改 `package.json` / `tools/scripts/verify-all.mjs` 一并包含。**禁改**：`games/**/src/**`、`systems-index §3`、`docs/architecture/control-manifest.md`（已落盘，本单不动）、`docs/architecture/adr/**`、`production/**` 除 `TASKS-DETAIL.md` 的 `## WXG-T-110` 小节外的一切。
+- **必读 skill**：`my-skills/wxgame-adr-arch/SKILL.md`；另读 `AGENTS.md`、`docs/architecture/control-manifest.md`、`docs/agent/commands.md`（`verify` 语义）。
+- **约束**：先问再写；本单**已授权**你落上列 Output Path；不 commit/push；**不得把守卫升级为阻断**。
+
+### 完成记录（程基岩 engineering-lead，2026-09-15 · 已落盘 · **未 commit / 未 push**；状态行与台账主表由主理人回填）
+
+**① 落盘清单**（全部在已批准 Output Path 内；`docs/**`、`games/**/src/**`、`systems-index §3`、`production/**`（除本小节）零改动）
+
+| 文件 | 动作 | 说明 |
+| --- | --- | --- |
+| `tools/scripts/check-host-behavior-tests.mjs` | **新增** | §17 守卫：按宿主适配器扫「输入/触摸归一化模块」↔「行为测试」配对；默认 **WARN + 退出 0**；自带 `--selftest`（9 例，含反例判别力）与预留升级开关 `--fail-on-gap` |
+| `package.json` | **改** | 新增 `check:host-tests`、`check:host-tests:selftest` |
+| `tools/scripts/verify-all.mjs` | **改** | ①支持第 4 种状态 **`WARN`**（观察项：**不记 PASS**、**不影响退出码**，`--strict` 亦然 —— 不违反「不得升级为阻断」）；②`STEPS` **追加** `check:host-tests`（15 项，仍**逐项执行、永不短路**，未动 `&&`）；③合成自测 9 → **12** 例；④去掉硬编码「14 项」措辞（防脱钩） |
+| `production/TASKS-DETAIL.md` | **改** | 本小节（追加，未删改既有内容） |
+
+**② 守卫判定口径**（脚本头注 + 运行输出「② 判定口径」双份可查）
+
+- **检查面**：`packages/framework/src/adapters/<引擎>/` 下任一 `.ts`（非测试）满足其一即视为归一化模块：**(a)** 文件名含 `normaliz`（§17 自己规定的命名约定）；**(b)** AST 判定文件**导出了名字含 `normaliz` 的函数**（`export function` / `export const`）。注：这里只是**探测「有没有这类模块」**，不充当语义断言 —— §17 禁止的是「拿正则当语义交付的证据」，不是禁止守卫识别文件（此点已在头注写明，避免自相矛盾）。
+- **配对 = 行为测试**（四条同时成立）：① 测试文件的 `import` 路径**解析到**该模块（支持 `./x.js`→`x.ts` 的 NodeNext 写法）；② 导入了至少一个**值绑定**（`import type` 不算）；③ 在测试体里**真的调用了**该绑定（`fn(...)` 或 `ns.fn(...)`）；④ 文件里有 `it(`/`test(` 用例。
+- **明确不算**（三类，均报缺口）：`MISSING_TEST`（无人 import）／`NOT_BEHAVIOR_TEST`（只 `import type`、或值导入却从不调用）／`SOURCE_REGEX_ONLY`（只 `readFileSync(源码)` + `toMatch(/…/)` 这类**源码级正则/文本断言**，§17 明令其不能当交付，输出单独点名）。
+- 实现手段：用 **TypeScript 编译器 API 的 AST**（非正则）判定 import/调用形态；正则只用于**识别**「疑似源码级断言」（仅作输出说明，不参与判定）。
+- **诚实边界（已知成本，非「已解决」）**：②③ 是**静态近似** —— 「import 且调用」不等于「断言真的覆盖了 ÷dpr 与 y 翻转」；真正的判别力仍在配对测试的**反例用例**（`cocos-touch-normalize.test.ts` 的 ②反向锁 / ⑨镜像反证；探针 `SELF-01`）。本守卫不检查归一化模块的**纯度**（不 import `cc` / 不碰 DOM）—— 那属 §17 另一条，L2/L3 与 `check:arch` 另有覆盖面，本守卫不越界。
+
+**③ 挂载位置与理由**：**并入 `verify-all.mjs` 的 `STEPS`（第 15 项）+ 独立脚本**。理由：§17 的痛点正是「约束只活在自查表里没人跑」⇒ 独立脚本单放等于重演该痛点；而并入 STEPS 若沿用既有三态，会**要么伪装成 PASS、要么在 `--strict` 下变成阻断**（两者都违反用户裁定）⇒ 故为聚合器新增语义自洽的第 4 态 **`WARN`**（🔶，不计 PASS、不改退出码）。`verify` 的「逐项执行、永不短路」语义**未动**（`--validate` 仍绿；`verify-all-selftest.sh` 全绿，含「注入失败项后后续仍执行」）。
+
+**④ 自证双向实测（2026-09-15，本机实跑）**
+
+| 场景 | 命令 | 结果 |
+| --- | --- | --- |
+| ① 有配对（现状） | `node tools/scripts/check-host-behavior-tests.mjs` | `STATUS: OK`、**exit 0**；cocos 配对 `tests/adapters/cocos-touch-normalize.test.ts`（值导入绑定被实际调用 1 个、9 个 it 用例） |
+| ① 经聚合器 | `verify-all.mjs --steps=check:host-tests --strict` | `✅ PASS check:host-tests`、**exit 0** |
+| ② 人为移除配对测试 | 同上（测试文件暂移出） | 守卫 `STATUS: **WARN**`、**exit 0**（缺口 `MISSING_TEST`）；经聚合器变 🔶 `WARN check:host-tests`、**exit 0**（`--strict` 下亦然） |
+| ② 升级开关（预留） | `… --fail-on-gap` | `STATUS: FAIL`、exit 1 —— 证明「升级 = 一步」真实可用，但**默认与 verify 均不使用** |
+| 守卫自测 | `pnpm run check:host-tests:selftest` | **9/9**（正例静默 + 6 个反例必报：改名/源码级正则/只 import type/值导入不调用/第二宿主/第二模块） |
+| 聚合器自测 | `pnpm run verify:selftest` | **全绿**（含合成 12/12、`--validate` 15 项、不短路、SKIP≠PASS 五步） |
+
+> 自证后**已还原**：目标文件 `cp` 回原位、`git status --porcelain -- <该路径>` 与改动前一致（该文件本就未跟踪 `??`，属 T-104/T-108 未提交产物，**未动他人改动**）。
+
+**⑤ 升级 fail-closed 的条件**（写进守卫运行输出「④」，且主判据**已机械化**、自报是否满足）
+
+1. **主判据**：**含输入归一化模块的宿主适配器数 ≥ 2**。现状 = **1**（cocos）⇒ 条件**未满足**，仍是观察期。（`canvas2d` 是第 2 个适配器目录，但**无**输入归一化模块 ⇒ 不计入本判据；这正是「只在第二个宿主出现时才有真阳性」的机械化表达。）
+2. 同一宿主在 CI 上出现过一次真实的「漏写行为测试」回归。
+3. §17 复评（ADR-0011 §5）结论要求收紧。
+   **升级方式（一行）**：`verify-all.mjs` 的 `STEPS` 把该项改为 `check:host-tests --fail-on-gap`，并把脚本 WARN 语义改判 FAIL。
+
+**⑥ 未决问题（转呈主理人，2–4 选项）**
+
+- **Q1 `docs/agent/commands.md` 出现措辞漂移**：该文件写「`verify` 全量门禁聚合器 …… **14 项**」，现为 **15 项**（本单新增 `check:host-tests`）。`commands.md` **不在本单 Output Path**，我未改。**推荐 A**：主理人另开小单（或随本单收尾）把该行改为「步骤表见 `--list`」的**非硬编码**写法，并补一行 `check:host-tests` 的用途/口径；**B** 就地只改数字 14→15（仍会再次漂移）；**C** 暂不动，登记为已知漂移。
+- **Q2 `WARN` 是否要推广到其它「观察项」**：本单为聚合器引入第 4 态。**推荐 A** 先只服务 `check:host-tests`，观察一轮再谈复用；**B** 立刻把 `check:tasks` 的 report-only 观察哨（H 项）也迁到 WARN 通道（统一语义，但扩大改动面）；**C** 不给 WARN 落文档（不推荐，会变成隐性约定）。
+- **Q3 守卫是否纳入 pre-commit**：本单只进 `verify`。**推荐 A** 维持（pre-commit 已被 BD-20 教训要求「只拦不写」，warn 级项进 pre-commit 收益低）；**B** 在 `.githooks/pre-commit` 加一条 warn-only 提示（需改 `.githooks/**`，超本单 Output Path）。
+- **Q4 第二个宿主的机械预警**：**推荐 A** 维持本守卫每次 `verify` 自报「含归一化模块的适配器数」（现状 1/2），升到 2 时自动提示「已达升级条件」；**B** 另立单在 `systems-index`/Epic 层登记「新宿主接入 checklist 含运行本守卫」。
+
+**⑦ 已知风险与缓解**
+
+1. **静态近似的误判面**（风险：把「import 且调用」误当「真行为测试」）—— 缓解：③ 的诚实边界已写在脚本头注与输出；真正的判别力靠配对测试的反例用例，且 §17/§12 仍保留人工项（机械守卫**不替代**自查表）。
+2. **`WARN` 第 4 态影响面**（风险：改动共享工具 `verify-all.mjs`）—— 缓解：不改退出码、`--strict` 不判红、原 9 条自测断言全部保留并**新增 3 条**专测 WARN；`verify-all-selftest.sh` 五步全绿；`--validate` 绿（防 `&&` 回退仍生效）。
+3. **升级条件依赖「适配器目录数」**（风险：新宿主若把归一化写进 `src/platform/**` 而非 `adapters/`，守卫扫不到）—— 缓解：本守卫会在输出里点明检查面路径；若新宿主选非 `adapters/` 落位，须同批扩检查面并复评（已列为 Q4 备选）。
+4. **无真机 / 无 AppID** 对本单**无影响**（纯静态守卫）。
+
+**⑧ 建议下一 Task / 下游角色**
+
+- 下游 = **主理人**：回填台账主表与状态行；裁定 Q1（`commands.md` 漂移，**建议就本单内一次改掉**，因它会立刻误导读者）。
+- 若 Q1 选 A：责任人 = **程基岩**（工程侧，`tools/scripts` + `docs/agent/commands.md` 小改单）。
+- 新宿主接入时（触发条件 1 达成）：责任人 = **程基岩**（升 fail-closed + 同批复刻 `<引擎>-touch-normalize.test.ts`），QA 侧由 **严守真** 把该判据收进 `production/qa/beads/test-cases.md`。
+
+**⑨ 明确回答主理人**：**守卫已落盘**（`tools/scripts/check-host-behavior-tests.mjs`，并已挂进 `verify` 第 15 项）；**默认退出码为 0（不阻断）**，含发现缺口时（`--strict` 亦然）；**已自证双向**（有配对 ⇒ `STATUS: OK` / exit 0；移除配对 ⇒ `STATUS: WARN` / exit 0；预留 `--fail-on-gap` ⇒ exit 1，未接入 verify）。未 commit、未 push。
+
+**⑩ 主理人独立复核（2026-09-15）**：本单动过**共享门禁聚合器** `verify-all.mjs`（新增第 4 态 `WARN`），属高风险改动，故逐项实跑：
+1. `pnpm run check:host-tests` ⇒ **`STATUS: OK`、EXIT=0**；输出自报「适配器 2 个 ｜ 含归一化模块 1 个 ｜ 缺口 0 ｜ PASS 1 ｜ WARN 0」，并把**升级 fail-closed 的触发条件**（含归一化模块的宿主适配器 **≥2** 个）机械写进结论。
+2. **「有缺口不阻断」独立复现**（把 `tests/adapters/cocos-touch-normalize.test.ts` 临时改名）⇒ **`STATUS: WARN`、缺口 1 项、EXIT=0**（不阻断成立）；**已还原并 `diff` 内容一致**，未留残迹。
+3. `pnpm run verify -- --validate` ⇒ **步骤表 15 项全部存在于 `package.json` 且 `verify` 仍指向本聚合器**（WXG-T-095 的「反 `&&` 串链回退」守卫仍生效）。
+4. `pnpm run verify` 全量 ⇒ **PASS 14 ｜ WARN 0 ｜ SKIP 1（check:size 未覆盖）｜ FAIL 0**（15 项），旧 14 项无回归。
+**审定：本单 PASS。** 判定口径（AST 识别而非正则、配对＝解析到模块 + **值导入** + **实际调用** + 有 `it(`、`SOURCE_REGEX_ONLY` 单独点名）与 §17 的「禁正则当交付」自洽，未自相矛盾。
+- **主理人追正 `docs/agent/commands.md` 漂移（成员 Q1）**：该文件仍写「verify …… **14 项**」且汇总表缺 `WARN` 态 ⇒ 由主理人执笔追正（同 T-098 · O4 先例，**成员 Output Path 不含该文件，守纪律未擅改**）：① 计数改为「**以 `--list` 为准，勿硬编码计数**」并去掉「后面 13 项」的硬编码；② 汇总表补 `PASS/WARN/SKIP/FAIL` 且写明 `WARN` = **观察期守卫（不计通过、不影响退出码、`--strict` 亦不判红）**；③ 新增 `check:host-tests` 一行（含判定口径与升级条件）。
+- **主理人裁定（Q2–Q4）**：**Q2 = A**（`WARN` 先只服务 `check:host-tests` 观察一轮，不外推）；**Q3 = A**（维持只进 `verify`，不进 pre-commit）；**Q4 = A**（维持每次 `verify` 自报「含归一化模块适配器 1/2」，达 2 时自动提示升级）。
+- **⚠️ 收尾时发现的既有红（非本单引入）**：`pnpm run ctx:check` 的 **C 项**（索引过期 19 个变更）已由主理人 `pnpm run ctx:build` 修复；重建后仅剩 **B 项单文件上限** 红 —— `memory/2026-09-12.md`(10141) 与 `memory/2026-09-14.md`(12586)，**属并行会话 WXG-T-106（memory 二级详情拆分）的在途工作**，非本单亦非本会话产物，主理人未越界处理。
+
+## WXG-T-123
+
+- **名称**：**QA 复测 `CLK-01`（BD-40 修复后产物）+ 勘误 §25.13 的 CLK-01 行 + 判据测量分辨率口径**
+- **负责**：严守真(qa)　**状态**：📋 已立项（待施工）　**P1**
+- **❗范围说明（先读，避免重复劳动）**：本单原拟两件事 —— ① 复测 `CLK-01`、② 屏幕层判据面修复（`§25.12.2` 的 P0 清单）。**② 已由并发 QA 会话完成并落盘为报告 `§25.13`（终轮：探针口径收敛后复跑）**，本单**只做 ① + 勘误 + 分辨率口径**，**不得重做 ②**、不得动已收敛的判据面。
+- **时间线（主理人已厘清）**：① `§25.12` 发现 BD-40 并列屏幕层 P0 修法；② **并发 QA 会话执行了该清单**（D5 阈值数据相对 / D5② 支撑上下限 / D6 采样与 rAF 解耦 / D6′ 逐样本真实时钟 / D7 自检不依赖本机帧长 / D8 补先验预期 / **D0 新增第三态 `⊘`**）⇒ 屏幕层判据面**已达标且跨轮稳定**（`P4S-00/01/02` 全绿；`P4S-03`/`P4S-01b` 记 **⊘** 拒绝判定）—— **但其 `CLK-01 = 2.003` 是在 `WXG-T-122` 修复**前**的 Cocos 产物上跑的**；③ **`WXG-T-122` 已修 BD-40**（`App.startHostDriven()` + 三道互斥守卫），工程自证 `CLK-01 = 0.999`（1.999 → 0.999），但该自证**被后续运行覆盖**、不在盘上，且**不替代 QA 复测**。
+- **Deliverables**：
+  1. **确认产物新鲜度**（`ENV-01` 自查须过：产物 mtime ≥ `packages/framework/src/**` 最新；`framework:sync:check` exit=0）—— `T-122` 已重建 `build:cocos:web`，预期直接过；若不过，**先回传**再重建。
+  2. **复跑 `production/qa/beads/beads-browser-probe.mjs`** ⇒ 预期 **`CLK-01` = 仿真/墙钟 ≈ 1.00（±0.10）⇒ PASS**（真源 `T-122` 工程自证 0.999）。**若仍 ≈2 ⇒ 那是重大发现（修复未生效或产物陈旧），立即停手回传，不得自行解读**。
+  3. **勘误报告 `§25.13` 的 `CLK-01` 行**（`2.003`）—— 加【`WXG-T-123` 注】：该读数系 **`WXG-T-122` 修复前产物**所测，**已被复测取代**；沿用「追加不覆盖」纪律，不改写原文。**同时**：`P4S-03` 在修复后产物的读数须重新取（修后墙钟口径 ≈2.01 次/秒，见 `T-122` 工程自证）⇒ 据实记（`PASS`/`⊘` 由判据面定，**不得因贴线而放宽**）。
+  4. **把「判据测量分辨率」写进判据口径**（`T-122` 主理人裁定 ①）：墙钟闪烁率类判据须声明**帧量化分辨率** —— 一帧 ≈16.7ms ⇒ 500ms 门的实测起点间距落在 500±8ms ⇒ 折算 **1.97–2.03 次/秒**；**2.01 属分辨率噪声，非真超线**。**只写口径，不改任何阈值**。
+  5. 证据落 `production/qa/beads/evidence/`（新 log + 确定性重跑自证）。
+- **权威来源（冲突以 A 为准）**：**A** `production/qa/beads/g4-regression-report.md` **§25.13**（判据面现行口径与 `⊘` 语义）+ **§25.12.3**（退出码契约）＞ **B** `production/TASKS-DETAIL.md` 的 `## WXG-T-122`（修复内容 + **CLK-01 自证 0.999** + 裁定 ① 分辨率口径）＞ **C** `production/qa/beads/beads-browser-probe.mjs`（**只读**，本轮不改判据面）＞ **D** `games/beads/design/gdd/systems-index.md §3.8`（≤2 次/秒，只读）。
+- **Output Path**：`production/qa/beads/g4-regression-report.md`、`production/qa/beads/evidence/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-123` 小节（**追加**）。**禁改**：`beads-browser-probe.mjs`（判据面已收敛）、`g4-probe-v1.1.mjs`、`games/**`、`packages/**`、`tools/**`、`systems-index §3`、其他成员台账小节。
+- **硬要求**：不把 ⛔/⊘ 写成 PASS；不放宽阈值；**判据面一字不改**；`[R]`（真机 1×）与 `[P]`（听感）仍 ⛔ 不代判；先问再写；不 commit/push。
+- **必读**：`my-skills/wxgame-qa-gates/SKILL.md`；`g4-regression-report.md` §25.13；`TASKS-DETAIL.md` 的 `## WXG-T-122` / `## WXG-T-123`。
+- **⚠️ 防超时纪律**：任何可能 >60s 静默的命令用重定向 + `tail` 或后台 + 轮询；先落盘台账与报告、再补证据。
+- **回传（固定结构）**：① 文件列表；② 摘要（产物新鲜度、`CLK-01` 实测、`P4S-03` 修后读数与判定、勘误内容、分辨率口径落点）；③ 未决问题；④ 风险与缓解（含 `[R]`/`[P]` 边界）；⑤ 建议下一 Task；⑥ **明确回答**：`CLK-01` 是否 ≈1.00、`§25.13` 勘误是否落盘、分辨率口径是否写入且未改阈值、有无放宽。
+- **完成记录（2026-09-16 · 严守真）—— 状态：✅ 交付完成（三项 Deliverables 全部落地，未动判据面）**：
+  - **Deliverable 1 产物新鲜度 ✅**：产物最新 mtime `1789515802`（web-mobile）≥ `packages/framework/src` 最新 `1789515641`（`bindings.ts`）；`framework:sync:check` **exit=0**；探针自证 `ENV-01 = PASS`（产物 mtime 晚于全源链 + 镜像守卫 OK）。**未重建**（T-122 已重建，预期直接过 ⇒ 事实过）。
+  - **Deliverable 2 `CLK-01` 复测 ✅ PASS**：修复后产物两轮 **1.002 / 0.997**（判据 ≈1.00±0.10；与 T-122 工程自证 0.999 一致）；**退出码 `1 → 0`、FAIL 0**；判定串两轮除 `P4S-01b`（⊘↔PASS 条件性翻转，§25.13 已声明）外逐字一致。正式轮计数 `PASS 13 ｜ PASS* 10 ｜ FAIL 0 ｜ ⛔ 4 ｜ ⊘ 2`。
+  - **Deliverable 3 勘误 ✅（追加不覆盖）**：`g4-regression-report.md` §25.13.0 末尾追加【WXG-T-123 注】——`CLK-01 = 2.003` 系 **T-122 修复前产物**所测，已被复测取代；原文一字未动；完整记录落新节 **§25.14**。
+  - **Deliverable 4 `P4S-03` 修后读数 ✅ 记 `⊘`**：判据面（探针 `DECLARED_INVALID`）硬编码无条件 `⊘`，本轮不改；读数据实登记 —— 直测 **2.02 次/秒**（正式轮，最小墙钟间距 495ms）/ **2.38 次/秒**（重跑轮，420ms，超出纯帧量化带宽，系起播检测对位移通道肩峰的敏感度所致）；换算交叉校验 ≈2.00 / ≈2.06。**既不因 2.02 贴线记 PASS，也不因 2.38 漂移改判 FAIL**。产品侧结论仍以 `P4S-02`（game 时基 ≥500ms ✓）与指令流层为准。
+  - **Deliverable 4b 分辨率口径 ✅（只写文字、未改阈值）**：§25.14.4 落档 T-122 裁定 ① —— 一帧 ≈16.7ms ⇒ 500ms 门实测起点间距 500±8ms ⇒ 折算 **1.97–2.03 次/秒**；带宽内读数（2.01/2.02）属分辨率噪声、非真超线，**不得据此放宽或收紧门限**；`§3.8` 冻结值与探针判据**一字未动**。带宽边界声明：只覆盖纯帧量化，重跑轮 2.38 超带宽属检测敏感度，不得读作判定。
+  - **顺带登记（探针文案滞留，不在本单修）**：§25.14.5 —— D12：`P4S-03` 正文仍硬编码「双驱动宿主不可测」理由（修后已单驱动，文案过时）；D13：重跑轮计数行「⊘ 1」与括注「P4S-01b, P4S-03」不符。均为文案/展示，不影响判定与退出码，建议并入下轮探针维护单。
+  - **改动文件**：`production/qa/beads/g4-regression-report.md`（§25.13.0 追加勘误注 + 新增 §25.14，共 +102 行）、`production/qa/beads/evidence/beads-browser-probe-t123.log`（新）、`evidence/beads-browser-probe-t123-rerun.log`（新）；截图/JSON 取样物由探针每轮覆写（盘上版本对应重跑轮）。**未改** `beads-browser-probe.mjs`、`games/**`、`packages/**`、`tools/**`、`systems-index §3`。**未 commit / 未 push**。
+  - **G4 建议（裁决权归主理人）**：维持 **CONCERNS** —— `CLK-01` 已闭合，剩余阻塞全部收束到真机首验（DEV-01）与探针维护单，无新实现缺陷。
+- **主理人独立复核（2026-09-16，事后非采信自述）**：
+  - **`CLK-01` 已核**（`beads-browser-probe-t123.log`）：**仿真/墙钟 = 1.002**（墙钟 2.513s / 仿真 2.517s / 151 固定步）⇒ **PASS** ✅；重跑轮 **0.997** ⇒ 两点与 `T-122` 自证 0.999 **三点一致**。**退出码 1 → 0，FAIL 0** ⇒ **BD-40 至此 `[B]` 道次闭合**。
+  - **勘误与口径已核**：§25.13.0 的【`WXG-T-123` 注】（`:1951`，**追加不覆盖**、原文零改动）✅；**§25.14**（`:2028`）+ **判据测量分辨率口径**（`:2080-2084`，折算带宽 **1.97–2.03 次/秒**）✅ —— **只写文字、阈值与 `§3.8` 冻结值一字未动** ✅。
+  - **特别肯定一处纪律**：`P4S-03` 直测读数**跨轮漂移 2.02 → 2.38**，**超出其自己刚写的纯帧量化带宽（1.97–2.03）** ⇒ 成员**没有**拿 2.02 贴线记 PASS，也**没有**因 2.38 改判 FAIL，而是**据实登记漂移 + 维持 `⊘`（拒绝判定）**，并把漂移成因指到「起播检测对位移通道肩峰的敏感度」。**带宽判据被自己的新数据顶穿时，正确动作是拒绝判定并追因，不是挑一个好看的数** —— 这是本单最值得留档的一笔。
+  - **门禁**：`check:tasks` **52 行 ⇔ 52 节**、`check:links` OK、`verify` PASS 14 / WARN 0 / SKIP 1 / FAIL 0 ✅。
+- **主理人裁定（成员四项未决）**：
+  1. **`P4S-03` ⊘ 的后续 = A（维持 ⊘，至真机首验一并复核）** —— 采纳其建议。理由：① 判据面本轮**禁改**（`§25.13` D10 裁定）；② 直测读数**跨轮漂移超出分辨率带宽** ⇒ 该测度对该宿主形态**本身不稳定**，此时重设判据面（B）是过早优化，**真机上拿同源读数再定才有意义**；C（拿 2.02 记 PASS）**否**。
+  2. **`D12`/`D13` 探针文案** = **并入下轮探针维护单**（与 §25.13.6-4 的 `P4S-01b` 测度纯净度增强同批），**不挂 backlog** —— 它们是「文案与展示失实」（会误导后人），属**活跃漂移**而非低优先欠账。
+  3. **G4 裁决 = 维持 `CONCERNS`** —— 采纳。`CLK-01` 闭合后剩余阻塞收束为：**DEV-01 真机首验（需 AppID，P0 含 `CLK-01` 同源复核 + wrong/告急观感）**、探针维护单、`beads` 主包红线仍无实测数据。**不得升 PASS**。
+  4. **主表状态行** ⇒ 本条已由主理人更新。
+  - **沉淀**：QA 提出的两条 K 候选（①判据读数须声明测量分辨率带宽，带宽内不判超线也不据此放宽；②修后复测先核产物新鲜度，防在陈旧产物上测出假 FAIL）**均采纳**，已入主理人经验库；建议下次 `tasks:archive` 时一并沉淀进仓内 memory。
+- **📥 待入库清单（2026-09-16 盘点 · 61 项 · 用户裁定：等并发入库会话收口后由主理人按序提交）**：
+  - **触发条件**：并发入库会话（HEAD `7e2565d` @ 08:21:43，正入库 WXG-T-119 的 docs/memory/knowledge）**停止产出 ≥30 分钟**方可动手。**⚠️ 该会话在 08:39–08:41 仍在 `temp/` 产出 beads 截图 ⇒ 截至本条登记时仍未收口**；`temp/` 系其在途产物，**勿清理**。
+  - **已随盘点完成**：`.gitignore` 已补 `production/qa/beads/evidence/**/*.json|*.png`（82 → 61 项噪音）；`/tmp/beads-evidence` 已清；残留 `serve-harness` 进程已终止。
+  - **提交分组（⚠️ 混笔文件须随行，勿按文件级拆）**：
+    1. **T-104**（C1 坐标归一化）：`packages/framework/src/adapters/cocos/touch-normalize.ts`(新)、`tests/adapters/cocos-touch-*.test.ts`×2(新)、`src/core/input/input-manager.ts`、`docs/architecture/adr/ADR-0011…md`、`docs/architecture/control-manifest.md`
+    2. **T-122**（BD-40 修复）：`src/compose/app.ts`、`src/adapters/cocos/loop-bridge.ts`、`tests/compose/app-host-driven.test.ts`(新)、`tests/adapters/cocos-loop-bridge.test.ts` —— ⚠️ **与 1 在 `bindings.ts` 混笔**（本单 4 行注释 + T-104 大半 diff）⇒ **1+2 同一笔提交**，message 双任务号
+    3. **T-102 + T-100/T-114**（beads BD-29 改码 + 真链）：`games/beads/src/{config/tuning,game/beads-game,view/view-model}.ts`、`tests/{feedback-vfx,helpers,phase-input-realchain}.ts` —— ⚠️ `beads-game.ts` 混笔随行
+    4. **T-115/T-117**（设计文档）：`games/beads/design/gdd/input-control.md`、`games/beads/design/ux/ux-spec.md`
+    5. **T-118/119/123**（QA 探针与报告）：`g4-probe-v1.1.mjs`、`g4-regression-report.md`、`test-cases.md`、`beads-browser-probe.mjs`(新)、`cocos-input-probe.mjs`(新)、`evidence/diag-t119-a05.mjs`(新，**按体例 .mjs 入库**；其 json/png 已忽略)
+    6. **T-121/T-110**（工具/门禁）：`tools/scripts/{selftests,verify-all,check-host-behavior-tests}.mjs`、`dev/harness/index.html`
+    7. **台账**（**最后**）：`production/TASKS.md`、`production/TASKS-DETAIL.md` —— ⚠️ 并发会话若也动台账，须先 `git add` 前复查其最新状态
+  - **镜像/meta 随行**：两游戏 `cocos/**/framework/**` 拷贝件由 `framework:sync` 产出，随组 1/2/3 对应任务走；各 `.meta`（Cocos 编辑器补生成，含 T-058 遗漏的 `ads.meta`）随最近一次涉及该目录的任务走。
+  - **✅ 已处置：`dev/harness/preview/*.svg` —— 判定「不需要记录」并已还原**（2026-09-16）。依据：报告 §BD-19（`:232`）明文登记 `preview:frames`「**不识别 `--help`、直接执行并覆写 `dev/harness/preview/level-{1..5}.svg`**」⇒ 该 +54/−14 是 **BD-19 已登记缺陷的副作用覆写**（跑 `preview:frames` 想看 help 却被脚本直接执行），**非任何任务的有意产出**；svg 本身是 `render-harness-frame.mjs` 的纯再生成产物。处置 = `git checkout -- dev/harness/preview/` 回到 HEAD 有意入库版。**防复发提示**：在 BD-19/B8 修复（`preview:frames` 支持 beads + 识别 `--help`）落地前，任何「想看 help」的调用都会再次覆写这 5 个文件。
+  - **体例提醒**（K-050 教训）：**提交不带 pathspec、逐组确认 staged 清单**；台账与归档收口须双向对账。
+- **🧪 主理人实测（T-130 · 2026-09-16 · harness + playwright 真实指针，产物含 T-122/T-124/T-125/T-126）**：
+  - **符合预期（v1.3 验收面）**：冷启动直进 L1、托盘开局 1 颗；T-124 v1.3 视觉（白胶囊 HUD/8 齿齿轮/28px floor/hint accent_blue/E1 混色/E4 幽灵/三道具卡+ad 角标/扩展入口）；主链路落子与拒绝 ✓；**BD-29 修复运行时成立**（单次脉冲梯形 60/80/60、α 序列 `0.48→1×5→0.48→0`、峰数=1；500ms 门内连点不重启）；**BD-34 回归**（真实指针 暂停→恢复→下一关 全通）；**暂停冻结计时**（184→184）；通关 22/22、3 星、结算面板；L2 推进（8×6）；clearAll 槽位清空 ✓（托盘 9→3）；冲刺 120s、计分累计 10→140、倍率阶梯 ×1/×2/×3 ✓、冲刺结算面板（单局/最高梯位/最高连击 + 再来一局/返回关卡 = §8-8c）✓；normal 失败（时间到 + revive/retry）+ 续时 +60s（revived=true）✓；按钮 ≥88 ✓。
+  - **新缺陷登记（证据截图 /tmp/beads-t130/01–06.png，本轮会话结束即清）**：
+    - **BD-43（P1）道具卡热区与视觉渲染错位**：`T.powerupCardRects()[0] = {x:51, bottom:82, h:116}` ⇒ 热区 y≈**82–198（顶部 HUD 下）**，而视觉卡渲染在**底部 y≈1120**。实测双向对照：tap 视觉位置 (375,1150) ⇒ `clearAll` **消费 0**（玩家点卡无效）；tap 矩形位置 (375,140) ⇒ **消费 1**（且该位置视觉上是网格上方空白 ⇒ **误触风险**）。疑根因 = `powerupCardRects()` 内 `powerupBlockBaseY()`（tuning.ts:619 调用，定义在 layout 模块）与 **T-124 改版后的渲染布局脱节**；**判例复发**：tuning.ts:517 明文登记过 T-062「rects 与点击落点不一致的静默漂移」同类问题。
+    - **BD-44（P2）region 消费后无可见效果**：L2 场景（5 颗已填充）tap 卡 ⇒ `uses.region 1→0` 但 `filled` 不变（cleared=0）。疑区域锚点语义（未选中格时锚在哪）或效果实现缺失，随 BD-43 一并查。
+    - **BD-45（P2）冲刺结算面板「NEW BEST」被黑色图元遮挡**：截图显示「IEW BES」（左首字母被黑块压住）。T-124 丙案视觉回归。
+    - **BD-46（P3）冲刺 HUD「STAGE 1」左裁成「AGE 1」**：同上截图，文字左缘被裁。
+    - **BD-47（P3）= 原 N1 复现**：结算面板「剩余 **02:50.1999999999997174**」—— `formatTime` 秒未取整 + `clearRemaining` 传原始浮点（`beads-game.ts` 结算路）；设计 = mm:ss（ux-spec §3.4）。上次实测（T-118 前）已发现并建议修复，**当时未立项** ⇒ 本条补登记。
+  - **未完成台账任务（不挡可玩性）**：T-077（Label 宽度，进行中）、T-099（取证通路 B8/BD-19，已立项 —— 与本批 `preview/` 覆写复发直接相关）、T-121（verify STEPS 待 T-110）。
+  - **⚠️ 勘误（2026-09-16 追记）**：**BD-43 / BD-44 经 WXG-T-127 复测与代码级复核，裁定均非缺陷** —— ① BD-43：渲染（drawPowerupBand）与命中（_hitPowerupCard）**本就同源于 powerupCardRects()**，双基底（harness + Cocos web-mobile）真实指针点视觉卡均正确消费；② BD-44：region 的 GDD 语义 = **清托盘连续窗口**（powerups §2.2）、§8-7「零网格写入」是验收项本身 —— **T-130 的两项「无效」观测系探针时序伪影 + 观察对象看错（盯网格没盯托盘）**。回归断言已由 T-127 补入。**教训入册**：道具/动效类断言禁止以 snapshot 即时读数为准（uses 扣减/托盘变化存在动画后生效的滞后），须固定延时 + 终态断言或事件计数 —— 已沉淀并转 QA 探针维护单吸收。登记人 = 主理人。
+
+## WXG-T-127
+
+- **名称**：**beads 可玩性实测差距修复（BD-43 热区错位 P1 + BD-44/45/46/47）**
+- **负责**：程基岩(engineering-lead)　**状态**：📋 已立项（待施工）　**P1**（BD-43 = 玩家无法使用道具 + 误触）
+- **背景**：主理人实测（T-130，见 `## WXG-T-123` 节末「🧪 主理人实测」块）发现 5 项差距，登记为 **BD-43..47**（证据与复现步骤俱在登记块）。BD-29/34/40 已修并实测通过；本单清剩余差距。
+- **Deliverables**：
+  1. **BD-43（P1）**：`powerupCardRects()` 热区与视觉渲染对齐 —— 根因排查从 `powerupBlockBaseY()`（tuning.ts:619 调用）入手；**须先写复现断言**（渲染矩形 vs 命中矩形同源，禁止两套坐标 —— `tuning.ts:517` **T-062 判例**就是同类静默漂移，本轮是复发，修法须让两类矩形**共享同一来源**）。
+  2. **BD-44（P2）**：region 消费后无可见效果 —— 定位区域锚点语义（未选中格时锚点在哪/是否应默认网格中心），要么修效果要么修「无锚时应拒绝消费并给提示」，**二选一须有 ux-spec 依据，拿不准回传**。
+  3. **BD-45（P2）**：冲刺结算「NEW BEST」被黑色图元遮挡（T-124 丙案回归，截图 `/tmp/beads-t130/05-fail.png`，会话结束即清 —— 以登记描述为准）。
+  4. **BD-46（P3）**：冲刺 HUD「STAGE 1」左缘裁切成「AGE 1」（同截图）。
+  5. **BD-47（P3）**：结算面板「剩余 mm:ss」浮点尾数 —— `formatTime` 秒取整 + `clearRemaining` 取整（两层都补），补单测。
+- **验收**：① 全部 beads 测试绿 + 新增回归测试（热区/渲染同源断言、N1 mm:ss）；② `pnpm run verify` FAIL 0；③ `framework:sync` + `:check` OK；④ 主理人浏览器复测（真实指针点**视觉**卡生效 + 结算面板 mm:ss + 冲刺结算/HUD 无遮挡裁切）。
+- **权威来源**：**A** `production/TASKS-DETAIL.md` 的 `## WXG-T-123` 节末「🧪 主理人实测」块（BD-43..47 证据）＞ **B** `games/beads/src/config/tuning.ts:517`（**T-062 判例**）+ `:616` `powerupCardRects()` + `games/beads/src/view/view-model.ts`（`drawPowerupBand` 渲染侧）＞ **C** `games/beads/design/ux/ux-spec.md` v1.3（§4 道具/§5 动效）+ `systems-index §3`。
+- **Output Path**：`games/beads/src/**`、`games/beads/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-127` 小节（**追加**）。**禁改**：`packages/**`、`production/qa/**`、设计文档（BD-44 若需规格裁定先回传）。
+- **⚠️ 并发注意**：`games/beads/src/view/view-model.ts` 曾被 T-124/T-126 改过且**已全部入库**（工作树干净）⇒ 无在途笔冲突；但仍以提交前 `git status` 复核为准。
+- **必读 skill**：`my-skills/wxgame-adr-arch/SKILL.md`；另读 `AGENTS.md`、台账 `## WXG-T-127`/`## WXG-T-123` 实测块、`tuning.ts:517` 判例。
+- **约束**：热路径零分配；先问再写；不 commit/push；**修完不自行 commit（由主理人走门禁入库）**。
+- **完成记录（2026-09-16 · 程基岩）—— 状态：✅ 交付完成（BD-45/46/47 改码 + 回归；BD-43 判「HEAD 不复现」+ 同源断言补钉；BD-44 判「非缺陷」并附实测证据）**：
+  - **BD-43（P1）根因裁定：HEAD 不复现，T-130 观测系探针时序伪影（高置信）**。① 代码级：`drawPowerupBand`（view-model.ts:1144）与 `_hitPowerupCard`（beads-game.ts:1358）**本就同源**（共用 `powerupCardRects()`，T-062 判例的修法已在位）；`powerupBlockBaseY()` 与渲染带一致（卡 rect y 82–198 = `POWERUP_BAND` 48–200 内整体居中，y-up 设计系 ⇒ 屏幕底部）。② 浏览器级（playwright 真实指针、viewport 750×1334 ⇒ scale=1）：**harness 与 Cocos web-mobile 产物双基底**点视觉卡 (375,1194) 均正确消费（clearAll 1→0、托盘清空），点 (375,140) 均零消费，`g._pointer` 读回 design y=140↔screen 1194 翻转精确，`designToScreen↔screenToDesign` 往返零误差。③ T-130 的两组读数（视觉位消费 0 / 顶部位消费 1）与「**tap 后同步读快照**」伪影精确吻合：第一次 tap 实已消费、同步读为 0；第二次 tap 前该帧已处理 ⇒ 读到第一次的扣次记在第二次头上（任务书 §9 明列的坑）。**处置**：按任务书要求补「两类矩形逐值相等」回归断言（`tests/view-model.test.ts`「BD-43/T-062 回归」：每张命中卡必有逐值相等的白卡绘制矩形指令，渲染侧私写坐标当场红）——同源结构 + 断言双保险，判例复发空间清零。
+  - **BD-44（P2）裁定：非缺陷（效果存在且正确），不改码、不动规格**。实测（真实指针点 region 视觉卡）：`uses.region 1→0`、托盘 holding `[0,1,2,10]→[10]`（锚点 = 最小 holding 槽 0，清出连续窗口、窗口外槽保留 = GDD powerups §2.2 锚点语义逐字成立），`filled` 不变 = **§8-7「零网格写入」验收项本身**（三道具只清托盘槽、绝不写网格）。T-130 的「无可见效果」系观察口径看错对象（盯网格 `filled` 而非托盘）。ux-spec §4 该行「点道具卡（次数>0）→ 清槽生效（powerup:used）」与实现一致 ⇒ 「修效果」与「拒绝消费+提示」两案均无规格依据、无需启动。
+  - **BD-45（P2）已修**：根因 = 角标底衬 120×32 容不下 28px「NEW BEST」（Chrome `measureText` 实测 **147px**；E2 放大后 35px = **183px**）⇒ 白字两端溢出深底、落在白面板上隐形（截图实测读成「EW BES」，遮挡物即溢出字自身，非外部图元）。修两层：① `sprint-settle.ts` 底衬 120→**168**（=147+两侧≈10 填充；与标题「冲刺结束」右缘净空≈8px）；② `view-model.ts` 角标文字改**固定 28px**（不走 bodyFont/E2 —— F7⑤「数字/标题/按钮字号不随开关变化」，且堵死 183px 的再度溢出路径）。浏览器复验截图：**「NEW BEST」完整可见** ✓。
+  - **BD-46（P3）已修**：根因 = HUD 模式标签右对齐锚 `DESIGN_W−220`(530) 距白胶囊右缘(485) 仅 45px，而 28px「STAGE 1」宽 **117px** ⇒ 左段白字压白胶囊白底隐形（读成「AGE 1」）。修：锚点右移至 `DESIGN_W−30`(720)（屏右 30 边距，仓内留白惯例）；最宽情形 35px「STAGE 10」≈146px（左缘 ≈574）仍净空胶囊 ≥89px。浏览器复验截图：**「STAGE 1」完整可见** ✓。
+  - **BD-47（P3）已修（两层）**：① `beads-game.ts` buildSnapshot：`s.clearRemaining = Math.ceil(remaining − 1e-9)`（与 `s.remaining` 同口径，倒计时不提前归零）；② `view-model.ts formatTime`：秒 `Math.floor` 兜底。补单测（clear-panel.test.ts「BD-47 回归」：推进 0.5s 造小数 ⇒ `Number.isInteger(clearRemaining)` + 面板文案严格匹配 `/^剩余 \d{2}:\d{2} ｜ 道具 \d\/3$/` 且无小数点；改前该断言在 formatTime 层必红，判别力成立）。
+  - **验证数字**：`pnpm -F @wxgame/beads test` **256/256 绿**（23 文件，含新增 5 例：BD-43 同源 ×1、BD-46 锚点 ×1、BD-45 几何+渲染 ×2、BD-47 ×1）；`pnpm run verify` **PASS 14 ｜ WARN 0 ｜ SKIP 1（既有 check:size 环境阻塞，非本单引入）｜ FAIL 0**；`framework:sync` 写入 beads game 拷贝件 **3** 文件 + `:check` OK；harness 重建后真实指针复跑 BD-43/44 行为不变（无回归）。
+  - **改动文件**：`games/beads/src/view/view-model.ts`（formatTime 取整 / HUD 标签锚点 / 角标字体固定）、`games/beads/src/game/beads-game.ts`（clearRemaining 取整，+3 行注释）、`games/beads/src/systems/sprint-settle.ts`（角标 168，+5 行注释）、`games/beads/tests/{view-model,sprint-settle,clear-panel}.test.ts`（新增 5 回归例 + 渲染辅助）；Cocos 拷贝件由 `framework:sync` 产出（3 文件）。**未改** `packages/**`、`production/qa/**`、`design/**`。**未 commit / 未 push**；主表状态行归主理人。
+  - **给主理人复测的提示**：① BD-43/44 复测请用「**tap 后先 `await raf()`/等待 ≥1 帧再读快照**」的节奏（T-130 伪影根源），且 BD-44 的效果观察对象是**托盘槽**（GDD §8-7 网格恒不变）；② 本会话遗留两个本地服务：harness `:4187`（已重建为新码）、Cocos web-mobile 静态件 `:4188`（**产物为旧码**，如需 Cocos 侧复验请先 `pnpm --filter @wxgame/beads run build:cocos:web`）；③ 复现探针在 `/tmp/bd43-probe.mjs`、`/tmp/bd44-region-probe.mjs`、`/tmp/bd4546-probe.mjs`（临时件，未入仓）。
+  - **沉淀候选（0–3 条）**：①「真实指针探针判读：tap 与读数的跨帧时序必须显式等待，单点读数不得作为『无效/误触』双态证据 —— 双向对照各留 ≥1 帧间隔」（K 候选）；②「文字底衬类 UI（角标/胶囊标签）验收须含 measureText 宽度核对，E2 大字号是隐藏的加宽路径」（K 候选）。
+
+## WXG-T-122
+
+- **名称**：**框架 · 宿主驱动权互斥（BD-40 宿主双驱动修复）**
+- **负责**：程基岩(engineering-lead)　**状态**：📋 已立项（待施工）　**P1**
+- **背景**：**BD-40** 由 `WXG-T-119`（`[B]` 道次探针）发现、主理人**代码级确证**：Cocos 宿主下 **仿真/墙钟 ≈ 2×**（实测 **1.999 / 2.029 / 2.005 / 2.003**，四轮稳定复现）。**`WXG-T-121` 只把 BD-40 挂上了检测门禁，修复本身此前无单** ⇒ 本单即修复单。
+- **根因（已确证，可直接采用）**：
+  - `packages/framework/src/compose/app.ts:121` —— `start()` **无条件** `this._schedule()`；`:158-169` `_schedule()` 用 `platform.requestFrame` **自驱** `tick`；
+  - `packages/framework/src/adapters/cocos/loop-bridge.ts:38-43` —— `CocosLoopBridge.start()` **先** `this._app.start()`（⇒ 触发自驱）**再** `this._scheduler.schedule(this._tick, 0)`（⇒ Cocos 又驱动一次）；
+  - `packages/framework/src/adapters/cocos/bindings.ts:105-108` —— 宿主**两者都接**。
+  - ⇒ `app.tick` 每墙钟帧被调 **2 次** ⇒ 游戏跑 ≈2 倍速。
+- **定性：设计意图与实现的脱节，不是宿主误用** —— `app.ts:141-146` 的 `tick()` docstring **明写**「Used by tests and by hosts whose engine owns the tick (e.g. a Cocos `Component.update`)」⇒ 框架**本就打算**让宿主自 tick，但 `start()` 没有提供关闭自驱的开关。
+- **后果（必须随修复一并声明）**：仿真/墙钟 ≈2× ⇒ 倒计时/动效/音频时长相对墙钟**减半**；**wrong 闪烁在墙钟口径 3.35–4.49 次/秒 > `systems-index §3.8` 的 2 次/秒** ⇒ **光敏性红线在宿主层被违反**（`T-102` 的游戏时基逻辑本身正确）。**真机同源风险**：`packages/framework/src/platform/weapp.ts:197` 亦有 `requestFrame` ⇒ **weapp 宿主的驱动权须在本单一并核实并写清结论**（若 weapp 无 bridge 则 `App.start()` 自驱是唯一驱动 ⇒ 单驱正确；若有同类 bridge 则同样双驱）。
+- **⚠️ 已知陷阱（修复时最易踩）**：`bindings.ts:108-110` 注释**明说** `CocosLoopBridge.start()` 调 `App.start()` 是**有意依赖** —— 为了让它做 **viewport re-fit**（`platform.getScreenSize()`），且「Doing this any earlier gets silently overwritten (observed 2026-09-13)」。⇒ **不能简单删掉 `app.start()` 调用**，否则 viewport fit 静默失效。修复必须**保住初始化语义**（`game.init` / `onHide/onShow` 挂接 / viewport re-fit），只把「**驱动权**」从初始化里**解耦**出来。
+- **修复方向（选型权归你，但须满足以下约束）**：
+  1. **向后兼容**：`App.start()` 的**默认**行为（无人声明宿主驱动）**保持自驱** —— harness、Node 单测、`render-harness-*.mjs` 全靠它，**不得破坏**。
+  2. **显式宿主驱动**：提供一种**显式**声明「驱动权归宿主」的方式（构造选项 / `start()` 选项 / 独立方法，**由你定**），宿主驱动模式下 `start()` 做**全部初始化**但**不 `_schedule()`**；`stop()` 在该模式下须安全（`_frameHandle` 为 null 时不得抛）。
+  3. **互斥防护（强烈建议）**：两种驱动**同时生效**时应**硬失败**（抛错或显式 WARN + 拒绝第二路），**不得静默双驱** —— 本缺陷能存活到今天，正是因为双驱是静默的。`CocosLoopBridge` 改用宿主驱动路径。
+  4. **行为测试**：`packages/framework/tests/compose/**`（已存在该目录）新增断言：宿主驱动模式下 ① `_schedule` 未启动（无 `requestFrame` 调用）；② 外部每墙钟秒调一次 `tick` ⇒ `loop.advance` 的固定步数 ≈ 预期（**1×**）；③ 双驱时**硬失败**。**用假 platform / 假 scheduler**（沿用 `tests/adapters` 现有假件风格）。
+  5. **`framework:sync`**：改 `packages/framework/src/**` ⇒ 必跑 `pnpm run framework:sync` + `framework:sync:check`（两游戏拷贝件同步）。
+- **验收标准**：
+  1. framework 行为测试全绿（含新增 3 条）；
+  2. `pnpm run framework:sync:check` OK；
+  3. `pnpm run verify` FAIL 0；
+  4. **Cocos web 产物重跑 `production/qa/beads/beads-browser-probe.mjs` 的 `CLK-01` ⇒ 仿真/墙钟 ≈ 1.00（±0.10）** —— 此项属 **QA 域复测**，工程侧**先自证单测**，复测由主理人另派；若你本地能顺带跑（`node production/qa/beads/beads-browser-probe.mjs`，**产物须重建**：`pnpm --filter @wxgame/beads run build:cocos:web`），可作为自证附在回传，但**不得替代 QA 复测**。
+  5. **`breakout` 同受影响**（共用 framework 拷贝件）⇒ 修复后其 Cocos 产物同样回到 1×；**不得顺手改游戏侧 src**（如确需，先回传）。
+- **权威来源（冲突以 A 为准）**：**A** `packages/framework/src/compose/app.ts`（`start`/`tick`/`_schedule`/`stop` 现实现 + `:141-146` docstring 的**设计意图**）＞ **B** `packages/framework/src/adapters/cocos/loop-bridge.ts`（全文 55 行，已确证）+ `bindings.ts:105-118`（**含 viewport 陷阱注释**）＞ **C** `production/TASKS-DETAIL.md` 的 `## WXG-T-119`（BD-40 四轮实测 + 效力边界）与 `## WXG-T-121`（**只挂了门禁，非修复**）＞ **D** `docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md`（**不得**与本修复耦合；viewport re-fit 语义仍归它管）。
+- **Output Path**：`packages/framework/src/compose/app.ts`、`packages/framework/src/adapters/cocos/loop-bridge.ts`（如需）、`packages/framework/src/adapters/cocos/bindings.ts`（**仅**适配新驱动权 API；**若需动它须在回传说明为何**）、`packages/framework/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-122` 小节（**追加**）。
+  **禁改**：`games/**/src/**`、`games/**/cocos/assets/scripts/**`、`production/qa/**`、`tools/scripts/**`、`systems-index §3`、其他成员台账小节。镜像拷贝件由 `framework:sync` 产出，**禁手改**。
+- **必读 skill**：`my-skills/wxgame-adr-arch/SKILL.md`；另读 `AGENTS.md`、`docs/architecture/control-manifest.md`（L4/L5）、`packages/framework/src/compose/app.ts` 全文、`loop-bridge.ts` 全文、`production/TASKS-DETAIL.md` 的 `## WXG-T-119` / `## WXG-T-121`。
+- **约束**：渲染层不持有状态（L5）；先问再写；不 commit/push；**若发现 weapp 宿主同样双驱，须如实登记并评估是否需同修，不得静默只修 Cocos**。
+- **后继（不在本单）**：① QA 复测 `CLK-01`（主理人另派）；② weapp/真机道次复核（需 AppID）；③ 屏幕层探针 P0 修法（T-119 裁定 ②，另单）。
+- **完成记录（2026-09-16 · 程基岩）—— 状态：✅ 工程侧交付完成（QA 复测 `CLK-01` 待另派）**：
+  - **驱动权 API 选型**：**独立显式方法 `App.startHostDriven()`**（备选：构造选项 / `start()` 选项）。理由：① `start()` 签名与默认行为**逐字节不变**（向后兼容硬约束零风险）；② 语义在调用点自解释；③ **`bindings.ts` 无需行为改动**（宿主仍只 `new CocosLoopBridge(app, this)`，驱动权改由 bridge 内部声明），避免触碰 `cc` 依赖的未验证文件。模式为**实例生命周期粘性**（`_hostDriven` 一经置位不复位）。
+  - **初始化语义保全（viewport 陷阱）**：两路 start 共用抽出的 `_init()`（`getScreenSize` → `viewport.resize` → `game.init` → `onHide/onShow` 挂接 → `_running/_lastFrameMs`）；`startHostDriven()` 只是**不调 `_schedule()`**。bindings.ts 的「必须 loop start 之后 `_fitToGameCanvas()`」时序前提原样成立（仅订正注释措辞：`App.start()` → `App.startHostDriven()`，行为零改动）。`stop()` 在宿主驱动下 `_frameHandle` 恒 null，原实现本就安全，新增测试钉死。
+  - **互斥防护（三道，全部硬失败，无静默双驱）**：① 自驱 App 上调 `startHostDriven()` → 抛错（正是 BD-40 接线形态）；② 宿主驱动 App 上调 `start()`（含 stop 后重启）→ 抛错（粘性驱动权，拒绝静默翻转）；③ `_schedule()` 内防御守卫 → 抛错（兜未来新调用路径）。自驱模式下手工 `tick()` **保持允许**（harness / 既有 13 例 app 测试依赖），互斥守卫放在**接线点**而非 tick 点 —— 这是与「向后兼容」约束的明确折衷，已在 `tick()` docstring 写明。
+  - **`CocosLoopBridge.start()` 改走 `app.startHostDriven()`**；对其余宿主零影响。
+  - **weapp 侧核实结论（`[R]` 未取证，代码级）**：微信真机产物（`games/breakout/cocos/build/wechatgame/game.js`）就是 **Cocos 壳** —— 真机宿主 = 同一套 `Bootstrap` + `CocosLoopBridge`，`detectPlatform()` 因 `wx` 存在返回 `WeappPlatform`（其 `requestFrame:197` 优先 `requestAnimationFrame`）⇒ **weapp 同样双驱**（T-119 探针的「同源风险」判断成立）。但**双驱源头是 framework 正本**（App 自驱 + bridge），不存在独立的 weapp bridge ⇒ 本修复经 `framework:sync` **自动同修 weapp 路径**，无需（也不得）改游戏侧。真机 1× 仍须 `[R]` 复核。
+  - **测试（`tests/compose/app-host-driven.test.ts` 新增 7 例 + `tests/adapters/cocos-loop-bridge.test.ts` 增 1 例）**：① 宿主驱动 start 后 `platform.hasPendingFrame === false` 且 pump 1000ms 零 update、init/viewport 全部完成；② 64 次 `tick(1/64)` ⇒ 64 固定步、`loop.time` = 1.0（1/64 二进制精确，期望值非容差游戏）；③ 自驱上 `startHostDriven` 抛错且第二路被拒（`scheduler.scheduled === false`）；另钉：粘性拒绝、幂等、`stop()` 安全、默认 `start()` 仍自驱 64 步/墙钟秒（向后兼容）。
+  - **验证数字**：framework vitest **281/281 绿**（30 文件）；`tsc --noEmit` OK；`framework:sync` 写入 3 文件/游戏 + `:check` OK；`pnpm run verify` **PASS 14 ｜ WARN 0 ｜ SKIP 1（既有 `check:size` 未覆盖项，非本单引入）｜ FAIL 0**。
+  - **CLK-01 工程自证（不替代 QA 复测）**：重建 `build:cocos:web` 后跑探针 ⇒ **CLK-01 PASS，仿真/墙钟 = 0.999**（墙钟 2.503s / 仿真 2.500s / 150 固定步；修复前 1.999）。顺带观察：P4S-03 墙钟有效闪烁 **2.01 次/秒**（修复前 3.35–4.49；§3.8 判据 ≤2）—— 已回到**贴线**量级，是否须为红线留余量归 QA/策划裁定，本单不判。
+  - **改动文件**：`packages/framework/src/compose/app.ts`、`src/adapters/cocos/loop-bridge.ts`、`src/adapters/cocos/bindings.ts`（**仅注释订正**，理由见上）、`tests/compose/app-host-driven.test.ts`（新）、`tests/adapters/cocos-loop-bridge.test.ts`（+1 例）；镜像拷贝件由 `framework:sync` 产出。**未 commit / 未 push**；主表 `TASKS.md` 状态行更新归主理人。
+- **主理人独立复核（2026-09-16，事后非采信自述）**：
+  - **API 已核**（`app.ts:62-66` `_hostDriven` 粘性标志、`:112-114` getter、`:120-131` `start()` 在宿主驱动态**抛错**）：两路 start **共用抽出的 `_init()`** ⇒ **viewport re-fit / `game.init` / onHide/onShow 全量保留** ✅ —— `bindings.ts:108-110` 那条「loop start 之后 `_fitToGameCanvas()`」的时序前提**原样成立**，陷阱避开了。
+  - **`loop-bridge.ts:49-50`** 已改走 `startHostDriven()` + `schedule(_tick, 0)` ⇒ **单驱** ✅。
+  - **CLK-01 自证已核**（`beads-browser-probe.log`）：**仿真/墙钟 = 0.999**（墙钟 2.503s / 仿真 2.500s / 150 固定步 ≈ 59.9 步/秒）✅ —— **1.999 → 0.999，BD-40 修复生效**。⚠️ 此项是**工程自证**，**QA 复测仍须另派**（不替代）。
+  - **❗`bindings.ts` 的「仅注释订正」属实，但有一处须补记**：该文件工作树 diff 为 **+89/−24**，**绝大部分是 `WXG-T-104` 的未提交笔**（`touch-normalize.ts` **不在 HEAD** ⇒ T-104 笔未提交；`normalizeCocosTouch` / `_touchSpace()` / C1 注释订正皆其产物）；**本单改动确实只有 4 行注释**（`App.start()` → `App.startHostDriven()`）。⇒ **提交时同文件两单笔随行，勿按文件级拆**（同 `WXG-T-102` 的教训）。**成员回传未声明此点，属回传完整性缺口**（非行为问题，已代为补记）。
+  - **门禁**：framework vitest **281/281**；`framework:sync:check` OK；`pnpm run verify` = **PASS 14 ｜ WARN 0 ｜ SKIP 1 ｜ FAIL 0** ✅。
+- **主理人裁定（成员四项未决）**：
+  1. **光敏红线贴线（`P4S-03` 墙钟 ≈2.01 次/秒）= 不改 500ms 门**。**理由**：2.01 与 2.00 之差在**帧量化分辨率内** —— 一帧 ≈16.7ms ⇒ 500ms 门的实测起点间距落在 500±8ms ⇒ 折算 **1.97–2.03 次/秒**，**2.01 属测量分辨率噪声，非真超线**。⇒ **登记**：下轮 QA 须把「**判据的测量分辨率**」写进判据口径（否则后人会拿 2.01 当超线、或据此反向放宽）；**不得**为过线而调门限 —— 那是 `§3.8` 冻结值（≤2 次/秒）的实现参数，**改它 = 改光敏性安全余量的设计**，须文策渊裁定并走 §3 流程，工程/QA 都无权自裁。
+  2. **`check:size` SKIP** → **backlog**（另议，不并入本单）。
+  3. **主表状态行** ⇒ 本条已由主理人更新。
+  4. **主表归档**（52 行 > 观察哨 20）→ **另议**；建议下轮跑 `pnpm run tasks:archive -- --detail-until-under=7000 --write`。
+- **BD-40 关单口径**：**限 `[N]`/`[B]` 已验**（CLK-01 = 0.999）；**真机 1× 留 `[R]` 复核** —— weapp 真机 = **同一 Cocos 壳** + `WeappPlatform` 自驱 ⇒ 本修复经 `framework:sync` **同修**（成员已核实「真机宿主即 Cocos 壳」），但无 AppID 未实测 ⇒ **不得据本单宣称「真机时长正确 / 真机不闪」**；真机首验 **P0** 须含 `CLK-01` 同源复核（`T-119` DEV-01 口径）。
+
+## WXG-T-121
+
+- **名称**：**装置自测分档挂门禁（BD-39 · BD-40 并单）**
+- **负责**：主理人(Qoder)　**状态**：🔄 **部分交付**（2026-09-16：CI 侧两条已闭合；`verify` 本地半边受 WXG-T-110 在飞阻塞）
+- **并单依据（先取证再裁定）**：两条缺陷同根因（「门存在、但不跑」）、同处改（`verify` 步骤表 / CI）、同验收 ⇒ 并成一单。实测代价：
+  11 件装置自测合计 **29.4s**、`ctx:check` **0.51s**、`verify` 现有各项相加 **13.8s**；`grep selftest .github/workflows/ci.yml` **零命中**
+  ⇒ 本地与 CI **两条链都零覆盖**。全挂进 `verify` ⇒ 14s → 43s（+213%），反而诱发绕开门禁 ⇒ 结论 = **按实测耗时分两档**。
+- **动手前抓到一条正在腐烂的自测（本单的直接证据）**：`context-usage-selftest.sh` 在 `3fa3be4`（改动前）与 `e9664da`（改动后）
+  两个点同测都是 **FAIL=63** ⇒ 以「隔离 worktree 跑历史点」判定为**存量腐烂**，非本轮引入。两处根因同一形状「手写清单追不上正本扩张」：
+  ① 桩只 `cp` `lib/` 两件，而 `check-context-budget.mjs` 后来 import 了 `lib/memory-index.mjs` ⇒ 桩里 `ctx:check` 崩在 `ERR_MODULE_NOT_FOUND`；
+  ② 桩**手写** `ctx/index.json`（固定 5 文件）追不上生成物集合扩张（`ctx/BUDGET.md` 须入索引、`memory/INDEX.md` 须同源存在），且桩仓库无 `memory/`
+  时 `ctx:build` 写生成物直接 ENOENT。修法 = 依赖**整目录通配** + **索引由被测生成器播种**（跑一次桩 build 再注入本轮度量文件）+ 预置写盘目录 ⇒ **63 → 0**（172 断言全绿）。
+- **落码**：① 新增 `tools/scripts/selftests.mjs` 分档执行器 —— 三条规矩：**逐项执行永不短路**（K-036）、打 `STATUS: OK|SKIP|FAIL` 机读行
+  （⇒ `verify` 接入只需往 `STEPS` 加一项）、**完整性守卫**（磁盘上未入档的 `*-selftest.sh` / package.json 里未入档的 `*:selftest` 入口 / 档位项脱钩 ⇒ 当场红；
+  确实挂不上的须写进源码 `AWAITING` 并给理由 ⇒ 降为 SKIP，**不是通过而是没测**，`--strict` 判失败）。② `fast` 档 = 六件自测 **+ `ctx:check`**（BD-40 本体 0.3s，
+  并入而非另挂一项 ⇒ 将来补 `STEPS` 一行同时闭合两条缺陷）。③ `package.json` 补 5 个入口（`ctx:usage:selftest`、`tasks:archive:selftest`、`ci:review:selftest`、
+  `selftest:fast`、`selftest:heavy`）。④ CI `unit` job 加 fast+heavy 两步 ⇒ 自测覆盖 **11/11**。⑤ `worktree-authoritative-selftest.sh` 在 worktree 里播种
+  `node_modules` 软链（兜 pnpm 10 对未安装 worktree 拒执；本机 pnpm 9.15.9 容忍 ⇒ 该风险本地**未能复现**，如实标注）。⑥ 回写 `docs/agent/commands.md`。
+- **未改 `verify-all.mjs`（串行纪律）**：该文件正被并发 WXG-T-110 在飞改动（+43 行 `WARN` 态与新步骤）⇒ 同文件不抢改；
+  改为在执行器里 `noteVerifyCoverage()` **每次运行点名**该缺口，免得又变成一件「只有 CI 跑、本地腐烂无人见」的事。
+- **半入库登记**：HEAD 的 `package.json` 里 `check:host-tests` 入口指向**未跟踪**脚本（`git ls-files --error-unmatch` 证实）⇒
+  它的 `:selftest` 留在 `AWAITING`（SKIP），待 WXG-T-110 收口后并入 fast 档。
+- **验收（现场复跑）**：`selftest:fast` **PASS 7 ｜ FAIL 0**（≈6.5s）｜`selftest:heavy` **PASS 5 ｜ FAIL 0**（≈26s，断言 22/172/9/190）｜
+  `ctx:usage:selftest` **172 断言 0 红**（HEAD 存量 63 红）｜`ctx:selftest` 仍 **9/0**｜`--strict` 正确因 `AWAITING` 判失败｜`pnpm run verify` **PASS 14 ｜ SKIP 1（check:size）｜ FAIL 0**｜`kb:check` 八重 ✅（活跃 49）。
+- **沉淀 K-049**：自测夹具须由**被测生成器播种**、依赖按**整目录拷贝**，否则门禁一扩就整片假红；判「我改坏 vs 早就红」一律先取**历史点同测**证据。
+- **余项**：① `verify` STEPS 加 `selftest:fast`（待 T-110）；② `check:host-tests:selftest` 入档（同前）；③ CI 首跑观察 pnpm 10 环境下 `ctx:selftest` 的 worktree 执行。
+- **✅ 余项收口（2026-09-16 · 主理人）**：T-110 落盘经复核完整 ⇒ 阻塞解除。`verify-all.mjs` STEPS 追加 **`selftest:fast`** 与 **`check:host-tests:selftest`**；实跑 `pnpm run verify` ⇒ **PASS 16 ｜ WARN 0 ｜ SKIP 1 ｜ FAIL 0，总时长 26.2s**（优于预估 43s）。③ CI 首跑观察留给下次 CI 触发。**T-121 关闭。**
+
+## WXG-T-124
+
+**beads 美术 v1.3「丙案·双色温对撞」风格单（三件套 + 落码）** · 负责：林绘澄(art) + 主理人(Qoder) · 状态：✅ 完成（2026-09-16，真机截图待补）
+
+- 起因：用户「review 美术设计，对标行业领先，需独立风格与质感」。主理人三方对账（规格×代码×真机帧）得 F1–F8；用户裁定风格=丙（双色温对撞）、落地=派林绘澄出草案、F5=独立立项。
+- 本轮交付：
+  - art/ 三件套升 v1.3：art-bible §3.1 UI token 冷底真源(F1)/§3.5 强调色纪律(F6)/§4.3+§6 拼图容器板+暖光 band(F2/F3/丙案)/§6+§8 珠子十层质感(F4)/§6 HUD 白胶囊+8齿齿轮+图标笔画+标签字号色(F7)/§6+§8 背景层次解锁(F8)；assets-spec §1.1 十层卡/§1.7 容器板+band/§1.8 背景层次；accessibility A5 新增 + B1/E1 F7④ a11y 假绿根治。
+  - 落码（不撞并发两文件）：palette.ts DEFAULT_PALETTE 7 值换丙案冷底 token(F1) + 十层卡常量；bead-render.ts 六层→十层(L0a 接触阴影/L3b rim/L4a-c 软高光)；bead-render.test 重钉 13/13；framework:sync 镜像 2 件；beads 全量 typecheck 0 + 251 测试绿。
+- view-model 落码补全（2026-09-16，排并发后）：view-model.ts 消费面全量——F6 textAccent 字段删除并由编译器找漏网逐处路由(五面板主钮+NEW BEST 角标→accent_primary 白字、选中点→hintBlue ≤8px、连击光/爆发光条→白、缎带/结算星→STAR_GOLD、finish 色带→accent_primary/adBadge)、F2/F3 容器板+暖光 band(B1-B6 全程态常驻)、F7 HUD 白胶囊+8齿齿轮+最小字号 28px(F7⑤ 22px 作废)、F8 背景三层冷色叠层；tuning.ts +24 几何常量(§1.7/§1.8/F7)；feedback-vfx 重钉 22/27→28/35px；beads typecheck 0 + 251 绿 + verify 14 PASS/0 FAIL + framework:sync 镜像 3 件。ux-spec §3 HUD 条款对齐(文策渊)待后续单。
+- F1 过渡处置：textDim 值 #8B8578→#6E7288(严格更暗，闭合 F7④ 白底标签 4.74:1)；token 改名(text_secondary)与图标 re-route 留 view-model 阶段。textAccent 值本轮不动(语义混杂，盲改会误染选中点/连击光/星)。
+- 未决(待用户/后续)：① success #3FBF6B 与珠色4同值是否走冻结变更；② 十层卡真机性能回退阀(合并 L4a+b 降 8 层)是否预授权；③ 单帧最坏 +624 图元。
+
+## WXG-T-125
+
+**beads §3.8 幽灵符号可见性冻结变更单（F5，独立于风格单）** · 负责：主理人(Qoder) · 状态：✅ 完成（2026-09-16，真机截图待补）
+
+- 起因：art 评审 F5——EMPTY_GHOST_ALPHA=0.20 + EMPTY_TINT_MIX=0.35(§3.8 冻结常量)真机上空槽目标色/幽灵符号几乎不可读，削弱「同色入格」第一道解锁。
+- 拟变更：EMPTY_GHOST_ALPHA 0.20→0.32、EMPTY_TINT_MIX 0.35→0.42。
+- 流程(§6 冻结变更)：用户确认改值 → 主理人评估连带影响 → 落 systems-index §3.8 值 + §6 变更记录行 → palette.ts 两常量同步 → 探针 A2b 复验(幽灵符号可见性) → 下游(QA 判据/assets-spec §1.2 引用)对齐。
+- 与 T-124 解耦：本单只动两个 §3.8 冻结常量，不涉丙案风格；风格单 v1.3 文档已注明「幽灵符号可见性由本独立变更单处理」，不改值。
+- 施工记录（2026-09-16，用户拍板甲=按拟定值）：① systems-index §3.8 两值 + 文首版本行 v1.21；② changelog v1.21 行；③ palette.ts 两常量 + framework:sync 镜像；④ assets-spec §1.2 E1/E4 数值 + [v1.3·F5] 声明闭合；⑤ beads 全量 251 绿 + typecheck 0（断言全引常量零改动）；⑥ A2b 指令流探针 2/2（TC-PER-01 [Probe]：全关卡 E1 去重数 ≥ 关色数 + E4 ink α=0.32），探针临用临删。
+- 待补：Cocos 产物截图肉眼比对（R1+R2 道次）受构建阻塞，真机可达后补验（changelog v1.21 已诚实记录）。
+
+## WXG-T-126
+
+**beads ux-spec §3/§5/§7 HUD 条款对齐（v1.3 落码事实回写，F7①②⑤/F6）** · 负责：主理人(Qoder) · 状态：✅ 完成（2026-09-16）
+
+- 起因：WXG-T-124 遗留项——view-model 落码后 ux-spec 侧 HUD 条款仍停在 v1.2 事实（无白胶囊/齿轮样式/字号 floor；§5 选中圆点未锁色，原实装暖橙已随 F6 作废）。并发热写已停（ux-spec.md mtime 隔夜）后施工。
+- 对齐五处（引用真源不复制数值）：① §3.1 补 HUD 视觉落地条（白胶囊 220×64 + 时钟 Ø36 accent_blue + 8 齿 Ø48 accent_purple，几何/色彩真源 assets-spec §1.5，本表只锁信息分区与热区；线框 ⚙88×88 澄清为热区）；② §3.1 补 F7⑤ HUD 小字 28px floor（v1.2 22px 作废）+ 冷底小字 text_primary；③ §5 托盘选中圆点锁 accent_blue ≤8px（F6 环状提示纪律）；④ §3.3 E2 大字号基准写明 28×1.25=35px；⑤ §7 可访问性表新增「字号」行。版本行挂 WXG-T-126 变更记录。
+- 边界裁决（诚实口径）：§3.2 冲刺 HUD 差异仍标「提案」——代码已落码（SCORE / ×multiplier / COMBO，view-model.ts 冲刺 HUD 块）但布局与提案线框有差（连击窗口进度条/梯级进度点未核）⇒ 提案转正需设计侧比对落码几何，**另立单**，本单不越界。
+- 验证：纯文档单（仅 ux-spec.md），零代码改动；check:links 过。
+
+## WXG-T-128
+
+**beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿）** · 负责：林绘澄(art) + 主理人(Qoder) · 状态：🔄 进行中
+
+- 起因：用户「review 美术设计，提出优化方案，要求有质感、对比竞品要吸引人、要有及时的互动」。主理人**三方对账（规格 × 代码 × 竞品）**得 G1–G9。
+- **v1.3 已达标面（不重复动）**：静态质感十层卡、冷底 token 真源、暖光 band 三级色温、背景层次、HUD 白胶囊/8 齿齿轮、a11y 假绿根治；竞品差异化辨识（冷紫灰 × 唯一暖焦点）已立住。
+- **缺口清单（全部有代码证据，grep 零命中）**：
+  - **G1 落座零视觉反馈（P0）**：art-bible §2「落座感」+ §7 `vfx_fill_pop` 120ms + assets-spec §1.6 + ux-spec §5 四处规格已冻结，但 view 侧 `bead:placed` **零消费**（仅音效 `_sfx(AUDIO_CLIP_PLACE)` 已实装）⇒ 最高频交互画面纹丝不动。
+  - **G2 消除无溶解（P1）**：`vfx_clear_dissolve` 200ms 零命中 ⇒ 与「溶解沙」音效**音画不同步**。
+  - **G3 道具生效无全屏扫光（P1）**：400ms 规格零命中（唯一 sweep 属 combo Lv3 burst，语义不同）。
+  - **G4 过关无庆祝高潮（P1）**：`vfx_complete_wave` 800ms 逐列弹跳零命中 ⇒ 填满直接跳结算面板。
+  - **G5 连击 Lv2 伪震屏空缺（P2·工程）**：渲染管线无全局变换通道（`_commands` 私有，WXG-T-074 登记），视图不假造。
+  - **G6 结算无彩带礼花（P2·竞品差）**：**规格本身无此条**（assets-spec §1.6 仅 4 条 VFX）⇒ 需先补规格。竞品 = 全屏彩带 + 缎带 + 礼盒轨道。
+  - **G7 不可填格纯静默（P2）**：ux-spec §4 已裁定「零反馈」，与竞品 pop-it「按下总有凹陷态」有差 ⇒ **用户拍板：加极轻非惩罚反馈**（改 ux-spec §4 矩阵行，属设计裁定）。
+  - **G8 根因归纳**：v1.3 做满**静态**质感，**动态**质感四项（G1–G4）全欠账 ⇒ 珠子仍像贴图而非有质量的物体。
+  - **G9 a11y 连带**：accessibility §2 D1 把「落座回弹/消除溶解」标 **N/A**（理由：无对应动画通道）⇒ G1/G2 落地后该 N/A 自动失效，须改「关停项」，防下次假绿。
+- **用户裁定（2026-09-16）**：方案 = **丙案·全量 v1.4 风格单**（派林绘澄出「动态质感章」草案 → 主理人三方复核 → 用户拍板 → 落码，同 v1.3 丙案流程）；G7 = **加极轻非惩罚反馈**（守 D2 ≤3Hz + 零惩罚语义）。
+- **可行性关键**：`_wrongFx` 是现成可 1:1 复用判例（表现层计时 `{row,col,elapsedMs}` + view 消费 + 重启门 + PAUSED 不冻结 + 快照字段）；毫秒值全部已冻结在 ux-spec §5 权威表 ⇒ G1–G4 **不需新冻结变更、不动 framework**。
+- **性能口径（须入草案）**：动画期图元增量 G1 单颗 / G2 按批（数十颗）/ G4 全场 ≤156 珠逐列 scale；建议回退阀 = 动画进行中的珠子降层绘制（如溶解期只画 L1+L5），静态珠维持十层。
+- **诚实口径**：评审结论全部基于代码事实（grep 零命中 + 已实装项核对），**未经真机截图验证**（Cocos 构建阻塞，同 T-124/T-125 口径）。
+
+
+## 真机首验包（待 AppID · 2026-09-16 登记 · 解除 DEV-01/B4）
+
+> 前置：① 有效 AppID ② `pnpm --filter @wxgame/beads run build:cocos:wx` 出包 ③ 微信开发者工具 + 真机扫码 ④ 本包随包执行并回填。
+
+- **P0-1 时基同源复核（BD-40 关单前提）**：真机跑 `production/qa/beads/beads-browser-probe.mjs` 的 CLK-01 等价面 —— 仿真/墙钟须 **≈1.00±0.10**（修复后 web 实测 1.002/0.997；**若真机 ≈2 ⇒ BD-40 复活升产品级 P1**）。
+- **P0-2 光敏性观感**：wrong 态连点（观察单次脉冲非往复、无高频闪）+ 告急脉冲 + 满槽呼吸 —— 屏幕像素层 web 已验，真机亮度/刷新率差异须人眼复核。
+- **P0-3 T-124 丙案视觉**：十层卡/冷底/F6 白字路由/NEW BEST 角标（T-127 修后 168 底衬）/STAGE 标签（T-127 修后 `DESIGN_W−30` 锚）—— 真机字体回退下不回溢（T-127 风险条款）。
+- **P0-4 主包红线**：`build:cocos:wx` 实测包体 ≤4096 KB（§3 冻结；程序化合成 ⇒ 音频 0 KB 应天然满足）+ `check:size` 从 SKIP 转 OK。
+- **P0-5 四相位真链**：暂停/结算/失败面板真指针可用（web 已验，微信 touch 语义须复验）。
+- **P1-6 性能**：T-124 单帧最坏 +624 图元的帧率回退阀（林绘澄预授权条款）真机实测。
+- **P1-7 音频**：A05-26 听感（`[P]`）+ 首次手势后出声（A05-27）。
+- 以上全过 ⇒ G4 的 DEV-01 解除，可议升 PASS；任何一条红 ⇒ 按 BD-40 先例登记并回修。
