@@ -106,6 +106,10 @@
  *      `view-model.ts:711` 明文未实现；A05-25 的 `[C]` 需重跑构建、本轮未跑）。混合道次条目
  *      （A05-01/04/13/14/18/19/21，另 P5·S）只在 `[N]` 子句实测通过时记 **PASS\***，并显式声明
  *      「**不**等于能出声／听感达标」（AGENTS §7 反假绿）。
+ *      **【修订 44 · WXG-T-119 顺带项 ①】** `A05-09` 的同帧主体已按 `audio-events §4`
+ *      **WXG-T-103 追正后**的现文，由 `sfx_combo_t3` 改为 **`sfx_combo_t2`**（伪震屏属 Lv2）；
+ *      t3 的「350ms + 同帧 `burst`」另立 **`A05-09b`**（编号采 `b` 后缀、**不做整体重排**）。
+ *      ⇒ 本条**不再是「判据主体待裁」**，T-103 的探针/台账残留**至此清零**。
  *  32. 【结构证据与出声证据分开记账】新增 `P5·S` 记录：注入假 `AudioContext` 只能证「装配正确 +
  *      节点确实被创建 + 未登记 clip 静默跳过 + loop 幂等走的是代码路径」，标题与正文均标
  *      **结构证据 ≠ 出声**，其结论不计入任何 A05 条目的验收。
@@ -200,6 +204,87 @@
  *        而在下一次供料尝试发现无空位时才发 ⇒ 不等首次广播就会把「首次广播」误读成「重复广播」（事件增量
  *        0/1 看似违反 §8-4）；`fullTrayHarness()` 已改为等到首次广播，基线写进证据文案。
  *
+ *  41. 【**真链口径**（WXG-T-114 · BD-34 回归闸门 · K-038）】P8/P10/P22 原本一律经
+ *      `game.tapDesign()` 旁路（直调 `_handleTap`）驱动 ⇒ **旁路恒绿、真链恒断**；`_readInput()`
+ *      只在 `_stepPlaying()` 内被调时，`paused`/`level-clear`/`game-over`/`finish` 四相位的真链点击
+ *      **全部收不到**（BD-34，已由 WXG-T-100 修：上提到 `update()` 头部）。本轮**不删任何旁路例**，
+ *      而是**新增真链口径**并用同一批交互断言同一结果：
+ *      ① `mk()` 增 `tapChain(dx,dy)`：`beginFrame → push(down) → push(up) → game.update(dt) → endFrame(dt)`
+ *        （与 `App._fixedUpdate` 同形；坐标 designToScreen→push→游戏内 screenToDesign 读回）。
+ *      ② **P8R**（五类路由）/ **P10R**（无选中点网格）/ **P22R**（D1 开关，含 PAUSED 面板按钮）
+ *        = P8/P10/P22 的**真链重跑**，逐条与旁路口径并列呈报（差异必须显式）。
+ *      ③ **P27a..d** = **四相位真链门禁矩阵**（PAUSED / LEVEL_CLEAR / GAME_OVER / FINISH）：每相位
+ *        一条「面板外零响应（负向）」+ 一条「面板按钮生效（正向）」；正负同相位并列 ⇒ 负向**非平凡真**
+ *        （点击确实到达 `_handleTap`）。这正对 §8 现文「仅判据 8 覆盖 PAUSED，另三相位仅 §2.3 覆盖、
+ *        无独立可测条目」的空缺，QA 侧拟增判据见 `production/qa/beads/test-cases.md §A4b`（**待设计侧
+ *        文策渊确认**；`games/beads/design/**` 本单不改笔）。
+ *      ④ 判定**不放宽**：真链断链即 FAIL。扩展 S4 出口按 BD-37 仍 ⛔ ⇒ P8R 记 PASS*（与 P8 同口径）。
+ *      ⑤ **与 WXG-T-113 的边界（不得合并）**：丢帧「多子步下一次 touch 多指令」属 T-113（框架
+ *        `App.tick` 子步 × `endFrame` 独占标志组合）；本组一律在**正常 60fps 单步**（直接
+ *        `game.update(dt)`，不经 `app.tick` 多子步）下取证 ⇒ 与 T-113 互不覆盖，不得并入 BD-34 结论。
+ *
+ *  42. 【**次按钮真链孪生 + 去「拟」**（WXG-T-116）】上游 `WXG-T-115` 已把 `input-control §8` 的
+ *      `8b/8c/8d` 三条门禁判据**定稿落盘**（含各自完整按钮集与可测形式），并把 `8c` 补齐**冲刺局子分支**
+ *      （`_mode==='sprint'`：再来一局 / 返回关卡——与普通局按钮集不同）。本单做两件事：
+ *      ① **去「拟」**：P27b/c/d 的标题与归属串由「TC-INP-11/12/13(拟) + 仅 §2.3 覆盖」改为正式编号
+ *         **`input-control §8-8b / 8c / 8d`**（判据/阈值**一字未改**，只改引用与状态）。
+ *      ② **补次按钮真链孪生**（本节新增 `P27e..i` 5 条，逐条对应条文新按钮子句）：
+ *         - `P27e` = `8b` 次按钮「**去冲刺**」：LEVEL_CLEAR 真链点副钮 `sprint` ⇒ `mode=normal→sprint`、`playing`；
+ *         - `P27f` = `8c` 普通局次按钮「**续时**」：GAME_OVER 真链点 `revive` ⇒ `watchingAd=true`（等回调），
+ *           再经 **`MockRewardedAdProvider.settle('complete')`** 驱动发奖腿 ⇒ `playing`、`remaining += REVIVE_BONUS_SEC`、
+ *           `revived=true`。**可达性判定**：按钮腿（真链）✅ 可达；发奖腿由 harness 替身（mock）驱动 ⇒
+ *           结构链路成立，**不等于真机广告行为**（`[R]` ⛔；「未看完/失败」分支未测）⇒ 记 **PASS\*** 并显式声明边界；
+ *         - `P27g` = `8c` 冲刺局子分支「**再来一局**」（`again` ⇒ `retryLevel()` ⇒ `mode=sprint`、`playing`）；
+ *         - `P27h` = `8c` 冲刺局子分支「**返回关卡**」（`back` ⇒ `startNormal()` ⇒ `mode=normal`、`playing`）；
+ *         - `P27i` = `8d` 次按钮「**去冲刺**」：FINISH 真链点副钮 `sprint` ⇒ `mode=normal→sprint`、`playing`。
+ *        每条**正负并列**（同相位真链点面板外死区 `(30,53)` ⇒ 事件增量 0、相位不变）⇒ 负向非平凡真。
+ *        **编号逻辑**：沿 `P27` 族续号（a..d 已占），`P27e..i` = 判据子按钮 1:1；`test-cases.md §A4b`
+ *        侧对应 `TC-INP-11b / 12b / 12c / 12d / 13b`（后缀式，不重排既有 11/12/13）。
+ *      ③ **纪律**：**先改探针、后改报告**；**先写预期、后跑**（预期取自 `input-control §8-8b/8c/8d` 现文
+ *        与 `ux-spec §4/§3.4/§3.5/§3.6` 按钮集，非看输出回填）；**旁路例一条不删**；**不为凑绿放宽断言**。
+ *      ④ **与 WXG-T-113 的边界同 §41⑤**（正常 60fps 单步，不经 `app.tick` 多子步）。
+ *
+ *  43. 【**WXG-T-118 · 只重跑 P4 + P7；P7 预期值收紧（BD-35 闭合）**】
+ *      上游两单已闭合：**WXG-T-102**（BD-29 改码：wrong 描边改**单次脉冲** α 淡入 60 / 保持 80 / 淡出 60 = 200ms，
+ *      `α 极值点 = 1`，加 **500ms 重启门**）与 **WXG-T-117**（BD-35 文档：`ux-spec §5:187` 告急行补
+ *      `α 0.6↔1.0`@1000ms + 时钟图标同步切 danger + `reduceMotion` 静态化；并**顺带补齐 2 行同类缺** ——
+ *      `:188` 满槽告警 `α 0.6↔1.0`@500ms、`:190` 目标格 `hint` `α 0.5↔1.0`@600ms；版本 v1.2 → v1.3）。
+ *      纪律：**先改探针、后改报告**（报告 §18.3-6 惯例）；**先写预期、后跑**（本轮首跑即正式轮，无回填窗口）。
+ *      ① **P4 = 纯重跑，预期值一字未改**：现行断言面（修订 38③）已在 WXG-T-098 落定的现文口径上
+ *         （`pulseStructOk = pk.peaks <= 1` / `gateStructOk = minGapMs === null || minGapMs >= 500 - 1e-9`）
+ *         ⇒ T-102 落地后实跑应为 **PASS\***（BD-04 三行残留照实，若残空则整条 PASS）。**故本条断言与阈值本次不动**；
+ *         仅订正 P4 证据串中**随 T-102 已失效的代码锚点**（旧 `view-model.ts:521` / `beads-game.ts:1524`
+ *         → 现 `view-model.ts:435-445 wrongFlashAlpha` / `beads-game.ts:1850-1854 _armWrongFx`），
+ *         否则证据正文会与实测（峰点数 = 1、门 = 500ms）**自相矛盾**。**这不是预期值改动**，见 §汇总段分桶备注。
+ *      ② **P7 = 预期值收紧（本轮唯一一处预期值改动，方向 = 收紧）**：
+ *         (a) **删**「BD-35 钉住上限」注释与该 `v` 的**强制 `PASS*` 分支**（旧 `:1783-1790`）——
+ *             BD-35 的升 PASS 前置（UX 侧在 §5 告急行补 α 数值）**已由 WXG-T-117 满足**；
+ *         (b) **新增告急 α 幅度断言**：α 序列须**覆盖 `[0.6, 1.0]` 两端点**（真源 `ux-spec §5:187` +
+ *             `tuning.ts:DANGER_PULSE_MS` 注「1→0.6→1」+ `view-model.ts:421-423 dangerAlpha = breathe(clock,1000,0.6,1)`）；
+ *         (c) **顺带为满槽半边加幅度断言**：`:188` 现文亦已补 `α 0.6↔1.0`@500ms，该腿此前**只验周期、未验幅度**
+ *             （真源 `view-model.ts:452-454 trayFullAlpha = breathe(clock,500,0.6,1)`）。
+ *         **容差推导（唯一真源 = 波形几何 + 采样步长，禁止为凑绿放宽）**：源波形是**三角波**
+ *         （`view-model.ts:409-413 breathe`：`α = lo + (hi−lo)·tri`），在半个周期内 α 单调 ⇒
+ *         幅度斜率 |dα/dclock| = (hi−lo)·2/T；采样步长 Δt = `GameLoop.fixedDt` = 1/60 s = **16.667ms** 固定；
+ *         采样点与真极值的**最大相位偏差 = Δt/2** ⇒ **读数对端点的最大偏差 tol = (hi−lo)·(Δt/T)**
+ *         （**与相位起点无关的严格上界**）：
+ *           · 告急 T = 1000ms ⇒ tol = 0.4 × 16.667/1000 = **0.006667**；
+ *           · 满槽 T = 500ms  ⇒ tol = 0.4 × 16.667/500  = **0.013333**。
+ *         结构旁证（**不替代**上界）：1000ms = **恰 60 帧**、500ms = **恰 30 帧**，采样窗（130 / 120 帧）均 ≥1 周期
+ *         ⇒ 采样栅格覆盖全部相位点 ⇒ 实测偏差只应来自浮点累加（~1e-6 量级）。**tol 取上式上界，不反向调参**。
+ *         判定：`|min − lo| ≤ tol` **且** `|max − hi| ≤ tol`（**两侧都断** ⇒ 欠幅与超幅都会 FAIL）。
+ *         采样源 = HUD 时钟图标描边 α（`view-model.ts:465,471-472`：告急时 `withAlpha(danger, dangerAlpha)`）/ 满槽面板描边 α。
+ *      ③ **范围铁声明**：本轮**只重跑 P4 段 + P7 段**。其余段（P1–P3、P5–P6、P8–P26、P27a..i 等）**不重跑**，
+ *         判定与预期值一律沿用现行轮次 ⇒ **分桶计数不得合并解读**（同 v1.2/v1.3/v1.4/v1.5/v1.6 体例）。
+ *      ④ **效力边界（必须随结论一起读）**：P4 本轮取证在**指令流层**（`RenderModel` 指令 α 序列），
+ *         WXG-T-102 的 beads 单测在 **`[N]` 层**，二者**互补但不可互相替代**；**`[B]` 屏幕像素发光序列**与
+ *         **`[R]` 真机观感（光敏性观感）仍未取证** ⇒ **不得据本轮宣称「光敏性红线已达标」**，
+ *         只能宣称「**指令流层已符合 §3.8 的时序口径**」。
+ *      ⑤ **只读顺带核查（不扩大范围、不改判）**：`:190` 目标格 `hint` 行现文补 `α 0.5↔1.0`@600ms ⇒
+ *         仅查看 **P19 / P3** 的 hint 断言面：两者分别只断「环存在 + `lineWidth=2`」与「呼吸周期」，
+ *         **均不含 α 幅度断言** ⇒ **不受本行改动影响**；实现 `view-model.ts:415-418 hintAlpha` 取
+ *         `breathe(clock, HINT_PULSE_MS, 0.5, 1)` 与现文一致（无漂移）。幅度断言**可加但本轮不加**（属扩范围）。
+ *
  * 环境事实（禁止伪造）：无 AppID / 无真机 ⇒ `[Device]/[R]` 一律 ⛔；`[Cocos]` 像素级判据——
  * 波次 3（v1.1）当时 `framework:sync:check` 为✅、web-mobile 产物 mtime 2026-09-15 08:48；
  * **本单（WXG-T-096 后）复跑同一命令得 EXIT=1**（12 处 differs，evidence/framework-sync-check-v1.2.log）
@@ -238,6 +323,8 @@ const { pausePanelLayout } = await import(`${STAGE}/games/beads/src/systems/paus
 const { clearPanelLayout } = await import(`${STAGE}/games/beads/src/systems/clear-panel.js`);
 const { failPanelLayout } = await import(`${STAGE}/games/beads/src/systems/fail-panel.js`);
 const { finishPanelLayout } = await import(`${STAGE}/games/beads/src/systems/finish-panel.js`);
+// 【WXG-T-116】冲刺结算面板（`8c` 冲刺局子分支按钮集「再来一局 / 返回关卡」的来源）
+const { sprintSettleLayout } = await import(`${STAGE}/games/beads/src/systems/sprint-settle.js`);
 const { TRAY_BEAD_SIZE } = await import(`${STAGE}/games/beads/src/view/bead-render.js`);
 
 const bootModel = boot.render(5);
@@ -332,6 +419,21 @@ function mk(opts = {}) {
             }
             this.frame();
         },
+        /**
+         * 【WXG-T-114 / BD-34】真链点击 —— 与 `App._fixedUpdate` 同形：
+         *   `input.beginFrame()` → `push(down)` → `push(up)` → `game.update(dt)` → `input.endFrame(dt)`。
+         * down/up 在**同一帧**内喂入（一次触摸占一帧；宿主把原生指针转成 `PointerSample` 的形状），
+         * 坐标经 `designToScreen` 后**由游戏在 `update()` 里 `screenToDesign` 读回**——这正是
+         * `game.tapDesign()` 旁路跳过的整段（旁路直调 `_handleTap`，恒绿而真链可整段断链，K-038）。
+         */
+        tapChain(dx, dy, id = ++pointerId) {
+            services.viewport.designToScreen(pt, dx, dy);
+            input.beginFrame();
+            input.push({ id, x: pt.x, y: pt.y, phase: 'down', time: probeNo * 1000 + id });
+            input.push({ id, x: pt.x, y: pt.y, phase: 'up', time: probeNo * 1000 + id });
+            game.update(step);
+            input.endFrame(step);
+        },
         count: (t) => emitted.filter((e) => e.type === t).length,
         last: (t) => { for (let i = emitted.length - 1; i >= 0; i--) if (emitted[i].type === t) return emitted[i].p; return undefined; },
         reset() { emitted.length = 0; },
@@ -420,15 +522,33 @@ const sig = (cs, band, pad = 0) => cs.filter((c) => c.kind !== 'text' && (!band 
 /** 某色描边环（`drawStateRing` = rect，无 fill、有 stroke+alpha）。 */
 const rings = (cs, strokeHex, band = null) => cs.filter((c) => c.kind === 'rect' && !c.fill && c.stroke
     && hex2(c.stroke) === strokeHex.toLowerCase() && (!band || inBand(c, band)));
-/** 三角波周期测量：取 α 序列的波谷（plateau 合并）间距均值。 */
+/**
+ * 三角波周期测量：取 α 序列的波谷（plateau 合并）间距均值。
+ * 【修订 43 新增·纯增量】另返回端点读数 `min`/`max`（仅统计有限值），供 P7 的 **α 幅度断言**使用。
+ * 既有调用方只读 `periodMs`/`periods`/`distinct` ⇒ 行为不受影响（七段计数不因本改动变动）。
+ *
+ * 【修订 44 · WXG-T-119】两处**顺带项**（T-118 §24.9 主理人裁定；**均不改判定逻辑**）：
+ *   ① `A05-09` 主体 `sfx_combo_t3` → **`sfx_combo_t2`**，t3 另立 **`A05-09b`**（清 T-103 残留）
+ *      ⇒ 全量条数 **66 → 67**（新增的 `A05-09b` 判据真源 = `audio-events §4` **WXG-T-103 现文**，
+ *      **不是新造判据**；T-103 生效时台账即少了这一条，本轮补齐）。
+ *   ② 删除 P4 证据串里的「折算峰频 **≈X Hz**」字段 —— 那是窗口**折算量**
+ *      （= 峰点数 × 1000 / `WRONG_FX_MS`），**不是有效闪烁频率**；有效频率由 **500ms 重启门**
+ *      给出 = **2 次/秒**（`systems-index §3.8`）。删字段是为防后人误读成「有效 5Hz ⇒ 超红线」。
+ *   ⚠️ **本轮只改、未复跑**（本探针无 `--log`/`--out` 开关，复跑会**覆盖** T-118 的证据日志）
+ *      ⇒ 报告 §24.1 的计数仍是**改前口径**；`g4-probe-v1.1.mjs` 的 `mtime` 晚于 `g4-probe-v1.1-t118.log`
+ *      即本次改动的时间证据。改动面经 `node --check` 通过。
+ */
 function pulsePeriodMs(samples) {
     const uniq = samples.filter((v, i) => i === 0 || v !== samples[i - 1]);
     const troughs = [];
     for (let i = 1; i < uniq.length - 1; i++) if (uniq[i] <= uniq[i - 1] && uniq[i] <= uniq[i + 1]) troughs.push(i);
-    if (troughs.length < 2) return { periods: troughs.length, periodMs: null, distinct: new Set(samples.map((v) => v.toFixed(3))).size };
+    const fin = samples.filter((v) => Number.isFinite(v));
+    const min = fin.length ? Math.min(...fin) : null;
+    const max = fin.length ? Math.max(...fin) : null;
+    if (troughs.length < 2) return { periods: troughs.length, periodMs: null, distinct: new Set(samples.map((v) => v.toFixed(3))).size, min, max, n: fin.length };
     const gaps = []; for (let i = 1; i < troughs.length; i++) gaps.push(troughs[i] - troughs[i - 1]);
     const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
-    return { periods: troughs.length - 1, periodMs: mean * (1000 / 60), distinct: new Set(samples.map((v) => v.toFixed(3))).size };
+    return { periods: troughs.length - 1, periodMs: mean * (1000 / 60), distinct: new Set(samples.map((v) => v.toFixed(3))).size, min, max, n: fin.length };
 }
 /**
  * 【修订 40 新增 · WXG-T-097/BD-10】真**满槽**夹具（供 P5·A05-14 与 P7④⑤ 共用）。
@@ -642,7 +762,9 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     }
     const shakeMax = Math.max(...shake.map(Math.abs)), shakeDir = new Set(shake.filter((v) => Math.abs(v) > 0.4).map((v) => Math.sign(v))).size;
     const pk = countPeaks(flash);
-    const peakHz = (pk.peaks * 1000) / T.WRONG_FX_MS;
+    // 【WXG-T-119 顺带项 ②】原 `peakHz = 峰点数 × 1000 / WRONG_FX_MS`（输出为「折算峰频 ≈5.0 Hz」）
+    // 已**删除**：该值是**窗口折算量**，不是有效闪烁频率；有效频率由 500ms 重启门给出 = 2 次/秒
+    // （`systems-index §3.8` / `ux-spec §5:180`）。字段名带 Hz 会被后人误读成「有效 5Hz ⇒ 超红线」。
     // (b) 连续拒绝 ⇒ 脉冲起点间隔（现文「重启门 500ms」）。起点用 `snapshot.wrongProgress` 的
     //     「回零 / 回落」判定（fx 被重建才回落，比从 α 反推稳；α 序列与 progress 序列同帧并列打印供复核）。
     const h3 = mk(); h3.frame();
@@ -689,14 +811,22 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const wrongOk = rejected === 1 && sn.wrongProgress > 0 && Math.abs(sn.wrongRow - Math.floor(wrongCell / s.gridCols)) <= 1 && shakeMax > 0 && shakeDir === 2 && pk.peaks >= 1;
     const v = wrongOk && pulseStructOk && gateStructOk && residual.length === 0 ? 'PASS'
         : (wrongOk && pulseStructOk && gateStructOk) ? 'PASS*' : 'FAIL';
-    rec('P4 (v1.3 改判) / BD-04 · BD-29 转态 · 拒绝反馈「单次脉冲 + 500ms 重启门」（ux-spec §5 现文，WXG-T-098）', v,
-        `① **单次脉冲**（现文：淡入 60 / 保持 80 / 淡出 60 = 200ms，一个 fx 窗口内 **α 极值点 ≤1**）：`
+    rec('P4 (v1.3 改判) / BD-04 · BD-29 转态 · 拒绝反馈「单次脉冲 + 500ms 重启门」（ux-spec §5 现文，WXG-T-098；WXG-T-118 重跑）', v,
+        `【WXG-T-118 · 纯重跑（**预期值与阈值一字未改**，现行断言面即修订 38③ 的 T-098 现文口径）】`
+        + `① **单次脉冲**（现文：淡入 60 / 保持 80 / 淡出 60 = 200ms，一个 fx 窗口内 **α 极值点 ≤1**）：`
         + `bead:rejected=${rejected}（期望 1）、wrongRow/Col=(${sn.wrongRow},${sn.wrongCol})、wrongProgress=${sn.wrongProgress.toFixed(2)}；`
         + `被拒格 200ms 内水平位移样本=[${shake.join(',')}]px ⇒ 幅度 max=${shakeMax}px（ux-spec §5 = ±${T.WRONG_SHAKE_PX}px，**属位移、不在闪烁通道**）、换号次数=${shakeDir}（期望 2 = ±×2）；`
-        + `danger(${dangerHex}) 描边环 α 逐帧样本=[${flash.join(',')}]（同帧 wrongProgress 样本=[${progSeries.join(',')}]）⇒ **峰点数 = ${pk.peaks}**（plateau 合并后计，判据 ≤1）、折算峰频 **≈ ${peakHz.toFixed(1)} Hz**；α 取值集=[${[...new Set(flash)].join(',')}]、非零区间 α∈[${pk.min}, ${pk.max}]（现文 α 0→1 淡入⇒起点应为 0；实测下限 ${pk.min} ≠ 0 属**同一落差的附带观察**，不另计缺陷）。`
+        + `danger(${dangerHex}) 描边环 α 逐帧样本=[${flash.join(',')}]（同帧 wrongProgress 样本=[${progSeries.join(',')}]）⇒ **峰点数 = ${pk.peaks}**（plateau 合并后计，判据 ≤1）【顺带项 ②：原「折算峰频 ≈X Hz」字段**已按 WXG-T-119 删除**——那是窗口**折算量**（峰点数×1000/\`WRONG_FX_MS\`），**不是有效闪烁频率**；有效频率由 **500ms 重启门**给出 = **2 次/秒**（\`systems-index §3.8\`）】；α 取值集=[${[...new Set(flash)].join(',')}]、非零区间 α∈[${pk.min}, ${pk.max}]（**归因订正（WXG-T-118，非预期值改动）**：α 逐帧取样天然受**采样相位**影响 —— 本窗自误点后第 1 帧起算、非自 α=0 起 ⇒ min/max **只作附带观察**，判据是上方的峰点数与起点间隔；v1.3 轮曾把「下限 ≠ 0」归因于旧 sin 实现落差，**T-102 落地后该归因不再适用**，本单改为「采样相位」表述，不据此判本条）。`
         + `② **重启门**（现文：连续拒绝时**视觉脉冲重启门 500ms** ⇒ 有效 ≤2 次/秒）：每 100ms 注入一次同格误点，注入帧=[${tapFrames.join(',')}]⇒ bead:rejected=${rejected3}；脉冲起点帧=[${starts.join(',')}]（${starts.length} 个）、相邻起点间隔=[${gapsMs.map((g) => g.toFixed(0)).join(',')} ms] ⇒ **最小间隔 = ${minGapMs === null ? '—' : minGapMs.toFixed(0) + ' ms'}**（判据 ≥500 ms）。`
         + `③ **两条结构断言实测**：(a) 峰点数 ≤1 = **${pulseStructOk}**（实测 ${pk.peaks}）；(b) 起点间隔 ≥500ms = **${gateStructOk}**（实测 ${minGapMs === null ? '—' : minGapMs.toFixed(0) + ' ms'}）⇒ **本条记 ${v}**。`
-        + '　【**转态声明 · 非新回归**】BD-29 在 v1.1 是「ux-spec §5 视觉列与同表红线 / systems-index §3.8 互斥」（当时记 PASS\*，因实现忠实于旧表格行「闪 2 次 / 200ms」）；WXG-T-098 已按主理人定向把视觉列改写为**与本判据一致的单次脉冲**（ux-spec §5:174 闪烁口径 + §5:180 视觉列），该**规格互斥已消解** ⇒ BD-29 由「规格互斥」**转态为「实现落差」**（即旧实现与新规格的差，**不是**本轮新发现的回归）。代码锚点：view-model.ts:521 「0.4 + 0.6·|sin(wrongProgress·2π)|」⇒ 200ms 内 2 峰 = 10Hz；beads-game.ts:1524 每次 mismatch 无条件将 _wrongFx.elapsedMs 重置为 0 ⇒ 无 500ms 门。§5 表下「实现落差登记」（:201）已明文：跟进落地前按**已知偏差**沿 BD-29 记录、**不重复开新缺陷** ⇒ 本轮**不占用新 BD 号**；改码已立项 **WXG-T-102**（production/TASKS.md:43）。（本 agent 只读，未改 src/。）'
+        + `　【**转态声明 · 非新回归**】BD-29 在 v1.1 是「ux-spec §5 视觉列与同表红线 / systems-index §3.8 互斥」（当时记 PASS\*，因实现忠实于旧表格行「闪 2 次 / 200ms」）；WXG-T-098 已按主理人定向把视觉列改写为**与本判据一致的单次脉冲**（ux-spec §5:174 闪烁口径 + §5:180 视觉列），该**规格互斥已消解** ⇒ BD-29 由「规格互斥」**转态为「实现落差」**（即旧实现与新规格的差，**不是**本轮新发现的回归）。`
+        + `　【**WXG-T-102 已落地 → 本半边闭合**（WXG-T-118 重跑取证）】代码锚点（**T-102 后重取；订正旧锚点不属预期值改动**）：`
+        + `view-model.ts:435-445 \`wrongFlashAlpha(p)\` = 淡入 ease-out（60ms）→ 峰值保持 1.0（80ms）→ 淡出 ease-in（60ms）`
+        + `⇒ 一个 \`WRONG_FX_MS\`(200ms) 窗口内**单峰**；beads-game.ts:1850-1854 \`_armWrongFx\` 以`
+        + ` \`if (this._pulseClock - this._wrongFxArmedAtMs < WRONG_FX_RESTART_GATE_MS) return;\` 早退 ⇒ **500ms 重启门**。`
+        + `（**旧锚点 view-model.ts:521 「0.4 + 0.6·|sin(wrongProgress·2π)|」/ beads-game.ts:1524 无条件重置已随 T-102 失效**，`
+        + `本单只订正证据正文的锚点指向，**断言面与阈值零改动**。）`
+        + `§5 表下「实现落差登记」（:201）已明文：跟进落地前按**已知偏差**沿 BD-29 记录、**不重复开新缺陷** ⇒ 本轮**不占用新 BD 号**；改码已立项 **WXG-T-102**（production/TASKS.md:43）。（本 agent 只读，未改 src/。）`
         + `　【reduceMotion 半边不重复计】§5 现文「退为静态红描边（200ms 保持后直接消失，0 往复）+ 抖动位移归零」已由 **P22** 实测成立（wrong 位移唯一值=1、fx 窗口内静态红环 ≥1）⇒ 与新措辞一致，**不另开缺陷**（AGENTS §7 一事一记）。`
         + `④ **BD-04 其余三行沿用 v1.1 读数（本单未复核该半边预期值）**：落座回弹：落子前/后连续 10 帧剔 text 指令签名去重=${popDistinct}（>1 才有时间轴）；tuning 命中：FILL_POP=${src.fillPop.length} / DISSOLVE=${src.dissolve.length} / COMPLETE_WAVE=${src.wave.length} 个常量`
         + (residual.length ? ` ⇒ 仍缺行：${residual.join(' / ')}（ux-spec §5 其余行，波次 2 未列 T-087 范围）⇒ BD-04 **降级不关闭**维持。` : ' ⇒ 四行全落地。')
@@ -965,21 +1095,38 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         return n;
     }
 
-    // ── A05-09 · sfx_combo_t3（[B] 时长 + 判据主体待裁）
+    // ── A05-09 · sfx_combo_t2（[B] 时长 =150ms ±1）— 顺带项 ①：探针/台账同步（清 T-103 残留）
+    //    真源 `audio-events §4` **WXG-T-103 追正后**现文：伪震屏属 **Lv2** ⇒ A05-09 主体 = sfx_combo_t2；
+    //    t3 的「350ms + 与 burst 同帧」另立 **A05-09b**。**编号采 `b` 后缀，不做整体重排**
+    //    （与 T-103 同口径：重排会牵动台账与已有证据引用，成本更高）。
     const h9 = ah(); h9.tickFrame(FR); h9.clearAudio();
     const p9 = h9.dispatched.length;
-    h9.events.emit('combo:up', { streak: 7, multiplier: 5, tier: 3 });
+    h9.events.emit('combo:up', { streak: 3, multiplier: 2, tier: 2 });
     h9.audio.flush(FR);
-    const t3n = cnt(h9.dispatched.slice(p9), C('AUDIO_CLIP_COMBO_T3'));
-    p5('A05-09', 'sfx_combo_t3 · 时长 ≤350ms 且与伪震屏（scale 1.015）同帧起始', t3n === 1,
-        `【本轮实测到的半边】广播 combo:up(tier=3) → 单帧 flush ⇒ sfx_combo_t3 新增派发 ${t3n} 次（三档分流另有 A05-08 独立取证）。`
-        + `　【缺哪一道】「时长 ≤350 ms」= **[B]**：本轮夹具无 AudioContext（实测 typeof globalThis.AudioContext=${typeof globalThis.AudioContext}），`
-        + `拿到的只是配方**声明值** durationMs=${vcDur(C('AUDIO_CLIP_COMBO_T3'))}ms，不是实测包络。`
-        + `　【判据自身冲突 · 移交裁定，不判实现缺陷】A05-09 把「伪震屏 scale ${T.COMBO_SHAKE_SCALE_MAX}」写成 sfx_combo_t3 的同帧主体，`
-        + `但 §1 行 7 与 §2.1 行 6/7/8 的对应关系、以及实现侧 combo-vfx.ts:46-50（tier=2 → kind=pseudoShake / ${T.COMBO_VFX_LV2_MS}ms；tier=3 → kind=burst / ${T.COMBO_VFX_LV3_MS}ms）`
-        + `都表明**伪震屏属 Lv2（sfx_combo_t2）**⇒「与 t3 同帧起始」按现文**不可判定**（主体写错，不是实现没做到）。归属：文策渊（§4 正文）。`
+    const t2n = cnt(h9.dispatched.slice(p9), C('AUDIO_CLIP_COMBO_T2'));
+    p5('A05-09', 'sfx_combo_t2 · 时长 =150ms（±1）且与伪震屏（scale 1.015，tier=2）同帧起始', t2n === 1,
+        `【本轮实测到的半边】广播 combo:up(tier=2) → 单帧 flush ⇒ sfx_combo_t2 新增派发 ${t2n} 次（三档分流另有 A05-08 独立取证）。`
+        + `　【主体已按 WXG-T-103 追正 · WXG-T-119 探针同步】本条原以 **sfx_combo_t3** 为同帧主体（而伪震屏属 Lv2、t3 属 Lv3）⇒ 现改为 **sfx_combo_t2**；`
+        + `t3 侧另立 **A05-09b**（350ms + 同帧 \`burst\`）。**T-103 残留至此清零。**`
+        + `　【缺哪一道】「时长 =150 ms ±1」= **[B]**：本轮夹具无 AudioContext（实测 typeof globalThis.AudioContext=${typeof globalThis.AudioContext}），`
+        + `拿到的只是配方**声明值** durationMs=${vcDur(C('AUDIO_CLIP_COMBO_T2'))}ms，不是实测包络；`
+        + `**[B] 实测已另由 \`beads-browser-probe.mjs\`（WXG-T-119）在真 WebAudio 上取得 = 149.93ms ⇒ 通过**。`
+        + `　【同帧主体归属】tier=2 → kind=pseudoShake / ${T.COMBO_VFX_LV2_MS}ms（combo-vfx.ts:46-50）⇒ 与配方一致。`
         + `　另记（不重复计缺陷）：Lv2 伪震屏在 view-model.ts:711 明文**未接入绘制**，属 BD-04 已登记的动效缺行。`,
-        { block: '[B] + 判据主体待裁' });
+        { block: '[B]' });
+
+    // ── A05-09b · sfx_combo_t3（[B] 时长 =350ms ±1 ｜ 主体经 WXG-T-103 另立）
+    const h9b = ah(); h9b.tickFrame(FR); h9b.clearAudio();
+    const p9b = h9b.dispatched.length;
+    h9b.events.emit('combo:up', { streak: 7, multiplier: 5, tier: 3 });
+    h9b.audio.flush(FR);
+    const t3n = cnt(h9b.dispatched.slice(p9b), C('AUDIO_CLIP_COMBO_T3'));
+    p5('A05-09b', 'sfx_combo_t3 · 时长 =350ms（±1）且与 burst（tier=3）同帧起始', t3n === 1,
+        `【本轮实测到的半边】广播 combo:up(tier=3) → 单帧 flush ⇒ sfx_combo_t3 新增派发 ${t3n} 次。`
+        + `　【同帧主体】tier=3 → kind=burst / ${T.COMBO_VFX_LV3_MS}ms（combo-vfx.ts:46-50）⇒ 本条的同帧主体是 **burst**，不是伪震屏。`
+        + `　【缺哪一道】「时长 =350 ms ±1」= **[B]**：声明值 durationMs=${vcDur(C('AUDIO_CLIP_COMBO_T3'))}ms，非实测包络；`
+        + `**[B] 实测见 \`beads-browser-probe.mjs\`（WXG-T-119）** —— 该项两轮读数不一致（348.39 / 通过），**待裁，QA 不放宽 ±1ms**。`,
+        { block: '[B]' });
 
     // ── A05-10 · combo:break 两 reason 同 clip；真路 wrong 时与 reject 同帧并存
     const h10 = ah(); h10.tickFrame(FR); h10.clearAudio();
@@ -1723,27 +1870,48 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         && Math.abs(overlay.pm.periodMs - T.TRAY_FULL_PULSE_MS) <= 50;
     const okPulse = urgent && ev === 1 && pm.distinct >= 2 && pm.periodMs !== null
         && Math.abs(pm.periodMs - T.DANGER_PULSE_MS) <= 50;
-    // 【BD-35 钉住上限】`ux-spec §5` 告急行**未定义 α 幅度**（报告 §BD-35：「QA 与美术侧均不自造
-    // 常量」）⇒ 「脉冲到不到 1.0」无判据可验。因此即使可判定子句全过（含本轮新落地的满槽呼吸），
-    // 本条**仍是 PASS\* 而非 PASS**；升 PASS 的前置 = BD-35 由 UX 侧在 §5 告急行补 α 数值。
-    const v = !okPulse && !(urgent && pm.distinct >= 2)
-        ? 'FAIL'
-        : okPulse && okFull
-            ? 'PASS*'
-            : 'PASS*';
-    rec('P7 / BD-10 · GAP-10 告急三通道（色+图标+脉冲）与满槽告警', v,
+    // 【修订 43 · WXG-T-118】**删除**旧「【BD-35 钉住上限】…强制 PASS*」注释与该分支 ——
+    // BD-35 的升 PASS 前置（UX 侧在 `ux-spec §5` 告急行补 α 数值）**已由 WXG-T-117 满足**
+    // （§5:187 = `α 0.6↔1.0`@1000ms；`:188` 满槽亦补 `α 0.6↔1.0`@500ms）。
+    // 改为**幅度断言**（方向 = 收紧）：容差推导见头注修订 43② ——
+    // 源波形三角波（`view-model.ts:409-413 breathe`），幅度斜率 (hi−lo)·2/T；采样步长
+    // Δt = `GameLoop.fixedDt` = 1/60 s 固定 ⇒ 采样点与真极值最大相位偏差 = Δt/2
+    // ⇒ **tol = (hi−lo)·Δt/T**（与相位起点无关的严格上界；**不反向调参**）。
+    const ampTol = (lo, hi, periodMs) => (hi - lo) * (1000 / 60) / periodMs;
+    const tolUrgent = ampTol(0.6, 1.0, T.DANGER_PULSE_MS);
+    const tolFull = ampTol(0.6, 1.0, T.TRAY_FULL_PULSE_MS);
+    /** 端点覆盖断言：`min ≈ lo` **且** `max ≈ hi`（两侧都断 ⇒ 欠幅/超幅均 FAIL）。 */
+    const ampOk = (m, lo, hi, tol) => m.min !== null && m.max !== null
+        && Math.abs(m.min - lo) <= tol && Math.abs(m.max - hi) <= tol;
+    const okAmpUrgent = ampOk(pm, 0.6, 1.0, tolUrgent);
+    const okAmpFull = ampOk(overlay.pm, 0.6, 1.0, tolFull);
+    /** 证据串用：端点读数 / 端点偏差分别打到 6 位与 9 位（后者用于展示浮点量级，便于复核）。 */
+    const f6 = (x) => (x === null || x === undefined ? '—' : Number(x).toFixed(6));
+    const f9 = (x) => (x === null || x === undefined ? '—' : Number(x).toFixed(9));
+    const v = okPulse && okFull && okAmpUrgent && okAmpFull ? 'PASS' : 'FAIL';
+    rec('P7 (v1.7 改判) / BD-10 · BD-35 闭合 · GAP-10 告急三通道（色+图标+脉冲）与满槽告警', v,
         `① 事件层：降穿 TIMER_URGENT_T=${T.TIMER_URGENT_T}s → timer:urgent=${ev}（期望恰 1）、snapshot.urgent=${urgent}。`
         + `② 颜色通道：HUD 时钟图标描边色去重=[${iconColors.join(', ')}]（平时 ${hex2(DEFAULT_PALETTE.textDim)} → 告急 ${hex2(DEFAULT_PALETTE.danger)}）、数字 fill 切 danger。`
-        + `③ 脉冲通道：图标 α 序列（130 帧剔 text）distinct=${iconAlphas.distinct} 档、周期=${iconAlphas.periodMs ? iconAlphas.periodMs.toFixed(0) : '—'}ms；数字/图标合成脉冲样本 distinct=${pm.distinct}、周期=${pm.periodMs ? pm.periodMs.toFixed(0) : '—'}ms（ux-spec §5 = ${T.DANGER_PULSE_MS}ms±50）⇒ 频率 ${(1000 / (pm.periodMs ?? 1)).toFixed(2)}Hz ≤3Hz 红线。`
+        + `③ 脉冲通道：图标 α 序列（130 帧剔 text）distinct=${iconAlphas.distinct} 档、周期=${iconAlphas.periodMs ? iconAlphas.periodMs.toFixed(0) : '—'}ms；数字/图标合成脉冲样本 distinct=${pm.distinct}、周期=${pm.periodMs ? pm.periodMs.toFixed(0) : '—'}ms（ux-spec §5 = ${T.DANGER_PULSE_MS}ms±50）⇒ 频率 ${(1000 / (pm.periodMs ?? 1)).toFixed(2)}Hz ≤3Hz 红线（**周期成立 = ${okPulse}**）。`
+        + `　【**α 幅度 · 修订 43 新增**（判据 ux-spec §5:187 现文「danger + 1000ms **α 0.6↔1.0** 脉冲循环」；旧「BD-35 未定义幅度 ⇒ 强制 PASS\*」已删）】：`
+        + `采样源 = HUD 时钟图标描边 α（view-model.ts:465/471-472：告急时 withAlpha(palette.danger, dangerAlpha(pulseClock, reduceMotion))；view-model.ts:421-423 dangerAlpha = reduce ? 1 : breathe(clock, DANGER_PULSE_MS, 0.6, 1)）；`
+        + `样本数=${pm.n}、端点读数 **min=${f6(pm.min)} / max=${f6(pm.max)}**（期望 0.6 / 1.0）⇒ 端点偏差 = ${f9(pm.min === null ? null : Math.abs(pm.min - 0.6))} / ${f9(pm.max === null ? null : Math.abs(pm.max - 1.0))}；`
+        + `**容差 tol = ${tolUrgent.toFixed(6)}**（推导：三角波半周期内 α 斜率 = (1.0−0.6)·2/1000ms；采样步长 Δt = 1/60 s ⇒ 最大相位偏差 Δt/2 ⇒ tol = (1.0−0.6)·(1/60 s)/(1000ms) = ${tolUrgent.toFixed(6)}）⇒ **覆盖 [0.6, 1.0] 两端点 = ${okAmpUrgent}**（判据 |min−0.6| ≤ tol **且** |max−1.0| ≤ tol）。`
+        + `（结构旁证：1000ms = **恰 60 帧**、采样窗 130 帧 ≥2 周期 ⇒ 采样栅格覆盖全部相位点，故实测偏差只应来自浮点累加；**tol 未因此放宽**。）`
         + `④ 满槽告警视觉通道（ux-spec §5「托盘面板边缘 2px danger 描边呼吸 ${T.TRAY_FULL_PULSE_MS}ms」）：`
         + `主实例同场取证 —— 满槽 ${overlay.full}/${T.TRAY_BASE_SLOTS}、tray:full 广播=${overlay.hasTrayFullEv} 次（spawner.ts:_fullReported 去重锁 ⇒ 满槽期间**不重复广播**，正本 tray-spawner §8-4，故此处期望 1）、phase=${overlay.phase}、urgent=${overlay.urgentNow}；`
-        + `120 帧逐帧取描边 α，取不到=${overlay.missing} 帧、${overlay.pm.distinct} 档、实测周期=${overlay.pm.periodMs ? overlay.pm.periodMs.toFixed(0) : '—'}ms（期望 ${T.TRAY_FULL_PULSE_MS}ms±50）⇒ 呼吸判定=${okFull ? 'PASS' : 'FAIL'}。`
+        + `120 帧逐帧取描边 α，取不到=${overlay.missing} 帧、${overlay.pm.distinct} 档、实测周期=${overlay.pm.periodMs ? overlay.pm.periodMs.toFixed(0) : '—'}ms（期望 ${T.TRAY_FULL_PULSE_MS}ms±50）⇒ 呼吸周期判定=${okFull ? 'PASS' : 'FAIL'}；`
+        + `　【**α 幅度 · 修订 43 新增**（判据 ux-spec §5:188 现文「托盘描边呼吸 500ms 循环（**α 0.6↔1.0**，**2.0Hz** 往复）」——该腿此前**只验周期、未验幅度**）】：`
+        + `采样源 = 满槽面板 danger 描边 α（view-model.ts:652-658 末尾 trayFullAlpha；view-model.ts:452-454 = breathe(clock, TRAY_FULL_PULSE_MS, 0.6, 1)）；`
+        + `样本数=${overlay.pm.n}、端点读数 **min=${f6(overlay.pm.min)} / max=${f6(overlay.pm.max)}**（期望 0.6 / 1.0）⇒ 端点偏差 = ${f9(overlay.pm.min === null ? null : Math.abs(overlay.pm.min - 0.6))} / ${f9(overlay.pm.max === null ? null : Math.abs(overlay.pm.max - 1.0))}；`
+        + `**容差 tol = ${tolFull.toFixed(6)}**（同法推导：三角波斜率 (1.0−0.6)·2/500ms；Δt/2 ⇒ tol = (1.0−0.6)·(1/60 s)/(500ms)）⇒ **覆盖 [0.6, 1.0] 两端点 = ${okAmpFull}**。（结构旁证：500ms = 恰 30 帧、采样窗 120 帧 = 4 整周期 ⇒ 栅格覆盖全部相位点。）`
         + `⑤ §8-10「满槽告警与告急脉冲同屏叠加无 >3Hz 闪烁」（两主体同场，本条已可测，不再 ⛔）：`
         + `按 ux-spec §5:174 口径正本「闪烁 = **同一区域内** α 的往复变化」分区读 —— 托盘带 ${trayHz ? trayHz.toFixed(2) : '—'}Hz、HUD 带 ${hudHz ? hudHz.toFixed(2) : '—'}Hz，两带不重叠（TRAY_BAND.yMax=${T.TRAY_BAND.yMax} < HUD_BAND.yMin=${T.HUD_BAND.yMin}）⇒ **分区各自 ≤3Hz 合规**；`
         + `跨区域合成读数=${compositeHz ? compositeHz.toFixed(2) : '—'}/s，**不属该红线口径**（该口径按区域定义），照实披露不据此判 FAIL、也不据此宣称「合成值在红线内」。`
         + `　⇒ **BD-10 的「满槽告警零通道」半边就此关闭**（告急三通道 ✅ + 满槽呼吸 ✅；A05-14 音/视解耦另见 P5）。代码锚点 view-model.ts drawTray 末尾（trayFullAlpha + palette.danger, lineWidth 2, radius 18）与 tuning.ts:TRAY_FULL_PULSE_MS。`
-        + `　**但 P7 整条维持 PASS\*（不因半边落地而升 PASS）**：卡点由「缺通道」换成 **BD-35「判据缺 α 幅度」**——ux-spec §5 告急行未给 α 起止值，本条只验了「脉冲存在 + 周期」，未验「幅度到不到 1.0」；本实现所用的 0.6↔1.0 是从告急同族现有值沿用（assets-spec 已注明），**不构成判据**。补齐前置 = UX 侧回写 §5。`
-        + `　限制声明：本条全部在指令流层（RenderModel 指令 α 序列）可证，真机观感与「同屏不刺眼」的主观判据仍属 **[B]/[P]**，不得据指令读数宣称已验。`);
+        + `　【**BD-35 闭合 → 强制 PASS\* 解除**（WXG-T-118）】：旧版本条卡点是 **BD-35「判据缺 α 幅度」**（ux-spec §5 告急行未给 α 起止值 ⇒ 「脉冲到不到 1.0」无判据可验）；**WXG-T-117 已在 §5:187 补 α 0.6↔1.0@1000ms、§5:188 补 α 0.6↔1.0@500ms** ⇒ 本轮把旧「钉住上限」注释与强制 PASS\* 分支**删除**，改为**可判定**的端点覆盖断言（上方 ③④ 两条），满足即记 **PASS**。`
+        + `　判据清单（本轮，逐条可复核）：① 事件恰 1 = ${urgent && ev === 1}；② 颜色/图标通道（见上）；③ 告急 周期±50ms **且** α 覆盖 [0.6,1.0]；④ 满槽 周期±50ms **且** α 覆盖 [0.6,1.0]；⑤ 分区频率各自 ≤3Hz（跨区合成值另披露、不据此判）。⇒ **本条记 ${v}**（= ${okPulse} && ${okFull} && ${okAmpUrgent} && ${okAmpFull}）。`
+        + `　限制声明（**效力边界，必须随结论一起读**）：本条全部在**指令流层**（RenderModel 指令 α 序列）可证，**真机观感**与「同屏不刺眼」「光敏性」的主观/像素判据仍属 **[B]/[R]/[P]（本轮均未执行）** ⇒ **不得据指令读数宣称「光敏性红线已达标」**，只能宣称「**指令流层已符合 §3.8 的时序口径**」。`);
 }
 /** 单独取 HUD 非文本脉冲 α 序列（避免与 ①②③ 混用样本）。 */
 function hudPulse(h, n) {
@@ -1797,11 +1965,12 @@ function hudPulse(h, n) {
     const placeOk = h5.count('bead:placed') === 1 && h5.count('bead:rejected') === 0;
     const fourOk = [gearOk, cardOk, selOk, placeOk].every(Boolean);
     const v = fourOk && expandHit > 0 ? 'PASS' : fourOk && expandEntry > 0 ? 'PASS*' : 'FAIL';
-    rec('P8 / BD-15 · TC-INP-01 · S2 §8-1 五类路由', v,
+    rec('P8【旁路口径 tapDesign】 / BD-15 · TC-INP-01 · S2 §8-1 五类路由', v,
         `① 齿轮→game:paused=${h1.count('game:paused')}(phase=${h1.game.snapshot.phase}) ${gearOk ? '✓' : '✗'}；② 道具卡→powerup:used=${h2.count('powerup:used')} ${cardOk ? '✓' : '✗'}；`
         + `③ 扩展→**入口已存**=${expandEntry > 0}（命中即吞 + 占位轻提示「${expandHintText}」、anchor=expand）、S4 出口 tray:expanded=${expandHit}；④ 托盘珠→tray:selected=${h4.count('tray:selected')} ${selOk ? '✓' : '✗'}；`
         + `⑤ 空格(有选中)→bead:placed=${h5.count('bead:placed')}/rejected=${h5.count('bead:rejected')} ${placeOk ? '✓' : '✗'}。`
-        + `　BD-15 已于 WXG-T-097 关单（btn_expand 渲染 + 132×88 热区 + 路由优先级 3 已入 src）；但其 S4 出口按 powerups §2.6 布局 A 本轮不可达 ⇒ 「点扩展→S4 收请求」记 **⛔ 不可验（BD-37）**，不得因占位实装而打 PASS。整条按 4/5 可验且通过定 **PASS\***，待解锁路径上线转 PASS。`);
+        + `　BD-15 已于 WXG-T-097 关单（btn_expand 渲染 + 132×88 热区 + 路由优先级 3 已入 src）；但其 S4 出口按 powerups §2.6 布局 A 本轮不可达 ⇒ 「点扩展→S4 收请求」记 **⛔ 不可验（BD-37）**，不得因占位实装而打 PASS。整条按 4/5 可验且通过定 **PASS\***，待解锁路径上线转 PASS。`
+        + `　【口径标注（WXG-T-114）】本条为**旁路口径**（` + '`game.tapDesign()`' + ` 直调 ` + '`_handleTap`' + `，绕开 ` + '`InputManager`' + `）⇒ 五类路由恒绿；**真链对照见 P8R**（经 ` + '`input.beginFrame/push/update/endFrame`' + `）。两口径并列呈报。`);
 }
 
 // ═════════════════════════════════════════════════════════ P9 · 热区（§8-2 回写后）
@@ -1879,12 +2048,13 @@ function hudPulse(h, n) {
         && tst.hint.row === Math.floor(tst.i / tst.cols) && tst.hint.col === tst.i % tst.cols;
     const v = tst.placed === 0 && tst.rejected === 0 && tst.selected === 0 && hintOn && anchored && textDiff
         ? 'PASS' : 'FAIL';
-    rec('P10 / BD-16 · TC-INP-07 · S2 §8-7 无选中点网格 → 零请求 + 轻提示', v,
+    rec('P10【旁路口径 tapDesign】 / BD-16 · TC-INP-07 · S2 §8-7 无选中点网格 → 零请求 + 轻提示', v,
         `零请求 ✓：bead:placed=${tst.placed}、bead:rejected=${tst.rejected}、tray:selected=${tst.selected}（期望 0/0/0），点击点=空格 (i${tst.i}, ${tst.x.toFixed(1)},${tst.y.toFixed(1)})。`
         + `轻提示 ✓（新通道）：tapHintText=「${tst.hint.text}」anchor=${tst.hint.anchor} 锚点=(${tst.hint.row},${tst.hint.col}) 与被点格一致=${anchored}；渲染指令里同文本图元数=${tst.hintTexts}；旧字段 powerupHint/failHint/banner/subBanner 均空（本行为不占那些通道）。`
         + `配对差分（同 seed、同帧号，ctl 不点 / tst 点）：非文本签名差异=${diff}（轻提示不改图元形状，属预期）；**文本签名差异=${textDiff}**（反馈帧的实际载体）。`
-        + `　BD-16 已于 WXG-T-097 关单：`+`无选中点可落空格时走一次性轻提示通道（ux-spec §5 / input-control §8-7，静默、≤400ms）；锁定格/已填格仍按 §8-5 零反馈帧。`
-        + `　【探针自查】本条早期版本只看旧字段与非文本签名 ⇒ BD-16 已落地仍报 FAIL（**假 FAIL**）；轻提示这类以文字为载体的反馈必须同时差分 text 通道。`);
+        + `　BD-16 已于 WXG-T-097 关单：` + `无选中点可落空格时走一次性轻提示通道（ux-spec §5 / input-control §8-7，静默、≤400ms）；锁定格/已填格仍按 §8-5 零反馈帧。`
+        + `　【探针自查】本条早期版本只看旧字段与非文本签名 ⇒ BD-16 已落地仍报 FAIL（**假 FAIL**）；轻提示这类以文字为载体的反馈必须同时差分 text 通道。`
+        + `　【口径标注（WXG-T-114）】本条为**旁路口径**（` + '`game.tapDesign()`' + `，绕开 ` + '`InputManager`' + `）；**真链对照见 P10R**。`);
 }
 
 // ═════════════════════════════════════════════════════════ P11 · §8-6/8/10（真实 InputManager）
@@ -2266,14 +2436,15 @@ function stepGame(g, inp) { inp.beginFrame(); g.update(1 / 60); inp.endFrame(1 /
     g2.init(vv2); stepGame(g2, vv2.input);
     const echo = g2.snapshot.reduceMotion;
     const v = on && redOn && pulseOn.distinct <= 1 && hintPm.distinct <= 1 && new Set(shakeSeq).size === 1 && ringStatic >= 1 && hintRingKept >= 1 && echo ? 'PASS*' : (on && echo ? 'PASS*' : 'FAIL');
-    rec('P22 (v1.1 新增) / BD-09·D1 · 减弱动效逐通道退静态 + 落档回显', v,
+    rec('P22【旁路口径 tapDesign】 (v1.1 新增) / BD-09·D1 · 减弱动效逐通道退静态 + 落档回显', v,
         `开关路径：PAUSED → 暂停面板行3「toggle-reduce-motion」（pause-panel.ts:126-129）点击后 snapshot.reduceMotion=${on}（期望 true）；` + `三个通道实例均**预置** reduceMotion=true（读档回显）=${redOn}（【修订 15e】旧版用未开的默认实例测「退静态」⇒ 假 FAIL/假 PASS 双向风险）。`
         + `① 告急脉冲：reduceMotion 下 HUD 图标 α 90 帧 distinct=${pulseOn.distinct} 档（期望 1 = 静态红字），danger 图元数=${dangerVisible}（**色/图标通道不得被关掉** ⇒ >1 即保留）；`
         + `② hint 呼吸：60 帧 α 序列 distinct=${hintPm.distinct} 档（期望 1），蓝描边仍常驻（图元数=${hintRingKept}，D1 保留清单）；`
         + `③ 错误抖动：200ms 位移样本=[${shakeSeq.join(',')}] ⇒ 唯一值数=${new Set(shakeSeq).size}（期望 1 = 位移归零），danger 静态描边环在 fx 窗口内最大图元数=${ringStatic}（期望 ≥1，「红描边改静态」而非删除）；`
         + `④ 落档：写档含 "reduceMotion":true=${persisted}；**二次装配回显** reduceMotion=${echo}（§8-8「即档、重启回显一致」）。`
         + `　未纳入本条的 D1 清单项：结算/通关星弹跳缩放（view-model.ts:666、804 由 reduceMotion 退静态，代码在案，本轮未做逐帧弹跳断言）；`
-        + `　道次限制：真实**观感**是否「不晕」属 [Cocos]/[DevTools]/[人]，本条只证**渲染指令层**退静态 ⇒ 记 PASS*。`);
+        + `　道次限制：真实**观感**是否「不晕」属 [Cocos]/[DevTools]/[人]，本条只证**渲染指令层**退静态 ⇒ 记 PASS*。`
+        + `　【口径标注（WXG-T-114）】本条开关路径原走 ` + '`game.tapDesign()`' + ` 旁路（含 PAUSED 面板按钮）⇒ 绕开 ` + '`InputManager`' + `；**真链对照见 P22R**（开关经真链可达 + 落档回显）。`);
 }
 
 // ═════════════════════════════════════════════════════ P23 (新增) · E2 大字号
@@ -2354,6 +2525,388 @@ function stepGame(g, inp) { inp.beginFrame(); g.update(1 / 60); inp.endFrame(1 /
         + `　【归属】本条验的是 **levels 装载校验**（levels-spec §2 / src/config/levels.ts:184），**不属** S4 tray-spawner §8 判据；不得回填成 §8-3 的绿（§8-3 = ⛔）。`);
 }
 
+// ══════════════════ P8R/P10R/P22R/P27 · 真链口径（WXG-T-114 · BD-34 回归闸门）
+/**
+ * 【WXG-T-114 / BD-34 / K-038】旁路口径 = `game.tapDesign()`：直调 `_handleTap` 的优先级路由，
+ * **不经过 `InputManager`**。它恒绿，而真链（宿主把原生指针 `push` 进 `InputManager`）曾整段断链
+ * （`_readInput()` 只在 `_stepPlaying()` 内被调 ⇒ `paused` / `level-clear` / `game-over` / `finish`
+ * 四相位收不到任何点击；`WXG-T-100` 已修）。P8/P10/P22 原三组即此**旁路口径** ⇒ 三轮回归都没测到
+ * BD-34。以下 `P8R/P10R/P22R/P27*` 用**真链**重跑同一批交互（`input.beginFrame()` → `push(down)`
+ * → `push(up)` → `game.update(dt)` → `input.endFrame(dt)`，与 `App._fixedUpdate` 同形），断言子集合
+ * 与旁路口径一致。**旁路例原样保留、未删除**（`tapDesign` 仍是合法的装配前置）；两组并列呈报，
+ * 任一方断链都可见 —— 这正是 K-038 的规避①「关键交互各有一条经 `InputManager` 真链的用例」。
+ */
+/** 装配前置（合法）：直投托盘 + 落子填满可填格 ⇒ 触发 LEVEL_CLEAR。白盒例外同 P5/A05-17（修订 20 已注明）。 */
+function fillBoard(h) {
+    const grid = h.game.grid;
+    for (let r = 0; r < grid.rows; r++) {
+        for (let c = 0; c < grid.cols; c++) {
+            if (!grid.isFillable(r, c)) continue;
+            const slot = h.game.giveTrayBead(grid.requiredColor(r, c));
+            if (slot < 0) return false;
+            h.game.selectTraySlot(slot);
+            if (!h.game.tapGridCell(r, c)) return false;
+        }
+    }
+    return true;
+}
+/** 面板外一点：明确落在 560×480 居中面板之外、且不命中齿轮/道具卡/扩展/托盘/网格任一热区（死区）。
+ *  用于「仅面板按钮响应」的负向子句——必须真经 `_handleTap` 走一遭，否则「零响应」会因收不到事件而平凡为真。 */
+const OUTSIDE_PANEL = [30, 53];
+
+// ── P8R · 五类路由【真链口径】：① 齿轮 ② 道具卡 ③ 扩展入口 ④ 托盘珠 ⑤ 有选中点空格
+{
+    const h1 = mk(); h1.frame(); h1.tapChain(...GEAR_XY);
+    const gearOk = h1.count('game:paused') === 1 && h1.game.phase === 'paused';
+    const h2 = mk(); h2.game.giveTrayBead(1); h2.game.giveTrayBead(2); h2.frame();
+    h2.tapChain(...CARD_XY(1));
+    const cardOk = h2.count('powerup:used') === 1;
+    const eb = T.expandButtonLayout();
+    const h3 = mk(); h3.frame();
+    h3.tapChain(eb.hitX + eb.hitW / 2, eb.hitBottom + eb.hitH / 2);
+    const sn3 = h3.game.snapshot;
+    const expandEntry = sn3.tapHintAnchor === 'expand' && Boolean(sn3.tapHintText);
+    const h4 = mk(); h4.frame(); const i4 = h4.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    h4.tapChain(...slotXY(i4));
+    const selOk = h4.count('tray:selected') === 1;
+    const h5 = mk(); h5.frame(); const i5 = h5.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    h5.tapChain(...slotXY(i5));
+    const t5 = firstEmptyOf(h5.game.snapshot, h5.game.snapshot.traySlots[i5].colorIdx);
+    h5.tapChain(...cellXY(h5.game.snapshot, t5));
+    const placeOk = h5.count('bead:placed') === 1 && h5.count('bead:rejected') === 0;
+    const fourOk = [gearOk, cardOk, selOk, placeOk].every(Boolean);
+    const v = fourOk && expandEntry ? 'PASS*' : 'FAIL';
+    rec('P8R / BD-34 真链口径 · TC-INP-01R · S2 §8-1 五类路由（经 InputManager）', v,
+        `【口径】真链 = beginFrame → push(down) → push(up) → game.update(dt) → endFrame（同 App._fixedUpdate）；`
+        + `坐标 designToScreen → push → 游戏内 screenToDesign 读回（往返误差见 P13 = 0.0e+0）。`
+        + `① 齿轮→game:paused=${h1.count('game:paused')}(phase=${h1.game.phase}) ${gearOk ? '✓' : '✗'}；② 道具卡→powerup:used=${h2.count('powerup:used')} ${cardOk ? '✓' : '✗'}；`
+        + `③ 扩展入口→tapHintAnchor=${sn3.tapHintAnchor}（点 expandButtonLayout 热区中心 (${(eb.hitX + eb.hitW / 2).toFixed(1)},${(eb.hitBottom + eb.hitH / 2).toFixed(1)})）${expandEntry ? '✓' : '✗'}；④ 托盘珠→tray:selected=${h4.count('tray:selected')} ${selOk ? '✓' : '✗'}；`
+        + `⑤ 有选中点空格→bead:placed=${h5.count('bead:placed')}/rejected=${h5.count('bead:rejected')} ${placeOk ? '✓' : '✗'}。`
+        + `　【旁路对照】P8（tapDesign）同批交互 = PASS*（4/5 可验全过、扩展 S4 出口 ⛔ BD-37）；本条真链同坐标同结果 ⇒ **五类路由在真链下均接通**（差异 = 0）。`
+        + `　【为何仍 PASS* 而非 PASS】扩展 S4 出口按 powerups §2.6 布局 A 玩家不可达（BD-37，与 P8 同口径）⇒ 4/5 可验；真链本身无缺道（[Node] 已闭）。`);
+}
+
+// ── P10R · 无选中点网格【真链口径】：零落子请求 + 轻提示（同 seed 配对差分）
+{
+    const runP10r = (tap) => {
+        const h = mk({ seed: 'p10r-diff' });
+        h.frame();
+        const s = h.game.snapshot;
+        const i = findEmpty(s);
+        const [x, y] = cellXY(s, i);
+        if (tap) h.tapChain(x, y); else h.frame();     // 两条腿都推进恰 1 帧（帧号对齐，配对差分成立）
+        const sn = h.game.snapshot;
+        const cs = cmds(h);
+        return {
+            i, x, y,
+            textSig: cs.filter((c) => c.kind === 'text').map((c) => `${Math.round(c.x)}_${Math.round(c.y)}:${c.text}`).join('|'),
+            hint: { text: sn.tapHintText, anchor: sn.tapHintAnchor, row: sn.tapHintRow, col: sn.tapHintCol },
+            cols: s.gridCols,
+            placed: h.count('bead:placed'), rejected: h.count('bead:rejected'), selected: h.count('tray:selected'),
+        };
+    };
+    const ctl = runP10r(false), tst = runP10r(true);
+    const textDiff = ctl.textSig !== tst.textSig;
+    const hintOn = Boolean(tst.hint.text);
+    const anchored = tst.hint.anchor === 'cell'
+        && tst.hint.row === Math.floor(tst.i / tst.cols) && tst.hint.col === tst.i % tst.cols;
+    const v = tst.placed === 0 && tst.rejected === 0 && tst.selected === 0 && hintOn && anchored && textDiff
+        ? 'PASS' : 'FAIL';
+    rec('P10R / BD-34 真链口径 · TC-INP-07R · S2 §8-7 无选中点网格（经 InputManager）', v,
+        `【口径】真链点空格中心 (i${tst.i}, ${tst.x.toFixed(1)},${tst.y.toFixed(1)})。零请求 ✓：bead:placed=${tst.placed}、bead:rejected=${tst.rejected}、tray:selected=${tst.selected}（期望 0/0/0）。`
+        + `轻提示：tapHintText=「${tst.hint.text}」anchor=${tst.hint.anchor} 锚点=(${tst.hint.row},${tst.hint.col}) 与被点格一致=${anchored}。`
+        + `配对差分（同 seed、同帧号，ctl 不点 / tst 点）：**文本签名差异=${textDiff}**（反馈帧载体；非文本签名不变属预期）。`
+        + `　【旁路对照】P10（tapDesign）同批交互 = PASS；本条真链同坐标同结果（零请求 + 落点对格 ⇒ 说明点击确实到达 ` + '`_handleTap`' + `，非平凡真）⇒ 真链接通。`);
+}
+
+// ── P22R · D1 减弱动效开关【真链口径】：开关路径全程经 InputManager（含 PAUSED 面板按钮）
+{
+    const h = mk({ levels: [probeLevel(917, 13, 12, 420, 2.0, (i, j) => String(((i * 13 + j) % 3) + 1))] });
+    h.frame();
+    h.tapChain(...GEAR_XY);
+    const phaseAfterGear = h.game.phase;                 // 当场拷标（snapshot/phase 是每帧复用对象，见修订 15bis(a)）
+    const pausedViaChain = phaseAfterGear === 'paused';
+    const lay = pausePanelLayout('normal');
+    const btn = lay.buttons.find((b) => b.id === 'toggle-reduce-motion');
+    if (btn) h.tapChain(...panelCenter(btn));
+    const on = h.game.snapshot.reduceMotion === true;
+    const raw = String(h.storage.get(h.saveKey) ?? '');
+    const persisted = /"reduceMotion":true/.test(raw);
+    // 二次装配回显（原始 services，同样走真链；对照 P22 的 stepGame 旁路铺场）
+    const plat = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 });
+    const shared = plat.createStorage();
+    const mkSvc = (seed) => ({ events: new fw.EventBus(), input: new fw.InputManager(), audio: new fw.AudioScheduler(new fw.NullAudioBackend()), storage: shared, rng: fw.createRng(seed), viewport: new fw.Viewport(750, 1334), assets: new fw.NullAssetProvider(), platform: plat.info, rewardedAd: plat.createRewardedAdProvider() });
+    const chainRaw = (g, svc, dx, dy) => {
+        const p = { x: 0, y: 0 };
+        svc.viewport.designToScreen(p, dx, dy);
+        svc.input.beginFrame();
+        svc.input.push({ id: 1, x: p.x, y: p.y, phase: 'down', time: 1 });
+        svc.input.push({ id: 1, x: p.x, y: p.y, phase: 'up', time: 1 });
+        g.update(1 / 60);
+        svc.input.endFrame(1 / 60);
+    };
+    const d1lvl = () => [probeLevel(920, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))];
+    const g1 = new BeadsGame({ saveKey: 'wxgame.beads.reverify.d1c', levels: d1lvl() });
+    const vv1 = mkSvc('d1c'); g1.init(vv1); chainRaw(g1, vv1, ...GEAR_XY);
+    const b1 = pausePanelLayout('normal').buttons.find((b) => b.id === 'toggle-reduce-motion');
+    if (b1) chainRaw(g1, vv1, ...panelCenter(b1));
+    const g2 = new BeadsGame({ saveKey: 'wxgame.beads.reverify.d1c', levels: d1lvl() });
+    const vv2 = mkSvc('d1cb'); g2.init(vv2); stepGame(g2, vv2.input);
+    const echo = g2.snapshot.reduceMotion === true;
+    const v = pausedViaChain && on && persisted && echo ? 'PASS*' : 'FAIL';
+    rec('P22R / BD-34 真链口径 · TC-INP-08R/§8-8 · D1 减弱动效开关（经 InputManager）', v,
+        `【口径】开关路径全程真链：PLAYING 真链点齿轮 ⇒ phase=${phaseAfterGear}（期望 paused，${pausedViaChain ? '✓' : '✗'}）→ PAUSED 真链点「toggle-reduce-motion」中心 ⇒ snapshot.reduceMotion=${on}（期望 true）。`
+        + `落档含 "reduceMotion":true=${persisted}；二次装配（原始 services，同样真链）回显 reduceMotion=${echo}。`
+        + `　【BD-34 要点】此路径原为 ` + '`tapDesign`' + ` 旁路；改真链后若相位路由未接通（旧 BD-34），`
+        + '`h.tapChain(panelCenter(btn))` 会读不到 justDown ⇒ reduceMotion 保持 false ⇒ 本条 FAIL。'
+        + `P22 旁路口径 = PASS*（开关生效 + 三通道退静态）；本条额外证明**开关本身经真链可达**（两口径断言同一结果）。`
+        + `　道次限制：三通道「退静态」的逐帧断言仍由 P22（旁路铺场）覆盖，本条不复测；真实观感属 [Cocos]/[人] ⇒ 记 PASS*。`);
+}
+
+// ── P27a · PAUSED 真链门禁（齿轮入 / 面板外零响应 / 面板按钮出）
+{
+    const h = mk(); h.frame();
+    h.tapChain(...GEAR_XY);
+    // 全程**当场拷标量**（`snapshot`/`phase` 是每帧复用对象；晚读会拿到后续帧的态 —— 修订 15bis(a) 同族陷阱）
+    const phaseIn = h.game.phase, pausedCount = h.count('game:paused');
+    const inPaused = phaseIn === 'paused' && pausedCount === 1;
+    const before = h.emitted.length;
+    h.tapChain(...slotXY(0));                    // 面板外（托盘）——真链
+    h.tapChain(...cellXY(h.game.snapshot, 0));   // 面板外（棋盘）——真链
+    const outsideEvents = h.emitted.length - before;
+    const stillPaused = h.game.phase === 'paused';
+    const resume = pausePanelLayout('normal').buttons.find((b) => b.id === 'resume');
+    h.tapChain(...panelCenter(resume));
+    const phaseOut = h.game.phase, resumedCount = h.count('game:resumed');
+    const outPlaying = phaseOut === 'playing' && resumedCount === 1;
+    const v = inPaused && outsideEvents === 0 && stillPaused && outPlaying ? 'PASS' : 'FAIL';
+    rec('P27a / BD-34 回归闸门 · TC-INP-08 · S2 §8-8 + §2.3 PAUSED 真链门禁', v,
+        `① 入：PLAYING 真链点齿轮 ⇒ phase=${phaseIn}、game:paused=${pausedCount}（期望 paused/1）${inPaused ? '✓' : '✗'}。`
+        + `② 面板外负向（正向对照 = ③ 同相位真链可达）：真链点托盘槽 0 与棋盘格 0 ⇒ 事件增量=${outsideEvents}（期望 0）、相位仍 paused=${stillPaused} ⇒ 「遮罩吃掉其余一切」（§2.3 / pause-settings §2.2）。\n`
+        + `③ 出：真链点「继续」中心 ⇒ phase=${phaseOut}、game:resumed=${resumedCount}（期望 playing/1）${outPlaying ? '✓' : '✗'}。`
+        + `　【与 BD-34 的关系】旧实现 ` + '`_readInput()`' + ` 只在 playing 调用 ⇒ ②③ 的真链点击收不到（面板按钮沦为空壳、齿轮后永久卡死）；本组即该缺陷的回归闸门。`
+        + `　【旁路无关】本组不设旁路腿：` + '`_handleTap`' + ` 的相位路由是唯一裁决面，真链与旁路最终落到同一函数；旁路对照读数已由 P8/P22 提供。`);
+}
+
+// ── P27b · LEVEL_CLEAR 真链门禁（面板外零响应 / 「下一关」推进）
+{
+    const h = mk({ levels: [probeLevel(950, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1)), probeLevel(951, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    h.frame();
+    const filled = fillBoard(h);          // 装配前置（合法）
+    for (let f = 0; f < 15; f++) h.frame();   // 等结算面板入场（ux-spec §5 入 200ms）
+    const phase0 = h.game.phase, li0 = h.game.levelIndex;
+    const before = h.emitted.length;
+    h.tapChain(...OUTSIDE_PANEL);             // 面板外——真链
+    const outsideEvents = h.emitted.length - before;
+    const stillClear = h.game.phase === 'level-clear' && h.game.levelIndex === li0;
+    const next = clearPanelLayout({ lastLevel: false }).buttons.find((b) => b.id === 'next');
+    h.tapChain(...panelCenter(next));         // 真链点「下一关」
+    const advanced = h.game.phase === 'playing' && h.game.levelIndex === li0 + 1;
+    const v = filled && phase0 === 'level-clear' && outsideEvents === 0 && stillClear && advanced ? 'PASS' : 'FAIL';
+    rec('P27b / BD-34 回归闸门 · TC-INP-11 · S2 §8-8b LEVEL_CLEAR 真链门禁', v,
+        `装配（前置）+ 真链（判据主体）：填满可填格=${filled} ⇒ phase=${phase0}（期望 level-clear）、levelIndex=${li0}。`
+        + `① 面板外负向：真链点 (${OUTSIDE_PANEL[0]},${OUTSIDE_PANEL[1]}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位/关卡号不变=${stillClear}。\n`
+        + `② 正向：真链点「下一关」中心 ⇒ phase=${h.game.phase}（期望 playing）、levelIndex ${li0}→${h.game.levelIndex}（期望 ${li0 + 1}）${advanced ? '✓' : '✗'}。`
+        + `　【判据归属】` + '`input-control §8-8b`' + `（**WXG-T-115 已定稿落盘**，含完整按钮集「下一关 / 去冲刺」；本组为**主按钮**腿，次按钮「去冲刺」见 P27e）⇒ 对应用例 ` + '`test-cases.md §A4b` TC-INP-11' + `。`
+        + `　【BD-34】旧实现下 ①② 的真链点击均收不到 ⇒ 本组为回归闸门。`);
+}
+
+// ── P27c · GAME_OVER 真链门禁（面板外零响应 / 「重试」整关重置）
+{
+    const h = mk({ levels: [probeLevel(952, 6, 5, 180, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    h.frame();
+    let frames = 0;
+    for (; frames < 60 * 190 && h.game.phase === 'playing'; frames++) h.frame();
+    for (let f = 0; f < 15; f++) h.frame();   // 等失败面板入场
+    const phase0 = h.game.phase;
+    const before = h.emitted.length;
+    h.tapChain(...OUTSIDE_PANEL);             // 面板外——真链
+    const outsideEvents = h.emitted.length - before;
+    const stillOver = h.game.phase === 'game-over';
+    const retry = failPanelLayout(true).buttons.find((b) => b.id === 'retry');
+    h.tapChain(...panelCenter(retry));        // 真链点「重试」
+    const s = h.game.snapshot;
+    const filledNow = s.cells.filter((c) => !c.void && c.state === 'filled').length;
+    const reset = h.game.phase === 'playing' && filledNow === 0;
+    const v = phase0 === 'game-over' && outsideEvents === 0 && stillOver && reset ? 'PASS' : 'FAIL';
+    rec('P27c / BD-34 回归闸门 · TC-INP-12 · S2 §8-8c GAME_OVER 真链门禁', v,
+        `装配（前置）：推时钟至归零（${frames} 帧）⇒ phase=${phase0}（期望 game-over）。`
+        + `① 面板外负向：真链点 (${OUTSIDE_PANEL[0]},${OUTSIDE_PANEL[1]}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位不变=${stillOver}。\n`
+        + `② 正向：真链点「重试」中心 ⇒ phase=${h.game.phase}（期望 playing）、filled=${filledNow}（期望 0 = 整关重置）${reset ? '✓' : '✗'}。`
+        + `　【判据归属】` + '`input-control §8-8c`' + `（**WXG-T-115 已定稿落盘**；本组为**普通局主按钮「重试本关」**腿——普通局次按钮「续时」见 P27f、冲刺局子分支「再来一局/返回关卡」见 P27g/h）⇒ 对应用例 ` + '`test-cases.md §A4b` TC-INP-12' + `。`
+        + `　【BD-34】旧实现下 ①② 真链点击均收不到。`);
+}
+
+// ── P27d · FINISH 真链门禁（面板外零响应 / 「重玩第 1 关」回 L1）
+{
+    const h = mk({ levels: [probeLevel(953, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    h.frame();
+    const filled = fillBoard(h);          // 装配前置（合法）：单关填满 ⇒ level-clear(lastLevel)
+    for (let f = 0; f < 15; f++) h.frame();
+    const phaseClear = h.game.phase;
+    const next = clearPanelLayout({ lastLevel: true }).buttons.find((b) => b.id === 'next');
+    h.tapChain(...panelCenter(next));         // 真链点「查看结果」⇒ FINISH
+    for (let f = 0; f < 15; f++) h.frame();   // 等通关画面入场
+    const phaseFinish = h.game.phase;
+    const before = h.emitted.length;
+    h.tapChain(...OUTSIDE_PANEL);             // 面板外——真链
+    const outsideEvents = h.emitted.length - before;
+    const stillFinish = h.game.phase === 'finish';
+    const replay = finishPanelLayout(h.game.levelCount).buttons.find((b) => b.id === 'replay');
+    h.tapChain(...panelCenter(replay));       // 真链点「重玩第 1 关」
+    const back = h.game.phase === 'playing' && h.game.levelIndex === 0;
+    const v = filled && phaseClear === 'level-clear' && phaseFinish === 'finish' && outsideEvents === 0 && stillFinish && back ? 'PASS' : 'FAIL';
+    rec('P27d / BD-34 回归闸门 · TC-INP-13 · S2 §8-8d FINISH 真链门禁', v,
+        `装配（前置）：单关填满=${filled} ⇒ phase=${phaseClear}；真链点「查看结果」⇒ phase=${phaseFinish}（期望 finish）。`
+        + `① 面板外负向：真链点 (${OUTSIDE_PANEL[0]},${OUTSIDE_PANEL[1]}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位不变=${stillFinish}。\n`
+        + `② 正向：真链点「重玩第 1 关」中心 ⇒ phase=${h.game.phase}（期望 playing）、levelIndex=${h.game.levelIndex}（期望 0）${back ? '✓' : '✗'}。`
+        + `　【判据归属】` + '`input-control §8-8d`' + `（**WXG-T-115 已定稿落盘**，含完整按钮集「重玩第 1 关 / 去冲刺」；本组为**主按钮**腿，次按钮「去冲刺」见 P27i）⇒ 对应用例 ` + '`test-cases.md §A4b` TC-INP-13' + `。`
+        + `　【BD-34】旧实现下 ①② 真链点击均收不到。`);
+}
+
+// ═══════════ P27e..i · 次按钮真链孪生（WXG-T-116 · `input-control §8-8b/8c/8d` 次按钮子句）
+/**
+ * 上游 `WXG-T-115` 已把 `8b/8c/8d` 定稿落盘，条文各含**完整按钮集**（不止主按钮），且 `8c` 含
+ * **冲刺局子分支**（`_mode==='sprint'`：再来一局 / 返回关卡）。P27b/c/d 只覆盖了各相位**主按钮** +
+ * 面板外负向 ⇒ 本节 5 条补**次按钮**真链孪生（逐条与 `test-cases.md §A4b` 的 `TC-INP-11b/12b/12c/12d/13b` 1:1）。
+ * 纪律：真链驱动（`tapChain`）同 P27a..d；**正负并列**（面板外死区 `(30,53)` ⇒ 事件增量 0 ⇒ 负向非平凡真）。
+ * 判定**不放宽**：任一步与 `input-control §8-8b/8c/8d` 现文不符即 FAIL；真机广告行为 `[R]` ⛔（见 P27f）。
+ */
+/** 装配前置：进入冲刺局（公开 API `startSprint`）并推倒计时归零 ⇒ `game-over`（冲刺结算，`_mode='sprint'`）。 */
+function enterSprintGameOver(levelId) {
+    const h = mk({ levels: [probeLevel(levelId, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    h.frame();
+    h.game.startSprint();                                  // 装配前置（判据主体 = 面板按钮真链，非本调用）
+    let frames = 0;
+    for (; frames < 60 * 130 && h.game.phase === 'playing'; frames++) h.frame();
+    for (let f = 0; f < 15; f++) h.frame();                // 等冲刺结算面板入场（§5 入 200ms）
+    return { h, frames };
+}
+
+// ── P27e · `8b` 次按钮「去冲刺」真链孪生（LEVEL_CLEAR 副钮 ⇒ 进冲刺模式）
+{
+    const h = mk({ levels: [probeLevel(954, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1)), probeLevel(955, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    h.frame();
+    const filled = fillBoard(h);               // 装配前置（合法）
+    for (let f = 0; f < 15; f++) h.frame();    // 等结算面板入场
+    const phase0 = h.game.phase, mode0 = h.game.snapshot.mode, li0 = h.game.levelIndex;
+    const before = h.emitted.length;
+    h.tapChain(...OUTSIDE_PANEL);              // 面板外——真链
+    const outsideEvents = h.emitted.length - before;
+    const stillClear = h.game.phase === 'level-clear' && h.game.levelIndex === li0 && h.game.snapshot.mode === 'normal';
+    const sprint = clearPanelLayout({ lastLevel: false }).buttons.find((b) => b.id === 'sprint');
+    h.tapChain(...panelCenter(sprint));        // 真链点副钮「▶ 去冲刺」
+    const phaseOut = h.game.phase, modeOut = h.game.snapshot.mode;
+    const entered = phaseOut === 'playing' && modeOut === 'sprint';
+    const v = filled && phase0 === 'level-clear' && mode0 === 'normal' && outsideEvents === 0 && stillClear && entered ? 'PASS' : 'FAIL';
+    rec('P27e · TC-INP-11b · S2 §8-8b 次按钮「去冲刺」真链孪生（LEVEL_CLEAR 副钮 ⇒ 进冲刺）', v,
+        `装配（前置）：填满可填格=${filled} ⇒ phase=${phase0}、mode=${mode0}、levelIndex=${li0}（期望 level-clear/normal）。`
+        + `① 面板外负向：真链点 (${OUTSIDE_PANEL[0]},${OUTSIDE_PANEL[1]}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位/模式/关卡号不变=${stillClear}（负向非平凡真：点击确已到达 ` + '`_handleTap`' + `）。\n`
+        + `② 正向（判据主体 · §8-8b 次按钮）：真链点结算面板副钮「▶ 去冲刺」中心 ⇒ phase=${phaseOut}（期望 playing）、mode=${modeOut}（期望 sprint）${entered ? '✓' : '✗'}。`
+        + `　【按钮集来源】` + '`ux-spec §4` 流转表 `LEVEL_CLEAR` 行「下一关 / 去冲刺*(U1)」+ §3.4 双钮；实现锚点 `clear-panel.ts` `ClearPanelAction=\'next\'|\'sprint\'` + `beads-game.ts case \'level-clear\'` ⇒ `_startSprintRun()`。'
+        + `　【与 P27b 的关系】P27b = 同判据的**主按钮**「下一关」腿；本条 = **次按钮**腿（1:1 孪生）。`);
+}
+
+// ── P27f · `8c` 普通局次按钮「续时」真链孪生（真链点 revive + MockRewardedAdProvider 发奖腿）
+{
+    const h = mk({ levels: [probeLevel(956, 6, 5, 180, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    h.frame();
+    let frames = 0;
+    for (; frames < 60 * 190 && h.game.phase === 'playing'; frames++) h.frame();
+    for (let f = 0; f < 15; f++) h.frame();    // 等失败面板入场
+    const phase0 = h.game.phase, remaining0 = h.game.snapshot.remaining;
+    const revive = failPanelLayout(true).buttons.find((b) => b.id === 'revive');
+    h.tapChain(...panelCenter(revive));        // 真链点主钮「▶ +N 秒 继续本关」
+    const watching = h.game.snapshot.watchingAd;             // 期望 true（Mock autoSettle=null ⇒ 等回调）
+    const stillOver = h.game.phase === 'game-over';
+    const ad = h.services.rewardedAd;
+    const driveable = typeof ad?.settle === 'function';      // harness 替身可发奖（非真机广告）
+    if (driveable) ad.settle('complete');                    // 驱动发奖腿
+    h.frame();                                               // 刷新快照
+    const phaseOut = h.game.phase, modeOut = h.game.snapshot.mode;
+    const remaining1 = h.game.snapshot.remaining, revived = h.game.snapshot.revived;
+    const bonus = remaining1 - remaining0;
+    const continued = phaseOut === 'playing' && modeOut === 'normal' && revived && bonus === T.REVIVE_BONUS_SEC;
+    const reviveSfx = h.played.filter((id) => /revive/.test(String(id))).length;
+    const v = phase0 === 'game-over' && watching && stillOver && driveable && continued ? 'PASS*' : 'FAIL';
+    rec('P27f · TC-INP-12b · S2 §8-8c 普通局次按钮「续时」真链孪生（+ MockRewardedAdProvider 发奖腿）', v,
+        `装配（前置）：推时钟至归零（${frames} 帧）⇒ phase=${phase0}（期望 game-over）、remaining=${remaining0}。`
+        + `① 按钮腿（真链·判据主体）：真链点主钮「▶ +${T.REVIVE_BONUS_SEC}秒 继续本关」中心 ⇒ snapshot.watchingAd=${watching}（期望 true = 已发起激励视频、相位仍 game-over 等回调）、相位不变=${stillOver} ⇒ 与 ` + '`ux-spec §4`' + ` 行「点『+N 秒继续本关』⇒ GAME_OVER（等回调）」一致。\n`
+        + `② 发奖腿（harness 替身驱动）：` + '`MockRewardedAdProvider.settle(\'complete\')`' + ` 可驱动=${driveable} ⇒ ` + '`onRewarded`' + ` → ` + '`_continueFromReward()`' + ` ⇒ phase=${phaseOut}（期望 playing）、mode=${modeOut}（期望 normal）、remaining ${remaining0}→${remaining1}（Δ=${bonus}s，期望 =` + ` REVIVE_BONUS_SEC=${T.REVIVE_BONUS_SEC}s）、snapshot.revived=${revived}（期望 true）；revive 音请求数=${reviveSfx}。`
+        + `　【可达性判定（实测）】**按钮腿 = 真链可达且成立**；**发奖腿 = 由 harness 替身（` + '`MockRewardedAdProvider(null)`' + `，autoSettle 关 ⇒ 需显式 ` + '`settle()`' + `）驱动** ⇒ 结构链路成立。`
+        + `　【⛔ 边界 · 不记 PASS 亦不记 FAIL 的部分】真机激励视频**拉起 / 发奖 / 「未看完·skip·error」三分支**属 ` + '`[R]`' + `（无 AppID / 无真机）⇒ ⛔；本条只证「按钮→请求→发奖→续打」的**结构链路**（` + '`test-cases.md` TC-TIMER-12' + ` 取证纪律：mock 必然 complete，**不可作真机广告证据**）⇒ 故记 **PASS\\*** 而非 PASS。`
+        + `　【与 §21 未闭项无关】本条不触碰 GAP-06 死局（续时只加时不清托盘，` + '`ux-spec §4`' + ` 尾注已警示）。`);
+}
+
+// ── P27g · `8c` 冲刺局子分支次按钮「再来一局」真链孪生
+{
+    const { h, frames } = enterSprintGameOver(957);
+    const phase0 = h.game.phase, mode0 = h.game.snapshot.mode;
+    const before = h.emitted.length;
+    h.tapChain(...OUTSIDE_PANEL);              // 面板外——真链
+    const outsideEvents = h.emitted.length - before;
+    const stillOver = h.game.phase === 'game-over' && h.game.snapshot.mode === 'sprint';
+    const again = sprintSettleLayout().buttons.find((b) => b.id === 'again');
+    h.tapChain(...panelCenter(again));         // 真链点冲刺结算主钮「再来一局」
+    const phaseOut = h.game.phase, modeOut = h.game.snapshot.mode;
+    const restarted = phaseOut === 'playing' && modeOut === 'sprint';
+    const v = phase0 === 'game-over' && mode0 === 'sprint' && outsideEvents === 0 && stillOver && restarted ? 'PASS' : 'FAIL';
+    rec('P27g · TC-INP-12c · S2 §8-8c 冲刺局子分支次按钮「再来一局」真链孪生', v,
+        `装配（前置）：` + '`startSprint()`' + ` + 推时钟至归零（${frames} 帧）⇒ phase=${phase0}（期望 game-over）、mode=${mode0}（期望 sprint = 冲刺结算，` + '`ux-spec §3.5`' + ` 左列「不出现续时」）。`
+        + `① 面板外负向：真链点 (${OUTSIDE_PANEL[0]},${OUTSIDE_PANEL[1]}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位/模式不变=${stillOver}。\n`
+        + `② 正向（判据主体 · §8-8c 冲刺局子分支）：真链点冲刺结算主钮「再来一局」中心 ⇒ phase=${phaseOut}（期望 playing）、mode=${modeOut}（期望 sprint）${restarted ? '✓' : '✗'}。`
+        + `　【按钮集来源】` + '`ux-spec §3.5` 左列双钮「再来一局 / 返回关卡」；实现锚点 `sprint-settle.ts` `SprintSettleAction=\'again\'|\'back\'` + `beads-game.ts case \'game-over\'`(`_mode===\'sprint\'`) ⇒ `retryLevel()`。'
+        + `　【与 P27c 的关系】P27c 走**普通局** ` + '`failPanelLayout`' + `（重试/续时）；本条走**冲刺局** ` + '`sprintSettleLayout`' + `（再来一局/返回关卡）——**不同按钮集、同一 ` + '`case \'game-over\'`' + ` 分支**（` + '`WXG-T-115`' + ` 修正 1 补齐的缺口）。`);
+}
+
+// ── P27h · `8c` 冲刺局子分支次按钮「返回关卡」真链孪生
+{
+    const { h, frames } = enterSprintGameOver(958);
+    const phase0 = h.game.phase, mode0 = h.game.snapshot.mode;
+    const before = h.emitted.length;
+    h.tapChain(...OUTSIDE_PANEL);              // 面板外——真链
+    const outsideEvents = h.emitted.length - before;
+    const stillOver = h.game.phase === 'game-over' && h.game.snapshot.mode === 'sprint';
+    const bk = sprintSettleLayout().buttons.find((b) => b.id === 'back');
+    h.tapChain(...panelCenter(bk));            // 真链点冲刺结算副钮「返回关卡」
+    const phaseOut = h.game.phase, modeOut = h.game.snapshot.mode;
+    const toNormal = phaseOut === 'playing' && modeOut === 'normal';
+    const v = phase0 === 'game-over' && mode0 === 'sprint' && outsideEvents === 0 && stillOver && toNormal ? 'PASS' : 'FAIL';
+    rec('P27h · TC-INP-12d · S2 §8-8c 冲刺局子分支次按钮「返回关卡」真链孪生', v,
+        `装配（前置）：` + '`startSprint()`' + ` + 推时钟至归零（${frames} 帧）⇒ phase=${phase0}（期望 game-over）、mode=${mode0}（期望 sprint）。`
+        + `① 面板外负向：真链点 (${OUTSIDE_PANEL[0]},${OUTSIDE_PANEL[1]}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位/模式不变=${stillOver}。\n`
+        + `② 正向（判据主体 · §8-8c 冲刺局子分支）：真链点冲刺结算副钮「返回关卡」中心 ⇒ phase=${phaseOut}（期望 playing）、mode=${modeOut}（期望 normal）${toNormal ? '✓' : '✗'}。`
+        + `　【出口语义】` + '`beads-game.ts case \'game-over\'`' + `（sprint 分支）：` + '`settle===\'back\'` ⇒ `startNormal()`' + `（离开冲刺回普通战役，` + '`ux-spec §4` / §3.5 左列副钮）。');
+}
+
+// ── P27i · `8d` 次按钮「去冲刺」真链孪生（FINISH 副钮 ⇒ 进冲刺模式）
+{
+    const h = mk({ levels: [probeLevel(959, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    h.frame();
+    const filled = fillBoard(h);               // 装配前置（合法）：单关填满 ⇒ level-clear(lastLevel)
+    for (let f = 0; f < 15; f++) h.frame();
+    const phaseClear = h.game.phase;
+    const next = clearPanelLayout({ lastLevel: true }).buttons.find((b) => b.id === 'next');
+    h.tapChain(...panelCenter(next));          // 真链点「查看结果」⇒ FINISH
+    for (let f = 0; f < 15; f++) h.frame();    // 等通关画面入场
+    const phaseFinish = h.game.phase;
+    const before = h.emitted.length;
+    h.tapChain(...OUTSIDE_PANEL);              // 面板外——真链
+    const outsideEvents = h.emitted.length - before;
+    const stillFinish = h.game.phase === 'finish';
+    const sprint = finishPanelLayout(h.game.levelCount).buttons.find((b) => b.id === 'sprint');
+    h.tapChain(...panelCenter(sprint));        // 真链点副钮「▶ 去冲刺」
+    const phaseOut = h.game.phase, modeOut = h.game.snapshot.mode;
+    const entered = phaseOut === 'playing' && modeOut === 'sprint';
+    const v = filled && phaseClear === 'level-clear' && phaseFinish === 'finish' && outsideEvents === 0 && stillFinish && entered ? 'PASS' : 'FAIL';
+    rec('P27i · TC-INP-13b · S2 §8-8d 次按钮「去冲刺」真链孪生（FINISH 副钮 ⇒ 进冲刺）', v,
+        `装配（前置）：单关填满=${filled} ⇒ phase=${phaseClear}；真链点「查看结果」⇒ phase=${phaseFinish}（期望 finish）。`
+        + `① 面板外负向：真链点 (${OUTSIDE_PANEL[0]},${OUTSIDE_PANEL[1]}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位不变=${stillFinish}。\n`
+        + `② 正向（判据主体 · §8-8d 次按钮）：真链点通关画面副钮「▶ 去冲刺」中心 ⇒ phase=${phaseOut}（期望 playing）、mode=${modeOut}（期望 sprint）${entered ? '✓' : '✗'}。`
+        + `　【按钮集来源】` + '`ux-spec §3.6` / §4 行 `FINISH | 去冲刺* / 重玩第 1 关`；实现锚点 `finish-panel.ts` `FinishPanelAction=\'replay\'|\'sprint\'` + `beads-game.ts case \'finish\'` ⇒ `_startSprintRun()`。'
+        + `　【与 P27d 的关系】P27d = 同判据的**主按钮**「重玩第 1 关」腿；本条 = **次按钮**腿（1:1 孪生）。`);
+}
+
 // ═════════════════════════════════════════════════════════ 汇总
 const norm = (v) => v.startsWith('⛔') ? '⛔' : (v === 'PASS' ? 'PASS' : v.startsWith('PASS*') ? 'PASS*' : 'FAIL');
 const tally = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
@@ -2375,21 +2928,43 @@ const cntGrp = (pred) => out.filter((r) => pred(r.id)).length;
 //   与 P5/A05-14（第二主体到位后「音/视互不驱动」由单向补为三方向）。两条均是**因实现变化而重建
 //   预期值**，不是放宽判据；旧 P7 的「非文本签名 uniq≤1 才算 PASS*」实质是把缺失当预期，已删。
 //   P5/A05-14 属双计条目：仍计入下方「P5 段」总计数，只是修订归属移到 T-097。
-const inT098 = (id) => /^P4\b/.test(id) || /^P20\b/.test(id) || /^P26\b/.test(id);
-const inT097 = (id) => /^P7\b/.test(id) || /^P8\b/.test(id) || /^P10\b/.test(id) || /^P5\/A05-14\b/.test(id);
+// 【修订 41 · WXG-T-114】新增真链口径修订面 = P8R/P10R/P22R + P27a..d（BD-34 回归闸门）。
+//   逐条 = 与 P8/P10/P22 **同一交互**的真链重跑 + 四相位（PAUSED/LEVEL_CLEAR/GAME_OVER/FINISH）门禁矩阵。
+//   判定**不放宽**：真链断链即 FAIL（旁路绿不得掩盖）；扩展 S4 出口仍按 BD-37 ⛔（与 P8 同口径 ⇒ PASS*）。
+// 【修订 42 · WXG-T-116】新增修订面 = P27e..i（`input-control §8-8b/8c/8d` **次按钮**真链孪生 +
+//   去「拟」）：① P27b/c/d 标题/归属串由「TC-INP-11/12/13(拟) + 仅 §2.3 覆盖」改为正式编号 `§8-8b/8c/8d`；
+//   ② 新增 P27e(`8b`去冲刺) / P27f(`8c`续时) / P27g(`8c`冲刺·再来一局) / P27h(`8c`冲刺·返回关卡) /
+//   P27i(`8d`去冲刺)——真链驱动 + 正负并列，判定不放宽；P27f 记 PASS*（发奖腿由 harness 替身驱动）。旁路例零删除。
+// 【修订 43 · WXG-T-118】新增修订面 = **P4（纯重跑，预期值零改动）+ P7（预期值收紧：BD-35 闭合）**。
+//   范围铁声明：本轮**只重跑 P4 + P7**；其余段一律沿用现行轮次 ⇒ **分桶计数不得合并解读**。
+//   自 T-118 起 P4 从「T-098 修订面」、P7 从「T-097 修订面」**移出**（同 T-116 对 T-098/T-097 的排除体例），
+//   否则同一记录会被两个桶双计。故本节下方 T-098 / T-097 两个桶的条数各 −1（3 / 3），**不是判定的变化**。
+const T114_PREFIXES = ['P8R', 'P10R', 'P22R', 'P27a', 'P27b', 'P27c', 'P27d'];
+const T116_PREFIXES = ['P27e', 'P27f', 'P27g', 'P27h', 'P27i'];
+const inT114 = (id) => T114_PREFIXES.some((p) => id.startsWith(p));
+const inT116 = (id) => T116_PREFIXES.some((p) => id.startsWith(p));
+const inT118 = (id) => /^P4\b/.test(id) || /^P7\b/.test(id);
+const inT098 = (id) => !inT114(id) && !inT116(id) && !inT118(id) && (/^P20\b/.test(id) || /^P26\b/.test(id));
+const inT097 = (id) => !inT114(id) && !inT116(id) && !inT118(id) && (/^P8\b/.test(id) || /^P10\b/.test(id) || /^P5\/A05-14\b/.test(id));
+const tallyT114 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
+const tallyT116 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
+const tallyT118 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT098 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT097 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyRest2 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 for (const r of out) {
-    const bucket = inT098(r.id) ? tallyT098 : inT097(r.id) ? tallyT097 : tallyRest2;
+    const bucket = inT118(r.id) ? tallyT118 : inT116(r.id) ? tallyT116 : inT114(r.id) ? tallyT114 : inT098(r.id) ? tallyT098 : inT097(r.id) ? tallyT097 : tallyRest2;
     bucket[norm(r.verdict)]++;
 }
-console.log('\n================ 探针汇总（v1.4 改判轮 · WXG-T-097 修订面 = P8/P10（BD-15/BD-16 + §3.4 v1.20）+ P7/A05-14（BD-10 描边呼吸）预期值重建） ================');
+console.log('\n================ 探针汇总（v1.7 轮 · WXG-T-118 修订面 = P4 纯重跑 + P7 预期值收紧[BD-35 闭合] · WXG-T-116 修订面 = P27e..i · WXG-T-114 修订面 = P8R/P10R/P22R + P27a..d） ================');
 for (const r of out) console.log(`${norm(r.verdict).padEnd(6)} ${r.id}`);
-console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组；含 P26-N 负向用例，较 v1.2 多 1 条记录）`);
+console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组；含 P26-N 负向用例）`);
 console.log(`【T-096 修订面 · P5 段（${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
-console.log(`【T-098 修订面 · P4/P20/P26（含 P26-N，${cntGrp(inT098)} 条）】：${sum(tallyT098)}`);
-console.log(`【T-097 修订面 · P7/P8/P10 + P5/A05-14（${cntGrp(inT097)} 条）】：${sum(tallyT097)}`);
-console.log(`【未随本轮复核 · 其余 ${cntGrp((id) => !inT098(id) && !inT097(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
-console.log('　↑ 四段计数不得合并解读：P5 段沿 T-096 口径（A05-14 仍计入该段，但修订归属已移到 T-097 ⇒ **双计条目**），P4/P20/P26 沿 T-098 口径，P7/P8/P10 沿 T-097 口径，其余组沿 v1.1 口径。');
+console.log(`【T-118 修订面 · P4（纯重跑）+ P7（预期值收紧 / BD-35 闭合）（${cntGrp(inT118)} 条）】：${sum(tallyT118)}`);
+console.log(`【T-098 修订面 · P20/P26（含 P26-N，P4 已移入 T-118，${cntGrp(inT098)} 条）】：${sum(tallyT098)}`);
+console.log(`【T-097 修订面 · P8/P10 + P5/A05-14（P7 已移入 T-118，${cntGrp(inT097)} 条）】：${sum(tallyT097)}`);
+console.log(`【T-114 修订面 · P8R/P10R/P22R + P27a..d（真链口径 / BD-34 回归闸门，${cntGrp(inT114)} 条）】：${sum(tallyT114)}`);
+console.log(`【T-116 修订面 · P27e..i（§8-8b/8c/8d 次按钮真链孪生 + 去「拟」，${cntGrp(inT116)} 条）】：${sum(tallyT116)}`);
+console.log(`【未随本轮复核 · 其余 ${cntGrp((id) => !inT098(id) && !inT097(id) && !inT114(id) && !inT116(id) && !inT118(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
+console.log('　↑ 七段计数不得合并解读：P5 段沿 T-096 口径（A05-14 双计），P4/P7 沿 T-118 口径（P4 = 纯重跑、P7 = 预期值收紧），P20/P26 沿 T-098 口径，P8/P10 沿 T-097 口径，P8R/P10R/P22R/P27a..d 沿 T-114 真链口径，P27e..i 沿 T-116 次按钮真链口径，其余组沿 v1.1 口径。');
 console.log(`时间戳：${new Date().toISOString()}   Node ${process.version}`);
