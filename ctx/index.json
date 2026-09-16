@@ -33961,17 +33961,17 @@
     },
     {
       "path": "memory/2026-09-16.md",
-      "tokens": 1040,
-      "lines": 25,
-      "sha256": "4fc414b351457c89e18ddcac8273fec91d4625d541e6baa3bccaeaf4f219814b",
+      "tokens": 1224,
+      "lines": 28,
+      "sha256": "c06fedaec46d0a1ed9eecc5806ae60974b0f369454fce20e989c7cdb6df55476",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-16",
           "level": 1,
           "startLine": 1,
-          "endLine": 26,
-          "tokens": 1037,
+          "endLine": 29,
+          "tokens": 1221,
           "summary": "",
           "keywords": []
         },
@@ -33995,8 +33995,8 @@
           "anchor": "§主理人复核 WXG-T-119（并发会话施工 · 只读）+ BD-40 撞号消歧",
           "level": 2,
           "startLine": 6,
-          "endLine": 26,
-          "tokens": 942,
+          "endLine": 29,
+          "tokens": 1126,
           "summary": "为什么不接施工：主表那行仍写 📋，但工作树实况是并发会话已跑到终轮（探针 1148 行未跟踪、报告已追加 §25 + ",
           "keywords": [
             "§25",
@@ -34011,8 +34011,8 @@
           "anchor": "§追记（同日 08:14 复核，上面两条判断已被后续事实推翻，据实修正）",
           "level": 3,
           "startLine": 19,
-          "endLine": 26,
-          "tokens": 299,
+          "endLine": 29,
+          "tokens": 482,
           "summary": "卫生项作废：evidence/beads-browser-probe.log 于 07:43:48 被并发会话复跑覆盖 ",
           "keywords": [
             "evidence",
@@ -34027,9 +34027,9 @@
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 7153,
+      "tokens": 7154,
       "lines": 183,
-      "sha256": "eed80027f63d3922004cc634855dc277a35a77f0b38ff0918a5faeb74c1b7b13",
+      "sha256": "7f9f9b16bde364e6897d95c297f302a6cb626c66821e8d3d02adbcbda6937dde",
       "tier": "normal",
       "sections": [
         {
@@ -34037,7 +34037,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 184,
-          "tokens": 7131,
+          "tokens": 7132,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -34120,11 +34120,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 1,040 tok｜2 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 30 天）",
+          "anchor": "§`memory/2026-09-16.md` — 1,224 tok｜2 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 79,
-          "tokens": 200,
+          "tokens": 201,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
             "memory/2026-09-16.md",
