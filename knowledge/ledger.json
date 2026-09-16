@@ -846,7 +846,7 @@
       "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "缺陷号（`BD-NN`）与任务号同规：领号须读工作树全文，且「已登记 BD-xx」的声明必须回查台账是否真有正本行",
-      "contentHash": "097d6ebf8f1c0b18e0f00325f01dff8f9ed8b67c51fd49a360858ff912684051",
+      "contentHash": "7c43206ae2c56564ab760348eaad2e6e8535d7c82c2e4f80973b7c885b4950b7",
       "sourceTask": "WXG-T-119",
       "addedDate": "2026-09-16",
       "lastAccess": "2026-09-16",
@@ -1068,6 +1068,15 @@
       "date": "2026-09-16",
       "taskId": "WXG-T-119",
       "kind": "added",
+      "ids": [
+        "K-050"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-16",
+      "taskId": "WXG-T-119",
+      "kind": "updated",
       "ids": [
         "K-050"
       ],
