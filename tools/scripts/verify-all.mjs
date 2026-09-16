@@ -16,20 +16,23 @@
  *      聚合器把它记为 SKIP 而不是 PASS；`--strict` 下 SKIP 直接判失败（CI 想收紧时用）。
  *
  * ── STATUS 契约（与子命令之间的唯一新增约定）──────────────────────────────
- *   子命令在 **stdout** 打一行：`STATUS: OK | SKIP | FAIL`（取最后一次出现为准）。
- *   没打标记的项按退出码判：0 = PASS，非 0 = FAIL。目前只有 `check:size` 会打 SKIP
- *   （产物不存在的游戏未被包体校验 ⇒ 见 `check-bundle-size.mjs` 头注 / BD-18）。
+ *   子命令在 **stdout** 打一行：`STATUS: OK | WARN | SKIP | FAIL`（取最后一次出现为准）。
+ *   没打标记的项按退出码判：0 = PASS，非 0 = FAIL。
+ *   · SKIP = **没测**（BD-18）：`check:size` 在产物缺失的游戏未被覆盖时报 SKIP；`--strict` 下判失败。
+ *   · WARN = **观察项**（WXG-T-110）：子命令明确表达了「发现可疑但按用户裁定**本轮不阻断**」，
+ *     例如 `check:host-tests`（§17 宿主行为测试守卫）在 warn 观察期。WARN **不计 PASS**（不伪装），
+ *     但也**不影响退出码**（`--strict` 亦然）—— 升级为阻断靠该子命令自身改判 FAIL，不由聚合器代劳。
  *
  * ── 用法 ─────────────────────────────────────────────────────────────────
- *   pnpm run verify                      # 全量 14 项（推荐，等价旧 verify 但更诚实）
+ *   pnpm run verify                      # 全量步骤（步骤表见 --list；推荐，等价旧 verify 但更诚实）
  *   node tools/scripts/verify-all.mjs --list                 # 只看步骤表
  *   node tools/scripts/verify-all.mjs --steps=check:tasks,check:links   # 局部复跑
  *   node tools/scripts/verify-all.mjs --strict               # SKIP 也判失败（退出码 1）
  *   node tools/scripts/verify-all.mjs --validate             # 校验步骤表仍都在 package.json
  *   node tools/scripts/verify-all.mjs --selftest             # 合成步骤自测（见 K-036 规避③）
  *
- * 退出码：0 = 全 PASS（`--strict` 下要求无 SKIP）；1 = 有 FAIL（或有 SKIP 且 `--strict`）；
- *         2 = 用法错误 / 步骤表与 package.json 脱钩。
+ * 退出码：0 = 无 FAIL（`--strict` 下还要求无 SKIP；**WARN 从不影响退出码**）；
+ *         1 = 有 FAIL（或有 SKIP 且 `--strict`）；2 = 用法错误 / 步骤表与 package.json 脱钩。
  */
 
 import { spawnSync } from 'node:child_process';
@@ -58,10 +61,14 @@ const STEPS = Object.freeze([
   'test',
   'harness:build',
   'harness:smoke',
+  // WXG-T-110：§17 宿主行为测试守卫。**新增门禁项一律追加在此，不加 `&&`**。
+  // 该步在 warn 观察期自报 `STATUS: WARN`（不阻断，见汇总表），升级判据见其自身输出。
+  'check:host-tests',
 ]);
 
-const STATUS_RE = /^STATUS:\s*(OK|SKIP|FAIL)\b/m;
+const STATUS_RE = /^STATUS:\s*(OK|WARN|SKIP|FAIL)\b/m;
 const PASS = 'PASS';
+const WARN = 'WARN';
 const SKIP = 'SKIP';
 const FAIL = 'FAIL';
 
@@ -140,6 +147,10 @@ function runSteps(steps) {
     } else if (marker === 'SKIP') {
       status = SKIP;
       note = '未覆盖（子命令自报 SKIP）';
+    } else if (marker === 'WARN') {
+      // 观察项：子命令声明「发现可疑但本轮不阻断」（WXG-T-110）。**不记 PASS**，也不改退出码。
+      status = WARN;
+      note = '观察项（子命令自报 WARN，按裁定不阻断）';
     } else {
       status = PASS;
     }
@@ -162,6 +173,7 @@ function lastStatus(stdout) {
 /** 打印状态表 + 未通过/未执行清单，返回退出码。 */
 function summarize(results, { strict = false } = {}) {
   const failed = results.filter((r) => r.status === FAIL);
+  const warned = results.filter((r) => r.status === WARN);
   const skipped = results.filter((r) => r.status === SKIP);
   const passed = results.filter((r) => r.status === PASS);
   const width = Math.max(...results.map((r) => r.name.length), 6);
@@ -169,12 +181,12 @@ function summarize(results, { strict = false } = {}) {
   console.log('\n' + '─'.repeat(72));
   console.log(`verify 汇总 —— 共 ${results.length} 项（**逐项执行，未短路**）`);
   for (const r of results) {
-    const icon = r.status === PASS ? '✅' : r.status === SKIP ? '⚠️' : '❌';
+    const icon = r.status === PASS ? '✅' : r.status === WARN ? '🔶' : r.status === SKIP ? '⚠️' : '❌';
     const note = r.note ? `  (${r.note})` : '';
     console.log(`  ${icon} ${r.status.padEnd(4)} ${r.name.padEnd(width)}  ${r.secs.toFixed(1)}s${note}`);
   }
   console.log('─'.repeat(72));
-  console.log(`  PASS ${passed.length} ｜ SKIP ${skipped.length} ｜ FAIL ${failed.length}`);
+  console.log(`  PASS ${passed.length} ｜ WARN ${warned.length} ｜ SKIP ${skipped.length} ｜ FAIL ${failed.length}`);
   if (failed.length) {
     console.log('  ❌ 未通过：' + failed.map((r) => `${r.name}${r.note ? `[${r.note}]` : ''}`).join('、'));
   }
@@ -182,7 +194,12 @@ function summarize(results, { strict = false } = {}) {
     console.log('  ⚠️ 未覆盖（**不是通过，是没测**）：' + skipped.map((r) => r.name).join('、'));
     console.log('     解除条件见各子命令输出的 SKIP 原因；`--strict` 会把 SKIP 判为失败。');
   }
-  if (!failed.length && !skipped.length) console.log('  ✅ 全部执行且全部达标。');
+  if (warned.length) {
+    console.log('  🔶 观察项（**不是通过，也不是失败**；按用户裁定本轮不阻断，`--strict` 也不判红）：'
+      + warned.map((r) => r.name).join('、'));
+    console.log('     升级条件见该子命令自身输出（如 `check:host-tests` 的「何时可升 fail-closed」）。');
+  }
+  if (!failed.length && !skipped.length && !warned.length) console.log('  ✅ 全部执行且全部达标。');
   if (failed.length) console.log('  ℹ️ 本轮其余项均已实际执行（本聚合器不短路），可放心引用上表逐项结论。');
 
   if (failed.length) return 1;
@@ -259,6 +276,20 @@ function runSelftest() {
   const bad = runSteps([{ name: 'self-contradictory', argv: node(say('STATUS: FAIL\n')) }]);
   assert('9 STATUS: FAIL 但退出 0 ⇒ 仍记 FAIL（不给静默绿灯）', bad[0].status === FAIL);
 
+  // WXG-T-110：WARN（观察项）是**第四种**状态 —— 既不能伪装成 PASS，也不能（意外）变成阻断。
+  const WRN = { name: 'e-warn', argv: node(say('STATUS: WARN\n')) };
+  const warnRound = runSteps([WRN, OK]);
+  assert('10 STATUS: WARN 记 WARN，**不记 PASS**（不伪装成通过）', byName(warnRound, WRN.name)?.status === WARN);
+  assert(
+    '11 WARN 不改变退出码（含 --strict）——「观察项」不得被聚合器擅自升级为阻断',
+    summarize([byName(warnRound, WRN.name)], { strict: false }) === 0
+      && summarize([byName(warnRound, WRN.name)], { strict: true }) === 0,
+  );
+  assert(
+    '12 WARN 与 FAIL 并存时仍以 FAIL 为准（退 1）',
+    summarize([byName(warnRound, WRN.name), { name: 'x', status: FAIL, secs: 0 }], { strict: false }) === 1,
+  );
+
   const pass = cases.filter((c) => c.ok).length;
   console.log(`\n[verify-all selftest] ${pass}/${cases.length} 通过`);
   if (pass !== cases.length) console.error('❌ 聚合器自身承诺不成立 —— 这等于把 BD-17 换了个地方复发');
@@ -284,7 +315,8 @@ function printHelp() {
       '  --validate      校验步骤表与 package.json 未脱钩',
       '  --selftest      合成步骤自测（不跑真实门禁）',
       '',
-      '子命令可打 `STATUS: OK|SKIP|FAIL` 影响聚合结论；详见文件头注释。',
+      '子命令可打 `STATUS: OK|WARN|SKIP|FAIL` 影响聚合结论；详见文件头注释。',
+      '（WARN = 观察项：不伪装成 PASS，也不影响退出码；SKIP = 没测，`--strict` 判失败）',
     ].join('\n'),
   );
 }

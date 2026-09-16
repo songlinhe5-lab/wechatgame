@@ -49,6 +49,10 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        /* WXG-T-113：纯信息条，不得挡住画布。1280×720 下齿轮中心
+           screen(461.3, 32.4) 正落在本条的 y∈[10,46] 内 —— 关掉指针命中
+           后，e2e/QA 探针的 elementFromPoint 会直接落到画布上。 */
+        pointer-events: none;
       }
       #hud strong { color: var(--accent); }
       #controls {
@@ -59,7 +63,12 @@
         gap: 6px;
         flex-wrap: wrap;
         max-width: 260px;
+        /* WXG-T-113：面板盒（含内边距与 flex 间隙）不再吞画布点击 —— 否则
+           同 x 带的画布热区被劫持、还经 `<a href>` 触发页面导航。
+           仅让真正的控件（a / button）恢复命中，链接照常可点。 */
+        pointer-events: none;
       }
+      #controls > * { pointer-events: auto; }
       button {
         font: inherit;
         color: var(--text);
@@ -89,6 +98,8 @@
         padding: 8px 12px;
         font-size: 12px;
         color: var(--dim);
+        /* WXG-T-113：同上，纯说明文字，不遮挡画布热区（tray / 底部按钮）。 */
+        pointer-events: none;
       }
       #help b { color: var(--text); }
       #fatal {
