@@ -1949,7 +1949,10 @@ export class BeadsGame implements Game {
     const shown = this._clearPanel.starsShown(this._lastStars);
     s.clearStarsShown = shown;
     s.clearStarPopScale = shown > 0 ? this._clearPanel.starScale(shown - 1) : 1;
-    s.clearRemaining = this._timer.remaining;
+    // BD-47（WXG-T-127）：结算面板「剩余 mm:ss」不吃浮点尾数 —— 快照层即取整，
+    // 口径与上方 s.remaining 一致（ceil − 1e-9，倒计时显示不提前归零）；
+    // formatTime 的 floor 只是视图兜底，两层都补（T-118 前发现、本单补登）。
+    s.clearRemaining = Math.max(0, Math.ceil(this._timer.remaining - 1e-9));
     s.clearPowerupsUsed = this._powerups.usedCount;
     s.clearLastLevel = this._levelIndex >= this._levels.length - 1;
 

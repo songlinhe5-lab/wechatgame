@@ -309,7 +309,10 @@ function drawSprintSettle(
       (badge.xMin + badge.xMax) / 2,
       (badge.yMin + badge.yMax) / 2,
       SPRINT_SETTLE_NEW_BEST,
-      { fill: palette.panel, font: bodyFont(snap, 'hudSmall'), align: 'center', baseline: 'middle' },
+      // BD-45（WXG-T-127）：**固定 28px**，不走 bodyFont（E2 大字号）—— F7⑤ 明文
+      // 「数字/标题/按钮字号不随开关变化」，角标属该族；且 35px「NEW BEST」实测
+      // 183px 会再度溢出 168 底衬（sprint-settle.ts 的宽度按 28px 的 147px 闭口计算）。
+      { fill: palette.panel, font: FONT.hudSmall, align: 'center', baseline: 'middle' },
     );
   }
 
@@ -607,10 +610,13 @@ function drawHud(
   drawGear(builder, 60, midY, palette);
 
   // Mode / stage label（F7⑤：最小字号 28px；冷底小字用 text_primary，§3.1 行 58
-  // 「text_secondary 冷底禁用」）。右对齐，胶囊避让区之前。
+  // 「text_secondary 冷底禁用」）。右对齐到屏右 30 边距。
+  // BD-46（WXG-T-127）：原锚 DESIGN_W−220 距白胶囊右缘（485）仅 45px，而 28px
+  // 「STAGE 1」实测宽 ≈117px ⇒ 左段白字压白胶囊隐形、读成「AGE 1」。锚到
+  // DESIGN_W−30 后最宽情形（35px「STAGE 10」≈146px，左缘 ≈574）仍净空胶囊 ≥89px。
   const label =
     snap.mode === 'sprint' ? `STAGE ${snap.stageIndex + 1}` : `LV ${snap.levelIndex + 1}/${snap.levelCount}`;
-  builder.text(DESIGN_W - 220, midY, label, {
+  builder.text(DESIGN_W - 30, midY, label, {
     fill: palette.text,
     font: bodyFont(snap, 'hudSmall'),
     align: 'right',
@@ -650,8 +656,11 @@ function drawGear(builder: RenderModelBuilder, cx: number, cy: number, palette: 
 }
 
 function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
+  // BD-47（WXG-T-127）：秒必须取整 —— 上游任何浮点尾数（如 170.1999999999…）
+  // 都不得漏进 mm:ss 显示。floor 是兜底层；快照层（clearRemaining）同日取整。
+  const total = Math.floor(Math.max(0, seconds));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 

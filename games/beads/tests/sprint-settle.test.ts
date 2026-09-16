@@ -15,7 +15,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { DESIGN_H, DESIGN_W, PANEL_BUTTON_H, TOUCH_MIN } from '../src/config/tuning.js';
+import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
+import { DESIGN_H, DESIGN_W, PANEL_BUTTON_H, PANEL_PADDING, TOUCH_MIN } from '../src/config/tuning.js';
 import {
   SPRINT_SETTLE_NEW_BEST,
   SPRINT_SETTLE_TITLE,
@@ -26,10 +27,19 @@ import {
   sprintSettleLayout,
   sprintSettleRows,
 } from '../src/systems/sprint-settle.js';
+import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, type Harness } from './helpers.js';
 
 /** 短冲刺时长 ⇒ 测试跑得快（advance 步数 = 秒数）。 */
 const SPRINT_TIME = 20;
+
+function render(harness: Harness): readonly DrawCommand[] {
+  const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+  builder.begin();
+  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE);
+  return builder.end().commands;
+}
 
 function endSprint(h: Harness): void {
   while (h.game.phase === 'playing') h.advance(1);
@@ -85,6 +95,47 @@ describe('S7 冲刺结算面板（ux-spec §3.5 左列 / score-combo §8-11）',
     expect(layout.buttons[0]!.rect.xMax).toBeLessThan(layout.buttons[1]!.rect.xMin);
     expect(layout.badge.xMax).toBeLessThan(plate.xMax);
     expect(layout.badge.yMin).toBeGreaterThan(plate.yMin);
+  });
+
+  // BD-45（WXG-T-127）回归：原 120 宽底衬容不下 28px「NEW BEST」（Chrome 实测 147px）
+  // ⇒ 白字两端溢出深底、落在白面板上隐形（实测读成「EW BES」，T-124 丙案视觉回归）。
+  it('BD-45 回归：NEW BEST 底衬容得下 28px 文字，且不与标题行重叠', () => {
+    const layout = sprintSettleLayout();
+    const badgeW = layout.badge.xMax - layout.badge.xMin;
+    // 147（28px 实测文宽）+ 两侧各 ≈10 填充 ⇒ ≥160；一旦有人缩回 120 本条即红。
+    expect(badgeW).toBeGreaterThanOrEqual(160);
+    // 标题「冲刺结束」= 40px × 4 字 ⇒ 半宽 80；角标左缘须在其右侧（原回归里文字压标题）。
+    expect(layout.badge.xMin).toBeGreaterThanOrEqual(DESIGN_W / 2 + 80);
+    // 角标仍在底板内、贴右内缩。
+    expect(layout.badge.xMax).toBeLessThanOrEqual(layout.panel.xMax - PANEL_PADDING);
+  });
+
+  // BD-45（WXG-T-127）回归（渲染侧）：角标文字**固定 28px**（F7⑤「数字/标题/按钮字号
+  // 不随开关变化」）—— 35px 的 E2 放大版实测 183px，会令 168 底衬再度溢出。
+  it('BD-45 回归：badge text renders at a fixed 28px font, never the scaled body face', () => {
+    const h = createBeadsHarness({ sprintTime: SPRINT_TIME, saveKey: 'wxgame.beads.test.ss-badge' });
+    h.game.startSprint();
+    expect(placeOne(h)).toBe(true); // score > 0 ⇒ 结算必 NEW BEST
+    while (h.game.phase === 'playing') h.advance(1);
+    expect(h.game.snapshot.isNewBest).toBe(true);
+
+    const badgeText = render(h).find(
+      (c) => c.kind === 'text' && c.text === SPRINT_SETTLE_NEW_BEST,
+    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
+    expect(badgeText, 'NEW BEST 文字未渲染（isNewBest 应显示角标）').toBeDefined();
+    expect(badgeText!.font).toBe('28px sans-serif');
+
+    // 同源钉：渲染出的角标底衬矩形 == sprintSettleLayout().badge（逐值相等）。
+    const badge = sprintSettleLayout().badge;
+    const badgeRect = render(h).find(
+      (c) =>
+        c.kind === 'rect' &&
+        c.x === badge.xMin &&
+        c.y === badge.yMin &&
+        c.w === badge.xMax - badge.xMin &&
+        c.h === badge.yMax - badge.yMin,
+    );
+    expect(badgeRect, '角标底衬矩形与 layout 脱节（两套坐标）').toBeDefined();
   });
 
   it('formats the three rows exactly as §3.5 shows', () => {

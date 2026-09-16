@@ -1478,6 +1478,44 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
   - **镜像/meta 随行**：两游戏 `cocos/**/framework/**` 拷贝件由 `framework:sync` 产出，随组 1/2/3 对应任务走；各 `.meta`（Cocos 编辑器补生成，含 T-058 遗漏的 `ads.meta`）随最近一次涉及该目录的任务走。
   - **✅ 已处置：`dev/harness/preview/*.svg` —— 判定「不需要记录」并已还原**（2026-09-16）。依据：报告 §BD-19（`:232`）明文登记 `preview:frames`「**不识别 `--help`、直接执行并覆写 `dev/harness/preview/level-{1..5}.svg`**」⇒ 该 +54/−14 是 **BD-19 已登记缺陷的副作用覆写**（跑 `preview:frames` 想看 help 却被脚本直接执行），**非任何任务的有意产出**；svg 本身是 `render-harness-frame.mjs` 的纯再生成产物。处置 = `git checkout -- dev/harness/preview/` 回到 HEAD 有意入库版。**防复发提示**：在 BD-19/B8 修复（`preview:frames` 支持 beads + 识别 `--help`）落地前，任何「想看 help」的调用都会再次覆写这 5 个文件。
   - **体例提醒**（K-050 教训）：**提交不带 pathspec、逐组确认 staged 清单**；台账与归档收口须双向对账。
+- **🧪 主理人实测（T-130 · 2026-09-16 · harness + playwright 真实指针，产物含 T-122/T-124/T-125/T-126）**：
+  - **符合预期（v1.3 验收面）**：冷启动直进 L1、托盘开局 1 颗；T-124 v1.3 视觉（白胶囊 HUD/8 齿齿轮/28px floor/hint accent_blue/E1 混色/E4 幽灵/三道具卡+ad 角标/扩展入口）；主链路落子与拒绝 ✓；**BD-29 修复运行时成立**（单次脉冲梯形 60/80/60、α 序列 `0.48→1×5→0.48→0`、峰数=1；500ms 门内连点不重启）；**BD-34 回归**（真实指针 暂停→恢复→下一关 全通）；**暂停冻结计时**（184→184）；通关 22/22、3 星、结算面板；L2 推进（8×6）；clearAll 槽位清空 ✓（托盘 9→3）；冲刺 120s、计分累计 10→140、倍率阶梯 ×1/×2/×3 ✓、冲刺结算面板（单局/最高梯位/最高连击 + 再来一局/返回关卡 = §8-8c）✓；normal 失败（时间到 + revive/retry）+ 续时 +60s（revived=true）✓；按钮 ≥88 ✓。
+  - **新缺陷登记（证据截图 /tmp/beads-t130/01–06.png，本轮会话结束即清）**：
+    - **BD-43（P1）道具卡热区与视觉渲染错位**：`T.powerupCardRects()[0] = {x:51, bottom:82, h:116}` ⇒ 热区 y≈**82–198（顶部 HUD 下）**，而视觉卡渲染在**底部 y≈1120**。实测双向对照：tap 视觉位置 (375,1150) ⇒ `clearAll` **消费 0**（玩家点卡无效）；tap 矩形位置 (375,140) ⇒ **消费 1**（且该位置视觉上是网格上方空白 ⇒ **误触风险**）。疑根因 = `powerupCardRects()` 内 `powerupBlockBaseY()`（tuning.ts:619 调用，定义在 layout 模块）与 **T-124 改版后的渲染布局脱节**；**判例复发**：tuning.ts:517 明文登记过 T-062「rects 与点击落点不一致的静默漂移」同类问题。
+    - **BD-44（P2）region 消费后无可见效果**：L2 场景（5 颗已填充）tap 卡 ⇒ `uses.region 1→0` 但 `filled` 不变（cleared=0）。疑区域锚点语义（未选中格时锚在哪）或效果实现缺失，随 BD-43 一并查。
+    - **BD-45（P2）冲刺结算面板「NEW BEST」被黑色图元遮挡**：截图显示「IEW BES」（左首字母被黑块压住）。T-124 丙案视觉回归。
+    - **BD-46（P3）冲刺 HUD「STAGE 1」左裁成「AGE 1」**：同上截图，文字左缘被裁。
+    - **BD-47（P3）= 原 N1 复现**：结算面板「剩余 **02:50.1999999999997174**」—— `formatTime` 秒未取整 + `clearRemaining` 传原始浮点（`beads-game.ts` 结算路）；设计 = mm:ss（ux-spec §3.4）。上次实测（T-118 前）已发现并建议修复，**当时未立项** ⇒ 本条补登记。
+  - **未完成台账任务（不挡可玩性）**：T-077（Label 宽度，进行中）、T-099（取证通路 B8/BD-19，已立项 —— 与本批 `preview/` 覆写复发直接相关）、T-121（verify STEPS 待 T-110）。
+  - **⚠️ 勘误（2026-09-16 追记）**：**BD-43 / BD-44 经 WXG-T-127 复测与代码级复核，裁定均非缺陷** —— ① BD-43：渲染（drawPowerupBand）与命中（_hitPowerupCard）**本就同源于 powerupCardRects()**，双基底（harness + Cocos web-mobile）真实指针点视觉卡均正确消费；② BD-44：region 的 GDD 语义 = **清托盘连续窗口**（powerups §2.2）、§8-7「零网格写入」是验收项本身 —— **T-130 的两项「无效」观测系探针时序伪影 + 观察对象看错（盯网格没盯托盘）**。回归断言已由 T-127 补入。**教训入册**：道具/动效类断言禁止以 snapshot 即时读数为准（uses 扣减/托盘变化存在动画后生效的滞后），须固定延时 + 终态断言或事件计数 —— 已沉淀并转 QA 探针维护单吸收。登记人 = 主理人。
+
+## WXG-T-127
+
+- **名称**：**beads 可玩性实测差距修复（BD-43 热区错位 P1 + BD-44/45/46/47）**
+- **负责**：程基岩(engineering-lead)　**状态**：📋 已立项（待施工）　**P1**（BD-43 = 玩家无法使用道具 + 误触）
+- **背景**：主理人实测（T-130，见 `## WXG-T-123` 节末「🧪 主理人实测」块）发现 5 项差距，登记为 **BD-43..47**（证据与复现步骤俱在登记块）。BD-29/34/40 已修并实测通过；本单清剩余差距。
+- **Deliverables**：
+  1. **BD-43（P1）**：`powerupCardRects()` 热区与视觉渲染对齐 —— 根因排查从 `powerupBlockBaseY()`（tuning.ts:619 调用）入手；**须先写复现断言**（渲染矩形 vs 命中矩形同源，禁止两套坐标 —— `tuning.ts:517` **T-062 判例**就是同类静默漂移，本轮是复发，修法须让两类矩形**共享同一来源**）。
+  2. **BD-44（P2）**：region 消费后无可见效果 —— 定位区域锚点语义（未选中格时锚点在哪/是否应默认网格中心），要么修效果要么修「无锚时应拒绝消费并给提示」，**二选一须有 ux-spec 依据，拿不准回传**。
+  3. **BD-45（P2）**：冲刺结算「NEW BEST」被黑色图元遮挡（T-124 丙案回归，截图 `/tmp/beads-t130/05-fail.png`，会话结束即清 —— 以登记描述为准）。
+  4. **BD-46（P3）**：冲刺 HUD「STAGE 1」左缘裁切成「AGE 1」（同截图）。
+  5. **BD-47（P3）**：结算面板「剩余 mm:ss」浮点尾数 —— `formatTime` 秒取整 + `clearRemaining` 取整（两层都补），补单测。
+- **验收**：① 全部 beads 测试绿 + 新增回归测试（热区/渲染同源断言、N1 mm:ss）；② `pnpm run verify` FAIL 0；③ `framework:sync` + `:check` OK；④ 主理人浏览器复测（真实指针点**视觉**卡生效 + 结算面板 mm:ss + 冲刺结算/HUD 无遮挡裁切）。
+- **权威来源**：**A** `production/TASKS-DETAIL.md` 的 `## WXG-T-123` 节末「🧪 主理人实测」块（BD-43..47 证据）＞ **B** `games/beads/src/config/tuning.ts:517`（**T-062 判例**）+ `:616` `powerupCardRects()` + `games/beads/src/view/view-model.ts`（`drawPowerupBand` 渲染侧）＞ **C** `games/beads/design/ux/ux-spec.md` v1.3（§4 道具/§5 动效）+ `systems-index §3`。
+- **Output Path**：`games/beads/src/**`、`games/beads/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-127` 小节（**追加**）。**禁改**：`packages/**`、`production/qa/**`、设计文档（BD-44 若需规格裁定先回传）。
+- **⚠️ 并发注意**：`games/beads/src/view/view-model.ts` 曾被 T-124/T-126 改过且**已全部入库**（工作树干净）⇒ 无在途笔冲突；但仍以提交前 `git status` 复核为准。
+- **必读 skill**：`my-skills/wxgame-adr-arch/SKILL.md`；另读 `AGENTS.md`、台账 `## WXG-T-127`/`## WXG-T-123` 实测块、`tuning.ts:517` 判例。
+- **约束**：热路径零分配；先问再写；不 commit/push；**修完不自行 commit（由主理人走门禁入库）**。
+- **完成记录（2026-09-16 · 程基岩）—— 状态：✅ 交付完成（BD-45/46/47 改码 + 回归；BD-43 判「HEAD 不复现」+ 同源断言补钉；BD-44 判「非缺陷」并附实测证据）**：
+  - **BD-43（P1）根因裁定：HEAD 不复现，T-130 观测系探针时序伪影（高置信）**。① 代码级：`drawPowerupBand`（view-model.ts:1144）与 `_hitPowerupCard`（beads-game.ts:1358）**本就同源**（共用 `powerupCardRects()`，T-062 判例的修法已在位）；`powerupBlockBaseY()` 与渲染带一致（卡 rect y 82–198 = `POWERUP_BAND` 48–200 内整体居中，y-up 设计系 ⇒ 屏幕底部）。② 浏览器级（playwright 真实指针、viewport 750×1334 ⇒ scale=1）：**harness 与 Cocos web-mobile 产物双基底**点视觉卡 (375,1194) 均正确消费（clearAll 1→0、托盘清空），点 (375,140) 均零消费，`g._pointer` 读回 design y=140↔screen 1194 翻转精确，`designToScreen↔screenToDesign` 往返零误差。③ T-130 的两组读数（视觉位消费 0 / 顶部位消费 1）与「**tap 后同步读快照**」伪影精确吻合：第一次 tap 实已消费、同步读为 0；第二次 tap 前该帧已处理 ⇒ 读到第一次的扣次记在第二次头上（任务书 §9 明列的坑）。**处置**：按任务书要求补「两类矩形逐值相等」回归断言（`tests/view-model.test.ts`「BD-43/T-062 回归」：每张命中卡必有逐值相等的白卡绘制矩形指令，渲染侧私写坐标当场红）——同源结构 + 断言双保险，判例复发空间清零。
+  - **BD-44（P2）裁定：非缺陷（效果存在且正确），不改码、不动规格**。实测（真实指针点 region 视觉卡）：`uses.region 1→0`、托盘 holding `[0,1,2,10]→[10]`（锚点 = 最小 holding 槽 0，清出连续窗口、窗口外槽保留 = GDD powerups §2.2 锚点语义逐字成立），`filled` 不变 = **§8-7「零网格写入」验收项本身**（三道具只清托盘槽、绝不写网格）。T-130 的「无可见效果」系观察口径看错对象（盯网格 `filled` 而非托盘）。ux-spec §4 该行「点道具卡（次数>0）→ 清槽生效（powerup:used）」与实现一致 ⇒ 「修效果」与「拒绝消费+提示」两案均无规格依据、无需启动。
+  - **BD-45（P2）已修**：根因 = 角标底衬 120×32 容不下 28px「NEW BEST」（Chrome `measureText` 实测 **147px**；E2 放大后 35px = **183px**）⇒ 白字两端溢出深底、落在白面板上隐形（截图实测读成「EW BES」，遮挡物即溢出字自身，非外部图元）。修两层：① `sprint-settle.ts` 底衬 120→**168**（=147+两侧≈10 填充；与标题「冲刺结束」右缘净空≈8px）；② `view-model.ts` 角标文字改**固定 28px**（不走 bodyFont/E2 —— F7⑤「数字/标题/按钮字号不随开关变化」，且堵死 183px 的再度溢出路径）。浏览器复验截图：**「NEW BEST」完整可见** ✓。
+  - **BD-46（P3）已修**：根因 = HUD 模式标签右对齐锚 `DESIGN_W−220`(530) 距白胶囊右缘(485) 仅 45px，而 28px「STAGE 1」宽 **117px** ⇒ 左段白字压白胶囊白底隐形（读成「AGE 1」）。修：锚点右移至 `DESIGN_W−30`(720)（屏右 30 边距，仓内留白惯例）；最宽情形 35px「STAGE 10」≈146px（左缘 ≈574）仍净空胶囊 ≥89px。浏览器复验截图：**「STAGE 1」完整可见** ✓。
+  - **BD-47（P3）已修（两层）**：① `beads-game.ts` buildSnapshot：`s.clearRemaining = Math.ceil(remaining − 1e-9)`（与 `s.remaining` 同口径，倒计时不提前归零）；② `view-model.ts formatTime`：秒 `Math.floor` 兜底。补单测（clear-panel.test.ts「BD-47 回归」：推进 0.5s 造小数 ⇒ `Number.isInteger(clearRemaining)` + 面板文案严格匹配 `/^剩余 \d{2}:\d{2} ｜ 道具 \d\/3$/` 且无小数点；改前该断言在 formatTime 层必红，判别力成立）。
+  - **验证数字**：`pnpm -F @wxgame/beads test` **256/256 绿**（23 文件，含新增 5 例：BD-43 同源 ×1、BD-46 锚点 ×1、BD-45 几何+渲染 ×2、BD-47 ×1）；`pnpm run verify` **PASS 14 ｜ WARN 0 ｜ SKIP 1（既有 check:size 环境阻塞，非本单引入）｜ FAIL 0**；`framework:sync` 写入 beads game 拷贝件 **3** 文件 + `:check` OK；harness 重建后真实指针复跑 BD-43/44 行为不变（无回归）。
+  - **改动文件**：`games/beads/src/view/view-model.ts`（formatTime 取整 / HUD 标签锚点 / 角标字体固定）、`games/beads/src/game/beads-game.ts`（clearRemaining 取整，+3 行注释）、`games/beads/src/systems/sprint-settle.ts`（角标 168，+5 行注释）、`games/beads/tests/{view-model,sprint-settle,clear-panel}.test.ts`（新增 5 回归例 + 渲染辅助）；Cocos 拷贝件由 `framework:sync` 产出（3 文件）。**未改** `packages/**`、`production/qa/**`、`design/**`。**未 commit / 未 push**；主表状态行归主理人。
+  - **给主理人复测的提示**：① BD-43/44 复测请用「**tap 后先 `await raf()`/等待 ≥1 帧再读快照**」的节奏（T-130 伪影根源），且 BD-44 的效果观察对象是**托盘槽**（GDD §8-7 网格恒不变）；② 本会话遗留两个本地服务：harness `:4187`（已重建为新码）、Cocos web-mobile 静态件 `:4188`（**产物为旧码**，如需 Cocos 侧复验请先 `pnpm --filter @wxgame/beads run build:cocos:web`）；③ 复现探针在 `/tmp/bd43-probe.mjs`、`/tmp/bd44-region-probe.mjs`、`/tmp/bd4546-probe.mjs`（临时件，未入仓）。
+  - **沉淀候选（0–3 条）**：①「真实指针探针判读：tap 与读数的跨帧时序必须显式等待，单点读数不得作为『无效/误触』双态证据 —— 双向对照各留 ≥1 帧间隔」（K 候选）；②「文字底衬类 UI（角标/胶囊标签）验收须含 measureText 宽度核对，E2 大字号是隐藏的加宽路径」（K 候选）。
 
 ## WXG-T-122
 
@@ -1592,7 +1630,7 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - 边界裁决（诚实口径）：§3.2 冲刺 HUD 差异仍标「提案」——代码已落码（SCORE / ×multiplier / COMBO，view-model.ts 冲刺 HUD 块）但布局与提案线框有差（连击窗口进度条/梯级进度点未核）⇒ 提案转正需设计侧比对落码几何，**另立单**，本单不越界。
 - 验证：纯文档单（仅 ux-spec.md），零代码改动；check:links 过。
 
-## WXG-T-127
+## WXG-T-128
 
 **beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿）** · 负责：林绘澄(art) + 主理人(Qoder) · 状态：🔄 进行中
 

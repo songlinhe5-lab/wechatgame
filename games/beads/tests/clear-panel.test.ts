@@ -10,6 +10,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import {
   DESIGN_H,
   DESIGN_W,
@@ -25,9 +26,18 @@ import {
   clearPanelLayout,
   hitClearPanel,
 } from '../src/systems/clear-panel.js';
+import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 
 const NORMAL = { lastLevel: false } as const;
+
+function render(harness: Harness): readonly DrawCommand[] {
+  const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+  builder.begin();
+  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE);
+  return builder.end().commands;
+}
 
 /** 填满整块棋盘（不推进时钟 ⇒ 通关时剩余 = 总量 ⇒ ratio = 1 ⇒ 3★）。 */
 function fillBoard(harness: Harness): void {
@@ -191,5 +201,30 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     // 快照同步给视图的料：星级与「道具 n/3」分母。
     expect(h.game.snapshot.clearStars).toBe(3);
     expect(h.game.snapshot.clearLastLevel).toBe(true);
+  });
+
+  // BD-47（WXG-T-127，原 N1 补登）回归：结算面板「剩余 mm:ss」不得漏浮点尾数。
+  // 实测曾显示「剩余 02:50.1999999999997174」——两层都修：快照 clearRemaining 取整
+  // （ceil，与 HUD remaining 同口径）+ 视图 formatTime 兜底 floor。
+  it('BD-47 回归：clearRemaining is an integer and the panel shows bare mm:ss', () => {
+    const h = createBeadsHarness({
+      levels: [simpleTestLevel({ id: 93 })],
+      saveKey: 'wxgame.beads.test.cp-t127',
+    });
+    // 先推进 0.5s：0.5s = 30 个 1/60 步整 ⇒ remaining = 总量 − 0.5，必然带小数。
+    // （只推 0.5s 而非更久：供料会塞满托盘，令 fillBoard 的 giveTrayBead 无位可用。）
+    h.advance(0.5);
+    fillBoard(h);
+    expect(h.game.phase).toBe('level-clear');
+
+    const remaining = h.game.snapshot.clearRemaining;
+    expect(Number.isInteger(remaining), `clearRemaining 应为整秒，实为 ${remaining}`).toBe(true);
+
+    const info = render(h).find(
+      (c) => c.kind === 'text' && c.text.startsWith('剩余'),
+    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
+    expect(info, '结算面板「剩余 …」行未渲染').toBeDefined();
+    expect(info!.text).toMatch(/^剩余 \d{2}:\d{2} ｜ 道具 \d\/3$/);
+    expect(info!.text).not.toContain('.');
   });
 });

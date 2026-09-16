@@ -217,6 +217,43 @@ describe('beads view model (control-manifest §8)', () => {
     for (const sig of sigs) expect(sig).toContain('polygon'); // 每张都有图标本体
   });
 
+  // BD-43（WXG-T-127）/ T-062 判例回归：渲染矩形与命中矩形**同源**。两侧都必须走
+  // `powerupCardRects()`（drawPowerupBand 与 `_hitPowerupCard`）——若渲染侧再度
+  // 私写一套坐标（T-124 改版曾疑是复发源），本断言当场红：每张命中卡的 (x, bottom,
+  // w, h) 必须在渲染指令里有一条**逐值相等**的白卡矩形（投影矩形在 bottom−3，不会误配）。
+  it('BD-43/T-062 回归：drawn card rect equals the hit rect value-for-value', () => {
+    const harness = createBeadsHarness({
+      levels: [simpleTestLevel()],
+      saveKey: 'wxgame.beads.test.vm-t127',
+    });
+    const commands = render(harness);
+    for (const r of powerupCardRects()) {
+      const drawn = commands.find(
+        (c) => c.kind === 'rect' && c.x === r.x && c.y === r.bottom && c.w === r.w && c.h === r.h,
+      );
+      expect(
+        drawn,
+        `命中卡 (${r.x},${r.bottom},${r.w}×${r.h}) 无逐值相等的绘制矩形 —— 渲染/命中两套坐标复发`,
+      ).toBeDefined();
+    }
+  });
+
+  // BD-46（WXG-T-127）回归：HUD 模式标签右对齐锚必须在屏右 30 边距 —— 原锚
+  // DESIGN_W−220 令白字左段压白胶囊（读成「AGE 1」）。
+  it('BD-46 回归：HUD mode label anchors at DESIGN_W − 30 (clear of the timer capsule)', () => {
+    const harness = createBeadsHarness({
+      levels: [simpleTestLevel()],
+      saveKey: 'wxgame.beads.test.vm-t127b',
+    });
+    const commands = render(harness);
+    const label = commands.find(
+      (c) => c.kind === 'text' && /^LV |^STAGE /.test(c.text),
+    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
+    expect(label, 'HUD 模式标签（LV n/N / STAGE n）未渲染').toBeDefined();
+    expect(label!.x).toBe(DESIGN_W - 30);
+    expect(label!.align).toBe('right');
+  });
+
   // architecture-beads §4 规模账：满格 13×12 = 156 珠，每珠 ≥ 6 层 → 指令数随格数线性增长。
   it('§4 keeps the full-board command budget at the documented 900+ per frame', () => {
     const harness = createBeadsHarness({

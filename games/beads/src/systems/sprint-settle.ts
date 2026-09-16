@@ -142,7 +142,12 @@ export function sprintSettleLayout(): SprintSettleLayout {
     panel,
     titleY,
     rows,
-    badge: rect(panel.xMax - PANEL_PADDING - 120, titleY - 16, 120, 32),
+    // BD-45（WXG-T-127）：底衬必须容得下 28px「NEW BEST」（Chrome measureText 实测
+    // 147px）。原 120 宽令角标白字两端溢出深底、落在白面板上隐形（读成「EW BES」）。
+    // 168 = 147 + 两侧各 ≈10 填充；xMin = 655−24−168 = 463，与标题「冲刺结束」
+    // （40px × 4 字 ⇒ 右缘 ≈455）净空 ≈8px。视图侧文字固定 28px（见 drawSprintSettle），
+    // 不随 E2 大字号放大 ⇒ 本宽度是闭口约束，不再有更宽字号的溢出路径。
+    badge: rect(panel.xMax - PANEL_PADDING - 168, titleY - 16, 168, 32),
     buttons,
   };
   return _cache;
