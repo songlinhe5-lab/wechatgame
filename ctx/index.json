@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2389,
       "lines": 97,
-      "sha256": "f8fe6343a88d2d11dad7927f177080a7085ec05741981c954c85d8bdf4d67d2e",
+      "sha256": "b0c2bf91b09ad57a5eeddd23aadf7358b4e9671a1dca7403383ad974e8ec12ca",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 3770,
+      "tokens": 3776,
       "lines": 82,
-      "sha256": "a3596ddd8692c36098eb7dfd1820be26fccc717c6a0fdf29957960f956d01428",
+      "sha256": "099af6e191f8699397111f891c433d0d01c0d0b180151626bb3d83f36991f684",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 3742,
+          "tokens": 3748,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 96 行 / 4662 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 97 行 / 4733 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+97 · §待排（backlog，无号，立项时领取）=72+26",
+          "summary": "§WXG 任务台账（SSOT）=1+98 · §待排（backlog，无号，立项时领取）=73+26",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 561 行 / 36558 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 570 行 / 36989 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 296,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+562 · §WXG-T-069=18+13 · §WXG-T-070",
+          "tokens": 301,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+571 · §WXG-T-069=18+13 · §WXG-T-070",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -20008,17 +20008,17 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 9334,
-      "lines": 278,
-      "sha256": "b9b9cefe0df0890994f4df0d4599b4c31255e4d680cd89b6deb105bd3123e321",
+      "tokens": 9626,
+      "lines": 281,
+      "sha256": "e961753494e9a7989cdd473d639e25c3ac34c2c4e4f9825d61049c0d6865caa5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 279,
-          "tokens": 9325,
+          "endLine": 282,
+          "tokens": 9617,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.3 · 任务号 WXG-T-015（失败续时 U5：WXG-",
           "keywords": [
             "Spec",
@@ -20061,8 +20061,8 @@
           "anchor": "§3 关键界面线框（750×1334，坐标 y 向上，来源 §3.1 布局带）",
           "level": 2,
           "startLine": 43,
-          "endLine": 131,
-          "tokens": 1554,
+          "endLine": 133,
+          "tokens": 1742,
           "summary": "",
           "keywords": [
             "§3.1",
@@ -20077,8 +20077,8 @@
           "anchor": "§3.1 玩法·普通模式",
           "level": 3,
           "startLine": 45,
-          "endLine": 67,
-          "tokens": 373,
+          "endLine": 69,
+          "tokens": 553,
           "summary": "",
           "keywords": [
             "玩法",
@@ -20088,8 +20088,8 @@
         {
           "anchor": "§3.2 玩法·冲刺模式（HUD 差异，提案）",
           "level": 3,
-          "startLine": 68,
-          "endLine": 77,
+          "startLine": 70,
+          "endLine": 79,
           "tokens": 154,
           "summary": "",
           "keywords": [
@@ -20103,9 +20103,9 @@
         {
           "anchor": "§3.3 暂停面板（S9）",
           "level": 3,
-          "startLine": 78,
-          "endLine": 93,
-          "tokens": 318,
+          "startLine": 80,
+          "endLine": 95,
+          "tokens": 326,
           "summary": "",
           "keywords": [
             "暂停面板"
@@ -20114,8 +20114,8 @@
         {
           "anchor": "§3.4 结算·过关（普通）",
           "level": 3,
-          "startLine": 94,
-          "endLine": 106,
+          "startLine": 96,
+          "endLine": 108,
           "tokens": 153,
           "summary": "",
           "keywords": [
@@ -20127,8 +20127,8 @@
         {
           "anchor": "§3.5 结算·冲刺与失败",
           "level": 3,
-          "startLine": 107,
-          "endLine": 128,
+          "startLine": 109,
+          "endLine": 130,
           "tokens": 459,
           "summary": "",
           "keywords": [
@@ -20139,8 +20139,8 @@
         {
           "anchor": "§3.6 通关画面（FINISH，8 关全清）",
           "level": 3,
-          "startLine": 129,
-          "endLine": 131,
+          "startLine": 131,
+          "endLine": 133,
           "tokens": 29,
           "summary": "全屏庆祝 + 星级总览（8 关星数和）+「去冲刺」+「重玩第 1 关」。",
           "keywords": [
@@ -20152,8 +20152,8 @@
         {
           "anchor": "§4 状态流转 × 输入响应矩阵（QA 直接转用例；与 input-control §2.3 门禁互为镜像）",
           "level": 2,
-          "startLine": 132,
-          "endLine": 169,
+          "startLine": 134,
+          "endLine": 171,
           "tokens": 1272,
           "summary": "BOOT （无交互） 读档分流；校验失败→降级 L1 玩法·普通",
           "keywords": [
@@ -20168,9 +20168,9 @@
         {
           "anchor": "§5 交互反馈与动效时长表（权威毫秒值，回写 art-bible §7 占位）",
           "level": 2,
-          "startLine": 170,
-          "endLine": 206,
-          "tokens": 2110,
+          "startLine": 172,
+          "endLine": 208,
+          "tokens": 2133,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
             "§7",
@@ -20184,8 +20184,8 @@
         {
           "anchor": "§6 首屏留存策略（微信前 10 秒）· WXG-T-081 可执行化重写",
           "level": 2,
-          "startLine": 207,
-          "endLine": 244,
+          "startLine": 209,
+          "endLine": 246,
           "tokens": 1636,
           "summary": "",
           "keywords": [
@@ -20198,8 +20198,8 @@
         {
           "anchor": "§6.1 首 10 秒时间轴（0 文字；引导均为动效，毫秒值见 §5）",
           "level": 3,
-          "startLine": 209,
-          "endLine": 222,
+          "startLine": 211,
+          "endLine": 224,
           "tokens": 425,
           "summary": "0s 点击图标 —",
           "keywords": [
@@ -20213,8 +20213,8 @@
         {
           "anchor": "§6.2 首供语义裁定（GAP-02，不可两读）",
           "level": 3,
-          "startLine": 223,
-          "endLine": 236,
+          "startLine": 225,
+          "endLine": 238,
           "tokens": 988,
           "summary": "裁定：采「spawner.reset() 后置 _acc = interval」，不采「_setupLevel 内同步 ",
           "keywords": [
@@ -20229,8 +20229,8 @@
         {
           "anchor": "§6.3 启动路径表（skill §6 要求项，本次补齐）",
           "level": 3,
-          "startLine": 237,
-          "endLine": 244,
+          "startLine": 239,
+          "endLine": 246,
           "tokens": 161,
           "summary": "首次（runs==0） 玩法·普通 L1（BOOT 直进，无主菜单） §6.1 纯动效引导（首珠脉冲 + 单一 hint",
           "keywords": [
@@ -20245,9 +20245,9 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 245,
-          "endLine": 255,
-          "tokens": 202,
+          "startLine": 247,
+          "endLine": 258,
+          "tokens": 240,
           "summary": "触控 UI 控件 ≥88px（TOUCH_MIN）；棋盘/托盘珠命中区=名义外扩 8px、重叠按格心最近（§3.8 v1",
           "keywords": [
             "art/accessibility.md",
@@ -20261,8 +20261,8 @@
         {
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
-          "startLine": 256,
-          "endLine": 279,
+          "startLine": 259,
+          "endLine": 282,
           "tokens": 1023,
           "summary": "已裁定（沿袭）：无主菜单两路径（core-loop 判例）；齿轮单通道入口；道具 MVP 占位口径（S6 §2.6）；面",
           "keywords": [
@@ -43742,17 +43742,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 36558,
-      "lines": 561,
-      "sha256": "e9b4f7270971ca58676efd7c7331dbdd78893870e57f6b2059d8a2dd0187e881",
+      "tokens": 36989,
+      "lines": 570,
+      "sha256": "a84a74bac75c89c7ecff4f56ea12fde849fc10fb861942d75acc7f37bf0bb82f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 562,
-          "tokens": 36541,
+          "endLine": 571,
+          "tokens": 36972,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -44318,22 +44318,38 @@
             "beads",
             "Qoder"
           ]
+        },
+        {
+          "anchor": "§WXG-T-126",
+          "level": 2,
+          "startLine": 563,
+          "endLine": 571,
+          "tokens": 428,
+          "summary": "beads ux-spec §3/§5/§7 HUD 条款对齐（v1.3 落码事实回写，F7①②⑤/F6） · 负责：主",
+          "keywords": [
+            "§3",
+            "§5",
+            "§7",
+            "WXG",
+            "beads",
+            "spec"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4662,
-      "lines": 96,
-      "sha256": "44517f104e8611cc5ede4c5a6ced07167b26e8f275188aab602c999e006cb86c",
+      "tokens": 4733,
+      "lines": 97,
+      "sha256": "495f9a4a0ba3dc54d1472a01fa06b2e672bbe0d84d1808da1f2816d0c6592479",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 97,
-          "tokens": 4653,
+          "endLine": 98,
+          "tokens": 4725,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -44346,8 +44362,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 72,
-          "endLine": 97,
+          "startLine": 73,
+          "endLine": 98,
           "tokens": 1138,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
