@@ -141,9 +141,18 @@ for (const dir of found) {
   const subRaw = subs.reduce((n, s) => n + s.raw, 0);
   const totalBytes = main.raw + subRaw;
 
+  // 【WXG-T-128 P0-4 教训】debug 构建（`--build debug=true`，默认）含 sourcemap 且不压缩 ⇒
+  // 引擎 `cc.js` ≈3.3MB vs release ≈1.5MB ⇒ **包体数字不可作为基线**（2026-09-17 曾把
+  // 4647KB debug 产物误读成「超红线 551KB」，实际 release 基线 1928KB 达标）。
+  // 侦测启发：`cocos-js/cc.js` ≥ 2.5MB ⇒ 疑似 debug ⇒ 显式 WARN 提示换 release 重测
+  // （阈值取两者之间空档；release 引擎全量 ≈1.5–1.8MB，不会误伤）。
+  const ccJs = files.find((f) => f.rel === 'cocos-js/cc.js');
+  const ccJsKb = ccJs ? ccJs.size / 1024 : 0;
+  const debugSuspect = ccJsKb >= 2500;
+
   const verdict = judge({ mainBytes: main.raw, totalBytes });
   if (verdict.fail.length) anyFail = true;
-  results.push({ dir: rel(dir), subSource, main, subs, totalBytes, verdict });
+  results.push({ dir: rel(dir), subSource, main, subs, totalBytes, verdict, ccJsKb, debugSuspect });
 }
 
 /** ── 报告 ─────────────────────────────────────────────────────────────── */
@@ -165,6 +174,10 @@ if (JSON_OUT) {
     }
     if (r.subs.length) console.log(`  分包合计：${fmtKb(r.totalBytes - r.main.raw)}`);
     console.log(`  主包 + 分包：${fmtKb(r.totalBytes)}`);
+    if (r.debugSuspect) {
+      console.log(`  ⚠️ **疑似 debug 构建**（cocos-js/cc.js = ${r.ccJsKb.toFixed(0)} KB ≥ 2500 KB 阈值）：未压缩且含 sourcemap，`);
+      console.log('     **本产物的包体数字不可作为基线** —— 请用 `node tools/scripts/build-cocos.mjs --platform=wechatgame --release` 重建后复测。');
+    }
     if (r.verdict.fail.length) {
       console.log(`  ❌ 超平台红线：${r.verdict.fail.join('；')}`);
     } else if (r.verdict.warns.length) {
@@ -176,6 +189,9 @@ if (JSON_OUT) {
   }
   if (anyFail) {
     console.log('❌ 包体校验 FAILED —— 超平台红线，**不可上线**。');
+    if (results.some((r) => r.debugSuspect)) {
+      console.log('   ⚠️ 检测到疑似 debug 产物：**先换 --release 重建复测**，release 仍超才走分包/裁剪治理。');
+    }
     console.log('   处置（按 §3.8 口径）：超出主包的内容走「分包 / 远程包」——关卡 2..N 美术走分包 levels、');
     console.log('   音乐/长音效走远程包；并核对「项目设置 → 功能裁剪」是否只勾了真正用到的模块。');
   } else if (missing.length) {
