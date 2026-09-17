@@ -24,6 +24,12 @@
 - **产出**：packages/framework/src/adapters/cocos/cocos-renderer.ts（已改）· tests/adapters/cocos-renderer.test.ts（已测）· bindings.ts（仅注释锚点，待编辑器落码）·【待编辑器半】cc.Label 实测接入 + setAlign 枚举 + 更新 VERSION.md §G3/§4（须真机
 - **收口核验（2026-09-17，主理人）**：**编辑器半已在 `d79d10c` 落码**（`bindings.ts:423` `setAlign` → `HorizontalTextAlignment` 真实枚举（未知回退 CENTER）；`:433` `measureWidth` → `updateRenderData(true)` 后读 `UITransform.width` 真实文本宽，0/负由 `_measureTextWidth` 自动退 `FALLBACK_CHAR_WIDTH_RATIO` 估算 —— 与可测半契约对齐 ✅）。host-tests 绿 ✅；build-cocos 全程编译通过 ✅（bindings 不进 Node typecheck 的边界未破）。**⚠️ 验收所写「VERSION.md」文件已不存在**（文档重组未留迁移锚）—— §G3/§4 矩阵落点待定：建议并入 `g4-regression-report.md` 或补建 VERSION.md，挂 backlog。
 - **G3 判定：保持不关闭（非假绿纪律）** —— 两半码齐、可测半绿，但**编辑器目视验证未做**（真机 ⛔ 无 AppID；浏览器预览目视待用户）。状态改「码齐待目视」。
+- **目视验证（2026-09-17，主理人经 agent-browser 截屏 localhost:7456）**：**PASS** —— 预览运行态核验 G3 两出口的真实表现：
+  - `measureWidth` 实测宽：HUD「01:54」胶囊居中、「LV 1/8」、「扩展」钮、三道具卡「×1」全部位置正确、**无溢出/无挤压/无错位**（旧按字符数估算的病灶未复现）；
+  - `setAlign` 真实枚举：居中对齐肉眼成立；
+  - 附带收获：截图同时实证 v2.0 装配（心形盘满铺 + 2 颗紫色错位珠）与 E4 道具卡（×1）。
+  - 证据：`production/qa/beads/evidence/g3-label-visual-20260917.png`（750×1334 设计分辨率运行帧；**留盘不入库**，evidence 体例只收 .mjs）。
+- **✅ G3 正式关闭**（两半码齐 + 可测半 verify 绿 + 目视 PASS）。**VERSION.md §G3/§4 矩阵缺口注明**：文件已不存在（文档重组未留锚），矩阵补建挂 backlog，不阻断本关闭。
 目视校正）· 本台账
 
 ---
