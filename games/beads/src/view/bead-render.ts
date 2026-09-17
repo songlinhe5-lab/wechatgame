@@ -103,6 +103,11 @@ export interface FilledBeadOptions {
    */
   readonly padColorIdx?: number;
   /**
+   * 可选取亮环（WXG-T-148 用户反馈 ①）：错位珠恒亮白描边 —— 近似色下「色≠底」
+   * 读数不足，常亮环 = 「可选取」标识（零动画，与 ≤3Hz 红线无关）。画于 L5 之上。
+   */
+  readonly selectableRing?: boolean;
+  /**
    * G1 落座回弹的**珠体**缩放（`assets-spec §1.6.1`，默认 1）。⛔ **严禁改乘 `outer`**：
    * `outer` 同时驱动 **L11 垫**，垫若随珠同缩 ⇒ 「垫缝」读数与珠体同步 ⇒ 目标色
    * 谜面在 120ms 内被自己抹除，且同格目标色浓度周期性呼吸（违 `accessibility` A1）
@@ -324,6 +329,16 @@ export function drawFilledBead(
 
   // L5 符号 — the non-colour channel (colour-blind affordance).
   emitSymbol(builder, beadSymbol(colorIdx), cx, y, size, symbolInk(base).color);
+
+  // 可选取亮环（最顶层）—— 外扩环随 lift 一起动（标识跟着珠抬起）。
+  if (options.selectableRing) {
+    const pad = Math.max(3, stroke(0.07));
+    builder.rect(left - pad, bottom - pad, size + pad * 2, size + pad * 2, {
+      stroke: withAlpha(BEAD_HIGHLIGHT_HEX, 0.92),
+      lineWidth: stroke(0.09),
+      radius: radius + pad,
+    });
+  }
 }
 
 export function drawEmptySocket(

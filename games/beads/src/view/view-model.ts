@@ -743,16 +743,28 @@ function drawGrid(
       //   ⛔ scale 只进珠体：`padColorIdx` 走 `outer`、**不参与 scale**（§1.6.1 层序死结论）。
       const isPop = i === snap.placeRow && j === snap.placeCol && snap.placeProgress > 0;
       if (isPop) fillPopEnvelope(snap.placeProgress, snap.reduceMotion, pop);
-      const opts: FilledBeadOptions = isPop
-        ? {
-            padColorIdx: cell.colorIdx,
-            scale: pop.scale,
-            contactAlpha: pop.contactAlpha,
-            contactWidth: pop.contactWidth,
-            shadowAlpha: pop.shadowAlpha,
-            shadowDy: pop.shadowDy,
-          }
-        : { padColorIdx: cell.colorIdx };
+      // WXG-T-148 用户反馈：① 错位珠恒亮白环（可选取标识）；② board 锚珠抬起
+      // （lift 沿用托盘 selected 语义，垫不参与 lift ⇒ 珠上移露垫 = 抬起读数）。
+      const isBoardSel = i === snap.boardSelectedRow && j === snap.boardSelectedCol;
+      // FilledBeadOptions 全只读 ⇒ 组装为可变草稿再定型的既有模式（零类分配）。
+      const draft: {
+        -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
+      } = { padColorIdx: cell.colorIdx };
+      if (cell.beadColorIdx >= 0 && cell.beadColorIdx !== cell.colorIdx) {
+        draft.selectableRing = true;
+      }
+      if (isBoardSel) {
+        draft.lift = -6;
+        draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
+      }
+      if (isPop) {
+        draft.scale = pop.scale;
+        draft.contactAlpha = pop.contactAlpha;
+        draft.contactWidth = pop.contactWidth;
+        draft.shadowAlpha = pop.shadowAlpha;
+        draft.shadowDy = pop.shadowDy;
+      }
+      const opts: FilledBeadOptions = draft;
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
     }
   }

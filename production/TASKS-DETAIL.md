@@ -249,3 +249,25 @@
   - **门禁**：beads 单测 **315/315 全绿**（零回归）；`check:links` OK。
 - **src 缺陷报告**：无（E1–E6 未发现需要修复的 src 缺陷；P4 崩溃属**探针未适配**，非产品缺陷）。
 - **状态**：**✅ E7 完成**（Epic **T-133 全部 7 个 Story 收官**）。
+
+---
+
+## WXG-T-145
+
+- **名称**：**beads · G1 落座回弹落码（`vfx_fill_pop`）（T-128 动态质感章 落码①）**
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（2026-09-17）　**P0**
+- **起因**：T-128 规格层定稿后，`src/` 内 `FILL_POP` **grep 零命中** ⇒ 用户原始要求「**要有及时的互动**」仍属纸面。本单为该欠账的首张落码单（拆分①）。
+- **规格真源**：`art/assets-spec.md §1.6.1`（逐帧公式 / clamp / **层序死结论** / D1 退化）+ `art-bible.md §7.3.1`；毫秒 = `design/ux/ux-spec.md §5`「珠子落座」行（只冻总时长 120 与起止 1.06→1.00）。
+- **落码（5 文件 + 1 测试）**：
+  1. `src/config/tuning.ts` +32：9 个 `FILL_POP_*` 常量（表现层动效参数 ⇒ **不进 systems-index §3**）。
+  2. `src/game/state.ts` +11：快照 3 个**单调标量** `placeRow` / `placeCol` / `placeProgress`（L5：视图不持状态）。
+  3. `src/view/bead-render.ts`：`FilledBeadOptions` 新增 4 字段（`scale` / `contactAlpha` / `contactWidth` / `shadowDy`；`shadowAlpha` 已有）+ 导出 `FillPopEnvelope` / `fillPopEnvelope()` 纯函数包络（两段曲线 + 三道硬钳 + D1 分支）。
+  4. `src/view/view-model.ts`：`drawGrid` **循环外**建 `pop` 包络槽（热路径零分配）+ `isPop` 接线。
+  5. `src/game/beads-game.ts` +58：`_placeFx` / `_placeFxArmedAtMs` / `_armPlaceFx` / `_stepPlaceFx`（**1:1 照 `_wrongFx` 判例骨架**；PAUSED 不冻结）+ 三处 `bead:placed` 发射点后 arm。
+- **⚠️ 本单最关键的实现约束（照 v1.5-r6 层序死结论）**：`scale` **严禁乘在 `outer` 上**——`outer` 同时驱动 L11 垫 ⇒ 只乘珠体 `size = (outer − 2×BEAD_DRAW_INSET) × scale`；垫**不参与 scale / 不参与 lift / 恒画**。违反即「目标色谜面在 120ms 内被自己抹除」。
+- **证据（A/B 对照，非推断）**：基线 HEAD `dbb3c1c` 排除本单改动 = **28 文件 / 315 例全绿**；接回本单 5 文件 + `tests/fill-pop.test.ts` = **29 文件 / 328 例全绿（+13，零回归）**；`npx tsc --noEmit` **0 错**。（过程记录：中途一次全量跑出 66 红，经定位为**并发会话提交前的 `tests/helpers.ts` 编辑中间态**（空盘迁移），与本单无关；已用 A/B 而非推断坐实归属。）
+- **测试隔离取向**：`fill-pop.test.ts` **故意不 import `tests/helpers.ts`** —— 除当时基线不稳外，更重要的是落座动画属表现层，不需关卡 fixture，与 `bead-grid §8` 玩法判据天然解耦；13 例均命令层断言（含**垫恒 50×50 不随 scale**、**缺省 options 与 `scale=1` 命令流逐条相等**的静息回归护栏、峰 48.76 < 格 50 的 A5 几何前提）。
+- **与拆分口径的偏差（如实）**：① 拆分①写「`FilledBeadOptions` 扩 **6** 字段」，实际新增 **4**（`shadowAlpha` 已存在，不重复加）；② swap 路径只 arm **首颗**（120ms 重启门会厉禁第二颗）；③ **登记在代码注释里的真实张力**：§1.6.2a G2′「解环器逐颗 80ms 错开」< 本门 120ms ⇒ **G2/G2′ 落码时必须单独处理**（提高错开量或改逐颗队列），本单不预修。
+- **提交归属异常（追认）**：本单代码未由本会话 commit，而是由并发会话**连带提交进 `dbb3c1c`（WXG-T-139 补遗）**，提交消息未提 G1 ⇒ 按台账注 2 判例处理：**不回改已入 HEAD 的提交信息，以本台账为准**。本会话至今零提交。
+- **诚实边界**：`[待真机]` = 120ms 回弹的观感与帧率开销（Cocos 构建未接入，同 T-124/T-125/T-128 口径）；`[待 playtest]` = v1.5-r6 提出的幅度重定两候选（谷 0.96→0.92 或 `INSET 2→3`）——本单按**现行冻结规格**实现，未提前改动幅度。
+- **产出**：`games/beads/src/{config/tuning.ts,game/state.ts,game/beads-game.ts,view/bead-render.ts,view/view-model.ts}`、`games/beads/tests/fill-pop.test.ts`、本台账两文件。

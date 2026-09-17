@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3196,
       "lines": 117,
-      "sha256": "7b257ba31b3e5a6ee4335fdd886dbda582a792d3ec4b2f7ff4015acc7fd8d5ac",
+      "sha256": "f93bbf9346774e0a2703f55bc1788f5166b868c55bc538003de45433c0e3eab1",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4613,
+      "tokens": 4618,
       "lines": 90,
-      "sha256": "b5d85b33ff862d84be33dd9f3587d0b108db674de7a086989e835c6a2f527b61",
+      "sha256": "9ebcc73552cb605bbd6873d73074e46396ef3eb06fd1e4926c008b86d0b9eac5",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 91,
-          "tokens": 4585,
+          "tokens": 4590,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 51 行 / 2823 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 52 行 / 2891 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+52 · §待排（backlog，无号，立项时领取）=27+26",
+          "summary": "§WXG 任务台账（SSOT）=1+53 · §待排（backlog，无号，立项时领取）=28+26",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 251 行 / 15649 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 273 行 / 16832 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 118,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+252 · §WXG-T-077=18+10 · §WXG-T-097",
+          "tokens": 124,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+274 · §WXG-T-077=18+10 · §WXG-T-097",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -34921,17 +34921,17 @@
     },
     {
       "path": "memory/2026-09-17.md",
-      "tokens": 3191,
-      "lines": 59,
-      "sha256": "ee72991a6fba40c995184b6f3f87e82602d31ee4bb7e7f1ba0032b3c6d9c69fd",
+      "tokens": 4177,
+      "lines": 69,
+      "sha256": "3d328c987cecc657798e9b70ba004e42c7f671e8ad69b2fa7590ec006f2cf79f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-17",
           "level": 1,
           "startLine": 1,
-          "endLine": 60,
-          "tokens": 3188,
+          "endLine": 70,
+          "tokens": 4174,
           "summary": "",
           "keywords": []
         },
@@ -35062,22 +35062,38 @@
             "empty",
             "载体切换"
           ]
+        },
+        {
+          "anchor": "§WXG-T-145：G1 `vfx_fill_pop` 落座回弹落码（T-128 动态质感章 落码①·首张代码单）",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 70,
+          "tokens": 955,
+          "summary": "触发：src/ 内 FILL_POP grep 零命中 ⇒ 用户原始要求「有质感 + 及时的互动」仍全在纸面。用户两次取",
+          "keywords": [
+            "vfx_fill_pop",
+            "WXG",
+            "src",
+            "FILL_POP",
+            "grep",
+            "落座回弹落码"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 8067,
-      "lines": 201,
-      "sha256": "c92a7926a35f3b6fe728eb3b2fe3327df2ab3632e7356573a410e18d239a2bc4",
+      "tokens": 8146,
+      "lines": 202,
+      "sha256": "275767b9e72beb39fb3794efba1813dbfb21d3b4b0e8da859936486c9f7c941a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 202,
-          "tokens": 8045,
+          "endLine": 203,
+          "tokens": 8124,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -35147,8 +35163,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 202,
-          "tokens": 6406,
+          "endLine": 203,
+          "tokens": 6484,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -35160,11 +35176,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 3,191 tok｜8 节｜**蒸馏到期 2026-10-17**（剩 30 天）",
+          "anchor": "§`memory/2026-09-17.md` — 4,177 tok｜9 节｜**蒸馏到期 2026-10-17**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 85,
-          "tokens": 536,
+          "endLine": 86,
+          "tokens": 615,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
             "memory/2026-09-17.md",
@@ -35178,8 +35194,8 @@
         {
           "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 29 天）",
           "level": 3,
-          "startLine": 86,
-          "endLine": 97,
+          "startLine": 87,
+          "endLine": 98,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -35194,8 +35210,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 28 天）",
           "level": 3,
-          "startLine": 98,
-          "endLine": 114,
+          "startLine": 99,
+          "endLine": 115,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -35210,8 +35226,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 27 天）",
           "level": 3,
-          "startLine": 115,
-          "endLine": 142,
+          "startLine": 116,
+          "endLine": 143,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -35226,8 +35242,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 26 天）",
           "level": 3,
-          "startLine": 143,
-          "endLine": 163,
+          "startLine": 144,
+          "endLine": 164,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -35242,8 +35258,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 25 天）",
           "level": 3,
-          "startLine": 164,
-          "endLine": 181,
+          "startLine": 165,
+          "endLine": 182,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -35258,8 +35274,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 24 天）",
           "level": 3,
-          "startLine": 182,
-          "endLine": 202,
+          "startLine": 183,
+          "endLine": 203,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
@@ -82112,17 +82128,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 15649,
-      "lines": 251,
-      "sha256": "c04c7d95499ac5900b733fb02826143c1b0486a6c7eae9071b2aafd0378b5942",
+      "tokens": 16832,
+      "lines": 273,
+      "sha256": "be08c2caf72e9e612871b8c29a5c59c089cd7436186a7eaced736f88d8583845",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 252,
-          "tokens": 15632,
+          "endLine": 274,
+          "tokens": 16816,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -82274,30 +82290,43 @@
           "anchor": "§WXG-T-144",
           "level": 2,
           "startLine": 232,
-          "endLine": 252,
-          "tokens": 1285,
+          "endLine": 254,
+          "tokens": 1286,
           "summary": "名称：beads · E7：QA 判据迁移（供料四族 ⛔ + 新玩法用例 + G4 收口）（Epic T-133 收官）",
           "keywords": [
             "WXG",
             "beads",
             "Epic"
           ]
+        },
+        {
+          "anchor": "§WXG-T-145",
+          "level": 2,
+          "startLine": 255,
+          "endLine": 274,
+          "tokens": 1179,
+          "summary": "名称：beads · G1 落座回弹落码（vfx_fill_pop）（T-128 动态质感章 落码①）",
+          "keywords": [
+            "WXG",
+            "beads",
+            "vfx_fill_pop"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 2823,
-      "lines": 51,
-      "sha256": "d7f7c90b95c26e765b3591b962baa62217e6ab486227db3e7112e13440a549ae",
+      "tokens": 2891,
+      "lines": 52,
+      "sha256": "961d59d861e479e618a49db8def5c1611d408b5c70cc6347db889e0e70c2ad0d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 52,
-          "tokens": 2814,
+          "endLine": 53,
+          "tokens": 2883,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -82310,8 +82339,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 27,
-          "endLine": 52,
+          "startLine": 28,
+          "endLine": 53,
           "tokens": 1138,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
