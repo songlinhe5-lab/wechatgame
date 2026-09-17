@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3196,
       "lines": 117,
-      "sha256": "28c30870d3bfbcf882e2e22a4feefd0ef227fd926373768757dfafefaba83d51",
+      "sha256": "9c2f859b8ff909f5abd275605a5e1bd13e5ea5454a4ec17bc593ad0b6412e29e",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4516,
       "lines": 86,
-      "sha256": "c970f1d6003c3d21b52caadc0689660ddf17c1fc771c59de3252eac1cf5fe178",
+      "sha256": "1d169eefcb08c47caef7163b392d04860fb343554917a22408961389d44d2cb9",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 61 行 / 4066 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 61 行 / 4058 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -768,7 +768,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 436 行 / 28344 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 436 行 / 28342 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
@@ -82354,9 +82354,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 28344,
+      "tokens": 28342,
       "lines": 436,
-      "sha256": "5dae0278c7db2adc97c7287390503fdbfa805010e4ebc8e288fc55221e06f037",
+      "sha256": "b9f051984fc0c941dc269586699e246a3ba58a2700e3100c615d98457cae3372",
       "tier": "normal",
       "sections": [
         {
@@ -82364,7 +82364,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 437,
-          "tokens": 28328,
+          "tokens": 28325,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -82490,7 +82490,7 @@
           "level": 2,
           "startLine": 216,
           "endLine": 234,
-          "tokens": 1749,
+          "tokens": 1746,
           "summary": "G5 案 B：渲染管线全局变换通道（跨 packages/framework） · 负责：主理人(Qoder)（原登程基",
           "keywords": [
             "WXG",
@@ -82646,9 +82646,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4066,
+      "tokens": 4058,
       "lines": 61,
-      "sha256": "b29b761a465257c34afb73eff0a6d854fe165e449c92cc192ae74097406e01a5",
+      "sha256": "ed5dba61679af5f24cd5f6007242f72863e542442422998b66055f3b1cccc077",
       "tier": "hot",
       "sections": [
         {
@@ -82656,7 +82656,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 62,
-          "tokens": 4057,
+          "tokens": 4049,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

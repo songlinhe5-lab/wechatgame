@@ -216,7 +216,7 @@
 ## WXG-T-132
 
 
-**G5 案 B：渲染管线全局变换通道（跨 `packages/framework`）** · 负责：主理人(Qoder)（原登程基岩；本单为执行 2026-09-16 用户裁定的落码批，沿 T-150/152/153 同模式） · 状态：🔶 落码+判据+ADR 完成，**待提交**
+**G5 案 B：渲染管线全局变换通道（跨 `packages/framework`）** · 负责：主理人(Qoder)（原登程基岩；本单为执行 2026-09-16 用户裁定的落码批，沿 T-150/152/153 同模式） · 状态：✅ 完成（随 `ede72d5` 入库）
 
 - 起因：WXG-T-128 美术 v1.4 缺口 **G5**——连击 Lv2「伪震屏」需**整屏 scale**，而渲染管线**无全局变换通道**（`RenderModelBuilder._commands` 为 `private readonly`，`RenderModel` 仅 `begin/build`、无变换字段；WXG-T-074 已登记）。视图侧现行处置 = **不假造替代画面**（`view-model.ts::drawComboVfx` 头注：`'pseudoShake'` 分支空实现，快照 `comboVfxProgress` 照常推进）。
 - **用户裁定（2026-09-16）**：采**案 B（改框架）**，案 A（全场 filled 珠面齐脉冲 scale 1.00→1.015→1.00，约 15 行、不改框架、冲击感打约 6 折）**作废且不作降级预案**。
