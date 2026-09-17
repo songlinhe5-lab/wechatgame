@@ -39,14 +39,6 @@ function fillBoardInPlace(game: BeadsGame): void {
   }
 }
 
-function swapBeads(game: BeadsGame, r1: number, c1: number, r2: number, c2: number): void {
-  const grid = game.grid;
-  const a = grid.cell(r1, c1)!.beadColorIdx;
-  const b = grid.cell(r2, c2)!.beadColorIdx;
-  expect(grid.setBead(r1, c1, b)).toBe(true);
-  expect(grid.setBead(r2, c2, a)).toBe(true);
-}
-
 // ──────────────────────────────────────────────── 热区坐标（几何单一真源）
 
 /** 网格格心（§3.8，`gridLayoutFor` 单一真源）。 */
@@ -80,7 +72,9 @@ describe('E2 · 锚互斥与换选转移（input-control §2.1 / §8-12）', () 
     const h = mkHarness('wxgame.beads.test.e2-mutex-a');
     const game = h.game;
     fillBoardInPlace(game);
-    swapBeads(game, 0, 0, 1, 1); // (0,0) 珠色 = (1,1) 底色 = 2
+    // 【WXG-T-157】组选筛色 ⇒ 构造改「同色错位对」：色 3（底(0,0)=1、底(1,1)=2 均 ≠3）。
+    game.grid.setBead(0, 0, 3);
+    game.grid.setBead(1, 1, 3);
     game.giveTrayBead(1);
     expect(game.selectTraySlot(0)).toBe(true);
     expect(game.selection).toBe('tray');
@@ -92,7 +86,7 @@ describe('E2 · 锚互斥与换选转移（input-control §2.1 / §8-12）', () 
     expect(game.tray.slot(0)!.state).toBe('holding');
     expect(h.count('tray:selected')).toBe(1); // 换选不重发托盘事件
     expect(h.count('board:selected')).toBe(1);
-    expect(h.last('board:selected')).toEqual({ row: 0, col: 0, colorIdx: 2, count: 2 });
+    expect(h.last('board:selected')).toEqual({ row: 0, col: 0, colorIdx: 3, count: 2 });
     // 快照通道（E6 画高亮）：tray 侧 -1、board 侧命中格。
     expect(game.snapshot.traySelected).toBe(-1);
     expect(game.snapshot.boardSelectedRow).toBe(0);
@@ -103,7 +97,8 @@ describe('E2 · 锚互斥与换选转移（input-control §2.1 / §8-12）', () 
     const h = mkHarness('wxgame.beads.test.e2-mutex-b');
     const game = h.game;
     fillBoardInPlace(game);
-    swapBeads(game, 0, 0, 1, 1);
+    game.grid.setBead(0, 0, 3);
+    game.grid.setBead(1, 1, 3);
     game.giveTrayBead(1);
     expect(game.tapDesign(gridPoint(game, 0, 0).x, gridPoint(game, 0, 0).y)).toBe(false);
     expect(game.selection).toBe('board');
@@ -123,7 +118,8 @@ describe('E2 · 锚互斥与换选转移（input-control §2.1 / §8-12）', () 
     const h = mkHarness('wxgame.beads.test.e2-mutex-c');
     const game = h.game;
     fillBoardInPlace(game);
-    swapBeads(game, 0, 0, 1, 1);
+    game.grid.setBead(0, 0, 3);
+    game.grid.setBead(1, 1, 3);
     game.giveTrayBead(1);
     game.giveTrayBead(2);
     expect(game.selectBoardBead(0, 0)).toBe(true);
@@ -141,7 +137,8 @@ describe('E2 · 锚互斥与换选转移（input-control §2.1 / §8-12）', () 
     const h = mkHarness('wxgame.beads.test.e2-mutex-d');
     const game = h.game;
     fillBoardInPlace(game);
-    swapBeads(game, 0, 0, 1, 1);
+    game.grid.setBead(0, 0, 3);
+    game.grid.setBead(1, 1, 3);
     const p00 = gridPoint(game, 0, 0);
     const p11 = gridPoint(game, 1, 1);
 
@@ -151,7 +148,7 @@ describe('E2 · 锚互斥与换选转移（input-control §2.1 / §8-12）', () 
 
     game.tapDesign(p11.x, p11.y); // 换选另一颗
     expect(h.count('board:selected')).toBe(2);
-    expect(h.last('board:selected')).toEqual({ row: 1, col: 1, colorIdx: 1, count: 2 });
+    expect(h.last('board:selected')).toEqual({ row: 1, col: 1, colorIdx: 3, count: 2 });
     expect(game.boardSelected).toEqual({ row: 1, col: 1 });
   });
 });
@@ -174,7 +171,8 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
     const h = mkHarness('wxgame.beads.test.e2-r4b-retrieve');
     const game = h.game;
     fillBoardInPlace(game);
-    swapBeads(game, 0, 0, 1, 1);
+    game.grid.setBead(0, 0, 3);
+    game.grid.setBead(1, 1, 3);
     game.giveTrayBead(1);
     game.giveTrayBead(2); // 槽 0/1 holding，槽 2 free
     const beadAt00 = game.grid.cell(0, 0)!.beadColorIdx;
@@ -191,7 +189,7 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
     expect(h.count('tray:stored')).toBe(2);
     expect(h.last('tray:stored')).toEqual({
       slot: 3,
-      colorIdx: 1, // swap 后 (1,1) 珠色 = 原 (0,0) 底色珠
+      colorIdx: 3, // 同色对：两颗珠色均 3
       fromRow: 1,
       fromCol: 1,
     });
@@ -233,9 +231,9 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
   it('满槽禁取珠（§8-11）：锚 = board 托盘全满点任意槽 → 零事件、锚保持；腾槽后同路径 tray:stored', () => {
     const h = mkHarness('wxgame.beads.test.e2-r4b-full');
     const game = h.game;
-    // 空板上造两颗错位珠（fill 带 beadColor），托盘 12 槽填满。
-    expect(game.grid.fill(0, 0, 2)).toBe(true); // (0,0) 底色 1，珠色 2 ⇒ 错位
-    expect(game.grid.fill(1, 1, 1)).toBe(true); // (1,1) 底色 2，珠色 1 ⇒ 错位
+    // 空板上造两颗**同色**错位珠（WXG-T-157 组选筛色：色 3，底 1/2 均 ≠3），托盘 12 槽填满。
+    expect(game.grid.fill(0, 0, 3)).toBe(true); // (0,0) 底色 1，珠色 3 ⇒ 错位
+    expect(game.grid.fill(1, 1, 3)).toBe(true); // (1,1) 底色 2，珠色 3 ⇒ 错位
     for (let i = 0; i < TRAY_BASE_SLOTS; i++) expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
     expect(game.tray.freeCount).toBe(0);
 

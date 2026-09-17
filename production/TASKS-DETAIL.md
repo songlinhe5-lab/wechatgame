@@ -262,6 +262,9 @@
   - **✅ P0-4 澄清收口（2026-09-17，CodeBuddy 会话）——零治理改动即达标**：4647KB 是 **debug 产物基线被误读**（`build-cocos.mjs` 默认 `debug=true`：含 sourcemap 且不压缩，脚本头注明文「测包体基线必须用 --release」）。**release 重建后复测：beads 主包 1927.9 KB**（红线 4096 ✓、内部目标 2000 ✓ 达标；breakout 1815.1KB 达标）；`verify` **PASS 16 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**。
   - **守卫加固（防再误读）**：`tools/scripts/check-bundle-size.mjs` 新增 **debug 产物侦测** —— `cocos-js/cc.js ≥ 2500 KB`（debug ≈3.3MB / release ≈1.5–1.8MB，取空档）⇒ 报告输出「疑似 debug 构建，包体数字不可作为基线，请用 --release 重建复测」，且 `anyFail` 提示里优先指向 release 重建；脚本内建自测 19/19 绿。
   - **教益（K 候选）**：「首次转实跑的守卫」第一次实测结果要**先核测量前提**（此处 = 产物 debug/release 形态）再下「超红线」结论——测量前提不成立时，FAIL 读数是伪信号而非缺陷信号。
+- **✅ P0-4 澄清收口（2026-09-17，CodeBuddy 会话）——零治理改动即达标**：4647KB 是 **debug 产物基线被误读**（`build-cocos.mjs` 默认 `debug=true`：含 sourcemap 且不压缩，脚本头注明文「测包体基线必须用 --release」）。**release 重建后复测：beads 主包 1927.9 KB**（红线 4096 ✓、内部目标 2000 ✓ 达标；breakout 1815.1KB 达标）；`verify` **PASS 16 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**。
+  - **守卫加固（防再误读）**：`tools/scripts/check-bundle-size.mjs` 新增 **debug 产物侦测** —— `cocos-js/cc.js ≥ 2500 KB`（debug ≈3.3MB / release ≈1.5–1.8MB，取空档）⇒ 报告输出「疑似 debug 构建，包体数字不可作为基线，请用 --release 重建复测」，且 `anyFail` 提示里优先指向 release 重建；脚本内建自测 19/19 绿。
+  - **教益（K 候选）**：「首次转实跑的守卫」第一次实测结果要**先核测量前提**（此处 = 产物 debug/release 形态）再下「超红线」结论——测量前提不成立时，FAIL 读数是伪信号而非缺陷信号。
 
 **美术规格侧未决项：零**（林绘澄回传 ⑤ 明述；三件文档内无条件句/待裁结构残留）。
 
@@ -518,3 +521,14 @@
 - **两项规格差异（诚实登记于 §1.6.6 落码回写注，未改规格本体，待 art 复验）**：① 「预分配 352-float scratch」在 `polygon()` 按引用存 points 的现契约下不成立 ⇒ 采 G3 判例逐枚新建 8-float（仅 800ms 窗口内分派）；② 卡文案「飘落」vs 公式 `y = spawnY − 1334×1.15×easeIn(p)` 单调递减（上行出屏）⇒ 按硬纪律「只抄不改」以公式为准，若裁定改向下属**规格修订**。
 - **提交边界**：同 T-152——勿整文件 `git add` 误带并发 QA 在途文件；本单文件面 = games/beads src/tests/art/assets-spec + qa/test-cases.md + production 台账两件。
 - **边界**：像素级观感（`[Cocos]` 连拍）与真机待执行（K-037）；TC-PER-26 整条不判 PASS。
+
+## WXG-T-157
+
+- **名称**：**beads · 组选收窄 + board 锚直填落码（用户 2026-09-17 三项裁定）**
+- **负责**：主理人(CodeBuddy)　**状态**：✅ 完成（415/415 绿；verify PASS 16/FAIL 0）　**P1**
+- **裁定（用户 2026-09-17，问答三项）**：① 距离定义 = **8-连通规则**（8 向、锚起两步内 = 切比雪夫 ≤2）；② 组构成 = **同色才抬**（距离 ≤2 且珠色与锚珠相同；异色错位珠留盘面）；③ 直填细则 = **组内逐颗续填**（点对应色空格、切比雪夫 ≤2 ⇒ 组内最近珠直接归位；被填珠移出组、锚珠被填 ⇒ 锚静默转移到剩余组首、组空锚清；超距 ⇒ 轻提示拒绝）。
+- **落码**：① `grid.collectMisplacedGroup` 组选语义改写（8 向两步同色；旧 WXG-T-148 ③ flood fill 不限色不限距作废）；② `beads-game._routeGridEmpty` 增 `_tryDirectFillFromBoard` 分支（`retrieve`+`fill` 同帧搬移、`bead:placed` 无 slot、cleared-priority 照常、超距复用 BD-16 文案零新常量）；③ 锚结构扩 `color`（组色）。
+- **规格代落盘（待设计域正主复验）**：`input-control` v2.2 变更记录（路由 5a 收窄 + 5b 直填分支 + 超距拒绝 + 与 v2.1 swap 禁令的关系澄清）；`bead-grid` 变更记录追加（组语义 + 直填 + 「格间必经托盘」例外口澄清）。
+- **测试**：`misplaced-group`（4 例迁移到新语义 + 新增异色不抬/切比 >2 两断言）、`selection-anchor`（4 例构造 swapBeads→同色对 setBead、断言 colorIdx 随迁）、**新增 `misplaced-direct-fill` 6 例**（直填/续填/超距/不匹配/锚转移/cleared 混合路径）。**语义要点**：直填是**搬移**（源格空出）⇒ 不直接产生 complete（交换对场景异色不可组选）⇒ cleared 走「直填归位错位珠 + 托盘补空格」混合路径。
+- **验证**：beads **415/415** 绿（36 文件）；`verify` **PASS 16 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**。
+- **未 commit / 未 push**（工作树含并发会话 T-152~155 在途内容，提交需协调）。

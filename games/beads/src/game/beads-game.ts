@@ -453,10 +453,17 @@ export class BeadsGame implements Game {
    * 生命周期 = PLAYING 局内态：`_setupLevel` / `_loadStage` 重置；不在崩溃快照里
    * （恢复后锚 = tray-or-none，与 traySelected 同批管理，E5 扩错位珠色时再议）。
    */
-  /** board 锚（WXG-T-148 ③）：起点 + **连通错位珠组**缓存（选中时算好）。 */
+  /**
+   * board 锚：起点 + 错位珠组缓存（选中时算好）。
+   * 【WXG-T-157 用户裁定】组 = 8 向两步（切比雪夫 ≤2）**同色**错位珠（原 WXG-T-148 ③
+   * 「8 邻接 flood fill 不限色不限距」作废）；规则 2 直填后**组保持**（逐颗续填）：
+   * 被填珠移出 `cells`，锚珠被填 ⇒ 锚静默转移到剩余组首（快照坐标下一帧跟随）。
+   */
   private _boardSelected: {
     row: number;
     col: number;
+    /** 组色 = 锚珠色（组内恒同色）。 */
+    color: number;
     cells: readonly { row: number; col: number }[];
   } | null = null;
 
@@ -770,9 +777,10 @@ export class BeadsGame implements Game {
     const prev = this._boardSelected;
     if (prev && prev.row === row && prev.col === col) return true; // 幂等：不重发
     this._clearTraySelection(); // 互斥换选：board 锚建立 ⇒ tray 锚清除
-    // WXG-T-148 ③：锚 = 连通错位珠组（flood fill 闭包，选中时缓存）。
+    // WXG-T-148 ③ → 【WXG-T-157 裁定改写】：锚 = 8 向两步（切比雪夫 ≤2）**同色**错位珠组
+    //（collectMisplacedGroup 内部筛色）；组色 = 锚珠色（规则 2 直填的对应色基准）。
     const cells = collectMisplacedGroup(this._grid, row, col);
-    this._boardSelected = { row, col, cells };
+    this._boardSelected = { row, col, color: this._grid.cell(row, col)!.beadColorIdx, cells };
     this._emit('board:selected', {
       row,
       col,
@@ -1810,10 +1818,81 @@ export class BeadsGame implements Game {
    */
   private _routeGridEmpty(row: number, col: number): boolean {
     if (this._tray.selectedSlot >= 0) return this._placeSelected(row, col);
+    // 【WXG-T-157 用户裁定 · 规则 2】board 锚直填：锚组非空 ⇒ 点「对应颜色的空格」
+    // （限锚起切比雪夫 ≤2）直接归位，组保持逐颗续填。未消费（null/false）⇒ 走既有轻提示。
+    const direct = this._tryDirectFillFromBoard(row, col);
+    if (direct !== null) return direct;
     if (this._grid.isFillable(row, col)) {
       this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
     }
     return false;
+  }
+
+  /**
+   * 【WXG-T-157 用户裁定（2026-09-17）· 规则 2 实现】board 锚直填：
+   * 点「对应颜色（= 组色）的空格」且该格与锚切比雪夫距离 ≤2 ⇒ 从组内取一颗
+   * （离目标格最近，平局行主序）错位珠直接归位（`retrieve` + `fill` 同帧两写，
+   * `_filledCount` 不变、misplaced −1、无中间态外泄）。
+   * - **组保持（逐颗续填，裁定 B）**：被填珠移出 `cells`；锚珠被填 ⇒ 锚**静默转移**到
+   *   剩余组首（不重发 `board:selected` —— 快照坐标下一帧跟随，白环/点名视图自动对齐）；
+   *   组空 ⇒ 锚清除。
+   * - 归位可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2，同 `_placeSelected`）。
+   * - **超距**（对应色但 >2）或底色不匹配 ⇒ 不消费：超距复用 BD-16 轻提示文案
+   *   （零新常量，规格回写注明）；底色不匹配走既有「无对应路径」口径。
+   * @returns true = 已直填；false = 已消费但拒绝（超距）；null = 与 board 锚无关（调用方续走旧路径）。
+   */
+  private _tryDirectFillFromBoard(row: number, col: number): boolean | null {
+    const anchor = this._boardSelected;
+    if (!anchor) return null;
+    // 组员存活复核（solver / region / 其它消费可能中途清珠）：
+    const alive = anchor.cells.filter((c) => {
+      const cell = this._grid.cell(c.row, c.col);
+      return !!cell && cell.state === 'filled' && cell.beadColorIdx === anchor.color && cell.beadColorIdx !== cell.colorIdx;
+    });
+    if (alive.length === 0) {
+      this._boardSelected = null;
+      return null;
+    }
+    const target = this._grid.cell(row, col);
+    if (!target || target.void || target.state !== 'empty' || target.colorIdx !== anchor.color) return null; // 非对应色空格 ⇒ 不消费
+    const dist = Math.max(Math.abs(row - anchor.row), Math.abs(col - anchor.col));
+    if (dist > 2) {
+      // 超距：对应色空格但超出「相邻 + 相邻的相邻」⇒ 轻提示拒绝（零事件零状态写）
+      this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
+      return false;
+    }
+    let best = alive[0]!;
+    let bestD = Infinity;
+    let bestOrd = Infinity;
+    for (const c of alive) {
+      const d = Math.max(Math.abs(c.row - row), Math.abs(c.col - col));
+      const ord = c.row * this._grid.cols + c.col;
+      if (d < bestD || (d === bestD && ord < bestOrd)) {
+        best = c;
+        bestD = d;
+        bestOrd = ord;
+      }
+    }
+    const bead = this._grid.retrieve(best.row, best.col);
+    if (!bead || !this._grid.fill(row, col, bead)) {
+      if (bead) this._grid.setBead(best.row, best.col, bead); // 防御回滚（理论不可达：目标已验 empty）
+      return false;
+    }
+    this._consumedTap = true; // 直填已消费本次点击（tapDesign 返回 true 的依据）
+    this._emit('bead:placed', { row, col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot（G2′ 同族）
+    const rest = alive.filter((c) => !(c.row === best.row && c.col === best.col));
+    if (rest.length === 0) {
+      this._boardSelected = null;
+    } else {
+      const head = rest[0]!;
+      this._boardSelected = { row: head.row, col: head.col, color: anchor.color, cells: rest };
+    }
+    // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）
+    if (this._grid.isComplete()) {
+      if (this._mode === 'sprint') this._completeStage();
+      else this._machine.transition('level-clear');
+    }
+    return true;
   }
 
   /**
