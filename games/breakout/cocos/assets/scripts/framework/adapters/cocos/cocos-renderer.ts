@@ -77,6 +77,26 @@ export interface CocosRendererOptions {
    * renderer converts coordinates; set false if the host node is already offset.
    */
   readonly convertToCenteredOrigin?: boolean;
+  /**
+   * Whole-frame transform executor (WXG-T-132 / ADR-0014), implemented by the
+   * host (`bindings.ts` scales the GameRoot node — **node scaling**, not
+   * per-command maths: mapping coordinates here would need per-label
+   * `setFontSize` every frame, re-triggering TTF re-rasterisation, plus manual
+   * scaling of every w/h/r/lineWidth — a wider and less faithful surface).
+   * Absent ⇒ `model.transform` is ignored (breakout and every host that has
+   * not wired the node path keep rendering as before).
+   */
+  readonly transformHost?: CocosTransformHostLike;
+}
+
+/**
+ * Structural view of "apply one whole-frame scale to the scene container"
+ * (design-space anchor; the host owns the zero-allocation guarantee — scalar
+ * args only, and MUST reset to identity when the frame has no transform).
+ */
+export interface CocosTransformHostLike {
+  applyFrameTransform(scale: number, anchorX: number, anchorY: number): void;
+  resetFrameTransform(): void;
 }
 
 /**
@@ -88,6 +108,7 @@ const FALLBACK_CHAR_WIDTH_RATIO = 0.55;
 
 export class CocosRenderModelRenderer {
   private readonly _centered: boolean;
+  private readonly _transformHost: CocosTransformHostLike | undefined;
   private _labelsUsed = 0;
 
   constructor(
@@ -98,6 +119,7 @@ export class CocosRenderModelRenderer {
     options: CocosRendererOptions = {},
   ) {
     this._centered = options.convertToCenteredOrigin ?? true;
+    this._transformHost = options.transformHost;
   }
 
   /** Labels borrowed during the last frame (telemetry / budget checks). */
@@ -110,6 +132,14 @@ export class CocosRenderModelRenderer {
     g.clear();
     this._labels.releaseAll();
     this._labelsUsed = 0;
+
+    // Per-frame dispatch, both branches idempotent: a stale scale from the
+    // previous shake frame must never survive a transform-free frame.
+    if (this._transformHost) {
+      const t = model.transform;
+      if (t) this._transformHost.applyFrameTransform(t.scale, t.anchorX, t.anchorY);
+      else this._transformHost.resetFrameTransform();
+    }
 
     // Cocos UI space is centred on the canvas; the framework design space has
     // its origin at the bottom-left. The offset converts between the two.

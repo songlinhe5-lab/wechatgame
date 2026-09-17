@@ -88,7 +88,26 @@ export interface RenderModel {
   readonly designHeight: number;
   /** Optional background fill applied before the command list. */
   readonly background?: string;
+  /**
+   * Optional whole-frame transform (WXG-T-132 / ADR-0014) applied by renderers
+   * **before** background and commands — i.e. the background participates, so a
+   * scale > 1 about an interior anchor can never open black bands inside the
+   * design rect. Absent ⇒ identity. Design-space anchor point; uniform scale.
+   */
+  readonly transform?: RenderTransform;
   readonly commands: readonly DrawCommand[];
+}
+
+/**
+ * Whole-frame uniform scale about a design-space anchor:
+ * `p' = anchor + (p − anchor) · scale`. Translation/rotation are deliberately
+ * **not** offered — the only specced consumer is beads G5 「伪震屏」
+ * (`art-bible §7.3.5`, scale-only red line: no dx/dy may ever appear).
+ */
+export interface RenderTransform {
+  readonly scale: number;
+  readonly anchorX: number;
+  readonly anchorY: number;
 }
 
 /**
@@ -102,6 +121,12 @@ export interface RenderModel {
 export class RenderModelBuilder {
   private readonly _commands: DrawCommand[] = [];
   private _background: string | undefined;
+  // Transform slots stay as scalars (hot-path zero-allocation, ADR-0014):
+  // `setTransform` is called every active frame; identity frames must not
+  // allocate anything and emit no `transform` field at all.
+  private _tScale = 1;
+  private _tAx = 0;
+  private _tAy = 0;
   private _width: number;
   private _height: number;
 
@@ -118,11 +143,27 @@ export class RenderModelBuilder {
   begin(background?: string): void {
     this._commands.length = 0;
     this._background = background;
+    this._tScale = 1;
+    this._tAx = 0;
+    this._tAy = 0;
   }
 
   /** Set/replace the frame background fill. */
   setBackground(color: string | undefined): void {
     this._background = color;
+  }
+
+  /**
+   * Request a whole-frame uniform scale about a design-space anchor
+   * (WXG-T-132 / ADR-0014). Scalar params on purpose — an object argument would
+   * allocate every active frame. `scale === 1` keeps the frame identity (no
+   * `transform` field in {@link end}, renderers take the exact old path).
+   * Reset to identity by {@link begin}.
+   */
+  setTransform(scale: number, anchorX: number, anchorY: number): void {
+    this._tScale = scale;
+    this._tAx = anchorX;
+    this._tAy = anchorY;
   }
 
   rect(x: number, y: number, w: number, h: number, cmd: Omit<RectCommand, 'kind' | 'x' | 'y' | 'w' | 'h'> = {}): void {
@@ -160,6 +201,11 @@ export class RenderModelBuilder {
       designWidth: this._width,
       designHeight: this._height,
       ...(this._background !== undefined ? { background: this._background } : {}),
+      // The one small per-frame transform object only exists on *active*
+      // effect frames (beads G5: a 150 ms window); identity frames allocate none.
+      ...(this._tScale !== 1 ? {
+        transform: Object.freeze({ scale: this._tScale, anchorX: this._tAx, anchorY: this._tAy }),
+      } : {}),
       commands: Object.freeze([...this._commands]),
     });
   }

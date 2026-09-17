@@ -268,3 +268,55 @@ describe('CocosRenderModelRenderer', () => {
     expect(created[0]!.x).not.toBeCloseTo(10 + 24 - 100);
   });
 });
+
+// ── WXG-T-132 / ADR-0014：transformHost 逐帧幂等分派 ──────────────────
+
+describe('CocosRenderModelRenderer transformHost', () => {
+  function makeHosted() {
+    const { g, calls } = fakeGraphics();
+    const { source, created } = fakeLabels();
+    const hostCalls: string[] = [];
+    const viewport = new Viewport(200, 400);
+    viewport.resize(200, 400);
+    const renderer = new CocosRenderModelRenderer(g, source, colors, viewport, {
+      transformHost: {
+        applyFrameTransform: (s, ax, ay) => hostCalls.push(`apply(${s},${ax},${ay})`),
+        resetFrameTransform: () => hostCalls.push('reset'),
+      },
+    });
+    return { g, calls, created, hostCalls, renderer };
+  }
+
+  it('dispatches applyFrameTransform with scale + design anchor on transform frames', () => {
+    const { renderer, hostCalls } = makeHosted();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.setTransform(1.015, 100, 200);
+    b.rect(0, 0, 10, 10, { fill: '#fff' });
+    renderer.draw(b.end());
+    expect(hostCalls).toEqual(['apply(1.015,100,200)']);
+  });
+
+  it('resets to identity on the very next transform-free frame (no stale scale)', () => {
+    const { renderer, hostCalls } = makeHosted();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.setTransform(1.015, 100, 200);
+    renderer.draw(b.end());
+    b.begin();
+    b.rect(0, 0, 10, 10, { fill: '#fff' });
+    renderer.draw(b.end());
+    expect(hostCalls).toEqual(['apply(1.015,100,200)', 'reset']);
+  });
+
+  it('dispatches only the idempotent reset when the model carries no transform', () => {
+    const { renderer, hostCalls } = makeHosted();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.rect(0, 0, 10, 10, { fill: '#fff' });
+    renderer.draw(b.end());
+    // 未接宿主的调用方（breakout）路径不变：无 host 时构造不报错（makeSetup 未传），
+    // 有 host 但无变换 ⇒ 只应看到幂等 reset。
+    expect(hostCalls).toEqual(['reset']);
+  });
+});

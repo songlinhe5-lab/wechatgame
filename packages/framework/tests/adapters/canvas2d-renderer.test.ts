@@ -187,4 +187,33 @@ describe('Canvas2DRenderer', () => {
     // …but every save is still matched by a restore.
     expect(saves).toBe(restores);
   });
+
+  // ── WXG-T-132 / ADR-0014：全局变换消费 ────────────────────────────
+
+  it('composes the frame transform after the fit matrix, before the background', () => {
+    const { renderer, calls } = makeRenderer();
+    const b = new RenderModelBuilder(100, 100);
+    b.begin('#101010');
+    b.setTransform(1.015, 50, 50);
+    b.rect(0, 0, 1, 1, { fill: '#fff' });
+    renderer.draw(b.end());
+    const bg = calls.indexOf('fillRect(0,0,100,100)');
+    expect(calls[0]).toBe('save()');
+    expect(calls[1]).toBe('setTransform(1,0,0,-1,0,100)'); // fit 先（dpr 1）
+    expect(calls[2]).toBe('translate(50,50)');
+    expect(calls[3]).toBe('scale(1.015,1.015)');
+    expect(calls[4]).toBe('translate(-50,-50)');
+    expect(bg).toBe(5); // 背景参与变换（零黑边结论的承重前提，ADR-0014 §3.2）
+    expect(calls[calls.length - 1]).toBe('restore()');
+  });
+
+  it('takes the exact old path when the model has no transform', () => {
+    const { renderer, calls } = makeRenderer();
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    b.rect(0, 0, 1, 1, { fill: '#fff' });
+    renderer.draw(b.end());
+    // 无文本 ⇒ 全局变换之外不应出现任何 scale/translate 调用。
+    expect(calls.filter((c) => c.startsWith('scale(') || c.startsWith('translate('))).toEqual([]);
+  });
 });

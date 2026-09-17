@@ -99,6 +99,19 @@ export class Canvas2DRenderer {
       ctx.setTransform(s, 0, 0, -s, fit.offsetX * dpr, (fit.offsetY + fit.viewHeight) * dpr);
     }
 
+    // Whole-frame transform (WXG-T-132 / ADR-0014): composed *after* the fit
+    // matrix so it operates in design coordinates regardless of the y-flip.
+    // Applied before the background ⇒ the background participates, and a
+    // scale > 1 about an interior anchor only ever pushes content edges outward
+    // (overflow is clipped by the canvas) — the letterbox bands sit outside the
+    // transformed design rect and stay untouched. Absent ⇒ exact old path.
+    const t = model.transform;
+    if (t) {
+      ctx.translate(t.anchorX, t.anchorY);
+      ctx.scale(t.scale, t.scale);
+      ctx.translate(-t.anchorX, -t.anchorY);
+    }
+
     if (model.background) {
       ctx.fillStyle = model.background;
       ctx.fillRect(0, 0, this._viewport.designWidth, this._viewport.designHeight);

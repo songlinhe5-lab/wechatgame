@@ -191,6 +191,7 @@ node tools/scripts/check-architecture.mjs
 | 框架里写 `sfx_place` 这类玩法 clip id | 音色表由游戏侧 `Game.audioVoices` 注入，框架只认结构不认玩法（ADR-0013） |
 | backend 遇到未登记 clip 就「随便发个声」 | **不发声** + 一次性 warn；音色是设计产出，不是引擎兜底项（ADR-0013 §3.3） |
 | 把 `getLocation()` 直接喂 `InputManager` | 经 adapter 归一化成 **CSS px + 左上原点**（÷dpr + 翻 y）再喂（**§17**，ADR-0011 §3(e)） |
+| 整屏级缩放需求在视图侧逐图元乘坐标系数（绕开变换通道） | 用 `RenderModelBuilder.setTransform` + `RenderModel.transform`（背景参与变换 ⇒ 零黑边；Cocos 走节点缩放宿主；ADR-0014） |
 | 用源码级正则断言锁「y 翻转」语义 | 正则判别力为零（缺陷 C1 就是这么漏的）；写 Node **行为测试**（§17） |
 
 ---

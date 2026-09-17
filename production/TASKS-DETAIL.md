@@ -216,7 +216,7 @@
 ## WXG-T-132
 
 
-**G5 案 B：渲染管线全局变换通道（跨 `packages/framework`）** · 负责：程基岩(eng) · 状态：📋 已立项（待施工）
+**G5 案 B：渲染管线全局变换通道（跨 `packages/framework`）** · 负责：主理人(Qoder)（原登程基岩；本单为执行 2026-09-16 用户裁定的落码批，沿 T-150/152/153 同模式） · 状态：🔶 落码+判据+ADR 完成，**待提交**
 
 - 起因：WXG-T-128 美术 v1.4 缺口 **G5**——连击 Lv2「伪震屏」需**整屏 scale**，而渲染管线**无全局变换通道**（`RenderModelBuilder._commands` 为 `private readonly`，`RenderModel` 仅 `begin/build`、无变换字段；WXG-T-074 已登记）。视图侧现行处置 = **不假造替代画面**（`view-model.ts::drawComboVfx` 头注：`'pseudoShake'` 分支空实现，快照 `comboVfxProgress` 照常推进）。
 - **用户裁定（2026-09-16）**：采**案 B（改框架）**，案 A（全场 filled 珠面齐脉冲 scale 1.00→1.015→1.00，约 15 行、不改框架、冲击感打约 6 折）**作废且不作降级预案**。
@@ -228,6 +228,7 @@
 - **编号说明**：本单原拟领 `WXG-T-131`，但并发会话在主理人核查（表内最大号 130）与写入之间领走 T-131（beads 美术质感规格，林绘澄）⇒ **改领 T-132**。撞号由幂等守卫拦下（worktree 侧未误插状态行），已落盘详情内 2 处 T-131 引用同批修正；诚实登记不掩盖。
 - **交叉依赖**：`art-bible §7.3.5`（v1.4-r2 定案段）现与并发会话的 **v1.5「纯色底 + 光影材质」**（T-131）叠加共存于同一文件，本单施工前须以**当时最新的 art-bible** 为准复核 §7.1 Lv2 行措辞是否仍为「整屏 scale 1.00→1.015→1.00，150ms」。
 - **主理人复核（2026-09-16，抽查）**：art-bible/assets-spec **v1.5「纯色底+光影材质」**基调与四层凹陷卡（S1 暗缘/S2 内缩坑底/S3 上内阴影/S4 下受光亮线）已核，数值级可落码 ✅；能力边界遵守（无渐变原语 ⇒ 平涂+α 叠层，承 §1.7/§1.8 判例）✅；**端点表预烘焙**（10 色×3 端点模块级一次构建，热路径零新增字符串分配）—— 这条是成员主动识别的每帧分配风险，处理正确 ✅；凹凸区分「比原方案更强」复核结论 + 验收断言钉住 ✅；零外部资产 ✅。路径纠正（任务书写 design/art/**、实际 games/beads/art/**）属实且处理正确。四小未决裁定：L1 增项默认不做；L5 符号随工程单；`SOCKET_*`/`TRAY_PLATE_*` 常量并入 T-130 工程 Epic；托盘 3 段内阴影保留。
+- **落码回写（2026-09-17，本会话）**：① **前置验证项已给结论**——零露黑边（锚点必落屏幕中心：canvas2d letterbox 居中 / Cocos 居中换算+GameRoot 原点；scale>1 ⇒ 内容边缘径向外移；**背景参与变换 ⇒ 无需外扩补边**），推导与未关部分（真机亚像素抖动）登记于 **ADR-0014 §1**。② 接口落地：`RenderModelBuilder.setTransform(scale, anchorX, anchorY)`（**标量入参**，与任务书「如 setTransform({…})」的对象例不同——热路径零分配；恒等帧 `end()` 不产变换位）+ `RenderModel.transform?` + canvas2d ctx 矩阵复合 + Cocos `transformHost`（GameRoot 节点缩放，`bindings.ts` 编辑器半 ⚠）；备选与否因见 ADR-0014 §2（含弃「渲染器内逐点坐标映射」的 setFontSize 重排理由）。③ beads 接线：`buildBeadsView` 头部消费 `comboPseudoShake(p).screenScale`（L5 不破、D1 整条关停、零新冻结常量、图元 +0）；WXG-T-074 历史登记就此收口。④ 判据：framework +10（builder 5 / canvas2d 2 / cocos host 3）+ 新建 `games/beads/tests/combo-shake.test.ts` **8 例**；全矩阵 framework **295** / beads **409** / breakout **239** 全绿，`tsc` exit 0，`check:arch` OK（L2 不破：core 零 cc），`framework:sync` 镜像已同批（beads 写 6 / breakout 写 4）。⑤ 文档回写：ADR-0014 新建、control-manifest 禁例行 +1、art-bible §7.3.5 卡末落码注、QA v1.12 增 TC-PER-27（整条不判 PASS：`[Cocos]`/真机待执行）。⑥ 未关风险：真机构建阻塞（ADR-0009 P2）⇒ 亚像素抖动观察项与节点缩放实机验证挂账；震屏窗口内输入不随变换（≤1.5%/150ms，ADR-0014 §4.1 登记）。
 
 ---
 

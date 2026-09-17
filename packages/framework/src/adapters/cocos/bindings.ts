@@ -61,6 +61,8 @@ export class Bootstrap extends Component {
   private _renderer: CocosRenderModelRenderer | null = null;
   private _bridge: CocosInputBridge | null = null;
   private _labels: PooledLabelSource | null = null;
+  /** GameRoot 容器（WXG-T-132 全局变换的缩放宿主）；位置恒自 (0,0) 出发。 */
+  private _root: Node | null = null;
   private _resizeBound = false;
 
   /** Bound once in `launch()`; re-fits the viewport when the page resizes. */
@@ -166,6 +168,7 @@ export class Bootstrap extends Component {
   private _buildGraph(): void {
     const root = new Node('GameRoot');
     this.node.addChild(root);
+    this._root = root; // WXG-T-132：全局变换在 GameRoot 上做节点缩放。
     // ⚠ UITransform content size must match the design resolution for UI-space
     //   hit testing to line up with our design coordinates.
     const transform = root.addComponent(UITransform);
@@ -209,6 +212,33 @@ export class Bootstrap extends Component {
         },
       },
       this._app.viewport,
+      {
+        // WXG-T-132 / ADR-0014：整屏缩放宿主 = GameRoot 节点缩放。
+        // 内容坐标以 −375/−667 居中 ⇒ 节点原点即屏幕中心；锚点 a 换算到
+        // 节点局部系 a' = (ax − DW/2, ay − DH/2)，则
+        //   p' = a + (p−a)·s = p·s + a'(1−s) ⇒ scale(s) + position(a'(1−s))。
+        // ⚠ Node.setScale/setPosition 形态 3.8 已用（本文件上方），编辑器外未跑真机。
+        // 输入不随变换走：缩放窗口 ≤150ms、≤1.5% 偏移 ⇒ ADR-0014 §4 登记。
+        transformHost: {
+          applyFrameTransform: (scale, anchorX, anchorY) => {
+            const r = this._root;
+            if (!r) return;
+            r.setScale(scale, scale, 1);
+            r.setPosition(
+              (anchorX - DESIGN_WIDTH / 2) * (1 - scale),
+              (anchorY - DESIGN_HEIGHT / 2) * (1 - scale),
+              0,
+            );
+          },
+          resetFrameTransform: () => {
+            const r = this._root;
+            if (!r) return;
+            r.setScale(1, 1, 1);
+            // 恒 (0,0)：Bootstrap 节点自身位置不参与（见 start() 的 (0,0) 校验）。
+            r.setPosition(0, 0, 0);
+          },
+        },
+      },
     );
   }
 

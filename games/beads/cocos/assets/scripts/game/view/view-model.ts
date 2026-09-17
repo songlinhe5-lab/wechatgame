@@ -132,7 +132,7 @@ import {
   sprintSettleLayout,
   sprintSettleRows,
 } from '../systems/sprint-settle';
-import { comboBurst, comboParticleOffsets } from './combo-vfx';
+import { comboBurst, comboParticleOffsets, comboPseudoShake } from './combo-vfx';
 import {
   confettiFrame,
   confettiIsForeground,
@@ -198,6 +198,14 @@ export function buildBeadsView(
   snap: BeadsSnapshot,
   palette: BeadsPalette,
 ): void {
+  // G5 连击 Lv2 伪震屏（`art-bible §7.3.5` 案 B · WXG-T-132）：整屏 scale 走框架
+  // 全局变换通道，锚点 = 设计中心（=屏幕中心，letterbox/居中换算下恒重合）。
+  // D1 整条关停；三角波两端 screenScale 恰为 1 ⇒ builder 不产变换位，静帧零开销。
+  // 背景层**参与**变换（前置验证结论，ADR-0014 §1）⇒ 无需外扩补边。
+  if (snap.comboVfxKind === 'pseudoShake' && snap.comboVfxProgress > 0 && !snap.reduceMotion) {
+    const s = comboPseudoShake(snap.comboVfxProgress).screenScale;
+    if (s !== 1) builder.setTransform(s, DESIGN_W / 2, DESIGN_H / 2);
+  }
   builder.setBackground(palette.background);
   drawBackgroundLayers(builder); // F8：冷沉 + 中心提亮（§1.8，珠/HUD 之下）
   drawHud(builder, snap, palette);
@@ -1178,9 +1186,10 @@ function drawClearPanel(
 /**
  * 连击特效三档的**可见部分**：Lv1 粒子（从落子格心散开）与 Lv3 全屏爆发（边缘径向光 + 波浪）。
  *
- * **Lv2（伪震屏）不在本函数画**：它需要「整屏 scale」而渲染管线没有全局变换通道（`_commands`
- * 私有，`WXG-T-074` 登记）——视图**不为它假造替代画面**；快照里 `comboVfxProgress` 照常推进，
- * 等宿主/适配层提供变换后即可生效。红线：三档都是**单次循环**，本函数无任何周期量 ⇒
+ * **Lv2（伪震屏）不在本函数画**：它的呈现量是**整屏 scale**，由 `buildBeadsView` 头部经
+ * 框架全局变换通道下发（`WXG-T-132` 案 B 已落地；历史缺口 `WXG-T-074` 就此收口）。
+ * 快照里 `comboVfxProgress` 照常推进，本函数对其**零图元**（变换不增命令，§7.3.5）。
+ * 红线：三档都是**单次循环**，本函数无任何周期量 ⇒
  * 无 >3Hz 闪烁来源（`§3.8`）。
  */
 function drawComboVfx(
@@ -1218,7 +1227,7 @@ function drawComboVfx(
     return;
   }
 
-  // 'pseudoShake'：见函数头注释（平台缺口，不假造）。
+  // 'pseudoShake'：零图元——整屏 scale 已由 `buildBeadsView` 头部的全局变换通道呈现（T-132）。
 }
 
 // ───────────────────────────── G3 道具生效扫光（assets-spec §1.6.3 · WXG-T-146）
