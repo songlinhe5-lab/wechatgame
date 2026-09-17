@@ -3,7 +3,7 @@
 > 本文件是 `my-skills/` 全家族的统一约定（人读 + 编排者读）。
 > 各 IDE 只扫描含 `SKILL.md` 的子目录，本文件不参与自动触发。
 
-## 1. 清单（现役 17 个挂四 IDE 链接；存档 1 个仅本目录留档）
+## 1. 清单（现役 33 个挂四 IDE 链接；存档 1 个仅本目录留档）
 
 | 层级 | skill | 职责 |
 |---|---|---|
@@ -30,6 +30,30 @@
 > 两包逐字一致的 7 份参考文档正本（安装/计费/任务/MCP 连接等）；两包 references 内对应
 > 文件为相对符号链接，`scripts/` 因含各包安装常量而各自独立。运行纪律见两包 SKILL.md
 > 开头（默认 `--auto off`、不路由第三方包）。
+
+## 1b. 外来通用·AI 编程工作流（16 个，2026-09-16 装入，挂四 IDE 链接）
+
+来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 `_repos/mattpocock-skills/`、`_repos/superpowers/`（更新方式：`cd _repos/<repo> && git pull` 后重新 `cp -R` 对应技能目录覆盖）。
+
+| 来源 | skill | 职责 |
+|---|---|---|
+| mattpocock/skills | `grill-me` | 动手前对抗式拷问方案；仅显式触发（`disable-model-invocation: true`），**必须与 `grilling` 成对使用** |
+| mattpocock/skills | `grilling` | grill-me 的方法本体：设计树分轮追问，每题附推荐答案 |
+| obra/superpowers | `using-superpowers` | 技能链总入口/调度说明 |
+| obra/superpowers | `brainstorming` | 任何创造性工作前的需求探索（附本地 Web 辅助脚本） |
+| obra/superpowers | `writing-plans` / `executing-plans` | 设计 → 小步计划 → 批量执行 |
+| obra/superpowers | `test-driven-development` | 强制红-绿-重构循环 |
+| obra/superpowers | `subagent-driven-development` | 每任务派发子代理 + 两阶段审查 |
+| obra/superpowers | `dispatching-parallel-agents` | 并行子代理派发 |
+| obra/superpowers | `requesting-code-review` / `receiving-code-review` | 代码审查请求/回应 |
+| obra/superpowers | `finishing-a-development-branch` | 分支收尾（合并/PR/清理） |
+| obra/superpowers | `using-git-worktrees` | 隔离 worktree 分支开发 |
+| obra/superpowers | `systematic-debugging` | 四阶段根因调查 |
+| obra/superpowers | `verification-before-completion` | 宣称完成前强制验证 |
+| obra/superpowers | `writing-skills` | 编写新 skill 的元技能 |
+
+> 归类：优先级链中的「外来通用」层。与 `wxgame-*` 冲突时以后者为准；
+> 链接为项目级 `.<ide>/skills/<name> → ../../my-skills/<name>`，仅在**本工程**生效。
 
 ## 2. 默认管线顺序与何时不走全 SOP
 

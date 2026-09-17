@@ -201,7 +201,7 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| Skill 家族清单与优先级 | my-skills/INDEX.md#§1 清单（现役 17 个挂四 IDE 链接；存档 1 个仅本目录留档） | 631 | |
+| Skill 家族清单与优先级 | my-skills/INDEX.md#§1 清单（现役 33 个挂四 IDE 链接；存档 1 个仅本目录留档） | 631 | |
 | Skill 优先级链 | my-skills/INDEX.md#§3 Skill 优先级（冲突时高者胜） | 63 | |
 | 路径约定 | my-skills/INDEX.md#§4 路径约定 | 208 | |
 | 九阶段（0–8）流水线 | my-skills/wxgame-orchestration/SKILL.md#§九阶段（0–8）流水线 | 528 | |

@@ -218,6 +218,18 @@
       "reason": "beads 输入路由真源（§2.1 路由表 / §2.3 状态门禁 / §8 判据），S2 落码与 QA 判据的每日引用面",
       "note": "WXG-T-130（2026-09-16）v2.0 选择锚化与路由分支化使其自 ≈7.9k 越至 8067 tok（超 67，微超）。债务显式化：下次修订时把 §8 判据表拆独立 judgement 文件",
       "taskId": "WXG-T-130"
+    },
+    {
+      "path": "my-skills/subagent-driven-development/SKILL.md",
+      "reason": "已安装的 skill 正本（my-skills/**，第三方/上游 skill 安装产物），开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-17，全量提交批次）：vendor/安装会话未登记豁免致 commit 守卫阻断；归属 = skills 安装会话",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/writing-skills/anthropic-best-practices.md",
+      "reason": "已安装的 skill 正本（my-skills/**，第三方/上游 skill 安装产物），开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-17，全量提交批次）：vendor/安装会话未登记豁免致 commit 守卫阻断；归属 = skills 安装会话",
+      "taskId": "vendor-skills"
     }
   ]
 }
