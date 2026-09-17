@@ -71,6 +71,12 @@
 
 ---
 
+- **✅ 主理人收口（2026-09-17）**：
+  - **①② 复现自证**：`render-harness-frame --game=beads` **8 关全渲染** ✓（beads|breakout 必填、BD-19 关死）；`cocos-vision-shot.mjs`/clip 已入库（`git ls-files` 核）✓。工程半（①B1 + ②B8/BD-19）**确认完成**。
+  - **③ §H 映射核验（22 条，test-cases.md §H 三表状态列全量更新）**：**19 条 ✅ 已由 Node 测试覆盖**（TC-PAUSE-01..09 → `pause-settings.test` 14 例逐条命中；H3 §8-11/12 → `revive.test`（180s 全走常量）；TC-SAVE 系列 → `save-schema`（v3 迁移链）/`onboarded`/`in-level-snapshot`/`sprint`/`audio-dispatch`）；**1 条 ❌** TC-SAVE-07（winStreak）= BD-12 归属不变；**1 条 ⚠️** TC-SAVE-09（PASS\* 改判维持）；**1 条 ⏳** TC-PAUSE-10（[Cocos] 面板动效帧检）—— 通路已备，判读待 QA。
+  - **⛔ 复跑新发现（诚实登记）**：`g4-probe.mjs` **P4 段在 v2.0 下崩溃**（`findEmpty` 满盘无空格 ⇒ undefined；P4 判读文本仍是 v1.2「四类 VFX 全缺 FAIL」硬编码，与现状（四类已落码）完全脱节）⇒ **探针 54 组整体未适配 v2.0**（满盘/24 槽/onboarded/组语义）⇒ 立 **WXG-T-151（探针 v2.0 适配复跑，移交 QA 严守真）**；G4 升 PASS 依赖该单。
+  - **状态 → ✅ 完成（取证通路面全齐：无头截图/滤镜/`--game` 透传/§H 映射；探针适配拆 T-151）**。
+
 ## WXG-T-127
 
 - **名称**：**beads 可玩性实测差距修复（BD-43 热区错位 P1 + BD-44/45/46/47）**
@@ -389,4 +395,11 @@
   - **验证**：全量 369/369 ✅ tsc 0 ✅（本批纯文档，无重建必要）。
   - **状态 → ✅ 完成**。
 
+## WXG-T-151
 
+- **名称**：**beads · G4 探针 v2.0 适配复跑（WXG-T-099 收口时发现：探针 54 组停留在 v1.2 假设）**
+- **负责**：严守真(qa)　**状态**：📋 已立项（待施工）　**P1**
+- **背景**：T-099 收口复跑 `g4-probe.mjs` 即崩（P4 段 `findEmpty` 满盘下 undefined；判读文本硬编码「四类 VFX 全缺 FAIL」与现状脱节）。v2.0 玩法反转（满盘错位/24 槽/onboarded/组锚）使探针多数组的**构造与判读双双过期**。
+- **范围**：54 组逐段适配（构造面：满盘+swaps 关卡、24 槽托盘、组锚路由；判读面：P4 四类 VFX 已落码改 PASS 口径、P5 音频、§H 22 条联动）→ 复跑取证（evidence/）→ G4 报告升版。
+- **约束**：K-043（脚本装载先于 import）；K-037（[Probe] 可证 ≠ 屏幕可证）；[Cocos]/[Device]/[R] 结论不因 Node 绿而抬升。
+- **验收**：54 组全跑通零崩溃；判读与 v2.0 规格一致；证据落盘；G4 报告刷新。

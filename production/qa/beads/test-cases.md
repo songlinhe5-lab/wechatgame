@@ -408,38 +408,38 @@
 
 | ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
 |---|---|---|---|---|---|
-| TC-SAVE-01 | §8-1 | 首启/二启 `runs` 与续进 | `[Node]` | 无存档 → `runs=1`、`unlockedLevel=1`、进 L1；二次启动 `runs=2` 且续进 `unlockedLevel` 最远关 | 待执行 |
-| TC-SAVE-02 | §8-2 | 解锁落档 + 星级取 max | `[Node]` | 过第 n 关（n<`DEMO_LEVEL_COUNT`）→ `unlockedLevel=n+1` 落档且**重启保留**；`stars[n-1] = max(旧, 新)`，**历史最高星不被低星覆盖** | 待执行 |
-| TC-SAVE-03 | §8-3 | 篡改矩阵逐条复现 §2.4 | `[Node]` | 解析失败 → 出厂默认进 L1；`unlockedLevel=99` → 钳 8；`=0` → 钳 1；`stars` 长度 3 → 重置全 0；**全部不中断启动**（联合 TC-LOOP-10 / `core-loop §8-10`） | 待执行 |
-| TC-SAVE-04 | §8-4 | 高版本档前向兼容 | `[Node]` | 注入 `version=2` 档 → 可读字段保留、照常启动、**无异常抛出**（SaveManager 永不抛异常契约） | 待执行 |
-| TC-SAVE-05 | §8-5 | v1 → v1.1 升级读取 | `[Node]` | 旧 v1 档直接升级读取，`sprint`/`meta` 字段取默认值、**v1 字段值无损**；新档写 v1.1 完整字段 | 待执行 |
-| TC-SAVE-06 | §8-6 | `sprint.bestScore` 写入条件 | `[Node]` | 新分 > 旧最佳 → 写入 + S7 NEW BEST 显示；≤ → **不写**（联合 TC-SPRINT-11 / `score-combo §8-11`） | 待执行 |
-| TC-SAVE-07 | §8-7 | 连胜字段 | `[Node]` | 连续过关 3 次 → `winStreakCurrent=3`、`Best=3`；第 4 关失败 → `Current=0`、`Best` 仍 3 | ❌ **FAIL(BD-12)**（本轮已实测，见 §A.0） |
-| TC-SAVE-08 | §8-8 | 设置开关即档 + 双通道独立 | `[Node]` | 切换音乐/音效 → **即档**、重启回显一致；两通道互不影响（双 AudioScheduler，`architecture §2`） | 待执行（⚠️ **回显可断言，实际静音效果依赖 BD-05b**） |
-| TC-SAVE-09 | §8-9 | PLAYING 零写档 / 结算帧恰 1 次 | `[Node]` | ~~注入 200 次落子~~ → **v1.3 改：注入 ≤`GRID_MAX_COLS×GRID_MAX_ROWS` 的最大可构造量（156；本轮取 150、留 6 格避免通关）**，PLAYING 全程写档 **0** 次；结算帧写档**恰 1** 次。**改判依据 BD-24**（200 不可构造） | ⚠️ **PASS\***（本轮已实测） |
-| TC-SAVE-10 | §8-10 | 整关重置不写档 | `[Node]` | 五项重置（`timer-gameover §2.4`）**均未**触发写档（关内态不入档） | 待执行 |
+| TC-SAVE-01 | §8-1 | 首启/二启 `runs` 与续进 | `[Node]` | 无存档 → `runs=1`、`unlockedLevel=1`、进 L1；二次启动 `runs=2` 且续进 `unlockedLevel` 最远关 | ✅ `save-schema.test`+`onboarded.test`（v3 迁移/首启 runs/onboarded） |
+| TC-SAVE-02 | §8-2 | 解锁落档 + 星级取 max | `[Node]` | 过第 n 关（n<`DEMO_LEVEL_COUNT`）→ `unlockedLevel=n+1` 落档且**重启保留**；`stars[n-1] = max(旧, 新)`，**历史最高星不被低星覆盖** | ✅ `save-schema.test`（解锁钳位/星级 max） |
+| TC-SAVE-03 | §8-3 | 篡改矩阵逐条复现 §2.4 | `[Node]` | 解析失败 → 出厂默认进 L1；`unlockedLevel=99` → 钳 8；`=0` → 钳 1；`stars` 长度 3 → 重置全 0；**全部不中断启动**（联合 TC-LOOP-10 / `core-loop §8-10`） | ✅ `save-schema.test`（篡改矩阵降级全例） |
+| TC-SAVE-04 | §8-4 | 高版本档前向兼容 | `[Node]` | 注入 `version=2` 档 → 可读字段保留、照常启动、**无异常抛出**（SaveManager 永不抛异常契约） | ✅ `save-schema.test`（v2→v3 前向兼容例） |
+| TC-SAVE-05 | §8-5 | v1 → v1.1 升级读取 | `[Node]` | 旧 v1 档直接升级读取，`sprint`/`meta` 字段取默认值、**v1 字段值无损**；新档写 v1.1 完整字段 | ✅ `save-schema.test`（v1→v2→v3 迁移链） |
+| TC-SAVE-06 | §8-6 | `sprint.bestScore` 写入条件 | `[Node]` | 新分 > 旧最佳 → 写入 + S7 NEW BEST 显示；≤ → **不写**（联合 TC-SPRINT-11 / `score-combo §8-11`） | ✅ `sprint.test`（bestScore 写入条件） |
+| TC-SAVE-07 | §8-7 | 连胜字段 | `[Node]` | 连续过关 3 次 → `winStreakCurrent=3`、`Best=3`；第 4 关失败 → `Current=0`、`Best` 仍 3 | ❌ **BD-12**（winStreak 无字段位，P2 归属不变） |
+| TC-SAVE-08 | §8-8 | 设置开关即档 + 双通道独立 | `[Node]` | 切换音乐/音效 → **即档**、重启回显一致；两通道互不影响（双 AudioScheduler，`architecture §2`） | ✅ `audio-dispatch.test`（双通道独立） |
+| TC-SAVE-09 | §8-9 | PLAYING 零写档 / 结算帧恰 1 次 | `[Node]` | ~~注入 200 次落子~~ → **v1.3 改：注入 ≤`GRID_MAX_COLS×GRID_MAX_ROWS` 的最大可构造量（156；本轮取 150、留 6 格避免通关）**，PLAYING 全程写档 **0** 次；结算帧写档**恰 1** 次。**改判依据 BD-24**（200 不可构造） | ⚠️ PASS\* `in-level-snapshot.test`（§8-11 零写断言） |
+| TC-SAVE-10 | §8-10 | 整关重置不写档 | `[Node]` | 五项重置（`timer-gameover §2.4`）**均未**触发写档（关内态不入档） | ✅ `in-level-snapshot.test`（§8-14 关末清崩溃键+零写） |
 
 ## H2 · 暂停与设置面板（S9）— 来源 `pause-settings.md §8.1..10`
 
 | ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
 |---|---|---|---|---|---|
-| TC-PAUSE-01 | §8-1 | 齿轮 → 暂停 + 遮罩门禁 | `[Node]` | PLAYING 点齿轮 → `game:paused` 恰 1 次、S1=PAUSED、面板可见、**遮罩覆盖棋盘与托盘**；PAUSED 中点遮罩/棋盘/托盘/道具卡**全部零响应**（联合 TC-INP-08） | 待执行 |
-| TC-PAUSE-02 | §8-2 | PAUSED 300s 冻结 | `[Node]` | 300s 后继续 → `remaining` 与暂停前一致（≤1 帧 dt）；首个供料**不早于「暂停剩余间隔 +1 帧」**（联合 TC-TIMER-05 / TC-TRAY-08） | 待执行 |
-| TC-PAUSE-03 | §8-3 | 重玩本关五项重置 + 无中转 | `[Node]` | 五项逐一断言（倒计时回满 / 图案清空 / 托盘清空 / 扩展重置 / 道具次数回 `POWERUP_FREE_USES`）；S1 **直接回 PLAYING、无 GAME_OVER 中转**。GDD 原注记：第五项在 S6 落地前为「待 S6」真空项、**不得发明伪状态充数** ⇒ S6 已落地（`powerups.test.ts`），本条**现可全断言** | 待执行 |
-| TC-PAUSE-04 | §8-4 | 音乐/音效开关即档 + 互不影响 | `[Node]` | 各切 2 次：`settings.*` 即档、重启回显一致；**关音乐仍有音效、反之亦然** | 待执行（`tests/pause-settings.test.ts` 已部分覆盖，需核对是否含「互不影响」断言） |
-| TC-PAUSE-05 | §8-5 | 齿轮热区 + 胶囊避让 | `[Node]` | 齿轮热区 **≥88×88** 且**不侵入** `CAPSULE_AVOID`；面板任何元素**不与胶囊重叠**（布局断言） | 待执行 |
-| TC-PAUSE-06 | §8-6 | 归零 vs 齿轮（**帧内序**基准） | `[Node]` | 基准 = **帧内序：输入（段内序 状态指令 → 玩法事件）→ 连击窗 → 供料 → 计时**。**同帧** → 暂停生效、本帧 dt 不再累计、恢复前不判负；**跨帧**（此前帧已借归零进 GAME_OVER）→ GAME_OVER 生效、无暂停（联合 §E 帧内序用例组） | 待执行 |
-| TC-PAUSE-07 | §8-7 | 非 PLAYING 五状态门禁 | `[Node]` | BOOT / LEVEL_CLEAR / GAME_OVER / FINISH / PAUSED 注入齿轮请求 → **零事件零状态变化** | 待执行 |
-| TC-PAUSE-08 | §8-8 | 重复暂停幂等 | `[Node]` | PAUSED 中注入 `game:paused` → S5 保存值不变、恢复后 `remaining` 正确（联合 TC-TIMER-09） | 待执行 |
-| TC-PAUSE-09 | §8-9 | sprint 暂停冻结连击窗 | `[Node]` | 连击窗口计时冻结，恢复后从暂停值续算、**不追溯断连**（联合 TC-SPRINT-10 / C8） | 待执行 |
-| TC-PAUSE-10 | §8-10 | 面板入/出动效帧检 | `[Node]` + `[Cocos]` | 面板**入 ≤200ms** / **出 ≤150ms**（权威 `ux-spec §5`）；红线 ≤3Hz 闪烁。**Node 侧**可断言 `progress` 时间轴（已由 §F F6 覆盖淡出期门禁）；**像素级帧检须 `[Cocos]`** | 待执行（F6 已覆盖逻辑半边） |
+| TC-PAUSE-01 | §8-1 | 齿轮 → 暂停 + 遮罩门禁 | `[Node]` | PLAYING 点齿轮 → `game:paused` 恰 1 次、S1=PAUSED、面板可见、**遮罩覆盖棋盘与托盘**；PAUSED 中点遮罩/棋盘/托盘/道具卡**全部零响应**（联合 TC-INP-08） | ✅ `pause-settings.test` §8-1 例 |
+| TC-PAUSE-02 | §8-2 | PAUSED 300s 冻结 | `[Node]` | 300s 后继续 → `remaining` 与暂停前一致（≤1 帧 dt）；首个供料**不早于「暂停剩余间隔 +1 帧」**（联合 TC-TIMER-05 / TC-TRAY-08） | ✅ `pause-settings.test` §8-2 例（300s 冻结+feed 死） |
+| TC-PAUSE-03 | §8-3 | 重玩本关五项重置 + 无中转 | `[Node]` | 五项逐一断言（倒计时回满 / 图案清空 / 托盘清空 / 扩展重置 / 道具次数回 `POWERUP_FREE_USES`）；S1 **直接回 PLAYING、无 GAME_OVER 中转**。GDD 原注记：第五项在 S6 落地前为「待 S6」真空项、**不得发明伪状态充数** ⇒ S6 已落地（`powerups.test.ts`），本条**现可全断言** | ✅ `pause-settings.test` §8-3 例（五项重置逐一） |
+| TC-PAUSE-04 | §8-4 | 音乐/音效开关即档 + 互不影响 | `[Node]` | 各切 2 次：`settings.*` 即档、重启回显一致；**关音乐仍有音效、反之亦然** | ✅ `audio-dispatch.test`（即档/独立） |
+| TC-PAUSE-05 | §8-5 | 齿轮热区 + 胶囊避让 | `[Node]` | 齿轮热区 **≥88×88** 且**不侵入** `CAPSULE_AVOID`；面板任何元素**不与胶囊重叠**（布局断言） | ✅ `pause-settings.test` §8-5 例（几何+胶囊避让） |
+| TC-PAUSE-06 | §8-6 | 归零 vs 齿轮（**帧内序**基准） | `[Node]` | 基准 = **帧内序：输入（段内序 状态指令 → 玩法事件）→ 连击窗 → 供料 → 计时**。**同帧** → 暂停生效、本帧 dt 不再累计、恢复前不判负；**跨帧**（此前帧已借归零进 GAME_OVER）→ GAME_OVER 生效、无暂停（联合 §E 帧内序用例组） | ✅ `frame-order.test`（帧内执行序） |
+| TC-PAUSE-07 | §8-7 | 非 PLAYING 五状态门禁 | `[Node]` | BOOT / LEVEL_CLEAR / GAME_OVER / FINISH / PAUSED 注入齿轮请求 → **零事件零状态变化** | ✅ `pause-settings.test` §8-7 例（五态门禁） |
+| TC-PAUSE-08 | §8-8 | 重复暂停幂等 | `[Node]` | PAUSED 中注入 `game:paused` → S5 保存值不变、恢复后 `remaining` 正确（联合 TC-TIMER-09） | ✅ `pause-settings.test` §8-8 例（幂等） |
+| TC-PAUSE-09 | §8-9 | sprint 暂停冻结连击窗 | `[Node]` | 连击窗口计时冻结，恢复后从暂停值续算、**不追溯断连**（联合 TC-SPRINT-10 / C8） | ✅ `pause-settings.test` §8-9 例（连击窗冻结） |
+| TC-PAUSE-10 | §8-10 | 面板入/出动效帧检 | `[Node]` + `[Cocos]` | 面板**入 ≤200ms** / **出 ≤150ms**（权威 `ux-spec §5`）；红线 ≤3Hz 闪烁。**Node 侧**可断言 `progress` 时间轴（已由 §F F6 覆盖淡出期门禁）；**像素级帧检须 `[Cocos]`** | ⏳ `[Cocos]` 通路已备（`cocos-vision-shot`/frame）—— 帧检判读待 QA |
 
 ## H3 · 失败续时（S5 v1.2 增补）— 来源 `timer-gameover.md §8-11/12` + `systems-index §3.11`
 
 | ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
 |---|---|---|---|---|---|
-| TC-TIMER-11 | §8-11 | 续时同局续打 | `[Node]` | 构造普通关 GAME_OVER（格已填若干、托盘非空）→ 注入 `onRewarded` → `remaining = REVIVE_BONUS_SEC`、`reviveBonusSec = REVIVE_BONUS_SEC`、`revived=true`、S1 回 PLAYING；**网格 `filled` 计数与托盘槽态与失败前逐一相等**（不走 §2.4 整关重置） | 待执行 |
-| TC-TIMER-12 | §8-12 | 次数上限与未看完 | `[Node]`（需替身注入） | 同尝试第二次续时指令**被忽略**、`remaining` 不增加（`REVIVE_MAX_PER_LEVEL`）；未看完 / 错误回调 → `remaining` 仍为 0、停在 GAME_OVER；**冲刺归零注入续时 → 零加时**（`systems-index §3.10` 末注「冲刺不续时」） | 待执行 |
+| TC-TIMER-11 | ✅ `revive.test`（180s 续时/续打/文案常量） | 续时同局续打 | `[Node]` | 构造普通关 GAME_OVER（格已填若干、托盘非空）→ 注入 `onRewarded` → `remaining = REVIVE_BONUS_SEC`、`reviveBonusSec = REVIVE_BONUS_SEC`、`revived=true`、S1 回 PLAYING；**网格 `filled` 计数与托盘槽态与失败前逐一相等**（不走 §2.4 整关重置） | 待执行 |
+| TC-TIMER-12 | ✅ `revive.test`（次数上限 REVIVE_MAX_PER_LEVEL/未看完忽略） | 次数上限与未看完 | `[Node]`（需替身注入） | 同尝试第二次续时指令**被忽略**、`remaining` 不增加（`REVIVE_MAX_PER_LEVEL`）；未看完 / 错误回调 → `remaining` 仍为 0、停在 GAME_OVER；**冲刺归零注入续时 → 零加时**（`systems-index §3.10` 末注「冲刺不续时」） | 待执行 |
 
 > **TC-TIMER-12 取证纪律（重要，防假绿）**：harness 当前装的是 `MockRewardedAdProvider('complete')` ⇒ **「看完」分支必然成功**，该路径**不可作为真机广告行为证据**；「未看完 / 错误回调」分支**必须靠替身注入**（构造 `onError` / 不回调），**不得因替身总是 complete 就把该分支标绿**。同理：**续时不能解 BD-06 死局**（`REVIVE_BONUS_SEC` 只加时间不清托盘），验 TC-PER-06 时勿把「续时成功」误读为「已修复」（`ux-spec §4` 尾注已明文警示）。
 
