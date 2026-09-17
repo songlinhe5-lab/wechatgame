@@ -17,7 +17,19 @@ export interface BeadsLevelRaw {
   readonly cols: number;
   readonly rows: number;
   readonly time: number;
-  readonly spawnInterval: number;
+  /**
+   * 错位交换对 `[[r1,c1,r2,c2], ...]`（levels-spec v1.2 §2.1 / systems-index
+   * v1.23 §3.13）：按数组序对「pattern 全满」的可填格珠两两交换 ⇒ 初始错位局面。
+   * 对数 k ∈ [MISPLACED_PAIRS_MIN(1), MISPLACED_PAIRS_MAX(8)]。
+   * ⛔ `spawnInterval` 已随供料关停在 version 2 清理删除（E5）。
+   */
+  readonly swaps: readonly (readonly [number, number, number, number])[];
+  /**
+   * 环长分布（v1.23 增补，**建议值、不冻结**）：`short` 全 2-环 / `mixed` 长短
+   * 混合 / `long` 偏长环。8 关数据暂一律 `short`（恒等式 misplaced = 2k 优先，
+   * 长环与 levels-spec §2.1 恒等式冲突，已回传）。
+   */
+  readonly cycleProfile: 'short' | 'mixed' | 'long';
   /** Decoy colour characters (pattern charset, never part of the pattern). */
   readonly decoys: readonly string[];
   /**
@@ -35,7 +47,7 @@ export interface LevelsData {
 }
 
 export const LEVELS_DATA: LevelsData = {
-  version: 1,
+  version: 2,
   gameId: "beads",
   description: "拼豆填色消除 demo 前 8 关（ADR-0004 行字符串形态；字符集 .x1-9A；色板索引见 art-bible §3.2，1=奶白 2=柠黄 3=活力橙 4=草绿 5=玫红 6=丁香紫 7=湖蓝 8=赭棕）",
   levels: [
@@ -44,8 +56,16 @@ export const LEVELS_DATA: LevelsData = {
       name: "暖心",
       cols: 6,
       rows: 5,
-      time: 300,
-      spawnInterval: 6,
+      time: 120,
+      swaps: [
+        [
+          0,
+          1,
+          2,
+          1,
+        ],
+      ],
+      cycleProfile: "short",
       decoys: [],
       pattern: [
         ".55.55",
@@ -60,8 +80,22 @@ export const LEVELS_DATA: LevelsData = {
       name: "小屋",
       cols: 8,
       rows: 6,
-      time: 300,
-      spawnInterval: 5.5,
+      time: 120,
+      swaps: [
+        [
+          0,
+          3,
+          3,
+          1,
+        ],
+        [
+          0,
+          4,
+          3,
+          2,
+        ],
+      ],
+      cycleProfile: "short",
       decoys: [],
       pattern: [
         "...88...",
@@ -77,8 +111,22 @@ export const LEVELS_DATA: LevelsData = {
       name: "摆尾小鱼",
       cols: 9,
       rows: 6,
-      time: 300,
-      spawnInterval: 5,
+      time: 120,
+      swaps: [
+        [
+          0,
+          2,
+          0,
+          8,
+        ],
+        [
+          0,
+          3,
+          2,
+          0,
+        ],
+      ],
+      cycleProfile: "short",
       decoys: [],
       pattern: [
         "..7777..5",
@@ -94,8 +142,28 @@ export const LEVELS_DATA: LevelsData = {
       name: "结果的树",
       cols: 10,
       rows: 7,
-      time: 300,
-      spawnInterval: 4.5,
+      time: 135,
+      swaps: [
+        [
+          0,
+          4,
+          0,
+          5,
+        ],
+        [
+          1,
+          2,
+          1,
+          3,
+        ],
+        [
+          1,
+          4,
+          4,
+          4,
+        ],
+      ],
+      cycleProfile: "short",
       decoys: [],
       pattern: [
         "....24....",
@@ -112,8 +180,34 @@ export const LEVELS_DATA: LevelsData = {
       name: "猫脸",
       cols: 11,
       rows: 8,
-      time: 360,
-      spawnInterval: 4,
+      time: 180,
+      swaps: [
+        [
+          0,
+          1,
+          1,
+          2,
+        ],
+        [
+          0,
+          2,
+          1,
+          8,
+        ],
+        [
+          0,
+          8,
+          2,
+          3,
+        ],
+        [
+          0,
+          9,
+          2,
+          5,
+        ],
+      ],
+      cycleProfile: "short",
       decoys: [],
       pattern: [
         ".33.....33.",
@@ -131,8 +225,40 @@ export const LEVELS_DATA: LevelsData = {
       name: "顺风帆船",
       cols: 12,
       rows: 9,
-      time: 360,
-      spawnInterval: 3.5,
+      time: 225,
+      swaps: [
+        [
+          0,
+          10,
+          1,
+          6,
+        ],
+        [
+          0,
+          11,
+          1,
+          7,
+        ],
+        [
+          2,
+          5,
+          2,
+          6,
+        ],
+        [
+          2,
+          7,
+          2,
+          8,
+        ],
+        [
+          3,
+          4,
+          3,
+          5,
+        ],
+      ],
+      cycleProfile: "short",
       decoys: [],
       pattern: [
         "..........22",
@@ -151,8 +277,46 @@ export const LEVELS_DATA: LevelsData = {
       name: "升空热气球",
       cols: 13,
       rows: 10,
-      time: 380,
-      spawnInterval: 3,
+      time: 270,
+      swaps: [
+        [
+          0,
+          1,
+          0,
+          4,
+        ],
+        [
+          0,
+          5,
+          0,
+          8,
+        ],
+        [
+          0,
+          6,
+          0,
+          11,
+        ],
+        [
+          0,
+          7,
+          1,
+          2,
+        ],
+        [
+          1,
+          3,
+          1,
+          4,
+        ],
+        [
+          1,
+          5,
+          1,
+          9,
+        ],
+      ],
+      cycleProfile: "short",
       decoys: [],
       pattern: [
         ".7..15551..7.",
@@ -172,8 +336,58 @@ export const LEVELS_DATA: LevelsData = {
       name: "星际火箭",
       cols: 13,
       rows: 12,
-      time: 280,
-      spawnInterval: 2.5,
+      time: 360,
+      swaps: [
+        [
+          0,
+          6,
+          3,
+          0,
+        ],
+        [
+          1,
+          5,
+          3,
+          4,
+        ],
+        [
+          1,
+          6,
+          3,
+          5,
+        ],
+        [
+          1,
+          7,
+          3,
+          6,
+        ],
+        [
+          2,
+          4,
+          3,
+          7,
+        ],
+        [
+          2,
+          5,
+          3,
+          8,
+        ],
+        [
+          2,
+          6,
+          4,
+          3,
+        ],
+        [
+          2,
+          7,
+          4,
+          4,
+        ],
+      ],
+      cycleProfile: "short",
       decoys: [],
       pattern: [
         "......5......",

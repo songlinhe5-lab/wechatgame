@@ -71,7 +71,7 @@ locked：恒定，不参与任何转移与完成计数
 | `bead:rejected` | 颜色不匹配（仅托盘归位路径） | `vfx_wrong_shake` ±3px ×2 + `danger` 描边闪 ≤2 次/秒（§3.8） |
 | 完成前置信号 → `level:cleared` | 可填格全满（= 错位珠全部归位） | 庆祝 `vfx_complete_wave`（按列延迟 20ms）。**层序裁定（WXG-T-128，2026-09-16 用户拍板）**：庆祝 800ms **先行放完**、结算面板**延迟 800ms 开**——否则同帧开面板会使全屏 scrim α0.5 把庆祝完全遮死（真源：`ux-spec §5`「过关庆祝」行） |
 | **（无事件）表现层轻压**（WXG-T-128 新增；v2.0 适用对象扩展） | 对 `locked` 格或**已就位珠**（`filled` 且珠色=底色，v2.0 语义）点击被忽略（`verdict = ignored`）；**错位珠不适用本行**（错位珠可选中，走 `board:selected`） | `vfx_denied_press` scale 1.00→0.96→1.00（120ms，`art-bible §7.3.7` / `assets-spec §1.6.7`）+ `sfx_denied` 极轻闷「哒」（待原子落码，见 `audio-events §5` Q-A05-5）。**零事件、零扣次、零状态写**；`reduceMotion` 开 ⇒ 1px `slot_border` 静态描边环 |
-| 格子绘制 | `filled(就位)/filled(错位)/empty/locked` | assets-spec §1.2 参数卡（错位/就位的形态区分：珠色≠底色即可辨，另见 WXG-T-131 质感规格） |
+| 格子绘制 | `filled(就位)/filled(错位)/empty/locked` | assets-spec §1.2 参数卡。**⚠️ 错位/就位的形态区分（2026-09-17 更正，WXG-T-140）**：本行原文「珠色≠底色即可辨」**属循环论证**——珠 50px = 格 50px、坑底色被珠体零露出，玩家在 filled 态**看不到底色**，该句不可用于证明「找错位珠」谜面可读（`assets-spec` L945 自认同款缺陷）。**更正后的真实现**：渲染层加 **L11 目标色垫（B′ 垫色显缝，`assets-spec §1.1`）**——每颗棋盘 filled 格在珠层下画全格垫（ink = 该格 `pattern` 目标色暗一档 `mix(target,#000,0.30)`），珠视觉内缩 2px/边露垫成缝；**垫色 = 珠色 ⇒ 就位，垫色 ≠ 珠色 ⇒ 错位**（用户 2026-09-17 拍板 `accessibility.md §5.4`，先 (b) 描边环后切 B′，WXG-T-140→142）。托盘珠 / `locked` / `empty` 三态不带垫。逻辑态（`misplaced` 判定 `colorIdx ≠ pattern(row,col)`）**不变**，本条只改可读性载体 |
 
 ## 5. 数值
 

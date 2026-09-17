@@ -1068,9 +1068,7 @@ export class BeadsGame implements Game {
     } else {
       const level = this._levels[snapshot.levelIndex];
       if (!level) return false;
-      // 普通关：供料心跳须与现行关卡表一致，否则视为对不上（提案 §2）。
-      const expected = level.spawnInterval ?? 4.0;
-      if (Math.abs(expected - snapshot.spawnInterval) > 1e-9) return false;
+      // v2.0 供料关停（WXG-T-136）⇒ 旧「供料心跳比对」判据随死路径删除。
       this._levelIndex = snapshot.levelIndex;
       this._setupLevel(snapshot.levelIndex);
       this._timer.reset(Math.max(snapshot.timeTotal, 0));
@@ -1335,7 +1333,7 @@ export class BeadsGame implements Game {
     this._resetPowerups();
     this._tray.initNeeded(this._grid.neededColorCounts());
     this._spawner.reset();
-    this._spawner.interval = level.spawnInterval ?? 4.0;
+    this._spawner.interval = 4.0; // ⛔ 死路径缺省（供料关停，关卡字段已删）
     this._spawner.setDecoys(decoyColorIndices(level));
     this._timer.reset(level.time);
     this._sprint.reset();

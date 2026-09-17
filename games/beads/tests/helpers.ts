@@ -143,21 +143,54 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
 }
 
 /**
+ * Default `swaps` for a test pattern: the first two fillable cells with
+ * **different** 底色 (E5 BOOT rule ②). Computed from the *merged* pattern so
+ * pattern overrides keep producing a level that passes BOOT; patterns with
+ * fewer than two usable cells yield `[]` (the validator then rejects — which is
+ * exactly what those "invalid level" cases want).
+ */
+function defaultSwaps(pattern: readonly string[]): [number, number, number, number][] {
+  const colorOf = (ch: string): number =>
+    ch >= '1' && ch <= '9' ? Number(ch) : ch === 'A' ? 10 : 0;
+  const picked: { r: number; c: number; color: number }[] = [];
+  for (let r = 0; r < pattern.length && picked.length < 2; r++) {
+    const row = pattern[r]!;
+    for (let c = 0; c < row.length && picked.length < 2; c++) {
+      const color = colorOf(row[c]!);
+      if (color <= 0) continue;
+      if (picked.length === 1 && picked[0]!.color === color) continue;
+      picked.push({ r, c, color });
+    }
+  }
+  return picked.length === 2 ? [[picked[0]!.r, picked[0]!.c, picked[1]!.r, picked[1]!.c]] : [];
+}
+
+/**
  * A minimal valid test level: 6×5, three colours (validator floor), full
  * rectangular pattern so every cell is fillable. `decoy` adds one decoy colour.
+ *
+ * v2.0 (E5): carries a valid `swaps` pair by default — BOOT now rejects levels
+ * without one (levels-spec v1.2 §2.1). Explicit `swaps` overrides win.
  */
 export function simpleTestLevel(overrides: Partial<BeadsLevelRaw> = {}): BeadsLevelRaw {
-  return {
+  const merged: BeadsLevelRaw = {
     id: 90,
     name: '测试关',
     cols: 6,
     rows: 5,
     time: 300,
-    spawnInterval: 4.0,
+    swaps: [],
+    cycleProfile: 'short',
     decoys: [],
     pattern: ['123123', '123123', '123123', '123123', '123123'],
     ...overrides,
   };
+  // BeadsLevelRaw 的 swaps/cycleProfile 为 readonly（levels.ts 校验面）；
+  // 字面量本体可变，此处绕过 readonly 仅做默认值填充（测试基建）。
+  const mutable = merged as { swaps: unknown; cycleProfile: unknown };
+  if (overrides.swaps === undefined) mutable.swaps = defaultSwaps(merged.pattern);
+  if (overrides.cycleProfile === undefined) mutable.cycleProfile = 'short';
+  return merged;
 }
 
 /**

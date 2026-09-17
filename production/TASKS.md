@@ -2,7 +2,7 @@
 
 > **格式（WXG-T-064 起）：标题制 + 详情分片。** 本表**只留标题**（名称列 ≤ 60 字符，由 `pnpm run check:tasks` 机械强制）；任务正文在 `production/TASKS-DETAIL.md` 的 `## WXG-T-0NN` 小节。**读取协议**：领号/看状态只读本表（≈ 2.2k tok）；要某任务详情时，从 `ctx/index.json` 取该小节的 `startLine`/`endLine`，`read_file(path, offset, limit)` **只读那一节**（中位 ≈ 290 tok），**不要整读详情文件**。归档时**行与小节成对搬走**。
 > 单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前**先读本文件领号**，完成后回填状态——根治跨 IDE 撞号（教训：2026-09-12 CodeBuddy 独立会话撞用 T-013/T-014）。
-> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-138**（120 未启用，跳空合规），下一可用号 **WXG-T-139**。ADR-0011 = 屏幕坐标空间契约（已落盘，T-082）；ADR-0012 = G10 ES5 转译修法（T-090 待裁）。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
+> 建档：2026-09-12，主理人游承峰。当前已分配至 **WXG-T-142**（120 未启用，跳空合规），下一可用号 **WXG-T-143**。ADR-0011 = 屏幕坐标空间契约（已落盘，T-082）；ADR-0012 = G10 ES5 转译修法（T-090 待裁）。ADR-0008 编号已为「每日挑战本地确定性派生 ADR」预约（未落盘，每日挑战专项立项时使用，跳空合规）；ADR-0009 = Cocos MCP 编辑器接入（已落盘）。
 > 勘误（2026-09-13）：本注此前长期停在「已分配至 T-032」而表内已排到 T-035，曾致撞号（教训见 memory 记录）；WXG-T-040 归档落地后改为——**领号认本注（下一可用号），本注由 `tasks:archive` 校准**为「主表 ∪ 归档全局最大号 + 1」（归档会把老行移出主表，只看主表最大号必重号）；手工领号后请顺手核对本注（可运行 `pnpm run tasks:archive` 校准，0 行时不落盘）。
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
@@ -75,6 +75,10 @@
 | WXG-T-136 | beads·E3 供料摘除+托盘纯缓冲收尾 | 程基岩(eng) | ✅ 完成（286/286 全绿；三重死路径标注；联动面零静默改动；Epic 3/7） | 见详情 |
 | WXG-T-137 | beads·E4 解环器三型（powerups 反转） | 程基岩(eng) | ✅ 完成（S6 无状态化+归位闭环；284/284 全绿；Epic 4/7） | 见详情 |
 | WXG-T-138 | beads·v1.23 大胆重制落盘（托盘6槽/时间按k定价/星级主题语义/swap禁/冲刺k爬梯） | 主理人(WorkBuddy) | ✅ 完成（5 文落盘：systems-index v1.23 七处 + changelog + input-control v2.1 + concept v1.2 + 提案正本；工程落码另排） | 见详情 |
+| WXG-T-139 | beads·E5 错位装配器+BOOT 校验+levels JSON v2 | 程基岩(eng) | ✅ 完成（314/314 全绿；修 NaN 死循环；按 v1.23 对齐；Epic 5/7） | 见详情 |
+| WXG-T-140 | beads·谜面可读性裁定 (b)「L11 目标色环」落盘 | 主理人(WorkBuddy) | ✅ 完成（accessibility §5.4 关项 + assets-spec §1.1/§1.2/§1.8 基线④ + bead-grid L74 循环论证改正 + 草稿图同步；零 §3 变更） | 见详情 |
+| WXG-T-141 | beads·参考竞品四项裁定落盘（托盘 24 槽 / 缩放手势 / HUD / 失败页确认） | 主理人(WorkBuddy) | ✅ 完成（systems-index v1.24：TRAY_BASE/EXPAND 6→24 + 4 行态几何重验注记；tray-spawner v2.1；concept v1.3 D13；input-control v2.2；ux-spec v1.6；参考文档 §8 回填；§3.5/§3.11 零变更） | 见详情 |
+| WXG-T-142 | beads·谜面可读性载体切换 B′「目标色垫·垫色显缝」 | 主理人(WorkBuddy) | ✅ 完成（assets-spec v1.5-r5：L11 垫 + BEAD_DRAW_INSET=2；accessibility §5.4 终裁；bead-grid L74；基线 1828 不变；零 §3 变更） | 见详情 |
 
 > 注 1：T-016/T-017 的产出实际由 CodeBuddy 侧会话完成（用户授权路径），本台账为跨 IDE 统一追认。
 > 注 2（第二次撞号追认）：CodeBuddy 会话后续又将 CI/CD 与 ADR-0009 误编为 016/017，已按 T-021/T-022 归位；其提交信息与任务单内嵌旧号不回改，以本台账为准。

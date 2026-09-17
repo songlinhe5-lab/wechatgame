@@ -17,8 +17,6 @@ import {
   GRID_MIN_ROWS,
   LEVEL_TIME_MAX,
   LEVEL_TIME_MIN,
-  SPAWN_INTERVAL_MAX,
-  SPAWN_INTERVAL_MIN,
   stageParamsFor,
 } from '../src/config/tuning.js';
 import {
@@ -128,7 +126,10 @@ describe('beads BOOT validator (architecture-beads §6)', () => {
     expect(hasError(validateBeadsLevel(ten), `> BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`)).toBe(true);
   });
 
-  it('rejects time and spawn interval outside their §3.5 / §3.4 bands', () => {
+  // ⛔ 供料残余（E3 移交 / E5 清理）：`spawnInterval` 字段已随供料关停在
+  // levels JSON version 2 删除，其区间校验与这 3 条判据一并作废
+  // （levels-spec v1.2：「version:2 清理时删除」）。
+  it('rejects time outside its §3.5 band (v1.23: [120, 420])', () => {
     expect(
       hasError(validateBeadsLevel(simpleTestLevel({ time: LEVEL_TIME_MIN - 1 })), `time ${LEVEL_TIME_MIN - 1}`),
     ).toBe(true);
@@ -138,21 +139,6 @@ describe('beads BOOT validator (architecture-beads §6)', () => {
     // NaN 是 number，且与任何数比较都为 false —— 若用 `typeof === 'number'` 判定就会漏网，
     // 结果是倒计时恒为 NaN、归零失败永不触发（关卡既赢不了也输不了）。
     expect(hasError(validateBeadsLevel(simpleTestLevel({ time: Number.NaN })), 'time NaN')).toBe(true);
-    expect(
-      hasError(validateBeadsLevel(simpleTestLevel({ spawnInterval: Number.NaN })), 'spawnInterval NaN'),
-    ).toBe(true);
-    expect(
-      hasError(
-        validateBeadsLevel(simpleTestLevel({ spawnInterval: SPAWN_INTERVAL_MIN - 0.1 })),
-        `spawnInterval ${SPAWN_INTERVAL_MIN - 0.1}`,
-      ),
-    ).toBe(true);
-    expect(
-      hasError(
-        validateBeadsLevel(simpleTestLevel({ spawnInterval: SPAWN_INTERVAL_MAX + 0.1 })),
-        'spawnInterval',
-      ),
-    ).toBe(true);
   });
 
   it('rejects too many decoys, illegal decoys and decoys colliding with the pattern', () => {

@@ -217,7 +217,7 @@ describe('S9 pause & settings', () => {
   // 改为恢复后**零供料**反证（长跑 > 原 SPAWN_INTERVAL 仍零珠零事件）。
   it('§8-2 resume after 300 s keeps remaining; the feed stays dead (zero spawn)', () => {
     const harness = createBeadsHarness({
-      levels: [simpleTestLevel({ spawnInterval: 4.0 })],
+      levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s9c2',
     });
     const game = harness.game;

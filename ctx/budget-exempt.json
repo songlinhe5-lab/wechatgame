@@ -230,6 +230,12 @@
       "reason": "已安装的 skill 正本（my-skills/**，第三方/上游 skill 安装产物），开发期按 skill 清单入口读，从不整读这些 docs",
       "note": "代登记（2026-09-17，全量提交批次）：vendor/安装会话未登记豁免致 commit 守卫阻断；归属 = skills 安装会话",
       "taskId": "vendor-skills"
+    },
+    {
+      "path": "memory/INDEX.md",
+      "reason": "memory 摘要层索引（ctx:build 生成产物），行号与最终索引强同步，拆分会破坏锚点",
+      "note": "WXG-T-139（2026-09-17）随会话记录增长越至 8067 tok（超 67）。生成器产物 ⇒ 由 tasks:archive / ctx:build 周期收敛，不手工拆",
+      "taskId": "WXG-T-139"
     }
   ]
 }

@@ -150,15 +150,59 @@ export const SPAWN_INTERVAL_MAX = 6.0;
 // ──────────────────────────────────────────────────────── §3.5 timer / fail
 /** Default level countdown (s); levels may override within [MIN, MAX]. */
 export const LEVEL_TIME_DEFAULT = 300;
-/** Level time legal minimum (s). */
-export const LEVEL_TIME_MIN = 180;
+/**
+ * Level time legal minimum (s).
+ *
+ * **v1.23 冻结变更 180 → 120**（WXG-T-138 提案 Q10，用户拍板；WXG-T-139 落码）：
+ * 下沿随 `LEVEL_TIME_OVERRIDE = clamp(k × 45s, 120, 420)` 放宽——k = 1/2 的关
+ * 定价 45/90 s，一律被钳到 120 s 下限（systems-index §3.5 合法区间 [120, 420]）。
+ * 旧值 180 会让 L1–L4（120/120/120/135 s）在 BOOT 被自家校验器拒收。
+ */
+export const LEVEL_TIME_MIN = 120;
 /** Level time legal maximum (s). */
 export const LEVEL_TIME_MAX = 420;
+/**
+ * 单位错位对的定价（s/对）——`LEVEL_TIME_OVERRIDE` 公式的系数（§3.5 v1.23 冻结）。
+ * 8 关 k 曲线 [1,2,2,3,4,5,6,8] ⇒ 120/120/120/135/180/225/270/360 s。
+ */
+export const LEVEL_TIME_PER_PAIR = 45;
+
+/**
+ * **时间按 k 定价**（§3.5 v1.23）：`clamp(k × LEVEL_TIME_PER_PAIR, MIN, MAX)`。
+ * `k` 非有限 / 非正时按 `LEVEL_TIME_DEFAULT` 兜底（不产生 NaN 倒计时——NaN 永
+ * 不到零 = 唯一失败条件永不触发，见 `levels.ts` 同款注释）。
+ */
+export function levelTimeFor(pairs: number): number {
+  if (!Number.isFinite(pairs) || pairs <= 0) return LEVEL_TIME_DEFAULT;
+  const raw = Math.floor(pairs) * LEVEL_TIME_PER_PAIR;
+  return Math.max(LEVEL_TIME_MIN, Math.min(LEVEL_TIME_MAX, raw));
+}
 /** Urgent threshold (s): timer switches to danger presentation. */
 export const TIMER_URGENT_T = 10;
 /** Display refresh granularity (s); internal accumulation is per-dt. */
 export const TIMER_TICK = 1.0;
 /** Failure condition is *only* the countdown reaching zero (tray full never fails). */
+
+// ────────────────────────────────────────────────────── §3.13 misplaced (v1.22/1.23)
+/**
+ * 单关错位交换对数下限（§3.13 冻结）：0 对 = 无错位 = 无玩法 ⇒ BOOT 拒收。
+ */
+export const MISPLACED_PAIRS_MIN = 1;
+/**
+ * 单关错位交换对数上限（§3.13 冻结）：= 色板 8 色上限的保守界，防单色全灭型死局。
+ */
+export const MISPLACED_PAIRS_MAX = 8;
+/**
+ * 环长分布 `cycleProfile` 的目标环长（v1.23 增补，**levels JSON 建议值、不冻结**）。
+ * 环 = 「珠→格→珠」追踪链：`short` 全 2-环（短对换）、`mixed` 长短混合、
+ * `long` 偏长环。k 相同下长环更难（心理难度），但**长环会让错位珠数 = k + 环数
+ * 而非 2k**——与 levels-spec §2.1 恒等式冲突，故 8 关数据暂一律取 `short`
+ * （恒等式与 §3 表「2k」优先），长环留给 playtest 调参。详见
+ * `game/misplaced-assembler.ts` 文件头。
+ */
+export const CYCLE_LEN_SHORT = 2;
+export const CYCLE_LEN_MIXED = 3;
+export const CYCLE_LEN_LONG = 5;
 
 // ─────────────────────────────────────────────────────────── §3.6 powerups
 /**

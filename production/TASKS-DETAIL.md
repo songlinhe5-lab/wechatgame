@@ -1961,3 +1961,80 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - **本单不改**：`src/**`（工程落码另排，不与 T-137 竞写）、`levels-01-08.json`（逐关 time 按公式复核属数据侧后继）、`score-combo.md`（归位连击机制节后继补）、`save-progress.md`（幽灵开关字段后继补）、art 侧文档（主题材质与托盘 6 槽面板视觉归 WXG-T-131 域）。
 - **后继（候选 backlog）**：① score-combo 增「归位连击」机制节（streak ≤4 档、音高表走 audio-events 变更单）；② levels JSON 逐关 time 复核；③ art：珠材质主题视觉规格 + 托盘 6 槽面板收窄；④ save-schema 幽灵开关字段；⑤ 生成器工具链化（印章库扩充 + `tools/scripts/`）。
 - **提交**：未 commit（待用户指示；台账 blob 法回填见下）。
+
+## WXG-T-139
+
+- **名称**：**beads · E5：错位装配器（swaps）+ BOOT 校验器 + levels JSON v2（Epic T-133 · 依赖 E1/E3/E4）**
+- **负责**：程基岩(engineering-lead)　**状态**：🔄 进行中（2026-09-17 派工）　**P1**
+- **⚠️ 规格真源已升版**：`systems-index` **v1.23**（WXG-T-138「大胆重制」已落盘）在 §3.13 基础上新增了 E5 直接消费的冻结项，**一律以 v1.23 为准**（不要照 v1.22 的旧表施工）：
+  - `MISPLACED_PAIRS_MIN/MAX = [1,8]`（区间冻结）；逐关 k 曲线建议值 `[1,2,2,3,4,5,6,8]`（L1→L8，`[待 playtest]`，调值走 levels JSON）
+  - 交换构造法 `swaps: [[r1,c1,r2,c2], ...]`；**可解性由构造保证**（可逆置换）
+  - **`cycleProfile`**（v1.23 增补）：第二难度旋钮（k 相同下长环更难），levels JSON 建议值、**不冻结**
+  - `TRAY_BASE_SLOTS` **12 → 6**（v1.23 冻结变更）
+  - **`LEVEL_TIME_OVERRIDE = clamp(k × 45s, 120, 420)`**（v1.23 新冻结：**时间按 k 定价**）
+  - 其他：`levels-spec v1.2`（`misplaced` 字段、§5 时长预估重推）、`core-loop v2.0` §2.1（BOOT 校验 swaps）、`timer-gameover v1.3`（重置 = 恢复初始错位布置）
+- **范围（分两段落盘，见下）**：
+  1. **装配器**：从 pattern 生成「正确解」→ 按 `swaps`（受 `cycleProfile` 约束）执行 k 次两两交换 ⇒ 错位局面（可解性由构造保证，无需运行时搜索）。
+  2. **BOOT 校验器**：坐标可填、每对珠色不同、k ∈ [1,8]、`misplaced === 2 × swaps.length` 恒等式、`cycleProfile` 合法性；不合法则拒收（沿用既有 BOOT 拒收与报错形态 `L<id> row.. col..`）。
+  3. **levels JSON v2**：8 关数据（k 曲线 + swaps/cycleProfile 字段）+ `version` 升级 + 时间按 k 定价落地。
+  4. **收尾移交项**：① `levels-data.ts` 逐关 `spawnInterval` 与 `levels.ts` 区间校验的**供料残余消费**清理（E3 移交）；② crash-snapshot 扩**错位珠色**字段（E1 遗留①，当前按底色就位会「复活成就位」）。
+  5. **单测**：装配器确定性（同 seed 同局面）、恒等式、各校验分支拒收、8 关数据全过 BOOT、时间公式边界（k=1→120s 下限、k 大→420s 上限）。
+- **❗ 不做**：渲染（E6）、QA 判据（E7）。**禁改** `design/**`（规格已冻结，若发现规格缺项**先回传**）、`packages/**`、`production/qa/**`、`src/view/**`。
+- **Output Path**：`games/beads/src/game/**`、`games/beads/src/levels*.ts`（或既有关卡装配模块）、`games/beads/src/config/tuning.ts`（仅本单常量）、`games/beads/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-139` 小节（追加）。
+- **验收**：`pnpm -F @wxgame/beads test` 全绿（**284 例零回归**）；`pnpm run verify`（`check:size` 存量不算）。**不 commit/push**。
+- **⚠️ 规格基线说明**：施工中规格已升 **v1.23**（WXG-T-138「大胆重制」，另一会话）——E5 消费面全部按 v1.23 对齐（`TRAY_BASE_SLOTS` 6 槽、`LEVEL_TIME_OVERRIDE = clamp(k×45s, 120, 420)`、`cycleProfile` 第二旋钮、冲刺 k 爬梯）。
+- **主理人落码收尾记录（2026-09-17；subagent 完成 80% 后在调试阶段被掐，主理人接手收尾）**：
+  - **装配器**（`src/game/misplaced-assembler.ts`，492 行新文件）：`generatePlan(pattern, pairs, profile, rng)` 生成 k 次交换的**环构造**（底色桶保证环内底色互异；`cycleProfile` 控环长分布）；`assembleBoard` 按 swaps 真交换；`applyMisplacedToGrid` 经 `grid.fill` 写入（BOOT 期绕过 retrieve/place 边，bead-grid §2.1 明文合法）。
+  - **BOOT 校验器**（`validateSwaps` + `levels.ts` 接入）：①对数 ∈ [1,8] ②四元整数/坐标可填/两格不同 ③**恒等式一般式** `misplaced === swaps.length + 环数` ⑤cycleProfile 白名单+与实际环长一致。
+  - **❗ 修掉一个 subagent 死循环**（本轮最重要发现）：`decomposeCycles` 的并查集 `find()` 用 `parent.get(root) !== root` 比较 —— 形状非法的 swap（如三元素 `[0,0,0]`）算出 `b = NaN`，`add(NaN)` 后 **NaN !== NaN 恒真 ⇒ 死循环**，被「坐标越界」用例引爆（整包测试挂起 100s+ 无输出）。修：`!Number.isFinite(a/b)` 守卫跳过非法项。
+  - **❗ 判据修正（自造判据被规格否决）**：subagent 自造了「交换图必须成链，分叉 = 复制珠 = 死局」判据 —— 与 `levels-spec v1.2 §2.1`「交换是**可逆置换**（真交换，非复制）」矛盾：星序 (A,B),(A,C) 恰是 3-环、合法且一般式恒等式成立。⇒ 删「链形/分叉」「环内底色重复」两条，恒等式（一般式）统一覆盖「歪打正着就位」场景。测试同步改写并注明原判据删除理由。
+  - **levels JSON v2**：`levels-01-08.json` 8 关带 `swaps`/`cycleProfile`（k 曲线 [1,2,2,3,4,5,6,8]）；`levels.ts` BOOT 校验接入；时间按 k 定价落地；E3 移交的 `spawnInterval` 残余消费清理（`beads-game.ts` 快照比对死路径 + spawner 缺省化）。
+- **门禁**：`pnpm -F @wxgame/beads test` **314/314 全绿**（27 文件；原 284 零回归 + 新增 30）；`tsc --noEmit` 零错误；`framework:sync:check` ✅。
+- **状态**：**✅ E5 完成**（Epic T-133 进度 5/7）。
+
+## WXG-T-140
+
+- **名称**：beads · 谜面可读性裁定 **(b)「L11 目标色环」** 落盘（accessibility §5.4 P0 关项）
+- **背景与裁定依据**：用户 2026-09-17 在美术草稿确认环节提出「每个珠子底板颜色没有展示，怎么区分珠子是否放对位置」。经查为**真缺口**且已登记在案——珠 50px = 格 50px、同 `radius 11` ⇒ 坑底色被珠体**零露出**，`grep -rn misplaced src/view/` **零命中**（代码侧无错位标记），`assets-spec` L945 自认「本节的凹凸五通道**不能**证明 filled 格谜面可读」。用户从三候选中拍板 **(b) 目标色环**（(a) 缩珠径已驳回——`BEAD` 50 是 §3.3 冻结值；(c) 只标错位珠＝泄底，不采纳）。
+- **本单落盘（规格层，零代码）**：
+  1. `accessibility.md §5` 第 4 条：待裁决 → **已裁定**，记 (b) 采纳 / (a)(c) 驳回理由、**已接受副作用**（视觉噪声 + 与 §1.9.4「must not read as a bead」对偶轻微打架）、**回退第一顺位 = 砍 L11**、后继工程项清单。
+  2. `assets-spec.md §1.1`：十层卡加 **L11 目标色环**行（沿格缘 `roundRect(x+0.02, y+0.02, 0.96, 0.96, r×0.9)`、`stroke mix(pattern_colorIdx,#000,0.30)`、`lineWidth max(2, BEAD×2/50)`；ink 复用 §1.9.2 端点 ⇒ **零新 hex**；环宽常量归 `tuning.ts` ⇒ **零 §3 变更**；**归属「格」而非「珠」**，不随 selected 上移/落座缩放；托盘珠 / `locked` / `empty` **不画**）。
+  3. `assets-spec.md §1.2` `filled` 行：静态层数 10 → **11**，附裁定语义与副作用。
+  4. `assets-spec.md §1.8` 末基线表：新增 **基线 ④ = 1672 + 156 = 1828**（**可达真值非松上界**，因 v1.22 开局即满盘 filled）；记录 **`h` 不变量破例**（每手持珠净值 −1，`h=8⇒1820`、`h=16⇒1812`）。
+  5. `bead-grid.md` L74：「错位/就位：珠色≠底色即可辨」的**循环论证**改正为指向 L11（逻辑态 `misplaced` 判定不变）。
+  6. `games/beads/art/style-drafts-20260917.html`：整屏草稿同步（每颗棋盘珠加目标色环、原蓝虚线标注环撤除）。
+- **本单不改**：`systems-index.md` §3 全部冻结值（零 §3 变更，已在两文显式声明）、`src/**`、`packages/**`、`production/qa/**`、`levels JSON`。`art-bible.md` **亦未改**——经核其 §7.4 已声明「绝对值一律以 `assets-spec` 基线表为唯一真源」，无并存数值需同步。
+- **后继 backlog（需另立单）**：① **渲染层**（`src/view/**`）：view-model 快照对 `filled` 格是否携带 `pattern colorIdx` 需核实（empty 侧已消费同值 ⇒ 源应在，未携带则补字段）；② `tuning.ts` 加环宽常量；③ **真机验收**：「156 格 2px 环」的视觉噪声是否可接受，不可接受 ⇒ 按登记的第一顺位回退砍 L11（−156 层、零玩法语义改变）。
+- **Output Path**：`games/beads/art/accessibility.md`、`games/beads/art/assets-spec.md`、`games/beads/design/gdd/bead-grid.md`、`games/beads/art/style-drafts-20260917.html`、`production/TASKS-DETAIL.md` 的 `## WXG-T-140` 小节（本段）。
+- **验收**：已自检——`L11` 在 `assets-spec.md` 命中 §1.1 / §1.2 / §1.8 三处；`v1.5-r3` 在 art 二文命中；`bead-grid.md` L74 无残留旧句。**本单为纯文档裁定落盘，不涉及单测与 `verify`**。**不 commit/push**。
+## WXG-T-141 · beads·参考竞品四项裁定落盘（托盘 24 槽 / 缩放手势 / HUD / 失败页确认）
+
+- **日期 / 执笔**：2026-09-17，主理人（WorkBuddy）。
+- **背景**：用户提供第三方拼豆游戏高清录屏（1284×2778 @3x），分析见 `design/references/ref-video-2026-09-17-ui-ux-analysis.md`（§10 高清复核）。用户对 4 项待确证问题当场拍板，其中托盘方案**推翻 v1.23 Q9 的 6 槽裁定**。
+- **四项裁定**：
+  1. **缩放交互**：棋盘若引入缩放，**只做双指捏合手势**，无滑轨/按钮控件（对参考竞品左侧「放大镜+竖滑轨」的替代方案）。
+  2. **HUD**：**不设「更多游戏」入口**（用户：「暂时不要」）。
+  3. **失败页**：倒计时归零 → **看广告增加时间，或退出关卡**——与 §3.5/§3.11 现稿完全一致，**零变更**（登记为确认项，非变更项）。
+  4. **托盘定案**：**固定 2 行 × 12 = `TRAY_BASE_SLOTS`=24；扩展 +2 行 × 12 = `TRAY_EXPAND_SLOTS`=24（看广告）**——对 concept 附录 A1 的三次变更，推翻 v1.23 Q9（6 槽滚窗方案）。
+- **落盘清单**：
+  - `systems-index.md` → **v1.24**：§3.4 两常量 6→24 + 诚实记录（容量=手感旋钮非难度闸门，v1.23 滚窗论述作废）+ 托盘槽定位行加「4 行态几何需整体重验」注记；changelog v1.24 全条目。
+  - `tray-spawner.md` → **v2.1**：版本行、§1「24+24 槽」、§2.1「2 行实线 / 2 行虚线」。
+  - `concept.md` → **v1.3**：支柱 2 与 Dynamics 去「滚窗」表述、§7 MVP 托盘口径、新增 **D13**、附录 A 警示行补 v1.24。
+  - `input-control.md` → **v2.2**：多点触控条款加 Should 缩放手势注记 + §9 变更行。
+  - `ux/ux-spec.md` → **v1.6**：HUD 区加三条 v1.6 注记；**头注补记 v1.5 漏升版**（WXG-T-128 的 E4 更正早已入文但头注停在 v1.4，属登记漂移，本次修正）。
+  - `references/ref-video-2026-09-17-ui-ux-analysis.md` §8 待确认清单：1/2/3/5 四项回填裁定闭环。
+- **本单不改**：§3.5/§3.7/§3.10/§3.11/§3.13 全部冻结值；`REVIVE_BONUS_SEC`=60 维持（竞品 180s 仅作基准记录，是否上调 `[待 playtest]`）；`src/**`、`packages/**`。
+- **后继 backlog（需另立单）**：① **art/ux 几何重验**：4 行态（2 实+2 虚）的 `TRAY_BAND` 带高、`btn_expand` 热区 y、与 12 行关卡的热区冲突复检（§3.4 两行旧 y 值已标不作 QA 判据）；② 捏合缩放的实现单（若立项，含 §8 判据新增与多点触控路由修订）；③ T-140 的 L11/B′ 载体选择仍**待用户拍板**（描边环 vs 垫色显缝，见参考文档 §10）。
+- **Output Path**：`games/beads/design/gdd/systems-index.md`、`games/beads/design/gdd/systems-index-changelog.md`、`games/beads/design/gdd/tray-spawner.md`、`games/beads/design/gdd/input-control.md`、`games/beads/design/concept.md`、`games/beads/design/ux/ux-spec.md`、`games/beads/design/references/ref-video-2026-09-17-ui-ux-analysis.md`、`production/TASKS.md`。
+- **验收**：`grep -n "TRAY_BASE_SLOTS.*24" systems-index.md` 命中 §3.4；`v1.24` 命中 changelog 与 systems-index 版本行；五文档版本号与 changelog 互指一致；不涉及测试与 verify（纯文档裁定落盘）。**不 commit/push**。
+
+## WXG-T-142 · beads·谜面可读性载体切换 B′「目标色垫·垫色显缝」（用户拍板）
+
+- **日期 / 执笔**：2026-09-17，主理人（WorkBuddy）。
+- **裁定**：用户拍板 **B′**，把 T-140 采纳的 (b)「L11 目标色环（描边）」载体切换为 **B′「目标色垫·垫色显缝」**。**语义完全不变**（每颗棋盘 filled 格呈现该格目标色暗一档的可见参照，珠色 ≠ 垫色即错位），只换实现：垫 = 画于珠层之下的**单层平面 roundRect 全格**，ink `mix(target,#000,0.30)`（与 empty 坑 S1 同源 ⇒ 零新 hex）；**珠视觉内缩 `BEAD_DRAW_INSET = 2`**（draw rect 46/50，四周露垫 2px 缝）。
+- **诚实记录**：(a)「缩珠径」此前因 `BEAD`=50 是 §3.3 冻结值被驳回——B′ 用**渲染内缩**绕开而非推翻该冻结（`BEAD`=50 仍为格几何/热区真值，零 §3 变更）。行业实证 = 参考竞品同方案（珠 44/格 64/缝 ≈31%，我方缝 8%，**[待 playtest 视认性]**，INSET 可调）。
+- **优点（相对描边环）**：垫是平面 ⇒ 与 §1.9.4「must not read as a bead」**无冲突**；噪声低于 156 条描边环；与 empty 坑语言同源。层数 +1/格不变 ⇒ **基线 ④ = 1828 不变**。
+- **落盘**：`assets-spec.md`（§1.1 L11 行重写 + §1.2 `filled` 行 + §1.8 ④ 表述，标 **v1.5-r5**）；`accessibility.md` §5.4（(b) 留档划线 + 新增 B′ 最终裁定条 + 后继常量改名）；`bead-grid.md` L74（可读性载体改垫）；草稿 `style-drafts-20260917.html` ① 重出（B′ 样张 + 24 槽托盘 + 广告 +24 按钮）。
+- **本单不改**：§3 全部冻结值；层数/基线数值；`src/**`。
+- **后继**：渲染层实现单（核实 view-model 对 `filled` 格携带 pattern colorIdx + `tuning.ts` 加 `BEAD_DRAW_INSET`）；缝宽视认性 playtest。
+- **验收**：`assets-spec` 内「目标色环」仅存于留档划线处；`BEAD_DRAW_INSET` 命中 spec/accessibility；基线 1828 不变。**不 commit/push**。

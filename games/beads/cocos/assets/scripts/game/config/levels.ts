@@ -19,11 +19,10 @@ import {
   GRID_MIN_ROWS,
   LEVEL_TIME_MAX,
   LEVEL_TIME_MIN,
-  SPAWN_INTERVAL_MAX,
-  SPAWN_INTERVAL_MIN,
   stageParamsFor,
   type StageParams,
 } from './tuning';
+import { validateSwaps } from '../game/misplaced-assembler';
 import { LEVELS_DATA, type BeadsLevelRaw } from './levels-data';
 
 export type { BeadsLevelRaw };
@@ -161,7 +160,8 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
     errors.push(`${tag}: pattern colour count ${colors.length} > BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`);
   }
 
-  // time ∈ [180, 420] (§3.5), spawnInterval ∈ [2.0, 6.0] (§3.4).
+  // time ∈ [120, 420] (§3.5 v1.23：下沿随 `clamp(k × 45s, 120, 420)` 由 180 放宽到
+  // 120；k ≤ 2 的关按定价就是 120 s，旧下沿会把它们全部拒收)。
   //
   // `Number.isFinite` (not `typeof === 'number'`): NaN **is** a number, and every
   // comparison against it is false, so a NaN would slip through both bounds. The
@@ -170,14 +170,12 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
   if (!Number.isFinite(level.time) || level.time < LEVEL_TIME_MIN || level.time > LEVEL_TIME_MAX) {
     errors.push(`${tag}: time ${level.time} outside [${LEVEL_TIME_MIN}, ${LEVEL_TIME_MAX}]`);
   }
-  if (
-    !Number.isFinite(level.spawnInterval) ||
-    level.spawnInterval < SPAWN_INTERVAL_MIN ||
-    level.spawnInterval > SPAWN_INTERVAL_MAX
-  ) {
-    errors.push(
-      `${tag}: spawnInterval ${level.spawnInterval} outside [${SPAWN_INTERVAL_MIN}, ${SPAWN_INTERVAL_MAX}]`,
-    );
+
+  // ── 错位构造 `swaps` / `cycleProfile`（levels-spec v1.2 §2.1 + systems-index
+  // v1.23 §3.13；E5 / WXG-T-139）。供料残余 `spawnInterval` 校验随字段一并删除
+  // （levels-spec v1.2：「version:2 清理时删除」，WXG-T-130 供料关停的连带）。
+  for (const error of validateSwaps(tag, level.pattern, level.swaps, level.cycleProfile)) {
+    errors.push(error);
   }
 
   // Decoys: ≤ DECOY_COLORS_MAX, valid chars, and disjoint from pattern colours.
