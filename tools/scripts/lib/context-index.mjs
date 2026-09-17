@@ -347,7 +347,9 @@ export const LIMITS = {
    * 该值同时是 `check-context-budget.mjs` A 项的判定上限；生成器与门禁**共用本常量**，
    * 因此正常路径恒绿，只有手改 / 索引爆炸才会触发。
    */
-  hotFilesMaxTokens: 4000,
+  // WXG-T-144：ROUTES 引用的文件改为**必收**（强制收录，见 renderHotFiles）⇒
+  // 预算上调 4000→4700（常驻观察哨 13500 为软阈值，允许越）。
+  hotFilesMaxTokens: 4700,
 
   /*
    * ── ROUTES.md 常驻预算（WXG-T-039 R5）────────────────────────────────────────
@@ -995,8 +997,13 @@ export function renderHotFiles(index, dist = null) {
     if (estimateTokens(doc) > LIMITS.hotFilesMaxTokens) break;
     best = L;
   }
-  const chosen = [...required, ...optional.slice(0, best)];
-  const omitted = optional.slice(best);
+  // WXG-T-144（D2 断链根治）：ROUTES 引用的文件**必收** —— 它们是协议第二跳的
+  // 正道目标；被前缀扫描裁掉的（超预算巨文件：TASKS-DETAIL 15.6k / cocos-setup 7.3k）
+  // 若落「未收录」节，D2 硬门仍判断链（生成器与守卫规则不一致）。改为**强制收录**：
+  // 文档可能超预算 ⇒ A 项如实 FAIL 并提示调 LIMITS（诚实失败机制已内建）。
+  const routedOmitted = optional.slice(best).filter((f) => routed.has(f.path));
+  const chosen = [...required, ...optional.slice(0, best), ...routedOmitted];
+  const omitted = optional.slice(best).filter((f) => !routed.has(f.path));
   const doc = render(chosen, omitted);
   // 兜底：必收录集自身超预算时如实标注（不得静默越界），由门禁 A 项 FAIL 暴露。
   if (estimateTokens(doc) > LIMITS.hotFilesMaxTokens) return render(chosen, omitted, true);

@@ -395,7 +395,9 @@ if (toArchive.length === 0) {
 
 // ── --write：头注解析（fail loud）──────────────────────────────────────────────
 const headerIdx = lines.findIndex((l) => l.includes('当前已分配至') && l.includes('下一可用号'));
-if (headerIdx < 0 || !/当前已分配至 \*\*WXG-T-\d+\*\*[^，]*，下一可用号 \*\*WXG-T-\d+\*\*/.test(lines[headerIdx])) {
+// ⚠️ 括注内含中文逗号（如「（120 未启用，跳空合规）」）时 [^，]* 会提前断裂
+// （WXG-T-144 实测）⇒ 放宽为非贪婪任意匹配，锚定「，下一可用号」结尾。
+if (headerIdx < 0 || !/当前已分配至 \*\*WXG-T-\d+\*\*.*，下一可用号 \*\*WXG-T-\d+\*\*/.test(lines[headerIdx])) {
   console.error('❌ 头注缺少「当前已分配至 **WXG-T-xxx**…，下一可用号 **WXG-T-xxx**」句式——无法校准，不落盘（fail loud）。');
   process.exit(1);
 }
