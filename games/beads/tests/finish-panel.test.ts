@@ -31,7 +31,7 @@ import {
   finishPanelLayout,
   hitFinishPanel,
 } from '../src/systems/finish-panel.js';
-import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
+import { createBeadsHarness, simpleTestLevel, advancePastClearWave, type Harness } from './helpers.js';
 
 /** 8 关表（正常战役：`core-loop §4` 的「8 关全清」）。 */
 const EIGHT = Array.from({ length: 8 }, (_, i) => simpleTestLevel({ id: 200 + i }));
@@ -67,6 +67,7 @@ function tapFinish(h: Harness, id: 'replay' | 'sprint'): boolean {
 function reachFinish(h: Harness): void {
   fillBoard(h);
   expect(h.game.phase).toBe('level-clear');
+  advancePastClearWave(h); // 裁定 1（WXG-T-146）：波浪期内面板不可命中
   expect(tapClear(h, 'next')).toBe(true);
   expect(h.game.phase).toBe('finish');
 }
@@ -184,6 +185,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     fillBoard(h);
     expect(h.game.phase).toBe('level-clear');
     expect(h.game.levelIndex).toBe(0);
+    advancePastClearWave(h);
     expect(tapClear(h, 'next')).toBe(true);
     expect(h.game.phase).toBe('playing');
     expect(h.game.levelIndex).toBe(1);
@@ -192,6 +194,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     h.game.goToLevel(7);
     fillBoard(h);
     expect(h.game.phase).toBe('level-clear');
+    advancePastClearWave(h);
     expect(h.game.clearPanel.interactive).toBe(true); // 面板在等按钮（末关主钮 = 查看结果）
     expect(tapClear(h, 'next')).toBe(true);
     expect(h.game.phase).toBe('finish');

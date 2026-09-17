@@ -51,6 +51,8 @@ import {
   WRONG_HOLD_MS,
   WRONG_FADE_OUT_MS,
   SWEEP_ALPHAS,
+  WAVE_MS,
+  WAVE_LOD_LAYERS,
   HINT_PULSE_MS,
   DANGER_PULSE_MS,
   TRAY_FULL_PULSE_MS,
@@ -125,7 +127,8 @@ import {
   sprintSettleRows,
 } from '../systems/sprint-settle.js';
 import { comboBurst, comboParticleOffsets } from './combo-vfx.js';
-import { SWEEP_LAYER_COUNT, sweepCenterX, sweepQuad } from './scene-vfx.js';
+import { SWEEP_LAYER_COUNT, sweepCenterX, sweepQuad, waveEnvelope, waveWindowMs } from './scene-vfx.js';
+import type { WaveEnvelope } from './scene-vfx.js';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -686,6 +689,11 @@ function drawGrid(
     shadowAlpha: 0,
     shadowDy: 0,
   };
+  // G4 `vfx_complete_wave`（WXG-T-146）：同样**循环外**建槽，逐列覆写。
+  // D1（`reduceMotion`）= 整条关停（§1.6.4）：合法性 = 结算面板本身即信息通道（A6）。
+  const wave: WaveEnvelope = { scale: 1, dy: 0, active: false };
+  const waveT = snap.waveProgress > 0 && !snap.reduceMotion ? snap.waveProgress * WAVE_MS : -1;
+  const waveWindow = waveWindowMs(snap.gridCols);
   for (let i = 0; i < snap.gridRows; i++) {
     for (let j = 0; j < snap.gridCols; j++) {
       const cell = snap.cells[i * snap.gridCols + j]!;
@@ -745,7 +753,12 @@ function drawGrid(
       // G1 落座回弹（WXG-T-128）：单格、相位由 game 侧单调标量驱动（L5 ⇒ 视图不持状态）。
       //   ⛔ scale 只进珠体：`padColorIdx` 走 `outer`、**不参与 scale**（§1.6.1 层序死结论）。
       const isPop = i === snap.placeRow && j === snap.placeCol && snap.placeProgress > 0;
-      if (isPop) fillPopEnvelope(snap.placeProgress, snap.reduceMotion, pop);
+      // G4 波浪**先算**：本列正在弹跳时让 G1 落座回弹让位 —— 两者不叠加，
+      // 否则重叠窗口（≤120ms）会产出「波浪 scale + 落座 α/宽比」的错配帧。
+      if (waveT > 0) waveEnvelope(j, waveT, waveWindow, wave);
+      const isWave = wave.active;
+      const popActive = isPop && !isWave;
+      if (popActive) fillPopEnvelope(snap.placeProgress, snap.reduceMotion, pop);
       // WXG-T-148 用户反馈：① 错位珠恒亮白环（可选取标识）；② board 锚珠抬起
       // （lift 沿用托盘 selected 语义，垫不参与 lift ⇒ 珠上移露垫 = 抬起读数）。
       // ③④（WXG-T-148 用户裁定）：锚 = 8 邻接连通错位珠组 —— 组内全格统一抬起。
@@ -767,12 +780,20 @@ function drawGrid(
         draft.lift = -6;
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
-      if (isPop) {
+      if (popActive) {
         draft.scale = pop.scale;
         draft.contactAlpha = pop.contactAlpha;
         draft.contactWidth = pop.contactWidth;
         draft.shadowAlpha = pop.shadowAlpha;
         draft.shadowDy = pop.shadowDy;
+      }
+      // G4 波浪（逐列，错峰 20ms）：只给 **scale + dy**（`L0a/L0b` **不做 α 联动** —— §1.6.4
+      // 几何行：集体波浪逐颗联动会让 CPU 与视觉都变噪，只保形变）+ 本卡降档 `lodLayers`。
+      // ⛔ 垫不参与：`scale` 仅珠体、`lift` 不带动 L11（§1.6.1 层序死结论）。
+      if (isWave) {
+        draft.scale = wave.scale;
+        draft.lift = wave.dy; // y 轴向上 ⇒ +dy = 微抬
+        draft.lodLayers = WAVE_LOD_LAYERS;
       }
       const opts: FilledBeadOptions = draft;
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);

@@ -13,6 +13,7 @@ import {
   createBeadsHarness,
   simpleTestLevel,
   placeColor,
+  advancePastClearWave,
   type Harness,
 } from './helpers.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
@@ -495,6 +496,7 @@ describe('S9 pause & settings', () => {
     });
     fillBoard(finished.game);
     expect(finished.game.phase).toBe('level-clear');
+    advancePastClearWave(finished); // 裁定 1（WXG-T-146）：波浪期内面板不可命中
     const clearPrimary = clearPanelLayout({ lastLevel: true }).buttons[0]!.rect;
     tap(
       finished.game,

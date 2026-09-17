@@ -239,9 +239,12 @@ export function drawFilledBead(
 
   // L11 目标色垫（v1.5-r5）—— 画于珠十层之下（渲染序 L11 → L0a…L5）；
   // 平面、零投影零高光（「不读作珠」§1.9.4）。
+  // ⛔ 垫锁在**格心 `cy`**，不吃 `lift`（§1.6.1 层序死结论 / P0 陷阱 #2：「不参与 `scale` ·
+  //   不参与 `lift` · 恒锁格缘 · 恒画」）。旧写法用 `y` ⇒ G4 波浪（`lift = dy`）与 T-148
+  //   锚组抬起（`lift = -6`）会把垫一起抬走，「珠上移露垫」的读数被自身抹除。
   if (options.padColorIdx !== undefined) {
     const pad = beadEndpoints(options.padColorIdx);
-    builder.rect(cx - outer / 2, y - outer / 2, outer, outer, {
+    builder.rect(cx - outer / 2, cy - outer / 2, outer, outer, {
       fill: pad.edge,
       radius: Math.round(outer * BEAD_CARD.radius),
     });

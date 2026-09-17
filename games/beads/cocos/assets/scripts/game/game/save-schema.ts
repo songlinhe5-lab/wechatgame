@@ -31,9 +31,16 @@ export interface BeadsSettings {
 }
 
 export interface BeadsSave extends SaveDocument {
-  version: 2;
+  version: 3;
   /** Runs started — the "first launch" test is `runs === 0` (S1 §8-1). */
   runs: number;
+  /**
+   * 显式「已完成首屏引导」标记（WXG-T-097 · BD-32）：`runs` 每次 BOOT 自增、
+   * 不能作「是否见过引导」的真源（首玩落子前杀进程 ⇒ runs=1 ⇒ 旧判定永久失
+   * 引导）。首次落子置 true 并落盘；`normalizeBeadsSave` 对**无字段的 v2 存量档**
+   * 以 `runs > 0` 一次性迁移（老玩家不重看引导）。
+   */
+  onboarded: boolean;
   /** Highest unlocked level, 1-based, clamped to `[1, levelCount]`. */
   maxUnlockedLevel: number;
   /** Level to resume on boot, 1-based. Out of range degrades to 1. */
@@ -56,7 +63,7 @@ export interface BeadsSave extends SaveDocument {
 export const SAVE_KEY = 'wxgame.beads.save.v1';
 /** Where an unreadable document is preserved before being discarded. */
 export const BACKUP_KEY = 'wxgame.beads.save.v1.bak';
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /**
  * v1 → v2（WXG-T-088）：新增可访问性开关 `reduceMotion`（D1）与 `largeText`
@@ -67,10 +74,27 @@ export function migrateV1ToV2(doc: Record<string, unknown>): Record<string, unkn
   return { ...doc, version: SAVE_VERSION };
 }
 
+/**
+ * v2 → v3（WXG-T-097 · BD-32）：新增显式引导标记 `onboarded`。迁移**只升版本号
+ * 并原样透传旧字段**——缺省字段交由 `normalizeBeadsSave` 判定：无 `onboarded` 的
+ * v2 存量档以 `runs > 0` 一次性迁移（玩过的 = 已引导），新档由 default 显式 false。
+ */
+export function migrateV2ToV3(doc: Record<string, unknown>): Record<string, unknown> {
+  // ⚠ 迁移必须在**本函数**内落 `onboarded`：SaveManager.load 会先用 defaults 补
+  // 缺字段再交给 normalize ⇒ normalize 层无法区分「v2 无字段」与「显式 false」。
+  // 存量玩家（runs>0）一次性迁移为已引导；v3 后字段由 default/写入恒在。
+  return {
+    ...doc,
+    onboarded: doc['onboarded'] !== undefined ? doc['onboarded'] === true : num(doc['runs'], 0) > 0,
+    version: SAVE_VERSION,
+  };
+}
+
 export function defaultBeadsSave(): BeadsSave {
   return {
     version: SAVE_VERSION,
     runs: 0,
+    onboarded: false,
     maxUnlockedLevel: 1,
     currentLevel: 1,
     sprintBestScore: 0,
@@ -159,6 +183,7 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
   const save: BeadsSave = {
     version: SAVE_VERSION,
     runs: num(raw['runs'], 0),
+    onboarded: raw['onboarded'] === true,
     maxUnlockedLevel: maxUnlocked ?? 1,
     currentLevel: current ?? 1,
     sprintBestScore: num(raw['sprintBestScore'], 0),

@@ -28,7 +28,7 @@ import {
 } from '../src/systems/clear-panel.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
-import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
+import { createBeadsHarness, simpleTestLevel, advancePastClearWave, type Harness } from './helpers.js';
 
 const NORMAL = { lastLevel: false } as const;
 
@@ -159,6 +159,9 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     });
     fillBoard(h);
     expect(h.game.phase).toBe('level-clear');
+    // 裁定 1（WXG-T-146）：面板不等波浪演完不开 ⇒ 同帧 `visible === false` 是**新契约**，
+    // 本例意图不变（开 / 不自动推进 / 两个按钮都能退场），故推进过门再断言。
+    advancePastClearWave(h);
     expect(h.game.clearPanel.visible).toBe(true);
 
     h.advance(3); // 旧实现会在 1.4s 自动进下一关 —— 现在必须原地等按钮
@@ -177,6 +180,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
       saveKey: 'wxgame.beads.test.cp-2',
     });
     fillBoard(sprint);
+    advancePastClearWave(sprint);
     expect(tapButton(sprint, 'sprint')).toBe(true);
     expect(sprint.game.phase).toBe('playing');
     expect(sprint.game.mode).toBe('sprint');
@@ -220,6 +224,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     h.advance(0.5);
     fillBoard(h);
     expect(h.game.phase).toBe('level-clear');
+    advancePastClearWave(h); // 面板未开 ⇒ 无绘制命令（裁定 1）
 
     const remaining = h.game.snapshot.clearRemaining;
     expect(Number.isInteger(remaining), `clearRemaining 应为整秒，实为 ${remaining}`).toBe(true);

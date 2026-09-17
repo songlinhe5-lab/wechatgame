@@ -11,6 +11,7 @@
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand, type RectCommand, type TextCommand } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
+import { SAVE_KEY } from '../src/game/save-schema.js';
 import type { RewardedAdProvider } from '@wxgame/framework';
 import {
     AD_PLACEHOLDER_HINT_TEXT,
@@ -109,22 +110,29 @@ describe('T-087 GAP-03 首屏引导', () => {
         expect(h.game.snapshot.guideSlot).toBe(-1);
     });
 
-    it('returning player (runs>0): zero onboarding from the first frame', () => {
-        const first = createBeadsHarness({
+    it('returning player (runs>0 v2 存量档): zero onboarding from the first frame', () => {
+        // WXG-T-097 BD-32：判定改显式 `onboarded` 标记后，「BOOT 未落子即退出」
+        // **应**再看引导（这正是本 BD 修的洞）⇒ 回访老玩家场景改用 v2 存量档
+        // （runs=5，normalize 一次性迁移 onboarded=true）表达。
+        const storage = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createStorage();
+        storage.set(SAVE_KEY, JSON.stringify({
+            version: 2,
+            runs: 5,
+            maxUnlockedLevel: 1,
+            currentLevel: 1,
+            sprintBestScore: 0,
+            sprintBestStage: 0,
+            starsByLevel: [],
+            settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false },
+        }));
+        const h = createBeadsHarness({
       noAssemble: true,
             levels: [simpleTestLevel()],
-            saveKey: 'wxgame.beads.test.t087-return',
-        });
-        const storage = first.storage;
-        first.advance(1 / 60);
-        const second = createBeadsHarness({
-      noAssemble: true,
-            levels: [simpleTestLevel()],
-            saveKey: 'wxgame.beads.test.t087-return',
+            saveKey: SAVE_KEY,
             storage,
         });
-        second.advance(1 / 60);
-        expect(second.game.snapshot.onboarding).toBe(false);
+        h.advance(1 / 60);
+        expect(h.game.snapshot.onboarding).toBe(false);
     });
 });
 

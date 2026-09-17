@@ -36,7 +36,7 @@ import { pausePanelLayout, type PanelRect, type PausePanelAction } from '../src/
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import { finishPanelLayout } from '../src/systems/finish-panel.js';
 import { failPanelLayout } from '../src/systems/fail-panel.js';
-import { createBeadsHarness, simpleTestLevel, tapInFrame, type Harness } from './helpers.js';
+import { createBeadsHarness, simpleTestLevel, tapInFrame, advancePastClearWave, type Harness } from './helpers.js';
 
 // ─────────────────────────────────────────────────────────────────────── helpers
 
@@ -127,6 +127,9 @@ function setupLevelClear(h: Harness): void {
     }
   }
   expect(h.game.phase).toBe('level-clear');
+  // 裁定 1（WXG-T-146）：面板要等 G4 波浪演完才开 ⇒ 装配阶段就推过门，
+  // 后面的「点面板按钮」才能命中（本文件测的是输入路由链，不是面板延迟本身）。
+  advancePastClearWave(h);
 }
 
 /** 装配：单关表填满 → 结算面板主钮（末关文案「查看结果」）⇒ 进 `FINISH`。 */

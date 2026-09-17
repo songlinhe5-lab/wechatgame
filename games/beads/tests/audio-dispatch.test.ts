@@ -40,6 +40,7 @@ import {
   AUDIO_TRAYFULL_MIN_INTERVAL,
   AUDIO_URGENT_BEAT_PERIOD,
   AUDIO_URGENT_MIN_INTERVAL,
+  CLEAR_PANEL_DELAY_MS,
   TIMER_URGENT_T,
 } from '../src/config/tuning.js';
 import { BEADS_AUDIO_VOICES } from '../src/config/audio-voices.js';
@@ -447,7 +448,9 @@ describe('A05-18 · 面板入 / 出（四个面板态全覆盖）', () => {
 
     const c = makeHarness(2); // 两关：「下一关」才会回 PLAYING（单关会改道 FINISH）
     fillBoard(c);
-    tick(c, 0.1);
+    // 裁定 1（WXG-T-146）：`sfx_panel_in` 跟面板同到 ⇒ 面板在波浪（CLEAR_PANEL_DELAY_MS）后开。
+    // 本例意图不变（进/出各一次），只是推进量从 0.1s 抬到过门；走 `tick` 而非 helper 是为了帧末 flush。
+    tick(c, CLEAR_PANEL_DELAY_MS / 1000 + 0.1);
     expect(c.game.phase).toBe('level-clear');
     expect(c.audio.played).toContain(AUDIO_CLIP_PANEL_IN);
     expect(c.audio.played).toContain(AUDIO_CLIP_CLEAR);

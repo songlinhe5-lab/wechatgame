@@ -279,8 +279,14 @@ export const AD_PLACEMENTS = 4;
 export type PowerupType = (typeof POWERUP_TYPES)[number];
 
 // ──────────────────────────────────────────────────────── §3.11 fail revive
-/** Seconds written onto the playable clock after a completed fail-page ad. */
-export const REVIVE_BONUS_SEC = 60;
+/**
+ * Seconds written onto the playable clock after a completed fail-page ad.
+ * **v1.25 冻结变更 60→180**（WXG-T-149，用户 2026-09-17 拍板）：对齐参考视频
+ * 实测量级（ref-video §10.5：失败挽留后 +180s 原局续打）。原 60 为 WXG-T-057
+ * 初版值。注意星级口径不受影响：`computeClearStars` 的 `starRemaining` 扣减
+ * 与 `revived` 2★ 封顶逻辑按本常量自动放大，无需另改。
+ */
+export const REVIVE_BONUS_SEC = 180;
 /** Successful revives allowed per attempt (reset on full level restart). */
 export const REVIVE_MAX_PER_LEVEL = 1;
 

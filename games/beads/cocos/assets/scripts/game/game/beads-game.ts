@@ -138,6 +138,7 @@ import {
   bootLevel,
   defaultBeadsSave,
   migrateV1ToV2,
+  migrateV2ToV3,
   normalizeBeadsSave,
   preserveCorruptBackup,
   type BeadsSave,
@@ -558,7 +559,7 @@ export class BeadsGame implements Game {
       defaults: defaultBeadsSave,
       // v1→v2（WXG-T-088 可访问性开关）：只升版本号，新字段交由 normalizeSettings
       // 逐字段降级——不注册则 SaveManager 会把旧档判为待迁移而重置丢进度。
-      migrations: { 1: migrateV1ToV2 },
+      migrations: { 1: migrateV1ToV2, 2: migrateV2ToV3 },
     });
 
     // D-03：崩溃恢复档是**另键** sidecar（提案 §5 方案 A）——S8 的键 / version /
@@ -1316,9 +1317,11 @@ export class BeadsGame implements Game {
     this._levelIndex = Math.max(0, Math.min(target - 1, this._levels.length - 1));
     this._setupLevel(this._levelIndex);
 
-    // GAP-03 首屏引导（ux-spec §6.3）：本次 BOOT 前 `runs==0` 才为首玩。
-    // ——必须在下方自增**之前**取（否则首玩也变 1）；老玩家（runs>0）_onboardDone 永 true。
-    this._onboardDone = save ? save.data.runs > 0 : true;
+    // GAP-03 首屏引导（ux-spec §6.3）+ **BD-32（T-097）**：判定改显式 `onboarded`
+    // 标记 —— `runs` 每次 BOOT 自增，作真源会在「首玩落子前杀进程」时永久失引导
+    // （BOOT#1 runs 0→1 落盘 ⇒ BOOT#2 判老玩家）。v2 存量档的迁移在
+    // `normalizeBeadsSave`（runs>0 一次性判 true），此处只信字段。
+    this._onboardDone = save ? save.data.onboarded : true;
 
     if (save) {
       save.patch({ runs: save.data.runs + 1 });
@@ -1915,6 +1918,10 @@ export class BeadsGame implements Game {
         });
         this._armPlaceFx(verdict.row, verdict.col); // G1 落座回弹（`assets-spec §1.6.1`）
         this._onboardDone = true; // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）
+        // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
+        // 写 ⇒ 此处一次性低频 IO 直接 save()。
+        this._save?.patch({ onboarded: true });
+        this._save?.save();
 
         if (this._mode === 'sprint') {
           const score = this._sprint.onPlaced();

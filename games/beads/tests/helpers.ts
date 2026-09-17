@@ -20,6 +20,7 @@ import {
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { BeadsGame } from '../src/game/beads-game.js';
+import { CLEAR_PANEL_DELAY_MS } from '../src/config/tuning.js';
 import type { BeadsLevelRaw } from '../src/config/levels.js';
 
 export interface Harness {
@@ -294,4 +295,17 @@ export function burnToRemaining(
     if (placeWhileBurning) placeAnyMatching(harness.game);
     if (++guard > 60 * 600) throw new Error('burnToRemaining: ran away');
   }
+}
+
+/**
+ * 推进过 G4 过关波浪的门（WXG-T-146 / T-128 裁定 1，ux-spec §5「过关庆祝」行）。
+ *
+ * 裁定 1 的真实语义变更：结算面板**不再与 `LEVEL_CLEAR` 同帧开**——波浪（`WAVE_MS`）
+ * 演完才 `open()`，因为 `drawClearPanel` 首行是全屏遮罩（α0.5）且画在 `drawGrid` 之后，
+ * 同帧开会把庆祝压死。连带后效（本 helper 存在的理由）：波浪期内
+ * `clearPanel.visible === false`、按钮**不可命中**、`sfx_panel_in` 延后、面板绘制命令缺席。
+ * 判据迁移一律走这里 + 余量，**不要**在测试里写字面秒数（真源 = `tuning.ts`）。
+ */
+export function advancePastClearWave(harness: Harness): void {
+  harness.advance(CLEAR_PANEL_DELAY_MS / 1000 + 0.1);
 }

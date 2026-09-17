@@ -27,6 +27,8 @@ const LEVEL_COUNT = 8;
 const validSave = () => ({
   version: SAVE_VERSION,
   runs: 3,
+  // WXG-T-097 BD-32：v3 起显式引导标记（runs>0 的存量语义）。
+  onboarded: true,
   maxUnlockedLevel: 4,
   currentLevel: 3,
   sprintBestScore: 1200,
@@ -42,6 +44,7 @@ describe('beads save schema', () => {
     expect(defaultBeadsSave()).toEqual({
       version: SAVE_VERSION,
       runs: 0,
+      onboarded: false,
       maxUnlockedLevel: 1,
       currentLevel: 1,
       sprintBestScore: 0,

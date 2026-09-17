@@ -45,6 +45,7 @@
   - **改的是驱动口径不是判据**：D1 测试条原走真 `InputManager` 链点面板——`_readInput()` 唯一调用点在 `_stepPlaying` ⇒ PAUSED/level-clear/game-over/finish 四相收不到任何点击（= **BD-34**，用户裁定只立 WXG-T-100 占位、本单不动码）⇒ 面板动作改 `tapDesign` 驱动（与 `pause-settings.test.ts`/探针 P22 同口径）并在用例内写明「不得据此判面板真机可点」。
   - **本轮读数**：beads **238 passed**（22 文件）；探针整轮 54 组 = **PASS 29 / PASS\* 14 / FAIL 2（P4→T-102、P17→BD-12）/ ⛔ 9**，P5 段 FAIL 归零（A05-14 音↔视三方向解耦转 PASS）；证据 `production/qa/beads/evidence/g4-probe-v1.4-t097bd10.log`（`*.log` 被 `.gitignore` 排除，不入库）。**`pnpm run verify` = PASS 12｜SKIP 1（check:size）｜FAIL 1**：唯一红**与本单无关**——仓内**未跟踪**的 `packages/framework/tests/adapters/cocos-touch-origin-contract.test.ts`（**WXG-T-104 阶段 A 自标「今日必红」**的语义锁定用例，另一条线产物，2 failed/258 passed）⇒ 未动不删；BD-10 自身口径由 typecheck 干净 + beads 全量绿 + `framework:sync:check` ✅ 三处自证。
   - **收尾与沉淀**：本轮入 `knowledge/lessons.md` 三条 —— **K-043**（取证脚本装载必在模块 import 之前）、**K-044**（判定上限由判据完备性决定）、**K-045**（并发会话下共享台账禁文件级 `git add`，改 `git diff -U3` → 按 hunk/行过滤 → `git apply --cached` 单挑自己 hunk，并对被剔对象做**计数断言**）。`kb:sync` 沉淀统计 = **新增 1（K-045）｜修改 1（去重 `[K-xxx]` 残留占位——该脚本插号不删占位，本轮第二次遇到）｜激活 0｜归档 0**；`kb:check` 八重通过。**memory 越阈处置（用户拍板「乙」）**：`memory/2026-09-15.md` 本轮段由 1398 tok 压为**「摘要 + 指针」**至 7876 tok（原 8693），**未新增 budget-exempt 豁免条**；细节正本即本节。**遗留机制债**：单日期文件仍会随轮次反复越阈，已按用户要求立项「memory 二级详情文件索引」（下一轮领号；本轮不动并发会话正在写的 `TASKS.md` 头注，以免撞号）。本单提交面：`83be050` → `1654bdc` → `4efe5a6` → `c39ebac` → `cc8065e` → 本笔台账回填（共 6 笔，均含 `WXG-T-097`）。
+- **进度（2026-09-17·BD-32 完整修复）**：核验发现 T-087 只落了「首次落子清引导」（GAP-03），**判定仍是 `runs > 0`** ⇒ BD-32 病灶（首玩落子前杀进程 ⇒ runs=1 ⇒ 永久失引导）仍在。本批按规格「显式 `onboarded` 标记」修全：`save-schema` **v2→v3**（新字段 `onboarded`；`migrateV2ToV3` 内以 `runs>0` 一次性迁移存量档 —— ⚠️ 迁移必须在 migrate 层做：SaveManager.load 先 merge defaults，normalize 层无法区分「无字段」与「显式 false」）+ `beads-game` 判定改纯标记（`:1321`）+ 首次落子 `patch({onboarded:true})` **并显式 `save()`**（patch 只置 dirty，杀进程场景丢写）。测试：新增 `onboarded.test.ts` 4 例（v2 存量迁移 runs=5/0、**病灶回归：BOOT 未落子杀进程 ⇒ 重启引导仍在**、落子后重启不再见）；T-087 回访用例改写为 v2 存量档场景（旧场景「BOOT 未落子即退出」按 BD-32 语义**应**再看引导）；save-schema 测试补字段。全包 336/337（唯一红 = 并发会话 view-model 图元笔，非本单域）。
 - **范围（四项 FAIL/开放项）**：① **BD-15** 扩展入口（`input-control §8-1` 一类路由缺；连带让 `accessibility C1` 有对象）；② **BD-16** 拒绝轻提示（`input-control §8-7` 零反馈；hint 通道 T-087 已就绪，改动极小）；③ **BD-04** 余两类 VFX；④ **BD-10** 满槽告警多通道半边；⑤ **BD-32** 引导判定：`beads-game.ts:947` 以 `runs > 0` 判老玩家而每次 BOOT 自增 ⇒ 开局即杀进程永久失引导，改「首次 `bead:placed`」或显式 `onboarded` 标记。
 - **约束**：BD-32 若改 `runs` 语义/新增字段 ⇒ 走 `save-schema` 版本升位向后兼容（判例 T-088 v1→v2）；**禁**手改 §3，需动常量回传主对话串行落盘 §6；每子项一条细粒度提交含 `WXG-T-097`。
 - **依赖**：T-096（音效与 VFX 同批验收更省一轮）；完成后由 QA 复跑 P8/P10/P4。
@@ -296,8 +297,52 @@
 - **测试**：新增 `misplaced-group.test.ts` 8 例（斜链/断连/单珠/换选重算/整组收进 payload/槽不足零事件/归位通路回归）；`selection-anchor.test.ts` 4 例按组语义改写不删例（payload count、4b 双 stored、满槽腾槽两段）。全包 **335/335**。
 - **⚠️ 规格回填（GDD 批待办）**：`input-control v2.0` §2.1（锚 = 连通组、4b 组化）、`bead-grid v2.0` §2.3（取回组化前提：free ≥ 组大小）、`systems-index §4`（board:selected.count）；术语建议「组锚 = group anchor / 整组收进 = group retrieve」。
 - **状态**：✅ 完成（码 + 测试）；GDD 回填另批。
+- **⚠️ 收口后复核注（2026-09-17，WXG-T-146 会话代补、不改写上文）**：上行「全包 **335/335**」**按其自身提交内容不可重现**——实测 `3359c25` 为 **10 例红**（`clear-panel` / `finish-panel` / `phase-input-realchain` / `pause-settings` / `audio-dispatch` 五文件，均面板族）。根因：**该笔 `git add` 连带扫走了 T-146 在途的 G3/G4 六件 src**（含裁定 1 的面板延迟门），而提交消息与本节均未提这些——即本单测试是在**包含他人未收口代码的工作树**上跑的。归属方已按裁定 1 完成判据迁移（现 **350/350** 绿）。⇒ 纪律回写：多会话同仓时，「全包绿」必须在**提交后的 blob** 上跑（先 `git stash`/`git worktree` 隔离），不能只在工作树上跑。另：本节「lift -6 抬起组」与 L11 垫的相互作用已由 T-146 修正（垫不再随 `lift`，§1.6.1 层序死结论），本单行为不变。
 
 ## WXG-T-146
 
-- **名称**：beads·落码② G3/G2′/G4（含面板延迟与 LOD 通道）—— 主表行照录；详情待归属会话落盘
-- **⚠️ 代登记（2026-09-17，主理人 T-077 收口批次）**：该会话领号后未写本节致 `check:tasks` 红、阻断共享工作树提交。本节为**占位**，请归属会话收口时以实际内容**覆写本节**并追认。
+- **名称**：beads · T-128 「动态质感章」落码② —— G3 道具扫光 / G4 过关波浪（含裁定 1 面板延迟门 + G4 LOD 降档通道）
+- **负责**：主理人(Qoder)　**P1**　**状态**：🔄 进行中（G3/G4 已落，**G2′ 待裁**）
+- **覆写声明**：本节此前为另一会话（T-077 收口批）因 `check:tasks` 配对而建的**占位节**，并邀「归属会话收口时覆写并追认」——本会话即归属方，已按实际内容覆写并**追认占位行为**（占位避免了共享工作树提交被门禁阻断）。
+- **规格真源**：`art/assets-spec.md` §1.6.3（`vfx_powerup_sweep`）/ §1.6.4（`vfx_complete_wave`，**v1.5-r6 B′ 重算后**）/ §1.6.1 层序死结论；毫秒真源 `design/ux/ux-spec.md` §5「道具生效 400」「过关庆祝 800 + 20ms/列」（本单零新造时长、零 §3 变更）。
+- **落码（6 件）**：`tuning.ts` SWEEP_* ×10 + WAVE_* ×8（`SWEEP_Y_MAX = HUD_BAND.yMin` 、`CLEAR_PANEL_DELAY_MS = WAVE_MS` 均为**派生**不写字面）；`game/state.ts` `sweepProgress`/`waveProgress`；`game/beads-game.ts` `_armSweepFx`/`_stepSweepFx` + `_waveElapsedMs`/`_clearPanelPending` + `_stepLevelClear` 门 + `onExit` 清理；**新建 `view/scene-vfx.ts`**（纯函数包络，不 import cc/DOM/wx）；`view/bead-render.ts` `lodLayers` 降档；`view/view-model.ts` `drawSweep()` + `drawGrid` 波浪槽（循环外建、热路径零分配）。
+- **三处口径偏差（与规格书不同处，均已核）**：① §1.6.3 只写通用 `easeInOut(p)` ⇒ 实现取 **smoothstep**；② **`WAVE_LOD_LAYERS = 7` 而非 §1.6.4 初稿 6**（v1.5-r6 重算后 **L11 垫不得进可砍集**）；③ §1.6.3 「扫光在 `drawHud` 之前 ⇒ 被 HUD 压住」的**成因叙述与实码不符**（实码 `drawHud` 在 `drawGrid` 之前、更底层），结论仍成立但只靠 `SWEEP_Y_MAX` 几何排除。
+- **自行派生的裁定（待追认）**：D1（`reduceMotion`）时波浪整条关停 ⇒ 结算面板**不空等 800ms**（庆祝是延迟的唯一理由，只关停动效还延迟 = 纯惩罚）。
+- **⛔ 落码中抓到的真缺陷（P0 陷阱 #2 坐实）**：`bead-render.ts` 的 L11 垫 rect 用 `y = cy + lift` ⇒ **`lift` 会带动垫**，与 §1.6.1「不参与 `lift` · 恒锁格缘」相反。旧约束「`view-model` 不传 `lift` ⇒ 零实害」已被我的波浪（`lift = dy`）与并发会话 T-148 锚组（`lift = -6`）**双双打破** ⇒ 垫改为锁定格心 `cy`。**既有 335 例无一覆盖此点**（本轮 `scene-vfx.test.ts` 补上判据）。
+- **判据迁移（裁定 1 的连带）**：5 文件 10 例（`audio-dispatch` A05-18 / `clear-panel` ×2 / `finish-panel` ×3 / `pause-settings` §8-7 / `phase-input-realchain` ×3）——推进过门后再断言，入口收敛到 `tests/helpers.ts::advancePastClearWave`（真源 = `tuning.ts`，**测试里零字面秒数**）；**判据意图零软化、旁路例零删除**。ux-spec §5 L204 已含该裁定与代价，无需再改（本单 QA 侧只回写 `test-cases.md` v1.9：新增 TC-PER-21/22 + 三行结论就地追加）。
+- **A/B 归属实测（不采信签名推断）**：HEAD 自身即 10 红；把 `view-model.ts` 换回 HEAD 版 → **同样 10 红** ⇒ 与我的波浪接线无关；再将 `CLEAR_PANEL_DELAY_MS = 0` 单常量实验 → 仅救回 **1** 例 ⇒ 真实机制不是「800ms 撞车」而是「**面板不再与 `LEVEL_CLEAR` 同帧可见**」（可见性 / 命中 / `sfx_panel_in` 时机 / 绘制命令四类）。⚠️ 开工时预判「大概率撞 800ms」**方向对、机制错**，若无单常量实验就会把迁移做偏。
+- **验证边界**：vitest **350/350**（+15 新例）、`tsc --noEmit` 0 错；**`[Probe]` / `[Cocos]` / 真机 全部未跑**（K-037：指令流可证 ≠ 屏幕层可证 ⇒ 本单不得作为任何视觉层 PASS 证据）。
+- **收口后复测（同一工作树、非本单改动引入）**：收口时连跑三次全量 = **350 绿 → 351 passed/3 failed → 353 passed/1 failed**（期间并发会话 T-149 正在落 `save-schema` v3 并当场追认其侧断言，本会话未碰这些文件）。余下 1 红已**据实码定位到属他人未提交代码**：`in-level-snapshot §8-11`「落子期 S8 零写」`expected 10 to be 4` ⇒ 工树内 `beads-game.ts:1919-1924` 新增的 `this._save?.patch({ onboarded: true }); this._save?.save();` 在**每次 `placed` 都跑一次全量写盘**（而 `_onboardDone` 首颗后即 true ⇒ 下方引导分支不再进入，**无幂等门**），与本单 G3/G4 零关系。已登记待其自收口；本会话**不当手改他人存折**（互扫风险 > 修红收益）。`tsc --noEmit` 全程 0 错。
+- **提交归属异常（第三例）**：G3/G4 五件 src 与 `scene-vfx.ts` 被并发会话 `3359c25`（T-147）**连带提交且消息未提**；该笔 HEAD 当时 **10 例红**而其详情记「全包 335/335」⇒ 见 `## WXG-T-147` 收口后复核注。
+- **未动（本单遗留）**：**G2′ `vfx_solver_restore`（§1.6.2a）未落码** —— 相 A 的 `slot_border` 状态环与 T-148 的 `selectableRing` 恒亮白环**同格双环**（solver 点名目标必为错位珠），需用户/美术裁定；另：原 `vfx_clear_dissolve`（G2）自 v1.22 道具反转起为**失效规格**（作用对象/触发/批量/payload 四项需重立），已在 TC-PER-11 标注。G5 = T-132、G6 彩带、G7 原子批各自另单。
+
+---
+
+## WXG-T-148
+
+- **名称**：beads·错位珠恒亮白环 + 锚珠抬起（用户反馈 ①②）
+- **负责**：并发会话(Qoder)（非本会话产出）　**状态**：✅ 完成（随 `667d2c5` 落码）　**P1**
+- **本节的性质 = 代登记**：`667d2c5` 提交消息写了 **WXG-T-148**，但**主表行 / 头注 / 详情节三处当时均无此号**（该笔实际回填的是 **T-145** 的行与节——即本会话 G1 的台账由该笔连带提交，属注 7 的「连带提交他人产出」又一例）。缺节会触发 `check:tasks` 的「行/节成对」门禁 ⇒ 由 WXG-T-146 收口时**按提交内容事后补登**，不改写其原提交。
+- **改动面（据 `git show --stat 667d2c5` 逐文件核）**：`src/view/bead-render.ts` +15（`FilledBeadOptions` 新增 `selectableRing`，L5 之上最顶层画外扩白环，α 0.92、随 `lift` 一起动）；`src/view/view-model.ts` +32（`opts` 由三元式改为 `draft` 可变草稿再定型：错位珠 `selectableRing=true`、`board` 锚珠 `lift=-6` + `SELECTED_SHADOW_ALPHA`）；两份 cocos 镜像同步；另有 memory/TASKS/ctx 索引类文件。**零 `src/game/**` 改动**（纯视图层，符合 L5）。
+- **与 WXG-T-146 的交叉影响（两条，均已核）**：
+  1. ⛔ **垫 × `lift`**：本节代码注释写「`lift` 沿用托盘 selected 语义，垫不参与 `lift` ⇒ 珠上移露垫 = 抬起读数」——**该断言在其自身提交时并不成立**（`bead-render.ts` 当时仍 `y = cy + lift`，垫被一起抬走）。T-146 按 §1.6.1 层序死结论修正后，这句注释**才变成事实**，本单行为无需改动、读数由「珠垫同移」变为「珠上移露垫」。
+  2. ⚔️ **同格双环（未决，待裁）**：`selectableRing` 恒亮白环画在**所有错位珠**上，而 G2′ 相 A（`assets-spec §1.6.2a`，尚未落码）要在 solver 点名目标格画 `slot_border` 状态环——solver 的目标按定义就是错位珠 ⇒ 同一格两条环。三种处置候选：① 相 A 期内互斥（点名时压掉白环）② 合并为一条环（改色/改宽表达状态）③ 改墨（相 A 不用描边而用填充/内发光）。已登记在 `## WXG-T-146`「未动」行，等用户或美术（林绘澄）拍板后随 G2′ 落码。
+- ⚠️ **本会话复核另发现四处未登记的几何/基线代价**（据 `bead-render.ts:351-357` 实码读数手算，**非推断**；`size = 46`、`pad = max(3, size×0.07) = 3.22`、`lineWidth = size×0.09 = 4.14` ⇒ 环带 = 距珠心 **半径 24.15 → 28.29**）：
+  1. **压 B′ 谜面缝**：静息缝带 = 半径 23→25（`BEAD_DRAW_INSET = 2`），而环带内缘 24.15 ⇒ **遮掉缝的 0.85px（≈43%）**——但 §1.6.2a / §1.6.4 都把「垫色缝」当作错位可辨性的承重通道（A5）⇒ 白环部分抵消了它自己要辅证的读数。
+  2. **相邻白环糊连**：格距 `BEAD_PITCH = 52` ⇒ 两颗相邻错位珠的环带分别为 24.15–28.29 与 23.71–27.85（自同侧量）⇒ **涂覆区重叠 ≈3.7px**，“逐颗可选”读成“一片白格”（斜向邻居因距离 √2×52 不重叠）。
+  3. **越格缘绘制**：环带外缘 28.29 > 半格 26 ⇒ 恒向外多画 **2.29px 进邻格**；G4 波峰 `scale=1.08` 时外径进一步到 **30.56** ⇒ §1.6.4「峰径 49.68 < pitch 52 ⇒ 零叠压」的结论**只覆盖珠体，不覆盖本环**（该结论成文于 T-148 之前）。
+  4. **静态基线漂移**：错位珠由 **11 层 → 12 层** 且**恒画**（非动画期）⇒ §1.8 / §1.6.9 的 ④ **1828** 未含此层；按 §3.13 `MISPLACED_PAIRS_MAX = 8` 的双向交换上界（2×8 = 16 颗）⇒ 最坏 **+16 rect → 1844**，属**静态回退阀 S1–S4 口径**变更，非动画增量。⇒ 归 art 域重算（本单不代改 §1.8 数值）。
+- **验证边界**：本节代码已在 HEAD，`[Node]` 层随本会话 350/350 绿；**其白环/抬起的实际观感未经 `[Probe]`/真机**（同 T-145/T-146 口径）。
+
+## WXG-T-149
+
+- **名称**：beads · 失败续时 `REVIVE_BONUS_SEC` 60→180 落码 + ref-video §10.7 勘误（用户 2026-09-17 拍板「180s」）
+- **负责**：WorkBuddy 主会话（即头注预警所指「T-149 在途会话」，收到预警后自登本行与节）　**P1**　**状态**：✅ 完成（码 + 文档 + 测试）
+- **用户裁定原文**：「180s」——回应「续时 60s 还是 180s」拍板询问；对齐参考视频失败挽留实测 +180s（`ref-video-2026-09-17` §10.5）。
+- **改动面（4 件）**：
+  1. `games/beads/design/gdd/systems-index.md` §3.11：`REVIVE_BONUS_SEC` 60s→**180s**，节头追加 v1.25 变更注（依据 WXG-T-057 初版 + timer-gameover 曾自标「值得复核」至此闭环）。
+  2. `games/beads/design/gdd/systems-index-changelog.md`：新增 **v1.25** 行（§3.7 星级口径零变更说明：`starRemaining` 扣减按常量自动放大、`revived` 2★ 封顶不变；`proposals/ads-revive.md` 为 2026-09-14 历史推导记录不改）。
+  3. `games/beads/src/config/tuning.ts`：常量落码 180 + 注释（**src 与 cocos 镜像 `cp` 同步，diff 已核 SAME**）。测试零字面量（`revive.test.ts` 等全走常量 import）⇒ 无测试改动。
+  4. `games/beads/design/references/ref-video-2026-09-17-ui-ux-analysis.md` §10.7：**勘误**——原「同向于我方 v1.23 的 k×45s」方向有误（实测 L3 150s→L4 120s **递减**，与 k 递增曲线相反）；样本仅 2 关不足以推断定价公式，我方 `LEVEL_TIME_PER_PAIR=45` 维持不变，补采样本后再议。
+- **测试**：`revive.test.ts` + `timer.test.ts` **15/15 绿**。⚠️ 全包当时 4 例红（`feedback-vfx` / `onboarded` ×2 / `save-schema` ×2）——**与本次改动零关联**（无一引用 `REVIVE_*`；工作树内 `save-schema.ts`/`view-model.ts`/`beads-game.ts` 有并发会话未提交在途改动，归属其单）。git index.lock 被并发进程持有 ⇒ 未能 stash 做 HEAD 基线比对，改以「改动面交集为空 + 常量引用扫描」证伪关联，**非假绿声明**。
+- **边界**：真机/预览未验证（常量级变更，无表现层改动；`failPanelLabel` 等文案消费方走常量自动更新）。

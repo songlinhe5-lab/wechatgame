@@ -187,10 +187,10 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 
 > 冲刺模式细则（连击/特效分级/事件提案 `combo:*`、`sprint:*`）见 `gdd/score-combo.md`；元游戏框架（连胜礼盒/排行/签到）见 `proposals/meta-framework.md` v1.0——M4 大厅 Won't、M5 生命体力永不采纳（2026-09-12 用户定案）。**冲刺不续时**（§3.11）。
 
-### 3.11 失败续时（Revive）· 2026-09-14 用户拍板冻结（WXG-T-057 / T-B）
+### 3.11 失败续时（Revive）· 2026-09-14 用户拍板冻结（WXG-T-057 / T-B）；v1.25 量级变更 60→180（WXG-T-149，用户 2026-09-17 拍板，对齐参考视频 ref-video §10.5 实测 +180s）
 | 常量 | 值 | 说明 |
 |---|---|---|
-| `REVIVE_BONUS_SEC` | 60 s | 失败页激励视频看完（`onRewarded`）后写入可玩钟的秒数 |
+| `REVIVE_BONUS_SEC` | 180 s | 失败页激励视频看完（`onRewarded`）后写入可玩钟的秒数。**v1.25 冻结变更 60→180**（WXG-T-149）：参考视频失败挽留实测 +180s，原 60s 量级差 3 倍（timer-gameover 曾自标"值得复核"） |
 | `REVIVE_MAX_PER_LEVEL` | 1 | 同一次尝试（进关或重试起，至下一次整关重置）成功续时上限 |
 | 激励主位 | 失败页续时 | **布局 A**：唯一 live 激励位。局内 `AD_PLACEMENTS=4`（3 道具+扩展）仅 `ad_badge`，本轮不拉起 |
 | 续打语义 | 不走整关重置 | 保留网格 / 托盘 / 扩展 / 道具次数 / 供料累加器；仅 S5 写 `remaining += REVIVE_BONUS_SEC` 与续时记账（`reviveBonusSec` / `revived`） |
