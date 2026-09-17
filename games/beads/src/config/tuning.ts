@@ -554,6 +554,47 @@ export const FILL_POP_SHADOW_DY_MIN = 2;
  * 同族判例 = `WRONG_FX_RESTART_GATE_MS`（500ms）与 ux-spec §5「放错拒绝」行的 500ms 门。
  */
 export const FILL_POP_RESTART_GATE_MS = 120;
+
+/* G3 `vfx_powerup_sweep` — 道具生效扫光（WXG-T-146，T-128 动态质感章落码②）。
+   规格正本 = assets-spec §1.6.3；毫秒真源 = ux-spec §5「道具生效」行（400ms）。
+   同样属表现层动效参数 ⇒ 落 tuning，**不进 systems-index §3**。 */
+export const SWEEP_MS = 400;
+/** tan(20°)：斜向剪切（非水平带 —— 与 Lv3 burst 的「能量上涌」形态区分）。 */
+export const SWEEP_TAN = 0.364;
+/** 起点：完全屏外左侧（≥ 广层半宽 105 + 余量）。 */
+export const SWEEP_X_FROM = -260;
+/** 终点：完全屏外右侧（750 + 广层半宽 105 + 50）。 */
+export const SWEEP_X_TO = 1010;
+/**
+ * 扫光下/上沿。上沿取 `HUD_BAND.yMin` 而**不写字面 1214**（§3.1 顶部 HUD 带为冻结真源）：
+ * 用户裁定「全屏」= 玩法全屏 `y∈[0, HUD_BAND.yMin]`，不得侵入 HUD 与胶囊避让区。
+ */
+export const SWEEP_Y_MIN = 0;
+export const SWEEP_Y_MAX = HUD_BAND.yMin;
+/** 核心 / 中 / 广（由内向外）；绘制序取**反序**（先广后核心）⇒ 后画的更亮。 */
+export const SWEEP_WIDTHS = [36, 84, 210] as const;
+export const SWEEP_ALPHAS = [0.14, 0.10, 0.06] as const;
+
+/* G4 `vfx_complete_wave` — 过关庆祝波浪（WXG-T-146，同属 T-128 落码②）。
+   规格正本 = assets-spec §1.6.4；毫秒真源 = ux-spec §5「过关庆祝」行（800ms + 20ms/列）。
+   ⚠️ `WAVE_LOD_LAYERS` = **7** 而**不是** §1.6.4 初稿的 6：v1.5-r6 按 B′ 重算后
+   可砍集不得包含 **L11 垫**（垫 = 静态谜面载体，三条理由见§1.6.4 LOD 行）
+   ⇒ 保留集 = L0b+L1+L2+L3+L4c+L5 ⊕ 垫。值变更、**非新增常量**，仍归 tuning 呈现层。 */
+export const WAVE_MS = 800;
+export const WAVE_COL_DELAY_MS = 20;
+export const WAVE_SCALE_PEAK = 1.08;
+export const WAVE_RISE_RATIO = 0.35;
+/** 微抬幅度（与 `WRONG_SHAKE_PX` 同量级；单峰非震动）。 */
+export const WAVE_LIFT_PX = 3;
+/** clamp 下限：GRID_MAX_COLS 13 ⇒ W=560，留 240 兜底防异常。 */
+export const WAVE_WINDOW_MIN_MS = 240;
+/** 弹跳列的降层档（含垫，见上方⚠️）：L0b+L1+L2+L3+L4c+L5 + L11。 */
+export const WAVE_LOD_LAYERS = 7;
+/**
+ * 裁定 1（用户 2026-09-16）：结算面板**延迟 WAVE_MS 开**——庆祝先行放完再落遮罩。
+ * 代价已写入 ux-spec §5（过关到可点按钮多等 800ms）。
+ */
+export const CLEAR_PANEL_DELAY_MS = WAVE_MS;
 /** `hint` / 引导脉冲呼吸周期（α 0.5↔1.0，600ms ≈1.67Hz，落 §3.8 ≤3Hz 红线内）。 */
 export const HINT_PULSE_MS = 600;
 /**

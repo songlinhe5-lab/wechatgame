@@ -271,3 +271,19 @@
 - **提交归属异常（追认）**：本单代码未由本会话 commit，而是由并发会话**连带提交进 `dbb3c1c`（WXG-T-139 补遗）**，提交消息未提 G1 ⇒ 按台账注 2 判例处理：**不回改已入 HEAD 的提交信息，以本台账为准**。本会话至今零提交。
 - **诚实边界**：`[待真机]` = 120ms 回弹的观感与帧率开销（Cocos 构建未接入，同 T-124/T-125/T-128 口径）；`[待 playtest]` = v1.5-r6 提出的幅度重定两候选（谷 0.96→0.92 或 `INSET 2→3`）——本单按**现行冻结规格**实现，未提前改动幅度。
 - **产出**：`games/beads/src/{config/tuning.ts,game/state.ts,game/beads-game.ts,view/bead-render.ts,view/view-model.ts}`、`games/beads/tests/fill-pop.test.ts`、本台账两文件。
+
+## WXG-T-147
+
+- **名称**：**beads · 连通选取 + 整组收进（「错位归位」组语义增强，用户 2026-09-17 裁定）**
+- **负责**：主理人(Qoder)（派单路线对工程单不可靠，本单主理人直接实现）　**P1**
+- **用户裁定原文（设计意图真源）**：
+  > ③「任意相邻错位珠子，相邻包括当前错位珠子和接续的相邻错位珠子，直到找不到相邻的珠子」；④「整组一次性收进，但是不会限制个数，只有槽位数量限制。」
+  另（同批反馈 ①②，已先行交付 `667d2c5`）：错位珠恒亮白环（可选取标识）+ 锚珠抬起。
+- **实现**：
+  - `grid.ts`：`collectMisplacedGroup(row,col)` —— 8 邻接 flood fill 错位珠闭包（就位/空/锁定不连通），行主序。
+  - `beads-game.ts`：`_boardSelected` 扩为「起点 + 组缓存」；`board:selected` payload 增 `count`；新 API `retrieveSelectedGroup(preferredSlot)` —— free 槽 ≥ 组大小 ⇒ 整组逐颗收进（复用 judgeRetrieve 原子 + 逐颗 tray:stored），不足 ⇒ 零事件零状态写；路由 4b 改走组版；`boardSelected` 公共视图只回起点。
+  - `state.ts`：快照增 `boardGroupRows/Cols/Count`（预分配 64，写值不新建）。
+  - `view-model.ts`：组内全格 lift -6 + 加深投影（抬起组）；错位珠 selectableRing 白环。
+- **测试**：新增 `misplaced-group.test.ts` 8 例（斜链/断连/单珠/换选重算/整组收进 payload/槽不足零事件/归位通路回归）；`selection-anchor.test.ts` 4 例按组语义改写不删例（payload count、4b 双 stored、满槽腾槽两段）。全包 **335/335**。
+- **⚠️ 规格回填（GDD 批待办）**：`input-control v2.0` §2.1（锚 = 连通组、4b 组化）、`bead-grid v2.0` §2.3（取回组化前提：free ≥ 组大小）、`systems-index §4`（board:selected.count）；术语建议「组锚 = group anchor / 整组收进 = group retrieve」。
+- **状态**：✅ 完成（码 + 测试）；GDD 回填另批。

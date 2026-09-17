@@ -71,6 +71,9 @@ import {
   WRONG_FX_RESTART_GATE_MS,
   FILL_POP_MS,
   FILL_POP_RESTART_GATE_MS,
+  SWEEP_MS,
+  WAVE_MS,
+  CLEAR_PANEL_DELAY_MS,
   TRAY_COLS,
   expandButtonLayout,
   trayLayout,
@@ -96,6 +99,7 @@ import {
   type BeadsLevelRaw,
 } from '../config/levels.js';
 import { applyMisplacedToGrid } from './misplaced-assembler.js';
+import { collectMisplacedGroup } from '../entities/grid.js';
 import { BeadGrid } from '../entities/grid.js';
 import {
   CrashSnapshotStore,
@@ -146,7 +150,7 @@ export interface BeadsEvents extends Record<string, unknown> {
   'tray:spawned': { slot: number; colorIdx: number };
   'tray:selected': { slot: number; colorIdx: number };
   /** v1.22 新增：错位珠选中（选择锚置 `board`，与 `tray:selected` 互斥对称）。 */
-  'board:selected': { row: number; col: number; colorIdx: number };
+  'board:selected': { row: number; col: number; colorIdx: number; count: number };
   /** v1.22 新增：取回入槽（S3/S4 同帧原子，不计分不断连）。 */
   'tray:stored': { slot: number; colorIdx: number; fromRow: number; fromCol: number };
   /** v1.22 payload 变更：`slot` 改可选（托盘路径必带；解环器路径不带，E4）。 */
@@ -301,6 +305,18 @@ export class BeadsGame implements Game {
   /** 落座 fx 上次起播时刻（同 `_wrongFxArmedAtMs` 判例；`-Infinity` ⇒ 首帧即允许起播）。 */
   private _placeFxArmedAtMs = Number.NEGATIVE_INFINITY;
   /**
+   * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
+   * ⇒ 无空间坐标，一个计时标量即可（`-1` = 未播放）。触发源 = `powerup:used`。
+   */
+  private _sweepElapsedMs = -1;
+  /**
+   * G4 `vfx_complete_wave` 过关庆祝波浪（WXG-T-146 / `assets-spec §1.6.4`）：全场逐列
+   * ⇒ 一个计时标量（`-1` = 未播放）。同时充当**结算面板的延迟门**（裁定 1）。
+   */
+  private _waveElapsedMs = -1;
+  /** 庆祝放完后待开的结算面板（避免离场后残留门在别的相位把面板掀开）。 */
+  private _clearPanelPending = false;
+  /**
    * 一次性轻提示（BD-16 无选中点格 / BD-15 扩展位占位共用通道，ux-spec §5 WXG-T-097）。
    * 与 `_wrongFx` 同判例：表现层计时，`TAP_HINT_MS` 后自清，不占常驻分配。
    */
@@ -363,7 +379,12 @@ export class BeadsGame implements Game {
    * 生命周期 = PLAYING 局内态：`_setupLevel` / `_loadStage` 重置；不在崩溃快照里
    * （恢复后锚 = tray-or-none，与 traySelected 同批管理，E5 扩错位珠色时再议）。
    */
-  private _boardSelected: { row: number; col: number } | null = null;
+  /** board 锚（WXG-T-148 ③）：起点 + **连通错位珠组**缓存（选中时算好）。 */
+  private _boardSelected: {
+    row: number;
+    col: number;
+    cells: readonly { row: number; col: number }[];
+  } | null = null;
 
   constructor(options: BeadsGameOptions = {}) {
     this.tuning = options.tuning ?? DEFAULT_TUNING;
@@ -453,7 +474,9 @@ export class BeadsGame implements Game {
 
   /** board 锚：选中的错位珠格坐标（无 = null）。与快照 `boardSelectedRow/Col` 同真源。 */
   get boardSelected(): { readonly row: number; readonly col: number } | null {
-    return this._boardSelected;
+    // 只回起点视图：`cells` 组缓存是内部实现（WXG-T-148 ③），不进公共锚形状。
+    const a = this._boardSelected;
+    return a ? { row: a.row, col: a.col } : null;
   }
 
   get remaining(): number {
@@ -593,6 +616,7 @@ export class BeadsGame implements Game {
     this._pulseClock += Math.max(0, dt) * 1000; // GAP-04/03/10 循环脉冲基准（同判例不冻结）
     this._stepWrongFx(dt);
     this._stepPlaceFx(dt); // G1 落座回弹：同为表现层，不被 PAUSED 冻结
+    this._stepSweepFx(dt); // G3 道具生效扫光：同上（§1.6.3）
     this._stepTapHint(dt); // BD-16/BD-15 一次性轻提示：同不冻结（表现层）
   }
 
@@ -667,11 +691,14 @@ export class BeadsGame implements Game {
     const prev = this._boardSelected;
     if (prev && prev.row === row && prev.col === col) return true; // 幂等：不重发
     this._clearTraySelection(); // 互斥换选：board 锚建立 ⇒ tray 锚清除
-    this._boardSelected = { row, col };
+    // WXG-T-148 ③：锚 = 连通错位珠组（flood fill 闭包，选中时缓存）。
+    const cells = collectMisplacedGroup(this._grid, row, col);
+    this._boardSelected = { row, col, cells };
     this._emit('board:selected', {
       row,
       col,
       colorIdx: this._grid.cell(row, col)!.beadColorIdx,
+      count: cells.length,
     });
     return true;
   }
@@ -736,6 +763,37 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * 整组取回（WXG-T-148 用户裁定 ③④）：把 board 锚的**连通错位珠组**一次收进
+   * 托盘。限制**只有槽位数量**（组大小 ≤ free 槽数；用户裁定「不限制个数」）；
+   * 槽不足 ⇒ 零事件零状态写（满槽禁取珠 §3.13 的组化推广）。
+   *
+   * 收进次序：`preferredSlot`（玩家点击的槽）优先，其余 free 槽升序补足 —— 逐颗
+   * 复用 `retrieveBead`（judgeRetrieve 逐颗原子 + 逐颗 `tray:stored`）。组内格
+   * 互不影响前提（取回只清格、不产生新错位）⇒ 逐颗调用安全；万一中途失败
+   * （理论不可达）保守中断、锚保持。
+   *
+   * @returns true only when the WHOLE group was stored.
+   */
+  retrieveSelectedGroup(preferredSlot: number): boolean {
+    if (this._machine.current !== 'playing') return false;
+    const anchor = this._boardSelected;
+    if (!anchor) return false;
+    if (this._tray.freeCount < anchor.cells.length) return false; // 槽位限制
+    // free 槽清单：preferred 优先，其余升序（容量足够 ⇒ 恰好 cells.length 个）。
+    const slots: number[] = [preferredSlot];
+    for (let s = 0; s < this._tray.capacity && slots.length < anchor.cells.length; s++) {
+      if (s !== preferredSlot && this._tray.slot(s)!.state === 'free') slots.push(s);
+    }
+    if (slots.length < anchor.cells.length) return false; // 防御：preferred 非 free
+    for (let i = 0; i < anchor.cells.length; i++) {
+      const c = anchor.cells[i]!;
+      if (!this.retrieveBead(c.row, c.col, slots[i]!)) return false; // 保守中断
+    }
+    this._boardSelected = null; // 整组离格 ⇒ 锚失效
+    return true;
+  }
+
+  /**
    * S2 route 2 — 道具卡点击，一次原子结算（powerups §2.3）。
   /**
    * v1.22 解环器（§3.6，用户 2026-09-16 裁定）：「**点名归 S6、动手归 S3**」。
@@ -770,6 +828,7 @@ export class BeadsGame implements Game {
       console.warn(`[beads] S6 解环器点名 ${outcome.affectedCells.length} 格、实际归位 0 格`);
     }
     this._emit('powerup:used', { type: outcome.type, affectedCells: solved });
+    this._armSweepFx(); // G3 扫光（表现层，不影响裁决）：与 §1.6.2a 解环器归位同帧启动
 
     // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）。
     if (solved.length > 0 && this._grid.isComplete()) {
@@ -1155,7 +1214,12 @@ export class BeadsGame implements Game {
           }
           // 离开结算面板两出口（下一关 / 去冲刺）都经本状态 ⇒ 在此收起面板，
           // 淡出由 `update()` 的 `_clearPanel.update()` 跑完（与 S9 面板同判例）。
-          if (from === 'level-clear') game._clearPanel.close();
+          if (from === 'level-clear') {
+            game._clearPanel.close();
+            // 离场即弃庆祝门与波浪（否则残留 pending 可能在别的相位掀开面板）。
+            game._waveElapsedMs = -1;
+            game._clearPanelPending = false;
+          }
         },
         onUpdate: (game, dt) => {
           game._stepPlaying(dt);
@@ -1195,8 +1259,17 @@ export class BeadsGame implements Game {
           game._crash?.clear(); // D-03（提案 §3）：过关即删，避免残局覆盖下次启动
           // 结算面板开：`ux-spec §4` 要求 LEVEL_CLEAR **等按钮**（下一关 / 去冲刺）。
           game._clearStarsAnnounced = 0;
-          game._clearPanel.open();
-          game._sfx(AUDIO_CLIP_PANEL_IN);
+          // 裁定 1（T-128）：面板**延迟 `CLEAR_PANEL_DELAY_MS` 开** —— 庆祝波浪先行放完再落遮罩。
+          // 代码事实：`drawClearPanel` 首行即全屏遮罩 α0.5 且在 drawGrid 之后 ⇒ 同帧开 = 庆祝被遮死。
+          // D1（reduceMotion）：波浪整条关停 ⇒ **不再空等 800ms**（庆祝是延迟的唯一理由，
+          // 关掉庆祝还让手感多等 = 纯惩罚）。本派生口径已入台账 T-146 待确认。
+          if (game._reduceMotion) {
+            game._clearPanel.open();
+            game._sfx(AUDIO_CLIP_PANEL_IN);
+          } else {
+            game._waveElapsedMs = 0;
+            game._clearPanelPending = true;
+          }
         },
         onUpdate: (game, dt) => {
           game._stepLevelClear(dt);
@@ -1585,8 +1658,8 @@ export class BeadsGame implements Game {
     }
     const anchor = this._boardSelected;
     if (!anchor) return; // 4b 无 board 锚：零事件忽略（见方法头注）
-    if (this.retrieveBead(anchor.row, anchor.col, slot)) {
-      this._boardSelected = null; // 取回成功 ⇒ 珠离格，board 锚随之失效
+    if (this.retrieveSelectedGroup(slot)) {
+      // 整组收进成功（锚清理由 retrieveSelectedGroup 负责）。
     }
   }
 
@@ -1710,7 +1783,22 @@ export class BeadsGame implements Game {
    * 结算面板每帧：只在**星级入场**时各触发一次音效（ux-spec §5「每星叮上行」）。
    * 面板自身的入/出动画在 `update()` 里跑（表示层不停表，与 S9 面板同判例）。
    */
-  private _stepLevelClear(_dt: number): void {
+  private _stepLevelClear(dt: number): void {
+    // G4 波浪推进 + 结算面板延迟门（裁定 1）。本相位内不存在 PAUSED，故照常推进；
+    // `ClearPanel.update()` 在 `_shown = false` 时早退 ⇒ 星级计时不会在延迟期攒成一次爆发。
+    if (this._waveElapsedMs >= 0) {
+      this._waveElapsedMs += Math.max(0, dt) * 1000;
+      if (this._waveElapsedMs >= CLEAR_PANEL_DELAY_MS) this._waveElapsedMs = -1;
+    }
+    if (
+      this._clearPanelPending &&
+      this._waveElapsedMs < 0 &&
+      this._machine.current === 'level-clear'
+    ) {
+      this._clearPanelPending = false;
+      this._clearPanel.open();
+      this._sfx(AUDIO_CLIP_PANEL_IN);
+    }
     const shown = this._clearPanel.starsShown(this._lastStars);
     while (this._clearStarsAnnounced < shown) {
       this._clearStarsAnnounced++;
@@ -2190,6 +2278,20 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * G3 起播（`assets-spec §1.6.3`）。**无重启门**（与 G1 不同：本卡只一个标量、无逐格错开，
+   * 400ms 内再触发 = 从头再扫一次；规格里也没给门值 ⇒ 不自行发明）。
+   */
+  private _armSweepFx(): void {
+    this._sweepElapsedMs = 0;
+  }
+
+  private _stepSweepFx(dt: number): void {
+    if (this._sweepElapsedMs < 0) return;
+    this._sweepElapsedMs += Math.max(0, dt) * 1000;
+    if (this._sweepElapsedMs >= SWEEP_MS) this._sweepElapsedMs = -1;
+  }
+
+  /**
    * 发一次性轻提示（ux-spec §5 WXG-T-097）。**不**发任何玩法事件，也不走
    * `sfx_reject`——它是「前置缺口告知」而不是错误反馈（错误反馈频率上限属 §3.8，
    * 本通道不得被算进去）；`audio-events §1` 无对应 clip ⇒ **静默**。
@@ -2329,6 +2431,15 @@ export class BeadsGame implements Game {
     // v2.0 统一选择锚 · board 侧（E2）：E6 据此画错位珠高亮；-1 = 无。
     // 与 traySelected 三值互斥（input-control §2.1），至多一侧 ≥ 0。
     s.boardSelectedRow = this._boardSelected ? this._boardSelected.row : -1;
+    // WXG-T-148 ③：连通组快照（预分配容量，写值不新建 —— 热路径零分配）。
+    const grp = this._boardSelected?.cells;
+    s.boardGroupCount = grp ? Math.min(grp.length, s.boardGroupRows.length) : 0;
+    if (grp) {
+      for (let gi = 0; gi < s.boardGroupCount; gi++) {
+        s.boardGroupRows[gi] = grp[gi]!.row;
+        s.boardGroupCols[gi] = grp[gi]!.col;
+      }
+    }
     s.boardSelectedCol = this._boardSelected ? this._boardSelected.col : -1;
 
     // Sprint HUD (normal mode keeps zeros — the view hides the block).
@@ -2369,6 +2480,12 @@ export class BeadsGame implements Game {
     s.placeRow = pfx ? pfx.row : -1;
     s.placeCol = pfx ? pfx.col : -1;
     s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
+    // G3 扫光：只一条单调进度（斜带几何与缓动在 view 侧推导，L5）。
+    s.sweepProgress =
+      this._sweepElapsedMs < 0 ? 0 : Math.min(1, this._sweepElapsedMs / SWEEP_MS);
+    // G4 波浪：全场逐列 ⇒ 一条单调进度（列错峰与曲线在 view 侧推导，L5）。
+    s.waveProgress =
+      this._waveElapsedMs < 0 ? 0 : Math.min(1, this._waveElapsedMs / WAVE_MS);
     // BD-16/BD-15 轻提示：只给文本与锚点格（无进度曲线——§5 未定淡入淡出，见该行的 `[待确认]`）。
     const th = this._tapHint;
     s.tapHintText = th ? th.text : '';

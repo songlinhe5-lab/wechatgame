@@ -86,6 +86,13 @@ export interface BeadsSnapshot {
    */
   boardSelectedRow: number;
   boardSelectedCol: number;
+  /**
+   * board 锚的**连通错位珠组**（WXG-T-148 ③，预分配 64 容量写值不新建）。
+   * `boardGroupCount = 0` 表示无锚；组内格渲染层画统一抬起效果。
+   */
+  boardGroupRows: number[];
+  boardGroupCols: number[];
+  boardGroupCount: number;
 
   /** S9 pause panel: visible = anything drawn (incl. the exit fade). */
   panelVisible: boolean;
@@ -210,6 +217,17 @@ export interface BeadsSnapshot {
   placeRow: number;
   placeCol: number;
   placeProgress: number;
+  /**
+   * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
+   * ⇒ **无空间坐标**，只需一个单调标量（0 = 不绘制）；几何与缓动全在 view 侧推导。
+   */
+  sweepProgress: number;
+  /**
+   * G4 `vfx_complete_wave` 过关庆祝波浪（WXG-T-146 / `assets-spec §1.6.4`）：
+   * 全场逐列弹跳 ⇒ **无逐珠坐标**（列号 = 网格 `j`，窗口时长由 `snap.gridCols` 推导）。
+   * 0 = 不播放；1 = `WAVE_MS` 走完。同时 = 结算面板的**延迟门**（裁定 1）。
+   */
+  waveProgress: number;
   /** GAP-03 首屏引导是否激活（runs==0 且本会话未落过子）。 */
   onboarding: boolean;
   /** GAP-03/04 单一 `hint` 目标格（行主序首个匹配首珠色的空槽；无 = -1）。 */
@@ -254,6 +272,9 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     traySelected: -1,
     boardSelectedRow: -1,
     boardSelectedCol: -1,
+    boardGroupRows: new Array<number>(64).fill(-1),
+    boardGroupCols: new Array<number>(64).fill(-1),
+    boardGroupCount: 0,
     panelVisible: false,
     panelProgress: 0,
     panelInteractive: false,
@@ -313,6 +334,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     placeRow: -1,
     placeCol: -1,
     placeProgress: 0,
+    sweepProgress: 0,
+    waveProgress: 0,
     onboarding: false,
     hintRow: -1,
     hintCol: -1,

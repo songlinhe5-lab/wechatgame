@@ -91,7 +91,7 @@ describe('E2 · 锚互斥与换选转移（input-control §2.1 / §8-12）', () 
     expect(game.tray.slot(0)!.state).toBe('holding');
     expect(h.count('tray:selected')).toBe(1); // 换选不重发托盘事件
     expect(h.count('board:selected')).toBe(1);
-    expect(h.last('board:selected')).toEqual({ row: 0, col: 0, colorIdx: 2 });
+    expect(h.last('board:selected')).toEqual({ row: 0, col: 0, colorIdx: 2, count: 2 });
     // 快照通道（E6 画高亮）：tray 侧 -1、board 侧命中格。
     expect(game.snapshot.traySelected).toBe(-1);
     expect(game.snapshot.boardSelectedRow).toBe(0);
@@ -150,7 +150,7 @@ describe('E2 · 锚互斥与换选转移（input-control §2.1 / §8-12）', () 
 
     game.tapDesign(p11.x, p11.y); // 换选另一颗
     expect(h.count('board:selected')).toBe(2);
-    expect(h.last('board:selected')).toEqual({ row: 1, col: 1, colorIdx: 1 });
+    expect(h.last('board:selected')).toEqual({ row: 1, col: 1, colorIdx: 1, count: 2 });
     expect(game.boardSelected).toEqual({ row: 1, col: 1 });
   });
 });
@@ -185,15 +185,18 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
     const pt = trayPoint(game, 2);
     game.tapDesign(pt.x, pt.y);
 
-    expect(h.count('tray:stored')).toBe(1);
+    // WXG-T-148 ④：锚 = 连通组（swap 两颗斜邻错位珠）⇒ 整组收进 = 2 次 stored
+    //（原判据「恰 1 次」随单锚 → 组锚语义改写）。
+    expect(h.count('tray:stored')).toBe(2);
     expect(h.last('tray:stored')).toEqual({
-      slot: 2,
-      colorIdx: beadAt00,
-      fromRow: 0,
-      fromCol: 0,
+      slot: 3,
+      colorIdx: 1, // swap 后 (1,1) 珠色 = 原 (0,0) 底色珠
+      fromRow: 1,
+      fromCol: 1,
     });
-    // S3/S4 双写 + 锚清理：格转 empty、槽 holding、board 锚失效。
+    // S3/S4 双写 + 锚清理：组内格全转 empty、槽 holding、board 锚失效。
     expect(game.grid.cell(0, 0)!.state).toBe('empty');
+    expect(game.grid.cell(1, 1)!.state).toBe('empty');
     expect(game.tray.slot(2)!.state).toBe('holding');
     expect(game.tray.slot(2)!.colorIdx).toBe(beadAt00);
     expect(game.selection).toBe('none');
@@ -249,15 +252,23 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
     expect(game.selection).toBe('board');
     expect(game.grid.cell(0, 0)!.state).toBe('filled'); // 错位珠保持
 
-    // 腾出 1 槽（旁路装配：选槽 0 的 1 号珠归位到 (0,3) 底色 1 的空格）→ 同路径取回成功。
+    // WXG-T-148 ④：**槽位数量限制** —— 腾 1 槽 < 组大小 2 ⇒ 同路径仍拒（原判据
+    // 「腾 1 槽即成功」随单珠 → 整组语义改写）。
     expect(game.selectTraySlot(0)).toBe(true);
     expect(game.tapGridCell(0, 3)).toBe(true);
     expect(game.tray.slot(0)!.state).toBe('free');
     game.tapDesign(p00.x, p00.y); // 重新建立 board 锚（上面 selectTraySlot 已清）
     expect(game.selection).toBe('board');
     game.tapDesign(pt0.x, pt0.y);
-    expect(h.count('tray:stored')).toBe(1);
-    expect(h.last('tray:stored')).toEqual({ slot: 0, colorIdx: 2, fromRow: 0, fromCol: 0 });
+    expect(h.count('tray:stored')).toBe(0); // 仍不足 2 槽 ⇒ 拒
+
+    // 再腾 1 槽（共 2 free = 组大小）⇒ 整组收进成功（2 次 stored）。
+    expect(game.selectTraySlot(1)).toBe(true);
+    expect(game.tapGridCell(1, 3)).toBe(true); // (1,3) 底色 2 空格，槽 1 珠色 2
+    game.tapDesign(p00.x, p00.y);
+    game.tapDesign(pt0.x, pt0.y);
+    expect(h.count('tray:stored')).toBe(2);
+    expect(game.grid.cell(0, 0)!.state).toBe('empty');
   });
 });
 

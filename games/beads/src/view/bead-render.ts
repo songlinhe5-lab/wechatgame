@@ -120,6 +120,13 @@ export interface FilledBeadOptions {
   readonly contactWidth?: number;
   /** G1：L0b 投影纵向偏移覆写（`/64` 归一比例，静息 = `BEAD_CARD.shadowDy` = 3/64）。 */
   readonly shadowDy?: number;
+  /**
+   * G4 波浪期的 **LOD 降档**（`assets-spec §1.6.4` / `WAVE_LOD_LAYERS = 7`，WXG-T-146）：
+   * 传入即降层 —— 砍 L0a / L3b / L4a / L4b，保 L0b + L1 + L2 + L3 + L4c + L5。
+   * ⛔ **L11 垫绝不进可砍集**（静态谜面载体 ⇒ 本标志**不影响**上方垫的绘制）。
+   * 本轮只预埋 G4 这一档（裁定 5）；G2 的 α 阈值 4 层档 = 规格保留、不实现。
+   */
+  readonly lodLayers?: number;
 }
 
 /** 段内插值。**模块级函数而非局部闭包** = 逐帧调用零分配（热路径铁律）。 */
@@ -248,18 +255,23 @@ export function drawFilledBead(
   const bottom = y - size / 2;
   const radius = Math.round(size * BEAD_CARD.radius);
   const stroke = (ratio: number) => Math.max(BEAD_CARD.minStroke, size * ratio);
+  // G4 LOD：`lodLayers` 传入即走降档集（值本身在本轮只有一个档位 ⇒ 不作分支表）。
+  const lod = options.lodLayers !== undefined;
 
   // L0a 接触阴影 — 贴底窄条，让珠"坐"在面上（v1.3 · F4）；α / 宽比可由 G1 包络覆写。
-  builder.rect(
-    left + size * BEAD_CARD.contactX,
-    bottom + size * BEAD_CARD.contactY,
-    size * (options.contactWidth ?? BEAD_CARD.contactW),
-    size * BEAD_CARD.contactH,
-    {
-      fill: withAlpha(BEAD_SHADOW_HEX, options.contactAlpha ?? BEAD_CONTACT_SHADOW_ALPHA),
-      radius: Math.round(radius * BEAD_CARD.contactRadiusScale),
-    },
-  );
+  // G4 LOD：本层属可砍集（α 最小的软阴影，集体波浪期看不出差）。G1 不动此层归属。
+  if (!lod) {
+    builder.rect(
+      left + size * BEAD_CARD.contactX,
+      bottom + size * BEAD_CARD.contactY,
+      size * (options.contactWidth ?? BEAD_CARD.contactW),
+      size * BEAD_CARD.contactH,
+      {
+        fill: withAlpha(BEAD_SHADOW_HEX, options.contactAlpha ?? BEAD_CONTACT_SHADOW_ALPHA),
+        radius: Math.round(radius * BEAD_CARD.contactRadiusScale),
+      },
+    );
+  }
 
   // L0b 投影 — offset down by 3/64 of the edge, no stroke（G1：偏移与 α 同步联动）。
   builder.rect(left, bottom - size * (options.shadowDy ?? BEAD_CARD.shadowDy), size, size, {
@@ -305,21 +317,23 @@ export function drawFilledBead(
     lightWidth,
   );
 
-  // L3b rim 光 — top inner edge single line, brighter than L3 (v1.3 · F4).
-  const insetRim = size * BEAD_CARD.rimInset;
-  const rim = mix(base, BEAD_RIM_MIX);
-  builder.line(
-    left + insetRim,
-    bottom + size - insetRim,
-    left + size - insetRim,
-    bottom + size - insetRim,
-    rim,
-    stroke(BEAD_CARD.rimWidth),
-  );
+  // L3b rim 光 — top inner edge single line, brighter than L3 (v1.3 · F4)。G4 LOD：可砍集。
+  if (!lod) {
+    const insetRim = size * BEAD_CARD.rimInset;
+    const rim = mix(base, BEAD_RIM_MIX);
+    builder.line(
+      left + insetRim,
+      bottom + size - insetRim,
+      left + size - insetRim,
+      bottom + size - insetRim,
+      rim,
+      stroke(BEAD_CARD.rimWidth),
+    );
+  }
 
   // L4a/b/c 软高光 — three stacked rounded bars，外扩递减 α / 中心递增 α 模拟柔光（v1.3 · F4，
   // 取代 v1.2 硬边单高光条）。三层均在 L5 符号之下绘制 → 不影响符号对比（accessibility A5）。
-  for (let i = 0; i < BEAD_CARD.softHighlight.length; i++) {
+  for (let i = lod ? BEAD_CARD.softHighlight.length - 1 : 0; i < BEAD_CARD.softHighlight.length; i++) {
     const g = BEAD_CARD.softHighlight[i]!;
     builder.rect(left + size * g.x, bottom + size * g.y, size * g.w, size * g.h, {
       fill: withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_SOFT_HIGHLIGHT_ALPHAS[i]!),

@@ -50,6 +50,7 @@ import {
   WRONG_FADE_IN_MS,
   WRONG_HOLD_MS,
   WRONG_FADE_OUT_MS,
+  SWEEP_ALPHAS,
   HINT_PULSE_MS,
   DANGER_PULSE_MS,
   TRAY_FULL_PULSE_MS,
@@ -124,6 +125,7 @@ import {
   sprintSettleRows,
 } from '../systems/sprint-settle.js';
 import { comboBurst, comboParticleOffsets } from './combo-vfx.js';
+import { SWEEP_LAYER_COUNT, sweepCenterX, sweepQuad } from './scene-vfx.js';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -183,6 +185,7 @@ export function buildBeadsView(
   drawTray(builder, snap, palette);
   drawExpandButton(builder, snap, palette);
   drawPowerupBand(builder, snap, palette);
+  drawSweep(builder, snap); // G3 道具生效扫光（§1.6.3）：叠在珠面上、面板与 HUD 之下
   drawComboVfx(builder, snap, palette);
   drawClearPanel(builder, snap, palette);
   drawFinishPanel(builder, snap, palette);
@@ -745,7 +748,14 @@ function drawGrid(
       if (isPop) fillPopEnvelope(snap.placeProgress, snap.reduceMotion, pop);
       // WXG-T-148 用户反馈：① 错位珠恒亮白环（可选取标识）；② board 锚珠抬起
       // （lift 沿用托盘 selected 语义，垫不参与 lift ⇒ 珠上移露垫 = 抬起读数）。
-      const isBoardSel = i === snap.boardSelectedRow && j === snap.boardSelectedCol;
+      // ③④（WXG-T-148 用户裁定）：锚 = 8 邻接连通错位珠组 —— 组内全格统一抬起。
+      let inGroup = false;
+      for (let k = 0; k < snap.boardGroupCount; k++) {
+        if (snap.boardGroupRows[k] === i && snap.boardGroupCols[k] === j) {
+          inGroup = true;
+          break;
+        }
+      }
       // FilledBeadOptions 全只读 ⇒ 组装为可变草稿再定型的既有模式（零类分配）。
       const draft: {
         -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
@@ -753,7 +763,7 @@ function drawGrid(
       if (cell.beadColorIdx >= 0 && cell.beadColorIdx !== cell.colorIdx) {
         draft.selectableRing = true;
       }
-      if (isBoardSel) {
+      if (inGroup) {
         draft.lift = -6;
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
@@ -1087,6 +1097,30 @@ function drawComboVfx(
   }
 
   // 'pseudoShake'：见函数头注释（平台缺口，不假造）。
+}
+
+// ───────────────────────────── G3 道具生效扫光（assets-spec §1.6.3 · WXG-T-146）
+
+/**
+ * G3 `vfx_powerup_sweep`：道具生效时一道 20° 斜切光带自屏外左侧扫到屏外右侧。
+ * 三层平行四边形（广→中→核心），α 单调递减、累计 0.27（< 遮罩 0.5 一整档）。
+ *
+ * ⚠️ **层序事实与规格不符、但结论仍成立**：规格写「在 drawGrid/drawTray 之后、**drawHud 之前**
+ * ⇒ 被 HUD 压住」，而实码 `drawHud` 在 grid **之前**（= 更底层）。不影响合规，因为
+ * `SWEEP_Y_MAX = HUD_BAND.yMin` 已从**几何上**排除 HUD 带（用户裁定的「玩法全屏」）。
+ * D1（`reduceMotion`）= **整条关停**：纯包装层、零信息量（§1.6.3）。
+ */
+function drawSweep(builder: RenderModelBuilder, snap: BeadsSnapshot): void {
+  if (snap.sweepProgress <= 0 || snap.reduceMotion) return;
+  const cx = sweepCenterX(snap.sweepProgress);
+  // 反序绘制：i = 2 广（α0.06）→ 1 中（0.10）→ 0 核心（0.14）⇒ 后画的更亮。
+  // 逐层新建 8-float 数组：`polygon()` **按引用**存 points ⇒ 不能跨帧共用 scratch；
+  // 且仅在 400ms 窗口内分派（与 `drawPowerupBand` 逐帧字面量同判例）。
+  for (let i = SWEEP_LAYER_COUNT - 1; i >= 0; i--) {
+    builder.polygon(sweepQuad(i, cx, [0, 0, 0, 0, 0, 0, 0, 0]), {
+      fill: withAlpha(BEAD_HIGHLIGHT_HEX, SWEEP_ALPHAS[i]!),
+    });
+  }
 }
 
 // ──────────────────────────────────────────── S7 finish screen (ux-spec §3.6)
