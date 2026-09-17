@@ -103,6 +103,28 @@
 
 ---
 
+## WXG-T-156
+
+- **名称**：**beads · BD-50 Cocos 色彩工厂 rgba 串解析成纯黑（裁定②「彩带未渲染」排障）**
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（2026-09-17；未 commit）　**P0**（TC-PER 全家桶取证可信度的地基缺陷）
+- **背景**：T-128 裁定②连拍判读 4 帧均未见彩带、`confettiProgress` 读数 0 与上轮 0.10→0.79 不稳定复现，登记「Cocos 侧彩带未渲染疑点」待排障。
+- **排障三层取证（逐层排除，未猜一次）**：① **读数层** = 旧 burst 产物十帧 PNG 字节全同 ⇒ 彩带窗口实际耗在 G3 段（道具单颗解完末珠同帧通关，「首跑教训」路径重演），G6 段抓的全是窗口后静帧 ⇒「读数 0 不稳定」是取证时序假象；② **命令流层**（页内代理 `builder.polygon` 逐帧计数）⇒ 窗口内 37 帧×44 枚、五色 fill 齐备 ⇒ 视图层分派无恙，嫌疑收敛到消费层；③ **色彩层**（代理 `cc.Graphics.prototype.fillColor` setter 金标准）⇒ 窗口内 **3240 次全不透明黑 (0,0,0,255)** 设置，非黑样本恰为 hex 路径纯色（#E84C3D 等）⇒ 实锤。
+- **根因（BD-50）**：`bindings.ts` 色彩工厂 `parseHex` 只识 `#rrggbb`，视图层 `withAlpha()` 产出的 `rgba(r,g,b,a)` 串经 `parseInt('rgba…',16)=NaN` → `Color(0,0,0,255)` —— **彩带在 Cocos 上被画成不透明纯黑**（深色底盘上近隐形；窗口帧像素差分 R≈G≈B 灰点 121/128/192 = 黑化彩带混色，旁证吻合）。canvas2d 渲染器直接喂 CSS 引擎天然兼容 ⇒ harness 探针全绿而 Cocos 黑化 = **双渲染器色彩解析不对称的假绿家族缺陷**，波及全视图 ≈50 处 rgba 消费点（背景/遮罩/阴影因本色近黑而未显症，彩带首个亮色特效即暴露）。
+- **修复（单一收口）**：`cocos-renderer.ts` 新增引擎无关纯函数 `parseColorLiteral`（`#rgb/#rrggbb/rgb()/rgba()`，非法串黑不透明兑底绝不 NaN）；`bindings.ts` 色彩工厂改走它，嵌入 α 与命令级 alpha **相乘**对齐 canvas2d `globalAlpha` 语义；旧 `parseHex` 删除；测试 mock 同步改走同源实现（不得再手抄 hex-only 缺陷版）。新增 3 例失败先行（实现前 import 即红）。
+- **验收（金标准复验）**：重建产物后同口径插桩 = 窗口内全黑填充 **3240→0**，非黑样本出现 `(244,242,250,89)` 等带分数 α 真色；像素差分 bbox 从窄带（344–494）展开到全幅（x 3–720，黄金比 44 枚分布特征）；**窗口内截帧目视：五色旋转彩带 + sandwich 层序清晰可见**（temp/burst-mid.png）。回归：framework 298/298（295+3）、beads 409/409、`framework:sync:check` OK。
+- **连带发现（登记不修）**：① burst 工具 G6 段触发依赖「G3 段道具不通关」，level 0 实为 2 错位珠仍被解算通关 ⇒ 窗口耗在 G3 段，十帧全静帧——**工具时序缺陷已新登 backlog**（彩带方向裁定②需先修工具重拍）；② 旧产物 freshness STALE（bundle 22:26 < src 23:01）已由本轮 `build:cocos:web` 重建消除；③ burst 色检测对 MAIN 层（scrim 混色）不敏感，纯色彩匹配会漏检——修工具时一并处理。
+- **边界**：方向裁定（上行 vs 飘落）仍归用户拍板，本单只消障不代拍；真机微信端色彩链路同源于本修复（同一 bindings），但需真机复验项仍挂 T-129/首验包。
+
+### burst 工具 v2 → v2.1 修复与重拍（2026-09-17 本会话续，backlog「裁定②待重拍」行闭合）
+
+- **v2 残留障实（诊断面，temp/burst-diag2）**：`cc.screenshot` 在 Cocos **3.8.8 web-mobile 产物不存在**（实测 undefined，模块被构建剔除）⇒ v2 页内 `toCanvas` 回读通路无效；同时排除解算嫌疑（同板 misplaced=2 可解）。
+- **v2.1 换捕获通道**：实测 **CDP `Page.startScreencast`**（temp/screencast-probe：≈37fps、合成器输出 ⇒ WebGL 画布天然非空白、无逐帧往返）后采纳：页内只挂相位记录器（代理 `buildRenderModel` 每帧记 `{Date.now(), snapshot[field]}`，零捕获成本），Node 侧连续收帧，按 `frame.metadata.timestamp` 与相位越界时刻**最近邻对齐**选帧落盘（帧序单调，>150ms 无帧则如实记 err）。诚实注记：screencast 为 jpeg q90，差分阈值放宽 >10 吸收压缩噪声。
+- **G6 触发器换解环器卡（诊断③ temp/burst-diag3）**：手动 tap 风暴遇「目标格被另一颗错位珠占据」的环会滞留托盘（实测 filled=21/tray=1 静置 6s ⇒ 永不清关，彩带窗口根本没开）；改 `tapDesign(卡 0 中心)` ⇒ `usePowerup` 点名全部错位珠、相 B 含交换归位、每颗落座判 isComplete ⇒ 通关必然。两卡各自 `POWERUP_FREE_USES=1` 换关复位，G6/G3 段互不抢卡。
+- **重拍结果（成）**：G6 **8/8 相位帧**（窗口跨度 695ms ≈ CONFETTI_MS 800ms，收帧 85 ≈41.7fps）+ G3 **5/5 帧**（320ms，新板错位珠=4 不通关，扫光后 phase=playing）；`pageErrors=[]`。产物 `production/qa/beads/evidence/vfx-burst/`（gitignore 内，符合 T-099 裁定④证据不入仓）。
+- **目视判读（观感取证物，不判 PASS）**：g6-02（p=0.208）五色碎片顶部成带炸出（白/黄/绿/红/丁香紫，**BD-50 修复在 Cocos 产物上实证可见**）；g6-07（p=0.854）碎片已落至屏幕底部 ⇒ **实际观感 = 顶部炸出→飘落底部，与卡文案「飘落」一致**；面板/sandwich 层序正常。g3-02（p=0.375）斜带光扫全屏清晰。⇒ 差异②的裁定前提已满足，方向拍板归用户（backlog 行已改「待用户裁定」）。
+
+---
+
 ## WXG-T-127
 
 - **名称**：**beads 可玩性实测差距修复（BD-43 热区错位 P1 + BD-44/45/46/47）**
@@ -237,6 +259,9 @@
   - **验证**：`tsc --noEmit` 双包零错误；beads **409/409** 绿、framework **295/295** 绿；`framework:sync`+`:check` OK。
 - **裁定 ②（彩带方向）= C「先看连拍再定」→ ⏸ 判读前置未满足，暂缓**：人眼复核 4 帧（含色像素定量检测）**均未见彩带**，且 `snapshot.confettiProgress` 读数 0 与上一轮同通路相位推进（0.10→0.79）**不稳定复现** ⇒ 疑点 = 「Cocos 产物上彩带未渲染 / 臂起不稳定」，需正式排障后重拍，方向裁定（上行 vs 飘落）在此之前无从谈起。排障起点：`_stepConfettiFx` 在通用表现层步进（beads-game.ts:698）✓ 已核对；臂源 = `_stepLevelClear` 门满帧（:1912）✓ 已核对；下一个排查面 = Cocos 绑定层 `drawConfetti` 的分派/裁剪（`polygon`+`Float32Array` 视图在 cocos-renderer:178 索引遍历天然兼容，但需确认命令流中确实出现）。
 - **⚠️ 连带实测暴露（非本单引入，登记移交）**：`check:size` 从 SKIP 转实跑后首次结果 = **beads `cocos/build/wechatgame` 主包 4647.2 KB > 平台红线 4096 KB（超 551KB）**（breakout 1815KB 达标）。主体为引擎 bundle/资源面，与本单 3 函数改动无关 ⇒ 归 **T-128 真机首验包 P0-4**（原登记「check:size 从 SKIP 转 OK」——现转 OK 后即暴露超标）+ 包体治理（分包/裁剪）移交发布/工程域。
+  - **✅ P0-4 澄清收口（2026-09-17，CodeBuddy 会话）——零治理改动即达标**：4647KB 是 **debug 产物基线被误读**（`build-cocos.mjs` 默认 `debug=true`：含 sourcemap 且不压缩，脚本头注明文「测包体基线必须用 --release」）。**release 重建后复测：beads 主包 1927.9 KB**（红线 4096 ✓、内部目标 2000 ✓ 达标；breakout 1815.1KB 达标）；`verify` **PASS 16 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**。
+  - **守卫加固（防再误读）**：`tools/scripts/check-bundle-size.mjs` 新增 **debug 产物侦测** —— `cocos-js/cc.js ≥ 2500 KB`（debug ≈3.3MB / release ≈1.5–1.8MB，取空档）⇒ 报告输出「疑似 debug 构建，包体数字不可作为基线，请用 --release 重建复测」，且 `anyFail` 提示里优先指向 release 重建；脚本内建自测 19/19 绿。
+  - **教益（K 候选）**：「首次转实跑的守卫」第一次实测结果要**先核测量前提**（此处 = 产物 debug/release 形态）再下「超红线」结论——测量前提不成立时，FAIL 读数是伪信号而非缺陷信号。
 
 **美术规格侧未决项：零**（林绘澄回传 ⑤ 明述；三件文档内无条件句/待裁结构残留）。
 

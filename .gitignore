@@ -92,9 +92,11 @@ games/*/cocos/native/
 .playwright-cli/
 
 # QA 取证物：留盘不入库（体例：production/qa/beads/evidence 只入库 .mjs 脚本，
-# *.log 已由上方全局规则忽略；json/png 为逐帧像素/包络/截图取样物，复核请读盘）
+# *.log 已由上方全局规则忽略；json/png/jpg 为逐帧像素/包络/截图取样物（burst v2.1
+# 捕获通道改 CDP screencast 后产物为 jpeg），复核请读盘）
 production/qa/*/evidence/**/*.json
 production/qa/*/evidence/**/*.png
+production/qa/*/evidence/**/*.jpg
 
 # Cocos 工程配置含本地微信 AppID（WXG-T-099/B4：红线 control-manifest §10，不入仓；模板见 games/beads/cocos/project.config.example.json）
 games/*/project.config.json

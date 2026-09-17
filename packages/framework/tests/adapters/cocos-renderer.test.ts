@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CocosRenderModelRenderer } from '../../src/adapters/cocos/cocos-renderer.js';
+import { CocosRenderModelRenderer, parseColorLiteral } from '../../src/adapters/cocos/cocos-renderer.js';
 import { PooledLabelSource } from '../../src/adapters/cocos/label-pool.js';
 import { Viewport } from '../../src/core/render/viewport.js';
 import { RenderModelBuilder } from '../../src/core/render/render-model.js';
@@ -86,11 +86,16 @@ function fakeLabels(measure?: (text: string, fontSize: number) => number) {
   return { source, created };
 }
 
+// BD-50 判例：mock 必须走与宿主同一条解析（parseColorLiteral），不得再手抄 hex-only 缺陷实现。
 const colors = {
   fromHex: (hex: string, alpha = 1) => {
-    const h = hex.replace('#', '');
-    const n = parseInt(h, 16);
-    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: Math.round(alpha * 255) };
+    const c = parseColorLiteral(hex);
+    return {
+      r: c.r,
+      g: c.g,
+      b: c.b,
+      a: Math.round(Math.min(1, Math.max(0, c.a * alpha)) * 255),
+    };
   },
 };
 
@@ -228,6 +233,36 @@ describe('CocosRenderModelRenderer', () => {
     renderer.draw(empty.end());
     expect(created[0]!.visible).toBe(false);
     expect(renderer.lastLabelCount).toBe(0);
+  });
+
+  // ── BD-50（裁定②排障 · WXG-T-156）：rgba() 字面量在 Cocos 色彩工厂被解析成纯黑 ──
+  it('parses rgba() fill strings, keeping channels and embedded alpha (BD-50)', () => {
+    const { renderer, g } = makeSetup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.polygon([0, 0, 10, 0, 5, 10], { fill: 'rgba(63,191,107,0.42)' });
+    renderer.draw(b.end());
+    expect(g.fillColor.r).toBe(63);
+    expect(g.fillColor.g).toBe(191);
+    expect(g.fillColor.b).toBe(107);
+    expect(g.fillColor.a).toBe(Math.round(0.42 * 255));
+  });
+
+  it('multiplies embedded alpha with the command alpha (canvas2d globalAlpha parity)', () => {
+    const { renderer, g } = makeSetup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.rect(0, 0, 4, 4, { fill: 'rgba(255,255,255,0.5)', alpha: 0.5 });
+    renderer.draw(b.end());
+    expect(g.fillColor.a).toBe(Math.round(0.25 * 255));
+  });
+
+  it('parses #rgb / #rrggbb / rgb() and rejects garbage without NaN channels', () => {
+    expect(parseColorLiteral('#fff')).toEqual({ r: 255, g: 255, b: 255, a: 1 });
+    expect(parseColorLiteral('#FFD23F')).toEqual({ r: 255, g: 210, b: 63, a: 1 });
+    expect(parseColorLiteral('rgb(10, 20, 30)')).toEqual({ r: 10, g: 20, b: 30, a: 1 });
+    const bad = parseColorLiteral('not-a-color');
+    expect(bad).toEqual({ r: 0, g: 0, b: 0, a: 1 }); // 与旧行为一致的黑底兜底，但绝不再 NaN
   });
 
   // ── G3 可测半（WXG-T-077）：`_anchorForText` 消费宿主注入的实测宽度 ──

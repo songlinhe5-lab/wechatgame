@@ -35,7 +35,7 @@ import {
 
 import { App } from '../../compose/app.js';
 import type { Game } from '../../core/game/game.js';
-import { CocosRenderModelRenderer } from './cocos-renderer.js';
+import { CocosRenderModelRenderer, parseColorLiteral } from './cocos-renderer.js';
 import { CocosInputBridge } from './input-bridge.js';
 import { CocosLoopBridge } from './loop-bridge.js';
 import { PooledLabelSource } from './label-pool.js';
@@ -206,9 +206,12 @@ export class Bootstrap extends Component {
       this._labels,
       {
         fromHex: (hex, alpha = 1) => {
-          // ⚠ Colour.fromHEX exists in 3.8; parse fallback kept for safety.
-          const c = parseHex(hex);
-          return new Color(c.r, c.g, c.b, Math.round(alpha * 255));
+          // BD-50（WXG-T-156）：改走 parseColorLiteral——旧 parseHex 只识 #hex，
+          // 视图层 withAlpha() 的 `rgba(…)` 串被 parseInt 吐 NaN ⇒ 静默画成不透明纯黑
+          // （裁定②彩带「Cocos 未渲染」真因）。嵌入 α 与命令级 alpha 相乘，对齐 canvas2d。
+          const c = parseColorLiteral(hex);
+          const a = Math.min(1, Math.max(0, c.a * alpha));
+          return new Color(c.r, c.g, c.b, Math.round(a * 255));
         },
       },
       this._app.viewport,
@@ -474,10 +477,5 @@ function wrapLabel(label: Label) {
   };
 }
 
-/** Parse `#rgb` / `#rrggbb` into 0–255 channels. */
-function parseHex(hex: string): { r: number; g: number; b: number } {
-  let h = hex.replace('#', '');
-  if (h.length === 3) h = h.split('').map((c) => c + c).join('');
-  const n = parseInt(h, 16);
-  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
-}
+// BD-50（WXG-T-156）：旧 `parseHex(#rrggbb-only)` 已删 —— 解析统一收口到
+// cocos-renderer.ts 的 parseColorLiteral（带单测，宿主/测试 mock 同源）。
