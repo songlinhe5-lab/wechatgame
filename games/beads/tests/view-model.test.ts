@@ -56,7 +56,8 @@ function centreY(cmd: DrawCommand): number {
   if (cmd.kind === 'rect') return cmd.y + cmd.h / 2;
   if (cmd.kind === 'line') return (cmd.y1 + cmd.y2) / 2;
   if (cmd.kind === 'polygon') {
-    const ys = cmd.points.filter((_, i) => i % 2 === 1);
+    // [WXG-T-128 裁定 B] points 放宽为 number[] | Float32Array ⇒ Array 方法须先收窄
+    const ys = Array.from(cmd.points).filter((_, i) => i % 2 === 1);
     return ys.reduce((a, b) => a + b, 0) / ys.length;
   }
   return Number.NaN;
@@ -166,7 +167,8 @@ describe('beads view model (control-manifest §8)', () => {
       if (cmd.kind === 'rect') return cmd.x + cmd.w / 2;
       if (cmd.kind === 'line') return (cmd.x1 + cmd.x2) / 2;
       if (cmd.kind === 'polygon') {
-        const xs = cmd.points.filter((_, i) => i % 2 === 0);
+        // [WXG-T-128 裁定 B] 同上：先收窄再走 Array 方法
+        const xs = Array.from(cmd.points).filter((_, i) => i % 2 === 0);
         return xs.reduce((a, b) => a + b, 0) / xs.length;
       }
       return Number.NaN;

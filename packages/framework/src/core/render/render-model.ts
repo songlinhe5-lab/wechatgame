@@ -67,8 +67,15 @@ export interface TextCommand {
 
 export interface PolygonCommand {
   readonly kind: 'polygon';
-  /** Flat [x0, y0, x1, y1, ...] list in design space. */
-  readonly points: readonly number[];
+  /**
+   * Flat [x0, y0, x1, y1, ...] list in design space.
+   * `[v1.4·WXG-T-128 裁定 B]` 放宽为 `readonly number[] | Float32Array`：允许**预分配
+   * scratch 缓冲的 subarray 视图**（零拷贝零复制；消费方均为索引遍历，两种形态天然兼容）。
+   * 动机 = G6 彩带「预分配 352-float scratch」（`assets-spec §1.6.6`，用户 2026-09-17 裁定 B）。
+   * ⚠️ 契约纪律：命令按引用持有 points ⇒ 调用方传 scratch 视图时，**该段在下一帧前不得改写**
+   * （命令当帧构建、当帧消费 ⇒ 彩带每帧 44 枚各占固定 8-float 段、逐帧整段重写 = 安全）。
+   */
+  readonly points: readonly number[] | Float32Array;
   readonly fill?: string;
   readonly stroke?: string;
   readonly lineWidth?: number;
@@ -187,7 +194,7 @@ export class RenderModelBuilder {
     this._commands.push({ kind: 'text', x, y, text, ...cmd });
   }
 
-  polygon(points: readonly number[], cmd: Omit<PolygonCommand, 'kind' | 'points'> = {}): void {
+  polygon(points: readonly number[] | Float32Array, cmd: Omit<PolygonCommand, 'kind' | 'points'> = {}): void {
     this._commands.push({ kind: 'polygon', points, ...cmd });
   }
 

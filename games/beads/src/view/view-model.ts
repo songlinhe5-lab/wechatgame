@@ -1260,12 +1260,19 @@ function drawSweep(builder: RenderModelBuilder, snap: BeadsSnapshot): void {
 const CONFETTI_SCRATCH: ConfettiBeadState = { x: 0, y: 0, theta: 0, alpha: 0 };
 
 /**
+ * 【WXG-T-128 裁定 B（用户 2026-09-17）】规格「预分配 352-float scratch」的**真实现**：
+ * 44 枚 × 8 floats 一次性预分配，每枚固定占 `[idx×8, idx×8+8)` 段、逐帧整段重写；
+ * `polygon()` 收 `subarray` 视图（零拷贝；framework 契约已放宽并载明「当帧构建、当帧消费」纪律）。
+ * 兑现 `assets-spec §1.6.6` 落码回写注的待裁差异（原「逐枚新建 8-float」作废）。
+ */
+const CONFETTI_POINTS = new Float32Array(CONFETTI_COUNT * 8);
+
+/**
  * G6 `vfx_confetti`：结算面板入场期 44 枚程序化彩带（零 RNG，idx 派生）。
  * 两层 sandwich（层序死规格）：MAIN 在 `drawClearPanel` 前（scrim 压住），FG 在后；
  * FG 枚当 y ∈ [447,787]（按钮行/缎带，`clearPanelLayout` 派生）**跳过绘制** ⇒ 保按钮可辨识；
  * MAIN 不受限。D1（`reduceMotion`）= **整条关停**（纯装饰、零信息量，§1.6.6）。
- * 逐枚新建 8-float 点列：`polygon()` 按引用存 points（G3 判例）⇒ 规格「预分配 352-float
- * scratch」在现契约下不成立，差异登记于 §1.6.6 落码回写注；只在 800ms 窗口内分派。
+ * 点列 = 预分配 `CONFETTI_POINTS` 的固定段（裁定 B，见上）；只在 800ms 窗口内分派。
  */
 function drawConfetti(
   builder: RenderModelBuilder,
@@ -1280,7 +1287,8 @@ function drawConfetti(
     // 禁飞带：不是淡出，是不画（可读性硬约束，accessibility C1）。
     if (foreground && f.y >= CONFETTI_NOFLY_YMIN && f.y <= CONFETTI_NOFLY_YMAX) continue;
     if (f.alpha <= 0) continue;
-    builder.polygon(confettiQuad(f.x, f.y, f.theta, [0, 0, 0, 0, 0, 0, 0, 0]), {
+    confettiQuad(f.x, f.y, f.theta, CONFETTI_POINTS, idx * 8);
+    builder.polygon(CONFETTI_POINTS.subarray(idx * 8, idx * 8 + 8), {
       fill: withAlpha(CONFETTI_COLORS[idx % CONFETTI_COLORS.length]!, f.alpha),
     });
   }
