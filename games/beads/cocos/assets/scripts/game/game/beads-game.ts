@@ -101,7 +101,7 @@ import {
   type CrashSnapshot,
 } from './crash-snapshot';
 import { Tray } from '../entities/tray';
-import { PowerupSystem } from '../systems/powerups';
+import { PowerupSystem, type MisplacedBead } from '../systems/powerups';
 import { FinishPanel, type FinishPanelAction } from '../systems/finish-panel';
 import { SprintSettlePanel, type SprintSettleAction } from '../systems/sprint-settle';
 import { comboVfxProgress, comboVfxSpec, type ComboVfxKind, type ComboVfxSpec } from '../view/combo-vfx';
@@ -151,7 +151,7 @@ export interface BeadsEvents extends Record<string, unknown> {
   'bead:rejected': { row: number; col: number; colorIdx: number };
   'tray:full': Record<string, never>;
   'tray:expanded': Record<string, never>;
-  'powerup:used': { type: string; affectedSlots: readonly number[] };
+  'powerup:used': { type: string; affectedCells: readonly { row: number; col: number }[] };
   'timer:tick': { remaining: number };
   'timer:urgent': { remaining: number };
   'level:cleared': { levelId: string; remaining: number; ratio: number; stars: number };
@@ -625,7 +625,6 @@ export class BeadsGame implements Game {
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._emit('tray:selected', { slot, colorIdx: color });
-    this._powerups.noteSelected(slot); // S6 镜像：region 的窗口锚点（§2.2）
     return true;
   }
 
@@ -716,17 +715,22 @@ export class BeadsGame implements Game {
 
   /**
    * S2 route 2 — 道具卡点击，一次原子结算（powerups §2.3）。
+  /**
+   * v1.22 解环器（§3.6，用户 2026-09-16 裁定）：「**点名归 S6、动手归 S3**」。
+   * S6 只从**当下**的错位珠清单里点名本次要归位的格（`affectedCells`），真正的
+   * grid 归位由本方法经 grid 既有写原语（`retrieve` / `fill` / `setBead`）执行 ——
+   * 沿用旧版「S6 不写、调用方动手」的分层，只是作用对象从**托盘槽**换成**棋盘格**。
    *
-   * 「点名归 S6、动手归 S4」：本方法拿 `affectedSlots` 后**由 `_tray` 执行清槽**
-   * （§2.4「清槽动作由 S4 执行」），再把**实际清空**的槽广播进 `powerup:used`
-   * （§8-1 要求 payload 与 S4 实际清空 1:1）。
+   * 归位规则（§3.6）：错位珠直移入「其珠色对应的 empty 目标格」；若该目标格被
+   * 另一颗错位珠占据 ⇒ **两格交换**（`setBead` 双向写，`_misplacedCount` 自洽）。
+   * 托盘零读写（tray-spawner v2.0 §2.2 纯缓冲）。
    *
    * @returns 仅当效果真的生效时为 true；`exhausted` 另置占位轻提示（§2.6），
    *          `empty` / `invalid` 为零事件零扣次的静默出口。
    */
   usePowerup(type: PowerupType): boolean {
     if (this._machine.current !== 'playing') return false;
-    const outcome = this._powerups.request(type);
+    const outcome = this._powerups.request(type, this._misplacedBeads());
     if (outcome.kind === 'exhausted') {
       // 占位文案与 `btn_expand` 同一常量（§2.6 布局 A：四处广告位同一语义）。
       this._powerupHint = AD_PLACEHOLDER_HINT_TEXT;
@@ -734,22 +738,90 @@ export class BeadsGame implements Game {
     }
     if (outcome.kind !== 'used') return false;
     this._powerupHint = '';
-    const cleared = this._tray.clearSlots(outcome.affectedSlots);
-    if (cleared.length !== outcome.affectedSlots.length) {
-      // 镜像漂移（S4 侧已 free）：幂等跳过并记警告供回归排查（§2.4 一致性硬要求）。
-      console.warn(
-        `[beads] S6 镜像漂移：点名 ${outcome.affectedSlots.length} 槽、实际清空 ${cleared.length} 槽`,
-      );
+
+    const solved: { row: number; col: number }[] = [];
+    for (const cell of outcome.affectedCells) {
+      if (this._solveMisplaced(cell.row, cell.col)) solved.push({ row: cell.row, col: cell.col });
     }
-    this._emit('powerup:used', { type: outcome.type, affectedSlots: cleared });
+    if (solved.length === 0) {
+      // 点名却无一可归位（几何上不可能：清单即错位珠）⇒ 记警告供回归排查。
+      console.warn(`[beads] S6 解环器点名 ${outcome.affectedCells.length} 格、实际归位 0 格`);
+    }
+    this._emit('powerup:used', { type: outcome.type, affectedCells: solved });
+
+    // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）。
+    if (solved.length > 0 && this._grid.isComplete()) {
+      if (this._mode === 'sprint') this._completeStage();
+      else this._machine.transition('level-clear');
+    }
     return true;
+  }
+
+  /**
+   * 当下棋盘上的错位珠清单（**行主序**）—— S6 请求那一刻的唯一输入。
+   * v1.22 用它替换旧「托盘只读镜像」：S6 因此无状态、零双真源（连带消解 E3
+   * 移交的 `noteSpawned` 失真 —— 供料关停后主循环恒不喂 `tray:spawned`）。
+   */
+  private _misplacedBeads(): MisplacedBead[] {
+    const out: MisplacedBead[] = [];
+    for (let row = 0; row < this._grid.rows; row++) {
+      for (let col = 0; col < this._grid.cols; col++) {
+        if (!this._grid.isMisplaced(row, col)) continue;
+        out.push({ row, col, colorIdx: this._grid.cell(row, col)!.beadColorIdx });
+      }
+    }
+    return out;
+  }
+
+  /**
+   * 把 `(row, col)` 上的错位珠**归位**：移到「珠色对应的目标格」。
+   *  - 目标格为 empty ⇒ `retrieve` + `fill`（同一调用栈，与取回→归位同源）；
+   *  - 目标格被另一颗错位珠占据 ⇒ 两格 `setBead` 交换（就位珠 / locked 永不可触）。
+   *
+   * @returns 是否真的归位（false = 该格不是错位珠 / 无合法目标格）。
+   */
+  private _solveMisplaced(row: number, col: number): boolean {
+    if (!this._grid.isMisplaced(row, col)) return false;
+    const bead = this._grid.cell(row, col)!.beadColorIdx;
+
+    // 1) 首选：珠色的 empty 目标格。2) 退而：被另一颗错位珠占据的同色目标格 ⇒ 交换。
+    let target: { row: number; col: number } | null = null;
+    let swapWith: { row: number; col: number } | null = null;
+    for (let r = 0; r < this._grid.rows; r++) {
+      for (let c = 0; c < this._grid.cols; c++) {
+        if (r === row && c === col) continue;
+        const other = this._grid.cell(r, c)!;
+        if (other.colorIdx !== bead) continue;
+        if (other.state === 'empty') {
+          if (!target) target = { row: r, col: c };
+        } else if (this._grid.isMisplaced(r, c) && !swapWith) {
+          swapWith = { row: r, col: c };
+        }
+      }
+    }
+
+    if (target) {
+      this._grid.retrieve(row, col);
+      this._grid.fill(target.row, target.col, bead);
+      // 解环器路径**不带 slot**（§4 事件表：`bead:placed.slot` 改可选）。
+      this._emit('bead:placed', { row: target.row, col: target.col, colorIdx: bead });
+      return true;
+    }
+    if (swapWith) {
+      const otherBead = this._grid.cell(swapWith.row, swapWith.col)!.beadColorIdx;
+      this._grid.setBead(row, col, otherBead);
+      this._grid.setBead(swapWith.row, swapWith.col, bead);
+      this._emit('bead:placed', { row, col, colorIdx: otherBead });
+      this._emit('bead:placed', { row: swapWith.row, col: swapWith.col, colorIdx: bead });
+      return true;
+    }
+    return false;
   }
 
   /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
   expandTray(): boolean {
     if (!this._tray.expand()) return false;
     this._emit('tray:expanded', {});
-    this._powerups.noteCapacity(this._tray.capacity); // S6 镜像：生效容量（§2.1）
     return true;
   }
 
@@ -779,7 +851,6 @@ export class BeadsGame implements Game {
     const slot = this._tray.firstFree();
     if (slot < 0 || !this._tray.spawnInto(slot, colorIdx)) return -1;
     this._emit('tray:spawned', { slot, colorIdx });
-    this._powerups.noteSpawned(slot);
     return slot;
   }
 
@@ -1027,16 +1098,8 @@ export class BeadsGame implements Game {
 
     // 托盘：先扩容，再逐槽还原（`colorIdx = 0` 即 free）。
     if (snapshot.trayExpanded && !this._tray.expanded) this._tray.expand();
-    // S6 镜像：**先容量、后逐槽**（否则扩展行槽会被容量守卫丢弃）。镜像本身绝不
-    // 从快照恢复——它只是托盘的投影，防双真源（与 `needed[]` 同口径，提案 §2）。
-    this._powerups.noteCapacity(this._tray.capacity);
-    for (let i = 0; i < snapshot.traySlots.length; i++) {
-      const colorIdx = snapshot.traySlots[i]!.colorIdx;
-      if (colorIdx > 0 && this._tray.spawnInto(i, colorIdx)) this._powerups.noteSpawned(i);
-    }
-    if (snapshot.traySelected >= 0 && this._tray.select(snapshot.traySelected) === 'selected') {
-      this._powerups.noteSelected(snapshot.traySelected);
-    }
+    // v1.22（WXG-T-137）：S6 已无托盘镜像（道具目标 = 棋盘错位珠）⇒ 这里不再
+    // 逐槽喂镜像，只恢复三计数（`restoreUses`）。托盘槽由上面的逐槽还原独立恢复。
     this._powerups.restoreUses(snapshot.powerupUses);
 
     // 供料：**先 interval 再 acc**（`interval` setter 会把累加器清零）。
@@ -1726,7 +1789,6 @@ export class BeadsGame implements Game {
     switch (verdict.outcome) {
       case 'placed': {
         this._tray.takeBead(slot);
-        this._powerups.notePlaced(slot); // S6 镜像：该槽 free + 选中锚点失效（§2.4）
         this._emit('bead:placed', {
           row: verdict.row,
           col: verdict.col,
@@ -2138,9 +2200,9 @@ export class BeadsGame implements Game {
 
     // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and
     // leans on the always-on ad_badge, §2.6) + the one-shot over-limit hint.
-    s.powerupFreeUses.region = this._powerups.uses.region;
-    s.powerupFreeUses.clearAll = this._powerups.uses.clearAll;
-    s.powerupFreeUses.random = this._powerups.uses.random;
+    s.powerupFreeUses.solver = this._powerups.uses.solver;
+    s.powerupFreeUses.solverPlus = this._powerups.uses.solverPlus;
+    s.powerupFreeUses.solverRandom = this._powerups.uses.solverRandom;
     s.powerupHint = this._powerupHint;
 
     // S7 结算·过关面板（ux-spec §3.4）：数据 + 动画进度一起进快照，视图只读。

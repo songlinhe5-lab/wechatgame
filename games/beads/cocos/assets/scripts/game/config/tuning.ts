@@ -161,11 +161,29 @@ export const TIMER_TICK = 1.0;
 /** Failure condition is *only* the countdown reaching zero (tray full never fails). */
 
 // ─────────────────────────────────────────────────────────── §3.6 powerups
-/** The three tray-clearing powerups, in card order left → right (§3.6). */
-export const POWERUP_TYPES = ['region', 'clearAll', 'random'] as const;
-/** `region`: clears a **contiguous** run of this many slots (§3.6, A6). */
+/**
+ * v1.22（WXG-T-137，用户裁定）：三道具从「清托盘珠」反转为**解环器 = 自动归位棋盘
+ * 错位珠**，次序即卡片左 → 右（§3.6）。
+ *
+ *  `solver`        — 归位**行主序第 1 颗**错位珠；
+ *  `solverPlus`    — 归位前 `SOLVER_PLUS_COUNT` 颗错位珠（不足不补）；
+ *  `solverRandom`  — 用注入 `Rng` 抽 `SOLVER_RANDOM_COUNT` 颗错位珠（不足不补）。
+ *
+ * 道具目标 = 棋盘错位珠；托盘**零读写**（错位珠在 grid 内直移 / 交换闭环）。
+ */
+export const POWERUP_TYPES = ['solver', 'solverPlus', 'solverRandom'] as const;
+/** `solverPlus`：一次最多归位的错位珠数（§3.6 v1.22；不足不补）。 */
+export const SOLVER_PLUS_COUNT = 3;
+/** `solverRandom`：一次抽取归位的错位珠数（§3.6 v1.22；不足不补）。 */
+export const SOLVER_RANDOM_COUNT = 1;
+/**
+ * ⛔ v1.22 作废（WXG-T-137 解环器反转，systems-index §3.6）：「清**槽**」语义随道具
+ * 目标改换而整体消失 ⇒ 窗口长度与随机抽珠数失去消费方。**死值保留**（§3.2 / §3.4
+ * 同款口径：清槽玩法复活零成本；删除需先复活 `regionWindow` 与其调用面）。
+ */
+/** ~~`region`：清连续这么多槽。~~ ⛔ 作废死值，见上。 */
 export const REGION_CLEAR_SLOTS = 6;
-/** `random`: removes at most this many held beads, equi-probable (§3.6, A6). */
+/** ~~`random`：等概率抽至多这么多颗持有珠。~~ ⛔ 作废死值，见上。 */
 export const RANDOM_CLEAR_COUNT = 5;
 /** Free uses of *each* powerup per level — three independent counters (§3.6, A5). */
 export const POWERUP_FREE_USES = 1;

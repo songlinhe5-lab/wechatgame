@@ -314,7 +314,8 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     const total = h.game.remaining;
     const budget = total * STAR2_RATIO * 0.5;
     while (h.game.remaining > budget && h.game.phase === 'playing') h.advance(1 / 60);
-    h.game.usePowerup('clearAll'); // 腾空供料期间堆满的托盘
+    // v2.0 供料已关停（WXG-T-136）⇒ 旧「usePowerup('clearAll') 腾托盘」步骤随
+    // 死路径删除；托盘在本玩法下恒为空，无需腾挪。
     fillBoard(h);
     expect(h.game.lastStars).toBe(1); // 本次只有 1★
     expect(h.game.starsByLevel[0]).toBe(3); // 总览仍取历史最好

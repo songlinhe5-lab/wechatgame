@@ -269,9 +269,9 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     watchingAd: false,
     failHint: '',
     powerupFreeUses: {
-      region: POWERUP_FREE_USES,
-      clearAll: POWERUP_FREE_USES,
-      random: POWERUP_FREE_USES,
+      solver: POWERUP_FREE_USES,
+      solverPlus: POWERUP_FREE_USES,
+      solverRandom: POWERUP_FREE_USES,
     },
     powerupHint: '',
     clearPanelVisible: false,

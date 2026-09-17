@@ -1919,3 +1919,45 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
   - **⑤ 单测清单与数字**：**286 例全绿**（原 284 例逐例保留——改写不删例，新增 2 例）。改写（按 v2.0 §8 改写替代判据）：`tray-spawner.test` §8-1→**60s 零供料反证**（`tray:spawned`===0 + `tray:full`===0 + 托盘恒空，**有显式计数断言**）、GAP-02→首帧零供料、§8-3/GAP-06 降为 Spawner 类**死路径单元锁定**；`frame-order.test` fo-1/2/4→供料段恒空下的帧内序（输入段先于计时段）、fo-3 去掉供料前置；`pause-settings` §8-2→恢复后零供料反证（6s>原 interval）；`powerups` §8-6/§8-10→「清槽后可再持有 / 同帧入槽守恒」（giveTrayBead 死路径替代首供位）；`core-loop` §8-5、`sprint` §8-1/§8-7、`in-level-snapshot` §8-15、`feedback-vfx` 5 处→夹具珠改 `giveTrayBead`+`placeColor` 直投（helpers 增 `firstEmptyCell`）。**新增 2 例**：① 重试重置清空（托盘全空 + 扩展回基线 + 重置后 10s 零 spawn 零 full）；② 满槽长跑 30s 零 `tray:full`（满槽只禁取回、无告警事件，E1/E2 满槽拒取回归在 `misplaced.test` 继续覆盖）。`revive.test`/`audio-dispatch.test` 等 17 文件**零改动**通过。
   - **⑥ 验证**：`pnpm -F @wxgame/beads test` 286/286 全绿；`pnpm run verify` 14 PASS + `check:size` FAIL（beads 主包 4537.6 KB>4096，**存量构建产物漂移，任务书已裁定不算**）；`framework:sync` 镜像已刷新（写入 3：tuning/beads-game/spawner），`framework:sync:check` ✅。热路径零分配（删代码无新增分配）；`src/view/**`/`design/**`/`packages/**`/`production/qa/**`/`design/audio/**` 零触碰；未 commit/push。
   - **遗留移交**：① S6 镜像失真（E2 retrieve 不喂 `noteSpawned`）→ E4 解环器反转时一并消解；② `levels-data.ts` 逐关 `spawnInterval` 字段 + `levels.ts` 区间校验（作废常量的残余消费）→ E5 swaps/JSON 批次统一清理；③ E6 若需满槽告警视觉语义变更（如改文/取消），走设计变更单，本单未动。
+
+## WXG-T-137
+
+- **名称**：**beads · E4：解环器三型（powerups 反转，Epic T-133 · 依赖 E1/E3 已就绪）**
+- **负责**：程基岩(engineering-lead)　**状态**：🔄 进行中（2026-09-16 派工）　**P1**
+- **规格真源**：`powerups.md v1.3`（三道具反转为**解环器** = 自动归位错位珠；§3.6 冻结变更）+ `systems-index v1.22` §3.6（`POWERUP_TYPES → ['solver','solverPlus','solverRandom']`、新冻结 `SOLVER_PLUS_COUNT=3`/`SOLVER_RANDOM_COUNT=1`、`REGION_CLEAR_SLOTS`/`RANDOM_CLEAR_COUNT` 作废、道具目标改「棋盘错位珠（**托盘零读写**）」）+ `bead-grid.md v2.0` §8-6（`filled` 终态推翻后的道具写入口径）+ §4 事件表（`powerup:used.affectedSlots → affectedCells`）。
+- **用户裁定依据**：2026-09-16「三个道具反转为解环器（推荐）」。
+- **范围**：
+  1. **三型解环器**：`solver`（行主序首颗错位珠）/ `solverPlus`（同ocha）/`solverRandom`（RNG 选 1 颗）—— 每型把选中的错位珠**自动归位**（珠移到其颜色对应的空格）。
+  2. **常量落地**：`SOLVER_PLUS_COUNT=3`/`SOLVER_RANDOM_COUNT=1` 进 `tuning.ts`（来源 §3.6 v1.22）；旧 `REGION_CLEAR_SLOTS`/`RANDOM_CLEAR_COUNT` 按 §3.6 作废处置（参照 E3 的「注释标注作废 + 死值保留」口径，回传说明）。
+  3. **事件**: `powerup:used` payload `affectedSlots → affectedCells`（消费方 grep 后联动，不得静默）；`bead:placed` 在解环器路径**不带 `slot`**（E1 已把 slot 改可选，本单收尾）。
+  4. **结构保留**：三卡位 + `AD_PLACEMENTS=4` 结构、激励视频位不动；**旧类型名不静默映射**（若旧名仍在用，改名 + 回传说明）。
+  5. **S6 镜像收口**（E3 移交项）：`noteSpawned` 失真（E2 `retrieveBead` 入槽不喂）随本单「托盘零读写」一并消解。
+  6. **单测**：三型各自效果（含 `SOLVER_*_COUNT` 数值断言）、「无可解错位珠」时的行为（零事件 or 占位提示，按规格）、`affectedCells` payload、`bead:placed` 解环器路径无 slot、S6 镜像行为。
+- **⚠️ 陷阱**：① 道具**不得读写托盘**（§3.6 反转：目标=棋盘错位珠）—— 遇必须触碰托盘的实现请以 `retrieveBead` 复用 E1 API 或回传说明；② RNG 走既有 `services.rng`（L4 禁 `Math.random()`）；③ 归位可能触发通关判定（`isComplete` 零错位）—— 注意清除优先于失败（§2.2.2 cleared-priority）；④ **不得**在同帧既用解环器又产生玩家落子（每帧最多 1 条输入指令）；⑤ 工作树并发。
+- **Output Path**：`games/beads/src/game/**`、`games/beads/src/systems/powerups.ts`、`games/beads/src/config/tuning.ts`（仅解环器常量）、`games/beads/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-137` 小节（追加）。**禁改**：`src/view/**`（E6）、`src/entities/grid.ts`（E1 域，除非回传说明）、`design/**`、`packages/**`、`production/qa/**`。
+- **验收**：`pnpm -F @wxgame/beads test` 全绿（286 例零回归）；`pnpm run verify`（check:size 存量不算）。**不 commit/push**。
+- **⚠️ 派工形态记录**：本单 subagent 连续 4 次中途空返/被掐（读文件后零产出 ×2、idle timeout ×1、写盘被打断 ×1），最终由**主理人亲自接手落码收尾**——S6 重写主体由前次被掐会话完成（质量合格），主理人完成 `beads-game.ts` 接线、快照字段迁移、`powerups.test.ts` 全量改写与三处消费方同步。**教训**：E4 级别的「语义反转 + 全调用面迁移」任务对 subagent 的上下文负担过重，宜拆成「S6 纯函数重写」+「接线与测试迁移」两单。
+- **主理人落码记录（2026-09-16/17）**：
+  - **S6（`powerups.ts`）**：翻转 `POWERUP_TYPES` 为 `['solver','solverPlus','solverRandom']`；`request(type, misplaced)` 改为**无状态纯点名**（错位珠清单由调用方从 grid 现取，行主序）⇒ 旧「托盘只读镜像」（`_holding`/`_anchor`/`noteSpawned`/`notePlaced`/`noteSelected`/`noteCapacity`）整体删除——**连带消解 E3 移交的 `noteSpawned` 失真**；`regionWindow` 标死路径保留；`POWERUP_LABELS` 改「解环 / 解环 ×3 / 随机解环」（⚠️ 待美术/文案确认，原出处 `assets-spec §1.4` 本单禁改）。
+  - **S3 接线（`beads-game.ts`）**：`usePowerup` 改「点名归 S6、动手归 S3」——`_misplacedBeads()` 现取行主序错位清单 + `_solveMisplaced()` 经 grid 既有写原语（`retrieve`/`fill` 直移，或 `setBead` 双格交换）执行归位；**托盘零读写**；`powerup:used` payload `affectedSlots → affectedCells`（记**实际归位**格，点名珠可能被同对交换连带修好）；解环器路径 `bead:placed` **不带 slot**；归位后零错位 ⇒ cleared-priority（normal → `level-clear`，sprint → `_completeStage`）。
+  - **快照迁移**：`powerupFreeUses` 字段 `region/clearAll/random → solver/solverPlus/solverRandom`（`state.ts` + `crash-snapshot.ts` 同批）。
+  - **测试**：`powerups.test.ts` 全量改写（§3.6 常量镜像 / §8-1 solver 首颗 / §8-2 solverPlus 上限与不足不补 / §8-3 直移与交换两几何 / §8-4 solverRandom 确定性 / §8-5 不足不补 / **§8-6 零托盘读写**（新判据）/ §8-7 只动错位珠 / §8-8 计数独立+超限占位不 load/show / §8-9 空作用零扣次+非法 type / §8-10 `bead:placed` 无 slot + 通关）；`frame-order`（道具在输入段先于计时）/ `in-level-snapshot`（§8-16 字段名）/ `finish-panel`（删死路径步骤）同步。
+  - **测试基建教训（入册）**：① `isFillable` 只对 **empty** 格为真 ⇒ fill 之后收集 flat 恒为空（曾致整组 0 错位）；② 三色下同色对调 = 零错位 ⇒ 错位装配必须贪心找**异色对**。
+- **门禁**：`pnpm -F @wxgame/beads test` **284/284 全绿**（25 文件；原 286 例改写不删例，新增若干、合并若干）；`tsc --noEmit` 零错误；`framework:sync:check` ✅；`verify` PASS 14｜FAIL 1（唯一 FAIL = `check:size` 存量漂移，维持发布域后置裁定）。
+- **主理人复核结论**：三型均实际归位（含 `SOLVER_PLUS_COUNT=3`/`SOLVER_RANDOM_COUNT=1` 数值断言）✅；零托盘读写有专判据 ✅；`affectedCells` 消费方全同步（frame-order/audio-dispatch/in-level-snapshot）✅。
+- **状态**：**✅ E4 完成**（Epic T-133 进度 4/7）。
+
+## WXG-T-138
+
+- **名称**：**beads · v1.23「大胆重制」提案落盘（冻结面七项变更串行落）**
+- **负责**：主理人(WorkBuddy)　**状态**：✅ 完成（2026-09-17 落盘）　**P1**
+- **用户裁定依据**：2026-09-16 grill-me 设计拷问会话（WorkBuddy），两轮 16 问**全部按推荐拍板**。提案正本 = `games/beads/design/proposals/v1.23-bold-remake.md`（裁定全录 + 诚实修正存档）。
+- **核心诊断**：v1.22 后供料关停 + 托盘 12 槽 ≫ k≤8 + 恒定 300s ⇒ 支柱 2「槽位压力」事实死亡，失败页/续时位/星级区分度连坐悬空。**诚实修正**：托盘 2 槽即可滚窗解任意置换 ⇒ 容量是手感旋钮非难度闸门。
+- **落盘清单（实际执行）**：
+  1. `systems-index.md` → **v1.23**，七处：版本行；§1 S4 职责注；§3.4 `TRAY_BASE_SLOTS` 12→**6**、`TRAY_EXPAND_SLOTS` 12→**6**（A1 二次变更）；§3.5 区间 [180,420]→**[120,420]** + 新冻结 `LEVEL_TIME_OVERRIDE = clamp(k×45s, 120, 420)`；§3.7 新增**主题解锁语义**行（★货币化，动「星级只记录」原句）；§3.10 新增 `SPRINT_K_CURVE = min(2+⌊stage/2⌋, MISPLACED_PAIRS_MAX)` `[待 playtest]`；§3.13 新增**环长分布 `cycleProfile`** 行；§3.8 `EMPTY_GHOST_ALPHA` 作废态**转正为设置开关**（默认关，值 0.32 恢复有效）。
+  2. `systems-index-changelog.md`：追加 **v1.23** 行（含全部变更逐条与后继清单）。
+  3. `input-control.md` → **v2.1**：§2.1「格间不直换」升级——`swap` 由 Should 改**裁定永不实现**（Q2；工程无需预留接口，无路由/判据改动）。
+  4. `concept.md` → **v1.2**：支柱 2 改写「托盘工作台的手感与环谜题」；§4 MDA 去供料化对齐「错位归位」；§6 张力双源/三旋钮/心流保护对齐（时间按 k 定价、托盘 6 槽、k×cycleProfile）；§7 范围分层随 Q15 更新（MVP 追加归位连击 + 幽灵符号开关；动画/收藏册 Should；主题/生成器 Could；Won't 加 swap）；决策记录新增 **D11**（禁 swap）/ **D12**（星级主题语义）；附录 A 加「历史轨迹」声明。
+- **本单不改**：`src/**`（工程落码另排，不与 T-137 竞写）、`levels-01-08.json`（逐关 time 按公式复核属数据侧后继）、`score-combo.md`（归位连击机制节后继补）、`save-progress.md`（幽灵开关字段后继补）、art 侧文档（主题材质与托盘 6 槽面板视觉归 WXG-T-131 域）。
+- **后继（候选 backlog）**：① score-combo 增「归位连击」机制节（streak ≤4 档、音高表走 audio-events 变更单）；② levels JSON 逐关 time 复核；③ art：珠材质主题视觉规格 + 托盘 6 槽面板收窄；④ save-schema 幽灵开关字段；⑤ 生成器工具链化（印章库扩充 + `tools/scripts/`）。
+- **提交**：未 commit（待用户指示；台账 blob 法回填见下）。

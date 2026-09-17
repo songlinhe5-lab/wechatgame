@@ -44,9 +44,9 @@ export interface CrashTraySlot {
  * `POWERUP_FREE_USES` 已随 S6 落码可用，故 T-059 留的「待补」在本轮关闭。
  */
 export interface CrashPowerupUses {
-  readonly region: number;
-  readonly clearAll: number;
-  readonly random: number;
+  readonly solver: number;
+  readonly solverPlus: number;
+  readonly solverRandom: number;
 }
 
 /** 冲刺运行时态（仅 `mode === 'sprint'` 时非 null）。 */
@@ -164,7 +164,7 @@ function clampPowerups(raw: unknown): CrashPowerupUses {
     const n = nonNegInt(raw[key]);
     return n === null ? 0 : Math.min(n, POWERUP_FREE_USES);
   };
-  return { region: pick('region'), clearAll: pick('clearAll'), random: pick('random') };
+  return { solver: pick('solver'), solverPlus: pick('solverPlus'), solverRandom: pick('solverRandom') };
 }
 
 /**

@@ -1,6 +1,6 @@
 # 上下文预算报表（ctx/BUDGET.md）
 
-> 生成：2026-09-16 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
+> 生成：2026-09-17 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
 > token 为**估算值**（CJK≈1/字、ASCII≈1/4 字符；非精确 tokenizer），仅用于排行与阈值护栏。
 > 面向 agent 的阅读入口是 `ctx/ROUTES.md`；本表用于**人**复核预算与超限。
 
@@ -11,25 +11,25 @@
 | `AGENTS.md` | 1960 | 123 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 413 | 24 | 500 | ✅ |
-| `ctx/hot-files.md` | 3856 | 84 | 4000 | ✅ |
+| `ctx/hot-files.md` | 3857 | 84 | 4000 | ✅ |
 | `ctx/ROUTES.md` | 6897 | 227 | 7500 | ✅ |
 
 > AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
 > `ctx/ROUTES.md` 常驻阈值 **7500**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，且低于 B 项通用单文件上限 8000——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。
-> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **13380** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
+> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **13381** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
 
 ## 2. Top 20 大文件（估算 tokens）
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 127503 | 1921 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 130301 | 1963 | normal |
 | 2 | `production/qa/beads/g4-regression-report.md` | 83715 | 2123 | normal |
-| 3 | `production/qa/beads/test-cases.md` | 26692 | 496 | hot |
-| 4 | `games/beads/art/assets-spec.md` | 24260 | 872 | normal |
-| 5 | `games/beads/art/art-bible.md` | 23687 | 482 | normal |
-| 6 | `my-skills/_repos/superpowers/RELEASE-NOTES.md` | 23461 | 1400 | normal |
-| 7 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md` | 19356 | 1649 | normal |
-| 8 | `games/beads/art/accessibility.md` | 15985 | 148 | normal |
+| 3 | `games/beads/art/assets-spec.md` | 39171 | 1057 | normal |
+| 4 | `games/beads/art/art-bible.md` | 31975 | 490 | normal |
+| 5 | `production/qa/beads/test-cases.md` | 26692 | 496 | hot |
+| 6 | `games/beads/art/accessibility.md` | 26343 | 181 | normal |
+| 7 | `my-skills/_repos/superpowers/RELEASE-NOTES.md` | 23461 | 1400 | normal |
+| 8 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md` | 19356 | 1649 | normal |
 | 9 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-30-codex-efficiency-fixes.md` | 13107 | 1009 | normal |
 | 10 | `my-skills/_repos/superpowers/docs/porting-to-a-new-harness.md` | 12631 | 827 | normal |
 | 11 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
@@ -47,14 +47,14 @@
 
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
-| `production/TASKS-DETAIL.md` | 127503 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 130301 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 83715 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/art/assets-spec.md` | 39171 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/art/art-bible.md` | 31975 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 26692 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/art/assets-spec.md` | 24260 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/art/art-bible.md` | 23687 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/art/accessibility.md` | 26343 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/RELEASE-NOTES.md` | 23461 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md` | 19356 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/art/accessibility.md` | 15985 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-30-codex-efficiency-fixes.md` | 13107 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/porting-to-a-new-harness.md` | 12631 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -68,12 +68,12 @@
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/mattpocock-skills/CHANGELOG.md` | 11071 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 11064 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/systems-index.md` | 9745 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-06-11-visual-companion-final-hardening-fixup.md` | 9038 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md` | 8986 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/systems-index.md` | 8798 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-events.md` | 8660 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -84,6 +84,7 @@
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/input-control.md` | 8067 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/skills/subagent-driven-development/SKILL.md` | 8058 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 
 ## 4. 真实最常用章节与分布加权节省率（估算）

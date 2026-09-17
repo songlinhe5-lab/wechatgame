@@ -301,14 +301,14 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
 
     const missing = parseCrashSnapshot(base, ctx);
     expect(missing.snapshot).not.toBeNull();
-    expect(missing.snapshot!.powerupUses).toEqual({ region: 0, clearAll: 0, random: 0 });
+    expect(missing.snapshot!.powerupUses).toEqual({ solver: 0, solverPlus: 0, solverRandom: 0 });
 
     const clamped = parseCrashSnapshot(
-      { ...base, powerupUses: { region: -3, clearAll: 2.5, random: 7 } },
+      { ...base, powerupUses: { solver: -3, solverPlus: 2.5, solverRandom: 7 } },
       ctx,
     );
     // 上限 = POWERUP_FREE_USES = 1（§3.6；同值由 powerups.test.ts 的常量镜像断言守卫）。
-    expect(clamped.snapshot?.powerupUses).toEqual({ region: 0, clearAll: 0, random: 1 });
+    expect(clamped.snapshot?.powerupUses).toEqual({ solver: 0, solverPlus: 0, solverRandom: 1 });
   });
 
   // 提案 §2 的两项增补字段（T-057 冻结规则的必要载体）：缺省 0，且会被真正持久化。

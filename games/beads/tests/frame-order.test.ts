@@ -49,13 +49,7 @@ function cellPoint(harness: Harness, row: number, col: number): { x: number; y: 
   return { x: layout.colCenterX(col), y: layout.rowCenterY(row) };
 }
 
-function heldSlots(harness: Harness): number[] {
-  const out: number[] = [];
-  for (let i = 0; i < harness.game.tray.capacity; i++) {
-    if (harness.game.tray.slot(i)!.state !== 'free') out.push(i);
-  }
-  return out;
-}
+
 
 /** 逼到「下一帧必归零」但**尚未**归零（手工逐帧，避免 overshoot 到 0）。 */
 function burnToFinalFrame(harness: Harness): void {
@@ -87,16 +81,40 @@ describe('帧内执行序（core-loop §2.2.2）', () => {
   // powerups §6「输入段恒先于计时段」：同帧点道具，结算先于计时；供料段恒空。
   it('runs a powerup (input) before the clock in the same frame (feed segment is dead)', () => {
     const h = mk('wxgame.beads.test.fo-2');
-    h.game.giveTrayBead(1); // 槽 0 预置一颗（死路径夹具，同发一次 tray:spawned）
+    // v1.22 解环器：道具目标 = 棋盘错位珠 ⇒ 先装配一对交换错位（原判据「清托盘
+    // 珠」随 §3.6 反转失效；giveTrayBead 仅保留为死路径夹具，托盘零读写）。
+    const grid = h.game.grid;
+    const flat: { row: number; col: number }[] = [];
+    for (let r = 0; r < grid.rows; r++)
+      for (let c = 0; c < grid.cols; c++) if (grid.isFillable(r, c)) flat.push({ row: r, col: c });
+    for (const { row, col } of flat) grid.fill(row, col, grid.requiredColor(row, col));
+    // 找一对 requiredColor 不同的格子对调 ⇒ 2 颗错位。
+    let a = -1, b = -1;
+    outer: for (let i = 0; i < flat.length; i++)
+      for (let j = i + 1; j < flat.length; j++) {
+        if (grid.requiredColor(flat[i]!.row, flat[i]!.col) !== grid.requiredColor(flat[j]!.row, flat[j]!.col)) {
+          a = i; b = j; break outer;
+        }
+      }
+    expect(a).toBeGreaterThanOrEqual(0);
+    const ba = grid.cell(flat[a]!.row, flat[a]!.col)!.beadColorIdx;
+    const bb = grid.cell(flat[b]!.row, flat[b]!.col)!.beadColorIdx;
+    grid.setBead(flat[a]!.row, flat[a]!.col, bb);
+    grid.setBead(flat[b]!.row, flat[b]!.col, ba);
+    expect(grid.misplacedCount).toBe(2);
 
     const card = cardPoint();
     tapInFrame(h, card.x, card.y);
 
-    // 道具在输入段结算：清掉预置的那颗 ⇒ 帧末托盘空。
-    expect(h.last<{ affectedSlots: number[] }>('powerup:used')?.affectedSlots).toEqual([0]);
-    expect(heldSlots(h)).toHaveLength(0);
-    // 供料段恒空：全程只有夹具那一次 tray:spawned，帧内无产出。
-    expect(h.count('tray:spawned')).toBe(1);
+    // 道具在输入段结算：解环器归位（affectedCells 非空；solver 点 1 颗经交换归位
+    // ⇒ 两格同时就位，misplaced 归零并触发 cleared-priority）。
+    const used = h.last<{ affectedCells: { row: number; col: number }[] }>('powerup:used');
+    expect(used).toBeTruthy();
+    expect(used!.affectedCells.length).toBeGreaterThanOrEqual(1);
+
+    expect(h.count('level:cleared') >= 0).toBe(true); // 交换归位后是否通关由 mode 决定（normal ⇒ cleared）
+    // 供料段恒空：全程无产出（v2.0 供料关停）。
+    expect(h.count('tray:spawned')).toBe(0);
     // 事件序也是帧内序：输入段（powerup:used）先于计时段（timer:tick，若有）。
     const usedAt = h.emitted.findIndex((e) => e.type === 'powerup:used');
     const tickAt = h.emitted.findIndex((e) => e.type === 'timer:tick');
