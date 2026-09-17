@@ -334,7 +334,9 @@ if (T.TRAY_FULL_PULSE_MS === undefined || T.trayLayout === undefined) {
 }
 const { LEVELS } = await import(`${STAGE}/games/beads/src/config/levels.js`);
 const { BEADS_AUDIO_VOICES } = await import(`${STAGE}/games/beads/src/config/audio-voices.js`);
-const { pausePanelLayout } = await import(`${STAGE}/games/beads/src/systems/pause-panel.js`);
+// 【修订 45 · WXG-T-099】`rectsOverlap` 一并取出（§8-5 齿轮/面板与 `CAPSULE_AVOID` 的几何断言
+//   走**实现侧同一函数**，探针不自写重叠公式——自写会把「胶囊判据」变成另一套口径）。
+const { pausePanelLayout, rectsOverlap } = await import(`${STAGE}/games/beads/src/systems/pause-panel.js`);
 const { clearPanelLayout } = await import(`${STAGE}/games/beads/src/systems/clear-panel.js`);
 const { failPanelLayout } = await import(`${STAGE}/games/beads/src/systems/fail-panel.js`);
 const { finishPanelLayout } = await import(`${STAGE}/games/beads/src/systems/finish-panel.js`);
@@ -521,10 +523,41 @@ function findEmpty(s) {
 const demandOf = (s, c) => s.cells.reduce((n, x) => n + (!x.void && x.state === 'empty' && x.colorIdx === c ? 1 : 0), 0);
 const patternColors = (s) => new Set(s.cells.filter((c) => !c.void && c.colorIdx > 0).map((c) => c.colorIdx));
 
-function probeLevel(id, cols, rows, time, spawnInterval, fill, decoys = []) {
+/**
+ * 【修订 45 · WXG-T-099 · **夹具可构造性修复**，不是预期值改动】`levels-spec v1.2`（v2.0 错位装配）起
+ * `swaps` 为**必需字段**：缺则 BOOT 拒收（`L{id}: swaps 缺失或非数组`）⇒ 本夹具造出的关卡在 v2.0 后
+ * **全部进不了 PLAYING**，凡依赖自定义关卡的段会**假 FAIL 或直接崩溃**。修复 = 依 pattern 现文造出
+ * 合法 swaps：取「**可填**（非 `.`/`x`）且**互不同色**（同色交换无效）」的格对，并给
+ * `cycleProfile='short'` 与环长自洽（`misplaced 数 = swaps 数 + 环数` 恒等式自洽）。
+ * 旧对象语义不变 —— `pattern/time/decoys/spawnInterval` 逐字保留，`swaps` 为**新增必需字段**。
+ */
+function probeSwaps(pattern, pairs = 1) {
+    const rows = pattern.length, cols = pattern[0]?.length ?? 0;
+    const cells = [];
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const ch = pattern[r]?.[c];
+            if (!ch || ch === '.' || ch === 'x' || !Number.isInteger(Number(ch))) continue;
+            cells.push([r, c, Number(ch)]);
+        }
+    }
+    const swaps = [], used = new Set();
+    for (let i = 0; i < cells.length && swaps.length < pairs; i++) {
+        if (used.has(i)) continue;
+        for (let j = i + 1; j < cells.length; j++) {
+            if (used.has(j)) continue;
+            if (cells[i][2] === cells[j][2]) continue;   // 同色 ⇒ 「交换无效」，校验会拒收
+            swaps.push([cells[i][0], cells[i][1], cells[j][0], cells[j][1]]);
+            used.add(i); used.add(j);
+            break;
+        }
+    }
+    return swaps;
+}
+function probeLevel(id, cols, rows, time, spawnInterval, fill, decoys = [], pairs = 1) {
     const pattern = [];
     for (let i = 0; i < rows; i++) { let line = ''; for (let j = 0; j < cols; j++) line += fill(i, j); pattern.push(line); }
-    return { id, name: `probe-${id}`, cols, rows, time, spawnInterval, decoys, pattern };
+    return { id, name: `probe-${id}`, cols, rows, time, spawnInterval, decoys, pattern, swaps: probeSwaps(pattern, pairs), cycleProfile: 'short' };
 }
 
 // ───────────────────────────────────────────────────────── 渲染指令取证 helpers
@@ -2922,6 +2955,545 @@ function enterSprintGameOver(levelId) {
         + `　【与 P27d 的关系】P27d = 同判据的**主按钮**「重玩第 1 关」腿；本条 = **次按钮**腿（1:1 孪生）。`);
 }
 
+// ═══════════ P28a..j + P29a/b · S9 `pause-settings §8-1..10` + S5 `timer-gameover §8-11/12`
+/**
+ * 【修订 45 · WXG-T-099 / BD-21 执行层剩余】`test-cases.md §H` 的 H2（pause-settings 10 条）与
+ * H3（timer 2 条）此前只有**文档映射**（v1.3 §H 补编）与 vitest 覆盖（`tests/pause-settings.test.ts`
+ * / `revive.test.ts`），**未进可复跑探针** ⇒ 本节 12 条补齐，使 §H 的 22 条中本单范围 12 条
+ * 具备与 P1..P27 同口径的独立取证通路。
+ *
+ * 纪律（同 P27 族）：① **真链驱动** `tapChain`（`beginFrame→push→update→endFrame`），不用
+ * `tapDesign` 旁路；② **正负并列**（真阳性对照 / 面板外死区 / 未看完分支），负向不得是永真断言；
+ * ③ 判定**不放宽**，任一步与 §8 现文不符即 FAIL。
+ *
+ * ⚠️ **判据时效性（先核后判，防假 FAIL）**：`pause-settings.md §8` 现文仍为 **v1.2（2026-09-12）**，
+ * 早于 **v2.0 玩法反转**（WXG-T-133 / `test-cases §J`）。故：
+ *   • §8-2「首个供料不早于『暂停剩余间隔 +1 帧』」——**供料已关停**（用户 2026-09-16 裁定案 A）
+ *     ⇒ 该子句**不可构造**，按 P26 / §J.1 体例以**零供料反证**替代并记 **PASS\***，不把判据侧失效
+ *     算成实现缺陷；
+ *   • §8-3 五项重置的**第 2 项**按 `timer-gameover §8-6` **v1.3 现文**（恢复初始错位布置，
+ *     非「图案清空」）判读 —— 不得按 v1.2 旧文把「格未清空」判成缺陷；
+ *   • §8-3 第 5 项（道具免费次数）若**无可观测字段**即记 ⛔，不发明伪状态充数。
+ */
+const FR099 = 1 / 60;
+/** cells 指纹：state/底色/占位珠色（v2.0 错位 = `beadColorIdx !== colorIdx`）逐一比对。 */
+const fpCells = (s) => s.cells.map((c) => `${c.void ? 'v' : c.state}:${c.colorIdx}:${c.beadColorIdx}`).join('|');
+const fpTray = (s) => s.traySlots.map((t) => `${t.state}:${t.colorIdx}`).join('|');
+const heldOf = (s) => s.traySlots.filter((t) => t.state !== 'free').length;
+const panelBtn = (id, mode = 'normal') => pausePanelLayout(mode).buttons.find((b) => b.id === id);
+/** 推到 GAME_OVER（普通局）并等失败面板入场；上限防死循环。 */
+function driveToGameOver099(h, maxSec = 130) {
+    let frames = 0;
+    for (; frames < 60 * maxSec && h.game.phase === 'playing'; frames++) h.frame();
+    for (let f = 0; f < 15; f++) h.frame();
+    return frames;
+}
+/**
+ * 取回一颗错位珠 —— 构造「托盘非空 / 棋盘被改动」的非平凡前置（防恒等断言）。
+ *
+ * ⚠️ **v2.0 取回是两步式**（`beads-game.ts:1767-1765` 路由 4b / 5a）：点棋盘错位珠 =
+ * **只置 board 锚**（`selectBoardBead`），**再点托盘空槽**才真正取回入槽（`retrieveSelectedGroup`）。
+ * 首跑夹具按 v2.0 之前的「点一下即得珠」模型写 ⇒ 恒失败（实测 `mi=1` 取回后托盘仍全空）。
+ * 这不是实现缺陷 —— 判读时**先核夹具模型、再判实现**（修订 15bis 同款：探针缺陷会造出假 FAIL）。
+ */
+function retrieveOneMisplaced(h) {
+    const s0 = h.game.snapshot;
+    for (let i = 0; i < s0.cells.length; i++) {
+        const c = s0.cells[i];
+        if (c.void || c.state !== 'filled' || c.beadColorIdx <= 0 || c.beadColorIdx === c.colorIdx) continue;
+        const before = heldOf(h.game.snapshot);
+        h.tapChain(...cellXY(h.game.snapshot, i));                       // ① 选中错位珠（锚 = board）
+        const freeSlot = h.game.snapshot.traySlots.findIndex((t) => t.state === 'free');
+        if (freeSlot < 0) continue;
+        h.tapChain(...slotXY(freeSlot));                                  // ② 点空槽 ⇒ 取回入槽
+        if (heldOf(h.game.snapshot) > before) return i;
+    }
+    return -1;
+}
+/**
+ * v2.0 解算（把错位珠逐一归位）—— 用于装配 LEVEL_CLEAR / FINISH 相位。
+ * 旧夹具 `fillBoard()` 是 v2.0 之前的「填空格」模型：v2.0 棋盘**开局全满**（错位装配）⇒
+ * 根本没有空格可填 ⇒ 用它装配 LEVEL_CLEAR 恒失败（首跑实测相位仍 `playing`）。
+ * 循环：找错位格 → 两步式取回 → 托盘 holding 珠逐颗归位到「底色相同」的空格。
+ */
+function solveBoard099(h, maxSteps = 200) {
+    for (let step = 0; step < maxSteps; step++) {
+        const s = h.game.snapshot;
+        let mi = -1;
+        for (let i = 0; i < s.cells.length; i++) {
+            const c = s.cells[i];
+            if (!c.void && c.state === 'filled' && c.beadColorIdx > 0 && c.beadColorIdx !== c.colorIdx) { mi = i; break; }
+        }
+        if (mi < 0) break;
+        h.tapChain(...cellXY(s, mi));
+        const freeSlot = h.game.snapshot.traySlots.findIndex((t) => t.state === 'free');
+        if (freeSlot < 0) return false;
+        h.tapChain(...slotXY(freeSlot));
+        for (let k = 0; k < 24; k++) {                    // 整组取回 ⇒ 可能一次进多颗，逐颗归位
+            const s2 = h.game.snapshot;
+            const slot = s2.traySlots.findIndex((t) => t.state === 'holding');
+            if (slot < 0) break;
+            const color = s2.traySlots[slot].colorIdx;
+            let target = -1;
+            for (let j = 0; j < s2.cells.length; j++) {
+                const c = s2.cells[j];
+                if (!c.void && c.state === 'empty' && c.colorIdx === color) { target = j; break; }
+            }
+            if (target < 0) break;
+            h.tapChain(...slotXY(slot));
+            h.tapChain(...cellXY(h.game.snapshot, target));
+        }
+    }
+    return true;
+}
+
+// ── P28a · §8-1 齿轮 → 暂停 + 遮罩门禁（棋盘/托盘全覆盖 + 四类点击零响应）
+{
+    const h = mk();
+    h.frame();
+    // 真阳性对照（防永真断言）：PLAYING 下真链点槽**确实**能选中 ⇒ 下方「PAUSED 零响应」才是硬断言。
+    const slotA = h.game.giveTrayBead(1);
+    const slotB = h.game.giveTrayBead(2);
+    h.tapChain(...slotXY(slotB));
+    const positive = h.count('tray:selected') === 1 && h.game.snapshot.traySelected === slotB;
+    h.tapChain(...GEAR_XY);
+    const phaseIn = h.game.phase, pausedCount = h.count('game:paused');
+    const s0 = h.game.snapshot;
+    const inPaused = phaseIn === 'paused' && pausedCount === 1 && s0.panelVisible === true && s0.panelInteractive === true;
+    // 遮罩几何（渲染指令层）：必须盖住棋盘带与托盘带（§2.2）
+    const scrim = cmds(h).filter((c) => c.kind === 'rect')
+        .find((r) => typeof r.fill === 'string' && r.fill.includes('rgba(42,46,67'));
+    const covers = (band) => !!scrim && scrim.y <= band.yMin && scrim.y + scrim.h >= band.yMax && scrim.x <= 0 && scrim.w >= T.DESIGN_W;
+    const coverBoard = covers(T.PUZZLE_BAND), coverTray = covers(T.TRAY_BAND);
+    const before = h.emitted.length;
+    h.tapChain(...cellXY(h.game.snapshot, 0));      // 棋盘
+    h.tapChain(...slotXY(slotA));                    // 托盘（未被选中的那颗）
+    h.tapChain(...CARD_XY(0));                       // 道具卡
+    h.tapChain(375, T.TRAY_BAND.yMax + 40);          // 遮罩空处
+    const outsideEvents = h.emitted.length - before;
+    const stillPaused = h.game.phase === 'paused' && h.count('game:paused') === 1;
+    const v = positive && inPaused && coverBoard && coverTray && outsideEvents === 0 && stillPaused ? 'PASS' : 'FAIL';
+    rec('P28a / WXG-T-099 · TC-PAUSE-01 · S9 §8-1 齿轮 → 暂停 + 遮罩门禁', v,
+        `① 真阳性对照（PLAYING）：真链点槽 ${slotB} ⇒ tray:selected=${h.count('tray:selected')}、traySelected=${h.game.snapshot.traySelected}（期望 1/${slotB}）${positive ? '✓' : '✗'} —— 无此对照则下方零响应仅为「点了个空处」。\n`
+        + `② 正向（判据主体）：真链点齿轮 ⇒ phase=${phaseIn}、game:paused=${pausedCount}、panelVisible=${s0.panelVisible}、panelInteractive=${s0.panelInteractive}（期望 paused/1/true/true）${inPaused ? '✓' : '✗'}。\n`
+        + `③ 遮罩几何：scrim ${scrim ? `y=${scrim.y} h=${scrim.h} w=${scrim.w}` : '未找到（渲染指令层无该 rgba(42,46,67) 覆盖层）'} ⇒ 覆盖棋盘带(${T.PUZZLE_BAND.yMin}~${T.PUZZLE_BAND.yMax})=${coverBoard}、覆盖托盘带(${T.TRAY_BAND.yMin}~${T.TRAY_BAND.yMax})=${coverTray}。\n`
+        + `④ 面板外负向：真链点 棋盘格0 / 托盘槽${slotA} / 道具卡0 / 遮罩空处(375,${T.TRAY_BAND.yMax + 40}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位仍 paused=${stillPaused}。`
+        + `　【与 P27a 的关系】P27a 只证**路由门禁**（出入相位），本条补**遮罩几何**（渲染指令层覆盖两带）——§8-1 两半边在此合拢。`
+        + `　【夹具注明】` + '`giveTrayBead()`' + ` 仅作「建立可点目标」夹具（P21 修订 20 同口径），判据主体是②③④。`);
+}
+
+// ── P28b · §8-2 PAUSED 300s 冻结 + v2.0 零供料反证
+{
+    const h = mk();
+    h.frame();
+    const rem0 = h.game.remaining;
+    h.tapChain(...GEAR_XY);
+    const paused = h.game.phase === 'paused';
+    h.reset();                                   // 只计暂停期间的广播
+    h.advance(300);
+    const remPaused = h.game.remaining;
+    const frozen = Math.abs(remPaused - rem0) <= 1e-9;
+    const ticks = h.count('timer:tick');
+    h.tapChain(...panelCenter(panelBtn('resume')));
+    const remAfter = h.game.remaining;
+    const resumed = h.game.phase === 'playing' && Math.abs(remAfter - rem0) <= FR099 + 1e-9;
+    h.reset();
+    h.advance(6);                                // v2.0 零供料反证：> 原 SPAWN_INTERVAL
+    const spawned = h.count('tray:spawned');
+    const held = heldOf(h.game.snapshot);
+    const feedDead = spawned === 0 && held === 0;
+    const v = paused && frozen && ticks === 0 && resumed && feedDead ? 'PASS*' : 'FAIL';
+    rec('P28b / WXG-T-099 · TC-PAUSE-02 · S9 §8-2 PAUSED 300s 冻结（含 v2.0 零供料反证）', v,
+        `① 冻结：暂停前 remaining=${rem0}s ⇒ 暂停 300s 后 remaining=${remPaused}s（Δ=${(remPaused - rem0).toFixed(9)}s，期望 ≤1e-9）${frozen ? '✓' : '✗'}；暂停期间 timer:tick=${ticks}（期望 0，联合 S5 §8-5）。\n`
+        + `② 恢复：真链点「继续」⇒ phase=${h.game.phase}、remaining=${remAfter}s（期望与 ${rem0}s 相差 ≤1 帧 ${FR099.toFixed(4)}s）${resumed ? '✓' : '✗'}。\n`
+        + `③ 零供料反证：恢复后再跑 6s ⇒ tray:spawned=${spawned}、托盘持有=${held}（期望 0/0）${feedDead ? '✓' : '✗'}。`
+        + `　【⛔ 判据时效性 · 不记 FAIL】§8-2 原文子句「**首个供料不早于『暂停剩余间隔 +1 帧』**」在 **v2.0 供料关停**（用户 2026-09-16 案 A；` + '`tray-spawner v2.0 §8-2`' + `）后**不可构造** ⇒ 按 P26 / ` + '`test-cases §J.1`' + ` 体例以**零供料反证**替代。判据侧失效**不算实现缺陷**，故本条记 **PASS\\*** 而非 PASS/FAIL。`
+        + `　【复活条件】用户推翻供料关停裁定 ⇒ 恢复 §8-2 原子句并改判。`);
+}
+
+// ── P28c · §8-3 「重玩本关」五项重置 + 无 GAME_OVER 中转
+{
+    const h = mk();
+    h.frame();
+    const base = fpCells(h.game.snapshot);
+    const timeTotal = h.game.snapshot.timeTotal;
+    const dirtyCell = retrieveOneMisplaced(h);
+    const dirtied = dirtyCell >= 0 && heldOf(h.game.snapshot) > 0;
+    h.advance(12);                               // 烧倒计时
+    const expanded = h.game.expandTray();        // 扩展（第 4 项的反面前置）
+    h.frame();
+    const remDirty = h.game.remaining;
+    h.tapChain(...GEAR_XY);
+    h.tapChain(...panelCenter(panelBtn('restart')));
+    const s = h.game.snapshot;
+    const item1 = s.remaining === timeTotal;                        // 1 倒计时回满
+    const item2 = fpCells(s) === base;                              // 2 棋盘复位（v2.0 = 初始错位布置）
+    const item3 = heldOf(s) === 0;                                  // 3 托盘清空
+    const item4 = h.game.tray.expanded === false;                   // 4 扩展回基线
+    // 【修订 45】`powerups.used` 实为**按道具分档的对象**（实测 `{solver:0,solverPlus:0,solverRandom:0}`），
+    // 不是数字 ⇒ 首跑按 `typeof === 'number'` 判定恒落 null（子项空转）。此处改按「各档均为 0」判。
+    const puUsed = h.game.powerups ? h.game.powerups.used : undefined;
+    const item5 = puUsed && typeof puUsed === 'object'
+        ? Object.values(puUsed).every((v) => v === 0)
+        : (typeof puUsed === 'number' ? puUsed === 0 : null);   // 5 道具次数回初值（不可观测 ⇒ ⛔）
+    const noDetour = s.phase === 'playing' && h.count('level:failed') === 0;
+    const v = dirtied && expanded && item1 && item2 && item3 && item4 && item5 !== false && noDetour ? 'PASS' : 'FAIL';
+    rec('P28c / WXG-T-099 · TC-PAUSE-03 · S9 §8-3 重玩本关五项重置 + 无 GAME_OVER 中转', v,
+        `前置（弄脏）：真链取回错位格 #${dirtyCell} ⇒ 托盘持有=${heldOf(h.game.snapshot)}（>0）；再跑 12s ⇒ remaining=${remDirty}s（<${timeTotal}s）；expandTray()=${expanded} ⇒ 五项重置有可断言的反面。\n`
+        + `① 倒计时回满：remaining=${s.remaining}（期望 ${timeTotal}）${item1 ? '✓' : '✗'}；`
+        + `② 棋盘复位（**按 timer §8-6 v1.3 现文 = 恢复初始错位布置**，非「清空」）：cells 指纹与 BOOT 基线逐一相等=${item2}；`
+        + `③ 托盘清空：持有=${heldOf(s)}（期望 0）${item3 ? '✓' : '✗'}；`
+        + `④ 扩展回基线：tray.expanded=${h.game.tray.expanded}（期望 false）${item4 ? '✓' : '✗'}；`
+        + `⑤ 道具次数：powerups.used=${puUsed === undefined ? '不可观测 ⇒ ⛔' : JSON.stringify(puUsed)}（期望各档 0）${item5 === true ? '✓' : item5 === null ? '⛔' : '✗'}。\n`
+        + `⑥ 无中转：phase=${s.phase}（期望 playing）、level:failed=${h.count('level:failed')}（期望 0）${noDetour ? '✓' : '✗'}。`
+        + `　【§8-3 第 2 项口径】v1.2 旧文「图案清空（全部 filled→empty）」已被 ` + '`timer-gameover §8-6 v1.3`' + ` 改写为「恢复初始错位布置」⇒ **不得按旧文把「格未清空」判成缺陷**（该注记已在 §8-6 明文警示）。`
+        + (item5 === null ? `　【⛔】第 5 项无可观测字段（` + '`game.powerups.used`' + ` 不可达）⇒ 该子项记 ⛔、不参与判定，不发明伪状态充数。` : ''));
+}
+
+// ── P28d · §8-4 音乐/音效开关各切 2 次：即档 + 重启回显 + 两通道互不影响
+{
+    const h = mk();
+    h.frame();
+    h.tapChain(...GEAR_XY);
+    const bgm = panelBtn('toggle-bgm'), sfx = panelBtn('toggle-sfx');
+    const readSaved = () => (JSON.parse(h.storage.get(h.saveKey) || '{}') || {}).settings || {};
+    h.tapChain(...panelCenter(bgm));
+    const bgm1 = h.game.bgmMuted, savedB1 = readSaved().bgmMuted;
+    h.tapChain(...panelCenter(bgm));
+    const bgm2 = h.game.bgmMuted, savedB2 = readSaved().bgmMuted;
+    h.tapChain(...panelCenter(sfx));
+    const sfx1 = h.game.sfxMuted, savedS1 = readSaved().sfxMuted;
+    h.tapChain(...panelCenter(sfx));
+    const sfx2 = h.game.sfxMuted, savedS2 = readSaved().sfxMuted;
+    const togglesOk = bgm1 === true && bgm2 === false && sfx1 === true && sfx2 === false;
+    const savedOk = savedB1 === true && savedB2 === false && savedS1 === true && savedS2 === false;
+    // 互不影响：关 SFX ⇒ 点按钮零 sfx 请求；开 SFX（BGM 关）⇒ 仍有 sfx 请求（`_sfx()` 静音门在请求侧）
+    h.tapChain(...panelCenter(sfx));                                  // sfx → true（关）
+    const sfxOff = h.game.sfxMuted;
+    const base1 = h.requests.length;
+    h.tapChain(...panelCenter(panelBtn('toggle-large-text')));
+    const sfxOffReqs = h.requests.slice(base1).filter((r) => /^sfx_/.test(String(r.id))).length;
+    h.tapChain(...panelCenter(sfx));                                  // sfx → false（开）
+    const base2 = h.requests.length;
+    h.tapChain(...panelCenter(panelBtn('toggle-large-text')));
+    const sfxOnReqs = h.requests.slice(base2).filter((r) => /^sfx_/.test(String(r.id))).length;
+    const independent = sfxOff === true && sfxOffReqs === 0 && sfxOnReqs > 0;
+    h.tapChain(...panelCenter(bgm));                                  // 构造非平凡回显态（bgm=true）
+    const finalBgm = h.game.bgmMuted, finalSfx = h.game.sfxMuted;
+    const reboot = mk({ storage: h.storage, saveKey: h.saveKey });
+    reboot.frame();
+    const echo = reboot.game.bgmMuted === finalBgm && reboot.game.sfxMuted === finalSfx && finalBgm === true;
+    const v = togglesOk && savedOk && independent && echo ? 'PASS' : 'FAIL';
+    rec('P28d / WXG-T-099 · TC-PAUSE-04 · S9 §8-4 双通道开关即档 + 回显 + 互不影响', v,
+        `① 各切 2 次（真链点面板行）：bgm ${bgm1}→${bgm2}、sfx ${sfx1}→${sfx2}（期望 true→false 各一轮）${togglesOk ? '✓' : '✗'}。\n`
+        + `② 即档（每次切换后读 storage.settings）：bgm ${savedB1}/${savedB2}、sfx ${savedS1}/${savedS2}（期望与内存态逐一相等）${savedOk ? '✓' : '✗'}。\n`
+        + `③ 互不影响：**关 SFX**（sfxMuted=${sfxOff}）后点「大字号」⇒ 新增 ` + '`sfx_*`' + ` 请求=${sfxOffReqs}（期望 0）；**开 SFX** 后同一按钮 ⇒ 新增=${sfxOnReqs}（期望 >0）${independent ? '✓' : '✗'} ⇒ 两通道门控彼此独立（` + '`beads-game.ts::_sfx()`' + ` 静音门在**请求侧**）。\n`
+        + `④ 重启回显（同 storage + 同 saveKey 的新实例）：bgmMuted=${reboot.game.bgmMuted}（期望 ${finalBgm}）、sfxMuted=${reboot.game.sfxMuted}（期望 ${finalSfx}）${echo ? '✓' : '✗'}。`
+        + `　【非平凡性】末次额外切一次 bgm 至 true，使回显态 ≠ 出厂默认 ⇒ ④不可能是「没写也没读」的恒等真。`);
+}
+
+// ── P28e · §8-5 齿轮热区 + 面板元素避让胶囊（几何断言，走实现侧 rectsOverlap）
+{
+    const gear = { xMin: 0, yMin: T.HUD_BAND.yMin, xMax: T.GEAR_HIT_SIZE, yMax: T.HUD_BAND.yMax };
+    const gearSizeOk = (gear.xMax - gear.xMin) >= T.TOUCH_MIN && (gear.yMax - gear.yMin) >= T.TOUCH_MIN;
+    const gearAvoid = !rectsOverlap(gear, T.CAPSULE_AVOID);
+    const rows = [];
+    let panelOk = true;
+    for (const mode of ['normal', 'sprint']) {
+        const lay = pausePanelLayout(mode);
+        const panelNoOverlap = !rectsOverlap(lay.panel, T.CAPSULE_AVOID);
+        let allBtn = true;
+        for (const b of lay.buttons) {
+            if (rectsOverlap(b.rect, T.CAPSULE_AVOID)) allBtn = false;
+            if ((b.rect.yMax - b.rect.yMin) < T.PANEL_BUTTON_H) allBtn = false;
+        }
+        panelOk = panelOk && panelNoOverlap && allBtn;
+        rows.push(`${mode}: 面板避让=${panelNoOverlap}/ 全部按钮避让+高≥${T.PANEL_BUTTON_H}=${allBtn}（${lay.buttons.length} 钮）`);
+    }
+    const v = gearSizeOk && gearAvoid && panelOk ? 'PASS' : 'FAIL';
+    rec('P28e / WXG-T-099 · TC-PAUSE-05 · S9 §8-5 齿轮热区 ≥88×88 + 面板元素避让胶囊', v,
+        `① 齿轮热区：x[${gear.xMin},${gear.xMax}]×y[${gear.yMin},${gear.yMax}] ⇒ ${gear.xMax - gear.xMin}×${gear.yMax - gear.yMin}（两轴 ≥ TOUCH_MIN=${T.TOUCH_MIN}）${gearSizeOk ? '✓' : '✗'}；与 CAPSULE_AVOID 重叠=${!gearAvoid ? '是（FAIL）' : '否'}。\n`
+        + `② 面板：` + rows.join('；') + `。`
+        + `　【单一真源】重叠判定复用实现侧 ` + '`pause-panel.ts::rectsOverlap`' + ` ⇒ 探针不自写第二套胶囊口径；几何常量全取 ` + '`tuning.js`' + ` 现文。`);
+}
+
+// ── P28f · §8-6 归零 vs 齿轮（帧内序基准：同帧暂停优先 / 跨帧 GAME_OVER 生效）
+{
+    // ① 跨帧：此前帧已借归零进 GAME_OVER ⇒ 无暂停
+    const a = mk({ levels: [probeLevel(960, 6, 5, 120, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    a.frame();
+    driveToGameOver099(a);
+    const aPhase = a.game.phase, aBefore = a.emitted.length;
+    a.tapChain(...GEAR_XY);
+    const crossOk = aPhase === 'game-over' && a.game.phase === 'game-over'
+        && a.count('game:paused') === 0 && a.emitted.length === aBefore;
+    // ② 同帧：归零与齿轮同帧到达 ⇒ 暂停优先
+    const b = mk({ levels: [probeLevel(961, 6, 5, 120, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    b.frame();
+    while (b.game.snapshot.remaining > FR099 && b.game.phase === 'playing') b.frame();
+    // 【修订 45 · 修探针缺陷，防假 FAIL】`snapshot.remaining` 是 **display ceiled**（`state.ts` 注）
+    // ⇒ 归零前一帧的读数恒 **0**；首跑用它做「>0」判定 ⇒ `preOk` 恒假 ⇒ 假 FAIL。
+    // 内部秒读 `game.remaining`（实测 5.5e-12 > 0）⇒ 才真能证明「本帧 tick 本会使倒计时归零」。
+    const remAt = b.game.remaining, phaseAt = b.game.phase;
+    b.tapChain(...GEAR_XY);                        // 同帧注入：push 与 update 在同一帧
+    // 【修订 45 · 当场拷标量】`h.game.phase` / `count()` 是**活对象**（修订 15bis(a) 同款）：
+    // 证据串若留到最后再读，读到的是「恢复并判负之后」的态 ⇒ 与当场判定自相矛盾。
+    const phaseAfterTap = b.game.phase, pausedAfterTap = b.count('game:paused'), failedAfterTap = b.count('level:failed');
+    const remAfterTap = b.game.remaining;
+    const samePaused = phaseAfterTap === 'paused' && pausedAfterTap === 1 && failedAfterTap === 0;
+    b.advance(2);
+    const stillPaused = b.game.phase === 'paused' && b.count('level:failed') === 0 && b.game.remaining > 0;
+    b.tapChain(...panelCenter(panelBtn('resume')));
+    b.advance(FR099 * 2);
+    const judged = b.game.phase === 'game-over' && b.count('level:failed') === 1;
+    const preOk = phaseAt === 'playing' && remAt > 0 && remAt <= FR099 + 1e-9;
+    const v = crossOk && preOk && samePaused && stillPaused && judged ? 'PASS' : 'FAIL';
+    rec('P28f / WXG-T-099 · TC-PAUSE-06 · S9 §8-6 归零 vs 齿轮（同帧暂停优先 / 跨帧 GAME_OVER）', v,
+        `① 跨帧（此前帧已借归零进 GAME_OVER）：真链点齿轮 ⇒ phase ${aPhase}→${a.game.phase}、game:paused=${a.count('game:paused')}（期望 0）、事件增量=${a.emitted.length - aBefore}（期望 0）${crossOk ? '✓' : '✗'}。\n`
+        + `② 同帧（本帧的 tick 本会使倒计时归零：内部 remaining=${remAt.toExponential(2)}s ∈(0,1 帧 ${FR099.toFixed(4)}s]、display ceiled=${b.game.snapshot.remaining === 0 ? 0 : b.game.snapshot.remaining}s、phase=${phaseAt}）：真链同帧注入齿轮 ⇒ phase=${phaseAfterTap}、game:paused=${pausedAfterTap}、level:failed=${failedAfterTap}（期望 paused/1/0）${samePaused ? '✓' : '✗'}、注入后 remaining=${remAfterTap.toExponential(2)}s；\n`
+        + `　再空跑 2s ⇒ 仍 paused=${stillPaused}、内部 remaining=${b.game.remaining.toExponential(2)}s（>0，恢复前不判负）；`
+        + `③ 恢复后：advance 2 帧 ⇒ phase=${b.game.phase}、level:failed=${b.count('level:failed')}（期望 game-over/1）${judged ? '✓' : '✗'}。`
+        + `　【判定基准】帧内序 = 输入 → 连击窗 → ~~供料~~ → 计时（§6 / WXG-T-031 裁定）；单线程固定步长下「事件到达序」不可观测 ⇒ 不复现旧口径。`);
+}
+
+// ── P28g · §8-7 非 PLAYING 五状态注入齿轮 ⇒ 零事件零状态变化
+{
+    const phases = [];
+    const boot = mk({ levels: [probeLevel(962, 6, 5, 300, 4.0, (i, j) => (i === 0 ? 'Z' : String(((i + j) % 3) + 1)))] });
+    boot.frame();
+    phases.push(['boot', boot]);
+    // 【修订 45】LEVEL_CLEAR 装配改用 `solveBoard099`（v2.0 解算）：旧 `fillBoard()` 是「填空格」模型，
+    // v2.0 棋盘开局全满 ⇒ 无空格可填 ⇒ 装配恒失败（首跑实测相位仍 `playing`，被误判成门禁失效）。
+    const clear = mk({ levels: [probeLevel(963, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    clear.frame();
+    const filled = solveBoard099(clear);
+    for (let f = 0; f < 15; f++) clear.frame();
+    phases.push(['level-clear', clear]);
+    const over = mk({ levels: [probeLevel(964, 6, 5, 120, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    over.frame();
+    driveToGameOver099(over);
+    phases.push(['game-over', over]);
+    const fin = mk({ levels: [probeLevel(965, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    fin.frame();
+    solveBoard099(fin);                                   // 同 P28g/LEVEL_CLEAR：v2.0 走解算，不走「填空格」
+    // 【修订 45】结算面板有**延迟入场门**（`CLEAR_PANEL_DELAY_MS = WAVE_MS = 800ms`，裁定 1）：
+    // 面板未 open 前 `hitTest` 恒无命中 ⇒ 只等 15 帧（250ms）点「查看结果」**永远无效**
+    // （首跑即因此把 finish 相位装成 level-clear）。等足 `WAVE_MS + 150ms` 再点。
+    const waitClearPanel = Math.ceil(T.WAVE_MS / 1000 / FR099) + 10;
+    for (let f = 0; f < waitClearPanel; f++) fin.frame();
+    const finClearPhase = fin.game.phase;
+    fin.tapChain(...panelCenter(clearPanelLayout({ lastLevel: true }).buttons.find((b) => b.id === 'next')));
+    for (let f = 0; f < 15; f++) fin.frame();
+    phases.push(['finish', fin]);
+    const paused = mk();
+    paused.frame();
+    paused.tapChain(...GEAR_XY);
+    phases.push(['paused', paused]);
+    const rows = [];
+    let allOk = filled;
+    for (const [name, h] of phases) {
+        const phase0 = h.game.phase;
+        const before = h.emitted.length;
+        h.tapChain(...GEAR_XY);
+        const okRow = phase0 === name && h.game.phase === name && h.emitted.length === before;
+        rows.push(`${name}:${okRow ? '✓' : '✗'}(${phase0}→${h.game.phase}, Δevents=${h.emitted.length - before})`);
+        allOk = allOk && okRow;
+    }
+    const v = allOk ? 'PASS' : 'FAIL';
+    rec('P28g / WXG-T-099 · TC-PAUSE-07 · S9 §8-7 非 PLAYING 五状态齿轮门禁', v,
+        `五相位各自装配后真链点齿轮（点击确已到达 ` + '`_handleTap`' + `，负向非平凡真）：` + rows.join('；') + `。`
+        + `　【装配】boot = pattern 首行含非法字符 'Z'（BOOT 拒收）；level-clear = v2.0 解算归位（=${filled}）；game-over = 推倒计时归零；finish = 单关通关（点「查看结果」前 phase=${finClearPhase}，期望 level-clear，需等足 800ms 延迟门）；paused = 已暂停。`
+        + `　【与 P27a 的关系】P27a 只覆盖 PAUSED 一相位；本条补齐另外四相位（§8-7 全五态）。`);
+}
+
+// ── P28h · §8-8 重复暂停幂等（PAUSED 中再注入 ⇒ 保存值不变、恢复后 remaining 正确）
+{
+    const h = mk();
+    h.frame();
+    h.advance(3);
+    const rem0 = h.game.remaining;
+    h.tapChain(...GEAR_XY);
+    const paused1 = h.game.phase === 'paused' && h.count('game:paused') === 1;
+    const remSaved = h.game.remaining;
+    h.tapChain(...GEAR_XY);                       // 第二次（齿轮在遮罩之后 ⇒ 被吃掉）
+    const paused2 = h.count('game:paused') === 1;
+    h.events.emit('game:paused', {});             // 直接注入通知（无消费者 ⇒ 不得改状态）
+    const remDuring = h.game.remaining;
+    const idempotent = paused1 && paused2 && Math.abs(remDuring - remSaved) <= 1e-9 && Math.abs(remSaved - rem0) <= 1e-9;
+    h.tapChain(...panelCenter(panelBtn('resume')));
+    const remAfter = h.game.remaining;
+    const okAfter = h.game.phase === 'playing' && remAfter <= rem0 + 1e-9 && remAfter > rem0 - 0.05;
+    const v = idempotent && okAfter ? 'PASS' : 'FAIL';
+    rec('P28h / WXG-T-099 · TC-PAUSE-08 · S9 §8-8 重复暂停幂等', v,
+        `① 首次真链点齿轮 ⇒ phase=${h.game.phase}、game:paused=${h.count('game:paused')}（期望 paused/1）、remaining=${remSaved}s（暂停前 ${rem0}s）。\n`
+        + `② 重复注入（第二条路 = 真链再点齿轮被遮罩吃掉；第三条路 = 直接 ` + '`events.emit(\'game:paused\')`' + `）⇒ game:paused 仍=${h.count('game:paused')}（期望 1）、remaining=${remDuring}s（与暂停值差 ${(remDuring - remSaved).toFixed(9)}s，期望 ≤1e-9）${idempotent ? '✓' : '✗'}。\n`
+        + `③ 恢复后：phase=${h.game.phase}、remaining=${remAfter}s（期望 ≈${rem0}s，≤1 帧内）${okAfter ? '✓' : '✗'}。`
+        + `　【口径】本条判的是**保存值不被覆盖**（S5 §8-9 同款），与「事件计数」分开读——注入的广播本身无消费者，不得据此判实现缺陷。`);
+}
+
+// ── P28i · §8-9 sprint 暂停冻结连击窗（恢复后从暂停值续算、不追溯断连）
+{
+    const h = mk();
+    h.frame();
+    h.game.startSprint();
+    const s0 = h.game.snapshot;
+    let placed = 0;
+    for (let i = 0; i < s0.cells.length && placed < 2; i++) {
+        const c = s0.cells[i];
+        if (c.void || c.state !== 'empty' || c.colorIdx <= 0) continue;
+        const slot = h.game.giveTrayBead(c.colorIdx);
+        if (slot < 0) continue;
+        const before = h.count('bead:placed');
+        h.game.selectTraySlot(slot);
+        h.tapChain(...cellXY(h.game.snapshot, i));
+        if (h.count('bead:placed') > before) placed++;
+    }
+    const constructible = placed === 2;
+    const streak0 = h.game.sprintTracker.streak;
+    h.advance(4);
+    const winLeft = h.game.sprintTracker.windowRemaining;
+    h.tapChain(...GEAR_XY);
+    const paused = h.game.phase === 'paused';
+    h.advance(300);
+    const breaksDuring = h.count('combo:break');
+    const winFrozen = Math.abs(h.game.sprintTracker.windowRemaining - winLeft) <= 1e-9;
+    const streakKept = h.game.sprintTracker.streak === streak0;
+    h.tapChain(...panelCenter(panelBtn('resume', 'sprint')));
+    const winAfter = h.game.sprintTracker.windowRemaining;
+    const resumed = h.game.phase === 'playing' && winAfter <= winLeft + 1e-9 && winAfter > winLeft - FR099 - 1e-9;
+    h.advance(Math.max(0, winAfter - 0.02));
+    const noEarlyBreak = h.count('combo:break') === 0;
+    h.advance(0.1);
+    const brokeAt = h.count('combo:break') === 1 && h.game.sprintTracker.streak === 0;
+    const v = !constructible
+        ? '⛔（夹具不可构造：sprint 首关无法连落 2 颗 ⇒ 不记 PASS 亦不记 FAIL）'
+        : (paused && winFrozen && streakKept && breaksDuring === 0 && resumed && noEarlyBreak && brokeAt ? 'PASS' : 'FAIL');
+    rec('P28i / WXG-T-099 · TC-PAUSE-09 · S9 §8-9 sprint 暂停冻结连击窗', v,
+        constructible
+            ? `① 构造：sprint 下连落 ${placed} 颗 ⇒ streak=${streak0}；再跑 4s ⇒ 连击窗剩余=${winLeft}s（0<·<2）。\n`
+            + `② 冻结：真链点齿轮 ⇒ phase=${h.game.phase}；暂停 300s（远超窗口）⇒ combo:break=${breaksDuring}（期望 0）、windowRemaining=${h.game.sprintTracker.windowRemaining}s（与 ${winLeft}s 差 ${(h.game.sprintTracker.windowRemaining - winLeft).toFixed(9)}s）${winFrozen ? '✓' : '✗'}、streak 保持=${streakKept}。\n`
+            + `③ 续算：真链点「继续」⇒ windowRemaining=${winAfter}s（期望 ≈${winLeft}s，不回满 5s）${resumed ? '✓' : '✗'}；再跑到窗口末 ⇒ combo:break=${h.count('combo:break')}（先 0 后 1）、streak=${h.game.sprintTracker.streak}（期望 0）⇒ 不追溯断连 ${brokeAt ? '✓' : '✗'}。`
+            : `sprint 首关可填格不足 / ` + '`giveTrayBead`' + ` 无法建立连击 ⇒ **前置不足不得当作缺失**（修订 27 同口径）⇒ 记 ⛔，待夹具改进后复跑。`
+            + `　【夹具注明】` + '`giveTrayBead()`' + ` 仅用于建立可落子目标（P21 修订 20 同口径）。`
+            + `　【⛔ 边界】真机触摸序与观感仍 ` + '`[R]`' + `。`);
+}
+
+// ── P28j · §8-10 面板入 ≤200ms / 出 ≤150ms（Node 侧时间轴；像素闪烁帧检 [Cocos] ⛔）
+{
+    const h = mk();
+    h.frame();
+    h.tapChain(...GEAR_XY);
+    const p0 = h.game.panel.progress;
+    let prev = p0, monoIn = true, framesIn = 0;
+    const inBudget = Math.ceil(T.PANEL_IN_MS / 1000 / FR099) + 2;
+    for (let i = 0; i < inBudget; i++) {
+        h.frame();
+        const now = h.game.panel.progress;
+        if (now < prev - 1e-9) monoIn = false;
+        prev = now;
+        framesIn = i + 1;
+        if (prev >= 1) break;
+    }
+    const inMs = framesIn * FR099 * 1000;
+    const inOk = monoIn && prev === 1 && inMs <= T.PANEL_IN_MS + FR099 * 1000;
+    h.tapChain(...panelCenter(panelBtn('resume')));
+    const durOut = h.game.panel.durationMs;
+    let prev2 = h.game.panel.progress, monoOut = true, framesOut = 0;
+    const outBudget = Math.ceil(T.PANEL_OUT_MS / 1000 / FR099) + 4;
+    for (let i = 0; i < outBudget; i++) {
+        h.frame();
+        const now = h.game.panel.progress;
+        if (now > prev2 + 1e-9) monoOut = false;
+        prev2 = now;
+        framesOut = i + 1;
+        if (!h.game.panel.visible) break;
+    }
+    const outMs = framesOut * FR099 * 1000;
+    const outOk = monoOut && h.game.panel.visible === false && outMs <= T.PANEL_OUT_MS + FR099 * 2000;
+    const constOk = T.PANEL_IN_MS <= 200 && T.PANEL_OUT_MS <= 150;
+    // 【修订 45】`p0` 是**点齿轮那一帧之后**的 progress（实测 1/12 = 0.0833，面板已在 ramp 中）⇒
+    // 首跑写死 `p0 === 0` 恒假 ⇒ 假 FAIL。判据只约束「入 ≤200ms」⇒ 起点只需 **<1**（尚未到顶）。
+    const v = p0 < 1 && inOk && outOk && durOut === T.PANEL_OUT_MS && constOk ? 'PASS*' : 'FAIL';
+    rec('P28j / WXG-T-099 · TC-PAUSE-10 · S9 §8-10 面板入/出动效预算（Node 侧时间轴）', v,
+        `① 入：progress ${p0} → 单调上升=${monoIn}、${framesIn} 帧（${inMs.toFixed(1)}ms）内到 1（预算 PANEL_IN_MS=${T.PANEL_IN_MS}ms）${inOk ? '✓' : '✗'}。\n`
+        + `② 出：durationMs=${durOut}（期望 ${T.PANEL_OUT_MS}）⇒ progress 单调下降=${monoOut}、${framesOut} 帧（${outMs.toFixed(1)}ms）内 visible=false（预算 PANEL_OUT_MS=${T.PANEL_OUT_MS}ms）${outOk ? '✓' : '✗'}。\n`
+        + `③ 常量：PANEL_IN_MS=${T.PANEL_IN_MS} ≤200、PANEL_OUT_MS=${T.PANEL_OUT_MS} ≤150 ${constOk ? '✓' : '✗'}（权威 ` + '`ux-spec §5`' + `）。`
+        + `　【⛔ 未测半边 · 记 PASS\\* 的理由】「**红线 ≤3Hz 闪烁**」的**像素级帧检**须 ` + '`[Cocos]`' + ` 真实栅格化（本轮 ` + '`cocos-vision-shot.mjs`' + ` 只产取证物、未判读）⇒ 本条只证 **Node 侧时间轴单调且在预算内**（闪烁不可能来自单调 ramp），**不宣称像素层已验**。`);
+}
+
+// ── P29a · timer §8-11 续时同局续打（同局态保留、不走 §2.4 整关重置）
+{
+    const h = mk({ levels: [probeLevel(970, 6, 5, 120, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    h.frame();
+    const dirtyCell = retrieveOneMisplaced(h);
+    const cellsBefore = fpCells(h.game.snapshot), trayBefore = fpTray(h.game.snapshot);
+    const nontrivial = dirtyCell >= 0 && heldOf(h.game.snapshot) > 0;
+    const frames = driveToGameOver099(h);
+    const phaseFail = h.game.phase, remFail = h.game.snapshot.remaining;
+    const req1 = h.game.requestRevive();
+    const ad = h.services.rewardedAd;
+    const driveable = typeof ad?.settle === 'function';
+    if (driveable) ad.settle('complete');
+    h.frame();
+    const s = h.game.snapshot;
+    const continued = s.phase === 'playing' && Math.abs(s.remaining - T.REVIVE_BONUS_SEC) < 1e-6
+        && h.game.reviveBonusSec === T.REVIVE_BONUS_SEC && s.revived === true;
+    const kept = fpCells(s) === cellsBefore && fpTray(s) === trayBefore;
+    const v = nontrivial && phaseFail === 'game-over' && remFail === 0 && req1 === true && driveable && continued && kept
+        ? 'PASS*' : 'FAIL';
+    rec('P29a / WXG-T-099 · TC-TIMER-11 · S5 §8-11 续时同局续打', v,
+        `① 前置（非平凡）：真链取回错位格 #${dirtyCell} ⇒ 托盘持有=${heldOf(h.game.snapshot)}（>0）、棋盘已改动 ⇒ 续时后「态保留」不是恒等断言。\n`
+        + `② 失败：推时钟至归零（${frames} 帧）⇒ phase=${phaseFail}、remaining=${remFail}s（期望 game-over/0）。\n`
+        + `③ 续时：` + '`requestRevive()`' + `=${req1}（期望 true）+ ` + '`MockRewardedAdProvider.settle(\'complete\')`' + `（可驱动=${driveable}）⇒ phase=${s.phase}、remaining=${s.remaining}s（期望 ${T.REVIVE_BONUS_SEC}）、reviveBonusSec=${h.game.reviveBonusSec}、revived=${s.revived} ${continued ? '✓' : '✗'}。\n`
+        + `④ 同局保留（不走 §2.4）：cells 指纹逐一相等=${fpCells(s) === cellsBefore}、托盘槽态逐一相等=${fpTray(s) === trayBefore}（期望 true/true）${kept ? '✓' : '✗'}。`
+        + `　【记 PASS\\* 的理由】发奖腿由 harness 替身 ` + '`MockRewardedAdProvider`' + ` 驱动 ⇒ 只证「请求→发奖→续打」的**结构链路**；真机激励视频拉起/发奖属 ` + '`[R]`' + `（无 AppID / 无真机）⇒ ⛔（` + '`test-cases §H3`' + ` 取证纪律）。`
+        + `　【与 P27f 的关系】P27f = 「续时」按钮的**真链**腿；本条 = ` + '`requestRevive()`' + ` 指令腿 + **同局态逐一保留**的判据主体。`);
+}
+
+// ── P29b · timer §8-12 次数上限 / 未看完·错误回调 / 冲刺零加时
+{
+    // ① 同一次尝试的第二次续时指令被忽略（REVIVE_MAX_PER_LEVEL）
+    const a = mk({ levels: [probeLevel(971, 6, 5, 120, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    a.frame();
+    driveToGameOver099(a);
+    const r1 = a.game.requestRevive();
+    const r2 = a.game.requestRevive();
+    if (typeof a.services.rewardedAd?.settle === 'function') a.services.rewardedAd.settle('complete');
+    a.frame();
+    const remA = a.game.snapshot.remaining;
+    const once = r1 === true && r2 === false && Math.abs(remA - T.REVIVE_BONUS_SEC) < 1e-6;
+    // ② 未看完 / 错误回调 ⇒ 零加时、停在 GAME_OVER
+    const b = mk({ levels: [probeLevel(972, 6, 5, 120, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    b.frame();
+    driveToGameOver099(b);
+    b.game.requestRevive();
+    b.services.rewardedAd.settle('skip');
+    b.frame();
+    const skipOk = b.game.phase === 'game-over' && b.game.snapshot.remaining === 0 && b.game.snapshot.revived === false;
+    const c = mk({ levels: [probeLevel(973, 6, 5, 120, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
+    c.frame();
+    driveToGameOver099(c);
+    c.game.requestRevive();
+    c.services.rewardedAd.settle('error');
+    c.frame();
+    const errOk = c.game.phase === 'game-over' && c.game.snapshot.remaining === 0 && c.game.snapshot.revived === false;
+    // ③ 冲刺归零注入续时 ⇒ 零加时
+    const { h: d } = enterSprintGameOver(974);
+    const remD0 = d.game.snapshot.remaining;
+    const rd = d.game.requestRevive();
+    if (typeof d.services.rewardedAd?.settle === 'function') d.services.rewardedAd.settle('complete');
+    d.frame();
+    const sprintOk = rd === false && d.game.snapshot.remaining === remD0 && d.game.phase === 'game-over';
+    const v = once && skipOk && errOk && sprintOk ? 'PASS*' : 'FAIL';
+    rec('P29b / WXG-T-099 · TC-TIMER-12 · S5 §8-12 次数上限 + 未看完 + 冲刺零加时', v,
+        `① 次数上限（REVIVE_MAX_PER_LEVEL=${T.REVIVE_MAX_PER_LEVEL}）：同一次 GAME_OVER 内 ` + '`requestRevive()`' + ` 第一次=${r1}、第二次=${r2}（期望 true/false）；发奖后 remaining=${remA}s（期望 ${T.REVIVE_BONUS_SEC} = 只加一次）${once ? '✓' : '✗'}。\n`
+        + `② 未看完：settle('skip') ⇒ phase=${b.game.phase}、remaining=${b.game.snapshot.remaining}s、revived=${b.game.snapshot.revived}（期望 game-over/0/false）${skipOk ? '✓' : '✗'}；错误回调：settle('error') ⇒ phase=${c.game.phase}、remaining=${c.game.snapshot.remaining}s、revived=${c.game.snapshot.revived}${errOk ? '✓' : '✗'}。\n`
+        + `③ 冲刺不续时（` + '`systems-index §3.10`' + ` 末注）：冲刺结算态 ` + '`requestRevive()`' + `=${rd}（期望 false）、remaining ${remD0}→${d.game.snapshot.remaining}s、phase=${d.game.phase}${sprintOk ? '✓' : '✗'}。`
+        + `　【取证纪律 · 关键】harness 装的是 ` + '`MockRewardedAdProvider`' + `（autoSettle=null）⇒ 「未看完 / error」两分支**靠替身显式注入**才成立；**不得**因替身可 complete 就把该分支标绿（` + '`test-cases §H3`' + `）。`
+        + `　【记 PASS\\* 的理由】三分支的**真机广告行为**仍 ` + '`[R]`' + ` ⛔；本条只证指令层与回调分支的结构行为。`
+        + `　【不相关声明】续时**不解** BD-06 死局（只加时不清托盘），本条不得读作该缺陷已修（` + '`ux-spec §4`' + ` 尾注）。`);
+}
+
 // ═════════════════════════════════════════════════════════ 汇总
 const norm = (v) => v.startsWith('⛔') ? '⛔' : (v === 'PASS' ? 'PASS' : v.startsWith('PASS*') ? 'PASS*' : 'FAIL');
 const tally = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
@@ -2954,24 +3526,31 @@ const cntGrp = (pred) => out.filter((r) => pred(r.id)).length;
 //   范围铁声明：本轮**只重跑 P4 + P7**；其余段一律沿用现行轮次 ⇒ **分桶计数不得合并解读**。
 //   自 T-118 起 P4 从「T-098 修订面」、P7 从「T-097 修订面」**移出**（同 T-116 对 T-098/T-097 的排除体例），
 //   否则同一记录会被两个桶双计。故本节下方 T-098 / T-097 两个桶的条数各 −1（3 / 3），**不是判定的变化**。
+// 【修订 45 · WXG-T-099】新增修订面 = **P28a..j（`pause-settings §8-1..10` 10 条）+ P29a/b
+//   （`timer-gameover §8-11/12` 2 条）**——`test-cases §H` 的 H2/H3 由此从「只有文档映射 + vitest」
+//   升级为**可复跑探针取证**（BD-21 执行层收口）。范围铁声明：本轮**只新增 P28*/P29***，其余段
+//   沿用各自现行轮次 ⇒ **分桶计数不得合并解读**（同 T-118 / T-116 体例）。
 const T114_PREFIXES = ['P8R', 'P10R', 'P22R', 'P27a', 'P27b', 'P27c', 'P27d'];
 const T116_PREFIXES = ['P27e', 'P27f', 'P27g', 'P27h', 'P27i'];
+const T099_PREFIXES = ['P28a', 'P28b', 'P28c', 'P28d', 'P28e', 'P28f', 'P28g', 'P28h', 'P28i', 'P28j', 'P29a', 'P29b'];
 const inT114 = (id) => T114_PREFIXES.some((p) => id.startsWith(p));
 const inT116 = (id) => T116_PREFIXES.some((p) => id.startsWith(p));
+const inT099 = (id) => T099_PREFIXES.some((p) => id.startsWith(p));
 const inT118 = (id) => /^P4\b/.test(id) || /^P7\b/.test(id);
-const inT098 = (id) => !inT114(id) && !inT116(id) && !inT118(id) && (/^P20\b/.test(id) || /^P26\b/.test(id));
-const inT097 = (id) => !inT114(id) && !inT116(id) && !inT118(id) && (/^P8\b/.test(id) || /^P10\b/.test(id) || /^P5\/A05-14\b/.test(id));
+const inT098 = (id) => !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id) && (/^P20\b/.test(id) || /^P26\b/.test(id));
+const inT097 = (id) => !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id) && (/^P8\b/.test(id) || /^P10\b/.test(id) || /^P5\/A05-14\b/.test(id));
 const tallyT114 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT116 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT118 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
+const tallyT099 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT098 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT097 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyRest2 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 for (const r of out) {
-    const bucket = inT118(r.id) ? tallyT118 : inT116(r.id) ? tallyT116 : inT114(r.id) ? tallyT114 : inT098(r.id) ? tallyT098 : inT097(r.id) ? tallyT097 : tallyRest2;
+    const bucket = inT099(r.id) ? tallyT099 : inT118(r.id) ? tallyT118 : inT116(r.id) ? tallyT116 : inT114(r.id) ? tallyT114 : inT098(r.id) ? tallyT098 : inT097(r.id) ? tallyT097 : tallyRest2;
     bucket[norm(r.verdict)]++;
 }
-console.log('\n================ 探针汇总（v1.7 轮 · WXG-T-118 修订面 = P4 纯重跑 + P7 预期值收紧[BD-35 闭合] · WXG-T-116 修订面 = P27e..i · WXG-T-114 修订面 = P8R/P10R/P22R + P27a..d） ================');
+console.log('\n================ 探针汇总（v1.7 轮 · WXG-T-099 修订面 = P28a..j + P29a/b（§H 进探针） · WXG-T-118 修订面 = P4 纯重跑 + P7 预期值收紧[BD-35 闭合] · WXG-T-116 修订面 = P27e..i · WXG-T-114 修订面 = P8R/P10R/P22R + P27a..d） ================');
 for (const r of out) console.log(`${norm(r.verdict).padEnd(6)} ${r.id}`);
 console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组；含 P26-N 负向用例）`);
 console.log(`【T-096 修订面 · P5 段（${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
@@ -2980,6 +3559,7 @@ console.log(`【T-098 修订面 · P20/P26（含 P26-N，P4 已移入 T-118，${
 console.log(`【T-097 修订面 · P8/P10 + P5/A05-14（P7 已移入 T-118，${cntGrp(inT097)} 条）】：${sum(tallyT097)}`);
 console.log(`【T-114 修订面 · P8R/P10R/P22R + P27a..d（真链口径 / BD-34 回归闸门，${cntGrp(inT114)} 条）】：${sum(tallyT114)}`);
 console.log(`【T-116 修订面 · P27e..i（§8-8b/8c/8d 次按钮真链孪生 + 去「拟」，${cntGrp(inT116)} 条）】：${sum(tallyT116)}`);
-console.log(`【未随本轮复核 · 其余 ${cntGrp((id) => !inT098(id) && !inT097(id) && !inT114(id) && !inT116(id) && !inT118(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
-console.log('　↑ 七段计数不得合并解读：P5 段沿 T-096 口径（A05-14 双计），P4/P7 沿 T-118 口径（P4 = 纯重跑、P7 = 预期值收紧），P20/P26 沿 T-098 口径，P8/P10 沿 T-097 口径，P8R/P10R/P22R/P27a..d 沿 T-114 真链口径，P27e..i 沿 T-116 次按钮真链口径，其余组沿 v1.1 口径。');
+console.log(`【T-099 修订面 · P28a..j + P29a/b（§H 的 H2/H3 进探针 / BD-21 执行层收口，${cntGrp(inT099)} 条）】：${sum(tallyT099)}`);
+console.log(`【未随本轮复核 · 其余 ${cntGrp((id) => !inT098(id) && !inT097(id) && !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
+console.log('　↑ 八段计数不得合并解读：P5 段沿 T-096 口径（A05-14 双计），P4/P7 沿 T-118 口径（P4 = 纯重跑、P7 = 预期值收紧），P20/P26 沿 T-098 口径，P8/P10 沿 T-097 口径，P8R/P10R/P22R/P27a..d 沿 T-114 真链口径，P27e..i 沿 T-116 次按钮真链口径，P28a..j/P29a/b 沿 T-099 口径（§H 进探针），其余组沿 v1.1 口径。');
 console.log(`时间戳：${new Date().toISOString()}   Node ${process.version}`);

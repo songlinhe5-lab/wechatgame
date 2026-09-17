@@ -77,6 +77,10 @@
   - **⛔ 复跑新发现（诚实登记）**：`g4-probe.mjs` **P4 段在 v2.0 下崩溃**（`findEmpty` 满盘无空格 ⇒ undefined；P4 判读文本仍是 v1.2「四类 VFX 全缺 FAIL」硬编码，与现状（四类已落码）完全脱节）⇒ **探针 54 组整体未适配 v2.0**（满盘/24 槽/onboarded/组语义）⇒ 立 **WXG-T-151（探针 v2.0 适配复跑，移交 QA 严守真）**；G4 升 PASS 依赖该单。
   - **状态 → ✅ 完成（取证通路面全齐：无头截图/滤镜/`--game` 透传/§H 映射；探针适配拆 T-151）**。
 
+- **③ 探针半落地（2026-09-17，CodeBuddy 会话续做）**：§H 的 H2/H3 **12 条进探针**（`P28a..j` = `pause-settings §8-1..10`；`P29a/b` = `timer §8-11/12`），判读 **PASS 8 / PASS\* 4 / FAIL 0 / ⛔ 0**（P28b 供料子句因 v2.0 关停 ⛔→零供反证记 PASS\*；P28j 像素层闪烁帧检 `[Cocos]` ⛔ 记 PASS\*；P29a/b 发奖腿替身驱动记 PASS\*）。证据 `production/qa/beads/evidence/g4-probe-v1.2-t099.log`（mtime `2026-09-17 20:23:46`；新鲜度链 `src 20:21:31 → harness:build 20:23:46 → log` 已核，**不早于源码**）。**④ 证据形式裁定 = 维持「文档内引用路径 + mtime」，不入仓**（`*.log` 仍被 `.gitignore:55` 排除；复现命令见 `test-cases §H.4`）。
+  - **切片说明（诚实登记）**：v1.1 前序 27 段在 v2.0 下不可跑（P4 崩于 `s.traySlots[held]`；自定义关卡缺 `swaps` BOOT 拒收）⇒ 另出切片 `g4-probe-v1.2-t099.mjs`（由 v1.1 **按行切片**生成、helpers 整块搬移，非手抄）；**前序段适配仍归 T-151**，本单已在 v1.1 回写四处**夹具可构造性修复**供其复用：① `probeLevel` 补 `swaps`/`cycleProfile`（v1.2 必需字段）；② 取回夹具改 **v2.0 两步式**（点错位珠 → 点空槽）；③ 新增 `solveBoard099` 解算归位（替代「填空格」模型）；④ FINISH 装配等足 `CLEAR_PANEL_DELAY_MS=WAVE_MS=800ms` 延迟门。另修两处**探针活对象/读数缺陷**防假 FAIL：`snapshot.remaining` 是 display ceiled（归零前恒 0）须读 `game.remaining`；证据串延迟读活对象须当场拷标量（修订 15bis(a) 同款）。
+  - 全部变更**未 commit / 未 push**（待用户核）。
+
 ## WXG-T-127
 
 - **名称**：**beads 可玩性实测差距修复（BD-43 热区错位 P1 + BD-44/45/46/47）**
@@ -403,3 +407,17 @@
 - **范围**：54 组逐段适配（构造面：满盘+swaps 关卡、24 槽托盘、组锚路由；判读面：P4 四类 VFX 已落码改 PASS 口径、P5 音频、§H 22 条联动）→ 复跑取证（evidence/）→ G4 报告升版。
 - **约束**：K-043（脚本装载先于 import）；K-037（[Probe] 可证 ≠ 屏幕可证）；[Cocos]/[Device]/[R] 结论不因 Node 绿而抬升。
 - **验收**：54 组全跑通零崩溃；判读与 v2.0 规格一致；证据落盘；G4 报告刷新。
+- **T-099 顺带移交（2026-09-17）**：v1.1 已回写四处**夹具可构造性修复**（`probeLevel` 补 `swaps`/`cycleProfile`；`retrieveOneMisplaced` 两步式取回；`solveBoard099` 解算归位；FINISH 装配等足 800ms 延迟门）——属**修探针**，前序组的构造/判读适配（P4 崩溃、VFX 判读过期等）仍待本单；`g4-probe-v1.2-t099.mjs` 切片可作「只跑 §H 12 条」的轻量复跑入口（P28a..j/P29a/b 已全绿）。
+
+## WXG-T-152
+
+- **名称**：beads · G7 不可填格轻压 + `sfx_denied` 音频原子批落码（T-128 落码③）
+- **负责**：主理人(Qoder)　**状态**：🔶 代码 + 判据 + 文档原子批完成，**本会话零提交**　**P1**
+- ⚠️ **撞号改号记**：本单开工时头注「下一可用号 151」，落码中并发会话随 `adb471a`（T-099 收口）把 T-151 登记为 **G4 探针复跑单**⇒ 两单撞号。本单产物（games/beads 内 31 处引用）已全部改领 **T-152**，QA 表的 T-151 一字未动。教训入候选：领号后、收口前必须重读头注 + `git log --oneline -6` 双向校对（K-045/K-046 同源），尤其长会话。
+- **依据**：WXG-T-128 用户裁定 3（2026-09-16「新增第 20 个音频剪辑」）+ 裁定 4（G7 极轻非惩罚反馈）；规格真源 `assets-spec §1.6.7` / `ux-spec §5`「不可填格轻压」行 / `audio-events §5` Q-A05-5。本单为**执行已登记决策**，零新规格值。
+- **原子批六项（A05-24 活测试禁拆，拆开当场红）**：① `systems-index §3.12` `AUDIO_CLIP_TOTAL` 19→20 + 总线行 + 头注版本行 **v1.26**（顺手弥合 v1.25 漂移）② changelog v1.26 新行 ③ `tuning.ts` G7 常量块 + `AUDIO_CLIP_DENIED` + TOTAL=20 ④ `audio-voices.ts` 音色配方（非冻结，程序化 0 KB；硬值只有 120ms 引 §5）⑤ `audio-dispatch.test.ts` `SPEC_CLIPS` +id + cap 120 ⑥ `audio-events.md` §1 表行/计数/§3.2 限流 0.25s/Q-A05-5 闭环标记；连带转正：ux-spec L211、bead-grid §4、input-control §2.4、art-bible §7、accessibility ⑥、test-cases TC-GRID-04/TC-INP-05。
+- **视觉+时序落码（game/view 分工沿 L5）**：`state.ts` 快照 denied 四字段预分配（多格并存 ≤4 槽，工程容量非规格值）；`beads-game.ts` `_armDeniedFx`/`_stepDeniedFx`（触发 = 5c 旁路 + `_placeSelected` ignored 且 reason∈{occupied,locked}；void 守卫集中一处；同格 250ms 重启门；门记忆不清 row/col，零残留由「在播才导出」保）；`scene-vfx.ts` `deniedPressScale` 纯函数（1.00→0.96@40ms→1.00@120ms ease-out 分段）；`view-model.ts` 消费（scale 只乘珠体 46 基准不碰 L11 垫；locked 走 `drawLockedBead` size 形参通道；D1 = `drawStateRing` 1px `slotBorder` α1 静态环；优先级 pop/wave > denied）。
+- **判据**：新建 `tests/denied-press.test.ts` **18 例**（包络三关键相位 / game 红线：零事件零状态写、void 零反馈、同格门、多格并存、容量逐出、120ms 零残留、静音视觉在 / 命令层：谷帧宽度、图元 +0、D1 +1、护栏）。测试方法两个坑已踩实：AudioScheduler minInterval 从**派发时刻**起算（中途不 flush 会并发同刻被限流吞）⇒ helper `advFrames` 逐帧 advance+flush；零分配。
+- **验证（待总跑）**：中段 beads 全量 **33 files / 387 passed**、`tsc --noEmit` exit 0（改号后需复跑）；framework:sync / check:tasks / check:links 待收口。
+- **提交边界**：工作树另有并发 QA 会话在途改动（`production/qa/beads/g4-probe-v1.1.mjs`、`_diag099-run.mjs`、`g4-probe-v1.2-t099.mjs`）⇒ **勿整文件 `git add` 误带**；本单文件面 = games/beads src/tests/design/art + qa/test-cases.md + production 台账两件。
+- **边界**：像素级目视/真机听感待执行（K-037；A05-26 `[P]`）；音色调参（Hz/增益）系工程占位非规格。

@@ -76,7 +76,7 @@
 | TC-GRID-01 | §8.1 | 装配不变量 | `[Node]` | `empty`+`locked` === cols×rows，且 ≥1 格 `empty` | 待实现 |
 | TC-GRID-02 | §8.2 | 匹配落座 | `[Node]` | 格变 `filled` 且 colorIdx 与图案一致；`bead:placed` 恰 1 次，payload 含 row/col/colorIdx/slot | 待实现 |
 | TC-GRID-03 | §8.3 | 不匹配拒绝 | `[Node]` | 格保持 `empty`；`bead:rejected` 恰 1 次；托盘珠未移除 | 待实现 |
-| TC-GRID-04 | §8.4 | **锁定/已填格零事件** | `[Node]` | 对 `locked`/`filled` 落子：事件计数器 =0。**判据已改（WXG-T-128，2026-09-16）**：原文「零反馈」已推翻——现需**同时**断言：① 事件增量 =0（不可放宽的红线）② 被点格 120ms 内出现 scale < 1.00 的绘制命令（`reduceMotion` 开 ⇒ 改为 1px `slot_border` 静态描边环、零形变）。**不得再把轻压判成缺陷** | 待实现 |
+| TC-GRID-04 | §8.4 | **锁定/已填格零事件** | `[Node]` | 对 `locked`/`filled` 落子：事件计数器 =0。**判据已改（WXG-T-128，2026-09-16）**：原文「零反馈」已推翻——现需**同时**断言：① 事件增量 =0（不可放宽的红线）② 被点格 120ms 内出现 scale < 1.00 的绘制命令（`reduceMotion` 开 ⇒ 改为 1px `slot_border` 静态描边环、零形变）。**不得再把轻压判成缺陷** | ✅ 已锚（WXG-T-151：`tests/denied-press.test.ts`——事件增量 0 + scale 覆写 + D1 环成对断言；`[Cocos]` 屏幕层仍待执行，K-037） |
 | TC-GRID-05 | §8.5 | 最后一格即通关 | `[Node]` | 仅剩 1 可填格填满 → S1 收 cleared 前置信号 ≤1 帧；`filled` 数 === 可填格总数 | 待实现 |
 | TC-GRID-06 | §8.6 | **`filled` 不可回退** | `[Node]` | 三种道具指令各命中 `filled` 格 1 次 ×3 → 状态均不变（来源 §3.6 道具仅作用托盘） | 待实现 |
 | TC-GRID-07 | §8.7 | **同帧双落子串行化** | `[Node]` | 同帧两条同格请求：第 1 条生效，第 2 条忽略；`bead:placed` 总数 =1 | 待实现 |
@@ -108,7 +108,7 @@
 | TC-INP-02 | §8.2 | 热区边界 | `[DevTools]` | 格心偏移 ≤ 外扩边界内必命中；带间隙处点击零事件 | 待实现 |
 | TC-INP-03 | §8.3 | 单触摸单指令 | `[Node]` | 监听计数总和 =1；面板打开时玩法区点击 =0（门禁屏蔽） | 待实现 |
 | TC-INP-04 | §8.4 | **重叠区最近格心** | `[Node]` | 13 列满密度下，相邻两格中点 ±1px 用例 → 命中格心更近者（平局取 row 小者，§6） | 待实现 |
-| TC-INP-05 | §8.5 | 非法格**零事件**（原「零反馈」已废） | `[Node]` | 锁定/已填格点击：S2 与 S3 事件计数均 =0；**并有极轻非惩罚反馈帧**（scale 1.00→0.96→1.00 / 120ms，同格重启门 250ms）。**判据已改（WXG-T-128，2026-09-16 用户裁定，与 TC-GRID-04 / `input-control §8-5` / `bead-grid §8-4` 同批；旧文「无反馈帧」若沿用会把 G7 直接判成缺陷）** | 待实现 |
+| TC-INP-05 | §8.5 | 非法格**零事件**（原「零反馈」已废） | `[Node]` | 锁定/已填格点击：S2 与 S3 事件计数均 =0；**并有极轻非惩罚反馈帧**（scale 1.00→0.96→1.00 / 120ms，同格重启门 250ms）。**判据已改（WXG-T-128，2026-09-16 用户裁定，与 TC-GRID-04 / `input-control §8-5` / `bead-grid §8-4` 同批；旧文「无反馈帧」若沿用会把 G7 直接判成缺陷）** | ✅ 已锚（WXG-T-151：`tests/denied-press.test.ts`——零事件红线 + 轻压反馈帧 + 同格重启门 250ms） |
 | TC-INP-06 | §8.6 | **双击幂等/换选** | `[Node]` | 双击同珠→`tray:selected` 1 次；双击不同珠→2 次、后者 selected | 待实现 |
 | TC-INP-07 | §8.7 | 无选中点网格 | `[Node]` | 不发落子请求（S3 计数 =0），有轻提示 | 待实现 |
 | TC-INP-08 | §8.8 | PAUSED 门禁 | `[Node]` | PAUSED 点托盘/网格/道具全忽略；仅面板按钮响应 | 待实现 |
@@ -438,12 +438,30 @@
 
 | ID | 判据 # | 用例 | 环境 | 预期 / 判据 | 状态 |
 |---|---|---|---|---|---|
-| TC-TIMER-11 | ✅ `revive.test`（180s 续时/续打/文案常量） | 续时同局续打 | `[Node]` | 构造普通关 GAME_OVER（格已填若干、托盘非空）→ 注入 `onRewarded` → `remaining = REVIVE_BONUS_SEC`、`reviveBonusSec = REVIVE_BONUS_SEC`、`revived=true`、S1 回 PLAYING；**网格 `filled` 计数与托盘槽态与失败前逐一相等**（不走 §2.4 整关重置） | 待执行 |
-| TC-TIMER-12 | ✅ `revive.test`（次数上限 REVIVE_MAX_PER_LEVEL/未看完忽略） | 次数上限与未看完 | `[Node]`（需替身注入） | 同尝试第二次续时指令**被忽略**、`remaining` 不增加（`REVIVE_MAX_PER_LEVEL`）；未看完 / 错误回调 → `remaining` 仍为 0、停在 GAME_OVER；**冲刺归零注入续时 → 零加时**（`systems-index §3.10` 末注「冲刺不续时」） | 待执行 |
+| TC-TIMER-11 | ✅ `revive.test`（180s 续时/续打/文案常量） | 续时同局续打 | `[Node]` | 构造普通关 GAME_OVER（格已填若干、托盘非空）→ 注入 `onRewarded` → `remaining = REVIVE_BONUS_SEC`、`reviveBonusSec = REVIVE_BONUS_SEC`、`revived=true`、S1 回 PLAYING；**网格 `filled` 计数与托盘槽态与失败前逐一相等**（不走 §2.4 整关重置） | ✅ **已进探针**（T-099 · P29a，判读见 §H.4） |
+| TC-TIMER-12 | ✅ `revive.test`（次数上限 REVIVE_MAX_PER_LEVEL/未看完忽略） | 次数上限与未看完 | `[Node]`（需替身注入） | 同尝试第二次续时指令**被忽略**、`remaining` 不增加（`REVIVE_MAX_PER_LEVEL`）；未看完 / 错误回调 → `remaining` 仍为 0、停在 GAME_OVER；**冲刺归零注入续时 → 零加时**（`systems-index §3.10` 末注「冲刺不续时」） | ✅ **已进探针**（T-099 · P29b，判读见 §H.4） |
 
 > **TC-TIMER-12 取证纪律（重要，防假绿）**：harness 当前装的是 `MockRewardedAdProvider('complete')` ⇒ **「看完」分支必然成功**，该路径**不可作为真机广告行为证据**；「未看完 / 错误回调」分支**必须靠替身注入**（构造 `onError` / 不回调），**不得因替身总是 complete 就把该分支标绿**。同理：**续时不能解 BD-06 死局**（`REVIVE_BONUS_SEC` 只加时间不清托盘），验 TC-PER-06 时勿把「续时成功」误读为「已修复」（`ux-spec §4` 尾注已明文警示）。
 
 ---
+
+### H.4 §H 进探针（**v1.10 / WXG-T-099 ③ 落地**，2026-09-17）— H2/H3 的 12 条从「文档映射 + vitest」升级为**可复跑探针取证**
+
+**新增探针段**：`g4-probe-v1.2-t099.mjs`（由 `g4-probe-v1.1.mjs` **按行切片**生成，非手抄；helpers 与 v1.1 同口径）——`P28a..j`（`pause-settings §8-1..10` 10 条）+ `P29a/b`（`timer-gameover §8-11/12` 2 条），判据映射与本节 H2/H3 表逐条对齐（TC-PAUSE-0N ↔ P28x；TC-TIMER-11/12 ↔ P29a/b）。
+
+**本轮判读（2026-09-17 20:23）**：`node production/qa/beads/g4-probe-v1.2-t099.mjs` ⇒ **PASS 8 ｜ PASS\* 4 ｜ FAIL 0 ｜ ⛔ 0**。证据：`production/qa/beads/evidence/g4-probe-v1.2-t099.log`（mtime `2026-09-17 20:23:46`；产物新鲜度链 `src 20:21:31 → harness:build dist 20:23:46 → log 20:23:46`，**不早于源码**）。**证据形式裁定（T-099 ④）**：`*.log` 被 `.gitignore:55` 排除 ⇒ 维持**「文档内引用路径 + mtime」**现行做法，**不** `git add -f`、不转 `.md` 摘要；复现命令 = `pnpm run harness:build && node production/qa/beads/g4-probe-v1.2-t099.mjs > production/qa/beads/evidence/g4-probe-v1.2-t099.log 2>&1`。
+
+**四条 PASS\* 的限定（均不得读作全量已验）**：
+- **P28b**（§8-2）：原文子句「首个供料不早于『暂停剩余间隔 +1 帧』」因 **v2.0 供料关停**（用户 2026-09-16 案 A）**不可构造** ⇒ 以**零供料反证**替代（同 P26 / §J.1 体例）；判据侧失效**不算实现缺陷**。
+- **P28j**（§8-10）：只证 **Node 侧时间轴**（progress 单调 + 入 200ms / 出 150ms 预算内）——单调 ramp 不可能产生闪烁，但「**红线 ≤3Hz 闪烁**」的**像素级帧检**须 `[Cocos]` 真实栅格化 ⇒ 仍 ⛔，**不宣称像素层已验**（`cocos-vision-shot.mjs` 只产取证物、不判读）。
+- **P29a/P29b**（§8-11/12）：发奖腿由 harness 替身 `MockRewardedAdProvider` 驱动，只证「请求 → 发奖 → 续打」**结构链路**与**回调分支**（skip/error/第二次拒绝/冲刺零加时均由替身显式注入）；真机激励视频属 `[R]` ⛔（无 AppID）。**续时不解 BD-06 死局**（只加时不清托盘），不得读作该缺陷已修。
+
+**判据时效性核对（先核后判）**：`pause-settings.md §8` 现文仍为 **v1.2（2026-09-12）**，早于 v2.0 反转 ⇒ §8-3 第 2 项按 `timer-gameover §8-6` **v1.3 现文**（恢复初始错位布置）判读，不按 v1.2 旧文把「格未清空」判成缺陷。
+
+**夹具可构造性修复（修探针，非判据放宽；同族发现移交 T-151）**：① `probeLevel` 补 v2.0 必需的 `swaps`/`cycleProfile`（缺则 BOOT 拒收，v1.1 自定义关卡**全部**进不了 PLAYING）；② 取回夹具按 **v2.0 两步式**（点错位珠 → 点空槽）重写，首跑的「点一下即得珠」是 v2.0 之前的模型；③ 新增 `solveBoard099`（v2.0 解算归位）替代 `fillBoard`（棋盘开局全满无空格可填）；④ FINISH 装配等足 `CLEAR_PANEL_DELAY_MS=WAVE_MS=800ms` 延迟门。**v1.1 前序 27 段在 v2.0 下不可跑**（P4 崩于 `s.traySlots[held]`、缺 swaps BOOT 拒收）⇒ 本切片**不跑前序段、不判前序段**，其 54 组整体适配仍归 **WXG-T-151**。
+
+---
+
 
 # §I 宿主坐标归一化判据（缺陷 C1 回归闸门，**v1.6 / WXG-T-109 新增**）— 来源 `ADR-0011 §3(e)` + `T-104·A4`
 
