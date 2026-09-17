@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4689,
       "lines": 90,
-      "sha256": "e5c7ed1fad653c01bfc4ca5f38324f1dbf448581c57318942fb1d142d483b60a",
+      "sha256": "ac6c012a7c4e64e07c132785d98dadf3e616c2f200a6fc84de6fb3370f7675a0",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 58 行 / 3637 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 58 行 / 3633 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -82526,9 +82526,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 3637,
+      "tokens": 3633,
       "lines": 58,
-      "sha256": "163e3bf04224dee9c53cdf3c511a05128f5d67dcd5fd0d76dd891cbf65b8047f",
+      "sha256": "37846c12a6fd48ae22aa34769bd285f4968053a7d46348158b1da5854c1d6958",
       "tier": "hot",
       "sections": [
         {
@@ -82536,7 +82536,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 59,
-          "tokens": 3628,
+          "tokens": 3624,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
