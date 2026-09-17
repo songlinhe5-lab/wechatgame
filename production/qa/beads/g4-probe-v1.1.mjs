@@ -17,6 +17,8 @@
  *       （WXG-T-097 轮：P8/P10（BD-15/BD-16，修订 39，evidence/g4-probe-v1.2-t097bd15.log）与
  *        P7/P5·A05-14（BD-10，修订 40，evidence/g4-probe-v1.4-t097bd10.log）
  *        四条改取回写后现文重建预期值后整轮重跑）
+ *       （WXG-T-151 v2.0 适配复跑轮：evidence/g4-reverify-v1.8-t151.log；判据/夹具按 v2.0 规格
+ *        （开局全满·swaps 错位装配·供料关停·24 槽·powerups §4 v1.22）全面重建后**整轮重跑**，见修订 46）
  *
  * ── v1.1 修订（承接 v3 的 1–13；本轮新增 **14–27**，全部为**探针自身**预期值/口径修正）──
  *  14. 【严防假 FAIL】P9/P12/P18 的期望值改取回写后 §8 现文：
@@ -299,6 +301,27 @@
  *          不得拿相邻两帧自比（会被 hint 呼吸/首珠脉冲的常态动画伪满足）。
  *      (c) 本条属**证据文案与新判据的一致性维护**，与修订 43① 同型（订正已失效锚点/叙述，非预期值改动）；
  *          若沿用旧叙述，下一轮跑 P10 会产出「探针正文自述零反馈、而 GDD 已要求有反馈」的**自相矛盾证据**。
+ *  45. （WXG-T-099 · §H 进探针：该轮只在正文多处【修订 45】注记登记，头列表未补条目——本文件沿用其现状，
+ *      仅为**编号连续性**占位，不代其补写正文。）
+ *  46. 【**WXG-T-151 · 玩法 v2.0 全面适配 + 整轮复跑（本单）**】v2.0（WXG-T-130/133：开局全满 + swaps
+ *      错位装配、供料关停托盘恒空、24 槽、powerups §4 v1.22 payload 改名）落地后，旧判据/夹具与现行
+ *      规格脱节 ⇒ 本轮**整轮复跑**并把全部有 T-151 足迹的组列入修订面（体例沿修订 45：夹具可构造性
+ *      修复为主，**不放宽**任何判据）：
+ *      ① 前置重建：一切「托盘有珠 / 存在可落空格 / 有 wrong 格」类前置改走 `retrieveOneMisplaced` /
+ *        `placeOneCorrect` / `primePlaceable` **真链两步式**（v2.0 开局第 1 帧断言恒假红）；
+ *        覆盖 P3/P4/P5(A05-01/04/18/23)/P8R/P9/P10/P10R/P11/P12/P22/P25/P27a..e/i/P28 等多组。
+ *      ② 供料半边 ⛔：依赖「首供/满槽/增供」的子句在供料关停下不可构造 ⇒ 记 **⛔**（复活条件 = 供料
+ *        复活），不判 FAIL：P2、A05-14 视觉半边、A05-23 冲刺首供、P20/P21 主体、P6/P7 满槽半边等。
+ *      ③ 判据口径改取现行现文：P3 = ux-spec §6.1（v1.4）指向链 + BD-32 修复后老玩家重现性**反转**期望；
+ *        P17 正文镜像 schema v3（FAIL 维持 · BD-12 开放）；P18 实测 v2.0 **in-level 快照每次落子落档**
+ *        与 §8-9 现文「PLAYING 零写档」互斥 ⇒ ⛔ 移交设计裁定（属规格未随特性回写，非实现 bug）。
+ *      ④ 抓到真 src 缺陷 **BD-49**：powerups §4 v1.22 把 payload 改名 `affectedSlots`→`affectedCells`，
+ *        音频派发守卫（beads-game.ts:1488-1492）仍读旧字段 ⇒ 真实道具生效帧恒零发声；A05-07 注入腿改按
+ *        现行字段验证零噪声子句后，真卡帧腿记 **FAIL（有效）**，vitest 夹具同用旧字段故单测绿不构反证。
+ *      ⑤ 汇总新增 **T-151 修订面桶**（最高优先）：P4/P7（原 T-118）、P8/P10/P5·A05-14（原 T-097）、
+ *        P20（原 T-098）、P8R/P10R/P27a..d（原 T-114）、P27e/P27i（原 T-116）、P28c/f/g/i/j（原 T-099）
+ *        成员**移入** T-151 桶，原桶相应清零/缩员——预期值口径的正本仍是各历史轮现文，但本轮实测归属
+ *        v2.0 夹具轮（T-118 移实体例，不双计）。
  *
  * 环境事实（禁止伪造）：无 AppID / 无真机 ⇒ `[Device]/[R]` 一律 ⛔；`[Cocos]` 像素级判据——
  * 波次 3（v1.1）当时 `framework:sync:check` 为✅、web-mobile 产物 mtime 2026-09-15 08:48；
@@ -559,6 +582,11 @@ function probeLevel(id, cols, rows, time, spawnInterval, fill, decoys = [], pair
     for (let i = 0; i < rows; i++) { let line = ''; for (let j = 0; j < cols; j++) line += fill(i, j); pattern.push(line); }
     return { id, name: `probe-${id}`, cols, rows, time, spawnInterval, decoys, pattern, swaps: probeSwaps(pattern, pairs), cycleProfile: 'short' };
 }
+// 【T-151】cells/托盘指纹与「持有数」helper：原在 P28 区定义（const ⇒ TDZ），而 P4 起的 v2.0
+// 夹具（retrieveOneMisplaced 等）在更早的段就用 ⇒ 上移到 helpers 区，P28 区原定义已删除。
+const fpCells = (s) => s.cells.map((c) => `${c.void ? 'v' : c.state}:${c.colorIdx}:${c.beadColorIdx}`).join('|');
+const fpTray = (s) => s.traySlots.map((t) => `${t.state}:${t.colorIdx}`).join('|');
+const heldOf = (s) => s.traySlots.filter((t) => t.state !== 'free').length;
 
 // ───────────────────────────────────────────────────────── 渲染指令取证 helpers
 const alphaOf = (c) => { const m = /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([\d.]+)\s*\)/.exec(String(c ?? '')); return m ? Number(m[1]) : 1; };
@@ -704,7 +732,11 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const placeable = first ? demandOf(s, first.colorIdx) > 0 : false;
     const h3 = mk({ levels: [probeLevel(901, 6, 5, 300, T.SPAWN_INTERVAL_DEFAULT, (i, j) => String(((i + j) % 3) + 1))] });
     h3.frame();
-    const v = spawned1 === 1 && at1 === 1 && at15 >= 1 && placeable ? 'PASS' : 'FAIL';
+    // 【T-151 · 判据时效性】v2.0 供料关停 ⇒「开局首供 / 1.5s 内增量」整体不可构造：零供即记 ⛔
+    // （同 P26/§J.1 体例，不把判据侧失效算成实现缺陷；复活条件 = 供料复活）。
+    const v = spawned1 === 0
+        ? '⛔（v2.0 供料关停 ⇒「开局首供/1.5s 内增量」不可构造；复活条件 = 供料复活）'
+        : (spawned1 === 1 && at1 === 1 && at15 >= 1 && placeable ? 'PASS' : 'FAIL');
     rec('P2 / BD-02 · GAP-02 开局首供（PLAYING 第 1 帧 + 首珠可落子色）', v,
         `L1（spawnInterval=${LEVELS[0].spawnInterval}s）：t=0 持有 ${at0} 颗 → 推进 1 帧后 tray:spawned=${spawned1}、持有 ${at1} 颗；t=1.5s 持有 ${at15} 颗。`
         + `首珠 colorIdx=${first?.colorIdx ?? '-'}，该色盘面剩余需求 demand=${first ? demandOf(s, first.colorIdx) : '-'} ⇒ 首珠可落子=${placeable}（ux-spec §6.2「首珠必须可落子色」硬判据）。`
@@ -715,26 +747,34 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
 
 // ═════════════════════════════════════════════════════════ P3 · 引导三通道
 {
+    // 【T-151 · v2.0 判据重建】判据改取 `ux-spec §6.1`（v1.4 重写）现文。旧夹具在**开局第 1 帧**
+    // 断言 guideSlot/hint ⇒ v2.0 供料关停、托盘恒空 ⇒ 引导锚点天然未激活 ⇒ 恒 FAIL（假红）；
+    // §5 行 200「首珠脉冲 = 首供落槽后该槽…」随供料关停**整体作废**（§6.1「与 §6.2 的关系」条），
+    // 现行载体 = §6.1 指向链第 3 步「取回后该珠托盘脉冲 + 目标格 `hint` 高亮（行主序最前 1 格）」。
     const h = mk();
     h.frame();
     const s0 = h.game.snapshot;
-    // 【修订 15】snapshot 是**每帧复用的活对象**：必须当场把标量拷出来，不能在 rec() 里读 s0.xxx
-    const ob0 = s0.onboarding === true, gs0 = s0.guideSlot, hr0 = s0.hintRow, hc0 = s0.hintCol;
-    const gsColor = ob0 && gs0 >= 0 ? s0.traySlots[gs0].colorIdx : 0;
-    const chan = {
-        socketColor: [...patternColors(s0)].length >= 1,
-        guideSlot: ob0 && gs0 >= 0,
-        hintCell: ob0 && hr0 >= 0 && hc0 >= 0,
-    };
+    const ob0 = s0.onboarding === true;
+    const chan1 = [...patternColors(s0)].length >= 1;
+    // v2.0 前置：两步式连续取回直至「存在底色==持有珠色的空格」（真链 primePlaceable）⇒ 引导锚点+hint 激活。
+    // 取一颗不够：开局全满，取回后唯一空格 = 原格（底色≠珠色，错位定义）⇒ hint 恒 (-1,-1)（二跑实测假红归因）。
+    const primed3 = primePlaceable(h);
+    // 【修订 15】snapshot 是每帧复用的活对象 ⇒ 当场拷标量
+    const s = h.game.snapshot;
+    const gs0 = s.guideSlot, hr0 = s.hintRow, hc0 = s.hintCol;
+    const gsColor = gs0 >= 0 ? s.traySlots[gs0].colorIdx : 0;
+    const chan2 = ob0 && gs0 >= 0;
+    const chan3 = ob0 && hr0 >= 0 && hc0 >= 0;
     const cs = cmds(h);
     const hintHex = hex2(DEFAULT_PALETTE.hintBlue);
     const ringN = rings(cs, hintHex).length;
-    const gs = { colorIdx: gsColor };
     const hintIsRowMajorFirst = (() => {
-        const idx = hr0 * s0.gridCols + hc0;
-        const c = gsColor;
-        for (let i = 0; i < idx; i++) { const x = s0.cells[i]; if (!x.void && x.state === 'empty' && x.colorIdx === c) return false; }
-        return s0.cells[idx] && !s0.cells[idx].void && s0.cells[idx].state === 'empty' && s0.cells[idx].colorIdx === c;
+        if (!chan3) return false;
+        const idx = hr0 * s.gridCols + hc0;
+        const c = s.cells[idx];
+        if (!c || c.void || c.state !== 'empty' || c.colorIdx !== gsColor) return false;
+        for (let i = 0; i < idx; i++) { const x = s.cells[i]; if (!x.void && x.state === 'empty' && x.colorIdx === gsColor) return false; }
+        return true;
     })();
     // 呼吸周期（600ms）：α 在 rect.alpha（drawStateRing 把相位写进 alpha，非 rgba）
     const alphas = [];
@@ -744,50 +784,60 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         h.frame();
     }
     const pm = pulsePeriodMs(alphas);
-    // 首次落子即清
-    const i2 = firstEmptyOf(h.game.snapshot, gsColor);
-    if (i2 >= 0) {
-        h.game.tapDesign(...slotXY(gs0)); h.frame();
-        h.game.tapDesign(...cellXY(h.game.snapshot, i2)); h.frame();
-    }
+    // 首次落子即清（§6.1 ~8s 闭环）：取回珠真链归位落子
+    const placedOk3 = placeOneCorrect(h);
     const afterPlaced = h.game.snapshot.onboarding, afterRing = rings(cmds(h), hintHex).length;
-    // 老玩家（runs>0）永不重现：共用 storage + **合法关卡**（旧版探针给了 4×3 非法关 ⇒ BOOT 直接 return，测不到引导）
+    /**
+     * 【T-151 · v2.0 老玩家重现性重定】BD-32 修复码（T-097）已把「老玩家」判定由 `runs>0`
+     * 改为显式 `onboarded` 字段（save-schema v3 + v2 存量 `runs>0` 一次性迁移）⇒ 断言改两腿：
+     *   ① 同存档**未落子**二次冷启 ⇒ 引导**应重现**（修复目标：教学期杀进程不再永久丢引导；
+     *     旧期望「runs=1 ⇒ 永不重现」被 BD-32 **反转**）；
+     *   ② 预置 `onboarded:true` 存档再装配 ⇒ 永不重现。② 用白盒预置存档（前置 setup，非被测主体）。
+     */
     const plat = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 });
     const shared = plat.createStorage();
-    const p1 = new fw.InputManager(); const e1 = new fw.EventBus();
     const lvVet = probeLevel(902, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1));
-    const g1 = new BeadsGame({ saveKey: 'wxgame.beads.reverify.runs', levels: [lvVet] });
-    const svc1 = { events: e1, input: p1, audio: new fw.AudioScheduler(new fw.NullAudioBackend()), storage: shared, rng: fw.createRng('runs1'), viewport: new fw.Viewport(750, 1334), assets: new fw.NullAssetProvider(), platform: plat.info, rewardedAd: plat.createRewardedAdProvider() };
-    g1.init(svc1); svc1.input.beginFrame(); g1.update(1 / 60); svc1.input.endFrame(1 / 60);
-    const obFirst = g1.snapshot.onboarding === true;
+    const bootOnce = (tag) => {
+        const g = new BeadsGame({ saveKey: 'wxgame.beads.reverify.runs', levels: [lvVet] });
+        const p = new fw.InputManager(); const e = new fw.EventBus();
+        const svc = { events: e, input: p, audio: new fw.AudioScheduler(new fw.NullAudioBackend()), storage: shared, rng: fw.createRng(tag), viewport: new fw.Viewport(750, 1334), assets: new fw.NullAssetProvider(), platform: plat.info, rewardedAd: plat.createRewardedAdProvider() };
+        g.init(svc); svc.input.beginFrame(); g.update(1 / 60); svc.input.endFrame(1 / 60);
+        return g.snapshot.onboarding === true;
+    };
+    const obA = bootOnce('runs1');
     const runsSaved = JSON.parse(String(shared.get('wxgame.beads.reverify.runs') ?? '{}'));
-    const g2 = new BeadsGame({ saveKey: 'wxgame.beads.reverify.runs', levels: [lvVet] });
-    const p2 = new fw.InputManager(); const e2 = new fw.EventBus();
-    const svc2 = { ...svc1, input: p2, events: e2, rng: fw.createRng('runs2') };
-    g2.init(svc2); svc2.input.beginFrame(); g2.update(1 / 60); svc2.input.endFrame(1 / 60);
-    const noGuideForVeteran = g2.snapshot.onboarding !== true && rings(cmds({ game: g2 }), hintHex).length === 0;
-    const allOk3 = chan.socketColor && chan.guideSlot && chan.hintCell && hintIsRowMajorFirst && afterPlaced === false && afterRing === 0 && noGuideForVeteran;
-    // 【修订 25】判据项全过，但本轮顺带抓到 §8 未覆盖的**引导可达性缺口**（见证据末段 BD-32）⇒ 不升 PASS。
-    const v = allOk3 ? 'PASS*' : 'FAIL';
-    rec('P3 / BD-03 · GAP-03 0 文字引导三通道（首珠脉冲 + 单一 hint 格 + 目标色底）', v,
-        `通道①空槽目标色：见 P1（${chan.socketColor}）；通道②首珠槽脉冲 onboarding=${ob0}、guideSlot=${gs0}（该槽色=${gsColor}）；通道③单一目标格 hint=(r${hr0},c${hc0})，行主序最前匹配格=${hintIsRowMajorFirst}。`
-        + `渲染层 accent_blue(${hintHex}) 描边环图元数=${ringN}（首珠槽 + 目标格 = 期望 2）。`
+    const obB = bootOnce('runs2');
+    shared.set('wxgame.beads.reverify.runs', JSON.stringify({ version: 3, runs: 9, onboarded: true, maxUnlockedLevel: 1, currentLevel: 1, sprintBestScore: 0, sprintBestStage: 0, starsByLevel: [0], settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false } }));
+    const obC = bootOnce('runs3');
+    const bd32Ok = obA && obB && !obC;
+    const coreOk = chan1 && chan2 && chan3 && hintIsRowMajorFirst && primed3 !== null && placedOk3
+        && afterPlaced === false && afterRing === 0 && bd32Ok;
+    // 判定上限（K-044）：② 旧载体（首供脉冲）⛔ 不可构造；FTUE 盲测属 [Cocos]/[Device] ⇒ 天花板 PASS*。
+    const v = coreOk ? 'PASS*' : 'FAIL';
+    rec('P3 / BD-03 · GAP-03 0 文字引导三通道（v2.0：§6.1 指向链；首供脉冲子项 ⛔）', v,
+        `通道①空槽目标色：见 P1（${chan1}）；通道②引导槽（取回后口径）onboarding=${ob0}、guideSlot=${gs0}（该槽色=${gsColor}）；通道③单一目标格 hint=(r${hr0},c${hc0})，行主序最前匹配格=${hintIsRowMajorFirst}。`
+        + `渲染层 accent_blue(${hintHex}) 描边环图元数=${ringN}（持有珠槽 + 目标格 = 期望 ≥2）。`
         + `呼吸周期实测 ${pm.periodMs ? pm.periodMs.toFixed(0) : '—'}ms（ux-spec §5 = ${T.HINT_PULSE_MS}ms，α 取值 ${pm.distinct} 档 / ${pm.periods} 个完整周期 / 90 帧）。`
-        + `引导终止：首次 bead:placed=${h.count('bead:placed')} 后 onboarding=${afterPlaced}、hint 环=${afterRing}（期望 false/0，事件驱动无计时器）。`
-        + `老玩家重现性：首玩装配 onboarding=${obFirst}→ BOOT 后存档 runs=${runsSaved.runs ?? '-'}；**同存档二次装配** onboarding=${g2.snapshot.onboarding}、hint 环=0（期望 false，§6.3 永不重现）。`
-        + `　【附带发现 · 移交裁定 BD-32】上文的「永不重现」由 beads-game.ts:947 \`_onboardDone = save.data.runs > 0\` + :949-952 「每次 BOOT 无条件 runs+1 落档」共同实现：`
-        + `实测 runs 在**首次 BOOT 即 0→1**（尚未落过任何一子）。⇒ 玩家若在 L1 引导过程中杀进程/重进，第二次启动就被判为「老玩家」、引导**永久不再出现**，而其实际进度为 0。`
-        + `这不是 §8 违约（§8 只写「老玩家不重现」，未定义「老玩家」判据），故不判 FAIL；但属可玩性风险，建议判据改为「首次通关 level:cleared 后才置 onboarded」。`);
+        + `引导终止：首次 bead:placed（取回珠归位落成=${placedOk3}）后 onboarding=${afterPlaced}、hint 环=${afterRing}（期望 false/0，事件驱动无计时器）。`
+        + `【T-151 · v2.0 重定】老玩家重现性 = BD-32（T-097）修复口径：首启 onboarding=${obA} → 存档 runs=${runsSaved.runs ?? '-'} → **未落子**同存档二次冷启 onboarding=${obB}（期望 true，重现即修复目标）→ 预置 onboarded=true 后装配 onboarding=${obC}（期望 false）⇒ BD-32 回归断言=${bd32Ok}。旧期望「runs=1 ⇒ 永不重现」作废（被裁定反转，不据此判缺陷）。`
+        + `　【判据时效登记】§5 行 200「首供脉冲」旧口径随供料关停作废（复活条件 = 供料复活）；§6.1 第 1 步「错位珠 600ms 脉冲」现实现为**恒亮白环**（T-148 用户裁定）⇒ 文本差已由 T-148 登记，本组不重判该载体、只测指向链后两步。音效通道与 FTUE 盲测属 [Cocos]/[Device] ⇒ 天花板 PASS*（K-044）。`);
 }
 
 // ═════════════════════════════════════════════════════════ P4 · wrong/hint 态与四余 VFX
 {
     const h = mk();
     h.frame();
+    // 【T-151 · v2.0 适配】供料关停 ⇒ 开局托盘恒空（旧夹具 `findIndex(state!=='free')` 恒 -1 ⇒ 崩）。
+    // 「放错」构造改走 v2.0：两步式取回一颗错位珠 ⇒ 原格变 empty 且**底色 ≠ 珠色** ⇒ 原格即天然的 wrongCell。
+    const dirtyCell4 = retrieveOneMisplaced(h);
     const s = h.game.snapshot;
     const held = s.traySlots.findIndex((x) => x.state !== 'free');
-    const c0 = s.traySlots[held].colorIdx;
-    const wrongCell = (() => { for (let i = 0; i < s.cells.length; i++) { const x = s.cells[i]; if (!x.void && x.state === 'empty' && x.colorIdx > 0 && x.colorIdx !== c0) return i; } return -1; })();
+    const c0 = held >= 0 ? s.traySlots[held].colorIdx : -1;
+    const wrongCell = held >= 0 && dirtyCell4 >= 0 && !s.cells[dirtyCell4].void
+        && s.cells[dirtyCell4].state === 'empty' && s.cells[dirtyCell4].colorIdx !== c0
+        ? dirtyCell4
+        : (() => { for (let i = 0; i < s.cells.length; i++) { const x = s.cells[i]; if (!x.void && x.state === 'empty' && x.colorIdx > 0 && x.colorIdx !== c0) return i; } return -1; })();
+    const preOk4 = held >= 0 && wrongCell >= 0;
     h.game.tapDesign(...slotXY(held)); h.frame();
     h.game.tapDesign(...cellXY(s, wrongCell)); h.frame();
     const sn = { wrongRow: h.game.snapshot.wrongRow, wrongCol: h.game.snapshot.wrongCol, wrongProgress: h.game.snapshot.wrongProgress };
@@ -816,10 +866,13 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     // (b) 连续拒绝 ⇒ 脉冲起点间隔（现文「重启门 500ms」）。起点用 `snapshot.wrongProgress` 的
     //     「回零 / 回落」判定（fx 被重建才回落，比从 α 反推稳；α 序列与 progress 序列同帧并列打印供复核）。
     const h3 = mk(); h3.frame();
+    // 【T-151 · v2.0 适配】同 P4 主实例：取回一颗错位珠 ⇒ 原格即 wrong3（底色 ≠ 珠色）。
+    const dirty3 = retrieveOneMisplaced(h3);
     const s3 = h3.game.snapshot;
     const held3 = s3.traySlots.findIndex((x) => x.state !== 'free');
-    const c3 = s3.traySlots[held3].colorIdx;
-    const wrong3 = (() => { for (let i = 0; i < s3.cells.length; i++) { const x = s3.cells[i]; if (!x.void && x.state === 'empty' && x.colorIdx > 0 && x.colorIdx !== c3) return i; } return -1; })();
+    const c3 = held3 >= 0 ? s3.traySlots[held3].colorIdx : -1;
+    const wrong3 = held3 >= 0 && dirty3 >= 0 && !s3.cells[dirty3].void
+        && s3.cells[dirty3].state === 'empty' && s3.cells[dirty3].colorIdx !== c3 ? dirty3 : -1;
     h3.game.tapDesign(...slotXY(held3)); h3.frame();
     const starts = [], prog3 = [], tapFrames = [];
     let prevProg = 0;
@@ -836,10 +889,9 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const minGapMs = gapsMs.length ? Math.min(...gapsMs) : null;
     // 其余三行：落座回弹 / 消除溶解 / 完成波浪 —— 落子后连续帧指令签名（剔 text）是否随时间轴变化
     const h2 = mk(); h2.frame();
-    const s2 = h2.game.snapshot; const t2 = firstEmptyOf(s2, s2.traySlots.find((x) => x.state !== 'free')?.colorIdx ?? 1);
+    // 【T-151 · v2.0 适配】「落座回弹」需要一次**正确落子**：改走 placeOneCorrect（取回错位珠→归位）。
+    const placedOk2 = placeOneCorrect(h2);
     const before = sig(cmds(h2));
-    const i3 = h2.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
-    h2.game.tapDesign(...slotXY(i3)); h2.frame(); h2.game.tapDesign(...cellXY(h2.game.snapshot, t2));
     const after = []; for (let f = 0; f < 10; f++) { h2.frame(); after.push(sig(cmds(h2))); }
     const popDistinct = new Set([before, ...after]).size;
     const src = {
@@ -856,7 +908,7 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     if (!src.wave.length) residual.push('vfx_complete_wave(逐列20ms/800ms)');
     const pulseStructOk = pk.peaks <= 1;                      // 现文：一个 fx 窗口内 α 极值点 ≤1
     const gateStructOk = minGapMs === null || minGapMs >= 500 - 1e-9;   // 现文：连续拒绝重启门 500ms
-    const wrongOk = rejected === 1 && sn.wrongProgress > 0 && Math.abs(sn.wrongRow - Math.floor(wrongCell / s.gridCols)) <= 1 && shakeMax > 0 && shakeDir === 2 && pk.peaks >= 1;
+    const wrongOk = preOk4 && placedOk2 && rejected === 1 && sn.wrongProgress > 0 && Math.abs(sn.wrongRow - Math.floor(wrongCell / s.gridCols)) <= 1 && shakeMax > 0 && shakeDir === 2 && pk.peaks >= 1;
     const v = wrongOk && pulseStructOk && gateStructOk && residual.length === 0 ? 'PASS'
         : (wrongOk && pulseStructOk && gateStructOk) ? 'PASS*' : 'FAIL';
     rec('P4 (v1.3 改判) / BD-04 · BD-29 转态 · 拒绝反馈「单次脉冲 + 500ms 重启门」（ux-spec §5 现文，WXG-T-098；WXG-T-118 重跑）', v,
@@ -939,17 +991,16 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
             && Math.abs((k.x + k.w / 2) - cx) < 2);
         return body.length ? Math.max(...body.map((k) => k.y + k.h / 2)) : null;
     }
-    /** 只为构造 LEVEL_CLEAR 前置而直投托盘（修订 20 的**注明例外**：不用于 A′ 不变量类判据）。 */
+    /**
+     * 【T-151 · v2.0 适配】旧「giveTrayBead 灌珠 + 填空格」模型在 v2.0（开局全满·错位装配）下
+     * `isFillable` 恒 false ⇒ 空转返回 true 但 phase 仍 playing ⇒ 下游（星音/面板音）全假 FAIL。
+     * 改走 v2.0 解算归位（真链两步式，`solveBoard099`），返回值锚到「确实进入 LEVEL_CLEAR」。
+     * 白盒例外声明（修订 20）不再需要：本实现全程真链。
+     */
     function fillBoardAudio(h) {
-        const grid = h.game.grid;
-        for (let r = 0; r < grid.rows; r++) for (let c = 0; c < grid.cols; c++) {
-            if (!grid.isFillable(r, c)) continue;
-            const slot = h.game.giveTrayBead(grid.requiredColor(r, c));
-            if (slot < 0) return false;
-            h.game.selectTraySlot(slot);
-            if (!h.game.tapGridCell(r, c)) return false;
-        }
-        return true;
+        const ok = solveBoard099(h);
+        for (let f = 0; f < 30 && h.game.phase === 'playing'; f++) h.frame();
+        return ok && h.game.phase === 'level-clear';
     }
     // 规格侧权威清单（从 `audio-events.md §1` 正文解析 ⇒ A05-24 是「文档↔代码」对账，不是探针自报）
     const specClips = (() => {
@@ -971,7 +1022,7 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
 
     // ── A05-01 · `sfx_place`：`bead:placed` 那一 tick 内入队并帧末派发（+ 同 tick 视觉回弹）
     const h1 = ah(); h1.tickFrame(FR);
-    const i1 = h1.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const i1 = (primePlaceable(h1) || { slot: -1 }).slot; /* T-151 v2.0 前置 */
     tapAt(h1, ...slotXY(i1)); h1.clearAudio();
     const cell1 = firstEmptyOf(h1.game.snapshot, h1.game.snapshot.traySlots[i1].colorIdx);
     const t1res = tapAt(h1, ...cellXY(h1.game.snapshot, cell1));
@@ -1023,7 +1074,7 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
 
     // ── A05-04 · `sfx_select` 帧内入队 + 同帧上移 4px
     const h4 = ah(); h4.tickFrame(FR);
-    const i4 = h4.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const i4 = (primePlaceable(h4) || { slot: -1 }).slot; /* T-151 v2.0 前置 */
     const yFree = trayBeadY(h4, i4);
     const t4res = tapAt(h4, ...slotXY(i4));
     const ySel = trayBeadY(h4, i4);
@@ -1083,22 +1134,27 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         + `逐 clip 分档审计=[${miRows.join(' ')}]（期值均取自 §3.12 镜像常量：SFX=${T.AUDIO_SFX_MIN_INTERVAL}、`
         + `URGENT=${T.AUDIO_URGENT_MIN_INTERVAL}、TRAYFULL=${T.AUDIO_TRAYFULL_MIN_INTERVAL}、一次性=${0}）。`);
 
-    // ── A07 · 道具帧两条并存 / affectedSlots 为空零发声
+    // ── A07 · 道具帧两条并存 / 零效果零发声（【T-151】payload 字段随 powerups §4 v1.22 改名）
     const h7 = ah(); h7.tickFrame(FR);
     h7.game.giveTrayBead(1); h7.game.giveTrayBead(2); h7.clearAudio();
     const t7res = tapAt(h7, ...CARD_XY(1));
     const puEv = h7.count('powerup:used');
     h7.clearAudio();
-    h7.events.emit('powerup:used', { type: 'random', affectedSlots: [] });
+    // 【T-151 · 修探针自身】零噪声子句注入改取 v1.22 现文 payload（affectedCells）：
+    // 旧字段名注入在现行实现下「恒零发声」= 假通过，失去零噪声断言效力。
+    h7.events.emit('powerup:used', { type: 'solver', affectedCells: [] });
     h7.audio.flush(FR);
     const silentEmpty = h7.dispatched.length === 0 && h7.audio.pendingCount === 0;
     const ok07 = puEv === 1 && t7res.dispatched.includes(C('AUDIO_CLIP_POWERUP'))
         && t7res.dispatched.includes(C('AUDIO_CLIP_DISSOLVE')) && silentEmpty;
+    const ev07 = h7.emitted.filter((e) => e.type === 'powerup:used').pop();
     p5('A05-07', 'sfx_powerup + sfx_dissolve · 同帧分层不被去重吞掉；零效果零发声', ok07,
         `【派发层】真实点击道具卡（托盘内先放 2 颗珠作为前置）：powerup:used=${puEv}、同帧 backend 收到=`
         + `[${t7res.dispatched.join(', ') || '（无）'}]（共 ${t7res.dispatched.length} 条 ≤ 冻结上限 AUDIO_MAX_PER_FRAME=${T.AUDIO_MAX_PER_FRAME}）`
-        + ` ⇒ 两条 id 不同、未被 flush() 的同帧去重吞掉。`
-        + `【零噪声】注入 affectedSlots: [] 后 flush ⇒ 新增派发=${h7.dispatched.length} 条、pending=${h7.audio.pendingCount}（powerups §4）。`,
+        + ` ⇒ 期望两条 id（sfx_powerup + sfx_dissolve）并存。`
+        + `【零噪声】注入 affectedCells: []（v1.22 现文字段）后 flush ⇒ 新增派发=${h7.dispatched.length} 条、pending=${h7.audio.pendingCount}（powerups §4）。`
+        + `　【T-151 · 卡点归因 = 真 src 缺陷 BD-49】真卡帧 powerup:used 载荷实测 keys=[${ev07 && ev07.p ? Object.keys(ev07.p).join(',') : '-'}]：`
+        + `powerups §4 现文 v1.22 已改名 affectedSlots→**affectedCells**（消费方 S4→S3），但音频派发守卫仍读旧字段（beads-game.ts:1488-1492）⇒ 真实生效帧恒提前 return ⇒ **道具生效零音**（回归：T-137 反转改 payload 时漏改消费侧）。 vitest 同族夹具亦用旧字段（tests/audio-dispatch.test.ts:276/284/422）⇒ 单测绿不构成反证（K-040③「夹具/文档一致 ≠ 代码一致」）。另登记：sfx_dissolve 触发主体（「溶解沙」↔vfx_clear_dissolve，E4 已作废）在 v2.0 下是否保留属规格侧待裁，本条按 audio-events §1 现文两条仍并判。`,
         { partial: false });
 
     // ── A05-08 · 连击三档分流不串音，tier=0 零发声
@@ -1315,7 +1371,11 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         && pm14b.periodMs !== null && Math.abs(pm14b.periodMs - pm14a.periodMs) <= 20
         && h14v.game.sfxMuted && !seq14c.some(Number.isNaN)
         && pm14c.periodMs !== null && Math.abs(pm14c.periodMs - pm14a.periodMs) <= 20;
-    p5('A05-14', 'sfx_tray_full · 每次 tray:full 派发 1 次且不循环；与视觉呼吸互不驱动', ok14audio && ok14decouple,
+    // 【T-151 · 判据时效性】第二主体（真满槽实例）在 v2.0 供料关停下不可构造（hold 恒 0、tray:full 恒 0）
+    // ⇒ 视觉呼吸半边 ⛔；音频半边（事件注入 3 次恰 3 派发）不受影响仍可测 ⇒ 整条记 PASS*（partial）。
+    const fullTrayAlive = h14v.count('tray:full') > 0 || h14v.hold() >= T.TRAY_BASE_SLOTS;
+    p5('A05-14', 'sfx_tray_full · 每次 tray:full 派发 1 次且不循环；与视觉呼吸互不驱动',
+        ok14audio && (!fullTrayAlive || ok14decouple),
         `【[N] 音频半边·派发层】隔 2.2s 注入 3 次 tray:full ⇒ 每次新增派发=${perEmit.join('/')}（恰 1）；`
         + `【[N] 音频半边·请求层】3 次请求的 loop 入参全=${u(req14.map((r) => r.loop)).join('/')} ⇒ **不循环**成立（minInterval=${u(req14.map((r) => r.minInterval)).join('/')} = AUDIO_TRAYFULL_MIN_INTERVAL=${T.AUDIO_TRAYFULL_MIN_INTERVAL}）。`
         + `　【第二主体已到位·修订 40】真满槽实例（fullTrayHarness(914, 420s)：A′ 合法供料自然灌满、不落子，**并等到首次 tray:full 广播** ⇒ 基线 ev=${ev0}）上量两个方向：`
@@ -1323,8 +1383,9 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         + `ⓑ **音不跟视觉循环**：连续两批呼吸窗口（90 帧 = 3 周期、再加 2.2s）内 tray:full 事件增量=${evDeltaQuiet}/${evDeltaNext}、clip 请求增量=${reqDeltaQuiet}/${reqDeltaNext}`
         + `（全为 0 ⇒ 音不随呼吸重复触发；去重锁正本 = tray-spawner §8-4 + spawner.ts:_fullReported，而 α 仍在往复：第二段周期 ${pm14b.periodMs ? pm14b.periodMs.toFixed(0) : '—'}ms）；`
         + `ⓒ **视觉不跟音**：经真路由面板 toggle-sfx 后（sfxMuted=${h14v.game.sfxMuted}）呼吸仍在，周期 ${pm14c.periodMs ? pm14c.periodMs.toFixed(0) : '—'}ms、档数=${pm14c.distinct}。`
-        + `　⇒ 修订 37 记的 partial（「互不驱动」无法双向成立）**随 BD-10 落地而解除**：改判源自**实现变化**，非口径放宽；P7④ 同轮取同一夹具 ⇒ 两处周期数字必须一致。`,
-        { partial: !(ok14audio && ok14decouple) });
+        + `　⇒ 修订 37 记的 partial（「互不驱动」无法双向成立）**随 BD-10 落地而解除**：改判源自**实现变化**，非口径放宽；P7④ 同轮取同一夹具 ⇒ 两处周期数字必须一致。`
+        + `　【T-151 · 判据时效性】第二主体（真满槽实例）在 **v2.0 供料关停**下不可构造（hold 恒 0、tray:full 恒 0）⇒ 视觉呼吸半边 ⛔（pm14a 实测 —ms 即此故）；音频半边不受影响仍可测 ⇒ 整条 **PASS\\***（复活条件 = 供料复活）。`,
+        { partial: !(ok14audio && ok14decouple) || !fullTrayAlive });
 
     // ── A05-15 · sprint:stage 派发（双段属 [B]）
     const h15 = ah(); h15.tickFrame(FR); h15.clearAudio();
@@ -1400,11 +1461,13 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     h18.clearAudio(); tapBtn(h18, pausePanelLayout('normal'), 'resume');
     const outPaused = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_OUT'));
     h18.clearAudio(); fillBoardAudio(h18);
-    h18.tickFrame(FR);                                          // v1.2 修：填盘是直投 API、不跨帧 ⇒ 不 flush 则 panel_in 永留 pending（实测旧版 inClear=0 假 FAIL）
+    // 【T-151】结算面板有 800ms 延迟入场门（CLEAR_PANEL_DELAY_MS=WAVE_MS）⇒ panel_in 在门满帧才派发；
+    // 旧版只 tickFrame(1) ⇒ inClear 恒 0（假 FAIL）。
+    runFrames(h18, Math.ceil(T.WAVE_MS / 1000 / FR) + 10);
     const inClear = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_IN'));
     h18.clearAudio(); tapBtn(h18, clearPanelLayout({ lastLevel: false }), 'next');
     const outClear = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_OUT'));
-    h18.clearAudio(); fillBoardAudio(h18); runFrames(h18, 4);
+    h18.clearAudio(); fillBoardAudio(h18); runFrames(h18, Math.ceil(T.WAVE_MS / 1000 / FR) + 10);   // 【T-151】同上等足延迟门
     h18.clearAudio(); tapBtn(h18, clearPanelLayout({ lastLevel: true }), 'next');
     const inFinish = cnt(h18.dispatched, C('AUDIO_CLIP_PANEL_IN'));
     h18.clearAudio(); tapBtn(h18, finishPanelLayout(h18.game.levelCount), 'replay');
@@ -1547,7 +1610,7 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const bgmOffC = h23c.game.bgmMuted, sfxStillOnC = h23c.game.sfxMuted;
     tapBtn(h23c, pausePanelLayout('normal'), 'resume');
     h23c.tickFrame(FR); h23c.clearAudio();
-    const i23c = h23c.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const i23c = (primePlaceable(h23c) || { slot: -1 }).slot; /* T-151 v2.0 前置 */
     const t23c = tapAt(h23c, ...slotXY(i23c));
     const bgmReqC = h23c.requests.filter((r) => r.id === C('AUDIO_CLIP_BGM')).length;
     const ok23c = bgmOffC === true && sfxStillOnC === false && cnt(t23c.dispatched, C('AUDIO_CLIP_SELECT')) === 1 && bgmReqC === 0;
@@ -1565,7 +1628,7 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     for (let lv = 0; lv < LEVELS.length; lv++) {
         if (!fillBoardAudio(h23b)) { brokeAt23b = lv + 1; break; }
         chain23b.push(`${lv + 1}:${h23b.game.phase}`);
-        runFrames(h23b, 40);                                   // 让逐星结算跑完（星音本应被门控）
+        runFrames(h23b, Math.ceil(T.WAVE_MS / 1000 / FR) + 10);   // 【T-151】等足 800ms 延迟门（星结算 + 面板 open）再点「下一关」
         tapBtn(h23b, clearPanelLayout({ lastLevel: lv === LEVELS.length - 1 }), 'next');
         h23b.tickFrame(FR);
         chain23b.push(h23b.game.phase);
@@ -1573,8 +1636,9 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const phaseFin23b = h23b.game.phase;
     tapBtn(h23b, finishPanelLayout(h23b.game.levelCount), 'sprint'); h23b.tickFrame(FR);
     const sprintPhase = h23b.game.phase, sprintMode = h23b.game.mode;
-    let sprintAlive = false;
-    for (let f = 0; f < 180; f++) { h23b.tickFrame(FR); if (h23b.game.snapshot.traySlots.some((x) => x.state !== 'free')) sprintAlive = true; }
+    // 【T-151 · 判据时效性】v2.0 供料关停 ⇒ 冲刺开局托盘恒空 ⇒「3s 内托盘有珠」不可构造；
+    // 「冲刺不因静音卡死」改证「phase 保持 playing 且 mode=sprint（玩法仍在跑）」。
+    const sprintAlive = sprintPhase === 'playing' && sprintMode === 'sprint';
     const newReq23b = h23b.requests.length - reqBase23b, newDis23b = h23b.dispatched.length - disBase23b;
 
     // 子句 ③′：全关下的续时路径（normal 模式，真跑到失败 → 看完广告）
@@ -1863,13 +1927,18 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     const placeableNow = sF.traySlots.filter((x) => x.state !== 'free' && demandOf(sF, x.colorIdx) > 0).length;
     // 腾槽后 ≤1 间隔恢复供料（§8-4 + §2.4.6「满槽后必可恢复」）
     const before = h.count('tray:spawned'); const fullEv = h.count('tray:full');
+    // 【T-151 · 判据时效性】v2.0 供料关停 ⇒ 托盘恒空（sel=-1）⇒ 腾槽半边不可构造：守卫防崩；
+    // 整段「泄压阀/满槽/恢复」随供料复活而复活（同 P26/§J.1 体例，不把判据侧失效算成实现缺陷）。
+    const spawnerAlive6 = full > 0;
     const sel = sF.traySlots.findIndex((x) => x.state !== 'free');
-    const tgt = firstEmptyOf(sF, sF.traySlots[sel].colorIdx);
-    h.game.tapDesign(...slotXY(sel)); h.frame(); h.game.tapDesign(...cellXY(h.game.snapshot, tgt));
+    const tgt = sel >= 0 ? firstEmptyOf(sF, sF.traySlots[sel].colorIdx) : -1;
+    if (sel >= 0 && tgt >= 0) { h.game.tapDesign(...slotXY(sel)); h.frame(); h.game.tapDesign(...cellXY(h.game.snapshot, tgt)); }
     h.advance(2.0 + 0.05);
     const resumed = h.count('tray:spawned') - before;
     const decoysInLevels = LEVELS.reduce((n, l) => n + ((l.decoys ?? []).length), 0);
-    const v = full === T.TRAY_BASE_SLOTS && deadEver === 0 && invariantBroken === 0 && placeableNow === full && resumed >= 1 ? 'PASS' : 'FAIL';
+    const v = !spawnerAlive6
+        ? '⛔（v2.0 供料关停 ⇒「合法供料灌满/腾槽恢复」不可构造；复活条件 = 供料复活。死局替代出口 = 重试恢复初始错位布置，判据面由 P28c 取证）'
+        : (full === T.TRAY_BASE_SLOTS && deadEver === 0 && invariantBroken === 0 && placeableNow === full && resumed >= 1 ? 'PASS' : 'FAIL');
     rec('P6 / BD-06 · GAP-06 尾部软锁死（A′+D 后满槽是否仍为死局）', v,
         `注入 13×12 三色、spawnInterval=2.0s，**只用合法供料**（不用 giveTrayBead，修订 20）：第 ${fullAt} 帧（${(fullAt / 60).toFixed(1)}s）托盘达基线容量 ${full}/${T.TRAY_BASE_SLOTS}。`
         + `满槽瞬间可落子珠数=${placeableNow}/${full}（A′：每颗 held<demand ⇒ 全部可落子）。`
@@ -1936,7 +2005,14 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
     /** 证据串用：端点读数 / 端点偏差分别打到 6 位与 9 位（后者用于展示浮点量级，便于复核）。 */
     const f6 = (x) => (x === null || x === undefined ? '—' : Number(x).toFixed(6));
     const f9 = (x) => (x === null || x === undefined ? '—' : Number(x).toFixed(9));
-    const v = okPulse && okFull && okAmpUrgent && okAmpFull ? 'PASS' : 'FAIL';
+    // 【T-151 · 判据时效性】④ 满槽半边在 v2.0 供料关停下不可构造（同 A05-14 体例）⇒ 拆分判定：
+    // ①②③（告急三通道 + α 幅度）仍可测；④⑤（满槽呼吸 / 同屏叠加）随供料复活而复活。
+    const fullAlive7 = overlay.full > 0 || overlay.hasTrayFullEv > 0;
+    const v = !fullAlive7
+        ? (okPulse && okAmpUrgent
+            ? 'PASS*（①②③ 告急半边过；④⑤ 满槽半边因 v2.0 供料关停不可构造 ⛔，复活条件 = 供料复活）'
+            : 'FAIL')
+        : (okPulse && okFull && okAmpUrgent && okAmpFull ? 'PASS' : 'FAIL');
     rec('P7 (v1.7 改判) / BD-10 · BD-35 闭合 · GAP-10 告急三通道（色+图标+脉冲）与满槽告警', v,
         `① 事件层：降穿 TIMER_URGENT_T=${T.TIMER_URGENT_T}s → timer:urgent=${ev}（期望恰 1）、snapshot.urgent=${urgent}。`
         + `② 颜色通道：HUD 时钟图标描边色去重=[${iconColors.join(', ')}]（平时 ${hex2(DEFAULT_PALETTE.textDim)} → 告急 ${hex2(DEFAULT_PALETTE.danger)}）、数字 fill 切 danger。`
@@ -1961,13 +2037,16 @@ const A = (label, got, want, unit = '') => `${label}=${got}${unit} 期望=${want
         + `　判据清单（本轮，逐条可复核）：① 事件恰 1 = ${urgent && ev === 1}；② 颜色/图标通道（见上）；③ 告急 周期±50ms **且** α 覆盖 [0.6,1.0]；④ 满槽 周期±50ms **且** α 覆盖 [0.6,1.0]；⑤ 分区频率各自 ≤3Hz（跨区合成值另披露、不据此判）。⇒ **本条记 ${v}**（= ${okPulse} && ${okFull} && ${okAmpUrgent} && ${okAmpFull}）。`
         + `　限制声明（**效力边界，必须随结论一起读**）：本条全部在**指令流层**（RenderModel 指令 α 序列）可证，**真机观感**与「同屏不刺眼」「光敏性」的主观/像素判据仍属 **[B]/[R]/[P]（本轮均未执行）** ⇒ **不得据指令读数宣称「光敏性红线已达标」**，只能宣称「**指令流层已符合 §3.8 的时序口径**」。`);
 }
-/** 单独取 HUD 非文本脉冲 α 序列（避免与 ①②③ 混用样本）。 */
+/** 单独取 HUD 非文本脉冲 α 序列（避免与 ①②③ 混用样本）。
+ * 【T-151 · 修探针缺陷】旧版用**固定 x = DESIGN_W/2−96** 筛选时钟圆 ⇒ 未命中任何图元（缺省 push 1）
+ * ⇒ α 序列恒 1.0、幅度断言假 FAIL（同帧 icons 序列实测 31 档 α 即反证）。改用与 ② 颜色通道
+ * 同源的筛选（HUD_BAND 内首个 circle），两采样源归一。 */
 function hudPulse(h, n) {
     const saved = h.game.snapshot; void saved;
     const seq = [];
     for (let f = 0; f < n; f++) {
         const cs = cmds(h);
-        const c = cs.filter((k) => k.kind === 'circle' && inBand(k, T.HUD_BAND) && Math.abs((k.x ?? 0) - (T.DESIGN_W / 2 - 96)) < 2)[0];
+        const c = cs.filter((k) => k.kind === 'circle' && inBand(k, T.HUD_BAND))[0];
         seq.push(c ? alphaOf(c.stroke) : 1);
         h.frame();
     }
@@ -2003,10 +2082,10 @@ function hudPulse(h, n) {
             if (expandHit > 0 || expandEntry > 0) break outerExpand;
         }
     }
-    const h4 = mk(); h4.frame(); const i4 = h4.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const h4 = mk(); h4.frame(); const i4 = (primePlaceable(h4) || { slot: -1 }).slot; /* T-151 v2.0 前置 */
     h4.game.tapDesign(...slotXY(i4)); h4.frame();
     const selOk = h4.count('tray:selected') === 1;
-    const h5 = mk(); h5.frame(); const i5 = h5.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const h5 = mk(); h5.frame(); const i5 = (primePlaceable(h5) || { slot: -1 }).slot; /* T-151 v2.0 前置 */
     h5.game.tapDesign(...slotXY(i5)); h5.frame();
     const t5 = firstEmptyOf(h5.game.snapshot, h5.game.snapshot.traySlots[i5].colorIdx);
     h5.game.tapDesign(...cellXY(h5.game.snapshot, t5)); h5.frame();
@@ -2023,16 +2102,24 @@ function hudPulse(h, n) {
 
 // ═════════════════════════════════════════════════════════ P9 · 热区（§8-2 回写后）
 {
-    const h0 = mk(); h0.frame();
+    // 【T-151 · v2.0 适配】§8-4 热区需要「两个相邻空格」：v2.0 开局全满 ⇒ 定制 swaps=[[0,1,0,2]]
+    // （(0,1)↔(0,2) 一对错位、相邻且异色，恒等式 misplaced=2=1 对+1 环 ✓），真链取回两颗 ⇒ 空格 1、2 相邻。
+    const lvP9 = { ...probeLevel(908, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1)), swaps: [[0, 1, 0, 2]], cycleProfile: 'short' };
+    const h0 = mk({ levels: [lvP9] }); h0.frame();
+    retrieveOneMisplaced(h0); retrieveOneMisplaced(h0);   // 两步式取回两颗错位珠（真链）
     const s = h0.game.snapshot;
     const target = (() => { for (let i = 0; i < s.cells.length; i++) { const c = s.cells[i]; if (!c.void && c.state === 'empty' && c.colorIdx > 0 && (i % s.gridCols) + 1 < s.gridCols && !s.cells[i + 1].void && s.cells[i + 1].state === 'empty') return i; } return -1; })();
+    if (target < 0) throw new Error('P9 v2.0 前置失败：未能构造相邻空格对');
     const [cx, cy] = cellXY(s, target);
     // 【修订 15b + 26】旧版忘了先选珠（⇒ 全 none 假 FAIL）；修后仍假 FAIL，因为**多次命中同一格**：
     //   第一次落子后该格已填（后续变 danger/locked）且托盘被 fixture 珠灌满 ⇒ giveTrayBead 返回 -1。
     //   本轮改为**每次偏移测量用一个干净实例**（同一行主序目标格、同一几何），一次一事。
     const probe = (dx) => {
-        const hi = mk(); hi.frame();
+        const hi = mk({ levels: [lvP9] }); hi.frame();
+        retrieveOneMisplaced(hi); retrieveOneMisplaced(hi);   // 每个干净实例重建相邻空格前置
         const si = hi.game.snapshot;
+        const targetNow = (() => { for (let i = 0; i < si.cells.length; i++) { const c = si.cells[i]; if (!c.void && c.state === 'empty' && c.colorIdx > 0 && (i % si.gridCols) + 1 < si.gridCols && !si.cells[i + 1].void && si.cells[i + 1].state === 'empty') return i; } return -1; })();
+        if (targetNow !== target) return 'no-empty-pair';
         const sl = hi.game.giveTrayBead(si.cells[target].colorIdx);
         if (sl < 0) return 'no-free-slot';
         hi.game.selectTraySlot(sl); hi.frame();
@@ -2067,6 +2154,9 @@ function hudPulse(h, n) {
     const runP10 = (tap) => {
         const h = mk({ seed: 'p10-diff' });
         h.frame();
+        // 【T-151 · v2.0 适配】§8-7 前提 = 「无托盘选中 + 存在可落空格」：v2.0 开局全满 ⇒ 取回一颗
+        // 错位珠构造空格（取回后 board 锚失效、且实现侧 retrieveBead 不置 tray 选中 ⇒ 满足「无选中」）。
+        retrieveOneMisplaced(h);
         const s = h.game.snapshot;
         const i = findEmpty(s);
         const [x, y] = cellXY(s, i);
@@ -2108,11 +2198,11 @@ function hudPulse(h, n) {
 // ═════════════════════════════════════════════════════════ P11 · §8-6/8/10（真实 InputManager）
 {
     const h1 = mk(); h1.frame();
-    const s1 = h1.game.snapshot; const [sx, sy] = slotXY(s1.traySlots.findIndex((x) => x.state !== 'free'));
+    const s1 = h1.game.snapshot; const p11 = primePlaceable(h1); const [sx, sy] = slotXY(p11 ? p11.slot : 0);
     h1.tapScreen(sx, sy); h1.frame(); h1.tapScreen(sx, sy); h1.frame();
     const dbl = h1.count('tray:selected');
     const h2 = mk(); h2.frame();
-    const a = h2.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const a = (primePlaceable(h2) || { slot: -1 }).slot; /* T-151 v2.0 前置 */
     h2.game.giveTrayBead(h2.game.snapshot.cells.find((c) => !c.void && c.colorIdx > 0).colorIdx); h2.frame();
     h2.tapScreen(...slotXY(a)); h2.frame(); h2.tapScreen(...slotXY(a === 0 ? 1 : 0)); h2.frame();
     const swap = h2.count('tray:selected'), selFinal = h2.game.snapshot.traySelected;
@@ -2121,13 +2211,15 @@ function hudPulse(h, n) {
     h3.tapScreen(...slotXY(0)); h3.frame(); h3.game.tapDesign(...cellXY(s3, findEmpty(s3))); h3.frame(); h3.game.tapDesign(...CARD_XY(0)); h3.frame();
     const pausedEvents = h3.emitted.length - before3, phase3 = h3.game.snapshot.phase;
     const h4 = mk(); h4.frame();
-    const s4 = h4.game.snapshot; const i4 = s4.traySlots.findIndex((x) => x.state !== 'free');
-    h4.tapScreen(...slotXY(i4)); h4.frame();
-    const [gx, gy] = cellXY(h4.game.snapshot, firstEmptyOf(h4.game.snapshot, h4.game.snapshot.traySlots[i4].colorIdx));
+    // 【T-151 · v2.0 适配】primePlaceable 前置（取回错位珠 ⇒ 托盘有珠 + 有可落格）
+    const p411 = primePlaceable(h4);
+    const s4 = h4.game.snapshot; const i4 = p411 ? p411.slot : -1;
+    if (i4 >= 0) h4.tapScreen(...slotXY(i4)); h4.frame();
+    const [gx, gy] = i4 >= 0 ? cellXY(h4.game.snapshot, firstEmptyOf(h4.game.snapshot, h4.game.snapshot.traySlots[i4].colorIdx)) : [0, 0];
     h4.reset(); h4.tapMany(gx, gy, 20);
     const flood = { placed: h4.count('bead:placed'), rejected: h4.count('bead:rejected'), phase: h4.game.snapshot.phase };
     const mt = mk(); mt.frame();
-    const sm = mt.game.snapshot; const [m1x, m1y] = slotXY(sm.traySlots.findIndex((x) => x.state !== 'free'));
+    const pmt = primePlaceable(mt); const sm = mt.game.snapshot; const [m1x, m1y] = slotXY(pmt ? pmt.slot : 0);
     const ms1 = mt.services.viewport.designToScreen({ x: 0, y: 0 }, m1x, m1y);
     // §8-9 双指同帧：两个 id 同帧 down（均为屏幕 CSS px），仅首触点（owner）生效
     mt.input.beginFrame();
@@ -2162,6 +2254,8 @@ function hudPulse(h, n) {
     //   它只隔离「落槽随机性」这一个变量，不改变 _pickFreeSlot 的真实代码路径（spawner.ts:176-186）。
     let cursor = 0, got = 0, framesS = 0;
     for (let f = 0; f < 60 * 4000 && got < 200; f++) {
+        // 【T-151】v2.0 供料关停 ⇒ 零供 ⇒ 5s 仍零供即提前退出（防 24 万帧空转）
+        if (f > 60 * 300 && got === 0) break;
         h.frame(); framesS++;
         for (; cursor < h.emitted.length; cursor++) {
             const e = h.emitted[cursor];
@@ -2171,19 +2265,22 @@ function hudPulse(h, n) {
         }
         h.drain();
     }
+    const spawnerAlive12 = got >= 200;
     const exp = 200 / T.TRAY_BASE_SLOTS;
-    const x2 = chi2(slots, exp);
+    const x2 = spawnerAlive12 ? chi2(slots, exp) : NaN;
     const maxDev = Math.max(...slots.map((v) => Math.abs(v - exp) / exp)) * 100;
-    // §8-4 满槽跳过 + 恢复（合法供料）
+    // §8-4 满槽跳过 + 恢复（合法供料）—— v2.0 供料关停下不可构造：守卫防崩（同 P6）
     const h2 = mk({ levels: [probeLevel(909, 13, 12, 420, 2.0, (i, j) => String(((i * 13 + j) % 3) + 1))], seed: 'full' });
     for (let f = 0; f < 60 * 40 && h2.hold() < T.TRAY_BASE_SLOTS; f++) h2.frame();
     const beforeF = h2.count('tray:spawned'); h2.advance(2.0 * 3);
     const fullEv = h2.count('tray:full'), spawnDuring = h2.count('tray:spawned') - beforeF;
     const sF = h2.game.snapshot; const sel = sF.traySlots.findIndex((x) => x.state !== 'free');
-    h2.game.tapDesign(...slotXY(sel)); h2.frame(); h2.game.tapDesign(...cellXY(sF, firstEmptyOf(sF, sF.traySlots[sel].colorIdx)));
+    if (sel >= 0) { h2.game.tapDesign(...slotXY(sel)); h2.frame(); h2.game.tapDesign(...cellXY(sF, firstEmptyOf(sF, sF.traySlots[sel].colorIdx))); }
     h2.advance(2.05); const resumed = h2.count('tray:spawned');
     const h3 = mk(); const cap0 = h3.game.snapshot.traySlots.length; const ex = h3.game.expandTray();
-    const v = x2 < CRIT_DF11_A005 && fullEv === 1 && spawnDuring === 0 && resumed >= 1 && ex && cap0 + T.TRAY_EXPAND_SLOTS === h3.game.snapshot.traySlots.length ? 'PASS' : 'FAIL';
+    const v = !spawnerAlive12
+        ? '⛔（v2.0 供料关停 ⇒「200 次供料均匀性 / 满槽跳过恢复」不可构造；复活条件 = 供料复活）'
+        : (x2 < CRIT_DF11_A005 && fullEv === 1 && spawnDuring === 0 && resumed >= 1 && ex && cap0 + T.TRAY_EXPAND_SLOTS === h3.game.snapshot.traySlots.length ? 'PASS' : 'FAIL');
     rec('P12 / BD-22(已裁定) · TC-TRAY-02·04·05 · S4 §8-2/§8-4/§8-5', v,
         `§8-2 现文（WXG-T-091）：200 次供料落槽频次做**卡方拟合优度，α=0.05 不拒绝均匀**（旧 ±20% 弃用）。白盒排水夹具下 ${framesS} 帧采到 ${got} 样本，频次=[${slots.join(',')}]，期望 ${exp.toFixed(2)}/槽 ⇒ χ²=${x2.toFixed(2)}（df=${T.TRAY_BASE_SLOTS - 1}，α=0.05 临界 ${CRIT_DF11_A005}${x2 < CRIT_DF11_A005 ? ' ⇒ 不拒绝 ✓' : ' ⇒ 拒绝均匀 ✗'}）；`
         + `对照旧口径最大偏差 ${maxDev.toFixed(1)}%（若仍按 ±20% 会误报，即 BD-22 的误报本征）。`
@@ -2214,7 +2311,17 @@ function hudPulse(h, n) {
     // 端到端：真实 harness input（CSS px）→ screenToDesign → 命中预期槽
     game.goToLevel(0); boot.render(3);
     const s = game.snapshot;
-    const idx = s.traySlots.findIndex((x) => x.state !== 'free');
+    // 【T-151 · v2.0 适配】供料关停 ⇒ 托盘恒空 ⇒ 槽点击无珠可选（实测 traySelected=-1）。
+    // 用白盒合法装配造出「槽 0 有珠」前置（选中错位珠 → 取回入槽 0），端到端判据主体（真链点击）不变。
+    const mi13 = (() => { for (let i = 0; i < s.cells.length; i++) { const c = s.cells[i]; if (!c.void && c.state === 'filled' && c.beadColorIdx > 0 && c.beadColorIdx !== c.colorIdx) return i; } return -1; })();
+    if (mi13 >= 0) {
+        game.tapDesign(...cellXY(s, mi13));
+        game.tapDesign(...slotXY(0));
+        boot.render(1);
+    }
+    const s13 = game.snapshot;
+    const idx0 = s13.traySlots.findIndex((x) => x.state !== 'free');
+    const idx = idx0 >= 0 ? idx0 : 0;
     const [dx, dy] = slotXY(idx);
     const sc = { x: 0, y: 0 }; app.viewport.designToScreen(sc, dx, dy);
     app.events.on('tray:selected', () => { });
@@ -2304,7 +2411,7 @@ function hudPulse(h, n) {
     const hasMeta = /winStreak|lastPlayDate|signin/i.test(raw);
     rec('P17 / BD-12 · S8 §8-7 连胜 + v1.1 meta 字段', hasMeta ? 'PASS' : 'FAIL',
         `通关推进后写档=${raw.slice(0, 260)}；winStreak/lastPlayDate/signin 命中=${hasMeta} ⇒ §8-7「连胜 3 → Current=3/Best=3；第 4 关失败 → Current=0/Best 仍 3」**仍无实现载体**（save-schema.ts 无 meta 段）。`
-        + `　v1.0→v1.1 变化：存档 version 1→**2**（T-088），但新增字段是「settings.reduceMotion / largeText」（可访问性，见 P22/P23），**不含** §2.3 冻结的 meta 段 ⇒ **BD-12 维持开放**（P2；属 concept §7 MVP 线之外）。`);
+        + `　【T-151 · v2.0 判读更新】旧文「version 1→2（T-088）」已过期：现行 schema = **v3**（v2→v3 新增 runs/onboarded 显式引导标记，BD-32/T-097），**仍不含** §2.3 冻结的 meta 段 ⇒ **BD-12 维持开放**（P2；属 concept §7 MVP 线之外）。另记：本夹具的「通关推进 ×3」在 v2.0（开局全满）下旁路落子不再成立（findEmpty 恒 −1 ⇒ 实际通关 0 次），但判定本体 =「meta 字段载体」⇒ 若实现则 BOOT 档即含字段，与通关次数无关 ⇒ 取证效力不变，FAIL 维持。`);
 }
 
 // ═════════════════════════════════════════════════════════ P18 · §8-9（回写后 156）
@@ -2312,30 +2419,46 @@ function hudPulse(h, n) {
     const big = probeLevel(913, T.GRID_MAX_COLS, T.GRID_MAX_ROWS, 420, 4.0, (i, j) => String(((i * T.GRID_MAX_COLS + j) % T.BEAD_COLOR_MAX) + 1));
     const h = mk({ levels: [big] });
     const s = h.game.snapshot;
-    const fillable = s.cells.filter((c) => !c.void && c.colorIdx > 0).length;
+    // 【T-151 · v2.0 适配】旧夹具「giveTrayBead + tapGridCell 填 156 格」在 v2.0 落子语义下失效
+    //（tapGridCell 旁路不再直通 S3 ⇒ placed=0）。§8-9 判据本体（PLAYING 零写档 + level:cleared 帧
+    // 恰 1 次写档）不变，落子改走 v2.0 解算（placeOneCorrect 真链循环直至通关）；落子次数 = swaps
+    // 派生的错位珠数（v2.0 关卡恒等式），「156 次」在 v2.0 下不可构造 ⇒ 判据按可构造量改读。
+    const misplaced0 = s.cells.filter((c) => !c.void && c.state === 'filled' && c.beadColorIdx > 0 && c.beadColorIdx !== c.colorIdx).length;
+    // 【T-151】`h.writes` 是**累计**写档计数：v2.0 下 BOOT 即写档 1 次 ⇒ 判据须扣基线，
+    // 否则 BOOT 那次会被误计进「PLAYING 段写档」（假 FAIL）。
+    const baseWrites = h.writes;
     let placed = 0, writesBeforeLast = 0, clearedAt = -1;
-    for (let i = 0; i < s.cells.length; i++) {
-        const c = s.cells[i]; if (c.void || c.state !== 'empty' || c.colorIdx <= 0) continue;
-        const sl = h.game.giveTrayBead(c.colorIdx);
-        if (sl < 0) { h.drain(); continue; }
-        h.game.selectTraySlot(sl);
-        if (h.game.tapGridCell(Math.floor(i / s.gridCols), i % s.gridCols)) {
-            placed++;
-            if (h.count('level:cleared') > 0) { clearedAt = placed; writesBeforeLast = h.writes - 1; break; }
-        }
+    for (let k = 0; k < 200 && h.count('level:cleared') === 0; k++) {
+        const before = h.count('bead:placed');
+        placeOneCorrect(h);
+        if (h.count('bead:placed') <= before) break;
+        placed = h.count('bead:placed');
+        if (h.count('level:cleared') > 0) { clearedAt = placed; writesBeforeLast = h.writes - baseWrites; break; }
     }
     const cleared = h.count('level:cleared');
-    const v = fillable === T.GRID_MAX_COLS * T.GRID_MAX_ROWS && placed === fillable && cleared === 1 && writesBeforeLast === 0 && h.writes === 1 ? 'PASS' : 'FAIL';
+    // 【T-151 · 规格漂移发现（逐步实测：placed=1 ⇒ writes 0→1；placed=2 ⇒ writes 1→2）】
+    // v2.0 的 **in-level 快照**（断点续玩，S7 特性）**每次落子落档 1 次** ⇒ 与 §8-9 现文
+    // 「PLAYING 零写档 / 结算帧恰 1 次」**互斥**。快照是 v2.0 有意设计 ⇒ 属**规格未随特性回写**，
+    // 不是实现 bug ⇒ 按 P26/§J.1 体例记 ⛔ 移交设计裁定，复活条件 = §8-9 回写（区分快照写档与业务写档）。
+    const v = placed === misplaced0 && cleared === 1 && writesBeforeLast > 0
+        ? '⛔（v2.0 in-level 快照每次落子落档 ⇒ 与 §8-9「PLAYING 零写档」现文互斥，移交设计裁定；复活条件 = §8-9 回写）'
+        : (misplaced0 > 0 && placed === misplaced0 && cleared === 1 && writesBeforeLast === 0 && h.writes - baseWrites === 1 ? 'PASS' : 'FAIL');
     rec('P18 / BD-24(已裁定) · S8 §8-9 PLAYING 零写档 / 结算帧恰 1 次', v,
-        `§8-9 现文（WXG-T-091）：注入落子次数 = 关卡最大可构造量 GRID_MAX_COLS×GRID_MAX_ROWS = ${T.GRID_MAX_COLS * T.GRID_MAX_ROWS}；结算帧 = **level:cleared 帧**（失败/sprint 帧另依 §2.5，不属本条）。`
-        + `实测：可填格 ${fillable}、成功落子 ${placed}（第 ${clearedAt} 次触发通关）；PLAYING 段（前 ${placed - 1} 次落子）写档=${writesBeforeLast}（期望 0）${writesBeforeLast === 0 ? '✓' : '✗'}；含结算帧累计写档=${h.writes}（期望恰 1）${h.writes === 1 ? '✓' : '✗'}；level:cleared=${cleared}。`
-        + `　v1.0 的 PASS*（200 不可构造）随判据回写取消 ⇒ 改判 **PASS**；BD-24 关闭。`
-        + `　白盒夹具声明：本条用 giveTrayBead 补齐 156 颗珠（156 次落子在 4s×156 节律下超出 time≤420 的关卡上限），供料侧不受影响 ⇒ 只测「写档次数」，不测供料（修订 20 已隔离该手法）。`);
+        `§8-9 现文（WXG-T-091）：结算帧 = **level:cleared 帧**（失败/sprint 帧另依 §2.5，不属本条）。`
+        + `【T-151 · v2.0 适配】「注入落子次数 = 156」在 v2.0（开局全满 + 错位装配恒等式）下**不可构造** ⇒ 落子改走 v2.0 解算归位，落子次数 = 错位珠数 ${misplaced0}（swaps 派生）。`
+        + `实测：成功落子 ${placed}（第 ${clearedAt} 次触发通关，期望 ${misplaced0}）；PLAYING 段（前 ${placed - 1} 次落子）写档=${writesBeforeLast}（期望 0）${writesBeforeLast === 0 ? '✓' : '✗'}；净写档（扣 BOOT 基线 ${baseWrites}，BD-32「每次 BOOT runs+1 落档」为已知行为）=${h.writes - baseWrites}（期望恰 1）${h.writes - baseWrites === 1 ? '✓' : '✗'}；level:cleared=${cleared}。`
+        + `　v1.0 的 PASS*（「注入落子 156/200 次不可构造」）已失效：落子总数不再是自由参数，恒等于错位珠数。本轮卡点在 §8-9 现文未随 BD-32（T-097）与 v2.0 in-level 快照回写 ⇒ 判据无法成立时记 **⛔ 移交设计裁定**（复活条件 = §8-9 回写区分快照写档与业务写档），不判实现缺陷；BD-24 的「裁定」仅关闭旧 200 上限争议，不覆盖本冲突。`
+        + `　夹具声明：全程真链——placeOneCorrect（取回错位珠→归位）解算至通关，不再 giveTrayBead 白盒补珠（旧「补齐 156 颗珠」声明随 v2.0 语义失效删除）；BOOT 写档 1 次（BD-32「每次 BOOT runs+1 落档」为已知行为）已扣基线。`);
 }
 
 // ═════════════════════════════════════════════════════════ P19 · hint 态载体
 {
     const h = mk(); h.frame();
+    // 【T-151 · v2.0 适配】供料关停 ⇒ 开局托盘恒空、无持有珠 ⇒ hint 锚点未激活（beads-game.ts:2792-2800
+    // 派生自「托盘持有最前一颗」）⇒ 旧夹具在第 1 帧断环恒 0 = **假 FAIL**。载体断言改「取回后」
+    // 口径（§6.1 指向链第 3 步）；hint 环图元本体判据不变（assets-spec §1.2：2px accent_blue 外描边）。
+    // 【二跑订正】取一颗不可激活 hint（唯一空格底色≠持有珠色）⇒ 前置改 primePlaceable（连取至可落）。
+    const primed19 = primePlaceable(h);
     const hintHex = hex2(DEFAULT_PALETTE.hintBlue);
     const cs = cmds(h);
     const rg = rings(cs, hintHex);
@@ -2344,8 +2467,8 @@ function hudPulse(h, n) {
     const onCell = cellCenter ? rg.find((r) => Math.abs(r.x + r.w / 2 - cellCenter[0]) < 2 && Math.abs(r.y + r.h / 2 - cellCenter[1]) < 2) : null;
     const states = [...new Set(s.cells.map((c) => c.state))];
     const v = rg.length >= 1 && onCell && onCell.lineWidth === 2 ? 'PASS' : 'FAIL';
-    rec('P19 / BD-11 · hint 态（规格 → 实现载体）', v,
-        `accent_blue(${hintHex}) 外描边环图元数=${rg.length}（尺寸/线宽=[${rg.map((r) => `${Math.round(r.w)}px·lw${r.lineWidth}`).join(' ')}]），目标格 (r${s.hintRow},c${s.hintCol}) 上检出叠加环=${!!onCell}。`
+    rec('P19 / BD-11 · hint 态（规格 → 实现载体；v2.0 取回后口径）', v,
+        `【T-151】前置 = 真链连续取回错位珠至可落（primePlaceable；单取一颗不产生底色匹配空格 ⇒ hint 恒 -1，旧「第 1 帧断环」随 v2.0 作废；前置成立=${primed19 !== null}）。accent_blue(${hintHex}) 外描边环图元数=${rg.length}（尺寸/线宽=[${rg.map((r) => `${Math.round(r.w)}px·lw${r.lineWidth}`).join(' ')}]），目标格 (r${s.hintRow},c${s.hintCol}) 上检出叠加环=${!!onCell}。`
         + `alpha 相位（P3 已测周期 ${T.HINT_PULSE_MS}ms / α 0.5↔1.0）⇒ assets-spec §1.2 hint 行三要素（色底 + 2px accent_blue 外描边 + 呼吸）落地。`
         + `　分层偏差登记（不判缺陷）：CellState 仍为 [${states.join('|')}]，hint/wrong 未扩为格子枚举态，实现走 snapshot 覆盖层 + view 只读；`
         + `art/assets-spec §1.2 以「状态行」措辞描述 ⇒ 建议美术侧补一句「hint/wrong 为叠加层，不改 S3 三态」，避免下轮按枚举态断言误判（修订 16）。`);
@@ -2395,7 +2518,12 @@ const panelCenter = (b) => [(b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.re
     const timeAxisOk = mapped.length === nominalInWindow && negLag.length === 0 && overLag.length === 0;
     // (d) 相邻间隔 4.0s ±0.1s
     const intervalOk = maxDev !== null && maxDev <= 0.1 + EPS;
-    const v = premiseOk && countOk && timeAxisOk && intervalOk ? 'PASS' : 'FAIL';
+    // 【T-151 · 判据时效性】v2.0 供料关停 ⇒ tray:spawned 恒 0 ⇒「首供 16 次/时刻轴/间隔轴」
+    // 整体不可构造 ⇒ ⛔（同 P26/§J.1 体例；复活条件 = 供料复活），不把判据侧失效算成实现缺陷。
+    const spawnerAlive20 = times.length > 0;
+    const v = !spawnerAlive20
+        ? '⛔（v2.0 供料关停 ⇒「开局首供 16 次/时刻轴 ≤2 帧/间隔 4.0s」不可构造；复活条件 = 供料复活）'
+        : (premiseOk && countOk && timeAxisOk && intervalOk ? 'PASS' : 'FAIL');
     rec(`P20 (v1.3 改判) / BD-25 · BD-27 已裁定 · S4 §8-1 现文两轴分列（闭区间 + 次数 ±0 + 时刻 ≤2 帧）`, v,
         `【判据现文（唯一来源，非 QA 自定）】tray-spawner §8-1（WXG-T-098 回写后）：窗口 **t ∈ [0, 60] 秒闭区间**（含两端；t = 进入 PLAYING 起算的**模拟时间**）内 tray:spawned **恰 16 次（次数 ±0）** = 首供 1 + 周期 15；「±0」**只约束事件次数**（缺任一次 = FAIL；出现名义第 17 次 = FAIL），**不约束时刻**；第 i 次的**名义时刻** = 4×(i−1) s ⇒ 第 16 次名义 t=60.0s 恰落在闭区间上界内 ⇒ **计入**（本句即 BD-27 的开/闭区间裁定）。**时刻轴**与次数轴分列：**0 ≤ t_actual − 4×(i−1) ≤ 2 帧**，帧 = GameLoop.fixedDt = 1/60 s ≈ 16.7 ms ⇒ 上界 33.4 ms，**出现负偏差（提前）即 FAIL**；相邻间隔仍 **4.0 s ±0.1 s**；用例前提 = 供料不被满槽截断。` + `　帧定义另见 systems-index §3 前言「使用约定」第 4 条（WXG-T-098）：帧量化只允许出现在**时刻轴**，不得出现在**次数轴**。`
         + `【夹具与前提】注入 spawnInterval = SPAWN_INTERVAL_DEFAULT = ${S}s（未被覆盖 ⇒ 走默认语义）、13×12 关卡 demand 充裕、自动落子循环（修订 22）保持盘面可落；实测同期 bead:placed=${placements}（判据 ≥ ${nominalInWindow - 1}）、tray:full=${h.count('tray:full')}、末帧 phase=${sn.phase} ⇒ **前提成立 = ${premiseOk}**（非「满槽停供」造成计数塌陷，不与 §8-4 混测）。`
@@ -2428,7 +2556,12 @@ const panelCenter = (b) => [(b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.re
         for (const sl of ss.traySlots) { if (sl.state === 'free') continue; const d = demandOf(ss, sl.colorIdx); if (d <= 0) dead++; if (h2.game.tray && ss.traySlots.filter((x) => x.state !== 'free' && x.colorIdx === sl.colorIdx).length > d) holdViolation++; }
     }
     const trivial0 = LEVELS.every((l) => (l.decoys ?? []).length === 0);
-    const v = spawned >= 60 && holdViolation === 0 && dead === 0 && trivial0 ? 'PASS' : 'FAIL';
+    // 【T-151 · 判据时效性】v2.0 供料关停 ⇒ spawned=0 ⇒ A′ 不变量「平凡成立、无判据效力」
+    // （P26 改判口径：平凡真不记绿）⇒ ⛔，复活条件 = 供料复活。
+    const spawnerAlive21 = spawned > 0;
+    const v = !spawnerAlive21
+        ? '⛔（v2.0 供料关停 ⇒ 长跑零供料样本，A′ 不变量平凡成立、无判据效力（P26 口径：平凡真不记绿）；复活条件 = 供料复活）'
+        : (spawned >= 60 && holdViolation === 0 && dead === 0 && trivial0 ? 'PASS' : 'FAIL');
     rec('P21 (v1.1 新增) / GAP-06 A′ · 供料不变量 held≤demand + §8-9「0 杂色」', v,
         `两局长跑（${frames} 帧 + 120s 逐 30 帧抽检，seed 固定）：tray:spawned=${spawned}、抽中色集=[${[...seen].sort((a, b) => a - b).join(',')}]；`
         + `违反 held(c) ≤ demand(c) 的采样数=${holdViolation}（期望 0）、出现过的死珠（demand=0 仍持珠）数=${dead}（期望 0）、托盘峰值=${maxHold}/${T.TRAY_BASE_SLOTS}。`
@@ -2463,10 +2596,15 @@ function stepGame(g, inp) { inp.beginFrame(); g.update(1 / 60); inp.endFrame(1 /
     const hintRingKept = rings(cmds(hg2), hintHex).length;
     // 通道 3：错误抖动位移归零（预置 reduceMotion）
     const hw = mk({ preSave: { version: 2, runs: 3, settings: { reduceMotion: true } } }); hw.frame();
+    // 【T-151 · v2.0 适配】取回一颗错位珠 ⇒ 原格变 empty 且底色≠珠色 ⇒ 天然的 wrong 格（同 P4）。
+    const dirtyW = retrieveOneMisplaced(hw);
     const sw = hw.game.snapshot; const si = sw.traySlots.findIndex((x) => x.state !== 'free');
-    const c0 = sw.traySlots[si].colorIdx;
-    const wc = (() => { for (let i = 0; i < sw.cells.length; i++) { const x = sw.cells[i]; if (!x.void && x.state === 'empty' && x.colorIdx > 0 && x.colorIdx !== c0) return i; } return -1; })();
-    hw.game.tapDesign(...slotXY(si)); hw.frame(); hw.game.tapDesign(...cellXY(sw, wc)); hw.frame();
+    const c0 = si >= 0 ? sw.traySlots[si].colorIdx : -1;
+    const wc = si >= 0 && dirtyW >= 0 && sw.cells[dirtyW].state === 'empty' && sw.cells[dirtyW].colorIdx !== c0
+        ? dirtyW
+        : (() => { for (let i = 0; i < sw.cells.length; i++) { const x = sw.cells[i]; if (!x.void && x.state === 'empty' && x.colorIdx > 0 && x.colorIdx !== c0) return i; } return -1; })();
+    const preOkW = si >= 0 && wc >= 0;
+    if (preOkW) { hw.game.tapDesign(...slotXY(si)); hw.frame(); hw.game.tapDesign(...cellXY(hw.game.snapshot, wc)); hw.frame(); }
     const shakeSeq = [], ringSeq = []; for (let f = 0; f < 12; f++) { const cs = cmds(hw); const [, wy] = cellXY(hw.game.snapshot, wc); const rect = cs.filter((k) => k.kind === 'rect' && Math.abs(k.w - T.BEAD_CELL) < 0.6 && Math.abs((k.y + k.h / 2) - wy) < 2 && Math.abs((k.x + k.w / 2) - cellXY(hw.game.snapshot, wc)[0]) < 8); shakeSeq.push(rect.length ? Number((rect[0].x + rect[0].w / 2 - cellXY(hw.game.snapshot, wc)[0]).toFixed(2)) : 0); ringSeq.push(rings(cs, hex2(DEFAULT_PALETTE.danger)).length); hw.frame(); }
     // wrong 只持续 WRONG_FX_MS=200ms ⇒ 描边存在性必须**在窗口内取最大**，不能在窗口后取（否则恒 0 = 假 FAIL）
     const ringStatic = Math.max(0, ...ringSeq);
@@ -2584,19 +2722,15 @@ function stepGame(g, inp) { inp.beginFrame(); g.update(1 / 60); inp.endFrame(1 /
  * 与旁路口径一致。**旁路例原样保留、未删除**（`tapDesign` 仍是合法的装配前置）；两组并列呈报，
  * 任一方断链都可见 —— 这正是 K-038 的规避①「关键交互各有一条经 `InputManager` 真链的用例」。
  */
-/** 装配前置（合法）：直投托盘 + 落子填满可填格 ⇒ 触发 LEVEL_CLEAR。白盒例外同 P5/A05-17（修订 20 已注明）。 */
+/**
+ * 【T-151 · v2.0 适配】装配前置：v2.0 开局全满（错位装配）⇒ 旧「giveTrayBead 灌珠 + 填空格」
+ * 模型空转（isFillable 恒 false ⇒ 返回 true 但 phase 仍 playing ⇒ 下游全假 FAIL）。
+ * 改走 v2.0 解算归位（真链两步式 `solveBoard099`），返回值锚到「确实进入 LEVEL_CLEAR」。
+ */
 function fillBoard(h) {
-    const grid = h.game.grid;
-    for (let r = 0; r < grid.rows; r++) {
-        for (let c = 0; c < grid.cols; c++) {
-            if (!grid.isFillable(r, c)) continue;
-            const slot = h.game.giveTrayBead(grid.requiredColor(r, c));
-            if (slot < 0) return false;
-            h.game.selectTraySlot(slot);
-            if (!h.game.tapGridCell(r, c)) return false;
-        }
-    }
-    return true;
+    const ok = solveBoard099(h);
+    for (let f = 0; f < 30 && h.game.phase === 'playing'; f++) h.frame();
+    return ok && h.game.phase === 'level-clear';
 }
 /** 面板外一点：明确落在 560×480 居中面板之外、且不命中齿轮/道具卡/扩展/托盘/网格任一热区（死区）。
  *  用于「仅面板按钮响应」的负向子句——必须真经 `_handleTap` 走一遭，否则「零响应」会因收不到事件而平凡为真。 */
@@ -2614,10 +2748,10 @@ const OUTSIDE_PANEL = [30, 53];
     h3.tapChain(eb.hitX + eb.hitW / 2, eb.hitBottom + eb.hitH / 2);
     const sn3 = h3.game.snapshot;
     const expandEntry = sn3.tapHintAnchor === 'expand' && Boolean(sn3.tapHintText);
-    const h4 = mk(); h4.frame(); const i4 = h4.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const h4 = mk(); h4.frame(); const i4 = (primePlaceable(h4) || { slot: -1 }).slot; /* T-151 v2.0 前置 */
     h4.tapChain(...slotXY(i4));
     const selOk = h4.count('tray:selected') === 1;
-    const h5 = mk(); h5.frame(); const i5 = h5.game.snapshot.traySlots.findIndex((x) => x.state !== 'free');
+    const h5 = mk(); h5.frame(); const i5 = (primePlaceable(h5) || { slot: -1 }).slot; /* T-151 v2.0 前置 */
     h5.tapChain(...slotXY(i5));
     const t5 = firstEmptyOf(h5.game.snapshot, h5.game.snapshot.traySlots[i5].colorIdx);
     h5.tapChain(...cellXY(h5.game.snapshot, t5));
@@ -2639,6 +2773,8 @@ const OUTSIDE_PANEL = [30, 53];
     const runP10r = (tap) => {
         const h = mk({ seed: 'p10r-diff' });
         h.frame();
+        // 【T-151 · v2.0 适配】同 P10：取回一颗错位珠构造「可落空格」前置（真链两步式）。
+        retrieveOneMisplaced(h);
         const s = h.game.snapshot;
         const i = findEmpty(s);
         const [x, y] = cellXY(s, i);
@@ -2741,7 +2877,9 @@ const OUTSIDE_PANEL = [30, 53];
     const h = mk({ levels: [probeLevel(950, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1)), probeLevel(951, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
     h.frame();
     const filled = fillBoard(h);          // 装配前置（合法）
-    for (let f = 0; f < 15; f++) h.frame();   // 等结算面板入场（ux-spec §5 入 200ms）
+    // 【T-151】结算面板有延迟入场门（CLEAR_PANEL_DELAY_MS=WAVE_MS=800ms，裁定 1）⇒ 只等 15 帧
+    // 点面板按钮永远无效（hitTest 恒无命中）⇒ 假 FAIL。等足延迟门再交互。
+    for (let f = 0; f < Math.ceil(T.WAVE_MS / 1000 / (1 / 60)) + 10; f++) h.frame();
     const phase0 = h.game.phase, li0 = h.game.levelIndex;
     const before = h.emitted.length;
     h.tapChain(...OUTSIDE_PANEL);             // 面板外——真链
@@ -2763,6 +2901,7 @@ const OUTSIDE_PANEL = [30, 53];
 {
     const h = mk({ levels: [probeLevel(952, 6, 5, 180, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
     h.frame();
+    const bootFp = fpCells(h.game.snapshot);   // 【T-151】v2.0 重试 = 恢复初始错位布置 ⇒ 需 BOOT 基线指纹
     let frames = 0;
     for (; frames < 60 * 190 && h.game.phase === 'playing'; frames++) h.frame();
     for (let f = 0; f < 15; f++) h.frame();   // 等失败面板入场
@@ -2774,13 +2913,15 @@ const OUTSIDE_PANEL = [30, 53];
     const retry = failPanelLayout(true).buttons.find((b) => b.id === 'retry');
     h.tapChain(...panelCenter(retry));        // 真链点「重试」
     const s = h.game.snapshot;
+    // 【T-151 · 判据时效性】「filledNow===0（整关重置）」是 v1.2 旧语义：v2.0 重试 = **恢复初始错位布置**
+    // （timer-gameover §8-6 v1.3）⇒ 棋盘恢复 BOOT 基线指纹（全满、错位态复原），不是清空。
     const filledNow = s.cells.filter((c) => !c.void && c.state === 'filled').length;
-    const reset = h.game.phase === 'playing' && filledNow === 0;
+    const reset = h.game.phase === 'playing' && fpCells(s) === bootFp;
     const v = phase0 === 'game-over' && outsideEvents === 0 && stillOver && reset ? 'PASS' : 'FAIL';
     rec('P27c / BD-34 回归闸门 · TC-INP-12 · S2 §8-8c GAME_OVER 真链门禁', v,
         `装配（前置）：推时钟至归零（${frames} 帧）⇒ phase=${phase0}（期望 game-over）。`
         + `① 面板外负向：真链点 (${OUTSIDE_PANEL[0]},${OUTSIDE_PANEL[1]}) ⇒ 事件增量=${outsideEvents}（期望 0）、相位不变=${stillOver}。\n`
-        + `② 正向：真链点「重试」中心 ⇒ phase=${h.game.phase}（期望 playing）、filled=${filledNow}（期望 0 = 整关重置）${reset ? '✓' : '✗'}。`
+        + `② 正向：真链点「重试」中心 ⇒ phase=${h.game.phase}（期望 playing）、filled=${filledNow} + 棋盘指纹=BOOT 基线（v2.0 = 恢复初始错位布置，timer §8-6 v1.3；**非 v1.2「清空」旧语义**）${reset ? '✓' : '✗'}。`
         + `　【判据归属】` + '`input-control §8-8c`' + `（**WXG-T-115 已定稿落盘**；本组为**普通局主按钮「重试本关」**腿——普通局次按钮「续时」见 P27f、冲刺局子分支「再来一局/返回关卡」见 P27g/h）⇒ 对应用例 ` + '`test-cases.md §A4b` TC-INP-12' + `。`
         + `　【BD-34】旧实现下 ①② 真链点击均收不到。`);
 }
@@ -2790,7 +2931,7 @@ const OUTSIDE_PANEL = [30, 53];
     const h = mk({ levels: [probeLevel(953, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
     h.frame();
     const filled = fillBoard(h);          // 装配前置（合法）：单关填满 ⇒ level-clear(lastLevel)
-    for (let f = 0; f < 15; f++) h.frame();
+    for (let f = 0; f < Math.ceil(T.WAVE_MS / 1000 / (1 / 60)) + 10; f++) h.frame();   // 【T-151】等足 800ms 延迟门
     const phaseClear = h.game.phase;
     const next = clearPanelLayout({ lastLevel: true }).buttons.find((b) => b.id === 'next');
     h.tapChain(...panelCenter(next));         // 真链点「查看结果」⇒ FINISH
@@ -2836,7 +2977,7 @@ function enterSprintGameOver(levelId) {
     const h = mk({ levels: [probeLevel(954, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1)), probeLevel(955, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
     h.frame();
     const filled = fillBoard(h);               // 装配前置（合法）
-    for (let f = 0; f < 15; f++) h.frame();    // 等结算面板入场
+    for (let f = 0; f < Math.ceil(T.WAVE_MS / 1000 / (1 / 60)) + 10; f++) h.frame();   // 【T-151】等足 800ms 延迟门
     const phase0 = h.game.phase, mode0 = h.game.snapshot.mode, li0 = h.game.levelIndex;
     const before = h.emitted.length;
     h.tapChain(...OUTSIDE_PANEL);              // 面板外——真链
@@ -2932,7 +3073,7 @@ function enterSprintGameOver(levelId) {
     const h = mk({ levels: [probeLevel(959, 6, 5, 300, 4.0, (i, j) => String(((i + j) % 3) + 1))] });
     h.frame();
     const filled = fillBoard(h);               // 装配前置（合法）：单关填满 ⇒ level-clear(lastLevel)
-    for (let f = 0; f < 15; f++) h.frame();
+    for (let f = 0; f < Math.ceil(T.WAVE_MS / 1000 / (1 / 60)) + 10; f++) h.frame();   // 【T-151】等足 800ms 延迟门
     const phaseClear = h.game.phase;
     const next = clearPanelLayout({ lastLevel: true }).buttons.find((b) => b.id === 'next');
     h.tapChain(...panelCenter(next));          // 真链点「查看结果」⇒ FINISH
@@ -2976,10 +3117,7 @@ function enterSprintGameOver(levelId) {
  *   • §8-3 第 5 项（道具免费次数）若**无可观测字段**即记 ⛔，不发明伪状态充数。
  */
 const FR099 = 1 / 60;
-/** cells 指纹：state/底色/占位珠色（v2.0 错位 = `beadColorIdx !== colorIdx`）逐一比对。 */
-const fpCells = (s) => s.cells.map((c) => `${c.void ? 'v' : c.state}:${c.colorIdx}:${c.beadColorIdx}`).join('|');
-const fpTray = (s) => s.traySlots.map((t) => `${t.state}:${t.colorIdx}`).join('|');
-const heldOf = (s) => s.traySlots.filter((t) => t.state !== 'free').length;
+// 【T-151】fpCells/fpTray/heldOf 已上移至 helpers 区（probeLevel 之后）—— 此处原定义删除避免重复声明。
 const panelBtn = (id, mode = 'normal') => pausePanelLayout(mode).buttons.find((b) => b.id === id);
 /** 推到 GAME_OVER（普通局）并等失败面板入场；上限防死循环。 */
 function driveToGameOver099(h, maxSec = 130) {
@@ -3009,6 +3147,50 @@ function retrieveOneMisplaced(h) {
         if (heldOf(h.game.snapshot) > before) return i;
     }
     return -1;
+}
+/**
+ * 【T-151 · v2.0 正确落子】取回错位珠（环场景可能需取回多颗）直到托盘珠能落到「底色相同」的
+ * 空格并落成。旧夹具按「开局托盘有珠 + 棋盘有空格」的 v1.2 模型写 ⇒ v2.0（开局全满 + 托盘恒空）
+ * 下恒不可用。返回是否落成（供前置自检）。
+ */
+function placeOneCorrect(h, maxSteps = 40) {
+    for (let k = 0; k < maxSteps; k++) {
+        const s = h.game.snapshot;
+        const held = s.traySlots.findIndex((x) => x.state !== 'free');
+        if (held >= 0) {
+            const color = s.traySlots[held].colorIdx;
+            let target = -1;
+            for (let j = 0; j < s.cells.length; j++) {
+                const c = s.cells[j];
+                if (!c.void && c.state === 'empty' && c.colorIdx === color) { target = j; break; }
+            }
+            if (target >= 0) {
+                h.tapChain(...slotXY(held));
+                h.tapChain(...cellXY(h.game.snapshot, target));
+                return h.game.snapshot.traySlots[held].state === 'free';
+            }
+        }
+        if (retrieveOneMisplaced(h) < 0) return false;
+    }
+    return false;
+}
+/**
+ * 【T-151 · v2.0 通用前置】给 harness 造出 v1.2 时代「托盘有珠 + 存在底色==珠色的空格」前置，
+ * 全部走真链合法操作（两步式取回错位珠；环场景多取几颗必成对）。**不灌白盒珠**
+ * （`giveTrayBead` 绕过校验，仅 P21 类白盒段按修订 20 注明使用）。返回 `{slot, cell}` 或 null。
+ * 供 P5 音频段等 30 处「开局托盘有珠」假设统一换用。
+ */
+function primePlaceable(h, maxSteps = 40) {
+    for (let k = 0; k < maxSteps; k++) {
+        const s = h.game.snapshot;
+        const slot = s.traySlots.findIndex((x) => x.state !== 'free');
+        if (slot >= 0) {
+            const cell = firstEmptyOf(s, s.traySlots[slot].colorIdx);
+            if (cell >= 0) return { slot, cell };
+        }
+        if (retrieveOneMisplaced(h) < 0) return null;
+    }
+    return null;
 }
 /**
  * v2.0 解算（把错位珠逐一归位）—— 用于装配 LEVEL_CLEAR / FINISH 相位。
@@ -3530,15 +3712,23 @@ const cntGrp = (pred) => out.filter((r) => pred(r.id)).length;
 //   （`timer-gameover §8-11/12` 2 条）**——`test-cases §H` 的 H2/H3 由此从「只有文档映射 + vitest」
 //   升级为**可复跑探针取证**（BD-21 执行层收口）。范围铁声明：本轮**只新增 P28*/P29***，其余段
 //   沿用各自现行轮次 ⇒ **分桶计数不得合并解读**（同 T-118 / T-116 体例）。
+// 【修订 46 · WXG-T-151】修订面 = **v2.0 适配有足迹的全部组**（整轮复跑）。分桶为最高优先：
+//   P4/P7（T-118）、P8/P10/P5·A05-14（T-097）、P20（T-098）、P8R/P10R/P27a..d（T-114）、
+//   P27e/P27i（T-116）、P28c/f/g/i/j（T-099）成员移入本桶（沿 T-118 移实体例，不双计）；
+//   预期值口径正本仍是各历史轮现文，但本轮实测属 v2.0 夹具轮。无 T-151 足迹的组（P1/P5 其余/P14~P16/
+//   P23~P26/P22R/P27f..h/P28a/b/d/e/h/P29a/b）保留原桶。
+const T151_ID_RE = /^(P2|P3|P4|P6|P7|P8|P9|P10|P11|P12|P13|P17|P18|P19|P20|P21|P22)\b|^P8R\b|^P10R\b|^P27[abdei]\b|^P28[cfgij]\b|^P5\/A05-(01|04|07|14|18|23)\b/;
+const inT151 = (id) => T151_ID_RE.test(id);
 const T114_PREFIXES = ['P8R', 'P10R', 'P22R', 'P27a', 'P27b', 'P27c', 'P27d'];
 const T116_PREFIXES = ['P27e', 'P27f', 'P27g', 'P27h', 'P27i'];
 const T099_PREFIXES = ['P28a', 'P28b', 'P28c', 'P28d', 'P28e', 'P28f', 'P28g', 'P28h', 'P28i', 'P28j', 'P29a', 'P29b'];
-const inT114 = (id) => T114_PREFIXES.some((p) => id.startsWith(p));
-const inT116 = (id) => T116_PREFIXES.some((p) => id.startsWith(p));
-const inT099 = (id) => T099_PREFIXES.some((p) => id.startsWith(p));
-const inT118 = (id) => /^P4\b/.test(id) || /^P7\b/.test(id);
-const inT098 = (id) => !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id) && (/^P20\b/.test(id) || /^P26\b/.test(id));
-const inT097 = (id) => !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id) && (/^P8\b/.test(id) || /^P10\b/.test(id) || /^P5\/A05-14\b/.test(id));
+const inT114 = (id) => !inT151(id) && T114_PREFIXES.some((p) => id.startsWith(p));
+const inT116 = (id) => !inT151(id) && T116_PREFIXES.some((p) => id.startsWith(p));
+const inT099 = (id) => !inT151(id) && T099_PREFIXES.some((p) => id.startsWith(p));
+const inT118 = (id) => !inT151(id) && (/^P4\b/.test(id) || /^P7\b/.test(id));
+const inT098 = (id) => !inT151(id) && !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id) && (/^P20\b/.test(id) || /^P26\b/.test(id));
+const inT097 = (id) => !inT151(id) && !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id) && (/^P8\b/.test(id) || /^P10\b/.test(id) || /^P5\/A05-14\b/.test(id));
+const tallyT151 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT114 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT116 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT118 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
@@ -3547,19 +3737,20 @@ const tallyT098 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyT097 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 const tallyRest2 = { PASS: 0, 'PASS*': 0, FAIL: 0, '⛔': 0 };
 for (const r of out) {
-    const bucket = inT099(r.id) ? tallyT099 : inT118(r.id) ? tallyT118 : inT116(r.id) ? tallyT116 : inT114(r.id) ? tallyT114 : inT098(r.id) ? tallyT098 : inT097(r.id) ? tallyT097 : tallyRest2;
+    const bucket = inT151(r.id) ? tallyT151 : inT099(r.id) ? tallyT099 : inT118(r.id) ? tallyT118 : inT116(r.id) ? tallyT116 : inT114(r.id) ? tallyT114 : inT098(r.id) ? tallyT098 : inT097(r.id) ? tallyT097 : tallyRest2;
     bucket[norm(r.verdict)]++;
 }
-console.log('\n================ 探针汇总（v1.7 轮 · WXG-T-099 修订面 = P28a..j + P29a/b（§H 进探针） · WXG-T-118 修订面 = P4 纯重跑 + P7 预期值收紧[BD-35 闭合] · WXG-T-116 修订面 = P27e..i · WXG-T-114 修订面 = P8R/P10R/P22R + P27a..d） ================');
+console.log('\n================ 探针汇总（v1.8 轮 · WXG-T-151 修订面 = v2.0 全面适配整轮复跑（见修订 46） · 历史修订面：WXG-T-099 = P28a..j + P29a/b · WXG-T-118 = P4+P7 · WXG-T-116 = P27e..i · WXG-T-114 = P8R/P10R/P22R + P27a..d（成员被 T-151 移入者已除名） ================');
 for (const r of out) console.log(`${norm(r.verdict).padEnd(6)} ${r.id}`);
 console.log(`\n总计数：${sum(tally)}（共 ${out.length} 组；含 P26-N 负向用例）`);
+console.log(`【T-151 修订面 · v2.0 适配复跑（判据/夹具换面，${cntGrp(inT151)} 条；P4/P7、P8/P10/A05-14、P20、P8R/P10R/P27a..d、P27e/i、P28c/f/g/i/j 自原桶移入）】：${sum(tallyT151)}`);
 console.log(`【T-096 修订面 · P5 段（${cntGrp((id) => id.startsWith('P5'))} 条）】：${sum(tallyP5)}`);
-console.log(`【T-118 修订面 · P4（纯重跑）+ P7（预期值收紧 / BD-35 闭合）（${cntGrp(inT118)} 条）】：${sum(tallyT118)}`);
-console.log(`【T-098 修订面 · P20/P26（含 P26-N，P4 已移入 T-118，${cntGrp(inT098)} 条）】：${sum(tallyT098)}`);
-console.log(`【T-097 修订面 · P8/P10 + P5/A05-14（P7 已移入 T-118，${cntGrp(inT097)} 条）】：${sum(tallyT097)}`);
-console.log(`【T-114 修订面 · P8R/P10R/P22R + P27a..d（真链口径 / BD-34 回归闸门，${cntGrp(inT114)} 条）】：${sum(tallyT114)}`);
-console.log(`【T-116 修订面 · P27e..i（§8-8b/8c/8d 次按钮真链孪生 + 去「拟」，${cntGrp(inT116)} 条）】：${sum(tallyT116)}`);
-console.log(`【T-099 修订面 · P28a..j + P29a/b（§H 的 H2/H3 进探针 / BD-21 执行层收口，${cntGrp(inT099)} 条）】：${sum(tallyT099)}`);
-console.log(`【未随本轮复核 · 其余 ${cntGrp((id) => !inT098(id) && !inT097(id) && !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id))} 组沿用各自上一轮预期值】：${sum(tallyRest2)}`);
-console.log('　↑ 八段计数不得合并解读：P5 段沿 T-096 口径（A05-14 双计），P4/P7 沿 T-118 口径（P4 = 纯重跑、P7 = 预期值收紧），P20/P26 沿 T-098 口径，P8/P10 沿 T-097 口径，P8R/P10R/P22R/P27a..d 沿 T-114 真链口径，P27e..i 沿 T-116 次按钮真链口径，P28a..j/P29a/b 沿 T-099 口径（§H 进探针），其余组沿 v1.1 口径。');
+console.log(`【T-118 修订面 · P4+P7（成员已全部移入 T-151，余 ${cntGrp(inT118)} 条）】：${sum(tallyT118)}`);
+console.log(`【T-098 修订面 · P26（含 P26-N；P4 已移 T-118→T-151，P20 已移入 T-151，${cntGrp(inT098)} 条）】：${sum(tallyT098)}`);
+console.log(`【T-097 修订面 · P8/P10 + P5/A05-14（成员已全部移入 T-151，余 ${cntGrp(inT097)} 条）】：${sum(tallyT097)}`);
+console.log(`【T-114 修订面 · P22R（P8R/P10R/P27a..d 已移入 T-151，${cntGrp(inT114)} 条）】：${sum(tallyT114)}`);
+console.log(`【T-116 修订面 · P27f..h（P27e/P27i 已移入 T-151，${cntGrp(inT116)} 条）】：${sum(tallyT116)}`);
+console.log(`【T-099 修订面 · P28a/b/d/e/h + P29a/b（P28c/f/g/i/j 已移入 T-151，${cntGrp(inT099)} 条）】：${sum(tallyT099)}`);
+console.log(`【未随本轮复核 · 其余 ${cntGrp((id) => !inT151(id) && !inT098(id) && !inT097(id) && !inT114(id) && !inT116(id) && !inT118(id) && !inT099(id))} 组沿用各自上一轮预期值（本轮仍随整轮重跑，零改动）】：${sum(tallyRest2)}`);
+console.log('　↑ 各段计数不得合并解读：T-151 段 = 本轮 v2.0 夹具/判据换面组（预期值正本仍沿各历史轮现文）；P5 段沿 T-096 口径（A05-14 双计入 P5 总数），P26 沿 T-098 口径，P22R/P27f..h 沿 T-114/T-116 口径，P28a/b/d/e/h + P29a/b 沿 T-099 口径，其余组沿 v1.1 口径。');
 console.log(`时间戳：${new Date().toISOString()}   Node ${process.version}`);

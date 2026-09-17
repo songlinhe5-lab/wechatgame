@@ -108,6 +108,7 @@
   - **改动文件**：`games/beads/src/view/view-model.ts`（formatTime 取整 / HUD 标签锚点 / 角标字体固定）、`games/beads/src/game/beads-game.ts`（clearRemaining 取整，+3 行注释）、`games/beads/src/systems/sprint-settle.ts`（角标 168，+5 行注释）、`games/beads/tests/{view-model,sprint-settle,clear-panel}.test.ts`（新增 5 回归例 + 渲染辅助）；Cocos 拷贝件由 `framework:sync` 产出（3 文件）。**未改** `packages/**`、`production/qa/**`、`design/**`。**未 commit / 未 push**；主表状态行归主理人。
   - **给主理人复测的提示**：① BD-43/44 复测请用「**tap 后先 `await raf()`/等待 ≥1 帧再读快照**」的节奏（T-130 伪影根源），且 BD-44 的效果观察对象是**托盘槽**（GDD §8-7 网格恒不变）；② 本会话遗留两个本地服务：harness `:4187`（已重建为新码）、Cocos web-mobile 静态件 `:4188`（**产物为旧码**，如需 Cocos 侧复验请先 `pnpm --filter @wxgame/beads run build:cocos:web`）；③ 复现探针在 `/tmp/bd43-probe.mjs`、`/tmp/bd44-region-probe.mjs`、`/tmp/bd4546-probe.mjs`（临时件，未入仓）。
   - **沉淀候选（0–3 条）**：①「真实指针探针判读：tap 与读数的跨帧时序必须显式等待，单点读数不得作为『无效/误触』双态证据 —— 双向对照各留 ≥1 帧间隔」（K 候选）；②「文字底衬类 UI（角标/胶囊标签）验收须含 measureText 宽度核对，E2 大字号是隐藏的加宽路径」（K 候选）。
+  - **状态同步（2026-09-17，CodeBuddy 会话）**：核实交付已随 **`ec49da8`** 入库（`sprint-settle.ts` 角标 168 等修复均在 HEAD）；beads 测试现值 **409/409 绿**（35 文件，含 T-151 期新增）；主表状态行 📋→✅。**唯一未闭环项 = 验收 ④ 主理人浏览器复测**（BD-43/44 复测须「tap 后等 ≥1 帧再读快照」防 T-130 同款伪影；Cocos 侧复验先 `build:cocos:web` 刷新产物）。
 
 ---
 
@@ -235,7 +236,7 @@
 ## WXG-T-133
 
 - **名称**：**beads · Epic：错位归位工程实现（WXG-T-130 v2.0 规格的落地）**
-- **负责**：主理人（编排）；Story 分派　**状态**：🔄 进行中　**P1**
+- **负责**：主理人（编排）；Story 分派　**状态**：✅ 完成（2026-09-17 收口核销，见下「收官记录」）　**P1**
 - **规格真源**：`systems-index v1.22`（§3.13 错位参数 / §3.6 解环器 / §3.8 E1 纯色+E4 作废 / §4 事件表）+ `core-loop v2.0` + `bead-grid v2.0` + `input-control v2.0` + `tray-spawner v2.0` + `levels-spec v1.2` + `art-bible/assets-spec v1.5`。
 - **Story 拓扑（文策渊建议，主理人核定）**：
   - **E1 = T-134**：网格错位状态机（`filled(错位)⇄empty`）+ 取回/归位裁决 + 通关判定（零错位）+ `tray:stored` 事件管线
@@ -248,6 +249,11 @@
   - 拓扑：**E1 → (E2, E3, E4, E5) → E6 → E7**；E2–E5 不同文件域可部分并行。
 - **Epic 验收总口径**：全部 GDD/UX v2.0 文 §8 判据可导出用例并通过；`pnpm run verify` FAIL 0；真机 `[R]` 仍 ⛔（无 AppID）。
 - **⚠️ 与并发会话的文件域区隔**：T-132（G5案B 渲染管线）在 `packages/framework/**` 跨域；本 Epic 全在 `games/beads/**` 游戏层 ⇒ 无文件冲突，但**提交时序**需主理人协调（本 Epic 不 commit，复核后统一提）。
+- **收官记录（2026-09-17 收口核销，Qoder）**：
+  - **7/7 收官**：E1=T-134、E2=T-135、E3=T-136、E4=T-137、E5=T-139、E6=T-143、E7=T-144 均 ✅（前六已随批次归档，见 `production/archive/TASKS-archive.md`）；另有用户反馈追加单 T-147（连通选取+整组收进）/ T-148（错位珠恒亮白环）同域落地。
+  - **门禁复核**：`pnpm run verify` **14/15** —— `test` 三包全绿 **295/409/239**；唯一 FAIL = `check:size`（beads 构建产物 4647.2 KB > 红线 4096 KB），系**存量漂移**（T-134 收口时已移交发布域；T-144 验收口径明示「`check:size` 存量不算」），非本 Epic 新回归，不掩盖：升级上线前仍须按 §3.8 处置（分包/远程包）。
+  - **效力边界（本单不解除）**：① G4 指令流取证：探针 v2.0 适配复跑另单 **T-151**（📋 待施工）；② 真机 `[R]` 仍 ⛔（无 AppID）；③ 屏幕像素层限制声明沿用 T-144 / 报告 v1.9。
+  - **提交边界**：本次收口仅改台账两件（TASKS.md 行 + 本小节）；工作树三处在途改动（`combo-shake.test.ts` / `confetti.test.ts` / `g4-probe-v1.1.mjs`）属并发会话，不入本单文件域。
 
 ---
 
@@ -403,12 +409,22 @@
 ## WXG-T-151
 
 - **名称**：**beads · G4 探针 v2.0 适配复跑（WXG-T-099 收口时发现：探针 54 组停留在 v1.2 假设）**
-- **负责**：严守真(qa)　**状态**：📋 已立项（待施工）　**P1**
+- **负责**：严守真(qa)　**状态**：🔶 探针适配 + 复跑判读完成（2026-09-17，CodeBuddy 会话）；判据回写与缺陷落码待移交　**P1**
 - **背景**：T-099 收口复跑 `g4-probe.mjs` 即崩（P4 段 `findEmpty` 满盘下 undefined；判读文本硬编码「四类 VFX 全缺 FAIL」与现状脱节）。v2.0 玩法反转（满盘错位/24 槽/onboarded/组锚）使探针多数组的**构造与判读双双过期**。
 - **范围**：54 组逐段适配（构造面：满盘+swaps 关卡、24 槽托盘、组锚路由；判读面：P4 四类 VFX 已落码改 PASS 口径、P5 音频、§H 22 条联动）→ 复跑取证（evidence/）→ G4 报告升版。
 - **约束**：K-043（脚本装载先于 import）；K-037（[Probe] 可证 ≠ 屏幕可证）；[Cocos]/[Device]/[R] 结论不因 Node 绿而抬升。
 - **验收**：54 组全跑通零崩溃；判读与 v2.0 规格一致；证据落盘；G4 报告刷新。
 - **T-099 顺带移交（2026-09-17）**：v1.1 已回写四处**夹具可构造性修复**（`probeLevel` 补 `swaps`/`cycleProfile`；`retrieveOneMisplaced` 两步式取回；`solveBoard099` 解算归位；FINISH 装配等足 800ms 延迟门）——属**修探针**，前序组的构造/判读适配（P4 崩溃、VFX 判读过期等）仍待本单；`g4-probe-v1.2-t099.mjs` 切片可作「只跑 §H 12 条」的轻量复跑入口（P28a..j/P29a/b 已全绿）。
+
+- **✅ 探针适配 + 复跑判读（2026-09-17，CodeBuddy 会话）**：`g4-probe-v1.1.mjs` **79 组全跑通零崩溃**（exit=0），最终分布 **PASS 37 / PASS\* 22 / FAIL 4 / ⛔ 16**。证据 `production/qa/beads/evidence/g4-probe-v1.3-t151.log`（mtime 2026-09-17 21:26 后；产物新鲜度经 `harness:build` 重建，P5/S 内建机验通过）。**适配面（修探针，非判据放宽）**：① `fillBoard`/`fillBoardAudio` 函数体改 v2.0 解算（旧「灌珠填空格」模型 `isFillable` 恒 false ⇒ 下游全假 FAIL）；② 30 处「开局托盘有珠」假设统一换 `primePlaceable` 前置（真链两步式取回，白盒珠仅 P21 类按修订 20 注明）；③ 结算面板 800ms 延迟门（P27b/d/e/i、A05-18/23）；④ `hudPulse` 固定 x 筛选未命中时钟圆（修探针缺陷，α 恒 1.0 假 FAIL）；⑤ P27c「filled=0」改 v2.0「恢复初始错位布置」语义；⑥ P18 写档计数扣 BOOT 基线（BD-32 已知行为）。
+- **⛔ 供料侧判据整体失效（16 条 ⛔ 中的 7 条，同 P26/§J.1 体例）**：P2/P6/P12/P20/P21/A05-14 视觉半边/P7④⑤ 满槽半边 —— v2.0 供料关停 ⇒ `tray:spawned`/`tray:full` 恒 0，供料判据**不可构造**（P21 平凡真不记绿），**复活条件 = 供料复活**；P18 另见下方规格漂移。
+- **❌ FAIL 4 条 = 3 项真发现 + 1 已知（全部移交，不自行落码）**：
+  1. **【真缺陷·建议立 BD】A05-07 道具音效恒零发声**：`beads-game.ts:905` emit `powerup:used { affectedCells }`（v1.22 解环器改字段），而 :1489 音频 handler 仍读旧字段 `affectedSlots` ⇒ 恒 undefined ⇒ `sfx_powerup + sfx_dissolve` **永不派发**（逐字段实测确认）。一行修法 = handler 改读 `affectedCells`，**移交落码**。
+  2. **【v2.0 适配缺口·移交裁定】P3+P19 新手引导死亡**：引导「首珠 = 托盘最前持有（GAP-02 首供落点）」（`beads-game.ts:2789-2813`）依赖已关停的供料 ⇒ v2.0 下 `guideSlot=-1`、hint 永不出现 ⇒ **新手对「点错位珠取回」的新玩法零引导**。需设计裁定：引导改指向取回操作，或随供料移除引导（BD-32 顺带）。
+  3. **【规格漂移·移交裁定】P18 in-level 快照 vs §8-9**：v2.0 断点续玩快照**每次落子落档 1 次**（逐步实测 placed=1⇒writes 0→1、placed=2⇒writes 1→2）⇒ 与 §8-9 现文「PLAYING 零写档 / 结算帧恰 1 次」互斥。快照是有意设计 ⇒ **规格未随特性回写**，§8-9 需改写（区分快照写档与业务写档）。
+  4. P17（连胜 meta）= **BD-12 已知开放**（save-schema 无 meta 段，concept §7 MVP 线外），非新回归。
+- **待办移交**：① 上述 3 项裁定/落码；② G4 报告升版（本单只产探针判读，报告刷新归 QA 下一轮）；③ `*.md` 判据回写（§8-9、GAP-03）由设计侧接。
+- **变更未 commit / 未 push**。
 
 ## WXG-T-152
 

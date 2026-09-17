@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3196,
       "lines": 117,
-      "sha256": "9c2f859b8ff909f5abd275605a5e1bd13e5ea5454a4ec17bc593ad0b6412e29e",
+      "sha256": "571615fd8c8f8a243188d858b1b4abfe4694be72d636cb9d96e4a82c1afa7941",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4516,
       "lines": 86,
-      "sha256": "1d169eefcb08c47caef7163b392d04860fb343554917a22408961389d44d2cb9",
+      "sha256": "f8b3aec230135429ec4fe82f362a4cafae833f981e376f45bb538b50b4865f2e",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 61 行 / 4058 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 61 行 / 4176 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 436 行 / 28342 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 452 行 / 29758 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 168,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+437 · §WXG-T-077=18+19 · §WXG-T-097",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+453 · §WXG-T-077=18+19 · §WXG-T-097",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -82354,17 +82354,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 28342,
-      "lines": 436,
-      "sha256": "b9f051984fc0c941dc269586699e246a3ba58a2700e3100c615d98457cae3372",
+      "tokens": 29758,
+      "lines": 452,
+      "sha256": "a6bd18178f9aa257ee385959d2d0fd9d39ceb7f56d72d3af3c472b591d5fca87",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 437,
-          "tokens": 28325,
+          "endLine": 453,
+          "tokens": 29741,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -82421,8 +82421,8 @@
           "anchor": "§WXG-T-127",
           "level": 2,
           "startLine": 84,
-          "endLine": 113,
-          "tokens": 2685,
+          "endLine": 114,
+          "tokens": 2822,
           "summary": "名称：beads 可玩性实测差距修复（BD-43 热区错位 P1 + BD-44/45/46/47）",
           "keywords": [
             "WXG",
@@ -82432,8 +82432,8 @@
         {
           "anchor": "§WXG-T-129",
           "level": 2,
-          "startLine": 114,
-          "endLine": 140,
+          "startLine": 115,
+          "endLine": 141,
           "tokens": 1720,
           "summary": "名称：微信真机触摸坐标归一化错误（BD-48）—— 真机点托盘/网格全部无响应，可玩性 P0",
           "keywords": [
@@ -82443,8 +82443,8 @@
         {
           "anchor": "§WXG-T-128",
           "level": 2,
-          "startLine": 141,
-          "endLine": 200,
+          "startLine": 142,
+          "endLine": 201,
           "tokens": 3424,
           "summary": "beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿） · 负责：林绘澄(art) + 主理人(Qo",
           "keywords": [
@@ -82456,8 +82456,8 @@
         {
           "anchor": "§裁定与回写记录（2026-09-16，主理人复核 + 用户拍板 7 项）",
           "level": 3,
-          "startLine": 164,
-          "endLine": 200,
+          "startLine": 165,
+          "endLine": 201,
           "tokens": 2391,
           "summary": "主理人三方复核结论：改动范围合规（零代码、零 gdd/ux、零冻结常量、palette 零新增 hex）；林绘澄自报纠错",
           "keywords": [
@@ -82472,8 +82472,8 @@
         {
           "anchor": "§真机首验包（待 AppID · 2026-09-16 登记 · 解除 DEV-01/B4）",
           "level": 2,
-          "startLine": 201,
-          "endLine": 215,
+          "startLine": 202,
+          "endLine": 216,
           "tokens": 440,
           "summary": "前置：① 有效 AppID ② pnpm --filter @wxgame/beads run build:cocos:",
           "keywords": [
@@ -82488,8 +82488,8 @@
         {
           "anchor": "§WXG-T-132",
           "level": 2,
-          "startLine": 216,
-          "endLine": 234,
+          "startLine": 217,
+          "endLine": 235,
           "tokens": 1746,
           "summary": "G5 案 B：渲染管线全局变换通道（跨 packages/framework） · 负责：主理人(Qoder)（原登程基",
           "keywords": [
@@ -82502,9 +82502,9 @@
         {
           "anchor": "§WXG-T-133",
           "level": 2,
-          "startLine": 235,
-          "endLine": 253,
-          "tokens": 564,
+          "startLine": 236,
+          "endLine": 259,
+          "tokens": 942,
           "summary": "名称：beads · Epic：错位归位工程实现（WXG-T-130 v2.0 规格的落地）",
           "keywords": [
             "WXG",
@@ -82515,8 +82515,8 @@
         {
           "anchor": "§WXG-T-144",
           "level": 2,
-          "startLine": 254,
-          "endLine": 276,
+          "startLine": 260,
+          "endLine": 282,
           "tokens": 1286,
           "summary": "名称：beads · E7：QA 判据迁移（供料四族 ⛔ + 新玩法用例 + G4 收口）（Epic T-133 收官）",
           "keywords": [
@@ -82528,8 +82528,8 @@
         {
           "anchor": "§WXG-T-145",
           "level": 2,
-          "startLine": 277,
-          "endLine": 296,
+          "startLine": 283,
+          "endLine": 302,
           "tokens": 1179,
           "summary": "名称：beads · G1 落座回弹落码（vfx_fill_pop）（T-128 动态质感章 落码①）",
           "keywords": [
@@ -82541,8 +82541,8 @@
         {
           "anchor": "§WXG-T-147",
           "level": 2,
-          "startLine": 297,
-          "endLine": 313,
+          "startLine": 303,
+          "endLine": 319,
           "tokens": 902,
           "summary": "名称：beads · 连通选取 + 整组收进（「错位归位」组语义增强，用户 2026-09-17 裁定）",
           "keywords": [
@@ -82553,8 +82553,8 @@
         {
           "anchor": "§WXG-T-146",
           "level": 2,
-          "startLine": 314,
-          "endLine": 339,
+          "startLine": 320,
+          "endLine": 345,
           "tokens": 1918,
           "summary": "名称：beads · T-128 「动态质感章」落码② —— G3 道具扫光 / G4 过关波浪（含裁定 1 面板延迟门",
           "keywords": [
@@ -82565,8 +82565,8 @@
         {
           "anchor": "§WXG-T-148",
           "level": 2,
-          "startLine": 340,
-          "endLine": 355,
+          "startLine": 346,
+          "endLine": 361,
           "tokens": 1195,
           "summary": "名称：beads·错位珠恒亮白环 + 锚珠抬起（用户反馈 ①②）",
           "keywords": [
@@ -82577,8 +82577,8 @@
         {
           "anchor": "§WXG-T-149",
           "level": 2,
-          "startLine": 356,
-          "endLine": 368,
+          "startLine": 362,
+          "endLine": 374,
           "tokens": 651,
           "summary": "名称：beads · 失败续时 REVIVE_BONUS_SEC 60→180 落码 + ref-video §10.7",
           "keywords": [
@@ -82593,8 +82593,8 @@
         {
           "anchor": "§WXG-T-150",
           "level": 2,
-          "startLine": 369,
-          "endLine": 402,
+          "startLine": 375,
+          "endLine": 408,
           "tokens": 2016,
           "summary": "名称：beads · G2′ vfx_solver_restore 解环器归位落码（T-128「动态质感章」落码③，自 ",
           "keywords": [
@@ -82606,9 +82606,9 @@
         {
           "anchor": "§WXG-T-151",
           "level": 2,
-          "startLine": 403,
-          "endLine": 412,
-          "tokens": 443,
+          "startLine": 409,
+          "endLine": 428,
+          "tokens": 1345,
           "summary": "名称：beads · G4 探针 v2.0 适配复跑（WXG-T-099 收口时发现：探针 54 组停留在 v1.2 假",
           "keywords": [
             "WXG",
@@ -82618,8 +82618,8 @@
         {
           "anchor": "§WXG-T-152",
           "level": 2,
-          "startLine": 413,
-          "endLine": 425,
+          "startLine": 429,
+          "endLine": 441,
           "tokens": 1038,
           "summary": "名称：beads · G7 不可填格轻压 + sfx_denied 音频原子批落码（T-128 落码③）",
           "keywords": [
@@ -82631,8 +82631,8 @@
         {
           "anchor": "§WXG-T-153",
           "level": 2,
-          "startLine": 426,
-          "endLine": 437,
+          "startLine": 442,
+          "endLine": 453,
           "tokens": 853,
           "summary": "标题：beads·G6 结算彩带落码（零 RNG 44 枚 sandwich，T-128 拆分④）",
           "keywords": [
@@ -82646,9 +82646,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4058,
+      "tokens": 4176,
       "lines": 61,
-      "sha256": "ed5dba61679af5f24cd5f6007242f72863e542442422998b66055f3b1cccc077",
+      "sha256": "96ba81f1516436e7f72c97cfa64c258428712caac108ff1ed35844e21bb2e7c7",
       "tier": "hot",
       "sections": [
         {
@@ -82656,7 +82656,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 62,
-          "tokens": 4049,
+          "tokens": 4167,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
