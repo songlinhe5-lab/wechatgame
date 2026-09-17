@@ -23,7 +23,8 @@ import type { BeadsGame } from '../src/game/beads-game.js';
 
 /** 6×5 全可填板（simpleTestLevel 图案）。 */
 function mkHarness(saveKey: string): Harness {
-  return createBeadsHarness({ levels: [simpleTestLevel()], saveKey });
+  return createBeadsHarness({
+      noAssemble: true, levels: [simpleTestLevel()], saveKey });
 }
 
 /** 满盘就位 → 再经装配原语 `setBead` 交换两格珠色（两格皆错位，E1 判例同型）。 */
@@ -348,6 +349,7 @@ describe('E2 · 路由 5 网格带分支（input-control §2.1 5a/5b/5c）', () 
 
   it('5c 锁定格点击：事件计数 = 0（§2.4，锁定格恒定）', () => {
     const h = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 95, pattern: ['1231x3', '123123', '123123', '123123', '123123'] })],
       saveKey: 'wxgame.beads.test.e2-r5-locked',
     });
@@ -376,6 +378,7 @@ describe('E2 · 轻提示迁移与锚生命周期', () => {
     // 仅 fillable 格提示（旧判据保持）：locked 格点击后 hint 锚不迁移。
     expect(game.grid.cell(0, 0)!.state).toBe('empty'); // (0,0) 本案是可填格，另造锁定格
     const locked = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 96, pattern: ['1231x3', '123123', '123123', '123123', '123123'] })],
       saveKey: 'wxgame.beads.test.e2-hint-bypass-locked',
     });

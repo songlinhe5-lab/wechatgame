@@ -69,6 +69,8 @@ import {
   AD_PLACEHOLDER_HINT_TEXT,
   WRONG_FX_MS,
   WRONG_FX_RESTART_GATE_MS,
+  FILL_POP_MS,
+  FILL_POP_RESTART_GATE_MS,
   TRAY_COLS,
   expandButtonLayout,
   trayLayout,
@@ -93,6 +95,7 @@ import {
   validateBeadsLevel,
   type BeadsLevelRaw,
 } from '../config/levels.js';
+import { applyMisplacedToGrid } from './misplaced-assembler.js';
 import { BeadGrid } from '../entities/grid.js';
 import {
   CrashSnapshotStore,
@@ -178,6 +181,12 @@ export interface BeadsGameOptions {
    * rejected at BOOT and falls back to `SPRINT_TIME_DEFAULT`.
    */
   readonly sprintTime?: number;
+  /**
+   * **测试专用**：跳过 BOOT 期错位装配（levels-spec v1.2 §2.1）。生产路径恒装配；
+   * 单测用空盘夹具自由构造场景时置 true。场景需要错位珠时用 grid.setBead /
+   * applyMisplacedToGrid 显式装配。
+   */
+  readonly noBootAssembly?: boolean;
 }
 
 /**
@@ -214,6 +223,8 @@ export class BeadsGame implements Game {
 
   private readonly _levels: readonly BeadsLevelRaw[];
   private readonly _saveKey: string;
+  /** 测试专用开关：见 {@link BeadsGameOptions.noBootAssembly}。 */
+  private readonly _noBootAssembly: boolean;
   private readonly _machine: StateMachine<BeadsGame, BeadsPhase>;
   private readonly _snapshot: BeadsSnapshot;
   private readonly _tray = new Tray();
@@ -280,6 +291,15 @@ export class BeadsGame implements Game {
    * （WXG-T-102/BD-29，`WRONG_FX_RESTART_GATE_MS`）；`-Infinity` ⇒ 首帧即允许起播。
    */
   private _wrongFxArmedAtMs = Number.NEGATIVE_INFINITY;
+  /**
+   * G1 `vfx_fill_pop` 落座回弹（WXG-T-128 / `assets-spec §1.6.1`）：与 `_wrongFx` **同判例**
+   * 的表现层计时槽（私有、不入玩法状态；`FILL_POP_MS` 后自清；起播受
+   * `FILL_POP_RESTART_GATE_MS` 重启门约束）。触发源 = `bead:placed` 事件（旧现状：
+   * 该事件 view 侧**零消费者** = G1 列为 P0 的根因）。
+   */
+  private _placeFx: { row: number; col: number; elapsedMs: number } | null = null;
+  /** 落座 fx 上次起播时刻（同 `_wrongFxArmedAtMs` 判例；`-Infinity` ⇒ 首帧即允许起播）。 */
+  private _placeFxArmedAtMs = Number.NEGATIVE_INFINITY;
   /**
    * 一次性轻提示（BD-16 无选中点格 / BD-15 扩展位占位共用通道，ux-spec §5 WXG-T-097）。
    * 与 `_wrongFx` 同判例：表现层计时，`TAP_HINT_MS` 后自清，不占常驻分配。
@@ -350,6 +370,7 @@ export class BeadsGame implements Game {
     this.palette = options.palette ?? DEFAULT_PALETTE;
     this._saveKey = options.saveKey ?? SAVE_KEY;
     this._levels = options.levels ?? LEVELS;
+    this._noBootAssembly = options.noBootAssembly ?? false;
 
     this._sprintCap = validatedSprintTime(options.sprintTime);
     if (options.sprintTime !== undefined && this._sprintCap !== options.sprintTime) {
@@ -571,6 +592,7 @@ export class BeadsGame implements Game {
     this._stepComboVfx(dt); // §2.5 连击特效：表现层，不被 PAUSED 冻结
     this._pulseClock += Math.max(0, dt) * 1000; // GAP-04/03/10 循环脉冲基准（同判例不冻结）
     this._stepWrongFx(dt);
+    this._stepPlaceFx(dt); // G1 落座回弹：同为表现层，不被 PAUSED 冻结
     this._stepTapHint(dt); // BD-16/BD-15 一次性轻提示：同不冻结（表现层）
   }
 
@@ -805,6 +827,7 @@ export class BeadsGame implements Game {
       this._grid.fill(target.row, target.col, bead);
       // 解环器路径**不带 slot**（§4 事件表：`bead:placed.slot` 改可选）。
       this._emit('bead:placed', { row: target.row, col: target.col, colorIdx: bead });
+      this._armPlaceFx(target.row, target.col); // G1 落座回弹（表现层，不影响裁决）
       return true;
     }
     if (swapWith) {
@@ -813,6 +836,8 @@ export class BeadsGame implements Game {
       this._grid.setBead(swapWith.row, swapWith.col, bead);
       this._emit('bead:placed', { row, col, colorIdx: otherBead });
       this._emit('bead:placed', { row: swapWith.row, col: swapWith.col, colorIdx: bead });
+      // G1：两颗交换仅**首颗**得落座动画（120ms 门拑掉第二颗）——§1.6.1「单颗」口径，方注已登记。
+      this._armPlaceFx(row, col);
       return true;
     }
     return false;
@@ -1327,6 +1352,13 @@ export class BeadsGame implements Game {
     const level = this._levels[index];
     if (!level) throw new Error(`Beads: no level at index ${index}`);
     this._grid = new BeadGrid(level.pattern);
+    // v2.0 BOOT 装配（levels-spec v1.2 §2.1，WXG-T-139 装配器）：满盘就位 → 按
+    // swaps 两两交换 ⇒ 初始错位局面。装配发生在玩法状态机接管之前（bead-grid
+    // §2.1），绕过 retrieve/place 边合法；重试经本函数重装配 = 恢复初始错位
+    // （timer-gameover v1.3 重置清单）。恒等式已由 BOOT validateBeadsLevel 静态校验。
+    if (!this._noBootAssembly) {
+      applyMisplacedToGrid(this._grid, level.pattern, level.swaps);
+    }
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows);
     this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
     this._tray.reset();
@@ -1793,6 +1825,7 @@ export class BeadsGame implements Game {
           colorIdx: verdict.colorIdx,
           slot: verdict.slot,
         });
+        this._armPlaceFx(verdict.row, verdict.col); // G1 落座回弹（`assets-spec §1.6.1`）
         this._onboardDone = true; // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）
 
         if (this._mode === 'sprint') {
@@ -2126,6 +2159,37 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * G1 落座回弹起播（WXG-T-128 / `assets-spec §1.6.1`）。**120ms 重启门**（= 动画自身长，
+   * 同族判例 = `_armWrongFx` 的 500ms 门）：门内到达的新 `bead:placed` **不重启**，
+   * 防连点堆叠。
+   *
+   * ⚠️ **连发后果（诚实登记，不隐藏）**：`beads-game` 的 swap 路径与解环器**同帧发多颗**
+   * `bead:placed`（swap 一次 2 个事件）⇒ 门只会给**首颗**落座动画，其余被拑。
+   * 这与规格 §1.6.1「作用对象 = 刚填入的网格 filled 珠，**单颗**」一致；但 §1.6.2a
+   * G2′「解环器逐颗 80ms 错开」的间隔小于本门 ⇒ **G2′ 落码时必须单独处理**（提高
+   * 逐颗错开量或改用逐颗队列），否则每隔一颗无声。属 G2/G2′ 单（P1）范围，本单不预修。
+   *
+   * 非每帧路径：仅在落入网格帧调用 ⇒ 无每帧分配顾虑。
+   */
+  private _armPlaceFx(row: number, col: number): void {
+    if (this._pulseClock - this._placeFxArmedAtMs < FILL_POP_RESTART_GATE_MS) return;
+    this._placeFx = { row, col, elapsedMs: 0 };
+    this._placeFxArmedAtMs = this._pulseClock;
+  }
+
+  /**
+   * G1 落座回弹推进（WXG-T-128）：与 `_stepWrongFx` / `_stepComboVfx` 同判例——表现层，
+   * 不被 PAUSED 冻结。单次播放 `FILL_POP_MS`（120ms）后**零残留**（槽置 null，
+   * 不等 `placeProgress` 达到 1 后还留着偏移量）。
+   */
+  private _stepPlaceFx(dt: number): void {
+    const fx = this._placeFx;
+    if (!fx) return;
+    fx.elapsedMs += Math.max(0, dt) * 1000;
+    if (fx.elapsedMs >= FILL_POP_MS) this._placeFx = null;
+  }
+
+  /**
    * 发一次性轻提示（ux-spec §5 WXG-T-097）。**不**发任何玩法事件，也不走
    * `sfx_reject`——它是「前置缺口告知」而不是错误反馈（错误反馈频率上限属 §3.8，
    * 本通道不得被算进去）；`audio-events §1` 无对应 clip ⇒ **静默**。
@@ -2300,6 +2364,11 @@ export class BeadsGame implements Game {
     s.wrongRow = wfx ? wfx.row : -1;
     s.wrongCol = wfx ? wfx.col : -1;
     s.wrongProgress = wfx ? Math.min(1, wfx.elapsedMs / WRONG_FX_MS) : 0;
+    // G1 落座回弹：与 wrong 同构，只给格心 + 单调进度（曲线在 view 侧纯函数推导，L5）。
+    const pfx = this._placeFx;
+    s.placeRow = pfx ? pfx.row : -1;
+    s.placeCol = pfx ? pfx.col : -1;
+    s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
     // BD-16/BD-15 轻提示：只给文本与锚点格（无进度曲线——§5 未定淡入淡出，见该行的 `[待确认]`）。
     const th = this._tapHint;
     s.tapHintText = th ? th.text : '';

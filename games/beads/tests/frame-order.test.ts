@@ -29,7 +29,8 @@ import { createBeadsHarness, simpleTestLevel, tapInFrame, type Harness } from '.
 const STEP = 1 / 60;
 
 function mk(saveKey: string): Harness {
-  return createBeadsHarness({ levels: [simpleTestLevel()], saveKey });
+  return createBeadsHarness({
+      noAssemble: true, levels: [simpleTestLevel()], saveKey });
 }
 
 /** S6 道具卡 0（region）中心——命中区即绘制卡本身（§3.8）。 */

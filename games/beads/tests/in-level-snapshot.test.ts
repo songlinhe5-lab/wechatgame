@@ -59,6 +59,7 @@ function newStorage(): Storage {
 
 function boot(storage: Storage, options: { levels?: ReturnType<typeof simpleTestLevel>[] } = {}): Harness {
   return createBeadsHarness({
+      noAssemble: true,
     ...(options.levels ? { levels: options.levels } : {}),
     saveKey: SAVE_KEY,
     storage,

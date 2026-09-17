@@ -202,6 +202,14 @@ export interface BeadsSnapshot {
   wrongRow: number;
   wrongCol: number;
   wrongProgress: number;
+  /**
+   * G1 `vfx_fill_pop` 落座回弹（WXG-T-128 / `assets-spec §1.6.1`）：刚填入的**网格**格
+   * 与播放进度 0..1（无动画 = -1 / 0）。与 `wrong*` 同构 = **单调标量**，包络曲线由
+   * view 侧纯函数推导（L5：渲染不持有游戏状态）；`reduceMotion` 的退化也在 view 侧。
+   */
+  placeRow: number;
+  placeCol: number;
+  placeProgress: number;
   /** GAP-03 首屏引导是否激活（runs==0 且本会话未落过子）。 */
   onboarding: boolean;
   /** GAP-03/04 单一 `hint` 目标格（行主序首个匹配首珠色的空槽；无 = -1）。 */
@@ -302,6 +310,9 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     wrongRow: -1,
     wrongCol: -1,
     wrongProgress: 0,
+    placeRow: -1,
+    placeCol: -1,
+    placeProgress: 0,
     onboarding: false,
     hintRow: -1,
     hintCol: -1,

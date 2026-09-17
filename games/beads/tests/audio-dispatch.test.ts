@@ -128,7 +128,8 @@ const DURATION_CAP_MS: Readonly<Record<string, number>> = {
  */
 function makeHarness(levelCount = 1): Harness {
   const levels = Array.from({ length: levelCount }, (_, i) => simpleTestLevel({ id: 90 + i }));
-  return createBeadsHarness({ levels });
+  return createBeadsHarness({
+      noAssemble: true, levels });
 }
 
 /** 一次完整帧：玩法更新 → 帧末音频派发（复刻 `App.tick` 的序）。 */

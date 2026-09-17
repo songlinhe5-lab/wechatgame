@@ -20,6 +20,7 @@ describe('S4 tray-spawner', () => {
   // 同样零发射（systems-index §4 作废）与托盘恒空。
   it('§8-1 (v2.0 rewritten) 60 s of PLAYING emits zero spawns — zero-feed counter-proof', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s4a',
     });
@@ -34,6 +35,7 @@ describe('S4 tray-spawner', () => {
   // 托盘开局全 free 是现行语义，tray-spawner v2.0 §2.1）。
   it('GAP-02 (v2.0 rewritten) the first PLAYING frames feed nothing; the tray starts empty', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s4-firstfeed',
     });
@@ -52,6 +54,7 @@ describe('S4 tray-spawner', () => {
   // 清空、扩展回基线；重置后长跑仍零供料、零满槽事件。
   it('retry reset clears the tray and never spawns afterwards (v2.0 reset semantics)', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s4-reset',
     });
@@ -80,6 +83,7 @@ describe('S4 tray-spawner', () => {
   // `tray:full`（无告警事件）；取回拒绝的零事件断言在 misplaced.test（E1/E2）。
   it('§8-4 (v2.0 rewritten) a full tray never broadcasts tray:full under long play', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s4-full',
     });
@@ -146,6 +150,7 @@ describe('S4 tray-spawner', () => {
   // tray:selected。
   it('§8-6 re-selection moves the mark; double-tap on one slot broadcasts once', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s4f',
     });
@@ -171,6 +176,7 @@ describe('S4 tray-spawner', () => {
   // §8.7 落子成功回执后对应槽变 free；用 bead:placed 计数与 free 槽增量做 1:1 断言。
   it('§8-7 each bead:placed receipt frees exactly one tray slot (1:1)', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s4g',
     });

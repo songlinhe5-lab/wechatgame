@@ -52,6 +52,11 @@ export interface HarnessOptions {
   storage?: ReturnType<NodePlatform['createStorage']>;
   /** Override the platform rewarded-ad (default = Node Mock pending settle). */
   rewardedAd?: RewardedAdProvider;
+  /**
+   * 测试专用：跳过 BOOT 期错位装配（透传 `BeadsGameOptions.noBootAssembly`）。
+   * 默认**装配**（生产语义）；旧「空盘放置流」测试置 true 后自行构造场景。
+   */
+  noAssemble?: boolean;
 }
 
 export function createBeadsHarness(options: HarnessOptions = {}): Harness {
@@ -78,6 +83,7 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
     saveKey: options.saveKey ?? 'wxgame.beads.test.save',
     ...(options.levels ? { levels: options.levels } : {}),
     ...(options.sprintTime !== undefined ? { sprintTime: options.sprintTime } : {}),
+    ...(options.noAssemble ? { noBootAssembly: true } : {}),
   });
 
   const emitted: { type: string; payload: unknown }[] = [];
@@ -187,6 +193,8 @@ export function simpleTestLevel(overrides: Partial<BeadsLevelRaw> = {}): BeadsLe
   };
   // BeadsLevelRaw 的 swaps/cycleProfile 为 readonly（levels.ts 校验面）；
   // 字面量本体可变，此处绕过 readonly 仅做默认值填充（测试基建）。
+  // WXG-T-139 BOOT 装配接线后：**测试关默认 swaps = []（空盘）** —— 既有 284 例
+  // 的「空盘」假设靠它保住；需要错位局面的测试显式传 swaps 或用 grid.setBead。
   const mutable = merged as { swaps: unknown; cycleProfile: unknown };
   if (overrides.swaps === undefined) mutable.swaps = defaultSwaps(merged.pattern);
   if (overrides.cycleProfile === undefined) mutable.cycleProfile = 'short';

@@ -27,7 +27,8 @@ type UsedPayload = { type: string; affectedCells: readonly { row: number; col: n
 
 /** S6 专用 harness：一律用 6×5 三色测试关。 */
 function mk(saveKey: string, extra: HarnessOptions = {}): Harness {
-  return createBeadsHarness({ levels: [simpleTestLevel()], saveKey, ...extra });
+  return createBeadsHarness({
+      noAssemble: true, levels: [simpleTestLevel()], saveKey, ...extra });
 }
 
 /** 装配错位局面：全部可填格就位，再做指定次数的两两对调（贪心找不同色格） ⇒ 受控错位局面。 */

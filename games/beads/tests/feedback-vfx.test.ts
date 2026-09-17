@@ -70,6 +70,7 @@ const textCmd = (cmds: readonly DrawCommand[], want: string): TextCommand | unde
 describe('T-087 GAP-03 首屏引导', () => {
     it('first run (runs==0): pulses the first bead slot + hints its single matching cell', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t087-first',
         });
@@ -91,6 +92,7 @@ describe('T-087 GAP-03 首屏引导', () => {
 
     it('clears on the first placement and never re-shows for the session', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t087-clear',
         });
@@ -109,12 +111,14 @@ describe('T-087 GAP-03 首屏引导', () => {
 
     it('returning player (runs>0): zero onboarding from the first frame', () => {
         const first = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t087-return',
         });
         const storage = first.storage;
         first.advance(1 / 60);
         const second = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t087-return',
             storage,
@@ -127,6 +131,7 @@ describe('T-087 GAP-03 首屏引导', () => {
 describe('T-087 GAP-04 wrong 态', () => {
     it('a colour-mismatch reject arms a 200 ms danger shake on the rejected cell', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t087-wrong',
         });
@@ -172,7 +177,8 @@ describe('WXG-T-102 wrong danger 描边单次脉冲 + 500ms 重启门（BD-29）
 
     /** 造一个「已处于 wrong 态」的快照（(0,0) 空槽、需求色 1，给色 2 → mismatch）。 */
     const wrongBase = (saveKey: string): BeadsSnapshot => {
-        const h = createBeadsHarness({ levels: [simpleTestLevel()], saveKey });
+        const h = createBeadsHarness({
+      noAssemble: true, levels: [simpleTestLevel()], saveKey });
         const slot = h.game.giveTrayBead(2);
         expect(h.game.selectTraySlot(slot)).toBe(true);
         expect(h.game.tapGridCell(0, 0)).toBe(false); // mismatch → 起播
@@ -239,6 +245,7 @@ describe('WXG-T-102 wrong danger 描边单次脉冲 + 500ms 重启门（BD-29）
 
     it('500ms 重启门：门内连点不重启（沿用相位 / 已结束则不给），门外重启', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t102-gate',
         });
@@ -279,6 +286,7 @@ describe('WXG-T-102 wrong danger 描边单次脉冲 + 500ms 重启门（BD-29）
 describe('T-087 GAP-10 告急脉冲', () => {
     it('urgent timer switches to danger and pulses its alpha over the 1 s loop', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t087-danger',
         });
@@ -333,7 +341,8 @@ describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
         cmds.find((c): c is TextCommand => c.kind === 'text' && pred(c));
 
     it('D1 reduceMotion：告急脉冲静态化（α 恒 1，不再 0.6↔1）', () => {
-        const h = createBeadsHarness({ saveKey: 'wxgame.beads.test.t088-danger' });
+        const h = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.t088-danger' });
         const base = h.game.snapshot;
         const danger = (cmds: readonly DrawCommand[]) =>
             textWith(cmds, (t) => t.fill === DEFAULT_PALETTE.danger);
@@ -347,6 +356,7 @@ describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
 
     it('D1 reduceMotion：hint 呼吸描边退为静态（α 不再 0.5↔1）', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t088-hint',
         });
@@ -368,6 +378,7 @@ describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
 
     it('D1 reduceMotion：错误抖动位移归零（±px → 0）', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t088-shake',
         });
@@ -397,7 +408,8 @@ describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
     });
 
     it('E2 largeText：正文/说明类字号放大，数字与标题不受影响', () => {
-        const h = createBeadsHarness({ saveKey: 'wxgame.beads.test.t088-large' });
+        const h = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.t088-large' });
         const base = h.game.snapshot;
         const modeLabel = (snap: BeadsSnapshot) =>
             textWith(renderSnap(snap), (t) => t.text.startsWith('LV'));
@@ -422,6 +434,7 @@ describe('T-097 BD-16 无效落点轻提示（ux-spec §5 / input-control §8-7�
 
     it('无选中珠点可落空格 → 一次性轻提示；零请求、零事件、静默', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t097-hint-on',
         });
@@ -462,6 +475,7 @@ describe('T-097 BD-16 无效落点轻提示（ux-spec §5 / input-control §8-7�
 
     it('已填格维持 §8-5 零反馈帧：无选中再点它不给轻提示', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t097-hint-filled',
         });
@@ -511,6 +525,7 @@ describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · 
 
     const mk = (provider?: RewardedAdProvider) =>
         createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t097-expand',
             ...(provider ? { rewardedAd: provider } : {}),
@@ -656,7 +671,8 @@ describe('T-097 BD-10 满槽告警面板描边', () => {
 
     /** 灌满基线容量（白盒给料，绕开供料节奏——本条只测表现层通道）。 */
     function mkFull(saveKey: string): Harness {
-        const h = createBeadsHarness({ levels: [simpleTestLevel()], saveKey });
+        const h = createBeadsHarness({
+      noAssemble: true, levels: [simpleTestLevel()], saveKey });
         h.advance(1 / 60);
         for (let i = 0; i < TRAY_BASE_SLOTS; i++) h.game.giveTrayBead(1);
         h.advance(1 / 60);
@@ -688,6 +704,7 @@ describe('T-097 BD-10 满槽告警面板描边', () => {
 
     it('未满槽：零面板描边（不得常驻红框）', () => {
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t097-notfull',
         });
@@ -781,6 +798,7 @@ describe('T-097 BD-10 满槽告警面板描边', () => {
             Array.from({ length: 13 }, (_, j) => String(((i + j) % 3) + 1)).join(''),
         );
         const h = createBeadsHarness({
+      noAssemble: true,
             levels: [simpleTestLevel({ id: 92, rows: 12, cols: 13, time: 180, pattern: rows })],
             saveKey: 'wxgame.beads.test.t097-overlay',
         });

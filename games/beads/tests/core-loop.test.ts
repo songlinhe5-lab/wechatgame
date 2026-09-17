@@ -10,7 +10,8 @@ describe('S1 core-loop', () => {
   // §8.1 冷启动无存档 → 直接进入第 1 关 PLAYING，全程无主菜单；有存档 → 续进已解锁最远关。
   it('§8-1 cold start with no save enters level 1; a save resumes the furthest level', () => {
     // Cold start: no document in storage → level 1, straight into PLAYING.
-    const cold = createBeadsHarness({ saveKey: 'wxgame.beads.test.s1cold' });
+    const cold = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s1cold' });
     expect(cold.game.phase).toBe('playing');
     expect(cold.game.levelIndex).toBe(0);
 
@@ -27,7 +28,8 @@ describe('S1 core-loop', () => {
         sprintBestStage: 0,
       }),
     );
-    const warm = createBeadsHarness({ saveKey: SAVE_KEY, storage });
+    const warm = createBeadsHarness({
+      noAssemble: true, saveKey: SAVE_KEY, storage });
     expect(warm.game.phase).toBe('playing');
     expect(warm.game.levelIndex).toBe(2);
   });
@@ -38,6 +40,7 @@ describe('S1 core-loop', () => {
     // v2.0（WXG-T-136）：供料关停 ⇒ 夹具珠一律走 giveTrayBead 死路径直接投放，
     // 不再依赖「供料补珠」维持连打（原注释「every spawn is a still-needed colour」作废）。
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ decoys: [] })],
       saveKey: 'wxgame.beads.test.s1clear',
     });
@@ -80,6 +83,7 @@ describe('S1 core-loop', () => {
   it('§8-9 illegal charset or all-locked levels are refused at BOOT (id + row + col in error)', () => {
     // Illegal character 'Z'.
     const badChar = createBeadsHarness({
+      noAssemble: true,
       levels: [
         simpleTestLevel({ id: 91, pattern: ['123123', '123123', 'Z23123', '123123', '123123'] }),
       ],
@@ -92,6 +96,7 @@ describe('S1 core-loop', () => {
 
     // All-locked pattern (no fillable cell).
     const allLocked = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 92, pattern: ['xxxxxx', 'xxxxxx', 'xxxxxx', 'xxxxxx', 'xxxxxx'] })],
       saveKey: 'wxgame.beads.test.s1bad2',
     });
@@ -100,6 +105,7 @@ describe('S1 core-loop', () => {
 
     // A valid table boots normally (control).
     const ok = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s1ok',
     });

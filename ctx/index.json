@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3196,
       "lines": 117,
-      "sha256": "fc865a21fd09b54dc8a18a1eb5c594c8e8d9257a5e827043460a6947d9445caf",
+      "sha256": "7b257ba31b3e5a6ee4335fdd886dbda582a792d3ec4b2f7ff4015acc7fd8d5ac",
       "tier": "normal",
       "sections": [
         {
@@ -6801,9 +6801,9 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 67760,
+      "tokens": 68193,
       "lines": 1389,
-      "sha256": "151771b373ed7db768341fb8b988c271663d517ff47d53952ec7a5f2177bca2f",
+      "sha256": "208ac71a1fe886384ce777316d4c5a20baa9af771c033c19346a867adb71d027",
       "tier": "normal",
       "sections": [
         {
@@ -6811,7 +6811,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 1390,
-          "tokens": 67746,
+          "tokens": 68179,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -6838,7 +6838,7 @@
           "level": 2,
           "startLine": 32,
           "endLine": 1303,
-          "tokens": 53392,
+          "tokens": 53826,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -6922,7 +6922,7 @@
           "level": 3,
           "startLine": 242,
           "endLine": 1148,
-          "tokens": 33530,
+          "tokens": 33545,
           "summary": "升级理由：v1.3 的 §1.6 只有四行一句话描述（如「scale 1.06→1.0，120ms ease-out-b",
           "keywords": [
             "§1.6",
@@ -6954,7 +6954,7 @@
           "level": 3,
           "startLine": 1176,
           "endLine": 1203,
-          "tokens": 2132,
+          "tokens": 2550,
           "summary": "",
           "keywords": [
             "[v1.3]",

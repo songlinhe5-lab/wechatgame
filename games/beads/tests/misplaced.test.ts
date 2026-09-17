@@ -39,6 +39,7 @@ function swapBeads(game: BeadsGame, r1: number, c1: number, r2: number, c2: numb
 /** A 6×5 fully fillable board (simpleTestLevel pattern) → 30 beads. */
 function makeFullBoardHarness(saveKey: string): Harness {
   return createBeadsHarness({
+      noAssemble: true,
     levels: [simpleTestLevel()],
     saveKey,
   });
@@ -82,6 +83,7 @@ describe('E1 · grid state machine (bead-grid v2.0 §2.2)', () => {
 
   it('locked cells are constant: fill refuses, retrieve refuses (§2.2 locked 恒定)', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 94, pattern: ['1231x3', '123123', '123123', '123123', '123123'] })],
       saveKey: 'wxgame.beads.test.e1c',
     });

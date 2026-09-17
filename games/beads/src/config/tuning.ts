@@ -522,6 +522,38 @@ export const WRONG_FADE_OUT_MS = 60;
  * 一体的错误反馈事件上限）⇒ 本实现按 §3.8 **从严**，门禁**整个 wrong-fx 事件**。
  */
 export const WRONG_FX_RESTART_GATE_MS = 500;
+
+/* ─────────────────────────────────────────────────────────────────────
+ * G1 `vfx_fill_pop` — 珠子落座回弹（WXG-T-128 美术 v1.4「动态质感章」首单）。
+ * 规格正本 = `art/assets-spec.md` §1.6.1（逐帧公式 / clamp / D1 退化）+ `art-bible §7.3.1`；
+ * 毫秒真源 = `design/ux/ux-spec.md` §5「珠子落座」行（**只冻结总时长 120 与起止值 1.06→1.0**）。
+ * 本组常量属**表现层动效参数**（同 `WRONG_FX_MS` / `HINT_PULSE_MS` 判例）⇒ 落 `tuning`，
+ * **不进 `systems-index §3`**（§3 只承载玩法数值；改冻结常量须走变更单）。
+ * ⚠️ 谷值 0.96 与 40ms 分段是 v1.4 新增的 **art-owned 中间插值**（裁定 7：`1.06` = 规格
+ *   起点值、**非过冲量**）⇒ 落码不得把 §5 的 `1.06→1.0` 读成「ease-out-back 过冲」。
+ */
+
+/** 落座动画总时长（ux-spec §5 冻结值，**不改**）。 */
+export const FILL_POP_MS = 120;
+/** 压下段时长（`assets-spec §1.6.1` 逐帧分段；§5 未列 ⇒ 不违 §5）。 */
+export const FILL_POP_PRESS_MS = 40;
+/** 起点 scale（v1.3 既有值；clamp 上界）。 */
+export const FILL_POP_SCALE_START = 1.06;
+/** 压下谷 scale（t = 40ms；clamp 下界）。全程单调、**不二次过冲**。 */
+export const FILL_POP_SCALE_TROUGH = 0.96;
+/** L0a 接触阴影 α 峰值（静息 = `BEAD_CONTACT_SHADOW_ALPHA` 0.12；clamp [0.12, 0.18]）。 */
+export const FILL_POP_CONTACT_A_PEAK = 0.18;
+/** L0a 接触阴影宽比峰值（静息 = `BEAD_CARD.contactW` 0.88）。 */
+export const FILL_POP_CONTACT_W_PEAK = 0.92;
+/** L0b 柔和投影 α 谷值（静息 = `BEAD_SHADOW_ALPHA` 0.15；clamp [0.12, 0.15]）。 */
+export const FILL_POP_SHADOW_A_TROUGH = 0.12;
+/** L0b 投影偏移分子谷值（`/64` 归一；静息 = `BEAD_CARD.shadowDy` 的 3）。 */
+export const FILL_POP_SHADOW_DY_MIN = 2;
+/**
+ * 连点**重启门**（= 动画自身长 120ms）：门内到达的新 `bead:placed` **不重启**落座动画。
+ * 同族判例 = `WRONG_FX_RESTART_GATE_MS`（500ms）与 ux-spec §5「放错拒绝」行的 500ms 门。
+ */
+export const FILL_POP_RESTART_GATE_MS = 120;
 /** `hint` / 引导脉冲呼吸周期（α 0.5↔1.0，600ms ≈1.67Hz，落 §3.8 ≤3Hz 红线内）。 */
 export const HINT_PULSE_MS = 600;
 /**

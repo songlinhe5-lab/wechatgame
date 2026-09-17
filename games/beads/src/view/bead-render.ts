@@ -17,6 +17,16 @@
 import type { RenderModelBuilder } from '@wxgame/framework';
 import { BEAD_CELL, BEAD_DRAW_INSET, SOCKET_CARD, TRAY_SLOT } from '../config/tuning.js';
 import {
+  FILL_POP_CONTACT_A_PEAK,
+  FILL_POP_CONTACT_W_PEAK,
+  FILL_POP_MS,
+  FILL_POP_PRESS_MS,
+  FILL_POP_SCALE_START,
+  FILL_POP_SCALE_TROUGH,
+  FILL_POP_SHADOW_A_TROUGH,
+  FILL_POP_SHADOW_DY_MIN,
+} from '../config/tuning.js';
+import {
   BEAD_BEVEL_DARK_MIX,
   BEAD_BEVEL_LIGHT_MIX,
   BEAD_CONTACT_SHADOW_ALPHA,
@@ -92,6 +102,109 @@ export interface FilledBeadOptions {
    * 传入 ⇒ 珠下先画垫（端点表 edge），珠体四边内缩 BEAD_DRAW_INSET 露出垫缝。
    */
   readonly padColorIdx?: number;
+  /**
+   * G1 落座回弹的**珠体**缩放（`assets-spec §1.6.1`，默认 1）。⛔ **严禁改乘 `outer`**：
+   * `outer` 同时驱动 **L11 垫**，垫若随珠同缩 ⇒ 「垫缝」读数与珠体同步 ⇒ 目标色
+   * 谜面在 120ms 内被自己抹除，且同格目标色浓度周期性呼吸（违 `accessibility` A1）
+   * ⇒ 层序死结论：**垫不参与 scale / 不参与 lift / 恒锁格缘 / 恒画**。
+   */
+  readonly scale?: number;
+  /** G1：L0a 接触阴影 α 覆写（静息 = `BEAD_CONTACT_SHADOW_ALPHA`）。 */
+  readonly contactAlpha?: number;
+  /** G1：L0a 接触阴影**宽比**覆写（静息 = `BEAD_CARD.contactW` = 0.88）。 */
+  readonly contactWidth?: number;
+  /** G1：L0b 投影纵向偏移覆写（`/64` 归一比例，静息 = `BEAD_CARD.shadowDy` = 3/64）。 */
+  readonly shadowDy?: number;
+}
+
+/** 段内插值。**模块级函数而非局部闭包** = 逐帧调用零分配（热路径铁律）。 */
+function lerpMix(a: number, b: number, e: number): number {
+  return a + (b - a) * e;
+}
+
+/**
+ * G1 `vfx_fill_pop` 的逐帧包络（`assets-spec §1.6.1`，WXG-T-128）。
+ *
+ * 两段、全程**单调、不二次过冲**（裁定 7：`1.06` = 规格起点值、非过冲量）：
+ *   · 压下 `0 → 40ms`：scale `1.06 → 0.96`、L0a α `0.12 → 0.18`、宽比 `0.88 → 0.92`、
+ *     L0b α `0.15 → 0.12`、偏移 `3/64 → 2/64`；
+ *   · 回弹 `40 → 120ms`：上述各项**反向回静息**（scale `0.96 → 1.00`）。
+ * 缓动 = ease-out（`t·(2−t)`，与 `view-model.wrongFlashAlpha` 同族写法）。
+ *
+ * **D1（`reduceMotion`）**：关 scale 与 L0b 联动（形变 / 位移 = 运动通道），**仅保留**
+ * L0a 的 α 单峰（振幅 ≤0.06，属 α 通道、0 往复 ⇒ 不触 D2）。
+ *
+ * 结果写入调用方持有的 `out` 槽 ⇒ `buildRenderModel` 热路径**零分配**。
+ * 末尾三道**硬钳**防浮点漂移越界（§1.6.1 clamp 行：重叠与 α 越界）。
+ */
+export interface FillPopEnvelope {
+  scale: number;
+  contactAlpha: number;
+  contactWidth: number;
+  shadowAlpha: number;
+  shadowDy: number;
+}
+
+export function fillPopEnvelope(
+  p: number,
+  reduceMotion: boolean,
+  out: FillPopEnvelope,
+): FillPopEnvelope {
+  const ms = Math.min(1, Math.max(0, p)) * FILL_POP_MS;
+  const press = ms <= FILL_POP_PRESS_MS;
+  const raw = press
+    ? ms / FILL_POP_PRESS_MS
+    : (ms - FILL_POP_PRESS_MS) / (FILL_POP_MS - FILL_POP_PRESS_MS);
+  const u = Math.min(1, Math.max(0, raw));
+  const e = u * (2 - u); // ease-out
+
+  // 静息值先入槽：D1 分支只需不覆写运动通道，无需逐字段判断。
+  out.scale = 1;
+  out.contactWidth = BEAD_CARD.contactW;
+  out.shadowAlpha = BEAD_SHADOW_ALPHA;
+  out.shadowDy = BEAD_CARD.shadowDy;
+
+  // L0a α：两模式都走单峰（0.12 → 0.18 → 0.12）。
+  out.contactAlpha = lerpMix(
+    press ? BEAD_CONTACT_SHADOW_ALPHA : FILL_POP_CONTACT_A_PEAK,
+    press ? FILL_POP_CONTACT_A_PEAK : BEAD_CONTACT_SHADOW_ALPHA,
+    e,
+  );
+
+  if (!reduceMotion) {
+    out.scale = lerpMix(
+      press ? FILL_POP_SCALE_START : FILL_POP_SCALE_TROUGH,
+      press ? FILL_POP_SCALE_TROUGH : 1,
+      e,
+    );
+    out.contactWidth = lerpMix(
+      press ? BEAD_CARD.contactW : FILL_POP_CONTACT_W_PEAK,
+      press ? FILL_POP_CONTACT_W_PEAK : BEAD_CARD.contactW,
+      e,
+    );
+    out.shadowAlpha = lerpMix(
+      press ? BEAD_SHADOW_ALPHA : FILL_POP_SHADOW_A_TROUGH,
+      press ? FILL_POP_SHADOW_A_TROUGH : BEAD_SHADOW_ALPHA,
+      e,
+    );
+    out.shadowDy = lerpMix(
+      press ? BEAD_CARD.shadowDy : FILL_POP_SHADOW_DY_MIN / 64,
+      press ? FILL_POP_SHADOW_DY_MIN / 64 : BEAD_CARD.shadowDy,
+      e,
+    );
+  }
+
+  // 硬钳（§1.6.1：scale ∈ [0.96,1.06]、contactA ∈ [0.12,0.18]、shadowA ∈ [0.12,0.15]）。
+  out.scale = Math.min(FILL_POP_SCALE_START, Math.max(FILL_POP_SCALE_TROUGH, out.scale));
+  out.contactAlpha = Math.min(
+    FILL_POP_CONTACT_A_PEAK,
+    Math.max(BEAD_CONTACT_SHADOW_ALPHA, out.contactAlpha),
+  );
+  out.shadowAlpha = Math.min(
+    BEAD_SHADOW_ALPHA,
+    Math.max(FILL_POP_SHADOW_A_TROUGH, out.shadowAlpha),
+  );
+  return out;
 }
 
 /**
@@ -123,27 +236,28 @@ export function drawFilledBead(
   }
 
   // 珠体四边内缩（垫色显缝）；无垫（托盘珠）保持满幅。
+  // G1：`scale` **只作用珠体**（见上方禁令），垫留在 `outer` 上不随动。
   const inset = options.padColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
-  const size = outer - inset * 2;
+  const size = (outer - inset * 2) * (options.scale ?? 1);
   const left = cx - size / 2;
   const bottom = y - size / 2;
   const radius = Math.round(size * BEAD_CARD.radius);
   const stroke = (ratio: number) => Math.max(BEAD_CARD.minStroke, size * ratio);
 
-  // L0a 接触阴影 — 贴底窄条，让珠"坐"在面上（v1.3 · F4）；固定 α，不随 selected 变化。
+  // L0a 接触阴影 — 贴底窄条，让珠"坐"在面上（v1.3 · F4）；α / 宽比可由 G1 包络覆写。
   builder.rect(
     left + size * BEAD_CARD.contactX,
     bottom + size * BEAD_CARD.contactY,
-    size * BEAD_CARD.contactW,
+    size * (options.contactWidth ?? BEAD_CARD.contactW),
     size * BEAD_CARD.contactH,
     {
-      fill: withAlpha(BEAD_SHADOW_HEX, BEAD_CONTACT_SHADOW_ALPHA),
+      fill: withAlpha(BEAD_SHADOW_HEX, options.contactAlpha ?? BEAD_CONTACT_SHADOW_ALPHA),
       radius: Math.round(radius * BEAD_CARD.contactRadiusScale),
     },
   );
 
-  // L0b 投影 — offset down by 3/64 of the edge, no stroke.
-  builder.rect(left, bottom - size * BEAD_CARD.shadowDy, size, size, {
+  // L0b 投影 — offset down by 3/64 of the edge, no stroke（G1：偏移与 α 同步联动）。
+  builder.rect(left, bottom - size * (options.shadowDy ?? BEAD_CARD.shadowDy), size, size, {
     fill: withAlpha(BEAD_SHADOW_HEX, options.shadowAlpha ?? BEAD_SHADOW_ALPHA),
     radius,
   });

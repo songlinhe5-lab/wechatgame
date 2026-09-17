@@ -118,6 +118,7 @@ describe('fail-panel layout (ux-spec §3.5)', () => {
 describe('ordinary fail-page revive', () => {
   it('complete adds 60s, keeps grid/tray, returns to PLAYING; GAME_OVER does not tick', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.revive.complete',
     });
@@ -155,6 +156,7 @@ describe('ordinary fail-page revive', () => {
 
   it('skip and error stay GAME_OVER with zero extra time', () => {
     const skip = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.revive.skip',
     });
@@ -176,6 +178,7 @@ describe('ordinary fail-page revive', () => {
 
   it('a second successful revive is refused; retry resets bookkeeping', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.revive.cap',
     });
@@ -199,6 +202,7 @@ describe('ordinary fail-page revive', () => {
 
   it('a tap outside the fail buttons does not retry; gear stays ignored', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.revive.scrim',
     });
@@ -211,6 +215,7 @@ describe('ordinary fail-page revive', () => {
 
   it('Noop show never adds time and leaves a 即将开放 hint', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.revive.noop',
       rewardedAd: new NoopRewardedAdProvider(),
@@ -225,6 +230,7 @@ describe('ordinary fail-page revive', () => {
 
   it('sprint GAME_OVER has no revive and answers the settle panel buttons only', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       sprintTime: 90,
       saveKey: 'wxgame.beads.test.revive.sprint',
     });
@@ -247,6 +253,7 @@ describe('ordinary fail-page revive', () => {
 
   it('a revived clear uses starRemaining and caps stars at 2', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.revive.stars',
     });
@@ -265,6 +272,7 @@ describe('ordinary fail-page revive', () => {
 
   it('draws the fail overlay copy instead of the generic banner', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.revive.view',
     });

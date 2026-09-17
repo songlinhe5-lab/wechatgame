@@ -88,8 +88,10 @@ function mkPair(saveKey: string, levels: readonly ReturnType<typeof simpleTestLe
   bypass: Harness;
 } {
   return {
-    real: createBeadsHarness({ levels, saveKey: `${saveKey}.real` }),
-    bypass: createBeadsHarness({ levels, saveKey: `${saveKey}.bypass` }),
+    real: createBeadsHarness({
+      noAssemble: true, levels, saveKey: `${saveKey}.real` }),
+    bypass: createBeadsHarness({
+      noAssemble: true, levels, saveKey: `${saveKey}.bypass` }),
   };
 }
 
@@ -258,7 +260,8 @@ describe('面板四相位 · 真链「面板外零响应」（input-control §2.
 
   for (const c of cases) {
     it(`${c.name}：真链点面板外（遮罩/空白）→ 零事件、零相位变化`, () => {
-      const h = createBeadsHarness({ levels: c.levels, saveKey: `wxgame.beads.test.${c.key}` });
+      const h = createBeadsHarness({
+      noAssemble: true, levels: c.levels, saveKey: `wxgame.beads.test.${c.key}` });
       c.setup(h);
       expect(h.game.phase).toBe(c.phase);
 

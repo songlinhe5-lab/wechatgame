@@ -88,6 +88,7 @@ describe('beads view model (control-manifest §8)', () => {
   // §8：同一快照渲染两次必须逐字节相同 —— 视图是快照的纯函数。
   it('§8 renders the same snapshot to identical commands', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-a',
     });
@@ -97,6 +98,7 @@ describe('beads view model (control-manifest §8)', () => {
   // §8：UI/渲染层不持有游戏状态 —— 渲染不得写回快照。
   it('§8 never mutates the snapshot it renders', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-b',
     });
@@ -109,6 +111,7 @@ describe('beads view model (control-manifest §8)', () => {
   // accessibility A1 的落地断言：L5 符号通道必须覆盖**每一个**已填格（整盘填满时逐格都有满墨符号）。
   it('A1 draws the L5 symbol for every filled cell', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()], // 3 colours ⇒ validator-legal; '123123' × 5 rows
       saveKey: 'wxgame.beads.test.vm-c',
     });
@@ -127,6 +130,7 @@ describe('beads view model (control-manifest §8)', () => {
   // 符号总数恒等于格数、与颜色无关（色盲冗余通道：未填态即可按符号规划）。
   it('A3（v1.22 a11y 降级，WXG-T-130/131）：empty 不再发射幽灵符号；filled 仍发满墨符号', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-d',
     });
@@ -148,6 +152,7 @@ describe('beads view model (control-manifest §8)', () => {
   // 且「卡 + 标签」整块几何落在 POWERUP_BAND 内（§1.4 与 §3.1 曾冲突，裁定见 T-062）。
   it('A4 draws three shape-unique powerup glyphs with 28px labels inside the band', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-a4',
     });
@@ -217,6 +222,7 @@ describe('beads view model (control-manifest §8)', () => {
   // w, h) 必须在渲染指令里有一条**逐值相等**的白卡矩形（投影矩形在 bottom−3，不会误配）。
   it('BD-43/T-062 回归：drawn card rect equals the hit rect value-for-value', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-t127',
     });
@@ -236,6 +242,7 @@ describe('beads view model (control-manifest §8)', () => {
   // DESIGN_W−220 令白字左段压白胶囊（读成「AGE 1」）。
   it('BD-46 回归：HUD mode label anchors at DESIGN_W − 30 (clear of the timer capsule)', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-t127b',
     });
@@ -251,6 +258,7 @@ describe('beads view model (control-manifest §8)', () => {
   // architecture-beads §4 规模账：满格 13×12 = 156 珠，每珠 ≥ 6 层 → 指令数随格数线性增长。
   it('§4 keeps the full-board command budget at the documented 900+ per frame', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [
         simpleTestLevel({
           cols: 13,
@@ -279,6 +287,7 @@ describe('beads view model (control-manifest §8)', () => {
   // ux-spec §3.3：暂停面板必须整屏遮挡（防误触/防偷看），并带「暂停」标题。
   it('§3.3 covers the whole canvas with the pause scrim and prints the title', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-f',
     });
@@ -298,6 +307,7 @@ describe('beads view model (control-manifest §8)', () => {
   // ux-spec §3 / D6：普通模式不显示分数 HUD，冲刺模式才显示。
   it('§3 hides the score HUD in normal mode and shows it in sprint mode', () => {
     const normal = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-g',
     });
@@ -307,6 +317,7 @@ describe('beads view model (control-manifest §8)', () => {
     expect(normalText.some((t) => t.startsWith('SCORE'))).toBe(false);
 
     const sprint = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-h',
     });

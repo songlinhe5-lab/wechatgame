@@ -91,7 +91,8 @@ describe('E5 · 装配器确定性（同 seed 同局面；随机性只来自注�
   it('applyMisplacedToGrid 把装配结果写进 BeadGrid（满盘 + 错位计数）', () => {
     // ⚠️ 必须显式给 TEST_PATTERN 关卡：无 levels 时 harness 用默认关卡 ⇒ grid
     // 底色与 TEST_PATTERN 不符 ⇒ 装配珠大面积「错位」（曾实测 22 ≠ 4）。
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.e5grid', levels: [simpleTestLevel()] });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.e5grid', levels: [simpleTestLevel()] });
     const grid = harness.game.grid;
     const swaps: Swap[] = [
       [0, 0, 0, 1],

@@ -175,6 +175,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
 
   it('§8-8: clearing a non-final level advances to n+1; the last level enters FINISH', () => {
     const h = createBeadsHarness({
+      noAssemble: true,
       levels: EIGHT,
       saveKey: 'wxgame.beads.test.fin-8',
     });
@@ -203,6 +204,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
 
   it('§2.3/§4: FINISH answers panel buttons only — a stray tap never restarts', () => {
     const h = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 210 })],
       saveKey: 'wxgame.beads.test.fin-stray',
     });
@@ -230,6 +232,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
   it('§8-8: FINISH replays from level 1 (normal) and the secondary enters sprint', () => {
     // ① 主钮「重玩第 1 关」→ 从第 1 关重开（整轮重玩）。
     const replay = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 211 })],
       saveKey: 'wxgame.beads.test.fin-replay',
     });
@@ -244,6 +247,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
 
     // ② 副钮「▶ 去冲刺」（U1 三处入口之第三处）。
     const sprint = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 212 })],
       saveKey: 'wxgame.beads.test.fin-sprint',
     });
@@ -255,6 +259,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
 
   it('collects per-level best stars into the snapshot overview', () => {
     const h = createBeadsHarness({
+      noAssemble: true,
       levels: EIGHT,
       saveKey: 'wxgame.beads.test.fin-stars',
     });
@@ -278,19 +283,22 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
   it('persists the per-level stars across a relaunch (S8 §2.2 stars / §8-2 重启保留)', () => {
     // 共享 storage 的两个 harness = 真「重启」语义。
     const shared = createBeadsHarness({
+      noAssemble: true,
       levels: EIGHT,
       saveKey: 'wxgame.beads.test.fin-persist-seed',
     }).platform.createStorage();
     const KEY = 'wxgame.beads.test.fin-persist';
 
-    const first = createBeadsHarness({ levels: EIGHT, saveKey: KEY, storage: shared });
+    const first = createBeadsHarness({
+      noAssemble: true, levels: EIGHT, saveKey: KEY, storage: shared });
     fillBoard(first); // L1 ⇒ 3★
     first.game.goToLevel(4);
     fillBoard(first); // L5 ⇒ 3★
     expect(first.game.starsByLevel[0]).toBe(3);
     expect(first.game.starsByLevel[4]).toBe(3);
 
-    const second = createBeadsHarness({ levels: EIGHT, saveKey: KEY, storage: shared });
+    const second = createBeadsHarness({
+      noAssemble: true, levels: EIGHT, saveKey: KEY, storage: shared });
     expect(second.game.starsByLevel[0]).toBe(3); // 从存档装载，非局内累计
     expect(second.game.starsByLevel[4]).toBe(3);
     expect(second.game.starsByLevel[1]).toBe(0);
@@ -300,6 +308,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
 
   it('keeps the per-level max: a worse replay never downgrades the overview', () => {
     const h = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 213, time: 300 })],
       saveKey: 'wxgame.beads.test.fin-best',
     });

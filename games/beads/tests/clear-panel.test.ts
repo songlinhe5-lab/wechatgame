@@ -153,6 +153,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
   it('opens on clear, does NOT auto-advance, and leaves via either button', () => {
     // ① 2 关表：过关后面板开、时间流逝不推进；点主钮 → 第 2 关。
     const h = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 91 }), simpleTestLevel({ id: 92 })],
       saveKey: 'wxgame.beads.test.cp-1',
     });
@@ -171,6 +172,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
 
     // ② 同一出口也用于「去冲刺」（U1 第二处入口）。
     const sprint = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 91 }), simpleTestLevel({ id: 92 })],
       saveKey: 'wxgame.beads.test.cp-2',
     });
@@ -182,6 +184,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
 
   it('assembles the settle data the panel shows (§8-2 C7 + stars)', () => {
     const h = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.cp-3',
     });
@@ -208,6 +211,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
   // （ceil，与 HUD remaining 同口径）+ 视图 formatTime 兜底 floor。
   it('BD-47 回归：clearRemaining is an integer and the panel shows bare mm:ss', () => {
     const h = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 93 })],
       saveKey: 'wxgame.beads.test.cp-t127',
     });

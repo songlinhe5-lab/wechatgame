@@ -85,6 +85,9 @@ import {
   drawFilledBead,
   drawLockedBead,
   drawStateRing,
+  fillPopEnvelope,
+  type FillPopEnvelope,
+  type FilledBeadOptions,
 } from './bead-render';
 import {
   BEAD_HIGHLIGHT_HEX,
@@ -672,6 +675,14 @@ function drawGrid(
   snap: BeadsSnapshot,
   palette: BeadsPalette,
 ): void {
+  // G1 `vfx_fill_pop`（WXG-T-128）：包络槽在**循环外**建一次（整帧共用，同一时刻至多一颗珠在落座）。
+  const pop: FillPopEnvelope = {
+    scale: 1,
+    contactAlpha: 0,
+    contactWidth: 0,
+    shadowAlpha: 0,
+    shadowDy: 0,
+  };
   for (let i = 0; i < snap.gridRows; i++) {
     for (let j = 0; j < snap.gridCols; j++) {
       const cell = snap.cells[i * snap.gridCols + j]!;
@@ -728,9 +739,21 @@ function drawGrid(
 
       // Filled bead — v1.5-r5 垫色显缝：珠色用 beadColorIdx（错位珠 ≠ 底色 ⇒
       // 「歪在垫上」可视化），垫 = colorIdx 底色（L11，WXG-T-142）。
-      drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, {
-        padColorIdx: cell.colorIdx,
-      });
+      // G1 落座回弹（WXG-T-128）：单格、相位由 game 侧单调标量驱动（L5 ⇒ 视图不持状态）。
+      //   ⛔ scale 只进珠体：`padColorIdx` 走 `outer`、**不参与 scale**（§1.6.1 层序死结论）。
+      const isPop = i === snap.placeRow && j === snap.placeCol && snap.placeProgress > 0;
+      if (isPop) fillPopEnvelope(snap.placeProgress, snap.reduceMotion, pop);
+      const opts: FilledBeadOptions = isPop
+        ? {
+            padColorIdx: cell.colorIdx,
+            scale: pop.scale,
+            contactAlpha: pop.contactAlpha,
+            contactWidth: pop.contactWidth,
+            shadowAlpha: pop.shadowAlpha,
+            shadowDy: pop.shadowDy,
+          }
+        : { padColorIdx: cell.colorIdx };
+      drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
     }
   }
 }

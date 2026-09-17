@@ -137,7 +137,8 @@ describe('S9 pause & settings', () => {
   // §8.1 PLAYING 点齿轮 → game:paused 恰 1 次、PAUSED、面板可见、遮罩覆盖棋盘与
   // 托盘；PAUSED 中点击遮罩/棋盘/托盘/道具卡全部零响应。
   it('§8-1 gear pauses once; every non-button tap while PAUSED has zero response', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c1' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c1' });
     const game = harness.game;
     expect(game.phase).toBe('playing');
 
@@ -217,6 +218,7 @@ describe('S9 pause & settings', () => {
   // 改为恢复后**零供料**反证（长跑 > 原 SPAWN_INTERVAL 仍零珠零事件）。
   it('§8-2 resume after 300 s keeps remaining; the feed stays dead (zero spawn)', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s9c2',
     });
@@ -253,6 +255,7 @@ describe('S9 pause & settings', () => {
       pattern: ['x12312', '123123', '123123', '123123', '123123'],
     });
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [lockedLevel],
       saveKey: 'wxgame.beads.test.s9c3',
     });
@@ -291,7 +294,8 @@ describe('S9 pause & settings', () => {
   // §8.4 音乐/音效开关各切 2 次：settings.* 即档、重启回显一致、BGM 与 SFX 互不影响。
   it('§8-4 both toggles persist, re-load identically and never leak into each other', () => {
     const saveKey = 'wxgame.beads.test.s9c4';
-    const harness = createBeadsHarness({ saveKey });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey });
     const game = harness.game;
 
     // Both channels start ON (save-progress §2.2 default false = not muted).
@@ -362,7 +366,8 @@ describe('S9 pause & settings', () => {
     });
 
     // Relaunch on the same storage → both toggles echo back.
-    const rebooted = createBeadsHarness({ saveKey, storage: harness.storage });
+    const rebooted = createBeadsHarness({
+      noAssemble: true, saveKey, storage: harness.storage });
     expect(rebooted.game.bgmMuted).toBe(true);
     expect(rebooted.game.sfxMuted).toBe(true);
     expect(rebooted.game.snapshot.bgmMuted).toBe(true);
@@ -413,7 +418,8 @@ describe('S9 pause & settings', () => {
   // §8.6 归零 vs 齿轮同帧两组用例。
   it('§8-6 expiry vs gear: later arrival loses; earlier arrival freezes', () => {
     // Group ① — expiry arrives first (already GAME_OVER): no pause at all.
-    const failed = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c6a' });
+    const failed = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c6a' });
     while (failed.game.phase === 'playing') failed.advance(0.5);
     expect(failed.game.phase).toBe('game-over');
     const before = failed.emitted.length;
@@ -424,7 +430,8 @@ describe('S9 pause & settings', () => {
 
     // Group ② — gear arrives in the same frame the countdown would hit zero:
     // the freeze wins, no failure is judged while PAUSED.
-    const same = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c6b' });
+    const same = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c6b' });
     // Stop with ≤1 frame of countdown left: this frame's tick *would* expire.
     while (same.game.remaining > STEP && same.game.phase === 'playing') {
       same.advance(STEP);
@@ -458,6 +465,7 @@ describe('S9 pause & settings', () => {
 
     // BOOT — invalid level data refuses PLAYING (core-loop §2.1).
     const boot = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ pattern: ['ZZZZZZ', '123123', '123123', '123123', '123123'] })],
       saveKey: 'wxgame.beads.test.s9c7boot',
     });
@@ -465,6 +473,7 @@ describe('S9 pause & settings', () => {
 
     // LEVEL_CLEAR — complete the board of a single-level campaign.
     const cleared = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s9c7clear',
     });
@@ -472,13 +481,15 @@ describe('S9 pause & settings', () => {
     phases.push({ name: 'level-clear', harness: cleared });
 
     // GAME_OVER — countdown to zero.
-    const over = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c7over' });
+    const over = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c7over' });
     while (over.game.phase === 'playing') over.advance(0.5);
     phases.push({ name: 'game-over', harness: over });
 
     // FINISH — 结算面板主钮（末关文案「查看结果」）把 LEVEL_CLEAR 推进到 FINISH。
     // WXG-T-063：LEVEL_CLEAR **不再自动推进**（ux-spec §4 流转表：等按钮）。
     const finished = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s9c7finish',
     });
@@ -493,7 +504,8 @@ describe('S9 pause & settings', () => {
     phases.push({ name: 'finish', harness: finished });
 
     // PAUSED — injected while already paused.
-    const paused = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c7paused' });
+    const paused = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c7paused' });
     tapGear(paused.game);
     phases.push({ name: 'paused', harness: paused });
 
@@ -509,7 +521,8 @@ describe('S9 pause & settings', () => {
 
   // §8.8 重复暂停幂等：PAUSED 中注入 game:paused → S5 保存值不变。
   it('§8-8 repeated pause is idempotent and never touches the stored countdown', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c8' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c8' });
     const game = harness.game;
     harness.advance(3);
     const before = game.remaining;
@@ -533,7 +546,8 @@ describe('S9 pause & settings', () => {
 
   // §8.9 sprint 模式暂停：连击窗口计时冻结，恢复后从暂停值续算、不追溯断连。
   it('§8-9 the sprint combo window freezes while PAUSED and never back-breaks', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c9' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c9' });
     const game = harness.game;
     game.startSprint();
     expect(game.phase).toBe('playing');
@@ -577,7 +591,8 @@ describe('S9 pause & settings', () => {
 
   // §8.10 面板出场 ≤ 入 200ms / 出 150ms 量级，全程无 >3Hz 闪烁。
   it('§8-10 panel ramps once within its 200/150 ms budget — no flicker possible', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c10' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c10' });
     const game = harness.game;
     tapGear(game);
     expect(game.panel.progress).toBe(0);
@@ -624,7 +639,8 @@ describe('S9 pause & settings', () => {
   // §8.11 WXG-T-088：D1/E2 开关各自持久化、重启回显、与音频通道互不影响。
   it('§8-11 accessibility toggles persist, echo on reboot and stay independent of audio', () => {
     const saveKey = 'wxgame.beads.test.s9c11';
-    const harness = createBeadsHarness({ saveKey });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey });
     const game = harness.game;
     expect(game.reduceMotion).toBe(false);
     expect(game.largeText).toBe(false);
@@ -654,7 +670,8 @@ describe('S9 pause & settings', () => {
     });
 
     // 同存储重启 → 两开关回显，音频通道不受波及。
-    const rebooted = createBeadsHarness({ saveKey, storage: harness.storage });
+    const rebooted = createBeadsHarness({
+      noAssemble: true, saveKey, storage: harness.storage });
     expect(rebooted.game.reduceMotion).toBe(true);
     expect(rebooted.game.largeText).toBe(true);
     expect(rebooted.game.snapshot.reduceMotion).toBe(true);
@@ -668,7 +685,8 @@ describe('S9 pause & settings', () => {
   // behaviour changes (framework wiring stays).
 
   it('D-04 manual pause then onPause+onResume stays PAUSED', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.d04-manual' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.d04-manual' });
     const game = harness.game;
     harness.advance(2);
     const remaining = game.remaining;
@@ -702,7 +720,8 @@ describe('S9 pause & settings', () => {
   });
 
   it('D-04 PLAYING onPause enters PAUSED and onResume stays PAUSED', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.d04-system' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.d04-system' });
     const game = harness.game;
     expect(game.phase).toBe('playing');
     expect(game.pauseIntent).toBeNull();
