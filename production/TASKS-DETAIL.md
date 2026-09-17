@@ -81,6 +81,28 @@
   - **切片说明（诚实登记）**：v1.1 前序 27 段在 v2.0 下不可跑（P4 崩于 `s.traySlots[held]`；自定义关卡缺 `swaps` BOOT 拒收）⇒ 另出切片 `g4-probe-v1.2-t099.mjs`（由 v1.1 **按行切片**生成、helpers 整块搬移，非手抄）；**前序段适配仍归 T-151**，本单已在 v1.1 回写四处**夹具可构造性修复**供其复用：① `probeLevel` 补 `swaps`/`cycleProfile`（v1.2 必需字段）；② 取回夹具改 **v2.0 两步式**（点错位珠 → 点空槽）；③ 新增 `solveBoard099` 解算归位（替代「填空格」模型）；④ FINISH 装配等足 `CLEAR_PANEL_DELAY_MS=WAVE_MS=800ms` 延迟门。另修两处**探针活对象/读数缺陷**防假 FAIL：`snapshot.remaining` 是 display ceiled（归零前恒 0）须读 `game.remaining`；证据串延迟读活对象须当场拷标量（修订 15bis(a) 同款）。
   - 全部变更**未 commit / 未 push**（待用户核）。
 
+## WXG-T-154
+
+- **名称**：**beads · BD-49 道具音频断链修复（T-151 移交首项）**
+- **负责**：主理人(Qoder)　**状态**：🔄 进行中（2026-09-17；backlog 按优先级排序后首项施工）　**P1**
+- **背景**：T-151 三跑实证 BD-49——powerups GDD §4 v1.22 payload 改名 `affectedSlots→affectedCells` 后，`beads-game.ts:1488-1492` 音频 handler 仍读旧字段恒 undefined 早退 ⇒ 真卡与注入腿双 clip（sfx_powerup_used/sfx_bead_dissolve）零发声；单测 audio-dispatch.test.ts:276/284/422 同用旧字段不受影响 ⇒ 不构反证。
+- **范围**：修 handler 改读 `affectedCells`（L171 事件契约已声明新字段）+ 夹具同步订正 + 空数组零发声判据保持；禁碰 §3 冻结常量与无关重构。
+- **验收**：①单测订正后全绿；②G4 探针 A05-07 复跑转 PASS（双 clip 各 1）；③报告 §27.3 BD-49 状态更新。
+- **并发注记**：本轮台账编辑中首次 SearchReplace 报「全部失败」实为**部分应用**（头注未中但主表行已插），已去重——后续会话遇同类报错先重读现场再重试。
+
+---
+
+## WXG-T-155
+
+- **名称**：**工具 · check:a11y 代码符号锚点机械守卫（K-035 假绿防线，backlog 次项）**
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（2026-09-17；正/反向实测均成立，验法见「验收」行；未 commit）　**P1**
+- **交付面**：① 锚点表 `games/beads/art/a11y-anchors.md`（21 行）+ `games/breakout/art/a11y-anchors.md`（19 行），两矩阵 §2 各加指针行；② `tools/scripts/check-a11y-anchors.mjs`：id 集合相等 + ✅ 行锚点非空 + 非 `-` 锚点在 src 字面命中；③ 挂 `package.json check:a11y` + verify STEPS（check:links 后）。
+- **设计取舍（诚实）**：锚点表**独立文件**不入 accessibility.md（WXG-T-130 预算注记指引「再增判据拆独立文件」，该档已豁免态）；脚本**不解析矩阵长文本状态列**（行内嵌 `|` 公式致切分不可靠），状态列一致性归 QA 评审 + §3 小结对账，限制已写脚本头注与表首注。
+- **验收**：正向两游戏全绿；**反向破坏测试**（改一锚点为不存在符号）⇒ FAIL 精确报行，已验后恢复；`pnpm run verify` 新增项 PASS。
+- **首面对账副产品（诚实登记）**：breakout 矩阵 B2 声称 hex（`#0C0B1E` 等）在 src **零命中**（实现 `#0b1021`）——真实文档漂移，新登 backlog 行，不在本单修为（跨域）。
+
+---
+
 ## WXG-T-127
 
 - **名称**：**beads 可玩性实测差距修复（BD-43 热区错位 P1 + BD-44/45/46/47）**
@@ -196,6 +218,25 @@
 5. **G5 案 B = WXG-T-132**（跨 `packages/framework`，**前置验证项 = `FIXED_WIDTH` 下整屏 1.015 是否露黑边**，未验证不得当已解决）。
 
 **真机验证前置（阻塞项，登记不假装已解）**：v1.4 全部为**纸面几何核算**，真机未验（Cocos 构建阻塞，ADR-0009 P2，同 T-124/T-125 口径）。G1 落码后**首个真机抽检项** = L0a/L0b 接触阴影呼吸的观感（会不会读作「脏」而非「接触」）+ 峰值 0.5px 间隙；案 B 落码后须抽检整屏缩放致 HUD 文字 / 1px 描边的**亚像素抖动**（影响 E1/B1 观感）。若不先解构建阻塞，会重演 v1.3「F5 真机偏淡」那类事后才暴露的问题。
+
+### `[Cocos]` 连拍取证推进（2026-09-17，CodeBuddy 会话）
+
+- **新增工具** `tools/scripts/cocos-vfx-burst.mjs`：Cocos web-mobile 产物内**动画窗口连拍**取证（playwright 真实产物 + `tapDesign` 白盒驱动 + 逐帧相位读数 + 产物新鲜度门）。**观感取证物，不判 PASS**（判读 = 人眼复核）。
+- **G6 结算彩带（TC-PER-26）**：✅ 取得有效连拍 —— `evidence/vfx-burst*/`（confetti 相位 0.10→0.83→0 = 播放→自清，两帧落在 800ms 窗口内）；solve 后 `phase=level-clear`（彩带与面板同帧臂起 ✓）。`[Cocos]` 道次取证物已备，判读待 QA/主理人。
+- **G3 扫光（TC-PER-21）**：⛔ **连拍前置不足，如实登记**：① 首关错位珠少，道具（solverPlus/solver）一次归位即达成零错位 ⇒ **同帧 `level-clear`**，而 `_stepSweepFx` 只在 playing 推进 ⇒ sweep 相位恒 0（非实现缺陷，是取证构造约束；`--level=1` 换关后 phase 保持 playing 但 sweep 仍读 0，疑点 = `tapDesign` 是否命中卡 / Cocos 环境臂起差异，**未深挖**）；② 解除条件 = 换「错位 ≥4 且道具不致通关」的关卡构造，或裁决「level-clear 下扫光是否应继续播完」（规格未定义，属 UX 侧待裁）。
+- **连带发现（线索级，未定性）**：A05-07 已确认音频 handler 读旧字段 `affectedSlots`（道具音效恒零发声，T-151 登记）；扫光视图消费（view-model.ts:1245 `sweepProgress`）读的是**快照字段**、与 payload 字段无关 ⇒ 与 A05-07 不同族，G3 缺口更可能是臂起/推进的相位面问题。
+- **产物状态**：`games/beads/cocos/build/web-mobile` 已随本轮 `framework:sync` + `build:cocos:web` 重建为当前代码；脚本与连拍产物**未 commit**。
+
+### 用户裁定执行（2026-09-17，CodeBuddy 会话 · 两项规格差异拍板）
+
+- **裁定 ①（scratch 契约）= B「改实现保规格」→ ✅ 已执行**：
+  - `packages/framework/src/core/render/render-model.ts`：`PolygonCommand.points` 与 `polygon()` 签名放宽为 `readonly number[] | Float32Array`（契约注载明「命令按引用持有 ⇒ scratch 段下一帧前不得改写；彩带每帧 44 枚固定段、当帧构建当帧消费 = 安全」）。
+  - `games/beads/src/view/scene-vfx.ts`：`confettiQuad` 增 `off` 段偏移参数（默认 0，旧调用兼容）。
+  - `games/beads/src/view/view-model.ts`：**`CONFETTI_POINTS = new Float32Array(44×8) = 352-float 预分配**（规格字面兑现），每枚固定段 + `subarray` 视图引用（零拷贝零复制）；原「逐枚新建 8-float」作废。
+  - `tests/view-model.test.ts` 两处 points 联合类型收窄（`Array.from`）。
+  - **验证**：`tsc --noEmit` 双包零错误；beads **409/409** 绿、framework **295/295** 绿；`framework:sync`+`:check` OK。
+- **裁定 ②（彩带方向）= C「先看连拍再定」→ ⏸ 判读前置未满足，暂缓**：人眼复核 4 帧（含色像素定量检测）**均未见彩带**，且 `snapshot.confettiProgress` 读数 0 与上一轮同通路相位推进（0.10→0.79）**不稳定复现** ⇒ 疑点 = 「Cocos 产物上彩带未渲染 / 臂起不稳定」，需正式排障后重拍，方向裁定（上行 vs 飘落）在此之前无从谈起。排障起点：`_stepConfettiFx` 在通用表现层步进（beads-game.ts:698）✓ 已核对；臂源 = `_stepLevelClear` 门满帧（:1912）✓ 已核对；下一个排查面 = Cocos 绑定层 `drawConfetti` 的分派/裁剪（`polygon`+`Float32Array` 视图在 cocos-renderer:178 索引遍历天然兼容，但需确认命令流中确实出现）。
+- **⚠️ 连带实测暴露（非本单引入，登记移交）**：`check:size` 从 SKIP 转实跑后首次结果 = **beads `cocos/build/wechatgame` 主包 4647.2 KB > 平台红线 4096 KB（超 551KB）**（breakout 1815KB 达标）。主体为引擎 bundle/资源面，与本单 3 函数改动无关 ⇒ 归 **T-128 真机首验包 P0-4**（原登记「check:size 从 SKIP 转 OK」——现转 OK 后即暴露超标）+ 包体治理（分包/裁剪）移交发布/工程域。
 
 **美术规格侧未决项：零**（林绘澄回传 ⑤ 明述；三件文档内无条件句/待裁结构残留）。
 
@@ -409,7 +450,7 @@
 ## WXG-T-151
 
 - **名称**：**beads · G4 探针 v2.0 适配复跑（WXG-T-099 收口时发现：探针 54 组停留在 v1.2 假设）**
-- **负责**：严守真(qa)　**状态**：🔶 探针适配 + 复跑判读完成（2026-09-17，CodeBuddy 会话）；判据回写与缺陷落码待移交　**P1**
+- **负责**：严守真(qa)　**状态**：✅ 完成（2026-09-17；两会话并发施工——CodeBuddy 会话适配+二跑，Qoder 会话接管收口+三跑终验；判据回写与缺陷落码待移交）　**P1**
 - **背景**：T-099 收口复跑 `g4-probe.mjs` 即崩（P4 段 `findEmpty` 满盘下 undefined；判读文本硬编码「四类 VFX 全缺 FAIL」与现状脱节）。v2.0 玩法反转（满盘错位/24 槽/onboarded/组锚）使探针多数组的**构造与判读双双过期**。
 - **范围**：54 组逐段适配（构造面：满盘+swaps 关卡、24 槽托盘、组锚路由；判读面：P4 四类 VFX 已落码改 PASS 口径、P5 音频、§H 22 条联动）→ 复跑取证（evidence/）→ G4 报告升版。
 - **约束**：K-043（脚本装载先于 import）；K-037（[Probe] 可证 ≠ 屏幕可证）；[Cocos]/[Device]/[R] 结论不因 Node 绿而抬升。
@@ -423,7 +464,9 @@
   2. **【v2.0 适配缺口·移交裁定】P3+P19 新手引导死亡**：引导「首珠 = 托盘最前持有（GAP-02 首供落点）」（`beads-game.ts:2789-2813`）依赖已关停的供料 ⇒ v2.0 下 `guideSlot=-1`、hint 永不出现 ⇒ **新手对「点错位珠取回」的新玩法零引导**。需设计裁定：引导改指向取回操作，或随供料移除引导（BD-32 顺带）。
   3. **【规格漂移·移交裁定】P18 in-level 快照 vs §8-9**：v2.0 断点续玩快照**每次落子落档 1 次**（逐步实测 placed=1⇒writes 0→1、placed=2⇒writes 1→2）⇒ 与 §8-9 现文「PLAYING 零写档 / 结算帧恰 1 次」互斥。快照是有意设计 ⇒ **规格未随特性回写**，§8-9 需改写（区分快照写档与业务写档）。
   4. P17（连胜 meta）= **BD-12 已知开放**（save-schema 无 meta 段，concept §7 MVP 线外），非新回归。
-- **待办移交**：① 上述 3 项裁定/落码；② G4 报告升版（本单只产探针判读，报告刷新归 QA 下一轮）；③ `*.md` 判据回写（§8-9、GAP-03）由设计侧接。
+
+- **🧹 接管收口（2026-09-17，Qoder 会话；本节覆盖上方「FAIL 4 条」块中被推翻的定性，冲突以此为准）**：检测到两会话并发编辑同一探针文件后，用户拍板「本会话接管统一收口」。动作：① 接受并发会话同型适配（P18⛔/P19/A05-07），补修 P18 正文残留矛盾句（「改判 PASS；BD-24 关闭」与 ⛔ 判定自相矛盾）+ 头注**修订 46**登记 + 汇总区新增 **T-151 修订面桶**（35 条，成员自 T-097/098/099/114/116/118 桶移入不双计）；② **三跑终验**：`retrieveOneMisplaced`（仅取 1 颗）前置升级为 `primePlaceable`（连取至可落）后 —— **上方第 2 项「P3+P19 引导死亡移交裁定」撤销**：P3 → **PASS\***、P19 → **PASS**，引导三通道+hint 在 v2.0 真链下功能正常，前轮 FAIL = **探针前置不足（假红，修订 15bis 同款）**非实现缺口；③ 上方第 3 项 P18 维持 ⛔ 移交（真规格漂移，§8-9 未随 in-level 快照回写）；④ 新实现缺陷仅 **BD-49** 一项（上方第 1 项，报告 §27.3 正式登记）；**BD-50 评估后不启用**；⑤ 终跑 = **PASS 38 / PASS\* 23 / FAIL 2（A05-07=BD-49、P17=BD-12）/ ⛔ 16**，证据 `evidence/g4-reverify-v1.8-t151.log`（上方 `g4-probe-v1.3-t151.log` 降为中间轮）；⑥ **报告升版 v2.0（§27）+ 横幅维护**；验收四项（零崩溃/判读一致/证据落盘/报告刷新）全成立 ⇒ **✅ 完成**。**移交包**：BD-49 落码单（待主理人立项）；§8-9 规格回写裁定；供料侧 16 ⛔ 复活条件挂供料复活；全部变更未 commit。
+- **待办移交（收口后更新）**：① ~~报告升版~~ 已由本单完成（v2.0 §27）；剩余 = **BD-49 落码单立项**（一行修法+夹具同步，建议 P1）与 **§8-9 规格回写裁定**（设计侧接，区分快照写档/业务写档）；② G4 整体门禁结论不因本单升 PASS（供料侧 16 ⛔ + `[B]/[Cocos]/[R]` 边界保留），裁决权归主理人。
 - **变更未 commit / 未 push**。
 
 ## WXG-T-152

@@ -8,7 +8,17 @@
 - 缺陷编号：本报告启用 **`BD-nn`** 新序列（Beads Defect），与 breakout 的 `D-0n`、beads 阶段 0 的 `D-01..D-05`（见 `production/archive/TASKS-DETAIL-archive.md`）**物理隔离**，避免跨轮撞号。
 
 > ──────────────────────────────────────────────────────────────────────────
-> **当前版本 v1.6（§A4b 去「拟」+ 次按钮真链孪生，2026-09-15，WXG-T-116 / 严守真）**
+> **当前版本 v2.0（G4 探针 v2.0 全面适配复跑，2026-09-17，WXG-T-151 / 严守真）**
+> §26.2 的探针 ⛔（v2 关卡下崩溃/判读过期）解除：`g4-probe-v1.1.mjs` **79 组整轮重跑零崩溃**，
+> PASS 38 / PASS\* 23 / **FAIL 2** / ⛔ 16。FAIL 定性 = **新立 BD-49**（道具音频派发字段断链，
+> 移交落码）+ **BD-12 已知开放**；P18 记 ⛔ 移交 §8-9 规格回写裁定；P3/P19 经夹具前置订正后
+> 改判 PASS\*/PASS（引导实现本身正常，§27.6）。**本轮正文 = §27**；§1–§26 为历史谱系，
+> **一字不改写**。证据：`production/qa/beads/evidence/g4-reverify-v1.8-t151.log`（终跑）
+> ＋ `g4-probe-v1.3-t151.log`（中间轮，P3/P19 定性已被 §27.6 覆盖）。**探针修订 = 46**（头注续号）。
+>
+> ──────────────────────────────────────────────────────────────────────────
+> 【历史】**v1.6（§A4b 去「拟」+ 次按钮真链孪生，2026-09-15，WXG-T-116 / 严守真）**（注：v1.7–v1.9
+> 历轮（T-118/T-123/T-144）未维护本横幅，版本谱系以正文节号为准：§24=v1.8 前轮、§25.14、§26=v1.9）
 > 上游 `WXG-T-115` 已把 `input-control §8-8b/8c/8d` **定稿落盘**（各含**完整按钮集**；`8c` 并补
 > **冲刺局子分支**「再来一局 / 返回关卡」）。本轮做两件事：① **去「拟」**——`test-cases.md §A4b` 的
 > `TC-INP-11/12/13` 判据引用改用正式编号 `input-control §8-8b/8c/8d`（**判据 / 阈值零改动**，只改引用与状态）；
@@ -508,7 +518,7 @@
 | ES5 静态门 | `pnpm run check:es5spread` | OK —— **78 shipped source file(s), no non-array spread**（= P24 的静态半边证据） |
 | 包体门复核 | `ls games/{beads,breakout}/cocos/build` | beads **仅 web-mobile**，无 `wechatgame` ⇒ `check:size` 只测到 breakout 1815.1KB 仍打 ✅ ⇒ **BD-18 未修** ⇒ evidence §3 |
 | 帧预览复核 | `grep -n 'loadHarness()' tools/scripts/render-harness-frame.mjs` | `:37 loadHarness()` **无 `--game` 透传**；`:56 movePaddleTo` `:77 bricksDestroyed` ⇒ **BD-19/BD-13 残留未修** |
-| 夹具诊断 | `node evidence/diag-p12-slot-sample.mjs`、`node evidence/diag-p3-onboarding.mjs` | 用于**区分探针夹具缺陷与实现缺陷**（结论见 §16）⇒ evidence §4 |
+| 夹具诊断 | `node diag/diag-p12-slot-sample.mjs`、`node diag/diag-p3-onboarding.mjs` | 用于**区分探针夹具缺陷与实现缺陷**（结论见 §16）⇒ evidence §4 |
 
 ### 12.2 计数对比（四态）
 
@@ -611,7 +621,7 @@
 | **BD-29** | **规格红线自相矛盾**：`ux-spec §5` 红线「**无 >3Hz 闪烁**」与该表「放错拒绝 = danger 描边**闪 2 次 / 200ms**」互斥（2 次/0.2s ⇒ **10Hz**）；「≤2 次/秒」限定挂在**音效列**而非视觉列 | **P2** | 文档：`design/ux/ux-spec.md:174`（红线）vs `:180`（视觉列「描边闪 2 次」＋音效列「≤2 次/秒」）。探针：`P4`（编号非优先级）实测 wrong 态 danger α **4 档起伏 / 200ms**（＝按表实现的 2 次闪）⇒ 实现忠实于表格、与红线冲突 | **不判实现 FAIL**（实现符合表格行）。移交 UX 负责人二择一：改红线的适用豁免，或把视觉闪烁降频到 ≤1.5Hz；本条影响 `timer §8-10`「同屏叠加无 >3Hz」的可测性 |
 | **BD-30** | **裁定措辞与落码不等名**：`ux-spec §6.2/§8 U7` 裁定「`reset()` 后置 `_acc = interval`」，实现采等价但不同名的 `_firstFeed` 标志位 | **P3** | 文档：`ux-spec:217/221/266`。代码：`systems/spawner.ts` `reset()` → `_firstFeed = true`，首 `tick()` 走 `_feedOnce` | 语义等价（实测第 1 帧即供料 ⇒ P2 PASS），**不改判**；建议 §6.2 补注「实现可为 `_acc` 后置或等价首供标志，以后者为准」以免后续轮按字面误报 |
 | **BD-31** | **文档同步残留**：`assets-spec.md:106 hud_timer_danger` 仍留 `[待 ux-spec 对齐]`，且 `:187` 尾注「其余 `[待 ux-spec 对齐]` 动效项待 UX 规格产出后回写」已过期（UX 规格 WXG-T-081 早已产出，`:73` hint 占位已按 v1.0 §8 建议删） | **P3** | 核对：`art/assets-spec.md:73`（已删✓）vs `:106`/`:187`（仍在） | 移交美术侧回写删占位；**art/\*\* 本 QA 不改笔** |
-| **BD-32** | **实现语义缺陷（附带发现）**：`beads-game.ts:947` 以 `save.data.runs > 0` 判「老玩家」，而 `:949-952` 在**每次 BOOT** 都 `runs + 1` 并落档 ⇒ 玩家**开局即杀进程**再进即被判老玩家、**永久失去引导**（GAP-03 三通道不再出现）；无「引导完成」持久化标记 | **P2**（可访问性/FTUE 承诺未兑现的边缘） | 代码：`beads-game.ts:947-952`（注释自认「必须在自增之前取」，但自增本身仍以 BOOT 计数）。诊断脚本 `evidence/diag-p3-onboarding.mjs`：一次 BOOT 后 `runs 0→1`，再 BOOT 时 `onboarding=false` | 建议以「首次 `bead:placed`」或显式 `onboarded` 标记持久化取代 BOOT 计数。**各 GDD §8 未覆盖此路径 ⇒ QA 不自裁为 FAIL**，探针 `P3`（编号非优先级）记 PASS\* 并登记本条 |
+| **BD-32** | **实现语义缺陷（附带发现）**：`beads-game.ts:947` 以 `save.data.runs > 0` 判「老玩家」，而 `:949-952` 在**每次 BOOT** 都 `runs + 1` 并落档 ⇒ 玩家**开局即杀进程**再进即被判老玩家、**永久失去引导**（GAP-03 三通道不再出现）；无「引导完成」持久化标记 | **P2**（可访问性/FTUE 承诺未兑现的边缘） | 代码：`beads-game.ts:947-952`（注释自认「必须在自增之前取」，但自增本身仍以 BOOT 计数）。诊断脚本 `diag/diag-p3-onboarding.mjs`：一次 BOOT 后 `runs 0→1`，再 BOOT 时 `onboarding=false` | 建议以「首次 `bead:placed`」或显式 `onboarded` 标记持久化取代 BOOT 计数。**各 GDD §8 未覆盖此路径 ⇒ QA 不自裁为 FAIL**，探针 `P3`（编号非优先级）记 PASS\* 并登记本条 |
 
 **新缺陷计数**：6 条（BD-27..32）；其中移交 GDD/UX/美术 **4**（BD-27/28/30/31）、移交工程侧 **2**（BD-29 择案后、BD-32）。
 
@@ -623,7 +633,7 @@
 | 编号 | 标题 | 级别（建议） | 依据（双证据） | 复现法 | 处置建议 |
 |---|---|---|---|---|---|
 | **BD-33** | **新增镜像脚本缺 `.ts.meta` 伴生文件，`cocos:check` 不覆盖⇒ 静默漏报** | **P2**（若上真机可升 P1） | 实测：`find games/*/cocos/assets/scripts -name '*.ts'` 逐个查同名 `${f}.meta` ⇒ **3 个无伴生文件**：`games/beads/…/framework/platform/audio-synth.ts`、`games/beads/…/game/config/audio-voices.ts`、`games/breakout/…/framework/platform/audio-synth.ts`（同目录其余脚本一律有）；**同一轮 `cocos:check` 打 ✅** ⇒ 工具覆盖面缺口 | `node -e "...上述 find+existsSync 循环"`（或看 evidence/g4-reverify-v1.2.log §2） | 归工程侧（阮和鸣 / T-082 同族）：跑 `framework:sync` 时一并生成 meta，或给 `cocos:check` 加「镜像脚本必须有 meta」断言。**QA 不自修复**（越只读面） |
-| **BD-34** | **面板相位下真指针事件到不了面板按钮（`_readInput()` 只在 `playing` 被调）** | **待定（需 [B]/[R] 定级；若宿主接线则 P1）** | 代码：`beads-game.ts:1147` 是 `_readInput()` 唯一调用点（在 `_stepPlaying` 内）；`paused`（`:919-925`）/`game-over`（`:960-971`）**无 onUpdate**；`input-manager.ts` `endFrame()` 清 `_downThisFrame`。实测（`evidence/diag-p5-fixtures.mjs`，同坐标 375,645、同帧序）：`hitTest()='toggle-bgm'`、`panelInteractive=true`、design↔screen 往返精确，但**经 `InputManager.push` 链**：`bgmMuted=false`、派发=（无）、stop=（无）；**经 `game.tapDesign()`**：`bgmMuted=true`、派发=`sfx_ui_tap`、stop=`bgm_main`。旁证：单测 `pause-settings.test.ts:69-71` 与探针 P22 一律用 `tapDesign` 驱动面板 ⇒ 现有自动化全部踩在“旁路”上，**长期无人测到真链** | 在 paused 相位用真 `input.beginFrame()/push(down,up)/game.update()/input.endFrame()` 序列点面板按钮中心（对比同坐标 `tapDesign()` 生效）| 不判 A05 条目 FAIL：音频派发主体仍成立。但需工程侧裁定口径：若“面板靠宿主转发 touch”是设计，请在 `S9 §8` 与 `input-control §8-8` 写明；若非，则需补 paused/game-over 的输入读取。**当前 `BeadsBootstrap.ts` 未接任何输入 ⇒ 真机是否“点不动面板”只能 [B]/[R] 定论** |
+| **BD-34** | **面板相位下真指针事件到不了面板按钮（`_readInput()` 只在 `playing` 被调）** | **待定（需 [B]/[R] 定级；若宿主接线则 P1）** | 代码：`beads-game.ts:1147` 是 `_readInput()` 唯一调用点（在 `_stepPlaying` 内）；`paused`（`:919-925`）/`game-over`（`:960-971`）**无 onUpdate**；`input-manager.ts` `endFrame()` 清 `_downThisFrame`。实测（`diag/diag-p5-fixtures.mjs`，同坐标 375,645、同帧序）：`hitTest()='toggle-bgm'`、`panelInteractive=true`、design↔screen 往返精确，但**经 `InputManager.push` 链**：`bgmMuted=false`、派发=（无）、stop=（无）；**经 `game.tapDesign()`**：`bgmMuted=true`、派发=`sfx_ui_tap`、stop=`bgm_main`。旁证：单测 `pause-settings.test.ts:69-71` 与探针 P22 一律用 `tapDesign` 驱动面板 ⇒ 现有自动化全部踩在“旁路”上，**长期无人测到真链** | 在 paused 相位用真 `input.beginFrame()/push(down,up)/game.update()/input.endFrame()` 序列点面板按钮中心（对比同坐标 `tapDesign()` 生效）| 不判 A05 条目 FAIL：音频派发主体仍成立。但需工程侧裁定口径：若“面板靠宿主转发 touch”是设计，请在 `S9 §8` 与 `input-control §8-8` 写明；若非，则需补 paused/game-over 的输入读取。**当前 `BeadsBootstrap.ts` 未接任何输入 ⇒ 真机是否“点不动面板”只能 [B]/[R] 定论** |
 
 **v1.2 新缺陷计数**：2 条（BD-33/34），**均移交工程侧/主理人裁定**；QA 未改任何 `src/**`。
 
@@ -862,7 +872,7 @@ T-096 之后：
 | `pnpm run verify` | **VERIFY_EXIT=1**：**PASS 12 / SKIP 1（`check:size`，beads 无 wechatgame 产物）/ FAIL 1（`framework:sync:check`）** ⇒ **与 WXG-T-096 任务书自述的「13 PASS / 1 SKIP」不一致**（未通过项被点名，聚合器不短路 ⇒ 14 项确已执行）⇒ `evidence/g1-g3-verify-v1.2.log` |
 | `node tools/scripts/sync-framework-to-cocos.mjs --check` | **EXIT=1，12 处 differs**（beads/breakout 各 6：`core/audio/audio.ts`、`platform/{audio-synth,node,platform,weapp,web}.ts`）⇒ 这是 v1.1 判 **BD-20 关闭** 的同一条依据，现已反绿 ⇒ 见 §19.5 与 §14 BD-20 行 |
 | 单测（verify 链内） | framework **255** / beads **224** / breakout **239** = **718 全绿**（v1.1 为 677，+41 = 本单 `audio-synth.test.ts` 15 + `audio-dispatch.test.ts` 26）。**按修订 33：单测绿不替代探针他证，反之亦然** |
-| 只读诊断 | `node evidence/diag-p5-fixtures.mjs` ⇒ 区分「探针夹具缺陷」与「实现缺陷」（evidence §4） |
+| 只读诊断 | `node diag/diag-p5-fixtures.mjs` ⇒ 区分「探针夹具缺陷」与「实现缺陷」（evidence §4） |
 
 ### 19.3 P5 逐条改判表（27 条 A05 + 1 条结构证据）
 
@@ -940,7 +950,7 @@ T-096 之后：
 | r | P5/A05-14 | 判定算成 PASS，正文却自陈「记 PASS\*」 | **判定偏松 + 叙述不一致**（读数的人会以为整条已闭） | 按**正文**不按标签补 `partial` ⇒ PASS\*（**修订 37**；这是收紧，不是放宽） |
 
 > 另有本轮的**夹具新鲜度自证**（修订 34）：开跑前 dist 早于 src 38 分钟，已重建并机验。
-> 只读诊断脚本 `evidence/diag-p5-fixtures.mjs` 用于区分「夹具缺陷」与「实现缺陷」，非门禁证据本体。
+> 只读诊断脚本 `diag/diag-p5-fixtures.mjs` 用于区分「夹具缺陷」与「实现缺陷」，非门禁证据本体。
 
 ### 19.7 冲突 / 观察登记（**不占缺陷号、不改冻结常量**）
 
@@ -2148,3 +2158,44 @@ f6/f9 的峰来自 α 通道、f7/f8 的落差来自**位移（遮挡）通道**
 - **`[B]` 屏幕像素层**：判据面未达标（WXG-T-119 裁定，阈值/采样/解耦三修法待做）；E6 四层凹陷卡/L11 垫/端点表的**观感取证**属新的 `[B]` 范围。
 - **`[R]` 真机**：⛔（无 AppID）。**光敏性红线不得据任何本轮宣称达标**。
 - **托盘 24/24 槽**：规格冻结但工程未适配（WXG-T-143 回传请示，缺面板尺寸）⇒ 槽值相关判据全部 ⛔ 待布局定稿。
+
+## 27. v2.0 · G4 探针 v2.0 全面适配复跑（WXG-T-151，2026-09-17 / 严守真）
+
+### 27.0 范围与顺序纪律
+承接 §26.2 的解除条件——把 `g4-probe-v1.1.mjs` 从 v1.2 假设整体重建到 v2.0 现文，**整轮重跑**（开局全满·swaps 错位装配·供料关停·24 槽·powerups §4 v1.22）。**先改探针、后复跑；预期先写后跑**（预期取回写后 `ux-spec §6.1` v1.4 / `save-progress §8-9` / `audio-events §4` 现文，非看输出回填）。**不合并 §1–§26 历史轮次计数**。探针修订登记 = **修订 46**（头注续号，`修订 45` = WXG-T-099 仅正文注记，本次占位补齐编号）。
+
+### 27.1 总盘（证据 `evidence/g4-reverify-v1.8-t151.log`）
+`node production/qa/beads/g4-probe-v1.1.mjs` **EXIT=0，79 组全跑通零崩溃**（满足验收「跑通零崩溃」；立项时 54 组现已随历史轮扩至 79）。分布 **PASS 38 / PASS\* 23 / FAIL 2 / ⛔ 16**。T-151 修订面桶（判据/夹具换面）= **35 条**：PASS 16 / PASS\* 11 / FAIL 2 / ⛔ 6（体例沿修订 43：P4/P7、P8/P10/A05-14、P20、P8R/P10R/P27a..d、P27e/i、P28c/f/g/i/j 自原桶移入，不双计）。
+
+### 27.2 两条 FAIL = 一项真缺陷 + 一项已知（均移交，不自行落码）
+| # | 组 | 定性 | 详情 |
+|---|---|---|---|
+| 1 | **P5/A05-07** | **真 src 缺陷 → 新立 BD-49** | 见 §27.3 |
+| 2 | **P17** | **已知开放 · 非新回归** | BD-12（save-schema 无 §2.3 meta 段，concept §7 MVP 线外）；FAIL 本体有效，本轮仅把正文镜像 schema **v3**（v2→v3 新增 runs/onboarded，BD-32/T-097），不改判定 |
+
+### 27.3 【BD-49】道具音效派发字段断链（真卡生效帧恒零发声）
+- **根因**：`powerups §4` v1.22 将 `powerup:used` payload 字段改名 `affectedSlots`→**`affectedCells`**；发射侧 `beads-game.ts:905` 已用新字段 `affectedCells`，但音频派发守卫 `beads-game.ts:1488-1492` **仍读旧字段 `payload.affectedSlots`** ⇒ 恒 `undefined` ⇒ `if (!slots || slots.length===0) return;` 早退 ⇒ `sfx_powerup + sfx_dissolve` **真实道具生效帧永不派发**。
+- **取证**：A05-07 注入腿改按现行字段 `affectedCells: []` 验零噪声子句（旧字段注入在现行实现下「恒零发声」= 假通过，已废）；真卡帧腿（`tapAt(CARD_XY)`）实测 `powerup:used=1` 但派发无 POWERUP/DISSOLVE ⇒ **FAIL 有效**。
+- **单测不构反证**：`audio-dispatch.test.ts:276/284/422` 夹具**同用旧字段** `affectedSlots` ⇒ 单测绿与实现错并存（先问再写口径）。**修法（移交落码）**：handler 改读 `payload.affectedCells` 并同步修测试夹具。**P1**（玩家使用道具在该路径下听不到反馈，属可玩性硬伤）。
+- **✅ 已闭合（WXG-T-154，2026-09-17 当晚）**：handler 改读 `affectedCells`（L171 契约字段）+ 夹具三处同步订正；复验 = beads 单测 **409/409** 绿 + G4 探针整轮复跑 **A05-07 → PASS**（真卡腿双 clip 各 1，注入腿零发声子句保持），全组零崩溃且无新回归（总盘 FAIL 仅剩 P17/BD-12 已知项；证据 `temp/bd49-probe.log`，未 commit）。
+
+### 27.4 【规格漂移 · 移交设计裁定】P18 in-level 快照 vs `save-progress §8-9`
+- v2.0 断点续玩快照**每次落子落档 1 次**（逐步实测 placed=1⇒writes 0→1、placed=2⇒writes 1→2）⇒ 与 §8-9 现文「PLAYING 零写档 / 结算帧恰 1 次」**互斥**。快照是 v2.0 有意设计 ⇒ 属**规格未随特性回写**，非实现 bug。
+- **处置**：按 P26 / §J.1 体例记 **⛔ 移交设计裁定**（不占 BD 号、不判 FAIL），**复活条件 = §8-9 回写（区分快照写档与业务写档）**。旧轮「注入落子 156 次不可构造」的 PASS\* 随 v2.0 恒等式（落子数 ≡ 错位珠数）失效，已删。
+
+### 27.5 ⛔ 16 条主体 = 供料侧判据整体不可构造（同 §J.1 体例，非实现缺陷）
+P2 / P6 / P12 / P20 / P21 / A05-14 视觉半边 / P7④⑤ 满槽半边等 —— v2.0 供料关停 ⇒ `tray:spawned`/`tray:full` 恒 0，供料类判据**不可构造**（P21 平凡真不记绿），**复活条件 = 供料复活**。
+
+### 27.6 【订正 · 覆盖 §26 之外本单前轮的错判】P3 / P19 由「适配缺口」改判 PASS\*/PASS
+- 二跑（`evidence/g4-probe-v1.3-t151.log`，21:45）曾把 P3/P19 判为「新手引导死亡·移交设计裁定」，据因写为「引导依赖已关停的首供」。**三跑证伪该定性**：把夹具前置由 `retrieveOneMisplaced`（仅取 1 颗）改为 `primePlaceable`（连续取至盘面出现底色==持有珠色的可落空格）后 —— **P3 → PASS\***（三通道齐、hint 行主序最前匹配、600ms 呼吸、BD-32 老玩家重现性回归成立）、**P19 → PASS**（accent_blue 2px 叠加环落目标格）。
+- **结论**：引导本身在 v2.0 下**功能正常**，前轮 FAIL 是**探针前置不足**（开局全满、取一颗后唯一空格底色≠珠色 ⇒ hint 恒 -1），属**探针缺陷**（修订 15bis 同款）而非实现缺口 ⇒ **不启 BD-50**（本单评估后确认无第二项新实现缺陷；BD 序列仍停在 BD-49）。
+
+### 27.7 效力边界（保留并强化）
+- 本节全部取证在 **`[N]` 指令流 + 单测层**；`[B]` 屏幕像素、`[Cocos]`、`[R]` 真机、`[Device]` 一律**不因 Node 绿而抬升**（K-037）。
+- **光敏性红线不得据本轮宣称达标**（同 §26.3）。A05 段 `[B]/[P]` 覆盖条目仍 ⛔（修订 31）。
+- 全部变更（`production/qa/beads/g4-probe-v1.1.mjs`、`evidence/g4-reverify-v1.8-t151.log`、本报告、台账）**未 commit / 未 push**，待主理人走门禁入库。
+
+### 27.8 【勘误 · WXG-T-154（2026-09-17 当晚）】BD-40/41 撞号残留订正（BD-42 事项闭合）
+- **正本号裁定**：宿主双驱动 = **BD-41**（backlog「BD-41」行为准）；**BD-40** 号位现属「`ctx:check` 未挂 verify」门禁缺口条目。§25 历史轮（T-119）正文内 22 处「BD-40」均指双驱动问题，**属当时登记号位，不改写历史句**，以本声明为唯一订正面；归档件（`## WXG-T-122` 背景段）同理。
+- **live 文本已订正**：`beads-browser-probe.mjs:263/1074/1200` 三处输出串/注释改「BD-41（原记 BD-40，已随 WXG-T-154 订正）」。
+- **diag 脚本移出 evidence**：`diag-p12-slot-sample / diag-p3-onboarding / diag-p5-fixtures / diag-t119-a05` 四件 `git mv` 至 `production/qa/beads/diag/`（同深度迁移，`ROOT` 四层向上相对引用不破）；本报告 `evidence/diag-` 引用已全部改 `diag/diag-`。诚实注记：`diag-p3-onboarding.mjs` 在 v2.0 下跑到 `giveTrayBead` 环节自然失效（历史一次性诊断快照，非门禁件，不维护）；迁移复验以 import 通路可达为准。

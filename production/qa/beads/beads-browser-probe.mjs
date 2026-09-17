@@ -260,7 +260,7 @@ function supportMs(series, onsetThr, pcArr, gridMs) {
 /**
  * 帧长（毫秒）——**从同一份实测序列**取增量中位数，不预设 16.67：
  *   key='pc' ⇒ game 时基（`snapshot.pulseClock` 增量）；key='t' ⇒ 墙钟（`performance.now` 增量）。
- * 两个时基的差异本身就是 CLK-01/BD-40 的判据面。
+ * 两个时基的差异本身就是 CLK-01/BD-41（原记 BD-40，已随 WXG-T-154 订正） 的判据面。
  */
 function frameMs(series, key) {
   const d = [];
@@ -1071,7 +1071,7 @@ try {
           + `渲染帧 ${clk.draws}、rAF 回调 ${clk.raf}、Cocos schedule(0) 回调 ${clk.sch}；\`pulseClock\` 增量 ${clk.gameClockDeltaMs.toFixed(0)}ms、`
           + `倒计时 \`remaining\` 下降 ${clk.remainingDeltaS.toFixed(2)}s ⇒ **仿真/墙钟 = ${clk.ratio.toFixed(3)}**（判据 ≈1.00，±0.10 内过）`
           + `；fixedDt = ${clk.fixedDt.toFixed(5)}、maxSubSteps = ${clk.maxSubSteps}、clampedFrames = ${clk.clamped}`
-          + ` ⇒ **${okRatio ? '单驱动，时基一致' : '双驱动确证：App 自驱 rAF 与 CocosLoopBridge 的 schedule 同时推进 app.tick（合计 ≈2 倍帧步）'}**（登记 **BD-40**，见报告 §25.4）。`);
+          + ` ⇒ **${okRatio ? '单驱动，时基一致' : '双驱动确证：App 自驱 rAF 与 CocosLoopBridge 的 schedule 同时推进 app.tick（合计 ≈2 倍帧步）'}**（登记 **BD-41（原记 BD-40，已随 WXG-T-154 订正）**，见报告 §25.4）。`);
       }
 
       // gate 实验
@@ -1197,7 +1197,7 @@ try {
         + `\n       **独立换算交叉校验**：由 `+`CLK-01`+` 的仿真/墙钟比 ${clk ? clk.ratio.toFixed(3) : '—'} 折算同一 game 间距 ⇒ 墙钟速率 ≈ ${derivedRate === null ? '—' : derivedRate.toFixed(2)} 次/秒（与直测同量级）`
         + `\n       **⇒ 判据面不成立（记 ⊘，拒绝判定）**：同一次会话内**两法相差 ${(j.rateWall && derivedRate ? (derivedRate / j.rateWall) : NaN).toFixed(2)} 倍**`
         + `（直测 ${j.rateWall === null ? '—' : j.rateWall.toFixed(2)}/s vs 换算 ${derivedRate === null ? '—' : derivedRate.toFixed(2)}/s）⇒ **双驱动宿主上「墙钟」这一个量本身不稳定**（仿真/墙钟比随负载漂移）。`
-        + `\n       ⇒ **可确证的事实（BD-40）**：宿主仿真时基 = **${clk ? clk.ratio.toFixed(3) : '—'} × 墙钟** ⇒ 同一「game 时基 500ms」的门在墙钟上只值 ≈ **${clk ? (500 / clk.ratio).toFixed(0) : '—'} ms** ⇒ 若真机同为双驱动，则墙钟有效闪烁 ≈ **${clk ? (2 * clk.ratio).toFixed(1) : '—'} 次/秒 > §3.8 的 2 次/秒**（**须 \`[R]\` 复核**，见 DEV-01）。`
+        + `\n       ⇒ **可确证的事实（BD-41（原记 BD-40，已随 WXG-T-154 订正））**：宿主仿真时基 = **${clk ? clk.ratio.toFixed(3) : '—'} × 墙钟** ⇒ 同一「game 时基 500ms」的门在墙钟上只值 ≈ **${clk ? (500 / clk.ratio).toFixed(0) : '—'} ms** ⇒ 若真机同为双驱动，则墙钟有效闪烁 ≈ **${clk ? (2 * clk.ratio).toFixed(1) : '—'} 次/秒 > §3.8 的 2 次/秒**（**须 \`[R]\` 复核**，见 DEV-01）。`
         + `\n       ⇒ 因此本条**既不利于产品、也不利于宿主**：它只说明「墙钟口径在双驱动宿主上不可测」。产品侧结论仍以 **P4S-02（game 时基 ≥500ms ✓）** 与 **指令流层（T-118）** 为准。`
         + `\n       栅格诚实声明：本上下文**每样本 = 一个渲染帧长（实测 game ${gA.toFixed(2)}ms / 墙钟 ${wA.toFixed(2)}ms）**，故「起点帧」有 ≤1 栅格的量化（§25.12 缺陷 D6 在**原生宿主**上不可消除；这也是 P4S-01/02 改用精栅格上下文的原因）。`);
     } else {

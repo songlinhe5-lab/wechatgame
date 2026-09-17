@@ -52,6 +52,8 @@ const STEPS = Object.freeze([
   'check:secrets',
   'check:tasks',
   'check:links',
+  // WXG-T-155 / K-035：可访问性矩阵「声称落地 ⇒ 代码锚点命中」机检（防假绿）。
+  'check:a11y',
   'check:mcp',
   'levels:check',
   'typecheck',

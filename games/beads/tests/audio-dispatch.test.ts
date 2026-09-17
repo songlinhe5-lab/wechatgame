@@ -273,15 +273,17 @@ describe('A05-07/08/10/14 · 事件→clip 映射（同帧分层 / 三档分流 
   it('一次 powerup:used ⇒ 同帧两条并存（sfx_powerup + sfx_dissolve）', () => {
     const h = makeHarness();
     clearPlayed(h);
-    h.events.emit('powerup:used', { type: 'clear-slot', affectedSlots: [0, 1] });
+    // BD-49（WXG-T-154）：夹具字段必须与真链 L171 事件契约（`affectedCells`）同步，
+    // 否则旧字段自证循环——handler 断链时单测仍绿，不构反证。
+    h.events.emit('powerup:used', { type: 'clear-slot', affectedCells: [{ row: 0, col: 0 }, { row: 0, col: 1 }] });
     h.services.audio.flush(FRAME);
     expect(h.audio.played).toEqual([AUDIO_CLIP_POWERUP, AUDIO_CLIP_DISSOLVE]);
   });
 
-  it('affectedSlots 为空 ⇒ 零发声（powerups §4 零噪声原则）', () => {
+  it('affectedCells 为空 ⇒ 零发声（powerups §4 零噪声原则）', () => {
     const h = makeHarness();
     clearPlayed(h);
-    h.events.emit('powerup:used', { type: 'clear-slot', affectedSlots: [] });
+    h.events.emit('powerup:used', { type: 'clear-slot', affectedCells: [] });
     h.services.audio.flush(FRAME);
     expect(h.audio.played).toEqual([]);
   });
@@ -419,7 +421,7 @@ describe('A05-11/12/13 · 告急心跳（与 1000ms 视觉脉冲同周期同相�
     h.events.emit('bead:placed', { row: 0, col: 0, colorIdx: 0, slot: 0 });
     h.events.emit('combo:up', { streak: 2, multiplier: 2, tier: 1 });
     h.events.emit('tray:full', {});
-    h.events.emit('powerup:used', { type: 'random', affectedSlots: [1, 2] });
+    h.events.emit('powerup:used', { type: 'random', affectedCells: [{ row: 1, col: 2 }, { row: 3, col: 4 }] });
     h.services.audio.flush(FRAME);
     expect(h.audio.played.length).toBeLessThanOrEqual(AUDIO_MAX_PER_FRAME);
     expect(h.audio.played.length).toBe(5); // place + t1 + tray_full + powerup + dissolve

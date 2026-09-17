@@ -1484,10 +1484,12 @@ export class BeadsGame implements Game {
       bus.on('tray:selected', () => this._sfx(AUDIO_CLIP_SELECT)),
       bus.on('bead:rejected', () => this._sfx(AUDIO_CLIP_REJECT)),
       // A05-07：道具生效帧两条并存（id 不同 ⇒ 不被同帧去重吞掉）；
-      //         `affectedSlots` 为空 ⇒ **零发声**（powerups §4 零噪声原则）。
+      //         `affectedCells` 为空 ⇒ **零发声**（powerups §4 零噪声原则）。
+      //         BD-49（WXG-T-151 实证 / WXG-T-154 修复）：v1.22 payload 改名旧字段
+      //         `affectedSlots` 残留读本分支恒 undefined 早退 ⇒ 真链零发声；现读 L171 契约字段。
       bus.on('powerup:used', (payload) => {
-        const slots = (payload as { affectedSlots?: readonly number[] }).affectedSlots;
-        if (!slots || slots.length === 0) return;
+        const cells = (payload as { affectedCells?: readonly { row: number; col: number }[] }).affectedCells;
+        if (!cells || cells.length === 0) return;
         this._sfx(AUDIO_CLIP_POWERUP);
         this._sfx(AUDIO_CLIP_DISSOLVE);
       }),

@@ -253,26 +253,30 @@ export function confettiFrame(
 
 /**
  * 无旋转变换通道 ⇒ 逐帧算四角（规格卡几何式，hw=3/hh=7）。`out` 为 8-float 扁平点列，
- * 由调用方**逐枚新建**：`polygon()` 按引用存 points，不可跨帧共用 scratch（G3 判例）。
+ * `off` 指定写入段偏移（默认 0 兼容旧调用）。
+ * `[v1.4·WXG-T-128 裁定 B（用户 2026-09-17）]` 支持写入**预分配 scratch 缓冲的段**：
+ * 调用方传 `Float32Array(352)` + `off = idx × 8` ⇒ 44 枚各占固定 8-float 段、逐帧整段重写，
+ * `polygon()` 以 subarray 视图引用（framework 契约已放宽；段在下一帧前重写安全，见契约注）。
  */
 export function confettiQuad(
     cx: number,
     cy: number,
     thetaDeg: number,
-    out: number[],
-): number[] {
+    out: number[] | Float32Array,
+    off = 0,
+): number[] | Float32Array {
     const hw = CONFETTI_W / 2;
     const hh = CONFETTI_H / 2;
     const r = (thetaDeg * Math.PI) / 180;
     const c = Math.cos(r);
     const s = Math.sin(r);
-    out[0] = cx - hw * c - hh * s;
-    out[1] = cy - hw * s + hh * c;
-    out[2] = cx + hw * c - hh * s;
-    out[3] = cy + hw * s + hh * c;
-    out[4] = cx + hw * c + hh * s;
-    out[5] = cy + hw * s - hh * c;
-    out[6] = cx - hw * c + hh * s;
-    out[7] = cy - hw * s - hh * c;
+    out[off] = cx - hw * c - hh * s;
+    out[off + 1] = cy - hw * s + hh * c;
+    out[off + 2] = cx + hw * c - hh * s;
+    out[off + 3] = cy + hw * s + hh * c;
+    out[off + 4] = cx + hw * c + hh * s;
+    out[off + 5] = cy + hw * s - hh * c;
+    out[off + 6] = cx - hw * c + hh * s;
+    out[off + 7] = cy - hw * s - hh * c;
     return out;
 }

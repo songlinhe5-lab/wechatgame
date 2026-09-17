@@ -61,6 +61,7 @@
     "preview:clip:beads": "node tools/scripts/render-harness-clip.mjs --game=beads",
     "commitlint": "commitlint",
     "verify": "node tools/scripts/verify-all.mjs",
+    "check:a11y": "node tools/scripts/check-a11y-anchors.mjs",
     "verify:strict": "node tools/scripts/verify-all.mjs --strict",
     "verify:selftest": "bash tools/scripts/verify-all-selftest.sh",
     "selftest:fast": "node tools/scripts/selftests.mjs --tier=fast",
