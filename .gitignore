@@ -103,3 +103,4 @@ games/*/project.private.config.json
 # vendor skill 克隆是内嵌 git 仓库：git 只能记空 gitlink（内容会静默丢失）⇒ 不纳管，保留在盘上
 my-skills/_repos/mattpocock-skills/
 my-skills/_repos/superpowers/
+games/beads/vitest.config.ts.timestamp-*.mjs
