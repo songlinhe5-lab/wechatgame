@@ -288,7 +288,7 @@ function runSelftest() {
   assert(
     '11 WARN 不改变退出码（含 --strict）——「观察项」不得被聚合器擅自升级为阻断',
     summarize([byName(warnRound, WRN.name)], { strict: false }) === 0
-      && summarize([byName(warnRound, WRN.name)], { strict: true }) === 0,
+    && summarize([byName(warnRound, WRN.name)], { strict: true }) === 0,
   );
   assert(
     '12 WARN 与 FAIL 并存时仍以 FAIL 为准（退 1）',
