@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3196,
       "lines": 117,
-      "sha256": "ca79f46e357a475f08edafbca53867422dbd306f31b4e35f37b3cb3852a9047f",
+      "sha256": "b277f39f31073cb5f88c2cf4d493fe5bf90f615e834f56767cfce54b2fc5a94a",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4514,
       "lines": 86,
-      "sha256": "0677b1d8993d0a6d633bd5bb4d515b759955b04063f97545e1e6e5409703c7d8",
+      "sha256": "e2e583870193ee922c8d2dfa68f543d0e383660b40f9e154e7739423b3467095",
       "tier": "normal",
       "sections": [
         {
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 61 行 / 3990 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 61 行 / 3980 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -768,7 +768,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 435 行 / 27735 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 435 行 / 27796 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
@@ -82257,9 +82257,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 27735,
+      "tokens": 27796,
       "lines": 435,
-      "sha256": "97caeb92aa8114651f7087eb1db706bcdff6591ddcce2fc7bda4d241409204b0",
+      "sha256": "e670f6b36923d04d04f3babd1843b07fad9c31bc6714214e4ed7b438ddb155ad",
       "tier": "normal",
       "sections": [
         {
@@ -82267,7 +82267,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 436,
-          "tokens": 27719,
+          "tokens": 27780,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -82523,7 +82523,7 @@
           "level": 2,
           "startLine": 412,
           "endLine": 424,
-          "tokens": 1004,
+          "tokens": 1038,
           "summary": "名称：beads · G7 不可填格轻压 + sfx_denied 音频原子批落码（T-128 落码③）",
           "keywords": [
             "WXG",
@@ -82536,7 +82536,7 @@
           "level": 2,
           "startLine": 425,
           "endLine": 436,
-          "tokens": 826,
+          "tokens": 853,
           "summary": "标题：beads·G6 结算彩带落码（零 RNG 44 枚 sandwich，T-128 拆分④）",
           "keywords": [
             "WXG",
@@ -82549,9 +82549,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 3990,
+      "tokens": 3980,
       "lines": 61,
-      "sha256": "4bce13b909b426fd77dc7aa6a030b215e6cd90679df6e3e8e35223d3c525a42a",
+      "sha256": "ca31bc024c357963ebfee86748def04b13f9bf4111cee85763fc204d82797aba",
       "tier": "hot",
       "sections": [
         {
@@ -82559,7 +82559,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 62,
-          "tokens": 3981,
+          "tokens": 3972,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

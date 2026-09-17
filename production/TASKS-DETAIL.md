@@ -412,24 +412,24 @@
 ## WXG-T-152
 
 - **名称**：beads · G7 不可填格轻压 + `sfx_denied` 音频原子批落码（T-128 落码③）
-- **负责**：主理人(Qoder)　**状态**：🔶 代码 + 判据 + 文档原子批完成，**本会话零提交**　**P1**
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（随 `7fc1c8a` 入库，与 T-153 同笔：两批在共享源文件上不可按文件干净拆分，消息双号并列如实登记）　**P1**
 - ⚠️ **撞号改号记**：本单开工时头注「下一可用号 151」，落码中并发会话随 `adb471a`（T-099 收口）把 T-151 登记为 **G4 探针复跑单**⇒ 两单撞号。本单产物（games/beads 内 31 处引用）已全部改领 **T-152**，QA 表的 T-151 一字未动。教训入候选：领号后、收口前必须重读头注 + `git log --oneline -6` 双向校对（K-045/K-046 同源），尤其长会话。
 - **依据**：WXG-T-128 用户裁定 3（2026-09-16「新增第 20 个音频剪辑」）+ 裁定 4（G7 极轻非惩罚反馈）；规格真源 `assets-spec §1.6.7` / `ux-spec §5`「不可填格轻压」行 / `audio-events §5` Q-A05-5。本单为**执行已登记决策**，零新规格值。
 - **原子批六项（A05-24 活测试禁拆，拆开当场红）**：① `systems-index §3.12` `AUDIO_CLIP_TOTAL` 19→20 + 总线行 + 头注版本行 **v1.26**（顺手弥合 v1.25 漂移）② changelog v1.26 新行 ③ `tuning.ts` G7 常量块 + `AUDIO_CLIP_DENIED` + TOTAL=20 ④ `audio-voices.ts` 音色配方（非冻结，程序化 0 KB；硬值只有 120ms 引 §5）⑤ `audio-dispatch.test.ts` `SPEC_CLIPS` +id + cap 120 ⑥ `audio-events.md` §1 表行/计数/§3.2 限流 0.25s/Q-A05-5 闭环标记；连带转正：ux-spec L211、bead-grid §4、input-control §2.4、art-bible §7、accessibility ⑥、test-cases TC-GRID-04/TC-INP-05。
 - **视觉+时序落码（game/view 分工沿 L5）**：`state.ts` 快照 denied 四字段预分配（多格并存 ≤4 槽，工程容量非规格值）；`beads-game.ts` `_armDeniedFx`/`_stepDeniedFx`（触发 = 5c 旁路 + `_placeSelected` ignored 且 reason∈{occupied,locked}；void 守卫集中一处；同格 250ms 重启门；门记忆不清 row/col，零残留由「在播才导出」保）；`scene-vfx.ts` `deniedPressScale` 纯函数（1.00→0.96@40ms→1.00@120ms ease-out 分段）；`view-model.ts` 消费（scale 只乘珠体 46 基准不碰 L11 垫；locked 走 `drawLockedBead` size 形参通道；D1 = `drawStateRing` 1px `slotBorder` α1 静态环；优先级 pop/wave > denied）。
 - **判据**：新建 `tests/denied-press.test.ts` **18 例**（包络三关键相位 / game 红线：零事件零状态写、void 零反馈、同格门、多格并存、容量逐出、120ms 零残留、静音视觉在 / 命令层：谷帧宽度、图元 +0、D1 +1、护栏）。测试方法两个坑已踩实：AudioScheduler minInterval 从**派发时刻**起算（中途不 flush 会并发同刻被限流吞）⇒ helper `advFrames` 逐帧 advance+flush；零分配。
-- **验证（待总跑）**：中段 beads 全量 **33 files / 387 passed**、`tsc --noEmit` exit 0（改号后需复跑）；framework:sync / check:tasks / check:links 待收口。
+- **验证（收口已补跑）**：改号后 beads 全量 **387 passed**、`tsc --noEmit` exit 0；framework:sync / check:tasks / check:links 随 `7fc1c8a` 提交前全绿（pre-commit 五门含 ctx 硬门）。
 - **提交边界**：工作树另有并发 QA 会话在途改动（`production/qa/beads/g4-probe-v1.1.mjs`、`_diag099-run.mjs`、`g4-probe-v1.2-t099.mjs`）⇒ **勿整文件 `git add` 误带**；本单文件面 = games/beads src/tests/design/art + qa/test-cases.md + production 台账两件。
 - **边界**：像素级目视/真机听感待执行（K-037；A05-26 `[P]`）；音色调参（Hz/增益）系工程占位非规格。
 
 ## WXG-T-153
 
 - **标题**：beads·G6 结算彩带落码（零 RNG 44 枚 sandwich，T-128 拆分④）
-- **负责/状态**：主理人(Qoder) ｜ 🔶 代码+判据完成，**待提交**（本会话零 commit）
+- **负责/状态**：主理人(Qoder) ｜ ✅ 完成（随 `7fc1c8a` 入库，与 T-152 同笔，拆分理由见 `## WXG-T-152` 状态行）
 - **依据**：`assets-spec §1.6.6`（v1.4-r6 定稿卡）+ `ux-spec §5`「结算彩带」行（800ms，复用「过关庆祝」窗口不新造时长）。执行已登记决策，零新规格值。
 - **落码六件**：`tuning.ts` G6 常量块 16 项；`palette.ts::CONFETTI_COLORS`（5 色**引用既有 token** 零新 hex，排除暖橙/奶白/暗档）；`state.ts` 快照 `confettiProgress` 单标量（L5：44 枚全 idx 派生 ⇒ 无需逐枚通道，同 sweep 判例）；`beads-game.ts` `_confettiElapsedMs`（-1 哨兵）+ `_stepConfettiFx`（update 表现层不冻结位）+ arm = `_stepLevelClear` 延迟门 `open()` 同帧（**D1 直开路径天然不臂** = 整条关停）；`scene-vfx.ts` 六纯函数（baseX/phase/spawnY/isForeground/frame/quad，公式**字面移植**）；`view-model.ts::drawConfetti` 两层 sandwich（MAIN 36 → scrim → FG 8）+ 禁飞带跳画 + `CONFETTI_SCRATCH` 标量槽。
 - **判据**：新建 `tests/confetti.test.ts` **14 例**三段——① 纯函数（均布 min gap 9.000 > 带宽 6 / max 25.5 < 30 先 node 实测再定阈值；逐帧 y 单调、摆动 ±18、1.25 转、α 淡出、钳制、四角刚体边长 6×14）② 真链（波浪门开面板同帧臂、零玩法事件、播放期零新 clip（只 panel_in/star）、800ms 自清、D1 真链全程 0、下一关可再臂）③ 命令层（p=0.2 44 枚层序、p=0.65 禁飞带跳画且被跳枚 α 恒 1、D1/终帧净 0、色集 ⊆ 5 色禁暖橙）。踩坑登记：识别器初版误捕 HUD 区同色（丁香紫）**斜置 40×6 大图元** ⇒ 加 bbox ≤16 尺寸闸（彩带任意旋转 bbox ≤ hypot(6,14)≈15.3）。
-- **验证**：`tsc --noEmit` exit 0；beads 全量 **34 files / 401 passed**（387+14）；framework:sync / check:tasks / check:links 见收口注。
+- **验证**：`tsc --noEmit` exit 0；beads 全量 **34 files / 401 passed**（387+14）；framework:sync（镜像写入 6）/ check:tasks（18 行/18 节）/ check:links 均随 `7fc1c8a` 提交前跑绿。
 - **两项规格差异（诚实登记于 §1.6.6 落码回写注，未改规格本体，待 art 复验）**：① 「预分配 352-float scratch」在 `polygon()` 按引用存 points 的现契约下不成立 ⇒ 采 G3 判例逐枚新建 8-float（仅 800ms 窗口内分派）；② 卡文案「飘落」vs 公式 `y = spawnY − 1334×1.15×easeIn(p)` 单调递减（上行出屏）⇒ 按硬纪律「只抄不改」以公式为准，若裁定改向下属**规格修订**。
 - **提交边界**：同 T-152——勿整文件 `git add` 误带并发 QA 在途文件；本单文件面 = games/beads src/tests/art/assets-spec + qa/test-cases.md + production 台账两件。
 - **边界**：像素级观感（`[Cocos]` 连拍）与真机待执行（K-037）；TC-PER-26 整条不判 PASS。
