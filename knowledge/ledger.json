@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 51,
+  "nextId": 53,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -856,6 +856,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-051",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "规格里的「图元/包体增量」数值是立项时点的推论，落码后必须差分复算、不得沿用",
+      "contentHash": "0c3bf507402b87c8a73bcce5998e70bad2dfc4987b3e876430ecbbbe7ae516fd",
+      "sourceTask": "WXG-T-150",
+      "addedDate": "2026-09-17",
+      "lastAccess": "2026-09-17",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-052",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "动效时长常量一旦决定「事件发生在哪一帧」，它就是玩法时序而非表现层参数，判据与守卫都得换档",
+      "contentHash": "c182c16afeb8e9f00d1c758a75ec4899868e2944a29820f9d59e3a750c620524",
+      "sourceTask": "WXG-T-150",
+      "addedDate": "2026-09-17",
+      "lastAccess": "2026-09-17",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1088,6 +1122,25 @@
       "kind": "updated",
       "ids": [
         "K-050"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-17",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-051",
+        "K-052"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-17",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-051"
       ],
       "note": null
     }

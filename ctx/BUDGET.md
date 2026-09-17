@@ -27,7 +27,7 @@
 | 3 | `games/beads/art/art-bible.md` | 31975 | 490 | normal |
 | 4 | `production/qa/beads/test-cases.md` | 30525 | 543 | hot |
 | 5 | `games/beads/art/accessibility.md` | 26872 | 183 | normal |
-| 6 | `production/TASKS-DETAIL.md` | 24305 | 383 | normal |
+| 6 | `production/TASKS-DETAIL.md` | 24539 | 392 | normal |
 | 7 | `my-skills/_repos/superpowers/RELEASE-NOTES.md` | 23461 | 1400 | normal |
 | 8 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md` | 19356 | 1649 | normal |
 | 9 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-30-codex-efficiency-fixes.md` | 13107 | 1009 | normal |
@@ -52,7 +52,7 @@
 | `games/beads/art/art-bible.md` | 31975 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 30525 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 26872 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS-DETAIL.md` | 24305 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 24539 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/RELEASE-NOTES.md` | 23461 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md` | 19356 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-30-codex-efficiency-fixes.md` | 13107 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
