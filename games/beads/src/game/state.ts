@@ -11,6 +11,7 @@
 import type { SlotState } from '../entities/tray.js';
 import type { CellState } from '../entities/grid.js';
 import {
+  DENIED_MAX_CELLS,
   POWERUP_FREE_USES,
   SOLVER_MAX_CELLS,
   type BeadsTuning,
@@ -246,11 +247,27 @@ export interface BeadsSnapshot {
    */
   sweepProgress: number;
   /**
+   * G6 `vfx_confetti` 结算彩带（WXG-T-153 / `assets-spec §1.6.6`）：44 枚全由 idx 派生
+   * ⇒ 同 sweep 同构，一个单调标量（0 = 不绘制/未激活）；分布/逐帧几何全在 view 侧纯函数推导（L5）。
+   */
+  confettiProgress: number;
+  /**
    * G4 `vfx_complete_wave` 过关庆祝波浪（WXG-T-146 / `assets-spec §1.6.4`）：
    * 全场逐列弹跳 ⇒ **无逐珠坐标**（列号 = 网格 `j`，窗口时长由 `snap.gridCols` 推导）。
    * 0 = 不播放；1 = `WAVE_MS` 走完。同时 = 结算面板的**延迟门**（裁定 1）。
    */
   waveProgress: number;
+  /**
+   * G7 `vfx_denied_press` 不可填格轻压（WXG-T-152 / `assets-spec §1.6.7`）：
+   * **多格并存**（同格 250ms 门，不同格可同时在播）⇒ 定长槽数组
+   * （容量 `DENIED_MAX_CELLS` = 工程选择，非规格值），`row = -1` = 空槽，
+   * `deniedProgress[k]` 0..1 = 该槽单调进度（包络曲线 view 侧纯函数推导，L5 同 `place*` 判例）。
+   * 预分配一次 ⇒ 逐帧只写值，热路径零分配。
+   */
+  deniedRows: number[];
+  deniedCols: number[];
+  deniedProgress: number[];
+  deniedCount: number;
   /** GAP-03 首屏引导是否激活（runs==0 且本会话未落过子）。 */
   onboarding: boolean;
   /** GAP-03/04 单一 `hint` 目标格（行主序首个匹配首珠色的空槽；无 = -1）。 */
@@ -368,7 +385,13 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     solverLandSteps: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
     solverLandCount: 0,
     sweepProgress: 0,
+    confettiProgress: 0,
     waveProgress: 0,
+    // G7（WXG-T-152）：与 solver 数组同判例，预分配 ⇒ 逐帧只写值。
+    deniedRows: new Array<number>(DENIED_MAX_CELLS).fill(-1),
+    deniedCols: new Array<number>(DENIED_MAX_CELLS).fill(-1),
+    deniedProgress: new Array<number>(DENIED_MAX_CELLS).fill(0),
+    deniedCount: 0,
     onboarding: false,
     hintRow: -1,
     hintCol: -1,

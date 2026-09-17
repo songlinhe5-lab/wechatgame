@@ -25,6 +25,7 @@ import {
   AUDIO_CLIP_COMBO_T1,
   AUDIO_CLIP_COMBO_T2,
   AUDIO_CLIP_COMBO_T3,
+  AUDIO_CLIP_DENIED,
   AUDIO_CLIP_DISSOLVE,
   AUDIO_CLIP_PANEL_IN,
   AUDIO_CLIP_PANEL_OUT,
@@ -109,6 +110,21 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
     attackMs: 8,
     filter: 'lowpass',
     filterFreq: 520,
+  },
+  // §5「不可填格轻压 120ms｜极轻闷『哒』」（WXG-T-128 裁定 3 / WXG-T-152）：
+  // 非惩罚语义 = 更低增益 + 更短时长 + 更低频（对照 reject 的 0.6/200ms）。
+  // ⚠️ Hz/增益 = 工程占位（§4.3 只冻结结构：正弦 + 下滑 + 极低通）；唯一硬值 =
+  // 时长上限 120ms（引 `ux-spec §5`「不可填格轻压」行，与视觉同窗）。
+  [AUDIO_CLIP_DENIED]: {
+    bus: 'sfx',
+    durationMs: 120,
+    wave: 'sine',
+    freq: 120,
+    glideTo: 88,
+    gain: 0.25,
+    attackMs: 6,
+    filter: 'lowpass',
+    filterFreq: 420,
   },
   // §5「消除（道具）200ms｜溶解『沙』」：噪声 + 带通。
   [AUDIO_CLIP_DISSOLVE]: {
@@ -330,6 +346,7 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
 
 /**
  * 交给 `Game.audioVoices` 的只读配方表。
- * key 集 = `audio-events §1` 的 19 个 clip id（A05-24 由 `audio-dispatch.test.ts` 机验）。
+ * key 集 = `audio-events §1` 的 20 个 clip id（A05-24 由 `audio-dispatch.test.ts` 机验；
+ * v1.26 起 +`sfx_denied`，WXG-T-152）。
  */
 export const BEADS_AUDIO_VOICES: AudioVoices = VOICE_TABLE;

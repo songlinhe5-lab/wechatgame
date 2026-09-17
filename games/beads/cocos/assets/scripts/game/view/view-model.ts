@@ -54,6 +54,10 @@ import {
   solverSequenceMs,
   WAVE_MS,
   WAVE_LOD_LAYERS,
+  DENIED_RING_LINEWIDTH,
+  CONFETTI_COUNT,
+  CONFETTI_NOFLY_YMIN,
+  CONFETTI_NOFLY_YMAX,
   HINT_PULSE_MS,
   DANGER_PULSE_MS,
   TRAY_FULL_PULSE_MS,
@@ -108,6 +112,7 @@ import {
   POWERUP_INK_STRAW,
   POWERUP_INK_WAND,
   POWERUP_SHADOW_ALPHA,
+  CONFETTI_COLORS,
   STAR_GOLD,
   withAlpha,
   type BeadsPalette,
@@ -129,6 +134,10 @@ import {
 } from '../systems/sprint-settle';
 import { comboBurst, comboParticleOffsets } from './combo-vfx';
 import {
+  confettiFrame,
+  confettiIsForeground,
+  confettiQuad,
+  deniedPressScale,
   solverBeadProgress,
   solverHintAlpha,
   SWEEP_LAYER_COUNT,
@@ -137,7 +146,7 @@ import {
   waveEnvelope,
   waveWindowMs,
 } from './scene-vfx';
-import type { WaveEnvelope } from './scene-vfx';
+import type { ConfettiBeadState, WaveEnvelope } from './scene-vfx';
 
 const FONT = {
   timer: 'bold 44px sans-serif',
@@ -199,7 +208,9 @@ export function buildBeadsView(
   drawPowerupBand(builder, snap, palette);
   drawSweep(builder, snap); // G3 道具生效扫光（§1.6.3）：叠在珠面上、面板与 HUD 之下
   drawComboVfx(builder, snap, palette);
+  drawConfetti(builder, snap, false); // G6 MAIN 36 枚：被 scrim α0.5 压住 = 「远处彩带」（§1.6.6 sandwich）
   drawClearPanel(builder, snap, palette);
+  drawConfetti(builder, snap, true); // G6 FG 8 枚：「近处彩带」；入禁飞带跳过绘制（不淡出，是不画）
   drawFinishPanel(builder, snap, palette);
   drawPausePanel(builder, snap, palette);
   drawFailPanel(builder, snap, palette);
@@ -728,7 +739,19 @@ function drawGrid(
 
       if (cell.state === 'locked') {
         // Locked bead: flat locked fill + 45° hatch (§1.2) — no highlight, no symbol.
-        drawLockedBead(builder, bx, cy, palette);
+        // G7 轻压（WXG-T-152 / §1.6.7）：locked 无垫 ⇒ scale 走 `size` 形参即安全通道
+        //（只缩不胀 ⇒ 零重叠）；D1 退为 1px `slot_border` 静态环（game 侧 120ms 清）。
+        const deniedP = deniedProgressAt(snap, i, j);
+        drawLockedBead(
+          builder,
+          bx,
+          cy,
+          palette,
+          deniedP > 0 && !snap.reduceMotion ? BEAD_CELL * deniedPressScale(deniedP) : BEAD_CELL,
+        );
+        if (deniedP > 0 && snap.reduceMotion) {
+          drawStateRing(builder, bx, cy, BEAD_CELL, palette.slotBorder, 1, DENIED_RING_LINEWIDTH);
+        }
         continue;
       }
 
@@ -821,12 +844,23 @@ function drawGrid(
         draft.lift = wave.dy; // y 轴向上 ⇒ +dy = 微抬
         draft.lodLayers = WAVE_LOD_LAYERS;
       }
+      // G7 轻压（§1.6.7）：就位格。优先级 pop/wave > denied（同格重叠窗口让位；
+      // 实际上就位格不会进 pop/wave，防御性排序）。scale 只进珠体 = `draft.scale`
+      //（G1 同通道，⛔ 不乘 outer ⇒ L11 垫不参与，§1.6.1 层序死结论）；D1 退环无 scale。
+      const deniedP = popProgress <= 0 && !isWave ? deniedProgressAt(snap, i, j) : 0;
+      if (deniedP > 0 && !snap.reduceMotion) {
+        draft.scale = deniedPressScale(deniedP);
+      }
       const opts: FilledBeadOptions = draft;
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
       // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
       // 候选 I 墨 = `palette.slotBorder`（§1.6.2a）⇒ 非 danger/hint 色，不抢玩法语义。
       if (named) {
         drawStateRing(builder, bx, cy, BEAD_CELL, palette.slotBorder, solverHintA);
+      }
+      // G7 D1 退化环：同墨同线宽（§1.6.7 候选甲：size 50、α 恒 1、0 往复）。
+      if (deniedP > 0 && snap.reduceMotion) {
+        drawStateRing(builder, bx, cy, BEAD_CELL, palette.slotBorder, 1, DENIED_RING_LINEWIDTH);
       }
     }
   }
@@ -843,6 +877,18 @@ function solverIsNamed(snap: BeadsSnapshot, row: number, col: number): boolean {
     if (snap.solverCellRows[k] === row && snap.solverCellCols[k] === col) return true;
   }
   return false;
+}
+
+/**
+ * G7 轻压（WXG-T-152 / §1.6.7）：本格在播轻压的进度（`0` = 无）。
+ * 线性扫定长数组 ⇒ 零分配；空槽/过窗槽已由 game 侧写为 `row = -1`（不会误匹配）。
+ */
+function deniedProgressAt(snap: BeadsSnapshot, row: number, col: number): number {
+  const rows = snap.deniedRows;
+  for (let k = 0; k < rows.length; k++) {
+    if (rows[k] === row && snap.deniedCols[k] === col) return snap.deniedProgress[k]!;
+  }
+  return 0;
 }
 
 /** G2′ 相 B：本格的落座序号（`-1` = 不在本序列的落座格里）。同样线性扫（≤6）。 */
@@ -1195,6 +1241,38 @@ function drawSweep(builder: RenderModelBuilder, snap: BeadsSnapshot): void {
   for (let i = SWEEP_LAYER_COUNT - 1; i >= 0; i--) {
     builder.polygon(sweepQuad(i, cx, [0, 0, 0, 0, 0, 0, 0, 0]), {
       fill: withAlpha(BEAD_HIGHLIGHT_HEX, SWEEP_ALPHAS[i]!),
+    });
+  }
+}
+
+// ───────────────────────────── G6 结算彩带（assets-spec §1.6.6 · WXG-T-153）
+
+/** 逐帧复用的标量态槽（只被同步读取，命令不持本对象 ⇒ 热路径零分配）。 */
+const CONFETTI_SCRATCH: ConfettiBeadState = { x: 0, y: 0, theta: 0, alpha: 0 };
+
+/**
+ * G6 `vfx_confetti`：结算面板入场期 44 枚程序化彩带（零 RNG，idx 派生）。
+ * 两层 sandwich（层序死规格）：MAIN 在 `drawClearPanel` 前（scrim 压住），FG 在后；
+ * FG 枚当 y ∈ [447,787]（按钮行/缎带，`clearPanelLayout` 派生）**跳过绘制** ⇒ 保按钮可辨识；
+ * MAIN 不受限。D1（`reduceMotion`）= **整条关停**（纯装饰、零信息量，§1.6.6）。
+ * 逐枚新建 8-float 点列：`polygon()` 按引用存 points（G3 判例）⇒ 规格「预分配 352-float
+ * scratch」在现契约下不成立，差异登记于 §1.6.6 落码回写注；只在 800ms 窗口内分派。
+ */
+function drawConfetti(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  foreground: boolean,
+): void {
+  const p = snap.confettiProgress;
+  if (p <= 0 || snap.reduceMotion) return;
+  for (let idx = 0; idx < CONFETTI_COUNT; idx++) {
+    if (confettiIsForeground(idx) !== foreground) continue;
+    const f = confettiFrame(idx, p, CONFETTI_SCRATCH);
+    // 禁飞带：不是淡出，是不画（可读性硬约束，accessibility C1）。
+    if (foreground && f.y >= CONFETTI_NOFLY_YMIN && f.y <= CONFETTI_NOFLY_YMAX) continue;
+    if (f.alpha <= 0) continue;
+    builder.polygon(confettiQuad(f.x, f.y, f.theta, [0, 0, 0, 0, 0, 0, 0, 0]), {
+      fill: withAlpha(CONFETTI_COLORS[idx % CONFETTI_COLORS.length]!, f.alpha),
     });
   }
 }

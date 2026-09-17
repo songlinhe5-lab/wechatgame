@@ -20,6 +20,7 @@ import {
   AUDIO_CLIP_COMBO_T1,
   AUDIO_CLIP_COMBO_T2,
   AUDIO_CLIP_COMBO_T3,
+  AUDIO_CLIP_DENIED,
   AUDIO_CLIP_DISSOLVE,
   AUDIO_CLIP_PANEL_IN,
   AUDIO_CLIP_PANEL_OUT,
@@ -77,11 +78,12 @@ function tapClearButton(harness: Harness, id: ClearPanelAction): boolean {
   );
 }
 
-/** §1 权威清单（19 条）——A05-24 的双向对账基准。 */
+/** §1 权威清单（20 条；v1.26 起 +`sfx_denied`，WXG-T-152）——A05-24 的双向对账基准。 */
 const SPEC_CLIPS: readonly string[] = [
   AUDIO_CLIP_PLACE,
   AUDIO_CLIP_SELECT,
   AUDIO_CLIP_REJECT,
+  AUDIO_CLIP_DENIED,
   AUDIO_CLIP_DISSOLVE,
   AUDIO_CLIP_POWERUP,
   AUDIO_CLIP_COMBO_T1,
@@ -105,6 +107,7 @@ const DURATION_CAP_MS: Readonly<Record<string, number>> = {
   [AUDIO_CLIP_PLACE]: 120,
   [AUDIO_CLIP_SELECT]: 100,
   [AUDIO_CLIP_REJECT]: 200,
+  [AUDIO_CLIP_DENIED]: 120, // §5「不可填格轻压」行（与视觉同窗，WXG-T-152）
   [AUDIO_CLIP_DISSOLVE]: 200,
   [AUDIO_CLIP_POWERUP]: 400,
   [AUDIO_CLIP_COMBO_T1]: 200,
@@ -176,7 +179,7 @@ function busFromId(id: string): 'music' | 'sfx' | 'ui' {
 }
 
 describe('A05-24 · 清单闭合（tuning clip 集 ≡ §1 表 ≡ voice 表）', () => {
-  it('§1 的 19 个 id 全部在 tuning 有常量、在 voice 表有配方，且无孤儿', () => {
+  it('§1 的 20 个 id 全部在 tuning 有常量、在 voice 表有配方，且无孤儿', () => {
     expect(SPEC_CLIPS).toHaveLength(AUDIO_CLIP_TOTAL);
     expect(new Set(SPEC_CLIPS).size).toBe(AUDIO_CLIP_TOTAL);
     const voiceIds = Object.keys(BEADS_AUDIO_VOICES).sort();

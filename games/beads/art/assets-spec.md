@@ -881,6 +881,20 @@ clamp：p ∈ [0,1]、α ∈ [0,1]；t ≥ 800 ⇒ 不绘制
 图元：**+44 polygon**（固定）；回退阀 44 → 24 枚（§1.6.9）
 ```
 
+**[WXG-T-153 落码回写注（工程侧代落盘，2026-09-17）]** —— 本卡已按下列口径落码（代码 = `tuning.ts` G6 常量块 16 项 + `view/palette.ts::CONFETTI_COLORS` + `game/beads-game.ts::_confettiElapsedMs/_stepConfettiFx`（快照只导出单调标量 `confettiProgress`，L5）+ `view/scene-vfx.ts` 六纯函数 + `view/view-model.ts::drawConfetti` 两层 sandwich；判据 = `tests/confetti.test.ts` 14 例）。**两处与规格原文不同，均诚实登记、未改规格本体，待 art 复验**：
+>
+> 1. **「预分配 scratch 352 float」在现契约下不成立**：`RenderModelBuilder.polygon()` **按引用**保存 points
+>    （`render-model.ts`），跨帧共用一块点列缓冲会让上一帧命令跟着变形 ⇒ 采 G3 扫光同判例：
+>    **逐枚新建 8-float**，仅在 800ms 窗口内分派（窗口外 `drawConfetti` 早退，零常态开销）。
+>    逐帧复用的只有标量态 `CONFETTI_SCRATCH`（x/y/θ/α，命令只抄标量 ⇒ 热路径零分配精神仍守）。
+> 2. **公式与文案方向矛盾**：本卡正文写「飘落」，而 `y = spawnY − 1334×1.15×easeIn(p)` 数学上单调递减
+>    = 屏底起飞**上行出屏**。按硬纪律「只抄不改」**以公式为准**字面移植（测试亦按公式断言单调递减）；
+>    若 art 本意确为下落，需改公式为 `y = spawnY − Δ×easeIn(p)` 的符号反向并重钉 spawn 布局 ⇒ **属规格变更**，归下一轮 v1.5 修订，不在落码批内偷改。
+>
+> 其余按卡执行：arm 时机 = 裁定 1 延迟门到点 `open()` 同帧（D1 直开路径天然不臂 = 整条关停）；
+> 5 色零新 hex（`panel_surface` + `STAR_GOLD` + 珠色 4/5/6 引用既有 token，排除暖橙已入判据）；
+> 禁飞带 = 跳过绘制非淡出（被跳枚 α 仍 1，测试验此）；触发全程零玩法事件、零新 clip。
+
 #### 1.6.7 `vfx_denied_press` — 不可填格轻压（**用户已拍板·真源已入 `ux-spec §5`**） `[v1.4·G7]` P2
 
 ```

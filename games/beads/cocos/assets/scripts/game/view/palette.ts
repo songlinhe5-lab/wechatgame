@@ -190,6 +190,19 @@ export const BG_LIFT_HEX = '#F4F2FA';
  *  珠色2 柠黄同值但**语义不同源**——结算场景珠面不在场，无 §3.5 冲突）。 */
 export const STAR_GOLD = '#FFD23F';
 
+/**
+ * G6 结算彩带 5 色子集（`assets-spec §1.6.6`；全部引用既有 token，**零新 hex**）。
+ * 显式排除：珠色3 暖橙 `#F59B23`（§3.5「暖橙仅珠子本体」）、珠色2 柠黄（与
+ * STAR_GOLD 同值——取 STAR_GOLD 语义）、珠色1 奶白（与 panel 近重）、珠色8/9/10 暗档（落白面板读作污渍）。
+ * 消费方按 `idx mod 5` 取色（星形/圆点不参与，无编码职能，A5 装饰层）。 */
+export const CONFETTI_COLORS: readonly string[] = Object.freeze([
+  DEFAULT_PALETTE.panel, // panel_surface #FFFFFF
+  STAR_GOLD, // #FFD23F（结算语义同源，非珠色2）
+  BEAD_PALETTE[3]!, // 珠色4 草绿 #3FBF6B
+  BEAD_PALETTE[4]!, // 珠色5 玫红 #E84C3D
+  BEAD_PALETTE[5]!, // 珠色6 丁香紫 #8E6FD9
+]);
+
 // ─────────────────────────── empty-socket target-colour hint (assets-spec §1.2 E1/E4) ──
 //
 // Two §3.8 冻结常量（`systems-index.md` §3.8，WXG-T-080 裁定）——「同色入格」可玩性

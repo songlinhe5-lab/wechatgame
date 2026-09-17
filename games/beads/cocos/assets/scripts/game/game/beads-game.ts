@@ -38,6 +38,7 @@ import {
   AUDIO_CLIP_COMBO_T1,
   AUDIO_CLIP_COMBO_T2,
   AUDIO_CLIP_COMBO_T3,
+  AUDIO_CLIP_DENIED,
   AUDIO_CLIP_DISSOLVE,
   AUDIO_CLIP_PANEL_IN,
   AUDIO_CLIP_PANEL_OUT,
@@ -76,8 +77,12 @@ import {
   SOLVER_STAGGER_MS,
   solverSequenceMs,
   SWEEP_MS,
+  CONFETTI_MS,
   WAVE_MS,
   CLEAR_PANEL_DELAY_MS,
+  DENIED_MAX_CELLS,
+  DENIED_PRESS_MS,
+  DENIED_PRESS_RESTART_GATE_MS,
   TRAY_COLS,
   expandButtonLayout,
   trayLayout,
@@ -211,6 +216,9 @@ const SFX_MIN_INTERVAL: Readonly<Record<string, number>> = {
   [AUDIO_CLIP_TRAY_FULL]: AUDIO_TRAYFULL_MIN_INTERVAL,
   [AUDIO_CLIP_PLACE]: AUDIO_SFX_MIN_INTERVAL,
   [AUDIO_CLIP_SELECT]: AUDIO_SFX_MIN_INTERVAL,
+  // G7 `sfx_denied`（裁定 3 ⑥ / Q-A05-5）：minInterval = 同格视觉门换算（/1000），
+  // **不新造数值**（`assets-spec §1.6.7` 音频行）。
+  [AUDIO_CLIP_DENIED]: DENIED_PRESS_RESTART_GATE_MS / 1000,
 };
 
 /** §1「面板入 / 出」的宿主相位：四个面板态均覆盖（A05-18）。 */
@@ -335,6 +343,24 @@ export class BeadsGame implements Game {
   /** 落座 fx 上次起播时刻（同 `_wrongFxArmedAtMs` 判例；`-Infinity` ⇒ 首帧即允许起播）。 */
   private _placeFxArmedAtMs = Number.NEGATIVE_INFINITY;
   /**
+   * G7 `vfx_denied_press` 不可填格轻压（WXG-T-152 / `assets-spec §1.6.7`）：与 `_placeFx`
+   * 同为**表现层**计时槽（不被 PAUSED 冻结、`_setupLevel` 不清），但门按「同格计」
+   * ⇒ **多格并存**，定长槽数组（`DENIED_MAX_CELLS` = 工程容量，构造期一次性分配，
+   * 逐帧只写值）。⚠️ 动画 120ms 播完后槽**不清 row/col** —— 同格门 250ms > 时长，
+   * 需要死窗记忆；零残留口径由 `_syncSnapshot` 的「在播才导出」保证。
+   */
+  private readonly _deniedFx: {
+    row: number;
+    col: number;
+    elapsedMs: number;
+    armedAtMs: number;
+  }[] = Array.from({ length: DENIED_MAX_CELLS }, () => ({
+    row: -1,
+    col: -1,
+    elapsedMs: 0,
+    armedAtMs: Number.NEGATIVE_INFINITY,
+  }));
+  /**
    * G2′ `vfx_solver_restore` 解环器归位队列（WXG-T-150 / `assets-spec §1.6.2a`）。
    *
    * ⚠️ **与 `_placeFx` / `_sweepElapsedMs` 不同类**：本槽的推进**会改棋盘**（相 B 到点才真
@@ -351,6 +377,12 @@ export class BeadsGame implements Game {
    * ⇒ 无空间坐标，一个计时标量即可（`-1` = 未播放）。触发源 = `powerup:used`。
    */
   private _sweepElapsedMs = -1;
+  /**
+   * G6 `vfx_confetti` 结算彩带（WXG-T-153 / `assets-spec §1.6.6`）：44 枚全由 idx 派生
+   * ⇒ 同 `_sweepElapsedMs` 同构，一个计时标量（`-1` = 未播放）。触发源 = 结算面板入场帧
+   * （裁定 1 延迟门到点开面板同帧臂；D1 直开路径不臂 = 整条关停）。
+   */
+  private _confettiElapsedMs = -1;
   /**
    * G4 `vfx_complete_wave` 过关庆祝波浪（WXG-T-146 / `assets-spec §1.6.4`）：全场逐列
    * ⇒ 一个计时标量（`-1` = 未播放）。同时充当**结算面板的延迟门**（裁定 1）。
@@ -661,7 +693,9 @@ export class BeadsGame implements Game {
     this._pulseClock += Math.max(0, dt) * 1000; // GAP-04/03/10 循环脉冲基准（同判例不冻结）
     this._stepWrongFx(dt);
     this._stepPlaceFx(dt); // G1 落座回弹：同为表现层，不被 PAUSED 冻结
+    this._stepDeniedFx(dt); // G7 不可填格轻压：同为表现层（`assets-spec §1.6.7`）
     this._stepSweepFx(dt); // G3 道具生效扫光：同上（§1.6.3）
+    this._stepConfettiFx(dt); // G6 结算彩带：同为表现层不冻结（§1.6.6）
     this._stepTapHint(dt); // BD-16/BD-15 一次性轻提示：同不冻结（表现层）
   }
 
@@ -1745,10 +1779,9 @@ export class BeadsGame implements Game {
    *  - **5b `empty`** → 锚 = tray ⇒ `_placeSelected`（S3 裁决 placed/rejected）；
    *    锚 ∈ {board, none} ⇒ 归位前置缺口轻提示（零事件，仅可落空格——§8-7），
    *    分支体见 `_routeGridEmpty`（`_placeSelected` 的 slot<0 分支已迁来）。
-   *  - **5c locked / `filled(就位)`** → 极轻非惩罚反馈忽略（§2.4 裁定 4）。G7
-   *    极轻反馈通道（scale 1.00→0.96→1.00 + `sfx_denied`）尚无现成实现（全仓
-   *    无 press/denied 状态，WXG-T-128 属 E6/音频落码批次）⇒ 按任务口径
-   *    **零事件零状态写**，通道落码后在 5c 出口接入。
+   *  - **5c locked / `filled(就位)`** → 极轻非惩罚反馈忽略（§2.4 裁定 4）。G7 极轻
+   *    反馈通道**已落码**（WXG-T-152 / `assets-spec §1.6.7`）⇒ 出口接 `_armDeniedFx`
+   *    （scale 1.00→0.96→1.00 + `sfx_denied`；**零事件零状态写**红线不变）。
    */
   private _routeGridCell(row: number, col: number): void {
     if (this._grid.isMisplaced(row, col)) {
@@ -1759,7 +1792,9 @@ export class BeadsGame implements Game {
       this._routeGridEmpty(row, col); // 5b
       return;
     }
-    // 5c：locked / void / filled(就位) —— 零事件零状态写（见方法头注）
+    // 5c：locked / void / filled(就位) —— 零事件零状态写；G7 极轻反馈出口
+    //（void / 越界不触发的守卫集中在 `_armDeniedFx`，§1.6.7 非触发集）。
+    this._armDeniedFx(row, col);
   }
 
   /**
@@ -1872,6 +1907,7 @@ export class BeadsGame implements Game {
     ) {
       this._clearPanelPending = false;
       this._clearPanel.open();
+      this._confettiElapsedMs = 0; // G6 彩带与面板入场同帧启动（非 D1 路径；D1 直开不臂 = 整条关停）
       this._sfx(AUDIO_CLIP_PANEL_IN);
     }
     const shown = this._clearPanel.starsShown(this._lastStars);
@@ -2050,6 +2086,12 @@ export class BeadsGame implements Game {
         // invalid coordinates deserve a warning (bead-grid §6).
         if (verdict.reason === 'out-of-bounds') {
           console.warn(`[beads] placement out of bounds (${verdict.row},${verdict.col}) — ignored`);
+        }
+        // G7（WXG-T-152 / §1.6.7）：触发口径 = 裁决 `ignored` 且 reason ∈
+        // {occupied, locked} ⇒ 极轻非惩罚反馈（仍零事件，只起表现层计时槽）。
+        // out-of-bounds / no-color 不触发；真链 5c 与同格 250ms 门天然去重。
+        if (verdict.reason === 'occupied' || verdict.reason === 'locked') {
+          this._armDeniedFx(verdict.row, verdict.col);
         }
         return false;
       }
@@ -2364,6 +2406,61 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * G7 轻压起播（WXG-T-152 / `assets-spec §1.6.7`）：**同格 250ms 重启门**
+   * （§1.6.7「同格计」⇒ 区别于 G1 的全局单槽门）：门内重复点同格不重启、不放音；
+   * 过门 ⇒ 该槽重启 + `_sfx(AUDIO_CLIP_DENIED)`。不同格的轻压可并存；槽满时逐出
+   * **最早起播**者（其动画早已播完，视觉无打断）。void（谜面外形格）/ 越界守卫
+   * 集中在此，一处覆盖真链 5c 与裁决旁两条路径。
+   * 非每帧路径：仅在点击被拒帧调用 ⇒ 无每帧分配。
+   */
+  private _armDeniedFx(row: number, col: number): void {
+    const cell = this._grid.cell(row, col);
+    if (!cell || cell.void) return; // §1.6.7 非触发集：越界 / `.` 外形格
+    const now = this._pulseClock;
+    const slots = this._deniedFx;
+    let reuse = -1; // 空槽，或已过动画窗（只剩门记忆）的槽
+    for (let i = 0; i < slots.length; i++) {
+      const s = slots[i]!;
+      if (s.row === row && s.col === col) {
+        if (now - s.armedAtMs < DENIED_PRESS_RESTART_GATE_MS) return; // 同格门内
+        s.elapsedMs = 0;
+        s.armedAtMs = now;
+        this._sfx(AUDIO_CLIP_DENIED);
+        return;
+      }
+      if (reuse < 0 && (s.row < 0 || s.elapsedMs >= DENIED_PRESS_MS)) reuse = i;
+    }
+    if (reuse < 0) {
+      // 全槽在播（相邻格快速连扫超容量）⇒ 逐出最早起播者
+      reuse = 0;
+      for (let i = 1; i < slots.length; i++) {
+        if (slots[i]!.armedAtMs < slots[reuse]!.armedAtMs) reuse = i;
+      }
+    }
+    const slot = slots[reuse]!;
+    slot.row = row;
+    slot.col = col;
+    slot.elapsedMs = 0;
+    slot.armedAtMs = now;
+    this._sfx(AUDIO_CLIP_DENIED);
+  }
+
+  /**
+   * G7 轻压推进：与 `_stepPlaceFx` 同判例——表现层，不被 PAUSED 冻结。只推进在播槽；
+   * 播完**不清 row/col**（同格门 250ms 需要死窗记忆），零残留由 `_syncSnapshot` 的
+   * 在播过滤保证。
+   */
+  private _stepDeniedFx(dt: number): void {
+    const step = Math.max(0, dt) * 1000;
+    if (step === 0) return;
+    const slots = this._deniedFx;
+    for (let i = 0; i < slots.length; i++) {
+      const s = slots[i]!;
+      if (s.row >= 0 && s.elapsedMs < DENIED_PRESS_MS) s.elapsedMs += step;
+    }
+  }
+
+  /**
    * G2′ 起播（`assets-spec §1.6.2a`）：`usePowerup` 只点名，本方法建队列。
    * 数组**一次性定长**分配（`SOLVER_MAX_CELLS` / ×2）⇒ 逐帧只写值。
    * 非每帧路径（道具点击帧）⇒ 允许分配。
@@ -2445,6 +2542,13 @@ export class BeadsGame implements Game {
     if (this._sweepElapsedMs < 0) return;
     this._sweepElapsedMs += Math.max(0, dt) * 1000;
     if (this._sweepElapsedMs >= SWEEP_MS) this._sweepElapsedMs = -1;
+  }
+
+  /** G6 推进（同 `_stepSweepFx` 判例：单标量、到点自清 ⇒ 零残留）。 */
+  private _stepConfettiFx(dt: number): void {
+    if (this._confettiElapsedMs < 0) return;
+    this._confettiElapsedMs += Math.max(0, dt) * 1000;
+    if (this._confettiElapsedMs >= CONFETTI_MS) this._confettiElapsedMs = -1;
   }
 
   /**
@@ -2636,6 +2740,18 @@ export class BeadsGame implements Game {
     s.placeRow = pfx ? pfx.row : -1;
     s.placeCol = pfx ? pfx.col : -1;
     s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
+    // G7 轻压：多格并存 ⇒ 定长数组逐槽导出，**仅在播槽**可见（120ms 后零残留；
+    // 过窗槽只留同格门记忆，不占快照）。曲线在 view 侧纯函数推导（L5）。
+    let deniedActive = 0;
+    for (let i = 0; i < DENIED_MAX_CELLS; i++) {
+      const dfx = this._deniedFx[i]!;
+      const active = dfx.row >= 0 && dfx.elapsedMs < DENIED_PRESS_MS;
+      s.deniedRows[i] = active ? dfx.row : -1;
+      s.deniedCols[i] = active ? dfx.col : -1;
+      s.deniedProgress[i] = active ? Math.min(1, dfx.elapsedMs / DENIED_PRESS_MS) : 0;
+      if (active) deniedActive++;
+    }
+    s.deniedCount = deniedActive;
     // G2′ 解环器：一条单调进度 + 两组定长格坐标（相序曲线在 view 侧推导，L5）。
     // 不活跃 ⇒ count 归零且数组填 -1（零残留，同 G1 槽置 null 口径）。
     const sfx = this._solverFx;
@@ -2654,6 +2770,9 @@ export class BeadsGame implements Game {
     // G3 扫光：只一条单调进度（斜带几何与缓动在 view 侧推导，L5）。
     s.sweepProgress =
       this._sweepElapsedMs < 0 ? 0 : Math.min(1, this._sweepElapsedMs / SWEEP_MS);
+    // G6 彩带：同样只一条单调进度（44 枚分布与逐帧几何在 view 侧推导，L5）。
+    s.confettiProgress =
+      this._confettiElapsedMs < 0 ? 0 : Math.min(1, this._confettiElapsedMs / CONFETTI_MS);
     // G4 波浪：全场逐列 ⇒ 一条单调进度（列错峰与曲线在 view 侧推导，L5）。
     s.waveProgress =
       this._waveElapsedMs < 0 ? 0 : Math.min(1, this._waveElapsedMs / WAVE_MS);

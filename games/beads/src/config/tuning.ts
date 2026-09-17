@@ -636,6 +636,66 @@ export const WAVE_LOD_LAYERS = 7;
  * 代价已写入 ux-spec §5（过关到可点按钮多等 800ms）。
  */
 export const CLEAR_PANEL_DELAY_MS = WAVE_MS;
+
+/* G7 `vfx_denied_press` — 不可填格轻压（WXG-T-152，T-128 动态质感章落码③·音频原子批）。
+   规格正本 = assets-spec §1.6.7；毫秒真源 = ux-spec §5「不可填格轻压」行（120ms，
+   复用「珠子落座」行值、**不新造时长**）⇒ 视觉侧零 §3 变更；唯一跨域例外 =
+   裁定 3 的 `sfx_denied` 连带 §3.12 `AUDIO_CLIP_TOTAL` 19→20（冻结变更单 v1.26，
+   与本组、clip 常量、voice 配方、`SPEC_CLIPS`、`audio-events §1` 表行**同批**，
+   拆开即 A05-24 红；解除条件清单见 `audio-events §5` Q-A05-5）。 */
+/** 轻压动画总时长（ux-spec §5 冻结值；D1 退化环同窗口，120ms 后由 game 侧清除）。 */
+export const DENIED_PRESS_MS = 120;
+/** 压下段时长（与 `FILL_POP_PRESS_MS` 同族分段）。 */
+export const DENIED_PRESS_TROUGH_MS = 40;
+/** 压下谷 scale（与 `FILL_POP_SCALE_TROUGH` 同值；clamp [0.96, 1.00]，起点/终点恒 1.00）。 */
+export const DENIED_PRESS_SCALE_TROUGH = 0.96;
+/**
+ * **同格**重启门（§1.6.7「同格计」⇒ 逐颗独立门，区别于 G1 的全局单槽门）：
+ * 不同格的轻压可并存（game 侧走定长槽数组）；同格 250ms ⇒ 每格 ≤4 次/秒。
+ * 音频侧 `sfx_denied` 的 `minInterval` **由本值换算**（/1000，不新造数值，裁定 3 / Q-A05-5 ⑥）。
+ */
+export const DENIED_PRESS_RESTART_GATE_MS = 250;
+/** D1（`reduceMotion`）退化态：1px `slot_border` 静态描边环线宽（§1.6.7 `DENIED_RING_LINEWIDTH`）。 */
+export const DENIED_RING_LINEWIDTH = 1;
+/**
+ * 并存轻压的槽容量（**工程容量选择、非规格值**）：§1.6.7 只钉「同格 250ms 门」，
+ * 未给并存上限 ⇒ 取 4 覆盖「相邻格快速连扫」的现实上限，占满时逐出最旧起播者。
+ * 快照数组按本常量**一次性预分配**（热路径只写值，零分配）。
+ */
+export const DENIED_MAX_CELLS = 4;
+
+/* G6 `vfx_confetti` — 结算彩带礼花（WXG-T-153，T-128 动态质感章落码④）。
+ * 规格卡 = `art/assets-spec.md §1.6.6`；毫秒真源 = `ux-spec §5`「结算彩带」行（800，
+ * 复用「过关庆祝」不新造）。零冻结常量：全部住呈现层（§1.6 硬纪律③）。
+ * 零 RNG（L4）：44 枚全由 idx 黄金比/黄金角派生，同输入同画面。 */
+export const CONFETTI_MS = 800;
+/** 总枚数 = 主体 + 前景（回退阀 44→24 本轮不预埋，裁定 5）。 */
+export const CONFETTI_COUNT = 44;
+/** 主体层（drawClearPanel **之前** ⇒ 被 scrim α0.5 压住，读作「远处彩带」）。 */
+export const CONFETTI_MAIN_COUNT = 36;
+/** 前景层（drawClearPanel **之后**）；44 − 36。 */
+export const CONFETTI_FG_COUNT = 8;
+/** 单枚 6×14 px（面积 84px² ≈ 占屏 0.008%，D2 闪烁阈值余量极大）。 */
+export const CONFETTI_W = 6;
+export const CONFETTI_H = 14;
+/** 落程系数 >1 ⇒ 保末帧已出屏。 */
+export const CONFETTI_FALL_FACTOR = 1.15;
+/** 横向摆动：±18px × 2 周期（叠加旋转致单枚可见面积 1.25Hz < 3Hz 红线）。 */
+export const CONFETTI_SWAY_PX = 18;
+export const CONFETTI_SWAY_CYCLES = 2;
+/** 全场旋转 1.25 转 ⇒ D2 核算基准 1.25Hz。 */
+export const CONFETTI_SPIN_TURNS = 1.25;
+/** 末段淡出起点（p 比），避免 800ms 硬切。 */
+export const CONFETTI_FADE_START = 0.7;
+/** 五档错高（idx mod 5），避免齐平下落。 */
+export const CONFETTI_SPAWN_STEP_Y = 60;
+/** 前景禁飞带（clearPanelLayout 派生：按钮行 yMin 447 / 缎带 yMax 787）；FG 枚入带**跳过绘制**。MAIN 不受限。 */
+export const CONFETTI_NOFLY_YMIN = 447;
+export const CONFETTI_NOFLY_YMAX = 787;
+/** 零 RNG 分布参数（承 `comboParticleOffsets` 判例）：x = 750 × frac(idx × 0.618)；phase = idx × 137.5°。 */
+export const CONFETTI_GOLDEN_RATIO = 0.618;
+export const CONFETTI_GOLDEN_ANGLE = 137.5;
+
 /** `hint` / 引导脉冲呼吸周期（α 0.5↔1.0，600ms ≈1.67Hz，落 §3.8 ≤3Hz 红线内）。 */
 export const HINT_PULSE_MS = 600;
 /**
@@ -659,8 +719,9 @@ export const FAIL_PRIMARY_W = 480;
 export const FAIL_BUTTON_H = TOUCH_MIN;
 export const FAIL_BUTTON_GAP = 24;
 
-// ───────────── 音频 clip id（真源：`design/audio/audio-events.md §1`，共 19 条）
+// ───────────── 音频 clip id（真源：`design/audio/audio-events.md §1`，共 20 条）
 // A05-24：本导出集 **≡ §1 表**（双向无孤儿）；新增音效必须先改 §1 再改这里。
+// v1.26（WXG-T-152）：+`sfx_denied`（WXG-T-128 裁定 3，G7 原子批）。
 /** BGM clip played with `loop: true` on the bgm channel (architecture §2). */
 export const AUDIO_CLIP_BGM = 'bgm_main';
 /** UI tap sfx — every panel button uses it（§5 无行 ⇒ 待 Q-A05-1 归位，见 §5 未纳入）。 */
@@ -683,6 +744,8 @@ export const AUDIO_CLIP_CLEAR = 'sfx_clear';
 export const AUDIO_CLIP_PANEL_IN = 'sfx_panel_in';
 export const AUDIO_CLIP_PANEL_OUT = 'sfx_panel_out';
 export const AUDIO_CLIP_REVIVE_OK = 'sfx_revive_ok';
+/** G7 不可填格轻压（WXG-T-128 裁定 3 新增第 20 剪辑；ux-spec §5「不可填格轻压」行 = 权威源）。 */
+export const AUDIO_CLIP_DENIED = 'sfx_denied';
 
 // ─────────── §3.12 冻结常量镜像（真源：`gdd/systems-index.md §3.12`，v1.18）
 /** 高频短音（`sfx_place`/`sfx_select`）per-clip 最小重触发间隔。 */
@@ -696,14 +759,14 @@ export const AUDIO_URGENT_MIN_INTERVAL = 0.9;
 /**
  * 满槽告警防御档。⛔ v1.22 作废死值保留（§3.12g，WXG-T-130 案 A / WXG-T-136）：
  * 触发源 `tray:full` 玩法侧零发射 ⇒ 本间隔无事件可限；死路径保留（供料复活自动
- * 恢复生效）。**不删**——`AUDIO_CLIP_TRAY_FULL` 仍在 A05-24 19-clip 闭合集内，
+ * 恢复生效）。**不删**——`AUDIO_CLIP_TRAY_FULL` 仍在 A05-24 20-clip 闭合集内，
  * `audio-events §1`（音频域，本单禁改）未删行。
  */
 export const AUDIO_TRAYFULL_MIN_INTERVAL = 1.0;
 /** 单帧派发上限（框架 `AudioScheduler` 默认值的显式冻结，不传参漂移）。 */
 export const AUDIO_MAX_PER_FRAME = 6;
-/** 本游 clip 总数（= §1 表行数；A05-24 闭合判据的账目）。 */
-export const AUDIO_CLIP_TOTAL = 19;
+/** 本游 clip 总数（= §1 表行数；A05-24 闭合判据的账目）。v1.26：19→20（+`sfx_denied`，WXG-T-152）。 */
+export const AUDIO_CLIP_TOTAL = 20;
 
 // ─────────────────────────────────────────────────────── grid layout derivation
 /** Derived geometry for one level's grid, centred inside `PUZZLE_BAND`. */

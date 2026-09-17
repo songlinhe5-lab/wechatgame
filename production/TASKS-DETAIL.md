@@ -421,3 +421,15 @@
 - **验证（待总跑）**：中段 beads 全量 **33 files / 387 passed**、`tsc --noEmit` exit 0（改号后需复跑）；framework:sync / check:tasks / check:links 待收口。
 - **提交边界**：工作树另有并发 QA 会话在途改动（`production/qa/beads/g4-probe-v1.1.mjs`、`_diag099-run.mjs`、`g4-probe-v1.2-t099.mjs`）⇒ **勿整文件 `git add` 误带**；本单文件面 = games/beads src/tests/design/art + qa/test-cases.md + production 台账两件。
 - **边界**：像素级目视/真机听感待执行（K-037；A05-26 `[P]`）；音色调参（Hz/增益）系工程占位非规格。
+
+## WXG-T-153
+
+- **标题**：beads·G6 结算彩带落码（零 RNG 44 枚 sandwich，T-128 拆分④）
+- **负责/状态**：主理人(Qoder) ｜ 🔶 代码+判据完成，**待提交**（本会话零 commit）
+- **依据**：`assets-spec §1.6.6`（v1.4-r6 定稿卡）+ `ux-spec §5`「结算彩带」行（800ms，复用「过关庆祝」窗口不新造时长）。执行已登记决策，零新规格值。
+- **落码六件**：`tuning.ts` G6 常量块 16 项；`palette.ts::CONFETTI_COLORS`（5 色**引用既有 token** 零新 hex，排除暖橙/奶白/暗档）；`state.ts` 快照 `confettiProgress` 单标量（L5：44 枚全 idx 派生 ⇒ 无需逐枚通道，同 sweep 判例）；`beads-game.ts` `_confettiElapsedMs`（-1 哨兵）+ `_stepConfettiFx`（update 表现层不冻结位）+ arm = `_stepLevelClear` 延迟门 `open()` 同帧（**D1 直开路径天然不臂** = 整条关停）；`scene-vfx.ts` 六纯函数（baseX/phase/spawnY/isForeground/frame/quad，公式**字面移植**）；`view-model.ts::drawConfetti` 两层 sandwich（MAIN 36 → scrim → FG 8）+ 禁飞带跳画 + `CONFETTI_SCRATCH` 标量槽。
+- **判据**：新建 `tests/confetti.test.ts` **14 例**三段——① 纯函数（均布 min gap 9.000 > 带宽 6 / max 25.5 < 30 先 node 实测再定阈值；逐帧 y 单调、摆动 ±18、1.25 转、α 淡出、钳制、四角刚体边长 6×14）② 真链（波浪门开面板同帧臂、零玩法事件、播放期零新 clip（只 panel_in/star）、800ms 自清、D1 真链全程 0、下一关可再臂）③ 命令层（p=0.2 44 枚层序、p=0.65 禁飞带跳画且被跳枚 α 恒 1、D1/终帧净 0、色集 ⊆ 5 色禁暖橙）。踩坑登记：识别器初版误捕 HUD 区同色（丁香紫）**斜置 40×6 大图元** ⇒ 加 bbox ≤16 尺寸闸（彩带任意旋转 bbox ≤ hypot(6,14)≈15.3）。
+- **验证**：`tsc --noEmit` exit 0；beads 全量 **34 files / 401 passed**（387+14）；framework:sync / check:tasks / check:links 见收口注。
+- **两项规格差异（诚实登记于 §1.6.6 落码回写注，未改规格本体，待 art 复验）**：① 「预分配 352-float scratch」在 `polygon()` 按引用存 points 的现契约下不成立 ⇒ 采 G3 判例逐枚新建 8-float（仅 800ms 窗口内分派）；② 卡文案「飘落」vs 公式 `y = spawnY − 1334×1.15×easeIn(p)` 单调递减（上行出屏）⇒ 按硬纪律「只抄不改」以公式为准，若裁定改向下属**规格修订**。
+- **提交边界**：同 T-152——勿整文件 `git add` 误带并发 QA 在途文件；本单文件面 = games/beads src/tests/art/assets-spec + qa/test-cases.md + production 台账两件。
+- **边界**：像素级观感（`[Cocos]` 连拍）与真机待执行（K-037）；TC-PER-26 整条不判 PASS。

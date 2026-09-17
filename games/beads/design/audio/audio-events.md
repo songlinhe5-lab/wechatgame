@@ -25,7 +25,7 @@
 
 ## 1. 事件表（覆盖 ux-spec §5 全部 17 行）
 
-> **⚠️ §5 行数变更（WXG-T-128，2026-09-16）**：ux-spec §5 新增两行——「**结算彩带**」（音效列 = **无**，纯装饰 ⇒ 不产 clip，归本篇 §5 未纳入清单）与「**不可填格轻压**」（音效 = 极轻闷「哒」，用户裁定新增第 20 个 clip `sfx_denied`）。**本表暂不加 `sfx_denied` 行**：判据 A05-24（`audio-dispatch.test.ts`）是**活测试**，断言 `SPEC_CLIPS.length === AUDIO_CLIP_TOTAL` 且 voice 表 ≡ clip 集 ⇒ 单独加表行会当场测试红。正确顺序 = **G7 落码单原子批**：本表行 + `systems-index §3.12` `AUDIO_CLIP_TOTAL` 19→20（冻结值变更单）+ `tuning.ts` `AUDIO_CLIP_DENIED` + `audio-voices.ts` 音色配方 + 测试 `SPEC_CLIPS` 同批提交。登记见 §5「WXG-T-128 预约项」。
+> **✅ §5 行数变更（WXG-T-128，2026-09-16 裁定；2026-09-17 WXG-T-152 已原子落码）**：ux-spec §5 新增两行——「**结算彩带**」（音效列 = **无**，纯装饰 ⇒ 不产 clip，归本篇 §5 未纳入清单）与「**不可填格轻压**」（音效 = 极轻闷「哒」，用户裁定新增第 20 个 clip `sfx_denied`，**已入 §1 表行并计数**）。当时登记的原子批六项（本表行 + `systems-index §3.12` 19→20 + changelog v1.26 + `tuning.ts` + `audio-voices.ts` + `SPEC_CLIPS` + §3.2 限流）已同批落地（判据 A05-24 为活测试，拆开单独提交会当场红），闭环详见 §5「WXG-T-128 预约项」Q-A05-5。
 
 > §5 实为 **17 行**（任务单口径「13 类」为归并计数：连击三档合一、面板入/出合一、续时两态合一）。本篇按**逐行**对齐，不做归并，避免漏项。
 
@@ -49,10 +49,11 @@
 | `sfx_panel_out` | 面板出（恢复 / 下一关 / 重试 的出场动效首帧） | 面板出 | 150 | 抽屉音 | 淡出 | 待做 |
 | `sfx_revive_ok` | 续时成功回 PLAYING（`onRewarded` → `remaining += REVIVE_BONUS_SEC` 帧） | 续时成功 | ≤400 | 轻「叮」 | 面板出 + 胶囊数字跳到 N | 待做 |
 | `sfx_reject`（**复用**） | 续时未看完（中途关 / 失败 / 未看完，零加时） | 续时未看完 | 200 | 低「咚」（≤2 次/秒） | 面板不动；主钮轻抖 1 次 | 待做 |
+| `sfx_denied` | 裁决旁路：落子 `verdict = ignored` 且 `reason ∈ {occupied, locked}` 帧（**零总线事件**，判例 = `sfx_star` 以面板入场帧为触发源；void/越界不触发） | 不可填格轻压（WXG-T-128 新增） | 120 | 极轻闷「哒」 | 格 scale 1.00→0.96@40ms→1.00@120ms（D1 退化 1px 静态环） | **已做**（WXG-T-152 原子批） |
 | `sfx_ui_tap` | 面板按钮点击（现状 7 处调用） | —（**§5 无独立行**） | `[TODO]` | 轻点音（现状注释自称「抽屉音」） | 按钮态视觉 | **已做**（但 §5 归位待裁，见 §5 未纳入 Q-A05-1） |
 | `bgm_main` | BOOT 装配 / `settings.bgmMuted` 解除静音（`loop: true` 长驻） | —（BGM 不属 §5） | `[TODO]` | 见 `audio-spec.md` §1/§3 | — | **已做**（调用在 L1475/L1477；**内容为零**） |
 
-**计数**：19 个 clip id（18 SFX + 1 BGM）＝ 已存在 3（`bgm_main`/`sfx_ui_tap`/`sfx_star`）+ 新增 16。
+**计数**：20 个 clip id（19 SFX + 1 BGM）＝ 已存在 3（`bgm_main`/`sfx_ui_tap`/`sfx_star`）+ 新增 16 + `sfx_denied`（v1.26 / WXG-T-152）。
 `powerup:used` 一行触发**两条** clip（`sfx_powerup` + `sfx_dissolve`，同帧分层）；「续时未看完」复用 `sfx_reject`（§5 两行音效描述逐字相同：低「咚」、≤2 次/秒）⇒ 事件行数 17 ↔ clip 数 18（SFX）非 1:1，对账见 §2。
 
 ### 1.1 时长列分流表（WXG-T-103 / 冲突 C3：原 7 处非纯数字逐条裁定）
@@ -95,9 +96,9 @@
 | 16 | 续时成功 | `sfx_revive_ok` | 1:1 |
 | 17 | 续时未看完 | `sfx_reject`（复用） | §5 描述与行 3 逐字相同 |
 | — | **结算彩带**（WXG-T-128 新增） | **无 clip** | §5 音效列即写「无」（纯装饰、不属关键反馈 ⇒ 双通道红线不适用；判例 = BD-16 无效落点轻提示）⇒ **有意不做**，归 §5 未纳入清单 |
-| — | **不可填格轻压**（WXG-T-128 新增） | `sfx_denied`（**预约，本表未加行**） | 用户裁定新增；需与 §3.12 19→20 + `tuning.ts` + `audio-voices.ts` + `SPEC_CLIPS` **原子落码**（A05-24 活测试）⇒ 见 §5「WXG-T-128 预约项」 |
+| — | **不可填格轻压**（WXG-T-128 新增） | `sfx_denied` | 用户裁定第 20 个 clip；**已原子落码（WXG-T-152，2026-09-17）**：§1 表行 + §3.12 19→20 + `tuning.ts` + `audio-voices.ts` + `SPEC_CLIPS` 同批（A05-24 活测试）⇒ §5 预约项 Q-A05-5 闭环 |
 
-**结论：17/17 行全覆盖，零遗漏。** `[WXG-T-128]` §5 新增两行已逐条归位（一行有意不做、一行预约待原子落码）⇒ **仍零遗漏、零发明**；本表 clip 计数仍 **19**（`sfx_denied` 未落码前不得计入，否则与 `tuning.ts` / voice 表 / A05-24 三方不一致）。
+**结论：17/17 行全覆盖，零遗漏。** `[WXG-T-128]` §5 新增两行已逐条归位（一行有意不做、一行已随 WXG-T-152 原子落码）⇒ **仍零遗漏、零发明**；本表 clip 计数 = **20**（`sfx_denied` 已随 §3.12 TOTAL / `tuning.ts` / voice 表 / A05-24 同批转正，四方一致闭合）。
 
 ### 2.2 clip → §5（反向：无发明）
 
@@ -128,6 +129,7 @@
 | clip | `minInterval` | 依据 |
 |---|---|---|
 | `sfx_reject` | **0.5** | §3.8 + §5「≤2 次/秒」硬性红线（换算 1/2 Hz） |
+| `sfx_denied` | **0.25** | = 视觉侧同格重启门 `DENIED_PRESS_RESTART_GATE_MS`（250 ms）/1000 换算，**不新造数值**（Q-A05-5 ⑥ / assets-spec §1.6.7） |
 | `sfx_urgent_beat` | **0.9** | 周期 = `TIMER_TICK` 1.0s，留 0.1s 余量吸收 fixedStep 累加抖动，防偶发双拍 |
 | `sfx_tray_full` | **1.0** | 事件本身间隔 ≥ `SPAWN_INTERVAL` 下界 2.0s（§3.4），1.0s 仅作防御 |
 | `sfx_place` / `sfx_select` | **0.05**（沿用现状） | 高频短音需保留连打手感；防糊靠**音色短促 + 同帧去重**而非拉长限流（`audio-spec.md` §2.4） |
@@ -167,7 +169,7 @@
 | A05-21 | `bgm_main` | BOOT 完成即入队 `{loop:true}` 恰 1 次；`bgmMuted=true` ⇒ `stop('bgm_main')` 且此后零重入队；`false` ⇒ 重新入队（现状已断言，`pause-settings.test.ts` L286-318） | `[N]`（已绿）·`[B]`（无缝循环） |
 | A05-22 | `bgm_main` | **幂等**：重复 `play('bgm_main',{loop:true})` 不得重启播放位置（backend 契约，需后端实现） | `[B]`+`[R]` |
 | A05-23 | 全表·静音可玩 | `sfxMuted=true` ⇒ 任意玩法事件注入后 `pendingCount === 0`（`_sfx()` 门控）；`bgmMuted=true` 且 `sfxMuted=false` ⇒ SFX 照常、BGM 静默（双通道独立，S9 §8-4 已绿）；**两开关全关时游戏全流程可通关**（8 关 + 冲刺 + 续时路径零阻塞） | `[N]` |
-| A05-24 | 全表·清单闭合 | `tuning.ts` 导出的音频 clip 常量集合 **==** 本表 §1 的 19 个 id（双向：无孤儿常量、无未登记 id 被代码引用）⇒ 新增音效应先改本表 | `[N]` |
+| A05-24 | 全表·清单闭合 | `tuning.ts` 导出的音频 clip 常量集合 **==** 本表 §1 的 20 个 id（双向：无孤儿常量、无未登记 id 被代码引用）⇒ 新增音效应先改本表 | `[N]` |
 | A05-25 | 全表·包体 | 构建产物（`cocos/build/*`）内音频资产文件数 = **0**、音频占用 = **0 KB**（程序化合成路线的硬断言；若改走采样路线，本条判据须随 `audio-spec.md` §4.2 预算数字一并改写） | `[C]` |
 | A05-26 | 全表·听感 | 连打 8 颗珠（间隔 200 ms）不糊、不炸、无机关枪感；`sfx_place` 被主观评为「软/治愈」而非「硬/街机」（「解压」支柱人耳判据） | `[P]` |
 | A05-27 | 全表·真机 | 微信 iOS 首次手势后出声、退后台→回前台 BGM 恢复、`InnerAudioContext`/`WebAudioContext` 无泄漏（长玩 10 分钟内存平稳） | `[R]` |
@@ -196,9 +198,9 @@
 | Q-A05-3 | `reason='wrong'` 断连时 `sfx_reject` + `sfx_combo_break` 同帧并存是否糊 | **推荐先并存**（双通道红线优先，不擅自抑制 §5 明列的音效）；`[B]`/`[P]` 听感验证若判定糊，回退方案 = 抑制 `sfx_combo_break`（需回写本篇 + 经主理人） |
 | Q-A05-4 | 满槽告警「轻提示音 1 次」的「1 次」口径：每次 `tray:full` 各 1 次（本篇采纳） vs 整个满槽持续期只 1 次 | **推荐每次各 1 次**（事件天然 ≥2s 间隔，不构成噪声）；若 UX 本意是「持续期 1 次」，需 ux-spec §5 补注（不是我改） |
 
-**WXG-T-128 预约项（用户已裁定 2026-09-16，本篇不擅自落表行）**
+**WXG-T-128 预约项（用户已裁定 2026-09-16；Q-A05-5 已随 WXG-T-152 原子批闭环 2026-09-17）**
 
 | # | 项 | 裁定与解除条件 |
 |---|---|---|
-| Q-A05-5 | **`sfx_denied`（不可填格轻压）= 第 20 个 clip** | 用户裁定「新增第 20 个音频剪辑」（而非零音效、也非复用 `sfx_place` 降 volume）。**权威来源已具备**：ux-spec §5「不可填格轻压」行（音效列：极轻闷「哒」）+ §4 矩阵行 ⇒ 不违「§5 未列的音效一律不发明」纪律。**解除条件（原子批，缺一不可）**：① 本表 §1 增行（触发源写「`verdict = ignored` 且 `reason ∈ {occupied, locked}`——表现层零总线事件，判例 = `sfx_star` 行以面板入场帧为触发源」）② `systems-index §3.12` `AUDIO_CLIP_TOTAL` **19→20** + `systems-index-changelog` 新行（主理人串行落笔）③ `tuning.ts` `AUDIO_CLIP_DENIED = 'sfx_denied'` + `AUDIO_CLIP_TOTAL = 20` ④ `audio-voices.ts` 音色配方（**非冻结**，§3.12 已划界「音色合成参数不入 §3」；程序化合成 ⇒ **0 KB、不占包体、无需生成音频文件**）⑤ `audio-dispatch.test.ts` 的 `SPEC_CLIPS` 加 id ⑥ §3.2 限流：建议沿用 `AUDIO_SFX_MIN_INTERVAL`？——**不**，视觉侧重启门已定 250ms ⇒ 音频侧 `minInterval` 取 **0.25s** 与视觉同门（不新造数值，= `DENIED_PRESS_RESTART_GATE_MS` 换算）；听感验收走 A05-26 `[P]` |
+| Q-A05-5 | **`sfx_denied`（不可填格轻压）= 第 20 个 clip** | **✅ 已解除（WXG-T-152，2026-09-17）**：下列六项解除条件已照单同批落地（①表行 ②§3.12 19→20 + changelog v1.26 ③tuning ④voices 音色配方 ⑤SPEC_CLIPS ⑥§3.2 限流 0.25s）。以下为当初裁定与解除条件原文：用户裁定「新增第 20 个音频剪辑」（而非零音效、也非复用 `sfx_place` 降 volume）。**权威来源已具备**：ux-spec §5「不可填格轻压」行（音效列：极轻闷「哒」）+ §4 矩阵行 ⇒ 不违「§5 未列的音效一律不发明」纪律。**解除条件（原子批，缺一不可）**：① 本表 §1 增行（触发源写「`verdict = ignored` 且 `reason ∈ {occupied, locked}`——表现层零总线事件，判例 = `sfx_star` 行以面板入场帧为触发源」）② `systems-index §3.12` `AUDIO_CLIP_TOTAL` **19→20** + `systems-index-changelog` 新行（主理人串行落笔）③ `tuning.ts` `AUDIO_CLIP_DENIED = 'sfx_denied'` + `AUDIO_CLIP_TOTAL = 20` ④ `audio-voices.ts` 音色配方（**非冻结**，§3.12 已划界「音色合成参数不入 §3」；程序化合成 ⇒ **0 KB、不占包体、无需生成音频文件**）⑤ `audio-dispatch.test.ts` 的 `SPEC_CLIPS` 加 id ⑥ §3.2 限流：建议沿用 `AUDIO_SFX_MIN_INTERVAL`？——**不**，视觉侧重启门已定 250ms ⇒ 音频侧 `minInterval` 取 **0.25s** 与视觉同门（不新造数值，= `DENIED_PRESS_RESTART_GATE_MS` 换算）；听感验收走 A05-26 `[P]` |
 | Q-A05-6 | **结算彩带无音效是否需补** | 本篇判定：**不补**。§5 该行音效列已明写「无」（纯装饰、零信息量、`accessibility` A6 已论证关停合法）⇒ 属「有意不做」而非遗漏。若 Playtest 反馈「彩带无声显得空」，再走 §6 变更（需先回写 ux-spec §5 该行音效列） |

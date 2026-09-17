@@ -12,6 +12,22 @@
  */
 
 import {
+    CONFETTI_FALL_FACTOR,
+    CONFETTI_FADE_START,
+    CONFETTI_GOLDEN_ANGLE,
+    CONFETTI_GOLDEN_RATIO,
+    CONFETTI_H,
+    CONFETTI_MAIN_COUNT,
+    CONFETTI_SPAWN_STEP_Y,
+    CONFETTI_SPIN_TURNS,
+    CONFETTI_SWAY_CYCLES,
+    CONFETTI_SWAY_PX,
+    CONFETTI_W,
+    DENIED_PRESS_MS,
+    DENIED_PRESS_SCALE_TROUGH,
+    DENIED_PRESS_TROUGH_MS,
+    DESIGN_H,
+    DESIGN_W,
     SOLVER_HINT_MS,
     SOLVER_STAGGER_MS,
     SOLVER_PER_BEAD_MS,
@@ -154,5 +170,109 @@ export function waveEnvelope(
             (WAVE_SCALE_PEAK - 1) * easeIn((p - WAVE_RISE_RATIO) / (1 - WAVE_RISE_RATIO));
     out.dy = WAVE_LIFT_PX * Math.sin(Math.PI * p);
     out.active = true;
+    return out;
+}
+
+// G7 `vfx_denied_press`（§1.6.7）：分段逐帧公式的正本在规格卡，**零位移/零 α/零描边/零色变**
+// ⇒ 本函数只产一个 scale（clamp [0.96, 1.00]）；D1 退化环在 `view-model.ts` 消费处分支。
+
+/**
+ * 轻压包络（`assets-spec §1.6.7` 逐帧公式）：进度 `p ∈ [0,1]` → scale。
+ * `t < 40ms`：`1.00 − 0.04·easeOut(t/40)`；`t ≥ 40ms`：`0.96 + 0.04·easeOut((t−40)/80)`
+ * ⇒ 谷 0.96@40ms，两端恒 1.00（与 G1 同族的 ease-out 写法，不二次过冲）。
+ */
+export function deniedPressScale(p: number): number {
+    const u = p < 0 ? 0 : p > 1 ? 1 : p;
+    const t = u * DENIED_PRESS_MS;
+    return t < DENIED_PRESS_TROUGH_MS
+        ? 1 - (1 - DENIED_PRESS_SCALE_TROUGH) * easeOut(t / DENIED_PRESS_TROUGH_MS)
+        : DENIED_PRESS_SCALE_TROUGH +
+        (1 - DENIED_PRESS_SCALE_TROUGH) *
+        easeOut((t - DENIED_PRESS_TROUGH_MS) / (DENIED_PRESS_MS - DENIED_PRESS_TROUGH_MS));
+}
+
+// ───────────────────────── G6 结算彩带（§1.6.6 · WXG-T-153）
+//
+// 零 RNG（L4）：44 枚的位置/相位/错高/层全部由 idx 黄金比派生，同输入同画面；
+// 本模块只给「idx + 进度 → 几何」纯函数，颜色数组住 `palette.ts`（消费方在 view-model）。
+
+/** idx ∈ [0,44)：黄金比均布 x = 750 × frac(idx × 0.618)（不聚不空）。 */
+export function confettiBaseX(idx: number): number {
+    const v = idx * CONFETTI_GOLDEN_RATIO;
+    return DESIGN_W * (v - Math.floor(v));
+}
+
+/** 黄金角错相（度）：摆动相位与旋转初相同源，相邻枚不齐平。 */
+export function confettiPhaseDeg(idx: number): number {
+    return idx * CONFETTI_GOLDEN_ANGLE;
+}
+
+/** 五档错高（idx mod 5，规格卡原式）：起点在屏底往上阶梯分布，避免齐平运动。 */
+export function confettiSpawnY(idx: number): number {
+    return DESIGN_H - (idx % 5) * CONFETTI_SPAWN_STEP_Y;
+}
+
+/** idx < 36 ⇒ MAIN（面板遮罩之前）；其余 ⇒ FOREGROUND（面板之后）。 */
+export function confettiIsForeground(idx: number): boolean {
+    return idx >= CONFETTI_MAIN_COUNT;
+}
+
+/** 逐帧标量态（复用对象写入；命令只抄标量 ⇒ 与 `WaveState` 同判例）。 */
+export interface ConfettiBeadState {
+    x: number;
+    y: number;
+    theta: number;
+    alpha: number;
+}
+
+/**
+ * 逐帧（§1.6.6 公式**字面移植**）：`y = spawnY − 1334×1.15×easeIn(p)` ⇒ y 单调**递减**
+ * （屏底起飞、向上出屏；规格文案写「飘落」而公式为上行，**以公式为准**，差异已登记待 art 复验）。
+ * 横向摆动 2 周期；旋转 1.25 转 ⇒ 1.25Hz < 3Hz（D2）；`p ≥ 0.7` 线性淡出防硬切。`p` 钳制 [0,1]。
+ */
+export function confettiFrame(
+    idx: number,
+    p: number,
+    out: ConfettiBeadState,
+): ConfettiBeadState {
+    const u = p < 0 ? 0 : p > 1 ? 1 : p;
+    const phase = confettiPhaseDeg(idx);
+    out.x =
+        confettiBaseX(idx) +
+        CONFETTI_SWAY_PX *
+        Math.sin(2 * Math.PI * (CONFETTI_SWAY_CYCLES * u + phase / 360));
+    out.y =
+        confettiSpawnY(idx) - DESIGN_H * CONFETTI_FALL_FACTOR * easeIn(u);
+    out.theta = 360 * CONFETTI_SPIN_TURNS * u + phase;
+    out.alpha =
+        u < CONFETTI_FADE_START
+            ? 1
+            : Math.max(0, 1 - (u - CONFETTI_FADE_START) / (1 - CONFETTI_FADE_START));
+    return out;
+}
+
+/**
+ * 无旋转变换通道 ⇒ 逐帧算四角（规格卡几何式，hw=3/hh=7）。`out` 为 8-float 扁平点列，
+ * 由调用方**逐枚新建**：`polygon()` 按引用存 points，不可跨帧共用 scratch（G3 判例）。
+ */
+export function confettiQuad(
+    cx: number,
+    cy: number,
+    thetaDeg: number,
+    out: number[],
+): number[] {
+    const hw = CONFETTI_W / 2;
+    const hh = CONFETTI_H / 2;
+    const r = (thetaDeg * Math.PI) / 180;
+    const c = Math.cos(r);
+    const s = Math.sin(r);
+    out[0] = cx - hw * c - hh * s;
+    out[1] = cy - hw * s + hh * c;
+    out[2] = cx + hw * c - hh * s;
+    out[3] = cy + hw * s + hh * c;
+    out[4] = cx + hw * c + hh * s;
+    out[5] = cy + hw * s - hh * c;
+    out[6] = cx - hw * c + hh * s;
+    out[7] = cy - hw * s - hh * c;
     return out;
 }

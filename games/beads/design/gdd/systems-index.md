@@ -1,6 +1,6 @@
 # 系统清单与依赖索引（Systems Index）· beads
 
-- 项目：`games/beads`（拼豆错位归位）· 版本 v1.24 · 任务号 WXG-T-141（**v1.24 = 参考竞品后四项用户裁定**：托盘 6→24 槽（固定 2 行×12）/ 扩展 6→24（+2 行×12）/ 双指捏合缩放列 Should / HUD 不设「更多游戏」；v1.23 = 「大胆重制」裁定落盘**：托盘 12→6 槽 / 时间按 k 定价 / 星级主题解锁语义 / 冲刺 k 爬梯 / cycleProfile 环长分布 / E4 幽灵符号开关转正，提案正本 `design/proposals/v1.23-bold-remake.md`；v1.22 及以前见 `systems-index-changelog.md`）
+- 项目：`games/beads`（拼豆错位归位）· 版本 v1.26 · 任务号 WXG-T-152（**v1.26 = §3.12 `AUDIO_CLIP_TOTAL` 19→20**：`sfx_denied`（不可填格轻压）转正，WXG-T-128 裁定 3，随 WXG-T-152 原子批落码；v1.25 = §3.11 `REVIVE_BONUS_SEC` 60→180（WXG-T-149）；v1.24 = 参考竞品后四项用户裁定**：托盘 6→24 槽（固定 2 行×12）/ 扩展 6→24（+2 行×12）/ 双指捏合缩放列 Should / HUD 不设「更多游戏」；v1.23 = 「大胆重制」裁定落盘**：托盘 12→6 槽 / 时间按 k 定价 / 星级主题解锁语义 / 冲刺 k 爬梯 / cycleProfile 环长分布 / E4 幽灵符号开关转正，提案正本 `design/proposals/v1.23-bold-remake.md`；v1.22 及以前见 `systems-index-changelog.md`）
 - 用途：定义系统边界、依赖顺序、以及**全局数值基线**（所有 GDD 引用此处的常量，避免数值漂移）
 - 数值纪律：本文数值全部依 `design/concept.md` 附录 A 提案定稿；标 `[待确认]` 者未冻结、不得据以实现。
 
@@ -202,14 +202,14 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 |---|---|---|
 | `AUDIO_SFX_MIN_INTERVAL` | 0.05 s | 高频短音（`sfx_place`/`sfx_select`）per-clip 最小重触发间隔默认档；`beads-game.ts` L1484 现状值转正 |
 | `AUDIO_REJECT_MIN_INTERVAL` | 0.5 s | `sfx_reject` 最小重触发间隔 = §3.8「错误反馈 ≤2 次/秒」音频侧换算；**修正现状违约**（统一 0.05s 致 reject 达 20 次/秒）。分档表见 `design/audio/audio-events.md` §3.2 |
-| `AUDIO_CLIP_TOTAL` | **19** | 18 SFX + 1 BGM；**新增音效应先改 `audio-events.md §1` 再改本表**（判据 A05-24：`tuning.ts` clip 集 ≡ §1 表，双向无孤儿） |
+| `AUDIO_CLIP_TOTAL` | **20** | 19 SFX + 1 BGM（v1.26 +`sfx_denied` 不可填格轻压，WXG-T-128 裁定 3 / WXG-T-152 原子批：与 `audio-events.md §1` 表行、`tuning.ts`、`audio-voices.ts`、`SPEC_CLIPS` 同批，勿拆）；**新增音效应先改 `audio-events.md §1` 再改本表**（判据 A05-24：`tuning.ts` clip 集 ≡ §1 表，双向无孤儿） |
 | `AUDIO_MAX_PER_FRAME` | **6** | 单帧派发上限 = `core/audio/audio.ts` 默认值的**显式冻结**（防无声漂移）。audio-events §3.1 同帧最坏情形核算均 ≤6 ⇒ MVP 不依赖抢占 |
 | `AUDIO_URGENT_BEAT_PERIOD` | **1.0 s** | 告急心跳周期，**不新造数值** = `TIMER_TICK`；与 §5 视觉 1000ms 脉冲同周期同相（A05-11） |
 | `AUDIO_URGENT_MIN_INTERVAL` | 0.9 s | 派生值 = `AUDIO_URGENT_BEAT_PERIOD − 0.1 s` 余量（吸收 fixedStep 尾差，防偶发双拍）；出处 `audio-events §3.2` |
 | `AUDIO_TRAYFULL_MIN_INTERVAL` | 1.0 s | **⛔ v1.22 作废**（WXG-T-130 案 A 供料关停连带）：触发源 `tray:full` 随供料关停不再广播（§4）⇒ 本重触发间隔无事件可限。死路径保留 |
 | `AUDIO_HEARABLE_FLASH_HZ` | ≤ **3 Hz** | 听觉闪烁红线，与 §3.8 视觉闪烁红线同源同界（常量名沿用 `audio-spec §7.2` 原文，不另改名）。实发 1 Hz，A05-13 可机验 |
 | 音频选型 | 程序化合成（**0 KB 主包**） | Web Audio 运行时合成 SFX + 序列化 BGM，无音频文件进产物（audio-spec §4.1 / 判据 A05-25）；采样路线破内部目标（§3.9 实测余量 32 KB）已否 |
-| 总线 | Music / SFX / UI 三条 | clip id 命名空间承载；`AUDIO_BUS_GAIN_BGM/SFX/UI`=`[TODO]`（后端可听 + 真机响度校准后定档，**不冻结伪 dB**）；19 clip 事件表见 `audio-events.md §1` |
+| 总线 | Music / SFX / UI 三条 | clip id 命名空间承载；`AUDIO_BUS_GAIN_BGM/SFX/UI`=`[TODO]`（后端可听 + 真机响度校准后定档，**不冻结伪 dB**）；20 clip 事件表见 `audio-events.md §1` |
 | 音色实现参数（基频/包络/波形/噪声） | **不属于 §3** | 合成参数是**工程侧对 §5 文字描述的实现选择**（同「颜色不进 §3」判例），住在 `games/beads/src/config/audio-voices.ts`；**不得据此反填伪规格值**，听感达标由 A05-26 `[P]` 与 A05-03/09/15/16 的 `[B]` 道次验收 |
 
 ### 3.13 错位参数（Misplaced）· v1.22 新增冻结（WXG-T-130，用户 2026-09-16 裁定案 A）
