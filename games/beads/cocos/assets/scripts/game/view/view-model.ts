@@ -51,6 +51,7 @@ import {
   WRONG_HOLD_MS,
   WRONG_FADE_OUT_MS,
   SWEEP_ALPHAS,
+  solverSequenceMs,
   WAVE_MS,
   WAVE_LOD_LAYERS,
   HINT_PULSE_MS,
@@ -127,7 +128,15 @@ import {
   sprintSettleRows,
 } from '../systems/sprint-settle';
 import { comboBurst, comboParticleOffsets } from './combo-vfx';
-import { SWEEP_LAYER_COUNT, sweepCenterX, sweepQuad, waveEnvelope, waveWindowMs } from './scene-vfx';
+import {
+  solverBeadProgress,
+  solverHintAlpha,
+  SWEEP_LAYER_COUNT,
+  sweepCenterX,
+  sweepQuad,
+  waveEnvelope,
+  waveWindowMs,
+} from './scene-vfx';
 import type { WaveEnvelope } from './scene-vfx';
 
 const FONT = {
@@ -694,6 +703,13 @@ function drawGrid(
   const wave: WaveEnvelope = { scale: 1, dy: 0, active: false };
   const waveT = snap.waveProgress > 0 && !snap.reduceMotion ? snap.waveProgress * WAVE_MS : -1;
   const waveWindow = waveWindowMs(snap.gridCols);
+  // G2′ `vfx_solver_restore`（WXG-T-150 / §1.6.2a）：快照只给单调标量 ⇒ 绝对毫秒
+  // 由**单一真源公式** `solverSequenceMs(count)` 还原（不在本文件重列公式）。
+  // ⚠️ 相 A 不受 `reduceMotion` 关停（纯 α 通道，§1.6.2a D1 行）；相 B 的曲线退化
+  // 已包在 `fillPopEnvelope` 里。`solverT < 0` = 本帧无序列。
+  const solverN = snap.solverCellCount;
+  const solverT = solverN > 0 && snap.solverProgress > 0 ? snap.solverProgress * solverSequenceMs(solverN) : -1;
+  const solverHintA = solverT > 0 ? solverHintAlpha(solverT) : 0;
   for (let i = 0; i < snap.gridRows; i++) {
     for (let j = 0; j < snap.gridCols; j++) {
       const cell = snap.cells[i * snap.gridCols + j]!;
@@ -758,7 +774,12 @@ function drawGrid(
       if (waveT > 0) waveEnvelope(j, waveT, waveWindow, wave);
       const isWave = wave.active;
       const popActive = isPop && !isWave;
-      if (popActive) fillPopEnvelope(snap.placeProgress, snap.reduceMotion, pop);
+      // G2′ 相 B：本格若是落座格 ⇒ 走**逐颗队列**通道（每颗一份完整 120ms 包络、
+      // 由 `SOLVER_STAGGER_MS` 错位起播），与 G1 单槽互斥（game 侧已保证不重叠）。
+      const solverStep = solverLandStep(snap, i, j);
+      const solverPopP = solverStep >= 0 && solverT > 0 ? solverBeadProgress(solverT, solverStep) : 0;
+      const popProgress = solverPopP > 0 ? solverPopP : popActive ? snap.placeProgress : 0;
+      if (popProgress > 0) fillPopEnvelope(popProgress, snap.reduceMotion, pop);
       // WXG-T-148 用户反馈：① 错位珠恒亮白环（可选取标识）；② board 锚珠抬起
       // （lift 沿用托盘 selected 语义，垫不参与 lift ⇒ 珠上移露垫 = 抬起读数）。
       // ③④（WXG-T-148 用户裁定）：锚 = 8 邻接连通错位珠组 —— 组内全格统一抬起。
@@ -780,7 +801,12 @@ function drawGrid(
         draft.lift = -6;
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
-      if (popActive) {
+      // G2′ 相 A：点名格在预警窗口内**仍是错位珠**（裁定「甲」⇒ 动手延后），
+      // 且本格必然同时带着 T-148 的恒亮白环（错位珠 ⇒ 可选取）⇒ 两者同帧会读成
+      // 「两层可选标识」且互相涂覆 ⇒ 用户裁定「点名期白环退让，由相 A 环独占」。
+      const named = solverN > 0 && solverHintA > 0 && solverIsNamed(snap, i, j);
+      if (named) draft.selectableRing = false;
+      if (popProgress > 0) {
         draft.scale = pop.scale;
         draft.contactAlpha = pop.contactAlpha;
         draft.contactWidth = pop.contactWidth;
@@ -797,11 +823,37 @@ function drawGrid(
       }
       const opts: FilledBeadOptions = draft;
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
+      // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
+      // 候选 I 墨 = `palette.slotBorder`（§1.6.2a）⇒ 非 danger/hint 色，不抢玩法语义。
+      if (named) {
+        drawStateRing(builder, bx, cy, BEAD_CELL, palette.slotBorder, solverHintA);
+      }
     }
   }
 }
 
 // ──────────────────────────────────────────────────────────────────── tray
+
+/**
+ * G2′ 相 A：本格是否在被点名清单里。
+ * 线性扫 ≤ `SOLVER_MAX_CELLS`（=3）⇒ 不建 Set / 不分配（热路径零分配）。
+ */
+function solverIsNamed(snap: BeadsSnapshot, row: number, col: number): boolean {
+  for (let k = 0; k < snap.solverCellCount; k++) {
+    if (snap.solverCellRows[k] === row && snap.solverCellCols[k] === col) return true;
+  }
+  return false;
+}
+
+/** G2′ 相 B：本格的落座序号（`-1` = 不在本序列的落座格里）。同样线性扫（≤6）。 */
+function solverLandStep(snap: BeadsSnapshot, row: number, col: number): number {
+  for (let k = 0; k < snap.solverLandCount; k++) {
+    if (snap.solverLandRows[k] === row && snap.solverLandCols[k] === col) {
+      return snap.solverLandSteps[k]!;
+    }
+  }
+  return -1;
+}
 
 
 /** 「微拱白瓷」三段内阴影（§1.3 v1.5；几何/α = `tuning.TRAY_PLATE`）。 */
@@ -906,6 +958,9 @@ function drawExpandButton(
   snap: BeadsSnapshot,
   palette: BeadsPalette,
 ): void {
+  // v1.25（WXG-T-143）：扩展后按钮隐藏 —— 4 行托盘面板（y∈[216,450]）完整覆盖
+  // 其热区 [230,318]，继续绘制会与 row2/row3 槽位视觉重叠（参考视频同款：用后即收）。
+  if (snap.trayExpanded) return;
   const btn = expandButtonLayout();
   const cy = btn.bottom + btn.h / 2;
   builder.rect(btn.x, btn.bottom, btn.w, btn.h, {

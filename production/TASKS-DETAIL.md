@@ -45,6 +45,7 @@
   - **改的是驱动口径不是判据**：D1 测试条原走真 `InputManager` 链点面板——`_readInput()` 唯一调用点在 `_stepPlaying` ⇒ PAUSED/level-clear/game-over/finish 四相收不到任何点击（= **BD-34**，用户裁定只立 WXG-T-100 占位、本单不动码）⇒ 面板动作改 `tapDesign` 驱动（与 `pause-settings.test.ts`/探针 P22 同口径）并在用例内写明「不得据此判面板真机可点」。
   - **本轮读数**：beads **238 passed**（22 文件）；探针整轮 54 组 = **PASS 29 / PASS\* 14 / FAIL 2（P4→T-102、P17→BD-12）/ ⛔ 9**，P5 段 FAIL 归零（A05-14 音↔视三方向解耦转 PASS）；证据 `production/qa/beads/evidence/g4-probe-v1.4-t097bd10.log`（`*.log` 被 `.gitignore` 排除，不入库）。**`pnpm run verify` = PASS 12｜SKIP 1（check:size）｜FAIL 1**：唯一红**与本单无关**——仓内**未跟踪**的 `packages/framework/tests/adapters/cocos-touch-origin-contract.test.ts`（**WXG-T-104 阶段 A 自标「今日必红」**的语义锁定用例，另一条线产物，2 failed/258 passed）⇒ 未动不删；BD-10 自身口径由 typecheck 干净 + beads 全量绿 + `framework:sync:check` ✅ 三处自证。
   - **收尾与沉淀**：本轮入 `knowledge/lessons.md` 三条 —— **K-043**（取证脚本装载必在模块 import 之前）、**K-044**（判定上限由判据完备性决定）、**K-045**（并发会话下共享台账禁文件级 `git add`，改 `git diff -U3` → 按 hunk/行过滤 → `git apply --cached` 单挑自己 hunk，并对被剔对象做**计数断言**）。`kb:sync` 沉淀统计 = **新增 1（K-045）｜修改 1（去重 `[K-xxx]` 残留占位——该脚本插号不删占位，本轮第二次遇到）｜激活 0｜归档 0**；`kb:check` 八重通过。**memory 越阈处置（用户拍板「乙」）**：`memory/2026-09-15.md` 本轮段由 1398 tok 压为**「摘要 + 指针」**至 7876 tok（原 8693），**未新增 budget-exempt 豁免条**；细节正本即本节。**遗留机制债**：单日期文件仍会随轮次反复越阈，已按用户要求立项「memory 二级详情文件索引」（下一轮领号；本轮不动并发会话正在写的 `TASKS.md` 头注，以免撞号）。本单提交面：`83be050` → `1654bdc` → `4efe5a6` → `c39ebac` → `cc8065e` → 本笔台账回填（共 6 笔，均含 `WXG-T-097`）。
+- **进度（2026-09-17·BD-04 核销）**：**BD-04 余两类 VFX**（消除溶解 `vfx_powerup_sweep` / 完成波浪 `vfx_complete_wave`）已随 **WXG-T-146** 落码（`scene-vfx.ts` + view-model 接线 + 15 例专项测试），本单四项范围**全部关闭**（BD-15/16/10 两半/32 ✅ + BD-04 ✅）⇒ **T-097 ✅ 完成**。后继：G4 探针 P4 段复跑归 QA。
 - **进度（2026-09-17·BD-32 完整修复）**：核验发现 T-087 只落了「首次落子清引导」（GAP-03），**判定仍是 `runs > 0`** ⇒ BD-32 病灶（首玩落子前杀进程 ⇒ runs=1 ⇒ 永久失引导）仍在。本批按规格「显式 `onboarded` 标记」修全：`save-schema` **v2→v3**（新字段 `onboarded`；`migrateV2ToV3` 内以 `runs>0` 一次性迁移存量档 —— ⚠️ 迁移必须在 migrate 层做：SaveManager.load 先 merge defaults，normalize 层无法区分「无字段」与「显式 false」）+ `beads-game` 判定改纯标记（`:1321`）+ 首次落子 `patch({onboarded:true})` **并显式 `save()`**（patch 只置 dirty，杀进程场景丢写）。测试：新增 `onboarded.test.ts` 4 例（v2 存量迁移 runs=5/0、**病灶回归：BOOT 未落子杀进程 ⇒ 重启引导仍在**、落子后重启不再见）；T-087 回访用例改写为 v2 存量档场景（旧场景「BOOT 未落子即退出」按 BD-32 语义**应**再看引导）；save-schema 测试补字段。全包 336/337（唯一红 = 并发会话 view-model 图元笔，非本单域）。
 - **范围（四项 FAIL/开放项）**：① **BD-15** 扩展入口（`input-control §8-1` 一类路由缺；连带让 `accessibility C1` 有对象）；② **BD-16** 拒绝轻提示（`input-control §8-7` 零反馈；hint 通道 T-087 已就绪，改动极小）；③ **BD-04** 余两类 VFX；④ **BD-10** 满槽告警多通道半边；⑤ **BD-32** 引导判定：`beads-game.ts:947` 以 `runs > 0` 判老玩家而每次 BOOT 自增 ⇒ 开局即杀进程永久失引导，改「首次 `bead:placed`」或显式 `onboarded` 标记。
 - **约束**：BD-32 若改 `runs` 语义/新增字段 ⇒ 走 `save-schema` 版本升位向后兼容（判例 T-088 v1→v2）；**禁**手改 §3，需动常量回传主对话串行落盘 §6；每子项一条细粒度提交含 `WXG-T-097`。
@@ -318,6 +319,13 @@
 
 ---
 
+- **✅ 主理人收口（2026-09-17）**：
+  - **D1 波浪关停不空等 800ms（自行派生裁定）→ 追认**：庆祝延迟唯一理由 = 动效，D1 关停动效仍延迟 = 纯惩罚；`CLEAR_PANEL_DELAY_MS` 派生逻辑随 reduceMotion 归零，判据迁移已落。
+  - **9 例红收口（本批适配）**：满槽塞珠/S9 restart 扩展容量/`lay1` 派生/BD-15 隐藏语义（穿透点选）—— 全部为 24 槽 v1.24/v1.25 的测试适配 + 语义改写不删例；连带 §8-11 消耗首落 `onboarded` 一次性写（BD-32 v3 合法例外）。
+  - **验证**：全量 **369/369**（32 文件）+ `tsc --noEmit` 0 + `build-cocos` ✅（14.0s）。
+  - **G2′ 拆出 T-149 确认**；「同格双环」待裁随 T-149 施工面处理（`selectableRing` 为可选取标识、`slot_border` 为 solver 点名动画，二者语义可分层共存或择一，届时裁）。
+  - **状态 → ✅ 完成（G3/G4 落码 + 24 槽适配收口；G2′ 拆 T-149）**。
+
 ## WXG-T-148
 
 - **名称**：beads·错位珠恒亮白环 + 锚珠抬起（用户反馈 ①②）
@@ -346,3 +354,30 @@
   4. `games/beads/design/references/ref-video-2026-09-17-ui-ux-analysis.md` §10.7：**勘误**——原「同向于我方 v1.23 的 k×45s」方向有误（实测 L3 150s→L4 120s **递减**，与 k 递增曲线相反）；样本仅 2 关不足以推断定价公式，我方 `LEVEL_TIME_PER_PAIR=45` 维持不变，补采样本后再议。
 - **测试**：`revive.test.ts` + `timer.test.ts` **15/15 绿**。⚠️ 全包当时 4 例红（`feedback-vfx` / `onboarded` ×2 / `save-schema` ×2）——**与本次改动零关联**（无一引用 `REVIVE_*`；工作树内 `save-schema.ts`/`view-model.ts`/`beads-game.ts` 有并发会话未提交在途改动，归属其单）。git index.lock 被并发进程持有 ⇒ 未能 stash 做 HEAD 基线比对，改以「改动面交集为空 + 常量引用扫描」证伪关联，**非假绿声明**。
 - **边界**：真机/预览未验证（常量级变更，无表现层改动；`failPanelLabel` 等文案消费方走常量自动更新）。
+
+## WXG-T-150
+
+- **名称**：beads · G2′ `vfx_solver_restore` 解环器归位落码（T-128「动态质感章」落码③，自 T-146 拆出）
+- **负责**：主理人(Qoder)　**P1**　**状态**：🔶 代码 + 判据 + 规格回写完成，**本会话零提交**（工作树混有并发会话 WXG-T-143 在途改动，见「提交边界」）
+- **用户裁定（2026-09-17，三次 AskUserQuestion）**：
+  1. **裁定「甲」（双环处置）**：T-148 恒亮白环与相 A 状态环不得同格叠两圈 ⇒ 白环 **clamp 进珠体内缘** + solver **点名期压掉白环**（该带由相 A 环独占）。
+  2. **裁定「甲」（相序）**：归位延后到相 A 200ms 之后（保 `ux-spec §5` 规格序）⇒ `usePowerup` **只扣次 + 点名**，到点逐颗 80ms 错开才真正 `_solveMisplaced`；执行时重算，玩家已自行取走的静默跳过。
+  3. **推进方式**：拍板后由我直接落码，不再 spawn 美术（历史裁定：用户曾两次取消 art-director 派单）。
+- **改动面（本单 6 件代码 + 4 件判据/文档回写）**：
+  1. `src/config/tuning.ts`：`SOLVER_HINT_MS / SOLVER_PER_BEAD_MS(=FILL_POP_MS) / SOLVER_STAGGER_MS / SOLVER_MAX_CELLS` + 总时长单一真源 `solverSequenceMs(n)`；头注写明**相 A = 玩法提交时刻，不得当纯表现层常量改**。
+  2. `src/game/state.ts`：快照 8 字段（`solverProgress` 哨兵 + `solverCell{Rows,Cols}Count` ≤3 + `solverLand{Rows,Cols,Steps}Count` ≤6）；**预分配、逐帧只写值**，不活跃 ⇒ count 归 0 且数组填 -1。
+  3. `src/game/beads-game.ts`：`interface SolverFxQueue` + `_solverFx`；`update()` 内 `_stepSolverFx(dt)` **排在 `_machine.update` 之后**（本步会写棋盘 ⇒ 必须先于表现层步进）；相位守卫（`paused` 冻结不作废 / 其他非 `playing` 作废 / `_setupLevel` 作废）；**过关判定排在序列末**；相 B 走 `_noteSolverLand` 逐颗独立落座包络，**不进** G1 单槽 `_armPlaceFx`。
+  4. `src/view/scene-vfx.ts`：`solverHintAlpha(t) = sin(π·t/SOLVER_HINT_MS)` 与 `solverBeadProgress(t, step)` 两个「相位 → 幅值」纯函数（不重列落座公式）。
+  5. `src/view/view-model.ts`：循环外算 `solverN/solverT/solverHintA`；`popProgress = solverPopP > 0 ? solverPopP : (popActive ? placeProgress : 0)` 统一 G1 与相 B 包络来源；`named ⇒ draft.selectableRing = false`；`drawFilledBead` 之后画相 A 环；两个线性扫助手 `solverIsNamed` / `solverLandStep`。
+  6. `src/view/bead-render.ts`：`selectableRing` 由外扩（环带 24.15–28.29）改为珠体内缘环（`ringW = stroke(0.09) = 4.14` ⇒ 环带 18.86–23），注释逐条写四处代价。
+  7. 判据：新建 `tests/solver-vfx.test.ts`（**15 例全绿**：①包络 3 / ②时序 8 / ③观感 4）；`tests/powerups.test.ts` **14 例迁移**（同帧零 `bead:placed` 不变式 + 过门后断言，payload 语义「实际归位格」→「点名格」，§8-2b `toHaveLength(1)→(2)`，**未软化原意图**）；`tests/helpers.ts` 新增 `advancePastSolver`（测试内**零字面秒数**）。
+  8. 规格回写：`art/assets-spec.md §1.6.2a` 追加「WXG-T-150 落码回写注」（三点与规格原文不同均系用户当场裁定 + 两处命名漂移 `SOLVER_MAX_BEADS→SOLVER_MAX_CELLS`、总时长走单一真源函数 + 80/120 门旁通消解）。
+  9. QA 镜像：`production/qa/beads/test-cases.md` v1.9→**v1.10**，新增 **TC-PER-23/24/25**（时序门 / 环互斥与 clamp / 单一真源）。
+  10. `ux-spec §5` **零变更**（毫秒真源未被推翻）；`systems-index §3` **零变更**（无新冻结常量）。
+- **两处实测推翻规格（诚实登记，非软化判据）**：
+  - **图元净值 +3 → +0**：§1.6.2a 的「净 +3」前提是立项时「错位珠无恒亮标记」；T-148 已上线恒亮白环 ⇒ 点名格为**白环 ↔ 相 A 环 1:1 互换** ⇒ `countRects` 差分实测**相等**（已钉测试）⇒ **§1.8 基线 ④1828 / ④1924 零变动**，不推高包体口径。
+  - **80ms vs 120ms 门冲突消解旁通**：相 B 不走 G1 的 `FILL_POP_RESTART_GATE_MS`（该常量**一字未动**），改走独立逐颗队列 ⇒ 交换一步的两格**共享同一 step**，既保逐颗 80ms 错开又保每颗完整 120ms 包络。
+- **验证**：`games/beads` 全量 `npx vitest run` = **369 passed / 0 failed**（本会话中段曾为 3 failed | 366 passed，那 3 红属并发会话 **WXG-T-143 托盘 24 槽在途**判据迁移（`btn_expand` 热区 275 vs 304、`tray.capacity` 12 vs 24），**已由该会话自行收口** ⇒ 报数前必重跑，不引用上一段旧数）。归属举证方法：逐条读失败断言 + `git diff` 确认本单 hunk 零涉及 `TRAY_*` / `btn_expand`。`npx tsc --noEmit` **exit 0**；`pnpm run framework:sync` 已跑（cocos 镜像 = src 单向产物）；`check:tasks` / `check:links` 双绿。
+- ⚠️ **`pnpm run verify` = 14 PASS / 1 FAIL**：唯一红 = **`check:size`**（beads 产物主包 **4647.2 KB > 平台红线 4096 KB**）。产物时间戳 = **19:39**（本会话未跑 `build:cocos`，系并发会话当时刚重建的本地构建目录）⇒ **不归因本单**（本单图元净 **+0**、零新增资源、零音频/图片改动）；该超出属托盘 24 槽批次的包体议题，**已提请主理人关注，未自行处置**（包体优化需用户拍板走分包/远程包）。
+- **提交边界（⚠️ 后续收口方必读）**：`tuning.ts` / `beads-game.ts` / `view-model.ts` 三件**同文件交叉**了 WXG-T-143 的 v1.25 托盘改动与 onboard 标记；`memory/2026-09-17.md` 同理。⇒ 要么等该单收口后整批提交并在消息内并列两号，要么 `git add -p` 逐 hunk 拆；**禁止**整文件 `git add` 时误带他人未收口改动。
+- **边界**：像素级目视与真机手感**待执行**（无屏幕层通路，判据只到命令层几何与 α）；相 A 的「先预警后动手」手感是否需调 200ms 需 Playtest 反馈，本单不改常量。

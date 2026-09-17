@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { TRAY_BASE_SLOTS } from '../src/config/tuning.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import { judgePlacement } from '../src/systems/placement.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
@@ -156,7 +157,7 @@ describe('E1 · retrieve adjudication (bead-grid v2.0 §2.3 路径 A / §8-2)', 
     swapBeads(game, 0, 0, 1, 1);
 
     // 填满托盘全部 12 槽（TRAY_BASE_SLOTS）。
-    for (let i = 0; i < 12; i++) expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
+    for (let i = 0; i < TRAY_BASE_SLOTS; i++) expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
     expect(game.tray.freeCount).toBe(0);
 
     const eventsBefore = harness.emitted.length;

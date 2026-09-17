@@ -25,8 +25,10 @@ export const HUD_BAND = { yMin: 1214, yMax: 1334 } as const;
 export const CAPSULE_AVOID = { xMin: 560, xMax: 750, yMin: 1214, yMax: 1334 } as const;
 /** Puzzle band — the pattern matrix is centred inside it (both axes). */
 export const PUZZLE_BAND = { yMin: 480, yMax: 1120 } as const;
-/** Tray band (white rounded panel). §3.1 v1.20：上沿 420→450，带下沿让给 `btn_expand`。 */
-export const TRAY_BAND = { yMin: 230, yMax: 450 } as const;
+/** Tray band (white rounded panel). §3.1 v1.25：下沿 230→216 —— v1.24 冻结的
+ * 4 行扩展态（panelH 234）必须完整落带（推导见 design/proposals/tray-24-layout-derivation.md）；
+ * 基础态 2 行（panelH 120，y∈[330,450]）与 `btn_expand` 净空 12px 不受影响。 */
+export const TRAY_BAND = { yMin: 216, yMax: 450 } as const;
 /** Powerup band (3 white cards — S6 landed in WXG-T-060). */
 // ─────────────────── v1.5 质感渲染（assets-spec §1.9 / §1.2 v1.5，WXG-T-131/143）──
 // 以下均为**实现派生值**（美术规格数值级落码），非 §3 gameplay 冻结常量。
@@ -129,16 +131,19 @@ export const GRID_MIN_ROWS = 5;
 
 // ───────────────────────────────────────────────────────────── §3.4 tray
 /**
- * Base tray capacity（⛔ **v1.24 冻结变更 12→24**，WXG-T-141，用户 2026-09-17 拍板；
- * 2 行 × 12。**工程侧尚未适配**：托盘布局/面板高度/HUD 带位为破坏性布局变更，
- * 规格缺新尺寸 ⇒ WXG-T-143 先回传请示，待面板尺寸定稿后切换。当前仍生效 12。
+ * Base tray capacity（v1.24 冻结变更 12→24，WXG-T-141 用户 2026-09-17 拍板；
+ * 2 行 × 12。**WXG-T-143 工程适配落码**：面板尺寸按
+ * `design/proposals/tray-24-layout-derivation.md` 推导定稿（panelH 120，
+ * y∈[330,450]，贴带顶锚定；`btn_expand` 净空 12px 与旧 1 行态一致）。
+ * `Tray` 实体与 `trayLayout(rows)` 的行数均为 capacity 派生 ⇒ 本值切换零接线。
  */
-export const TRAY_BASE_SLOTS = 12;
+export const TRAY_BASE_SLOTS = 24;
 /**
- * Expansion capacity（⛔ **v1.24 冻结变更 12→24**，同上；扩展后 48 槽 4 行）。
- * 待适配，理由同上。
+ * Expansion capacity（v1.24 冻结变更 12→24，同上；扩展后 48 槽 4 行，panelH 234，
+ * y∈[216,450] —— `TRAY_BAND.yMin` 已随 v1.25 修订为 216）。扩展后 `btn_expand`
+ * 隐藏（热区被 4 行面板覆盖，row2/row3 槽心落入其中）。
  */
-export const TRAY_EXPAND_SLOTS = 12;
+export const TRAY_EXPAND_SLOTS = 24;
 /** Slots per tray row. */
 export const TRAY_COLS = 12;
 /** Slot edge length. */
@@ -560,6 +565,36 @@ export const FILL_POP_SHADOW_DY_MIN = 2;
  * 同族判例 = `WRONG_FX_RESTART_GATE_MS`（500ms）与 ux-spec §5「放错拒绝」行的 500ms 门。
  */
 export const FILL_POP_RESTART_GATE_MS = 120;
+
+/* G2′ `vfx_solver_restore` — 解环器归位（WXG-T-150，T-128 动态质感章落码③）。
+   规格正本 = assets-spec §1.6.2a；毫秒真源 = ux-spec §5「解环器归位」行
+   （**200 + 120/颗、逐颗 80ms 间隔**）⇒ 本组零新造时长、**零 §3 变更**。
+   ⚠️ **与 G1/G3/G4 不同口径（诚实登记）**：相 A 的 200ms 不只是观感时长，而是
+   **「先预警 → 后动手」的玩法提交时序**（用户 2026-09-17 拍板「甲：归位延后到 200ms 后」）
+   ⇒ 它决定 `bead:placed` / 过关判定 / 托盘可取状态的实际发生帧。仍按 §1.6.2a 口径住
+   `tuning`（时长真源在 ux-spec §5 而非 §3），但**不得当作纯表现层常量改动**。 */
+/** 相 A 高亮预警时长（单峰 `α = sin(π·t/200)`）；**D1 不关停**（纯 α 通道，非形变非位移）。 */
+export const SOLVER_HINT_MS = 200;
+/** 相 B 逐颗落座时长：**直接复用 G1** `FILL_POP_MS`（不复制值，§1.6.2a「逐字复用 §1.6.1 逐帧表」）。 */
+export const SOLVER_PER_BEAD_MS = FILL_POP_MS;
+/**
+ * 逐颗错开量（ux-spec §5 冻结值 80）——**小于** G1 的 `FILL_POP_RESTART_GATE_MS` 120
+ * ⇒ 单槽通道每隔一颗就会被门拑掉（`_armPlaceFx` 头注登记的冲突）。本单解法 =
+ * **逐颗队列**（每颗一份 120ms 包络、由 `SOLVER_STAGGER_MS` 错位起播），
+ * **不动** G1 的手动连点重启门（那是防连点堆叠的，不是为道具设的）。
+ */
+export const SOLVER_STAGGER_MS = 80;
+/** 一次点名的上限：沿 §3.6 `SOLVER_PLUS_COUNT`（引用冻结值，不新增）。 */
+export const SOLVER_MAX_CELLS = SOLVER_PLUS_COUNT;
+/**
+ * 整条序列总时长 = 相 A + 逐颗错开 `80×(n−1)` + 末颗落座 120（§1.6.2a 相序行）。
+ * **单一真源函数**：game 侧用它定计时窗口，view 侧用它把单调标量还原成绝对毫秒
+ * ⇒ 不得在两边各写一份公式（漂移先例 = §1.6.4 初稿 `lodLayers` 6 vs 7）。
+ */
+export function solverSequenceMs(count: number): number {
+  const n = count < 1 ? 1 : count;
+  return SOLVER_HINT_MS + SOLVER_STAGGER_MS * (n - 1) + SOLVER_PER_BEAD_MS;
+}
 
 /* G3 `vfx_powerup_sweep` — 道具生效扫光（WXG-T-146，T-128 动态质感章落码②）。
    规格正本 = assets-spec §1.6.3；毫秒真源 = ux-spec §5「道具生效」行（400ms）。

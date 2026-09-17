@@ -89,9 +89,11 @@ function mkPair(saveKey: string, levels: readonly ReturnType<typeof simpleTestLe
 } {
   return {
     real: createBeadsHarness({
-      noAssemble: true, levels, saveKey: `${saveKey}.real` }),
+      noAssemble: true, levels, saveKey: `${saveKey}.real`
+    }),
     bypass: createBeadsHarness({
-      noAssemble: true, levels, saveKey: `${saveKey}.bypass` }),
+      noAssemble: true, levels, saveKey: `${saveKey}.bypass`
+    }),
   };
 }
 
@@ -255,16 +257,17 @@ describe('面板四相位 · 真链「面板外零响应」（input-control §2.
     setup: (h: Harness) => void;
     phase: string;
   }[] = [
-    { name: 'paused', key: 'rc-n-paused', levels: TWO_LEVELS, setup: setupPaused, phase: 'paused' },
-    { name: 'game-over', key: 'rc-n-over', levels: TWO_LEVELS, setup: setupGameOver, phase: 'game-over' },
-    { name: 'level-clear', key: 'rc-n-clear', levels: TWO_LEVELS, setup: setupLevelClear, phase: 'level-clear' },
-    { name: 'finish', key: 'rc-n-finish', levels: [simpleTestLevel()], setup: setupFinish, phase: 'finish' },
-  ];
+      { name: 'paused', key: 'rc-n-paused', levels: TWO_LEVELS, setup: setupPaused, phase: 'paused' },
+      { name: 'game-over', key: 'rc-n-over', levels: TWO_LEVELS, setup: setupGameOver, phase: 'game-over' },
+      { name: 'level-clear', key: 'rc-n-clear', levels: TWO_LEVELS, setup: setupLevelClear, phase: 'level-clear' },
+      { name: 'finish', key: 'rc-n-finish', levels: [simpleTestLevel()], setup: setupFinish, phase: 'finish' },
+    ];
 
   for (const c of cases) {
     it(`${c.name}：真链点面板外（遮罩/空白）→ 零事件、零相位变化`, () => {
       const h = createBeadsHarness({
-      noAssemble: true, levels: c.levels, saveKey: `wxgame.beads.test.${c.key}` });
+        noAssemble: true, levels: c.levels, saveKey: `wxgame.beads.test.${c.key}`
+      });
       c.setup(h);
       expect(h.game.phase).toBe(c.phase);
 

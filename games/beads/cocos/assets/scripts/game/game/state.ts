@@ -12,6 +12,7 @@ import type { SlotState } from '../entities/tray';
 import type { CellState } from '../entities/grid';
 import {
   POWERUP_FREE_USES,
+  SOLVER_MAX_CELLS,
   type BeadsTuning,
   type PowerupType,
 } from '../config/tuning';
@@ -218,6 +219,28 @@ export interface BeadsSnapshot {
   placeCol: number;
   placeProgress: number;
   /**
+   * G2′ `vfx_solver_restore` 解环器归位（WXG-T-150 / `assets-spec §1.6.2a`）：
+   * 整条序列（相 A 预警 + 相 B 逐颗落座）的单调进度，`0` = 不播放。
+   * 绝对毫秒 = `solverProgress × solverSequenceMs(solverCellCount)`（单一真源在 `tuning`，
+   * game 定窗 / view 还原同用一式）。
+   */
+  solverProgress: number;
+  /**
+   * 相 A 点名格（= S6 `powerup:used.affectedCells`，行主序、≤ `SOLVER_MAX_CELLS`）。
+   * 这些格在预警窗口内**仍是错位珠**（用户裁定「甲」：动手延后到相 A 之后）。
+   */
+  solverCellRows: number[];
+  solverCellCols: number[];
+  solverCellCount: number;
+  /**
+   * 相 B 落座格（= 归位后**收到珠**的格；交换场景一步两格 ⇒ 共享同一 `step`）。
+   * 三数组等长、`step` = 该格属于序列里的第几颗（view 侧据此算逐颗 80ms 错开的局部相位）。
+   */
+  solverLandRows: number[];
+  solverLandCols: number[];
+  solverLandSteps: number[];
+  solverLandCount: number;
+  /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
    * ⇒ **无空间坐标**，只需一个单调标量（0 = 不绘制）；几何与缓动全在 view 侧推导。
    */
@@ -334,6 +357,16 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     placeRow: -1,
     placeCol: -1,
     placeProgress: 0,
+    // G2′（WXG-T-150）：预分配容量 ⇒ 逐帧只写值、不新建（热路径零分配）。
+    // 上界 = `SOLVER_MAX_CELLS`（点名）与其 2 倍（交换一步两格）。
+    solverProgress: 0,
+    solverCellRows: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+    solverCellCols: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+    solverCellCount: 0,
+    solverLandRows: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
+    solverLandCols: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
+    solverLandSteps: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
+    solverLandCount: 0,
     sweepProgress: 0,
     waveProgress: 0,
     onboarding: false,

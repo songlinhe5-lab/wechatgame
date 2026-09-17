@@ -588,10 +588,12 @@ describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · 
         expect(h.game.expandTray()).toBe(true);
         const emitted = h.emitted.length;
 
-        expect(h.game.tapDesign(BTN_MID.x, BTN_MID.y)).toBe(true);
+        // v1.25（WXG-T-143）：扩展态按钮隐藏 ⇒ 点击**穿透**到 4 行托盘槽点选
+        //（原「吞掉返回 true」期望随隐藏语义改写）。
+        expect(h.game.tapDesign(BTN_MID.x, BTN_MID.y)).toBe(false);
 
         expect(h.game.snapshot.tapHintText).toBe('');
-        expect(h.emitted.length).toBe(emitted);
+        expect(h.emitted.length).toBe(emitted); // 零事件（空槽点选不发声）
         expect(h.game.tray.capacity).toBeGreaterThan(TRAY_BASE_SLOTS); // 未被二次改写
     });
 
@@ -622,9 +624,11 @@ describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · 
         expect(eb.hitBottom).toBeGreaterThan(POWERUP_BAND.yMax);
         // 与托盘槽热区（基线态 / 扩展态）零重叠 ⇒ 不需 §8-2 重叠仲裁。
         const half = TRAY_HIT_SIZE / 2;
-        for (const rows of [1, Math.ceil((TRAY_BASE_SLOTS + 4) / TRAY_COLS)]) {
-            const lay = trayLayout(rows);
-            for (let row = 0; row < rows; row++) {
+        // 基线 2 行（v1.24）：槽热区与按钮热区零重叠。
+        // 扩展 4 行态：按钮**隐藏**（v1.25），槽热区覆盖其热区 = 预期，不再断重叠。
+        {
+            const lay = trayLayout(Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS));
+            for (let row = 0; row < Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS); row++) {
                 const cy = lay.slotCenterY(row);
                 expect(cy - half).toBeGreaterThan(eb.hitBottom + eb.hitH);
             }
@@ -661,7 +665,8 @@ describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · 
 
 // ══════════════════ T-097 BD-10 满槽告警面板描边（ux-spec §5 / assets-spec §1.5）══════════════════
 describe('T-097 BD-10 满槽告警面板描边', () => {
-    const lay1 = trayLayout(1);
+    // v1.24：托盘 12→24（WXG-T-141）⇒ 面板几何随行数派生，不再单行基线。
+    const lay1 = trayLayout(Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS));
 
     /**
      * 面板尺寸那条 danger 描边环。`wrong` 态用的也是 `palette.danger`

@@ -21,7 +21,13 @@ import {
   SOLVER_RANDOM_COUNT,
 } from '../src/config/tuning.js';
 import { PowerupSystem, type MisplacedBead } from '../src/systems/powerups.js';
-import { createBeadsHarness, simpleTestLevel, type Harness, type HarnessOptions } from './helpers.js';
+import {
+  advancePastSolver,
+  createBeadsHarness,
+  simpleTestLevel,
+  type Harness,
+  type HarnessOptions,
+} from './helpers.js';
 
 type UsedPayload = { type: string; affectedCells: readonly { row: number; col: number }[] };
 
@@ -98,6 +104,14 @@ function adSpy(): { provider: RewardedAdProvider; calls: string[] } {
   return { provider, calls };
 }
 
+/**
+ * G2′ 相 A（WXG-T-150 / 裁定「甲」）的**同帧**不变式：`usePowerup` 只扣次 + 点名，
+ * 棋盘与事件都不得提前动。每一处「归位后」断言前先走本断言、再 `advancePastSolver`。
+ */
+function expectDeferred(h: Harness): void {
+  expect(h.all('bead:placed')).toHaveLength(0); // 相 B 未到点 ⇒ 零落子事件
+}
+
 // ─────────────────────────────────────────────────────── 常量镜像 §3.6
 
 describe('S6 §3.6 常量镜像', () => {
@@ -129,6 +143,11 @@ describe('S6 §8-1 solver 点名行主序首颗并归位', () => {
     expect(payload.affectedCells).toHaveLength(1);
     expect(payload.affectedCells).toEqual([misplaced[0]!]);
     const solved = payload.affectedCells[0]!;
+    // G2′ 相 A（裁定「甲」）：本帧**只点名不动手** ⇒ 被点名的格仍是错位珠。
+    expectDeferred(h);
+    expect(h.game.grid.isMisplaced(solved.row, solved.col)).toBe(true);
+    // 相 B 到点后才真归位。
+    advancePastSolver(h);
     expect(h.game.grid.isMisplaced(solved.row, solved.col)).toBe(false);
   });
 });
@@ -144,23 +163,28 @@ describe('S6 §8-2 solverPlus 点名上限', () => {
     expect(h.game.usePowerup('solverPlus')).toBe(true);
     const payload = h.last<UsedPayload>('powerup:used')!;
     // 原：region 6 槽；改：solverPlus 上限 = SOLVER_PLUS_COUNT = 3（不足不补）。
-    // ⚠️ payload 记**实际归位**格：点名 3 颗里可能有一颗已被同对交换连带修好
-    // ⇒ solved = 2（4 颗错位归位）。COUNT 上限的纯选择断言见 §8-4 单元测。
+    // G2′（WXG-T-150）后 payload = **点名格**（相 A 清单）而非「实际归位格」；
+    // ⚠️ 点名 3 颗里可能有一颗已被同对交换连带修好 ⇒ 归位数可 < 点名数。
     expect(payload.affectedCells.length).toBeGreaterThanOrEqual(1);
     expect(payload.affectedCells.length).toBeLessThanOrEqual(SOLVER_PLUS_COUNT);
+    expectDeferred(h);
+    advancePastSolver(h, SOLVER_PLUS_COUNT);
     expect(h.game.grid.misplacedCount).toBe(4);
   });
 
   it('names fewer when the board has fewer misplaced beads（不足不补）', () => {
-    // 原：random 不足数不补抽（§8-5）；改：solverPlus 同判例。一对交换错位 ⇒
-    // 点名 2 颗、首颗交换连带修好配对珠 ⇒ payload = 1、错位清零。
+    // 原：random 不足数不补抽（§8-5）；改：solverPlus 同判例。
+    // G2′（WXG-T-150）后 payload = 点名格 ⇒ 一对交换 ⇒ 点名 2 颗（旧写法记「首颗交换
+    // 连带修好配对珠 ⇒ payload = 1」——那是 payload = 实际归位数时代的读数，作废）。
     const h = mk('wxgame.beads.test.s6-2b');
     const misplaced = buildMisplaced(h, 1); // 2 颗错位 < 3
     expect(misplaced.length).toBe(2);
 
     expect(h.game.usePowerup('solverPlus')).toBe(true);
     const payload = h.last<UsedPayload>('powerup:used')!;
-    expect(payload.affectedCells).toHaveLength(1);
+    expect(payload.affectedCells).toHaveLength(2);
+    expectDeferred(h);
+    advancePastSolver(h, 2);
     expect(h.game.grid.misplacedCount).toBe(0);
   });
 });
@@ -186,6 +210,8 @@ describe('S6 §8-3 归位几何：empty 目标格优先，否则交换', () => {
     expect(h.game.usePowerup('solver')).toBe(true);
     const payload = h.last<UsedPayload>('powerup:used')!;
     expect(payload.affectedCells).toEqual([{ row: 0, col: 1 }]);
+    expectDeferred(h);
+    advancePastSolver(h);
     // 直移：原格 empty、家格就位（珠数守恒 ⇒ 原格留空，不再全满 ⇒ 不判通关）。
     expect(grid.cell(0, 1)!.state).toBe('empty');
     expect(grid.cell(0, 0)!.beadColorIdx).toBe(homeColor);
@@ -200,6 +226,8 @@ describe('S6 §8-3 归位几何：empty 目标格优先，否则交换', () => {
     expect(h.game.usePowerup('solver')).toBe(true);
     const payload = h.last<UsedPayload>('powerup:used')!;
     expect(payload.affectedCells).toEqual([{ row: 0, col: 0 }]);
+    expectDeferred(h);
+    advancePastSolver(h);
     // 交换：两格都归位（错位计数 −2）。
     expect(h.game.grid.cell(0, 0)!.beadColorIdx).not.toBe(before);
     expect(h.game.grid.isMisplaced(0, 0)).toBe(false);
@@ -257,7 +285,9 @@ describe('S6 §8-6 零托盘读写（v1.22 新判据，取代「clearAll 全容�
 
     expect(h.game.usePowerup('solverPlus')).toBe(true);
     expect(h.count('powerup:used')).toBe(1);
-    expect(traySnapshot(h)).toBe(before); // 托盘零读写
+    expect(traySnapshot(h)).toBe(before); // 托盘零读写（相 A）
+    advancePastSolver(h, SOLVER_PLUS_COUNT);
+    expect(traySnapshot(h)).toBe(before); // 相 B 真归位后仍零读写（否则本断言会空转）
   });
 });
 
@@ -276,6 +306,7 @@ describe('S6 §8-7 只动错位珠（改写自「零网格写入」）', () => {
     const filledBefore = grid.filledCount;
 
     expect(h.game.usePowerup('solverPlus')).toBe(true);
+    advancePastSolver(h, SOLVER_PLUS_COUNT); // G2′：到点才写盘 ⇒ 本断言若不留门会空转
     expect(grid.filledCount).toBe(filledBefore);
     let locked = 0;
     for (let r = 0; r < grid.rows; r++)
@@ -332,6 +363,10 @@ describe('S6 §8-10 bead:placed 语义与通关（解环器路径无 slot）', (
     buildMisplaced(h, 1); // 一对交换错位 ⇒ solver 交换后即全归位
 
     expect(h.game.usePowerup('solver')).toBe(true);
+    // G2′ 相 A（裁定「甲」）：同帧零 `bead:placed`、零过关 ⇒ 过关判定排在序列末。
+    expectDeferred(h);
+    expect(h.count('level:cleared')).toBe(0);
+    advancePastSolver(h);
     const placed = h.all<{ slot?: number }>('bead:placed');
     expect(placed.length).toBeGreaterThanOrEqual(1);
     for (const p of placed) expect('slot' in p).toBe(false); // 解环器路径不带 slot

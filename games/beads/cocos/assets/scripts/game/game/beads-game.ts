@@ -71,6 +71,10 @@ import {
   WRONG_FX_RESTART_GATE_MS,
   FILL_POP_MS,
   FILL_POP_RESTART_GATE_MS,
+  SOLVER_HINT_MS,
+  SOLVER_MAX_CELLS,
+  SOLVER_STAGGER_MS,
+  solverSequenceMs,
   SWEEP_MS,
   WAVE_MS,
   CLEAR_PANEL_DELAY_MS,
@@ -216,6 +220,31 @@ function isPanelPhase(phase: BeadsPhase | null): boolean {
   return phase !== null && PANEL_PHASES.indexOf(phase) >= 0;
 }
 
+/**
+ * G2′ `vfx_solver_restore` 队列槽（WXG-T-150 / `assets-spec §1.6.2a`）。
+ *
+ * 命名成单独类型（而非内联）是为了给相 B 的执行入口 `_solveMisplaced` 一个
+ * **可空**形参：`null` = 手动路径（走 G1 单槽门），非空 = 解环器路径（进队列）。
+ */
+interface SolverFxQueue {
+  /** 序列内已推进的毫秒。 */
+  elapsedMs: number;
+  /** `solverSequenceMs(count)` ⇒ 快照标量的分母（单一真源在 tuning）。 */
+  totalMs: number;
+  /** 点名颗数（= `cellRows` 有效长度）。 */
+  count: number;
+  /** 下一颗待执行的序号（`while` 追帧用）。 */
+  step: number;
+  /** 实际归位成功的颗数（序列末过关判定与零归位警告用）。 */
+  solved: number;
+  readonly cellRows: number[];
+  readonly cellCols: number[];
+  landCount: number;
+  readonly landRows: number[];
+  readonly landCols: number[];
+  readonly landSteps: number[];
+}
+
 export class BeadsGame implements Game {
   readonly id = 'beads';
   readonly tuning: BeadsTuning;
@@ -305,6 +334,18 @@ export class BeadsGame implements Game {
   private _placeFx: { row: number; col: number; elapsedMs: number } | null = null;
   /** 落座 fx 上次起播时刻（同 `_wrongFxArmedAtMs` 判例；`-Infinity` ⇒ 首帧即允许起播）。 */
   private _placeFxArmedAtMs = Number.NEGATIVE_INFINITY;
+  /**
+   * G2′ `vfx_solver_restore` 解环器归位队列（WXG-T-150 / `assets-spec §1.6.2a`）。
+   *
+   * ⚠️ **与 `_placeFx` / `_sweepElapsedMs` 不同类**：本槽的推进**会改棋盘**（相 B 到点才真
+   * 正 `_solveMisplaced`）⇒ 它是玩法提交时序的一部分，必须走 `playing` 相位守卫，
+   * **不能**放进 `_update` 尾部的「表现层不冻结」那一串。用户 2026-09-17 裁定「甲：
+   * 归位延后到相 A 200ms 之后」⇒ `powerup:used` 只点名，`bead:placed` / 过关判定
+   * 都推到各自到点的那一帧。
+   *
+   * 数组定长预分配（`SOLVER_MAX_CELLS` / ×2），逐帧只写值（热路径零分配）。
+   */
+  private _solverFx: SolverFxQueue | null = null;
   /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
    * ⇒ 无空间坐标，一个计时标量即可（`-1` = 未播放）。触发源 = `powerup:used`。
@@ -607,6 +648,9 @@ export class BeadsGame implements Game {
     // 会把输入挤到计时之后，破坏该序。热路径零分配：`_readInput` 只写复用指针。
     this._readInput();
     this._machine.update(dt);
+    // G2′ 相 B 到点动手：**先于**面板与表现层步进，因为本步会写棋盘并可能达成过关
+    // （`cleared-priority`，core-loop §2.2.2 ⇒ 完成判定排在同一帧的事件之后）。
+    this._stepSolverFx(dt);
     // Panel animation is presentation, not gameplay: it keeps running while the
     // world is frozen so the enter/exit ramp never stalls (ux-spec §5).
     this._panel.update(dt * 1000);
@@ -820,22 +864,13 @@ export class BeadsGame implements Game {
     if (outcome.kind !== 'used') return false;
     this._powerupHint = '';
 
-    const solved: { row: number; col: number }[] = [];
-    for (const cell of outcome.affectedCells) {
-      if (this._solveMisplaced(cell.row, cell.col)) solved.push({ row: cell.row, col: cell.col });
-    }
-    if (solved.length === 0) {
-      // 点名却无一可归位（几何上不可能：清单即错位珠）⇒ 记警告供回归排查。
-      console.warn(`[beads] S6 解环器点名 ${outcome.affectedCells.length} 格、实际归位 0 格`);
-    }
-    this._emit('powerup:used', { type: outcome.type, affectedCells: solved });
+    // G2′（用户 2026-09-17 裁定「甲」）：本帧**只点名不动手** —— 相 A 200ms 闪环期间
+    // 棋盘保持原样，`bead:placed` 与过关判定全部推到相 B 各自到点的那一帧（`_stepSolverFx`）。
+    // 事件载荷 = 点名格（§1.6.2a「affectedCells = 预警高亮的格」）；音频派发（S6）零变化。
+    const named = outcome.affectedCells;
+    this._emit('powerup:used', { type: outcome.type, affectedCells: named });
     this._armSweepFx(); // G3 扫光（表现层，不影响裁决）：与 §1.6.2a 解环器归位同帧启动
-
-    // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）。
-    if (solved.length > 0 && this._grid.isComplete()) {
-      if (this._mode === 'sprint') this._completeStage();
-      else this._machine.transition('level-clear');
-    }
+    this._armSolverFx(named);
     return true;
   }
 
@@ -860,9 +895,21 @@ export class BeadsGame implements Game {
    *  - 目标格为 empty ⇒ `retrieve` + `fill`（同一调用栈，与取回→归位同源）；
    *  - 目标格被另一颗错位珠占据 ⇒ 两格 `setBead` 交换（就位珠 / locked 永不可触）。
    *
-   * @returns 是否真的归位（false = 该格不是错位珠 / 无合法目标格）。
+   * 落座动画的两条路（§1.6.1 vs §1.6.2a）：
+   *  - **手动 / 非 G2′ 调用**（`fx = null`）⇒ 走 `_armPlaceFx`，受 120ms 连点重启门约束；
+   *  - **解环器相 B**（传 `fx`）⇒ **不碰** `_armPlaceFx`，只往队列的 `land*` 槽里记录
+   *    「哪一格在第 `step` 颗落座」⇒ 视图按逐颗 80ms 错开自行取包络（每颗一份完整
+   *    120ms，不受手动连点门拑制）。交换场景两格**共享同一 `step`**（一步两格同时落）。
+   *
+   * @returns 是否真的归位（false = 该格不是错位珠 / 无合法目标格）。相 B 里玩家已在
+   *          预警窗口内自行取走该珠 ⇒ false，静默跳过（不警告、不扣次、不回放动画）。
    */
-  private _solveMisplaced(row: number, col: number): boolean {
+  private _solveMisplaced(
+    row: number,
+    col: number,
+    fx: SolverFxQueue | null = null,
+    step = 0,
+  ): boolean {
     if (!this._grid.isMisplaced(row, col)) return false;
     const bead = this._grid.cell(row, col)!.beadColorIdx;
 
@@ -887,7 +934,7 @@ export class BeadsGame implements Game {
       this._grid.fill(target.row, target.col, bead);
       // 解环器路径**不带 slot**（§4 事件表：`bead:placed.slot` 改可选）。
       this._emit('bead:placed', { row: target.row, col: target.col, colorIdx: bead });
-      this._armPlaceFx(target.row, target.col); // G1 落座回弹（表现层，不影响裁决）
+      this._noteSolverLand(fx, step, target.row, target.col);
       return true;
     }
     if (swapWith) {
@@ -896,11 +943,35 @@ export class BeadsGame implements Game {
       this._grid.setBead(swapWith.row, swapWith.col, bead);
       this._emit('bead:placed', { row, col, colorIdx: otherBead });
       this._emit('bead:placed', { row: swapWith.row, col: swapWith.col, colorIdx: bead });
-      // G1：两颗交换仅**首颗**得落座动画（120ms 门拑掉第二颗）——§1.6.1「单颗」口径，方注已登记。
-      this._armPlaceFx(row, col);
+      // 手动路径：两颗交换仅**首颗**得落座动画（120ms 门拑掉第二颗）——§1.6.1「单颗」口径，
+      // 方注已登记。相 B（有 `fx`）不走门，两格共享 `step` ⇒ 同时落座。
+      this._noteSolverLand(fx, step, row, col);
+      this._noteSolverLand(fx, step, swapWith.row, swapWith.col);
       return true;
     }
     return false;
+  }
+
+  /**
+   * 相 B 落座格登记（G2′）：`fx` 为空（手动 / 其他调用方）时退回 G1 单槽通道。
+   * 定长数组越界 = 静默丢弃（上界已由 `SOLVER_MAX_CELLS × 2` 保证，不每帧抛错）。
+   */
+  private _noteSolverLand(
+    fx: SolverFxQueue | null,
+    step: number,
+    row: number,
+    col: number,
+  ): void {
+    if (!fx) {
+      this._armPlaceFx(row, col); // G1 落座回弹（表现层，不影响裁决）
+      return;
+    }
+    const i = fx.landCount;
+    if (i >= fx.landRows.length) return;
+    fx.landRows[i] = row;
+    fx.landCols[i] = col;
+    fx.landSteps[i] = step;
+    fx.landCount = i + 1;
   }
 
   /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
@@ -1437,6 +1508,7 @@ export class BeadsGame implements Game {
     }
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows);
     this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
+    this._solverFx = null; // 换关 / 重试 ⇒ 作废在途的 G2′ 队列（相 B **会写盘**，不能拿旧格坐标动新棋盘）
     this._tray.reset();
     this._resetPowerups();
     this._tray.initNeeded(this._grid.neededColorCounts());
@@ -1917,11 +1989,15 @@ export class BeadsGame implements Game {
           slot: verdict.slot,
         });
         this._armPlaceFx(verdict.row, verdict.col); // G1 落座回弹（`assets-spec §1.6.1`）
-        this._onboardDone = true; // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）
+        // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）。
         // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
-        // 写 ⇒ 此处一次性低频 IO 直接 save()。
-        this._save?.patch({ onboarded: true });
-        this._save?.save();
+        // 写 ⇒ 此处一次性低频 IO 直接 save()。幂等守卫：仅首次落子写一次（后续
+        // 落子零 S8 写，守 §8-11「放置不触存档」）。
+        if (!this._onboardDone) {
+          this._onboardDone = true;
+          this._save?.patch({ onboarded: true });
+          this._save?.save();
+        }
 
         if (this._mode === 'sprint') {
           const score = this._sprint.onPlaced();
@@ -2142,6 +2218,10 @@ export class BeadsGame implements Game {
    * 托盘槽热区实测净空 11px ⇒ 不需要热区重叠仲裁（`input-control §8-2`）。
    */
   private _hitExpandButton(x: number, y: number): boolean {
+    // v1.25（WXG-T-143）：扩展态按钮隐藏 ⇒ 命中同时失效。其热区 [230,318] 此时
+    // 已被 4 行托盘面板覆盖（row2 槽心 y=306 / row3 y=252 落在区间内），若不短路
+    // 会把扩展态的托盘点选截胡在 route 3（渲染侧 drawExpandButton 同款守卫）。
+    if (this._tray.expanded) return false;
     const btn = expandButtonLayout();
     return (
       x >= btn.hitX &&
@@ -2258,11 +2338,10 @@ export class BeadsGame implements Game {
    * 同族判例 = `_armWrongFx` 的 500ms 门）：门内到达的新 `bead:placed` **不重启**，
    * 防连点堆叠。
    *
-   * ⚠️ **连发后果（诚实登记，不隐藏）**：`beads-game` 的 swap 路径与解环器**同帧发多颗**
-   * `bead:placed`（swap 一次 2 个事件）⇒ 门只会给**首颗**落座动画，其余被拑。
-   * 这与规格 §1.6.1「作用对象 = 刚填入的网格 filled 珠，**单颗**」一致；但 §1.6.2a
-   * G2′「解环器逐颗 80ms 错开」的间隔小于本门 ⇒ **G2′ 落码时必须单独处理**（提高
-   * 逐颗错开量或改用逐颗队列），否则每隔一颗无声。属 G2/G2′ 单（P1）范围，本单不预修。
+   * ⚠️ **与 G2′ 的口径分工**（冲突已在 WXG-T-150 销账）：本门只管**手动连点**。
+   * 解环器逐颗 80ms（`SOLVER_STAGGER_MS` < 120）若挤过本槽，每隔一颗会被拑掉而无声
+   * ⇒ G2′ 走**独立队列**（`_solverFx` 的 `land*` 槽，每颗一份完整 120ms 包络），
+   * 相 B 路径上 `_solveMisplaced` **不再**调用本方法（见 `_noteSolverLand`）。
    *
    * 非每帧路径：仅在落入网格帧调用 ⇒ 无每帧分配顾虑。
    */
@@ -2282,6 +2361,76 @@ export class BeadsGame implements Game {
     if (!fx) return;
     fx.elapsedMs += Math.max(0, dt) * 1000;
     if (fx.elapsedMs >= FILL_POP_MS) this._placeFx = null;
+  }
+
+  /**
+   * G2′ 起播（`assets-spec §1.6.2a`）：`usePowerup` 只点名，本方法建队列。
+   * 数组**一次性定长**分配（`SOLVER_MAX_CELLS` / ×2）⇒ 逐帧只写值。
+   * 非每帧路径（道具点击帧）⇒ 允许分配。
+   */
+  private _armSolverFx(cells: readonly { row: number; col: number }[]): void {
+    const n = cells.length < SOLVER_MAX_CELLS ? cells.length : SOLVER_MAX_CELLS;
+    if (n === 0) return; // `empty`/`invalid` 已由调用方早退；防御性不建空序列
+    const cellRows = new Array<number>(SOLVER_MAX_CELLS).fill(-1);
+    const cellCols = new Array<number>(SOLVER_MAX_CELLS).fill(-1);
+    for (let i = 0; i < n; i++) {
+      cellRows[i] = cells[i]!.row;
+      cellCols[i] = cells[i]!.col;
+    }
+    this._solverFx = {
+      elapsedMs: 0,
+      totalMs: solverSequenceMs(n),
+      count: n,
+      step: 0,
+      solved: 0,
+      cellRows,
+      cellCols,
+      landCount: 0,
+      landRows: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
+      landCols: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
+      landSteps: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
+    };
+  }
+
+  /**
+   * G2′ 推进（相 A → 相 B）。**不是表现层步进**（与 `_stepPlaceFx` / `_stepSweepFx` 的
+   * 「不被 PAUSED 冻结」判例相反）：
+   *  - `paused` ⇒ **冻结不作废**（道具已扣次，不该因一次暂停丢掉归位）；
+   *  - 其他非 `playing` 相位（过关 / 失败 / 面板）⇒ 作废队列，不再动棋盘；
+   *  - 逐颗执行按到点时刻 `SOLVER_HINT_MS + SOLVER_STAGGER_MS × step`，`while` 追帧
+   *    （大 dt / 后台回前的多帧补齐 ⇒ 不会漏执行）；
+   *  - 过关判定排在**序列末**（整条落座动画放完才进 G4 庆祝，裁定 1 同族）。
+   */
+  private _stepSolverFx(dt: number): void {
+    const fx = this._solverFx;
+    if (!fx) return;
+    const phase = this._machine.current;
+    if (phase === 'paused') return;
+    if (phase !== 'playing') {
+      this._solverFx = null;
+      return;
+    }
+    fx.elapsedMs += Math.max(0, dt) * 1000;
+    while (fx.step < fx.count) {
+      if (fx.elapsedMs < SOLVER_HINT_MS + SOLVER_STAGGER_MS * fx.step) break;
+      // 预警窗口内玩家可能已自行取走该珠 ⇒ 静默跳过（不警告、不补动画）。
+      if (this._solveMisplaced(fx.cellRows[fx.step]!, fx.cellCols[fx.step]!, fx, fx.step)) {
+        fx.solved++;
+      }
+      fx.step++;
+    }
+    if (fx.elapsedMs < fx.totalMs) return;
+    this._solverFx = null;
+    if (fx.solved === 0) {
+      // 点名却无一可归位（几何上不应发生，除非玩家刚好全取走）⇒ 记警告供回归排查。
+      console.warn(`[beads] S6 解环器点名 ${fx.count} 格、实际归位 0 格`);
+      return;
+    }
+    // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）。
+    if (this._grid.isComplete()) {
+      if (this._mode === 'sprint') this._completeStage();
+      else this._machine.transition('level-clear');
+    }
   }
 
   /**
@@ -2487,6 +2636,21 @@ export class BeadsGame implements Game {
     s.placeRow = pfx ? pfx.row : -1;
     s.placeCol = pfx ? pfx.col : -1;
     s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
+    // G2′ 解环器：一条单调进度 + 两组定长格坐标（相序曲线在 view 侧推导，L5）。
+    // 不活跃 ⇒ count 归零且数组填 -1（零残留，同 G1 槽置 null 口径）。
+    const sfx = this._solverFx;
+    s.solverProgress = sfx ? Math.min(1, sfx.elapsedMs / sfx.totalMs) : 0;
+    s.solverCellCount = sfx ? sfx.count : 0;
+    s.solverLandCount = sfx ? sfx.landCount : 0;
+    for (let i = 0; i < s.solverCellRows.length; i++) {
+      s.solverCellRows[i] = sfx ? sfx.cellRows[i]! : -1;
+      s.solverCellCols[i] = sfx ? sfx.cellCols[i]! : -1;
+    }
+    for (let i = 0; i < s.solverLandRows.length; i++) {
+      s.solverLandRows[i] = sfx && i < sfx.landCount ? sfx.landRows[i]! : -1;
+      s.solverLandCols[i] = sfx && i < sfx.landCount ? sfx.landCols[i]! : -1;
+      s.solverLandSteps[i] = sfx && i < sfx.landCount ? sfx.landSteps[i]! : -1;
+    }
     // G3 扫光：只一条单调进度（斜带几何与缓动在 view 侧推导，L5）。
     s.sweepProgress =
       this._sweepElapsedMs < 0 ? 0 : Math.min(1, this._sweepElapsedMs / SWEEP_MS);

@@ -154,11 +154,15 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     });
   });
 
-  it('keeps one tray row inside the design width, with both capacities sharing it', () => {
+  it('keeps tray rows inside the design width, with both capacities row-aligned', () => {
     const rowWidth = TRAY_COLS * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP;
     expect(rowWidth).toBeLessThanOrEqual(DESIGN_W);
-    // 基础容量 = 1 实心行；扩展容量 = 1 虚线行（每关重试重置）—— 都是 TRAY_COLS 宽。
-    expect(TRAY_BASE_SLOTS).toBe(TRAY_COLS);
-    expect(TRAY_EXPAND_SLOTS).toBe(TRAY_COLS);
+    // v1.24（WXG-T-141/T-143）：基础 = 2 实心行、扩展 = +2 行（都是 TRAY_COLS 宽）。
+    expect(TRAY_BASE_SLOTS).toBe(2 * TRAY_COLS);
+    expect(TRAY_EXPAND_SLOTS).toBe(2 * TRAY_COLS);
+    // v1.25 带位修订：4 行扩展态面板（4×54−6+24=234）必须完整落带。
+    expect(TRAY_BAND.yMax - TRAY_BAND.yMin).toBeGreaterThanOrEqual(
+      4 * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP + 2 * 12,
+    );
   });
 });

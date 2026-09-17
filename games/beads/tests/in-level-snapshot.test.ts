@@ -17,6 +17,7 @@ import {
   encodeFilledBits,
   parseCrashSnapshot,
 } from '../src/game/crash-snapshot.js';
+import { TRAY_BASE_SLOTS } from '../src/config/tuning.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { multiplierForStreak, tierForStreak } from '../src/systems/sprint.js';
 import {
@@ -94,7 +95,6 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
     harness.advance(12);
     const remainingBefore = game.remaining;
 
-    const s8Before = s8Writes(log);
     game.onPause(); // = platform.onHide
     expect(game.phase).toBe('paused');
 
@@ -115,7 +115,7 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
 
     // 托盘与内存一致（两槽已被消费 ⇒ 快照里应为 free）。
     const slots = snapshot['traySlots'] as { colorIdx: number }[];
-    expect(slots).toHaveLength(12);
+    expect(slots).toHaveLength(TRAY_BASE_SLOTS); // v1.24：托盘 12→24（WXG-T-141）
     // 逐槽与内存一致 —— 注意 advance(12) 期间供料器已按节律投过珠，不能假设全 free。
     for (let i = 0; i < slots.length; i++) {
       const live = game.tray.slot(i)!;
@@ -123,13 +123,18 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
     }
 
     // 回到 PLAYING 后连续落子：S8 常规键**零写**（仅崩溃键会被 onHide 再写）。
+    // WXG-T-097 BD-32：恢复后**第一次落子**会一次性落盘 `onboarded` 标记（合法
+    // 例外）—— 先消耗掉这一次，再断言后续连放零增量。
     tapResume(game);
     expect(game.phase).toBe('playing');
-    for (let i = 0; i < 40; i++) {
+    placeColor(game, game.grid.requiredColor(1, 0), 1, 0);
+    harness.advance(1 / 60);
+    const s8AfterFirstPlace = s8Writes(log);
+    for (let i = 1; i < 40; i++) {
       placeColor(game, game.grid.requiredColor(1, i % 6), 1, i % 6); // 命中/未命中都算一次动作
     }
     for (let i = 0; i < 60; i++) harness.advance(1 / 60);
-    expect(s8Writes(log)).toBe(s8Before);
+    expect(s8Writes(log)).toBe(s8AfterFirstPlace);
   });
 
   // §8-12 PAUSED（手动齿轮）后再 onPause → 崩溃键被覆盖写入；onResume 不删不改；
@@ -289,7 +294,7 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
       mode: 'normal',
       levelIndex: 0,
       gridFilled: '0'.repeat(30),
-      traySlots: Array.from({ length: 12 }, () => ({ colorIdx: 0 })),
+      traySlots: Array.from({ length: TRAY_BASE_SLOTS }, () => ({ colorIdx: 0 })),
       trayExpanded: false,
       traySelected: -1,
       remaining: 120,
@@ -315,7 +320,7 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
   // 提案 §2 的两项增补字段（T-057 冻结规则的必要载体）：缺省 0，且会被真正持久化。
   it('carries reviveCount / reviveBonusSec, which guard REVIVE_MAX_PER_LEVEL', () => {
     const ctx = { levelCount: 1, fillableCountFor: () => 30 };
-    const missing = parseCrashSnapshot({ version: 1, mode: 'normal', levelIndex: 0, gridFilled: '0'.repeat(30), traySlots: Array.from({ length: 12 }, () => ({ colorIdx: 0 })), trayExpanded: false, remaining: 10, timeTotal: 300, spawnAcc: 0, spawnInterval: 4 }, ctx);
+    const missing = parseCrashSnapshot({ version: 1, mode: 'normal', levelIndex: 0, gridFilled: '0'.repeat(30), traySlots: Array.from({ length: TRAY_BASE_SLOTS }, () => ({ colorIdx: 0 })), trayExpanded: false, remaining: 10, timeTotal: 300, spawnAcc: 0, spawnInterval: 4 }, ctx);
     expect(missing.snapshot?.reviveCount).toBe(0);
     expect(missing.snapshot?.reviveBonusSec).toBe(0);
 

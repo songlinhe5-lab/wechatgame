@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { TRAY_BASE_SLOTS } from '../src/config/tuning.js';
 import {
   TAP_HINT_NO_SELECTION_TEXT,
   gridLayoutFor,
@@ -235,7 +236,7 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
     // 空板上造两颗错位珠（fill 带 beadColor），托盘 12 槽填满。
     expect(game.grid.fill(0, 0, 2)).toBe(true); // (0,0) 底色 1，珠色 2 ⇒ 错位
     expect(game.grid.fill(1, 1, 1)).toBe(true); // (1,1) 底色 2，珠色 1 ⇒ 错位
-    for (let i = 0; i < 12; i++) expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
+    for (let i = 0; i < TRAY_BASE_SLOTS; i++) expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
     expect(game.tray.freeCount).toBe(0);
 
     // 真链选错位珠 → 点满托盘的 holding 槽 ⇒ 拒绝：零事件、槽态零写、锚保持。

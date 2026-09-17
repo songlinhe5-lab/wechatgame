@@ -20,7 +20,7 @@ import {
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { BeadsGame } from '../src/game/beads-game.js';
-import { CLEAR_PANEL_DELAY_MS } from '../src/config/tuning.js';
+import { CLEAR_PANEL_DELAY_MS, solverSequenceMs } from '../src/config/tuning.js';
 import type { BeadsLevelRaw } from '../src/config/levels.js';
 
 export interface Harness {
@@ -308,4 +308,19 @@ export function burnToRemaining(
  */
 export function advancePastClearWave(harness: Harness): void {
   harness.advance(CLEAR_PANEL_DELAY_MS / 1000 + 0.1);
+}
+
+/**
+ * 推进过 G2′ 解环器归位序列的门（WXG-T-150 / `assets-spec §1.6.2a`）。
+ *
+ * 裁定「甲」（用户 2026-09-17）的真实语义变更：`usePowerup('solver*')` 成功后**棋盘不变**——
+ * 相 A 200ms 只闪环点名，相 B 才逐颗（80ms 错开）真正归位，因此
+ * `bead:placed` / `powerup:used.affectedCells`（= 点名格）/ 过关判定全部延后。
+ * S6 玩法断言（格子是否归位、错位计数）一律先走本 helper + 余量，
+ * **不要**在测试里写字面秒数（真源 = `tuning.solverSequenceMs`）。
+ *
+ * @param cells 本关点名颗数（solver = 1、solverPlus ≤ `SOLVER_PLUS_COUNT`）。
+ */
+export function advancePastSolver(harness: Harness, cells = 1): void {
+  harness.advance(solverSequenceMs(cells) / 1000 + 0.1);
 }
