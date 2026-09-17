@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3186,
       "lines": 117,
-      "sha256": "ad799eb96b2d1a8e82fd0311ba98886a2aad5ec981384c0b83a3c9e3ec6cc275",
+      "sha256": "e817f72d28e4f64a5fa4e1e415454f5a69c80bec7182f09bc71a44389854fd75",
       "tier": "normal",
       "sections": [
         {
@@ -238,7 +238,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 465,
-          "summary": "1 production/TASKS-DETAIL.md 134489 2040 normal",
+          "summary": "1 production/TASKS-DETAIL.md 136319 2069 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -254,7 +254,7 @@
           "startLine": 46,
           "endLine": 92,
           "tokens": 1625,
-          "summary": "production/TASKS-DETAIL.md 134489 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 136319 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 3887,
       "lines": 84,
-      "sha256": "f0096bcc7bd8fbce50b1254ed2c77a9fe642d9a1a37114d63332f9d4cb727f7b",
+      "sha256": "7049e752f78d7cd697dcaac5f85333cb1c68e73a7781a0fd1365819bb729b2f2",
       "tier": "normal",
       "sections": [
         {
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 114 行 / 5848 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 115 行 / 5913 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 29,
-          "summary": "§WXG 任务台账（SSOT）=1+115 · §待排（backlog，无号，立项时领取）=90+26",
+          "summary": "§WXG 任务台账（SSOT）=1+116 · §待排（backlog，无号，立项时领取）=91+26",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -6769,17 +6769,17 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 46235,
-      "lines": 1090,
-      "sha256": "81724747982e4c3cd7d47221241fd90a1721da89ea59cc9841083e5b1acad564",
+      "tokens": 50845,
+      "lines": 1092,
+      "sha256": "1efc0d17711b94f918c71395e93045a7c2ac3c47007c90dd61f62b938dc54816",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》资产规格表（Asset Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1091,
-          "tokens": 46221,
+          "endLine": 1093,
+          "tokens": 50831,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -6791,8 +6791,8 @@
         {
           "anchor": "§0 前置约定（程基岩落码直接引用）",
           "level": 2,
-          "startLine": 17,
-          "endLine": 29,
+          "startLine": 19,
+          "endLine": 31,
           "tokens": 163,
           "summary": "设计分辨率 750 × 1334（竖屏）（已裁定）",
           "keywords": [
@@ -6804,9 +6804,9 @@
         {
           "anchor": "§1 资产清单（可见元素规格表）",
           "level": 2,
-          "startLine": 30,
-          "endLine": 1004,
-          "tokens": 34801,
+          "startLine": 32,
+          "endLine": 1006,
+          "tokens": 36589,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -6816,8 +6816,8 @@
         {
           "anchor": "§1.1 珠子绘制参数卡（**核心，逐层落码**；v1.3 十层质感升级 F4）",
           "level": 3,
-          "startLine": 32,
-          "endLine": 86,
+          "startLine": 34,
+          "endLine": 88,
           "tokens": 1283,
           "summary": "单颗珠 = 以下 10 层按序绘制。所有层均为圆角矩形/线/矢量，无贴图无模糊无真渐变；软高光/接触阴影一律靠叠层 + ",
           "keywords": [
@@ -6830,9 +6830,9 @@
         {
           "anchor": "§1.2 珠子状态参数",
           "level": 3,
-          "startLine": 87,
-          "endLine": 100,
-          "tokens": 1580,
+          "startLine": 89,
+          "endLine": 102,
+          "tokens": 1882,
           "summary": "filled 已填 静态 = 11 层：§1.1 十层 + L11 目标色垫（[v1.5-r5] WXG-T-142，用",
           "keywords": [
             "§1.1",
@@ -6845,9 +6845,9 @@
         {
           "anchor": "§1.3 槽位托盘",
           "level": 3,
-          "startLine": 101,
-          "endLine": 109,
-          "tokens": 1712,
+          "startLine": 103,
+          "endLine": 111,
+          "tokens": 3199,
           "summary": "tray_panel 690 × 190 [待 systems-index §3 对齐] 白 #FFFFFF，圆角 24",
           "keywords": [
             "§3",
@@ -6861,8 +6861,8 @@
         {
           "anchor": "§1.4 道具图标（64 × 64，**靠形状区分**）",
           "level": 3,
-          "startLine": 110,
-          "endLine": 147,
+          "startLine": 112,
+          "endLine": 149,
           "tokens": 2264,
           "summary": "#### 1.3.1 [v1.5-r4] 新活 1 · 托盘面板随 6 槽收窄的三案比较与裁定（v1.23 §2-1 派",
           "keywords": [
@@ -6874,8 +6874,8 @@
         {
           "anchor": "§1.5 HUD 元素",
           "level": 3,
-          "startLine": 148,
-          "endLine": 161,
+          "startLine": 150,
+          "endLine": 163,
           "tokens": 716,
           "summary": "hud_timer_capsule 220 × 64，圆角 32，中心 (375, HUD_BAND 中线) 白胶囊板落",
           "keywords": [
@@ -6888,8 +6888,8 @@
         {
           "anchor": "§1.6 VFX 参数卡（**v1.4 全量升级**：4 行简表 → 7 张可直接落码卡）",
           "level": 3,
-          "startLine": 162,
-          "endLine": 849,
+          "startLine": 164,
+          "endLine": 851,
           "tokens": 20591,
           "summary": "升级理由：v1.3 的 §1.6 只有四行一句话描述（如「scale 1.06→1.0，120ms ease-out-b",
           "keywords": [
@@ -6904,8 +6904,8 @@
         {
           "anchor": "§1.7 拼图容器板 + 暖光 band 参数卡（丙案核心，F2/F3） `[v1.3]`",
           "level": 3,
-          "startLine": 850,
-          "endLine": 876,
+          "startLine": 852,
+          "endLine": 878,
           "tokens": 549,
           "summary": "渲染原语无渐变/模糊 ⇒ 暖晕用同心圆角 rect 叠层 + 由外向内递增 α 模拟伪径向光；容器板复用面板同族 tok",
           "keywords": [
@@ -6920,8 +6920,8 @@
         {
           "anchor": "§1.8 背景层次参数卡（F8，解锁 v1.2「纯色无层次」自限） `[v1.3]`",
           "level": 3,
-          "startLine": 877,
-          "endLine": 904,
+          "startLine": 879,
+          "endLine": 906,
           "tokens": 2132,
           "summary": "",
           "keywords": [
@@ -6935,8 +6935,8 @@
         {
           "anchor": "§1.9 材质感质感语言卡（v1.5，WXG-T-131）",
           "level": 3,
-          "startLine": 905,
-          "endLine": 1004,
+          "startLine": 907,
+          "endLine": 1006,
           "tokens": 3813,
           "summary": "背景：玩法重塑「错位归位」（WXG-T-130）+ 用户裁定「暂时不需要支持色盲玩家，我需要的是珠子和托盘、棋盘都有质感",
           "keywords": [
@@ -6948,8 +6948,8 @@
         {
           "anchor": "§2 未来真实资产替换提示词（AI 生成备用）",
           "level": 2,
-          "startLine": 1005,
-          "endLine": 1015,
+          "startLine": 1007,
+          "endLine": 1017,
           "tokens": 168,
           "summary": "bead_set candy-like 3d perler bead set, rounded square beads",
           "keywords": [
@@ -6964,8 +6964,8 @@
         {
           "anchor": "§3 图集策略",
           "level": 2,
-          "startLine": 1016,
-          "endLine": 1024,
+          "startLine": 1018,
+          "endLine": 1026,
           "tokens": 94,
           "summary": "demo（当前） 不建图集，全 Graphics，主包美术位图 = 0 KB",
           "keywords": [
@@ -6977,8 +6977,8 @@
         {
           "anchor": "§4 命名规范",
           "level": 2,
-          "startLine": 1025,
-          "endLine": 1034,
+          "startLine": 1027,
+          "endLine": 1036,
           "tokens": 132,
           "summary": "全小写 + 下划线；模式 {域}_{实体}_{变体}_{状态}.{ext}。",
           "keywords": [
@@ -6989,8 +6989,8 @@
         {
           "anchor": "§5 包体预算表（微信红线 vs 内部目标，**分清两条线**）",
           "level": 2,
-          "startLine": 1035,
-          "endLine": 1052,
+          "startLine": 1037,
+          "endLine": 1054,
           "tokens": 295,
           "summary": "微信红线（不可越） 主包 ≤ 4096 KB",
           "keywords": [
@@ -7003,8 +7003,8 @@
         {
           "anchor": "§6 交付与验收",
           "level": 2,
-          "startLine": 1053,
-          "endLine": 1091,
+          "startLine": 1055,
+          "endLine": 1093,
           "tokens": 4061,
           "summary": "[ ] 全部元素程序化绘制，无外部图片引用。",
           "keywords": [
@@ -82080,17 +82080,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 134489,
-      "lines": 2040,
-      "sha256": "b2b0a1386965ad7b984e89f91ff142924cc1bf3f110d26fb01cdb0da90645766",
+      "tokens": 136319,
+      "lines": 2069,
+      "sha256": "737c8d3b83879ac6cc34b28310bac499d42fb92de2b020a4fabb3241e1e3aba1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 2041,
-          "tokens": 134473,
+          "endLine": 2069,
+          "tokens": 136302,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -83185,22 +83185,36 @@
             "体切换",
             "目标色垫"
           ]
+        },
+        {
+          "anchor": "§WXG-T-143",
+          "level": 2,
+          "startLine": 2042,
+          "endLine": 2069,
+          "tokens": 1826,
+          "summary": "名称：beads · E6：渲染改造（E1 纯色凹陷卡 + L11 垫 + E4 删除 + 托盘 24 槽适配）（Epi",
+          "keywords": [
+            "WXG",
+            "beads",
+            "L11",
+            "Epi"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 5848,
-      "lines": 114,
-      "sha256": "952d4b47b8f5b4b63f85cb58d481159a615e65bd11ecdbfbe09074518e01dd75",
+      "tokens": 5913,
+      "lines": 115,
+      "sha256": "5b928c670e40325818817c416a7f94a1241c8b998ce7dab175b905263a9ac34d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 115,
-          "tokens": 5839,
+          "endLine": 116,
+          "tokens": 5904,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -83213,8 +83227,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 90,
-          "endLine": 115,
+          "startLine": 91,
+          "endLine": 116,
           "tokens": 1138,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

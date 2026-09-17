@@ -28,6 +28,37 @@ export const PUZZLE_BAND = { yMin: 480, yMax: 1120 } as const;
 /** Tray band (white rounded panel). §3.1 v1.20：上沿 420→450，带下沿让给 `btn_expand`。 */
 export const TRAY_BAND = { yMin: 230, yMax: 450 } as const;
 /** Powerup band (3 white cards — S6 landed in WXG-T-060). */
+// ─────────────────── v1.5 质感渲染（assets-spec §1.9 / §1.2 v1.5，WXG-T-131/143）──
+// 以下均为**实现派生值**（美术规格数值级落码），非 §3 gameplay 冻结常量。
+
+/** L11 目标色垫 · 珠视觉内缩（v1.5-r5「垫色显缝」，WXG-T-142）：垫 = 全格，珠四边各缩 2。 */
+export const BEAD_DRAW_INSET = 2;
+
+/** 空格凹陷坑四层（§1.2 v1.5）：几何以内缩比例表达，墨色端点在 palette 预烘焙表。 */
+export const SOCKET_CARD = Object.freeze({
+  /** S1 暗缘框线宽（坑边比例，min 2px 地板在渲染层）。 */
+  edgeWidth: 3 / 64,
+  /** S2 坑底四边内缩（坑边比例 = 6%）。 */
+  pitInset: 0.06,
+  /** S3 上内缘内阴影线宽。 */
+  shadeWidth: 2.5 / 64,
+  /** S4 下内缘受光亮线宽。 */
+  litWidth: 2.5 / 64,
+} as const);
+
+/** 托盘面板「微拱白瓷」三段内阴影（§1.3 v1.5：底缘两段 + 右缘一段）。 */
+export const TRAY_PLATE = Object.freeze({
+  ink: '#1E2033',
+  /** 底缘外段（α 0.03）。 */
+  bottomOuterAlpha: 0.03,
+  /** 底缘内段（α 0.05）。 */
+  bottomInnerAlpha: 0.05,
+  /** 右缘段（α 0.02）。 */
+  rightAlpha: 0.02,
+  /** 各段线宽（px）。 */
+  width: 3,
+} as const);
+
 export const POWERUP_BAND = { yMin: 48, yMax: 200 } as const;
 /**
  * 道具卡几何。**不是 §3 冻结常量**（冻结的是带位 `POWERUP_BAND`），但渲染与 S2 命中
@@ -97,9 +128,16 @@ export const GRID_MIN_COLS = 6;
 export const GRID_MIN_ROWS = 5;
 
 // ───────────────────────────────────────────────────────────── §3.4 tray
-/** Base tray capacity (1 solid row). */
+/**
+ * Base tray capacity（⛔ **v1.24 冻结变更 12→24**，WXG-T-141，用户 2026-09-17 拍板；
+ * 2 行 × 12。**工程侧尚未适配**：托盘布局/面板高度/HUD 带位为破坏性布局变更，
+ * 规格缺新尺寸 ⇒ WXG-T-143 先回传请示，待面板尺寸定稿后切换。当前仍生效 12。
+ */
 export const TRAY_BASE_SLOTS = 12;
-/** Expansion capacity (1 dashed row, per-level only, resets on retry). */
+/**
+ * Expansion capacity（⛔ **v1.24 冻结变更 12→24**，同上；扩展后 48 槽 4 行）。
+ * 待适配，理由同上。
+ */
 export const TRAY_EXPAND_SLOTS = 12;
 /** Slots per tray row. */
 export const TRAY_COLS = 12;

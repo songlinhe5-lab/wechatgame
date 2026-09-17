@@ -23,9 +23,9 @@
 
 §wechatgame 项目长期笔记=1+61 · §日志蒸馏规程（R2 · WXG-T-041）=7+6 · §项目约定=13+14 · §常用脚本=27+11 · §SubAgent=38+4 · §Rules=42+3 · §Hooks=45+5 · §Headless / CI=50+8 · §已知限制=58+4
 
-## `production/TASKS.md` — 114 行 / 5848 tok / 实测读 4 次
+## `production/TASKS.md` — 115 行 / 5913 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+115 · §待排（backlog，无号，立项时领取）=90+26
+§WXG 任务台账（SSOT）=1+116 · §待排（backlog，无号，立项时领取）=91+26
 
 ## `production/qa/beads/test-cases.md` — 496 行 / 26881 tok / 实测读 15 次
 
@@ -79,6 +79,6 @@
 
 > 下列文件被 `ctx/ROUTES.md` 引用，但未进本表；其锚点行号请查 `ctx/index.json`（全量索引，机器读更划算）。
 
-- `production/TASKS-DETAIL.md`（134489 tok）
+- `production/TASKS-DETAIL.md`（136319 tok）
 
 > 另有 171 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。

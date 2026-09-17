@@ -22,9 +22,9 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 134489 | 2040 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 136319 | 2069 | normal |
 | 2 | `production/qa/beads/g4-regression-report.md` | 83715 | 2123 | normal |
-| 3 | `games/beads/art/assets-spec.md` | 46235 | 1090 | normal |
+| 3 | `games/beads/art/assets-spec.md` | 50845 | 1092 | normal |
 | 4 | `games/beads/art/art-bible.md` | 31975 | 490 | normal |
 | 5 | `production/qa/beads/test-cases.md` | 26881 | 496 | hot |
 | 6 | `games/beads/art/accessibility.md` | 26872 | 183 | normal |
@@ -47,9 +47,9 @@
 
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
-| `production/TASKS-DETAIL.md` | 134489 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 136319 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 83715 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/art/assets-spec.md` | 46235 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/art/assets-spec.md` | 50845 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/art-bible.md` | 31975 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 26881 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 26872 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

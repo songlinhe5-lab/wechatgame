@@ -15,7 +15,7 @@
  */
 
 import type { RenderModelBuilder } from '../../framework/index';
-import { BEAD_CELL, TRAY_SLOT } from '../config/tuning';
+import { BEAD_CELL, BEAD_DRAW_INSET, SOCKET_CARD, TRAY_SLOT } from '../config/tuning';
 import {
   BEAD_BEVEL_DARK_MIX,
   BEAD_BEVEL_LIGHT_MIX,
@@ -26,11 +26,12 @@ import {
   BEAD_SHADOW_ALPHA_SELECTED,
   BEAD_SHADOW_HEX,
   BEAD_SOFT_HIGHLIGHT_ALPHAS,
-  EMPTY_GHOST_ALPHA,
-  EMPTY_TINT_MIX,
   beadColor,
+  beadEndpoints,
   mix,
-  mixWith,
+  SOCKET_EDGE_DARK_MIX,
+  SOCKET_LIT_MIX,
+  SOCKET_PIT_DARKEN,
   withAlpha,
   type BeadsPalette,
 } from './palette';
@@ -86,6 +87,11 @@ export interface FilledBeadOptions {
   readonly lift?: number;
   /** L0 shadow opacity override; `selected` passes the darker α (§1.2). */
   readonly shadowAlpha?: number;
+  /**
+   * L11 目标色垫的底色（v1.5-r5 垫色显缝，WXG-T-142）：该格 pattern 要求色。
+   * 传入 ⇒ 珠下先画垫（端点表 edge），珠体四边内缩 BEAD_DRAW_INSET 露出垫缝。
+   */
+  readonly padColorIdx?: number;
 }
 
 /**
@@ -102,9 +108,23 @@ export function drawFilledBead(
   colorIdx: number,
   options: FilledBeadOptions = {},
 ): void {
-  const size = options.size ?? BEAD_CELL;
+  const outer = options.size ?? BEAD_CELL;
   const base = beadColor(colorIdx);
   const y = cy + (options.lift ?? 0);
+
+  // L11 目标色垫（v1.5-r5）—— 画于珠十层之下（渲染序 L11 → L0a…L5）；
+  // 平面、零投影零高光（「不读作珠」§1.9.4）。
+  if (options.padColorIdx !== undefined) {
+    const pad = beadEndpoints(options.padColorIdx);
+    builder.rect(cx - outer / 2, y - outer / 2, outer, outer, {
+      fill: pad.edge,
+      radius: Math.round(outer * BEAD_CARD.radius),
+    });
+  }
+
+  // 珠体四边内缩（垫色显缝）；无垫（托盘珠）保持满幅。
+  const inset = options.padColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
+  const size = outer - inset * 2;
   const left = cx - size / 2;
   const bottom = y - size / 2;
   const radius = Math.round(size * BEAD_CARD.radius);
@@ -192,22 +212,6 @@ export function drawFilledBead(
   emitSymbol(builder, beadSymbol(colorIdx), cx, y, size, symbolInk(base).color);
 }
 
-/**
- * §1.2 E4 幽灵符号相对 L5 满符号的缩小比例（「同矢量 path 但缩小 80%」）。
- * L5 满符号占 ≈BEAD×0.406，×此比例→ glyph 占 ≈BEAD×0.32（与 §3.8 描述一致）。
- * 几何比例（非 §3  gameplay 常量），与 {@link BEAD_CARD} 同族。
- */
-const GHOST_SYMBOL_SCALE = 0.8;
-
-/**
- * Draw an `empty` socket (§1.2). E2 描边（凹陷边界）常驻；传入 `colorIdx` 时另加
- * **E1 目标色底** + **E4 幽灵符号**（两个 §3.8 冻结常量）——使未填态即可读出该格要
- * 填的颜色（「同色入格」第一道解锁）。
- *
- * 与 `filled` 的形态区分（「must not read as a bead」）仍靠无 L0 投影 / 无 L2–L4
- * 倒角高光 / 符号极淡（α 0.20）保证。不传 `colorIdx`（= 托盘空槽，无目标色）则保
- * 持中性槽底、无幽灵符号。
- */
 export function drawEmptySocket(
   builder: RenderModelBuilder,
   cx: number,
@@ -219,27 +223,55 @@ export function drawEmptySocket(
   const left = cx - size / 2;
   const bottom = cy - size / 2;
   const radius = Math.round(size * BEAD_CARD.radius);
-  // E1 目标色底：有目标色时按 §3.8 权重混入中性槽底；无目标色（托盘空槽）保持中性。
-  const fill =
-    colorIdx === undefined ? palette.slot : mixWith(palette.slot, beadColor(colorIdx), EMPTY_TINT_MIX);
-  // E2 描边 — 保持凹陷边界。
+  const base = colorIdx === undefined ? palette.slot : beadColor(colorIdx);
+  const endpoints = colorIdx === undefined ? neutralEndpoints(palette) : beadEndpoints(colorIdx);
+
+  // S2 坑底（先画大底，S1 框压在其上）：内缩 6% 的 `pit` 填充。
+  const inset = size * SOCKET_CARD.pitInset;
+  builder.rect(left, bottom, size, size, { fill: base, radius });
+  builder.rect(left + inset, bottom + inset, size - inset * 2, size - inset * 2, {
+    fill: endpoints.pit,
+    radius: Math.max(2, Math.round((size - inset * 2) * BEAD_CARD.radius * 0.8)),
+  });
+
+  // S1 暗缘框（外框线，压住 S2 边界）。
   builder.rect(left, bottom, size, size, {
-    fill,
-    stroke: palette.slotBorder,
-    lineWidth: 1,
+    stroke: endpoints.edge,
+    lineWidth: Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.edgeWidth),
     radius,
   });
-  // E4 幽灵符号 — 与 L5 同矢量 path、缩至 ≈BEAD×0.32、α EMPTY_GHOST_ALPHA（色盲冗余通道）。
-  if (colorIdx !== undefined) {
-    emitSymbol(
-      builder,
-      beadSymbol(colorIdx),
-      cx,
-      cy,
-      size * GHOST_SYMBOL_SCALE,
-      withAlpha(beadColor(colorIdx), EMPTY_GHOST_ALPHA),
-    );
-  }
+
+  // S3 上内缘内阴影线（暗，凹感上半）。
+  const shadeWidth = Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.shadeWidth);
+  builder.line(
+    left + inset,
+    bottom + inset,
+    left + size - inset,
+    bottom + inset,
+    endpoints.edge,
+    shadeWidth,
+  );
+
+  // S4 下内缘受光亮线（亮，凹感下半）。
+  builder.line(
+    left + inset,
+    bottom + size - inset,
+    left + size - inset,
+    bottom + size - inset,
+    endpoints.lit,
+    Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.litWidth),
+  );
+}
+
+/**
+ * 托盘空槽（无目标色）的中性端点：由中性 `slot` 色推导（非珠色预烘焙表）。
+ */
+function neutralEndpoints(palette: BeadsPalette): { edge: string; pit: string; lit: string } {
+  return {
+    edge: mix(palette.slot, -SOCKET_EDGE_DARK_MIX),
+    pit: mix(palette.slot, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
+    lit: mix(palette.slot, SOCKET_LIT_MIX),
+  };
 }
 
 /**

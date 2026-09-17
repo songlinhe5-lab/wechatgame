@@ -35,6 +35,7 @@ import {
   powerupLabelY,
   PUZZLE_BAND,
   TRAY_COLS,
+  TRAY_PLATE,
   TRAY_SLOT,
   AD_HINT_TEXT_Y,
   expandButtonLayout,
@@ -725,14 +726,34 @@ function drawGrid(
         continue;
       }
 
-      // Filled bead — full six-layer card incl. the L5 symbol channel (§1.1).
-      drawFilledBead(builder, bx, cy, cell.colorIdx);
+      // Filled bead — v1.5-r5 垫色显缝：珠色用 beadColorIdx（错位珠 ≠ 底色 ⇒
+      // 「歪在垫上」可视化），垫 = colorIdx 底色（L11，WXG-T-142）。
+      drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, {
+        padColorIdx: cell.colorIdx,
+      });
     }
   }
 }
 
 // ──────────────────────────────────────────────────────────────────── tray
 
+
+/** 「微拱白瓷」三段内阴影（§1.3 v1.5；几何/α = `tuning.TRAY_PLATE`）。 */
+function drawTrayPlateShading(
+  builder: RenderModelBuilder,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+): void {
+  const ink = TRAY_PLATE.ink;
+  // 底缘外段（α 0.03）。
+  builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width);
+  // 底缘内段（α 0.05）。
+  builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width);
+  // 右缘段（α 0.02）。
+  builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width);
+}
 function drawTray(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
@@ -747,6 +768,9 @@ function drawTray(
     fill: palette.panel,
     radius: 18,
   });
+  // 「微拱白瓷」三段内阴影（§1.3 v1.5，WXG-T-131/143）：底缘两段 + 右缘一段 ——
+  // 平面板的轻体积感；α 极低（0.03/0.05/0.02），不与满槽告警危险描边竞争。
+  drawTrayPlateShading(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH);
 
   for (let idx = 0; idx < snap.traySlots.length; idx++) {
     const slot = snap.traySlots[idx]!;

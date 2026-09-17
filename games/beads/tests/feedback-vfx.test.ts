@@ -311,7 +311,8 @@ describe('T-087 GAP-10 告急脉冲', () => {
                     c.kind === 'circle' &&
                     c.stroke !== undefined &&
                     c.fill === undefined &&
-                    c.y < snapLo.gridTop,
+                    // v1.24 HUD 底部化（WXG-T-141）：时钟住棋盘带**下方**（y > gridTop）。
+                    c.y > snapLo.gridTop,
             ),
         ).toBe(true);
     });

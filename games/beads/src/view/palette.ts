@@ -196,17 +196,56 @@ export const STAR_GOLD = '#FFD23F';
 // 的第一道视觉解锁：空槽显示目标色底 + 幽灵符号，使未填态即可读出该格要填的颜色。
 
 /**
- * E1 目标色底混合权重：`mixWith(slot_fill, beadColor(colorIdx), EMPTY_TINT_MIX)` —
- * 目标色占 42% 混入中性槽底色，产柔和粉彩（色盲冗余通道之一）。§3.8 冻结常量
- * （v1.21 由 0.35 上调，WXG-T-125 F5：真机偏淡削弱「同色入格」首道解锁，用户拍板甲）。
+ * E1 目标色底混合权重（⛔ v1.22 作废，WXG-T-130/131：empty 改目标色**纯色直填**
+ * 四层凹陷卡 ⇒ 本常量零消费方。死值保留 —— 清槽玩法复活时随 E4 幽灵符号一并恢复。
+ * §3.8 作废条目（v1.22 冻结变更，WXG-T-130）。
  */
 export const EMPTY_TINT_MIX = 0.42;
 /**
- * E4 幽灵符号不透明度：与 L5 同矢量 path、缩至 ≈BEAD×0.32、α 0.32 → 未填态
- * 即可对照符号找匹配槽。§3.8 冻结常量
- * （v1.21 由 0.20 上调，WXG-T-125 F5：真机几乎不可读，用户拍板甲）。
+ * E4 幽灵符号不透明度（⛔ v1.22 作废，WXG-T-130/131：幽灵符号移除——用户
+ * 2026-09-16 裁定「暂时不需要支持色盲玩家」（可访问性降级，accessibility v1.5
+ * 登记含可恢复路径）。死值保留 + 开关式恢复零成本。§3.8 作废条目。
  */
 export const EMPTY_GHOST_ALPHA = 0.32;
+
+// ───────────── 凹陷坑 / 珠垫 端点（v1.5 质感语言 · assets-spec §1.9，WXG-T-131/143）──
+//
+// 「纯色底 + 光影材质」的同色相端点推导（§1.9.2）：L+ 明端 / L− 暗端 / pit 坑底。
+// 模块级**预烘焙**成查找表（§1.9.5）：`buildRenderModel` 每帧只查表，零字符串分配。
+
+/** S1 暗缘框 / L11 垫墨色：`mix(底色, #000, 0.30)`（与珠卡 L2 暗端同族但独立冻结）。 */
+export const SOCKET_EDGE_DARK_MIX = 0.3;
+/** S2 坑底：同色相再暗一档（`−0.14`，§1.9.2「轻档」——深棕/炭黑读感由验收项钉住）。 */
+export const SOCKET_PIT_DARKEN = 0.14;
+/** S4 下内缘受光亮线：`mix(底色, #FFF, 0.38)`（复用珠卡 rim 端点 §1.9.2）。 */
+export const SOCKET_LIT_MIX = 0.38;
+
+/**
+ * 十色端点查找表（预烘焙，§1.9.5）：索引 0..9 ↔ 珠色 1..10。
+ * 每项 `{ base, edge, pit, lit }` —— `buildRenderModel` 热路径只查表不 mix。
+ */
+export interface BeadEndpoints {
+  readonly base: string;
+  /** S1 暗缘框 / L11 垫：`mix(base, #000, 0.30)`。 */
+  readonly edge: string;
+  /** S2 坑底：`mix(base, #000, 0.30 + 0.14)`（坑底在暗缘之内再暗一档）。 */
+  readonly pit: string;
+  /** S4 受光亮线：`mix(base, #FFF, 0.38)`。 */
+  readonly lit: string;
+}
+
+/** 模块级预烘焙（§1.9.5）：构建期 30 次 mix，热路径零分配。 */
+export const BEAD_ENDPOINTS: readonly BeadEndpoints[] = BEAD_PALETTE.map((base) => ({
+  base,
+  edge: mix(base, -SOCKET_EDGE_DARK_MIX),
+  pit: mix(base, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
+  lit: mix(base, SOCKET_LIT_MIX),
+}));
+
+/** 按珠色索引取端点（越界 → 炭黑兜底，同 {@link beadColor}）。 */
+export function beadEndpoints(colorIdx: number): BeadEndpoints {
+  return BEAD_ENDPOINTS[colorIdx - 1] ?? BEAD_ENDPOINTS[9]!;
+}
 
 // ──────────────────────────────────────────────── symbol ink (assets-spec L5) ──
 /** Ink used on a bright bead: `mix(base, #000, 0.55)` → the mix amount. */

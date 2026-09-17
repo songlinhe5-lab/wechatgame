@@ -22,7 +22,7 @@ import {
   powerupLabelY,
 } from '../src/config/tuning.js';
 import { POWERUP_LABELS } from '../src/systems/powerups.js';
-import { DEFAULT_PALETTE, EMPTY_GHOST_ALPHA, beadColor, withAlpha } from '../src/view/palette.js';
+import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
@@ -125,29 +125,23 @@ describe('beads view model (control-manifest §8)', () => {
 
   // A3 灰度可辨（T-085 后）：每一格都带符号——已填格满墨、空格 E4 幽灵符号（α0.20），
   // 符号总数恒等于格数、与颜色无关（色盲冗余通道：未填态即可按符号规划）。
-  it('A3 gives every cell a symbol channel: empty cells paint a ghost symbol (§3.8 E4)', () => {
+  it('A3（v1.22 a11y 降级，WXG-T-130/131）：empty 不再发射幽灵符号；filled 仍发满墨符号', () => {
     const harness = createBeadsHarness({
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-d',
     });
-    // 未填一格 → 30 格全画 E4 幽灵符号，按色分布 10/10/10（不再“空格无符号”）。
+    // 用户 2026-09-16 裁定移除 E4 幽灵符号（accessibility v1.5 A3 降档，含可恢复
+    // 路径）⇒ 空盘零符号（原「30 格幽灵符号 10/10/10」判据随降级作废）。
     const blank = render(harness);
-    expect(blank.filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(10);
-    expect(blank.filter((c) => onBoard(c) && isStarSymbol(c))).toHaveLength(10);
-    expect(blank.filter((c) => onBoard(c) && isDotSymbol(c))).toHaveLength(10);
-    // 幽灵符号墨色 = 目标色 @ EMPTY_GHOST_ALPHA（与已填满墨靠不透明度区分，非靠形状）。
-    expect(
-      blank.some(
-        (c) => onBoard(c) && c.kind === 'circle' && c.stroke === withAlpha(beadColor(1), EMPTY_GHOST_ALPHA),
-      ),
-    ).toBe(true);
+    expect(blank.filter((c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c)))).toHaveLength(0);
 
-    // 填每行第 0 列（5 颗 '1'）→ 该 5 格转满墨符号、其余 25 格仍幽灵：符号总数恒 = 格数 30。
+    // 填每行第 0 列（5 颗 '1'）⇒ 仅这 5 颗就位珠发满墨符号（符号只来自 filled）。
     for (let row = 0; row < harness.game.grid.rows; row++) placeColor(harness.game, 1, row, 0);
     const partial = render(harness);
     expect(
       partial.filter((c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c))),
-    ).toHaveLength(30);
+    ).toHaveLength(5);
+
   });
 
   // A4（WXG-T-062 转真）：三张道具卡**以形状为唯一识别** + 卡下方 28px **文字标签并列**，

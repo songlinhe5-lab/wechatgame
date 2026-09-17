@@ -2038,3 +2038,32 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - **本单不改**：§3 全部冻结值；层数/基线数值；`src/**`。
 - **后继**：渲染层实现单（核实 view-model 对 `filled` 格携带 pattern colorIdx + `tuning.ts` 加 `BEAD_DRAW_INSET`）；缝宽视认性 playtest。
 - **验收**：`assets-spec` 内「目标色环」仅存于留档划线处；`BEAD_DRAW_INSET` 命中 spec/accessibility；基线 1828 不变。**不 commit/push**。
+
+## WXG-T-143
+
+- **名称**：**beads · E6：渲染改造（E1 纯色凹陷卡 + L11 垫 + E4 删除 + 托盘 24 槽适配）（Epic T-133）**
+- **负责**：程基岩(engineering-lead)　**状态**：🔄 进行中（2026-09-17 派工）　**P1**
+- **⚠️ 规格基线已两次前移，一律以现行为准**：`assets-spec` **v1.5-r5**（T-131 四层凹陷卡 + T-140 L11 目标色环 → **T-142 B′「目标色垫·垫色显缝」**：`filled` = 十层 + **L11 垫**、`BEAD_DRAW_INSET=2` 珠视觉内缩；`empty` = 四层 S1–S4 不变）+ `systems-index` **v1.24**（`TRAY_BASE_SLOTS` 6→**24**、`TRAY_EXPAND_SLOTS` 6→**24**，扩展后 48 槽 4 行——**推翻 v1.23 的 6 槽**）。
+- **❗ 工程侧滞后项（本单一并落）**：`tuning.ts` 现仍是 `TRAY_BASE_SLOTS=12`/`TRAY_EXPAND_SLOTS=12` ⇒ 随本单同步 24/24。
+- **范围**：
+  1. **`drawEmptySocket` 四层凹陷卡**（assets-spec §1.2 v1.5）：S1 暗缘框 `mix(base,#000,0.30)` → S2 坑底内缩 6%、`−0.14` 同色相暗档 → S3 上内阴影线 → S4 下受光亮线；几何以坑边 S 计（棋盘 `BEAD_CELL` 50、托盘 `TRAY_SLOT` 现行值）；**删幽灵符号**（E4 死路径开关保留，可恢复零成本）。
+  2. **端点表预烘焙**（§1.9.5）：10 色 × {L+, L−, Lpit} + 托盘中性槽 = 31 串模块级一次构建（或 `palette.ts` 字面量直抄）；**热路径零新增字符串分配**（T-131 风险条目的缓解承诺）。
+  3. **`filled` 加 L11 目标色垫**（§1.1 v1.5-r5）：画于珠十层之下、平面零投影；珠绘制 rect 内缩 `BEAD_DRAW_INSET=2`（新 art 常量归 tuning，零 §3 变更）。
+  4. **托盘微拱白瓷**（§1.3）：面板底缘两段 + 右缘一段内阴影（α 0.03/0.05/0.02，ink `#1E2033`）。
+  5. **托盘 24/24 槽适配**：tuning 同步 + 视图行数（2 行基线 / 4 行扩展）+ 快照 `traySlots` 长度 + 受影响测试夹具；**逐项 grep 消费方**（powerups 已无镜像，负担小）。
+  6. **`palette.ts`**：`EMPTY_TINT_MIX`/`EMPTY_GHOST_ALPHA` 作废标注（死值保留，判例同 E3）。
+  7. **测试**：`bead-render` 命令检视断言（empty 发射 S1–S4 且明暗方向正确、filled 含 L11 且垫在珠下、**不发射**幽灵符号、托盘行数）；端点表与 §1.9.2 对照；托盘 24/24 适配回归。
+- **❗ 不做**：QA 判据迁移（E7）；选中高亮的视觉方案（`boardSelected` 数据通道 E2 已备，其视觉行待 ux-spec §5 落值后另批）。**禁改** `design/**`（规格已冻结，缺项先回传）、`packages/**`、`production/qa/**`、`src/game/**`（E1–E5 域）。
+- **Output Path**：`games/beads/src/view/**`、`games/beads/src/config/tuning.ts`、`games/beads/src/config/palette.ts`、`games/beads/tests/**`、`production/TASKS-DETAIL.md` 的 `## WXG-T-143` 小节（追加）。
+- **⚠️ 陷阱**：① 热路径零分配（端点表预烘焙是硬承诺）；② ES5 构建约束（ADR-0012：禁 Set 展开等）；③ `TRAY_SLOT` 现行值核实（v1.24 24 槽后槽宽可能重算——规格若未定先回传）；④ L5 珠面符号**保留**（T-131 未决③裁定随本单统一处理=保留为装饰+明度通道）；⑤ 工作树并发。
+- **验收**：`pnpm -F @wxgame/beads test` 全绿（314 例零回归）；`pnpm run verify`（`check:size` 存量不算）；`framework:sync:check`。**不 commit/push**。
+- **⚠️ 规格增量回传（工单约定「缺项先回传」）**：**托盘 24/24 槽的布局适配未在本单落** —— v1.24 只冻结槽数（2 行基线/4 行扩展），**未定义新 `TRAY_PANEL` 面板尺寸与 `TRAY_BAND` 带位**（4 行 × 54px ≈ 216 + padding，现行面板 190 放不下，且 HUD 底部化后棋盘/托盘带会连锁重排）⇒ **破坏性布局变更，需设计侧（或用户）先定面板尺寸**。tuning 已挂 ⛔ 注释（24 为目标值、12 仍生效）。
+- **主理人落码记录（2026-09-17，亲自施工；E4 同型 subagent 三连失败后接手）**：
+  - **端点表预烘焙**（`palette.ts` §1.9.5）：`BEAD_ENDPOINTS` 模块级一次构建 10 色 × {base,edge,pit,lit}（S1 0.30 / pit +0.14 / S4 0.38，奶白经 mix 钳制）⇒ **热路径零新增字符串分配**（每帧查表）。
+  - **`drawEmptySocket` 四层凹陷卡**（v1.5）：S2 坑底内缩 6%（pit）→ S1 暗缘框（stroke edge）→ S3 上内阴影线 → S4 下受光亮线；**幽灵符号删除**（EMPTY_GHOST_ALPHA 消费删，死值保留可恢复）；中性槽（托盘空槽）走 slot 色推导端点。
+  - **`drawFilledBead` L11 垫**（v1.5-r5 垫色显缝）：新增 `padColorIdx`（底色），垫 = 端点表 edge 平面（零投影，不读作珠），珠十层整体内缩 `BEAD_DRAW_INSET=2` 露垫缝；**错位珠「歪在垫上」可视化**（view-model 棋盘调用改传珠色 `beadColorIdx` + 垫色 `colorIdx` —— E1 遗留的「错位珠画成底色」一并修正）。
+  - **托盘微拱白瓷**（§1.3）：`drawTrayPlateShading` 三段内阴影（底缘 0.03/0.05 + 右缘 0.02，ink #1E2033）。
+  - **测试改写**（判据随规格作废/更新，不删例）：`bead-render.test` 中性四层 5 命令断言、目标色四层（纯色底/无 circle/S1 edge/S3 暗 S4 亮方向/无高光）；`view-model.test` A3 改 a11y 降级语义（空盘零符号、就位珠 5 满墨）；`feedback-vfx` GAP-10 时钟断言随 **v1.24 HUD 底部化**改 `y > gridTop`。
+  - **两处「非我引入」的既有断言滞后一并修正**：① GAP-10（T-141 HUD 底部化后时钟 y=1274 > gridTop=929，旧断言 `y < gridTop` 恒 false）；② bead-render E1/E4 断言（T-130/131 规格作废旧判据）。**已用 git stash 基线对照法确认归属**（基线绿 → 我的改动暴露了滞后的断言面；其中 GAP-10 实为 T-141 遗留、与 E6 渲染改动无因果）。
+- **门禁**：`pnpm -F @wxgame/beads test` **315/315 全绿**（27 文件）；`tsc --noEmit` 零错误；`framework:sync:check` ✅。
+- **状态**：**✅ E6 完成**（Epic T-133 进度 6/7；**遗留**：托盘 24 槽布局适配待设计定尺寸后另批）。

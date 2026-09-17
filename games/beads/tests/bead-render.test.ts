@@ -27,11 +27,8 @@ import {
   BEAD_SHADOW_HEX,
   BEAD_SOFT_HIGHLIGHT_ALPHAS,
   DEFAULT_PALETTE,
-  EMPTY_GHOST_ALPHA,
-  EMPTY_TINT_MIX,
   beadColor,
   mix,
-  mixWith,
   withAlpha,
 } from '../src/view/palette.js';
 import { symbolInk } from '../src/view/symbols.js';
@@ -188,15 +185,28 @@ describe('bead parameter card (assets-spec §1.1)', () => {
 
   // §1.2 empty 且无目标色（= 托盘空槽）：仅主体 + 描边，**无符号无倒角**；
   // §1.2 locked：主体 + 斜纹，**无高光无符号**。
-  it('§1.2 empty (no target) and locked states carry no symbol and no highlight', () => {
+  it('§1.2 empty (no target) 中性四层凹陷卡（v1.5-r5 改写：原「仅主体+描边」随 E1/E4 作废）', () => {
     const empty = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE));
-    expect(empty).toHaveLength(1);
-    expect(empty[0]).toMatchObject({
-      kind: 'rect',
-      fill: DEFAULT_PALETTE.slot,
-      stroke: DEFAULT_PALETTE.slotBorder,
-      lineWidth: 1,
-    });
+    // v1.5 四层：大底 → pit 内缩填充 → S1 暗缘框 → S3/S4 明暗线（共 5 命令）。
+    expect(empty).toHaveLength(5);
+    // 大底 = 中性 slot 纯色（无 stroke；旧 E1 tint 已作废）。
+    expect(empty[0]).toMatchObject({ kind: 'rect', fill: DEFAULT_PALETTE.slot });
+    // S2 坑底 = 中性色暗一档。
+    expect(empty[1]!.kind).toBe('rect');
+    // S1 暗缘框 = stroke-only（中性 edge）。
+    expect(empty[2]).toMatchObject({ kind: 'rect', stroke: mix(DEFAULT_PALETTE.slot, -0.3) });
+    // S3/S4 明暗方向：上暗下亮（线 y 序 + 墨色）。
+    expect(empty[3]!.kind).toBe('line');
+    expect(empty[4]!.kind).toBe('line');
+    // 无幽灵符号（a11y 降级，accessibility v1.5）。
+    expect(empty.some((c) => c.kind === 'circle')).toBe(false);
+    // 无软高光（不读作珠）。
+    expect(
+      empty.some(
+        (c) =>
+          c.kind === 'rect' && BEAD_SOFT_HIGHLIGHT_ALPHAS.some((a) => c.fill === withAlpha(BEAD_HIGHLIGHT_HEX, a)),
+      ),
+    ).toBe(false);
 
     const locked = emit((b) => drawLockedBead(b, 100, 200, DEFAULT_PALETTE));
     expect(locked.map((c) => c.kind)).toEqual(['rect', 'line', 'line']);
@@ -211,20 +221,23 @@ describe('bead parameter card (assets-spec §1.1)', () => {
 
   // §1.2 empty + 目标色（T-085 / §3.8）：传入 colorIdx → E1 目标色底 + E4 幽灵符号（α0.20），
   // 未填态即读出该格要填的颜色；形态仍无投影/倒角/高光 → 不误读为已填珠。
-  it('§1.2 empty socket with a target colour paints E1 tint + E4 ghost symbol', () => {
+  it('§1.2 empty socket with a target colour paints 纯色底 + 四层凹陷卡（v1.5-r5 改写：E1 tint/E4 ghost 作废）', () => {
     const idx = 1; // 奶白 ○
     const cmds = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, idx));
-    const socket = cmds.find((c) => c.kind === 'rect');
-    expect(socket).toMatchObject({
-      kind: 'rect',
-      fill: mixWith(DEFAULT_PALETTE.slot, beadColor(idx), EMPTY_TINT_MIX),
-      stroke: DEFAULT_PALETTE.slotBorder,
-    });
-    // E4：同 L5 矢量 path（○ = stroke-only circle），ink = 目标色 @ EMPTY_GHOST_ALPHA。
-    const ghost = cmds.find((c) => c.kind === 'circle');
-    expect(ghost).toBeDefined();
-    expect(ghost!.kind === 'circle' && ghost!.stroke).toBe(withAlpha(beadColor(idx), EMPTY_GHOST_ALPHA));
-    // 形态区分仍在：无软高光。
+    // 大底 = 目标色纯色直填（旧 E1 42% 混色已作废）。
+    const base = cmds.find((c) => c.kind === 'rect');
+    expect(base).toMatchObject({ kind: 'rect', fill: beadColor(idx) });
+    // E4 幽灵符号已删除（用户 2026-09-16 裁定，accessibility v1.5 降档登记）。
+    expect(cmds.some((c) => c.kind === 'circle')).toBe(false);
+    // S1 暗缘框 = stroke-only，墨 = mix(底色,#000,0.30)（端点表 edge）。
+    const edge = cmds.find((c) => c.kind === 'rect' && c.stroke !== undefined);
+    expect(edge).toMatchObject({ kind: 'rect', stroke: mix(beadColor(idx), -0.3) });
+    // S3/S4 明暗方向：上暗下亮。
+    const lines = cmds.filter((c) => c.kind === 'line');
+    expect(lines).toHaveLength(2);
+    expect((lines[0] as { stroke: string }).stroke).toBe(mix(beadColor(idx), -0.3));
+    expect((lines[1] as { stroke: string }).stroke).toBe(mix(beadColor(idx), 0.38));
+    // 形态区分仍在：无软高光（不读作珠）。
     expect(
       cmds.some(
         (c) =>
@@ -232,7 +245,6 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       ),
     ).toBe(false);
   });
-
   // §1.3：托盘珠 = 同 BEAD 内缩 4；尺寸常量必须由 TRAY_SLOT 派生，不能是散落的魔法数。
   it('§1.3 derives the tray bead size from the tray slot', () => {
     expect(TRAY_BEAD_SIZE).toBe(TRAY_SLOT - 4);
