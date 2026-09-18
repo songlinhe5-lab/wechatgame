@@ -30,18 +30,18 @@
 | 6 | `games/beads/art/accessibility.md` | 27120 | 185 | normal |
 | 7 | `my-skills/_repos/superpowers/RELEASE-NOTES.md` | 23461 | 1400 | normal |
 | 8 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md` | 19356 | 1649 | normal |
-| 9 | `games/beads/design/ux/ux-spec.md` | 13828 | 305 | normal |
-| 10 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-30-codex-efficiency-fixes.md` | 13107 | 1009 | normal |
-| 11 | `my-skills/_repos/superpowers/docs/porting-to-a-new-harness.md` | 12631 | 827 | normal |
-| 12 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
-| 13 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
-| 14 | `docs/engine-reference/cocos/VERSION.md` | 12203 | 456 | normal |
-| 15 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-06-sdd-plan-scoped-workspace.md` | 12140 | 1134 | normal |
-| 16 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-05-06-lift-drill-into-evals.md` | 12045 | 1374 | normal |
-| 17 | `games/beads/design/gdd/systems-index.md` | 11694 | 284 | hot |
-| 18 | `my-skills/_repos/superpowers/skills/writing-skills/anthropic-best-practices.md` | 11532 | 1150 | normal |
-| 19 | `my-skills/writing-skills/anthropic-best-practices.md` | 11532 | 1150 | normal |
-| 20 | `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 11343 | 242 | normal |
+| 9 | `games/beads/design/gdd/input-control.md` | 13968 | 192 | normal |
+| 10 | `games/beads/design/ux/ux-spec.md` | 13828 | 305 | normal |
+| 11 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-30-codex-efficiency-fixes.md` | 13107 | 1009 | normal |
+| 12 | `my-skills/_repos/superpowers/docs/porting-to-a-new-harness.md` | 12631 | 827 | normal |
+| 13 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
+| 14 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
+| 15 | `docs/engine-reference/cocos/VERSION.md` | 12203 | 456 | normal |
+| 16 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-06-sdd-plan-scoped-workspace.md` | 12140 | 1134 | normal |
+| 17 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-05-06-lift-drill-into-evals.md` | 12045 | 1374 | normal |
+| 18 | `games/beads/design/gdd/systems-index.md` | 11694 | 284 | hot |
+| 19 | `my-skills/_repos/superpowers/skills/writing-skills/anthropic-best-practices.md` | 11532 | 1150 | normal |
+| 20 | `my-skills/writing-skills/anthropic-best-practices.md` | 11532 | 1150 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -55,6 +55,7 @@
 | `games/beads/art/accessibility.md` | 27120 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/RELEASE-NOTES.md` | 23461 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-15-sdd-fix-loop-redesign.md` | 19356 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/input-control.md` | 13968 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 13828 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/superpowers/plans/2026-07-30-codex-efficiency-fixes.md` | 13107 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/docs/porting-to-a-new-harness.md` | 12631 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -71,7 +72,6 @@
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/mattpocock-skills/CHANGELOG.md` | 11071 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 11064 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/input-control.md` | 10001 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/systems-index-changelog.md` | 9433 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

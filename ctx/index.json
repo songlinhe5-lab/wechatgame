@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3267,
+      "tokens": 3262,
       "lines": 119,
-      "sha256": "c462c5fba13c5c69b814c68ac06dca968f87c742cc98b6dd1587e7b9339fe578",
+      "sha256": "2f87f5898421851a7e235a8caa2ea2252ab9022c5ee2e0517b968df7d1cb7181",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 120,
-          "tokens": 3254,
+          "tokens": 3249,
           "summary": "生成：2026-09-18 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 459,
+          "tokens": 454,
           "summary": "1 production/qa/beads/g4-regression-report.md 86807 2201 nor",
           "keywords": [
             "Top",
@@ -16780,18 +16780,18 @@
     },
     {
       "path": "games/beads/design/gdd/core-loop.md",
-      "tokens": 5771,
-      "lines": 156,
-      "sha256": "84858b14136a077105d01722732bacbea87941caf3edb0e6a384c80b2809be49",
+      "tokens": 7199,
+      "lines": 164,
+      "sha256": "980f9d649d594b698c7023961fdbee19306e4cbdf2e03e508a3c799b4ea6634e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S1 核心循环（Core Loop）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 157,
-          "tokens": 5757,
-          "summary": "项目：games/beads · 版本 v2.0 · 任务号 WXG-T-130（v2.0 = 「错位归位」核心循环反转",
+          "endLine": 165,
+          "tokens": 7185,
+          "summary": "项目：games/beads · 版本 v2.1 · 任务号 WXG-T-167（v2.1 = 棋盘区「抬起才提交」时基",
           "keywords": [
             "GDD",
             "Core",
@@ -16816,8 +16816,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 13,
-          "endLine": 77,
-          "tokens": 2455,
+          "endLine": 78,
+          "tokens": 2598,
           "summary": "",
           "keywords": [
             "机制"
@@ -16843,8 +16843,8 @@
           "anchor": "§2.2 关内微循环（PLAYING 的每秒心跳）",
           "level": 3,
           "startLine": 38,
-          "endLine": 70,
-          "tokens": 1546,
+          "endLine": 71,
+          "tokens": 1689,
           "summary": "#### 2.2.1 玩法叙事序（不是执行序；v2.0 随「错位归位」核心循环重写，用户 2026-09-16 裁定）",
           "keywords": [
             "PLAYING",
@@ -16855,8 +16855,8 @@
         {
           "anchor": "§2.3 冲刺模式补记（2026-09-12 用户拍板，C8 条款；v2.0 案 A 适配；细则见 `gdd/score-combo.md` 与 systems-index §3.10）",
           "level": 3,
-          "startLine": 71,
-          "endLine": 77,
+          "startLine": 72,
+          "endLine": 78,
           "tokens": 263,
           "summary": "冲刺模式 = PLAYING 内的模式标志（mode: 'sprint'），本节六状态机零改动，全部裁决复用上文。",
           "keywords": [
@@ -16871,8 +16871,8 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 78,
-          "endLine": 86,
+          "startLine": 79,
+          "endLine": 87,
           "tokens": 187,
           "summary": "玩家 托盘珠点击（选归位珠）、托盘空槽点击（取回落点）、错位珠点击（选取回珠）、网格空格点击（归位落点）、道具卡点击、暂",
           "keywords": [
@@ -16882,8 +16882,8 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 87,
-          "endLine": 100,
+          "startLine": 88,
+          "endLine": 101,
           "tokens": 301,
           "summary": "选错位珠 错位珠高亮（board:selected，selected 态语言同托盘选中） ux-spec §5「错位珠选",
           "keywords": [
@@ -16897,8 +16897,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 101,
-          "endLine": 109,
+          "startLine": 102,
+          "endLine": 110,
           "tokens": 149,
           "summary": "全部引用 systems-index §3：",
           "keywords": [
@@ -16911,8 +16911,8 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 110,
-          "endLine": 131,
+          "startLine": 111,
+          "endLine": 132,
           "tokens": 762,
           "summary": "极端值",
           "keywords": [
@@ -16922,8 +16922,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 132,
-          "endLine": 136,
+          "startLine": 133,
+          "endLine": 137,
           "tokens": 83,
           "summary": "上游：无（S1 是编排层）。",
           "keywords": [
@@ -16933,9 +16933,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 137,
-          "endLine": 149,
-          "tokens": 811,
+          "startLine": 138,
+          "endLine": 156,
+          "tokens": 1658,
           "summary": "1. 冷启动无存档 → 直接进入第 1 关 PLAYING，全程无主菜单；有存档 → 续进已解锁最远关。",
           "keywords": [
             "PLAYING",
@@ -16947,9 +16947,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 150,
-          "endLine": 157,
-          "tokens": 723,
+          "startLine": 157,
+          "endLine": 165,
+          "tokens": 1078,
           "summary": "v1.0 2026-09-12 建档（六状态机 + 微循环 + §8 十条判据） WXG-T-007",
           "keywords": [
             "§8",
@@ -16961,18 +16961,18 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 10001,
-      "lines": 169,
-      "sha256": "6ba26600cca887398d9cf12e6665731bdb90c0d746547595a9657c139b80d324",
+      "tokens": 13968,
+      "lines": 192,
+      "sha256": "c5142bf2b8052688950b2a5d3b445a9d46f7ab647d0e34a9dcbbda095b28ff76",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S2 输入与操控（Input Control）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 170,
-          "tokens": 9986,
-          "summary": "项目：games/beads · 版本 v2.4 · 任务号 WXG-T-162（v2.4 = 盘侧组选改完整连通块（8",
+          "endLine": 193,
+          "tokens": 13953,
+          "summary": "项目：games/beads · 版本 v2.6 · 任务号 WXG-T-168（v2.6 = 取回落槽改「玩家点槽定落",
           "keywords": [
             "GDD",
             "Input",
@@ -16997,34 +16997,34 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 13,
-          "endLine": 57,
-          "tokens": 2385,
+          "endLine": 69,
+          "tokens": 3495,
           "summary": "",
           "keywords": [
             "机制"
           ]
         },
         {
-          "anchor": "§2.1 触摸路由表（单指点击，无拖拽/长按；v2.0 = 统一选择锚）",
+          "anchor": "§2.1 触摸路由表（v2.5 = 分区提交时基：棋盘区抬起才提交 + 位移阈值分 tap/drag，区外仍按下即响应；v2.0 = 统一选择锚）",
           "level": 3,
           "startLine": 15,
-          "endLine": 30,
-          "tokens": 1058,
-          "summary": "统一选择锚（v2.0 核心机制）：selection ∈ {tray, board, none}——tray = 托盘珠",
+          "endLine": 42,
+          "tokens": 1937,
+          "summary": "提交时基（v2.5 新增，ADR-0015 §3.5 C-3 = (a) 主理人已裁）：路由入口从 v2.4 的「单指点",
           "keywords": [
-            "selection",
-            "tray",
-            "board",
-            "none",
+            "§3.5",
+            "tap",
+            "drag",
+            "ADR",
             "触摸路由表",
-            "单指点击"
+            "分区提交时基"
           ]
         },
         {
           "anchor": "§2.2 热区规则（来源 §3.8）",
           "level": 3,
-          "startLine": 31,
-          "endLine": 38,
+          "startLine": 43,
+          "endLine": 50,
           "tokens": 351,
           "summary": "最小热区 TOUCH_MIN = 88px（≈44pt）。",
           "keywords": [
@@ -17037,9 +17037,9 @@
         {
           "anchor": "§2.3 状态门禁（什么状态下点什么有效）",
           "level": 3,
-          "startLine": 39,
-          "endLine": 50,
-          "tokens": 253,
+          "startLine": 51,
+          "endLine": 62,
+          "tokens": 326,
           "summary": "PLAYING 上表全部",
           "keywords": [
             "PLAYING",
@@ -17051,9 +17051,9 @@
         {
           "anchor": "§2.4 非法输入处理（对齐 core-loop §6）",
           "level": 3,
-          "startLine": 51,
-          "endLine": 57,
-          "tokens": 651,
+          "startLine": 63,
+          "endLine": 69,
+          "tokens": 785,
           "summary": "锁定格 / 已就位珠（v2.0：filled 且珠色=底色；错位珠不适用本条，错位珠可选中）点击：路由到 S3 但 S3",
           "keywords": [
             "§6",
@@ -17067,21 +17067,22 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 58,
-          "endLine": 66,
-          "tokens": 78,
-          "summary": "玩家 单指触摸（tap）",
+          "startLine": 70,
+          "endLine": 78,
+          "tokens": 141,
+          "summary": "玩家 单指 tap（棋盘区 = 按下→抬起、位移 < 阈值 [待确认]；区外 = 按下即响应）＋ 棋盘区单指 drag（",
           "keywords": [
             "tap",
+            "drag",
             "输入"
           ]
         },
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 67,
-          "endLine": 78,
-          "tokens": 348,
+          "startLine": 79,
+          "endLine": 90,
+          "tokens": 370,
           "summary": "tray:selected {slot, colorIdx, count} 点 holding 槽（4a；v2.3：同色",
           "keywords": [
             "tray",
@@ -17095,8 +17096,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 79,
-          "endLine": 82,
+          "startLine": 91,
+          "endLine": 94,
           "tokens": 64,
           "summary": "全部引用 systems-index §3：§3.8（TOUCH_MIN、错误反馈频率）、§3.1（HUD_BAND/T",
           "keywords": [
@@ -17111,9 +17112,9 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 83,
-          "endLine": 99,
-          "tokens": 466,
+          "startLine": 95,
+          "endLine": 118,
+          "tokens": 821,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -17122,8 +17123,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 100,
-          "endLine": 104,
+          "startLine": 119,
+          "endLine": 123,
           "tokens": 101,
           "summary": "上游：S1（状态门禁）、S4（selection 锚、空槽与 holding 状态查询）、S3（错位格查询）。",
           "keywords": [
@@ -17135,12 +17136,13 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 105,
-          "endLine": 156,
-          "tokens": 3620,
-          "summary": "1. 6 类指令逐一验证路由正确（v2.0 扩充）：点暂停→PAUSED；点道具卡→S6 收请求；点扩展→S4 收请求；",
+          "startLine": 124,
+          "endLine": 177,
+          "tokens": 5053,
+          "summary": "v2.5 时基翻转范表（WXG-T-167，ADR-0015 C-3 前置）：被翻 = 判据 2 / 4 / 9 / 1",
           "keywords": [
-            "PAUSED",
+            "WXG",
+            "ADR",
             "验收标准",
             "可测试硬判据",
             "直接造用例"
@@ -17149,9 +17151,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 157,
-          "endLine": 170,
-          "tokens": 2535,
+          "startLine": 178,
+          "endLine": 193,
+          "tokens": 3303,
           "summary": "v1.0 WXG-T-009 交付 初版八节定稿（§2.1 触摸路由表 / §2.3 状态门禁 / §8 十条硬判据） ",
           "keywords": [
             "§2.1",
