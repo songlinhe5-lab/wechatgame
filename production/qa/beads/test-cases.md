@@ -1,6 +1,6 @@
 # 《拼豆填色消除》(beads) 测试用例 · Test Cases
 
-- 任务号：WXG-T-011 / WXG-T-028 / **WXG-T-084** / **WXG-T-092（复验轮）** / **WXG-T-098** / **WXG-T-109** / **WXG-T-114（真链口径轮）** / **WXG-T-116（§A4b 去「拟」+ 次按钮真链孪生）** / **WXG-T-144（§J v2.0 判据迁移）** / **WXG-T-146（G1/G3/G4 落码回填 + 裁定 1 面板门新增两条）** / **WXG-T-150（G2′ 解环器归位落码 + 裁定「甲」时序门新增三条）** / **WXG-T-153（G6 结算彩带落码 + TC-PER-26 新增）** / **WXG-T-132（G5 伪震屏全局变换通道落码 + TC-PER-27 新增）** / **WXG-T-169（棋盘缩放/平移 + 抬起才提交：§A2/§A3/§A4 时基改写 + 新增 §A4c）** ｜ 作者：严守真 ｜ 版本 **v1.13** ｜ 日期 **2026-09-18**
+- 任务号：WXG-T-011 / WXG-T-028 / **WXG-T-084** / **WXG-T-092（复验轮）** / **WXG-T-098** / **WXG-T-109** / **WXG-T-114（真链口径轮）** / **WXG-T-116（§A4b 去「拟」+ 次按钮真链孪生）** / **WXG-T-144（§J v2.0 判据迁移）** / **WXG-T-146（G1/G3/G4 落码回填 + 裁定 1 面板门新增两条）** / **WXG-T-150（G2′ 解环器归位落码 + 裁定「甲」时序门新增三条）** / **WXG-T-153（G6 结算彩带落码 + TC-PER-26 新增）** / **WXG-T-132（G5 伪震屏全局变换通道落码 + TC-PER-27 新增）** / **WXG-T-169（棋盘缩放/平移 + 抬起才提交：§A2/§A3/§A4 时基改写 + 新增 §A4c）** / **WXG-T-170/171/172（T-169 §A4c.4-F1/F2/F3 三缺陷修复批：TC-SUB-06 新落点 + F2 回归例 + TC-CAM-08 新落点）** / **WXG-T-173（U11 丁裁：`core-loop v2.2 §8` 注② 摘出扫光链，下游后移清单同步）** ｜ 作者：严守真 ｜ 版本 **v1.14** ｜ 日期 **2026-09-18**
 - **判据来源（v1.3 校正）**：9 份系统 GDD 各 §8 —— `core-loop / bead-grid / tray-spawner / input-control / timer-gameover / powerups / save-progress / pause-settings`（timer 12 条、其余各 10 条）+ `score-combo` §8（冲刺 11 条）⇒ **合计 93 条**（`awk '/^## 8\./,0' | grep -cE '^[0-9]+\.'` 逐文件 = 12/11/10/10/10/10/10/10/10）。**v1.2 头部写「合计 61 条」已过期，实际只映射 71 条、22 条零映射**（缺陷 **BD-21**，v1.3 由 §H 补齐）。常量引 `systems-index.md §3`（含 §3.10 冲刺 / §3.11 续时）+ `art/accessibility.md`。
 - **v1.3 新增判据来源（§G 可感知层）**：`design/ux/ux-spec.md §1-3 / §4 尾注 / §5 动效毫秒表 / §6.1–6.2 / §8 裁决表`（WXG-T-081）、`art/assets-spec.md §1.2`（`empty`/`wrong`/`hint` 三态规格）、`art/accessibility.md A2/A2b/A3/B3/C1/D1/E2`、`design/audio/audio-events.md §1 + §4 A05-01..27`（WXG-T-083，该文件明文「**供 WXG-T-084 引用**」）。**全部逐条标注来源，零自造数值。**
 - 常量速查（来源 `systems-index §3`，**v1.4 按 v1.17 现文校正**）：`TRAY_BASE_SLOTS=12`、`SPAWN_INTERVAL_DEFAULT=4.0s`（区间 [2.0,6.0]）、~~`NEEDED:DECOY=3:1`~~ → **v1.17 冻结 `DECOY_COLORS_MAX=0`（D 方案，杂色池关闭）** ⇒ 凡依赖 3:1 抽色的判据（**S4 §8-3**）现属**不可构造**，见 **BD-28**（本文不擅自删条，只标注）；`LEVEL_TIME_DEFAULT=300s`（区间 [180,420]）、`TIMER_URGENT_T=10s`、`TIMER_TICK=1.0s`、`GRID_MAX=13×12`、`STAR3_RATIO=0.32`、`STAR2_RATIO=0.12`、`DEMO_LEVEL_COUNT=8`、`POWERUP_FREE_USES=1`、`REGION_CLEAR_SLOTS=6`、`RANDOM_CLEAR_COUNT=5`、命中区外扩 8px（66²/62²，**重叠区归属以 §8-4 最近格心为准**，v1.4 按已裁口径补注）。
@@ -137,7 +137,7 @@
 
 > **§8 未翻 / 后移清单（逐字镜像 `input-control v2.5 §8` 头，QA 不自造）**：
 > 被翻 = **2 / 4 / 9 / 10**；时基后移主体不变 = **3 / 5 / 8-11 / 8-12**；未翻（仍按下即响应）= **1 的路由 1–4、6、7（棋盘区仅追加「须抬起」前缀）、8 / 8b / 8c / 8d**。
-> 另：`core-loop v2.1` 点名时基后移的下游（**① 落座回弹 120ms ② 扫光/解环器链 ③ `level:cleared` 判定帧 ④ 连击间隔**）；
+> 另：`core-loop v2.2`（WXG-T-173 U11 丁裁）点名时基后移的下游（**① 落座回弹 120ms ② 已摘出（扫光/解环器链属区外 `powerup:used` 同栈按下帧，不随后移） ③ `level:cleared` 判定帧 ④ 连击间隔**）；
 > 后移量本身 `[待确认]` ⇒ **K-052 类时长常量决定事件帧者属玩法时序**，旧读数不得沿用，须按新时基重跑。
 
 
@@ -225,12 +225,12 @@
 
 | ID | 判据来源 | 用例 | 道次 | 应断言什么（现文口径） | 缺口现况 | 状态 |
 |---|---|---|---|---|---|---|
-| **TC-CAM-08** | `§6` 换关/重试/回菜单「相机复位」 | 相机复位档 | `[Node]` | `_setupLevel` / 重试 / 回主菜单后相机回初值。**⚠️ 字面差**：GDD/ADR 写「归**恒等**」，实现走 `fitCamera`（`beads-game.ts:1724 / 1760` ⇒ zoom=fit，第 8 关 fit≈0.9518 ≠ 1）⇒ 两读不等价，先裁口径再落测试（§A4c.4-F3） | 无落点（tests 目录除 `layout-camera`/`board-camera` 外 `camera\|zoom` 0 命中） | 待执行 |
+| **TC-CAM-08** | `§6` 换关/重试/新局/冲刺换 stage「相机复位」 | 相机复位档 | `[Node]` | **复位档 = `fit` 初始**（非恒等）；`_setupLevel`（换关/新局/重试/跳关共用）/ `_loadStage`（冲刺换 stage）后 `_camera.zoom === computeFitZoom(cols,rows)` 且 `offsetX===offsetY===0`；小盘 fit=1 与旧恒等逐位相同（回归锚）；**回菜单与后台隐藏当帧无复位点**（由下次装配兜住，新口径不得断言它们当帧复位）。`fit` 公式真源 = `board-camera.ts::computeFitZoom`；`BOARD_FIT_MARGIN` / `CAMERA_ZOOM_MAX_SPAN` 均 `[待确认]` 工程占位，不钉字面。 | `board-camera.test.ts` **5 例**（13×12 大盘归 fit、<1；6×5 小盘 fit=1 与恒等逐位；重试；冲刺换 stage（真链 stage0→1 + 大盘 stage7）；后台隐藏当帧不复位→下次装配兜住）| ✅ 已验（WXG-T-172）|
 | **TC-CAM-09** | `§6` 非 PLAYING / meta 页相机旁路 | 相机旁路 | `[Node]` | 面板打开 / PAUSED / 结算态下双指与拖拽**不改相机、不产指令** | 无落点（起手域仅证 `playing` 分支） | 待执行 |
 | **TC-SUB-03** | `v2.5 §8-9` 游戏层双腿 | 拖→捏态切换不提交（beads 侧） | `[Node]` | 棋盘 down 后次指落下→ `_pinched` 置位→主指抬起**不提交 tap**；全程 owner 不迁移 | 无落点（`_pinched` 分支未测；`board-input-timing` 只覆盖单指两腿） | 待执行 |
 | **TC-SUB-04** | `v2.5 §8-10`（新口径） | 指令洪泛 | `[Node]` | 20 组成对 down/up 分帧投递 ⇒ 每固定步入路由 ≤1 条、无错序；drag/捏合帧恒 0 条玩法指令 | 无落点（旧 `tapMany` 单帧形已不作证据） | 待执行 |
 | **TC-SUB-05** | `§6` 手势边界第一条 + `§8-2` | 跨带误触 / 区外不起手 | `[Node]` | 棋盘区起手、抬起带外（拖入托盘/道具带）仍判 drag、不提交 tap；HUD/托盘/道具不从它们起手为 drag | 无落点。几何护栏：占位阈值 8 < 带间隙 30 ⇒ 当前「位移<阈值却跨带」不可构造（§A4c.4-F5） | 待执行 |
-| **TC-SUB-06** | `v2.5 §8-2` 未盖到的子情形 | **同固定步 down+up（亚帧快速点击）** | `[Node]` | 一对 down/up 落在同一固定步时，棋盘区应否提交 tap（现实现：**不提交且 `_tapActive` 悬挂**）——先由设计/架构裁定期望，再落测试 | 无落点；机制已由只读命令证实（§A4c.4-F1，**建议主理人按 P1 立项**） | 待执行 |
+| **TC-SUB-06** | `v2.5 §8-2` 未盖到的子情形 | **同固定步 down+up（亚帧快速点击）** | `[Node]` | 一对 down/up 落在同一固定步时，棋盘区当场提交 tap（`bead:placed` +1），且 `_tapActive` 不悬挂（后续空帧不重复提交） | `board-input-timing.test.ts` **1 例**（同固定步 down+up 就地提交反验） | ✅ 已验（WXG-T-170） |
 | **TC-SUB-07** | `v2.5 §8-3`（后移，主体不变） | drag 途中跨格零选中 | `[Node]` | 拖拽过程中逐帧跨格 ⇒ 选择锚/`tray:selected`/`bead:*` 均不变（现库只断“不落子”，本子句无独立断言） | 无落点（`TC-CAM-07` 仅覆盖 `bead:placed`） | 待执行 |
 
 ### A4c.3 环境／屏幕层**做不到** ⇒ ⛔ 挂账（**一律未执行，禁写 PASS**）
@@ -250,9 +250,9 @@
 
 | # | 发现 | 证据 | 建议（归主理人） |
 |---|---|---|---|
-| **F1** | **同一固定步内到达的 down+up 在棋盘区不提交，且 `_tapActive` 悬挂**：`_readInput` 首分支 `if (snap.justDown) { …onBoard… return; }`（`beads-game.ts:1819-1835`）吞掉同快照的 `justUp`；`endFrame` 随即清除一次性标记 ⇒ up 边沿**永久丢失**（下一帧 `_prevDown` 已为 false，`justUp` 不再复现）。真机 **<16ms 快速点击**与探针 `tapChain()` 均落入此形 | 只读命令实跑（`node --experimental-strip-types` 直调 `InputManager`）：F1 帧 `justDown=true && justUp=true, isDown=false`；下一帧双 false。叠上 `input-multistep.test.ts`「一次 up 只在恰一个固定步投递」⇒ 机制闭合 | **建议按 P1 立项**（缺陷编号由主理人分配）：或提 `up` 优先级（不吞边沿），或设“同帧快速 tap 直接提交”分支。影响面：每次**亚帧**快速点击丢 1 次提交（人类点击 50–100ms ≫ 16ms，概率低但不为 0；**自动化取证 100% 触发**） |
-| **F2** | **位移度量口径漂移**：`§2.1` 明写「**切比雪夫**位移判定」，实现为 `\|dx\|+\|dy\|`（**曼哈顿**，`beads-game.ts:1845-1847`）。可构反例：偏移 (5,5) ⇒ L1=10 ≥ 8 判 drag，L∞=5 < 8 应判 tap | 读码比对 | 因阈值本身 `[待确认]` ⇒ **不判 FAIL**；但**形态口径应先于定值裁定**（否则定值时测得的手感与运行行为不同形） |
-| **F3** | **复位档字面差**：`§6` / `ADR` 写“换关/重试/回菜单相机**归恒等**”，实现走 `fitCamera`（zoom=fit）。大盘 fit<1 时两者不等价（第 8 关 fit≈0.9518） | `beads-game.ts:1724/1760` + `computeFitZoom` | 属条文与实现语义差，归主理人/设计轨裁决（任务单描述为“初始 `fitCamera` 居中含边距”，倾向以实现为准改写条文） |
+| **F1** | **同一固定步内到达的 down+up 在棋盘区不提交，且 `_tapActive` 悬挂**：`_readInput` 首分支 `if (snap.justDown) { …onBoard… return; }`（`beads-game.ts:1819-1835`）吞掉同快照的 `justUp`；`endFrame` 随即清除一次性标记 ⇒ up 边沿**永久丢失**（下一帧 `_prevDown` 已为 false，`justUp` 不再复现）。真机 **<16ms 快速点击**与探针 `tapChain()` 均落入此形 | 只读命令实跑（`node --experimental-strip-types` 直调 `InputManager`）：F1 帧 `justDown=true && justUp=true, isDown=false`；下一帧双 false。叠上 `input-multistep.test.ts`「一次 up 只在恰一个固定步投递」⇒ 机制闭合 | **⇒ 已修于 WXG-T-170**（用户 2026-09-18 授权）：onBoard 分支内同帧 justUp 不 return，自然进 justUp 支路就地提交并复位；回测例 `board-input-timing.test.ts` “同固定步 down+up”。影响面：修复前每次**亚帧**快速点击丢 1 次提交（人类点击 50–100ms ≫ 16ms，概率低但不为 0；自动化取证 100% 触发） |
+| **F2** | **位移度量口径漂移**：`§2.1` 明写「**切比雪夫**位移判定」，实现为 `\|dx\|+\|dy\|`（**曼哈顿**，`beads-game.ts:1845-1847`）。可构反例：偏移 (5,5) ⇒ L1=10 ≥ 8 判 drag，L∞=5 < 8 应判 tap | 读码比对 | 因阈值本身 `[待确认]` ⇒ **不判 FAIL**；但**形态口径应先于定值裁定**（否则定值时测得的手感与运行行为不同形）。**⇒ 已修于 WXG-T-171**（用户 2026-09-18 拍板甲 · 切比雪夫 L∞）：`beads-game.ts::_readInput` L1849–1851 代码 `sum`→`max`；反验例 `board-input-timing.test.ts` 「(5,5) 应判 tap」（旧 L1 下红、新 L∞ 下绿）。阈值数值本身仍 `[待确认]`，属 §3 变更单一批。 |
+| **F3** | **复位档字面差**：`§6` / `ADR` 写“换关/重试/回菜单相机**归恒等**”，实现走 `fitCamera`（zoom=fit）。大盘 fit<1 时两者不等价（第 8 关 fit≈0.9518） | `beads-game.ts:1724/1760` + `computeFitZoom` | 属条文与实现语义差，归主理人/设计轨裁决（任务单描述为“初始 `fitCamera` 居中含边距”，倾向以实现为准改写条文）。**⇒ 已修于 WXG-T-172**（用户 2026-09-18 拍板**甲 · 以实现为准** + 附裁**一并收 5→2 复位点**）：GDD `input-control §6` v2.7 回写「归 fit 初始」；`ADR-0015 §3.4` 5 个复位点收敛为实际 2 点（`_setupLevel` / `_loadStage`）+ 回菜单/后台隐藏归「下次装配兜住」（`InputManager.reset()` 非复位点，原文误列已删）；代码零行为改动，仅注释。回测例 `board-camera.test.ts` 5 例（TC-CAM-08 新落点）|
 | **F4** | **运行时默认档已非恒等**：`computeFitZoom = min(1, …)` ⇒ 13×12 关 fit≈0.9518。连带：① `TC-GRID-08`（§2.4 公式 ±0.5px）仅在恒等档成立；② `TOUCH_MIN` 底线触达（= TC-CAM-DEV-05）；③ 头部旧注「命中区外扩 8px（66²）」隐含 z=1 | 算式复算：`natH=12×52−2=622`，`(640−48)/622 ≈ 0.9518` | 已在 §A2/§A4c.3 就地标注前提；§3 层面注记归设计/架构轨 |
 | **F5** | 几何护栏：占位阈值 8 **小于**盘面间隙可构距离、亦小于 `PUZZLE_BAND` 与邻带的 30px 间距 ⇒ 当前不可构造「位移<阈值却跨带误触」；**阈值若定值 >30 即成真缺陷** | 冻结常量 `PUZZLE_BAND.yMin=480` vs `TRAY_BAND.yMax=450` | 建议 §3 变更单把「**`BOARD_TAP_MOVE_THRESHOLD` ≤ 带间隙**」列为选型护栏（属设计轨数值，QA 不代定） |
 | **F6** | **探针未随时基翻转升级**（取证债）：`g4-probe-v1.1.mjs` 最后提交 `968b808`（WXG-T-151，09-17）早于 `73d59c4`/`1bdbfd7`（09-18）；其 `tapChain` 单固定步 down+up 与 `helpers.tapInFrame` 两固定步**不同形** | `git log -1` 比对 + `is-ancestor` 验序 | 建议先改探针为两帧形（或新增 `tapChain2Frame`）再复跑 §A4b/§H/§G 族；本轮 `[Probe]` 读数均已降为 `待复核` |

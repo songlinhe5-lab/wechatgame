@@ -198,18 +198,18 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3262,
-      "lines": 119,
-      "sha256": "77b895dc56dcc4a26d991d30cb5f3aa25806a69cb45e6b69170f80fa2370783d",
+      "tokens": 3297,
+      "lines": 120,
+      "sha256": "4e21121b38da21665a8eafb4a848535afa6e9190afc42c59cf7feda1864cc638",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 120,
-          "tokens": 3249,
-          "summary": "生成：2026-09-18 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "endLine": 121,
+          "tokens": 3284,
+          "summary": "生成：2026-09-19 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 454,
+          "tokens": 455,
           "summary": "1 production/qa/beads/g4-regression-report.md 86807 2201 nor",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 94,
-          "tokens": 1702,
+          "endLine": 95,
+          "tokens": 1735,
           "summary": "production/qa/beads/g4-regression-report.md 86807 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 95,
-          "endLine": 120,
+          "startLine": 96,
+          "endLine": 121,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4499,
+      "tokens": 4521,
       "lines": 82,
-      "sha256": "c0c3423cb8da857c1e4d4d191378594f7fa3bc258755659d5f08d06ae3c34cc2",
+      "sha256": "ba3ad59538f3c12cc527f0121954a34247db3057407bf213faa009bdf6eb47cb",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4471,
+          "tokens": 4493,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 45 行 / 4083 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 49 行 / 4681 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+46 · §待排（backlog，无号，立项时领取）=24+23",
+          "summary": "§WXG 任务台账（SSOT）=1+50 · §待排（backlog，无号，立项时领取）=28+23",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -577,7 +577,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 668 行 / 41911 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 668 行 / 42379 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 218 行 / 12560 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 339 行 / 18538 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 242,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+219 · §WXG-T-128=18+104 · §裁定与回写记录（",
+          "tokens": 264,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+340 · §WXG-T-128=18+104 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -4990,17 +4990,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md",
-      "tokens": 11343,
-      "lines": 242,
-      "sha256": "30d2f281ca80ac7a5ba84838c00f6fadf78a0660bce6f16816ae52db6613ca2f",
+      "tokens": 12082,
+      "lines": 248,
+      "sha256": "7f61bfe390a32a87c56780357b38bc158ece0d2fa1ca171b7daec7ed4ce55f91",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0015 — 棋盘区双指缩放 + 单指平移：多点输入槽进 `core/input`，区域变换走「布局即相机」",
           "level": 1,
           "startLine": 1,
-          "endLine": 243,
-          "tokens": 11304,
+          "endLine": 249,
+          "tokens": 12043,
           "summary": "编号：ADR-0015（0008 跳空合规沿 ADR-0013/0014 注；0009–0014 已用；号只分配不回收）",
           "keywords": [
             "core/input",
@@ -5014,8 +5014,8 @@
         {
           "anchor": "§1 上下文（Context）",
           "level": 2,
-          "startLine": 14,
-          "endLine": 79,
+          "startLine": 15,
+          "endLine": 80,
           "tokens": 2016,
           "summary": "",
           "keywords": [
@@ -5026,8 +5026,8 @@
         {
           "anchor": "§1.1 直接动因（用户真机反馈）",
           "level": 3,
-          "startLine": 16,
-          "endLine": 23,
+          "startLine": 17,
+          "endLine": 24,
           "tokens": 226,
           "summary": "用户在微信真机验证后提出缺功：「缺个功能，可双指放大缩小、单指左右移动」（WXG-T-166 立项单原文）。范围已由用户",
           "keywords": [
@@ -5039,8 +5039,8 @@
         {
           "anchor": "§1.2 驱动它的更大系统：盘面小**不是数值保守，是被「不缩放必须塞进屏幕」倒逼的上限**",
           "level": 3,
-          "startLine": 24,
-          "endLine": 36,
+          "startLine": 25,
+          "endLine": 37,
           "tokens": 315,
           "summary": "用户另一条反馈是「每关盘面珠子太少、缺少连续珠子」。经核实，这条批评的根因不在数值表，证据链在 systems-inde",
           "keywords": [
@@ -5055,8 +5055,8 @@
         {
           "anchor": "§1.3 图鉴诉求，以及本文**不**决策的部分（诚实划界）",
           "level": 3,
-          "startLine": 37,
-          "endLine": 45,
+          "startLine": 38,
+          "endLine": 46,
           "tokens": 327,
           "summary": "用户另希望在主页面做图鉴：每张图 = 9 宫格或 16 宫格，每格是一个由拼豆不同颜色拼成的拼图版面。现状核实：",
           "keywords": [
@@ -5069,8 +5069,8 @@
         {
           "anchor": "§1.4 三条既有约束（已逐字读过，本文正面处理）",
           "level": 3,
-          "startLine": 46,
-          "endLine": 73,
+          "startLine": 47,
+          "endLine": 74,
           "tokens": 956,
           "summary": "约束 A —— ADR-0011 坐标空间契约链。 现行链路是唯一换算点，且只有两段：",
           "keywords": [
@@ -5083,8 +5083,8 @@
         {
           "anchor": "§1.5 本文交付物与验收边界",
           "level": 3,
-          "startLine": 74,
-          "endLine": 79,
+          "startLine": 75,
+          "endLine": 80,
           "tokens": 79,
           "summary": "本文只交付三样：能力（多点输入）、机制（棋盘区域变换 + 命中一致性）、约束（不变式、钳位口径、回归面）。观感、倍率曲线",
           "keywords": [
@@ -5095,8 +5095,8 @@
         {
           "anchor": "§2 备选方案（Alternatives）",
           "level": 2,
-          "startLine": 80,
-          "endLine": 130,
+          "startLine": 81,
+          "endLine": 131,
           "tokens": 2940,
           "summary": "",
           "keywords": [
@@ -5107,8 +5107,8 @@
         {
           "anchor": "§2.1 多点触摸输入通道",
           "level": 3,
-          "startLine": 82,
-          "endLine": 101,
+          "startLine": 83,
+          "endLine": 102,
           "tokens": 1132,
           "summary": "甲（原始表述）：扩展 core/input 支持多指针槽，缩放/平移在手势层解算。",
           "keywords": [
@@ -5121,8 +5121,8 @@
         {
           "anchor": "§2.2 棋盘区变换落在哪一层",
           "level": 3,
-          "startLine": 102,
-          "endLine": 117,
+          "startLine": 103,
+          "endLine": 118,
           "tokens": 1228,
           "summary": "丁-1：扩 RenderTransform 允许 translate（把 dx/dy 加进全局通道）。",
           "keywords": [
@@ -5135,8 +5135,8 @@
         {
           "anchor": "§2.3 双指落子歧义的出路（本文最贵的一处，必须先摊开）",
           "level": 3,
-          "startLine": 118,
-          "endLine": 130,
+          "startLine": 119,
+          "endLine": 131,
           "tokens": 531,
           "summary": "现行路由在按下帧即提交：beads-game.ts::_readInput() 只读 snap.justDown → s",
           "keywords": [
@@ -5151,9 +5151,9 @@
         {
           "anchor": "§3 决定（Decision）",
           "level": 2,
-          "startLine": 131,
-          "endLine": 197,
-          "tokens": 3151,
+          "startLine": 132,
+          "endLine": 203,
+          "tokens": 3673,
           "summary": "",
           "keywords": [
             "Decision",
@@ -5163,8 +5163,8 @@
         {
           "anchor": "§3.1 推荐组合（一句话）",
           "level": 3,
-          "startLine": 133,
-          "endLine": 136,
+          "startLine": 134,
+          "endLine": 137,
           "tokens": 101,
           "summary": "甲′（core 只加 2 个指针槽，手势解算留游戏侧）+ 丁-3（棋盘缩放/平移烘进 gridLayoutFor 派生，",
           "keywords": [
@@ -5177,8 +5177,8 @@
         {
           "anchor": "§3.2 多点输入（甲′）",
           "level": 3,
-          "startLine": 137,
-          "endLine": 145,
+          "startLine": 138,
+          "endLine": 146,
           "tokens": 445,
           "summary": "1. packages/framework/src/core/input/input-manager.ts：内部指针槽从",
           "keywords": [
@@ -5193,8 +5193,8 @@
         {
           "anchor": "§3.3 区域变换与 hit-test（丁-3）",
           "level": 3,
-          "startLine": 146,
-          "endLine": 155,
+          "startLine": 147,
+          "endLine": 156,
           "tokens": 817,
           "summary": "1. 相机状态 BoardCamera = { zoom, offsetX, offsetY }（三个标量），权威存于玩",
           "keywords": [
@@ -5209,9 +5209,9 @@
         {
           "anchor": "§3.4 工程不变式与护栏（数值留空，由设计轨冻结）",
           "level": 3,
-          "startLine": 156,
-          "endLine": 164,
-          "tokens": 431,
+          "startLine": 157,
+          "endLine": 170,
+          "tokens": 953,
           "summary": "相机只在 shell.screen === 'play' 且玩法相位 playing 时生效；PAUSED / LEVE",
           "keywords": [
             "shell",
@@ -5225,8 +5225,8 @@
         {
           "anchor": "§3.5 待主理人 / 用户裁定的开放分叉（本文不锁死）",
           "level": 3,
-          "startLine": 165,
-          "endLine": 172,
+          "startLine": 171,
+          "endLine": 178,
           "tokens": 383,
           "summary": "C-1｜多点通道：甲′（推荐）／乙（适配层，否因 §2.1）／丙（无缩放降级档，否因 §2.1）。否 甲′ ⇒ 缩放与盘",
           "keywords": [
@@ -5240,8 +5240,8 @@
         {
           "anchor": "§3.6 最小验证（本文只列判据，不落码；未做的一律标未执行）",
           "level": 3,
-          "startLine": 173,
-          "endLine": 186,
+          "startLine": 179,
+          "endLine": 192,
           "tokens": 619,
           "summary": "Node 侧可证（施工必做，[N]）",
           "keywords": [
@@ -5256,8 +5256,8 @@
         {
           "anchor": "§3.7 本文**未**改动的文件（回写清单，待主理人串行落笔）",
           "level": 3,
-          "startLine": 187,
-          "endLine": 197,
+          "startLine": 193,
+          "endLine": 203,
           "tokens": 223,
           "summary": "本 ADR 是 Proposed 草稿，未动任何代码、未动其他 ADR/文档。批准后须同批复写（顺序按 §17/K-05",
           "keywords": [
@@ -5272,8 +5272,8 @@
         {
           "anchor": "§4 后果（Consequences）",
           "level": 2,
-          "startLine": 198,
-          "endLine": 232,
+          "startLine": 204,
+          "endLine": 238,
           "tokens": 1993,
           "summary": "",
           "keywords": [
@@ -5284,8 +5284,8 @@
         {
           "anchor": "§4.1 正面",
           "level": 3,
-          "startLine": 200,
-          "endLine": 209,
+          "startLine": 206,
+          "endLine": 215,
           "tokens": 341,
           "summary": "1. 多点能力一次进 core 且向后兼容：槽位 + 扁平字段、旧 8 字段语义不动 ⇒ breakout 与既有路由零",
           "keywords": [
@@ -5297,8 +5297,8 @@
         {
           "anchor": "§4.2 负面（已知成本，白纸黑字，不是风险）",
           "level": 3,
-          "startLine": 210,
-          "endLine": 222,
+          "startLine": 216,
+          "endLine": 228,
           "tokens": 1183,
           "summary": "1. 双指落子歧义（C-3）无论如何都要付费。若最终采 (a)，bead:placed 发射帧后移，牵动 input-c",
           "keywords": [
@@ -5313,8 +5313,8 @@
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 223,
-          "endLine": 232,
+          "startLine": 229,
+          "endLine": 238,
           "tokens": 436,
           "summary": "1. 图鉴若真做成「一屏 9/16 个独立缩放版面」，丁-3 的「一份相机配一张网格」可能不够 ⇒ 丁-2（分组变换通道",
           "keywords": [
@@ -5325,8 +5325,8 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 233,
-          "endLine": 243,
+          "startLine": 239,
+          "endLine": 249,
           "tokens": 456,
           "summary": "1. C-3 被裁定为 (a) ⇒ input-control / core-loop 时序判据重跑，本文 §3.3-4",
           "keywords": [
@@ -16780,18 +16780,18 @@
     },
     {
       "path": "games/beads/design/gdd/core-loop.md",
-      "tokens": 7199,
-      "lines": 164,
-      "sha256": "980f9d649d594b698c7023961fdbee19306e4cbdf2e03e508a3c799b4ea6634e",
+      "tokens": 8405,
+      "lines": 167,
+      "sha256": "8eea26f1bc87899906bcecff6779502bf1660f5adc32deab19fe24a635b1b789",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S1 核心循环（Core Loop）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 165,
-          "tokens": 7185,
-          "summary": "项目：games/beads · 版本 v2.1 · 任务号 WXG-T-167（v2.1 = 棋盘区「抬起才提交」时基",
+          "endLine": 168,
+          "tokens": 8391,
+          "summary": "项目：games/beads · 版本 v2.2 · 任务号 WXG-T-173（v2.2（WXG-T-173）= U1",
           "keywords": [
             "GDD",
             "Core",
@@ -16934,8 +16934,8 @@
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
           "startLine": 138,
-          "endLine": 156,
-          "tokens": 1658,
+          "endLine": 158,
+          "tokens": 2382,
           "summary": "1. 冷启动无存档 → 直接进入第 1 关 PLAYING，全程无主菜单；有存档 → 续进已解锁最远关。",
           "keywords": [
             "PLAYING",
@@ -16947,9 +16947,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 157,
-          "endLine": 165,
-          "tokens": 1078,
+          "startLine": 159,
+          "endLine": 168,
+          "tokens": 1430,
           "summary": "v1.0 2026-09-12 建档（六状态机 + 微循环 + §8 十条判据） WXG-T-007",
           "keywords": [
             "§8",
@@ -16961,25 +16961,25 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 13968,
-      "lines": 192,
-      "sha256": "c5142bf2b8052688950b2a5d3b445a9d46f7ab647d0e34a9dcbbda095b28ff76",
+      "tokens": 14507,
+      "lines": 193,
+      "sha256": "84b16c396cecb500763c50babcf406b9695edf6c4b17779fb6ed2c10d6ec7883",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S2 输入与操控（Input Control）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 193,
-          "tokens": 13953,
-          "summary": "项目：games/beads · 版本 v2.6 · 任务号 WXG-T-168（v2.6 = 取回落槽改「玩家点槽定落",
+          "endLine": 194,
+          "tokens": 14491,
+          "summary": "项目：games/beads · 版本 v2.7 · 任务号 WXG-T-172（v2.7 = §6 相机复位口径「归恒",
           "keywords": [
+            "§6",
             "GDD",
             "Input",
             "Control",
             "beads",
-            "games",
-            "WXG"
+            "games"
           ]
         },
         {
@@ -17114,7 +17114,7 @@
           "level": 2,
           "startLine": 95,
           "endLine": 118,
-          "tokens": 821,
+          "tokens": 952,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -17152,8 +17152,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 178,
-          "endLine": 193,
-          "tokens": 3303,
+          "endLine": 194,
+          "tokens": 3624,
           "summary": "v1.0 WXG-T-009 交付 初版八节定稿（§2.1 触摸路由表 / §2.3 状态门禁 / §8 十条硬判据） ",
           "keywords": [
             "§2.1",
@@ -21453,23 +21453,24 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 18877,
-      "lines": 342,
-      "sha256": "19a18dfd36079442352b8159eea321c44c94b55e571fae104b090e193216fe4f",
+      "tokens": 19587,
+      "lines": 344,
+      "sha256": "75d899e55e8475dfb6637163f0bf1b0a4321c6d3de20708c3e592a4fce05ac01",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 343,
-          "tokens": 18868,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.9 · 任务号 WXG-T-169（v1.9 = 抬起提交与",
+          "endLine": 345,
+          "tokens": 19578,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.10 · 任务号 WXG-T-173（v1.10 = U11",
           "keywords": [
             "Spec",
             "beads",
             "games",
             "WXG",
+            "U11",
             "规格"
           ]
         },
@@ -21598,7 +21599,7 @@
           "level": 2,
           "startLine": 143,
           "endLine": 200,
-          "tokens": 3676,
+          "tokens": 3593,
           "summary": "提交时基分区（v1.9 新增；镜像 gdd/input-control.md v2.5 §2.1「提交时基表」，上位 A",
           "keywords": [
             "§2.3",
@@ -21614,7 +21615,7 @@
           "level": 2,
           "startLine": 201,
           "endLine": 252,
-          "tokens": 5780,
+          "tokens": 5941,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
             "§7",
@@ -21707,8 +21708,8 @@
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
           "startLine": 308,
-          "endLine": 343,
-          "tokens": 1965,
+          "endLine": 345,
+          "tokens": 2350,
           "summary": "已裁定（沿袭）：~~无主菜单两路径（core-loop 判例）~~ v1.7 反转：主菜单恢复（WXG-T-164），启",
           "keywords": [
             "core",
@@ -82955,17 +82956,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 12560,
-      "lines": 218,
-      "sha256": "89ad602c2a75a01884676d2468d70754c92f0088fd91f455bcf35b77a65bc240",
+      "tokens": 18538,
+      "lines": 339,
+      "sha256": "5fb9437489fabbde22534ff7c99fa943aa130105227eb289a0ae10ed1a207af6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 219,
-          "tokens": 12543,
+          "endLine": 340,
+          "tokens": 18521,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -83127,8 +83128,8 @@
           "anchor": "§WXG-T-169",
           "level": 2,
           "startLine": 182,
-          "endLine": 219,
-          "tokens": 2326,
+          "endLine": 221,
+          "tokens": 2369,
           "summary": "beads·棋盘缩放平移落码（Z0–Z6） · 负责：程基岩(eng) · 状态：🔄 开工中 · 上位决策：ADR-0",
           "keywords": [
             "WXG",
@@ -83136,22 +83137,85 @@
             "eng",
             "ADR"
           ]
+        },
+        {
+          "anchor": "§WXG-T-170",
+          "level": 2,
+          "startLine": 222,
+          "endLine": 234,
+          "tokens": 625,
+          "summary": "beads·F1 同固定步 down+up 丢 tap 修复 · 负责：主理人(Qoder) · 状态：✅ 完成 · 上",
+          "keywords": [
+            "WXG",
+            "beads",
+            "down",
+            "tap",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-171",
+          "level": 2,
+          "startLine": 235,
+          "endLine": 267,
+          "tokens": 1573,
+          "summary": "beads·F2 棋盘 tap/drag 位移度量形态裁决 · 负责：主理人(Qoder)→文策渊(design)+程基",
+          "keywords": [
+            "WXG",
+            "beads",
+            "tap",
+            "drag",
+            "Qoder",
+            "design"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-172",
+          "level": 2,
+          "startLine": 268,
+          "endLine": 302,
+          "tokens": 1673,
+          "summary": "beads·F3 相机复位口径回写（GDD/ADR vs fitCamera） · 负责：studio-orchestr",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GDD",
+            "ADR",
+            "fitCamera",
+            "studio"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-173",
+          "level": 2,
+          "startLine": 303,
+          "endLine": 340,
+          "tokens": 2051,
+          "summary": "beads·U11 扫光链起算帧归属裁决 · 负责：studio-orchestrator → 文策渊(design) ",
+          "keywords": [
+            "WXG",
+            "beads",
+            "U11",
+            "studio",
+            "orchestrator",
+            "design"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 4083,
-      "lines": 45,
-      "sha256": "18ac205a91256512c8eeb196b183366a2f9134072e4dd413bb309e0171a9d3ef",
+      "tokens": 4681,
+      "lines": 49,
+      "sha256": "6f40d7ef6aaee580eacdc6797dd540876d673d21f339886502f9c82a5d162b13",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 46,
-          "tokens": 4074,
+          "endLine": 50,
+          "tokens": 4673,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -83164,8 +83228,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 24,
-          "endLine": 46,
+          "startLine": 28,
+          "endLine": 50,
           "tokens": 939,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -86906,9 +86970,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 41911,
+      "tokens": 42379,
       "lines": 668,
-      "sha256": "1cf68de8a0edc1cbabd255162743947abfe23beb1381d5a692c74ef6377e7700",
+      "sha256": "afb50ba8d5ec26bb11ec5ec4bc7a48b0581ebf764b032a58e6842bd075e5bf12",
       "tier": "hot",
       "sections": [
         {
@@ -86916,7 +86980,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 17,
-          "tokens": 1869,
+          "tokens": 1937,
           "summary": "任务号：WXG-T-011 / WXG-T-028 / WXG-T-084 / WXG-T-092（复验轮） / WXG",
           "keywords": [
             "beads",
@@ -86932,7 +86996,7 @@
           "level": 1,
           "startLine": 18,
           "endLine": 278,
-          "tokens": 14591,
+          "tokens": 14991,
           "summary": "v1.7 追加：§A4b（真链口径补充 TC-INP-01R/07R/08R + 三相位门禁判据 TC-INP-11/1",
           "keywords": [
             "A4b",
@@ -87025,7 +87089,7 @@
           "level": 2,
           "startLine": 118,
           "endLine": 143,
-          "tokens": 2154,
+          "tokens": 2183,
           "summary": "v1.13 时基改写声明（WXG-T-169）：上位 input-control v2.5 §8 已翻判据 2 / 4 ",
           "keywords": [
             "input-control.md §8.1..10",
@@ -87057,7 +87121,7 @@
           "level": 2,
           "startLine": 194,
           "endLine": 261,
-          "tokens": 4532,
+          "tokens": 4904,
           "summary": "来源家族：input-control v2.5 §2.1 / §6 / §8-2·4·9·10 + core-loop ",
           "keywords": [
             "§2.1",
@@ -87105,8 +87169,8 @@
           "level": 3,
           "startLine": 224,
           "endLine": 235,
-          "tokens": 747,
-          "summary": "TC-CAM-08 §6 换关/重试/回菜单「相机复位」 相机复位档 [Node] _setupLevel / 重试 /",
+          "tokens": 865,
+          "summary": "TC-CAM-08 §6 换关/重试/新局/冲刺换 stage「相机复位」 相机复位档 [Node] 复位档 = fit",
           "keywords": [
             "[Node]",
             "待执行",
@@ -87137,7 +87201,7 @@
           "level": 3,
           "startLine": 249,
           "endLine": 261,
-          "tokens": 1290,
+          "tokens": 1543,
           "summary": "F1 同一固定步内到达的 down+up 在棋盘区不提交，且 _tapActive 悬挂：_readInput 首分支 ",
           "keywords": [
             "A4c",

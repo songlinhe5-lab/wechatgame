@@ -877,7 +877,7 @@ export const IDENTITY_CAMERA: BoardCamera = { zoom: 1, offsetX: 0, offsetY: 0 };
 // ⚠ 数值**未冻结**：最终档位与阈值属 `systems-index §3` 真源，须走 §3 变更单 + 真机 playtest
 //   定值（ADR-0015 §3.4「只交能力不交数值」）。下列仅为「跑得起来 + 口径清晰」的工程占位，
 //   QA 不得据本组占位数值造判据。
-/** 棋盘区 tap ↔ drag 分界（设计空间 px）：按下到抬起全程位移 < 此值判为 tap（抬起才提交）。 */
+/** 棋盘区 tap ↔ drag 分界（设计空间 px）：按下到抬起全程 **切比雪夫位移** L∞ = max(|dx|,|dy|) < 此值判为 tap（抬起才提交）；度量形态归 GDD `input-control §2.1` v2.5（WXG-T-171 裁定）。 */
 export const BOARD_TAP_MOVE_THRESHOLD = 8; // [待确认]
 /** 初始「含边距适配」视图四周留白（设计 px）：把棋盘缩放到正好放进 PUZZLE_BAND 且居中不贴边。 */
 export const BOARD_FIT_MARGIN = 24; // [待确认]

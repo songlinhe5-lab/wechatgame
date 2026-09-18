@@ -248,6 +248,12 @@
       "reason": "memory 摘要层索引（ctx:build 生成产物），行号与最终索引强同步，拆分会破坏锚点",
       "note": "WXG-T-139（2026-09-17）随会话记录增长越至 8067 tok（超 67）。生成器产物 ⇒ 由 tasks:archive / ctx:build 周期收敛，不手工拆",
       "taskId": "WXG-T-139"
+    },
+    {
+      "path": "games/beads/design/gdd/core-loop.md",
+      "reason": "beads 核心循环（S1）正本（§1 目标 / §2 机制含 §2.2.2 帧内执行序 / §6 边界 / §8 判据 / §9 变更记录）八节单体，与 systems-index / input-control 同族 GDD 真源；已被 ctx 按章节锚点覆盖，读取走 §2.2.2 / §8 局部读、开发期从不整读；拆分反而会把「帧内序」与「下游时基注」跨文件互引，破坏可追溯性（沿 ADR-0011/WXG-T-104先例）",
+      "note": "WXG-T-173（2026-09-18）U11 丁裁新增「§8 末时基位移注 · U11 修正声明」段（含代码事实 4 项 + K-052 重跑清单撤销项 + 口径澄清）使其自 ≈8.0k 越至 8405 tok（超 405，幅度与 ADR-0011/WXG-T-104 越界 446 同量级，属修正性追加、非结构膨胀）。债务显式化：下次修订时评估把 §9「变更记录」与 §8 末「时基位移注族」拆独立 `core-loop-changelog.md`（与 systems-index.md ↔ systems-index-changelog.md 同构）后撤销本豁免。登记人 = 主理人",
+      "taskId": "WXG-T-173"
     }
   ]
 }

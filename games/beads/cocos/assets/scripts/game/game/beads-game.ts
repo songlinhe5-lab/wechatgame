@@ -1721,6 +1721,8 @@ export class BeadsGame implements Game {
     if (!this._noBootAssembly) {
       applyMisplacedToGrid(this._grid, level.pattern, level.swaps);
     }
+    // WXG-T-172 · F3 甲裁：本行 = 复位点①（换关 / 新局 / 重试 / 跳关共用）。复位档 =
+    // fit 初始（小盘 fit=1 与旧恒等逐位相同）；回菜单 / 后台隐藏当帧不复位，由下次装配复位（ADR-0015 §3.4）。
     fitCamera(this._camera, this._grid.cols, this._grid.rows);
     resetGesture(this._gesture);
     this._tapActive = false;
@@ -1757,6 +1759,8 @@ export class BeadsGame implements Game {
   private _loadStage(n: number): void {
     const { pattern } = buildStagePattern(n);
     this._grid = new BeadGrid(pattern);
+    // WXG-T-172 · F3 甲裁：本行 = 复位点②（冲刺换 stage）。与 _setupLevel 那处合计 2 点，
+    // 不变式 = 装配即复位；fit 按新棋盘尺寸重算（ADR-0015 §3.4）。
     fitCamera(this._camera, this._grid.cols, this._grid.rows);
     resetGesture(this._gesture);
     this._tapActive = false;
@@ -1828,10 +1832,14 @@ export class BeadsGame implements Game {
         this._pinched = false;
         this._tapStart.x = this._pointer.x;
         this._tapStart.y = this._pointer.y;
+        // WXG-T-170 / F1：同一固定步内 down+up 到达（snap.justDown && snap.justUp 同时为真、
+        // snap.isDown 已因 owner 抬起而 false）⇒ 位移恒 0 = 即时 tap。此处不 return，
+        // 下面 `_tapActive && isDown` 守卫自然跳过（isDown=false），到 `justUp` 分支当场提交并复位。
+        if (!snap.justUp) return;
+      } else {
+        this._handleTap(this._pointer.x, this._pointer.y); // 区外：按下即提交（语义不变）
         return;
       }
-      this._handleTap(this._pointer.x, this._pointer.y); // 区外：按下即提交（语义不变）
-      return;
     }
 
     if (this._tapActive && snap.isDown) {
@@ -1842,8 +1850,12 @@ export class BeadsGame implements Game {
       }
       vp.screenToDesign(this._pointer, snap.x, snap.y);
       if (!this._tapMoved) {
-        const moved =
-          Math.abs(this._pointer.x - this._tapStart.x) + Math.abs(this._pointer.y - this._tapStart.y);
+        // WXG-T-171 / F2：度量形态 = **切比雪夫 L∞ = max(|dx|,|dy|)**（GDD `input-control §2.1` v2.5 字面对齐）。
+        // 判定域 = 正方形（与盘面格子对齐，手指抖动「不越格」直觉）；旧实现为曼哈顿 L1=|dx|+|dy|，已废。
+        const moved = Math.max(
+          Math.abs(this._pointer.x - this._tapStart.x),
+          Math.abs(this._pointer.y - this._tapStart.y),
+        );
         if (moved >= BOARD_TAP_MOVE_THRESHOLD) this._tapMoved = true;
       }
       if (this._tapMoved) {
@@ -2892,6 +2904,8 @@ export class BeadsGame implements Game {
   /**
    * G3 起播（`assets-spec §1.6.3`）。**无重启门**（与 G1 不同：本卡只一个标量、无逐格错开，
    * 400ms 内再触发 = 从头再扫一次；规格里也没给门值 ⇒ 不自行发明）。
+   * WXG-T-173 / U11 丁裁（2026-09-18）：扫光起点 = **按下帧**（全库唯一调用点 = `powerup:used` 同栈
+   * `:1022`，区外道具卡本就按下即提交），不随棋盘区 tap 按下→抬起后移；与 `core-loop v2.2 §8` 注② 一致。
    */
   private _armSweepFx(): void {
     this._sweepElapsedMs = 0;

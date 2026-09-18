@@ -3,7 +3,9 @@
  *   ① 缩放相对倍率、有界 [fit, fit×SPAN]（issue 2「有限度」）；
  *   ② 平移：board ≤ 视口时 offset 锁 0（居中、拖不动也拖不出屏），board > 视口时可
  *      滚到内容边界、棋盘边缘永不离开视口（issue 1 能拖 + issue 2 不拖出屏）；
- *   ③ fitCamera 初始 zoom = 含边距适配、居中不贴边（issue 3）。
+ *   ③ fitCamera 初始 zoom = 含边距适配、居中不贴边（issue 3）；
+ *   ④ **WXG-T-172 · F3 甲裁**（以实现为准）后的复位**落点**：复位档 = `fit` 初始，实际复位点
+ *      只有 `_setupLevel` / `_loadStage` 两处；回菜单 / 后台隐藏当帧**不**复位（ADR-0015 §3.4）。
  */
 import { describe, expect, it } from 'vitest';
 import {
@@ -17,6 +19,15 @@ import {
   type PinchInput,
 } from '../src/systems/board-camera.js';
 import {
+  createBeadsHarness,
+  simpleTestLevel,
+  placeColor,
+  firstEmptyCell,
+  burnToRemaining,
+  type Harness,
+} from './helpers.js';
+import type { BeadsGame } from '../src/game/beads-game.js';
+import {
   IDENTITY_CAMERA,
   type BoardCamera,
   CAMERA_ZOOM_MAX_SPAN,
@@ -24,6 +35,8 @@ import {
   BEAD_GAP,
   DESIGN_W,
   BOARD_FIT_MARGIN,
+  LEVEL_TIME_MIN,
+  gridLayoutFor,
 } from '../src/config/tuning.js';
 
 const cam = (): BoardCamera => ({ zoom: 1, offsetX: 0, offsetY: 0 });
@@ -141,5 +154,156 @@ describe('applyPan + clampCamera（issue 1 能拖 / issue 2 拖不出屏）', ()
     const c: BoardCamera = { zoom: 999, offsetX: 0, offsetY: 0 };
     clampCamera(c, SC, SR);
     expect(c.zoom).toBeCloseTo(computeFitZoom(SC, SR) * CAMERA_ZOOM_MAX_SPAN, 6);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WXG-T-172 · F3 甲裁（以实现为准）⇒ 复位口径的**落点测试**（QA TC-CAM-08 的 [Node] 半边）。
+//
+// 判据源 = `ADR-0015 §3.4` 回写后正文：复位档 = 相机归 **fit 初始**（不是归恒等），
+// 实际复位触发点 = **两处**（`_setupLevel`：换关/新局/重试/跳关；`_loadStage`：冲刺换 stage）。
+// 断言一律走 `computeFitZoom(cols, rows)` **函数调用**，不钉字面 zoom：`BOARD_FIT_MARGIN` /
+// `CAMERA_ZOOM_MAX_SPAN` / `BOARD_TAP_MOVE_THRESHOLD` 三个值均 `[待确认]` 工程占位，不作判据。
+// 另锁一条**负向**口径（旧 §3.4 误列的复位点）：后台隐藏当帧不复位 ⇒ 见末例。「回菜单」同属
+// 不复位一类（暂停面板次钮只上报意图 + 切屏归 shell，路径上不触碰相机），但那是 shell 接线 ⇒
+// 本节不为其虚构断言；按新口径也**不得**写出「回菜单后当帧复位」这类断言（那本身是错的）。
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** 相机权威存于玩法层私有字段（§3.3-1 / L5）；落点测试按现状读，不为此扩公开 API。 */
+function cameraOf(game: BeadsGame): BoardCamera {
+  return (game as unknown as { _camera: BoardCamera })._camera;
+}
+
+/** 把相机弄脏：7.5 恒在合法档 [fit, fit×SPAN] 之外 ⇒ 复位缺失必留痕，不靠巧合相等。 */
+function dirtyCamera(game: BeadsGame): void {
+  const c = cameraOf(game);
+  c.zoom = 7.5;
+  c.offsetX = 123;
+  c.offsetY = -77;
+}
+
+/** 新口径核心断言：zoom 逐位等于当前棋盘的 fit（非 toBeCloseTo），offset 归零。 */
+function expectFitReset(game: BeadsGame): void {
+  const c = cameraOf(game);
+  expect(c.zoom).toBe(computeFitZoom(game.grid.cols, game.grid.rows));
+  expect(c.offsetX).toBe(0);
+  expect(c.offsetY).toBe(0);
+}
+
+/** 冲刺换 stage 的复位点是私有装配函数（无公开入口；本单不为其扩 API）。 */
+function loadStageForTest(game: BeadsGame, n: number): void {
+  (game as unknown as { _loadStage(n: number): void })._loadStage(n);
+}
+
+/** 13×12 大盘（与第 8 关同尺寸 ⇒ fit<1）；时长取关卡下沿，只为重试例少烧表。 */
+function bigTestLevel(): ReturnType<typeof simpleTestLevel> {
+  return simpleTestLevel({
+    id: 91,
+    cols: BC,
+    rows: BR,
+    time: LEVEL_TIME_MIN,
+    pattern: Array.from({ length: BR }, () => '1231231231231'),
+  });
+}
+
+/** 把当前 stage 打到完成（直接投放，不走时间）；与 `sprint.test.ts` 同形。 */
+function fillCurrentStage(h: Harness): void {
+  const game = h.game;
+  const stage = game.stageIndex;
+  let guard = 0;
+  while (!game.grid.isComplete() && game.phase === 'playing' && game.stageIndex === stage) {
+    const cell = firstEmptyCell(game);
+    if (!cell) break;
+    if (!placeColor(game, game.grid.requiredColor(cell.row, cell.col), cell.row, cell.col)) break;
+    if (++guard > 5000) throw new Error('fillCurrentStage: ran away');
+  }
+}
+
+describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）', () => {
+  it('换关（_setupLevel）：13×12 大盘归 fit，且 fit<1 ⇒ 与旧「恒等」档不等价', () => {
+    const h = createBeadsHarness({ saveKey: 'wxgame.beads.test.cam172-switch-big' });
+    expect(h.game.levelIndex).toBe(0);
+    dirtyCamera(h.game);
+
+    h.game.goToLevel(7); // 真表第 8 关 = 13×12
+
+    expect(h.game.grid.cols).toBe(BC);
+    expect(h.game.grid.rows).toBe(BR);
+    expect(computeFitZoom(BC, BR)).toBeLessThan(1); // 新口径下大盘不再是 zoom=1
+    expectFitReset(h.game);
+  });
+
+  it('换关（_setupLevel）：6×5 小盘 fit=1，与旧恒等档逐位相同（回归锚）', () => {
+    const h = createBeadsHarness({ noAssemble: true, saveKey: 'wxgame.beads.test.cam172-switch-small' });
+    dirtyCamera(h.game);
+
+    h.game.goToLevel(0); // 6×5
+
+    expect(h.game.grid.cols).toBe(SC);
+    expect(h.game.grid.rows).toBe(SR);
+    expectFitReset(h.game);
+    expect(cameraOf(h.game).zoom).toBe(IDENTITY_CAMERA.zoom); // 小盘：fit 档与恒等档重合
+    // 「逐位相同」不只 zoom：整张布局在复位后的相机下应与无相机入参完全一致。
+    const withCam = gridLayoutFor(SC, SR, cameraOf(h.game));
+    const bare = gridLayoutFor(SC, SR);
+    expect(withCam.left).toBe(bare.left);
+    expect(withCam.top).toBe(bare.top);
+    expect(withCam.bottom).toBe(bare.bottom);
+    for (let j = 0; j < SC; j++) expect(withCam.colCenterX(j)).toBe(bare.colCenterX(j));
+    for (let i = 0; i < SR; i++) expect(withCam.rowCenterY(i)).toBe(bare.rowCenterY(i));
+  });
+
+  it('重试（retryLevel → _setupLevel）：大盘重新归 fit（不是恒等）', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [bigTestLevel()],
+      saveKey: 'wxgame.beads.test.cam172-retry',
+    });
+    expect(h.game.grid.cols).toBe(BC);
+    burnToRemaining(h, 0); // 烧穿倒计时 → GAME_OVER
+    expect(h.game.phase).toBe('game-over');
+    dirtyCamera(h.game);
+
+    expect(h.game.retryLevel()).toBe(true);
+
+    expect(h.game.phase).toBe('playing');
+    expectFitReset(h.game);
+    expect(cameraOf(h.game).zoom).toBeLessThan(1);
+  });
+
+  it('冲刺换 stage（_loadStage）：真实链路 stage0→1 归 fit；再取大盘 stage 验「按新尺寸重算」', () => {
+    const h = createBeadsHarness({ noAssemble: true, saveKey: 'wxgame.beads.test.cam172-stage' });
+    h.game.startSprint();
+    expect(h.game.stageIndex).toBe(0);
+    dirtyCamera(h.game);
+
+    fillCurrentStage(h); // 填满 → _completeStage 内部 _loadStage(1)
+
+    expect(h.game.stageIndex).toBe(1);
+    expect(h.count('sprint:stage')).toBe(2); // 开局横幅 + 换 stage
+    expectFitReset(h.game);
+
+    // 第二档：棋盘尺寸不同（13×12 ⇒ fit<1），锁住「按新尺寸重算」而非写死 1。
+    dirtyCamera(h.game);
+    loadStageForTest(h.game, 7);
+    expect(h.game.grid.cols).toBe(BC);
+    expect(h.game.grid.rows).toBe(BR);
+    expectFitReset(h.game);
+    expect(cameraOf(h.game).zoom).toBeLessThan(1);
+  });
+
+  it('后台隐藏（onPause/onResume）当帧不复位 ⇒ 复位由下次装配承担（新口径负向锁）', () => {
+    const h = createBeadsHarness({ noAssemble: true, saveKey: 'wxgame.beads.test.cam172-hide' });
+    dirtyCamera(h.game);
+
+    h.game.onPause();
+    expect(h.game.phase).toBe('paused');
+    expect(cameraOf(h.game).zoom).toBe(7.5); // 隐藏路径不触碰相机（旧 §3.4 误列 InputManager.reset()）
+    expect(cameraOf(h.game).offsetX).toBe(123);
+    h.game.onResume();
+    expect(cameraOf(h.game).zoom).toBe(7.5);
+
+    h.game.goToLevel(0); // 下一局装配 = 复位真正发生处
+    expectFitReset(h.game);
   });
 });
