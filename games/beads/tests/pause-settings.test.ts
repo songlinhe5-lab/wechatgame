@@ -176,7 +176,8 @@ describe('S9 pause & settings', () => {
     const tray = trayPoint(slotA);
     const card = powerupPoint();
     // A point squarely between two buttons — i.e. the scrim itself.
-    const scrimPoint = { x: 375, y: 907 - 40 };
+    // WXG-T-164 批0：面板长高 600（yMax=967），标题带内非钮点 = yMax-40。
+    const scrimPoint = { x: 375, y: 967 - 40 };
 
     // The scrim really does cover the board **and** the tray (§2.2).
     const builder = new RenderModelBuilder(750, 1334);
@@ -369,6 +370,7 @@ describe('S9 pause & settings', () => {
       sfxMuted: true,
       reduceMotion: false,
       largeText: false,
+      vibrate: true,
     });
 
     // Relaunch on the same storage → both toggles echo back.
@@ -399,7 +401,8 @@ describe('S9 pause & settings', () => {
       const layout = pausePanelLayout(mode);
       expect(rectsOverlap(layout.panel, CAPSULE_AVOID)).toBe(false);
       expect(layout.panel.xMax - layout.panel.xMin).toBe(560);
-      expect(layout.panel.yMax - layout.panel.yMin).toBe(480);
+      // WXG-T-164 批0：暂停面板专有高 480 → 600（容纳第 4 行冲刺/回主菜单）。
+      expect(layout.panel.yMax - layout.panel.yMin).toBe(600);
       for (const button of layout.buttons) {
         expect(rectsOverlap(button.rect, CAPSULE_AVOID)).toBe(false);
         expect(button.rect.xMax - button.rect.xMin).toBeGreaterThanOrEqual(TOUCH_MIN);
@@ -415,10 +418,13 @@ describe('S9 pause & settings', () => {
     expect(pausePanelLayout('sprint').buttons.some((b) => b.id === 'start-sprint')).toBe(false);
     expect(pausePanelLayout('normal').buttons.some((b) => b.id === 'start-sprint')).toBe(true);
     // WXG-T-088：两个可访问性开关行3 常驻（两模式均保留，仅去冲刺位退场）。
+    // WXG-T-164 拍板⑦/§8-11：震动开关行与回主菜单次钮两模式常驻。
     for (const mode of ['normal', 'sprint'] as const) {
       const ids = pausePanelLayout(mode).buttons.map((b) => b.id);
       expect(ids).toContain('toggle-reduce-motion');
       expect(ids).toContain('toggle-large-text');
+      expect(ids).toContain('toggle-vibrate');
+      expect(ids).toContain('go-menu');
     }
   });
 

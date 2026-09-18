@@ -16,13 +16,14 @@ import { _decorator } from 'cc';
 
 import { Bootstrap } from './framework/adapters/cocos/bindings';
 import type { Game } from './framework/core/game/game';
-import { createBeadsGame } from './game/index';
+import { createBeadsShell } from './game/index';
 
 const { ccclass } = _decorator;
 
 @ccclass('BeadsBootstrap')
 export class BeadsBootstrap extends Bootstrap {
   protected createGame(): Game {
-    return createBeadsGame();
+    // Shell 组合 play + meta（WXG-T-164 批0）；clock 默认 Date.now，weapp 可用。
+    return createBeadsShell();
   }
 }

@@ -58,6 +58,10 @@ export interface HarnessOptions {
    * 默认**装配**（生产语义）；旧「空盘放置流」测试置 true 后自行构造场景。
    */
   noAssemble?: boolean;
+  /** 透传 `BeadsGameOptions.canStartRun`（新局开局体力闸门，WXG-T-164）。 */
+  canStartRun?: () => boolean;
+  /** 透传 `BeadsGameOptions.onStaminaRefill`（体力回满激励位发奖，WXG-T-164）。 */
+  onStaminaRefill?: () => void;
 }
 
 export function createBeadsHarness(options: HarnessOptions = {}): Harness {
@@ -85,6 +89,8 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
     ...(options.levels ? { levels: options.levels } : {}),
     ...(options.sprintTime !== undefined ? { sprintTime: options.sprintTime } : {}),
     ...(options.noAssemble ? { noBootAssembly: true } : {}),
+    ...(options.canStartRun ? { canStartRun: options.canStartRun } : {}),
+    ...(options.onStaminaRefill ? { onStaminaRefill: options.onStaminaRefill } : {}),
   });
 
   const emitted: { type: string; payload: unknown }[] = [];

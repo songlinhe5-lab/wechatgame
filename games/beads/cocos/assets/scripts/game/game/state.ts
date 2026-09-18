@@ -14,6 +14,7 @@ import {
   DENIED_MAX_CELLS,
   POWERUP_FREE_USES,
   SOLVER_MAX_CELLS,
+  VIBRATE_DEFAULT,
   type BeadsTuning,
   type PowerupType,
 } from '../config/tuning';
@@ -108,6 +109,8 @@ export interface BeadsSnapshot {
   /** WXG-T-088 accessibility toggles (view reads these off the snapshot). */
   reduceMotion: boolean;
   largeText: boolean;
+  /** §3.8 震动开关（WXG-T-164；view 经 snapshot 回显面板行开/关）。 */
+  vibrate: boolean;
 
   /** Sprint HUD — normal mode leaves these at zero and the view hides them. */
   score: number;
@@ -322,6 +325,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     sfxMuted: false,
     reduceMotion: false,
     largeText: false,
+    vibrate: VIBRATE_DEFAULT,
     score: 0,
     multiplier: 1,
     streak: 0,

@@ -8,11 +8,12 @@
  * resolves from a tap.
  *
  * Frozen sources
- *  - layout: `ux/ux-spec.md` §3.3 (560×480 panel, 240×88 primary, ≥88 rows,
- *    rgba(42,46,67,0.5) scrim) — mirrored verbatim in `config/tuning.ts`;
+ *  - layout: `ux/ux-spec.md` §3.3 (560×600 panel — WXG-T-164 批0 由 480 扩至 600
+ *    容纳第 4 行；240×88 primary, ≥88 rows, rgba(42,46,67,0.5) scrim) — mirrored
+ *    verbatim in `config/tuning.ts`;
  *  - animation: `ux/ux-spec.md` §5 (入 200ms / 出 150ms, scale 0.9→1.0);
- *  - content list: `pause-settings.md` §2.2 (继续 / 重玩本关 / 音乐 / 音效)
- *    plus the sprint secondary entry (U1).
+ *  - content list: `pause-settings.md` v1.3 §2.2 (继续 / 重玩本关 / 音乐 / 音效 /
+ *    震动) plus the sprint secondary entry (U1) and 回主菜单次钮 (§8-11).
  *
  * Hit testing and rendering share `pausePanelLayout()`, so the picture and the
  * hot zones can never drift apart.
@@ -29,6 +30,7 @@ import {
   PANEL_ROW_GAP,
   PANEL_SIZE,
   PANEL_TITLE_BAND_H,
+  PAUSE_PANEL_H,
 } from '../config/tuning.js';
 import type { GameMode } from '../game/state.js';
 
@@ -40,7 +42,9 @@ export type PausePanelAction =
   | 'toggle-sfx'
   | 'toggle-reduce-motion'
   | 'toggle-large-text'
-  | 'start-sprint';
+  | 'toggle-vibrate'
+  | 'start-sprint'
+  | 'go-menu';
 
 /** Axis-aligned rectangle in design space (y grows upward). */
 export interface PanelRect {
@@ -85,8 +89,9 @@ let _sprint: PausePanelLayout | null = null;
 
 function panelPlate(): PanelRect {
   const left = (DESIGN_W - PANEL_SIZE.w) / 2;
-  const bottom = (DESIGN_H - PANEL_SIZE.h) / 2;
-  return rect(left, bottom, PANEL_SIZE.w, PANEL_SIZE.h);
+  // 高度用暂停面板专有的 PAUSE_PANEL_H（600），宽度沿用共享 PANEL_SIZE.w（560）。
+  const bottom = (DESIGN_H - PAUSE_PANEL_H) / 2;
+  return rect(left, bottom, PANEL_SIZE.w, PAUSE_PANEL_H);
 }
 
 /** Row 1 primary + row 2 (重玩 / 音乐 / 音效) + row 3 sprint secondary. */
@@ -118,20 +123,33 @@ function normalLayout(): PausePanelLayout {
     });
   }
 
-  // Row 3 — accessibility toggles (D1 减弱动效 / E2 大字号, WXG-T-088) plus the
-  // sprint secondary entry (U1), sharing row 2's 3-cell grid so the panel stays
-  // 560×480 (ux-spec §3.3) with every cell ≥ TOUCH_MIN (§8-5).
+  // Row 3 — accessibility + haptics toggles (D1 减弱动效 / E2 大字号 / 震动，
+  // WXG-T-088 / WXG-T-164 拍板⑦), sharing row 2's 3-cell grid; every cell
+  // ≥ TOUCH_MIN (§8-5).
   const row3Top = row2Bottom - PANEL_ROW_GAP;
   const row3Bottom = row3Top - PANEL_BUTTON_H;
   const row3Ids: PausePanelAction[] = [
     'toggle-reduce-motion',
     'toggle-large-text',
-    'start-sprint',
+    'toggle-vibrate',
   ];
   for (let i = 0; i < row3Ids.length; i++) {
     buttons.push({
       id: row3Ids[i]!,
       rect: rect(innerLeft + i * (cellW + gap), row3Bottom, cellW, PANEL_BUTTON_H),
+    });
+  }
+
+  // Row 4 — 冲刺次级入口（U1）+ 回主菜单次钮（pause-settings v1.3 §8-11），
+  // 2-cell grid（WXG-T-164 批0；面板 480→600 即为此行）。
+  const row4Top = row3Bottom - PANEL_ROW_GAP;
+  const row4Bottom = row4Top - PANEL_BUTTON_H;
+  const cell2W = (innerWidth - gap) / 2;
+  const row4Ids: PausePanelAction[] = ['start-sprint', 'go-menu'];
+  for (let i = 0; i < row4Ids.length; i++) {
+    buttons.push({
+      id: row4Ids[i]!,
+      rect: rect(innerLeft + i * (cell2W + gap), row4Bottom, cell2W, PANEL_BUTTON_H),
     });
   }
 
@@ -144,14 +162,33 @@ function sprintLayout(): PausePanelLayout {
   if (_sprint) return _sprint;
   const full = normalLayout();
   const plate = full.panel;
-  // Lift both rows by one row pitch so the panel stays visually centred.
+  // 少了第 4 行的一枚 cell ⇒ 整组按钮下移半行距保持视觉居中（旧判例同型）。
   const shift = (PANEL_BUTTON_H + PANEL_ROW_GAP) / 2;
-  const buttons = full.buttons
-    .filter((b) => b.id !== 'start-sprint')
-    .map((b) => ({
+  const innerWidth = PANEL_SIZE.w - PANEL_PADDING * 2;
+  const gap = 20;
+  const innerLeft = plate.xMin + PANEL_PADDING;
+  const buttons: PanelButton[] = [];
+  for (const b of full.buttons) {
+    if (b.id === 'start-sprint') continue;
+    if (b.id === 'go-menu') {
+      // 行 4 只剩单钮：水平居中、保持 2-cell 宽（不拉满整行），垂直同其余钮上移半行距。
+      const cell2W = (innerWidth - gap) / 2;
+      buttons.push({
+        id: b.id,
+        rect: rect(
+          innerLeft + (innerWidth - cell2W) / 2,
+          b.rect.yMin + shift,
+          cell2W,
+          PANEL_BUTTON_H,
+        ),
+      });
+      continue;
+    }
+    buttons.push({
       id: b.id,
       rect: rect(b.rect.xMin, b.rect.yMin + shift, b.rect.xMax - b.rect.xMin, PANEL_BUTTON_H),
-    }));
+    });
+  }
   _sprint = { panel: plate, buttons, titleY: full.titleY };
   return _sprint;
 }

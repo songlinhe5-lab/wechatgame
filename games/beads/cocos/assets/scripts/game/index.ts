@@ -28,7 +28,11 @@ export * from './view/combo-vfx';
 
 export * from './game/state';
 export * from './game/save-schema';
+export * from './game/meta-save-schema';
+export * from './game/meta-state';
 export * from './game/beads-game';
+export * from './game/beads-shell';
 
 export * from './view/palette';
 export * from './view/view-model';
+export * from './view/meta-view';

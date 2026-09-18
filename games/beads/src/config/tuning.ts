@@ -33,8 +33,10 @@ export const TRAY_BAND = { yMin: 216, yMax: 450 } as const;
 // ─────────────────── v1.5 质感渲染（assets-spec §1.9 / §1.2 v1.5，WXG-T-131/143）──
 // 以下均为**实现派生值**（美术规格数值级落码），非 §3 gameplay 冻结常量。
 
-/** L11 目标色垫 · 珠视觉内缩（v1.5-r5「垫色显缝」，WXG-T-142）：垫 = 全格，珠四边各缩 2。 */
-export const BEAD_DRAW_INSET = 2;
+/** L11 目标色垫 · 珠视觉内缩（v1.5-r5「垫色显缝」，WXG-T-142）：垫 = 全格，珠四边各缩。
+ * WXG-T-162 真机 playtest 裁定「乙档」：2→6（旧值在真机 scale 0.5 下仅 ≈1 CSS px 看不见；
+ * 6 设计px ≈3 CSS px，图元零增减）。珠/垫圆角同心修正见 bead-render L11 垫分支。 */
+export const BEAD_DRAW_INSET = 6;
 
 /** 空格凹陷坑四层（§1.2 v1.5）：几何以内缩比例表达，墨色端点在 palette 预烘焙表。 */
 export const SOCKET_CARD = Object.freeze({
@@ -294,6 +296,13 @@ export type PowerupType = (typeof POWERUP_TYPES)[number];
 export const REVIVE_BONUS_SEC = 180;
 /** Successful revives allowed per attempt (reset on full level restart). */
 export const REVIVE_MAX_PER_LEVEL = 1;
+/**
+ * 体力回满激励位（§3.11 v1.28 第二 live 位 / §3.14「体力回满 = 激励视频 onRewarded」）。
+ * 0 心时 retry/restart 被拒 → 看此广告回满至 `STAMINA_MAX` 再重试（WXG-T-164）。
+ * 框架 `REWARDED_PLACEMENT` 未列本值，但 `RewardedAdPlacement` 型别容 `| string`，
+ * 故用游戏侧字符串位（不改冻结框架枚举）；ponytail: 真机广告单元映射待发布侧接入。
+ */
+export const STAMINA_REFILL_PLACEMENT = 'stamina-refill';
 
 // ──────────────────────────────────────────────────────── §3.7 stars & settle
 /** ratio = remaining/total ≥ 0.32 → 3★. */
@@ -464,8 +473,15 @@ export const COMBO_PARTICLE_COUNT = 4;
 // ──────────────────── §3.8 S9 暂停面板几何（来源：ux-spec §3.3 线框，本篇不派生）
 /** Pause settings gear hit area — a TOUCH_MIN square anchored left in HUD_BAND. */
 export const GEAR_HIT_SIZE = TOUCH_MIN;
-/** Panel size: 560 × 480 (`panel_dialog`, ux-spec §3.3). */
+/** Panel size: 560 × 480 (`panel_dialog`, ux-spec §3.3；结算/过关面板共底板). */
 export const PANEL_SIZE = { w: 560, h: 480 } as const;
+/**
+ * 暂停面板专有高度（WXG-T-164 批0）：480 → 600，容纳第 4 行「冲刺 / 回主菜单」。
+ * 不污染共享的 `PANEL_SIZE`（结算/失败/通关面板冻结几何不变）。
+ * 自然高 = 标题带 100 + 4×行高 88 + 3×行距 30 = 542；+ ≈58 底衬 ⇒ 600（与原 3 行
+ * 面板 56px 底衬同量）。ux-spec §3.3 同步补注；本篇不派生。
+ */
+export const PAUSE_PANEL_H = 600;
 /** Scrim over board+tray: rgba(42,46,67,0.5) (ux-spec §3.3). */
 export const PANEL_SCRIM_RGB = { r: 42, g: 46, b: 67 } as const;
 export const PANEL_SCRIM_ALPHA = 0.5;
@@ -500,6 +516,46 @@ export const PANEL_IN_MS = 200;
 export const PANEL_OUT_MS = 150;
 /** Enter scale start → 1.0 (ux-spec §5: scale 0.9→1.0). */
 export const PANEL_SCALE_FROM = 0.9;
+
+// ══════════════ §3.8 / §3.14 meta 冻结常量镜像（真源：systems-index v1.28） ══════════════
+
+/** §3.8 震动默认值：VIBRATE_DEFAULT = ON（用户 2026-09-18 拍板⑦）。 */
+export const VIBRATE_DEFAULT = true;
+
+/** §3.14 体力上限（宽容包 B：8 心）。 */
+export const STAMINA_MAX = 8;
+/** §3.14 体力恢复速率：8 分钟/心（离线恢复 f(Δt wallClock)，登录时钳上限）。 */
+export const STAMINA_REGEN_MIN_MS = 8 * 60 * 1000;
+/** §3.14 开局扣心：新局开局/重试各扣 1（PAUSED 恢复与菜单在途续进不重复扣）。 */
+export const STAMINA_START_COST = 1;
+
+/**
+ * §3.14 签到奖励表（MF5 循环制：day cell = claims % 7，断签不清零）。
+ * 冻结面只有第 3/5 天各 1 心（溢出即弃）；币数额**不冻结**（playtest 调参位）。
+ */
+export const SIGNIN_REWARDS: readonly { coins: number; hearts: number }[] = [
+  { coins: 20, hearts: 0 },
+  { coins: 30, hearts: 0 },
+  { coins: 30, hearts: 1 },
+  { coins: 40, hearts: 0 },
+  { coins: 40, hearts: 1 },
+  { coins: 60, hearts: 0 },
+  { coins: 100, hearts: 0 },
+];
+
+/**
+ * §3.14 买心阶梯价（钱包 A 包）。**不冻结**——待 playtest 调参（systems-index
+ * §3.14 明文「阶梯价不冻结」）；第 n 次购买（当日计数）取 `ladder[min(n, len-1)]`。
+ */
+export const HEART_PRICE_LADDER: readonly number[] = [50, 100, 200];
+
+// ─────────── 主菜单（shell 屏）几何（来源：ux-spec v1.7 §2 流程 + meta-ui 线框）
+/** 主菜单主钮「开始游戏」：复用面板主钮宽 × TOUCH_MIN。 */
+export const MENU_PRIMARY_W = 320;
+/** 主菜单次级入口（签到 / 设置）按钮尺寸。 */
+export const MENU_SECONDARY_W = 240;
+/** 主菜单纵向行距。 */
+export const MENU_ROW_GAP = 36;
 
 // ────────────── §GAP-04/03/10 反馈态动效（来源：ux-spec §5 / art-bible §7，WXG-T-087）
 /**

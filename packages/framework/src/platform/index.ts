@@ -22,7 +22,6 @@ export type {
   SynthGain,
   SynthHost,
   SynthNode,
-  SynthOsc,
   SynthParam,
 } from './audio-synth.js';
 export { MockRewardedAdProvider, NoopRewardedAdProvider } from './rewarded-ad.js';

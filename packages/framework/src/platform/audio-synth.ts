@@ -23,12 +23,12 @@
  *     API 子集编程，两边共用）
  *
  * ── 分配面（⑥ 的诚实边界）──────────────────────────────────────────────
- *  Web Audio 的 `OscillatorNode` / `BufferSource` 是**一次性**节点（stop 后不可
- *  重启），所以「每次发声零分配」在该 runtime 下做不到。可复用的全部只建一次：
- *  三条 bus gain、每 clip 的 filter、噪声 buffer（250 ms）、BGM 循环 buffer。
- *  剩下的源节点数量由 `maxPerFrame`（冻结 = 6，§3.12 `AUDIO_MAX_PER_FRAME`）× 每
- *  clip 音数（≤4）限界 ⇒ 最坏 ~24 个短命节点/帧，且只在 `flush()` 里发生。
- *  登记为剩余项：真机 CPU 结论待 `[R]`（A05-27）。
+ *  Web Audio 的 `BufferSource` 是**一次性**节点（stop 后不可重启），所以「每次发声
+ *  零分配」在该 runtime 下做不到。可复用的全部只建一次：三条 bus gain、每 clip 的
+ *  filter、每 clip 的一次性渲染 buffer（WXG-T-162 后噪声也烘进去，不再单存 250 ms
+ *  噪声块）、BGM 循环 buffer。一次性 clip 同 id 只渲染一次即缓存，剩下的短命节点
+ *  = 每次发声一个 BufferSource + 一条包络 gain，数量由 `maxPerFrame`（冻结 = 6，
+ *  §3.12 `AUDIO_MAX_PER_FRAME`）限界。真机 CPU 结论待 `[R]`（A05-27）。
  *
  * ── 自动播放解锁（audio-spec §4.4）─────────────────────────────────────
  *  context **不在构造时创建**。首次真实手势（`unlock()`，由平台侧监听器触发）才
@@ -36,6 +36,17 @@
  *  loop 请求记入 `_wantedLoops`（**期望态**，与「正在播」的 `_loops` 分开），
  *  解锁瞬间补起 ⇒ BOOT 期的 `bgm_main` 不会丢。退后台 `suspend()` 只停「正在播」，
  *  期望态不动，回前台 `resume()` 据此补起（需求单第 7 项的 web 侧对偶）。
+ *
+ * ── 一次性音效一律**离线渲染成 buffer**（WXG-T-162 / 真机 BD-51）───────────
+ *  旧实现用 OscillatorNode + `start(currentTime + offset)` + gain 的
+ *  setValueAtTime / linearRampToValueAtTime 包络。微信 iOS 端
+ *  `wx.createWebAudioContext().currentTime` 恒为 0、自动化时间轴不推进 ⇒
+ *  所有依赖定时启动 / 斜坡的节点永远停在起始增益（≈ 0）——真机实测正是
+ *  「BGM（离线 buffer + 静态增益 + 无参 start()）有声、全部一次性 SFX 静音」
+ *  的分叉。现引擎**只允许**该存活配方：一次性 clip 预渲染成每 clip 缓存的
+ *  PCM buffer（波形 / 滑音 / 多音 / 噪声 / 包络全部 CPU 侧算完），播放时
+ *  BufferSource + 静态 gain + `start()` 无参。不得再引入任何
+ *  AudioParam 时间自动化或 `start(when > 0)`。
  */
 
 import { createRng } from '../core/math/rng.js';
@@ -51,8 +62,6 @@ import type {
 
 export interface SynthParam {
   value: number;
-  setValueAtTime?(value: number, time: number): void;
-  linearRampToValueAtTime?(value: number, time: number): void;
 }
 
 export interface SynthNode {
@@ -67,14 +76,6 @@ export interface SynthGain extends SynthNode {
 export interface SynthFilter extends SynthNode {
   type: string;
   frequency: SynthParam;
-}
-
-export interface SynthOsc extends SynthNode {
-  type: string;
-  frequency: SynthParam;
-  detune?: SynthParam;
-  start(when?: number): void;
-  stop(when?: number): void;
 }
 
 export interface SynthBuffer {
@@ -97,7 +98,6 @@ export interface SynthContext extends SynthNode {
   readonly state?: string;
   readonly destination: SynthNode;
   createGain(): SynthGain;
-  createOscillator(): SynthOsc;
   createBiquadFilter?(): SynthFilter;
   createBufferSource?(): SynthBufferSource;
   createBuffer?(channels: number, length: number, sampleRate: number): SynthBuffer;
@@ -109,15 +109,13 @@ export interface SynthHost {
   warn?(message: string): void;
 }
 
-/** 噪声 buffer 长度（s）：够铺满最长的噪声类 clip（`sfx_stage` 250+250 ms）。 */
-const NOISE_SECONDS = 0.25;
-/** 一次性源的跟踪环容量：`maxPerFrame`(6) × 平均音数，留足余量且**只分配一次**。 */
+/** 一次性源的跟踪环容量：`maxPerFrame`(6) 下发面，留足余量且**只分配一次**。 */
 const ACTIVE_RING = 48;
-/** 指数逼近的地板值（0 会让 exponentialRamp 抛错，也听不出差别）。 */
+/** 电平地板（0 会让依赖对数的实现出问题，也听不出差别）。 */
 const EPS = 0.0001;
 
 interface ActiveShot {
-  readonly node: SynthOsc | SynthBufferSource;
+  readonly node: SynthBufferSource;
   readonly clipId: string;
   readonly endAt: number;
 }
@@ -131,14 +129,13 @@ interface ActiveLoop {
   readonly voice: AudioVoice;
 }
 
-function setParam(param: SynthParam, value: number, at: number): void {
-  if (param.setValueAtTime) param.setValueAtTime(value, at);
-  else param.value = value;
-}
-
-function rampParam(param: SynthParam, value: number, at: number): void {
-  if (param.linearRampToValueAtTime) param.linearRampToValueAtTime(value, at);
-  else param.value = value;
+/** 单位相位 → 波形样本（离线渲染用，四波形对齐 WebAudio 同名振荡器的近似形状）。 */
+function sampleWave(wave: string, phase: number): number {
+  const p = phase - Math.floor(phase);
+  if (wave === 'square') return p < 0.5 ? 1 : -1;
+  if (wave === 'sawtooth') return 2 * p - 1;
+  if (wave === 'triangle') return p < 0.25 ? 4 * p : p < 0.75 ? 2 - 4 * p : 4 * p - 4;
+  return Math.sin(2 * Math.PI * p);
 }
 
 export class SynthAudioBackend implements AudioBackend {
@@ -152,7 +149,8 @@ export class SynthAudioBackend implements AudioBackend {
   private readonly _wantedLoops = new Map<string, number>();
   private readonly _active: (ActiveShot | null)[] = new Array(ACTIVE_RING).fill(null);
   private _activeSlot = 0;
-  private _noiseBuffer: SynthBuffer | null = null;
+  /** clipId → 渲染好的一次性缓冲（BD-51 存活配方，同 clip 复用）。 */
+  private readonly _shotBuffers = new Map<string, SynthBuffer>();
   /** clipId → 渲染好的循环缓冲（无缝 loop，§3.2）。 */
   private readonly _loopBuffers = new Map<string, SynthBuffer>();
   private readonly _warned = new Set<string>();
@@ -338,75 +336,81 @@ export class SynthAudioBackend implements AudioBackend {
     return filter;
   }
 
-  private _track(node: SynthOsc | SynthBufferSource, clipId: string, endAt: number): void {
+  private _track(node: SynthBufferSource, clipId: string, endAt: number): void {
     this._active[this._activeSlot] = { node, clipId, endAt };
     this._activeSlot = (this._activeSlot + 1) % ACTIVE_RING;
   }
 
+  /**
+   * 一次性 clip 播放（BD-51 存活配方）：预渲染 buffer + BufferSource + 静态增益 +
+   * **无参** `start()`。不碰任何 AudioParam 时间自动化，也不 `start(when > 0)` ——
+   * 微信 iOS 的 `currentTime` 恒为 0，这两条路都通向永久静音。
+   */
   private _startOneShot(clipId: string, voice: AudioVoice, volume: number, ctx: SynthContext): void {
-    const at = ctx.currentTime;
-    const out = this._outputFor(voice, ctx);
+    const buffer = this._shotBuffer(clipId, voice, ctx);
+    if (!buffer) return;
+    const src = ctx.createBufferSource?.();
+    if (!src) {
+      this._warnOnce('runtime 缺 createBufferSource ⇒ 一次性音效静音（离线渲染路线受阻，需 `[R]` 复核）');
+      return;
+    }
+    src.buffer = buffer;
+    src.loop = false;
+    const env = ctx.createGain();
+    env.gain.value = Math.max(EPS, volume); // 包络已烘进 buffer，这里只乘电平
+    src.connect(env);
+    env.connect(this._outputFor(voice, ctx));
+    src.start();
+    this._track(src, clipId, ctx.currentTime + buffer.length / buffer.sampleRate);
+  }
+
+  /** clipId → 一次性渲染缓存：同 clip 只 CPU 算一次（复用面，⑥）。 */
+  private _shotBuffer(clipId: string, voice: AudioVoice, ctx: SynthContext): SynthBuffer | null {
+    const cached = this._shotBuffers.get(clipId);
+    if (cached) return cached;
+    const make = ctx.createBuffer;
+    if (!make) {
+      this._warnOnce('runtime 缺 createBuffer ⇒ 无法预渲染一次性音效（离线渲染路线受阻，需 `[R]` 复核）');
+      return null;
+    }
     const notes: readonly AudioNote[] = voice.notes && voice.notes.length
       ? voice.notes
       : [{ freq: voice.freq ?? 440, glideTo: voice.glideTo, durMs: voice.durationMs }];
-    const attackS = (voice.attackMs ?? 6) / 1000;
+    let totalMs = 0;
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i]!;
-      const start = at + (note.startMs ?? 0) / 1000;
-      const dur = (note.durMs ?? voice.durationMs) / 1000;
-      const peak = Math.max(EPS, volume * (voice.gain ?? 1) * (note.gain ?? 1));
-      if (voice.noise) {
-        const src = ctx.createBufferSource?.();
-        if (!src) {
-          this._warnOnce('runtime 缺 createBufferSource ⇒ 噪声类 clip 静音（`[R]` 待实测）');
-          return;
-        }
-        const noise = this._noise(ctx);
-        if (!noise) return;
-        src.buffer = noise;
-        src.loop = true;
-        const env = ctx.createGain();
-        env.gain.value = 0;
-        setParam(env.gain, peak, start);
-        rampParam(env.gain, EPS, start + dur);
-        src.connect(env);
-        env.connect(out);
-        src.start(start);
-        src.stop(start + dur + attackS);
-        this._track(src, clipId, start + dur);
-        continue;
-      }
-      const osc = ctx.createOscillator();
-      osc.type = voice.wave ?? 'sine';
-      setParam(osc.frequency, note.freq, start);
-      if (note.glideTo) rampParam(osc.frequency, note.glideTo, start + dur);
-      const env = ctx.createGain();
-      env.gain.value = 0;
-      setParam(env.gain, EPS, start);
-      rampParam(env.gain, peak, start + attackS);
-      rampParam(env.gain, EPS, start + dur);
-      osc.connect(env);
-      env.connect(out);
-      osc.start(start);
-      osc.stop(start + dur + attackS);
-      this._track(osc, clipId, start + dur);
+      const span = (note.startMs ?? 0) + (note.durMs ?? voice.durationMs);
+      if (span > totalMs) totalMs = span;
     }
-  }
-
-  private _noise(ctx: SynthContext): SynthBuffer | null {
-    if (this._noiseBuffer) return this._noiseBuffer;
-    const make = ctx.createBuffer;
-    if (!make) {
-      this._warnOnce('runtime 缺 createBuffer ⇒ 无法生成噪声（程序化合成路线受阻，需 `[R]` 复核）');
-      return null;
-    }
-    const frames = Math.max(1, Math.floor(ctx.sampleRate * NOISE_SECONDS));
-    const buffer = make.call(ctx, 1, frames, ctx.sampleRate);
+    const sampleRate = ctx.sampleRate;
+    const frames = Math.max(1, Math.floor((sampleRate * totalMs) / 1000));
+    const buffer = make.call(ctx, 1, frames, sampleRate);
     const data = buffer.getChannelData(0);
-    // L4：噪声是**素材**而非玩法随机，仍走 `createRng(seed)` 保证可复现。
-    const rng = createRng('wxg-audio-noise');
-    for (let i = 0; i < frames; i++) data[i] = rng.next() * 2 - 1;
-    this._noiseBuffer = buffer;
+    const attackFrames = Math.max(1, Math.floor((sampleRate * (voice.attackMs ?? 6)) / 1000));
+    // L4：噪声是**素材**而非玩法随机，仍走 `createRng(seed)` 保同 clip 确定性渲染。
+    const rng = voice.noise ? createRng(`wxg-audio-noise:${clipId}`) : null;
+    for (let n = 0; n < notes.length; n++) {
+      const note = notes[n]!;
+      const startFrame = Math.floor((sampleRate * (note.startMs ?? 0)) / 1000);
+      const durFrames = Math.max(1, Math.floor((sampleRate * (note.durMs ?? voice.durationMs)) / 1000));
+      const endFrame = Math.min(frames, startFrame + durFrames);
+      const peak = (note.gain ?? 1) * (voice.gain ?? 1);
+      const atk = Math.min(attackFrames, durFrames);
+      const decay = Math.max(1, durFrames - atk);
+      const f0 = note.freq;
+      const f1 = note.glideTo ?? note.freq;
+      let phase = 0;
+      for (let i = startFrame; i < endFrame; i++) {
+        const rel = i - startFrame;
+        // 滑音：频率线性插值，与旧 linearRampToValueAtTime 同形。
+        phase += (f0 + ((f1 - f0) * rel) / durFrames) / sampleRate;
+        const sample = rng ? rng.next() * 2 - 1 : sampleWave(voice.wave ?? 'sine', phase);
+        // 包络：attack 爬升 → 余段线性落到 0（旧实现 peak→EPS 斜坡的烘千版）。
+        const env = rel < atk ? rel / atk : Math.max(0, 1 - (rel - atk) / decay);
+        data[i] = (data[i] ?? 0) + sample * peak * env;
+      }
+    }
+    this._shotBuffers.set(clipId, buffer);
     return buffer;
   }
 

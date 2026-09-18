@@ -10,7 +10,7 @@
  */
 
 import type { SaveDocument, Storage } from '../../framework/index';
-import { STAR_MAX } from '../config/tuning';
+import { STAR_MAX, VIBRATE_DEFAULT } from '../config/tuning';
 
 /**
  * Persisted toggles (save-progress §2.2 + accessibility D1/E2, WXG-T-088): four
@@ -28,10 +28,15 @@ export interface BeadsSettings {
   readonly reduceMotion: boolean;
   /** E2 大字号：正文 / 说明类文本放大（accessibility §5）。 */
   readonly largeText: boolean;
+  /**
+   * 触觉震动开关（§3.8 VIBRATE_DEFAULT = ON，WXG-T-164 拍板⑦）：默认 **true**，
+   * 仅 isMiniGame 平台显示行（pause-settings v1.3 §8-12）；屏震语义不受本开关控制。
+   */
+  readonly vibrate: boolean;
 }
 
 export interface BeadsSave extends SaveDocument {
-  version: 3;
+  version: 4;
   /** Runs started — the "first launch" test is `runs === 0` (S1 §8-1). */
   runs: number;
   /**
@@ -63,7 +68,7 @@ export interface BeadsSave extends SaveDocument {
 export const SAVE_KEY = 'wxgame.beads.save.v1';
 /** Where an unreadable document is preserved before being discarded. */
 export const BACKUP_KEY = 'wxgame.beads.save.v1.bak';
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 /**
  * v1 → v2（WXG-T-088）：新增可访问性开关 `reduceMotion`（D1）与 `largeText`
@@ -90,6 +95,14 @@ export function migrateV2ToV3(doc: Record<string, unknown>): Record<string, unkn
   };
 }
 
+/**
+ * v3 → v4（WXG-T-164 拍板⑦）：settings 新增 `vibrate`（默认 ON）。同 v1→v2
+ * 判例：**只升版本号透传旧字段**，缺省字段由 `normalizeSettings` 逐字段降级。
+ */
+export function migrateV3ToV4(doc: Record<string, unknown>): Record<string, unknown> {
+  return { ...doc, version: SAVE_VERSION };
+}
+
 export function defaultBeadsSave(): BeadsSave {
   return {
     version: SAVE_VERSION,
@@ -101,7 +114,7 @@ export function defaultBeadsSave(): BeadsSave {
     sprintBestStage: 0,
     // 长度在 `normalizeBeadsSave(raw, levelCount)` 里按关卡表补齐（出厂默认不知关卡数）。
     starsByLevel: [],
-    settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false },
+    settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: VIBRATE_DEFAULT },
   };
 }
 
@@ -126,6 +139,8 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
     sfxMuted: boolField(raw, 'sfxMuted', false),
     reduceMotion: boolField(raw, 'reduceMotion', false),
     largeText: boolField(raw, 'largeText', false),
+    // §3.8 VIBRATE_DEFAULT = ON：缺字段降级为 true（与其余四开关的 false 相反）。
+    vibrate: boolField(raw, 'vibrate', VIBRATE_DEFAULT),
   };
 }
 
@@ -204,7 +219,8 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     save.settings.bgmMuted !== boolField(raw['settings'], 'bgmMuted', false) ||
     save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false) ||
     save.settings.reduceMotion !== boolField(raw['settings'], 'reduceMotion', false) ||
-    save.settings.largeText !== boolField(raw['settings'], 'largeText', false);
+    save.settings.largeText !== boolField(raw['settings'], 'largeText', false) ||
+    save.settings.vibrate !== boolField(raw['settings'], 'vibrate', VIBRATE_DEFAULT);
 
   return { save, changed };
 }

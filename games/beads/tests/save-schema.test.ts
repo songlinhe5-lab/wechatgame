@@ -34,7 +34,7 @@ const validSave = () => ({
   sprintBestScore: 1200,
   sprintBestStage: 5,
   starsByLevel: [3, 2, 1, 0, 0, 0, 0, 0],
-  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false },
+  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true },
 });
 
 const storage = () => new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createStorage();
@@ -50,7 +50,7 @@ describe('beads save schema', () => {
       sprintBestScore: 0,
       sprintBestStage: 0,
       starsByLevel: [],
-      settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false },
+      settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true },
     });
   });
 
@@ -130,6 +130,7 @@ describe('beads save schema', () => {
       sfxMuted: false,
       reduceMotion: false,
       largeText: false,
+      vibrate: true,
     });
     expect(missing.save.currentLevel).toBe(3); // progression survived
     expect(missing.changed).toBe(true);
@@ -139,24 +140,28 @@ describe('beads save schema', () => {
       sfxMuted: false,
       reduceMotion: false,
       largeText: false,
+      vibrate: true,
     });
     expect(normalizeSettings({ sfxMuted: true })).toEqual({
       bgmMuted: false,
       sfxMuted: true,
       reduceMotion: false,
       largeText: false,
+      vibrate: true,
     });
     expect(normalizeSettings('nonsense')).toEqual({
       bgmMuted: false,
       sfxMuted: false,
       reduceMotion: false,
       largeText: false,
+      vibrate: true,
     });
     expect(normalizeSettings({ bgmMuted: 'yes' })).toEqual({
       bgmMuted: false,
       sfxMuted: false,
       reduceMotion: false,
       largeText: false,
+      vibrate: true,
     });
   });
 
@@ -199,6 +204,7 @@ describe('beads save schema', () => {
       sfxMuted: true,
       reduceMotion: false,
       largeText: false,
+      vibrate: true,
     });
   });
 

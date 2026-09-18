@@ -185,8 +185,12 @@ function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
       return `减弱动效  ${snap.reduceMotion ? '开' : '关'}`;
     case 'toggle-large-text':
       return `大字号  ${snap.largeText ? '开' : '关'}`;
+    case 'toggle-vibrate':
+      return `震动  ${snap.vibrate ? '开' : '关'}`;
     case 'start-sprint':
       return '▶ 去冲刺';
+    case 'go-menu':
+      return '回主菜单';
     default:
       return '';
   }
@@ -281,7 +285,9 @@ function drawPausePanel(
     // at the standard button face — a smaller secondary style keeps it inside
     // the plate without touching the frozen panel geometry (§8-5).
     const toggle =
-      button.id === 'toggle-reduce-motion' || button.id === 'toggle-large-text';
+      button.id === 'toggle-reduce-motion' ||
+      button.id === 'toggle-large-text' ||
+      button.id === 'toggle-vibrate';
     // F6：主按钮 → accent_primary（§3.5 中性强调；白字对比 12.6:1）。
     builder.rect(bx, by, bw, bh, {
       fill: primary ? palette.accentPrimary : palette.slot,

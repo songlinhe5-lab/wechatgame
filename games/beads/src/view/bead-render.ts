@@ -242,11 +242,12 @@ export function drawFilledBead(
   // ⛔ 垫锁在**格心 `cy`**，不吃 `lift`（§1.6.1 层序死结论 / P0 陷阱 #2：「不参与 `scale` ·
   //   不参与 `lift` · 恒锁格缘 · 恒画」）。旧写法用 `y` ⇒ G4 波浪（`lift = dy`）与 T-148
   //   锚组抬起（`lift = -6`）会把垫一起抬走，「珠上移露垫」的读数被自身抹除。
+  const padRadius = Math.round(outer * BEAD_CARD.radius);
   if (options.padColorIdx !== undefined) {
     const pad = beadEndpoints(options.padColorIdx);
     builder.rect(cx - outer / 2, cy - outer / 2, outer, outer, {
       fill: pad.edge,
-      radius: Math.round(outer * BEAD_CARD.radius),
+      radius: padRadius,
     });
   }
 
@@ -256,7 +257,12 @@ export function drawFilledBead(
   const size = (outer - inset * 2) * (options.scale ?? 1);
   const left = cx - size / 2;
   const bottom = y - size / 2;
-  const radius = Math.round(size * BEAD_CARD.radius);
+  // 同心圆角（WXG-T-162 问题 3）：等距内缩要求珠圆角 = 垫圆角 − inset；
+  // 旧式 round(size×0.22) 在内缩后与垫不同心（INSET=6 时 10 vs 5），缝宽转角处不均。
+  const radius =
+    inset > 0
+      ? Math.max(1, padRadius - inset)
+      : Math.round(size * BEAD_CARD.radius);
   const stroke = (ratio: number) => Math.max(BEAD_CARD.minStroke, size * ratio);
   // G4 LOD：`lodLayers` 传入即走降档集（值本身在本轮只有一个档位 ⇒ 不作分支表）。
   const lod = options.lodLayers !== undefined;

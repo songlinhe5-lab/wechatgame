@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 
 /**
- * 【WXG-T-157 用户裁定（2026-09-17），覆盖 WXG-T-148 ③④ 旧口径】组选 + 整组收进：
- *  - 锚 = 8 向连通、锚起**两步内（切比雪夫 ≤2）且珠色与锚珠相同**的错位珠
- *    （同色才抬；异色错位珠留盘面）。
+ * 【WXG-T-162 用户裁定（2026-09-18），覆盖 WXG-T-157 旧口径】组选（连通块）+ 整组收进：
+ *  - 锚起 **8 向（含对角）连通、同色、错位珠的完整连通块，不限步数**（「找相邻直到找不到」）；
+ *    就位珠/锁定格/空格/异色错位珠均**阻断传播** ⇒ 旧 5×5 窗「隔珠同色连选」回归为不同组。
  *  - 取回 = 组内一次收进，仍只有槽位数量限制（free 槽 < 组大小 ⇒ 拒绝，零事件零状态写）。
- *  - 规则 2（board 锚直填，同裁定）另见 `misplaced-direct-fill.test.ts`。
+ *  - board 锚直填（任意距离，同裁定）另见 `misplaced-direct-fill.test.ts`。
  *
  * 场景构造沿用 E1 判例：noAssemble 空盘 + goToLevel 进 playing + `fill(r,c,color)`
  * 显式控色摆错位珠（组选筛色 ⇒ 构造必须显式同色/异色，不再用「1/2 择一」的旧夹具）。
@@ -22,7 +22,7 @@ function putMisplaced1(h: Harness, r: number, c: number): void {
   putMisplacedAt(h, r, c, 1);
 }
 
-describe('WXG-T-157 组选（8 向两步同色）', () => {
+describe('WXG-T-162 组选（8 向连通 flood fill，不限步数）', () => {
   let h: Harness;
   beforeEach(() => {
     h = createBeadsHarness({ seed: 'group-seed', noAssemble: true, levels: [simpleTestLevel()] });
@@ -46,9 +46,46 @@ describe('WXG-T-157 组选（8 向两步同色）', () => {
     expect(h.last<{ count: number }>('board:selected')?.count).toBe(1);
   });
 
-  it('切比雪夫 >2 不入组（几何筛选，与连通无关）', () => {
+  it('切比雪夫 ≤2 但**不连通**（隔空格）⇒ 不同组（旧 5×5 窗会连选，真机反馈问题回归）', () => {
     putMisplaced1(h, 2, 2);
-    putMisplaced1(h, 2, 5); // 底同为 3、同色 1，但距 3 ⇒ 出组（旧 flood fill 会沿链传导到它）
+    putMisplaced1(h, 2, 4); // 底 2、同色 1、距锚切比 2；但 (2,3) 是空格 ⇒ 阻断传播
+    expect(h.game.selectBoardBead(2, 2)).toBe(true);
+    expect(h.last<{ count: number }>('board:selected')?.count).toBe(1);
+  });
+
+  it('隔一颗**异色错位珠** ⇒ 不同组（异色阻断）', () => {
+    putMisplaced1(h, 2, 2); // 锚（底 3）
+    putMisplacedAt(h, 2, 3, 3); // 底 1 ⇒ 色 3 错位；在 (2,2) 与 (2,4) 中间
+    putMisplaced1(h, 2, 4); // 底 2 ⇒ 色 1 错位，距锚 2：旧规则入选，新规则被异色隔断
+    expect(h.game.selectBoardBead(2, 2)).toBe(true);
+    expect(h.last<{ count: number }>('board:selected')?.count).toBe(1);
+  });
+
+  it('隔一颗**就位珠** ⇒ 不同组（就位阻断）', () => {
+    putMisplaced1(h, 2, 2); // 锚（底 3）
+    h.game.grid.fill(2, 3, 1); // 底 1 ⇒ 色 1 就位 ⇒ 不入选且阻断传播
+    putMisplaced1(h, 2, 4); // 距锚 2，仅经 (2,3) 可达 ⇒ 不同组
+    expect(h.game.selectBoardBead(2, 2)).toBe(true);
+    expect(h.last<{ count: number }>('board:selected')?.count).toBe(1);
+  });
+
+  it('长连通链不限步数：同色斜链 (1,2)-(2,1)-(3,2) 全入组（3×3 对角可达）', () => {
+    putMisplaced1(h, 1, 2); // 底 3
+    putMisplaced1(h, 2, 1); // 底 2；与 (1,2) 对角相邻
+    putMisplaced1(h, 3, 2); // 底 3；与 (2,1) 对角相邻
+    expect(h.game.selectBoardBead(2, 1)).toBe(true);
+    expect(h.last<{ count: number }>('board:selected')?.count).toBe(3);
+  });
+
+  it('长连通链超出旧 5×5 窗：竖列 5 颗同色错位全入组（count 5 > 旧窗 3）', () => {
+    for (let r = 0; r < 5; r++) putMisplaced1(h, r, 2); // 列 2 底恒 3 ⇒ 色 1 全错位，竖向直连
+    expect(h.game.selectBoardBead(2, 2)).toBe(true);
+    expect(h.last<{ count: number }>('board:selected')?.count).toBe(5);
+  });
+
+  it('距锚切比雪夫 >2 且无同色路径 ⇒ 不入组（不连通 ⇒ 单珠）', () => {
+    putMisplaced1(h, 2, 2);
+    putMisplaced1(h, 2, 5); // 底同为 3、同色 1，但距 3 且全空格相隔
     expect(h.game.selectBoardBead(2, 2)).toBe(true);
     expect(h.last<{ count: number }>('board:selected')?.count).toBe(1);
   });
@@ -76,7 +113,7 @@ describe('WXG-T-157 组选（8 向两步同色）', () => {
   });
 });
 
-describe('WXG-T-157 整组一次收进', () => {
+describe('WXG-T-162 整组一次收进', () => {
   let h: Harness;
   beforeEach(() => {
     h = createBeadsHarness({

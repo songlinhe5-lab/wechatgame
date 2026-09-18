@@ -61,11 +61,13 @@ import {
   HUD_BAND,
   REVIVE_BONUS_SEC,
   REVIVE_MAX_PER_LEVEL,
+  STAMINA_REFILL_PLACEMENT,
   STAGE_BONUS_TIME,
   computeClearStars,
   normalSettleScore,
   TIMER_URGENT_T,
   TAP_HINT_MS,
+  VIBRATE_DEFAULT,
   TAP_HINT_NO_SELECTION_TEXT,
   AD_PLACEHOLDER_HINT_TEXT,
   WRONG_FX_MS,
@@ -148,6 +150,7 @@ import {
   defaultBeadsSave,
   migrateV1ToV2,
   migrateV2ToV3,
+  migrateV3ToV4,
   normalizeBeadsSave,
   preserveCorruptBackup,
   type BeadsSave,
@@ -183,6 +186,8 @@ export interface BeadsEvents extends Record<string, unknown> {
   'combo:break': { reason: 'wrong' | 'timeout' };
   'sprint:stage': { stageIndex: number; nextParams: StageParams };
   'sprint:ended': { score: number; bestStage: number; settleScore: number };
+  /** §4 meta 事件（systems-index v1.28）：震动开关切换（局外不带 levelId）。 */
+  'settings:vibrate': { on: boolean };
 }
 
 export interface BeadsGameOptions {
@@ -205,6 +210,22 @@ export interface BeadsGameOptions {
    * applyMisplacedToGrid 显式装配。
    */
   readonly noBootAssembly?: boolean;
+  /**
+   * 暂停面板「回主菜单」次钮回调（WXG-T-164 批0，pause-settings v1.3 §8-11）：
+   * 玩法层不知道 shell/菜单存在，只上报意图；缺省（无 shell）时按钮无副作用。
+   */
+  readonly onMenuRequest?: () => void;
+  /**
+   * 新局开局体力闸门（WXG-T-164，systems-index §3.14）：普通局 retry/restart 前调用，
+   * 返回 true=已扣心放行、false=0 心被拒（转而触发 {@link onStaminaRefill} 广告回满再重试）。
+   * 缺省（无 shell 的独立 BeadsGame）→ 不设闸门，retry/restart 恒放行（保后向兼容，既有单测不变）。
+   */
+  readonly canStartRun?: () => boolean;
+  /**
+   * 体力回满激励位发奖回调（§3.11 第二 live 位 / §3.14）：0 心重试被拒后看完广告调用，
+   * 由 shell 执行 `meta.refillStamina()`；缺省则不接广告回满（被拒即无副作用）。
+   */
+  readonly onStaminaRefill?: () => void;
 }
 
 /**
@@ -444,6 +465,18 @@ export class BeadsGame implements Game {
   /** WXG-T-088 accessibility mirror: D1 减弱动效 / E2 大字号（走 snapshot 暴露给 view）。 */
   private _reduceMotion = false;
   private _largeText = false;
+  /** §3.8 震动开关镜像（VIBRATE_DEFAULT = ON；init 时从存档装载）。 */
+  private _vibrate = VIBRATE_DEFAULT;
+  /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
+  private readonly _onMenuRequest?: () => void;
+  /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
+  private readonly _canStartRun?: () => boolean;
+  /** 体力回满发奖回调（options.onStaminaRefill；无 shell 时 undefined）。 */
+  private readonly _onStaminaRefill?: () => void;
+  /** 在飞广告种类：区分续时（revive）与体力回满（staminaRefill）的发奖路由。 */
+  private _adKind: 'revive' | 'staminaRefill' | null = null;
+  /** 0 心被拒时挂起的 run-start 续体（广告回满后重放 retry/restart）。 */
+  private _pendingRunStart: (() => boolean) | null = null;
   /** BOOT validation errors — non-empty means the game refuses PLAYING. */
   private _bootErrors: string[] = [];
 
@@ -477,6 +510,9 @@ export class BeadsGame implements Game {
     this._saveKey = options.saveKey ?? SAVE_KEY;
     this._levels = options.levels ?? LEVELS;
     this._noBootAssembly = options.noBootAssembly ?? false;
+    this._onMenuRequest = options.onMenuRequest;
+    this._canStartRun = options.canStartRun;
+    this._onStaminaRefill = options.onStaminaRefill;
 
     this._sprintCap = validatedSprintTime(options.sprintTime);
     if (options.sprintTime !== undefined && this._sprintCap !== options.sprintTime) {
@@ -613,6 +649,11 @@ export class BeadsGame implements Game {
     return this._largeText;
   }
 
+  /** 震动开关（§3.8；shell/设置页与面板行回显共读）。 */
+  get vibrateOn(): boolean {
+    return this._vibrate;
+  }
+
   /** BOOT validation failures ('' when the level data is clean). */
   get bootError(): string {
     return this._bootErrors.join('; ');
@@ -643,7 +684,7 @@ export class BeadsGame implements Game {
       defaults: defaultBeadsSave,
       // v1→v2（WXG-T-088 可访问性开关）：只升版本号，新字段交由 normalizeSettings
       // 逐字段降级——不注册则 SaveManager 会把旧档判为待迁移而重置丢进度。
-      migrations: { 1: migrateV1ToV2, 2: migrateV2ToV3 },
+      migrations: { 1: migrateV1ToV2, 2: migrateV2ToV3, 3: migrateV3ToV4 },
     });
 
     // D-03：崩溃恢复档是**另键** sidecar（提案 §5 方案 A）——S8 的键 / version /
@@ -672,6 +713,7 @@ export class BeadsGame implements Game {
     this._sfxMuted = normalized.save.settings.sfxMuted;
     this._reduceMotion = normalized.save.settings.reduceMotion;
     this._largeText = normalized.save.settings.largeText;
+    this._vibrate = normalized.save.settings.vibrate;
     this._applyAudioChannels();
 
     this._subscribe();
@@ -1050,6 +1092,8 @@ export class BeadsGame implements Game {
   /** Retry after game over: normal → same level fresh; sprint → new run. */
   retryLevel(): boolean {
     if (this._machine.current !== 'game-over') return false;
+    // §3.14：普通局重开 = 新局开局，扣 1 心；0 心 → 看广告回满再重试（冲刺消耗不冻结，不设门）。
+    if (this._mode === 'normal' && !this._gateRunStart(() => this.retryLevel())) return false;
     this._watchingAd = false;
     this._failHint = '';
     this._sprintSettle.close(); // 冲刺结算淡出由 `update()` 跑完（与其余面板同判例）
@@ -1075,6 +1119,7 @@ export class BeadsGame implements Game {
     const ad = this._services?.rewardedAd;
     if (!ad) return false;
     this._failHint = '';
+    this._adKind = 'revive';
     this._watchingAd = true;
     ad.load(REWARDED_PLACEMENT.failContinue);
     ad.show();
@@ -1084,9 +1129,40 @@ export class BeadsGame implements Game {
     return false;
   }
 
+  /**
+   * 新局开局体力闸门（§3.14）。无 shell（`_canStartRun` 未注入）→ 恒放行（独立 BeadsGame
+   * 后向兼容）；扣心成功 → 放行；0 心被拒 → 触发体力回满激励位（{@link _requestStaminaRefill}），
+   * 本次调用返回 false（停在原面板，广告发奖后经挂起续体重放）。
+   */
+  private _gateRunStart(proceed: () => boolean): boolean {
+    if (!this._canStartRun) return true;
+    if (this._canStartRun()) return true;
+    this._requestStaminaRefill(proceed);
+    return false;
+  }
+
+  /**
+   * 0 心重试的体力回满广告（§3.11 第二 live 位）：加载 `stamina-refill` 位并挂起 run-start
+   * 续体；发奖路由见 {@link _onAdRewarded}（回满 → 重放 retry/restart，此时闸门扣 1 心成功）。
+   * 无广告位 / 无 shell 回满回调 → 无副作用（被拒即停在面板，可再点或等自然恢复）。
+   */
+  private _requestStaminaRefill(proceed: () => boolean): void {
+    if (this._watchingAd) return;
+    const ad = this._services?.rewardedAd;
+    if (!ad || !this._onStaminaRefill) return;
+    this._failHint = '';
+    this._adKind = 'staminaRefill';
+    this._pendingRunStart = proceed;
+    this._watchingAd = true;
+    ad.load(STAMINA_REFILL_PLACEMENT);
+    ad.show();
+  }
+
   /** From the FINISH screen: replay the whole normal campaign from level 1. */
   restartRun(): boolean {
     if (this._machine.current !== 'finish') return false;
+    // §3.14：整轮重玩 = 新局开局，扣 1 心；0 心 → 看广告回满再重试。
+    if (!this._gateRunStart(() => this.restartRun())) return false;
     this._mode = 'normal';
     this._crash?.clear(); // D-03：整轮重玩 ⇒ 旧快照失效
     this._finishPanel.close(); // 淡出由 `update()` 跑完（与结算面板同判例）
@@ -1111,6 +1187,45 @@ export class BeadsGame implements Game {
     this._crash?.clear(); // D-03：开新冲刺 run ⇒ 旧快照失效
     this._setupSprintRun();
     this._machine.reset('playing');
+  }
+
+  /**
+   * 主菜单「开始游戏」在途续进入口（WXG-T-164 批0，ux-spec v1.7 §2）：
+   * PAUSED → PLAYING，**不扣心**（在途续进不重复扣，systems-index §3.14 语义裁定）。
+   * 非 PAUSED 时零副作用返回 false（与 retryLevel/restartRun 同判例）。
+   */
+  resumeFromPause(): boolean {
+    if (this._machine.current !== 'paused') return false;
+    this._panel.close(); // 淡出由 `update()` 跑完（与其余面板同判例）
+    this._machine.transition('playing');
+    return true;
+  }
+
+  /**
+   * 主菜单设置 overlay 复用 S9 开关（ux-spec v1.7 §2「设置 = overlay、复用 S9
+   * 面板内容」，WXG-T-164 批0）：只受理 `toggle-*` 动作，相位无关（局外设置），
+   * 与暂停面板共用同一批私有 setter ⇒ 两入口状态恒一致。非 toggle 动作零作用。
+   */
+  applySettingsAction(action: PausePanelAction): void {
+    switch (action) {
+      case 'toggle-bgm':
+        this._setBgmMuted(!this._bgmMuted);
+        return;
+      case 'toggle-sfx':
+        this._setSfxMuted(!this._sfxMuted);
+        return;
+      case 'toggle-reduce-motion':
+        this._setReduceMotion(!this._reduceMotion);
+        return;
+      case 'toggle-large-text':
+        this._setLargeText(!this._largeText);
+        return;
+      case 'toggle-vibrate':
+        this._setVibrate(!this._vibrate);
+        return;
+      default:
+        return;
+    }
   }
 
   /** Leave sprint back to the normal campaign at the current level. */
@@ -1467,7 +1582,7 @@ export class BeadsGame implements Game {
 
     const ad = services.rewardedAd;
     this._unsubs.push(
-      ad.onRewarded(() => this._onReviveRewarded()),
+      ad.onRewarded(() => this._onAdRewarded()),
       ad.onClose((event) => {
         // A05-20：未看完（`reason !== 'completed'`）⇒ 温和否定音，受**同一** 0.5s
         // 限流（连点主钮不产生 >2 次/秒）。已发奖路径上 `_watchingAd` 已先被
@@ -1812,8 +1927,8 @@ export class BeadsGame implements Game {
    */
   private _routeGridEmpty(row: number, col: number): boolean {
     if (this._tray.selectedSlot >= 0) return this._placeSelected(row, col);
-    // 【WXG-T-157 用户裁定 · 规则 2】board 锚直填：锚组非空 ⇒ 点「对应颜色的空格」
-    // （限锚起切比雪夫 ≤2）直接归位，组保持逐颗续填。未消费（null/false）⇒ 走既有轻提示。
+    // 【WXG-T-162 用户裁定 · 直填放开任意距离】board 锚：组非空 ⇒ 点「对应颜色的空格」
+    // （不限距）直接归位，组保持逐颗续填。未消费（null/false）⇒ 走既有轻提示。
     const direct = this._tryDirectFillFromBoard(row, col);
     if (direct !== null) return direct;
     if (this._grid.isFillable(row, col)) {
@@ -1823,17 +1938,16 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * 【WXG-T-157 用户裁定（2026-09-17）· 规则 2 实现】board 锚直填：
-   * 点「对应颜色（= 组色）的空格」且该格与锚切比雪夫距离 ≤2 ⇒ 从组内取一颗
+   * 【WXG-T-162 用户裁定（2026-09-18）· 直填任意距离】board 锚直填：
+   * 点「对应颜色（= 组色）的空格」（**不限距**，覆盖 WXG-T-157 的 ≤2 门）⇒ 从组内取一颗
    * （离目标格最近，平局行主序）错位珠直接归位（`retrieve` + `fill` 同帧两写，
    * `_filledCount` 不变、misplaced −1、无中间态外泄）。
-   * - **组保持（逐颗续填，裁定 B）**：被填珠移出 `cells`；锚珠被填 ⇒ 锚**静默转移**到
+   * - **组保持（逐颗续填，T-157 裁定 B 沿用）**：被填珠移出 `cells`；锚珠被填 ⇒ 锚**静默转移**到
    *   剩余组首（不重发 `board:selected` —— 快照坐标下一帧跟随，白环/点名视图自动对齐）；
    *   组空 ⇒ 锚清除。
    * - 归位可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2，同 `_placeSelected`）。
-   * - **超距**（对应色但 >2）或底色不匹配 ⇒ 不消费：超距复用 BD-16 轻提示文案
-   *   （零新常量，规格回写注明）；底色不匹配走既有「无对应路径」口径。
-   * @returns true = 已直填；false = 已消费但拒绝（超距）；null = 与 board 锚无关（调用方续走旧路径）。
+   * - 底色不匹配 ⇒ 不消费（null），走既有「无对应路径」轻提示口径。
+   * @returns true = 已直填；false = 已消费但拒绝（取珠/落盘失败防御面）；null = 与 board 锚无关（调用方续走旧路径）。
    */
   private _tryDirectFillFromBoard(row: number, col: number): boolean | null {
     const anchor = this._boardSelected;
@@ -1849,12 +1963,6 @@ export class BeadsGame implements Game {
     }
     const target = this._grid.cell(row, col);
     if (!target || target.void || target.state !== 'empty' || target.colorIdx !== anchor.color) return null; // 非对应色空格 ⇒ 不消费
-    const dist = Math.max(Math.abs(row - anchor.row), Math.abs(col - anchor.col));
-    if (dist > 2) {
-      // 超距：对应色空格但超出「相邻 + 相邻的相邻」⇒ 轻提示拒绝（零事件零状态写）
-      this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
-      return false;
-    }
     let best = alive[0]!;
     let bestD = Infinity;
     let bestOrd = Infinity;
@@ -1947,6 +2055,16 @@ export class BeadsGame implements Game {
         return;
       case 'toggle-large-text':
         this._setLargeText(!this._largeText);
+        return;
+      case 'toggle-vibrate':
+        // §3.8：只写设置（留 PAUSED），真机 vibrateShort 调用属平台适配层（ponytail:
+        // 批0 不接真震动 API，待真机复验窗口接入 adapters）。
+        this._setVibrate(!this._vibrate);
+        return;
+      case 'go-menu':
+        // 回主菜单（pause-settings v1.3 §8-11）：保留进度不惩罚——停在 PAUSED
+        // 上报意图，切屏与后续 `resumeFromPause()` 归 shell；无 shell 时零副作用。
+        this._onMenuRequest?.();
         return;
       case 'start-sprint':
         // U1 secondary entry: leave PAUSED straight into a fresh sprint run.
@@ -2053,10 +2171,23 @@ export class BeadsGame implements Game {
     this._reviveBonusSec = 0;
     this._watchingAd = false;
     this._failHint = '';
+    this._adKind = null;
+    this._pendingRunStart = null;
   }
 
-  private _onReviveRewarded(): void {
+  /** 广告发奖分发：按在飞种类路由到续时（revive）或体力回满（staminaRefill）。 */
+  private _onAdRewarded(): void {
     this._watchingAd = false;
+    if (this._adKind === 'staminaRefill') {
+      this._adKind = null;
+      const proceed = this._pendingRunStart;
+      this._pendingRunStart = null;
+      this._onStaminaRefill?.(); // shell: meta.refillStamina() → STAMINA_MAX
+      // 回满后重放被拒的 run-start：此时闸门扣 1 心必成功（MAX ≥ START_COST），不会再次被拒。
+      proceed?.();
+      return;
+    }
+    this._adKind = null;
     this._continueFromReward();
   }
 
@@ -2251,6 +2382,7 @@ export class BeadsGame implements Game {
         sfxMuted: this._sfxMuted,
         reduceMotion: this._reduceMotion,
         largeText: this._largeText,
+        vibrate: this._vibrate,
       },
     });
     save.save();
@@ -2279,6 +2411,13 @@ export class BeadsGame implements Game {
   private _setLargeText(on: boolean): void {
     this._largeText = on;
     this._persistSettings();
+  }
+
+  /** §3.8 震动开关：写档 + 发 `settings:vibrate`（§4 meta 事件；不切相位）。 */
+  private _setVibrate(on: boolean): void {
+    this._vibrate = on;
+    this._persistSettings();
+    this._emit('settings:vibrate', { on });
   }
 
   /**
@@ -2822,6 +2961,7 @@ export class BeadsGame implements Game {
     s.sfxMuted = this._sfxMuted;
     s.reduceMotion = this._reduceMotion;
     s.largeText = this._largeText;
+    s.vibrate = this._vibrate;
 
     const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);
     s.banner = copy.banner;

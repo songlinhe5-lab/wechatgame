@@ -181,12 +181,12 @@ export class BeadGrid {
 }
 
 /**
- * 错位珠组选（flood fill 闭包）—— **WXG-T-157 用户裁定（2026-09-17）**，覆盖 WXG-T-148 ③ 旧口径：
- * 选中一颗错位珠（锚）⇒ 组 = **8 向连通、锚起两步内（即切比雪夫距离 ≤2）且珠色与锚珠相同**
- * 的错位珠；就位珠/锁定格/空格不入选，异色错位珠不抬（留盘面）。
- * 8 向连通下「两步可达」⇔ 切比雪夫距离 ≤2 ⇒ 直接几何筛选（无需 BFS，结果恒等）。
+ * 错位珠组选（flood fill 闭包）—— **WXG-T-162 用户裁定（2026-09-18）**，覆盖 WXG-T-157 旧口径：
+ * 选中一颗错位珠（锚）⇒ 组 = **从锚起 8 向（含对角）连通、同色、错位珠的完整连通块，
+ * 不限步数**（「寻找相邻直到找不到相邻」）。就位珠/锁定格/空格阻断传播，
+ * 异色错位珠不入选且同样阻断 ⇒ 自动修复旧 5×5 窗「隔珠同色连选」问题。
  *
- * 输入路径调用（选中一次一次），非每帧热路径 ⇒ 数组分配可接受。
+ * 输入路径调用（选中一次一次），非每帧热路径 ⇒ 数组/Set 分配可接受。
  * @returns 组内格列表（行主序，含锚）；起点非错位珠 ⇒ 空数组。
  */
 export function collectMisplacedGroup(
@@ -197,14 +197,23 @@ export function collectMisplacedGroup(
   if (!grid.isMisplaced(row, col)) return [];
   const color = grid.cell(row, col)!.beadColorIdx;
   const cols = grid.cols;
-  const out: { row: number; col: number }[] = [];
-  for (let dr = -2; dr <= 2; dr++) {
-    for (let dc = -2; dc <= 2; dc++) {
-      const r = row + dr;
-      const c = col + dc;
-      if (!grid.isMisplaced(r, c)) continue;
-      if (grid.cell(r, c)!.beadColorIdx !== color) continue; // 同色才抬（异色留盘）
-      out.push({ row: r, col: c });
+  const out: { row: number; col: number }[] = [{ row, col }];
+  const seen = new Set<number>([row * cols + col]);
+  // BFS 沿 8 邻域生长；out 兼作队列（head 指针），直到找不到可连的邻居。
+  for (let head = 0; head < out.length; head++) {
+    const cur = out[head]!;
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const r = cur.row + dr;
+        const c = cur.col + dc;
+        const key = r * cols + c;
+        if (seen.has(key)) continue;
+        if (!grid.isMisplaced(r, c)) continue; // 就位/锁定/空格 ⇒ 阻断传播（isMisplaced 对越界返回 false）
+        if (grid.cell(r, c)!.beadColorIdx !== color) continue; // 异色阻断（留盘）
+        seen.add(key);
+        out.push({ row: r, col: c });
+      }
     }
   }
   out.sort((a, b) => a.row * cols + a.col - (b.row * cols + b.col));

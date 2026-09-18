@@ -12,7 +12,7 @@
 
 import { App, Canvas2DRenderer } from '@wxgame/framework';
 import { createBreakoutGame, type BreakoutGame } from '../../games/breakout/src/index.js';
-import { createBeadsGame, type BeadsGame } from '../../games/beads/src/index.js';
+import { createBeadsShell, type BeadsShell } from '../../games/beads/src/index.js';
 
 // ─────────────────────────────────────────────────────────────── DOM handles
 
@@ -35,11 +35,17 @@ const hud = must<HTMLDivElement>('#hud');
 // `window.location` is read defensively: the smoke-test DOM stub has none.
 const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
-const isBeads = new URLSearchParams(harnessQuery).get('game') === 'beads';
-const game = isBeads ? createBeadsGame() : createBreakoutGame();
+const harnessParams = new URLSearchParams(harnessQuery);
+const isBeads = harnessParams.get('game') === 'beads';
+// `?meta=menu` boots beads straight into the shell's main menu (批0 路由验证)；
+// 默认 'play' 保持首启直进玩法红线。
+const game = isBeads
+  ? createBeadsShell({ initialScreen: harnessParams.get('meta') === 'menu' ? 'menu' : 'play' })
+  : createBreakoutGame();
 /** Narrowed aliases — every use site is guarded by `isBeads`. */
 const breakout = game as BreakoutGame;
-const beads = game as BeadsGame;
+const beadsShell = game as BeadsShell;
+const beads = beadsShell.play;
 const app = new App({
   game,
   designWidth: 750,
@@ -175,7 +181,7 @@ window.addEventListener('keydown', (event) => {
     return;
   }
   if (event.key >= '1' && event.key <= '5') {
-    game.goToLevel(Number(event.key) - 1);
+    goToLevel(Number(event.key) - 1);
   }
 });
 
@@ -231,14 +237,28 @@ function renderHud(): void {
 
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-level]')) {
   button.addEventListener('click', () => {
-    game.goToLevel(Number(button.dataset['level']) - 1);
+    goToLevel(Number(button.dataset['level']) - 1);
     canvas.focus();
   });
 }
 
 must<HTMLButtonElement>('#restart').addEventListener('click', () => {
-  game.restartRun();
+  restartRun();
 });
+
+/**
+ * Level/restart routing. The shell (beads) does not re-expose the play command
+ * API — it is the frozen `Game`; harness dev buttons reach through to `play`.
+ */
+function goToLevel(index: number): void {
+  if (isBeads) beads.goToLevel(index);
+  else breakout.goToLevel(index);
+}
+
+function restartRun(): void {
+  if (isBeads) beads.restartRun();
+  else breakout.restartRun();
+}
 
 // ─────────────────────────────────────────────────────────────── frame driver
 
@@ -269,7 +289,7 @@ requestAnimationFrame(frame);
 // Expose for console poking during development.
 Object.assign(window as unknown as Record<string, unknown>, {
   __breakout: { app, game: breakout, fitCanvas },
-  __beads: { app, game: beads, fitCanvas },
+  __beads: { app, game: beads, shell: beadsShell, fitCanvas },
 });
 
 // eslint-disable-next-line no-console

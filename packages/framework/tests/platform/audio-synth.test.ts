@@ -5,7 +5,8 @@
  * 也顺带机验「引擎只用到最小 API 子集」这条 weapp 对偶实现的前提。
  *
  * 诚实边界：本文件能证明的是**结构与契约**（何时建 context、幂等、未登记 id 静默、
- * 复用面），**不能**证明「真的出声 / 时长 / 响度」——那是 `[B]`/`[R]`/`[P]` 道次
+ * 复用面、BD-51 存活配方：一次性 clip 走预渲染 buffer + 无参 start + 静态增益），
+ * **不能**证明「真的出声 / 时长 / 响度」——那是 `[B]`/`[R]`/`[P]` 道次
  * （A05-03/22/26/27），不得在此记为已验收。
  */
 
@@ -20,20 +21,18 @@ import {
   type SynthFilter,
   type SynthGain,
   type SynthNode,
-  type SynthOsc,
   type SynthParam,
 } from '../../src/platform/audio-synth.js';
 
 interface Recorder {
   readonly gains: FakeGain[];
-  readonly oscs: FakeOsc[];
   readonly sources: FakeBufferSource[];
   readonly filters: FakeFilter[];
   readonly buffers: FakeBuffer[];
 }
 
 function fakeParam(): SynthParam {
-  return { value: 0, setValueAtTime() { }, linearRampToValueAtTime() { } };
+  return { value: 0 };
 }
 
 class FakeNode implements SynthNode {
@@ -57,20 +56,6 @@ class FakeFilter extends FakeNode implements SynthFilter {
   frequency: SynthParam = fakeParam();
 }
 
-class FakeOsc extends FakeNode implements SynthOsc {
-  type = 'sine';
-  frequency: SynthParam = fakeParam();
-  detune: SynthParam = fakeParam();
-  starts: number[] = [];
-  stops: number[] = [];
-  start(when = 0): void {
-    this.starts.push(when);
-  }
-  stop(when = 0): void {
-    this.stops.push(when);
-  }
-}
-
 class FakeBuffer implements SynthBuffer {
   readonly data: Float32Array;
   constructor(
@@ -88,9 +73,10 @@ class FakeBufferSource extends FakeNode implements SynthBufferSource {
   buffer: SynthBuffer | null = null;
   loop = false;
   playbackRate: SynthParam = fakeParam();
-  starts: number[] = [];
+  /** 记的是**实参**：BD-51 判据要求 start() 无参（undefined），定时启动 = 静音风险。 */
+  starts: (number | undefined)[] = [];
   stops: number[] = [];
-  start(when = 0): void {
+  start(when?: number): void {
     this.starts.push(when);
   }
   stop(when = 0): void {
@@ -99,7 +85,7 @@ class FakeBufferSource extends FakeNode implements SynthBufferSource {
 }
 
 function fakeAudio(): { ctx: SynthContext; rec: Recorder } {
-  const rec: Recorder = { gains: [], oscs: [], sources: [], filters: [], buffers: [] };
+  const rec: Recorder = { gains: [], sources: [], filters: [], buffers: [] };
   const ctx = {
     currentTime: 0,
     sampleRate: 44100,
@@ -108,11 +94,6 @@ function fakeAudio(): { ctx: SynthContext; rec: Recorder } {
     createGain(): SynthGain {
       const node = new FakeGain();
       rec.gains.push(node);
-      return node;
-    },
-    createOscillator(): SynthOsc {
-      const node = new FakeOsc();
-      rec.oscs.push(node);
       return node;
     },
     createBiquadFilter(): SynthFilter {
@@ -184,7 +165,7 @@ describe('SynthAudioBackend · context 生命周期（§4.4）', () => {
     expect(backend.contextReady).toBe(false);
     backend.play('sfx_test', { volume: 1, loop: false });
     expect(opens).toBe(0);
-    expect(rec.oscs).toHaveLength(0);
+    expect(rec.sources).toHaveLength(0);
   });
 
   it('解锁前的一次性请求被丢弃；解锁前的 loop 请求在解锁瞬间补起', () => {
@@ -203,7 +184,7 @@ describe('SynthAudioBackend · context 生命周期（§4.4）', () => {
     backend.unlock();
     expect(opens).toBe(1);
     expect(backend.activeLoops()).toEqual(['bgm_test']);
-    expect(rec.oscs).toHaveLength(0); // 丢掉的 sfx 不该补发
+    expect(rec.sources.filter((s) => !s.loop)).toHaveLength(0); // 丢掉的 sfx 不该补发
     expect(rec.sources.filter((s) => s.loop).length).toBe(1);
   });
 
@@ -221,7 +202,7 @@ describe('SynthAudioBackend · voice 表与静默契约（ADR-0013）', () => {
     const h = makeBackend();
     h.backend.play('sfx_unknown', { volume: 1, loop: false });
     h.backend.play('sfx_unknown', { volume: 1, loop: false });
-    expect(h.rec.oscs).toHaveLength(0);
+    expect(h.rec.sources).toHaveLength(0);
     expect(h.warnings.filter((w) => w.includes('sfx_unknown'))).toHaveLength(1);
   });
 
@@ -235,23 +216,66 @@ describe('SynthAudioBackend · voice 表与静默契约（ADR-0013）', () => {
     expect(busGains).toHaveLength(3);
   });
 
-  it('notes 序列逐音起振（2 音 = 2 个源）', () => {
+  it('多音 clip 离线渲染进**同一块** buffer，只起一个源（WXG-T-162）', () => {
     const h = makeBackend();
     h.backend.play('sfx_two_notes', { volume: 1, loop: false });
-    expect(h.rec.oscs).toHaveLength(2);
-    expect(h.rec.oscs[0]!.starts[0]).toBe(0);
-    expect(h.rec.oscs[1]!.starts[0]).toBe(0.1);
+    const shots = h.rec.sources.filter((s) => !s.loop);
+    expect(shots).toHaveLength(1);
+    const buffer = shots[0]!.buffer as FakeBuffer;
+    expect(buffer.length).toBe(Math.floor(44100 * 0.2)); // 总长 = 两音首尾覆盖
+    // 两段都有样本：包络/序列已在 CPU 侧烘完，不再依赖定时起振。
+    const half = Math.floor(buffer.length / 2);
+    let first = 0;
+    let second = 0;
+    for (let i = 0; i < half; i++) if (buffer.data[i] !== 0) first++;
+    for (let i = half; i < buffer.length; i++) if (buffer.data[i] !== 0) second++;
+    expect(first).toBeGreaterThan(0);
+    expect(second).toBeGreaterThan(0);
   });
 
-  it('噪声 clip 复用同一块噪声 buffer（§6.2 第 6 项的复用面）', () => {
+  it('一次性 clip 渲染缓存复用：同 id 二次播放不再 createBuffer，但另起新源', () => {
+    const h = makeBackend();
+    h.backend.play('sfx_test', { volume: 1, loop: false });
+    h.backend.play('sfx_test', { volume: 1, loop: false });
+    const shotBuffers = h.rec.buffers.filter((b) => b.length === Math.floor(44100 * 0.12));
+    expect(shotBuffers).toHaveLength(1);
+    expect(h.rec.sources.filter((s) => !s.loop)).toHaveLength(2);
+  });
+
+  it('噪声 clip 烘进 per-clip buffer（确定性 RNG，L4）且同 id 复用', () => {
     const h = makeBackend();
     h.backend.play('sfx_noisy', { volume: 1, loop: false });
     h.backend.play('sfx_noisy', { volume: 1, loop: false });
-    expect(h.rec.buffers.filter((b) => b.length === Math.floor(44100 * 0.25))).toHaveLength(1);
+    expect(h.rec.buffers.filter((b) => b.length === Math.floor(44100 * 0.2))).toHaveLength(1);
     const filled = (h.rec.buffers[0] as unknown as FakeBuffer).data;
     let nonzero = 0;
     for (let i = 0; i < filled.length; i++) if (filled[i] !== 0) nonzero++;
     expect(nonzero).toBeGreaterThan(0); // 确实写进了样本（确定性 RNG，L4）
+  });
+});
+
+describe('SynthAudioBackend · BD-51 存活配方（真机静音根因的机验面）', () => {
+  it('一次性源全部无参 start()：不碰 currentTime 定时启动通道', () => {
+    const h = makeBackend();
+    h.backend.play('sfx_test', { volume: 1, loop: false });
+    h.backend.play('sfx_two_notes', { volume: 1, loop: false });
+    h.backend.play('sfx_noisy', { volume: 1, loop: false });
+    const shots = h.rec.sources.filter((s) => !s.loop);
+    expect(shots).toHaveLength(3);
+    for (const src of shots) {
+      expect(src.starts).toHaveLength(1);
+      expect(src.starts[0]).toBeUndefined();
+    }
+  });
+
+  it('播放链上的增益节点只吃静态 .value（SynthParam 已无时间自动化入口）', () => {
+    const h = makeBackend();
+    h.backend.play('sfx_test', { volume: 0.5, loop: false });
+    const src = h.rec.sources.find((s) => !s.loop)!;
+    const env = src.connected[0] as FakeGain;
+    expect(env.gain.value).toBeCloseTo(0.5, 6);
+    // 类型面即铁律面：SynthParam 只有 value，编译期就写不进自动化调用。
+    expect(Object.keys(env.gain)).toEqual(['value']);
   });
 });
 
@@ -291,7 +315,7 @@ describe('SynthAudioBackend · loop 幂等与停复（A05-21/22）', () => {
     h.backend.play('sfx_test', { volume: 1, loop: false });
     h.backend.stopAll();
     expect(h.backend.activeLoops()).toEqual([]);
-    for (const osc of h.rec.oscs) expect(osc.stops.length).toBeGreaterThan(0);
+    for (const src of h.rec.sources) expect(src.stops.length).toBeGreaterThan(0);
   });
 
   it('循环缓冲只渲染一次（第二次起复用缓存）', () => {
@@ -336,6 +360,6 @@ describe('SynthAudioBackend · 零外部文件承诺（A05-25 的运行时面）
     expect(() => h.backend.play('sfx_test', { volume: 1, loop: false })).not.toThrow();
     h.backend.setVolume('sfx_test', -3);
     expect(() => h.backend.play('sfx_test', { volume: 1, loop: false })).not.toThrow();
-    expect(h.rec.oscs).toHaveLength(2);
+    expect(h.rec.sources.filter((s) => !s.loop)).toHaveLength(2);
   });
 });
