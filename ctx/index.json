@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3233,
       "lines": 118,
-      "sha256": "f14d3c3d37fca53e8f4bbed4e3034ff3f258105cbd8e0e8cf6d88896c04de14b",
+      "sha256": "68b3e85d3b955e9f3ad5653eed9f90f873d9ed7c6d6ebdc8ae8d55243468a558",
       "tier": "normal",
       "sections": [
         {
@@ -38223,9 +38223,9 @@
     },
     {
       "path": "my-rules/agents-md.md",
-      "tokens": 482,
+      "tokens": 486,
       "lines": 25,
-      "sha256": "a4dcfd82da4307487bbc8b4162b49cc3af3e90141cc6bdfd3ba5a16da79676f2",
+      "sha256": "742a0b166c0a46a1a568d0921a28b1f56b5b77c7d8104c65aab528419e4883d3",
       "tier": "always",
       "sections": [
         {
@@ -38233,7 +38233,7 @@
           "level": 1,
           "startLine": 8,
           "endLine": 26,
-          "tokens": 436,
+          "tokens": 440,
           "summary": "正本：my-rules/agents-md.md。四 IDE 规则路径均为指向本文件的相对符号链接（见 AGENTS.m",
           "keywords": [
             "AGENTS",
