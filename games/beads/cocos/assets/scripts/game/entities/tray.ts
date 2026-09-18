@@ -225,9 +225,45 @@ export class Tray {
   }
 
   /**
+   * v2.3 **点槽定落位**（WXG-T-168 用户裁定，**推翻 WXG-T-158 裁定①自动归类**）：
+   * 从 `startSlot` 起**向右扫描连续 `free` 槽**，依次写入至多 `count` 颗 `colorIdx`
+   * 珠，遇非 free 槽 / 越界即止 —— **不移位、不按同色插堆**。
+   * 因此落位区间恒为**连续相邻的一段**，起点 = 玩家点击的那个空槽。
+   *
+   * 与 `insertGrouped` 的关系：本方法是**玩法取回**的唯一落槽原语（组收进 / 单颗
+   * 收进同一口径）；`insertGrouped` 仅剩夹具与死路径（spawner）使用，其「紧凑 +
+   * 同色成块」不变式**不再约束玩法布局**（玩家自选起点可在珠列中留下空槽，后续
+   * `takeBead` 左移补位会自然整理）。
+   *
+   * @returns 实际写入颗数；`0` ⇒ 起点不可用或该处无连续空槽（调用方据此拒绝）。
+   */
+  insertRun(startSlot: number, colorIdx: number, count: number): number {
+    let written = 0;
+    for (let i = startSlot; i < this._slots.length && written < count; i++) {
+      const s = this._slots[i]!;
+      if (s.state !== 'free') break; // 连续空槽段用尽
+      s.state = 'holding';
+      s.colorIdx = colorIdx;
+      written++;
+    }
+    return written;
+  }
+
+  /** v2.3：从 `startSlot` 起的连续 `free` 槽数（点槽定落位的容量预判，越界/非 free ⇒ 0）。 */
+  freeRunFrom(startSlot: number): number {
+    let n = 0;
+    for (let i = startSlot; i >= 0 && i < this._slots.length; i++) {
+      if (this._slots[i]!.state !== 'free') break;
+      n++;
+    }
+    return n;
+  }
+
+  /**
    * Store a bead into a specific free slot (primitive; tests/fixtures and the
-   * dead spawner path). **v2.2 玩法落槽不再走本方法** —— 取回落槽 = 系统自动
-   * 归类 `insertGrouped`（tray-spawner §2.4 裁定①）；本方法不维持归类不变式。
+   * dead spawner path). **v2.3 玩法落槽不再走本方法** —— 取回落槽 = 玩家点槽
+   * `insertRun`（WXG-T-168 裁定，覆盖 v2.2 的自动归类 `insertGrouped`）；
+   * 本方法不维持任何布局不变式。
    */
   storeInto(slotIndex: number, colorIdx: number): boolean {
     const slot = this._slots[slotIndex];

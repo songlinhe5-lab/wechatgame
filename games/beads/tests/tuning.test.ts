@@ -157,12 +157,12 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
   it('keeps tray rows inside the design width, with both capacities row-aligned', () => {
     const rowWidth = TRAY_COLS * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP;
     expect(rowWidth).toBeLessThanOrEqual(DESIGN_W);
-    // v1.24（WXG-T-141/T-143）：基础 = 2 实心行、扩展 = +2 行（都是 TRAY_COLS 宽）。
-    expect(TRAY_BASE_SLOTS).toBe(2 * TRAY_COLS);
-    expect(TRAY_EXPAND_SLOTS).toBe(2 * TRAY_COLS);
-    // v1.25 带位修订：4 行扩展态面板（4×54−6+24=234）必须完整落带。
+    // v1.30（WXG-T-168，用户 2026-09-18「先开一行，扩容再开第二行」）：基础 = **1 实心行**、扩展 = **+1 行**（都是 TRAY_COLS 宽）。
+    expect(TRAY_BASE_SLOTS).toBe(1 * TRAY_COLS);
+    expect(TRAY_EXPAND_SLOTS).toBe(1 * TRAY_COLS);
+    // v1.25 带位修订：带高 234（未随 v1.30 改动，仍容 4 行态）；当前只需 2 行（126）。
     expect(TRAY_BAND.yMax - TRAY_BAND.yMin).toBeGreaterThanOrEqual(
-      4 * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP + 2 * 12,
+      2 * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP + 2 * 12,
     );
   });
 });

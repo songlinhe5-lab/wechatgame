@@ -251,25 +251,31 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
     expect(game.selection).toBe('board');
     expect(game.grid.cell(0, 0)!.state).toBe('filled'); // 错位珠保持
 
-    // WXG-T-148 ④：**槽位数量限制** —— 腾 1 槽 < 组大小 2 ⇒ 同路径仍拒。
+    // WXG-T-168 裁定②（**覆盖 WXG-T-148 ④「槽位数量限制 ⇒ 整组拒」**）：腾 1 槽
+    // < 组大小 2 ⇒ **部分收纳 1 颗**（= 距锚最近者），余珠留格、锚保持。
     // v2.2 组选改写：路由点 holding 珠 = 全组选中后批量归位，无法精确腾 1 槽
-    // ⇒ 腾槽改走 setup 直写（从**块尾**取珠保持归类紧凑不变式），路由判据本身不变。
+    // ⇒ 腾槽改走 setup 直写，路由判据本身不变。
     expect(game.tray.takeBead(TRAY_BASE_SLOTS - 1)).toBe(true);
     const ptLast = trayPoint(game, TRAY_BASE_SLOTS - 1); // 现 free → 4b 取回触发
     game.tapDesign(ptLast.x, ptLast.y);
-    expect(h.count('tray:stored')).toBe(0); // 仍不足 2 槽 ⇒ 整组拒（零事件）
-    expect(game.grid.cell(0, 0)!.state).toBe('filled');
-    expect(game.selection).toBe('board'); // 拒绝不动锚
+    expect(h.count('tray:stored')).toBe(1); // 只收 1 颗（旧口径为 0）
+    expect(game.grid.cell(0, 0)!.state).toBe('empty'); // 锚珠（最近）被收
+    expect(game.grid.cell(1, 1)!.state).toBe('filled'); // 次近留格
+    expect(game.tray.slot(TRAY_BASE_SLOTS - 1)!.colorIdx).toBe(3); // 落在被点槽
+    expect(game.selection).toBe('board'); // 锚改指剩余珠 ⇒ 仍为 board
 
-    // 再腾 1 槽（共 2 free = 组大小）⇒ 整组收进成功（2 次 stored）。
-    // v2.2 裁定①：落槽 = 自动归类——色 3 无同色堆 ⇒ 追加紧凑序列尾部（两新槽）。
+    // 再腾 1 槽 ⇒ 剩余 1 颗收进（累计 2 次 stored）。
+    // v2.3（WXG-T-168）：落槽 = **玩家点槽定落位**（覆盖 v2.2 自动归类）。
+    // ⚠ `takeBead` 会**左移补位**（§8-6b 紧凑不变式）⇒ 腾槽 22 后 free 的仍是
+    // **末槽 23**（槽 23 的珠左移到 22），故第二次点击仍落在 TRAY_BASE_SLOTS-1。
     expect(game.tray.takeBead(TRAY_BASE_SLOTS - 2)).toBe(true);
-    const ptPrev = trayPoint(game, TRAY_BASE_SLOTS - 2);
+    expect(game.tray.slot(TRAY_BASE_SLOTS - 1)!.state).toBe('free'); // 左移补位自证
+    const ptPrev = trayPoint(game, TRAY_BASE_SLOTS - 1);
     game.tapDesign(ptPrev.x, ptPrev.y);
     expect(h.count('tray:stored')).toBe(2);
     expect(game.grid.cell(0, 0)!.state).toBe('empty');
     expect(game.grid.cell(1, 1)!.state).toBe('empty');
-    expect(game.tray.slot(TRAY_BASE_SLOTS - 2)!.colorIdx).toBe(3); // 实际落位 = 归类尾
+    expect(game.tray.slot(TRAY_BASE_SLOTS - 2)!.colorIdx).toBe(3); // v2.3：实际落位 = 被点槽
     expect(game.tray.slot(TRAY_BASE_SLOTS - 1)!.colorIdx).toBe(3);
     expect(game.selection).toBe('none'); // 整组离格 ⇒ 锚清
   });

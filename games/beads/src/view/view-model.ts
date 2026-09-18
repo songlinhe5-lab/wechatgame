@@ -34,6 +34,7 @@ import {
   powerupCardRects,
   powerupLabelY,
   PUZZLE_BAND,
+  TRAY_BASE_SLOTS,
   TRAY_COLS,
   TRAY_PLATE,
   TRAY_SLOT,
@@ -933,6 +934,8 @@ function drawTray(
   palette: BeadsPalette,
 ): void {
   const rows = Math.ceil(snap.traySlots.length / TRAY_COLS);
+  // 基础（已开放）行数 —— 虚线语言**只属于扩展行**（`TRAY_BASE_SLOTS` 之后追加的行）。
+  const baseRows = Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS);
   // 几何单一真源（§3.4 v1.20）：与 S2 命中测试共用 `trayLayout()`。
   const lay = trayLayout(rows);
 
@@ -952,7 +955,9 @@ function drawTray(
     const cx = lay.slotCenterX(col);
     const cy = lay.slotCenterY(row);
     const slotBottom = cy - TRAY_SLOT / 2;
-    const dashed = row > 0; // expansion row keeps the dashed-slot language
+    // WXG-T-168：旧式 `row > 0` 把**基础容量的第 2 行**也画成虚线 ⇒ 玩家把已开放
+    // 的行误读成「未解锁/虚位」（正是上一轮「以为容量只有 12」的视觉来源）。
+    const dashed = row >= baseRows;
 
     if (slot.state === 'free') {
       if (dashed) {

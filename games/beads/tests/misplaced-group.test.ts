@@ -5,7 +5,9 @@ import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js'
  * 【WXG-T-162 用户裁定（2026-09-18），覆盖 WXG-T-157 旧口径】组选（连通块）+ 整组收进：
  *  - 锚起 **8 向（含对角）连通、同色、错位珠的完整连通块，不限步数**（「找相邻直到找不到」）；
  *    就位珠/锁定格/空格/异色错位珠均**阻断传播** ⇒ 旧 5×5 窗「隔珠同色连选」回归为不同组。
- *  - 取回 = 组内一次收进，仍只有槽位数量限制（free 槽 < 组大小 ⇒ 拒绝，零事件零状态写）。
+ *  - 取回 = 组内一次收进；**WXG-T-168 裁定② 改写容量口径**：free 槽 < 组大小 ⇒
+ *    **部分收纳**（收「距锚最近」的 N 颗，余珠留格、锚保持），旧「整组拒」作废；
+ *    零空槽仍是拒绝（零事件零状态写）。落槽口径见 `retrieve-landing.test.ts`。
  *  - board 锚直填（任意距离，同裁定）另见 `misplaced-direct-fill.test.ts`。
  *
  * 场景构造沿用 E1 判例：noAssemble 空盘 + goToLevel 进 playing + `fill(r,c,color)`
@@ -147,22 +149,29 @@ describe('WXG-T-162 整组一次收进', () => {
     expect(h.game.retrieveSelectedGroup()).toBe(false);
   });
 
-  it('free 槽 < 组大小 ⇒ 拒绝：零事件、零状态写、锚保持', () => {
-    // 组 3 颗；先塞 22 颗进托盘（24 槽 ⇒ free 2；v1.24 扩容后旧「10 颗/12 槽」不成立）。
+  it('free 槽 < 组大小 ⇒ **部分收纳**（WXG-T-168 裁定②）：收「距锚最近」的 N 颗、余珠留格、锚保持', () => {
+    // 组 3 颗；先塞 10 颗进托盘（v1.30：基础 12 槽 ⇒ free 2）。
     putMisplaced1(h, 1, 2);
     putMisplaced1(h, 2, 2);
     putMisplaced1(h, 3, 2);
     // giveTrayBead 返回槽号（-1 = 失败）；混色避开 needed 投影上限。
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 10; i++) {
       expect(h.game.giveTrayBead((i % 3) + 1)).toBeGreaterThanOrEqual(0);
     }
     const eventsBefore = h.all('tray:stored').length;
     expect(h.game.selectBoardBead(2, 2)).toBe(true);
+    // v2.3：旧「整组拒（false）」随 WXG-T-168 裁定② 作废 ⇒ 改为收满 2 颗即 true。
+    expect(h.game.retrieveSelectedGroup()).toBe(true);
+    const stored = h.all<{ slot: number; fromRow: number; fromCol: number }>('tray:stored');
+    expect(stored).toHaveLength(eventsBefore + 2); // 恰 2 次 stored
+    // **就近优先**：`cells` = BFS 距锚序 [(2,2) 锚, (1,2), (3,2)] ⇒ 收前 2 颗。
+    expect(h.game.grid.cell(2, 2)!.state).toBe('empty'); // 锚珠（最近）被收
+    expect(h.game.grid.cell(1, 2)!.state).toBe('empty'); // 次近被收
+    expect(h.game.grid.cell(3, 2)!.state).toBe('filled'); // 最远留格
+    expect(h.game.grid.isMisplaced(3, 2)).toBe(true);
+    // 锚保持（改指剩余珠）⇒ 可续点；此刻无空槽 ⇒ 再取回 false 且零新事件。
     expect(h.game.retrieveSelectedGroup()).toBe(false);
-    expect(h.all('tray:stored')).toHaveLength(eventsBefore); // 零新事件
-    // 零状态写：珠仍在格上（错位）。
-    expect(h.game.grid.cell(2, 2)!.state).toBe('filled');
-    expect(h.game.grid.isMisplaced(2, 2)).toBe(true);
+    expect(h.all('tray:stored')).toHaveLength(eventsBefore + 2);
   });
 
   it('组收进后归位通路不受影响：托盘珠仍可点空格（judgePlacement 裁决）', () => {

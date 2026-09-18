@@ -133,19 +133,28 @@ export const GRID_MIN_ROWS = 5;
 
 // ───────────────────────────────────────────────────────────── §3.4 tray
 /**
- * Base tray capacity（v1.24 冻结变更 12→24，WXG-T-141 用户 2026-09-17 拍板；
- * 2 行 × 12。**WXG-T-143 工程适配落码**：面板尺寸按
- * `design/proposals/tray-24-layout-derivation.md` 推导定稿（panelH 120，
- * y∈[330,450]，贴带顶锚定；`btn_expand` 净空 12px 与旧 1 行态一致）。
- * `Tray` 实体与 `trayLayout(rows)` 的行数均为 capacity 派生 ⇒ 本值切换零接线。
+ * Base tray capacity（**v1.30 冻结变更 24→12**，WXG-T-168，用户 2026-09-18 真机
+ * 体检裁定「版面没有那么多槽 ⇒ 先开放一行 12 个槽，扩容再开放第二行」；
+ * **1 行 × 12**）。
+ *
+ * 诚实记录（负面后果，不得隐去）：
+ *  - **推翻 v1.24（WXG-T-141，用户 2026-09-17 拍板 6→24）的取值**；v1.24「24 槽 =
+ *    从容批量取回」的论述随之作废，空间压力回升 —— 与 WXG-T-168 同批落码的
+ *    **部分收纳**（空槽不足只收距锚最近 N 颗）叠加 ⇒ **部分收纳触发频率显著上升**，
+ *    属用户明示取舍（扩容是解压阀）。
+ *  - 布局：面板高度随行数派生（`trayLayout(rows)`），1 行 ⇒ panelH 72，仍**贴带顶
+ *    锚定**（v1.20 规则不变、零特判）；带上沿以下的富余区域为扩展行预留位
+ *    （未扩容时该区域不画任何槽）。
+ *  `Tray` 实体与 `trayLayout(rows)` 的行数均为 capacity 派生 ⇒ 本值切换零接线。
  */
-export const TRAY_BASE_SLOTS = 24;
+export const TRAY_BASE_SLOTS = 12;
 /**
- * Expansion capacity（v1.24 冻结变更 12→24，同上；扩展后 48 槽 4 行，panelH 234，
- * y∈[216,450] —— `TRAY_BAND.yMin` 已随 v1.25 修订为 216）。扩展后 `btn_expand`
- * 隐藏（热区被 4 行面板覆盖，row2/row3 槽心落入其中）。
+ * Expansion capacity（**v1.30 冻结变更 24→12**，同上）：**+1 行 × 12 = 12 槽**，
+ * 扩展后共 24 槽（2 行）。扩展行沿用虚线槽语言（WXG-T-168 修 `dashed = row > 0`
+ * 误判：旧式把基础第 2 行也画成虚线，导致玩家误读为「未开放」）。
+ * 扩展后 `btn_expand` 语义不变（MVP 角标占位、无广告调用）。
  */
-export const TRAY_EXPAND_SLOTS = 24;
+export const TRAY_EXPAND_SLOTS = 12;
 /** Slots per tray row. */
 export const TRAY_COLS = 12;
 /** Slot edge length. */

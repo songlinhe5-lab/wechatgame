@@ -862,20 +862,21 @@ export class BeadsGame implements Game {
 
   /**
    * v2.0 取回命令（Epic T-133 E1）— the S2 route 4b → S3/S4 pair-write as a
-   * public command. Takes the explicit misplaced cell `(row, col)`; **v2.2
-   * (WXG-T-158 用户裁定①) 落槽 = S4 自动归类**（同色堆尾部，tray-spawner §2.1），
-   * 玩家点击的空槽仅作路由触发信号，不再是 API 参数（旧 `targetSlot` 随裁定删除）。
+   * public command. Takes the explicit misplaced cell `(row, col)`; **v2.3
+   * (WXG-T-168 用户裁定，推翻 v2.2 裁定①) 落槽 = 玩家点槽定落位**：`landSlot`
+   * = 玩家点击的空槽，珠**就落在那一槽**（`insertRun`）。未传 `landSlot` ⇒ 退回
+   * v2.2 的 `insertGrouped` 自动归类（夹具 / 死路径兼容，玩法入口必传）。
    *
-   * On success: grid `filled(错位)` → `empty` + 自动归类入槽 in the same call
+   * On success: grid `filled(错位)` → `empty` + 入槽 in the same call
    * stack, then `tray:stored {slot, colorIdx, fromRow, fromCol}` — `slot` =
    * 实际落位. Every refusal branch is ZERO-EVENT (满槽禁取珠 §3.13; locked/就位
    * taps get their 极轻反馈 from the S2/view layer, never from here).
    *
    * @returns true only when the retrieval was stored.
    */
-  retrieveBead(row: number, col: number): boolean {
+  retrieveBead(row: number, col: number, landSlot?: number): boolean {
     if (this._machine.current !== 'playing') return false;
-    const verdict = judgeRetrieve(this._grid, this._tray, row, col);
+    const verdict = judgeRetrieve(this._grid, this._tray, row, col, landSlot);
     if (verdict.outcome === 'stored') {
       this._emit('tray:stored', {
         slot: verdict.slot,
@@ -893,26 +894,78 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * 整组取回（WXG-T-148 用户裁定 ③④；**v2.2 裁定① 改写落槽口径**）：把 board 锚的
-   * 错位珠组一次收进托盘。限制**只有槽位数量**（组大小 ≤ free 槽数，不足 ⇒
-   * 整组拒、零事件零状态写，满槽禁取珠 §3.13 的组化推广）；逐颗落槽 = S4 自动
-   * 归类（`retrieveBead` 内部），旧「preferred 槽优先 + 升序补足」随裁定作废。
+   * 整组取回（WXG-T-148 裁定 ③④；**v2.3 WXG-T-168 重写落槽与容量口径**）：把
+   * board 锚的错位珠组**一次**收进托盘，落位 = 从玩家点击的空槽 `targetSlot`
+   * 起**连续相邻**排布（`Tray.insertRun`），推翻 v2.2 裁定① 的「自动归类 /
+   * 点槽仅作触发信号」。
    *
-   * 逐颗复用 `retrieveBead`（judgeRetrieve 逐颗原子 + 逐颗 `tray:stored`）；万一
-   * 中途失败（理论不可达）保守中断、锚保持。
+   * **容量口径（WXG-T-168 用户裁定②，替换旧「整组拒」）**：可收数
+   * `count = min(组大小, 从 targetSlot 起的连续空槽数)` —— **有多少空槽就收多少
+   * 颗**；所收 = 组珠中**离点击位置（锚珠）最近的 `count` 颗**（`_nearestFirst`
+   * 重排：因 `collectMisplacedGroup` 给的是**行主序**，不是距锚序）。
+   * 收满 ⇒ 锚清除；未收满 ⇒ 剩余珠留在 board 且**锚改指剩余首颗**（可续点，
+   * 锚变更属内部状态，**不发事件**）。
+   * 连续空槽数 = 0 ⇒ 拒绝（零事件零状态写，满槽禁取珠 §3.13 的组化推广）。
    *
-   * @returns true only when the WHOLE group was stored.
+   * 逐颗复用 `retrieveBead`（judgeRetrieve 逐颗原子 + 逐颗 `tray:stored`）；
+   * 万一中途失败（理论不可达）保守中断。
+   *
+   * @param targetSlot 玩家点击的空槽；省略 ⇒ 回退第一个空槽（夹具 / 旧调用兼容）。
+   * @returns 至少收进 1 颗即 true。
    */
-  retrieveSelectedGroup(): boolean {
+  retrieveSelectedGroup(targetSlot?: number): boolean {
     if (this._machine.current !== 'playing') return false;
     const anchor = this._boardSelected;
     if (!anchor) return false;
-    if (this._tray.freeCount < anchor.cells.length) return false; // 槽位限制
-    for (const c of anchor.cells) {
-      if (!this.retrieveBead(c.row, c.col)) return false; // 保守中断
+    const start = targetSlot ?? this._tray.firstFree();
+    if (start < 0) return false; // 满槽：无任何空槽
+    // 就近优先：`collectMisplacedGroup` 返回**行主序**（grid.ts 末尾 sort），与
+    // 「离点击位置近」无关 ⇒ 先按到锚珠的距离重排，再从头截取。
+    const ordered = this._nearestFirst(anchor.row, anchor.col, anchor.cells);
+    const count = Math.min(ordered.length, this._tray.freeRunFrom(start));
+    if (count <= 0) return false; // 该处无连续空槽 ⇒ 零事件零状态写
+    for (let i = 0; i < count; i++) {
+      const c = ordered[i]!;
+      if (!this.retrieveBead(c.row, c.col, start + i)) break; // 保守中断（理论不可达）
     }
-    this._boardSelected = null; // 整组离格 ⇒ 锚失效
+    if (count >= ordered.length) {
+      this._boardSelected = null; // 整组离格 ⇒ 锚失效
+    } else {
+      // 部分收纳：剩余珠仍在格上 ⇒ 锚改指剩余首颗（距序 ⇒ 仍是最近的未收珠）。
+      const rest = ordered.slice(count);
+      const head = rest[0]!;
+      this._boardSelected = { row: head.row, col: head.col, color: anchor.color, cells: rest };
+    }
     return true;
+  }
+
+  /**
+   * WXG-T-168 裁定②「**以当前点击位置越近越优先选择**」：把组珠按**到点击位置
+   * （锚珠）的距离**升序重排。
+   *
+   * 为什么必须重排：`collectMisplacedGroup`（grid.ts）末尾有一句行主序 `sort`，
+   * 其返回值是**行主序而非距锚序** —— 锚在组中段时，上方行的珠会被排到最前，
+   * 直接取前 N 颗会「先收最远的」。故此处重排后再截取。
+   *
+   * 排序键 = 欧氏距离平方（整数、免开方）；平局 ⇒ 行主序（`sort` 稳定 ⇒ 确定性）。
+   * 输入路径调用（一次点击一次）⇒ `slice` + `sort` 的分配可接受（同 `planGroupFill` 判例）。
+   */
+  private _nearestFirst(
+    row: number,
+    col: number,
+    cells: ReadonlyArray<{ row: number; col: number }>,
+  ): { row: number; col: number }[] {
+    const cols = this._grid.cols;
+    return cells.slice().sort((a, b) => {
+      const dra = a.row - row;
+      const dca = a.col - col;
+      const drb = b.row - row;
+      const dcb = b.col - col;
+      const da = dra * dra + dca * dca;
+      const db = drb * drb + dcb * dcb;
+      if (da !== db) return da - db;
+      return a.row * cols + a.col - (b.row * cols + b.col); // 平局 ⇒ 行主序
+    });
   }
 
   /**
@@ -1875,8 +1928,9 @@ export class BeadsGame implements Game {
     }
     const anchor = this._boardSelected;
     if (!anchor) return; // 4b 无 board 锚：零事件忽略（见方法头注）
-    // v2.2 裁定①：点击的空槽仅作触发信号，逐颗落槽 = S4 自动归类。
-    this.retrieveSelectedGroup();
+    // v2.3（WXG-T-168）：点击的空槽 = 落位起点（`slot` 即 API 参数，v2.2「仅触发
+    // 信号」口径作废）；容量不足 ⇒ 按距锚就近部分收纳。
+    this.retrieveSelectedGroup(slot);
   }
 
   /**

@@ -2,10 +2,12 @@
  * Retrieve — the S3 adjudication for one bead-retrieval request
  * (bead-grid §2.3 路径 A · 取回, v2.1; systems-index §3.13 取回前提).
  *
- * Input `(row, col)` comes from S2 (route 4b — the tapped free slot is only a
- * TRIGGER signal) or tests/harness commands. **v2.1 (WXG-T-158 用户裁定①)**:
- * the landing slot is NO LONGER player-chosen — S4 auto-inserts the bead at
- * the tail of its colour block (tray-spawner §2.1 归类不变式, `insertGrouped`).
+ * Input `(row, col)` comes from S2 (route 4b) or tests/harness commands.
+ * **v2.3 (WXG-T-168 用户裁定，推翻 v2.1/WXG-T-158 裁定①)**: the landing slot is
+ * PLAYER-CHOSEN again — `landSlot` = 玩家点击的空槽，整组从该槽起**连续相邻**
+ * 排布（`insertRun`）。未传 `landSlot` 时退回 `insertGrouped` 自动归类（v2.1
+ * 口径），仅供夹具 / 死路径兼容，**玩法入口必传**。
+ * 备注：v2.1 曾把点槽降级为「仅触发信号」；用户 2026-09-18 复测后推翻该条。
  *
  * Rules (v2.1, all zero-event when not stored):
  *   1. target cell not `filled(错位)` (locked/empty/void/就位珠) → ignored —
@@ -38,6 +40,7 @@ export function judgeRetrieve(
   tray: Tray,
   row: number,
   col: number,
+  landSlot?: number,
 ): RetrieveVerdict {
   // (row,col) out of bounds → ignore + warn (caller logs).
   if (!grid.cell(row, col)) {
@@ -55,10 +58,29 @@ export function judgeRetrieve(
     return { outcome: 'ignored', row, col, reason: 'tray-full' };
   }
 
+  // v2.3 点槽定落位（WXG-T-168）：**先校验落槽再动 grid** —— 落槽不可用就必须
+  // 零状态写，事后回滚 `grid.retrieve` 会把「取回」变成可逆难题，故前置到写之前。
+  if (landSlot !== undefined) {
+    const target = tray.slot(landSlot);
+    if (!target || target.state !== 'free') {
+      return { outcome: 'ignored', row, col, reason: 'tray-full' };
+    }
+  }
+
   // Same-call-stack atomic pair-write (core-loop §2.2.2 输入段): grid
-  // `filled(错位)` → `empty` + S4 自动归类插入（v2.1 裁定①：落位 = 同色堆尾部，
-  // 无同色堆追加紧凑序列末尾）。freeCount > 0 已查 ⇒ insertGrouped 必成功。
+  // `filled(错位)` → `empty` + 落槽。
+  // v2.3（WXG-T-168 裁定，覆盖 v2.1 裁定①）：`landSlot` 给定 ⇒ 玩家点槽定落位
+  // （`insertRun`，整组连续相邻）；未给定 ⇒ 退回 `insertGrouped` 自动归类（夹具
+  // / 死路径兼容，非玩法入口）。两条前置已查 ⇒ 落槽必成功。
   const colorIdx = grid.retrieve(row, col);
-  const slot = tray.insertGrouped(colorIdx);
+  const slot =
+    landSlot === undefined
+      ? tray.insertGrouped(colorIdx)
+      : tray.insertRun(landSlot, colorIdx, 1) === 1
+        ? landSlot
+        : -1;
+  if (slot < 0) {
+    return { outcome: 'ignored', row, col, reason: 'tray-full' }; // 理论不可达（前置已查）
+  }
   return { outcome: 'stored', slot, colorIdx, fromRow: row, fromCol: col };
 }

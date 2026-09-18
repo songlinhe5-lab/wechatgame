@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 53,
+  "nextId": 57,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -778,7 +778,7 @@
       "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号",
-      "contentHash": "d0fd94d1f64843f9119bcfa56003e0372ec5db5f2d93f469945dfacf9ef93834",
+      "contentHash": "37d4f9951ec99b672a1b8c83ec80e1d8fb3fc4af8e435a62445ee6e42fccdb5f",
       "sourceTask": "WXG-T-106",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -884,6 +884,74 @@
       "sourceTask": "WXG-T-150",
       "addedDate": "2026-09-17",
       "lastAccess": "2026-09-17",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-053",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定",
+      "contentHash": "9e9e19fcb27bc16658b342000214b03d3b42bb20b25c61ab6d47782b5041e75b",
+      "sourceTask": "WXG-T-165",
+      "addedDate": "2026-09-18",
+      "lastAccess": "2026-09-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-054",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "「未登记」不等于「已证伪」：纸面缺账不能推翻真机实证，回滚前必须分清这两种缺失",
+      "contentHash": "e83eb8720a0778c0a51b332901b8053344059a61e21fa4eb70e310630528fa03",
+      "sourceTask": "WXG-T-129",
+      "addedDate": "2026-09-18",
+      "lastAccess": "2026-09-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-055",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "「连通块」API 的返回序是行主序、不是距锚序：「就近/最近」语义取前 N 前必须显式重排",
+      "contentHash": "31339bf906118669d9e629480ba07c4d5cfa5f9fb97fa9e33277bad4bdfeec1e",
+      "sourceTask": "WXG-T-168",
+      "addedDate": "2026-09-18",
+      "lastAccess": "2026-09-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-056",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "渲染里「未解锁/扩展」的视觉语言必须随容量语义常量派生：裸行号判定会把已开放行画成未开放，并反噬成「假容量」缺陷报告",
+      "contentHash": "93ddc21c204b24c6588e78bc800cf496375f41ff185712806f0f12716065c88d",
+      "sourceTask": "WXG-T-168",
+      "addedDate": "2026-09-18",
+      "lastAccess": "2026-09-18",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -1141,6 +1209,35 @@
       "kind": "updated",
       "ids": [
         "K-051"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-18",
+      "taskId": "WXG-T-165",
+      "kind": "added",
+      "ids": [
+        "K-053",
+        "K-054"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-18",
+      "taskId": "WXG-T-168",
+      "kind": "added",
+      "ids": [
+        "K-055",
+        "K-056"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-18",
+      "taskId": "WXG-T-168",
+      "kind": "updated",
+      "ids": [
+        "K-046"
       ],
       "note": null
     }
