@@ -709,3 +709,25 @@
 - **门禁证据（本单 retry 扣心段）**：`framework:sync`（beads 写入 3）+ beads `tsc --noEmit` 净 + 全量 beads 测试 **458 passed**（453+5）+ `cocos:check` 两游戏过 + beads `--release` 重建（17.7s）+ `verify` **16/17**（唯一 FAIL = `check:secrets` project.config.json:22 AppID 既有挂账，非本单引入）+ ux-spec v1.8（§3.5 重试扣心注 + §4 矩阵 GAME_OVER 拆有心/0 心）。
 - **待办**：~~批0 落码与测试~~（已完成，`79f217a`：shell/meta-state/sidecar/settings v4/签到·体力·钱包内聚于 meta-state/menu 路由/meta-view/harness `?meta=`；458 绿）；真机复验（震动行仅 weapp 显示、签到跨天、菜单路由、扣心/续进口径）；`gdd/meta-ui.md` GDD 与 ui-kit 独立图元层**未随批0 落盘**（S10 行仍标待建，归批1 同批补）；批1/批2 另单。
 - **入库（2026-09-18 提交会话）**：六文回写 + 批0 落码随 `79f217a` 提交（与 T-162 交织文件合笔，头注双挂）；本单 B4 门禁中 `check:secrets` 存量 FAIL 已由根配置 `.gitignore` 处置闭合（见 `## WXG-T-161` 处置核销，随 `2f62027`）。
+
+## WXG-T-165
+
+**beads·真机首验反馈修复批（白环移除 + 回主菜单弃本局棋盘）** · 负责：主理人(Qoder) · 状态：✅ 已落码待重建复验（代码 + 文档同批、beads 455 例绿、framework:sync/links 绿；待 `build:cocos` 重建后进真机）
+
+- **缘起（用户真机首验五项回报，2026-09-18）**：P0-A 点击命中 / P0-B 音频 / P0-C 玩法 / P0-D 元游戏 / P1 视觉均 OK；两项修正裁定 + 一项缺功另立 T-166。
+- **① 白环移除（P0-C）**：错位珠「恒亮白描边」（T-148 用户反馈①）经真机验证用户裁定「不要白环」⇒ 移除 `view-model.ts` `selectableRing` 赋值与 `bead-render.ts` 字段/描边块；**保留组选抬起（反馈②③④）与相 A 状态环**。无障碍提醒：白环原为近似色「色≠底」辨识补充，移除后仍由 L5 符号 + 相 A 环承担（影响可控）。同步删 `solver-vfx.test.ts` 三条白环专测（几何/互斥/图元口径）、剪孤儿 import。
+- **② 回主菜单弃本局棋盘（P0-D，反转 §3.14/S9）**：用户裁定「回主菜单不保留进度」⇒ `beads-shell.startGame()` 删「在途 PAUSED 续进不扣心」分支，改为每次 `goToLevel(levelIndex)` 复位当前关 + 扣 1 心；关卡解锁进度/当前关指针不变（0 心留菜单走回满）。选「弃棋盘不退心」（非退心项）。连带：删死方法 `beads-game.resumeFromPause()`（唯一调用者已移除）+ 改 `go-menu` 注释。**注**：局内暂停「继续游戏」仍走 play 内部 `machine.transition('playing')`，不受本反转影响。
+- **文档同批（§3.14 数值零改、仅行为反转）**：systems-index **v1.29**（版本头 + S9 行 + changelog v1.29）；pause-settings **v1.4**（§2.2 行 + §8-11 判据 + §9）。`STAMINA_START_COST=1` 不变，仅「新局」集合扩大。
+- **测试**：`beads-shell.test.ts` 续进条改写为「回主菜单弃本局→重进再扣心」；beads 全量 **40 files / 455 tests 绿**；tsc 净。
+- **真机首验结论回写（本会话）**：T-128 首验包 P0-1..P1-7 → ✅；T-129/T-161 触摸点击 → ✅（SHOW_ALL 已重开，产物 policy:2）；T-162 五项 → ✅（除白环，已本单移除）；T-164 菜单路由→本单按用户新裁定反转。余低优 UX 待裁③不阻塞。
+- **待办**：`build:cocos` 重建后回真机复验本两项（白环不在、回主菜单重进为新局）。
+
+## WXG-T-166
+
+**beads·棋盘区双指缩放 + 单指拖拽（立项）** · 负责：待程基岩(eng) + 文策渊(UX) · 状态：📋 已立项、**施工阻塞待 ADR**（框架多点输入前置）
+
+- **缘起（P1 真机反馈）**：用户「缺个功能，可双指放大缩小、单指左右移动」。用户已钉范围 = **仅棋盘玩法区缩放/平移**（HUD/托盘/面板不缩放）。
+- **设计已有意向**：concept v1.24/D13、systems-index v1.24 changelog③、ux-spec v1.6、input-control v2.2 已将「双指捻合缩放」列为 **Should**（无滑轨/按钮）。
+- **前置阻塞（硬）**：框架 `InputManager` 为**单指针设计**（`_ownerId` 首指独占、`input-manager.ts:99`「Ignore secondary touches」），`InputSnapshot` 只暴露一组 x/y ⇒ **双指捻合无法在玩法层表达**。解锁需二选一（均需 ADR）：**(甲)** 扩 `core/input` 为多点快照（触 **L2** core 引擎无关 + 影响 breakout，面大）；**(乙)** Cocos 适配层新增第二条触摸通道→游戏专用服务（触 **L3**、适配层）。未裁。
+- **高危面声明**：缩放后的「触摸→格子」需逆变换（屏→设→棋盘局部），**正是 BD-48/T-129/T-161 同一 hit-test 通道** ⇒ 不得绕过回归网直接实现（K-037 屏幕层取证）。
+- **下一步**：待用户/主理人就甲/乙 定 ADR → 拆子任（框架输入扩展 / 棋盘变换建模 / hit-test 逆变换 / 缩放限幅与钓制 / 双拍复位）+ QA 判据。本会话不动 hit-test 通道。
