@@ -20,5 +20,6 @@ trigger: always_on
 - 数值真源 → `games/<game>/design/gdd/systems-index.md` §3
 - 全量验证 → `pnpm run verify`；提交前链接门 → `pnpm run check:links`（见 `docs/agent/hooks-best-practices.md`）
 - 先问再写；不伪造编辑器产物；不擅自 commit/push
+- **会话收尾触发分析**：整段会话结束时，列本会话内每个被触发 skill 一行——名称/职责 + 调用次数 + 触发方式（自动命中 / 手动 Skill 工具）；无触发则写「无」
 
 不要把 `game-studio` / `game-dev-tool-free` 当默认入口。

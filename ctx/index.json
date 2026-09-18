@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3233,
       "lines": 118,
-      "sha256": "5e895f888a03c34d781c320db35f5afc8b671845ec8be41e2890f4fa9945dfcb",
+      "sha256": "f14d3c3d37fca53e8f4bbed4e3034ff3f258105cbd8e0e8cf6d88896c04de14b",
       "tier": "normal",
       "sections": [
         {
@@ -38223,17 +38223,17 @@
     },
     {
       "path": "my-rules/agents-md.md",
-      "tokens": 413,
-      "lines": 24,
-      "sha256": "3525144e42755d7f5506ee6c47260b7a58266b795fd775b0aaaba62b09675916",
+      "tokens": 482,
+      "lines": 25,
+      "sha256": "a4dcfd82da4307487bbc8b4162b49cc3af3e90141cc6bdfd3ba5a16da79676f2",
       "tier": "always",
       "sections": [
         {
           "anchor": "§遵循项目 AGENTS.md 与 MEMORY",
           "level": 1,
           "startLine": 8,
-          "endLine": 25,
-          "tokens": 368,
+          "endLine": 26,
+          "tokens": 436,
           "summary": "正本：my-rules/agents-md.md。四 IDE 规则路径均为指向本文件的相对符号链接（见 AGENTS.m",
           "keywords": [
             "AGENTS",
