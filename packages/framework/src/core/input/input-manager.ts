@@ -40,6 +40,19 @@ export interface InputSnapshot {
   readonly dy: number;
   /** Seconds the current press has been held (0 when not down). */
   readonly holdTime: number;
+  /**
+   * Second-pointer (pinch) state — WXG-T-169 / ADR-0015 甲′. Only two pointers
+   * are tracked; a third finger is ignored. Owner fields above keep identical
+   * single-pointer semantics, so breakout-style games are unaffected.
+   * Deliberately no `justDown2`/`justUp2`: gameplay derives gesture edges from
+   * `isDown2` across frames.
+   */
+  readonly isDown2: boolean;
+  /** Second pointer position / per-frame delta, in screen pixels. */
+  readonly x2: number;
+  readonly y2: number;
+  readonly dx2: number;
+  readonly dy2: number;
 }
 
 const EMPTY: InputSnapshot = Object.freeze({
@@ -51,6 +64,11 @@ const EMPTY: InputSnapshot = Object.freeze({
   dx: 0,
   dy: 0,
   holdTime: 0,
+  isDown2: false,
+  x2: 0,
+  y2: 0,
+  dx2: 0,
+  dy2: 0,
 });
 
 /**
@@ -83,6 +101,14 @@ export class InputManager {
   private _snapshot: InputSnapshot = EMPTY;
   /** The pointer id that owns the current gesture (first pointer down wins). */
   private _ownerId: number | null = null;
+  // Second-pointer (pinch) slot — flat scalars, no array/object, mirroring
+  // ADR-0014's "scalar not object" hot-path rule (WXG-T-169 / ADR-0015 甲′).
+  private _id2: number | null = null;
+  private _isDown2 = false;
+  private _x2 = 0;
+  private _y2 = 0;
+  private _prevX2 = 0;
+  private _prevY2 = 0;
 
   get isDown(): boolean {
     return this._isDown;
@@ -96,7 +122,7 @@ export class InputManager {
   push(sample: PointerSample): void {
     switch (sample.phase) {
       case 'down':
-        // Ignore secondary touches: breakout-style games use one pointer.
+        // Slot 0 = owner (single-pointer semantics unchanged from before).
         if (this._ownerId === null) {
           this._ownerId = sample.id;
           this._isDown = true;
@@ -105,12 +131,23 @@ export class InputManager {
           this._holdTime = 0;
           this._x = sample.x;
           this._y = sample.y;
+        } else if (sample.id !== this._ownerId && this._id2 === null) {
+          // Slot 1 = second distinct pointer (pinch). No justDown (owner-only).
+          this._id2 = sample.id;
+          this._isDown2 = true;
+          this._x2 = sample.x;
+          this._y2 = sample.y;
+          this._prevX2 = sample.x;
+          this._prevY2 = sample.y;
         }
         break;
       case 'move':
         if (sample.id === this._ownerId) {
           this._x = sample.x;
           this._y = sample.y;
+        } else if (sample.id === this._id2) {
+          this._x2 = sample.x;
+          this._y2 = sample.y;
         }
         break;
       case 'up':
@@ -120,7 +157,15 @@ export class InputManager {
           this._y = sample.y;
           this._isDown = false;
           this._upThisFrame = true;
+          // Do NOT promote the second pointer to owner (ADR-0015 §3.2-3): that
+          // would misread the tail of a pinch as a single-finger drag (甩图).
+          // Slot 1 keeps its own id/down until it lifts on its own.
           this._ownerId = null;
+        } else if (sample.id === this._id2) {
+          this._x2 = sample.x;
+          this._y2 = sample.y;
+          this._isDown2 = false;
+          this._id2 = null;
         }
         break;
     }
@@ -131,6 +176,8 @@ export class InputManager {
     this._prevDown = this._isDown;
     this._prevX = this._x;
     this._prevY = this._y;
+    this._prevX2 = this._x2;
+    this._prevY2 = this._y2;
     // NOTE: intentionally does NOT clear `_downThisFrame` / `_upThisFrame`.
     // On event-driven hosts (Cocos) native input arrives *between* frames —
     // after the previous `endFrame` and before the next `beginFrame` — so
@@ -146,6 +193,8 @@ export class InputManager {
     const justUp = this._upThisFrame || (!this._isDown && this._prevDown);
     const dx = this._x - this._prevX;
     const dy = this._y - this._prevY;
+    const dx2 = this._x2 - this._prevX2;
+    const dy2 = this._y2 - this._prevY2;
     this._snapshot = Object.freeze({
       isDown: this._isDown,
       justDown,
@@ -155,6 +204,11 @@ export class InputManager {
       dx,
       dy,
       holdTime: this._isDown ? this._holdTime : 0,
+      isDown2: this._isDown2,
+      x2: this._x2,
+      y2: this._y2,
+      dx2,
+      dy2,
     });
     return this._snapshot;
   }
@@ -181,6 +235,12 @@ export class InputManager {
     this._upThisFrame = false;
     this._ownerId = null;
     this._holdTime = 0;
+    this._id2 = null;
+    this._isDown2 = false;
+    this._x2 = 0;
+    this._y2 = 0;
+    this._prevX2 = 0;
+    this._prevY2 = 0;
     this._snapshot = EMPTY;
   }
 
