@@ -198,17 +198,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3227,
-      "lines": 118,
-      "sha256": "eb6b1d04d9b2faf9c4341fafb76f9000c1dba9bc1241386425d5b0fbea9f8639",
+      "tokens": 3267,
+      "lines": 119,
+      "sha256": "c462c5fba13c5c69b814c68ac06dca968f87c742cc98b6dd1587e7b9339fe578",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 119,
-          "tokens": 3214,
+          "endLine": 120,
+          "tokens": 3254,
           "summary": "生成：2026-09-18 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 458,
+          "tokens": 459,
           "summary": "1 production/qa/beads/g4-regression-report.md 86807 2201 nor",
           "keywords": [
             "Top",
@@ -252,8 +252,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 93,
-          "tokens": 1662,
+          "endLine": 94,
+          "tokens": 1702,
           "summary": "production/qa/beads/g4-regression-report.md 86807 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -267,8 +267,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 94,
-          "endLine": 119,
+          "startLine": 95,
+          "endLine": 120,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4520,
       "lines": 82,
-      "sha256": "e8477ab202d8636084facf31b19ddd4e34d6b8af63e24acc8bf3ba012398ac65",
+      "sha256": "ac6dd574d91c040d6631d41c28943eaeade2753995e41f50511b8616cbbb2de1",
       "tier": "normal",
       "sections": [
         {
@@ -4984,6 +4984,358 @@
             "Review",
             "scale",
             "复评"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md",
+      "tokens": 11343,
+      "lines": 242,
+      "sha256": "30d2f281ca80ac7a5ba84838c00f6fadf78a0660bce6f16816ae52db6613ca2f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0015 — 棋盘区双指缩放 + 单指平移：多点输入槽进 `core/input`，区域变换走「布局即相机」",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 243,
+          "tokens": 11304,
+          "summary": "编号：ADR-0015（0008 跳空合规沿 ADR-0013/0014 注；0009–0014 已用；号只分配不回收）",
+          "keywords": [
+            "core/input",
+            "ADR",
+            "core",
+            "input",
+            "棋盘区双指缩",
+            "单指平移"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 14,
+          "endLine": 79,
+          "tokens": 2016,
+          "summary": "",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§1.1 直接动因（用户真机反馈）",
+          "level": 3,
+          "startLine": 16,
+          "endLine": 23,
+          "tokens": 226,
+          "summary": "用户在微信真机验证后提出缺功：「缺个功能，可双指放大缩小、单指左右移动」（WXG-T-166 立项单原文）。范围已由用户",
+          "keywords": [
+            "WXG",
+            "直接动因",
+            "用户真机反馈"
+          ]
+        },
+        {
+          "anchor": "§1.2 驱动它的更大系统：盘面小**不是数值保守，是被「不缩放必须塞进屏幕」倒逼的上限**",
+          "level": 3,
+          "startLine": 24,
+          "endLine": 36,
+          "tokens": 315,
+          "summary": "用户另一条反馈是「每关盘面珠子太少、缺少连续珠子」。经核实，这条批评的根因不在数值表，证据链在 systems-inde",
+          "keywords": [
+            "systems",
+            "inde",
+            "驱动它的更大",
+            "系统",
+            "盘面小",
+            "不是数值保守"
+          ]
+        },
+        {
+          "anchor": "§1.3 图鉴诉求，以及本文**不**决策的部分（诚实划界）",
+          "level": 3,
+          "startLine": 37,
+          "endLine": 45,
+          "tokens": 327,
+          "summary": "用户另希望在主页面做图鉴：每张图 = 9 宫格或 16 宫格，每格是一个由拼豆不同颜色拼成的拼图版面。现状核实：",
+          "keywords": [
+            "图鉴诉求",
+            "以及本文",
+            "决策的部分",
+            "诚实划界"
+          ]
+        },
+        {
+          "anchor": "§1.4 三条既有约束（已逐字读过，本文正面处理）",
+          "level": 3,
+          "startLine": 46,
+          "endLine": 73,
+          "tokens": 956,
+          "summary": "约束 A —— ADR-0011 坐标空间契约链。 现行链路是唯一换算点，且只有两段：",
+          "keywords": [
+            "ADR",
+            "三条既有约束",
+            "已逐字读过",
+            "本文正面处理"
+          ]
+        },
+        {
+          "anchor": "§1.5 本文交付物与验收边界",
+          "level": 3,
+          "startLine": 74,
+          "endLine": 79,
+          "tokens": 79,
+          "summary": "本文只交付三样：能力（多点输入）、机制（棋盘区域变换 + 命中一致性）、约束（不变式、钳位口径、回归面）。观感、倍率曲线",
+          "keywords": [
+            "本文交付物与",
+            "验收边界"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 80,
+          "endLine": 130,
+          "tokens": 2940,
+          "summary": "",
+          "keywords": [
+            "Alternatives",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§2.1 多点触摸输入通道",
+          "level": 3,
+          "startLine": 82,
+          "endLine": 101,
+          "tokens": 1132,
+          "summary": "甲（原始表述）：扩展 core/input 支持多指针槽，缩放/平移在手势层解算。",
+          "keywords": [
+            "core",
+            "input",
+            "多点触摸输入",
+            "通道"
+          ]
+        },
+        {
+          "anchor": "§2.2 棋盘区变换落在哪一层",
+          "level": 3,
+          "startLine": 102,
+          "endLine": 117,
+          "tokens": 1228,
+          "summary": "丁-1：扩 RenderTransform 允许 translate（把 dx/dy 加进全局通道）。",
+          "keywords": [
+            "RenderTransform",
+            "translate",
+            "棋盘区变换落",
+            "在哪一层"
+          ]
+        },
+        {
+          "anchor": "§2.3 双指落子歧义的出路（本文最贵的一处，必须先摊开）",
+          "level": 3,
+          "startLine": 118,
+          "endLine": 130,
+          "tokens": 531,
+          "summary": "现行路由在按下帧即提交：beads-game.ts::_readInput() 只读 snap.justDown → s",
+          "keywords": [
+            "beads",
+            "game",
+            "readInput",
+            "snap",
+            "justDown",
+            "双指落子歧义"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 131,
+          "endLine": 197,
+          "tokens": 3151,
+          "summary": "",
+          "keywords": [
+            "Decision",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§3.1 推荐组合（一句话）",
+          "level": 3,
+          "startLine": 133,
+          "endLine": 136,
+          "tokens": 101,
+          "summary": "甲′（core 只加 2 个指针槽，手势解算留游戏侧）+ 丁-3（棋盘缩放/平移烘进 gridLayoutFor 派生，",
+          "keywords": [
+            "core",
+            "gridLayoutFor",
+            "推荐组合",
+            "一句话"
+          ]
+        },
+        {
+          "anchor": "§3.2 多点输入（甲′）",
+          "level": 3,
+          "startLine": 137,
+          "endLine": 145,
+          "tokens": 445,
+          "summary": "1. packages/framework/src/core/input/input-manager.ts：内部指针槽从",
+          "keywords": [
+            "packages",
+            "framework",
+            "src",
+            "core",
+            "input",
+            "manager"
+          ]
+        },
+        {
+          "anchor": "§3.3 区域变换与 hit-test（丁-3）",
+          "level": 3,
+          "startLine": 146,
+          "endLine": 155,
+          "tokens": 817,
+          "summary": "1. 相机状态 BoardCamera = { zoom, offsetX, offsetY }（三个标量），权威存于玩",
+          "keywords": [
+            "hit",
+            "test",
+            "BoardCamera",
+            "zoom",
+            "offsetX",
+            "offsetY"
+          ]
+        },
+        {
+          "anchor": "§3.4 工程不变式与护栏（数值留空，由设计轨冻结）",
+          "level": 3,
+          "startLine": 156,
+          "endLine": 164,
+          "tokens": 431,
+          "summary": "相机只在 shell.screen === 'play' 且玩法相位 playing 时生效；PAUSED / LEVE",
+          "keywords": [
+            "shell",
+            "screen",
+            "play",
+            "playing",
+            "PAUSED",
+            "LEVE"
+          ]
+        },
+        {
+          "anchor": "§3.5 待主理人 / 用户裁定的开放分叉（本文不锁死）",
+          "level": 3,
+          "startLine": 165,
+          "endLine": 172,
+          "tokens": 383,
+          "summary": "C-1｜多点通道：甲′（推荐）／乙（适配层，否因 §2.1）／丙（无缩放降级档，否因 §2.1）。否 甲′ ⇒ 缩放与盘",
+          "keywords": [
+            "§2.1",
+            "待主理人",
+            "用户裁定的开",
+            "放分叉",
+            "本文不锁死"
+          ]
+        },
+        {
+          "anchor": "§3.6 最小验证（本文只列判据，不落码；未做的一律标未执行）",
+          "level": 3,
+          "startLine": 173,
+          "endLine": 186,
+          "tokens": 619,
+          "summary": "Node 侧可证（施工必做，[N]）",
+          "keywords": [
+            "Node",
+            "最小验证",
+            "本文只列判据",
+            "不落码",
+            "未做的一律标",
+            "未执行"
+          ]
+        },
+        {
+          "anchor": "§3.7 本文**未**改动的文件（回写清单，待主理人串行落笔）",
+          "level": 3,
+          "startLine": 187,
+          "endLine": 197,
+          "tokens": 223,
+          "summary": "本 ADR 是 Proposed 草稿，未动任何代码、未动其他 ADR/文档。批准后须同批复写（顺序按 §17/K-05",
+          "keywords": [
+            "§17",
+            "ADR",
+            "Proposed",
+            "本文",
+            "改动的文件",
+            "回写清单"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 198,
+          "endLine": 232,
+          "tokens": 1993,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 200,
+          "endLine": 209,
+          "tokens": 341,
+          "summary": "1. 多点能力一次进 core 且向后兼容：槽位 + 扁平字段、旧 8 字段语义不动 ⇒ breakout 与既有路由零",
+          "keywords": [
+            "core",
+            "breakout",
+            "正面"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面（已知成本，白纸黑字，不是风险）",
+          "level": 3,
+          "startLine": 210,
+          "endLine": 222,
+          "tokens": 1183,
+          "summary": "1. 双指落子歧义（C-3）无论如何都要付费。若最终采 (a)，bead:placed 发射帧后移，牵动 input-c",
+          "keywords": [
+            "bead",
+            "placed",
+            "input",
+            "负面",
+            "已知成本",
+            "白纸黑字"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 223,
+          "endLine": 232,
+          "tokens": 436,
+          "summary": "1. 图鉴若真做成「一屏 9/16 个独立缩放版面」，丁-3 的「一份相机配一张网格」可能不够 ⇒ 丁-2（分组变换通道",
+          "keywords": [
+            "中性",
+            "待观察"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 233,
+          "endLine": 243,
+          "tokens": 456,
+          "summary": "1. C-3 被裁定为 (a) ⇒ input-control / core-loop 时序判据重跑，本文 §3.3-4",
+          "keywords": [
+            "§3.3",
+            "Review",
+            "Triggers",
+            "input",
+            "control",
+            "core"
           ]
         }
       ]
@@ -20543,6 +20895,166 @@
             "STAR3_RATIO",
             "STAR2_RATI",
             "开放项"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/v2-album-dense-boards.md",
+      "tokens": 5178,
+      "lines": 106,
+      "sha256": "1d2387f32f7dcfef014f5f62c7d91e821aba65c7ec380e149dc51f2d85e432f4",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§提案 · 待裁｜「图鉴 + 扩容盘面」（v2 方向）概念草案（beads）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 107,
+          "tokens": 5150,
+          "summary": "项目：games/beads · 任务号 WXG-T-167（设计轨，与缩放施工并行）· 上位来源：ADR-0015 §",
+          "keywords": [
+            "beads",
+            "games",
+            "WXG",
+            "ADR",
+            "提案",
+            "待裁"
+          ]
+        },
+        {
+          "anchor": "§1 我的理解复述（自然语言，先对齐再提问）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 26,
+          "tokens": 555,
+          "summary": "一张「图」= 一幅完整的拼豆画作（例如一只小猫、一枚徽章），它不是一关，而是一组成品。",
+          "keywords": [
+            "我的理解复述",
+            "自然语言",
+            "先对齐再提问"
+          ]
+        },
+        {
+          "anchor": "§2 一页纸概念草案（**骨架版**：凡未裁处一律留白并指向 §3 的 Q 号）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 41,
+          "tokens": 684,
+          "summary": "1 一句话定位 在「错位归位」之上加一层收集结构：把关卡组织成「一幅画 = 若干子版面」，玩家以完成整图为单位获得成果感",
+          "keywords": [
+            "§3",
+            "一页纸概念草",
+            "骨架版",
+            "凡未裁处一律",
+            "留白并指向"
+          ]
+        },
+        {
+          "anchor": "§3 核心开放问题清单（**只列不答**；编号 Q1–Q11；候选读法仅为消歧用，不构成推荐）",
+          "level": 2,
+          "startLine": 42,
+          "endLine": 64,
+          "tokens": 1754,
+          "summary": "Q1 子版面完成 = 现有「错位归位」核心循环？还是新玩法？ 甲 原样复用（选珠→取回→归位）／乙 新玩法（看图填色 /",
+          "keywords": [
+            "Q11",
+            "核心开放问题",
+            "清单",
+            "只列不答",
+            "编号",
+            "候选读法仅为"
+          ]
+        },
+        {
+          "anchor": "§3b. 外部依赖（不是玩法问题，但会卡住落地，须挂号）",
+          "level": 3,
+          "startLine": 58,
+          "endLine": 64,
+          "tokens": 260,
+          "summary": "D-a｜缩放施工前置：棋盘区「抬起才提交」判据改版已由本单完成（input-control.md v2.5 §2.1/§",
+          "keywords": [
+            "§2.1",
+            "input",
+            "control",
+            "外部依赖",
+            "不是玩法问题",
+            "但会卡住落地"
+          ]
+        },
+        {
+          "anchor": "§4 与缩放/相机的耦合点（只从设计角度标约束，**不重述 `ADR-0015`**）",
+          "level": 2,
+          "startLine": 65,
+          "endLine": 71,
+          "tokens": 549,
+          "summary": "1. 盘面尺寸的天花板是几何的，不是设计的：§3.3 两行注释自证（13×52−2 ≤ 可用宽 690；12×52−2 ",
+          "keywords": [
+            "ADR-0015",
+            "§3.3",
+            "ADR",
+            "与缩放",
+            "相机的耦合点",
+            "只从设计角度"
+          ]
+        },
+        {
+          "anchor": "§5 若裁定后的落点草案（**挂号，不建文件、不冻结**）",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 83,
+          "tokens": 347,
+          "summary": "gdd/meta-ui.md 新建（S10 页族 + 图鉴页八节），补 WXG-T-164 批 0 欠账 Q4、Q5、Q",
+          "keywords": [
+            "gdd",
+            "meta",
+            "S10",
+            "WXG",
+            "若裁定后的落",
+            "点草案"
+          ]
+        },
+        {
+          "anchor": "§6 本文**没有**做的事（红线自查）",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 90,
+          "tokens": 182,
+          "summary": "未冻结/未修改任何 §3 数值：GRID_MAX_*、MISPLACED_PAIRS_*、TRAY_BASE_SLOTS",
+          "keywords": [
+            "§3",
+            "GRID_MAX_",
+            "MISPLACED_PAIRS_",
+            "TRAY_BASE_SLOTS",
+            "本文",
+            "没有"
+          ]
+        },
+        {
+          "anchor": "§7 建议下一步（顺序即依赖序）",
+          "level": 2,
+          "startLine": 91,
+          "endLine": 98,
+          "tokens": 203,
+          "summary": "1. 主理人先向用户求裁 Q1 + Q2（其余 9 问有半数依赖这两条），形式建议 2–4 选项点选（本文 §3 已按候",
+          "keywords": [
+            "§3",
+            "建议下一步",
+            "顺序即依赖序"
+          ]
+        },
+        {
+          "anchor": "§8 未决问题汇总（`[待确认]` 一处不漏）",
+          "level": 2,
+          "startLine": 99,
+          "endLine": 107,
+          "tokens": 167,
+          "summary": "U1 D1 / 支柱 3 是否改判（「复刻优先、不加戏」vs 本提案的第二个玩法内核）——这条不裁，其余都悬空。",
+          "keywords": [
+            "[待确认]",
+            "未决问题汇总",
+            "待确认",
+            "一处不漏"
           ]
         }
       ]

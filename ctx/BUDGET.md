@@ -41,7 +41,7 @@
 | 17 | `games/beads/design/gdd/systems-index.md` | 11694 | 284 | hot |
 | 18 | `my-skills/_repos/superpowers/skills/writing-skills/anthropic-best-practices.md` | 11532 | 1150 | normal |
 | 19 | `my-skills/writing-skills/anthropic-best-practices.md` | 11532 | 1150 | normal |
-| 20 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
+| 20 | `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 11343 | 242 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -66,6 +66,7 @@
 | `games/beads/design/gdd/systems-index.md` | 11694 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/superpowers/skills/writing-skills/anthropic-best-practices.md` | 11532 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/writing-skills/anthropic-best-practices.md` | 11532 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 11343 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/_repos/mattpocock-skills/CHANGELOG.md` | 11071 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
