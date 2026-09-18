@@ -184,6 +184,14 @@
   - **用法**：真机调试 Console 执行 `GameGlobal.__WXG_TOUCH_DEBUG = true` ⇒ 点屏幕任意处 ⇒ 十字标记即「游戏判定的点击位置」（与手指实际位置对比即偏移向量）+ 顶部数值。**采集到数值即可反推 BD-48 的真实变换公式**。
   - 已随包构建验证（16.7s）；提交随本节。
   - **未 commit / 未 push**（主理人门禁入库）。
+- **⚠️ 真因勘误（2026-09-18 · WXG-T-161）**：本节的「引擎量纲混合」根因**是误读**，
+  已由构建产物 `games/beads/cocos/build/wechatgame/cocos-js/cc.js` 的引擎源码实锤推翻 ——
+  `screenAdapter.windowSize = new Size(windowWidth*dpr, windowHeight*dpr)`，翻转基准是
+  **物理 px**，与 `clientY*dpr` 量纲**一致** ⇒ 正确逆变换与 web 分支同形
+  （`clientY = windowHeight − raw.y/dpr`）。本节落地的旧 wx 式 `(windowHeight − raw.y)/dpr`
+  引入 `−H·(dpr−1)/dpr` 的全屏偏移 ⇒ **真机任何点击都落空**（用户 2026-09-18「无法点击
+  任何珠子」）。修正与判别力反例见 `## WXG-T-161`；本节其余内容（web 分支不变、
+  debug overlay、真机复测人 = 用户）继续有效。
 
 ---
 
@@ -614,3 +622,82 @@
   - **新测试暴露实现缺口并修复**：旧 `Tray.takeBead` 取中间块尾珠后留块间空洞，破坏 §8-6b「任意次归位后」不变式且坐坏 `insertGrouped` 紧凑前提 ⇒ takeBead 离珠左移补位（src + cocos 镜像同步）；连带迁移 `misplaced.test.ts` 两例「离珠后槽号稳定」旧口径断言。
   - 既存冲突判据迁移：tray-spawner §8-6 组选改写、selection-anchor 满槽/腾槽用例改尾取珠、misplaced-group 收进归类断言等均已改 v2.2 口径。
   - 门禁：beads vitest **424/424 绿**（含新增 9 例）；根 `pnpm run verify` **16 项全 PASS**（含 framework:sync:check 镜像一致、cocos:check、check:tasks）。
+
+---
+
+## WXG-T-161
+
+**框架·微信宿主触摸逆变换公式勘误（BD-48 真因；真机「无法点击任何珠子」）** · 负责：主理人(CodeBuddy) · 状态：✅ 落码（**待用户真机复测**）
+
+- **现象（用户 2026-09-18）**：微信侧开局后**任何珠子都点不动**（托盘/棋盘皆无响应）；本机会话前先排除了玩法层——`games/beads` 真链探针（`input.push` → `game.update`）点错位珠正常发出 `board:selected`，424/424 绿 ⇒ 玩法与命中路由无缺陷，问题在宿主坐标归一化。
+- **根因（构建产物引擎源码实锤，非推测）**：`cocos-js/cc.js` 内
+  `_getLocation(touch, windowSize, dpr) { x = clientX*dpr; y = windowSize.height − clientY*dpr }`，
+  而 `screenAdapter.windowSize` 的 getter 是 `new Size(windowWidth*dpr, windowHeight*dpr)`
+  ⇒ 翻转基准**已是物理 px**，两侧量纲一致。WXG-T-129 把它当成 `wx.getWindowInfo().windowHeight`
+  （逻辑 px）⇒ 判定「量纲混合」并写出 `y = (windowHeight − raw.y)/dpr`；
+  代入真值得偏差 `−H·(dpr−1)/dpr`（dpr=3、H=844 ⇒ −562.7）⇒ **y 恒落屏外、x 恒正确**，
+  与「全部点不动且不是整体镜像」的现象逐条吻合。
+- **修正（最小面）**：`normalizeCocosTouchWx` 改为 `y = windowHeight − raw.y/dpr`
+  （≡ `(windowHeight*dpr − raw.y)/dpr`，与 web 分支数学同形）；`bindings.ts` 两处注释订正；
+  同步 `framework:sync`（beads + breakout 镜像各写入 2 件）。
+- **测试（判别力反例改写）**：`tests/adapters/cocos-touch-wx.test.ts` ——
+  ① `engineWxLocation` 改复现**真实**引擎式（`windowHeight*dpr − clientY*dpr`）；
+  ② 反例改判「T-129 旧式」出错（并断言偏差恰为 `−H(dpr−1)/dpr`）；
+  ③ 新增「wx ≡ web」等价性钉子（dpr 1/2/3 × 三点），防两分支再次漂移。
+  ⚠️ 首版测试的前提本身是错的（据误读写的「web 公式必出错」反例），本次连同实现一并订正。
+- **门禁**：framework vitest **299/299 绿**；`framework:sync`+`:check` 镜像一致；
+  根 `verify` **PASS 16 ｜ FAIL 1** —— FAIL = `check:secrets` 存量项（仓库根 `project.config.json`
+  含真实 AppID，随 b6d6c65 忽略层级订正后暴露，**与本次改动无关**，处置需用户决定：忽略该文件或改环境变量）。
+- **待办**：① `build:cocos` 重新出包（当前 `build/wechatgame` 产物 2026-09-18 10:13，**仍带旧式**）
+  ⇒ ② 用户真机复测（点托盘珠可选中、错色放置出红描边）；③ 若仍偏移，开 `GameGlobal.__WXG_TOUCH_DEBUG = true`
+  采集 `loc/scr/dsn` 三段数值。
+- **处置核销（2026-09-18 提交会话）**：① 本门禁 FAIL 项（根 `project.config.json` AppID）已按 checker 建议处置——`.gitignore` 补根 `/project.config.json` + `/project.private.config.json`（随 `2f62027`），`check:secrets` 转绿；② 同批编辑器产物 `project.json fitWidth=false→true` **无文档登记**，用户裁定**回滚不入库**（真机复测时如需再显式改）。
+- **入库**：随 `706e99f` 提交（framework 正本 + beads/breakout 镜像 + 判别力测试）。
+- **边界（诚实登记）**：本次结论来自**构建产物中的引擎源码**与 `weapp.getScreenSize()` 返回值
+  （= `wx.getWindowInfo()` 逻辑 px）的**静态推导**，本机无真机 / 无 AppID ⇒ **未经真机实测**；
+  真机复测前不得标「已验证」。
+
+---
+
+## WXG-T-162
+
+**beads+框架 · 真机五项修复（SFX 离线渲染 / 组选全连通 / 直填放距 / 乙档缝宽 / 同心圆角）** · 负责：主理人(Qoder) · 状态：✅ 落码（**待用户真机复验**；未 commit）
+
+- **裁定来源（用户 2026-09-18，真机反馈五项）**：① 真机只出 BGM、无任何音效/结算音效；② 缝宽采**乙档**（`BEAD_DRAW_INSET` 2→6）；③ 直填**放开任意距离**；④ 组选 = 「找相邻直到找不到，所有找到的珠子一起抬起」；⑤ 锚起 3×3（8 向含对角）按④找全。含前序补充：旧 5×5 窗选不全全部连通珠。
+- **① SFX 根因与修法（框架 `audio-synth.ts`）**：BGM 有声 ⇒ WebAudio 通路活；真因 = 微信 iOS `createWebAudioContext().currentTime` 恒 0、AudioParam 时间轴不推进 ⇒ 旧振荡器路线（`start(when>0)` + `setValueAtTime`/`linearRamp`）永久停在起始增益。改**一次性 clip 一律 CPU 离线渲染成 PCM buffer** + BufferSource + 静态增益 + **无参** `start()`（即 BGM 存活配方）；滑音相位累加、attack/decay 包络、噪声按 clipId 种子 `createRng` 烘焙（L4 合规）；`_shotBuffers` 按 clip 缓存只渲染一次；`SynthOsc`/时间自动化入口编译期删除。判据入 `framework/tests/platform/audio-synth.test.ts`（18 绿，含「BD-51 存活配方」describe）。
+- **④⑤ 组选全连通（`grid.collectMisplacedGroup`）**：5×5 几何筛选 → 锚起 8 向 BFS 完整连通块不限步；就位/锁定/空格/异色阻断传播（隔珠同色自动拆组）。覆盖 T-157 ①。
+- **③ 直填放距（`beads-game._tryDirectFillFromBoard`）**：删切比雪夫 ≤2 门与超距轻提示分支；其余口径（取最近者/组保持逐颗续填/锚静默转移/cleared-priority）沿用 T-157 裁定 B。覆盖 T-157 ②③。
+- **② 乙档 + 同心圆角（呈现层，零 §3 变更）**：`tuning.ts` `BEAD_DRAW_INSET` 2→6（旧值真机 scale 0.5 下≈ 1 CSS px 不可见）；`bead-render.ts` 珠圆角 = 垫圆角 − inset（等距内缩必同心，旧式缝宽转角不均）。⚪ 白环（T-148 selectableRing）去留未裁定 ⇒ 维持现状。
+- **规格回写（代落盘待正主复验）**：`assets-spec` v1.5-r7（头注 + §1.1 L11；基于 46/2px 的派生值声明作废）、`accessibility.md` §5-4 闭环（待 playtest → 乙档已裁、余留待真机）、`input-control` v2.4（路由 5a/5b + changelog）、`bead-grid` v2.2（§2.2 组语义条 + changelog）。
+- **测试**：`misplaced-group` 新增连通判据 5 例（隔空/异色/就位阻断、斜链、竖列超旧窗）；`misplaced-direct-fill` 布局重排（斜连组）+ 超距拒改写为放开回归。beads 全量 **429/429 绿**；framework audio-synth **18 绿**；`tsc --noEmit` exit 0。
+- **门禁与镜像**：`framework:sync`（beads 写入 6 / breakout 2）+ `:check` 一致；根 `verify` **PASS 14 ｜ FAIL 3** —— FAIL 均存量与本单无关：`check:secrets`（`project.config.json` AppID，T-161 已登记待用户处置）、`check:size`（debug 产物超 4MB 红线，存量漂移归发布域）、`selftest:fast`（其第 5 步以 check:size 为探针，连带 FAIL）。两包 `build:cocos` 已重建（wechatgame · debug）。
+- **待办（用户侧）**：真机复验清单 —— ① 一次性音效/结算音效出声；② 缝宽 6px 视认 + 转角匀缝；③ 点任意距离同色空格局部直填；④ 大连通块一次全抬；⑤ 前单 SHOW_ALL 点击偏移修复同批复验（T-161 待办项）。
+- **入库（2026-09-18 提交会话）**：随 `79f217a` 提交；`tuning.ts` / `beads-game.ts` 与本单 T-162 改动物理交织 ⇒ 按判例 T-154/155 合笔（头注双挂 WXG-T-162/164）。
+
+---
+
+## WXG-T-163
+
+**beads·主菜单+元游戏页族程序结构设计** · 负责：主理人(Qoder)+程基岩（engineering-lead 委草） · 状态：✅ 完成（草稿零落盘、结构拍板；反转冻结与实现归 T-164）
+
+- **背景**：用户提供 9 屏竞品参考图（主菜单/总榜/七日签到/图鉴/游戏圈/设置/名片/回复体力/HUD 货币栏），要求「先设计程序结构、确认后再实现」。
+- **阶段 0 诊断**：`BeadsPhase` 仅 6 相无主菜单；存档 save-schema v3（4 开关）；框架已有 `Platform.wallClock()`；渲染遵 L5 只读 view-model。页族 = 全新 meta 系统（S10），跨工程/UX/美术/数值四域 ⇒ 编排路由。
+- **结构草稿要点（程基岩，零落盘）**：BeadsShell 双对象（play+meta 两层；overlay 栈复用 core SceneStack；meta 存档独立 sidecar 键）；玩法状态机/判据/存档零扰动、框架零改动；menu-route = 暂停次钮 → shell 屏；meta-view 只读 buildRenderModel；ui-kit 程序化图元；harness `?meta=` 注入验证。
+- **冲突登记 C1–C7**：C1 主菜单 vs ux-spec §2 有意移除；C2 排行榜 vs concept §7 Won't；C3 体力 vs meta-framework M5 永不采纳；C4 钱包 vs 三货币禁令；C5 震动 vs §3.8 屏震冻结；C7 游戏圈/分享 vs Won't + 微信能力未实测。
+- **用户四项结构拍板（2026-09-18）**：① 屏架构 = **B Shell 双对象**；② 范围 = **分批 0-1-2**（批0 shell+路由+设置 v4+签到；批1 图鉴+本地榜+名片；批2 开放数据域+游戏圈+分享；首启仍直进玩法保留存）；③ 排行 = **本地榜做 + 好友榜置灰**；④ 体力/广告/钱包 = **装**（反转冻结归 T-164）。
+- **交付形态**：结构草稿会话内全文回传（零落盘），主理人汇编后用户拍板；数值与语义包二轮拍板归 T-164。
+
+---
+
+## WXG-T-164
+
+**beads·元游戏页族反转冻结回写 + 批0 落码（体力/钱包/振动）** · 负责：主理人(Qoder) · 状态：🔄 批0 完成待收口（六文回写 + 批0 落码已随 `79f217a` 入库；真机复验 + 批1/批2 未完）
+
+- **用户八项拍板（2026-09-18 两轮）**：一轮 = B Shell 双对象 / 分批 0-1-2 / 本地榜+好友置灰 / 装体力+广告+钱包；二轮 = **体力宽容包 B**（上限 8、8 min/心）/ **钱包 A 包**（买心阶梯 + 头像框）/ **装触觉振动**（`VIBRATE_DEFAULT=ON`、仅 isMiniGame 显示行）/ 首启仍直进玩法。
+- **冻结回写（六文，已落定）**：systems-index **v1.28**（新 §3.14 体力与钱包：`STAMINA_MAX=8` / `STAMINA_REGEN_MIN=8min/心`（离线恢复 f(Δt wallClock)、登录钳上限）/ `STAMINA_START_COST=1` / 回满 = 激励视频第二 live 位 / 签到第 3/5 天各 1 心（溢出即弃）/ 钱包获取仅签到币·周榜结算·通关首通、消耗 = 买心（阶梯价不冻结 `[待 playtest]`）+头像框 / Won't = 只发不耗·币购道具；§3.8 `VIBRATE_DEFAULT` 新冻结 + 屏震行语义钉死；§3.11 激励主位 1→2、体力移出 Won't；§1 S10 行 + S9 行；§4 meta 域事件 5 行）+ changelog v1.28 行；ux-spec **v1.7**（§1 原则 1 / §2 流程主菜单+overlay 栈 / §6.3 补注 / §8 更正，**启动路由零改动**）；concept **v1.4**（§5 / §7 meta 页族行 + Won't 改写 / D10 反转）；meta-framework **v1.1**（M4/M5 反转 + 三货币条件解除 + §7 分批计划）；pause-settings **v1.3**（回主菜单次钮 + 震动行 + §8 判据 11/12）。
+- **语义裁定（本单新增澄清）**：扣心时机 = **新局开局/重试**；PAUSED 恢复与菜单在途续进**不重复扣心**（保留进度不惩罚）；签到送心溢出即弃；阶梯价表不冻结归 `tuning.ts` 候选（判例 `SPRINT_K_CURVE`）。
+- **批0 落码范围（进行中）**：shell（BeadsShell 双对象）/ meta-state / meta-save-schema（sidecar v1；settings v4 = +vibrate）/ menu-route（暂停次钮→菜单、菜单主钮恢复/新开）；scenes = menu / settings overlay / signin overlay；services = signin（wallClock 自然日判定、循环制断签不清零）/ stamina（离线恢复钳上限）/ wallet（获取三源+买心消耗）；meta-view 只读 + ui-kit 程序化图元 + harness `?meta=` 注入；`gdd/meta-ui.md` GDD 同批建（S10 行预约）。
+- **retry/restart 逐次扣心（本单挂账已关闭，2026-09-18）**：玩法内 retry（normal）/ restartRun 经注入 `play` 的 `canStartRun` 闸门逐次扣 `STAMINA_START_COST`；sprint 不设门（§3.14 冲刺消耗不冻结）。**0 心拒绝路径 = 用户拍板 B（失败页看广告回满再重试）**：闸门拦下 → `_requestStaminaRefill` 拉起 `STAMINA_REFILL_PLACEMENT`（§3.11 第二 live 位，游戏侧字符串位不改冻结框架枚举）→ `onRewarded` 按 `_adKind` 分发（revive vs staminaRefill 共用单一订阅）→ `onStaminaRefill`→`MetaState.refillStamina()` 回满后重放 proceed 续体（MAX≥cost 必成功、无循环）。hook 而非事件（不动 §4 冻结表）；standalone BeadsGame（无 canStartRun）恒放行保 429 既有测试。新增 `tuning.STAMINA_REFILL_PLACEMENT` / `run-start-stamina.test.ts`（5 tests，真实 MetaState 端到端）。
+- **门禁证据（本单 retry 扣心段）**：`framework:sync`（beads 写入 3）+ beads `tsc --noEmit` 净 + 全量 beads 测试 **458 passed**（453+5）+ `cocos:check` 两游戏过 + beads `--release` 重建（17.7s）+ `verify` **16/17**（唯一 FAIL = `check:secrets` project.config.json:22 AppID 既有挂账，非本单引入）+ ux-spec v1.8（§3.5 重试扣心注 + §4 矩阵 GAME_OVER 拆有心/0 心）。
+- **待办**：~~批0 落码与测试~~（已完成，`79f217a`：shell/meta-state/sidecar/settings v4/签到·体力·钱包内聚于 meta-state/menu 路由/meta-view/harness `?meta=`；458 绿）；真机复验（震动行仅 weapp 显示、签到跨天、菜单路由、扣心/续进口径）；`gdd/meta-ui.md` GDD 与 ui-kit 独立图元层**未随批0 落盘**（S10 行仍标待建，归批1 同批补）；批1/批2 另单。
+- **入库（2026-09-18 提交会话）**：六文回写 + 批0 落码随 `79f217a` 提交（与 T-162 交织文件合笔，头注双挂）；本单 B4 门禁中 `check:secrets` 存量 FAIL 已由根配置 `.gitignore` 处置闭合（见 `## WXG-T-161` 处置核销，随 `2f62027`）。
