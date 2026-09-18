@@ -15,7 +15,6 @@ import { describe, expect, it } from 'vitest';
 import { RenderModelBuilder, type DrawCommand, type RectCommand } from '@wxgame/framework';
 import {
   BEAD_CELL,
-  BEAD_DRAW_INSET,
   BEAD_PITCH,
   FILL_POP_MS,
   SOLVER_HINT_MS,
@@ -26,9 +25,8 @@ import {
   POWERUP_FREE_USES,
   solverSequenceMs,
 } from '../src/config/tuning.js';
-import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
 import { solverBeadProgress, solverHintAlpha } from '../src/view/scene-vfx.js';
-import { BEAD_HIGHLIGHT_HEX, DEFAULT_PALETTE, withAlpha } from '../src/view/palette.js';
+import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import {
   advancePastSolver,
@@ -119,14 +117,6 @@ function strokesAt(
 
 const countRects = (cmds: readonly DrawCommand[]): number =>
   cmds.filter((c) => c.kind === 'rect').length;
-
-/** 单颗珠的命令流（clamp 几何判据用，绕开关卡与快照）。 */
-function emitBead(options: FilledBeadOptions, size: number): readonly DrawCommand[] {
-  const builder = new RenderModelBuilder(750, 1334);
-  builder.begin();
-  drawFilledBead(builder, 200, 300, 1, { ...options, size });
-  return builder.end().commands;
-}
 
 // ───────────────────────────────────────────── ① 包络（scene-vfx 纯函数）
 
@@ -300,48 +290,7 @@ describe('G2′ 时序 · 相 A 只点名不动手（玩法语义变更）', () 
 
 // ─────────────────────────────── ③ 观感（clamp 几何 / 点名期互斥 / D1）
 
-describe('G2′ 观感 · T-148 白环 clamp（用户裁定「甲」）', () => {
-  const RING_ALPHA = 0.92;
-  const halfCell = BEAD_CELL / 2;
-  const beadHalf = (BEAD_CELL - 2 * BEAD_DRAW_INSET) / 2;
-
-  it('白环环带外缘 = 珠体内缘 ⇒ 不越格缘、不遮 L11 垫缝、邻环零糊连', () => {
-    const cmds = emitBead({ padColorIdx: 2, selectableRing: true }, BEAD_CELL);
-    const rings = cmds.filter(
-      (c): c is RectCommand =>
-        c.kind === 'rect' && c.stroke === withAlpha(BEAD_HIGHLIGHT_HEX, RING_ALPHA),
-    );
-    expect(rings).toHaveLength(1);
-    const ring = rings[0]!;
-    const outer = ring.w / 2 + (ring.lineWidth ?? 0) / 2; // stroke 居中于路径
-    expect(outer).toBeLessThanOrEqual(beadHalf + 1e-6); // ≤ 23 ⇒ 垫缝 23–25 完整可见
-    expect(outer).toBeLessThan(halfCell); // 零越格缘
-    expect(outer * 2).toBeLessThanOrEqual(BEAD_PITCH); // 邻格同环 ⇒ 零涂覆重叠
-    const inner = outer - (ring.lineWidth ?? 0);
-    expect(inner).toBeGreaterThan(0); // 环不退化成实心块
-  });
-
-  it('点名期互斥：被点名的错位珠白环退让，由相 A 状态环独占该带', () => {
-    const h = mk('wxgame.beads.test.g2-ring');
-    const misplaced = buildMisplaced(h, 1); // 一对交换 ⇒ 2 颗错位、solver 只点首颗
-    expect(h.game.usePowerup('solver')).toBe(true);
-    h.advance(s(HINT_MID)); // α 峰值帧
-    const snap = h.game.snapshot;
-    const row = snap.solverCellRows[0]!;
-    const col = snap.solverCellCols[0]!;
-    const WHITE = withAlpha(BEAD_HIGHLIGHT_HEX, RING_ALPHA);
-    const at = strokesAt(renderSnap(snap), snap, row, col);
-    const hintRings = at.filter((c) => c.stroke === DEFAULT_PALETTE.slotBorder);
-    expect(hintRings).toHaveLength(1);
-    expect(hintRings[0]!.alpha).toBeCloseTo(1, 6); // sin 峰 = 1
-    expect(at.filter((c) => c.stroke === WHITE)).toHaveLength(0); // 同帧不叠两圈
-    // 未被点名的那颗错位珠⇒ 白环照旧在场（恒亮可读性未整条作废）。
-    const other = misplaced.find((c) => !(c.row === row && c.col === col))!;
-    expect(
-      strokesAt(renderSnap(snap), snap, other.row, other.col).filter((c) => c.stroke === WHITE),
-    ).toHaveLength(1);
-  });
-
+describe('G2′ 观感 · 相 A 状态环（T-148 白环已随 WXG-T-165 真机反馈移除）', () => {
   it('D1 不关停相 A（纯 α 通道）：`reduceMotion` 下状态环照旧在场', () => {
     const h = mk('wxgame.beads.test.g2-d1');
     buildMisplaced(h, 1);
@@ -355,15 +304,5 @@ describe('G2′ 观感 · T-148 白环 clamp（用户裁定「甲」）', () => 
     expect(strokesAt(without, snap, row, col).filter((c) => c.stroke === DEFAULT_PALETTE.slotBorder))
       .toHaveLength(1);
     expect(countRects(withMotion)).toBe(countRects(without)); // 相 A 期 D1 零增减
-  });
-
-  it('图元净口径修正（诚实登记）：点名格白环 ↔ 相 A 环 1:1 ⇒ 本单净 +0 而非 §1.6.2a 的 +3', () => {
-    const h = mk('wxgame.beads.test.g2-cost');
-    buildMisplaced(h, 1);
-    expect(h.game.usePowerup('solverPlus')).toBe(true);
-    h.advance(s(HINT_MID));
-    const snap = h.game.snapshot;
-    const off = { ...snap, solverProgress: 0, solverCellCount: 0 }; // 同帧无 fx 基线
-    expect(countRects(renderSnap(snap))).toBe(countRects(renderSnap(off)));
   });
 });

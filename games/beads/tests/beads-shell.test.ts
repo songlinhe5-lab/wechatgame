@@ -117,7 +117,7 @@ describe('BeadsShell — menu → play (§3.14 扣心时机)', () => {
         expect(r.shell.screen).toBe('menu');
     });
 
-    it('resuming an in-progress run does NOT spend a second heart', () => {
+    it('回主菜单弃本局棋盘 → 再开始 = 全新开当前关、再扣 1 心（不保留进度，WXG-T-165）', () => {
         const r = rig(); // booted into play, already spent one
         const before = r.shell.meta!.stamina;
         r.shell.play.onPause();
@@ -126,7 +126,7 @@ describe('BeadsShell — menu → play (§3.14 扣心时机)', () => {
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.startGame()).toBe(true);
         expect(r.shell.play.phase).toBe('playing');
-        expect(r.shell.meta!.stamina).toBe(before); // 在途续进不重复扣心
+        expect(r.shell.meta!.stamina).toBe(before - STAMINA_START_COST); // 弃本局 ⇒ 重进按新局扣心
     });
 });
 

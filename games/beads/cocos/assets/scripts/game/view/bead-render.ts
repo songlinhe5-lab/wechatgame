@@ -103,11 +103,6 @@ export interface FilledBeadOptions {
    */
   readonly padColorIdx?: number;
   /**
-   * 可选取亮环（WXG-T-148 用户反馈 ①）：错位珠恒亮白描边 —— 近似色下「色≠底」
-   * 读数不足，常亮环 = 「可选取」标识（零动画，与 ≤3Hz 红线无关）。画于 L5 之上。
-   */
-  readonly selectableRing?: boolean;
-  /**
    * G1 落座回弹的**珠体**缩放（`assets-spec §1.6.1`，默认 1）。⛔ **严禁改乘 `outer`**：
    * `outer` 同时驱动 **L11 垫**，垫若随珠同缩 ⇒ 「垫缝」读数与珠体同步 ⇒ 目标色
    * 谜面在 120ms 内被自己抹除，且同格目标色浓度周期性呼吸（违 `accessibility` A1）
@@ -352,24 +347,6 @@ export function drawFilledBead(
 
   // L5 符号 — the non-colour channel (colour-blind affordance).
   emitSymbol(builder, beadSymbol(colorIdx), cx, y, size, symbolInk(base).color);
-
-  // 可选取亮环（最顶层）—— 环随 lift 一起动（标识跟着珠抬起）。
-  // ⚠️ **T-148 初版为外扩环**（`pad` 3.22 / 线宽 4.14 ⇒ 环带半径 24.15–28.29），实测
-  // 四处代价（台账 WXG-T-148）：① 遮住 L11 垫缝（23–25）≈43% ⇒「珠歪在垫上」读数被
-  // 自身抹除；② 邻格环带涂覆重叠 ≈3.7px（pitch 52 < 28.29×2）⇒ 整组抬起时糊成一圈；
-  // ③ 越格缘 2.29px（G4 波峰 scale 1.08 时 5.56px）；④ 静态层数 11→12 ⇒ §1.8 包体
-  // 基线最坏 +16 rect。用户 2026-09-17 裁定「甲」⇒ **收进珠体内缘**：环带外缘 = size/2
-  // （静止 23 < 半格 25）⇒ 零遮缝、零越格缘、邻环零糊连；代价如实记 = 环压在珠体上
-  // （L5 符号之上），靠 α 0.92 与 4.14px 内描边读出「可选」，且**与 G2′ 相 A 外环分带**
-  // （白环 18.9–23 / 点名环 24–26）⇒ 同帧不重叠（点名期白环已由 view-model 退让）。
-  if (options.selectableRing) {
-    const ringW = stroke(0.09);
-    builder.rect(left + ringW / 2, bottom + ringW / 2, size - ringW, size - ringW, {
-      stroke: withAlpha(BEAD_HIGHLIGHT_HEX, 0.92),
-      lineWidth: ringW,
-      radius,
-    });
-  }
 }
 
 export function drawEmptySocket(

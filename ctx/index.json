@@ -198,9 +198,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3233,
+      "tokens": 3227,
       "lines": 118,
-      "sha256": "c68bb85533d68d009a9cb9d3d28e5077a85f8ffef9bbe62716434502d618fd68",
+      "sha256": "8026b51e4a9a14d523add93d308e981eaa69c9b957f350f32e5e57314bfb802b",
       "tier": "normal",
       "sections": [
         {
@@ -208,7 +208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 119,
-          "tokens": 3220,
+          "tokens": 3214,
           "summary": "生成：2026-09-18 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -237,7 +237,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 465,
+          "tokens": 458,
           "summary": "1 production/qa/beads/g4-regression-report.md 86807 2201 nor",
           "keywords": [
             "Top",
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4498,
       "lines": 82,
-      "sha256": "04ca4af919328e61d0f0d402dfb342d9bb6cff2fe8a45f8f11ece0b37224ff4a",
+      "sha256": "4ff62449b392de9736e34a699e6c8755441199e0fd069ad6957098087c1151e1",
       "tier": "normal",
       "sections": [
         {
@@ -529,7 +529,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 284 行 / 11281 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 284 行 / 11407 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -16813,18 +16813,18 @@
     },
     {
       "path": "games/beads/design/gdd/pause-settings.md",
-      "tokens": 4704,
-      "lines": 126,
-      "sha256": "fd7e0e93c3533c3a1cf7ce0f3f608ab33675a8d184f019e73f3e1456997bc54a",
+      "tokens": 5012,
+      "lines": 127,
+      "sha256": "cd252382c4ba12faef39c191bfcc1c4442777ebac8f119d16a96a13bb3bf1f43",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S9 暂停与设置（Pause & Settings）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 127,
-          "tokens": 4687,
-          "summary": "项目：games/beads · 版本 v1.3 · 任务号 WXG-T-164（v1.3 = 回主菜单次钮（保留进度不",
+          "endLine": 128,
+          "tokens": 4996,
+          "summary": "项目：games/beads · 版本 v1.4 · 任务号 WXG-T-165（v1.4 = 回主菜单语义反转（真机首",
           "keywords": [
             "GDD",
             "Pause",
@@ -16850,7 +16850,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 45,
-          "tokens": 1258,
+          "tokens": 1279,
           "summary": "",
           "keywords": [
             "机制"
@@ -16876,7 +16876,7 @@
           "level": 3,
           "startLine": 22,
           "endLine": 39,
-          "tokens": 715,
+          "tokens": 736,
           "summary": "继续 game:resumed → S1 回 PLAYING 主按钮",
           "keywords": [
             "game",
@@ -16972,7 +16972,7 @@
           "level": 2,
           "startLine": 100,
           "endLine": 118,
-          "tokens": 831,
+          "tokens": 862,
           "summary": "1. PLAYING 点齿轮 → game:paused 恰 1 次、S1=PAUSED、面板可见、遮罩覆盖棋盘与托盘；",
           "keywords": [
             "PLAYING",
@@ -16987,8 +16987,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 119,
-          "endLine": 127,
-          "tokens": 730,
+          "endLine": 128,
+          "tokens": 916,
           "summary": "v1.0 WXG-T-015 交付 初版八节定稿（含 P1 冻结：暂停面板能力 / 双模式共用齿轮 / 重玩本关五项重置",
           "keywords": [
             "WXG",
@@ -17680,17 +17680,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 8604,
-      "lines": 39,
-      "sha256": "bc87f5b8ac0c586357012c0e535e1be9fc244ebaceb796d59b9feb8592bc7f51",
+      "tokens": 8900,
+      "lines": 40,
+      "sha256": "02216e156ca3df9517d7ff5caa9d594f8c4814af9a80761633ecf8ee6427eeb0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 40,
-          "tokens": 8586,
+          "endLine": 41,
+          "tokens": 8882,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -17705,8 +17705,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 40,
-          "tokens": 8428,
+          "endLine": 41,
+          "tokens": 8723,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -17718,9 +17718,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 11281,
+      "tokens": 11407,
       "lines": 284,
-      "sha256": "f2d24e75f8fbfff05f05b32870e65dc6a0dd1101bd0e14d09ac5f322cffea336",
+      "sha256": "7d7f183ee2b13f909fbc4212a10335940e376516c3511150e3ec24c91dff0e4d",
       "tier": "hot",
       "sections": [
         {
@@ -17728,15 +17728,15 @@
           "level": 1,
           "startLine": 1,
           "endLine": 285,
-          "tokens": 11264,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.28 · 任务号 WXG-T-164（v1.28 = 主菜单",
+          "tokens": 11390,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.29 · 任务号 WXG-T-165（v1.29 = §3.",
           "keywords": [
+            "§3",
             "Systems",
             "Index",
             "beads",
             "games",
-            "WXG",
-            "系统清单与依"
+            "WXG"
           ]
         },
         {
@@ -17744,7 +17744,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 25,
-          "tokens": 680,
+          "tokens": 708,
           "summary": "S1 核心循环 gdd/core-loop.md P0 定义游戏状态机与关内主循环时序，串起所有系统（v1.22：核心循",
           "keywords": [
             "gdd",

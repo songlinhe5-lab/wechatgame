@@ -88,7 +88,7 @@ export class BeadsShell implements Game {
         this._screen = options.initialScreen ?? 'play';
         this.play = new BeadsGame({
             ...(options.play ?? {}),
-            // 暂停面板「回主菜单」次钮 → 切到菜单（play 停在 PAUSED，进度不惩罚）。
+            // 暂停面板「回主菜单」次钮 → 切到菜单（真机反馈裁定：弃本局棋盘——下次「开始游戏」= 全新开当前关）。
             onMenuRequest: () => this.showMenu(),
             // 新局开局体力闸门（§3.14）：retry/restart 前扣 1 心；0 心返回 false（play 转广告回满）。
             canStartRun: () => (this.meta ? this.meta.spendStamina(STAMINA_START_COST) : true),
@@ -165,7 +165,7 @@ export class BeadsShell implements Game {
 
     // ───────────────────────────────────────────────────────────── routing
 
-    /** 暂停次钮「回主菜单」：切菜单、清 overlay（play 停在 PAUSED，进度保留）。 */
+    /** 暂停次钮「回主菜单」：切菜单、清 overlay（本局棋盘不保留——重进时由 {@link startGame} 复位）。 */
     showMenu(): void {
         this._screen = 'menu';
         this._overlay = 'none';
@@ -173,19 +173,15 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * 主菜单主钮「开始游戏」：在途 PAUSED → 恢复不扣心；否则扣 1 心进当前关。
-     * @returns true 当且仅当已进入玩法（0 心且无在途 ⇒ false，留在菜单）。
+     * 主菜单主钮「开始游戏」：**每次 = 全新开当前关**，扣 1 心。真机反馈裁定（WXG-T-165）
+     * ——「回主菜单」弃本局棋盘、关卡解锁进度留，原「在途 PAUSED 续进不扣心」语义已反转。
+     * @returns true 当且仅当已进入玩法（0 心 ⇒ false，留在菜单走回满广告）。
      */
     startGame(): boolean {
-        if (this.play.phase === 'paused') {
-            this._screen = 'play';
-            this._emitOverlay(false);
-            this.play.resumeFromPause();
-            return true;
-        }
         if (!this.meta || !this.meta.spendStamina(STAMINA_START_COST)) return false;
         this._screen = 'play';
         this._emitOverlay(false);
+        this.play.goToLevel(this.play.levelIndex); // 棋盘复位到当前关初始（关卡指针/解锁进度不变）
         return true;
     }
 

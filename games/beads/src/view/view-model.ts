@@ -817,9 +817,9 @@ function drawGrid(
       const solverPopP = solverStep >= 0 && solverT > 0 ? solverBeadProgress(solverT, solverStep) : 0;
       const popProgress = solverPopP > 0 ? solverPopP : popActive ? snap.placeProgress : 0;
       if (popProgress > 0) fillPopEnvelope(popProgress, snap.reduceMotion, pop);
-      // WXG-T-148 用户反馈：① 错位珠恒亮白环（可选取标识）；② board 锚珠抬起
-      // （lift 沿用托盘 selected 语义，垫不参与 lift ⇒ 珠上移露垫 = 抬起读数）。
-      // ③④（WXG-T-148 用户裁定）：锚 = 8 邻接连通错位珠组 —— 组内全格统一抬起。
+      // WXG-T-148 用户反馈 ②：board 锚珠抬起（lift 沿用托盘 selected 语义，垫不
+      // 参与 lift ⇒ 珠上移露垫 = 抬起读数）；③④ 锚 = 8 邻接连通错位珠组 ⇒ 组内全格统一抬起。
+      // （原反馈 ①「错位珠恒亮白环」经真机首验用户裁定移除，见 WXG-T-165。）
       let inGroup = false;
       for (let k = 0; k < snap.boardGroupCount; k++) {
         if (snap.boardGroupRows[k] === i && snap.boardGroupCols[k] === j) {
@@ -831,18 +831,13 @@ function drawGrid(
       const draft: {
         -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
       } = { padColorIdx: cell.colorIdx };
-      if (cell.beadColorIdx >= 0 && cell.beadColorIdx !== cell.colorIdx) {
-        draft.selectableRing = true;
-      }
       if (inGroup) {
         draft.lift = -6;
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
       // G2′ 相 A：点名格在预警窗口内**仍是错位珠**（裁定「甲」⇒ 动手延后），
-      // 且本格必然同时带着 T-148 的恒亮白环（错位珠 ⇒ 可选取）⇒ 两者同帧会读成
-      // 「两层可选标识」且互相涂覆 ⇒ 用户裁定「点名期白环退让，由相 A 环独占」。
+      // 「动手目标」标识由相 A 状态环独占（下方 drawStateRing）。
       const named = solverN > 0 && solverHintA > 0 && solverIsNamed(snap, i, j);
-      if (named) draft.selectableRing = false;
       if (popProgress > 0) {
         draft.scale = pop.scale;
         draft.contactAlpha = pop.contactAlpha;

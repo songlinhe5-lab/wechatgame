@@ -1190,18 +1190,6 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * 主菜单「开始游戏」在途续进入口（WXG-T-164 批0，ux-spec v1.7 §2）：
-   * PAUSED → PLAYING，**不扣心**（在途续进不重复扣，systems-index §3.14 语义裁定）。
-   * 非 PAUSED 时零副作用返回 false（与 retryLevel/restartRun 同判例）。
-   */
-  resumeFromPause(): boolean {
-    if (this._machine.current !== 'paused') return false;
-    this._panel.close(); // 淡出由 `update()` 跑完（与其余面板同判例）
-    this._machine.transition('playing');
-    return true;
-  }
-
-  /**
    * 主菜单设置 overlay 复用 S9 开关（ux-spec v1.7 §2「设置 = overlay、复用 S9
    * 面板内容」，WXG-T-164 批0）：只受理 `toggle-*` 动作，相位无关（局外设置），
    * 与暂停面板共用同一批私有 setter ⇒ 两入口状态恒一致。非 toggle 动作零作用。
@@ -2062,8 +2050,8 @@ export class BeadsGame implements Game {
         this._setVibrate(!this._vibrate);
         return;
       case 'go-menu':
-        // 回主菜单（pause-settings v1.3 §8-11）：保留进度不惩罚——停在 PAUSED
-        // 上报意图，切屏与后续 `resumeFromPause()` 归 shell；无 shell 时零副作用。
+        // 回主菜单（pause-settings v1.4 §8-11，WXG-T-165 真机反馈反转）：上报意图、
+        // 切屏归 shell（本局棋盘不保留，下次「开始游戏」由 shell.goToLevel 复位）。
         this._onMenuRequest?.();
         return;
       case 'start-sprint':
