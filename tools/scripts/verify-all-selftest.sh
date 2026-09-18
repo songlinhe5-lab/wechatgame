@@ -61,16 +61,22 @@ else
 fi
 
 echo "── 5) SKIP ≠ PASS（子命令自报未覆盖时）"
-if node tools/scripts/verify-all.mjs --steps=check:size >"$LOG" 2>&1 && grep -q 'SKIP' "$LOG"; then
-  if node tools/scripts/verify-all.mjs --steps=check:size --strict >>"$LOG" 2>&1; then
-    bad "--strict 下 SKIP 仍判 0 —— 收紧失效"
+# 「本轮子命令是否 SKIP」必须取**该步骤自己的状态行**，不能 grep 'SKIP' 子串：
+# 聚合器汇总行恒含计数「… ｜ SKIP 0 ｜ …」⇒ 子串匹配恒真 ⇒ 产物齐备时本步恒进 strict 分支、
+# 而 strict 下真 SKIP 数为 0 故退 0 ⇒ **恒红**（BD-39 在本地/隔离 worktree 下 exit 1 的根因）。
+if node tools/scripts/verify-all.mjs --steps=check:size >"$LOG" 2>&1; then
+  row=$(grep -E '^  (✅|🔶|⚠️|❌) [A-Z]+ +check:size' "$LOG" | head -1)
+  if printf '%s' "$row" | grep -q '⚠️ SKIP'; then
+    if node tools/scripts/verify-all.mjs --steps=check:size --strict >>"$LOG" 2>&1; then
+      bad "--strict 下 SKIP 仍判 0 —— 收紧失效"
+    else
+      ok "本轮 check:size 为 SKIP，且 --strict 已判红（未测不算通过）"
+    fi
   else
-    ok "本轮 check:size 为 SKIP，且 --strict 已判红（未测不算通过）"
+    ok "本轮 check:size 非 SKIP（状态行：${row:-未取到}）⇒ 收紧路径断言不适用，由 1) 合成用例 5/6 覆盖"
   fi
-elif grep -q 'STATUS: SKIP' "$LOG" || grep -q '未覆盖' "$LOG"; then
-  bad "SKIP 却整体退出 0（非 strict 应为 0，但汇总必须点名 SKIP）"; tail -20 "$LOG"
 else
-  ok "本轮 check:size 无 SKIP（产物齐备），收紧路径断言不适用 —— 由 1) 的合成用例覆盖"
+  bad "check:size 单步退出非 0（非 strict 下只有 FAIL 才会这样）"; tail -20 "$LOG"
 fi
 
 echo

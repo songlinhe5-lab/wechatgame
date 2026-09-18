@@ -187,6 +187,60 @@
 
 ---
 
+## WXG-T-160
+
+**装置自测 fast 档挂 verify（BD-39 / BD-40 本地半边闭合）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（verify PASS 17/17）
+
+- **起因**：backlog 两条 —— BD-39「装置自测未挂 verify」、BD-40「`ctx:check` 未挂 verify」，均自 2026-09-16 `176f1bf` 起暂缓（登记理由：隔离 worktree 下 `verify:selftest` exit 1，疑依赖缺失）；backlog 明写「本地半边与 BD-39 同一次改动即闭合」。
+- **根因（两处，均实测取证非推测）**：
+  1. **`verify:selftest` 第 5 步恒红（与仓库状态无关）**：该步用 `grep -q 'SKIP'` 判「子命令是否自报 SKIP」，而聚合器汇总行恒含计数串 `… ｜ SKIP 0 ｜ …` ⇒ 子串**恒命中** ⇒ 恒进 strict 分支；真 SKIP 数为 0 时 `--strict` 退 0 ⇒ 判「收紧失效」**必红**。⇒ 产物齐备时 100% 复现（本机实测 `verify:selftest` 1.7s exit 1）。修：改为只认**该步骤自己的状态行** `^  (✅|🔶|⚠️|❌) [A-Z]+ +check:size`，非 SKIP 时明写「断言不适用，由 1) 合成用例 5/6 覆盖」。
+  2. **`ctx:check` 在隔离 worktree 恒红（即原登记的「依赖缺失」真身）**：索引 `ctx/index.json` 收录了**不入仓**的 vendor 克隆 `my-skills/_repos/**`（`.gitignore` 覆盖），全新 worktree / clone 下这些文件必然不存在 ⇒ C 项对每个都报「索引过期 — 文件缺失」⇒ exit 1。修（`check-context-budget.mjs`）：把「磁盘缺失 **且** 路径被 `git check-ignore` 覆盖」的条目拆出，降为 note「**环境缺失 ⇒ 未校验，不是通过**」；真过期照旧判红。
+- **顺带订正（守卫自身腐烂的实例）**：`selftests.mjs` 的 `AWAITING` 里 `check:host-tests:selftest` 的理由「被测脚本未入库」随 WXG-T-110 已**失效**——脚本已入库且 `--selftest` 9/9 绿 ⇒ 并入 fast 档（现 fast = 7 件自测 + `ctx:check` 共 8 件，AWAITING 为空）。
+- **证据（三处实测）**：
+  - 主检出：`selftest:fast` **8/8 绿** `STATUS: OK`；`verify` **17 项 PASS**（新增 `selftest:fast` 6.3s，总时长 13.8s → ≈20s）。
+  - 隔离 worktree（`git worktree add --detach .worktrees/bd39-wt HEAD`：无 `node_modules`、无构建产物、无 vendor 克隆）：修复前 `ctx:check` exit 1 ⇒ fast 档 `STATUS: FAIL`；修复后 **8/8 绿**、`ctx:check` exit 0（worktree 已 `git worktree remove` 清理）。
+  - **反向自检（防把红灯抹绿）**：worktree 内给 `ctx/BUDGET.md` 加一行脏改动 ⇒ C 项报 1 条「索引过期」且 **exit 1**；还原后 exit 0 ⇒ 容错只作用于「环境没这份数据」，不掩盖真过期。
+- **改动文件**：`tools/scripts/verify-all-selftest.sh`（第 5 步判据）、`tools/scripts/check-context-budget.mjs`（C 项环境缺失分区 + `spawnSync` import）、`tools/scripts/selftests.mjs`（AWAITING→fast 档、注释口径）、`tools/scripts/verify-all.mjs`（`STEPS` 加 `selftest:fast` 并改写暂缓注释）、`.gitignore`（加 `.worktrees/` 防隔离目录误提交）、`production/TASKS*.md`。
+- **遗留（诚实登记）**：① heavy 档（5 件 ≈25s）仍只走 CI 不入 verify（判据：本地全量翻三倍会诱发绕开）；② **CI 侧** fast 档是否真跑过、CI 环境是否同样有 vendor 缺失（现应降为 note 而非红）**未经本单验证** —— 本单只在本地 + 隔离 worktree 取证；③ `.worktrees/` 仅加入 `.gitignore`，未提交。
+- **Output Path**：上述改动文件 + 本节。
+- **约束**：未 commit / 未 push。
+
+---
+
+## WXG-T-159
+
+**breakout 配色双轨漂移定性对账（backlog「a11y B2 文档 hex 漂移」项）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（对账完成；**用户 2026-09-18 裁定 C = 维持登记 ⛔**）
+
+- **起因**：WXG-T-155 首面对账登记「矩阵 B2 声称 `#FFFFFF/#A6AEC8 on #0C0B1E`，实现 `palette.ts` background `#0b1021`，文档 hex 在 src 零命中 ⇒ 示例游戏文档陈旧」，backlog 挂账待 breakout 域订正。
+- **本单动作**：机械全量对账（脚本抽 `games/breakout/{art,design}/*.md` 与 `src/**/*.ts` 的 `#rrggbb` 集合求交）。结论**推翻原单一定性**：
+  - **砖块色 = 全对齐**：`src/config/levels.ts` 的 `N #35C2F0` / `T #A96BFF`（受损 `#7649B3`）/ `S #8892A6` / `B #FF6B3D` / `G #FFCB3D`，与 `art-bible §3.3`、`assets-spec §1.2`、`accessibility A2` **逐值一致** ⇒ 美术规格在砖块域已落地。
+  - **漂移面 = 仅 UI/场景色**：`src/view/palette.ts` 20 键与 `art-bible §3.1 基础色板` 13 色**零重合**（唯一共有值 `#ffffff` 系通用白；`0b1021` 在文档侧仅出现在 T-155 自身的登记注记里，属自引用，不计）。实现侧 13 个自有 hex 在 `art/`、`design/` 下**逐个零命中**（`4cc9f0/ffd166/ff5d8f/8be9fd/e8f1ff/8b98b8/141a33/d8f6ff/1b6f8a/2a3155/5ee08a/ff5e7a/1e2544`）。
+  - **资产维度也有缺口**：§3.1 的 `bg_grid`（40px 网格）、`bg_vignette`（暗角）、`wall_border` 在实现侧**无对应绘制**（`palette.ts` 只有 `backplate` 一个近似位）⇒ 不是单纯换色值。
+- **B2 判据两侧读数（WCAG 相对亮度，脚本实算非手算）**：
+
+  | 口径 | 正文 | 次要文字 | 背景 |
+  |---|---|---|---|
+  | 文档声称 | `#FFFFFF` ≈19:1（实算 19.40） | `#A6AEC8` ≈8:1（实算 8.79） | `#0C0B1E` |
+  | 实现实际 | `#e8f1ff` = **16.62:1** | `#8b98b8` = **6.56:1** | `#0b1021` |
+
+  ⇒ **B2「≥4.5:1」在两侧口径下均成立**（实现侧最低 6.43:1 = `powerupLife #ff5e7a`）⇒ 判据 ✅ 不变，**变的是读数**；文档现写的是文档侧读数，与出货画面不符。
+- **定性结论（诚实）**：`palette.ts` 头注自陈「The art pipeline (games/breakout/art) owns the values」，`art-bible` v2.0 为九节完整版且列明权威常量来源；`src` 系 `6c02732`「vibe coding 框架构建入库」产物 ⇒ **倾向判定为「实现未按 §3.1 落码」，而非原登记的「文档陈旧」**。但两者同出自 `6c02732`，无时间序权威，**方向须用户拍板**，本单不擅自改写任一侧（不 whitewash）。
+- **三选项与裁定**：
+
+  | 选项 | 动作 | 代价 | 结果 |
+  |---|---|---|---|
+  | A 改实现对齐规格 | `palette.ts` 按 §3.1 换色 + 补 `bg_grid`/`bg_vignette`/`wall_border` 绘制 | 视觉全线变化；需 art 复验 + a11y B1/B2/B3 重算 + QA 复跑 | — |
+  | B 改文档承认实现 | `art-bible §3.1` / `assets-spec` / `accessibility B2·B3` 按 `palette.ts` 重写数值 | 九节规格降级为实现快照；砖块域（已对齐）不受影响 | — |
+  | **C 维持登记 ⛔** | 只留本对账与锚点表注记，两侧都不动 | 漂移继续挂账 | **✅ 用户 2026-09-18 拍板选定** |
+
+- **裁定 C 的解除条件（写死，防无限挂账）**：① 走 A 的前置 = art 复验档期 + QA 复跑档期齐备；② 走 B 的前置 = 设计域出具「规格正本重写」决议；③ 两者皆无 ⇒ 保持 ⛔，且**每次对账必须复算两侧读数**（现读数：文档侧 19.40/8.79，实现侧 16.62/6.56），不得凭记忆沿用。
+
+- **本单已改动（方向中性，不含 A/B 择一）**：① 主表领号 + backlog 行定性订正 + BD-36 重复行去重；② `games/breakout/art/a11y-anchors.md` 首注由单向「文档陈旧」改为「双向零重合 · 定性待裁定」并补实测读数与 T-159 指针（锚点列 `textDim` 未动 ⇒ `check:a11y` 仍绿）；③ 本节。
+- **Output Path**：`production/TASKS.md`、`production/TASKS-DETAIL.md` 本节、`games/breakout/art/a11y-anchors.md`。
+- **约束**：未 commit / 未 push。
+
+---
+
 ## WXG-T-128
 
 **beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿）** · 负责：林绘澄(art) + 主理人(Qoder) · 状态：🔄 进行中

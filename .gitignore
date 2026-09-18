@@ -106,3 +106,6 @@ games/*/project.private.config.json
 my-skills/_repos/mattpocock-skills/
 my-skills/_repos/superpowers/
 games/beads/vitest.config.ts.timestamp-*.mjs
+
+# 隔离 git worktree（临时验证用，防整棵树被误提交）
+.worktrees/

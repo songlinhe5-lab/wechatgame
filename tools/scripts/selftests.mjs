@@ -9,7 +9,7 @@
  *     桩只拷 `lib/` 里两件，而 `check-context-budget.mjs` 后来 import 了 `lib/memory-index.mjs`）
  *
  * 分档判据 = 实测耗时（2026-09-16，本机逐项计时；当前 verify 各项相加 13.8s）：
- *   fast  六件自测 + `ctx:check` ≈6.7s ⇒ 挂进 `verify` 与 CI，代价可接受（verify 13.8s → ≈20s）
+ *   fast  七件自测 + `ctx:check` ≈6.7s ⇒ 挂进 `verify` 与 CI，代价可接受（verify 13.8s → ≈20s）
  *   heavy >2s 五件 ≈25s           ⇒ 只挂 CI（全挂进 verify 会让本地全量验证慢三倍，反而诱发绕开）
  *
  * 为什么 fast 档里混了一条**非自测**的 `ctx:check`（BD-40）：它与 BD-39 同属「有门、但本地 verify
@@ -47,6 +47,8 @@ export const TIERS = {
         { script: 'knowledge:split:selftest', argv: ['bash', `${S}/split-knowledge-lessons-selftest.sh`] },
         { script: 'tasks:archive:selftest', argv: ['bash', `${S}/archive-tasks-selftest.sh`] },
         { script: 'verify:selftest', argv: ['bash', `${S}/verify-all-selftest.sh`] },
+        // WXG-T-160：原在 AWAITING（理由「被测脚本未入库」）已随 WXG-T-110 失效 ⇒ 并入 fast 档。
+        { script: 'check:host-tests:selftest', argv: ['node', `${S}/check-host-behavior-tests.mjs`, '--selftest'] },
     ],
     heavy: [
         { script: 'ci:review:selftest', argv: ['bash', `${S}/ci-pr-review-selftest.sh`] },
@@ -61,11 +63,13 @@ export const TIERS = {
  * 已知但**本轮不能入档**的装置自测：理由必须写在这里，否则就是第二个「腐烂无人见」。
  * 值为理由串；条目由守卫识别为 SKIP（不判绿）。
  */
-const AWAITING = {
-    'check:host-tests:selftest':
-        '被测脚本 tools/scripts/check-host-behavior-tests.mjs 尚未入库（HEAD 的 package.json 入口指向未跟踪文件）' +
-        ' ⇒ 挂上即 CI 恒红；待 WXG-T-110 收口后并入 fast 档',
-};
+/**
+ * 已知但**本轮不能入档**的装置自测：理由必须写在这里，否则就是第二个「腐烂无人见」。
+ * 值为理由串；条目由守卫识别为 SKIP（不判绿）。
+ * 当前为空 —— 原 `check:host-tests:selftest`（理由：被测脚本未入库）已随 WXG-T-110 收口
+ * （脚本已入库、`--selftest` 9/9 绿）于 WXG-T-160 并入 fast 档；机制保留给下一件挂不上的。
+ */
+const AWAITING = {};
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);

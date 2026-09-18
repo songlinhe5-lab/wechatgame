@@ -65,10 +65,13 @@ const STEPS = Object.freeze([
   'harness:smoke',
   // WXG-T-110：§17 宿主行为测试守卫。**新增门禁项一律追加在此，不加 `&&`**。
   // WXG-T-121：装置自测分档 —— fast 档（≈6.5s）入常规门禁；heavy 档（≈26s）走 CI/手动。
-  // ⏸ selftest:fast / check:host-tests:selftest 暂缓挂载（2026-09-16）：隔离 worktree 下
-  // verify:selftest exit 1（依赖在 worktree 缺失），待 T-121 ③ CI 首跑观察后定。
   // 该步在 warn 观察期自报 `STATUS: WARN`（不阻断，见汇总表），升级判据见其自身输出。
   'check:host-tests',
+  // WXG-T-160：fast 档入常规门禁 ⇒ BD-39 / BD-40 的**本地半边**一并闭合（CI 侧早已覆盖）。
+  // 2026-09-16 暂缓挂载的根因已定位并修复（不是 worktree 依赖缺失）：`verify:selftest` 第 5 步
+  // 用 `grep 'SKIP'` 子串判「子命令是否 SKIP」，而本聚合器的汇总行恒含计数「… ｜ SKIP 0 ｜ …」
+  // ⇒ 恒定误判 ⇒ 产物齐备时必红。现改为只认该步骤自己的状态行，并在隔离 worktree 实测通过。
+  'selftest:fast',
 ]);
 
 const STATUS_RE = /^STATUS:\s*(OK|WARN|SKIP|FAIL)\b/m;

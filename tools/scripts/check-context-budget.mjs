@@ -65,6 +65,7 @@
  *       node tools/scripts/check-context-budget.mjs --update-baseline --reason="…" --task-id="WXG-T-…"
  */
 
+import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -348,9 +349,46 @@ function checkFreshness() {
   }
   // 共用契约（WXG-T-026）：dirty 文件按 HEAD blob 校验；未跟踪新文件不算「未收录」。
   const fresh = freshnessIssues(index, { workingTree: WORKING_TREE });
-  for (const s of fresh.stale) failures.push(`C: 索引过期 — ${s.path}（${s.reason}）`);
+  // WXG-T-160：C 项里「磁盘缺失 **且** 该路径被 .gitignore 覆盖」的条目（典型 = 不入仓的 vendor
+  // 克隆 `my-skills/_repos/**`）在隔离 worktree / 全新 clone 下**必然**缺失 ⇒ 报「索引过期」是误判：
+  // 那不是索引过期，是**本环境没有这份数据**（BD-40「隔离 worktree 下 ctx:check exit 1」的真实根因）。
+  // 处理：降为 note —— **未校验、不假绿**，且不阻断；真正的过期项照旧判红。
+  const { real, envMissing } = partitionEnvMissing(fresh.stale);
+  for (const s of real) failures.push(`C: 索引过期 — ${s.path}（${s.reason}）`);
+  if (envMissing.length > 0) {
+    notes.push(
+      `C: 环境缺失（路径被 .gitignore 覆盖且本环境无此文件 ⇒ **未校验，不是通过**）— ${envMissing.length} 个：`
+      + envMissing.slice(0, 3).map((s) => s.path).join('、') + (envMissing.length > 3 ? ' …' : '')
+      + '；在含该目录的环境（如主检出）重跑方可判定',
+    );
+  }
   for (const p of fresh.unindexed) failures.push(`C: 未收录的新 .md — ${p}`);
-  return fresh;
+  return { ...fresh, stale: real };
+}
+
+/** 把「过期」清单拆成「真过期」与「环境缺失（gitignore 覆盖 + 磁盘无此文件）」两类。 */
+function partitionEnvMissing(stale) {
+  const missing = stale.filter((s) => s.path && !existsSync(join(ROOT, s.path)));
+  if (missing.length === 0) return { real: stale, envMissing: [] };
+  const ignored = new Set(gitIgnoredPaths(missing.map((s) => s.path)));
+  const real = [];
+  const envMissing = [];
+  for (const s of stale) {
+    if (!existsSync(join(ROOT, s.path)) && ignored.has(s.path)) envMissing.push(s);
+    else real.push(s);
+  }
+  return { real, envMissing };
+}
+
+/** 批量问 git 哪些路径被忽略（一次子进程）。git 不可用 ⇒ 返回空集（保守：按真过期处理）。 */
+function gitIgnoredPaths(paths) {
+  const proc = spawnSync('git', ['check-ignore', '--stdin'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    input: paths.join('\n'),
+  });
+  if (proc.error || proc.status > 1) return [];
+  return (proc.stdout ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
 }
 
 /**
