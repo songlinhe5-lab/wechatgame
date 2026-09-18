@@ -208,7 +208,9 @@ describe('面板四相位 · 真链输入触达（input-control §2.3 / §8-8|pa
     // 可观测后果，也与 §8-2「≤1 帧 dt may be consumed by the resume frame itself」同口径。
     const delta = bypass.game.remaining - real.game.remaining;
     expect(delta).toBeGreaterThanOrEqual(0);
-    expect(delta).toBeLessThanOrEqual(STEP + 1e-9);
+    // C-3(a)（WXG-T-169）：一次真 tap 跨 down / up 两帧，retry 在 down 帧提交、本关重开（倒计时回满），
+    //   随后 down / up 两帧的 playing 计时段各 tick STEP ⇒ 差 ≤ 2 帧 dt（旧 1 帧口径已随时基翻转作废）。
+    expect(delta).toBeLessThanOrEqual(2 * STEP + 1e-9);
   });
 
   // §2.3「LEVEL_CLEAR：仅结算面板按钮」（ux-spec §4：下一关 / 去冲刺）。

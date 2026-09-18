@@ -244,8 +244,11 @@ export function tapInFrame(harness: Harness, designX: number, designY: number): 
   harness.game.update(step);
   harness.input.endFrame(step);
   // Release immediately so no later frame sees a held pointer.
+  // WXG-T-169 / C-3(a)：一次真 tap 跨 down / up 两帧，两帧各跑一次 update（棋盘区
+  // 抬起才提交需要 up 帧被处理；区外在 down 帧已提交，up 帧为空调度）。
   harness.input.beginFrame();
   harness.input.push({ id: 1, x: screen.x, y: screen.y, phase: 'up', time: 0 });
+  harness.game.update(step);
   harness.input.endFrame(step);
 }
 

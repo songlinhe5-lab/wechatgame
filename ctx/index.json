@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3262,
       "lines": 119,
-      "sha256": "2f87f5898421851a7e235a8caa2ea2252ab9022c5ee2e0517b968df7d1cb7181",
+      "sha256": "22ca188a9771726e019da379427752d935fb8e28a7a0ab7f9cee532ff1017b15",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4520,
+      "tokens": 4526,
       "lines": 82,
-      "sha256": "ac6dd574d91c040d6631d41c28943eaeade2753995e41f50511b8616cbbb2de1",
+      "sha256": "e7f5d42da11797e0bcf98342a26fcf18f957ddbacf7e81d0c5bed0b6ede7927e",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4492,
+          "tokens": 4498,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -513,12 +513,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 306 行 / 6834 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 309 行 / 7079 tok / 实测读 42 次",
           "level": 2,
           "startLine": 14,
           "endLine": 17,
           "tokens": 233,
-          "summary": "§控制清单 — 可立即执行的一页规则=1+307 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
+          "summary": "§控制清单 — 可立即执行的一页规则=1+310 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
           "keywords": [
             "§0",
             "§1",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 73 行 / 6093 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 74 行 / 6205 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+74 · §待排（backlog，无号，立项时领取）=52+23",
+          "summary": "§WXG 任务台账（SSOT）=1+75 · §待排（backlog，无号，立项时领取）=53+23",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -625,7 +625,7 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/architecture.md` — 256 行 / 5333 tok / 实测读 23 次",
+          "anchor": "§`docs/architecture/architecture.md` — 256 行 / 5370 tok / 实测读 23 次",
           "level": 2,
           "startLine": 42,
           "endLine": 45,
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 780 行 / 48714 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 810 行 / 50405 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 452,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+781 · §WXG-T-077=18+19 · §WXG-T-097",
+          "tokens": 458,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+811 · §WXG-T-077=18+19 · §WXG-T-097",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -5500,9 +5500,9 @@
     },
     {
       "path": "docs/architecture/architecture.md",
-      "tokens": 5333,
+      "tokens": 5370,
       "lines": 256,
-      "sha256": "cdbed724749adbc0e28cc63aceb3e92e1f535e735857de5ca14b8f1af13205f9",
+      "sha256": "e56848282099d5ff5502b813b22b8490b1ef18703bdb48af6b0a8ed9d58fac15",
       "tier": "normal",
       "sections": [
         {
@@ -5510,7 +5510,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 257,
-          "tokens": 5319,
+          "tokens": 5357,
           "summary": "版本：0.1.0",
           "keywords": [
             "微信小游戏矩",
@@ -5713,17 +5713,17 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 6834,
-      "lines": 306,
-      "sha256": "a8af18b5d539ed550c738f6fe5657b8065256fd9704511fc8881d7ee717315d3",
+      "tokens": 7079,
+      "lines": 309,
+      "sha256": "69e75101565e1abc4afd8c858bc029fef505f16dd4e8f0b407ce9273835e1aa4",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§控制清单 — 可立即执行的一页规则",
           "level": 1,
           "startLine": 1,
-          "endLine": 307,
-          "tokens": 6818,
+          "endLine": 310,
+          "tokens": 7063,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -5821,8 +5821,8 @@
           "anchor": "§6 输入",
           "level": 2,
           "startLine": 88,
-          "endLine": 97,
-          "tokens": 145,
+          "endLine": 98,
+          "tokens": 220,
           "summary": "✅ 游戏只读 InputManager.snapshot（逐帧不可变）",
           "keywords": [
             "InputManager",
@@ -5833,8 +5833,8 @@
         {
           "anchor": "§7 状态机",
           "level": 2,
-          "startLine": 98,
-          "endLine": 106,
+          "startLine": 99,
+          "endLine": 107,
           "tokens": 115,
           "summary": "✅ 用 StateMachine<S> 的转移表声明合法边；非法转移自动失败",
           "keywords": [
@@ -5845,8 +5845,8 @@
         {
           "anchor": "§8 渲染",
           "level": 2,
-          "startLine": 107,
-          "endLine": 117,
+          "startLine": 108,
+          "endLine": 118,
           "tokens": 185,
           "summary": "✅ 游戏只产出 RenderModel（rect / circle / line / text / polygon）",
           "keywords": [
@@ -5861,8 +5861,8 @@
         {
           "anchor": "§9 平台差异",
           "level": 2,
-          "startLine": 118,
-          "endLine": 125,
+          "startLine": 119,
+          "endLine": 126,
           "tokens": 89,
           "summary": "✅ 一切宿主差异写在 platform/{node,web,weapp}.ts 里，通过 Platform 接口暴露",
           "keywords": [
@@ -5877,8 +5877,8 @@
         {
           "anchor": "§10 网络与安全（后续游戏适用）",
           "level": 2,
-          "startLine": 126,
-          "endLine": 135,
+          "startLine": 127,
+          "endLine": 136,
           "tokens": 137,
           "summary": "✅ 服务端权威：客户端只做本地预测与表现，判定结果以服务端为准",
           "keywords": [
@@ -5889,8 +5889,8 @@
         {
           "anchor": "§11 测试",
           "level": 2,
-          "startLine": 136,
-          "endLine": 154,
+          "startLine": 137,
+          "endLine": 155,
           "tokens": 204,
           "summary": "✅ 验证驱动：先写测试，再实现",
           "keywords": [
@@ -5900,8 +5900,8 @@
         {
           "anchor": "§12 提交前自查表",
           "level": 2,
-          "startLine": 155,
-          "endLine": 174,
+          "startLine": 156,
+          "endLine": 175,
           "tokens": 226,
           "summary": "",
           "keywords": [
@@ -5911,9 +5911,9 @@
         {
           "anchor": "§13 反模式速查（见到就打回）",
           "level": 2,
-          "startLine": 175,
-          "endLine": 198,
-          "tokens": 573,
+          "startLine": 176,
+          "endLine": 201,
+          "tokens": 743,
           "summary": "在 update() 里 arr.filter(...) 原地遍历 + for 循环；池化临时数组",
           "keywords": [
             "update",
@@ -5927,8 +5927,8 @@
         {
           "anchor": "§14 Cocos MCP 编辑器接入（ADR-0009）",
           "level": 2,
-          "startLine": 199,
-          "endLine": 211,
+          "startLine": 202,
+          "endLine": 214,
           "tokens": 450,
           "summary": "接入定位：验证 / 构建 / 资源刷新闭环——不是\"用 AI 搭场景\"。插件在编辑器侧，运行时包体零影响。",
           "keywords": [
@@ -5941,8 +5941,8 @@
         {
           "anchor": "§15 构建层语言契约（ADR-0012，根因 G10）",
           "level": 2,
-          "startLine": 212,
-          "endLine": 232,
+          "startLine": 215,
+          "endLine": 235,
           "tokens": 874,
           "summary": "Cocos 脚本打包把所有平台降到 ES5，且 built-in 不 polyfill、语法照旧降级。其中一条不对称会静",
           "keywords": [
@@ -5957,8 +5957,8 @@
         {
           "anchor": "§16 音频后端契约（ADR-0013，根因 BD-05b）",
           "level": 2,
-          "startLine": 233,
-          "endLine": 251,
+          "startLine": 236,
+          "endLine": 254,
           "tokens": 758,
           "summary": "选型已冻结：systems-index §3.12 = 程序化合成、主包音频 0 KB（判据 A05-25）。要出声只能",
           "keywords": [
@@ -5973,8 +5973,8 @@
         {
           "anchor": "§17 宿主输入归一化（ADR-0011 §3(e)，根因 缺陷 C1）",
           "level": 2,
-          "startLine": 252,
-          "endLine": 307,
+          "startLine": 255,
+          "endLine": 310,
           "tokens": 1724,
           "summary": "屏幕坐标的唯一契约 = 屏幕 CSS px · 左上原点；DPR 永不进 Viewport / InputManager",
           "keywords": [
@@ -82955,17 +82955,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 48714,
-      "lines": 780,
-      "sha256": "4021b2da87ec7780d7913981da01c954008abce402095266a9fa651f70365f45",
+      "tokens": 50405,
+      "lines": 810,
+      "sha256": "bc4a8221017779521c0f905c5976c75b4e25765656a1fc4ae267b7ca7ef61305",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 781,
-          "tokens": 48697,
+          "endLine": 811,
+          "tokens": 50388,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -83527,8 +83527,8 @@
           "anchor": "§WXG-T-167",
           "level": 2,
           "startLine": 766,
-          "endLine": 781,
-          "tokens": 1044,
+          "endLine": 783,
+          "tokens": 1046,
           "summary": "beads·缩放设计轨（C-3 判据翻转 + 图鉴/扩容盘面 concept 提案） · 负责：文策渊(design-s",
           "keywords": [
             "WXG",
@@ -83536,22 +83536,36 @@
             "concept",
             "design"
           ]
+        },
+        {
+          "anchor": "§WXG-T-169",
+          "level": 2,
+          "startLine": 784,
+          "endLine": 811,
+          "tokens": 1687,
+          "summary": "beads·棋盘缩放平移落码（Z0–Z6） · 负责：程基岩(eng) · 状态：🔄 开工中 · 上位决策：ADR-0",
+          "keywords": [
+            "WXG",
+            "beads",
+            "eng",
+            "ADR"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6093,
-      "lines": 73,
-      "sha256": "3bda7cf31757b0af809835648f765d5cb214f299c8beda836dce100190c088bb",
+      "tokens": 6205,
+      "lines": 74,
+      "sha256": "02734a8552ca3973e503ee4b35f486b6517fe0e866728ec81f76594b18cdafb1",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 74,
-          "tokens": 6084,
+          "endLine": 75,
+          "tokens": 6196,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -83564,8 +83578,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 52,
-          "endLine": 74,
+          "startLine": 53,
+          "endLine": 75,
           "tokens": 939,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

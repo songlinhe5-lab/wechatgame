@@ -12,8 +12,6 @@
 
 import type { RenderModelBuilder } from '../../framework/index';
 import {
-  BEAD_CELL,
-  BEAD_PITCH,
   DESIGN_H,
   DESIGN_W,
   HUD_BAND,
@@ -564,8 +562,8 @@ function drawPuzzlePlate(
   snap: BeadsSnapshot,
   palette: BeadsPalette,
 ): void {
-  const gridW = (snap.gridCols - 1) * BEAD_PITCH + BEAD_CELL;
-  const gridH = (snap.gridRows - 1) * BEAD_PITCH + BEAD_CELL;
+  const gridW = (snap.gridCols - 1) * snap.gridPitch + snap.gridCell;
+  const gridH = (snap.gridRows - 1) * snap.gridPitch + snap.gridCell;
   const cx = snap.gridLeft + gridW / 2;
   const cy = snap.gridTop - gridH / 2; // y 轴向上，gridTop 是顶
 
@@ -740,8 +738,17 @@ function drawGrid(
     for (let j = 0; j < snap.gridCols; j++) {
       const cell = snap.cells[i * snap.gridCols + j]!;
       if (cell.void) continue; // outside the pattern shape — background
-      const cx = snap.gridLeft + BEAD_CELL / 2 + BEAD_PITCH * j;
-      const cy = snap.gridTop - BEAD_CELL / 2 - BEAD_PITCH * i;
+      const cx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * j;
+      const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * i;
+      // 格心可视窗剔除（丁-3 免 clip）。恒等档所有格心都在带内 ⇒ 零剔除，快照逐位不变。
+      if (
+        cy < PUZZLE_BAND.yMin - snap.gridCell ||
+        cy > PUZZLE_BAND.yMax + snap.gridCell ||
+        cx < -snap.gridPitch ||
+        cx > DESIGN_W + snap.gridPitch
+      ) {
+        continue;
+      }
 
       // GAP-04 `wrong` 态：被拒格整层水平抖动（±px，200ms 内摆 2 次）。
       const isWrong = i === snap.wrongRow && j === snap.wrongCol && snap.wrongProgress > 0;
@@ -762,10 +769,10 @@ function drawGrid(
           bx,
           cy,
           palette,
-          deniedP > 0 && !snap.reduceMotion ? BEAD_CELL * deniedPressScale(deniedP) : BEAD_CELL,
+          deniedP > 0 && !snap.reduceMotion ? snap.gridCell * deniedPressScale(deniedP) : snap.gridCell,
         );
         if (deniedP > 0 && snap.reduceMotion) {
-          drawStateRing(builder, bx, cy, BEAD_CELL, palette.slotBorder, 1, DENIED_RING_LINEWIDTH);
+          drawStateRing(builder, bx, cy, snap.gridCell, palette.slotBorder, 1, DENIED_RING_LINEWIDTH);
         }
         continue;
       }
@@ -773,16 +780,16 @@ function drawGrid(
       if (cell.state === 'empty') {
         // Empty socket — 传目标色 colorIdx 绘 E1 色底 + E4 幽灵符号（§1.2 / §3.8），
         // 使未填态即可读出该格要填的颜色；仍无投影/倒角/高光 → 不致误读为已填珠。
-        drawEmptySocket(builder, bx, cy, palette, BEAD_CELL, cell.colorIdx);
+        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx);
         // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
-          drawStateRing(builder, bx, cy, BEAD_CELL, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
+          drawStateRing(builder, bx, cy, snap.gridCell, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
         }
         // GAP-04 `wrong`：danger 描边**单次脉冲**（与抖动同格同帧，WXG-T-102/BD-29）。
         if (isWrong) {
           // D1 减弱动效：单次脉冲 → 静态红描边（α 恒 1，**0 往复**；200ms 由 game 侧清除）。
           const flash = snap.reduceMotion ? 1 : wrongFlashAlpha(snap.wrongProgress);
-          drawStateRing(builder, bx, cy, BEAD_CELL, palette.danger, flash);
+          drawStateRing(builder, bx, cy, snap.gridCell, palette.danger, flash);
         }
         // BD-16（WXG-T-097）一次性轻提示：落在被点的**可落空格**格心（ux-spec §5）。
         // 只在 empty 分支画 ⇒ 天然满足 `input-control §8-5`（锁定/已填格零反馈帧）。
@@ -831,7 +838,7 @@ function drawGrid(
       // FilledBeadOptions 全只读 ⇒ 组装为可变草稿再定型的既有模式（零类分配）。
       const draft: {
         -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
-      } = { padColorIdx: cell.colorIdx };
+      } = { padColorIdx: cell.colorIdx, size: snap.gridCell };
       if (inGroup) {
         draft.lift = -6;
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
@@ -866,11 +873,11 @@ function drawGrid(
       // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
       // 候选 I 墨 = `palette.slotBorder`（§1.6.2a）⇒ 非 danger/hint 色，不抢玩法语义。
       if (named) {
-        drawStateRing(builder, bx, cy, BEAD_CELL, palette.slotBorder, solverHintA);
+        drawStateRing(builder, bx, cy, snap.gridCell, palette.slotBorder, solverHintA);
       }
       // G7 D1 退化环：同墨同线宽（§1.6.7 候选甲：size 50、α 恒 1、0 往复）。
       if (deniedP > 0 && snap.reduceMotion) {
-        drawStateRing(builder, bx, cy, BEAD_CELL, palette.slotBorder, 1, DENIED_RING_LINEWIDTH);
+        drawStateRing(builder, bx, cy, snap.gridCell, palette.slotBorder, 1, DENIED_RING_LINEWIDTH);
       }
     }
   }
@@ -1207,10 +1214,10 @@ function drawComboVfx(
   const p = snap.comboVfxProgress;
 
   if (snap.comboVfxKind === 'particles' && snap.comboVfxRow >= 0 && snap.comboVfxCol >= 0) {
-    const cx = snap.gridLeft + BEAD_CELL / 2 + BEAD_PITCH * snap.comboVfxCol;
-    const cy = snap.gridTop - BEAD_CELL / 2 - BEAD_PITCH * snap.comboVfxRow;
+    const cx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * snap.comboVfxCol;
+    const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * snap.comboVfxRow;
     for (const { x, y } of comboParticleOffsets(p)) {
-      builder.circle(cx + x, cy + y, 3 + BEAD_CELL * 0.1 * (1 - p), {
+      builder.circle(cx + x, cy + y, 3 + snap.gridCell * 0.1 * (1 - p), {
         fill: withAlpha(BEAD_HIGHLIGHT_HEX, 1 - p), // F6：连击光 → 白（§3.5 暖橙仅珠子本体）。
       });
     }

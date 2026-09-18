@@ -123,6 +123,9 @@ export interface BeadsSnapshot {
   /** Stage geometry for hit-testing-agnostic rendering (§3.3 derivation). */
   gridLeft: number;
   gridTop: number;
+  /** Camera-scaled grid pitch / cell edge (WXG-T-169 丁-3; = BEAD_PITCH/BEAD_CELL at identity). */
+  gridPitch: number;
+  gridCell: number;
 
   /** Banner text for the current phase ('' when none). */
   banner: string;
@@ -334,6 +337,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     isNewBest: false,
     gridLeft: 0,
     gridTop: 0,
+    gridPitch: 0,
+    gridCell: 0,
     banner: '',
     subBanner: '',
     bootError: '',

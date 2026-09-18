@@ -92,6 +92,7 @@ games/<game>/
 - ✅ 需要测试/无头驱动时，用公开方法（如 `game.movePaddleTo(x)`）而不是伪造原生事件
 - ❌ 不在游戏里读 `window`、`wx`、`TouchEvent`、`MouseEvent`
 - ✅ 宿主归一化见 **§17**（引擎原生事件坐标必须经 adapter 变成 CSS px + 左上原点，不得直接喂 `InputManager`）
+- ✅ 棋盘区缩放/平移走「布局即相机」（`gridLayoutFor` 烘相机，渲染与命中同源）；多点输入 = `InputSnapshot` 第二指针槽（`isDown2/x2/y2`），手势解算留游戏侧 `board-camera.ts`（ADR-0015 甲′/丁-3）
 
 ---
 
@@ -193,6 +194,8 @@ node tools/scripts/check-architecture.mjs
 | 把 `getLocation()` 直接喂 `InputManager` | 经 adapter 归一化成 **CSS px + 左上原点**（÷dpr + 翻 y）再喂（**§17**，ADR-0011 §3(e)） |
 | 整屏级缩放需求在视图侧逐图元乘坐标系数（绕开变换通道） | 用 `RenderModelBuilder.setTransform` + `RenderModel.transform`（背景参与变换 ⇒ 零黑边；Cocos 走节点缩放宿主；ADR-0014） |
 | 用源码级正则断言锁「y 翻转」语义 | 正则判别力为零（缺陷 C1 就是这么漏的）；写 Node **行为测试**（§17） |
+| 把 ADR-0014 整屏 `RenderModel.transform` 通道挪用做棋盘区相机（区域缩放/平移） | 区域相机走「布局即相机」：zoom/offset 烘进 `gridLayoutFor`（渲染与命中同源）；整屏通道只给 uniform scale + 锚点、G5 红线无位移，不扩 dx/dy（ADR-0015 丁-3） |
+| 绕开 `gridLayoutFor` 真源手写第二套坐标逆变换做缩放命中 | 触摸→格子仍走 ADR-0011 那一段（`screenToDesign` → 已含相机的格心距离）；第二套坐标系 = 画出的框 ≠ 点击落点（K-054 / ADR-0015） |
 
 ---
 

@@ -88,14 +88,18 @@ import {
   TRAY_COLS,
   expandButtonLayout,
   trayLayout,
-  GRID_HIT_SIZE,
   TRAY_HIT_SIZE,
   POWERUP_TYPES,
   powerupCardRects,
   gridLayoutFor,
+  hitGridCell,
+  IDENTITY_CAMERA,
+  BOARD_TAP_MOVE_THRESHOLD,
+  PUZZLE_BAND,
   stageParamsFor,
   validatedSprintTime,
   type BeadsTuning,
+  type BoardCamera,
   type GridLayout,
   type PowerupType,
   type StageParams,
@@ -131,6 +135,13 @@ import {
 import { judgeRetrieve } from '../systems/retrieve.js';
 import { judgePlacement, planGroupFill } from '../systems/placement.js';
 import { Spawner } from '../systems/spawner.js';
+import {
+  applyPinch,
+  applyPan,
+  createGesture,
+  resetGesture,
+  fitCamera,
+} from '../systems/board-camera.js';
 import { GameTimer } from '../systems/timer.js';
 import { SprintTracker } from '../systems/sprint.js';
 import { PausePanel, type PausePanelAction } from '../systems/pause-panel.js';
@@ -444,6 +455,8 @@ export class BeadsGame implements Game {
   private _failHint = '';
 
   private _grid: BeadGrid = new BeadGrid(['..11..', '.1111.', '111111', '.1111.', '..11..']);
+  /** Board camera (WXG-T-169 / ADR-0015 丁-3). Identity until a pinch/drag mutates it; authoritative here, view+hit read only. */
+  private _camera: BoardCamera = { ...IDENTITY_CAMERA };
   private _layout: GridLayout = gridLayoutFor(6, 5);
 
   private _services: GameServices | null = null;
@@ -482,6 +495,13 @@ export class BeadsGame implements Game {
 
   /** Scratch point for screen → design conversion (never retained). */
   private readonly _pointer = { x: 0, y: 0 };
+  // ── Board tap / drag / pinch state (WXG-T-169 / ADR-0015 C-3(a)) ──
+  // Reused objects + scalars; the input segment must stay allocation-free per frame.
+  private readonly _tapStart = { x: 0, y: 0 };
+  private _tapActive = false; // owner pressed inside the board region → tap deferred to lift
+  private _tapMoved = false; // single-finger drag past threshold → pan, suppress tap
+  private _pinched = false; // a second finger joined → pinch, suppress tap
+  private readonly _gesture = createGesture();
 
   /**
    * 统一选择锚 · board 侧（input-control §2.1 v2.0，Epic T-133 E2）。`null` = 无
@@ -1701,7 +1721,12 @@ export class BeadsGame implements Game {
     if (!this._noBootAssembly) {
       applyMisplacedToGrid(this._grid, level.pattern, level.swaps);
     }
-    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows);
+    fitCamera(this._camera, this._grid.cols, this._grid.rows);
+    resetGesture(this._gesture);
+    this._tapActive = false;
+    this._tapMoved = false;
+    this._pinched = false;
+    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
     this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
     this._solverFx = null; // 换关 / 重试 ⇒ 作废在途的 G2′ 队列（相 B **会写盘**，不能拿旧格坐标动新棋盘）
     this._tray.reset();
@@ -1732,7 +1757,12 @@ export class BeadsGame implements Game {
   private _loadStage(n: number): void {
     const { pattern } = buildStagePattern(n);
     this._grid = new BeadGrid(pattern);
-    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows);
+    fitCamera(this._camera, this._grid.cols, this._grid.rows);
+    resetGesture(this._gesture);
+    this._tapActive = false;
+    this._tapMoved = false;
+    this._pinched = false;
+    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
     this._boardSelected = null; // 换 stage ⇒ 旧 board 锚指向的格已不存在
     this._tray.reset();
     this._resetPowerups(); // 冲刺换 stage = 换关语义，三计数一并复位（§2.5）
@@ -1776,15 +1806,72 @@ export class BeadsGame implements Game {
     }
   }
 
-  /** Route a design-space tap by priority (input-control §2.1, short-circuit). */
+  /** Read one frame of input and route it (input-control §2.1, short-circuit).
+   *  WXG-T-169 / ADR-0015 C-3(a): 棋盘区 tap 抬起才提交（区外按下即提交不变）；
+   *  双指 = 捏合缩放、单指位移 ≥ 阈值 = 平移，均只写相机、不产玩法指令。 */
   private _readInput(): void {
     const services = this._services;
     if (!services) return;
     const snap = services.input.snapshot;
-    if (!snap.justDown) return;
+    const vp = services.viewport;
+    const playing = this._machine.current === 'playing';
 
-    services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
-    this._handleTap(this._pointer.x, this._pointer.y);
+    if (snap.justDown) {
+      vp.screenToDesign(this._pointer, snap.x, snap.y);
+      // 棋盘区起手域 = PUZZLE_BAND 整块（不限「命中某格」）：真机拖拽可从盘面任意处起手。
+      const onBoard =
+        playing && this._pointer.y >= PUZZLE_BAND.yMin && this._pointer.y <= PUZZLE_BAND.yMax;
+      if (onBoard) {
+        // 棋盘区按下 → 登记，不提交；抬起为 tap，中途越阈值转拖拽、次指落下转捏合。
+        this._tapActive = true;
+        this._tapMoved = false;
+        this._pinched = false;
+        this._tapStart.x = this._pointer.x;
+        this._tapStart.y = this._pointer.y;
+        return;
+      }
+      this._handleTap(this._pointer.x, this._pointer.y); // 区外：按下即提交（语义不变）
+      return;
+    }
+
+    if (this._tapActive && snap.isDown) {
+      if (snap.isDown2) {
+        this._pinched = true;
+        if (applyPinch(snap, this._camera, this._gesture, this._grid.cols, this._grid.rows)) this._recomputeLayout();
+        return;
+      }
+      vp.screenToDesign(this._pointer, snap.x, snap.y);
+      if (!this._tapMoved) {
+        const moved =
+          Math.abs(this._pointer.x - this._tapStart.x) + Math.abs(this._pointer.y - this._tapStart.y);
+        if (moved >= BOARD_TAP_MOVE_THRESHOLD) this._tapMoved = true;
+      }
+      if (this._tapMoved) {
+        // 单指拖拽 → 平移相机（screen dx/dy → design：/scale、y 翻向）。
+        const scale = vp.fit.scale || 1;
+        applyPan(snap.dx / scale, -snap.dy / scale, this._camera, this._grid.cols, this._grid.rows);
+        this._recomputeLayout();
+      }
+      return;
+    }
+
+    if (snap.justUp) {
+      if (this._tapActive && !this._tapMoved && !this._pinched) {
+        vp.screenToDesign(this._pointer, snap.x, snap.y);
+        this._handleTap(this._pointer.x, this._pointer.y); // 棋盘区 tap：抬起提交
+      }
+      this._tapActive = false;
+      this._tapMoved = false;
+      this._pinched = false;
+      resetGesture(this._gesture);
+    }
+  }
+
+  /** Fold `_camera` into the grid layout (丁-3). Only called while a gesture is
+   *  active — steady frames allocate nothing. ponytail: transient per-frame
+   *  layout object during an active pinch/drag; pool-mutate it if profiling says so. */
+  private _recomputeLayout(): void {
+    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
   }
 
   private _handleTap(x: number, y: number): void {
@@ -2559,25 +2646,11 @@ export class BeadsGame implements Game {
     );
   }
 
-  /** Nearest grid cell within the 66² hit area (ties → smaller row). */
+  /** Nearest grid cell within the camera-scaled hit area (ties → smaller row).
+   *  Delegates to `tuning::hitGridCell` so gameplay and the layout⇄hit regression
+   *  test share one implementation (WXG-T-169 / ADR-0015). */
   private _hitGridCell(x: number, y: number): { row: number; col: number } | null {
-    const half = GRID_HIT_SIZE / 2;
-    let bestRow = -1;
-    let bestCol = -1;
-    let bestD2 = half * half;
-    for (let i = 0; i < this._grid.rows; i++) {
-      for (let j = 0; j < this._grid.cols; j++) {
-        const dx = x - this._layout.colCenterX(j);
-        const dy = y - this._layout.rowCenterY(i);
-        const d2 = dx * dx + dy * dy;
-        if (d2 < bestD2) {
-          bestD2 = d2;
-          bestRow = i;
-          bestCol = j;
-        }
-      }
-    }
-    return bestRow >= 0 ? { row: bestRow, col: bestCol } : null;
+    return hitGridCell(this._layout, this._camera.zoom, x, y);
   }
 
   // ─────────────────────────────────────────────────────────────── snapshot
@@ -2907,6 +2980,10 @@ export class BeadsGame implements Game {
     }
     s.gridLeft = this._layout.left;
     s.gridTop = this._layout.top;
+    // Camera-scaled spacing/size so the render path matches `hitGridCell` exactly
+    // at any zoom (丁-3). = BEAD_PITCH/BEAD_CELL at identity → snapshot byte-identical.
+    s.gridPitch = this._layout.pitch;
+    s.gridCell = this._layout.cell;
 
     // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and
     // leans on the always-on ad_badge, §2.6) + the one-shot over-limit hint.

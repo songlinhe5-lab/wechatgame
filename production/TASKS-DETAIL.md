@@ -778,3 +778,33 @@
   - **开放问题 Q1–Q11**（只列不自答）：**Q1 子版面是否复用「错位归位」内核**（若否 = 加第二玩法内核，S1/S3 判据翻倍、须改判 concept D1）／**Q2 宫格同时可见 vs 顺序解锁**（决定「一屏是否需 N 个独立缩放版面」，直接判定 ADR-0015 丁-3 单相机前提是否失效、是否须提前投资丁-2 分组变换）／盘面扩容档位（GRID_MAX 从 13×12 扩到多少）、图鉴入口位置、整图进度显示、珠子密度/连续性规则、体力扣减口径、与 demo 8 关关系等。
 - **不冻结清单**：位移阈值、缩放档位上下限、`GRID_MAX_*` 扩容值、宫格规格、体力口径 —— 全部 `[待确认]`，待主理人裁 Q1/Q2 后再进 GDD。
 - **下一步**：主理人就 **Q1 / Q2** 拍板（其余依赖此两条）→ 文策渊出提案一页纸转正 + 新建 `gdd/meta-ui.md`（八节含图鉴）＋ §3 变更单草案 → UX 侧 `ux-spec` 抬起提交回写 + 三层 Screen Flow → 程基岩在 C-3 前置解除后开工 甲′+丁-3（先取证 Cocos 多点派发形态）。
+
+---
+
+## WXG-T-169
+
+**beads·棋盘缩放平移落码（Z0–Z6）** · 负责：程基岩(eng) · 状态：🔄 开工中 · 上位决策：`ADR-0015`（Accepted，甲′+丁-3+C-3(a)）· 前置判据：`input-control.md` v2.5 / `core-loop.md` v2.1（已随 WXG-T-167 入库）
+
+- **范围**：仅落「棋盘区双指缩放 + 单指平移 + 抬起才提交」能力。**不含** GRID_MAX 扩容、图鉴/meta-ui、C-5 描边随缩裁定、位移阈值与缩放档位数值冻结（后三者分别走设计轨 WXG-T-167 / art 轨 / §3 变更单）。
+- **Story 依赖序**：Z0（Cocos 多点派发真机取证，⛔ 无设备/编辑器挂账）‖ Z1（InputManager 多槽化甲′）→ Z2（gridLayoutFor 参数化 + 命中半径随缩 + 回环/反例自检）→ Z3（view-model 参数化 + 格心剔除）‖ Z5（board-camera.ts 纯函数）→ Z4（_readInput 抬起提交状态机 + 相机门禁/复位 + 迁移真链用例）→ Z6（QA test-cases 迁移 + 门禁全跑 + framework:sync）。
+- **关键不变式**：`gridLayoutFor` 恒等档（camera=undefined 或 zoom=1/offset=0）产出与今日**逐位相同**（旧 460 例、快照差分、command 流零漂移）；单指旧输入序列在 InputManager 改动前后逐帧 snapshot 全等（向后兼容锚）。
+- **假设（若错回炉）**：C-5 未裁→视图占位「不随缩」标 [R]/[P]；Cocos 逐指派发假设成立（Z0 否证则 bindings.ts 补 getTouches 遍历，不触 core）；owner 不迁移为工程自裁（ADR-0015 §3.2-3 附复评）。
+
+- **落码结果（2026-09-18 本会话续）**：Z1–Z5 代码全部落地，`verify` **17/17 PASS**、beads **486 例绿**（+15 回环/恒等锚/反例 +9 手势 +2 抬起提交正面判据）、`framework:sync` 已镜像（input-manager→两游戏；beads tuning/game/state/view-model + 新 board-camera.ts）。
+  - Z1 `input-manager.ts` 第二指针槽（甲′，owner 语义逐字不变、次指不产 justDown、owner 抬起不迁移）+ `input-manager.test.ts` 6 例含单指回归锚。
+  - Z2 `gridLayoutFor(cols,rows,camera?)` + 抽 `hitGridCell(layout,zoom,x,y)`（`_hitGridCell` 委托，命中半径 ×zoom）+ `layout-camera.test.ts`（回环 / 恒等档逐位 / 反例自检半径不随缩必红 / DPR 2·3 桩）。
+  - Z3 `view-model.ts` 几何读 `snap.gridPitch/gridCell`（=layout.cell/pitch，恒等档=常量）+ 格心可视窗剔除（免 clip）；`state.ts` 快照扩两字段；bead-render 零改动。
+  - Z4 `beads-game.ts` `_readInput` 三态（棋盘区 tap 抬起提交、区外按下不变、单指 drag→平移、双指→捏合）+ `_camera`/`_gesture` 字段 + setup 复位；`frame-order` fo-3 / `phase-input-realchain` game-over 两处帧账按 2 帧 tap 语义迁移（诚实改，非凑绿）；新增 `board-input-timing.test.ts` 正面证 down 不落/up 才落 + drag 不落。
+  - Z5 `board-camera.ts`（`createGesture/applyPinch/applyPan/clampCamera/resetCamera`，纯函数、pinch 相对倍率、ponytail 注：中心锚 zoom，focal 待 playtest）+ `board-camera.test.ts` 9 例。
+- **未完（诚实登记，未打假勾）**：
+  - **Z0 真机 spike ⛔**：Cocos 逐指点 `touch-start`/`getID()` 形态未取证（无编辑器/无 AppID/无真机，ADR-0009 P2）；解除前 甲′ 在 Cocos 侧「未证可行」，若否证则 `bindings.ts` 补 `getTouches()` 遍历（不触 core）。
+  - **Z6 QA/UX 派生文档回写**：`production/qa/beads/test-cases.md` §A2/§A3 抬起提交形态 + zoom/pan Node 用例 + 真机 P0（zoom≠1 棋盘命中）挂账；`ux-spec §4/§5` 抬起提交 + 动效起算点后移回写（GDD `input-control v2.5`/`core-loop v2.1` 已翻转，派生文档待镜像，属 K-053 反转批收尾）。
+  - **§3 数值**：位移阈值 `BOARD_TAP_MOVE_THRESHOLD=8`、`CAMERA_ZOOM_MIN/MAX=1/3` 均为 tuning 工程占位 `[待确认]`，未进 §3；最终值走 §3 变更单 + playtest。
+- **门禁**：`framework:sync:check` ✅ · `cocos:check` ✅ · `check:size` ✅ · `typecheck` ✅ · `test` ✅。
+
+- **真机三反馈修正（2026-09-18 用户复验后，同单续做）**：
+  - **①「只能缩放不能拖动」根因确诊**：`_readInput` 的 `onBoard` 旧判据 = `_hitGridCell != null`（须命中某格半径），真机拖拽从格间隙/盘面留白起手 ⇒ 判为区外 ⇒ 从不进拖拽态。**改**：`onBoard` = 落点在 `PUZZLE_BAND` 整块（起手域，非命中格）；tap 提交仍走 `_handleTap` 内部命中裁决。
+  - **②「缩放要有限度 / 拖不出屏」**：`clampCamera(cam, cols, rows)` 重写为内容边界夹取——缩放界 `[fit, fit×CAMERA_ZOOM_MAX_SPAN]`；平移 `maxOff = max(0,(boardPx − viewport)/2)`：棋盘 ≤ 视口时 offset 锁 0（居中、拖不动也拖不出屏），> 视口时可滚到四角但棋盘边缘永不离开视口、不露空白。`clamp` 归一 `-0`（防渗进快照）。
+  - **③「初始居中不贴边」**：新增 `computeFitZoom(cols,rows)=min(1, 含 BOARD_FIT_MARGIN 适配)` + `fitCamera`；`_setupLevel`/`_loadStage` 初始相机改 `fitCamera`（大盘缩到含边距居中；小盘 fit=1 恒等 ⇒ 旧基线/测试零漂移）。
+  - **数值全部 `[待确认]` 工程占位**（`BOARD_FIT_MARGIN=24`、`CAMERA_ZOOM_MAX_SPAN=2.5`、`BOARD_TAP_MOVE_THRESHOLD=8`），未进 §3；真机手感调参走 §3 变更单。**pinch-focal 锚定仍 ponytail 占位（中心缩放）**。
+  - **验证**：beads **489 例绿**（`board-camera.test.ts` 12 例锁 fit/夹取/相对倍率；`layout-camera` 回环+恒等锚+反例；`board-input-timing` 抬起提交正面判据）、`verify` **17/17**、`framework:sync` 镜像。Cocos 逐指点派发经本轮真机「能缩放」反证成立 ⇒ **Z0 `[C]` 前置解除**。

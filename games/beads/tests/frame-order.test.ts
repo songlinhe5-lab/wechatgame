@@ -30,7 +30,8 @@ const STEP = 1 / 60;
 
 function mk(saveKey: string): Harness {
   return createBeadsHarness({
-      noAssemble: true, levels: [simpleTestLevel()], saveKey });
+    noAssemble: true, levels: [simpleTestLevel()], saveKey
+  });
 }
 
 /** S6 道具卡 0（region）中心——命中区即绘制卡本身（§3.8）。 */
@@ -52,17 +53,9 @@ function cellPoint(harness: Harness, row: number, col: number): { x: number; y: 
 
 
 
-/** 逼到「下一帧必归零」但**尚未**归零（手工逐帧，避免 overshoot 到 0）。 */
-function burnToFinalFrame(harness: Harness): void {
-  let guard = 0;
-  while (harness.game.remaining > STEP && harness.game.phase === 'playing') {
-    harness.advance(STEP);
-    if (++guard > 60 * 600) throw new Error('burnToFinalFrame: ran away');
-  }
-  expect(harness.game.phase).toBe('playing');
-  expect(harness.game.remaining).toBeGreaterThan(0);
-  expect(harness.game.remaining).toBeLessThanOrEqual(STEP); // 下一帧必归零
-}
+/** fo-3 专用的「留两帧余量」burn：C-3(a) 棋盘 tap 跨 down/up 两帧，down 帧照常 tick 一帧计时。
+ *  （旧 burnToFinalFrame 只留一帧，已随 WXG-T-169 时基翻转就地内联到 fo-3。） */
+
 
 describe('帧内执行序（core-loop §2.2.2）', () => {
   // core-loop §6「暂停请求同帧」：输入段恒先于计时段 ⇒ 暂停生效、本帧 dt 不计入倒计时；
@@ -125,7 +118,7 @@ describe('帧内执行序（core-loop §2.2.2）', () => {
 
   // core-loop §6「cleared 优先」+ §2.2.2 机制：cleared 属输入段、failed 属计时段；
   // 输入段离开 PLAYING 后本帧**直接返回** ⇒ 计时不再 tick、供料段恒空、归零不被判定。
-  it('lets the last placement win over a same-frame expiry, and never ticks the clock', () => {
+  it('lets the last placement win over the expiry it crosses (C-3: a board tap spans down→up, down-frame ticks once)', () => {
     const h = mk('wxgame.beads.test.fo-3');
     const grid = h.game.grid;
 
@@ -139,7 +132,15 @@ describe('帧内执行序（core-loop §2.2.2）', () => {
     const lastCell = fillable[fillable.length - 1]!;
 
     // v2.0：供料关停 ⇒ 无「托盘被供料塞满」前置，也无需 clearAll——夹具直接摆棋。
-    burnToFinalFrame(h);
+    // C-3(a)：一次棋盘 tap 跨 down / up 两帧，down 帧计时段照常 tick 一帧 ⇒ 留两帧余量，
+    // 让「落子(输入段) 赢过 归零(计时段)」发生在抬起帧（up 帧输入段清盘后直接返回、计时段不执行）。
+    let burnGuard = 0;
+    while (h.game.remaining > 2 * STEP && h.game.phase === 'playing') {
+      h.advance(STEP);
+      if (++burnGuard > 60 * 600) throw new Error('burnToFinalFrame(2-step): ran away');
+    }
+    expect(h.game.phase).toBe('playing');
+    expect(h.game.remaining).toBeGreaterThan(STEP);
 
     for (const { row, col } of fillable.slice(0, -1)) {
       const slot = h.game.giveTrayBead(grid.requiredColor(row, col));
@@ -159,8 +160,8 @@ describe('帧内执行序（core-loop §2.2.2）', () => {
 
     expect(h.game.phase).toBe('level-clear'); // 输入段：通关判定
     expect(h.count('level:cleared')).toBe(1);
-    expect(h.count('level:failed')).toBe(0); // 计时段未执行 ⇒ 归零未被判定
-    expect(h.count('timer:tick')).toBe(ticksBefore); // 本帧零 timer:tick
+    expect(h.count('level:failed')).toBe(0); // up 帧输入段清盘 ⇒ 归零不被判定（仅 down 帧 tick）
+    expect(h.count('timer:tick')).toBe(ticksBefore); // timer:tick 为秒粒度事件；down/up 两帧未跨秒边界 ⇒ 不新增
     expect(h.count('tray:spawned')).toBe(spawnsBefore); // 本帧零供料（供料段恒空）
     // 玩法事件段内序：落子回执恒先于通关判定。
     const placedAt = h.emitted.findIndex((e) => e.type === 'bead:placed');

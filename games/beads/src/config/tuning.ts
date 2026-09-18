@@ -844,6 +844,10 @@ export interface GridLayout {
   readonly bottom: number;
   readonly cols: number;
   readonly rows: number;
+  /** Camera-scaled cell edge (`BEAD_CELL · zoom`; = BEAD_CELL at identity). */
+  readonly cell: number;
+  /** Camera-scaled grid pitch (`BEAD_PITCH · zoom`; = BEAD_PITCH at identity). */
+  readonly pitch: number;
   /** `colCenterX(j) = gridLeft + BEAD_CELL/2 + BEAD_PITCH * j` (§3.3). */
   colCenterX(j: number): number;
   /** `rowCenterY(i) = gridTop − BEAD_CELL/2 − BEAD_PITCH * i` (§3.3). */
@@ -851,18 +855,58 @@ export interface GridLayout {
 }
 
 /**
- * Derive the band-centred grid geometry for a `cols × rows` pattern.
+ * Board-camera state (WXG-T-169 / ADR-0015 丁-3 「布局即相机」).
+ *
+ * Three scalars: a uniform `zoom` and a design-space `offsetX/offsetY` pan.
+ * The camera is folded into `gridLayoutFor` so the grid's centres ARE the
+ * on-screen geometry and hit-testing reads the very same numbers — no second
+ * coordinate space, no inverse-transform channel (the ADR-0011 offset-bug class
+ * stays closed). The authoritative instance is held by the gameplay layer
+ * (L5: view + hit-test are read-only consumers).
+ */
+export interface BoardCamera {
+  zoom: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+/** Identity camera — `gridLayoutFor(cols, rows, IDENTITY_CAMERA)` equals today's output. */
+export const IDENTITY_CAMERA: BoardCamera = { zoom: 1, offsetX: 0, offsetY: 0 };
+
+// ───────────────────────── WXG-T-169 棋盘相机 / 手势工程占位值 ─────────────────────────
+// ⚠ 数值**未冻结**：最终档位与阈值属 `systems-index §3` 真源，须走 §3 变更单 + 真机 playtest
+//   定值（ADR-0015 §3.4「只交能力不交数值」）。下列仅为「跑得起来 + 口径清晰」的工程占位，
+//   QA 不得据本组占位数值造判据。
+/** 棋盘区 tap ↔ drag 分界（设计空间 px）：按下到抬起全程位移 < 此值判为 tap（抬起才提交）。 */
+export const BOARD_TAP_MOVE_THRESHOLD = 8; // [待确认]
+/** 初始「含边距适配」视图四周留白（设计 px）：把棋盘缩放到正好放进 PUZZLE_BAND 且居中不贴边。 */
+export const BOARD_FIT_MARGIN = 24; // [待确认]
+/** 相对「适配 zoom」最多可放大的倍数（缩放上限 = fit × 此值）；下限 = fit（不能再缩到留白更多）。 */
+export const CAMERA_ZOOM_MAX_SPAN = 2.5; // [待确认]
+
+/**
+ * Derive the band-centred grid geometry for a `cols × rows` pattern, optionally
+ * transformed by a board camera (WXG-T-169 / ADR-0015 丁-3).
  *
  * Horizontal: centred in 750 (left ≥ 30 holds up to 13 cols: (750−674)/2 = 38).
  * Vertical: centred in PUZZLE_BAND (top ≤ 1120 and bottom ≥ 480 hold up to
  * 12 rows: 1111 / 489).
+ *
+ * With `camera` omitted (or identity zoom=1 / offset=0) the produced numbers are
+ * **bit-identical** to the pre-zoom version — the level layout, snapshot and
+ * every existing assertion must not drift at the identity step (regression anchor).
  */
-export function gridLayoutFor(cols: number, rows: number): GridLayout {
-  const width = cols * BEAD_PITCH - BEAD_GAP;
-  const height = rows * BEAD_PITCH - BEAD_GAP;
-  const left = (DESIGN_W - width) / 2;
+export function gridLayoutFor(cols: number, rows: number, camera?: BoardCamera): GridLayout {
+  const z = camera ? camera.zoom : 1;
+  const ox = camera ? camera.offsetX : 0;
+  const oy = camera ? camera.offsetY : 0;
+  const pitch = BEAD_PITCH * z;
+  const cell = BEAD_CELL * z;
+  const width = cols * pitch - BEAD_GAP * z;
+  const height = rows * pitch - BEAD_GAP * z;
+  const left = (DESIGN_W - width) / 2 + ox;
   const bandMidY = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
-  const top = bandMidY + height / 2;
+  const top = bandMidY + height / 2 + oy;
   const bottom = top - height;
   return {
     left,
@@ -870,9 +914,46 @@ export function gridLayoutFor(cols: number, rows: number): GridLayout {
     bottom,
     cols,
     rows,
-    colCenterX: (j: number) => left + BEAD_CELL / 2 + BEAD_PITCH * j,
-    rowCenterY: (i: number) => top - BEAD_CELL / 2 - BEAD_PITCH * i,
+    cell,
+    pitch,
+    colCenterX: (j: number) => left + cell / 2 + pitch * j,
+    rowCenterY: (i: number) => top - cell / 2 - pitch * i,
   };
+}
+
+/**
+ * Nearest grid cell within the (camera-scaled) hit area — the single source of
+ * the grid hit test, shared by gameplay (`beads-game::_hitGridCell`) and the
+ * layout⇄hit regression test so the two can never drift (WXG-T-169 / ADR-0015).
+ *
+ * The hit radius **scales with zoom** (`GRID_HIT_SIZE · zoom / 2`). This is not
+ * polish: at zoom=1.5 the pitch′ = 78 > 66, so an unscaled radius would open a
+ * no-hit seam between cells and break `input-control §8-2` (nearest-centre wins,
+ * no dead zone). Scaling keeps `52z < 66z` true at every step. Ties → smaller row.
+ */
+export function hitGridCell(
+  layout: GridLayout,
+  zoom: number,
+  x: number,
+  y: number,
+): { row: number; col: number } | null {
+  const half = (GRID_HIT_SIZE * zoom) / 2;
+  let bestRow = -1;
+  let bestCol = -1;
+  let bestD2 = half * half;
+  for (let i = 0; i < layout.rows; i++) {
+    for (let j = 0; j < layout.cols; j++) {
+      const dx = x - layout.colCenterX(j);
+      const dy = y - layout.rowCenterY(i);
+      const d2 = dx * dx + dy * dy;
+      if (d2 < bestD2) {
+        bestD2 = d2;
+        bestRow = i;
+        bestCol = j;
+      }
+    }
+  }
+  return bestRow >= 0 ? { row: bestRow, col: bestCol } : null;
 }
 
 // ───────────────────────────────────────────────────────── §3.4 tray layout
