@@ -150,3 +150,33 @@
 | WXG-T-141 | beads·参考竞品四项裁定落盘（托盘 24 槽 / 缩放手势 / HUD / 失败页确认） | 主理人(WorkBuddy) | ✅ 完成（systems-index v1.24：TRAY_BASE/EXPAND 6→24 + 4 行态几何重验注记；tray-spawner v2.1；concept v1.3 D13；input-control v2.2；ux-spec v1.6；参考文档 §8 回填；§3.5/§3.11 零变更） | 见详情 |
 | WXG-T-142 | beads·谜面可读性载体切换 B′「目标色垫·垫色显缝」 | 主理人(WorkBuddy) | ✅ 完成（assets-spec v1.5-r5：L11 垫 + BEAD_DRAW_INSET=2；accessibility §5.4 终裁；bead-grid L74；基线 1828 不变；零 §3 变更） | 见详情 |
 | WXG-T-143 | beads·E6 渲染改造（四层凹陷卡+L11 垫+端点表） | 程基岩(eng) | ✅ 完成（315/315 全绿；端点表预烘焙零分配；托盘 24 槽布局待设计定尺寸） | 见详情 |
+> 归档批次 2026-09-18 23:10 +08:00 — 29 行（WXG-T-077、WXG-T-097、WXG-T-099、WXG-T-129、WXG-T-127、WXG-T-132、WXG-T-133、WXG-T-144、WXG-T-145、WXG-T-146、WXG-T-147、WXG-T-148、WXG-T-149、WXG-T-150、WXG-T-151、WXG-T-152、WXG-T-153、WXG-T-154、WXG-T-155、WXG-T-157、WXG-T-161、WXG-T-158、WXG-T-159、WXG-T-160、WXG-T-162、WXG-T-163、WXG-T-165、WXG-T-156、WXG-T-168）｜判定：git blame committer-time ≥ 30 天｜详情节同批搬入 production/archive/TASKS-DETAIL-archive.md
+| WXG-T-077 | Cocos G3：Label 真实宽度替换 | 主理人(Qoder) | ✅ 完成（两半码齐 + 预览目视 PASS，G3 关闭；截图存证） | 见详情 |
+| WXG-T-097 | beads·P1反馈缺口(BD-15/16+BD-04余类+BD-32) | 主理人(Qoder) | ✅ 完成（四项全关：BD-15/16/10/32/04；探针复跑归 QA） | 见详情 |
+| WXG-T-099 | beads·取证通路补全(像素滤镜+frames+§H缺口) | 程基岩+严守真 | ✅ 完成（③ §H 12 条**进探针**已落地并判读；④ 证据形式裁定 = 报告内引用路径 + mtime，**不入仓**） | 见详情 |
+| WXG-T-129 | 微信真机触摸坐标归一化错误(BD-48) 可玩性 P0 | 程基岩(eng) | ✅ 真机复验通过（wx 分支落码；真因经 T-161 勘误修正随 `706e99f` 入库；**2026-09-18 用户真机首验 P0-A 点击命中 ✅**、SHOW_ALL 重开（产物 policy:2）后十字与手指重合；可玩性 P0 闭） | 见详情 |
+| WXG-T-127 | beads 可玩性实测差距修复(BD-43 热区错位 P1 等) | 程基岩(eng) | ✅ 完成（BD-45/46/47 修复 + BD-43 不复现补同源断言 + BD-44 非缺陷勘误；随 `ec49da8` 入库；复测项见详情） | 见详情 |
+| WXG-T-132 | G5案B：渲染管线全局变换通道（跨 framework） | 主理人(Qoder) | ✅ 完成（随 `ede72d5` 入库；三包矩阵 295/409/239 绿；⚠️ Cocos 节点缩放系编辑器半，真机抖动观察项未关） | 见详情 |
+| WXG-T-133 | beads·Epic：错位归位工程实现（E1–E7 拆分） | 主理人(Qoder) | ✅ 完成（E1–E7 **7/7 收官**：T-134~137 / T-139 / T-143 / T-144；收口复核 verify 14/15，三包 295/409/239 全绿，唯一 FAIL=check:size 存量漂移归发布域；G4 探针复跑另单 T-151，真机 `[R]` 仍 ⛔） | 见详情 |
+| WXG-T-144 | beads·E7 QA 判据迁移（四族⛔+新玩法用例+G4 收口） | 严守真(qa) | ✅ 完成（test-cases §J + 报告 v1.9；探针 v2 数据下 ⛔ 待重写；**Epic T-133 收官 7/7**） | 见详情 |
+| WXG-T-145 | beads·G1 落座回弹落码（vfx_fill_pop，T-128 落码①） | 主理人(Qoder) | ✅ 完成（328/328 绿；代码随并发会话 `dbb3c1c` 进 HEAD，**未经真机验证**） | 见详情 |
+| WXG-T-146 | beads·落码②G3/G4 VFX+24槽托盘适配 | 并发会话+主理人收口 | ✅ 完成（369/369 全绿；G2′ 拆 T-149） | 见详情 |
+| WXG-T-147 | beads·连通选取+整组收进（错位玩法组语义，用户裁定） | 主理人(Qoder) | ✅ 完成（335/335 全绿；8 邻接 flood fill 锚 + 组化取回；规格回填待 GDD 批。⚠️ **全绿串经复核不成立于其自身提交**，见详情节「收口后复核注」） | 见详情 |
+| WXG-T-148 | beads·错位珠恒亮白环+锚珠抬起（用户反馈①②） | 并发会话(Qoder)，本会话代登记 | ✅ 完成（随 `667d2c5` 落码；⚠️ **领号未登记**——主表/头注均无此号，本行为事后补登） | 见详情 |
+| WXG-T-149 | beads·失败续时 60→180 落码 + ref-video §10.7 勘误（用户 2026-09-17 拍板） | WorkBuddy 主会话 | ✅ 完成（systems-index v1.25 + tuning.ts src/cocos 双落 + 勘误；revive/timer 15/15 绿；⚠️ 全包另有 4 例存量红与本次无关，见详情） | 见详情 |
+| WXG-T-150 | beads·G2′ 解环器归位落码（solver 归位动效三相） | 主理人(Qoder) | ✅ 完成（代码随 3ab5457 入库；369/369 绿；三裁定追认） | 见详情 |
+| WXG-T-151 | beads·G4 探针 v2.0 适配复跑（满盘/24槽/组语义 54 组） | 严守真(qa) | ✅ 完成（终跑 79 组零崩溃 PASS 38/PASS* 23/FAIL 2/⛔16；BD-49 登记+报告 v2.0 §27；FAIL 均移交：BD-49 落码单待立、§8-9 回写待裁定） | 见详情 |
+| WXG-T-152 | beads·G7 不可填格轻压+sfx_denied 音频原子批落码（T-128 ③） | 主理人(Qoder) | ✅ 完成（随 `7fc1c8a` 入库；⚠️ 初误占 151 撞 QA 号已改领；387/387 绿） | 见详情 |
+| WXG-T-153 | beads·G6 结算彩带落码（零 RNG 44 枚 sandwich，T-128 ④） | 主理人(Qoder) | ✅ 完成（随 `7fc1c8a` 入库；401/401 绿；⚠️ scratch 契约 + 公式方向「飘落」矛盾两项登记待 art 复验，见 §1.6.6 回写注） | 见详情 |
+| WXG-T-154 | beads·BD-49 道具音频断链修复（T-151 移交） | 主理人(Qoder) | ✅ 完成（handler 改读 affectedCells+夹具订正；409/409 绿；探针复跑 A05-07→PASS 无新回归；未 commit） | 见详情 |
+| WXG-T-155 | 工具·check:a11y 锚点机械守卫（防假绿） | 主理人(Qoder) | ✅ 完成（锚点表×2+脚本挂 verify；正/反向实测均成立；B2 漂移新登 backlog；未 commit） | 见详情 |
+| WXG-T-157 | beads·组选收窄 + board 锚直填落码（8向两步同色/逐颗续填，用户三项裁定） | 主理人(CodeBuddy) | ✅ 完成（415/415 绿；verify PASS 16/FAIL 0；GDD input-control v2.2 + bead-grid 代落盘待正主复验；未 commit） | 见详情 |
+| WXG-T-161 | 框架·微信触摸逆变换公式勘误（BD-48 真因） | 主理人(CodeBuddy) | ✅ 落码（framework 299/299 绿；sync 一致；随 `706e99f` 入库；**待真机复测**；根配置 AppID 待处置项已随 `2f62027` 闭合） | 见详情 |
+| WXG-T-158 | beads·托盘同色归类+组选+批量填充落码（用户四项裁定） | 主理人(Qoder) | ✅ 完成（落码+测试+GDD 回写；verify 16 项 PASS 2026-09-18） | 见详情 |
+| WXG-T-159 | breakout 配色双轨漂移定性对账（backlog B2 项） | 主理人(CodeBuddy) | ✅ 完成（对账完成：砖块色全对齐 / UI 场景色零重合；用户裁定 **C 维持登记 ⛔**，两侧不动） | 见详情 |
+| WXG-T-160 | 装置自测 fast 档挂 verify（BD-39/BD-40 本地半边） | 主理人(CodeBuddy) | ✅ 完成（两处根因定位并修：`verify:selftest` 第 5 步 SKIP 子串误判 + `ctx:check` vendor 环境缺失误判红；隔离 worktree 实测 8/8 绿；verify 17 项 PASS） | 见详情 |
+| WXG-T-162 | beads+框架·真机五项修复（SFX 离线渲染/组选全连通/直填放距/乙档缝宽/同心圆角） | 主理人(Qoder) | ✅ 落码（随 `79f217a` 入库，与 T-164 交织文件合笔；**待真机复验**） | 见详情 |
+| WXG-T-163 | beads·主菜单+元游戏页族程序结构设计（B 壳双对象/分批 0-1-2，用户四项拍板） | 主理人(Qoder)+程基岩 | ✅ 完成（草稿零落盘、结构拍板；反转冻结与实现归 T-164） | 见详情 |
+| WXG-T-165 | beads·真机首验反馈修复批（白环移除 + 回主菜单弃本局棋盘，§3.14 反转） | 主理人(Qoder) | ✅ 已落码待重建复验（代码+文档同批，beads 455 绿，sync/links 绿；待 build:cocos 重建进真机） | 见详情 |
+| WXG-T-156 | beads·BD-50 Cocos rgba 色彩解析纯黑缺陷修复 | 主理人(Qoder) | ✅ 完成（随 `b177151` 入库；parseColorLiteral 收口+burst v2.1 重拍 G6 8/8+G3 5/5；差异②已裁定关闭见 §1.6.6） | 见详情 |
+| WXG-T-168 | beads·取回落槽口径改写（点槽定落位 + 部分收纳·就近优先，推翻 WXG-T-158 裁定①） | 主理人(CodeBuddy) | ✅ 落码（代码+三文回写+判据；beads 460/460 绿、verify 17/17 PASS；待真机复验） | 见详情 |
