@@ -148,6 +148,12 @@
       "taskId": "WXG-T-130"
     },
     {
+      "path": "games/beads/design/gdd/systems-index-changelog.md",
+      "reason": "beads systems-index §3 冻结常量的变更记录台账（每条冻结变更追加一行 vX.Y），按时间序追加、只经 ctx 锚点局部读、开发期从不整读；与 systems-index.md 互为「真源↔变更史」须整体一致",
+      "note": "WXG-T-158（2026-09-18）托盘同色归类/组选/批量填充裁定追加变更记录行使其自 ≈8.0k 越至 8050 tok（超 50，微超）。取向对齐 TASKS-DETAIL（WXG-T-077）台账豁免先例。债务显式化：若跨轮累积 >12000 tok，按版本区间归档为 systems-index-changelog-<vX>.md 后撤销本豁免。登记人 = 主理人",
+      "taskId": "WXG-T-158"
+    },
+    {
       "path": "games/beads/design/audio/audio-events.md",
       "reason": "beads 音频事件表正本（§1 事件表 17 行逐行对齐 + §2 反向无发明 + Q-A05 未决），音频域按表局部读",
       "note": "⚠️ 代登记（2026-09-16，主理人 T-130 提交批次）：本文件 8660 tok 超 660 系 WXG-T-128 批（§5 新增两行的对齐登记，+12 行）所致，该批未登记豁免致 commit 守卫阻断；归属 WXG-T-128，请该单收口时追认本条",

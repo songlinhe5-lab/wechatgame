@@ -112,10 +112,10 @@ describe('S3 bead-grid', () => {
     game.selectTraySlot(lastHoldingSlot());
     expect(game.tapGridCell(0, 4)).toBe(false);
 
-    // Filled cell: fill (0,0) first, then tap it again.
-    game.giveTrayBead(color);
-    game.selectTraySlot(lastHoldingSlot());
-    expect(game.tapGridCell(0, 0)).toBe(true);
+    // Filled cell: fill (0,0) first, then tap it again. v2.2 组选下保持单珠组
+    // （每组仅 1 颗 ⇒ 不触发批量填充），旧「先囤两颗再分别落子」序列会被整组选中
+    // + 8 向蔓延改写，与本判据（locked/filled 零事件）无关。
+    expect(game.tapGridCell(0, 0)).toBe(true); // 同一选中组的合法落子，组清空锚回 none
     game.giveTrayBead(color);
     game.selectTraySlot(lastHoldingSlot());
     expect(game.tapGridCell(0, 0)).toBe(false);

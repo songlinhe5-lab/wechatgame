@@ -16,6 +16,12 @@
  * v1.22 payload change: `slot` is now OPTIONAL — required for the tray path
  * (the bead leaves that slot), absent for the solver path (S6 → S3 write, the
  * bead never came from the tray). Consumers must not assume it is always set.
+ *
+ * v2.1 (WXG-T-158 裁定③④): the tray path became a GROUP placement — a match
+ * on the tapped cell may fill more 同色连通空格 in the same call stack (see
+ * {@link planGroupFill}); `bead:placed` is emitted once per filled cell, so
+ * "一次归位多发事件" is by design, not a defect (bead-grid §8-11). This
+ * adjudicator still judges the TAPPED cell only; the batch lives in the caller.
  */
 
 import { BEAD_COLOR_MAX } from '../config/tuning';
@@ -81,4 +87,53 @@ export function judgePlacement(
   return slot === undefined
     ? { outcome: 'placed', row, col, colorIdx }
     : { outcome: 'placed', row, col, colorIdx, slot };
+}
+
+/**
+ * v2.1 组批量填充规划（bead-grid §2.3 路径 B 第 3 步，WXG-T-158 用户裁定③④）：
+ * 被点格匹配并已填入（`judgePlacement` placed）后，从被点格起 **8 向 BFS、不限
+ * 步数**（区别于盘侧组选 T-157 的 ≤2 收窄），沿「`empty` 且底色 = 组色」的连通
+ * 空格逐层蔓延，至多再报 `beadCount` 格（按 BFS 距层就近，同层行主序）。
+ * 调用时被点格已 `filled` ⇒ 它不再入选，仅作为 BFS 源不参与计数。
+ * 输入路径调用（一次点击一次），非每帧热路径 ⇒ 队列/集合分配可接受（
+ * `collectMisplacedGroup` 同判例）。
+ */
+export function planGroupFill(
+  grid: BeadGrid,
+  fromRow: number,
+  fromCol: number,
+  colorIdx: number,
+  beadCount: number,
+): { row: number; col: number }[] {
+  const out: { row: number; col: number }[] = [];
+  if (beadCount <= 0) return out;
+  const seen = new Set<number>();
+  seen.add(fromRow * grid.cols + fromCol);
+  // 邻域固定序 = 行主序（上→下、左→右），保证同层确定性。
+  const DELTAS = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1], [0, 1],
+    [1, -1], [1, 0], [1, 1],
+  ];
+  let frontier: { row: number; col: number }[] = [{ row: fromRow, col: fromCol }];
+  while (frontier.length > 0 && out.length < beadCount) {
+    const next: { row: number; col: number }[] = [];
+    for (const cellPos of frontier) {
+      for (const [dr, dc] of DELTAS) {
+        const r = cellPos.row + dr;
+        const c = cellPos.col + dc;
+        const key = r * grid.cols + c;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const cell = grid.cell(r, c);
+        if (!cell || cell.state !== 'empty' || cell.colorIdx !== colorIdx) continue;
+        out.push({ row: r, col: c });
+        next.push({ row: r, col: c });
+        if (out.length >= beadCount) break;
+      }
+      if (out.length >= beadCount) break;
+    }
+    frontier = next;
+  }
+  return out;
 }

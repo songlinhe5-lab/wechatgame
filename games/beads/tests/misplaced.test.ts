@@ -110,23 +110,26 @@ describe('E1 · retrieve adjudication (bead-grid v2.0 §2.3 路径 A / §8-2)', 
     expect(grid.misplacedCount).toBe(2);
     const before = harness.count('tray:stored');
 
-    expect(game.retrieveBead(0, 0, 3)).toBe(true);
+    // v2.2 裁定①：落槽 = S4 自动归类（空托盘 ⇒ 追加紧凑序列尾部 = 槽 0），
+    // 旧「玩家选槽 3」随裁定作废。
+    expect(game.retrieveBead(0, 0)).toBe(true);
 
-    // S3 侧：格转 empty；S4 侧：玩家选择的 3 号槽 holding。
+    // S3 侧：格转 empty；S4 侧：自动归类落槽 0 holding。
     expect(grid.cell(0, 0)!.state).toBe('empty');
     expect(grid.filledCount).toBe(29);
     expect(grid.misplacedCount).toBe(1);
-    const slot = game.tray.slot(3)!;
+    const slot = game.tray.slot(0)!;
     expect(slot.state).toBe('holding');
     expect(slot.colorIdx).toBe(beadAt00);
 
-    // tray:stored 恰 1 次，payload {slot, colorIdx, fromRow, fromCol}（§4 事件表）。
+    // tray:stored 恰 1 次，payload {slot, colorIdx, fromRow, fromCol}（§4 事件表；
+    // `slot` = 实际落位）。
     const stored = harness.all<{ slot: number; colorIdx: number; fromRow: number; fromCol: number }>(
       'tray:stored',
     );
     expect(stored.length - before).toBe(1);
     expect(stored[stored.length - 1]).toEqual({
-      slot: 3,
+      slot: 0,
       colorIdx: beadAt00,
       fromRow: 0,
       fromCol: 0,
@@ -140,9 +143,9 @@ describe('E1 · retrieve adjudication (bead-grid v2.0 §2.3 路径 A / §8-2)', 
     fillBoardInPlace(game);
 
     const eventsBefore = harness.emitted.length;
-    expect(game.retrieveBead(0, 0, 0)).toBe(false); // 就位珠（终态）
-    expect(game.retrieveBead(0, 4, 0)).toBe(false); // 可填格但就位 → not-misplaced
-    expect(game.retrieveBead(99, 99, 0)).toBe(false); // 越界
+    expect(game.retrieveBead(0, 0)).toBe(false); // 就位珠（终态）
+    expect(game.retrieveBead(0, 4)).toBe(false); // 可填格但就位 → not-misplaced
+    expect(game.retrieveBead(99, 99)).toBe(false); // 越界
     expect(harness.emitted.length).toBe(eventsBefore);
     expect(harness.count('tray:stored')).toBe(0);
     expect(game.grid.filledCount).toBe(30);
@@ -162,7 +165,7 @@ describe('E1 · retrieve adjudication (bead-grid v2.0 §2.3 路径 A / §8-2)', 
 
     const eventsBefore = harness.emitted.length;
     const slotStates = [0, 3, 11].map((i) => ({ ...game.tray.slot(i)! }));
-    expect(game.retrieveBead(0, 0, 5)).toBe(false);
+    expect(game.retrieveBead(0, 0)).toBe(false);
 
     expect(harness.emitted.length).toBe(eventsBefore); // 零事件
     expect(harness.count('tray:stored')).toBe(0);
@@ -179,25 +182,28 @@ describe('E1 · retrieve adjudication (bead-grid v2.0 §2.3 路径 A / §8-2)', 
     swapBeads(game, 2, 2, 3, 3);
     expect(game.grid.misplacedCount).toBe(2);
 
-    // 取回 (2,2) 的珠——只减不增，不可能全满。
-    expect(game.retrieveBead(2, 2, 0)).toBe(true);
+    // 取回 (2,2) 的珠——只减不增，不可能全满。v2.2：落槽自动归类 ⇒ 槽 0。
+    expect(game.retrieveBead(2, 2)).toBe(true);
     expect(game.phase).toBe('playing'); // 取回不触发完成判定
     expect(harness.count('level:cleared')).toBe(0);
 
     // (3,3) 仍被它的错位珠占着 → 先取回腾格，再让托盘两颗珠各归其位。
-    expect(game.retrieveBead(3, 3, 1)).toBe(true);
+    // （两颗异色 ⇒ 归类追加序列尾 ⇒ 槽 1。）
+    expect(game.retrieveBead(3, 3)).toBe(true);
     expect(game.grid.misplacedCount).toBe(0);
     expect(game.grid.filledCount).toBe(28);
 
-    // 槽 0 的珠归位到它真正的目标格 (3,3)；槽 1 的珠归位回原格 (2,2)。
+    // 槽 0 的珠归位到它真正的目标格 (3,3)；余珠归位回原格 (2,2)。
+    // v2.2 (§8-6b)：离珠左移补位 ⇒ 第二颗随之前移到槽 0（旧「留在槽 1」作废）。
     expect(game.selectTraySlot(0)).toBe(true);
     expect(game.tapGridCell(3, 3)).toBe(true);
     expect(game.grid.cell(3, 3)!.state).toBe('filled');
     expect(game.grid.isMisplaced(3, 3)).toBe(false);
-    expect(game.tray.slot(0)!.state).toBe('free');
+    expect(game.tray.slot(0)!.state).toBe('holding'); // 补位：余珠占槽 0
+    expect(game.tray.slot(1)!.state).toBe('free');
     expect(game.grid.misplacedCount).toBe(0); // 两颗错位珠都已在托盘
 
-    expect(game.selectTraySlot(1)).toBe(true);
+    expect(game.selectTraySlot(0)).toBe(true);
     expect(game.tapGridCell(2, 2)).toBe(true);
     expect(game.grid.cell(2, 2)!.state).toBe('filled');
     expect(game.grid.isMisplaced(2, 2)).toBe(false);
@@ -224,15 +230,16 @@ describe('E1 · isComplete = 全满 且 零错位 (bead-grid v2.0 §2.3 路径 B
 
     // 逐颗归位：取回两颗错位珠，经托盘各归其位 → 最后一颗归位触发通关。
     // 交换后 (0,0) 持 (1,1) 底色珠、(1,1) 持 (0,0) 底色珠。
-    expect(game.retrieveBead(0, 0, 0)).toBe(true);
-    expect(game.retrieveBead(1, 1, 1)).toBe(true);
+    expect(game.retrieveBead(0, 0)).toBe(true);
+    expect(game.retrieveBead(1, 1)).toBe(true);
     expect(game.grid.misplacedCount).toBe(0);
     expect(game.grid.filledCount).toBe(28);
 
     expect(game.selectTraySlot(0)).toBe(true);
     expect(game.tapGridCell(1, 1)).toBe(true);
     expect(harness.count('level:cleared')).toBe(0); // 还差一颗
-    expect(game.selectTraySlot(1)).toBe(true);
+    // v2.2 (§8-6b)：首颗离盘后余珠左移补位到槽 0。
+    expect(game.selectTraySlot(0)).toBe(true);
     expect(game.tapGridCell(0, 0)).toBe(true);
 
     expect(grid.filledCount).toBe(30);

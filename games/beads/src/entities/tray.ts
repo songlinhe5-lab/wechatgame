@@ -1,12 +1,20 @@
 /**
  * Tray — the S4 slot array: the single authority for bead possession.
  *
- * Each slot is `free | holding(colorIdx) | selected`; at most one slot is
- * selected (re-selection moves it, never stacks — tray-spawner §2.1). The tray
- * also carries the "still-needed colours" projection: initialised from the
- * grid at level/stage load, decremented for each `bead:placed` (architecture
- * §2 note ① — a data projection, not an event; S3 and S4 never call each
- * other).
+ * v2.2 (WXG-T-158 用户裁定①②, tray-spawner §2.1): two new invariants —
+ *   - **同色归类**: non-free beads sit compact from slot 0 as contiguous
+ *     same-colour blocks (no free slot between blocks); a retrieved bead
+ *     auto-inserts at the tail of its colour's block (`insertGrouped`) — the
+ *     player no longer picks a landing slot;
+ *   - **同色全组选中**: `selected` marks the WHOLE same-colour block; tapping
+ *     any holding bead selects its group, tapping a bead of the selected
+ *     group again silently clears the whole group (`select` → 'deselected').
+ *     At most ONE colour group is selected at a time (anchor mutex lives in
+ *     BeadGame / input-control §2.1).
+ * The tray also carries the "still-needed colours" projection: initialised
+ * from the grid at level/stage load, decremented for each `bead:placed`
+ * (architecture §2 note ① — a data projection, not an event; S3 and S4 never
+ * call each other).
  */
 
 import { TRAY_BASE_SLOTS, TRAY_EXPAND_SLOTS } from '../config/tuning.js';
@@ -19,7 +27,8 @@ export interface TraySlot {
   colorIdx: number;
 }
 
-export type SelectResult = 'selected' | 'already-selected' | 'invalid';
+/** v2.2 组选结果（原 'already-selected' 幂等语义被 'deselected' 整组取消推翻）。 */
+export type SelectResult = 'selected' | 'deselected' | 'invalid';
 
 export class Tray {
   private readonly _slots: TraySlot[];
@@ -124,6 +133,23 @@ export class Tray {
     return idx >= 0 ? this._slots[idx]!.colorIdx : 0;
   }
 
+  /** v2.2：选中组（同色连续块）的**尾槽**；无选中 ⇒ -1。批量归位从尾部取珠 ⇒ 保持归类紧凑不变式。 */
+  get selectedLastSlot(): number {
+    for (let i = this._slots.length - 1; i >= 0; i--) {
+      if (this._slots[i]!.state === 'selected') return i;
+    }
+    return -1;
+  }
+
+  /** v2.2 组选：当下被选中的珠数（= 同色连续块长度；无选中 = 0）。 */
+  get selectedCount(): number {
+    let n = 0;
+    for (const slot of this._slots) {
+      if (slot.state === 'selected') n++;
+    }
+    return n;
+  }
+
   get holdingCount(): number {
     let n = 0;
     for (const slot of this._slots) {
@@ -137,25 +163,71 @@ export class Tray {
   }
 
   /**
-   * Select / re-select a holding slot. Idempotent on the same slot (core-loop
-   * §6: double-tap = re-select, no repeated event). @returns the outcome so
-   * the caller knows whether to broadcast `tray:selected`.
+   * v2.2 组选（tray-spawner §2.1 裁定②，覆盖旧「单槽选中/双击幂等」）：
+   * 点任一 holding 珠 ⇒ 托盘内该色**全部**珠进入 `selected`（换选时旧组整组回
+   * `holding`）；再点已选组任一颗（含同一颗）⇒ **整组静默取消**（'deselected'，
+   * 调用方零事件，锚回 `none`）。@returns 结果，调用方据此决定是否广播
+   * `tray:selected {slot, colorIdx, count}`。
    */
   select(slotIndex: number): SelectResult {
     const slot = this._slots[slotIndex];
     if (!slot || slot.state === 'free') return 'invalid';
-    if (slot.state === 'selected') return 'already-selected';
+    const color = slot.colorIdx;
     const prev = this.selectedSlot;
-    if (prev >= 0) this._slots[prev]!.state = 'holding';
-    slot.state = 'selected';
+    if (prev >= 0 && this._slots[prev]!.colorIdx === color) {
+      this.deselectAll();
+      return 'deselected';
+    }
+    this.deselectAll();
+    for (const s of this._slots) {
+      if (s.state === 'holding' && s.colorIdx === color) s.state = 'selected';
+    }
     return 'selected';
   }
 
+  /** v2.2：整组取消选中（`selected → holding`，零事件；锚互斥清除半边共用）。 */
+  deselectAll(): void {
+    for (const slot of this._slots) {
+      if (slot.state === 'selected') slot.state = 'holding';
+    }
+  }
+
   /**
-   * Store a retrieved bead into a specific free slot (v2.0 retrieve path —
-   * tray-spawner §2.4「取回入槽」, the ONLY bead-entry channel while the
-   * spawner is off). The slot is player-chosen, NOT random. Returns false
-   * when occupied/free-mismatch (S4 复核兜底 lives in `judgeRetrieve`).
+   * v2.2 自动归类插入（tray-spawner §2.1 归类不变式，用户裁定①）：新珠落到
+   * **同色块尾部**（无同色块则追加紧凑序列末尾），其余珠整体右移一位保持紧凑。
+   * 输入路径调用（取回/供料复活），非每帧热路径 ⇒ 移位写入可接受。
+   * @returns 实际落位槽号；无空槽 ⇒ -1（满槽禁取珠前提由调用方/S3 把守）。
+   */
+  insertGrouped(colorIdx: number): number {
+    if (this.freeCount === 0) return -1;
+    const n = this.holdingCount; // 紧凑不变式 ⇒ 珠占 [0..n-1]
+    let pos = n; // 默认：无同色块 ⇒ 追加序列末尾
+    for (let i = 0; i < n; i++) {
+      const s = this._slots[i]!;
+      if (s.colorIdx === colorIdx) {
+        while (i + 1 < n && this._slots[i + 1]!.colorIdx === colorIdx) i++;
+        pos = i + 1; // 同色块尾部之后
+        break;
+      }
+    }
+    for (let i = n - 1; i >= pos; i--) {
+      const src = this._slots[i]!;
+      const dst = this._slots[i + 1]!;
+      dst.state = src.state;
+      dst.colorIdx = src.colorIdx;
+      src.state = 'free';
+      src.colorIdx = 0;
+    }
+    const target = this._slots[pos]!;
+    target.state = 'holding';
+    target.colorIdx = colorIdx;
+    return pos;
+  }
+
+  /**
+   * Store a bead into a specific free slot (primitive; tests/fixtures and the
+   * dead spawner path). **v2.2 玩法落槽不再走本方法** —— 取回落槽 = 系统自动
+   * 归类 `insertGrouped`（tray-spawner §2.4 裁定①）；本方法不维持归类不变式。
    */
   storeInto(slotIndex: number, colorIdx: number): boolean {
     const slot = this._slots[slotIndex];
@@ -187,12 +259,25 @@ export class Tray {
   /**
    * A bead left the tray (placement accepted / powerup cleared). Selected state
    * clears together with the bead (tray-spawner §2.4).
+   *
+   * v2.2 (§8-6b 归类不变式)：离珠后**左移补位** —— 批量归位从组块尾倒序取珠，
+   * 被清空的中间块若留下块间空洞，后侧块与 `insertGrouped` 的紧凑前提
+   * （珠占 `[0..holdingCount-1]`）都会失守。输入路径调用，O(capacity) 可接受。
    */
   takeBead(slotIndex: number): boolean {
     const slot = this._slots[slotIndex];
     if (!slot || slot.state === 'free') return false;
     slot.state = 'free';
     slot.colorIdx = 0;
+    for (let i = slotIndex + 1; i < this._slots.length; i++) {
+      const src = this._slots[i]!;
+      if (src.state === 'free') break; // 不变式 ⇒ 首个 free 之后无珠
+      const dst = this._slots[i - 1]!;
+      dst.state = src.state;
+      dst.colorIdx = src.colorIdx;
+      src.state = 'free';
+      src.colorIdx = 0;
+    }
     return true;
   }
 

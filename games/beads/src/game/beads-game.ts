@@ -127,7 +127,7 @@ import {
   type ClearPanelOptions,
 } from '../systems/clear-panel.js';
 import { judgeRetrieve } from '../systems/retrieve.js';
-import { judgePlacement } from '../systems/placement.js';
+import { judgePlacement, planGroupFill } from '../systems/placement.js';
 import { Spawner } from '../systems/spawner.js';
 import { GameTimer } from '../systems/timer.js';
 import { SprintTracker } from '../systems/sprint.js';
@@ -158,7 +158,11 @@ import { buildBeadsView } from '../view/view-model.js';
 /** Events emitted on the framework bus — systems-index §4 (v1.22 event table). */
 export interface BeadsEvents extends Record<string, unknown> {
   'tray:spawned': { slot: number; colorIdx: number };
-  'tray:selected': { slot: number; colorIdx: number };
+  /**
+   * v1.27 payload 变更（WXG-T-158 用户裁定②）：同色全组选中——`slot` = 被点槽、
+   * `count` = 组珠数（与 `board:selected.count` 对称）；整组取消零事件。
+   */
+  'tray:selected': { slot: number; colorIdx: number; count: number };
   /** v1.22 新增：错位珠选中（选择锚置 `board`，与 `tray:selected` 互斥对称）。 */
   'board:selected': { row: number; col: number; colorIdx: number; count: number };
   /** v1.22 新增：取回入槽（S3/S4 同帧原子，不计分不断连）。 */
@@ -747,16 +751,19 @@ export class BeadsGame implements Game {
   // ────────────────────────────────────────────────────────── player commands
 
   /**
-   * Select a tray slot (S2 route 4a). Idempotent; re-selection moves the mark.
-   * v2.0：成功即建立 tray 锚并**清除 board 锚**（互斥换选，input-control §2.1）。
+   * Select a tray slot (S2 route 4a). **v2.2 组选（tray-spawner §2.1 裁定②）**：
+   * 点任一 holding 珠 = 同色全组选中（发 `tray:selected {slot,colorIdx,count}`，
+   * 锚置 tray）；再点已选组任一颗 = **整组静默取消**（零事件，锚回 none）。
+   * v2.0：成功组选即建立 tray 锚并**清除 board 锚**（互斥换选，input-control §2.1）。
    */
   selectTraySlot(slot: number): boolean {
     if (this._machine.current !== 'playing') return false;
     const result = this._tray.select(slot);
-    if (result !== 'selected') return false;
+    if (result === 'invalid') return false;
+    if (result === 'deselected') return true; // 整组取消：零事件，锚自然回 none
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
-    this._emit('tray:selected', { slot, colorIdx: color });
+    this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
     return true;
   }
 
@@ -792,15 +799,11 @@ export class BeadsGame implements Game {
 
   /**
    * 静默清除托盘选中（锚互斥的 S4 侧半边，input-control §2.1「换选即转移」）。
-   * ⚠️ 槽位态 `selected → holding` 直写：Tray 尚无 deselect 通道（`src/entities/**`
-   * 属 E1 域本单禁改，已回传登记，建议后续批次给 Tray 补 `deselect()`）。S6 镜像
-   * **无需**反向通知——`_anchor` 语义只要求该槽仍 `holding`（powerups.ts §region
-   * 的回退读法），`selected → holding` 天然满足，无漂移。
+   * **v2.2 组选改写**：清除的是整个 `selected` 组（旧版单槽直写随 Tray.deselectAll
+   * 收拢）。`selected → holding` 零事件；S6 镜像无反向通知需求不变。
    */
   private _clearTraySelection(): void {
-    const selected = this._tray.selectedSlot;
-    if (selected < 0) return;
-    this._tray.slot(selected)!.state = 'holding';
+    this._tray.deselectAll();
   }
 
   /**
@@ -817,22 +820,20 @@ export class BeadsGame implements Game {
 
   /**
    * v2.0 取回命令（Epic T-133 E1）— the S2 route 4b → S3/S4 pair-write as a
-   * public command. Takes the explicit misplaced cell `(row, col)` and the
-   * PLAYER-CHOSEN `targetSlot` (v2.0: no random drop); the caller (E2 router,
-   * tests) reads them off its selection anchor — this API deliberately does
-   * NOT own the anchor (input-control §2.1: `selection ∈ {tray, board, none}`
-   * is E2's routing state, see `retrieve.ts` for the adjudication).
+   * public command. Takes the explicit misplaced cell `(row, col)`; **v2.2
+   * (WXG-T-158 用户裁定①) 落槽 = S4 自动归类**（同色堆尾部，tray-spawner §2.1），
+   * 玩家点击的空槽仅作路由触发信号，不再是 API 参数（旧 `targetSlot` 随裁定删除）。
    *
-   * On success: grid `filled(错位)` → `empty` + slot `free` → `holding` in the
-   * same call stack, then `tray:stored {slot, colorIdx, fromRow, fromCol}`.
-   * Every refusal branch is ZERO-EVENT (满槽禁取珠 §3.13; locked/就位 taps get
-   * their 极轻反馈 from the S2/view layer, never from here).
+   * On success: grid `filled(错位)` → `empty` + 自动归类入槽 in the same call
+   * stack, then `tray:stored {slot, colorIdx, fromRow, fromCol}` — `slot` =
+   * 实际落位. Every refusal branch is ZERO-EVENT (满槽禁取珠 §3.13; locked/就位
+   * taps get their 极轻反馈 from the S2/view layer, never from here).
    *
    * @returns true only when the retrieval was stored.
    */
-  retrieveBead(row: number, col: number, targetSlot: number): boolean {
+  retrieveBead(row: number, col: number): boolean {
     if (this._machine.current !== 'playing') return false;
-    const verdict = judgeRetrieve(this._grid, this._tray, row, col, targetSlot);
+    const verdict = judgeRetrieve(this._grid, this._tray, row, col);
     if (verdict.outcome === 'stored') {
       this._emit('tray:stored', {
         slot: verdict.slot,
@@ -850,31 +851,23 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * 整组取回（WXG-T-148 用户裁定 ③④）：把 board 锚的**连通错位珠组**一次收进
-   * 托盘。限制**只有槽位数量**（组大小 ≤ free 槽数；用户裁定「不限制个数」）；
-   * 槽不足 ⇒ 零事件零状态写（满槽禁取珠 §3.13 的组化推广）。
+   * 整组取回（WXG-T-148 用户裁定 ③④；**v2.2 裁定① 改写落槽口径**）：把 board 锚的
+   * 错位珠组一次收进托盘。限制**只有槽位数量**（组大小 ≤ free 槽数，不足 ⇒
+   * 整组拒、零事件零状态写，满槽禁取珠 §3.13 的组化推广）；逐颗落槽 = S4 自动
+   * 归类（`retrieveBead` 内部），旧「preferred 槽优先 + 升序补足」随裁定作废。
    *
-   * 收进次序：`preferredSlot`（玩家点击的槽）优先，其余 free 槽升序补足 —— 逐颗
-   * 复用 `retrieveBead`（judgeRetrieve 逐颗原子 + 逐颗 `tray:stored`）。组内格
-   * 互不影响前提（取回只清格、不产生新错位）⇒ 逐颗调用安全；万一中途失败
-   * （理论不可达）保守中断、锚保持。
+   * 逐颗复用 `retrieveBead`（judgeRetrieve 逐颗原子 + 逐颗 `tray:stored`）；万一
+   * 中途失败（理论不可达）保守中断、锚保持。
    *
    * @returns true only when the WHOLE group was stored.
    */
-  retrieveSelectedGroup(preferredSlot: number): boolean {
+  retrieveSelectedGroup(): boolean {
     if (this._machine.current !== 'playing') return false;
     const anchor = this._boardSelected;
     if (!anchor) return false;
     if (this._tray.freeCount < anchor.cells.length) return false; // 槽位限制
-    // free 槽清单：preferred 优先，其余升序（容量足够 ⇒ 恰好 cells.length 个）。
-    const slots: number[] = [preferredSlot];
-    for (let s = 0; s < this._tray.capacity && slots.length < anchor.cells.length; s++) {
-      if (s !== preferredSlot && this._tray.slot(s)!.state === 'free') slots.push(s);
-    }
-    if (slots.length < anchor.cells.length) return false; // 防御：preferred 非 free
-    for (let i = 0; i < anchor.cells.length; i++) {
-      const c = anchor.cells[i]!;
-      if (!this.retrieveBead(c.row, c.col, slots[i]!)) return false; // 保守中断
+    for (const c of anchor.cells) {
+      if (!this.retrieveBead(c.row, c.col)) return false; // 保守中断
     }
     this._boardSelected = null; // 整组离格 ⇒ 锚失效
     return true;
@@ -1039,15 +1032,17 @@ export class BeadsGame implements Game {
   private _consumedTap = false;
 
   /**
-   * Debug/dev hook: drop a specific colour into the first free slot (S4 path).
+   * Debug/dev hook: drop a specific colour into the tray (S4 path).
    *
-   * ⛔ v2.0 供料关停后这是**唯一**还走 `spawnInto` 死路径并广播 `tray:spawned`
-   * 的入口（测试 / harness 夹具专用，非玩法触发源；tray-spawner v2.0 §4 死路径
-   * 保留口径）。供料复活时主循环供料段恢复，本钩子语义自动并入。
+   * ⛔ v2.0 供料关停后这是**唯一**还广播 `tray:spawned` 的入口（测试 / harness
+   * 夹具专用，非玩法触发源；tray-spawner v2.0 §4 死路径保留口径）。供料复活时
+   * 主循环供料段恢复，本钩子语义自动并入。
+   * **v2.2 裁定①**：落位改走 `insertGrouped` 自动归类——夹具构造的托盘与玩法
+   * 实况同一不变式（同色连续块紧凑排列），不会造出违反归类的测试态。
    */
   giveTrayBead(colorIdx: number): number {
-    const slot = this._tray.firstFree();
-    if (slot < 0 || !this._tray.spawnInto(slot, colorIdx)) return -1;
+    const slot = this._tray.insertGrouped(colorIdx);
+    if (slot < 0) return -1;
     this._emit('tray:spawned', { slot, colorIdx });
     return slot;
   }
@@ -1777,9 +1772,8 @@ export class BeadsGame implements Game {
     }
     const anchor = this._boardSelected;
     if (!anchor) return; // 4b 无 board 锚：零事件忽略（见方法头注）
-    if (this.retrieveSelectedGroup(slot)) {
-      // 整组收进成功（锚清理由 retrieveSelectedGroup 负责）。
-    }
+    // v2.2 裁定①：点击的空槽仅作触发信号，逐颗落槽 = S4 自动归类。
+    this.retrieveSelectedGroup();
   }
 
   /**
@@ -2085,58 +2079,88 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * The S2 → S3 route: place the selected bead, then handle every outcome.
+   * The S2 → S3 route: place the selected bead group, then handle every outcome.
    * v2.0 E2：归位前置「锚 = tray」由调用方（`_routeGridEmpty`）保证；本方法收窄为
    * 纯裁决应用——原 `slot<0` 轻提示分支已迁到路由层（`_routeGridEmpty` 方法头注），
    * 这里只保留旁路防御（无选中零事件拒绝，不再提示）。
+   *
+   * **v2.1 组批量填充（bead-grid §2.3 路径 B 第 3 步，WXG-T-158 裁定③④）**：
+   * 被点格匹配 ⇒ 从被点格起 8 向 BFS、不限步数，沿「`empty` 且底色 = 组色」的
+   * 连通空格蔓延，至多填 `min(组珠数, 连通格数)` 格（被点格必最先填，其余按 BFS
+   * 距层就近）；每格一份逐颗 `bead:placed`（同调用栈串行发完，每颗携各自来源槽
+   * = 组块尾部倒序取珠，保持归类紧凑不变式）。**部分填充（裁定③）**：珠不够 ⇒
+   * 点到珠为止；珠有余 ⇒ 剩余珠保持 `selected`（锚不变可续点）；组清空 ⇒ 锚自然
+   * 回 none。不匹配/不可填目标 = 既有 rejected/ignored 单格口径不变（整组留托盘）。
    */
   private _placeSelected(row: number, col: number): boolean {
-    const slot = this._tray.selectedSlot;
-    if (slot < 0) return false; // 防御：无锚不该到达（路由层已拦截并提示）
+    const slotHead = this._tray.selectedSlot;
+    if (slotHead < 0) return false; // 防御：无锚不该到达（路由层已拦截并提示）
     const colorIdx = this._tray.selectedColor;
-    const verdict = judgePlacement(this._grid, row, col, colorIdx, slot);
+    const groupSize = this._tray.selectedCount;
+    const verdict = judgePlacement(this._grid, row, col, colorIdx, slotHead);
 
     switch (verdict.outcome) {
       case 'placed': {
-        this._tray.takeBead(slot);
-        this._emit('bead:placed', {
-          row: verdict.row,
-          col: verdict.col,
-          colorIdx: verdict.colorIdx,
-          slot: verdict.slot,
-        });
-        this._armPlaceFx(verdict.row, verdict.col); // G1 落座回弹（`assets-spec §1.6.1`）
-        // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）。
-        // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
-        // 写 ⇒ 此处一次性低频 IO 直接 save()。幂等守卫：仅首次落子写一次（后续
-        // 落子零 S8 写，守 §8-11「放置不触存档」）。
-        if (!this._onboardDone) {
-          this._onboardDone = true;
-          this._save?.patch({ onboarded: true });
-          this._save?.save();
+        // 填充序：被点格最先，其余 = planGroupFill（BFS 距层，至多组珠数 −1）。
+        const cells: { row: number; col: number }[] = [
+          { row: verdict.row, col: verdict.col },
+        ];
+        if (groupSize > 1) {
+          const rest = planGroupFill(
+            this._grid,
+            verdict.row,
+            verdict.col,
+            colorIdx,
+            groupSize - 1,
+          );
+          for (let i = 0; i < rest.length; i++) cells.push(rest[i]!);
         }
-
-        if (this._mode === 'sprint') {
-          const score = this._sprint.onPlaced();
-          if (score.tierUp !== null) {
-            // §2.5 特效三档随倍率档触发；派生项：重叠时只播**最高档**。
-            const spec = comboVfxSpec(score.tierUp);
-            if (spec && (!this._comboVfx || spec.tier >= this._comboVfx.spec.tier)) {
-              this._comboVfx = { spec, elapsedMs: 0, row: verdict.row, col: verdict.col };
-            }
-            this._emit('combo:up', {
-              streak: score.streak,
-              multiplier: score.multiplier,
-              tier: score.tierUp,
-            });
+        for (let i = 0; i < cells.length; i++) {
+          const c = cells[i]!;
+          // 逐颗：从组块尾部取珠（块尾离格 ⇒ 紧凑不变式保持）。
+          const slot = this._tray.selectedLastSlot;
+          if (slot < 0) break; // 防御：珠与格严格配对，理论不可达
+          // 首格 = 被点格，已由 `judgePlacement` 写入；后续 BFS 格在此落子。
+          if (i > 0 && !this._grid.fill(c.row, c.col, colorIdx)) break; // 防御：格已被占
+          this._tray.takeBead(slot);
+          this._emit('bead:placed', { row: c.row, col: c.col, colorIdx, slot });
+          this._armPlaceFx(c.row, c.col); // G1 落座回弹（`assets-spec §1.6.1`）
+          // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）。
+          // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
+          // 写 ⇒ 此处一次性低频 IO 直接 save()。幂等守卫：仅首次落子写一次（后续
+          // 落子零 S8 写，守 §8-11「放置不触存档」）。
+          if (!this._onboardDone) {
+            this._onboardDone = true;
+            this._save?.patch({ onboarded: true });
+            this._save?.save();
           }
-          // Stage full → immediate switch (≤1 frame), bonus time applied
-          // BEFORE this frame's timer tick (C8: stage first).
-          if (this._grid.isComplete()) this._completeStage();
-        } else if (this._grid.isComplete()) {
-          // Cleared-priority: the same frame can never also judge a failure —
-          // the machine leaves PLAYING before the timer ticks again (S1 §8-5).
-          this._machine.transition('level-clear');
+
+          if (this._mode === 'sprint') {
+            const score = this._sprint.onPlaced();
+            if (score.tierUp !== null) {
+              // §2.5 特效三档随倍率档触发；派生项：重叠时只播**最高档**。
+              const spec = comboVfxSpec(score.tierUp);
+              if (spec && (!this._comboVfx || spec.tier >= this._comboVfx.spec.tier)) {
+                this._comboVfx = { spec, elapsedMs: 0, row: c.row, col: c.col };
+              }
+              this._emit('combo:up', {
+                streak: score.streak,
+                multiplier: score.multiplier,
+                tier: score.tierUp,
+              });
+            }
+            // Stage full → immediate switch (≤1 frame), bonus time applied
+            // BEFORE this frame's timer tick (C8: stage first).
+            if (this._grid.isComplete()) {
+              this._completeStage(); // ⚠️ 换关会重置托盘 ⇒ 必须终止本批剩余格
+              break;
+            }
+          } else if (this._grid.isComplete()) {
+            // Cleared-priority: the same frame can never also judge a failure —
+            // the machine leaves PLAYING before the timer ticks again (S1 §8-5).
+            this._machine.transition('level-clear');
+            break; // 过关已判 ⇒ 不再续填（同帧口径与单珠版一致）
+          }
         }
         return true;
       }

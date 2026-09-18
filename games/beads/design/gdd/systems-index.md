@@ -1,6 +1,6 @@
 # 系统清单与依赖索引（Systems Index）· beads
 
-- 项目：`games/beads`（拼豆错位归位）· 版本 v1.26 · 任务号 WXG-T-152（**v1.26 = §3.12 `AUDIO_CLIP_TOTAL` 19→20**：`sfx_denied`（不可填格轻压）转正，WXG-T-128 裁定 3，随 WXG-T-152 原子批落码；v1.25 = §3.11 `REVIVE_BONUS_SEC` 60→180（WXG-T-149）；v1.24 = 参考竞品后四项用户裁定**：托盘 6→24 槽（固定 2 行×12）/ 扩展 6→24（+2 行×12）/ 双指捏合缩放列 Should / HUD 不设「更多游戏」；v1.23 = 「大胆重制」裁定落盘**：托盘 12→6 槽 / 时间按 k 定价 / 星级主题解锁语义 / 冲刺 k 爬梯 / cycleProfile 环长分布 / E4 幽灵符号开关转正，提案正本 `design/proposals/v1.23-bold-remake.md`；v1.22 及以前见 `systems-index-changelog.md`）
+- 项目：`games/beads`（拼豆错位归位）· 版本 v1.27 · 任务号 WXG-T-158（**v1.27 = §4 `tray:selected` payload 扩 `count` + 托盘组选/自动归类/批量填充事件语义**，用户 2026-09-18 四项裁定，随 WXG-T-158 落码；**§3 数值零改动**；v1.26 = §3.12 `AUDIO_CLIP_TOTAL` 19→20：`sfx_denied`（不可填格轻压）转正，WXG-T-128 裁定 3，随 WXG-T-152 原子批落码；v1.25 = §3.11 `REVIVE_BONUS_SEC` 60→180（WXG-T-149）；v1.24 = 参考竞品后四项用户裁定**：托盘 6→24 槽（固定 2 行×12）/ 扩展 6→24（+2 行×12）/ 双指捏合缩放列 Should / HUD 不设「更多游戏」；v1.23 = 「大胆重制」裁定落盘**：托盘 12→6 槽 / 时间按 k 定价 / 星级主题解锁语义 / 冲刺 k 爬梯 / cycleProfile 环长分布 / E4 幽灵符号开关转正，提案正本 `design/proposals/v1.23-bold-remake.md`；v1.22 及以前见 `systems-index-changelog.md`）
 - 用途：定义系统边界、依赖顺序、以及**全局数值基线**（所有 GDD 引用此处的常量，避免数值漂移）
 - 数值纪律：本文数值全部依 `design/concept.md` 附录 A 提案定稿；标 `[待确认]` 者未冻结、不得据以实现。
 
@@ -230,10 +230,10 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | 事件 | 载荷（要点） | 触发方 → 消费方 |
 |---|---|---|
 | ~~`tray:spawned`~~ | ~~`{slot, colorIdx}`~~ | **⛔ v1.22 作废**（供料关停，无触发源；死路径保留，见 §3.4） |
-| `tray:selected` | `{slot, colorIdx}` | S2 → 视觉层（`selected` 态；选择锚置 `tray`） |
+| `tray:selected` | `{slot, colorIdx, count}` | S2 → 视觉层（`selected` 态；选择锚置 `tray`）。**v1.27 payload 变更**（WXG-T-158 用户裁定②）：同色全组选中，`slot` = 被点槽、`count` = 组珠数（与 `board:selected.count` 对称）；整组取消零事件 |
 | **`board:selected`** | `{row, col, colorIdx}` | **v1.22 新增**：S2 → 视觉层（错位珠选中态；选择锚置 `board`）。与 `tray:selected` 对称，选择锚 `selection ∈ {tray, board, none}` 互斥（`input-control §2.1`） |
 | **`tray:stored`** | `{slot, colorIdx, fromRow, fromCol}` | **v1.22 新增**：S3/S4 → S4（入槽）、S7（**不计分不断连**，`score-combo §2.4`）、视觉/音频层。取回 = 错位珠离格入空槽（S3 格态写入 + S4 槽位写入，同帧原子，`core-loop §2.2.2` 输入段） |
-| `bead:placed` | `{row, col, colorIdx, slot?}` | S3 → S7（完成判定）、音频。**v1.22 payload 变更登记**：`slot` 改**可选**——托盘归位路径必带（珠离槽）；解环器归位路径（S6→S3 写入）**不带** `slot`（珠不来自托盘），消费方不得假设恒有 |
+| `bead:placed` | `{row, col, colorIdx, slot?}` | S3 → S7（完成判定）、音频。**v1.22 payload 变更登记**：`slot` 改**可选**——托盘归位路径必带（珠离槽）；解环器归位路径（S6→S3 写入）**不带** `slot`（珠不来自托盘），消费方不得假设恒有。**v1.27 语义登记（无数值变更）**：托盘组归位可一次输入产出**多份**逐格事件（批量填充，`bead-grid §2.3 路径 B` v2.1） |
 | `bead:rejected` | `{row, col, colorIdx}` | S3 → 视觉层（`wrong` 态；仅「托盘珠放到不匹配空格」路径） |
 | ~~`tray:full`~~ | ~~`{}`~~ | **⛔ v1.22 作废**（供料关停，无满槽跳供场景；满槽取回被拒走零事件极轻反馈，不广播本事件） |
 | `tray:expanded` | `{}` | S4 → 视觉层（**消歧 2026-09-12**：效果与广播归 S4，S6 只维护只读镜像，见 S6 GDD §2.4） |

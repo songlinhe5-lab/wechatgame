@@ -231,7 +231,7 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
   it('满槽禁取珠（§8-11）：锚 = board 托盘全满点任意槽 → 零事件、锚保持；腾槽后同路径 tray:stored', () => {
     const h = mkHarness('wxgame.beads.test.e2-r4b-full');
     const game = h.game;
-    // 空板上造两颗**同色**错位珠（WXG-T-157 组选筛色：色 3，底 1/2 均 ≠3），托盘 12 槽填满。
+    // 空板上造两颗**同色**错位珠（WXG-T-157 组选筛色：色 3，底 1/2 均 ≠3），托盘 24 槽填满。
     expect(game.grid.fill(0, 0, 3)).toBe(true); // (0,0) 底色 1，珠色 3 ⇒ 错位
     expect(game.grid.fill(1, 1, 3)).toBe(true); // (1,1) 底色 2，珠色 3 ⇒ 错位
     for (let i = 0; i < TRAY_BASE_SLOTS; i++) expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
@@ -251,23 +251,27 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
     expect(game.selection).toBe('board');
     expect(game.grid.cell(0, 0)!.state).toBe('filled'); // 错位珠保持
 
-    // WXG-T-148 ④：**槽位数量限制** —— 腾 1 槽 < 组大小 2 ⇒ 同路径仍拒（原判据
-    // 「腾 1 槽即成功」随单珠 → 整组语义改写）。
-    expect(game.selectTraySlot(0)).toBe(true);
-    expect(game.tapGridCell(0, 3)).toBe(true);
-    expect(game.tray.slot(0)!.state).toBe('free');
-    game.tapDesign(p00.x, p00.y); // 重新建立 board 锚（上面 selectTraySlot 已清）
-    expect(game.selection).toBe('board');
-    game.tapDesign(pt0.x, pt0.y);
-    expect(h.count('tray:stored')).toBe(0); // 仍不足 2 槽 ⇒ 拒
+    // WXG-T-148 ④：**槽位数量限制** —— 腾 1 槽 < 组大小 2 ⇒ 同路径仍拒。
+    // v2.2 组选改写：路由点 holding 珠 = 全组选中后批量归位，无法精确腾 1 槽
+    // ⇒ 腾槽改走 setup 直写（从**块尾**取珠保持归类紧凑不变式），路由判据本身不变。
+    expect(game.tray.takeBead(TRAY_BASE_SLOTS - 1)).toBe(true);
+    const ptLast = trayPoint(game, TRAY_BASE_SLOTS - 1); // 现 free → 4b 取回触发
+    game.tapDesign(ptLast.x, ptLast.y);
+    expect(h.count('tray:stored')).toBe(0); // 仍不足 2 槽 ⇒ 整组拒（零事件）
+    expect(game.grid.cell(0, 0)!.state).toBe('filled');
+    expect(game.selection).toBe('board'); // 拒绝不动锚
 
     // 再腾 1 槽（共 2 free = 组大小）⇒ 整组收进成功（2 次 stored）。
-    expect(game.selectTraySlot(1)).toBe(true);
-    expect(game.tapGridCell(1, 3)).toBe(true); // (1,3) 底色 2 空格，槽 1 珠色 2
-    game.tapDesign(p00.x, p00.y);
-    game.tapDesign(pt0.x, pt0.y);
+    // v2.2 裁定①：落槽 = 自动归类——色 3 无同色堆 ⇒ 追加紧凑序列尾部（两新槽）。
+    expect(game.tray.takeBead(TRAY_BASE_SLOTS - 2)).toBe(true);
+    const ptPrev = trayPoint(game, TRAY_BASE_SLOTS - 2);
+    game.tapDesign(ptPrev.x, ptPrev.y);
     expect(h.count('tray:stored')).toBe(2);
     expect(game.grid.cell(0, 0)!.state).toBe('empty');
+    expect(game.grid.cell(1, 1)!.state).toBe('empty');
+    expect(game.tray.slot(TRAY_BASE_SLOTS - 2)!.colorIdx).toBe(3); // 实际落位 = 归类尾
+    expect(game.tray.slot(TRAY_BASE_SLOTS - 1)!.colorIdx).toBe(3);
+    expect(game.selection).toBe('none'); // 整组离格 ⇒ 锚清
   });
 });
 

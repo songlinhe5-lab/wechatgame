@@ -1,20 +1,21 @@
 /**
  * Retrieve — the S3 adjudication for one bead-retrieval request
- * (bead-grid §2.3 路径 A · 取回, v2.0; systems-index §3.13 取回前提).
+ * (bead-grid §2.3 路径 A · 取回, v2.1; systems-index §3.13 取回前提).
  *
- * Input `(row, col, targetSlot)` comes from S2 (route 4b, anchor = `board`)
- * or tests/harness commands. `targetSlot` is the PLAYER-CHOSEN free slot —
- * v2.0 removed the random-drop rule with the spawner (tray-spawner §2.4).
+ * Input `(row, col)` comes from S2 (route 4b — the tapped free slot is only a
+ * TRIGGER signal) or tests/harness commands. **v2.1 (WXG-T-158 用户裁定①)**:
+ * the landing slot is NO LONGER player-chosen — S4 auto-inserts the bead at
+ * the tail of its colour block (tray-spawner §2.1 归类不变式, `insertGrouped`).
  *
- * Rules (v2.0, all zero-event when not stored):
+ * Rules (v2.1, all zero-event when not stored):
  *   1. target cell not `filled(错位)` (locked/empty/void/就位珠) → ignored —
  *      the S2 layer owns the 极轻非惩罚反馈 for locked/就位 taps (裁定 4);
  *   2. tray has no free slot → 满槽禁取珠 (§3.13): refuse, zero events,
- *      zero state writes;
- *   3. target slot not free (S4 复核兜底, bead-grid §6) → refuse;
- *   4. pass → SAME-CALL-STACK atomic write (core-loop §2.2.2 输入段): grid
- *      `filled(错位)` → `empty`, slot `free` → `holding(colorIdx)`. The
- *      caller then broadcasts `tray:stored {slot, colorIdx, fromRow, fromCol}`.
+ *      zero state writes;整组收进额外前提 = free 槽数 ≥ 组大小 (router);
+ *   3. pass → SAME-CALL-STACK atomic write (core-loop §2.2.2 输入段): grid
+ *      `filled(错位)` → `empty`, slot `free` → `holding(colorIdx)` at the
+ *      auto-classified position. The caller then broadcasts
+ *      `tray:stored {slot, colorIdx, fromRow, fromCol}` — `slot` = 实际落位.
  *
  * Retrieve NEVER triggers the completion check (bead-grid §2.3 路径 A 第 3 步:
  * `filled` 只减不增, 全满不可达成).
@@ -29,7 +30,7 @@ export type RetrieveVerdict =
       outcome: 'ignored';
       row: number;
       col: number;
-      reason: 'out-of-bounds' | 'not-misplaced' | 'tray-full' | 'slot-not-free';
+      reason: 'out-of-bounds' | 'not-misplaced' | 'tray-full';
     };
 
 export function judgeRetrieve(
@@ -37,7 +38,6 @@ export function judgeRetrieve(
   tray: Tray,
   row: number,
   col: number,
-  targetSlot: number,
 ): RetrieveVerdict {
   // (row,col) out of bounds → ignore + warn (caller logs).
   if (!grid.cell(row, col)) {
@@ -55,16 +55,10 @@ export function judgeRetrieve(
     return { outcome: 'ignored', row, col, reason: 'tray-full' };
   }
 
-  // S4 复核兜底 (bead-grid §6): the target slot must still be free. The S2
-  // route only fires on a tapped free slot; a stale/occupied target lands here.
-  const slot = tray.slot(targetSlot);
-  if (!slot || slot.state !== 'free') {
-    return { outcome: 'ignored', row, col, reason: 'slot-not-free' };
-  }
-
   // Same-call-stack atomic pair-write (core-loop §2.2.2 输入段): grid
-  // `filled(错位)` → `empty` + slot `free` → `holding(colorIdx)`.
+  // `filled(错位)` → `empty` + S4 自动归类插入（v2.1 裁定①：落位 = 同色堆尾部，
+  // 无同色堆追加紧凑序列末尾）。freeCount > 0 已查 ⇒ insertGrouped 必成功。
   const colorIdx = grid.retrieve(row, col);
-  tray.storeInto(targetSlot, colorIdx);
-  return { outcome: 'stored', slot: targetSlot, colorIdx, fromRow: row, fromCol: col };
+  const slot = tray.insertGrouped(colorIdx);
+  return { outcome: 'stored', slot, colorIdx, fromRow: row, fromCol: col };
 }

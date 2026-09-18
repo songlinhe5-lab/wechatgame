@@ -92,11 +92,12 @@ describe('WXG-T-157 整组一次收进', () => {
     putMisplaced1(h, 2, 2);
     putMisplaced1(h, 3, 2);
     expect(h.game.selectBoardBead(2, 2)).toBe(true);
-    expect(h.game.retrieveSelectedGroup(0)).toBe(true);
+    // v2.2 裁定①：整组收进不再传落槽（逐颗 = S4 自动归类）。
+    expect(h.game.retrieveSelectedGroup()).toBe(true);
     const stored = h.all<{ slot: number; colorIdx: number; fromRow: number; fromCol: number }>('tray:stored');
     expect(stored).toHaveLength(3);
     const slots = stored.map((s) => s.slot).sort((a, b) => a - b);
-    expect(new Set(slots).size).toBe(3); // 槽互异
+    expect(new Set(slots).size).toBe(3); // 槽互异（同色 ⇒ 归类成块 0..2）
     for (const s of stored) {
       expect(s.fromRow).toBeGreaterThanOrEqual(0);
       expect(s.fromCol).toBeGreaterThanOrEqual(0);
@@ -106,21 +107,21 @@ describe('WXG-T-157 整组一次收进', () => {
     expect(h.game.grid.cell(2, 3)!.state).toBe('empty');
     expect(h.game.grid.cell(3, 4)!.state).toBe('empty');
     // 锚清：再取回 false。
-    expect(h.game.retrieveSelectedGroup(0)).toBe(false);
+    expect(h.game.retrieveSelectedGroup()).toBe(false);
   });
 
   it('free 槽 < 组大小 ⇒ 拒绝：零事件、零状态写、锚保持', () => {
-    // 组 3 颗；先塞 10 颗进托盘（12 槽 ⇒ free 2）。
+    // 组 3 颗；先塞 22 颗进托盘（24 槽 ⇒ free 2；v1.24 扩容后旧「10 颗/12 槽」不成立）。
     putMisplaced1(h, 1, 2);
     putMisplaced1(h, 2, 2);
     putMisplaced1(h, 3, 2);
     // giveTrayBead 返回槽号（-1 = 失败）；混色避开 needed 投影上限。
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 22; i++) {
       expect(h.game.giveTrayBead((i % 3) + 1)).toBeGreaterThanOrEqual(0);
     }
     const eventsBefore = h.all('tray:stored').length;
     expect(h.game.selectBoardBead(2, 2)).toBe(true);
-    expect(h.game.retrieveSelectedGroup(0)).toBe(false);
+    expect(h.game.retrieveSelectedGroup()).toBe(false);
     expect(h.all('tray:stored')).toHaveLength(eventsBefore); // 零新事件
     // 零状态写：珠仍在格上（错位）。
     expect(h.game.grid.cell(2, 2)!.state).toBe('filled');
@@ -131,7 +132,7 @@ describe('WXG-T-157 整组一次收进', () => {
     putMisplaced1(h, 2, 2);
     putMisplaced1(h, 3, 2);
     expect(h.game.selectBoardBead(2, 2)).toBe(true);
-    expect(h.game.retrieveSelectedGroup(0)).toBe(true);
+    expect(h.game.retrieveSelectedGroup()).toBe(true);
     expect(h.game.selectTraySlot(0)).toBe(true);
     // (2,2) 已 empty；放置被受理或明确拒绝均合法（归位裁决由 placement 既有用例守护）。
     const ok = h.game.tapGridCell(2, 2);

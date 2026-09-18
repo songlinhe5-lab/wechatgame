@@ -1,6 +1,6 @@
 # GDD · S3 拼图网格与填色（Bead Grid）· beads
 
-- 项目：`games/beads` · 版本 v2.0 · 任务号 WXG-T-130（v2.0 = 「错位归位」状态机改写；v1.0 见 §9）
+- 项目：`games/beads` · 版本 v2.1 · 任务号 WXG-T-158（v2.1 = **托盘侧组归位（同色全组批量填充，8 向不限步、部分填充）+ 取回落槽自动归类**，用户 2026-09-18 四项裁定；v2.0 = 「错位归位」状态机改写；v1.0 见 §9）
 - 数值纪律：只引用 `systems-index §3` 常量名，不写死数值（来源标注见各节）。
 - 依赖锚点：挂在 `gdd/core-loop.md` §2.2 关内微循环第 1–4 步（错位判定、取回/归位裁决与完成判定）。
 
@@ -36,16 +36,16 @@ locked：恒定，不参与任何转移与完成计数
 
 ### 2.3 裁决（核心规则；v2.0 = 取回 + 归位两条路径）
 
-**路径 A · 取回（retrieve）**——输入：`(row, col, targetSlot)`，来自 S2，锚 = `board`（`board:selected` 的错位珠）：
+**路径 A · 取回（retrieve）**——输入：`(row, col)`（组收进逐颗执行），来自 S2，锚 = `board`（`board:selected` 的错位珠组）：
 1. 目标格非 `filled(错位)`（即 `locked` / `empty` / 已就位珠）→ 请求不成立（S2 层拦截；已就位珠/锁定格点击走极轻非惩罚反馈，裁定 4）。
-2. 托盘无空槽 → **满槽禁取珠**（§3.13）：拒绝，极轻非惩罚反馈、**零事件、零状态写**。
-3. 通过 → **同帧原子写入**：格 `filled(错位)` → `empty`，槽 `free` → `holding(colorIdx)`，广播 `tray:stored {slot, colorIdx, fromRow, fromCol}`。取回**不触发完成判定**（`filled` 只减不增）。
+2. 托盘无空槽 → **满槽禁取珠**（§3.13）：拒绝，极轻非惩罚反馈、**零事件、零状态写**；整组收进额外前提 = `free 槽数 ≥ 组大小`（不足 ⇒ 整组拒，同口径）。
+3. 通过 → **同帧原子写入**：格 `filled(错位)` → `empty`，槽 `free` → `holding(colorIdx)`（**v2.1：落槽 = S4 自动归类插入**，`tray-spawner §2.1/§2.4`，玩家点击槽仅作触发），广播 `tray:stored {slot, colorIdx, fromRow, fromCol}`。取回**不触发完成判定**（`filled` 只减不增）。
 
-**路径 B · 归位（placed）**——输入：`(row, col, colorIdx, slot?)`，来自 S2（锚 = `tray`）或 S6（解环器，无 `slot`）：
+**路径 B · 归位（placed；v2.1 托盘侧改组归位）**——输入：`(row, col)` + 当下选中组色 `colorIdx`，来自 S2（锚 = `tray`）或 S6（解环器，单颗、无 `slot`）：
 1. 目标格非 `empty` → 忽略（不广播、无反馈噪声，core-loop §6）。
-2. 目标格 `empty` 且 `pattern(row,col) === colorIdx` → 置 `filled(就位)`，广播 `bead:placed {row, col, colorIdx, slot?}`（`slot` 托盘路径必带、解环器路径不带，§4 payload 变更）。
-3. `empty` 但颜色不匹配 → 广播 `bead:rejected {row, col, colorIdx}`，珠**留在托盘**（无惩罚，A4 已确认；仅托盘路径可达——解环器按构造必匹配）。
-4. 每次 `bead:placed` 后执行完成判定：可填格（`empty + filled` 总数）中 `filled` 占比 100%（= **错位珠全部归位**）→ 广播 `level:cleared` 前置信号给 S1。
+2. 目标格 `empty` 但 `pattern(row,col) ≠ colorIdx` → 广播 `bead:rejected {row, col, colorIdx}`，组**整组留在托盘**（无惩罚，A4 已确认；仅托盘路径可达——解环器按构造必匹配）。
+3. **匹配（`pattern === colorIdx`）⇒ 组批量填充（用户裁定③④）**：从被点格起 **8 向 BFS、不限步数**，沿「`empty` 且底色 = 组色」的连通空格蔓延（含被点格），至多填 `min(组珠数, 连通格数)` 格：被点格必最先填，其余按 BFS 距层就近逐格；每格一份 `bead:placed {row, col, colorIdx, slot}`（逐颗携各自来源槽，同一调用栈内串行发完）。**部分填充口径（裁定③）**：珠不够 ⇒ 点到珠为止（未触达的连通格保持 `empty`）；珠有余 ⇒ 剩余珠**保持 `selected`**（锚不变，可续点）；组清空 ⇒ 锚回 `none`。**不得把批量填充判成「一次归位多发事件」缺陷**（判据见 §8-11）。
+4. 每颗 `bead:placed` 后执行完成判定（同帧逐格计数，末颗落定即判）：可填格（`empty + filled` 总数）中 `filled` 占比 100%（= **错位珠全部归位**）→ 广播 `level:cleared` 前置信号给 S1（cleared-priority 同帧成立）。
 
 ### 2.4 定位派生（来源 §3.3 公式，本文只引用）
 
@@ -106,8 +106,8 @@ locked：恒定，不参与任何转移与完成计数
 ## 8. 验收标准（可测试硬判据，QA 直接造用例）
 
 1. **初始装配（v2.0 改写）**：装载合法关卡后，`filled` 格数 === 可填格总数、`locked` 格数 === cols×rows − 可填格总数、托盘全 `free`；`misplaced` 计数 === 2 × `swaps.length` 且每颗错位珠满足 `colorIdx ≠ pattern(row,col)`、每颗就位珠满足 `colorIdx === pattern(row,col)`。
-2. **取回（v2.0 新增）**：`board` 锚点空槽取回 → 目标格变 `empty`、目标槽变 `holding(colorIdx)`；`tray:stored` 恰广播 1 次，payload 含 slot/fromRow/fromCol/colorIdx；取回后 `misplaced` 计数 −1、`filled` 总数 −1。
-3. **归位**：匹配归位 → 目标格变 `filled(就位)` 且 colorIdx 与图案一致；`bead:placed` 恰广播 1 次，托盘路径 payload 含 slot、解环器路径不带；不匹配归位 → 目标格保持 `empty`；`bead:rejected` 恰广播 1 次；对应托盘珠未被移除。
+2. **取回（v2.0 新增；v2.1 落槽改自动归类）**：`board` 锚点空槽取回 → 目标格变 `empty`、实际落位槽变 `holding(colorIdx)`（落位 = §2.1/§2.4 归类插入位置，**非必为点击槽**）；`tray:stored` 恰广播 1 次/颗，payload 含 slot/fromRow/fromCol/colorIdx；取回后 `misplaced` 计数 −1、`filled` 总数 −1。
+3. **归位（v2.1 改写为组归位口径；单珠组时退化为旧单珠行为）**：匹配归位 → 被点格变 `filled(就位)` 且 colorIdx 与图案一致；**托盘组为单颗时 `bead:placed` 恰 1 次**（payload 含 slot）；解环器路径不带 slot 逐格发；不匹配归位 → 被点格保持 `empty`；`bead:rejected` 恰广播 1 次；对应托盘组**一颗未被移除**（整组留盘）。
 4. 对 `locked` 格与**已就位珠**点击：**零事件**（用事件监听计数器断言 =0）。**判据改写（WXG-T-128，2026-09-16 用户裁定；WXG-T-130 v2.0 语义收窄为「已就位珠」）**：原文为「零事件、**零反馈**」，后半已推翻——现行为「零事件 + 极轻非惩罚反馈」（被点格 120ms 内出现 scale < 1.00 的绘制命令；`reduceMotion` 开 ⇒ 1px `slot_border` 静态描边环）。**QA 不得再按旧文把轻压判成缺陷**；不可放宽的红线仍是「事件计数 =0」（不进状态机、不扣道具次数）。与 `input-control §8-5` 同批改写（两文互为镜像，不得只改一侧）。**错位珠不适用本条**（可选中）。
 5. 将最后一颗错位珠归位 → S1 收到 cleared 前置信号 ≤ 1 帧内；`filled` 数 === 可填格总数、`misplaced` 数 === 0。
 6. **`filled(错位) ⇄ empty` 双向性（v2.0 改写，原「不可回退」判据作废）**：对 `filled(错位)` 格执行取回 → 变 `empty` 且可再被归位（构造「取回后重新归位到原格」用例，终态回到 `filled(就位)`）；**`filled(就位)` 仍不可转移**——非取回指令（解环器/任何事件）命中就位珠 → 状态不变。
@@ -115,6 +115,7 @@ locked：恒定，不参与任何转移与完成计数
 8. 全部 13×12 = 156 格极端关卡：格中心坐标逐格符合 §2.4 公式（抽样四角 + 中心共 5 格断言，误差 ≤0.5px）。
 9. colorIdx = 0 或 99 的归位请求：按 `bead:rejected` 处理且记警告，不崩溃。
 10. 黑白模式下 `filled` 格（就位与错位）仅凭符号+明度可与全部 10 色区分（对照 assets-spec §6 验收第 2 条联合用例）。**v2.0 范围注记**：本条只覆盖 `filled` 态——空槽 `empty` 的灰度可辨性已随 E4 移除**降档**（降级登记正本 = `art/accessibility.md` A2b/A3，用户签字 2026-09-16），**不得把空槽灰度判据算进本条**。
+11. **新增（v2.1，用户裁定③④）组批量填充**：锚 = `tray`（组色 C、珠数 n）点底色 = C 的 `empty` 格 → 从被点格起 8 向连通（`empty` 且底色 = C、不限步数）区域内按 BFS 就近顺序填 `min(n, 连通格数)` 格；`bead:placed` 计数增量 = 实填格数且逐一携来源槽；被点格恒先填；珠数 < 连通格数 ⇒ 未触达格保持 `empty`（部分填充非缺陷）；珠数 > 连通格数 ⇒ 只填连通区、剩余珠保持 `selected`；区外同色空格**不填**（非连通 ⇒ 需再次点击）；不匹配点击（底色 ≠ C）⇒ 仍单格 `bead:rejected`、零填充。
 
 ## 9. 变更记录
 
@@ -125,3 +126,4 @@ locked：恒定，不参与任何转移与完成计数
 
 
 | WXG-T-157 | 2026-09-17 | **组选收窄 + board 锚直填（用户 2026-09-17 三项裁定，规格代落盘待正主复验）**：① §2.2「错位珠可取回」的**组语义收窄**——选中锚 ⇒ 组 = 8 向连通、锚起两步内（切比雪夫 ≤2）**且同色**的错位珠；异色错位珠不抬。② 新增 **board 锚直填**：锚组非空 ⇒ 点对应色空格（切比雪夫 ≤2）直接归位（搬移语义：源格空出），组保持逐颗续填、锚珠被填 ⇒ 锚静默转移；超距 ⇒ 轻提示拒绝。③ 取回（托盘路径）与直填（盘内路径）并存；「格间必经托盘」对**同色错位珠就近归位**开例外口（非 swap：直填目的地 = 对应色空格，非任意格）。实现 = `grid.collectMisplacedGroup` / `beads-game._tryDirectFillFromBoard`；判据 = `misplaced-group` / `selection-anchor`（迁移）+ `misplaced-direct-fill`（新增 6 例） | WXG-T-157，用户三项裁定 |
+| v2.1 | 2026-09-18 | **托盘侧组归位 + 落槽自动归类（WXG-T-158，用户 2026-09-18 四项裁定）**：① §2.3 路径 B 改写——锚 = `tray` 时归位从单珠改**同色全组批量填充**：被点格起 8 向 BFS 不限步沿「`empty` 且底色 = 组色」连通空格蔓延，至多填 `min(组珠数, 连通格数)` 格（裁定④）；**部分填充口径**（裁定③）：珠不够点到珠为止、珠有余剩余保持选中；每格一份 `bead:placed`（携来源槽）；② 路径 A 落槽改 **S4 自动归类插入**（裁定①，点击槽仅作触发）；③ §8-2/3 适配 + 新增 §8-11（批量填充硬判据）。**§3 数值零改动**；实现 = `placement.planGroupFill` / `beads-game._placeSelected`；判据 = `tray-batch-fill`（新增）。盘侧直填（T-157 ≤2 收窄）与本路径（不限步）口径**故意不同**：前者是错位珠搬移、后者是供珠填坑 | WXG-T-158，用户四项裁定 |

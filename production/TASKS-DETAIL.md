@@ -536,3 +536,16 @@
 - **测试**：`misplaced-group`（4 例迁移到新语义 + 新增异色不抬/切比 >2 两断言）、`selection-anchor`（4 例构造 swapBeads→同色对 setBead、断言 colorIdx 随迁）、**新增 `misplaced-direct-fill` 6 例**（直填/续填/超距/不匹配/锚转移/cleared 混合路径）。**语义要点**：直填是**搬移**（源格空出）⇒ 不直接产生 complete（交换对场景异色不可组选）⇒ cleared 走「直填归位错位珠 + 托盘补空格」混合路径。
 - **验证**：beads **415/415** 绿（36 文件）；`verify` **PASS 16 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**。
 - **未 commit / 未 push**（工作树含并发会话 T-152~155 在途内容，提交需协调）。
+
+## WXG-T-158
+
+- **名称**：**beads · 托盘同色归类 + 组选 + 批量填充落码（用户 2026-09-18 四项裁定）**
+- **负责**：主理人(Qoder)　**状态**：✅ 完成（2026-09-18；未 commit）　**P1**
+- **裁定（用户 2026-09-18，问答四项，均选推荐项）**：① 归类 = **自动归类**（珠进托盘自动插入同色堆旁，玩家不再选落槽）；② 组选 = **同色全组·互斥**（点任一珠 → 该色全部 selected；换点他色整组换选；再点同组任一颗整组静默取消；同帧至多一色组被选）；③ 批量填充 = **部分填充**（BFS 就近点到珠为止，剩余珠保持选中）；④ 连通口径 = **8 向·不限步数**（与盘侧 T-157 的 ≤2 收窄不同，填充区沿同色空格全连通蔓延）。
+- **冲突面（先改文档再改代码）**：tray-spawner §2.1「selected 至多 1 槽」/ §2.4 落槽=玩家点槽 / §6 双击幂等 / §8-6 判据；input-control 路由 4a/4b/5b；bead-grid §2.3 路径 B 单珠填充；systems-index §4 `tray:selected` payload（非 §3 冻结数值，§3 零改动）。
+- 产出：GDD 回写 + src 四件（tray/placement/retrieve/beads-game）+ cocos 镜像 + 新增测试与既有冲突判据迁移。
+- **测试与收尾证据（2026-09-18）**：
+  - 新增判据文件 `tests/tray-batch-fill.test.ts`（GDD bead-grid v2.1 变更记录指名）9 例：Tray 归类不变式单元（§8-6b）/ `planGroupFill` BFS 口径单元（8 向对角、多层不限步、锁定/异色不穿越、珠数截断）/ game 级全链（部分填充、珠有余保持 selected + 异区续点、不匹配仍单格 rejected、整组离盘紧凑性）。
+  - **新测试暴露实现缺口并修复**：旧 `Tray.takeBead` 取中间块尾珠后留块间空洞，破坏 §8-6b「任意次归位后」不变式且坐坏 `insertGrouped` 紧凑前提 ⇒ takeBead 离珠左移补位（src + cocos 镜像同步）；连带迁移 `misplaced.test.ts` 两例「离珠后槽号稳定」旧口径断言。
+  - 既存冲突判据迁移：tray-spawner §8-6 组选改写、selection-anchor 满槽/腾槽用例改尾取珠、misplaced-group 收进归类断言等均已改 v2.2 口径。
+  - 门禁：beads vitest **424/424 绿**（含新增 9 例）；根 `pnpm run verify` **16 项全 PASS**（含 framework:sync:check 镜像一致、cocos:check、check:tasks）。

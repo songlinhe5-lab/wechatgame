@@ -146,31 +146,49 @@ describe('S4 tray-spawner', () => {
     expect(needed).toBeLessThanOrEqual(85);
   });
 
-  // §8.6 换选：同帧两次点击不同槽，最终仅 1 槽处于 selected；双击同槽只广播 1 次
-  // tray:selected。
-  it('§8-6 re-selection moves the mark; double-tap on one slot broadcasts once', () => {
+  // §8-6（v2.2 组选改写，WXG-T-158 裁定②）：点 holding 珠 = 同色全组 selected
+  // （payload `count` = 组珠数）；再点已选组任一颗 = 整组静默取消（零事件）；
+  // 点他色 = 整组换选，同帧至多一色组被选。旧「双击同槽幂等⇒仅广播 1 次」作废。
+  it('§8-6 group select / whole-group silent cancel / switch-select (v2.2)', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s4f',
     });
     const game = harness.game;
-    const slotA = game.giveTrayBead(1);
+    const slotA1 = game.giveTrayBead(1);
+    const slotA2 = game.giveTrayBead(1); // 同色第二颗 ⇒ 归类同一块（裁定①不变式）
     const slotB = game.giveTrayBead(2);
-    expect(slotA).toBeGreaterThanOrEqual(0);
+    expect(slotA1).toBeGreaterThanOrEqual(0);
+    expect(slotA2).toBeGreaterThanOrEqual(0);
     expect(slotB).toBeGreaterThanOrEqual(0);
-    expect(slotB).not.toBe(slotA);
+    expect(game.tray.selectedCount).toBe(0);
 
-    // Double-tap the same slot: idempotent, one broadcast.
-    expect(game.selectTraySlot(slotA)).toBe(true);
-    expect(game.selectTraySlot(slotA)).toBe(false);
+    // 组选：点一次 ⇒ 该色全部 selected，`tray:selected {slot,colorIdx,count}` 恰 1 次。
+    expect(game.selectTraySlot(slotA1)).toBe(true);
+    expect(game.tray.slot(slotA1)!.state).toBe('selected');
+    expect(game.tray.slot(slotA2)!.state).toBe('selected');
+    expect(game.tray.slot(slotB)!.state).toBe('holding');
+    const ev = harness.all<{ slot: number; colorIdx: number; count: number }>('tray:selected');
+    expect(ev).toHaveLength(1);
+    expect(ev[0]!.slot).toBe(slotA1);
+    expect(ev[0]!.count).toBe(2);
+
+    // 再点已选组另一颗 ⇒ 整组静默取消（零新广播，锚回 none）。
+    expect(game.selectTraySlot(slotA2)).toBe(true);
+    expect(game.tray.slot(slotA1)!.state).toBe('holding');
+    expect(game.tray.slot(slotA2)!.state).toBe('holding');
     expect(harness.count('tray:selected')).toBe(1);
+    expect(game.selection).toBe('none');
 
-    // Same-frame switch to a different slot: exactly one selected remains.
+    // 换选：重新组选 A 后点他色 B ⇒ 整组换选，同帧至多一色组被选。
+    expect(game.selectTraySlot(slotA1)).toBe(true);
     expect(game.selectTraySlot(slotB)).toBe(true);
-    expect(game.tray.slot(slotA)!.state).toBe('holding');
+    expect(harness.count('tray:selected')).toBe(3);
+    expect(game.tray.slot(slotA1)!.state).toBe('holding');
+    expect(game.tray.slot(slotA2)!.state).toBe('holding');
     expect(game.tray.slot(slotB)!.state).toBe('selected');
-    expect(harness.count('tray:selected')).toBe(2);
+    expect(game.tray.selectedCount).toBe(1);
   });
 
   // §8.7 落子成功回执后对应槽变 free；用 bead:placed 计数与 free 槽增量做 1:1 断言。
