@@ -101,6 +101,9 @@ production/qa/*/evidence/**/*.jpg
 # Cocos 工程配置含本地微信 AppID（WXG-T-099/B4：红线 control-manifest §10，不入仓；模板见 games/beads/cocos/project.config.example.json）
 games/*/project.config.json
 games/*/project.private.config.json
+# ⚠️ 上一行层级不够：Cocos 工程配置实际在 games/<g>/cocos/ 下（WXG-T-129 指引实测漏网）
+games/*/cocos/project.config.json
+games/*/cocos/project.private.config.json
 
 # vendor skill 克隆是内嵌 git 仓库：git 只能记空 gitlink（内容会静默丢失）⇒ 不纳管，保留在盘上
 my-skills/_repos/mattpocock-skills/

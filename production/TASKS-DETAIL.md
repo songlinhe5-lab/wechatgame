@@ -339,12 +339,12 @@
 
 ## 真机首验包（待 AppID · 2026-09-16 登记 · 解除 DEV-01/B4）
 
-> 前置：① 有效 AppID ② `pnpm --filter @wxgame/beads run build:cocos:wx` 出包 ③ 微信开发者工具 + 真机扫码 ④ 本包随包执行并回填。
+> 前置：① 有效 AppID ② `pnpm --filter @wxgame/beads run build:cocos --release` 出包（⚠️ 2026-09-18 订正：仓库无 `build:cocos:wx` 脚本名，`build:cocos` 默认 platform=wechatgame，测包体必须 `--release`） ③ 微信开发者工具 + 真机扫码 ④ 本包随包执行并回填。
 
 - **P0-1 时基同源复核（BD-40 关单前提）**：真机跑 `production/qa/beads/beads-browser-probe.mjs` 的 CLK-01 等价面 —— 仿真/墙钟须 **≈1.00±0.10**（修复后 web 实测 1.002/0.997；**若真机 ≈2 ⇒ BD-40 复活升产品级 P1**）。
 - **P0-2 光敏性观感**：wrong 态连点（观察单次脉冲非往复、无高频闪）+ 告急脉冲 + 满槽呼吸 —— 屏幕像素层 web 已验，真机亮度/刷新率差异须人眼复核。
 - **P0-3 T-124 丙案视觉**：十层卡/冷底/F6 白字路由/NEW BEST 角标（T-127 修后 168 底衬）/STAGE 标签（T-127 修后 `DESIGN_W−30` 锚）—— 真机字体回退下不回溢（T-127 风险条款）。
-- **P0-4 主包红线**：`build:cocos:wx` 实测包体 ≤4096 KB（§3 冻结；程序化合成 ⇒ 音频 0 KB 应天然满足）+ `check:size` 从 SKIP 转 OK。
+- **P0-4 主包红线**：`build:cocos --release` 实测包体 ≤4096 KB（§3 冻结；程序化合成 ⇒ 音频 0 KB 应天然满足）+ `check:size` 从 SKIP 转 OK。
 - **P0-5 四相位真链**：暂停/结算/失败面板真指针可用（web 已验，微信 touch 语义须复验）。
 - **P1-6 性能**：T-124 单帧最坏 +624 图元的帧率回退阀（林绘澄预授权条款）真机实测。
 - **P1-7 音频**：A05-26 听感（`[P]`）+ 首次手势后出声（A05-27）。
