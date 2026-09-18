@@ -257,8 +257,10 @@ export class Bootstrap extends Component {
   private _touchSpace(): CocosTouchSpaceWx {
     const canvasHeightCss = this._app ? this._app.viewport.fit.screenHeight : 0;
     const dpr = engineDpr();
-    // WXG-T-129：微信宿主需 `wx.getWindowInfo().windowHeight`（逻辑 px）参与引擎
-    // 混合式坐标的逆变换；非微信环境填 canvasHeightCss（占位，web 分支不读它）。
+    // WXG-T-129 / **WXG-T-161 勘误**：微信宿主需 `wx.getWindowInfo().windowHeight`
+    //（**逻辑 px**）参与逆变换 —— 引擎翻转基准 `screenAdapter.windowSize.height`
+    //  = 它 × dpr（物理 px，量纲与 `clientY×dpr` 一致），故逆变换与 web 分支同形；
+    //  非微信环境填 canvasHeightCss（占位，web 分支不读它）。
     const wxGlobal = (globalThis as { wx?: { getWindowInfo?: () => { windowHeight: number } } }).wx;
     const windowHeight = wxGlobal?.getWindowInfo?.().windowHeight ?? canvasHeightCss;
     return { canvasHeightCss, dpr, windowHeight };
@@ -429,8 +431,10 @@ function readTouch(
 ): { id: number; x: number; y: number } {
   const id = e.getID ? e.getID() : 0;
   const p = e.getLocation ? e.getLocation() : { x: 0, y: 0 };
-  // WXG-T-129：微信宿主的引擎坐标是量纲混合态（见 touch-normalize.ts wx 分支注释），
-  // 须走 wx 逆变换；web 分支行为一字不变。以 wx 全局存在性判定宿主（构建产物运行
+  // WXG-T-129：微信宿主走 wx 逆变换（翻转基准量纲与 web 不同源）；**WXG-T-161
+  // 勘误**：引擎 `windowSize` 本身已 ×dpr ⇒ 两分支量纲一致、数学同形，旧 wx 式
+  // （现已在 touch-normalize.ts 修正）会引入 −H·(dpr−1)/dpr 的全屏偏移 ⇒ 真机
+  // 点击全落空。web 分支行为一字不变。以 wx 全局存在性判定宿主（构建产物运行
   // 在微信环境下 `wx` 恒存在，且该判定与 pal/minigame 的 WECHAT 常量同源可靠）。
   const isWx = typeof (globalThis as { wx?: unknown }).wx !== 'undefined';
   const q = isWx ? normalizeCocosTouchWx(p, space) : normalizeCocosTouch(p, space);

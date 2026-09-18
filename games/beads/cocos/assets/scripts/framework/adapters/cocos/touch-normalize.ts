@@ -26,9 +26,19 @@
  *   **必须**翻 —— 早期版本误以为 `getLocation()` 已经是左上原点，两次假设叠加
  *   恰好相消成「一次翻转」⇒ y 轴上下镜像（缺陷 C1，beads 玩法整体不可用）。
  *
- * ⚠ 微信小游戏宿主：`pal/input/minigame/touch-input.ts` 源码与 web **同形**
- *   （左下原点 + ×dpr，且 `pal/screen-adapter/minigame` **无 2 封顶**），
- *   但**无真机、无 AppID ⇒ 未实测，标 `[R]` 阻塞**，不得当作已验证写进结论。
+ * ⚠ 微信宿主（WXG-T-129 → **WXG-T-161 勘误**，2026-09-18）：
+ *   T-129 曾据「源码同形」判定微信 `getLocation()` 为**量纲混合态**
+ *   （`y = windowHeight(逻辑) − clientY×dpr(物理)`），并据此写了 wx 分支
+ *   `y = (windowHeight − raw.y) / dpr`。**该判定是误读，已由构建产物
+ *   `cocos-js/cc.js` 引擎源码实锤推翻**：
+ *     `_getLocation(touch, windowSize, dpr) { x = clientX*dpr;
+ *                                             y = windowSize.height − clientY*dpr }`
+ *     且 `screenAdapter.windowSize = new Size(windowWidth*dpr, windowHeight*dpr)`
+ *     —— 翻转基准是 **screenAdapter.windowSize.height（物理 px）**，不是
+ *     `wx.getWindowInfo().windowHeight`（逻辑 px）⇒ 两侧**量纲一致**。
+ *   故正确逆变换是 `clientY = windowHeight − raw.y/dpr`（与 web 分支**同形**），
+ *   而旧式引入系统偏移 `−H·(dpr−1)/dpr`（dpr=3 ⇒ ≈ −0.67·H）⇒ **真机全屏
+ *   点击落空**（BD-48「点托盘/网格全部无响应」的真正复位原因）。
  */
 
 /** 归一化所需的宿主量。两个字段都必须是 **CSS px 口径**，与 `Viewport` 一致。 */
@@ -83,23 +93,28 @@ export function normalizeCocosTouch(
 /**
  * WXG-T-129 · 微信小游戏宿主的 `getLocation()` 归一化（**独立于 web 分支**）。
  *
- * 引擎微信适配（`pal/input/minigame/touch-input.ts:86-90`，Cocos 3.8.8）：
+ * 引擎微信适配（`pal/input/minigame/touch-input.ts`，Cocos 3.8.8，**构建产物
+ * `cocos-js/cc.js` 实锤，WXG-T-161**）：
  * ```
- *   x = clientX × dpr
- *   y = windowSize.height − clientY × dpr      // windowSize 来自 wx.getWindowInfo()
+ *   _getLocation(touch, windowSize, dpr) {
+ *     x = touch.clientX * dpr
+ *     y = windowSize.height - touch.clientY * dpr
+ *   }
+ *   screenAdapter.windowSize = new Size(windowWidth * dpr, windowHeight * dpr)
  * ```
- * **量纲混合**：`windowSize.height` 是逻辑 px，而 `clientY × dpr` 是物理 px ——
- * web 版同位置用 canvas CSS 高（量纲一致），微信版不成立（T-104「源码同形」
- * 判断在真机被推翻，2026-09-16 用户真机实测引爆，登记 BD-48）。
+ * ⇒ 翻转基准 `windowSize.height` 与 `clientY*dpr` **同为物理 px**（量纲一致）；
+ * `windowSize` 是 `screenAdapter` 的派生量，**不是** `wx.getWindowInfo()` 的
+ * 原始 `windowHeight`（T-129 即在此处误读，见文件头 WXG-T-161 勘误）。
  *
- * 逆变换回 wx 原始 `clientX/clientY`：
+ * 逆变换回 wx 原始 `clientX/clientY`（屏幕逻辑 px · 左上原点 = 框架契约空间）：
  * ```
- *   clientX = x / dpr
- *   clientY = (windowHeight − y) / dpr
+ *   clientX = raw.x / dpr
+ *   clientY = windowHeight - raw.y / dpr        // ≡ (windowHeight*dpr − raw.y)/dpr
  * ```
- * 微信 touch 原始事件坐标天然是 **屏幕逻辑 px · 左上原点** = 框架契约空间
- * （`RawPointerInput` 期望态）⇒ wx 分支**不做 ÷dpr 收敛、不做 y 翻转**，只做
- * 引擎怪癖的逆变换。
+ * 与 web 分支**数学同形**（web 的 `canvasHeightCss` 在微信下恰为 `windowHeight`
+ * 逻辑 px —— `weapp.getScreenSize()` 返回的就是它）⇒ 两分支数值恒等，本分支
+ * 存在的意义是把「引擎量纲前提」钉在代码与单测里，并在未来画布非全屏时提供
+ * 明确的分化点。
  *
  * @param raw   `e.getLocation()` 的返回值（引擎微信适配输出，见上）
  * @param space 宿主量；`windowHeight` = `wx.getWindowInfo().windowHeight`（逻辑 px）
@@ -107,7 +122,7 @@ export function normalizeCocosTouch(
  * @returns 屏幕逻辑 px · 左上原点（= 框架契约空间）
  */
 export interface CocosTouchSpaceWx extends CocosTouchSpace {
-  /** `wx.getWindowInfo().windowHeight`（**逻辑 px**）—— 引擎混合式里的同一常数。 */
+  /** `wx.getWindowInfo().windowHeight`（**逻辑 px**）；引擎内部会 ×dpr 后使用。 */
   readonly windowHeight: number;
 }
 
@@ -119,6 +134,6 @@ export function normalizeCocosTouchWx(
   const target = out ?? { x: 0, y: 0 };
   const dpr = Number.isFinite(space.dpr) && space.dpr > 0 ? space.dpr : 1;
   target.x = raw.x / dpr;
-  target.y = (space.windowHeight - raw.y) / dpr;
+  target.y = space.windowHeight - raw.y / dpr;
   return target;
 }
