@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "c592ce4dc97c8e966ac8b1261dc7cbb6c9b5af2b3a803e0850d1db29fa0a0f37",
+      "sha256": "4c565d8159ba04c15d1ededf2ba31c2e65ec9afbb1a7c631c947e2028eff037a",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4560,
       "lines": 82,
-      "sha256": "2c38e62df64ca08cc9c0d32b200cdc8f8b45fcafd59fb5a4b95ecb73ce3b7871",
+      "sha256": "f81d0bc9251075099ea1428c52a32bf89b8dd9fac542d8aafbf1165fbc9c1315",
       "tier": "normal",
       "sections": [
         {
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 500 行 / 25717 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 511 行 / 26049 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 275,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+501 · §WXG-T-128=18+104 · §裁定与回写记录（",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+512 · §WXG-T-128=18+104 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -52796,17 +52796,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 25717,
-      "lines": 500,
-      "sha256": "dfab389f3191984ec67b77fe827cc00b85eb667bbcb1d71e56057fd562ee2dbc",
+      "tokens": 26049,
+      "lines": 511,
+      "sha256": "91ef6c46055faa258482a5648315b4ccc47e2915681e88a7860908835a743b59",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 501,
-          "tokens": 25700,
+          "endLine": 512,
+          "tokens": 26032,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -53044,8 +53044,8 @@
           "anchor": "§WXG-T-175",
           "level": 2,
           "startLine": 370,
-          "endLine": 447,
-          "tokens": 2158,
+          "endLine": 468,
+          "tokens": 2760,
           "summary": "外来 skill 集成 · A 档（Claude Code Game Studios 点菜式吸收） · 负责：主理人(C",
           "keywords": [
             "WXG",
@@ -53059,9 +53059,9 @@
         {
           "anchor": "§WXG-T-176",
           "level": 2,
-          "startLine": 448,
-          "endLine": 501,
-          "tokens": 1601,
+          "startLine": 469,
+          "endLine": 512,
+          "tokens": 1330,
           "summary": "ctx 生成器 SKIP_DIRS 跳过 vendor _repos（索引产物瘦身） · 负责：主理人(Qoder) ·",
           "keywords": [
             "WXG",

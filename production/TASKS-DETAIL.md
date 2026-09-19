@@ -443,6 +443,27 @@
      `epics-<game>-status.md` 对账 ⇒ 已改写为按编号定位、Type 按验收条目推断、证据落点用扁平
      `games/<game>/tests/<name>.test.ts`。**本仓 `验收：S1§8-6` 写法与 skill 的 `S<n>§8-<k>` 口径天然一致**（零改造）。
 
+- **合并后三段验证（2026-09-19，真跑非静态）**
+  - **§8 `ready` 真跑（靶子 `EP01-S3 暂停冻结编排（S1 单点门禁，ADR-0007）`）⇒ 判定 NEEDS WORK**，命中：
+    1. **Story 内嵌引用与 GDD 现文本不一致 ×2** —— Story 写「剩余时间数值不变、**不供料**」，
+       而 `core-loop §8-7` 现文本是「…**零取回零归位**」；Story 写「PAUSED 期间零 `tray:spawned`」，
+       而 `tray-spawner §8-8` 现文本已标「原文『零 `tray:spawned`』**随供料作废**」。
+       ⇒ **§7.2 第 ① 条「以 §8 现文本为准、不采信内嵌旧引用」被实证有效**（一次抓到两处）。
+    2. 该 Story **无 In/Out of Scope 字段** ⇒ 标 NEEDS WORK。
+  - **暴露两个「上游检查项在本仓不可判定」（已修 skill）**：
+    ① 上游要求「ADR 为 `Accepted`」，但**本仓 ADR 无 `Status:` 字段**（格式 = `# ADR-NNNN — 标题` +
+       `## 1. 上下文`）⇒ 改为「文件存在 + 正文无未决声明」；
+    ② 上游要求「控制清单版本最新」，但 **`control-manifest.md` 无版本字段**（实跑确认）⇒ 本项标 N/A，
+       并写明「若日后加 `版本:` 头则自动生效」；另「Out of Scope 缺失」改为不阻断（本仓 Story 普遍未写）。
+  - **§7 上下文装载四件可达性**：Story 条目 ✓（`epics-beads.md:62`）、GDD §8 现文本 ✓
+    （`core-loop.md:146` + `tray-spawner.md:129`）、ADR ✓（`ADR-0007*.md` 存在）、
+    控制清单 ✓（`control-manifest.md` 存在）—— 四件均可定位，无死链。
+  - **§7 依赖门禁可达性**：依赖 `EP03-S2`（`epics-beads.md:104`）、`EP05-S1`（`:144`）均可定位；
+    状态件显示 S1–S5 已交付、无 DRAFT ⇒ 门禁不误判。
+  - **§5 balance-check 扩展核对**：在原有 7 组之外加验 `BEAD_COLOR_MAX` 8/8、
+    `MISPLACED_PAIRS_MIN` 1/1、`MISPLACED_PAIRS_MAX` 8/8 ⇒ **累计 10 组全零漂移**。
+  - 修正后 `verify` **17/17 PASS**。
+
 ---
 
 ## WXG-T-176
@@ -478,23 +499,13 @@
   （恢复后 `check:tasks` 11 行/11 节配对绿）——判例同 K-045：共享台账上插入务必用**唯一足够长**
   的 lock 文本，不要拿邻行为锚。
 
-- **合并后三段验证（2026-09-19，真跑非静态）**
-  - **§8 `ready` 真跑（靶子 `EP01-S3 暂停冻结编排（S1 单点门禁，ADR-0007）`）⇒ 判定 NEEDS WORK**，命中：
-    1. **Story 内嵌引用与 GDD 现文本不一致 ×2** —— Story 写「剩余时间数值不变、**不供料**」，
-       而 `core-loop §8-7` 现文本是「…**零取回零归位**」；Story 写「PAUSED 期间零 `tray:spawned`」，
-       而 `tray-spawner §8-8` 现文本已标「原文『零 `tray:spawned`』**随供料作废**」。
-       ⇒ **§7.2 第 ① 条「以 §8 现文本为准、不采信内嵌旧引用」被实证有效**（一次抓到两处）。
-    2. 该 Story **无 In/Out of Scope 字段** ⇒ 标 NEEDS WORK。
-  - **暴露两个「上游检查项在本仓不可判定」（已修 skill）**：
-    ① 上游要求「ADR 为 `Accepted`」，但**本仓 ADR 无 `Status:` 字段**（格式 = `# ADR-NNNN — 标题` +
-       `## 1. 上下文`）⇒ 改为「文件存在 + 正文无未决声明」；
-    ② 上游要求「控制清单版本最新」，但 **`control-manifest.md` 无版本字段**（实跑确认）⇒ 本项标 N/A，
-       并写明「若日后加 `版本:` 头则自动生效」；另「Out of Scope 缺失」改为不阻断（本仓 Story 普遍未写）。
-  - **§7 上下文装载四件可达性**：Story 条目 ✓（`epics-beads.md:62`）、GDD §8 现文本 ✓
-    （`core-loop.md:146` + `tray-spawner.md:129`）、ADR ✓（`ADR-0007*.md` 存在）、
-    控制清单 ✓（`control-manifest.md` 存在）—— 四件均可定位，无死链。
-  - **§7 依赖门禁可达性**：依赖 `EP03-S2`（`epics-beads.md:104`）、`EP05-S1`（`:144`）均可定位；
-    状态件显示 S1–S5 已交付、无 DRAFT ⇒ 门禁不误判。
-  - **§5 balance-check 扩展核对**：在原有 7 组之外加验 `BEAD_COLOR_MAX` 8/8、
-    `MISPLACED_PAIRS_MIN` 1/1、`MISPLACED_PAIRS_MAX` 8/8 ⇒ **累计 10 组全零漂移**。
-  - 修正后 `verify` **17/17 PASS**。
+- **提交后核实（`ee39498`，−77068 行）**：`ctx/index.json` 文件数 650 → **276**，**非内容丢失**：
+  `_repos/Claude-Code-Game-Studios` 经 `git rm --cached` 撤销入库后**不再参与索引**
+  —— `ctx:build` 默认是 **HEAD 锚定模式**（未跟踪文件不入索引，见 `ctx/ROUTES.md` ⑨），
+  故留档 195 个文件的章节条目整体出索引，**属预期行为**。
+  连带：`ctx/budget-exempt.json` 中为本留档加的 2 条 vendor 豁免**成为冗余**（该路径已不在索引面内）。
+  **保留不删**，理由：① 与 `_repos/superpowers`、`_repos/mattpocock-skills` 同目录豁免条目现状一致
+  （先例同样冗余）；② 若将来该留档入库，豁免即刻生效，避免重演本轮「撤销 → `ctx:check` 转红 → 恢复」
+  的反复折腾。**教训（本轮第二次踩同一坑）**：判断 `_repos` 是否需要 B 门豁免，
+  取决于「**是否在索引面内**」而非「是否入库」—— 入库（gitlink）时在面内需豁免，
+  不入库时不在面内但保留豁免无害。

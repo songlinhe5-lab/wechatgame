@@ -27,7 +27,7 @@
 | 3 | `production/qa/beads/test-cases.md` | 43712 | 669 | hot |
 | 4 | `games/beads/art/art-bible.md` | 32288 | 492 | normal |
 | 5 | `games/beads/art/accessibility.md` | 27120 | 185 | normal |
-| 6 | `production/TASKS-DETAIL.md` | 25717 | 500 | normal |
+| 6 | `production/TASKS-DETAIL.md` | 26049 | 511 | normal |
 | 7 | `games/beads/design/ux/ux-spec.md` | 20007 | 345 | normal |
 | 8 | `games/beads/design/gdd/input-control.md` | 14507 | 193 | normal |
 | 9 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
@@ -52,7 +52,7 @@
 | `production/qa/beads/test-cases.md` | 43712 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/art-bible.md` | 32288 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 27120 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS-DETAIL.md` | 25717 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 26049 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 20007 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 14507 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
