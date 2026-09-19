@@ -192,13 +192,14 @@
   - 理解：每张「图」= 一个拼豆画作，由 3×3（9 宫格）或 4×4（16 宫格）**子拼图版面**组成，每子版面是一个可玩关卡（Album → Plate → Cell-Level 三层树）；全部子版面完成 → 整图完成 → 图鉴收入。落 S10 元游戏页族（`gdd/meta-ui.md` 仍待建）。
   - **开放问题 Q1–Q11**（只列不自答）：**Q1 子版面是否复用「错位归位」内核**（若否 = 加第二玩法内核，S1/S3 判据翻倍、须改判 concept D1）／**Q2 宫格同时可见 vs 顺序解锁**（决定「一屏是否需 N 个独立缩放版面」，直接判定 ADR-0015 丁-3 单相机前提是否失效、是否须提前投资丁-2 分组变换）／盘面扩容档位（GRID_MAX 从 13×12 扩到多少）、图鉴入口位置、整图进度显示、珠子密度/连续性规则、体力扣减口径、与 demo 8 关关系等。
 - **不冻结清单**：位移阈值、缩放档位上下限、`GRID_MAX_*` 扩容值、宫格规格、体力口径 —— 全部 `[待确认]`，待主理人裁 Q1/Q2 后再进 GDD。
+- **交互形态复确认（2026-09-19，用户）**：本单**不引入滑轨/缩放按钮**——`concept` **D13**（v1.24 / WXG-T-141 用户拍板「棋盘缩放只做双指捏合手势、无滑轨/按钮控件」）**维持原样**；对参考竞品「放大镜图标 + 竖向滑轨」的否案（`design/references/ref-video-2026-09-17-ui-ux-analysis.md` 10.8-1「不猜不抄」）也不变。缩放能力已随 T-169 落码可用，**本单真正的卡点是 Q1（是否引入第二个玩法内核，撞 D1/支柱 3）与 Q2（宫格同时可见 vs 顺序解锁，决定单相机丁-3 前提是否失效）**，不是输入形态。
 - **下一步**：主理人就 **Q1 / Q2** 拍板（其余依赖此两条）→ 文策渊出提案一页纸转正 + 新建 `gdd/meta-ui.md`（八节含图鉴）＋ §3 变更单草案 → UX 侧 `ux-spec` 抬起提交回写 + 三层 Screen Flow → 程基岩在 C-3 前置解除后开工 甲′+丁-3（先取证 Cocos 多点派发形态）。
 
 ---
 
 ## WXG-T-169
 
-**beads·棋盘缩放平移落码（Z0–Z6）** · 负责：程基岩(eng) · 状态：🔄 开工中 · 上位决策：`ADR-0015`（Accepted，甲′+丁-3+C-3(a)）· 前置判据：`input-control.md` v2.5 / `core-loop.md` v2.1（已随 WXG-T-167 入库）
+**beads·棋盘缩放平移落码（Z0–Z6）** · 负责：程基岩(eng)·主理人收口 · 状态：✅ **收口（2026-09-19）** · 上位决策：`ADR-0015`（Accepted，甲′+丁-3+C-3(a)）· 前置判据：`input-control.md` v2.5 / `core-loop.md` v2.1（已随 WXG-T-167 入库）
 
 - **范围**：仅落「棋盘区双指缩放 + 单指平移 + 抬起才提交」能力。**不含** GRID_MAX 扩容、图鉴/meta-ui、C-5 描边随缩裁定、位移阈值与缩放档位数值冻结（后三者分别走设计轨 WXG-T-167 / art 轨 / §3 变更单）。
 - **Story 依赖序**：Z0（Cocos 多点派发真机取证，⛔ 无设备/编辑器挂账）‖ Z1（InputManager 多槽化甲′）→ Z2（gridLayoutFor 参数化 + 命中半径随缩 + 回环/反例自检）→ Z3（view-model 参数化 + 格心剔除）‖ Z5（board-camera.ts 纯函数）→ Z4（_readInput 抬起提交状态机 + 相机门禁/复位 + 迁移真链用例）→ Z6（QA test-cases 迁移 + 门禁全跑 + framework:sync）。
@@ -233,6 +234,15 @@
   - **F2（P3）**：位移度量口径——GDD §2.1 写切比雪夫，实现为曼哈顿 `|dx|+|dy|`；阈值未冻结不判 FAIL，但形态须先于定值裁定。**⇒ 已修于 WXG-T-171**（用户 2026-09-18 拍板**甲 · 切比雪夫 L∞**，代码 `sum`→`max` 1 行）。
   - **F3（P3）**：ADR-0015 §3.4 / GDD「相机复位归**恒等**」与本单真机反馈③改用的 `fitCamera`（第 8 关 fit≈0.9518）措辞漂移；须回写 ADR/GDD 复位口径为「归 fit 初始」。
   - **U11（文策渊登记）**：`core-loop v2.1` 注②称扫光整链挂抬起帧，但道具卡属区外（按下即响应）⇒ 两上位口径张力，待主理人裁。
+
+- **收口批（2026-09-19，Qoder）**：本单施工面（Z1–Z6）与缺陷批（T-170~173）均已入库，唯一**真欠账** = QA `test-cases.md §A4c.2`「判据已冻结、`[Node]` 可证、本轮无落点 ⇒ 待执行」（禁读作 PASS）那批。本批补齐：
+  - **新落 4 条用例 + 1 条护栏锁**（全入 `tests/board-input-timing.test.ts`，该文件 4→9 例）：**TC-CAM-09** 相机旁路（PAUSED 态拖拽/次指/张开/抬起 ⇒ `snapshot.gridPitch/gridLeft/gridTop` 逐分量不变且零玩法指令）、**TC-SUB-03** 拖→捏不提交（次指落下后主指抬起被压）、**TC-SUB-04** 指令洪泛（每 down 帧 0 条、每 up 帧恰 1 条；实投 10+ 组，受 6×5 测试关盘面限制 ⇒ 规模下标写在用例内不冒充 20 组）、**TC-SUB-07** drag 途中跨格零选中（8 帧扫盘逐帧校）、**F5 几何护栏锁**（阈值 ≥ 带间隙即红）。
+  - **五轮变异自检（K-036 / K-042）**：去 `playing` 门禁 ⇒ 唯 CAM-09 红；删 `!_pinched` ⇒ 唯 SUB-03 红；提交改回 down 帧 ⇒ CAM-06/07 + SUB-03/04/07 同红；阈值 8→40 ⇒ 仅护栏例红；阈值 8→100000 ⇒ SUB-07 + 护栏例红。**SUB-07 首版差点无判别力**：抬起点原选在拖拽终点（该格落子本就不合法）⇒ 变异不红；改回「已备珠格心」（同点单指 tap 会落子 = 共位正向对照）后才锁住——已作 **K-042 追记**入库。
+  - **§A4c.4 行内回填**：F5 护栏锁已落；**F7 已改**（`denied-press.test.ts` / `selection-anchor.test.ts` 两处把 `tapDesign` 误称「真链」的注释改为「路由口径/旁路，不受也不覆盖 v2.5 时基」，零行为改动；`tapDesign` 已复核为直调 `_handleTap`）；**F8 已闭合**（`framework:sync:check` 恒绿）；**F6 不并入**（用户拍板）⇒ 挂 backlog，理由：复跑会改一大片历史 `[Probe]` 读数，属取证轨独立轮次。
+  - **未转态（诚实）**：**TC-SUB-05 仍 `待执行`**——占位阈值 8 < 带间隙 30 ⇒「位移<阈值却跨带」不可构造，强构只能改占位值自证；§A4c.3 真机 ⛔ 5 条**零进账**（zoom≠1 命中已归真机首验包 **P1-8**）。
+  - **取证边界**：本轮只跑 `[Node]` ⇒ 所有 `[Probe]`/`[Cocos]`/`[C]`/`[R]` 读数仍属旧轮次，不引用为本批证据。
+  - **门禁与沉淀**：`verify` **17/17 PASS**；beads **501 例绿**（496+5）、framework 306 / breakout 239；`test-cases.md` v1.14→**v1.15**（严守真域由主对话代落盘，承 T-146/T-172 Q1 判例，待严守真复验）；`kb:sync --task=WXG-T-169` 沉淀统计：**新增 0 / 修改 1（K-042 追加「零事件类用例新写时同样会中招：先找共位正向对照再跑变异」）/ 激活 0 / 归档 0**，`kb:audit` 无归档候选、无相似命中（活跃 57）；`ctx:build` 已刷索引面；**变更记录表仍缺 v1.10–v1.14 五行**（沿 v1.13 ⑦ 口径只登记不代写）。**本批未提交**（沿用户口径）。
+- **收口后余项（逐处挂号）**：三占位值 + F3-b 底线 + pinch-focal → backlog「§3 变更单」行；C-5 描边随缩 → backlog art 轨行；F6 探针升级 → backlog 新行；zoom≠1 命中真机 P0 → 真机首验包 P1-8；TC-SUB-05 → QA 表内标「阻塞 = §3 变更单未定值」；GRID_MAX 扩容/图鉴 → 设计轨 T-167（前置 Q1/Q2）。
 
 ---
 
@@ -354,3 +364,56 @@
 
 
 
+
+---
+
+## WXG-T-175
+
+**外来 skill 集成 · A 档（Claude Code Game Studios 点菜式吸收）** · 负责：主理人(CodeBuddy) · 状态：✅ 落码（**待真跑一个 story 验证价值**）
+
+- **缘起**：用户 2026-09-19 给出外部仓库 `Donchitos/Claude-Code-Game-Studios`（MIT，25.2k stars），
+  要求调研 → 对比 → 评估 → 集成。全量 186 件（73 skills / 49 agents / 12 hooks / 11 rules / 41 templates）。
+- **取证方式（诚实登记）**：`git clone` 两次因网络中断（`curl 52 Empty reply`）失败 ⇒ 改用
+  **GitHub API 取全量目录清单 + raw 逐份取正文**取证（精读：`dev-story` / `story-readiness` /
+  `story-done` / `balance-check` / `test-flakiness` / `test-evidence-review` / `soak-test` /
+  `gameplay-code.md` / `systems-index.md` 模板 / `validate-commit.sh` / `technical-preferences.md` /
+  `unity-shader-specialist.md` / `godot-specialist.md`）。**留档用 clone 最终成功**（5.4M）。
+- **结论：不整包集成**（三条硬理由）：① 31% 的 agent（15/49）是 Godot/Unity/Unreal 专家，
+  本仓引擎唯一（Cocos Creator + 微信小游戏）⇒ 无效；② CCGS 无「§3 冻结常量真源 + 变更记录 +
+  冲突裁决链」，整包引入会稀释本仓最硬约束；③ 其 12 hooks 路径（`^src/gameplay/`、
+  `^design/gdd/`、`^assets/data/*.json`）在本仓**一条都不命中**，且只 WARN 不阻断，强度低于本仓 pre-commit。
+- **A 档落地（3 个新 skill，全部 `disable-model-invocation: true` 仅点名）**：
+  - `wxgame-story-dev` ← `dev-story`：开工门禁 + 真源装载 + **控制清单版本漂移三选项** +
+    **依赖门禁三选项** + 测试证据。改造：`tr-registry` → 本仓 **§8 验收条目 `S<n>§8-<k>`**（同构，
+    无需新建 registry）；删引擎派工与 `director-gates`/`review-mode`；进度真源 = story 自身 `Status:`
+    + `production/sprints/`（**不引入** `production/session-state/active.md` 第二套状态）。
+  - `wxgame-story-gate` ← `story-readiness` + `story-done` 合并：子命令 `ready` / `done`。
+    新增本仓特有关卡：**测试↔判据追溯表，>50% UNTESTED ⇒ BLOCKING**。
+  - `wxgame-balance-check` ← `balance-check`：真源改 `systems-index §3`；**新增本仓硬纪律 ——
+    只读、不得改冻结值**（改值必须走 §3 变更单），并新增「§3 ↔ `tuning.ts` 落码漂移」核对（上游没有）。
+- **另两处吸收（不新建 skill）**：
+  - `wxgame-qa-gates` 增 §6 测试不稳定性 / §7 测试证据评审 / §8 长跑 —— **已微信宿主化**：
+    `wx.onMemoryWarning`、杀进程续进、帧时间漂移、BD-51 音频复发面；删原版 GdUnit4/NUnit/`stat memory` 引擎段。
+  - `docs/architecture/control-manifest.md` 新增 **§18 外来吸收四条**（状态机显式转换表 /
+    禁静态单例改 DI / 注释标注设计真源 / `TODO(<归属>)`），并**登记未吸收条款**免重复引入。
+- **明确不引入（登记备查）**：15 引擎专家 agent（其 description **无引擎前置条件**，会误 spawn；
+  `godot-specialist` 还强制读 `docs/engine-reference/godot/VERSION.md`，本仓是 `cocos/`）/
+  `/setup-engine`（会污染 `technical-preferences.md` 的 `Engine:` 字段）/ 12 hooks /
+  `systems-index.md` 模板（与本仓同名**冻结真源**冲突，只借鉴"高风险系统/进度跟踪"章节）/
+  叙事·网络·安全·live-ops·本地化（无对应域或 Won't）。
+- **工程事实**：四 IDE 链接 12 条（`.cursor|.codebuddy|.workbuddy|.qoder/skills/<name>` →
+  `../../my-skills/<name>`）；`check:links` OK（skills=36）；上游留档
+  `my-skills/_repos/Claude-Code-Game-Studios/`（5.4M，更新 = `cd _repos/<repo> && git pull`）。
+- **门禁**：`ctx/budget-exempt.json` 新增 2 条 B 门豁免（`UPGRADING.md` 8918 tok、
+  `docs/WORKFLOW-GUIDE.md` 14811 tok）—— 沿用 mattpocock/superpowers 同目录 vendor 先例，
+  **不调阈值**，且双双登记债务：`git pull` 使留档显著膨胀时**优先精简 `_repos` 而非续加豁免**。
+  `verify` **17/17 PASS**。
+- **⚠️ 遗留（诚实登记）**：
+  1. **动态切换机制未落码** —— `my-skills/INDEX.md §1d` 已定三档（hybrid/ccgs/wxgame），
+     但本仓无 profile 文件，且 `AGENTS.md` 是 alwaysApply 静态文本**不会自动读档位文件生效**；
+     真正的可回滚切换需新增 `tools/scripts/switch-skill-profile.mjs`（重写链接 + 批量改
+     `disable-model-invocation`）。当前默认 hybrid，靠手工维护链接。
+  2. **三个新 skill 尚未真跑过一次** —— 价值待证。建议下一个真实 story 走完整循环
+     （`story-gate ready` → `story-dev` → `story-gate done`）验收。
+  3. 用户级 vs 项目级：本次走**项目级**（与外来通用 16 个一致，可被 `check:links`/`verify` 守到）；
+     各 IDE 的用户级扫描路径**未在本机核实**。

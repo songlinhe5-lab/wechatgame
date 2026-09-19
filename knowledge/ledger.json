@@ -710,7 +710,7 @@
       "file": "knowledge/lessons/testing.md",
       "category": "测试",
       "title": "几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫",
-      "contentHash": "36658f81c6ed0e51c084826d0dca4a2d1789b57ed44d664e51e1e2ed670b8f8b",
+      "contentHash": "27bbad1c65c6dfa601f730d1cb816bb16b39e4cbfdde5619b2579173aaeade5b",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -1273,6 +1273,15 @@
       "kind": "added",
       "ids": [
         "K-057"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-169",
+      "kind": "updated",
+      "ids": [
+        "K-042"
       ],
       "note": null
     }

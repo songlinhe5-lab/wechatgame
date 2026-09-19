@@ -56,7 +56,9 @@ function cellCenter(snap: BeadsSnapshot, row: number, col: number): { x: number;
     };
 }
 
-/** 真链点击（`tapDesign` → `_handleTap` → S2 路由 → 5c）。 */
+/** 路由级点击（`tapDesign` → `_handleTap` → S2 路由 → 5c）。**口径校正（WXG-T-169 收口批 · QA §A4c.4-F7）**：
+ * `tapDesign` 绕开 `_readInput`，按 **K-038** 定义属**旁路**而非「真链」⇒ 本组天然不受
+ * `input-control v2.5` 抬起提交时基影响，也因此**不覆盖**它（真输入链用例见 `board-input-timing.test.ts`）。*/
 function tapCell(h: Harness, row: number, col: number): void {
     const p = cellCenter(h.game.snapshot, row, col);
     h.game.tapDesign(p.x, p.y);

@@ -2,9 +2,11 @@
  * Epic T-133 · E2 — 统一选择锚 + 输入路由分支化（input-control v2.0 §2.1/§2.3/
  * §2.4/§8-11/§8-12；systems-index v1.22 §4 `board:selected`）。
  *
- * 真链口径：托盘/网格交互一律走 `tapDesign()`（真路由 `_handleTap`，热区坐标取
- * `gridLayoutFor` / `trayLayout` 单一真源）——旁路命令（selectTraySlot /
- * selectBoardBead / tapGridCell）只作装配与对照，不冒充路由。
+ * 路由口径（**非真输入链**，WXG-T-169 收口批口径校正 · QA §A4c.4-F7）：托盘/网格交互一律走
+ * `tapDesign()`（直调 `_handleTap`、绕开 `_readInput` ⇒ 按 **K-038** 属**旁路**；热区坐标取
+ * `gridLayoutFor` / `trayLayout` 单一真源）⇒ 本组不受 `input-control v2.5` 抬起提交时基影响，
+ * 也**不覆盖**它（时基真链用例见 `board-input-timing.test.ts`）。旁路命令（selectTraySlot /
+ * selectBoardBead / tapGridCell）只作装配与对照。
  * 局面全部手工构造（E1 判例：无关卡 JSON、无 swaps BOOT 校验）。
  */
 
@@ -25,7 +27,8 @@ import type { BeadsGame } from '../src/game/beads-game.js';
 /** 6×5 全可填板（simpleTestLevel 图案）。 */
 function mkHarness(saveKey: string): Harness {
   return createBeadsHarness({
-      noAssemble: true, levels: [simpleTestLevel()], saveKey });
+    noAssemble: true, levels: [simpleTestLevel()], saveKey
+  });
 }
 
 /** 满盘就位 → 再经装配原语 `setBead` 交换两格珠色（两格皆错位，E1 判例同型）。 */
