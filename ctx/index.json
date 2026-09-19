@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3372,
       "lines": 122,
-      "sha256": "a9e8ce0ae601c608c9e5495eaf9dd4f59a0608ce2c235658d110d90500655365",
+      "sha256": "502195565d4603d87d376058154a1b8ed1cb76ac39d2b5fa06adb94ea37d1b37",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4534,
+      "tokens": 4554,
       "lines": 82,
-      "sha256": "69147e87447611dd3259cf4ea63133ff3ec1dfc6979b6208fe26cc1d4b967bf2",
+      "sha256": "6a474342c93d81ee6daca4ebf93c9066f5dbedb502d18e063556c9395e2f68a1",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4506,
+          "tokens": 4526,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -513,12 +513,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 309 行 / 7079 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 336 行 / 7699 tok / 实测读 42 次",
           "level": 2,
           "startLine": 14,
           "endLine": 17,
-          "tokens": 233,
-          "summary": "§控制清单 — 可立即执行的一页规则=1+310 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
+          "tokens": 254,
+          "summary": "§控制清单 — 可立即执行的一页规则=1+337 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
           "keywords": [
             "§0",
             "§1",
@@ -593,12 +593,12 @@
           ]
         },
         {
-          "anchor": "§`my-skills/INDEX.md` — 102 行 / 2258 tok / 实测读 61 次",
+          "anchor": "§`my-skills/INDEX.md` — 109 行 / 2474 tok / 实测读 61 次",
           "level": 2,
           "startLine": 34,
           "endLine": 37,
           "tokens": 123,
-          "summary": "§wxgame skill 家族 INDEX=1+103 · §1 清单（现役 33 个挂四 IDE 链接；存档 1 个",
+          "summary": "§wxgame skill 家族 INDEX=1+110 · §1 清单（现役 33 个挂四 IDE 链接；存档 1 个",
           "keywords": [
             "my-skills/INDEX.md",
             "§1",
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 419 行 / 23401 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 444 行 / 24112 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 269,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+420 · §WXG-T-128=18+104 · §裁定与回写记录（",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+445 · §WXG-T-128=18+104 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -5713,17 +5713,17 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 7079,
-      "lines": 309,
-      "sha256": "69e75101565e1abc4afd8c858bc029fef505f16dd4e8f0b407ce9273835e1aa4",
+      "tokens": 7699,
+      "lines": 336,
+      "sha256": "37c433124f2ae0e024acbe661e94117c0cbd919bc1f369eaae694ec18157bd5f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§控制清单 — 可立即执行的一页规则",
           "level": 1,
           "startLine": 1,
-          "endLine": 310,
-          "tokens": 7063,
+          "endLine": 337,
+          "tokens": 7683,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -5974,8 +5974,8 @@
           "anchor": "§17 宿主输入归一化（ADR-0011 §3(e)，根因 缺陷 C1）",
           "level": 2,
           "startLine": 255,
-          "endLine": 310,
-          "tokens": 1724,
+          "endLine": 312,
+          "tokens": 1726,
           "summary": "屏幕坐标的唯一契约 = 屏幕 CSS px · 左上原点；DPR 永不进 Viewport / InputManager",
           "keywords": [
             "§3",
@@ -5984,6 +5984,22 @@
             "DPR",
             "Viewport",
             "InputManager"
+          ]
+        },
+        {
+          "anchor": "§18 外来吸收四条（CCGS `gameplay-code`，WXG-T-175）",
+          "level": 2,
+          "startLine": 313,
+          "endLine": 337,
+          "tokens": 601,
+          "summary": "来源：Claude Code Game Studios（MIT）.claude/rules/gameplay-code.",
+          "keywords": [
+            "gameplay-code",
+            "CCGS",
+            "gameplay",
+            "code",
+            "WXG",
+            "Claude"
           ]
         }
       ]
@@ -38841,17 +38857,17 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 2258,
-      "lines": 102,
-      "sha256": "c033f442277ca29c9423b1c7ef7ad57d83bba422a2ca3a4c21a9bc8696efc119",
+      "tokens": 2474,
+      "lines": 109,
+      "sha256": "4c630b0b660498ce1788ae36e1c0600c018bc46f976d4047d689c884f5ec4459",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame skill 家族 INDEX",
           "level": 1,
           "startLine": 1,
-          "endLine": 103,
-          "tokens": 2250,
+          "endLine": 110,
+          "tokens": 2467,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -38866,7 +38882,7 @@
           "level": 2,
           "startLine": 6,
           "endLine": 33,
-          "tokens": 938,
+          "tokens": 991,
           "summary": "编排 wxgame-orchestration 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路",
           "keywords": [
             "IDE",
@@ -38912,8 +38928,8 @@
           "anchor": "§3 Skill 优先级（冲突时高者胜）",
           "level": 2,
           "startLine": 66,
-          "endLine": 77,
-          "tokens": 137,
+          "endLine": 84,
+          "tokens": 300,
           "summary": "",
           "keywords": [
             "Skill",
@@ -38924,8 +38940,8 @@
         {
           "anchor": "§4 路径约定",
           "level": 2,
-          "startLine": 78,
-          "endLine": 91,
+          "startLine": 85,
+          "endLine": 98,
           "tokens": 208,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
@@ -38939,8 +38955,8 @@
         {
           "anchor": "§5 冲突裁决链",
           "level": 2,
-          "startLine": 92,
-          "endLine": 98,
+          "startLine": 99,
+          "endLine": 105,
           "tokens": 85,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 是数值唯一真源",
           "keywords": [
@@ -38955,8 +38971,8 @@
         {
           "anchor": "§6 Provenance 说明",
           "level": 2,
-          "startLine": 99,
-          "endLine": 103,
+          "startLine": 106,
+          "endLine": 110,
           "tokens": 60,
           "summary": "除 audio-spec（框架版）外，各 wxgame-* 均提炼自 Breakout demo 的实际产物，",
           "keywords": [
@@ -127468,17 +127484,17 @@
     },
     {
       "path": "my-skills/wxgame-epic-split/SKILL.md",
-      "tokens": 1024,
-      "lines": 62,
-      "sha256": "07bae2dbf787ca4480d82f8b4c0e483239fcc5c0460cdb540e670b5457d3f841",
+      "tokens": 2027,
+      "lines": 108,
+      "sha256": "2c997a816d4edc2408c52980a14b7ea7a3a8553038ea86e720ea5d72ce59f106",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame Epic/Story 拆分法（拓扑序 + 引用式验收）",
           "level": 1,
           "startLine": 6,
-          "endLine": 63,
-          "tokens": 884,
+          "endLine": 109,
+          "tokens": 1828,
           "summary": "本 skill 属 wxgame 家族（见 my-skills/INDEX.md）；实例：production/epic",
           "keywords": [
             "wxgame",
@@ -127572,11 +127588,89 @@
           ]
         },
         {
-          "anchor": "§后续衔接",
+          "anchor": "§7 Story 生命周期后半段 · 实现（原 `wxgame-story-dev`，WXG-T-175 并入）",
           "level": 2,
           "startLine": 59,
-          "endLine": 63,
-          "tokens": 52,
+          "endLine": 91,
+          "tokens": 585,
+          "summary": "来源：Claude Code Game Studios dev-story（MIT）吸收改写。",
+          "keywords": [
+            "wxgame-story-dev",
+            "Story",
+            "wxgame",
+            "story",
+            "dev",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§7.1 找 Story（**本仓载体形态，与上游假设不同**）",
+          "level": 3,
+          "startLine": 63,
+          "endLine": 69,
+          "tokens": 113,
+          "summary": "⚠️ 本仓不是一个 Story 一个文件：Story = production/epics/epics-<game>.m",
+          "keywords": [
+            "Story",
+            "production",
+            "epics",
+            "game",
+            "本仓载体形态",
+            "与上游假设不"
+          ]
+        },
+        {
+          "anchor": "§7.2 装载上下文（缺一即 STOP，不许边猜边写）",
+          "level": 3,
+          "startLine": 70,
+          "endLine": 82,
+          "tokens": 234,
+          "summary": "Story 条目 production/epics/epics-<game>.md 停；转本 skill §2 重拆",
+          "keywords": [
+            "§2",
+            "STOP",
+            "Story",
+            "production",
+            "epics",
+            "game"
+          ]
+        },
+        {
+          "anchor": "§7.3 实现与测试证据",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 91,
+          "tokens": 166,
+          "summary": "派工：engineering-lead（实现）/ quality-lead（测试）；禁止派引擎专家",
+          "keywords": [
+            "engineering",
+            "lead",
+            "quality",
+            "实现与测试证"
+          ]
+        },
+        {
+          "anchor": "§8 Story 门禁 · ready / done（原 `wxgame-story-gate`，WXG-T-175 并入）",
+          "level": 2,
+          "startLine": 92,
+          "endLine": 103,
+          "tokens": 286,
+          "summary": "ready（只读，不改文件）：§8 具体条目引用 / 验收自包含 / 可测无主观 / ADR 为",
+          "keywords": [
+            "wxgame-story-gate",
+            "§8",
+            "Story",
+            "ready",
+            "done",
+            "wxgame"
+          ]
+        },
+        {
+          "anchor": "§后续衔接",
+          "level": 2,
+          "startLine": 104,
+          "endLine": 109,
+          "tokens": 76,
           "summary": "本文档是冲刺计划的输入：可据此直接生成 production/sprints/sprint-01.md。",
           "keywords": [
             "production",
@@ -127589,17 +127683,17 @@
     },
     {
       "path": "my-skills/wxgame-gdd-writer/SKILL.md",
-      "tokens": 1274,
-      "lines": 83,
-      "sha256": "11356bb33b4bcad6c76a8d67eb1ec6ceea052fe8a5cabdc883609e5430b67b14",
+      "tokens": 1690,
+      "lines": 104,
+      "sha256": "56f15b3e9617d50501035686ca0b7289b55c0a108bde50b57f9beb34a313f8d6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame GDD 编写法（工作室验证过的四件套流程）",
           "level": 1,
           "startLine": 6,
-          "endLine": 84,
-          "tokens": 1123,
+          "endLine": 105,
+          "tokens": 1497,
           "summary": "本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 my-skills/INDEX.md）；实例见文末",
           "keywords": [
             "wxgame",
@@ -127684,10 +127778,26 @@
           ]
         },
         {
-          "anchor": "§工作方式",
+          "anchor": "§5 数值平衡核对（原 `wxgame-balance-check`，WXG-T-175 并入）",
           "level": 2,
           "startLine": 79,
-          "endLine": 84,
+          "endLine": 99,
+          "tokens": 352,
+          "summary": "来源：Claude Code Game Studios balance-check（MIT）吸收改写。",
+          "keywords": [
+            "wxgame-balance-check",
+            "wxgame",
+            "balance",
+            "check",
+            "WXG",
+            "Claude"
+          ]
+        },
+        {
+          "anchor": "§工作方式",
+          "level": 2,
+          "startLine": 100,
+          "endLine": 105,
           "tokens": 77,
           "summary": "写前必读 systems-index.md §3（如已存在）；数值永远引用、不复制。",
           "keywords": [
@@ -128451,17 +128561,17 @@
     },
     {
       "path": "my-skills/wxgame-qa-gates/SKILL.md",
-      "tokens": 1299,
-      "lines": 78,
-      "sha256": "7c94d401a72bc3f0db46d664faf7dd65536e7a05f4341305c8465282e00148c5",
+      "tokens": 2394,
+      "lines": 123,
+      "sha256": "aa548de6042dfa269e4efe33604c0866503e5c6d4d7fac84a47ca6f09f9736b0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame QA 门禁法（风险驱动五件套）",
           "level": 1,
           "startLine": 6,
-          "endLine": 79,
-          "tokens": 1139,
+          "endLine": 124,
+          "tokens": 2189,
           "summary": "本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 my-skills/INDEX.md）；实例见 p",
           "keywords": [
             "wxgame",
@@ -128550,10 +128660,58 @@
           ]
         },
         {
-          "anchor": "§门编号（G1–G4，定义与源文档 `test-plan.md` 门控表一致）",
+          "anchor": "§6 测试不稳定性（flaky）——**外来吸收**（CCGS `test-flakiness`，WXG-T-175）",
           "level": 2,
           "startLine": 62,
-          "endLine": 72,
+          "endLine": 76,
+          "tokens": 307,
+          "summary": "不稳定测试 = 无代码变更却时绿时红。它比没测试更糟：会训练团队忽略红灯。",
+          "keywords": [
+            "test-flakiness",
+            "flaky",
+            "CCGS",
+            "test",
+            "flakiness",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§7 测试证据评审（evidence review）——**外来吸收**（CCGS `test-evidence-review`，WXG-T-175）",
+          "level": 2,
+          "startLine": 77,
+          "endLine": 90,
+          "tokens": 291,
+          "summary": "冒烟只验\"存在且通过\"，本节验质量：存在且绿的测试仍可能什么都没覆盖。",
+          "keywords": [
+            "test-evidence-review",
+            "evidence",
+            "review",
+            "CCGS",
+            "test",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§8 长跑 / 耐久测试（soak）——**外来吸收**（CCGS `soak-test`，WXG-T-175）",
+          "level": 2,
+          "startLine": 91,
+          "endLine": 106,
+          "tokens": 367,
+          "summary": "长跑是人跑的：本 skill 只出协议文档，不自动执行。",
+          "keywords": [
+            "soak-test",
+            "soak",
+            "CCGS",
+            "test",
+            "WXG",
+            "skill"
+          ]
+        },
+        {
+          "anchor": "§门编号（G1–G4，定义与源文档 `test-plan.md` 门控表一致）",
+          "level": 2,
+          "startLine": 107,
+          "endLine": 117,
           "tokens": 164,
           "summary": "G1 静态门 类型检查零错误 + 架构守卫通过 PASS/FAIL",
           "keywords": [
@@ -128568,8 +128726,8 @@
         {
           "anchor": "§门禁纪律",
           "level": 2,
-          "startLine": 73,
-          "endLine": 79,
+          "startLine": 118,
+          "endLine": 124,
           "tokens": 84,
           "summary": "G4 门控以 §A 硬判据用例全绿为必要条件。",
           "keywords": [
@@ -128894,17 +129052,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 23401,
-      "lines": 419,
-      "sha256": "f4942266e4eb6414d8e198aa87306aaae77483ccfbabe9ea8a9106596c3b90c8",
+      "tokens": 24112,
+      "lines": 444,
+      "sha256": "e00846006867be61fb9484817e5d35e0b9f344cb24cb5ee40d6be0e44d5afbb4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 420,
-          "tokens": 23384,
+          "endLine": 445,
+          "tokens": 24095,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -129142,8 +129300,8 @@
           "anchor": "§WXG-T-175",
           "level": 2,
           "startLine": 370,
-          "endLine": 420,
-          "tokens": 1445,
+          "endLine": 445,
+          "tokens": 2156,
           "summary": "外来 skill 集成 · A 档（Claude Code Game Studios 点菜式吸收） · 负责：主理人(C",
           "keywords": [
             "WXG",

@@ -417,3 +417,28 @@
      （`story-gate ready` → `story-dev` → `story-gate done`）验收。
   3. 用户级 vs 项目级：本次走**项目级**（与外来通用 16 个一致，可被 `check:links`/`verify` 守到）；
      各 IDE 的用户级扫描路径**未在本机核实**。
+
+- **追加裁定（用户 2026-09-19）：三件并入 `wxgame-*`，独立件删除**
+  - 处置：`my-skills/wxgame-story-dev` / `wxgame-story-gate` / `wxgame-balance-check`
+    **三个正本目录删除，12 条四 IDE 链接全部摘除**（内容不丢，已并入同域 skill）。
+  - 去向（按域就近，而非按来源就近）：
+    - `wxgame-epic-split` **§7 Story 生命周期后半段·实现** + **§8 ready/done 门禁**
+      ← `dev-story` + `story-readiness` + `story-done`
+    - `wxgame-gdd-writer` **§5 数值平衡核对** ← `balance-check`（真源 = §3 冻结常量，属 GDD 域）
+  - 连带：`my-skills/INDEX.md` §1c 整节删除；§1 表格两行加标注；§3 优先级链**不再单列 CCGS 层**；
+    触发机制与现役 skill 完全一致（靠 `description` 自动命中，无 `disable-model-invocation`）。
+  - 另按用户裁定**撤销**「两套 skill 档位动态切换」机制（hybrid/ccgs/wxgame 三档）——
+    不为未发生的需求预建机制；将来真要并存，用「挂/摘四 IDE 链接」既有硬开关。
+  - 门禁：`check:links` **skills=33**（与合并前一致）、`verify` **17/17 PASS**。
+- **验证记录（同日真跑，非静态检查）**
+  1. `balance-check` 核心动作：抽查 §3 ↔ `tuning.ts` 七组常量（`TRAY_BASE_SLOTS`/`TRAY_EXPAND_SLOTS`/
+     `STAR3_RATIO`/`STAR2_RATIO`/`SPRINT_TIME_DEFAULT`/`STAMINA_MAX`/`STAMINA_REGEN`）⇒ **零漂移**。
+  2. QA §7 证据评审抽样（44 文件 / 488 用例 / 2527 expect，均值 5.18）⇒ 抓到
+     **`zz-bis3.test.ts`（3 用例 / 0 expect = 空过，按 §7 判 BLOCKING）**与
+     `onboarded.test.ts`（2.0/用例，偏薄）。前者 `zz-` 前缀疑似临时诊断件，**待用户裁定处置**。
+  3. QA §6 稳定性：连跑两次均 44 files / **501 passed** 一致 ⇒ 按 §6 自定口径（<3 次不得标 confirmed）
+     只记「无 flaky 迹象，suspected 级」。
+  4. **`story-dev`/`story-gate` 的路径假设被证伪并已修**：上游假设「一 Story 一文件 + 头部
+     `Status:`/`Type:`/`Manifest Version:`」，本仓实为 `epics-<game>.md` 内 `EP<nn>-S<k>` 条目 +
+     `epics-<game>-status.md` 对账 ⇒ 已改写为按编号定位、Type 按验收条目推断、证据落点用扁平
+     `games/<game>/tests/<name>.test.ts`。**本仓 `验收：S1§8-6` 写法与 skill 的 `S<n>§8-<k>` 口径天然一致**（零改造）。

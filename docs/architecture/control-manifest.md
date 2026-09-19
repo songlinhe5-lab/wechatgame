@@ -307,3 +307,30 @@ dpr=1/2/3 封顶、信箱、边界、非法 dpr、Viewport 往返）。端到端
 `node production/qa/beads/cocos-input-probe.mjs`（WXG-T-108 落盘；自带断言与退出码 + **反例自检** ——
 它正是"新宿主必须补行为测试"这条要求的机械样例，**新宿主/新引擎适配器照它的形态复刻一份**）。
 二者均只证 `[N]`（web-mobile）；微信真机侧为 ⛔ `[R]`，不得记 PASS。
+
+---
+
+## 18. 外来吸收四条（CCGS `gameplay-code`，WXG-T-175）
+
+> **来源**：Claude Code Game Studios（MIT）`.claude/rules/gameplay-code.md`，与本章
+> L1–L5 逐条对账后**只吸收本仓没有的 4 条**。上游其余条款（数据驱动、delta time、
+> 热路径零分配、UI 不持状态）本仓 §0/§2/§3/§8 已覆盖且更严，不重复引入。
+> **层级**：本节属**工程细则**，不是 L1–L5 铁律 —— 违反走评审打回，不按红线处理。
+
+1. **状态机必须有显式转换表**（并入 §7）：状态 / 事件 / 目标状态三列表格落在代码注释或
+   设计文档；禁止用散落的 `if` 表达状态迁移（后者无法评审、无法穷举边界）。
+2. **禁止静态单例持有游戏状态**（改用依赖注入）：模块间经构造参数或 `services` 传入，
+   不得 `SomeManager.instance` 全局取用 —— 单例使测试无法隔离，也是**顺序依赖型 flaky**
+   的温床（见 `my-skills/wxgame-qa-gates/SKILL.md` §6）。
+3. **公开 API 注释须标注设计文档出处**：格式 `设计真源：<路径>#<小节>` 或 `S<n>§8-<k>`，
+   便于设计变更时反向定位受影响代码（配合 `wxgame-story-gate` 的偏差检查）。
+4. **`TODO` 必须带归属**：`TODO(<人名或任务号>)`，禁止裸 `TODO/FIXME/HACK` —— 裸标记
+   无法追责，并会在提交门禁里退化成噪声。
+
+**未吸收的上游条款（登记以免重复引入）**：delta time 口径（本仓固定步 `GameLoop.fixedDt`，
+§2 已钉）、每系统显式接口、逻辑与表现分离（L5 已钉）。
+
+**未引入的 CCGS 组件**：12 个 hooks（路径 `^src/gameplay/`、`^design/gdd/`、
+`^assets/data/*.json` 在本仓**全不命中**，且强度低于本仓 pre-commit）、15 个引擎专家
+agent（Godot/Unity/Unreal，本仓引擎唯一 = Cocos Creator + 微信小游戏）、
+`systems-index.md` 模板（与本仓同名**冻结真源**冲突，只借鉴其"高风险系统/进度跟踪"章节）。

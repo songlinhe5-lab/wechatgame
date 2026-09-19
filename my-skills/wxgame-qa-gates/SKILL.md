@@ -1,6 +1,6 @@
 ---
 name: wxgame-qa-gates
-description: 产出游戏 QA 五件套文档（测试计划/硬判据用例/冒烟清单/缺陷分级/Playtest 计划）时使用，判据一律从 GDD §8 验收标准导出。当用户要求写测试计划、测试用例、冒烟测试、Bug 分级、Playtest 计划，或提到 QA、test plan、smoke test、bug severity 时触发。边界：质量门的 PASS/CONCERNS/FAIL 裁定属 wxgame-orchestration，本 skill 只产文档与判据。
+description: 产出游戏 QA 五件套文档（测试计划/硬判据用例/冒烟清单/缺陷分级/Playtest 计划）与测试工程三节（不稳定性/证据评审/长跑）时使用，判据一律从 GDD §8 验收标准导出。当用户要求写测试计划、测试用例、冒烟测试、Bug 分级、Playtest 计划、查 flaky 测试、评审测试证据、做长跑/耐久测试，或提到 QA、test plan、smoke test、bug severity、flaky、soak 时触发。边界：质量门的 PASS/CONCERNS/FAIL 裁定属 wxgame-orchestration，本 skill 只产文档与判据。
 ---
 
 # wxgame QA 门禁法（风险驱动五件套）
@@ -58,6 +58,51 @@ description: 产出游戏 QA 五件套文档（测试计划/硬判据用例/冒�
   ③ 韧性/中断恢复/可访问性。
 - 每轮定义观察框架与**时长判定线**（来源：关卡规格，不拍脑袋）。
 - 附单场记录表 + 每轮汇总分析表；判定线汇总写明"什么算通过 / 需调参"。
+
+## 6. 测试不稳定性（flaky）——**外来吸收**（CCGS `test-flakiness`，WXG-T-175）
+
+不稳定测试 = 无代码变更却时绿时红。**它比没测试更糟**：会训练团队忽略红灯。
+
+- **数据源**：`pnpm run test` / `verify` 的多次输出、CI（`.github/workflows/`）日志。
+  < 3 次运行结果 ⇒ 结论只能标"suspected"，不得标"confirmed"。
+- **阈值**：失败率 >25% ⇒ **立即隔离**；5–25% ⇒ 近期修复；1–5% ⇒ 观察。
+- **本仓特因排序**（L4 确定性要求下，随机不是主因）：
+  ① 时间依赖（wallClock / 帧数假设）② 顺序依赖（共享 harness 状态）
+  ③ 浮点相等比较（应改 epsilon）④ 外部状态（存档 sidecar / 临时文件残留）
+  ⑤ 真机与 Node 差异（宿主 API 在 Node 下为 mock）。
+- **隔离 = 标注 + 登记，绝不删测试文件**：`it.skip`/`describe.skip` 并写明原因与修复方向，
+  登记到 `production/qa/` 的隔离清单；修完根因才解除。
+- 输出：`production/qa/flakiness-report-<日期>.md`（可选，需用户同意才写）。
+
+## 7. 测试证据评审（evidence review）——**外来吸收**（CCGS `test-evidence-review`，WXG-T-175）
+
+冒烟只验"存在且通过"，本节验**质量**：存在且绿的测试仍可能什么都没覆盖。
+
+- **断言密度**：每测试函数 ≥3 断言为正常；1–2 为"偏薄"；**0 断言 = BLOCKING**（空过）。
+- **边界覆盖**：Grep 测试文件是否触及 `zero/max/empty/null/boundary` 与 GDD §7 公式的极值。
+- **命名**：`test_<场景>_<预期结果>`；`test_1`、`test_run` 之类记入命名问题。
+- **判据可追溯**：测试须能对应到 `S<n>§8-<k>`；否则视为未覆盖。
+- **人工证据（Visual/Feel / UI）**：证据文档须逐条对应验收标准 + 有截图/走查 + 有签署；
+  截图可用 `pnpm run preview:frames:beads`（SVG 帧）或 `cocos-vision-shot`（真机截图）。
+- **判定**：`ADEQUATE` / `INCOMPLETE` / `MISSING`；整体取最差。
+  与 `wxgame-story-gate done` 联动：**>50% 判据 UNTESTED ⇒ BLOCKING**。
+- 输出：`production/qa/evidence-review-<日期>.md`（可选）。
+
+## 8. 长跑 / 耐久测试（soak）——**外来吸收**（CCGS `soak-test`，WXG-T-175）
+
+长跑是**人跑的**：本 skill 只出协议文档，不自动执行。
+
+- **时长按本仓单局量级定**（beads 一关 60s 级，非 RPG）：`30m`（单机制）/ `1h`（标准，推荐首次）/ `2h`（发布前）。
+  焦点：`memory` / `stability` / `balance` / `all`。
+- **微信宿主特化**（替换原版 Godot/Unity/Unreal 内存段）：
+  - 内存：开发者工具 Memory 面板 + `wx.onMemoryWarning`（真机告警必记录）。
+  - 帧率：`pnpm run preview:frames` 与真机各记一次；帧时间漂移 > 20% 记关注。
+  - **本仓核心承诺必测**：杀进程重启续进、后台切换、存档降级（见 §3 冒烟主链路）。
+  - 音频：iOS 长跑后 SFX 是否失声（历史缺陷 BD-51 复发面）。
+- **检查点**：`1h` ⇒ T+0/15/30/45/60；每点记内存、帧率、崩溃/卡死、HUD、输入、主观疲劳。
+- **分析**：内存趋势（是否单调增长 = 泄漏）、稳定性汇总、**乐趣疲劳与内容枯竭点**。
+- **判定**：PASS / PASS WITH CONCERNS / FAIL（FAIL = 确认泄漏、稳定性破线或严重疲劳）。
+- 输出：`production/qa/soak-test-<日期>-<时长>.md`（需用户同意才写）。
 
 ## 门编号（G1–G4，定义与源文档 `test-plan.md` 门控表一致）
 
