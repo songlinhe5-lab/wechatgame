@@ -10,8 +10,9 @@
  * Routing (ux-spec v1.7 §2 / §6.3):
  *   - **启动直进玩法**（首屏即玩红线不变）：`initialScreen` 默认 `'play'`；
  *   - 菜单入口 = 暂停面板次钮「回主菜单」→ `play` 的 `onMenuRequest` → {@link showMenu}；
- *   - 主菜单主钮「开始游戏」：有在途（`play.phase==='paused'`）→ 恢复、**不扣心**；
- *     否则进当前关、扣 1 心（systems-index §3.14）。
+ *   - 主菜单主钮「开始游戏」：**恒为全新开当前关**并扣 1 心（systems-index §3.14）。
+ *     旧口径「有在途（`play.phase==='paused'`）→ 恢复、不扣心」**已随 WXG-T-165 反转作废**
+ *     （v1.29：回主菜单 = 弃本局棋盘，关卡解锁进度保留）。
  *
  * The wall clock is injected (`options.clock`) because `GameServices.platform`
  * exposes only `PlatformInfo` (no wallClock) — the framework stays untouched.

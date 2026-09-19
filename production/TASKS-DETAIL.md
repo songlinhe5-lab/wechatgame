@@ -583,3 +583,22 @@
   教训：**凡内容含反引号/`$` 的文本写入，必须走脚本文件或 `--stdin`，不得塞进 shell 双引号内**（K-002 同族）。
 - **待办**：真机复验（① 结算页只剩「下一关」并居中；② 通关画面只剩「重玩第 1 关」；
   ③ 暂停面板行 4 只剩「回主菜单」并居中、无「去冲刺」文案）；恢复路径 = 按 `ux-spec §8` U1 原口径复建三处。
+
+---
+
+## WXG-T-178
+
+**framework·真机「能缩放不能拖动」修复（输入位移改帧末结算）+ 相机/命中调试读回口** · 负责：主理人(Qoder)·程基岩复核 · 状态：✅ 落码待真机复扫
+
+- **缘起**：用户在真机走查 P1-8 时回报「坐标没有问题；但是无法拖动」——即缩放与点击命中都对，单指平移完全不动。此症状与 T-169 真机反馈①（`onBoard` 起手域）同名不同因，不可复用旧结论。
+- **取证过程（先定位再改，不猜）**：为把「哪一步没走通」变成可读数字，先加调试读回口（`BeadsBootstrap` 的 `__WXG_GAME_DEBUG` / `__WXG_HIT_DEBUG` / `__WXG_CELL_DEBUG` / `__WXG_GESTURE_DEBUG`，全部由既有 `__WXG_TOUCH_DEBUG` 开关控制、默认关；命中与格心一律走游戏自己的函数，避免探针与真源共用同一个错 = K-042）。首版探针结论**我自己写错了两次**：① 只往一个方向拖、又在该方向已顶到夹取上限时采样 ⇒ 把「顶格」读成「链断」；② 结论句用 `dLeft === 0` 直接判缺陷。改用「双方向 + 手指仍按下时采样逐帧累计量」后才拿到决定性读数：`panFrames=69`（分支每帧在跑）、`panDxSum=0`、`snapX` 确实在变 ⇒ **喂进 `applyPan` 的位移恒为 0**，断点在输入层而非几何或语义。
+- **根因**：`InputManager.beginFrame()` 做 `_prevX = _x`，而事件驱动宿主（Cocos / 微信）的原生 `touch-move` 到达在**两个固定步之间**（上次 `endFrame` 之后、下次 `beginFrame` 之前）⇒ 拷贝时 `_x` 已是新值，`dx = _x - _prevX` 恒 0。同步宿主（Node 单测与浏览器 harness：`beginFrame → push → update → endFrame`）永远看不到该缺陷，故 501 例全绿也照不出来（K-037 / K-036）。
+- **修法（一处，覆盖所有宿主）**：prev 推进从 `beginFrame` 移到 `endFrame`（一固定步 = 一输入帧；同步宿主逐位等价，事件驱动宿主拿得到真实位移）；`beginFrame()` 保留为帧边界标记并注明「故意为空」。
+- **TDD**：新增契约用例 `reports the real delta when a move arrives between fixed steps`（`endFrame → push → beginFrame → 读 snapshot` 断言位移 = 40/20，并断言无新事件的下一帧位移归零）——**修前红** `expected +0 to be 40`，修后绿。
+- **影响面核实**：`grep` 全仓确认 **breakout 不读 `snap.dx/dy`** ⇒ 本次时序修正只改 beads 拖拽行为；framework 307 / beads 500 / breakout 239 = 1046 例零回归；`framework:sync` 已镜像两游戏的 cocos 拷贝件。
+- **修后实测（同一探针，web-mobile 产物 + CDP touch）**：`向右拖 → gridLeft −12.5 → 0`（`offsetX=+12.5`、`panDxSum=+357`）；`向左拖 → 0 → −25`（`offsetX=−12.5`、`panDxSum=−714`）⇒ 平移链通、且正确被 `clampCamera` 夹在内容边界。
+- **同时入库的调试口**（供真机 Console 走查，非玩法状态、L5 合规）：`BeadsGame.debugHitCell/debugCellCenter/debugGestureState` + `board-input-timing.test.ts` 一例「读回口与 `gridLayoutFor` 真源逐位同构 + 越界 null」（**变异自检**：`colCenterX/rowCenterY` 行列互换 ⇒ 本例红）。
+- **顺带修的文档债**：`beads-shell.ts` 文件头仍写「有在途 → 恢复、不扣心」，与 v1.29（T-165）反转后的实现自相矛盾 ⇒ 划线留档改注（第五处同类 K-053 漏回写）。
+- **门禁**：`verify` **17/17 PASS**（全量留日志 `temp/verify-fix.log`）、`cocos:check` 2/2、`framework:sync:check` ✅、`check:size` 主包 **1955.0 KB ≤ 2000**（release 已重建，扫码请用新包）。
+- **沉淀**：`kb:sync --task=WXG-T-178` **新增 1 / 修改 0 / 激活 0 / 归档 0** —— **K-062**「事件驱动宿主的输入位移必须进单测：prev 在帧首结算会把帧间到达的位移吞成 0」。
+- **待办**：① 真机复扫（**请在大盘验拖动**：第 5 关起才有 ±338/±198 的可拖范围，第 1 关 6×5 只有 ±13/±3 设计 px ≈ 7 屏幕 px，属 `clampCamera` 规格而非缺陷）→ 回填 `test-cases.md §A4c.3` TC-CAM-DEV-01/02/03；② 若裁定「小盘也该能拖」，那是**规格变更**，并入 backlog 已有的「§3 变更单：相机三占位值」一行处理；③ 探针 `temp/drag-probe.mjs` / `temp/cam-hit-probe.mjs` 属一次性诊断物（temp 不入库），若要固化成长期 `[B]` 取证件，须另立项并配「产物新鲜度自查 + 反例自检」（判例 WXG-T-108）。

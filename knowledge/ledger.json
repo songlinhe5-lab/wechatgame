@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 62,
+  "nextId": 63,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1043,6 +1043,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-062",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "事件驱动宿主的输入位移必须进单测：prev 在帧首结算会把帧间到达的位移吞成 0",
+      "contentHash": "12520b9b42bcde186fc6a74e689f19d7b0d5ac3b9cacffb46485d2f58ec9bf0c",
+      "sourceTask": "WXG-T-178",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1396,6 +1413,15 @@
       "kind": "updated",
       "ids": [
         "K-060"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-178",
+      "kind": "added",
+      "ids": [
+        "K-062"
       ],
       "note": null
     }

@@ -241,6 +241,25 @@ describe('棋盘区抬起才提交（WXG-T-169 / ADR-0015 C-3(a)）', () => {
         expect(h.count('tray:selected')).toBe(selected0);
     });
 
+    // WXG-T-167 预检副产品：探针/真机 Console 的调试读回口必须与真源同一份算法，
+    // 否则「zoom≠1 命中正确」就变成探针自证（K-042）。本例锁住两件事：
+    //   ① debugCellCenter 与 `gridLayoutFor`（布局真源）逐位相同；
+    //   ② debugHitCell 对该格心回判为同格，且越界入参返回 null（不猜）。
+    it('调试读回口与布局真源同构（debugCellCenter / debugHitCell）', () => {
+        const h = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.bit-debug-api' });
+        const { cols, rows } = h.game.grid;
+        const truth = gridLayoutFor(cols, rows);
+
+        for (const [row, col] of [[0, 0], [rows - 1, cols - 1], [2, 3]] as const) {
+            const c = h.game.debugCellCenter(row, col)!;
+            expect(c.x).toBe(truth.colCenterX(col));
+            expect(c.y).toBe(truth.rowCenterY(row));
+            expect(h.game.debugHitCell(c.x, c.y)).toEqual({ row, col });
+        }
+        expect(h.game.debugCellCenter(-1, 0)).toBeNull();
+        expect(h.game.debugCellCenter(0, cols)).toBeNull();
+    });
+
     it('F5 几何护栏锁：位移阈值必小于盘面带间隙（否则跨带误触可构造）', () => {
         // QA §A4c.4-F5：占位阈值 8 < 间隙 30 ⇒ TC-SUB-05「位移<阈值却跨带」不可构造。
         // 本例不证行为，只锁**选型护栏**：§3 变更单若把阈值定到 ≥ 间隙，立即红。

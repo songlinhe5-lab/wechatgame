@@ -501,6 +501,11 @@ export class BeadsGame implements Game {
   private _tapActive = false; // owner pressed inside the board region → tap deferred to lift
   private _tapMoved = false; // single-finger drag past threshold → pan, suppress tap
   private _pinched = false; // a second finger joined → pinch, suppress tap
+  /**
+   * 调试专用逐帧累计（`debugGestureState` 读）：pan 分支跑了多少帧、pan 总位移、
+   * 进过 drag 态的帧数。预分配常量字段，热路径**零分配**，不影响行为。
+   */
+  private readonly _dbgPan = { frames: 0, dxSum: 0, movedFrames: 0 };
   private readonly _gesture = createGesture();
 
   /**
@@ -1861,8 +1866,12 @@ export class BeadsGame implements Game {
       if (this._tapMoved) {
         // 单指拖拽 → 平移相机（screen dx/dy → design：/scale、y 翻向）。
         const scale = vp.fit.scale || 1;
+        this._dbgPan.frames += 1;
+        this._dbgPan.dxSum += snap.dx / scale;
         applyPan(snap.dx / scale, -snap.dy / scale, this._camera, this._grid.cols, this._grid.rows);
         this._recomputeLayout();
+      } else {
+        this._dbgPan.movedFrames += 1;
       }
       return;
     }
@@ -1875,6 +1884,9 @@ export class BeadsGame implements Game {
       this._tapActive = false;
       this._tapMoved = false;
       this._pinched = false;
+      this._dbgPan.frames = 0;
+      this._dbgPan.dxSum = 0;
+      this._dbgPan.movedFrames = 0;
       resetGesture(this._gesture);
     }
   }
@@ -2663,6 +2675,52 @@ export class BeadsGame implements Game {
    *  test share one implementation (WXG-T-169 / ADR-0015). */
   private _hitGridCell(x: number, y: number): { row: number; col: number } | null {
     return hitGridCell(this._layout, this._camera.zoom, x, y);
+  }
+
+  /**
+   * 调试只读口（`BeadsBootstrap` 在 `__WXG_TOUCH_DEBUG` 下暴露给探针 / 真机调试 Console）。
+   *
+   * 为何公开：**必须走游戏自己的命中函数与当前布局**。探针若自己重推格心/命中公式，
+   * 就与真源共用了同一个错（判例 K-042），得出的「zoom≠1 命中正确」只是自证。
+   * 两个方法都**无副作用**（不写状态、不发事件），且仅在调试开关下被调用。
+   */
+  debugHitCell(x: number, y: number): { row: number; col: number } | null {
+    return this._hitGridCell(x, y);
+  }
+
+  /** 格心的设计坐标——由**当前布局**（已烘入相机）给出，与渲染层同源。 */
+  debugCellCenter(row: number, col: number): { x: number; y: number } | null {
+    if (row < 0 || col < 0 || row >= this._grid.rows || col >= this._grid.cols) return null;
+    return { x: this._layout.colCenterX(col), y: this._layout.rowCenterY(row) };
+  }
+
+  /**
+   * 调试只读：**拖拽/捏合链上的闸位与相机当前值**（WXG-T-167 真机反馈「能缩放不能拖动」复现用）。
+   * 不写不测；仅供 [B] 探针与真机 Console 定位「哪一步没走通」，避免靠猜（K-036）。
+   */
+  debugGestureState(): Record<string, number | boolean> {
+    const s = this._services ? this._services.input.snapshot : null;
+    return {
+      tapActive: this._tapActive,
+      tapMoved: this._tapMoved,
+      pinched: this._pinched,
+      isDown: !!s && s.isDown,
+      isDown2: !!s && s.isDown2,
+      // 拖拽位移的直接源头：pan 用 snap.dx/scale。dx 恒 0 ⇒ 断在输入层；dx 非 0 而
+      // offsetX 仍 0 ⇒ 断在 `_readInput` 分支或 clamp（K-036：不拿猜测当定位）。
+      snapX: s ? s.x : 0,
+      snapY: s ? s.y : 0,
+      dx: s ? s.dx : 0,
+      dy: s ? s.dy : 0,
+      // 逐帧累计量：避开「在固定步之外读 snapshot」的时窗假象（dx 可能已归零）。
+      panFrames: this._dbgPan.frames,
+      panDxSum: this._dbgPan.dxSum,
+      panMovedFrames: this._dbgPan.movedFrames,
+      zoom: this._camera.zoom,
+      offsetX: this._camera.offsetX,
+      offsetY: this._camera.offsetY,
+      pinchDist0: this._gesture.pinchDist0,
+    };
   }
 
   // ─────────────────────────────────────────────────────────────── snapshot

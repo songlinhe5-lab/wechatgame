@@ -76,11 +76,15 @@ const EMPTY: InputSnapshot = Object.freeze({
  *
  * Usage inside the game loop (one *fixed step* == one input frame):
  * ```ts
- * input.beginFrame();          // move the previous step's state into `previous`
+ * input.beginFrame();          // frame marker (no state churn; see WXG-T-167)
  * input.push(sample);          // zero or more native events since last step
  * const snap = input.snapshot; // read during game.update()
- * input.endFrame(dt);          // advance hold timers + clear one-shot flags
+ * input.endFrame(dt);          // advance timers + clear one-shot flags + settle prev state
  * ```
+ *
+ * Samples may be pushed **between** steps (event-driven Cocos host) or right
+ * after `beginFrame` (synchronous hosts) — both yield the same per-step deltas,
+ * because `prev` is advanced at the end of each fixed step, not the start.
  *
  * The framework `App` runs `beginFrame → game.update → endFrame` **per fixed
  * substep** (see `compose/app.ts::_fixedUpdate`), not once per rendered tick: a
@@ -171,20 +175,24 @@ export class InputManager {
     }
   }
 
-  /** Snapshot current state before applying this frame's samples. */
+  /**
+   * Frame boundary marker. It intentionally does **nothing** since WXG-T-167:
+   * prev-state used to be advanced *here*, i.e. before `game.update()` read the
+   * snapshot. That is wrong for event-driven hosts (Cocos / WeChat), where the
+   * native `touch-move` arrives **between** fixed steps — after the previous
+   * `endFrame` and before this `beginFrame`. By then `_x` already holds the new
+   * position, so `_prevX = _x` collapsed the delta to `0` and gameplay saw
+   * `dx === dy === 0` for every drag frame (device symptom: pinch zooms, the
+   * board never pans — reported on real devices 2026-09-19; regression hook =
+   * `tests/core/input-manager.test.ts` “move arrives between fixed steps”).
+   * Advancing now happens in {@link endFrame}, once per fixed step, so event
+   * driven and synchronous hosts share one semantics.
+   *
+   * One-shot flags are still cleared by `endFrame` (never here), for the reason
+   * documented there (fix of 2026-09-13: clearing here wiped `justDown`).
+   */
   beginFrame(): void {
-    this._prevDown = this._isDown;
-    this._prevX = this._x;
-    this._prevY = this._y;
-    this._prevX2 = this._x2;
-    this._prevY2 = this._y2;
-    // NOTE: intentionally does NOT clear `_downThisFrame` / `_upThisFrame`.
-    // On event-driven hosts (Cocos) native input arrives *between* frames —
-    // after the previous `endFrame` and before the next `beginFrame` — so
-    // clearing here would wipe `justDown` before gameplay ever reads it
-    // (tap-to-launch never fired in the Cocos preview; fixed 2026-09-13).
-    // `endFrame` owns the one-shot flag lifecycle; synchronous hosts that push
-    // after `beginFrame` are unaffected.
+    /* no-op: prev state is settled in endFrame */
   }
 
   /** Build the immutable snapshot for gameplay to read. */
@@ -225,6 +233,12 @@ export class InputManager {
     if (this._isDown) this._holdTime += dt;
     this._downThisFrame = false;
     this._upThisFrame = false;
+    // 帧末结算：本帧被读过的位置成为下一帧的基准（一固定步 = 一输入帧）。
+    this._prevDown = this._isDown;
+    this._prevX = this._x;
+    this._prevY = this._y;
+    this._prevX2 = this._x2;
+    this._prevY2 = this._y2;
   }
 
   /** Drop all state (e.g. when a scene loses focus on WeChat hide). */

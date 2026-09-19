@@ -20,10 +20,55 @@ import { createBeadsShell } from './game/index';
 
 const { ccclass } = _decorator;
 
+/**
+ * 调试读回口（WXG-T-167 预检 / QA `test-cases.md §A4c.3`）：仅读，不写玩法状态。
+ *
+ * 为何需要：探针与真机调试 Console 只能看到画面，读不到「相机把布局变成了什么」，
+ * 于是 **zoom≠1 时点的还是不是那一格**（TC-CAM-DEV-01，P0）无法客观判定。曝光
+ * `snapshot` 里的布局标量（渲染与命中同源的那一份）+ 盘面尺寸 + 已填格数后，
+ * [B]/[R] 两侧都能算出差值与「这一点到底落子了吗」的客观读数。
+ *
+ * 开关与现有的 `__WXG_TOUCH_DEBUG` 共用（默认关）⇒ release 路径不对外暴露内部状态；
+ * 返回值是**新鲜拷贝的标量**，调用方不得持有活对象（L5：读侧只消费快照）。
+ */
+interface WxgDebugGlobal {
+  __WXG_TOUCH_DEBUG?: boolean;
+  __WXG_GAME_DEBUG?: (() => Record<string, string | number> | null) | undefined;
+  __WXG_HIT_DEBUG?: ((x: number, y: number) => { row: number; col: number } | null) | undefined;
+  __WXG_CELL_DEBUG?: ((row: number, col: number) => { x: number; y: number } | null) | undefined;
+  __WXG_GESTURE_DEBUG?: (() => Record<string, string | number | boolean> | null) | undefined;
+}
+
 @ccclass('BeadsBootstrap')
 export class BeadsBootstrap extends Bootstrap {
   protected createGame(): Game {
     // Shell 组合 play + meta（WXG-T-164 批0）；clock 默认 Date.now，weapp 可用。
-    return createBeadsShell();
+    const shell = createBeadsShell();
+    const g = globalThis as WxgDebugGlobal;
+    g.__WXG_GAME_DEBUG = () => {
+      if (!g.__WXG_TOUCH_DEBUG) return null;
+      const s = shell.play.snapshot;
+      let filled = 0;
+      for (let i = 0; i < s.cells.length; i++) if (s.cells[i]!.state === 'filled') filled++;
+      return {
+        screen: shell.screen,
+        phase: s.phase,
+        levelIndex: s.levelIndex,
+        cols: s.gridCols,
+        rows: s.gridRows,
+        filled,
+        gridLeft: s.gridLeft,
+        gridTop: s.gridTop,
+        gridPitch: s.gridPitch,
+        gridCell: s.gridCell,
+      };
+    };
+    // 命中与格心均**由游戏自己算**（`play.debug*`）——探针不得自推公式（K-042）。
+    g.__WXG_HIT_DEBUG = (x, y) => (g.__WXG_TOUCH_DEBUG ? shell.play.debugHitCell(x, y) : null);
+    g.__WXG_CELL_DEBUG = (row, col) =>
+      g.__WXG_TOUCH_DEBUG ? shell.play.debugCellCenter(row, col) : null;
+    // 拖拽链闸位（手指还在按下时采样）：定位「能缩放不能拖动」到底卡在哪个分支。
+    g.__WXG_GESTURE_DEBUG = () => (g.__WXG_TOUCH_DEBUG ? shell.play.debugGestureState() : null);
+    return shell;
   }
 }

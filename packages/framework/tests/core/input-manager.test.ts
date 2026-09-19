@@ -207,4 +207,36 @@ describe('InputManager', () => {
     input.push(sample(0, 0, 0, 'down', 1234));
     expect(input.downTimestamp).toBe(1234);
   });
+
+  /**
+   * 事件驱动宿主（Cocos / 微信）的时序契约：原生事件在**两个固定步之间**到达
+   * （上一次 `endFrame` 之后、下一次 `beginFrame` 之前）。本例就是真机
+   * 「能缩放不能拖动」的回归钩（WXG-T-167 真机反馈，2026-09-19）：
+   * 旧实现把 prev 推进放在 `beginFrame`，那一步发生时事件已写进 `_x`
+   * ⇒ `dx = _x - _prevX` 恒为 0 ⇒ 单指平移每帧收到零位移。
+   *
+   * 同步宿主（测试与 harness：beginFrame → push → update → endFrame）的期望位移
+   * 与本例相同，两种宿主不得出现两套语义。
+   */
+  it('reports the real delta when a move arrives between fixed steps', () => {
+    const input = new InputManager();
+    // 上一帧：按下于 (100,100)，已被读。
+    input.beginFrame();
+    input.push(sample(1, 100, 100, 'down'));
+    expect(input.snapshot.x).toBe(100);
+    input.endFrame(1 / 60);
+
+    // 帧间：手指移到 (140,120)，然后本固定步才开始。
+    input.push(sample(1, 140, 120, 'move'));
+    input.beginFrame();
+    const s = input.snapshot;
+    expect(s.dx).toBe(40);
+    expect(s.dy).toBe(20);
+    input.endFrame(1 / 60);
+
+    // 下一帧没有新事件 ⇒ 位移必须归零（不得把旧位移重复消费）。
+    input.beginFrame();
+    expect(input.snapshot.dx).toBe(0);
+    expect(input.snapshot.dy).toBe(0);
+  });
 });
