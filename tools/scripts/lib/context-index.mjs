@@ -60,6 +60,14 @@ export const INDEX_VERSION = 1;
  * 归档条目已从活跃读取协议移除，不应再出现在 `ctx/index.json` / `ctx/ROUTES.md` 的可用
  * 章节集合里；置于 SKIP_DIRS 还顺带覆盖未来的 `memory/archive/`。`kb:check` ③ 断言本集合
  * 含 `archive`（导出供其校验，避免两处各写一份）。
+ *
+ * `_repos`（WXG-T-176）：`my-skills/_repos/**` 是外来 skill 的上游 git 克隆，已由
+ * `.gitignore` 忽略（内嵌仓只能记 gitlink，内容会静默丢失）。但**本生成器不读
+ * `.gitignore`** —— 它按 `readdirSync` 走盘 + 只跳本集合（逐段 `entry.name` 匹配），
+ * 所以“进 .gitignore = 不进索引”在这条链上**不成立**。2026-09-19 实例：vendor 快照入盘后
+ * 一次重建就多出 **4.6 万行 / +1.17 MB**（`ctx/index.json` 2.51 MB → 3.68 MB）并被固化进提交。
+ * ponytail: 硬编码目录名 = 单一机械开关；新 vendor 目录须同步加这里。
+ * 升级路径：改用 `git check-ignore` / `git ls-files` 做唯一真源（价：多一层子进程与平台差异）。
  */
 export const SKIP_DIRS = new Set([
   'node_modules',
@@ -74,6 +82,7 @@ export const SKIP_DIRS = new Set([
   'native',
   '.smoke',
   'archive',
+  '_repos',
 ]);
 
 /**

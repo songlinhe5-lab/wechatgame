@@ -95,3 +95,9 @@
   根因（两处，同一形状：**手写清单追不上正本扩张**）：① 桩只 `cp` 了 `lib/` 里两个模块，而 `check-context-budget.mjs` 后来 import 了 `lib/memory-index.mjs` ⇒ 桩里 `ctx:check` 直接 `ERR_MODULE_NOT_FOUND` 崩；② 桩**手写** `ctx/index.json`（固定列 5 个文件），而 ctx 门禁的「生成物集合」后来扩到 `ctx/BUDGET.md` + `memory/INDEX.md`，且 `ctx:check` 自身会回写 BUDGET/hot-files ⇒ C 门恒报「索引过期 / 未收录的新 .md / memory/INDEX.md 缺失」。附带一条：桩仓库没有 `memory/` 目录时 `ctx:build` 写生成物直接 ENOENT 崩。
   规避：① 拷依赖用**整目录通配**（`cp "$SCRIPT_DIR"/lib/*.mjs`），不要手写文件清单——清单不会跟着 import 长；② 夹具里的**索引与产物不要手写**，跑一次被测生成器播种（build 之后再注入本轮要改的度量文件），门禁扩容时夹具自动跟上；③ 桩仓库必须预置生成器的**写盘目录**（`memory/` 等），缺目录会让被测工具崩在 ENOENT 上、把夹具问题伪装成工具缺陷；④ 修完 ①② 后 **63 → 0**（172 条断言全绿）；且动手前先取「历史点同测」证据（`git worktree` 跑同一自测），否则无法区分「我改坏了」与「早就红了」。
   判例引用：BD-39（本条即其修法）；同族 K-036（短路后的 ✅ 不构成证据）、K-048（装置自指须取工作树字节）。
+
+- **[工具链][K-058] 「已写进 .gitignore」不等于「已排除出索引产物」——枚举型走盘生成器只认自己的硬编码跳过集**（来源 WXG-T-176，改 `tools/scripts/lib/context-index.mjs`，2026-09-19）
+  现象：`my-skills/_repos/**`（外来 skill 上游 git 克隆）**早已在 `.gitignore` 里**，但 `pnpm run ctx:build` 仍把它的几百个 `.md` 写进受跟踪的产物 `ctx/index.json`；一次重建 **+4.6 万行 / +1.17 MB**，并随一次无关提交被固化。更糟的是**门禁全绿**（`ctx:check` A/B/C/D/E3 全过）⇒ 体积漂移在无任何告警的情况下发生。
+  根因：`listMarkdown()` 用 `readdirSync` 递归走**磁盘**，跳过条件只有「点目录」与硬编码 `SKIP_DIRS`（逐段 `entry.name` 匹配），**既不读 `.gitignore` 也不问 git**。`.gitignore` 与「索引面」是两套互不相知的口径：前者管 git 看不看，后者管装置读不读。凡是「产物由走盘生成器写出且被跟踪」的装置，都会有这个缝。
+  规避：① 排除一个目录要改**生成器的跳过集**（本仓 = `SKIP_DIRS`，与 `archive`/`temp`/`library` 同处），别只改 `.gitignore`；② 判定口径先看代码再看直觉：`grep -n "readdirSync\|SKIP_DIRS" <生成器>` 两行就能确认它读不读 git；③ 提交受跟踪的**生成物**前比一次**体积/行数差**（`wc -l`、`du -h`、`git show HEAD:<产物> | wc -l`）——门禁不报的量级跳变，就是靠这一步抓出来的；④ 若生成器与校验器**共用同一常量**（本仓 `check-context-budget.mjs` 复用 `SKIP_DIRS`），改一处两边同口径；若各写一份，就必须两处同改（同族 K-047 路径写死会漂移）。
+  判例引用：同族 K-048（装置自指须取工作树字节，别信报告值）、K-036（门禁全绿不构成证据）、K-051（纸面推论须实测复算）。
