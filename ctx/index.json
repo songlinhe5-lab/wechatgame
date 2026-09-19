@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "b42208519a9adcff54442910b0b29145808ffb8bff91be0113ace0dcc889ecd0",
+      "sha256": "c413aa390ccc2c392e8e9aeda5260cdd26f182775e6787ef31003cd794117656",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4604,
+      "tokens": 4609,
       "lines": 82,
-      "sha256": "ccb10b4f2f6d36342b91df5e4c46e428812fd77f77c3c16b0e40bb43160797fb",
+      "sha256": "d7088f6bb9ba4eed3c465c5a1c8107c83d372b63cd0dbae8c103980d892a0a60",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4576,
+          "tokens": 4581,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 59 行 / 6171 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 60 行 / 6240 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+60 · §待排（backlog，无号，立项时领取）=33+28",
+          "summary": "§WXG 任务台账（SSOT）=1+61 · §待排（backlog，无号，立项时领取）=34+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 624 行 / 32910 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 640 行 / 33858 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 319,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+625 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "tokens": 324,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+641 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -20123,6 +20123,107 @@
             "spec",
             "pow",
             "回传主理人用"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/board-size-29-mvp.md",
+      "tokens": 1618,
+      "lines": 70,
+      "sha256": "4f87af5ac18688a137f02c27e66ce1731dcb197e58b6d3f922c4137f0e9741d0",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§盘面规格档位与 29×29 MVP 落档（提案）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 71,
+          "tokens": 1601,
+          "summary": "状态：提案待裁 —— 含一项冻结变更请求（GRID_MAX_COLS/ROWS 13/12 → 29/29）与四项风险，",
+          "keywords": [
+            "MVP",
+            "GRID_MAX_COLS",
+            "ROWS",
+            "盘面规格档位",
+            "落档",
+            "提案"
+          ]
+        },
+        {
+          "anchor": "§1 盘面规格档位（规则化落档）",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 21,
+          "tokens": 269,
+          "summary": "标准方形盘（本轮 MVP 目标） 5mm Midi 29 × 29 841 业界口语说的\"标准盘\"；边缘带卡扣",
+          "keywords": [
+            "MVP",
+            "Midi",
+            "盘面规格档位",
+            "规则化落档"
+          ]
+        },
+        {
+          "anchor": "§2 与现状的差距（必须先摊开）",
+          "level": 2,
+          "startLine": 22,
+          "endLine": 32,
+          "tokens": 201,
+          "summary": "格数上限 GRID_MAX_COLS/ROWS = 13 / 12 ⇒ 156 29 × 29 = 841 5.39×",
+          "keywords": [
+            "GRID_MAX_COLS",
+            "ROWS",
+            "与现状的差距",
+            "必须先摊开"
+          ]
+        },
+        {
+          "anchor": "§3 可行性判断（诚实：能做的与不能做的）",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 43,
+          "tokens": 387,
+          "summary": "能做的：视图侧走「布局即相机」（ADR-0015 / 丁-3），gridLayoutFor(camera) 已参数化，缩",
+          "keywords": [
+            "ADR",
+            "gridLayoutFor",
+            "camera",
+            "可行性判断",
+            "诚实",
+            "能做的与不能"
+          ]
+        },
+        {
+          "anchor": "§4 MVP 关卡草案（3 关）",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 61,
+          "tokens": 304,
+          "summary": "生成器：temp/beads-gen.mjs（WXG-T-179 spike，尚未转正入 tools/scripts/）",
+          "keywords": [
+            "MVP",
+            "temp",
+            "beads",
+            "gen",
+            "mjs",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§5 前置顺序建议（我的建议，待裁）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 71,
+          "tokens": 140,
+          "summary": "1. GRID_MAX 放开（§3 变更单）+ zoom 自适应 LOD + 真机帧率验证（风险 1）",
+          "keywords": [
+            "§3",
+            "GRID_MAX",
+            "zoom",
+            "LOD",
+            "前置顺序建议",
+            "我的建议"
           ]
         }
       ]
@@ -53438,17 +53539,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 32910,
-      "lines": 624,
-      "sha256": "9d743a03b6e42273054ab5a20e6d7288ee322a0fd1042a2708733f5e776e94b4",
+      "tokens": 33858,
+      "lines": 640,
+      "sha256": "2ad47f8269d5bf075fbf9a22bbac805dfb19c3cbb06d434ee0e1b143018c362f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 625,
-          "tokens": 32894,
+          "endLine": 641,
+          "tokens": 33841,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -53760,8 +53861,8 @@
           "anchor": "§WXG-T-179",
           "level": 2,
           "startLine": 608,
-          "endLine": 625,
-          "tokens": 1120,
+          "endLine": 627,
+          "tokens": 1122,
           "summary": "beads·照片转拼豆生成器 spike（调色板 / 限色 / 聚集 调优 + ADR-0016） · 负责：主理人(C",
           "keywords": [
             "WXG",
@@ -53769,22 +53870,36 @@
             "spike",
             "ADR"
           ]
+        },
+        {
+          "anchor": "§WXG-T-180",
+          "level": 2,
+          "startLine": 628,
+          "endLine": 641,
+          "tokens": 943,
+          "summary": "beads·盘面规格档位落档（29×29 标准方形盘）+ 29×29 MVP 三关草案 · 负责：主理人(CodeBud",
+          "keywords": [
+            "WXG",
+            "beads",
+            "MVP",
+            "CodeBud"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6171,
-      "lines": 59,
-      "sha256": "58395bee62d81bbe7f56b513b432321642b1c80ec0a650f26413dc31b2bdffff",
+      "tokens": 6240,
+      "lines": 60,
+      "sha256": "8d3a5b3eb1501b4f88b660afaef65bf8d2cb03504c10eee6f1cbd78f269e145b",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 60,
-          "tokens": 6162,
+          "endLine": 61,
+          "tokens": 6231,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -53797,8 +53912,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 33,
-          "endLine": 60,
+          "startLine": 34,
+          "endLine": 61,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
