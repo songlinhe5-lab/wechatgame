@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4565,
       "lines": 82,
-      "sha256": "731b11f006e9d84960fa7e5d58aa160f862cc13b240dcb12134d624cf2187a87",
+      "sha256": "34f29ccf7d69059e342cf545f199651efde14674dd21bedee25bbd73054302cf",
       "tier": "normal",
       "sections": [
         {
@@ -17178,6 +17178,285 @@
             "§8",
             "WXG",
             "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/gdd/meta-ui.md",
+      "tokens": 7992,
+      "lines": 185,
+      "sha256": "066e156628c26e398f27defab9c46e3429e08f8a9dd9bfa57bb50102c63e340f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§GDD · S10 元游戏与图鉴（Meta UI & Album）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 186,
+          "tokens": 7975,
+          "summary": "项目：games/beads · 版本 v0.2（草案 · 含 Q4/Q5 裁定） · 任务号 WXG-T-167（上位",
+          "keywords": [
+            "GDD",
+            "S10",
+            "Meta",
+            "Album",
+            "beads",
+            "games"
+          ]
+        },
+        {
+          "anchor": "§1 目标（为什么存在）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 15,
+          "tokens": 98,
+          "summary": "把关卡组织成「一张画 = 若干部面」，让玩家以完成整图为单位获得成品感与收藏驱动；连同主菜单页族入口规则写成可验收正本。",
+          "keywords": [
+            "目标",
+            "为什么存在"
+          ]
+        },
+        {
+          "anchor": "§2 机制",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 73,
+          "tokens": 2162,
+          "summary": "",
+          "keywords": [
+            "机制"
+          ]
+        },
+        {
+          "anchor": "§2.1 三层对象与命名（借词指代，标识符归代码）",
+          "level": 3,
+          "startLine": 18,
+          "endLine": 29,
+          "tokens": 317,
+          "summary": "",
+          "keywords": [
+            "三层对象与命",
+            "借词指代",
+            "标识符归代码"
+          ]
+        },
+        {
+          "anchor": "§2.2 整图 / 子版面数据结构（提案形态，**不含数值**）",
+          "level": 3,
+          "startLine": 30,
+          "endLine": 42,
+          "tokens": 332,
+          "summary": "",
+          "keywords": [
+            "整图",
+            "子版面数据结",
+            "提案形态",
+            "不含数值"
+          ]
+        },
+        {
+          "anchor": "§2.3 Q1=甲 / Q2=甲 的两条硬后果（钉死，防后文漂）",
+          "level": 3,
+          "startLine": 43,
+          "endLine": 48,
+          "tokens": 263,
+          "summary": "1. Q1=甲 ⇒ concept D1「忠实复刻不加戏」与支柱 3 维持原判据；S1/S3 判据面不翻倍；提案 §5「",
+          "keywords": [
+            "§5",
+            "concept",
+            "的两条硬后果",
+            "钉死",
+            "防后文漂"
+          ]
+        },
+        {
+          "anchor": "§2.4 页面流与门禁（机制层，图形见 §4.1）",
+          "level": 3,
+          "startLine": 49,
+          "endLine": 56,
+          "tokens": 355,
+          "summary": "启动路径零改动：图鉴不是启动落地页。首屏即玩红线维持（ux-spec §1 原则 1 / §6.3 三路径；concep",
+          "keywords": [
+            "§4.1",
+            "§1",
+            "§6.3",
+            "spec",
+            "concep",
+            "页面流与门禁"
+          ]
+        },
+        {
+          "anchor": "§2.5 体力扣减口径（Q7，`[待确认]`；本文不改 §3.14 现文与数值）",
+          "level": 3,
+          "startLine": 57,
+          "endLine": 68,
+          "tokens": 455,
+          "summary": "§3.14 现文 = STAMINA_START_COST 1，语义「普通局开局消耗；第二模式入口当前不存在，其余模式消",
+          "keywords": [
+            "[待确认]",
+            "§3.14",
+            "STAMINA_START_COST",
+            "体力扣减口径",
+            "待确认",
+            "本文不改"
+          ]
+        },
+        {
+          "anchor": "§2.6 与 demo 8 关、与 v1.23 收藏册的关系（均 `[待确认]`）",
+          "level": 3,
+          "startLine": 69,
+          "endLine": 73,
+          "tokens": 303,
+          "summary": "Q8：甲 并存（8 关日常 + 图鉴长线）／乙 替代（8 关重组为首张图）／丙 分层（图鉴为独立模式，如冲刺的模式标志）",
+          "keywords": [
+            "[待确认]",
+            "demo",
+            "收藏册的关系",
+            "待确认"
+          ]
+        },
+        {
+          "anchor": "§3 输入（来自玩家 / 其他系统）",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 83,
+          "tokens": 252,
+          "summary": "玩家 菜单/页族内的点击（进图鉴、选整图、进格、返回、页族内滚动与切换） 全部属区外按下帧语义；本系统不接受棋盘区/托盘",
+          "keywords": [
+            "输入",
+            "来自玩家",
+            "其他系统"
+          ]
+        },
+        {
+          "anchor": "§4 输出与反馈",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 127,
+          "tokens": 1010,
+          "summary": "",
+          "keywords": [
+            "输出与反馈"
+          ]
+        },
+        {
+          "anchor": "§4.1 三层 Screen Flow（ASCII，本单落本文而非 `ux-spec`，理由见文首分工）",
+          "level": 3,
+          "startLine": 86,
+          "endLine": 118,
+          "tokens": 769,
+          "summary": "",
+          "keywords": [
+            "ux-spec",
+            "Screen",
+            "Flow",
+            "ASCII",
+            "spec",
+            "三层"
+          ]
+        },
+        {
+          "anchor": "§4.2 事件与档面输出",
+          "level": 3,
+          "startLine": 119,
+          "endLine": 127,
+          "tokens": 203,
+          "summary": "meta:overlay {id, open}（§4 v1.28） 图鉴/整图页入出栈复用本事件，不新造事件名；id 值",
+          "keywords": [
+            "§4",
+            "meta",
+            "overlay",
+            "open",
+            "事件与档面输"
+          ]
+        },
+        {
+          "anchor": "§5 数值（全部引用，零抄写）",
+          "level": 2,
+          "startLine": 128,
+          "endLine": 133,
+          "tokens": 365,
+          "summary": "systems-index §3 的：§3.1 布局带与 CAPSULE_AVOID（页族避让同屏）· §3.2 BEA",
+          "keywords": [
+            "§3",
+            "§3.1",
+            "§3.2",
+            "systems",
+            "index",
+            "CAPSULE_AVOID"
+          ]
+        },
+        {
+          "anchor": "§6 边界条件",
+          "level": 2,
+          "startLine": 134,
+          "endLine": 143,
+          "tokens": 530,
+          "summary": "对 S2/S3/S4/S5/S6 零读写：盘面/托盘/计时状态不由本系统持有（L5）；「进格即开新局」全走 S1 既有 ",
+          "keywords": [
+            "边界条件"
+          ]
+        },
+        {
+          "anchor": "§7 依赖",
+          "level": 2,
+          "startLine": 144,
+          "endLine": 149,
+          "tokens": 232,
+          "summary": "上游：S1（Cell-Level 即一局，六状态机零改动）· S3/S4/S5/S6（由 S1 编排，不直连）· S7（",
+          "keywords": [
+            "Cell",
+            "Level",
+            "依赖"
+          ]
+        },
+        {
+          "anchor": "§8 验收标准（草案 · **只引用形态与既有 §8 判据，零新数值**）",
+          "level": 2,
+          "startLine": 150,
+          "endLine": 162,
+          "tokens": 708,
+          "summary": "转正前置：Q7/Q7-b 未裁的条目本轮只给形态（可验「不变式」，不可验「具体行为」），标 [待裁]。",
+          "keywords": [
+            "§8",
+            "验收标准",
+            "草案",
+            "只引用形态与",
+            "既有",
+            "判据"
+          ]
+        },
+        {
+          "anchor": "§9 变更记录",
+          "level": 2,
+          "startLine": 163,
+          "endLine": 169,
+          "tokens": 391,
+          "summary": "v0.1 2026-09-19 建档（草案）：S10 页族 + 图鉴三层对象（Album/Plate/Cell-Leve",
+          "keywords": [
+            "S10",
+            "Album",
+            "Plate",
+            "Cell",
+            "Leve",
+            "变更记录"
+          ]
+        },
+        {
+          "anchor": "§10 §3 变更单草案（**未提交、需主理人 + 用户拍板**；本轮 §3 与 §6 一字未动）",
+          "level": 2,
+          "startLine": 170,
+          "endLine": 186,
+          "tokens": 1359,
+          "summary": "本节是待批文本，不得被复制进 systems-index.md。每条含：现文依据 / 为何可能要变 / 变更类型 / 连",
+          "keywords": [
+            "§3",
+            "§6",
+            "systems",
+            "index",
+            "变更单草案",
+            "未提交"
           ]
         }
       ]
