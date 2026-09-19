@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "f18ac2c89066f58ed3dbdec12764f9be669b96396fa9adc0595353b53470e864",
+      "sha256": "32a9128041bea44cda6eca37298fd43dd3101bfa2b4284e2df4732b8caef4bdb",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4593,
       "lines": 82,
-      "sha256": "37e76d44eeb3db0a2c5fd3d87830218ffa3e5e13d535a7d2af1369468e8f2709",
+      "sha256": "2a5f4bea0390eba03fb7395c877427dfcb0c1e2ebb345b7a09c2f26064492d69",
       "tier": "normal",
       "sections": [
         {
@@ -529,7 +529,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 284 行 / 12128 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 284 行 / 12237 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 58 行 / 5741 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 57 行 / 5912 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+59 · §待排（backlog，无号，立项时领取）=31+29",
+          "summary": "§WXG 任务台账（SSOT）=1+58 · §待排（backlog，无号，立项时领取）=31+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 574 行 / 28738 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 585 行 / 30426 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 308,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+575 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+586 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -16421,9 +16421,9 @@
     },
     {
       "path": "games/beads/design/concept.md",
-      "tokens": 4012,
+      "tokens": 4213,
       "lines": 105,
-      "sha256": "0268c68ccec5cd7b29928fad41cfa42cf42fb16aedb17d537031f0b626b427c9",
+      "sha256": "80a0ca5968511e2f0a4da16f5f1a4f9255b741bf97c080da2fe0a22540c85b08",
       "tier": "normal",
       "sections": [
         {
@@ -16431,13 +16431,12 @@
           "level": 1,
           "startLine": 1,
           "endLine": 106,
-          "tokens": 3998,
-          "summary": "项目：games/beads · 任务号 WXG-T-007（P0）· 版本 v1.5（v1.5 = D10 二次修正（",
+          "tokens": 4200,
+          "summary": "项目：games/beads · 任务号 WXG-T-167（漂移对齐批；文件主体号仍 WXG-T-007）· 版本 v",
           "keywords": [
             "games",
             "beads",
             "WXG",
-            "D10",
             "拼豆填色消除",
             "一页纸概念"
           ]
@@ -16474,7 +16473,7 @@
           "level": 2,
           "startLine": 22,
           "endLine": 27,
-          "tokens": 259,
+          "tokens": 270,
           "summary": "1. 一眼读懂的治愈：进游戏 3 秒内看懂\"把珠子填进图案\"；节奏轻、软，反馈即时但不激烈（与打砖块的街机爆点刻意区分）",
           "keywords": [
             "设计支柱",
@@ -16486,7 +16485,7 @@
           "level": 2,
           "startLine": 28,
           "endLine": 33,
-          "tokens": 290,
+          "tokens": 294,
           "summary": "Mechanics（机制）：满盘错位开局（k 对交换）→ 玩家选错位珠取回入托盘 → 选托盘珠点匹配空格归位（不匹配则拒",
           "keywords": [
             "MDA",
@@ -16525,9 +16524,10 @@
           "level": 2,
           "startLine": 47,
           "endLine": 58,
-          "tokens": 668,
-          "summary": "MVP（验收线） 8 关；「错位归位」核心玩法（满盘错位 → 取回/归位，v1.22）；托盘 24 槽（固定 2×12）",
+          "tokens": 674,
+          "summary": "MVP（验收线） 8 关；「错位归位」核心玩法（满盘错位 → 取回/归位，v1.22）；托盘 §3.4 现值：基础 12",
           "keywords": [
+            "§3.4",
             "MVP",
             "范围分层"
           ]
@@ -16550,7 +16550,7 @@
           "level": 2,
           "startLine": 63,
           "endLine": 80,
-          "tokens": 810,
+          "tokens": 871,
           "summary": "D1 忠实复刻参考玩法，不做创新变体 ✅ 用户已拍板",
           "keywords": [
             "决策记录",
@@ -17183,19 +17183,60 @@
       ]
     },
     {
+      "path": "games/beads/design/gdd/meta-ui-changelog.md",
+      "tokens": 1628,
+      "lines": 22,
+      "sha256": "fdafdd3fb2e63fa6e2a0cea977d1abb256fc58b1331b41648076e1d2b2a020dd",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§元游戏与图鉴 · §3 变更单草案分片（meta-ui changelog）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 23,
+          "tokens": 1604,
+          "summary": "项目：games/beads · 任务号 WXG-T-167 · 正本：gdd/meta-ui.md（本文件是其 §10",
+          "keywords": [
+            "§3",
+            "§10",
+            "meta",
+            "changelog",
+            "beads",
+            "games"
+          ]
+        },
+        {
+          "anchor": "§1 §3 变更单草案（**未提交、需主理人 + 用户拍板**；本轮 §3 与 §6 一字未动）",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 23,
+          "tokens": 1359,
+          "summary": "本节是待批文本，不得被复制进 systems-index.md。每条含：现文依据 / 为何可能要变 / 变更类型 / 连",
+          "keywords": [
+            "§3",
+            "§6",
+            "systems",
+            "index",
+            "变更单草案",
+            "未提交"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/gdd/meta-ui.md",
-      "tokens": 7992,
-      "lines": 185,
-      "sha256": "066e156628c26e398f27defab9c46e3429e08f8a9dd9bfa57bb50102c63e340f",
+      "tokens": 7672,
+      "lines": 174,
+      "sha256": "30d4f633fdaded400a5f6642fdeea111734aa0eac71a60b0535f082f37cd0f88",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S10 元游戏与图鉴（Meta UI & Album）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 186,
-          "tokens": 7975,
-          "summary": "项目：games/beads · 版本 v0.2（草案 · 含 Q4/Q5 裁定） · 任务号 WXG-T-167（上位",
+          "endLine": 175,
+          "tokens": 7655,
+          "summary": "项目：games/beads · 版本 v0.3（草案 · 已含六项裁定） · 任务号 WXG-T-167（上位来源：A",
           "keywords": [
             "GDD",
             "S10",
@@ -17222,7 +17263,7 @@
           "level": 2,
           "startLine": 16,
           "endLine": 73,
-          "tokens": 2162,
+          "tokens": 2490,
           "summary": "",
           "keywords": [
             "机制"
@@ -17275,7 +17316,7 @@
           "level": 3,
           "startLine": 49,
           "endLine": 56,
-          "tokens": 355,
+          "tokens": 470,
           "summary": "启动路径零改动：图鉴不是启动落地页。首屏即玩红线维持（ux-spec §1 原则 1 / §6.3 三路径；concep",
           "keywords": [
             "§4.1",
@@ -17287,19 +17328,19 @@
           ]
         },
         {
-          "anchor": "§2.5 体力扣减口径（Q7，`[待确认]`；本文不改 §3.14 现文与数值）",
+          "anchor": "§2.5 体力扣减口径（**Q7 = 甲 已裁**；本文不改 §3.14 现文与数值）",
           "level": 3,
           "startLine": 57,
           "endLine": 68,
-          "tokens": 455,
+          "tokens": 668,
           "summary": "§3.14 现文 = STAMINA_START_COST 1，语义「普通局开局消耗；第二模式入口当前不存在，其余模式消",
           "keywords": [
-            "[待确认]",
             "§3.14",
             "STAMINA_START_COST",
             "体力扣减口径",
-            "待确认",
-            "本文不改"
+            "已裁",
+            "本文不改",
+            "现文与数值"
           ]
         },
         {
@@ -17334,7 +17375,7 @@
           "level": 2,
           "startLine": 84,
           "endLine": 127,
-          "tokens": 1010,
+          "tokens": 1014,
           "summary": "",
           "keywords": [
             "输出与反馈"
@@ -17345,7 +17386,7 @@
           "level": 3,
           "startLine": 86,
           "endLine": 118,
-          "tokens": 769,
+          "tokens": 773,
           "summary": "",
           "keywords": [
             "ux-spec",
@@ -17392,7 +17433,7 @@
           "level": 2,
           "startLine": 134,
           "endLine": 143,
-          "tokens": 530,
+          "tokens": 563,
           "summary": "对 S2/S3/S4/S5/S6 零读写：盘面/托盘/计时状态不由本系统持有（L5）；「进格即开新局」全走 S1 既有 ",
           "keywords": [
             "边界条件"
@@ -17403,7 +17444,7 @@
           "level": 2,
           "startLine": 144,
           "endLine": 149,
-          "tokens": 232,
+          "tokens": 250,
           "summary": "上游：S1（Cell-Level 即一局，六状态机零改动）· S3/S4/S5/S6（由 S1 编排，不直连）· S7（",
           "keywords": [
             "Cell",
@@ -17415,9 +17456,9 @@
           "anchor": "§8 验收标准（草案 · **只引用形态与既有 §8 判据，零新数值**）",
           "level": 2,
           "startLine": 150,
-          "endLine": 162,
-          "tokens": 708,
-          "summary": "转正前置：Q7/Q7-b 未裁的条目本轮只给形态（可验「不变式」，不可验「具体行为」），标 [待裁]。",
+          "endLine": 163,
+          "tokens": 925,
+          "summary": "转正前置：Q7 / Q7-b 已于 v0.3 裁定 ⇒ 7、9 两条转为可验不变式；尚余 [待裁] 的只有依赖 Q3/Q",
           "keywords": [
             "§8",
             "验收标准",
@@ -17430,9 +17471,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 163,
-          "endLine": 169,
-          "tokens": 391,
+          "startLine": 164,
+          "endLine": 171,
+          "tokens": 696,
           "summary": "v0.1 2026-09-19 建档（草案）：S10 页族 + 图鉴三层对象（Album/Plate/Cell-Leve",
           "keywords": [
             "S10",
@@ -17444,19 +17485,19 @@
           ]
         },
         {
-          "anchor": "§10 §3 变更单草案（**未提交、需主理人 + 用户拍板**；本轮 §3 与 §6 一字未动）",
+          "anchor": "§10 §3 变更单草案（**已外移分片**）",
           "level": 2,
-          "startLine": 170,
-          "endLine": 186,
-          "tokens": 1359,
-          "summary": "本节是待批文本，不得被复制进 systems-index.md。每条含：现文依据 / 为何可能要变 / 变更类型 / 连",
+          "startLine": 172,
+          "endLine": 175,
+          "tokens": 84,
+          "summary": "本节的 CH-1…CH-7 表已整体迁至 gdd/meta-ui-changelog.md（v0.3，动机与纪律见该文件",
           "keywords": [
             "§3",
-            "§6",
-            "systems",
-            "index",
+            "gdd",
+            "meta",
+            "changelog",
             "变更单草案",
-            "未提交"
+            "已外移分片"
           ]
         }
       ]
@@ -18330,17 +18371,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 10091,
-      "lines": 43,
-      "sha256": "cbda7ccaf5116e4d012725e596ca810103ec2974dc445c7f0b29d60d902594f3",
+      "tokens": 10474,
+      "lines": 44,
+      "sha256": "291f9ce78c1744ece7af2366bbbf9bbbc603f8cdedec9e7024849e7efefc3a13",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 44,
-          "tokens": 10073,
+          "endLine": 45,
+          "tokens": 10456,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -18355,8 +18396,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 44,
-          "tokens": 9914,
+          "endLine": 45,
+          "tokens": 10297,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -18368,9 +18409,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 12128,
+      "tokens": 12237,
       "lines": 284,
-      "sha256": "9f39dff8b5905eda8a4fb436fac630e203f2f24a49cfe5363ef522b6b437dc35",
+      "sha256": "8175ce3d40dba584f2017bfcc81a8f0484271077487423e06754963ea9e48524",
       "tier": "hot",
       "sections": [
         {
@@ -18378,15 +18419,15 @@
           "level": 1,
           "startLine": 1,
           "endLine": 285,
-          "tokens": 12111,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.32 · 任务号 WXG-T-177（v1.32 = S7 ",
+          "tokens": 12220,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.33 · 任务号 WXG-T-167（v1.33 = S10",
           "keywords": [
             "Systems",
             "Index",
             "beads",
             "games",
             "WXG",
-            "系统清单与依"
+            "S10"
           ]
         },
         {
@@ -18394,7 +18435,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 25,
-          "tokens": 913,
+          "tokens": 921,
           "summary": "S1 核心循环 gdd/core-loop.md P0 定义游戏状态机与关内主循环时序，串起所有系统（v1.22：核心循",
           "keywords": [
             "gdd",
@@ -53113,17 +53154,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 28738,
-      "lines": 574,
-      "sha256": "1f81de93f6e239fd99e6afb6a8b0d5199abbf1c4c9ceacf8aa9f6cbde65d8260",
+      "tokens": 30426,
+      "lines": 585,
+      "sha256": "4a8bb49c30f2c229a02641003e2a1133567ba3479643ef8aeab8d5ca4f617fae",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 575,
-          "tokens": 28721,
+          "endLine": 586,
+          "tokens": 30409,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -53287,8 +53328,8 @@
           "anchor": "§WXG-T-167",
           "level": 2,
           "startLine": 197,
-          "endLine": 215,
-          "tokens": 1245,
+          "endLine": 226,
+          "tokens": 2933,
           "summary": "beads·缩放设计轨（C-3 判据翻转 + 图鉴/扩容盘面 concept 提案） · 负责：文策渊(design-s",
           "keywords": [
             "WXG",
@@ -53300,8 +53341,8 @@
         {
           "anchor": "§WXG-T-169",
           "level": 2,
-          "startLine": 216,
-          "endLine": 264,
+          "startLine": 227,
+          "endLine": 275,
           "tokens": 3396,
           "summary": "beads·棋盘缩放平移落码（Z0–Z6） · 负责：程基岩(eng)·主理人收口 · 状态：✅ 收口（2026-09-",
           "keywords": [
@@ -53313,8 +53354,8 @@
         {
           "anchor": "§WXG-T-170",
           "level": 2,
-          "startLine": 265,
-          "endLine": 277,
+          "startLine": 276,
+          "endLine": 288,
           "tokens": 625,
           "summary": "beads·F1 同固定步 down+up 丢 tap 修复 · 负责：主理人(Qoder) · 状态：✅ 完成 · 上",
           "keywords": [
@@ -53328,8 +53369,8 @@
         {
           "anchor": "§WXG-T-171",
           "level": 2,
-          "startLine": 278,
-          "endLine": 310,
+          "startLine": 289,
+          "endLine": 321,
           "tokens": 1573,
           "summary": "beads·F2 棋盘 tap/drag 位移度量形态裁决 · 负责：主理人(Qoder)→文策渊(design)+程基",
           "keywords": [
@@ -53344,8 +53385,8 @@
         {
           "anchor": "§WXG-T-172",
           "level": 2,
-          "startLine": 311,
-          "endLine": 345,
+          "startLine": 322,
+          "endLine": 356,
           "tokens": 1673,
           "summary": "beads·F3 相机复位口径回写（GDD/ADR vs fitCamera） · 负责：studio-orchestr",
           "keywords": [
@@ -53360,8 +53401,8 @@
         {
           "anchor": "§WXG-T-173",
           "level": 2,
-          "startLine": 346,
-          "endLine": 385,
+          "startLine": 357,
+          "endLine": 396,
           "tokens": 2053,
           "summary": "beads·U11 扫光链起算帧归属裁决 · 负责：studio-orchestrator → 文策渊(design) ",
           "keywords": [
@@ -53376,8 +53417,8 @@
         {
           "anchor": "§WXG-T-175",
           "level": 2,
-          "startLine": 386,
-          "endLine": 484,
+          "startLine": 397,
+          "endLine": 495,
           "tokens": 2760,
           "summary": "外来 skill 集成 · A 档（Claude Code Game Studios 点菜式吸收） · 负责：主理人(C",
           "keywords": [
@@ -53392,8 +53433,8 @@
         {
           "anchor": "§WXG-T-176",
           "level": 2,
-          "startLine": 485,
-          "endLine": 541,
+          "startLine": 496,
+          "endLine": 552,
           "tokens": 1655,
           "summary": "ctx 生成器 SKIP_DIRS 跳过 vendor _repos（索引产物瘦身） · 负责：主理人(Qoder) ·",
           "keywords": [
@@ -53408,8 +53449,8 @@
         {
           "anchor": "§WXG-T-177",
           "level": 2,
-          "startLine": 542,
-          "endLine": 575,
+          "startLine": 553,
+          "endLine": 586,
           "tokens": 1055,
           "summary": "beads·冲刺入口隐藏（「去冲刺」三处全隐藏，U1 反转） · 负责：主理人(CodeBuddy) · 状态：✅ 落码",
           "keywords": [
@@ -53422,17 +53463,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 5741,
-      "lines": 58,
-      "sha256": "78938302aa636ae54e9281b3986aa084863891ccf442c4d6cc88cac89722ecbb",
+      "tokens": 5912,
+      "lines": 57,
+      "sha256": "75ddf82cbd7842f99db0e05292377fa1a98654581bff4dae50d1596d94f26ec6",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 59,
-          "tokens": 5732,
+          "endLine": 58,
+          "tokens": 5903,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -53446,8 +53487,8 @@
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
           "startLine": 31,
-          "endLine": 59,
-          "tokens": 1238,
+          "endLine": 58,
+          "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
             "backlog",
