@@ -200,8 +200,9 @@ describe('S9 pause & settings', () => {
     expect(labels).toContain('重玩本关');
     expect(labels.some((t) => t.startsWith('音乐'))).toBe(true);
     expect(labels.some((t) => t.startsWith('音效'))).toBe(true);
-    expect(labels.some((t) => t.includes('去冲刺'))).toBe(true);
-    // WXG-T-088：行3 可访问性开关与去冲刺同格共存。
+    // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏，咱不需要这个功能」）：暂停面板
+    // 行 4 不再出现冲刺入口 ⇒ 文案必须消失（旧判据「labels 含去冲刺」已反转）。
+    expect(labels.some((t) => t.includes('去冲刺'))).toBe(false);
     expect(labels.some((t) => t.startsWith('减弱动效'))).toBe(true);
     expect(labels.some((t) => t.startsWith('大字号'))).toBe(true);
 
@@ -414,9 +415,11 @@ describe('S9 pause & settings', () => {
         expect(button.rect.yMax).toBeLessThanOrEqual(layout.panel.yMax);
       }
     }
-    // Sprint swaps the restart label; the redundant sprint entry disappears.
-    expect(pausePanelLayout('sprint').buttons.some((b) => b.id === 'start-sprint')).toBe(false);
-    expect(pausePanelLayout('normal').buttons.some((b) => b.id === 'start-sprint')).toBe(true);
+    // WXG-T-177：冲刺入口 `start-sprint` **两模式均不再产出**（用户裁定「去冲刺按钮先隐藏」；
+    // 旧口径为「normal 有、sprint 无」）。
+    for (const mode of ['normal', 'sprint'] as const) {
+      expect(pausePanelLayout(mode).buttons.some((b) => b.id === 'start-sprint')).toBe(false);
+    }
     // WXG-T-088：两个可访问性开关行3 常驻（两模式均保留，仅去冲刺位退场）。
     // WXG-T-164 拍板⑦/§8-11：震动开关行与回主菜单次钮两模式常驻。
     for (const mode of ['normal', 'sprint'] as const) {

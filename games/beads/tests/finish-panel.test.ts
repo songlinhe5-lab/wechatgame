@@ -93,8 +93,9 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     expect(layout.titleY).toBeGreaterThan(layout.totalY);
     expect(layout.totalY).toBeGreaterThan(layout.rows[0]!.y);
 
-    // 双钮：主钮（重玩第 1 关）在左，各 ≥ TOUCH_MIN，且整行都在总览之下（互不遮挡）。
-    expect(layout.buttons.map((b) => b.id)).toEqual(['replay', 'sprint']);
+    // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：原双钮（▶去冲刺 / 重玩第 1 关）
+    // 收敛为**单钮居中**；去冲刺入口不再产出（恢复见 `ux-spec §8` U1 原口径）。
+    expect(layout.buttons.map((b) => b.id)).toEqual(['replay']);
     const lastRowY = layout.rows[layout.rows.length - 1]!.y;
     for (const button of layout.buttons) {
       expect(button.rect.yMax - button.rect.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
@@ -102,26 +103,25 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
       expect(button.rect.xMin).toBeGreaterThan(0);
       expect(button.rect.xMax).toBeLessThan(DESIGN_W);
     }
-    expect(layout.buttons[0]!.rect.xMax).toBeLessThan(layout.buttons[1]!.rect.xMin);
+    const onlyBtn = layout.buttons[0]!.rect;
+    expect((onlyBtn.xMin + onlyBtn.xMax) / 2).toBe(DESIGN_W / 2);
   });
 
-  it('labels: main = 重玩第 1 关, secondary = 去冲刺 (U1 副钮)', () => {
+  it('labels: main = 重玩第 1 关（WXG-T-177：去冲刺副钮已隐藏，文案分支保留备复建）', () => {
     expect(finishPanelLabel('replay')).toBe('重玩第 1 关');
     expect(finishPanelLabel('sprint')).toBe('▶ 去冲刺');
     expect(FINISH_PANEL_TITLE).toContain('通关');
     expect(FINISH_MAX_STARS_PER_LEVEL).toBe(3);
   });
 
-  it('resolves hits only inside the two buttons', () => {
+  it('resolves hits only inside the single button（WXG-T-177：原副钮位零命中）', () => {
     const layout = finishPanelLayout(EIGHT.length);
     const primary = layout.buttons[0]!.rect;
-    const secondary = layout.buttons[1]!.rect;
     const centre = (r: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
       [(r.xMin + r.xMax) / 2, (r.yMin + r.yMax) / 2] as const;
 
     expect(hitFinishPanel(...centre(primary), EIGHT.length)).toBe('replay');
-    expect(hitFinishPanel(...centre(secondary), EIGHT.length)).toBe('sprint');
-    // 两钮之间的间隙 + 总览行 + 屏幕死角：全部零命中（§2.3 面板外零响应）。
+    // 主钮右侧（原副钮「▶去冲刺」区域）+ 总览行 + 屏幕死角：全部零命中（§2.3 面板外零响应）。
     expect(hitFinishPanel(primary.xMax + 5, primary.yMin + 5, EIGHT.length)).toBeNull();
     expect(hitFinishPanel(DESIGN_W / 2, layout.rows[0]!.y, EIGHT.length)).toBeNull();
     expect(hitFinishPanel(0, 0, EIGHT.length)).toBeNull();
@@ -248,16 +248,20 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     replay.advance(0.2);
     expect(replay.game.finishPanel.visible).toBe(false); // 淡出跑完
 
-    // ② 副钮「▶ 去冲刺」（U1 三处入口之第三处）。
-    const sprint = createBeadsHarness({
+    // ② WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：原副钮「▶去冲刺」
+    //（U1 第三处入口）已隐藏 ⇒ **不可达**：面板只产出 `'replay'`，原副钮位点击
+    // 零响应、相位与模式不变（冲刺模式实现保留，仅入口收敛）。
+    const hidden = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel({ id: 212 })],
       saveKey: 'wxgame.beads.test.fin-sprint',
     });
-    reachFinish(sprint);
-    expect(tapFinish(sprint, 'sprint')).toBe(true);
-    expect(sprint.game.phase).toBe('playing');
-    expect(sprint.game.mode).toBe('sprint');
+    reachFinish(hidden);
+    expect(hidden.game.finishPanel.visible).toBe(true);
+    const onlyBtn = finishPanelLayout(1).buttons[0]!.rect;
+    hidden.game.tapDesign(onlyBtn.xMax + 5, onlyBtn.yMin + 5); // 原副钮位
+    expect(hidden.game.phase).toBe('finish');
+    expect(hidden.game.mode).toBe('normal');
   });
 
   it('collects per-level best stars into the snapshot overview', () => {

@@ -20,7 +20,7 @@
  *  - `gdd/input-control.md §8-8`：「PAUSED 状态点击托盘/网格/道具：全部忽略；**仅面板按钮响应**」；
  *  - `gdd/pause-settings.md §2.1/§2.2`：齿轮唯一入口（仅 `PLAYING` 有效）；面板按钮清单
  *    继续 / 重玩本关 / 音乐 / 音效（+ 行3 可访问性开关与去冲刺）；遮罩吃掉其余一切；
- *  - `ux/ux-spec.md §4` 矩阵：`LEVEL_CLEAR | 下一关 / 去冲刺`；`FINISH | 去冲刺 / 重玩第 1 关`；
+ *  - `ux/ux-spec.md §4` 矩阵：`LEVEL_CLEAR | 下一关`；`FINISH | 重玩第 1 关`（**WXG-T-177：去冲刺入口已隐藏**）；
  *    `GAME_OVER | 续时 / 重试本关`；
  *  - `gdd/core-loop.md §2.2.2` / `gdd/pause-settings.md §6` 帧内序：
  *      **输入（段内序：状态指令 → 玩法事件）→ 连击窗 → 供料 → 计时**
@@ -213,7 +213,7 @@ describe('面板四相位 · 真链输入触达（input-control §2.3 / §8-8|pa
     expect(delta).toBeLessThanOrEqual(2 * STEP + 1e-9);
   });
 
-  // §2.3「LEVEL_CLEAR：仅结算面板按钮」（ux-spec §4：下一关 / 去冲刺）。
+  // §2.3「LEVEL_CLEAR：仅结算面板按钮」（ux-spec §4：下一关；**WXG-T-177 去冲刺已隐藏**）。
   it('level-clear：真链点「下一关」→ 真进第 2 关（与同坐标 tapDesign 一致）', () => {
     const { real, bypass } = mkPair('wxgame.beads.test.rc-clear', TWO_LEVELS);
     setupLevelClear(real);
@@ -230,7 +230,7 @@ describe('面板四相位 · 真链输入触达（input-control §2.3 / §8-8|pa
     expect(real.game.levelIndex).toBe(bypass.game.levelIndex);
   });
 
-  // §2.3「FINISH：仅面板按钮」（ux-spec §4：去冲刺 / 重玩第 1 关）。
+  // §2.3「FINISH：仅面板按钮」（ux-spec §4：重玩第 1 关；**WXG-T-177 去冲刺已隐藏**）。
   it('finish：真链点「重玩第 1 关」→ 真回第 1 关 playing（与同坐标 tapDesign 一致）', () => {
     const levels = [simpleTestLevel()];
     const { real, bypass } = mkPair('wxgame.beads.test.rc-finish', levels);

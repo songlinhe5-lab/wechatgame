@@ -19,7 +19,8 @@
  */
 
 import {
-  CLEAR_BUTTON_GAP,
+  // WXG-T-177：`CLEAR_BUTTON_GAP` 曾用于第二按钮（去冲刺）落位，入口隐藏后不再需要；
+  // 复建 U1 三处入口时从 `tuning` 重新引入即可。
   CLEAR_BUTTON_W,
   CLEAR_STAR_GAP,
   CLEAR_STAR_SIZE,
@@ -94,14 +95,13 @@ function build(lastLevel: boolean): ClearPanelLayout {
     PANEL_SIZE.h,
   );
   const rowY = panel.yMin + PANEL_PADDING;
-  const totalW = CLEAR_BUTTON_W * 2 + CLEAR_BUTTON_GAP;
-  const startX = (DESIGN_W - totalW) / 2;
+  // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：冲刺入口隐藏 ⇒ 仅「下一关」
+  // 单按钮并**居中**（旧口径「下一关 / ▶去冲刺」2 格均分见 `ux-spec §3.4` 图，
+  // 已按 K-053 删划线留档；`ClearPanelAction` 保留 `'sprint'` 成员与文案分支，
+  // 便于将来按 U1 原口径复建，但本函数不再产出该按钮 ⇒ 该动作永不可达）。
+  const startX = (DESIGN_W - CLEAR_BUTTON_W) / 2;
   const buttons: ClearButton[] = [
     { id: 'next', rect: rect(startX, rowY, CLEAR_BUTTON_W, PANEL_BUTTON_H) },
-    {
-      id: 'sprint',
-      rect: rect(startX + CLEAR_BUTTON_W + CLEAR_BUTTON_GAP, rowY, CLEAR_BUTTON_W, PANEL_BUTTON_H),
-    },
   ];
   const infoY = rowY + PANEL_BUTTON_H + PANEL_ROW_GAP;
   const starsY = infoY + 70;

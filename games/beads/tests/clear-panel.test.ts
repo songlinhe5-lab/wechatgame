@@ -59,7 +59,7 @@ function tapButton(harness: Harness, id: 'next' | 'sprint', lastLevel = false): 
 }
 
 describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
-  it('lays the plate on panel_dialog with two ≥TOUCH_MIN buttons inside it', () => {
+  it('lays the plate on panel_dialog with one ≥TOUCH_MIN button inside it（WXG-T-177：去冲刺隐藏后仅主钮）', () => {
     const layout = clearPanelLayout(NORMAL);
     const plate = layout.panel;
     expect(plate.xMax - plate.xMin).toBe(PANEL_SIZE.w);
@@ -67,7 +67,10 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     expect((plate.xMin + plate.xMax) / 2).toBe(DESIGN_W / 2);
     expect((plate.yMin + plate.yMax) / 2).toBe(DESIGN_H / 2);
 
-    expect(layout.buttons).toHaveLength(2);
+    // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏，咱不需要这个功能」）：原 2 钮
+    //（下一关 / ▶去冲刺）收敛为**单钮居中**；去冲刺入口不再产出
+    //（恢复时按 `ux-spec §8` U1 原口径复建）。
+    expect(layout.buttons).toHaveLength(1);
     for (const button of layout.buttons) {
       expect(button.rect.yMax - button.rect.yMin).toBe(PANEL_BUTTON_H);
       expect(button.rect.yMax - button.rect.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
@@ -76,8 +79,9 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
       expect(button.rect.xMax).toBeLessThan(plate.xMax);
       expect(button.rect.yMin).toBeGreaterThan(plate.yMin);
     }
-    // 主/副钮不重叠，且主钮在左（视觉优先级序）。
-    expect(layout.buttons[0]!.rect.xMax).toBeLessThan(layout.buttons[1]!.rect.xMin);
+    // 单钮水平居中（WXG-T-177 新口径，替代旧「主/副钮不重叠、主钮在左」）。
+    const onlyBtn = layout.buttons[0]!.rect;
+    expect((onlyBtn.xMin + onlyBtn.xMax) / 2).toBe(DESIGN_W / 2);
     // 标题/星级/信息三行自上而下排布（y 向上）。
     expect(layout.titleY).toBeGreaterThan(layout.starsY);
     expect(layout.starsY).toBeGreaterThan(layout.infoY);
@@ -90,16 +94,14 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     expect(CLEAR_PANEL_TITLE).toContain('闯关成功');
   });
 
-  it('resolves hits only inside the two buttons', () => {
+  it('resolves hits only inside the single button（WXG-T-177：原副钮位零命中）', () => {
     const layout = clearPanelLayout(NORMAL);
     const primary = layout.buttons[0]!.rect;
-    const secondary = layout.buttons[1]!.rect;
     const centre = (r: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
       [(r.xMin + r.xMax) / 2, (r.yMin + r.yMax) / 2] as const;
 
     expect(hitClearPanel(...centre(primary), NORMAL)).toBe('next');
-    expect(hitClearPanel(...centre(secondary), NORMAL)).toBe('sprint');
-    // 底板空白处（两钮之间的间隙中心 = 无命中）。
+    // 主钮右侧（原副钮「▶去冲刺」所在区域）现为空白 ⇒ 零命中（入口已隐藏）。
     expect(hitClearPanel(primary.xMax + 5, primary.yMin + 5, NORMAL)).toBeNull();
     expect(hitClearPanel(0, 0, NORMAL)).toBeNull();
   });
@@ -173,17 +175,21 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     expect(h.game.phase).toBe('playing');
     expect(h.game.levelIndex).toBe(1);
 
-    // ② 同一出口也用于「去冲刺」（U1 第二处入口）。
-    const sprint = createBeadsHarness({
+    // ② WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏，咱不需要这个功能」）：
+    // 原第二出口「▶去冲刺」已隐藏 ⇒ **该出口不可达**：面板不再产出 `'sprint'` 按钮，
+    // 原副钮位点击零响应、相位与模式均不变（冲刺模式实现保留，仅入口收敛）。
+    const hidden = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel({ id: 91 }), simpleTestLevel({ id: 92 })],
       saveKey: 'wxgame.beads.test.cp-2',
     });
-    fillBoard(sprint);
-    advancePastClearWave(sprint);
-    expect(tapButton(sprint, 'sprint')).toBe(true);
-    expect(sprint.game.phase).toBe('playing');
-    expect(sprint.game.mode).toBe('sprint');
+    fillBoard(hidden);
+    advancePastClearWave(hidden);
+    expect(hidden.game.clearPanel.visible).toBe(true);
+    const onlyBtn = clearPanelLayout(NORMAL).buttons[0]!.rect;
+    hidden.game.tapDesign(onlyBtn.xMax + 5, onlyBtn.yMin + 5); // 原副钮位
+    expect(hidden.game.phase).toBe('level-clear');
+    expect(hidden.game.mode).toBe('normal');
   });
 
   it('assembles the settle data the panel shows (§8-2 C7 + stars)', () => {

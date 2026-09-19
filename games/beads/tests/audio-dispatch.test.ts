@@ -67,7 +67,7 @@ function tapPauseButton(harness: Harness, id: PausePanelAction): boolean {
   );
 }
 
-/** 结算面板按钮中心（下一关 / 去冲刺）。 */
+/** 结算面板按钮中心（**WXG-T-177 起仅「下一关」**；去冲刺入口已隐藏）。 */
 function tapClearButton(harness: Harness, id: ClearPanelAction): boolean {
   const lastLevel = harness.game.levelIndex >= harness.game.levelCount - 1;
   const button = clearPanelLayout({ lastLevel }).buttons.find((b) => b.id === id);

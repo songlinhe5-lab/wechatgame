@@ -140,18 +140,18 @@ function normalLayout(): PausePanelLayout {
     });
   }
 
-  // Row 4 — 冲刺次级入口（U1）+ 回主菜单次钮（pause-settings v1.3 §8-11），
-  // 2-cell grid（WXG-T-164 批0；面板 480→600 即为此行）。
+  // Row 4 — 回主菜单次钮（pause-settings v1.3 §8-11）。**WXG-T-177（用户 2026-09-19
+  // 「去冲刺按钮先隐藏」）**：原 2-cell「start-sprint / go-menu」中的冲刺入口隐藏
+  // ⇒ 本行只余「回主菜单」并**居中**（落位表达式与 `sprintLayout` 同源，两模式一致；
+  // 旧 2 格均分见 `ux-spec §3.3` 图，已按 K-053 删划线留档）。恢复时按 U1 原口径
+  // 复建 `'start-sprint'` 即可（`PausePanelAction` 成员与其处理分支均保留）。
   const row4Top = row3Bottom - PANEL_ROW_GAP;
   const row4Bottom = row4Top - PANEL_BUTTON_H;
   const cell2W = (innerWidth - gap) / 2;
-  const row4Ids: PausePanelAction[] = ['start-sprint', 'go-menu'];
-  for (let i = 0; i < row4Ids.length; i++) {
-    buttons.push({
-      id: row4Ids[i]!,
-      rect: rect(innerLeft + i * (cell2W + gap), row4Bottom, cell2W, PANEL_BUTTON_H),
-    });
-  }
+  buttons.push({
+    id: 'go-menu',
+    rect: rect(innerLeft + (innerWidth - cell2W) / 2, row4Bottom, cell2W, PANEL_BUTTON_H),
+  });
 
   _normal = { panel: plate, buttons, titleY: plate.yMax - 60 };
   return _normal;
