@@ -608,7 +608,7 @@
       "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "多项串联的门禁若「失败即短路」且「缺对象仍报绿」，它的 ✅ 不构成任何证据",
-      "contentHash": "0320aa47cf8906cc0c5f41724b2a0362cc8919ddfd08293df073f97ec8113a9f",
+      "contentHash": "209ccea10af559169a9e7cac8c082039b78421e6f301178e106de57440fe989f",
       "sourceTask": "WXG-T-084",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -948,7 +948,7 @@
       "file": "knowledge/lessons/criteria.md",
       "category": "判据",
       "title": "渲染里「未解锁/扩展」的视觉语言必须随容量语义常量派生：裸行号判定会把已开放行画成未开放，并反噬成「假容量」缺陷报告",
-      "contentHash": "93ddc21c204b24c6588e78bc800cf496375f41ff185712806f0f12716065c88d",
+      "contentHash": "46e93e924a6bfc406e794f658c8cb6f45ca7159ba4b621f41bb6a6cbcfb60a80",
       "sourceTask": "WXG-T-168",
       "addedDate": "2026-09-18",
       "lastAccess": "2026-09-18",
@@ -1422,6 +1422,26 @@
       "kind": "added",
       "ids": [
         "K-062"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "updated",
+      "ids": [
+        "K-045",
+        "K-056"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "updated",
+      "ids": [
+        "K-036",
+        "K-045"
       ],
       "note": null
     }
