@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "4c565d8159ba04c15d1ededf2ba31c2e65ec9afbb1a7c631c947e2028eff037a",
+      "sha256": "396d8a40f826bacd1b46cbfa6051ab7a7443e3bc2684677043c38843fd4cea57",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4560,
       "lines": 82,
-      "sha256": "048d1d3dd4785efc6b2d05dfc939c742dc1a08f9ab809a1c3af4cd80df7d7fb9",
+      "sha256": "74b53b344591d4e0636f16ad0704c22f509557a0b3a094ed653709dccff0a3a3",
       "tier": "normal",
       "sections": [
         {
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 511 行 / 26049 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 522 行 / 26372 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 275,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+512 · §WXG-T-128=18+104 · §裁定与回写记录（",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+523 · §WXG-T-128=18+104 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -52809,17 +52809,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 26049,
-      "lines": 511,
-      "sha256": "91ef6c46055faa258482a5648315b4ccc47e2915681e88a7860908835a743b59",
+      "tokens": 26372,
+      "lines": 522,
+      "sha256": "de61ec2fea8f0196d77b15efe665f2df31cb10a90e50a563aed513a3d27377d2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 512,
-          "tokens": 26032,
+          "endLine": 523,
+          "tokens": 26355,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -53073,8 +53073,8 @@
           "anchor": "§WXG-T-176",
           "level": 2,
           "startLine": 469,
-          "endLine": 512,
-          "tokens": 1330,
+          "endLine": 523,
+          "tokens": 1653,
           "summary": "ctx 生成器 SKIP_DIRS 跳过 vendor _repos（索引产物瘦身） · 负责：主理人(Qoder) ·",
           "keywords": [
             "WXG",
