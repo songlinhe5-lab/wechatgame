@@ -76,8 +76,13 @@ description: 做游戏 Epic/Story 拆分、冲刺规划，以及**单个 Story �
 | governing ADR | `docs/architecture/adr/ADR-00NN-*.md` | **STOP** → `wxgame-adr-arch` |
 | 控制清单 | `docs/architecture/control-manifest.md` | WARN 后继续（层规则无法核对） |
 
-装载后核对三条：① 以 §8 **当前文本**为准，不采信 Story 内嵌旧引用；
-② **控制清单版本漂移** → 三选项（更新并按现行规则 / 按旧规则+留痕 / 停下看 diff）；
+装载后核对三条：① 以 §8 **当前文本**为准，**不采信 Story 内嵌旧引用** ——
+  ⚠️ 2026-09-19 实跑验证（`EP01-S3`）命中两处：Story 写「不供料 / 零 `tray:spawned`」，
+  而 `core-loop §8-7` 现文本已是「零取回零归位」、`tray-spawner §8-8` 原文已标「随供料作废」
+  ⇒ **必须回读 GDD 现文本，Story 内嵌引用只能当线索**；
+② **控制清单版本漂移** → 三选项（更新并按现行规则 / 按旧规则+留痕 / 停下看 diff）。
+  ⚠️ **本仓现状 = 跳过**：`control-manifest.md` **无版本字段**（实跑确认），本项暂不可判定；
+  若日后为控制清单加 `版本:` 头，则本项自动生效（事件登记到 `systems-index §6`）；
 ③ **依赖门禁**：被依赖 Story 未完成 → 三选项（冒险继续并记 Deviations / 停下置 BLOCKED / 补标后继续）。
 
 ### 7.3 实现与测试证据
@@ -91,11 +96,18 @@ description: 做游戏 Epic/Story 拆分、冲刺规划，以及**单个 Story �
 
 ## 8. Story 门禁 · ready / done（原 `wxgame-story-gate`，WXG-T-175 并入）
 
-- **`ready`（只读，不改文件）**：§8 具体条目引用 / 验收自包含 / 可测无主观 / ADR 为
-  `Accepted` / 控制清单版本最新 / 估点存在 / In-Out of Scope 边界 / 依赖非 DRAFT / 无 TBD·? /
-  类型可判定（本仓无 `Type:` 字段，**按验收条目性质推断**）/ 证据落点可定位
-  （本仓无 `## Test Evidence` 段，改为指出应落哪个测试文件）/ 条数门槛
-  （Logic·Integration ≥3，Visual·UI ≥2，Config/Data ≥1）。判定 READY / NEEDS WORK / BLOCKED。
+- **`ready`（只读，不改文件）**：§8 具体条目引用 / 验收自包含 / 可测无主观 / ADR 引用存在 /
+  估点存在 / In-Out of Scope 边界 / 依赖非 DRAFT / 无 TBD·? / 类型可判定 / 证据落点可定位 /
+  条数门槛（Logic·Integration ≥3，Visual·UI ≥2，Config/Data ≥1）。判定 READY / NEEDS WORK / BLOCKED。
+  **本仓适配（实跑确认，勿按上游口径硬判）**：
+  - **ADR 状态**：本仓 ADR **无 `Status:` 字段**（格式为 `# ADR-NNNN — 标题` + `## 1. 上下文…`）
+    ⇒ 改为「ADR 文件**存在** + 正文无 `Proposed` 级未决声明」；上游「必须 Accepted」口径不适用。
+  - **控制清单版本**：本仓无版本字段 ⇒ **本项 N/A**（见 §7.2 ②）。
+  - **类型**：本仓 Story 无 `Type:` 字段 ⇒ 按验收条目性质**推断**并写明依据。
+  - **证据落点**：本仓无 `## Test Evidence` 段 ⇒ 改为指出应落哪个
+    `games/<game>/tests/<name>.test.ts`（扁平目录，无 unit/integration 分层）。
+  - **Out of Scope**：本仓 Story 条目**普遍未写**该字段 ⇒ 缺失时标 NEEDS WORK 但**不阻断**
+    （建议后续补一行），不得据此判 BLOCKED。
 - **`done`（验收关闭）**：逐条验收（自动 / 人工 / `DEFERRED — 需真机 playtest`）
   + **测试↔判据追溯表**；**>50% 判据 UNTESTED ⇒ BLOCKING**；偏差检查（§8 现文本 /
   控制清单版本 / ADR 禁令 / 硬编码 / 越界）分 BLOCKING·ADVISORY·OUT OF SCOPE；

@@ -442,3 +442,59 @@
      `Status:`/`Type:`/`Manifest Version:`」，本仓实为 `epics-<game>.md` 内 `EP<nn>-S<k>` 条目 +
      `epics-<game>-status.md` 对账 ⇒ 已改写为按编号定位、Type 按验收条目推断、证据落点用扁平
      `games/<game>/tests/<name>.test.ts`。**本仓 `验收：S1§8-6` 写法与 skill 的 `S<n>§8-<k>` 口径天然一致**（零改造）。
+
+---
+
+## WXG-T-176
+
+**ctx 生成器 `SKIP_DIRS` 跳过 vendor `_repos`（索引产物瘦身）** · 负责：主理人(Qoder) · 状态：✅ 完成
+
+- **缘起（用户裁定「写进 .gitignore 让生成器跳过」）**：本批先纠正前提 —— `.gitignore` **早已忽略**
+  `my-skills/_repos/mattpocock-skills/` 与 `…/superpowers/`（理由写在注释里：内嵌 git 仓只能记 gitlink，
+  内容会静默丢失），但 `pnpm run ctx:build` **仍然把它们写进 `ctx/index.json`**。
+- **真因**：`tools/scripts/lib/context-index.mjs::listMarkdown()` 用 `readdirSync` 走全盘，只跳
+  点目录与硬编码的 `SKIP_DIRS`（按 `entry.name` 逐段匹配），**从不读 `.gitignore`，也不问 git**。
+  ⇒ 「进 .gitignore = 不进索引」在这条链上不成立。实例：vendor 快照入盘后一次重建即
+  **+4.6 万行 / +1.17 MB**（2.51 MB → 3.68 MB），并随 `b68d40e` 被固化进提交。
+- **落码（最小改动，一行）**：`SKIP_DIRS` 追加 `'_repos'`（与既有 `archive` / `temp` / `library`
+  同一机械开关形态，零新机制）；JSDoc 补该目录的由来与"生成器不读 gitignore"这条反直觉事实，
+  并按仓库体例留 `ponytail:` 注记上限与升级路径（改用 `git check-ignore` / `git ls-files` 做唯一真源，
+  代价 = 多一层子进程与平台差异 ⇒ 现在不值当）。
+- **效果（实测）**：`ctx/index.json` **136,369 → 60,271 行、3.68 MB → 1.7 MB**（`grep -c _repos` = 0）；
+  文件 276 / 章节 4,119 仍全量覆盖本仓自建文档。**收益不止今天这一笔**：`_repos` 条目此前已长期
+  占了约 3 万行索引（905f72e 版 90,450 行里就有 181 处命中），本次一并回收。
+- **门禁**：`pnpm run verify` **17/17 PASS**（含 `ctx:check` 结构门 A/B/C/D/D2 + E3、`selftest:fast` 8/8、
+  `check:links` skills=33、beads 501 / framework 306 / breakout 239）。C 项候选集与索引面**同口径**
+  （`check-context-budget.mjs` 复用同一 `SKIP_DIRS`），故 `_repos` 下的文件今后既不进索引，也不会被
+  新鲜度门要求入索引；`kb:check` ③ 只断言含 `archive`，不受影响。
+- **未干（避免竞写，挂号待他人顺手清）**：`ctx/budget-exempt.json` 里 8 条 `_repos` 文件的 B 门豁免
+  现已成**死条目**（永不命中）。该文件当前由 WXG-T-175 会话在途编辑 ⇒ 本单不碰，改挂 backlog 行。
+- **并发避让登记**：本单领号前按 K-046 扫过工作树（主表 + GDD/ADR/skill 头注 + git 跟踪态）：175 已被
+  并发会话登记且头注已顶到 176 ⇒ 本会话占 **176**，下一可用号 **177**。
+- **沉淀统计（`kb:sync --task=WXG-T-176`）**：**新增 1 / 修改 0 / 激活 0 / 归档 0** —— K-058
+  [工具链]「已写进 `.gitignore`」不等于「已排除出索引产物」（枚举型走盘生成器只认自己的硬编码
+  跳过集）；`kb:audit` 无归档候选、无相似命中。本单另含一次**险些破坏他单登记的编辑失误**：
+  插主表行时误把并发会话的 **WXG-T-175 整行覆盖**（残留其行尾文本），已当轮发现并原样恢复
+  （恢复后 `check:tasks` 11 行/11 节配对绿）——判例同 K-045：共享台账上插入务必用**唯一足够长**
+  的 lock 文本，不要拿邻行为锚。
+
+- **合并后三段验证（2026-09-19，真跑非静态）**
+  - **§8 `ready` 真跑（靶子 `EP01-S3 暂停冻结编排（S1 单点门禁，ADR-0007）`）⇒ 判定 NEEDS WORK**，命中：
+    1. **Story 内嵌引用与 GDD 现文本不一致 ×2** —— Story 写「剩余时间数值不变、**不供料**」，
+       而 `core-loop §8-7` 现文本是「…**零取回零归位**」；Story 写「PAUSED 期间零 `tray:spawned`」，
+       而 `tray-spawner §8-8` 现文本已标「原文『零 `tray:spawned`』**随供料作废**」。
+       ⇒ **§7.2 第 ① 条「以 §8 现文本为准、不采信内嵌旧引用」被实证有效**（一次抓到两处）。
+    2. 该 Story **无 In/Out of Scope 字段** ⇒ 标 NEEDS WORK。
+  - **暴露两个「上游检查项在本仓不可判定」（已修 skill）**：
+    ① 上游要求「ADR 为 `Accepted`」，但**本仓 ADR 无 `Status:` 字段**（格式 = `# ADR-NNNN — 标题` +
+       `## 1. 上下文`）⇒ 改为「文件存在 + 正文无未决声明」；
+    ② 上游要求「控制清单版本最新」，但 **`control-manifest.md` 无版本字段**（实跑确认）⇒ 本项标 N/A，
+       并写明「若日后加 `版本:` 头则自动生效」；另「Out of Scope 缺失」改为不阻断（本仓 Story 普遍未写）。
+  - **§7 上下文装载四件可达性**：Story 条目 ✓（`epics-beads.md:62`）、GDD §8 现文本 ✓
+    （`core-loop.md:146` + `tray-spawner.md:129`）、ADR ✓（`ADR-0007*.md` 存在）、
+    控制清单 ✓（`control-manifest.md` 存在）—— 四件均可定位，无死链。
+  - **§7 依赖门禁可达性**：依赖 `EP03-S2`（`epics-beads.md:104`）、`EP05-S1`（`:144`）均可定位；
+    状态件显示 S1–S5 已交付、无 DRAFT ⇒ 门禁不误判。
+  - **§5 balance-check 扩展核对**：在原有 7 组之外加验 `BEAD_COLOR_MAX` 8/8、
+    `MISPLACED_PAIRS_MIN` 1/1、`MISPLACED_PAIRS_MAX` 8/8 ⇒ **累计 10 组全零漂移**。
+  - 修正后 `verify` **17/17 PASS**。
