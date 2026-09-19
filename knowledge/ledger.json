@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 59,
+  "nextId": 62,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "c07e535446f797a581ff5a15765b5b13ee67014433ee764fa86a689fcccd277e",
+      "contentHash": "e8f3634536346153b242421b7c6e55cd8f3a71c90c5a0f641aa23cff4a35cb41",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -984,6 +984,57 @@
       "title": "「已写进 .gitignore」不等于「已排除出索引产物」——枚举型走盘生成器只认自己的硬编码跳过集",
       "contentHash": "e8d38704b51c621f7e90d0cd11c50e4f6b504982d1e60e0efd4128a5e8b91b96",
       "sourceTask": "WXG-T-176",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-059",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "用「甲/乙/丙」转述既有候选清单时必须带正文锚——字母会换义",
+      "contentHash": "eec18db15137a5c45e895c415887b5d622241a74e467812528c382e7a6b00662",
+      "sourceTask": "WXG-T-167",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-060",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "变异自检里断言「方向」选错会留下伪绿：被测标量在变异下「冻结在旧非零值」而非归零时，存在性断言无判别力",
+      "contentHash": "4344b9cb41ca2357b292fe73b6442973e0757d689e41038ae2daf35651643fb4",
+      "sourceTask": "WXG-T-128",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-061",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "`noAssemble` 下手工铺盘 ≠ 装配：子系统内部索引未建，表现为「点名了但不动手」，极易误判为业务缺陷",
+      "contentHash": "23fbae879b1a683226d99cc8f0897307ece9e3e4cbc63bc50ec74f91d5267e0d",
+      "sourceTask": "WXG-T-128",
       "addedDate": "2026-09-19",
       "lastAccess": "2026-09-19",
       "accessCount": 0,
@@ -1308,6 +1359,43 @@
       "kind": "added",
       "ids": [
         "K-058"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-167",
+      "kind": "added",
+      "ids": [
+        "K-059"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-128",
+      "kind": "added",
+      "ids": [
+        "K-060",
+        "K-061"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-128",
+      "kind": "updated",
+      "ids": [
+        "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-128",
+      "kind": "updated",
+      "ids": [
+        "K-060"
       ],
       "note": null
     }
