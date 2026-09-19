@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "4a46f1b561ecce21cf2c91596fe8800bc22101f45abc162ed4470096e026f1a5",
+      "sha256": "b42208519a9adcff54442910b0b29145808ffb8bff91be0113ace0dcc889ecd0",
       "tier": "normal",
       "sections": [
         {
@@ -209,7 +209,7 @@
           "startLine": 1,
           "endLine": 111,
           "tokens": 2805,
-          "summary": "生成：2026-09-19 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-09-20 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4598,
+      "tokens": 4604,
       "lines": 82,
-      "sha256": "309a651c7496ec8620ec2ed859ad1f88de93aa90c0dced8c7169f6c429af7b3c",
+      "sha256": "ccb10b4f2f6d36342b91df5e4c46e428812fd77f77c3c16b0e40bb43160797fb",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4570,
+          "tokens": 4576,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +561,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 58 行 / 6095 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 59 行 / 6171 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+59 · §待排（backlog，无号，立项时领取）=32+28",
+          "summary": "§WXG 任务台账（SSOT）=1+60 · §待排（backlog，无号，立项时领取）=33+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -625,7 +625,7 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/architecture.md` — 256 行 / 5370 tok / 实测读 23 次",
+          "anchor": "§`docs/architecture/architecture.md` — 256 行 / 5445 tok / 实测读 23 次",
           "level": 2,
           "startLine": 42,
           "endLine": 45,
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 604 行 / 31786 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 624 行 / 32910 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 313,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+605 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "tokens": 319,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+625 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -5341,6 +5341,253 @@
       ]
     },
     {
+      "path": "docs/architecture/adr/ADR-0016-beads-photo-to-pattern-palette.md",
+      "tokens": 2705,
+      "lines": 108,
+      "sha256": "75b8b621c0715c83e6b2108e270fcfbfff3671a55b7867718410465ac754d7f0",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0016 — beads 照片转拼豆：调色板扩编与单关用色数的边界（生成侧保形 vs 可玩性聚集）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 109,
+          "tokens": 2667,
+          "summary": "状态：Proposed（草案待裁） —— 本文只给方案与实测证据，不替主理人 / 用户拍板。甲案零冻结变更、可立即执行；",
+          "keywords": [
+            "ADR",
+            "beads",
+            "Proposed",
+            "照片转拼豆",
+            "调色板扩编与",
+            "单关用色数的"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 48,
+          "tokens": 951,
+          "summary": "",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§1.1 现状：三条被冻住的边界（逐条引真源）",
+          "level": 3,
+          "startLine": 10,
+          "endLine": 19,
+          "tokens": 274,
+          "summary": "调色板 10 色 view/palette.ts::BEAD_PALETTE（美术真源 art-bible §3.2） ",
+          "keywords": [
+            "§3.2",
+            "view",
+            "palette",
+            "BEAD_PALETTE",
+            "art",
+            "bible"
+          ]
+        },
+        {
+          "anchor": "§1.2 动因：照片 → 拼豆的两难",
+          "level": 3,
+          "startLine": 20,
+          "endLine": 23,
+          "tokens": 72,
+          "summary": "真实拼豆的制图流程（用户调研）= 大色板选色 → 手动限制用色数：色数越少越好做，但越少越不像。游戏侧面对同一对矛盾，并",
+          "keywords": [
+            "动因",
+            "照片",
+            "拼豆的两难"
+          ]
+        },
+        {
+          "anchor": "§1.3 本轮实测（`WXG-T-179` 前置 spike，`temp/beads-gen.mjs`）",
+          "level": 3,
+          "startLine": 24,
+          "endLine": 42,
+          "tokens": 395,
+          "summary": "两个正交旋钮（色板大小 × 限色数）+ 两个量化判据（色差 = 每格最终色 vs 原图均色的距离均值，越小越保形；同色相",
+          "keywords": [
+            "WXG-T-179",
+            "temp/beads-gen.mjs",
+            "WXG",
+            "spike",
+            "temp",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§1.4 诚实划界（本文证据的效力边界）",
+          "level": 3,
+          "startLine": 43,
+          "endLine": 48,
+          "tokens": 139,
+          "summary": "spike 色板为程序化近似（HSL 最远点采样），不含品牌实测 hex ⇒ 绝对值只读趋势，不得当成\"某品牌能达到 X",
+          "keywords": [
+            "spike",
+            "HSL",
+            "hex",
+            "诚实划界",
+            "本文证据的效",
+            "力边界"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 75,
+          "tokens": 633,
+          "summary": "",
+          "keywords": [
+            "Alternatives",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§2.1 甲：不动冻结值，只优化生成侧（**推荐立即执行**）",
+          "level": 3,
+          "startLine": 51,
+          "endLine": 57,
+          "tokens": 137,
+          "summary": "用满 10 色板（含两个暗色）；--colors ≤ 8 保证合规；选色改误差最小（贪心 k-medoids）而非频次优",
+          "keywords": [
+            "colors",
+            "medoids",
+            "不动冻结值",
+            "只优化生成侧",
+            "推荐立即执行"
+          ]
+        },
+        {
+          "anchor": "§2.2 乙：只扩「单关用色上限」`BEAD_COLOR_MAX` 8 → 12/16",
+          "level": 3,
+          "startLine": 58,
+          "endLine": 63,
+          "tokens": 115,
+          "summary": "≤10 色无需动 charset；>10 色须扩 BEAD_CHARSET（如 .x1-9A-F）⇒ 动关卡数据格式（A",
+          "keywords": [
+            "BEAD_COLOR_MAX",
+            "charset",
+            "BEAD_CHARSET",
+            "只扩",
+            "单关用色上限"
+          ]
+        },
+        {
+          "anchor": "§2.3 丙：扩「调色板」`BEAD_PALETTE` 10 → 16/24",
+          "level": 3,
+          "startLine": 64,
+          "endLine": 69,
+          "tokens": 176,
+          "summary": "必须连带：新符号（现 10 个符号已一一占用）、新明度档、art-bible §3.2 重写、accessibility",
+          "keywords": [
+            "BEAD_PALETTE",
+            "§3.2",
+            "art",
+            "bible",
+            "accessibility",
+            "调色板"
+          ]
+        },
+        {
+          "anchor": "§2.4 丁：双轨（游戏内不动；生成器开放大色板，产物外用）",
+          "level": 3,
+          "startLine": 70,
+          "endLine": 75,
+          "tokens": 114,
+          "summary": "游戏内维持 10/8（可玩性优先）；生成器开放 --palette N（已实现），大色板产物用于参考图 / 实体拼豆导出",
+          "keywords": [
+            "palette",
+            "双轨",
+            "游戏内不动",
+            "生成器开放大",
+            "色板",
+            "产物外用"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 76,
+          "endLine": 83,
+          "tokens": 288,
+          "summary": "推荐：甲（立即执行）+ 丁（作为产品方向）；乙 / 丙挂起，不进本轮。",
+          "keywords": [
+            "Decision",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 102,
+          "tokens": 321,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 86,
+          "endLine": 91,
+          "tokens": 91,
+          "summary": "甲案零冻结变更即可改善（\"暗部落点\"是此前最便宜的一处遗漏）。",
+          "keywords": [
+            "正面"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面（已知成本，白纸黑字，不是风险）",
+          "level": 3,
+          "startLine": 92,
+          "endLine": 97,
+          "tokens": 128,
+          "summary": "甲案改善有限：色差 −3~4，且以聚集度小幅下降为代价。用户若要\"明显更清楚\"，甲给不了。",
+          "keywords": [
+            "负面",
+            "已知成本",
+            "白纸黑字",
+            "不是风险"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 98,
+          "endLine": 102,
+          "tokens": 69,
+          "summary": "真机观感（唯一终审）仍待用户看图 / playtest。",
+          "keywords": [
+            "playtest",
+            "中性",
+            "待观察"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 103,
+          "endLine": 109,
+          "tokens": 146,
+          "summary": "1. 用户对甲 / 丁产物给出人眼判断（\"能不能看出形状 / 好不好做\"）—— 这是解锁乙 / 丙的前置。",
+          "keywords": [
+            "Review",
+            "Triggers",
+            "复评触发条件"
+          ]
+        }
+      ]
+    },
+    {
       "path": "docs/architecture/architecture-beads.md",
       "tokens": 4357,
       "lines": 191,
@@ -5500,9 +5747,9 @@
     },
     {
       "path": "docs/architecture/architecture.md",
-      "tokens": 5370,
+      "tokens": 5445,
       "lines": 256,
-      "sha256": "e56848282099d5ff5502b813b22b8490b1ef18703bdb48af6b0a8ed9d58fac15",
+      "sha256": "579b264d2560a4a8f37eb28a8e30e0612d21ceae7955a2334b36d160bb6114bb",
       "tier": "normal",
       "sections": [
         {
@@ -5510,7 +5757,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 257,
-          "tokens": 5357,
+          "tokens": 5432,
           "summary": "版本：0.1.0",
           "keywords": [
             "微信小游戏矩",
@@ -53167,17 +53414,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 31786,
-      "lines": 604,
-      "sha256": "fbb5315d921c53f6fd7e47640d2fee497587cb8960f19f1bcfa2c8f14dda1bb0",
+      "tokens": 32910,
+      "lines": 624,
+      "sha256": "9d743a03b6e42273054ab5a20e6d7288ee322a0fd1042a2708733f5e776e94b4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 605,
-          "tokens": 31769,
+          "endLine": 625,
+          "tokens": 32894,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -53476,30 +53723,44 @@
           "anchor": "§WXG-T-178",
           "level": 2,
           "startLine": 589,
-          "endLine": 605,
-          "tokens": 1355,
+          "endLine": 607,
+          "tokens": 1356,
           "summary": "framework·真机「能缩放不能拖动」修复（输入位移改帧末结算）+ 相机/命中调试读回口 · 负责：主理人(Qode",
           "keywords": [
             "WXG",
             "framework",
             "Qode"
           ]
+        },
+        {
+          "anchor": "§WXG-T-179",
+          "level": 2,
+          "startLine": 608,
+          "endLine": 625,
+          "tokens": 1120,
+          "summary": "beads·照片转拼豆生成器 spike（调色板 / 限色 / 聚集 调优 + ADR-0016） · 负责：主理人(C",
+          "keywords": [
+            "WXG",
+            "beads",
+            "spike",
+            "ADR"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6095,
-      "lines": 58,
-      "sha256": "65da9af863906e6ee52c5c8207a769a5aff5b6a6c9061c6a8d692b251fbb1cca",
+      "tokens": 6171,
+      "lines": 59,
+      "sha256": "58395bee62d81bbe7f56b513b432321642b1c80ec0a650f26413dc31b2bdffff",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 59,
-          "tokens": 6086,
+          "endLine": 60,
+          "tokens": 6162,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -53512,8 +53773,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 32,
-          "endLine": 59,
+          "startLine": 33,
+          "endLine": 60,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
