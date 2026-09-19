@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "70890f11d4845c7c00ec8733dfdbf3057b0598baa3927994146914b87beca65d",
+      "sha256": "f18ac2c89066f58ed3dbdec12764f9be669b96396fa9adc0595353b53470e864",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +475,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4565,
+      "tokens": 4593,
       "lines": 82,
-      "sha256": "34f29ccf7d69059e342cf545f199651efde14674dd21bedee25bbd73054302cf",
+      "sha256": "ef682d7dd9a13ebd7726ea1d3660b4a6ad4acfde5506524cbea60c4c2b1507a8",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +485,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4537,
+          "tokens": 4565,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,7 +561,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 58 行 / 5561 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 58 行 / 5741 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -577,7 +577,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 669 行 / 43712 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 670 行 / 44669 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
@@ -768,12 +768,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 558 行 / 27432 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 574 行 / 28738 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 280,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+559 · §WXG-T-128=18+104 · §裁定与回写记录（",
+          "tokens": 308,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+575 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -7262,17 +7262,17 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 70465,
-      "lines": 1439,
-      "sha256": "328778177890544e095d0a1262c808cfee0edc8257a8445c7f9d03db5ee5441b",
+      "tokens": 70802,
+      "lines": 1449,
+      "sha256": "40eb03f1a57aa2503cacec9c68915ec36e8ba4491e304ef69b42f44bf650c55d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》资产规格表（Asset Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1440,
-          "tokens": 70451,
+          "endLine": 1450,
+          "tokens": 70787,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -7298,8 +7298,8 @@
           "anchor": "§1 资产清单（可见元素规格表）",
           "level": 2,
           "startLine": 33,
-          "endLine": 1353,
-          "tokens": 55729,
+          "endLine": 1363,
+          "tokens": 56066,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -7382,8 +7382,8 @@
           "anchor": "§1.6 VFX 参数卡（**v1.4 全量升级**：4 行简表 → 7 张可直接落码卡）",
           "level": 3,
           "startLine": 243,
-          "endLine": 1198,
-          "tokens": 35403,
+          "endLine": 1208,
+          "tokens": 35740,
           "summary": "升级理由：v1.3 的 §1.6 只有四行一句话描述（如「scale 1.06→1.0，120ms ease-out-b",
           "keywords": [
             "§1.6",
@@ -7397,8 +7397,8 @@
         {
           "anchor": "§1.7 拼图容器板 + 暖光 band 参数卡（丙案核心，F2/F3） `[v1.3]`",
           "level": 3,
-          "startLine": 1199,
-          "endLine": 1225,
+          "startLine": 1209,
+          "endLine": 1235,
           "tokens": 549,
           "summary": "渲染原语无渐变/模糊 ⇒ 暖晕用同心圆角 rect 叠层 + 由外向内递增 α 模拟伪径向光；容器板复用面板同族 tok",
           "keywords": [
@@ -7413,8 +7413,8 @@
         {
           "anchor": "§1.8 背景层次参数卡（F8，解锁 v1.2「纯色无层次」自限） `[v1.3]`",
           "level": 3,
-          "startLine": 1226,
-          "endLine": 1253,
+          "startLine": 1236,
+          "endLine": 1263,
           "tokens": 2550,
           "summary": "",
           "keywords": [
@@ -7428,8 +7428,8 @@
         {
           "anchor": "§1.9 材质感质感语言卡（v1.5，WXG-T-131）",
           "level": 3,
-          "startLine": 1254,
-          "endLine": 1353,
+          "startLine": 1264,
+          "endLine": 1363,
           "tokens": 3813,
           "summary": "背景：玩法重塑「错位归位」（WXG-T-130）+ 用户裁定「暂时不需要支持色盲玩家，我需要的是珠子和托盘、棋盘都有质感",
           "keywords": [
@@ -7441,8 +7441,8 @@
         {
           "anchor": "§2 未来真实资产替换提示词（AI 生成备用）",
           "level": 2,
-          "startLine": 1354,
-          "endLine": 1364,
+          "startLine": 1364,
+          "endLine": 1374,
           "tokens": 168,
           "summary": "bead_set candy-like 3d perler bead set, rounded square beads",
           "keywords": [
@@ -7457,8 +7457,8 @@
         {
           "anchor": "§3 图集策略",
           "level": 2,
-          "startLine": 1365,
-          "endLine": 1373,
+          "startLine": 1375,
+          "endLine": 1383,
           "tokens": 94,
           "summary": "demo（当前） 不建图集，全 Graphics，主包美术位图 = 0 KB",
           "keywords": [
@@ -7470,8 +7470,8 @@
         {
           "anchor": "§4 命名规范",
           "level": 2,
-          "startLine": 1374,
-          "endLine": 1383,
+          "startLine": 1384,
+          "endLine": 1393,
           "tokens": 132,
           "summary": "全小写 + 下划线；模式 {域}_{实体}_{变体}_{状态}.{ext}。",
           "keywords": [
@@ -7482,8 +7482,8 @@
         {
           "anchor": "§5 包体预算表（微信红线 vs 内部目标，**分清两条线**）",
           "level": 2,
-          "startLine": 1384,
-          "endLine": 1401,
+          "startLine": 1394,
+          "endLine": 1411,
           "tokens": 295,
           "summary": "微信红线（不可越） 主包 ≤ 4096 KB",
           "keywords": [
@@ -7496,8 +7496,8 @@
         {
           "anchor": "§6 交付与验收",
           "level": 2,
-          "startLine": 1402,
-          "endLine": 1440,
+          "startLine": 1412,
+          "endLine": 1450,
           "tokens": 4061,
           "summary": "[ ] 全部元素程序化绘制，无外部图片引用。",
           "keywords": [
@@ -21749,9 +21749,9 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 20390,
+      "tokens": 20666,
       "lines": 345,
-      "sha256": "d7d5d322180caf322a65008c3e87837ccc4b0760b18a9ae5076d56a2013ef8c8",
+      "sha256": "2c1ae3ff8d7016f88dc3effc74c7e1c9543812779a0fc9fb7e8ca10666983baf",
       "tier": "normal",
       "sections": [
         {
@@ -21759,9 +21759,10 @@
           "level": 1,
           "startLine": 1,
           "endLine": 346,
-          "tokens": 20380,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.12 · 任务号 WXG-T-177（v1.12 = 冲刺入",
+          "tokens": 20657,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.13 · 任务号 WXG-T-128（v1.13 = §5「",
           "keywords": [
+            "§5",
             "Spec",
             "beads",
             "games",
@@ -21910,7 +21911,7 @@
           "level": 2,
           "startLine": 202,
           "endLine": 253,
-          "tokens": 5941,
+          "tokens": 6027,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
             "§7",
@@ -53088,17 +53089,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 27432,
-      "lines": 558,
-      "sha256": "cb2c6375261294eac6362761da02583a78d2905ef844f1688e63e841dfcca74e",
+      "tokens": 28738,
+      "lines": 574,
+      "sha256": "1f81de93f6e239fd99e6afb6a8b0d5199abbf1c4c9ceacf8aa9f6cbde65d8260",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 559,
-          "tokens": 27415,
+          "endLine": 575,
+          "tokens": 28721,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -53113,8 +53114,8 @@
           "anchor": "§WXG-T-128",
           "level": 2,
           "startLine": 18,
-          "endLine": 121,
-          "tokens": 6480,
+          "endLine": 137,
+          "tokens": 7786,
           "summary": "beads 美术 v1.4「动态质感章」风格单（G1–G9 动效欠账清偿） · 负责：林绘澄(art) + 主理人(Qo",
           "keywords": [
             "WXG",
@@ -53188,8 +53189,8 @@
           "anchor": "§收口（2026-09-18，Qoder 提交会话 · 主理人人眼判读）",
           "level": 3,
           "startLine": 112,
-          "endLine": 121,
-          "tokens": 502,
+          "endLine": 119,
+          "tokens": 501,
           "summary": "余项② G6/G3 连拍判读 = 执行完毕，两项均判 ✅ 视觉达标（对象 = evidence/vfx-burst/ v",
           "keywords": [
             "Qoder",
@@ -53201,10 +53202,26 @@
           ]
         },
         {
+          "anchor": "§收口（2026-09-19，CodeBuddy 会话 · 待裁③ 裁定 + QA 漏回写补记）",
+          "level": 3,
+          "startLine": 120,
+          "endLine": 137,
+          "tokens": 1282,
+          "summary": "待裁③ 裁定 = 甲（用户 2026-09-19 拍板）：「level-clear 下扫光是否应继续播完」由「规格未定义",
+          "keywords": [
+            "CodeBuddy",
+            "level",
+            "clear",
+            "收口",
+            "会话",
+            "待裁"
+          ]
+        },
+        {
           "anchor": "§真机首验包（待 AppID · 2026-09-16 登记 · 解除 DEV-01/B4）",
           "level": 2,
-          "startLine": 122,
-          "endLine": 137,
+          "startLine": 138,
+          "endLine": 153,
           "tokens": 675,
           "summary": "前置：① 有效 AppID ② pnpm --filter @wxgame/beads run build:cocos ",
           "keywords": [
@@ -53219,8 +53236,8 @@
         {
           "anchor": "§WXG-T-164",
           "level": 2,
-          "startLine": 138,
-          "endLine": 154,
+          "startLine": 154,
+          "endLine": 170,
           "tokens": 2171,
           "summary": "beads·元游戏页族反转冻结回写 + 批0 落码（体力/钱包/振动） · 负责：主理人(Qoder) · 状态：✅ 收",
           "keywords": [
@@ -53232,8 +53249,8 @@
         {
           "anchor": "§WXG-T-166",
           "level": 2,
-          "startLine": 155,
-          "endLine": 180,
+          "startLine": 171,
+          "endLine": 196,
           "tokens": 1631,
           "summary": "beads·棋盘区双指缩放 + 单指拖拽（立项） · 负责：程基岩(eng) + 文策渊(UX) · 主理人核销 · 状",
           "keywords": [
@@ -53245,8 +53262,8 @@
         {
           "anchor": "§WXG-T-167",
           "level": 2,
-          "startLine": 181,
-          "endLine": 199,
+          "startLine": 197,
+          "endLine": 215,
           "tokens": 1245,
           "summary": "beads·缩放设计轨（C-3 判据翻转 + 图鉴/扩容盘面 concept 提案） · 负责：文策渊(design-s",
           "keywords": [
@@ -53259,8 +53276,8 @@
         {
           "anchor": "§WXG-T-169",
           "level": 2,
-          "startLine": 200,
-          "endLine": 248,
+          "startLine": 216,
+          "endLine": 264,
           "tokens": 3396,
           "summary": "beads·棋盘缩放平移落码（Z0–Z6） · 负责：程基岩(eng)·主理人收口 · 状态：✅ 收口（2026-09-",
           "keywords": [
@@ -53272,8 +53289,8 @@
         {
           "anchor": "§WXG-T-170",
           "level": 2,
-          "startLine": 249,
-          "endLine": 261,
+          "startLine": 265,
+          "endLine": 277,
           "tokens": 625,
           "summary": "beads·F1 同固定步 down+up 丢 tap 修复 · 负责：主理人(Qoder) · 状态：✅ 完成 · 上",
           "keywords": [
@@ -53287,8 +53304,8 @@
         {
           "anchor": "§WXG-T-171",
           "level": 2,
-          "startLine": 262,
-          "endLine": 294,
+          "startLine": 278,
+          "endLine": 310,
           "tokens": 1573,
           "summary": "beads·F2 棋盘 tap/drag 位移度量形态裁决 · 负责：主理人(Qoder)→文策渊(design)+程基",
           "keywords": [
@@ -53303,8 +53320,8 @@
         {
           "anchor": "§WXG-T-172",
           "level": 2,
-          "startLine": 295,
-          "endLine": 329,
+          "startLine": 311,
+          "endLine": 345,
           "tokens": 1673,
           "summary": "beads·F3 相机复位口径回写（GDD/ADR vs fitCamera） · 负责：studio-orchestr",
           "keywords": [
@@ -53319,8 +53336,8 @@
         {
           "anchor": "§WXG-T-173",
           "level": 2,
-          "startLine": 330,
-          "endLine": 369,
+          "startLine": 346,
+          "endLine": 385,
           "tokens": 2053,
           "summary": "beads·U11 扫光链起算帧归属裁决 · 负责：studio-orchestrator → 文策渊(design) ",
           "keywords": [
@@ -53335,8 +53352,8 @@
         {
           "anchor": "§WXG-T-175",
           "level": 2,
-          "startLine": 370,
-          "endLine": 468,
+          "startLine": 386,
+          "endLine": 484,
           "tokens": 2760,
           "summary": "外来 skill 集成 · A 档（Claude Code Game Studios 点菜式吸收） · 负责：主理人(C",
           "keywords": [
@@ -53351,8 +53368,8 @@
         {
           "anchor": "§WXG-T-176",
           "level": 2,
-          "startLine": 469,
-          "endLine": 525,
+          "startLine": 485,
+          "endLine": 541,
           "tokens": 1655,
           "summary": "ctx 生成器 SKIP_DIRS 跳过 vendor _repos（索引产物瘦身） · 负责：主理人(Qoder) ·",
           "keywords": [
@@ -53367,8 +53384,8 @@
         {
           "anchor": "§WXG-T-177",
           "level": 2,
-          "startLine": 526,
-          "endLine": 559,
+          "startLine": 542,
+          "endLine": 575,
           "tokens": 1055,
           "summary": "beads·冲刺入口隐藏（「去冲刺」三处全隐藏，U1 反转） · 负责：主理人(CodeBuddy) · 状态：✅ 落码",
           "keywords": [
@@ -53381,9 +53398,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 5561,
+      "tokens": 5741,
       "lines": 58,
-      "sha256": "f54d48a96a3033aa817d830ef2db76ff5fb3462fe3af5fdb50b05d5217c6ff22",
+      "sha256": "78938302aa636ae54e9281b3986aa084863891ccf442c4d6cc88cac89722ecbb",
       "tier": "hot",
       "sections": [
         {
@@ -53391,7 +53408,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 59,
-          "tokens": 5553,
+          "tokens": 5732,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -57146,9 +57163,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 43712,
-      "lines": 669,
-      "sha256": "97cd5bd2fdd37bf19c459948369837d328b9f432a3be506ea9ba3e10011ce466",
+      "tokens": 44669,
+      "lines": 670,
+      "sha256": "5914da9e9a23f02a579e9eda65c056f4a43597444f800cf101b10e28642e4708",
       "tier": "hot",
       "sections": [
         {
@@ -57489,7 +57506,7 @@
           "level": 1,
           "startLine": 398,
           "endLine": 508,
-          "tokens": 9202,
+          "tokens": 9516,
           "summary": "",
           "keywords": [
             "GAP",
@@ -57532,7 +57549,7 @@
           "level": 2,
           "startLine": 421,
           "endLine": 444,
-          "tokens": 3905,
+          "tokens": 4219,
           "summary": "TC-PER-09 VFX-1 落座回弹：scale 1.06 → 1.0 / 120ms ux-spec §5 vfx",
           "keywords": [
             "§5",
@@ -57675,8 +57692,8 @@
           "anchor": "§I 宿主坐标归一化判据（缺陷 C1 回归闸门，**v1.6 / WXG-T-109 新增**）— 来源 `ADR-0011 §3(e)` + `T-104·A4`",
           "level": 1,
           "startLine": 572,
-          "endLine": 670,
-          "tokens": 8303,
+          "endLine": 671,
+          "tokens": 8945,
           "summary": "归属理由（为何单开 §I，不并入 §A / §G）：本文件的组织法是「每一节 = 一个判据来源家族」 —— §A = 9",
           "keywords": [
             "ADR-0011 §3(e)",
@@ -57735,8 +57752,8 @@
           "anchor": "§变更记录",
           "level": 2,
           "startLine": 614,
-          "endLine": 631,
-          "tokens": 4466,
+          "endLine": 632,
+          "tokens": 5108,
           "summary": "v1.0 2026-09-11 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 严",
           "keywords": [
             "§8",
@@ -57746,8 +57763,8 @@
         {
           "anchor": "§J · v2.0 判据迁移（**WXG-T-144 / Epic T-133**，2026-09-17）——「错位归位」玩法反转的判据面整体换代",
           "level": 2,
-          "startLine": 632,
-          "endLine": 670,
+          "startLine": 633,
+          "endLine": 671,
           "tokens": 1533,
           "summary": "### J.0 范围铁声明",
           "keywords": [
@@ -57762,8 +57779,8 @@
         {
           "anchor": "§J.1 四族改判 ⛔（原供料/道具判据，随玩法反转整体作废）",
           "level": 3,
-          "startLine": 637,
-          "endLine": 645,
+          "startLine": 638,
+          "endLine": 646,
           "tokens": 404,
           "summary": "TC-LOOP-02 / TC-TRAY-01 供料节律（60s tray:spawned 恰 15 次 ±1） ⛔ 作",
           "keywords": [
@@ -57778,8 +57795,8 @@
         {
           "anchor": "§J.2 新玩法判据用例（**[N] 层新增**；与 E1–E5 单测一一对应，代码锚点见 `tests/misplaced*.ts` / `selection-anchor.test.ts`）",
           "level": 3,
-          "startLine": 646,
-          "endLine": 666,
+          "startLine": 647,
+          "endLine": 667,
           "tokens": 766,
           "summary": "TC-J-01 tray-spawner v2.0 §8-2 [Node] 60s 零 tray:spawned + 首",
           "keywords": [
@@ -57794,8 +57811,8 @@
         {
           "anchor": "§J.3 G4 结论联动",
           "level": 3,
-          "startLine": 667,
-          "endLine": 670,
+          "startLine": 668,
+          "endLine": 671,
           "tokens": 76,
           "summary": "E1–E6 落码后：G4 玩法判据面已整体换代（本节 J 系列），但 G4 探针（g4-probe-v1.1.mjs）尚",
           "keywords": [

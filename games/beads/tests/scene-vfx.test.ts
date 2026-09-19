@@ -34,6 +34,7 @@ import {
   WAVE_RISE_RATIO,
   WAVE_SCALE_PEAK,
   WAVE_WINDOW_MIN_MS,
+  solverSequenceMs,
 } from '../src/config/tuning.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
 import {
@@ -169,6 +170,49 @@ describe('G3 vfx_powerup_sweep · 命令层', () => {
     expect(p).toBeLessThan(1);
     h.advance(SWEEP_MS / 1000);
     expect(h.game.snapshot.sweepProgress).toBe(0); // 单次循环，不残留
+  });
+
+  /**
+   * 裁定「恒播满」（**WXG-T-128 待裁③ = 甲**，2026-09-19 用户拍板）：
+   * 扫光臂起后**恒播满 `SWEEP_MS`**，**不因状态切换（含离 playing 进 level-clear）中断**。
+   *
+   * 为什么必须钉住：`_stepSweepFx` 与 `_stepConfettiFx` 同属**表现层步进组**（`beads-game.ts`
+   * `_update` 末尾、不受 `playing` 门约束），而 G6 彩带正是「level-clear 臂起、播满 800ms」
+   * 的判例；裁定 1「庆祝先行放完再落遮罩」亦同精神（面板延迟 `CLEAR_PANEL_DELAY_MS` 开
+   * ⇒ 400ms 扫光必然在面板前播完、无遮挡）。**给扫光加 playing 门会与上述两条分叉**。
+   *
+   * 构造要点：需**恰 1 颗错位**（序列 = `solverSequenceMs(1)` = 320ms）才留出
+   * 「已过关但扫光未归零」的观测窗口（400 − 320 = 80ms）；`buildMisplaced(…, 1)` 的
+   * 两两对调会给 **2 颗**（序列 400ms ≈ 扫光 ⇒ 窗口消失，本判据退化为恒真）。
+   */
+  it('裁定「恒播满」（WXG-T-128 待裁③ 甲）：solver 归位致过关 ⇒ 扫光不被掐断、仍走完 400ms', () => {
+    // 前提（本判据的可观测性条件）：解环器序列**严格短于**扫光 ⇒ 才存在「已过关但扫光未归零」
+    // 的窗口。若将来常量调整破坏该前提（序列 ≥ 扫光），本行会先于断言报警，而非静默伪绿。
+    expect(solverSequenceMs(1)).toBeLessThan(SWEEP_MS);
+
+    const h = createBeadsHarness({
+      levels: [simpleTestLevel()],
+      saveKey: 'wxgame.beads.test.g3-clear-continue',
+    });
+    expect(h.game.grid.misplacedCount).toBeGreaterThan(0); // 默认装配即有可归位目标
+
+    expect(h.game.usePowerup('solver')).toBe(true);
+    // 逐帧推进**到过关即停**；上界 23 帧（≈383ms）保证不越过扫光 400ms（越过后窗口消失）。
+    let frames = 0;
+    while (h.game.phase === 'playing' && frames < 23) {
+      h.advance(1 / 60);
+      frames++;
+    }
+    expect(h.game.phase).toBe('level-clear'); // ① 确已过关
+    // ② 裁定甲：过关**不掐断**扫光 —— 过关帧扫光仍在途。
+    // ⚠ 判别力自检（K-036）：「加 `playing` 门」这一变异下本条**仍会通过**（门令扫光冻结在非零值
+    // 而非归零）⇒ 真正的判别力在 ③（冻结 ⇒ 永不推进/永不归零）。故 ① ② 只作前置，③ 才是判据。
+    const pAtClear = h.game.snapshot.sweepProgress;
+    expect(pAtClear).toBeGreaterThan(0);
+    h.advance(1 / 60); // ③ 过关后**仍在推进**（加门 ⇒ 冻结 ⇒ 本条失败）
+    expect(h.game.snapshot.sweepProgress).toBeGreaterThan(pAtClear);
+    h.advance(SWEEP_MS / 1000); // ④ 越过 400ms
+    expect(h.game.snapshot.sweepProgress).toBe(0); // 到点自清、零残留（与 G6 彩带同判例）
   });
 });
 
