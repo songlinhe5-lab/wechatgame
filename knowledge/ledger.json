@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 57,
+  "nextId": 58,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -897,7 +897,7 @@
       "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定",
-      "contentHash": "9e9e19fcb27bc16658b342000214b03d3b42bb20b25c61ab6d47782b5041e75b",
+      "contentHash": "1b09282276efa658a00cc283cf108b406ddc0752bd18bd403c710df02e814571",
       "sourceTask": "WXG-T-165",
       "addedDate": "2026-09-18",
       "lastAccess": "2026-09-18",
@@ -952,6 +952,23 @@
       "sourceTask": "WXG-T-168",
       "addedDate": "2026-09-18",
       "lastAccess": "2026-09-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-057",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "「立项单」与「ADR 状态行」都不会被实施它们的另一张单自动收口，核销时要成对扫",
+      "contentHash": "ee9aaabcaf63c04565aa417ab4e5174d3fc1b0b46df87f53fa7dd2d8051c0d64",
+      "sourceTask": "WXG-T-166",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -1238,6 +1255,24 @@
       "kind": "updated",
       "ids": [
         "K-046"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-164",
+      "kind": "updated",
+      "ids": [
+        "K-053"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-166",
+      "kind": "added",
+      "ids": [
+        "K-057"
       ],
       "note": null
     }

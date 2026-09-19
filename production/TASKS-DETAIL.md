@@ -130,34 +130,51 @@
 - **P0-5 四相位真链**：暂停/结算/失败面板真指针可用（web 已验，微信 touch 语义须复验）。
 - **P1-6 性能**：T-124 单帧最坏 +624 图元的帧率回退阀（林绘澄预授权条款）真机实测。
 - **P1-7 音频**：A05-26 听感（`[P]`）+ 首次手势后出声（A05-27）。
+- **P1-8 缩放/平移与周边设备面（集中走查轮，2026-09-19 挂号）**：① **zoom≠1 时棋盘命中精度**（QA `test-cases.md §A4c` 真机 ⛔ 5 条，**P0**——屏→设→棋盘逆变换同 BD-48/T-129/T-161 一条通道，K-037）；② 单指拖拽不拖出屏 / 大盘初始居中不贴边（T-169 真机反馈①③修后复验）；③ 回主菜单弃本局棋盘（T-165）；④ 托盘 12 槽只显示 1 行实线 + 点槽定落位/部分收纳（T-168）；⑤ 菜单入口与体力回满广告链（T-164 收口移交项）。**仍靠 `build:cocos --release` 出包 + 扫码**（前置同本节头）。
 - 以上全过 ⇒ G4 的 DEV-01 解除，可议升 PASS；任何一条红 ⇒ 按 BD-40 先例登记并回修。
 
 ---
 
 ## WXG-T-164
 
-**beads·元游戏页族反转冻结回写 + 批0 落码（体力/钱包/振动）** · 负责：主理人(Qoder) · 状态：🔄 批0 完成待收口（六文回写 + 批0 落码已随 `79f217a` 入库；真机复验 + 批1/批2 未完）
+**beads·元游戏页族反转冻结回写 + 批0 落码（体力/钱包/振动）** · 负责：主理人(Qoder) · 状态：✅ 收口（2026-09-19：六文回写 + 批0 落码已随 `79f217a` 入库；真机首验其性 OK（P0-D 元游戏），菜单路由一项由 T-165 反转并已落码；收口批补完 T-165 漏回写面；批1/批2 另单）
 
 - **用户八项拍板（2026-09-18 两轮）**：一轮 = B Shell 双对象 / 分批 0-1-2 / 本地榜+好友置灰 / 装体力+广告+钱包；二轮 = **体力宽容包 B**（上限 8、8 min/心）/ **钱包 A 包**（买心阶梯 + 头像框）/ **装触觉振动**（`VIBRATE_DEFAULT=ON`、仅 isMiniGame 显示行）/ 首启仍直进玩法。
 - **冻结回写（六文，已落定）**：systems-index **v1.28**（新 §3.14 体力与钱包：`STAMINA_MAX=8` / `STAMINA_REGEN_MIN=8min/心`（离线恢复 f(Δt wallClock)、登录钳上限）/ `STAMINA_START_COST=1` / 回满 = 激励视频第二 live 位 / 签到第 3/5 天各 1 心（溢出即弃）/ 钱包获取仅签到币·周榜结算·通关首通、消耗 = 买心（阶梯价不冻结 `[待 playtest]`）+头像框 / Won't = 只发不耗·币购道具；§3.8 `VIBRATE_DEFAULT` 新冻结 + 屏震行语义钉死；§3.11 激励主位 1→2、体力移出 Won't；§1 S10 行 + S9 行；§4 meta 域事件 5 行）+ changelog v1.28 行；ux-spec **v1.7**（§1 原则 1 / §2 流程主菜单+overlay 栈 / §6.3 补注 / §8 更正，**启动路由零改动**）；concept **v1.4**（§5 / §7 meta 页族行 + Won't 改写 / D10 反转）；meta-framework **v1.1**（M4/M5 反转 + 三货币条件解除 + §7 分批计划）；pause-settings **v1.3**（回主菜单次钮 + 震动行 + §8 判据 11/12）。
-- **语义裁定（本单新增澄清）**：扣心时机 = **新局开局/重试**；PAUSED 恢复与菜单在途续进**不重复扣心**（保留进度不惩罚）；签到送心溢出即弃；阶梯价表不冻结归 `tuning.ts` 候选（判例 `SPRINT_K_CURVE`）。
-- **批0 落码范围（进行中）**：shell（BeadsShell 双对象）/ meta-state / meta-save-schema（sidecar v1；settings v4 = +vibrate）/ menu-route（暂停次钮→菜单、菜单主钮恢复/新开）；scenes = menu / settings overlay / signin overlay；services = signin（wallClock 自然日判定、循环制断签不清零）/ stamina（离线恢复钳上限）/ wallet（获取三源+买心消耗）；meta-view 只读 + ui-kit 程序化图元 + harness `?meta=` 注入；`gdd/meta-ui.md` GDD 同批建（S10 行预约）。
+- **语义裁定（本单新增澄清）**：扣心时机 = **新局开局/重试**；~~PAUSED 恢复与菜单在途续进不重复扣心（保留进度不惩罚）~~ → **后半句已随 WXG-T-165 反转**：回主菜单弃本局棋盘，菜单「开始游戏」恒全新开新局扣 1 心（局内暂停「继续游戏」仍不扣心）；签到送心溢出即弃；阶梯价表不冻结归 `tuning.ts` 候选（判例 `SPRINT_K_CURVE`）。
+- **批0 落码范围（进行中）**：shell（BeadsShell 双对象）/ meta-state / meta-save-schema（sidecar v1；settings v4 = +vibrate）/ menu-route（暂停次钮→菜单、菜单主钮恢复/新开——**主钮「恢复」分支已随 T-165 反转删除**）；scenes = menu / settings overlay / signin overlay；services = signin（wallClock 自然日判定、循环制断签不清零）/ stamina（离线恢复钳上限）/ wallet（获取三源+买心消耗）；meta-view 只读 + ui-kit 程序化图元 + harness `?meta=` 注入；`gdd/meta-ui.md` GDD 同批建（S10 行预约；**实际未随批，已移交批1**，见收口批）。
 - **retry/restart 逐次扣心（本单挂账已关闭，2026-09-18）**：玩法内 retry（normal）/ restartRun 经注入 `play` 的 `canStartRun` 闸门逐次扣 `STAMINA_START_COST`；sprint 不设门（§3.14 冲刺消耗不冻结）。**0 心拒绝路径 = 用户拍板 B（失败页看广告回满再重试）**：闸门拦下 → `_requestStaminaRefill` 拉起 `STAMINA_REFILL_PLACEMENT`（§3.11 第二 live 位，游戏侧字符串位不改冻结框架枚举）→ `onRewarded` 按 `_adKind` 分发（revive vs staminaRefill 共用单一订阅）→ `onStaminaRefill`→`MetaState.refillStamina()` 回满后重放 proceed 续体（MAX≥cost 必成功、无循环）。hook 而非事件（不动 §4 冻结表）；standalone BeadsGame（无 canStartRun）恒放行保 429 既有测试。新增 `tuning.STAMINA_REFILL_PLACEMENT` / `run-start-stamina.test.ts`（5 tests，真实 MetaState 端到端）。
 - **门禁证据（本单 retry 扣心段）**：`framework:sync`（beads 写入 3）+ beads `tsc --noEmit` 净 + 全量 beads 测试 **458 passed**（453+5）+ `cocos:check` 两游戏过 + beads `--release` 重建（17.7s）+ `verify` **16/17**（唯一 FAIL = `check:secrets` project.config.json:22 AppID 既有挂账，非本单引入）+ ux-spec v1.8（§3.5 重试扣心注 + §4 矩阵 GAME_OVER 拆有心/0 心）。
-- **待办**：~~批0 落码与测试~~（已完成，`79f217a`：shell/meta-state/sidecar/settings v4/签到·体力·钱包内聚于 meta-state/menu 路由/meta-view/harness `?meta=`；458 绿）；真机复验（震动行仅 weapp 显示、签到跨天、菜单路由、扣心/续进口径）；`gdd/meta-ui.md` GDD 与 ui-kit 独立图元层**未随批0 落盘**（S10 行仍标待建，归批1 同批补）；批1/批2 另单。
+- **待办（收口后口径）**：~~批0 落码与测试~~（已完成，`79f217a`：shell/meta-state/sidecar/settings v4/签到·体力·钱包内聚于 meta-state/menu 路由/meta-view/harness `?meta=`；458 绿）；~~真机复验（其性项）~~（2026-09-18 首验 P0-A..P1 五项均 OK，含 P0-D 元游戏：震动行/签到/体力扣心均正常；唯菜单路由一项当场裁定反转）；`gdd/meta-ui.md` GDD 与 ui-kit 独立图元层**未随批0 落盘**（已核 `ls` 证实不存在）→ **移交 backlog 无号行「beads 元游戏批1」**（前置 = 主理人裁 T-167 提案 Q1/Q2）；反转过后的设备面复验（回主菜单弃棋盘）→ **并入下次真机复验批**（与 T-165/168/169 的待复验项同批走查，不单开轮）；批1/批2 实施另单。
+- **收口批（2026-09-19，本单关单依据）**：核账时发现 **T-165 的反转只改了 systems-index v1.29 / S9 行 / pause-settings v1.4，未跟 UX/概念两文**（正是判例 K-053 描述的「一对多回写漏点」），本批补齐：① `ux-spec.md` **v1.11** —— §2 流程图（次钮注 + 主钮分支两行）、§3.3 面板几何冻结注、§6.3 启动路径补注、§8 已裁定行共 **四处**旧「保留进度不惩罚 / 在途 PAUSED 恢复 / 不重复扣心」改注为**弃本局棋盘 + 菜单「开始游戏」恒全新开当前关扣 1 心**（旧裁定划线留档，启动三路径仍零改动）；② `concept.md` **v1.5** —— D10 行「有进度 → 续进在途局」作废；③ `proposals/meta-framework.md` **v1.2** —— §7 分批口径订正（体力/钱包服务改记已随批0 落码；批0 欠账明写归批1 并标 Q1/Q2 前置）；④ `systems-index.md` **v1.31** + changelog 同批 —— S10 行 `meta-ui.md` 待建归属由「批0」改记「批1」，并登记 v1.29 反转已镜像至下游。**代码零改动**；**§3 冻结值零改动**（无 `STAMINA_*` 漂移）。
+- **收口批门禁与沉淀**：根 `verify` **17/17 PASS**（逐项不短路；含 `check:tasks` / `check:links` / `ctx:check` / `framework:sync:check` / test / `cocos:check` / `check:size`）；`kb:sync --task=WXG-T-164` 沉淀统计：**新增 0 / 修改 1（K-053 追加「反转批文档面不得写死枚举，须拿旧裁定特征短语全仓 grep 定范围 + 收口前复扫上位裁定」） / 激活 0 / 归档 0**；`kb:audit` 无归档候选、无相似命中（活跃 56 / 归档 0）；`ctx:build` 已刷索引面。**附带发现（不属本单，已回写 backlog）**：`ux-spec.md` 实测 **19587 tok**（HEAD 口径），而预算豁免 note 与 backlog 行仍写 8683 ⇒ 该到期条已据实刷新（本批增幅 +420，未触 >500 拆分线）。本批**未提交**（用户要求先看改动）。
 - **入库（2026-09-18 提交会话）**：六文回写 + 批0 落码随 `79f217a` 提交（与 T-162 交织文件合笔，头注双挂）；本单 B4 门禁中 `check:secrets` 存量 FAIL 已由根配置 `.gitignore` 处置闭合（见 `## WXG-T-161` 处置核销，随 `2f62027`）。
 
 ---
 
 ## WXG-T-166
 
-**beads·棋盘区双指缩放 + 单指拖拽（立项）** · 负责：待程基岩(eng) + 文策渊(UX) · 状态：📋 已立项、**施工阻塞待 ADR**（框架多点输入前置）
+**beads·棋盘区双指缩放 + 单指拖拽（立项）** · 负责：程基岩(eng) + 文策渊(UX) · 主理人核销 · 状态：✅ **核销（2026-09-19）**——本单职责到「立项 + 报出前置阻塞」为止，阻塞与范围均已被 `ADR-0015` 应答、代码已由 WXG-T-169 交付；本单不再挂施工，余项已分流
 
 - **缘起（P1 真机反馈）**：用户「缺个功能，可双指放大缩小、单指左右移动」。用户已钉范围 = **仅棋盘玩法区缩放/平移**（HUD/托盘/面板不缩放）。
 - **设计已有意向**：concept v1.24/D13、systems-index v1.24 changelog③、ux-spec v1.6、input-control v2.2 已将「双指捻合缩放」列为 **Should**（无滑轨/按钮）。
 - **前置阻塞（硬）**：框架 `InputManager` 为**单指针设计**（`_ownerId` 首指独占、`input-manager.ts:99`「Ignore secondary touches」），`InputSnapshot` 只暴露一组 x/y ⇒ **双指捻合无法在玩法层表达**。解锁需二选一（均需 ADR）：**(甲)** 扩 `core/input` 为多点快照（触 **L2** core 引擎无关 + 影响 breakout，面大）；**(乙)** Cocos 适配层新增第二条触摸通道→游戏专用服务（触 **L3**、适配层）。未裁。
 - **高危面声明**：缩放后的「触摸→格子」需逆变换（屏→设→棋盘局部），**正是 BD-48/T-129/T-161 同一 hit-test 通道** ⇒ 不得绕过回归网直接实现（K-037 屏幕层取证）。
 - **下一步**：待用户/主理人就甲/乙 定 ADR → 拆子任（框架输入扩展 / 棋盘变换建模 / hit-test 逆变换 / 缩放限幅与钓制 / 双拍复位）+ QA 判据。本会话不动 hit-test 通道。
+
+- **核销记录（2026-09-19，Qoder 收口会话）——「范围 ↔ 交付」映射**（当时本单所列每一条阻塞都已有人做了，但本单行一直停在 📋，下一个读者会误以为还要再走一遍 ADR）：
+  | 本单当初的阻塞/待决 | 现状态 |
+  |---|---|
+  | `InputManager` 单指针，双指无法玩法层表达；甲/乙未裁 | **甲′ 已落码**：`packages/framework/src/core/input/input-manager.ts` 第二指针槽（头注即标「WXG-T-169 / ADR-0015 甲′」），单指语义逐字不变、breakout 不受影响 |
+  | 待 ADR | **ADR-0015 Accepted**：C-1=甲′ / C-2=丁-3 / C-3=(a)；C-4 并行开设计轨（T-167） |
+  | 拆子任（输入/变换/hit-test/限幅/复位） | **T-169 Z1–Z6 全落**：`systems/board-camera.ts`（`computeFitZoom`/`fitCamera`/`applyPinch`/`applyPan`/`clampCamera`）+ `gridLayoutFor(camera?)` 命中同源 + `_readInput` 三态 + QA §A4c；含真机三反馈修正（①「只能缩放不能拖动」的 `onBoard` 域改判） |
+  | 高危面：缩放后 hit-test 逆变换 | 按声明**未绕过回归网**：`layout-camera.test.ts` 回环 + 恒等档逐位锚 + 反例自检（半径不随缩必红） |
+  | Z0 Cocos 多点派发取证 ⛔ | 经真机「能缩放」**反证解除** |
+  | QA 查出的 F1/F2/F3 | 分别由 T-170 / T-171 / T-172 关闭（含 U11 由 T-173） |
+
+- **余项分流（不并进本单，已逐处挂号）**：① **C-5 缩放后描边/缝隙随缩** → backlog 行（art 轨拍板，改后按 K-051 差分复算）；② **三个相机占位值 + F3-b 底线**（`BOARD_FIT_MARGIN=24` / `CAMERA_ZOOM_MAX_SPAN=2.5` / `BOARD_TAP_MOVE_THRESHOLD=8`）→ backlog 行归 §3 变更单（需 playtest 或用户给值，本批不伪冻结）；③ **pinch-focal 锚定**（现为中心缩放占位）→ 同属②的 playtest 项；④ **zoom≠1 棋盘命中真机 P0**（QA §A4c 真机 ⛔ 5 条）→ 已列入本节上方「真机首验包 P1-8」；⑤ GRID_MAX 扩容与图鉴宫格规格 → **设计轨** T-167（前置 Q1/Q2）。
+- **本批同时清偿 F3-c**（T-172 当时选择「下一批顺带」）：`ADR-0015` 头部状态行原写「未改判据前棋盘区捏合不施工；本文仍不落码」——前置已解除、Z1–Z6 已入库，该字面已过期；现校正为「Accepted 且已施工落地」并保留裁定沿革与仍开放项。**代码零改动**（本批只改文档与台账）。
+- **本批门禁与沉淀**：根 `verify` **17/17 PASS**（逐项不短路；含 `check:tasks` / `check:links` / `ctx:check` / `framework:sync:check` / test / `cocos:check` / `check:size`）。**诚实登记一次瞬时红**：首跑 `check:links` ❌，单跑同一命令即绿（skills 33 → **36**），真因 = **并发会话正在新建三个 skill**（`my-skills/wxgame-story-dev` / `wxgame-story-gate` / `wxgame-balance-check` + 四 IDE 链接，均为未跟踪文件），与本批零交集 ⇒ 取「复跑后绿」的 17/17 为本批证据（判例 K-045 并发竞写：共享门禁上的红要先分清是不是自己的）。**本批未跑新测试**（零代码改动，沿用 HEAD 现有 496 例绿底）。`kb:sync --task=WXG-T-166` 沉淀统计：**新增 1（K-057 [流程]「立项单」与「ADR 状态行」都不会被实施它们的另一张单自动收口，核销时要成对扫）/ 修改 0 / 激活 0 / 归档 0**；`kb:audit` 无归档候选、无相似命中（活跃 57 / 归档 0）；`ctx:build` 已刷索引面。**未提交**（沿用户口径：先看改动）。**遗留未清（用户本批未选）**：T-169 主表行尾仍写「⚠ QA 查出 F1 待修」（F1 已由 T-170 关），F3-a（ADR §3.4 快照口径）继续挂 backlog。
 
 ---
 
