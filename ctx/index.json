@@ -198,17 +198,17 @@
     },
     {
       "path": "apps/beads-studio/README.md",
-      "tokens": 1744,
-      "lines": 93,
-      "sha256": "0285dbf3ed17f17cf5ed05789da4dee9217a7995a9ef33cf1385a5fa9bba7d41",
+      "tokens": 2211,
+      "lines": 110,
+      "sha256": "de8c34e69acacd828de60d8db7c693a10567e5bdfb7e6d203598aa6a27b25b8e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads-studio · 照片转拼豆在线生成器（WXG-T-179 续作）",
           "level": 1,
           "startLine": 1,
-          "endLine": 94,
-          "tokens": 1723,
+          "endLine": 111,
+          "tokens": 2189,
           "summary": "上传照片 → 量化到拼豆色板 → 配色平衡 → 交换法错位 → 关卡草案 JSON（预览 + 归类存储 + 小游戏在线导",
           "keywords": [
             "beads",
@@ -235,8 +235,8 @@
           "level": 2,
           "startLine": 15,
           "endLine": 26,
-          "tokens": 171,
-          "summary": "POST /api/generate?cols=&rows=&w=&h=&board=&shape=&palette=&",
+          "tokens": 246,
+          "summary": "POST /api/generate?cols=&rows=&board=&shape=&palette=&colors",
           "keywords": [
             "API",
             "POST",
@@ -247,10 +247,26 @@
           ]
         },
         {
-          "anchor": "§VPS 发布",
+          "anchor": "§默认值 = 推荐值（前端预选，每项 label 已标注）",
           "level": 2,
           "startLine": 27,
-          "endLine": 67,
+          "endLine": 43,
+          "tokens": 370,
+          "summary": "盘面档位 standard29（29×29） 5mm Midi 标准方盘（systems-index §3.3 上限 2",
+          "keywords": [
+            "§3.3",
+            "label",
+            "standard29",
+            "Midi",
+            "systems",
+            "index"
+          ]
+        },
+        {
+          "anchor": "§VPS 发布",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 84,
           "tokens": 712,
           "summary": "",
           "keywords": [
@@ -261,8 +277,8 @@
         {
           "anchor": "§路径 A：一键脚本（不需先配 CI，不需本机装 Docker）",
           "level": 3,
-          "startLine": 29,
-          "endLine": 40,
+          "startLine": 46,
+          "endLine": 57,
           "tokens": 141,
           "summary": "镜像构建发生在 VPS 上，本机只做 rsync + ssh：",
           "keywords": [
@@ -277,8 +293,8 @@
         {
           "anchor": "§路径 B：GitHub Actions 自动发布（**只在 develop → master 合入时**）",
           "level": 3,
-          "startLine": 41,
-          "endLine": 53,
+          "startLine": 58,
+          "endLine": 70,
           "tokens": 299,
           "summary": "1. repo Variables：BEADS_STUDIO_DEPLOY=true（未配 ⇒ workflow 自动跳",
           "keywords": [
@@ -293,8 +309,8 @@
         {
           "anchor": "§本机验镜像（需本地 Docker）",
           "level": 3,
-          "startLine": 54,
-          "endLine": 67,
+          "startLine": 71,
+          "endLine": 84,
           "tokens": 211,
           "summary": "",
           "keywords": [
@@ -306,8 +322,8 @@
         {
           "anchor": "§国内 VPS 实战坑（已踩定）",
           "level": 2,
-          "startLine": 68,
-          "endLine": 88,
+          "startLine": 85,
+          "endLine": 105,
           "tokens": 429,
           "summary": "1. 拉不到 Docker Hub（auth.docker.io 超时）⇒ 不要改 daemon.json 重启 doc",
           "keywords": [
@@ -322,8 +338,8 @@
         {
           "anchor": "§小游戏导入（WXG-T-179 Phase 4）",
           "level": 2,
-          "startLine": 89,
-          "endLine": 94,
+          "startLine": 106,
+          "endLine": 111,
           "tokens": 168,
           "summary": "小游戏侧「调试导入入口」输入本服务地址（http://<IP>:8787 或域名），拉 /api/results 列表 ",
           "keywords": [
@@ -341,7 +357,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "54ac5de9642167d434b2ecd75095ec1210b0522faa5aa80690683a76cdf046a9",
+      "sha256": "09cb5afedab89c20924d08567c3312f612eb6a32e26c0f081b2705472f687b38",
       "tier": "normal",
       "sections": [
         {
@@ -618,7 +634,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4647,
       "lines": 82,
-      "sha256": "94343d81f21846490ab95e74e21689d63a8e2fffab23ca96dbad55fcb4347cac",
+      "sha256": "bc259505ab82c0c9f4f986f16611df403f9ba83ee4c0dc10fba005fb4fd97654",
       "tier": "normal",
       "sections": [
         {
@@ -909,12 +925,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 720 行 / 39990 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 727 行 / 40743 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 362,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+721 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+728 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -54232,17 +54248,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 39990,
-      "lines": 720,
-      "sha256": "565fb8b2461cb2e4ec8e8b011594fb9d0c4ccbc8e892beb4df7fe4109558e8e9",
+      "tokens": 40743,
+      "lines": 727,
+      "sha256": "46910a6e07e90020d5233b1b3209a1367ae40888e914ce3d7cd28621baedd1a4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 721,
-          "tokens": 39974,
+          "endLine": 728,
+          "tokens": 40726,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -54554,8 +54570,8 @@
           "anchor": "§WXG-T-179",
           "level": 2,
           "startLine": 608,
-          "endLine": 662,
-          "tokens": 4655,
+          "endLine": 669,
+          "tokens": 5407,
           "summary": "beads·照片转拼豆生成器 spike（调色板 / 限色 / 聚集 调优 + ADR-0016） · 负责：主理人(C",
           "keywords": [
             "WXG",
@@ -54568,8 +54584,8 @@
           "anchor": "§续作（Qoder · 2026-09-20）：beads-studio 在线生成器 + 小游戏导入",
           "level": 3,
           "startLine": 626,
-          "endLine": 662,
-          "tokens": 3510,
+          "endLine": 669,
+          "tokens": 4262,
           "summary": "用户要求：「简单的后端服务和前端页面，能生成 + 展示 + 归类本地存储结果；最好能小程序一键导入」。两项拍板（AskU",
           "keywords": [
             "Qoder",
@@ -54583,8 +54599,8 @@
         {
           "anchor": "§WXG-T-180",
           "level": 2,
-          "startLine": 663,
-          "endLine": 684,
+          "startLine": 670,
+          "endLine": 691,
           "tokens": 1406,
           "summary": "beads·盘面规格档位落档（29×29 标准方形盘）+ 29×29 MVP 三关草案 · 负责：主理 人(CodeBu",
           "keywords": [
@@ -54597,8 +54613,8 @@
         {
           "anchor": "§WXG-T-181",
           "level": 2,
-          "startLine": 685,
-          "endLine": 708,
+          "startLine": 692,
+          "endLine": 715,
           "tokens": 1224,
           "summary": "beads·大盘 zoom 自适应 LOD 立项（ADR-0017，处置 §3.3 v1.34 的风险 1） · 负责：",
           "keywords": [
@@ -54613,8 +54629,8 @@
         {
           "anchor": "§WXG-T-183",
           "level": 2,
-          "startLine": 709,
-          "endLine": 721,
+          "startLine": 716,
+          "endLine": 728,
           "tokens": 905,
           "summary": "beads·board 锚直填消费序改写（选豆点固定 + 同序配对） · 负责：主理人(Qoder) · 状态：✅ 完成",
           "keywords": [

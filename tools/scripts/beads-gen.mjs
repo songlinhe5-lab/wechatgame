@@ -164,34 +164,43 @@ const BOARD_PRESETS = {
 };
 
 /**
- * 异形盘掩码：形状**外**的格置 0（空位）⇒ rowstring 写空位符（引擎已有语义：不可填、不计完成）。
- * 归一化坐标 (u,v) ∈ [-1,1]²（v 向上），按**格心**判定；inset 让形状略小于盘面以贴合真实盘边框。
+ * 异形盘掩码：`1` = 形状内（可填），`0` = 形状外（空位 ⇒ rowstring 写空位符，引擎已有语义：不可填、不计完成）。
+ * 归一化坐标 (u,v) ∈ [-1,1]²（v 向上）：
  *   · circle: u²+v² ≤ r²
  *   · hex   : 尖顶正六边形 —— max(|v|, 0.866·|u| + 0.5·|v|) ≤ r
- *   · heart : (u²+v²−1)³ − u²·v³ ≤ 0（v 向上 ⇒ 心尖朝下）
+ *   · heart : (u²+v²−1)³ − u²v³ ≤ 0（v 向上 ⇒ 心尖朝下）
+ *
+ * 两处“缺漏”修正（用户 2026-09-20：“拼豆要铺满整个形状”）：
+ * ① 不再默认内缩（旧 `inset = 0.02` 把半径削到 98% ⇒ 盘子边缘一整圈空位）；
+ * ② 旧口径只测**格心** ⇒ 一半在形状内的格被判空，轮廓呈阶梯缺角。
+ *   现按“**格的中心或任一角在形状内即保留**”（5 点采样），铺满到边界；形状外仍为 void。
  * @returns {Uint8Array} 1 = 在形状内（可参与棋盘）
  */
-function shapeMask(cols, rows, shape, inset = 0.02) {
+function shapeMask(cols, rows, shape, inset = 0) {
   const mask = new Uint8Array(cols * rows);
   const r = 1 - inset;
+  const du = 1 / cols; // 归一化空间下半格的宽/高（u,v ∈ [−1,1]）
+  const dv = 1 / rows;
+  const inside = (u, v) => {
+    if (shape === 'circle') return u * u + v * v <= r * r;
+    if (shape === 'hex') return Math.max(Math.abs(v), 0.8660254 * Math.abs(u) + 0.5 * Math.abs(v)) <= r;
+    if (shape === 'heart') {
+      const uu = u / r, vv = v / r, t = uu * uu + vv * vv - 1;
+      return t * t * t - uu * uu * vv * vv * vv <= 0;
+    }
+    return true; // 未知形状 ⇒ 不裁剪
+  };
   for (let y = 0; y < rows; y++) {
     const v = 1 - ((y + 0.5) / rows) * 2; // 行 y 自上而下 ⇒ v 自 +1 到 −1（与 rowstring 首行在上一致）
     for (let x = 0; x < cols; x++) {
       const u = ((x + 0.5) / cols) * 2 - 1;
-      let inside = false;
-      if (shape === 'circle') {
-        inside = u * u + v * v <= r * r;
-      } else if (shape === 'hex') {
-        inside = Math.max(Math.abs(v), 0.8660254 * Math.abs(u) + 0.5 * Math.abs(v)) <= r;
-      } else if (shape === 'heart') {
-        const uu = u / r;
-        const vv = v / r;
-        const t = uu * uu + vv * vv - 1;
-        inside = t * t * t - uu * uu * vv * vv * vv <= 0;
-      } else {
-        inside = true; // 未知形状 ⇒ 不裁剪
+      if (
+        inside(u, v) ||
+        inside(u - du, v - dv) || inside(u + du, v - dv) ||
+        inside(u - du, v + dv) || inside(u + du, v + dv)
+      ) {
+        mask[y * cols + x] = 1;
       }
-      if (inside) mask[y * cols + x] = 1;
     }
   }
   return mask;

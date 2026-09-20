@@ -16,13 +16,30 @@ node apps/beads-studio/server.mjs          # → http://localhost:8787
 
 | 方法/路径 | 说明 |
 |---|---|
-| `POST /api/generate?cols=&rows=&w=&h=&board=&shape=&palette=&colors=&colorsmode=&swaps=&smooth=&noframe=` | body = RGBA 原始字节（前端 `getImageData().data`，≤2048²）；返回 result.json |
-| `GET /api/results` | 结果列表（按盘面分组、时间倒序）——**小游戏在线导入同源** |
+| `POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&smooth=&noframe=` | body = JSON `{w, h, data: base64(RGBA), thumb?: dataURL}`（≤2048²，图片由前端本地解像，**不上传原文件**；`thumb` 随结果存盘供「原图」视图回看）；返回 result.json |
+| `GET /api/results` | 结果列表（按盘面分组、时间倒序）——**小游戏在线导入同源**；只回**轻投影**（元数据 + `hasThumb`，不含 pattern/缩略图，避免随条数膨胀），点条目时再取单条全量 |
 | `GET /api/results/:id` | 单个 result.json |
 | `GET /api/results/:id/level` | 直接回 levelDraft（小游戏字段最少化） |
 | `GET /` | 静态页 |
 
 存储：`apps/beads-studio/data/<board>/<id>/result.json`（运行时数据，已 gitignore）。
+
+## 默认值 = 推荐值（前端预选，每项 label 已标注）
+
+| 参数 | 推荐 | 为何 |
+|---|---|---|
+| 盘面档位 | **standard29（29×29）** | 5mm Midi 标准方盘（`systems-index §3.3` 上限 29/29）。⚠️ ADR-0018：**29×29 = 设计档**（可装配不可发布），要出可玩关卡选 14×14 / 18×18 |
+| 色板 | 游戏 10 色 | 产物色值可直接入关（Artkal 真值需先接 ADR-0016 戊案） |
+| 用色上限 | **8** | = `BEAD_COLOR_MAX`（超了就过不了 BOOT） |
+| 交换错位 k | **8** | = `MISPLACED_PAIRS_MAX`（错位 16 颗） |
+| 众数滤波 | 1 | 去噪同时保住轮廓 |
+| 选色模式 | 误差最小 | 实测保形优于频次优先 |
+| 铺满整盘 | **勾选** | 不扣背景 ⇒ 整盘可填无缺漏（取消则四边框主色被当背景挖空） |
+
+盘面形状只分两档：**长方形** / **非长方形**（选中后者再出圆/六边/心的轮廓子选）。
+非长方形由 `beads-gen::shapeMask` 保证**形状内铺满无空洞**：不再默认内缩（旧 `inset=0.02` 会挖掉边缘一圈），
+且改为“格的中心或任一角在形状内即保留”（旧口径只测格心 ⇒ 半格被判空，轮廓阶梯缺角）。
+实测 29×29 圆形：形状内 705 格、空洞 0、形状外误铺 0。
 
 ## VPS 发布
 

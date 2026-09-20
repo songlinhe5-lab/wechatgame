@@ -7,7 +7,9 @@
  *
  * API：
  *   POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&noframe=
- *        body = 源图 RGBA 原始字节（前端 canvas getImageData().data；尺寸由 ?w=&h= 给出，≤2048）
+ *        body = JSON `{ w, h, data: base64(RGBA), thumb?: dataURL }`
+ *        图片由前端 canvas 本地解像（不上传原文件）；`thumb` = ≤256px JPEG 缩略图，
+ *        **随结果存盘** ⇒ 历史条目也能回看原图（只存在前端内存里刷新/切条目就丢）。
  *   GET  /api/results         → 结果列表（按盘面分组、时间倒序）
  *   GET  /api/results/:id     → 单个 result.json（小游戏在线导入用）
  *   GET  /api/results/:id/level → 直接回 levelDraft（小游戏字段最少化）
@@ -106,7 +108,9 @@ function runGen(rawPath, outDir, params) {
     });
 }
 
-/** 列出 data/ 下全部 result.json（按 createdAt 倒序）。 */
+/** 列出 data/ 下全部 result.json（按 createdAt 倒序）。
+ *  只回**轻投影**（不含 thumb / levelDraft / misplaced / report）：列表要同时给前端与小游戏拉，
+ *  携带 pattern 与缩略图会随条数线性膨胀；点条目时再 `GET /api/results/:id` 取全量。 */
 function listResults() {
     if (!existsSync(DATA)) return [];
     const out = [];
@@ -115,7 +119,11 @@ function listResults() {
         for (const id of readdirSync(dir)) {
             try {
                 const r = JSON.parse(readFileSync(join(dir, id, 'result.json'), 'utf8'));
-                out.push(r);
+                out.push({
+                    id: r.id, board: r.board, cols: r.cols, rows: r.rows, shape: r.shape,
+                    palette: r.palette, colors: r.colors, swaps: r.swaps, createdAt: r.createdAt,
+                    hasThumb: !!r.thumb,
+                });
             } catch {
                 /* 跳过损坏条目 */
             }
@@ -132,14 +140,26 @@ async function handleGenerate(req, res, url) {
     const q = url.searchParams;
     const cols = Math.min(107, Math.max(2, parseInt(q.get('cols') || '14', 10)));
     const rows = Math.min(107, Math.max(2, parseInt(q.get('rows') || '14', 10)));
-    const body = await readBody(req);
-    const w = Math.max(1, parseInt(q.get('w') || '0', 10));
-    const h = Math.max(1, parseInt(q.get('h') || '0', 10));
-    if (!w || !h || w * h > MAX_PIXELS) {
-        return sendJson(res, 400, { error: `?w=&h= 缺失或超限（≤2048×2048）` });
+    // body = JSON { w, h, data: base64(RGBA), thumb? }（缩略图只存不管生成，供前端三视图回看）
+    let payload;
+    try {
+        payload = JSON.parse((await readBody(req)).toString('utf8'));
+    } catch (e) {
+        return sendJson(res, 400, { error: `body 需为 JSON {w,h,data:base64(RGBA)}：${e.message}` });
     }
-    if (body.length < w * h * 4) {
-        return sendJson(res, 400, { error: `body 长度 ${body.length} < ${w}×${h}×4（须为 RGBA 原始字节）` });
+    const w = Math.max(1, parseInt(payload.w || 0, 10));
+    const h = Math.max(1, parseInt(payload.h || 0, 10));
+    if (!w || !h || w * h > MAX_PIXELS) {
+        return sendJson(res, 400, { error: `w/h 缺失或超限（≤2048×2048）` });
+    }
+    const b64 = typeof payload.data === 'string' ? payload.data : '';
+    const rgba = Buffer.from(b64, 'base64');
+    if (rgba.length < w * h * 4) {
+        return sendJson(res, 400, { error: `data 解码后 ${rgba.length} 字节 < ${w}×${h}×4（需 RGBA base64）` });
+    }
+    const thumb = typeof payload.thumb === 'string' && payload.thumb.startsWith('data:image/') ? payload.thumb : null;
+    if (thumb && thumb.length > 300_000) {
+        return sendJson(res, 400, { error: `thumb 过大（${thumb.length} 字符，上限 300k）` });
     }
     const board = q.get('board') || `${cols}x${rows}`;
     if (!ID_RE.test(board)) return sendJson(res, 400, { error: 'board 仅允许 [a-z0-9-]' });
@@ -147,7 +167,8 @@ async function handleGenerate(req, res, url) {
     const outDir = join(DATA, board, id);
     mkdirSync(outDir, { recursive: true });
     const rawPath = join(outDir, 'raw.json');
-    writeFileSync(rawPath, JSON.stringify({ w, h, data: body.toString('base64') }));
+    // 前端已按 cols×K × rows×K 平滑缩放到 w×h ⇒ 直接透传 base64，不再解码重编码
+    writeFileSync(rawPath, JSON.stringify({ w, h, data: b64 }));
     const params = {
         cols,
         rows,
@@ -176,6 +197,7 @@ async function handleGenerate(req, res, url) {
         colors: pattern.report?.colorsUsed ?? params.colors,
         swaps: params.swaps,
         createdAt: new Date().toISOString(),
+        thumb, // 原图缩略图（dataURL）；**仅存单条详情**，不进列表投影
         levelDraft: pattern.levelDraft ?? null,
         misplaced: pattern.misplaced, // 全错位参考盘（仅 swaps=0 时为真实初始盘）
         report: pattern.report ?? null,
