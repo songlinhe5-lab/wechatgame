@@ -652,7 +652,9 @@
   - **发布链接通（用户选「推 develop + 开 PR」与「整批 develop→master」）**：提交 `1fc4be2`（beads-studio 全部交付，35 文件）已推 develop，PR **#4** = develop → master。
     过程中发现并处理三事：① **GitHub Variables 实际为空**（用户以为配好了；`gh variable list` 核实后由本会话补建三条，Secrets `SSH_*` 已就位）；② PR 初始 `mergeable_state=dirty`——上次同步（PR #3）用了 **squash**，导致本次全域冲突 ⇒ 在 develop 上 `git merge -X ours origin/master` 反向吸收（合并提交 `4efc511`，合并树与 develop 顶点 **零差异**）；③ `-X ours` 后核树抓到一处**静默重复定义**（`check-context-budget.mjs` 出现两个 `checkStagedFreshness`）与 `ctx/index.json` 陈旧 447 行 ⇒ 两文件取 develop 侧 + 重新生成。以上沉淀为 **K-066**（`[工具链]` 片 —— 讲的是 git/CI 同步链；原拟归 `[流程]` 会顶破该片 8000 上限，改归其真实域）。
     另：CI 健康检查改为**走 VPS 回环**（安全组未放行时公网 curl 会误判为红）；workflow 触发收窄为**只挂 master** + `workflow_dispatch`，并声明 `environment: production`（可选人审）。
-- **待办（本单遗留，均属环外）**：① **合并 PR #4**（合并即自动发布到 VPS；本会话不代点合并）；② 腾讯云控制台放行 **TCP 8787** 入站（或直接用 SSH 隧道，命令见 README）；③ 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；④ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物不可直接入关）；⑤ **develop→master 以后固定用 merge commit**，不要再 squash（K-066）。
+  - **CI 发布已实跑通（PR #4 合并后）**：合并产生 master push ⇒ `beads-studio-deploy` 自动触发。首跑 **失败**：`Permission denied (publickey)` —— 排查到 TCP 已到 sshd（非安全组问题）⇒ 是 **`SSH_KEY` secret 内容坏了**（UI 粘贴丢行尾换行的典型形态）。用已验证可用的私钥 `gh secret set SSH_KEY --body "$(cat <key>; echo)"` 重写三条后 `gh run rerun --failed` ⇒ **deploy ✓ 58s、健康检查 `OK（回环）`**、VPS 上 `curl 127.0.0.1:8787/api/results` = 200。教训入 workflow 注释。
+  - **同批踩到并修掉两处流程债**：① master 的 `commit-lint` 被我**跑红**——squash 合并的提交标题 = PR 标题，而 `release: …` 不是合法 type ⇒ 规则文档 §4.1 补「PR 标题也要过 commitlint，同步类固定 `chore(release): …`」；② PR #4 **又是 squash** ⇒ `master` 上再次出现与 develop 无血缘的提交（K-066 当场复发）⇒ 已按规则做**反向吸收**（合并提交，树与吸收前 **零差异**、master 恢复为 develop 祖先），并把「合并后立刻反向吸收」的四行命令写进 `docs/ci/commit-and-review-rules.md §4.1`。
+- **待办（本单遗留，均属环外）**：① 腾讯云控制台放行 **TCP 8787** 入站（**当前实测公网仍 000**，服务在 VPS 内正常；不开端口就用 README 的 SSH 隧道，已实测可用）；③ 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；④ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物不可直接入关）；⑤ **develop→master 以后固定用 merge commit**，不要再 squash（K-066）。
 
 ---
 
