@@ -86,6 +86,8 @@ function runGen(rawPath, outDir, params) {
             '--colorsmode', params.colorsmode,
             '--swaps', String(params.swaps),
             '--smooth', String(params.smooth),
+            // 错位模式：full = 全盘错位（成片错豆，引擎 misplaced 初盘）/ swaps = k 对交换
+            '--mis', params.mis,
         ];
         if (params.shape && params.shape !== 'square') args.push('--shape', params.shape);
         if (params.colors > 0) args.push('--colors', String(params.colors));
@@ -121,7 +123,7 @@ function listResults() {
                 const r = JSON.parse(readFileSync(join(dir, id, 'result.json'), 'utf8'));
                 out.push({
                     id: r.id, board: r.board, cols: r.cols, rows: r.rows, shape: r.shape,
-                    palette: r.palette, colors: r.colors, swaps: r.swaps, createdAt: r.createdAt,
+                    palette: r.palette, colors: r.colors, swaps: r.swaps, misMode: r.misMode || 'swaps', createdAt: r.createdAt,
                     hasThumb: !!r.thumb, importable: r.importable === true,
                 });
             } catch {
@@ -148,8 +150,10 @@ const ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
  */
 function importBlockers(r) {
     const b = [];
-    if (!r.levelDraft) b.push('无关卡草案：交换错位 k 必须 ≥ 1（`MISPLACED_PAIRS_MIN`）');
-    if (r.swaps > 8) b.push(`交换对数 ${r.swaps} > 8（\`MISPLACED_PAIRS_MAX\`）`);
+    const full = r.misMode === 'full';
+    if (!r.levelDraft) b.push('无关卡草案（全盘错位需满足主导色 ≤ 可填半数；交换模式需 k ≥ 1）');
+    if (!full && r.swaps > 8) b.push(`交换对数 ${r.swaps} > 8（\`MISPLACED_PAIRS_MAX\`）`);
+    if (full && r.levelDraft && !Array.isArray(r.levelDraft.misplaced)) b.push('全错位模式但草案缺 misplaced 字段');
     if (r.colors < 3) b.push(`用色 ${r.colors} < 3（BOOT 下限）`);
     if (r.colors > 8) b.push(`用色 ${r.colors} > 8（\`BEAD_COLOR_MAX\`）`);
     if (r.palette !== '10') b.push(`色板为 ${r.palette}（非游戏 10 色真源）⇒ 导入不会报错，但会按色号换成游戏珠色（静默换色）`);
@@ -198,10 +202,12 @@ async function handleGenerate(req, res, url) {
         palette: q.get('palette') || '10',
         colors: parseInt(q.get('colors') || '0', 10),
         colorsmode: q.get('colorsmode') || 'error',
-        swaps: Math.max(0, parseInt(q.get('swaps') || '0', 10)),
+        swaps: Math.max(0, parseInt(q.get('swaps') || '8', 10)),
         smooth: Math.max(0, parseInt(q.get('smooth') || '1', 10)),
         noframe: q.get('noframe') === '1',
+        mis: q.get('mis') === 'swaps' ? 'swaps' : 'full',
     };
+    if (params.mis === 'swaps' && params.swaps < 1) params.swaps = 1; // 交换模式下 k≥1
     let pattern;
     try {
         pattern = await runGen(rawPath, outDir, params);
@@ -217,7 +223,8 @@ async function handleGenerate(req, res, url) {
         shape: params.shape,
         palette: params.palette,
         colors: pattern.report?.colorsUsed ?? params.colors,
-        swaps: params.swaps,
+        swaps: params.mis === 'swaps' ? params.swaps : 0,
+        misMode: params.mis,
         createdAt: new Date().toISOString(),
         thumb, // 原图缩略图（dataURL）；**仅存单条详情**，不进列表投影
         levelDraft: pattern.levelDraft ?? null,

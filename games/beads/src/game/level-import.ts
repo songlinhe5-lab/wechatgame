@@ -22,6 +22,11 @@ export interface LevelDraft {
     readonly decoys?: readonly string[];
     readonly swaps?: readonly (readonly [number, number, number, number])[];
     readonly pattern: readonly string[];
+    /**
+     * 全错位初盘（可选，`--mis full` 产物）：rowstring，字符集同 pattern。
+     * 引擎侧 `applyMisplacedToGrid` 见 misplaced 优先、忽略 swaps ⇒ 带上就成片错豆（100% 可填格）。
+     */
+    readonly misplaced?: readonly string[];
     readonly paletteHex?: readonly string[];
 }
 
@@ -74,6 +79,7 @@ export function draftToLevel(draft: LevelDraft, id: number, name: string): Impor
         decoys: draft.decoys ?? [],
         pattern: draft.pattern,
         swaps,
+        ...(draft.misplaced ? { misplaced: draft.misplaced } : {}),
     };
     // k 区间 / 交换对合法性 / 色数 / charset 全由 validateBeadsLevel 统一裁决（不在此重复）。
     const errors = validateBeadsLevel(level);

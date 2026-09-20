@@ -668,6 +668,11 @@
   - 修法定单一真源：`server.mjs::importBlockers()` 写盘时算 `importable/blockers` ⇒ 前端结果卡与列表项标红 + `GET /api/results/:id/level` 对不合规产物 **422 + 原因**；`importLatest` 将原因**原样透传**（不降级成“无 levelDraft”），新增1 例单测钉住；色板选 Artkal 时用色域放开、选回游戏 10 色时**夹回 3–8**。
   - 两个参数关系一并实测入文档：**k 与用色数无关**（6×5 小盘 + 3 色 + k=8 仍配对达标；真配不满则 `der.ok=false` 非零退出 → 422，不静默出坏盘）；**smooth 经验值**：29×29 类照片 0/1/2/3 → 相邻率 0.891/0.896/0.899/0.899、色差 78.7/79.3/79.7/79.7 ⇒ 剪影图 0–1、照片 1、要整块同色才试 2（3 已收敛）。
   - 取证：`temp/studio-uicheck.mjs` 新增四断言（夹域、红标文案、/level 422+blockers、Artkal 域放开）均绿；屏幕层整套 18 条断言全绿。`beads-mvp-patterns.mjs` 手工作图不走这套采样 ⇒ 滤波/选色模式对其无意义（已写进 README防误用）。
+- **错位密度模式（用户反馈“错位豆基本很少，要成片错豆”）**：根因不是算法错，而是面板只给了 **k 对交换**这一条路 —— 29×29 盘 k=8 仅 16 颗错位（实测占 348 可填格 = **4.6%**），其余全就位 ⇒ 看着像没打乱。接上引擎已有的 **`misplaced` 全错位初盘**（入库 8 关用的就是它，`applyMisplacedToGrid` misplaced 优先、`validateMisplacedGrid` 校轮廓/守恒/错位≥1）：
+  - `beads-gen` 新增 `--mis full|swaps`（默认：给了 `--swaps` 就 swaps，否则 full）；full 模式 `levelDraft` 带 `misplaced`、`swaps: []`、`cycleProfile=long`。
+  - **一个静默错东西的坑当场堵在构造前**：若 `--mis full` 同时带 `--swaps 8`，旧写法 `der = sw ? 交换 : derange()` 仍会走交换 ⇒ 拿到的还是 2k 颗。现把 `misMode` 提到 `swapsK` 之前定，full 模式强制 `swapsK = 0`。
+  - 链路打通：`server.mjs` 收 `?mis=`（默认 full）并透传 `--mis`；`importBlockers()` 改为**按模式判**（full 不受 `MISPLACED_PAIRS_MAX=8` 约束，但校验草案确实带 `misplaced`）；`level-import.ts::draftToLevel` 恢复 `misplaced` 透传；面板新增「错位密度」二档（全错位默认 / 少量交换才出 k 输入）。
+  - 实测：full = **348/348 = 100%** 可填格错位（屏幕层 705/705）vs swaps = 16/348 = 4.6%；新单测 1 例（草案带 misplaced ⇒ 原样透传且过 BOOT）；屏幕层取证新增 3 条断言（全错位密度、`/level` 200 不被 k≤8 拦、“少量交换”才出 k）均绿，整套 22 条全绿。可玩性提示已写进 README：密集全错位盘靠 board 直填周转（G-3 结论），真机手感待走查。
 - **公网放行已完成（2026-09-20 用户操作 + 本会话复核）**：CVM `ins-bnj9hmh3`（ap-beijing，`product_name=CVM` ⇒ 走安全组而非轻量防火墙）加 TCP 8787 入站后，**公网端到端全绿**：
   `GET /` = 200 → `POST /api/generate`（96×96 RGBA）得 `small14-1789910083144-e64a` → `GET /api/results/:id/level` 字段完整（14×14 / pattern 14 行 / swaps 6 对 / `cycleProfile=short` ⇒ 生产端修复已随发布上线）→ 过本仓 `draftToLevel` + `validateBeadsLevel` **通过 ✓**（时长按 k 定价 = 270s）。
 - **待办（本单遗留，均属环外）**：① 若以后要**真机**导入：手机出口 IP 与本机不同，限源规则需放开到 `0.0.0.0/0`（本服务无鉴权，自行权衡）或改用 SSH 隧道；③ 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；④ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物不可直接入关）；⑤ **develop→master 以后固定用 merge commit**，不要再 squash（K-066）。

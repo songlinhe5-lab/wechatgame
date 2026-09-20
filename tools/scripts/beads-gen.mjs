@@ -961,8 +961,16 @@ const allowSet = limit.kept.length ? new Set(limit.kept) : null;
 const { changed, note } = balance(solved, allowSet); // 就地改 solved（正确解受平衡约束）
 const h1 = hist(solved);
 const errFinal = meanColorErr(solved, avg); // 全部处理之后的最终色差 = **形状保真度**（越小越像原图）
-// 错位构造二选一：`--swaps K` ⇒ 游戏口径的 k 对异色交换（可玩）；否则全盘错位（仅验证破碎度）
-const swapsK = Math.max(0, parseInt(arg('swaps', '0'), 10));
+// 错位模式（`--mis full|swaps`；默认：给了 `--swaps K` 就 swaps，否则 full）。
+// ⚠ 模式必须在**构造之前**定：否则 `--mis full` 遇上 `--swaps 8` 仍会走交换法，
+//    得到的只是 2k 颗错位（不是全盘错位）—— 静默给错东西。
+const misMode = arg('mis', parseInt(arg('swaps', '0'), 10) > 0 ? 'swaps' : 'full');
+if (misMode !== 'full' && misMode !== 'swaps') {
+  console.error(`⚠️ --mis 只支持 full / swaps，收到 "${misMode}"`);
+  process.exit(3);
+}
+// 错位构造二选一：swaps ⇒ 游戏口径的 k 对异色交换（仅 2k 颗错位）；full ⇒ 全盘错位（每颗都不就位）。
+const swapsK = misMode === 'swaps' ? Math.max(0, parseInt(arg('swaps', '0'), 10)) : 0;
 const sw = swapsK > 0 ? buildSwaps(solved, swapsK) : null;
 const der = sw
   ? {
@@ -989,22 +997,32 @@ const json = {
   time: null,
   cycleProfile: 'long',
   pattern: toRowStrings(solved), // 正确解（= 每格底色）
-  // 游戏关卡草案（`levels-spec §2` 字段；`swaps` 为游戏口径的错位构造，4 元组 [r1,c1,r2,c2]）
-  levelDraft: sw
-    ? {
+  // 错位模式（`--mis full|swaps`，定法见上方 swapsK 处）：
+  //   · full  = **全盘错位初盘**（每颗可填珠都不就位，成片错豆）⇒ 走 `misplaced` 字段
+  //             （引擎 v1.3 起支持，入库 8 关用的就是它）；前提 = `der.ok`（Hall 条件
+  //             maxFreq ≤ N/2，`balance()` 已强制）。
+  //   · swaps = 游戏口径的 k 对异色交换 ⇒ 只有 2k 颗错位（29×29 盘上 k=8 仅占 ≈2%）。
+  // 两模式互斥：引擎侧 `applyMisplacedToGrid` 见 misplaced 优先、忽略 swaps。
+  levelDraft: (() => {
+    const mis = misMode;
+    const ok = mis === 'swaps' ? !!sw : der.ok;
+    if (!ok) return null; // full 模式下 der.ok=false 已在自检处非零退出，这里只堆防空跑
+    return {
       cols,
       rows,
       time: null,
       // 交换法构造的两两互换 = **恒为 2-环** ⇒ `short`（旧写 'long' 会被 BOOT 的
       //   validateSwaps「cycleProfile=long 与实际最长环 2 矛盾」直接拒收，2026-09-20 E2E 实测）。
-      cycleProfile: 'short',
+      //   全盘错位走循环左移 ⇒ 长环，且 misplaced 模式下 swaps 不参与校验。
+      cycleProfile: mis === 'swaps' ? 'short' : 'long',
       decoys: [],
-      swaps: sw.swaps,
+      swaps: mis === 'swaps' ? sw.swaps : [],
+      ...(mis === 'full' ? { misplaced: toRowStrings(der.misplaced) } : {}),
       pattern: toRowStrings(solved),
       // pattern 里的字符 1..N 对应的**实际色值**（本单用 Artkal；换游戏 10 色板时按此对齐色号）
       paletteHex: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => palHex[c - 1]),
-    }
-    : null,
+    };
+  })(),
   misplaced: toRowStrings(der.misplaced), // 初始全错位局面（引擎现从 swaps 装配，此处直存供人核）
   report: {
     fillable: fillN, voidCells: bgRemoved, colorsUsed,

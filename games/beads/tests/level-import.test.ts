@@ -60,6 +60,18 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         expect(r.level!.cycleProfile).toBe('short');
     });
 
+    it('草案带 misplaced（全错位初盘）⇒ 原样透传；引擎优先读它，不受 k≤8 约束', () => {
+        const pattern = ['123123', '123123', '123123', '123123', '123123'];
+        const misplaced = ['312312', '312312', '312312', '312312', '312312']; // 逐格错开、每色守恒
+        const r = draftToLevel(
+            { cols: 6, rows: 5, time: null, pattern, swaps: [], misplaced } as unknown as LevelDraft,
+            9100, '全错位',
+        );
+        expect(r.errors).toEqual([]);
+        expect(r.level!.misplaced).toEqual(misplaced);
+        expect(r.level!.swaps.length).toBe(0);
+    });
+
     it('不合规草案（两色 < 3）⇒ 只回错误、不产关卡（不放宽 BOOT 口径）', () => {
         const bad = draftOf({ pattern: ['121212', '212121', '121212', '212121', '121212'] });
         const r = draftToLevel(bad, 9001, 'bad');

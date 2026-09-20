@@ -225,8 +225,12 @@
                         value="8" min="3" max="8"></div>
             </div>
             <div class="row2">
-                <div><label>交换错位对数 k<span id="swapsHint">（可入关 1–8 ⇒ 初始盘 2k 颗错位）</span></label><input type="number"
-                        id="swaps" value="8" min="1" max="8"></div>
+                <div><label>错位密度</label><select id="misKind">
+                        <option value="full" selected>全错位（推荐 · 每颗可填珠都不就位）</option>
+                        <option value="swaps">少量交换（k 对 ⇒ 仅 2k 颗错位）</option>
+                    </select></div>
+                <div id="swapsBox" style="display:none"><label>交换对数 k（1–8）</label><input
+                        type="number" id="swaps" value="8" min="1" max="8"></div>
                 <div><label>众数滤波轮数（推荐 1）</label><input type="number" id="smooth" value="1" min="0" max="5"></div>
             </div>
             <div class="row2">
@@ -300,6 +304,11 @@
         $('palette').onchange = syncColorsDomain;
         syncColorsDomain();
 
+        /** 错位密度：全错位（引擎 misplaced 初盘，成片错豆）/ 少量交换（才需要 k）。 */
+        $('misKind').onchange = () => {
+            $('swapsBox').style.display = $('misKind').value === 'swaps' ? 'block' : 'none';
+        };
+
         $('board').onchange = () => {
             const b = $('board').value;
             $('customSize').style.display = b === 'custom' ? 'grid' : 'none';
@@ -347,6 +356,7 @@
                 palette: $('palette').value, colors: $('colors').value,
                 colorsmode: $('colorsmode').value, swaps: $('swaps').value,
                 smooth: $('smooth').value, shape: shapeValue(),
+                mis: $('misKind').value,
                 noframe: $('noframe').checked ? '1' : '0',
             });
             $('gen').disabled = true; msg('生成中…');
@@ -408,7 +418,7 @@
             else drawBoard((view === 'solved' ? r.levelDraft?.pattern : r.misplaced) || r.levelDraft?.pattern);
             const rp = r.report || {};
             $('stats').textContent =
-                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.swaps * 2} 颗（${r.swaps} 对交换）\n` +
+                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
                 `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? '?'}`;
             $('dl').disabled = $('cp').disabled = !(r.levelDraft);
             // 不可入关就显式标红 + 说原因（静默换色比报错难查，不能只靠用户自己避坑）
@@ -446,7 +456,7 @@
                     grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
                     for (const r of list) {
                         const d = document.createElement('div'); d.className = 'item';
-                        d.innerHTML = `<span>${r.importable === false ? '⚠ ' : ''}${r.id}</span><small>${r.colors} 色 · 错位 ${r.swaps * 2}${r.importable === false ? ' · 不可入关' : ''}</small>`;
+                        d.innerHTML = `<span>${r.importable === false ? '⚠ ' : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : '错位 ' + r.swaps * 2}${r.importable === false ? ' · 不可入关' : ''}</small>`;
                         // 列表是轻投影（不含 pattern/缩略图）⇒ 点开才拉单条全量
                         d.onclick = async () => {
                             try {
