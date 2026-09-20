@@ -101,3 +101,9 @@
   根因：`listMarkdown()` 用 `readdirSync` 递归走**磁盘**，跳过条件只有「点目录」与硬编码 `SKIP_DIRS`（逐段 `entry.name` 匹配），**既不读 `.gitignore` 也不问 git**。`.gitignore` 与「索引面」是两套互不相知的口径：前者管 git 看不看，后者管装置读不读。凡是「产物由走盘生成器写出且被跟踪」的装置，都会有这个缝。
   规避：① 排除一个目录要改**生成器的跳过集**（本仓 = `SKIP_DIRS`，与 `archive`/`temp`/`library` 同处），别只改 `.gitignore`；② 判定口径先看代码再看直觉：`grep -n "readdirSync\|SKIP_DIRS" <生成器>` 两行就能确认它读不读 git；③ 提交受跟踪的**生成物**前比一次**体积/行数差**（`wc -l`、`du -h`、`git show HEAD:<产物> | wc -l`）——门禁不报的量级跳变，就是靠这一步抓出来的；④ 若生成器与校验器**共用同一常量**（本仓 `check-context-budget.mjs` 复用 `SKIP_DIRS`），改一处两边同口径；若各写一份，就必须两处同改（同族 K-047 路径写死会漂移）。
   判例引用：同族 K-048（装置自指须取工作树字节，别信报告值）、K-036（门禁全绿不构成证据）、K-051（纸面推论须实测复算）。
+
+- **[工具链][K-066] 长期分支间用 squash 同步 ⇒ 下次同步「全域冲突」，且 3-way 会静默产出重复定义**（来源 WXG-T-179 beads-studio 发布，2026-09-20）
+  现象：`develop → master` 首次开 PR 即 `mergeable_state=dirty`，一次列出 `.gitignore` / `AGENTS.md` / `ctx/*` / `package.json` 等几十个「早该一致」的文件。更险的是 `-X ours` 强合后**非冲突块静默带入 master 旧版**：`tools/scripts/check-context-budget.mjs` 出现**两个同名 `checkStagedFreshness()`**（ESM 下函数声明可重复、后者覆盖前者 ⇒ 不报错但行为漂移），`ctx/index.json` 被灌进 447 行陈旧内容。
+  根因：上次同步（PR #3）用了 squash —— squash 造出与 develop **无血缘**的新提交，两条分支各自携带「同内容、不同祖先」的历史，之后任意方向的合并都被判成全量互改；而 3-way 只对「两侧都改且行重叠」的块报冲突，行不重叠时双方都留 ⇒ **语法合法、语义错误**的重复定义不触发任何提示。
+  规避：① 长期主干间同步**只用 merge commit**（或 rebase），squash 只留给单 PR 内的细碎提交；② 历史已被污染时先**反向吸收**（develop 上 `git merge -X ours origin/master`）让 master 成祖先，再开正向 PR；③ `-X ours/theirs` 后**必核合并树** —— `git diff <合并前 develop 顶点> HEAD` 应为空，非空的每个文件逐个判「真缺功能」还是「历史重复」（本例靠这条抓到重复函数）；④ 生成物（`ctx/*`、`*-data.ts`）冲突后一律**重新生成**再比，不手工挑块；⑤ 合并完跑全量 `verify`，别只看「没有冲突标记」。
+  判例引用：合并提交 `4efc511`（develop 反向吸收 master）、`tools/scripts/check-context-budget.mjs`（重复函数案）；同族 K-030（产物新鲜度假绿）、K-046（工作树与主表错位）。

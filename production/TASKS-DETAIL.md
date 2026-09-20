@@ -634,7 +634,7 @@
 - **小游戏导入**：`src/game/level-import.ts`（注入式 HTTP，L3 无平台依赖）+ `BeadsGame.importLevel()`（先过 `validateBeadsLevel` 才追加进关表，失败不改表）+ 设置页「导入」钮（`MetaViewData.studioEnabled`，**仅宿主配了地址时绘制**）。地址接线：微信侧 = 开发者工具启动参数 `studio=http://<IP>:8787`（`BeadsBootstrap`），harness 侧 = `?game=beads&meta=menu&studio=…`。不扣心（调试通道，不污染 §3.14 体力语义），结果经 `meta:studio-import` 事件回报。
 - **E2E 揪出一个真缺陷（沉淀 K-064）**：`beads-gen` 的 `levelDraft` 把 `cycleProfile` 硬写 `'long'`，而交换法恒为 2-环 ⇒ BOOT「cycleProfile=long 与实际最长环 2 矛盾」**会拒收每一条在线导入**。生产端改 `'short'` + 消费端不再采信自报值（两面夹住），并补「谎报 long 仍产 short」反例判据。8 条单测全绿时它并不存在 —— 只有真产物过真校验器才暴露。
 - **门禁**：`pnpm -w run verify` **17/17 PASS**（含 `framework:sync:check` 镜像门 / `cocos:check` / `harness:smoke`）；beads **521 例全绿**（本单新增 10 例：转换定价 / 谎报反例 / 不合规拒收 / HTTP 注入 / 空列表 / importLevel / 钮接线）。服务端另做真实 E2E 冒烟：POST 生成 → 列表 → `/level` → 过 `draftToLevel` + `validateBeadsLevel` 全绿。
-- **沉淀统计（kb:sync --task=WXG-T-179）**：首轮**新增 1（K-064）**/ 修改 0 / 激活 0 / 归档 0；部署续作轮**修改 1（K-064 追记：本机全绿 ≠ 目标环境能跑）**/ 新增 0；发布实跑轮**新增 1（K-065：国内 VPS 镜像源 + 云安全组两层坑）**。`kb:audit` 无归档相似命中；`ctx:build` 已刷。
+- **沉淀统计（kb:sync --task=WXG-T-179）**：首轮**新增 1（K-064）**/ 修改 0 / 激活 0 / 归档 0；部署续作轮**修改 1（K-064 追记：本机全绿 ≠ 目标环境能跑）**/ 新增 0；发布实跑轮**新增 1（K-065：国内 VPS 镜像源 + 云安全组两层坑）**、**新增 1（K-066：squash 同步致全域冲突 + 静默重复定义，落 `[工具链]` 片）**。`kb:audit` 无归档相似命中；`ctx:build` 已刷。
 - **部署补记（同日续作，用户「179 继续完成部署」）**：
   - **又揪出一个同型缺陷（追记进 K-064）**：上一轮宣称「`--no-png` 后服务端免浏览器」是**假绿** —— chromium 的 `ensurePage()` 写在 beads-gen **模块顶层**，本机装有 playwright 所以全绿，按 Dockerfile 布局拼的**无 chromium 容器目录**里直接退出码 1。修法：launch 下移到真正用它的 `readGrid` / `renderPng` 内部（按需创建），顶层零副作用；顺带修掉「`--no-png` 仍打印 solved.png/misplaced.png」的日志谎报。修后在 `/tmp`（无 node_modules）跑 `--in-raw --no-png` ⇒ **34ms 出盘、零浏览器** ✅。
   - **容器布局端到端已过**：`temp/studio-fakeimg/`（server.mjs + public/ + vendor/beads-gen.mjs + cwd/temp/artkal-palette.json）起服务 ⇒ 游戏 10 色与 **artkal** 两条生成路径均 200（artkal 色板按子进程 cwd 解析已对齐 Dockerfile 布局）。
@@ -649,7 +649,10 @@
     4. 本轮脚本修正：**`PORT` 以前是谎报可覆盖**（compose 端口写死 8787）⇒ 改 `"${PORT:-8787}:8787"` 并在 deploy.sh/CI 透传；CI 健康检查同步用 `vars.BEADS_STUDIO_PORT`。
     5. 安全提醒已入档：本服务**无鉴权**，公网开端口 = 任何人可读列表/提交生成；默认建议走隧道或限源 IP。
     6. 这两道坑（镜像仓库不可达 + 云侧安全组与主机防火墙是两层）另沉淀为 **K-065**（`[环境]` 片）。
-- **待办（本单遗留，均属环外）**：① 用户侧：腾讯云控制台放行 **TCP 8787** 入站（或直接用 SSH 隧道，命令见 README）；② CI 自动发布仍等用户配 `SSH_*` secrets + `BEADS_STUDIO_DEPLOY=true`（国内源再配 `BEADS_STUDIO_BASE_IMAGE`）；③ 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；④ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物不可直接入关）；⑤ 本单所有改动**未提交**（VPS 已跑的是 rsync 过去的代码，提交与否不影响在线服务）。
+  - **发布链接通（用户选「推 develop + 开 PR」与「整批 develop→master」）**：提交 `1fc4be2`（beads-studio 全部交付，35 文件）已推 develop，PR **#4** = develop → master。
+    过程中发现并处理三事：① **GitHub Variables 实际为空**（用户以为配好了；`gh variable list` 核实后由本会话补建三条，Secrets `SSH_*` 已就位）；② PR 初始 `mergeable_state=dirty`——上次同步（PR #3）用了 **squash**，导致本次全域冲突 ⇒ 在 develop 上 `git merge -X ours origin/master` 反向吸收（合并提交 `4efc511`，合并树与 develop 顶点 **零差异**）；③ `-X ours` 后核树抓到一处**静默重复定义**（`check-context-budget.mjs` 出现两个 `checkStagedFreshness`）与 `ctx/index.json` 陈旧 447 行 ⇒ 两文件取 develop 侧 + 重新生成。以上沉淀为 **K-066**（`[工具链]` 片 —— 讲的是 git/CI 同步链；原拟归 `[流程]` 会顶破该片 8000 上限，改归其真实域）。
+    另：CI 健康检查改为**走 VPS 回环**（安全组未放行时公网 curl 会误判为红）；workflow 触发收窄为**只挂 master** + `workflow_dispatch`，并声明 `environment: production`（可选人审）。
+- **待办（本单遗留，均属环外）**：① **合并 PR #4**（合并即自动发布到 VPS；本会话不代点合并）；② 腾讯云控制台放行 **TCP 8787** 入站（或直接用 SSH 隧道，命令见 README）；③ 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；④ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物不可直接入关）；⑤ **develop→master 以后固定用 merge commit**，不要再 squash（K-066）。
 
 ---
 
