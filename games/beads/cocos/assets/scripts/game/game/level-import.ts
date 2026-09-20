@@ -35,6 +35,8 @@ export interface StudioResult {
     readonly id: string;
     readonly board?: string;
     readonly createdAt?: string;
+    /** 服务端可入关判据（旧服务端可能不下发 ⇒ 按未知处理，不拦）。 */
+    readonly importable?: boolean;
 }
 
 export interface ImportOutcome {
@@ -93,13 +95,19 @@ export async function fetchResults(base: string, get: HttpGet): Promise<readonly
 }
 
 /**
- * 一键导入用：取**最新**一条结果并转成可装配的 `BeadsLevelRaw`。
+ * 一键导入用：取**最新一条可入关**的结果并转成可装配的 `BeadsLevelRaw`。
+ * 为何不盲取 `results[0]`：列表里常夹着参考图 / 实验残品（Artkal 色板等），
+ * 拿它们去 `/level` 只会吃一个 422，用户看到的是“导入失败”而非“你该删/选对条目”。
  * 空列表 / 不合规 / 校验失败均以 errors 返回（不抛，交给 UI 显示）。
  */
 export async function importLatest(base: string, get: HttpGet): Promise<ImportOutcome> {
     const list = await fetchResults(base, get);
-    const head = list[0];
-    if (!head) return { ok: false, errors: ['服务无已存结果（请先在 beads-studio 生成一关）'] };
+    const head = list.find((r) => r.importable !== false);
+    if (!head) {
+        return list.length
+            ? { ok: false, errors: [`服务上 ${list.length} 条结果均不可入关（请在 beads-studio 删除或换一条）`] }
+            : { ok: false, errors: ['服务无已存结果（请先在 beads-studio 生成一关）'] };
+    }
     const draft = (await get(studioUrl(base, `/api/results/${head.id}/level`))) as LevelDraft & { error?: string };
     // 服务端对「不可入关」产物直返 422 + 原因（如非 10 色色板 ⇒ 游戏内静默换色）；
     // 这里原样透传，不降级成看不出所以然的「无 levelDraft」。

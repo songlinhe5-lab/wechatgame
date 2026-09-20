@@ -198,17 +198,17 @@
     },
     {
       "path": "apps/beads-studio/README.md",
-      "tokens": 3265,
-      "lines": 146,
-      "sha256": "679deefcc67e689e0871ad57b3c47eb953d325510a9167b05fc5770aa203d8d7",
+      "tokens": 3400,
+      "lines": 148,
+      "sha256": "74571654844acc2ba4d8a9228abb80032b4946be56ff2dcaf96e88e27bd81240",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads-studio · 照片转拼豆在线生成器（WXG-T-179 续作）",
           "level": 1,
           "startLine": 1,
-          "endLine": 147,
-          "tokens": 3243,
+          "endLine": 149,
+          "tokens": 3378,
           "summary": "上传照片 → 量化到拼豆色板 → 配色平衡 → 交换法错位 → 关卡草案 JSON（预览 + 归类存储 + 小游戏在线导",
           "keywords": [
             "beads",
@@ -234,8 +234,8 @@
           "anchor": "§API",
           "level": 2,
           "startLine": 15,
-          "endLine": 26,
-          "tokens": 246,
+          "endLine": 28,
+          "tokens": 381,
           "summary": "POST /api/generate?cols=&rows=&board=&shape=&palette=&colors",
           "keywords": [
             "API",
@@ -249,8 +249,8 @@
         {
           "anchor": "§默认值 = 推荐值（前端预选，每项 label 已标注）",
           "level": 2,
-          "startLine": 27,
-          "endLine": 43,
+          "startLine": 29,
+          "endLine": 45,
           "tokens": 391,
           "summary": "盘面档位 standard29（29×29） 5mm Midi 标准方盘（systems-index §3.3 上限 2",
           "keywords": [
@@ -265,8 +265,8 @@
         {
           "anchor": "§错位密度：全错位（默认）vs 少量交换",
           "level": 2,
-          "startLine": 44,
-          "endLine": 60,
+          "startLine": 46,
+          "endLine": 62,
           "tokens": 372,
           "summary": "用户反馈：“错位豆子基本很少，应该尽可能最大化、成片的错位豆”。根因不是算法错，而是默认只用了 k 对交换：",
           "keywords": [
@@ -279,8 +279,8 @@
         {
           "anchor": "§参数取值与经验值（实测，不是口头建议）",
           "level": 2,
-          "startLine": 61,
-          "endLine": 79,
+          "startLine": 63,
+          "endLine": 81,
           "tokens": 623,
           "summary": "“可入关”判据单一真源 = server.mjs::importBlockers()，值域全部取自 systems-in",
           "keywords": [
@@ -295,8 +295,8 @@
         {
           "anchor": "§VPS 发布",
           "level": 2,
-          "startLine": 80,
-          "endLine": 120,
+          "startLine": 82,
+          "endLine": 122,
           "tokens": 712,
           "summary": "",
           "keywords": [
@@ -307,8 +307,8 @@
         {
           "anchor": "§路径 A：一键脚本（不需先配 CI，不需本机装 Docker）",
           "level": 3,
-          "startLine": 82,
-          "endLine": 93,
+          "startLine": 84,
+          "endLine": 95,
           "tokens": 141,
           "summary": "镜像构建发生在 VPS 上，本机只做 rsync + ssh：",
           "keywords": [
@@ -323,8 +323,8 @@
         {
           "anchor": "§路径 B：GitHub Actions 自动发布（**只在 develop → master 合入时**）",
           "level": 3,
-          "startLine": 94,
-          "endLine": 106,
+          "startLine": 96,
+          "endLine": 108,
           "tokens": 299,
           "summary": "1. repo Variables：BEADS_STUDIO_DEPLOY=true（未配 ⇒ workflow 自动跳",
           "keywords": [
@@ -339,8 +339,8 @@
         {
           "anchor": "§本机验镜像（需本地 Docker）",
           "level": 3,
-          "startLine": 107,
-          "endLine": 120,
+          "startLine": 109,
+          "endLine": 122,
           "tokens": 211,
           "summary": "",
           "keywords": [
@@ -352,8 +352,8 @@
         {
           "anchor": "§国内 VPS 实战坑（已踩定）",
           "level": 2,
-          "startLine": 121,
-          "endLine": 141,
+          "startLine": 123,
+          "endLine": 143,
           "tokens": 429,
           "summary": "1. 拉不到 Docker Hub（auth.docker.io 超时）⇒ 不要改 daemon.json 重启 doc",
           "keywords": [
@@ -368,8 +368,8 @@
         {
           "anchor": "§小游戏导入（WXG-T-179 Phase 4）",
           "level": 2,
-          "startLine": 142,
-          "endLine": 147,
+          "startLine": 144,
+          "endLine": 149,
           "tokens": 168,
           "summary": "小游戏侧「调试导入入口」输入本服务地址（http://<IP>:8787 或域名），拉 /api/results 列表 ",
           "keywords": [
@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "ceaa12276d14c7a9d7df6720683751a4642f119677963e2672f663cc75d0fab7",
+      "sha256": "a9a4c0febeea1b5d696c7ea0f4a9d89daa132ed34d54a50e5957bfe127a7e18c",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4647,
       "lines": 82,
-      "sha256": "b76af4bde7c2d6f1a71a7ff167d3bcb02ff5241a9aca3badeb51b5b460230b08",
+      "sha256": "2f931bbae32fb3387d720d330886ee1aa3af9a8512a5ab0090bae25944a40274",
       "tier": "normal",
       "sections": [
         {
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 739 行 / 41880 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 743 行 / 42223 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 362,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+740 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+744 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -54278,17 +54278,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 41880,
-      "lines": 739,
-      "sha256": "cce4ac7d9185d170ac1b5392df27d00dbfb34823112d8a507a6c4c0fb65e11dd",
+      "tokens": 42223,
+      "lines": 743,
+      "sha256": "d181ddbb3e15c0a3ed4d91fb8ff4262cdbcfc762f33ab74d304da58c6b48bf36",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 740,
-          "tokens": 41864,
+          "endLine": 744,
+          "tokens": 42207,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -54600,8 +54600,8 @@
           "anchor": "§WXG-T-179",
           "level": 2,
           "startLine": 608,
-          "endLine": 681,
-          "tokens": 6545,
+          "endLine": 685,
+          "tokens": 6888,
           "summary": "beads·照片转拼豆生成器 spike（调色板 / 限色 / 聚集 调优 + ADR-0016） · 负责：主理人(C",
           "keywords": [
             "WXG",
@@ -54614,8 +54614,8 @@
           "anchor": "§续作（Qoder · 2026-09-20）：beads-studio 在线生成器 + 小游戏导入",
           "level": 3,
           "startLine": 626,
-          "endLine": 681,
-          "tokens": 5400,
+          "endLine": 685,
+          "tokens": 5743,
           "summary": "用户要求：「简单的后端服务和前端页面，能生成 + 展示 + 归类本地存储结果；最好能小程序一键导入」。两项拍板（AskU",
           "keywords": [
             "Qoder",
@@ -54629,8 +54629,8 @@
         {
           "anchor": "§WXG-T-180",
           "level": 2,
-          "startLine": 682,
-          "endLine": 703,
+          "startLine": 686,
+          "endLine": 707,
           "tokens": 1406,
           "summary": "beads·盘面规格档位落档（29×29 标准方形盘）+ 29×29 MVP 三关草案 · 负责：主理 人(CodeBu",
           "keywords": [
@@ -54643,8 +54643,8 @@
         {
           "anchor": "§WXG-T-181",
           "level": 2,
-          "startLine": 704,
-          "endLine": 727,
+          "startLine": 708,
+          "endLine": 731,
           "tokens": 1224,
           "summary": "beads·大盘 zoom 自适应 LOD 立项（ADR-0017，处置 §3.3 v1.34 的风险 1） · 负责：",
           "keywords": [
@@ -54659,8 +54659,8 @@
         {
           "anchor": "§WXG-T-183",
           "level": 2,
-          "startLine": 728,
-          "endLine": 740,
+          "startLine": 732,
+          "endLine": 744,
           "tokens": 905,
           "summary": "beads·board 锚直填消费序改写（选豆点固定 + 同序配对） · 负责：主理人(Qoder) · 状态：✅ 完成",
           "keywords": [

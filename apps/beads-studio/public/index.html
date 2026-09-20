@@ -180,6 +180,22 @@
             color: #999;
         }
 
+        .item .del {
+            margin: 0;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            background: transparent;
+            color: #999;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .item .del:hover {
+            background: #c0392b;
+            color: #fff;
+        }
+
         #msg {
             margin-top: 8px;
             font-size: 12px;
@@ -229,8 +245,8 @@
                         <option value="full" selected>全错位（推荐 · 每颗可填珠都不就位）</option>
                         <option value="swaps">少量交换（k 对 ⇒ 仅 2k 颗错位）</option>
                     </select></div>
-                <div id="swapsBox" style="display:none"><label>交换对数 k（1–8）</label><input
-                        type="number" id="swaps" value="8" min="1" max="8"></div>
+                <div id="swapsBox" style="display:none"><label>交换对数 k（1–8）</label><input type="number" id="swaps"
+                        value="8" min="1" max="8"></div>
                 <div><label>众数滤波轮数（推荐 1）</label><input type="number" id="smooth" value="1" min="0" max="5"></div>
             </div>
             <div class="row2">
@@ -465,6 +481,24 @@
                             } catch { msg('取详情失败：' + r.id, 'err'); }
                         };
                         grp.appendChild(d);
+                        // 删除钮：不可逆（磁盘唯一副本）⇒ 必须二次确认；stopPropagation 避免误触发“查看该条”。
+                        const x = document.createElement('button');
+                        x.className = 'del'; x.textContent = '✕'; x.title = '删除这条结果（不可恢复）';
+                        x.onclick = async (ev) => {
+                            ev.stopPropagation();
+                            if (!confirm(`删除 ${r.id}？\n磁盘上只有一份，不可恢复。`)) return;
+                            try {
+                                const res = await fetch('/api/results/' + r.id, { method: 'DELETE' });
+                                if (!res.ok) {
+                                    const j = await res.json().catch(() => ({}));
+                                    return msg('删除失败：' + (j.error || res.status), 'err');
+                                }
+                                if (current && current.id === r.id) { current = null; $('cv').getContext('2d').clearRect(0, 0, 420, 420); }
+                                msg('已删除 ' + r.id, 'ok');
+                                loadResults();
+                            } catch (e) { msg('删除失败：' + e.message, 'err'); }
+                        };
+                        d.appendChild(x);
                     }
                     el.appendChild(grp);
                 }

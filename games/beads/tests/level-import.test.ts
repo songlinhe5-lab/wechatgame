@@ -115,6 +115,27 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         expect(r.errors[0]).toContain('无已存结果');
     });
 
+    it('列表首条不可入关（参考图/实验残品）⇒ 跳过它，取下一条可入关的', async () => {
+        const got: string[] = [];
+        const r = await importLatest('http://h:8787', async (url) => {
+            if (url.endsWith('/api/results')) {
+                return { results: [{ id: 'junk', importable: false }, { id: 'good', importable: true }] };
+            }
+            got.push(url);
+            return draftOf();
+        });
+        expect(r.ok).toBe(true);
+        expect(got[0]).toBe('http://h:8787/api/results/good/level');
+    });
+
+    it('列表非空但全部不可入关 ⇒ 报“均不可入关”，不去碰 /level', async () => {
+        const r = await importLatest('http://h:8787', async () => ({
+            results: [{ id: 'a', importable: false }, { id: 'b', importable: false }],
+        }));
+        expect(r.ok).toBe(false);
+        expect(r.errors[0]).toContain('均不可入关');
+    });
+
     it('服务端 422（不可入关产物）⇒ 原因原样透传，不降级成「无 levelDraft」', async () => {
         const why = '该结果不可入关：色板为 artkal（非游戏 10 色真源）⇒ 导入会静默换色';
         const r = await importLatest('http://h:8787', async (url) =>

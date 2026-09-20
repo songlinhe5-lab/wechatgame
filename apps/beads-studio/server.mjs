@@ -12,7 +12,8 @@
  *        **随结果存盘** ⇒ 历史条目也能回看原图（只存在前端内存里刷新/切条目就丢）。
  *   GET  /api/results         → 结果列表（按盘面分组、时间倒序）
  *   GET  /api/results/:id     → 单个 result.json（小游戏在线导入用）
- *   GET  /api/results/:id/level → 直接回 levelDraft（小游戏字段最少化）
+ *   GET  /api/results/:id/level → 直接回 levelDraft（小游戏字段最少化；不可入关 ⇒ 422 + 原因）
+ *   DELETE /api/results/:id     → 删除该条结果（整目录；id 走 [a-z0-9-] 白名单，不可逆）
  *   GET  /                    → 静态页 public/index.html
  *
  * 存储：data/<board>/<id>/result.json（归类 = 目录即盘面档位）。
@@ -245,6 +246,19 @@ async function handle(req, res) {
     try {
         if (req.method === 'OPTIONS') return send(res, 204, '');
         if (req.method === 'POST' && path === '/api/generate') return await handleGenerate(req, res, url);
+        // 删除一条已存结果（整目录）：id 走与建目录同一套 `[a-z0-9-]` 白名单，**不碰用户传入的路径片段**。
+        // 不可逆（磁盘上唯一副本），所以前端必须二次确认；不提供批量/目录级删除。
+        const del = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})$/);
+        if (req.method === 'DELETE' && del) {
+            for (const board of existsSync(DATA) ? readdirSync(DATA) : []) {
+                const dir = join(DATA, board, del[1]);
+                if (existsSync(join(dir, 'result.json'))) {
+                    rmSync(dir, { recursive: true, force: true });
+                    return sendJson(res, 200, { deleted: del[1], board });
+                }
+            }
+            return sendJson(res, 404, { error: 'not found' });
+        }
         if (req.method === 'GET' && path === '/api/results') return sendJson(res, 200, { results: listResults() });
         const m = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})(\/level)?$/);
         if (req.method === 'GET' && m) {

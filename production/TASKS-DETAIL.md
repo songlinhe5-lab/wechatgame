@@ -673,9 +673,13 @@
   - **一个静默错东西的坑当场堵在构造前**：若 `--mis full` 同时带 `--swaps 8`，旧写法 `der = sw ? 交换 : derange()` 仍会走交换 ⇒ 拿到的还是 2k 颗。现把 `misMode` 提到 `swapsK` 之前定，full 模式强制 `swapsK = 0`。
   - 链路打通：`server.mjs` 收 `?mis=`（默认 full）并透传 `--mis`；`importBlockers()` 改为**按模式判**（full 不受 `MISPLACED_PAIRS_MAX=8` 约束，但校验草案确实带 `misplaced`）；`level-import.ts::draftToLevel` 恢复 `misplaced` 透传；面板新增「错位密度」二档（全错位默认 / 少量交换才出 k 输入）。
   - 实测：full = **348/348 = 100%** 可填格错位（屏幕层 705/705）vs swaps = 16/348 = 4.6%；新单测 1 例（草案带 misplaced ⇒ 原样透传且过 BOOT）；屏幕层取证新增 3 条断言（全错位密度、`/level` 200 不被 k≤8 拦、“少量交换”才出 k）均绿，整套 22 条全绿。可玩性提示已写进 README：密集全错位盘靠 board 直填周转（G-3 结论），真机手感待走查。
+- **已存结果可删 + 导入不再盲取最新（用户：列表里不要的条目也会被导入）**：此前**根本没有删除能力**（无 `DELETE` 接口、无前端钮），只能手动 `rm -rf data/<board>/<id>`。
+  - 服务端新增 `DELETE /api/results/:id`：id 走与建目录同一套 `[a-z0-9-]` 白名单（不拼用户传入路径），**不可逆**⇒ 前端 ✕ 必带二次确认；不提供批量/目录级删除。
+  - `importLatest()` 从「取 `results[0]`」改为「**取最新一条 `importable !== false`**」：列表里常夹参考图/实验残品，盲取只会吃一个 422，用户看到的是“导入失败”而不是“该删/该选对条目”；全不可入关时报“N 条均不可入关”，不去碰 `/level`。
+  - 取证：新单测 2 例（跳过不可入关、全不可入关不碰 /level）+ 屏幕层 2 条（✕ → 确认框 → 列表 3→2；不存在 id 与 `..%2f` 穿越型 id 均 404 不碰文件），共 14 例单测 / 24 条断言全绿。
 - **公网放行已完成（2026-09-20 用户操作 + 本会话复核）**：CVM `ins-bnj9hmh3`（ap-beijing，`product_name=CVM` ⇒ 走安全组而非轻量防火墙）加 TCP 8787 入站后，**公网端到端全绿**：
   `GET /` = 200 → `POST /api/generate`（96×96 RGBA）得 `small14-1789910083144-e64a` → `GET /api/results/:id/level` 字段完整（14×14 / pattern 14 行 / swaps 6 对 / `cycleProfile=short` ⇒ 生产端修复已随发布上线）→ 过本仓 `draftToLevel` + `validateBeadsLevel` **通过 ✓**（时长按 k 定价 = 270s）。
-- **待办（本单遗留，均属环外）**：① 若以后要**真机**导入：手机出口 IP 与本机不同，限源规则需放开到 `0.0.0.0/0`（本服务无鉴权，自行权衡）或改用 SSH 隧道；③ 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；④ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物不可直接入关）；⑤ **develop→master 以后固定用 merge commit**，不要再 squash（K-066）。
+- **待办（本单遗留，均属环外）**：① 若以后要**真机**导入：手机出口 IP 与本机不同，限源规则需放开到 `0.0.0.0/0`（本服务无鉴权，自行权衡）或改用 SSH 隧道；② 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；③ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物只出参考图，服务端已 422 拦下导入）；④ **develop→master 以后固定用 merge commit**，不要再 squash（K-066）；⑤ VPS 上仍是旧版（无全错位与删除能力），待发 `deploy.sh`。
 
 ---
 
