@@ -20,7 +20,7 @@
 | WXG-T-176 | ctx 生成器 SKIP_DIRS 跳过 vendor `_repos`（索引产物瘦身） | 主理人(Qoder) | ✅ 完成（`my-skills/_repos/**` 早被 `.gitignore` 忽略，但生成器只走盘不读 gitignore ⇒ 补 `SKIP_DIRS` 一项；`ctx/index.json` 136,369→60,271 行、3.68→1.7 MB；verify 17/17）| 见详情 |
 | WXG-T-177 | beads·冲刺入口隐藏（去冲刺三处全隐藏，U1 反转） | 主理人(CodeBuddy) | ✅ 落码（三面板隐藏 + 单钮居中；beads 498 例绿、verify 17/17 PASS；待真机复验） | 见详情 |
 | WXG-T-178 | framework·真机拖不动修复（输入位移帧末结算）+ 调试读回口 | 主理人(Qoder)·程基岩复核 | ✅ 落码待真机复扫（根因：`beginFrame` 拷 prev ⇒ 事件驱动宿主帧间到达的位移被吞成 0；修法移到 `endFrame`，新契约用例先红后绿；framework 307/beads 500/breakout 239 零回归，探针实测 offsetX 走满夹取 ±12.5；release 1955.0 KB） | 见详情 |
-| WXG-T-179 | beads·照片转拼豆生成器 spike（调色板/限色/聚集 调优 + ADR-0016） | 主理人(CodeBuddy)·续作 Qoder | 🔄 待用户裁定 ADR-0016（**续作已交**：beads-studio 服务+CI+小游戏在线导入；**已部署到腾讯云 VPS 且 CI 发布链跑通**（PR #4 合并 → 自动 deploy ✓），仅待安全组放行 8787（隧道实测可用）；修两处漂移 K-064） | 见详情 |
+| WXG-T-179 | beads·照片转拼豆生成器 spike（调色板/限色/聚集 调优 + ADR-0016） | 主理人(CodeBuddy)·续作 Qoder | 🔄 待用户裁定 ADR-0016（**续作已交**：beads-studio 服务+CI+小游戏在线导入；**已部署到腾讯云 VPS 且 CI 发布链跑通**（PR #4 合并 → 自动 deploy ✓；安全组已放行 8787，**公网端到端通**）；修两处漂移 K-064） | 见详情 |
 | WXG-T-180 | beads·盘面规格落档（29×29 标准盘）+ MVP 三关草案 | 主理人(CodeBuddy) | ✅ 主体完成（GRID_MAX v1.34 + 生成器转正 + ADR-0018 两档 8 关已入库 `89f28e0`；29×29 转设计档；留边模型搁置=保留 24px，用户 2026-09-20） | 见详情 |
 | WXG-T-181 | beads·大盘 zoom 自适应 LOD 立项（ADR-0017，风险 1） | 主理人(CodeBuddy) | ✅ 收口（ADR-0017 Proposed 留档；MVP 两档无 LOD 需求不阻塞，LOD 转 29×29 解锁前置另立项；初始取景口径维持现状，用户 2026-09-20） | 见详情 |
 | WXG-T-183 | beads·board 锚直填消费序改写（选豆点固定+同序配对，用户 2026-09-20 裁定） | 主理人(Qoder) | ✅ 完成（`_boardSelected` 增 anchorRow/Col 恒定拾取锚；直填/部分收纳消费序基准改选豆点；bead-grid v2.4；判据 1 例；beads 511 例绿、verify 17/17；沉淀 K-063） | 见详情 |

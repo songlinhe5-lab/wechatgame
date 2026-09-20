@@ -341,7 +341,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "7a0f13b7bc47f7f669f81465e6d7b771aa4e318ce65bc60332060fa643c817e1",
+      "sha256": "54ac5de9642167d434b2ecd75095ec1210b0522faa5aa80690683a76cdf046a9",
       "tier": "normal",
       "sections": [
         {
@@ -618,7 +618,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4647,
       "lines": 82,
-      "sha256": "22d90ec6655f501b4fe5cb5eb532fd8544ed2a302186c78dec1fd8089aa30836",
+      "sha256": "94343d81f21846490ab95e74e21689d63a8e2fffab23ca96dbad55fcb4347cac",
       "tier": "normal",
       "sections": [
         {
@@ -702,7 +702,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 62 行 / 6682 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 62 行 / 6681 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -909,12 +909,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 718 行 / 39831 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 720 行 / 39990 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 362,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+719 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+721 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -54232,17 +54232,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 39831,
-      "lines": 718,
-      "sha256": "b4fbb56a1fb4f70439289b4a0c1c04aba932a6d03d68c38230985e0d4dfc1cd4",
+      "tokens": 39990,
+      "lines": 720,
+      "sha256": "565fb8b2461cb2e4ec8e8b011594fb9d0c4ccbc8e892beb4df7fe4109558e8e9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 719,
-          "tokens": 39815,
+          "endLine": 721,
+          "tokens": 39974,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -54554,8 +54554,8 @@
           "anchor": "§WXG-T-179",
           "level": 2,
           "startLine": 608,
-          "endLine": 660,
-          "tokens": 4496,
+          "endLine": 662,
+          "tokens": 4655,
           "summary": "beads·照片转拼豆生成器 spike（调色板 / 限色 / 聚集 调优 + ADR-0016） · 负责：主理人(C",
           "keywords": [
             "WXG",
@@ -54568,8 +54568,8 @@
           "anchor": "§续作（Qoder · 2026-09-20）：beads-studio 在线生成器 + 小游戏导入",
           "level": 3,
           "startLine": 626,
-          "endLine": 660,
-          "tokens": 3351,
+          "endLine": 662,
+          "tokens": 3510,
           "summary": "用户要求：「简单的后端服务和前端页面，能生成 + 展示 + 归类本地存储结果；最好能小程序一键导入」。两项拍板（AskU",
           "keywords": [
             "Qoder",
@@ -54583,8 +54583,8 @@
         {
           "anchor": "§WXG-T-180",
           "level": 2,
-          "startLine": 661,
-          "endLine": 682,
+          "startLine": 663,
+          "endLine": 684,
           "tokens": 1406,
           "summary": "beads·盘面规格档位落档（29×29 标准方形盘）+ 29×29 MVP 三关草案 · 负责：主理 人(CodeBu",
           "keywords": [
@@ -54597,8 +54597,8 @@
         {
           "anchor": "§WXG-T-181",
           "level": 2,
-          "startLine": 683,
-          "endLine": 706,
+          "startLine": 685,
+          "endLine": 708,
           "tokens": 1224,
           "summary": "beads·大盘 zoom 自适应 LOD 立项（ADR-0017，处置 §3.3 v1.34 的风险 1） · 负责：",
           "keywords": [
@@ -54613,8 +54613,8 @@
         {
           "anchor": "§WXG-T-183",
           "level": 2,
-          "startLine": 707,
-          "endLine": 719,
+          "startLine": 709,
+          "endLine": 721,
           "tokens": 905,
           "summary": "beads·board 锚直填消费序改写（选豆点固定 + 同序配对） · 负责：主理人(Qoder) · 状态：✅ 完成",
           "keywords": [
@@ -54628,9 +54628,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6682,
+      "tokens": 6681,
       "lines": 62,
-      "sha256": "8f45d0a24f67046f6c3e569e0a213c45d886781298028be04015d8f77ca31920",
+      "sha256": "a259f5375299b87b07ec89e7c444fbda60bf10bff612795f5b8bad440ba12b96",
       "tier": "hot",
       "sections": [
         {
@@ -54638,7 +54638,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 63,
-          "tokens": 6673,
+          "tokens": 6672,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
