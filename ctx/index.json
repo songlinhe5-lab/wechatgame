@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "3346a1ab5108791e2ad9cda1febf914ac29c5350a4d4e9ae049d611f58576db3",
+      "sha256": "27d7cfe3ceaffe2fbccfedb6d7844594c3ab8f793bd02e2e23c516b4183518be",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4615,
       "lines": 82,
-      "sha256": "95684ce220b2ee91ab657c2f0a196690505f200bac62c14350b62dcf00a9aa23",
+      "sha256": "3590552fc489ec7a636abc4efd4b4309be64ad7603572c0595880e82bd4de7f8",
       "tier": "normal",
       "sections": [
         {
@@ -529,12 +529,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 284 行 / 12636 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 285 行 / 12886 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
           "tokens": 423,
-          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+285 · §1 系统清单=9+17 · §2 依",
+          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+286 · §1 系统清单=9+17 · §2 依",
           "keywords": [
             "§1",
             "§2",
@@ -4990,17 +4990,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md",
-      "tokens": 12338,
-      "lines": 248,
-      "sha256": "e07a4249703ed13d1ecbb283aa4b9df82c2eeefb53c49834b4e4d9920e704670",
+      "tokens": 12530,
+      "lines": 249,
+      "sha256": "bd665eb77da40449e7ba29ddf21f74dcb8143dbdb8d4043e54970e51589bcd63",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0015 — 棋盘区双指缩放 + 单指平移：多点输入槽进 `core/input`，区域变换走「布局即相机」",
           "level": 1,
           "startLine": 1,
-          "endLine": 249,
-          "tokens": 12299,
+          "endLine": 250,
+          "tokens": 12491,
           "summary": "编号：ADR-0015（0008 跳空合规沿 ADR-0013/0014 注；0009–0014 已用；号只分配不回收）",
           "keywords": [
             "core/input",
@@ -5153,7 +5153,7 @@
           "level": 2,
           "startLine": 132,
           "endLine": 203,
-          "tokens": 3673,
+          "tokens": 3751,
           "summary": "",
           "keywords": [
             "Decision",
@@ -5227,7 +5227,7 @@
           "level": 3,
           "startLine": 171,
           "endLine": 178,
-          "tokens": 383,
+          "tokens": 461,
           "summary": "C-1｜多点通道：甲′（推荐）／乙（适配层，否因 §2.1）／丙（无缩放降级档，否因 §2.1）。否 甲′ ⇒ 缩放与盘",
           "keywords": [
             "§2.1",
@@ -5273,8 +5273,8 @@
           "anchor": "§4 后果（Consequences）",
           "level": 2,
           "startLine": 204,
-          "endLine": 238,
-          "tokens": 1993,
+          "endLine": 239,
+          "tokens": 2107,
           "summary": "",
           "keywords": [
             "Consequences",
@@ -5314,8 +5314,8 @@
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
           "startLine": 229,
-          "endLine": 238,
-          "tokens": 436,
+          "endLine": 239,
+          "tokens": 550,
           "summary": "1. 图鉴若真做成「一屏 9/16 个独立缩放版面」，丁-3 的「一份相机配一张网格」可能不够 ⇒ 丁-2（分组变换通道",
           "keywords": [
             "中性",
@@ -5325,8 +5325,8 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 239,
-          "endLine": 249,
+          "startLine": 240,
+          "endLine": 250,
           "tokens": 456,
           "summary": "1. C-3 被裁定为 (a) ⇒ input-control / core-loop 时序判据重跑，本文 §3.3-4",
           "keywords": [
@@ -5589,17 +5589,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0017-beads-zoom-adaptive-lod.md",
-      "tokens": 1990,
-      "lines": 100,
-      "sha256": "5c2451373f79cbcdf48345e6981f635c9a4bcd4a5091eff7c0febe451b16b428",
+      "tokens": 2103,
+      "lines": 102,
+      "sha256": "997208d4712079f50db768cf31caac00c15de69219330313cd5e3ae95ef12c54",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0017 — 大盘 zoom 自适应 LOD：按视图缩放降珠层（通道与红线；层集由 art 冻结）",
           "level": 1,
           "startLine": 1,
-          "endLine": 101,
-          "tokens": 1956,
+          "endLine": 103,
+          "tokens": 2068,
           "summary": "状态：Proposed（草案待裁） —— 本文只立工程通道、触发策略与不可降红线；具体砍哪几层由 art 冻结（art-",
           "keywords": [
             "ADR",
@@ -5614,8 +5614,8 @@
           "anchor": "§1 上下文（Context）",
           "level": 2,
           "startLine": 8,
-          "endLine": 43,
-          "tokens": 674,
+          "endLine": 45,
+          "tokens": 787,
           "summary": "",
           "keywords": [
             "Context",
@@ -5642,8 +5642,8 @@
           "anchor": "§1.2 三种形态（用户提出；本 ADR 的验收场景）",
           "level": 3,
           "startLine": 14,
-          "endLine": 29,
-          "tokens": 252,
+          "endLine": 31,
+          "tokens": 365,
           "summary": "A standard29 单盘 841 9251",
           "keywords": [
             "ADR",
@@ -5656,8 +5656,8 @@
         {
           "anchor": "§1.3 现状：有 LOD 判例，但**没有本 ADR 要的通道**",
           "level": 3,
-          "startLine": 30,
-          "endLine": 34,
+          "startLine": 32,
+          "endLine": 36,
           "tokens": 121,
           "summary": "已有：DISSOLVE_LOD_ALPHA = 0.60 + DISSOLVE_LOD_LAYERS = 4（层集 = ",
           "keywords": [
@@ -5672,8 +5672,8 @@
         {
           "anchor": "§1.4 不可降红线（与 ADR-0016 丙案同源）",
           "level": 3,
-          "startLine": 35,
-          "endLine": 43,
+          "startLine": 37,
+          "endLine": 45,
           "tokens": 165,
           "summary": "filled 珠是 11 层（十层卡 + L11 目标色垫）。其中两层不得因性能砍掉：",
           "keywords": [
@@ -5687,8 +5687,8 @@
         {
           "anchor": "§2 备选方案（Alternatives）",
           "level": 2,
-          "startLine": 44,
-          "endLine": 61,
+          "startLine": 46,
+          "endLine": 63,
           "tokens": 299,
           "summary": "",
           "keywords": [
@@ -5699,8 +5699,8 @@
         {
           "anchor": "§2.1 甲：视图缩放驱动（zoom 档位 → 层集）—— **本文推荐为主干**",
           "level": 3,
-          "startLine": 46,
-          "endLine": 49,
+          "startLine": 48,
+          "endLine": 51,
           "tokens": 45,
           "summary": "按当前 camera.zoom 落档：近看满层、远看降层。契合 ADR-0015 丁-3「布局即相机」—— 缩放本就是既",
           "keywords": [
@@ -5715,8 +5715,8 @@
         {
           "anchor": "§2.2 乙：视口裁剪（只画可见格）—— **正交且应先做（本文推荐先落地）**",
           "level": 3,
-          "startLine": 50,
-          "endLine": 53,
+          "startLine": 52,
+          "endLine": 55,
           "tokens": 58,
           "summary": "大盘缩小后，屏幕外仍有大量格在被绘制 ⇒ 先做视口裁剪是纯收益（不改观感、所有模式都受益）。与甲不冲突，应并列做。",
           "keywords": [
@@ -5729,8 +5729,8 @@
         {
           "anchor": "§2.3 丙：整盘一律降（不按 zoom）",
           "level": 3,
-          "startLine": 54,
-          "endLine": 57,
+          "startLine": 56,
+          "endLine": 59,
           "tokens": 50,
           "summary": "实现最简，但放大近看时也糊 ⇒ 牺牲大盘的核心价值（精细图案）。不推荐单独用，可作低端设备的回退阀。",
           "keywords": [
@@ -5742,8 +5742,8 @@
         {
           "anchor": "§2.4 丁：同色连通块合并绘制",
           "level": 3,
-          "startLine": 58,
-          "endLine": 61,
+          "startLine": 60,
+          "endLine": 63,
           "tokens": 59,
           "summary": "把同色相连格合成单条 path ⇒ 图元可降一个量级。收益最大，但改动大、且会与\"逐珠动画/选中\"打架 ⇒ 记录为远期方",
           "keywords": [
@@ -5755,8 +5755,8 @@
         {
           "anchor": "§3 决定（Decision）",
           "level": 2,
-          "startLine": 62,
-          "endLine": 76,
+          "startLine": 64,
+          "endLine": 78,
           "tokens": 285,
           "summary": "推荐组合 = 乙（视口裁剪，先落地）+ 甲（zoom 档位降层，主干）；丙作为低端设备/低帧率回退阀；丁仅登记、不做。",
           "keywords": [
@@ -5768,8 +5768,8 @@
         {
           "anchor": "§4 后果（Consequences）",
           "level": 2,
-          "startLine": 77,
-          "endLine": 94,
+          "startLine": 79,
+          "endLine": 96,
           "tokens": 290,
           "summary": "",
           "keywords": [
@@ -5780,8 +5780,8 @@
         {
           "anchor": "§4.1 正面",
           "level": 3,
-          "startLine": 79,
-          "endLine": 84,
+          "startLine": 81,
+          "endLine": 86,
           "tokens": 89,
           "summary": "让 standard29 / 异形 / 2×2 拼图三种形态从\"能装配\"走向\"可能可玩\"（风险 1 的唯一处置路径）。",
           "keywords": [
@@ -5792,8 +5792,8 @@
         {
           "anchor": "§4.2 负面（已知成本，白纸黑字）",
           "level": 3,
-          "startLine": 85,
-          "endLine": 90,
+          "startLine": 87,
+          "endLine": 92,
           "tokens": 130,
           "summary": "近看/远看观感差异需 playtest：降层后大盘\"远看是色块、近看才出质感\"，是否被玩家读作\"变丑\"未知。",
           "keywords": [
@@ -5806,8 +5806,8 @@
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 91,
-          "endLine": 94,
+          "startLine": 93,
+          "endLine": 96,
           "tokens": 44,
           "summary": "2×2 拼图若采纳，其 1296 格即使低档也有 ~6480 图元 ⇒ 可能仍需视口裁剪 + 分块绘制，需单独验证。",
           "keywords": [
@@ -5818,8 +5818,8 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 95,
-          "endLine": 101,
+          "startLine": 97,
+          "endLine": 103,
           "tokens": 124,
           "summary": "1. art 冻结层集 ⇒ 阈值可定档，本文建议档作废/更新。",
           "keywords": [
@@ -5827,6 +5827,286 @@
             "Triggers",
             "art",
             "复评触发条件"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0018-beads-board-size-playability.md",
+      "tokens": 4863,
+      "lines": 229,
+      "sha256": "ea0e34a7cf7e48f3fd1c40e7add32387c39210dad0111dd96c979ba5ea066f1f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0018 — 盘面尺寸与色数规格决策：可玩性评估与 MVP 档位选定",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 230,
+          "tokens": 4836,
+          "summary": "状态：Accepted（2026-09-20 用户拍板）",
+          "keywords": [
+            "ADR",
+            "MVP",
+            "Accepted",
+            "盘面尺寸与色",
+            "数规格决策",
+            "可玩性评估与"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 51,
+          "tokens": 649,
+          "summary": "",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§1.1 评估前提",
+          "level": 3,
+          "startLine": 14,
+          "endLine": 30,
+          "tokens": 310,
+          "summary": "本文所有 fit zoom / 珠屏径 / 图元数字均按以下已落码参数计算：",
+          "keywords": [
+            "fit",
+            "zoom",
+            "评估前提"
+          ]
+        },
+        {
+          "anchor": "§1.2 六种候选配置（用户原文）",
+          "level": 3,
+          "startLine": 31,
+          "endLine": 41,
+          "tokens": 137,
+          "summary": "A. standard29 业界标准方形盘 29×29 841 9251",
+          "keywords": [
+            "standard29",
+            "六种候选配置",
+            "用户原文"
+          ]
+        },
+        {
+          "anchor": "§1.3 关键澄清：B2 / B4 为顺序模式（用户 2026-09-20 裁定）",
+          "level": 3,
+          "startLine": 42,
+          "endLine": 51,
+          "tokens": 159,
+          "summary": "B2 和 B4 的「×2×2」不是四盘同屏渲染，而是一次展示 1 盘、4 盘顺序组成 1 关。因此：",
+          "keywords": [
+            "关键澄清",
+            "为顺序模式",
+            "用户",
+            "裁定"
+          ]
+        },
+        {
+          "anchor": "§2 可玩性评估（Evaluation）",
+          "level": 2,
+          "startLine": 52,
+          "endLine": 120,
+          "tokens": 1251,
+          "summary": "",
+          "keywords": [
+            "Evaluation",
+            "可玩性评估"
+          ]
+        },
+        {
+          "anchor": "§2.1 几何核算",
+          "level": 3,
+          "startLine": 54,
+          "endLine": 65,
+          "tokens": 203,
+          "summary": "computeFitZoom(cols, rows) = min(1, 702/natW, 592/natH)，其中 n",
+          "keywords": [
+            "computeFitZoom",
+            "cols",
+            "rows",
+            "min",
+            "natW",
+            "natH"
+          ]
+        },
+        {
+          "anchor": "§2.2 四维评判",
+          "level": 3,
+          "startLine": 66,
+          "endLine": 107,
+          "tokens": 753,
+          "summary": "#### 维度 1：触控可达性",
+          "keywords": [
+            "四维评判"
+          ]
+        },
+        {
+          "anchor": "§2.3 综合判定",
+          "level": 3,
+          "startLine": 108,
+          "endLine": 120,
+          "tokens": 276,
+          "summary": "B3 (14×14 单图) 可玩（最佳） 触控友好、符号可读、图案清晰、性能无压",
+          "keywords": [
+            "综合判定"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 121,
+          "endLine": 196,
+          "tokens": 1611,
+          "summary": "",
+          "keywords": [
+            "Decision",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§3.1 MVP 可玩档位",
+          "level": 3,
+          "startLine": 123,
+          "endLine": 129,
+          "tokens": 92,
+          "summary": "第一档（入门/主体） B3. 14×14 196 3–6 关卡 1–4（现有 DEMO 的 6×5–13×12 自然过渡",
+          "keywords": [
+            "MVP",
+            "DEMO",
+            "可玩档位"
+          ]
+        },
+        {
+          "anchor": "§3.2 顺序多盘扩展关型",
+          "level": 3,
+          "startLine": 130,
+          "endLine": 139,
+          "tokens": 182,
+          "summary": "B2（18×18×4）/ B4（14×14×4）裁定为扩展关型：",
+          "keywords": [
+            "顺序多盘扩展",
+            "关型"
+          ]
+        },
+        {
+          "anchor": "§3.3 29×29 标准盘（A）与异形（C）",
+          "level": 3,
+          "startLine": 140,
+          "endLine": 148,
+          "tokens": 213,
+          "summary": "GRID_MAX_COLS/ROWS = 29（v1.34）不降——上限仍冻结为 29×29 以保持关卡数据格式向前兼容",
+          "keywords": [
+            "GRID_MAX_COLS",
+            "ROWS",
+            "标准盘",
+            "与异形"
+          ]
+        },
+        {
+          "anchor": "§3.4 初始适配取景与触控基准（5mm Midi 参照 + 留边 1~2 珠宽）",
+          "level": 3,
+          "startLine": 149,
+          "endLine": 184,
+          "tokens": 944,
+          "summary": "#### 3.4.1 zoom=1 的物理参照",
+          "keywords": [
+            "Midi",
+            "zoom",
+            "初始适配取景",
+            "与触控基准",
+            "参照",
+            "留边"
+          ]
+        },
+        {
+          "anchor": "§3.5 本文不裁定的事项",
+          "level": 3,
+          "startLine": 185,
+          "endLine": 196,
+          "tokens": 113,
+          "summary": "CAMERA_ZOOM_MAX_SPAN 具体改值（2.5→?） systems-index §3 变更单 + ADR-",
+          "keywords": [
+            "§3",
+            "CAMERA_ZOOM_MAX_SPAN",
+            "systems",
+            "index",
+            "ADR",
+            "本文不裁定的"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 197,
+          "endLine": 219,
+          "tokens": 606,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 199,
+          "endLine": 206,
+          "tokens": 187,
+          "summary": "1. MVP 两档明确（B3 14×14 + B1 18×18），设计轨可立即按此出关，不阻塞于\"29 能不能做\"。",
+          "keywords": [
+            "MVP",
+            "正面"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面（已知成本，白纸黑字）",
+          "level": 3,
+          "startLine": 207,
+          "endLine": 212,
+          "tokens": 267,
+          "summary": "1. CAMERA_ZOOM_MAX_SPAN=2.5 对 29×29 是硬缺陷：fit(0.393)×2.5=0.98",
+          "keywords": [
+            "CAMERA_ZOOM_MAX_SPAN",
+            "fit",
+            "负面",
+            "已知成本",
+            "白纸黑字"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 213,
+          "endLine": 219,
+          "tokens": 126,
+          "summary": "1. 29×29 能否最终解锁为可玩档，取决于 ADR-0017 LOD 效果 + 真机帧率 + zoom 钳位调整。乐",
+          "keywords": [
+            "ADR",
+            "LOD",
+            "zoom",
+            "中性",
+            "待观察"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 220,
+          "endLine": 230,
+          "tokens": 359,
+          "summary": "1. CAMERA_ZOOM_MAX_SPAN 被调整 ⇒ 回写本文 §2.1 表的 max zoom 列与 §2.3 ",
+          "keywords": [
+            "§2.1",
+            "§2.3",
+            "Review",
+            "Triggers",
+            "CAMERA_ZOOM_MAX_SPAN",
+            "max"
           ]
         }
       ]
@@ -18900,17 +19180,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 12636,
-      "lines": 284,
-      "sha256": "d7082b2031625fb5a5d1a19c310658eded16c44fa100ab60d639d09dea3c92e0",
+      "tokens": 12886,
+      "lines": 285,
+      "sha256": "1d84e923ebba556f4faf0de30845693c79b15558e7eeee1a7aeb3321c9b2412d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§系统清单与依赖索引（Systems Index）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 285,
-          "tokens": 12619,
+          "endLine": 286,
+          "tokens": 12869,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.34 · 任务号 WXG-T-180（v1.34 = §3.",
           "keywords": [
             "§3",
@@ -18952,8 +19232,8 @@
           "anchor": "§3 全局数值基线（Global Constants）· ❄️ 冻结令",
           "level": 2,
           "startLine": 56,
-          "endLine": 239,
-          "tokens": 8293,
+          "endLine": 240,
+          "tokens": 8543,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -19000,7 +19280,7 @@
           "level": 3,
           "startLine": 95,
           "endLine": 110,
-          "tokens": 399,
+          "tokens": 458,
           "summary": "BEAD_CELL 50 珠子边长（正方形 1:1）",
           "keywords": [
             "Bead",
@@ -19159,8 +19439,8 @@
           "anchor": "§3.13 错位参数（Misplaced）· v1.22 新增冻结（WXG-T-130，用户 2026-09-16 裁定案 A）",
           "level": 3,
           "startLine": 229,
-          "endLine": 239,
-          "tokens": 617,
+          "endLine": 240,
+          "tokens": 808,
           "summary": "MISPLACED_PAIRS_MIN 1 单关错位交换对数下限；0 = 无错位 = 无玩法 ⇒ 非法，BOOT 拒收",
           "keywords": [
             "Misplaced",
@@ -19174,8 +19454,8 @@
         {
           "anchor": "§4 事件总线约定（供程序落码参考）",
           "level": 2,
-          "startLine": 240,
-          "endLine": 271,
+          "startLine": 241,
+          "endLine": 272,
           "tokens": 1187,
           "summary": "沿用 breakout 的事件命名风格 <域>:<事件>，payload 一律带 levelId（v1.28 补注：局内",
           "keywords": [
@@ -19189,8 +19469,8 @@
         {
           "anchor": "§5 与框架层的接口假设",
           "level": 2,
-          "startLine": 272,
-          "endLine": 280,
+          "startLine": 273,
+          "endLine": 281,
           "tokens": 325,
           "summary": "引擎/平台：Cocos Creator 3.8 LTS + 微信小游戏（adapters/cocos + platfor",
           "keywords": [
@@ -19205,8 +19485,8 @@
         {
           "anchor": "§6 变更记录",
           "level": 2,
-          "startLine": 281,
-          "endLine": 285,
+          "startLine": 282,
+          "endLine": 286,
           "tokens": 107,
           "summary": "本节的全部内容已拆分为 systems-index-changelog.md（WXG-T-062，因本文累积超过 ctx",
           "keywords": [
@@ -19646,17 +19926,17 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 5826,
-      "lines": 240,
-      "sha256": "79d1f41ef3e4ae5d55046ebadf1b8d7e2a792acb53e072a878491f3e9802b534",
+      "tokens": 6347,
+      "lines": 250,
+      "sha256": "0e2d8724b2d532f5d1ae5393bccfe64925a09f956fe815b0c9b0e757e8e9373e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡数据规范（Levels Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 241,
-          "tokens": 5812,
+          "endLine": 251,
+          "tokens": 6334,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.2 · 任务号 WXG-T-130（v1.2 = mispl",
           "keywords": [
             "Levels",
@@ -19682,8 +19962,8 @@
           "anchor": "§2 单关字段与硬约束（BOOT 校验，architecture-beads §6）",
           "level": 2,
           "startLine": 33,
-          "endLine": 57,
-          "tokens": 866,
+          "endLine": 67,
+          "tokens": 1388,
           "summary": "尺寸 GRID_MIN_COLS(6) ≤ cols ≤ GRID_MAX_COLS(29)；GRID_MIN_ROWS",
           "keywords": [
             "§6",
@@ -19697,8 +19977,8 @@
         {
           "anchor": "§2.1 交换构造法（v1.2 新增；可解性的构造保证）",
           "level": 3,
-          "startLine": 49,
-          "endLine": 57,
+          "startLine": 50,
+          "endLine": 58,
           "tokens": 351,
           "summary": "错位布置 = pattern 全满 → 按 swaps 顺序对可填格珠两两交换。",
           "keywords": [
@@ -19711,10 +19991,25 @@
           ]
         },
         {
+          "anchor": "§2.2 全错位初盘（v1.3 新增；成片错豆）",
+          "level": 3,
+          "startLine": 59,
+          "endLine": 67,
+          "tokens": 298,
+          "summary": "swaps 封顶 8 对 ⇒ 最多 16 颗错豆，无法表达「成片错豆」。MVP 大盘（14×14 / 18×18）改用 ",
+          "keywords": [
+            "swaps",
+            "MVP",
+            "全错位初盘",
+            "新增",
+            "成片错豆"
+          ]
+        },
+        {
           "anchor": "§3 前 8 关参数总表",
           "level": 2,
-          "startLine": 58,
-          "endLine": 75,
+          "startLine": 68,
+          "endLine": 85,
           "tokens": 502,
           "summary": "难度旋钮（v1.2 改写）：~~①尺寸 ②色数 ③供料间隔~~ → ①尺寸 ②色数 ③错位对数 k（swaps.leng",
           "keywords": [
@@ -19726,8 +20021,8 @@
         {
           "anchor": "§4 砖块构成明细（逐关权威核对表，防手工数错）",
           "level": 2,
-          "startLine": 76,
-          "endLine": 90,
+          "startLine": 86,
+          "endLine": 100,
           "tokens": 184,
           "summary": "L1 22 0 4,6,6,4,2 22×1",
           "keywords": [
@@ -19739,8 +20034,8 @@
         {
           "anchor": "§5 难度与时长预估（v1.2 重推；待 playtest 校准）",
           "level": 2,
-          "startLine": 91,
-          "endLine": 125,
+          "startLine": 101,
+          "endLine": 135,
           "tokens": 1764,
           "summary": "重推前提（WXG-T-130 案 A）：核心循环反转为「错位归位」——玩家只需处理 2k 颗错位珠（L1=2 … L8=",
           "keywords": [
@@ -19754,8 +20049,8 @@
         {
           "anchor": "§5.1 尾盘满槽（GAP-06）交叉校验 —— ⛔ v1.2 整体作废（WXG-T-130 案 A）",
           "level": 3,
-          "startLine": 100,
-          "endLine": 125,
+          "startLine": 110,
+          "endLine": 135,
           "tokens": 1193,
           "summary": "⛔ 作废声明：本节全部前提（定时供料、供料冗余、满槽跳供、死珠棘轮）随供料关停消失——托盘珠唯一来源是玩家取回、必有可周",
           "keywords": [
@@ -19769,8 +20064,8 @@
         {
           "anchor": "§6 布局可视化（图例：`·`=空位　`▓`=锁定 x　`1`–`8`=色板索引对应色）",
           "level": 2,
-          "startLine": 126,
-          "endLine": 215,
+          "startLine": 136,
+          "endLine": 225,
           "tokens": 640,
           "summary": "",
           "keywords": [
@@ -19785,8 +20080,8 @@
         {
           "anchor": "§L1 暖心（6×5）",
           "level": 3,
-          "startLine": 128,
-          "endLine": 135,
+          "startLine": 138,
+          "endLine": 145,
           "tokens": 27,
           "summary": "",
           "keywords": [
@@ -19796,8 +20091,8 @@
         {
           "anchor": "§L2 小屋（8×6）",
           "level": 3,
-          "startLine": 136,
-          "endLine": 144,
+          "startLine": 146,
+          "endLine": 154,
           "tokens": 43,
           "summary": "",
           "keywords": [
@@ -19807,8 +20102,8 @@
         {
           "anchor": "§L3 摆尾小鱼（9×6）",
           "level": 3,
-          "startLine": 145,
-          "endLine": 153,
+          "startLine": 155,
+          "endLine": 163,
           "tokens": 41,
           "summary": "",
           "keywords": [
@@ -19818,8 +20113,8 @@
         {
           "anchor": "§L4 结果的树（10×7）",
           "level": 3,
-          "startLine": 154,
-          "endLine": 163,
+          "startLine": 164,
+          "endLine": 173,
           "tokens": 56,
           "summary": "",
           "keywords": [
@@ -19829,8 +20124,8 @@
         {
           "anchor": "§L5 猫脸（11×8）",
           "level": 3,
-          "startLine": 164,
-          "endLine": 174,
+          "startLine": 174,
+          "endLine": 184,
           "tokens": 81,
           "summary": "",
           "keywords": [
@@ -19840,8 +20135,8 @@
         {
           "anchor": "§L6 顺风帆船（12×9）",
           "level": 3,
-          "startLine": 175,
-          "endLine": 186,
+          "startLine": 185,
+          "endLine": 196,
           "tokens": 101,
           "summary": "",
           "keywords": [
@@ -19851,8 +20146,8 @@
         {
           "anchor": "§L7 升空热气球（13×10）",
           "level": 3,
-          "startLine": 187,
-          "endLine": 199,
+          "startLine": 197,
+          "endLine": 209,
           "tokens": 99,
           "summary": "",
           "keywords": [
@@ -19862,8 +20157,8 @@
         {
           "anchor": "§L8 星际火箭（13×12）",
           "level": 3,
-          "startLine": 200,
-          "endLine": 215,
+          "startLine": 210,
+          "endLine": 225,
           "tokens": 124,
           "summary": "",
           "keywords": [
@@ -19873,8 +20168,8 @@
         {
           "anchor": "§7 关卡设计约束（新增关卡必须遵守）",
           "level": 2,
-          "startLine": 216,
-          "endLine": 226,
+          "startLine": 226,
+          "endLine": 236,
           "tokens": 298,
           "summary": "1. 字符集限定 BEAD_CHARSET=\".x1-9A\"，其余字符（含空格/小写/0）均为错误——校验器报错到 id",
           "keywords": [
@@ -19887,8 +20182,8 @@
         {
           "anchor": "§8 校验分工",
           "level": 2,
-          "startLine": 227,
-          "endLine": 230,
+          "startLine": 237,
+          "endLine": 240,
           "tokens": 128,
           "summary": "与 breakout 判例一致（breakout levels-spec.md §5.1）：结构校验（字符集/行宽/行数",
           "keywords": [
@@ -19902,8 +20197,8 @@
         {
           "anchor": "§9 冲刺模式（sprint）图案来源",
           "level": 2,
-          "startLine": 231,
-          "endLine": 234,
+          "startLine": 241,
+          "endLine": 244,
           "tokens": 137,
           "summary": "sprint 梯级图案从本文件 8 关图案池循环取用（gdd/score-combo.md §2.3），不另建图案库；梯",
           "keywords": [
@@ -19918,8 +20213,8 @@
         {
           "anchor": "§10 变更记录",
           "level": 2,
-          "startLine": 235,
-          "endLine": 241,
+          "startLine": 245,
+          "endLine": 251,
           "tokens": 379,
           "summary": "v1.1 2026-09-14/15 建档后回写：§5.1 尾盘满槽交叉校验（WXG-T-081）、§1/§2 deco",
           "keywords": [
@@ -20373,17 +20668,17 @@
     },
     {
       "path": "games/beads/design/proposals/board-size-29-mvp.md",
-      "tokens": 1683,
-      "lines": 70,
-      "sha256": "885fed2b5cc2e32703714f4f5fce7a2e96531a1d1f44f79047dc4d47ce63dd92",
+      "tokens": 1759,
+      "lines": 72,
+      "sha256": "693dc1cb0ea5f6398b80c2386e99f48644ba10d56e587abf0109c7f535ed863d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§盘面规格档位与 29×29 MVP 落档（提案）",
           "level": 1,
           "startLine": 1,
-          "endLine": 71,
-          "tokens": 1666,
+          "endLine": 73,
+          "tokens": 1742,
           "summary": "状态：冻结变更已执行（GRID_MAX_COLS/ROWS 13/12 → 29/29，systems-index §3",
           "keywords": [
             "§3",
@@ -20455,19 +20750,19 @@
           ]
         },
         {
-          "anchor": "§5 前置顺序建议（我的建议，待裁）",
+          "anchor": "§5 前置顺序建议（已被 ADR-0018 裁定覆盖，保留历史留档）",
           "level": 2,
           "startLine": 62,
-          "endLine": 71,
-          "tokens": 140,
-          "summary": "1. GRID_MAX 放开（§3 变更单）+ zoom 自适应 LOD + 真机帧率验证（风险 1）",
+          "endLine": 73,
+          "tokens": 207,
+          "summary": "ADR-0018 结论（2026-09-20）：MVP 按 B3 (14×14) + B1 (18×18) 两档出关；2",
           "keywords": [
-            "§3",
-            "GRID_MAX",
-            "zoom",
-            "LOD",
+            "ADR",
+            "MVP",
             "前置顺序建议",
-            "我的建议"
+            "已被",
+            "裁定覆盖",
+            "保留历史留档"
           ]
         }
       ]

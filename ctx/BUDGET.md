@@ -30,10 +30,10 @@
 | 6 | `games/beads/art/accessibility.md` | 27120 | 185 | normal |
 | 7 | `games/beads/design/ux/ux-spec.md` | 20666 | 345 | normal |
 | 8 | `games/beads/design/gdd/input-control.md` | 14972 | 194 | normal |
-| 9 | `games/beads/design/gdd/systems-index.md` | 12636 | 284 | hot |
+| 9 | `games/beads/design/gdd/systems-index.md` | 12886 | 285 | hot |
 | 10 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
 | 11 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
-| 12 | `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 12338 | 248 | normal |
+| 12 | `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 12530 | 249 | normal |
 | 13 | `docs/engine-reference/cocos/VERSION.md` | 12203 | 456 | normal |
 | 14 | `my-skills/writing-skills/anthropic-best-practices.md` | 11532 | 1150 | normal |
 | 15 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
@@ -55,10 +55,10 @@
 | `games/beads/art/accessibility.md` | 27120 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 20666 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 14972 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/systems-index.md` | 12636 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/systems-index.md` | 12886 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 12338 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 12530 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/engine-reference/cocos/VERSION.md` | 12203 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/writing-skills/anthropic-best-practices.md` | 11532 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
