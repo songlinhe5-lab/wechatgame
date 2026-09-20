@@ -122,10 +122,18 @@ export const BEAD_CELL = 50;
 export const BEAD_GAP = 2;
 /** Grid pitch = `BEAD_CELL + BEAD_GAP` = 52. */
 export const BEAD_PITCH = BEAD_CELL + BEAD_GAP;
-/** Max columns per level. */
-export const GRID_MAX_COLS = 13;
-/** Max rows per level. */
-export const GRID_MAX_ROWS = 12;
+/**
+ * Max columns per level. **v1.33（WXG-T-180）：13 → 29** —— 对齐 5mm Midi **标准方形盘
+ * 29×29 = 841 颗**（用户 2026-09-20 盘面调研 + MVP 目标；落档
+ * `design/proposals/board-size-29-mvp.md`）。
+ * ⚠️ 连带（诚实登记，均为 WXG-T-180 挂账）：① 单屏放不下 29 列（29×`BEAD_PITCH` = 1508px
+ * > 750px 设计宽）⇒ 必须依赖缩放（ADR-0015 丁-3「布局即相机」已落码）；② 静态图元
+ * ≈ 8410（原 ≈1560）⇒ **zoom 自适应 LOD 待立项**，未落地前大盘性能**未经真机验证**；
+ * ③ 难度曲线（`levels-spec §3` 的 k / time）需重推。
+ */
+export const GRID_MAX_COLS = 29;
+/** Max rows per level（同上，12 → 29）。 */
+export const GRID_MAX_ROWS = 29;
 /** Demo minimum columns. */
 export const GRID_MIN_COLS = 6;
 /** Demo minimum rows. */
@@ -692,7 +700,11 @@ export const WAVE_SCALE_PEAK = 1.08;
 export const WAVE_RISE_RATIO = 0.35;
 /** 微抬幅度（与 `WRONG_SHAKE_PX` 同量级；单峰非震动）。 */
 export const WAVE_LIFT_PX = 3;
-/** clamp 下限：GRID_MAX_COLS 13 ⇒ W=560，留 240 兜底防异常。 */
+/**
+ * clamp 下限：GRID_MAX_COLS 29 ⇒ 逐列窗口 W = max(240, 800 − 20×(29−1)) = max(240, 240)
+ * = **240（恰好触及下限）** ⇒ 大盘下波浪从"递降"退化为"全体同窗口"，观感需复核；
+ * 240 兜底仍保留防异常（原注「13 ⇒ W=560」随 §3.3 v1.33 作废）。
+ */
 export const WAVE_WINDOW_MIN_MS = 240;
 /** 弹跳列的降层档（含垫，见上方⚠️）：L0b+L1+L2+L3+L4c+L5 + L11。 */
 export const WAVE_LOD_LAYERS = 7;

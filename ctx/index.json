@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "c413aa390ccc2c392e8e9aeda5260cdd26f182775e6787ef31003cd794117656",
+      "sha256": "1ebcc2387d8d70f51b4655d74bfc90141b7257b42674bea0287e7858d5158a4f",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4609,
       "lines": 82,
-      "sha256": "d7088f6bb9ba4eed3c465c5a1c8107c83d372b63cd0dbae8c103980d892a0a60",
+      "sha256": "2fd041b423581c7c766969c65efd2df952ec9f3991de90b3e52c8c6766b3a857",
       "tier": "normal",
       "sections": [
         {
@@ -529,7 +529,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 284 行 / 12237 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 284 行 / 12636 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -18618,17 +18618,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 10474,
-      "lines": 44,
-      "sha256": "291f9ce78c1744ece7af2366bbbf9bbbc603f8cdedec9e7024849e7efefc3a13",
+      "tokens": 10833,
+      "lines": 45,
+      "sha256": "838f9fce3dd0d35a8b3521b087eac8bc7b80d9d7f8fd6b74ccc435d1fdfaf002",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 45,
-          "tokens": 10456,
+          "endLine": 46,
+          "tokens": 10815,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -18643,8 +18643,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 45,
-          "tokens": 10297,
+          "endLine": 46,
+          "tokens": 10657,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -18656,9 +18656,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 12237,
+      "tokens": 12636,
       "lines": 284,
-      "sha256": "8175ce3d40dba584f2017bfcc81a8f0484271077487423e06754963ea9e48524",
+      "sha256": "d7082b2031625fb5a5d1a19c310658eded16c44fa100ab60d639d09dea3c92e0",
       "tier": "hot",
       "sections": [
         {
@@ -18666,15 +18666,15 @@
           "level": 1,
           "startLine": 1,
           "endLine": 285,
-          "tokens": 12220,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.33 · 任务号 WXG-T-167（v1.33 = S10",
+          "tokens": 12619,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.34 · 任务号 WXG-T-180（v1.34 = §3.",
           "keywords": [
+            "§3",
             "Systems",
             "Index",
             "beads",
             "games",
-            "WXG",
-            "S10"
+            "WXG"
           ]
         },
         {
@@ -18709,7 +18709,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 239,
-          "tokens": 8123,
+          "tokens": 8293,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -18756,7 +18756,7 @@
           "level": 3,
           "startLine": 95,
           "endLine": 110,
-          "tokens": 229,
+          "tokens": 399,
           "summary": "BEAD_CELL 50 珠子边长（正方形 1:1）",
           "keywords": [
             "Bead",
@@ -19402,9 +19402,9 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 5747,
+      "tokens": 5826,
       "lines": 240,
-      "sha256": "9bf45c14589ba511864d2f2117b68a091b3e92c53ad8b2766881ffb9456c5d65",
+      "sha256": "79d1f41ef3e4ae5d55046ebadf1b8d7e2a792acb53e072a878491f3e9802b534",
       "tier": "normal",
       "sections": [
         {
@@ -19412,7 +19412,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 241,
-          "tokens": 5733,
+          "tokens": 5812,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.2 · 任务号 WXG-T-130（v1.2 = mispl",
           "keywords": [
             "Levels",
@@ -19439,8 +19439,8 @@
           "level": 2,
           "startLine": 33,
           "endLine": 57,
-          "tokens": 787,
-          "summary": "尺寸 GRID_MIN_COLS(6) ≤ cols ≤ GRID_MAX_COLS(13)；GRID_MIN_ROWS",
+          "tokens": 866,
+          "summary": "尺寸 GRID_MIN_COLS(6) ≤ cols ≤ GRID_MAX_COLS(29)；GRID_MIN_ROWS",
           "keywords": [
             "§6",
             "BOOT",
@@ -20129,9 +20129,9 @@
     },
     {
       "path": "games/beads/design/proposals/board-size-29-mvp.md",
-      "tokens": 1618,
+      "tokens": 1683,
       "lines": 70,
-      "sha256": "4f87af5ac18688a137f02c27e66ce1731dcb197e58b6d3f922c4137f0e9741d0",
+      "sha256": "885fed2b5cc2e32703714f4f5fce7a2e96531a1d1f44f79047dc4d47ce63dd92",
       "tier": "normal",
       "sections": [
         {
@@ -20139,15 +20139,15 @@
           "level": 1,
           "startLine": 1,
           "endLine": 71,
-          "tokens": 1601,
-          "summary": "状态：提案待裁 —— 含一项冻结变更请求（GRID_MAX_COLS/ROWS 13/12 → 29/29）与四项风险，",
+          "tokens": 1666,
+          "summary": "状态：冻结变更已执行（GRID_MAX_COLS/ROWS 13/12 → 29/29，systems-index §3",
           "keywords": [
+            "§3",
             "MVP",
             "GRID_MAX_COLS",
             "ROWS",
-            "盘面规格档位",
-            "落档",
-            "提案"
+            "systems",
+            "index"
           ]
         },
         {
@@ -36718,7 +36718,7 @@
       "path": "memory/INDEX.md",
       "tokens": 8346,
       "lines": 205,
-      "sha256": "54942e2bd11bf8568bf29a38249102134eea743f5f0a460a0ca9113efc576336",
+      "sha256": "2d7191a3122191c308dfe6ae8ea3810262ed09cb36e9eb4504bb2254bbad7ab6",
       "tier": "normal",
       "sections": [
         {
@@ -36809,7 +36809,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 28 天）",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 27 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 89,
@@ -36825,7 +36825,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 27 天）",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 26 天）",
           "level": 3,
           "startLine": 90,
           "endLine": 101,
@@ -36841,7 +36841,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 26 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 25 天）",
           "level": 3,
           "startLine": 102,
           "endLine": 118,
@@ -36857,7 +36857,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 25 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 24 天）",
           "level": 3,
           "startLine": 119,
           "endLine": 146,
@@ -36873,7 +36873,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 24 天）",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 23 天）",
           "level": 3,
           "startLine": 147,
           "endLine": 167,
@@ -36889,7 +36889,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 23 天）",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 22 天）",
           "level": 3,
           "startLine": 168,
           "endLine": 185,
@@ -36905,7 +36905,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 22 天）",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 21 天）",
           "level": 3,
           "startLine": 186,
           "endLine": 206,

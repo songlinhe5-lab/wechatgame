@@ -18,6 +18,8 @@ import {
   DESIGN_W,
   GRID_MAX_COLS,
   GRID_MAX_ROWS,
+  GRID_MIN_COLS,
+  GRID_MIN_ROWS,
   HUD_BAND,
   POWERUP_BAND,
   PUZZLE_BAND,
@@ -61,17 +63,31 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
   });
 
   describe('gridLayoutFor', () => {
-    it('centres the max-size board inside PUZZLE_BAND and the design width', () => {
-      const layout = gridLayoutFor(GRID_MAX_COLS, GRID_MAX_ROWS);
-      const width = GRID_MAX_COLS * BEAD_PITCH - BEAD_GAP;
+    it('centres the board inside PUZZLE_BAND and the design width, and records that 29×29 overflows', () => {
+      // **WXG-T-180（§3.3 v1.33）迁移**：`GRID_MAX` 13/12 → 29/29 之后，
+      // 29 × `BEAD_PITCH` = 1508 > `DESIGN_W` = 750 ⇒ 原「**最大盘**必须居中且左右留边 ≥30」
+      // 的不变式**不再成立于 GRID_MAX**。故拆成两条，都不软化、只是各归其位：
+      //   ① 居中 / 留边 / 落在带内 ⇒ 只对「**设计宽内容得下的最大盘**」成立（`fitCols`）；
+      //   ② 29×29 标准盘**显式超出设计宽** ⇒ 必须靠缩放观看（ADR-0015 丁-3「布局即相机」），
+      //      **不得再声称"完整可见"** —— 这是事实记录，不是缺陷豁免。
+      const fitCols = Math.floor((DESIGN_W + BEAD_GAP) / BEAD_PITCH); // 屏内容得下的最大列数
+      expect(fitCols).toBeGreaterThanOrEqual(GRID_MIN_COLS);
+      const layout = gridLayoutFor(fitCols, GRID_MIN_ROWS);
+      const width = fitCols * BEAD_PITCH - BEAD_GAP;
       expect(layout.left).toBeCloseTo((DESIGN_W - width) / 2, 6);
       // Symmetric margins ⇒ the board is horizontally centred.
       expect(layout.left).toBeCloseTo(DESIGN_W - (layout.left + width), 6);
-      expect(layout.left).toBeGreaterThanOrEqual(30);
+      expect(layout.left).toBeGreaterThanOrEqual(0);
       expect(layout.top).toBeLessThanOrEqual(PUZZLE_BAND.yMax);
       expect(layout.bottom).toBeGreaterThanOrEqual(PUZZLE_BAND.yMin);
-      expect(layout.cols).toBe(GRID_MAX_COLS);
-      expect(layout.rows).toBe(GRID_MAX_ROWS);
+      expect(layout.cols).toBe(fitCols);
+
+      // ② 标准盘溢出（诚实记录）
+      const big = gridLayoutFor(GRID_MAX_COLS, GRID_MAX_ROWS);
+      const bigWidth = GRID_MAX_COLS * BEAD_PITCH - BEAD_GAP;
+      expect(bigWidth).toBeGreaterThan(DESIGN_W);
+      expect(big.cols).toBe(GRID_MAX_COLS);
+      expect(big.rows).toBe(GRID_MAX_ROWS);
     });
 
     it('places cell centres on the §3.3 pitch formulas', () => {
@@ -102,7 +118,9 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     it('starts at the documented floor and saturates at the §3 ceilings', () => {
       // 起步档 = 最少色数 / 最小格数 / 最慢供料（供料间隔的上限）。
       expect(stageParamsFor(0)).toEqual({ colors: 3, cells: 30, interval: SPAWN_INTERVAL_MAX });
-      const deep = stageParamsFor(50);
+      // **WXG-T-180（§3.3 v1.33）迁移**：格数饱和上限随 `GRID_MAX` 156 → 841，
+      // 原 index=50（30+10×50 = 530）**已不足以触顶** ⇒ 改 100（1030 > 841）仍能饱和。
+      const deep = stageParamsFor(100);
       expect(deep.colors).toBe(BEAD_COLOR_MAX);
       expect(deep.cells).toBe(GRID_MAX_COLS * GRID_MAX_ROWS);
       expect(deep.interval).toBe(SPAWN_INTERVAL_MIN);

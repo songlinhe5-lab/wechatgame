@@ -34,7 +34,7 @@ LevelsFile（levels-01-08.json）
 
 | 约束 | 值/规则 | 来源 |
 |---|---|---|
-| 尺寸 | `GRID_MIN_COLS`(6) ≤ cols ≤ `GRID_MAX_COLS`(13)；`GRID_MIN_ROWS`(5) ≤ 行数 ≤ `GRID_MAX_ROWS`(12) | §3.3 |
+| 尺寸 | `GRID_MIN_COLS`(6) ≤ cols ≤ `GRID_MAX_COLS`(**29**)；`GRID_MIN_ROWS`(5) ≤ 行数 ≤ `GRID_MAX_ROWS`(**29**) —— **随 `systems-index §3.3` v1.34 由 13/12 放开**，对齐 5mm Midi 标准方形盘 29×29；⚠️ **>13 列的盘单屏放不下**（29×52 = 1508px > 750px）⇒ 依赖缩放（ADR-0015 丁-3），且图元/难度/波浪观感三条连带见 §3.3 v1.34 | §3.3 |
 | 字符集 | pattern 每字符 ∈ `BEAD_CHARSET`；每行长度 === cols | §3.2 |
 | 色数 | pattern 去重色数 ∈ [3, `BEAD_COLOR_MAX`(8)] | §3.2 |
 | 锁定格 | `x` 不计完成；关卡须 ≥1 可填格（全部关卡满足，x 仅装饰） | core-loop §6 / §3.2 |
