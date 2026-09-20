@@ -122,7 +122,7 @@ function listResults() {
                 out.push({
                     id: r.id, board: r.board, cols: r.cols, rows: r.rows, shape: r.shape,
                     palette: r.palette, colors: r.colors, swaps: r.swaps, createdAt: r.createdAt,
-                    hasThumb: !!r.thumb,
+                    hasThumb: !!r.thumb, importable: r.importable === true,
                 });
             } catch {
                 /* 跳过损坏条目 */
@@ -135,6 +135,28 @@ function listResults() {
 
 /** id 只允许 [a-z0-9-]，防目录穿越。 */
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
+
+/**
+ * 「能不能入关」单一判据（值域全部来自 `systems-index §3` 冻结常量，不是 Studio 自定）：
+ *  盘面 6–29 × 5–29（`GRID_MIN/MAX`）· 用色 3–8（`BEAD_COLOR_MAX=8`，BOOT 下限 3）
+ *  · 交换对数 1–8（`MISPLACED_PAIRS_MIN/MAX`）· **色板必须 = 游戏 10 色真源**。
+ *
+ * 最后一条是真缺陷而非偏好：游戏不读 `paletteHex`，而是按**色号索引**取 `BEAD_PALETTE`。
+ * 所以 Artkal / 程序化色板只要限色到 ≤8 就能**过 BOOT**，导入后图案不变、颜色全变
+ * （实测：artkal 限 8 色 → 预览 `#249E6B…` ⇒ 游戏画成 `#FDF6E9…`）——静默换色。
+ * 因此：不合规的产物**不当关卡用**（`/level` 直接 422），但仍当参考图存着、列着。
+ */
+function importBlockers(r) {
+    const b = [];
+    if (!r.levelDraft) b.push('无关卡草案：交换错位 k 必须 ≥ 1（`MISPLACED_PAIRS_MIN`）');
+    if (r.swaps > 8) b.push(`交换对数 ${r.swaps} > 8（\`MISPLACED_PAIRS_MAX\`）`);
+    if (r.colors < 3) b.push(`用色 ${r.colors} < 3（BOOT 下限）`);
+    if (r.colors > 8) b.push(`用色 ${r.colors} > 8（\`BEAD_COLOR_MAX\`）`);
+    if (r.palette !== '10') b.push(`色板为 ${r.palette}（非游戏 10 色真源）⇒ 导入不会报错，但会按色号换成游戏珠色（静默换色）`);
+    if (r.cols < 6 || r.cols > 29) b.push(`列数 ${r.cols} 超出 6–29（\`GRID_MIN_COLS\`/\`GRID_MAX_COLS\`）`);
+    if (r.rows < 5 || r.rows > 29) b.push(`行数 ${r.rows} 超出 5–29（\`GRID_MIN_ROWS\`/\`GRID_MAX_ROWS\`）`);
+    return b;
+}
 
 async function handleGenerate(req, res, url) {
     const q = url.searchParams;
@@ -202,6 +224,9 @@ async function handleGenerate(req, res, url) {
         misplaced: pattern.misplaced, // 全错位参考盘（仅 swaps=0 时为真实初始盘）
         report: pattern.report ?? null,
     };
+    // 可入关判定在写盘时算一次（单一真源），前端与服务端拦截共用同一结果
+    result.blockers = importBlockers(result);
+    result.importable = result.blockers.length === 0;
     writeFileSync(join(outDir, 'result.json'), JSON.stringify(result, null, 2));
     rmSync(rawPath, { force: true }); // 像素底稿不留盘（体积大）
     sendJson(res, 200, result);
@@ -220,7 +245,17 @@ async function handle(req, res) {
                 const f = join(DATA, board, m[1], 'result.json');
                 if (existsSync(f)) {
                     const r = JSON.parse(readFileSync(f, 'utf8'));
-                    return sendJson(res, 200, m[2] ? r.levelDraft : r);
+                    if (m[2]) {
+                        // 关卡端点：不合规就硬拒，**别让小游戏拿到一张会变色的图**（静默换色比报错难查）。
+                        const blockers = Array.isArray(r.blockers) && r.blockers.length
+                            ? r.blockers
+                            : importBlockers(r); // 兼容旧数据（本次修改前存盘的条目）
+                        if (blockers.length) {
+                            return sendJson(res, 422, { error: '该结果不可入关：' + blockers.join('；'), blockers });
+                        }
+                        return sendJson(res, 200, r.levelDraft);
+                    }
+                    return sendJson(res, 200, r);
                 }
             }
             return sendJson(res, 404, { error: 'not found' });

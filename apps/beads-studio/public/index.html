@@ -141,6 +141,16 @@
             white-space: pre-line;
         }
 
+        .bad {
+            font-size: 12px;
+            color: #c0392b;
+            white-space: pre-line;
+        }
+
+        .bad:empty {
+            display: none;
+        }
+
         #results .grp {
             margin-top: 12px;
         }
@@ -207,14 +217,16 @@
                 <div><label>行</label><input type="number" id="rows" value="29" min="2" max="107"></div>
             </div>
             <div class="row2">
-                <div><label>色板（推荐：游戏 10 色）</label><select id="palette">
-                        <option value="10" selected>游戏 10 色（可入关）</option>
-                        <option value="artkal">Artkal 真值（参考）</option>
+                <div><label>候选色集合（量化目标色）</label><select id="palette">
+                        <option value="10" selected>游戏 10 色真源（唯一可入关）</option>
+                        <option value="artkal">Artkal 真值 174 色（仅参考图 · 不可入关）</option>
                     </select></div>
-                <div><label>用色上限（推荐 8 = 入关硬顶）</label><input type="number" id="colors" value="8" min="0" max="200"></div>
+                <div><label>实际用几种颜色<span id="colorsHint">（可入关 3–8）</span></label><input type="number" id="colors"
+                        value="8" min="3" max="8"></div>
             </div>
             <div class="row2">
-                <div><label>交换错位 k 对（推荐 8）</label><input type="number" id="swaps" value="8" min="0" max="200"></div>
+                <div><label>交换错位对数 k<span id="swapsHint">（可入关 1–8 ⇒ 初始盘 2k 颗错位）</span></label><input type="number"
+                        id="swaps" value="8" min="1" max="8"></div>
                 <div><label>众数滤波轮数（推荐 1）</label><input type="number" id="smooth" value="1" min="0" max="5"></div>
             </div>
             <div class="row2">
@@ -227,12 +239,13 @@
                         <option value="hex">六边形</option>
                         <option value="heart">心形</option>
                     </select></div>
-                <div><label>选色模式（推荐误差最小）</label><select id="colorsmode">
-                        <option value="error" selected>误差最小</option>
-                        <option value="freq">频次优先</option>
+                <div><label>选色模式（限色时挑哪几种）</label><select id="colorsmode">
+                        <option value="error" selected>误差最小·保形（推荐）</option>
+                        <option value="freq">频次优先·保大块</option>
                     </select></div>
             </div>
-            <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto" checked> 铺满整盘（不扣背景；推荐）</label>
+            <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto" checked>
+                铺满整盘（不扣背景；推荐）</label>
             <button id="gen">生成</button>
             <div id="msg"></div>
         </section>
@@ -244,6 +257,7 @@
                     <button id="tSolved" class="on">正解图</button>
                     <button id="tMis">错位图（初始盘）</button>
                 </div>
+                <div id="badge" class="bad"></div>
                 <div id="stats"></div>
                 <button class="ghost" id="dl" disabled>下载 levelDraft JSON</button>
                 <button class="ghost" id="cp" disabled>复制 rowstrings</button>
@@ -275,6 +289,16 @@
         $('shapeKind').onchange = () => {
             $('freeShapeBox').style.display = $('shapeKind').value === 'free' ? 'block' : 'none';
         };
+
+        /** 用色域跟色板走：游戏侧“可入关”= 3–8（`BEAD_COLOR_MAX`），Artkal 仅参考图不卡域。 */
+        function syncColorsDomain() {
+            const game = $('palette').value === '10';
+            $('colors').min = 3; $('colors').max = game ? 8 : 64;
+            if (game && +$('colors').value > 8) $('colors').value = 8;
+            $('colorsHint').textContent = game ? '（可入关 3–8）' : '（参考图，不可入关）';
+        }
+        $('palette').onchange = syncColorsDomain;
+        syncColorsDomain();
 
         $('board').onchange = () => {
             const b = $('board').value;
@@ -387,6 +411,8 @@
                 `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.swaps * 2} 颗（${r.swaps} 对交换）\n` +
                 `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? '?'}`;
             $('dl').disabled = $('cp').disabled = !(r.levelDraft);
+            // 不可入关就显式标红 + 说原因（静默换色比报错难查，不能只靠用户自己避坑）
+            $('badge').textContent = r.importable === false ? '⚠ 不可入关：' + (r.blockers || []).join('；') : '';
         }
 
         /** 三视图切换（原图 / 正解 / 错位）。 */
@@ -420,7 +446,7 @@
                     grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
                     for (const r of list) {
                         const d = document.createElement('div'); d.className = 'item';
-                        d.innerHTML = `<span>${r.id}</span><small>${r.colors} 色 · 错位 ${r.swaps * 2}</small>`;
+                        d.innerHTML = `<span>${r.importable === false ? '⚠ ' : ''}${r.id}</span><small>${r.colors} 色 · 错位 ${r.swaps * 2}${r.importable === false ? ' · 不可入关' : ''}</small>`;
                         // 列表是轻投影（不含 pattern/缩略图）⇒ 点开才拉单条全量
                         d.onclick = async () => {
                             try {

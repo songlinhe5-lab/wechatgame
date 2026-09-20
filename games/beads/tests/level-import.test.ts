@@ -102,6 +102,14 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         expect(r.ok).toBe(false);
         expect(r.errors[0]).toContain('无已存结果');
     });
+
+    it('服务端 422（不可入关产物）⇒ 原因原样透传，不降级成「无 levelDraft」', async () => {
+        const why = '该结果不可入关：色板为 artkal（非游戏 10 色真源）⇒ 导入会静默换色';
+        const r = await importLatest('http://h:8787', async (url) =>
+            url.endsWith('/level') ? { error: why, blockers: [why] } : { results: [{ id: 'bad-1' }] });
+        expect(r.ok).toBe(false);
+        expect(r.errors[0]).toBe(why);
+    });
 });
 
 describe('WXG-T-179 · BeadsGame.importLevel 追加进表并入局', () => {

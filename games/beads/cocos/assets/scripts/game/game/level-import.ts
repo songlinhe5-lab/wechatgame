@@ -88,15 +88,20 @@ export async function fetchResults(base: string, get: HttpGet): Promise<readonly
 
 /**
  * 一键导入用：取**最新**一条结果并转成可装配的 `BeadsLevelRaw`。
- * 空列表 / 校验失败均以 errors 返回（不抛，交给 UI 显示）。
+ * 空列表 / 不合规 / 校验失败均以 errors 返回（不抛，交给 UI 显示）。
  */
 export async function importLatest(base: string, get: HttpGet): Promise<ImportOutcome> {
     const list = await fetchResults(base, get);
     const head = list[0];
     if (!head) return { ok: false, errors: ['服务无已存结果（请先在 beads-studio 生成一关）'] };
-    const draft = (await get(studioUrl(base, `/api/results/${head.id}/level`))) as LevelDraft;
+    const draft = (await get(studioUrl(base, `/api/results/${head.id}/level`))) as LevelDraft & { error?: string };
+    // 服务端对「不可入关」产物直返 422 + 原因（如非 10 色色板 ⇒ 游戏内静默换色）；
+    // 这里原样透传，不降级成看不出所以然的「无 levelDraft」。
+    if (draft && typeof draft.error === 'string') {
+        return { ok: false, errors: [draft.error] };
+    }
     if (!draft || !Array.isArray(draft.pattern)) {
-        return { ok: false, errors: [`结果 ${head.id} 无 levelDraft（色板或参数不合规？）`] };
+        return { ok: false, errors: [`结果 ${head.id} 无 levelDraft（交换错位 k 需 ≥ 1）`] };
     }
     return draftToLevel(draft, 9000, `在线导入 ${head.id}`);
 }
