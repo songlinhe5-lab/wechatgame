@@ -1,0 +1,71 @@
+# beads-studio VPS 发布（WXG-T-179 续作）
+# **触发时机 = develop → master 合并完成之后**（只挂 master）：
+#   PR 合入 master 会产生 push 事件，paths 命中的就是本批 PR 改动的文件 ⇒ 自动发布；
+#   develop 上的日常合入**不**上线（要提前验，在 develop 上本地跑 deploy.sh 或直接看 Actions 手动跑）。
+# 也可手动发：Actions → beads-studio-deploy → Run workflow（可从任意分支手跑，但代码取自所选项分支）。
+#
+# 开通步骤（用户一次性配置）：
+#   1. repo Variables 配 BEADS_STUDIO_DEPLOY=true（未配 ⇒ 本 workflow 自动跳过）；
+#   2. repo Secrets 配 SSH_HOST / SSH_USER / SSH_KEY（私钥全文）；
+#   3. VPS 预装 Docker + compose 插件，且部署用户可免 sudo 跑 docker；
+#   4. VPS 上 rsync 目标目录（默认 /opt/beads-studio）首次需存在：ssh <vps> mkdir -p /opt/beads-studio
+#   5. （国内 VPS）拉不动 Docker Hub 时再配 Variable `BEADS_STUDIO_BASE_IMAGE`
+#      = `public.ecr.aws/docker/library/node:20-alpine`（只影响构建期 FROM，不动 daemon.json）
+# 布局：rsync 两目录（apps/beads-studio + tools/scripts/beads-gen.mjs）到 VPS 仓库根镜像结构，
+#       远端 `docker compose -f apps/beads-studio/docker-compose.yml up -d --build`（context=远端仓库根）。
+name: beads-studio-deploy
+
+on:
+  push:
+    branches: [master]  # develop → master 的 PR 合入 = 发布（master 是本仓默认分支）
+    paths:
+      - 'apps/beads-studio/**'
+      - 'tools/scripts/beads-gen.mjs'
+      - '.github/workflows/beads-studio-deploy.yml'
+  workflow_dispatch:  # 手动补发 / 重发（同一个 deploy 作业）
+
+concurrency:
+  group: beads-studio-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ vars.BEADS_STUDIO_DEPLOY == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # 上线属于外部副作用：在 Settings → Environments → production 可加 required reviewers
+    # （加了之后合 PR 不自动上线，需人到 Actions 点批准）；不加则合完即发。
+    environment:
+      name: production
+      url: http://120.53.84.116:8787
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Rsync deploy units
+        run: |
+          VPS=${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+          DEST=/opt/beads-studio
+          ssh $VPS "mkdir -p $DEST/apps/beads-studio $DEST/tools/scripts $DEST/games/beads/art"
+          rsync -az --delete apps/beads-studio/ --exclude data --exclude node_modules $VPS:$DEST/apps/beads-studio/
+          rsync -az tools/scripts/beads-gen.mjs $VPS:$DEST/tools/scripts/
+          rsync -az games/beads/art/artkal-palette.json $VPS:$DEST/games/beads/art/
+
+      - name: Build & restart
+        run: |
+          VPS=${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+          ssh $VPS "cd /opt/beads-studio && BEADS_STUDIO_BASE_IMAGE='${{ vars.BEADS_STUDIO_BASE_IMAGE }}' PORT='${{ vars.BEADS_STUDIO_PORT }}' docker compose -f apps/beads-studio/docker-compose.yml up -d --build"
+
+      - name: Health check
+        # 走 **VPS 回环**而不是公网：安全组没放行 8787 时服务其实是好的，
+        # 从公网 curl 会超时 ⇒ job 误红。公网可达与否由部署人自行决定（隧道也能用）。
+        run: |
+          sleep 3
+          VPS=${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+          ssh $VPS "curl -fsS --max-time 10 'http://127.0.0.1:${{ vars.BEADS_STUDIO_PORT || 8787 }}/api/results' >/dev/null" && echo "OK（回环）"

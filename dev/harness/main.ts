@@ -40,7 +40,11 @@ const isBeads = harnessParams.get('game') === 'beads';
 // `?meta=menu` boots beads straight into the shell's main menu (批0 路由验证)；
 // 默认 'play' 保持首启直进玩法红线。
 const game = isBeads
-  ? createBeadsShell({ initialScreen: harnessParams.get('meta') === 'menu' ? 'menu' : 'play' })
+  ? createBeadsShell({
+    initialScreen: harnessParams.get('meta') === 'menu' ? 'menu' : 'play',
+    // ?studio=http://localhost:8787 ⇒ 主菜单设置页出「导入」钮（WXG-T-179 beads-studio 在线导入）。
+    ...(harnessParams.get('studio') ? { studio: { baseUrl: harnessParams.get('studio')! } } : {}),
+  })
   : createBreakoutGame();
 /** Narrowed aliases — every use site is guarded by `isBeads`. */
 const breakout = game as BreakoutGame;

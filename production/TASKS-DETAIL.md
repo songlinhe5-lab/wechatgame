@@ -623,11 +623,45 @@
 - **门禁**：`check:tasks` / `check:links` / `ctx:check` 随本单跑；本单改动仅**文档**（ADR + 台账 + `architecture.md` 关联行），**零代码、零冻结值、零 §3 数值**。
 - **待办**：① **用户裁定 ADR-0016**（甲 + 丁是否采纳；乙 / 丙是否评估）——这是解锁后续的唯一前置；② 生成器 spike **转正入 `tools/scripts/beads-gen.mjs`**（`temp/` 不进库、易丢）⇒ 须**另领施工单**，且转正前须补"产物合规性"守卫；③ 看图定档（产物目录：`temp/ok-p10c8e`（合规推荐）/ `temp/cmp-p10c8e`（10 色基线）/ `temp/bp32c6`（32 色程序化）/ `temp/beads-36-base`（旧口径对照））。
 
+### 续作（Qoder · 2026-09-20）：beads-studio 在线生成器 + 小游戏导入
+
+用户要求：「简单的后端服务和前端页面，能生成 + 展示 + 归类本地存储结果；最好能小程序一键导入」。两项拍板（AskUserQuestion）：**落位 = 本仓 `apps/beads-studio/`**、**发布 = Docker 镜像**；导入通道 = **在线地址拉列表下载关卡**。
+
+- **生成核心不重写**（复用 T-179 已转正的 `beads-gen.mjs`），只加两处能力：`--in-raw`（JSON `{w,h,data:base64 RGBA}`，纯 Node 采样+量化，与 `readGrid` 同口径块内众数投票）+ `--no-png`；chromium 解析由顶层**惰性移入 `ensurePage()`** ⇒ 服务无需 playwright（VPS 镜像 node:20-alpine 即可）。CLI 原行为无回归（带 PNG / 免 PNG 双跑自验）。
+- **服务端** `apps/beads-studio/server.mjs`（**零第三方依赖**，纯 `node:http`）：`POST /api/generate`（RGBA raw body → spawn beads-gen → 失败即 rmSync 不留残骸）/ `GET /api/results`（按盘面归类、时间倒序）/ `GET /api/results/:id[/level]` / 静态页；目录名与 id 走 `[a-z0-9-]` 白名单防穿越（已测 404）。
+- **前端** `public/index.html`（单文件）：本地 `createImageBitmap`+canvas 解像到 ≤1024（**不上传原图文件**）、参数表单、canvas 预览 solved/misplaced 切换、已存结果分组列表、下载 levelDraft JSON / 复制 rowstrings。
+- **部署**：`Dockerfile` + `docker-compose.yml`（context = 仓根，数据卷 `beads-studio-data`）+ `.github/workflows/beads-studio-deploy.yml`（paths 命中 → rsync 两部署单元 → 远端 `docker compose up -d --build` → 健康检查；**未配 secrets 时由 `vars.BEADS_STUDIO_DEPLOY` 守卫自动跳过**）。
+- **小游戏导入**：`src/game/level-import.ts`（注入式 HTTP，L3 无平台依赖）+ `BeadsGame.importLevel()`（先过 `validateBeadsLevel` 才追加进关表，失败不改表）+ 设置页「导入」钮（`MetaViewData.studioEnabled`，**仅宿主配了地址时绘制**）。地址接线：微信侧 = 开发者工具启动参数 `studio=http://<IP>:8787`（`BeadsBootstrap`），harness 侧 = `?game=beads&meta=menu&studio=…`。不扣心（调试通道，不污染 §3.14 体力语义），结果经 `meta:studio-import` 事件回报。
+- **E2E 揪出一个真缺陷（沉淀 K-064）**：`beads-gen` 的 `levelDraft` 把 `cycleProfile` 硬写 `'long'`，而交换法恒为 2-环 ⇒ BOOT「cycleProfile=long 与实际最长环 2 矛盾」**会拒收每一条在线导入**。生产端改 `'short'` + 消费端不再采信自报值（两面夹住），并补「谎报 long 仍产 short」反例判据。8 条单测全绿时它并不存在 —— 只有真产物过真校验器才暴露。
+- **门禁**：`pnpm -w run verify` **17/17 PASS**（含 `framework:sync:check` 镜像门 / `cocos:check` / `harness:smoke`）；beads **521 例全绿**（本单新增 10 例：转换定价 / 谎报反例 / 不合规拒收 / HTTP 注入 / 空列表 / importLevel / 钮接线）。服务端另做真实 E2E 冒烟：POST 生成 → 列表 → `/level` → 过 `draftToLevel` + `validateBeadsLevel` 全绿。
+- **沉淀统计（kb:sync --task=WXG-T-179）**：首轮**新增 1（K-064）**/ 修改 0 / 激活 0 / 归档 0；部署续作轮**修改 1（K-064 追记：本机全绿 ≠ 目标环境能跑）**/ 新增 0；发布实跑轮**新增 1（K-065：国内 VPS 镜像源 + 云安全组两层坑）**。`kb:audit` 无归档相似命中；`ctx:build` 已刷。
+- **部署补记（同日续作，用户「179 继续完成部署」）**：
+  - **又揪出一个同型缺陷（追记进 K-064）**：上一轮宣称「`--no-png` 后服务端免浏览器」是**假绿** —— chromium 的 `ensurePage()` 写在 beads-gen **模块顶层**，本机装有 playwright 所以全绿，按 Dockerfile 布局拼的**无 chromium 容器目录**里直接退出码 1。修法：launch 下移到真正用它的 `readGrid` / `renderPng` 内部（按需创建），顶层零副作用；顺带修掉「`--no-png` 仍打印 solved.png/misplaced.png」的日志谎报。修后在 `/tmp`（无 node_modules）跑 `--in-raw --no-png` ⇒ **34ms 出盘、零浏览器** ✅。
+  - **容器布局端到端已过**：`temp/studio-fakeimg/`（server.mjs + public/ + vendor/beads-gen.mjs + cwd/temp/artkal-palette.json）起服务 ⇒ 游戏 10 色与 **artkal** 两条生成路径均 200（artkal 色板按子进程 cwd 解析已对齐 Dockerfile 布局）。
+  - **新增 `deploy.sh`**（本机一键发布，镜像构建在 VPS 上跑，本机只 rsync + ssh）：ssh 预建目录 → 三个部署单元 rsync → 远端 `docker compose up -d --build` → 回环健检（失败自动 tail 日志）。**stub 自测已过**（bash 3.2：无 KEY / 带 KEY / `PORT` 覆盖三轮，调用序列与参数逐条比对）；自测当场拓出两个真 bug：空数组 `"${ARR[@]}"` 在 `set -u` + bash 3.2 下报 unbound ⇒ 改守卫展开；**变量名后紧跟全角括号被当作变量名字符**（`$DEST（` → unbound）⇒ 全脚本变量输出加 `{}`。
+  - **新增 `Dockerfile.dockerignore`**（BuildKit 按 Dockerfile 命名）：上下文从整仓缩到四个 COPY 源，且**逐级放行目录**（`*` 先排父目录则不遍历子项）。
+  - **发布实况（同日，用户配好部署密钥后由本会话执行 `deploy.sh`）**：腾讯云 VPS `120.53.84.116`（docker 29.1.3，root 已在 docker 组）。
+    1. 首次 rsync 成功但**构建失败**：`auth.docker.io` 超时 ⇒ 国内机拉不动 Docker Hub。**未改 `daemon.json`**（同机跑着 quant_agent / pgvector / redis，重启 docker 会牵连）；
+       改为 `Dockerfile` 加 `ARG BASE_IMAGE` + compose 传 `BEADS_STUDIO_BASE_IMAGE`，deploy.sh/CI 透传 ⇒ 仓库默认值不变（GitHub Runner 可直连）。
+       实测可用源：`public.ecr.aws/docker/library/node`、`docker.1ms.run`、`hub.rat.dev`；不可用：`mirror.ccs.tencentyun.com`（非 VPC 不可连）、`docker.1panel.live`（403）、`docker.m.daocloud.io`（unavailable）。
+    2. 重跑 ⇒ **镜像建成 + 容器 `beads-studio` Started + VPS 回环健检 OK**（/api/results 200）。
+    3. 外网访问 **000 超时**：已排查 = 容器监听 `0.0.0.0:8787` ✓、宿主 ufw inactive、`YJ-FIREWALL-INPUT` 只 REJECT 已知攻击 IP ⇒ **卡在腾讯云安全组/轻量防火墙**（需控制台开 TCP 8787 入站，SSH 做不到）；或不开端口走 **SSH 隧道** `ssh -N -L 8787:127.0.0.1:8787`（微信开发者工具请求本机等效可用）—— **隧道已实测**：本机 `-L 8788:…` 下 POST `/api/generate` 返回真实生成结果（14×14、5 色、swaps 6）且 `/api/results` 能列到它 ⇒ 容器内 beads-gen 子进程路径全通。两条均写入 README「国内 VPS 实战坑」章。
+    4. 本轮脚本修正：**`PORT` 以前是谎报可覆盖**（compose 端口写死 8787）⇒ 改 `"${PORT:-8787}:8787"` 并在 deploy.sh/CI 透传；CI 健康检查同步用 `vars.BEADS_STUDIO_PORT`。
+    5. 安全提醒已入档：本服务**无鉴权**，公网开端口 = 任何人可读列表/提交生成；默认建议走隧道或限源 IP。
+    6. 这两道坑（镜像仓库不可达 + 云侧安全组与主机防火墙是两层）另沉淀为 **K-065**（`[环境]` 片）。
+- **待办（本单遗留，均属环外）**：① 用户侧：腾讯云控制台放行 **TCP 8787** 入站（或直接用 SSH 隧道，命令见 README）；② CI 自动发布仍等用户配 `SSH_*` secrets + `BEADS_STUDIO_DEPLOY=true`（国内源再配 `BEADS_STUDIO_BASE_IMAGE`）；③ 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；④ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物不可直接入关）；⑤ 本单所有改动**未提交**（VPS 已跑的是 rsync 过去的代码，提交与否不影响在线服务）。
+
 ---
 
 ## WXG-T-180
 
-**beads·盘面规格档位落档（29×29 标准方形盘）+ 29×29 MVP 三关草案** · 负责：主理人(CodeBuddy) · 状态：🔄 提案待裁（含冻结变更请求）
+**beads·盘面规格档位落档（29×29 标准方形盘）+ 29×29 MVP 三关草案** · 负责：主理 人(CodeBuddy) · 状态：✅ 主体完成（2026-09-20 本会话收口）
+
+- **✅ 续作记录（Qoder · 2026-09-20，接 ADR-0018 裁定后的收口）**：
+  - **并发会话已落库（本单主体交付）**：`d4a36db`（ADR-0018 归档 + misplaced 全错位初盘规格回写）、`89f28e0`（引擎支持 misplaced 全错位初盘 + **8 关 MVP 图案入库**：关 1–4 = 14×14 / 关 5–8 = 18×18，≥4 色，时长按珠数>色数>聚集度公式；`tools/scripts/beads-mvp-patterns.mjs` 产真源 JSON + 级联感知逐分复算测试）。**生成器转正已完成**（`tools/scripts/beads-gen.mjs` + `beads-mvp-patterns.mjs`，原待办 ③ 销项）；**`GRID_MAX` 放开已在 `systems-index v1.34` 完成**（13/12 → 29/29，§3 变更单 + 三条连带登记，原待办 ① 销项）。
+  - **留边模型裁定（用户 2026-09-20）**：`computeFitZoom` **保留固定 `BOARD_FIT_MARGIN=24`**，ADR-0018 §3.4.2 珠宽闭式解**搁置不落码**，复评触发 7 不触发；后续如需再落地另行立项。ADR-0018 已加搁置注记（本会话）。
+  - **余项分流（均后续另立项）**：① 色板戊案接 ADR-0016（Proposed 待裁）；② B2/B4 顺序多盘 UX 规格 + `boards[]` 关卡 schema（ADR-0018 §3.2）；③ 29×29 解锁三条件（LOD 真机 + 触控验证 + `CAMERA_ZOOM_MAX_SPAN` §3 变更单，ADR-0018 §3.3）。
+  - **本会话改动**：仅文档（ADR-0018 搁置注记 + 本台账），**零代码、零冻结值**；门禁 `check:tasks` / `check:links` / `verify` 随收口跑。
 
 - **上位（用户 2026-09-20 盘面调研）**：5mm Midi 标准方盘 = **29×29 = 841 颗**；另有小号 14/16/18、异形（圆/六边/心形）、Mini 2.6mm ≈107×107、Maxi 10mm 29×29。用户要求「规则化落档 + MVP 先做几关 29×29」。
 - **产物**：`design/proposals/board-size-29-mvp.md`（档位表 + 差距表 + 四项风险 + 前置顺序）/ `design/proposals/levels-29-mvp-draft.json`（3 关草案）/ `temp/lv29-0{1,2,3}/`（PNG 预览）。
@@ -637,13 +671,19 @@
 - **⚠️ 不可直接入关（两条硬阻断，都须先裁）**：① `rows = 29 > GRID_MAX_ROWS = 12`（BOOT 校验会拒）；② 色值为 **Artkal 真值**，游戏 10 色板无对应珠色 ⇒ 接 **ADR-0016 戊案**（只换色值、不动结构）。
 - **生成器侧连带修复（3 处，属 WXG-T-179 spike 能力）**：① 新增 `--swaps K`（游戏口径交换构造，输出 4 元组 + `levelDraft`）；② `toRowStrings` **紧凑重映射**修复 —— 大色板下限色后的色号是**原板索引**（可达 174），旧版直接查 35 字符表 ⇒ 29×29 首行输出 229 个 `undefined`（**同 K-056 追记的「维度泄漏」型**）；③ **自检口径分叉** —— 交换法只动 2k 颗、其余格**本就该就位**，旧的全盘错位断言在 k=8 时误报「存在就位珠 10」。
 - **门禁**：`check:tasks` / `check:links` / `ctx:check` / `verify` 随本单跑；本单**零冻结值改动、零游戏代码改动**（产物全在 `design/proposals/` + `temp/`）。
-- **待办**：① 用户裁「是否放开 `GRID_MAX`」及第 4 节前置 1–4 的顺序；② **zoom 自适应 LOD** 立项（工程单）；③ 生成器转正入 `tools/scripts/beads-gen.mjs`（另单）；④ 色板决策接 **ADR-0016**。
+- **原待办销项（2026-09-20）**：① `GRID_MAX` 放开 → v1.34 已完成；② zoom LOD → T-181 立项；③ 生成器转正 → 已入 `tools/scripts/`；④ 色板决策 → 余项分流接 ADR-0016；另加 ⑤ 留边模型 → 用户裁保留 24px 搁置（见上方续作记录）。**当前待办：无。**
 
 ---
 
 ## WXG-T-181
 
-**beads·大盘 zoom 自适应 LOD 立项（ADR-0017，处置 §3.3 v1.34 的风险 1）** · 负责：主理人(CodeBuddy) · 状态：🔄 立项待裁（**层集与阈值交 art / playtest；未做真机帧率实测**）
+**beads·大盘 zoom 自适应 LOD 立项（ADR-0017，处置 §3.3 v1.34 的风险 1）** · 负责：主理人(CodeBuddy) · 状态：✅ 收口（2026-09-20 本会话，用户拍板）
+
+- **✅ 收尾记录（Qoder · 2026-09-20）**：
+  - **不阻塞裁定**：ADR-0018 已裁 MVP 实际用盘 = 14×14 / 18×18（每帧图元 2156/3564，与现行同量级、无需 LOD）⇒ 本立项的 LOD 需求**仅服务于 29×29/异形/2×2 拼图设计档**，转为 **29×29 解锁三条件之一**（ADR-0018 §3.3：LOD 真机 60fps + 触控错点率 < 10% + `CAMERA_ZOOM_MAX_SPAN` §3 变更单），后续解锁时**另立项**实施。
+  - **ADR-0017 处置**：保持 **Proposed 留档**（层集/阈值/滞回形态结论有效，作为未来实施单的分析底稿）；本单不再持有待办，原待办 ①②③④ 全部随上述分流转出。
+  - **初始取景口径（用户 2026-09-20 重申，二选一拍「维持现状」）**：初始游戏任何盘面**缩放居中**，大盘缩到含 `BOARD_FIT_MARGIN=24` 边距；**小盘（放得下视口）顶格 `zoom=1` 不放大**（留白多于 24px）——与 ADR-0018 §3.4.1「zoom=1 = 5mm Midi 参照、不放大超过参照」及 ADR-0015 §3.4 复位口径**完全一致，现状已实现**（`computeFitZoom = min(1, 含24px适配)`，`fitCamera` 落点 `_setupLevel`/`_loadStage`），**零代码、零文档漂移**；「一律恰好 24px（小盘放大）」方案未采。
+  - **本会话改动**：仅台账，**零代码、零冻结值**。
 
 - **上位**：用户 2026-09-20「zoom 自适应 LOD 立项（风险 1）」，并提出三种形态方向：① standard29 单盘；② 小盘单图或 **2×2 拼图**（small18 / small16 / small14）；③ 异形盘。
 - **产物**：`docs/architecture/adr/ADR-0017-beads-zoom-adaptive-lod.md`（Proposed）+ `architecture.md` 关联决策行。
@@ -656,3 +696,18 @@
 - **诚实边界（勿视为已解决）**：① **层集由 art 冻结**、阈值均 `[待确认]` ⇒ 本单**未做真机帧率实测**，不能声称"性能已解决"；② 建议档 11→5 ⇒ 841 珠从 9251 降到 ~4205，**仍未达小盘单图量级**。
 - **本单改动**：仅**文档**（新增 ADR-0017 + `architecture.md` 关联行 + 本台账），**零代码、零冻结值**（ADR 明确不引入 `systems-index §3` 新值）。
 - **待办**：① art 冻结层集（林绘澄正主）+ 阈值定档；② **工程实施单**（视口裁剪 + zoom 档位 + 滞回）须**另领号**；③ 真机帧率实测（29×29 与三种形态）；④ playtest 观感（"远看变丑"与否）。
+
+---
+
+## WXG-T-183
+
+**beads·board 锚直填消费序改写（选豆点固定 + 同序配对）** · 负责：主理人(Qoder) · 状态：✅ 完成（2026-09-20，beads 511 例绿、verify 17/17）
+
+- **上位（用户 2026-09-20 三则裁定）**：① `_boardSelected` 增稳定 `anchorRow/anchorCol`（**拾取那一下的坐标**），填珠过程不改——展示用「当前头珠」可另存（沿用 `row/col` 静默转移），但优先级基准恒为选豆点；② 消费序 = 距选豆点**切比雪夫**升序（与组选 8 向连通同度量，平局行主序）；批量填时目标空格按 BFS 序（离被点目标由近及远）、组员按离选豆点序，**同序配对**——最近组员填最近目标，视觉上「从选豆点一片揭起、由近及远归位」；③ 托盘侧不适用（托盘同色珠可互换、不在棋盘格坐标上，「离选豆点距离」只对 board 锚有意义）。
+- **实现**（`games/beads/src/game/beads-game.ts`，cocos 镜像同步、两文件仅 import 行差异）：`_boardSelected` 增 `anchorRow/anchorCol`（建锚固化）；`retrieveSelectedGroup` 部分收纳基准改选豆点（`_nearestFirst` 度量保持欧氏² 未动、仅钉死基准）；`_tryDirectFillFromBoard` = 消费序 `consumption`（切比雪夫升序、平局行主序）× 目标序 `targets`（被点格 + `planGroupFill` BFS 由近及远）**按索引同序配对**，替代旧「逐目标就近取珠」O(n²) 扫描；锚更新 = 组空清、否则仅头珠转移、选豆点恒不变。**托盘侧 `_placeSelected`/`planGroupFill` 零改动**（裁定③）。
+- **规格同源回写**：`bead-grid.md` v2.4（头注 + §2.2 组语义直填句 + §2.3 路径 A 收纳句 + §9 版本表）。
+- **判据**：`misplaced-direct-fill.test.ts` 新增**选豆点基准例**——列 0 竖链 5 珠、拾取 (0,0)、点远端 (4,1)（(3,1) 预填就位堵 BFS 保单目标），断言消耗 (0,0)（新序）而非旧序会取的 (4,0)，直接区分新旧消费序（判据可判别性按 K-055④ 口径构造）。
+- **领号披露（K-046 判例再+1）**：用户初令「任务号 182」，按 K-046 扫工作树发现 **182 已被占用**（`games/beads/design/forensics/wxg-t-182-g3-derangement-deadlock.md`，程基岩 2026-09-19 G-3 取证留档、结论已采纳、未登主表），经用户裁定**改领 183**（T-167 同型），头注校准至 184。
+- **门禁**：`verify` 17/17 PASS；`kb:check` 八重校验 PASS；`ctx:build` 已刷新（含 forensics 新文件未入库提示，属并发会话产物、本单不代提交）。
+- **沉淀**：`kb:sync --task=WXG-T-183` **新增 1 / 修改 0 / 激活 0 / 归档 0** —— **K-063**「会『静默转移』的锚不能当距离排序基准：消费序基准与展示坐标必须分离」（判据片；同族 K-055 下游）。
+- **待办**：无（纯行为改写 + 规格回写，零 §3 数值；真机手感随下次真机复验批顺带走查）。

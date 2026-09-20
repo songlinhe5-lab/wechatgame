@@ -22,6 +22,8 @@
  *   node tools/scripts/beads-gen.mjs --in pic.jpg --board standard29 --palette artkal --colors 8 --swaps 12
  *   node tools/scripts/beads-gen.mjs --in pic.jpg --cols 29 --rows 29 --shape heart --swaps 8
  *   node tools/scripts/beads-gen.mjs                       # 无 --in ⇒ 合成 demo 图跑通全管线
+ *   node tools/scripts/beads-gen.mjs --in-raw raw.json --no-png --out out  # 免浏览器路径（WXG-T-179 Web 服务）：
+ *          raw.json = { w, h, data: base64(RGBA) }（前端解像后的源图像素）；--no-png 跳过 PNG 导出
  *   node tools/scripts/beads-gen.mjs --help                # 全部参数
  *
  * 入关前置（两条硬约束，都须先解）：
@@ -61,20 +63,29 @@ const SCRIPT_DIR = dirOf(urlToPath(import.meta.url));
 
 // ── 解析 playwright/chromium ──────────────────────────────────────────────────
 let chromium = null;
-for (const c of [
-  join(homedir(), '.workbuddy/binaries/node/workspace/node_modules'),
-  join(process.cwd(), 'node_modules'),
-]) {
-  try {
-    chromium = createRequire(join(c, 'package.json'))('playwright').chromium;
-    break;
-  } catch {
-    /* try next */
+let browser = null;
+let page = null;
+// 惰性解析：仅真实图片路径（--in）需要；`--in-raw` / 合成图不碰浏览器亦可（合成图仍用 canvas）
+async function ensurePage() {
+  if (page) return page;
+  for (const c of [
+    join(homedir(), '.workbuddy/binaries/node/workspace/node_modules'),
+    join(process.cwd(), 'node_modules'),
+  ]) {
+    try {
+      chromium = createRequire(join(c, 'package.json'))('playwright').chromium;
+      break;
+    } catch {
+      /* try next */
+    }
   }
-}
-if (!chromium) {
-  console.error('playwright/chromium 不可解析（参考 temp/confetti-pixcheck.mjs）');
-  process.exit(3);
+  if (!chromium) {
+    console.error('playwright/chromium 不可解析（参考 temp/confetti-pixcheck.mjs；或改用 --in-raw 免浏览器路径）');
+    process.exit(3);
+  }
+  browser = await chromium.launch();
+  page = await browser.newPage();
+  return page;
 }
 
 // ── 色板 ──────────────────────────────────────────────────────────────────────
@@ -212,6 +223,7 @@ if (!['square', 'circle', 'hex', 'heart'].includes(shape)) {
 }
 const cell = Math.max(4, parseInt(arg('cell', '26'), 10));
 const inPath = arg('in', null);
+const inRawPath = arg('in-raw', null); // JSON {w,h,data:base64(RGBA)} —— 免浏览器路径（WXG-T-179）
 const outDir = arg('out', join(process.cwd(), 'temp/beads-out'));
 const skew = has('skew'); // 合成图里逼出一个主导色，验证平衡
 const noFrame = has('noframe'); // 跳过去背景
@@ -693,10 +705,11 @@ function toRowStrings(arr) {
 }
 
 // ── 浏览器侧：解码源图 + 降采样量化到 cols×rows（主导/最近色），及导出 PNG ────────
-const browser = await chromium.launch();
-const page = await browser.newPage();
+// ⚠ 不在顶层启动浏览器：`--in-raw --no-png`（Web 服务路径）必须完全不碰 chromium，
+//    故页面一律由 readGrid / renderPng 内部的 ensurePage() **按需**创建。
 
 async function readGrid() {
+  await ensurePage();
   return await page.evaluate(
     async ({ w, h, pal, srcBase64, skew, K }) => {
       /** 单像素 → 最近调色板色（1..8）。 */
@@ -803,6 +816,7 @@ async function readGrid() {
 }
 
 async function renderPng(colors, label) {
+  await ensurePage();
   const url = await page.evaluate(
     ({ w, h, colors, pal, voidHex, cell }) => {
       const gap = 2, pad = 3;
@@ -826,8 +840,54 @@ async function renderPng(colors, label) {
   writeFileSync(join(outDir, label + '.png'), Buffer.from(url.split(',')[1], 'base64'));
 }
 
+// ── 纯 Node 侧：--in-raw 免浏览器路径（WXG-T-179 Web 服务复用；前端解好像素后发 RGBA）──
+// 输入 = JSON { w, h, data: base64(RGBA) }；与浏览器 readGrid 同口径：每格块内逐像素量化 + 众数投票。
+function readGridRaw(raw) {
+  const sw = raw.w, sh = raw.h;
+  const buf = Buffer.from(raw.data, 'base64');
+  if (buf.length < sw * sh * 4) {
+    console.error(`--in-raw 数据不足：${buf.length} < ${sw}×${sh}×4`);
+    process.exit(3);
+  }
+  const grid = new Array(cols * rows);
+  const avg = new Array(cols * rows * 3);
+  for (let cy = 0; cy < rows; cy++) {
+    const y0 = Math.floor((cy * sh) / rows), y1 = Math.max(y0 + 1, Math.floor(((cy + 1) * sh) / rows));
+    for (let cx = 0; cx < cols; cx++) {
+      const x0 = Math.floor((cx * sw) / cols), x1 = Math.max(x0 + 1, Math.floor(((cx + 1) * sw) / cols));
+      const vote = new Array(PAL_N + 1).fill(0);
+      let sr = 0, sg = 0, sb = 0, n = 0;
+      for (let y = y0; y < y1; y++) {
+        for (let x = x0; x < x1; x++) {
+          const o = (y * sw + x) * 4;
+          const r = buf[o], g = buf[o + 1], b = buf[o + 2];
+          if (buf[o + 3] < 128) continue; // 透明像素不参与（前端抠图/异形源友好）
+          let best = 1, bd = Infinity;
+          for (let p = 0; p < PAL_N; p++) {
+            const pr = palRgb[p][0] - r, pg = palRgb[p][1] - g, pb = palRgb[p][2] - b;
+            const dd = pr * pr + pg * pg + pb * pb;
+            if (dd < bd) { bd = dd; best = p + 1; }
+          }
+          vote[best]++;
+          sr += r; sg += g; sb += b; n++;
+        }
+      }
+      let pick = 0, bn = 0;
+      for (let p = 1; p <= PAL_N; p++) if (vote[p] > bn) { bn = vote[p]; pick = p; }
+      const gi = cy * cols + cx;
+      grid[gi] = n > 0 ? pick : 0; // 整格透明 ⇒ 空位
+      avg[gi * 3] = n ? Math.round(sr / n) : 0;
+      avg[gi * 3 + 1] = n ? Math.round(sg / n) : 0;
+      avg[gi * 3 + 2] = n ? Math.round(sb / n) : 0;
+    }
+  }
+  return { grid, avg };
+}
+
 // ── 主流程 ──────────────────────────────────────────────────────────────────
-const { grid, avg } = await readGrid();
+const { grid, avg } = inRawPath
+  ? readGridRaw(JSON.parse(readFileSync(inRawPath, 'utf8')))
+  : await readGrid();
 
 // 去背景：取四边框里最常见的一色当背景 → void（0）。--noframe 则整盘可填。
 // ⚠️ 异形盘（shape ≠ square）**自动跳过**本步 —— 形状本身就是图案边界，
@@ -897,21 +957,23 @@ const swapsK = Math.max(0, parseInt(arg('swaps', '0'), 10));
 const sw = swapsK > 0 ? buildSwaps(solved, swapsK) : null;
 const der = sw
   ? {
-      ok: sw.pairs === swapsK,
-      misplaced: sw.init,
-      maxFreq: 0,
-      N: 0,
-      reason: sw.pairs < swapsK ? `可配对数不足（实得 ${sw.pairs}/${swapsK}）` : '',
-    }
+    ok: sw.pairs === swapsK,
+    misplaced: sw.init,
+    maxFreq: 0,
+    N: 0,
+    reason: sw.pairs < swapsK ? `可配对数不足（实得 ${sw.pairs}/${swapsK}）` : '',
+  }
   : derange(solved);
 
 const fillN = solved.filter((v) => v > 0).length;
 const colorsUsed = h1.slice(1).filter((n) => n > 0).length;
 
-// 出图 + 落 JSON（浏览器仍开着，renderPng 要用 canvas）
-await renderPng(solved, 'solved');
-await renderPng(der.misplaced, 'misplaced');
-await browser.close();
+// 出图 + 落 JSON（--no-png 跳过：预览由 Web 前端 canvas 负责，VPS 免装 chromium）
+if (!has('no-png')) {
+  await renderPng(solved, 'solved');
+  await renderPng(der.misplaced, 'misplaced');
+}
+if (browser) await browser.close();
 const json = {
   _proto: 'beads-gen spike (WXG-T-179 前置，未接引擎)',
   cols, rows,
@@ -921,16 +983,18 @@ const json = {
   // 游戏关卡草案（`levels-spec §2` 字段；`swaps` 为游戏口径的错位构造，4 元组 [r1,c1,r2,c2]）
   levelDraft: sw
     ? {
-        cols,
-        rows,
-        time: null,
-        cycleProfile: 'long',
-        decoys: [],
-        swaps: sw.swaps,
-        pattern: toRowStrings(solved),
-        // pattern 里的字符 1..N 对应的**实际色值**（本单用 Artkal；换游戏 10 色板时按此对齐色号）
-        paletteHex: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => palHex[c - 1]),
-      }
+      cols,
+      rows,
+      time: null,
+      // 交换法构造的两两互换 = **恒为 2-环** ⇒ `short`（旧写 'long' 会被 BOOT 的
+      //   validateSwaps「cycleProfile=long 与实际最长环 2 矛盾」直接拒收，2026-09-20 E2E 实测）。
+      cycleProfile: 'short',
+      decoys: [],
+      swaps: sw.swaps,
+      pattern: toRowStrings(solved),
+      // pattern 里的字符 1..N 对应的**实际色值**（本单用 Artkal；换游戏 10 色板时按此对齐色号）
+      paletteHex: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => palHex[c - 1]),
+    }
     : null,
   misplaced: toRowStrings(der.misplaced), // 初始全错位局面（引擎现从 swaps 装配，此处直存供人核）
   report: {
@@ -958,10 +1022,10 @@ writeFileSync(join(outDir, 'pattern.json'), JSON.stringify(json, null, 2));
 console.log('=== beads 拼豆生成报告 ===');
 console.log(
   '盘面档位 ' + (boardName || '(自定义)') + '：' + cols + '×' + rows + ' = ' + cols * rows + ' 格' +
-    '｜豆径 ' + beadMm + 'mm' +
-    '｜物理约 ' + Math.round((cols * beadMm) / 10 * 10) / 10 + '×' + Math.round((rows * beadMm) / 10 * 10) / 10 + ' cm' +
-    (preset ? '｜' + preset.note : '') +
-    (shape !== 'square' ? '｜异形 ' + shape + '（形状内 ' + shapeCells + ' 格，其余为空位）' : ''),
+  '｜豆径 ' + beadMm + 'mm' +
+  '｜物理约 ' + Math.round((cols * beadMm) / 10 * 10) / 10 + '×' + Math.round((rows * beadMm) / 10 * 10) / 10 + ' cm' +
+  (preset ? '｜' + preset.note : '') +
+  (shape !== 'square' ? '｜异形 ' + shape + '（形状内 ' + shapeCells + ' 格，其余为空位）' : ''),
 );
 console.log(`棋盘 ${cols}×${rows}=${cols * rows}  可填 ${fillN}  void ${bgRemoved}  用色 ${colorsUsed}`);
 console.log(`直方图(平衡后 1..8)= ${JSON.stringify(h1.slice(1))}  cap(≤半数)= ${Math.floor(fillN / 2)}`);
@@ -976,20 +1040,20 @@ console.log(
 );
 console.log(
   `调色板 ${PAL_N} 色` +
-    (paletteArg === 'artkal'
-      ? `（**Artkal S 真值** ${ARTKAL.raw} 项 → 去重 ${PAL_N}；⚠️ 游戏无对应珠色 ⇒ 不可直接入关）`
-      : PAL_N > GAME_PALETTE.length
-        ? '（程序化色域，⚠️ 游戏暂无对应珠色 ⇒ 不可直接入关）'
-        : `（游戏真源前 ${PAL_N} 色）`) +
-    `｜选色模式 ${limit.mode}｜最终用色 ${colorsUsed}` +
-    (colorsUsed > 8 ? ' ⚠️ 超 BEAD_COLOR_MAX=8 ⇒ 不可入关' : ' ✅ 合规（≤ BEAD_COLOR_MAX=8）'),
+  (paletteArg === 'artkal'
+    ? `（**Artkal S 真值** ${ARTKAL.raw} 项 → 去重 ${PAL_N}；⚠️ 游戏无对应珠色 ⇒ 不可直接入关）`
+    : PAL_N > GAME_PALETTE.length
+      ? '（程序化色域，⚠️ 游戏暂无对应珠色 ⇒ 不可直接入关）'
+      : `（游戏真源前 ${PAL_N} 色）`) +
+  `｜选色模式 ${limit.mode}｜最终用色 ${colorsUsed}` +
+  (colorsUsed > 8 ? ' ⚠️ 超 BEAD_COLOR_MAX=8 ⇒ 不可入关' : ' ✅ 合规（≤ BEAD_COLOR_MAX=8）'),
 );
 console.log(`色差（0..441，越小越保形）：限色前 ${errPreLimit} → 最终 ${errFinal}`);
 console.log(`聚集度（参数 sample=${sample} smooth=${smoothRounds} minblock=${minBlock} colors=${colorsMax}）：`);
 console.log(`  处理前  块数 ${c0.blocks}  最大块 ${c0.largest}  平均块 ${c0.avg}  碎块格 ${c0.tinyCells}  同色相邻率 ${c0.adjRate}`);
 console.log(`  处理后  块数 ${c1.blocks}  最大块 ${c1.largest}  平均块 ${c1.avg}  碎块格 ${c1.tinyCells}  同色相邻率 ${c1.adjRate}（滤波改 ${smoothChanged} 格、碎块并入 ${mergedCells} 格）`);
 console.log(`  初始盘  块数 ${cm.blocks}  最大块 ${cm.largest}  平均块 ${cm.avg}  同色相邻率 ${cm.adjRate}  ← 玩家看到的就是它`);
-console.log(`产物 → ${outDir}/{solved.png, misplaced.png, pattern.json}`);
+console.log(`产物 → ${outDir}/{${has('no-png') ? '' : 'solved.png, misplaced.png, '}pattern.json}`);
 
 // 断言即自检 → 非零退出。
 // 2026-09-19 修：旧版写成 `if (der.ok) { …断言… }` —— **错位打乱失败时整段跳过**，

@@ -1,0 +1,149 @@
+import { describe, expect, it } from 'vitest';
+import {
+    draftToLevel,
+    fetchResults,
+    importLatest,
+    studioUrl,
+    timeForSwaps,
+    type LevelDraft,
+} from '../src/game/level-import.js';
+import { LEVEL_TIME_MAX, LEVEL_TIME_MIN } from '../src/config/tuning.js';
+import { createBeadsHarness, simpleTestLevel } from './helpers.js';
+import { createBeadsShell } from '../src/game/beads-shell.js';
+
+/**
+ * WXG-T-179 续作 · beads-studio 在线导入（`src/game/level-import.ts`）。
+ *
+ * 判据点：转换**不得放宽 BOOT 校验**（草案不合规 ⇒ 只回错误、不产关卡），
+ * `time: null` 按 k 定价补齐，以及 `play.importLevel` 追加进表 + 跳关。
+ */
+
+const SWAPS = [
+    [0, 0, 0, 1],
+    [1, 0, 1, 1],
+    [2, 0, 2, 1],
+] as const;
+
+function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
+    const lv = simpleTestLevel();
+    return {
+        cols: lv.cols,
+        rows: lv.rows,
+        time: null,
+        decoys: [],
+        swaps: SWAPS.map((s) => [...s]) as unknown as LevelDraft['swaps'],
+        pattern: lv.pattern,
+        ...over,
+    };
+}
+
+describe('WXG-T-179 · level-import 转换与定价', () => {
+    it('timeForSwaps：按 k×45s 定价并夹在 [LEVEL_TIME_MIN, LEVEL_TIME_MAX]', () => {
+        expect(timeForSwaps(0)).toBe(LEVEL_TIME_MIN);
+        expect(timeForSwaps(4)).toBe(180);
+        expect(timeForSwaps(8)).toBe(360);
+        expect(timeForSwaps(20)).toBe(LEVEL_TIME_MAX);
+    });
+
+    it('合法草案 + time=null ⇒ 过关并自动按 k 补时长（错位 = 2k 颗）', () => {
+        const r = draftToLevel(draftOf(), 9000, '在线导入 x');
+        expect(r.errors).toEqual([]);
+        expect(r.ok).toBe(true);
+        expect(r.level!.time).toBe(timeForSwaps(SWAPS.length));
+        expect(r.level!.swaps.length).toBe(3);
+    });
+
+    it('草案自报 cycleProfile="long" ⇒ 转换层不信，仍产 short（防生成器旧漂移：交换法恒为 2-环）', () => {
+        const lying = { ...draftOf(), cycleProfile: 'long' } as unknown as LevelDraft;
+        const r = draftToLevel(lying, 9003, 'lying');
+        expect(r.ok).toBe(true);
+        expect(r.level!.cycleProfile).toBe('short');
+    });
+
+    it('不合规草案（两色 < 3）⇒ 只回错误、不产关卡（不放宽 BOOT 口径）', () => {
+        const bad = draftOf({ pattern: ['121212', '212121', '121212', '212121', '121212'] });
+        const r = draftToLevel(bad, 9001, 'bad');
+        expect(r.ok).toBe(false);
+        expect(r.level).toBeUndefined();
+        expect(r.errors.join(' ')).toContain('colour count');
+    });
+
+    it('swaps 超 MISPLACED_PAIRS_MAX(8) ⇒ 校验拒绝', () => {
+        const many: (readonly [number, number, number, number])[] = [];
+        for (let r = 0; r < 5 && many.length < 9; r++) {
+            for (let c = 0; c < 3 && many.length < 9; c++) many.push([r, c, r, c + 3]);
+        }
+        expect(many.length).toBe(9);
+        const res = draftToLevel(draftOf({ swaps: many }), 9002, 'many');
+        expect(res.ok).toBe(false);
+        expect(res.errors.length).toBeGreaterThan(0);
+    });
+
+    it('studioUrl：尾斜杠去重', () => {
+        expect(studioUrl('http://h:8787/', '/api/results')).toBe('http://h:8787/api/results');
+    });
+
+    it('fetchResults / importLatest 走注入式 HTTP（不碰平台 API）', async () => {
+        const calls: string[] = [];
+        const get = async (url: string): Promise<unknown> => {
+            calls.push(url);
+            if (url.endsWith('/api/results')) return { results: [{ id: 'small14-1' }, { id: 'small14-2' }] };
+            return draftOf();
+        };
+        const list = await fetchResults('http://h:8787', get);
+        expect(list.map((r) => r.id)).toEqual(['small14-1', 'small14-2']);
+        const r = await importLatest('http://h:8787', get);
+        expect(r.ok).toBe(true);
+        expect(calls[calls.length - 1]).toBe('http://h:8787/api/results/small14-1/level'); // 取最新一条
+    });
+
+    it('服务空列表 ⇒ 明确错误文案，不抛异常', async () => {
+        const r = await importLatest('http://h:8787', async () => ({ results: [] }));
+        expect(r.ok).toBe(false);
+        expect(r.errors[0]).toContain('无已存结果');
+    });
+});
+
+describe('WXG-T-179 · BeadsGame.importLevel 追加进表并入局', () => {
+    it('校验通过 ⇒ 关表 +1、跳到新关；不通过 ⇒ 关表不变', () => {
+        const h = createBeadsHarness({ seed: 'import-seed', levels: [simpleTestLevel()] });
+        const game = h.game;
+        expect(game.levelCount).toBe(1);
+
+        const errs = game.importLevel(simpleTestLevel({ id: 950 }));
+        expect(errs).toEqual([]);
+        expect(game.levelCount).toBe(2);
+        expect(game.levelIndex).toBe(1);
+        expect(game.grid.cols).toBe(6);
+
+        const before = game.levelCount;
+        const bad = game.importLevel(simpleTestLevel({ id: 951, pattern: ['111111', '111111', '111111', '111111', '111111'] }));
+        expect(bad.length).toBeGreaterThan(0);
+        expect(game.levelCount).toBe(before); // 失败不留半截关卡
+    });
+});
+
+describe('WXG-T-179 · 主菜单「导入」钮接线（beads-shell）', () => {
+    it('配了 studio ⇒ 设置页可点「导入」；拉列表成功即入局；未配则空响', async () => {
+        const shell = createBeadsShell({
+            clock: () => 0,
+            initialScreen: 'menu',
+            studio: { baseUrl: 'http://h:8787', get: async (url: string) => (url.endsWith('/level') ? draftOf() : { results: [{ id: 'x' }] }) },
+        });
+        const { metaLayout } = await import('../src/view/meta-view.js');
+        const btn = metaLayout('settings').buttons.find((b) => b.id === 'studio-import')!;
+        const cx = btn.box.x + btn.box.w / 2;
+        const cy = btn.box.y + btn.box.h / 2;
+
+        // 菜单层没这颗钮 ⇒ 不命中、不入局（入口只存在于设置页）。
+        expect(shell.tapMeta(cx, cy)).toBe(false);
+
+        const open = metaLayout('none').buttons.find((b) => b.id === 'open-settings')!;
+        expect(shell.tapMeta(open.box.x + open.box.w / 2, open.box.y + open.box.h / 2)).toBe(true);
+        expect(shell.overlay).toBe('settings');
+        expect(shell.tapMeta(cx, cy)).toBe(true);
+        await new Promise((r) => setTimeout(r, 0)); // 拉取为微任务
+        expect(shell.screen).toBe('play');
+        expect(shell.play.levelCount).toBe(9); // 8 关真源 + 1 导入关
+    });
+});

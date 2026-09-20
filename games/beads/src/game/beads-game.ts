@@ -299,7 +299,7 @@ export class BeadsGame implements Game {
    */
   readonly audioVoices: AudioVoices = BEADS_AUDIO_VOICES;
 
-  private readonly _levels: readonly BeadsLevelRaw[];
+  private _levels: readonly BeadsLevelRaw[];
   private readonly _saveKey: string;
   /** 测试专用开关：见 {@link BeadsGameOptions.noBootAssembly}。 */
   private readonly _noBootAssembly: boolean;
@@ -519,11 +519,17 @@ export class BeadsGame implements Game {
    * board 锚：起点 + 错位珠组缓存（选中时算好）。
    * 【WXG-T-157 用户裁定】组 = 8 向两步（切比雪夫 ≤2）**同色**错位珠（原 WXG-T-148 ③
    * 「8 邻接 flood fill 不限色不限距」作废）；规则 2 直填后**组保持**（逐颗续填）：
-   * 被填珠移出 `cells`，锚珠被填 ⇒ 锚静默转移到剩余组首（快照坐标下一帧跟随）。
+   * 被填珠移出 `cells`，锚珠被填 ⇒ 头珠（`row/col`）静默转移到剩余组首（快照坐标下一帧跟随）。
+   * 【用户裁定 2026-09-20 · 选豆点固定】`anchorRow/anchorCol` = **拾取那一下的坐标**，
+   * 填珠/收纳全程不改——消费序（距选豆点距离升序）恒以此为基准；`row/col` 只是展示用
+   * 「当前头珠」，可随转移漂移，**不参与**优先级排序。
    */
   private _boardSelected: {
     row: number;
     col: number;
+    /** 选豆点（拾取锚）：建立后恒定，消费序唯一基准。 */
+    anchorRow: number;
+    anchorCol: number;
     /** 组色 = 锚珠色（组内恒同色）。 */
     color: number;
     cells: readonly { row: number; col: number }[];
@@ -868,7 +874,14 @@ export class BeadsGame implements Game {
     // WXG-T-148 ③ → 【WXG-T-157 裁定改写】：锚 = 8 向两步（切比雪夫 ≤2）**同色**错位珠组
     //（collectMisplacedGroup 内部筛色）；组色 = 锚珠色（规则 2 直填的对应色基准）。
     const cells = collectMisplacedGroup(this._grid, row, col);
-    this._boardSelected = { row, col, color: this._grid.cell(row, col)!.beadColorIdx, cells };
+    this._boardSelected = {
+      row,
+      col,
+      anchorRow: row, // 选豆点 = 拾取那一下的坐标，此后恒定（用户裁定 2026-09-20）
+      anchorCol: col,
+      color: this._grid.cell(row, col)!.beadColorIdx,
+      cells,
+    };
     this._emit('board:selected', {
       row,
       col,
@@ -959,8 +972,9 @@ export class BeadsGame implements Game {
     const start = targetSlot ?? this._tray.firstFree();
     if (start < 0) return false; // 满槽：无任何空槽
     // 就近优先：`collectMisplacedGroup` 返回**行主序**（grid.ts 末尾 sort），与
-    // 「离点击位置近」无关 ⇒ 先按到锚珠的距离重排，再从头截取。
-    const ordered = this._nearestFirst(anchor.row, anchor.col, anchor.cells);
+    // 「离点击位置近」无关 ⇒ 先按距离重排，再从头截取。基准 = **选豆点**
+    // （`anchorRow/Col`，拾取后恒定；用户裁定 2026-09-20），非会漂移的头珠坐标。
+    const ordered = this._nearestFirst(anchor.anchorRow, anchor.anchorCol, anchor.cells);
     const count = Math.min(ordered.length, this._tray.freeRunFrom(start));
     if (count <= 0) return false; // 该处无连续空槽 ⇒ 零事件零状态写
     for (let i = 0; i < count; i++) {
@@ -970,10 +984,18 @@ export class BeadsGame implements Game {
     if (count >= ordered.length) {
       this._boardSelected = null; // 整组离格 ⇒ 锚失效
     } else {
-      // 部分收纳：剩余珠仍在格上 ⇒ 锚改指剩余首颗（距序 ⇒ 仍是最近的未收珠）。
+      // 部分收纳：剩余珠仍在格上 ⇒ 头珠改指剩余首颗（距序 ⇒ 仍是离选豆点最近的
+      // 未收珠）；选豆点 anchorRow/Col 恒不变（用户裁定 2026-09-20）。
       const rest = ordered.slice(count);
       const head = rest[0]!;
-      this._boardSelected = { row: head.row, col: head.col, color: anchor.color, cells: rest };
+      this._boardSelected = {
+        row: head.row,
+        col: head.col,
+        anchorRow: anchor.anchorRow,
+        anchorCol: anchor.anchorCol,
+        color: anchor.color,
+        cells: rest,
+      };
     }
     return true;
   }
@@ -1271,6 +1293,19 @@ export class BeadsGame implements Game {
     this._crash?.clear(); // D-03：跳关 ⇒ 旧快照失效
     this._setupLevel(clamped);
     this._machine.reset('playing');
+  }
+
+  /**
+   * 调试导入（WXG-T-179 · beads-studio）：将一关**已通过 BOOT 校验**的外部关卡
+   * 追加到关表末尾并跳进去试玩。校验失败 ⇒ 返回错误串且**不改关表**（不伪造可玩态）。
+   * 注：这是宿主侧调试通道，产物不入 `design/levels/`（入关走 `levels:sync`）。
+   */
+  importLevel(raw: BeadsLevelRaw): string[] {
+    const errors = validateBeadsLevel(raw);
+    if (errors.length) return errors;
+    this._levels = this._levels.concat([raw]); // 一次性操作，非热路径（拷写避免改入参冻结数组）
+    this.goToLevel(this._levels.length - 1);
+    return [];
   }
 
   /** Enter a fresh sprint run (endless ladder). */
@@ -2107,12 +2142,15 @@ export class BeadsGame implements Game {
 
   /**
    * 【WXG-T-162 用户裁定（2026-09-18）· 直填任意距离】board 锚直填：
-   * 点「对应颜色（= 组色）的空格」（**不限距**，覆盖 WXG-T-157 的 ≤2 门）⇒ 从组内取一颗
-   * （离目标格最近，平局行主序）错位珠直接归位（`retrieve` + `fill` 同帧两写，
-   * `_filledCount` 不变、misplaced −1、无中间态外泄）。
-   * - **组保持（逐颗续填，T-157 裁定 B 沿用）**：被填珠移出 `cells`；锚珠被填 ⇒ 锚**静默转移**到
-   *   剩余组首（不重发 `board:selected` —— 快照坐标下一帧跟随，白环/点名视图自动对齐）；
-   *   组空 ⇒ 锚清除。
+   * 点「对应颜色（= 组色）的空格」（**不限距**，覆盖 WXG-T-157 的 ≤2 门）⇒ 组内错位珠
+   * 直接归位（`retrieve` + `fill` 同帧两写，`_filledCount` 不变、misplaced −1、无中间态外泄）。
+   * - **【用户裁定 2026-09-20 · 选豆点固定 + 同序配对】**（修 WXG-T-180 整片填写的消费序）：
+   *   目标序 = 被点格 + BFS 连通同色空格（`planGroupFill` 由近及远）；组员消费序 = 距
+   *   **选豆点**（`anchorRow/Col`，拾取后恒定）**切比雪夫**升序（与组选 8 向连通同度量，
+   *   平局行主序）；两者**同序配对**——最近组员填最近目标，视觉上「从选豆点一片揭起、
+   *   由近及远归位」（旧「逐目标就近取珠」作废）。
+   * - **组保持**：被填珠移出 `cells`；锚珠被填 ⇒ 仅**头珠**（`row/col`，展示坐标）转移到
+   *   剩余组首（不重发 `board:selected` —— 快照坐标下一帧跟随）；**选豆点不改**；组空 ⇒ 锚清除。
    * - 归位可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2，同 `_placeSelected`）。
    * - 底色不匹配 ⇒ 不消费（null），走既有「无对应路径」轻提示口径。
    * @returns true = 已直填；false = 已消费但拒绝（取珠/落盘失败防御面）；null = 与 board 锚无关（调用方续走旧路径）。
@@ -2135,49 +2173,54 @@ export class BeadsGame implements Game {
 
     // 【#3 · WXG-T-180 用户裁定】一次点击 = **组批量归位**：填被点空格 + 其 8 向连通的
     // 同色空格一片（上限 = 组内可用错位珠数），对齐托盘侧 `planGroupFill` 连续填充手感。
-    // 旧「逐颗续填（一点一格）」放宽为整片；每格取「距该格最近的剩余组员」，retrieve+fill 同帧两写。
+    // 旧「逐颗续填（一点一格）」放宽为整片；retrieve+fill 同帧两写（消费序见下方同序配对）。
     const targets: { row: number; col: number }[] = [{ row, col }];
     const extra = planGroupFill(this._grid, row, col, anchor.color, alive.length - 1);
     for (const e of extra) targets.push(e);
 
+    // 消费序 = 距**选豆点**（拾取锚，恒定）切比雪夫升序，平局行主序（用户裁定 2026-09-20）。
+    // 目标序 = 被点格 + BFS 由近及远；与消费序同序配对：consumption[i] 填 targets[i]。
+    const cols = this._grid.cols;
+    const ar = anchor.anchorRow;
+    const ac = anchor.anchorCol;
+    const consumption = alive.slice().sort((a, b) => {
+      const da = Math.max(Math.abs(a.row - ar), Math.abs(a.col - ac));
+      const db = Math.max(Math.abs(b.row - ar), Math.abs(b.col - ac));
+      if (da !== db) return da - db;
+      return a.row * cols + a.col - (b.row * cols + b.col); // 平局 ⇒ 行主序
+    });
     let placedAny = false;
+    let used = 0;
     for (const t of targets) {
       const cell = this._grid.cell(t.row, t.col);
       if (!cell || cell.state !== 'empty' || cell.colorIdx !== anchor.color) continue; // 复核（被点格外均为 BFS 收集的同色空格）
-      // 取距该目标格最近的剩余组员（平局行主序）。
-      let bi = 0;
-      let bd = Infinity;
-      let bord = Infinity;
-      for (let i = 0; i < alive.length; i++) {
-        const c = alive[i]!;
-        const d = Math.max(Math.abs(c.row - t.row), Math.abs(c.col - t.col));
-        const ord = c.row * this._grid.cols + c.col;
-        if (d < bd || (d === bd && ord < bord)) {
-          bd = d;
-          bord = ord;
-          bi = i;
-        }
-      }
-      const src = alive[bi]!;
+      const src = consumption[used]!;
       const bead = this._grid.retrieve(src.row, src.col);
       if (!bead || !this._grid.fill(t.row, t.col, bead)) {
         if (bead) this._grid.setBead(src.row, src.col, bead); // 防御回滚（理论不可达：目标已验 empty）
-        continue;
+        continue; // 该员不消费，余序不变
       }
-      alive.splice(bi, 1);
+      used++;
       this._emit('bead:placed', { row: t.row, col: t.col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot
       placedAny = true;
-      if (alive.length === 0) break;
+      if (used >= consumption.length) break;
     }
     if (!placedAny) return false;
 
-    // 锚更新：组空 ⇒ 清；否则转移到剩余组首（行主序，快照坐标下帧跟随）。
-    if (alive.length === 0) {
+    // 锚更新：组空 ⇒ 清；否则**头珠**（row/col，展示用）改指剩余组首（消费序），
+    // 选豆点 anchorRow/Col 恒不变（用户裁定 2026-09-20）。
+    if (used >= consumption.length) {
       this._boardSelected = null;
     } else {
-      alive.sort((a, b) => a.row * this._grid.cols + a.col - (b.row * this._grid.cols + b.col));
-      const head = alive[0]!;
-      this._boardSelected = { row: head.row, col: head.col, color: anchor.color, cells: alive };
+      const head = consumption[used]!;
+      this._boardSelected = {
+        row: head.row,
+        col: head.col,
+        anchorRow: ar,
+        anchorCol: ac,
+        color: anchor.color,
+        cells: consumption.slice(used),
+      };
     }
     // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）
     if (this._grid.isComplete()) {

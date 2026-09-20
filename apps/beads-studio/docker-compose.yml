@@ -1,0 +1,20 @@
+# beads-studio VPS 编排（WXG-T-179 续作）。
+# ⚠️ build context = **仓库根**（Dockerfile 要 COPY tools/ 与 games/ 下的部署单元）：
+#   docker compose -f apps/beads-studio/docker-compose.yml build 的 context 在 CI/手动均为仓库根，
+#   即：cd <repo-root> && docker compose -f apps/beads-studio/docker-compose.yml up -d --build
+services:
+  beads-studio:
+    build:
+      context: ../..
+      dockerfile: apps/beads-studio/Dockerfile
+      # 基础镜像可覆盖：国内 VPS 拉不动 Docker Hub 时传 BEADS_STUDIO_BASE_IMAGE（见 deploy.sh 用法）
+      args:
+        BASE_IMAGE: ${BEADS_STUDIO_BASE_IMAGE:-node:20-alpine}
+    container_name: beads-studio
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8787}:8787" # 容器内固定 8787（server.mjs 读不到宿主 PORT），对外可换
+    volumes:
+      - beads-studio-data:/app/data
+volumes:
+  beads-studio-data:

@@ -39,8 +39,17 @@ import {
 } from '../view/meta-view.js';
 import { DEFAULT_PALETTE, type BeadsPalette } from '../view/palette.js';
 import type { PausePanelAction } from '../systems/pause-panel.js';
+import { importLatest, type HttpGet } from './level-import.js';
 
 export type ShellScreen = 'play' | 'menu';
+
+/** beads-studio 在线导入配置（WXG-T-179 调试用；不传 ⇒ 菜单不画入口）。 */
+export interface StudioImportOptions {
+    /** 服务基址，如 `http://192.168.1.20:8787`（微信正式环境需 https + 合法域名；开发/体验版可勾不校验）。 */
+    readonly baseUrl: string;
+    /** 平台 HTTP 通道（微信 = `wx.request` 包装；harness/Node = fetch）；缺省用全局 fetch。 */
+    readonly get?: HttpGet;
+}
 
 export interface BeadsShellOptions {
     /** wallClock ms source (host-injected; `() => Date.now()` in production). */
@@ -52,6 +61,8 @@ export interface BeadsShellOptions {
     readonly metaKey?: string;
     /** Boot screen. Default `'menu'`（#1 首屏停主菜单；harness/tests 可传 `'play'` 直进玩法）。 */
     readonly initialScreen?: ShellScreen;
+    /** 在线导入（beads-studio）；仅调试 / 开发期传。 */
+    readonly studio?: StudioImportOptions;
 }
 
 export class BeadsShell implements Game {
@@ -67,6 +78,9 @@ export class BeadsShell implements Game {
     private readonly _metaKey?: string;
     private _screen: ShellScreen;
     private _overlay: MetaOverlay = 'none';
+    private readonly _studio?: StudioImportOptions;
+    /** 拉取在途门标（防连点重复导入）。 */
+    private _studioBusy = false;
     /** Scratch pointer for screen→design (never retained), same as BeadsGame. */
     private readonly _pointer = { x: 0, y: 0 };
     /** Reused view-data object — buildRenderModel must not allocate (热路径零分配). */
@@ -86,11 +100,13 @@ export class BeadsShell implements Game {
         currentLevelIndex: 0,
         maxUnlockedLevel: 1,
         starsByLevel: [] as readonly number[],
+        studioEnabled: false,
     };
 
     constructor(options: BeadsShellOptions) {
         this._clock = options.clock;
         this._metaKey = options.metaKey;
+        this._studio = options.studio;
         this.palette = options.palette ?? DEFAULT_PALETTE;
         this._screen = options.initialScreen ?? 'menu';
         this.play = new BeadsGame({
@@ -226,6 +242,9 @@ export class BeadsShell implements Game {
                 this._startLevel(i);
                 return;
             }
+            case 'studio-import':
+                this._importFromStudio();
+                return;
             case 'open-signin':
                 this._overlay = 'signin';
                 this._emitOverlay(true);
@@ -246,6 +265,37 @@ export class BeadsShell implements Game {
                 this.play.applySettingsAction(action as PausePanelAction);
                 return;
         }
+    }
+
+    /**
+     * 一键导入（WXG-T-179 调试）：拉取服务最新一条结果 → 校验转形 → 追加进关表并直接入局。
+     * 不走扣心闸门（调试通道，不污染 §3.14 体力语义）；结果经 `meta:studio-import` 事件回报告知 UI。
+     */
+    private _importFromStudio(): void {
+        const studio = this._studio;
+        if (!studio || this._studioBusy) return;
+        this._studioBusy = true;
+        const bus = this._services?.events as unknown as { emit?: (t: string, p: unknown) => void } | undefined;
+        const done = (ok: boolean, detail: string): void => {
+            this._studioBusy = false;
+            bus?.emit?.('meta:studio-import', { ok, detail });
+        };
+        const get: HttpGet =
+            studio.get ??
+            ((url: string): Promise<unknown> =>
+                (globalThis as unknown as { fetch: (u: string) => Promise<{ json(): Promise<unknown> }> }).fetch(url).then((r) => r.json()));
+        importLatest(studio.baseUrl, get).then(
+            (outcome) => {
+                if (!outcome.ok || !outcome.level) return done(false, outcome.errors[0] ?? '导入失败');
+                const errs = this.play.importLevel(outcome.level);
+                if (errs.length) return done(false, errs[0] ?? '校验失败');
+                this._screen = 'play';
+                this._overlay = 'none';
+                this._emitOverlay(false);
+                done(true, outcome.level.name);
+            },
+            (e: unknown) => done(false, String((e as { message?: string })?.message ?? e)),
+        );
     }
 
     private _readMenuInput(): void {
@@ -277,6 +327,7 @@ export class BeadsShell implements Game {
         v.currentLevelIndex = this.play.levelIndex;
         v.maxUnlockedLevel = this.play.maxUnlockedLevel;
         v.starsByLevel = this.play.starsByLevelRaw;
+        v.studioEnabled = this._studio !== undefined;
         return v;
     }
 

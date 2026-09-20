@@ -43,7 +43,18 @@ interface WxgDebugGlobal {
 export class BeadsBootstrap extends Bootstrap {
   protected createGame(): Game {
     // Shell 组合 play + meta（WXG-T-164 批0）；clock 默认 Date.now，weapp 可用。
-    const shell = createBeadsShell();
+    // 在线导入（WXG-T-179）：开发者工具「编译模式 → 启动参数」传
+    //   studio=http://<局域网 IP>:8787  ⇒ 主菜单设置页出现「导入」钮。
+    // 不传 ⇒ 零入口（release 路径不受影响）；微信侧走 wx.request，非微信宿主回退 fetch。
+    const host = globalThis as unknown as {
+      wx?: { getLaunchOptionsSync?: () => { query?: Record<string, string> } };
+      location?: { search?: string };
+    };
+    const studioBase =
+      host.wx?.getLaunchOptionsSync?.()?.query?.studio ?? host.location?.search?.match(/studio=([^&]+)/)?.[1];
+    const shell = createBeadsShell(
+      studioBase ? { studio: { baseUrl: decodeURIComponent(studioBase) } } : {},
+    );
     const g = globalThis as WxgDebugGlobal;
     g.__WXG_GAME_DEBUG = () => {
       if (!g.__WXG_TOUCH_DEBUG) return null;

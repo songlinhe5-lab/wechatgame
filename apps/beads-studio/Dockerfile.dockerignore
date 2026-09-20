@@ -1,0 +1,22 @@
+# BuildKit 专用（与 Dockerfile 同名 + .dockerignore，见 docker build 文档）：本服务只用四个 COPY 源，
+# 其余整仓内容（node_modules / .git / games 源码 / temp 产物）不进构建上下文。
+# ⚠ 目录层级逐级放行：docker 的忽略规则先匹配到被 `*` 排除的父目录就不再向下遍历，
+#   只写叶子文件的 `!…/**` 会拿不到文件。（本文件尚未本机 `docker build` 实跑：沙箱内 Docker
+#   daemon 不可用，仅过了 `docker compose config`；首次构建时请看 COPY 阶段是否报 file not found。）
+*
+
+!apps
+!apps/beads-studio
+!apps/beads-studio/server.mjs
+!apps/beads-studio/package.json
+!apps/beads-studio/public
+!apps/beads-studio/public/**
+
+!tools
+!tools/scripts
+!tools/scripts/beads-gen.mjs
+
+!games
+!games/beads
+!games/beads/art
+!games/beads/art/artkal-palette.json

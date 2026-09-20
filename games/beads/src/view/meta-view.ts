@@ -50,6 +50,8 @@ export interface MetaViewData {
     readonly maxUnlockedLevel: number;
     /** 每关历史星（0-based 索引；稀疏时视图按 `?? 0`）。引用不拷贝。 */
     readonly starsByLevel: readonly number[];
+    /** 宿主配了 beads-studio 服务地址 ⇒ 设置页画「在线导入」钮（WXG-T-179；缺省不画）。 */
+    readonly studioEnabled?: boolean;
 }
 
 /** A tappable control on a meta screen. */
@@ -59,6 +61,7 @@ export type MetaAction =
     | 'open-settings'
     | 'open-levels'
     | 'pick-level'
+    | 'studio-import'
     | 'back'
     | 'claim'
     | 'toggle-bgm'
@@ -202,6 +205,11 @@ function settingsLayout(): MetaLayout {
         id: 'back',
         box: box(plate.x + (plate.w - backW) / 2, plate.y + 50, backW, TOUCH_MIN),
     });
+    // 在线导入（WXG-T-179 调试入口）：与「返回」同行右侧，**仅宿主配了服务地址时绘制**（钮始终可命中，shell 在未启用时空响）。
+    buttons.push({
+        id: 'studio-import',
+        box: box(plate.x + plate.w - 40 - 130, plate.y + 50, 130, TOUCH_MIN),
+    });
     return { buttons, signinCells: [] };
 }
 
@@ -239,6 +247,8 @@ function label(id: MetaAction, data: MetaViewData): string {
             return '设置';
         case 'open-levels':
             return '选关';
+        case 'studio-import':
+            return '导入';
         case 'claim':
             return data.canClaim ? '领取' : '已领取';
         case 'back':
@@ -398,6 +408,7 @@ export function buildMetaView(
 
     for (const b of layout.buttons) {
         if (b.id === 'pick-level') continue; // 选关格已在上方绘制
+        if (b.id === 'studio-import' && !data.studioEnabled) continue; // 未配服务 ⇒ 不绘制（也不该被点）
         const primary = b.id === 'claim';
         const disabled = b.id === 'claim' && !data.canClaim;
         drawButton(builder, b.box, label(b.id, data), palette, primary, disabled);

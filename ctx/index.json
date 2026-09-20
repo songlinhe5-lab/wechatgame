@@ -197,10 +197,151 @@
       ]
     },
     {
+      "path": "apps/beads-studio/README.md",
+      "tokens": 1744,
+      "lines": 93,
+      "sha256": "0285dbf3ed17f17cf5ed05789da4dee9217a7995a9ef33cf1385a5fa9bba7d41",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads-studio · 照片转拼豆在线生成器（WXG-T-179 续作）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 94,
+          "tokens": 1723,
+          "summary": "上传照片 → 量化到拼豆色板 → 配色平衡 → 交换法错位 → 关卡草案 JSON（预览 + 归类存储 + 小游戏在线导",
+          "keywords": [
+            "beads",
+            "studio",
+            "WXG",
+            "JSON",
+            "照片转拼豆在",
+            "线生成器"
+          ]
+        },
+        {
+          "anchor": "§本地跑",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 14,
+          "tokens": 21,
+          "summary": "",
+          "keywords": [
+            "本地跑"
+          ]
+        },
+        {
+          "anchor": "§API",
+          "level": 2,
+          "startLine": 15,
+          "endLine": 26,
+          "tokens": 171,
+          "summary": "POST /api/generate?cols=&rows=&w=&h=&board=&shape=&palette=&",
+          "keywords": [
+            "API",
+            "POST",
+            "api",
+            "generate",
+            "cols",
+            "rows"
+          ]
+        },
+        {
+          "anchor": "§VPS 发布",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 67,
+          "tokens": 712,
+          "summary": "",
+          "keywords": [
+            "VPS",
+            "发布"
+          ]
+        },
+        {
+          "anchor": "§路径 A：一键脚本（不需先配 CI，不需本机装 Docker）",
+          "level": 3,
+          "startLine": 29,
+          "endLine": 40,
+          "tokens": 141,
+          "summary": "镜像构建发生在 VPS 上，本机只做 rsync + ssh：",
+          "keywords": [
+            "Docker",
+            "VPS",
+            "rsync",
+            "ssh",
+            "路径",
+            "一键脚本"
+          ]
+        },
+        {
+          "anchor": "§路径 B：GitHub Actions 自动发布（**只在 develop → master 合入时**）",
+          "level": 3,
+          "startLine": 41,
+          "endLine": 53,
+          "tokens": 299,
+          "summary": "1. repo Variables：BEADS_STUDIO_DEPLOY=true（未配 ⇒ workflow 自动跳",
+          "keywords": [
+            "GitHub",
+            "Actions",
+            "develop",
+            "master",
+            "repo",
+            "Variables"
+          ]
+        },
+        {
+          "anchor": "§本机验镜像（需本地 Docker）",
+          "level": 3,
+          "startLine": 54,
+          "endLine": 67,
+          "tokens": 211,
+          "summary": "",
+          "keywords": [
+            "Docker",
+            "本机验镜像",
+            "需本地"
+          ]
+        },
+        {
+          "anchor": "§国内 VPS 实战坑（已踩定）",
+          "level": 2,
+          "startLine": 68,
+          "endLine": 88,
+          "tokens": 429,
+          "summary": "1. 拉不到 Docker Hub（auth.docker.io 超时）⇒ 不要改 daemon.json 重启 doc",
+          "keywords": [
+            "VPS",
+            "Docker",
+            "Hub",
+            "auth",
+            "docker",
+            "daemon"
+          ]
+        },
+        {
+          "anchor": "§小游戏导入（WXG-T-179 Phase 4）",
+          "level": 2,
+          "startLine": 89,
+          "endLine": 94,
+          "tokens": 168,
+          "summary": "小游戏侧「调试导入入口」输入本服务地址（http://<IP>:8787 或域名），拉 /api/results 列表 ",
+          "keywords": [
+            "WXG",
+            "Phase",
+            "http",
+            "api",
+            "results",
+            "小游戏导入"
+          ]
+        }
+      ]
+    },
+    {
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "263e93d7520a101609199e87053e12c95b6f9603ca74c3e4dafd753f084e8031",
+      "sha256": "31e815e339091291c70d8f42cd545e35526268b0496b37d31ae51377437a52d3",
       "tier": "normal",
       "sections": [
         {
@@ -475,9 +616,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4615,
+      "tokens": 4647,
       "lines": 82,
-      "sha256": "e61a42eea31ba3ffdd4820f7d83501de4a5a746955eeed7fa9f5be26321c9f43",
+      "sha256": "5d278ae5fa51f02214c3268db9805533996cc735eb507af14ae7619dbb71f3df",
       "tier": "normal",
       "sections": [
         {
@@ -485,7 +626,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4587,
+          "tokens": 4619,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -561,12 +702,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 61 行 / 6301 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 62 行 / 6669 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+62 · §待排（backlog，无号，立项时领取）=35+28",
+          "summary": "§WXG 任务台账（SSOT）=1+63 · §待排（backlog，无号，立项时领取）=36+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -736,12 +877,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 169 行 / 5427 tok",
+          "anchor": "§`knowledge/INDEX.md` — 172 行 / 5602 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
           "tokens": 151,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+170 · §1 读取协议（开发前期）=7+10 ·",
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+173 · §1 读取协议（开发前期）=7+10 ·",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -768,12 +909,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 658 行 / 34692 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 713 行 / 38810 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 330,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+659 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "tokens": 362,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+714 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -5833,17 +5974,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0018-beads-board-size-playability.md",
-      "tokens": 4863,
-      "lines": 229,
-      "sha256": "ea0e34a7cf7e48f3fd1c40e7add32387c39210dad0111dd96c979ba5ea066f1f",
+      "tokens": 5081,
+      "lines": 232,
+      "sha256": "19f65d5eab4d9615a03809e30017474ea0c32fb732dc98b715c46944910bd854",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0018 — 盘面尺寸与色数规格决策：可玩性评估与 MVP 档位选定",
           "level": 1,
           "startLine": 1,
-          "endLine": 230,
-          "tokens": 4836,
+          "endLine": 233,
+          "tokens": 5054,
           "summary": "状态：Accepted（2026-09-20 用户拍板）",
           "keywords": [
             "ADR",
@@ -5960,8 +6101,8 @@
           "anchor": "§3 决定（Decision）",
           "level": 2,
           "startLine": 121,
-          "endLine": 196,
-          "tokens": 1611,
+          "endLine": 199,
+          "tokens": 1829,
           "summary": "",
           "keywords": [
             "Decision",
@@ -6011,8 +6152,8 @@
           "anchor": "§3.4 初始适配取景与触控基准（5mm Midi 参照 + 留边 1~2 珠宽）",
           "level": 3,
           "startLine": 149,
-          "endLine": 184,
-          "tokens": 944,
+          "endLine": 187,
+          "tokens": 1162,
           "summary": "#### 3.4.1 zoom=1 的物理参照",
           "keywords": [
             "Midi",
@@ -6026,8 +6167,8 @@
         {
           "anchor": "§3.5 本文不裁定的事项",
           "level": 3,
-          "startLine": 185,
-          "endLine": 196,
+          "startLine": 188,
+          "endLine": 199,
           "tokens": 113,
           "summary": "CAMERA_ZOOM_MAX_SPAN 具体改值（2.5→?） systems-index §3 变更单 + ADR-",
           "keywords": [
@@ -6042,8 +6183,8 @@
         {
           "anchor": "§4 后果（Consequences）",
           "level": 2,
-          "startLine": 197,
-          "endLine": 219,
+          "startLine": 200,
+          "endLine": 222,
           "tokens": 606,
           "summary": "",
           "keywords": [
@@ -6054,8 +6195,8 @@
         {
           "anchor": "§4.1 正面",
           "level": 3,
-          "startLine": 199,
-          "endLine": 206,
+          "startLine": 202,
+          "endLine": 209,
           "tokens": 187,
           "summary": "1. MVP 两档明确（B3 14×14 + B1 18×18），设计轨可立即按此出关，不阻塞于\"29 能不能做\"。",
           "keywords": [
@@ -6066,8 +6207,8 @@
         {
           "anchor": "§4.2 负面（已知成本，白纸黑字）",
           "level": 3,
-          "startLine": 207,
-          "endLine": 212,
+          "startLine": 210,
+          "endLine": 215,
           "tokens": 267,
           "summary": "1. CAMERA_ZOOM_MAX_SPAN=2.5 对 29×29 是硬缺陷：fit(0.393)×2.5=0.98",
           "keywords": [
@@ -6081,8 +6222,8 @@
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 213,
-          "endLine": 219,
+          "startLine": 216,
+          "endLine": 222,
           "tokens": 126,
           "summary": "1. 29×29 能否最终解锁为可玩档，取决于 ADR-0017 LOD 效果 + 真机帧率 + zoom 钳位调整。乐",
           "keywords": [
@@ -6096,8 +6237,8 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 220,
-          "endLine": 230,
+          "startLine": 223,
+          "endLine": 233,
           "tokens": 359,
           "summary": "1. CAMERA_ZOOM_MAX_SPAN 被调整 ⇒ 回写本文 §2.1 表的 max zoom 列与 §2.3 ",
           "keywords": [
@@ -17360,18 +17501,18 @@
     },
     {
       "path": "games/beads/design/gdd/bead-grid.md",
-      "tokens": 7296,
-      "lines": 132,
-      "sha256": "7b3f67ea0024de048110df4af4e4938714d7aa1d8b29161915463cb05233cb31",
+      "tokens": 7835,
+      "lines": 133,
+      "sha256": "025cecf932e0408c00c01821770796705f444be316d8b33f3e1ce5c6251f60b2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S3 拼图网格与填色（Bead Grid）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 133,
-          "tokens": 7280,
-          "summary": "项目：games/beads · 版本 v2.3 · 任务号 WXG-T-168（v2.3 = 取回落槽改「玩家点槽定落",
+          "endLine": 134,
+          "tokens": 7819,
+          "summary": "项目：games/beads · 版本 v2.4 · 任务号 WXG-T-183（v2.4 = board 锚直填消费序",
           "keywords": [
             "GDD",
             "Bead",
@@ -17399,7 +17540,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 56,
-          "tokens": 2097,
+          "tokens": 2249,
           "summary": "",
           "keywords": [
             "机制"
@@ -17426,7 +17567,7 @@
           "level": 3,
           "startLine": 23,
           "endLine": 37,
-          "tokens": 661,
+          "tokens": 796,
           "summary": "",
           "keywords": [
             "filled",
@@ -17440,7 +17581,7 @@
           "level": 3,
           "startLine": 38,
           "endLine": 50,
-          "tokens": 872,
+          "tokens": 889,
           "summary": "路径 A · 取回（retrieve）——输入：(row, col)（组收进逐颗执行），来自 S2，锚 = board（",
           "keywords": [
             "retrieve",
@@ -17555,8 +17696,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 121,
-          "endLine": 133,
-          "tokens": 1627,
+          "endLine": 134,
+          "tokens": 1983,
           "summary": "v1.0 2026-09-12 建档八节定稿；后续 v1.0 内回写：WXG-T-061 到达序换基准（§6）、WXG-",
           "keywords": [
             "§6",
@@ -34662,17 +34803,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 2695,
-      "lines": 124,
-      "sha256": "3f73807fad83aaba9f6aa15b0f06127fecfcd4debb0a1fb24bb55527f6913860",
+      "tokens": 2911,
+      "lines": 131,
+      "sha256": "6d187fa48191af6b9ec8aedcda6db6c18f1edb2f7bd704e6bae799fe7fb6c1ea",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 125,
-          "tokens": 2681,
+          "endLine": 132,
+          "tokens": 2897,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -34687,8 +34828,8 @@
           "anchor": "§2026-09-20",
           "level": 2,
           "startLine": 9,
-          "endLine": 15,
-          "tokens": 198,
+          "endLine": 22,
+          "tokens": 414,
           "summary": "",
           "keywords": []
         },
@@ -34696,8 +34837,8 @@
           "anchor": "§WXG-T-179",
           "level": 3,
           "startLine": 11,
-          "endLine": 15,
-          "tokens": 194,
+          "endLine": 18,
+          "tokens": 362,
           "summary": "修改（updated）：K-045「同一台账文件被并发会话同时写时，git add <整文件> 会把别人的 WIP 捎进",
           "keywords": [
             "WXG",
@@ -34708,10 +34849,22 @@
           ]
         },
         {
+          "anchor": "§WXG-T-183",
+          "level": 3,
+          "startLine": 19,
+          "endLine": 22,
+          "tokens": 45,
+          "summary": "新增（added）：K-063「会「静默转移」的锚不能当距离排序基准：消费序基准与展示坐标必须分离」",
+          "keywords": [
+            "WXG",
+            "added"
+          ]
+        },
+        {
           "anchor": "§2026-09-19",
           "level": 2,
-          "startLine": 16,
-          "endLine": 47,
+          "startLine": 23,
+          "endLine": 54,
           "tokens": 526,
           "summary": "",
           "keywords": []
@@ -34719,8 +34872,8 @@
         {
           "anchor": "§WXG-T-128",
           "level": 3,
-          "startLine": 18,
-          "endLine": 23,
+          "startLine": 25,
+          "endLine": 30,
           "tokens": 220,
           "summary": "新增（added）：K-060「变异自检里断言「方向」选错会留下伪绿：被测标量在变异下「冻结在旧非零值」而非归零时，存在",
           "keywords": [
@@ -34731,8 +34884,8 @@
         {
           "anchor": "§WXG-T-164",
           "level": 3,
-          "startLine": 24,
-          "endLine": 27,
+          "startLine": 31,
+          "endLine": 34,
           "tokens": 50,
           "summary": "修改（updated）：K-053「冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定」",
           "keywords": [
@@ -34743,8 +34896,8 @@
         {
           "anchor": "§WXG-T-166",
           "level": 3,
-          "startLine": 28,
-          "endLine": 31,
+          "startLine": 35,
+          "endLine": 38,
           "tokens": 49,
           "summary": "新增（added）：K-057「「立项单」与「ADR 状态行」都不会被实施它们的另一张单自动收口，核销时要成对扫」",
           "keywords": [
@@ -34756,8 +34909,8 @@
         {
           "anchor": "§WXG-T-167",
           "level": 3,
-          "startLine": 32,
-          "endLine": 35,
+          "startLine": 39,
+          "endLine": 42,
           "tokens": 39,
           "summary": "新增（added）：K-059「用「甲/乙/丙」转述既有候选清单时必须带正文锚——字母会换义」",
           "keywords": [
@@ -34768,8 +34921,8 @@
         {
           "anchor": "§WXG-T-169",
           "level": 3,
-          "startLine": 36,
-          "endLine": 39,
+          "startLine": 43,
+          "endLine": 46,
           "tokens": 44,
           "summary": "修改（updated）：K-042「几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫」",
           "keywords": [
@@ -34780,8 +34933,8 @@
         {
           "anchor": "§WXG-T-176",
           "level": 3,
-          "startLine": 40,
-          "endLine": 43,
+          "startLine": 47,
+          "endLine": 50,
           "tokens": 53,
           "summary": "新增（added）：K-058「「已写进 .gitignore」不等于「已排除出索引产物」——枚举型走盘生成器只认自己的",
           "keywords": [
@@ -34793,8 +34946,8 @@
         {
           "anchor": "§WXG-T-178",
           "level": 3,
-          "startLine": 44,
-          "endLine": 47,
+          "startLine": 51,
+          "endLine": 54,
           "tokens": 47,
           "summary": "新增（added）：K-062「事件驱动宿主的输入位移必须进单测：prev 在帧首结算会把帧间到达的位移吞成 0」",
           "keywords": [
@@ -34806,8 +34959,8 @@
         {
           "anchor": "§2026-09-18",
           "level": 2,
-          "startLine": 48,
-          "endLine": 58,
+          "startLine": 55,
+          "endLine": 65,
           "tokens": 254,
           "summary": "",
           "keywords": []
@@ -34815,8 +34968,8 @@
         {
           "anchor": "§WXG-T-165",
           "level": 3,
-          "startLine": 50,
-          "endLine": 53,
+          "startLine": 57,
+          "endLine": 60,
           "tokens": 92,
           "summary": "新增（added）：K-053「冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定」、K-05",
           "keywords": [
@@ -34827,8 +34980,8 @@
         {
           "anchor": "§WXG-T-168",
           "level": 3,
-          "startLine": 54,
-          "endLine": 58,
+          "startLine": 61,
+          "endLine": 65,
           "tokens": 154,
           "summary": "新增（added）：K-055「「连通块」API 的返回序是行主序、不是距锚序：「就近/最近」语义取前 N 前必须显式重",
           "keywords": [
@@ -34840,8 +34993,8 @@
         {
           "anchor": "§2026-09-17",
           "level": 2,
-          "startLine": 59,
-          "endLine": 65,
+          "startLine": 66,
+          "endLine": 72,
           "tokens": 155,
           "summary": "",
           "keywords": []
@@ -34849,8 +35002,8 @@
         {
           "anchor": "§（无任务号）",
           "level": 3,
-          "startLine": 61,
-          "endLine": 65,
+          "startLine": 68,
+          "endLine": 72,
           "tokens": 147,
           "summary": "新增（added）：K-051「规格里的「图元/包体增量」数值是立项时点的推论，落码后必须差分复算、不得沿用」、K-05",
           "keywords": [
@@ -34861,8 +35014,8 @@
         {
           "anchor": "§2026-09-16",
           "level": 2,
-          "startLine": 66,
-          "endLine": 77,
+          "startLine": 73,
+          "endLine": 84,
           "tokens": 231,
           "summary": "",
           "keywords": []
@@ -34870,8 +35023,8 @@
         {
           "anchor": "§WXG-T-119",
           "level": 3,
-          "startLine": 68,
-          "endLine": 73,
+          "startLine": 75,
+          "endLine": 80,
           "tokens": 177,
           "summary": "新增（added）：K-050「缺陷号（BD-NN）与任务号同规：领号须读工作树全文，且「已登记 BD-xx」的声明必须",
           "keywords": [
@@ -34882,8 +35035,8 @@
         {
           "anchor": "§WXG-T-121",
           "level": 3,
-          "startLine": 74,
-          "endLine": 77,
+          "startLine": 81,
+          "endLine": 84,
           "tokens": 47,
           "summary": "新增（added）：K-049「自测夹具必须由被测生成器播种、依赖按整目录拷贝，否则门禁一扩就整片假红」",
           "keywords": [
@@ -34894,8 +35047,8 @@
         {
           "anchor": "§2026-09-15",
           "level": 2,
-          "startLine": 78,
-          "endLine": 106,
+          "startLine": 85,
+          "endLine": 113,
           "tokens": 894,
           "summary": "",
           "keywords": []
@@ -34903,8 +35056,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 80,
-          "endLine": 90,
+          "startLine": 87,
+          "endLine": 97,
           "tokens": 426,
           "summary": "新增（added）：K-035「文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床」",
           "keywords": [
@@ -34915,8 +35068,8 @@
         {
           "anchor": "§WXG-T-097",
           "level": 3,
-          "startLine": 91,
-          "endLine": 97,
+          "startLine": 98,
+          "endLine": 104,
           "tokens": 280,
           "summary": "新增（added）：K-043「取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FA",
           "keywords": [
@@ -34928,8 +35081,8 @@
         {
           "anchor": "§WXG-T-111",
           "level": 3,
-          "startLine": 98,
-          "endLine": 102,
+          "startLine": 105,
+          "endLine": 109,
           "tokens": 130,
           "summary": "新增（added）：K-046「领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号」、K-047「幂等判据必锁",
           "keywords": [
@@ -34940,8 +35093,8 @@
         {
           "anchor": "§WXG-T-112",
           "level": 3,
-          "startLine": 103,
-          "endLine": 106,
+          "startLine": 110,
+          "endLine": 113,
           "tokens": 41,
           "summary": "新增（added）：K-048「装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛」",
           "keywords": [
@@ -34953,8 +35106,8 @@
         {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 107,
-          "endLine": 119,
+          "startLine": 114,
+          "endLine": 126,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -34962,8 +35115,8 @@
         {
           "anchor": "§（无任务号） (3)",
           "level": 3,
-          "startLine": 109,
-          "endLine": 115,
+          "startLine": 116,
+          "endLine": 122,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -34978,8 +35131,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 116,
-          "endLine": 119,
+          "startLine": 123,
+          "endLine": 126,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -34990,8 +35143,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 120,
-          "endLine": 125,
+          "startLine": 127,
+          "endLine": 132,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -34999,8 +35152,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 122,
-          "endLine": 125,
+          "startLine": 129,
+          "endLine": 132,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -35012,17 +35165,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 5427,
-      "lines": 169,
-      "sha256": "079000c6f11c4ba49ad90cfaf929991d66c87fe392509f6f1ed980d20b9a1d93",
+      "tokens": 5602,
+      "lines": 172,
+      "sha256": "c320805fa268d5bb38cca2d2e8fc080cdc14679e214a55797ee635762d96caa2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 170,
-          "tokens": 5412,
+          "endLine": 173,
+          "tokens": 5588,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -35157,8 +35310,8 @@
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
           "startLine": 102,
-          "endLine": 170,
-          "tokens": 2780,
+          "endLine": 173,
+          "tokens": 2956,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
             "active",
@@ -35197,17 +35350,17 @@
     },
     {
       "path": "knowledge/lessons/criteria.md",
-      "tokens": 5727,
-      "lines": 63,
-      "sha256": "69fbe98713d08792246e3d701bc684434eee6d70eb494c87cc001e540332c180",
+      "tokens": 7230,
+      "lines": 76,
+      "sha256": "5a060a9f073a74c24d6c08819e03add4ee323c19b10c113e0a09d46481c7ae64",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `criteria` 分片（标签 `判据`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 64,
-          "tokens": 5712,
+          "endLine": 77,
+          "tokens": 7215,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "criteria",
@@ -35222,8 +35375,8 @@
           "anchor": "§判据",
           "level": 2,
           "startLine": 6,
-          "endLine": 64,
-          "tokens": 5637,
+          "endLine": 77,
+          "tokens": 7139,
           "summary": "[判据][K-040] 判据回写轮的三个读数陷阱：改严≠回归、作废≠平凡真、文档一致≠代码一致（来源 WXG-T-098",
           "keywords": [
             "WXG",
@@ -35274,17 +35427,17 @@
     },
     {
       "path": "knowledge/lessons/environment.md",
-      "tokens": 228,
-      "lines": 11,
-      "sha256": "8cde80270ef477683603a3b86a0d24a839d50f18a17b331e3e50d5c277cec99c",
+      "tokens": 890,
+      "lines": 17,
+      "sha256": "82a56fc95b6fb48f907986027bd1f898b0244979de75d4d6d769772fe0558b91",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `environment` 分片（标签 `环境`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12,
-          "tokens": 212,
+          "endLine": 18,
+          "tokens": 874,
           "summary": "由 knowledge/lessons.md（WXG-T-111 按行内标签分片）逐字节搬运而来；本片条目按 ID 升序",
           "keywords": [
             "environment",
@@ -35299,8 +35452,8 @@
           "anchor": "§环境",
           "level": 2,
           "startLine": 6,
-          "endLine": 12,
-          "tokens": 137,
+          "endLine": 18,
+          "tokens": 799,
           "summary": "[环境][K-010] WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）（来",
           "keywords": [
             "WorkBuddy",
@@ -54078,17 +54231,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 34692,
-      "lines": 658,
-      "sha256": "dde6fbcb143586fa98ea3fa1790503756f422ba594801f6502d5b9da21da6646",
+      "tokens": 38810,
+      "lines": 713,
+      "sha256": "4d2b29d9ce1866bd8d511e04cb4752a30bf802a2bad3a6e9ee314429364d537b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 659,
-          "tokens": 34675,
+          "endLine": 714,
+          "tokens": 38793,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -54400,8 +54553,8 @@
           "anchor": "§WXG-T-179",
           "level": 2,
           "startLine": 608,
-          "endLine": 627,
-          "tokens": 1122,
+          "endLine": 655,
+          "tokens": 3474,
           "summary": "beads·照片转拼豆生成器 spike（调色板 / 限色 / 聚集 调优 + ADR-0016） · 负责：主理人(C",
           "keywords": [
             "WXG",
@@ -54411,25 +54564,41 @@
           ]
         },
         {
+          "anchor": "§续作（Qoder · 2026-09-20）：beads-studio 在线生成器 + 小游戏导入",
+          "level": 3,
+          "startLine": 626,
+          "endLine": 655,
+          "tokens": 2329,
+          "summary": "用户要求：「简单的后端服务和前端页面，能生成 + 展示 + 归类本地存储结果；最好能小程序一键导入」。两项拍板（AskU",
+          "keywords": [
+            "Qoder",
+            "beads",
+            "studio",
+            "AskU",
+            "续作",
+            "在线生成器"
+          ]
+        },
+        {
           "anchor": "§WXG-T-180",
           "level": 2,
-          "startLine": 628,
-          "endLine": 643,
-          "tokens": 945,
-          "summary": "beads·盘面规格档位落档（29×29 标准方形盘）+ 29×29 MVP 三关草案 · 负责：主理人(CodeBud",
+          "startLine": 656,
+          "endLine": 677,
+          "tokens": 1406,
+          "summary": "beads·盘面规格档位落档（29×29 标准方形盘）+ 29×29 MVP 三关草案 · 负责：主理 人(CodeBu",
           "keywords": [
             "WXG",
             "beads",
             "MVP",
-            "CodeBud"
+            "CodeBu"
           ]
         },
         {
           "anchor": "§WXG-T-181",
           "level": 2,
-          "startLine": 644,
-          "endLine": 659,
-          "tokens": 829,
+          "startLine": 678,
+          "endLine": 701,
+          "tokens": 1224,
           "summary": "beads·大盘 zoom 自适应 LOD 立项（ADR-0017，处置 §3.3 v1.34 的风险 1） · 负责：",
           "keywords": [
             "§3.3",
@@ -54439,22 +54608,36 @@
             "LOD",
             "ADR"
           ]
+        },
+        {
+          "anchor": "§WXG-T-183",
+          "level": 2,
+          "startLine": 702,
+          "endLine": 714,
+          "tokens": 905,
+          "summary": "beads·board 锚直填消费序改写（选豆点固定 + 同序配对） · 负责：主理人(Qoder) · 状态：✅ 完成",
+          "keywords": [
+            "WXG",
+            "beads",
+            "board",
+            "Qoder"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 6301,
-      "lines": 61,
-      "sha256": "88c3c4de2e05af7fec2d1a8950ec6b48a14a1aab2362caffe3ca983da337aa48",
+      "tokens": 6669,
+      "lines": 62,
+      "sha256": "fb5f965b5d08f1b329610dc8be12f344db48b84fc3b29cf8030c5ee8d61af1ff",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 62,
-          "tokens": 6292,
+          "endLine": 63,
+          "tokens": 6660,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -54467,8 +54650,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 35,
-          "endLine": 62,
+          "startLine": 36,
+          "endLine": 63,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

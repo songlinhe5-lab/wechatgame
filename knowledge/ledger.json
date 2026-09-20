@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 63,
+  "nextId": 66,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1060,6 +1060,57 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-063",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "会「静默转移」的锚不能当距离排序基准：消费序基准与展示坐标必须分离",
+      "contentHash": "7782151882a5c2856dbed09b3d1e304152119caf3feef6bf4162ffcd402e0bfc",
+      "sourceTask": "WXG-T-183",
+      "addedDate": "2026-09-20",
+      "lastAccess": "2026-09-20",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-064",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "跨工具链的「草案自报元数据」必须被消费端复核归一：手工合规草案的单测永远抓不到生产端的字段说谎",
+      "contentHash": "999fb90562f59d0a52a69902afecb52fa5880de50c9a69860a59aa24b82312f1",
+      "sourceTask": "WXG-T-179",
+      "addedDate": "2026-09-20",
+      "lastAccess": "2026-09-20",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-065",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "国内云 VPS 上 Docker 部署必踩的两道坎：镜像仓库不可达 + 云侧安全组（与主机防火墙是两层）",
+      "contentHash": "55a7202f6deca33d8772916d2715195ce8fa040797761b92b1a82e850286de6a",
+      "sourceTask": "WXG-T-179",
+      "addedDate": "2026-09-20",
+      "lastAccess": "2026-09-20",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1442,6 +1493,42 @@
       "ids": [
         "K-036",
         "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-183",
+      "kind": "added",
+      "ids": [
+        "K-063"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "added",
+      "ids": [
+        "K-064"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "updated",
+      "ids": [
+        "K-064"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "added",
+      "ids": [
+        "K-065"
       ],
       "note": null
     }

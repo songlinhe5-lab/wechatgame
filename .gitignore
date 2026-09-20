@@ -117,3 +117,6 @@ games/beads/vitest.config.ts.timestamp-*.mjs
 
 # 隔离 git worktree（临时验证用，防整棵树被误提交）
 .worktrees/
+
+# beads-studio（WXG-T-179 Web 服务）：用户生成结果与像素底稿是运行时数据，不入库
+apps/beads-studio/data/
