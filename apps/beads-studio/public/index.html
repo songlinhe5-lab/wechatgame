@@ -141,6 +141,16 @@
             white-space: pre-line;
         }
 
+        .bad {
+            font-size: 12px;
+            color: #c0392b;
+            white-space: pre-line;
+        }
+
+        .bad:empty {
+            display: none;
+        }
+
         #results .grp {
             margin-top: 12px;
         }
@@ -170,6 +180,22 @@
             color: #999;
         }
 
+        .item .del {
+            margin: 0;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            background: transparent;
+            color: #999;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .item .del:hover {
+            background: #c0392b;
+            color: #fff;
+        }
+
         #msg {
             margin-top: 8px;
             font-size: 12px;
@@ -194,42 +220,52 @@
         <section class="card">
             <label>源图（本地解像，不上传原图）</label>
             <input type="file" id="file" accept="image/*">
-            <label>盘面档位</label>
+            <label>盘面档位（推荐 standard29）</label>
             <select id="board">
-                <option value="small14">small14 · 14×14（MVP 一档）</option>
-                <option value="small18">small18 · 18×18（MVP 二档）</option>
+                <option value="standard29" selected>standard29 · 29×29（5mm Midi 标准方盘）</option>
+                <option value="small18">small18 · 18×18</option>
+                <option value="small14">small14 · 14×14</option>
                 <option value="small16">small16 · 16×16</option>
-                <option value="standard29">standard29 · 29×29（设计档）</option>
                 <option value="custom">自定义…</option>
             </select>
             <div class="row2" id="customSize" style="display:none">
-                <div><label>列</label><input type="number" id="cols" value="14" min="2" max="107"></div>
-                <div><label>行</label><input type="number" id="rows" value="14" min="2" max="107"></div>
+                <div><label>列</label><input type="number" id="cols" value="29" min="2" max="107"></div>
+                <div><label>行</label><input type="number" id="rows" value="29" min="2" max="107"></div>
             </div>
             <div class="row2">
-                <div><label>色板</label><select id="palette">
-                        <option value="10">游戏 10 色（可入关）</option>
-                        <option value="artkal">Artkal 真值（参考）</option>
+                <div><label>候选色集合（量化目标色）</label><select id="palette">
+                        <option value="10" selected>游戏 10 色真源（唯一可入关）</option>
+                        <option value="artkal">Artkal 真值 174 色（仅参考图 · 不可入关）</option>
                     </select></div>
-                <div><label>用色上限（0=不限）</label><input type="number" id="colors" value="0" min="0" max="200"></div>
+                <div><label>实际用几种颜色<span id="colorsHint">（可入关 3–8）</span></label><input type="number" id="colors"
+                        value="8" min="3" max="8"></div>
             </div>
             <div class="row2">
-                <div><label>交换错位 k 对</label><input type="number" id="swaps" value="8" min="0" max="200"></div>
-                <div><label>众数滤波轮数</label><input type="number" id="smooth" value="1" min="0" max="5"></div>
+                <div><label>错位密度</label><select id="misKind">
+                        <option value="full" selected>全错位（推荐 · 每颗可填珠都不就位）</option>
+                        <option value="swaps">少量交换（k 对 ⇒ 仅 2k 颗错位）</option>
+                    </select></div>
+                <div id="swapsBox" style="display:none"><label>交换对数 k（1–8）</label><input type="number" id="swaps"
+                        value="8" min="1" max="8"></div>
+                <div><label>众数滤波轮数（推荐 1）</label><input type="number" id="smooth" value="1" min="0" max="5"></div>
             </div>
             <div class="row2">
-                <div><label>异形</label><select id="shape">
-                        <option value="square">方形</option>
-                        <option value="circle">圆形</option>
-                        <option value="hex">六边</option>
+                <div><label>盘面形状</label><select id="shapeKind">
+                        <option value="rect" selected>长方形</option>
+                        <option value="free">非长方形</option>
+                    </select></div>
+                <div id="freeShapeBox" style="display:none"><label>非长方形轮廓</label><select id="freeShape">
+                        <option value="circle" selected>圆形</option>
+                        <option value="hex">六边形</option>
                         <option value="heart">心形</option>
                     </select></div>
-                <div><label>选色模式</label><select id="colorsmode">
-                        <option value="error">误差最小</option>
-                        <option value="freq">频次优先</option>
+                <div><label>选色模式（限色时挑哪几种）</label><select id="colorsmode">
+                        <option value="error" selected>误差最小·保形（推荐）</option>
+                        <option value="freq">频次优先·保大块</option>
                     </select></div>
             </div>
-            <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto"> 不做背景去格（整盘可填）</label>
+            <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto" checked>
+                铺满整盘（不扣背景；推荐）</label>
             <button id="gen">生成</button>
             <div id="msg"></div>
         </section>
@@ -237,9 +273,11 @@
             <div class="card">
                 <canvas id="cv" width="420" height="420"></canvas>
                 <div class="tabs">
-                    <button id="tSolved" class="on">正确解</button>
-                    <button id="tMis">初始盘（错位）</button>
+                    <button id="tSrc">原图</button>
+                    <button id="tSolved" class="on">正解图</button>
+                    <button id="tMis">错位图（初始盘）</button>
                 </div>
+                <div id="badge" class="bad"></div>
                 <div id="stats"></div>
                 <button class="ghost" id="dl" disabled>下载 levelDraft JSON</button>
                 <button class="ghost" id="cp" disabled>复制 rowstrings</button>
@@ -251,8 +289,41 @@
         'use strict';
         const $ = (id) => document.getElementById(id);
         let current = null; // 当前 result.json
-        let srcPixels = null; // {w,h,data:Uint8ClampedArray}
+        let srcPixels = null; // {w,h,data:Uint8ClampedArray} —— 送服务端的解像结果
+        let srcThumb = null;  // 原图缩略图 dataURL（选图即生，随 POST 存盘 ⇒ 历史条目也能看）
         let view = 'solved';
+
+        const THUMB_MAX = 448; // ≈ 预览画布宽，原图视图够用且存盘体积可控
+
+        /** Uint8ClampedArray → base64（分块，避免 fromCharCode 参数上限）。 */
+        function toB64(u8) {
+            let s = '';
+            for (let i = 0; i < u8.length; i += 0x8000) {
+                s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+            }
+            return btoa(s);
+        }
+
+        /** 盘面形状：只区分「长方形 / 非长方形」；非长方形再选具体轮廓（铺满由 beads-gen 保证）。 */
+        const shapeValue = () => ($('shapeKind').value === 'rect' ? 'square' : $('freeShape').value);
+        $('shapeKind').onchange = () => {
+            $('freeShapeBox').style.display = $('shapeKind').value === 'free' ? 'block' : 'none';
+        };
+
+        /** 用色域跟色板走：游戏侧“可入关”= 3–8（`BEAD_COLOR_MAX`），Artkal 仅参考图不卡域。 */
+        function syncColorsDomain() {
+            const game = $('palette').value === '10';
+            $('colors').min = 3; $('colors').max = game ? 8 : 64;
+            if (game && +$('colors').value > 8) $('colors').value = 8;
+            $('colorsHint').textContent = game ? '（可入关 3–8）' : '（参考图，不可入关）';
+        }
+        $('palette').onchange = syncColorsDomain;
+        syncColorsDomain();
+
+        /** 错位密度：全错位（引擎 misplaced 初盘，成片错豆）/ 少量交换（才需要 k）。 */
+        $('misKind').onchange = () => {
+            $('swapsBox').style.display = $('misKind').value === 'swaps' ? 'block' : 'none';
+        };
 
         $('board').onchange = () => {
             const b = $('board').value;
@@ -272,8 +343,22 @@
             const g = cv.getContext('2d', { willReadFrequently: true });
             g.drawImage(img, 0, 0, w, h);
             srcPixels = { w, h, data: g.getImageData(0, 0, w, h).data };
-            msg(`源图已解像：${w}×${h}（RGBA ${Math.round(w * h * 4 / 1024)} KB）`, 'ok');
+            // 原图缩略图（选图时本地生成，不依赖服务端返图）
+            const tk = Math.min(1, THUMB_MAX / Math.max(img.width, img.height));
+            const tw = Math.max(1, Math.round(img.width * tk)), th = Math.max(1, Math.round(img.height * tk));
+            const tc = new OffscreenCanvas(tw, th);
+            tc.getContext('2d').drawImage(img, 0, 0, tw, th);
+            srcThumb = await blobToDataURL(await tc.convertToBlob({ type: 'image/jpeg', quality: 0.72 }));
+            msg(`源图已解像：${w}×${h}（RGBA ${Math.round(w * h * 4 / 1024)} KB）｜缩略图 ${tw}×${th}`, 'ok');
+            if (view === 'src') drawSrc(srcThumb); // 未生成时也能先看原图
         };
+
+        async function blobToDataURL(blob) {
+            const buf = new Uint8Array(await blob.arrayBuffer());
+            let s = '';
+            for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+            return 'data:' + blob.type + ';base64,' + btoa(s);
+        }
 
         function msg(t, cls) { $('msg').textContent = t; $('msg').className = cls || ''; }
 
@@ -283,15 +368,20 @@
             if (!cols || !rows) return msg('盘面尺寸非法', 'err');
             const q = new URLSearchParams({
                 board: $('board').value === 'custom' ? `${cols}x${rows}` : $('board').value,
-                cols, rows, w: srcPixels.w, h: srcPixels.h,
+                cols, rows,
                 palette: $('palette').value, colors: $('colors').value,
                 colorsmode: $('colorsmode').value, swaps: $('swaps').value,
-                smooth: $('smooth').value, shape: $('shape').value,
+                smooth: $('smooth').value, shape: shapeValue(),
+                mis: $('misKind').value,
                 noframe: $('noframe').checked ? '1' : '0',
             });
             $('gen').disabled = true; msg('生成中…');
             try {
-                const r = await fetch('/api/generate?' + q, { method: 'POST', body: srcPixels.data });
+                const r = await fetch('/api/generate?' + q, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ w: srcPixels.w, h: srcPixels.h, data: toB64(srcPixels.data), thumb: srcThumb }),
+                });
                 const j = await r.json();
                 if (!r.ok) throw new Error(j.error || r.status);
                 current = j; show(j); msg(`已生成并存储：${j.id}`, 'ok'); loadResults();
@@ -299,33 +389,68 @@
             $('gen').disabled = false;
         };
 
-        function draw(colors) {
+        /** 行字符串数组（pattern / misplaced）→ 画布。`colors[y][x]` = 第 y 行的第 x 个字符。 */
+        function drawBoard(rowsArr) {
             const cv = $('cv'), g = cv.getContext('2d');
             const { cols, rows } = current;
             const pal = (current.levelDraft && current.levelDraft.paletteHex) || null;
             const cell = Math.floor(Math.min(cv.width / cols, cv.height / rows));
             const ox = (cv.width - cell * cols) / 2, oy = (cv.height - cell * rows) / 2;
             g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height);
-            for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-                const v = colors[y * cols + x];
-                if (!v || v === '.') continue;
-                g.fillStyle = pal ? pal[v.charCodeAt(0) >= 65 ? v.charCodeAt(0) - 55 : +v - 1] : `hsl(${v * 37 % 360} 60% 55%)`;
-                g.fillRect(ox + x * cell + 1, oy + y * cell + 1, cell - 2, cell - 2);
+            if (!Array.isArray(rowsArr)) return;
+            for (let y = 0; y < rows; y++) {
+                const line = rowsArr[y] || '';
+                for (let x = 0; x < cols; x++) {
+                    const ch = line[x];
+                    if (!ch || ch === '.') continue; // 空位：只留底色网格
+                    if (ch === 'x') { g.fillStyle = '#e6e0d2'; g.fillRect(ox + x * cell, oy + y * cell, cell, cell); continue; }
+                    const idx = ch >= 'A' ? ch.charCodeAt(0) - 55 : ch.charCodeAt(0) - 49; // '1'→0 … '9'→8, 'A'→9
+                    g.fillStyle = pal && pal[idx] ? pal[idx] : `hsl(${(idx + 1) * 37 % 360} 60% 55%)`;
+                    g.fillRect(ox + x * cell + 1, oy + y * cell + 1, cell - 2, cell - 2);
+                }
             }
         }
 
-        function show(r) {
-            const colors = (view === 'solved' ? r.levelDraft?.pattern : r.misplaced) || r.levelDraft?.pattern;
-            draw(colors);
-            const rp = r.report || {};
-            $('stats').textContent =
-                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.swaps * 2} 颗（${r.swaps} 对交换）\n` +
-                `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? '?'}`;
-            $('dl').disabled = $('cp').disabled = !(r.levelDraft);
+        /** 原图视图：把缩略图等比画到画布中央（contain，不裁剪）。 */
+        function drawSrc(dataUrl) {
+            const cv = $('cv'), g = cv.getContext('2d');
+            g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height);
+            if (!dataUrl) {
+                g.fillStyle = '#999'; g.font = '16px sans-serif'; g.textAlign = 'center';
+                g.fillText('本条结果未存原图缩略图（旧数据）', cv.width / 2, cv.height / 2);
+                return;
+            }
+            const im = new Image();
+            im.onload = () => {
+                const k = Math.min(cv.width / im.width, cv.height / im.height);
+                const w = im.width * k, h = im.height * k;
+                g.drawImage(im, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
+            };
+            im.src = dataUrl;
         }
 
-        $('tSolved').onclick = () => { view = 'solved'; $('tSolved').className = 'on'; $('tMis').className = ''; current && show(current); };
-        $('tMis').onclick = () => { view = 'mis'; $('tMis').className = 'on'; $('tSolved').className = ''; current && show(current); };
+        function show(r) {
+            if (view === 'src') drawSrc(r.thumb || srcThumb);
+            else drawBoard((view === 'solved' ? r.levelDraft?.pattern : r.misplaced) || r.levelDraft?.pattern);
+            const rp = r.report || {};
+            $('stats').textContent =
+                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
+                `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? '?'}`;
+            $('dl').disabled = $('cp').disabled = !(r.levelDraft);
+            // 不可入关就显式标红 + 说原因（静默换色比报错难查，不能只靠用户自己避坑）
+            $('badge').textContent = r.importable === false ? '⚠ 不可入关：' + (r.blockers || []).join('；') : '';
+        }
+
+        /** 三视图切换（原图 / 正解 / 错位）。 */
+        const TABS = { tSrc: 'src', tSolved: 'solved', tMis: 'mis' };
+        for (const [btn, v] of Object.entries(TABS)) {
+            $(btn).onclick = () => {
+                view = v;
+                for (const b of Object.keys(TABS)) $(b).className = b === btn ? 'on' : '';
+                if (current) show(current);
+                else if (v === 'src') drawSrc(srcThumb);
+            };
+        }
 
         $('dl').onclick = () => {
             const blob = new Blob([JSON.stringify(current.levelDraft, null, 2)], { type: 'application/json' });
@@ -347,9 +472,33 @@
                     grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
                     for (const r of list) {
                         const d = document.createElement('div'); d.className = 'item';
-                        d.innerHTML = `<span>${r.id}</span><small>${r.colors} 色 · 错位 ${r.swaps * 2}</small>`;
-                        d.onclick = () => { current = r; show(r); };
+                        d.innerHTML = `<span>${r.importable === false ? '⚠ ' : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : '错位 ' + r.swaps * 2}${r.importable === false ? ' · 不可入关' : ''}</small>`;
+                        // 列表是轻投影（不含 pattern/缩略图）⇒ 点开才拉单条全量
+                        d.onclick = async () => {
+                            try {
+                                const full = await (await fetch('/api/results/' + r.id)).json();
+                                current = full; show(full);
+                            } catch { msg('取详情失败：' + r.id, 'err'); }
+                        };
                         grp.appendChild(d);
+                        // 删除钮：不可逆（磁盘唯一副本）⇒ 必须二次确认；stopPropagation 避免误触发“查看该条”。
+                        const x = document.createElement('button');
+                        x.className = 'del'; x.textContent = '✕'; x.title = '删除这条结果（不可恢复）';
+                        x.onclick = async (ev) => {
+                            ev.stopPropagation();
+                            if (!confirm(`删除 ${r.id}？\n磁盘上只有一份，不可恢复。`)) return;
+                            try {
+                                const res = await fetch('/api/results/' + r.id, { method: 'DELETE' });
+                                if (!res.ok) {
+                                    const j = await res.json().catch(() => ({}));
+                                    return msg('删除失败：' + (j.error || res.status), 'err');
+                                }
+                                if (current && current.id === r.id) { current = null; $('cv').getContext('2d').clearRect(0, 0, 420, 420); }
+                                msg('已删除 ' + r.id, 'ok');
+                                loadResults();
+                            } catch (e) { msg('删除失败：' + e.message, 'err'); }
+                        };
+                        d.appendChild(x);
                     }
                     el.appendChild(grp);
                 }

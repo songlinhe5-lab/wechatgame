@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 66,
+  "nextId": 67,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1111,6 +1111,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-066",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "长期分支间用 squash 同步 ⇒ 下次同步「全域冲突」，且 3-way 会静默产出重复定义",
+      "contentHash": "b7549a95fa806333832ab2f286e3d1d7c3d878ab0365eb2156181c7e0311a0af",
+      "sourceTask": "WXG-T-179",
+      "addedDate": "2026-09-20",
+      "lastAccess": "2026-09-20",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1529,6 +1546,33 @@
       "kind": "added",
       "ids": [
         "K-065"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "added",
+      "ids": [
+        "K-066"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "updated",
+      "ids": [
+        "K-066"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "updated",
+      "ids": [
+        "K-066"
       ],
       "note": null
     }

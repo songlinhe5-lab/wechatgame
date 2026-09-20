@@ -22,6 +22,11 @@ export interface LevelDraft {
     readonly decoys?: readonly string[];
     readonly swaps?: readonly (readonly [number, number, number, number])[];
     readonly pattern: readonly string[];
+    /**
+     * 全错位初盘（可选，`--mis full` 产物）：rowstring，字符集同 pattern。
+     * 引擎侧 `applyMisplacedToGrid` 见 misplaced 优先、忽略 swaps ⇒ 带上就成片错豆（100% 可填格）。
+     */
+    readonly misplaced?: readonly string[];
     readonly paletteHex?: readonly string[];
 }
 
@@ -30,6 +35,8 @@ export interface StudioResult {
     readonly id: string;
     readonly board?: string;
     readonly createdAt?: string;
+    /** 服务端可入关判据（旧服务端可能不下发 ⇒ 按未知处理，不拦）。 */
+    readonly importable?: boolean;
 }
 
 export interface ImportOutcome {
@@ -74,6 +81,7 @@ export function draftToLevel(draft: LevelDraft, id: number, name: string): Impor
         decoys: draft.decoys ?? [],
         pattern: draft.pattern,
         swaps,
+        ...(draft.misplaced ? { misplaced: draft.misplaced } : {}),
     };
     // k 区间 / 交换对合法性 / 色数 / charset 全由 validateBeadsLevel 统一裁决（不在此重复）。
     const errors = validateBeadsLevel(level);
@@ -87,16 +95,27 @@ export async function fetchResults(base: string, get: HttpGet): Promise<readonly
 }
 
 /**
- * 一键导入用：取**最新**一条结果并转成可装配的 `BeadsLevelRaw`。
- * 空列表 / 校验失败均以 errors 返回（不抛，交给 UI 显示）。
+ * 一键导入用：取**最新一条可入关**的结果并转成可装配的 `BeadsLevelRaw`。
+ * 为何不盲取 `results[0]`：列表里常夹着参考图 / 实验残品（Artkal 色板等），
+ * 拿它们去 `/level` 只会吃一个 422，用户看到的是“导入失败”而非“你该删/选对条目”。
+ * 空列表 / 不合规 / 校验失败均以 errors 返回（不抛，交给 UI 显示）。
  */
 export async function importLatest(base: string, get: HttpGet): Promise<ImportOutcome> {
     const list = await fetchResults(base, get);
-    const head = list[0];
-    if (!head) return { ok: false, errors: ['服务无已存结果（请先在 beads-studio 生成一关）'] };
-    const draft = (await get(studioUrl(base, `/api/results/${head.id}/level`))) as LevelDraft;
+    const head = list.find((r) => r.importable !== false);
+    if (!head) {
+        return list.length
+            ? { ok: false, errors: [`服务上 ${list.length} 条结果均不可入关（请在 beads-studio 删除或换一条）`] }
+            : { ok: false, errors: ['服务无已存结果（请先在 beads-studio 生成一关）'] };
+    }
+    const draft = (await get(studioUrl(base, `/api/results/${head.id}/level`))) as LevelDraft & { error?: string };
+    // 服务端对「不可入关」产物直返 422 + 原因（如非 10 色色板 ⇒ 游戏内静默换色）；
+    // 这里原样透传，不降级成看不出所以然的「无 levelDraft」。
+    if (draft && typeof draft.error === 'string') {
+        return { ok: false, errors: [draft.error] };
+    }
     if (!draft || !Array.isArray(draft.pattern)) {
-        return { ok: false, errors: [`结果 ${head.id} 无 levelDraft（色板或参数不合规？）`] };
+        return { ok: false, errors: [`结果 ${head.id} 无 levelDraft（交换错位 k 需 ≥ 1）`] };
     }
     return draftToLevel(draft, 9000, `在线导入 ${head.id}`);
 }

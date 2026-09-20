@@ -634,7 +634,7 @@
 - **小游戏导入**：`src/game/level-import.ts`（注入式 HTTP，L3 无平台依赖）+ `BeadsGame.importLevel()`（先过 `validateBeadsLevel` 才追加进关表，失败不改表）+ 设置页「导入」钮（`MetaViewData.studioEnabled`，**仅宿主配了地址时绘制**）。地址接线：微信侧 = 开发者工具启动参数 `studio=http://<IP>:8787`（`BeadsBootstrap`），harness 侧 = `?game=beads&meta=menu&studio=…`。不扣心（调试通道，不污染 §3.14 体力语义），结果经 `meta:studio-import` 事件回报。
 - **E2E 揪出一个真缺陷（沉淀 K-064）**：`beads-gen` 的 `levelDraft` 把 `cycleProfile` 硬写 `'long'`，而交换法恒为 2-环 ⇒ BOOT「cycleProfile=long 与实际最长环 2 矛盾」**会拒收每一条在线导入**。生产端改 `'short'` + 消费端不再采信自报值（两面夹住），并补「谎报 long 仍产 short」反例判据。8 条单测全绿时它并不存在 —— 只有真产物过真校验器才暴露。
 - **门禁**：`pnpm -w run verify` **17/17 PASS**（含 `framework:sync:check` 镜像门 / `cocos:check` / `harness:smoke`）；beads **521 例全绿**（本单新增 10 例：转换定价 / 谎报反例 / 不合规拒收 / HTTP 注入 / 空列表 / importLevel / 钮接线）。服务端另做真实 E2E 冒烟：POST 生成 → 列表 → `/level` → 过 `draftToLevel` + `validateBeadsLevel` 全绿。
-- **沉淀统计（kb:sync --task=WXG-T-179）**：首轮**新增 1（K-064）**/ 修改 0 / 激活 0 / 归档 0；部署续作轮**修改 1（K-064 追记：本机全绿 ≠ 目标环境能跑）**/ 新增 0；发布实跑轮**新增 1（K-065：国内 VPS 镜像源 + 云安全组两层坑）**。`kb:audit` 无归档相似命中；`ctx:build` 已刷。
+- **沉淀统计（kb:sync --task=WXG-T-179）**：首轮**新增 1（K-064）**/ 修改 0 / 激活 0 / 归档 0；部署续作轮**修改 1（K-064 追记：本机全绿 ≠ 目标环境能跑）**/ 新增 0；发布实跑轮**新增 1（K-065：国内 VPS 镜像源 + 云安全组两层坑）**、**新增 1（K-066：squash 同步致全域冲突 + 静默重复定义，落 `[工具链]` 片）**。`kb:audit` 无归档相似命中；`ctx:build` 已刷。
 - **部署补记（同日续作，用户「179 继续完成部署」）**：
   - **又揪出一个同型缺陷（追记进 K-064）**：上一轮宣称「`--no-png` 后服务端免浏览器」是**假绿** —— chromium 的 `ensurePage()` 写在 beads-gen **模块顶层**，本机装有 playwright 所以全绿，按 Dockerfile 布局拼的**无 chromium 容器目录**里直接退出码 1。修法：launch 下移到真正用它的 `readGrid` / `renderPng` 内部（按需创建），顶层零副作用；顺带修掉「`--no-png` 仍打印 solved.png/misplaced.png」的日志谎报。修后在 `/tmp`（无 node_modules）跑 `--in-raw --no-png` ⇒ **34ms 出盘、零浏览器** ✅。
   - **容器布局端到端已过**：`temp/studio-fakeimg/`（server.mjs + public/ + vendor/beads-gen.mjs + cwd/temp/artkal-palette.json）起服务 ⇒ 游戏 10 色与 **artkal** 两条生成路径均 200（artkal 色板按子进程 cwd 解析已对齐 Dockerfile 布局）。
@@ -649,7 +649,37 @@
     4. 本轮脚本修正：**`PORT` 以前是谎报可覆盖**（compose 端口写死 8787）⇒ 改 `"${PORT:-8787}:8787"` 并在 deploy.sh/CI 透传；CI 健康检查同步用 `vars.BEADS_STUDIO_PORT`。
     5. 安全提醒已入档：本服务**无鉴权**，公网开端口 = 任何人可读列表/提交生成；默认建议走隧道或限源 IP。
     6. 这两道坑（镜像仓库不可达 + 云侧安全组与主机防火墙是两层）另沉淀为 **K-065**（`[环境]` 片）。
-- **待办（本单遗留，均属环外）**：① 用户侧：腾讯云控制台放行 **TCP 8787** 入站（或直接用 SSH 隧道，命令见 README）；② CI 自动发布仍等用户配 `SSH_*` secrets + `BEADS_STUDIO_DEPLOY=true`（国内源再配 `BEADS_STUDIO_BASE_IMAGE`）；③ 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；④ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物不可直接入关）；⑤ 本单所有改动**未提交**（VPS 已跑的是 rsync 过去的代码，提交与否不影响在线服务）。
+  - **发布链接通（用户选「推 develop + 开 PR」与「整批 develop→master」）**：提交 `1fc4be2`（beads-studio 全部交付，35 文件）已推 develop，PR **#4** = develop → master。
+    过程中发现并处理三事：① **GitHub Variables 实际为空**（用户以为配好了；`gh variable list` 核实后由本会话补建三条，Secrets `SSH_*` 已就位）；② PR 初始 `mergeable_state=dirty`——上次同步（PR #3）用了 **squash**，导致本次全域冲突 ⇒ 在 develop 上 `git merge -X ours origin/master` 反向吸收（合并提交 `4efc511`，合并树与 develop 顶点 **零差异**）；③ `-X ours` 后核树抓到一处**静默重复定义**（`check-context-budget.mjs` 出现两个 `checkStagedFreshness`）与 `ctx/index.json` 陈旧 447 行 ⇒ 两文件取 develop 侧 + 重新生成。以上沉淀为 **K-066**（`[工具链]` 片 —— 讲的是 git/CI 同步链；原拟归 `[流程]` 会顶破该片 8000 上限，改归其真实域）。
+    另：CI 健康检查改为**走 VPS 回环**（安全组未放行时公网 curl 会误判为红）；workflow 触发收窄为**只挂 master** + `workflow_dispatch`，并声明 `environment: production`（可选人审）。
+  - **CI 发布已实跑通（PR #4 合并后）**：合并产生 master push ⇒ `beads-studio-deploy` 自动触发。首跑 **失败**：`Permission denied (publickey)` —— 排查到 TCP 已到 sshd（非安全组问题）⇒ 是 **`SSH_KEY` secret 内容坏了**（UI 粘贴丢行尾换行的典型形态）。用已验证可用的私钥 `gh secret set SSH_KEY --body "$(cat <key>; echo)"` 重写三条后 `gh run rerun --failed` ⇒ **deploy ✓ 58s、健康检查 `OK（回环）`**、VPS 上 `curl 127.0.0.1:8787/api/results` = 200。教训入 workflow 注释。
+  - **同批踩到并修掉两处流程债**：① master 的 `commit-lint` 被我**跑红**。用户贴出 CI 日志后本地复现（`npx commitlint --from=083bb0f --to=6583191`）= **3 项违规**：`release:` 的 type-enum + scope-empty（标题本身，我上轮只说了这一层，**不完整**）、以及 `footer-max-line-length` —— 后者成因是 **squash 折叠时 GitHub 给每条子提交主题加 `* ` 前缀**，一颗 **99 字符的合规标题被拼成 101 字符 footer 行** ⇒ 与标题无关、整条同步必红。两道修：同步类 PR 标题固定 `chore(release): …`；`commit-lint.yml` 识别折叠同步提交（正文含 `* <type>(<scope>): `）**只校标题行**（子提交进 develop 时已逐条全量校过）。**曾按用户选择把 `header-max-length` 收到 96，落地前普查存量发现 develop 还有 98 / 99 字符历史标题 2 颗、而 PR 阶段逐条校全部提交 ⇒ 收紧会把下一次发布 PR 判红且不可追修，遂回退 100 改走工作流兜底**（该反悔已作为追记并入 K-066：改阈值前先量存量）；另修一处**文档自相矛盾**：§2.5 的「header 超长」反例只有 75 字符、实际拦不住（已换成 113 字符并 commitlint 实测报 `current length is 113`）；② PR #4 **又是 squash** ⇒ `master` 上再次出现与 develop 无血缘的提交（K-066 当场复发）⇒ 已按规则做**反向吸收**（合并提交，树与吸收前 **零差异**、master 恢复为 develop 祖先），并把「合并后立刻反向吸收」的四行命令写进 `docs/ci/commit-and-review-rules.md §4.1`。
+- **前端预览缺陷与三视图（用户反馈「生成后无法预览图片和错位图片；应可显示原图/正解/错位」）**：
+  - 真因是我写的索引 bug：`draw()` 用 `colors[y*cols+x]`，但 `pattern` 是**行字符串数组**（长度 = 行数）⇒ 14×14 盘上除前 14 个下标全取到 `undefined`，画布几乎空白（正解与错位同受损）。改 `colors[y][x]`，并补 `.`/`x` 字符与色号 `1-9A` → 色板下标映射。
+  - 新增**三视图**：原图 / 正解图 / 错位图。原图靠**缩略图随结果存盘**（前端选图时本地压 ≤448px JPEG，~5KB；POST body 改为 JSON `{w,h,data:base64(RGBA),thumb}`）⇒ 点历史条目也能回看；旧 2 条无缩略图的显示「未存原图缩略图（旧数据）」而非谎报成功。
+  - **列表接口改轻投影**（原本把每条的 `levelDraft`+report+thumb 全吐，小游戏拉列表也吃这个包）⇒ 只回元数据 + `hasThumb`，点条目再拉单条全量。
+  - **屏幕层取证**（这类 bug 单测抓不到，K-037）：`temp/studio-uicheck.mjs` 真浏览器跑「造图→上传→生成→切三视图→逐像素数有色格」，含**变异自检**（旧索引写法重画 → 有色比例 2.4%，证明门槛断言有判别力）。结果：原图 100% / 正解 68.7% / 错位 68.7%（门槛 ≥25%）、分桶色数 5（≥3）、thumb 与轻投影均 ✓。
+- **默认值改推荐值 + 异形只分长方形/非长方形（用户 2026-09-20）**：前端预选 standard29 / 10 色 / 用色 8 / k=8 / 滤波 1 / 误差最小 / 铺满整盘（默认勾选），每项 label 标「推荐」（理由入 README 表：8 = `BEAD_COLOR_MAX`、k 8 = `MISPLACED_PAIRS_MAX`、29×29 按 ADR-0018 仍属设计档已写清）。形状改为二级选择：「长方形 / 非长方形」→（非长方形时）圆/六边/心。
+  - **异形「缺漏」真因两处（`beads-gen::shapeMask`）**：① `inset = 0.02` 把形状整体内缩 ⇒ 盘边一整圈空位；② 只按**格心**判定 ⇒ 半格在形内也被判空（阶梯缺角）。现 `inset = 0` + 「中心或任一角在形内即保留」（5 点采样）。实测 29×29：circle/hex/heart 形状内空洞 **0**；UI 侧圆形重生成亦验证「形状内 705 格、空洞 0、形状外误铺 0」（第一次报 ✗ 是**我的判据与掩码口径不一致**（用格心判形状外），改成与 `shapeMask` 同源 5 点口径后转绿）。
+- **参数值域纠偏（用户追问「色板是什么概念、值域是否正确」后实测发现的真隐患）**：
+  - 概念先分清：**色板 = 量化目标候选色集合**（`--palette`），**用色上限 = 实际从池里挑几种**（`--colors`）；UI 文案已改成「候选色集合（量化目标色）」/「实际用几种颜色」。
+  - 值域核正：游戏 10 色与生成器 `GAME_PALETTE` **逐字节一致**（曾一度误判为 12 色 —— 多出的两串是 `BeadsPalette` 的 UI 面板色，不属珠色表）。可入关真域 = 色板 **10** / 用色 **3–8** / k **1–8** / 盘面 **6–29 × 5–29**（全取 `systems-index §3` 冻结常量）。
+  - **真隐患：Artkal 不是“导入报错”，而是静默换色**。实测 artkal 限 8 色 ⇒ 色号仅 `.12345678`、用色 8，**BOOT 全过**；但游戏不读 `paletteHex`、按色号取 `BEAD_PALETTE` ⇒ 预览 `#249E6B…` 会变成 `#FDF6E9…`（图案在、颜色全变且不报错）。
+  - 修法定单一真源：`server.mjs::importBlockers()` 写盘时算 `importable/blockers` ⇒ 前端结果卡与列表项标红 + `GET /api/results/:id/level` 对不合规产物 **422 + 原因**；`importLatest` 将原因**原样透传**（不降级成“无 levelDraft”），新增1 例单测钉住；色板选 Artkal 时用色域放开、选回游戏 10 色时**夹回 3–8**。
+  - 两个参数关系一并实测入文档：**k 与用色数无关**（6×5 小盘 + 3 色 + k=8 仍配对达标；真配不满则 `der.ok=false` 非零退出 → 422，不静默出坏盘）；**smooth 经验值**：29×29 类照片 0/1/2/3 → 相邻率 0.891/0.896/0.899/0.899、色差 78.7/79.3/79.7/79.7 ⇒ 剪影图 0–1、照片 1、要整块同色才试 2（3 已收敛）。
+  - 取证：`temp/studio-uicheck.mjs` 新增四断言（夹域、红标文案、/level 422+blockers、Artkal 域放开）均绿；屏幕层整套 18 条断言全绿。`beads-mvp-patterns.mjs` 手工作图不走这套采样 ⇒ 滤波/选色模式对其无意义（已写进 README防误用）。
+- **错位密度模式（用户反馈“错位豆基本很少，要成片错豆”）**：根因不是算法错，而是面板只给了 **k 对交换**这一条路 —— 29×29 盘 k=8 仅 16 颗错位（实测占 348 可填格 = **4.6%**），其余全就位 ⇒ 看着像没打乱。接上引擎已有的 **`misplaced` 全错位初盘**（入库 8 关用的就是它，`applyMisplacedToGrid` misplaced 优先、`validateMisplacedGrid` 校轮廓/守恒/错位≥1）：
+  - `beads-gen` 新增 `--mis full|swaps`（默认：给了 `--swaps` 就 swaps，否则 full）；full 模式 `levelDraft` 带 `misplaced`、`swaps: []`、`cycleProfile=long`。
+  - **一个静默错东西的坑当场堵在构造前**：若 `--mis full` 同时带 `--swaps 8`，旧写法 `der = sw ? 交换 : derange()` 仍会走交换 ⇒ 拿到的还是 2k 颗。现把 `misMode` 提到 `swapsK` 之前定，full 模式强制 `swapsK = 0`。
+  - 链路打通：`server.mjs` 收 `?mis=`（默认 full）并透传 `--mis`；`importBlockers()` 改为**按模式判**（full 不受 `MISPLACED_PAIRS_MAX=8` 约束，但校验草案确实带 `misplaced`）；`level-import.ts::draftToLevel` 恢复 `misplaced` 透传；面板新增「错位密度」二档（全错位默认 / 少量交换才出 k 输入）。
+  - 实测：full = **348/348 = 100%** 可填格错位（屏幕层 705/705）vs swaps = 16/348 = 4.6%；新单测 1 例（草案带 misplaced ⇒ 原样透传且过 BOOT）；屏幕层取证新增 3 条断言（全错位密度、`/level` 200 不被 k≤8 拦、“少量交换”才出 k）均绿，整套 22 条全绿。可玩性提示已写进 README：密集全错位盘靠 board 直填周转（G-3 结论），真机手感待走查。
+- **已存结果可删 + 导入不再盲取最新（用户：列表里不要的条目也会被导入）**：此前**根本没有删除能力**（无 `DELETE` 接口、无前端钮），只能手动 `rm -rf data/<board>/<id>`。
+  - 服务端新增 `DELETE /api/results/:id`：id 走与建目录同一套 `[a-z0-9-]` 白名单（不拼用户传入路径），**不可逆**⇒ 前端 ✕ 必带二次确认；不提供批量/目录级删除。
+  - `importLatest()` 从「取 `results[0]`」改为「**取最新一条 `importable !== false`**」：列表里常夹参考图/实验残品，盲取只会吃一个 422，用户看到的是“导入失败”而不是“该删/该选对条目”；全不可入关时报“N 条均不可入关”，不去碰 `/level`。
+  - 取证：新单测 2 例（跳过不可入关、全不可入关不碰 /level）+ 屏幕层 2 条（✕ → 确认框 → 列表 3→2；不存在 id 与 `..%2f` 穿越型 id 均 404 不碰文件），共 14 例单测 / 24 条断言全绿。
+- **公网放行已完成（2026-09-20 用户操作 + 本会话复核）**：CVM `ins-bnj9hmh3`（ap-beijing，`product_name=CVM` ⇒ 走安全组而非轻量防火墙）加 TCP 8787 入站后，**公网端到端全绿**：
+  `GET /` = 200 → `POST /api/generate`（96×96 RGBA）得 `small14-1789910083144-e64a` → `GET /api/results/:id/level` 字段完整（14×14 / pattern 14 行 / swaps 6 对 / `cycleProfile=short` ⇒ 生产端修复已随发布上线）→ 过本仓 `draftToLevel` + `validateBeadsLevel` **通过 ✓**（时长按 k 定价 = 270s）。
+- **待办（本单遗留，均属环外）**：① 若以后要**真机**导入：手机出口 IP 与本机不同，限源规则需放开到 `0.0.0.0/0`（本服务无鉴权，自行权衡）或改用 SSH 隧道；② 微信正式环境需 **https + 合法域名**，开发/体验版先勾「不校验合法域名」；③ 色板仍接 **ADR-0016** 待裁（`--palette artkal` 产物只出参考图，服务端已 422 拦下导入）；④ **develop→master 以后固定用 merge commit**，不要再 squash（K-066）；⑤ VPS 上仍是旧版（无全错位与删除能力），待发 `deploy.sh`。
 
 ---
 

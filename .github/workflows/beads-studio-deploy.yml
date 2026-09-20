@@ -42,6 +42,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup SSH key
+        # ⚠ 私钥固定写到默认路径 ~/.ssh/id_ed25519，后面的 ssh / rsync **不传 -i**（靠默认密钥名发现）；
+        #    改文件名的话必须同步给 rsync 加 -e "ssh -i <path>"。
+        #    SSH_KEY secret 必须是**私钥全文且带行尾换行**（实测：UI 粘贴丢换行 ⇒ publickey denied，
+        #    改用 `gh secret set SSH_KEY --body "$(cat <key>; echo)"` 后立即绿）。
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519

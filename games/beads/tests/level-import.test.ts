@@ -60,6 +60,18 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         expect(r.level!.cycleProfile).toBe('short');
     });
 
+    it('草案带 misplaced（全错位初盘）⇒ 原样透传；引擎优先读它，不受 k≤8 约束', () => {
+        const pattern = ['123123', '123123', '123123', '123123', '123123'];
+        const misplaced = ['312312', '312312', '312312', '312312', '312312']; // 逐格错开、每色守恒
+        const r = draftToLevel(
+            { cols: 6, rows: 5, time: null, pattern, swaps: [], misplaced } as unknown as LevelDraft,
+            9100, '全错位',
+        );
+        expect(r.errors).toEqual([]);
+        expect(r.level!.misplaced).toEqual(misplaced);
+        expect(r.level!.swaps.length).toBe(0);
+    });
+
     it('不合规草案（两色 < 3）⇒ 只回错误、不产关卡（不放宽 BOOT 口径）', () => {
         const bad = draftOf({ pattern: ['121212', '212121', '121212', '212121', '121212'] });
         const r = draftToLevel(bad, 9001, 'bad');
@@ -101,6 +113,35 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         const r = await importLatest('http://h:8787', async () => ({ results: [] }));
         expect(r.ok).toBe(false);
         expect(r.errors[0]).toContain('无已存结果');
+    });
+
+    it('列表首条不可入关（参考图/实验残品）⇒ 跳过它，取下一条可入关的', async () => {
+        const got: string[] = [];
+        const r = await importLatest('http://h:8787', async (url) => {
+            if (url.endsWith('/api/results')) {
+                return { results: [{ id: 'junk', importable: false }, { id: 'good', importable: true }] };
+            }
+            got.push(url);
+            return draftOf();
+        });
+        expect(r.ok).toBe(true);
+        expect(got[0]).toBe('http://h:8787/api/results/good/level');
+    });
+
+    it('列表非空但全部不可入关 ⇒ 报“均不可入关”，不去碰 /level', async () => {
+        const r = await importLatest('http://h:8787', async () => ({
+            results: [{ id: 'a', importable: false }, { id: 'b', importable: false }],
+        }));
+        expect(r.ok).toBe(false);
+        expect(r.errors[0]).toContain('均不可入关');
+    });
+
+    it('服务端 422（不可入关产物）⇒ 原因原样透传，不降级成「无 levelDraft」', async () => {
+        const why = '该结果不可入关：色板为 artkal（非游戏 10 色真源）⇒ 导入会静默换色';
+        const r = await importLatest('http://h:8787', async (url) =>
+            url.endsWith('/level') ? { error: why, blockers: [why] } : { results: [{ id: 'bad-1' }] });
+        expect(r.ok).toBe(false);
+        expect(r.errors[0]).toBe(why);
     });
 });
 
