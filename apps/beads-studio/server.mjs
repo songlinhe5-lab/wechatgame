@@ -125,7 +125,8 @@ function listResults() {
                 out.push({
                     id: r.id, board: r.board, cols: r.cols, rows: r.rows, shape: r.shape,
                     palette: r.palette, colors: r.colors, swaps: r.swaps, misMode: r.misMode || 'swaps', createdAt: r.createdAt,
-                    hasThumb: !!r.thumb, importable: r.importable === true,
+                    // 旧条目（本次字段上线前存盘）没有 importable ⇒ 回落实算，与 /level 端点同口径
+                    hasThumb: !!r.thumb, importable: r.importable ?? (importBlockers(r).length === 0),
                 });
             } catch {
                 /* 跳过损坏条目 */
