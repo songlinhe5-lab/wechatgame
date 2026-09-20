@@ -6918,17 +6918,17 @@
     },
     {
       "path": "docs/ci/commit-and-review-rules.md",
-      "tokens": 2603,
-      "lines": 161,
-      "sha256": "155fc661ac5b54dd1d4b0dca6f6a53f8c08d1730903dcceb53f40238f60eeee6",
+      "tokens": 2995,
+      "lines": 177,
+      "sha256": "81a06491e12e3bce2e52107b2187729ffc14f0d2bde2ec53d87f0e9d64b24c8f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提交与 Code Review 拦截规则 — WXG-T-016",
           "level": 1,
           "startLine": 1,
-          "endLine": 162,
-          "tokens": 2588,
+          "endLine": 178,
+          "tokens": 2981,
           "summary": "目标：每个提交可追溯到任务单，且 type/scope 粒度与仓库分区一致；PR 有模板、责任人与标签；合并由分支保护统",
           "keywords": [
             "Code",
@@ -7106,8 +7106,8 @@
           "anchor": "§4 分支保护（`tools/scripts/setup-branch-protection.sh`）",
           "level": 2,
           "startLine": 126,
-          "endLine": 154,
-          "tokens": 670,
+          "endLine": 170,
+          "tokens": 1062,
           "summary": "脚本用 gh api 幂等写入 master 保护规则（自动从 git remote get-url origin 解析",
           "keywords": [
             "tools",
@@ -7122,8 +7122,8 @@
           "anchor": "§4.1 分支模型（WXG-T-024 裁定 A 方案）",
           "level": 3,
           "startLine": 143,
-          "endLine": 154,
-          "tokens": 188,
+          "endLine": 170,
+          "tokens": 580,
           "summary": "master ✅ 三 required check + 必须走 PR + 线性历史 push + PR 唯一受保护主线，",
           "keywords": [
             "WXG",
@@ -7137,8 +7137,8 @@
         {
           "anchor": "§5 CI 粒度细化（`.github/workflows/ci.yml`）",
           "level": 2,
-          "startLine": 155,
-          "endLine": 162,
+          "startLine": 171,
+          "endLine": 178,
           "tokens": 221,
           "summary": "dorny/paths-filter@v3 检测变更组：framework / game / tools / ctx（f",
           "keywords": [

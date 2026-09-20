@@ -150,6 +150,22 @@ PR 按变更路径自动打标签：`framework`、`game:breakout`、`game:beads`
 
 **纪律**：直推 `develop` 虽无保护，但 CI（含 `gate`、`lint`）会跑——**红了就地修，不要带着红状态往 master 提 PR**；`master` 的合并一律走 PR。
 
+**两条补充（WXG-T-179，2026-09-20 实测后补；判据沉淀 K-066）**：
+
+1. **PR 标题同样要过 commitlint**。`master` 上的 push 事件会跑 `commit-lint`，而 squash 合并后的提交标题 = **PR 标题**
+   ⇒ 标题写成 `release: develop → master …` 这类裸 type 会直接把 master 的 lint 跑红（实测 run 35508584617）。
+   同步类 PR 固定用 **`chore(release): <一句话>`**（`release` 是合法 scope，不是 type）。
+2. **「线性历史 + squash」必须配套「反向吸收」**：squash 会在 `master` 上造一个与 `develop` **无血缘**的提交，
+   下次 `develop → master` 就会被判成全量互改（实测一次列出几十个冲突文件），且 `-X ours/theirs` 强合时非冲突块会
+   **静默带入旧版、产出重复函数定义**（语法合法、不报冲突）。故每次 `develop → master` 合并完成后，
+   **立刻把 `master` 反向合回 `develop`**（`develop` 不受保护，允许 merge commit）：
+   ```bash
+   git checkout develop && git fetch origin master
+   git merge -X ours origin/master            # 冲突取 develop 侧（develop 为超集）
+   git diff --stat <合并前的 develop 顶点> HEAD   # 必须为空；非空逐文件核（生成物走重新生成）
+   pnpm -w run verify && git push origin develop
+   ```
+
 ---
 
 ## 5. CI 粒度细化（`.github/workflows/ci.yml`）
