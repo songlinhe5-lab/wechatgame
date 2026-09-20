@@ -25,7 +25,7 @@ import type { RenderModelBuilder } from '@wxgame/framework';
 import type { BeadsPalette } from './palette.js';
 import type { SigninReward } from '../game/meta-state.js';
 
-export type MetaOverlay = 'none' | 'signin' | 'settings';
+export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels';
 
 /** Everything the meta screens draw, assembled read-only by the shell. */
 export interface MetaViewData {
@@ -42,6 +42,14 @@ export interface MetaViewData {
     readonly reduceMotion: boolean;
     readonly largeText: boolean;
     readonly vibrate: boolean;
+    // levels overlay（选关，#1 · WXG-T-180）——均每帧只读引用，不分配。
+    readonly levelCount: number;
+    /** 当前关（0-based，play.levelIndex）。 */
+    readonly currentLevelIndex: number;
+    /** 最高解锁关（1-based）。索引 < maxUnlockedLevel 的关可点。 */
+    readonly maxUnlockedLevel: number;
+    /** 每关历史星（0-based 索引；稀疏时视图按 `?? 0`）。引用不拷贝。 */
+    readonly starsByLevel: readonly number[];
 }
 
 /** A tappable control on a meta screen. */
@@ -49,6 +57,8 @@ export type MetaAction =
     | 'start'
     | 'open-signin'
     | 'open-settings'
+    | 'open-levels'
+    | 'pick-level'
     | 'back'
     | 'claim'
     | 'toggle-bgm'
@@ -67,6 +77,8 @@ interface Box {
 export interface MetaButton {
     readonly id: MetaAction;
     readonly box: Box;
+    /** `pick-level` 携带的关卡 0-based 索引（其余按钮为 undefined）。 */
+    readonly levelIndex?: number;
 }
 
 export interface MetaLayout {
@@ -106,13 +118,37 @@ function menuLayout(): MetaLayout {
     // 主钮「开始游戏」
     const primaryY = 700;
     buttons.push({ id: 'start', box: box(cx - MENU_PRIMARY_W / 2, primaryY, MENU_PRIMARY_W, TOUCH_MIN) });
-    // 次级入口：签到 / 设置（并排居中）
+    // 次级入口：选关 / 签到 / 设置（三等分居中）
     const secY = primaryY - TOUCH_MIN - MENU_ROW_GAP;
-    const gap = 30;
-    const total = MENU_SECONDARY_W * 2 + gap;
+    const gap = 24;
+    const total = MENU_SECONDARY_W * 3 + gap * 2;
     const left = cx - total / 2;
-    buttons.push({ id: 'open-signin', box: box(left, secY, MENU_SECONDARY_W, TOUCH_MIN) });
-    buttons.push({ id: 'open-settings', box: box(left + MENU_SECONDARY_W + gap, secY, MENU_SECONDARY_W, TOUCH_MIN) });
+    buttons.push({ id: 'open-levels', box: box(left, secY, MENU_SECONDARY_W, TOUCH_MIN) });
+    buttons.push({ id: 'open-signin', box: box(left + MENU_SECONDARY_W + gap, secY, MENU_SECONDARY_W, TOUCH_MIN) });
+    buttons.push({ id: 'open-settings', box: box(left + (MENU_SECONDARY_W + gap) * 2, secY, MENU_SECONDARY_W, TOUCH_MIN) });
+    return { buttons, signinCells: [] };
+}
+
+/** 选关屏固定网格：4 列×最多 3 行（12 格）；视图只画 `i < levelCount`，shell 只接已解锁项。 */
+function levelsLayout(): MetaLayout {
+    const plate = overlayPlate();
+    const buttons: MetaButton[] = [];
+    const cols = 4;
+    const cellSize = 120;
+    const gap = 22;
+    const gridW = cols * cellSize + (cols - 1) * gap;
+    const startX = plate.x + (plate.w - gridW) / 2;
+    const topY = plate.y + plate.h - 170;
+    for (let i = 0; i < 12; i++) {
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        const x = startX + col * (cellSize + gap);
+        const y = topY - row * (cellSize + gap);
+        buttons.push({ id: 'pick-level', levelIndex: i, box: box(x, y, cellSize, cellSize) });
+    }
+    // 返回
+    const backW = 240;
+    buttons.push({ id: 'back', box: box(plate.x + (plate.w - backW) / 2, plate.y + 50, backW, TOUCH_MIN) });
     return { buttons, signinCells: [] };
 }
 
@@ -173,16 +209,20 @@ function settingsLayout(): MetaLayout {
 export function metaLayout(overlay: MetaOverlay): MetaLayout {
     let layout = _layouts.get(overlay);
     if (!layout) {
-        layout = overlay === 'signin' ? signinLayout() : overlay === 'settings' ? settingsLayout() : menuLayout();
+        layout =
+            overlay === 'signin' ? signinLayout()
+                : overlay === 'settings' ? settingsLayout()
+                    : overlay === 'levels' ? levelsLayout()
+                        : menuLayout();
         _layouts.set(overlay, layout);
     }
     return layout;
 }
 
-/** Resolve a tap on the current screen; `null` when nothing is hit. */
-export function hitTestMeta(overlay: MetaOverlay, x: number, y: number): MetaAction | null {
+/** Resolve a tap on the current screen; `null` when nothing is hit. 返回按钮（携 levelIndex）。 */
+export function hitTestMeta(overlay: MetaOverlay, x: number, y: number): MetaButton | null {
     for (const b of metaLayout(overlay).buttons) {
-        if (inBox(b.box, x, y)) return b.id;
+        if (inBox(b.box, x, y)) return b;
     }
     return null;
 }
@@ -197,6 +237,8 @@ function label(id: MetaAction, data: MetaViewData): string {
             return '签到';
         case 'open-settings':
             return '设置';
+        case 'open-levels':
+            return '选关';
         case 'claim':
             return data.canClaim ? '领取' : '已领取';
         case 'back':
@@ -281,7 +323,9 @@ export function buildMetaView(
     builder.rect(0, 0, DESIGN_W, DESIGN_H, { fill: 'rgba(0,0,0,0.5)' });
     const plate = overlayPlate();
     builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: 24 });
-    builder.text(plate.x + plate.w / 2, plate.y + plate.h - 70, data.overlay === 'signin' ? '七日签到' : '设置', {
+    const overlayTitle =
+        data.overlay === 'signin' ? '七日签到' : data.overlay === 'levels' ? '选关' : '设置';
+    builder.text(plate.x + plate.w / 2, plate.y + plate.h - 70, overlayTitle, {
         fill: palette.text,
         font: '40px sans-serif',
         align: 'center',
@@ -318,7 +362,42 @@ export function buildMetaView(
         }
     }
 
+    // 选关屏：把 pick-level 按钮画成关卡格（编号 + 星级 + 锁定置灰 + 当前高亮）；back 走下方通用按钮。
+    if (data.overlay === 'levels') {
+        for (const b of layout.buttons) {
+            if (b.id !== 'pick-level') continue;
+            const i = b.levelIndex ?? 0;
+            if (i >= data.levelCount) continue; // 固定网格多余格不画
+            const unlocked = i + 1 <= data.maxUnlockedLevel;
+            const isCurrent = i === data.currentLevelIndex;
+            const stars = data.starsByLevel[i] ?? 0;
+            builder.rect(b.box.x, b.box.y, b.box.w, b.box.h, {
+                fill: unlocked ? palette.slot : palette.panel,
+                stroke: isCurrent ? palette.accentPrimary : palette.slotBorder,
+                lineWidth: isCurrent ? 4 : 2,
+                radius: 12,
+                ...(unlocked ? {} : { alpha: 0.45 }),
+            });
+            const cx = b.box.x + b.box.w / 2;
+            builder.text(cx, b.box.y + b.box.h / 2 - 8, unlocked ? `${i + 1}` : '🔒', {
+                fill: unlocked ? palette.text : palette.textDim,
+                font: FONT_BUTTON,
+                align: 'center',
+                baseline: 'middle',
+            });
+            if (unlocked) {
+                builder.text(cx, b.box.y + b.box.h / 2 + 28, '★'.repeat(stars) + '☆'.repeat(3 - stars), {
+                    fill: stars > 0 ? palette.text : palette.textDim,
+                    font: FONT_CELL,
+                    align: 'center',
+                    baseline: 'middle',
+                });
+            }
+        }
+    }
+
     for (const b of layout.buttons) {
+        if (b.id === 'pick-level') continue; // 选关格已在上方绘制
         const primary = b.id === 'claim';
         const disabled = b.id === 'claim' && !data.canClaim;
         drawButton(builder, b.box, label(b.id, data), palette, primary, disabled);

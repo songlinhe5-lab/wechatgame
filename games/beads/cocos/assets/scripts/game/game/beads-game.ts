@@ -593,6 +593,20 @@ export class BeadsGame implements Game {
     return this._levels.length;
   }
 
+  /** 最高解锁关（1-based）；无存档 = 1。供 shell 选关屏每帧只读（不分配）。 */
+  get maxUnlockedLevel(): number {
+    return this._save ? this._save.data.maxUnlockedLevel : 1;
+  }
+
+  /**
+   * 每关历史最好星——**原始引用**（可能稀疏，视图按 `?? 0` 取）。
+   * 与 {@link starsByLevel}（稠密拷贝、供结算/测试）区分：本 getter **零分配**，
+   * 供 shell `_metaViewData` 每帧取用（热路径零分配）。
+   */
+  get starsByLevelRaw(): readonly number[] {
+    return this._starsByLevel;
+  }
+
   get stageIndex(): number {
     return this._stageIndex;
   }
@@ -2117,31 +2131,53 @@ export class BeadsGame implements Game {
     }
     const target = this._grid.cell(row, col);
     if (!target || target.void || target.state !== 'empty' || target.colorIdx !== anchor.color) return null; // 非对应色空格 ⇒ 不消费
-    let best = alive[0]!;
-    let bestD = Infinity;
-    let bestOrd = Infinity;
-    for (const c of alive) {
-      const d = Math.max(Math.abs(c.row - row), Math.abs(c.col - col));
-      const ord = c.row * this._grid.cols + c.col;
-      if (d < bestD || (d === bestD && ord < bestOrd)) {
-        best = c;
-        bestD = d;
-        bestOrd = ord;
+    this._consumedTap = true; // 直填已消费本次点击
+
+    // 【#3 · WXG-T-180 用户裁定】一次点击 = **组批量归位**：填被点空格 + 其 8 向连通的
+    // 同色空格一片（上限 = 组内可用错位珠数），对齐托盘侧 `planGroupFill` 连续填充手感。
+    // 旧「逐颗续填（一点一格）」放宽为整片；每格取「距该格最近的剩余组员」，retrieve+fill 同帧两写。
+    const targets: { row: number; col: number }[] = [{ row, col }];
+    const extra = planGroupFill(this._grid, row, col, anchor.color, alive.length - 1);
+    for (const e of extra) targets.push(e);
+
+    let placedAny = false;
+    for (const t of targets) {
+      const cell = this._grid.cell(t.row, t.col);
+      if (!cell || cell.state !== 'empty' || cell.colorIdx !== anchor.color) continue; // 复核（被点格外均为 BFS 收集的同色空格）
+      // 取距该目标格最近的剩余组员（平局行主序）。
+      let bi = 0;
+      let bd = Infinity;
+      let bord = Infinity;
+      for (let i = 0; i < alive.length; i++) {
+        const c = alive[i]!;
+        const d = Math.max(Math.abs(c.row - t.row), Math.abs(c.col - t.col));
+        const ord = c.row * this._grid.cols + c.col;
+        if (d < bd || (d === bd && ord < bord)) {
+          bd = d;
+          bord = ord;
+          bi = i;
+        }
       }
+      const src = alive[bi]!;
+      const bead = this._grid.retrieve(src.row, src.col);
+      if (!bead || !this._grid.fill(t.row, t.col, bead)) {
+        if (bead) this._grid.setBead(src.row, src.col, bead); // 防御回滚（理论不可达：目标已验 empty）
+        continue;
+      }
+      alive.splice(bi, 1);
+      this._emit('bead:placed', { row: t.row, col: t.col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot
+      placedAny = true;
+      if (alive.length === 0) break;
     }
-    const bead = this._grid.retrieve(best.row, best.col);
-    if (!bead || !this._grid.fill(row, col, bead)) {
-      if (bead) this._grid.setBead(best.row, best.col, bead); // 防御回滚（理论不可达：目标已验 empty）
-      return false;
-    }
-    this._consumedTap = true; // 直填已消费本次点击（tapDesign 返回 true 的依据）
-    this._emit('bead:placed', { row, col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot（G2′ 同族）
-    const rest = alive.filter((c) => !(c.row === best.row && c.col === best.col));
-    if (rest.length === 0) {
+    if (!placedAny) return false;
+
+    // 锚更新：组空 ⇒ 清；否则转移到剩余组首（行主序，快照坐标下帧跟随）。
+    if (alive.length === 0) {
       this._boardSelected = null;
     } else {
-      const head = rest[0]!;
-      this._boardSelected = { row: head.row, col: head.col, color: anchor.color, cells: rest };
+      alive.sort((a, b) => a.row * this._grid.cols + a.col - (b.row * this._grid.cols + b.col));
+      const head = alive[0]!;
+      this._boardSelected = { row: head.row, col: head.col, color: anchor.color, cells: alive };
     }
     // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）
     if (this._grid.isComplete()) {

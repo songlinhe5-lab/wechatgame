@@ -7,10 +7,11 @@
  *   - `meta` = {@link MetaState}  — the out-of-run economy (stamina / signin /
  *     wallet), created at `init` from the injected storage + wall clock.
  *
- * Routing (ux-spec v1.7 §2 / §6.3):
- *   - **启动直进玩法**（首屏即玩红线不变）：`initialScreen` 默认 `'play'`；
+ * Routing (ux-spec v1.7 §2 / §6.3；#1 · WXG-T-180 反转):
+ *   - **首屏停主菜单**（原「启动直进玩法」红线已反转）：`initialScreen` 默认 `'menu'`；
+ *     主菜单含**选关列表**（当前关高亮 / 未解锁置灰 / 星级）。
  *   - 菜单入口 = 暂停面板次钮「回主菜单」→ `play` 的 `onMenuRequest` → {@link showMenu}；
- *   - 主菜单主钮「开始游戏」：**恒为全新开当前关**并扣 1 心（systems-index §3.14）。
+ *   - 主菜单主钮「开始游戏」/ 选关点格：**开对应关**并扣 1 心（systems-index §3.14）。
  *     旧口径「有在途（`play.phase==='paused'`）→ 恢复、不扣心」**已随 WXG-T-165 反转作废**
  *     （v1.29：回主菜单 = 弃本局棋盘，关卡解锁进度保留）。
  *
@@ -32,6 +33,7 @@ import {
     buildMetaView,
     hitTestMeta,
     type MetaAction,
+    type MetaButton,
     type MetaOverlay,
     type MetaViewData,
 } from '../view/meta-view';
@@ -48,7 +50,7 @@ export interface BeadsShellOptions {
     readonly palette?: BeadsPalette;
     /** Overridable meta sidecar key so tests get isolated storage. */
     readonly metaKey?: string;
-    /** Boot screen. Default `'play'`（首启直进玩法；harness `?meta=menu` 传 `'menu'`）。 */
+    /** Boot screen. Default `'menu'`（#1 首屏停主菜单；harness/tests 可传 `'play'` 直进玩法）。 */
     readonly initialScreen?: ShellScreen;
 }
 
@@ -80,13 +82,17 @@ export class BeadsShell implements Game {
         reduceMotion: false,
         largeText: false,
         vibrate: true,
+        levelCount: 0,
+        currentLevelIndex: 0,
+        maxUnlockedLevel: 1,
+        starsByLevel: [] as readonly number[],
     };
 
     constructor(options: BeadsShellOptions) {
         this._clock = options.clock;
         this._metaKey = options.metaKey;
         this.palette = options.palette ?? DEFAULT_PALETTE;
-        this._screen = options.initialScreen ?? 'play';
+        this._screen = options.initialScreen ?? 'menu';
         this.play = new BeadsGame({
             ...(options.play ?? {}),
             // 暂停面板「回主菜单」次钮 → 切到菜单（真机反馈裁定：弃本局棋盘——下次「开始游戏」= 全新开当前关）。
@@ -174,15 +180,21 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * 主菜单主钮「开始游戏」：**每次 = 全新开当前关**，扣 1 心。真机反馈裁定（WXG-T-165）
-     * ——「回主菜单」弃本局棋盘、关卡解锁进度留，原「在途 PAUSED 续进不扣心」语义已反转。
+     * 主菜单主钮「开始游戏」：**开当前关**，扣 1 心。真机反馈裁定（WXG-T-165）
+     * ——「回主菜单」弃本局棋盘、关卡解锁进度留。
      * @returns true 当且仅当已进入玩法（0 心 ⇒ false，留在菜单走回满广告）。
      */
     startGame(): boolean {
+        return this._startLevel(this.play.levelIndex);
+    }
+
+    /** 进玩法统一下入口：扣心→切屏→`goToLevel(index)` 装配该局。0 心不切屏。 */
+    private _startLevel(index: number): boolean {
         if (!this.meta || !this.meta.spendStamina(STAMINA_START_COST)) return false;
         this._screen = 'play';
+        this._overlay = 'none';
         this._emitOverlay(false);
-        this.play.goToLevel(this.play.levelIndex); // 棋盘复位到当前关初始（关卡指针/解锁进度不变）
+        this.play.goToLevel(index); // 棋盘复位到该关初始（关卡指针/解锁进度不变）
         return true;
     }
 
@@ -191,17 +203,29 @@ export class BeadsShell implements Game {
      * events — mirrors `BeadsGame.tapDesign`). @returns true when consumed.
      */
     tapMeta(x: number, y: number): boolean {
-        const action = hitTestMeta(this._overlay, x, y);
-        if (!action) return false;
-        this._applyMetaAction(action);
+        const btn = hitTestMeta(this._overlay, x, y);
+        if (!btn) return false;
+        this._applyMetaAction(btn);
         return true;
     }
 
-    private _applyMetaAction(action: MetaAction): void {
+    private _applyMetaAction(btn: MetaButton): void {
+        const action: MetaAction = btn.id;
         switch (action) {
             case 'start':
                 this.startGame();
                 return;
+            case 'open-levels':
+                this._overlay = 'levels';
+                this._emitOverlay(true);
+                return;
+            case 'pick-level': {
+                const i = btn.levelIndex;
+                // 锁定关不可点（索引 ≥ maxUnlockedLevel）；越界不消费。
+                if (i === undefined || i + 1 > this.play.maxUnlockedLevel) return;
+                this._startLevel(i);
+                return;
+            }
             case 'open-signin':
                 this._overlay = 'signin';
                 this._emitOverlay(true);
@@ -230,8 +254,8 @@ export class BeadsShell implements Game {
         const snap = services.input.snapshot;
         if (!snap.justDown) return;
         services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
-        const action = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y);
-        if (action) this._applyMetaAction(action);
+        const btn = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y);
+        if (btn) this._applyMetaAction(btn);
     }
 
     private _metaViewData(): MetaViewData {
@@ -248,6 +272,11 @@ export class BeadsShell implements Game {
         v.reduceMotion = this.play.reduceMotion;
         v.largeText = this.play.largeText;
         v.vibrate = this.play.vibrateOn;
+        // 选关屏数据（均只读引用，零分配）。
+        v.levelCount = this.play.levelCount;
+        v.currentLevelIndex = this.play.levelIndex;
+        v.maxUnlockedLevel = this.play.maxUnlockedLevel;
+        v.starsByLevel = this.play.starsByLevelRaw;
         return v;
     }
 

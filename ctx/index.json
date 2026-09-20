@@ -200,7 +200,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2818,
       "lines": 110,
-      "sha256": "27d7cfe3ceaffe2fbccfedb6d7844594c3ab8f793bd02e2e23c516b4183518be",
+      "sha256": "263e93d7520a101609199e87053e12c95b6f9603ca74c3e4dafd753f084e8031",
       "tier": "normal",
       "sections": [
         {
@@ -477,7 +477,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4615,
       "lines": 82,
-      "sha256": "3590552fc489ec7a636abc4efd4b4309be64ad7603572c0595880e82bd4de7f8",
+      "sha256": "e61a42eea31ba3ffdd4820f7d83501de4a5a746955eeed7fa9f5be26321c9f43",
       "tier": "normal",
       "sections": [
         {
@@ -529,7 +529,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 285 行 / 12886 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 285 行 / 12971 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -19180,9 +19180,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 12886,
+      "tokens": 12971,
       "lines": 285,
-      "sha256": "1d84e923ebba556f4faf0de30845693c79b15558e7eeee1a7aeb3321c9b2412d",
+      "sha256": "7ce1bde834388c5250d5829bf95155fa9dd20d119bf4e2c4fe9fcdee78d813fd",
       "tier": "hot",
       "sections": [
         {
@@ -19190,7 +19190,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 286,
-          "tokens": 12869,
+          "tokens": 12954,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.34 · 任务号 WXG-T-180（v1.34 = §3.",
           "keywords": [
             "§3",
@@ -19233,7 +19233,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 240,
-          "tokens": 8543,
+          "tokens": 8628,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -19408,7 +19408,7 @@
           "level": 3,
           "startLine": 202,
           "endLine": 213,
-          "tokens": 343,
+          "tokens": 428,
           "summary": "STAMINA_MAX 8 体力（心）上限（宽容包 B，用户拍板）",
           "keywords": [
             "Stamina",
@@ -22677,17 +22677,17 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 20666,
-      "lines": 345,
-      "sha256": "2c1ae3ff8d7016f88dc3effc74c7e1c9543812779a0fc9fb7e8ca10666983baf",
+      "tokens": 20929,
+      "lines": 347,
+      "sha256": "86d85189c0583834290989c26e5168495ee607e0e9c4d95c9a0f52f3b9cd6004",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 346,
-          "tokens": 20657,
+          "endLine": 348,
+          "tokens": 20920,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.13 · 任务号 WXG-T-128（v1.13 = §5「",
           "keywords": [
             "§5",
@@ -22703,8 +22703,8 @@
           "level": 2,
           "startLine": 10,
           "endLine": 20,
-          "tokens": 1343,
-          "summary": "1. 首屏即玩：启动 → 进关 ≤2 次交互，无登录无授权（v1.7 更正（WXG-T-164 反转）：主菜单已恢复但非",
+          "tokens": 1410,
+          "summary": "1. 首屏即玩（v1.14 反转 · #1 WXG-T-180：原红线推翻，首屏改停主菜单——启动不再直进玩法、不自动扣",
           "keywords": [
             "skill",
             "WXG",
@@ -22854,8 +22854,8 @@
           "anchor": "§6 首屏留存策略（微信前 10 秒）· WXG-T-081 可执行化重写",
           "level": 2,
           "startLine": 254,
-          "endLine": 296,
-          "tokens": 1985,
+          "endLine": 298,
+          "tokens": 2181,
           "summary": "",
           "keywords": [
             "WXG",
@@ -22900,23 +22900,23 @@
           "anchor": "§6.3 启动路径表（skill §6 要求项，本次补齐）",
           "level": 3,
           "startLine": 287,
-          "endLine": 296,
-          "tokens": 351,
-          "summary": "首次（runs==0） 玩法·普通 L1（BOOT 直进，无主菜单） §6.1 纯动效引导（错位珠脉冲 + 空槽脉冲 +",
+          "endLine": 298,
+          "tokens": 547,
+          "summary": "首次（runs==0） 主菜单（含选关列表）（#1 · v1.14 反转，原「BOOT 直进玩法」作废） 进关后走 §6",
           "keywords": [
             "§6",
-            "§6.1",
             "skill",
             "runs",
             "BOOT",
-            "启动路径表"
+            "启动路径表",
+            "要求项"
           ]
         },
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 297,
-          "endLine": 308,
+          "startLine": 299,
+          "endLine": 310,
           "tokens": 240,
           "summary": "触控 UI 控件 ≥88px（TOUCH_MIN）；棋盘/托盘珠命中区=名义外扩 8px、重叠按格心最近（§3.8 v1",
           "keywords": [
@@ -22931,8 +22931,8 @@
         {
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
-          "startLine": 309,
-          "endLine": 346,
+          "startLine": 311,
+          "endLine": 348,
           "tokens": 2529,
           "summary": "已裁定（沿袭）：~~无主菜单两路径（core-loop 判例）~~ v1.7 反转：主菜单恢复（WXG-T-164），启",
           "keywords": [

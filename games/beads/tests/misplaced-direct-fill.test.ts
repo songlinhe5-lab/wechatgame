@@ -34,47 +34,47 @@ describe('WXG-T-162 · board 锚直填（任意距离）', () => {
     h.game.grid.fill(2, 3, 2);
   });
 
-  it('连通成组（斜向）+ 直填：点对应色空格 ⇒ bead:placed（无 slot）、组保持', () => {
+  it('组批量填：点一个同色空格 ⇒ 连片填满 + 消耗等量组珠 + 组空锚清', () => {
     expect(h.game.selectBoardBead(1, 2)).toBe(true);
     expect(h.last<{ count: number }>('board:selected')?.count).toBe(2);
-    // 点 (1,1)（底 2 空格）：距 (1,2)=1 < 距 (2,3)=2 ⇒ 取锚珠，锚静默转移到 (2,3)。
+    // (1,1) 底 2 空；planGroupFill 从 (1,1) 追加最近连通同色空 (0,1) ⇒ 两颗组珠一次填两格。
     const p = gridPoint(h.game, 1, 1);
     expect(h.game.tapDesign(p.x, p.y)).toBe(true);
-    expect(h.last('bead:placed')).toEqual({ row: 1, col: 1, colorIdx: 2 });
     expect(h.game.grid.cell(1, 1)!.state).toBe('filled');
     expect(h.game.grid.cell(1, 1)!.beadColorIdx).toBe(2); // 就位
-    expect(h.game.grid.cell(1, 2)!.state).toBe('empty'); // 被填珠离格
-    // 组保持：cells 移除被填珠 ⇒ 锚转移到 (2,3)（组剩 1 颗，可继续续填）。
-    expect(h.count('board:selected')).toBe(1); // 不重发
-    expect(h.game.snapshot.boardSelectedRow).toBe(2);
-    expect(h.game.snapshot.boardSelectedCol).toBe(3);
-  });
-
-  it('逐颗续填：第二颗填入另一对应色空格后组空锚清', () => {
-    h.game.selectBoardBead(1, 2);
-    const p1 = gridPoint(h.game, 1, 1);
-    h.game.tapDesign(p1.x, p1.y); // 第一颗（锚珠 (1,2)）
-    // 点 (4,4)（底 2 空格）⇒ 第二颗 (2,3) 直填（不限距）。
-    const p2 = gridPoint(h.game, 4, 4);
-    expect(h.game.tapDesign(p2.x, p2.y)).toBe(true);
-    expect(h.last('bead:placed')).toEqual({ row: 4, col: 4, colorIdx: 2 });
+    expect(h.game.grid.cell(0, 1)!.state).toBe('filled'); // 连片格
+    expect(h.game.grid.cell(0, 1)!.beadColorIdx).toBe(2);
+    expect(h.game.grid.cell(1, 2)!.state).toBe('empty'); // 两颗组员均离格
     expect(h.game.grid.cell(2, 3)!.state).toBe('empty');
-    expect(h.game.grid.cell(4, 4)!.beadColorIdx).toBe(2);
-    // 组空 ⇒ 锚清。
-    expect(h.game.snapshot.boardSelectedRow).toBe(-1);
-    expect(h.game.snapshot.boardSelectedCol).toBe(-1);
+    expect(h.count('bead:placed')).toBe(2); // 每格各发一次
+    expect(h.count('board:selected')).toBe(1); // 选中只发一次，填完不重发
+    expect(h.game.snapshot.boardSelectedRow).toBe(-1); // 组空 ⇒ 锚清
     expect(h.game.selection).toBe('none');
   });
 
-  it('放开距离回归：对应色空格距锚切比雪夫 >2 ⇒ 直填受理（旧超距拒已废除）', () => {
+  it('放开距离 + 连片：远端同色空格一次点击亦整片归位（不限距）', () => {
     h.game.selectBoardBead(1, 2);
-    const p = gridPoint(h.game, 4, 4); // 底 2；距锚 (1,2) 切比 3 >2，旧规则会弹轻提示
+    const p = gridPoint(h.game, 4, 4); // (4,4) 底 2，距锚切比 3 >2（旧超距拒已废）
     expect(h.game.tapDesign(p.x, p.y)).toBe(true);
     expect(h.game.snapshot.tapHintText ?? '').toBe(''); // 不弹提示
-    expect(h.last('bead:placed')).toEqual({ row: 4, col: 4, colorIdx: 2 });
-    // 取组内离目标最近者：(2,3) 距 (4,4) 切比 2 < (1,2) 的 3。
+    expect(h.game.grid.cell(4, 4)!.beadColorIdx).toBe(2); // 被点格
+    expect(h.game.grid.cell(3, 4)!.beadColorIdx).toBe(2); // 连片追加格
+    expect(h.game.grid.cell(1, 2)!.state).toBe('empty'); // 两颗组员均消耗
     expect(h.game.grid.cell(2, 3)!.state).toBe('empty');
-    expect(h.game.grid.cell(1, 2)!.state).toBe('filled'); // 组保持
+    expect(h.game.snapshot.boardSelectedRow).toBe(-1); // 组空锚清
+  });
+
+  it('单珠组：beadCount-1=0 ⇒ 只填被点格、不级联', () => {
+    const g = createBeadsHarness({ seed: 'single-bead', noAssemble: true, levels: [simpleTestLevel()] });
+    g.game.goToLevel(0);
+    g.game.grid.fill(0, 0, 2); // (0,0) 底 1 ⇒ 色 2 错位（单珠组）
+    expect(g.game.selectBoardBead(0, 0)).toBe(true);
+    const p = gridPoint(g.game, 0, 1); // (0,1) 底 2 空
+    expect(g.game.tapDesign(p.x, p.y)).toBe(true);
+    expect(g.game.grid.cell(0, 1)!.beadColorIdx).toBe(2);
+    expect(g.game.grid.cell(0, 0)!.state).toBe('empty');
+    expect(g.count('bead:placed')).toBe(1); // 单珠组只填一格
+    expect(g.game.snapshot.boardSelectedRow).toBe(-1);
   });
 
   it('底色不匹配的空格 ⇒ 不消费（走既有无对应路径轻提示）', () => {

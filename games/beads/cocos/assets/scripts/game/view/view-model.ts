@@ -595,6 +595,15 @@ function drawPuzzlePlate(
     radius: PLATE_RADIUS,
   });
 
+  // B5b 板体内凹层次（#4 · 静态质感增强，provisional）：内缩一圈淡色描边 + 上沿内阴影，
+  // 模拟托盘内陷（与珠体凸起形成 §1.9 凹凸对比）。⚠️ 观感值 `[待 art/playtest 校准]`，不新增层、不动冻结数值。
+  const inset = Math.max(4, Math.round(snap.gridPitch * 0.18));
+  builder.rect(cx - plateW / 2 + inset, cy - plateH / 2 + inset, plateW - inset * 2, plateH - inset * 2, {
+    stroke: withAlpha(BEAD_SHADOW_HEX, 0.08),
+    lineWidth: 2,
+    radius: Math.max(2, PLATE_RADIUS - inset),
+  });
+
   // B6 完成贴纸：clear 面板可见时板体外扩白描边 + α0.10 投影（v1.2 贴纸感，叠于板体上、珠下）。
   if (snap.clearPanelVisible) {
     builder.rect(
@@ -840,7 +849,7 @@ function drawGrid(
         -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
       } = { padColorIdx: cell.colorIdx, size: snap.gridCell };
       if (inGroup) {
-        draft.lift = -6;
+        draft.lift = 6; // 设计空间 y 向上 ⇒ +lift = 珠体上移露垫（抬起读数）；旧值 -6 方向反了
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
       // G2′ 相 A：点名格在预警窗口内**仍是错位珠**（裁定「甲」⇒ 动手延后），

@@ -24,7 +24,7 @@ import {
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
-import { metaLayout, type MetaAction } from '../src/view/meta-view.js';
+import { metaLayout, type MetaAction, type MetaOverlay } from '../src/view/meta-view.js';
 import { STAMINA_MAX, STAMINA_START_COST } from '../src/config/tuning.js';
 
 const START = 1_700_000_000_000;
@@ -38,8 +38,10 @@ interface Rig {
 }
 
 /** Centre of a menu/overlay button, in design space (matches `tapMeta`). */
-function centerOf(overlay: 'none' | 'signin' | 'settings', id: MetaAction): { x: number; y: number } {
-    const b = metaLayout(overlay).buttons.find((btn) => btn.id === id)!;
+function centerOf(overlay: MetaOverlay, id: MetaAction, levelIndex?: number): { x: number; y: number } {
+    const b = metaLayout(overlay).buttons.find(
+        (btn) => btn.id === id && (levelIndex === undefined || btn.levelIndex === levelIndex),
+    )!;
     return { x: b.box.x + b.box.w / 2, y: b.box.y + b.box.h / 2 };
 }
 
@@ -83,23 +85,23 @@ function rig(opts: { initialScreen?: 'play' | 'menu'; seedMeta?: Partial<ReturnT
     return { shell, storage, overlayEvents };
 }
 
-describe('BeadsShell — boot routing (ux-spec §6.3 首启直进玩法)', () => {
-    it('boots straight into play and spends one heart', () => {
+describe('BeadsShell — boot routing (ux-spec §6.3；#1 · WXG-T-180 反转：首屏停主菜单)', () => {
+    it('boots into the menu by default and does NOT spend a heart', () => {
         const r = rig();
+        expect(r.shell.screen).toBe('menu');
+        expect(r.shell.meta!.stamina).toBe(STAMINA_MAX);
+    });
+
+    it('honors initialScreen=play (harness/tests) and spends one heart', () => {
+        const r = rig({ initialScreen: 'play' });
         expect(r.shell.screen).toBe('play');
         expect(r.shell.meta!.stamina).toBe(STAMINA_MAX - STAMINA_START_COST);
     });
 
-    it('boots a 0-heart player into the menu (体力系统生效，非违约)', () => {
-        const r = rig({ seedMeta: { staminaCur: 0 } });
+    it('initialScreen=play with 0 hearts falls back to the menu (体力系统生效)', () => {
+        const r = rig({ initialScreen: 'play', seedMeta: { staminaCur: 0 } });
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.meta!.stamina).toBe(0);
-    });
-
-    it('honors initialScreen=menu without spending', () => {
-        const r = rig({ initialScreen: 'menu' });
-        expect(r.shell.screen).toBe('menu');
-        expect(r.shell.meta!.stamina).toBe(STAMINA_MAX);
     });
 });
 
@@ -118,7 +120,7 @@ describe('BeadsShell — menu → play (§3.14 扣心时机)', () => {
     });
 
     it('回主菜单弃本局棋盘 → 再开始 = 全新开当前关、再扣 1 心（不保留进度，WXG-T-165）', () => {
-        const r = rig(); // booted into play, already spent one
+        const r = rig(); // 默认落菜单（未扣心）；本例走「进玩法→暂停→回菜单→再开始」链路
         const before = r.shell.meta!.stamina;
         r.shell.play.onPause();
         expect(r.shell.play.phase).toBe('paused');
@@ -153,6 +155,38 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
     it('ignores a tap that hits nothing', () => {
         const r = rig({ initialScreen: 'menu' });
         expect(r.shell.tapMeta(2, 2)).toBe(false);
+    });
+});
+
+describe('BeadsShell — 选关（#1 · WXG-T-180）', () => {
+    it('opens the levels overlay from a menu tap', () => {
+        const r = rig({ initialScreen: 'menu' });
+        const c = centerOf('none', 'open-levels');
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        expect(r.shell.overlay).toBe('levels');
+    });
+
+    it('picks an unlocked level → enters play at that level and spends one heart', () => {
+        const r = rig({ initialScreen: 'menu' });
+        const o = centerOf('none', 'open-levels');
+        r.shell.tapMeta(o.x, o.y);
+        const before = r.shell.meta!.stamina;
+        const c = centerOf('levels', 'pick-level', 0); // 索引 0 = 已解锁（maxUnlocked=1）
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        expect(r.shell.screen).toBe('play');
+        expect(r.shell.play.levelIndex).toBe(0);
+        expect(r.shell.meta!.stamina).toBe(before - STAMINA_START_COST);
+    });
+
+    it('picks a locked level → 不消费（留菜单、不扣心）', () => {
+        const r = rig({ initialScreen: 'menu' });
+        const o = centerOf('none', 'open-levels');
+        r.shell.tapMeta(o.x, o.y);
+        const before = r.shell.meta!.stamina;
+        const c = centerOf('levels', 'pick-level', 5); // 锁定（maxUnlocked=1）
+        r.shell.tapMeta(c.x, c.y);
+        expect(r.shell.screen).toBe('menu');
+        expect(r.shell.meta!.stamina).toBe(before);
     });
 });
 
