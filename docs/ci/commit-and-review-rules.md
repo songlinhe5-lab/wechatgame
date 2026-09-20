@@ -69,7 +69,9 @@ Header 形如：
 
 ### 2.3 其他 header 规则
 
-- `header-max-length: 100`
+- `header-max-length: 100`（**曾评估收紧到 96** 以躲开 squash 折叠行的 `* ` 前缀，已否决：develop 上存在 98 / 99 字符的历史标题，
+  而 PR 阶段逐条校全部提交 ⇒ 收紧会让下一次 `develop → master` 的 PR **当场红且无法追修历史**；
+  改由 commit-lint 工作流对折叠同步提交只校标题行兜住，见 §4.1）
 - subject **不允许句号结尾**（`subject-full-stop`）
 - `subject-case` 类规则**全部关闭**（中文 subject 兼容）
 - `type-empty` / `subject-empty`：禁止
@@ -100,7 +102,7 @@ docs(memory): Qoder L5 PASS——L0-L5 双平台全绿（WXG-T-012）
 | `更新 STAR3_RATIO` | 无 type、无 scope、无 task-id |
 | `fix: STAR3_RATIO 修正（WXG-T-014）` | `scope-empty: never`——裸 type |
 | `design(beads): STAR3_RATIO 0.50→0.40 生效（WXG-T-014）。` | subject 句号结尾 |
-| `feat(beads): 这是一条故意写得非常非常非常非常非常非常非常非常长的 subject 用来演示 header 超长被拦（WXG-T-014）` | header 超 100 字符 |
+| `feat(beads): 演示 header 超 100 字符上限的超长 subject——本行确实写到 100 字符以上，旧版反例只到 75 字符、实际拦不住（WXG-T-179 校准，已用 commitlint 实测拦下）` | header 超 100 字符 |
 | `feat(beads): 道具系统落地` | 缺 task-id（`WXG-T-` 或 `#`） |
 | `feature(beads): 道具系统（WXG-T-014）` | type 不在 type-enum |
 
@@ -152,9 +154,13 @@ PR 按变更路径自动打标签：`framework`、`game:breakout`、`game:beads`
 
 **两条补充（WXG-T-179，2026-09-20 实测后补；判据沉淀 K-066）**：
 
-1. **PR 标题同样要过 commitlint**。`master` 上的 push 事件会跑 `commit-lint`，而 squash 合并后的提交标题 = **PR 标题**
-   ⇒ 标题写成 `release: develop → master …` 这类裸 type 会直接把 master 的 lint 跑红（实测 run 35508584617）。
-   同步类 PR 固定用 **`chore(release): <一句话>`**（`release` 是合法 scope，不是 type）。
+1. **PR 标题要过 commitlint，且折叠同步提交只校标题**。`master` 上的 push 会跑 `commit-lint`，squash 合并后的提交标题 = **PR 标题**；
+   实测一条同步 PR 在 master 上报 **3 项违规**：`release: …` 的 `type-enum` + `scope-empty`，以及 `footer-max-line-length`。后者成因很阴：
+   GitHub 折叠时给每条子提交主题加 `* ` 前缀 ⇒ **一颗 99 字符的合规标题被拼成 101 字符的 footer 行**（整条同步必红，与标题本身无关）。
+   ⇒ 两道修：① 同步类 PR 标题固定 **`chore(release): <一句话>`**（`release` 是合法 scope，不是 type）；
+   ② `commit-lint.yml` 在 push 作业里识别折叠同步提交（正文含 `* <type>(<scope>): ` 行），**只校标题行**
+   ——子提交进 develop 时已逐条全量校过，折叠体不重校 body/footer。
+   已验证：折叠件只校标题时只剩标题本身那 2 项（换 `chore(release):` 即绿），footer 误红消失。
 2. **「线性历史 + squash」必须配套「反向吸收」**：squash 会在 `master` 上造一个与 `develop` **无血缘**的提交，
    下次 `develop → master` 就会被判成全量互改（实测一次列出几十个冲突文件），且 `-X ours/theirs` 强合时非冲突块会
    **静默带入旧版、产出重复函数定义**（语法合法、不报冲突）。故每次 `develop → master` 合并完成后，

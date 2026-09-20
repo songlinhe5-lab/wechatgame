@@ -49,13 +49,25 @@ jobs:
         run: |
           set -u
           BEFORE="${{ github.event.before }}"
+          HEAD_SHA="${{ github.sha }}"
           # 首推 / 强推 / 基点不可达 → 回退为只 lint HEAD，避免因基点缺失直接红
           if [ -z "$BEFORE" ] \
              || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
              || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
             echo "无法定位推送前基点（首推/强推），回退为只 lint HEAD"
             git log -1 --pretty=%B | npx commitlint
+            exit 0
+          fi
+          # **squash 同步提交例外**（WXG-T-179，2026-09-20）：`develop → master` 用 squash 时，
+          # GitHub 会把被折叠的各提交主题以 `* ` 前缀拼进同一条消息⇒ 一颗 99 字符的合规标题
+          # 会变成 101 字符的 footer 行，触 `footer-max-line-length` 把 master 跑红。
+          # 这些子提交在进 develop 时已被逐条 lint 过 ⇒ 折叠件**只校标题行**（type/scope/长度/task-id 照校）。
+          # 识别依据：正文含以 `* <type>(<scope>): ` 开头的折叠主题行（普通提交不会这么写）。
+          MSG="$(git log -1 --pretty=%B "$HEAD_SHA")"
+          if printf '%s\n' "$MSG" | grep -qE '\* [a-z]+(\([a-z-]+\))?: '; then
+            echo "HEAD 是 squash 折叠出的同步提交 ⇒ 只校标题行（子提交已在 develop 阶段逐条 lint）"
+            printf '%s\n' "$MSG" | head -n 1 | npx commitlint
           else
-            echo "lint 推送区间 ${BEFORE}..${{ github.sha }}"
-            npx commitlint --from="$BEFORE" --to="${{ github.sha }}"
+            echo "lint 推送区间 ${BEFORE}..${HEAD_SHA}"
+            npx commitlint --from="$BEFORE" --to="$HEAD_SHA"
           fi

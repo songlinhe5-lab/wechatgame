@@ -76,6 +76,10 @@ export default {
     ],
     // 粒度要求：必须带 scope，不允许裸 type
     'scope-empty': [2, 'never'],
+    // 上限保持 100：曾考虑收紧到 96 以躲开 squash 同步折叠出的 `* ` 前缀行（WXG-T-179 实测），
+    // 但 develop 上已有 98 / 99 字符的历史标题——收紧会让**下一次 develop→master 的 PR lint 当场红**（
+    // PR 阶段逐条校全部提交，历史提交无法修订）⇒ 改在 `.github/workflows/commit-lint.yml`
+    // 对「折叠出的同步提交」只校标题行（新提交的 header 纪律仍由 100 + 本地钩子守）。
     'header-max-length': [2, 'always', 100],
     // 英文句号结尾
     'subject-full-stop': [2, 'never', '.'],
