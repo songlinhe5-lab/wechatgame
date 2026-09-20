@@ -1719,12 +1719,13 @@ export class BeadsGame implements Game {
     const level = this._levels[index];
     if (!level) throw new Error(`Beads: no level at index ${index}`);
     this._grid = new BeadGrid(level.pattern);
-    // v2.0 BOOT 装配（levels-spec v1.2 §2.1，WXG-T-139 装配器）：满盘就位 → 按
-    // swaps 两两交换 ⇒ 初始错位局面。装配发生在玩法状态机接管之前（bead-grid
-    // §2.1），绕过 retrieve/place 边合法；重试经本函数重装配 = 恢复初始错位
-    // （timer-gameover v1.3 重置清单）。恒等式已由 BOOT validateBeadsLevel 静态校验。
+    // v2.0 BOOT 装配（levels-spec v1.2 §2.1 / v1.3 §2.2，WXG-T-139 装配器）：
+    // 初盘真源二选一——`level.misplaced`（全错位初盘，直读）优先，否则 `swaps`
+    // 两两交换。装配发生在玩法状态机接管之前（bead-grid §2.1），绕过 retrieve/place
+    // 边合法；重试经本函数重装配 = 恢复初始错位（timer-gameover v1.3 重置清单）。
+    // 合法性已由 BOOT validateBeadsLevel 静态校验。
     if (!this._noBootAssembly) {
-      applyMisplacedToGrid(this._grid, level.pattern, level.swaps);
+      applyMisplacedToGrid(this._grid, level.pattern, level.swaps, level.misplaced);
     }
     // WXG-T-172 · F3 甲裁：本行 = 复位点①（换关 / 新局 / 重试 / 跳关共用）。复位档 =
     // fit 初始（小盘 fit=1 与旧恒等逐位相同）；回菜单 / 后台隐藏当帧不复位，由下次装配复位（ADR-0015 §3.4）。

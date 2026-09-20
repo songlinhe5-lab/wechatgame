@@ -22,7 +22,7 @@ import {
   stageParamsFor,
   type StageParams,
 } from './tuning';
-import { validateSwaps } from '../game/misplaced-assembler';
+import { validateSwaps, validateMisplacedGrid } from '../game/misplaced-assembler';
 import { LEVELS_DATA, type BeadsLevelRaw } from './levels-data';
 
 export type { BeadsLevelRaw };
@@ -171,11 +171,17 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
     errors.push(`${tag}: time ${level.time} outside [${LEVEL_TIME_MIN}, ${LEVEL_TIME_MAX}]`);
   }
 
-  // ── 错位构造 `swaps` / `cycleProfile`（levels-spec v1.2 §2.1 + systems-index
-  // v1.23 §3.13；E5 / WXG-T-139）。供料残余 `spawnInterval` 校验随字段一并删除
-  // （levels-spec v1.2：「version:2 清理时删除」，WXG-T-130 供料关停的连带）。
-  for (const error of validateSwaps(tag, level.pattern, level.swaps, level.cycleProfile)) {
-    errors.push(error);
+  // ── 错位构造：`misplaced` 全错位初盘（v1.3）优先，否则 `swaps`（levels-spec
+  // v1.2 §2.1 + systems-index v1.23 §3.13）。两者互斥：misplaced 存在即忽略 swaps
+  // （数据侧 swaps 置空数组占位，不再套 MISPLACED_PAIRS 区间）。
+  if (level.misplaced !== undefined && level.misplaced !== null) {
+    for (const error of validateMisplacedGrid(tag, level.pattern, level.misplaced)) {
+      errors.push(error);
+    }
+  } else {
+    for (const error of validateSwaps(tag, level.pattern, level.swaps, level.cycleProfile)) {
+      errors.push(error);
+    }
   }
 
   // Decoys: ≤ DECOY_COLORS_MAX, valid chars, and disjoint from pattern colours.

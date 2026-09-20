@@ -105,7 +105,8 @@ describe('S7 score-combo', () => {
     expect(normalTexts.some((t) => t.includes('SCORE'))).toBe(false);
 
     const sprint = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7hud2' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7hud2'
+    });
     sprint.game.startSprint();
     const builder2 = new RenderModelBuilder(750, 1334);
     builder2.begin();
@@ -125,7 +126,7 @@ describe('S7 score-combo', () => {
     ];
     for (const sample of samples) {
       const harness = createBeadsHarness({
-      noAssemble: true,
+        noAssemble: true,
         levels: [simpleTestLevel({ decoys: [] })],
         saveKey: `wxgame.beads.test.s7star${sample.remaining}`,
       });
@@ -162,7 +163,8 @@ describe('S7 score-combo', () => {
   // §8.3 sprint 单局时长 = SPRINT_TIME_DEFAULT（未覆盖时），误差 ≤ ±0.5s。
   it('§8-3 sprint run lasts SPRINT_TIME_DEFAULT (120 s ± 0.5 s)', () => {
     const harness = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7dur' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7dur'
+    });
     harness.game.startSprint();
     expect(harness.game.phase).toBe('playing');
     expect(harness.game.remaining).toBe(120);
@@ -176,7 +178,8 @@ describe('S7 score-combo', () => {
   // 超过最高档 streak 继续增长但倍率封顶 ×5。
   it('§8-4 tiers [2,4,7] flip ×2/×3/×5 with exactly one combo:up each; cap ×5 above 7', () => {
     const harness = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7tier' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7tier'
+    });
     const game = harness.game;
     game.startSprint();
 
@@ -197,7 +200,8 @@ describe('S7 score-combo', () => {
   // 窗口超时（> COMBO_WINDOW_S 无落子，reason='timeout'）、无第三分支误触发。
   it('§8-5 break branches: wrong on reject, timeout on window expiry, no third branch', () => {
     const harness = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7brk' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7brk'
+    });
     const game = harness.game;
     game.startSprint();
 
@@ -235,7 +239,8 @@ describe('S7 score-combo', () => {
   // （streak 值不变）。
   it('§8-6 stage fill → exactly one sprint:stage, ≤1-frame load, streak survives the switch', () => {
     const harness = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7stage' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7stage'
+    });
     const game = harness.game;
     game.startSprint();
     // One stage banner at run start (stage 0 params injection).
@@ -267,7 +272,8 @@ describe('S7 score-combo', () => {
   it('§8-7 stage bonus adds +15 s clamped to the run cap; C8 same-frame expiry defers to stage', () => {
     // Clamp: burn to 110 → complete the stage → 125 clamps to 120.
     const clamped = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7cap' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7cap'
+    });
     clamped.game.startSprint();
     burnToRemaining(clamped, 110.02);
     expect(clamped.game.remaining).toBeLessThanOrEqual(110.02);
@@ -278,7 +284,8 @@ describe('S7 score-combo', () => {
     // Exact arithmetic: 21 placed, burn to 20 s without placing, then the
     // final placement lands the +15 s at ≈35 (no clamp).
     const exact = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7exact' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7exact'
+    });
     exact.game.startSprint();
     fillN(exact, exact.game.grid.fillableTotal - 1);
     burnToRemaining(exact, 20.02);
@@ -298,7 +305,8 @@ describe('S7 score-combo', () => {
 
     // C8: expiry and stage completion in the same frame → stage first.
     const sameFrame = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7c8' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7c8'
+    });
     sameFrame.game.startSprint();
     fillN(sameFrame, sameFrame.game.grid.fillableTotal - 1);
     burnToRemaining(sameFrame, 0.02); // ≈0 but positive, no failure yet
@@ -323,7 +331,8 @@ describe('S7 score-combo', () => {
   // 逐分可复算。
   it('§8-8 a scripted 20-placement sequence reproduces the score step by step', () => {
     const harness = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7seq' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7seq'
+    });
     const game = harness.game;
     game.startSprint();
 
@@ -337,19 +346,25 @@ describe('S7 score-combo', () => {
       const cell = nthFillable(game, 0);
       expect(cell).not.toBeNull();
       const required = game.grid.requiredColor(cell!.row, cell!.col);
+      const before = game.grid.filledCount;
       if (step === 'c') {
         expect(placeColor(game, required, cell!.row, cell!.col)).toBe(true);
-        streak += 1;
-        expectedScore += 10 * expectedMultiplier(streak);
       } else {
         const wrong = required === 1 ? 2 : 1;
         expect(placeColor(game, wrong, cell!.row, cell!.col)).toBe(false);
         streak = 0;
       }
+      // 组批量填充（WXG-T-158）一次点击可沿同色连通空格级联填多格——MVP 大块图案
+      // 尤甚。每填一格都各自续连击、按当时倍率计分，故按 filledCount 增量复算。
+      const placed = game.grid.filledCount - before;
+      for (let i = 0; i < placed; i++) {
+        streak += 1;
+        expectedScore += 10 * expectedMultiplier(streak);
+      }
       // Step-by-step reproduction: after every placement the score matches.
       expect(game.sprintTracker.score).toBe(expectedScore);
     }
-    // 18 correct < 22 cells → no stage completed → no bonus term.
+    // 18 次点击（含级联）未填满 stage0 → 不换 stage → 无 stage 奖励项。
     expect(harness.count('sprint:stage')).toBe(1);
   });
 
@@ -357,7 +372,8 @@ describe('S7 score-combo', () => {
   // 无真位移震屏（DevTools 帧检）。
   it('§8-9 tier payloads map 1:1 onto the ×2/×3/×5 effect levels', () => {
     const harness = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7fx' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7fx'
+    });
     const game = harness.game;
     game.startSprint();
     fillN(harness, 7);
@@ -385,9 +401,10 @@ describe('S7 score-combo', () => {
   // §8.10 PAUSED 期间连击窗口计时冻结（恢复后窗口从暂停值续算）；普通/冲刺模式互窜注入
   // （sprint 中发 level:cleared）→ 防御忽略 + 警告。
   it('§8-10 PAUSED freezes the combo window; cross-mode level:cleared injection is ignored + warned', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => { });
     const harness = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s7pause' });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7pause'
+    });
     const game = harness.game;
     game.startSprint();
 
@@ -420,9 +437,11 @@ describe('S7 score-combo', () => {
   it('§8-11 beating the sprint best writes the save and flags NEW BEST; ≤ best does not', () => {
     // Run A: build a score, then expire.
     const storage = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec' }).storage;
+      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec'
+    }).storage;
     const runA = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage
+    });
     runA.game.startSprint();
     fillN(runA, 9);
     const scoreA = runA.game.sprintTracker.score;
@@ -438,7 +457,8 @@ describe('S7 score-combo', () => {
 
     // Run B: a worse run on the same storage — no record write, no NEW BEST.
     const runB = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage
+    });
     runB.game.startSprint();
     fillN(runB, 1);
     const scoreB = runB.game.sprintTracker.score;
@@ -449,7 +469,8 @@ describe('S7 score-combo', () => {
 
     // Run C: a better run — the save moves.
     const runC = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage });
+      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage
+    });
     runC.game.startSprint();
     fillN(runC, 12);
     const scoreC = runC.game.sprintTracker.score;

@@ -38,6 +38,7 @@ import {
   LEVEL_TIME_MIN,
   gridLayoutFor,
 } from '../src/config/tuning.js';
+import { LEVELS } from '../src/config/levels.js';
 
 const cam = (): BoardCamera => ({ zoom: 1, offsetX: 0, offsetY: 0 });
 const two = (x: number, y: number, x2: number, y2: number): PinchInput => ({
@@ -206,6 +207,17 @@ function bigTestLevel(): ReturnType<typeof simpleTestLevel> {
   });
 }
 
+/** 6×5 小盘（屏内容得下 ⇒ fit=1 恒等档）；不依赖 shipped 关卡数据。 */
+function smallTestLevel(): ReturnType<typeof simpleTestLevel> {
+  return simpleTestLevel({
+    id: 92,
+    cols: SC,
+    rows: SR,
+    time: LEVEL_TIME_MIN,
+    pattern: Array.from({ length: SR }, () => '123123'),
+  });
+}
+
 /** 把当前 stage 打到完成（直接投放，不走时间）；与 `sprint.test.ts` 同形。 */
 function fillCurrentStage(h: Harness): void {
   const game = h.game;
@@ -225,16 +237,21 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expect(h.game.levelIndex).toBe(0);
     dirtyCamera(h.game);
 
-    h.game.goToLevel(7); // 真表第 8 关 = 13×12
+    h.game.goToLevel(7); // 真表第 8 关 = MVP 大盘（18×18）
 
-    expect(h.game.grid.cols).toBe(BC);
-    expect(h.game.grid.rows).toBe(BR);
-    expect(computeFitZoom(BC, BR)).toBeLessThan(1); // 新口径下大盘不再是 zoom=1
+    const big = LEVELS[7 % LEVELS.length]!;
+    expect(h.game.grid.cols).toBe(big.cols);
+    expect(h.game.grid.rows).toBe(big.rows);
+    expect(computeFitZoom(big.cols, big.rows)).toBeLessThan(1); // 大盘不再 zoom=1
     expectFitReset(h.game);
   });
 
   it('换关（_setupLevel）：6×5 小盘 fit=1，与旧恒等档逐位相同（回归锚）', () => {
-    const h = createBeadsHarness({ noAssemble: true, saveKey: 'wxgame.beads.test.cam172-switch-small' });
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [smallTestLevel()],
+      saveKey: 'wxgame.beads.test.cam172-switch-small',
+    });
     dirtyCamera(h.game);
 
     h.game.goToLevel(0); // 6×5
@@ -283,11 +300,12 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expect(h.count('sprint:stage')).toBe(2); // 开局横幅 + 换 stage
     expectFitReset(h.game);
 
-    // 第二档：棋盘尺寸不同（13×12 ⇒ fit<1），锁住「按新尺寸重算」而非写死 1。
+    // 第二档：棋盘尺寸不同（MVP pool[7] = L8 大盘 ⇒ fit<1），锁住「按新尺寸重算」而非写死 1。
     dirtyCamera(h.game);
     loadStageForTest(h.game, 7);
-    expect(h.game.grid.cols).toBe(BC);
-    expect(h.game.grid.rows).toBe(BR);
+    const stage7 = LEVELS[7 % LEVELS.length]!;
+    expect(h.game.grid.cols).toBe(stage7.cols);
+    expect(h.game.grid.rows).toBe(stage7.rows);
     expectFitReset(h.game);
     expect(cameraOf(h.game).zoom).toBeLessThan(1);
   });

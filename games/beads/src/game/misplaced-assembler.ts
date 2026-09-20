@@ -249,13 +249,21 @@ export function countMisplaced(pattern: readonly string[], beads: readonly numbe
  * 把装配结果写进 `BeadGrid`（BOOT 期一次性；**不在热路径**）。
  * 走 `grid.fill(r, c, bead)`——装配发生在玩法状态机接管之前，因此合法地绕过
  * retrieve/place 边（bead-grid §2.1）。@returns 装配后的错位珠数。
+ *
+ * 两种初盘真源（互斥，`misplaced` 优先）：
+ *   · `misplaced` 存在 ⇒ 直读整盘初始珠色（全错位初盘，零 RNG，成片错豆）；
+ *   · 否则 ⇒ 按 `swaps` 对 pattern 两两交换装配（旧语义）。
  */
 export function applyMisplacedToGrid(
   grid: BeadGrid,
   pattern: readonly string[],
   swaps: readonly Swap[],
+  misplaced?: readonly string[],
 ): number {
-  const board = assembleBoard(pattern, swaps);
+  const board =
+    misplaced !== undefined && misplaced !== null
+      ? assembleFromMisplaced(pattern, misplaced)
+      : assembleBoard(pattern, swaps);
   for (let r = 0; r < grid.rows; r++) {
     for (let c = 0; c < grid.cols; c++) {
       const bead = board.beads[r * grid.cols + c] ?? 0;
@@ -263,6 +271,114 @@ export function applyMisplacedToGrid(
     }
   }
   return grid.misplacedCount;
+}
+
+// ─────────────────────────────────────────────────── 全错位初盘（misplaced）──
+
+/** 合法字符（同 `BEAD_CHARSET = ".x1-9A"`）。本地判定以切断 import 环。 */
+function isLegalChar(ch: string): boolean {
+  return ch === '.' || ch === 'x' || (ch >= '1' && ch <= '9') || ch === 'A';
+}
+
+/**
+ * 全错位初盘 rowstring → 每格初始珠色（0 = 无珠 / 不可填）。**假定已通过
+ * `validateMisplacedGrid`**（形状/轮廓/守恒）；越界格按 `.` 兜底为 0。
+ */
+export function assembleFromMisplaced(
+  pattern: readonly string[],
+  misplaced: readonly string[],
+): AssembledBoard {
+  const rows = pattern.length;
+  const cols = pattern[0]?.length ?? 0;
+  const beads: number[] = [];
+  for (let r = 0; r < rows; r++) {
+    const row = misplaced[r] ?? '';
+    for (let c = 0; c < cols; c++) beads.push(baseColorOfChar(row[c] ?? '.'));
+  }
+  return { rows, cols, beads, misplacedCount: countMisplaced(pattern, beads) };
+}
+
+/**
+ * BOOT 校验 `misplaced` 初盘（levels-spec §2.2 / systems-index §3.13 语义注）。
+ * 只校「同色同数、仅位置错开」这一可解性前提，**不强制 100% 全错**（允许部分就位）。
+ * @returns 错误串（沿用 `L{id} ...` 形态）；空数组 = 合法。
+ */
+export function validateMisplacedGrid(
+  tag: string,
+  pattern: readonly string[],
+  misplaced: unknown,
+): string[] {
+  const errors: string[] = [];
+  const rows = pattern.length;
+  const cols = pattern[0]?.length ?? 0;
+
+  if (!Array.isArray(misplaced)) {
+    errors.push(`${tag}: misplaced 缺失或非数组`);
+    return errors;
+  }
+  if (misplaced.length !== rows) {
+    errors.push(`${tag}: misplaced 行数 ${misplaced.length} ≠ pattern 行数 ${rows}`);
+    return errors;
+  }
+
+  // 形状 + 字符集 + 可填轮廓逐格匹配 + 每色守恒。
+  const patCount = new Map<number, number>();
+  const misCount = new Map<number, number>();
+  let misplacedCells = 0;
+  for (let r = 0; r < rows; r++) {
+    const prow = pattern[r]!;
+    const mrow = misplaced[r] as unknown;
+    if (typeof mrow !== 'string') {
+      errors.push(`${tag} row${r}: misplaced 行须为字符串`);
+      continue;
+    }
+    if (mrow.length !== cols) {
+      errors.push(`${tag} row${r}: misplaced 宽度 ${mrow.length} ≠ cols ${cols}`);
+      continue;
+    }
+    for (let c = 0; c < cols; c++) {
+      const pch = prow[c]!;
+      const mch = mrow[c]!;
+      if (!isLegalChar(mch)) {
+        errors.push(`${tag} row${r} col${c}: misplaced 非法字符 "${mch}"`);
+        continue;
+      }
+      const pc = baseColorOfChar(pch); // 0 = 不可填（. / x）
+      const mc = baseColorOfChar(mch);
+      if ((pc > 0) !== (mc > 0)) {
+        errors.push(
+          `${tag} row${r} col${c}: 可填轮廓与 pattern 不匹配（pattern=${pc > 0 ? '可填' : '空'} misplaced=${mc > 0 ? '可填' : '空'}）`,
+        );
+        continue;
+      }
+      if (pc > 0) {
+        patCount.set(pc, (patCount.get(pc) ?? 0) + 1);
+        misCount.set(mc, (misCount.get(mc) ?? 0) + 1);
+        if (mc !== pc) misplacedCells++;
+      }
+    }
+  }
+
+  // 每色珠数守恒（可解性前提）：初盘与目标盘同色同数。
+  // ⚠️ 不用 `[...map.keys()]`——Cocos ES5 会把非数组可迭代对象的展开编译成不展开的
+  // concat 形式（ADR-0012 / check-es5-spread）；改 Array.from 显式物化。
+  const colors = new Set<number>(
+    Array.from(patCount.keys()).concat(Array.from(misCount.keys())),
+  );
+  for (const color of colors) {
+    const a = patCount.get(color) ?? 0;
+    const b = misCount.get(color) ?? 0;
+    if (a !== b) {
+      errors.push(`${tag}: 色 ${color} 珠数不守恒（pattern ${a} ≠ misplaced ${b}）——初盘不可解`);
+    }
+  }
+
+  // 至少 1 颗错位（否则初盘 = 已解，无玩法）。
+  if (errors.length === 0 && misplacedCells < 1) {
+    errors.push(`${tag}: misplaced 无任何错位格（初盘已全就位 = 无玩法）`);
+  }
+
+  return errors;
 }
 
 // ─────────────────────────────────────────────────────────── 环分解 ─────────

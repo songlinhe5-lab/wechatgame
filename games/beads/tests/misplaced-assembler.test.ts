@@ -12,11 +12,13 @@ import { describe, it, expect } from 'vitest';
 import { createRng } from '@wxgame/framework';
 import {
   assembleBoard,
+  assembleFromMisplaced,
   countMisplaced,
   decomposeCycles,
   generatePlan,
   generateSwaps,
   validateSwaps,
+  validateMisplacedGrid,
   applyMisplacedToGrid,
   type Swap,
 } from '../src/game/misplaced-assembler.js';
@@ -92,7 +94,8 @@ describe('E5 · 装配器确定性（同 seed 同局面；随机性只来自注�
     // ⚠️ 必须显式给 TEST_PATTERN 关卡：无 levels 时 harness 用默认关卡 ⇒ grid
     // 底色与 TEST_PATTERN 不符 ⇒ 装配珠大面积「错位」（曾实测 22 ≠ 4）。
     const harness = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.e5grid', levels: [simpleTestLevel()] });
+      noAssemble: true, saveKey: 'wxgame.beads.test.e5grid', levels: [simpleTestLevel()]
+    });
     const grid = harness.game.grid;
     const swaps: Swap[] = [
       [0, 0, 0, 1],
@@ -257,32 +260,84 @@ describe('E5 · BOOT 校验器拒收分支（沿用 L{id} row{i} col{j} 形态�
   });
 });
 
-// ────────────────────────────────────────── 第二段：levels JSON v2 + 时间 ────
+// ────────────────────────────────────── 第二段：全错位初盘 misplaced + 8 关数据 ────
 
-describe('E5 · levels JSON v2：8 关数据全过 BOOT', () => {
-  it('8 关逐关零错误，且对数 = k 曲线 [1,2,2,3,4,5,6,8]', () => {
-    const kCurve = [1, 2, 2, 3, 4, 5, 6, 8];
-    expect(LEVELS).toHaveLength(8);
-    LEVELS.forEach((level, i) => {
-      expect(validateBeadsLevel(level), `L${level.id}: ${validateBeadsLevel(level).join(' | ')}`).toEqual(
-        [],
-      );
-      expect(level.swaps.length, `L${level.id} k`).toBe(kCurve[i]);
-    });
+describe('misplaced 全错位初盘 · validateMisplacedGrid / assembleFromMisplaced', () => {
+  // 6×5 全可填、3 色。行内循环左移 1 位 ⇒ 每格变色、每色计数守恒（合法全错）。
+  const shift = (row: string): string => row.slice(1) + row[0];
+  const VALID = TEST_PATTERN.map(shift);
+
+  it('合法：形状一致 + 轮廓匹配 + 每色守恒 + 有错位 ⇒ 零错误', () => {
+    expect(validateMisplacedGrid('L1', TEST_PATTERN, VALID)).toEqual([]);
   });
 
-  it('8 关装配后错位珠数 === 2 × k（全 2-环，与 levels-spec §3 表一致）', () => {
-    for (const level of LEVELS) {
-      const board = assembleBoard(level.pattern, level.swaps);
-      expect(board.misplacedCount, `L${level.id}`).toBe(2 * level.swaps.length);
-      expect(board.beads.length).toBe(level.rows * level.cols);
+  it('assembleFromMisplaced 与 countMisplaced 一致，且珠数守恒（可解）', () => {
+    const board = assembleFromMisplaced(TEST_PATTERN, VALID);
+    expect(board.beads).toHaveLength(30);
+    expect(board.misplacedCount).toBe(countMisplaced(TEST_PATTERN, board.beads));
+    expect(board.misplacedCount).toBe(30); // 全错
+    // 同色同数：每色 pattern 与 misplaced 各 10 颗。
+    const cnt = (arr: number[], c: number): number => arr.filter((v) => v === c).length;
+    for (const c of [1, 2, 3]) {
+      expect(cnt(board.beads, c)).toBe(cnt(assembleBoard(TEST_PATTERN, []).beads, c));
     }
   });
 
-  it('8 关错位珠数远小于可填格数（「满盘中挑错」而非满盘错位）', () => {
+  it('色数不守恒 ⇒ 拒收（初盘不可解）', () => {
+    const bad = ['111111', '123123', '123123', '123123', '123123']; // 色 1 过多
+    expect(hasError(validateMisplacedGrid('L1', TEST_PATTERN, bad), '珠数不守恒')).toBe(true);
+  });
+
+  it('形状越界（行数 / 行宽）⇒ 拒收', () => {
+    expect(hasError(validateMisplacedGrid('L1', TEST_PATTERN, VALID.slice(0, 4)), '行数')).toBe(true);
+    expect(
+      hasError(validateMisplacedGrid('L1', TEST_PATTERN, ['12312', ...VALID.slice(1)]), '宽度'),
+    ).toBe(true);
+  });
+
+  it('可填轮廓与 pattern 不匹配 ⇒ 拒收', () => {
+    const bad = [VALID[0], '1231.3', ...VALID.slice(2)]; // pattern 可填处放了 '.'
+    expect(hasError(validateMisplacedGrid('L1', TEST_PATTERN, bad), '可填轮廓')).toBe(true);
+  });
+
+  it('非法字符 ⇒ 拒收', () => {
+    const bad = ['12312B', ...VALID.slice(1)];
+    expect(hasError(validateMisplacedGrid('L1', TEST_PATTERN, bad), '非法字符')).toBe(true);
+  });
+
+  it('初盘 = pattern（0 错位）⇒ 拒收（无玩法）', () => {
+    expect(hasError(validateMisplacedGrid('L1', TEST_PATTERN, TEST_PATTERN), '无任何错位')).toBe(true);
+  });
+
+  it('applyMisplacedToGrid 见 misplaced 即直读，忽略 swaps（确定性、无 RNG）', () => {
+    const g1 = new BeadGrid(TEST_PATTERN);
+    applyMisplacedToGrid(g1, TEST_PATTERN, [], VALID);
+    const g2 = new BeadGrid(TEST_PATTERN);
+    applyMisplacedToGrid(g2, TEST_PATTERN, [], VALID);
+    expect(g1.misplacedCount).toBe(30);
+    // 两次装配逐格相同（输出稳定）。
+    for (let r = 0; r < 5; r++)
+      for (let c = 0; c < COLS; c++)
+        expect(g1.cell(r, c)?.beadColorIdx).toBe(g2.cell(r, c)?.beadColorIdx);
+  });
+});
+
+describe('MVP · 8 关全错位初盘数据全过 BOOT', () => {
+  it('8 关逐关零错误，且均携 misplaced（swaps 置空占位）', () => {
+    expect(LEVELS).toHaveLength(8);
     for (const level of LEVELS) {
+      expect(validateBeadsLevel(level), `L${level.id}: ${validateBeadsLevel(level).join(' | ')}`).toEqual([]);
+      expect(Array.isArray(level.misplaced), `L${level.id} misplaced`).toBe(true);
+      expect(level.swaps, `L${level.id} swaps 占位`).toEqual([]);
+    }
+  });
+
+  it('8 关 misplaced 装配后：珠数守恒、错位格数 = 全可填格（成片全错）', () => {
+    for (const level of LEVELS) {
+      const board = assembleFromMisplaced(level.pattern, level.misplaced!);
+      expect(board.beads.length, `L${level.id}`).toBe(level.rows * level.cols);
       const fillable = level.pattern.join('').split('').filter((ch) => ch !== '.' && ch !== 'x').length;
-      expect(2 * level.swaps.length, `L${level.id}`).toBeLessThan(fillable / 2);
+      expect(board.misplacedCount, `L${level.id} 全错`).toBe(fillable);
     }
   });
 
@@ -293,7 +348,9 @@ describe('E5 · levels JSON v2：8 关数据全过 BOOT', () => {
   });
 });
 
-describe('E5 · 时间按 k 定价（§3.5 v1.23 clamp(k × 45s, 120, 420)）', () => {
+describe('E5 · 时间按 k 定价（levelTimeFor 函数，§3.5 v1.23 clamp(k × 45s, 120, 420)）', () => {
+  // 注：MVP 8 关走 misplaced 全错位初盘，time 按档手定（300/420），不再套本公式；
+  // 本 describe 仅钉住 swaps 型关卡 / 冲刺仍复用的 levelTimeFor 纯函数行为。
   it('边界：k=1 → 120s（下限）、k=2/3 → 120/135s、大 k → 420s 封顶', () => {
     expect(levelTimeFor(1)).toBe(LEVEL_TIME_MIN); // 45 → 钳到 120
     expect(levelTimeFor(2)).toBe(LEVEL_TIME_MIN); // 90 → 钳到 120
@@ -304,16 +361,15 @@ describe('E5 · 时间按 k 定价（§3.5 v1.23 clamp(k × 45s, 120, 420)）', 
     expect(levelTimeFor(999)).toBe(LEVEL_TIME_MAX);
   });
 
-  it('非有限 / 非正 k → 兜底 LEVEL_TIME_DEFAULT（不产生 NaN 倒计时）', () => {
+  it('非有限 / 非正 k → 兜底（不产生 NaN 倒计时）', () => {
     expect(Number.isFinite(levelTimeFor(Number.NaN))).toBe(true);
     expect(levelTimeFor(0)).toBeGreaterThan(0);
   });
 
-  it('8 关 time 逐关等于公式值（120/120/120/135/180/225/270/360）', () => {
-    const expected = [120, 120, 120, 135, 180, 225, 270, 360];
-    LEVELS.forEach((level, i) => {
-      expect(level.time, `L${level.id} time`).toBe(expected[i]);
-      expect(level.time).toBe(levelTimeFor(level.swaps.length));
-    });
+  it('MVP 8 关 time 均落在合法区间 [120,420]', () => {
+    for (const level of LEVELS) {
+      expect(level.time, `L${level.id} time`).toBeGreaterThanOrEqual(LEVEL_TIME_MIN);
+      expect(level.time, `L${level.id} time`).toBeLessThanOrEqual(LEVEL_TIME_MAX);
+    }
   });
 });

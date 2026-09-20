@@ -33,6 +33,14 @@ export interface BeadsLevelRaw {
   /** Decoy colour characters (pattern charset, never part of the pattern). */
   readonly decoys: readonly string[];
   /**
+   * 全错位初盘（可选；v1.3）。rowstring，字符集同 `pattern`（`.x1-9A`），逐格给出
+   * **初始珠色**。存在则**替代 `swaps`** 作初盘真源（引擎直读装配、零 RNG ⇒ 输出确定），
+   * 用于表达「成片错豆」（swaps 封顶 8 对 ≤16 颗不够）。BOOT 校验：形状一致 +
+   * 可填轮廓逐格匹配 pattern + 每色珠数守恒 + 错位格数 ≥1（不强制 100% 全错）。
+   * 缺省 ⇒ 走 `swaps` 路径（旧语义零扰动）。见 levels-spec §2.2 / systems-index §3.13。
+   */
+  readonly misplaced?: readonly string[];
+  /**
    * Pattern rows, **top to bottom**. Charset `BEAD_CHARSET = ".x1-9A"`
    * (`.` = empty slot, `x` = locked bead, `1-9`+`A` = palette index 1–10).
    */
