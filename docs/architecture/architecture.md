@@ -4,7 +4,7 @@
 - **日期**：2026-09-11
 - **作者**：程基岩（技术 + 引擎负责人）
 - **引擎**：Cocos Creator **3.8 LTS**（钉定 3.8.8，见 `docs/engine-reference/cocos/VERSION.md`）
-- **关联决策**：ADR-0001（引擎选型）/ ADR-0002（框架解耦）/ ADR-0003（空场景）/ ADR-0009（Cocos MCP 编辑器接入，验证/构建/资源刷新闭环）
+- **关联决策**：ADR-0001（引擎选型）/ ADR-0002（框架解耦）/ ADR-0003（空场景）/ ADR-0009（Cocos MCP 编辑器接入，验证/构建/资源刷新闭环）/ ADR-0011（屏幕坐标空间契约）/ ADR-0012（构建层语言契约）/ ADR-0013（音频后端归属：引擎在框架、voice 表在游戏侧）/ ADR-0014（渲染管线全局变换通道：builder 扩接口、adapter 各自落地）/ ADR-0015（棋盘区缩放平移多点输入：core/input 第二指针槽、区域变换走「布局即相机」）/ ADR-0016（照片转拼豆的调色板扩编边界：甲「生成侧优化」+ 丁「双轨外用」推荐、乙「扩用色上限」/ 丙「扩调色板」挂起 —— 生成侧保形 vs 可玩性聚集，含实测权衡曲线）/ ADR-0017（大盘 zoom 自适应 LOD：乙「视口裁剪」先落地 + 甲「zoom 档位降层」为主干；**L11 垫与 L5 符号为不可降红线**；层集与阈值由 art / playtest 定）
 
 > 本文是技术侧的唯一入口。想立刻写代码 → 直接读 `control-manifest.md`。
 
@@ -141,7 +141,7 @@
 | 框架层（清 minify 后） | ≤ 60 KB | 纯 TS，无资源 | 源码 ~5.5 kLOC；无运行时依赖 |
 | 游戏逻辑（单款） | ≤ 40 KB | 玩法 + 关卡数据 | breakout 源码 ~2.3 kLOC |
 | 首屏必要图片/字体 | ≤ 800 KB | **本作目前用矢量绘制（Graphics），首屏 0 图片** | ✅ 见 §5.1 |
-| 首屏音频 | ≤ 300 KB | 短音效用压缩音频；BGM 走**远程包/分包** | 待接入 |
+| 首屏音频 | **0 KB**（主包） | **程序化合成**（Web Audio 运行时合成 SFX + 序列化 BGM），产物内不得有任何音频文件；与旧版本书写的「≤300 KB 压缩音频」相矛盾，已按 `systems-index §3.12` 选型修正（ADR-0013） | ✅ 代码已落地（WXG-T-096）；零文件断言待 `[C]` 产物核对（A05-25） |
 | 其他（manifest、适配层） | ≤ 100 KB | | |
 | **主包合计预留** | **≤ 4 MB** | | |
 
@@ -150,14 +150,18 @@
 | 内容 | 归属 |
 | --- | --- |
 | 关卡 2..N 的美术资源 | 分包 `levels` |
-| 音乐 / 长音效 | 远程包（CDN），运行时下载 |
+| 音乐 / 长音效 | **本作不适用**（音频走程序化合成，0 KB，见上表与 ADR-0013）。仅在 `audio-spec §4.1` 的回退触发成立、且主理人先解除主包余量冲突后，才改走远程包 |
 | 每款游戏的独有资源 | 各自分包，合计 ≤ 30 MB |
 
 ### 5.1 本项目的体积极简优势
 
 打砖块目前**全部用矢量绘制**（矩形 / 圆 / 多边形 / 文本），首屏图片资源为 **0**。这不是偷懒，而是刻意让第一款游戏把包体基线压到最低，验证"主包 ≤ 4 MB 且不含任何图片"是可行的。后续游戏若要接入位图美术，预算表按上表逐项扣减。
 
-**体积校验脚本**：`tools/scripts/check-bundle-size.mjs`（对 `build/` 或 `dist/` 做 gzip 后统计，超限即失败）。
+**体积校验脚本**：`tools/scripts/check-bundle-size.mjs`（`pnpm run check:size`；产物不存在时自动跳过，故干净检出 / CI 均安全）。
+
+- **判定基准 = 原始字节（raw）**：微信平台按上传文件的实际大小卡口；gzip 体积仅作参考展示（逐文件求和，属估算）。本行此前写作「做 **gzip 后**统计」，与实现不符，已按 raw 判定修正——按 raw 卡严格更安全（宁假红不假绿）。
+- **阈值真源**：`games/<game>/design/gdd/systems-index.md` §3.8（红线 4096 / 30720 KB 与内部目标 2000 KB **分列不混用**）。本文件不复述数字，避免两处真源。
+- **分包判定**：优先读产物 `game.json` 的 `subpackages[].root`，取不到回退 `subpackages/` 启发式，再取不到则**全部计入主包**（保守）。Cocos 产物真实目录结构见 `VERSION.md` G7（未实测）。
 
 ---
 
@@ -191,11 +195,24 @@
 | 类型检查 | `npm run typecheck` | ❌ | ✅ |
 | 单测 | `npm test` | ❌ | ✅ |
 | 架构守卫 | `npm run check:arch` | ❌ | ✅ |
-| 体积校验 | `npm run check:size` | ❌（对已有产物） | ✅ |
+| 密钥守卫 | `npm run check:secrets` | ❌ | ✅ |
+| 体积校验 | `npm run check:size` | ❌（对已有产物；无产物自动跳过） | ✅ |
 | 浏览器试玩 | `npm run dev` | ❌ | ❌ |
-| Cocos 构建 | `npm run build:cocos`（占位） | **✅ 必须** | ⚠️ 需要带编辑器的构建机 |
+| Cocos 构建 | `pnpm run build:cocos`（默认 wechatgame）/ `build:cocos:web`（web-mobile，免 AppID） | ✅ | ⚠️ 非 CI（需装编辑器），但**可脚本化** |
 
 > **诚实说明**：微信小游戏的最终构建**必须**有 Cocos 编辑器。CI 能做的是"在提交时拦下类型错误、单测失败、架构违规、密钥泄露"，而不是产出安装包。这是 ADR-0001 记录的核心代价之一。
+>
+> **2026-09-14 实测修正（WXG-T-047）**：曾寄望经 Cocos MCP（`ADR-0009` §3.2 **P2**）「从命令行驱动编辑器构建」。实测 **`cocos-mcp-server` v1.5.4 不成立**：`project_build_system` 只有 `get_build_settings` / `open_build_panel` / `check_builder_status` 三个 action（**无构建**），唯一含 `build` 的 `project_manage` 被白名单禁用，且其实现仅 `Editor.Message.request('builder','open')`——扩展源码注释原文：*Builder module only supports 'open' and 'query-worker-ready'. Building requires manual interaction through the build panel*。⇒ **MCP 通道**不能构建；智能体经 MCP 只能「读构建设置 / 查状态 / 回读编译日志（`debug_console`）」。
+>
+> **同日第二轮实测——上面那句被推翻了（WXG-T-049）**：Cocos Creator **自带 CLI 可以构建**。
+> 官方手册《命令行发布项目》给出 `CocosCreator --project <proj> --build "platform=<p>;debug=true"`；
+> 本机 `app-asar` 内含 `--project` / `--build` / `buildConfig`；实测 `platform=web-mobile`
+> **3.9 秒构建成功**（产物含 `index.html` / `cocos-js/` / `assets/`，日志 `build Task (web-mobile) Finished in (3 s)`），
+> 且**编辑器实例同时开着也不冲突**。
+> ⇒ 正确表述是「**MCP 通道不可，编辑器 CLI 可**」。构建产物默认落**工程内** `cocos/build/<platform>/`
+> （与本文件 §1/§5 约定的 `games/<game>/build/` 不同，故 `check:size` 两处都扫，避免「产物在、门禁说没有」的静默跳过）。
+> G7 的**空体积基线**因此可通过 `pnpm run build:cocos` 直接取得，不再依赖人工点击。
+> **教训**：这是「把一次通道失败写成能力结论」的典型代价——登记偏差时要写清**失败的是哪条通道**。
 
 ---
 

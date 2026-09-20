@@ -28,6 +28,17 @@
 #            真实 pre-commit 场景 —— 改 md → git add → commit 成功且提交树含重建后的
 #            index/BUDGET（提交后复算重建字节一致）、并发在制文件不受影响；兜底 —— 重建后
 #            再改暂存内容 / 手工改坏产物 → `--staged` 终校验 FAIL；再次提交由 hook 自愈成功。
+#         ⑬ 分窗轮转（WXG-T-037 R1）：ctx:rotate —— 树原子轮转（窗口边界会话不截断）、
+#            历史聚合与手工计算一致（原始节省率样本数组）、幂等（重复运行不重复聚合）、
+#            已冻结会话重采行丢弃、窗口溢出须 reason/taskId 留痕；ctx:usage 输出
+#            metrics.cumulative（窗口⊕历史）且分位数与手工合并一致；ctx:check E1/E3
+#            以累计口径判定（基线一致 exit 0 / 劣化 exit 1 / 窗口小样本不误报不足）。
+#
+#         ⑭ ROUTES 常驻上限（WXG-T-039 R5）：A 项 `ctx/ROUTES.md` ≤ routesMd（7500）硬门 ——
+#            低于上限 exit 0（A 项表 + BUDGET.md §1 同源同读数展示）；超限 exit 1 + 瘦身修复
+#            指引（桩文件卡在 7500~8000 之间，使失败唯一归因 ROUTES 门而非 B 项通用门）；
+#            常驻总量观察哨：各文件均低于各自上限但合计超 residentTotalSoft（13500）→ 仍
+#            exit 0，仅 ⚠️ 提示不阻断（硬阻断只挂各单文件门）。
 #
 # 用法：tools/scripts/context-usage-selftest.sh
 # 产物：仅 stdout 报告；临时目录在退出时清理，不污染仓库 / 本机转录。
@@ -281,13 +292,15 @@ echo "[6] ctx:check：E1 未达标不阻断 / E3 比率+节省率劣化硬门 / 
 CR="$WORK/checkroot"
 mkdir -p "$CR/tools/scripts/lib" "$CR/my-rules" "$CR/ctx"
 cp "$CHECK" "$CR/tools/scripts/"
-cp "$SCRIPT_DIR/lib/context-index.mjs" "$CR/tools/scripts/lib/"
-cp "$SCRIPT_DIR/lib/context-tokens.mjs" "$CR/tools/scripts/lib/"
+# lib/ 整体拷入，勿再手写清单（WXG-T-121）：本桩曾因只列两件，
+# 而 check-context-budget.mjs 后来 import 了 lib/memory-index.mjs ⇒ ERR_MODULE_NOT_FOUND
+# ⇒ 组 [6] 十五条断言全灭却无人发现（该自测不在 verify / CI 内，判例 BD-39）。
+cp "$SCRIPT_DIR"/lib/*.mjs "$CR/tools/scripts/lib/"
 cp "$BUILD" "$CR/tools/scripts/"
 CHECK_STUB="$CR/tools/scripts/check-context-budget.mjs"
 BUILD_STUB="$CR/tools/scripts/build-context-index.mjs"
 
-# 桩仓库 .md + ctx/index.json（sha256 与磁盘一致，保证 C 门新鲜）+ ROUTES 桩
+# 桩仓库 .md + ROUTES 桩；索引**交给桩 build 播种**（WXG-T-121，见下一段）
 node - "$CR" <<'NODE_EOF'
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -303,17 +316,20 @@ write('AGENTS.md', '# AGENTS stub\n\n常驻文件桩。\n');
 write('my-rules/INDEX.md', '# rules stub\n');
 write('my-rules/agents-md.md', '# agents-md stub\n');
 write('ctx/ROUTES.md', '# ROUTES stub（无锚点引用）\n');
-const index = {
-  version: 1,
-  files: ['AGENTS.md', 'my-rules/INDEX.md', 'my-rules/agents-md.md', 'ctx/ROUTES.md'].map((path) => ({
-    path,
-    tokens: 50,
-    sha256: sha(readFileSync(join(root, path), 'utf8')),
-    sections: [],
-  })),
-};
-writeFileSync(join(root, 'ctx/index.json'), JSON.stringify(index, null, 2) + '\n', 'utf8');
+// ctx/hot-files.md（WXG-T-036 q-1）是 A 门常驻预算项：缺失 → A 项 FAIL（修复本自测
+// 此前在 HEAD 上就存在的 4 个既有 FAIL——[6] 桩漏建该文件）。
+write('ctx/hot-files.md', '# hot-files stub\n');
+// memory/ 必须存在：ctx:build 要写生成物 memory/INDEX.md，缺目录时它直接 ENOENT 崩（实测）。
+write('memory/MEMORY.md', '# MEMORY stub\n');
 NODE_EOF
+
+// 播种索引（WXG-T-121）：不再手写 ctx/index.json。手写版会落后于「生成物集合」的扩张
+// （ctx/BUDGET.md 须入索引、memory/INDEX.md 须存在且与索引同源）⇒ C 门恒红，
+// 而本自测不在 verify / CI 内，于是 63 条断言在 HEAD 上红着无人见（判例 BD-39）。
+// 跑一次桩 build，产物与索引天然同源，桩不再需要跟着门禁改。
+node "$BUILD_STUB" >"$WORK/build-seed.txt" 2>&1
+assert_eq "$?" "0" "组[6] 前置：桩 build 播种 index.json 与三产物"
+assert_contains "$(cat "$WORK/build-seed.txt")" "memory/INDEX.md" "组[6] 前置：build 确已写 memory/INDEX.md"
 
 # 桩 distribution：局部读 P10=20.0% < 40.0%（E1 未达标）、中位数 75.0% ≥ 70.0%（达标）
 node - "$CR" <<'NODE_EOF'
@@ -700,6 +716,320 @@ PATH="$WORK/bin:$PATH" git -C "$CR" \
   -c user.email=selftest@example.com -c user.name=selftest \
   commit -q -m "selftest: self-heal after tamper (WXG-T-032)" >"$WORK/c9_3c.txt" 2>&1
 assert_eq "$?" "0" "⑫C 破坏状态下重新提交 → hook 自动重建自愈 → commit 成功"
+
+# ── [10] 分窗轮转（WXG-T-037 R1）：ctx:rotate + metrics.cumulative + 累计口径硬门 ──
+# 做法：在 $FAKEROOT 里造大文件与跨 2 根会话树的桩账本 + 带 lastMtime 的侧车，按窗口
+#       轮转后逐项与手工计算比对；再在 $CR 验证 ctx:check 的累计口径 E1/E3 判定语义。
+echo
+echo "[10] ctx:rotate：树原子轮转 / 聚合手工核对 / 幂等 / 冻结重采 / 累计口径 E1+E3"
+ROT_LEDGER="$WORK/rot-ledger.jsonl"
+ROT_META="$WORK/rot-meta.json"
+ROT_HIST="$FAKEROOT/ctx/savings-history.json"
+ROTATE="$SCRIPT_DIR/rotate-reads-ledger.mjs"
+
+# 10.1 造桩：docs/big.md（≥3000 估算 tok）+ 跨两棵根会话树的账本 + 侧车 lastMtime
+awk 'BEGIN{for(i=1;i<=400;i++) printf "line %d of big file padding padding padding\n", i}' >"$FAKEROOT/docs/big.md"
+node - "$FAKEROOT" "$ROT_LEDGER" "$ROT_META" "$WORK/rot-expected.json" "$SCRIPT_DIR" <<'NODE_EOF'
+import { readFileSync, writeFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+const [root, ledgerOut, metaOut, expectedOut, scriptDir] = process.argv.slice(2);
+const { estimateTokens } = await import('file://' + join(scriptDir, 'lib', 'context-tokens.mjs'));
+const { r6 } = await import('file://' + join(scriptDir, 'lib', 'savings-history.mjs'));
+const tokOf = (rel) => estimateTokens(readFileSync(join(root, rel), 'utf8'));
+const ftokA = tokOf('docs/a.md');
+const ftokB = tokOf('src/b.ts');
+const ftokBig = tokOf('docs/big.md');
+const ev = (o) => JSON.stringify({ ide: 'cursor', session: o.session, path: o.path, offset: o.offset ?? null, limit: o.limit ?? null, fullFile: o.fullFile ?? false, lines: o.lines, bytes: o.bytes ?? o.lines * 10, estTokens: o.est });
+// 旧树 rrr-old（mtime 1000，最旧 → 被轮转）：s1 抖动组（5 次同文件小读）+ big 整读；s2 局部读
+const rows = [];
+for (let i = 1; i <= 5; i++) rows.push(ev({ session: 'rrr-old/s1', path: 'docs/a.md', offset: i, limit: 3, lines: 3, est: 10 }));
+rows.push(ev({ session: 'rrr-old/s1', path: 'docs/big.md', fullFile: true, lines: 400, bytes: 400 * 40, est: ftokBig }));
+rows.push(ev({ session: 'rrr-old/s2', path: 'src/b.ts', offset: 1, limit: 4, lines: 4, est: 5 }));
+// 新树 rrr-new（mtime 8000–9000 → 保留在窗口内）：s3 两次局部读 + s4 一次局部读
+rows.push(ev({ session: 'rrr-new/s3', path: 'src/b.ts', offset: 2, limit: 2, lines: 2, est: 4 }));
+rows.push(ev({ session: 'rrr-new/s3', path: 'src/b.ts', offset: 5, limit: 2, lines: 2, est: 6 }));
+rows.push(ev({ session: 'rrr-new/s4', path: 'docs/a.md', offset: 10, limit: 2, lines: 2, est: 8 }));
+writeFileSync(ledgerOut, rows.join('\n') + '\n', 'utf8');
+writeFileSync(metaOut, JSON.stringify({ version: 1, bySession: {
+  'rrr-old/s1': { lastMtime: 1000 }, 'rrr-old/s2': { lastMtime: 1000 },
+  'rrr-new/s3': { lastMtime: 9000 }, 'rrr-new/s4': { lastMtime: 8000 },
+} }, null, 2) + '\n', 'utf8');
+// 手工期望（仅 rrr-old 树被轮转的聚合）：
+const oldPartial = [1 - 10 / ftokA, 1 - 10 / ftokA, 1 - 10 / ftokA, 1 - 10 / ftokA, 1 - 10 / ftokA, 1 - 5 / ftokB].map(r6).sort((a, b) => a - b);
+const expected = {
+  ftokA, ftokB, ftokBig,
+  totalReads: 7, sessions: 2, savingsSamples: 7,
+  sumActual: 5 * 10 + ftokBig + 5,
+  sumFull: 5 * ftokA + ftokBig + ftokB,
+  partialSavings: oldPartial,
+  allSavings: [...oldPartial, 0].sort((a, b) => a - b),
+  jitterGroupKeys: 1, jitterGroups: 1, jitterExcess: 2,
+  bigFullReads: 1,
+  // 第二轮（rrr-new 树也被轮转）后的累计 partial 样本：
+  partialAfterSecond: [...oldPartial, 1 - 4 / ftokB, 1 - 6 / ftokB, 1 - 8 / ftokA].map(r6).sort((a, b) => a - b),
+};
+writeFileSync(expectedOut, JSON.stringify(expected, null, 2) + '\n', 'utf8');
+NODE_EOF
+
+# 10.2 轮转（窗口 3 会话：rrr-new 占 2，rrr-old 放不下 → 整树轮转，须 reason/taskId）
+node "$ROTATE" --root="$FAKEROOT" --ledger="$ROT_LEDGER" --meta="$ROT_META" --history="$ROT_HIST" \
+  --window-sessions=3 --reason="selftest 轮转 rrr-old" --task-id="WXG-T-037" >"$WORK/rot1.txt" 2>&1
+assert_eq "$?" "0" "⑬A 轮转退出码 0"
+assert_eq "$(grep -c '' "$ROT_LEDGER")" "3" "⑬A 轮转后账本 457→3 行（仅保留窗口内 rrr-new 树）"
+if grep -q 'rrr-old' "$ROT_LEDGER"; then bad "⑬A 窗口外根会话 rrr-old 未移出账本"; else ok "⑬A 窗口外根会话 rrr-old 全部移出（树原子，无截断）"; fi
+assert_eq "$(grep -c 'rrr-new' "$ROT_LEDGER")" "3" "⑬A 窗口内 rrr-new 树 3 行完整保留（会话不截断）"
+assert_contains "$(cat "$WORK/rot1.txt")" "冻结入历史" "⑬A 输出标注树原子轮转（冻结入历史）"
+assert_contains "$(cat "$WORK/rot1.txt")" "冻结聚合增量" "⑬A 输出含冻结聚合"
+
+# 10.3 历史聚合与手工计算逐项一致（原始节省率样本数组 + 计数）
+node - "$ROT_HIST" "$WORK/rot-expected.json" "$WORK/rot-check.txt" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+const [histP, expP, out] = process.argv.slice(2);
+const h = JSON.parse(readFileSync(histP, 'utf8')).aggregate;
+const e = JSON.parse(readFileSync(expP, 'utf8'));
+const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const checks = [
+  ['totalReads=7', h.totalReads === e.totalReads],
+  ['sessions=2', h.sessions === e.sessions],
+  ['savingsSamples=7', h.savingsSamples === e.savingsSamples],
+  ['sumActual 一致', h.sumActual === e.sumActual],
+  ['sumFull 一致', h.sumFull === e.sumFull],
+  ['partialSavings 数组逐位一致（原始样本，可合并出分位数）', eq(h.partialSavings, e.partialSavings)],
+  ['allSavings 数组逐位一致', eq(h.allSavings, e.allSavings)],
+  ['jitter 组键/组/超限 = 2/1/2（s2 的小读也是独立 (session,path) 组键，未超限不计抖动）', h.jitterGroupKeys === 2 && h.jitterGroups === 1 && h.jitterExcess === 2],
+  ['bigFullReads=1', h.bigFullReads === e.bigFullReads],
+];
+writeFileSync(out, checks.map(([l, c]) => `${c ? 'PASS' : 'FAIL'}\t${l}`).join('\n') + '\n', 'utf8');
+NODE_EOF
+while IFS=$'\t' read -r st label; do
+  if [ "$st" = "PASS" ]; then ok "⑬B $label"; else bad "⑬B $label"; fi
+done <"$WORK/rot-check.txt"
+assert_contains "$(cat "$ROT_HIST")" "rrr-old" "⑬B archivedRootSessions 登记冻结根"
+
+# 10.4 幂等：重复运行不丢数据、不重复聚合（账本与历史字节不变）
+H1="$(shasum -a 256 "$ROT_LEDGER" | awk '{print $1}')$(shasum -a 256 "$ROT_HIST" | awk '{print $1}')"
+node "$ROTATE" --root="$FAKEROOT" --ledger="$ROT_LEDGER" --meta="$ROT_META" --history="$ROT_HIST" --window-sessions=3 >/dev/null 2>&1
+assert_eq "$?" "0" "⑬C 重复运行退出码 0"
+H2="$(shasum -a 256 "$ROT_LEDGER" | awk '{print $1}')$(shasum -a 256 "$ROT_HIST" | awk '{print $1}')"
+assert_eq "$H2" "$H1" "⑬C 幂等：重复运行账本与历史字节不变"
+
+# 10.5 冻结语义：已冻结根会话被重采带回账本 → 再轮转时丢弃且不重复聚合
+printf '%s\n' '{"ide":"cursor","session":"rrr-old/s2","path":"src/b.ts","offset":1,"limit":4,"fullFile":false,"lines":4,"bytes":40,"estTokens":5}' >>"$ROT_LEDGER"
+node "$ROTATE" --root="$FAKEROOT" --ledger="$ROT_LEDGER" --meta="$ROT_META" --history="$ROT_HIST" --window-sessions=3 >/dev/null 2>&1
+assert_eq "$?" "0" "⑬D 冻结重采行轮转退出码 0"
+assert_eq "$(grep -c 'rrr-old' "$ROT_LEDGER")" "0" "⑬D 已冻结会话的行被移出账本"
+assert_eq "$(grep -c '' "$ROT_LEDGER")" "3" "⑬D 账本回到 3 行（冻结行丢弃，不回流）"
+H3="$(shasum -a 256 "$ROT_HIST" | awk '{print $1}')"
+H4="$(shasum -a 256 "$WORK/rot-hist-snapshot.json" 2>/dev/null | awk '{print $1}')" || true
+node -e 'console.log("1")' >/dev/null  # no-op keep shell happy
+# 历史在 10.5 期间不应变化：与 10.4 末快照比对（10.4 后即 H1 中历史部分，重取当前即可——
+# 这里直接验证 totalReads 仍为 7）
+assert_eq "$(node -p "JSON.parse(require('fs').readFileSync('$ROT_HIST','utf8')).aggregate.totalReads")" "7" "⑬D 重复聚合被拒绝（totalReads 仍 7，不重复计入）"
+
+# 10.6 窗口溢出须留痕：新树入窗把 rrr-new 挤出（窗口 2）→ 无 reason 拒绝；有 reason 成功
+node - "$ROT_LEDGER" "$ROT_META" <<'NODE_EOF'
+import { readFileSync, appendFileSync, writeFileSync } from 'node:fs';
+const [ledgerOut, metaOut] = process.argv.slice(2);
+const row = JSON.stringify({ ide: 'cursor', session: 'rrr-newest/s5', path: 'docs/a.md', offset: null, limit: null, fullFile: true, lines: 40, bytes: 480, estTokens: 160 });
+appendFileSync(ledgerOut, row + '\n', 'utf8');
+const meta = JSON.parse(readFileSync(metaOut, 'utf8'));
+meta.bySession['rrr-newest/s5'] = { lastMtime: 99999 };
+writeFileSync(metaOut, JSON.stringify(meta, null, 2) + '\n', 'utf8');
+NODE_EOF
+node "$ROTATE" --root="$FAKEROOT" --ledger="$ROT_LEDGER" --meta="$ROT_META" --history="$ROT_HIST" --window-sessions=2 >"$WORK/rot-noreason.txt" 2>&1
+assert_eq "$?" "1" "⑬E 真实轮转缺 reason/task-id → exit 1（留痕强制）"
+node "$ROTATE" --root="$FAKEROOT" --ledger="$ROT_LEDGER" --meta="$ROT_META" --history="$ROT_HIST" \
+  --window-sessions=2 --reason="selftest 轮转 rrr-new" --task-id="WXG-T-037" >"$WORK/rot2.txt" 2>&1
+assert_eq "$?" "0" "⑬E 带 reason/task-id → 轮转成功"
+assert_eq "$(grep -c '' "$ROT_LEDGER")" "1" "⑬E 窗口 2 会话：仅最新树 rrr-newest 保留（1 行）"
+assert_eq "$(node -p "const h=JSON.parse(require('fs').readFileSync('$ROT_HIST','utf8'));h.aggregate.totalReads")" "10" "⑬E 历史累计 7+3=10（两轮轮转聚合合并）"
+assert_eq "$(node -p "JSON.parse(require('fs').readFileSync('$ROT_HIST','utf8')).rotations.length")" "2" "⑬E rotations 留痕 2 条（reason/taskId 可追溯）"
+
+# 10.7 窗口边界：会话数恰好填满窗口 → 整树保留、不轮转（空转）
+printf '%s\n%s\n%s\n' \
+  '{"ide":"cursor","session":"b2-new/s1","path":"docs/a.md","offset":1,"limit":2,"fullFile":false,"lines":2,"bytes":20,"estTokens":8}' \
+  '{"ide":"cursor","session":"a2-old/s1","path":"docs/a.md","offset":2,"limit":2,"fullFile":false,"lines":2,"bytes":20,"estTokens":8}' \
+  '{"ide":"cursor","session":"a2-old/s2","path":"src/b.ts","offset":3,"limit":2,"fullFile":false,"lines":2,"bytes":20,"estTokens":8}' \
+  >"$WORK/rot-boundary.jsonl"
+printf '%s' '{"version":1,"bySession":{"b2-new/s1":{"lastMtime":99999},"a2-old/s1":{"lastMtime":1000},"a2-old/s2":{"lastMtime":1000}}}' >"$WORK/rot-boundary-meta.json"
+B1="$(shasum -a 256 "$WORK/rot-boundary.jsonl" | awk '{print $1}')"
+node "$ROTATE" --root="$FAKEROOT" --ledger="$WORK/rot-boundary.jsonl" --meta="$WORK/rot-boundary-meta.json" \
+  --history="$WORK/rot-boundary-hist.json" --window-sessions=3 >"$WORK/rot-boundary.txt" 2>&1
+assert_eq "$?" "0" "⑬F 边界场景退出码 0"
+assert_contains "$(cat "$WORK/rot-boundary.txt")" "空转" "⑬F 会话数恰好填满窗口（1+2=3）→ 空转，不轮转"
+B2="$(shasum -a 256 "$WORK/rot-boundary.jsonl" | awk '{print $1}')"
+assert_eq "$B2" "$B1" "⑬F 边界空转不落盘（账本字节不变，窗口边界会话不截断）"
+
+# 10.8 ctx:usage 累计口径：metrics.cumulative = 窗口 ⊕ 历史，分位数与手工合并一致
+node - "$ROT_LEDGER" "$ROT_META" <<'NODE_EOF'
+import { readFileSync, appendFileSync, writeFileSync } from 'node:fs';
+const [ledgerOut, metaOut] = process.argv.slice(2);
+// 窗口内留一个新根会话（1 次局部读），供「窗口小、历史大」的累计口径验证
+const row = JSON.stringify({ ide: 'cursor', session: 'rrr-newest/s6', path: 'docs/a.md', offset: 20, limit: 2, fullFile: false, lines: 2, bytes: 20, estTokens: 12 });
+appendFileSync(ledgerOut, row + '\n', 'utf8');
+const meta = JSON.parse(readFileSync(metaOut, 'utf8'));
+meta.bySession['rrr-newest/s6'] = { lastMtime: 100000 };
+writeFileSync(metaOut, JSON.stringify(meta, null, 2) + '\n', 'utf8');
+NODE_EOF
+node "$ANALYZE" --root="$FAKEROOT" --ledger="$ROT_LEDGER" --index="$INDEX" \
+  --out-json="$WORK/u-rot.json" --out-md="$WORK/m-rot.md" >"$WORK/analyze-rot.txt" 2>&1
+assert_eq "$?" "0" "⑬G 轮转后 ctx:usage 退出码 0"
+node - "$WORK/u-rot.json" "$WORK/rot-expected.json" "$WORK/rot-uc.txt" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+const [distP, expP, out] = process.argv.slice(2);
+const d = JSON.parse(readFileSync(distP, 'utf8'));
+const e = JSON.parse(readFileSync(expP, 'utf8'));
+const c = d.metrics?.cumulative;
+const pct = (sorted, p) => {
+  if (sorted.length === 0) return 0;
+  const idx = (sorted.length - 1) * p;
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  if (lo === hi) return sorted[lo];
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+};
+const merged = [...e.partialAfterSecond, 1 - 12 / e.ftokA].map(Number).sort((a, b) => a - b);
+const checks = [
+  ['metrics.cumulative 存在且 scope 标注累计', c?.scope === 'cumulative(window+history)'],
+  ['cumulative.reads = 窗口 2 + 历史 10 = 12', c?.reads === 12],
+  ['historyEvents=10 / historySessions 如实', c?.historyEvents === 10],
+  ['累计 partial 样本 = 历史 9 + 窗口 1 = 10', c?.savings?.partialSamples === 10],
+  ['累计 E1 中位数与手工合并一致', c?.savings?.medianPartial === Number(pct(merged, 0.5).toFixed(6))],
+  ['累计 E1 P10 与手工合并一致', c?.savings?.p10Partial === Number(pct(merged, 0.1).toFixed(6))],
+];
+writeFileSync(out, checks.map(([l, c2]) => `${c2 ? 'PASS' : 'FAIL'}\t${l}`).join('\n') + '\n', 'utf8');
+NODE_EOF
+while IFS=$'\t' read -r st label; do
+  if [ "$st" = "PASS" ]; then ok "⑬G $label"; else bad "⑬G $label"; fi
+done <"$WORK/rot-uc.txt"
+
+# 10.9 ctx:check 累计口径语义：E1/E3 判定与样本充足性走累计；硬门仍生效
+node - "$CR" <<'NODE_EOF'
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+const root = process.argv[2];
+const dist = {
+  version: 1,
+  samples: { sessions: 1, reads: 5, dropped: 0, unrecognized: 0, sessionsWithReadEvents: 1 },
+  metrics: {
+    est: true, reads: 5, sessions: 1, fullFileReads: 1, nonFullReads: 4, partialSamples: 4,
+    savings: { samples: 5, overall: 0.5, median: 0.5, p10: 0.5, medianPartial: 0.6, p10Partial: 0.3 },
+    jitter: { smallReadLines: 10, threshold: 3, groups: 0, excess: 0, groupKeys: 4, rate: 0 },
+    bigFullReads: { thresholdTokens: 3000, count: 1, totalReads: 5, rate: 0.2 },
+    cumulative: {
+      scope: 'cumulative(window+history)', reads: 100, sessions: 5, historyEvents: 95, historySessions: 4,
+      savings: { samples: 100, partialSamples: 60, sumActual: 1000, sumFull: 2000, overall: 0.5, median: 0.5, p10: 0.5, medianPartial: 0.7, p10Partial: 0.45 },
+      jitter: { groups: 2, groupKeys: 20, excess: 5, rate: 0.1 },
+      bigFullReads: { count: 3, totalReads: 40, rate: 0.075 },
+    },
+  },
+  files: [],
+};
+writeFileSync(join(root, 'ctx/usage-distribution.json'), JSON.stringify(dist, null, 2) + '\n', 'utf8');
+const bl = {
+  version: 2, taskId: 'WXG-T-037', reason: 'selftest 累计口径基线', est: true,
+  scope: 'cumulative(window+history)',
+  sampleWindow: { since: null, until: null, note: 'selftest stub' },
+  tolerance: { savings: '>2.0pt', rate: '>5.0pt', counts: '仅展示' },
+  metrics: { medianPartial: 0.7, p10Partial: 0.45, jitterRate: 0.1, bigFullReadRate: 0.075, jitterGroups: 2, jitterExcess: 5, bigFullReads: 3 },
+};
+writeFileSync(join(root, 'ctx/savings-baseline.json'), JSON.stringify(bl, null, 2) + '\n', 'utf8');
+NODE_EOF
+node "$CHECK_STUB" >"$WORK/check-rotA.txt" 2>&1
+assert_eq "$?" "0" "⑬H 累计口径与基线一致 → exit 0（窗口口径样本仅 5，未被误判不足）"
+OUTRA="$(cat "$WORK/check-rotA.txt")"
+assert_not_contains "$OUTRA" "样本不足" "⑬H 样本充足性按累计口径（100 ≥ 30），不误报样本不足"
+assert_contains "$OUTRA" "累计口径" "⑬H E1/E3 判定行标注累计口径"
+assert_contains "$OUTRA" "窗口口径 局部读" "⑬H 窗口口径数字如实并列展示"
+set_baseline_metric p10Partial 0.9
+node "$CHECK_STUB" >"$WORK/check-rotB.txt" 2>&1
+assert_eq "$?" "1" "⑬H 累计口径 P10 劣于基线 → exit 1（E3 硬门在累计口径下依然成立）"
+assert_contains "$(cat "$WORK/check-rotB.txt")" "劣于基线" "⑬H 输出含「劣于基线」诊断"
+set_baseline_metric p10Partial 0.45
+
+# ── [11] ROUTES 常驻体积硬门 + 常驻总量观察哨（WXG-T-039 R5）─────────────────────
+# 做法：沿用 $CR 桩仓库（[10] 末已恢复 E1/E3 一致基线）。
+#   ⑭A 低于上限（桩 ROUTES.md 为几行小文件）→ exit 0；A 项标题标注上限 7500（LIMITS.routesMd
+#      单一真源）、A 项表含 ROUTES 行、常驻总量行出现；BUDGET.md §1 表（ctx:build 生成）
+#      含同一 ROUTES 行（读数/上限/状态与门禁同源，无两处硬编码）。
+#   ⑭B 超限：写入 ≈7740 估算 tok 的 ROUTES.md（故意卡在 7500 与 B 项 8000 之间，使失败
+#      唯一归因 ROUTES 门）→ 提交 → HEAD 重建 → exit 1，诊断含「常驻体积 / 上限 7500 /
+#      瘦身」修复指引；BUDGET.md 同步展示 ❌。
+#   ⑭C 观察哨：只抬 index.json 各文件 token 读数（sha 不动 → C 门仍绿）到「均低于各自上限
+#      但合计 14100 > 软阈 13500」→ 仍 exit 0，输出 ⚠️ + 「不阻断」；恢复后回到 exit 0。
+echo
+echo "[11] ctx:check A 项：ROUTES ≤ routesMd 硬门 / BUDGET.md 同源 / 常驻总量观察哨"
+
+# 11.1 低于上限：exit 0 + A 项表 / BUDGET.md 同源
+node "$CHECK_STUB" >"$WORK/c11_0.txt" 2>&1
+assert_eq "$?" "0" "⑭A ROUTES 低于上限（桩为几行小文件）→ exit 0"
+OUTA11="$(cat "$WORK/c11_0.txt")"
+assert_contains "$OUTA11" "ctx/ROUTES.md ≤ 7500" "⑭A A 项标题标注 ROUTES 上限 7500（LIMITS.routesMd 单一真源）"
+ROUTES_ROW_A="$(printf '%s\n' "$OUTA11" | grep -F '| ctx/ROUTES.md |' | head -1)"
+case "$ROUTES_ROW_A" in
+  *'| 7500 | ✅ |'*) ok "⑭A A 项表含 ROUTES 行（上限 7500 / ✅，读数为桩真实估算）";;
+  *) bad "⑭A A 项表 ROUTES 行异常：[$ROUTES_ROW_A]";;
+esac
+assert_contains "$OUTA11" "常驻总量" "⑭A 输出含常驻总量观察哨行"
+node "$BUILD_STUB" >/dev/null 2>&1
+BUDGET_ROW="$(grep -F '| `ctx/ROUTES.md` |' "$CR/ctx/BUDGET.md" | head -1)"
+case "$BUDGET_ROW" in
+  *'| 7500 |'*'✅'*) ok "⑭A BUDGET.md §1 表 ROUTES 行与门禁同源（上限 7500 / ✅，读数同源）";;
+  *) bad "⑭A BUDGET.md §1 表 ROUTES 行与门禁不同源：[$BUDGET_ROW]";;
+esac
+assert_contains "$(cat "$CR/ctx/BUDGET.md")" "常驻总量" "⑭A BUDGET.md 含常驻总量观察哨行"
+
+# 11.2 超限 → exit 1 + 修复指引（桩 645 行 × 48 ASCII 字符 = 30960/4 ≈ 7740 tok ∈ (7500, 8000)）
+awk 'BEGIN{for(i=1;i<=645;i++) printf "padding padding padding padding padding padding\n"}' >"$CR/ctx/ROUTES.md"
+git -C "$CR" add ctx/ROUTES.md
+git -C "$CR" -c user.email=selftest@example.com -c user.name=selftest \
+  commit -q --no-verify -m "selftest: [11] ROUTES over-limit stub (WXG-T-039)" >/dev/null 2>&1
+node "$BUILD_STUB" >/dev/null 2>&1
+node "$CHECK_STUB" >"$WORK/c11_1.txt" 2>&1
+assert_eq "$?" "1" "⑭B ROUTES 超限（≈7740 tok > 7500）→ exit 1（A 项硬门）"
+OUTB11="$(cat "$WORK/c11_1.txt")"
+assert_contains "$OUTB11" "ctx/ROUTES.md 常驻体积" "⑭B 诊断点名 ctx/ROUTES.md 常驻体积"
+assert_contains "$OUTB11" "7500" "⑭B 诊断含上限 7500"
+assert_contains "$OUTB11" "瘦身" "⑭B 诊断含「瘦身」修复指引（非调阈）"
+assert_contains "$OUTB11" "| ctx/ROUTES.md | 7740 | 7500 | ❌ |" "⑭B A 项表 ROUTES 行标 ❌"
+BUDGET_ROW_OVER="$(grep -F '| `ctx/ROUTES.md` |' "$CR/ctx/BUDGET.md" | head -1)"
+case "$BUDGET_ROW_OVER" in
+  *'| 7740 |'*'| 7500 |'*'❌'*) ok "⑭B BUDGET.md §1 表同步展示 ❌（与门禁同源）";;
+  *) bad "⑭B BUDGET.md §1 表未同步展示超限：[$BUDGET_ROW_OVER]";;
+esac
+# 回滚超限桩提交与其连带重建的产物（BUILD_STUB 在提交后又改写过 index/BUDGET，
+# reset --hard 一并归位到 [9] 末的产物不动点），给 ⑭C 一个干净基线。
+# 注意：reset --hard 会把 [9] 遗留的 tracked-but-deleted 桩 docs/staged-new.md 复原到磁盘
+# （它在 self-heal 提交树里、却不在其重建索引里）→ C 门「未收录」；rm 复现 [10] 末的
+# 磁盘状态（tracked-deleted，C 门不扫描磁盘上不存在的文件）。
+git -C "$CR" reset -q --hard HEAD~1
+rm -f "$CR/docs/staged-new.md"
+
+# 11.3 常驻总量观察哨：合计 14100 > 软阈 13500，但各文件均低于各自上限 → exit 0 仅 ⚠️
+node - "$CR" <<'NODE_EOF'
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+const root = process.argv[2];
+const p = join(root, 'ctx/index.json');
+const idx = JSON.parse(readFileSync(p, 'utf8'));
+// 只改 tokens 读数、不动 sha256 → C 门仍绿；A 门判定读同一字段。
+const bump = {
+  'AGENTS.md': 1900,           // ≤ 2000
+  'my-rules/INDEX.md': 450,    // ≤ 500
+  'my-rules/agents-md.md': 450,
+  'ctx/hot-files.md': 3900,    // ≤ 4000
+  'ctx/ROUTES.md': 7400,       // ≤ 7500
+};
+for (const f of idx.files) if (bump[f.path] != null) f.tokens = bump[f.path];
+writeFileSync(p, JSON.stringify(idx, null, 2) + '\n', 'utf8');
+NODE_EOF
+node "$CHECK_STUB" >"$WORK/c11_2.txt" 2>&1
+assert_eq "$?" "0" "⑭C 各文件均低于各自上限、仅总量超软阈 → 仍 exit 0（观察哨不阻断）"
+OUTC11="$(cat "$WORK/c11_2.txt")"
+assert_contains "$OUTC11" "14100 tokens（观察哨软阈值 ≤ 13500）⚠️" "⑭C 常驻总量行如实展示 14100 > 13500 并标 ⚠️"
+assert_contains "$OUTC11" "不阻断" "⑭C 观察哨提示声明不阻断（硬阻断只挂单文件门）"
+git -C "$CR" checkout -q -- ctx/index.json
+node "$CHECK_STUB" >/dev/null 2>&1
+assert_eq "$?" "0" "⑭C 恢复 index.json 后回到 exit 0"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

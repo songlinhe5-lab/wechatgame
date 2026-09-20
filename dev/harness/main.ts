@@ -12,7 +12,7 @@
 
 import { App, Canvas2DRenderer } from '@wxgame/framework';
 import { createBreakoutGame, type BreakoutGame } from '../../games/breakout/src/index.js';
-import { createBeadsGame, type BeadsGame } from '../../games/beads/src/index.js';
+import { createBeadsShell, type BeadsShell } from '../../games/beads/src/index.js';
 
 // ─────────────────────────────────────────────────────────────── DOM handles
 
@@ -35,11 +35,21 @@ const hud = must<HTMLDivElement>('#hud');
 // `window.location` is read defensively: the smoke-test DOM stub has none.
 const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
-const isBeads = new URLSearchParams(harnessQuery).get('game') === 'beads';
-const game = isBeads ? createBeadsGame() : createBreakoutGame();
+const harnessParams = new URLSearchParams(harnessQuery);
+const isBeads = harnessParams.get('game') === 'beads';
+// `?meta=menu` boots beads straight into the shell's main menu (批0 路由验证)；
+// 默认 'play' 保持首启直进玩法红线。
+const game = isBeads
+  ? createBeadsShell({
+    initialScreen: harnessParams.get('meta') === 'menu' ? 'menu' : 'play',
+    // ?studio=http://localhost:8787 ⇒ 主菜单设置页出「导入」钮（WXG-T-179 beads-studio 在线导入）。
+    ...(harnessParams.get('studio') ? { studio: { baseUrl: harnessParams.get('studio')! } } : {}),
+  })
+  : createBreakoutGame();
 /** Narrowed aliases — every use site is guarded by `isBeads`. */
 const breakout = game as BreakoutGame;
-const beads = game as BeadsGame;
+const beadsShell = game as BeadsShell;
+const beads = beadsShell.play;
 const app = new App({
   game,
   designWidth: 750,
@@ -47,10 +57,10 @@ const app = new App({
   seed: 'harness',
 });
 
-const renderer = new Canvas2DRenderer(ctx, app.viewport);
-
 /** Device pixel ratio, capped so a 3× phone does not melt the canvas. */
 const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+const renderer = new Canvas2DRenderer(ctx, app.viewport, { pixelRatio: dpr });
 
 app.onRender = (model) => {
   renderer.draw(model);
@@ -59,10 +69,12 @@ app.onRender = (model) => {
 /**
  * Match the canvas backing store to the window.
  *
- * The viewport is told the size in *device* pixels, so `fit.scale` already
- * includes the DPR and the renderer's transform lands correctly. Pointer events
- * arrive in CSS pixels, so they are scaled up before being fed to the input
- * manager — that keeps a single consistent coordinate space.
+ * Screen space is CSS px end-to-end (ADR-0011): the viewport is told the CSS
+ * size, and `App.start()` re-fits it from `platform.getScreenSize()` — which is
+ * CSS px on every host — so a pointer event's `clientX/clientY` maps straight
+ * through. The extra resolution lives only in the backing store (`cssW * dpr`),
+ * which `Canvas2DRenderer` absorbs via its `pixelRatio`; DPR never reaches the
+ * viewport or the input manager.
  */
 function fitCanvas(): void {
   const cssW = window.innerWidth;
@@ -75,7 +87,7 @@ function fitCanvas(): void {
   canvas.style.width = `${cssW}px`;
   canvas.style.height = `${cssH}px`;
 
-  app.resize(w, h);
+  app.resize(cssW, cssH);
 }
 
 window.addEventListener('resize', fitCanvas);
@@ -87,10 +99,13 @@ let lastPointerId = 0;
 
 function pushPointer(event: PointerEvent, phase: 'down' | 'move' | 'up' | 'cancel'): void {
   lastPointerId = event.pointerId;
+  // `clientX/clientY` are already CSS px — the exact screen space the viewport
+  // fits to. Multiplying by DPR here was GAP-07: the input manager maps the
+  // device-px value through a CSS-px viewport and lands off-board.
   app.input.push({
     id: event.pointerId,
-    x: event.clientX * dpr,
-    y: event.clientY * dpr,
+    x: event.clientX,
+    y: event.clientY,
     phase,
     time: performance.now(),
   });
@@ -170,7 +185,7 @@ window.addEventListener('keydown', (event) => {
     return;
   }
   if (event.key >= '1' && event.key <= '5') {
-    game.goToLevel(Number(event.key) - 1);
+    goToLevel(Number(event.key) - 1);
   }
 });
 
@@ -226,14 +241,28 @@ function renderHud(): void {
 
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-level]')) {
   button.addEventListener('click', () => {
-    game.goToLevel(Number(button.dataset['level']) - 1);
+    goToLevel(Number(button.dataset['level']) - 1);
     canvas.focus();
   });
 }
 
 must<HTMLButtonElement>('#restart').addEventListener('click', () => {
-  game.restartRun();
+  restartRun();
 });
+
+/**
+ * Level/restart routing. The shell (beads) does not re-expose the play command
+ * API — it is the frozen `Game`; harness dev buttons reach through to `play`.
+ */
+function goToLevel(index: number): void {
+  if (isBeads) beads.goToLevel(index);
+  else breakout.goToLevel(index);
+}
+
+function restartRun(): void {
+  if (isBeads) beads.restartRun();
+  else breakout.restartRun();
+}
 
 // ─────────────────────────────────────────────────────────────── frame driver
 
@@ -264,7 +293,7 @@ requestAnimationFrame(frame);
 // Expose for console poking during development.
 Object.assign(window as unknown as Record<string, unknown>, {
   __breakout: { app, game: breakout, fitCanvas },
-  __beads: { app, game: beads, fitCanvas },
+  __beads: { app, game: beads, shell: beadsShell, fitCanvas },
 });
 
 // eslint-disable-next-line no-console
@@ -273,7 +302,13 @@ console.info(
   'background:#4cc9f0;color:#0b1021;font-weight:bold',
   `\n  game: ${isBeads ? 'beads' : 'breakout'} · add ?game=beads to the URL to switch`,
   isBeads
-    ? '\n  tap a tray bead then a board cell · Space pauses/resumes'
+    ? // Aligned with the implementation above (L138-152) and gdd/pause-settings.md §2.1
+    // (single-channel pause: the HUD gear is the ONLY entry; there is no second one).
+    // The previous text claimed "Space pauses/resumes", which was wrong twice over:
+    // in `playing` the switch hits `default: break` (no pause), and in `paused`
+    // `onResume()` is a deliberate no-op (WXG-T-055 D-04 — the panel button is the
+    // only exit). WXG-T-082.
+    '\n  tap a tray bead then a board cell · Space = retry (game-over) / restart (finish) · pause is gear-only'
     : '\n  ←/→ or drag to move · Space to launch/retry · 1–5 to jump levels',
   '\n  window.__breakout / window.__beads expose { app, game, fitCanvas }',
 );

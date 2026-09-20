@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>beads-studio · 照片转拼豆</title>
+    <style>
+        :root {
+            --bd: #d8d2c4;
+            --bg: #faf7f0;
+            --ac: #3d7bf5;
+            --tx: #33333d;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font: 14px/1.5 system-ui, -apple-system, "PingFang SC", sans-serif;
+            background: var(--bg);
+            color: var(--tx);
+        }
+
+        header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--bd);
+            display: flex;
+            gap: 12px;
+            align-items: baseline;
+        }
+
+        h1 {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 16px;
+            padding: 16px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (max-width:860px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        label {
+            display: block;
+            margin: 8px 0 2px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--bd);
+            border-radius: 6px;
+            font: inherit;
+        }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        button {
+            margin-top: 12px;
+            width: 100%;
+            padding: 10px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--ac);
+            color: #fff;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: default;
+        }
+
+        button.ghost {
+            background: #eee;
+            color: var(--tx);
+            margin-top: 6px;
+        }
+
+        canvas {
+            width: 100%;
+            image-rendering: pixelated;
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tabs button {
+            margin: 0;
+            padding: 5px 10px;
+            width: auto;
+            background: #eee;
+            color: var(--tx);
+            font-weight: 400;
+            border-radius: 6px;
+        }
+
+        .tabs button.on {
+            background: var(--ac);
+            color: #fff;
+        }
+
+        #stats {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            white-space: pre-line;
+        }
+
+        #results .grp {
+            margin-top: 12px;
+        }
+
+        #results h3 {
+            font-size: 13px;
+            margin: 6px 0;
+            color: #666;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            border: 1px solid var(--bd);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        .item:hover {
+            border-color: var(--ac);
+        }
+
+        .item small {
+            color: #999;
+        }
+
+        #msg {
+            margin-top: 8px;
+            font-size: 12px;
+            min-height: 18px;
+        }
+
+        .err {
+            color: #c0392b;
+        }
+
+        .ok {
+            color: #1e8e3e;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>beads-studio</h1><span style="color:#999;font-size:12px">照片 → 拼豆关卡草案（WXG-T-179）· 生成核心 beads-gen.mjs</span>
+    </header>
+    <main>
+        <section class="card">
+            <label>源图（本地解像，不上传原图）</label>
+            <input type="file" id="file" accept="image/*">
+            <label>盘面档位</label>
+            <select id="board">
+                <option value="small14">small14 · 14×14（MVP 一档）</option>
+                <option value="small18">small18 · 18×18（MVP 二档）</option>
+                <option value="small16">small16 · 16×16</option>
+                <option value="standard29">standard29 · 29×29（设计档）</option>
+                <option value="custom">自定义…</option>
+            </select>
+            <div class="row2" id="customSize" style="display:none">
+                <div><label>列</label><input type="number" id="cols" value="14" min="2" max="107"></div>
+                <div><label>行</label><input type="number" id="rows" value="14" min="2" max="107"></div>
+            </div>
+            <div class="row2">
+                <div><label>色板</label><select id="palette">
+                        <option value="10">游戏 10 色（可入关）</option>
+                        <option value="artkal">Artkal 真值（参考）</option>
+                    </select></div>
+                <div><label>用色上限（0=不限）</label><input type="number" id="colors" value="0" min="0" max="200"></div>
+            </div>
+            <div class="row2">
+                <div><label>交换错位 k 对</label><input type="number" id="swaps" value="8" min="0" max="200"></div>
+                <div><label>众数滤波轮数</label><input type="number" id="smooth" value="1" min="0" max="5"></div>
+            </div>
+            <div class="row2">
+                <div><label>异形</label><select id="shape">
+                        <option value="square">方形</option>
+                        <option value="circle">圆形</option>
+                        <option value="hex">六边</option>
+                        <option value="heart">心形</option>
+                    </select></div>
+                <div><label>选色模式</label><select id="colorsmode">
+                        <option value="error">误差最小</option>
+                        <option value="freq">频次优先</option>
+                    </select></div>
+            </div>
+            <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto"> 不做背景去格（整盘可填）</label>
+            <button id="gen">生成</button>
+            <div id="msg"></div>
+        </section>
+        <section>
+            <div class="card">
+                <canvas id="cv" width="420" height="420"></canvas>
+                <div class="tabs">
+                    <button id="tSolved" class="on">正确解</button>
+                    <button id="tMis">初始盘（错位）</button>
+                </div>
+                <div id="stats"></div>
+                <button class="ghost" id="dl" disabled>下载 levelDraft JSON</button>
+                <button class="ghost" id="cp" disabled>复制 rowstrings</button>
+            </div>
+            <div class="card" id="results"><b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small></div>
+        </section>
+    </main>
+    <script>
+        'use strict';
+        const $ = (id) => document.getElementById(id);
+        let current = null; // 当前 result.json
+        let srcPixels = null; // {w,h,data:Uint8ClampedArray}
+        let view = 'solved';
+
+        $('board').onchange = () => {
+            const b = $('board').value;
+            $('customSize').style.display = b === 'custom' ? 'grid' : 'none';
+            const map = { small14: [14, 14], small18: [18, 18], small16: [16, 16], standard29: [29, 29] };
+            if (map[b]) { $('cols').value = map[b][0]; $('rows').value = map[b][1]; }
+        };
+
+        $('file').onchange = async () => {
+            const f = $('file').files[0];
+            if (!f) return;
+            const img = await createImageBitmap(f);
+            const max = 1024; // 解像上限：服务端采样够用，控制上传体积
+            const k = Math.min(1, max / Math.max(img.width, img.height));
+            const w = Math.max(1, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+            const cv = new OffscreenCanvas(w, h);
+            const g = cv.getContext('2d', { willReadFrequently: true });
+            g.drawImage(img, 0, 0, w, h);
+            srcPixels = { w, h, data: g.getImageData(0, 0, w, h).data };
+            msg(`源图已解像：${w}×${h}（RGBA ${Math.round(w * h * 4 / 1024)} KB）`, 'ok');
+        };
+
+        function msg(t, cls) { $('msg').textContent = t; $('msg').className = cls || ''; }
+
+        $('gen').onclick = async () => {
+            if (!srcPixels) return msg('先选源图', 'err');
+            const cols = parseInt($('cols').value, 10), rows = parseInt($('rows').value, 10);
+            if (!cols || !rows) return msg('盘面尺寸非法', 'err');
+            const q = new URLSearchParams({
+                board: $('board').value === 'custom' ? `${cols}x${rows}` : $('board').value,
+                cols, rows, w: srcPixels.w, h: srcPixels.h,
+                palette: $('palette').value, colors: $('colors').value,
+                colorsmode: $('colorsmode').value, swaps: $('swaps').value,
+                smooth: $('smooth').value, shape: $('shape').value,
+                noframe: $('noframe').checked ? '1' : '0',
+            });
+            $('gen').disabled = true; msg('生成中…');
+            try {
+                const r = await fetch('/api/generate?' + q, { method: 'POST', body: srcPixels.data });
+                const j = await r.json();
+                if (!r.ok) throw new Error(j.error || r.status);
+                current = j; show(j); msg(`已生成并存储：${j.id}`, 'ok'); loadResults();
+            } catch (e) { msg('生成失败：' + e.message, 'err'); }
+            $('gen').disabled = false;
+        };
+
+        function draw(colors) {
+            const cv = $('cv'), g = cv.getContext('2d');
+            const { cols, rows } = current;
+            const pal = (current.levelDraft && current.levelDraft.paletteHex) || null;
+            const cell = Math.floor(Math.min(cv.width / cols, cv.height / rows));
+            const ox = (cv.width - cell * cols) / 2, oy = (cv.height - cell * rows) / 2;
+            g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height);
+            for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+                const v = colors[y * cols + x];
+                if (!v || v === '.') continue;
+                g.fillStyle = pal ? pal[v.charCodeAt(0) >= 65 ? v.charCodeAt(0) - 55 : +v - 1] : `hsl(${v * 37 % 360} 60% 55%)`;
+                g.fillRect(ox + x * cell + 1, oy + y * cell + 1, cell - 2, cell - 2);
+            }
+        }
+
+        function show(r) {
+            const colors = (view === 'solved' ? r.levelDraft?.pattern : r.misplaced) || r.levelDraft?.pattern;
+            draw(colors);
+            const rp = r.report || {};
+            $('stats').textContent =
+                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.swaps * 2} 颗（${r.swaps} 对交换）\n` +
+                `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? '?'}`;
+            $('dl').disabled = $('cp').disabled = !(r.levelDraft);
+        }
+
+        $('tSolved').onclick = () => { view = 'solved'; $('tSolved').className = 'on'; $('tMis').className = ''; current && show(current); };
+        $('tMis').onclick = () => { view = 'mis'; $('tMis').className = 'on'; $('tSolved').className = ''; current && show(current); };
+
+        $('dl').onclick = () => {
+            const blob = new Blob([JSON.stringify(current.levelDraft, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = `beads-${current.id}.json`; a.click();
+        };
+        $('cp').onclick = () => navigator.clipboard.writeText((current.levelDraft?.pattern || []).join('\n'))
+            .then(() => msg('rowstrings 已复制', 'ok'));
+
+        async function loadResults() {
+            try {
+                const { results } = await (await fetch('/api/results')).json();
+                const byBoard = {};
+                for (const r of results) (byBoard[r.board] ??= []).push(r);
+                const el = $('results');
+                el.innerHTML = '<b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small>';
+                for (const [board, list] of Object.entries(byBoard)) {
+                    const grp = document.createElement('div'); grp.className = 'grp';
+                    grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
+                    for (const r of list) {
+                        const d = document.createElement('div'); d.className = 'item';
+                        d.innerHTML = `<span>${r.id}</span><small>${r.colors} 色 · 错位 ${r.swaps * 2}</small>`;
+                        d.onclick = () => { current = r; show(r); };
+                        grp.appendChild(d);
+                    }
+                    el.appendChild(grp);
+                }
+            } catch { /* 列表失败不阻塞主流程 */ }
+        }
+        loadResults();
+    </script>
+</body>
+
+</html>

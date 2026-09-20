@@ -15,6 +15,14 @@
         "failClosed": true,
         "timeout": 10
       }
+    ],
+    "beforeReadFile": [
+      {
+        "command": "node .cursor/hooks/before-read-file.mjs",
+        "matcher": "Read|TabRead",
+        "failClosed": false,
+        "timeout": 5
+      }
     ]
   }
 }

@@ -4,6 +4,18 @@
 
 import { describe, it, expect } from 'vitest';
 import { createBeadsHarness, simpleTestLevel } from './helpers.js';
+import { pausePanelLayout } from '../src/systems/pause-panel.js';
+import type { BeadsGame } from '../src/game/beads-game.js';
+
+/** Continue is the only PAUSED exit (WXG-T-055 D-04: onResume stays paused). */
+function tapContinue(game: BeadsGame): void {
+  const button = pausePanelLayout('normal').buttons.find((b) => b.id === 'resume');
+  if (!button) throw new Error('timer: no resume button');
+  game.tapDesign(
+    (button.rect.xMin + button.rect.xMax) / 2,
+    (button.rect.yMin + button.rect.yMax) / 2,
+  );
+}
 
 describe('S5 timer-gameover', () => {
   // §8.1 默认关卡进 PLAYING 后 remaining 从 LEVEL_TIME_DEFAULT 递减；
@@ -92,7 +104,7 @@ describe('S5 timer-gameover', () => {
     expect(harness.count('game:paused')).toBe(1); // single notification
     expect(harness.count('timer:tick')).toBe(30); // zero ticks while paused
 
-    harness.game.onResume();
+    tapContinue(harness.game);
     expect(harness.game.phase).toBe('playing');
     expect(harness.game.remaining).toBeCloseTo(before, 5);
     expect(harness.count('game:resumed')).toBe(1);

@@ -59,4 +59,22 @@ describe('Viewport', () => {
   it('reports the design aspect ratio', () => {
     expect(new Viewport(750, 1500).designAspect).toBe(0.5);
   });
+
+  // ADR-0011 §3(d): the screen↔design round-trip is a CSS-px contract. DPR must
+  // never leak into it — a device-px pointer sample (CSS px × 2) is a point the
+  // framework should outright reject, not silently map somewhere wrong. This is
+  // the regression tooth for GAP-07 (harness clicks landing off-board).
+  it('keeps DPR out of the round-trip: a device-px sample is rejected at DPR=2', () => {
+    const vp = new Viewport(750, 1334);
+    vp.resize(754, 456); // CSS px — the contract unit, NOT 1508×912 device px
+    const scr = vp.designToScreen({ x: 0, y: 0 }, 297.5, 851.5);
+    expect(vp.containsScreenPoint(scr.x, scr.y)).toBe(true);
+
+    const back = vp.screenToDesign({ x: 0, y: 0 }, scr.x, scr.y);
+    expect(back.x).toBeCloseTo(297.5, 6); // exact round-trip
+    expect(back.y).toBeCloseTo(851.5, 6);
+
+    // Feed the same point as device px (the old `clientX * dpr` bug): out of range.
+    expect(vp.containsScreenPoint(scr.x * 2, scr.y * 2)).toBe(false);
+  });
 });

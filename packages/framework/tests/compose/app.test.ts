@@ -51,6 +51,7 @@ describe('App', () => {
     expect(app.services.platform.name).toBe('node');
     expect(app.services.assets).toBeInstanceOf(NullAssetProvider);
     expect(app.services.viewport.designWidth).toBe(750);
+    expect(app.services.rewardedAd.isReady()).toBe(false);
   });
 
   it('accepts injected assets', () => {
@@ -147,10 +148,12 @@ describe('App', () => {
 
   it('dispose() stops the loop, disposes the game and clears listeners', () => {
     const { app, game } = makeApp();
+    const destroyAd = vi.spyOn(app.services.rewardedAd, 'destroy');
     app.events.on('x', () => {});
     app.start();
     app.dispose();
     expect(game.disposed).toBe(1);
+    expect(destroyAd).toHaveBeenCalledTimes(1);
     expect(app.events.listenerCount()).toBe(0);
   });
 

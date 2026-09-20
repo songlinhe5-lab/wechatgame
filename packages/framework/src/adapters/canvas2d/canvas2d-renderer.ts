@@ -39,6 +39,8 @@ export interface Canvas2DLike {
   arc(x: number, y: number, r: number, startAngle: number, endAngle: number): void;
   moveTo(x: number, y: number): void;
   lineTo(x: number, y: number): void;
+  translate(x: number, y: number): void;
+  scale(x: number, y: number): void;
   fill(): void;
   stroke(): void;
   fillText(text: string, x: number, y: number): void;
@@ -58,11 +60,20 @@ export interface Canvas2DRendererOptions {
    * configured a matching transform.
    */
   readonly applyViewportTransform?: boolean;
+  /**
+   * Device pixel ratio the host baked into the canvas backing store
+   * (`canvas.width === cssWidth * pixelRatio`). The viewport fit is in CSS px
+   * (ADR-0011 §3), so the drawing transform is prefixed by this factor to land
+   * in device pixels. DPR is a renderer concern only — it never enters
+   * {@link Viewport} or `InputManager` (L2). Defaults to 1.
+   */
+  readonly pixelRatio?: number;
 }
 
 /** Draw a {@link RenderModel} onto a 2D context. */
 export class Canvas2DRenderer {
   private readonly _applyTransform: boolean;
+  private readonly _dpr: number;
 
   constructor(
     private readonly _ctx: Canvas2DLike,
@@ -70,16 +81,35 @@ export class Canvas2DRenderer {
     options: Canvas2DRendererOptions = {},
   ) {
     this._applyTransform = options.applyViewportTransform ?? true;
+    this._dpr = options.pixelRatio && options.pixelRatio > 0 ? options.pixelRatio : 1;
   }
 
   /** Render one frame. Does not clear unless the model has a background. */
   draw(model: RenderModel): void {
     const ctx = this._ctx;
     const fit = this._viewport.fit;
+    const dpr = this._dpr;
 
     ctx.save();
     if (this._applyTransform) {
-      ctx.setTransform(fit.scale, 0, 0, -fit.scale, fit.offsetX, fit.offsetY + fit.viewHeight);
+      // `fit` is expressed in CSS px (ADR-0011 §3); the backing store is
+      // CSS px × dpr, so every axis — scale *and* translation — is prefixed by
+      // dpr. With dpr = 1 this collapses to the plain CSS-px letterbox.
+      const s = fit.scale * dpr;
+      ctx.setTransform(s, 0, 0, -s, fit.offsetX * dpr, (fit.offsetY + fit.viewHeight) * dpr);
+    }
+
+    // Whole-frame transform (WXG-T-132 / ADR-0014): composed *after* the fit
+    // matrix so it operates in design coordinates regardless of the y-flip.
+    // Applied before the background ⇒ the background participates, and a
+    // scale > 1 about an interior anchor only ever pushes content edges outward
+    // (overflow is clipped by the canvas) — the letterbox bands sit outside the
+    // transformed design rect and stay untouched. Absent ⇒ exact old path.
+    const t = model.transform;
+    if (t) {
+      ctx.translate(t.anchorX, t.anchorY);
+      ctx.scale(t.scale, t.scale);
+      ctx.translate(-t.anchorX, -t.anchorY);
     }
 
     if (model.background) {
@@ -135,8 +165,25 @@ export class Canvas2DRenderer {
         ctx.fillStyle = cmd.fill ?? '#ffffff';
         ctx.font = cmd.font ?? '24px sans-serif';
         ctx.textAlign = cmd.align ?? 'left';
-        ctx.textBaseline = cmd.baseline ?? 'middle';
-        ctx.fillText(cmd.text, cmd.x, cmd.y);
+        let baseline = cmd.baseline ?? 'middle';
+        if (this._applyTransform) {
+          // The design transform flips Y (y-up). Left as-is that mirrors every
+          // glyph vertically (GAP-08). Undo the flip *locally* around the
+          // anchor so only text is affected — the global matrix must stay
+          // flipped or the vector symbols ▲▽♥◐ break (ADR-0011 §4.2.5).
+          // Re-flipping inverts the vertical baseline, so top/bottom swap.
+          ctx.save();
+          ctx.translate(cmd.x, cmd.y);
+          ctx.scale(1, -1);
+          if (baseline === 'top') baseline = 'bottom';
+          else if (baseline === 'bottom') baseline = 'top';
+          ctx.textBaseline = baseline;
+          ctx.fillText(cmd.text, 0, 0);
+          ctx.restore();
+        } else {
+          ctx.textBaseline = baseline;
+          ctx.fillText(cmd.text, cmd.x, cmd.y);
+        }
         break;
       }
     }

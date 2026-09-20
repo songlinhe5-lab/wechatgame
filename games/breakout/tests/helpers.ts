@@ -72,6 +72,7 @@ export function createHarness(options: HarnessOptions = {}): Harness {
     viewport: new Viewport(750, 1334),
     assets: new NullAssetProvider(),
     platform: platform.info,
+    rewardedAd: platform.createRewardedAdProvider(),
   };
 
   const game = new BreakoutGame({

@@ -19,11 +19,10 @@ import {
   GRID_MIN_ROWS,
   LEVEL_TIME_MAX,
   LEVEL_TIME_MIN,
-  SPAWN_INTERVAL_MAX,
-  SPAWN_INTERVAL_MIN,
   stageParamsFor,
   type StageParams,
 } from './tuning.js';
+import { validateSwaps, validateMisplacedGrid } from '../game/misplaced-assembler.js';
 import { LEVELS_DATA, type BeadsLevelRaw } from './levels-data.js';
 
 export type { BeadsLevelRaw };
@@ -66,7 +65,17 @@ export function decoyColorIndices(level: BeadsLevelRaw): number[] {
   return out;
 }
 
-/** The distinct pattern colour indices of a level (ascending). */
+/**
+ * The distinct pattern colour indices of a level (ascending).
+ *
+ * Must convert the Set with `Array.from`; spread syntax is not allowed here: the
+ * Cocos ES5 build lowers a spread of a non-array iterable into a concat form that
+ * does not expand it, so this returned exactly one colour on device,
+ * `validateBeadsLevel` rejected all 8 levels and BOOT never finished
+ * (G10 / ADR-0012; guarded by tools/scripts/check-es5-spread.mjs).
+ * Note: comments ship inside the bundle, so this one deliberately avoids the
+ * literal source forms — they would pollute artifact grep forensics.
+ */
 export function patternColors(pattern: readonly string[]): number[] {
   const seen = new Set<number>();
   for (const row of pattern) {
@@ -75,7 +84,7 @@ export function patternColors(pattern: readonly string[]): number[] {
       if (typeof idx === 'number') seen.add(idx);
     }
   }
-  return [...seen].sort((a, b) => a - b);
+  return Array.from(seen).sort((a, b) => a - b);
 }
 
 /** Distinct pattern colours of a single level record. */
@@ -151,22 +160,28 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
     errors.push(`${tag}: pattern colour count ${colors.length} > BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`);
   }
 
-  // time ∈ [180, 420] (§3.5), spawnInterval ∈ [2.0, 6.0] (§3.4).
-  if (
-    typeof level.time !== 'number' ||
-    level.time < LEVEL_TIME_MIN ||
-    level.time > LEVEL_TIME_MAX
-  ) {
+  // time ∈ [120, 420] (§3.5 v1.23：下沿随 `clamp(k × 45s, 120, 420)` 由 180 放宽到
+  // 120；k ≤ 2 的关按定价就是 120 s，旧下沿会把它们全部拒收)。
+  //
+  // `Number.isFinite` (not `typeof === 'number'`): NaN **is** a number, and every
+  // comparison against it is false, so a NaN would slip through both bounds. The
+  // consequence is not cosmetic — a NaN countdown never reaches zero, so the only
+  // documented failure condition (timer-gameover §3.5) could never fire.
+  if (!Number.isFinite(level.time) || level.time < LEVEL_TIME_MIN || level.time > LEVEL_TIME_MAX) {
     errors.push(`${tag}: time ${level.time} outside [${LEVEL_TIME_MIN}, ${LEVEL_TIME_MAX}]`);
   }
-  if (
-    typeof level.spawnInterval !== 'number' ||
-    level.spawnInterval < SPAWN_INTERVAL_MIN ||
-    level.spawnInterval > SPAWN_INTERVAL_MAX
-  ) {
-    errors.push(
-      `${tag}: spawnInterval ${level.spawnInterval} outside [${SPAWN_INTERVAL_MIN}, ${SPAWN_INTERVAL_MAX}]`,
-    );
+
+  // ── 错位构造：`misplaced` 全错位初盘（v1.3）优先，否则 `swaps`（levels-spec
+  // v1.2 §2.1 + systems-index v1.23 §3.13）。两者互斥：misplaced 存在即忽略 swaps
+  // （数据侧 swaps 置空数组占位，不再套 MISPLACED_PAIRS 区间）。
+  if (level.misplaced !== undefined && level.misplaced !== null) {
+    for (const error of validateMisplacedGrid(tag, level.pattern, level.misplaced)) {
+      errors.push(error);
+    }
+  } else {
+    for (const error of validateSwaps(tag, level.pattern, level.swaps, level.cycleProfile)) {
+      errors.push(error);
+    }
   }
 
   // Decoys: ≤ DECOY_COLORS_MAX, valid chars, and disjoint from pattern colours.
@@ -177,7 +192,8 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
   for (const ch of level.decoys) {
     const idx = colorIndexOfChar(ch);
     if (idx === undefined) {
-      errors.push(`${tag}: decoy "${ch}" is not in charset ${BEAD_CHARSET}`);    } else if (typeof idx === 'number' && patternSet.has(idx)) {
+      errors.push(`${tag}: decoy "${ch}" is not in charset ${BEAD_CHARSET}`);
+    } else if (typeof idx === 'number' && patternSet.has(idx)) {
       errors.push(`${tag}: decoy "${ch}" overlaps pattern colour ${idx}`);
     }
   }
@@ -241,7 +257,10 @@ export function buildStagePattern(stageIndex: number): { pattern: string[]; colo
   }
 
   const pattern = base.map((row) =>
-    [...row]
+    // `row` is a **string**, so a spread would collapse the same way (ADR-0012).
+    // Contrast with STAGE_PATTERN_POOL above, where the spread operand really is
+    // an array and is therefore correct as-is.
+    Array.from(row)
       .map((ch) => {
         const idx = colorIndexOfChar(ch);
         return typeof idx === 'number' ? charOfColor(map.get(idx) ?? idx) : ch;

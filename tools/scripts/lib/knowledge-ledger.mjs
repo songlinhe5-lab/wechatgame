@@ -71,9 +71,23 @@
  *   只汇总 `events` 中**运行日**已记录的 reactivated / archived。
  * • 兼容：旧 ledger 无 `contentHash` → 首次 sync **一次性补齐基线**，且**不生成 added event**
  *   （它们早已入库，避免伪造「本次新增」）；`events` 缺失 → 按空数组读入。
+ *
+ * ── accessSources 截断（R4，WXG-T-038，2026-09-13 审计对策）────────────────
+ * 缺陷：`accessSources` **只增不减**——每次访问追加去重后的来源标签，随日期 / 任务数
+ *   无限膨胀；该文件被 ctx 索引覆盖 → 属「真雷」。
+ * 对策：**lib 层统一收口**——`normalizeLedgerEntry`（所有写盘路径的必经序列化点，
+ *   见 `serializeLedger`）把 `accessSources` 截断为**保留尾部最近 `ACCESS_SOURCES_MAX` 个**；
+ *   写入方（kb:collect / kb:touch / kb:reactivate）统一走 `appendAccessSource`。
+ *   • `N=12`：来源标签已按 `kind:值` 去重，增长上限 ≈ 每条目每天 1 个 `ledger:<日>` +
+ *     显式动作标签；12 个最近来源足以覆盖两周级访问追溯（kb:audit 只用 lastAccess /
+ *     accessCount，**不用** accessSources），且把单条目来源块稳定在几百字节内。
+ *   • **语义不变**：`accessCount` 仍累计所有访问、`seen` **不截断**（⑥ 严格一致的前提）、
+ *     `lastAccess` 不变；截断只影响「来源留痕」这一展示性字段。
+ *   • **幂等**：截断是纯函数（超限 → slice 保留尾部；未超限 → 原样），重复运行不丢
+ *     accessCount、不二次截断。
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { ROOT } from './context-index.mjs';
@@ -92,23 +106,85 @@ export const ARCHIVE_DIR = join(KNOWLEDGE_DIR, 'archive');
 export const ARCHIVE_INDEX_PATH = join(ARCHIVE_DIR, 'INDEX.md');
 
 /**
- * 活跃条目源文件（**列表顺序即补号顺序**：lessons → patterns，跨两文件连续编号）。
+ * 活跃条目源文件（**列表顺序即补号顺序**：lessons 各分片 → patterns，跨文件连续编号）。
  * 每条同时给出它的归档文件（同源文件条目归档到对应文件末尾）。
+ *
+ * **WXG-T-111：lessons 已按行内标签分片**到 `knowledge/lessons/<shard>.md`，故本表
+ * 改为**动态枚举**该目录（`knowledge/lessons.md` 只剩指针页、**不 entries** ⇒ 不入表）：
+ *   • 目录不存在 ⇒ 回退旧布局单文件 `knowledge/lessons.md`（**不假绿亦不砸错**：
+ *     新克隆或尚未跑迁移脚本时行为与分片前一致）；
+ *   • 已知片按 `LESSONS_SHARD_ORDER` 排（补号顺序**必须稳定**，否则新条目落位文件会漂），
+ *     未知片按名序追加在后（新标签自建片 ⇒ 无需改码即可被采集）；
+ *   • **归档仍单份**：各 lessons 片共用 `knowledge/archive/lessons-archived.md`
+ *     （`label` 一律 `lessons`，`archiveHeader(label)` 才不会长出多个归档抬头）。
+ * 条目身份仍是全局单一的 `[K-0NN]` 命名空间：分片只改**正文落位**，不改编号语义；
+ * `contentHash` 不含 `file` 等元数据 ⇒ 改落位**不算「修改」**，不会造出伪 `updated`。
  */
+export const LESSONS_DIR = join(KNOWLEDGE_DIR, 'lessons');
+/** 已知分片顺序（正本映射见 `tools/scripts/split-knowledge-lessons.mjs::TAG_TO_SHARD`，改一侧必同步另一侧）。 */
+export const LESSONS_SHARD_ORDER = ['toolchain', 'process', 'criteria', 'testing', 'cross-ide', 'environment'];
+const LESSONS_ARCHIVE = 'knowledge/archive/lessons-archived.md';
+const LESSONS_ARCHIVE_ABS = join(ARCHIVE_DIR, 'lessons-archived.md');
+
+/** 片名 → 展示标签（`INDEX.md` 活跃表「分片」列、kb:archive 日志）；未分片文件 → `null`。 */
+export function shardOf(file) {
+  const f = String(file ?? '');
+  if (!f.startsWith('knowledge/lessons/')) return null;
+  return f.slice('knowledge/lessons/'.length).replace(/\.md$/, '');
+}
+
+/** 活跃表「分片」列取值：lessons 片取片名，未分片（旧布局）落 `lessons`，patterns 落 `patterns`。 */
+export function shardCellOf(file) {
+  return shardOf(file) ?? (String(file ?? '') === 'knowledge/patterns.md' ? 'patterns' : 'lessons');
+}
+
+function lessonsSourceFiles() {
+  if (!existsSync(LESSONS_DIR)) {
+    return [
+      {
+        file: 'knowledge/lessons.md',
+        abs: join(KNOWLEDGE_DIR, 'lessons.md'),
+        archive: LESSONS_ARCHIVE,
+        archiveAbs: LESSONS_ARCHIVE_ABS,
+        label: 'lessons',
+        shard: null,
+      },
+    ];
+  }
+  const names = readdirSync(LESSONS_DIR)
+    .filter((n) => n.endsWith('.md'))
+    .sort((a, b) => {
+      const ai = LESSONS_SHARD_ORDER.indexOf(a.replace(/\.md$/, ''));
+      const bi = LESSONS_SHARD_ORDER.indexOf(b.replace(/\.md$/, ''));
+      if (ai !== -1 || bi !== -1) {
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      }
+      return a < b ? -1 : a > b ? 1 : 0;
+    });
+  return names.map((n) => {
+    const shard = n.replace(/\.md$/, '');
+    return {
+      file: `knowledge/lessons/${n}`,
+      abs: join(LESSONS_DIR, n),
+      archive: LESSONS_ARCHIVE,
+      archiveAbs: LESSONS_ARCHIVE_ABS,
+      label: 'lessons',
+      shard,
+    };
+  });
+}
+
 export const ACTIVE_FILES = [
-  {
-    file: 'knowledge/lessons.md',
-    abs: join(KNOWLEDGE_DIR, 'lessons.md'),
-    archive: 'knowledge/archive/lessons-archived.md',
-    archiveAbs: join(ARCHIVE_DIR, 'lessons-archived.md'),
-    label: 'lessons',
-  },
+  ...lessonsSourceFiles(),
   {
     file: 'knowledge/patterns.md',
     abs: join(KNOWLEDGE_DIR, 'patterns.md'),
     archive: 'knowledge/archive/patterns-archived.md',
     archiveAbs: join(ARCHIVE_DIR, 'patterns-archived.md'),
     label: 'patterns',
+    shard: 'patterns',
   },
 ];
 
@@ -400,14 +476,45 @@ function defaultForField(k) {
 const ARRAY_FIELDS = new Set(['accessSources', 'seen']);
 
 /**
+ * `accessSources` 截断上限（R4，WXG-T-038）：保留**尾部最近 N 个**来源标签。
+ * N=12 的依据见文件头「accessSources 截断」段；`seen` **不受此限**（⑥ 严格一致的前提）。
+ */
+export const ACCESS_SOURCES_MAX = 12;
+
+/**
+ * 截断来源标签数组至最近 `ACCESS_SOURCES_MAX` 个（纯函数；未超限原样返回）。
+ * 只用于 `accessSources`；`seen` 绝不截断。
+ */
+export function trimAccessSources(arr) {
+  const a = Array.isArray(arr) ? arr : [];
+  return a.length > ACCESS_SOURCES_MAX ? a.slice(a.length - ACCESS_SOURCES_MAX) : a;
+}
+
+/**
+ * 追加一个**去重**来源标签并截断保留最近 N 个（R4 统一收口）。
+ * 所有写 `accessSources` 的路径（kb:collect / kb:touch / kb:reactivate）一律走此函数，
+ * 不再各自内联 push；原「同标签不重复追加」语义保持不变。
+ * @returns {string[]} 截断后的 accessSources（原地引用）
+ */
+export function appendAccessSource(entry, tag) {
+  const arr = Array.isArray(entry.accessSources) ? entry.accessSources : [];
+  if (!arr.includes(tag)) arr.push(tag);
+  entry.accessSources = trimAccessSources(arr);
+  return entry.accessSources;
+}
+
+/**
  * 归一化单条目：补齐缺失键、固定键序。
  * 旧 ledger（无 `seen`）→ 按空数组读入，**不报错、不动既有访问数据**。
+ * R4（WXG-T-038）：`accessSources` 在此**统一截断**为最近 `ACCESS_SOURCES_MAX` 个
+ * （本函数是 `serializeLedger` 的必经点 → 所有写盘路径自动收敛；`seen` 不截断）。
  */
 export function normalizeLedgerEntry(e) {
   const out = {};
   for (const k of ENTRY_FIELDS) {
     let v = Object.prototype.hasOwnProperty.call(e, k) && e[k] !== undefined ? e[k] : defaultForField(k);
     if (ARRAY_FIELDS.has(k) && !Array.isArray(v)) v = [];
+    if (k === 'accessSources') v = trimAccessSources(v);
     out[k] = v;
   }
   return out;
@@ -585,12 +692,12 @@ export function renderActiveBlock(entries) {
   const rows = sortEntries(entries.filter((e) => e.state === 'active'));
   const L = [];
   L.push(ACTIVE_START);
-  L.push('| ID | 类别 | 标题 | 来源 | 最后访问 | 次数 | 状态 |');
-  L.push('|---|---|---|---|---|---|---|');
+  L.push('| ID | 类别 | 分片 | 标题 | 来源 | 最后访问 | 次数 | 状态 |');
+  L.push('|---|---|---|---|---|---|---|---|');
   for (const e of rows) {
     L.push(
-      `| ${e.id} | ${escCell(e.category)} | ${escCell(e.title)} | ${escCell(e.sourceTask)} | ` +
-        `${escCell(e.lastAccess)} | ${e.accessCount ?? 0} | ${e.state ?? 'active'} |`,
+      `| ${e.id} | ${escCell(e.category)} | ${escCell(shardCellOf(e.file))} | ${escCell(e.title)} | ${escCell(e.sourceTask)} | ` +
+      `${escCell(e.lastAccess)} | ${e.accessCount ?? 0} | ${e.state ?? 'active'} |`,
     );
   }
   L.push(ACTIVE_END);
@@ -624,7 +731,7 @@ export function renderArchiveIndex(entries) {
   for (const e of rows) {
     L.push(
       `| ${e.id} | ${escCell(e.category)} | ${escCell(e.title)} | ${escCell(e.archivedDate)} | ` +
-        `${escCell(e.archiveReason)} | ${e.accessCount ?? 0} |`,
+      `${escCell(e.archiveReason)} | ${e.accessCount ?? 0} |`,
     );
   }
   L.push('');

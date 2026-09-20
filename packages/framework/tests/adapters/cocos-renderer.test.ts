@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CocosRenderModelRenderer } from '../../src/adapters/cocos/cocos-renderer.js';
+import { CocosRenderModelRenderer, parseColorLiteral } from '../../src/adapters/cocos/cocos-renderer.js';
 import { PooledLabelSource } from '../../src/adapters/cocos/label-pool.js';
 import { Viewport } from '../../src/core/render/viewport.js';
 import { RenderModelBuilder } from '../../src/core/render/render-model.js';
@@ -44,7 +44,7 @@ function fakeGraphics() {
   return { g, calls, state };
 }
 
-function fakeLabels() {
+function fakeLabels(measure?: (text: string, fontSize: number) => number) {
   const created: {
     text: string;
     x: number;
@@ -79,23 +79,29 @@ function fakeLabels() {
         setVisible: (v: boolean) => {
           rec.visible = v;
         },
+        ...(measure ? { measureWidth: (t: string, s: number) => measure(t, s) } : {}),
       };
     },
   });
   return { source, created };
 }
 
+// BD-50 判例：mock 必须走与宿主同一条解析（parseColorLiteral），不得再手抄 hex-only 缺陷实现。
 const colors = {
   fromHex: (hex: string, alpha = 1) => {
-    const h = hex.replace('#', '');
-    const n = parseInt(h, 16);
-    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: Math.round(alpha * 255) };
+    const c = parseColorLiteral(hex);
+    return {
+      r: c.r,
+      g: c.g,
+      b: c.b,
+      a: Math.round(Math.min(1, Math.max(0, c.a * alpha)) * 255),
+    };
   },
 };
 
-function makeSetup() {
+function makeSetup(measure?: (text: string, fontSize: number) => number) {
   const { g, calls } = fakeGraphics();
-  const { source, created } = fakeLabels();
+  const { source, created } = fakeLabels(measure);
   const viewport = new Viewport(200, 400);
   viewport.resize(200, 400);
   const renderer = new CocosRenderModelRenderer(g, source, colors, viewport);
@@ -227,5 +233,125 @@ describe('CocosRenderModelRenderer', () => {
     renderer.draw(empty.end());
     expect(created[0]!.visible).toBe(false);
     expect(renderer.lastLabelCount).toBe(0);
+  });
+
+  // ── BD-50（裁定②排障 · WXG-T-156）：rgba() 字面量在 Cocos 色彩工厂被解析成纯黑 ──
+  it('parses rgba() fill strings, keeping channels and embedded alpha (BD-50)', () => {
+    const { renderer, g } = makeSetup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.polygon([0, 0, 10, 0, 5, 10], { fill: 'rgba(63,191,107,0.42)' });
+    renderer.draw(b.end());
+    expect(g.fillColor.r).toBe(63);
+    expect(g.fillColor.g).toBe(191);
+    expect(g.fillColor.b).toBe(107);
+    expect(g.fillColor.a).toBe(Math.round(0.42 * 255));
+  });
+
+  it('multiplies embedded alpha with the command alpha (canvas2d globalAlpha parity)', () => {
+    const { renderer, g } = makeSetup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.rect(0, 0, 4, 4, { fill: 'rgba(255,255,255,0.5)', alpha: 0.5 });
+    renderer.draw(b.end());
+    expect(g.fillColor.a).toBe(Math.round(0.25 * 255));
+  });
+
+  it('parses #rgb / #rrggbb / rgb() and rejects garbage without NaN channels', () => {
+    expect(parseColorLiteral('#fff')).toEqual({ r: 255, g: 255, b: 255, a: 1 });
+    expect(parseColorLiteral('#FFD23F')).toEqual({ r: 255, g: 210, b: 63, a: 1 });
+    expect(parseColorLiteral('rgb(10, 20, 30)')).toEqual({ r: 10, g: 20, b: 30, a: 1 });
+    const bad = parseColorLiteral('not-a-color');
+    expect(bad).toEqual({ r: 0, g: 0, b: 0, a: 1 }); // 与旧行为一致的黑底兜底，但绝不再 NaN
+  });
+
+  // ── G3 可测半（WXG-T-077）：`_anchorForText` 消费宿主注入的实测宽度 ──
+  it('nudges left/right text by the host-measured width, symmetrically (G3)', () => {
+    // 注入一个与 0.55 不同斜率的测量出口；若渲染器真消费它，偏移应与降级值不同。
+    const seen: [string, number][] = [];
+    const { renderer, created } = makeSetup((t, s) => {
+      seen.push([t, s]);
+      return t.length * s * 0.6; // 'ABCD' @20px → 48
+    });
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.text(10, 30, 'ABCD', { fill: '#fff', font: '20px sans', align: 'left' });
+    b.text(10, 60, 'ABCD', { fill: '#fff', font: '20px sans', align: 'right' });
+    renderer.draw(b.end());
+
+    const half = (4 * 20 * 0.6) / 2; // 24
+    // design→centered: ox = -100（viewport 200x400）。左对齐右移 half，右对齐左移 half。
+    expect(created[0]!.x).toBeCloseTo(10 + half - 100);
+    expect(created[1]!.x).toBeCloseTo(10 - half - 100);
+    expect(created[0]!.x - created[1]!.x).toBeCloseTo(2 * half); // 严格对称
+    // 测量入参为原文与解析后的字号（验证字号解析喂入测量）。
+    expect(seen).toEqual([
+      ['ABCD', 20],
+      ['ABCD', 20],
+    ]);
+  });
+
+  it('falls back to the character estimate when the host injects no measurement (G3 open)', () => {
+    const { renderer, created } = makeSetup(); // 无 measureWidth
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.text(10, 30, 'ABCD', { fill: '#fff', font: '20px sans', align: 'left' });
+    renderer.draw(b.end());
+    const estHalf = (4 * 20 * 0.55) / 2; // 22
+    expect(created[0]!.x).toBeCloseTo(10 + estHalf - 100);
+    // 与实测路径（10+24-100=-66）不同，证明两分支选型正确。
+    expect(created[0]!.x).not.toBeCloseTo(10 + 24 - 100);
+  });
+});
+
+// ── WXG-T-132 / ADR-0014：transformHost 逐帧幂等分派 ──────────────────
+
+describe('CocosRenderModelRenderer transformHost', () => {
+  function makeHosted() {
+    const { g, calls } = fakeGraphics();
+    const { source, created } = fakeLabels();
+    const hostCalls: string[] = [];
+    const viewport = new Viewport(200, 400);
+    viewport.resize(200, 400);
+    const renderer = new CocosRenderModelRenderer(g, source, colors, viewport, {
+      transformHost: {
+        applyFrameTransform: (s, ax, ay) => hostCalls.push(`apply(${s},${ax},${ay})`),
+        resetFrameTransform: () => hostCalls.push('reset'),
+      },
+    });
+    return { g, calls, created, hostCalls, renderer };
+  }
+
+  it('dispatches applyFrameTransform with scale + design anchor on transform frames', () => {
+    const { renderer, hostCalls } = makeHosted();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.setTransform(1.015, 100, 200);
+    b.rect(0, 0, 10, 10, { fill: '#fff' });
+    renderer.draw(b.end());
+    expect(hostCalls).toEqual(['apply(1.015,100,200)']);
+  });
+
+  it('resets to identity on the very next transform-free frame (no stale scale)', () => {
+    const { renderer, hostCalls } = makeHosted();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.setTransform(1.015, 100, 200);
+    renderer.draw(b.end());
+    b.begin();
+    b.rect(0, 0, 10, 10, { fill: '#fff' });
+    renderer.draw(b.end());
+    expect(hostCalls).toEqual(['apply(1.015,100,200)', 'reset']);
+  });
+
+  it('dispatches only the idempotent reset when the model carries no transform', () => {
+    const { renderer, hostCalls } = makeHosted();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.rect(0, 0, 10, 10, { fill: '#fff' });
+    renderer.draw(b.end());
+    // 未接宿主的调用方（breakout）路径不变：无 host 时构造不报错（makeSetup 未传），
+    // 有 host 但无变换 ⇒ 只应看到幂等 reset。
+    expect(hostCalls).toEqual(['reset']);
   });
 });

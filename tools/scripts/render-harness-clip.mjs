@@ -29,10 +29,13 @@ import { loadHarness, ROOT } from './lib/harness-runtime.mjs';
 
 const argv = process.argv.slice(2);
 function argValue(flag, fallback) {
+  const eq = argv.find((a) => a.startsWith(`${flag}=`));
+  if (eq) return eq.slice(flag.length + 1);
   const i = argv.indexOf(flag);
   return i >= 0 && argv[i + 1] ? argv[i + 1] : fallback;
 }
 
+const GAME = argValue('--game', '');
 const LEVEL = Number(argValue('--level', 1));
 const SECONDS = Number(argValue('--seconds', 8));
 const FPS = Number(argValue('--fps', 30));
@@ -76,7 +79,16 @@ const { modelToSvg } = await import('./lib/render-model-svg.mjs');
 const { Resvg } = loadResvg();
 assertFfmpeg();
 
-const harness = await loadHarness();
+if (process.argv.slice(2).includes('--help') || !GAME) {
+  console.log(
+    'render-harness-clip.mjs — record real gameplay to an MP4\n\nUSAGE\n' +
+      '  node tools/scripts/render-harness-clip.mjs --game=beads|breakout [--level 1] [--seconds 8] [--fps 30] [--out <file>]\n\n' +
+      '--game is REQUIRED (WXG-T-099 / BD-19): the no-argument default was removed on purpose.\n',
+  );
+  process.exit(GAME ? 0 : 2);
+}
+
+const harness = await loadHarness({ game: GAME });
 const { game, render, clearScene } = harness;
 
 const levelIndex = Math.min(Math.max(LEVEL, 1), game.levelCount) - 1;
@@ -87,7 +99,7 @@ const outFile = resolve(ROOT, argValue('--out', `dev/harness/preview/play-level-
 mkdirSync(dirname(outFile), { recursive: true });
 
 game.goToLevel(levelIndex);
-game.launch();
+if (GAME === 'breakout') game.launch(); // breakout-only API
 clearScene();
 
 // Use the framework's own design resolution — never hardcode it.
@@ -123,8 +135,10 @@ let scoreAtStart = game.score;
 let lastPhase = game.phase;
 
 for (let frame = 0; frame < totalFrames; frame += 1) {
-  // Perfect auto-play so the clip is a rally, not a death loop.
-  game.movePaddleTo(game.ball.x);
+  if (GAME === 'breakout') {
+    // Perfect auto-play so the clip is a rally, not a death loop.
+    game.movePaddleTo(game.ball.x);
+  }
 
   let model = null;
   for (let step = 0; step < stepsPerFrame; step += 1) model = render(1);

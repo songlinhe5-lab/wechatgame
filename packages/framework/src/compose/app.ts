@@ -57,6 +57,13 @@ export class App {
   private readonly _builder: RenderModelBuilder;
   private _frameHandle: { cancel(): void } | null = null;
   private _running = false;
+  /**
+   * Driver ownership, sticky for the App's lifetime (WXG-T-122 / BD-40).
+   * Set once by {@link startHostDriven}; after that plain {@link start} is
+   * refused — silently flipping the driver is exactly how the Cocos host ran
+   * at ~2× wall-clock speed for its whole life.
+   */
+  private _hostDriven = false;
   private _lastFrameMs = 0;
   private _unsubs: (() => void)[] = [];
 
@@ -73,12 +80,17 @@ export class App {
     this.services = {
       events: this.events,
       input: this.input,
-      audio: new AudioScheduler(this.platform.createAudioBackend()),
+      audio: new AudioScheduler(
+        this.platform.createAudioBackend(
+          options.game.audioVoices ? { voices: options.game.audioVoices } : undefined,
+        ),
+      ),
       storage: this.platform.createStorage(),
       rng,
       viewport: this.viewport,
       assets: options.assets ?? this.platform.createAssetProvider(),
       platform: this.platform.info,
+      rewardedAd: this.platform.createRewardedAdProvider(),
     };
 
     this.loop = new FixedStepLoop(
@@ -97,9 +109,61 @@ export class App {
     return this._running;
   }
 
+  /** True when the host owns the frame loop (see {@link startHostDriven}). */
+  get hostDriven(): boolean {
+    return this._hostDriven;
+  }
+
   /** Initialise the game and begin the frame loop. */
   start(): void {
     if (this._running) return;
+    if (this._hostDriven) {
+      // Driver ownership is sticky: this App was started via startHostDriven()
+      // and the host (e.g. Cocos Component.schedule) owns the tick. Restarting
+      // self-drive on top of a live host driver is the BD-40 double-drive
+      // shape — fail loudly instead of silently running at ~2× speed.
+      throw new Error(
+        'App: this instance is host-driven (started via startHostDriven()); ' +
+        'call startHostDriven() again after stop() instead of start(). ' +
+        '(WXG-T-122 / BD-40: silent driver flip = double-drive = ~2× sim speed)',
+      );
+    }
+    this._init();
+    this._schedule();
+  }
+
+  /**
+   * Initialise the game WITHOUT owning the frame loop. The host drives frames
+   * by calling {@link tick} itself (e.g. a Cocos `Component.update` /
+   * `Component.schedule`, see `adapters/cocos/loop-bridge.ts`).
+   *
+   * Performs the exact same initialisation as {@link start} — viewport re-fit
+   * from `platform.getScreenSize()` (ADR-0011), `game.init`, `onHide`/`onShow`
+   * hookup — and then does NOT call `_schedule()`. The host is the ONLY driver.
+   *
+   * Mutual exclusion (WXG-T-122 / BD-40): calling this on an App that is
+   * already self-driving throws instead of silently double-driving; likewise
+   * `_schedule()` refuses to run once host-driven. Driver ownership is sticky
+   * for the App's lifetime — after `stop()`, restart with `startHostDriven()`.
+   */
+  startHostDriven(): void {
+    if (this._running) {
+      if (this._hostDriven) return; // idempotent
+      // The self-drive frame loop is live (a pending requestFrame callback).
+      // Registering a host scheduler on top is precisely the BD-40 defect —
+      // hard-fail so the second driver can never attach quietly.
+      throw new Error(
+        'App.startHostDriven(): App is already self-driving via start(). ' +
+        'Two live drivers advance the fixed loop twice per frame (~2× speed). ' +
+        'Use either start() OR startHostDriven(), never both. (WXG-T-122 / BD-40)',
+      );
+    }
+    this._hostDriven = true;
+    this._init();
+  }
+
+  /** Shared initialisation for both start paths (no driving decisions here). */
+  private _init(): void {
     const screen = this.platform.getScreenSize();
     this.viewport.resize(screen.width, screen.height);
 
@@ -113,7 +177,6 @@ export class App {
 
     this._running = true;
     this._lastFrameMs = this.platform.now();
-    this._schedule();
   }
 
   /** Stop the frame loop. Safe to call repeatedly. */
@@ -128,20 +191,24 @@ export class App {
   /** Tear down the game as well (scene teardown / hot reload). */
   dispose(): void {
     this.stop();
+    this.services.rewardedAd.destroy();
     this.game.dispose?.();
     this.events.removeAll();
   }
 
   /**
    * Drive one frame manually. Used by tests and by hosts whose engine owns the
-   * tick (e.g. a Cocos `Component.update`).
+   * tick (e.g. a Cocos `Component.update`) — the latter must start the App via
+   * {@link startHostDriven} so `start()` does not ALSO self-drive (WXG-T-122 /
+   * BD-40). In self-drive mode a manual `tick` stays permitted (tests and the
+   * browser harness drive extra frames on purpose); the mutual-exclusion guards
+   * live at the start paths, not here.
    * @param frameDtSeconds wall-clock seconds since the previous frame.
    * @returns number of fixed simulation steps executed.
    */
   tick(frameDtSeconds: number): number {
     const steps = this.loop.advance(frameDtSeconds);
     this.services.audio.flush(frameDtSeconds);
-    this.input.endFrame(frameDtSeconds);
     return steps;
   }
 
@@ -152,6 +219,15 @@ export class App {
 
   private _schedule(): void {
     if (!this._running) return;
+    if (this._hostDriven) {
+      // Defensive guard: every current caller path is already gated, but if a
+      // future code path ever tries to self-drive a host-driven App this must
+      // fail loudly — a silent second driver is the BD-40 defect itself.
+      throw new Error(
+        'App._schedule(): refused — this App is host-driven; the host owns the tick. ' +
+        '(WXG-T-122 / BD-40)',
+      );
+    }
     this._frameHandle = this.platform.requestFrame((dtMs) => {
       if (!this._running) return;
       const now = this.platform.now();
@@ -166,6 +242,17 @@ export class App {
   private _fixedUpdate(dt: number): void {
     this.input.beginFrame();
     this.game.update(dt);
+    // `endFrame` is per-SUBSTEP, not per-tick: one fixed step == one input frame.
+    // `loop.advance()` may run N substeps in a single tick (dropped frame /
+    // frameDt > fixedDt), and each substep's `game.update` must observe the
+    // one-shot flags exactly once. Clearing here (rather than once per tick in
+    // `tick()`) guarantees a single physical tap delivers a single justDown /
+    // justUp — input-control §8-3 (one touch → one command) and §8-10 (per-frame
+    // command cap). It also preserves the 2026-09-13 property that an event
+    // arriving BETWEEN frames (event-driven Cocos host) stays visible: the flags
+    // survive `beginFrame` and are cleared only after gameplay has read them; a
+    // zero-substep tick no longer drops the flag.
+    this.input.endFrame(dt);
   }
 
   private _render(alpha: number): void {

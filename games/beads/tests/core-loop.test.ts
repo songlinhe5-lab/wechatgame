@@ -3,14 +3,15 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createBeadsHarness, simpleTestLevel, placeAnyMatching, burnToRemaining } from './helpers.js';
+import { createBeadsHarness, simpleTestLevel, firstEmptyCell, placeColor, burnToRemaining } from './helpers.js';
 import { SAVE_KEY } from '../src/game/save-schema.js';
 
 describe('S1 core-loop', () => {
   // §8.1 冷启动无存档 → 直接进入第 1 关 PLAYING，全程无主菜单；有存档 → 续进已解锁最远关。
   it('§8-1 cold start with no save enters level 1; a save resumes the furthest level', () => {
     // Cold start: no document in storage → level 1, straight into PLAYING.
-    const cold = createBeadsHarness({ saveKey: 'wxgame.beads.test.s1cold' });
+    const cold = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s1cold' });
     expect(cold.game.phase).toBe('playing');
     expect(cold.game.levelIndex).toBe(0);
 
@@ -27,7 +28,8 @@ describe('S1 core-loop', () => {
         sprintBestStage: 0,
       }),
     );
-    const warm = createBeadsHarness({ saveKey: SAVE_KEY, storage });
+    const warm = createBeadsHarness({
+      noAssemble: true, saveKey: SAVE_KEY, storage });
     expect(warm.game.phase).toBe('playing');
     expect(warm.game.levelIndex).toBe(2);
   });
@@ -35,31 +37,37 @@ describe('S1 core-loop', () => {
   // §8.5 可填格全满瞬间无论剩余时间多少 → 必进 LEVEL_CLEAR（同帧归零场景以 cleared 优先，
   // 用例：设剩余 0.01s 时放最后一颗）。
   it('§8-5 clearing the last cell with ~0.01s left → LEVEL_CLEAR, cleared beats same-frame zero', () => {
-    // decoys: [] + 3 colours → every spawn is a still-needed colour, so the
-    // interleaved play below never deadlocks on a missing colour.
+    // v2.0（WXG-T-136）：供料关停 ⇒ 夹具珠一律走 giveTrayBead 死路径直接投放，
+    // 不再依赖「供料补珠」维持连打（原注释「every spawn is a still-needed colour」作废）。
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ decoys: [] })],
       saveKey: 'wxgame.beads.test.s1clear',
     });
     const game = harness.game;
 
-    // Play the pattern down to its LAST empty cell.
+    // Play the pattern down to its LAST empty cell (direct feed, no time passes).
     while (game.grid.filledCount < game.grid.fillableTotal - 1 && game.phase === 'playing') {
-      harness.advance(1 / 60);
-      placeAnyMatching(game);
+      const cell = firstEmptyCell(game)!;
+      expect(
+        placeColor(game, game.grid.requiredColor(cell.row, cell.col), cell.row, cell.col),
+      ).toBe(true);
     }
     expect(game.grid.filledCount).toBe(game.grid.fillableTotal - 1);
 
-    // Burn the countdown to ≈0.01–0.03 s (the tray may fill up — that never
-    // fails). The step target keeps the final 1/60 step from overshooting 0.
+    // Burn the countdown to ≈0.01–0.03 s. The step target keeps the final 1/60
+    // step from overshooting 0.
     burnToRemaining(harness, 0.03);
     expect(game.remaining).toBeGreaterThan(0);
     expect(game.remaining).toBeLessThanOrEqual(0.05);
     expect(game.phase).toBe('playing');
 
-    // The last cell: with only one colour still needed and no decoys, every
-    // bead in the tray matches. Place it — cleared wins the same-frame race.
-    expect(placeAnyMatching(game)).toBe(true);
+    // The last cell: seed the matching bead via the dead path and place it —
+    // cleared wins the same-frame race.
+    const last = firstEmptyCell(game)!;
+    expect(
+      placeColor(game, game.grid.requiredColor(last.row, last.col), last.row, last.col),
+    ).toBe(true);
     expect(game.phase).toBe('level-clear');
     expect(harness.count('level:cleared')).toBe(1);
     expect(harness.count('level:failed')).toBe(0);
@@ -75,6 +83,7 @@ describe('S1 core-loop', () => {
   it('§8-9 illegal charset or all-locked levels are refused at BOOT (id + row + col in error)', () => {
     // Illegal character 'Z'.
     const badChar = createBeadsHarness({
+      noAssemble: true,
       levels: [
         simpleTestLevel({ id: 91, pattern: ['123123', '123123', 'Z23123', '123123', '123123'] }),
       ],
@@ -87,6 +96,7 @@ describe('S1 core-loop', () => {
 
     // All-locked pattern (no fillable cell).
     const allLocked = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ id: 92, pattern: ['xxxxxx', 'xxxxxx', 'xxxxxx', 'xxxxxx', 'xxxxxx'] })],
       saveKey: 'wxgame.beads.test.s1bad2',
     });
@@ -95,6 +105,7 @@ describe('S1 core-loop', () => {
 
     // A valid table boots normally (control).
     const ok = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s1ok',
     });

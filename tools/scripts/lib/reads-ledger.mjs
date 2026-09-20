@@ -115,7 +115,8 @@ function readCached(rel, root, cache) {
   return entry;
 }
 
-function countLines(s) {
+/** 文本行数（末尾换行不计入空行）。分析器判「实质整读」时复用（WXG-T-036）。 */
+export function countLines(s) {
   if (s === '') return 0;
   const t = s.endsWith('\n') ? s.slice(0, -1) : s;
   return t === '' ? 0 : t.split('\n').length;
@@ -311,4 +312,45 @@ export function discoverSlug(availableNames, root) {
   const suffix = `-${base}`;
   const hit = availableNames.filter((n) => n === base || n.endsWith(suffix));
   return hit.length === 1 ? hit[0] : null;
+}
+
+// ────────────────────────────────────── read classification (WXG-T-036) ────────
+
+/**
+ * 「实质整读（implicit full）」的行覆盖阈值（WXG-T-036 口径精修）。
+ *
+ * **问题**：`makeReadEvent` 只按 `offset==null && limit==null` 判整读，于是
+ * 「**给了 limit 却没给 offset**」的读取（如 Cursor `Read{limit}`）被记为 `fullFile:false`
+ * ——它从第 1 行起、读满了整个文件，形态上是**整读**而**不是锚点式局部读**，
+ * 却混进了 E1（判据原文：「仅锚点式局部读的单次节省率」）的样本，把 P10 钉在 30%。
+ *
+ * **判据只看「读取是怎么发的」**（无 offset ⇒ 从第 1 行起；行数覆盖到底 ⇒ 读完整文件），
+ * 与 E1 要改善的「节省率」**无函数关系**，故不构成自我实现。
+ * 实测（WXG-T-036）：本判据与「estTokens/fullTokens ≥ 0.95」给出的集合完全一致。
+ */
+export const IMPLICIT_FULL_LINE_RATIO = 0.95;
+
+/**
+ * 读取三分法：`'full'` 显式整读 ｜ `'implicitFull'` 实质整读 ｜ `'partial'` 锚点式局部读。
+ *
+ * - `fullFile===true`                      → `'full'`
+ * - `fullFile===false` 且 **无 offset** 且行覆盖 ≥ `IMPLICIT_FULL_LINE_RATIO` → `'implicitFull'`
+ * - 其余                                    → `'partial'`（E1 的合法样本）
+ *
+ * @param {object} e        账本读事件
+ * @param {number|null} fullLines 该文件全文行数（null = 文件不存在 → 保守判 `'partial'`）
+ * @returns {'full'|'implicitFull'|'partial'}
+ */
+export function classifyRead(e, fullLines) {
+  if (e.fullFile) return 'full';
+  if (
+    e.offset == null &&
+    Number.isFinite(e.lines) &&
+    Number.isFinite(fullLines) &&
+    fullLines > 0 &&
+    e.lines / fullLines >= IMPLICIT_FULL_LINE_RATIO
+  ) {
+    return 'implicitFull';
+  }
+  return 'partial';
 }

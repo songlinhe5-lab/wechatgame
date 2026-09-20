@@ -7,9 +7,15 @@
 
 | 层 | 路径 | 覆盖面 | 职责 |
 |---|---|---|---|
-| **Git pre-commit** | `.githooks/pre-commit` | 任意 IDE / 终端的 `git commit` | ① **`pnpm run check:links`**；② 暂存区含 `.md` 时**自动重建上下文索引并重新暂存**（`ctx:build --staged-blobs` → `git add ctx/index.json ctx/BUDGET.md` → `ctx:check --staged` 兜底终校验；WXG-T-032 ⑤，无暂存 .md 零开销跳过）；兜底校验失败 → 非 0 退出 → **阻止提交** |
+| **Git pre-commit** | `.githooks/pre-commit` | 任意 IDE / 终端的 `git commit` | ① **`pnpm run check:links`** → ①½ **`check:plugins`**（T-035 版本锚）→ ①¾ **`check:mcp`**（T-043 MCP 配置漂移，**拦截式不自动重建**）→ ①⁷⁄₈ **`framework:sync --check`**（T-101 Cocos 镜像漂移，**条件步 + 只拦不写**）；② 暂存区含 `.md` 时**自动重建上下文索引并重新暂存**（`ctx:build --staged-blobs` → `git add ctx/index.json ctx/BUDGET.md` → `ctx:check --staged` 兜底终校验；WXG-T-032 ⑤，无暂存 .md 零开销跳过）；兜底校验失败 → 非 0 退出 → **阻止提交** |
 | **Cursor Hooks** | `.cursor/hooks.json` + `.cursor/hooks/*` | Cursor Agent / Shell | Agent 侧再跑 links；禁 `--no-verify` / force-push / hard reset；L1 拦 `.scene`/`.prefab`/`.meta` |
 | **Rules / AGENTS** | `.cursor/rules` · `AGENTS.md` | 常驻提示 | 叙事与铁律；不保证机械拦截 |
+
+> ①⁷⁄₈ 的条件与取向（守卫 WXG-T-101，覆盖面修正 WXG-T-098，2026-09-15）：仅当 `git diff --cached` 命中**镜像源**——`grep -E '^packages/framework/src/.*\.ts$\|^games/[^/]+/src/.*\.ts$'`——才跑 `sync-framework-to-cocos.mjs --check`
+> （无镜像源码改动的提交零开销）。⚠️ **触发面必须等于脚本的实际镜像源集合**：`sync-framework-to-cocos.mjs` 同时拷框架与玩法源码（一次 sync 报「beads framework 39 + game 26」）；初版只匹配框架路径，导致改 `games/beads/src/config/audio-voices.ts` 的提交不触发核镜像（守卫漏一半）。
+> **只拦不写**有两个理由：① `git commit` 提交的是**索引**，钩子改写工作区不会进本次提交，静默重写只会造出「钩子绿了但镜像仍漏在 HEAD 之外」的新坑；
+> ② 与 ①¾ 同取向——镜像副本必须由作者自己 `pnpm run framework:sync` 后**与源码同次暂存**，让漂移在 diff 里可见。成因：BD-20 已两次复发（漂移入 HEAD ⇒ G1 FAIL + 全部 `[Cocos]` 取证阻塞）。
+> 红→绿复现（两类源各一次）：`printf '\n// probe\n' >> games/beads/src/config/tuning.ts && git add games/beads/src/config/tuning.ts` → 跑钩子得 exit=1（报 `game/config/tuning.ts differs`）；再 `pnpm run framework:sync` 并重暂存 → exit=0。框架侧同理，把路径换成 `packages/framework/src/core/audio/audio.ts`。
 
 跨 IDE（Cursor / CodeBuddy / WorkBuddy / Qoder）统一拦提交 → **只靠 Git hooks**，不要指望各 IDE 各自实现一套 Cursor Hooks。
 
@@ -58,6 +64,18 @@ pnpm run check:links        # 应 OK
 新增 agent/skill：正本进 `my-agents/` / `my-skills/`，四处建相对符号链接，并更新 `INDEX.md` / 编排路由表（脚本会验）。  
 新增 / 改 alwaysApply 摘要：只改 `my-rules/agents-md.md`。
 
+### 3.1 `check:mcp` 查什么（WXG-T-043）
+
+脚本：`tools/scripts/build-mcp-configs.mjs --check`（MCP 配置的**单一正本**是 `my-mcp/servers.json`，三份 IDE 配置均为**机器生成物，勿手改**）：
+
+- **C1** 正本存在且为合法 JSON
+- **C2** `targets` 非空、`path` 唯一、`dialect` 已实现（`explicit` / `cursor`）
+- **C3** `servers` 语义合法；且 `transport:"http"` 的 URL 主机**必须回环** —— `control-manifest §14` 红线「HTTP 仅回环」的**机械化**
+- **C4** 每份产物内容 == 正本渲染结果（漂移 → FAIL，提示跑 `pnpm run mcp:build`）
+- **C5** 「存在但未登记 targets」的已知 MCP 配置位置 → FAIL（防清单漏项静默失效，`K-031`）
+
+改动流程：`$EDITOR my-mcp/servers.json` → `pnpm run mcp:build` → 提交。理由与方言依据见 `my-mcp/README.md`。
+
 ## 4. Cursor Hooks 实践清单
 
 1. **项目级优先**：政策进 `.cursor/hooks.json`（可进云 Agent）；个人实验放 `~/.cursor/`。
@@ -83,6 +101,7 @@ pnpm run check:links        # 应 OK
 |---|---|
 | `pnpm run check:links` | **每次 commit**（快） |
 | `pnpm run check:arch` | 改框架/玩法后；全量 `verify` 含此步 |
+| `pnpm run check:mcp` | 改 MCP 服务器后（先 `pnpm run mcp:build`）；**每次 commit 也跑**（pre-commit）；CI `arch-guard` 与全量 `verify` 均含此步 |
 | `pnpm run verify` | 里程碑 / PR 前；**不要**塞进每次 commit |
 
 ## 6. 失败怎么修
@@ -98,3 +117,29 @@ check:links FAILED
 4. 再跑 `pnpm run check:links` → 通过后再 commit
 
 **禁止** `git commit --no-verify`（Cursor shell hook 也会拦）。
+
+## 7. 装置自指：pre-commit 的单遍收敛不变式（WXG-T-112）
+
+`ctx:build` 是「**会被自己索引的生成物**」的写盘方：它按被索引 .md 计算索引，同时又要写出
+`ctx/BUDGET.md`、`ctx/hot-files.md`、`memory/INDEX.md` 三个 .md 产物。若产物在提交索引里取的是
+**改写前的旧字节**，而 pre-commit 随后 `git add` 把**新字节**送进暂存区，则「重建 → add → 校」
+**必然单遍不收敛**——表现为「同一份改动提交两次才过」。
+
+| 项 | 结论（2026-09-15 worktree 实测） |
+|---|---|
+| 唯一真源 | `tools/scripts/lib/context-index.mjs::WORKTREE_AUTHORITATIVE` —— 集合内文件任何模式都取**工作树**字节 |
+| 不变式 | `ctx:build` 写盘的**每个 .md 产物**都必须在该集合内 |
+| 机械守卫 | `ctx:check` 的「装置自指对账」项（`C:` 级，**非 note**）；随 **CI** 与 **pre-commit 兜底**跑。⚠️ `ctx:check` 不在 `verify` 15 项内（BD-39 同族），本地请显式 `pnpm run ctx:check` |
+| 可执行证据 | `pnpm run ctx:selftest`（9 断言，含隔离 worktree 里跑**真 pre-commit** 的红绿双向：登记在位 → 一遍绿；删掉登记 → 一遍红且诊断点名） |
+
+两条反直觉的实测结论，写在这里免得下一个人再猜：
+
+1. **「先写产物、后建索引」的顺序调整不足以收敛**（WXG-T-072 当时只做了这件事）：第二步 `buildIndex()`
+   对产物取源仍走 committed / staged-blobs 分支 ⇒ 拿到旧字节。顺序只是必要条件，取源分支才是决定项。
+2. **症状与作者习惯无关**：只暂存自己的 .md 改动（最规范的用法）同样第一遍必红。所以「让作者别手跑
+   `ctx:build`」不是修法，把产物登记进集合才是。
+
+代价（如实记）：集合内产物的索引记录跟随**工作树**，因此钩子 `git add <产物>` 会把工作树里**未暂存**的
+产物改动一并纳入本次提交。该语义对三个产物一致，且是既存行为（`ctx/BUDGET.md` / `hot-files.md` 一直如此）。
+对 `memory/INDEX.md` 再多一句：它的标记块**外**是允许手写的协议正文（`upsertMemoryIndex` 只重写块内）
+⇒ 手写后请让该文件与你的其他改动**同次暂存**，别指望索引只描述「已暂存的那一半」。

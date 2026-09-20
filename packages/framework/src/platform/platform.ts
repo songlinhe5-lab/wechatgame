@@ -11,9 +11,11 @@
  */
 
 import type { Storage } from '../core/save/storage.js';
-import type { AudioBackend } from '../core/audio/audio.js';
+import type { AudioBackend, AudioBackendOptions } from '../core/audio/audio.js';
 import type { AssetProvider, PlatformInfo } from '../core/game/game.js';
 import { NullAssetProvider } from '../core/game/game.js';
+import type { RewardedAdProvider } from '../core/ads/rewarded-ad.js';
+import { NoopRewardedAdProvider } from './rewarded-ad.js';
 
 export interface ScreenSize {
   readonly width: number;
@@ -34,8 +36,16 @@ export interface Platform {
   /** Wall-clock time in milliseconds (for logging/saves, not simulation). */
   wallClock(): number;
   createStorage(): Storage;
-  createAudioBackend(): AudioBackend;
+  /**
+   * Audio sink for this platform. `options.voices` is the game's clip → recipe
+   * table, forwarded by the App (`compose/app.ts`) — adapters must stay silent
+   * for ids they have no voice for rather than inventing a timbre.
+   * Node returns `NullAudioBackend` so unit tests never touch a real clock.
+   */
+  createAudioBackend(options?: AudioBackendOptions): AudioBackend;
   createAssetProvider(): AssetProvider;
+  /** Rewarded video. Node/web = Mock; weapp = Noop until a real pull is approved. */
+  createRewardedAdProvider(): RewardedAdProvider;
   getScreenSize(): ScreenSize;
   /** Schedule the next frame. The callback receives the delta in ms. */
   requestFrame(callback: (dtMs: number) => void): FrameHandle;
@@ -53,7 +63,7 @@ export abstract class BasePlatform implements Platform {
 
   abstract now(): number;
   abstract createStorage(): Storage;
-  abstract createAudioBackend(): AudioBackend;
+  abstract createAudioBackend(options?: AudioBackendOptions): AudioBackend;
   abstract getScreenSize(): ScreenSize;
   abstract requestFrame(callback: (dtMs: number) => void): FrameHandle;
 
@@ -66,12 +76,17 @@ export abstract class BasePlatform implements Platform {
     return this._assetProvider;
   }
 
+  /** Default: never awards. Concrete hosts override with Mock or a weapp wrapper. */
+  createRewardedAdProvider(): RewardedAdProvider {
+    return new NoopRewardedAdProvider();
+  }
+
   onHide(_callback: () => void): () => void {
-    return () => {};
+    return () => { };
   }
 
   onShow(_callback: () => void): () => void {
-    return () => {};
+    return () => { };
   }
 
   log(level: LogLevel, message: string, ...args: unknown[]): void {

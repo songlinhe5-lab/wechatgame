@@ -46,3 +46,13 @@ systems-index §3.6 冻结 `AD_PLACEMENTS = 4`（3 道具 + 托盘扩展），MV
 - 用户确认拉起与发奖逻辑（§3.6 `[待用户确认]` 解除）→ 立即按 §3.3 规划实施方案 B，走框架改动审批。
 - EP-10 真机验证就绪 → 补 `wx.createRewardedVideoAd` 真机错误行为核实，再定稿接口。
 - 商业化需求提前（如需要插屏/banner）→ 复评是否扩充为通用 `AdsProvider` 而非仅激励视频。
+
+## 6. 补记（WXG-T-058，2026-09-14）— Mock 路径落地，仍零 wx 广告 API
+
+主理人批准 F1+F2+B1 后落地，**不改写**上文 §3 方案 A 的历史决定：
+
+1. **接口位置**：`RewardedAdProvider` 在 `packages/framework/src/core/ads/`（L2：core 不 import platform）。`MockRewardedAdProvider` / `NoopRewardedAdProvider` 在 `platform/rewarded-ad.ts`。`Platform.createRewardedAdProvider()` + `GameServices.rewardedAd`（必有）由 `App` 注入；游戏拿不到完整 `Platform`，故不能自己碰 `wx`。
+2. **宿主映射**：Node = Mock `autoSettle=null`（测试 `settle()`）；Web harness = Mock `'complete'`（无微信 SDK 也能点续时）；Weapp = **Noop**（`show`→`onError`）。**全仓仍禁止** `wx.createRewardedVideoAd`。
+3. **beads 续时**：停留 `GAME_OVER` 直到 `onRewarded`，再 `addTime` + `playing`。不新增第 7 态。看片期间不进 PLAYING，避免 D-04 `onHide`/`onShow` 把「未发奖的续打」冻在暂停面板上。
+4. **微信 `isEnded`**：尚未接线。将来 W1 包装应映射 `isEnded === true` → `onRewarded` + `onClose({reason:'completed'})`；`isEnded === false` → 仅 `onClose({reason:'skipped'})`。本切片不实现。
+5. **复评**：W1 仍须用户明示批准拉起 + 广告位 ID；EP-10 真机验证仍是 W2 阻塞。

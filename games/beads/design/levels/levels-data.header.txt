@@ -1,0 +1,55 @@
+/**
+ * ⚠️ GENERATED FILE — DO NOT EDIT BY HAND.
+ *
+ * Source of truth: games/beads/design/levels/levels-01-08.json
+ * Regenerate:      node tools/scripts/sync-levels-data.mjs --game=beads
+ * Drift guard:     pnpm run levels:check（pnpm run verify 内；覆盖面断言见 WXG-T-048）
+ *
+ * Why a generated module instead of importing the JSON directly: Cocos Creator
+ * only loads assets under its own `assets/` tree, and browsers cannot import
+ * JSON in an ES module without an import attribute. A plain TS module works
+ * everywhere — Cocos, vitest, tsc and the browser harness alike (breakout 判例).
+ */
+
+export interface BeadsLevelRaw {
+  readonly id: number;
+  readonly name: string;
+  readonly cols: number;
+  readonly rows: number;
+  readonly time: number;
+  /**
+   * 错位交换对 `[[r1,c1,r2,c2], ...]`（levels-spec v1.2 §2.1 / systems-index
+   * v1.23 §3.13）：按数组序对「pattern 全满」的可填格珠两两交换 ⇒ 初始错位局面。
+   * 对数 k ∈ [MISPLACED_PAIRS_MIN(1), MISPLACED_PAIRS_MAX(8)]。
+   * ⛔ `spawnInterval` 已随供料关停在 version 2 清理删除（E5）。
+   */
+  readonly swaps: readonly (readonly [number, number, number, number])[];
+  /**
+   * 环长分布（v1.23 增补，**建议值、不冻结**）：`short` 全 2-环 / `mixed` 长短
+   * 混合 / `long` 偏长环。8 关数据暂一律 `short`（恒等式 misplaced = 2k 优先，
+   * 长环与 levels-spec §2.1 恒等式冲突，已回传）。
+   */
+  readonly cycleProfile: 'short' | 'mixed' | 'long';
+  /** Decoy colour characters (pattern charset, never part of the pattern). */
+  readonly decoys: readonly string[];
+  /**
+   * 全错位初盘（可选；v1.3）。rowstring，字符集同 `pattern`（`.x1-9A`），逐格给出
+   * **初始珠色**。存在则**替代 `swaps`** 作初盘真源（引擎直读装配、零 RNG ⇒ 输出确定），
+   * 用于表达「成片错豆」（swaps 封顶 8 对 ≤16 颗不够）。BOOT 校验：形状一致 +
+   * 可填轮廓逐格匹配 pattern + 每色珠数守恒 + 错位格数 ≥1（不强制 100% 全错）。
+   * 缺省 ⇒ 走 `swaps` 路径（旧语义零扰动）。见 levels-spec §2.2 / systems-index §3.13。
+   */
+  readonly misplaced?: readonly string[];
+  /**
+   * Pattern rows, **top to bottom**. Charset `BEAD_CHARSET = ".x1-9A"`
+   * (`.` = empty slot, `x` = locked bead, `1-9`+`A` = palette index 1–10).
+   */
+  readonly pattern: readonly string[];
+}
+
+export interface LevelsData {
+  readonly version: number;
+  readonly gameId: string;
+  readonly description?: string;
+  readonly levels: readonly BeadsLevelRaw[];
+}

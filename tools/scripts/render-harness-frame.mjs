@@ -13,7 +13,12 @@
  *
  * USAGE
  *   node tools/scripts/serve-harness.mjs --build-only
- *   node tools/scripts/render-harness-frame.mjs [--frames 240] [--out <dir>]
+ *   node tools/scripts/render-harness-frame.mjs --game=beads|breakout [--frames 240] [--out <dir>]
+ *   node tools/scripts/render-harness-frame.mjs --help
+ *
+ * `--game` is REQUIRED (WXG-T-099 / BD-19): a bare no-argument run used to
+ * silently rewrite `dev/harness/preview/level-*.svg`, so the implicit default
+ * was removed on purpose.
  */
 
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -25,8 +30,34 @@ import { modelToSvg } from './lib/render-model-svg.mjs';
 
 const argv = process.argv.slice(2);
 function argValue(flag, fallback) {
+  const eq = argv.find((a) => a.startsWith(`${flag}=`));
+  if (eq) return eq.slice(flag.length + 1);
   const i = argv.indexOf(flag);
   return i >= 0 && argv[i + 1] ? argv[i + 1] : fallback;
+}
+
+const hasFlag = (f) => argv.includes(f);
+if (hasFlag('--help') || hasFlag('-h') || argv.length === 0) {
+  console.log(
+    'render-harness-frame.mjs — export real gameplay frames as SVG\n' +
+      '\nUSAGE\n' +
+      '  node tools/scripts/render-harness-frame.mjs --game=beads|breakout [--frames 240] [--out <dir>]\n' +
+      '\nOPTIONS\n' +
+      '  --game <name>   REQUIRED. beads | breakout (no default — BD-19: bare runs used to overwrite preview/level-*.svg)\n' +
+      '  --frames <n>    auto-play frames per level (default 240 = 4 s at 60 Hz)\n' +
+      '  --out <dir>     output directory (default dev/harness/preview)\n' +
+      '  --help          this help\n',
+  );
+  process.exit(0);
+}
+
+const GAME = argValue('--game', '');
+if (GAME !== 'beads' && GAME !== 'breakout') {
+  console.error(
+    `❌ --game is required and must be "beads" or "breakout" (got "${GAME || '(none)'}").\n` +
+      '   The no-argument default was removed on purpose (WXG-T-099 / BD-19).',
+  );
+  process.exit(2);
 }
 
 const FRAMES = Number(argValue('--frames', 240)); // 4 s at 60 Hz
@@ -34,7 +65,7 @@ const OUT_DIR = resolve(ROOT, argValue('--out', 'dev/harness/preview'));
 
 // ─────────────────────────────────────────────────────────────────────── main
 
-const harness = await loadHarness();
+const harness = await loadHarness({ game: GAME });
 const { game, render, clearScene } = harness;
 
 const levelCount = game.levelCount;
@@ -46,14 +77,16 @@ const summary = [];
 
 for (let index = 0; index < levelCount; index += 1) {
   game.goToLevel(index);
-  game.launch();
+  if (GAME === 'breakout') game.launch(); // breakout-only API — beads enters the level via goToLevel
   clearScene();
 
   let model = null;
   for (let frame = 0; frame < FRAMES; frame += 1) {
-    // Perfect auto-play: park the paddle under the ball so the frame we capture
-    // is mid-rally rather than mid-death.
-    game.movePaddleTo(game.ball.x);
+    if (GAME === 'breakout') {
+      // Perfect auto-play: park the paddle under the ball so the frame we
+      // capture is mid-rally rather than mid-death.
+      game.movePaddleTo(game.ball.x);
+    } // beads: feeding is automatic — an unattended render still shows the board.
     model = render(1);
     if (game.phase === 'game-over' || game.phase === 'victory') break;
   }
@@ -74,9 +107,9 @@ for (let index = 0; index < levelCount; index += 1) {
     file,
     phase: snapshot.phase ?? game.phase,
     score: snapshot.score ?? game.score,
-    destroyed: snapshot.bricksDestroyed ?? game.bricksDestroyed,
-    remaining: snapshot.remainingBricks ?? game.remainingBricks,
-    total: snapshot.totalBricks ?? game.totalBricks,
+    destroyed: snapshot.bricksDestroyed ?? game.bricksDestroyed ?? null,
+    remaining: snapshot.remainingBricks ?? game.remainingBricks ?? null,
+    total: snapshot.totalBricks ?? game.totalBricks ?? null,
     commands: model.commands.length,
   });
 }
@@ -99,7 +132,7 @@ if (stuck.length > 0) {
   console.error(`\n❌ levels never left the 'ready' phase: ${stuck.map((r) => r.level).join(', ')}`);
   process.exit(1);
 }
-const idle = summary.filter((row) => row.destroyed === 0);
+const idle = summary.filter((row) => GAME === 'breakout' && row.destroyed === 0);
 if (idle.length === summary.length) {
   console.error('\n❌ not a single brick was destroyed in any level — the loop is not running');
   process.exit(1);

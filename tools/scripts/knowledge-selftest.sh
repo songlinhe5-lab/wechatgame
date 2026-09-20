@@ -30,6 +30,10 @@
 #         ⑯ 索引面收录：ctx:build 后 knowledge/CHANGELOG.md 在 ctx/index.json 内
 #         ⑰ 撞号回归：删掉 ledger.json 后 sync —— 新条目**不复用**既有行内 ID
 #            （nextId 下界 = 既有最大 ID + 1；否则「新增」会被误判成「修改」且 ① ID 重复）
+#         ⑱ R4 截断（WXG-T-038）：① 存量回填——超限 accessSources 经 kb:sync 收敛为
+#            最近 N=12 个（尾部最新、头部最旧被弃）、accessCount/seen 不变、kb:check 仍绿、
+#            幂等重跑字节不变；② 写入时截断——已满 N 条的条目经 kb:touch 追加后长度仍 = N、
+#            新标签在尾部、accessCount +1 不丢
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -69,6 +73,11 @@ ldsrc() {
   node -e 'const j=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));const e=j.entries.find(x=>x.id===process.argv[2]);process.stdout.write(e?[].concat(e.accessSources||[]).join(","):"<none>")' \
     "$REPO/knowledge/ledger.json" "$1"
 }
+# 读 ledger 某条目 accessSources 数组长度
+ldsrclen() {
+  node -e 'const j=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));const e=j.entries.find(x=>x.id===process.argv[2]);process.stdout.write(String(Array.isArray(e&&e.accessSources)?e.accessSources.length:0))' \
+    "$REPO/knowledge/ledger.json" "$1"
+}
 # 读 ledger 某条目 seen 数组长度
 ldseen() {
   node -e 'const j=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));const e=j.entries.find(x=>x.id===process.argv[2]);process.stdout.write(String(Array.isArray(e&&e.seen)?e.seen.length:0))' \
@@ -103,7 +112,7 @@ echo "工作目录: $WORK"
 echo "=================================================================="
 
 # ── 造「假仓库 + 假知识库」───────────────────────────────────────────────────
-mkdir -p "$REPO/tools/scripts/lib" "$REPO/knowledge" "$REPO/ctx"
+mkdir -p "$REPO/tools/scripts/lib" "$REPO/knowledge" "$REPO/ctx" "$REPO/memory"
 cp "$SCRIPT_DIR"/kb-*.mjs "$REPO/tools/scripts/"
 cp "$LIB_DIR"/*.mjs "$REPO/tools/scripts/lib/"
 cp "$SCRIPT_DIR/build-context-index.mjs" "$REPO/tools/scripts/"
@@ -707,6 +716,66 @@ cp "$WORK/patterns.pre17.md" "$REPO/knowledge/patterns.md"
 cp "$WORK/index.pre17.md" "$REPO/knowledge/INDEX.md"
 cp "$WORK/changelog.pre17.md" "$REPO/knowledge/CHANGELOG.md"
 cp "$WORK/archive-index.pre17.md" "$REPO/knowledge/archive/INDEX.md"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "恢复现场后 kb:check 重新 exit 0"
+
+# ── [18] R4 截断：accessSources 只保留最近 N=12 个（WXG-T-038）───────────────
+echo
+echo "[18] R4 accessSources 截断：① kb:sync 存量回填（幂等）② kb:touch 写入时截断"
+
+# 18a 存量回填：把 K-001 造出 17 个来源标签（超 N=12），accessCount=20、seen=20（保持 ⑥ 一致）
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre18.json"
+node -e '
+const fs=require("node:fs");const p=process.argv[1];
+const j=JSON.parse(fs.readFileSync(p,"utf8"));
+const e=j.entries.find(x=>x.id==="K-001");
+e.accessSources=Array.from({length:17},(_,i)=>"src:t"+String(i+1).padStart(2,"0")); // 旧→新：t01…t17
+e.accessCount=20;
+e.seen=Array.from({length:20},(_,i)=>"s"+String(i+1).padStart(2,"0")+"#2026-05-01");
+fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n");
+' "$REPO/knowledge/ledger.json"
+rc=$(run node "$KB_SYNC")
+assert_eq "$rc" "0" "18a kb:sync（存量收敛）退出码 0"
+assert_contains "$(cat "$WORK/last.txt")" "R4 accessSources 收敛" "18a 报告含「R4 accessSources 收敛」"
+assert_contains "$(cat "$WORK/last.txt")" "截断 1 条" "18a 报告「截断 1 条」"
+assert_eq "$(ldsrclen K-001)" "12" "18a K-001 accessSources 长度=12（N=12）"
+case "$(ldsrc K-001)" in src:t06,*src:t17) ok "18a 保留尾部最新 12 个（t06…t17，最旧 t01…t05 被弃）";; *) bad "18a 截断保留的不是尾部最新（实际：$(ldsrc K-001)）";; esac
+assert_eq "$(ld K-001 accessCount)" "20" "18a accessCount 不随截断减少（仍=20）"
+assert_eq "$(ldseen K-001)" "20" "18a seen 不截断（仍=20，⑥ 前提）"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "18a 截断后 kb:check exit 0（八重不受影响）"
+
+# 18b 幂等：重跑 sync → 超限条目为 0 → 不再打印收敛行、ledger 字节不变
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.after18a.json"
+rc=$(run node "$KB_SYNC")
+assert_eq "$rc" "0" "18b 幂等重跑 kb:sync 退出码 0"
+assert_not_contains "$(cat "$WORK/last.txt")" "R4 accessSources 收敛" "18b 幂等：无超限 → 不再打印收敛报告"
+if cmp -s "$WORK/ledger.after18a.json" "$REPO/knowledge/ledger.json"; then
+  ok "18b 幂等：ledger 字节不变（不二次截断 / 不丢数据）"
+else
+  bad "18b 幂等破坏：ledger 被改动"
+fi
+
+# 18c 写入时截断：K-002 已有 12 个标签（满），kb:touch 追加后长度仍=12、新标签在尾部
+node -e '
+const fs=require("node:fs");const p=process.argv[1];
+const j=JSON.parse(fs.readFileSync(p,"utf8"));
+const e=j.entries.find(x=>x.id==="K-002");
+e.accessSources=Array.from({length:12},(_,i)=>"src:u"+String(i+1).padStart(2,"0")); // u01…u12（已满）
+e.accessCount=12;
+e.seen=Array.from({length:12},(_,i)=>"u"+String(i+1).padStart(2,"0")+"#2026-05-02");
+fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n");
+' "$REPO/knowledge/ledger.json"
+rc=$(run node "$KB_TOUCH" K-002 --task=WXG-T-906 --date=2026-05-03)
+assert_eq "$rc" "0" "18c kb:touch（已满 N 条）退出码 0"
+assert_eq "$(ldsrclen K-002)" "12" "18c 追加后 accessSources 长度仍=12（不无限膨胀）"
+case "$(ldsrc K-002)" in src:u02,*touch:WXG-T-906) ok "18c 新标签 touch:WXG-T-906 在尾部，最旧 u01 被弃";; *) bad "18c 尾部不是新标签（实际：$(ldsrc K-002)）";; esac
+assert_eq "$(ld K-002 accessCount)" "13" "18c accessCount=13（12+1，不丢计数）"
+assert_eq "$(ldseen K-002)" "13" "18c seen=13（与 accessCount 严格相等）"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "18c 写入截断后 kb:check exit 0（⑥ 仍成立）"
+# 恢复 18 前现场
+cp "$WORK/ledger.pre18.json" "$REPO/knowledge/ledger.json"
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "恢复现场后 kb:check 重新 exit 0"
 

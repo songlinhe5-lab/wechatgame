@@ -20,10 +20,10 @@
 | 配置文件位置 | 项目 `.cursor/hooks.json` / 用户 `~/.cursor/hooks.json` | 用户/项目 `.codebuddy/settings.json`（直写）或插件 `hooks/hooks.json`（包裹 `{"hooks":{…}}`） | `.workbuddy/settings.json`（格式同 CodeBuddy）`[待实测]` | settings 文件注册（官方 `hooks` 段）`[待实测]` 具体文件 |
 | 读文件事件 | ✅ `beforeReadFile`（matcher `Read`/`TabRead`）；或 `preToolUse`/`postToolUse` matcher=`Read` | ✅ `PreToolUse`/`PostToolUse` matcher=`Read` | ✅ 同 CodeBuddy | ✅ `PreToolUse` matcher=`Read` |
 | 能拿到 **path** | ✅（hook 载荷含 tool input 路径） | ✅（`.tool_input.file_path`） | ✅（同 CodeBuddy）`[待实测]` | ✅（`.tool_input`）`[待实测]` 键名 |
-| 能拿到 **offset/limit** | `[待实测]`（`beforeReadFile` 载荷字段未在随附文档列明） | `[待实测]`（Read 工具 input 是否含 offset/limit） | `[待实测]` | `[待实测]` |
+| 能拿到 **offset/limit** | 🔬 **探针已部署、待一次实测**（`beforeReadFile` 载荷字段未在随附文档列明；log-only 探针见 §3.1 末） | `[待实测]`（Read 工具 input 是否含 offset/limit） | `[待实测]` | `[待实测]` |
 | 需用户授权/信任 | ✅ hooks 受信任管理；`failClosed` 可选 | ✅ 插件 hook 随插件启用；用户设置 hook 需信任 | ✅（同 CodeBuddy） | ✅（官方 hook 需在设置注册） |
 | 跨平台 | ✅（命令 hook；用 node 脚本即可） | ✅（node/python/bash；$CODEBUDDY_PLUGIN_ROOT） | ✅（同 CodeBuddy） | ✅（官方建议 node/python 替代 bash+jq） |
-| 仓库现状 | `.cursor/hooks.json` **已启用**（`beforeShellExecution` + `preToolUse`，**无读事件**） | 无 hooks | 无 hooks | 无 hooks |
+| 仓库现状 | `.cursor/hooks.json` **已启用**（`beforeShellExecution` + `preToolUse`；**读事件探针** `beforeReadFile` 已于 WXG-T-036 q-3 加装，log-only） | 无 hooks | 无 hooks | 无 hooks |
 | 本单现有采集 | 转录 `agent-transcripts/**/*.jsonl`（tool_use Read，含 offset/limit） | 无 | 转录 `<slug>/**/*.jsonl`（function_call Read） | 转录无工具级细节（故未采集） |
 
 > 注：WorkBuddy 与 CodeBuddy 共用插件市场 `codebuddy-plugins-official`，且插件 hooks 使用同一
@@ -56,6 +56,14 @@
   ——证明 **preToolUse 载荷可拿到路径**。`beforeReadFile` 的载荷字段 `[待实测]`。
 - **offset/limit**：`[待实测]`（随附文档只列 matcher，不列载荷字段；需写一个 log-only hook 跑一次读，
   观察 stdin JSON 是否含 `offset`/`limit`）。
+  - **🔬 探针已部署（WXG-T-036 q-3，2026-09-13）**：`.cursor/hooks/before-read-file.mjs`，
+    已注册进 `.cursor/hooks.json` 的 `beforeReadFile`（matcher `Read|TabRead`，`failClosed:false`）。
+    设计为**零风险 log-only**：恒返回 `{"permission":"allow"}`（坏 JSON / 异常也放行）、
+    **不写** `ctx/reads-ledger.jsonl`（不碰采集口径）、日志只记**键名/类型/长度**且正文键一律
+    `<redacted>`、超 1MB 自动截断，落 `.cursor/hooks/.read-probe.jsonl`（已 gitignore）。
+    自测（注入三组合成载荷）已通过：区间字段识别 ✅ / 坏 JSON 仍放行 ✅ / 正文未落盘 ✅。
+    **待办**：在 Cursor 发起一次**带 offset 的读**后读该日志——
+    `hasRange:true` → 可拿精确区间；`hasRange:false` → 只能拿 `path`（结论回填本表与 §4）。
 - **配置位置**：项目 `.cursor/hooks.json`（本仓已存在）+ `.cursor/hooks/*`；用户 `~/.cursor/hooks.json`
   （本机**不存在**）。项目 hook 相对项目根、用户 hook 相对 `~/.cursor/`。
 - **授权**：hook 有信任管理；`failClosed: true` 可在崩溃/超时/坏 JSON 时阻断。改 `hooks.json` 自动热载。
@@ -117,6 +125,10 @@
 **共同缺口**：**offset/limit** 在四家的随附文档中均未列明 → 若 hook 只能拿到 `path`（无行区间），
 则 hook 埋点**只能补「整文件 vs 局部」的一阶信号**，拿不到精确区间——精确区间仍以**转录解析**（现状）为准。
 **建议后续接入任务的第一步：写一个 log-only hook，对一次「带 offset 的读」打印 stdin JSON，实测是否含区间字段。**
+→ **已执行（WXG-T-036 q-3，2026-09-13）**：Cursor 侧 log-only 探针已部署并自测通过（见 §3.1 末），
+   只差**在 Cursor 里发起一次带 offset 的真实读**即可回填本表 `[待实测]`。
+   注意：探针**只写独立日志**（`.cursor/hooks/.read-probe.jsonl`），**不写** `ctx/reads-ledger.jsonl`
+   ——即本轮**不引入双源**，故 §5「双源冲突」风险仍未被触发。
 
 ---
 
@@ -137,6 +149,12 @@
 ---
 
 ## 6. 本轮未做（明确声明）
+
+> **口径变更（WXG-T-036 q-3，2026-09-13）**：本节描述的是**本调研任务（WXG-T-025/026 一轮）**的边界，
+> 那一轮确实零改动。随后的 **q-3 试点**已在**用户拍板后**新增了一条 **log-only 探针**（见 §3.1 末）：
+> 仅改 `.cursor/hooks.json` 加 `beforeReadFile` 项 + 新增 `.cursor/hooks/before-read-file.mjs`（恒放行、
+> 不碰账本、不落正文）。以下三条**仍然成立**：未动 CodeBuddy/WorkBuddy/Qoder 任何配置，
+> 未使用户级配置，**未接入任何真实埋点**（探针只记自有日志，与转录账本**无混算**）。
 
 - ❌ 未修改 `.cursor/hooks.json` / `.codebuddy/settings.json` / `.workbuddy/settings.json` / `.qoder/settings.json`
   或任何用户级 hook 配置。
@@ -164,3 +182,89 @@
 2. 各家的**读工具名**（matcher 用）：`Read` / `read_file` / …。
 3. Qoder 用户级 hook 的**确切配置文件路径**；WorkBuddy 是否在 `.workbuddy/settings.json` 接受 hooks 段。
 4. hook 埋点与转录采集**双源并存**时的去重/合并口径（当前账本按 `(ide,session,path,offset,limit)` 去重）。
+
+## 9. 账本分窗轮转（WXG-T-037 R1，2026-09-13）
+
+> 背景：2026-09-13 上下文膨胀审计判定 `ctx/reads-ledger.jsonl` 为「只增不减」的真雷
+> （当时 457 条读事件 / 20 会话），随时间无限增长，拖慢分析且使分布统计被远古会话主导。
+
+### 9.1 机制
+
+- **`pnpm run ctx:rotate`**（`tools/scripts/rotate-reads-ledger.mjs`）：按会话分窗轮转账本。
+  - **窗口预算 N = 20 会话**（含子代理会话，与 F-03 的 `sessionsInLedger` 同口径；可用
+    `--window-sessions` 覆盖）。取 20 的理由：与审计时点量级对齐（457 行 / 20 会话 / 2 根会话树）。
+  - **轮转原子单位 = 根会话树**（session id 首段，同分析器 `rootOf`）：整树同进同出，
+    满足「窗口边界会话不截断」且保持会话谱系（F-01）完整；预算按树内会话数贪心占用，
+    最新树优先保留，最新树自身超预算时至少保留该树（窗口恒非空）。
+  - **会话新近度**：账本为字节稳定、无时间戳设计，唯一可靠时间信号是转录文件 mtime——
+    采集器（WXG-T-037 起）写进侧车 `ctx/reads-ledger.meta.json` 的 `bySession[s].lastMtime`；
+    树的新近度 = 树内最大值；侧车缺失/无该字段 → 按 0 处理（视为最旧，先轮转），同值按根 id 字典序。
+- **历史聚合**：窗口外条目移出账本，其统计价值冻结进 **`ctx/savings-history.json`**：
+  - 节省率类保留**原始样本数组**（`allSavings` / `partialSavings`，每事件一个 float、6 位小数）
+    ——E1 的中位数/P10 与 E3 的基线回归依赖分布，纯摘要统计量不可合并出分位数；
+  - 计数类（抖动组/超限、大文件整读、总读数、会话数）照常求和；
+  - `archivedRootSessions` 为冻结根注册表；`rotations[]` 逐轮留痕（reason/taskId 强制）。
+- **累计口径**：`ctx:usage` 在历史存在时输出 `usage-distribution.json` 的
+  `metrics.cumulative`（窗口 ⊕ 历史）；`ctx:check` 的 **E1/E3 判定与样本充足性取累计口径**
+  （窗口口径数字仍如实并列展示）。轮转只搬移样本、不改累计集合，故 **E3 基线回归不因
+  窗口滑动假绿/假红**。`--update-baseline` 同样按累计口径写基线。
+
+### 9.2 冻结语义与幂等（如实声明）
+
+- 轮转出的会话**冻结在轮转时刻**：样本值按当时文件内容计算并固化；其后同根会话的新读
+  事件不再入账（重采带回的行在再次轮转时**丢弃而不重复聚合**）。冻结后文件内容变化引起
+  的口径漂移如实接受（与分析器「stale / 重算即漂移」同一量级）。
+- 重复运行轮转器不丢数据、不重复聚合：窗口未超预算且无冻结重采行时**空转不落盘**。
+- E4 净收益、§① 样本量等仍为**窗口口径**（历史计数在累计行单独展示）。
+
+### 9.3 触发时机（裁决）
+
+**手动命令**，不自动挂进 `ctx:usage` / pre-commit：分析器保持纯读（字节稳定输出、桩自测
+不隐式改文件）。约定：**每次 `pnpm run ctx:reads` 之后、`ctx:usage` 之前按需运行
+`pnpm run ctx:rotate`**——空转零成本，溢出才落盘（真实轮转须带 `--reason` / `--task-id`）。
+
+### 9.4 自测
+
+`tools/scripts/context-usage-selftest.sh` §[10]（⑬A–⑬H）：树原子轮转与窗口边界不截断、
+历史聚合与手工计算逐位一致、幂等、冻结重采丢弃、留痕强制、`metrics.cumulative` 分位数
+与手工合并一致、`ctx:check` 累计口径 E1/E3 判定语义（基线一致 exit 0 / 劣化 exit 1 /
+窗口小样本不误报「样本不足」）。同轮顺带修复该自测在 HEAD 上既有的 4 个 FAIL
+（[6] 桩缺 `ctx/hot-files.md`，WXG-T-036 A 门要求）。
+
+---
+
+## 10. ROUTES.md 常驻体积上限 + 常驻总量观察哨（WXG-T-039 R5，2026-09-13）
+
+> 背景：2026-09-13 审计认定 `ctx/ROUTES.md` 为**无护栏增长点**——它是协议**常驻第二跳**
+> （每会话必读一次，体积直接扣减 E4 应然净收益）且为**手维护路由表**（被索引但非生成物、
+> 无生成器控量），此前唯一可能拦住它的是 B 项通用单文件上限 8000，对现值 6235 形同虚设。
+
+### 10.1 机制
+
+- **单文件硬门**：`LIMITS.routesMd = 7500`（`tools/scripts/lib/context-index.mjs`）。
+  - **取值依据**：现值 6235（WXG-T-044 提交记录 5881 → 6235，协议应然净收益 28.9% → 28.3%）；
+    7500 ≈ 现值 **+20.3%**（建议区间 +15~25% 的中位），且**低于** B 项通用上限 8000——保证
+    ROUTES 永远先于通用门被拦下，不依赖豁免流程。
+  - **单一真源**：`residentLimit()`（同文件导出）——`check-context-budget.mjs`（A 项判定）与
+    `build-context-index.mjs`（BUDGET.md §1 表「上限」列）共用，**禁止另写一份硬编码**。
+  - **接入门**：`pnpm run ctx:check` **A 项常驻预算表**（硬门）：超限 FAIL + exit 1，诊断给
+    瘦身指引（合并重复路由 / 删除失效锚点引用 / 长说明移 docs/）；**勿以直接调大
+    `LIMITS.routesMd` 代替瘦身**，调阈须按程序留痕并同步文档。
+- **常驻总量观察哨（报告项，不阻断）**：`LIMITS.residentTotalSoft = 13500`。A 项表并列一行
+  「常驻总量」= AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md 的**每会话固定开销
+  合计**（2026-09-13 实测 ≈12553 tok）。**单文件上限各自为政时总量仍可漂移**（各文件同时逼近
+  各自上限的合计可达 2000 + 500×2 + 4000 + 7500 = 14500），总量行是观察哨：超软阈值只 ⚠️
+  醒目提示，**硬阻断只挂各单文件门**。取 13500 = 现值 ≈ +9%、上限合计 ≈ −7%，先于「上限合计」
+  触发提示，给瘦身动作留出窗口。
+- **BUDGET.md 联动**：`ctx/BUDGET.md` §1 表由 `ctx:build` 生成，含 `ctx/ROUTES.md` /
+  `ctx/hot-files.md` 行（上限列同源取 `residentLimit()`）与常驻总量行——门禁读数与报表展示
+  同源，不出现两处硬编码上限。
+- **硬约束**：D2 覆盖率硬门（T-044）、E3 基线回归、E4 净收益三行的既有语义不变；
+  `rotate-reads-ledger.mjs` / `lib/savings-history.mjs` / `lib/knowledge-ledger.mjs` 未动。
+
+### 10.2 自测
+
+`tools/scripts/context-usage-selftest.sh` §[11]（⑭A–⑭C）：低于上限 exit 0（A 项表 +
+BUDGET.md §1 同源展示）；超限 exit 1 + 瘦身修复指引（桩文件卡在 7500~8000 之间，使失败唯一
+归因 ROUTES 门而非 B 项通用门）；常驻总量超软阈（各文件均低于各自上限、合计 14100 > 13500）
+不阻断仅 ⚠️ 提示，恢复后回到 exit 0。

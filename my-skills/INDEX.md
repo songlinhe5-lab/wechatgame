@@ -3,15 +3,15 @@
 > 本文件是 `my-skills/` 全家族的统一约定（人读 + 编排者读）。
 > 各 IDE 只扫描含 `SKILL.md` 的子目录，本文件不参与自动触发。
 
-## 1. 清单（现役 17 个挂四 IDE 链接；存档 1 个仅本目录留档）
+## 1. 清单（现役 33 个挂四 IDE 链接；存档 1 个仅本目录留档）
 
 | 层级 | skill | 职责 |
 |---|---|---|
 | 编排 | `wxgame-orchestration` | 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路径）、成员→skill 路由表、PASS/CONCERNS/FAIL 与 G1–G4 挂钩 |
-| 域·策划 | `wxgame-gdd-writer` | 一页纸概念 → systems-index（冻结常量）→ 八节 GDD → 十查评审 |
+| 域·策划 | `wxgame-gdd-writer` | 一页纸概念 → systems-index（冻结常量）→ 八节 GDD → 十查评审；**§5 数值平衡核对**（CCGS `balance-check` 吸收，WXG-T-175） |
 | 域·策划 | `wxgame-ux-spec` | Screen Flow、ASCII 线框、状态×输入矩阵、动效毫秒表、微信首 10 秒留存 |
 | 域·技术 | `wxgame-adr-arch` | ADR 五节、主架构、控制清单 |
-| 域·技术 | `wxgame-epic-split` | Epic 拓扑序、Story 四要素（引用式验收 S\<n\>§8-\<k\>）、垂直切片 |
+| 域·技术 | `wxgame-epic-split` | Epic 拓扑序、Story 四要素（引用式验收 S\<n\>§8-\<k\>）、垂直切片；**§7 Story 实现 + §8 ready/done 门禁**（CCGS `dev-story`/`story-readiness`+`story-done` 吸收，WXG-T-175） |
 | 域·美术 | `wxgame-art-spec-programmatic` | 程序化美术三件套、色盲三重编码、包体预算承诺 |
 | 域·音频 | `wxgame-audio-spec` | 音频五件套**框架版**（数值 `[TODO]`，实做后回写） |
 | 域·QA | `wxgame-qa-gates` | 测试计划/硬判据用例/冒烟/缺陷分级/Playtest |
@@ -30,6 +30,30 @@
 > 两包逐字一致的 7 份参考文档正本（安装/计费/任务/MCP 连接等）；两包 references 内对应
 > 文件为相对符号链接，`scripts/` 因含各包安装常量而各自独立。运行纪律见两包 SKILL.md
 > 开头（默认 `--auto off`、不路由第三方包）。
+
+## 1b. 外来通用·AI 编程工作流（16 个，2026-09-16 装入，挂四 IDE 链接）
+
+来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 `_repos/mattpocock-skills/`、`_repos/superpowers/`（更新方式：`cd _repos/<repo> && git pull` 后重新 `cp -R` 对应技能目录覆盖）。
+
+| 来源 | skill | 职责 |
+|---|---|---|
+| mattpocock/skills | `grill-me` | 动手前对抗式拷问方案；仅显式触发（`disable-model-invocation: true`），**必须与 `grilling` 成对使用** |
+| mattpocock/skills | `grilling` | grill-me 的方法本体：设计树分轮追问，每题附推荐答案 |
+| obra/superpowers | `using-superpowers` | 技能链总入口/调度说明 |
+| obra/superpowers | `brainstorming` | 任何创造性工作前的需求探索（附本地 Web 辅助脚本） |
+| obra/superpowers | `writing-plans` / `executing-plans` | 设计 → 小步计划 → 批量执行 |
+| obra/superpowers | `test-driven-development` | 强制红-绿-重构循环 |
+| obra/superpowers | `subagent-driven-development` | 每任务派发子代理 + 两阶段审查 |
+| obra/superpowers | `dispatching-parallel-agents` | 并行子代理派发 |
+| obra/superpowers | `requesting-code-review` / `receiving-code-review` | 代码审查请求/回应 |
+| obra/superpowers | `finishing-a-development-branch` | 分支收尾（合并/PR/清理） |
+| obra/superpowers | `using-git-worktrees` | 隔离 worktree 分支开发 |
+| obra/superpowers | `systematic-debugging` | 四阶段根因调查 |
+| obra/superpowers | `verification-before-completion` | 宣称完成前强制验证 |
+| obra/superpowers | `writing-skills` | 编写新 skill 的元技能 |
+
+> 归类：优先级链中的「外来通用」层。与 `wxgame-*` 冲突时以后者为准；
+> 链接为项目级 `.<ide>/skills/<name> → ../../my-skills/<name>`，仅在**本工程**生效。
 
 ## 2. 默认管线顺序与何时不走全 SOP
 
@@ -50,6 +74,13 @@ wxgame-orchestration（流程与裁决）
       > 执行 pack（indie-game-ost-pack / game-ui-voice-pack）
         > 外来通用（game-studio 等存档，仅点名）
 ```
+
+> **CCGS 吸收件已并入 wxgame-\***（WXG-T-175，用户 2026-09-19 裁定）：原三件独立 skill
+> （`wxgame-story-dev` / `wxgame-story-gate` / `wxgame-balance-check`）**已删除**，内容分别并入
+> `wxgame-epic-split` §7/§8 与 `wxgame-gdd-writer` §5 —— 与现役 skill 同域同触发机制，
+> 不再单列一层。上游留档在 `my-skills/_repos/Claude-Code-Game-Studios/`，**与
+> `_repos/superpowers`、`_repos/mattpocock-skills` 同惯例：仅本地备查、不入库**
+> （更新：`cd _repos/Claude-Code-Game-Studios && git pull`）。
 
 ## 4. 路径约定
 

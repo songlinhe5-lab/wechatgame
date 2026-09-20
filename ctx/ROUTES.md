@@ -2,6 +2,9 @@
 
 > **给 agent 的第一跳**：开工前先读本表，命中锚点后用 `read_file(path, offset, limit)` 只取该节，
 > **不要**再对大文件做无条件全文 Read。
+> **第二跳**：锚点 → `offset`/`limit` 换算查 `ctx/hot-files.md`（**热文件 + 本表引用到的文件 + 实测
+> 热读/大文件**，人/agent 可直读；由 `pnpm run ctx:build` 生成）。本表引用到的文件**保证可查**
+>（覆盖率硬门 D2）→ 少数落选者见该表末「未收录」小节 → 再退 `ctx/index.json`（全量，机器读）。
 > 锚点写法 = `路径#小节标题`，与 `ctx/index.json` 的 `anchor` **一一对应**（可 `pnpm run ctx:build` 重建）。
 > **整文件（非锚点）引用**：指「只给路径、不给小节」的路由，须在该行**行尾**标注 `<!-- no-anchor -->`
 > 显式豁免锚点校验；`pnpm run ctx:check` 的 **D 项**会逐条校验 `路径#锚点` 是否在索引中可命中，
@@ -27,27 +30,63 @@
 > C 索引新鲜度 / D ROUTES 锚点 / **E3 基线回归**（劣于基线即 `FAIL` 阻断）；**行为门软（报告项）**——
 > **E1 节省率**（局部读中位数 ≥70%、P10 ≥40%）与 **E2 护栏**（抖动组数、大文件整文件读次数）
 > **如实展示 ❌ 与数字但不阻断 CI**，理由：行为指标取决于历史会话分布，不应作为无关 PR 的合并硬门。
-> ⑧ **观察目标（非门）**：当前实测（457 读事件 / 20 会话，估算）为 E1 局部读中位数 **75.1% ✅**、
-> **P10 30.0% ❌**、整体分布加权 **38.5%**、抖动 **9 组/26 次**、大文件整文件读 **65 次**；
+> **E4 净收益**（WXG-T-036，q-2）同为**报告项**：毛节省率不扣装置自身开销，故并列
+> 「实测 / 应然·协议基线（仅 ROUTES）/ 应然·含行号速查」三行，**禁止只报好看的那个**；
+> 若协议产物（`ctx/`）读事件为 0，必须同步输出**归因声明**（毛节省不可归因于本装置）。
+> ⑧ **观察目标（非门）**：当前实测（457 读事件 / 20 会话，估算）为 E1 局部读中位数 **75.5% ✅**、
+> 整体分布加权 **38.9%**、抖动 **9 组/26 次**（比率 9.1%）、大文件整文件读 **66 次**（比率 14.4%）；
 > **阶段观察目标**：P10 ≥ 40%、抖动组 ≤ 5、大文件整文件读 ≤ 30（收敛手段见后续「压缩整文件读」任务）。
+> ⑧·补 **E1 P10 双列与零和纠正（WXG-T-036 q1，2026-09-13）**：P10 需**两列并看**——
+> **严格口径 45.4%（样本 186，达标 ✅）**／**宽松口径 30.1%（样本 197，未达标 ❌）**。
+> 差别的 11 次读是「**无 `offset` 的近似整读**」：旧口径按 `fullFile = offset==null && limit==null` 判定，
+> 有 `limit` 无 `offset` 者**恒被算成局部读**，从而把它们的高节省率计入 P10，**虚高**。
+> 本任务已收紧采集/分析侧判定为**三分法**（`full` / `implicitFull`＝无 `offset` 且行覆盖 ≥95% / `partial`），
+> **整读占比随之由 56.7% 升至 59.1%**（270/457，含实质整读 11）——这是**同一枚硬币的两面**：
+> P10 变好与整读占比变差**同时发生**，**两侧必须一起报**，**不得**只引 P10 宣称改善（零和纠正，非行为改善）。
+> 附带事实：这 11 次实质整读涉及的**都是小文件**（543–1299 tok），整读小文件本身更省 → 挪出只是**口径修正**。
 > ⑧·补 **样本代表性边界（WXG-T-026 复验 F-01/F-02）**：上述实测**仅来自 2 个根会话**——Cursor 根 `6f7a9a03…`（163 读 / 35.7%）+ WorkBuddy 根 `d2983589…`（294 读 / 64.3%），其余 18 条为**子代理**；且 **WorkBuddy 根为进行中的活动会话**（边写边采、样本非平稳、**重跑即漂移**，故 E2/E3 的抖动与大文件判定已改用**比率口径**）。**单仓库、非独立重复采样 → 不可外推**到「一般 agent 工作流」；明细见 `ctx/reads-summary.md`。
 > ⑨ **索引新鲜度契约（WXG-T-026，2026-09-12）**：`ctx/index.json` 描述的是**已提交内容（HEAD）**——
 > dirty（有未提交改动 / 未跟踪）文件按 **HEAD blob** 参与哈希与行数计算，未跟踪的**新文件不入索引**。
 > 因此 CI（干净检出）恒绿；但**本地 dirty 文件的行号可能与索引漂移**（索引描述已提交内容，不描述你的
-> 未提交改动）。逃生阀 `--working-tree`（生成器与门禁均支持）强制按工作树内容，输出会标注「非默认模式」；
+> 未提交改动）。逃生阀 `--working-tree` 强制按工作树内容、输出标注「非默认模式」，**生成器与门禁两侧必须
+> 成对使用**（`ctx:build --working-tree` → `ctx:check --working-tree`）——只切校验侧会让 C 项对**每个 dirty
+> 文件**报「索引过期」，且照提示重跑**默认** `ctx:build` 也消除不了（索引模式 ≠ 校验模式，WXG-T-036 复验）。
+> 成对使用的附带收益：**A/B 项显示工作树真实体积**（默认模式显示 HEAD 值 → 本地已超标时会**假绿**，
+> 例如改完 `AGENTS.md` 后默认模式仍显示旧值，实际已 1743）。
 > 暂存区模式 `--staged-blobs` 见 ⑩。
 > ⑩ **pre-commit 自动重建（WXG-T-032 ⑤，2026-09-13）**：改被索引 `.md` 后**直接提交即可**——
 > pre-commit 检测到暂存区含 `.md` 时会以 `--staged-blobs`（暂存 .md 按**暂存 blob** 内容索引，暂存
-> 新文件一并纳入）自动重建 `ctx/index.json` + `ctx/BUDGET.md` 并**重新暂存**（产物随本次提交入库），
-> 再跑 `ctx:check --staged` 兜底终校验（正常路径恒绿，仅竞态 / 意外时拦截）。不再要求
-> 「先 `ctx:build` 再提交」，也**不需要且禁止**用 `--no-verify` 绕过。手动 `pnpm run ctx:build`
+> 新文件一并纳入）自动重建 `ctx/index.json` + `ctx/BUDGET.md` + `ctx/hot-files.md` 并**重新暂存**
+> （产物随本次提交入库），再跑 `ctx:check --staged` 兜底终校验（正常路径恒绿，仅竞态 / 意外时拦截）。
+> 不再要求「先 `ctx:build` 再提交」，也**不需要且禁止**用 `--no-verify` 绕过。手动 `pnpm run ctx:build`
 > 仍用于本地预览 / 复算（默认模式 = ⑨ 的 HEAD 锚定）。
+> ⑪ **第二跳产物 `ctx/hot-files.md`（WXG-T-036 q-1，2026-09-13）**：把「锚点 → `offset`/`limit`」这一跳
+> 单独摘成**人/agent 可直读**的小文件（全量 `ctx/index.json` 体量大、不宜直读），由 `pnpm run ctx:build`
+> 生成。收录**热文件（`tier:hot`，必收）× 大文件/实测热读（按预算可收）**；`ctx/` 下生成物**不收**（防自引用）。
+> 体积上限 `LIMITS.hotFilesMaxTokens`（生成器与 `ctx:check` **A 项共用同一常量**，正常路径恒绿）；
+> 超预算候选**不进本表**，但在文末「未收录」**如实列出**（指向 `ctx/index.json`）。
+> 该表是**协议常驻开销**，会直接扣减应然净收益 → `ctx/reads-summary.md §②.1` **单列一行**给出其代价。
+> ⑪·补 **收录优先级 + 覆盖率硬门（WXG-T-044，2026-09-13）**：选池改为 **① 本表引用优先（无条件进池）
+> → ② 实测读次数 ↓ → ③ 体积 ↑**（旧版只认「实测读过 ∨ ≥3000 tok」，使本表引用的中小文件全部落选，
+> agent 走到锚点只能退机器读的全量 `ctx/index.json`）；文末「未收录」只列 ROUTES 引用的落选文件
+> （旧版 84 条中 77 条与路由无关，约 1270 tok 被回收）。**门禁 D2（硬门）**：引用面覆盖率 ≥
+> `LIMITS.hotFilesCoverageMin` —— 结构指标，不受 ⑦ 行为类裁定约束，断链即 FAIL。
+> ⑫ **本表常驻体积上限（WXG-T-039 R5，2026-09-13）**：本表是协议常驻第二跳且为**手维护路由表**
+> （被索引但非生成物、无生成器控量），设**硬上限 7500 估算 tokens**（`LIMITS.routesMd` ≈ 现值 +20%、
+> 低于 B 项通用 8000）——`pnpm run ctx:check` **A 项**超限即 FAIL + exit 1，处置 = **瘦身**（合并重复
+> 路由 / 删除失效锚点引用 / 长说明移 docs/），**勿直接调大阈值**（调阈须按程序留痕并同步文档）。
+> 另设**常驻总量观察哨**（AGENTS.md + my-rules/* + hot-files + 本表的每会话固定开销合计，软阈
+> `LIMITS.residentTotalSoft` = 13500）：单文件上限各自为政时总量仍可漂移，超软阈仅 ⚠️ 提示**不阻断**。
+> 上限单一真源：`tools/scripts/lib/context-index.mjs` 的 `residentLimit()`（门禁 A 项与 BUDGET.md §1 表共用）。
 
 ## 0. 上下文读取协议（强制）
 
 1. 读本表 → 命中**精确锚点**（文件 + 小节标题）。
-2. 到 `ctx/index.json` 查该锚点的 `startLine` / `endLine`。
-3. `read_file(path, offset=startLine, limit=endLine-startLine+1)` —— **只取这一节**。
+2. 到 `ctx/hot-files.md` 查该锚点的 `offset`/`limit`（行内格式 `锚点=offset+limit`，已算好）。
+  - 收录优先级（WXG-T-044）：**① 本表引用到的文件（无条件进池）→ ② 实测读次数 ↓ → ③ 体积小者**，
+    故**本表引用到的文件正常都能查到**（门禁 **D2 硬门**守住）；仅「**未收录 · ROUTES 引用的文件**」
+    小节里逐条列出的才退 `ctx/index.json` 查 `startLine`/`endLine`（**全量**索引，机器读更划算，**勿**整读）。
+3. `read_file(path, offset, limit)` —— **只取这一节**。
 4. 仅当需「**逐字精确**」（改判据 / 抄常量 / 引用原文）时，才扩读相邻节；否则摘要足够。
 5. 同一会话对同一文件反复小读 **超过 3 次** → 合并为**一次扩读**（连同命中节一起取整段）。
 
@@ -75,6 +114,7 @@
 | 知识库读取协议 | knowledge/INDEX.md#§1 读取协议（开发前期） | 109 | 开工前同域先读 |
 | 知识库写入协议 | knowledge/INDEX.md#§2 写入协议（任务收尾） | 469 | 沉淀候选 0–3 条 |
 | 知识库生命周期 | knowledge/INDEX.md#§5 生命周期（访问记账 → 归档 → 重新激活） | 674 | 含 5.1–5.3 |
+| Cocos + MCP 安装引导（编辑器就绪前置） | docs/agent/cocos-setup.md#§2 七步总览（速查） | 232 | ADR-0009 落地；插件装全局（WXG-T-042） |
 
 ### 1.2 冻结数值（hot · games/beads/design/gdd/systems-index.md）
 
@@ -86,7 +126,7 @@
 | 珠子网格 | games/beads/design/gdd/systems-index.md#§3.3 珠子网格（Bead Grid） | 229 | |
 | 槽位托盘 | games/beads/design/gdd/systems-index.md#§3.4 槽位托盘（Tray） | 219 | |
 | 倒计时与失败 | games/beads/design/gdd/systems-index.md#§3.5 倒计时与失败 | 182 | |
-| 道具常量 | games/beads/design/gdd/systems-index.md#§3.6 道具（Powerups） | 230 | |
+| 道具常量 | games/beads/design/gdd/systems-index.md#§3.6 道具（Powerups）· v1.22 反转为解环器 | 230 | |
 | **星级与结算** | games/beads/design/gdd/systems-index.md#§3.7 星级与结算 | 137 | STAR3/2_RATIO（最常用） |
 | 可访问性 | games/beads/design/gdd/systems-index.md#§3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级） | 256 | |
 | 包体预算 | games/beads/design/gdd/systems-index.md#§3.9 包体预算 | 107 | |
@@ -148,7 +188,9 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| 领号 / 任务台账 | production/TASKS.md#§WXG 任务台账（SSOT） | 1439 | **开工先领号** |
+| 领号 / 任务台账 | production/TASKS.md#§WXG 任务台账（SSOT） | 2220 | **领号认工作树全局最大号，不止已提交头注**（判例 K-046：并发会话未提交的号段只存在于工作树，照 HEAD 头注领号必撞）：`grep -o 'WXG-T-[0-9]\{3\}' production/TASKS.md production/TASKS-DETAIL.md \| sed 's/.*WXG-T-//' \| sort -n \| tail -1` ⇒ +1；要看**全部任务状态**才读主表（≈2.4k tok），详情按下一行入口**只读命中那一节** |
+| 任务**详情**（按需，勿整读） | production/TASKS-DETAIL.md#§WXG 任务台账 · 详情（标题制正文侧） | 单节 ≈ 290 | 一任务一节（`## WXG-T-0NN`）；**先用 `ctx/index.json` 查该节 `startLine`/`endLine`**，再 `read_file(path, offset, limit)` |
+| **memory 日志摘要（先读这个）** | memory/INDEX.md | 6777 | 分级加载入口：文件 → `##` 主题的行区间 + 体量 + **「详情」列** + 节首句摘要；命中后先看「详情」列：`—` ⇒ 按行区间读日记那一节，非 `—` ⇒ 正文已外移，改读 `memory/details/<…>.md`（WXG-T-068；二级详情层 WXG-T-106） | <!-- no-anchor -->
 | 已知限制 | memory/MEMORY.md#§已知限制 | 80 | |
 | 常用脚本 | memory/MEMORY.md#§常用脚本 | 197 | |
 | 项目约定 | memory/MEMORY.md#§项目约定 | 460 | |
@@ -159,7 +201,7 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| Skill 家族清单与优先级 | my-skills/INDEX.md#§1 清单（现役 17 个挂四 IDE 链接；存档 1 个仅本目录留档） | 631 | |
+| Skill 家族清单与优先级 | my-skills/INDEX.md#§1 清单（现役 33 个挂四 IDE 链接；存档 1 个仅本目录留档） | 631 | |
 | Skill 优先级链 | my-skills/INDEX.md#§3 Skill 优先级（冲突时高者胜） | 63 | |
 | 路径约定 | my-skills/INDEX.md#§4 路径约定 | 208 | |
 | 九阶段（0–8）流水线 | my-skills/wxgame-orchestration/SKILL.md#§九阶段（0–8）流水线 | 528 | |
@@ -172,7 +214,7 @@
 | Cursor Hooks 实践清单 | docs/agent/hooks-best-practices.md#§4 Cursor Hooks 实践清单 | 357 | |
 | Headless / PR 流水线拓扑 | docs/agent/headless-ci-pr-review.md#§3 流水线分层（推荐拓扑） | 261 | |
 | PR 审查硬判据 | docs/agent/headless-ci-pr-review.md#§6 审查判据（写入 prompt 的硬约束） | 230 | |
-| 教训库（同域先读） | knowledge/lessons.md（整文件） | 964 | 追加式 | <!-- no-anchor -->
+| 教训库（同域先读） | knowledge/lessons.md（**指针页**：标签 → 分片表） | 350 | 条目正文在 `knowledge/lessons/<标签>.md`；ID → 分片查 `knowledge/INDEX.md` 活跃表「分片」列；引用只写 K-0NN <!-- no-anchor --> |
 | 可复用模式库 | knowledge/patterns.md（整文件） | 711 | 追加式 | <!-- no-anchor -->
 
 ## 2. 维护
@@ -180,4 +222,6 @@
 - 本表锚点须与 `ctx/index.json` 的 `anchor` 一致；改任一被索引 `.md` 的标题后，重跑 `pnpm run ctx:build`
   并用 `pnpm run ctx:check` 验证（C 项会点名过期文件）。
 - 只增补行、不删既有锚点；废弃锚点标 `[已过时]`。
-- 单页约束：**≤150 行**（当前行数见文件末尾）。
+- 体积约束：本表是**协议常驻开销**（计入应然净收益，见 ⑪）；其体积由 `ctx:usage` 如实计入报表，
+  **不再单独卡行数**（原「≤150 行」目标已让位给**引用面完整性**——由硬门 D2 守住）；
+  **token 硬上限见 ⑫**（`LIMITS.routesMd` = 7500，`ctx:check` A 项守住；WXG-T-039 R5）。

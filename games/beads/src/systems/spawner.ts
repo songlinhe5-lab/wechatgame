@@ -1,4 +1,14 @@
 /**
+ * ⛔ DEAD PATH — v2.0 定时供料关停（WXG-T-136，用户 2026-09-16 裁定案 A）。
+ *
+ * 错位珠是珠子唯一供给、托盘为纯解谜缓冲（tray-spawner v2.0 §2.2 全节作废、
+ * systems-index v1.22 §3.4「死路径保留」）⇒ **主循环不再调用 `tick()`**（供料段
+ * 恒空，beads-game `_stepPlaying`）。本类整体保留为死路径：供料复活（需走
+ * tray-spawner §6 变更 + 主理人确认）时零成本重启，届时 §8-1/2/3/9 判据原文随
+ * v2.0 复活条款自动重新生效。行为语义零改动——单测继续按单元级死路径锁定本类。
+ *
+ * ────────────────────────────────────────────────────────────（以下为原文档注释）
+ *
  * Spawner — the S4 feed rhythm: accumulate dt, spawn 1 bead into a *random
  * free slot* with 3:1 weighted colour drawing (tray-spawner §2.2).
  *
@@ -35,6 +45,14 @@ export class Spawner {
   private _interval: number;
   private _acc = 0;
   private _fullReported = false;
+  /**
+   * GAP-02 first-supply flag (WXG-T-086): `reset()` (a fresh level/stage) arms it,
+   * and the first `tick()` in PLAYING feeds one bead immediately so the tray is
+   * never empty for a whole interval (ux-spec §6 “1.5s 珠已在托盘”). Not serialised
+   * for crash recovery — a restored mid-level tray already holds beads, so the
+   * recovery path never calls `reset()` and therefore never re-arms this.
+   */
+  private _firstFeed = false;
   /** Decoy colour indices for the current level/stage (≤ DECOY_COLORS_MAX). */
   private _decoys: readonly number[] = [];
 
@@ -55,10 +73,33 @@ export class Spawner {
     this._decoys = decoys;
   }
 
+  /**
+   * Serialization accessors for the crash snapshot (D-03, WXG-T-059).
+   *
+   * ⚠️ 恢复顺序：**先 `interval`，再 `acc`** —— `interval` 的 setter 会把累加器清零
+   * （阶段切换语义），反过来设会把刚恢复的进度抹掉。
+   */
+  get acc(): number {
+    return this._acc;
+  }
+
+  set acc(value: number) {
+    if (Number.isFinite(value) && value >= 0) this._acc = value;
+  }
+
+  get fullReported(): boolean {
+    return this._fullReported;
+  }
+
+  set fullReported(value: boolean) {
+    this._fullReported = value === true;
+  }
+
   /** Reset the accumulator (level load / stage switch / retry). */
   reset(): void {
     this._acc = 0;
     this._fullReported = false;
+    this._firstFeed = true; // GAP-02: arm the immediate first bead for the fresh level
   }
 
   /**
@@ -67,6 +108,16 @@ export class Spawner {
    * 15 feeds (S4 §8-1) regardless of frame rate.
    */
   tick(dt: number, tray: Tray, rng: Rng): SpawnOutcome {
+    // GAP-02: on the first tick after a level/stage load, feed one bead at once
+    // (≤ 1 frame) instead of waiting a full interval. The rhythm is untouched after.
+    if (this._firstFeed) {
+      const first = this._feedOnce(tray, rng);
+      if (first.spawned) {
+        this._firstFeed = false;
+        return first;
+      }
+      if (first.full) return first; // tray momentarily full — keep the flag, retry next tick
+    }
     this._acc += dt;
     while (this._acc >= this._interval) {
       this._acc -= this._interval;
@@ -96,16 +147,20 @@ export class Spawner {
   }
 
   /**
-   * Weighted draw (§3.2): still-needed colours at `NEEDED_WEIGHT` each,
-   * decoys at `DECOY_WEIGHT` each. When nothing is needed (board effectively
-   * complete) the draw degrades to decoys only — defensive, never a crash.
+   * Weighted draw (§3.2) under the A′ supply invariant `held ≤ demand`
+   * (tray-spawner §2.4 / WXG-T-086): a colour is a candidate only while the tray
+   * holds strictly fewer of it than the board still needs. This is what removes
+   * the tail soft-lock (GAP-06) — the feed can no longer stack undroppable
+   * overflow that clogs the tray. Decoys have `demand = 0`, so under v1.17
+   * (`DECOY_COLORS_MAX = 0`) they are never supplied and the decoy branch is inert.
    */
   private _drawColor(tray: Tray, rng: Rng): number {
     _weights.length = 0;
     let total = 0;
     for (let c = 1; c <= BEAD_COLOR_MAX; c++) {
       const needed = tray.neededCount(c);
-      if (needed > 0) {
+      // A′: only feed colour c while held(c) < demand(c).
+      if (needed > 0 && tray.heldCount(c) < needed) {
         _weights.push({ colorIdx: c, weight: NEEDED_WEIGHT });
         total += NEEDED_WEIGHT;
       }

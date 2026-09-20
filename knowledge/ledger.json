@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 31,
+  "nextId": 66,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -10,7 +10,7 @@
     {
       "id": "K-001",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "commitlint 自定义规则必须经 plugins 数组注册",
       "contentHash": "7db6631b9b053c2bc8df05adf3691ce17f8d1a18ea28325d6d3cbb8d3bc2a18f",
@@ -27,7 +27,7 @@
     {
       "id": "K-002",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "bash heredoc 定界符未加引号 + JSON 内写注释 = 双重坑",
       "contentHash": "afaa1848e2ac60714a3b40e91c4c7ed2e8c2447d1bcf1e415256caecda386a72",
@@ -44,7 +44,7 @@
     {
       "id": "K-003",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "常驻上下文预算阈值必须与 token 估算公式同口径",
       "contentHash": "dce89e3c10909bd43a0cc92c7db813eee05cb453bfe26269cf357cbd02ef6acd",
@@ -61,10 +61,10 @@
     {
       "id": "K-004",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "改过被索引的 `.md` 后必须重跑 `ctx:build`，否则 C 门必红",
-      "contentHash": "00c1a713d1de487c3eb84146de6cbbd5d93dc77cd72b5c267aacff49b7f5ed13",
+      "contentHash": "86adccaf9c8d6444479778e1e780bff16ebd8d0b12e1a858e7d7874eb40dce02",
       "sourceTask": "WXG-T-026",
       "addedDate": "2026-09-12",
       "lastAccess": "2026-09-12",
@@ -78,7 +78,7 @@
     {
       "id": "K-005",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "含「活动会话」的采集型基线必须用比率口径，计数容忍带必然误报",
       "contentHash": "15ec432bd8013331a23d00ca2537ad8c8122e79980c46dc8882798bd64ccdb04",
@@ -95,7 +95,7 @@
     {
       "id": "K-006",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "冻结样本做 schema 升级，用「侧车重算」而不是全量重采",
       "contentHash": "d104b682fc20fea6904990470375a1a35e06377357f95bc3de107dde66fb9949",
@@ -112,7 +112,7 @@
     {
       "id": "K-007",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "Qoder 把 `model: inherit` 当具体模型 ID 解析",
       "contentHash": "2ec8c6a0ca2567b37e0404768b8c9219a738b89c009e5515aeb8df461e5a7522",
@@ -129,7 +129,7 @@
     {
       "id": "K-008",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "跨 IDE 并行会话会撞任务号与 §6 版本号",
       "contentHash": "255abd9384fad364a5bfdc306e9d271e552bcbea729129f64fa67f495fbd3774",
@@ -146,7 +146,7 @@
     {
       "id": "K-009",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "派单范围表述必须对照冻结真源复核",
       "contentHash": "cd3ce3cc02f9bf8711fd9868acf2be8fa40c351d9ad05658a049cbebf47b19ad",
@@ -163,7 +163,7 @@
     {
       "id": "K-010",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/environment.md",
       "category": "环境",
       "title": "WorkBuddy 沙箱内 bash grep/链式命令会假阴性（空输出 + exit 1）",
       "contentHash": "331d400f2ed5aa1b5d9363fd1e9576236e8b069e98c65772c3a406aa5a3cd078",
@@ -180,7 +180,7 @@
     {
       "id": "K-011",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "质量门复验者 ≠ 实现者",
       "contentHash": "f2614af109f9260f5c475bdb9ef66dd726de6549449463ef6e35d381f66ace11",
@@ -418,7 +418,7 @@
     {
       "id": "K-025",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "门禁里的「特殊豁免」要早删——它会把真实数据不一致静默吞掉",
       "contentHash": "e59ba7af540e64da03ed18d9ee5c2c8445243e91d264d05ed85eef129a38792d",
@@ -435,7 +435,7 @@
     {
       "id": "K-026",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "留痕日志混装多来源主体时，去重键必须按「主体类型」分流",
       "contentHash": "6b24e82e18917b21e63aa1f7602c620306857779a28e444d8f6f55143ae84698",
@@ -486,7 +486,7 @@
     {
       "id": "K-029",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "自增 ID 的下界必须取自既有数据，不能只看计数器",
       "contentHash": "d8f99cbed134819e38b5f57be5fc30d82c668d0b2d873a70deb37e94feb92712",
@@ -503,13 +503,608 @@
     {
       "id": "K-030",
       "state": "active",
-      "file": "knowledge/lessons.md",
+      "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "产物进索引前先确认「新鲜度契约」——脚本自测会假绿",
       "contentHash": "932262a424e69588a7ee6759e907beb84ae21d5d078b452a218d8b0802c7378f",
       "sourceTask": "WXG-T-029",
       "addedDate": "2026-09-12",
       "lastAccess": "2026-09-12",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-031",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "多产物生成器新增产物时，必须同任务登记 pre-commit 的 `git add` 清单",
+      "contentHash": "96017a157e3d9388b30ada67292a278eca07816d0ffb1592233c2bd58f5df22e",
+      "sourceTask": "WXG-T-036",
+      "addedDate": "2026-09-13",
+      "lastAccess": "2026-09-13",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-032",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "「逃生阀」两侧都支持时，文档必须写成",
+      "contentHash": "4e743127a9f288f3a93123eed5ef665580ddf1e2c937a140d4938dae839ebcbb",
+      "sourceTask": "WXG-T-036",
+      "addedDate": "2026-09-13",
+      "lastAccess": "2026-09-13",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-033",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "能否用符号链接做「一处正本」，判据是",
+      "contentHash": "b16647f1316d54e564d907888304e261f3bc9801359cc28926e3f0e9b128764d",
+      "sourceTask": "WXG-T-043",
+      "addedDate": "2026-09-13",
+      "lastAccess": "2026-09-13",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-034",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）",
+      "contentHash": "26514d27ecfcaf752ccef408643af0f2c7fba7a697fbbd2300430adbf8c91c82",
+      "sourceTask": "WXG-T-044",
+      "addedDate": "2026-09-13",
+      "lastAccess": "2026-09-13",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-035",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床",
+      "contentHash": "6c6e167c389bfacc473cd04bd1105a195316af38b0a7c78fd851c453e49540ed",
+      "sourceTask": "WXG-T-084",
+      "addedDate": "2026-09-14",
+      "lastAccess": "2026-09-14",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-036",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "多项串联的门禁若「失败即短路」且「缺对象仍报绿」，它的 ✅ 不构成任何证据",
+      "contentHash": "209ccea10af559169a9e7cac8c082039b78421e6f301178e106de57440fe989f",
+      "sourceTask": "WXG-T-084",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-037",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "「指令流层可证」≠「屏幕层可证」：Node 探针全绿不得抬升表现层结论",
+      "contentHash": "251309729d4d4cd43789f7f54a33ca1664b7ad98116d4568c0ee1cdccdef37bb",
+      "sourceTask": "WXG-T-092",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-038",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "自动化统一走「便捷旁路 API」，真输入链可以整段断链而全绿",
+      "contentHash": "d71b841d97391e834029c4c2de716f52ec5157cb603518fad7cecb84f67db116",
+      "sourceTask": "WXG-T-096",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-039",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "报绿之后又动了源码：交付自述必须与最终状态同一时点",
+      "contentHash": "a71b2030ac4e24c295d830d0d1cc569cc711029860b07e981aefb8d3a4b3214b",
+      "sourceTask": "WXG-T-096",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-040",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "判据回写轮的三个读数陷阱：改严≠回归、作废≠平凡真、文档一致≠代码一致",
+      "contentHash": "b300d40933c59f42df69a60d83c052ea139756226943257f8789b81b2509b695",
+      "sourceTask": "WXG-T-098",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-041",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "容差写法：不得吞掉被测变更，帧量化只进时刻轴",
+      "contentHash": "7e14b6eca35d848b9108ae0186b6e02700d0a930be20a57428746f60aa73e0f2",
+      "sourceTask": "WXG-T-098",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-042",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫",
+      "contentHash": "27bbad1c65c6dfa601f730d1cb816bb16b39e4cbfdde5619b2579173aaeade5b",
+      "sourceTask": "WXG-T-097",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-043",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FAIL",
+      "contentHash": "cff95e64b041bee2aa57cf1e1062bc0489467810882d0de16151265a9f0754fb",
+      "sourceTask": "WXG-T-097",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-044",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "判定上限由「判据完备性」决定，不由实现进度决定；且不得把「缺通道」当预期写进 PASS 条件",
+      "contentHash": "f9ea5c77bdd79b4e0dfabe410fdf59774a7f3ab954c143fe8bed2f15259ead6c",
+      "sourceTask": "WXG-T-097",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-045",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
+      "contentHash": "e8f3634536346153b242421b7c6e55cd8f3a71c90c5a0f641aa23cff4a35cb41",
+      "sourceTask": "WXG-T-097",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-046",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号",
+      "contentHash": "37d4f9951ec99b672a1b8c83ec80e1d8fb3fc4af8e435a62445ee6e42fccdb5f",
+      "sourceTask": "WXG-T-106",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-047",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "幂等判据必锁「自己写出的产物字形」，写方与读方不同源时假绿与自毁同时存在",
+      "contentHash": "a851937dd90d8aeceac4bcd51084230f986379cbe76c6a0fc1d822bc583af725",
+      "sourceTask": "WXG-T-106",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-048",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛",
+      "contentHash": "464541de818fce47d7c17236368ba11210dd53af419b484befe738495abadac6",
+      "sourceTask": "WXG-T-112",
+      "addedDate": "2026-09-15",
+      "lastAccess": "2026-09-15",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-049",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "自测夹具必须由被测生成器播种、依赖按整目录拷贝，否则门禁一扩就整片假红",
+      "contentHash": "48ecdc7d789100e91688ce874497289d90b49cf351412c1ec780a8b7169ea5ad",
+      "sourceTask": "WXG-T-121",
+      "addedDate": "2026-09-16",
+      "lastAccess": "2026-09-16",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-050",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "缺陷号（`BD-NN`）与任务号同规：领号须读工作树全文，且「已登记 BD-xx」的声明必须回查台账是否真有正本行",
+      "contentHash": "0fc8dcfd64d081511a3fbe0d819aeb0a69e8be716cd40929f310a69d44c5f7c3",
+      "sourceTask": "WXG-T-119",
+      "addedDate": "2026-09-16",
+      "lastAccess": "2026-09-16",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-051",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "规格里的「图元/包体增量」数值是立项时点的推论，落码后必须差分复算、不得沿用",
+      "contentHash": "0c3bf507402b87c8a73bcce5998e70bad2dfc4987b3e876430ecbbbe7ae516fd",
+      "sourceTask": "WXG-T-150",
+      "addedDate": "2026-09-17",
+      "lastAccess": "2026-09-17",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-052",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "动效时长常量一旦决定「事件发生在哪一帧」，它就是玩法时序而非表现层参数，判据与守卫都得换档",
+      "contentHash": "c182c16afeb8e9f00d1c758a75ec4899868e2944a29820f9d59e3a750c620524",
+      "sourceTask": "WXG-T-150",
+      "addedDate": "2026-09-17",
+      "lastAccess": "2026-09-17",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-053",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定",
+      "contentHash": "1b09282276efa658a00cc283cf108b406ddc0752bd18bd403c710df02e814571",
+      "sourceTask": "WXG-T-165",
+      "addedDate": "2026-09-18",
+      "lastAccess": "2026-09-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-054",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "「未登记」不等于「已证伪」：纸面缺账不能推翻真机实证，回滚前必须分清这两种缺失",
+      "contentHash": "e83eb8720a0778c0a51b332901b8053344059a61e21fa4eb70e310630528fa03",
+      "sourceTask": "WXG-T-129",
+      "addedDate": "2026-09-18",
+      "lastAccess": "2026-09-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-055",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "「连通块」API 的返回序是行主序、不是距锚序：「就近/最近」语义取前 N 前必须显式重排",
+      "contentHash": "31339bf906118669d9e629480ba07c4d5cfa5f9fb97fa9e33277bad4bdfeec1e",
+      "sourceTask": "WXG-T-168",
+      "addedDate": "2026-09-18",
+      "lastAccess": "2026-09-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-056",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "渲染里「未解锁/扩展」的视觉语言必须随容量语义常量派生：裸行号判定会把已开放行画成未开放，并反噬成「假容量」缺陷报告",
+      "contentHash": "46e93e924a6bfc406e794f658c8cb6f45ca7159ba4b621f41bb6a6cbcfb60a80",
+      "sourceTask": "WXG-T-168",
+      "addedDate": "2026-09-18",
+      "lastAccess": "2026-09-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-057",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "「立项单」与「ADR 状态行」都不会被实施它们的另一张单自动收口，核销时要成对扫",
+      "contentHash": "ee9aaabcaf63c04565aa417ab4e5174d3fc1b0b46df87f53fa7dd2d8051c0d64",
+      "sourceTask": "WXG-T-166",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-058",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "「已写进 .gitignore」不等于「已排除出索引产物」——枚举型走盘生成器只认自己的硬编码跳过集",
+      "contentHash": "e8d38704b51c621f7e90d0cd11c50e4f6b504982d1e60e0efd4128a5e8b91b96",
+      "sourceTask": "WXG-T-176",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-059",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "用「甲/乙/丙」转述既有候选清单时必须带正文锚——字母会换义",
+      "contentHash": "eec18db15137a5c45e895c415887b5d622241a74e467812528c382e7a6b00662",
+      "sourceTask": "WXG-T-167",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-060",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "变异自检里断言「方向」选错会留下伪绿：被测标量在变异下「冻结在旧非零值」而非归零时，存在性断言无判别力",
+      "contentHash": "4344b9cb41ca2357b292fe73b6442973e0757d689e41038ae2daf35651643fb4",
+      "sourceTask": "WXG-T-128",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-061",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "`noAssemble` 下手工铺盘 ≠ 装配：子系统内部索引未建，表现为「点名了但不动手」，极易误判为业务缺陷",
+      "contentHash": "23fbae879b1a683226d99cc8f0897307ece9e3e4cbc63bc50ec74f91d5267e0d",
+      "sourceTask": "WXG-T-128",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-062",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "事件驱动宿主的输入位移必须进单测：prev 在帧首结算会把帧间到达的位移吞成 0",
+      "contentHash": "12520b9b42bcde186fc6a74e689f19d7b0d5ac3b9cacffb46485d2f58ec9bf0c",
+      "sourceTask": "WXG-T-178",
+      "addedDate": "2026-09-19",
+      "lastAccess": "2026-09-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-063",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "会「静默转移」的锚不能当距离排序基准：消费序基准与展示坐标必须分离",
+      "contentHash": "7782151882a5c2856dbed09b3d1e304152119caf3feef6bf4162ffcd402e0bfc",
+      "sourceTask": "WXG-T-183",
+      "addedDate": "2026-09-20",
+      "lastAccess": "2026-09-20",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-064",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "跨工具链的「草案自报元数据」必须被消费端复核归一：手工合规草案的单测永远抓不到生产端的字段说谎",
+      "contentHash": "999fb90562f59d0a52a69902afecb52fa5880de50c9a69860a59aa24b82312f1",
+      "sourceTask": "WXG-T-179",
+      "addedDate": "2026-09-20",
+      "lastAccess": "2026-09-20",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-065",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "国内云 VPS 上 Docker 部署必踩的两道坎：镜像仓库不可达 + 云侧安全组（与主机防火墙是两层）",
+      "contentHash": "55a7202f6deca33d8772916d2715195ce8fa040797761b92b1a82e850286de6a",
+      "sourceTask": "WXG-T-179",
+      "addedDate": "2026-09-20",
+      "lastAccess": "2026-09-20",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -526,6 +1121,414 @@
       "ids": [
         "K-029",
         "K-030"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-031"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-004"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-032"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-033"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-13",
+      "taskId": "WXG-T-044",
+      "kind": "added",
+      "ids": [
+        "K-034"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-035"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-036",
+        "K-037"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-036"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-038",
+        "K-039"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-040",
+        "K-041"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-039"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-039"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-042"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-097",
+      "kind": "added",
+      "ids": [
+        "K-043",
+        "K-044"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-097",
+      "kind": "updated",
+      "ids": [
+        "K-043",
+        "K-044"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-097",
+      "kind": "added",
+      "ids": [
+        "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-097",
+      "kind": "updated",
+      "ids": [
+        "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-111",
+      "kind": "added",
+      "ids": [
+        "K-046",
+        "K-047"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-111",
+      "kind": "updated",
+      "ids": [
+        "K-047"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-15",
+      "taskId": "WXG-T-112",
+      "kind": "added",
+      "ids": [
+        "K-048"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-16",
+      "taskId": "WXG-T-121",
+      "kind": "added",
+      "ids": [
+        "K-049"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-16",
+      "taskId": "WXG-T-119",
+      "kind": "added",
+      "ids": [
+        "K-050"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-16",
+      "taskId": "WXG-T-119",
+      "kind": "updated",
+      "ids": [
+        "K-050"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-16",
+      "taskId": "WXG-T-119",
+      "kind": "updated",
+      "ids": [
+        "K-050"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-17",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-051",
+        "K-052"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-17",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-051"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-18",
+      "taskId": "WXG-T-165",
+      "kind": "added",
+      "ids": [
+        "K-053",
+        "K-054"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-18",
+      "taskId": "WXG-T-168",
+      "kind": "added",
+      "ids": [
+        "K-055",
+        "K-056"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-18",
+      "taskId": "WXG-T-168",
+      "kind": "updated",
+      "ids": [
+        "K-046"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-164",
+      "kind": "updated",
+      "ids": [
+        "K-053"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-166",
+      "kind": "added",
+      "ids": [
+        "K-057"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-169",
+      "kind": "updated",
+      "ids": [
+        "K-042"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-176",
+      "kind": "added",
+      "ids": [
+        "K-058"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-167",
+      "kind": "added",
+      "ids": [
+        "K-059"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-128",
+      "kind": "added",
+      "ids": [
+        "K-060",
+        "K-061"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-128",
+      "kind": "updated",
+      "ids": [
+        "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-128",
+      "kind": "updated",
+      "ids": [
+        "K-060"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-19",
+      "taskId": "WXG-T-178",
+      "kind": "added",
+      "ids": [
+        "K-062"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "updated",
+      "ids": [
+        "K-045",
+        "K-056"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "updated",
+      "ids": [
+        "K-036",
+        "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-183",
+      "kind": "added",
+      "ids": [
+        "K-063"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "added",
+      "ids": [
+        "K-064"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "updated",
+      "ids": [
+        "K-064"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-20",
+      "taskId": "WXG-T-179",
+      "kind": "added",
+      "ids": [
+        "K-065"
       ],
       "note": null
     }

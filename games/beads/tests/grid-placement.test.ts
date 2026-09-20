@@ -11,6 +11,7 @@ describe('S3 bead-grid', () => {
   // §8.1 装载合法关卡后，empty 格数 + locked 格数 === cols×rows，且 ≥1 格为 empty。
   it('§8-1 loading a level: empty + locked === cols×rows with at least one empty', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s3a',
     });
@@ -34,6 +35,7 @@ describe('S3 bead-grid', () => {
   // payload 含 row/col/colorIdx/slot。
   it('§8-2 matching placement fills the cell and broadcasts bead:placed exactly once', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s3b',
     });
@@ -61,6 +63,7 @@ describe('S3 bead-grid', () => {
   // §8.3 不匹配落子：目标格保持 empty；bead:rejected 恰广播 1 次；对应托盘珠未被移除。
   it('§8-3 mismatched placement keeps the cell empty, rejects once, bead stays in tray', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s3c',
     });
@@ -86,6 +89,7 @@ describe('S3 bead-grid', () => {
   // §8.4 对 locked 格与 filled 格落子：零事件、零反馈（用事件监听计数器断言 =0）。
   it('§8-4 placements on locked/filled cells produce zero events of any kind', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [
         simpleTestLevel({
           id: 93,
@@ -108,10 +112,10 @@ describe('S3 bead-grid', () => {
     game.selectTraySlot(lastHoldingSlot());
     expect(game.tapGridCell(0, 4)).toBe(false);
 
-    // Filled cell: fill (0,0) first, then tap it again.
-    game.giveTrayBead(color);
-    game.selectTraySlot(lastHoldingSlot());
-    expect(game.tapGridCell(0, 0)).toBe(true);
+    // Filled cell: fill (0,0) first, then tap it again. v2.2 组选下保持单珠组
+    // （每组仅 1 颗 ⇒ 不触发批量填充），旧「先囤两颗再分别落子」序列会被整组选中
+    // + 8 向蔓延改写，与本判据（locked/filled 零事件）无关。
+    expect(game.tapGridCell(0, 0)).toBe(true); // 同一选中组的合法落子，组清空锚回 none
     game.giveTrayBead(color);
     game.selectTraySlot(lastHoldingSlot());
     expect(game.tapGridCell(0, 0)).toBe(false);
@@ -126,6 +130,7 @@ describe('S3 bead-grid', () => {
   // filled 数 === 可填格总数。
   it('§8-5 filling the last fillable cell signals clear within one frame', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ decoys: [] })],
       saveKey: 'wxgame.beads.test.s3e',
     });
@@ -158,6 +163,7 @@ describe('S3 bead-grid', () => {
   // §8.7 同帧双落子同格：仅第 1 条生效，第 2 条走忽略分支，bead:placed 总数 =1。
   it('§8-7 same-frame double placement on one cell: only the first lands, placed count = 1', () => {
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s3g',
     });
@@ -183,6 +189,7 @@ describe('S3 bead-grid', () => {
   it('§8-9 colorIdx 0 or 99 is rejected with a warning and never crashes', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s3i',
     });

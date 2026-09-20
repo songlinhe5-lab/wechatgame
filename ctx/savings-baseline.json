@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "taskId": "WXG-T-026",
-  "reason": "E3 判定改为比率口径（抖动率/大文件整文件读率）——防活动会话重采导致计数自然增长误报假回归（WXG-T-026 复验 F-02）",
+  "taskId": "WXG-T-036",
+  "reason": "E1 P10 口径由宽松(!fullFile)收紧为严格(三分法 classifyRead===partial)，P10 由 30.1% 语义性变为 45.4%；旧基线值 0.300181 属旧口径，对新口径构成假绿门槛，故按新口径重建（零和纠正，非行为改善）",
   "est": true,
   "sampleWindow": {
     "since": null,
@@ -14,12 +14,12 @@
     "counts": "抖动组数 / 超限次数 / 大文件整文件读次数：仅如实展示，不作判定"
   },
   "metrics": {
-    "medianPartial": 0.751493,
-    "p10Partial": 0.300181,
-    "jitterRate": 0.084112,
-    "bigFullReadRate": 0.142232,
+    "medianPartial": 0.755275,
+    "p10Partial": 0.453851,
+    "jitterRate": 0.090909,
+    "bigFullReadRate": 0.14442,
     "jitterGroups": 9,
     "jitterExcess": 26,
-    "bigFullReads": 65
+    "bigFullReads": 66
   }
 }

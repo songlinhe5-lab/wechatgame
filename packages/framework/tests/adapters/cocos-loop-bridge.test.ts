@@ -89,4 +89,18 @@ describe('CocosLoopBridge', () => {
     expect(() => bridge.stop()).not.toThrow();
     expect(scheduler.scheduled).toBe(false);
   });
+
+  // WXG-T-122 / BD-40: the bridge owns the tick — starting it against an App
+  // that is already self-driving used to double-drive (~2× sim speed). Now it
+  // must hard-fail instead of silently attaching the second driver.
+  it('hard-fails instead of double-driving a self-driving app (BD-40)', () => {
+    const platform = new NodePlatform();
+    const game = new Counter();
+    const app = new App({ game, platform, seed: 'loop' });
+    app.start(); // self-drive via requestFrame
+    const scheduler = fakeScheduler();
+    const bridge = new CocosLoopBridge(app, scheduler);
+    expect(() => bridge.start()).toThrow(/already self-driving/);
+    expect(scheduler.scheduled).toBe(false); // second driver rejected
+  });
 });

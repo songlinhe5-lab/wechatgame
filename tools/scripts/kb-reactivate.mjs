@@ -28,6 +28,7 @@ import {
   ARCHIVE_INDEX_PATH,
   INDEX_PATH,
   TASK_ID_RE,
+  appendAccessSource,
   contentHashOf,
   insertIntoCategory,
   makeEvent,
@@ -142,7 +143,7 @@ for (const { cfg, ids: gids } of groups.values()) {
     cur.accessCount = (cur.accessCount ?? 0) + 1;
     cur.lastAccess = date;
     const tag = `reactivate:${date}`;
-    if (!cur.accessSources.includes(tag)) cur.accessSources.push(tag);
+    appendAccessSource(cur, tag); // R4：去重追加 + 截断保留最近 ACCESS_SOURCES_MAX 个
     // 显式动作留痕（`reactivate:…` 主体）：+1 accessCount 必 +1 seen，使 ⑥ 严格成立。
     cur.seen.push(seenToken(tag, date));
     byId.set(id, cur);

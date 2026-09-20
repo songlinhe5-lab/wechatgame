@@ -5,6 +5,12 @@
 - **权威来源**：`design/gdd/systems-index.md`（§2 依赖拓扑序、§3 冻结常量 v1.2）、S1–S5 P0 GDD §8（验收唯一出处）、`docs/architecture/architecture-beads.md` + ADR-0004…0007（技术边界）
 - **冲突裁定**：Story 与 systems-index §3 冻结常量冲突 → 以 §3 为准，回写本文档（经主理人中转）。
 
+> ⚠️ **状态时效声明 → 已拆出**：本文档 Story 级标记**已过期**，对账口径（含 `[待 GDD §8]`/`[Blocked]` 解除、
+> EP-06/07/10 实现进度、WXG-T-082 证据引用修正、G10（ADR-0012 方案甲）解除注与诚实边界）**整块移至**
+> [`epics-beads-status.md`](./epics-beads-status.md)。拆出依据：`production/TASKS.md` backlog（WXG-T-066）
+> standing 决定「epics-beads.md 结构性贴 B 门 → 把顶部『状态时效声明』拆独立文件；不适用豁免、不得删信息凑体积」。
+> **读取本文档时，凡涉及 Story 当前状态，一律以上述拆分件为准。**
+
 ---
 
 ## 0. 阅读约定（拆分纪律）
@@ -48,7 +54,7 @@
 - 依赖：无。估点：**M**。
 
 **EP01-S2 关内时序编排与同帧裁决**
-- 描述：PLAYING 固定步长 update 顺序（供料心跳 → 输入快照 → 落子裁决 → 完成判定 → 计时）；S1 收到 cleared/failed 双信号按 cleared 裁决。
+- 描述：PLAYING 固定步长 **帧内执行序**（`core-loop §2.2.2`，WXG-T-061 规范真源）：**输入（段内序：状态指令 → 玩法事件）→ 连击窗（仅冲刺）→ 供料 → 计时**；cleared 优先由该序的机制承担（输入段离开 PLAYING 后本帧直接返回，计时不再 tick）——原表述「供料心跳 → 输入快照 → …」是把 §2.2.1 **玩法叙事序**误读成执行序，已更正（叙事序 ≠ 执行序）。
 - 验收：`S1§8-5`「可填格全满瞬间无论剩余时间多少 → 必进 LEVEL_CLEAR（同帧归零场景以 cleared 优先，用例：设剩余 0.01s 时放最后一颗）」。
 - 复用框架：FixedStepLoop、EventBus。
 - 依赖：EP01-S1（判据联合 EP02-S4、EP05-S3 复验）。估点：**S**。
@@ -170,7 +176,8 @@
 ### EP-07 星级与结算（S7）`[待 GDD §8]`
 
 **EP07-S1 星级判定与结算面板** `[待 GDD §8]`
-- 描述：`stars = f(remaining/LEVEL_TIME)`（STAR3_RATIO 0.40 / STAR2_RATIO 0.20，过关至少 1★，扩展不扣星）；结算面板数据组装。
+- 描述：`stars = f(remaining/LEVEL_TIME)`（STAR3_RATIO **0.32** / STAR2_RATIO **0.12**，过关至少 1★，扩展不扣星）；结算面板数据组装。
+  > ✏️ 勘误（WXG-T-066）：原文 0.40/0.20 与 §3 冻结值（T-054）冲突，按 §0 纪律「以 §3 为准」更正。
 - 验收：`level:cleared` payload 的 ratio/stars 字段语义已在 S1 GDD §4 契约内；**星级具体用例判据待 S7 GDD §8**。
 - 依赖：EP02-S4、EP05-S1。估点：**M**。
 

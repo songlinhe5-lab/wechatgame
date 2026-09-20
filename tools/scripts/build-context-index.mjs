@@ -47,6 +47,8 @@
  *   node tools/scripts/build-context-index.mjs                    # write index + report
  *   node tools/scripts/build-context-index.mjs --check            # verify freshness, exit 1 on drift
  *   node tools/scripts/build-context-index.mjs --working-tree     # 逃生阀：按本地未提交内容索引
+ *        ⚠️ 须与 `check-context-budget.mjs --working-tree` **成对**使用（见其头注释）；只重建不校验、
+ *           或只切校验侧，都会得到与索引模式不匹配的假诊断。
  *   node tools/scripts/build-context-index.mjs --staged-blobs     # pre-commit 自动重建：暂存 .md 按暂存 blob 索引
  *
  * `--check` recomputes each file's content (per the contract above) and compares
@@ -62,15 +64,20 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import {
   BUDGET_MD_PATH,
+  HOT_FILES_MD_PATH,
   INDEX_PATH,
   LIMITS,
+  RESIDENT_PROTOCOL_FILES,
   buildIndex,
   freshnessIssues,
   readDistribution,
   readIndex,
+  renderHotFiles,
+  residentLimit,
   routesAnchorRefs,
   serializeIndex,
 } from './lib/context-index.mjs';
+import { MEMORY_INDEX_PATH, renderMemoryIndexText } from './lib/memory-index.mjs';
 
 const CHECK = process.argv.includes('--check');
 /** 逃生阀（WXG-T-026）：强制全部按工作树内容（含未提交改动）；输出标注「非默认模式」。 */
@@ -169,7 +176,14 @@ function today() {
 
 function renderBudget(index) {
   const files = index.files;
-  const resident = files.filter((f) => f.tier === 'always');
+  // A 项常驻层（WXG-T-039 R5）：always 层 + 协议常驻第二跳（hot-files / ROUTES），
+  // 与 check-context-budget.mjs A 项判定**同源**（上限列取 residentLimit() 单一真源）。
+  // ROUTES.md 是手维护路由表（被索引但非生成物），唯一护栏即门禁 A 项；本表同步展示其读数。
+  const byPath = new Map(files.map((f) => [f.path, f]));
+  const resident = [
+    ...files.filter((f) => f.tier === 'always'),
+    ...RESIDENT_PROTOCOL_FILES.map((p) => byPath.get(p)).filter(Boolean),
+  ];
   const top = [...files].sort((a, b) => b.tokens - a.tokens || a.path.localeCompare(b.path));
 
   const overLimit = top.filter((f) => f.tokens > LIMITS.fileMax);
@@ -187,13 +201,25 @@ function renderBudget(index) {
   L.push('| 文件 | 估算 tokens | 行数 | 上限 | 状态 |');
   L.push('|---|---:|---:|---:|:--:|');
   for (const f of resident) {
-    const limit = f.path === 'AGENTS.md' ? LIMITS.agentsMd : LIMITS.ruleFile;
+    const limit = residentLimit(f.path);
     L.push(`| \`${f.path}\` | ${f.tokens} | ${f.lines} | ${limit} | ${f.tokens <= limit ? '✅' : '❌'} |`);
   }
   L.push('');
   L.push(
     `> AGENTS.md 常驻阈值 **${LIMITS.agentsMd}**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，` +
       '与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。',
+  );
+  L.push(
+    `> \`ctx/ROUTES.md\` 常驻阈值 **${LIMITS.routesMd}**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，` +
+      '且低于 B 项通用单文件上限 8000——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。',
+  );
+  // 常驻总量观察哨（WXG-T-039 R5，报告项）：单文件上限各自为政时总量仍可漂移，
+  // 此行是观察哨；超软阈值不阻断，硬阻断只挂各单文件门（与门禁 A 项的总量行同源同判）。
+  const residentTotal = resident.reduce((n, f) => n + f.tokens, 0);
+  L.push(
+    `> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= ` +
+      `**${residentTotal}** 估算 tokens（观察哨软阈值 ≤ ${LIMITS.residentTotalSoft}${residentTotal > LIMITS.residentTotalSoft ? '，⚠️ 已超——请评估瘦身' : ''}）：` +
+      '单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。',
   );
   L.push('');
 
@@ -276,15 +302,43 @@ function runBuild() {
   // WORKTREE_AUTHORITATIVE, so the dirty→HEAD rule never shadows the new bytes.)
   let index = null;
   let prevBudget = null;
+  let prevHot = null;
+  let prevMemIndex = null;
   for (let round = 0; round < 4; round += 1) {
     ({ index } = buildIndex({ mode: MODE }));
     const budget = renderBudget(index);
-    if (budget === prevBudget) break; // 本轮读到的 BUDGET 与上轮写出的一致 → 已到不动点
+    const hot = renderHotFiles(index, readDistribution());
+    const memIndex = renderMemoryIndexText(index);
+    // 三个产物都参与不动点：它们本身都是被索引的 .md，其体积/行数会反过来影响索引。
+    // （memory/INDEX.md 的生成块只列日记、不列自身 ⇒ 无自指反馈，通常一轮即达。）
+    if (budget === prevBudget && hot === prevHot && memIndex === prevMemIndex) break;
     prevBudget = budget;
+    prevHot = hot;
+    prevMemIndex = memIndex;
     writeFileSync(BUDGET_MD_PATH, budget, 'utf8');
+    writeFileSync(HOT_FILES_MD_PATH, hot, 'utf8');
+    writeFileSync(MEMORY_INDEX_PATH, memIndex, 'utf8');
   }
+  // 1) 先以**最终内容**落盘 `memory/INDEX.md`（它自己也是被索引的 .md），
+  // 2) 再建一次索引把这份最终内容**纳入**，
+  // 3) 最后才序列化 —— 三步同源，磁盘上的 INDEX.md 必须与 index.json 记的哈希一致。
+  //
+  // ⚠️ 顺序不能反（WXG-T-072 的真因）：此前把 INDEX.md 写在 `serializeIndex()` **之后** ⇒
+  // index.json 记的是上一轮的 INDEX.md ⇒ pre-commit 的 C(--staged) 必然报「暂存与索引不一致」，
+  // 每次提交都要手工重建一轮才过（当天连踩四次）。hot-files.md 用「写两遍」绕开了同一问题，
+  // 这里改成显式闭环，不再依赖重试。
+  //
+  // ⚠️ 但「先写产物、后建索引」的顺序**只完成了必要条件**（WXG-T-112 补）：第二步 `buildIndex()`
+  // 对 `memory/INDEX.md` 取源仍走 `resolveContent` 的 committed / staged-blobs 分支（dirty → HEAD blob、
+  // 已暂存 → 暂存 blob）⇒ 拿到的是**改写前的旧字节**，index.json 记旧哈希，而第一步刚落盘的是新字节。
+  // 真正闭合要靠把该产物列进 `lib/context-index.mjs::WORKTREE_AUTHORITATIVE`（无条件取工作树）；
+  // 当时只调顺序未查取源，所以 pre-commit 仍需跑两遍（判例 BD-38，2026-09-15 worktree 实测）。
+  writeFileSync(MEMORY_INDEX_PATH, renderMemoryIndexText(buildIndex({ mode: MODE }).index), 'utf8');
   const { index: finalIndex, meta } = buildIndex({ mode: MODE });
   writeFileSync(INDEX_PATH, serializeIndex(finalIndex), 'utf8');
+  // 索引已固定后再写一次 hot-files（确保其行号描述的正是最终索引），并复核预算。
+  const finalHot = renderHotFiles(finalIndex, readDistribution());
+  writeFileSync(HOT_FILES_MD_PATH, finalHot, 'utf8');
 
   const byTier = { always: 0, hot: 0, normal: 0 };
   for (const f of finalIndex.files) byTier[f.tier] += 1;
@@ -293,6 +347,7 @@ function runBuild() {
     `✅ ctx/index.json 已写入 — 文件 ${finalIndex.files.length}（always ${byTier.always} / hot ${byTier.hot} / normal ${byTier.normal}），章节 ${sections}`,
   );
   console.log('✅ ctx/BUDGET.md 已写入');
+  console.log('✅ memory/INDEX.md 已写入（memory 摘要层；行号与最终索引一致）');
 
   // ── 契约提示：dirty 文件按 HEAD 索引 & 未提交新文件被跳过（WXG-T-026）；──────
   // ── staged-blobs：暂存 .md 按暂存 blob 索引（WXG-T-032 ⑤，pre-commit 自动重建）──

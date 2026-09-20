@@ -1,6 +1,6 @@
 ---
 name: wxgame-gdd-writer
-description: 写本仓库八节体系 GDD 时使用。当用户要求一页纸概念、系统拆解、systems-index 冻结常量、逐系统八节 GDD、数值冻结、设计评审，或提到 GDD、MDA、设计支柱时触发。输出「一页纸概念 → 系统索引（冻结常量）→ 八节 GDD → 理论评审」四件套；泛用格式或其他体系的 GDD 不走本 skill。
+description: 写本仓库八节体系 GDD、以及做**数值体检**时使用。当用户要求一页纸概念、系统拆解、systems-index 冻结常量、逐系统八节 GDD、数值冻结、设计评审、数值体检/平衡核对/查 §3 与落码漂移，或提到 GDD、MDA、设计支柱、balance check 时触发。输出「一页纸概念 → 系统索引（冻结常量）→ 八节 GDD → 理论评审」四件套，并含「数值平衡核对」章；泛用格式或其他体系的 GDD 不走本 skill。
 ---
 
 # wxgame GDD 编写法（工作室验证过的四件套流程）
@@ -75,6 +75,27 @@ description: 写本仓库八节体系 GDD 时使用。当用户要求一页纸�
 8. 跨文档一致性（与 systems-index、美术、UX 互相引用是否对得上）
 9. 待处理风险与建议（含已定案的方案记录）
 10. 结论 + 附评审 Checklist
+
+## 5. 数值平衡核对（原 `wxgame-balance-check`，WXG-T-175 并入）
+
+> 来源：Claude Code Game Studios `balance-check`（MIT）吸收改写。
+
+**硬纪律**：本动作**只读** —— 只出漂移 / 离群 / 建议，**无权改冻结值**；
+改值必须走 §3 变更单（`systems-index` + `systems-index-changelog`）并通知全部下游
+（先改文档再改代码）。
+
+**核对域（beads）**：托盘容量（§3.4）/ 星级结算（§3.7）/ 冲刺曲线（§3.10）/
+体力钱包（§3.14）/ 倒计时（§3.5）/ 难度爬梯（§3.13）/ 包体（§3.9）。
+
+**真源读取顺序**：`systems-index §3` → `tuning.ts`（落码值）→ 系统 GDD §7 公式 / §8 →
+`production/qa/beads/test-cases.md` → 关卡池。
+
+**核对项**：① **§3 ↔ `tuning.ts` 漂移**（最优先，真源被架空的信号）；② 离群值
+（实际 vs GDD 声明区间）；③ 退化策略（恒优解）；④ 进度死区 / 突变；⑤ 容量压力
+（触发"部分收纳 / 满槽"的频率）；⑥ 包体（`check:size`，**仅 release 产物有意义**）。
+
+**输出**：Health Summary（HEALTHY / CONCERNS / CRITICAL）+ Drift 表 + Outliers +
+退化策略 + 进度分析 + 建议表。修复循环只引导，不代改。
 
 ## 工作方式
 

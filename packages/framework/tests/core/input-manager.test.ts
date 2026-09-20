@@ -79,17 +79,94 @@ describe('InputManager', () => {
     expect(input.snapshot.justDown).toBe(true);
   });
 
-  it('ignores secondary pointers while one is active', () => {
+  it('tracks a secondary pointer in slot 1 without touching owner fields', () => {
     const input = new InputManager();
     input.beginFrame();
     input.push(sample(1, 10, 10, 'down'));
-    input.push(sample(2, 99, 99, 'down')); // ignored
-    input.push(sample(2, 99, 99, 'move')); // ignored (not the owner)
+    input.push(sample(2, 99, 99, 'down')); // slot 1, not ignored
+    input.push(sample(2, 120, 80, 'move')); // slot 1 move
     const s = input.snapshot;
+    // Owner (slot 0) semantics unchanged by the second pointer.
     expect(s.x).toBe(10);
     expect(s.y).toBe(10);
+    expect(s.justDown).toBe(true); // only the owner claims justDown
+    // Slot 1 carries the second pointer independently.
+    expect(s.isDown2).toBe(true);
+    expect(s.x2).toBe(120);
+    expect(s.y2).toBe(80);
+    expect(s.dx2).toBe(21); // 120 - 99 (prev seeded at the second finger's down)
+    expect(s.dy2).toBe(-19); // 80 - 99
     input.push(sample(1, 20, 20, 'move'));
-    expect(input.snapshot.x).toBe(20);
+    expect(input.snapshot.x).toBe(20); // owner still routes
+  });
+
+  it('does not set justDown for the second pointer', () => {
+    const input = new InputManager();
+    input.beginFrame();
+    input.push(sample(1, 5, 5, 'down'));
+    input.endFrame(1 / 60);
+    input.beginFrame();
+    input.push(sample(2, 40, 40, 'down'));
+    const s = input.snapshot;
+    expect(s.justDown).toBe(false); // owner already down last frame
+    expect(s.isDown).toBe(true);
+    expect(s.isDown2).toBe(true);
+  });
+
+  it('does not promote the second pointer to owner when the owner lifts', () => {
+    const input = new InputManager();
+    input.beginFrame();
+    input.push(sample(1, 10, 10, 'down'));
+    input.push(sample(2, 50, 50, 'down'));
+    input.endFrame(1 / 60);
+    input.beginFrame();
+    input.push(sample(1, 12, 12, 'up')); // owner lifts, finger 2 still held
+    const s = input.snapshot;
+    expect(s.isDown).toBe(false); // owner released
+    expect(s.justUp).toBe(true);
+    expect(s.isDown2).toBe(true); // slot 1 NOT migrated to owner
+    // A subsequent move of finger 2 must not become owner motion / justDown.
+    input.endFrame(1 / 60);
+    input.beginFrame();
+    input.push(sample(2, 70, 70, 'move'));
+    const s2 = input.snapshot;
+    expect(s2.justDown).toBe(false);
+    expect(s2.isDown).toBe(false);
+    expect(s2.x2).toBe(70);
+  });
+
+  it('clears both slots on reset', () => {
+    const input = new InputManager();
+    input.beginFrame();
+    input.push(sample(1, 10, 10, 'down'));
+    input.push(sample(2, 60, 60, 'down'));
+    input.reset();
+    const s = input.snapshot;
+    expect(s.isDown).toBe(false);
+    expect(s.isDown2).toBe(false);
+    expect(s.x2).toBe(0);
+    expect(s.y2).toBe(0);
+  });
+
+  it('keeps single-pointer sequences free of slot-1 leakage (regression anchor)', () => {
+    const input = new InputManager();
+    const seq = [
+      sample(0, 5, 5, 'down', 0),
+      sample(0, 20, 30, 'move', 16),
+      sample(0, 40, 40, 'up', 32),
+    ];
+    for (const s of seq) {
+      input.beginFrame();
+      input.push(s);
+      const snap = input.snapshot;
+      // Second slot never activates without a second pointer.
+      expect(snap.isDown2).toBe(false);
+      expect(snap.x2).toBe(0);
+      expect(snap.y2).toBe(0);
+      expect(snap.dx2).toBe(0);
+      expect(snap.dy2).toBe(0);
+      input.endFrame(1 / 60);
+    }
   });
 
   it('treats cancel as a release', () => {
@@ -129,5 +206,37 @@ describe('InputManager', () => {
     input.beginFrame();
     input.push(sample(0, 0, 0, 'down', 1234));
     expect(input.downTimestamp).toBe(1234);
+  });
+
+  /**
+   * 事件驱动宿主（Cocos / 微信）的时序契约：原生事件在**两个固定步之间**到达
+   * （上一次 `endFrame` 之后、下一次 `beginFrame` 之前）。本例就是真机
+   * 「能缩放不能拖动」的回归钩（WXG-T-167 真机反馈，2026-09-19）：
+   * 旧实现把 prev 推进放在 `beginFrame`，那一步发生时事件已写进 `_x`
+   * ⇒ `dx = _x - _prevX` 恒为 0 ⇒ 单指平移每帧收到零位移。
+   *
+   * 同步宿主（测试与 harness：beginFrame → push → update → endFrame）的期望位移
+   * 与本例相同，两种宿主不得出现两套语义。
+   */
+  it('reports the real delta when a move arrives between fixed steps', () => {
+    const input = new InputManager();
+    // 上一帧：按下于 (100,100)，已被读。
+    input.beginFrame();
+    input.push(sample(1, 100, 100, 'down'));
+    expect(input.snapshot.x).toBe(100);
+    input.endFrame(1 / 60);
+
+    // 帧间：手指移到 (140,120)，然后本固定步才开始。
+    input.push(sample(1, 140, 120, 'move'));
+    input.beginFrame();
+    const s = input.snapshot;
+    expect(s.dx).toBe(40);
+    expect(s.dy).toBe(20);
+    input.endFrame(1 / 60);
+
+    // 下一帧没有新事件 ⇒ 位移必须归零（不得把旧位移重复消费）。
+    input.beginFrame();
+    expect(input.snapshot.dx).toBe(0);
+    expect(input.snapshot.dy).toBe(0);
   });
 });

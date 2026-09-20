@@ -109,12 +109,15 @@
 
 ## 8. 分层阅读指引（已精简）
 
-分节阅读路由见 `ctx/ROUTES.md`（机器可读锚点）；细节见 `docs/agent/{repo-layout,commands,routing}.md`。
+分节阅读路由见 `ctx/ROUTES.md`（**第一跳**：意图 → 锚点）→ `ctx/hot-files.md`（**第二跳**：锚点 → `offset`/`limit` 速查，仅热文件与大文件，由 `pnpm run ctx:build` 生成）；细节见 `docs/agent/{repo-layout,commands,routing}.md`。
 
 ---
 
 ## 9. 知识库与调用透明（WXG-T-023 摘要）
 
-- **读**：实现/修复/接入/发布类任务开工前，先读 `knowledge/lessons.md` 同域条目，列入必读。
+- **读**：实现/修复/接入/发布类任务开工前，先查 `knowledge/INDEX.md` 活跃表（含「分片」列）定位同域条目，
+  只读 `knowledge/lessons/<标签>.md` 里那几条，列入必读。**条目正文已按行内标签分片**（WXG-T-111），
+  `knowledge/lessons.md` 只是指针页；引用一律写 **K-0NN**，不写文件路径。
 - **写**：收尾回传 0–3 条沉淀候选；`kb:sync` 的**沉淀统计（新增/修改/激活/归档）**必须摘入会话结论与台账。
 - 完整协议（记账/归档/激活与工具调用报告纪律）：`knowledge/INDEX.md §1/§2/§5`。
+- **读（memory）**：日志详情**只在四种触发下查** —— ① 改冻结常量/协议/裁定**前**（查当初为什么）② 接续未完成工作 ③ 追溯**用户原话与裁定** ④ 排障找**当初的确诊法**。入口 `memory/INDEX.md`（先 grep 任务号定位到节 → 再看「详情」列分流：未外移只读那一节，已外移改读 `memory/details/<…>.md`）；`MEMORY.md` 可常读。完整协议见 `memory/INDEX.md §1`。

@@ -1,9 +1,199 @@
 {
   "exempt": [
     {
-      "path": "memory/2026-09-12.md",
-      "reason": "追加式每日会话日记（非设计/规范文档），按时间序累积且并发会话正在写入，拆分会破坏时序与并发安全；已被 ctx 索引按章节锚点覆盖，开工查询走锚点即可",
-      "taskId": "WXG-T-030"
+      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.de.md",
+      "reason": "第三方 vendor 插件（cocos-mcp-server v1.5.4）自带的官方多语言 README，非本仓创作文档；不得改写拆分（破坏与上游一致性），已被 ctx 索引按章节锚点覆盖",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.es.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "production/TASKS-DETAIL.md",
+      "reason": "台账详情分片（每任务一 ## WXG-T-0NN 节），按读取协议只经 ctx 章节锚点局部读、从不整读；单文件 8000 上限对这类文件的原初理由（整读读不起）已弱化，其价值仅兜底；随 ✅ 任务累计必然增长",
+      "note": "收窄裁决（WXG-T-077，2026-09-14）：本豁免仅因近期 ✅ 任务（T-059/063/068–078）尚未满 30 天、tasks:archive 暂抽不走而权宜放行；一旦完成任务老化被 tasks:archive 成对搬入 production/archive/（不进索引面）使本文件自然降回 8000 下，须撤销本豁免。不得靠豁免放任无界膨胀。",
+      "taskId": "WXG-T-077"
+    },
+    {
+      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.de.md",
+      "reason": "第三方 vendor 插件（cocos-mcp-server v1.5.4）自带的官方多语言 README，非本仓创作文档；不得改写拆分（破坏与上游一致性），已被 ctx 索引按章节锚点覆盖",
+      "note": "beads 侧经 WXG-T-079 接入同一插件，与 breakout 侧 WXG-T-042 系同一 vendor 产物，故沿用其豁免政策。",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.es.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.fr.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.ja.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.ko.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.pt.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.ru.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.vi.md",
+      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
+      "taskId": "WXG-T-042"
+    },
+    {
+      "path": "games/beads/design/audio/audio-spec.md",
+      "reason": "beads 音频规格（wxgame-audio-spec 五件套：方向/事件表引用/BGM 结构/混音/实现策略）单体产出，连贯性优先；逐事件表已独立成 audio-events.md；已被 ctx 按章节锚点覆盖，读取走锚点不整读，单文件 8000 上限对此类规格仅兜底",
+      "note": "若后续内容进一步膨胀（>12000 tok），应按五件套拆为多文件；当前 10410 tok 依 TASKS-DETAIL 先例豁免。登记人 = 主理人",
+      "taskId": "WXG-T-083"
+    },
+    {
+      "path": "production/qa/beads/g4-regression-report.md",
+      "reason": "beads G4 首执行的逐探针回归报告（19 探针·一次性取证快照），与日记/回归日志同类：按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
+      "note": "与 memory 日记同口径；若后续多轮回归使本文件跨轮累积，应按运行批次拆分为 g4-regression-<date>.md。登记人 = 主理人",
+      "taskId": "WXG-T-084"
+    },
+    {
+      "path": "production/qa/beads/test-cases.md",
+      "reason": "beads QA 硬判据表（9 系统 A1–H3 + §G 可感知判据），逐系统×逐判据天然长；已被 ctx 按章节锚点覆盖、读取走 §A1..§H3/§G 局部读不整读；本会话由 WXG-T-084 补可感知判据后肨至 16163 tok",
+      "note": "收紧条件（与 TASKS-DETAIL 同口径）：本豁免为波次1 交付权宜放行；下次 QA 修订（WXG-T-084 复验轮）应将本文件按系统域拆为 test-cases-<域>.md 使单文件自然降回 8000 下，拆后撤销本豁免。不得靠豁免放任无界膨胀。登记人 = 主理人",
+      "taskId": "WXG-T-084"
+    },
+    {
+      "path": "docs/engine-reference/cocos/VERSION.md",
+      "reason": "Cocos 引擎参考文档（能力矩阵 G1–G5 + 版本史 + §3 缺陷取证表）天然长且按版本/缺陷时间序累积；已被 ctx 按章节锚点覆盖（§1 环境/§2 能力/§3 缺陷/§4…），读取协议走锚点局部读、从不整读；单文件 8000 上限对此类参考手册仅兜底",
+      "note": "本会话 WXG-T-082 据实修订（⚠️→✅）并新增 §3 G10 ES5 转译取证后胀至 11967 tok。若后续再跨大版本膨胀，宜按 VERSION-<major>.md 分版归档；当前依同类参考文档先例豁免。登记人 = 主理人",
+      "taskId": "WXG-T-082"
+    },
+    {
+      "path": "games/beads/design/ux/ux-spec.md",
+      "reason": "beads UX 规格单体（§1 原则/§2 流程/§3 线框/§4 状态×输入矩阵/§5 动效时长表/§6 留存/§7 可访问性/§8 裁决），已被 ctx 按章节锚点覆盖，QA 转用例只读 §4/§5 局部，开发期从不整读；274 行 29.7 KB 的越界幅度仅 8.5%，拆分反而会割裂互为镜像的 §4 矩阵与 §5 动效表",
+      "note": "WXG-T-098（2026-09-15）登记：本轮因 §5 补「闪烁口径」与「单次脉冲 + 500ms 重启门」两条注而越过 8000 tok。债务显式化：下次再触 ux-spec 且单次增幅 >500 tok 时，须先评估把 §3 ASCII 线框（89 行、独立性最强、读侧仅布局类任务需要）外移为 `design/ux/wireframes.md` 并同步 ctx/ROUTES.md 锚点，不得继续靠豁免无声硬扛（取向对齐 WXG-T-041 对 memory 豁免加的到期条件）。；WXG-T-130（2026-09-16）玩法反转（§4 +3 行/§5 +3 行/§6.1 重写）使其至 38355 B，主理人追认，拆分优先级提升",
+      "taskId": "WXG-T-098"
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0011-screen-coordinate-space-contract.md",
+      "reason": "ADR 单文件完整性：屏幕坐标契约正本，五节标准结构（§1 上下文/§2 备选/§3 决定/§4 后果/§5 复评）。T-104 的三处就地订正块（getLocation 真实语义表 / 契约落地方改写 / 「唯一越界者」勘误）依赖与被订正原文的邻近性，拆分即破坏订正可追溯性。已被 ctx 按章节锚点覆盖（§1–§5），control-manifest §6/§17 与 cocos-input-probe、touch-normalize.ts 均按节引用，读取走局部读、从不整读",
+      "note": "WXG-T-104（2026-09-15）订正块使其自 ≈7.9k 越至 8446 tok（超 446）。债务显式化：若 §1 上下文（106 行，含三宿主取证表）继续膨胀，宜把「宿主实测取证表」抽为附录文件、ADR 正文保留结论与指针；登记人 = 主理人",
+      "taskId": "WXG-T-104"
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md",
+      "reason": "ADR 单文件完整性：棋盘区缩放/平移与多点输入架构决策正本，五节标准结构（§1 上下文含三条既有约束取证 / §2 备选甲乙丙×丁123 / §3 决定含 §3.5 五开放分叉与 §3.6 分层验证 / §4 后果 / §5 复评）。§3 决定依赖 §2 备选否因与 §1 约束的邻近性，拆分即破坏「备选↔决定↔后果」可追溯性（沿 ADR-0011/WXG-T-104 先例）。已被 ctx 按章节锚点覆盖，control-manifest/GDD 按节引用，读取走局部读、从不整读",
+      "note": "WXG-T-166（2026-09-18）首次入仓即 11343 tok（超 3343，幅度大于 ADR-0011 的越界 446）。债务显式化：若缩放施工后需继续追加实施细节，宜把 §2 备选方案的甲乙丙逐否因长表、§3.6 验证判据清单抽为 ADR-0015-appendix.md，正文仅留结论与指针；本轮先依 ADR 完整性先例豁免。登记人 = 主理人",
+      "taskId": "WXG-T-166"
+    },
+    {
+      "path": "games/beads/art/accessibility.md",
+      "reason": "beads 可访问性判据正本（A1–A6/D1 判据行 + 降档登记节）；QA 按判据行局部读，开发期从不整读",
+      "note": "WXG-T-130（2026-09-16）首次入仓即 10499 tok：E4 幽灵符号移除的 A2b/A3 降档登记（用户签字）使正文+登记超限。债务显式化：若再增判据，宜把「降档登记节」拆为独立 a11y-changelog.md",
+      "taskId": "WXG-T-130"
+    },
+    {
+      "path": "games/beads/art/art-bible.md",
+      "reason": "beads 美术圣经正本（视觉基调/色板/绘制十层卡/LOD 分档），v1.3 起多轮迭代累积；美术/工程按节局部读",
+      "note": "WXG-T-131（2026-09-16）首次入仓即 23687 tok（≈3× 上限）：历史 v1.0→v1.5 全量累积从未入仓（beads art 目录此前未纳管）。债务显式化：backlog 应立「art-bible 拆分」（如 vfx-spec/绘制卡分册），本轮豁免以让规格批量落盘先行",
+      "taskId": "WXG-T-131"
+    },
+    {
+      "path": "games/beads/art/assets-spec.md",
+      "reason": "beads 资产规格正本（绘制卡逐图层几何/色值/图元统计表），与 art-bible 互为镜像的数值层；落码时只读对应卡",
+      "note": "WXG-T-131（2026-09-16）首次入仓即 24260 tok（≈3× 上限）：同 art-bible，历史累积从未入仓。债务显式化：backlog「assets-spec 拆分」（逐物体分册），另 §1.8 图元统计表为表格密集区可独立",
+      "taskId": "WXG-T-131"
+    },
+    {
+      "path": "games/beads/design/gdd/systems-index.md",
+      "reason": "beads 系统索引 + §3 冻结常量真源（QA/工程每日引用的冻结表），整体一致性优先",
+      "note": "WXG-T-130（2026-09-16）§3.13 错位参数小节 + §3.6/3.8 冻结变更 + §4 事件表增量使其自 ≈8.1k 越至 8798 tok（超 798）。债务显式化：下次冻结变更时评估把「§4 事件表」拆独立 events.md",
+      "taskId": "WXG-T-130"
+    },
+    {
+      "path": "games/beads/design/gdd/systems-index-changelog.md",
+      "reason": "beads systems-index §3 冻结常量的变更记录台账（每条冻结变更追加一行 vX.Y），按时间序追加、只经 ctx 锚点局部读、开发期从不整读；与 systems-index.md 互为「真源↔变更史」须整体一致",
+      "note": "WXG-T-158（2026-09-18）托盘同色归类/组选/批量填充裁定追加变更记录行使其自 ≈8.0k 越至 8050 tok（超 50，微超）。取向对齐 TASKS-DETAIL（WXG-T-077）台账豁免先例。债务显式化：若跨轮累积 >12000 tok，按版本区间归档为 systems-index-changelog-<vX>.md 后撤销本豁免。登记人 = 主理人",
+      "taskId": "WXG-T-158"
+    },
+    {
+      "path": "games/beads/design/audio/audio-events.md",
+      "reason": "beads 音频事件表正本（§1 事件表 17 行逐行对齐 + §2 反向无发明 + Q-A05 未决），音频域按表局部读",
+      "note": "⚠️ 代登记（2026-09-16，主理人 T-130 提交批次）：本文件 8660 tok 超 660 系 WXG-T-128 批（§5 新增两行的对齐登记，+12 行）所致，该批未登记豁免致 commit 守卫阻断；归属 WXG-T-128，请该单收口时追认本条",
+      "taskId": "WXG-T-128"
+    },
+    {
+      "path": "games/beads/design/gdd/input-control.md",
+      "reason": "beads 输入路由真源（§2.1 路由表 / §2.3 状态门禁 / §8 判据），S2 落码与 QA 判据的每日引用面",
+      "note": "WXG-T-130（2026-09-16）v2.0 选择锚化与路由分支化使其自 ≈7.9k 越至 8067 tok（超 67，微超）。债务显式化：下次修订时把 §8 判据表拆独立 judgement 文件",
+      "taskId": "WXG-T-130"
+    },
+    {
+      "path": "my-skills/subagent-driven-development/SKILL.md",
+      "reason": "已安装的 skill 正本（my-skills/**，第三方/上游 skill 安装产物），开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-17，全量提交批次）：vendor/安装会话未登记豁免致 commit 守卫阻断；归属 = skills 安装会话",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "my-skills/writing-skills/anthropic-best-practices.md",
+      "reason": "已安装的 skill 正本（my-skills/**，第三方/上游 skill 安装产物），开发期按 skill 清单入口读，从不整读这些 docs",
+      "note": "代登记（2026-09-17，全量提交批次）：vendor/安装会话未登记豁免致 commit 守卫阻断；归属 = skills 安装会话",
+      "taskId": "vendor-skills"
+    },
+    {
+      "path": "memory/INDEX.md",
+      "reason": "memory 摘要层索引（ctx:build 生成产物），行号与最终索引强同步，拆分会破坏锚点",
+      "note": "WXG-T-139（2026-09-17）随会话记录增长越至 8067 tok（超 67）。生成器产物 ⇒ 由 tasks:archive / ctx:build 周期收敛，不手工拆",
+      "taskId": "WXG-T-139"
+    },
+    {
+      "path": "games/beads/design/gdd/core-loop.md",
+      "reason": "beads 核心循环（S1）正本（§1 目标 / §2 机制含 §2.2.2 帧内执行序 / §6 边界 / §8 判据 / §9 变更记录）八节单体，与 systems-index / input-control 同族 GDD 真源；已被 ctx 按章节锚点覆盖，读取走 §2.2.2 / §8 局部读、开发期从不整读；拆分反而会把「帧内序」与「下游时基注」跨文件互引，破坏可追溯性（沿 ADR-0011/WXG-T-104先例）",
+      "note": "WXG-T-173（2026-09-18）U11 丁裁新增「§8 末时基位移注 · U11 修正声明」段（含代码事实 4 项 + K-052 重跑清单撤销项 + 口径澄清）使其自 ≈8.0k 越至 8405 tok（超 405，幅度与 ADR-0011/WXG-T-104 越界 446 同量级，属修正性追加、非结构膨胀）。债务显式化：下次修订时评估把 §9「变更记录」与 §8 末「时基位移注族」拆独立 `core-loop-changelog.md`（与 systems-index.md ↔ systems-index-changelog.md 同构）后撤销本豁免。登记人 = 主理人",
+      "taskId": "WXG-T-173"
     }
   ]
 }

@@ -11,11 +11,22 @@ import {
   createBeadsHarness,
   simpleTestLevel,
   placeColor,
-  placeAnyMatching,
+  firstEmptyCell,
   burnToRemaining,
 } from './helpers.js';
 import { normalSettleScore, stageParamsFor, STAGE_BONUS_TIME } from '../src/config/tuning.js';
+import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
+
+/** Continue is the only PAUSED exit (WXG-T-055 D-04: onResume stays paused). */
+function tapContinue(game: BeadsGame, mode: 'normal' | 'sprint' = 'sprint'): void {
+  const button = pausePanelLayout(mode).buttons.find((b) => b.id === 'resume');
+  if (!button) throw new Error('sprint: no resume button');
+  game.tapDesign(
+    (button.rect.xMin + button.rect.xMax) / 2,
+    (button.rect.yMin + button.rect.yMax) / 2,
+  );
+}
 
 type Harness = ReturnType<typeof createBeadsHarness>;
 
@@ -76,10 +87,11 @@ describe('S7 score-combo', () => {
   afterEach(() => vi.restoreAllMocks());
 
   // §8.1 普通模式局内全程零分数 HUD 元素；过关后 level:cleared payload 的 stars 与
-  // §3.7 阈值表逐一吻合（ratio=0.40/0.399/0.20/0.199 四点采样）。
+  // §3.7 阈值表逐一吻合（ratio=0.32/0.319/0.12/0.119 四点采样）。
   it('§8-1 normal mode has zero score HUD; stars match §3.7 thresholds at 4 sample ratios', () => {
     // Zero score HUD: render both modes and inspect text commands.
     const normal = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s7hud1',
     });
@@ -92,7 +104,9 @@ describe('S7 score-combo', () => {
       .map((c) => (c as { text: string }).text);
     expect(normalTexts.some((t) => t.includes('SCORE'))).toBe(false);
 
-    const sprint = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7hud2' });
+    const sprint = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7hud2'
+    });
     sprint.game.startSprint();
     const builder2 = new RenderModelBuilder(750, 1334);
     builder2.begin();
@@ -105,13 +119,14 @@ describe('S7 score-combo', () => {
 
     // Star threshold sampling: clear with remaining just above each boundary.
     const samples: { remaining: number; stars: number }[] = [
-      { remaining: 120, stars: 3 }, // ratio ≈ 0.40 → 3★
-      { remaining: 119.7, stars: 2 }, // ratio ≈ 0.399 → 2★
-      { remaining: 60, stars: 2 }, // ratio ≈ 0.20 → 2★
-      { remaining: 59.7, stars: 1 }, // ratio ≈ 0.199 → 1★
+      { remaining: 96, stars: 3 }, // ratio = 0.32 → 3★
+      { remaining: 95.7, stars: 2 }, // ratio = 0.319 → 2★
+      { remaining: 36, stars: 2 }, // ratio = 0.12 → 2★
+      { remaining: 35.7, stars: 1 }, // ratio = 0.119 → 1★
     ];
     for (const sample of samples) {
       const harness = createBeadsHarness({
+        noAssemble: true,
         levels: [simpleTestLevel({ decoys: [] })],
         saveKey: `wxgame.beads.test.s7star${sample.remaining}`,
       });
@@ -125,7 +140,11 @@ describe('S7 score-combo', () => {
         ).toBe(true);
       }
       burnToRemaining(harness, sample.remaining + 0.017);
-      expect(placeAnyMatching(game)).toBe(true);
+      // v2.0（WXG-T-136）：供料关停 ⇒ 最后一颗由夹具直接投放（原「托盘已被供料补上」前提作废）。
+      const last = firstEmptyCell(game)!;
+      expect(
+        placeColor(game, game.grid.requiredColor(last.row, last.col), last.row, last.col),
+      ).toBe(true);
       const payload = harness.last<{ ratio: number; stars: number }>('level:cleared')!;
       expect(payload.stars).toBe(sample.stars);
     }
@@ -143,7 +162,9 @@ describe('S7 score-combo', () => {
 
   // §8.3 sprint 单局时长 = SPRINT_TIME_DEFAULT（未覆盖时），误差 ≤ ±0.5s。
   it('§8-3 sprint run lasts SPRINT_TIME_DEFAULT (120 s ± 0.5 s)', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7dur' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7dur'
+    });
     harness.game.startSprint();
     expect(harness.game.phase).toBe('playing');
     expect(harness.game.remaining).toBe(120);
@@ -156,7 +177,9 @@ describe('S7 score-combo', () => {
   // §8.4 streak 达 C3 各阈值瞬间倍率切换为 ×2/×3/×5，combo:up 恰各 1 次；
   // 超过最高档 streak 继续增长但倍率封顶 ×5。
   it('§8-4 tiers [2,4,7] flip ×2/×3/×5 with exactly one combo:up each; cap ×5 above 7', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7tier' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7tier'
+    });
     const game = harness.game;
     game.startSprint();
 
@@ -176,7 +199,9 @@ describe('S7 score-combo', () => {
   // §8.5 断连三分支各 1 例：放错（rejected 后 streak=0、combo:break{reason:'wrong'}）、
   // 窗口超时（> COMBO_WINDOW_S 无落子，reason='timeout'）、无第三分支误触发。
   it('§8-5 break branches: wrong on reject, timeout on window expiry, no third branch', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7brk' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7brk'
+    });
     const game = harness.game;
     game.startSprint();
 
@@ -213,7 +238,9 @@ describe('S7 score-combo', () => {
   // §8.6 stage 填满 → sprint:stage{index+1} 恰 1 次、新图案 ≤1 帧装载、连击跨 stage 延续
   // （streak 值不变）。
   it('§8-6 stage fill → exactly one sprint:stage, ≤1-frame load, streak survives the switch', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7stage' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7stage'
+    });
     const game = harness.game;
     game.startSprint();
     // One stage banner at run start (stage 0 params injection).
@@ -244,7 +271,9 @@ describe('S7 score-combo', () => {
   // 加时与归零同帧按 C8 裁决。
   it('§8-7 stage bonus adds +15 s clamped to the run cap; C8 same-frame expiry defers to stage', () => {
     // Clamp: burn to 110 → complete the stage → 125 clamps to 120.
-    const clamped = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7cap' });
+    const clamped = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7cap'
+    });
     clamped.game.startSprint();
     burnToRemaining(clamped, 110.02);
     expect(clamped.game.remaining).toBeLessThanOrEqual(110.02);
@@ -254,23 +283,43 @@ describe('S7 score-combo', () => {
 
     // Exact arithmetic: 21 placed, burn to 20 s without placing, then the
     // final placement lands the +15 s at ≈35 (no clamp).
-    const exact = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7exact' });
+    const exact = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7exact'
+    });
     exact.game.startSprint();
     fillN(exact, exact.game.grid.fillableTotal - 1);
     burnToRemaining(exact, 20.02);
     expect(exact.game.remaining).toBeGreaterThan(20);
-    // One colour still needed + no decoys → every tray bead matches.
-    expect(placeAnyMatching(exact.game)).toBe(true);
+    // v2.0：供料关停 ⇒ 最后一颗由夹具直接投放。
+    const lastExact = firstEmptyCell(exact.game)!;
+    expect(
+      placeColor(
+        exact.game,
+        exact.game.grid.requiredColor(lastExact.row, lastExact.col),
+        lastExact.row,
+        lastExact.col,
+      ),
+    ).toBe(true);
     expect(exact.game.remaining).toBeGreaterThanOrEqual(20 + STAGE_BONUS_TIME);
     expect(exact.game.remaining).toBeLessThanOrEqual(20 + STAGE_BONUS_TIME + 0.03);
 
     // C8: expiry and stage completion in the same frame → stage first.
-    const sameFrame = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7c8' });
+    const sameFrame = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7c8'
+    });
     sameFrame.game.startSprint();
     fillN(sameFrame, sameFrame.game.grid.fillableTotal - 1);
     burnToRemaining(sameFrame, 0.02); // ≈0 but positive, no failure yet
     expect(sameFrame.game.remaining).toBeGreaterThan(0);
-    expect(placeAnyMatching(sameFrame.game)).toBe(true); // completes the stage
+    const lastSame = firstEmptyCell(sameFrame.game)!;
+    expect(
+      placeColor(
+        sameFrame.game,
+        sameFrame.game.grid.requiredColor(lastSame.row, lastSame.col),
+        lastSame.row,
+        lastSame.col,
+      ),
+    ).toBe(true); // completes the stage
     // Bonus applied BEFORE the frame's timer judgement → still alive.
     expect(sameFrame.game.phase).toBe('playing');
     expect(sameFrame.game.remaining).toBeGreaterThan(STAGE_BONUS_TIME - 0.1);
@@ -281,7 +330,9 @@ describe('S7 score-combo', () => {
   // §8.8 sprint 单局得分 = Σ(SCORE_PER_BEAD×倍率) + Σ stage 奖励，注入 20 次落子序列
   // 逐分可复算。
   it('§8-8 a scripted 20-placement sequence reproduces the score step by step', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7seq' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7seq'
+    });
     const game = harness.game;
     game.startSprint();
 
@@ -295,26 +346,34 @@ describe('S7 score-combo', () => {
       const cell = nthFillable(game, 0);
       expect(cell).not.toBeNull();
       const required = game.grid.requiredColor(cell!.row, cell!.col);
+      const before = game.grid.filledCount;
       if (step === 'c') {
         expect(placeColor(game, required, cell!.row, cell!.col)).toBe(true);
-        streak += 1;
-        expectedScore += 10 * expectedMultiplier(streak);
       } else {
         const wrong = required === 1 ? 2 : 1;
         expect(placeColor(game, wrong, cell!.row, cell!.col)).toBe(false);
         streak = 0;
       }
+      // 组批量填充（WXG-T-158）一次点击可沿同色连通空格级联填多格——MVP 大块图案
+      // 尤甚。每填一格都各自续连击、按当时倍率计分，故按 filledCount 增量复算。
+      const placed = game.grid.filledCount - before;
+      for (let i = 0; i < placed; i++) {
+        streak += 1;
+        expectedScore += 10 * expectedMultiplier(streak);
+      }
       // Step-by-step reproduction: after every placement the score matches.
       expect(game.sprintTracker.score).toBe(expectedScore);
     }
-    // 18 correct < 22 cells → no stage completed → no bonus term.
+    // 18 次点击（含级联）未填满 stage0 → 不换 stage → 无 stage 奖励项。
     expect(harness.count('sprint:stage')).toBe(1);
   });
 
   // §8.9 特效档位与倍率档一一对应（×2 粒子/×3 伪震屏/×5 全屏爆发），全程无 >3Hz 闪烁、
   // 无真位移震屏（DevTools 帧检）。
   it('§8-9 tier payloads map 1:1 onto the ×2/×3/×5 effect levels', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7fx' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7fx'
+    });
     const game = harness.game;
     game.startSprint();
     fillN(harness, 7);
@@ -342,8 +401,10 @@ describe('S7 score-combo', () => {
   // §8.10 PAUSED 期间连击窗口计时冻结（恢复后窗口从暂停值续算）；普通/冲刺模式互窜注入
   // （sprint 中发 level:cleared）→ 防御忽略 + 警告。
   it('§8-10 PAUSED freezes the combo window; cross-mode level:cleared injection is ignored + warned', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s7pause' });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => { });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s7pause'
+    });
     const game = harness.game;
     game.startSprint();
 
@@ -358,7 +419,7 @@ describe('S7 score-combo', () => {
     game.onPause();
     harness.advance(300); // ages while paused — nothing may break
     expect(harness.count('combo:break')).toBe(0);
-    game.onResume();
+    tapContinue(game, 'sprint');
     // Window resumes from its paused value (≈1.0 s), NOT from a fresh 5 s.
     harness.advance(0.9);
     expect(harness.count('combo:break')).toBe(0);
@@ -375,8 +436,12 @@ describe('S7 score-combo', () => {
   // §8.11 破纪录：sprint 结算分 > S8 最佳 → NEW BEST 显示且 S8 写入新值；≤ 最佳 → 不写不显示。
   it('§8-11 beating the sprint best writes the save and flags NEW BEST; ≤ best does not', () => {
     // Run A: build a score, then expire.
-    const storage = createBeadsHarness({ saveKey: 'wxgame.beads.test.s8rec' }).storage;
-    const runA = createBeadsHarness({ saveKey: 'wxgame.beads.test.s8rec', storage });
+    const storage = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec'
+    }).storage;
+    const runA = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage
+    });
     runA.game.startSprint();
     fillN(runA, 9);
     const scoreA = runA.game.sprintTracker.score;
@@ -391,7 +456,9 @@ describe('S7 score-combo', () => {
     expect(runA.game.sprintBestScore).toBe(scoreA);
 
     // Run B: a worse run on the same storage — no record write, no NEW BEST.
-    const runB = createBeadsHarness({ saveKey: 'wxgame.beads.test.s8rec', storage });
+    const runB = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage
+    });
     runB.game.startSprint();
     fillN(runB, 1);
     const scoreB = runB.game.sprintTracker.score;
@@ -401,7 +468,9 @@ describe('S7 score-combo', () => {
     expect(runB.game.sprintBestScore).toBe(scoreA); // unchanged
 
     // Run C: a better run — the save moves.
-    const runC = createBeadsHarness({ saveKey: 'wxgame.beads.test.s8rec', storage });
+    const runC = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s8rec', storage
+    });
     runC.game.startSprint();
     fillN(runC, 12);
     const scoreC = runC.game.sprintTracker.score;

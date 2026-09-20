@@ -10,23 +10,42 @@
  */
 
 import type { SaveDocument, Storage } from '@wxgame/framework';
+import { STAR_MAX, VIBRATE_DEFAULT } from '../config/tuning.js';
 
 /**
- * S9 audio settings (save-progress §2.2): two independent channels, persisted
- * the instant they are toggled. Missing fields degrade **per field** to false —
- * a document is never discarded because `settings` lacks a key.
+ * Persisted toggles (save-progress §2.2 + accessibility D1/E2, WXG-T-088): four
+ * independent channels, persisted the instant they are toggled. Missing fields
+ * degrade **per field** to false — a document is never discarded because
+ * `settings` lacks a key. This per-field default is exactly what lets the v1→v2
+ * bump (adding `reduceMotion` / `largeText`) stay backward compatible.
  */
 export interface BeadsSettings {
   /** Music channel muted (`bgmMuted`). */
   readonly bgmMuted: boolean;
   /** Sfx channel muted (`sfxMuted`). */
   readonly sfxMuted: boolean;
+  /** D1 减弱动效：关停非必要位移 / 脉冲（accessibility §4）。 */
+  readonly reduceMotion: boolean;
+  /** E2 大字号：正文 / 说明类文本放大（accessibility §5）。 */
+  readonly largeText: boolean;
+  /**
+   * 触觉震动开关（§3.8 VIBRATE_DEFAULT = ON，WXG-T-164 拍板⑦）：默认 **true**，
+   * 仅 isMiniGame 平台显示行（pause-settings v1.3 §8-12）；屏震语义不受本开关控制。
+   */
+  readonly vibrate: boolean;
 }
 
 export interface BeadsSave extends SaveDocument {
-  version: 1;
+  version: 4;
   /** Runs started — the "first launch" test is `runs === 0` (S1 §8-1). */
   runs: number;
+  /**
+   * 显式「已完成首屏引导」标记（WXG-T-097 · BD-32）：`runs` 每次 BOOT 自增、
+   * 不能作「是否见过引导」的真源（首玩落子前杀进程 ⇒ runs=1 ⇒ 旧判定永久失
+   * 引导）。首次落子置 true 并落盘；`normalizeBeadsSave` 对**无字段的 v2 存量档**
+   * 以 `runs > 0` 一次性迁移（老玩家不重看引导）。
+   */
+  onboarded: boolean;
   /** Highest unlocked level, 1-based, clamped to `[1, levelCount]`. */
   maxUnlockedLevel: number;
   /** Level to resume on boot, 1-based. Out of range degrades to 1. */
@@ -35,6 +54,12 @@ export interface BeadsSave extends SaveDocument {
   sprintBestScore: number;
   /** Best sprint stage index ever reached (0-based). */
   sprintBestStage: number;
+  /**
+   * 每关**历史最高星**（`0` = 未通关），长度 = 关卡数 —— S8 GDD §2.2 的 `stars`
+   * （代码侧命名 `starsByLevel`；键名与结构归代码，见该文文首「刻意例外」）。
+   * 语义 = 过关时 `max(旧, 新)`（§8-2「历史最高星不被低星覆盖」）。
+   */
+  starsByLevel: number[];
   /** S9 audio toggles (save-progress §2.2; written on every switch). */
   settings: BeadsSettings;
 }
@@ -43,17 +68,53 @@ export interface BeadsSave extends SaveDocument {
 export const SAVE_KEY = 'wxgame.beads.save.v1';
 /** Where an unreadable document is preserved before being discarded. */
 export const BACKUP_KEY = 'wxgame.beads.save.v1.bak';
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 4;
+
+/**
+ * v1 → v2（WXG-T-088）：新增可访问性开关 `reduceMotion`（D1）与 `largeText`
+ * （E2）。迁移**只升版本号并原样透传旧字段**——缺省的新字段交由 `normalizeSettings`
+ * 逐字段降级为 false，因此旧档进度与原 settings 全保留、绝不重置（旧档不炸）。
+ */
+export function migrateV1ToV2(doc: Record<string, unknown>): Record<string, unknown> {
+  return { ...doc, version: SAVE_VERSION };
+}
+
+/**
+ * v2 → v3（WXG-T-097 · BD-32）：新增显式引导标记 `onboarded`。迁移**只升版本号
+ * 并原样透传旧字段**——缺省字段交由 `normalizeBeadsSave` 判定：无 `onboarded` 的
+ * v2 存量档以 `runs > 0` 一次性迁移（玩过的 = 已引导），新档由 default 显式 false。
+ */
+export function migrateV2ToV3(doc: Record<string, unknown>): Record<string, unknown> {
+  // ⚠ 迁移必须在**本函数**内落 `onboarded`：SaveManager.load 会先用 defaults 补
+  // 缺字段再交给 normalize ⇒ normalize 层无法区分「v2 无字段」与「显式 false」。
+  // 存量玩家（runs>0）一次性迁移为已引导；v3 后字段由 default/写入恒在。
+  return {
+    ...doc,
+    onboarded: doc['onboarded'] !== undefined ? doc['onboarded'] === true : num(doc['runs'], 0) > 0,
+    version: SAVE_VERSION,
+  };
+}
+
+/**
+ * v3 → v4（WXG-T-164 拍板⑦）：settings 新增 `vibrate`（默认 ON）。同 v1→v2
+ * 判例：**只升版本号透传旧字段**，缺省字段由 `normalizeSettings` 逐字段降级。
+ */
+export function migrateV3ToV4(doc: Record<string, unknown>): Record<string, unknown> {
+  return { ...doc, version: SAVE_VERSION };
+}
 
 export function defaultBeadsSave(): BeadsSave {
   return {
     version: SAVE_VERSION,
     runs: 0,
+    onboarded: false,
     maxUnlockedLevel: 1,
     currentLevel: 1,
     sprintBestScore: 0,
     sprintBestStage: 0,
-    settings: { bgmMuted: false, sfxMuted: false },
+    // 长度在 `normalizeBeadsSave(raw, levelCount)` 里按关卡表补齐（出厂默认不知关卡数）。
+    starsByLevel: [],
+    settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: VIBRATE_DEFAULT },
   };
 }
 
@@ -76,6 +137,10 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
   return {
     bgmMuted: boolField(raw, 'bgmMuted', false),
     sfxMuted: boolField(raw, 'sfxMuted', false),
+    reduceMotion: boolField(raw, 'reduceMotion', false),
+    largeText: boolField(raw, 'largeText', false),
+    // §3.8 VIBRATE_DEFAULT = ON：缺字段降级为 true（与其余四开关的 false 相反）。
+    vibrate: boolField(raw, 'vibrate', VIBRATE_DEFAULT),
   };
 }
 
@@ -97,6 +162,28 @@ export interface NormalizeResult {
   readonly changed: boolean;
 }
 
+/**
+ * 每关星级数组（S8 GDD §2.2 `stars` / §2.4 降级矩阵 / §6 边界）：
+ *   · **长度不符 → 重置全 0**（§2.4 明文，不是「钳到某个长度」）；
+ *   · 单值非有限数 → 0；小数**向下取整**（§6）；再钳 `[0, STAR_MAX]`。
+ * 逐项钳正、**绝不弃整档**（与 `settings` 同判例）。
+ */
+function normalizeStars(raw: unknown, levelCount: number): number[] {
+  const out = new Array<number>(levelCount).fill(0);
+  if (!Array.isArray(raw) || raw.length !== levelCount) return out;
+  for (let i = 0; i < levelCount; i += 1) {
+    const value = raw[i];
+    if (typeof value !== 'number' || !Number.isFinite(value)) continue;
+    out[i] = Math.max(0, Math.min(STAR_MAX, Math.floor(value)));
+  }
+  return out;
+}
+
+/** 逐项相等（长度不同即不等）——`changed` 判定用。 */
+function sameNumbers(a: readonly number[], b: readonly number[]): boolean {
+  return a.length === b.length && a.every((v, i) => v === b[i]);
+}
+
 /** Repair a loaded document into a valid one (degrade, never throw). */
 export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeResult {
   const boundedCount = Math.max(1, Math.floor(levelCount));
@@ -106,14 +193,17 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
 
   const maxUnlocked = levelIndex(raw['maxUnlockedLevel'], boundedCount);
   const current = levelIndex(raw['currentLevel'], boundedCount);
+  const rawStars = raw['starsByLevel'];
 
   const save: BeadsSave = {
     version: SAVE_VERSION,
     runs: num(raw['runs'], 0),
+    onboarded: raw['onboarded'] === true,
     maxUnlockedLevel: maxUnlocked ?? 1,
     currentLevel: current ?? 1,
     sprintBestScore: num(raw['sprintBestScore'], 0),
     sprintBestStage: num(raw['sprintBestStage'], 0),
+    starsByLevel: normalizeStars(rawStars, boundedCount),
     settings: normalizeSettings(raw['settings']),
   };
 
@@ -123,9 +213,14 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     raw['currentLevel'] !== save.currentLevel ||
     raw['sprintBestScore'] !== save.sprintBestScore ||
     raw['sprintBestStage'] !== save.sprintBestStage ||
+    !Array.isArray(rawStars) ||
+    !sameNumbers(rawStars as number[], save.starsByLevel) ||
     raw['settings'] === undefined ||
     save.settings.bgmMuted !== boolField(raw['settings'], 'bgmMuted', false) ||
-    save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false);
+    save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false) ||
+    save.settings.reduceMotion !== boolField(raw['settings'], 'reduceMotion', false) ||
+    save.settings.largeText !== boolField(raw['settings'], 'largeText', false) ||
+    save.settings.vibrate !== boolField(raw['settings'], 'vibrate', VIBRATE_DEFAULT);
 
   return { save, changed };
 }

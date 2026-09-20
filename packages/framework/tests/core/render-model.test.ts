@@ -89,4 +89,44 @@ describe('RenderModelBuilder', () => {
       0.5, 0.25, 0.75, 0.1, 0.9,
     ]);
   });
+
+  // ── WXG-T-132 / ADR-0014：全局变换通道 ──────────────────────────────
+
+  it('emits no transform field by default (identity frames stay byte-old)', () => {
+    const b = new RenderModelBuilder(10, 10);
+    b.begin();
+    b.rect(0, 0, 1, 1, { fill: '#fff' });
+    const model = b.end();
+    expect('transform' in model).toBe(false);
+  });
+
+  it('setTransform embeds scale + design-space anchor', () => {
+    const b = new RenderModelBuilder(10, 10);
+    b.begin();
+    b.setTransform(1.015, 5, 5);
+    expect(b.end().transform).toEqual({ scale: 1.015, anchorX: 5, anchorY: 5 });
+  });
+
+  it('scale === 1 keeps the frame identity (no transform field)', () => {
+    const b = new RenderModelBuilder(10, 10);
+    b.begin();
+    b.setTransform(1, 3, 4);
+    expect('transform' in b.end()).toBe(false);
+  });
+
+  it('begin() resets the transform to identity', () => {
+    const b = new RenderModelBuilder(10, 10);
+    b.begin();
+    b.setTransform(1.015, 5, 5);
+    b.begin();
+    expect('transform' in b.end()).toBe(false);
+  });
+
+  it('the produced transform object is frozen', () => {
+    const b = new RenderModelBuilder(10, 10);
+    b.begin();
+    b.setTransform(1.015, 5, 5);
+    const t = b.end().transform!;
+    expect(Object.isFrozen(t)).toBe(true);
+  });
 });

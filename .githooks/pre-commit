@@ -1,17 +1,44 @@
 #!/usr/bin/env sh
 # 跨 IDE 统一：任意 git commit 前跑门禁。
-# 步骤：① pnpm run check:links（四 IDE 指针完整性）
+# 步骤：⓪ pnpm run check:secrets（密钥入仓守卫，WXG-T-047；红线，**拦截不修复**）
+#       ① pnpm run check:links（四 IDE 指针完整性）
+#       ①⁷⁄₈ 暂存区含 `packages/framework/src/**.ts` 时 → `sync-framework-to-cocos.mjs --check`
+#          （WXG-T-101：Cocos 镜像漂移守卫，**只拦不写**，无框架改动的提交零开销）
 #       ② 暂存区含 .md 时 → **自动重建上下文索引并重新暂存**（WXG-T-032 ⑤，2026-09-13）：
 #          `ctx/index.json` 描述「已提交内容（HEAD）」，而任何「改被索引 .md 的提交」其暂存内容
 #          必然 ≠ HEAD 锚定的旧索引 → 旧的拦截式 `ctx:check --staged` **结构性不可通过**
 #          （实测只能靠 --no-verify 绕过）。故 ② 不再拦截，改为：
 #            a. `ctx:build --staged-blobs`（暂存 .md 按**暂存 blob** 内容索引，暂存新文件一并纳入）；
-#            b. `git add ctx/index.json ctx/BUDGET.md`（重新暂存产物，随本次提交入库）；
+#            b. `git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md memory/INDEX.md`
+#               （重新暂存产物，随本次提交入库；`memory/INDEX.md` 是 WXG-T-068 新增的 memory
+#               摘要层产物 —— 与 BUDGET/hot-files 同为 ctx:build 生成物，故**必须**一并暂存）；
+#               ⚠️ 三个产物必须一起暂存：`ctx/hot-files.md` 是 `ctx:build` 生成的**新文件**（WXG-T-036 q-1），
+#                  首次提交若漏 add 则永不入库 → CI 干净检出缺该文件，`ctx/ROUTES.md §0` 第二跳（锚点→
+#                  offset/limit）直接断链，且 A 项预算表缺行。新增 ctx 产物时**必须同步登记到本行**。
+#               ⚠️⚠️ 新增 `ctx:build` 生成的 .md 时，除登记到上面那行 add 清单，**还必须**列进
+#                  `tools/scripts/lib/context-index.mjs::WORKTREE_AUTHORITATIVE`（WXG-T-112）：
+#                  漏一个 ⇒ 本钩子的「重建 → add → 校」**单遍不收敛**——build 时该产物尚未暂存，
+#                  索引按 HEAD / 旧暂存 blob 记**上一轮字节**，而随后 add 进去的是刚写出的**新字节**，
+#                  终校验必报「暂存内容与刚重建的索引仍不一致」→ 每次提交都要提交两遍。
+#                  判例 BD-38（`memory/INDEX.md` 漏登记，2026-09-15 worktree 实测：只暂存自有改动 /
+#                  手跑 build 并 add 产物 / 手跑 build 不 add 三种起手第一遍全红）。该不变式由
+#                  `ctx:check` 的装置自指对账门机械守住（CI 与本钩子兜底两处都跑；ctx:check 不在
+#                  verify 15 项内，本地要查请显式 `pnpm run ctx:check`——判例 BD-39 同族）。
 #            c. `ctx:check --staged` 仅作**兜底终校验**（正常路径恒绿，仅竞态/意外时拦截）。
 # 启用：git config core.hooksPath .githooks（见 tools/scripts/install-githooks.mjs）
 
 set -e
 cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# ⓪ 密钥入仓守卫（WXG-T-047）：最严重的一类问题放最前——密钥一旦进入提交历史，
+#     改写历史远比拦下来昂贵。零依赖纯 Node；扫描面 =「会入仓的文件集」；
+#     红线无「自动修复」语义，故**拦截而不重建**（同 ①¾ check:mcp 的取向）。
+echo "[pre-commit] pnpm run check:secrets"
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm run check:secrets
+else
+  node tools/scripts/check-secrets.mjs
+fi
 
 echo "[pre-commit] pnpm run check:links"
 if command -v pnpm >/dev/null 2>&1; then
@@ -28,6 +55,39 @@ else
   node tools/scripts/check-plugin-anchor.mjs
 fi
 
+# ①¾ MCP 配置漂移（WXG-T-043）：三份 IDE 配置须 == `my-mcp/servers.json` 渲染结果。
+#     与 ② 的 ctx 相反，此处**拦截而不自动重建**：MCP 配置错误的后果是 IDE 侧静默失效
+#     （本次 T-043 的起因就是三处手写漂移），静默重写比让人改正本更危险。
+echo "[pre-commit] pnpm run check:mcp"
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm run check:mcp
+else
+  node tools/scripts/build-mcp-configs.mjs --check
+fi
+
+# ①⁷⁄₈ Cocos 镜像一致性（WXG-T-101，覆盖面修正 WXG-T-098）：只在暂存区含**镜像源**时跑（≈0.2s）。
+#     背景：BD-20 已两次复发（改了镜像源码忘跑 `framework:sync` ⇒ 漂移入 HEAD，
+#     下一轮独立复验才发现，并连带阻塞全部 `[Cocos]` 取证）。此处**只拦不写**，两个理由：
+#       ① `git commit` 提交的是**索引**——钩子改写工作区不会进本次提交，静默重写只会造出
+#          「钩子绿了但镜像仍漏在 HEAD 之外」的新坑；
+#       ② 与 ①¾ `check:mcp` 同取向：镜像副本的正确写法是「作者自己 sync 后一并暂存」，
+#          让它在同一次提交里可见，而不是被钩子隐式捎带。
+#     ⚠️ 触发面必须等于 `sync-framework-to-cocos.mjs` 的**实际镜像源集合**：该脚本同时拷
+#       `packages/framework/src/**` 与 `games/<game>/src/**`（一次 sync 报「framework 39 + game 26」）。
+#       初版只匹配框架路径 → 改玩法源码（例 `games/beads/src/config/audio-voices.ts`）不触发核镜像，
+#       守卫漏一半。故此处用 `-E` 并列两条前缀，新增镜像源时**两处要一起改**。
+STAGED_FW="$(git diff --cached --name-only | grep -E '^packages/framework/src/.*\.ts$|^games/[^/]+/src/.*\.ts$' || true)"
+if [ -n "$STAGED_FW" ]; then
+  echo "[pre-commit] node tools/scripts/sync-framework-to-cocos.mjs --check（暂存含镜像源码，核镜像）"
+  if ! node tools/scripts/sync-framework-to-cocos.mjs --check; then
+    echo ""
+    echo "❌ 提交被阻止：本次暂存改了 packages/framework/src/** 或 games/*/src/**，但 Cocos 镜像拷贝件未同步。"
+    echo "   修复：pnpm run framework:sync → 再把 games/*/cocos/assets/scripts/ 下的改动一并 git add。"
+    echo "   （镜像必须由 sync 产出、与源码同次提交；**勿用 --no-verify 绕过**，见 control-manifest §15）"
+    exit 1
+  fi
+fi
+
 # ② ctx 索引自动重建（WXG-T-032 ⑤）：先探测暂存区是否含 .md（≈0 开销）；有才执行。
 STAGED_MD="$(git diff --cached --name-only | grep '\.md$' || true)"
 if [ -n "$STAGED_MD" ]; then
@@ -38,7 +98,7 @@ if [ -n "$STAGED_MD" ]; then
     echo "   修复：手动执行 pnpm run ctx:build 后重试；仍失败请上报主理人（勿用 --no-verify）。"
     exit 1
   fi
-  git add ctx/index.json ctx/BUDGET.md
+  git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md memory/INDEX.md
   echo "[pre-commit] 已自动重建索引并重新暂存（--staged-blobs）"
   echo "[pre-commit] node tools/scripts/check-context-budget.mjs --staged（兜底终校验）"
   if ! node tools/scripts/check-context-budget.mjs --staged; then

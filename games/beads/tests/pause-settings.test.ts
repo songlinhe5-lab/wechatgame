@@ -13,8 +13,10 @@ import {
   createBeadsHarness,
   simpleTestLevel,
   placeColor,
+  advancePastClearWave,
   type Harness,
 } from './helpers.js';
+import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import {
   pausePanelLayout,
   rectsOverlap,
@@ -34,10 +36,12 @@ import {
   TOUCH_MIN,
   TRAY_BAND,
   TRAY_COLS,
-  TRAY_GAP,
-  TRAY_SLOT,
+  TRAY_BASE_SLOTS,
+  TRAY_EXPAND_SLOTS,
+  trayLayout,
   gridLayoutFor,
 } from '../src/config/tuning.js';
+
 import type { BeadsGame } from '../src/game/beads-game.js';
 
 const STEP = 1 / 60;
@@ -100,15 +104,16 @@ function gridPoint(game: BeadsGame, row: number, col: number): { x: number; y: n
   return { x: layout.colCenterX(col), y: layout.rowCenterY(row) };
 }
 
-/** A tray slot centre (§3.4 derivation). */
+/**
+ * A tray slot centre（§3.4）—— **取单一真源 `trayLayout()`**，不得在此重推公式：
+ * 旧版自写 `(TRAY_BAND.yMin + yMax) / 2` 在 v1.20 面板改贴带上沿后整组脱靶，
+ * 而本文件所有断言都是「点下去无反应」——脱靶的点击会把它变成**永真断言**（假绿）。
+ */
 function trayPoint(slot: number): { x: number; y: number } {
-  const pitch = TRAY_SLOT + TRAY_GAP;
-  const rowWidth = TRAY_COLS * pitch - TRAY_GAP;
-  const left = (750 - rowWidth) / 2;
-  const col = slot % TRAY_COLS;
+  const lay = trayLayout(1);
   return {
-    x: left + TRAY_SLOT / 2 + pitch * col,
-    y: (TRAY_BAND.yMin + TRAY_BAND.yMax) / 2,
+    x: lay.slotCenterX(slot % TRAY_COLS),
+    y: lay.slotCenterY(Math.floor(slot / TRAY_COLS)),
   };
 }
 
@@ -136,9 +141,26 @@ describe('S9 pause & settings', () => {
   // §8.1 PLAYING 点齿轮 → game:paused 恰 1 次、PAUSED、面板可见、遮罩覆盖棋盘与
   // 托盘；PAUSED 中点击遮罩/棋盘/托盘/道具卡全部零响应。
   it('§8-1 gear pauses once; every non-button tap while PAUSED has zero response', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c1' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c1'
+    });
     const game = harness.game;
     expect(game.phase).toBe('playing');
+
+    // 正向对照（WXG-T-097/BD-15 副产物）：先证明「点该坐标」在 PLAYING 下**确实**会
+    // 选中一颗珠——否则下面的「PAUSED 点托盘零响应」只是点了个空处（永真断言）。
+    // 旧版 `trayPoint()` 自推带中线公式，v1.20 面板改贴带上沿后整组脱靶 ⇒ 该断言
+    // 已静默失效一轮，故此处补上真阳性基线。
+    const slotA = game.giveTrayBead(0);
+    const slotB = game.giveTrayBead(1);
+    expect(slotA).toBeGreaterThanOrEqual(0);
+    expect(slotB).toBeGreaterThanOrEqual(0);
+    const pointB = trayPoint(slotB);
+    // 注：选中不置 `_consumedTap`（该旗只表「吞掉且不落空」的分支），
+    // 真阳性以**事件**为准——这也是 §8 判据的口径。
+    tap(game, pointB.x, pointB.y);
+    expect(harness.count('tray:selected')).toBe(1);
+    expect(game.tray.selectedSlot).toBe(slotB);
 
     expect(tapGear(game)).toBe(true);
     expect(game.phase).toBe('paused');
@@ -149,10 +171,13 @@ describe('S9 pause & settings', () => {
     // Nothing may react while the panel owns the screen.
     const eventsBefore = harness.emitted.length;
     const cell = gridPoint(game, 0, 0);
-    const tray = trayPoint(0);
+    // 一颗**未被选中**的 holding 珠：若路由误穿过遮罩，本标点会产出第 2 次
+    // `tray:selected`（真阳性已由上方对照证明）——这才是硬断言。
+    const tray = trayPoint(slotA);
     const card = powerupPoint();
     // A point squarely between two buttons — i.e. the scrim itself.
-    const scrimPoint = { x: 375, y: 907 - 40 };
+    // WXG-T-164 批0：面板长高 600（yMax=967），标题带内非钮点 = yMax-40。
+    const scrimPoint = { x: 375, y: 967 - 40 };
 
     // The scrim really does cover the board **and** the tray (§2.2).
     const builder = new RenderModelBuilder(750, 1334);
@@ -175,7 +200,11 @@ describe('S9 pause & settings', () => {
     expect(labels).toContain('重玩本关');
     expect(labels.some((t) => t.startsWith('音乐'))).toBe(true);
     expect(labels.some((t) => t.startsWith('音效'))).toBe(true);
-    expect(labels.some((t) => t.includes('去冲刺'))).toBe(true);
+    // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏，咱不需要这个功能」）：暂停面板
+    // 行 4 不再出现冲刺入口 ⇒ 文案必须消失（旧判据「labels 含去冲刺」已反转）。
+    expect(labels.some((t) => t.includes('去冲刺'))).toBe(false);
+    expect(labels.some((t) => t.startsWith('减弱动效'))).toBe(true);
+    expect(labels.some((t) => t.startsWith('大字号'))).toBe(true);
 
     expect(tap(game, cell.x, cell.y)).toBe(false);
     expect(tap(game, tray.x, tray.y)).toBe(false);
@@ -186,26 +215,25 @@ describe('S9 pause & settings', () => {
     expect(harness.emitted.length).toBe(eventsBefore);
     expect(game.phase).toBe('paused');
     expect(harness.count('game:paused')).toBe(1);
-    expect(harness.count('tray:selected')).toBe(0);
+    expect(harness.count('tray:selected')).toBe(1); // 停在对照那一次，PAUSED 未新增
     expect(harness.count('bead:placed')).toBe(0);
     expect(harness.count('bead:rejected')).toBe(0);
   });
 
-  // §8.2 PAUSED 300s 后继续 → remaining 与暂停前一致（≤1 帧 dt），首个供料不早于
-  // "暂停剩余间隔 +1 帧"。
-  it('§8-2 resume after 300 s keeps remaining and resumes the feed rhythm', () => {
+  // §8.2 PAUSED 300s 后继续 → remaining 与暂停前一致（≤1 帧 dt）。
+  // v2.0（WXG-T-136）改写：供料关停 ⇒ 原「供料节律从暂停累加器续算」判据作废，
+  // 改为恢复后**零供料**反证（长跑 > 原 SPAWN_INTERVAL 仍零珠零事件）。
+  it('§8-2 resume after 300 s keeps remaining; the feed stays dead (zero spawn)', () => {
     const harness = createBeadsHarness({
-      levels: [simpleTestLevel({ spawnInterval: 4.0 })],
+      noAssemble: true,
+      levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s9c2',
     });
     const game = harness.game;
 
-    // Run until the first feed lands, so the spawner accumulator is ~0.
-    let guard = 0;
-    while (harness.count('tray:spawned') === 0 && game.phase === 'playing') {
-      harness.advance(STEP);
-      if (++guard > 600) throw new Error('no first feed');
-    }
+    harness.advance(1); // 进 PLAYING 稳定帧（供料关停后托盘恒空，无需等首供）
+    expect(harness.count('tray:spawned')).toBe(0);
+
     const beforePause = game.remaining;
     tapGear(game);
     expect(game.phase).toBe('paused');
@@ -221,15 +249,11 @@ describe('S9 pause & settings', () => {
     expect(game.remaining).toBeLessThanOrEqual(beforePause + STEP + 1e-9);
     expect(game.remaining).toBeGreaterThan(beforePause - STEP - 1e-9);
 
-    // The feed rhythm resumes from the paused accumulator, not from zero: with
-    // a 4.0 s interval the next bead needs ≥ (4.0 s − 1 frame) of steps.
-    const spawnedBefore = harness.count('tray:spawned');
-    let steps = 0;
-    while (harness.count('tray:spawned') === spawnedBefore && game.phase === 'playing') {
-      harness.advance(STEP);
-      if (++steps > 600) throw new Error('feed never resumed');
-    }
-    expect(steps + 1).toBeGreaterThanOrEqual(4.0 / STEP - 1);
+    // v2.0 零供料反证：恢复后再跑 6 s（> 原 SPAWN_INTERVAL 4.0s）——零珠零事件。
+    harness.advance(6);
+    expect(harness.count('tray:spawned')).toBe(0);
+    expect(harness.count('tray:full')).toBe(0);
+    expect(game.tray.holdingCount).toBe(0);
   });
 
   // §8.3 「重玩本关」→ 五项重置逐一断言，S1 直接回 PLAYING，无 GAME_OVER 中转。
@@ -238,6 +262,7 @@ describe('S9 pause & settings', () => {
       pattern: ['x12312', '123123', '123123', '123123', '123123'],
     });
     const harness = createBeadsHarness({
+      noAssemble: true,
       levels: [lockedLevel],
       saveKey: 'wxgame.beads.test.s9c3',
     });
@@ -248,7 +273,7 @@ describe('S9 pause & settings', () => {
     harness.advance(12); // burn countdown
     expect(game.expandTray()).toBe(true);
     expect(game.tray.expanded).toBe(true);
-    expect(game.tray.capacity).toBe(24);
+    expect(game.tray.capacity).toBe(TRAY_BASE_SLOTS + TRAY_EXPAND_SLOTS); // v1.24：24+24=48
     expect(game.grid.filledCount).toBe(1);
     expect(game.remaining).toBeLessThan(300);
 
@@ -267,7 +292,7 @@ describe('S9 pause & settings', () => {
     // 3. tray cleared · 4. expansion reverted
     expect(game.tray.holdingCount).toBe(0);
     expect(game.tray.expanded).toBe(false);
-    expect(game.tray.capacity).toBe(12);
+    expect(game.tray.capacity).toBe(TRAY_BASE_SLOTS); // v1.24：重开回基线 24 槽
     // 5. powerup free uses — no powerup state exists in this slice (S6 out of
     //    scope), so the item is vacuous here; see the lead report.
     expect(harness.count('powerup:used')).toBe(0);
@@ -276,7 +301,9 @@ describe('S9 pause & settings', () => {
   // §8.4 音乐/音效开关各切 2 次：settings.* 即档、重启回显一致、BGM 与 SFX 互不影响。
   it('§8-4 both toggles persist, re-load identically and never leak into each other', () => {
     const saveKey = 'wxgame.beads.test.s9c4';
-    const harness = createBeadsHarness({ saveKey });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey
+    });
     const game = harness.game;
 
     // Both channels start ON (save-progress §2.2 default false = not muted).
@@ -339,10 +366,18 @@ describe('S9 pause & settings', () => {
     expect(tap(game, p.x, p.y)).toBe(true); // now mute bgm too
     expect(game.bgmMuted).toBe(true);
     expect(game.sfxMuted).toBe(true);
-    expect(readSettings()).toEqual({ bgmMuted: true, sfxMuted: true });
+    expect(readSettings()).toEqual({
+      bgmMuted: true,
+      sfxMuted: true,
+      reduceMotion: false,
+      largeText: false,
+      vibrate: true,
+    });
 
     // Relaunch on the same storage → both toggles echo back.
-    const rebooted = createBeadsHarness({ saveKey, storage: harness.storage });
+    const rebooted = createBeadsHarness({
+      noAssemble: true, saveKey, storage: harness.storage
+    });
     expect(rebooted.game.bgmMuted).toBe(true);
     expect(rebooted.game.sfxMuted).toBe(true);
     expect(rebooted.game.snapshot.bgmMuted).toBe(true);
@@ -367,7 +402,8 @@ describe('S9 pause & settings', () => {
       const layout = pausePanelLayout(mode);
       expect(rectsOverlap(layout.panel, CAPSULE_AVOID)).toBe(false);
       expect(layout.panel.xMax - layout.panel.xMin).toBe(560);
-      expect(layout.panel.yMax - layout.panel.yMin).toBe(480);
+      // WXG-T-164 批0：暂停面板专有高 480 → 600（容纳第 4 行冲刺/回主菜单）。
+      expect(layout.panel.yMax - layout.panel.yMin).toBe(600);
       for (const button of layout.buttons) {
         expect(rectsOverlap(button.rect, CAPSULE_AVOID)).toBe(false);
         expect(button.rect.xMax - button.rect.xMin).toBeGreaterThanOrEqual(TOUCH_MIN);
@@ -379,15 +415,28 @@ describe('S9 pause & settings', () => {
         expect(button.rect.yMax).toBeLessThanOrEqual(layout.panel.yMax);
       }
     }
-    // Sprint swaps the restart label; the redundant sprint entry disappears.
-    expect(pausePanelLayout('sprint').buttons.some((b) => b.id === 'start-sprint')).toBe(false);
-    expect(pausePanelLayout('normal').buttons.some((b) => b.id === 'start-sprint')).toBe(true);
+    // WXG-T-177：冲刺入口 `start-sprint` **两模式均不再产出**（用户裁定「去冲刺按钮先隐藏」；
+    // 旧口径为「normal 有、sprint 无」）。
+    for (const mode of ['normal', 'sprint'] as const) {
+      expect(pausePanelLayout(mode).buttons.some((b) => b.id === 'start-sprint')).toBe(false);
+    }
+    // WXG-T-088：两个可访问性开关行3 常驻（两模式均保留，仅去冲刺位退场）。
+    // WXG-T-164 拍板⑦/§8-11：震动开关行与回主菜单次钮两模式常驻。
+    for (const mode of ['normal', 'sprint'] as const) {
+      const ids = pausePanelLayout(mode).buttons.map((b) => b.id);
+      expect(ids).toContain('toggle-reduce-motion');
+      expect(ids).toContain('toggle-large-text');
+      expect(ids).toContain('toggle-vibrate');
+      expect(ids).toContain('go-menu');
+    }
   });
 
   // §8.6 归零 vs 齿轮同帧两组用例。
   it('§8-6 expiry vs gear: later arrival loses; earlier arrival freezes', () => {
     // Group ① — expiry arrives first (already GAME_OVER): no pause at all.
-    const failed = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c6a' });
+    const failed = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c6a'
+    });
     while (failed.game.phase === 'playing') failed.advance(0.5);
     expect(failed.game.phase).toBe('game-over');
     const before = failed.emitted.length;
@@ -398,7 +447,9 @@ describe('S9 pause & settings', () => {
 
     // Group ② — gear arrives in the same frame the countdown would hit zero:
     // the freeze wins, no failure is judged while PAUSED.
-    const same = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c6b' });
+    const same = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c6b'
+    });
     // Stop with ≤1 frame of countdown left: this frame's tick *would* expire.
     while (same.game.remaining > STEP && same.game.phase === 'playing') {
       same.advance(STEP);
@@ -432,6 +483,7 @@ describe('S9 pause & settings', () => {
 
     // BOOT — invalid level data refuses PLAYING (core-loop §2.1).
     const boot = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel({ pattern: ['ZZZZZZ', '123123', '123123', '123123', '123123'] })],
       saveKey: 'wxgame.beads.test.s9c7boot',
     });
@@ -439,6 +491,7 @@ describe('S9 pause & settings', () => {
 
     // LEVEL_CLEAR — complete the board of a single-level campaign.
     const cleared = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s9c7clear',
     });
@@ -446,21 +499,34 @@ describe('S9 pause & settings', () => {
     phases.push({ name: 'level-clear', harness: cleared });
 
     // GAME_OVER — countdown to zero.
-    const over = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c7over' });
+    const over = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c7over'
+    });
     while (over.game.phase === 'playing') over.advance(0.5);
     phases.push({ name: 'game-over', harness: over });
 
-    // FINISH — let LEVEL_CLEAR auto-advance on the last level.
+    // FINISH — 结算面板主钮（末关文案「查看结果」）把 LEVEL_CLEAR 推进到 FINISH。
+    // WXG-T-063：LEVEL_CLEAR **不再自动推进**（ux-spec §4 流转表：等按钮）。
     const finished = createBeadsHarness({
+      noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.s9c7finish',
     });
     fillBoard(finished.game);
-    finished.advance(2);
+    expect(finished.game.phase).toBe('level-clear');
+    advancePastClearWave(finished); // 裁定 1（WXG-T-146）：波浪期内面板不可命中
+    const clearPrimary = clearPanelLayout({ lastLevel: true }).buttons[0]!.rect;
+    tap(
+      finished.game,
+      (clearPrimary.xMin + clearPrimary.xMax) / 2,
+      (clearPrimary.yMin + clearPrimary.yMax) / 2,
+    );
     phases.push({ name: 'finish', harness: finished });
 
     // PAUSED — injected while already paused.
-    const paused = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c7paused' });
+    const paused = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c7paused'
+    });
     tapGear(paused.game);
     phases.push({ name: 'paused', harness: paused });
 
@@ -476,7 +542,9 @@ describe('S9 pause & settings', () => {
 
   // §8.8 重复暂停幂等：PAUSED 中注入 game:paused → S5 保存值不变。
   it('§8-8 repeated pause is idempotent and never touches the stored countdown', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c8' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c8'
+    });
     const game = harness.game;
     harness.advance(3);
     const before = game.remaining;
@@ -500,7 +568,9 @@ describe('S9 pause & settings', () => {
 
   // §8.9 sprint 模式暂停：连击窗口计时冻结，恢复后从暂停值续算、不追溯断连。
   it('§8-9 the sprint combo window freezes while PAUSED and never back-breaks', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c9' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c9'
+    });
     const game = harness.game;
     game.startSprint();
     expect(game.phase).toBe('playing');
@@ -544,7 +614,9 @@ describe('S9 pause & settings', () => {
 
   // §8.10 面板出场 ≤ 入 200ms / 出 150ms 量级，全程无 >3Hz 闪烁。
   it('§8-10 panel ramps once within its 200/150 ms budget — no flicker possible', () => {
-    const harness = createBeadsHarness({ saveKey: 'wxgame.beads.test.s9c10' });
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.s9c10'
+    });
     const game = harness.game;
     tapGear(game);
     expect(game.panel.progress).toBe(0);
@@ -586,5 +658,125 @@ describe('S9 pause & settings', () => {
     // The whole lifecycle stayed inside the frozen budget (ux-spec §5).
     expect(PANEL_IN_MS).toBeLessThanOrEqual(200);
     expect(PANEL_OUT_MS).toBeLessThanOrEqual(150);
+  });
+
+  // §8.11 WXG-T-088：D1/E2 开关各自持久化、重启回显、与音频通道互不影响。
+  it('§8-11 accessibility toggles persist, echo on reboot and stay independent of audio', () => {
+    const saveKey = 'wxgame.beads.test.s9c11';
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey
+    });
+    const game = harness.game;
+    expect(game.reduceMotion).toBe(false);
+    expect(game.largeText).toBe(false);
+
+    tapGear(game);
+    expect(game.phase).toBe('paused');
+
+    // D1 减弱动效：切 ON 即写档、snapshot 同步回显。
+    const rm = buttonPoint('toggle-reduce-motion');
+    expect(tap(game, rm.x, rm.y)).toBe(true);
+    expect(game.reduceMotion).toBe(true);
+    expect(game.snapshot.reduceMotion).toBe(true);
+    // 不切相位——面板仍 PAUSED（与音频开关同纪律）。
+    expect(game.phase).toBe('paused');
+
+    // E2 大字号：再切一档。
+    const lt = buttonPoint('toggle-large-text');
+    expect(tap(game, lt.x, lt.y)).toBe(true);
+    expect(game.largeText).toBe(true);
+
+    const raw = harness.storage.get(saveKey);
+    expect(JSON.parse(raw as string).settings).toMatchObject({
+      reduceMotion: true,
+      largeText: true,
+      bgmMuted: false,
+      sfxMuted: false,
+    });
+
+    // 同存储重启 → 两开关回显，音频通道不受波及。
+    const rebooted = createBeadsHarness({
+      noAssemble: true, saveKey, storage: harness.storage
+    });
+    expect(rebooted.game.reduceMotion).toBe(true);
+    expect(rebooted.game.largeText).toBe(true);
+    expect(rebooted.game.snapshot.reduceMotion).toBe(true);
+    expect(rebooted.game.bgmMuted).toBe(false);
+    expect(rebooted.game.sfxMuted).toBe(false);
+  });
+
+  // ── WXG-T-055 D-04: WeChat onShow must not leave PAUSED ──────────────
+  // pause-settings §6: 面板按钮是唯一出口. App.onShow still calls
+  // loop.reset() + game.onResume(); only the latter's state-machine
+  // behaviour changes (framework wiring stays).
+
+  it('D-04 manual pause then onPause+onResume stays PAUSED', () => {
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.d04-manual'
+    });
+    const game = harness.game;
+    harness.advance(2);
+    const remaining = game.remaining;
+
+    expect(tapGear(game)).toBe(true);
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('manual');
+    expect(harness.count('game:paused')).toBe(1);
+    expect(game.panel.visible).toBe(true);
+
+    // Hide while already on the panel — no re-enter, intent stays manual.
+    game.onPause();
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('manual');
+    expect(harness.count('game:paused')).toBe(1);
+
+    game.onResume();
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('manual');
+    expect(harness.count('game:resumed')).toBe(0);
+
+    harness.advance(8);
+    expect(game.remaining).toBeCloseTo(remaining, 10);
+    expect(game.phase).toBe('paused');
+
+    const p = buttonPoint('resume');
+    expect(tap(game, p.x, p.y)).toBe(true);
+    expect(game.phase).toBe('playing');
+    expect(game.pauseIntent).toBeNull();
+    expect(harness.count('game:resumed')).toBe(1);
+  });
+
+  it('D-04 PLAYING onPause enters PAUSED and onResume stays PAUSED', () => {
+    const harness = createBeadsHarness({
+      noAssemble: true, saveKey: 'wxgame.beads.test.d04-system'
+    });
+    const game = harness.game;
+    expect(game.phase).toBe('playing');
+    expect(game.pauseIntent).toBeNull();
+    harness.advance(3);
+    const remaining = game.remaining;
+
+    game.onPause();
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('system');
+    expect(harness.count('game:paused')).toBe(1);
+    expect(game.panel.visible).toBe(true);
+    expect(game.panel.interactive).toBe(true);
+    const ticksAtPause = harness.count('timer:tick');
+
+    game.onResume();
+    expect(game.phase).toBe('paused');
+    expect(game.pauseIntent).toBe('system');
+    expect(harness.count('game:resumed')).toBe(0);
+
+    harness.advance(12);
+    expect(game.remaining).toBeCloseTo(remaining, 10);
+    expect(harness.count('timer:tick')).toBe(ticksAtPause);
+
+    const p = buttonPoint('resume');
+    expect(tap(game, p.x, p.y)).toBe(true);
+    expect(game.phase).toBe('playing');
+    expect(game.pauseIntent).toBeNull();
+    expect(harness.count('game:resumed')).toBe(1);
   });
 });
