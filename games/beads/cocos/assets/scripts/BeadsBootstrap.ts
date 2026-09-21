@@ -47,13 +47,41 @@ export class BeadsBootstrap extends Bootstrap {
     //   studio=http://<局域网 IP>:8787  ⇒ 主菜单设置页出现「导入」钮。
     // 不传 ⇒ 零入口（release 路径不受影响）；微信侧走 wx.request，非微信宿主回退 fetch。
     const host = globalThis as unknown as {
-      wx?: { getLaunchOptionsSync?: () => { query?: Record<string, string> } };
+      wx?: {
+        getLaunchOptionsSync?: () => { query?: Record<string, string> };
+        request?: (opts: {
+          url: string;
+          success: (res: { data: unknown }) => void;
+          fail: (err: { errMsg?: string }) => void;
+        }) => void;
+      };
       location?: { search?: string };
     };
     const studioBase =
       host.wx?.getLaunchOptionsSync?.()?.query?.studio ?? host.location?.search?.match(/studio=([^&]+)/)?.[1];
+    // 微信运行时**没有全局 fetch**（实测 `typeof fetch === "undefined"`）⇒ shell 缺省通道会在
+    // 点「导入」时抛 TypeError 被 reject 吃掉（静默失败，WXG-T-179 续修）；有 wx.request 时由宿主注入。
+    const wxReq = host.wx?.request;
     const shell = createBeadsShell(
-      studioBase ? { studio: { baseUrl: decodeURIComponent(studioBase) } } : {},
+      studioBase
+        ? {
+            studio: {
+              baseUrl: decodeURIComponent(studioBase),
+              ...(wxReq
+                ? {
+                    get: (url: string): Promise<unknown> =>
+                      new Promise((resolve, reject) =>
+                        wxReq({
+                          url,
+                          success: (res) => resolve(res.data),
+                          fail: (err) => reject(new Error(`wx.request 失败：${err?.errMsg ?? '?'}`)),
+                        }),
+                      ),
+                  }
+                : {}),
+            },
+          }
+        : {},
     );
     const g = globalThis as WxgDebugGlobal;
     g.__WXG_GAME_DEBUG = () => {

@@ -278,6 +278,8 @@ export class BeadsShell implements Game {
         const bus = this._services?.events as unknown as { emit?: (t: string, p: unknown) => void } | undefined;
         const done = (ok: boolean, detail: string): void => {
             this._studioBusy = false;
+            // 失败不得只进事件（无 UI 监听 ⇒ 静默）；console 是调试通道的最低反馈（WXG-T-179）。
+            console.info(`[studio] ${ok ? '导入成功' : '导入失败'}：${detail}`);
             bus?.emit?.('meta:studio-import', { ok, detail });
         };
         const get: HttpGet =
