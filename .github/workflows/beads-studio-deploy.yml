@@ -1,5 +1,6 @@
 # beads-studio VPS 发布（WXG-T-179 续作）
-# **触发时机 = develop → master 合并完成之后**（只挂 master）：
+# ⏸ **当前自动发布已暂关**（push 触发整块注释，见 on:）；仅保留 workflow_dispatch 手动补发。
+# **触发时机（恢复后）= develop → master 合并完成之后**（只挂 master）：
 #   PR 合入 master 会产生 push 事件，paths 命中的就是本批 PR 改动的文件 ⇒ 自动发布；
 #   develop 上的日常合入**不**上线（要提前验，在 develop 上本地跑 deploy.sh 或直接看 Actions 手动跑）。
 # 也可手动发：Actions → beads-studio-deploy → Run workflow（可从任意分支手跑，但代码取自所选项分支）。
@@ -16,12 +17,14 @@
 name: beads-studio-deploy
 
 on:
-  push:
-    branches: [master]  # develop → master 的 PR 合入 = 发布（master 是本仓默认分支）
-    paths:
-      - 'apps/beads-studio/**'
-      - 'tools/scripts/beads-gen.mjs'
-      - '.github/workflows/beads-studio-deploy.yml'
+  # ⏸ 自动发布暂关（用户 2026-09-21 令「后续需要再加」）：恢复 = 取消下行整块注释。
+  # 关的是 develop→master 合入自动触发；紧急补发仍可用下方 workflow_dispatch 手动跑。
+  # push:
+  #   branches: [master]  # develop → master 的 PR 合入 = 发布（master 是本仓默认分支）
+  #   paths:
+  #     - 'apps/beads-studio/**'
+  #     - 'tools/scripts/beads-gen.mjs'
+  #     - '.github/workflows/beads-studio-deploy.yml'
   workflow_dispatch:  # 手动补发 / 重发（同一个 deploy 作业）
 
 concurrency:
