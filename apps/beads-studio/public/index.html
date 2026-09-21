@@ -391,10 +391,11 @@
             $('gen').disabled = false;
         };
 
-        /** 行字符串数组（pattern / misplaced）→ 画布：绘制逻辑全部在 /board-render.js（与游戏版面同一视觉契约，可复用模块）。 */
+        /** 行字符串数组（pattern / misplaced）→ 画布：绘制逻辑全部在 /board-render.js（与游戏版面同一视觉契约，可复用模块）。
+         *  pattern 一并传入 ⇒ 目标色坑/垫与背景同画，**正解与错位两视图同底**（view-model 同源）。 */
         function drawBoard(rowsArr) {
             const cv = $('cv');
-            BeadsBoardRender.drawBoard(cv.getContext('2d'), cv.width, cv.height, rowsArr, { cols: current.cols, rows: current.rows });
+            BeadsBoardRender.drawBoard(cv.getContext('2d'), cv.width, cv.height, rowsArr, { cols: current.cols, rows: current.rows, pattern: current.levelDraft?.pattern });
         }
 
         /** 原图视图：把缩略图等比画到画布中央（contain，不裁剪）。 */

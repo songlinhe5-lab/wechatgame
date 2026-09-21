@@ -20,7 +20,9 @@
  *   `games/beads/src/config/tuning.ts`：BEAD_CELL 50 / BEAD_GAP 2 ⇒ 珠占格边 50/52
  *
  * **有意不移植**（预览不需要动效/无障碍层；要升级先立项）：L5 符号层（a11y 三重
- * 编码）、L11 目标色垫、lift/scale/LOD、选中环与呼吸、S3/S4 内缘光、托盘区。
+ * 编码）、垫随 lift/scale 动效、选中环与呼吸、S3/S4 内缘光、托盘区。L11 目标色垫
+ * **已移植**（view-model L792/L850：空格画目标色 socket、有珠画垫+内缩珠，正解/错位
+ * 两视图同底）。
  *
  * 坐标系：设计空间 y 向上，canvas y 向下 —— 凡「自底边」的比例都已翻转，勿再乘错。
  */
@@ -44,6 +46,8 @@
         { x: 0.16, y: 0.68, w: 0.56, h: 0.14, r: 0.07, a: 0.30 },
     ];
     var SOCKET_EDGE_MIX = -0.3, SOCKET_PIT_MIX = -0.44, SOCKET_PIT_INSET = 0.06, SOCKET_EDGE_W = 3 / 64;
+    /** 珠体相对垫的四边内缩：BEAD_DRAW_INSET 6 / BEAD_CELL 50（tuning.ts，同心圆角式 radius = padR − inset）。 */
+    var BEAD_INSET_RATIO = 6 / 50;
 
     // ── 纯逻辑（可单测） ──
 
@@ -95,15 +99,17 @@
         g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
     }
 
-    function drawSocket(g, x, y, size) {
+    /** socket（S0 底色 + S2 坑底 + S1 暗缘框）。base = 目标色时为游戏同款「提示色坑」，缺省用中性 slot。 */
+    function drawSocket(g, x, y, size, base) {
+        base = base || SLOT;
         var r = Math.round(size * RADIUS);
-        rr(g, x, y, size, size, r); g.fillStyle = SLOT; g.fill();
+        rr(g, x, y, size, size, r); g.fillStyle = base; g.fill();
         var inset = size * SOCKET_PIT_INSET;
         rr(g, x + inset, y + inset, size - inset * 2, size - inset * 2,
             Math.max(2, Math.round((size - inset * 2) * RADIUS * 0.8)));
-        g.fillStyle = mix(SLOT, SOCKET_PIT_MIX); g.fill();
+        g.fillStyle = mix(base, SOCKET_PIT_MIX); g.fill();
         rr(g, x, y, size, size, r);
-        g.strokeStyle = mix(SLOT, SOCKET_EDGE_MIX);
+        g.strokeStyle = mix(base, SOCKET_EDGE_MIX);
         g.lineWidth = Math.max(2, size * SOCKET_EDGE_W); g.stroke();
     }
 
@@ -115,9 +121,17 @@
         ln(g, x + size - inset, y + inset, x + inset, y + size - inset, 'rgba(236,234,243,0.9)', 2);
     }
 
-    /** 珠子（L0a 接触阴影/L0b 投影/L1 主体/L2 暗倒角/L3 亮倒角/L3b rim/L4 三层软高光）。 */
-    function drawBead(g, x, y, size, base) {
+    /** 珠子（L11 目标色垫可选 + L0a 接触阴影/L0b 投影/L1 主体/L2 暗倒角/L3 亮倒角/L3b rim/L4 三层软高光）。
+     *  传 targetBase ⇒ 先画垫（fill = edge 色、满幅），珠体内缩露缝且圆角同心（WXG-T-162 问题 3 同式）。 */
+    function drawBead(g, x, y, size, base, targetBase) {
         var r = Math.round(size * RADIUS);
+        var inset = 0;
+        if (targetBase) {
+            rr(g, x, y, size, size, r); g.fillStyle = mix(targetBase, SOCKET_EDGE_MIX); g.fill();
+            inset = size * BEAD_INSET_RATIO;
+            x += inset; y += inset; size -= inset * 2;
+            r = Math.max(1, r - inset);
+        }
         rr(g, x + size * 0.06, y + size * 0.88, size * 0.88, size * 0.1, r * 0.5);
         g.fillStyle = 'rgba(30,32,51,' + CONTACT_A + ')'; g.fill();
         rr(g, x, y + size * SHADOW_DY, size, size, r);
@@ -139,23 +153,29 @@
     }
 
     /**
-     * rowstring 数组（pattern / misplaced）→ 盘面。opts: { cols, rows }。
-     * 字符契约（levels-spec §2）：'.' 空位 socket · 'x' 非盘 locked · '1'-'9','A'… 珠色。
+     * rowstring 数组（misplaced 或正解）→ 盘面。opts: { cols, rows, pattern }，
+     * pattern = 正解 rowstrings（目标色，view-model L792/L850 同式：空格画目标色坑、
+     * 有珠画垫+内缩珠；pattern 缺省退化为按 beads 自身色画满珠，无垫无坑）。
+     * 字符契约（levels-spec §2）：'.' 空位 · 'x' 非盘 locked · '1'-'9','A' 珠色。
      */
     function drawBoard(g, canvasW, canvasH, rowsArr, opts) {
-        var cols = opts.cols, rows = opts.rows;
+        var cols = opts.cols, rows = opts.rows, pat = Array.isArray(opts.pattern) ? opts.pattern : null;
         g.fillStyle = BG; g.fillRect(0, 0, canvasW, canvasH);
-        if (!Array.isArray(rowsArr)) return;
+        if (!Array.isArray(rowsArr) && !pat) return;
         var L = layout(canvasW, canvasH, cols, rows);
         for (var y = 0; y < rows; y++) {
-            var line = rowsArr[y] || '';
+            var line = (rowsArr || [])[y] || '';
+            var pLine = (pat || [])[y] || '';
             for (var x = 0; x < cols; x++) {
-                var ch = line[x];
+                var ch = line[x], tch = pLine[x];
                 var bx = L.ox + x * L.cell + (L.cell - L.size) / 2;
                 var by = L.oy + y * L.cell + (L.cell - L.size) / 2;
-                if (!ch || ch === '.') drawSocket(g, bx, by, L.size);
-                else if (ch === 'x') drawLocked(g, bx, by, L.size);
-                else drawBead(g, bx, by, L.size, beadColor(indexFromChar(ch)));
+                var target = tch && tch !== '.' && tch !== 'x' ? beadColor(indexFromChar(tch)) : null;
+                if (!ch || ch === '.') {
+                    if (pat) { if (target) drawSocket(g, bx, by, L.size, target); }
+                    else if (!pat) drawSocket(g, bx, by, L.size);
+                } else if (ch === 'x') drawLocked(g, bx, by, L.size);
+                else drawBead(g, bx, by, L.size, beadColor(indexFromChar(ch)), pat ? target : null);
             }
         }
     }
