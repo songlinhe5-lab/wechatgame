@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4658,
       "lines": 82,
-      "sha256": "289dbd3f90b2d75dfca6a5e3a4415f9f64469148e336c09ccda3c8be45f1ceec",
+      "sha256": "73b202034e7a6ed61926b2c45f95ffaf245731f7c658a0b6d56876cd98a10eaf",
       "tier": "normal",
       "sections": [
         {
@@ -55838,6 +55838,159 @@
             "Review",
             "Spec",
             "Task1"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/plans/2026-09-22-level-content-pipeline-P2.md",
+      "tokens": 5071,
+      "lines": 278,
+      "sha256": "e5928555754d923382367a46c77455ec6cfdd358e77f6ae11f678bdb44222318",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§关卡内容管线 P2（切块产 Plate + 目录模式入关）实现计划",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 279,
+          "tokens": 5046,
+          "summary": "For agentic workers: REQUIRED SUB-SKILL: 用 executing-plans 逐",
+          "keywords": [
+            "Plate",
+            "For",
+            "agentic",
+            "workers",
+            "REQUIRED",
+            "SUB"
+          ]
+        },
+        {
+          "anchor": "§Global Constraints",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 27,
+          "tokens": 559,
+          "summary": "切块算法（spec §0，逐字）：每方向 k=ceil(n/GRID_MAX)，base=floor(n/k)，余数 r",
+          "keywords": [
+            "§0",
+            "Global",
+            "Constraints",
+            "spec",
+            "ceil",
+            "GRID_MAX"
+          ]
+        },
+        {
+          "anchor": "§文件结构",
+          "level": 2,
+          "startLine": 28,
+          "endLine": 43,
+          "tokens": 340,
+          "summary": "Create tools/scripts/level-slice.mjs 纯函数：母版 (pattern[], misp",
+          "keywords": [
+            "Create",
+            "tools",
+            "scripts",
+            "level",
+            "slice",
+            "mjs"
+          ]
+        },
+        {
+          "anchor": "§Task 1: level-slice.mjs（切块纯函数 + 单测）",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 142,
+          "tokens": 1146,
+          "summary": "Interfaces:",
+          "keywords": [
+            "Task",
+            "level",
+            "slice",
+            "mjs",
+            "Interfaces",
+            "切块纯函数"
+          ]
+        },
+        {
+          "anchor": "§Task 2: level-store.mjs（manifest 读写 / uid 分配 / 落盘对象构造）",
+          "level": 2,
+          "startLine": 143,
+          "endLine": 187,
+          "tokens": 627,
+          "summary": "Interfaces:",
+          "keywords": [
+            "Task",
+            "level",
+            "store",
+            "mjs",
+            "manifest",
+            "uid"
+          ]
+        },
+        {
+          "anchor": "§Task 3: server.mjs `ingestLevel` 目录模式重写 + importBlockers 语义",
+          "level": 2,
+          "startLine": 188,
+          "endLine": 225,
+          "tokens": 846,
+          "summary": "Interfaces:",
+          "keywords": [
+            "ingestLevel",
+            "Task",
+            "server",
+            "mjs",
+            "importBlockers",
+            "Interfaces"
+          ]
+        },
+        {
+          "anchor": "§Task 4: sync Plate 展开校验（收 P1 parked #2）+ P1 测试 Plate-aware + 守卫负例接 CI",
+          "level": 2,
+          "startLine": 226,
+          "endLine": 261,
+          "tokens": 608,
+          "summary": "[ ] Step 1: assembleFromManifest plate 分支加校验（替换 if (e.kind==",
+          "keywords": [
+            "Task",
+            "sync",
+            "Plate",
+            "parked",
+            "aware",
+            "Step"
+          ]
+        },
+        {
+          "anchor": "§Task 5: 提交（脏文件隔离）",
+          "level": 2,
+          "startLine": 262,
+          "endLine": 273,
+          "tokens": 258,
+          "summary": "[ ] 确认 git status：本计划改动仅 level-slice.mjs/.test、level-store.m",
+          "keywords": [
+            "Task",
+            "git",
+            "status",
+            "level",
+            "slice",
+            "mjs"
+          ]
+        },
+        {
+          "anchor": "§Self-Review",
+          "level": 2,
+          "startLine": 274,
+          "endLine": 279,
+          "tokens": 222,
+          "summary": "1. Spec 覆盖：§0 切块（T1）✓ / §1 plate 模型（T2/T3）✓ / §5 studio 改造（T",
+          "keywords": [
+            "§0",
+            "§1",
+            "§5",
+            "Self",
+            "Review",
+            "Spec"
           ]
         }
       ]
