@@ -397,7 +397,7 @@ async function handleGenerate(req, res, url) {
     const w = Math.max(1, parseInt(payload.w || 0, 10));
     const h = Math.max(1, parseInt(payload.h || 0, 10));
     if (!w || !h || w * h > MAX_PIXELS) {
-        return sendJson(res, 400, { error: `w/h 缺失或超限（≤2048×2048）` });
+        return sendJson(res, 400, { error: `w/h 缺失或超限（≤4096×4096）` });
     }
     const b64 = typeof payload.data === 'string' ? payload.data : '';
     const rgba = Buffer.from(b64, 'base64');

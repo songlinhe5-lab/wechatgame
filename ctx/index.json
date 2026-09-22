@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2886,
       "lines": 112,
-      "sha256": "95a0aca1f0a5aff92a84d2a4062011f4bf13ca491358f68e75d02f23d2259636",
+      "sha256": "1284a9b7e2e0a6bf90c881f9227d6ebade336af935ed82f2de5e588cd68437d4",
       "tier": "normal",
       "sections": [
         {
@@ -20255,9 +20255,9 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 9200,
+      "tokens": 9203,
       "lines": 362,
-      "sha256": "2b1bfc36abd0b31f31b58d7cb8f4248031a9e0d17108ac84cd951ace58cc5a21",
+      "sha256": "f4daaa5805a62053629b5ef9934e8922c2488f8b6f7d162d1466f504008b36f4",
       "tier": "normal",
       "sections": [
         {
@@ -20265,7 +20265,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 363,
-          "tokens": 9186,
+          "tokens": 9189,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.2 · 任务号 WXG-T-130（v1.2 = mispl",
           "keywords": [
             "Levels",
@@ -20339,7 +20339,7 @@
           "level": 2,
           "startLine": 69,
           "endLine": 130,
-          "tokens": 1628,
+          "tokens": 1631,
           "summary": "重制方案：8 关盘面 10×10 → 29×29 递增，关卡图案由 beads-studio 照片转拼豆管线从原图生成",
           "keywords": [
             "beads",
@@ -20355,7 +20355,7 @@
           "level": 3,
           "startLine": 96,
           "endLine": 130,
-          "tokens": 720,
+          "tokens": 721,
           "summary": "四步流程，逐关可复现：",
           "keywords": [
             "素材制作规范",
