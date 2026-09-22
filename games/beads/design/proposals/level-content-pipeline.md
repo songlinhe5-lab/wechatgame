@@ -30,7 +30,33 @@
 
 组合示例：`51×101` → 横 `[25,26]` × 纵 `[33,34,34]` = **2×3 = 6 宫**（6 个 Cell-Level，尺寸分别 25×33 / 25×34 / 26×33 …）。
 
-> **错豆（错位初盘）构造时机约束（用户 2026-09-22 拍板，P2b 必读）**：切块**只裁 `pattern`（目标图）**；`misplaced` 初盘**必须在切块之后、于每格内部重新构造**（格内 balance+derange 或 swaps 两两交换）。**母版全盘 `misplaced` 不可直接裁宫** —— 全盘循环左移只在整盘保证「每色珠数守恒」，裁成子矩形后格边界必然跨色得失 ⇒ 每格 BOOT 判「初盘不可解」（实测：beads-bot 逐格 `cleared=false` 且崩）。任一格重排失败（格内色<3 / 主导色>½ / 可填<2）⇒ **写盘前整板拒收**。
+> **错豆（错位初盘）构造时机约束（用户 2026-09-22 拍板，P2b 必读）**：切块**只裁 `pattern`（目标图）**；`misplaced` 初盘**必须在切块之后、于每格内部重新构造**（格内 balance+derange 或 swaps 两两交换）。**母版全盘 `misplaced` 不可直接裁宫** —— 全盘循环左移只在整盘保证「每色珠数守恒」，裁成子矩形后格边界必然跨色得失 ⇒ 每格 BOOT 判「初盘不可解」（实测：beads-bot 逐格 `cleared=false` 且崩）。**单格无法全错位时按「逐格降级阶」处理：能 swaps 则退化（不整板拒收）；若连任何非恒等位移都造不出 ⇒ 判「该图不适合拼豆组图」，整板拒收 + studio 禁止导入（见 §0.2）**。
+
+---
+
+## 0.2 Plate 逐格重排错豆算法（P2b 定案，用户 2026-09-22 逐条拍板）
+
+> 前提：切块只产每格**目标图** `pattern`；初盘（`misplaced` 或 `swaps`）**逐格重建**。不碰母版全盘 misplaced。
+
+**输入**：母版 `levelDraft`（`pattern` rowstrings×`cols/rows`、`palette`/`paletteCodes`?、`decoys`），任一维 >50。
+
+**步骤**：
+1. `sliceBoard({ pattern, cols, rows, gridMax:50 })` → `cells[]`（每格只裁 `pattern`，得 `gridCols×gridRows` 个 ≤50 子矩形）。**不传 misplaced**。
+2. 逐格 `cellPattern → cellSolved`（复用 beads-gen 现有 rowstring↔solved 编解码：`.`=void、`x`=锁定珠不动、`1-9A`=色号）。
+3. **逐格构造初盘（阶）**：
+   - **甲 全错位**：`derange(cellSolved)` 成功（`maxFreq ≤ ⌊N/2⌋` 且 `N≥2`）⇒ 写 `misplaced`（格内循环左移，守恒天然成立）。
+   - **乙 swaps 退化**（甲不可行时）：取 ≤8 对**异色**可填格两两互换⇒2k 颗错位（**2a：尽量大** `k=min(8, 可配异色对数)`）；写 `swaps`（格局部坐标），无 `misplaced`。
+   - **丙 不可错位 ⇒ 判「该图不适合拼豆组图」→ 整板 422 拒收 + studio 提示禁止导入**（连 swaps 都做不动：单色格/可填<2/色多样不足 ⇒ 该格无任何非恒等位移）。**不落 m=0、不放宽 BOOT**。
+   - 每格各自 `cycleProfile:'short'`（与 single 入关同纪律，不采信自报）。
+4. **逐格实测**：`measureCells` 喂 `{levels:[...cellLevels]}` 给 beads-bot；每格取实测 `time`。**任一格落入丙档（不可错位）→ 整板 422「不适合组图、禁止导入」；实测 `cleared!==true` 或 `sliceBoard` 形状断言失败 → 拒收**。落地的格只有甲(misplaced)/乙(swaps)，BOOT 校验天然满足（无需放宽）。
+5. 组 plate 文件（**I3 契约字段**）：每 cell 带 `plateUid`/`cellPos:{row,col}`；顶层 `{plateUid,name,gridCols,gridRows,sourcePreview:r.thumb??null,cells[]}`。
+6. `appendEntry({uid:plateUid,kind:'plate',file:'plates/..',pack:'main'})` + `contentVersion++` → `levels:sync` →（干净树才）`framework:sync`；失败回滚。入关响应报：`grid` / `cells` / 全错位与 swaps 退化格计数（落入丙档则整板拒收、不入库）。
+
+**实现前置**：抽出共享 `tools/scripts/level-derange.mjs`（`derange` + `balance`? + rowstring↔solved 编解码 + swaps 构造器），beads-gen 与 P2b 共用（不复制判定逻辑）；**不改目标图颜色**（不逐格 `balance` 重配色——会改美术）。验收必须逐格跑 bot（结构绿≠可解）。
+
+**不变式**：每格 misplaced 与 pattern 同色同数（置换）⇒ BOOT 守恒必过；swaps 格同色数不变（只换位置）⇒ 亦守恒。均不引入 RNG（`derange`/swaps 确定性，守 L4）。
+
+> **m=0 处置（用户 2026-09-22 定）**：某格退到无法产生任何非恒等位移（单色/可填<2）= **该图不适合拼豆组图** ⇒ studio **禁止导入**（整板 422 + 提示），**不落 m=0、不放宽 BOOT**。故无需 §3/levels-spec 变更单。
 
 ---
 
@@ -180,6 +206,7 @@ games/beads/design/levels/
 | v0.1 | 2026-09-22 | 建档：四层方案（内容仓 / 版本 manifest / sync 分片 / 分包投放）+ studio 改造 + 分阶段落地 + 变更单清单。方向经用户 2026-09-21/22 拍板（投放=A 分包、切块=纯尺寸均分、选关=多宫并存）。**零 §3 变更、零新常量、未改任何既有代码/文档。** | WXG-T-185（挂靠，同主题关卡分发管线） |
 | v0.2 | 2026-09-22 | **P1 落码，相对 §3 字面的实现偏差（用户 2026-09-22 同意）**：① 产物「按包分片」（§3-乙）延至 P3——P1 无分包（build:wx 未通），改**单份装配**，产物数据体逐字节零漂移。② `assembleFromManifest` 加 **kind∈{single,plate} / pack=='main' 白名单断言 + 文件唯一引用 + retired 跳过**（防 K-031 静默报绿）。③ order 由「连续 1..N」改为**唯一且严格递增、允许空洞**（对齐 §1.2 退役留占位）。④ `contentVersion`/`pack` 住真源层、暂不进产物。**③ 前置修复**：同批修 `beads-gen.mjs` 与 studio `ingestLevel` 两处对已删 `levels-01-08.json` 的遗留引用（前者改指 palette.json；后者目录模式下显式 501，目录模式写入归 P2）。plates/ 暂空（P2 由 studio 切块产出）。 | WXG-T-185 |
 | v0.3 | 2026-09-22 | **P2 落码拆两半**：≤**50 单图入关已真开**（ingestLevel 目录模式写 singles + 追加 manifest + contentVersion++ + 失败回滚）；**>50 Plate 入关经评审发现 Critical（C1：全盘 misplaced 直接裁宫破格内守恒）⇒ 暂缓为 P2b**，plate 分支现显式 501。新定 §0「错豆切块后逐格重排」约束。另登 P2b 待办（见 §10）。 | WXG-T-185 |
+| v0.4 | 2026-09-22 | **P2b 算法定案（§0.2）**：逐格降级阶 甲全错位→乙 swaps(k=min(8,异色对数)尽量大)；**丙「不可错位」= 该图不适合组图 → 整板 422 禁止导入（不落 m=0、不放宽 BOOT，无需 §3 变更单）**。实测 `cleared!==true`/形状失败亦拒收。用户逐条拍板（甲乙阶 / 2a 尽量大 / m=0→拒收）。前置：抽 `level-derange.mjs` 共享 beads-gen。实现待 P2b（干净树 + 单独计划），未写码。 | WXG-T-185 |
 
 ---
 
@@ -187,7 +214,7 @@ games/beads/design/levels/
 
 > 背景：P2 T3 评审（真跑 beads-bot）发现 C1。当前 `ingestLevel` 对 >50 回 **501**；plate 脚手架（`sliceBoard` 仅裁 pattern 可用、`buildPlateFile`）保留在库中待接回。
 
-- **[C1 必修] 切块后逐格重排错豆**（见 §0 约束）：plate 分支 = `sliceBoard` 只裁 `pattern` → 每格用格内 `balance+derange`（从 beads-gen 抽出共享 `level-derange.mjs`，或按 `levels-spec §2.1` 用 swaps）构造 `misplaced` → 逐格 beads-bot `cleared===true` 才算过。**验收必须跑 bot 逐格，不能只跑 assemble（结构绿≠可解）**。
+- **[C1 设计已定案，实现待 P2b] 切块后逐格重排错豆** → 算法见 **§0.2（丙·逐格降级阶：全错位→swaps尽量大→trivial m=0 标注）**。实现时抽 `level-derange.mjs` 共享 beads-gen 的 `derange`+编解码；**验收必须逐格跑 beads-bot `cleared===true`，不能只跑 assemble**。**不 ship 半成品**：plate 落地前保持 501。
 - **[I1] 分端点拦板语义（已随 P2 修复）**：`importBlockers` 加 `allowOversize` 参，仅 `ingestLevel` 传 true（>50 放行到 plate 501）；列表 `importable` 投影 / `/level` / 生成快照默认拦 >50 ⇒ 修回 `importLatest` 选中 >50 头不回退的回归。plate 真落地（P2b）时再把 >50 拆成合法 plate 入口。
 - **[I3] plate 契约字段**：cell 补 `plateUid`/`cellPos:{row,col}`；plate 补 `sourcePreview`（可取 `r.thumb`）——否则归属仅编进 name 字串，P3 归组/存档返工。
 - **其他**：`nextNumericId` 不跳 retired（M2）；`writeLevelFile` 未建目录（靠 plates/README.md 被跟踪侥幸，M3）；bot 失败 stderr 未透传（M1）。
