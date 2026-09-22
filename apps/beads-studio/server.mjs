@@ -107,7 +107,12 @@ function runGen(rawPath, outDir, params) {
                     reject(e);
                 }
             } else {
-                reject(new Error(`beads-gen 退出 ${code}：${err.trim().slice(-500) || '(无 stderr)'}`));
+                // 拒产（exit 4）的解释性证据 = beads-bot 的实测行（`M=… B_med=… taps=…（mv/放/直/取）`），
+                // 它在 stderr **中段**（早于 beads-gen 的自检尾报）⇒ 旧版 `slice(-500)` 只留尾部，
+                // 恰好把那行截掉，用户只剩「实测 N 次点击 > 420s」无从核对（2026-09-22 实测）。
+                const bot = err.split('\n').find((l) => l.includes('taps=')) || '';
+                const tail = err.replace(bot, '').trim().slice(-400);
+                reject(new Error(`beads-gen 退出 ${code}：${[bot.trim(), tail].filter(Boolean).join(' ｜ ') || '(无 stderr)'}`));
             }
         });
     });
@@ -144,8 +149,8 @@ const ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
 /**
  * 「能不能入关」单一判据（值域全部来自 `systems-index §3` 冻结常量，不是 Studio 自定）：
- * 盘面 ≥ 6×5（下限来自 `GRID_MIN_*`，§3.3 v1.37）；≤50 为单图，任一维 >50 自动走
- * 组合图 Plate（均分切块，见关卡内容管线 spec §0）。用色 3–10（`BEAD_COLOR_MAX=10`）。
+ * 盘面 ≥ 6×5（下限来自 `GRID_MIN_*`，§3.3 v1.37）；≤**32** 为单图，任一维 >32 自动走
+ * 组合图 Plate（均分切块，§3.3 v1.45 把切块阈值由 50 改为 32，见关卡内容管线 spec §0）。用色 3–10（`BEAD_COLOR_MAX=10`）。
  *  · 交换对数 1–8（`MISPLACED_PAIRS_MIN/MAX`）。
  *
  * 色板不限（v1.40 品牌引用制，2026-09-21 用户拍板）：关卡写回 `palette`（slug）+
@@ -161,10 +166,12 @@ function importBlockers(r, { allowOversize = false } = {}) {
     if (r.colors > 10) b.push(`用色 ${r.colors} > 10（\`BEAD_COLOR_MAX\`，§3.2 v1.36）`);
     if (r.cols < 6) b.push(`列数 ${r.cols} < 6（\`GRID_MIN_COLS\`）`);
     if (r.rows < 5) b.push(`行数 ${r.rows} < 5（\`GRID_MIN_ROWS\`）`);
-    // >50 仅 ingest 放行（走 plate：当前 501 待 P2b）；列表投影 / `/level` / 生成快照默认拦 >50。
-    // 否则小游戏 importLatest 会选中 >50 头 → validateBeadsLevel 失败且不回退下一条合法关（I1 回归）。
-    if (!allowOversize && (r.cols > 50 || r.rows > 50))
-        b.push(`盘 ${r.cols}×${r.rows} 超 50：组合图 Plate 待 P2b，此端不支持`);
+    // >32 不是 blocker：plate 入口本就接受超限母版并自动切块，故**不得**无条件 push（会误杀 ingest）。
+    // >32 仅 ingest 放行（已落码 plate 分支：sliceBoard 均分切块 + 逐格 bot 实测，管线 spec §0.2 v0.5）；
+    // 列表投影 / `/level` / 生成快照默认拦 >32。
+    // 否则小游戏 importLatest 会选中 >32 头 → validateBeadsLevel 失败且不回退下一条合法关（I1 回归）。
+    if (!allowOversize && (r.cols > 32 || r.rows > 32))
+        b.push(`盘 ${r.cols}×${r.rows} 超单图上限 32：此出口只出单图草案，>32 请走「一键入关」（自动切组合图 Plate）`);
     return b;
 }
 
@@ -281,7 +288,7 @@ async function ingestLevel(res, id) {
         runSync(); // 回滚产物（ponytail：重跑失败未再兑底，本地工具人工兵平）
     };
 
-    const isPlate = d.cols > 50 || d.rows > 50;
+    const isPlate = d.cols > 32 || d.rows > 32;
     const nameBase = `studio-${String(r.id).slice(-6)}`;
 
     if (isPlate) {
@@ -291,7 +298,7 @@ async function ingestLevel(res, id) {
         const { buildPlateFile: mkPlate, buildCellLevel: mkCell } = await import('../../tools/scripts/level-store.mjs');
 
         // 1. 切块：只裁 pattern，不传 misplaced
-        const sliced = sliceBoard({ pattern: d.pattern, cols: d.cols, rows: d.rows, gridMax: 50 });
+        const sliced = sliceBoard({ pattern: d.pattern, cols: d.cols, rows: d.rows, gridMax: 32 });
 
         // 2. 逐格三阶构造初盘（甲/乙/丙）
         const tierCounts = { '\u7532': 0, '\u4e59': 0, '\u4e19': 0 };
@@ -357,7 +364,7 @@ async function ingestLevel(res, id) {
         });
     }
 
-    // —— 单图关卡（≤50）：整板实测（time 只取真引擎值，§3.5 v1.41）——
+    // —— 单图关卡（≤32）：整板实测（time 只取真引擎值，§3.5 v1.41）——
     const measured = measureWithBot(resultFile);
     if (!measured) return sendJson(res, 500, { error: 'beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底' });
     if (measured.blockers.length) return sendJson(res, 422, { error: '该结果不可入关：' + measured.blockers.join('；') });
@@ -438,7 +445,14 @@ async function handleGenerate(req, res, url) {
     try {
         pattern = await runGen(rawPath, outDir, params);
     } catch (e) {
-        rmSync(outDir, { recursive: true, force: true }); // 失败不留残骸
+        // 失败不留残骸，**但拒产的证据除外**（2026-09-22）：beads-gen 先写 pattern.json、再由 beads-bot
+        // `--patch` 回填 report.difficulty（taps/bMed/split/blockers），删目录 = 销毁判据；
+        // 而 raw.json 是**重生同一盘的唯一输入**（改平滑/减色后拿同图对比）⇒ 一并保留，不省这点空间。
+        // `data/` 已 gitignore。ponytail: 无 result.json ⇒ 列表不展示、API 不删，手动 `rm -rf data/<board>/<id>`
+        if (existsSync(join(outDir, 'pattern.json'))) {
+            return sendJson(res, 422, { error: `${String(e.message || e)} ｜ 证据：data/${board}/${id}/（pattern.json + raw.json）` });
+        }
+        rmSync(outDir, { recursive: true, force: true });
         return sendJson(res, 422, { error: String(e.message || e) });
     }
     // 盘面真实尺寸 = beads-gen 裁空边（trim）后的实际行列，而非请求档位（异形/去背景后更小，

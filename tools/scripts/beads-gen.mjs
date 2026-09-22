@@ -1286,7 +1286,13 @@ if (misMode !== 'none' && der.ok && der.misplaced) {
     '--experimental-transform-types',
     '--import=./games/beads/design/forensics/g3/g3-hooks.mjs',
     'tools/scripts/beads-bot.ts', patternPath, '--patch',
-  ], { cwd: process.cwd(), encoding: 'utf8' });
+  ], {
+    cwd: process.cwd(), encoding: 'utf8',
+    // stdout 必须留管道（结果 JSON 在最后一行）；stderr 要**透传**：
+    // 默认 'pipe' 会把 beads-bot 的实测行（M/B_med/taps/split）据为己有又从不打印，
+    // 调用方（studio）只拿到「实测 N 次点击」一句孤话（2026-09-22 实测）。
+    stdio: ['ignore', 'pipe', 'inherit'],
+  });
   const last = (r.stdout || '').trim().split('\n').pop();
   measured = last && last.startsWith('{') ? JSON.parse(last) : null; // stdout 最后一行 = 结果 JSON
   if (!measured) {
