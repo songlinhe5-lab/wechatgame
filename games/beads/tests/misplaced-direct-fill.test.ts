@@ -67,7 +67,8 @@ describe('WXG-T-162 · board 锚直填（任意距离）', () => {
   it('消费序基准 = 选豆点（拾取锚恒定）：远目标消耗的也是离拾取点最近的组员（用户裁定 2026-09-20）', () => {
     // 组 = 列 0 竖链 5 颗（底色均 1 ⇒ 色 2 错位）；拾取点 = 锚 (0,0)。
     // 目标唯一（(3,1) 先填就位堵 BFS）= (4,1)（底 2）：离拾取点最远、离列尾组员最近。
-    // 旧「逐目标就近取珠」会消耗 (4,0)；新消费序（距拾取点切比雪夫升序）消耗 (0,0)。
+    // 旧「逐目标就近取珠」会消耗 (4,0)；新消费序（沿组连通的图上距离升序，直链下与距锚
+    // 序同序）消耗 (0,0)。
     for (let r = 0; r < 5; r++) expect(h.game.grid.fill(r, 0, 2)).toBe(true);
     expect(h.game.grid.fill(3, 1, 2)).toBe(true); // 底 2 + 色 2 = 就位，堵死 BFS 蔓延
     expect(h.game.selectBoardBead(0, 0)).toBe(true);
@@ -76,7 +77,7 @@ describe('WXG-T-162 · board 锚直填（任意距离）', () => {
     expect(h.game.grid.cell(4, 1)!.beadColorIdx).toBe(2); // 目标已填
     expect(h.game.grid.cell(0, 0)!.state).toBe('empty'); // 消耗的是拾取点本珠（非 (4,0)）
     expect(h.game.grid.cell(4, 0)!.state).toBe('filled'); // 列尾组员保留
-    // 头珠转移 = 剩余组首（消费序 ⇒ 离拾取点最近者 (1,0)）；选豆点不再可查（内部态）。
+    // 头珠转移 = 剩余序首（消费序 ⇒ 直链上颗 (1,0)）；选豆点不再可查（内部态）。
     expect(h.game.snapshot.boardSelectedRow).toBe(1);
     expect(h.game.snapshot.boardSelectedCol).toBe(0);
     expect(h.count('board:selected')).toBe(1); // 不重发

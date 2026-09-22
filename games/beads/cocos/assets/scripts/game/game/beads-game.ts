@@ -134,6 +134,7 @@ import {
 } from '../systems/clear-panel';
 import { judgeRetrieve } from '../systems/retrieve';
 import { judgePlacement, planGroupFill } from '../systems/placement';
+import { planConsumeOrder } from '../systems/consume-order';
 import { Spawner } from '../systems/spawner';
 import {
   applyPinch,
@@ -516,23 +517,27 @@ export class BeadsGame implements Game {
    * （恢复后锚 = tray-or-none，与 traySelected 同批管理，E5 扩错位珠色时再议）。
    */
   /**
-   * board 锚：起点 + 错位珠组缓存（选中时算好）。
+   * board 锚：起点 + 错位珠组的**消费序**缓存（拾取时一次算好）。
    * 【WXG-T-157 用户裁定】组 = 8 向两步（切比雪夫 ≤2）**同色**错位珠（原 WXG-T-148 ③
    * 「8 邻接 flood fill 不限色不限距」作废）；规则 2 直填后**组保持**（逐颗续填）：
-   * 被填珠移出 `cells`，锚珠被填 ⇒ 头珠（`row/col`）静默转移到剩余组首（快照坐标下一帧跟随）。
+   * 被填珠移出 `order`，锚珠被填 ⇒ 头珠（`row/col`）静默转移到剩余序首（快照坐标下一帧跟随）。
    * 【用户裁定 2026-09-20 · 选豆点固定】`anchorRow/anchorCol` = **拾取那一下的坐标**，
-   * 填珠/收纳全程不改——消费序（距选豆点距离升序）恒以此为基准；`row/col` 只是展示用
-   * 「当前头珠」，可随转移漂移，**不参与**优先级排序。
+   * 填珠/收纳全程不改——它是消费序的 BFS 根，序本身只在拾取时算一次；`row/col` 只是展示用
+   * 「当前头珠」，可随转移漂移，**不参与**排序。
+   * 【WXG-T-186 用户裁定】`order` = `planConsumeOrder` 剥皮序（沿组连通的图上距离 ⇒
+   * 不吃割点 ⇒ 同层押后引路珠），**直填与取回落槽共用同一份序**；推翻 v2.4（WXG-T-183）
+   * 的「距选豆点切比雪夫」几何口径。
    */
   private _boardSelected: {
     row: number;
     col: number;
-    /** 选豆点（拾取锚）：建立后恒定，消费序唯一基准。 */
+    /** 选豆点（拾取锚）：建立后恒定，消费序 BFS 的唯一根。 */
     anchorRow: number;
     anchorCol: number;
     /** 组色 = 锚珠色（组内恒同色）。 */
     color: number;
-    cells: readonly { row: number; col: number }[];
+    /** 消费序（拾取时一次算好，已消费的前缀随锚更新裁掉）；渲染层只当集合用。 */
+    order: readonly { row: number; col: number }[];
   } | null = null;
 
   constructor(options: BeadsGameOptions = {}) {
@@ -873,16 +878,18 @@ export class BeadsGame implements Game {
     const prev = this._boardSelected;
     if (prev && prev.row === row && prev.col === col) return true; // 幂等：不重发
     this._clearTraySelection(); // 互斥换选：board 锚建立 ⇒ tray 锚清除
-    // WXG-T-148 ③ → 【WXG-T-157 裁定改写】：锚 = 8 向两步（切比雪夫 ≤2）**同色**错位珠组
+    // WXG-T-148 ③ → 【WXG-T-157 裁定改写】：组 = 8 向两步（切比雪夫 ≤2）**同色**错位珠
     //（collectMisplacedGroup 内部筛色）；组色 = 锚珠色（规则 2 直填的对应色基准）。
+    // 【WXG-T-186】组成员随即转成剥皮消费序（含锚，锚恒在序首）——直填与取回落槽共用。
     const cells = collectMisplacedGroup(this._grid, row, col);
+    const order = planConsumeOrder(this._grid, row, col, cells);
     this._boardSelected = {
       row,
       col,
       anchorRow: row, // 选豆点 = 拾取那一下的坐标，此后恒定（用户裁定 2026-09-20）
       anchorCol: col,
       color: this._grid.cell(row, col)!.beadColorIdx,
-      cells,
+      order,
     };
     this._emit('board:selected', {
       row,
@@ -955,8 +962,8 @@ export class BeadsGame implements Game {
    *
    * **容量口径（WXG-T-168 用户裁定②，替换旧「整组拒」）**：可收数
    * `count = min(组大小, 从 targetSlot 起的连续空槽数)` —— **有多少空槽就收多少
-   * 颗**；所收 = 组珠中**离点击位置（锚珠）最近的 `count` 颗**（`_nearestFirst`
-   * 重排：因 `collectMisplacedGroup` 给的是**行主序**，不是距锚序）。
+   * 颗**；所收 = 组珠**消费序的前 `count` 颗**（【WXG-T-186 用户裁定】序 = 拾取时一次算好
+   * 的 `planConsumeOrder` 剥皮序，与直填共用同一份；旧 `_nearestFirst` 几何距序作废）。
    * 收满 ⇒ 锚清除；未收满 ⇒ 剩余珠留在 board 且**锚改指剩余首颗**（可续点，
    * 锚变更属内部状态，**不发事件**）。
    * 连续空槽数 = 0 ⇒ 拒绝（零事件零状态写，满槽禁取珠 §3.13 的组化推广）。
@@ -973,10 +980,9 @@ export class BeadsGame implements Game {
     if (!anchor) return false;
     const start = targetSlot ?? this._tray.firstFree();
     if (start < 0) return false; // 满槽：无任何空槽
-    // 就近优先：`collectMisplacedGroup` 返回**行主序**（grid.ts 末尾 sort），与
-    // 「离点击位置近」无关 ⇒ 先按距离重排，再从头截取。基准 = **选豆点**
-    // （`anchorRow/Col`，拾取后恒定；用户裁定 2026-09-20），非会漂移的头珠坐标。
-    const ordered = this._nearestFirst(anchor.anchorRow, anchor.anchorCol, anchor.cells);
+    // 消费序已在拾取那一下算好（`anchor.order` 剥皮序，与直填共用）⇒ 直接从头截取。
+    // 基准 = **选豆点**（`anchorRow/Col`，拾取后恒定；用户裁定 2026-09-20），非会漂移的头珠坐标。
+    const ordered = anchor.order;
     const count = Math.min(ordered.length, this._tray.freeRunFrom(start));
     if (count <= 0) return false; // 该处无连续空槽 ⇒ 零事件零状态写
     for (let i = 0; i < count; i++) {
@@ -986,8 +992,8 @@ export class BeadsGame implements Game {
     if (count >= ordered.length) {
       this._boardSelected = null; // 整组离格 ⇒ 锚失效
     } else {
-      // 部分收纳：剩余珠仍在格上 ⇒ 头珠改指剩余首颗（距序 ⇒ 仍是离选豆点最近的
-      // 未收珠）；选豆点 anchorRow/Col 恒不变（用户裁定 2026-09-20）。
+      // 部分收纳：剩余珠仍在格上 ⇒ 头珠改指剩余序首（消费序下颗 = 下一个该揭的珠）；
+      // 选豆点 anchorRow/Col 恒不变（用户裁定 2026-09-20）。
       const rest = ordered.slice(count);
       const head = rest[0]!;
       this._boardSelected = {
@@ -996,39 +1002,10 @@ export class BeadsGame implements Game {
         anchorRow: anchor.anchorRow,
         anchorCol: anchor.anchorCol,
         color: anchor.color,
-        cells: rest,
+        order: rest,
       };
     }
     return true;
-  }
-
-  /**
-   * WXG-T-168 裁定②「**以当前点击位置越近越优先选择**」：把组珠按**到点击位置
-   * （锚珠）的距离**升序重排。
-   *
-   * 为什么必须重排：`collectMisplacedGroup`（grid.ts）末尾有一句行主序 `sort`，
-   * 其返回值是**行主序而非距锚序** —— 锚在组中段时，上方行的珠会被排到最前，
-   * 直接取前 N 颗会「先收最远的」。故此处重排后再截取。
-   *
-   * 排序键 = 欧氏距离平方（整数、免开方）；平局 ⇒ 行主序（`sort` 稳定 ⇒ 确定性）。
-   * 输入路径调用（一次点击一次）⇒ `slice` + `sort` 的分配可接受（同 `planGroupFill` 判例）。
-   */
-  private _nearestFirst(
-    row: number,
-    col: number,
-    cells: ReadonlyArray<{ row: number; col: number }>,
-  ): { row: number; col: number }[] {
-    const cols = this._grid.cols;
-    return cells.slice().sort((a, b) => {
-      const dra = a.row - row;
-      const dca = a.col - col;
-      const drb = b.row - row;
-      const dcb = b.col - col;
-      const da = dra * dra + dca * dca;
-      const db = drb * drb + dcb * dcb;
-      if (da !== db) return da - db;
-      return a.row * cols + a.col - (b.row * cols + b.col); // 平局 ⇒ 行主序
-    });
   }
 
   /**
@@ -2072,9 +2049,11 @@ export class BeadsGame implements Game {
 
   /**
    * 路由 4 · 托盘带内部分支（input-control §2.1 v2.0，Epic T-133 E2；带级次序不变）：
-   *  - **4a holding 槽** → 选中/换选（发 `tray:selected`，锚置 tray）。
-   *    **例外（§8-11 满槽禁取珠）**：锚 = board 且托盘无空槽时，点任意托盘槽 =
-   *    满槽取回拒绝 ⇒ 零事件零状态写、board 锚保持（§2.4 满槽取回条）。
+   *  - **4a holding 槽** → 选中/换选（发 `tray:selected`，锚置 tray）。**满槽不例外**
+   *    （WXG-T-187：旧 §8-11「满槽吞任意槽」门已删——它把禁「取回」扩成禁「换选」，
+   *    而 board 锚无取消路径（`selectBoardBead` 幂等）⇒ 满槽 + 锚 = board 时托盘
+   *    永久点不动（用户 2026-09-22 真机死锁实报）。满槽禁「取回」由 4b「无空槽
+   *    可点」几何保证，input-control §2.4/§8-11 v2.9 同批收窄）。
    *  - **4b 空槽 且 锚 = board** → 取回（`retrieveBead`，E1 API；成功即清 board
    *    锚——珠已离格，锚不得指向空格）。
    *  - **4b 空槽 且 锚 ∈ {tray, none}** → 零事件忽略。GDD 4b 对此写「无效落点
@@ -2084,8 +2063,11 @@ export class BeadsGame implements Game {
   private _routeTraySlot(slot: number): void {
     const traySlot = this._tray.slot(slot)!;
     if (traySlot.state !== 'free') {
-      // 4a holding —— 先过 §8-11 满槽禁取珠门（托盘满 ⇒ 所有槽皆 holding）。
-      if (this._boardSelected !== null && this._tray.freeCount === 0) return;
+      // 4a holding —— 换选即转移（§8-12），**满槽不例外**（WXG-T-187：旧 §8-11
+      // 「满槽 + 锚 = board 吞任意槽」门已删。它把禁「取回」扩成禁「换选」，而
+      // board 锚无取消路径（`selectBoardBead` 幂等）⇒ 托盘满 + 锚 = board 时
+      // 托盘永久点不动 = 玩法死锁（用户 2026-09-22 真机实报「托盘完全无法选
+      // 中」）。满槽禁「取回」由 4b「无空槽可点」几何保证，无需状态门。）
       this.selectTraySlot(slot);
       return;
     }
@@ -2147,11 +2129,14 @@ export class BeadsGame implements Game {
    * 点「对应颜色（= 组色）的空格」（**不限距**，覆盖 WXG-T-157 的 ≤2 门）⇒ 组内错位珠
    * 直接归位（`retrieve` + `fill` 同帧两写，`_filledCount` 不变、misplaced −1、无中间态外泄）。
    * - **【用户裁定 2026-09-20 · 选豆点固定 + 同序配对】**（修 WXG-T-180 整片填写的消费序）：
-   *   目标序 = 被点格 + BFS 连通同色空格（`planGroupFill` 由近及远）；组员消费序 = 距
-   *   **选豆点**（`anchorRow/Col`，拾取后恒定）**切比雪夫**升序（与组选 8 向连通同度量，
-   *   平局行主序）；两者**同序配对**——最近组员填最近目标，视觉上「从选豆点一片揭起、
-   *   由近及远归位」（旧「逐目标就近取珠」作废）。
-   * - **组保持**：被填珠移出 `cells`；锚珠被填 ⇒ 仅**头珠**（`row/col`，展示坐标）转移到
+   *   目标序 = 被点格 + BFS 连通同色空格（`planGroupFill` 由近及远）；组员消费序 =
+   *   拾取时一次算好（见下）。两者**同序配对**——消费序首颗填最近目标，视觉上
+   *   「从选豆点一片揭起、由近及远归位」（旧「逐目标就近取珠」作废）。
+   * - **【WXG-T-186 用户裁定】消费序口径改写**：旧的「距选豆点**切比雪夫**升序」是几何距，
+   *   与组定义（8 向连通块）不同度量 ⇒ 拐弯组会「跳缺口隔空取物」、同圈层行主序先吃最
+   *   左上珠。改用 `planConsumeOrder` 剥皮序（沿组连通的图上距离 ⇒ 不吃割点 ⇒ 同层
+   *   押后引路珠），与取回落槽共用同一份序。
+   * - **组保持**：被填珠移出 `order`；锚珠被填 ⇒ 仅**头珠**（`row/col`，展示坐标）转移到
    *   剩余组首（不重发 `board:selected` —— 快照坐标下一帧跟随）；**选豆点不改**；组空 ⇒ 锚清除。
    * - 归位可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2，同 `_placeSelected`）。
    * - 底色不匹配 ⇒ 不消费（null），走既有「无对应路径」轻提示口径。
@@ -2160,8 +2145,8 @@ export class BeadsGame implements Game {
   private _tryDirectFillFromBoard(row: number, col: number): boolean | null {
     const anchor = this._boardSelected;
     if (!anchor) return null;
-    // 组员存活复核（solver / region / 其它消费可能中途清珠）：
-    const alive = anchor.cells.filter((c) => {
+    // 组员存活复核（solver / region / 其它消费可能中途清珠）：`filter` 保序 ⇒ 仍是消费序
+    const alive = anchor.order.filter((c) => {
       const cell = this._grid.cell(c.row, c.col);
       return !!cell && cell.state === 'filled' && cell.beadColorIdx === anchor.color && cell.beadColorIdx !== cell.colorIdx;
     });
@@ -2180,17 +2165,12 @@ export class BeadsGame implements Game {
     const extra = planGroupFill(this._grid, row, col, anchor.color, alive.length - 1);
     for (const e of extra) targets.push(e);
 
-    // 消费序 = 距**选豆点**（拾取锚，恒定）切比雪夫升序，平局行主序（用户裁定 2026-09-20）。
-    // 目标序 = 被点格 + BFS 由近及远；与消费序同序配对：consumption[i] 填 targets[i]。
-    const cols = this._grid.cols;
+    // 【WXG-T-186 用户裁定】消费序 = 拾取时一次算好的剥皮序（`anchor.order`，上面的存活
+    // 复核 `filter` 天然保序）——与取回落槽共用。目标序 = 被点格 + BFS 由近及远；
+    // 与消费序同序配对：consumption[i] 填 targets[i]。
+    const consumption = alive;
     const ar = anchor.anchorRow;
     const ac = anchor.anchorCol;
-    const consumption = alive.slice().sort((a, b) => {
-      const da = Math.max(Math.abs(a.row - ar), Math.abs(a.col - ac));
-      const db = Math.max(Math.abs(b.row - ar), Math.abs(b.col - ac));
-      if (da !== db) return da - db;
-      return a.row * cols + a.col - (b.row * cols + b.col); // 平局 ⇒ 行主序
-    });
     let placedAny = false;
     let used = 0;
     for (const t of targets) {
@@ -2221,7 +2201,7 @@ export class BeadsGame implements Game {
         anchorRow: ar,
         anchorCol: ac,
         color: anchor.color,
-        cells: consumption.slice(used),
+        order: consumption.slice(used),
       };
     }
     // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）
@@ -3209,7 +3189,7 @@ export class BeadsGame implements Game {
     // 与 traySelected 三值互斥（input-control §2.1），至多一侧 ≥ 0。
     s.boardSelectedRow = this._boardSelected ? this._boardSelected.row : -1;
     // WXG-T-148 ③：连通组快照（预分配容量，写值不新建 —— 热路径零分配）。
-    const grp = this._boardSelected?.cells;
+    const grp = this._boardSelected?.order;
     s.boardGroupCount = grp ? Math.min(grp.length, s.boardGroupRows.length) : 0;
     if (grp) {
       for (let gi = 0; gi < s.boardGroupCount; gi++) {

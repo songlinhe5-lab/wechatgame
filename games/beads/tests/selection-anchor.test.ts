@@ -231,33 +231,37 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
     expect(game.selection).toBe('tray');
   });
 
-  it('满槽禁取珠（§8-11）：锚 = board 托盘全满点任意槽 → 零事件、锚保持；腾槽后同路径 tray:stored', () => {
+  it('满槽换选（§8-11 v2.9 收窄，WXG-T-187）：锚 = board 托盘全满点 holding 槽 → 整组换选锚转移；腾槽后 4b 取回照旧', () => {
     const h = mkHarness('wxgame.beads.test.e2-r4b-full');
     const game = h.game;
-    // 空板上造两颗**同色**错位珠（WXG-T-157 组选筛色：色 3，底 1/2 均 ≠3），托盘 24 槽填满。
+    // 空板上造两颗**同色**错位珠（WXG-T-157 组选筛色：色 3，底 1/2 均 ≠3），托盘全满。
     expect(game.grid.fill(0, 0, 3)).toBe(true); // (0,0) 底色 1，珠色 3 ⇒ 错位
     expect(game.grid.fill(1, 1, 3)).toBe(true); // (1,1) 底色 2，珠色 3 ⇒ 错位
     for (let i = 0; i < TRAY_BASE_SLOTS; i++) expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
     expect(game.tray.freeCount).toBe(0);
 
-    // 真链选错位珠 → 点满托盘的 holding 槽 ⇒ 拒绝：零事件、槽态零写、锚保持。
+    // 真链选错位珠 → 点满托盘的 holding 槽 ⇒ 4a 换选：tray:selected 恰 1、
+    // 锚转移 tray（board 锚清）、同色全组 selected、零 tray:stored。
+    // （WXG-T-187：旧 §8-11「满槽吞任意槽」门制造 board 锚死锁，已删。）
     const p00 = gridPoint(game, 0, 0);
     game.tapDesign(p00.x, p00.y);
     expect(h.count('board:selected')).toBe(1);
-    const slotStates = [0, 5, 11].map((i) => ({ ...game.tray.slot(i)! }));
-    const before = h.emitted.length;
     const pt0 = trayPoint(game, 0);
     game.tapDesign(pt0.x, pt0.y);
-    expect(h.emitted.length).toBe(before);
-    expect(h.count('tray:stored')).toBe(0);
-    expect([0, 5, 11].map((i) => ({ ...game.tray.slot(i)! }))).toEqual(slotStates);
+    expect(h.count('tray:selected')).toBe(1);
+    expect(h.count('tray:stored')).toBe(0); // 满槽禁的只是「取回」，不是换选
+    expect(game.selection).toBe('tray'); // 锚转移
+    expect(game.grid.cell(0, 0)!.state).toBe('filled'); // 棋盘零状态写
+    for (let i = 0; i < TRAY_BASE_SLOTS; i++) {
+      expect(game.tray.slot(i)!.state).toBe('selected'); // 同色全组入选
+    }
+    
+    // 重建 board 锚（锚互斥：5a 清托盘选中），腾 1 槽 ⇒ 部分收纳 1 颗
+    //（WXG-T-168 裁定②：腾 1 槽 < 组大小 2 ⇒ 只收距锚最近者，余珠留格、锚保持）。
+    game.tapDesign(p00.x, p00.y);
+    expect(h.count('board:selected')).toBe(2);
     expect(game.selection).toBe('board');
-    expect(game.grid.cell(0, 0)!.state).toBe('filled'); // 错位珠保持
-
-    // WXG-T-168 裁定②（**覆盖 WXG-T-148 ④「槽位数量限制 ⇒ 整组拒」**）：腾 1 槽
-    // < 组大小 2 ⇒ **部分收纳 1 颗**（= 距锚最近者），余珠留格、锚保持。
-    // v2.2 组选改写：路由点 holding 珠 = 全组选中后批量归位，无法精确腾 1 槽
-    // ⇒ 腾槽改走 setup 直写，路由判据本身不变。
+    expect(game.tray.slot(0)!.state).toBe('holding'); // 换选清托盘全组选中
     expect(game.tray.takeBead(TRAY_BASE_SLOTS - 1)).toBe(true);
     const ptLast = trayPoint(game, TRAY_BASE_SLOTS - 1); // 现 free → 4b 取回触发
     game.tapDesign(ptLast.x, ptLast.y);
@@ -269,8 +273,8 @@ describe('E2 · 路由 4 托盘带分支（input-control §2.1 4a/4b / §8-11）
 
     // 再腾 1 槽 ⇒ 剩余 1 颗收进（累计 2 次 stored）。
     // v2.3（WXG-T-168）：落槽 = **玩家点槽定落位**（覆盖 v2.2 自动归类）。
-    // ⚠ `takeBead` 会**左移补位**（§8-6b 紧凑不变式）⇒ 腾槽 22 后 free 的仍是
-    // **末槽 23**（槽 23 的珠左移到 22），故第二次点击仍落在 TRAY_BASE_SLOTS-1。
+    // ⚠ `takeBead` 会**左移补位**（§8-6b 紧凑不变式）⇒ 腾槽后 free 的仍是末槽，
+    // 故第二次点击仍落在 TRAY_BASE_SLOTS-1。
     expect(game.tray.takeBead(TRAY_BASE_SLOTS - 2)).toBe(true);
     expect(game.tray.slot(TRAY_BASE_SLOTS - 1)!.state).toBe('free'); // 左移补位自证
     const ptPrev = trayPoint(game, TRAY_BASE_SLOTS - 1);

@@ -200,6 +200,12 @@
       "reason": "beads 关卡管线正本（§1–§4 交换错位构造与 BOOT 校验 + §5 时长/难度定价 v0.2 实测口径 + §6 导入流程），生成/校验/入关三侧每日引用面；已被 ctx 按章节锚点覆盖，读取走局部读、开发期从不整读",
       "note": "WXG-T-179 续作（2026-09-21）难度公式 v0.2 重写 §5.0（正本口径）并新增 §5.0.0 硬拦闸表使其自 ≈8.1k 越至 9200 tok（超 1200）。债务显式化：下次修订时评估把 §5 时长/难度定价拆独立 `levels-time-spec.md`（与 core-loop ↔ core-loop-changelog 同构）后撤销本豁免。登记人 = 主理人",
       "taskId": "WXG-T-179"
+    },
+    {
+      "path": "games/beads/design/gdd/bead-grid.md",
+      "reason": "beads 拼图网格与填色（S3）正本，八节单体且 §9 变更记录逐版累积；已被 ctx 按章节锚点覆盖，开发期走 §2.2/§2.3/§3/§8 局部读、从不整读；拆分会把「§2.2 消费序 ↔ §8-12 判据 ↔ §9 版本裁定」拆成跨文件互引，破坏可追溯（沿 core-loop.md / levels-spec.md 同族先例）",
+      "note": "WXG-T-186（2026-09-22）v2.5 新增 §2.2「消费序」四档优先级表与 §8-12 五条不变式判据，使其自 ≈8.0k 越至 9175 tok（超 1175）。债务显式化：下次修订时评估把 §9「变更记录」拆独立 `bead-grid-changelog.md`（与 systems-index ↔ systems-index-changelog / core-loop 同构）后撤销本豁免。登记人 = 主理人",
+      "taskId": "WXG-T-186"
     }
   ]
 }

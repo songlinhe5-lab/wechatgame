@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 67,
+  "nextId": 68,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1128,6 +1128,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-067",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "「就近」排序的度量必须与集合的连通定义同度量，且多消费口共用一份序",
+      "contentHash": "7a8f6f5f8f9926807b00032e0f7d082abb25a135a3339c19bd045c0b4786f7ad",
+      "sourceTask": "WXG-T-186",
+      "addedDate": "2026-09-22",
+      "lastAccess": "2026-09-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1573,6 +1590,24 @@
       "kind": "updated",
       "ids": [
         "K-066"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-22",
+      "taskId": "WXG-T-186",
+      "kind": "added",
+      "ids": [
+        "K-067"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-22",
+      "taskId": "WXG-T-186",
+      "kind": "updated",
+      "ids": [
+        "K-067"
       ],
       "note": null
     }
