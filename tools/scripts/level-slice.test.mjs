@@ -77,3 +77,25 @@ test('sliceBoard 声明尺寸与 pattern 实际不符 → 入口即 throw（防�
   assert.throws(() => sliceBoard({ pattern: ['11'], cols: 2, rows: 2, gridMax: 50 }), /形状/);
   assert.throws(() => sliceBoard({ pattern: ['111'], cols: 2, rows: 1, gridMax: 50 }), /形状/);
 });
+
+// §3.3 v1.45：GRID_MAX 50→32 ⇒ 生产切块阈值 = 32（上方 50 阀用例保留，证明算法与阈值解耦）。
+test('§3.3 v1.45 生产阈值 32：64 零残余、33 均分、≤32 不切、默认参数即 32', () => {
+  assert.deepEqual(splitRuns(64, 32), [32, 32]);     // 2048 母版 → 2×2×32×32 零残余
+  assert.deepEqual(splitRuns(33, 32), [16, 17]);     // 余数加末尾块
+  assert.deepEqual(splitRuns(32, 32), [32]);        // 单图上限本身不切
+  assert.deepEqual(splitRuns(40, 32), [20, 20]);    // 旧 50 阀下会当合法单图投放的盘
+  assert.deepEqual(splitRuns(100, 32), [25, 25, 25, 25]);
+  for (let n = 1; n <= 220; n++) {
+    const runs = splitRuns(n, 32);
+    assert.equal(runs.reduce((a, b) => a + b, 0), n, `和≠n @ ${n}`);
+    for (const r of runs) assert.ok(r <= 32, `块 ${r} > 32 @ ${n}`);
+  }
+  // 不传 gridMax ⇒ 走默认（默认值 = 生产阈值；漂移即此断言变红）
+  const cols = 51;
+  const pattern = Array.from({ length: cols }, () => '1'.repeat(cols));
+  const { gridCols, gridRows, cells } = sliceBoard({ pattern, cols, rows: cols });
+  assert.equal(gridCols, 2);
+  assert.equal(gridRows, 2);
+  assert.deepEqual(cells.map((c) => c.cols), [25, 26, 25, 26]);
+  for (const c of cells) assert.ok(c.cols <= 32 && c.rows <= 32);
+});

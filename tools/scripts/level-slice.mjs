@@ -5,7 +5,8 @@
  * **末尾 rem 块** 各 +1（保证每块 ≤ gridMax 且尽量均匀）。横纵各独立算一次。
  * 纯函数，无 IO。pattern / misplaced 为 rowstring 数组（行优先，行长 = cols）。
  *
- * 验证：51→[25,26]，100→[50,50]，101→[33,34,34]，≤50 → 单段不切。
+ * 验证（默认 gridMax = `§3.3 GRID_MAX`，**v1.45 = 32**）：64→[32,32]（零残余）、33→[16,17]、≤32 单段不切。
+ * 算法与阀值解耦（gridMax 为入参，旧 50 阀用例仍留在单测里验通用性）。
  */
 
 /** 一维均分：返回各块长度（和 === n，每项 ≤ gridMax，余数加末尾）。 */
@@ -21,14 +22,14 @@ export function splitRuns(n, gridMax) {
  * @param {{pattern:string[], misplaced?:string[], cols:number, rows:number, gridMax?:number}} board
  * @returns {{gridCols:number, gridRows:number, cells:Array<{row:number,col:number,cols:number,rows:number,pattern:string[],misplaced?:string[]}>}}
  */
-export function sliceBoard({ pattern, misplaced, cols, rows, gridMax = 50 }) {
+export function sliceBoard({ pattern, misplaced, cols, rows, gridMax = 32 }) {
   // 入口形状断言：声明的 cols/rows 必须与 pattern 实际尺寸一致（防静默裁出尺寸不符的子格）。
   if (!Array.isArray(pattern) || pattern.length !== rows || pattern.some((l) => l.length !== cols))
     throw new Error(`level-slice: pattern 形状 ≠ ${rows}×${cols}`);
   if (misplaced != null && (misplaced.length !== rows || misplaced.some((l) => l.length !== cols)))
     throw new Error(`level-slice: misplaced 形状 ≠ ${rows}×${cols}`);
   const colRuns = splitRuns(cols, gridMax);
-  const rowRuns = splitRuns(rows, gridMax); // 纵横向同一均分规则（≤50 自然不切）
+  const rowRuns = splitRuns(rows, gridMax); // 纵横向同一均分规则（≤ gridMax 自然不切）
   const cells = [];
   let rowOffset = 0;
   for (let r = 0; r < rowRuns.length; r++) {

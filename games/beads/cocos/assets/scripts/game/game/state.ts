@@ -126,6 +126,11 @@ export interface BeadsSnapshot {
   /** Camera-scaled grid pitch / cell edge (WXG-T-169 丁-3; = BEAD_PITCH/BEAD_CELL at identity). */
   gridPitch: number;
   gridCell: number;
+  /**
+   * ADR-0017 zoom 自适应 LOD：0 = 满层，>0 = 降层集层数（现复用 `WAVE_LOD_LAYERS`）。
+   * 阈值与滞回均在 game 侧算完才入快照 ⇒ 视图只读（L5）。
+   */
+  beadLodLayers: number;
 
   /** Banner text for the current phase ('' when none). */
   banner: string;
@@ -165,9 +170,10 @@ export interface BeadsSnapshot {
   clearStarsShown: number;
   /** 最新入场那颗星的弹跳缩放（0→1.2→1；已稳定 = 1）。 */
   clearStarPopScale: number;
-  /** 次要信息「剩余 mm:ss ｜ 道具 n/3」的两项原料。 */
+  /** 次要信息「剩余 mm:ss ｜ 道具 n/3 ｜ N 击」的原料（击数 = playtest 计量，见 `BeadsGame._tapsPlaying`）。 */
   clearRemaining: number;
   clearPowerupsUsed: number;
+  clearTaps: number;
   /** 末关 ⇒ 主钮文案「查看结果」（点后进 FINISH）。 */
   clearLastLevel: boolean;
 
@@ -339,6 +345,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     gridTop: 0,
     gridPitch: 0,
     gridCell: 0,
+    beadLodLayers: 0,
     banner: '',
     subBanner: '',
     bootError: '',
@@ -360,6 +367,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     clearStarPopScale: 1,
     clearRemaining: 0,
     clearPowerupsUsed: 0,
+    clearTaps: 0,
     clearLastLevel: false,
     finishPanelVisible: false,
     finishPanelProgress: 0,

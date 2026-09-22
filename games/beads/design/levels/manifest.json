@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "contentVersion": 15,
+  "contentVersion": 20,
   "gameId": "beads",
   "description": "关卡内容管线目录化真源（P1/P2）。WXG-T-203 pre-release 重置第二批：原 demo 8 关（L00001–L00008）已按用户裁定移出，关表由 beads-studio 生成的盘逐张入关重建；uid 5 位零填充、order 从 1 只追加。字符集与色板口径见 levels-spec §2 / art-bible §3.2。",
   "paletteFile": "palette.json",

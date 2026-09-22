@@ -124,21 +124,22 @@ export const BEAD_GAP = 2;
 /** Grid pitch = `BEAD_CELL + BEAD_GAP` = 52. */
 export const BEAD_PITCH = BEAD_CELL + BEAD_GAP;
 /**
- * Max columns per level. **v1.33（WXG-T-180）：13 → 29** —— 对齐 5mm Midi **标准方形盘
- * 29×29 = 841 颗**（用户 2026-09-20 盘面调研 + MVP 目标；落档
- * `design/proposals/board-size-29-mvp.md`）。
- * v1.37（2026-09-21）29 → **50**：用户拍板「限制到一个最大可玩，比如不能超过 50，
- * 否则体验变差」——上限只卡硬顶，不等于实际关卡尺寸（MVP 档位仍 14×14/18×18，
- * ADR-0018；29×29 触控不可玩的裁定不变）。主要服务 beads-studio 异形盘导入
- * （背景 void 格不占宽高，包围盒裁剪后 39×39 源图 ≈ 33×36）。
- * ⚠️ 连带（诚实登记，均为 WXG-T-180 挂账）：① 单屏放不下 ≥29 列（29×`BEAD_PITCH` =
- * 1508px > 750px 设计宽）⇒ 必须依赖缩放（ADR-0015 丁-3「布局即相机」已落码）；② 静态图元
- * ≈ 8410（原 ≈1560）⇒ **zoom 自适应 LOD 待立项**，未落地前大盘性能**未经真机验 证**；
- * ③ 难度曲线（`levels-spec §3` 的 k / time）需重推。
+ * Max columns per level. **v1.45（WXG-T-203）：50 → 32** —— 用户拍板「单图上限 32 个珠子宽度，
+ * 超过就拆组合图」。本值语义由 v1.37 的「导入硬顶」升为**单图/组合图（Plate）分界线 = 切块阈值**：
+ * 任一维 > 32 ⇒ beads-studio 一键入关自动走 `sliceBoard` 均分切块（k = ceil(n/32)）。
+ * 与每颗像素标准 32px（`levels-spec §3.1` v1.8）严丝合缝：1024 源图 → 32×32 最大单图；
+ * 2048 → 64×64 母版 → 2×2 均分 ⇒ 恰好 4 宫 32×32、**零残余**（旧 50 阀下 40×40 会被当合法单图，
+ * 而 ADR-0018 已裁 29×29 触控不可玩）。
+ * 历史：13 → 29（v1.34，对齐 5mm Midi 标准方盘）→ 50（v1.37「最大可玩硬顶」）→ 32（v1.45）。
+ * ⚠️ 连带（诚实登记）：① 单屏仍放不下 32 列（32×`BEAD_PITCH` = 1662px ≫ 750px 设计宽）⇒ 靠缩放
+ * （ADR-0015 丁-3 已落码）；② 32×32 = 1024 格静态图元 ≈ 1.1 万 ⇒ **LOD 仍待立项**，性能未经真机验证；
+ * ③ E1 实测：32×32 **全错位** 176–178 taps 结构性超 420s 预算 ⇒ 单图满尺寸档仍须 ≤60% 整区域就位
+ * （`levels-spec §3.1①`）；④ 旧 33–50 维度的异形盘（包围盒裁剪后 33×36 类）从「合法单图」
+ * 改为「自动切块」，入关不会因此拒收。
  */
-export const GRID_MAX_COLS = 50;
-/** Max rows per level（12 → 29（v1.34）→ 50（v1.37，同上）。 */
-export const GRID_MAX_ROWS = 50;
+export const GRID_MAX_COLS = 32;
+/** Max rows per level（12 → 29（v1.34）→ 50（v1.37）→ **32**（v1.45，同上））。 */
+export const GRID_MAX_ROWS = 32;
 /** Demo minimum columns. */
 export const GRID_MIN_COLS = 6;
 /** Demo minimum rows. */
@@ -760,6 +761,26 @@ export const WAVE_LIFT_PX = 3;
 export const WAVE_WINDOW_MIN_MS = 240;
 /** 弹跳列的降层档（含垫，见上方⚠️）：L0b+L1+L2+L3+L4c+L5 + L11。 */
 export const WAVE_LOD_LAYERS = 7;
+/**
+ * ADR-0017 甲案 · zoom 自适应 LOD 的**触发阈值**（工程通道；本轮只落「满层 / 降档」两态）。
+ * 触发量 = 珠屏幕径 `layout.cell = BEAD_CELL × zoom` ⇒ 不必给快照新增 zoom 字段。
+ *
+ * **动因（实测）**：24×31 / 26×26 关在 fit 档每帧 **2833–2953 条绘制命令，与 zoom 完全无关**
+ * （视口剔除已落，但 fit 档全盘可见 ⇒ 剔不到）；Node 侧建模仅 0.10 ms/帧 ⇒ 瓶颈在真机
+ * canvas 执行那 2900 条命令× 60fps。缩到 0.37（珠 19px）时一半以上质感层本来就分辨不出。
+ *
+ * 阈值 `[待真机]`：取 ADR-0017 建议档起点 zoom 0.9（= 珠 45 设计px）。
+ * 降档层集**复用 `WAVE_LOD_LAYERS`（7 层，art 已在 WXG-T-146 冻结）**，不自造新层集；
+ * ADR 的中/低三档细分待 art 冻结后再分。红线不变：**L11 目标色垫与 L5 符号任何档不砍**。
+ */
+export const BEAD_LOD_CELL = 45;
+/** 滞回带宽（ADR-0017 §2.1「滞回必需」）：降档 < 45、升档 ≥ 47.5 ⇒ 阈值附近缩放不闪。 */
+export const BEAD_LOD_HYST = 2.5;
+
+/** LOD 滞回状态机（纯函数、可单测）：输入当前珠屏幕径与上帧降档态，输出本帧是否降档。 */
+export function nextBeadLod(cell: number, wasLow: boolean): boolean {
+  return wasLow ? cell < BEAD_LOD_CELL + BEAD_LOD_HYST : cell < BEAD_LOD_CELL;
+}
 /**
  * 裁定 1（用户 2026-09-16）：结算面板**延迟 WAVE_MS 开**——庆祝先行放完再落遮罩。
  * 代价已写入 ux-spec §5（过关到可点按钮多等 800ms）。

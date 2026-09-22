@@ -206,6 +206,12 @@
       "reason": "beads 拼图网格与填色（S3）正本，八节单体且 §9 变更记录逐版累积；已被 ctx 按章节锚点覆盖，开发期走 §2.2/§2.3/§3/§8 局部读、从不整读；拆分会把「§2.2 消费序 ↔ §8-12 判据 ↔ §9 版本裁定」拆成跨文件互引，破坏可追溯（沿 core-loop.md / levels-spec.md 同族先例）",
       "note": "WXG-T-186（2026-09-22）v2.5 新增 §2.2「消费序」四档优先级表与 §8-12 五条不变式判据，使其自 ≈8.0k 越至 9175 tok（超 1175）。债务显式化：下次修订时评估把 §9「变更记录」拆独立 `bead-grid-changelog.md`（与 systems-index ↔ systems-index-changelog / core-loop 同构）后撤销本豁免。登记人 = 主理人",
       "taskId": "WXG-T-186"
+    },
+    {
+      "path": "games/beads/design/proposals/level-content-pipeline.md",
+      "reason": "beads 关卡内容管线方案正本（§0 总体四阶 / §1.2 uid+order 不变式 / §1.3 分片产物口径），manifest 与 level-store 的裁定均引用本文件；已被 ctx 按章节锚点覆盖，开发期走 §1.2 / §0.3 局部读、从不整读；拆分会把「档位定义 ↔ 切块规则 ↔ 入关不变式」拆成跨文件互引（沿 levels-spec.md / bead-grid.md 同族先例）",
+      "note": "WXG-T-203（2026-09-23）v0.7 随 uid 位宽 4→5 与关表重置第二批修订使其自 ≈8.0k 越至 8076 tok（超 76，属微超，同族先例 = systems-index-changelog 超 50 / input-control 超 67）。债务显式化：下次修订时评估把 §0.3 组合图档位表与 §2 E1/E2 矩阵取证拆独立 `level-content-appendix.md` 后撤销本豁免。登记人 = 会话执行",
+      "taskId": "WXG-T-203"
     }
   ]
 }

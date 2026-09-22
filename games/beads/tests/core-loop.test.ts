@@ -4,6 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { createBeadsHarness, simpleTestLevel, firstEmptyCell, placeColor, burnToRemaining } from './helpers.js';
+import { gridLayoutFor } from '../src/config/tuning.js';
 import { SAVE_KEY } from '../src/game/save-schema.js';
 
 describe('S1 core-loop', () => {
@@ -39,6 +40,43 @@ describe('S1 core-loop', () => {
     });
     expect(warm.game.phase).toBe('playing');
     expect(warm.game.levelIndex).toBe(2);
+  });
+
+  // playtest 计量件（校准 SEC_PER_TAP 用）：玩家在 PLAYING 里每点一下计一（**含误点**），
+  // 换关归零。口径 = 真路由 `_handleTap`（与玩家触摸同一条路）；四个公开命令的旁路没有
+  // 「点」这个概念 ⇒ 不计（placeColor / bot 那类驱动不会污染读数）。
+  it('§8-附 本局点击计数：玩法点击含误点都计、公开命令旁路不计、换关归零', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel(), simpleTestLevel({ id: 92 })],
+      saveKey: 'wxgame.beads.test.s1taps',
+    });
+    const cell = firstEmptyCell(h.game)!;
+    // 设计数点必须用**游戏自己的相机**推格心（命中函数 = `hitGridCell(_layout, _camera.zoom, …)`）；
+    // 不拼相机则坐标落在格外 ⇒ tap 被静默忽略，测出来的是「没命中」而不是「没计数」。
+    const cam = (h.game as unknown as { _camera: { zoom: number; offsetX: number; offsetY: number } })._camera;
+    const layout = gridLayoutFor(h.game.grid.cols, h.game.grid.rows, cam);
+    const p = { x: layout.colCenterX(cell.col), y: layout.rowCenterY(cell.row) };
+    expect(h.game.debugHitCell(p.x, p.y), '探针坐标未命中目标格').toEqual({ row: cell.row, col: cell.col });
+
+    // 未选托盘珠 ⇒ 点空格只给前置缺口轻提示（零事件、不消费），但**玩家确实点了一下** ⇒ 计数。
+    expect(h.game.tapDesign(p.x, p.y)).toBe(false);
+    expect(h.game.tapsThisLevel).toBe(1);
+
+    // 旁路命令（giveTrayBead / selectTraySlot）不是「点击」⇒ 不动计数。
+    const slot = h.game.giveTrayBead(h.game.grid.requiredColor(cell.row, cell.col));
+    expect(h.game.selectTraySlot(slot)).toBe(true);
+    expect(h.game.tapsThisLevel).toBe(1);
+
+    // 点格落子 = 又一下。注意不断言 `tapDesign` 返回值：它 = 「相位变了 ∥ _consumedTap」，
+    // 而托盘落子不置 `_consumedTap`（既有口径）⇒ 这里只断言计量与盘面事实。
+    h.game.tapDesign(p.x, p.y);
+    expect(h.game.tapsThisLevel).toBe(2);
+    expect(h.game.grid.cell(cell.row, cell.col)!.state).toBe('filled');
+
+    // 换关 ⇒ 计量归零（与相机/托盘同一「装配即复位」口径）。
+    h.game.goToLevel(1);
+    expect(h.game.tapsThisLevel).toBe(0);
   });
 
   // §8.5 可填格全满瞬间无论剩余时间多少 → 必进 LEVEL_CLEAR（同帧归零场景以 cleared 优先，

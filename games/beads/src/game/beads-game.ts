@@ -93,6 +93,8 @@ import {
   powerupCardRects,
   gridLayoutFor,
   hitGridCell,
+  nextBeadLod,
+  WAVE_LOD_LAYERS,
   IDENTITY_CAMERA,
   BOARD_TAP_MOVE_THRESHOLD,
   PUZZLE_BAND,
@@ -1167,6 +1169,28 @@ export class BeadsGame implements Game {
   private _consumedTap = false;
 
   /**
+   * zoom 自适应 LOD 当前态（true = 珠屏幕径低于阈值 ⇒ 走降层集）。
+   * 状态住 game 侧而非视图：滞回要有上一帧，而 L5 视图不持状态（工程铁律 L5）。
+   */
+  private _beadLod = false;
+
+  /**
+   * 本局「被消费的点击」计数（playtest 计量件）。只在 PLAYING 相位累加 ——
+   * 暂停/菜单/结算面板的点击不算玩法操作。
+   *
+   * **为何存在**：`beads-bot` 的 `taps` 已被实测推翻为「人类下界」口径（三关带用时
+   * 实测：人类 1.6–1.8 s/击、人类击数 ≈ 0.60–0.76 × bot taps）⇒ 校准 `SEC_PER_TAP`
+   * 需要真实的 (击, 秒) 对，而手记点击数不可靠（同一关两次报 30 / 44）。
+   * ⚠️ 纯统计：不进 `systems-index §3`、不参与任何裁决/星级/存档。
+   */
+  private _tapsPlaying = 0;
+
+  /** 本局玩家点击数（含误点；harness/调试用，结算面板走快照字段 `clearTaps`）。 */
+  get tapsThisLevel(): number {
+    return this._tapsPlaying;
+  }
+
+  /**
    * Debug/dev hook: drop a specific colour into the tray (S4 path).
    *
    * ⛔ v2.0 供料关停后这是**唯一**还广播 `tray:spawned` 的入口（测试 / harness
@@ -1746,6 +1770,7 @@ export class BeadsGame implements Game {
   private _setupLevel(index: number): void {
     const level = this._levels[index];
     if (!level) throw new Error(`Beads: no level at index ${index}`);
+    this._tapsPlaying = 0; // 换关/重试/新局共用复位点（同 F3 甲裁「装配即复位」）
     this._grid = new BeadGrid(level.pattern);
     // v2.0 BOOT 装配（levels-spec v1.2 §2.1 / v1.3 §2.2，WXG-T-139 装配器）：
     // 初盘真源二选一——`level.misplaced`（全错位初盘，直读）优先，否则 `swaps`
@@ -1763,6 +1788,8 @@ export class BeadsGame implements Game {
     this._tapMoved = false;
     this._pinched = false;
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
+    // ADR-0017 甲案：布局变（= 珠屏幕径变）即重算 LOD 档，带滞回（阈值附近不跳变闪烁）。
+    this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
     this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
     this._solverFx = null; // 换关 / 重试 ⇒ 作废在途的 G2′ 队列（相 B **会写盘**，不能拿旧格坐标动新棋盘）
     this._tray.reset();
@@ -1791,6 +1818,7 @@ export class BeadsGame implements Game {
 
   /** Load sprint stage `n`: pool pattern + C6 params (streak untouched, C8). */
   private _loadStage(n: number): void {
+    this._tapsPlaying = 0; // 冲刺换 stage = 换关语义 ⇒ 计量同步归零
     const { pattern } = buildStagePattern(n);
     this._grid = new BeadGrid(pattern);
     // WXG-T-172 · F3 甲裁：本行 = 复位点②（冲刺换 stage）。与 _setupLevel 那处合计 2 点，
@@ -1801,6 +1829,8 @@ export class BeadsGame implements Game {
     this._tapMoved = false;
     this._pinched = false;
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
+    // ADR-0017 甲案：布局变（= 珠屏幕径变）即重算 LOD 档，带滞回（阈值附近不跳变闪烁）。
+    this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
     this._boardSelected = null; // 换 stage ⇒ 旧 board 锚指向的格已不存在
     this._tray.reset();
     this._resetPowerups(); // 冲刺换 stage = 换关语义，三计数一并复位（§2.5）
@@ -1925,9 +1955,24 @@ export class BeadsGame implements Game {
    *  layout object during an active pinch/drag; pool-mutate it if profiling says so. */
   private _recomputeLayout(): void {
     this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
+    // ADR-0017 甲案：布局变（= 珠屏幕径变）即重算 LOD 档，带滞回（阈值附近不跳变闪烁）。
+    this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
   }
 
+  /**
+   * 唯一触摸收口：路由 + 计量。
+   *
+   * 口径 = **玩家在 PLAYING 里点了一下**（含误点与只触到轻提示的无效点）——
+   * 不拿 `_consumedTap` 当条件：那个标志只覆盖部分分支（托盘落子成功也不置它），
+   * 用它计数会漏掉最高频的动作；而人类的误点恰恰是 `beads-bot`「只计成功命令」
+   * 口径里没计入的那部分，不量它就对不上账。
+   */
   private _handleTap(x: number, y: number): void {
+    if (this._machine.current === 'playing') this._tapsPlaying++;
+    this._routeTap(x, y);
+  }
+
+  private _routeTap(x: number, y: number): void {
     this._consumedTap = false;
     // S2 route 1 — the gear is evaluated **before** the phase router and it is
     // only meaningful while PLAYING (pause-settings §2.1: 其余状态点齿轮 = 忽略).
@@ -3118,6 +3163,7 @@ export class BeadsGame implements Game {
     // at any zoom (丁-3). = BEAD_PITCH/BEAD_CELL at identity → snapshot byte-identical.
     s.gridPitch = this._layout.pitch;
     s.gridCell = this._layout.cell;
+    s.beadLodLayers = this._beadLod ? WAVE_LOD_LAYERS : 0; // 0 = 满层；视图只读不判阈值
 
     // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and
     // leans on the always-on ad_badge, §2.6) + the one-shot over-limit hint.
@@ -3139,6 +3185,7 @@ export class BeadsGame implements Game {
     // formatTime 的 floor 只是视图兜底，两层都补（T-118 前发现、本单补登）。
     s.clearRemaining = Math.max(0, Math.ceil(this._timer.remaining - 1e-9));
     s.clearPowerupsUsed = this._powerups.usedCount;
+    s.clearTaps = this._tapsPlaying; // playtest 计量（与 bot taps 对表用）
     s.clearLastLevel = this._levelIndex >= this._levels.length - 1;
 
     // S7 通关画面（ux-spec §3.6）：总览数据 + 逐关入场进度一起进快照，视图只读。

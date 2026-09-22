@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder } from '@wxgame/framework';
-import { BEAD_CELL, TRAY_SLOT } from '../src/config/tuning.js';
+import { BEAD_CELL, TRAY_SLOT, nextBeadLod, WAVE_LOD_LAYERS } from '../src/config/tuning.js';
 import {
   BEAD_CARD,
   SELECTED_SHADOW_ALPHA,
@@ -43,6 +43,40 @@ function emit(draw: (builder: RenderModelBuilder) => void) {
 
 const filled = (colorIdx: number, size = BEAD_CELL) =>
   emit((b) => drawFilledBead(b, 100, 200, colorIdx, { size }));
+
+/** 带 L11 垫的盘上珠（= 出货关的实际形态），可选降档层数。 */
+function beadOnPad(b: RenderModelBuilder, lod?: number): void {
+  drawFilledBead(b, 100, 200, 1, {
+    size: BEAD_CELL,
+    padColorIdx: 2,
+    inks: DEMO_BEAD_INKS,
+    ...(lod === undefined ? {} : { lodLayers: lod }),
+  });
+}
+
+describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优化）', () => {
+  const beadWithPad = (lod?: number) =>
+    emit((b) =>
+      beadOnPad(b, lod),
+    );
+
+  it('滞回状态机：降档 < 45、升档 ≥ 47.5 ⇒ 阈值带内不跳变（防 D2 闪烁红线）', () => {
+    expect(nextBeadLod(44, false)).toBe(true); // 满层侧跨过阈值 ⇒ 降档
+    expect(nextBeadLod(46, true)).toBe(true); // 带内保持降档，不闪回满层
+    expect(nextBeadLod(48, true)).toBe(false); // 越过带宽才升档
+    expect(nextBeadLod(46, false)).toBe(false); // 同一点不降档 ⇒ 无双稳振荡
+  });
+
+  it('降档只砍质感层：命令数下降，但 L11 垫与 L5 符号两条红线不丢', () => {
+    const full = beadWithPad();
+    const low = beadWithPad(WAVE_LOD_LAYERS);
+    expect(low.length).toBeLessThan(full.length);
+    // L11 目标色垫：两版首条逐字段相同（垫不参与 LOD，也不参与 scale）
+    expect(low[0]).toEqual(full[0]);
+    // L5 符号：收尾那发在降档后仍存在且同参（符号 = 非颜色通道，ADR-0016 同源）
+    expect(low[low.length - 1]).toEqual(full[full.length - 1]);
+  });
+});
 
 describe('bead parameter card (assets-spec §1.1)', () => {
   // §1.1（v1.3 十层卡）：单颗珠 = 11 条图元按序（L0a/L0b/L1/L2×2/L3×2/L3b/L4a-c），L5 之后补齐。

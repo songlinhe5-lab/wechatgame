@@ -382,25 +382,34 @@
             const g = cv.getContext('2d', { willReadFrequently: true });
             g.drawImage(img, 0, 0, w, h);
             srcPixels = { w, h, data: g.getImageData(0, 0, w, h).data };
-            // 珠距推断优先级：
-            //   1. 正方形 + 边长是 40 的整数倍（允许 ±2px 浮动） → 标准手画图，直接用 40px/颗 推断
-            //   2. 珠距检测可信（gx≥15，格数≤50）→ 实拍物理盘照片
-            //   3. 40px 推断在合法范围内 → 兜底
+            // 珠距推断优先级（**每颗像素标准 = 32px**，`levels-spec §3.1` / 管线 `§0.3` 标准档位表）：
+            //   1. 正方形 + 边长是 PER_BEAD_PX 的整数倍（允许 ±2px 浮动）→ 标准设计图，直接按每颗 32px 推断
+            //   2. 珠距检测可信（gx≥15）→ 实拍物理盘照片
+            //   3. 32px 推断在合法范围内 → 兜底
+            // 推断上限取「解像上限 ÷ 每颗像素」而非单图上限：>SINGLE_MAX 不是非法盘面，而是走**组合图 Plate**
+            // （`server.mjs ingestLevel` 自动均分切块）。`SINGLE_MAX` = §3.3 `GRID_MAX`（**v1.45：50→32**）。
+            const PER_BEAD_PX = 32;                                  // 2048→64×64 母版；1024→32×32 最大单图
+            const SINGLE_MAX = 32;                                   // 单图宽高上限；任一维超过即拆组合图
+            const MAX_INFER = Math.floor(4096 / PER_BEAD_PX);        // = 128 格（可推断范围，非单图上限）
             const sug = detectBeadGrid(srcPixels);
-            const c40 = Math.round(w / 40), r40 = Math.round(h / 40);
-            const is40Square = w === h && (w % 40 <= 2 || w % 40 >= 38);
-            const inferred = (c40 >= 2 && r40 >= 2 && c40 <= 50 && r40 <= 50)
-                ? { cols: c40, rows: r40, gx: Math.round(w / c40), gy: Math.round(h / r40) } : null;
-            const sugOk = !!(sug && sug.gx >= 15 && sug.gy >= 15 && sug.cols <= 50 && sug.rows <= 50);
-            const useSug = (is40Square && inferred) ? inferred : sugOk ? sug : inferred;
+            const cPx = Math.round(w / PER_BEAD_PX), rPx = Math.round(h / PER_BEAD_PX);
+            const isStdSquare = w === h
+                && (w % PER_BEAD_PX <= 2 || w % PER_BEAD_PX >= PER_BEAD_PX - 2);
+            const inferred = (cPx >= 2 && rPx >= 2 && cPx <= MAX_INFER && rPx <= MAX_INFER)
+                ? { cols: cPx, rows: rPx, gx: Math.round(w / cPx), gy: Math.round(h / rPx) } : null;
+            const sugOk = !!(sug && sug.gx >= 15 && sug.gy >= 15
+                && sug.cols <= MAX_INFER && sug.rows <= MAX_INFER);
+            const useSug = (isStdSquare && inferred) ? inferred : sugOk ? sug : inferred;
             let sugMsg = '';
             if (useSug) {
                 const mm = parseFloat(($('palette').selectedOptions[0]?.textContent || '').match(/([\d.]+)\s*mm/)?.[1]) || 5;
                 $('board').value = 'custom'; $('customSize').style.display = 'grid';
                 $('cols').value = useSug.cols; $('rows').value = useSug.rows;
-                sugMsg = (!is40Square && sugOk)
-                    ? `｜珠距检测 ${useSug.gx}×${useSug.gy}px ⇒ 建议 ${useSug.cols}×${useSug.rows} 格（成品 ${(useSug.cols * mm / 10).toFixed(1)}×${(useSug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径，可手改）`
-                    : `｜标准 40px/颗 推断 ⇒ ${useSug.cols}×${useSug.rows} 格（可手改）`;
+                const plateNote = (useSug.cols > SINGLE_MAX || useSug.rows > SINGLE_MAX)
+                    ? `｜超单图上限 ${SINGLE_MAX} ⇒ 一键入关自动拆成组合图 Plate（每宫 ≤${SINGLE_MAX}）` : '';
+                sugMsg = (!isStdSquare && sugOk)
+                    ? `｜珠距检测 ${useSug.gx}×${useSug.gy}px ⇒ 建议 ${useSug.cols}×${useSug.rows} 格（成品 ${(useSug.cols * mm / 10).toFixed(1)}×${(useSug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径，可手改）${plateNote}`
+                    : `｜标准 ${PER_BEAD_PX}px/颗 推断 ⇒ ${useSug.cols}×${useSug.rows} 格（可手改）${plateNote}`;
             }
             // 原图缩略图（选图时本地生成，不依赖服务端返图）
             const tk = Math.min(1, THUMB_MAX / Math.max(img.width, img.height));
@@ -535,7 +544,7 @@
                 (df ? (df.error
                     ? `\n难度 ——（${df.error}）`
                     : `\n难度 D${df.score}（真引擎实测 ${df.taps} 次点击｜错位 ${df.misplaced} 颗）｜预估清关 ${df.timeEst}s（公式 v0.2 = taps × ${df.secPerTap}s，§5）` +
-                      (df.blockers?.length ? `\n⛔ 不可入关：${df.blockers.join('；')}` : ''))
+                    (df.blockers?.length ? `\n⛔ 不可入关：${df.blockers.join('；')}` : ''))
                     : '');
             $('dl').disabled = $('cp').disabled = !(r.levelDraft);
             // 入关只在本地仓模式可用（服务端无 games/ 目录则 501）；不可入关条目直接置灰

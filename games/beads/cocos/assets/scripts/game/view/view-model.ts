@@ -866,6 +866,9 @@ function drawGrid(
         draft.shadowAlpha = pop.shadowAlpha;
         draft.shadowDy = pop.shadowDy;
       }
+      // ADR-0017 甲案 · zoom 自适应 LOD：珠屏幕径低于阈值时走降层集（game 侧已带
+      // 滞回算好，视图只读）⇒ fit 档大盘每帧命令从 ~2900 降到 ~1900。
+      if (snap.beadLodLayers > 0) draft.lodLayers = snap.beadLodLayers;
       // G4 波浪（逐列，错峰 20ms）：只给 **scale + dy**（`L0a/L0b` **不做 α 联动** —— §1.6.4
       // 几何行：集体波浪逐颗联动会让 CPU 与视觉都变噪，只保形变）+ 本卡降档 `lodLayers`。
       // ⛔ 垫不参与：`scale` 仅珠体、`lift` 不带动 L11（§1.6.1 层序死结论）。
@@ -1179,7 +1182,7 @@ function drawClearPanel(
   builder.text(
     DESIGN_W / 2,
     layout.infoY,
-    `剩余 ${formatTime(snap.clearRemaining)} ｜ 道具 ${snap.clearPowerupsUsed}/${POWERUP_TYPES.length}`,
+    `剩余 ${formatTime(snap.clearRemaining)} ｜ 道具 ${snap.clearPowerupsUsed}/${POWERUP_TYPES.length} ｜ ${snap.clearTaps} 击`,
     { fill: palette.textDim, font: bodyFont(snap, 'sub'), align: 'center', baseline: 'middle' },
   );
 
