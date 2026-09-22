@@ -22689,17 +22689,17 @@
     },
     {
       "path": "games/beads/design/proposals/tray-capacity-large-board-playability.md",
-      "tokens": 2132,
-      "lines": 95,
-      "sha256": "06bda830a1e7ff9034afdc57f151807311001c9bf7195a223a8356335b1f8da9",
+      "tokens": 2806,
+      "lines": 114,
+      "sha256": "519e774ed0ddcb6b92980ba7d3ba975d63dea17628e43e1ea511a45800567ebb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 待裁定｜托盘容量 × 大盘（32×32 / 50×50）可玩路径",
           "level": 1,
           "startLine": 1,
-          "endLine": 96,
-          "tokens": 2108,
+          "endLine": 115,
+          "tokens": 2781,
           "summary": "项目：games/beads · 任务号 WXG-T-203 · 状态：待用户拍板数值 + 主理人连带影响确认；零代码、",
           "keywords": [
             "games",
@@ -22796,8 +22796,8 @@
           "anchor": "§6 取证计划（落码前置）",
           "level": 2,
           "startLine": 66,
-          "endLine": 71,
-          "tokens": 162,
+          "endLine": 89,
+          "tokens": 740,
           "summary": "E1 bot 矩阵（Node，本环境可做）：{18×18, 32×32} × {全错位, 60%, 30%} × {大色",
           "keywords": [
             "bot",
@@ -22807,10 +22807,26 @@
           ]
         },
         {
+          "anchor": "§6.1 E1 第一轮实测（2026-09-22，`temp/tray-matrix.mjs`，全 cleared 有效数据）",
+          "level": 3,
+          "startLine": 72,
+          "endLine": 89,
+          "tokens": 551,
+          "summary": "判据线 = 116 taps（420s ÷ SEC_PER_TAP 3.6）。没有任何格子达标：",
+          "keywords": [
+            "temp/tray-matrix.mjs",
+            "temp",
+            "tray",
+            "matrix",
+            "mjs",
+            "cleared"
+          ]
+        },
+        {
           "anchor": "§7 影响清单（拍板后串行落盘）",
           "level": 2,
-          "startLine": 72,
-          "endLine": 82,
+          "startLine": 90,
+          "endLine": 100,
           "tokens": 242,
           "summary": "§3 真源 §3.4 两行数值 + 说明改写；§6 变更记录 vX.Y 一行（登记推翻 v1.30 的方向与保留其版面理",
           "keywords": [
@@ -22824,8 +22840,8 @@
         {
           "anchor": "§8 决策点（用户）",
           "level": 2,
-          "startLine": 83,
-          "endLine": 90,
+          "startLine": 101,
+          "endLine": 108,
           "tokens": 118,
           "summary": "D1 数值档：甲（12/12 不动）｜乙（24/24）｜丙（24/12）",
           "keywords": [
@@ -22836,9 +22852,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 91,
-          "endLine": 96,
-          "tokens": 80,
+          "startLine": 109,
+          "endLine": 115,
+          "tokens": 176,
           "summary": "v0.1 2026-09-22 建档：tray 扩容 × 大盘可玩三杠杆分析、v2.1 深度论冲突摊牌、甲乙丙数值档、E",
           "keywords": [
             "tray",
