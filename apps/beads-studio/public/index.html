@@ -382,21 +382,23 @@
             const g = cv.getContext('2d', { willReadFrequently: true });
             g.drawImage(img, 0, 0, w, h);
             srcPixels = { w, h, data: g.getImageData(0, 0, w, h).data };
-            // 珠距检测：适合实拍物理盘（每颗珠有圆形高光周期，gx≥15px 才可信）。
-            // 平面图珠距检测会误报极小周期（gx≈8），此时改用 40px/颗 标准推断。
-            // 两种推断结果格数必须在 [2,50] 范围内（超出 GRID_MAX 视为不可信）。
+            // 珠距推断优先级：
+            //   1. 正方形 + 边长是 40 的整数倍（允许 ±2px 浮动） → 标准手画图，直接用 40px/颗 推断
+            //   2. 珠距检测可信（gx≥15，格数≤50）→ 实拍物理盘照片
+            //   3. 40px 推断在合法范围内 → 兜底
             const sug = detectBeadGrid(srcPixels);
-            const sugOk = !!(sug && sug.gx >= 15 && sug.gy >= 15 && sug.cols <= 50 && sug.rows <= 50);
             const c40 = Math.round(w / 40), r40 = Math.round(h / 40);
+            const is40Square = w === h && (w % 40 <= 2 || w % 40 >= 38);
             const inferred = (c40 >= 2 && r40 >= 2 && c40 <= 50 && r40 <= 50)
                 ? { cols: c40, rows: r40, gx: Math.round(w / c40), gy: Math.round(h / r40) } : null;
-            const useSug = sugOk ? sug : inferred;
+            const sugOk = !!(sug && sug.gx >= 15 && sug.gy >= 15 && sug.cols <= 50 && sug.rows <= 50);
+            const useSug = (is40Square && inferred) ? inferred : sugOk ? sug : inferred;
             let sugMsg = '';
             if (useSug) {
                 const mm = parseFloat(($('palette').selectedOptions[0]?.textContent || '').match(/([\d.]+)\s*mm/)?.[1]) || 5;
                 $('board').value = 'custom'; $('customSize').style.display = 'grid';
                 $('cols').value = useSug.cols; $('rows').value = useSug.rows;
-                sugMsg = sugOk
+                sugMsg = (!is40Square && sugOk)
                     ? `｜珠距检测 ${useSug.gx}×${useSug.gy}px ⇒ 建议 ${useSug.cols}×${useSug.rows} 格（成品 ${(useSug.cols * mm / 10).toFixed(1)}×${(useSug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径，可手改）`
                     : `｜标准 40px/颗 推断 ⇒ ${useSug.cols}×${useSug.rows} 格（可手改）`;
             }
