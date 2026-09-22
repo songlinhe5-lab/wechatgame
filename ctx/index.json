@@ -21574,17 +21574,17 @@
     },
     {
       "path": "games/beads/design/proposals/level-content-pipeline.md",
-      "tokens": 4129,
-      "lines": 178,
-      "sha256": "1ed37dfc101188b293ec14132ee6c0342a209570965f1727538c8c9fd551bc6e",
+      "tokens": 4396,
+      "lines": 179,
+      "sha256": "26b4bf97a873c9cfac7d1eeb543b0b921c925213ea79932789b7532edacda04e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 已定方向待落码｜关卡内容管线（单图/组合图 + 版本化增量分包）",
           "level": 1,
           "startLine": 1,
-          "endLine": 179,
-          "tokens": 4096,
+          "endLine": 180,
+          "tokens": 4364,
           "summary": "项目：games/beads · 任务号 WXG-T-XXX（待主理人分配，防撞号） · 状态：方向已定（用户 2026",
           "keywords": [
             "games",
@@ -21796,8 +21796,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 174,
-          "endLine": 179,
-          "tokens": 130,
+          "endLine": 180,
+          "tokens": 397,
           "summary": "v0.1 2026-09-22 建档：四层方案（内容仓 / 版本 manifest / sync 分片 / 分包投放）+",
           "keywords": [
             "manifest",

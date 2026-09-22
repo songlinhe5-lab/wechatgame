@@ -217,8 +217,15 @@ function ingestLevel(res, id) {
         if (!Array.isArray(d.paletteCodes) || d.paletteCodes.length !== r.colors)
             return sendJson(res, 422, { error: '草案缺 paletteCodes（旧记录请重新生成；v1.40 关卡存品牌色号而非 hex）' });
     }
-    const files = readdirSync(levelsDir).filter((f) => f.endsWith('.json'));
-    if (files.length !== 1) return sendJson(res, 500, { error: `真源应恰含 1 个 JSON（sync-levels-data 约定），实有 ${files.length} 个，拒写` });
+    const files = readdirSync(levelsDir).filter(
+      (f) => f.endsWith('.json') && f !== 'manifest.json' && f !== 'palette.json',
+    );
+    if (files.length === 0 && existsSync(join(levelsDir, 'manifest.json'))) {
+        // 关卡内容管线 P1：真源已目录化（manifest+singles）；目录模式入关（写 singles +
+        // 追加 entry + contentVersion++）属 P2（spec §5）。此处**显式失败**，不拿旧「恰 1 JSON」的 500 误误导。
+        return sendJson(res, 501, { error: 'beads 真源已目录化（P1）；「一键入关」目录模式写入为 P2 范围，暂未实现（WXG-T-185）。' });
+    }
+    if (files.length !== 1) return sendJson(res, 500, { error: `真源应恰含 1 个关卡 JSON（sync-levels-data 约定），实有 ${files.length} 个，拒写` });
     const src = join(levelsDir, files[0]);
     const doc = JSON.parse(readFileSync(src, 'utf8'));
     const swaps = d.swaps || [];

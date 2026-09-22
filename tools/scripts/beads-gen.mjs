@@ -263,8 +263,8 @@ const BRAND = (() => {
     // 色板数据是**入库资产**（games/beads/art/）；兼容 spike 期 artkal-s 放 temp/ 的老位置
     const j = (() => {
       for (const f of [
-        // ⚠️ 不能放 `design/levels/` —— 该目录的 .json 必须**恰好 1 个**（关卡真源唯一性门禁，
-        //    WXG-T-048；2026-09-20 实测：放进去会让 `levels:check` 报红）。故色板归美术资产目录。
+        // ⚠️ 不能放 `design/levels/` —— 目录模式（P1 起）下该目录顶层出现 manifest/palette 以外的
+        //    关卡 .json 即触发 sync「stray/歧义」断言报红（旧「恰 1 JSON」 WXG-T-048 门禁同一后果）。故色板归美术资产目录。
         join(SCRIPT_DIR, `../games/beads/art/${paletteArg}.json`),
         join(SCRIPT_DIR, `../../games/beads/art/${paletteArg}.json`),
         paletteArg === 'artkal-s' ? join(process.cwd(), 'temp/artkal-palette.json') : '', // 老位置仅 artkal-s 兼容

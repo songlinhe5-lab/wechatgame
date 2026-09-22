@@ -233,12 +233,21 @@ export function assembleFromManifest(game) {
   const referenced = new Set();
   const levels = [];
   entries.forEach((e, i) => {
-    if (e.order !== i + 1) throw new Error(`${game.name}: manifest order 非连续（第 ${i + 1} 位为 order=${e.order}）`);
+    // order：唯一且严格递增（允许退役留空洞，spec §1.2 retired 占位）
+    if (i > 0 && e.order <= entries[i - 1].order)
+      throw new Error(`${game.name}: manifest order 非严格递增（${entries[i - 1].order} → ${e.order}）`);
     if (uids.has(e.uid)) throw new Error(`${game.name}: uid 重复 ${e.uid}`);
     uids.add(e.uid);
+    // K-031：kind/pack 白名单——typo 或非 main 分片不得静默当成 single / 静默进主包
+    if (e.kind !== 'single' && e.kind !== 'plate')
+      throw new Error(`${game.name}: 未知 kind=${JSON.stringify(e.kind)}（${e.uid}），仅允许 single/plate`);
+    if (e.pack !== 'main')
+      throw new Error(`${game.name}: pack=${JSON.stringify(e.pack)} 分片未实现（P3），P1 仅允许 main：${e.uid}`);
     const fp = join(game.levelsDir, e.file);
-    if (!isFile(fp)) throw new Error(`${game.name}: manifest 引用文件缺失 ${e.file}`);
+    if (referenced.has(e.file)) throw new Error(`${game.name}: 文件被多条 entry 重复引用 ${e.file}`);
     referenced.add(e.file);
+    if (e.retired) return; // 退役：保留 order 占位，不校验文件也不进产物
+    if (!isFile(fp)) throw new Error(`${game.name}: manifest 引用文件缺失 ${e.file}`);
     const obj = JSON.parse(readFileSync(fp, 'utf8'));
     if (e.kind === 'plate') for (const c of obj.cells) levels.push(c); // P2 填；P1 无 plate
     else levels.push(obj);
@@ -251,6 +260,8 @@ export function assembleFromManifest(game) {
       if (!referenced.has(relFile)) throw new Error(`${game.name}: 孤儿关卡文件 ${relFile} 未被 manifest 引用`);
     }
   }
+  // P1 单份装配语义（分片延 P3）：schemaVersion→产物 LEVELS_DATA.version（非 manifest 自身格式版本，
+  // 改 manifest 格式勿 bump 它）；pack 全 main 不参与分片；contentVersion 不进产物（住真源层，为 P2/远程热更预留）。
   const out = { version: man.schemaVersion, gameId: man.gameId, palette: paletteDoc.palette };
   if (man.description !== undefined) out.description = man.description;
   out.levels = levels;
