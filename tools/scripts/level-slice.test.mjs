@@ -54,3 +54,26 @@ test('sliceBoard ≤50 不切，单格全等母版', () => {
   assert.equal(gridRows, 1);
   assert.deepEqual(cells[0].pattern, pattern);
 });
+
+test('sliceBoard 51×101 → 2×3=6 宫，行优先序锁定（下游按 cells 数组序展开，防漂序）', () => {
+  const cols = 51;
+  const rows = 101; // colRuns=[25,26] × rowRuns=[33,34,34]
+  const pattern = Array.from({ length: rows }, () => '1'.repeat(cols));
+  const { gridCols, gridRows, cells } = sliceBoard({ pattern, cols, rows, gridMax: 50 });
+  assert.equal(gridCols, 2);
+  assert.equal(gridRows, 3);
+  assert.equal(cells.length, 6);
+  assert.deepEqual(
+    cells.map((c) => [c.row, c.col, c.cols, c.rows]),
+    [
+      [0, 0, 25, 33], [0, 1, 26, 33],
+      [1, 0, 25, 34], [1, 1, 26, 34],
+      [2, 0, 25, 34], [2, 1, 26, 34],
+    ],
+  );
+});
+
+test('sliceBoard 声明尺寸与 pattern 实际不符 → 入口即 throw（防静默裁出错格）', () => {
+  assert.throws(() => sliceBoard({ pattern: ['11'], cols: 2, rows: 2, gridMax: 50 }), /形状/);
+  assert.throws(() => sliceBoard({ pattern: ['111'], cols: 2, rows: 1, gridMax: 50 }), /形状/);
+});

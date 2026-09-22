@@ -22,6 +22,11 @@ export function splitRuns(n, gridMax) {
  * @returns {{gridCols:number, gridRows:number, cells:Array<{row:number,col:number,cols:number,rows:number,pattern:string[],misplaced?:string[]}>}}
  */
 export function sliceBoard({ pattern, misplaced, cols, rows, gridMax = 50 }) {
+  // 入口形状断言：声明的 cols/rows 必须与 pattern 实际尺寸一致（防静默裁出尺寸不符的子格）。
+  if (!Array.isArray(pattern) || pattern.length !== rows || pattern.some((l) => l.length !== cols))
+    throw new Error(`level-slice: pattern 形状 ≠ ${rows}×${cols}`);
+  if (misplaced != null && (misplaced.length !== rows || misplaced.some((l) => l.length !== cols)))
+    throw new Error(`level-slice: misplaced 形状 ≠ ${rows}×${cols}`);
   const colRuns = splitRuns(cols, gridMax);
   const rowRuns = splitRuns(rows, gridMax); // 纵横向同一均分规则（≤50 自然不切）
   const cells = [];

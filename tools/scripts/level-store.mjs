@@ -23,7 +23,7 @@ export function assignUid(kind, uids) {
   const p = kind === 'plate' ? 'P' : 'L';
   let max = 0;
   for (const u of uids) {
-    const m = /^([LP])(\d{4})$/.exec(u);
+    const m = /^([LP])(\d+)$/.exec(u); // \d+ 非固定 4 位：号 >9999 时不回绕撞号（破只追加不变量）
     if (m && m[1] === p) max = Math.max(max, Number(m[2]));
   }
   return p + String(max + 1).padStart(4, '0');
@@ -34,7 +34,7 @@ export function nextNumericId(levelsDir, manifest) {
   let max = 0;
   for (const e of manifest.entries) {
     const obj = JSON.parse(readFileSync(join(levelsDir, e.file), 'utf8'));
-    if (e.kind === 'plate') for (const c of obj.cells) max = Math.max(max, c.id ?? 0);
+    if (e.kind === 'plate') for (const c of obj.cells ?? []) max = Math.max(max, c.id ?? 0);
     else max = Math.max(max, obj.id ?? 0);
   }
   return max + 1;

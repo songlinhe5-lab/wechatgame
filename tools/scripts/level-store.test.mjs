@@ -11,6 +11,8 @@ test('assignUid 取该 kind 现有最大号 +1', () => {
   assert.equal(assignUid('plate', new Set(['P0003'])), 'P0004');
   assert.equal(assignUid('single', new Set()), 'L0001');
   assert.equal(assignUid('plate', new Set(['L0001', 'L0002'])), 'P0001'); // 混集只认 P
+  assert.equal(assignUid('single', new Set(['L9999'])), 'L10000'); // >9999 不回绕
+  assert.equal(assignUid('single', new Set(['L10000'])), 'L10001'); // 宽号仍参与取最大
 });
 
 test('appendEntry 只追加、order 续、contentVersion++、老 entry 不动', () => {
@@ -18,11 +20,12 @@ test('appendEntry 只追加、order 续、contentVersion++、老 entry 不动', 
     contentVersion: 3,
     entries: [{ uid: 'L0001', kind: 'single', file: 'singles/L0001.json', pack: 'main', order: 1 }],
   };
+  Object.freeze(m.entries[0]); // 冻结老 entry：appendEntry 若 in-place mutate 会抛（strict）
   const n = appendEntry(m, { uid: 'L0002', kind: 'single', file: 'singles/L0002.json', pack: 'main' });
   assert.equal(n.entries.length, 2);
   assert.equal(n.entries[1].order, 2);
   assert.equal(n.contentVersion, 4);
-  assert.deepEqual(n.entries[0], m.entries[0]);
+  assert.equal(n.entries[0].order, 1); // 老 entry 未被改动
   assert.equal(m.contentVersion, 3); // 入参未被 mutate
 });
 

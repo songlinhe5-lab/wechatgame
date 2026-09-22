@@ -145,7 +145,7 @@ export function sliceBoard({ pattern, misplaced, cols, rows, gridMax = 50 }) {
 **Interfaces:**
 - Produces:
   - `readManifest(levelsDir) => {schemaVersion,contentVersion,gameId,description?,paletteFile,entries[]}`
-  - `nextNumericId(manifest, levelsDir) => max(所有现有 levels[].id) + 1`（读 singles 现有 id + plate cells id）
+  - `nextNumericId(levelsDir, manifest) => max(所有现有 levels[].id) + 1`（读 singles 现有 id + plate cells id）
   - `assignUid(kind, existingUids) => 'L'+pad(n)` 或 `'P'+pad(n)`（取该 kind 现有最大号 +1，零填充 4）
   - `buildSingleFile({ level }) => level`（即 BeadsLevelRaw，原样）
   - `buildPlateFile({ plateUid, name, gridCols, gridRows, cells }) => {plateUid,name,gridCols,gridRows,cells}`
