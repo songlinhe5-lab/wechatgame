@@ -40,8 +40,36 @@ export function nextNumericId(levelsDir, manifest) {
   return max + 1;
 }
 
-export function buildPlateFile({ plateUid, name, gridCols, gridRows, cells }) {
-  return { plateUid, name, gridCols, gridRows, cells };
+export function buildPlateFile({ plateUid, name, gridCols, gridRows, sourcePreview, cells }) {
+  return { plateUid, name, gridCols, gridRows, sourcePreview: sourcePreview ?? null, cells };
+}
+
+/**
+ * Cell-Level 构造器（P2b I3 契约）。
+ * 在 BeadsLevelRaw 同形基础上补 plateUid + cellPos:{row,col}。
+ * misplaced 仅在有值时写入（乙档无 misplaced）。
+ */
+export function buildCellLevel({
+  cell, plateUid, id, name, time,
+  decoys = [], swaps = [], misplaced,
+  palette, paletteCodes,
+}) {
+  return {
+    id,
+    name,
+    cols: cell.cols,
+    rows: cell.rows,
+    time,
+    cycleProfile: 'short',
+    decoys,
+    pattern: cell.pattern,
+    swaps,
+    ...(misplaced !== undefined ? { misplaced } : {}),
+    ...(palette !== undefined ? { palette } : {}),
+    ...(paletteCodes !== undefined ? { paletteCodes } : {}),
+    plateUid,
+    cellPos: { row: cell.row, col: cell.col },
+  };
 }
 
 /** 追加 entry：order = max+1、contentVersion++；老 entry 原样（返回新对象，不改入参）。 */

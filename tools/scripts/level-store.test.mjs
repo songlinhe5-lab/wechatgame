@@ -48,3 +48,61 @@ test('nextNumericId 取 single.id 与 plate cell.id 全局最大 +1', () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── P2b I3 契约扩展 ───────────────────────────────────────────────────────────
+
+test('buildPlateFile 含 sourcePreview（I3）', async () => {
+  const { buildPlateFile } = await import('./level-store.mjs');
+  const p = buildPlateFile({
+    plateUid: 'P0001', name: 'x', gridCols: 2, gridRows: 2,
+    sourcePreview: 'data:image/png;base64,...', cells: [],
+  });
+  assert.equal(p.sourcePreview, 'data:image/png;base64,...');
+  assert.equal(p.plateUid, 'P0001');
+  // sourcePreview 传 null 时也存 null（不省略键）
+  const p2 = buildPlateFile({
+    plateUid: 'P0002', name: 'y', gridCols: 1, gridRows: 1,
+    sourcePreview: null, cells: [],
+  });
+  assert.equal(p2.sourcePreview, null);
+});
+
+test('buildCellLevel 含 I3 字段 plateUid + cellPos', async () => {
+  const { buildCellLevel } = await import('./level-store.mjs');
+  const c = buildCellLevel({
+    cell: { row: 1, col: 0, cols: 25, rows: 25, pattern: ['11', '11'] },
+    plateUid: 'P0001', id: 42, name: 'test-r1c0', time: 100,
+    decoys: [], swaps: [], misplaced: ['11', '11'],
+  });
+  assert.equal(c.plateUid, 'P0001');
+  assert.deepEqual(c.cellPos, { row: 1, col: 0 });
+  assert.equal(c.id, 42);
+  assert.equal(c.time, 100);
+  assert.deepEqual(c.pattern, ['11', '11']);
+  assert.deepEqual(c.misplaced, ['11', '11']);
+});
+
+test('buildCellLevel 乙档 swaps 格（无 misplaced）', async () => {
+  const { buildCellLevel } = await import('./level-store.mjs');
+  const c = buildCellLevel({
+    cell: { row: 0, col: 1, cols: 10, rows: 10, pattern: ['1122', '1122'] },
+    plateUid: 'P0002', id: 55, name: 'test-r0c1', time: 80,
+    decoys: [], swaps: [[0, 0, 0, 2]],
+  });
+  assert.equal(c.plateUid, 'P0002');
+  assert.deepEqual(c.cellPos, { row: 0, col: 1 });
+  assert.deepEqual(c.swaps, [[0, 0, 0, 2]]);
+  assert.equal(c.misplaced, undefined);
+});
+
+test('buildCellLevel 品牌色板字段透传', async () => {
+  const { buildCellLevel } = await import('./level-store.mjs');
+  const c = buildCellLevel({
+    cell: { row: 0, col: 0, cols: 5, rows: 5, pattern: ['11111'] },
+    plateUid: 'P0003', id: 60, name: 'brand', time: 50,
+    decoys: [], swaps: [],
+    palette: 'artkal-s', paletteCodes: ['A1', 'B2'],
+  });
+  assert.equal(c.palette, 'artkal-s');
+  assert.deepEqual(c.paletteCodes, ['A1', 'B2']);
+});
