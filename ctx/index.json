@@ -21574,9 +21574,9 @@
     },
     {
       "path": "games/beads/design/proposals/level-content-pipeline.md",
-      "tokens": 5087,
+      "tokens": 5124,
       "lines": 193,
-      "sha256": "b11de9045a93ede491c24d61432d92f999a043a3f66351fdc6cd67cf99313212",
+      "sha256": "b05abce48ac1dee0d2411db078dba58b711c2e692bfc623a49b7b6bf99a6102c",
       "tier": "normal",
       "sections": [
         {
@@ -21584,7 +21584,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 194,
-          "tokens": 5054,
+          "tokens": 5091,
           "summary": "项目：games/beads · 任务号 WXG-T-XXX（待主理人分配，防撞号） · 状态：方向已定（用户 2026",
           "keywords": [
             "games",
@@ -21810,7 +21810,7 @@
           "level": 2,
           "startLine": 186,
           "endLine": 194,
-          "tokens": 345,
+          "tokens": 382,
           "summary": "背景：P2 T3 评审（真跑 beads-bot）发现 C1。当前 ingestLevel 对 >50 回 501；pl",
           "keywords": [
             "P2b",

@@ -188,6 +188,6 @@ games/beads/design/levels/
 > 背景：P2 T3 评审（真跑 beads-bot）发现 C1。当前 `ingestLevel` 对 >50 回 **501**；plate 脚手架（`sliceBoard` 仅裁 pattern 可用、`buildPlateFile`）保留在库中待接回。
 
 - **[C1 必修] 切块后逐格重排错豆**（见 §0 约束）：plate 分支 = `sliceBoard` 只裁 `pattern` → 每格用格内 `balance+derange`（从 beads-gen 抽出共享 `level-derange.mjs`，或按 `levels-spec §2.1` 用 swaps）构造 `misplaced` → 逐格 beads-bot `cleared===true` 才算过。**验收必须跑 bot 逐格，不能只跑 assemble（结构绿≠可解）**。
-- **[I1] 分端点拦板语义**：`importBlockers` 解除 >50 仅限 ingest；`/level` 端点 + 列表 `importable` 投影 + 小游戏 `importLatest` 需仍拦 >50（否则大盘残果会让在线导入永远失败）。
+- **[I1] 分端点拦板语义（已随 P2 修复）**：`importBlockers` 加 `allowOversize` 参，仅 `ingestLevel` 传 true（>50 放行到 plate 501）；列表 `importable` 投影 / `/level` / 生成快照默认拦 >50 ⇒ 修回 `importLatest` 选中 >50 头不回退的回归。plate 真落地（P2b）时再把 >50 拆成合法 plate 入口。
 - **[I3] plate 契约字段**：cell 补 `plateUid`/`cellPos:{row,col}`；plate 补 `sourcePreview`（可取 `r.thumb`）——否则归属仅编进 name 字串，P3 归组/存档返工。
 - **其他**：`nextNumericId` 不跳 retired（M2）；`writeLevelFile` 未建目录（靠 plates/README.md 被跟踪侥幸，M3）；bot 失败 stderr 未透传（M1）。

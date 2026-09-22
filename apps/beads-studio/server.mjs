@@ -150,7 +150,7 @@ const ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
  * 色板不限（v1.40 品牌引用制，2026-09-21 用户拍板）：关卡写回 `palette`（slug）+
  * `paletteCodes`（紧凑序色号），游戏侧从品牌注册表查 hex 渲染 —— 无映射、无拦截。
  */
-function importBlockers(r) {
+function importBlockers(r, { allowOversize = false } = {}) {
     const b = [];
     const full = r.misMode === 'full';
     if (!r.levelDraft) b.push('无关卡草案（全盘错位需满足主导色 ≤ 可填半数；交换模式需 k ≥ 1）');
@@ -160,7 +160,10 @@ function importBlockers(r) {
     if (r.colors > 10) b.push(`用色 ${r.colors} > 10（\`BEAD_COLOR_MAX\`，§3.2 v1.36）`);
     if (r.cols < 6) b.push(`列数 ${r.cols} < 6（\`GRID_MIN_COLS\`）`);
     if (r.rows < 5) b.push(`行数 ${r.rows} < 5（\`GRID_MIN_ROWS\`）`);
-    // 上限不再拦：>50 走组合图 Plate（均分切块，每格 ≤50 由下游 sync/bot 强制）。
+    // >50 仅 ingest 放行（走 plate：当前 501 待 P2b）；列表投影 / `/level` / 生成快照默认拦 >50。
+    // 否则小游戏 importLatest 会选中 >50 头 → validateBeadsLevel 失败且不回退下一条合法关（I1 回归）。
+    if (!allowOversize && (r.cols > 50 || r.rows > 50))
+        b.push(`盘 ${r.cols}×${r.rows} 超 50：组合图 Plate 待 P2b，此端不支持`);
     return b;
 }
 
@@ -203,7 +206,7 @@ async function ingestLevel(res, id) {
     }
     if (!r) return sendJson(res, 404, { error: 'not found' });
     // 判据实时重算（盘上 blockers/importable 是存盘时快照，判据演进后会失效）
-    const blockers = importBlockers(r);
+    const blockers = importBlockers(r, { allowOversize: true });
     if (blockers.length) return sendJson(res, 422, { error: '该结果不可入关：' + blockers.join('；') });
     const d = r.levelDraft;
     if (!d || !Array.isArray(d.pattern)) return sendJson(res, 422, { error: '结果无 levelDraft（交换错位 k 需 ≥ 1）' });
