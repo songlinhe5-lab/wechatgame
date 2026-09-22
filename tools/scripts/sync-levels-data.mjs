@@ -74,6 +74,8 @@ const GAMES_DIR = join(root, 'games');
 const HEADER_FILE = 'levels-data.header.txt';
 const TARGET_REL = 'src/config/levels-data.ts';
 const CONST_NAME = 'LEVELS_DATA';
+const MANIFEST_FILE = 'manifest.json'; // 目录模式入口（关卡内容管线 P1）
+const PALETTE_FILE = 'palette.json';   // 目录模式共享色板
 
 const argv = process.argv.slice(2);
 if (argv.includes('-h') || argv.includes('--help')) {
@@ -113,29 +115,55 @@ function discover() {
     const hasHeader = isFile(headerPath);
     const hasTarget = isFile(targetPath);
 
-    // 与生成器无关的游戏（无 JSON / 无 header）→ 跳过
-    if (jsonFiles.length === 0 && !hasHeader) continue;
+    const manifestPath = join(levelsDir, MANIFEST_FILE);
+    const hasManifest = isFile(manifestPath);
+    // 关卡 json 集：排除目录模式的入口 manifest.json 与共享 palette.json
+    const levelJsons = jsonFiles.filter((f) => f !== MANIFEST_FILE && f !== PALETTE_FILE);
 
-    // 断言 ④：真源必须唯一（各游戏文件名不同，故不能靠固定名）
-    if (jsonFiles.length > 1) {
+    // 与生成器无关的游戏（无关卡 json / 无 manifest / 无 header）→ 跳过
+    if (levelJsons.length === 0 && !hasManifest && !hasHeader) continue;
+
+    // ── 目录模式（有 manifest.json）：manifest 为关卡唯一顺序真源 ──
+    if (hasManifest) {
+      if (levelJsons.length > 0) {
+        problems.push(
+          `${name}：目录模式（有 ${MANIFEST_FILE}）却仍有顶层关卡 json：${levelJsons.join('、')} —— ` +
+            '二者歧义，只保留 manifest 驱动（删除多余顶层关卡 json）',
+        );
+        continue;
+      }
+      if (!hasHeader) {
+        problems.push(`${name}：目录模式缺 ${HEADER_FILE} —— 产物无接口模板`);
+        continue;
+      }
+      if (!hasTarget) {
+        problems.push(`${name}：目录模式缺 ${TARGET_REL} —— 跑一次不带 --check 的本脚本`);
+        continue;
+      }
+      games.push({ name, mode: 'dir', manifestPath, levelsDir, headerPath, targetPath, jsonName: MANIFEST_FILE });
+      continue;
+    }
+
+    // ── 单 JSON 模式（legacy，如 breakout）：断言④真源唯一 ──
+    if (levelJsons.length > 1) {
       problems.push(
-        `${name}：design/levels/ 下有 ${jsonFiles.length} 个 .json（${jsonFiles.join('、')}）—— ` +
-          '真源必须唯一，请删掉多余文件或明确保留哪一个',
+        `${name}：无 ${MANIFEST_FILE} 且 design/levels/ 下有 ${levelJsons.length} 个关卡 .json（${levelJsons.join('、')}）—— ` +
+          `真源要么恰好 1 个，要么改用 ${MANIFEST_FILE} 目录模式`,
       );
       continue;
     }
 
     // 断言 ① / ③：JSON 与 header 模板必须成对
-    if (jsonFiles.length === 1 && !hasHeader) {
+    if (levelJsons.length === 1 && !hasHeader) {
       problems.push(
-        `${name}：有 ${jsonFiles[0]} 但缺 ${HEADER_FILE} —— ` +
+        `${name}：有 ${levelJsons[0]} 但缺 ${HEADER_FILE} —— ` +
           '**该游戏的关卡产物没有任何门禁**（K-031 族静默失效）。' +
           `处置：把该游戏 levels-data.ts 的头部（\`export const ${CONST_NAME}\` 之前的部分）` +
           `原样另存为 design/levels/${HEADER_FILE}（须逐字节一致），再跑一次本脚本`,
       );
       continue;
     }
-    if (jsonFiles.length === 0 && hasHeader) {
+    if (levelJsons.length === 0 && hasHeader) {
       problems.push(`${name}：有 ${HEADER_FILE} 但 design/levels/ 下无 .json —— 孤儿模板，请补回真源或删除模板`);
       continue;
     }
@@ -146,7 +174,7 @@ function discover() {
       continue;
     }
 
-    games.push({ name, jsonPath: join(levelsDir, jsonFiles[0]), jsonName: jsonFiles[0], headerPath, targetPath });
+    games.push({ name, mode: 'single', jsonPath: join(levelsDir, levelJsons[0]), jsonName: levelJsons[0], headerPath, targetPath });
   }
 
   if (gameFilter && games.length === 0 && problems.length === 0) {
@@ -185,8 +213,48 @@ function render(value, indent = 0) {
  */
 export function buildModuleSource(game) {
   const header = readFileSync(game.headerPath, 'utf8');
-  const data = JSON.parse(readFileSync(game.jsonPath, 'utf8'));
+  const data =
+    game.mode === 'dir' ? assembleFromManifest(game) : JSON.parse(readFileSync(game.jsonPath, 'utf8'));
   return `${header}\nexport const ${CONST_NAME}: LevelsData = ${render(data, 0)};\n`;
+}
+
+/**
+ * 目录模式装配（关卡内容管线 P1）：读 manifest + palette.json + singles/plates，
+ * 按 entry.order 展开成与旧单文件**同形同序**的 LevelsData 对象。
+ * 装配即断言（任一不成立 throw ⇒ --check/main 硬红，不静默报绿，K-031）：
+ *   order 连续 1..N｜uid 唯一｜引用文件存在｜singles/+plates/ 无孤儿文件。
+ * 导出供单测复用（**不写盘**）。
+ */
+export function assembleFromManifest(game) {
+  const man = JSON.parse(readFileSync(game.manifestPath, 'utf8'));
+  const paletteDoc = JSON.parse(readFileSync(join(game.levelsDir, man.paletteFile), 'utf8'));
+  const entries = [...man.entries].sort((a, b) => a.order - b.order);
+  const uids = new Set();
+  const referenced = new Set();
+  const levels = [];
+  entries.forEach((e, i) => {
+    if (e.order !== i + 1) throw new Error(`${game.name}: manifest order 非连续（第 ${i + 1} 位为 order=${e.order}）`);
+    if (uids.has(e.uid)) throw new Error(`${game.name}: uid 重复 ${e.uid}`);
+    uids.add(e.uid);
+    const fp = join(game.levelsDir, e.file);
+    if (!isFile(fp)) throw new Error(`${game.name}: manifest 引用文件缺失 ${e.file}`);
+    referenced.add(e.file);
+    const obj = JSON.parse(readFileSync(fp, 'utf8'));
+    if (e.kind === 'plate') for (const c of obj.cells) levels.push(c); // P2 填；P1 无 plate
+    else levels.push(obj);
+  });
+  for (const sub of ['singles', 'plates']) {
+    const d = join(game.levelsDir, sub);
+    if (!isDir(d)) continue;
+    for (const f of readdirSync(d).filter((x) => x.endsWith('.json'))) {
+      const relFile = `${sub}/${f}`;
+      if (!referenced.has(relFile)) throw new Error(`${game.name}: 孤儿关卡文件 ${relFile} 未被 manifest 引用`);
+    }
+  }
+  const out = { version: man.schemaVersion, gameId: man.gameId, palette: paletteDoc.palette };
+  if (man.description !== undefined) out.description = man.description;
+  out.levels = levels;
+  return out;
 }
 
 /** 便于测试：按游戏名取描述对象（返回 null 表示该游戏不参与生成）。 */
@@ -302,18 +370,19 @@ function printHelp() {
   node tools/scripts/sync-levels-data.mjs --check        # 只校验，漂移即 exit 1
   node tools/scripts/sync-levels-data.mjs --game=<name>  # 只处理某款游戏
 
-每游戏的文件约定（新增游戏**不需要改本脚本**）：
-  games/<game>/design/levels/<任意名>.json          真源（每游戏恰好 1 个）
-  games/<game>/design/levels/levels-data.header.txt 该游戏的 TS 接口模板（手工维护）
-  games/<game>/src/config/levels-data.ts            产物（生成）
+每游戏的文件约定（新增游戏**不需要改本脚本**）——**两种真源模式**：
+  【目录模式】design/levels/manifest.json + palette.json + singles/ + plates/  ← beads（P1 起）
+     manifest.entries[{uid,kind,file,pack,order}] 为关卡唯一顺序真源；Plate 展开为 N 个 cell
+  【单 JSON 模式】games/<game>/design/levels/<任意名>.json（恰 1 个）      ← breakout 等 legacy
+  两模式共用：design/levels/levels-data.header.txt（TS 接口模板）+ src/config/levels-data.ts（产物）
 
 生成契约（逐字节固定）：
   header 模板 + "\\n" + "export const ${CONST_NAME}: LevelsData = " + render(json) + ";\\n"
   渲染风格全游戏统一（双引号 / 数组多行 / 6.0→6）——产物不得手搓。
 
 覆盖面断言（任一不成立即 exit 1）：
-  ① 有 .json ⇒ 必须有 header 模板  ② 有 .json ⇒ 必须有产物
-  ③ 有 header 模板 ⇒ 必须有 .json  ④ design/levels/ 下 .json 必须唯一
+  ① 有关卡 json ⇒ 必须有 header 模板  ② 有真源 ⇒ 必须有产物
+  ③ 有 header 模板 ⇒ 必须有真源  ④ 无 manifest.json 时顶层关卡 .json 必须唯一（有 manifest 走目录模式）
 
 真源：各游戏 design/gdd/systems-index.md §3（冻结常量）。`);
 }

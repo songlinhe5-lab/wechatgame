@@ -1,7 +1,7 @@
 /**
  * ⚠️ GENERATED FILE — DO NOT EDIT BY HAND.
  *
- * Source of truth: games/beads/design/levels/levels-01-08.json
+ * Source of truth: games/beads/design/levels/{manifest.json,palette.json,singles/,plates/}
  * Regenerate:      node tools/scripts/sync-levels-data.mjs --game=beads
  * Drift guard:     pnpm run levels:check（pnpm run verify 内；覆盖面断言见 WXG-T-048）
  *

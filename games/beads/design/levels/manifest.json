@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "contentVersion": 1,
+  "gameId": "beads",
+  "description": "拼豆 MVP 前 8 关（ADR-0018 两档：关 1–4 = small14 14×14、关 5–8 = small18 18×18；全错位初盘 misplaced，字符集 .x1-9A，色板索引见 art-bible §3.2）。",
+  "paletteFile": "palette.json",
+  "entries": [
+    {
+      "uid": "L0001",
+      "kind": "single",
+      "file": "singles/L0001.json",
+      "pack": "main",
+      "order": 1
+    },
+    {
+      "uid": "L0002",
+      "kind": "single",
+      "file": "singles/L0002.json",
+      "pack": "main",
+      "order": 2
+    },
+    {
+      "uid": "L0003",
+      "kind": "single",
+      "file": "singles/L0003.json",
+      "pack": "main",
+      "order": 3
+    },
+    {
+      "uid": "L0004",
+      "kind": "single",
+      "file": "singles/L0004.json",
+      "pack": "main",
+      "order": 4
+    },
+    {
+      "uid": "L0005",
+      "kind": "single",
+      "file": "singles/L0005.json",
+      "pack": "main",
+      "order": 5
+    },
+    {
+      "uid": "L0006",
+      "kind": "single",
+      "file": "singles/L0006.json",
+      "pack": "main",
+      "order": 6
+    },
+    {
+      "uid": "L0007",
+      "kind": "single",
+      "file": "singles/L0007.json",
+      "pack": "main",
+      "order": 7
+    },
+    {
+      "uid": "L0008",
+      "kind": "single",
+      "file": "singles/L0008.json",
+      "pack": "main",
+      "order": 8
+    },
+    {
+      "uid": "L0009",
+      "kind": "single",
+      "file": "singles/L0009.json",
+      "pack": "main",
+      "order": 9
+    }
+  ]
+}
