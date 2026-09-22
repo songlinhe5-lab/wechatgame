@@ -207,14 +207,17 @@ games/beads/design/levels/
 | v0.2 | 2026-09-22 | **P1 落码，相对 §3 字面的实现偏差（用户 2026-09-22 同意）**：① 产物「按包分片」（§3-乙）延至 P3——P1 无分包（build:wx 未通），改**单份装配**，产物数据体逐字节零漂移。② `assembleFromManifest` 加 **kind∈{single,plate} / pack=='main' 白名单断言 + 文件唯一引用 + retired 跳过**（防 K-031 静默报绿）。③ order 由「连续 1..N」改为**唯一且严格递增、允许空洞**（对齐 §1.2 退役留占位）。④ `contentVersion`/`pack` 住真源层、暂不进产物。**③ 前置修复**：同批修 `beads-gen.mjs` 与 studio `ingestLevel` 两处对已删 `levels-01-08.json` 的遗留引用（前者改指 palette.json；后者目录模式下显式 501，目录模式写入归 P2）。plates/ 暂空（P2 由 studio 切块产出）。 | WXG-T-185 |
 | v0.3 | 2026-09-22 | **P2 落码拆两半**：≤**50 单图入关已真开**（ingestLevel 目录模式写 singles + 追加 manifest + contentVersion++ + 失败回滚）；**>50 Plate 入关经评审发现 Critical（C1：全盘 misplaced 直接裁宫破格内守恒）⇒ 暂缓为 P2b**，plate 分支现显式 501。新定 §0「错豆切块后逐格重排」约束。另登 P2b 待办（见 §10）。 | WXG-T-185 |
 | v0.4 | 2026-09-22 | **P2b 算法定案（§0.2）**：逐格降级阶 甲全错位→乙 swaps(k=min(8,异色对数)尽量大)；**丙「不可错位」= 该图不适合组图 → 整板 422 禁止导入（不落 m=0、不放宽 BOOT，无需 §3 变更单）**。实测 `cleared!==true`/形状失败亦拒收。用户逐条拍板（甲乙阶 / 2a 尽量大 / m=0→拒收）。前置：抽 `level-derange.mjs` 共享 beads-gen。实现待 P2b（干净树 + 单独计划），未写码。 | WXG-T-185 |
+| v0.5 | 2026-09-22 | **P2b 落码（>50 Plate 入关完整接线）**：新增 `tools/scripts/level-derange.mjs`（甲/乙/丙三阶逐格错豆算法，rowstring 编解码，无 IO，无 Math.random）；`level-store.mjs` 补 I3 契约 `buildCellLevel`（含 `plateUid`/`cellPos`）、`buildPlateFile` 补 `sourcePreview`；`server.mjs` plate 分支替换 501 桩（含 `measureCells` 逐格 bot 实测；任一格丙或 `cleared!==true` 整板 422 拒收；M3 修复：写 plate 文件前置 `mkdirSync(plates, recursive:true)`）。单测：`level-derange.test.mjs` 14/14 绿；`level-store.test.mjs` 7/7 绿。`pnpm run levels:check` 双游戏绿。 | WXG-T-185 |
 
 ---
 
-## 10. P2b（>50 Plate 入关）待办 —— 本次显式暂欠、未 ship 半成品
+## 10. P2b（>50 Plate 入关）待办 —— 已全部落码（v0.5）
 
-> 背景：P2 T3 评审（真跑 beads-bot）发现 C1。当前 `ingestLevel` 对 >50 回 **501**；plate 脚手架（`sliceBoard` 仅裁 pattern 可用、`buildPlateFile`）保留在库中待接回。
+> 背景：P2 T3 评审（真跑 beads-bot）发现 C1。P2b 实现：plate 分支已从 501 改为完整接线（v0.5）。
 
-- **[C1 设计已定案，实现待 P2b] 切块后逐格重排错豆** → 算法见 **§0.2（丙·逐格降级阶：全错位→swaps尽量大→trivial m=0 标注）**。实现时抽 `level-derange.mjs` 共享 beads-gen 的 `derange`+编解码；**验收必须逐格跑 beads-bot `cleared===true`，不能只跑 assemble**。**不 ship 半成品**：plate 落地前保持 501。
-- **[I1] 分端点拦板语义（已随 P2 修复）**：`importBlockers` 加 `allowOversize` 参，仅 `ingestLevel` 传 true（>50 放行到 plate 501）；列表 `importable` 投影 / `/level` / 生成快照默认拦 >50 ⇒ 修回 `importLatest` 选中 >50 头不回退的回归。plate 真落地（P2b）时再把 >50 拆成合法 plate 入口。
-- **[I3] plate 契约字段**：cell 补 `plateUid`/`cellPos:{row,col}`；plate 补 `sourcePreview`（可取 `r.thumb`）——否则归属仅编进 name 字串，P3 归组/存档返工。
-- **其他**：`nextNumericId` 不跳 retired（M2）；`writeLevelFile` 未建目录（靠 plates/README.md 被跟踪侥幸，M3）；bot 失败 stderr 未透传（M1）。
+- [x] **[C1 已落码] 切块后逐格重排错豆** → 算法见 **§0.2**。`level-derange.mjs` 实现三阶（甲 misplaced / 乙 swaps / 丙 422 拒收）；验收每格跑 `measureCells`（beads-bot `{levels:[...]}` 模式，逐格 `cleared===true`）。plate 分支不再返回 501。
+- [x] **[I1 已随 P2 修复]** `importBlockers` 加 `allowOversize` 参，仅 `ingestLevel` 传 true（>50 放行到 plate 路径）；列表/生成快照默认拦 >50。**P2b 补充**：plate 路径真实可用后，>50 不再是「待实现 501」，而是合法 plate 入口；丙档仍返回 422。
+- [x] **[I3 已落码] plate 契约字段**：cell 带 `plateUid`/`cellPos:{row,col}`；plate 顶层带 `sourcePreview: r.thumb ?? null`。归属不再仅编进 name 字串，P3 归组/存档可直接消费。
+- [x] **[M3 已修复]** `writeLevelFile(plates/..)` 前置 `mkdirSync(join(levelsDir, 'plates'), {recursive:true})`，不再依赖 plates/README.md 侥幸存活。
+- **[M2 遗留（低优先）**：`nextNumericId` 不跳 retired（retired entry 的 file 仍被扫描，取最大 id +1）；若未来 retired 格数多致 id 空洞膨胀再处理。
+- **[M1 遗留（低优先）**：bot 失败时 stderr 未透传到 HTTP 响应；`measureCells` 已报 stdout 解析失败原因；stderr 仅写日志。

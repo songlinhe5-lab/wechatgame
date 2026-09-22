@@ -21574,17 +21574,17 @@
     },
     {
       "path": "games/beads/design/proposals/level-content-pipeline.md",
-      "tokens": 6243,
-      "lines": 220,
-      "sha256": "601a6893dcd5d2603f1884693924a421761f8deb792ad31e3dfc261646b80d9b",
+      "tokens": 6469,
+      "lines": 223,
+      "sha256": "1f5b6ed6cc81b87bdbdce2cc5e709995b8266cee062010e843b54fe588cf122e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 已定方向待落码｜关卡内容管线（单图/组合图 + 版本化增量分包）",
           "level": 1,
           "startLine": 1,
-          "endLine": 221,
-          "tokens": 6210,
+          "endLine": 224,
+          "tokens": 6436,
           "summary": "项目：games/beads · 任务号 WXG-T-XXX（待主理人分配，防撞号） · 状态：方向已定（用户 2026",
           "keywords": [
             "games",
@@ -21812,8 +21812,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 202,
-          "endLine": 212,
-          "tokens": 677,
+          "endLine": 213,
+          "tokens": 866,
           "summary": "v0.1 2026-09-22 建档：四层方案（内容仓 / 版本 manifest / sync 分片 / 分包投放）+",
           "keywords": [
             "manifest",
@@ -21822,19 +21822,19 @@
           ]
         },
         {
-          "anchor": "§10 P2b（>50 Plate 入关）待办 —— 本次显式暂欠、未 ship 半成品",
+          "anchor": "§10 P2b（>50 Plate 入关）待办 —— 已全部落码（v0.5）",
           "level": 2,
-          "startLine": 213,
-          "endLine": 221,
-          "tokens": 382,
-          "summary": "背景：P2 T3 评审（真跑 beads-bot）发现 C1。当前 ingestLevel 对 >50 回 501；pl",
+          "startLine": 214,
+          "endLine": 224,
+          "tokens": 423,
+          "summary": "背景：P2 T3 评审（真跑 beads-bot）发现 C1。P2b 实现：plate 分支已从 501 改为完整接线（",
           "keywords": [
             "P2b",
             "Plate",
-            "ship",
             "beads",
             "bot",
-            "ingestLevel"
+            "plate",
+            "入关"
           ]
         }
       ]
