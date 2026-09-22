@@ -22688,6 +22688,166 @@
       ]
     },
     {
+      "path": "games/beads/design/proposals/tray-capacity-large-board-playability.md",
+      "tokens": 2132,
+      "lines": 95,
+      "sha256": "06bda830a1e7ff9034afdc57f151807311001c9bf7195a223a8356335b1f8da9",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§提案 · 待裁定｜托盘容量 × 大盘（32×32 / 50×50）可玩路径",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 96,
+          "tokens": 2108,
+          "summary": "项目：games/beads · 任务号 WXG-T-203 · 状态：待用户拍板数值 + 主理人连带影响确认；零代码、",
+          "keywords": [
+            "games",
+            "beads",
+            "WXG",
+            "提案",
+            "待裁定",
+            "托盘容量"
+          ]
+        },
+        {
+          "anchor": "§0 一句话结论",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 12,
+          "tokens": 97,
+          "summary": "托盘扩容是大盘可玩三杠杆之一，但它与 v2.1「小托盘滚窗 = 操作深度所在」裁定正面冲突，且 50×50 可玩的前置其",
+          "keywords": [
+            "一句话结论"
+          ]
+        },
+        {
+          "anchor": "§1 现状与历史（诚实账）",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 22,
+          "tokens": 236,
+          "summary": "v1.23 6 / 6 WXG-T-138：小托盘滚窗为深度所在",
+          "keywords": [
+            "WXG",
+            "现状与历史",
+            "诚实账"
+          ]
+        },
+        {
+          "anchor": "§2 设计张力：必须先裁，否则数字白写",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 32,
+          "tokens": 214,
+          "summary": "input-control §2.1（v2.1，WXG-T-138）冻结论述：",
+          "keywords": [
+            "§2.1",
+            "input",
+            "control",
+            "WXG",
+            "设计张力",
+            "必须先裁"
+          ]
+        },
+        {
+          "anchor": "§3 三杠杆与大盘 taps 预算",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 46,
+          "tokens": 299,
+          "summary": "预算：420s ÷ SEC_PER_TAP(3.6) ≈ 116 taps。taps ≈ 组数 × c₁ + Σ⌈组大小",
+          "keywords": [
+            "taps",
+            "SEC_PER_TAP",
+            "三杠杆与大盘",
+            "预算"
+          ]
+        },
+        {
+          "anchor": "§4 硬阻塞排序：触控在前（ADR-0018）",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 55,
+          "tokens": 148,
+          "summary": "29×29 已裁不可玩（fit=0.393、命中 26px；CAMERA_ZOOM_MAX_SPAN=2.5 上限不足为",
+          "keywords": [
+            "ADR",
+            "fit",
+            "CAMERA_ZOOM_MAX_SPAN",
+            "硬阻塞排序",
+            "触控在前"
+          ]
+        },
+        {
+          "anchor": "§5 数值档位（供拍板）",
+          "level": 2,
+          "startLine": 56,
+          "endLine": 65,
+          "tokens": 201,
+          "summary": "甲（现状） 12 / 12 1+1 行 可玩天花板 18×18；大盘走 Plate",
+          "keywords": [
+            "Plate",
+            "数值档位",
+            "供拍板"
+          ]
+        },
+        {
+          "anchor": "§6 取证计划（落码前置）",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 71,
+          "tokens": 162,
+          "summary": "E1 bot 矩阵（Node，本环境可做）：{18×18, 32×32} × {全错位, 60%, 30%} × {大色",
+          "keywords": [
+            "bot",
+            "Node",
+            "取证计划",
+            "落码前置"
+          ]
+        },
+        {
+          "anchor": "§7 影响清单（拍板后串行落盘）",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 82,
+          "tokens": 242,
+          "summary": "§3 真源 §3.4 两行数值 + 说明改写；§6 变更记录 vX.Y 一行（登记推翻 v1.30 的方向与保留其版面理",
+          "keywords": [
+            "§3",
+            "§3.4",
+            "§6",
+            "影响清单",
+            "拍板后串行落"
+          ]
+        },
+        {
+          "anchor": "§8 决策点（用户）",
+          "level": 2,
+          "startLine": 83,
+          "endLine": 90,
+          "tokens": 118,
+          "summary": "D1 数值档：甲（12/12 不动）｜乙（24/24）｜丙（24/12）",
+          "keywords": [
+            "决策点",
+            "用户"
+          ]
+        },
+        {
+          "anchor": "§9 变更记录",
+          "level": 2,
+          "startLine": 91,
+          "endLine": 96,
+          "tokens": 80,
+          "summary": "v0.1 2026-09-22 建档：tray 扩容 × 大盘可玩三杠杆分析、v2.1 深度论冲突摊牌、甲乙丙数值档、E",
+          "keywords": [
+            "tray",
+            "变更记录"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/proposals/v1.23-bold-remake.md",
       "tokens": 2041,
       "lines": 68,
