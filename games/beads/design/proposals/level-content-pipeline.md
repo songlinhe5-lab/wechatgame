@@ -30,6 +30,8 @@
 
 组合示例：`51×101` → 横 `[25,26]` × 纵 `[33,34,34]` = **2×3 = 6 宫**（6 个 Cell-Level，尺寸分别 25×33 / 25×34 / 26×33 …）。
 
+> **错豆（错位初盘）构造时机约束（用户 2026-09-22 拍板，P2b 必读）**：切块**只裁 `pattern`（目标图）**；`misplaced` 初盘**必须在切块之后、于每格内部重新构造**（格内 balance+derange 或 swaps 两两交换）。**母版全盘 `misplaced` 不可直接裁宫** —— 全盘循环左移只在整盘保证「每色珠数守恒」，裁成子矩形后格边界必然跨色得失 ⇒ 每格 BOOT 判「初盘不可解」（实测：beads-bot 逐格 `cleared=false` 且崩）。任一格重排失败（格内色<3 / 主导色>½ / 可填<2）⇒ **写盘前整板拒收**。
+
 ---
 
 ## 1. 层 1 · 关卡内容仓（真源数据模型 + 目录布局）
@@ -177,3 +179,15 @@ games/beads/design/levels/
 |---|---|---|---|
 | v0.1 | 2026-09-22 | 建档：四层方案（内容仓 / 版本 manifest / sync 分片 / 分包投放）+ studio 改造 + 分阶段落地 + 变更单清单。方向经用户 2026-09-21/22 拍板（投放=A 分包、切块=纯尺寸均分、选关=多宫并存）。**零 §3 变更、零新常量、未改任何既有代码/文档。** | WXG-T-185（挂靠，同主题关卡分发管线） |
 | v0.2 | 2026-09-22 | **P1 落码，相对 §3 字面的实现偏差（用户 2026-09-22 同意）**：① 产物「按包分片」（§3-乙）延至 P3——P1 无分包（build:wx 未通），改**单份装配**，产物数据体逐字节零漂移。② `assembleFromManifest` 加 **kind∈{single,plate} / pack=='main' 白名单断言 + 文件唯一引用 + retired 跳过**（防 K-031 静默报绿）。③ order 由「连续 1..N」改为**唯一且严格递增、允许空洞**（对齐 §1.2 退役留占位）。④ `contentVersion`/`pack` 住真源层、暂不进产物。**③ 前置修复**：同批修 `beads-gen.mjs` 与 studio `ingestLevel` 两处对已删 `levels-01-08.json` 的遗留引用（前者改指 palette.json；后者目录模式下显式 501，目录模式写入归 P2）。plates/ 暂空（P2 由 studio 切块产出）。 | WXG-T-185 |
+| v0.3 | 2026-09-22 | **P2 落码拆两半**：≤**50 单图入关已真开**（ingestLevel 目录模式写 singles + 追加 manifest + contentVersion++ + 失败回滚）；**>50 Plate 入关经评审发现 Critical（C1：全盘 misplaced 直接裁宫破格内守恒）⇒ 暂缓为 P2b**，plate 分支现显式 501。新定 §0「错豆切块后逐格重排」约束。另登 P2b 待办（见 §10）。 | WXG-T-185 |
+
+---
+
+## 10. P2b（>50 Plate 入关）待办 —— 本次显式暂欠、未 ship 半成品
+
+> 背景：P2 T3 评审（真跑 beads-bot）发现 C1。当前 `ingestLevel` 对 >50 回 **501**；plate 脚手架（`sliceBoard` 仅裁 pattern 可用、`buildPlateFile`）保留在库中待接回。
+
+- **[C1 必修] 切块后逐格重排错豆**（见 §0 约束）：plate 分支 = `sliceBoard` 只裁 `pattern` → 每格用格内 `balance+derange`（从 beads-gen 抽出共享 `level-derange.mjs`，或按 `levels-spec §2.1` 用 swaps）构造 `misplaced` → 逐格 beads-bot `cleared===true` 才算过。**验收必须跑 bot 逐格，不能只跑 assemble（结构绿≠可解）**。
+- **[I1] 分端点拦板语义**：`importBlockers` 解除 >50 仅限 ingest；`/level` 端点 + 列表 `importable` 投影 + 小游戏 `importLatest` 需仍拦 >50（否则大盘残果会让在线导入永远失败）。
+- **[I3] plate 契约字段**：cell 补 `plateUid`/`cellPos:{row,col}`；plate 补 `sourcePreview`（可取 `r.thumb`）——否则归属仅编进 name 字串，P3 归组/存档返工。
+- **其他**：`nextNumericId` 不跳 retired（M2）；`writeLevelFile` 未建目录（靠 plates/README.md 被跟踪侥幸，M3）；bot 失败 stderr 未透传（M1）。

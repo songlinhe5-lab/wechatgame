@@ -558,7 +558,7 @@
                 .then(async (res) => {
                     const j = await res.json();
                     if (!res.ok) throw new Error(j.error || res.status);
-                    msg(`已入关：第 ${j.ingested} 关「${j.name}」→ ${j.file}（levels:sync + 镜像已跑）；harness 即玩，git diff 确认后提交`, 'ok');
+                    msg(`已入关 ${j.ingested}（${j.kind}${j.file ? ' → ' + j.file : ''}）· 实测 ${j.time}s；levels:sync + 镜像已跑，git diff 确认后提交`, 'ok');
                 })
                 .catch((e) => msg('入关失败：' + e.message, 'err'))
                 .finally(() => { $('ing').disabled = false; });

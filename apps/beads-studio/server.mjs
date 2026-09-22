@@ -187,30 +187,6 @@ function measureWithBot(resultFile) {
 }
 
 /**
- * plate 逐格真引擎实测（P2）：把各 cell 作为 BeadsLevelRaw 塞进 `{levels:[...]}`，交 beads-bot
- * 数组模式一次跑完，按序返回 `[{ cell, m }]`（m = 该格实测对象）；bot 不可用/崩溃 ⇒ null。
- * 临时文件写 DATA 目录（不污染 design/levels 目录模式顶层判定），finally 删除。
- */
-function measureCells(cells) {
-    if (!existsSync(DATA)) mkdirSync(DATA, { recursive: true });
-    const tmp = join(DATA, `.measure-${Date.now()}-${randomBytes(2).toString('hex')}.json`);
-    try {
-        writeFileSync(tmp, JSON.stringify({ levels: cells }, null, 2));
-        const r = spawnSync(process.execPath, [
-            '--experimental-transform-types',
-            '--import=./games/beads/design/forensics/g3/g3-hooks.mjs',
-            'tools/scripts/beads-bot.ts', tmp,
-        ], { cwd: REPO, encoding: 'utf8' });
-        const last = (r.stdout || '').trim().split('\n').pop();
-        const arr = last && last.startsWith('[') ? JSON.parse(last) : null;
-        if (!Array.isArray(arr)) return null;
-        return cells.map((cell, i) => ({ cell, m: arr[i] }));
-    } finally {
-        try { rmSync(tmp); } catch { /* 已删 */ }
-    }
-}
-
-/**
  * 一键入关（WXG-T-179）：levelDraft → 追加 design/levels 真源 → 跑 levels:sync + framework:sync，
  * harness/Cocos 构建即刻能玩。关卡入表正路 = `levels:sync` 管线（非运行时魔改），本端点只是把
  * 三步收进一次点击。**仅本地仓模式**（VPS 容器无 games/ ⇒ 501；服务无鉴权，这也是不开到公网的理由）；
@@ -237,9 +213,9 @@ async function ingestLevel(res, id) {
         return sendJson(res, 422, { error: '草案缺 paletteCodes（旧记录请重新生成；v1.40 关卡存品牌色号而非 hex）' });
     
     // 目录模式真源（P2）：动态 import 避免容器（无 games//tools 时）整服务加载即崩。
-    const { sliceBoard } = await import('../../tools/scripts/level-slice.mjs');
+    // plate 切块/逐格实测（sliceBoard + measureCells）随 P2b「切块后逐格重排错豆」接回，见 spec §0。
     const {
-        readManifest, existingUids, assignUid, nextNumericId, buildPlateFile, appendEntry, writeLevelFile, writeManifest,
+        readManifest, existingUids, assignUid, nextNumericId, appendEntry, writeLevelFile, writeManifest,
     } = await import('../../tools/scripts/level-store.mjs');
     const manifest = readManifest(levelsDir);
     const uids = existingUids(manifest);
@@ -261,59 +237,37 @@ async function ingestLevel(res, id) {
     
     const isPlate = d.cols > 50 || d.rows > 50;
     const nameBase = `studio-${String(r.id).slice(-6)}`;
-    let finalManifest, okResp;
-    
-    if (!isPlate) {
-        // —— 单图关卡：整板实测（time 只取真引擎值，§3.5 v1.41）——
-        const measured = measureWithBot(resultFile);
-        if (!measured) return sendJson(res, 500, { error: 'beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底' });
-        if (measured.blockers.length) return sendJson(res, 422, { error: '该结果不可入关：' + measured.blockers.join('；') });
-        const uid = assignUid('single', uids);
-        const file = `singles/${uid}.json`;
-        const level = {
-            id: nextId(), name: nameBase, cols: d.cols, rows: d.rows,
-            time: measured.time, cycleProfile: 'short',
-            decoys: d.decoys || [], pattern: d.pattern, swaps: d.swaps || [],
-            ...(d.misplaced ? { misplaced: d.misplaced } : {}),
-            ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
-        };
-        finalManifest = appendEntry(manifest, { uid, kind: 'single', file, pack: 'main' });
-        writeLevelFile(levelsDir, file, level);
-        createdFiles.push(file);
-        okResp = { ingested: uid, kind: 'single', id: level.id, time: level.time, note: 'harness 即时可玩；确认后请 git 审 diff 并提交' };
-    } else {
-        // —— 组合图 Plate：均分切块 → 逐格真引擎实测 → 写一文件 + 一条 manifest entry ——
-        if (!Array.isArray(d.misplaced))
-            return sendJson(res, 422, { error: 'plate 切块要求全盘错位初盘（misplaced）；>50 且仅 swaps 的草案暂不支持（跨宫 swap 无定义）' });
-        const { gridCols, gridRows, cells } = sliceBoard({ pattern: d.pattern, misplaced: d.misplaced, cols: d.cols, rows: d.rows, gridMax: 50 });
-        const plateUid = assignUid('plate', uids);
-        const cellLevels = cells.map((c) => ({
-            id: nextId(), name: `${nameBase}-r${c.row}c${c.col}`,
-            cols: c.cols, rows: c.rows, time: 0, cycleProfile: 'short',
-            decoys: d.decoys || [], pattern: c.pattern, misplaced: c.misplaced, swaps: [],
-            ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
-        }));
-        const measured = measureCells(cellLevels);
-        if (!measured) return sendJson(res, 500, { error: 'beads-bot 逐格实测失败：plate 每格时长必须来自真引擎实测，拒用静态估算兑底' });
-        for (const { m, cell } of measured) {
-            if (!m || m.blockers?.length || m.cleared !== true)
-                return sendJson(res, 422, { error: `切块后第 ${cell.row},${cell.col} 格不可入关：${(m?.blockers || ['bot 未通过 / 该格不可解']).join('；')}` });
-            cell.time = m.time;
-        }
-        const file = `plates/${plateUid}.json`;
-        finalManifest = appendEntry(manifest, { uid: plateUid, kind: 'plate', file, pack: 'main' });
-        writeLevelFile(levelsDir, file, buildPlateFile({ plateUid, name: nameBase, gridCols, gridRows, cells: cellLevels }));
-        createdFiles.push(file);
-        okResp = { ingested: plateUid, kind: 'plate', grid: `${gridCols}x${gridRows}`, cells: cellLevels.length, note: 'harness 即时可玩；确认后请 git 审 diff 并提交' };
+
+    if (isPlate) {
+        // Plate（组合图 >50）入关暂缓：错豆初盘必须「切盘面后逐格重排」（母版全盘 misplaced 直接裁宫
+        // 破坏每格每色守恒 ⇒ BOOT 判初盘不可解）。切块 + 格内重排 = P2b（见 spec §0 / P2 计划 P2b 节）。
+        return sendJson(res, 501, { error: '组合图（>50）入关待 P2b：错豆需在切块后逐格重排；当前仅支持 ≤50 单图入关（WXG-T-185）。' });
     }
-    
+
+    // —— 单图关卡（≤50）：整板实测（time 只取真引擎值，§3.5 v1.41）——
+    const measured = measureWithBot(resultFile);
+    if (!measured) return sendJson(res, 500, { error: 'beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底' });
+    if (measured.blockers.length) return sendJson(res, 422, { error: '该结果不可入关：' + measured.blockers.join('；') });
+    const uid = assignUid('single', uids);
+    const file = `singles/${uid}.json`;
+    const level = {
+        id: nextId(), name: nameBase, cols: d.cols, rows: d.rows,
+        time: measured.time, cycleProfile: 'short',
+        decoys: d.decoys || [], pattern: d.pattern, swaps: d.swaps || [],
+        ...(d.misplaced ? { misplaced: d.misplaced } : {}),
+        ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
+    };
+    const finalManifest = appendEntry(manifest, { uid, kind: 'single', file, pack: 'main' });
+    writeLevelFile(levelsDir, file, level);
+    createdFiles.push(file);
+
     writeManifest(levelsDir, finalManifest);
     const sync = runSync();
     if (!sync || sync.status !== 0) {
         rollback();
         return sendJson(res, 500, { error: 'levels:sync / framework:sync 未通过，真源已回滚：' + String((sync && sync.stderr) || '').slice(-300) });
     }
-    return sendJson(res, 200, okResp);
+    return sendJson(res, 200, { ingested: uid, kind: 'single', id: level.id, file, time: level.time, note: 'harness 即时可玩；确认后请 git 审 diff 并提交' });
 }
 
 async function handleGenerate(req, res, url) {

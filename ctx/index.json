@@ -21574,17 +21574,17 @@
     },
     {
       "path": "games/beads/design/proposals/level-content-pipeline.md",
-      "tokens": 4396,
-      "lines": 179,
-      "sha256": "26b4bf97a873c9cfac7d1eeb543b0b921c925213ea79932789b7532edacda04e",
+      "tokens": 5087,
+      "lines": 193,
+      "sha256": "b11de9045a93ede491c24d61432d92f999a043a3f66351fdc6cd67cf99313212",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 已定方向待落码｜关卡内容管线（单图/组合图 + 版本化增量分包）",
           "level": 1,
           "startLine": 1,
-          "endLine": 180,
-          "tokens": 4364,
+          "endLine": 194,
+          "tokens": 5054,
           "summary": "项目：games/beads · 任务号 WXG-T-XXX（待主理人分配，防撞号） · 状态：方向已定（用户 2026",
           "keywords": [
             "games",
@@ -21599,8 +21599,8 @@
           "anchor": "§0 决策基线（已锁，用户 2026-09-21/22 拍板）",
           "level": 2,
           "startLine": 10,
-          "endLine": 34,
-          "tokens": 449,
+          "endLine": 36,
+          "tokens": 643,
           "summary": "投放机制 A · 微信分包（subpackage）：构建期把关卡分批切进主包/分包，发版上新。B 远程热更暂不做，数据层",
           "keywords": [
             "subpackage",
@@ -21613,8 +21613,8 @@
         {
           "anchor": "§1 层 1 · 关卡内容仓（真源数据模型 + 目录布局）",
           "level": 2,
-          "startLine": 35,
-          "endLine": 93,
+          "startLine": 37,
+          "endLine": 95,
           "tokens": 1001,
           "summary": "",
           "keywords": [
@@ -21626,8 +21626,8 @@
         {
           "anchor": "§1.1 目录布局（从\"单文件\"改\"目录化、一物一文件\"）",
           "level": 3,
-          "startLine": 37,
-          "endLine": 53,
+          "startLine": 39,
+          "endLine": 55,
           "tokens": 255,
           "summary": "",
           "keywords": [
@@ -21640,8 +21640,8 @@
         {
           "anchor": "§1.2 标识符策略（关键取舍：uid 与运行时索引并存）",
           "level": 3,
-          "startLine": 54,
-          "endLine": 59,
+          "startLine": 56,
+          "endLine": 61,
           "tokens": 225,
           "summary": "内容层用稳定字符串 uid：单图 L####（4 位零填充，如 L0001）；Plate P####；Plate 内子版",
           "keywords": [
@@ -21656,8 +21656,8 @@
         {
           "anchor": "§1.3 数据模型（字段级；内核沿用 `BeadsLevelRaw`，扩图鉴元数据）",
           "level": 3,
-          "startLine": 60,
-          "endLine": 81,
+          "startLine": 62,
+          "endLine": 83,
           "tokens": 327,
           "summary": "Cell-Level（单图与 Plate 子版面共用同一形态）：",
           "keywords": [
@@ -21672,8 +21672,8 @@
         {
           "anchor": "§1.4 manifest.json（顺序与版本单一真源）",
           "level": 3,
-          "startLine": 82,
-          "endLine": 93,
+          "startLine": 84,
+          "endLine": 95,
           "tokens": 105,
           "summary": "",
           "keywords": [
@@ -21686,8 +21686,8 @@
         {
           "anchor": "§2 层 2 · 版本 + 增量",
           "level": 2,
-          "startLine": 94,
-          "endLine": 101,
+          "startLine": 96,
+          "endLine": 103,
           "tokens": 224,
           "summary": "增量添加：studio 出关 → 写新 single/plate 文件 + 追加 manifest entry（orde",
           "keywords": [
@@ -21702,8 +21702,8 @@
         {
           "anchor": "§3 层 3 · sync 管线改造（真源 → 产物，产物形态 = 乙·按包分片）",
           "level": 2,
-          "startLine": 102,
-          "endLine": 119,
+          "startLine": 104,
+          "endLine": 121,
           "tokens": 393,
           "summary": "改造 tools/scripts/sync-levels-data.mjs：",
           "keywords": [
@@ -21718,8 +21718,8 @@
         {
           "anchor": "§4 层 4 · 分包投放 + 加载顺序",
           "level": 2,
-          "startLine": 120,
-          "endLine": 131,
+          "startLine": 122,
+          "endLine": 133,
           "tokens": 428,
           "summary": "主包：levels-manifest.ts（小）+ pack:\"main\" 首批关卡（保证离线首屏即玩红线：demo 前",
           "keywords": [
@@ -21734,8 +21734,8 @@
         {
           "anchor": "§5 studio 侧改造（beads-studio）",
           "level": 2,
-          "startLine": 132,
-          "endLine": 140,
+          "startLine": 134,
+          "endLine": 142,
           "tokens": 224,
           "summary": "切块生成：beads-gen.mjs 增「母版 > 50 自动均分切块」——复用已验证的母版切块 spike（temp/",
           "keywords": [
@@ -21750,8 +21750,8 @@
         {
           "anchor": "§6 分阶段落地（先做可独立验证的，阻塞项后置）",
           "level": 2,
-          "startLine": 141,
-          "endLine": 153,
+          "startLine": 143,
+          "endLine": 155,
           "tokens": 273,
           "summary": "P1 目录化真源 + manifest + palette 抽出 + 迁移现有 10 关；sync 管线改造（反转断言④",
           "keywords": [
@@ -21766,8 +21766,8 @@
         {
           "anchor": "§7 需走的 GDD / §3 变更单清单（本文不自行落笔，待主理人确认）",
           "level": 2,
-          "startLine": 154,
-          "endLine": 165,
+          "startLine": 156,
+          "endLine": 167,
           "tokens": 351,
           "summary": "1. meta-ui Q2 修订：选关侧改多宫平铺（甲·并存）；Q4 图鉴仍独立页、Q5 纯显示不变。走 gdd/met",
           "keywords": [
@@ -21782,8 +21782,8 @@
         {
           "anchor": "§8 未决 / 待后期（不阻塞 P1）",
           "level": 2,
-          "startLine": 166,
-          "endLine": 173,
+          "startLine": 168,
+          "endLine": 175,
           "tokens": 169,
           "summary": "选关页与图鉴页的具体 UI（多宫布局、归组视觉、缩略图源）——用户明示后期再设计。",
           "keywords": [
@@ -21795,14 +21795,30 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 174,
-          "endLine": 180,
-          "tokens": 397,
+          "startLine": 176,
+          "endLine": 185,
+          "tokens": 524,
           "summary": "v0.1 2026-09-22 建档：四层方案（内容仓 / 版本 manifest / sync 分片 / 分包投放）+",
           "keywords": [
             "manifest",
             "sync",
             "变更记录"
+          ]
+        },
+        {
+          "anchor": "§10 P2b（>50 Plate 入关）待办 —— 本次显式暂欠、未 ship 半成品",
+          "level": 2,
+          "startLine": 186,
+          "endLine": 194,
+          "tokens": 345,
+          "summary": "背景：P2 T3 评审（真跑 beads-bot）发现 C1。当前 ingestLevel 对 >50 回 501；pl",
+          "keywords": [
+            "P2b",
+            "Plate",
+            "ship",
+            "beads",
+            "bot",
+            "ingestLevel"
           ]
         }
       ]
