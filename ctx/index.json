@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2881,
       "lines": 112,
-      "sha256": "afba4d763636c19b75671739437fc71ec07e664be1252effc3aaa97000fc6b42",
+      "sha256": "165a038067c63b9cb3bc94bd22d7e8e2721908e3e6c7cd83232c3db6da21aa58",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4669,
       "lines": 82,
-      "sha256": "c9022f60201e80875c578dfe289021ea09240223c42b2675ad18d98662415bee",
+      "sha256": "d130008d10c4e1545d13486779e615a14a02f06495ce2714f01e335cd3a6ac3d",
       "tier": "normal",
       "sections": [
         {
@@ -716,7 +716,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 286 行 / 14522 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 286 行 / 14571 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -19472,17 +19472,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 16122,
-      "lines": 54,
-      "sha256": "d03f879fa09ed6dd6df85881fa036226088bfd8b17eef7fd65932eed69d82274",
+      "tokens": 16634,
+      "lines": 55,
+      "sha256": "cead3d1372aaccb2b1b2154f2006b7fce97484bc4861753c0003352d6a0a1e66",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 55,
-          "tokens": 16104,
+          "endLine": 56,
+          "tokens": 16616,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -19497,8 +19497,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 55,
-          "tokens": 15945,
+          "endLine": 56,
+          "tokens": 16457,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -19510,9 +19510,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 14522,
+      "tokens": 14571,
       "lines": 286,
-      "sha256": "9d0a69bfdff18abfac967e0edd7319bbe676e05aac44c9093041f86e27ea3198",
+      "sha256": "566b7ef25172e203d7536ab88300020ea8b8fdd832330d6f34f7fdacbc607a29",
       "tier": "hot",
       "sections": [
         {
@@ -19520,7 +19520,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 287,
-          "tokens": 14505,
+          "tokens": 14554,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.41 · 任务号 WXG-T-180（v1.41 = 难度/",
           "keywords": [
             "Systems",
@@ -19563,7 +19563,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 241,
-          "tokens": 9710,
+          "tokens": 9759,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -19667,7 +19667,7 @@
           "level": 3,
           "startLine": 145,
           "endLine": 154,
-          "tokens": 488,
+          "tokens": 537,
           "summary": "STAR3_RATIO 0.32 剩余时间 / 关卡总时长 ≥ 32% → 3★（A7 已确认 2026-09-11；v",
           "keywords": [
             "STAR3_RATIO",
@@ -21575,17 +21575,17 @@
     },
     {
       "path": "games/beads/design/proposals/level-content-pipeline.md",
-      "tokens": 7114,
-      "lines": 237,
-      "sha256": "280645a2eb2524ca39458f24867c8ae4c22a7c40aea2757cc6f7811e90840d8f",
+      "tokens": 7661,
+      "lines": 239,
+      "sha256": "de5e250b743710694dfdda6bb5c5c74fa97db6b5890f126d6be2a5655a5fb4ab",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 已定方向待落码｜关卡内容管线（单图/组合图 + 版本化增量分包）",
           "level": 1,
           "startLine": 1,
-          "endLine": 238,
-          "tokens": 7082,
+          "endLine": 240,
+          "tokens": 7628,
           "summary": "项目：games/beads · 任务号 WXG-T-XXX（待主理人分配，防撞号） · 状态：方向已定（用户 2026",
           "keywords": [
             "games",
@@ -21647,8 +21647,8 @@
           "anchor": "§1 层 1 · 关卡内容仓（真源数据模型 + 目录布局）",
           "level": 2,
           "startLine": 76,
-          "endLine": 134,
-          "tokens": 1001,
+          "endLine": 135,
+          "tokens": 1226,
           "summary": "",
           "keywords": [
             "关卡内容仓",
@@ -21674,23 +21674,23 @@
           "anchor": "§1.2 标识符策略（关键取舍：uid 与运行时索引并存）",
           "level": 3,
           "startLine": 95,
-          "endLine": 100,
-          "tokens": 225,
-          "summary": "内容层用稳定字符串 uid：单图 L####（4 位零填充，如 L0001）；Plate P####；Plate 内子版",
+          "endLine": 101,
+          "tokens": 449,
+          "summary": "内容层用稳定字符串 uid：单图 L#####（5 位零填充，如 L00001；v0.7 由 4 位扩到 5 位，给海量",
           "keywords": [
             "uid",
-            "L0001",
-            "Plate",
+            "L00001",
             "标识符策略",
             "关键取舍",
-            "与运行时索引"
+            "与运行时索引",
+            "并存"
           ]
         },
         {
           "anchor": "§1.3 数据模型（字段级；内核沿用 `BeadsLevelRaw`，扩图鉴元数据）",
           "level": 3,
-          "startLine": 101,
-          "endLine": 122,
+          "startLine": 102,
+          "endLine": 123,
           "tokens": 327,
           "summary": "Cell-Level（单图与 Plate 子版面共用同一形态）：",
           "keywords": [
@@ -21705,8 +21705,8 @@
         {
           "anchor": "§1.4 manifest.json（顺序与版本单一真源）",
           "level": 3,
-          "startLine": 123,
-          "endLine": 134,
+          "startLine": 124,
+          "endLine": 135,
           "tokens": 105,
           "summary": "",
           "keywords": [
@@ -21719,8 +21719,8 @@
         {
           "anchor": "§2 层 2 · 版本 + 增量",
           "level": 2,
-          "startLine": 135,
-          "endLine": 142,
+          "startLine": 136,
+          "endLine": 143,
           "tokens": 224,
           "summary": "增量添加：studio 出关 → 写新 single/plate 文件 + 追加 manifest entry（orde",
           "keywords": [
@@ -21735,8 +21735,8 @@
         {
           "anchor": "§3 层 3 · sync 管线改造（真源 → 产物，产物形态 = 乙·按包分片）",
           "level": 2,
-          "startLine": 143,
-          "endLine": 160,
+          "startLine": 144,
+          "endLine": 161,
           "tokens": 393,
           "summary": "改造 tools/scripts/sync-levels-data.mjs：",
           "keywords": [
@@ -21751,8 +21751,8 @@
         {
           "anchor": "§4 层 4 · 分包投放 + 加载顺序",
           "level": 2,
-          "startLine": 161,
-          "endLine": 172,
+          "startLine": 162,
+          "endLine": 173,
           "tokens": 428,
           "summary": "主包：levels-manifest.ts（小）+ pack:\"main\" 首批关卡（保证离线首屏即玩红线：demo 前",
           "keywords": [
@@ -21767,8 +21767,8 @@
         {
           "anchor": "§5 studio 侧改造（beads-studio）",
           "level": 2,
-          "startLine": 173,
-          "endLine": 181,
+          "startLine": 174,
+          "endLine": 182,
           "tokens": 224,
           "summary": "切块生成：beads-gen.mjs 增「母版 > 50 自动均分切块」——复用已验证的母版切块 spike（temp/",
           "keywords": [
@@ -21783,8 +21783,8 @@
         {
           "anchor": "§6 分阶段落地（先做可独立验证的，阻塞项后置）",
           "level": 2,
-          "startLine": 182,
-          "endLine": 194,
+          "startLine": 183,
+          "endLine": 195,
           "tokens": 273,
           "summary": "P1 目录化真源 + manifest + palette 抽出 + 迁移现有 10 关；sync 管线改造（反转断言④",
           "keywords": [
@@ -21799,8 +21799,8 @@
         {
           "anchor": "§7 需走的 GDD / §3 变更单清单（本文不自行落笔，待主理人确认）",
           "level": 2,
-          "startLine": 195,
-          "endLine": 206,
+          "startLine": 196,
+          "endLine": 207,
           "tokens": 351,
           "summary": "1. meta-ui Q2 修订：选关侧改多宫平铺（甲·并存）；Q4 图鉴仍独立页、Q5 纯显示不变。走 gdd/met",
           "keywords": [
@@ -21815,8 +21815,8 @@
         {
           "anchor": "§8 未决 / 待后期（不阻塞 P1）",
           "level": 2,
-          "startLine": 207,
-          "endLine": 214,
+          "startLine": 208,
+          "endLine": 215,
           "tokens": 169,
           "summary": "选关页与图鉴页的具体 UI（多宫布局、归组视觉、缩略图源）——用户明示后期再设计。",
           "keywords": [
@@ -21828,9 +21828,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 215,
-          "endLine": 227,
-          "tokens": 1004,
+          "startLine": 216,
+          "endLine": 229,
+          "tokens": 1326,
           "summary": "v0.1 2026-09-22 建档：四层方案（内容仓 / 版本 manifest / sync 分片 / 分包投放）+",
           "keywords": [
             "manifest",
@@ -21841,8 +21841,8 @@
         {
           "anchor": "§10 P2b（>50 Plate 入关）待办 —— 已全部落码（v0.5）",
           "level": 2,
-          "startLine": 228,
-          "endLine": 238,
+          "startLine": 230,
+          "endLine": 240,
           "tokens": 423,
           "summary": "背景：P2 T3 评审（真跑 beads-bot）发现 C1。P2b 实现：plate 分支已从 501 改为完整接线（",
           "keywords": [

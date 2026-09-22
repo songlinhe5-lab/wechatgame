@@ -6,13 +6,13 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { assignUid, nextNumericId, appendEntry } from './level-store.mjs';
 
-test('assignUid 取该 kind 现有最大号 +1', () => {
-  assert.equal(assignUid('single', new Set(['L0001', 'L0009'])), 'L0010');
-  assert.equal(assignUid('plate', new Set(['P0003'])), 'P0004');
-  assert.equal(assignUid('single', new Set()), 'L0001');
-  assert.equal(assignUid('plate', new Set(['L0001', 'L0002'])), 'P0001'); // 混集只认 P
-  assert.equal(assignUid('single', new Set(['L9999'])), 'L10000'); // >9999 不回绕
-  assert.equal(assignUid('single', new Set(['L10000'])), 'L10001'); // 宽号仍参与取最大
+test('assignUid 取该 kind 现有最大号 +1（§1.2 v0.7：序号零填充 5 位）', () => {
+  assert.equal(assignUid('single', new Set(['L00001', 'L00009'])), 'L00010');
+  assert.equal(assignUid('plate', new Set(['P0003'])), 'P00004'); // 历史窄号仍参与取最大，输出按新位宽
+  assert.equal(assignUid('single', new Set()), 'L00001');
+  assert.equal(assignUid('plate', new Set(['L0001', 'L0002'])), 'P00001'); // 混集只认 P
+  assert.equal(assignUid('single', new Set(['L99999'])), 'L100000'); // >99999 不回绕
+  assert.equal(assignUid('single', new Set(['L100000'])), 'L100001'); // 宽号仍参与取最大
 });
 
 test('appendEntry 只追加、order 续、contentVersion++、老 entry 不动', () => {

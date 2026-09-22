@@ -356,8 +356,8 @@ export const STAMINA_REFILL_PLACEMENT = 'stamina-refill';
 export const STAR3_RATIO = 0.32;
 /** ratio ≥ 0.12 → 2★, otherwise 1★ (clearing always yields ≥1★). */
 export const STAR2_RATIO = 0.12;
-/** Demo level count（v1.30：beads-studio 一键入关转正第 9 关；v1.43：studio 入关转正第 10 关 `studio-9-19d5`，随包发布；初版 8，区间 5–10 内递增）。 */
-export const DEMO_LEVEL_COUNT = 10;
+/** Demo level count（**§3.7 v1.44 pre-release 全量重置**：关卡表回到 demo 8 关，两张 studio 试验关已移出；uid 序号改 5 位零填充，见 `level-content-pipeline.md` §1.2 v0.7。区间 5–10，随入关递增）。 */
+export const DEMO_LEVEL_COUNT = 8;
 /**
  * 单关满星数（§3.7 星级 1–3 语义）。`computeClearStars` 的上限、S8 存档
  * `stars` 数组的逐项钳制上界（save-progress §2.2/§6）、通关画面总览的分母共用它。

@@ -1,79 +1,65 @@
 {
   "schemaVersion": 2,
-  "contentVersion": 2,
+  "contentVersion": 3,
   "gameId": "beads",
-  "description": "拼豆 demo 关卡（ADR-0018 两档 + studio 入关转正：关 1–4 = small14 14×14、关 5–8 = small18 18×18、关 9–10 = studio 生成；全错位/部分错位初盘 misplaced，字符集 .x1-9A，色板索引见 art-bible §3.2）。",
+  "description": "拼豆 demo 8 关（ADR-0018 两档：关 1–4 = small14 14×14、关 5–8 = small18 18×18；全错位/部分错位初盘 misplaced，字符集 .x1-9A，色板索引见 art-bible §3.2）。uid 序号 5 位零填充（level-content-pipeline §1.2 v1.44）。",
   "paletteFile": "palette.json",
   "entries": [
     {
-      "uid": "L0001",
+      "uid": "L00001",
       "kind": "single",
-      "file": "singles/L0001.json",
+      "file": "singles/L00001.json",
       "pack": "main",
       "order": 1
     },
     {
-      "uid": "L0002",
+      "uid": "L00002",
       "kind": "single",
-      "file": "singles/L0002.json",
+      "file": "singles/L00002.json",
       "pack": "main",
       "order": 2
     },
     {
-      "uid": "L0003",
+      "uid": "L00003",
       "kind": "single",
-      "file": "singles/L0003.json",
+      "file": "singles/L00003.json",
       "pack": "main",
       "order": 3
     },
     {
-      "uid": "L0004",
+      "uid": "L00004",
       "kind": "single",
-      "file": "singles/L0004.json",
+      "file": "singles/L00004.json",
       "pack": "main",
       "order": 4
     },
     {
-      "uid": "L0005",
+      "uid": "L00005",
       "kind": "single",
-      "file": "singles/L0005.json",
+      "file": "singles/L00005.json",
       "pack": "main",
       "order": 5
     },
     {
-      "uid": "L0006",
+      "uid": "L00006",
       "kind": "single",
-      "file": "singles/L0006.json",
+      "file": "singles/L00006.json",
       "pack": "main",
       "order": 6
     },
     {
-      "uid": "L0007",
+      "uid": "L00007",
       "kind": "single",
-      "file": "singles/L0007.json",
+      "file": "singles/L00007.json",
       "pack": "main",
       "order": 7
     },
     {
-      "uid": "L0008",
+      "uid": "L00008",
       "kind": "single",
-      "file": "singles/L0008.json",
+      "file": "singles/L00008.json",
       "pack": "main",
       "order": 8
-    },
-    {
-      "uid": "L0009",
-      "kind": "single",
-      "file": "singles/L0009.json",
-      "pack": "main",
-      "order": 9
-    },
-    {
-      "uid": "L0010",
-      "kind": "single",
-      "file": "singles/L0010.json",
-      "pack": "main",
-      "order": 10
     }
   ]
 }

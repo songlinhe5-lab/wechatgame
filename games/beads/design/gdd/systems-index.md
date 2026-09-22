@@ -147,7 +147,7 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 |---|---|---|
 | `STAR3_RATIO` | 0.32 | 剩余时间 / 关卡总时长 ≥ 32% → 3★（A7 已确认 2026-09-11；v1.5 曾 0.50→0.40；**v1.10 用户 2026-09-14 拍板组 C：0.40→0.32**，交叉约束见 `proposals/star-level-rebalance.md`） |
 | `STAR2_RATIO` | 0.12 | ≥ 12% → 2★，否则 1★；过关即至少 1★；扩展行不扣星（A7 已确认；**v1.10 0.20→0.12**） |
-| `DEMO_LEVEL_COUNT` | 10 | demo 关卡数（初版用户拍板 5–10 区间取 8；**v1.30** beads-studio 一键入关转正第 9 关；**v1.43** studio 入关转正第 10 关 `studio-9-19d5`，随包发布，区间内递增） |
+| `DEMO_LEVEL_COUNT` | 8 | demo 关卡数（初版用户拍板 5–10 区间取 8；**v1.30/v1.43** 曾随 beads-studio 入关递增到 9/10；**v1.44 pre-release 全量重置**——两张 studio 试验关（L0009 29×29 触顶盘 / L0010 10×10）已移出关卡表，回到 8 关基线；uid 序号同时改 **5 位零填充**（`level-content-pipeline.md` §1.2 v0.7），区间仍 5–10 递增） |
 | 解锁规则 | 线性 | 通过第 n 关解锁第 n+1 关；星级不做**关卡**门槛（关卡解锁仍只看通过） |
 | 主题解锁语义 | 累计★ 达标解锁基础珠材质主题；高级主题走激励视频 | **v1.23 冻结变更**（WXG-T-138，提案 Q7/Q13，用户拍板）：星级新增**主题解锁货币**语义——对 v1.0「星级只记录不做门槛」的正式变更（与 §3.11 Won't 不冲突：非体力、非强制插屏）。demo 只落**解锁判定 + 一套换肤占位**；材质视觉规格归 art 侧另单；具体阈值（累计★数）`[待 playtest]` 不冻结 |
 | 星级 remaining 口径 | `starRemaining = max(0, remaining − reviveBonusSec)`；星级与 §3.10 C7 的 `ratio` 均用 `starRemaining / 关卡总时长`；`revived` 局 `stars = min(stars, 2)` | **v1.11 冻结**（WXG-T-057 / T-B）。HUD 倒计时显示 `remaining`（含续时），不显示 `starRemaining`。未续时时 `reviveBonusSec=0`、`revived=false`，与一命局 v1.10 等价 |

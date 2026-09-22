@@ -94,9 +94,10 @@ games/beads/design/levels/
 
 ### 1.2 标识符策略（关键取舍：uid 与运行时索引并存）
 
-- **内容层用稳定字符串 `uid`**：单图 `L####`（4 位零填充，如 `L0001`）；Plate `P####`；Plate 内子版面 `P####-r{row}c{col}`（如 `P0001-r0c0`）。uid 一经分配**永不复用、永不改**，作文件名与 manifest key。
+- **内容层用稳定字符串 `uid`**：单图 `L#####`（**5 位零填充**，如 `L00001`；v0.7 由 4 位扩到 5 位，给海量 studio 入关留位）；Plate `P#####`；Plate 内子版面 `P#####-r{row}c{col}`（如 `P00001-r0c0`）。uid 一经分配**永不复用、永不改**，作文件名与 manifest key。历史窄号（4 位）仍可被解析（`/^[LP](\d+)$/`），仅**新分配**按 5 位。
 - **运行时仍用 order 索引**：manifest `entries[]` 按 `order` 展开成有序关卡数组（Plate 展开为其 N 个 cell，占 N 个连续下标），`levelIndex` = 数组下标（**沿用现状**，存档 `unlockedLevel` / `stars[]` 语义不变，避免大改引擎 `id: number` 类型）。
 - **不变式**：manifest `order` **只追加、不改序、不中间插入** ⇒ 下标稳定 ⇒ 存档兼容。删除关卡 = 标 `retired`（保留 order 占位），不物理重排。
+  - **例外（v0.7，2026-09-22，用户拍板）**：**pre-release 一次性全量重置** —— 本仓未上架、无真实玩家存档，开发期试验数据（含 L0009/L0010 两张 studio 试验关）可整体清除并重编号，不必走 `retired` 占位。重置后旧 uid 号段视为作废（与「永不复用」的冲突已显式登记，不作先例扩展到上架后）。同批 `DEMO_LEVEL_COUNT` 10→8（§3.7 v1.44）；存档侧代价 = 本地 demo 存档的第 9/10 关记录失效（关 1–8 下标与数字 `id` 未变 ⇒ 保留兼容）。
 
 ### 1.3 数据模型（字段级；内核沿用 `BeadsLevelRaw`，扩图鉴元数据）
 
@@ -222,6 +223,7 @@ games/beads/design/levels/
 | v0.4 | 2026-09-22 | **P2b 算法定案（§0.2）**：逐格降级阶 甲全错位→乙 swaps(k=min(8,异色对数)尽量大)；**丙「不可错位」= 该图不适合组图 → 整板 422 禁止导入（不落 m=0、不放宽 BOOT，无需 §3 变更单）**。实测 `cleared!==true`/形状失败亦拒收。用户逐条拍板（甲乙阶 / 2a 尽量大 / m=0→拒收）。前置：抽 `level-derange.mjs` 共享 beads-gen。实现待 P2b（干净树 + 单独计划），未写码。 | WXG-T-185 |
 | v0.5 | 2026-09-22 | **P2b 落码（>50 Plate 入关完整接线）**：新增 `tools/scripts/level-derange.mjs`（甲/乙/丙三阶逐格错豆算法，rowstring 编解码，无 IO，无 Math.random）；`level-store.mjs` 补 I3 契约 `buildCellLevel`（含 `plateUid`/`cellPos`）、`buildPlateFile` 补 `sourcePreview`；`server.mjs` plate 分支替换 501 桩（含 `measureCells` 逐格 bot 实测；任一格丙或 `cleared!==true` 整板 422 拒收；M3 修复：写 plate 文件前置 `mkdirSync(plates, recursive:true)`）。单测：`level-derange.test.mjs` 14/14 绿；`level-store.test.mjs` 7/7 绿。`pnpm run levels:check` 双游戏绿。 | WXG-T-185 |
 | v0.6 | 2026-09-22 | **新增 §0.3 标准源图档位**（用户 2026-09-22 拍板）：2048@32px/颗 = 64×64 母版 → Plate 2×2×32×32 组合图 4 关；1024@32px = 32×32 最大单图档；**GRID_MAX=50 不改**（50=单图/Plate 分界线，>50 自动切块，提高上限反而致 64×64 单盘不可玩）。登记阻塞：32×32 宫甲档全错位 taps 超预算 ⇒ 整板 422，与 WXG-T-203 E1 第二轮合流。**零代码改动。** | WXG-T-185 |
+| v0.7 | 2026-09-22 | **§1.2 uid 序号位宽 4→5 + pre-release 全量重置（用户拍板「L0001-L0010 全部去掉，序号要 5 位数」）**：`singles/` 重建为 `L00001..L00008.json`（**内容由原 1–8 关逐字节保留**，playtest 校准资产不重做），`order` 1–8、`contentVersion` 2→3；**删除两张 studio 试验关 L0009（`studio-5-8b07`，29×29 触顶盘）/ L0010（`studio-9-19d5`，10×10）**（已在 HEAD `2ff47de`，可回滚）。落码：`level-store.mjs::assignUid` `padStart(4→5)`（正则 `\d+` 宽容不变 ⇒ 历史窄号仍可解析）、`level-store.test.mjs` 断言转 5 位并改测 >99999 不回绕边界。连带：**`DEMO_LEVEL_COUNT` 10→8**（§3.7 变更 v1.44，推翻今日刚登记的 v1.43）。**不变式冲突显式登记**：本次同时推翻「uid 永不复用」与「order 不物理重排 / 删除标 retired」三条，已作为 pre-release 一次性例外写入 §1.2，**不得用作上架后的重排先例**。四段生成链已重跑（sync-levels-data → cocos 镜像 → 快照 → verify）。 | WXG-T-203 |
 
 ---
 

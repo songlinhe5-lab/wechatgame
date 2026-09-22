@@ -18,15 +18,15 @@ export function existingUids(manifest) {
   return new Set(manifest.entries.map((e) => e.uid));
 }
 
-/** kind→前缀（single=L / plate=P）：取该前缀现有最大号 +1，零填充 4。 */
+/** kind→前缀（single=L / plate=P）：取该前缀现有最大号 +1，**零填充 5**（§1.2 v0.7；原 4 位）。 */
 export function assignUid(kind, uids) {
   const p = kind === 'plate' ? 'P' : 'L';
   let max = 0;
   for (const u of uids) {
-    const m = /^([LP])(\d+)$/.exec(u); // \d+ 非固定 4 位：号 >9999 时不回绕撞号（破只追加不变量）
+    const m = /^([LP])(\d+)$/.exec(u); // \d+ 非固定 5 位：号宽可变，>99999 不回绕撞号（破只追加不变量）
     if (m && m[1] === p) max = Math.max(max, Number(m[2]));
   }
-  return p + String(max + 1).padStart(4, '0');
+  return p + String(max + 1).padStart(5, '0');
 }
 
 /** 下一个数字 id：扫 manifest 各 file（single→obj.id；plate→max(cell.id)）取全局最大 +1。 */
