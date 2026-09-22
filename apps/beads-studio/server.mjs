@@ -190,6 +190,46 @@ function measureWithBot(resultFile) {
 }
 
 /**
+ * 逐格实测（P2b）：把 cells[] 包装成 {levels: [...]} 临时文件喂 beads-bot，取每格实测 time。
+ * 任一格 cleared!==true 或 blockers 非空 ⇒ ok=false（整板拒收）。
+ * @param {Array} cells 每格需含 id/name/cols/rows/pattern/swaps?/misplaced?/decoys?/palette?/paletteCodes?
+ */
+function measureCells(cells) {
+    const tmpLevels = { levels: cells.map((c, i) => ({
+        id: c.id ?? (9001 + i),
+        name: c.name ?? `cell-${i}`,
+        cols: c.cols, rows: c.rows, time: 0,
+        cycleProfile: 'short', decoys: c.decoys ?? [],
+        pattern: c.pattern, swaps: c.swaps ?? [],
+        ...(c.misplaced ? { misplaced: c.misplaced } : {}),
+        ...(c.palette ? { palette: c.palette, paletteCodes: c.paletteCodes } : {}),
+    }))};
+    const tmpFile = join(REPO, 'temp', `beads-p2b-${Date.now()}.json`);
+    mkdirSync(join(REPO, 'temp'), { recursive: true });
+    writeFileSync(tmpFile, JSON.stringify(tmpLevels));
+    try {
+        const r = spawnSync(process.execPath, [
+            '--experimental-transform-types',
+            '--import=./games/beads/design/forensics/g3/g3-hooks.mjs',
+            'tools/scripts/beads-bot.ts', tmpFile,
+        ], { cwd: REPO, encoding: 'utf8' });
+        const last = (r.stdout || '').trim().split('\n').pop();
+        if (!last || !last.startsWith('['))
+            return { ok: false, error: `beads-bot 多关输出解析失败: ${String(last || '').slice(0, 80)}` };
+        const results = JSON.parse(last);
+        for (const res of results) {
+            if (!res.cleared)
+                return { ok: false, error: `格 ${res.name} bot 未通关（${res.blockers?.join('；') || 'cleared=false'}）` };
+            if (res.blockers?.length)
+                return { ok: false, error: `格 ${res.name}: ${res.blockers.join('；')}` };
+        }
+        return { ok: true, results };
+    } finally {
+        try { rmSync(tmpFile); } catch { /* 临时文件清理失败可忽略 */ }
+    }
+}
+
+/**
  * 一键入关（WXG-T-179）：levelDraft → 追加 design/levels 真源 → 跑 levels:sync + framework:sync，
  * harness/Cocos 构建即刻能玩。关卡入表正路 = `levels:sync` 管线（非运行时魔改），本端点只是把
  * 三步收进一次点击。**仅本地仓模式**（VPS 容器无 games/ ⇒ 501；服务无鉴权，这也是不开到公网的理由）；
@@ -242,9 +282,76 @@ async function ingestLevel(res, id) {
     const nameBase = `studio-${String(r.id).slice(-6)}`;
 
     if (isPlate) {
-        // Plate（组合图 >50）入关暂缓：错豆初盘必须「切盘面后逐格重排」（母版全盘 misplaced 直接裁宫
-        // 破坏每格每色守恒 ⇒ BOOT 判初盘不可解）。切块 + 格内重排 = P2b（见 spec §0 / P2 计划 P2b 节）。
-        return sendJson(res, 501, { error: '组合图（>50）入关待 P2b：错豆需在切块后逐格重排；当前仅支持 ≤50 单图入关（WXG-T-185）。' });
+        // P2b：切块后逐格重排错豆（spec §0.2）。不传 misplaced。
+        const { sliceBoard } = await import('../../tools/scripts/level-slice.mjs');
+        const { buildCellInitial } = await import('../../tools/scripts/level-derange.mjs');
+        const { buildPlateFile: mkPlate, buildCellLevel: mkCell } = await import('../../tools/scripts/level-store.mjs');
+
+        // 1. 切块：只裁 pattern，不传 misplaced
+        const sliced = sliceBoard({ pattern: d.pattern, cols: d.cols, rows: d.rows, gridMax: 50 });
+
+        // 2. 逐格三阶构造初盘（甲/乙/丙）
+        const tierCounts = { '\u7532': 0, '\u4e59': 0, '\u4e19': 0 };
+        const cellEntries = [];
+        for (const cell of sliced.cells) {
+            const init = buildCellInitial(cell.pattern);
+            tierCounts[init.tier]++;
+            if (init.tier === '\u4e19') {
+                return sendJson(res, 422, {
+                    error: `\u8be5\u56fe\u4e0d\u9002\u5408\u62fc\u8c46\u7ec4\u56fe\uff1a\u683c(${cell.row},${cell.col}) \u65e0\u6cd5\u4ea7\u751f\u4efb\u4f55\u975e\u6052\u7b49\u4f4d\u79fb\uff08${init.reason}\uff09\uff0c\u7981\u6b62\u5bfc\u5165`,
+                });
+            }
+            cellEntries.push({ cell, init, id: nextId(), name: `${nameBase}-r${cell.row}c${cell.col}` });
+        }
+
+        // 3. 逐格实测（beads-bot）
+        const botInput = cellEntries.map(({ cell, init, id, name }) => ({
+            id, name, cols: cell.cols, rows: cell.rows,
+            pattern: cell.pattern,
+            ...(init.misplaced ? { misplaced: init.misplaced } : {}),
+            swaps: init.swaps ?? [],
+            decoys: d.decoys ?? [],
+            ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
+        }));
+        const measured = measureCells(botInput);
+        if (!measured.ok) return sendJson(res, 422, { error: `\u9010\u683c\u5b9e\u6d4b\u5931\u8d25\uff1a${measured.error}` });
+
+        // 4. 组装 I3 cell 对象（回填实测 time）
+        const plateUid = assignUid('plate', uids);
+        const finalCells = cellEntries.map(({ cell, init, id, name }, i) =>
+            mkCell({
+                cell, plateUid, id, name,
+                time: measured.results[i].time,
+                decoys: d.decoys ?? [],
+                swaps: init.swaps ?? [],
+                ...(init.misplaced ? { misplaced: init.misplaced } : {}),
+                ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
+            })
+        );
+
+        // 5. 写 plate 文件 + manifest
+        const plateFile = `plates/${plateUid}.json`;
+        const plateObj = mkPlate({
+            plateUid, name: nameBase,
+            gridCols: sliced.gridCols, gridRows: sliced.gridRows,
+            sourcePreview: r.thumb ?? null,
+            cells: finalCells,
+        });
+        mkdirSync(join(levelsDir, 'plates'), { recursive: true }); // M3：建目录防 rmSync 后无目录
+        writeLevelFile(levelsDir, plateFile, plateObj);
+        createdFiles.push(plateFile);
+        const finalManifest = appendEntry(manifest, { uid: plateUid, kind: 'plate', file: plateFile, pack: 'main' });
+        writeManifest(levelsDir, finalManifest);
+
+        const sync = runSync();
+        if (!sync || sync.status !== 0) {
+            rollback();
+            return sendJson(res, 500, { error: 'levels:sync/framework:sync \u672a\u901a\u8fc7\uff0c\u771f\u6e90\u5df2\u56de\u6eda\uff1a' + String((sync && sync.stderr) || '').slice(-300) });
+        }
+        return sendJson(res, 200, {
+            ingested: plateUid, kind: 'plate', cells: finalCells.length,
+            tierCounts, note: 'harness \u5373\u65f6\u53ef\u73a9\uff1b\u786e\u8ba4\u540e\u8bf7 git \u5ba1 diff \u5e76\u63d0\u4ea4',
+        });
     }
 
     // —— 单图关卡（≤50）：整板实测（time 只取真引擎值，§3.5 v1.41）——
