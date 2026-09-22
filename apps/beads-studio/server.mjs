@@ -91,6 +91,7 @@ function runGen(rawPath, outDir, params) {
             // 错位模式：full = 全盘错位（成片错豆，引擎 misplaced 初盘）/ swaps = k 对交换
             '--mis', params.mis,
         ];
+        if (params.premedian > 0) args.push('--premedian', String(params.premedian));
         if (params.shape && params.shape !== 'square') args.push('--shape', params.shape);
         if (params.colors > 0) args.push('--colors', String(params.colors));
         if (params.noframe) args.push('--noframe');
@@ -195,15 +196,17 @@ function measureWithBot(resultFile) {
  * @param {Array} cells 每格需含 id/name/cols/rows/pattern/swaps?/misplaced?/decoys?/palette?/paletteCodes?
  */
 function measureCells(cells) {
-    const tmpLevels = { levels: cells.map((c, i) => ({
-        id: c.id ?? (9001 + i),
-        name: c.name ?? `cell-${i}`,
-        cols: c.cols, rows: c.rows, time: 0,
-        cycleProfile: 'short', decoys: c.decoys ?? [],
-        pattern: c.pattern, swaps: c.swaps ?? [],
-        ...(c.misplaced ? { misplaced: c.misplaced } : {}),
-        ...(c.palette ? { palette: c.palette, paletteCodes: c.paletteCodes } : {}),
-    }))};
+    const tmpLevels = {
+        levels: cells.map((c, i) => ({
+            id: c.id ?? (9001 + i),
+            name: c.name ?? `cell-${i}`,
+            cols: c.cols, rows: c.rows, time: 0,
+            cycleProfile: 'short', decoys: c.decoys ?? [],
+            pattern: c.pattern, swaps: c.swaps ?? [],
+            ...(c.misplaced ? { misplaced: c.misplaced } : {}),
+            ...(c.palette ? { palette: c.palette, paletteCodes: c.paletteCodes } : {}),
+        }))
+    };
     const tmpFile = join(REPO, 'temp', `beads-p2b-${Date.now()}.json`);
     mkdirSync(join(REPO, 'temp'), { recursive: true });
     writeFileSync(tmpFile, JSON.stringify(tmpLevels));
@@ -254,7 +257,7 @@ async function ingestLevel(res, id) {
     const brandSlug = r.palette && r.palette !== '10' ? r.palette : null;
     if (brandSlug && (!Array.isArray(d.paletteCodes) || d.paletteCodes.length !== r.colors))
         return sendJson(res, 422, { error: '草案缺 paletteCodes（旧记录请重新生成；v1.40 关卡存品牌色号而非 hex）' });
-    
+
     // 目录模式真源（P2）：动态 import 避免容器（无 games//tools 时）整服务加载即崩。
     // plate 切块/逐格实测（sliceBoard + measureCells）随 P2b「切块后逐格重排错豆」接回，见 spec §0。
     const {
@@ -264,7 +267,7 @@ async function ingestLevel(res, id) {
     const uids = existingUids(manifest);
     let idCursor = nextNumericId(levelsDir, manifest);
     const nextId = () => idCursor++;
-    
+
     const runSync = () => {
         const a = spawnSync(process.execPath, ['tools/scripts/sync-levels-data.mjs'], { cwd: REPO, encoding: 'utf8' });
         if (a.status !== 0) return a;
@@ -277,7 +280,7 @@ async function ingestLevel(res, id) {
         writeFileSync(join(levelsDir, 'manifest.json'), beforeManifest);
         runSync(); // 回滚产物（ponytail：重跑失败未再兑底，本地工具人工兵平）
     };
-    
+
     const isPlate = d.cols > 50 || d.rows > 50;
     const nameBase = `studio-${String(r.id).slice(-6)}`;
 
@@ -426,6 +429,7 @@ async function handleGenerate(req, res, url) {
         cellmode: q.get('cellmode') === 'avg' ? 'avg' : 'mode',
         swaps: Math.max(0, parseInt(q.get('swaps') || '8', 10)),
         smooth: Math.max(0, parseInt(q.get('smooth') || '1', 10)),
+        premedian: Math.max(0, parseInt(q.get('premedian') || '0', 10)),
         noframe: q.get('noframe') === '1',
         mis: misRaw === 'swaps' || misRaw === 'none' ? misRaw : 'full',
     };

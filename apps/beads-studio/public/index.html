@@ -271,6 +271,11 @@
                         value="8" min="1" max="8"></div>
                 <div><label>众数滤波轮数（0 = 关，保细节；大块风可 1–2）</label><input type="number" id="smooth" value="0" min="0"
                         max="5"></div>
+                <div><label>源图中值滤波（量化前，消除 JPEG 伪影）</label><select id="premedian">
+                        <option value="0" selected>关</option>
+                        <option value="3">3×3（推荐照片）</option>
+                        <option value="5">5×5（低质压缩图）</option>
+                    </select></div>
             </div>
             <div class="row2">
                 <div><label>盘面形状</label><select id="shapeKind">
@@ -464,7 +469,7 @@
                 cols, rows,
                 palette: $('palette').value, colors: $('colors').value,
                 colorsmode: $('colorsmode').value, cellmode: $('cellmode').value, swaps: $('swaps').value,
-                smooth: $('smooth').value, shape: shapeValue(),
+                smooth: $('smooth').value, premedian: $('premedian').value, shape: shapeValue(),
                 mis: $('misKind').value,
                 noframe: $('noframe').checked ? '1' : '0',
             });

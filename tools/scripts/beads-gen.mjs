@@ -47,10 +47,11 @@
 //   node temp/beads-gen.mjs --sample 8      # 每格采样倍率（默认 8 ⇒ 块内众数投票；1 = 旧最近邻）
 //   node temp/beads-gen.mjs --smooth 2      # 众数滤波轮数（默认 0 = 关；游戏盘大块风可开 1–2）
 //   node temp/beads-gen.mjs --minblock 4    # 小于 N 格的碎块整体并入邻色（默认 1 = 关；<2 = 关）
+//   node temp/beads-gen.mjs --premedian 3   # 源像素 k×k 中值滤波（0=关；3=JPEG 去噪；量化前执行）
 //
 // ⚠️ 聚集度是**独立目标**（用户 2026-09-19 反馈：「豆子要尽量同色大块集中，以触发连续填充」）：
-//    与「配色平衡 ≤½」（只保证全盘错位有解，不保证成块）不是一回事。三个旋钮力度递增：
-//    `--sample`（采样去噪，最保细节）→ `--smooth`（众数滤波）→ `--minblock`（碎块并入，最激进）。
+//    与「配色平衡 ≤½」（只保证全盘错位有解，不保证成块）不是一回事。四个旋钮力度递增：
+//    `--premedian`（源像素中值，消 JPEG 伪影）→ `--sample`（块内众数投票）→ `--smooth`（格级众数滤波）→ `--minblock`（碎块并入，最激进）。
 //    报告的「同色相邻率 / 碎块占比 / 块数」是量化判据，别凭肉眼。
 
 import { createRequire } from 'node:module';
@@ -245,6 +246,7 @@ const colorsMax = Math.max(0, parseInt(arg('colors', '0'), 10)); // 用色数上
 const paletteArg = arg('palette', 'artkal-s'); // 品牌色板 slug（games/beads/art/<slug>.json：artkal-s/c/a/m/r、hama-*、perler*、nabbi、yant、mard、diamond-dotz）| 数字（程序化色域；'10' 游戏真源已从 UI 下架，仅 API 兼容）
 const colorsMode = arg('colorsmode', 'error'); // freq（频次优先）| error（ 误差最小优先；默认；仅 keptPx 为空时生效）
 const cellmode = arg('cellmode', 'mode'); // 格级映射风格：mode=主导色（卡通干净）| avg=平均色（照片纹理）
+const premedian = Math.max(0, parseInt(arg('premedian', '0'), 10)); // 源像素中值滤波核大小（0=关；3或5）；在 buildGrid 量化前执行，消 JPEG 块状伪影
 if (!['mode', 'avg'].includes(cellmode)) {
   console.error('⚠️ --cellmode 只支持 mode / avg');
   process.exit(3);
@@ -885,6 +887,49 @@ async function renderPng(colors, label) {
   writeFileSync(join(outDir, label + '.png'), Buffer.from(url.split(',')[1], 'base64'));
 }
 
+/**
+ * 源像素 k×k 中值滤波（R/G/B 各通道独立，A 通道保持原样）。
+ * 在 buildGrid 量化前执行，将 JPEG 块状伪影在源头抹除，再送入 k-means。
+ * 边界格保留原値；透明邻格按中心复制（不把 void 像素的色拉进来）。
+ * @param {{W:number,H:number,R:Float64Array,G:Float64Array,B:Float64Array,A:Uint8Array}} px
+ * @param {number} k 奇数滤滤核（3 或 5）
+ */
+function medianFilterPx(px, k) {
+  const { W, H, R, G, B, A } = px;
+  if (!W || !H || k < 3) return px;
+  const half = k >> 1;
+  const kk = k * k;
+  const nR = Float64Array.from(R);
+  const nG = Float64Array.from(G);
+  const nB = Float64Array.from(B);
+  const buf = new Float64Array(kk);
+  /** 插入排序找中位（kk=9/25，比全排快；每次调用完全覆写 buf）。*/
+  function chanMedian(src, ci) {
+    let bi = 0;
+    for (let dy = -half; dy <= half; dy++)
+      for (let dx = -half; dx <= half; dx++) {
+        const ni = (ci / W + dy | 0) * W + (ci % W + dx);
+        buf[bi++] = (A && !A[ni]) ? src[ci] : src[ni];
+      }
+    // 插入排序到升序，取中位
+    for (let i = 1; i < kk; i++) {
+      const v = buf[i]; let j = i - 1;
+      while (j >= 0 && buf[j] > v) { buf[j + 1] = buf[j]; j--; }
+      buf[j + 1] = v;
+    }
+    return buf[kk >> 1];
+  }
+  for (let y = half; y < H - half; y++)
+    for (let x = half; x < W - half; x++) {
+      const ci = y * W + x;
+      if (A && !A[ci]) continue; // 中心透明，不滤
+      nR[ci] = chanMedian(R, ci);
+      nG[ci] = chanMedian(G, ci);
+      nB[ci] = chanMedian(B, ci);
+    }
+  return { W, H, R: nR, G: nG, B: nB, A };
+}
+
 // ── 纯 Node 侧：--in-raw 免浏览器路径（WXG-T-179 Web 服务复用；前端解好像素后发 RGBA）──
 // 输入 = JSON { w, h, data: base64(RGBA) }。
 // 只做第一步区域平均缩放（等价浏览器 imageSmoothing 缩到 cols·K × rows·K；alpha<128 不参与）；
@@ -1021,9 +1066,10 @@ function buildGrid(px, n, cellmode) {
 }
 
 // ── 主流程 ──────────────────────────────────────────────────────────────────
-const px = inRawPath
+const _rawPx = inRawPath
   ? readPixelsRaw(JSON.parse(readFileSync(inRawPath, 'utf8')))
   : await readGrid();
+const px = premedian >= 3 ? medianFilterPx(_rawPx, premedian) : _rawPx;
 const { grid, avg: avg0, kept: keptPx } = buildGrid(px, colorsMax, cellmode);
 let avg = avg0; // let：异形盘包围盒裁剪（下方 trim 块）会重赋为裁后 avg
 
@@ -1280,7 +1326,7 @@ console.log(
   (colorsUsed > 10 ? ' ⚠️ 超 BEAD_COLOR_MAX=10 ⇒ 不可入关' : ' ✅ 合规（≤ BEAD_COLOR_MAX=10）'),
 );
 console.log(`色差（0..441，越小越保形）：限色前 ${errPreLimit} → 最终 ${errFinal}`);
-console.log(`聚集度（参数 sample=${sample} smooth=${smoothRounds} minblock=${minBlock} colors=${colorsMax}）：`);
+console.log(`聚集度（参数 premedian=${premedian} sample=${sample} smooth=${smoothRounds} minblock=${minBlock} colors=${colorsMax}）：`);
 console.log(`  处理前  块数 ${c0.blocks}  最大块 ${c0.largest}  平均块 ${c0.avg}  碎块格 ${c0.tinyCells}  同色相邻率 ${c0.adjRate}`);
 console.log(`  处理后  块数 ${c1.blocks}  最大块 ${c1.largest}  平均块 ${c1.avg}  碎块格 ${c1.tinyCells}  同色相邻率 ${c1.adjRate}（滤波改 ${smoothChanged} 格、碎块并入 ${mergedCells} 格）`);
 console.log(`  初始盘  块数 ${cm ? cm.blocks : '—'}  最大块 ${cm ? cm.largest : '—'}  平均块 ${cm ? cm.avg : '—'}  同色相邻率 ${cm ? cm.adjRate : '—'}  ← 玩家看到的就是它${cm ? '' : '（mis=none：无错位盘，玩家拼的就是正确解）'}`);
