@@ -146,26 +146,31 @@ export const GRID_MIN_ROWS = 5;
 
 // ───────────────────────────────────────────────────────────── §3.4 tray
 /**
- * Base tray capacity（**v1.30 冻结变更 24→12**，WXG-T-168，用户 2026-09-18 真机
- * 体检裁定「版面没有那么多槽 ⇒ 先开放一行 12 个槽，扩容再开放第二行」；
- * **1 行 × 12**）。
+ * Base tray capacity（**v1.42 冻结变更 12→24**，WXG-T-203 丙档，用户 2026-09-22 拍板
+ * D1=丙・D2=接受 v2.1 小托盘深度降格）：**2 行 × 12**。
+ *
+ * 依据 = E1 两轮 bot 实测矩阵（提案 §6.1/§6.2）：32×32 宫 reg60 部分错位下
+ * tray12=148–160 全超 116 taps 线、tray24=90–96 达标（余量 22%）——增益窗口
+ * 恰好卡在「大色块 + 整区域就位部分错位」（组合图宫形态）上；全错位大盘
+ * 两轮复现 176–178 仍不可入关（v1.41 规模闸维持，扩容不解锁全错位）。
  *
  * 诚实记录（负面后果，不得隐去）：
- *  - **推翻 v1.24（WXG-T-141，用户 2026-09-17 拍板 6→24）的取值**；v1.24「24 槽 =
- *    从容批量取回」的论述随之作废，空间压力回升 —— 与 WXG-T-168 同批落码的
- *    **部分收纳**（空槽不足只收距锚最近 N 颗）叠加 ⇒ **部分收纳触发频率显著上升**，
- *    属用户明示取舍（扩容是解压阀）。
- *  - 布局：面板高度随行数派生（`trayLayout(rows)`），1 行 ⇒ panelH 72，仍**贴带顶
- *    锚定**（v1.20 规则不变、零特判）；带上沿以下的富余区域为扩展行预留位
- *    （未扩容时该区域不画任何槽）。
- *  `Tray` 实体与 `trayLayout(rows)` 的行数均为 capacity 派生 ⇒ 本值切换零接线。
+ *  - **推翻 v1.30（WXG-T-168「先开一行」）的取值但保留其版面方法论**：v1.30
+ *    针对的是 4 行态（24/24 面板高 216）；丙档 2 行基础态几何 v1.24 已验
+ *    （panelH 126 零溢出）、3 行扩展态（panelH 180）与 `btn_expand` 热区重叠
+ *    48px **待 E2 真机重验，未验前不作 QA 判据**。
+ *  - 与 `input-control §2.1` v2.1「小托盘滚窗 = 操作深度所在」论述冲突——
+ *    用户明示取舍（大盘可玩优先，D2），该条已同批复注。
+ *  - `Tray` 实体与 `trayLayout(rows)` 的行数均为 capacity 派生 ⇒ 本值切换零接线；
+ *    虚线判据 `row >= ceil(TRAY_BASE_SLOTS / TRAY_COLS)`（v1.30 修误判）在
+ *    2 行基础态下正确划界（row0/1 实线、row2 虚线）。
  */
-export const TRAY_BASE_SLOTS = 12;
+export const TRAY_BASE_SLOTS = 24;
 /**
- * Expansion capacity（**v1.30 冻结变更 24→12**，同上）：**+1 行 × 12 = 12 槽**，
- * 扩展后共 24 槽（2 行）。扩展行沿用虚线槽语言（WXG-T-168 修 `dashed = row > 0`
- * 误判：旧式把基础第 2 行也画成虚线，导致玩家误读为「未开放」）。
- * 扩展后 `btn_expand` 语义不变（MVP 角标占位、无广告调用）。
+ * Expansion capacity（**v1.42 不变**，丙档 base 24 / expand 12）：**+1 行 × 12 = 12 槽**，
+ * 扩展后共 36 槽（3 行，panelH 180 ≤ 带高）。激励视频解锁、MVP 无广告调用
+ * （badge 占位）、本关内有效、重开重置（A1 语义不变）；扩展行沿用虚线槽语言
+ * （WXG-T-168 修 `dashed = row > 0` 误判后的判据在丙档下正确划界）。
  */
 export const TRAY_EXPAND_SLOTS = 12;
 /** Slots per tray row. */
@@ -351,8 +356,8 @@ export const STAMINA_REFILL_PLACEMENT = 'stamina-refill';
 export const STAR3_RATIO = 0.32;
 /** ratio ≥ 0.12 → 2★, otherwise 1★ (clearing always yields ≥1★). */
 export const STAR2_RATIO = 0.12;
-/** Demo level count（v1.30：beads-studio 一键入关转正第 9 关，随包发布；初版 8，区间 5–10 内递增）。 */
-export const DEMO_LEVEL_COUNT = 9;
+/** Demo level count（v1.30：beads-studio 一键入关转正第 9 关；v1.43：studio 入关转正第 10 关 `studio-9-19d5`，随包发布；初版 8，区间 5–10 内递增）。 */
+export const DEMO_LEVEL_COUNT = 10;
 /**
  * 单关满星数（§3.7 星级 1–3 语义）。`computeClearStars` 的上限、S8 存档
  * `stars` 数组的逐项钳制上界（save-progress §2.2/§6）、通关画面总览的分母共用它。

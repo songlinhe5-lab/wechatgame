@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 68,
+  "nextId": 70,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1145,6 +1145,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-068",
+      "state": "active",
+      "file": "knowledge/patterns.md",
+      "category": "关卡与生成链",
+      "title": "关卡生成链四段连锁模式",
+      "contentHash": "3afcf7b28412288d59adb02b640fb4bbbee8f9889323095a50af6e300c24b9a6",
+      "sourceTask": "WXG-T-203",
+      "addedDate": "2026-09-22",
+      "lastAccess": "2026-09-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-069",
+      "state": "active",
+      "file": "knowledge/patterns.md",
+      "category": "关卡与生成链",
+      "title": "部分错位「整区域就位 + 子集置换」构造模式",
+      "contentHash": "662630c457c5c7569e723d4aad89fff242012f23c761a0b777d005ceda297639",
+      "sourceTask": "WXG-T-203",
+      "addedDate": "2026-09-22",
+      "lastAccess": "2026-09-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1608,6 +1642,26 @@
       "kind": "updated",
       "ids": [
         "K-067"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-22",
+      "taskId": "WXG-T-203",
+      "kind": "added",
+      "ids": [
+        "K-068",
+        "K-069"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-22",
+      "taskId": "WXG-T-203",
+      "kind": "updated",
+      "ids": [
+        "K-068",
+        "K-069"
       ],
       "note": null
     }

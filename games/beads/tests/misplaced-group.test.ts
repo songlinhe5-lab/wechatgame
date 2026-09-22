@@ -150,12 +150,12 @@ describe('WXG-T-162 整组一次收进', () => {
   });
 
   it('free 槽 < 组大小 ⇒ **部分收纳**（WXG-T-168 裁定②）：收「距锚最近」的 N 颗、余珠留格、锚保持', () => {
-    // 组 3 颗；先塞 10 颗进托盘（v1.30：基础 12 槽 ⇒ free 2）。
+    // 组 3 颗；先塞 22 颗进托盘（v1.42 丙档：基础 24 槽 ⇒ free 2；v1.30 基础 12 槽时为塞 10）。
     putMisplaced1(h, 1, 2);
     putMisplaced1(h, 2, 2);
     putMisplaced1(h, 3, 2);
     // giveTrayBead 返回槽号（-1 = 失败）；混色避开 needed 投影上限。
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 22; i++) {
       expect(h.game.giveTrayBead((i % 3) + 1)).toBeGreaterThanOrEqual(0);
     }
     const eventsBefore = h.all('tray:stored').length;

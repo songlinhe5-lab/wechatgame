@@ -60,7 +60,7 @@ function newStorage(): Storage {
 
 function boot(storage: Storage, options: { levels?: ReturnType<typeof simpleTestLevel>[] } = {}): Harness {
   return createBeadsHarness({
-      noAssemble: true,
+    noAssemble: true,
     ...(options.levels ? { levels: options.levels } : {}),
     saveKey: SAVE_KEY,
     storage,
@@ -115,7 +115,7 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
 
     // 托盘与内存一致（两槽已被消费 ⇒ 快照里应为 free）。
     const slots = snapshot['traySlots'] as { colorIdx: number }[];
-    expect(slots).toHaveLength(TRAY_BASE_SLOTS); // v1.24：托盘 12→24（WXG-T-141）
+    expect(slots).toHaveLength(TRAY_BASE_SLOTS); // v1.42：丙档 12→24（WXG-T-203）
     // 逐槽与内存一致 —— 注意 advance(12) 期间供料器已按节律投过珠，不能假设全 free。
     for (let i = 0; i < slots.length; i++) {
       const live = game.tray.slot(i)!;
