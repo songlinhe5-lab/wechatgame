@@ -382,14 +382,23 @@
             const g = cv.getContext('2d', { willReadFrequently: true });
             g.drawImage(img, 0, 0, w, h);
             srcPixels = { w, h, data: g.getImageData(0, 0, w, h).data };
-            // 依据原图测横竖豆数（珠距自相关检测）+ 候选色板标准豆径换算成品尺寸
+            // 珠距检测：适合实拍物理盘（每颗珠有圆形高光周期，gx≥15px 才可信）。
+            // 平面图珠距检测会误报极小周期（gx≈8），此时改用 40px/颗 标准推断。
+            // 两种推断结果格数必须在 [2,50] 范围内（超出 GRID_MAX 视为不可信）。
             const sug = detectBeadGrid(srcPixels);
+            const sugOk = !!(sug && sug.gx >= 15 && sug.gy >= 15 && sug.cols <= 50 && sug.rows <= 50);
+            const c40 = Math.round(w / 40), r40 = Math.round(h / 40);
+            const inferred = (c40 >= 2 && r40 >= 2 && c40 <= 50 && r40 <= 50)
+                ? { cols: c40, rows: r40, gx: Math.round(w / c40), gy: Math.round(h / r40) } : null;
+            const useSug = sugOk ? sug : inferred;
             let sugMsg = '';
-            if (sug) {
+            if (useSug) {
                 const mm = parseFloat(($('palette').selectedOptions[0]?.textContent || '').match(/([\d.]+)\s*mm/)?.[1]) || 5;
                 $('board').value = 'custom'; $('customSize').style.display = 'grid';
-                $('cols').value = sug.cols; $('rows').value = sug.rows;
-                sugMsg = `｜珠距检测 ${sug.gx}×${sug.gy}px ⇒ 建议 ${sug.cols}×${sug.rows} 格（成品 ${(sug.cols * mm / 10).toFixed(1)}×${(sug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径，可手改）`;
+                $('cols').value = useSug.cols; $('rows').value = useSug.rows;
+                sugMsg = sugOk
+                    ? `｜珠距检测 ${useSug.gx}×${useSug.gy}px ⇒ 建议 ${useSug.cols}×${useSug.rows} 格（成品 ${(useSug.cols * mm / 10).toFixed(1)}×${(useSug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径，可手改）`
+                    : `｜标准 40px/颗 推断 ⇒ ${useSug.cols}×${useSug.rows} 格（可手改）`;
             }
             // 原图缩略图（选图时本地生成，不依赖服务端返图）
             const tk = Math.min(1, THUMB_MAX / Math.max(img.width, img.height));
