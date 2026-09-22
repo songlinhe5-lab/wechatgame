@@ -191,8 +191,10 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
     }
   }
 
-  // time ∈ [120, 420] (§3.5 v1.23：下沿随 `clamp(k × 45s, 120, 420)` 由 180 放宽到
-  // 120；k ≤ 2 的关按定价就是 120 s，旧下沿会把它们全部拒收)。
+  // time ∈ [LEVEL_TIME_MIN, LEVEL_TIME_MAX]（§3.5 v1.23 下沿随 `clamp(k × 45s, 120, 420)`
+  // 由 180 放宽到 120；k ≤ 2 的关按定价就是 120 s，旧下沿会把它们全部拒收。
+  // 上沿现为 **2500**（§3.5 v1.47 开发期验证档，旧值 420；上线前按 playtest 回调）——
+  // 本校验与规模闸共用同一常量，改档零接线。）
   //
   // `Number.isFinite` (not `typeof === 'number'`): NaN **is** a number, and every
   // comparison against it is false, so a NaN would slip through both bounds. The

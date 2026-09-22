@@ -9,9 +9,15 @@ import { SAVE_KEY } from '../src/game/save-schema.js';
 describe('S1 core-loop', () => {
   // §8.1 冷启动无存档 → 直接进入第 1 关 PLAYING，全程无主菜单；有存档 → 续进已解锁最远关。
   it('§8-1 cold start with no save enters level 1; a save resumes the furthest level', () => {
+    // 关表用**受控 3 关夹具**而非出货关表：本例断言的是「续进已解锁最远关」，
+    // 写死 `toBe(2)` 却隐含「出货关表 ≥ 3 关」——§3.7 v1.46 pre-release 重置后关表
+    // 会逐张入关而变动（现 1 关），不该连带改动本判据。先例：board-input-timing
+    // 的 `noAssemble + levels: [simpleTestLevel()]` 写法（冷/热启动共用一份，钳制语义不变）。
+    const levels = [simpleTestLevel({ id: 91 }), simpleTestLevel({ id: 92 }), simpleTestLevel({ id: 93 })];
     // Cold start: no document in storage → level 1, straight into PLAYING.
     const cold = createBeadsHarness({
-      noAssemble: true, saveKey: 'wxgame.beads.test.s1cold' });
+      noAssemble: true, levels, saveKey: 'wxgame.beads.test.s1cold'
+    });
     expect(cold.game.phase).toBe('playing');
     expect(cold.game.levelIndex).toBe(0);
 
@@ -29,7 +35,8 @@ describe('S1 core-loop', () => {
       }),
     );
     const warm = createBeadsHarness({
-      noAssemble: true, saveKey: SAVE_KEY, storage });
+      noAssemble: true, levels, saveKey: SAVE_KEY, storage
+    });
     expect(warm.game.phase).toBe('playing');
     expect(warm.game.levelIndex).toBe(2);
   });

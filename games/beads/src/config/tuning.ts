@@ -227,12 +227,29 @@ export const LEVEL_TIME_DEFAULT = 300;
  *
  * **v1.23 冻结变更 180 → 120**（WXG-T-138 提案 Q10，用户拍板；WXG-T-139 落码）：
  * 下沿随 `LEVEL_TIME_OVERRIDE = clamp(k × 45s, 120, 420)` 放宽——k = 1/2 的关
- * 定价 45/90 s，一律被钳到 120 s 下限（systems-index §3.5 合法区间 [120, 420]）。
+ * 定价 45/90 s，一律被钳到 120 s 下限（systems-index §3.5 合法区间 `[LEVEL_TIME_MIN, LEVEL_TIME_MAX]`，
+ * 当时上沿为 420；现值见下行）。
  * 旧值 180 会让 L1–L4（120/120/120/135 s）在 BOOT 被自家校验器拒收。
  */
 export const LEVEL_TIME_MIN = 120;
-/** Level time legal maximum (s). */
-export const LEVEL_TIME_MAX = 420;
+/**
+ * Level time legal maximum (s) —— **§3.5 v1.47 开发期临时放宽 420 → 2500**（用户 2026-09-22 拍板
+ * 「改成 2500，我先验证玩法，时间上线需要再调整」）。
+ *
+ * **为何改**：规模闸 `taps × SEC_PER_TAP ≤ LEVEL_TIME_MAX` 等价于「点击数硬顶 = 本值 ÷ 3.6」；
+ * 420 ⇒ 116 击，而全错位盘实测 `taps ≈ 0.65 × 错位珠数`（初始零洞 ⇒ 每颗都要挖+填两遍），
+ * ⇒ 全错位盘只能做到 ~178 颗珠。一张 31×31 大色块图（M=828、同色相邻率 0.843）实测 540 击
+ * = 1944s 被拒 —— **闸在系统性误杀「大色块 + 全错位」这类真正成片的盘**。
+ *
+ * **本值的性质 = 开发期验证档，不是产品值**。上线前必须按 playtest 回调（取证与回调协议
+ * `levels-spec §5.0.1`）。ponytail: 未做分档预算（小盘 420 / 大盘放宽）——那需先定
+ * 「大盘 3★ 与失败页激励位怎么算」，属玩法裁定，不在此拍。
+ *
+ * **连带漂移（已登记 §6 v1.47）**：难度分 `D = round(100 × T / LEVEL_TIME_MAX)` 的分母是本值，
+ * 改档后一切 D 读数缩水 ≈6×（旧 420s 顶格盘 D100 → D17）⇒ **D 不可跨档比较**，
+ * 历史报告里的 D 值仅作当时档位记录。
+ */
+export const LEVEL_TIME_MAX = 2500;
 /**
  * 单位错位对的定价（s/对）——`LEVEL_TIME_OVERRIDE` 公式的系数（§3.5 v1.23 冻结）。
  * 8 关 k 曲线 [1,2,2,3,4,5,6,8] ⇒ 120/120/120/135/180/225/270/360 s。
@@ -356,7 +373,12 @@ export const STAMINA_REFILL_PLACEMENT = 'stamina-refill';
 export const STAR3_RATIO = 0.32;
 /** ratio ≥ 0.12 → 2★, otherwise 1★ (clearing always yields ≥1★). */
 export const STAR2_RATIO = 0.12;
-/** Demo level count（**§3.7 v1.44 pre-release 全量重置**：关卡表回到 demo 8 关，两张 studio 试验关已移出；uid 序号改 5 位零填充，见 `level-content-pipeline.md` §1.2 v0.7。区间 5–10，随入关递增）。 */
+/** Demo level count（**§3.7 v1.46 pre-release 重置第二批**：原 demo 8 关已按用户裁定移出，关表改由
+ * beads-studio 生成的盘逐张入关重建，本值**随表走 = 当前关数**（先例 = v1.43 随入关 9→10）；
+ * **2026-09-22 已入满 8 张**（`L00001..L00008`，均 studio 产物、`time` 全来自真引擎实测）⇒ 回到 v1.44 关数基线，
+ * 但**内容全换**（旧 demo 1–8 关的 playtest 校准值已脱离关表）。uid 5 位零填充与区间 5–10 不变，
+ * 见 `level-content-pipeline.md` §1.2 v0.7。
+ * ⚠️ 再入/再移出关时本值需同步改，否则 `levels.test` / `misplaced-assembler.test` / `level-import.test` 三处断言即红。 */
 export const DEMO_LEVEL_COUNT = 8;
 /**
  * 单关满星数（§3.7 星级 1–3 语义）。`computeClearStars` 的上限、S8 存档

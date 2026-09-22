@@ -38,7 +38,7 @@ import {
   LEVEL_TIME_MIN,
   gridLayoutFor,
 } from '../src/config/tuning.js';
-import { LEVELS } from '../src/config/levels.js';
+import { STAGE_PATTERN_POOL } from '../src/config/levels.js';
 
 const cam = (): BoardCamera => ({ zoom: 1, offsetX: 0, offsetY: 0 });
 const two = (x: number, y: number, x2: number, y2: number): PinchInput => ({
@@ -233,16 +233,22 @@ function fillCurrentStage(h: Harness): void {
 
 describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）', () => {
   it('换关（_setupLevel）：13×12 大盘归 fit，且 fit<1 ⇒ 与旧「恒等」档不等价', () => {
-    const h = createBeadsHarness({ saveKey: 'wxgame.beads.test.cam172-switch-big' });
+    // 受控夹具（先例 = 同文件小盘例喂 smallTestLevel、retry 例喂 bigTestLevel）：
+    // 旧版 `goToLevel(7)` + `LEVELS[7 % LEVELS.length]` 是对**出货关表**的巧合耦合 ——
+    // 索引 7 在「钳到末关」与「取模」两种映射下落不到同一关，v1.46 关表重置（8 关 → studio 三关）即失配。
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [smallTestLevel(), bigTestLevel()],
+      saveKey: 'wxgame.beads.test.cam172-switch-big',
+    });
     expect(h.game.levelIndex).toBe(0);
     dirtyCamera(h.game);
 
-    h.game.goToLevel(7); // 真表第 8 关 = MVP 大盘（18×18）
+    h.game.goToLevel(1); // 6×5 → 13×12（换关即重算 fit）
 
-    const big = LEVELS[7 % LEVELS.length]!;
-    expect(h.game.grid.cols).toBe(big.cols);
-    expect(h.game.grid.rows).toBe(big.rows);
-    expect(computeFitZoom(big.cols, big.rows)).toBeLessThan(1); // 大盘不再 zoom=1
+    expect(h.game.grid.cols).toBe(BC);
+    expect(h.game.grid.rows).toBe(BR);
+    expect(computeFitZoom(BC, BR)).toBeLessThan(1); // 大盘不再 zoom=1
     expectFitReset(h.game);
   });
 
@@ -300,12 +306,15 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expect(h.count('sprint:stage')).toBe(2); // 开局横幅 + 换 stage
     expectFitReset(h.game);
 
-    // 第二档：棋盘尺寸不同（MVP pool[7] = L8 大盘 ⇒ fit<1），锁住「按新尺寸重算」而非写死 1。
+    // 第二档：棋盘尺寸不同，锁住「按新尺寸重算」而非写死 1。
+    // 尺寸正本 = `STAGE_PATTERN_POOL`（冲刺 stage 图案走 `buildStagePattern(n)` → pool[n % pool.length]，
+    // **与出货关表无关**）；旧版拿 `LEVELS[7 % LEVELS.length]` 比对是巧合耦合，
+    // v1.46 关表重置（demo 8 关 → studio 三关）后即失配。先例：同文件 retry 例喂 `bigTestLevel()`。
     dirtyCamera(h.game);
     loadStageForTest(h.game, 7);
-    const stage7 = LEVELS[7 % LEVELS.length]!;
-    expect(h.game.grid.cols).toBe(stage7.cols);
-    expect(h.game.grid.rows).toBe(stage7.rows);
+    const stage7 = STAGE_PATTERN_POOL[7 % STAGE_PATTERN_POOL.length]!;
+    expect(h.game.grid.cols).toBe(stage7[0]!.length);
+    expect(h.game.grid.rows).toBe(stage7.length);
     expectFitReset(h.game);
     expect(cameraOf(h.game).zoom).toBeLessThan(1);
   });

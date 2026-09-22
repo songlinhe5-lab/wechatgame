@@ -42,8 +42,10 @@ function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
 describe('WXG-T-179 · level-import 转换与定价', () => {
     it('measuredLevelTime：实测点击数 × SEC_PER_TAP（公式 v0.2，§3.5 v1.41）—— 锚值 / clamp / 非法输入', () => {
         // 锚：已入库关 studio-5-8b07（17×15）真引擎实测 109 taps × 3.6s = 392s
-        //（v0.1 按颗定价给的是触顶 420s ⇒ D100 饱和，该盘实测仅 D93）。
-        expect(measuredLevelTime(109)).toEqual({ time: 392, difficulty: 93 });
+        //（v0.1 按颗定价给的是触顶 420s ⇒ D100 饱和）。
+        // ⚠️ difficulty 的分母 = `LEVEL_TIME_MAX`（**v1.47 顶值 420 → 2500** ⇒ 同一盘 D 从 93 变 16，
+        //   D 不可跨档比较，见 levels-spec §5.0 版本表 v0.2.1）；改顶值时本锚点需同步重算。
+        expect(measuredLevelTime(109)).toEqual({ time: 392, difficulty: 16 });
         expect(measuredLevelTime(10).time).toBe(LEVEL_TIME_MIN); // 36s ⇒ 钳到下限
         expect(measuredLevelTime(1000).time).toBe(LEVEL_TIME_MAX); // 3600s ⇒ 钳到上限
         // 非法输入 ⇒ 0 taps ⇒ 下限（不产生 NaN 倒计时：NaN 永不到零 = 失败条件永不触发）
@@ -56,7 +58,8 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         // v0.1 的三因子（f_N/f_C/g_A）已作废：同 M 不同 N/C/A ⇒ 同时长
         expect(estimateLevelTime({ fillable: 900, colors: 10, adjRate: 0.0, misplaced: 8 })).toEqual(a);
         expect(a).toEqual(measuredLevelTime(4)); // ceil(8/2) = 4 taps
-        expect(estimateLevelTime({ fillable: 200, colors: 3, adjRate: 0.5, misplaced: 400 }).time).toBe(LEVEL_TIME_MAX);
+        // 钳到上限需 taps × 3.6 > LEVEL_TIME_MAX（现 2500 ⇒ >694 taps）：M=2000 ⇒ ceil(1000) taps ⇒ 3600s
+        expect(estimateLevelTime({ fillable: 200, colors: 3, adjRate: 0.5, misplaced: 2000 }).time).toBe(LEVEL_TIME_MAX);
     });
 
     it('合法草案 + time=null ⇒ 过关并自动按静态兜底补时长（错位 = 2k 颗）', () => {

@@ -29,9 +29,9 @@
 | 5 | `games/beads/art/art-bible.md` | 32288 | 492 | normal |
 | 6 | `games/beads/art/accessibility.md` | 27120 | 185 | normal |
 | 7 | `games/beads/design/ux/ux-spec.md` | 20929 | 347 | normal |
-| 8 | `games/beads/design/gdd/systems-index-changelog.md` | 16634 | 55 | normal |
+| 8 | `games/beads/design/gdd/systems-index-changelog.md` | 18950 | 58 | normal |
 | 9 | `games/beads/design/gdd/input-control.md` | 16009 | 196 | normal |
-| 10 | `games/beads/design/gdd/systems-index.md` | 14571 | 286 | hot |
+| 10 | `games/beads/design/gdd/systems-index.md` | 14841 | 286 | hot |
 | 11 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
 | 12 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
 | 13 | `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 12530 | 249 | normal |
@@ -40,7 +40,7 @@
 | 16 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
 | 17 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 525 | normal |
 | 18 | `games/beads/design/audio/audio-spec.md` | 11064 | 297 | normal |
-| 19 | `games/beads/design/levels/levels-spec.md` | 9622 | 371 | normal |
+| 19 | `games/beads/design/levels/levels-spec.md` | 10114 | 375 | normal |
 | 20 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 525 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
@@ -54,9 +54,9 @@
 | `games/beads/art/art-bible.md` | 32288 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 27120 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 20929 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/systems-index-changelog.md` | 16634 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/systems-index-changelog.md` | 18950 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 16009 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/systems-index.md` | 14571 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/systems-index.md` | 14841 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 12530 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -65,7 +65,7 @@
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md` | 11289 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 11064 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/levels/levels-spec.md` | 9622 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/levels/levels-spec.md` | 10114 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/bead-grid.md` | 9175 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
