@@ -8,7 +8,6 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  BEAD_COLOR_MAX,
   DECOY_COLORS_MAX,
   DEMO_LEVEL_COUNT,
   GRID_MAX_COLS,
@@ -105,9 +104,10 @@ describe('beads BOOT validator (architecture-beads §6)', () => {
     const illegal = simpleTestLevel({ pattern: ['12312z', '123123', '123123', '123123', '123123'] });
     expect(hasError(validateBeadsLevel(illegal), 'illegal char "z"')).toBe(true);
 
-    // 'A' = index 10 > BEAD_COLOR_MAX(8) — legal charset, over the ceiling.
-    const overCeiling = simpleTestLevel({ pattern: ['12312A', '123123', '123123', '123123', '123123'] });
-    expect(hasError(validateBeadsLevel(overCeiling), `> BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`)).toBe(true);
+    // §3.2 v1.36：`BEAD_COLOR_MAX` 8→10，charset 内最大索引 'A'=10 恰等于上限
+    // ⇒ 「字符越上限」分支已不可构造，改反向断言：9/A（深棕/炭黑）合法。
+    const withReserved = simpleTestLevel({ pattern: ['123129', '12312A', '123123', '123123', '123123'] });
+    expect(hasError(validateBeadsLevel(withReserved), 'BEAD_COLOR_MAX')).toBe(false);
   });
 
   it('rejects a board with nothing fillable (all locked / all void)', () => {
@@ -119,11 +119,12 @@ describe('beads BOOT validator (architecture-beads §6)', () => {
     const two = simpleTestLevel({ pattern: ['121212', '121212', '121212', '121212', '121212'] });
     expect(hasError(validateBeadsLevel(two), 'colour count 2 < 3')).toBe(true);
 
+    // §3.2 v1.36：10 色 = 上限，合法（旧判「10 色 > 8 拒收」随扩展作废）。
     const ten = simpleTestLevel({
       pattern: ['12345678', '9A234567', '89123456', '78912345', '67891234'],
       cols: 8,
     });
-    expect(hasError(validateBeadsLevel(ten), `> BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`)).toBe(true);
+    expect(hasError(validateBeadsLevel(ten), 'BEAD_COLOR_MAX')).toBe(false);
   });
 
   // ⛔ 供料残余（E3 移交 / E5 清理）：`spawnInterval` 字段已随供料关停在

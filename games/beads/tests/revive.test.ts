@@ -29,7 +29,7 @@ import {
 } from '../src/systems/fail-panel.js';
 import { rectsOverlap } from '../src/systems/pause-panel.js';
 import { sprintSettleLayout } from '../src/systems/sprint-settle.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import {
   createBeadsHarness,
@@ -88,7 +88,7 @@ function fillBoard(game: BeadsGame): void {
 function render(harness: Harness): readonly DrawCommand[] {
   const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
   builder.begin();
-  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE);
+  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
 }
 

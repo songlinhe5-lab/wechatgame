@@ -99,8 +99,9 @@ export const POWERUP_BADGE_GLYPH_EDGE = 10;
 // ──────────────────────────────────────────────── §3.2 palette & bead charset
 /** Pattern row charset: `.`=空位 `x`=锁定格 `1-9`+`A`=色板索引 1–10. */
 export const BEAD_CHARSET = '.x1-9A';
-/** Per-level colour-count ceiling (demo levels use 3–8). */
-export const BEAD_COLOR_MAX = 8;
+/** Per-level colour-count ceiling. §3.2 v1.36 (用户 2026-09-21 拍板「允许不超过 10 色」，
+ * 启用 levels-spec 预留的 v1.1 扩展——索引 9/A 深棕/炭黑入池，ADR-0004 复评条款触发）。 */
+export const BEAD_COLOR_MAX = 10;
 /** Per-level decoy-count ceiling. §3.2 v1.17 (U8=D, WXG-T-086): 2→0 — no decoys
  * are supplied; the spawner's A′ invariant (`held ≤ demand`) removes the tail
  * soft-lock at the source, so the decoy subsystem is inert (kept for the schema). */
@@ -126,14 +127,18 @@ export const BEAD_PITCH = BEAD_CELL + BEAD_GAP;
  * Max columns per level. **v1.33（WXG-T-180）：13 → 29** —— 对齐 5mm Midi **标准方形盘
  * 29×29 = 841 颗**（用户 2026-09-20 盘面调研 + MVP 目标；落档
  * `design/proposals/board-size-29-mvp.md`）。
- * ⚠️ 连带（诚实登记，均为 WXG-T-180 挂账）：① 单屏放不下 29 列（29×`BEAD_PITCH` = 1508px
- * > 750px 设计宽）⇒ 必须依赖缩放（ADR-0015 丁-3「布局即相机」已落码）；② 静态图元
- * ≈ 8410（原 ≈1560）⇒ **zoom 自适应 LOD 待立项**，未落地前大盘性能**未经真机验证**；
+ * v1.37（2026-09-21）29 → **50**：用户拍板「限制到一个最大可玩，比如不能超过 50，
+ * 否则体验变差」——上限只卡硬顶，不等于实际关卡尺寸（MVP 档位仍 14×14/18×18，
+ * ADR-0018；29×29 触控不可玩的裁定不变）。主要服务 beads-studio 异形盘导入
+ * （背景 void 格不占宽高，包围盒裁剪后 39×39 源图 ≈ 33×36）。
+ * ⚠️ 连带（诚实登记，均为 WXG-T-180 挂账）：① 单屏放不下 ≥29 列（29×`BEAD_PITCH` =
+ * 1508px > 750px 设计宽）⇒ 必须依赖缩放（ADR-0015 丁-3「布局即相机」已落码）；② 静态图元
+ * ≈ 8410（原 ≈1560）⇒ **zoom 自适应 LOD 待立项**，未落地前大盘性能**未经真机验 证**；
  * ③ 难度曲线（`levels-spec §3` 的 k / time）需重推。
  */
-export const GRID_MAX_COLS = 29;
-/** Max rows per level（同上，12 → 29）。 */
-export const GRID_MAX_ROWS = 29;
+export const GRID_MAX_COLS = 50;
+/** Max rows per level（12 → 29（v1.34）→ 50（v1.37，同上）。 */
+export const GRID_MAX_ROWS = 50;
 /** Demo minimum columns. */
 export const GRID_MIN_COLS = 6;
 /** Demo minimum rows. */
@@ -228,6 +233,26 @@ export const LEVEL_TIME_MAX = 420;
  * 8 关 k 曲线 [1,2,2,3,4,5,6,8] ⇒ 120/120/120/135/180/225/270/360 s。
  */
 export const LEVEL_TIME_PER_PAIR = 45;
+
+/**
+ * 每次「成功点击」的秒数预算（§3.5 v1.41 · 公式 v0.2 实测口径）。
+ *
+ * **为什么换成按点击定价**：v0.1 按颗定价（`M × 22.5s`）在 32 盘真实语料上
+ * **32/32 触顶 420s**，隐含「每点击秒数」跨 0.46–70s（150 倍）⇒ 既造出倒计时内
+ * 不可能通关的盘（19/32），也造出白给 3★ 的盘。根因不是系数偏，是**自变量选错**：
+ * v2.1/v2.2/T-162/T-180 之后机制按「次」批量（`collectMisplacedGroup` 8 向连通不限步、
+ * `retrieveSelectedGroup` 一次 min(组, 连续空槽)、`planGroupFill` BFS 连通空格不限步、
+ * `FILL_POP_RESTART_GATE_MS` 门内不重启动画）⇒ 单颗珠的边际时间≈0。证据：
+ * `design/forensics/diff-v02/grid.log.txt`。
+ *
+ * 取值（用户 2026-09-21 拍板冻结）：**3.6s = L1–L8 已入库关的 `time / 实测 taps`
+ * 中位数**。这 8 关的 time 是 playtest 校准过的真值（非公式产物），实测反推区间
+ * 3.01–5.71、中位 3.60 ⇒ 本值 = 「与已校准的 8 关同节奏」。对比：v0.1 隐含的
+ * s/tap 在 32 盘语料上跨 0.46–70s（150 倍），无锚可言。
+ * 校准机制：playtest 实际用时 vs T 偏差 >25%（单关）/15%（均值）⇒ 回调本值，
+ * 新值与依据写入 levels-spec §5 版本表（不静默改数）。
+ */
+export const SEC_PER_TAP = 3.6;
 
 /**
  * **时间按 k 定价**（§3.5 v1.23）：`clamp(k × LEVEL_TIME_PER_PAIR, MIN, MAX)`。
@@ -326,8 +351,8 @@ export const STAMINA_REFILL_PLACEMENT = 'stamina-refill';
 export const STAR3_RATIO = 0.32;
 /** ratio ≥ 0.12 → 2★, otherwise 1★ (clearing always yields ≥1★). */
 export const STAR2_RATIO = 0.12;
-/** Demo level count. */
-export const DEMO_LEVEL_COUNT = 8;
+/** Demo level count（v1.30：beads-studio 一键入关转正第 9 关，随包发布；初版 8，区间 5–10 内递增）。 */
+export const DEMO_LEVEL_COUNT = 9;
 /**
  * 单关满星数（§3.7 星级 1–3 语义）。`computeClearStars` 的上限、S8 存档
  * `stars` 数组的逐项钳制上界（save-progress §2.2/§6）、通关画面总览的分母共用它。
@@ -701,8 +726,8 @@ export const WAVE_RISE_RATIO = 0.35;
 /** 微抬幅度（与 `WRONG_SHAKE_PX` 同量级；单峰非震动）。 */
 export const WAVE_LIFT_PX = 3;
 /**
- * clamp 下限：GRID_MAX_COLS 29 ⇒ 逐列窗口 W = max(240, 800 − 20×(29−1)) = max(240, 240)
- * = **240（恰好触及下限）** ⇒ 大盘下波浪从"递降"退化为"全体同窗口"，观感需复核；
+ * clamp 下限：逐列窗口 W = max(240, 800 − 20×(N−1)) 在 N ≥ 29 时恒 = **240（触及下限）**
+ * ⇒ 大盘下波浪从"递降"退化为"全体同窗口"，观感需复核（v1.37 GRID_MAX 50 同样触底）；
  * 240 兜底仍保留防异常（原注「13 ⇒ W=560」随 §3.3 v1.33 作废）。
  */
 export const WAVE_WINDOW_MIN_MS = 240;

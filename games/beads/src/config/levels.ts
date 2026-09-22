@@ -24,6 +24,7 @@ import {
 } from './tuning.js';
 import { validateSwaps, validateMisplacedGrid } from '../game/misplaced-assembler.js';
 import { LEVELS_DATA, type BeadsLevelRaw } from './levels-data.js';
+import { PALETTES } from './palettes-data.js';
 
 export type { BeadsLevelRaw };
 
@@ -158,6 +159,36 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
   }
   if (colors.length > BEAD_COLOR_MAX) {
     errors.push(`${tag}: pattern colour count ${colors.length} > BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`);
+  }
+
+  // v1.40 品牌色板引用（可选，成对字段）：slug 必须在注册表内、色号逐项可解析、
+  // 长度 ≥ pattern 最大色索引且 ≤ BEAD_COLOR_MAX。直接引 palettes-data（同层），
+  // 不走 view/palette（避免 config → view 反向依赖）。
+  const hasSlug = typeof level.palette === 'string';
+  const hasCodes = Array.isArray(level.paletteCodes);
+  if (hasSlug || hasCodes) {
+    if (!hasSlug || !hasCodes) {
+      errors.push(`${tag}: palette 与 paletteCodes 必须成对出现`);
+    } else {
+      const entry = PALETTES[level.palette!];
+      if (!entry) {
+        errors.push(`${tag}: 未知色板 slug "${level.palette}"（注册表无此品牌，检查 art/<slug>.json 与 palettes:sync）`);
+      } else {
+        const codes = level.paletteCodes!;
+        const maxIdx = colors.length ? colors[colors.length - 1]! : 0;
+        if (codes.length > BEAD_COLOR_MAX) {
+          errors.push(`${tag}: paletteCodes ${codes.length} > BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`);
+        }
+        if (codes.length < maxIdx) {
+          errors.push(`${tag}: paletteCodes ${codes.length} < pattern 最大色索引 ${maxIdx}`);
+        }
+        for (const code of codes) {
+          if (typeof code !== 'string' || entry.codes.indexOf(code) < 0) {
+            errors.push(`${tag}: 色号 "${String(code)}" 不在色板 ${level.palette} 内`);
+          }
+        }
+      }
+    }
   }
 
   // time ∈ [120, 420] (§3.5 v1.23：下沿随 `clamp(k × 45s, 120, 420)` 由 180 放宽到

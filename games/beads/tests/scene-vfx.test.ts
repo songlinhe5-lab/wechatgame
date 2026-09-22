@@ -45,7 +45,7 @@ import {
   waveWindowMs,
   type WaveEnvelope,
 } from '../src/view/scene-vfx.js';
-import { BEAD_HIGHLIGHT_HEX, DEFAULT_PALETTE, withAlpha } from '../src/view/palette.js';
+import { BEAD_HIGHLIGHT_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, withAlpha } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
@@ -56,7 +56,7 @@ const freshWave = (): WaveEnvelope => ({ scale: 1, dy: 0, active: false });
 function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
   const builder = new RenderModelBuilder(750, 1334);
   builder.begin();
-  buildBeadsView(builder, snap, DEFAULT_PALETTE);
+  buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
 }
 

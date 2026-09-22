@@ -32,7 +32,8 @@ import {
   BEAD_CONTACT_SHADOW_ALPHA,
   BEAD_SHADOW_ALPHA,
   BEAD_SHADOW_HEX,
-  beadEndpoints,
+  DEMO_BEAD_INKS,
+  endpointOf,
   withAlpha,
 } from '../src/view/palette.js';
 
@@ -172,7 +173,7 @@ describe('G1 · 渲染接线：垫不参与 scale（§1.6.1 层序死结论）',
         expect(c.h).toBeCloseTo(BEAD_CELL, 9);
         expect(c.x).toBeCloseTo(100 - BEAD_CELL / 2, 9);
         expect(c.y).toBeCloseTo(200 - BEAD_CELL / 2, 9);
-        expect(c.fill).toBe(beadEndpoints(3).edge);
+        expect(c.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).edge);
       }
     }
     // 垫恒画：与是否处于动画无关（不受动画开关控制）

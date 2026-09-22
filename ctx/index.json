@@ -385,17 +385,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2818,
-      "lines": 110,
-      "sha256": "7f7d99bddceecbeb08dcd2ef4d3bc66ce65f00c0c87ed31b0a67921d9842adbd",
+      "tokens": 2853,
+      "lines": 111,
+      "sha256": "9f4e4d72cb32404151251cb4ca29539049011a8d1e48a0bafe76ee11903e7b3b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 111,
-          "tokens": 2805,
+          "endLine": 112,
+          "tokens": 2840,
           "summary": "生成：2026-09-22 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -439,8 +439,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 85,
-          "tokens": 1298,
+          "endLine": 86,
+          "tokens": 1333,
           "summary": "production/qa/beads/g4-regression-report.md 86807 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 86,
-          "endLine": 111,
+          "startLine": 87,
+          "endLine": 112,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4658,
       "lines": 82,
-      "sha256": "d76e5dc76e9181df569d8720d237debde6b1a757606deea1a45cf8c76fd10d35",
+      "sha256": "92c28faf09c9ac31713a37ac8db2fe6a16dbc14f325b67b5e4dde63d6e5b1e70",
       "tier": "normal",
       "sections": [
         {
@@ -716,12 +716,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 285 行 / 12971 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 286 行 / 14283 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
           "tokens": 423,
-          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+286 · §1 系统清单=9+17 · §2 依",
+          "summary": "§系统清单与依赖索引（Systems Index）· beads=1+287 · §1 系统清单=9+17 · §2 依",
           "keywords": [
             "§1",
             "§2",
@@ -7899,7 +7899,7 @@
       "path": "games/beads/art/art-bible.md",
       "tokens": 32288,
       "lines": 492,
-      "sha256": "20e618ae86e2c73b3d36e69875edb2b0961d27476b14c28b81c5cc9ab4e93531",
+      "sha256": "1345734d8884f2f0bc7a685e376eb995b78670a9f2c33b5cff517f6fd5c38b92",
       "tier": "normal",
       "sections": [
         {
@@ -7907,7 +7907,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 493,
-          "tokens": 32271,
+          "tokens": 32272,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "拼豆",
@@ -7943,7 +7943,7 @@
           "level": 2,
           "startLine": 44,
           "endLine": 133,
-          "tokens": 3579,
+          "tokens": 3580,
           "summary": "",
           "keywords": [
             "HEX",
@@ -17547,6 +17547,148 @@
       ]
     },
     {
+      "path": "games/beads/design/forensics/wxg-t-182-g3-derangement-deadlock.md",
+      "tokens": 2007,
+      "lines": 77,
+      "sha256": "c82f7eb6ac1f36f81bb0e0ce647c23a2ec2ad10632a9c10d7fdf4f5a2e79bb3b",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WXG-T-182 · G-3 取证：密集大盘「全错位」首步死锁可行性",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 78,
+          "tokens": 1983,
+          "summary": "状态：取证完成，结论已采纳进设计决策。本文件是决策证据链留档（temp/ 被 gitignore，故归档于此）。",
+          "keywords": [
+            "WXG",
+            "temp",
+            "gitignore",
+            "取证",
+            "密集大盘",
+            "全错位"
+          ]
+        },
+        {
+          "anchor": "§1 背景与待证命题",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 17,
+          "tokens": 234,
+          "summary": "需求拟改为：每关初始全错位（derangement-max），关卡图案采密集母版、无 void、每关 12×12=144",
+          "keywords": [
+            "derangement",
+            "max",
+            "void",
+            "背景与待证命"
+          ]
+        },
+        {
+          "anchor": "§2 结论（证据摘要，见 `g3/g3-repro.log.txt` §1–§8、`g3/g3-solver.log.txt` §A–§E）",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 37,
+          "tokens": 539,
+          "summary": "现行规则（含 board 直填 T-162） 命题不成立：restrictedDeadlock=true 但 stric",
+          "keywords": [
+            "g3/g3-repro.log.txt",
+            "g3/g3-solver.log.txt",
+            "§1",
+            "§8",
+            "repro",
+            "log"
+          ]
+        },
+        {
+          "anchor": "§3 采纳的设计决策（用户 2026-09-19 拍板）",
+          "level": 2,
+          "startLine": 38,
+          "endLine": 43,
+          "tokens": 150,
+          "summary": "Q1 直填定位 = 核心机制：棋盘直填（T-162）确认为新模型主通道之一。→ 不引入 MISPLACED_BLOB_M",
+          "keywords": [
+            "MISPLACED_BLOB_M",
+            "采纳的设计决",
+            "用户",
+            "拍板"
+          ]
+        },
+        {
+          "anchor": "§4 对 §3.13 冻结文本的具体修订要求（交文策渊，落 §3 正文前）",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 49,
+          "tokens": 229,
+          "summary": "B1：删除「可解性由构造保证 / 逐环峰值 2 颗」表述（已证伪）。装配/校验口径改为「按色排序 + 循环左移 maxF",
+          "keywords": [
+            "§3.13",
+            "§3",
+            "maxF",
+            "冻结文本的具",
+            "体修订要求",
+            "交文策渊"
+          ]
+        },
+        {
+          "anchor": "§5 交 quality-lead 转正式判据（拟落路径待批，见 §八）",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 58,
+          "tokens": 200,
+          "summary": "TC-G3-1 首步死锁复现（12×12 密集全错位 + ≥12 块 → 满 12 槽 → 族 A/B 穷举全拒）",
+          "keywords": [
+            "quality",
+            "lead",
+            "转正式判据",
+            "拟落路径待批"
+          ]
+        },
+        {
+          "anchor": "§6 未覆盖 / 阻塞（诚实登记）",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 64,
+          "tokens": 150,
+          "summary": "[阻塞] 真机：无微信开发者工具 / AppID ⇒ 触控命中带（TRAY_HIT_SIZE=62 / EXPAND_B",
+          "keywords": [
+            "AppID",
+            "TRAY_HIT_SIZE",
+            "EXPAND_B",
+            "未覆盖",
+            "阻塞",
+            "诚实登记"
+          ]
+        },
+        {
+          "anchor": "§7 复现",
+          "level": 2,
+          "startLine": 65,
+          "endLine": 72,
+          "tokens": 101,
+          "summary": "",
+          "keywords": [
+            "复现"
+          ]
+        },
+        {
+          "anchor": "§8 归档清单",
+          "level": 2,
+          "startLine": 73,
+          "endLine": 78,
+          "tokens": 119,
+          "summary": "g3/：g3-hooks.mjs g3-probe.ts g3-lib.ts g3-repro.ts g3-repro.",
+          "keywords": [
+            "hooks",
+            "mjs",
+            "probe",
+            "lib",
+            "repro",
+            "归档清单"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/gdd/bead-grid.md",
       "tokens": 7835,
       "lines": 133,
@@ -19330,17 +19472,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 10833,
-      "lines": 45,
-      "sha256": "838f9fce3dd0d35a8b3521b087eac8bc7b80d9d7f8fd6b74ccc435d1fdfaf002",
+      "tokens": 15160,
+      "lines": 52,
+      "sha256": "a6f01d706dc90bec2c01b33de2b858511ec1b53364bc5b31d8bc29c6c23acb1b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 46,
-          "tokens": 10815,
+          "endLine": 53,
+          "tokens": 15142,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -19355,8 +19497,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 46,
-          "tokens": 10657,
+          "endLine": 53,
+          "tokens": 14983,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -19368,25 +19510,25 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 12971,
-      "lines": 285,
-      "sha256": "7ce1bde834388c5250d5829bf95155fa9dd20d119bf4e2c4fe9fcdee78d813fd",
+      "tokens": 14283,
+      "lines": 286,
+      "sha256": "e37a942457648a3a41065b1f6be4857f94962a4528053473c90e7adc3dc3ec9b",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§系统清单与依赖索引（Systems Index）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 286,
-          "tokens": 12954,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.34 · 任务号 WXG-T-180（v1.34 = §3.",
+          "endLine": 287,
+          "tokens": 14266,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.41 · 任务号 WXG-T-180（v1.41 = 难度/",
           "keywords": [
-            "§3",
             "Systems",
             "Index",
             "beads",
             "games",
-            "WXG"
+            "WXG",
+            "系统清单与依"
           ]
         },
         {
@@ -19420,8 +19562,8 @@
           "anchor": "§3 全局数值基线（Global Constants）· ❄️ 冻结令",
           "level": 2,
           "startLine": 56,
-          "endLine": 240,
-          "tokens": 8628,
+          "endLine": 241,
+          "tokens": 9486,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -19452,15 +19594,14 @@
           "level": 3,
           "startLine": 85,
           "endLine": 94,
-          "tokens": 428,
-          "summary": "BEAD_PALETTE 10 色 全量色板 HEX/符号/明度见 art/art-bible.md §3.2（奶白…炭",
+          "tokens": 560,
+          "summary": "BEAD_PALETTE 10 色 v1.40 起全局常量删除，改「关卡品牌引用制」：关卡存 palette(slug)",
           "keywords": [
-            "§3.2",
             "BEAD_PALETTE",
-            "HEX",
-            "art",
-            "bible",
-            "色板与图案字"
+            "palette",
+            "slug",
+            "色板与图案字",
+            "符集"
           ]
         },
         {
@@ -19468,7 +19609,7 @@
           "level": 3,
           "startLine": 95,
           "endLine": 110,
-          "tokens": 458,
+          "tokens": 420,
           "summary": "BEAD_CELL 50 珠子边长（正方形 1:1）",
           "keywords": [
             "Bead",
@@ -19496,7 +19637,7 @@
           "level": 3,
           "startLine": 124,
           "endLine": 133,
-          "tokens": 467,
+          "tokens": 925,
           "summary": "LEVEL_TIME_DEFAULT 300 s 关卡默认倒计时（兜底值：关卡 JSON 无 time 覆盖时用）；关卡",
           "keywords": [
             "LEVEL_TIME_DEFAULT",
@@ -19526,7 +19667,7 @@
           "level": 3,
           "startLine": 145,
           "endLine": 154,
-          "tokens": 443,
+          "tokens": 472,
           "summary": "STAR3_RATIO 0.32 剩余时间 / 关卡总时长 ≥ 32% → 3★（A7 已确认 2026-09-11；v",
           "keywords": [
             "STAR3_RATIO",
@@ -19627,8 +19768,8 @@
           "anchor": "§3.13 错位参数（Misplaced）· v1.22 新增冻结（WXG-T-130，用户 2026-09-16 裁定案 A）",
           "level": 3,
           "startLine": 229,
-          "endLine": 240,
-          "tokens": 808,
+          "endLine": 241,
+          "tokens": 1086,
           "summary": "MISPLACED_PAIRS_MIN 1 单关错位交换对数下限；0 = 无错位 = 无玩法 ⇒ 非法，BOOT 拒收",
           "keywords": [
             "Misplaced",
@@ -19642,8 +19783,8 @@
         {
           "anchor": "§4 事件总线约定（供程序落码参考）",
           "level": 2,
-          "startLine": 241,
-          "endLine": 272,
+          "startLine": 242,
+          "endLine": 273,
           "tokens": 1187,
           "summary": "沿用 breakout 的事件命名风格 <域>:<事件>，payload 一律带 levelId（v1.28 补注：局内",
           "keywords": [
@@ -19657,8 +19798,8 @@
         {
           "anchor": "§5 与框架层的接口假设",
           "level": 2,
-          "startLine": 273,
-          "endLine": 281,
+          "startLine": 274,
+          "endLine": 282,
           "tokens": 325,
           "summary": "引擎/平台：Cocos Creator 3.8 LTS + 微信小游戏（adapters/cocos + platfor",
           "keywords": [
@@ -19673,8 +19814,8 @@
         {
           "anchor": "§6 变更记录",
           "level": 2,
-          "startLine": 282,
-          "endLine": 286,
+          "startLine": 283,
+          "endLine": 287,
           "tokens": 107,
           "summary": "本节的全部内容已拆分为 systems-index-changelog.md（WXG-T-062，因本文累积超过 ctx",
           "keywords": [
@@ -20114,17 +20255,17 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 6347,
-      "lines": 250,
-      "sha256": "0e2d8724b2d532f5d1ae5393bccfe64925a09f956fe815b0c9b0e757e8e9373e",
+      "tokens": 9200,
+      "lines": 362,
+      "sha256": "2b1bfc36abd0b31f31b58d7cb8f4248031a9e0d17108ac84cd951ace58cc5a21",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡数据规范（Levels Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 251,
-          "tokens": 6334,
+          "endLine": 363,
+          "tokens": 9186,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.2 · 任务号 WXG-T-130（v1.2 = mispl",
           "keywords": [
             "Levels",
@@ -20150,9 +20291,9 @@
           "anchor": "§2 单关字段与硬约束（BOOT 校验，architecture-beads §6）",
           "level": 2,
           "startLine": 33,
-          "endLine": 67,
-          "tokens": 1388,
-          "summary": "尺寸 GRID_MIN_COLS(6) ≤ cols ≤ GRID_MAX_COLS(29)；GRID_MIN_ROWS",
+          "endLine": 68,
+          "tokens": 1534,
+          "summary": "尺寸 GRID_MIN_COLS(6) ≤ cols ≤ GRID_MAX_COLS(50)；GRID_MIN_ROWS",
           "keywords": [
             "§6",
             "BOOT",
@@ -20165,8 +20306,8 @@
         {
           "anchor": "§2.1 交换构造法（v1.2 新增；可解性的构造保证）",
           "level": 3,
-          "startLine": 50,
-          "endLine": 58,
+          "startLine": 51,
+          "endLine": 59,
           "tokens": 351,
           "summary": "错位布置 = pattern 全满 → 按 swaps 顺序对可填格珠两两交换。",
           "keywords": [
@@ -20181,8 +20322,8 @@
         {
           "anchor": "§2.2 全错位初盘（v1.3 新增；成片错豆）",
           "level": 3,
-          "startLine": 59,
-          "endLine": 67,
+          "startLine": 60,
+          "endLine": 68,
           "tokens": 298,
           "summary": "swaps 封顶 8 对 ⇒ 最多 16 颗错豆，无法表达「成片错豆」。MVP 大盘（14×14 / 18×18）改用 ",
           "keywords": [
@@ -20194,51 +20335,101 @@
           ]
         },
         {
-          "anchor": "§3 前 8 关参数总表",
+          "anchor": "§3 前 8 关参数总表（**v1.4 照片转拼豆资源重制**，2026-09-21 用户拍板）",
           "level": 2,
-          "startLine": 68,
-          "endLine": 85,
-          "tokens": 502,
-          "summary": "难度旋钮（v1.2 改写）：~~①尺寸 ②色数 ③供料间隔~~ → ①尺寸 ②色数 ③错位对数 k（swaps.leng",
+          "startLine": 69,
+          "endLine": 130,
+          "tokens": 1628,
+          "summary": "重制方案：8 关盘面 10×10 → 29×29 递增，关卡图案由 beads-studio 照片转拼豆管线从原图生成",
           "keywords": [
-            "swaps",
-            "leng",
-            "关参数总表"
+            "beads",
+            "studio",
+            "关参数总表",
+            "照片转拼豆资",
+            "源重制",
+            "用户拍板"
           ]
         },
         {
-          "anchor": "§4 砖块构成明细（逐关权威核对表，防手工数错）",
+          "anchor": "§3.1 素材制作规范（照片转拼豆管线，2026-09-21 用户拍板；素材暂在仓外，登记表留空待回填）",
+          "level": 3,
+          "startLine": 96,
+          "endLine": 130,
+          "tokens": 720,
+          "summary": "四步流程，逐关可复现：",
+          "keywords": [
+            "素材制作规范",
+            "照片转拼豆管",
+            "用户拍板",
+            "素材暂在仓外",
+            "登记表留空待",
+            "回填"
+          ]
+        },
+        {
+          "anchor": "§4 砖块构成明细（逐关权威核对表，防手工数错）—— ⛔ **v1.4 整体作废**",
           "level": 2,
-          "startLine": 86,
-          "endLine": 100,
-          "tokens": 184,
-          "summary": "L1 22 0 4,6,6,4,2 22×1",
+          "startLine": 131,
+          "endLine": 148,
+          "tokens": 266,
+          "summary": "下表对应旧 6×5–13×12 关卡数据；v1.4 重制后盘面全变（10×10→29×29），逐行构成待新 8 关",
           "keywords": [
             "砖块构成明细",
             "逐关权威核对",
-            "防手工数错"
+            "防手工数错",
+            "整体作废"
           ]
         },
         {
-          "anchor": "§5 难度与时长预估（v1.2 重推；待 playtest 校准）",
+          "anchor": "§5 难度与时长预估（**v1.4 实测口径**，2026-09-21；公式 v0.2 = 真引擎实测点击数 × `SEC_PER_TAP`）",
           "level": 2,
-          "startLine": 101,
-          "endLine": 135,
-          "tokens": 1764,
-          "summary": "重推前提（WXG-T-130 案 A）：核心循环反转为「错位归位」——玩家只需处理 2k 颗错位珠（L1=2 … L8=",
+          "startLine": 149,
+          "endLine": 246,
+          "tokens": 3101,
+          "summary": "重推前提（WXG-T-130 案 A）：核心循环 = 「错位归位」，玩家只处理错位珠；定时供料不存在。",
           "keywords": [
-            "playtest",
+            "SEC_PER_TAP",
             "WXG",
             "难度与时长预",
-            "重推",
-            "校准"
+            "实测口径",
+            "公式",
+            "真引擎实测点"
+          ]
+        },
+        {
+          "anchor": "§5.0 难度估算公式（正本；实现 = `level-import.ts measuredLevelTime`，**全仓唯一**）",
+          "level": 3,
+          "startLine": 153,
+          "endLine": 197,
+          "tokens": 976,
+          "summary": "",
+          "keywords": [
+            "level",
+            "import",
+            "measuredLevelTime",
+            "难度估算公式",
+            "正本",
+            "实现"
+          ]
+        },
+        {
+          "anchor": "§5.0.1 校准协议（「不断优化」的机制）",
+          "level": 3,
+          "startLine": 198,
+          "endLine": 220,
+          "tokens": 815,
+          "summary": "公式版本化演进，不静默改数：",
+          "keywords": [
+            "校准协议",
+            "不断优化",
+            "的机制"
           ]
         },
         {
           "anchor": "§5.1 尾盘满槽（GAP-06）交叉校验 —— ⛔ v1.2 整体作废（WXG-T-130 案 A）",
           "level": 3,
-          "startLine": 110,
-          "endLine": 135,
+          "startLine": 221,
+          "endLine": 246,
           "tokens": 1193,
           "summary": "⛔ 作废声明：本节全部前提（定时供料、供料冗余、满槽跳供、死珠棘轮）随供料关停消失——托盘珠唯一来源是玩家取回、必有可周",
           "keywords": [
@@ -20252,8 +20443,8 @@
         {
           "anchor": "§6 布局可视化（图例：`·`=空位　`▓`=锁定 x　`1`–`8`=色板索引对应色）",
           "level": 2,
-          "startLine": 136,
-          "endLine": 225,
+          "startLine": 247,
+          "endLine": 336,
           "tokens": 640,
           "summary": "",
           "keywords": [
@@ -20268,8 +20459,8 @@
         {
           "anchor": "§L1 暖心（6×5）",
           "level": 3,
-          "startLine": 138,
-          "endLine": 145,
+          "startLine": 249,
+          "endLine": 256,
           "tokens": 27,
           "summary": "",
           "keywords": [
@@ -20279,8 +20470,8 @@
         {
           "anchor": "§L2 小屋（8×6）",
           "level": 3,
-          "startLine": 146,
-          "endLine": 154,
+          "startLine": 257,
+          "endLine": 265,
           "tokens": 43,
           "summary": "",
           "keywords": [
@@ -20290,8 +20481,8 @@
         {
           "anchor": "§L3 摆尾小鱼（9×6）",
           "level": 3,
-          "startLine": 155,
-          "endLine": 163,
+          "startLine": 266,
+          "endLine": 274,
           "tokens": 41,
           "summary": "",
           "keywords": [
@@ -20301,8 +20492,8 @@
         {
           "anchor": "§L4 结果的树（10×7）",
           "level": 3,
-          "startLine": 164,
-          "endLine": 173,
+          "startLine": 275,
+          "endLine": 284,
           "tokens": 56,
           "summary": "",
           "keywords": [
@@ -20312,8 +20503,8 @@
         {
           "anchor": "§L5 猫脸（11×8）",
           "level": 3,
-          "startLine": 174,
-          "endLine": 184,
+          "startLine": 285,
+          "endLine": 295,
           "tokens": 81,
           "summary": "",
           "keywords": [
@@ -20323,8 +20514,8 @@
         {
           "anchor": "§L6 顺风帆船（12×9）",
           "level": 3,
-          "startLine": 185,
-          "endLine": 196,
+          "startLine": 296,
+          "endLine": 307,
           "tokens": 101,
           "summary": "",
           "keywords": [
@@ -20334,8 +20525,8 @@
         {
           "anchor": "§L7 升空热气球（13×10）",
           "level": 3,
-          "startLine": 197,
-          "endLine": 209,
+          "startLine": 308,
+          "endLine": 320,
           "tokens": 99,
           "summary": "",
           "keywords": [
@@ -20345,8 +20536,8 @@
         {
           "anchor": "§L8 星际火箭（13×12）",
           "level": 3,
-          "startLine": 210,
-          "endLine": 225,
+          "startLine": 321,
+          "endLine": 336,
           "tokens": 124,
           "summary": "",
           "keywords": [
@@ -20356,9 +20547,9 @@
         {
           "anchor": "§7 关卡设计约束（新增关卡必须遵守）",
           "level": 2,
-          "startLine": 226,
-          "endLine": 236,
-          "tokens": 298,
+          "startLine": 337,
+          "endLine": 347,
+          "tokens": 320,
           "summary": "1. 字符集限定 BEAD_CHARSET=\".x1-9A\"，其余字符（含空格/小写/0）均为错误——校验器报错到 id",
           "keywords": [
             "BEAD_CHARSET",
@@ -20370,8 +20561,8 @@
         {
           "anchor": "§8 校验分工",
           "level": 2,
-          "startLine": 237,
-          "endLine": 240,
+          "startLine": 348,
+          "endLine": 351,
           "tokens": 128,
           "summary": "与 breakout 判例一致（breakout levels-spec.md §5.1）：结构校验（字符集/行宽/行数",
           "keywords": [
@@ -20385,8 +20576,8 @@
         {
           "anchor": "§9 冲刺模式（sprint）图案来源",
           "level": 2,
-          "startLine": 241,
-          "endLine": 244,
+          "startLine": 352,
+          "endLine": 355,
           "tokens": 137,
           "summary": "sprint 梯级图案从本文件 8 关图案池循环取用（gdd/score-combo.md §2.3），不另建图案库；梯",
           "keywords": [
@@ -20401,9 +20592,9 @@
         {
           "anchor": "§10 变更记录",
           "level": 2,
-          "startLine": 245,
-          "endLine": 251,
-          "tokens": 379,
+          "startLine": 356,
+          "endLine": 363,
+          "tokens": 470,
           "summary": "v1.1 2026-09-14/15 建档后回写：§5.1 尾盘满槽交叉校验（WXG-T-081）、§1/§2 deco",
           "keywords": [
             "§5.1",
@@ -37692,7 +37883,7 @@
       "path": "memory/INDEX.md",
       "tokens": 8346,
       "lines": 205,
-      "sha256": "fa09d0a0863397e512c54f407b9de8e9865bf5b6cc9de9b9c7b1933f8f099dc6",
+      "sha256": "175136f3c581a871abaeab6a349c805f330633c0c3c70968bc19833936551407",
       "tier": "normal",
       "sections": [
         {
@@ -37783,7 +37974,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 26 天）",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 25 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 89,
@@ -37799,7 +37990,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 25 天）",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 24 天）",
           "level": 3,
           "startLine": 90,
           "endLine": 101,
@@ -37815,7 +38006,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 24 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 23 天）",
           "level": 3,
           "startLine": 102,
           "endLine": 118,
@@ -37831,7 +38022,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 23 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 22 天）",
           "level": 3,
           "startLine": 119,
           "endLine": 146,
@@ -37847,7 +38038,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 22 天）",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 21 天）",
           "level": 3,
           "startLine": 147,
           "endLine": 167,
@@ -37863,7 +38054,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 21 天）",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 20 天）",
           "level": 3,
           "startLine": 168,
           "endLine": 185,
@@ -37879,7 +38070,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 20 天）",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 19 天）",
           "level": 3,
           "startLine": 186,
           "endLine": 206,

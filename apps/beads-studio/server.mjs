@@ -19,7 +19,7 @@
  * 存储：data/<board>/<id>/result.json（归类 = 目录即盘面档位）。
  */
 import { createServer } from 'node:http';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, existsSync } from 'node:fs';
 import { join, dirname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,8 +35,8 @@ const SPAWN_CWD = existsSync(join(ROOT, 'vendor/beads-gen.mjs')) ? ROOT : REPO;
 const DATA = join(ROOT, 'data');
 const PUBLIC = join(ROOT, 'public');
 const PORT = parseInt(process.env.PORT || '8787', 10);
-const MAX_BODY = 2048 * 2048 * 4 + 1024; // RGBA 上限（2048² + 余量）
-const MAX_PIXELS = 2048 * 2048;
+const MAX_BODY = 4096 * 4096 * 4 * 1.5 + 1024; // RGBA 4096² + base64 膨胀余量（v1.5 不缩图，与前端解像上限对齐）
+const MAX_PIXELS = 4096 * 4096; // v1.5（2026-09-21 用户拍板）：不缩图，原始 px 是测格/豆数输入；上限仅拦异常体
 
 const MIME = {
     '.html': 'text/html; charset=utf-8',
@@ -85,6 +85,7 @@ function runGen(rawPath, outDir, params) {
             '--rows', String(params.rows),
             '--palette', params.palette,
             '--colorsmode', params.colorsmode,
+            '--cellmode', params.cellmode,
             '--swaps', String(params.swaps),
             '--smooth', String(params.smooth),
             // 错位模式：full = 全盘错位（成片错豆，引擎 misplaced 初盘）/ swaps = k 对交换
@@ -142,13 +143,11 @@ const ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
 /**
  * 「能不能入关」单一判据（值域全部来自 `systems-index §3` 冻结常量，不是 Studio 自定）：
- *  盘面 6–29 × 5–29（`GRID_MIN/MAX`）· 用色 3–8（`BEAD_COLOR_MAX=8`，BOOT 下限 3）
- *  · 交换对数 1–8（`MISPLACED_PAIRS_MIN/MAX`）· **色板必须 = 游戏 10 色真源**。
+ *  盘面 6–50 × 5–50（`GRID_MIN/MAX`，§3.3 v1.37 上限 50；异形盘裁空边后实际更小）· 用色 3–10（`BEAD_COLOR_MAX=10`，§3.2 v1.36；BOOT 下限 3）
+ *  · 交换对数 1–8（`MISPLACED_PAIRS_MIN/MAX`）。
  *
- * 最后一条是真缺陷而非偏好：游戏不读 `paletteHex`，而是按**色号索引**取 `BEAD_PALETTE`。
- * 所以 Artkal / 程序化色板只要限色到 ≤8 就能**过 BOOT**，导入后图案不变、颜色全变
- * （实测：artkal 限 8 色 → 预览 `#249E6B…` ⇒ 游戏画成 `#FDF6E9…`）——静默换色。
- * 因此：不合规的产物**不当关卡用**（`/level` 直接 422），但仍当参考图存着、列着。
+ * 色板不限（v1.40 品牌引用制，2026-09-21 用户拍板）：关卡写回 `palette`（slug）+
+ * `paletteCodes`（紧凑序色号），游戏侧从品牌注册表查 hex 渲染 —— 无映射、无拦截。
  */
 function importBlockers(r) {
     const b = [];
@@ -157,11 +156,100 @@ function importBlockers(r) {
     if (!full && r.swaps > 8) b.push(`交换对数 ${r.swaps} > 8（\`MISPLACED_PAIRS_MAX\`）`);
     if (full && r.levelDraft && !Array.isArray(r.levelDraft.misplaced)) b.push('全错位模式但草案缺 misplaced 字段');
     if (r.colors < 3) b.push(`用色 ${r.colors} < 3（BOOT 下限）`);
-    if (r.colors > 8) b.push(`用色 ${r.colors} > 8（\`BEAD_COLOR_MAX\`）`);
-    if (r.palette !== '10') b.push(`色板为 ${r.palette}（非游戏 10 色真源）⇒ 导入不会报错，但会按色号换成游戏珠色（静默换色）`);
-    if (r.cols < 6 || r.cols > 29) b.push(`列数 ${r.cols} 超出 6–29（\`GRID_MIN_COLS\`/\`GRID_MAX_COLS\`）`);
-    if (r.rows < 5 || r.rows > 29) b.push(`行数 ${r.rows} 超出 5–29（\`GRID_MIN_ROWS\`/\`GRID_MAX_ROWS\`）`);
+    if (r.colors > 10) b.push(`用色 ${r.colors} > 10（\`BEAD_COLOR_MAX\`，§3.2 v1.36）`);
+    if (r.cols < 6 || r.cols > 50) b.push(`列数 ${r.cols} 超出 6–50（\`GRID_MIN_COLS\`/\`GRID_MAX_COLS\`，§3.3 v1.37）`);
+    if (r.rows < 5 || r.rows > 50) b.push(`行数 ${r.rows} 超出 5–50（\`GRID_MIN_ROWS\`/\`GRID_MAX_ROWS\`，§3.3 v1.37）`);
     return b;
+}
+
+/**
+ * 入关期真引擎实测（§3.5 v1.41 · 公式 v0.2）：把 result.json 交 `tools/scripts/beads-bot.ts`，
+ * 拿到实测点击数 → 时长，以及硬拦 blockers。
+ *
+ * **为何不在本文件算**：旧副本 `estimateLevelTime`（v0.1 按颗定价）已删 —— 它在 32 盘
+ * 语料上 32/32 触顶 420s，隐含 s/tap 跨 150 倍（证据 `games/beads/design/forensics/
+ * diff-v02/grid.log.txt`）。正本唯一 = `level-import.ts measuredLevelTime`，本端只消费。
+ * 入关本就仅本地仓（容器 501）⇒ bot 必不可用则拒收，**不回落静态估算**。
+ * bot 吃 result.json 的 `levelDraft`（pattern 模式），无需临时文件。
+ *
+ * @returns 实测结果对象；bot 不可用/崩溃 ⇒ null。
+ */
+function measureWithBot(resultFile) {
+    const r = spawnSync(process.execPath, [
+        '--experimental-transform-types',
+        '--import=./games/beads/design/forensics/g3/g3-hooks.mjs',
+        'tools/scripts/beads-bot.ts', resultFile,
+    ], { cwd: REPO, encoding: 'utf8' });
+    const last = (r.stdout || '').trim().split('\n').pop();
+    return last && last.startsWith('{') ? JSON.parse(last) : null; // stdout 最后一行 = 结果 JSON
+}
+
+/**
+ * 一键入关（WXG-T-179）：levelDraft → 追加 design/levels 真源 → 跑 levels:sync + framework:sync，
+ * harness/Cocos 构建即刻能玩。关卡入表正路 = `levels:sync` 管线（非运行时魔改），本端点只是把
+ * 三步收进一次点击。**仅本地仓模式**（VPS 容器无 games/ ⇒ 501；服务无鉴权，这也是不开到公网的理由）；
+ * sync 失败 ⇒ 回滚真源原文并重 sync，不留半截状态。
+ */
+function ingestLevel(res, id) {
+    const levelsDir = join(REPO, 'games/beads/design/levels');
+    if (!existsSync(levelsDir)) return sendJson(res, 501, { error: '未找到 games/beads/design/levels：一键入关仅在本地仓运行 beads-studio 时可用' });
+    let r = null;
+    let resultFile = null;
+    for (const board of existsSync(DATA) ? readdirSync(DATA) : []) {
+        const f = join(DATA, board, id, 'result.json');
+        if (existsSync(f)) { r = JSON.parse(readFileSync(f, 'utf8')); resultFile = f; break; }
+    }
+    if (!r) return sendJson(res, 404, { error: 'not found' });
+    // 判据实时重算（盘上 blockers/importable 是存盘时快照，判据演进后会失效）
+    const blockers = importBlockers(r);
+    if (blockers.length) return sendJson(res, 422, { error: '该结果不可入关：' + blockers.join('；') });
+    const d = r.levelDraft;
+    if (!d || !Array.isArray(d.pattern)) return sendJson(res, 422, { error: '结果无 levelDraft（交换错位 k 需 ≥ 1）' });
+    // 入关期硬拦（§3.5/§3.13 v1.41，用户 2026-09-21 拍板）：time **只取真引擎实测值**，
+    // 不采信草案自报（同 cycleProfile 纪律）。bot 不可用 ⇒ 500 拒收，不回落静态估算。
+    const measured = measureWithBot(resultFile);
+    if (!measured) return sendJson(res, 500, { error: 'beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兜底' });
+    if (measured.blockers.length) return sendJson(res, 422, { error: '该结果不可入关：' + measured.blockers.join('；') });
+    // v1.40 品牌引用制：关卡写回 slug + 紧凑序色号（游戏侧从注册表查 hex）；demo 色板
+    // （历史 '10' 选项）不带品牌引用，回落 levels JSON 顶层默认色板。旧记录缺色号 → 拒收。
+    const brandSlug = r.palette && r.palette !== '10' ? r.palette : null;
+    if (brandSlug) {
+        if (!Array.isArray(d.paletteCodes) || d.paletteCodes.length !== r.colors)
+            return sendJson(res, 422, { error: '草案缺 paletteCodes（旧记录请重新生成；v1.40 关卡存品牌色号而非 hex）' });
+    }
+    const files = readdirSync(levelsDir).filter((f) => f.endsWith('.json'));
+    if (files.length !== 1) return sendJson(res, 500, { error: `真源应恰含 1 个 JSON（sync-levels-data 约定），实有 ${files.length} 个，拒写` });
+    const src = join(levelsDir, files[0]);
+    const doc = JSON.parse(readFileSync(src, 'utf8'));
+    const swaps = d.swaps || [];
+    const level = {
+        id: doc.levels.reduce((m, l) => Math.max(m, l.id), 0) + 1,
+        name: `studio-${String(r.id).slice(-6)}`,
+        cols: d.cols,
+        rows: d.rows,
+        time: measured.time, // 真引擎实测（taps × SEC_PER_TAP，公式 v0.2）—— 不采信草案自报值
+        cycleProfile: 'short', // 与 level-import 同纪律：交换法构造恒为 2-环，不采信自报
+        decoys: d.decoys || [],
+        pattern: d.pattern,
+        swaps,
+        ...(d.misplaced ? { misplaced: d.misplaced } : {}),
+        ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
+    };
+    const before = readFileSync(src, 'utf8');
+    const runSync = () => {
+        const a = spawnSync(process.execPath, ['tools/scripts/sync-levels-data.mjs'], { cwd: REPO, encoding: 'utf8' });
+        if (a.status !== 0) return a;
+        return spawnSync(process.execPath, ['tools/scripts/sync-framework-to-cocos.mjs'], { cwd: REPO, encoding: 'utf8' });
+    };
+    doc.levels.push(level);
+    writeFileSync(src, JSON.stringify(doc, null, 2) + '\n');
+    const sync = runSync();
+    if (!sync || sync.status !== 0) {
+        writeFileSync(src, before); // 回滚真源并重跑 sync，产物表回到旧版（ponytail: 重跑失败未再兑底，本地工具人工兼平）
+        runSync();
+        return sendJson(res, 500, { error: 'levels:sync / framework:sync 未通过，真源已回滚：' + String((sync && sync.stderr) || '').slice(-300) });
+    }
+    return sendJson(res, 200, { ingested: level.id, name: level.name, file: files[0], note: 'harness 即时可玩；确认后请 git 审 diff 并提交' });
 }
 
 async function handleGenerate(req, res, url) {
@@ -197,6 +285,9 @@ async function handleGenerate(req, res, url) {
     const rawPath = join(outDir, 'raw.json');
     // 前端已按 cols×K × rows×K 平滑缩放到 w×h ⇒ 直接透传 base64，不再解码重编码
     writeFileSync(rawPath, JSON.stringify({ w, h, data: b64 }));
+    // ⚠ mis 白名单必须与 beads-gen 一致（full/swaps/none）——此前只认 swaps|full，
+    //    把前端的 none 静默折叠成 full，导致「不错位」永远不生效（2026-09-21 实测）。
+    const misRaw = q.get('mis');
     const params = {
         cols,
         rows,
@@ -204,10 +295,11 @@ async function handleGenerate(req, res, url) {
         palette: q.get('palette') || '10',
         colors: parseInt(q.get('colors') || '0', 10),
         colorsmode: q.get('colorsmode') || 'error',
+        cellmode: q.get('cellmode') === 'avg' ? 'avg' : 'mode',
         swaps: Math.max(0, parseInt(q.get('swaps') || '8', 10)),
         smooth: Math.max(0, parseInt(q.get('smooth') || '1', 10)),
         noframe: q.get('noframe') === '1',
-        mis: q.get('mis') === 'swaps' ? 'swaps' : 'full',
+        mis: misRaw === 'swaps' || misRaw === 'none' ? misRaw : 'full',
     };
     if (params.mis === 'swaps' && params.swaps < 1) params.swaps = 1; // 交换模式下 k≥1
     let pattern;
@@ -217,11 +309,14 @@ async function handleGenerate(req, res, url) {
         rmSync(outDir, { recursive: true, force: true }); // 失败不留残骸
         return sendJson(res, 422, { error: String(e.message || e) });
     }
+    // 盘面真实尺寸 = beads-gen 裁空边（trim）后的实际行列，而非请求档位（异形/去背景后更小，
+    // 2026-09-21 实测：请求 21×21、trim 后 15×17 ⇒ 头不修正则前端按 21×21 画布画 15×17 直接错乱）。
+    const pat = pattern.pattern ?? [];
     const result = {
         id,
         board,
-        cols,
-        rows,
+        cols: pat[0]?.length || cols,
+        rows: pat.length || rows,
         shape: params.shape,
         palette: params.palette,
         colors: pattern.report?.colorsUsed ?? params.colors,
@@ -230,6 +325,8 @@ async function handleGenerate(req, res, url) {
         createdAt: new Date().toISOString(),
         thumb, // 原图缩略图（dataURL）；**仅存单条详情**，不进列表投影
         levelDraft: pattern.levelDraft ?? null,
+        pattern: pattern.pattern ?? null, // 正解盘（mis=none 无 levelDraft 时的唯一图源；体积小直接透传）
+        paletteHex: pattern.paletteHex ?? null, // 色号 → 实际 hex（前端忠实预览 artkal 用）
         misplaced: pattern.misplaced, // 全错位参考盘（仅 swaps=0 时为真实初始盘）
         report: pattern.report ?? null,
     };
@@ -237,7 +334,9 @@ async function handleGenerate(req, res, url) {
     result.blockers = importBlockers(result);
     result.importable = result.blockers.length === 0;
     writeFileSync(join(outDir, 'result.json'), JSON.stringify(result, null, 2));
-    rmSync(rawPath, { force: true }); // 像素底稿不留盘（体积大）
+    // 诊断期保留 raw（源图像素底稿）：thumb 是缩略图会掩盖压缩伪影，
+    // 需要 raw 才能定位「同图不同结果」类问题（2026-09-21 树冠块状偏色）。
+    // ponytail: 诊断后若嫌体积可改回 rmSync(rawPath, { force: true })
     sendJson(res, 200, result);
 }
 
@@ -261,6 +360,8 @@ async function handle(req, res) {
             return sendJson(res, 404, { error: 'not found' });
         }
         if (req.method === 'GET' && path === '/api/results') return sendJson(res, 200, { results: listResults() });
+        const mi = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})\/ingest$/);
+        if (req.method === 'POST' && mi) return ingestLevel(res, mi[1]);
         const m = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})(\/level)?$/);
         if (req.method === 'GET' && m) {
             for (const board of existsSync(DATA) ? readdirSync(DATA) : []) {
@@ -268,15 +369,17 @@ async function handle(req, res) {
                 if (existsSync(f)) {
                     const r = JSON.parse(readFileSync(f, 'utf8'));
                     if (m[2]) {
-                        // 关卡端点：不合规就硬拒，**别让小游戏拿到一张会变色的图**（静默换色比报错难查）。
-                        const blockers = Array.isArray(r.blockers) && r.blockers.length
-                            ? r.blockers
-                            : importBlockers(r); // 兼容旧数据（本次修改前存盘的条目）
+                        // 关卡端点：判据实时重算；v1.40 品牌引用制 —— 草案原样返回
+                        //（palette+paletteCodes 随关卡走，游戏侧从注册表查 hex）。
+                        const blockers = importBlockers(r);
                         if (blockers.length) {
                             return sendJson(res, 422, { error: '该结果不可入关：' + blockers.join('；'), blockers });
                         }
                         return sendJson(res, 200, r.levelDraft);
                     }
+                    // 详情：blockers/importable 实时重算（旧存盘快照不回写，展示层恒为当前判据）
+                    r.blockers = importBlockers(r);
+                    r.importable = r.blockers.length === 0;
                     return sendJson(res, 200, r);
                 }
             }

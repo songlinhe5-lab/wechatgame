@@ -26,7 +26,7 @@ import {
   solverSequenceMs,
 } from '../src/config/tuning.js';
 import { solverBeadProgress, solverHintAlpha } from '../src/view/scene-vfx.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import {
   advancePastSolver,
@@ -93,7 +93,7 @@ function mk(saveKey: string): Harness {
 function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
   const builder = new RenderModelBuilder(750, 1334);
   builder.begin();
-  buildBeadsView(builder, snap, DEFAULT_PALETTE);
+  buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
 }
 

@@ -1,29 +1,100 @@
 /**
  * Beads colour palette.
  *
- * Single source of truth for every colour the game draws. The bead palette
- * itself is owned by `games/beads/art/art-bible.md §3.2` (10 colours, each
- * bound to a symbol + lightness step — the triple encoding). Gameplay and the
- * view model only ever reference names/indices, never literals.
+ * UI token（背景/面板/槽位等）与珠色墨水推导的唯一真源。v1.40 起**珠色不再有
+ * 全局 10 色常量**：渲染色板 = 关卡数据（`BeadsLevelRaw.paletteHex`，品牌真值，
+ * 由 beads-studio 入关写入）⇒ 回落 demo 默认色板（`LEVELS_DATA.palette`，值 = 原
+ * art-bible §3.2 十色）。玩法与视图模型只引用索引，hex 仅在本文件与渲染层解析。
  */
 
-/** The 10-colour bead palette, index 1..10 → array slot 0..9 (art-bible §3.2). */
-export const BEAD_PALETTE: readonly string[] = Object.freeze([
-  '#FDF6E9', // 1 奶白 ○ 亮
-  '#FFD23F', // 2 柠黄 ★ 亮
-  '#F59B23', // 3 活力橙 ● 中
-  '#3FBF6B', // 4 草绿 ■ 中
-  '#E84C3D', // 5 玫红 ♥ 中暗
-  '#8E6FD9', // 6 丁香紫 ◐ 中暗
-  '#3D7BF5', // 7 湖蓝 ▽ 暗
-  '#A5652C', // 8 赭棕 ▲ 暗
-  '#6B3E1E', // 9 深棕 ◆ 最暗
-  '#33333D', // 10 炭黑 ✚ 最暗
-]);
+import { LEVELS_DATA, type BeadsLevelRaw } from '../config/levels-data';
+import { PALETTES, type BeadsPaletteEntry } from '../config/palettes-data';
 
-/** HEX for a 1-based palette index (out-of-range → charcoal fallback). */
-export function beadColor(colorIdx: number): string {
-  return BEAD_PALETTE[colorIdx - 1] ?? BEAD_PALETTE[9]!;
+/** 越界 colorIdx 的中性深色兜底（原炭黑珠色，行为与 v1.39 全局表末位一致）。 */
+const BEAD_FALLBACK_HEX = '#33333D';
+
+/** 全部受支持色板（品牌色板）的注册表：slug → { codes, palette, source, note }。
+ *  数据同源 `games/beads/art/*.json`，与 beads-studio / beads-gen 一致（v1.39）。
+ *  v1.40 起 game-10 不再是注册表成员（珠色真源已迁关卡数据）。 */
+export { PALETTES };
+/** 按 slug 取色板（如 'artkal-s'）；未知 slug → null。
+ *  codes[k] 与 palette[k] 同序：品牌色号 ↔ hex。 */
+export function getBeadPalette(slug: string): BeadsPaletteEntry | null {
+  return PALETTES[slug] ?? null;
+}
+
+// ───────────────────────────────────────────── bead inks（v1.40 关卡色板）──
+
+/**
+ * 渲染珠色墨水组：hex 表 + 预烘焙四端点表（§1.9.5）。
+ * 由 {@link beadInksFor} 按关卡解析并缓存，热路径只查表不 mix、零分配。
+ */
+export interface BeadInks {
+  readonly hexes: readonly string[];
+  readonly endpoints: readonly BeadEndpoints[];
+}
+
+function bakeEndpoints(hexes: readonly string[]): BeadEndpoints[] {
+  const out: BeadEndpoints[] = [];
+  for (let i = 0; i < hexes.length; i++) {
+    const base = hexes[i];
+    out.push({
+      base,
+      edge: mix(base, -SOCKET_EDGE_DARK_MIX),
+      pit: mix(base, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
+      lit: mix(base, SOCKET_LIT_MIX),
+    });
+  }
+  return out;
+}
+
+const inksCache = new WeakMap<object, BeadInks>();
+
+/**
+ * 关卡 → 珠色墨水组。色板解析见 {@link resolveInkHexes}（品牌 slug + 色号 →
+ * 注册表查 hex；无引用 ⇒ demo 默认十色）。WeakMap 按**关卡对象引用**缓存：
+ * `LEVELS_DATA.levels` 成员是稳定引用，关卡加载后首帧烘焙一次，后续每帧零分配
+ * （§1.9.5 热路径纪律）。
+ */
+export function beadInksFor(level: BeadsLevelRaw): BeadInks {
+  const hit = inksCache.get(level);
+  if (hit) return hit;
+  const hexes = resolveInkHexes(level);
+  const inks: BeadInks = { hexes, endpoints: bakeEndpoints(hexes) };
+  inksCache.set(level, inks);
+  return inks;
+}
+
+/** 防御兑底（`LEVELS_DATA.palette` 缺失时；BOOT 校验会先行拦截，正常不可达）。 */
+const BEAD_FALLBACK_LIST: readonly string[] = Object.freeze([BEAD_FALLBACK_HEX]);
+
+/**
+ * 关卡色板解析（v1.40，品牌引用制）：`palette`（slug）+ `paletteCodes`（≤10 色号，
+ * 紧凑序）→ 从注册表 {@link PALETTES} 查 hex。hex 数据只住品牌生成物，关卡不携带。
+ * 未知 slug / 未收录色号 → 炭黑兑底（防御，BOOT 校验会先行拦截）。
+ * 仅关卡加载时调用一次（WeakMap 缓存），非热路径。
+ */
+function resolveInkHexes(level: BeadsLevelRaw): readonly string[] {
+  const slug = level.palette;
+  const codes = level.paletteCodes;
+  const entry = slug !== undefined ? PALETTES[slug] : undefined;
+  if (!entry || !codes || codes.length === 0) return DEMO_BEAD_INKS.hexes;
+  const out: string[] = [];
+  for (let i = 0; i < codes.length; i++) {
+    const k = entry.codes.indexOf(codes[i]!);
+    out.push(k >= 0 ? entry.palette[k]! : BEAD_FALLBACK_HEX);
+  }
+  return out;
+}
+
+/** HEX for a 1-based palette index within `inks`（越界 → 炭黑兜底）。 */
+export function beadColorOf(inks: BeadInks, colorIdx: number): string {
+  return inks.hexes[colorIdx - 1] ?? BEAD_FALLBACK_HEX;
+}
+
+/** 端点 for a 1-based palette index within `inks`（越界 → 炭黑兜底）。 */
+export function endpointOf(inks: BeadInks, colorIdx: number): BeadEndpoints {
+  return inks.endpoints[colorIdx - 1] ?? FALLBACK_ENDPOINTS;
 }
 
 export interface BeadsPalette {
@@ -198,9 +269,9 @@ export const STAR_GOLD = '#FFD23F';
 export const CONFETTI_COLORS: readonly string[] = Object.freeze([
   DEFAULT_PALETTE.panel, // panel_surface #FFFFFF
   STAR_GOLD, // #FFD23F（结算语义同源，非珠色2）
-  BEAD_PALETTE[3]!, // 珠色4 草绿 #3FBF6B
-  BEAD_PALETTE[4]!, // 珠色5 玫红 #E84C3D
-  BEAD_PALETTE[5]!, // 珠色6 丁香紫 #8E6FD9
+  '#3FBF6B', // 珠色4 草绿（v1.40 内联：全局 BEAD_PALETTE 已删，色值不变）
+  '#E84C3D', // 珠色5 玫红（同上）
+  '#8E6FD9', // 珠色6 丁香紫（同上）
 ]);
 
 // ─────────────────────────── empty-socket target-colour hint (assets-spec §1.2 E1/E4) ──
@@ -233,6 +304,12 @@ export const SOCKET_PIT_DARKEN = 0.14;
 /** S4 下内缘受光亮线：`mix(底色, #FFF, 0.38)`（复用珠卡 rim 端点 §1.9.2）。 */
 export const SOCKET_LIT_MIX = 0.38;
 
+/** demo 默认墨水组（顶层 `LEVELS_DATA.palette` 十色；预烘焙一次，模块级复用零分配）。 */
+export const DEMO_BEAD_INKS: BeadInks = (() => {
+  const hexes = LEVELS_DATA.palette ?? BEAD_FALLBACK_LIST;
+  return { hexes, endpoints: bakeEndpoints(hexes) };
+})();
+
 /**
  * 十色端点查找表（预烘焙，§1.9.5）：索引 0..9 ↔ 珠色 1..10。
  * 每项 `{ base, edge, pit, lit }` —— `buildRenderModel` 热路径只查表不 mix。
@@ -247,18 +324,14 @@ export interface BeadEndpoints {
   readonly lit: string;
 }
 
-/** 模块级预烘焙（§1.9.5）：构建期 30 次 mix，热路径零分配。 */
-export const BEAD_ENDPOINTS: readonly BeadEndpoints[] = BEAD_PALETTE.map((base) => ({
-  base,
-  edge: mix(base, -SOCKET_EDGE_DARK_MIX),
-  pit: mix(base, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
-  lit: mix(base, SOCKET_LIT_MIX),
-}));
+/** 越界 colorIdx 的端点兑底（炭黑，同 {@link beadColorOf} 行为）。模块级预烘焙，声明于 SOCKET_* 之后。 */
+const FALLBACK_ENDPOINTS: BeadEndpoints = Object.freeze({
+  base: BEAD_FALLBACK_HEX,
+  edge: mix(BEAD_FALLBACK_HEX, -SOCKET_EDGE_DARK_MIX),
+  pit: mix(BEAD_FALLBACK_HEX, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
+  lit: mix(BEAD_FALLBACK_HEX, SOCKET_LIT_MIX),
+});
 
-/** 按珠色索引取端点（越界 → 炭黑兜底，同 {@link beadColor}）。 */
-export function beadEndpoints(colorIdx: number): BeadEndpoints {
-  return BEAD_ENDPOINTS[colorIdx - 1] ?? BEAD_ENDPOINTS[9]!;
-}
 
 // ──────────────────────────────────────────────── symbol ink (assets-spec L5) ──
 /** Ink used on a bright bead: `mix(base, #000, 0.55)` → the mix amount. */

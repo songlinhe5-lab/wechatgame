@@ -22,6 +22,8 @@
     "check:mcp": "node tools/scripts/build-mcp-configs.mjs --check",
     "levels:sync": "node tools/scripts/sync-levels-data.mjs",
     "levels:check": "node tools/scripts/sync-levels-data.mjs --check",
+    "palettes:sync": "node tools/scripts/sync-palettes.mjs",
+    "palettes:check": "node tools/scripts/sync-palettes.mjs --check",
     "framework:sync": "node tools/scripts/sync-framework-to-cocos.mjs",
     "framework:sync:check": "node tools/scripts/sync-framework-to-cocos.mjs --check",
     "cocos:check": "node tools/scripts/check-cocos-scripts.mjs",

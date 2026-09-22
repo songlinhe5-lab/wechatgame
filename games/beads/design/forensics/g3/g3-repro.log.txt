@@ -1,0 +1,175 @@
+
+══ §0 盘面构造（新模型：密集母版 + 全错位 + MISPLACED_COLOR_CAP）
+底色分布 hist=[36,36,36,36] maxFreq=36 cap=⌊144/2⌋=72 ✅
+grid 12x12 空格=0 错位珠=144/144（= 满盘全错位）
+同色错位连通块尺寸（生产 collectMisplacedGroup 度量，降序前 4）= [36, 36, 36, 36] 块数=4
+TRAY_BASE_SLOTS=12 容量=12 ⇒ 最大块 36 ≥ 容量 12
+
+══ §1 真链首步（tapDesign 命中路由 → retrieveSelectedGroup）
+
+── 点击巨块锚珠 (0,0) 组大小=36 ⇒ 状态 ············|mis144|sel=none → ············|mis144|sel=board 锚={"row":0,"col":0}
+   事件：board:selected = {"row":0,"col":0,"colorIdx":2,"count":36}
+
+── 点击空槽 0（整组取回）⇒ 状态 ············|mis144|空0 → 222222222222|mis132|空12
+   ℹ️ tapDesign 返回值不作数：`_consumedTap` 仅在部分分支置位（选珠 / 取回分支不置），以**状态变化**为证据。
+托盘 = 222222222222 持有=12/12 空槽=0
+   事件：tray:stored 条数 = 12（一次点槽⇒ 12 条同族事件逐颗入槽；首条={"slot":0,"colorIdx":2,"fromRow":0,"fromCol":0}）
+盘面：错位 132 空格 12 洞底色集合=[1]
+托盘色集合=[2]  ← 洞底色 ≠ 托盘色（命题的「错位珠落不进自己的格」）
+➡ 首步即灌满 12 槽：✅ 成立（count = min(组 36, freeRunFrom(0)=12) = 12）
+
+══ §1c 开局（满盘全错位、托盘空）可用动作族
+  托盘持有=0 ⇒ 族 A（托盘归位）候选数=0；空格=0 ⇒ 族 C（直填）候选数=0；族 B（取回）候选数=144
+➡ 开局唯一可用动作族 = 取回（无洞、无托盘珠）⇒ 首步必抽一块；若所有块 ≥ 容量，首步必灌满。
+
+══ §2 族 A「托盘归位」穷举（真链 tapGridCell + judgePlacement 旁证）
+尝试 (槽,洞) 组合 = 12 × 12
+judgePlacement 裁决统计 = {"rejected:mismatch":144}
+➡ 族 A 可用动作数（真链）= 0 ✅ 托盘通道全封（命题该项成立）
+
+══ §3 族 B「整组取回」穷举（真链 tapDesign 点占位槽 + judgeRetrieve 旁证）
+尝试取回格数 = 132
+judgeRetrieve 裁决统计 = {"ignored:tray-full":132}  ← 'tray-full' = §3.13 满槽禁取
+➡ 族 B 可用动作数 = 0 ✅ 取回通道全封
+真链复核：选珠后点占位槽 ⇒ 状态 零变化 ✅（闸门生效）
+
+══ §4 族 C「board 锚 → 同色底洞直填」（命题未计入的第三条通道）
+probeAll（A→B→C→D 短路，找到即真做）= {
+ "A_trayPlace": null,
+ "B_retrieve": null,
+ "C_directFill": {
+  "kind": "direct-fill",
+  "detail": "珠1@(0,9) → 洞(0,0) 底1  [misplaced 132→131]"
+ },
+ "D_powerup": null,
+ "restrictedDeadlock": true,
+ "strictDeadlock": false
+}
+➡ restrictedDeadlock（无直填/无道具口径）= true ｜ strictDeadlock（现行规则口径）= false
+盘面证据：misplaced 132→131，托盘 222222222222→222222222222（直填**不动托盘**⇒ 不吃容量、不受满槽禁取门）
+  只读可用性（探针前局面）= {"trayPlace":0,"retrieve":0,"directFill":71} ← trayPlace=0/retrieve=0（命题口径死锁）而 directFill>0 ⇒ 唯一逃生皆在直填。
+
+══ §4b 逃生通道要多少钱（真链）：托盘锚 vs board 锚对直填的遮蔽
+  选托盘槽0(色2) 后点洞 (0,0) ⇒ 返回=false misplaced 132→132（**托盘锚遮蔽了直填**：_routeGridEmpty 先走 _placeSelected）
+  改选盘珠 (0,9) 后点同一洞 ⇒ 返回=true misplaced 132→131 ⇒ 逃生需「换选到棋盘」这一步（教学成本）
+
+══ §5 通关续走（同一夹具，允许直填 vs 禁止直填）
+[允许直填] cleared=true moves=146 峰值托盘=12 取回=2 归位=36 直填=108 stuck=""
+  终态 phase=level-clear misplaced=0 空格=0
+[禁用直填 = 玩家不知道 T-162] cleared=false moves=0 峰值托盘=12 stuck="no-move tray=222222222222 holes=12 misplaced=132"
+  死锁态：托盘满 222222222222 洞底色=[1] misplaced=132 phase=playing
+
+══ §5c restricted 模型下的一切首步动作（逐颗错位珠都当锚点试一遍）
+净盘错位珠 = 144（当前盘已被§4探针走过一步⇒ 取净盘列表为准）
+错位珠（= 可选锚点）144 个 ⇒ 首步后受限死锁 144 个（100.0%）
+首步后托盘持有数分布 = {"12":144}（12 = 满槽）
+➡ 密集全错位盘开局无洞、托盘空 ⇒ 唯一可用动作族 = 取回；若所有块≥容量则每个取回锚点都致满槽⇒ restricted 死锁**不是玩家失误**而是「无选择可逃」。
+
+══ §6 族 D 道具兜底：死锁态下 solver 能否自救（不借助直填）
+solver: freeUses=1 激活=true misplaced→131 洞底色=[1] 托盘空槽=0 可归位洞色数=0 ⇒ 道具后仍无解
+solverPlus: freeUses=1 激活=true misplaced→129 洞底色=[1] 托盘空槽=0 可归位洞色数=0 ⇒ 道具后仍无解
+solverRandom: freeUses=1 激活=true misplaced→131 洞底色=[1] 托盘空槽=0 可归位洞色数=0 ⇒ 道具后仍无解
+三型连用 ⇒ solver:misplaced=131,洞=12[1],可归位=0 | solverPlus:misplaced=128,洞=12[1],可归位=0 | solverRandom:misplaced=127,洞=12[1],可归位=0
+连用后仍禁用直填：cleared=false stuck="no-move tray=222222222222 holes=12 misplaced=127"
+
+══ §7 临界尺寸：最大块 B vs 托盘容量（容量 12 / 扩容 2× 对照）
+容量 12（样本=42，按实测块升序）：
+  实测块=2 cap=12 colors=4 run=2 首步后持有=2 空槽=10 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=3 cap=12 colors=6 run=3 首步后持有=3 空槽=9 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=4 cap=12 colors=6 run=4 首步后持有=4 空槽=8 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=6 cap=12 colors=4 run=6 首步后持有=6 空槽=6 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=8 cap=12 colors=4 run=7 首步后持有=8 空槽=4 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=9 cap=12 colors=4 run=9 首步后持有=9 空槽=3 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=10 cap=12 colors=4 run=5 首步后持有=10 空槽=2 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=12 cap=12 colors=4 run=4 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=13 cap=12 colors=4 run=13 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=14 cap=12 colors=6 run=7 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=16 cap=12 colors=4 run=8 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=18 cap=12 colors=4 run=18 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=19 cap=12 colors=4 run=19 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=20 cap=12 colors=4 run=20 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=21 cap=12 colors=8 run=21 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=22 cap=12 colors=4 run=11 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=23 cap=12 colors=8 run=23 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=24 cap=12 colors=4 run=14 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=25 cap=12 colors=4 run=17 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=26 cap=12 colors=6 run=26 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=27 cap=12 colors=6 run=27 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=28 cap=12 colors=6 run=28 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=29 cap=12 colors=6 run=23 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=30 cap=12 colors=4 run=15 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=31 cap=12 colors=6 run=31 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=32 cap=12 colors=4 run=16 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=33 cap=12 colors=6 run=33 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=34 cap=12 colors=6 run=17 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=35 cap=12 colors=6 run=35 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=36 cap=12 colors=4 run=3 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=38 cap=12 colors=6 run=19 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=39 cap=12 colors=4 run=35 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=40 cap=12 colors=4 run=23 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=42 cap=12 colors=4 run=34 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=45 cap=12 colors=4 run=33 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=48 cap=12 colors=4 run=24 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=50 cap=12 colors=4 run=25 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=51 cap=12 colors=4 run=31 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=52 cap=12 colors=4 run=26 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=54 cap=12 colors=4 run=27 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=56 cap=12 colors=4 run=28 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=57 cap=12 colors=4 run=29 首步后持有=12 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+➡ cap=12：与「死锁 ⇔ 被点击块 ≥ cap」不一致的样本 = 0
+容量 24（样本=42，按实测块升序）：
+  实测块=2 cap=24 colors=4 run=2 首步后持有=2 空槽=22 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=3 cap=24 colors=6 run=3 首步后持有=3 空槽=21 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=4 cap=24 colors=6 run=4 首步后持有=4 空槽=20 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=6 cap=24 colors=4 run=6 首步后持有=6 空槽=18 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=8 cap=24 colors=4 run=7 首步后持有=8 空槽=16 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=9 cap=24 colors=4 run=9 首步后持有=9 空槽=15 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=10 cap=24 colors=4 run=5 首步后持有=10 空槽=14 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=12 cap=24 colors=4 run=4 首步后持有=12 空槽=12 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=13 cap=24 colors=4 run=13 首步后持有=13 空槽=11 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=14 cap=24 colors=6 run=7 首步后持有=14 空槽=10 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=16 cap=24 colors=4 run=8 首步后持有=16 空槽=8 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=18 cap=24 colors=4 run=18 首步后持有=18 空槽=6 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=19 cap=24 colors=4 run=19 首步后持有=19 空槽=5 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=20 cap=24 colors=4 run=20 首步后持有=20 空槽=4 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=21 cap=24 colors=8 run=21 首步后持有=21 空槽=3 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=22 cap=24 colors=4 run=11 首步后持有=22 空槽=2 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=23 cap=24 colors=8 run=23 首步后持有=23 空槽=1 restricted死锁=false strict死锁(含直填/道具)=false 预期(块≥cap)=false ✅
+  实测块=24 cap=24 colors=4 run=14 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=25 cap=24 colors=4 run=17 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=26 cap=24 colors=6 run=26 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=27 cap=24 colors=6 run=27 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=28 cap=24 colors=6 run=28 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=29 cap=24 colors=6 run=23 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=30 cap=24 colors=4 run=15 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=31 cap=24 colors=6 run=31 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=32 cap=24 colors=4 run=16 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=33 cap=24 colors=6 run=33 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=34 cap=24 colors=6 run=17 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=35 cap=24 colors=6 run=35 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=36 cap=24 colors=4 run=3 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=38 cap=24 colors=6 run=19 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=39 cap=24 colors=4 run=35 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=40 cap=24 colors=4 run=23 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=42 cap=24 colors=4 run=34 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=45 cap=24 colors=4 run=33 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=48 cap=24 colors=4 run=24 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=50 cap=24 colors=4 run=25 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=51 cap=24 colors=4 run=31 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=52 cap=24 colors=4 run=26 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=54 cap=24 colors=4 run=27 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=56 cap=24 colors=4 run=28 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+  实测块=57 cap=24 colors=4 run=29 首步后持有=24 空槽=0 restricted死锁=true strict死锁(含直填/道具)=false 预期(块≥cap)=true ✅
+➡ cap=24：与「死锁 ⇔ 被点击块 ≥ cap」不一致的样本 = 0
+
+══ §7b 临界点直测（找实测块恰为 11 / 12 的盘）
+  块=11（dither/6色）cap=12 首步后持有=11 空槽=1 restricted死锁=false
+  块=12（条带4/run=4）cap=12 首步后持有=12 空槽=0 restricted死锁=true
+➡ 临界块大小 = 12 = TRAY_BASE_SLOTS（块 = cap−1 尚存空槽⇒ 可继取，不死锁）；扩容 cap=24 时临界上移至 24（见§7 下半表，但玩法不可达）。
+
+══ §8 MVP 扩容可达性（真链点 btn_expand）
+真链点 btn_expand 热区中心 ⇒ 容量 12 → 12（expanded=false）；MVP 只发「即将开放」占位提示，不 expandTray
+harness 直调 expandTray() ⇒ true 容量=24（⚠️ 仅测试/夹具可达，非玩法路径）
+➡ 结论：玩法内有效容量恒 12 ⇒ 临界块大小 = 12（扩容 24 后上移至 24 仅在测试态成立）
+(node:48490) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

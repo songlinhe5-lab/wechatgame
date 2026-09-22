@@ -11,7 +11,8 @@
  */
 
 import { validateBeadsLevel } from '../config/levels';
-import { LEVEL_TIME_MAX, LEVEL_TIME_MIN } from '../config/tuning';
+import { LEVEL_TIME_MAX, LEVEL_TIME_MIN, SEC_PER_TAP } from '../config/tuning';
+import { assembleFromMisplaced, fillableCells } from './misplaced-assembler';
 import type { BeadsLevelRaw } from '../config/levels-data';
 
 /** beads-studio `levelDraft` 载荷（字段口径 = `levels-spec §2`，`time` 可为 null）。 */
@@ -48,13 +49,71 @@ export interface ImportOutcome {
 /** 注入式 HTTP：解析并返回 JSON；失败 reject。 */
 export type HttpGet = (url: string) => Promise<unknown>;
 
+/** 盘面三维度统计（§3.5 报告口径；v0.2 起时长只用 `misplaced`，N/C/A 留给报告与 playtest 归因）。 */
+export interface BoardStats {
+    /** N = 可填豆数（void `.` 不计）。 */
+    readonly fillable: number;
+    /** C = 用色数。 */
+    readonly colors: number;
+    /** A = 同色相邻率（4 向同色边 ÷ 双可填相邻边；低 = 碎花难，高 = 成片易）。 */
+    readonly adjRate: number;
+    /** M = 错位珠数（misplaced 初盘实算；swaps 路径恒 2-环 ⇒ 2k）。 */
+    readonly misplaced: number;
+}
+
+/** pattern 三维度统计。`misplacedCount` 由调用方算好传入（misplaced 初盘实算 / swaps 恒 2k）。 */
+export function boardStats(pattern: readonly string[], misplacedCount: number): BoardStats {
+    const cells = fillableCells(pattern);
+    const cols = pattern[0]?.length ?? 0;
+    const at = new Map<number, number>();
+    for (const c of cells) at.set(c.row * cols + c.col, c.colorIdx);
+    let same = 0, edges = 0;
+    for (const c of cells) {
+        const nb = [
+            c.row > 0 ? at.get((c.row - 1) * cols + c.col) : undefined,
+            c.col + 1 < cols ? at.get(c.row * cols + c.col + 1) : undefined,
+            c.row + 1 < pattern.length ? at.get((c.row + 1) * cols + c.col) : undefined,
+            c.col > 0 ? at.get(c.row * cols + c.col - 1) : undefined,
+        ];
+        for (const v of nb) if (v !== undefined) { edges++; if (v === c.colorIdx) same++; }
+    }
+    return {
+        fillable: cells.length,
+        colors: new Set(cells.map((c) => c.colorIdx)).size,
+        adjRate: edges ? same / edges : 0,
+        misplaced: misplacedCount,
+    };
+}
+
 /**
- * 时长定价：`clamp(k × 45s, LEVEL_TIME_MIN, LEVEL_TIME_MAX)`
- * （`levels-spec §3` / v1.23「时间按 k 定价」）。k = 交换对数。
+ * 实测点击数 → 时长/难度（§3.5 v1.41，公式 **v0.2** · 正本 `levels-spec §5.0`）。
+ *
+ *   T = clamp( taps × SEC_PER_TAP, [LEVEL_TIME_MIN, LEVEL_TIME_MAX] )
+ *   D = round(100 × T / LEVEL_TIME_MAX)
+ *
+ * `taps` = 真引擎实测的成功点击数（`tools/scripts/beads-bot.ts`，装配走生产 BOOT、
+ * 每步走 `BeadsGame` 公开命令，不复刻任何判定逻辑）。**这是时长的唯一正源**——
+ * v0.1 按颗定价在 32 盘语料上 32/32 触顶 420s（详见 `SEC_PER_TAP` 注释与
+ * `design/forensics/diff-v02/grid.log.txt`），已作废。
  */
-export function timeForSwaps(k: number): number {
-    const raw = k * 45;
-    return Math.min(LEVEL_TIME_MAX, Math.max(LEVEL_TIME_MIN, raw));
+export function measuredLevelTime(taps: number): { time: number; difficulty: number } {
+    const n = Number.isFinite(taps) && taps > 0 ? Math.round(taps) : 0;
+    const raw = n * SEC_PER_TAP;
+    const time = Math.min(LEVEL_TIME_MAX, Math.max(LEVEL_TIME_MIN, Math.round(raw)));
+    return { time, difficulty: Math.round((100 * time) / LEVEL_TIME_MAX) };
+}
+
+/**
+ * 静态兜底（**无引擎路径专用**）：游戏内「一键导入」拿到的是服务端 levelDraft，
+ * 客户端侧跑不了 bot ⇒ 只能按 M 粗估点击数。v0.2 形态 = `taps ≈ ceil(M / 2)`。
+ *
+ * 诚实口径：过闸样本仅 3 盘（`B_med ≥ 8 ∧ M ≤ 280`），实测 taps/M = 0.25–0.63 ⇒
+ * 本式误差约 ±50%，**刻意偏高**（高估 = 白给星级，低估 = 玩家倒计时内不可能通关，
+ * 两害取其轻）。有引擎的路径（beads-gen 生成期 / server ingest 入关期）一律走实测，
+ * 不得调用本函数。校准机制见 levels-spec §5.0.1。
+ */
+export function estimateLevelTime(stats: BoardStats): { time: number; difficulty: number } {
+    return measuredLevelTime(Math.ceil(stats.misplaced / 2));
 }
 
 /** 拼接服务地址与路径（去重尾斜杠；不做任何 URL 编码外的魔法）。 */
@@ -64,7 +123,7 @@ export function studioUrl(base: string, path: string): string {
 
 /**
  * levelDraft → `BeadsLevelRaw`。校验不过就 **返回错误串**，不产出关卡
- * （调用方不得忽略 errors —— 草案的 `time` 常为 null，此处按 k 定价补齐）。
+ * （调用方不得忽略 errors —— 草案的 `time` 常为 null，此处按静态兜底补齐）。
  */
 export function draftToLevel(draft: LevelDraft, id: number, name: string): ImportOutcome {
     const swaps = draft.swaps ?? [];
@@ -73,7 +132,14 @@ export function draftToLevel(draft: LevelDraft, id: number, name: string): Impor
         name,
         cols: draft.cols,
         rows: draft.rows,
-        time: typeof draft.time === 'number' ? draft.time : timeForSwaps(swaps.length),
+        time: typeof draft.time === 'number'
+            ? draft.time
+            : estimateLevelTime(boardStats(
+                draft.pattern,
+                draft.misplaced
+                    ? assembleFromMisplaced(draft.pattern, draft.misplaced).misplacedCount
+                    : swaps.length * 2, // 交换法恒 2-环（见下注），misplaced = 2k
+            )).time,
         // 不采用草案自报的 cycleProfile：交换法构造的两两互换 **恒为 2-环** ⇒ 只能是 `short`。
         //（真缺陷：旧 beads-gen 草案写 'long'，BOOT 以「cycleProfile=long 与实际最长环 2 矛盾」拒收；
         //  转换层也不信声明值，两面夹住这个漂移。）

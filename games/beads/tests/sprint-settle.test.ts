@@ -27,7 +27,7 @@ import {
   sprintSettleLayout,
   sprintSettleRows,
 } from '../src/systems/sprint-settle.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, type Harness } from './helpers.js';
 
@@ -37,7 +37,7 @@ const SPRINT_TIME = 20;
 function render(harness: Harness): readonly DrawCommand[] {
   const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
   builder.begin();
-  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE);
+  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
 }
 

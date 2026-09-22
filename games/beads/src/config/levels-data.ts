@@ -45,11 +45,28 @@ export interface BeadsLevelRaw {
    * (`.` = empty slot, `x` = locked bead, `1-9`+`A` = palette index 1–10).
    */
   readonly pattern: readonly string[];
+  /**
+   * 本关品牌色板引用（可选，v1.40）：slug ↔ `games/beads/art/<slug>.json`
+   * （如 `'artkal-s'`）。与 {@link paletteCodes} 成对出现；缺省 ⇒ demo 默认色板。
+   * hex 不随关卡携带 —— 只住品牌生成物（`palettes-data.ts`，art/ 编译期打包）。
+   */
+  readonly palette?: string;
+  /**
+   * 本关用到的品牌色号（可选，v1.40）：紧凑序，`paletteCodes[colorIdx-1]` ↔ 索引
+   * colorIdx，逐项存在于 `PALETTES[palette].codes`。charset/`BEAD_COLOR_MAX`
+   * 上限不变（≤10）。缺省 ⇒ demo 默认色板。
+   */
+  readonly paletteCodes?: readonly string[];
 }
 
 export interface LevelsData {
   readonly version: number;
   readonly gameId: string;
+  /**
+   * 默认珠色板（可选，v1.40）：demo 关卡（无逐关 `paletteHex`）的渲染色板，
+   * 值 = 原 art-bible §3.2 十色（v1.40 起真源降级为关卡数据，`game-10.json` 已删除）。
+   */
+  readonly palette?: readonly string[];
   readonly description?: string;
   readonly levels: readonly BeadsLevelRaw[];
 }
@@ -57,6 +74,18 @@ export interface LevelsData {
 export const LEVELS_DATA: LevelsData = {
   version: 2,
   gameId: "beads",
+  palette: [
+    "#FDF6E9",
+    "#FFD23F",
+    "#F59B23",
+    "#3FBF6B",
+    "#E84C3D",
+    "#8E6FD9",
+    "#3D7BF5",
+    "#A5652C",
+    "#6B3E1E",
+    "#33333D",
+  ],
   description: "拼豆 MVP 前 8 关（ADR-0018 两档：关 1–4 = small14 14×14、关 5–8 = small18 18×18；全错位初盘 misplaced，字符集 .x1-9A，色板索引见 art-bible §3.2）。",
   levels: [
     {
@@ -425,6 +454,56 @@ export const LEVELS_DATA: LevelsData = {
         "...555...555......",
         "..................",
         "..................",
+      ],
+    },
+    {
+      id: 9,
+      name: "studio-5-8b07",
+      cols: 17,
+      rows: 15,
+      time: 392,
+      cycleProfile: "short",
+      decoys: [],
+      pattern: [
+        "..33333...333333.",
+        ".3311133.33221333",
+        "33111123332222133",
+        "31111122322222213",
+        "31112222222222213",
+        "33222222211222233",
+        "33322222112221333",
+        ".333222211221333.",
+        "..3332222221333..",
+        "...33322221333...",
+        "....333221333....",
+        ".....3332333.....",
+        "......33333......",
+        ".......333.......",
+        "........3........",
+      ],
+      swaps: [],
+      misplaced: [
+        "..11111...111111.",
+        ".1122211.11332111",
+        "11222231113333211",
+        "12222333133333331",
+        "23333333333333332",
+        "22333333333333322",
+        "22233333333333222",
+        ".222333333333222.",
+        "..2223333333222..",
+        "...22233333222...",
+        "....222333222....",
+        ".....2223222.....",
+        "......22222......",
+        ".......222.......",
+        "........2........",
+      ],
+      palette: "artkal-s",
+      paletteCodes: [
+        "S07",
+        "S40",
+        "S85",
       ],
     },
   ],

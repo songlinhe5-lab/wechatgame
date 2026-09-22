@@ -26,7 +26,7 @@ import {
   clearPanelLayout,
   hitClearPanel,
 } from '../src/systems/clear-panel.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, advancePastClearWave, type Harness } from './helpers.js';
 
@@ -35,7 +35,7 @@ const NORMAL = { lastLevel: false } as const;
 function render(harness: Harness): readonly DrawCommand[] {
   const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
   builder.begin();
-  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE);
+  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
 }
 

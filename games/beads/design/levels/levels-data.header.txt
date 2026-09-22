@@ -45,11 +45,28 @@ export interface BeadsLevelRaw {
    * (`.` = empty slot, `x` = locked bead, `1-9`+`A` = palette index 1–10).
    */
   readonly pattern: readonly string[];
+  /**
+   * 本关品牌色板引用（可选，v1.40）：slug ↔ `games/beads/art/<slug>.json`
+   * （如 `'artkal-s'`）。与 {@link paletteCodes} 成对出现；缺省 ⇒ demo 默认色板。
+   * hex 不随关卡携带 —— 只住品牌生成物（`palettes-data.ts`，art/ 编译期打包）。
+   */
+  readonly palette?: string;
+  /**
+   * 本关用到的品牌色号（可选，v1.40）：紧凑序，`paletteCodes[colorIdx-1]` ↔ 索引
+   * colorIdx，逐项存在于 `PALETTES[palette].codes`。charset/`BEAD_COLOR_MAX`
+   * 上限不变（≤10）。缺省 ⇒ demo 默认色板。
+   */
+  readonly paletteCodes?: readonly string[];
 }
 
 export interface LevelsData {
   readonly version: number;
   readonly gameId: string;
+  /**
+   * 默认珠色板（可选，v1.40）：demo 关卡（无逐关 `paletteHex`）的渲染色板，
+   * 值 = 原 art-bible §3.2 十色（v1.40 起真源降级为关卡数据，`game-10.json` 已删除）。
+   */
+  readonly palette?: readonly string[];
   readonly description?: string;
   readonly levels: readonly BeadsLevelRaw[];
 }

@@ -13,7 +13,8 @@ import {
   SYMBOL_CONTRAST_MIN,
   SYMBOL_INK_DARK_MIX,
   SYMBOL_INK_LUMA_THRESHOLD,
-  beadColor,
+  beadColorOf,
+  DEMO_BEAD_INKS,
   luminance,
   mix,
 } from '../src/view/palette.js';
@@ -81,7 +82,7 @@ describe('beads symbol channel (assets-spec §1.1, accessibility A1/A3/B2)', () 
   // B2 硬地板：「符号对珠面 ≥ 3:1」—— 10 色全部必须达标，这是色盲可辨的前提。
   it('B2 gives every one of the 10 beads an ink at ≥ 3:1 contrast', () => {
     for (let colorIdx = 1; colorIdx <= 10; colorIdx++) {
-      const base = beadColor(colorIdx);
+      const base = beadColorOf(DEMO_BEAD_INKS, colorIdx);
       const ink = symbolInk(base);
       expect(ink.contrast, `${base} (${beadSymbol(colorIdx)})`).toBeGreaterThanOrEqual(
         SYMBOL_CONTRAST_MIN,
@@ -95,7 +96,7 @@ describe('beads symbol channel (assets-spec §1.1, accessibility A1/A3/B2)', () 
   it('§1.1 L5 threshold decides the ink, with 草绿 as the single documented B2 exception', () => {
     const flipped: string[] = [];
     for (let colorIdx = 1; colorIdx <= 10; colorIdx++) {
-      const base = beadColor(colorIdx);
+      const base = beadColorOf(DEMO_BEAD_INKS, colorIdx);
       const preferDark = luminance(base) > SYMBOL_INK_LUMA_THRESHOLD;
       const ruleInk = preferDark ? mix(base, SYMBOL_INK_DARK_MIX) : undefined; // undefined = 白墨
       const actual = symbolInk(base);

@@ -166,7 +166,7 @@ import {
   preserveCorruptBackup,
   type BeadsSave,
 } from './save-schema.js';
-import { DEFAULT_PALETTE, type BeadsPalette } from '../view/palette.js';
+import { DEFAULT_PALETTE, beadInksFor, type BeadsPalette } from '../view/palette.js';
 import { buildBeadsView } from '../view/view-model.js';
 
 /** Events emitted on the framework bus — systems-index §4 (v1.22 event table). */
@@ -799,7 +799,9 @@ export class BeadsGame implements Game {
 
   buildRenderModel(builder: RenderModelBuilder): void {
     this._syncSnapshot();
-    buildBeadsView(builder, this._snapshot, this.palette);
+    // v1.40：珠色墨水组按当前关卡解析（品牌 slug+codes → 注册表查 hex；WeakMap 缓存 ⇒
+    // 三处 `_levelIndex` 赋值点零改动，热路径零分配）。
+    buildBeadsView(builder, this._snapshot, this.palette, beadInksFor(this._levels[this._levelIndex]!));
   }
 
   /**

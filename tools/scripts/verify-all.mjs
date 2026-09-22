@@ -56,6 +56,7 @@ const STEPS = Object.freeze([
   'check:a11y',
   'check:mcp',
   'levels:check',
+  'palettes:check',
   'typecheck',
   'framework:sync:check',
   'cocos:check',

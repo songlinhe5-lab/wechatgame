@@ -220,7 +220,7 @@
         <section class="card">
             <label>源图（本地解像，不上传原图）</label>
             <input type="file" id="file" accept="image/*">
-            <label>盘面档位（推荐 standard29）</label>
+            <label>盘面档位（标准 standard29；选图自动测格切自定义）</label>
             <select id="board">
                 <option value="standard29" selected>standard29 · 29×29（5mm Midi 标准方盘）</option>
                 <option value="small18">small18 · 18×18</option>
@@ -234,20 +234,43 @@
             </div>
             <div class="row2">
                 <div><label>候选色集合（量化目标色）</label><select id="palette">
-                        <option value="10" selected>游戏 10 色真源（唯一可入关）</option>
-                        <option value="artkal">Artkal 真值 174 色（仅参考图 · 不可入关）</option>
+                        <optgroup label="Artkal">
+                            <option value="artkal-s" selected>S 系 5mm 硬豆 · 210 色</option>
+                            <option value="artkal-c">C 系 2.6mm 硬豆 · 174 色</option>
+                            <option value="artkal-a">A 系 2.6mm 软豆 · 145 色</option>
+                            <option value="artkal-m">M 系 2.6mm 软豆 · 220 色</option>
+                            <option value="artkal-r" disabled>R 系 5mm 软豆 · 89 色（敬请期待）</option>
+                        </optgroup>
+                        <optgroup label="Hama">
+                            <option value="hama-midi">Midi 5mm · 92 色</option>
+                            <option value="hama-mini">Mini 3mm · 78 色</option>
+                            <option value="hama-maxi">Maxi 10mm · 25 色</option>
+                        </optgroup>
+                        <optgroup label="Perler">
+                            <option value="perler">Perler 5mm · 103 色</option>
+                            <option value="perler-mini">Mini 2.6mm · 41 色</option>
+                            <option value="perler-caps">Caps 空心珠 · 26 色</option>
+                        </optgroup>
+                        <optgroup label="其他">
+                            <option value="nabbi">Nabbi · 30 色</option>
+                            <option value="yant">Yant · 119 色</option>
+                            <option value="mard">MARD · 291 色</option>
+                            <option value="diamond-dotz">Diamond Dotz 钻石画 · 461 色</option>
+                        </optgroup>
                     </select></div>
-                <div><label>实际用几种颜色<span id="colorsHint">（可入关 3–8）</span></label><input type="number" id="colors"
-                        value="8" min="3" max="8"></div>
+                <div><label>实际用几种颜色<span id="colorsHint">（参考图，不可入关）</span></label><input type="number" id="colors"
+                        value="8" min="3" max="35"></div>
             </div>
             <div class="row2">
                 <div><label>错位密度</label><select id="misKind">
-                        <option value="full" selected>全错位（推荐 · 每颗可填珠都不就位）</option>
+                        <option value="none" selected>不错位（实物图纸 · 最像原图）</option>
+                        <option value="full">全错位（每颗可填珠都不就位）</option>
                         <option value="swaps">少量交换（k 对 ⇒ 仅 2k 颗错位）</option>
                     </select></div>
                 <div id="swapsBox" style="display:none"><label>交换对数 k（1–8）</label><input type="number" id="swaps"
                         value="8" min="1" max="8"></div>
-                <div><label>众数滤波轮数（推荐 1）</label><input type="number" id="smooth" value="1" min="0" max="5"></div>
+                <div><label>众数滤波轮数（0 = 关，保细节；大块风可 1–2）</label><input type="number" id="smooth" value="0" min="0"
+                        max="5"></div>
             </div>
             <div class="row2">
                 <div><label>盘面形状</label><select id="shapeKind">
@@ -263,9 +286,13 @@
                         <option value="error" selected>误差最小·保形（推荐）</option>
                         <option value="freq">频次优先·保大块</option>
                     </select></div>
+                <div><label>格级风格</label><select id="cellmode">
+                        <option value="mode" selected>主导色·卡通干净</option>
+                        <option value="avg">平均色·照片纹理</option>
+                    </select></div>
             </div>
-            <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto" checked>
-                铺满整盘（不扣背景；推荐）</label>
+            <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto">
+                铺满整盘（不扣背景；仅游戏关卡盘用——**实物图纸还原务必保持不勾**，否则背景吃掉大半用色预算）</label>
             <button id="gen">生成</button>
             <div id="msg"></div>
         </section>
@@ -281,6 +308,7 @@
                 <div id="stats"></div>
                 <button class="ghost" id="dl" disabled>下载 levelDraft JSON</button>
                 <button class="ghost" id="cp" disabled>复制 rowstrings</button>
+                <button class="ghost" id="ing" disabled>一键入关（写回关卡表）</button>
             </div>
             <div class="card" id="results"><b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small></div>
         </section>
@@ -293,6 +321,7 @@
         let current = null; // 当前 result.json
         let srcPixels = null; // {w,h,data:Uint8ClampedArray} —— 送服务端的解像结果
         let srcThumb = null;  // 原图缩略图 dataURL（选图即生，随 POST 存盘 ⇒ 历史条目也能看）
+        let srcUrl = null;    // 原文件 objectURL（src 视图预览用：448 缩略图放大必糊，2026-09-21）
         let view = 'solved';
 
         const THUMB_MAX = 448; // ≈ 预览画布宽，原图视图够用且存盘体积可控
@@ -312,12 +341,11 @@
             $('freeShapeBox').style.display = $('shapeKind').value === 'free' ? 'block' : 'none';
         };
 
-        /** 用色域跟色板走：游戏侧“可入关”= 3–8（`BEAD_COLOR_MAX`），Artkal 仅参考图不卡域。 */
+        /** 用色域联动（v1.40 品牌引用制）：全部为品牌色板，3–35 参考图；入关不限色板
+         *  —— 关卡写回 slug+色号，游戏侧从品牌注册表查 hex 渲染。 */
         function syncColorsDomain() {
-            const game = $('palette').value === '10';
-            $('colors').min = 3; $('colors').max = game ? 8 : 64;
-            if (game && +$('colors').value > 8) $('colors').value = 8;
-            $('colorsHint').textContent = game ? '（可入关 3–8）' : '（参考图，不可入关）';
+            $('colors').min = 3; $('colors').max = 35;
+            $('colorsHint').textContent = '（参考图，可入关：写回品牌色号）';
         }
         $('palette').onchange = syncColorsDomain;
         syncColorsDomain();
@@ -338,22 +366,85 @@
             const f = $('file').files[0];
             if (!f) return;
             const img = await createImageBitmap(f);
-            const max = 1024; // 解像上限：服务端采样够用，控制上传体积
-            const k = Math.min(1, max / Math.max(img.width, img.height));
-            const w = Math.max(1, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+            // v1.5（2026-09-21 用户拍板）：不缩图——原始 px 尺寸是测格/豆数计算的输入，
+            // 缩图会破坏珠距检测与成品尺寸换算。仅拦超限：body 上限 4096²（与服务端 MAX_BODY 对齐）。
+            if (Math.max(img.width, img.height) > 4096) {
+                msg(`原图 ${img.width}×${img.height} 超过 4096 解像上限，请先自行缩小后重选`, 'err');
+                return;
+            }
+            const w = img.width, h = img.height;
             const cv = new OffscreenCanvas(w, h);
             const g = cv.getContext('2d', { willReadFrequently: true });
             g.drawImage(img, 0, 0, w, h);
             srcPixels = { w, h, data: g.getImageData(0, 0, w, h).data };
+            // 依据原图测横竖豆数（珠距自相关检测）+ 候选色板标准豆径换算成品尺寸
+            const sug = detectBeadGrid(srcPixels);
+            let sugMsg = '';
+            if (sug) {
+                const mm = parseFloat(($('palette').selectedOptions[0]?.textContent || '').match(/([\d.]+)\s*mm/)?.[1]) || 5;
+                $('board').value = 'custom'; $('customSize').style.display = 'grid';
+                $('cols').value = sug.cols; $('rows').value = sug.rows;
+                sugMsg = `｜珠距检测 ${sug.gx}×${sug.gy}px ⇒ 建议 ${sug.cols}×${sug.rows} 格（成品 ${(sug.cols * mm / 10).toFixed(1)}×${(sug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径，可手改）`;
+            }
             // 原图缩略图（选图时本地生成，不依赖服务端返图）
             const tk = Math.min(1, THUMB_MAX / Math.max(img.width, img.height));
             const tw = Math.max(1, Math.round(img.width * tk)), th = Math.max(1, Math.round(img.height * tk));
             const tc = new OffscreenCanvas(tw, th);
             tc.getContext('2d').drawImage(img, 0, 0, tw, th);
             srcThumb = await blobToDataURL(await tc.convertToBlob({ type: 'image/jpeg', quality: 0.72 }));
-            msg(`源图已解像：${w}×${h}（RGBA ${Math.round(w * h * 4 / 1024)} KB）｜缩略图 ${tw}×${th}`, 'ok');
-            if (view === 'src') drawSrc(srcThumb); // 未生成时也能先看原图
+            msg(`源图已解像：${w}×${h}（RGBA ${Math.round(w * h * 4 / 1024)} KB）｜缩略图 ${tw}×${th}${sugMsg}`, 'ok');
+            if (srcUrl) URL.revokeObjectURL(srcUrl);
+            srcUrl = URL.createObjectURL(f); // 预览用原文件，缩略图只随 POST 存盘
+            if (view === 'src') drawSrc(srcUrl); // 未生成时也能先看原图
         };
+
+        /** 珠栅检测（WXG-T-179）：亮度对 |Δ| 平移自相关——平移量恰为真实珠距时，
+         *  采样点与自身同珠对齐 ⇒ 平均差最小。横竖各自独立测；检测到即自动切自定义
+         *  档位填入建议格数（可手改）。纯启发式：透视/局部/虚化图会测偏，用户可改。 */
+        function detectBeadGrid(px) {
+            const { w, h, data } = px;
+            const lum = new Float32Array(w * h);
+            for (let i = 0; i < w * h; i++) lum[i] = 0.299 * data[i * 4] + 0.587 * data[i * 4 + 1] + 0.114 * data[i * 4 + 2];
+            const diffAt = (dx, dy) => {
+                let s = 0, n = 0;
+                for (let y = dy; y < h; y += 3) {
+                    for (let x = dx; x < w; x += 3) { s += Math.abs(lum[y * w + x] - lum[(y - dy) * w + x - dx]); n++; }
+                }
+                return n ? s / n : 255;
+            };
+            const bestPitch = (dx, dy, len) => {
+                let bp = 0, bs = Infinity;
+                for (let p = 8; p <= Math.min(100, len >> 2); p++) {
+                    const s = diffAt(dx * p, dy * p);
+                    if (s < bs) { bs = s; bp = p; }
+                }
+                // 半频抑制：2p₀ 也对齐（都打在同珠上），若 p₀/2 的分不比最低分差 8% 则取更细者
+                if (bp >= 16) {
+                    const hs = diffAt(dx * (bp >> 1), dy * (bp >> 1));
+                    if (hs <= bs * 1.08) bp >>= 1;
+                }
+                return bp;
+            };
+            const gx = bestPitch(1, 0, w), gy = bestPitch(0, 1, h);
+            if (!gx || !gy) return null;
+            return { cols: Math.max(2, Math.round(w / gx)), rows: Math.max(2, Math.round(h / gy)), gx, gy };
+        }
+
+        // 自检：合成 8×8 均匀色块（12px 栅距）应检出 8×8；失败仅 console 警告，不打扰用户
+        (function selfTestBeadGrid() {
+            const P = 12, N = 8, w = P * N, h = P * N;
+            const cell = [];
+            let seed = 42;
+            const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+            for (let i = 0; i < N * N; i++) cell.push(Math.floor(rnd() * 256));
+            const data = new Uint8ClampedArray(w * h * 4);
+            for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+                const gv = cell[Math.floor(y / P) * N + Math.floor(x / P)], o = (y * w + x) * 4;
+                data[o] = gv; data[o + 1] = (gv * 3) % 256; data[o + 2] = 255 - gv; data[o + 3] = 255;
+            }
+            const r = detectBeadGrid({ w, h, data });
+            if (!r || r.cols !== N || r.rows !== N) console.warn('珠栅检测自检失败：', r);
+        })();
 
         async function blobToDataURL(blob) {
             const buf = new Uint8Array(await blob.arrayBuffer());
@@ -372,7 +463,7 @@
                 board: $('board').value === 'custom' ? `${cols}x${rows}` : $('board').value,
                 cols, rows,
                 palette: $('palette').value, colors: $('colors').value,
-                colorsmode: $('colorsmode').value, swaps: $('swaps').value,
+                colorsmode: $('colorsmode').value, cellmode: $('cellmode').value, swaps: $('swaps').value,
                 smooth: $('smooth').value, shape: shapeValue(),
                 mis: $('misKind').value,
                 noframe: $('noframe').checked ? '1' : '0',
@@ -395,7 +486,7 @@
          *  pattern 一并传入 ⇒ 目标色坑/垫与背景同画，**正解与错位两视图同底**（view-model 同源）。 */
         function drawBoard(rowsArr) {
             const cv = $('cv');
-            BeadsBoardRender.drawBoard(cv.getContext('2d'), cv.width, cv.height, rowsArr, { cols: current.cols, rows: current.rows, pattern: current.levelDraft?.pattern });
+            BeadsBoardRender.drawBoard(cv.getContext('2d'), cv.width, cv.height, rowsArr, { cols: current.cols, rows: current.rows, pattern: current.levelDraft?.pattern, hexes: current.paletteHex });
         }
 
         /** 原图视图：把缩略图等比画到画布中央（contain，不裁剪）。 */
@@ -417,15 +508,29 @@
         }
 
         function show(r) {
-            if (view === 'src') drawSrc(r.thumb || srcThumb);
-            else drawBoard((view === 'solved' ? r.levelDraft?.pattern : r.misplaced) || r.levelDraft?.pattern);
+            if (view === 'src') drawSrc(srcUrl || r.thumb || srcThumb); // 本会话选过图 ⇒ 原文件直显；历史条目只有缩略图
+            else if (view === 'solved') drawBoard(r.levelDraft?.pattern || r.pattern); // mis=none 无 levelDraft，用顶层 pattern
+            else drawBoard(r.misplaced?.length ? r.misplaced : r.pattern);
             const rp = r.report || {};
+            const df = rp.difficulty;
             $('stats').textContent =
-                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
-                `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? '?'}`;
+                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : r.misMode === 'none' ? '不错位（实物图纸模式）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
+                `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? (df ? df.adjRate : '?')}` +
+                (df ? (df.error
+                    ? `\n难度 ——（${df.error}）`
+                    : `\n难度 D${df.score}（真引擎实测 ${df.taps} 次点击｜错位 ${df.misplaced} 颗）｜预估清关 ${df.timeEst}s（公式 v0.2 = taps × ${df.secPerTap}s，§5）` +
+                      (df.blockers?.length ? `\n⛔ 不可入关：${df.blockers.join('；')}` : ''))
+                    : '');
             $('dl').disabled = $('cp').disabled = !(r.levelDraft);
-            // 不可入关就显式标红 + 说原因（静默换色比报错难查，不能只靠用户自己避坑）
-            $('badge').textContent = r.importable === false ? '⚠ 不可入关：' + (r.blockers || []).join('；') : '';
+            // 入关只在本地仓模式可用（服务端无 games/ 目录则 501）；不可入关条目直接置灰
+            $('ing').disabled = !(r.levelDraft) || r.importable === false;
+            // 不可入关就显式标红 + 说原因（静默换色比报错难查，不能只靠用户自己避坑）。
+            // 实物图纸模式（mis=none）下这些全是游戏导入门槛，对图纸用途一条都不适用
+            // （色板 artkal-s 对图纸反而正解）⇒ 降为 ℹ 提示，不吓人（2026-09-21 用户拍板）。
+            const isPaper = r.misMode === 'none';
+            $('badge').textContent = r.importable === false
+                ? (isPaper ? 'ℹ 游戏入关限制（实物图纸不受影响）：' : '⚠ 不可入关：') + (r.blockers || []).join('；')
+                : '';
         }
 
         /** 三视图切换（原图 / 正解 / 错位）。 */
@@ -435,7 +540,7 @@
                 view = v;
                 for (const b of Object.keys(TABS)) $(b).className = b === btn ? 'on' : '';
                 if (current) show(current);
-                else if (v === 'src') drawSrc(srcThumb);
+                else if (v === 'src') drawSrc(srcUrl || srcThumb);
             };
         }
 
@@ -446,6 +551,18 @@
         };
         $('cp').onclick = () => navigator.clipboard.writeText((current.levelDraft?.pattern || []).join('\n'))
             .then(() => msg('rowstrings 已复制', 'ok'));
+
+        $('ing').onclick = () => {
+            $('ing').disabled = true;
+            fetch(`/api/results/${current.id}/ingest`, { method: 'POST' })
+                .then(async (res) => {
+                    const j = await res.json();
+                    if (!res.ok) throw new Error(j.error || res.status);
+                    msg(`已入关：第 ${j.ingested} 关「${j.name}」→ ${j.file}（levels:sync + 镜像已跑）；harness 即玩，git diff 确认后提交`, 'ok');
+                })
+                .catch((e) => msg('入关失败：' + e.message, 'err'))
+                .finally(() => { $('ing').disabled = false; });
+        };
 
         async function loadResults() {
             try {
@@ -459,7 +576,8 @@
                     grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
                     for (const r of list) {
                         const d = document.createElement('div'); d.className = 'item';
-                        d.innerHTML = `<span>${r.importable === false ? '⚠ ' : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : '错位 ' + r.swaps * 2}${r.importable === false ? ' · 不可入关' : ''}</small>`;
+                        const noImp = r.importable === false;
+                        d.innerHTML = `<span>${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
                         // 列表是轻投影（不含 pattern/缩略图）⇒ 点开才拉单条全量
                         d.onclick = async () => {
                             try {

@@ -78,8 +78,10 @@
         return out;
     }
 
-    /** 珠面颜色：一律走 10 色游戏真源（所见 = 导入后游戏所画；raw 色板差异由 ⚠ 徽标声明）。 */
-    function beadColor(index) {
+    /** 珠面颜色：缺省走 10 色游戏真源；传 hexes（色号→hex，artkal 等外部色板）时优先查表，
+     *  否则预览色与实际珠色完全两回事（色号被错配到游戏色，2026-09-21 实测「紫冠橙果」假象）。 */
+    function beadColor(index, hexes) {
+        if (hexes) return hexes[index] || BEAD_PALETTE[9];
         return BEAD_PALETTE[index] || BEAD_PALETTE[9];
     }
 
@@ -160,6 +162,7 @@
      */
     function drawBoard(g, canvasW, canvasH, rowsArr, opts) {
         var cols = opts.cols, rows = opts.rows, pat = Array.isArray(opts.pattern) ? opts.pattern : null;
+        var hexes = Array.isArray(opts.hexes) && opts.hexes.length ? opts.hexes : null;
         g.fillStyle = BG; g.fillRect(0, 0, canvasW, canvasH);
         if (!Array.isArray(rowsArr) && !pat) return;
         var L = layout(canvasW, canvasH, cols, rows);
@@ -170,12 +173,12 @@
                 var ch = line[x], tch = pLine[x];
                 var bx = L.ox + x * L.cell + (L.cell - L.size) / 2;
                 var by = L.oy + y * L.cell + (L.cell - L.size) / 2;
-                var target = tch && tch !== '.' && tch !== 'x' ? beadColor(indexFromChar(tch)) : null;
+                var target = tch && tch !== '.' && tch !== 'x' ? beadColor(indexFromChar(tch), hexes) : null;
                 if (!ch || ch === '.') {
                     if (pat) { if (target) drawSocket(g, bx, by, L.size, target); }
                     else if (!pat) drawSocket(g, bx, by, L.size);
                 } else if (ch === 'x') drawLocked(g, bx, by, L.size);
-                else drawBead(g, bx, by, L.size, beadColor(indexFromChar(ch)), pat ? target : null);
+                else drawBead(g, bx, by, L.size, beadColor(indexFromChar(ch), hexes), pat ? target : null);
             }
         }
     }

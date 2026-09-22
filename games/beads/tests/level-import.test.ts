@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
+    boardStats,
     draftToLevel,
+    estimateLevelTime,
     fetchResults,
     importLatest,
+    measuredLevelTime,
     studioUrl,
-    timeForSwaps,
     type LevelDraft,
 } from '../src/game/level-import.js';
-import { LEVEL_TIME_MAX, LEVEL_TIME_MIN } from '../src/config/tuning.js';
+import { DEMO_LEVEL_COUNT, LEVEL_TIME_MAX, LEVEL_TIME_MIN } from '../src/config/tuning.js';
 import { createBeadsHarness, simpleTestLevel } from './helpers.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 
@@ -15,7 +17,7 @@ import { createBeadsShell } from '../src/game/beads-shell.js';
  * WXG-T-179 续作 · beads-studio 在线导入（`src/game/level-import.ts`）。
  *
  * 判据点：转换**不得放宽 BOOT 校验**（草案不合规 ⇒ 只回错误、不产关卡），
- * `time: null` 按 k 定价补齐，以及 `play.importLevel` 追加进表 + 跳关。
+ * `time: null` 按静态兜底补齐，以及 `play.importLevel` 追加进表 + 跳关。
  */
 
 const SWAPS = [
@@ -38,18 +40,30 @@ function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
 }
 
 describe('WXG-T-179 · level-import 转换与定价', () => {
-    it('timeForSwaps：按 k×45s 定价并夹在 [LEVEL_TIME_MIN, LEVEL_TIME_MAX]', () => {
-        expect(timeForSwaps(0)).toBe(LEVEL_TIME_MIN);
-        expect(timeForSwaps(4)).toBe(180);
-        expect(timeForSwaps(8)).toBe(360);
-        expect(timeForSwaps(20)).toBe(LEVEL_TIME_MAX);
+    it('measuredLevelTime：实测点击数 × SEC_PER_TAP（公式 v0.2，§3.5 v1.41）—— 锚值 / clamp / 非法输入', () => {
+        // 锚：已入库关 studio-5-8b07（17×15）真引擎实测 109 taps × 3.6s = 392s
+        //（v0.1 按颗定价给的是触顶 420s ⇒ D100 饱和，该盘实测仅 D93）。
+        expect(measuredLevelTime(109)).toEqual({ time: 392, difficulty: 93 });
+        expect(measuredLevelTime(10).time).toBe(LEVEL_TIME_MIN); // 36s ⇒ 钳到下限
+        expect(measuredLevelTime(1000).time).toBe(LEVEL_TIME_MAX); // 3600s ⇒ 钳到上限
+        // 非法输入 ⇒ 0 taps ⇒ 下限（不产生 NaN 倒计时：NaN 永不到零 = 失败条件永不触发）
+        expect(measuredLevelTime(Number.NaN).time).toBe(LEVEL_TIME_MIN);
+        expect(measuredLevelTime(-5).time).toBe(LEVEL_TIME_MIN);
     });
 
-    it('合法草案 + time=null ⇒ 过关并自动按 k 补时长（错位 = 2k 颗）', () => {
+    it('estimateLevelTime（静态兜底）= ceil(M/2) taps，与实测共用 clamp 出口；N/C/A 不再影响时长', () => {
+        const a = estimateLevelTime({ fillable: 200, colors: 3, adjRate: 0.5, misplaced: 8 });
+        // v0.1 的三因子（f_N/f_C/g_A）已作废：同 M 不同 N/C/A ⇒ 同时长
+        expect(estimateLevelTime({ fillable: 900, colors: 10, adjRate: 0.0, misplaced: 8 })).toEqual(a);
+        expect(a).toEqual(measuredLevelTime(4)); // ceil(8/2) = 4 taps
+        expect(estimateLevelTime({ fillable: 200, colors: 3, adjRate: 0.5, misplaced: 400 }).time).toBe(LEVEL_TIME_MAX);
+    });
+
+    it('合法草案 + time=null ⇒ 过关并自动按静态兜底补时长（错位 = 2k 颗）', () => {
         const r = draftToLevel(draftOf(), 9000, '在线导入 x');
         expect(r.errors).toEqual([]);
         expect(r.ok).toBe(true);
-        expect(r.level!.time).toBe(timeForSwaps(SWAPS.length));
+        expect(r.level!.time).toBe(estimateLevelTime(boardStats(draftOf().pattern, SWAPS.length * 2)).time);
         expect(r.level!.swaps.length).toBe(3);
     });
 
@@ -185,6 +199,6 @@ describe('WXG-T-179 · 主菜单「导入」钮接线（beads-shell）', () => {
         expect(shell.tapMeta(cx, cy)).toBe(true);
         await new Promise((r) => setTimeout(r, 0)); // 拉取为微任务
         expect(shell.screen).toBe('play');
-        expect(shell.play.levelCount).toBe(9); // 8 关真源 + 1 导入关
+        expect(shell.play.levelCount).toBe(DEMO_LEVEL_COUNT + 1); // 全部真源关 + 1 导入关
     });
 });

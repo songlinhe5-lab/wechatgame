@@ -60,8 +60,8 @@ export const SYMBOL_SIZE_RATIO = 0.4;
 export const SYMBOL_MIN_STROKE = 2;
 
 /**
- * Symbol for a 1-based palette index. Out-of-range mirrors `beadColor()`'s
- * fallback (index 10, 炭黑 ✚) so an invalid colour never renders symbol-less.
+ * Symbol for a 1-based palette index. Out-of-range clamps to the last symbol
+ * （与 `beadColorOf` 的炭黑兑底语义同源），invalid colour never renders symbol-less.
  */
 export function beadSymbol(colorIdx: number): BeadSymbol {
   const i = Number.isFinite(colorIdx) ? Math.floor(colorIdx) : 0;

@@ -120,7 +120,8 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       expect(stageParamsFor(0)).toEqual({ colors: 3, cells: 30, interval: SPAWN_INTERVAL_MAX });
       // **WXG-T-180（§3.3 v1.33）迁移**：格数饱和上限随 `GRID_MAX` 156 → 841，
       // 原 index=50（30+10×50 = 530）**已不足以触顶** ⇒ 改 100（1030 > 841）仍能饱和。
-      const deep = stageParamsFor(100);
+      // **v1.37 再迁**：`GRID_MAX` 29→50 ⇒ 饱和上限 2500，index 250（2530 > 2500）。
+      const deep = stageParamsFor(250);
       expect(deep.colors).toBe(BEAD_COLOR_MAX);
       expect(deep.cells).toBe(GRID_MAX_COLS * GRID_MAX_ROWS);
       expect(deep.interval).toBe(SPAWN_INTERVAL_MIN);

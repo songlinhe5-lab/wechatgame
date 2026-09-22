@@ -5,7 +5,7 @@
  * `levels-spec.md` v1.2 §2.1（交换构造法 + 错位珠恒等式）、
  * `core-loop v2.0` §2.1（BOOT 校验 swaps）。
  *
- * 说明：8 关数据判据与「时间公式边界」见本文件末尾两个 describe（第二段）。
+ * 说明：出货关数据判据与「时间公式边界」见本文件末尾两个 describe（第二段）。
  */
 
 import { describe, it, expect } from 'vitest';
@@ -28,6 +28,7 @@ import {
   LEVEL_TIME_MIN,
   MISPLACED_PAIRS_MAX,
   MISPLACED_PAIRS_MIN,
+  DEMO_LEVEL_COUNT,
   levelTimeFor,
 } from '../src/config/tuning.js';
 import { LEVELS, validateBeadsLevel } from '../src/config/levels.js';
@@ -322,9 +323,9 @@ describe('misplaced 全错位初盘 · validateMisplacedGrid / assembleFromMispl
   });
 });
 
-describe('MVP · 8 关全错位初盘数据全过 BOOT', () => {
-  it('8 关逐关零错误，且均携 misplaced（swaps 置空占位）', () => {
-    expect(LEVELS).toHaveLength(8);
+describe('MVP · 全部出货关全错位初盘数据全过 BOOT', () => {
+  it('逐关零错误，且均携 misplaced（swaps 置空占位）', () => {
+    expect(LEVELS).toHaveLength(DEMO_LEVEL_COUNT);
     for (const level of LEVELS) {
       expect(validateBeadsLevel(level), `L${level.id}: ${validateBeadsLevel(level).join(' | ')}`).toEqual([]);
       expect(Array.isArray(level.misplaced), `L${level.id} misplaced`).toBe(true);
@@ -332,7 +333,7 @@ describe('MVP · 8 关全错位初盘数据全过 BOOT', () => {
     }
   });
 
-  it('8 关 misplaced 装配后：珠数守恒、错位格数 = 全可填格（成片全错）', () => {
+  it('全部 misplaced 装配后：珠数守恒、错位格数 = 全可填格（成片全错）', () => {
     for (const level of LEVELS) {
       const board = assembleFromMisplaced(level.pattern, level.misplaced!);
       expect(board.beads.length, `L${level.id}`).toBe(level.rows * level.cols);
@@ -349,7 +350,7 @@ describe('MVP · 8 关全错位初盘数据全过 BOOT', () => {
 });
 
 describe('E5 · 时间按 k 定价（levelTimeFor 函数，§3.5 v1.23 clamp(k × 45s, 120, 420)）', () => {
-  // 注：MVP 8 关走 misplaced 全错位初盘，time 按档手定（300/420），不再套本公式；
+  // 注：出货关 misplaced 全错位初盘；手写关 time 按档手定，studio 入关按 k 定价（§3.5 公式），逐值不在此钉；
   // 本 describe 仅钉住 swaps 型关卡 / 冲刺仍复用的 levelTimeFor 纯函数行为。
   it('边界：k=1 → 120s（下限）、k=2/3 → 120/135s、大 k → 420s 封顶', () => {
     expect(levelTimeFor(1)).toBe(LEVEL_TIME_MIN); // 45 → 钳到 120
@@ -366,7 +367,7 @@ describe('E5 · 时间按 k 定价（levelTimeFor 函数，§3.5 v1.23 clamp(k �
     expect(levelTimeFor(0)).toBeGreaterThan(0);
   });
 
-  it('MVP 8 关 time 均落在合法区间 [120,420]', () => {
+  it('出货关 time 均落在合法区间 [120,420]', () => {
     for (const level of LEVELS) {
       expect(level.time, `L${level.id} time`).toBeGreaterThanOrEqual(LEVEL_TIME_MIN);
       expect(level.time, `L${level.id} time`).toBeLessThanOrEqual(LEVEL_TIME_MAX);

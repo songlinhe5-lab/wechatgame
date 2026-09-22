@@ -26,7 +26,7 @@ import {
 } from '../src/config/tuning.js';
 import { fillPopEnvelope, type FillPopEnvelope } from '../src/view/bead-render.js';
 import { deniedPressScale } from '../src/view/scene-vfx.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
@@ -100,7 +100,7 @@ function activeSlot(snap: BeadsSnapshot, row: number, col: number): number {
 function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
     const builder = new RenderModelBuilder(750, 1334);
     builder.begin();
-    buildBeadsView(builder, snap, DEFAULT_PALETTE);
+    buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return builder.end().commands;
 }
 

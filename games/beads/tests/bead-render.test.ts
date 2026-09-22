@@ -27,7 +27,8 @@ import {
   BEAD_SHADOW_HEX,
   BEAD_SOFT_HIGHLIGHT_ALPHAS,
   DEFAULT_PALETTE,
-  beadColor,
+  beadColorOf,
+  DEMO_BEAD_INKS,
   mix,
   withAlpha,
 } from '../src/view/palette.js';
@@ -94,13 +95,13 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   it('§1.1 L1 fills the body with the palette colour for that index', () => {
     for (const colorIdx of [1, 5, 10]) {
       const body = filled(colorIdx)[2]!;
-      expect(body.kind === 'rect' && body.fill).toBe(beadColor(colorIdx));
+      expect(body.kind === 'rect' && body.fill).toBe(beadColorOf(DEMO_BEAD_INKS, colorIdx));
     }
   });
 
   // L2/L3 倒角：以基色为基准分别向黑/白偏移，并各覆盖两条边。
   it('§1.1 L2/L3/L3b tint the bevels and rim from the base colour', () => {
-    const base = beadColor(4);
+    const base = beadColorOf(DEMO_BEAD_INKS, 4);
     const commands = filled(4);
     const dark = mix(base, BEAD_BEVEL_DARK_MIX);
     const light = mix(base, BEAD_BEVEL_LIGHT_MIX);
@@ -150,7 +151,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
               : symbol.kind === 'polygon'
                 ? symbol.fill
                 : undefined;
-      expect(inkInUse, `colour ${colorIdx}`).toBe(symbolInk(beadColor(colorIdx)).color);
+      expect(inkInUse, `colour ${colorIdx}`).toBe(symbolInk(beadColorOf(DEMO_BEAD_INKS, colorIdx)).color);
     }
   });
 
@@ -226,17 +227,17 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     const cmds = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, idx));
     // 大底 = 目标色纯色直填（旧 E1 42% 混色已作废）。
     const base = cmds.find((c) => c.kind === 'rect');
-    expect(base).toMatchObject({ kind: 'rect', fill: beadColor(idx) });
+    expect(base).toMatchObject({ kind: 'rect', fill: beadColorOf(DEMO_BEAD_INKS, idx) });
     // E4 幽灵符号已删除（用户 2026-09-16 裁定，accessibility v1.5 降档登记）。
     expect(cmds.some((c) => c.kind === 'circle')).toBe(false);
     // S1 暗缘框 = stroke-only，墨 = mix(底色,#000,0.30)（端点表 edge）。
     const edge = cmds.find((c) => c.kind === 'rect' && c.stroke !== undefined);
-    expect(edge).toMatchObject({ kind: 'rect', stroke: mix(beadColor(idx), -0.3) });
+    expect(edge).toMatchObject({ kind: 'rect', stroke: mix(beadColorOf(DEMO_BEAD_INKS, idx), -0.3) });
     // S3/S4 明暗方向：上暗下亮。
     const lines = cmds.filter((c) => c.kind === 'line');
     expect(lines).toHaveLength(2);
-    expect((lines[0] as { stroke: string }).stroke).toBe(mix(beadColor(idx), -0.3));
-    expect((lines[1] as { stroke: string }).stroke).toBe(mix(beadColor(idx), 0.38));
+    expect((lines[0] as { stroke: string }).stroke).toBe(mix(beadColorOf(DEMO_BEAD_INKS, idx), -0.3));
+    expect((lines[1] as { stroke: string }).stroke).toBe(mix(beadColorOf(DEMO_BEAD_INKS, idx), 0.38));
     // 形态区分仍在：无软高光（不读作珠）。
     expect(
       cmds.some(

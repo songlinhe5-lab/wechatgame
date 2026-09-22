@@ -114,6 +114,7 @@ import {
   CONFETTI_COLORS,
   STAR_GOLD,
   withAlpha,
+  type BeadInks,
   type BeadsPalette,
 } from './palette';
 import { POWERUP_LABELS } from '../systems/powerups';
@@ -200,6 +201,8 @@ export function buildBeadsView(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
   palette: BeadsPalette,
+  /** 珠色墨水组（v1.40 关卡色板；game 侧按当前关卡解析传入，热路径零分配）。 */
+  inks: BeadInks,
 ): void {
   // G5 连击 Lv2 伪震屏（`art-bible §7.3.5` 案 B · WXG-T-132）：整屏 scale 走框架
   // 全局变换通道，锚点 = 设计中心（=屏幕中心，letterbox/居中换算下恒重合）。
@@ -213,8 +216,8 @@ export function buildBeadsView(
   drawBackgroundLayers(builder); // F8：冷沉 + 中心提亮（§1.8，珠/HUD 之下）
   drawHud(builder, snap, palette);
   drawPuzzlePlate(builder, snap, palette); // F2/F3：容器板 + 暖光 band（§1.7）
-  drawGrid(builder, snap, palette);
-  drawTray(builder, snap, palette);
+  drawGrid(builder, snap, palette, inks);
+  drawTray(builder, snap, palette, inks);
   drawExpandButton(builder, snap, palette);
   drawPowerupBand(builder, snap, palette);
   drawSweep(builder, snap); // G3 道具生效扫光（§1.6.3）：叠在珠面上、面板与 HUD 之下
@@ -722,6 +725,7 @@ function drawGrid(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
   palette: BeadsPalette,
+  inks: BeadInks,
 ): void {
   // G1 `vfx_fill_pop`（WXG-T-128）：包络槽在**循环外**建一次（整帧共用，同一时刻至多一颗珠在落座）。
   const pop: FillPopEnvelope = {
@@ -789,7 +793,7 @@ function drawGrid(
       if (cell.state === 'empty') {
         // Empty socket — 传目标色 colorIdx 绘 E1 色底 + E4 幽灵符号（§1.2 / §3.8），
         // 使未填态即可读出该格要填的颜色；仍无投影/倒角/高光 → 不致误读为已填珠。
-        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx);
+        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks);
         // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
           drawStateRing(builder, bx, cy, snap.gridCell, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
@@ -847,7 +851,7 @@ function drawGrid(
       // FilledBeadOptions 全只读 ⇒ 组装为可变草稿再定型的既有模式（零类分配）。
       const draft: {
         -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
-      } = { padColorIdx: cell.colorIdx, size: snap.gridCell };
+      } = { padColorIdx: cell.colorIdx, size: snap.gridCell, inks };
       if (inGroup) {
         draft.lift = 6; // 设计空间 y 向上 ⇒ +lift = 珠体上移露垫（抬起读数）；旧值 -6 方向反了
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
@@ -948,6 +952,7 @@ function drawTray(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
   palette: BeadsPalette,
+  inks: BeadInks,
 ): void {
   const rows = Math.ceil(snap.traySlots.length / TRAY_COLS);
   // 基础（已开放）行数 —— 虚线语言**只属于扩展行**（`TRAY_BASE_SLOTS` 之后追加的行）。
@@ -991,6 +996,7 @@ function drawTray(
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
       size: TRAY_BEAD_SIZE,
       lift,
+      inks,
       ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),
     });
     if (selected) {

@@ -22,7 +22,7 @@ import {
     DESIGN_W,
 } from '../src/config/tuning.js';
 import { buildBeadsView } from '../src/view/view-model.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { comboPseudoShake } from '../src/view/combo-vfx.js';
 import { createBeadsHarness, type Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
@@ -49,7 +49,7 @@ function placeOne(h: Harness): boolean {
 function modelOf(snap: BeadsSnapshot) {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, snap, DEFAULT_PALETTE);
+    buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return builder.end();
 }
 

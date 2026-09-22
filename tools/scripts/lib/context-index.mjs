@@ -956,13 +956,13 @@ export function renderHotFiles(index, dist = null) {
     L.push('');
     L.push(
       `> 体积预算 ≤ ${LIMITS.hotFilesMaxTokens} 估算 tokens（当前 ${chosen.length} 个文件）：本表是协议常驻开销，` +
-        '会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。',
+      '会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。',
     );
     if (overBudget) {
       // 诚实失败：必收录集（tier:hot）不可裁撤，若它自己就超预算，只能越界并在门禁 A 项 FAIL。
       L.push(
         '> ⚠️ **已超预算**：必收录集（`tier:hot` 的 6 个文件）本身超出预算，且它们的行号不可省略。' +
-          '请调大 `LIMITS.hotFilesMaxTokens`（代价见 §②.1）或裁剪 hot 文件的章节结构。',
+        '请调大 `LIMITS.hotFilesMaxTokens`（代价见 §②.1）或裁剪 hot 文件的章节结构。',
       );
     }
     L.push('');
@@ -986,7 +986,7 @@ export function renderHotFiles(index, dist = null) {
     if (restOmitted > 0) {
       L.push(
         `> 另有 ${restOmitted} 个文件既未被 \`ctx/ROUTES.md\` 引用、也未命中热度/体积门槛，` +
-          '与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。',
+        '与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。',
       );
       L.push('');
     }

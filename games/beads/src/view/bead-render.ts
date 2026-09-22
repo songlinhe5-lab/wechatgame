@@ -36,13 +36,15 @@ import {
   BEAD_SHADOW_ALPHA_SELECTED,
   BEAD_SHADOW_HEX,
   BEAD_SOFT_HIGHLIGHT_ALPHAS,
-  beadColor,
-  beadEndpoints,
+  beadColorOf,
+  DEMO_BEAD_INKS,
+  endpointOf,
   mix,
   SOCKET_EDGE_DARK_MIX,
   SOCKET_LIT_MIX,
   SOCKET_PIT_DARKEN,
   withAlpha,
+  type BeadInks,
   type BeadsPalette,
 } from './palette.js';
 import { beadSymbol, emitSymbol, symbolInk } from './symbols.js';
@@ -102,6 +104,11 @@ export interface FilledBeadOptions {
    * 传入 ⇒ 珠下先画垫（端点表 edge），珠体四边内缩 BEAD_DRAW_INSET 露出垫缝。
    */
   readonly padColorIdx?: number;
+  /**
+   * 珠色墨水组（v1.40 关卡色板）：hex 表 + 预烘焙端点。缺省 ⇒ demo 默认色板
+   * （`LEVELS_DATA.palette`）。调用方（view-model）每帧复用同一引用 ⇒ 零分配。
+   */
+  readonly inks?: BeadInks;
   /**
    * G1 落座回弹的**珠体**缩放（`assets-spec §1.6.1`，默认 1）。⛔ **严禁改乘 `outer`**：
    * `outer` 同时驱动 **L11 垫**，垫若随珠同缩 ⇒ 「垫缝」读数与珠体同步 ⇒ 目标色
@@ -229,7 +236,8 @@ export function drawFilledBead(
   options: FilledBeadOptions = {},
 ): void {
   const outer = options.size ?? BEAD_CELL;
-  const base = beadColor(colorIdx);
+  const inks = options.inks ?? DEMO_BEAD_INKS;
+  const base = beadColorOf(inks, colorIdx);
   const y = cy + (options.lift ?? 0);
 
   // L11 目标色垫（v1.5-r5）—— 画于珠十层之下（渲染序 L11 → L0a…L5）；
@@ -239,7 +247,7 @@ export function drawFilledBead(
   //   锚组抬起（`lift = -6`）会把垫一起抬走，「珠上移露垫」的读数被自身抹除。
   const padRadius = Math.round(outer * BEAD_CARD.radius);
   if (options.padColorIdx !== undefined) {
-    const pad = beadEndpoints(options.padColorIdx);
+    const pad = endpointOf(inks, options.padColorIdx);
     builder.rect(cx - outer / 2, cy - outer / 2, outer, outer, {
       fill: pad.edge,
       radius: padRadius,
@@ -356,12 +364,13 @@ export function drawEmptySocket(
   palette: BeadsPalette,
   size: number = BEAD_CELL,
   colorIdx?: number,
+  inks: BeadInks = DEMO_BEAD_INKS,
 ): void {
   const left = cx - size / 2;
   const bottom = cy - size / 2;
   const radius = Math.round(size * BEAD_CARD.radius);
-  const base = colorIdx === undefined ? palette.slot : beadColor(colorIdx);
-  const endpoints = colorIdx === undefined ? neutralEndpoints(palette) : beadEndpoints(colorIdx);
+  const base = colorIdx === undefined ? palette.slot : beadColorOf(inks, colorIdx);
+  const endpoints = colorIdx === undefined ? neutralEndpoints(palette) : endpointOf(inks, colorIdx);
 
   // S2 坑底（先画大底，S1 框压在其上）：内缩 6% 的 `pit` 填充。
   const inset = size * SOCKET_CARD.pitInset;

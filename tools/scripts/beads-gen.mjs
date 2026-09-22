@@ -19,7 +19,7 @@
  *   ⚠️ 选 shape 时自动跳过「背景去格」—— 形状本身就是图案边界
  *
  * 用法：
- *   node tools/scripts/beads-gen.mjs --in pic.jpg --board standard29 --palette artkal --colors 8 --swaps 12
+ *   node tools/scripts/beads-gen.mjs --in pic.jpg --board standard29 --palette artkal-s --colors 8 --mis none
  *   node tools/scripts/beads-gen.mjs --in pic.jpg --cols 29 --rows 29 --shape heart --swaps 8
  *   node tools/scripts/beads-gen.mjs                       # 无 --in ⇒ 合成 demo 图跑通全管线
  *   node tools/scripts/beads-gen.mjs --in-raw raw.json --no-png --out out  # 免浏览器路径（WXG-T-179 Web 服务）：
@@ -29,7 +29,8 @@
  * 入关前置（两条硬约束，都须先解）：
  *   ① rows ≤ GRID_MAX_ROWS、cols ≤ GRID_MAX_COLS（`systems-index §3.3` 冻结值）；
  *   ② paletteHex 的色值须能在游戏 BEAD_PALETTE（10 色）中找到对应珠 ——
- *      用 `--palette 10` 产出直接合规的盘；`artkal` 需先接 ADR-0016 戊案（换色值）。
+ *      用 `--palette 10` 产出直接合规的盘（⚠️ 2026-09-21 起 UI 已下架 10 色选项，
+ *      仅存 API 兼容）；artkal-s/c/r 需先接 ADR-0016 戊案（换色值）。
  */
 // 管线：源图 → 量化到拼豆色板 → 形状/背景去格(void) → **配色平衡**(任一色 ≤½)
 //       → **错位打乱**(多重集全错位：按色排序 + 循环左移 maxFreq)。
@@ -44,8 +45,8 @@
 //   node temp/beads-gen.mjs --in pic.png --cols 12 --rows 12 --cell 26
 //   node temp/beads-gen.mjs --noframe       # 不做背景去格（整盘皆可填）
 //   node temp/beads-gen.mjs --sample 8      # 每格采样倍率（默认 8 ⇒ 块内众数投票；1 = 旧最近邻）
-//   node temp/beads-gen.mjs --smooth 2      # 众数滤波轮数（默认 1；0 = 关）
-//   node temp/beads-gen.mjs --minblock 4    # 小于 N 格的碎块整体并入邻色（默认 3；<2 = 关）
+//   node temp/beads-gen.mjs --smooth 2      # 众数滤波轮数（默认 0 = 关；游戏盘大块风可开 1–2）
+//   node temp/beads-gen.mjs --minblock 4    # 小于 N 格的碎块整体并入邻色（默认 1 = 关；<2 = 关）
 //
 // ⚠️ 聚集度是**独立目标**（用户 2026-09-19 反馈：「豆子要尽量同色大块集中，以触发连续填充」）：
 //    与「配色平衡 ≤½」（只保证全盘错位有解，不保证成块）不是一回事。三个旋钮力度递增：
@@ -53,6 +54,7 @@
 //    报告的「同色相邻率 / 碎块占比 / 块数」是量化判据，别凭肉眼。
 
 import { createRequire } from 'node:module';
+import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
@@ -96,18 +98,17 @@ async function ensurePage() {
 //   · `--palette 8`（默认）= 游戏 8 色真源，产物**可直接进游戏**；
 //   · `--palette N>8`      = 程序化色板（色域覆盖），**仅供调研比较** ——
 //                           游戏暂无对应珠色，**不得直接入关**（报告会标注）。
-const GAME_PALETTE = [
-  '#FDF6E9', // 1 奶白 ○ 亮
-  '#FFD23F', // 2 柠黄 ★ 亮
-  '#F59B23', // 3 活力橙 ● 中
-  '#3FBF6B', // 4 草绿 ■ 中
-  '#E84C3D', // 5 玫红 ♥ 中暗
-  '#8E6FD9', // 6 丁香紫 ◐ 中暗
-  '#3D7BF5', // 7 湖蓝 ▽ 暗
-  '#A5652C', // 8 赭棕 ▲ 暗
-  '#6B3E1E', // 9 深棕 ◆ 最暗  ← 2026-09-20 补：此前脚本只取前 8 色，**暗部无落点**
-  '#33333D', // 10 炭黑 ✚ 最暗  ← 同上（真源 `view/palette.ts::BEAD_PALETTE` 是 **10 色**）
-];
+// v1.40：demo 十色真源 = `games/beads/design/levels/levels-01-08.json` 顶层 `palette`
+// （game-10.json 已删除，v1.40 品牌引用制）；与 view/palette.ts DEMO_BEAD_INKS 同源
+// （sync-levels-data 门禁）。
+const GAME_PALETTE = (() => {
+  try {
+    return JSON.parse(readFileSync(join(SCRIPT_DIR, '../../games/beads/design/levels/levels-01-08.json'), 'utf8')).palette;
+  } catch {
+    console.error('⚠️ demo 色板真源 levels-01-08.json 顶层 palette 缺失（v1.40）');
+    process.exit(3);
+  }
+})();
 const rgbToHex = (c) =>
   '#' + c.map((x) => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, '0')).join('').toUpperCase();
 /** HSL(h∈[0,1), s∈[0,1], l∈[0,1]) → RGB(0..255)。 */
@@ -222,8 +223,9 @@ if (boardName && !preset) {
   process.exit(3);
 }
 const hasExplicitSize = A.includes('--cols') || A.includes('--rows');
-const cols = hasExplicitSize ? Math.max(1, parseInt(arg('cols', '12'), 10)) : preset?.cols ?? 12;
-const rows = hasExplicitSize ? Math.max(1, parseInt(arg('rows', '12'), 10)) : preset?.rows ?? 12;
+// cols/rows 用 let：异形盘包围盒裁剪（下方 trim 块）会重赋值为裁后尺寸，下游全走裁后坐标
+let cols = hasExplicitSize ? Math.max(1, parseInt(arg('cols', '12'), 10)) : preset?.cols ?? 12;
+let rows = hasExplicitSize ? Math.max(1, parseInt(arg('rows', '12'), 10)) : preset?.rows ?? 12;
 const beadMm = parseFloat(arg('beadMm', String(preset?.beadMm ?? 5))) || 5;
 const shape = arg('shape', 'square'); // square（默认）| circle | hex | heart
 if (!['square', 'circle', 'hex', 'heart'].includes(shape)) {
@@ -237,52 +239,97 @@ const outDir = arg('out', join(process.cwd(), 'temp/beads-out'));
 const skew = has('skew'); // 合成图里逼出一个主导色，验证平衡
 const noFrame = has('noframe'); // 跳过去背景
 const sample = Math.max(1, parseInt(arg('sample', '8'), 10)); // 每格采样倍率（块内众数投票）
-const smoothRounds = Math.max(0, parseInt(arg('smooth', '1'), 10)); // 众数滤波轮数
-const minBlock = Math.max(0, parseInt(arg('minblock', '3'), 10)); // 碎块并入阈值（格）
+const smoothRounds = Math.max(0, parseInt(arg('smooth', '0'), 10)); // 众数滤波轮数（0 = 关；默认关：滤波会抹掉 2–3 格小特征，实物还原主用例受伤 2026-09-21）
+const minBlock = Math.max(0, parseInt(arg('minblock', '1'), 10)); // 碎块并入阈值（格；<2 = 关。默认关：同理保小特征 2026-09-21）
 const colorsMax = Math.max(0, parseInt(arg('colors', '0'), 10)); // 用色数上限（0/≥色板大小 = 不限制）
-const paletteArg = arg('palette', '10'); // 数字（≤10 游戏真源 / >10 程序化色域）| 'artkal'（真实品牌色板）
-const colorsMode = arg('colorsmode', 'error'); // freq（频次优先）| error（误差最小优先；默认）
-const paletteSize = paletteArg === 'artkal' ? 0 : Math.max(2, parseInt(paletteArg, 10));
+const paletteArg = arg('palette', 'artkal-s'); // 品牌色板 slug（games/beads/art/<slug>.json：artkal-s/c/a/m/r、hama-*、perler*、nabbi、yant、mard、diamond-dotz）| 数字（程序化色域；'10' 游戏真源已从 UI 下架，仅 API 兼容）
+const colorsMode = arg('colorsmode', 'error'); // freq（频次优先）| error（ 误差最小优先；默认；仅 keptPx 为空时生效）
+const cellmode = arg('cellmode', 'mode'); // 格级映射风格：mode=主导色（卡通干净）| avg=平均色（照片纹理）
+if (!['mode', 'avg'].includes(cellmode)) {
+  console.error('⚠️ --cellmode 只支持 mode / avg');
+  process.exit(3);
+}
+const isBrandPalette = !/^[0-9]+$/.test(paletteArg); // 非纯数字 = 品牌 slug（⚠️ slug 需匹配 [a-z0-9-]，防路径穿越）
+const paletteSize = isBrandPalette ? 0 : Math.max(2, parseInt(paletteArg, 10));
 
-// 色板落地：数字 ⇒ `buildPalette`；`artkal` ⇒ 读 `temp/artkal-palette.json`（真实品牌色，去重）
-const ARTKAL = (() => {
+// 色板落地：数字 ⇒ `buildPalette`；slug ⇒ 读 `games/beads/art/<slug>.json`（真实品牌色，去重）
+const BRAND = (() => {
+  if (!isBrandPalette) return null;
+  if (!/^[a-z0-9-]+$/.test(paletteArg)) {
+    console.error(`⚠️ --palette 非法 slug：${paletteArg}`);
+    process.exit(3);
+  }
   try {
-    // 转正后色板数据是**入库资产**；兼容 spike 期放在 temp/ 的老位置
+    // 色板数据是**入库资产**（games/beads/art/）；兼容 spike 期 artkal-s 放 temp/ 的老位置
     const j = (() => {
       for (const f of [
         // ⚠️ 不能放 `design/levels/` —— 该目录的 .json 必须**恰好 1 个**（关卡真源唯一性门禁，
         //    WXG-T-048；2026-09-20 实测：放进去会让 `levels:check` 报红）。故色板归美术资产目录。
-        join(SCRIPT_DIR, '../games/beads/art/artkal-palette.json'),
-        join(SCRIPT_DIR, '../../games/beads/art/artkal-palette.json'),
-        join(process.cwd(), 'temp/artkal-palette.json'),
+        join(SCRIPT_DIR, `../games/beads/art/${paletteArg}.json`),
+        join(SCRIPT_DIR, `../../games/beads/art/${paletteArg}.json`),
+        paletteArg === 'artkal-s' ? join(process.cwd(), 'temp/artkal-palette.json') : '', // 老位置仅 artkal-s 兼容
       ]) {
+        if (!f) continue;
         try { return JSON.parse(readFileSync(f, "utf8")); } catch { /* try next */ }
       }
       return null;
     })();
     if (!j) return null;
-    return { hex: [...new Set(j.palette)], src: j._source, raw: j.palette.length };
+    // 去重同步 codes：Set 去重 hex 时保留首个索引，色号随同取同位（v1.40 品牌引用制：关卡存色号不存 hex）
+    const uniq = new Map();
+    j.palette.forEach((h, i) => { if (!uniq.has(h)) uniq.set(h, (j.codes ?? [])[i] ?? null); });
+    return { hex: [...uniq.keys()], codes: [...uniq.values()], src: j._source, raw: j.palette.length };
   } catch {
     return null;
   }
 })();
-if (paletteArg === 'artkal' && !ARTKAL) {
-  console.error('⚠️ --palette artkal 需要 temp/artkal-palette.json（未找到，见 WXG-T-179）');
+if (isBrandPalette && !BRAND) {
+  console.error(`⚠️ --palette ${paletteArg} 需要 games/beads/art/${paletteArg}.json（未找到，见 WXG-T-179）`);
   process.exit(3);
 }
-const palHex = paletteArg === 'artkal' ? ARTKAL.hex : buildPalette(paletteSize);
+const palHex = isBrandPalette ? BRAND.hex : buildPalette(paletteSize);
 const palRgb = palHex.map((h) => {
   const n = parseInt(h.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 });
 const PAL_N = palHex.length;
+
+// ── 感知色差（Lab ΔE76，2026-09-21 选项A）：RGB 欧氏把阴影绿判到橄榄、高光混色判到灰青
+// （1f59 取证 + 开源对比：pixel2perler 用 CIEDE2000、Zippland 把 Lab 列入 roadmap）。
+// 取 ΔE76 而非 CIEDE2000：每像素 ×210 色板色的最近邻搜索下性价比最高，不够再升。
+function rgb2lab(r, g, b) {
+  const f = (c) => {
+    c /= 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  r = f(r); g = f(g); b = f(b);
+  let x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+  const y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+  let z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+  const h = (t) => (t > 0.008856 ? t ** (1 / 3) : 7.787 * t + 16 / 116);
+  x = h(x); z = h(z);
+  const yy = h(y);
+  return [116 * yy - 16, 500 * (x - yy), 200 * (yy - z)];
+}
+const PAL_LAB = palRgb.map(([r, g, b]) => rgb2lab(r, g, b));
+/** RGB(0..255) → 最近色板色号(1..PAL_N)，Lab 感知距离。 */
+function nearestPal(r, g, b) {
+  const q = rgb2lab(r, g, b);
+  let best = 1, bd = Infinity;
+  for (let p = 0; p < PAL_N; p++) {
+    const t = PAL_LAB[p];
+    const dd = (t[0] - q[0]) ** 2 + (t[1] - q[1]) ** 2 + (t[2] - q[2]) ** 2;
+    if (dd < bd) { bd = dd; best = p + 1; }
+  }
+  return best;
+}
 mkdirSync(outDir, { recursive: true });
 
 // ── 纯逻辑（Node 侧，可独立推理/断言）────────────────────────────────────────
-/** 两色板索引(1..8)间的 RGB 距离平方。 */
+/** 两色板索引(1..PAL_N)间的 Lab 感知距离平方（原 RGB 欧氏，2026-09-21 选项A）。 */
 function palDist(a, b) {
-  const x = palRgb[a - 1];
-  const y = palRgb[b - 1];
+  const x = PAL_LAB[a - 1];
+  const y = PAL_LAB[b - 1];
   return (x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2 + (x[2] - y[2]) ** 2;
 }
 
@@ -420,11 +467,15 @@ function limitColors(arr, n, mode = 'freq', avg = null) {
   for (const v of arr) if (v > 0) cnt[v]++;
   let kept;
   if (mode === 'error' && avg) {
-    // 贪心 k-medoids：逐次加入「使总色差下降最多」的色。
-    // near[k] = 第 k 个可填格到已选集合的**最小距离²**；BIG 替代 Infinity（避免 Infinity 参与比较）。
+    // 贪心 k-medoids 起步 + **Lloyd 式迭代细化**（libimagequant 经验，2026-09-21 选项A）：
+    // 单遍贪心会停在坏局部最优（实证 1f59：树冠橄榄 #345621 ×162 抢走深绿主体）。
+    // 距离用 Lab 感知色差（cellLab = 每格平均色的 Lab，预计算避免迭代内重复转换）。
     const cells = [];
-    for (let i = 0; i < arr.length; i++) if (arr[i] > 0) cells.push(i);
-    const BIG = 3 * 255 * 255;
+    const cellLab = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] > 0) { cells.push(i); cellLab.push(rgb2lab(avg[i * 3], avg[i * 3 + 1], avg[i * 3 + 2])); }
+    }
+    const BIG = 1e9;
     const near = new Array(cells.length).fill(BIG);
     kept = [];
     const chosen = new Set();
@@ -432,12 +483,11 @@ function limitColors(arr, n, mode = 'freq', avg = null) {
       let bestC = -1, bestGain = -1;
       for (let c = 1; c <= PAL_N; c++) {
         if (chosen.has(c)) continue;
-        const p = palRgb[c - 1];
+        const p = PAL_LAB[c - 1];
         let gain = 0;
         for (let k = 0; k < cells.length; k++) {
-          const i = cells[k];
-          const dr = avg[i * 3] - p[0], dg = avg[i * 3 + 1] - p[1], db = avg[i * 3 + 2] - p[2];
-          const d = dr * dr + dg * dg + db * db;
+          const q = cellLab[k];
+          const d = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
           if (d < near[k]) gain += near[k] - d;
         }
         if (gain > bestGain) { bestGain = gain; bestC = c; }
@@ -445,13 +495,47 @@ function limitColors(arr, n, mode = 'freq', avg = null) {
       if (bestC < 0) break;
       kept.push(bestC);
       chosen.add(bestC);
-      const p = palRgb[bestC - 1];
+      const p = PAL_LAB[bestC - 1];
       for (let k = 0; k < cells.length; k++) {
-        const i = cells[k];
-        const dr = avg[i * 3] - p[0], dg = avg[i * 3 + 1] - p[1], db = avg[i * 3 + 2] - p[2];
-        const d = dr * dr + dg * dg + db * db;
+        const q = cellLab[k];
+        const d = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
         if (d < near[k]) near[k] = d;
       }
+    }
+    // Lloyd 迭代：重分配 → 每簇在 210 色里换「簇内总距离最小」的簇心（仍是真实珠色），直到稳定。
+    for (let it = 0; it < 8; it++) {
+      const members = new Map(); // 色号 → [cellIdx in cells]
+      for (const c of kept) members.set(c, []);
+      for (let k = 0; k < cells.length; k++) {
+        let best = kept[0], bd = Infinity;
+        for (const c of kept) {
+          const p = PAL_LAB[c - 1], q = cellLab[k];
+          const d = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
+          if (d < bd) { bd = d; best = c; }
+        }
+        members.get(best).push(k);
+      }
+      let moved = 0;
+      const next = [];
+      for (const [c, ms] of members) {
+        if (ms.length === 0) continue; // 空簇淘汰
+        let bestC = c, bd = Infinity;
+        for (let cc = 1; cc <= PAL_N; cc++) {
+          const p = PAL_LAB[cc - 1];
+          let s = 0;
+          for (const k of ms) {
+            const q = cellLab[k];
+            s += (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
+          }
+          if (s < bd) { bd = s; bestC = cc; }
+        }
+        if (bestC !== c) moved++;
+        next.push(bestC);
+      }
+      next.sort((a, b) => a - b);
+      const stable = moved === 0 && next.length === kept.length && next.every((v, i) => v === kept[i]);
+      kept = next.length ? next : kept;
+      if (stable) break;
     }
     kept.sort((a, b) => a - b);
   } else {
@@ -713,7 +797,7 @@ function toRowStrings(arr) {
   return out;
 }
 
-// ── 浏览器侧：解码源图 + 降采样量化到 cols×rows（主导/最近色），及导出 PNG ────────
+// ── 浏览器侧：解码源图 → 区域缩放像素缓冲（量化/限色统一在 Node 侧 buildGrid 做），及导出 PNG ──
 // ⚠ 不在顶层启动浏览器：`--in-raw --no-png`（Web 服务路径）必须完全不碰 chromium，
 //    故页面一律由 readGrid / renderPng 内部的 ensurePage() **按需**创建。
 
@@ -721,61 +805,33 @@ async function readGrid() {
   await ensurePage();
   return await page.evaluate(
     async ({ w, h, pal, srcBase64, skew, K }) => {
-      /** 单像素 → 最近调色板色（1..8）。 */
-      const quant = (r, gg, b) => {
-        let best = 1, bd = Infinity;
-        for (let p = 0; p < pal.length; p++) {
-          const pr = pal[p][0] - r, pg = pal[p][1] - gg, pb = pal[p][2] - b;
-          const dd = pr * pr + pg * pg + pb * pb;
-          if (dd < bd) { bd = dd; best = p + 1; }
-        }
-        return best;
-      };
-      const grid = new Array(w * h);
-      const avg = new Array(w * h * 3); // 每格**原始平均色**(RGB)：色差统计与「误差最小选色」用
       const cv = document.createElement('canvas');
-
+      let W, H, R, G, B;
       if (!srcBase64) {
-        // ── 合成图（demo/skew）：按公式直出，单点取色即可 ──
-        cv.width = w;
-        cv.height = h;
-        const g = cv.getContext('2d');
-        const id = g.createImageData(w, h);
-        for (let y = 0; y < h; y++) {
-          for (let x = 0; x < w; x++) {
+        // ── 合成图（demo/skew）：按公式直出，每格色复制成 K×K 块（与真图路径同构）──
+        W = w * K; H = h * K;
+        R = new Array(W * H); G = new Array(W * H); B = new Array(W * H);
+        for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const gx = (x / K) | 0, gy = (y / K) | 0;
             let idx; // palette 0-based
             if (skew) {
-              idx = (x * 3 + y * 5) % 10 < 7 ? 0 : 1 + ((x + y) % Math.min(3, pal.length - 1)); // 色0 约 70%，逼出主导色
+              idx = (gx * 3 + gy * 5) % 10 < 7 ? 0 : 1 + ((gx + gy) % Math.min(3, pal.length - 1)); // 色0 约 70%，逼出主导色
             } else {
-              idx = (x * 3 + y * 5) % Math.min(5, pal.length); // 5 色近均布（板小则退化为可用色数）
+              idx = (gx * 3 + gy * 5) % Math.min(5, pal.length); // 5 色近均布（板小则退化为可用色数）
             }
             const p = pal[idx];
-            const o = (y * w + x) * 4;
-            id.data[o] = p[0];
-            id.data[o + 1] = p[1];
-            id.data[o + 2] = p[2];
-            id.data[o + 3] = 255;
+            const ti = y * W + x;
+            R[ti] = p[0]; G[ti] = p[1]; B[ti] = p[2];
           }
         }
-        g.putImageData(id, 0, 0);
-        const d = g.getImageData(0, 0, w, h).data;
-        for (let i = 0; i < w * h; i++) {
-          grid[i] = quant(d[i * 4], d[i * 4 + 1], d[i * 4 + 2]);
-          avg[i * 3] = d[i * 4];
-          avg[i * 3 + 1] = d[i * 4 + 1];
-          avg[i * 3 + 2] = d[i * 4 + 2];
-        }
-        return { grid, avg };
+        return { W, H, R, G, B, A: null };
       }
 
-      // ── 真图：**超采样 + 块内众数投票**（2026-09-19，用户「要同色大块集中」）──
-      // 旧口径 = 最近邻缩放到 w×h、每格取**1 个像素** ⇒ 照片的高频细节（纹理/渐变/噪点）
-      // 直接变成单格色差 ⇒ 碎块遍地、同色不相邻，玩家无法用「组选/连续填充」。
-      // 新口径 = 先平滑放大到 w·K × h·K，再对每格 K×K 像素**各自量化**并取**众数**。
-      //   · 取众数而非块内平均：平均值常落在两个调色板色中间 ⇒ 量化后仍会抖；
-      //     众数是「该区域里出现最多的调色板色」，对渐变与噪点都稳。
-      //   · K 越大越去噪（默认 8；`--sample 1` 退回旧行为，便于对照）。
-      const W = w * K, H = h * K;
+      // ── 真图：**超采样**平滑缩放到 w·K × h·K（2026-09-19 口径保留）──
+      // 旧口径 = 最近邻缩放、每格取 1 个像素 ⇒ 高频细节直接变单格色差 ⇒ 碎块遍地。
+      // 量化与限色已统一移到 Node 侧 buildGrid（像素级 k-means 限色 + 格级映射）。
+      W = w * K; H = h * K;
       cv.width = W;
       cv.height = H;
       const g = cv.getContext('2d');
@@ -787,31 +843,11 @@ async function readGrid() {
       g.imageSmoothingQuality = 'high';
       g.drawImage(bmp, 0, 0, bmp.width, bmp.height, 0, 0, W, H);
       const d = g.getImageData(0, 0, W, H).data;
-      const pn = pal.length; // ⚠️ 浏览器侧看不到 Node 的 PAL_N ⇒ 一律用传入的 pal.length
-      for (let gy = 0; gy < h; gy++) {
-        for (let gx = 0; gx < w; gx++) {
-          const votes = new Array(pn + 1).fill(0);
-          let sr = 0, sg = 0, sb = 0;
-          for (let sy = 0; sy < K; sy++) {
-            for (let sx = 0; sx < K; sx++) {
-              const o = ((gy * K + sy) * W + gx * K + sx) * 4;
-              sr += d[o];
-              sg += d[o + 1];
-              sb += d[o + 2];
-              votes[quant(d[o], d[o + 1], d[o + 2])]++;
-            }
-          }
-          const gi = gy * w + gx;
-          const nn = K * K;
-          avg[gi * 3] = sr / nn;
-          avg[gi * 3 + 1] = sg / nn;
-          avg[gi * 3 + 2] = sb / nn;
-          let bw = -1, bc = 1;
-          for (let c = 1; c <= pn; c++) if (votes[c] > bw) { bw = votes[c]; bc = c; } // 平局取小色号（确定性）
-          grid[gi] = bc;
-        }
+      R = new Array(W * H); G = new Array(W * H); B = new Array(W * H);
+      for (let i = 0; i < W * H; i++) {
+        R[i] = d[i * 4]; G[i] = d[i * 4 + 1]; B[i] = d[i * 4 + 2];
       }
-      return { grid, avg };
+      return { W, H, R, G, B, A: null };
     },
     {
       w: cols,
@@ -850,53 +886,146 @@ async function renderPng(colors, label) {
 }
 
 // ── 纯 Node 侧：--in-raw 免浏览器路径（WXG-T-179 Web 服务复用；前端解好像素后发 RGBA）──
-// 输入 = JSON { w, h, data: base64(RGBA) }；与浏览器 readGrid 同口径：每格块内逐像素量化 + 众数投票。
-function readGridRaw(raw) {
+// 输入 = JSON { w, h, data: base64(RGBA) }。
+// 只做第一步区域平均缩放（等价浏览器 imageSmoothing 缩到 cols·K × rows·K；alpha<128 不参与）；
+// 量化与限色统一在 buildGrid（2026-09-21 前曾在此逐像素全色板投票，已并入统一管线）。
+function readPixelsRaw(raw) {
   const sw = raw.w, sh = raw.h;
   const buf = Buffer.from(raw.data, 'base64');
   if (buf.length < sw * sh * 4) {
     console.error(`--in-raw 数据不足：${buf.length} < ${sw}×${sh}×4`);
     process.exit(3);
   }
-  const grid = new Array(cols * rows);
-  const avg = new Array(cols * rows * 3);
-  for (let cy = 0; cy < rows; cy++) {
-    const y0 = Math.floor((cy * sh) / rows), y1 = Math.max(y0 + 1, Math.floor(((cy + 1) * sh) / rows));
-    for (let cx = 0; cx < cols; cx++) {
-      const x0 = Math.floor((cx * sw) / cols), x1 = Math.max(x0 + 1, Math.floor(((cx + 1) * sw) / cols));
-      const vote = new Array(PAL_N + 1).fill(0);
+  const W = cols * sample, H = rows * sample;
+  const R = new Float64Array(W * H), G = new Float64Array(W * H), B = new Float64Array(W * H);
+  const A = new Uint8Array(W * H); // 0 = 整块透明
+  for (let ty = 0; ty < H; ty++) {
+    const y0 = Math.floor((ty * sh) / H), y1 = Math.max(y0 + 1, Math.floor(((ty + 1) * sh) / H));
+    for (let tx = 0; tx < W; tx++) {
+      const x0 = Math.floor((tx * sw) / W), x1 = Math.max(x0 + 1, Math.floor(((tx + 1) * sw) / W));
       let sr = 0, sg = 0, sb = 0, n = 0;
       for (let y = y0; y < y1; y++) {
         for (let x = x0; x < x1; x++) {
           const o = (y * sw + x) * 4;
-          const r = buf[o], g = buf[o + 1], b = buf[o + 2];
           if (buf[o + 3] < 128) continue; // 透明像素不参与（前端抠图/异形源友好）
-          let best = 1, bd = Infinity;
-          for (let p = 0; p < PAL_N; p++) {
-            const pr = palRgb[p][0] - r, pg = palRgb[p][1] - g, pb = palRgb[p][2] - b;
-            const dd = pr * pr + pg * pg + pb * pb;
-            if (dd < bd) { bd = dd; best = p + 1; }
-          }
-          vote[best]++;
-          sr += r; sg += g; sb += b; n++;
+          sr += buf[o]; sg += buf[o + 1]; sb += buf[o + 2]; n++;
         }
       }
-      let pick = 0, bn = 0;
-      for (let p = 1; p <= PAL_N; p++) if (vote[p] > bn) { bn = vote[p]; pick = p; }
-      const gi = cy * cols + cx;
-      grid[gi] = n > 0 ? pick : 0; // 整格透明 ⇒ 空位
-      avg[gi * 3] = n ? Math.round(sr / n) : 0;
-      avg[gi * 3 + 1] = n ? Math.round(sg / n) : 0;
-      avg[gi * 3 + 2] = n ? Math.round(sb / n) : 0;
+      const ti = ty * W + tx;
+      R[ti] = n ? sr / n : 255; G[ti] = n ? sg / n : 255; B[ti] = n ? sb / n : 255;
+      A[ti] = n ? 1 : 0;
     }
   }
-  return { grid, avg };
+  return { W, H, R, G, B, A };
+}
+
+function nearestLabIdx(q, labs) {
+  let bi = 0, bd = Infinity;
+  for (let i = 0; i < labs.length; i++) {
+    const p = labs[i];
+    const d = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
+    if (d < bd) { bd = d; bi = i; }
+  }
+  return bi;
+}
+
+// 确定性 k-means（Lab 空间，L4：无随机——最远点初始化 + Lloyd 迭代）
+function kmeansLab(pts, k) {
+  const centers = [pts[0].slice()];
+  const minD = new Float64Array(pts.length).fill(Infinity);
+  while (centers.length < k) {
+    const last = centers[centers.length - 1];
+    let bi = -1, bd = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const q = pts[i];
+      const d = (last[0] - q[0]) ** 2 + (last[1] - q[1]) ** 2 + (last[2] - q[2]) ** 2;
+      if (d < minD[i]) minD[i] = d;
+      if (minD[i] > bd) { bd = minD[i]; bi = i; }
+    }
+    if (bd <= 1e-12) break; // 剩余点几乎重合，凑不满 k
+    centers.push(pts[bi].slice());
+  }
+  for (let it = 0; it < 12; it++) {
+    const sums = centers.map(() => [0, 0, 0, 0]);
+    for (const q of pts) {
+      const s = sums[nearestLabIdx(q, centers)];
+      s[0] += q[0]; s[1] += q[1]; s[2] += q[2]; s[3]++;
+    }
+    let moved = 0;
+    for (let c = 0; c < centers.length; c++) {
+      const s = sums[c];
+      if (!s[3]) continue; // 空簇保持原簇心
+      const nc = [s[0] / s[3], s[1] / s[3], s[2] / s[3]];
+      if ((nc[0] - centers[c][0]) ** 2 + (nc[1] - centers[c][1]) ** 2 + (nc[2] - centers[c][2]) ** 2 > 1e-9) moved++;
+      centers[c] = nc;
+    }
+    if (!moved) break;
+  }
+  return centers;
+}
+
+// ── 像素级限色 + 格级映射（2026-09-21，对标 makebead / 豆豆龙类在线工具）────────
+// 根因实证：旧架构在**格级**才限色——红苹果/黑轮廓到那时只剩 1-3 格，贪心 k-medoids
+// 按「总色差收益」选色必输给大片区域的色阶内耗（8 席全被绿的微妙渐变占掉）。在线工具
+// 都在**像素级**限色：小特征此时还是几千像素的大簇，稳占一席；然后再逐格映射。
+//   · 簇心吸附到最近品牌真值色（保证可采购；kept 去重后可能 < k）。
+//   · cellmode：mode=格内主导色（卡通干净，对标 makebead）| avg=格均色就近（照片纹理，对标豆豆龙）。
+function buildGrid(px, n, cellmode) {
+  const { W, H, R, G, B, A } = px;
+  const LAB = new Float64Array(W * H * 3); // 每像素 Lab（k-means 与格级映射共用）
+  const pts = [];
+  for (let i = 0; i < W * H; i++) {
+    if (A && !A[i]) continue;
+    const l = rgb2lab(Math.round(R[i]), Math.round(G[i]), Math.round(B[i]));
+    LAB[i * 3] = l[0]; LAB[i * 3 + 1] = l[1]; LAB[i * 3 + 2] = l[2];
+    pts.push(l);
+  }
+  let colors; // 本轮可用色号（kept 非空 = 已做像素级限色）
+  if (n > 0 && n < PAL_N && pts.length) {
+    const seen = new Set();
+    for (const c of kmeansLab(pts, Math.min(n, pts.length))) seen.add(nearestLabIdx(c, PAL_LAB) + 1);
+    colors = [...seen].sort((a, b) => a - b);
+  } else {
+    colors = Array.from({ length: PAL_N }, (_, i) => i + 1); // 不限制 → 全色板
+  }
+  const mapLab = colors.map((c) => PAL_LAB[c - 1]);
+  const grid = new Array(cols * rows).fill(0);
+  const avg = new Array(cols * rows * 3).fill(0);
+  for (let cy = 0; cy < rows; cy++) {
+    for (let cx = 0; cx < cols; cx++) {
+      const vote = new Array(mapLab.length).fill(0);
+      let sr = 0, sg = 0, sb = 0, nn = 0;
+      for (let sy = 0; sy < sample; sy++) {
+        for (let sx = 0; sx < sample; sx++) {
+          const ti = (cy * sample + sy) * W + cx * sample + sx;
+          if (A && !A[ti]) continue;
+          vote[nearestLabIdx([LAB[ti * 3], LAB[ti * 3 + 1], LAB[ti * 3 + 2]], mapLab)]++;
+          sr += R[ti]; sg += G[ti]; sb += B[ti]; nn++;
+        }
+      }
+      const gi = cy * cols + cx;
+      if (!nn) continue; // 整格透明 ⇒ 空位
+      avg[gi * 3] = Math.round(sr / nn);
+      avg[gi * 3 + 1] = Math.round(sg / nn);
+      avg[gi * 3 + 2] = Math.round(sb / nn);
+      if (cellmode === 'avg') {
+        grid[gi] = colors[nearestLabIdx(rgb2lab(avg[gi * 3], avg[gi * 3 + 1], avg[gi * 3 + 2]), mapLab)];
+      } else { // 主导色：平局取小下标（确定性）
+        let bi = 0, bn = 0;
+        for (let p = 0; p < vote.length; p++) if (vote[p] > bn) { bn = vote[p]; bi = p; }
+        grid[gi] = colors[bi];
+      }
+    }
+  }
+  return { grid, avg, kept: colors.length < PAL_N ? colors : [] };
 }
 
 // ── 主流程 ──────────────────────────────────────────────────────────────────
-const { grid, avg } = inRawPath
-  ? readGridRaw(JSON.parse(readFileSync(inRawPath, 'utf8')))
+const px = inRawPath
+  ? readPixelsRaw(JSON.parse(readFileSync(inRawPath, 'utf8')))
   : await readGrid();
+const { grid, avg: avg0, kept: keptPx } = buildGrid(px, colorsMax, cellmode);
+let avg = avg0; // let：异形盘包围盒裁剪（下方 trim 块）会重赋为裁后 avg
 
 // 去背景：取四边框里最常见的一色当背景 → void（0）。--noframe 则整盘可填。
 // ⚠️ 异形盘（shape ≠ square）**自动跳过**本步 —— 形状本身就是图案边界，
@@ -904,7 +1033,7 @@ const { grid, avg } = inRawPath
 // **2026-09-19 改（用户「同色大块集中」诉求）**：旧口径把**全盘所有**该色格都设为 void ——
 // 主体内部与背景同色的区域会被一并挖掉，直接把大色块切成碎块（并为后续平滑制造假边界）。
 // 改为**只删「自四边框 4 连通可达」**的该色格（flood fill）⇒ 背景照旧干净，主体内部同色保留。
-const solved = grid.slice();
+let solved = grid.slice();
 
 // ── 异形盘掩码（在去背景**之前**）：形状外的格直接判空位
 let shapeCells = null;
@@ -944,9 +1073,43 @@ if (!noFrame && shape === 'square') {
   }
 }
 
-// 用色数上限（用户想法：相似色被合并 ⇒ 更易大块）；排在聚集处理**之前**，使统计基于真实可填格。
-const errPreLimit = meanColorErr(solved, avg); // 限色前的色差 = **调色板本身**的保形上限
-const limit = limitColors(solved, colorsMax, colorsMode, avg);
+// ── 包围盒裁剪（2026-09-21 用户拍板「异形盘」）：全空行/列不算宽高——背景去格/形状
+//    掩码后边缘的 void 行列白占 cols/rows（39×39 的树裁完 ≈33×36），游戏导入尺寸门更易
+//    过、玩法盘面更满、物理尺寸更贴近实际用盘。插在聚集/平衡/错位构造**之前**
+//    ⇒ 下游（smooth/balance/sw/der/renderPng/toRowStrings）全部走裁后坐标。
+//    noframe（铺满整盘）无 void ⇒ bbox=整盘，trim 空转。
+{
+  let c0 = cols, c1 = -1, r0 = rows, r1 = -1;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    if (solved[r * cols + c] > 0) {
+      if (c < c0) c0 = c;
+      if (c > c1) c1 = c;
+      if (r < r0) r0 = r;
+      if (r > r1) r1 = r;
+    }
+  }
+  if (c1 >= 0 && (c0 > 0 || r0 > 0 || c1 < cols - 1 || r1 < rows - 1)) {
+    const nc = c1 - c0 + 1, nr = r1 - r0 + 1;
+    const s2 = new Array(nc * nr).fill(0);
+    const a2 = new Array(nc * nr * 3).fill(0);
+    for (let r = 0; r < nr; r++) for (let c = 0; c < nc; c++) {
+      const si = (r + r0) * cols + c + c0, di = r * nc + c;
+      s2[di] = solved[si];
+      a2[di * 3] = avg[si * 3];
+      a2[di * 3 + 1] = avg[si * 3 + 1];
+      a2[di * 3 + 2] = avg[si * 3 + 2];
+    }
+    console.error(`# trim ${cols}×${rows} → ${nc}×${nr}（裁空边：左${c0} 右${cols - 1 - c1} 上${r0} 下${rows - 1 - r1}）`);
+    solved = s2; avg = a2; cols = nc; rows = nr;
+  }
+}
+
+// 用色数上限：像素级 k-means 已在 buildGrid 内完成（keptPx 非空时跳过格级 limitColors，
+// 避免对已限色网格重复选色）；keptPx 为空（不限制）时走原格级逻辑兑底。
+const errPreLimit = meanColorErr(solved, avg); // keptPx 非空时 solved 已限色，此值≈限色后
+const limit = keptPx.length
+  ? { changed: 0, kept: keptPx, mode: `pixel-kmeans/${cellmode}` }
+  : limitColors(solved, colorsMax, colorsMode, avg);
 
 // 聚集度处理（力度递增；三步与「配色平衡」「错位打乱」互不冲突，可自由组合）：
 //   stats0 → 众数滤波 → 碎块并入 → stats1，报告里给出前后对比，便于调参。
@@ -958,29 +1121,36 @@ const stats1 = clusterStats(solved); // 聚集处理后
 const h0 = hist(solved);
 // ⚠️ 必须把 `--colors` 的保留色集传给 balance（否则它会把禁用色复活，见其头注）
 const allowSet = limit.kept.length ? new Set(limit.kept) : null;
-const { changed, note } = balance(solved, allowSet); // 就地改 solved（正确解受平衡约束）
-const h1 = hist(solved);
-const errFinal = meanColorErr(solved, avg); // 全部处理之后的最终色差 = **形状保真度**（越小越像原图）
-// 错位模式（`--mis full|swaps`；默认：给了 `--swaps K` 就 swaps，否则 full）。
+// 错位模式（`--mis full|swaps|none`；默认：给了 `--swaps K` 就 swaps，否则 full）。
 // ⚠ 模式必须在**构造之前**定：否则 `--mis full` 遇上 `--swaps 8` 仍会走交换法，
 //    得到的只是 2k 颗错位（不是全盘错位）—— 静默给错东西。
 const misMode = arg('mis', parseInt(arg('swaps', '0'), 10) > 0 ? 'swaps' : 'full');
-if (misMode !== 'full' && misMode !== 'swaps') {
-  console.error(`⚠️ --mis 只支持 full / swaps，收到 "${misMode}"`);
+if (misMode !== 'full' && misMode !== 'swaps' && misMode !== 'none') {
+  console.error(`⚠️ --mis 只支持 full / swaps / none，收到 "${misMode}"`);
   process.exit(3);
 }
+// mis=none（实物图纸模式）：跳过配色平衡 —— balance 是为全错位构造的前提（主导色 ≤ N/2，
+// Hall 条件）服务的；实物还原不需要错位，强钳主导色只会把大片树冠绿改成棕黑（2026-09-21
+// 用户实测「树都不绿了」的根因，balancedChanged=103）。
+const { changed, note } = misMode === 'none'
+  ? { changed: [], note: 'mis=none 实物图纸模式：跳过配色平衡（不做主导色 ≤ N/2 钳制）' }
+  : balance(solved, allowSet); // 就地改 solved（正确解受平衡约束）
+const h1 = hist(solved);
+const errFinal = meanColorErr(solved, avg); // 全部处理之后的最终色差 = **形状保真度**（越小越像原图）
 // 错位构造二选一：swaps ⇒ 游戏口径的 k 对异色交换（仅 2k 颗错位）；full ⇒ 全盘错位（每颗都不就位）。
 const swapsK = misMode === 'swaps' ? Math.max(0, parseInt(arg('swaps', '0'), 10)) : 0;
 const sw = swapsK > 0 ? buildSwaps(solved, swapsK) : null;
-const der = sw
-  ? {
-    ok: sw.pairs === swapsK,
-    misplaced: sw.init,
-    maxFreq: 0,
-    N: 0,
-    reason: sw.pairs < swapsK ? `可配对数不足（实得 ${sw.pairs}/${swapsK}）` : '',
-  }
-  : derange(solved);
+const der = misMode === 'none'
+  ? { ok: false, misplaced: null, maxFreq: 0, N: 0, reason: 'mis=none（实物图纸，不做错位）' }
+  : sw
+    ? {
+      ok: sw.pairs === swapsK,
+      misplaced: sw.init,
+      maxFreq: 0,
+      N: 0,
+      reason: sw.pairs < swapsK ? `可配对数不足（实得 ${sw.pairs}/${swapsK}）` : '',
+    }
+    : derange(solved);
 
 const fillN = solved.filter((v) => v > 0).length;
 const colorsUsed = h1.slice(1).filter((n) => n > 0).length;
@@ -994,9 +1164,15 @@ if (browser) await browser.close();
 const json = {
   _proto: 'beads-gen spike (WXG-T-179 前置，未接引擎)',
   cols, rows,
+  pattern: toRowStrings(solved), // 正确解（= 每格底色）
+  // 色号紧凑序 → 实际 hex（与 toRowStrings 的重编号对齐：pattern 字符第 i 个用色 ↔ paletteHex[i]；
+  // 供 Web 前端忠实预览 artkal 色值，levelDraft 内另有自包含副本）
+  paletteHex: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => palHex[c - 1]),
+  // 紧凑序色号（v1.40 品牌引用制）：品牌模式下游戏侧按 slug+codes 从注册表查 hex；
+  // demo/程序化色板无色号语义 → 省略字段（关卡回落顶层默认色板）
+  ...(isBrandPalette ? { paletteCodes: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => BRAND.codes[c - 1]) } : {}),
   time: null,
   cycleProfile: 'long',
-  pattern: toRowStrings(solved), // 正确解（= 每格底色）
   // 错位模式（`--mis full|swaps`，定法见上方 swapsK 处）：
   //   · full  = **全盘错位初盘**（每颗可填珠都不就位，成片错豆）⇒ 走 `misplaced` 字段
   //             （引擎 v1.3 起支持，入库 8 关用的就是它）；前提 = `der.ok`（Hall 条件
@@ -1019,11 +1195,12 @@ const json = {
       swaps: mis === 'swaps' ? sw.swaps : [],
       ...(mis === 'full' ? { misplaced: toRowStrings(der.misplaced) } : {}),
       pattern: toRowStrings(solved),
-      // pattern 里的字符 1..N 对应的**实际色值**（本单用 Artkal；换游戏 10 色板时按此对齐色号）
+      // pattern 字符（紧凑序第 i 个用色）对应的**实际色值**：paletteHex[i]
       paletteHex: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => palHex[c - 1]),
+      ...(isBrandPalette ? { paletteCodes: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => BRAND.codes[c - 1]) } : {}),
     };
   })(),
-  misplaced: toRowStrings(der.misplaced), // 初始全错位局面（引擎现从 swaps 装配，此处直存供人核）
+  misplaced: der.misplaced ? toRowStrings(der.misplaced) : [], // 初始全错位局面（mis=none 时无）
   report: {
     fillable: fillN, voidCells: bgRemoved, colorsUsed,
     cap: Math.floor(fillN / 2),
@@ -1041,10 +1218,37 @@ const json = {
     clusteringBefore: stats0,
     clusteringAfter: stats1,
     smoothChanged, mergedCells,
-    clusteringMisplaced: clusterStats(der.misplaced), // 玩家实际看到的初始盘
+    clusteringMisplaced: der.misplaced ? clusterStats(der.misplaced) : null, // 玩家实际看到的初始盘
+    // 难度/时长 = **生成期真引擎实测**（§3.5 v1.41 · 公式 v0.2）：本文件**不再自带公式**。
+    // v0.1 按颗定价（M × 22.5 × f_N × f_C × g_A）已作废 —— 32 盘语料 32/32 触顶 420s、
+    // 隐含 s/tap 跨 0.46–70s（150 倍）。证据：games/beads/design/forensics/diff-v02/grid.log.txt。
+    // 此处占位 null，写盘后由 beads-bot.ts `--patch` 回填（mis=none 实物图纸无错位 ⇒ 终为 null）。
+    difficulty: null,
   },
 };
-writeFileSync(join(outDir, 'pattern.json'), JSON.stringify(json, null, 2));
+const patternPath = join(outDir, 'pattern.json');
+writeFileSync(patternPath, JSON.stringify(json, null, 2));
+
+// ── 生成期真引擎实测（§3.5 v1.41 · 公式 v0.2）───────────────────────────────
+// 正源 = bot 实测点击数 × `SEC_PER_TAP`（装配走生产 BOOT、每步走 BeadsGame 公开命令）。
+// 结果暂存 `measured`，报告末尾统一打印并据 blockers **拒产**（用户 2026-09-21 拍板「硬拦」）。
+// 容器内无 games/ 引擎（deploy.sh 只 rsync 三单元）⇒ spawn 失败时写 error 字段，
+// **不静默回落到失真的静态公式**；入关期（server `ingestLevel`，仅本地仓）会再测并硬拦。
+let measured = null;
+if (misMode !== 'none' && der.ok && der.misplaced) {
+  const r = spawnSync(process.execPath, [
+    '--experimental-transform-types',
+    '--import=./games/beads/design/forensics/g3/g3-hooks.mjs',
+    'tools/scripts/beads-bot.ts', patternPath, '--patch',
+  ], { cwd: process.cwd(), encoding: 'utf8' });
+  const last = (r.stdout || '').trim().split('\n').pop();
+  measured = last && last.startsWith('{') ? JSON.parse(last) : null; // stdout 最后一行 = 结果 JSON
+  if (!measured) {
+    // 无引擎（容器）或 bot 崩溃：标记未实测，不给假数。
+    json.report.difficulty = { error: `beads-bot 不可用（exit=${r.status}）：未实测，难度/时长待入关期补测`, stderr: (r.stderr || '').slice(-300) };
+    writeFileSync(patternPath, JSON.stringify(json, null, 2));
+  }
+}
 
 console.log('=== beads 拼豆生成报告 ===');
 console.log(
@@ -1059,7 +1263,7 @@ console.log(`直方图(平衡后 1..8)= ${JSON.stringify(h1.slice(1))}  cap(≤�
 console.log(`配色平衡改判 ${changed.length} 格${note ? '（' + note + '）' : ''}`);
 console.log(`错位构造：${sw ? `**交换法 k=${sw.pairs}**（游戏口径，可玩）` : `全盘错位（spike 口径，仅验证破碎度；**不可直接做关卡**）`}`);
 console.log(`错位打乱：${der.ok ? (sw ? `交换 ${sw.pairs} 对，全部异色 ⇒ 无固定点 ✓` : `全错位 OK（maxFreq=${der.maxFreq} ≤ ${Math.floor(fillN / 2)}，0 固定点）`) : '不可全错位 → ' + der.reason}`);
-const c0 = stats0, c1 = stats1, cm = clusterStats(der.misplaced);
+const c0 = stats0, c1 = stats1, cm = der.misplaced ? clusterStats(der.misplaced) : null; // mis=none 无错位盘
 console.log(
   colorsMax > 0
     ? `用色限制：≤${colorsMax} 色（保留 ${JSON.stringify(limit.kept)}，重映射 ${limit.changed} 格）`
@@ -1067,26 +1271,34 @@ console.log(
 );
 console.log(
   `调色板 ${PAL_N} 色` +
-  (paletteArg === 'artkal'
-    ? `（**Artkal S 真值** ${ARTKAL.raw} 项 → 去重 ${PAL_N}；⚠️ 游戏无对应珠色 ⇒ 不可直接入关）`
+  (isBrandPalette
+    ? `（**${paletteArg} 真值** ${BRAND.raw} 项 → 去重 ${PAL_N}；⚠️ 游戏无对应珠色 ⇒ 不可直接入关）`
     : PAL_N > GAME_PALETTE.length
       ? '（程序化色域，⚠️ 游戏暂无对应珠色 ⇒ 不可直接入关）'
       : `（游戏真源前 ${PAL_N} 色）`) +
   `｜选色模式 ${limit.mode}｜最终用色 ${colorsUsed}` +
-  (colorsUsed > 8 ? ' ⚠️ 超 BEAD_COLOR_MAX=8 ⇒ 不可入关' : ' ✅ 合规（≤ BEAD_COLOR_MAX=8）'),
+  (colorsUsed > 10 ? ' ⚠️ 超 BEAD_COLOR_MAX=10 ⇒ 不可入关' : ' ✅ 合规（≤ BEAD_COLOR_MAX=10）'),
 );
 console.log(`色差（0..441，越小越保形）：限色前 ${errPreLimit} → 最终 ${errFinal}`);
 console.log(`聚集度（参数 sample=${sample} smooth=${smoothRounds} minblock=${minBlock} colors=${colorsMax}）：`);
 console.log(`  处理前  块数 ${c0.blocks}  最大块 ${c0.largest}  平均块 ${c0.avg}  碎块格 ${c0.tinyCells}  同色相邻率 ${c0.adjRate}`);
 console.log(`  处理后  块数 ${c1.blocks}  最大块 ${c1.largest}  平均块 ${c1.avg}  碎块格 ${c1.tinyCells}  同色相邻率 ${c1.adjRate}（滤波改 ${smoothChanged} 格、碎块并入 ${mergedCells} 格）`);
-console.log(`  初始盘  块数 ${cm.blocks}  最大块 ${cm.largest}  平均块 ${cm.avg}  同色相邻率 ${cm.adjRate}  ← 玩家看到的就是它`);
+console.log(`  初始盘  块数 ${cm ? cm.blocks : '—'}  最大块 ${cm ? cm.largest : '—'}  平均块 ${cm ? cm.avg : '—'}  同色相邻率 ${cm ? cm.adjRate : '—'}  ← 玩家看到的就是它${cm ? '' : '（mis=none：无错位盘，玩家拼的就是正确解）'}`);
 console.log(`产物 → ${outDir}/{${has('no-png') ? '' : 'solved.png, misplaced.png, '}pattern.json}`);
+console.log(
+  measured
+    ? `难度 D${measured.difficulty}｜真引擎实测 ${measured.taps} 次点击（bot 通关=${measured.cleared ? 'Y' : 'N'}）｜预估清关 ${measured.time}s（公式 v0.2 = taps × SEC_PER_TAP，§5）`
+    : misMode === 'none'
+      ? '难度 ——（mis=none 实物图纸，无错位无难度）'
+      : '难度 ——（本环境无引擎，未实测；入关期会再测并硬拦）',
+);
 
 // 断言即自检 → 非零退出。
 // 2026-09-19 修：旧版写成 `if (der.ok) { …断言… }` —— **错位打乱失败时整段跳过**，
 // 脚本照旧写盘并打印「自检：通过」，而 misplaced 其实是**全 void 的废盘**
 // （实测 `--colors 2` 即触发：主导色 589 > cap 588）。失败必须 loud。
-if (!der.ok) {
+if (!der.ok && misMode !== 'none') {
+  // mis=none 实物图纸模式：不做错位，der.ok=false 是预期值，不视为失败
   console.error(`自检失败：错位打乱未成功 —— ${der.reason}`);
   console.error('（该参数组合产出的 misplaced 不可用；请放宽 --colors、加大 --smooth，或调整图/网格）');
   process.exit(1);
@@ -1111,7 +1323,8 @@ if (sw) {
       process.exit(1);
     }
   }
-} else {
+} else if (misMode !== 'none') {
+  // mis=none 无错位盘，全错位断言不适用
   for (let i = 0; i < solved.length; i++) {
     if (solved[i] > 0 && der.misplaced[i] === solved[i]) {
       console.error('自检失败：错位后存在就位珠', i);
@@ -1119,8 +1332,16 @@ if (sw) {
     }
   }
 }
-if (Math.max(...h1.slice(1)) > Math.floor(fillN / 2)) {
+if (misMode !== 'none' && Math.max(...h1.slice(1)) > Math.floor(fillN / 2)) {
+  // mis=none 不做平衡钳制，主导色超半数是实物图纸的预期形态（如树冠大块绿）
   console.error('自检失败：平衡后仍有颜色 > 半数');
   process.exit(1);
 }
 console.log('自检：通过');
+
+// 硬拦放在最后：拒产时用户仍能看完整报告（知道为何被拒）。
+if (measured && measured.blockers.length) {
+  console.error(`⛔ 拒产：${measured.blockers.join('；')}`);
+  console.error('（该盘在倒计时预算内不可能通关；减小盘面 / 降低错位密度后重生）');
+  process.exit(4);
+}

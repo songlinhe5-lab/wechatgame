@@ -1,0 +1,79 @@
+/**
+ * 色板注册表与关卡色板解析（v1.40 品牌引用制）——真源 `games/beads/art/*.json`，
+ * 产物 `src/config/palettes-data.ts`（紧缩+混淆自解码，门禁 `palettes:check` 防漂移）。
+ *
+ * 这里只断言「游戏侧读得到、读得对」：
+ *   ① 品牌注册表可读：codes/palette 同长、hex 合法；
+ *   ② getBeadPalette 未知 slug → null；
+ *   ③ beadInksFor：无品牌引用关卡 → 回落 demo 默认色板（LEVELS_DATA.palette 十色）；
+ *      带 slug+paletteCodes → 从注册表解析 hex；未知 slug/色号 → 炭黑兜底。
+ */
+
+import { describe, it, expect } from 'vitest';
+import type { BeadsLevelRaw } from '../src/config/levels-data.js';
+import {
+  DEMO_BEAD_INKS,
+  PALETTES,
+  beadColorOf,
+  beadInksFor,
+  endpointOf,
+  getBeadPalette,
+} from '../src/view/palette.js';
+
+const BRAND_SLUGS = ['artkal-s', 'artkal-c', 'artkal-m', 'artkal-a', 'artkal-r', 'hama-midi', 'perler'];
+
+describe('色板注册表（v1.40 品牌引用制）', () => {
+  it('品牌色板游戏侧可读：codes 与 palette 同长、hex 格式合法', () => {
+    for (const slug of BRAND_SLUGS) {
+      const p = getBeadPalette(slug)!;
+      expect(p, slug).toBeTruthy();
+      expect(p.codes.length, slug).toBe(p.palette.length);
+      expect(p.palette.length, slug).toBeGreaterThan(2);
+      for (const hex of p.palette) expect(hex, slug).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    }
+  });
+
+  it('getBeadPalette 未知 slug → null', () => {
+    expect(getBeadPalette('nope')).toBeNull();
+  });
+});
+
+describe('关卡色板解析 beadInksFor（v1.40）', () => {
+  it('无品牌引用的关卡回落 demo 默认色板（十色）', () => {
+    const level = { id: 1, cols: 5, rows: 5, pattern: ['11111'] } as unknown as BeadsLevelRaw;
+    const inks = beadInksFor(level);
+    expect(inks.hexes.length).toBe(10);
+    expect([...inks.hexes]).toEqual([...DEMO_BEAD_INKS.hexes]);
+    expect(inks.endpoints.length).toBe(inks.hexes.length);
+    expect(endpointOf(inks, 1).base).toBe(beadColorOf(inks, 1));
+  });
+
+  it('slug+paletteCodes 从注册表解析品牌 hex（紧凑序）', () => {
+    const artkalS = PALETTES['artkal-s']!;
+    const codes = [artkalS.codes[0]!, artkalS.codes[1]!, artkalS.codes[2]!];
+    const level = {
+      id: 2,
+      cols: 3,
+      rows: 1,
+      pattern: ['123'],
+      palette: 'artkal-s',
+      paletteCodes: codes,
+    } as unknown as BeadsLevelRaw;
+    const inks = beadInksFor(level);
+    expect([...inks.hexes]).toEqual([artkalS.palette[0], artkalS.palette[1], artkalS.palette[2]]);
+    expect(beadColorOf(inks, 1)).toBe(artkalS.palette[0]);
+  });
+
+  it('未知 slug → 全炭黑兜底（防御，BOOT 校验会先行拦截）', () => {
+    const level = {
+      id: 3,
+      cols: 2,
+      rows: 1,
+      pattern: ['11'],
+      palette: 'ghost-brand',
+      paletteCodes: ['X1'],
+    } as unknown as BeadsLevelRaw;
+    const inks = beadInksFor(level);
+    expect(beadColorOf(inks, 1)).toBe(beadColorOf(DEMO_BEAD_INKS, 1));
+  });
+});
