@@ -8,7 +8,9 @@
  *   · 每个 singles/L00NN.json = 原 levels[i] **逐字段原样**（JSON.parse 保键序），
  *     **不注入 uid** ⇒ 装配出的 LEVELS_DATA 数据体逐字节不变（零行为漂移）。
  *   · uid 只活在 manifest（entry.uid ↔ file ↔ order），作内容层稳定标识。
- *   · 幂等：重复跑覆盖同名产物（迁移期可反复调）；不删旧 json（删除在 P1 Task 4）。
+ *   · 幂等：仅当输入 `levels-01-08.json` 仍在时可重复跑（迁移期可反复调）。
+ *     ⚠️ **历史一次性脚本**：P1 已删除该输入并提交目录化真源，现重跑会 ENOENT；
+ *     保留仅作迁移可追溯记录（新真源勿再跑本脚本，改由 studio/manifest 直接维护）。
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';

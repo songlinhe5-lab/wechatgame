@@ -98,14 +98,14 @@ async function ensurePage() {
 //   · `--palette 8`（默认）= 游戏 8 色真源，产物**可直接进游戏**；
 //   · `--palette N>8`      = 程序化色板（色域覆盖），**仅供调研比较** ——
 //                           游戏暂无对应珠色，**不得直接入关**（报告会标注）。
-// v1.40：demo 十色真源 = `games/beads/design/levels/levels-01-08.json` 顶层 `palette`
-// （game-10.json 已删除，v1.40 品牌引用制）；与 view/palette.ts DEMO_BEAD_INKS 同源
-// （sync-levels-data 门禁）。
+// v1.40：demo 十色真源 = `games/beads/design/levels/palette.json` 的 `palette`
+// （game-10.json 已删除，v1.40 品牌引用制；关卡内容管线 P1 起从 levels-01-08.json
+// 顶层抽出为独立 palette.json）；与 view/palette.ts DEMO_BEAD_INKS 同源（sync 门禁）。
 const GAME_PALETTE = (() => {
   try {
-    return JSON.parse(readFileSync(join(SCRIPT_DIR, '../../games/beads/design/levels/levels-01-08.json'), 'utf8')).palette;
+    return JSON.parse(readFileSync(join(SCRIPT_DIR, '../../games/beads/design/levels/palette.json'), 'utf8')).palette;
   } catch {
-    console.error('⚠️ demo 色板真源 levels-01-08.json 顶层 palette 缺失（v1.40）');
+    console.error('⚠️ demo 色板真源 palette.json 缺失（关卡内容管线 P1 目录化后真源）');
     process.exit(3);
   }
 })();
