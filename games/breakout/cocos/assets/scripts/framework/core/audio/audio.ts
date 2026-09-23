@@ -71,6 +71,21 @@ export interface AudioVoice {
   /** Noise-source clip（「沙」/「唰」）— buffer 复用，见 synth 头注. */
   readonly noise?: boolean;
   /**
+   * 素材路线（v1.52 改判）：`data:audio/mpeg;base64,…` 形式的**预制音频**。
+   * 后端在解锁时解码一次进 `_assetBuffers`；命中即优先于合成，
+   * 解码失败或 runtime 无 `decodeAudioData` ⇒ **回退到上面的 notes 合成**（不静音、不算回归）。
+   * 只在 unlock 期解码，热路径零分配。
+   */
+  readonly asset?: string;
+  /**
+   * **文件路线**（长音频专用；设了它就走平台原生播放器，优先于 `asset` 与 notes）。
+   * 动机是内存而不是包体：40 s BGM 若走 `decodeAudioData`，解码后 PCM 常驻 JS 堆
+   * ≈ 40 × 44100 × 4 B ≈ **7 MB**；交给 `InnerAudioContext` / `Audio` 则 JS 侧 ≈ 0。
+   * 短音效不要用这条 —— 19 条并发会撞原生实例池，且 base64 那 45 KB 不值得起文件。
+   * 路径按平台解析（weapp = 包内/分包相对路径；web = 站点相对路径）。
+   */
+  readonly assetFile?: string;
+  /**
    * Loop period in ms. Set on BGM clips: the backend then renders **one** buffer
    * of this length and loops it（无缝循环点，A05-22）instead of one-shots, so a
    * repeated `play(id,{loop:true})` must not restart its position.

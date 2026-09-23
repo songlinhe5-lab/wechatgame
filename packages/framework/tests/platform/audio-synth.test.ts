@@ -18,6 +18,7 @@ import {
   type SynthBuffer,
   type SynthBufferSource,
   type SynthContext,
+  type SynthInnerAudio,
   type SynthFilter,
   type SynthGain,
   type SynthNode,
@@ -361,5 +362,229 @@ describe('SynthAudioBackend · 零外部文件承诺（A05-25 的运行时面）
     h.backend.setVolume('sfx_test', -3);
     expect(() => h.backend.play('sfx_test', { volume: 1, loop: false })).not.toThrow();
     expect(h.rec.sources.filter((s) => !s.loop)).toHaveLength(2);
+  });
+});
+
+// ───────────────────────── 素材路线（v1.52 改判：预制音频优先于合成，失败必回退）
+// 判据边界同本文件头注：这里只证**结构与回退**，不证「真的放得出声」——那是 `[B]`/`[R]`。
+
+/** 'hello' 的 base64；用于机验自实现解码器（weapp 不保证有 atob / Buffer）。 */
+const HELLO_B64 = 'aGVsbG8=';
+const ASSET_VOICES: AudioVoices = {
+  sfx_asset: { durationMs: 120, freq: 200, bus: 'sfx', asset: `data:audio/mpeg;base64,${HELLO_B64}` },
+  sfx_plain: { durationMs: 120, freq: 200, bus: 'sfx' },
+};
+
+function fakeDecodeCtx(mode: 'callback' | 'promise' | 'error') {
+  const { ctx, rec } = fakeAudio();
+  const decoded = new FakeBuffer(7, 44100);
+  const seen: Uint8Array[] = [];
+  const c = ctx as unknown as SynthContext & {
+    decodeAudioData?: (
+      d: Uint8Array,
+      ok?: (b: SynthBuffer) => void,
+      bad?: () => void,
+    ) => unknown;
+  };
+  c.decodeAudioData = (d, ok, bad) => {
+    seen.push(d);
+    if (mode === 'callback') {
+      ok?.(decoded);
+      return undefined;
+    }
+    if (mode === 'error') {
+      bad?.();
+      return undefined;
+    }
+    return Promise.resolve(decoded);
+  };
+  return { ctx: c, rec, decoded, seen };
+}
+
+describe('素材路线 v1.52：asset 优先、解码失败必回退合成', () => {
+  it('runtime 无 decodeAudioData ⇒ 忽略素材，仍走 notes 合成（不静音）', () => {
+    const { ctx, rec } = fakeAudio();
+    const b = new SynthAudioBackend(() => ctx, ASSET_VOICES);
+    b.unlock();
+    b.play('sfx_asset', { volume: 1, loop: false });
+    expect(rec.sources).toHaveLength(1);
+    expect(rec.sources[0]!.buffer).toBe(rec.buffers[rec.buffers.length - 1] ?? null); // 合成产物
+  });
+
+  it('回调式 decodeAudioData ⇒ 播的是解码返回的那块 buffer，且不再走 createBuffer 渲染', () => {
+    const { ctx, rec, decoded, seen } = fakeDecodeCtx('callback');
+    const b = new SynthAudioBackend(() => ctx, ASSET_VOICES);
+    b.unlock();
+    b.play('sfx_asset', { volume: 1, loop: false });
+    expect(rec.sources[0]!.buffer).toBe(decoded);
+    expect(rec.buffers).toHaveLength(0); // 没有再渲一遍合成
+    // 自实现 base64 解码正确性：'aGVsbG8=' → h e l l o
+    expect(Array.from(seen[0]!.subarray(0, 5))).toEqual([104, 101, 108, 108, 111]);
+  });
+
+  it('Promise 式 decodeAudioData ⇒ 同样命中素材', async () => {
+    const { ctx, rec, decoded } = fakeDecodeCtx('promise');
+    const b = new SynthAudioBackend(() => ctx, ASSET_VOICES);
+    b.unlock();
+    await Promise.resolve();
+    b.play('sfx_asset', { volume: 1, loop: false });
+    expect(rec.sources[0]!.buffer).toBe(decoded);
+  });
+
+  it('解码报错 ⇒ 该 clip 回退合成，不静音（避免「有文件却放不出」新缺陷）', () => {
+    const { ctx, rec, decoded } = fakeDecodeCtx('error');
+    const b = new SynthAudioBackend(() => ctx, ASSET_VOICES);
+    b.unlock();
+    b.play('sfx_asset', { volume: 1, loop: false });
+    expect(rec.sources).toHaveLength(1);
+    expect(rec.sources[0]!.buffer).not.toBe(decoded);
+    expect(rec.buffers.length).toBeGreaterThan(0);
+  });
+
+  it('无 asset 的 clip 完全不受影响（逐字走原合成路径）', () => {
+    const { ctx, rec, decoded } = fakeDecodeCtx('callback');
+    const b = new SynthAudioBackend(() => ctx, ASSET_VOICES);
+    b.unlock();
+    b.play('sfx_plain', { volume: 1, loop: false });
+    expect(rec.sources[0]!.buffer).not.toBe(decoded);
+    expect(rec.buffers.length).toBeGreaterThan(0);
+  });
+
+  it('解码完成后补起期望中的 loop ⇒ BGM 不因解码晚于 play 而永久静默', async () => {
+    const { ctx, rec, decoded } = fakeDecodeCtx('callback');
+    const loopVoices: AudioVoices = {
+      bgm_x: { durationMs: 1000, loopMs: 1000, bus: 'music', notes: [{ freq: 220, durMs: 1000 }], asset: `data:audio/mpeg;base64,${HELLO_B64}` },
+    };
+    const b = new SynthAudioBackend(() => ctx, loopVoices);
+    b.play('bgm_x', { volume: 1, loop: true }); // 先于 unlock ⇒ 只进期望态
+    expect(rec.sources).toHaveLength(0);
+    b.unlock(); // 解码（同步回调）后应补起
+    expect(rec.sources.some((s) => s.buffer === decoded)).toBe(true);
+    expect(b.activeLoops()).toContain('bgm_x');
+  });
+});
+
+// ───────────────────────── 文件路线 v1.52（长音频走原生播放器，动机是 JS 堆不驻 PCM）
+// 分流规则：`assetFile` 命中 ⇒ 不起 WebAudio 缓冲；原生不可用 ⇒ **回退合成**（BGM 不能因为
+// 文件通路失败而整首没声）。这里只证结构与释放，`[R]` 真机上 InnerAudioContext 的实际播放
+// 与 loop 接缝质量不在本文件可证范围。
+
+class FakeInner implements SynthInnerAudio {
+  src = '';
+  loop = false;
+  volume = 1;
+  plays = 0;
+  stops = 0;
+  destroys = 0;
+  constructor(private readonly _fail = false) {}
+  play(): void {
+    if (this._fail) throw new Error('play blocked');
+    this.plays++;
+  }
+  stop(): void {
+    this.stops++;
+  }
+  destroy(): void {
+    this.destroys++;
+  }
+}
+
+const FILE_VOICES: AudioVoices = {
+  bgm_file: { durationMs: 40_000, loopMs: 40_000, bus: 'music', gain: 0.3, notes: [{ freq: 220, durMs: 1000 }], assetFile: 'audio/bgm_main.mp3' },
+};
+
+describe('文件路线 v1.52：assetFile 走原生播放器，不可用必回退合成', () => {
+  it('命中 assetFile ⇒ 用原生实例播放，且完全不建 WebAudio 缓冲（JS 堆不驻 PCM）', () => {
+    const { ctx, rec } = fakeAudio();
+    const inner = new FakeInner();
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => inner);
+    b.unlock();
+    b.play('bgm_file', { volume: 1, loop: true });
+    expect(inner.plays).toBe(1);
+    expect(inner.src).toBe('audio/bgm_main.mp3');
+    expect(inner.loop).toBe(true);
+    expect(inner.volume).toBeCloseTo(0.3, 6); // base 1 × voice.gain 0.3
+    expect(rec.buffers).toHaveLength(0); // ⚠ 关键：没有 40 s × 44.1 kHz 的 PCM
+    expect(b.activeLoops()).toEqual(['bgm_file']);
+  });
+
+  it('重复 play(loop) 幂等 ⇒ 不重启播放位置（A05-22）', () => {
+    const { ctx } = fakeAudio();
+    const inner = new FakeInner();
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => inner);
+    b.unlock();
+    b.play('bgm_file', { volume: 1, loop: true });
+    b.play('bgm_file', { volume: 1, loop: true });
+    expect(inner.plays).toBe(1);
+  });
+
+  it('无原生工厂 ⇒ 回退合成 loop（缓冲照旧渲染，BGM 仍响）', () => {
+    const { ctx, rec } = fakeAudio();
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES);
+    b.unlock();
+    b.play('bgm_file', { volume: 1, loop: true });
+    expect(rec.buffers.length).toBeGreaterThan(0);
+    expect(rec.sources.some((s) => s.loop)).toBe(true);
+  });
+
+  it('工厂返回 null / play() 抛错 ⇒ 都回退合成，不留半死实例', () => {
+    const { ctx, rec } = fakeAudio();
+    const b1 = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => null);
+    b1.unlock();
+    b1.play('bgm_file', { volume: 1, loop: true });
+    expect(rec.buffers.length).toBeGreaterThan(0);
+
+    const { ctx: ctx2, rec: rec2 } = fakeAudio();
+    const bad = new FakeInner(true);
+    const b2 = new SynthAudioBackend(() => ctx2, FILE_VOICES, {}, () => bad);
+    b2.unlock();
+    b2.play('bgm_file', { volume: 1, loop: true });
+    expect(bad.destroys).toBe(1); // 抛错后必须释放，否则原生实例泄漏
+    expect(rec2.buffers.length).toBeGreaterThan(0);
+  });
+
+  it('suspend 必须停文件路线的 BGM（退后台仍在响 = 事故），且回前台能补起', () => {
+    const { ctx } = fakeAudio();
+    const made: FakeInner[] = [];
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => {
+      const i = new FakeInner();
+      made.push(i);
+      return i;
+    });
+    b.unlock();
+    b.play('bgm_file', { volume: 1, loop: true });
+    expect(made[0]!.plays).toBe(1);
+    b.suspend(); // 退后台：停发声但保留期望态
+    expect(made[0]!.stops).toBe(1);
+    expect(made[0]!.destroys).toBe(1); // 原生实例必须释放
+    expect(b.activeLoops()).toEqual([]);
+    b.resume(); // 回前台补起 ⇒ 新实例（位置从头，与合成路线同语义）
+    expect(made).toHaveLength(2);
+    expect(made[1]!.plays).toBe(1);
+    b.stopAll();
+    expect(made[1]!.destroys).toBe(1);
+    expect(made.every((i) => i.destroys === 1)).toBe(true); // 起几个毁几个 ⇒ 不漏
+  });
+
+  it('setVolume（ducking）落到原生 volume，不重启播放', () => {
+    const { ctx } = fakeAudio();
+    const inner = new FakeInner();
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => inner);
+    b.unlock();
+    b.play('bgm_file', { volume: 0.5, loop: true });
+    const before = inner.plays;
+    b.setVolume('bgm_file', 0.5);
+    expect(inner.volume).toBeCloseTo(0.5 * 0.5 * 0.3, 6); // base × perClip × voice.gain
+    expect(inner.plays).toBe(before);
+  });
+
+  it('一次性音（loop=false）不受文件路线影响 ⇒ 仍走预渲染 buffer', () => {
+    const { ctx, rec } = fakeAudio();
+    const inner = new FakeInner();
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => inner);
+    b.unlock();
+    b.play('bgm_file', { volume: 1, loop: false });
+    expect(inner.plays).toBe(0);
+    expect(rec.buffers.length).toBeGreaterThan(0);
   });
 });

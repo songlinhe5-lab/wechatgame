@@ -11,7 +11,7 @@ import { NullAudioBackend, type AudioBackend, type AudioBackendOptions } from '.
 import type { PlatformInfo } from '../core/game/game.js';
 import { BasePlatform, type FrameHandle, type ScreenSize } from './platform.js';
 import { MockRewardedAdProvider } from './rewarded-ad.js';
-import { SynthAudioBackend, type SynthContext } from './audio-synth.js';
+import { SynthAudioBackend, type SynthContext, type SynthInnerAudio } from './audio-synth.js';
 
 interface GlobalWithDom {
   performance?: { now(): number };
@@ -26,6 +26,8 @@ interface GlobalWithDom {
   document?: { visibilityState?: string };
   AudioContext?: new () => unknown;
   webkitAudioContext?: new () => unknown;
+  /** 长音频文件路线用（`AudioVoice.assetFile`）；非浏览器环境可缺。 */
+  Audio?: new () => HTMLAudioElement;
 }
 
 function dom(): GlobalWithDom {
@@ -71,9 +73,43 @@ export class WebPlatform extends BasePlatform {
     const voices = options?.voices;
     if (!Ctor || !voices) return new NullAudioBackend();
 
-    const backend = new SynthAudioBackend(() => new Ctor() as SynthContext, voices, {
-      warn: (message) => this.log('warn', `[audio] ${message}`),
-    });
+    const backend = new SynthAudioBackend(
+      () => new Ctor() as SynthContext,
+      voices,
+      { warn: (message) => this.log('warn', `[audio] ${message}`) },
+      // 文件路线（BGM）：浏览器用 <audio> 元素，语义与 weapp InnerAudioContext 对齐。
+      // `play()` 的 Promise 拒绝（autoplay 策略等）一律吞掉 ⇒ 后端仍有合成回退，不静音。
+      (src) => {
+        const Audio = g.Audio;
+        if (!Audio) return null;
+        const el = new Audio();
+        const handle: SynthInnerAudio = {
+          src,
+          loop: false,
+          volume: 1,
+          play: () => {
+            el.src = handle.src;
+            el.loop = handle.loop;
+            el.volume = handle.volume;
+            try {
+              el.play()?.catch(() => {}); // autoplay 策略拒绝 ⇒ 后端仍会走合成回退
+            } catch {
+              /* 交由上层回退 */
+            }
+          },
+          stop: () => {
+            el.pause();
+            el.currentTime = 0;
+          },
+          destroy: () => {
+            el.pause();
+            el.removeAttribute('src');
+            el.load();
+          },
+        };
+        return handle;
+      },
+    );
     this._armAudioUnlock(backend);
     return backend;
   }

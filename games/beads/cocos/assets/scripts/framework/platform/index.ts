@@ -18,6 +18,7 @@ export type {
   SynthBuffer,
   SynthBufferSource,
   SynthContext,
+  SynthInnerAudio,
   SynthFilter,
   SynthGain,
   SynthHost,

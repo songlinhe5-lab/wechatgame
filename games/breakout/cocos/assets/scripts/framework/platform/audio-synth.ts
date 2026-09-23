@@ -101,7 +101,32 @@ export interface SynthContext extends SynthNode {
   createBiquadFilter?(): SynthFilter;
   createBufferSource?(): SynthBufferSource;
   createBuffer?(channels: number, length: number, sampleRate: number): SynthBuffer;
+  /**
+   * 素材路线用（v1.52）。签名同时兼容两种 runtime：
+   * 现代 Promise 式 `decodeAudioData(buf) → Promise<AudioBuffer>` 与
+   * 旧回调式 `decodeAudioData(buf, success, error)`（微信 WebAudioContext 属后者一族）。
+   */
+  decodeAudioData?(
+    data: Uint8Array,
+    success?: (buffer: SynthBuffer) => void,
+    error?: () => void,
+  ): unknown;
   resume?(): unknown;
+}
+
+/**
+ * 平台原生播放器最小面（长音频走这条，见 `AudioVoice.assetFile`）。
+ * 只要求这 6 个成员：weapp `InnerAudioContext` 与 web `HTMLAudioElement` 都能一次适配，
+ * 多出来的能力一概不要 —— 适配层越薄，两个平台的差异越少。
+ */
+export interface SynthInnerAudio {
+  src: string;
+  loop: boolean;
+  volume: number;
+  play(): void;
+  stop(): void;
+  /** 必须释放：weapp 的 InnerAudioContext 是原生实例，不 destroy 会漏。 */
+  destroy(): void;
 }
 
 /** 引擎向宿主回报异常的出口（平台侧接到 `platform.log`，测试侧接收集器）。 */
@@ -130,6 +155,29 @@ interface ActiveLoop {
 }
 
 /** 单位相位 → 波形样本（离线渲染用，四波形对齐 WebAudio 同名振荡器的近似形状）。 */
+/** 自带 base64 解码（不依赖 Buffer/atob —— weapp runtime 两者都不保证有）。 */
+function base64Bytes(dataUri: string): Uint8Array | null {
+  const b64 = dataUri.slice(dataUri.indexOf(',') + 1).replace(/\s+/g, '');
+  if (!b64) return null;
+  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  const lookup = new Int16Array(256).fill(-1);
+  for (let i = 0; i < A.length; i++) lookup[A.charCodeAt(i)] = i;
+  const out = new Uint8Array(Math.floor((b64.length * 3) / 4));
+  let o = 0, acc = 0, bits = 0;
+  for (let i = 0; i < b64.length; i++) {
+    const c = b64.charCodeAt(i);
+    const v = c < 256 ? lookup[c] : -1;
+    if (v < 0) continue; // '=' 与任何非法字符都跳过
+    acc = (acc << 6) | v;
+    bits += 6;
+    if (bits >= 8) {
+      bits -= 8;
+      out[o++] = (acc >> bits) & 0xff;
+    }
+  }
+  return o > 0 ? out.subarray(0, o) : null;
+}
+
 function sampleWave(wave: string, phase: number): number {
   const p = phase - Math.floor(phase);
   if (wave === 'square') return p < 0.5 ? 1 : -1;
@@ -153,6 +201,11 @@ export class SynthAudioBackend implements AudioBackend {
   private readonly _shotBuffers = new Map<string, SynthBuffer>();
   /** clipId → 渲染好的循环缓冲（无缝 loop，§3.2）。 */
   private readonly _loopBuffers = new Map<string, SynthBuffer>();
+  /** clipId → 已解码的**素材** buffer（v1.52 改判：预制音频优先于运行时合成）。 */
+  private readonly _assetBuffers = new Map<string, SynthBuffer>();
+  private _assetsStarted = false;
+  /** clipId → 正在播的原生播放器实例（文件路线，§4.1 v1.52 分流）。 */
+  private readonly _inner = new Map<string, SynthInnerAudio>();
   private readonly _warned = new Set<string>();
   private readonly _clipVolume = new Map<string, number>();
 
@@ -160,6 +213,8 @@ export class SynthAudioBackend implements AudioBackend {
     private readonly _openContext: () => SynthContext | null,
     private readonly _voices: AudioVoices,
     private readonly _host: SynthHost = {},
+    /** 长音频工厂；不传 ⇒ `assetFile` 一律回退合成路线（不静音）。 */
+    private readonly _openInnerAudio?: (src: string) => SynthInnerAudio | null,
   ) { }
 
   /** 已创建并解锁的 context（诊断/测试用；构造期不得有声音资源）。 */
@@ -169,7 +224,12 @@ export class SynthAudioBackend implements AudioBackend {
 
   /** 正在循环的 clip id 列表（测试与 `[B]` 道次取证用）。 */
   activeLoops(): string[] {
-    return Array.from(this._loops.keys());
+    // 两条通路互斥（文件起成功就不会进 `_loops`），故不需去重；
+    // 也不用 `[...map.keys()]` —— ES5 展开门（check:es5spread）禁止。
+    const out: string[] = [];
+    this._inner.forEach((_v, id) => out.push(id));
+    this._loops.forEach((_v, id) => out.push(id));
+    return out;
   }
 
   /**
@@ -187,7 +247,48 @@ export class SynthAudioBackend implements AudioBackend {
         /* 有些 runtime 不允许重复 resume；忽略即可 */
       }
     }
+    this._decodeAssets(ctx);
     this._startWantedLoops();
+  }
+
+  /**
+   * 解锁后解码素材（一次性、异步完成）。**解码失败不致命**：`_shotBuffer`/`_renderLoop`
+   * 取不到素材就回退 notes 合成 ⇒ 游戏始终有声，且不产生「有文件却静音」的新缺陷。
+   */
+  private _decodeAssets(ctx: SynthContext): void {
+    if (this._assetsStarted) return;
+    this._assetsStarted = true;
+    if (typeof ctx.decodeAudioData !== 'function') {
+      this._warnOnce('runtime 无 decodeAudioData ⇒ 素材全部回退运行时合成（weapp 侧能力属 `[R]` 待验）');
+      return;
+    }
+    for (const [clipId, voice] of Object.entries(this._voices)) {
+      const asset = voice?.asset;
+      if (!asset) continue;
+      const bytes = base64Bytes(asset);
+      if (!bytes) {
+        this._warnOnce(`素材 base64 解析失败（clip=${clipId}）⇒ 回退合成`);
+        continue;
+      }
+      const done = (buffer: SynthBuffer): void => {
+        this._assetBuffers.set(clipId, buffer);
+        // loop 期望态可能已在解码完成前试过 ⇒ 补起一次（_startWantedLoops 幂等）
+        this._startWantedLoops();
+      };
+      try {
+        const r = ctx.decodeAudioData!(bytes, done, () => {
+          this._warnOnce(`decodeAudioData 拒绝该素材（可能是格式/位深不受支持）⇒ clip 回退合成`);
+        });
+        // Promise 式 runtime：回调不会被调用，走 then
+        if (r && typeof (r as Promise<SynthBuffer>).then === 'function') {
+          (r as Promise<SynthBuffer>).then(done, () => {
+            this._warnOnce('decodeAudioData promise 失败 ⇒ 回退合成');
+          });
+        }
+      } catch {
+        this._warnOnce(`decodeAudioData 抛错（clip=${clipId}）⇒ 回退合成`);
+      }
+    }
   }
 
   /** 回前台：补起期望中的 loop（不打断已解锁状态）。 */
@@ -200,6 +301,9 @@ export class SynthAudioBackend implements AudioBackend {
    * 只停实际发声，**不清期望态** —— 否则回前台会「BGM 再也不响」。
    */
   suspend(): void {
+    // 两条循环通路都要停：合成 loop 在 `_loops`，文件 loop 在 `_inner`。
+    // 漏 `_inner` 的后果是「退后台 BGM 继续响」——判据 audio-synth.test「stop/destroy 原生实例」拦下过。
+    for (const clipId of Array.from(this._inner.keys())) this.stop(clipId, { keepWanted: true });
     for (const clipId of Array.from(this._loops.keys())) this.stop(clipId, { keepWanted: true });
   }
 
@@ -207,7 +311,7 @@ export class SynthAudioBackend implements AudioBackend {
     const ctx = this._ctx;
     if (!ctx) return;
     for (const [clipId, base] of Array.from(this._wantedLoops)) {
-      if (this._loops.has(clipId)) continue;
+      if (this._loops.has(clipId) || this._inner.has(clipId)) continue;
       const voice = this._voices[clipId];
       if (voice) this._startLoop(clipId, voice, base, ctx);
     }
@@ -222,6 +326,11 @@ export class SynthAudioBackend implements AudioBackend {
     this._clipVolume.set(clipId, v);
     const active = this._loops.get(clipId);
     if (active) active.env.gain.value = Math.max(EPS, active.base * v * (active.voice.gain ?? 1));
+    const inner = this._inner.get(clipId);
+    if (inner) {
+      const voice = this._voices[clipId];
+      inner.volume = Math.max(0, (this._wantedLoops.get(clipId) ?? 1) * v * (voice?.gain ?? 1));
+    }
   }
 
   play(clipId: string, opts: { volume: number; loop: boolean }): void {
@@ -257,6 +366,20 @@ export class SynthAudioBackend implements AudioBackend {
       loop.src.disconnect?.();
       loop.env.disconnect?.();
     }
+    const inner = this._inner.get(clipId);
+    if (inner) {
+      this._inner.delete(clipId);
+      try {
+        inner.stop();
+      } catch {
+        /* 已停的实例再 stop 会抛；静音语义仍成立 */
+      }
+      try {
+        inner.destroy();
+      } catch {
+        /* 同上 */
+      }
+    }
     const ctx = this._ctx;
     const now = ctx ? ctx.currentTime : 0;
     for (let i = 0; i < this._active.length; i++) {
@@ -272,6 +395,7 @@ export class SynthAudioBackend implements AudioBackend {
   }
 
   stopAll(): void {
+    for (const clipId of Array.from(this._inner.keys())) this.stop(clipId);
     for (const clipId of Array.from(this._loops.keys())) this.stop(clipId);
     for (let i = 0; i < this._active.length; i++) {
       const shot = this._active[i];
@@ -366,6 +490,8 @@ export class SynthAudioBackend implements AudioBackend {
 
   /** clipId → 一次性渲染缓存：同 clip 只 CPU 算一次（复用面，⑥）。 */
   private _shotBuffer(clipId: string, voice: AudioVoice, ctx: SynthContext): SynthBuffer | null {
+    const asset = this._assetBuffers.get(clipId);
+    if (asset) return asset; // v1.52：素材优先；未解码/解码失败则继续走合成
     const cached = this._shotBuffers.get(clipId);
     if (cached) return cached;
     const make = ctx.createBuffer;
@@ -416,6 +542,8 @@ export class SynthAudioBackend implements AudioBackend {
 
   /** 无缝循环：把 `loopMs` 乐句**离线渲染成一块 buffer**，用 `source.loop` 循环。 */
   private _startLoop(clipId: string, voice: AudioVoice, base: number, ctx: SynthContext): void {
+    // 长音频分流：有 assetFile 且原生播放器可用 ⇒ JS 侧不驻 PCM（见 AudioVoice.assetFile）
+    if (voice.assetFile && this._startFileLoop(clipId, voice, base)) return;
     if (this._loops.has(clipId)) return; // ② 幂等：不重启位置
     const src = ctx.createBufferSource?.();
     const buffer = src ? this._renderLoop(clipId, voice, ctx) : null;
@@ -433,7 +561,44 @@ export class SynthAudioBackend implements AudioBackend {
     this._loops.set(clipId, { src, env, base, voice });
   }
 
+  /**
+   * 文件路线起循环。**返回 false = 不可用**，调用方继续走合成（这条兜底不能省：
+   * 原生播放器缺失/建不起来时，宁可回到"能响但音质是合成的"，也不要"彻底没 BGM"）。
+   */
+  private _startFileLoop(clipId: string, voice: AudioVoice, base: number): boolean {
+    if (this._inner.has(clipId)) return true; // 幂等：已在播就不重启位置（A05-22）
+    const make = this._openInnerAudio;
+    const src = voice.assetFile;
+    if (!make || !src) return false;
+    let inner: SynthInnerAudio | null = null;
+    try {
+      inner = make(src);
+    } catch (e) {
+      this._warnOnce(`assetFile 创建失败（clip=${clipId} src=${src}）⇒ 回退合成路线`);
+      return false;
+    }
+    if (!inner) return false;
+    inner.src = src;
+    inner.loop = true;
+    inner.volume = Math.max(0, base * (this._clipVolume.get(clipId) ?? 1) * (voice.gain ?? 1));
+    try {
+      inner.play();
+    } catch {
+      try {
+        inner.destroy();
+      } catch {
+        /* 平台差异：已销毁再 destroy 会抛 */
+      }
+      this._warnOnce(`assetFile play() 抛错（clip=${clipId}）⇒ 回退合成路线`);
+      return false;
+    }
+    this._inner.set(clipId, inner);
+    return true;
+  }
+
   private _renderLoop(clipId: string, voice: AudioVoice, ctx: SynthContext): SynthBuffer | null {
+    const asset = this._assetBuffers.get(clipId);
+    if (asset) return asset;
     const cached = this._loopBuffers.get(clipId);
     if (cached) return cached;
     const make = ctx.createBuffer;

@@ -22,7 +22,7 @@ import {
 import type { PlatformInfo } from '../core/game/game.js';
 import { BasePlatform, type FrameHandle, type ScreenSize } from './platform.js';
 import { NoopRewardedAdProvider } from './rewarded-ad.js';
-import { SynthAudioBackend, type SynthContext } from './audio-synth.js';
+import { SynthAudioBackend, type SynthContext, type SynthInnerAudio } from './audio-synth.js';
 
 /**
  * Shape shared by `getWindowInfo` (new) and `getSystemInfoSync` (deprecated).
@@ -53,6 +53,18 @@ interface WxApi {
   offTouchStart?(cb: (ev?: unknown) => void): void;
   /** Android 上可用的 WebAudio；iOS 基库版本门槛待真机核实（A05-27 `[R]`）。 */
   createWebAudioContext?(): unknown;
+  /**
+   * 长音频（`AudioVoice.assetFile`，BGM 路线）。形状只取我们用到那 6 个成员，
+   * 与 `SynthInnerAudio` 一一对应 ⇒ 适配层无需包装。
+   */
+  createInnerAudioContext?(): {
+    src: string;
+    loop: boolean;
+    volume: number;
+    play(): void;
+    stop(): void;
+    destroy(): void;
+  };
   createInnerAudioContext?(): unknown;
 }
 
@@ -164,9 +176,30 @@ export class WeappPlatform extends BasePlatform {
       );
       return new NullAudioBackend();
     }
-    const backend = new SynthAudioBackend(() => createCtx.call(wx) as SynthContext, voices, {
-      warn: (message) => this.log('warn', `[audio] ${message}`),
-    });
+    const backend = new SynthAudioBackend(
+      () => createCtx.call(wx) as SynthContext,
+      voices,
+      { warn: (message) => this.log('warn', `[audio] ${message}`) },
+      // 文件路线（BGM）：原生播放器 ⇒ JS 堆不驻 7 MB PCM。缺 API 时返回 null，后端自动回退合成。
+      (src) => {
+        const ctx = wx.createInnerAudioContext?.();
+        if (!ctx) return null;
+        const handle: SynthInnerAudio = {
+          src,
+          loop: false,
+          volume: 1,
+          play: () => {
+            ctx.src = handle.src;
+            ctx.loop = handle.loop;
+            ctx.volume = handle.volume;
+            ctx.play();
+          },
+          stop: () => ctx.stop(),
+          destroy: () => ctx.destroy(),
+        };
+        return handle;
+      },
+    );
     // 首次手势解锁；退后台停曲、回前台补起（期望态在 backend 里，不丢 BGM）。
     const unlock = () => {
       backend.unlock();
