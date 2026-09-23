@@ -15,7 +15,7 @@
  */
 
 import type { RenderModelBuilder } from '@wxgame/framework';
-import { BEAD_CELL, BEAD_DRAW_INSET, SOCKET_CARD, TRAY_SLOT } from '../config/tuning.js';
+import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, SOCKET_CARD, TRAY_SLOT } from '../config/tuning.js';
 import {
   FILL_POP_CONTACT_A_PEAK,
   FILL_POP_CONTACT_W_PEAK,
@@ -47,7 +47,6 @@ import {
   type BeadInks,
   type BeadsPalette,
 } from './palette.js';
-import { beadSymbol, emitSymbol, symbolInk } from './symbols.js';
 
 /**
  * §1.1 layer geometry, as fractions of the bead edge. Source values are the
@@ -100,8 +99,9 @@ export interface FilledBeadOptions {
   /** L0 shadow opacity override; `selected` passes the darker α (§1.2). */
   readonly shadowAlpha?: number;
   /**
-   * L11 目标色垫的底色（v1.5-r5 垫色显缝，WXG-T-142）：该格 pattern 要求色。
-   * 传入 ⇒ 珠下先画垫（端点表 edge），珠体四边内缩 BEAD_DRAW_INSET 露出垫缝。
+   * L11 目标色垫（v1.5-r5 → v1.5-r8）：该格 pattern 要求色。
+   * 传入 ⇒ 珠下先画垫，珠体四边内缩 BEAD_DRAW_INSET 露出底色。
+   * 垫**按 pitch 满铺且方角** ⇒ 相邻格的垫连成一片连续目标色图（实物拼豆图纸读法）。
    */
   readonly padColorIdx?: number;
   /**
@@ -224,9 +224,10 @@ export function fillPopEnvelope(
 /**
  * Draw a complete `filled` bead (§1.1) centred on `(cx, cy)`.
  *
- * L5 takes the symbol for `colorIdx` and the ink that `symbolInk()` picks for
- * `beadColor(colorIdx)` — i.e. the colour and the symbol can never drift apart,
- * because both are derived from the same index.
+ * ⚠ **v1.5-r8（2026-09-23 用户拍板）：L5 符号层已整层删除**。此前非色相通道只长在珠上
+ * （`emitSymbol` 全仓唯一调用点），而目标侧（L11 垫）只有颜色 ⇒ 玩家比对「这颗珠属于这格吗」
+ * 时拿不到形状信号，三重编码实际只覆盖一半。本批改为**连续目标色底图**承担该职责，
+ * 代价与色盲口径见 `art/accessibility.md` 末条修订。
  */
 export function drawFilledBead(
   builder: RenderModelBuilder,
@@ -240,31 +241,34 @@ export function drawFilledBead(
   const base = beadColorOf(inks, colorIdx);
   const y = cy + (options.lift ?? 0);
 
-  // L11 目标色垫（v1.5-r5）—— 画于珠十层之下（渲染序 L11 → L0a…L5）；
+  // L11 目标色垫（v1.5-r5）—— 画于珠层之下（渲染序 L11 → L0a…L4c）；
   // 平面、零投影零高光（「不读作珠」§1.9.4）。
   // ⛔ 垫锁在**格心 `cy`**，不吃 `lift`（§1.6.1 层序死结论 / P0 陷阱 #2：「不参与 `scale` ·
   //   不参与 `lift` · 恒锁格缘 · 恒画」）。旧写法用 `y` ⇒ G4 波浪（`lift = dy`）与 T-148
   //   锚组抬起（`lift = -6`）会把垫一起抬走，「珠上移露垫」的读数被自身抹除。
-  const padRadius = Math.round(outer * BEAD_CARD.radius);
+  // **v1.5-r8（2026-09-23 用户拍板）**：边长由 `outer` 改为 **`BEAD_PITCH`**、圆角归 0
+  //   ⇒ 格内铺满且**格间无缝**（旧写法每格一50px 圆角块，BEAD_GAP=2 与四角共三层
+  //   -> 相邻底色不连）；底色现在整片谜面连成一张目标色图，珠内缩露出的不再是一圈
+  //   孤立的缝而是同一张图。代价：图元数不变（+0）、多出的 2px 面积可忽略。
   if (options.padColorIdx !== undefined) {
     const pad = endpointOf(inks, options.padColorIdx);
-    builder.rect(cx - outer / 2, cy - outer / 2, outer, outer, {
+    builder.rect(cx - BEAD_PITCH / 2, cy - BEAD_PITCH / 2, BEAD_PITCH, BEAD_PITCH, {
       fill: pad.edge,
-      radius: padRadius,
+      radius: 0,
     });
   }
-
-  // 珠体四边内缩（垫色显缝）；无垫（托盘珠）保持满幅。
-  // G1：`scale` **只作用珠体**（见上方禁令），垫留在 `outer` 上不随动。
+  // 珠体四边内缩（露底色）；无垫（托盘珠）保持满幅。
+  // G1：`scale` **只作用珠体**（见上方禁令），垫留在格距上不随动。
   const inset = options.padColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
   const size = (outer - inset * 2) * (options.scale ?? 1);
   const left = cx - size / 2;
   const bottom = y - size / 2;
-  // 同心圆角（WXG-T-162 问题 3）：等距内缩要求珠圆角 = 垫圆角 − inset；
+  // 同心圆角（WXG-T-162 问题 3）：等距内缩要求珠圆角 = 满幅圆角 − inset；
   // 旧式 round(size×0.22) 在内缩后与垫不同心（INSET=6 时 10 vs 5），缝宽转角处不均。
+  // v1.5-r8：垫已改方角 ⇒ 圆角不再从 `padRadius` 派生，改从**满幅圆角**派生（值不变：50×0.22−6=5）。
   const radius =
     inset > 0
-      ? Math.max(1, padRadius - inset)
+      ? Math.max(1, Math.round(outer * BEAD_CARD.radius) - inset)
       : Math.round(size * BEAD_CARD.radius);
   const stroke = (ratio: number) => Math.max(BEAD_CARD.minStroke, size * ratio);
   // G4 LOD：`lodLayers` 传入即走降档集（值本身在本轮只有一个档位 ⇒ 不作分支表）。
@@ -344,7 +348,7 @@ export function drawFilledBead(
   }
 
   // L4a/b/c 软高光 — three stacked rounded bars，外扩递减 α / 中心递增 α 模拟柔光（v1.3 · F4，
-  // 取代 v1.2 硬边单高光条）。三层均在 L5 符号之下绘制 → 不影响符号对比（accessibility A5）。
+  // 取代 v1.2 硬边单高光条）。旧 L5 符号层已删 ⇒ 本层即末层。
   for (let i = lod ? BEAD_CARD.softHighlight.length - 1 : 0; i < BEAD_CARD.softHighlight.length; i++) {
     const g = BEAD_CARD.softHighlight[i]!;
     builder.rect(left + size * g.x, bottom + size * g.y, size * g.w, size * g.h, {
@@ -352,9 +356,6 @@ export function drawFilledBead(
       radius: size * g.radius,
     });
   }
-
-  // L5 符号 — the non-colour channel (colour-blind affordance).
-  emitSymbol(builder, beadSymbol(colorIdx), cx, y, size, symbolInk(base).color);
 }
 
 export function drawEmptySocket(

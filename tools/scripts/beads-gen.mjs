@@ -242,6 +242,12 @@ const noFrame = has('noframe'); // 跳过去背景
 const sample = Math.max(1, parseInt(arg('sample', '8'), 10)); // 每格采样倍率（块内众数投票）
 const smoothRounds = Math.max(0, parseInt(arg('smooth', '0'), 10)); // 众数滤波轮数（0 = 关；默认关：滤波会抹掉 2–3 格小特征，实物还原主用例受伤 2026-09-21）
 const minBlock = Math.max(0, parseInt(arg('minblock', '1'), 10)); // 碎块并入阈值（格；<2 = 关。默认关：同理保小特征 2026-09-21）
+// 相邻格 ΔE 约束（v1.6，2026-09-23）：`--minadj` = 相邻异色对的最小 Lab ΔE76（0 = 关）。
+// 默认 20 的口径与实测影响面见 `separateAdjacent()` 头注与 levels-spec §5.0.3；
+// 调高到 ≥ 30 才能把 L1 那对红/粉（ΔE 29.8）纳入约束，但会明显牺牲色彩保真。
+const minAdjDE = Math.max(0, parseFloat(arg('minadj', '20')) || 0);
+/** 约束改色时允许的“对照片色误差增量”上限（Lab ΔE76）⇒ 色彩保真硬预算。 */
+const ADJ_MAX_DRIFT_DE = 12;
 const colorsMax = Math.max(0, parseInt(arg('colors', '0'), 10)); // 用色数上限（0/≥色板大小 = 不限制）
 const paletteArg = arg('palette', 'artkal-s'); // 品牌色板 slug（games/beads/art/<slug>.json：artkal-s/c/a/m/r、hama-*、perler*、nabbi、yant、mard、diamond-dotz）| 数字（程序化色域；'10' 游戏真源已从 UI 下架，仅 API 兼容）
 const colorsMode = arg('colorsmode', 'error'); // freq（频次优先）| error（ 误差最小优先；默认；仅 keptPx 为空时生效）
@@ -664,6 +670,80 @@ function smooth(arr, rounds) {
   }
   for (let i = 0; i < arr.length; i++) arr[i] = cur[i];
   return total;
+}
+
+/**
+ * 相邻格 ΔE 约束（WXG-T-203 v1.6，用户 2026-09-23 拍板）。
+ *
+ * **动因（真机取证）**：色板「互异」不等于「相邻可分」。L1 `studio-2-3851` 实测：
+ * 主色 S05 `#CB3531`（红，48%）↔ S130 `#D6668E`（粉，~50%）正常视觉 ΔE76 = **29.8**
+ * （本身过“可分”线），但两色**各占一半、8 向相邻 88 对** ⇒ 玩家被迫在大面积紧邻区
+ * 域反复做中等色差判别 ⇒ “分不太清”的体感来自**相邻**而非色板。另记：L5 符号层已
+ * 整层删除（v1.5-r8）⇒ 色相/明度之外再无形状通道，相邻可分性的重要性进一步上升。
+ *
+ * **做什么**：按行主序单遍。若一格的 8 邻居中存在“异色但 ΔE < `minDE`”，则在色板内
+ * 搜“与所有异色邻居 ΔE ≥ `minDE`”且**自身对照片色误差增量 ≤ `maxDriftDE`** 的最近候选色；
+ * 找不到就**保持不动** ⇒ 宁可不改也不破坏色彩保真（照片转拼豆的第一目标）。
+ *
+ * ⚠ **不保证收敛到零冲突**：本函数后还有 `balance()` 会重分配颜色（频次均衡），
+ * 可能重新引入冲突 ⇒ 故冲突对数另由 `adjacentConflicts()` 在**全链路结束后**实测上报，
+ * 不拿本函数的中间值当保证。
+ * @returns {{changed:number, conflicts:number}}
+ */
+function separateAdjacent(arr, minDE, avg, maxDriftDE) {
+  const d2 = minDE * minDE;
+  const drift2 = maxDriftDE * maxDriftDE;
+  const N8 = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+  const err2 = (i, p) => {
+    const q = rgb2lab(avg[i * 3], avg[i * 3 + 1], avg[i * 3 + 2]);
+    const t = PAL_LAB[p - 1];
+    return (t[0] - q[0]) ** 2 + (t[1] - q[1]) ** 2 + (t[2] - q[2]) ** 2;
+  };
+  let changed = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const i = r * cols + c;
+      const cur = arr[i];
+      if (!cur) continue;
+      const nb = [];
+      for (const [dr, dc] of N8) {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+        const v = arr[nr * cols + nc];
+        if (v > 0 && v !== cur && !nb.includes(v)) nb.push(v);
+      }
+      if (!nb.length || nb.every((v) => palDist(cur, v) >= d2)) continue;
+      const base = err2(i, cur);
+      let best = 0, bestErr = Infinity;
+      for (let p = 1; p <= PAL_N; p++) {
+        if (p === cur || !nb.every((v) => palDist(p, v) >= d2)) continue;
+        const e = err2(i, p);
+        if (e - base > drift2 || e >= bestErr) continue;
+        bestErr = e; best = p;
+      }
+      if (best) { arr[i] = best; changed++; }
+    }
+  }
+  return { changed, conflicts: adjacentConflicts(arr, minDE) };
+}
+
+/** 8 向“异色但 ΔE < minDE”的相邻格对数（只数右/下四个方向 ⇒ 不重复计）。 */
+function adjacentConflicts(arr, minDE) {
+  const d2 = minDE * minDE;
+  let n = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const v = arr[r * cols + c];
+      if (!v) continue;
+      for (const [dr, dc] of [[0, 1], [1, -1], [1, 0], [1, 1]]) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= rows || nc < 0 || nc >= cols) continue;
+        const w = arr[nr * cols + nc];
+        if (w && w !== v && palDist(v, w) < d2) n++;
+      }
+    }
+  }
+  return n;
 }
 
 /**
@@ -1181,6 +1261,11 @@ if (misMode !== 'full' && misMode !== 'swaps' && misMode !== 'none') {
 const { changed, note } = misMode === 'none'
   ? { changed: [], note: 'mis=none 实物图纸模式：跳过配色平衡（不做主导色 ≤ N/2 钳制）' }
   : balance(solved, allowSet); // 就地改 solved（正确解受平衡约束）
+// 相邻格 ΔE 约束（v1.6）：放在颜色链路的**最后一步**（balance 之后）⇒ 结果不被后续重分配冲掉。
+// ⚠ 它会轻微挪动颜色直方图 ⇒ 主导色 ≤ N/2 的平衡前提理论上可能被削弱，故 h1 / errFinal 均在其后取。
+const adj = minAdjDE > 0
+  ? separateAdjacent(solved, minAdjDE, avg, ADJ_MAX_DRIFT_DE)
+  : { changed: 0, conflicts: adjacentConflicts(solved, minAdjDE) };
 const h1 = hist(solved);
 const errFinal = meanColorErr(solved, avg); // 全部处理之后的最终色差 = **形状保真度**（越小越像原图）
 // 错位构造二选一：swaps ⇒ 游戏口径的 k 对异色交换（仅 2k 颗错位）；full ⇒ 全盘错位（每颗都不就位）。
@@ -1264,6 +1349,8 @@ const json = {
     clusteringBefore: stats0,
     clusteringAfter: stats1,
     smoothChanged, mergedCells,
+    /** 相邻格可分性（v1.6）：`conflicts` = 全链路结束后的 8 向“异色但 ΔE<minDE”相邻对数。 */
+    adjacency: { minDE: minAdjDE, maxDriftDE: ADJ_MAX_DRIFT_DE, changed: adj.changed, conflicts: adj.conflicts },
     clusteringMisplaced: der.misplaced ? clusterStats(der.misplaced) : null, // 玩家实际看到的初始盘
     // 难度/时长 = **生成期真引擎实测**（§3.5 v1.41 · 公式 v0.2）：本文件**不再自带公式**。
     // v0.1 按颗定价（M × 22.5 × f_N × f_C × g_A）已作废 —— 32 盘语料 32/32 触顶 420s、

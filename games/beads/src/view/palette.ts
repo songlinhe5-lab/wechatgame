@@ -333,19 +333,9 @@ const FALLBACK_ENDPOINTS: BeadEndpoints = Object.freeze({
 });
 
 
-// ──────────────────────────────────────────────── symbol ink (assets-spec L5) ──
-/** Ink used on a bright bead: `mix(base, #000, 0.55)` → the mix amount. */
-export const SYMBOL_INK_DARK_MIX = -0.55;
-/** Ink used on a dark bead: `#FFFFFF @ 0.90`. */
-export const SYMBOL_INK_LIGHT = '#FFFFFF';
-export const SYMBOL_INK_LIGHT_ALPHA = 0.9;
-/** §1.1 L5 threshold on {@link luminance}: above it, ink goes dark. */
-export const SYMBOL_INK_LUMA_THRESHOLD = 0.6;
-/**
- * Hard floor from `accessibility.md` B2 (「符号对珠面 ≥ 3:1」). Binding where it
- * disagrees with the L5 threshold — see `symbolInk()` for the one colour affected.
- */
-export const SYMBOL_CONTRAST_MIN = 3;
+// ⚠ v1.5-r8（2026-09-23 用户拍板）：L5 符号层连同本段 symbol-ink 常量整批删除
+// （目标侧改由连续目标色底图承担区分职责）。删除理由与色盲口径见
+// art/accessibility.md 末条修订；不可复活为死常量。
 
 // ───────────────────────────────────── powerup icon inks (assets-spec §1.4)
 /**

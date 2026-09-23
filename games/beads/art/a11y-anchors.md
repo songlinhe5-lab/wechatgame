@@ -10,7 +10,7 @@
 
 | id | 状态 | 锚点（`;` 分隔，字面量：符号名/键名/hex） | 备注（锚点语义） |
 |---|---|---|---|
-| A1 | ✅ | `BEAD_SYMBOLS` | 10 色 ↔ 10 矢量符号映射（`view/symbols.ts`，path 绘制不依赖字体） |
+| A1 | ⚠️ | `padColorIdx` | **`[v1.5-r8]` 降档（用户 2026-09-23 拍板）**：三重编码 → **二重**（色相 + 明度），L5 矢量符号整层删除（`view/symbols.ts` 已删）。锚点改指 `padColorIdx` = 新承载「这一格要什么色」的**连续目标色底图**入参（`view/bead-render.ts`）|
 | A2 | ⚠️ | `drawLockedBead` | 部分落地行：锚点仅证**已落地半边**（locked X 斜纹）；empty/hint 降档见矩阵行 |
 | A2b | ⚠️ | `-` | v1.5 降档登记行（E4 移除，Basic 通道收窄）——无「落地」声称可检 |
 | A3 | ⚠️ | `luminance` | 部分降级行：锚点 = 明度计算函数（`view/palette.ts`，6 档量化底座） |
@@ -18,7 +18,7 @@
 | A5 | ✅ | `glow_warm` | 暖光 band 低饱和色（`view/palette.ts`，层次不破坏三重编码） |
 | A6 | ✅ | `hintAlpha` | 动画不承载独占信息：hint 呼吸在 reduceMotion 下退**静态**描边仍有信息（`view/view-model.ts`） |
 | B1 | ✅ | `#2A2E43` | `text_primary` 值锚（`view/palette.ts:71`，对比度 ≥4.5:1 的底色对） |
-| B2 | ✅ | `symbolInk` | 符号对珠面墨色函数（`view/symbols.ts`，≥3:1） |
+| B2 | ⛔ | `-` | **`[v1.5-r8]` 判据作废**：符号层已删 ⇒ 「符号对珠面 ≥3:1」不再有任何实现对象（`symbolInk` / `SYMBOL_INK_*` 一并删除）。不得复活为死常量 |
 | B3 | ✅ | `dangerAlpha` | 倒计时三通道之脉冲 α（`view/view-model.ts`，WXG-T-087 GAP-10） |
 | C1 | ✅ | `btn_expand; GEAR_HIT_SIZE` | 扩热区常量（`config/tuning.ts`；齿轮/扩展键 ≥88 设计 px） |
 | C2 | ✅ | `POWERUP_CARD_GAP` | 卡间距 60px 真值（`config/tuning.ts`，BD-26 回写后与文档一致） |

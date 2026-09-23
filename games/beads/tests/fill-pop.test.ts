@@ -11,7 +11,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder } from '@wxgame/framework';
-import { BEAD_CELL, BEAD_DRAW_INSET } from '../src/config/tuning.js';
+import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH } from '../src/config/tuning.js';
 import {
   FILL_POP_CONTACT_A_PEAK,
   FILL_POP_MS,
@@ -164,15 +164,16 @@ describe('G1 · 渲染接线：垫不参与 scale（§1.6.1 层序死结论）',
   const pop = emit({ padColorIdx: 3, scale: FILL_POP_SCALE_START });
   const rest = emit({ padColorIdx: 3, scale: 1 });
 
-  it('L11 垫 = 第 0 条图元、恒为全格 50×50、恒格心（scale 不带动）', () => {
+  it('L11 垫 = 第 0 条图元、恒为 pitch 满铺方角 52×52、恒格心（scale 不带动 · v1.5-r8）', () => {
     for (const commands of [pad, pop, rest]) {
       const c = commands[0]!;
       expect(c.kind).toBe('rect');
       if (c.kind === 'rect') {
-        expect(c.w).toBeCloseTo(BEAD_CELL, 9);
-        expect(c.h).toBeCloseTo(BEAD_CELL, 9);
-        expect(c.x).toBeCloseTo(100 - BEAD_CELL / 2, 9);
-        expect(c.y).toBeCloseTo(200 - BEAD_CELL / 2, 9);
+        expect(c.w).toBeCloseTo(BEAD_PITCH, 9);
+        expect(c.h).toBeCloseTo(BEAD_PITCH, 9);
+        expect(c.x).toBeCloseTo(100 - BEAD_PITCH / 2, 9);
+        expect(c.y).toBeCloseTo(200 - BEAD_PITCH / 2, 9);
+        expect(c.radius ?? 0).toBe(0); // v1.5-r8：方角 ⇒ 相邻格底色无缝
         expect(c.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).edge);
       }
     }

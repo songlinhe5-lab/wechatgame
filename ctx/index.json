@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2919,
       "lines": 113,
-      "sha256": "bcbe68dcc371eebe1037ff7232d33d2d8073ad172fd16d8ea37092ba487ef1bf",
+      "sha256": "3da5afe45ca79a725149e41866371ce5ba3c443b14d654114c0b7f9990915690",
       "tier": "normal",
       "sections": [
         {
@@ -7779,9 +7779,9 @@
     },
     {
       "path": "games/beads/art/a11y-anchors.md",
-      "tokens": 981,
+      "tokens": 1079,
       "lines": 33,
-      "sha256": "0478b6e9f80ee9eec50ccd9116ca19cd3e879997f523a6c151f7077514d5249d",
+      "sha256": "cf6d0b37931ae4f9b2283ea43f115544feb191da60c448bdd9136c1127d2dbad",
       "tier": "normal",
       "sections": [
         {
@@ -7789,7 +7789,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 34,
-          "tokens": 956,
+          "tokens": 1054,
           "summary": "正本矩阵 = accessibility.md §2（本表不重复其判据正文，预算注记 WXG-T-130 指引「再增判据",
           "keywords": [
             "check:a11y",
@@ -7804,9 +7804,9 @@
     },
     {
       "path": "games/beads/art/accessibility.md",
-      "tokens": 27120,
+      "tokens": 27561,
       "lines": 185,
-      "sha256": "b69396346ca90a8aff66dcecea751b0a5c51646691139bf13354cc03c1d19884",
+      "sha256": "835b9f9686d761f1a219acef05bdae395ead6156b44f063b727bd6ea15c08f53",
       "tier": "normal",
       "sections": [
         {
@@ -7814,7 +7814,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 186,
-          "tokens": 27103,
+          "tokens": 27544,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Accessibility",
@@ -7842,7 +7842,7 @@
           "level": 2,
           "startLine": 30,
           "endLine": 113,
-          "tokens": 19727,
+          "tokens": 20145,
           "summary": "机检面（WXG-T-155 / K-035）：本表各行「落地」声称的代码符号锚点正本在 [a11y-anchors.md",
           "keywords": [
             "WXG",
@@ -7856,7 +7856,7 @@
           "level": 2,
           "startLine": 114,
           "endLine": 146,
-          "tokens": 1205,
+          "tokens": 1227,
           "summary": "本 demo 落地（17 项跟踪）：[v1.5-r2] 按状态分桶重列（替代原平铺口径；项数仍为 17，防「字母在册即算",
           "keywords": [
             "demo",

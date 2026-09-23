@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder } from '@wxgame/framework';
-import { BEAD_CELL, TRAY_SLOT, nextBeadLod, WAVE_LOD_LAYERS } from '../src/config/tuning.js';
+import { BEAD_CELL, BEAD_PITCH, TRAY_SLOT, nextBeadLod, WAVE_LOD_LAYERS } from '../src/config/tuning.js';
 import {
   BEAD_CARD,
   SELECTED_SHADOW_ALPHA,
@@ -32,7 +32,7 @@ import {
   mix,
   withAlpha,
 } from '../src/view/palette.js';
-import { symbolInk } from '../src/view/symbols.js';
+// v1.5-r8：L5 符号层已删 ⇒ `view/symbols.ts` 不再存在，不得重新引入。
 
 function emit(draw: (builder: RenderModelBuilder) => void) {
   const builder = new RenderModelBuilder(750, 1334);
@@ -67,14 +67,13 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
     expect(nextBeadLod(46, false)).toBe(false); // 同一点不降档 ⇒ 无双稳振荡
   });
 
-  it('降档只砍质感层：命令数下降，但 L11 垫与 L5 符号两条红线不丢', () => {
+  it('降档只砍质感层：命令数下降，但 L11 目标色垫红线不丢', () => {
     const full = beadWithPad();
     const low = beadWithPad(WAVE_LOD_LAYERS);
     expect(low.length).toBeLessThan(full.length);
-    // L11 目标色垫：两版首条逐字段相同（垫不参与 LOD，也不参与 scale）
+    // L11 目标色垫：两版首条逐字段相同（垫不参与 LOD，也不参与 scale / lift）
     expect(low[0]).toEqual(full[0]);
-    // L5 符号：收尾那发在降档后仍存在且同参（符号 = 非颜色通道，ADR-0016 同源）
-    expect(low[low.length - 1]).toEqual(full[full.length - 1]);
+    // v1.5-r8：旧「L5 符号红线」随符号层删除而作废（非色相通道改由连续底图承担）。
   });
 });
 
@@ -95,8 +94,21 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       'rect', // L4b 软高光·中
       'rect', // L4c 软高光·核
     ]);
-    // L5 符号 — at least one command after the card, for every colour.
-    expect(commands.length).toBeGreaterThan(11);
+    // v1.5-r8：L5 符号层已删 ⇒ 十层卡即全部，珠体图元数恰为 11（无尾部符号）。
+    expect(commands).toHaveLength(11);
+  });
+
+  // L11 目标色垫（v1.5-r8）：按 pitch 满铺且方角 ⇒ 相邻格底色无缝相连。
+  it('§1.1 L11 pad tiles at pitch with square corners so cell colours are gapless', () => {
+    const pad = emit((b) => beadOnPad(b))[0]!;
+    expect(pad.kind).toBe('rect');
+    if (pad.kind !== 'rect') return;
+    expect(pad.w).toBe(BEAD_PITCH);
+    expect(pad.h).toBe(BEAD_PITCH);
+    expect(pad.radius ?? 0).toBe(0);
+    // 相邻两格圆心相距 = pitch ⇒ 两垫边缘重合（无缝）；旧写法垫边长 = BEAD_CELL ⇒ 中间空 2px。
+    expect(pad.x + pad.w).toBe(100 + BEAD_PITCH / 2);
+    expect(BEAD_PITCH - pad.w).toBe(0);
   });
 
   // L0a 接触阴影：贴底窄条（y = bottom + contactY×BEAD），α 0.12，圆角 = 主圆角 × 0.5。
@@ -170,24 +182,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     }
   });
 
-  // L5 符号：颜色与符号必须同源（同一索引派生），否则会出现「橙珠配星形」这类错配。
-  it('§1.5 derives the symbol ink from the very same colour as the body', () => {
-    for (let colorIdx = 1; colorIdx <= 10; colorIdx++) {
-      const commands = filled(colorIdx);
-      const symbol = commands[commands.length - 1]!;
-      const inkInUse =
-        symbol.kind === 'circle'
-          ? (symbol.stroke ?? symbol.fill)
-          : symbol.kind === 'line'
-            ? symbol.stroke
-            : symbol.kind === 'rect'
-              ? symbol.fill
-              : symbol.kind === 'polygon'
-                ? symbol.fill
-                : undefined;
-      expect(inkInUse, `colour ${colorIdx}`).toBe(symbolInk(beadColorOf(DEMO_BEAD_INKS, colorIdx)).color);
-    }
-  });
+  // v1.5-r8：旧 §1.5「符号墨水与珠体同源」判据随 L5 符号层删除而移除（symbols.ts 已删）。
 
   // §1.1 最小特征约束：线宽 ≥ 2px —— 托盘尺寸（44px 珠）是最小使用场景。
   it('§1.1 keeps every card stroke ≥ 2px at the smallest bead size', () => {

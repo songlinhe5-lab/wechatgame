@@ -110,26 +110,26 @@ describe('beads view model (control-manifest §8)', () => {
   });
 
   // accessibility A1 的落地断言：L5 符号通道必须覆盖**每一个**已填格（整盘填满时逐格都有满墨符号）。
-  it('A1 draws the L5 symbol for every filled cell', () => {
+  // ⛔ v1.5-r8（2026-09-23 用户拍板）：**L5 符号层整层删除**，目标侧区分改由「连续目标色
+  // 底图」承担。本例由旧「A1 每格发符号」判据**反转**而来 ⇒ 全盘零符号，防符号无声复活。
+  // 代价与色盲口径登记在 art/accessibility.md 末条（三重编码降为二重）。
+  it('v1.5-r8：满盘就位珠不再发射任何 L5 符号', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()], // 3 colours ⇒ validator-legal; '123123' × 5 rows
       saveKey: 'wxgame.beads.test.vm-c',
     });
-    const filled = fillBoard(harness);
-    expect(filled).toBe(30);
-    expect(harness.game.grid.filledCount).toBe(30);
-
-    const commands = render(harness);
-    // 30 格 = 10 个 ''1'' + 10 个 ''2'' + 10 个 ''3''，每色各 10 颗 → 10/10/10 个符号。
-    expect(commands.filter((c) => onBoard(c) && isRingSymbol(c))).toHaveLength(10);
-    expect(commands.filter((c) => onBoard(c) && isStarSymbol(c))).toHaveLength(10);
-    expect(commands.filter((c) => onBoard(c) && isDotSymbol(c))).toHaveLength(10);
+    expect(fillBoard(harness)).toBe(30);
+    expect(
+      render(harness).filter(
+        (c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c)),
+      ),
+    ).toHaveLength(0);
   });
 
   // A3 灰度可辨（T-085 后）：每一格都带符号——已填格满墨、空格 E4 幽灵符号（α0.20），
   // 符号总数恒等于格数、与颜色无关（色盲冗余通道：未填态即可按符号规划）。
-  it('A3（v1.22 a11y 降级，WXG-T-130/131）：empty 不再发射幽灵符号；filled 仍发满墨符号', () => {
+  it('A3（v1.5-r8 反转）：empty 与 filled 一律不再发射任何符号', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()],
@@ -140,12 +140,12 @@ describe('beads view model (control-manifest §8)', () => {
     const blank = render(harness);
     expect(blank.filter((c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c)))).toHaveLength(0);
 
-    // 填每行第 0 列（5 颗 '1'）⇒ 仅这 5 颗就位珠发满墨符号（符号只来自 filled）。
+    // 填每行第 0 列（5 颗就位珠）⇒ 旧判据「这 5 颗发满墨符号」随符号层删除反转为一律零。
     for (let row = 0; row < harness.game.grid.rows; row++) placeColor(harness.game, 1, row, 0);
     const partial = render(harness);
     expect(
       partial.filter((c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c))),
-    ).toHaveLength(5);
+    ).toHaveLength(0);
 
   });
 
@@ -275,15 +275,16 @@ describe('beads view model (control-manifest §8)', () => {
     expect(filled).toBe(156);
 
     const commands = render(harness);
-    // 每颗满珠至少 7 条卡层指令（L0/L1/L2×2/L3×2/L4）+ 1 条符号 ⇒ 每珠 ≥ 8 条。
-    expect(commands.length).toBeGreaterThanOrEqual(8 * 156);
+    // v1.5-r8：旧判据「每珠 7 层卡 + 1 符号 = 8 条」里的符号层已删；现行为
+    // 每珠 7 条卡层（L0a/L0b/L1/L2×2/L3×2 取代表值）以上 ⇒ 预算下限按 7 重算。
+    expect(commands.length).toBeGreaterThanOrEqual(7 * 156);
     expect(commands.length).toBeGreaterThanOrEqual(900); // architecture-beads §4 规模账
-    // 符号通道同样覆盖满格：156 格 ÷ 三色分布后，符号总数仍等于已填格数。
+    // v1.5-r8：旧「符号总数 = 已填格数」判据（本例 156）随 L5 符号层删除作废。
     const symbols =
       commands.filter((c) => onBoard(c) && isStarSymbol(c)).length +
       commands.filter((c) => onBoard(c) && isDotSymbol(c)).length +
       commands.filter((c) => onBoard(c) && isRingSymbol(c)).length;
-    expect(symbols).toBe(156);
+    expect(symbols).toBe(0);
   });
 
   // ux-spec §3.3：暂停面板必须整屏遮挡（防误触/防偷看），并带「暂停」标题。

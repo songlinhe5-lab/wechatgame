@@ -270,12 +270,12 @@ describe('G4 vfx_complete_wave · LOD 降档 + L11 垫不参与 lift', () => {
     const still = emitBead({ padColorIdx: 0, lodLayers: WAVE_LOD_LAYERS });
     const lifted = emitBead({ padColorIdx: 0, lift: WAVE_LIFT_PX, lodLayers: WAVE_LOD_LAYERS });
     const pad = (cmds: readonly DrawCommand[]): RectCommand =>
-      cmds.find((c) => c.kind === 'rect' && c.w === BEAD_CELL) as RectCommand;
+      cmds.find((c) => c.kind === 'rect' && c.w === BEAD_PITCH) as RectCommand;
     expect(pad(lifted).y).toBe(pad(still).y);
-    expect(pad(lifted).h).toBe(BEAD_CELL);
-    // 对照：同一 `lift` 下珠体（宽 ≠ 50 的第一条 = L0b 投影）确实上移 ⇒ 「珠上移露垫」读数成立。
+    expect(pad(lifted).h).toBe(BEAD_PITCH);
+    // 对照：同一 `lift` 下珠体（宽 ≠ pitch 的第一条 = L0b 投影）确实上移 ⇒ 「珠上移露垫」读数成立。
     const body = (cmds: readonly DrawCommand[]): RectCommand =>
-      cmds.filter((c) => c.kind === 'rect' && c.w !== BEAD_CELL)[0] as RectCommand;
+      cmds.filter((c) => c.kind === 'rect' && c.w !== BEAD_PITCH)[0] as RectCommand;
     expect(body(lifted).y - body(still).y).toBeCloseTo(WAVE_LIFT_PX, 6);
   });
 });

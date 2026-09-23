@@ -311,20 +311,21 @@ describe('G7 观感 · 命令层（TC 双断言的 scale/D1 半边）', () => {
     const near = (ws: readonly number[], v: number): boolean =>
         ws.some((w) => Math.abs(w - v) < 0.01);
 
-    it('就位格：珠体 = 46×scale（谷帧 44.16）、L11 垫恒 50 不参与（§1.6.1 层序死结论）', () => {
+    it('就位格：珠体 =(50−2×INSET)×scale、L11 垫恒 pitch 52 不参与（§1.6.1 层序死结论 · v1.5-r8）', () => {
         const h = mk('wxgame.beads.test.g7-body');
         h.game.grid.fill(1, 0, h.game.grid.requiredColor(1, 0));
         h.advance(FRAME);
         const snap = h.game.snapshot;
         const base = widthsAt(renderSnap(snap), snap, 1, 0);
-        expect(near(base, BEAD_CELL)).toBe(true); // 垫 50
+        expect(near(base, BEAD_PITCH)).toBe(true); // 垫 = pitch 满铺（v1.5-r8）
         expect(near(base, BEAD_CELL - 2 * BEAD_DRAW_INSET)).toBe(true); // 静息珠体 46
         const valley = withDenied(snap, [{ row: 1, col: 0, p: TROUGH_P }]);
         const ws = widthsAt(renderSnap(valley), valley, 1, 0);
         const body = (BEAD_CELL - 2 * BEAD_DRAW_INSET) * DENIED_PRESS_SCALE_TROUGH; // 44.16
         expect(near(ws, body)).toBe(true);
-        expect(near(ws, BEAD_CELL)).toBe(true); // 垫纹丝不动
-        expect(ws.every((w) => w <= BEAD_CELL + 1e-9)).toBe(true); // 永不越格（A5 零重叠前提）
+        expect(near(ws, BEAD_PITCH)).toBe(true); // 垫纹丝不动
+        // 永不越格（A5 零重叠前提）：垫本身铺满 pitch，故只校珠体侧
+        expect(ws.filter((w) => Math.abs(w - BEAD_PITCH) > 0.01).every((w) => w <= BEAD_CELL + 1e-9)).toBe(true);
     });
 
     it('locked 格：scale 走 `size` 形参通道 ⇒ 谷帧 50×0.96 = 48（无垫、只缩不胀）', () => {
