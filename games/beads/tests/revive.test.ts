@@ -251,7 +251,7 @@ describe('ordinary fail-page revive', () => {
     expect(harness.game.mode).toBe('sprint');
   });
 
-  it('a revived clear uses starRemaining and caps stars at 2', () => {
+  it('a revived clear keeps its tier star (§3.7 v1.50：不封顶、也不再从 ratio 里扣奖励)', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()],
@@ -264,8 +264,10 @@ describe('ordinary fail-page revive', () => {
     fillBoard(harness.game);
     expect(harness.game.phase).toBe('level-clear');
     const payload = harness.last<{ remaining: number; ratio: number; stars: number }>('level:cleared')!;
+    // 旧断言：stars = 1 且 ratio = 0（`starRemaining = remaining − 180s` 把奖励扣掉 + 续时封顶 2★）。
+    // §3.7 v1.50：星级 = 本局档位（首盘 = 1★），续时既不封顶也不从 ratio 里扣 ⇒ ratio > 0。
     expect(payload.stars).toBe(1);
-    expect(payload.ratio).toBe(0);
+    expect(payload.ratio).toBeGreaterThan(0);
     expect(payload.remaining).toBeGreaterThan(0);
     expect(harness.game.lastStars).toBe(1);
   });
@@ -286,11 +288,12 @@ describe('ordinary fail-page revive', () => {
   });
 });
 
-describe('computeClearStars (§3.7 after revive)', () => {
-  it('rates HUD remaining minus bonus, then caps a revived run at 2★', () => {
-    expect(computeClearStars(96, 300, 0, false)).toEqual({ ratio: 0.32, stars: 3 });
-    expect(computeClearStars(60, 300, 60, true)).toEqual({ ratio: 0, stars: 1 });
-    expect(computeClearStars(200, 300, 60, true).stars).toBe(2);
-    expect(computeClearStars(200, 300, 60, true).ratio).toBeCloseTo(140 / 300, 10);
+describe('computeClearStars (§3.7 v1.50 选档即定星)', () => {
+  it('星级 = 本局档位；续时不再封顶 2★（用户 2026-09-23 裁定取消）', () => {
+    // 旧断言：同一条 `(200, 300, 60, true).stars === 2`（续时封顶）——已随双重计罚一并废除。
+    // 本值仍归一 ratio（只供 C7 结算分），不再影响 stars。
+    expect(computeClearStars(200, 300, 3)).toEqual({ ratio: 200 / 300, stars: 3 });
+    expect(computeClearStars(3, 300, 1)).toEqual({ ratio: 0.01, stars: 1 });
+    expect(computeClearStars(60, 300, 2).stars).toBe(2);
   });
 });

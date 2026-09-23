@@ -200,19 +200,19 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     });
     fillBoard(h);
 
-    // 不推进时钟 ⇒ remaining = 总量 ⇒ ratio = 1 ⇒ 3★；未用道具 / 未扩托盘。
-    expect(h.game.lastStars).toBe(3);
+    // §3.7 v1.50：首盘 = 1★ 档 ⇒ **不推进时钟（ratio = 1）也只给 1★**，星级与剩余脱钩。
+    expect(h.game.lastStars).toBe(1);
     const cleared = h.last<{ ratio: number; stars: number }>('level:cleared')!;
-    expect(cleared.stars).toBe(3);
+    expect(cleared.stars).toBe(1);
     expect(cleared.ratio).toBeCloseTo(1, 6);
     expect(h.game.lastSettleScore).toBe(
       normalSettleScore(cleared.stars, cleared.ratio, 0, false),
     );
-    // C7：3×1000 + round(1×1000) − 0 + 200（未用扩展）= 4200。
-    expect(h.game.lastSettleScore).toBe(4200);
+    // C7：1×1000 + round(1×1000) − 0 + 200（未用扩展）= 2200。
+    expect(h.game.lastSettleScore).toBe(2200);
 
     // 快照同步给视图的料：星级与「道具 n/3」分母。
-    expect(h.game.snapshot.clearStars).toBe(3);
+    expect(h.game.snapshot.clearStars).toBe(1);
     expect(h.game.snapshot.clearLastLevel).toBe(true);
   });
 

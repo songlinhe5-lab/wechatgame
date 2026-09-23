@@ -128,7 +128,7 @@ function discover() {
       if (levelJsons.length > 0) {
         problems.push(
           `${name}：目录模式（有 ${MANIFEST_FILE}）却仍有顶层关卡 json：${levelJsons.join('、')} —— ` +
-            '二者歧义，只保留 manifest 驱动（删除多余顶层关卡 json）',
+          '二者歧义，只保留 manifest 驱动（删除多余顶层关卡 json）',
         );
         continue;
       }
@@ -148,7 +148,7 @@ function discover() {
     if (levelJsons.length > 1) {
       problems.push(
         `${name}：无 ${MANIFEST_FILE} 且 design/levels/ 下有 ${levelJsons.length} 个关卡 .json（${levelJsons.join('、')}）—— ` +
-          `真源要么恰好 1 个，要么改用 ${MANIFEST_FILE} 目录模式`,
+        `真源要么恰好 1 个，要么改用 ${MANIFEST_FILE} 目录模式`,
       );
       continue;
     }
@@ -157,9 +157,9 @@ function discover() {
     if (levelJsons.length === 1 && !hasHeader) {
       problems.push(
         `${name}：有 ${levelJsons[0]} 但缺 ${HEADER_FILE} —— ` +
-          '**该游戏的关卡产物没有任何门禁**（K-031 族静默失效）。' +
-          `处置：把该游戏 levels-data.ts 的头部（\`export const ${CONST_NAME}\` 之前的部分）` +
-          `原样另存为 design/levels/${HEADER_FILE}（须逐字节一致），再跑一次本脚本`,
+        '**该游戏的关卡产物没有任何门禁**（K-031 族静默失效）。' +
+        `处置：把该游戏 levels-data.ts 的头部（\`export const ${CONST_NAME}\` 之前的部分）` +
+        `原样另存为 design/levels/${HEADER_FILE}（须逐字节一致），再跑一次本脚本`,
       );
       continue;
     }
@@ -229,7 +229,7 @@ const DEV_ONLY_FIELDS = ['pricing'];
  * 装配前校验定价溯源与 `time` 一致（**dev 侧断言，不走 BOOT**：BOOT 拿到的产物已被剔过
  * `pricing`，看不见溯源）。任一不成立 ⇒ throw，与 K-031 同口径：硬红不静默报绿。
  *
- * 语义 = **溯源记录**，不是活公式：`secPerTap` 随当时写定，后续回调 `SEC_PER_TAP`
+ * 语义 = **溯源记录**，不是活公式：`secPerStep` 随当时写定，后续回调 `SEC_PER_STEP`
  * 不致旧关集体报红（v0.3 已允许逐关按实测 `t_act × k` 定价，不再要求全表同单价）。
  */
 export function assertPricing(uid, lv) {
@@ -239,22 +239,22 @@ export function assertPricing(uid, lv) {
     throw new Error(`${uid}: time=${JSON.stringify(lv.time)} 非法`);
   if (p.source === 'playtest') {
     if (!(p.tAct > 0) || !(p.k > 0))
-      throw new Error(`${uid}: pricing.source=playtest 但缺 tAct/k（§5.0 公式 v0.3）`);
+      throw new Error(`${uid}: pricing.source=playtest 但缺 tAct/k（§5.0 公式 v0.4）`);
     if (Math.abs(lv.time - Math.round(p.tAct * p.k)) > 1)
       throw new Error(`${uid}: time=${lv.time} 与 playtest 定价 round(tAct=${p.tAct} × k=${p.k}) 不符 ⇒ 改了 time 未回写溯源`);
     return;
   }
   if (p.source !== 'bot')
     throw new Error(`${uid}: pricing.source=${JSON.stringify(p.source)} 未知（仅 bot/playtest）`);
-  if (!(Number.isInteger(p.actions) && p.actions > 0) || !(p.secPerTap > 0))
-    throw new Error(`${uid}: pricing.source=bot 但 actions/secPerTap 非法`);
-  // 下界不变式：可达数不可能少于可证明下界 ⇒ 破了就是 bot 或度量写错
-  if (p.actionsLB > p.actions)
-    throw new Error(`${uid}: actionsLB=${p.actionsLB} > actions=${p.actions} ⇒ 错位组数下界被突破，疑回归`);
+  if (!(Number.isInteger(p.steps) && p.steps > 0) || !(p.secPerStep > 0))
+    throw new Error(`${uid}: pricing.source=bot 但 steps/secPerStep 非法`);
+  // 下界不变式：可达步数不可能少于「错位连通组数」这个可证明下界 ⇒ 破了就是 bot 或度量写错
+  if (p.stepsLB > p.steps)
+    throw new Error(`${uid}: stepsLB=${p.stepsLB} > steps=${p.steps} ⇒ 错位组数下界被突破，疑回归`);
   if (p.cleared === false)
     throw new Error(`${uid}: pricing.cleared=false ⇒ 可解性未证实，不可入关（§5.0 硬拦闸）`);
-  if (!p.clamped && Math.abs(lv.time - Math.round(p.actions * p.secPerTap)) > 1)
-    throw new Error(`${uid}: time=${lv.time} 与 round(actions=${p.actions} × secPerTap=${p.secPerTap}) 不符 ⇒ 改了 pattern/time 未重跑 beads-bot --patch`);
+  if (!p.clamped && Math.abs(lv.time - Math.round(p.steps * p.secPerStep)) > 1)
+    throw new Error(`${uid}: time=${lv.time} 与 round(steps=${p.steps} × secPerStep=${p.secPerStep}) 不符 ⇒ 改了 pattern/time 未重跑 beads-bot --patch`);
 }
 
 /** 剔除 dev-only 字段（浅拷贝；关卡数据本体不突变）。 */

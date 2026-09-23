@@ -231,8 +231,13 @@ export const LEVEL_TIME_DEFAULT = 300;
  * 定价 45/90 s，一律被钳到 120 s 下限（systems-index §3.5 合法区间 `[LEVEL_TIME_MIN, LEVEL_TIME_MAX]`，
  * 当时上沿为 420；现值见下行）。
  * 旧值 180 会让 L1–L4（120/120/120/135 s）在 BOOT 被自家校验器拒收。
+ *
+ * **§3.5 v1.50 冻结变更 120 → 30**（用户 2026-09-23 拍板）。动因：**三档时钟制**（§3.7 v1.50）下
+ * 2★/3★ = 1★ × 0.85 / × 0.70，而八关 1★ 实测最短只 84s ⇒ 其 3★ 档 = 59s。旧下限 120s 会把小关的
+ * **三档全钳成同一个 120s ⇒ 档位塌缩、星级体系直接失效**（单档时钳位只是“该关变松”，三档时是
+ * “该关没有星级”）。历史：180 → 120（v1.23）→ 30（v1.50）。
  */
-export const LEVEL_TIME_MIN = 120;
+export const LEVEL_TIME_MIN = 30;
 /**
  * Level time legal maximum (s) —— **§3.5 v1.47 开发期临时放宽 420 → 2500**（用户 2026-09-22 拍板
  * 「改成 2500，我先验证玩法，时间上线需要再调整」）。
@@ -258,24 +263,27 @@ export const LEVEL_TIME_MAX = 2500;
 export const LEVEL_TIME_PER_PAIR = 45;
 
 /**
- * 每次「成功点击」的秒数预算（§3.5 v1.41 · 公式 v0.2 实测口径）。
+ * 每个「批量动作」的秒数预算（§3.5 v1.50 冻结变更：**改名 `SEC_PER_TAP` → `SEC_PER_STEP` 并重锚**）。
  *
- * **为什么换成按点击定价**：v0.1 按颗定价（`M × 22.5s`）在 32 盘真实语料上
- * **32/32 触顶 420s**，隐含「每点击秒数」跨 0.46–70s（150 倍）⇒ 既造出倒计时内
- * 不可能通关的盘（19/32），也造出白给 3★ 的盘。根因不是系数偏，是**自变量选错**：
- * v2.1/v2.2/T-162/T-180 之后机制按「次」批量（`collectMisplacedGroup` 8 向连通不限步、
- * `retrieveSelectedGroup` 一次 min(组, 连续空槽)、`planGroupFill` BFS 连通空格不限步、
- * `FILL_POP_RESTART_GATE_MS` 门内不重启动画）⇒ 单颗珠的边际时间≈0。证据：
- * `design/forensics/diff-v02/grid.log.txt`。
+ * ⚠ **量纲变了，不是改数值**：旧自变量 = 「每次成功点击」（bot 四个公开命令返回 true 的计数，
+ * 含选锚/选槽那一下）；新自变量 = **`refSteps` = 一个玩家可感知的批量动作**
+ * （`直填 + 取回 + 落子` 三类之和，选锚并入被它服务的那个动作）。
+ * 同一个盘两个数差≈2 倍 ⇒ 不改名不重锚就会让注释与代码说两套话。
  *
- * 取值（用户 2026-09-21 拍板冻结）：**3.6s = L1–L8 已入库关的 `time / 实测 taps`
- * 中位数**。这 8 关的 time 是 playtest 校准过的真值（非公式产物），实测反推区间
- * 3.01–5.71、中位 3.60 ⇒ 本值 = 「与已校准的 8 关同节奏」。对比：v0.1 隐含的
- * s/tap 在 32 盘语料上跨 0.46–70s（150 倍），无锚可言。
- * 校准机制：playtest 实际用时 vs T 偏差 >25%（单关）/15%（均值）⇒ 回调本值，
- * 新值与依据写入 levels-spec §5 版本表（不静默改数）。
+ * **取值 1.69 = 八关实测 `t_act ÷ BAC步数` 的中位数**（同一玩家，2026-09-23，
+ * 取证见 `levels-spec §5.0.1`）。自变量取 **`branchOrder='BAC'`**（先取回挖洞→再落子→最后直填），
+ * 理由是在八关上同时拿下两个独立判据：最大误差最小（±28%，现况 ACB ±39%）与
+ * 难度排序最准（Spearman ρ = 0.95，现况 0.83）。
+ *
+ * ⚠ **本值的用途已降格为「新关引导值」**（公式 v0.4）：已人工试玩过的关一律直接用实测
+ * `t_act` 定 1★ 时钟，不经过本常数。原因：本常数在八关上的残差仍有 **±29%**（L1 −21% / L8 +29%），
+ * 直接进玩家体验不可接受。**切勿把它当“可预测人类用时”的模型**：
+ * 历史上同族先验已三次被同一批数据证伪（`t_act÷bot_taps` 四点崩、`M×1.6` 八点 ρ 仅 0.69、
+ * n=4 上选的 `CAB` 到 n=8 最大误差 **162%**）。
+ *
+ * 校准机制不变（§5.0.1）：单关 `|t_act − T|/T > 25%` ⇒ 该关改用实测覆盖；均值超阈 ⇒ 回调本值。
  */
-export const SEC_PER_TAP = 3.6;
+export const SEC_PER_STEP = 1.69;
 
 /**
  * **时间按 k 定价**（§3.5 v1.23）：`clamp(k × LEVEL_TIME_PER_PAIR, MIN, MAX)`。
@@ -370,10 +378,46 @@ export const REVIVE_MAX_PER_LEVEL = 1;
 export const STAMINA_REFILL_PLACEMENT = 'stamina-refill';
 
 // ──────────────────────────────────────────────────────── §3.7 stars & settle
-/** ratio = remaining/total ≥ 0.32 → 3★. */
-export const STAR3_RATIO = 0.32;
-/** ratio ≥ 0.12 → 2★, otherwise 1★ (clearing always yields ≥1★). */
-export const STAR2_RATIO = 0.12;
+/**
+ * **三档时钟系数（§3.7 v1.50 冻结）**——星级 = 本局所选档位，**不再看剩余时间占比**。
+ *
+ * 旧 `STAR3_RATIO = 0.32` / `STAR2_RATIO = 0.12` 已**删除**（不是弃用，是删：让任何残留引用在
+ * 类型检查上红）。删除动因：旧制把「失败压力（倒计时→广告）」与「效率奖励（星级）」
+ * 焊在同一只时钟上，二者互相绑死：时钟调紧 ⇒ 人人看广告且 3★ 实质作废；调松 ⇒ 广告位不开张。
+ * 拆成三只时钟后两条线各自成立（`levels-spec §5.0` 公式 v0.4 / `systems-index-changelog` v1.50）。
+ *
+ * 关卡 JSON 的 `time` 字段语义 = **1★ 档时钟**（不存三个数）；2★/3★ 由 `tierSecondsFor` 派生
+ * ⇒ 单一真源，不会三个数各自漂移。
+ */
+export const STAR_TIER_K = [1.00, 0.85, 0.70] as const;
+/** 档位数（1★/2★/3★）。 */
+export const STAR_TIER_COUNT = 3;
+
+/** 本关 `time`（= 1★ 时钟）在第 `tier` 档实际给多少秒。 */
+export function tierSecondsFor(levelTime: number, tier: number): number {
+  const t = Math.max(1, Math.min(STAR_TIER_COUNT, Math.round(tier)));
+  const k = STAR_TIER_K[t - 1] ?? 1;
+  return Math.max(LEVEL_TIME_MIN, Math.round(levelTime * k));
+}
+
+/**
+ * 本局应开哪一档（§3.7 v1.50 双条件闸门）。**没有“选档”操作**——合法档唯一，由存档推导：
+ *
+ * - **(a) 本关前一档已过** ⇒ `T ≤ starsThisLevel + 1`（1★ 不涉及此条）
+ * - **(b) 上一关同档已过** ⇒ `T ≤ starsPrevLevel + 1`；**首关豁免 (b)**
+ *   —— 否则 L1 的 2★ 永不可开，而 (b) 是传递的 ⇒ **整张表的 2★/3★ 链在源头永久锁死**
+ *   （用户 2026-09-23 补裁）。
+ * - `T = 1` 时 (b) 退化为旧推关门「上一关已通关」，与 `maxUnlockedLevel` 同语义。
+ *
+ * 前置：因 (a) 保证不跳档，`starsByLevel`（历史最高星）与“档 T 已过”等价 ⇒ **存档不需扩结构**。
+ *
+ * @param starsPrevLevel 上一关星数；**首关传 `null`**（豁免 (b)）。
+ */
+export function nextTierFor(starsThisLevel: number, starsPrevLevel: number | null): number {
+  const bySelf = Math.floor(starsThisLevel) + 1;
+  const byPrev = starsPrevLevel === null ? STAR_TIER_COUNT : Math.floor(starsPrevLevel) + 1;
+  return Math.max(1, Math.min(STAR_TIER_COUNT, bySelf, byPrev));
+}
 /** Demo level count（**§3.7 v1.46 pre-release 重置第二批**：原 demo 8 关已按用户裁定移出，关表改由
  * beads-studio 生成的盘逐张入关重建，本值**随表走 = 当前关数**（先例 = v1.43 随入关 9→10）；
  * **2026-09-22 已入满 8 张**（`L00001..L00008`，均 studio 产物、`time` 全来自真引擎实测）⇒ 回到 v1.44 关数基线，
@@ -477,19 +521,20 @@ export function normalSettleScore(
 }
 
 /**
- * §3.7 star rating after a possible revive.
- * HUD still shows `remaining`; stars use `starRemaining / total`.
+ * §3.7 v1.50：**星级 = 本局档位**（选档即定星）。剩余时间只决定「成不成」（= 0 即失败），
+ * 不再决定“得几星”。`ratio` 仍输出，但只供 `normalSettleScore` 的展示/排行分量。
+ *
+ * 旧签名 `(remaining, total, reviveBonusSec, revived)` 已改：**续时不再封 2★**（用户 2026-09-23 裁定
+ * 取消封顶）——星级只考核效率，广告救济的是“时间不够”，两线解耦才是本制的目的；
+ * 且旧 `starRemaining = remaining − reviveBonusSec` 的扣减本身已是双重惩罚，叠加封顶属重复计罚。
  */
 export function computeClearStars(
   remaining: number,
   total: number,
-  reviveBonusSec: number,
-  revived: boolean,
+  tier: number,
 ): { ratio: number; stars: number } {
-  const starRemaining = Math.max(0, remaining - Math.max(0, reviveBonusSec));
-  const ratio = total > 0 ? Math.max(0, Math.min(1, starRemaining / total)) : 0;
-  let stars = ratio >= STAR3_RATIO ? 3 : ratio >= STAR2_RATIO ? 2 : 1;
-  if (revived) stars = Math.min(stars, 2);
+  const ratio = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
+  const stars = Math.max(1, Math.min(STAR_TIER_COUNT, Math.round(tier)));
   return { ratio, stars };
 }
 

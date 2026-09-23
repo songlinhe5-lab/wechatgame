@@ -352,9 +352,9 @@ describe('MVP · 全部出货关全错位初盘数据全过 BOOT', () => {
 describe('E5 · 时间按 k 定价（levelTimeFor 函数，§3.5 v1.23 clamp(k × 45s, 120, 420)）', () => {
   // 注：出货关 misplaced 全错位初盘；手写关 time 按档手定，studio 入关按 k 定价（§3.5 公式），逐值不在此钉；
   // 本 describe 仅钉住 swaps 型关卡 / 冲刺仍复用的 levelTimeFor 纯函数行为。
-  it('边界：k=1 → 120s（下限）、k=2/3 → 120/135s、大 k → 封顶 LEVEL_TIME_MAX', () => {
-    expect(levelTimeFor(1)).toBe(LEVEL_TIME_MIN); // 45 → 钳到 120
-    expect(levelTimeFor(2)).toBe(LEVEL_TIME_MIN); // 90 → 钳到 120
+  it('边界：k=1/2 → 45/90s（§3.5 v1.50 下限 120→30 后不再被钳）、k=3 → 135s、大 k → 封顶 LEVEL_TIME_MAX', () => {
+    expect(levelTimeFor(1)).toBe(45); // v1.50：旧制这里钳到 120
+    expect(levelTimeFor(2)).toBe(90);
     expect(levelTimeFor(3)).toBe(135);
     expect(levelTimeFor(8)).toBe(360);
     expect(levelTimeFor(9)).toBe(405);

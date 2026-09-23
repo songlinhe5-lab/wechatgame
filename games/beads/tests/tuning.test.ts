@@ -34,6 +34,11 @@ import {
   TRAY_GAP,
   TRAY_SLOT,
   computeClearStars,
+  LEVEL_TIME_MIN,
+  nextTierFor,
+  SEC_PER_STEP,
+  STAR_TIER_K,
+  tierSecondsFor,
   gridLayoutFor,
   normalSettleScore,
   stageParamsFor,
@@ -149,12 +154,50 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     });
   });
 
-  describe('computeClearStars (§3.7 revive rating)', () => {
-    it('uses starRemaining / total and caps a revived run at 2★', () => {
-      expect(computeClearStars(96, 300, 0, false)).toEqual({ ratio: 0.32, stars: 3 });
-      expect(computeClearStars(35.7, 300, 0, false).stars).toBe(1);
-      expect(computeClearStars(60, 300, 60, true)).toEqual({ ratio: 0, stars: 1 });
-      expect(computeClearStars(200, 300, 60, true).stars).toBe(2);
+  describe('三档时钟与选档闸门 (§3.7 v1.50)', () => {
+    it('tierSecondsFor：1★ = time，2★/3★ = ×0.85 / ×0.70，并被 LEVEL_TIME_MIN 兜住', () => {
+      expect(STAR_TIER_K).toEqual([1.0, 0.85, 0.7]);
+      expect(tierSecondsFor(200, 1)).toBe(200);
+      expect(tierSecondsFor(200, 2)).toBe(170);
+      expect(tierSecondsFor(200, 3)).toBe(140);
+      // 小关的 3★ 不得被钳到与 1★ 同值（旧 MIN=120 会把三档塌缩成一个数）。
+      expect(tierSecondsFor(84, 3)).toBe(59);
+      expect(tierSecondsFor(30, 3)).toBe(30); // 钳到下限，不出 21
+      expect(tierSecondsFor(200, 99)).toBe(140); // 越界钳到 3★
+      expect(tierSecondsFor(200, 0)).toBe(200); // 下界钳到 1★
+    });
+
+    it('nextTierFor：双条件闸门（本关前一档 ∧ 上一关同档），且**首关豁免 (b)**', () => {
+      // 全新关 ⇒ 1★
+      expect(nextTierFor(0, 0)).toBe(1);
+      expect(nextTierFor(0, null)).toBe(1); // 首关第一盘
+      // (a) 本关递进：过了 1★ ⇒ 开 2★
+      expect(nextTierFor(1, 3)).toBe(2);
+      expect(nextTierFor(2, 3)).toBe(3);
+      expect(nextTierFor(3, 3)).toBe(3); // 已满星不再升
+      // (b) 跳不过上一关同档：本关已过 2★、上关只 1★ ⇒ 只能回到 2★（=上关+1）
+      expect(nextTierFor(2, 1)).toBe(2);
+      expect(nextTierFor(2, 0)).toBe(1);
+      // **首关必须豁免 (b)**：否则 L1 的 2★ 永不可开、传递性把整表 2★/3★ 链锁死
+      expect(nextTierFor(1, null)).toBe(2);
+      expect(nextTierFor(2, null)).toBe(3);
+    });
+
+    it('computeClearStars：星级 = 档位，剩余时间与是否续时均不再参与判星', () => {
+      // 快得一批（剩 90%）也不能越档：仍是本局档位
+      expect(computeClearStars(270, 300, 1)).toEqual({ ratio: 0.9, stars: 1 });
+      // 压线通关（剩 3s）拿满档星 ⇒ 旧制下这里只会给 1★
+      expect(computeClearStars(3, 300, 3)).toEqual({ ratio: 0.01, stars: 3 });
+      expect(computeClearStars(0, 300, 2)).toEqual({ ratio: 0, stars: 2 });
+      // 越界入参归一（不产生 0★ / 4★）
+      expect(computeClearStars(10, 300, 0).stars).toBe(1);
+      expect(computeClearStars(10, 300, 9).stars).toBe(3);
+    });
+
+    it('SEC_PER_STEP 量纲 = 每批量动作秒数（旧 SEC_PER_TAP 每点击 3.6s 已重锚）', () => {
+      expect(SEC_PER_STEP).toBe(1.69);
+      // LEVEL_TIME_MIN 必须低于八关最短的 3★ 档（59s），否则档位塌缩。
+      expect(LEVEL_TIME_MIN).toBeLessThanOrEqual(59);
     });
   });
 

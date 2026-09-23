@@ -93,7 +93,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-2-3851",
       cols: 14,
       rows: 13,
-      time: 209,
+      time: 84,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -139,7 +139,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-0-1f55",
       cols: 14,
       rows: 13,
-      time: 320,
+      time: 143,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -187,7 +187,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-6-82ed",
       cols: 14,
       rows: 12,
-      time: 418,
+      time: 118,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -234,7 +234,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-3-eb90",
       cols: 14,
       rows: 14,
-      time: 331,
+      time: 98,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -284,7 +284,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-5-21cd",
       cols: 14,
       rows: 13,
-      time: 850,
+      time: 288,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -334,7 +334,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-0-0a91",
       cols: 12,
       rows: 16,
-      time: 583,
+      time: 205,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -390,7 +390,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-1-90bb",
       cols: 10,
       rows: 14,
-      time: 554,
+      time: 111,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -442,7 +442,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-0-5a1d",
       cols: 8,
       rows: 15,
-      time: 302,
+      time: 84,
       cycleProfile: "short",
       decoys: [],
       pattern: [

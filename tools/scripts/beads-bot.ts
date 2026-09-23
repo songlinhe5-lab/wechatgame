@@ -21,7 +21,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createBeadsHarness, simpleTestLevel } from '../../games/beads/tests/helpers.js';
 import { measuredLevelTime } from '../../games/beads/src/game/level-import.js';
-import { LEVEL_TIME_MAX, SEC_PER_TAP } from '../../games/beads/src/config/tuning.js';
+import { LEVEL_TIME_MAX, SEC_PER_STEP } from '../../games/beads/src/config/tuning.js';
 import { blobAnchors, runBot } from '../../games/beads/design/forensics/g3/g3-lib.js';
 import type { BeadsLevelRaw } from '../../games/beads/src/config/levels-data.js';
 
@@ -59,6 +59,8 @@ export interface MeasureResult {
     /** 动作分解（取证）：`places` 托盘→洞、`directFills` 盘上锤直填、`retrieves` 整组取回。 */
     readonly split: { readonly moves: number; readonly places: number; readonly directFills: number; readonly retrieves: number };
     readonly cleared: boolean;
+    /** 批量动作数（`直填+取回+落子`，`BAC` 尝试序）= **时长定价的自变量**（公式 v0.4）。 */
+    readonly steps: number;
     readonly time: number;
     readonly difficulty: number;
     /** 硬拦判据（非空 ⇒ 不可入关）；阈值全来自 `tuning`（§3.13/§3.5）。 */
@@ -93,23 +95,29 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
             return r;
         };
     });
-    const r = runBot(h, { allowDirectFill: true, retrieve: 'max', usePowerups: false, maxMoves: 20000 });
+    const r = runBot(h, { allowDirectFill: true, retrieve: 'max', usePowerups: false, maxMoves: 20000, branchOrder: 'BAC' });
     CMDS.forEach((name, i) => {
         g[name] = orig[i];
     });
     // 动作分解（取证用）：taps 花在「逐个直填」还是「批量取回+批量填充」上，
-    // 决定了 SEC_PER_TAP 的量级，不能只看总数。
+    // 决定了 `SEC_PER_STEP` 的量级，不能只看总数。
     const split = { moves: r.moves, places: r.places, directFills: r.directFills, retrieves: r.retrieves };
+    /**
+     * 定价自变量 = **批量动作数**（选锚并入被它服务的动作）。道具关闭 ⇒ 恰等于循环次数。
+     * 尝试序取 **`BAC`**（先取回挖洞→再落子→最后直填）：八关实测上它同时拿下最大误差最小
+     * （±28%，旧 `ACB` ±39%）与难度排序最准（Spearman ρ 0.95 vs 0.83）。
+     */
+    const steps = r.places + r.directFills + r.retrieves;
 
-    const { time, difficulty } = measuredLevelTime(taps);
+    const { time, difficulty } = measuredLevelTime(steps);
     const blockers: string[] = [];
     if (!r.cleared) blockers.push(`bot 未通关（${r.stuck.slice(0, 40)}）⇒ 可解性未证实，不可入关`);
-    // 规模闸（§3.13 v1.41）**只用真值**：实测点击数×单价击穿倒计时预算 ⇒ 拒。
-    // 为何不用静态代理量（M / B_med）：已入库 10 关实测证伪 —— 甜心 B_med=6 但 44 taps
-    // 可通关、猫咪脸 B_med=6 而 134 taps 超预算，B_med 同为 6 结果相反 ⇒ 静态量无分辨力，
-    // 用作闸会误伤；而 bot 单盘 0.3s，也不需要静态量做早期剪枝。
-    if (taps * SEC_PER_TAP > LEVEL_TIME_MAX)
-        blockers.push(`实测 ${taps} 次点击 × ${SEC_PER_TAP}s = ${Math.round(taps * SEC_PER_TAP)}s > ${LEVEL_TIME_MAX}s（倒计时内不可能通关）`);
+    // 规模闸（§3.13）**只用真值**：实测步数 × 每步单价 击空倒计时预算 ⇒ 拒。
+    // 为何不用静态代理量（M / B_med）：已入库关卡实测证伪 —— 甜心 B_med=6 但 44 taps
+    // 可通关、猫咪脸 B_med=6 而 134 taps 超预算，B_med 同为 6 结果相反 ⇒ 静态量无分辨力；
+    // 而 bot 单盘 0.3s，也不需要静态量做早期剪枝。
+    if (steps * SEC_PER_STEP > LEVEL_TIME_MAX)
+        blockers.push(`实测 ${steps} 个批量动作 × ${SEC_PER_STEP}s = ${Math.round(steps * SEC_PER_STEP)}s > ${LEVEL_TIME_MAX}s（1★ 档内不可能通关）`);
     return {
         id: raw.id,
         name: raw.name,
@@ -119,6 +127,7 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
         taps,
         /** 下界 = 初始错位组数（见 `MeasureResult.actionsLB` 成立理由）。 */
         actionsLB: sizes.length,
+        steps,
         split,
         cleared: r.cleared,
         time,
@@ -146,13 +155,14 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
  * 的等式不变式跳过本关（钳位上下界住在 `tuning.ts`，本脚本不跨语言再抄一份）。
  */
 export function pricingOf(res: MeasureResult) {
-    const raw = Math.round(res.taps * SEC_PER_TAP);
+    const raw = Math.round(res.steps * SEC_PER_STEP);
     return {
         source: 'bot' as const,
-        actions: res.taps,
-        actionsLB: res.actionsLB,
+        steps: res.steps,
+        stepsLB: res.actionsLB,
+        taps: res.taps,
         actionsSplit: res.split,
-        secPerTap: SEC_PER_TAP,
+        secPerStep: SEC_PER_STEP,
         clamped: raw !== res.time,
         cleared: res.cleared,
     };
@@ -234,10 +244,11 @@ if (Array.isArray(doc.levels)) {
                 taps: res.taps,
                 bMed: res.bMed,
                 split: res.split,
+                steps: res.steps,
                 cleared: res.cleared,
-                secPerTap: SEC_PER_TAP,
+                secPerStep: SEC_PER_STEP,
                 blockers: res.blockers,
-                formula: 'v0.2（真引擎实测 taps × SEC_PER_TAP）',
+                formula: 'v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）',
             };
         }
         writeFileSync(target, JSON.stringify(doc, null, 2) + '\n');

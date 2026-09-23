@@ -388,6 +388,26 @@ export interface BotOptions {
   maxRetrieve?: number;
   /** 是否允许用道具（三型各 1 次）。 */
   usePowerups?: boolean;
+  /**
+   * 锚复用：当前 board 锚仍活着且其组色仍有洞 ⇒ 续点同色洞，不重新选锚。
+   * 默认 `false` = 保持旧行为（每轮重选锚）。
+   *
+   * 实测注：单独开它对步数几乎无影响（branch A 的 `ensureTraySelection` 会踩死
+   * board 锚 ⇒ `selectTraySlot` 内 `_boardSelected = null`），所以本开关的意义
+   * 要与 `branchOrder` 叠加才显现。
+   */
+  reuseAnchor?: boolean;
+  /**
+   * 分支尝试序 = `'A'`（托盘落子）/ `'C'`（盘上直填）/ `'B'`（整组取回）的一个排列。
+   * **默认 `'ACB'` = 逐字保持现有行为**（回归口径：`'ACB'` + `reuseAnchor:false` 必须
+   * 复现入库时各关 `pricing.actions`）。
+   *
+   * 背景：本函数产出的 `refSteps`（= 循环次数 = 一个玩家可感知的批量动作数，选锚并入
+   * 被它服务的动作）要当 `SEC_PER_TAP` 的乘数自变量。它的大小不重要，
+   * **`t_act ÷ refSteps` 稳才重要**。实测：尝试序不同，同一批盘的比值散布从 ±31%
+   * 到 ±18% 摆动 ⇒ 顺序就是主因，需扫描而非拍板。见 `levels-spec §5.0.1`。
+   */
+  branchOrder?: string;
   maxMoves?: number;
 }
 
@@ -431,23 +451,41 @@ export function runBot(h: Harness, opt: BotOptions): BotResult {
     }
     // ── A：托盘珠 → 同色底洞
     let acted = false;
-    for (const col of trayColors(game)) {
-      const targets = holeBase.get(col);
-      if (!targets || targets.length === 0) continue;
-      let slot = -1;
-      for (let i = 0; i < game.tray.capacity; i++) {
-        const s = game.tray.slot(i)!;
-        if (s.state !== 'free' && s.colorIdx === col) { slot = i; break; }
+    const tryTrayPlace = (): void => {
+      for (const col of trayColors(game)) {
+        const targets = holeBase.get(col);
+        if (!targets || targets.length === 0) continue;
+        let slot = -1;
+        for (let i = 0; i < game.tray.capacity; i++) {
+          const s = game.tray.slot(i)!;
+          if (s.state !== 'free' && s.colorIdx === col) { slot = i; break; }
+        }
+        if (slot < 0) continue;
+        if (!ensureTraySelection(game, slot)) continue;
+        for (const t of targets) {
+          if (game.tapGridCell(t.row, t.col)) { place++; acted = true; break; }
+        }
+        if (acted) break;
       }
-      if (slot < 0) continue;
-      if (!ensureTraySelection(game, slot)) continue;
-      for (const t of targets) {
-        if (game.tapGridCell(t.row, t.col)) { place++; acted = true; break; }
-      }
-      if (acted) break;
-    }
+    };
     // ── C：board 锚直填（优先能造出「托盘色洞」的滑步）
-    if (!acted && opt.allowDirectFill) {
+    const tryDirectFill = (): void => {
+      if (!opt.allowDirectFill) return;
+      // C′（`reuse` / `both`）：当前锚仍活着且其组色仍有洞 ⇒ 直接续点，不重新选锚。
+      // 组保持语义下锚珠被填后 `boardSelected` 坐标会转移到组首（`_tryDirectFillFromBoard` 头注），
+      // 所以本路径在「上一个直填动作之后」通常仍成立。
+      const a = game.boardSelected;
+      if (a && opt.reuseAnchor) {
+        const aCell = game.grid.cell(a.row, a.col);
+        if (aCell && game.grid.isMisplaced(a.row, a.col)) {
+          const keep = holeBase.get(aCell.beadColorIdx);
+          if (keep) {
+            for (const t of keep) {
+              if (game.tapGridCell(t.row, t.col)) { direct++; acted = true; return; }
+            }
+          }
+        }
+      }
       const need = new Set(trayColors(game));
       let pick: { from: Cell; to: Cell; useful: boolean } | null = null;
       for (const cell of misplacedCells(game.grid)) {
@@ -466,19 +504,26 @@ export function runBot(h: Harness, opt: BotOptions): BotResult {
           acted = true;
         }
       }
-    }
+    };
     // ── B：整组取回（受满槽禁取门）
-    if (!acted) {
+    const tryRetrieve = (): void => {
       const start = game.tray.firstFree();
-      if (start >= 0) {
-        const blobs = blobAnchors(game.grid);
-        const list = opt.retrieve === 'max' ? blobs : blobs.slice().sort((a, b) => a.size - b.size);
-        for (const b of list) {
-          if (opt.retrieve === 'min' && opt.maxRetrieve !== undefined && b.size > opt.maxRetrieve) continue;
-          if (!game.selectBoardBead(b.cell.row, b.cell.col)) continue;
-          if (game.retrieveSelectedGroup(start)) { ret++; acted = true; break; }
-        }
+      if (start < 0) return;
+      const blobs = blobAnchors(game.grid);
+      const list = opt.retrieve === 'max' ? blobs : blobs.slice().sort((a, b) => a.size - b.size);
+      for (const b of list) {
+        if (opt.retrieve === 'min' && opt.maxRetrieve !== undefined && b.size > opt.maxRetrieve) continue;
+        if (!game.selectBoardBead(b.cell.row, b.cell.col)) continue;
+        if (game.retrieveSelectedGroup(start)) { ret++; acted = true; return; }
       }
+    };
+    // 分支尝试序可扫（默认 'ACB' = 现行为）；每分支自带前置判定，不满足则不出手。
+    const BRANCH: Record<string, () => void> = { A: tryTrayPlace, C: tryDirectFill, B: tryRetrieve };
+    for (const key of opt.branchOrder ?? 'ACB') {
+      if (acted) break;
+      const fn = BRANCH[key];
+      if (!fn) throw new Error(`runBot: 非法 branchOrder 字符 ${JSON.stringify(key)}（仅 A/B/C）`);
+      fn();
     }
     // ── D：道具
     if (!acted && opt.usePowerups) {

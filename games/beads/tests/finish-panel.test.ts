@@ -19,7 +19,6 @@ import {
   DESIGN_W,
   FINISH_STAR_GAP,
   FINISH_STAR_SIZE,
-  STAR2_RATIO,
   TOUCH_MIN,
 } from '../src/config/tuning.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
@@ -36,7 +35,7 @@ import { createBeadsHarness, simpleTestLevel, advancePastClearWave, type Harness
 /** 8 关表（正常战役：`core-loop §4` 的「8 关全清」）。 */
 const EIGHT = Array.from({ length: 8 }, (_, i) => simpleTestLevel({ id: 200 + i }));
 
-/** 填满整块棋盘（不推进时钟 ⇒ 通关时剩余 = 总量 ⇒ ratio = 1 ⇒ 3★）。 */
+/** 填满整块棋盘（不推进时钟 ⇒ ratio = 1；§3.7 v1.50 起星级 = 档位，首盘恒 1★）。 */
 function fillBoard(harness: Harness): void {
   const grid = harness.game.grid;
   for (let r = 0; r < grid.rows; r++) {
@@ -273,18 +272,18 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
 
     // 未通关的关 = 0；通关的关记下本关星级。
     fillBoard(h);
-    expect(h.game.starsByLevel[0]).toBe(3);
+    expect(h.game.starsByLevel[0]).toBe(1);
     expect(h.game.starsByLevel[1]).toBe(0);
     h.game.goToLevel(4);
     fillBoard(h);
-    expect(h.game.starsByLevel[4]).toBe(3);
+    expect(h.game.starsByLevel[4]).toBe(1);
 
     h.advance(1 / 60);
     const snap = h.game.snapshot;
     expect(snap.finishStars).toHaveLength(EIGHT.length);
-    expect(snap.finishStars[0]).toBe(3);
+    expect(snap.finishStars[0]).toBe(1);
     expect(snap.finishStars[1]).toBe(0);
-    expect(snap.finishStars[4]).toBe(3);
+    expect(snap.finishStars[4]).toBe(1);
   });
 
   it('persists the per-level stars across a relaunch (S8 §2.2 stars / §8-2 重启保留)', () => {
@@ -299,20 +298,20 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     const first = createBeadsHarness({
       noAssemble: true, levels: EIGHT, saveKey: KEY, storage: shared
     });
-    fillBoard(first); // L1 ⇒ 3★
+    fillBoard(first); // L1 ⇒ 1★（首盘 = 1★ 档）
     first.game.goToLevel(4);
-    fillBoard(first); // L5 ⇒ 3★
-    expect(first.game.starsByLevel[0]).toBe(3);
-    expect(first.game.starsByLevel[4]).toBe(3);
+    fillBoard(first); // L5 ⇒ 1★（(b) 闸门下仍只开 1★）
+    expect(first.game.starsByLevel[0]).toBe(1);
+    expect(first.game.starsByLevel[4]).toBe(1);
 
     const second = createBeadsHarness({
       noAssemble: true, levels: EIGHT, saveKey: KEY, storage: shared
     });
-    expect(second.game.starsByLevel[0]).toBe(3); // 从存档装载，非局内累计
-    expect(second.game.starsByLevel[4]).toBe(3);
+    expect(second.game.starsByLevel[0]).toBe(1); // 从存档装载，非局内累计
+    expect(second.game.starsByLevel[4]).toBe(1);
     expect(second.game.starsByLevel[1]).toBe(0);
     second.advance(1 / 60);
-    expect(second.game.snapshot.finishStars).toEqual([3, 0, 0, 0, 3, 0, 0, 0]);
+    expect(second.game.snapshot.finishStars).toEqual([1, 0, 0, 0, 1, 0, 0, 0]);
   });
 
   it('keeps the per-level max: a worse replay never downgrades the overview', () => {
@@ -321,21 +320,20 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
       levels: [simpleTestLevel({ id: 213, time: 300 })],
       saveKey: 'wxgame.beads.test.fin-best',
     });
-
-    fillBoard(h); // 不推进时钟 ⇒ 3★
-    expect(h.game.starsByLevel[0]).toBe(3);
-
-    // 重打本关、把时间烧进 1★ 区。总量从「刚重开的 remaining」直接读（不假设 LEVEL_TIME
-    // 数值），阈值从**冻结常量** `STAR2_RATIO` 取（不写死数字——T-054 重冻结过星级阈值，
-    // `epics-beads.md` 里那句 0.40/0.20 已过期，见该文档 §0 时效声明）。
+    fillBoard(h); // 首关首盘 ⇒ 1★ 档；不推进时钟 ⇒ 大量剩余
+    expect(h.game.starsByLevel[0]).toBe(1);
+    // §3.7 v1.50 回归防线：**星级 = 本局档位，与剩余时间占比完全脱钩**。
+    // 旧制在这里靠 `STAR2_RATIO` 阈值把时间烧进 1★ 区⇒ 得 1★；新制下同一行为
+    // 必须仍是满档星。重打时档由闸门递进到 2★（首关豁免条件 (b)），时钟随之缩放 ×0.85。
     h.game.goToLevel(0);
+    expect(h.game.tierThisLevel).toBe(2);
     const total = h.game.remaining;
-    const budget = total * STAR2_RATIO * 0.5;
-    while (h.game.remaining > budget && h.game.phase === 'playing') h.advance(1 / 60);
+    expect(total).toBe(Math.round(300 * 0.85)); // 2★ 时钟，不是 1★ 的 300
+    while (h.game.remaining > total * 0.02 && h.game.phase === 'playing') h.advance(1 / 60);
     // v2.0 供料已关停（WXG-T-136）⇒ 旧「usePowerup('clearAll') 腾托盘」步骤随
     // 死路径删除；托盘在本玩法下恒为空，无需腾挪。
     fillBoard(h);
-    expect(h.game.lastStars).toBe(1); // 本次只有 1★
-    expect(h.game.starsByLevel[0]).toBe(3); // 总览仍取历史最好
+    expect(h.game.lastStars).toBe(2); // 烧掉 98% 时钟仍拿满本档
+    expect(h.game.starsByLevel[0]).toBe(2); // 总览取历史最好（不会因重玩而降）
   });
 });

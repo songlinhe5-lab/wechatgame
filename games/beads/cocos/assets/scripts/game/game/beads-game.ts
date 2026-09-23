@@ -64,6 +64,8 @@ import {
   STAMINA_REFILL_PLACEMENT,
   STAGE_BONUS_TIME,
   computeClearStars,
+  nextTierFor,
+  tierSecondsFor,
   normalSettleScore,
   TIMER_URGENT_T,
   TAP_HINT_MS,
@@ -347,6 +349,16 @@ export class BeadsGame implements Game {
    * `_persistProgress()` 写回；本字段是内存**镜像**（与 `_sprintBestScore` 同判例）。
    */
   private _starsByLevel: number[] = [];
+  /**
+   * 本局所打档位（§3.7 v1.50）。**选档即定星**：过关星级 = 本值，与剩余时间占比无关。
+   * 由 `_setupLevel` 按双条件闸门推导（(a) 本关前一档已过 ∧ (b) 上一关同档已过，首关豁免 (b)）。
+   * 冲刺模式不走关卡档位 ⇒ 本值不影响 sprint 结算（sprint 无星）。
+   */
+  private _tierThisLevel = 1;
+  /** 本局档位（1/2/3）。view / 测试只读。 */
+  get tierThisLevel(): number {
+    return this._tierThisLevel;
+  }
   /** 已触发过入场音效的**关数**（每关一次，逐关 150ms）。 */
   private _finishRowsAnnounced = 0;
   /**
@@ -1606,8 +1618,7 @@ export class BeadsGame implements Game {
           const { ratio, stars } = computeClearStars(
             remaining,
             game._timer.total,
-            game._reviveBonusSec,
-            game._reviveCount > 0,
+            game._tierThisLevel,
           );
           game._lastStars = stars;
           // 通关画面总览：取**历史最好**（重玩不降级，与 `maxUnlockedLevel` 同语义）。
@@ -1823,7 +1834,13 @@ export class BeadsGame implements Game {
     this._spawner.reset();
     this._spawner.interval = 4.0; // ⛔ 死路径缺省（供料关停，关卡字段已删）
     this._spawner.setDecoys(decoyColorIndices(level));
-    this._timer.reset(level.time);
+    // §3.7 v1.50 三档时钟：关卡 `time` = **1★ 档时钟**；本局档由存档双条件闸门推导（无“选档”
+    // 操作），时钟按档缩放。**必须在写 `_starsByLevel` 之前算**（否则刚通的 1★ 会把本局推到 2★）。
+    this._tierThisLevel = nextTierFor(
+      this._starsByLevel[index] ?? 0,
+      index > 0 ? this._starsByLevel[index - 1] ?? 0 : null,
+    );
+    this._timer.reset(tierSecondsFor(level.time, this._tierThisLevel));
     this._sprint.reset();
     this._stageIndex = 0;
     this._isNewBest = false;

@@ -3,19 +3,23 @@
   "name": "studio-0-5a1d",
   "cols": 8,
   "rows": 15,
-  "time": 302,
+  "time": 84,
   "pricing": {
-    "source": "bot",
-    "actions": 84,
-    "actionsLB": 17,
+    "source": "playtest",
+    "tAct": 84,
+    "k": 1,
+    "humanTaps": 104,
+    "measuredAt": "2026-09-23",
+    "steps": 64,
+    "stepsLB": 17,
+    "taps": 125,
     "actionsSplit": {
-      "moves": 42,
-      "places": 11,
-      "directFills": 27,
-      "retrieves": 4
+      "moves": 64,
+      "places": 32,
+      "directFills": 0,
+      "retrieves": 32
     },
-    "secPerTap": 3.6,
-    "clamped": false,
+    "secPerStep": 1.69,
     "cleared": true
   },
   "cycleProfile": "short",

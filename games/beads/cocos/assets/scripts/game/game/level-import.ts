@@ -11,7 +11,7 @@
  */
 
 import { validateBeadsLevel } from '../config/levels';
-import { LEVEL_TIME_MAX, LEVEL_TIME_MIN, SEC_PER_TAP } from '../config/tuning';
+import { LEVEL_TIME_MAX, LEVEL_TIME_MIN, SEC_PER_STEP } from '../config/tuning';
 import { assembleFromMisplaced, fillableCells } from './misplaced-assembler';
 import type { BeadsLevelRaw } from '../config/levels-data';
 
@@ -86,34 +86,37 @@ export function boardStats(pattern: readonly string[], misplacedCount: number): 
 }
 
 /**
- * 实测点击数 → 时长/难度（§3.5 v1.41，公式 **v0.2** · 正本 `levels-spec §5.0`）。
+ * 批量动作数 → 1★ 时钟/难度（§3.5 v1.50，公式 **v0.4** · 正本 `levels-spec §5.0`）。
  *
- *   T = clamp( taps × SEC_PER_TAP, [LEVEL_TIME_MIN, LEVEL_TIME_MAX] )
- *   D = round(100 × T / LEVEL_TIME_MAX)
+ *   T₁ = clamp( steps × SEC_PER_STEP, [LEVEL_TIME_MIN, LEVEL_TIME_MAX] )
+ *   D  = round(100 × T₁ / LEVEL_TIME_MAX)
  *
- * `taps` = 真引擎实测的成功点击数（`tools/scripts/beads-bot.ts`，装配走生产 BOOT、
- * 每步走 `BeadsGame` 公开命令，不复刻任何判定逻辑）。**这是时长的唯一正源**——
- * v0.1 按颗定价在 32 盘语料上 32/32 触顶 420s（详见 `SEC_PER_TAP` 注释与
- * `design/forensics/diff-v02/grid.log.txt`），已作废。
+ * `steps` = **BAC 尝试序下的批量动作数**（`直填 + 取回 + 落子`，选锚并入被它服务的动作），
+ * 由 `tools/scripts/beads-bot.ts` 走生产 BOOT + `BeadsGame` 公开命令实测（不复刻判定逻辑）。
+ *
+ * ⚠ **本函数只给「新关先验」**：已人工试玩过的关一律用实测 `t_act` 定 T₁（公式 v0.4，
+ * 溯源 `pricing.source='playtest'`）——八关实测残差仍达 ±29%，不够直接进玩家体验。
+ * 旧 `SEC_PER_TAP`（每点击 3.6s）已被重锚与改名（量纲从「点击」变「批量动作」）。
+ * 历史：v0.1 按颗（`M × 22.5s`）在 32 盘语料上 32/32 触顶 420s ⇒ 已作废。
  */
-export function measuredLevelTime(taps: number): { time: number; difficulty: number } {
-    const n = Number.isFinite(taps) && taps > 0 ? Math.round(taps) : 0;
-    const raw = n * SEC_PER_TAP;
+export function measuredLevelTime(steps: number): { time: number; difficulty: number } {
+    const n = Number.isFinite(steps) && steps > 0 ? Math.round(steps) : 0;
+    const raw = n * SEC_PER_STEP;
     const time = Math.min(LEVEL_TIME_MAX, Math.max(LEVEL_TIME_MIN, Math.round(raw)));
     return { time, difficulty: Math.round((100 * time) / LEVEL_TIME_MAX) };
 }
 
 /**
  * 静态兜底（**无引擎路径专用**）：游戏内「一键导入」拿到的是服务端 levelDraft，
- * 客户端侧跑不了 bot ⇒ 只能按 M 粗估点击数。v0.2 形态 = `taps ≈ ceil(M / 2)`。
+ * 客户端侧跑不了 bot ⇒ 只能按 M 粗估批量动作数。
  *
- * 诚实口径：过闸样本仅 3 盘（`B_med ≥ 8 ∧ M ≤ 280`），实测 taps/M = 0.25–0.63 ⇒
- * 本式误差约 ±50%，**刻意偏高**（高估 = 白给星级，低估 = 玩家倒计时内不可能通关，
- * 两害取其轻）。有引擎的路径（beads-gen 生成期 / server ingest 入关期）一律走实测，
- * 不得调用本函数。校准机制见 levels-spec §5.0.1。
+ * 形态 = `steps ≈ round(M × 0.8)`：取自 v1.50 八关实测 `M ÷ BAC步数` 中位数 1.25 的倒数。
+ * 诚实口径：八关上 `M ÷ 步数` 实际跨 **0.74–3.3（4.5 倍）**（大色块盘一步扒 4 颗、碎花盘 1 颗）
+ * ⇒ 本式误差可到 ±2 倍，**只能在“没引擎”时用，且刻意不假装准确**。
+ * 有引擎的路径（beads-gen 生成期 / server ingest 入关期）一律走实测，不得调本函数。
  */
 export function estimateLevelTime(stats: BoardStats): { time: number; difficulty: number } {
-    return measuredLevelTime(Math.ceil(stats.misplaced / 2));
+    return measuredLevelTime(Math.round(stats.misplaced * 0.8));
 }
 
 /** 拼接服务地址与路径（去重尾斜杠；不做任何 URL 编码外的魔法）。 */

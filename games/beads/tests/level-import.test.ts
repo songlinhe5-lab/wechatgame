@@ -40,25 +40,25 @@ function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
 }
 
 describe('WXG-T-179 · level-import 转换与定价', () => {
-    it('measuredLevelTime：实测点击数 × SEC_PER_TAP（公式 v0.2，§3.5 v1.41）—— 锚值 / clamp / 非法输入', () => {
-        // 锚：已入库关 studio-5-8b07（17×15）真引擎实测 109 taps × 3.6s = 392s
-        //（v0.1 按颗定价给的是触顶 420s ⇒ D100 饱和）。
-        // ⚠️ difficulty 的分母 = `LEVEL_TIME_MAX`（**v1.47 顶值 420 → 2500** ⇒ 同一盘 D 从 93 变 16，
-        //   D 不可跨档比较，见 levels-spec §5.0 版本表 v0.2.1）；改顶值时本锚点需同步重算。
-        expect(measuredLevelTime(109)).toEqual({ time: 392, difficulty: 16 });
-        expect(measuredLevelTime(10).time).toBe(LEVEL_TIME_MIN); // 36s ⇒ 钳到下限
-        expect(measuredLevelTime(1000).time).toBe(LEVEL_TIME_MAX); // 3600s ⇒ 钳到上限
-        // 非法输入 ⇒ 0 taps ⇒ 下限（不产生 NaN 倒计时：NaN 永不到零 = 失败条件永不触发）
+    it('measuredLevelTime：BAC 批量动作数 × SEC_PER_STEP（公式 v0.4，§3.5 v1.50）—— 锚值 / clamp / 非法输入', () => {
+        // 锚：L6 `studio-0-0a91` 真引擎实测 109 个批量动作 × 1.69s = 184s。
+        // 同一关玩家实测 `t_act = 205s` ⇒ 偏差 −10%，在 §5.0.1 的 25% 阈值内
+        //（八关最大偏差 ±29%，所以本公式只当**新关先验**，玩过一律用实测覆盖）。
+        // ⚠️ difficulty 的分母 = `LEVEL_TIME_MAX`（开发期 2500）⇒ D 不可跨档比较。
+        expect(measuredLevelTime(109)).toEqual({ time: 184, difficulty: 7 });
+        expect(measuredLevelTime(10).time).toBe(LEVEL_TIME_MIN); // 16.9s ⇒ 钳到下限 30
+        expect(measuredLevelTime(1480).time).toBe(LEVEL_TIME_MAX); // 2501s ⇒ 钳到上限
+        // 非法输入 ⇒ 0 步 ⇒ 下限（不产生 NaN 倒计时：NaN 永不到零 = 失败条件永不触发）
         expect(measuredLevelTime(Number.NaN).time).toBe(LEVEL_TIME_MIN);
         expect(measuredLevelTime(-5).time).toBe(LEVEL_TIME_MIN);
     });
 
-    it('estimateLevelTime（静态兜底）= ceil(M/2) taps，与实测共用 clamp 出口；N/C/A 不再影响时长', () => {
+    it('estimateLevelTime（静态兜底）= round(M×0.8) 步，与实测共用 clamp 出口；N/C/A 不再影响时长', () => {
         const a = estimateLevelTime({ fillable: 200, colors: 3, adjRate: 0.5, misplaced: 8 });
         // v0.1 的三因子（f_N/f_C/g_A）已作废：同 M 不同 N/C/A ⇒ 同时长
         expect(estimateLevelTime({ fillable: 900, colors: 10, adjRate: 0.0, misplaced: 8 })).toEqual(a);
-        expect(a).toEqual(measuredLevelTime(4)); // ceil(8/2) = 4 taps
-        // 钳到上限需 taps × 3.6 > LEVEL_TIME_MAX（现 2500 ⇒ >694 taps）：M=2000 ⇒ ceil(1000) taps ⇒ 3600s
+        expect(a).toEqual(measuredLevelTime(6)); // round(8 × 0.8) = 6 步 ⇒ 钳到下限
+        // 钳到上限需 steps × 1.69 > LEVEL_TIME_MAX（现 2500 ⇒ >1479 步）：M=2000 ⇒ 1600 步 ⇒ 2704s
         expect(estimateLevelTime({ fillable: 200, colors: 3, adjRate: 0.5, misplaced: 2000 }).time).toBe(LEVEL_TIME_MAX);
     });
 
