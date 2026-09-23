@@ -211,6 +211,61 @@ describe('A05-24 · 清单闭合（tuning clip 集 ≡ §1 表 ≡ voice 表）'
   });
 });
 
+/**
+ * `bgm_main` 曲谱不变式（v1.5-r11）—— 正本 = `design/audio/bgm-main-composition.md` §3 / §9。
+ * 这里钉的不是“好不好听”（那只能 `[B]`/`[P]`），而是**四条从已有红线反推出来、可机检的约束**：
+ * 时长恒等式、低频让位、≤3Hz 听觉闪烁、不顺手抬响度。
+ */
+describe('bgm_main 曲谱不变式（Track 1 · F 大调 ♩=72 · 6 小节）', () => {
+  const bgm = BEADS_AUDIO_VOICES[AUDIO_CLIP_BGM]!;
+  const notes = bgm.notes ?? [];
+  const BEAT = 60_000 / 72;
+  const BAR = BEAT * 4;
+  const LOOP = 6 * BAR; // 时长恒等式：小节数 × 4 拍 ÷ BPM × 60000
+
+  it('循环长 = 6 小节 @72 = 20.000 s，且无音符超出循环点', () => {
+    expect(Math.round(bgm.loopMs ?? 0)).toBe(20_000);
+    expect(Math.round(LOOP)).toBe(bgm.loopMs);
+    for (const n of notes) {
+      expect((n.startMs ?? 0) + (n.durMs ?? 0)).toBeLessThanOrEqual((bgm.loopMs ?? 0) + 1);
+    }
+  });
+
+  it('每个音 ≥ 170 Hz —— 低频位留给 `sfx_reject` 钝「咚」与 1Hz 告急心跳', () => {
+    expect(notes.length).toBeGreaterThan(0);
+    for (const n of notes) expect(n.freq, `freq ${n.freq}`).toBeGreaterThanOrEqual(170);
+  });
+
+  it('全音 durMs 落在 [8 分, 2 拍]：顺拨奏引擎写（无 sustain）且 onset 间隔 ≥ 416ms（≤3Hz）', () => {
+    const sorted = [...notes].sort((a, b) => (a.startMs ?? 0) - (b.startMs ?? 0));
+    expect(sorted.length).toBe(18); // 6 低音 + 12 旋律
+    for (const n of sorted) {
+      // 下限 = 8 分（≤3Hz 听觉闪烁）；上限 = 2 拍：引擎只有 attack→线性衰减，
+      // 写“长音 pad”得不出持续音，只会得到“正在死掉的蜂鸣”（v1.5-r13 踩过的坑）。
+      expect(n.durMs ?? 0, `dur ${n.durMs}`).toBeGreaterThanOrEqual(Math.round(BEAT / 2) - 1);
+      expect(n.durMs ?? 0, `dur ${n.durMs}`).toBeLessThanOrEqual(Math.round(BEAT * 2) + 1);
+    }
+    for (let i = 1; i < sorted.length; i++) {
+      const gap = (sorted[i]!.startMs ?? 0) - (sorted[i - 1]!.startMs ?? 0);
+      expect(gap, `onset gap @${i}=${gap}ms`).toBeGreaterThanOrEqual(Math.round(BEAT / 2) - 1);
+    }
+    // 低音与旋律不挤在同一频段：**300–600 Hz 留空**（人耳最敏感区给落座/选中音）。
+    for (const n of sorted) {
+      expect(n.freq < 300 || n.freq > 600, `freq gap ${n.freq}`).toBe(true);
+    }
+  });
+
+  it('电平关系：旋律有效峰 0.196 比 `sfx_place`(0.55) 低约 7 dB；总线 gain 0.28 未改', () => {
+    const SFX_PLACE_PEAK = (BEADS_AUDIO_VOICES[AUDIO_CLIP_PLACE]!.gain ?? 0) * 1; // note gain 1
+    const bgmPeak = Math.max(...notes.map((n) => n.gain ?? 0)) * (bgm.gain ?? 0);
+    expect(bgmPeak).toBeLessThan(SFX_PLACE_PEAK); // SFX ≥ Music
+    expect(bgmPeak).toBeGreaterThan(0.15); // 不再“听不见”（上一有峰仅 0.039）
+    expect(bgm.gain).toBe(0.28); // 与占位表逐字相同（**总线电平未抬**）
+    expect(bgm.wave).toBe('triangle'); // 拨弦需要泛音，纯 sine 在小喇叭上只剩“嘟”
+    expect(bgm.bus).toBe('music');
+  });
+});
+
 describe('A05-01/02 · 同帧到达（一帧内入队并派发）', () => {
   it('bead:placed 的那一帧 flush 后**仅**新增 sfx_place', () => {
     const h = makeHarness();
@@ -592,3 +647,31 @@ function fillBoard(harness: Harness): void {
     }
   }
 }
+
+describe('v1.52 素材接线：asset 挂载闭合', () => {
+  const ids = Object.keys(BEADS_AUDIO_VOICES);
+  it('19 条 SFX 全部带 asset（base64 mp3 data URI）', () => {
+    const withAsset = ids.filter((id) => id !== AUDIO_CLIP_BGM);
+    expect(withAsset).toHaveLength(19);
+    for (const id of withAsset) {
+      const v = BEADS_AUDIO_VOICES[id]!;
+      expect(typeof v.asset, id).toBe('string');
+      expect((v.asset ?? '').startsWith('data:audio/mpeg;base64,'), id).toBe(true);
+    }
+  });
+  it('bgm_main 暂无 asset（百炼 key 未跑）⇒ 仍走合成，且必须保留 notes 回退', () => {
+    const bgm = BEADS_AUDIO_VOICES[AUDIO_CLIP_BGM]!;
+    expect(bgm.asset).toBeUndefined();
+    expect((bgm.notes ?? []).length).toBeGreaterThan(0);
+  });
+  it('挂载不改变闭合集：voice 表仍是 20 个 id，notes 也未被抹掉', () => {
+    expect(ids).toHaveLength(SPEC_CLIPS.length);
+    for (const id of ids) expect(SPEC_CLIPS).toContain(id);
+    // 「回退仍可用」= 合成参数（notes 或单音 freq）必须原样保留，不能因为挂上素材就被抹掉。
+    for (const id of ids) {
+      const v = BEADS_AUDIO_VOICES[id]!;
+      // 「没有素材也能发声」的三种驱动：音符表 / 单音频率 / 噪声源（「沙」「唰」走这条）
+      expect((v.notes ?? []).length > 0 || (v.freq ?? 0) > 0 || v.noise === true, id).toBe(true);
+    }
+  });
+});

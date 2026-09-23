@@ -17,6 +17,7 @@
  */
 
 import type { AudioVoice, AudioVoices } from '../../framework/index';
+import { AUDIO_ASSETS } from './audioAssets';
 
 import {
   AUDIO_CLIP_BGM,
@@ -46,29 +47,82 @@ import {
  * `audio-spec §4.3` 给的是「循环 30–60 s（建议区间）」、§8 T2 把循环点/BPM/调性
  * 全列为待定。取 8 s 而不是 30 s 的理由是内存：离线渲染的 mono buffer ≈
  * `sampleRate × 8 × 4 B`（44.1 kHz 下约 1.4 MB），30 s 就是 5.6 MB，真机（`[R]`）
- * 未取证前不先撑这么大。定档后由阮和鸣回写 §4.3 再改本值。
+ * 未取证前不先撑这么大。定档后由 阮和鸣 回写 §4.3 再改本值。
+ *
+ * **v1.5-r11（2026-09-23）：占位五声琶音 → 真曲子 `bgm_main` Track 1（F 大调 / ♩=72）。**
+ * 曲谱正本 = `design/audio/bgm-main-composition.md` §3；本处是其 **6 小节 / 20.000 s** 版：
+ * 完整 12 小节 = 40 s 会把常驻缓冲推到 **≈ 7.0 MB**，跨过上面那条“真机取证前不先撑”
+ * 的既有保守裁决 ⇒ 默认取 6 小节（**≈ 3.5 MB**，与旧注释里“30 s = 5.6 MB”同一量级口径）。
+ * 升级到 12 小节 = 改本常量为 40000 + 两张表按谱补全小节（一行的事）。
+ *
+ * 时长恒等式（改 BPM 必须同步改小节数，否则循环点脱离乐句边界）：
+ *   `loopMs = 小节数 × 4 拍 ÷ BPM × 60000` ⇒ 6 小节 @72 = 20.000 s；12 小节 @72 = 40.000 s。
  */
-const BGM_LOOP_MS = 8000;
+const BGM_LOOP_MS = 20_000;
+/**
+ * BGM 曲式常量：♩=72、4/4、6 小节。
+ *
+ * ⚠ **v1.5-r13：和声垫已废弃**——引擎渲染是 `env = 1 − (rel−atk)/decay`，即
+ * **attack→线性衰到 0 的拨奏引擎，没有 sustain**。上一版写的“3.3 s 长音 pad”在这个引擎里
+ * 物理上不成立：18 个长音 = **18 个正在死掉的蜂鸣**，那是“难听 / midi 味”的根因，
+ * 不是调参能救的。⇒ 现在整首写成**音乐盒点描**（全音 durMs ≤ 2 拍），顺着引擎能力写。
+ *
+ * 音区下限仍守 **≥ 170 Hz**（给 `sfx_reject` 与 1Hz 心跳让位）；低音拨弦用 `triangle`
+ * ⇒ 奇次泛音（3×175 = 525 Hz）在小喇叭上仍可辐射，不会“写了但听不到”（D3 = 146.8 越线，已上置八度）。
+ */
+const BGM_BEAT_MS = 60_000 / 72;
 
-/** 三和弦琶音骨架（确定性音高表，L4：不用 `Math.random()`）。 */
-const PENTATONIC: readonly number[] = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25];
+/** 低音拨弦：`[拍位(0-based), 时值(拍), 频率, 力度]`，每小节开头一下。 */
+const BGM_BASS: readonly (readonly [number, number, number, number])[] = [
+  [0, 1.5, 174.61, 0.3], // F3  · Fmaj7
+  [4, 1.5, 293.66, 0.3], // D4  · Dm7（D3 = 146.8 越 170 下限 ⇒ 上置八度）
+  [8, 1.5, 233.08, 0.3], // B♭3 · B♭maj7
+  [12, 1.5, 261.63, 0.3], // C4 · C6
+  [16, 1.5, 233.08, 0.3], // B♭3 · B♭maj7
+  [20, 1.5, 261.63, 0.3], // C4 · C6 → 循环回 F
+];
+
+/** 旋律拨弦：`[拍位, 时值(拍), 频率, 力度]`。音值下限 8 分 ⇒ 最密 2.4 音/秒 < 3Hz 红线。 */
+const BGM_MELODY: readonly (readonly [number, number, number, number])[] = [
+  [2.0, 0.5, 880.0, 0.7], // A5
+  [2.5, 0.5, 783.99, 0.6], // G5
+  [5.0, 1.0, 698.46, 0.65], // F5
+  [9.0, 0.5, 783.99, 0.7], // G5 —— 乐句 A
+  [9.5, 0.5, 880.0, 0.7], // A5
+  [10.0, 1.0, 932.33, 0.75], // B♭5 —— 小高点
+  [13.0, 0.5, 880.0, 0.7], // A5 —— 乐句 B（同材料转位，不写新旋律）
+  [13.5, 0.5, 783.99, 0.6], // G5
+  [14.0, 1.0, 659.25, 0.6], // E5
+  [17.0, 1.0, 1174.66, 0.75], // D6 —— 全曲最高音
+  [18.0, 1.0, 1046.5, 0.7], // C6
+  [21.0, 1.5, 880.0, 0.65], // A5 —— 悬在循环点前，靠回到 Fmaj7 完成回归
+];
 
 /**
- * BGM 音符表：8 秒乐句，4/4 拍、约 120 BPM（**占位**，BPM 属 §8 T2 `[TODO]`）。
- * 每音 `startMs/durMs` 手工排布 ⇒ 可 Node 断言、可复现。
+ * 力度（note gain × voice gain = 有效峰值）：
+ * 旋律 0.7 ⇒ **0.196**；低音 0.3 ⇒ 0.084；同峰叠加 ≤ 0.28。
+ * 对比：`sfx_place` 有效峰值 0.55 ⇒ BGM 比落座音低约 **7 dB**（SFX ≥ Music 仍成立）。
+ * 上一版是 0.039 ⇒ **差 23 dB**，“听不清 / 太小”的真正原因在此。
+ * voice 总 `gain: 0.28` **一字未改** ⇒ 总线电平关系（与 SFX 的相对响度档）不变，
+ * 改的只是谱子内部的力度分（上限 0.75，判据钉住）。
+ */
+
+/**
+ * BGM 音符表（确定性手工排布 ⇒ 可 Node 断言、可复现；L4 禁 `Math.random()`）。
+ * ⚠ 谱子 §3.4 里的“失谐双正弦合唱 pad”**本批不做** —— `AudioVoice` 无 per-note detune 位，
+ *   加它要动框架侧形状 ⇒ 以“三音和弦长音”近似同一功能（宽、软、不抢前景）。
  */
 function bgmPhrase(): AudioVoice['notes'] {
-  const beat = 500; // ms／拍（占位）
   const notes: { freq: number; startMs: number; durMs: number; gain: number }[] = [];
-  const steps: readonly number[] = [0, 2, 4, 5, 4, 2, 0, 3, 5, 4, 2, 0, 1, 3, 2, 0];
-  for (let i = 0; i < steps.length; i++) {
-    const idx = steps[i]!;
-    notes.push({
-      freq: PENTATONIC[idx % PENTATONIC.length]! * 2, // 高八度，垫在前景之上
-      startMs: i * beat * 2,
-      durMs: beat * 1.6,
-      gain: 0.32,
-    });
+  for (const src of [BGM_BASS, BGM_MELODY]) {
+    for (const [beat, durBeats, freq, gain] of src) {
+      notes.push({
+        freq,
+        startMs: Math.round(beat * BGM_BEAT_MS),
+        durMs: Math.round(durBeats * BGM_BEAT_MS),
+        gain,
+      });
+    }
   }
   return notes;
 }
@@ -329,14 +383,15 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
     filter: 'lowpass',
     filterFreq: 4000,
   },
-  // BGM：`bgm_main` 单曲全程无缝循环（A05-21/22）；循环点/BPM/调性 = `[TODO]`。
+  // BGM：`bgm_main` = Track 1（F 大调 ♩=72，6 小节无缝循环，A05-21/22）。
+  // 曲谱正本 = design/audio/bgm-main-composition.md §3；总 gain 沿用占位表旧值 0.28（**未提高响度**）。
   [AUDIO_CLIP_BGM]: {
     bus: 'music',
     durationMs: BGM_LOOP_MS,
     loopMs: BGM_LOOP_MS,
-    wave: 'sine',
+    wave: 'triangle',
     gain: 0.28,
-    attackMs: 40,
+    attackMs: 4,
     releaseMs: 120,
     filter: 'lowpass',
     filterFreq: 2000,
@@ -349,4 +404,19 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
  * key 集 = `audio-events §1` 的 20 个 clip id（A05-24 由 `audio-dispatch.test.ts` 机验；
  * v1.26 起 +`sfx_denied`，WXG-T-152）。
  */
-export const BEADS_AUDIO_VOICES: AudioVoices = VOICE_TABLE;
+/**
+ * v1.52 素材接线：把 `audioAssets.ts`（jsfxr 离线生成、base64 mp3）按 clip id 挂到 voice 上。
+ * 后端在 unlock 时解码，命中即**优先于 notes 合成**；解码失败/无 `decodeAudioData`
+ * ⇒ 自动回退下面的 notes（**不会静音**，weapp 侧能力属 `[R]` 真机待验）。
+ * BGM 素材尚未生成（需百炼 key）⇒ 只有 `bgm_main` 目前无 asset，继续走合成。
+ */
+function withAssets(table: AudioVoices): AudioVoices {
+  const out: Record<string, AudioVoice> = {};
+  for (const [id, voice] of Object.entries(table)) {
+    const asset = (AUDIO_ASSETS as Record<string, string>)[id];
+    out[id] = asset ? { ...voice, asset } : voice;
+  }
+  return out;
+}
+
+export const BEADS_AUDIO_VOICES: AudioVoices = withAssets(VOICE_TABLE);
