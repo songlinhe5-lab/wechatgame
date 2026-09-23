@@ -21107,17 +21107,17 @@
     },
     {
       "path": "games/beads/design/proposals/bead-visual-style-spec.md",
-      "tokens": 7263,
-      "lines": 304,
-      "sha256": "9555d2ee2565c9be985c53f24d8b38db1bfb23a8d4a1a34ac79ab80db8d83f6c",
+      "tokens": 7996,
+      "lines": 328,
+      "sha256": "9ecf151bdf76c495df3645d3090a7abaf58f633e70fcddc1fa738fcfab25f926",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§拼豆渲染视觉规格 · 提案 v0.1（决议 v0.2）",
           "level": 1,
           "startLine": 1,
-          "endLine": 305,
-          "tokens": 7245,
+          "endLine": 329,
+          "tokens": 7977,
           "summary": "状态 = 已确认・待落码（用户 2026-09-23：Q1–Q7 全按推荐、Q8 = (c)）。决议表见 §9，17 套",
           "keywords": [
             "§9",
@@ -21377,8 +21377,8 @@
           "anchor": "§11 实施记录（v0.3，2026-09-23）",
           "level": 2,
           "startLine": 251,
-          "endLine": 305,
-          "tokens": 1229,
+          "endLine": 329,
+          "tokens": 1961,
           "summary": "",
           "keywords": [
             "实施记录"
@@ -21431,14 +21431,30 @@
           "anchor": "§11.4 仍未做（下次开口时先读这里）",
           "level": 3,
           "startLine": 297,
-          "endLine": 305,
-          "tokens": 206,
+          "endLine": 304,
+          "tokens": 175,
           "summary": "1. K7 微抖动未做 ⇒ 颗间完全规则（待真机定 amplitude）",
           "keywords": [
             "amplitude",
             "仍未做",
             "下次开口时先",
             "读这里"
+          ]
+        },
+        {
+          "anchor": "§11.5 §5 抬起三通道（v1.5-r9，2026-09-23）",
+          "level": 3,
+          "startLine": 305,
+          "endLine": 329,
+          "tokens": 748,
+          "summary": "单一高度参量 liftT = clamp(lift) / liftRef（liftRef = 6 = 选中/锚组抬起量；",
+          "keywords": [
+            "§5",
+            "liftT",
+            "clamp",
+            "lift",
+            "liftRef",
+            "抬起三通道"
           ]
         }
       ]

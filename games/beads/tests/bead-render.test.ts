@@ -209,6 +209,45 @@ describe('bead parameter card (assets-spec §1.1)', () => {
 
   // v1.5-r8：旧 §1.5「符号墨水与珠体同源」判据随 L5 符号层删除而移除（symbols.ts 已删）。
 
+  // §5 抬起三通道（v1.5-r9）：投影变远变淡、接触面收窄变淡、珠体与侧壁微涨，
+  // 四个通道共用一个 `liftT` ⇒ 方向必须一致（“平移但阴影不变”就是“突兀”的根源）。
+  // ⚠ 显式覆写（G1 包络 / §1.2 selected 的 SELECTED_SHADOW_ALPHA）**优先于 lift 衰减**，
+  //   否则本批会静默推翻“选中 = 阴影更深”的 art 语义（见 `§1.2 lift and shadow α` 例）。
+  it('§5 lift drives shadow, contact, body and side wall from one height parameter', () => {
+    const rest = emit((b) => beadOnPad(b));
+    const up = emit((b) =>
+      drawFilledBead(b, 100, 200, 1, {
+        size: BEAD_CELL,
+        targetColorIdx: 2,
+        inks: DEMO_BEAD_INKS,
+        lift: BEAD_CARD.liftRef,
+      }),
+    );
+    type Rect = Extract<(typeof rest)[number], { kind: 'rect' }>;
+    const at = (cmds: typeof rest, i: number): Rect => {
+      const c = cmds[i]!;
+      expect(c.kind).toBe('rect');
+      return c as Rect;
+    };
+    const alphaOf = (c: Rect): number => Number(/([\d.]+)\)$/.exec(c.fill ?? '')?.[1] ?? NaN);
+
+    // L0a 接触阴影：随高度**收窄**；α 按 §1.2 固定 ⇒ 不随 lift 变（只改几何不改颜色语义）。
+    expect(at(up, 0).w).toBeLessThan(at(rest, 0).w);
+    expect(alphaOf(at(up, 0))).toBe(alphaOf(at(rest, 0)));
+    // L0b 投影：与主体的间距变大（离底面更远）且变淡 —— 注意不能直接比 y：
+    // 整颗珠（含主体底边）本来就被 lift 抬高了，“更远”指的是**投影与主体之间的间距**。
+    const gap = (cmds: typeof rest): number => at(cmds, 2).y - at(cmds, 1).y;
+    expect(gap(up)).toBeGreaterThan(gap(rest));
+    expect(alphaOf(at(up, 1))).toBeLessThan(alphaOf(at(rest, 1)));
+    // L1 主体放大与 L2′ 侧壁变长（共用同一个 liftT ⇒ 方向一致）。
+    expect(at(up, 2).w).toBeGreaterThan(at(rest, 2).w);
+    expect(at(up, 3).h).toBeGreaterThan(at(rest, 3).h);
+    // 红线：满抬起仍不越格（A5 零重叠前提）：静息 38 × 1.04 = 39.52 < BEAD_CELL。
+    expect(at(up, 2).w).toBeLessThan(BEAD_CELL);
+    // G1 包络仍为基准、lift 只在其上调制 ⇒ 不传 lift 时逐字段等于旧行为（零回归）。
+    expect(emit((b) => beadOnPad(b))).toEqual(rest);
+  });
+
   // §1.1 最小特征约束：线宽 ≥ 2px —— 托盘尺寸（44px 珠）是最小使用场景。
   it('§1.1 keeps every card stroke ≥ 2px at the smallest bead size', () => {
     for (const size of [BEAD_CELL, TRAY_BEAD_SIZE]) {
@@ -234,8 +273,11 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(selected[0]!.kind === 'rect' && selected[0]!.fill).toBe(
       withAlpha(BEAD_SHADOW_HEX, BEAD_CONTACT_SHADOW_ALPHA),
     );
-    const bodyY = (cmds: typeof plain) => (cmds[2]!.kind === 'rect' ? cmds[2]!.y : NaN);
-    expect(bodyY(selected)).toBeCloseTo(bodyY(plain) + 4, 6);
+    // 位移量拿**珠心**比较，不拿底边：§5 后 lift 会把珠体放大（size × 1.0267），
+    // 底边因此比心多下移 half-growth —— 拿底边量会得到 178.33 而非 179，不是位移错。
+    const centerY = (cmds: typeof plain) =>
+      cmds[2]!.kind === 'rect' ? cmds[2]!.y + cmds[2]!.h / 2 : NaN;
+    expect(centerY(selected)).toBeCloseTo(centerY(plain) + 4, 6);
   });
 
   // §1.2 empty 且无目标色（= 托盘空槽）：仅主体 + 描边，**无符号无倒角**；

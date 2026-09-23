@@ -109,6 +109,27 @@ export const BEAD_CARD = {
   /** 侧壁与托盘珠孔底的下暗量（复用既有 mix 族，**零新 hex**）。 */
   wallDarkMix: -0.42,
   holeDarkMix: -0.5,
+  /**
+   * **§5 抬起三通道（`bead-visual-style-spec` v1.5-r9）** —— 以 `liftRef` 为“一次完整抬起”
+   * 归一化，使高度语言随离开底面的距离连续变化（旧模型只平移，不透明物体凭空挪几 px
+   * 就是“突兀”的来源）。
+   *
+   * ⚠ `liftRef` 必须与 `view-model` 给 `draft.lift` 的值（选中/锚组抬起 = 6）同量；
+   *   波浪的 `WAVE_LIFT_PX = 3` ⇒ liftT = 0.5（半高 ⇒ 半量的阴影响应）。
+   *   两者改值时必须一起看，否则三通道会整幅偏强/偏弱。
+   */
+  liftRef: 6,
+  /** 抬到 `liftRef` 时珠体额外放大 4%（与 G1 落座包络的 scale 相乘，峰值合计仍 < 1.12 ≪ 格宽）。 */
+  liftScaleGain: 0.04,
+  /** 投影偏移放大倍数（150%）与 α 衰减（40%）：离得越远，影子越大越淡。 */
+  liftShadowDyGain: 1.5,
+  liftShadowFade: 0.4,
+  /** 接触阴影收窄（35%）：离地后接触面应变小而不是留着黑块。
+   * ⚠ **不衰减它的 α** —— §1.2 已把 L0a 定调为「固定 α 不受 lift 影响」（本批上一版
+   *   试图连 α 一起淡掉，被 `§1.2 lift and shadow α` 判据拦下）。只改宽度，不改颜色语义。 */
+  liftContactShrink: 0.35,
+  /** 侧壁在满抬起时多长出 90%（与上面四通道共用 `liftT` ⇒ 方向一致）。 */
+  wallLiftGain: 0.9,
   /** §1.1 最小特征约束: no stroke below 2 design px. */
   minStroke: 2,
 } as const;
@@ -292,7 +313,15 @@ export function drawFilledBead(
   const outer = options.size ?? BEAD_CELL;
   const inks = options.inks ?? DEMO_BEAD_INKS;
   const base = beadColorOf(inks, colorIdx);
-  const y = cy + (options.lift ?? 0);
+  const lift = options.lift ?? 0;
+  const y = cy + lift;
+  /**
+   * §5 抬起三通道的高度参量：`lift` 归一化到“一次完整抬起”。
+   * 负 `lift` 不视为“陷下去”⇒ 钳到 0（当前无调用方传负值，防误用）。
+   * D1（`reduceMotion`）**不需在此特批**：本批只建“通道↔高度”的静态映射，
+   * 没有任何自发动画与 α 往复（D2 风险）；抬起本身变缓需要 `lift` 自带斜坡，见 §5 注记。
+   */
+  const liftT = Math.max(0, lift) / BEAD_CARD.liftRef;
 
   // ⚠ **v1.5-r8（`bead-visual-style-spec` B0）**：旧的“珠下先画一块垫”已**上提为 B0 底图**
   //   （`drawTargetTile`，由 view-model 对每个可填格调，与有无豆无关）⇒ 本函数不再画垫。
@@ -300,9 +329,21 @@ export function drawFilledBead(
   // 珠体四边内缩，露出四周的 B0 底图（= 该格目标色）；无目标色（托盘珠）保持满幅。
   // G1：`scale` **只作用珠体**（见上方禁令）。
   const inset = options.targetColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
-  const size = (outer - inset * 2) * (options.scale ?? 1);
+  const size = (outer - inset * 2) * (options.scale ?? 1) * (1 + BEAD_CARD.liftScaleGain * liftT);
   const left = cx - size / 2;
   const bottom = y - size / 2;
+  // §5：四个阴影/接触通道随高度连续变化。
+  // ⚠ **显式覆写优先于 lift 调制**：G1 落座包络（`fillPopEnvelope`）与 `selected` 的
+  //   `SELECTED_SHADOW_ALPHA` 都是 art 侧已经定过的语义（「抬起 + 阴影更深 = 重量/强调」），
+  //   而 lift 的物理结论是“抬高 ⇒ 影子变淡”⇒ 两者同现时必须让**覆写赢**，
+  //   否则本批会静默推翻 §1.2 的选中语义（上一版实现就踩了这个坑，由判据拦下）。
+  //   未覆写的通道（如 G4 波浪期）才吃 lift 衰减。
+  const contactAlpha = options.contactAlpha ?? BEAD_CONTACT_SHADOW_ALPHA;
+  const contactWidth = options.contactWidth ?? BEAD_CARD.contactW * (1 - BEAD_CARD.liftContactShrink * liftT);
+  const shadowDy = options.shadowDy ?? BEAD_CARD.shadowDy * (1 + BEAD_CARD.liftShadowDyGain * liftT);
+  const shadowAlpha = options.shadowAlpha !== undefined
+    ? options.shadowAlpha
+    : BEAD_SHADOW_ALPHA * (1 - BEAD_CARD.liftShadowFade * liftT);
   // 圆角统一按**绘出边长**派生（K1）：旧网格珠走「垫圆角 − inset」得到 5 ⇒ 近乎方角；
   // 底图已是方角连续一张，同心约束无对象 ⇒ 网格珠与托盘珠同公式，不再区分。
   const radius = Math.round(size * BEAD_CARD.radius);
@@ -310,24 +351,26 @@ export function drawFilledBead(
   // G4 LOD：`lodLayers` 传入即走降档集（值本身在本轮只有一个档位 ⇒ 不作分支表）。
   const lod = options.lodLayers !== undefined;
 
-  // L0a 接触阴影 — 贴底窄条，让珠"坐"在面上（v1.3 · F4）；α / 宽比可由 G1 包络覆写。
+  // L0a 接触阴影 — 贴底窄条，让珠"坐"在面上（v1.3 · F4）；α / 宽比可由 G1 包络覆写，
+  // 未覆写时宽度再受 §5 抬起收窄（α 按 §1.2 固定，不受 lift 影响）。
   // G4 LOD：本层属可砍集（α 最小的软阴影，集体波浪期看不出差）。G1 不动此层归属。
   if (!lod) {
     builder.rect(
       left + size * BEAD_CARD.contactX,
       bottom + size * BEAD_CARD.contactY,
-      size * (options.contactWidth ?? BEAD_CARD.contactW),
+      size * contactWidth,
       size * BEAD_CARD.contactH,
       {
-        fill: withAlpha(BEAD_SHADOW_HEX, options.contactAlpha ?? BEAD_CONTACT_SHADOW_ALPHA),
+        fill: withAlpha(BEAD_SHADOW_HEX, contactAlpha),
         radius: Math.round(radius * BEAD_CARD.contactRadiusScale),
       },
     );
   }
 
-  // L0b 投影 — offset down by 3/64 of the edge, no stroke（G1：偏移与 α 同步联动）。
-  builder.rect(left, bottom - size * (options.shadowDy ?? BEAD_CARD.shadowDy), size, size, {
-    fill: withAlpha(BEAD_SHADOW_HEX, options.shadowAlpha ?? BEAD_SHADOW_ALPHA),
+  // L0b 投影 — offset down by 3/64 of the edge, no stroke（G1：偏移与 α 同步联动；
+  // §5：抬起越高 ⇒ 影子推得越远、同时变淡）。
+  builder.rect(left, bottom - size * shadowDy, size, size, {
+    fill: withAlpha(BEAD_SHADOW_HEX, shadowAlpha),
     radius,
   });
 
@@ -335,10 +378,10 @@ export function drawFilledBead(
   builder.rect(left, bottom, size, size, { fill: base, radius });
 
   // L2′ 侧壁（K5）——珠体下缘一条比 L2 暗倒角更深的带，把“圆角方块”读成“有高度的体”。
-  // `lift` 时按 `1 + lift/size` 拉长 ⇒ 抬起得越高、露出的侧壁越多（§5 空间语言）。
-  // ⚠ 不随 `scale` 额外放大（已在 `size` 内），也不参与 D1 例外：它是静息形状的一部分。
-  const wallH =
-    size * BEAD_CARD.wallRatio * (1 + (options.lift ?? 0) / Math.max(1, outer));
+  // §5：静息高 `size × wallRatio`；抬起时接近线性长到 ×1.9（升得越高越看得到侧面），
+  // 与投影/接触阴影同一 `liftT` ⇒ 三个通道同向，不会“平移但侧面不变”那种断裂感。
+  // ⚠ 不额外吃 `scale`（已在 `size` 内）；无自发动画 ⇒ 不受 D1 口径约束。
+  const wallH = size * BEAD_CARD.wallRatio * (1 + BEAD_CARD.wallLiftGain * liftT);
   builder.rect(left, bottom, size, wallH, {
     fill: mix(base, BEAD_CARD.wallDarkMix),
     radius: Math.max(1, radius * 0.6),

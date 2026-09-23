@@ -243,7 +243,7 @@ describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.
     expect(l0b.kind === 'rect' && l0b.fill).toBe(withAlpha(BEAD_SHADOW_HEX, env.shadowAlpha));
     expect(l0b.kind === 'rect' && l0b.y).toBeCloseTo(
       200 - ((BEAD_CELL - BEAD_DRAW_INSET * 2) * env.scale) / 2 -
-        (BEAD_CELL - BEAD_DRAW_INSET * 2) * env.scale * env.shadowDy,
+      (BEAD_CELL - BEAD_DRAW_INSET * 2) * env.scale * env.shadowDy,
       6,
     );
   });

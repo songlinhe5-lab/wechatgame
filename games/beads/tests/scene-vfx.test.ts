@@ -280,12 +280,18 @@ describe('G4 vfx_complete_wave · LOD 降档 + B0 底图不参与 lift（v1.5-r8
       return c as RectCommand;
     };
     expect(still.some((c) => c.kind === 'rect' && c.w === BEAD_PITCH)).toBe(false);
-    // L0b 投影确实上移（降档后 = 第 1 条）⇒ 「珠上移、露出更多底图」读数成立。
-    expect(rectAt(lifted, 1).y - rectAt(still, 1).y).toBeCloseTo(WAVE_LIFT_PX, 6);
-    // 孔必须跟着珠体走 —— 孔不抬的话会在抬升态上“从珠上滑开”。
+    // ① 位移：拿孔心（= 珠心，无其他修正）量 ⇒ 恰好等于 lift（rect.y 已不能当尺，
+    //    因为 size 与 shadowDy 也会随 lift 变）。
     const holeY = (cmds: readonly DrawCommand[]): number =>
       (cmds.filter((c) => c.kind === 'circle')[0] as { y: number }).y;
     expect(holeY(lifted) - holeY(still)).toBeCloseTo(WAVE_LIFT_PX, 6);
+    // ② 投影随高度变淡 —— 降档集里 L0a 已砍 ⇒ **L0b 是第 0 条**（不是非降档时的第 1 条）；
+    //    ③ 接触面本就在降档集外，其三通道断言由 `bead-render.test` 专例负责。
+    const alphaOf = (c: RectCommand): number =>
+      Number(/([\d.]+)\)$/.exec(c.fill ?? '')?.[1] ?? NaN);
+    expect(alphaOf(rectAt(lifted, 0))).toBeLessThan(alphaOf(rectAt(still, 0)));
+    // ④ 侧壁随高度变长（降档后：第 1 条 = L1 主体、第 2 条 = L2′ 侧壁）。
+    expect(rectAt(lifted, 2).h).toBeGreaterThan(rectAt(still, 2).h);
   });
 });
 
