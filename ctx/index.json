@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2919,
       "lines": 113,
-      "sha256": "ab689a7def6a91e83e78d9c4d3ee413bc7c7b62b77f041f9f14bf1dbd4a42087",
+      "sha256": "5446317ba5d8ee6ad3b78392962c18c359d26206f24ce09008c07400d37dee74",
       "tier": "normal",
       "sections": [
         {
@@ -23589,17 +23589,17 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 21009,
-      "lines": 350,
-      "sha256": "a571e598923946d96b905f8fc070d559df5e592881abe49c6641a2378caa44da",
+      "tokens": 21244,
+      "lines": 357,
+      "sha256": "e12d9fff6c4b19cb808b2e17bf6548c9647f81880be64593a98cdb3461dc0fe5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 351,
-          "tokens": 21000,
+          "endLine": 358,
+          "tokens": 21235,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.13 · 任务号 WXG-T-128（v1.13 = §5「",
           "keywords": [
             "§5",
@@ -23642,8 +23642,8 @@
           "anchor": "§3 关键界面线框（750×1334，坐标 y 向上，来源 §3.1 布局带）",
           "level": 2,
           "startLine": 50,
-          "endLine": 146,
-          "tokens": 2326,
+          "endLine": 153,
+          "tokens": 2561,
           "summary": "",
           "keywords": [
             "§3.1",
@@ -23696,8 +23696,8 @@
           "anchor": "§3.4 结算·过关（普通）",
           "level": 3,
           "startLine": 105,
-          "endLine": 120,
-          "tokens": 243,
+          "endLine": 127,
+          "tokens": 479,
           "summary": "",
           "keywords": [
             "结算",
@@ -23708,8 +23708,8 @@
         {
           "anchor": "§3.5 结算·冲刺与失败",
           "level": 3,
-          "startLine": 121,
-          "endLine": 143,
+          "startLine": 128,
+          "endLine": 150,
           "tokens": 610,
           "summary": "",
           "keywords": [
@@ -23720,8 +23720,8 @@
         {
           "anchor": "§3.6 通关画面（FINISH，8 关全清）",
           "level": 3,
-          "startLine": 144,
-          "endLine": 146,
+          "startLine": 151,
+          "endLine": 153,
           "tokens": 29,
           "summary": "全屏庆祝 + 星级总览（8 关星数和）+「去冲刺」+「重玩第 1 关」。",
           "keywords": [
@@ -23733,8 +23733,8 @@
         {
           "anchor": "§4 状态流转 × 输入响应矩阵（QA 直接转用例；与 input-control §2.3 门禁互为镜像）",
           "level": 2,
-          "startLine": 147,
-          "endLine": 204,
+          "startLine": 154,
+          "endLine": 211,
           "tokens": 3616,
           "summary": "提交时基分区（v1.9 新增；镜像 gdd/input-control.md v2.5 §2.1「提交时基表」，上位 A",
           "keywords": [
@@ -23749,8 +23749,8 @@
         {
           "anchor": "§5 交互反馈与动效时长表（权威毫秒值，回写 art-bible §7 占位）",
           "level": 2,
-          "startLine": 205,
-          "endLine": 256,
+          "startLine": 212,
+          "endLine": 263,
           "tokens": 6027,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
@@ -23765,8 +23765,8 @@
         {
           "anchor": "§6 首屏留存策略（微信前 10 秒）· WXG-T-081 可执行化重写",
           "level": 2,
-          "startLine": 257,
-          "endLine": 301,
+          "startLine": 264,
+          "endLine": 308,
           "tokens": 2181,
           "summary": "",
           "keywords": [
@@ -23779,8 +23779,8 @@
         {
           "anchor": "§6.1 首 10 秒时间轴（v1.4 随「错位归位」重写；0 文字；引导均为动效，毫秒值见 §5）",
           "level": 3,
-          "startLine": 259,
-          "endLine": 275,
+          "startLine": 266,
+          "endLine": 282,
           "tokens": 573,
           "summary": "玩法前提（v1.4）：L1 开局 = 棋盘全满 + 1 对错位珠（k=1，§3.13 建议值）+ 空托盘（供料关停）。引",
           "keywords": [
@@ -23795,8 +23795,8 @@
         {
           "anchor": "§6.2 首供语义裁定（GAP-02，不可两读）",
           "level": 3,
-          "startLine": 276,
-          "endLine": 289,
+          "startLine": 283,
+          "endLine": 296,
           "tokens": 988,
           "summary": "裁定：采「spawner.reset() 后置 _acc = interval」，不采「_setupLevel 内同步 ",
           "keywords": [
@@ -23811,8 +23811,8 @@
         {
           "anchor": "§6.3 启动路径表（skill §6 要求项，本次补齐）",
           "level": 3,
-          "startLine": 290,
-          "endLine": 301,
+          "startLine": 297,
+          "endLine": 308,
           "tokens": 547,
           "summary": "首次（runs==0） 主菜单（含选关列表）（#1 · v1.14 反转，原「BOOT 直进玩法」作废） 进关后走 §6",
           "keywords": [
@@ -23827,8 +23827,8 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 302,
-          "endLine": 313,
+          "startLine": 309,
+          "endLine": 320,
           "tokens": 240,
           "summary": "触控 UI 控件 ≥88px（TOUCH_MIN）；棋盘/托盘珠命中区=名义外扩 8px、重叠按格心最近（§3.8 v1",
           "keywords": [
@@ -23843,8 +23843,8 @@
         {
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
-          "startLine": 314,
-          "endLine": 351,
+          "startLine": 321,
+          "endLine": 358,
           "tokens": 2529,
           "summary": "已裁定（沿袭）：~~无主菜单两路径（core-loop 判例）~~ v1.7 反转：主菜单恢复（WXG-T-164），启",
           "keywords": [

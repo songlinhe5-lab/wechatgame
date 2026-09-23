@@ -1182,7 +1182,7 @@ function drawClearPanel(
   builder.text(
     DESIGN_W / 2,
     layout.infoY,
-    `剩余 ${formatTime(snap.clearRemaining)} ｜ 道具 ${snap.clearPowerupsUsed}/${POWERUP_TYPES.length} ｜ ${snap.clearTaps} 击`,
+    `剩余 ${formatTime(snap.clearRemaining)} ｜ 道具 ${snap.clearPowerupsUsed}/${POWERUP_TYPES.length} ｜ ${snap.clearActions} 动作（${snap.clearTaps} 击）`,
     { fill: palette.textDim, font: bodyFont(snap, 'sub'), align: 'center', baseline: 'middle' },
   );
 

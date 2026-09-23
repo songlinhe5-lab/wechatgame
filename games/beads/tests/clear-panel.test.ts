@@ -239,8 +239,9 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
       (c) => c.kind === 'text' && c.text.startsWith('剩余'),
     ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
     expect(info, '结算面板「剩余 …」行未渲染').toBeDefined();
-    // 第三项「N 击」= playtest 计量件（本局被消费的点击）；格式变更同步 ux-spec §3.4。
-    expect(info!.text).toMatch(/^剩余 \d{2}:\d{2} ｜ 道具 \d\/3 ｜ \d+ 击$/);
+    // 第三项 = playtest 计量件：**有效动作数**（定星口径）括号内附含误点的原始点击数；
+    // 格式变更同步 ux-spec §3.4。
+    expect(info!.text).toMatch(/^剩余 \d{2}:\d{2} ｜ 道具 \d\/3 ｜ \d+ 动作（\d+ 击）$/);
     expect(info!.text).not.toContain('.');
   });
 });

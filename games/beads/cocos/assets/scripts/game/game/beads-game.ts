@@ -856,11 +856,11 @@ export class BeadsGame implements Game {
     if (this._machine.current !== 'playing') return false;
     const result = this._tray.select(slot);
     if (result === 'invalid') return false;
-    if (result === 'deselected') return true; // 整组取消：零事件，锚自然回 none
+    if (this._countAction(result === 'deselected')) return true; // 整组取消：零事件，锚自然回 none
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
-    return true;
+    return this._countAction(true);
   }
 
   /**
@@ -878,7 +878,7 @@ export class BeadsGame implements Game {
     if (this._machine.current !== 'playing') return false;
     if (!this._grid.isMisplaced(row, col)) return false;
     const prev = this._boardSelected;
-    if (prev && prev.row === row && prev.col === col) return true; // 幂等：不重发
+    if (prev && prev.row === row && prev.col === col) return this._countAction(true); // 幂等：不重发
     this._clearTraySelection(); // 互斥换选：board 锚建立 ⇒ tray 锚清除
     // WXG-T-148 ③ → 【WXG-T-157 裁定改写】：组 = 8 向两步（切比雪夫 ≤2）**同色**错位珠
     //（collectMisplacedGroup 内部筛色）；组色 = 锚珠色（规则 2 直填的对应色基准）。
@@ -899,7 +899,7 @@ export class BeadsGame implements Game {
       colorIdx: this._grid.cell(row, col)!.beadColorIdx,
       count: cells.length,
     });
-    return true;
+    return this._countAction(true);
   }
 
   /**
@@ -920,6 +920,8 @@ export class BeadsGame implements Game {
    */
   tapGridCell(row: number, col: number): boolean {
     if (this._machine.current !== 'playing') return false;
+    // 计量在 `_routeGridEmpty` 里做（真链 `_routeTap` 直调该函数、不经本入口），
+    // 在此再计一次会双计。
     return this._routeGridEmpty(row, col);
   }
 
@@ -1007,7 +1009,7 @@ export class BeadsGame implements Game {
         order: rest,
       };
     }
-    return true;
+    return this._countAction(true);
   }
 
   /**
@@ -1188,6 +1190,28 @@ export class BeadsGame implements Game {
   /** 本局玩家点击数（含误点；harness/调试用，结算面板走快照字段 `clearTaps`）。 */
   get tapsThisLevel(): number {
     return this._tapsPlaying;
+  }
+
+  /**
+   * 本局**有效动作数**（定星口径）：四个公开玩法命令任一返回 true 就计一。
+   *
+   * 与 `tapsThisLevel` 的区别：后者是输入计数（含误点与只触到轻提示的无效点），
+   * 本者是「真的改变了世界」的动作数 ⇒ **与 `tools/scripts/beads-bot.ts` 的 `CMDS`
+   * 计数器逐字同口径**（连「幂等重选同一个锚」也同口径，因为 bot 那边也是按返回 true 计），
+   * 所以可直接与关卡真源 `pricing.actions` 对表定星。
+   *
+   * ⚠ 不能用 `clearTaps` 定星：触屏上手滑一下就会掉星（含误点）。
+   */
+  get actionsThisLevel(): number {
+    return this._actionsPlaying;
+  }
+
+  private _actionsPlaying = 0;
+
+  /** 计量包：透传 `ok`，为 true 时计一次有效动作（不改任何判定）。 */
+  private _countAction(ok: boolean): boolean {
+    if (ok) this._actionsPlaying++;
+    return ok;
   }
 
   /**
@@ -1771,6 +1795,7 @@ export class BeadsGame implements Game {
     const level = this._levels[index];
     if (!level) throw new Error(`Beads: no level at index ${index}`);
     this._tapsPlaying = 0; // 换关/重试/新局共用复位点（同 F3 甲裁「装配即复位」）
+    this._actionsPlaying = 0;
     this._grid = new BeadGrid(level.pattern);
     // v2.0 BOOT 装配（levels-spec v1.2 §2.1 / v1.3 §2.2，WXG-T-139 装配器）：
     // 初盘真源二选一——`level.misplaced`（全错位初盘，直读）优先，否则 `swaps`
@@ -1819,6 +1844,7 @@ export class BeadsGame implements Game {
   /** Load sprint stage `n`: pool pattern + C6 params (streak untouched, C8). */
   private _loadStage(n: number): void {
     this._tapsPlaying = 0; // 冲刺换 stage = 换关语义 ⇒ 计量同步归零
+    this._actionsPlaying = 0;
     const { pattern } = buildStagePattern(n);
     this._grid = new BeadGrid(pattern);
     // WXG-T-172 · F3 甲裁：本行 = 复位点②（冲刺换 stage）。与 _setupLevel 那处合计 2 点，
@@ -2158,11 +2184,13 @@ export class BeadsGame implements Game {
    * @returns true only when the placement was accepted.
    */
   private _routeGridEmpty(row: number, col: number): boolean {
-    if (this._tray.selectedSlot >= 0) return this._placeSelected(row, col);
+    // 有效动作计量放在汇合处：真链 `_routeTap` 直调本函数（不经 `tapGridCell`），
+    // 包在调用方会让**玩家落子不计**；包在本函数出口 ⇒ 真链与四个公开命令同口径。
+    if (this._tray.selectedSlot >= 0) return this._countAction(this._placeSelected(row, col));
     // 【WXG-T-162 用户裁定 · 直填放开任意距离】board 锚：组非空 ⇒ 点「对应颜色的空格」
     // （不限距）直接归位，组保持逐颗续填。未消费（null/false）⇒ 走既有轻提示。
     const direct = this._tryDirectFillFromBoard(row, col);
-    if (direct !== null) return direct;
+    if (direct !== null) return this._countAction(direct);
     if (this._grid.isFillable(row, col)) {
       this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
     }
@@ -3185,7 +3213,8 @@ export class BeadsGame implements Game {
     // formatTime 的 floor 只是视图兜底，两层都补（T-118 前发现、本单补登）。
     s.clearRemaining = Math.max(0, Math.ceil(this._timer.remaining - 1e-9));
     s.clearPowerupsUsed = this._powerups.usedCount;
-    s.clearTaps = this._tapsPlaying; // playtest 计量（与 bot taps 对表用）
+    s.clearTaps = this._tapsPlaying; // playtest 计量（含误点的输入计数）
+    s.clearActions = this._actionsPlaying; // 定星口径（与 `pricing.actions` 同口径）
     s.clearLastLevel = this._levelIndex >= this._levels.length - 1;
 
     // S7 通关画面（ux-spec §3.6）：总览数据 + 逐关入场进度一起进快照，视图只读。

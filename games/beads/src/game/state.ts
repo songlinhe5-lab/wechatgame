@@ -170,9 +170,14 @@ export interface BeadsSnapshot {
   clearStarsShown: number;
   /** 最新入场那颗星的弹跳缩放（0→1.2→1；已稳定 = 1）。 */
   clearStarPopScale: number;
-  /** 次要信息「剩余 mm:ss ｜ 道具 n/3 ｜ N 击」的原料（击数 = playtest 计量，见 `BeadsGame._tapsPlaying`）。 */
+  /**
+   * 次要信息行「剩余 mm:ss ｜ 道具 n/3 ｜ A 动作（N 击）」的原料。
+   * `clearActions` = **有效动作数**（定星口径，与关卡真源 `pricing.actions` 同口径，
+   * 见 `BeadsGame.actionsThisLevel`）；`clearTaps` = 含误点的**输入**计数（playtest 校时用）。
+   */
   clearRemaining: number;
   clearPowerupsUsed: number;
+  clearActions: number;
   clearTaps: number;
   /** 末关 ⇒ 主钮文案「查看结果」（点后进 FINISH）。 */
   clearLastLevel: boolean;
@@ -367,6 +372,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     clearStarPopScale: 1,
     clearRemaining: 0,
     clearPowerupsUsed: 0,
+    clearActions: 0,
     clearTaps: 0,
     clearLastLevel: false,
     finishPanelVisible: false,

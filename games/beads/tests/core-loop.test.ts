@@ -45,7 +45,9 @@ describe('S1 core-loop', () => {
   // playtest 计量件（校准 SEC_PER_TAP 用）：玩家在 PLAYING 里每点一下计一（**含误点**），
   // 换关归零。口径 = 真路由 `_handleTap`（与玩家触摸同一条路）；四个公开命令的旁路没有
   // 「点」这个概念 ⇒ 不计（placeColor / bot 那类驱动不会污染读数）。
-  it('§8-附 本局点击计数：玩法点击含误点都计、公开命令旁路不计、换关归零', () => {
+  // 另加一个**定星口径**计量 `actionsThisLevel`：只计四个公开玩法命令返回 true 的那次，
+  // 与 `beads-bot` 完全同口径，因此可与关卡真源 `pricing.actions` 直接对表。
+  it('§8-附 本局点击计数：玩法点击含误点都计、公开命令旁路不计、换关归零；有效动作只计真改变了世界的', () => {
     const h = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel(), simpleTestLevel({ id: 92 })],
@@ -62,21 +64,32 @@ describe('S1 core-loop', () => {
     // 未选托盘珠 ⇒ 点空格只给前置缺口轻提示（零事件、不消费），但**玩家确实点了一下** ⇒ 计数。
     expect(h.game.tapDesign(p.x, p.y)).toBe(false);
     expect(h.game.tapsThisLevel).toBe(1);
+    // 定星口径（有效动作）与点计不同：什么都没改变 ⇒ 不计。
+    expect(h.game.actionsThisLevel).toBe(0);
 
-    // 旁路命令（giveTrayBead / selectTraySlot）不是「点击」⇒ 不动计数。
+    // 旁路命令（giveTrayBead / selectTraySlot）不是「点击」⇒ 不动点计数；
+    // 但它是四个公开命令之一且返回 true ⇒ **有效动作要计**（与 beads-bot `CMDS` 同口径）。
     const slot = h.game.giveTrayBead(h.game.grid.requiredColor(cell.row, cell.col));
     expect(h.game.selectTraySlot(slot)).toBe(true);
     expect(h.game.tapsThisLevel).toBe(1);
+    expect(h.game.actionsThisLevel).toBe(1);
 
     // 点格落子 = 又一下。注意不断言 `tapDesign` 返回值：它 = 「相位变了 ∥ _consumedTap」，
     // 而托盘落子不置 `_consumedTap`（既有口径）⇒ 这里只断言计量与盘面事实。
     h.game.tapDesign(p.x, p.y);
     expect(h.game.tapsThisLevel).toBe(2);
+    expect(h.game.actionsThisLevel).toBe(2);
     expect(h.game.grid.cell(cell.row, cell.col)!.state).toBe('filled');
 
-    // 换关 ⇒ 计量归零（与相机/托盘同一「装配即复位」口径）。
+    // 误点（落在格外、什么都不消费）⇒ **只加点不点动作**：这就是定星不能用 `clearTaps` 的理由。
+    h.game.tapDesign(p.x + 9000, p.y);
+    expect(h.game.tapsThisLevel).toBe(3);
+    expect(h.game.actionsThisLevel).toBe(2);
+
+    // 换关 ⇒ 两个计量同步归零（与相机/托盘同一「装配即复位」口径）。
     h.game.goToLevel(1);
     expect(h.game.tapsThisLevel).toBe(0);
+    expect(h.game.actionsThisLevel).toBe(0);
   });
 
   // §8.5 可填格全满瞬间无论剩余时间多少 → 必进 LEVEL_CLEAR（同帧归零场景以 cleared 优先，
