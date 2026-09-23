@@ -107,7 +107,7 @@ export interface SynthContext extends SynthNode {
    * 旧回调式 `decodeAudioData(buf, success, error)`（微信 WebAudioContext 属后者一族）。
    */
   decodeAudioData?(
-    data: Uint8Array,
+    data: ArrayBuffer,
     success?: (buffer: SynthBuffer) => void,
     error?: () => void,
   ): unknown;
@@ -125,6 +125,11 @@ export interface SynthInnerAudio {
   volume: number;
   play(): void;
   stop(): void;
+  /**
+   * 可选：退后台用 pause 而不是 stop+destroy。少一个实例就少一次整曲重下
+   * （实测一次「失焦→回前台」用 stop 路线会再拉 721 KB）。缺此方法则回退 stop+destroy。
+   */
+  pause?(): void;
   /** 必须释放：weapp 的 InnerAudioContext 是原生实例，不 destroy 会漏。 */
   destroy(): void;
 }
@@ -175,7 +180,9 @@ function base64Bytes(dataUri: string): Uint8Array | null {
       out[o++] = (acc >> bits) & 0xff;
     }
   }
-  return o > 0 ? out.subarray(0, o) : null;
+  // 必须是 slice（拷贝出精确长度的独立 buffer）：subarray 的 .buffer 仍按 3/4 估算超额分配，
+  // 而 decodeAudioData 拿到的是**整个 ArrayBuffer**，尾部垃圾会让解码器报 "Unable to decode"。
+  return o > 0 ? out.slice(0, o) : null;
 }
 
 function sampleWave(wave: string, phase: number): number {
@@ -206,6 +213,8 @@ export class SynthAudioBackend implements AudioBackend {
   private _assetsStarted = false;
   /** clipId → 正在播的原生播放器实例（文件路线，§4.1 v1.52 分流）。 */
   private readonly _inner = new Map<string, SynthInnerAudio>();
+  /** 退后台暂停中的文件循环（期望态仍在 `_wantedLoops`，回前台原地续播，不重建实例）。 */
+  private readonly _innerPaused = new Set<string>();
   private readonly _warned = new Set<string>();
   private readonly _clipVolume = new Map<string, number>();
 
@@ -270,23 +279,25 @@ export class SynthAudioBackend implements AudioBackend {
         this._warnOnce(`素材 base64 解析失败（clip=${clipId}）⇒ 回退合成`);
         continue;
       }
+      const bytesBuf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
       const done = (buffer: SynthBuffer): void => {
         this._assetBuffers.set(clipId, buffer);
         // loop 期望态可能已在解码完成前试过 ⇒ 补起一次（_startWantedLoops 幂等）
         this._startWantedLoops();
       };
       try {
-        const r = ctx.decodeAudioData!(bytes, done, () => {
-          this._warnOnce(`decodeAudioData 拒绝该素材（可能是格式/位深不受支持）⇒ clip 回退合成`);
+        const r = ctx.decodeAudioData!(bytesBuf, done, (e?: unknown) => {
+          this._warnOnce(`decodeAudioData 回调式失败（clip=${clipId}）⇒ 回退合成：${String(e)}`);
         });
         // Promise 式 runtime：回调不会被调用，走 then
         if (r && typeof (r as Promise<SynthBuffer>).then === 'function') {
-          (r as Promise<SynthBuffer>).then(done, () => {
-            this._warnOnce('decodeAudioData promise 失败 ⇒ 回退合成');
+          (r as Promise<SynthBuffer>).then(done, (e: unknown) => {
+            // 原因必须入日志：素材解码失败是静默回退，没有这行就永远查不到为什么
+            this._warnOnce(`decodeAudioData promise 失败（clip=${clipId} bytes=${bytes.byteLength}）⇒ 回退合成：${String(e)}`);
           });
         }
-      } catch {
-        this._warnOnce(`decodeAudioData 抛错（clip=${clipId}）⇒ 回退合成`);
+      } catch (e) {
+        this._warnOnce(`decodeAudioData 抛错（clip=${clipId}）⇒ 回退合成：${String(e)}`);
       }
     }
   }
@@ -302,14 +313,44 @@ export class SynthAudioBackend implements AudioBackend {
    */
   suspend(): void {
     // 两条循环通路都要停：合成 loop 在 `_loops`，文件 loop 在 `_inner`。
-    // 漏 `_inner` 的后果是「退后台 BGM 继续响」——判据 audio-synth.test「stop/destroy 原生实例」拦下过。
-    for (const clipId of Array.from(this._inner.keys())) this.stop(clipId, { keepWanted: true });
+    // 漏 `_inner` 的后果是「退后台 BGM 继续响」——判据 audio-synth.test「suspend 必须停文件路线」拦下过。
+    // 文件路线优先 pause（保留实例与位置）：stop+destroy 会让回前台重建实例并**重下整曲**（实测 721 KB）。
+    for (const [clipId, inner] of Array.from(this._inner)) {
+      if (typeof inner.pause === 'function') {
+        try {
+          inner.pause();
+          this._innerPaused.add(clipId);
+        } catch {
+          this.stop(clipId, { keepWanted: true });
+        }
+        continue;
+      }
+      this.stop(clipId, { keepWanted: true }); // 平台无 pause ⇒ 退回旧行为
+    }
     for (const clipId of Array.from(this._loops.keys())) this.stop(clipId, { keepWanted: true });
   }
 
   private _startWantedLoops(): void {
     const ctx = this._ctx;
     if (!ctx) return;
+    // 暂停中的文件实例原地续播（保留播放位置，且避免重新拉整曲）
+    for (const clipId of Array.from(this._innerPaused)) {
+      if (!this._wantedLoops.has(clipId)) {
+        this._innerPaused.delete(clipId);
+        continue;
+      }
+      const inner = this._inner.get(clipId);
+      if (inner) {
+        try {
+          inner.play();
+        } catch {
+          /* 续播失败 ⇒ 下面按新建处理路径也不走，静音风险由 `[R]` 真机复核 */
+        }
+        this._innerPaused.delete(clipId);
+      } else {
+        this._innerPaused.delete(clipId);
+      }
+    }
     for (const [clipId, base] of Array.from(this._wantedLoops)) {
       if (this._loops.has(clipId) || this._inner.has(clipId)) continue;
       const voice = this._voices[clipId];
@@ -366,6 +407,7 @@ export class SynthAudioBackend implements AudioBackend {
       loop.src.disconnect?.();
       loop.env.disconnect?.();
     }
+    this._innerPaused.delete(clipId);
     const inner = this._inner.get(clipId);
     if (inner) {
       this._inner.delete(clipId);

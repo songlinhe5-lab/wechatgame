@@ -381,19 +381,19 @@ function fakeDecodeCtx(mode: 'callback' | 'promise' | 'error') {
   const seen: Uint8Array[] = [];
   const c = ctx as unknown as SynthContext & {
     decodeAudioData?: (
-      d: Uint8Array,
+      d: ArrayBuffer,
       ok?: (b: SynthBuffer) => void,
-      bad?: () => void,
+      bad?: (e?: unknown) => void,
     ) => unknown;
   };
   c.decodeAudioData = (d, ok, bad) => {
-    seen.push(d);
+    seen.push(new Uint8Array(d));
     if (mode === 'callback') {
       ok?.(decoded);
       return undefined;
     }
     if (mode === 'error') {
-      bad?.();
+      bad?.(new Error('fake reject'));
       return undefined;
     }
     return Promise.resolve(decoded);
@@ -475,11 +475,15 @@ class FakeInner implements SynthInnerAudio {
   volume = 1;
   plays = 0;
   stops = 0;
+  pauses = 0;
   destroys = 0;
   constructor(private readonly _fail = false) {}
   play(): void {
     if (this._fail) throw new Error('play blocked');
     this.plays++;
+  }
+  pause(): void {
+    this.pauses++;
   }
   stop(): void {
     this.stops++;
@@ -488,6 +492,7 @@ class FakeInner implements SynthInnerAudio {
     this.destroys++;
   }
 }
+
 
 const FILE_VOICES: AudioVoices = {
   bgm_file: { durationMs: 40_000, loopMs: 40_000, bus: 'music', gain: 0.3, notes: [{ freq: 220, durMs: 1000 }], assetFile: 'audio/bgm_main.mp3' },
@@ -543,7 +548,7 @@ describe('文件路线 v1.52：assetFile 走原生播放器，不可用必回退
     expect(rec2.buffers.length).toBeGreaterThan(0);
   });
 
-  it('suspend 必须停文件路线的 BGM（退后台仍在响 = 事故），且回前台能补起', () => {
+  it('suspend 必须让文件路线的 BGM 闭嘴（退后台仍在响 = 事故）', () => {
     const { ctx } = fakeAudio();
     const made: FakeInner[] = [];
     const b = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => {
@@ -553,17 +558,66 @@ describe('文件路线 v1.52：assetFile 走原生播放器，不可用必回退
     });
     b.unlock();
     b.play('bgm_file', { volume: 1, loop: true });
-    expect(made[0]!.plays).toBe(1);
-    b.suspend(); // 退后台：停发声但保留期望态
-    expect(made[0]!.stops).toBe(1);
-    expect(made[0]!.destroys).toBe(1); // 原生实例必须释放
-    expect(b.activeLoops()).toEqual([]);
-    b.resume(); // 回前台补起 ⇒ 新实例（位置从头，与合成路线同语义）
-    expect(made).toHaveLength(2);
-    expect(made[1]!.plays).toBe(1);
+    b.suspend();
+    expect(made[0]!.pauses).toBe(1); // 有 pause ⇒ 走暂停，不销毁
+    expect(made[0]!.destroys).toBe(0);
+    expect(b.activeLoops()).toEqual(['bgm_file']); // 期望态仍在（A05-27 半边）
+  });
+
+  it('回前台复用同一实例续播 ⇒ 不重建、不重下整曲（stop+destroy 路线实测每次多拉 721 KB）', () => {
+    const { ctx } = fakeAudio();
+    const made: FakeInner[] = [];
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => {
+      const i = new FakeInner();
+      made.push(i);
+      return i;
+    });
+    b.unlock();
+    b.play('bgm_file', { volume: 1, loop: true });
+    b.suspend();
+    b.resume();
+    expect(made).toHaveLength(1); // 关键：没有新建实例
+    expect(made[0]!.plays).toBe(2); // 原地 play() 续播
+    expect(made[0]!.destroys).toBe(0);
     b.stopAll();
-    expect(made[1]!.destroys).toBe(1);
-    expect(made.every((i) => i.destroys === 1)).toBe(true); // 起几个毁几个 ⇒ 不漏
+    expect(made[0]!.destroys).toBe(1); // 真停曲才释放
+  });
+
+  it('平台无 pause ⇒ 回退 stop+destroy（不留活口），回前台再新建', () => {
+    const { ctx } = fakeAudio();
+    // 朴素对象假件：FakeInner 的 pause 是**原型方法**，delete 删不掉（会伪装成"有 pause"，
+    // 上一版本判据就是这么假绿的）⇒ 要模拟老平台只能真的不给这个成员。
+    class NoPause {
+      src = '';
+      loop = false;
+      volume = 1;
+      plays = 0;
+      stops = 0;
+      destroys = 0;
+      play(): void {
+        this.plays++;
+      }
+      stop(): void {
+        this.stops++;
+      }
+      destroy(): void {
+        this.destroys++;
+      }
+    }
+    const made: NoPause[] = [];
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES, {}, () => {
+      const i = new NoPause();
+      made.push(i);
+      return i;
+    });
+    b.unlock();
+    b.play('bgm_file', { volume: 1, loop: true });
+    b.suspend();
+    expect(made[0]!.stops).toBe(1);
+    expect(made[0]!.destroys).toBe(1);
+    b.resume();
+    expect(made).toHaveLength(2);
+    expect(b.activeLoops()).toEqual(['bgm_file']);
   });
 
   it('setVolume（ducking）落到原生 volume，不重启播放', () => {

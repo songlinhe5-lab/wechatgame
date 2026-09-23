@@ -62,6 +62,7 @@ interface WxApi {
     loop: boolean;
     volume: number;
     play(): void;
+    pause(): void;
     stop(): void;
     destroy(): void;
   };
@@ -184,16 +185,21 @@ export class WeappPlatform extends BasePlatform {
       (src) => {
         const ctx = wx.createInnerAudioContext?.();
         if (!ctx) return null;
+        let prepared = false;
         const handle: SynthInnerAudio = {
           src,
           loop: false,
           volume: 1,
           play: () => {
-            ctx.src = handle.src;
+            if (!prepared) {
+              ctx.src = handle.src;
+              prepared = true;
+            }
             ctx.loop = handle.loop;
             ctx.volume = handle.volume;
             ctx.play();
           },
+          pause: () => ctx.pause(),
           stop: () => ctx.stop(),
           destroy: () => ctx.destroy(),
         };

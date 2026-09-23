@@ -83,12 +83,17 @@ export class WebPlatform extends BasePlatform {
         const Audio = g.Audio;
         if (!Audio) return null;
         const el = new Audio();
+        let prepared = false;
         const handle: SynthInnerAudio = {
           src,
           loop: false,
           volume: 1,
           play: () => {
-            el.src = handle.src;
+            // 只在首次设 src：重复赋值会让元素重新取整曲（实测一次 suspend→resume 多拉 721 KB）
+            if (!prepared) {
+              el.src = handle.src;
+              prepared = true;
+            }
             el.loop = handle.loop;
             el.volume = handle.volume;
             try {
@@ -97,6 +102,7 @@ export class WebPlatform extends BasePlatform {
               /* 交由上层回退 */
             }
           },
+          pause: () => el.pause(),
           stop: () => {
             el.pause();
             el.currentTime = 0;
