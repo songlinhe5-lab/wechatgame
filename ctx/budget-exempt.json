@@ -212,6 +212,12 @@
       "reason": "beads 关卡内容管线方案正本（§0 总体四阶 / §1.2 uid+order 不变式 / §1.3 分片产物口径），manifest 与 level-store 的裁定均引用本文件；已被 ctx 按章节锚点覆盖，开发期走 §1.2 / §0.3 局部读、从不整读；拆分会把「档位定义 ↔ 切块规则 ↔ 入关不变式」拆成跨文件互引（沿 levels-spec.md / bead-grid.md 同族先例）",
       "note": "WXG-T-203（2026-09-23）v0.7 随 uid 位宽 4→5 与关表重置第二批修订使其自 ≈8.0k 越至 8076 tok（超 76，属微超，同族先例 = systems-index-changelog 超 50 / input-control 超 67）。债务显式化：下次修订时评估把 §0.3 组合图档位表与 §2 E1/E2 矩阵取证拆独立 `level-content-appendix.md` 后撤销本豁免。登记人 = 会话执行",
       "taskId": "WXG-T-203"
+    },
+    {
+      "path": "games/beads/design/audio/bgm-main-composition.md",
+      "reason": "beads BGM 曲谱与修订取证正本（§0b 判断更正留档 / §3·§7·§8·§9 三首曲谱 / §11–§12 r11–r13 落码对照与真听实测表）：曲谱行、实测数字与作废原文必须同页可查，拆成多文件会让「哪一版听到什么」跨文件互引（同族先例 = audio-spec §4.1、g4-regression-report）；已被 ctx 按章节锚点覆盖，开发期走 §0b / §12 局部读、从不整读",
+      "note": "WXG-T-203（2026-09-23）8518 tok 越单文件上限 8000。主因是我把 §13–§14 云端生成通路实测与 §0b 错误原文**原文保留**（不覆写历史判断的既定纪律）。债务显式化：下次修订时评估把 §0b 错误留档外移至 memory 日记、或将三首曲谱抽成 bgm-scores.md 后撤销本豁免；再涨即拆，不得二次追加豁免。登记人 AI（用户授权提交批次内同步登记）",
+      "taskId": "WXG-T-203"
     }
   ]
 }

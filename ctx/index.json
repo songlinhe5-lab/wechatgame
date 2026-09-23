@@ -385,17 +385,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2919,
-      "lines": 113,
-      "sha256": "3da5afe45ca79a725149e41866371ce5ba3c443b14d654114c0b7f9990915690",
+      "tokens": 2956,
+      "lines": 114,
+      "sha256": "7444f0de368ef56b411974a63378a9529b4fe94d9100b9af5f15d2c55d9bdd03",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 114,
-          "tokens": 2906,
+          "endLine": 115,
+          "tokens": 2943,
           "summary": "生成：2026-09-23 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -439,8 +439,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 88,
-          "tokens": 1404,
+          "endLine": 89,
+          "tokens": 1441,
           "summary": "production/qa/beads/g4-regression-report.md 86807 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 89,
-          "endLine": 114,
+          "startLine": 90,
+          "endLine": 115,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4669,
       "lines": 82,
-      "sha256": "d6996c17445615e5db69a11d8e1a1d360c3fb1f293caae6174accf454d5b1404",
+      "sha256": "ef2b1d831152739f4a83ed129b7344a85eaa50b566af596d631fdf82c1c9465a",
       "tier": "normal",
       "sections": [
         {
@@ -716,7 +716,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 288 行 / 15663 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 288 行 / 16462 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -6294,6 +6294,308 @@
             "Triggers",
             "CAMERA_ZOOM_MAX_SPAN",
             "max"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0019-bead-material-theme-injection.md",
+      "tokens": 5194,
+      "lines": 211,
+      "sha256": "05716d7a6f5f899a42ad3c6020b582b7cc272e831bf82ad0719333f6370aabf5",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0019 — 珠材质主题的参数化注入与运行时切换",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 212,
+          "tokens": 5173,
+          "summary": "状态：Proposed（待用户批准落码；本文件只记录决策，不含实现）",
+          "keywords": [
+            "ADR",
+            "Proposed",
+            "珠材质主题的",
+            "参数化注入与",
+            "运行时切换"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 49,
+          "tokens": 1100,
+          "summary": "需求：运行时平滑切换不同风格的拼豆珠效果，且不影响玩法。",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§1.1 现状事实（读码所得，非推测）",
+          "level": 3,
+          "startLine": 15,
+          "endLine": 24,
+          "tokens": 479,
+          "summary": "已有的注入通道 buildBeadsView(builder, snap, palette, inks) —— UI t",
+          "keywords": [
+            "buildBeadsView",
+            "builder",
+            "snap",
+            "palette",
+            "inks",
+            "现状事实"
+          ]
+        },
+        {
+          "anchor": "§1.2 为什么现在必须决定架构而非先写代码",
+          "level": 3,
+          "startLine": 25,
+          "endLine": 36,
+          "tokens": 284,
+          "summary": "若不先定注入形态，落地\"第二套材质\"（最可能的首个候选是 02 亮面烤漆或 06 珐琅金属）时，",
+          "keywords": [
+            "为什么现在必",
+            "须决定架构而",
+            "非先写代码"
+          ]
+        },
+        {
+          "anchor": "§1.3 约束（引用，不发明新数值）",
+          "level": 3,
+          "startLine": 37,
+          "endLine": 49,
+          "tokens": 257,
+          "summary": "L5 视图不持状态：材质 id 若被 view 自己记住即违规。",
+          "keywords": [
+            "view",
+            "约束",
+            "引用",
+            "不发明新数值"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 60,
+          "tokens": 465,
+          "summary": "甲 每风格一个绘制函数 drawGlossyBead() / drawEnamelBead() … 17 个导出 上手最",
+          "keywords": [
+            "Alternatives",
+            "drawGlossyBead",
+            "drawEnamelBead",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 110,
+          "tokens": 951,
+          "summary": "采乙：引入材质参数记录 BeadMaterial，经 options.material 注入 drawFilledBea",
+          "keywords": [
+            "Decision",
+            "BeadMaterial",
+            "options",
+            "material",
+            "drawFilledBea",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§3.1 材质记录的形状（字段 = `assets-spec §1.9.7` 允许的换肤面 + 本仓已有参数，**不新造维度**）",
+          "level": 3,
+          "startLine": 67,
+          "endLine": 87,
+          "tokens": 317,
+          "summary": "",
+          "keywords": [
+            "assets-spec §1.9.7",
+            "§1.9.7",
+            "assets",
+            "spec",
+            "材质记录的形",
+            "字段"
+          ]
+        },
+        {
+          "anchor": "§3.2 切换与\"不影响玩法\"的边界",
+          "level": 3,
+          "startLine": 88,
+          "endLine": 98,
+          "tokens": 257,
+          "summary": "持有者：材质 id 属元游戏/设置，存 meta 侧车存档（BeadsMeta，version 1 → 2 +",
+          "keywords": [
+            "meta",
+            "BeadsMeta",
+            "version",
+            "切换与",
+            "不影响玩法",
+            "的边界"
+          ]
+        },
+        {
+          "anchor": "§3.3 图元预算与 LOD（与 ADR-0017 的关系必须显式化）",
+          "level": 3,
+          "startLine": 99,
+          "endLine": 110,
+          "tokens": 210,
+          "summary": "每个材质提供 layerCost(beadCount)（= layers 开关的静态求和），并在注册表里声明上限",
+          "keywords": [
+            "LOD",
+            "ADR",
+            "layerCost",
+            "beadCount",
+            "layers",
+            "图元预算与"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 111,
+          "endLine": 151,
+          "tokens": 1055,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 113,
+          "endLine": 121,
+          "tokens": 216,
+          "summary": "1. 新风格 = 加一行数据表，drawFilledBead 单一代码路径不分支 ⇒ 17 套是 O(表数)，不是 O(",
+          "keywords": [
+            "drawFilledBead",
+            "正面"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面后果（**已知成本，不是风险**）",
+          "level": 3,
+          "startLine": 122,
+          "endLine": 144,
+          "tokens": 731,
+          "summary": "1. 一次性重构面不小：要把 BEAD_CARD 约 20 个系数 + palette.ts 6 个混合常量从\"模块级常",
+          "keywords": [
+            "BEAD_CARD",
+            "palette",
+            "负面后果",
+            "已知成本",
+            "不是风险"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 145,
+          "endLine": 151,
+          "tokens": 78,
+          "summary": "真机帧率对不同 layerCost 的敏感度（ADR-0017 的 7403→5187 结论只在旧层集下测得）。",
+          "keywords": [
+            "layerCost",
+            "ADR",
+            "中性",
+            "待观察"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 152,
+          "endLine": 162,
+          "tokens": 244,
+          "summary": "1. 需要新渲染原语（真 ellipse / 渐变 / 模糊）才能表达某风格 ⇒ 触发框架层复评（连带 §8 渲染契约）",
+          "keywords": [
+            "§8",
+            "Review",
+            "Triggers",
+            "ellipse",
+            "复评触发条件"
+          ]
+        },
+        {
+          "anchor": "§6 实现边界与测试脚手架（工程侧，不含美术/UX 文档）",
+          "level": 2,
+          "startLine": 163,
+          "endLine": 201,
+          "tokens": 839,
+          "summary": "",
+          "keywords": [
+            "实现边界与测",
+            "试脚手架",
+            "工程侧",
+            "不含美术",
+            "文档"
+          ]
+        },
+        {
+          "anchor": "§6.1 框架已有 vs 增量",
+          "level": 3,
+          "startLine": 165,
+          "endLine": 175,
+          "tokens": 214,
+          "summary": "参数注入到渲染 ✅ palette / inks 已按参传入 material 同一路加一个形参（含 drawEmpty",
+          "keywords": [
+            "palette",
+            "inks",
+            "material",
+            "drawEmpty",
+            "框架已有",
+            "增量"
+          ]
+        },
+        {
+          "anchor": "§6.2 \"不影响玩法\"的可验证定义（必须落为判据，不接受口头保证）",
+          "level": 3,
+          "startLine": 176,
+          "endLine": 185,
+          "tokens": 241,
+          "summary": "1. 几何不变：同一关卡、同一材质下，hitGridCell / gridLayoutFor / TOUCH_MIN 判",
+          "keywords": [
+            "hitGridCell",
+            "gridLayoutFor",
+            "TOUCH_MIN",
+            "不影响玩法",
+            "的可验证定义",
+            "必须落为判据"
+          ]
+        },
+        {
+          "anchor": "§6.3 Story 拆分草案（垂直切片；验收只引 GDD/规格 §8，此处不写验收正文）",
+          "level": 3,
+          "startLine": 186,
+          "endLine": 201,
+          "tokens": 312,
+          "summary": "S1｜材质通道打通（零视觉变更）：BeadMaterial 类型 + MATTE_INJECTED = 现值 + 注入形",
+          "keywords": [
+            "§8",
+            "Story",
+            "GDD",
+            "BeadMaterial",
+            "MATTE_INJECTED",
+            "拆分草案"
+          ]
+        },
+        {
+          "anchor": "§7 未决问题（交主理人 → 用户拍板）",
+          "level": 2,
+          "startLine": 202,
+          "endLine": 212,
+          "tokens": 278,
+          "summary": "Q1 「17 套」的期望需重对齐：本架构在既有裁定与预算下现实可表达约 8–10 套（§4.2-8）。",
+          "keywords": [
+            "§4.2",
+            "未决问题",
+            "交主理人",
+            "用户拍板"
           ]
         }
       ]
@@ -16695,17 +16997,17 @@
     },
     {
       "path": "games/beads/design/audio/audio-events.md",
-      "tokens": 8885,
-      "lines": 206,
-      "sha256": "f18a091302363170e5011d13ce1ae82bb387f7c9a39cdd4bc10edb9c4c77c189",
+      "tokens": 9347,
+      "lines": 214,
+      "sha256": "a73ef7580b01fccb8cce35e33b2f8500b3603a69b1c57bad8b4b49d59cc436bc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§音频事件表（Audio Event Table）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 207,
-          "tokens": 8871,
+          "endLine": 215,
+          "tokens": 9333,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.1 · 任务号 WXG-T-083（GAP-05）；§4 判",
           "keywords": [
             "§4",
@@ -16768,8 +17070,8 @@
           "anchor": "§2 覆盖对账（双向闭合，零发明 / 零遗漏）",
           "level": 2,
           "startLine": 77,
-          "endLine": 110,
-          "tokens": 841,
+          "endLine": 118,
+          "tokens": 1072,
           "summary": "",
           "keywords": [
             "覆盖对账",
@@ -16782,8 +17084,8 @@
           "anchor": "§2.1 §5 → clip（正向：无遗漏）",
           "level": 3,
           "startLine": 79,
-          "endLine": 102,
-          "tokens": 604,
+          "endLine": 110,
+          "tokens": 834,
           "summary": "1 珠子落座 sfx_place 1:1",
           "keywords": [
             "§5",
@@ -16796,8 +17098,8 @@
         {
           "anchor": "§2.2 clip → §5（反向：无发明）",
           "level": 3,
-          "startLine": 103,
-          "endLine": 110,
+          "startLine": 111,
+          "endLine": 118,
           "tokens": 211,
           "summary": "19 个 clip 中，18 个可指向 §5 的某一行；唯一例外 = sfx_ui_tap（已落码、§5 无对应行）与 ",
           "keywords": [
@@ -16811,8 +17113,8 @@
         {
           "anchor": "§3 混音属性表（优先级 / 抢占 / 限流）",
           "level": 2,
-          "startLine": 111,
-          "endLine": 139,
+          "startLine": 119,
+          "endLine": 147,
           "tokens": 839,
           "summary": "",
           "keywords": [
@@ -16825,8 +17127,8 @@
         {
           "anchor": "§3.1 优先级与可抢占性",
           "level": 3,
-          "startLine": 113,
-          "endLine": 124,
+          "startLine": 121,
+          "endLine": 132,
           "tokens": 468,
           "summary": "事实前提：AudioScheduler.flush() 按 _pending 入队序取前 maxPerFrame（默认 ",
           "keywords": [
@@ -16841,8 +17143,8 @@
         {
           "anchor": "§3.2 限流（`AudioPlayOptions.minInterval`，单位 s）",
           "level": 3,
-          "startLine": 125,
-          "endLine": 139,
+          "startLine": 133,
+          "endLine": 147,
           "tokens": 343,
           "summary": "⚠️ 现状缺陷（必须修）：beads-game.ts L1484 的 _sfx() 对所有 clip 统一传 minIn",
           "keywords": [
@@ -16857,9 +17159,9 @@
         {
           "anchor": "§4 逐事件可执行验收判据（供 WXG-T-084 引用）",
           "level": 2,
-          "startLine": 140,
-          "endLine": 178,
-          "tokens": 2272,
+          "startLine": 148,
+          "endLine": 186,
+          "tokens": 2504,
           "summary": "判据以事件 ID 为键（SKILL §6：不另立体系）。道次标记见 §0。所有 [N] 判据今天即可写进 vitest（",
           "keywords": [
             "§6",
@@ -16873,8 +17175,8 @@
         {
           "anchor": "§5 未纳入清单（有意不做 + 待裁项）",
           "level": 2,
-          "startLine": 179,
-          "endLine": 207,
+          "startLine": 187,
+          "endLine": 215,
           "tokens": 1414,
           "summary": "有意不做（§5 无行 ⇒ 不发明；如需必须先回写 ux-spec §5，经文策渊/主理人）",
           "keywords": [
@@ -16889,17 +17191,17 @@
     },
     {
       "path": "games/beads/design/audio/audio-spec.md",
-      "tokens": 11064,
-      "lines": 297,
-      "sha256": "eccadfac4920241e46af4124b4a77a70bb40d6c810e4b995581c2a04dd4ffb9a",
+      "tokens": 13389,
+      "lines": 364,
+      "sha256": "20a2f99159c3a5b9db8c26330bca556159cd7932b53619eefbe3831c378ea330",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§音频规格（Audio Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 298,
-          "tokens": 11052,
+          "endLine": 365,
+          "tokens": 13377,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v1.1 · 任务号 WXG-T-083（GAP-05：音频实质为",
           "keywords": [
             "Audio",
@@ -16930,7 +17232,7 @@
           "level": 2,
           "startLine": 27,
           "endLine": 74,
-          "tokens": 1741,
+          "tokens": 1760,
           "summary": "",
           "keywords": [
             "Mix",
@@ -16942,7 +17244,7 @@
           "level": 3,
           "startLine": 29,
           "endLine": 40,
-          "tokens": 448,
+          "tokens": 466,
           "summary": "读码事实：core/audio/audio.ts 的 AudioScheduler 只有单一 masterVolume ",
           "keywords": [
             "Bus",
@@ -17021,8 +17323,8 @@
           "anchor": "§3 BGM 结构",
           "level": 2,
           "startLine": 75,
-          "endLine": 102,
-          "tokens": 784,
+          "endLine": 127,
+          "tokens": 1394,
           "summary": "",
           "keywords": [
             "BGM",
@@ -17030,41 +17332,56 @@
           ]
         },
         {
-          "anchor": "§3.1 场景-曲目映射（demo = **单曲全程**）",
+          "anchor": "§3.1 场景-曲目映射（**三首随机**，用户 2026-09-23 裁定）",
           "level": 3,
           "startLine": 77,
-          "endLine": 88,
-          "tokens": 314,
-          "summary": "BOOT bgm_main 装配完成即 play(loop:true) 恰 1 次（现状 L1477） ux-spec ",
+          "endLine": 94,
+          "tokens": 427,
+          "summary": "本轮改写对象 = 原「demo = 单曲全程」裁决（及其两条推论：不需标题曲、不换曲 = 破预算）。",
           "keywords": [
             "demo",
-            "BOOT",
-            "bgm_main",
-            "play",
-            "loop",
-            "true"
+            "场景",
+            "曲目映射",
+            "三首随机",
+            "用户",
+            "裁定"
+          ]
+        },
+        {
+          "anchor": "§3.1b 随机选曲的确定性规则（**L4 铁律，不得自由发挥**）",
+          "level": 3,
+          "startLine": 95,
+          "endLine": 102,
+          "tokens": 169,
+          "summary": "⛔ 禁用 Math.random() ⇒ 一律走 services.rng（createRng(seed)），同 see",
+          "keywords": [
+            "Math",
+            "random",
+            "services",
+            "rng",
+            "createRng",
+            "seed"
           ]
         },
         {
           "anchor": "§3.2 循环设计",
           "level": 3,
-          "startLine": 89,
-          "endLine": 94,
-          "tokens": 233,
-          "summary": "无缝 loop（loop: true 由框架/backend 承载），循环时长 = [TODO]；设计约束（可执行）：建",
+          "startLine": 103,
+          "endLine": 119,
+          "tokens": 530,
+          "summary": "无缝 loop（loop: true 由框架/backend 承载）。循环时长：目标 = 三首同长 40.000 s；",
           "keywords": [
             "loop",
             "true",
             "backend",
-            "TODO",
             "循环设计"
           ]
         },
         {
           "anchor": "§3.3 情绪分层（stem）策略：**不做，写明取舍**",
           "level": 3,
-          "startLine": 95,
-          "endLine": 102,
+          "startLine": 120,
+          "endLine": 127,
           "tokens": 193,
           "summary": "裁决：告急段不切层、不叠紧张 stem。",
           "keywords": [
@@ -17078,9 +17395,9 @@
         {
           "anchor": "§4 实现策略（Implementation）",
           "level": 2,
-          "startLine": 103,
-          "endLine": 188,
-          "tokens": 3103,
+          "startLine": 128,
+          "endLine": 239,
+          "tokens": 4389,
           "summary": "",
           "keywords": [
             "Implementation",
@@ -17088,27 +17405,27 @@
           ]
         },
         {
-          "anchor": "§4.1 选型裁决：**程序化合成（runtime synthesis）**，采样为回退方案",
+          "anchor": "§4.1 选型裁决：**v1.51 改判为混合路线** —— SFX 运行时合成 + **BGM 采样文件进主包**",
           "level": 3,
-          "startLine": 105,
-          "endLine": 121,
-          "tokens": 774,
-          "summary": "A 程序化合成（Web Audio 节点实时合成 SFX + 序列化 BGM） 0 KB 0 ms 资产加载（Audio",
+          "startLine": 130,
+          "endLine": 168,
+          "tokens": 1759,
+          "summary": "沿革：本节原裁决「采 A 程序化合成（0 KB 主包），采样为回退」，并写死回退触发条件",
           "keywords": [
-            "runtime",
-            "synthesis",
-            "Web",
-            "Audio",
             "SFX",
-            "BGM"
+            "BGM",
+            "选型裁决",
+            "改判为混合路",
+            "运行时合成",
+            "采样文件进主"
           ]
         },
         {
           "anchor": "§4.2 包体预算（数字 + 依据）",
           "level": 3,
-          "startLine": 122,
-          "endLine": 134,
-          "tokens": 368,
+          "startLine": 169,
+          "endLine": 185,
+          "tokens": 620,
           "summary": "平台红线（主包） ≤ 4096 KB systems-index §3.9（不可逾越）",
           "keywords": [
             "§3.9",
@@ -17122,9 +17439,9 @@
         {
           "anchor": "§4.3 资源清单与合成配方（骨架定，数值 `[TODO]`）",
           "level": 3,
-          "startLine": 135,
-          "endLine": 161,
-          "tokens": 1242,
+          "startLine": 186,
+          "endLine": 212,
+          "tokens": 1285,
           "summary": "纪律：下表结构（波形候选/包络段/滤波类型）为规格裁决；所有数值（基频 Hz、attack/decay ms、增益、截止",
           "keywords": [
             "[TODO]",
@@ -17138,8 +17455,8 @@
         {
           "anchor": "§4.4 加载时机与首屏影响",
           "level": 3,
-          "startLine": 162,
-          "endLine": 171,
+          "startLine": 213,
+          "endLine": 222,
           "tokens": 359,
           "summary": "资产加载 无（合成路线零文件）⇒ 对 ux-spec §6「≤1.5s BOOT，程序化绘制零加载资产」零影响",
           "keywords": [
@@ -17153,8 +17470,8 @@
         {
           "anchor": "§4.5 存档联动（S8）",
           "level": 3,
-          "startLine": 172,
-          "endLine": 176,
+          "startLine": 223,
+          "endLine": 227,
           "tokens": 76,
           "summary": "无新增字段：settings.bgmMuted / settings.sfxMuted 已存在（save-schema，",
           "keywords": [
@@ -17169,8 +17486,8 @@
         {
           "anchor": "§4.6 可访问性",
           "level": 3,
-          "startLine": 177,
-          "endLine": 188,
+          "startLine": 228,
+          "endLine": 239,
           "tokens": 197,
           "summary": "静音可玩 红线，见 §2.5（判据 A05-23）",
           "keywords": [
@@ -17182,8 +17499,8 @@
         {
           "anchor": "§5 验证手段矩阵",
           "level": 2,
-          "startLine": 189,
-          "endLine": 205,
+          "startLine": 240,
+          "endLine": 256,
           "tokens": 752,
           "summary": "[N] Node vitest（NullAudioBackend.played + helpers.advance(1/",
           "keywords": [
@@ -17198,8 +17515,8 @@
         {
           "anchor": "§5.1 对阶段 6 的结论（必须写进 Playtest 计划）",
           "level": 3,
-          "startLine": 199,
-          "endLine": 205,
+          "startLine": 250,
+          "endLine": 256,
           "tokens": 205,
           "summary": "在 [B] 道次解除前，阶段 6 无法评估「解压」支柱——因为 harness 恒静音，双通道只剩视觉单通道。",
           "keywords": [
@@ -17214,8 +17531,8 @@
         {
           "anchor": "§6 实现前置条件与移交",
           "level": 2,
-          "startLine": 206,
-          "endLine": 234,
+          "startLine": 257,
+          "endLine": 285,
           "tokens": 953,
           "summary": "",
           "keywords": [
@@ -17226,8 +17543,8 @@
         {
           "anchor": "§6.1 前置条件（三条，缺一不可）",
           "level": 3,
-          "startLine": 208,
-          "endLine": 213,
+          "startLine": 259,
+          "endLine": 264,
           "tokens": 177,
           "summary": "1. Web Audio 后端（platform/web.ts）：createAudioBackend() 从 Null",
           "keywords": [
@@ -17242,8 +17559,8 @@
         {
           "anchor": "§6.2 Web Audio 后端落地需求单 → 程基岩（波次 4）",
           "level": 3,
-          "startLine": 214,
-          "endLine": 217,
+          "startLine": 265,
+          "endLine": 268,
           "tokens": 182,
           "summary": "完整正文见 WXG-T-083 回传第 ③ 节（本文件只留指针，避免两处漂移）。七项摘要：① WebAudioBacke",
           "keywords": [
@@ -17258,8 +17575,8 @@
         {
           "anchor": "§6.3 执行层 pack 触发条件（本单**不触发**）",
           "level": 3,
-          "startLine": 218,
-          "endLine": 224,
+          "startLine": 269,
+          "endLine": 275,
           "tokens": 150,
           "summary": "indie-game-ost-pack（BGM 文件） 本轮不需要 仅当 §4.1 回退条件命中（真机否决合成路线）⇒ ",
           "keywords": [
@@ -17274,8 +17591,8 @@
         {
           "anchor": "§6.4 移交林绘澄（WXG-T-080，**我不改 art/**）",
           "level": 3,
-          "startLine": 225,
-          "endLine": 234,
+          "startLine": 276,
+          "endLine": 285,
           "tokens": 373,
           "summary": "音频需要视觉侧同步的三处，请主理人转交：",
           "keywords": [
@@ -17288,9 +17605,9 @@
         {
           "anchor": "§7 决策记录、拟增常量与冲突登记",
           "level": 2,
-          "startLine": 235,
-          "endLine": 275,
-          "tokens": 1518,
+          "startLine": 286,
+          "endLine": 342,
+          "tokens": 1929,
           "summary": "",
           "keywords": [
             "决策记录",
@@ -17301,8 +17618,8 @@
         {
           "anchor": "§7.1 决策（A05-D*）",
           "level": 3,
-          "startLine": 237,
-          "endLine": 249,
+          "startLine": 288,
+          "endLine": 300,
           "tokens": 430,
           "summary": "A05-D1 实现路线 = 程序化合成，主包音频占用 0 KB；采样为回退且回退须先解除内部目标冲突 §4.1/§4.2",
           "keywords": [
@@ -17315,8 +17632,8 @@
         {
           "anchor": "§7.2 拟增 `systems-index.md` 常量（**回传，不落盘**；由主对话串行写入 §3 并登记 §6）",
           "level": 3,
-          "startLine": 250,
-          "endLine": 264,
+          "startLine": 301,
+          "endLine": 315,
           "tokens": 555,
           "summary": "§3.9 包体预算（新增行） 音频主包占用 0 KB（程序化合成，产物内零音频文件） 本篇 §4.1/§4.2；实测余量",
           "keywords": [
@@ -17329,10 +17646,26 @@
           ]
         },
         {
+          "anchor": "§7.2b 本轮拟增（用户 2026-09-23「三首随机」裁定）—— **回传主理人，我不落盘**",
+          "level": 3,
+          "startLine": 316,
+          "endLine": 331,
+          "tokens": 377,
+          "summary": "⚠ 性质：这属 §3.12 冻结常量变更，按仓内纪律需「变更单 + 主理人确认」，且按",
+          "keywords": [
+            "§3.12",
+            "本轮拟增",
+            "用户",
+            "三首随机",
+            "裁定",
+            "回传主理人"
+          ]
+        },
+        {
           "anchor": "§7.3 冲突与漂移登记（不改他域文档，报主理人裁）",
           "level": 3,
-          "startLine": 265,
-          "endLine": 275,
+          "startLine": 332,
+          "endLine": 342,
           "tokens": 469,
           "summary": "C-A05-1 art/assets-spec.md §5 预算表内部矛盾：分项 1800+400+0+400 = 26",
           "keywords": [
@@ -17347,8 +17680,8 @@
         {
           "anchor": "§8 `[TODO]` 汇总（诚实清单：**本篇未定的全部数值**）",
           "level": 2,
-          "startLine": 276,
-          "endLine": 292,
+          "startLine": 343,
+          "endLine": 359,
           "tokens": 586,
           "summary": "T1 三条 bus 的相对增益 / dB 基准（AUDIO_BUS_GAIN_BGM/SFX/UI） [B] 后端可听后",
           "keywords": [
@@ -17363,8 +17696,8 @@
         {
           "anchor": "§9 交付与验收（SKILL §6 对齐）",
           "level": 2,
-          "startLine": 293,
-          "endLine": 298,
+          "startLine": 360,
+          "endLine": 365,
           "tokens": 381,
           "summary": "每条音效/曲目交付物 = clip id + 事件映射（audio-events.md §1）+ 合成配方或文件（含 B",
           "keywords": [
@@ -17374,6 +17707,517 @@
             "clip",
             "audio",
             "events"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/audio/bgm-main-composition.md",
+      "tokens": 8518,
+      "lines": 406,
+      "sha256": "5a55a7bcb38eb23ecf22ab6a90a8ae1aedb07e1e646180c5347f87b398914139",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§BGM 三首创作与评估（`bgm_main` / `bgm_quiet` / `bgm_drift` · WXG-T-203 续作 · 音频域）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 407,
+          "tokens": 8489,
+          "summary": "作者：阮和鸣（audio-director）· 日期：2026-09-23 · 状态：已按用户裁定扩为三首随机 · 待后",
+          "keywords": [
+            "bgm_main",
+            "bgm_quiet",
+            "bgm_drift",
+            "BGM",
+            "WXG",
+            "audio"
+          ]
+        },
+        {
+          "anchor": "§0b. 更正（v1.5-r11，2026-09-23 · 由用户事实反馈触发）",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 36,
+          "tokens": 443,
+          "summary": "我上两轮断言「后端未落地 ⇒ 三首谱子今天仍然不会响」「可听性 ❌ 零」。两条都错，同源的一个推理漏洞：",
+          "keywords": [
+            "r11",
+            "更正",
+            "由用户事实反",
+            "馈触发"
+          ]
+        },
+        {
+          "anchor": "§1 系统与音效评估（先给结论，再给依据）",
+          "level": 2,
+          "startLine": 37,
+          "endLine": 61,
+          "tokens": 692,
+          "summary": "",
+          "keywords": [
+            "系统与音效评",
+            "先给结论",
+            "再给依据"
+          ]
+        },
+        {
+          "anchor": "§1.1 总体判断",
+          "level": 3,
+          "startLine": 39,
+          "endLine": 48,
+          "tokens": 376,
+          "summary": "规格骨架 ✅ 扎实（少见地严格） 20 条 clip 全部可追溯到 ux-spec §5 行；事件表带\"对齐的视觉通道\"",
+          "keywords": [
+            "§5",
+            "clip",
+            "spec",
+            "总体判断"
+          ]
+        },
+        {
+          "anchor": "§1.2 我在本轮发现/确认的具体问题（不新增，均为已有文档事实的复述或指针）",
+          "level": 3,
+          "startLine": 49,
+          "endLine": 61,
+          "tokens": 274,
+          "summary": "1. minInterval 现状违反自家红线：_sfx() 对所有 clip 统一 0.05s ⇒ sfx_rejec",
+          "keywords": [
+            "minInterval",
+            "sfx",
+            "clip",
+            "sfx_rejec",
+            "我在本轮发现",
+            "确认的具体问"
+          ]
+        },
+        {
+          "anchor": "§2 音乐方向（对齐后落定）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 91,
+          "tokens": 674,
+          "summary": "一句话：午后窗台上的拼豆盒 —— 木琴与音乐盒在软垫上和声上零散落点，永远不在前景。",
+          "keywords": [
+            "音乐方向",
+            "对齐后落定"
+          ]
+        },
+        {
+          "anchor": "§2.1 从既有支柱推导的硬约束（不是我的偏好，是规格的可执行化）",
+          "level": 3,
+          "startLine": 66,
+          "endLine": 77,
+          "tokens": 352,
+          "summary": "§1 绝不街机爆裂 无鼓组驱动、无 4-on-the-floor、无压缩泵、无强拍重音",
+          "keywords": [
+            "§1",
+            "the",
+            "floor",
+            "从既有支柱推",
+            "导的硬约束",
+            "不是我的偏好"
+          ]
+        },
+        {
+          "anchor": "§2.2 与 breakout 的区分（`§1` 明写要区分）",
+          "level": 3,
+          "startLine": 78,
+          "endLine": 82,
+          "tokens": 73,
+          "summary": "breakout 的连续碰撞是\"事件流\"，beads 是\"单次落子的柔软确认\"。⇒ BGM 不做连续节奏床，",
+          "keywords": [
+            "§1",
+            "breakout",
+            "beads",
+            "BGM",
+            "的区分",
+            "明写要区分"
+          ]
+        },
+        {
+          "anchor": "§2.3 关于\"用 `indie-game-ost-pack` 生成成曲\"——本轮**不触发**（诚实）",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 91,
+          "tokens": 133,
+          "summary": "该 pack 产出音频文件。而 audio-spec §4.1 已裁决 路线 A 程序化合成（0 KB 主包），",
+          "keywords": [
+            "indie-game-ost-pack",
+            "§4.1",
+            "indie",
+            "game",
+            "ost",
+            "pack"
+          ]
+        },
+        {
+          "anchor": "§3 Track 1 `bgm_main` 定档（午后窗台 · F 大调）",
+          "level": 2,
+          "startLine": 92,
+          "endLine": 180,
+          "tokens": 1600,
+          "summary": "",
+          "keywords": [
+            "bgm_main",
+            "Track",
+            "定档",
+            "午后窗台",
+            "大调"
+          ]
+        },
+        {
+          "anchor": "§3.1 全局",
+          "level": 3,
+          "startLine": 94,
+          "endLine": 106,
+          "tokens": 288,
+          "summary": "曲式 12 小节 · 单乐句群（4+4+4） 循环点 = 第 12 小节末回到第 1 小节 = 乐句边界（满足 §3.2",
+          "keywords": [
+            "§3.2",
+            "全局"
+          ]
+        },
+        {
+          "anchor": "§3.2 和声序列表（12 小节，确定性、可断言）",
+          "level": 3,
+          "startLine": 107,
+          "endLine": 126,
+          "tokens": 230,
+          "summary": "1 Fmaj7 F3 家",
+          "keywords": [
+            "Fmaj7",
+            "和声序列表",
+            "小节",
+            "确定性",
+            "可断言"
+          ]
+        },
+        {
+          "anchor": "§3.3 旋律（点描，仅 3 个乐句，其余为留白）",
+          "level": 3,
+          "startLine": 127,
+          "endLine": 157,
+          "tokens": 384,
+          "summary": "约定：M= MIDI 音高，beat = 72 BPM 下的拍位（1.0 = 第 1 拍），dur 以拍计。",
+          "keywords": [
+            "MIDI",
+            "beat",
+            "BPM",
+            "dur",
+            "旋律",
+            "点描"
+          ]
+        },
+        {
+          "anchor": "§3.4 配器与包络（结构定，绝对数值仍 `[TODO]` 待 `[B]`）",
+          "level": 3,
+          "startLine": 158,
+          "endLine": 166,
+          "tokens": 345,
+          "summary": "Pad（和声垫） 双正弦叠 ±0.15% 失谐（合唱感）或三角波 + 低通 每小节 1 次长音，attack 慢（≈拍的",
+          "keywords": [
+            "[TODO]",
+            "[B]",
+            "TODO",
+            "Pad",
+            "attack",
+            "配器与包络"
+          ]
+        },
+        {
+          "anchor": "§3.5 实现路线建议（工程侧裁决权在程基岩，我把约束说清）",
+          "level": 3,
+          "startLine": 167,
+          "endLine": 180,
+          "tokens": 259,
+          "summary": "不要逐音符实时建节点：40s × 约 34 个事件（12 pad + 4 低音 + 18 旋律）看着不多，但 pad 的",
+          "keywords": [
+            "pad",
+            "实现路线建议",
+            "工程侧裁决权",
+            "在程基岩",
+            "我把约束说清"
+          ]
+        },
+        {
+          "anchor": "§4 待实测/待听清单（**这些我没定，也不该现在定**）",
+          "level": 2,
+          "startLine": 181,
+          "endLine": 190,
+          "tokens": 193,
+          "summary": "各声部 attack/decay ms、增益、低通截止 Hz §4.3 纪律：须 [B] 后端可听后定档",
+          "keywords": [
+            "§4.3",
+            "attack",
+            "decay",
+            "待实测",
+            "待听清单",
+            "这些我没定"
+          ]
+        },
+        {
+          "anchor": "§5 未决问题（已回示部分转为决议）",
+          "level": 2,
+          "startLine": 191,
+          "endLine": 200,
+          "tokens": 260,
+          "summary": "Q1 合成 vs 采样 → ✅ 已裁定：维持程序化合成（0 KB 主包，§4.1 不变）",
+          "keywords": [
+            "§4.1",
+            "未决问题",
+            "已回示部分转",
+            "为决议"
+          ]
+        },
+        {
+          "anchor": "§6 交付物结构自查（SKILL §6）",
+          "level": 2,
+          "startLine": 201,
+          "endLine": 212,
+          "tokens": 180,
+          "summary": "场景-曲目映射 ✅ 沿用 §3.1（未改），本篇只定\"这一首长什么样\"",
+          "keywords": [
+            "§6",
+            "§3.1",
+            "SKILL",
+            "交付物结构自"
+          ]
+        },
+        {
+          "anchor": "§7 Track 2 `bgm_quiet`（疏拍 · B♭ 混olydian · ♩=54 · 9 小节）",
+          "level": 2,
+          "startLine": 213,
+          "endLine": 242,
+          "tokens": 395,
+          "summary": "",
+          "keywords": [
+            "bgm_quiet",
+            "Track",
+            "olydian",
+            "疏拍",
+            "小节"
+          ]
+        },
+        {
+          "anchor": "§7.1 全局",
+          "level": 3,
+          "startLine": 215,
+          "endLine": 224,
+          "tokens": 248,
+          "summary": "速度 / 小节 ♩=54 · 4/4 · 9 小节 36 拍 ÷ 54 × 60 = 40.000 s ✓（时长恒等式见",
+          "keywords": [
+            "全局"
+          ]
+        },
+        {
+          "anchor": "§7.2 和声 + 旋律",
+          "level": 3,
+          "startLine": 225,
+          "endLine": 242,
+          "tokens": 135,
+          "summary": "1 B♭maj7 — 留白",
+          "keywords": [
+            "maj7",
+            "和声",
+            "旋律"
+          ]
+        },
+        {
+          "anchor": "§8 Track 3 `bgm_drift`（流动 · E♭ 大调 · ♩=108 · 18 小节）",
+          "level": 2,
+          "startLine": 243,
+          "endLine": 269,
+          "tokens": 421,
+          "summary": "",
+          "keywords": [
+            "bgm_drift",
+            "Track",
+            "流动",
+            "大调",
+            "小节"
+          ]
+        },
+        {
+          "anchor": "§8.1 全局与一条硬约束",
+          "level": 3,
+          "startLine": 245,
+          "endLine": 254,
+          "tokens": 263,
+          "summary": "速度 / 小节 ♩=108 · 4/4 · 18 小节 72 拍 ÷ 108 × 60 = 40.000 s ✓",
+          "keywords": [
+            "全局与一条硬",
+            "约束"
+          ]
+        },
+        {
+          "anchor": "§8.2 和声 + 旋律",
+          "level": 3,
+          "startLine": 255,
+          "endLine": 269,
+          "tokens": 141,
+          "summary": "1–4 E♭maj7 · Cm7 · A♭maj7 · B♭sus2 3.0 B♭4",
+          "keywords": [
+            "maj7",
+            "Cm7",
+            "sus2",
+            "和声",
+            "旋律"
+          ]
+        },
+        {
+          "anchor": "§9 三首共同规则（随机播放的前提）",
+          "level": 2,
+          "startLine": 270,
+          "endLine": 314,
+          "tokens": 892,
+          "summary": "",
+          "keywords": [
+            "三首共同规则",
+            "随机播放的前"
+          ]
+        },
+        {
+          "anchor": "§9.1 时长恒等式（可断言，必须写进注释）",
+          "level": 3,
+          "startLine": 272,
+          "endLine": 286,
+          "tokens": 237,
+          "summary": "",
+          "keywords": [
+            "时长恒等式",
+            "可断言",
+            "必须写进注释"
+          ]
+        },
+        {
+          "anchor": "§9.2 循环尾（三首统一）",
+          "level": 3,
+          "startLine": 287,
+          "endLine": 294,
+          "tokens": 150,
+          "summary": "（本条仅在\"随机换曲\"启用后才需要） 当前是 T1 单曲播放 ⇒ 末小节照常发声，不做静默尾 ——",
+          "keywords": [
+            "循环尾",
+            "三首统一"
+          ]
+        },
+        {
+          "anchor": "§9.3 随机选曲（L4）",
+          "level": 3,
+          "startLine": 295,
+          "endLine": 303,
+          "tokens": 195,
+          "summary": "⛔ 禁 Math.random()；一律 services.rng（createRng(seed)），同 seed 同序",
+          "keywords": [
+            "Math",
+            "random",
+            "services",
+            "rng",
+            "createRng",
+            "seed"
+          ]
+        },
+        {
+          "anchor": "§9.4 三首共同遵守的既有红线（复述，不是新增）",
+          "level": 3,
+          "startLine": 304,
+          "endLine": 314,
+          "tokens": 249,
+          "summary": "听觉闪烁 ≤3 Hz 旋律音值下限：T1/T2 = 8 分（2.4 / 1.8 每秒）、T3 = 四分（1.8 每秒）；",
+          "keywords": [
+            "三首共同遵守",
+            "的既有红线",
+            "复述",
+            "不是新增"
+          ]
+        },
+        {
+          "anchor": "§10 交付状态（诚实）",
+          "level": 2,
+          "startLine": 315,
+          "endLine": 327,
+          "tokens": 407,
+          "summary": "三首曲谱（调性/拍号/小节/和声/旋律/音区/密度） ✅ 已定档（设计值）；T1 已落码，T2/T3 未落",
+          "keywords": [
+            "交付状态",
+            "诚实"
+          ]
+        },
+        {
+          "anchor": "§11 修订 v1.5-r12（真机反馈「听不清」→ 音区与密度，不是音量）",
+          "level": 2,
+          "startLine": 328,
+          "endLine": 355,
+          "tokens": 598,
+          "summary": "诊断：上一版（r11）为了兑现「低频让位给 sfx_reject / 1Hz 心跳」，把整个 pad 压在",
+          "keywords": [
+            "r12",
+            "r11",
+            "sfx_reject",
+            "pad",
+            "修订",
+            "真机反馈"
+          ]
+        },
+        {
+          "anchor": "§12 修订 v1.5-r13（真机反馈「还是太小，而且很难听，midi 声音」）",
+          "level": 2,
+          "startLine": 356,
+          "endLine": 407,
+          "tokens": 1003,
+          "summary": "",
+          "keywords": [
+            "r13",
+            "midi",
+            "修订",
+            "真机反馈",
+            "还是太小",
+            "而且很难听"
+          ]
+        },
+        {
+          "anchor": "§12.1 根因不在谱子，在引擎能力 —— 我前两版都在错误的方向上调参",
+          "level": 3,
+          "startLine": 358,
+          "endLine": 374,
+          "tokens": 258,
+          "summary": "读 packages/framework/src/platform/audio-synth.ts 的离线渲染：",
+          "keywords": [
+            "packages",
+            "framework",
+            "src",
+            "platform",
+            "audio",
+            "synth"
+          ]
+        },
+        {
+          "anchor": "§12.2 本版做法：顺着引擎写",
+          "level": 3,
+          "startLine": 375,
+          "endLine": 389,
+          "tokens": 311,
+          "summary": "织体 长音 pad + 旋律 全拨弦点描（音乐盒击弦感），18 音：6 低音 + 12 旋律",
+          "keywords": [
+            "pad",
+            "本版做法",
+            "顺着引擎写"
+          ]
+        },
+        {
+          "anchor": "§12.3 必须说清的天花板（这条决定要不要动框架）",
+          "level": 3,
+          "startLine": 390,
+          "endLine": 407,
+          "tokens": 370,
+          "summary": "在当前引擎下，BGM 只能是拨弦类音色。以下都做不到，不是调参问题：",
+          "keywords": [
+            "BGM",
+            "必须说清的天",
+            "花板",
+            "这条决定要不",
+            "要动框架"
           ]
         }
       ]
@@ -19472,17 +20316,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 21496,
-      "lines": 61,
-      "sha256": "05f3b90f748c646c8bca51210c4220928541d90e2e5d55cc86f34a6bd7eb4668",
+      "tokens": 23246,
+      "lines": 64,
+      "sha256": "27775a6319cafb5d00321d44e74cb9628527ed4487250eabe712b151f8db0e58",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 62,
-          "tokens": 21478,
+          "endLine": 65,
+          "tokens": 23228,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -19497,8 +20341,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 62,
-          "tokens": 21320,
+          "endLine": 65,
+          "tokens": 23069,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -19510,9 +20354,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 15663,
+      "tokens": 16462,
       "lines": 288,
-      "sha256": "e90f7ad448e4d065605024dfd6f9c7a00cc17639cbfe8e216b2265a0030944c4",
+      "sha256": "937d0fa5319b3aedb7f4036ee8164b3a28731e788e8a8cd0432a33bea1e96296",
       "tier": "hot",
       "sections": [
         {
@@ -19520,7 +20364,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 289,
-          "tokens": 15646,
+          "tokens": 16445,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.41 · 任务号 WXG-T-180（v1.41 = 难度/",
           "keywords": [
             "Systems",
@@ -19563,7 +20407,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 243,
-          "tokens": 10851,
+          "tokens": 11650,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -19697,7 +20541,7 @@
           "level": 3,
           "startLine": 170,
           "endLine": 176,
-          "tokens": 107,
+          "tokens": 482,
           "summary": "主包红线 4096 KB 微信主包平台红线，不可逾越",
           "keywords": [
             "包体预算"
@@ -19755,7 +20599,7 @@
           "level": 3,
           "startLine": 216,
           "endLine": 230,
-          "tokens": 756,
+          "tokens": 1179,
           "summary": "AUDIO_SFX_MIN_INTERVAL 0.05 s 高频短音（sfx_place/sfx_select）per-",
           "keywords": [
             "Audio",
