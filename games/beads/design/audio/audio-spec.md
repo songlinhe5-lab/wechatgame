@@ -142,6 +142,23 @@
 
 **（v1.52 已再次改判）** 原写「SFX 明确保留合成、本改判范围 = 仅 BGM」—— 用户 2026-09-23 确认推翻：**SFX 亦改为素材文件**，由本地 `jsfxr` 按 §4.3 的语义（嗒/啵/咚/沙/叮/唰）与 `ux-spec §5` 时长上限生成，导出 base64 资产表 `games/beads/assets/audio/audioAssets.js`（实测 19 条 = **60.5 KB**，进主包 JS）。保留的取舍：clip 数不变（仍 20）⇒ 不触发六方原子批。<br>**接线已落地（方案 A）**：`AudioVoice.asset` + `SynthAudioBackend._decodeAssets()` 在 unlock 期解码，素材命中即优先于合成、**解码失败或 runtime 无 `decodeAudioData` 自动回退 notes（不静音）**；资产路径 `src/config/audioAssets.ts`（`.js` 不被 tsconfig/镜像收，故必须 .ts）。web/harness 侧路径可用；**weapp 真机解码能力仍是 `[R]` 待验**。
 
+**BGM 现状（2026-09-23 夜，两笔实测后补记）**：用户提供 `Patterns_on_the_Porch.mp3`
+= **4226.75 KB / 180.09 s / stereo 192 kbps**（单文件即超主包 4096 KB 红线；160–180 s 是自然尾奏
+mean −20.9 dB ⇒ 整曲不可当循环体）⇒ 裁 40–100 s 段、96 kbps stereo 44.1 kHz、头尾各 12 ms 淡化
+= **`games/beads/audio/bgm_porch.mp3` 703.8 KB / 60.03 s**（守 §4.2 BGM ≤1536 KB）。
+走 `assetFile` 文件路线（60 s 若走 `decodeAudioData` 会常驻约 10 MB PCM）。
+
+⚠ **真机踩坑与修复（必须留档）**：初版把文件放 `cocos/assets/audio/` ⇒ 真机**整首没声**。
+实测确诊：Cocos 构建成功后产物内 `find -iname "*.mp3"` = **0 个**、`assets/` 下只有 `internal`/`main`
+两个 bundle —— Cocos 只打包被场景/预制静态引用、或位于 `resources/`／声明为 bundle 的资源，
+**只被运行时字符串引用的文件不在依赖图里**。现由 `build-cocos.mjs::stageExtraAssets()` 在构建后
+拷入 `build/<platform>/audio/`；复跑两平台构建实测产物均含该 mp3，`check:size` 主包 **2775.3 KB**（红线内）。
+另补 `SynthInnerAudio.onError` ⇒ 播放失败把 `errCode`/原因进日志并永久回退合成（"静默没声"不再可能）。
+
+⚠ **仍未达成**：① §3.2 目标「三首同长 **40.000 s** 随机」现状 = 一首 60.03 s（偏差登记，未改目标值）；
+② 循环接缝**未真听**（铁律：验过前不写"无缝"）；③ BGM 相对响度未校（`gain 0.28` 是给合成音定的）；
+④ 真机 `InnerAudioContext` 的 loop/onHide 行为未取证 `[R]`。
+
 **长短音频分流（v1.52 补充，判据是 JS 堆常驻而不是包体）**：实测 19 条 SFX 原始 mp3 = 45.0 KB / 总时长 3.34 s ⇒ base64 60.0 KB、gzip 后 31.0 KB（与 19 个 mp3 打包的 30.4 KB **等价**，base64 的 33% 膨胀被压缩吃掉）；解码后 PCM = 时长 × 44100 × 4 B ⇒ **SFX 合计仅 0.56 MB，而 40 s BGM ≈ 7.1 MB**。故：
 
 | 类别 | 通路 | voice 字段 | 理由 |

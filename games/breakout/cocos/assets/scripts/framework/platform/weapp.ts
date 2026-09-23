@@ -65,6 +65,7 @@ interface WxApi {
     pause(): void;
     stop(): void;
     destroy(): void;
+    onError?(cb: (res: { errMsg?: string; errCode?: number }) => void): void;
   };
   createInnerAudioContext?(): unknown;
 }
@@ -198,6 +199,9 @@ export class WeappPlatform extends BasePlatform {
             ctx.loop = handle.loop;
             ctx.volume = handle.volume;
             ctx.play();
+          },
+          onError: (cb) => {
+            ctx.onError?.((res) => cb(`errCode=${res?.errCode ?? '?'} ${res?.errMsg ?? 'unknown'}`));
           },
           pause: () => ctx.pause(),
           stop: () => ctx.stop(),

@@ -66,14 +66,17 @@ node my-skills/wxgame-audio-gen/scripts/gen-music.mjs \
 | 环节 | 状态 |
 |---|---|
 PCM/MP3/base64 产出 | ✅ 可用（SFX 侧已实测：19 条、base64 合计 **60.5 KB**） |
-资产文件 | ✅ `games/beads/src/config/audioAssets.ts` —— **必须是 `.ts`**：harness 的 tsconfig 与 `framework:sync` 只收 TS 源文件，放 `assets/` 下的 `.js` 永远不会被编译/镜像进 Cocos 产物（= 又一个"有文件但放不出"） |
+资产文件（base64 路线） | ✅ `games/beads/src/config/audioAssets.ts` —— **必须是 `.ts`**：harness 的 tsconfig 与 `framework:sync` 只收 TS 源文件，放 `assets/` 下的 `.js` 永远不会被编译/镜像进 Cocos 产物（= 又一个"有文件但放不出"） |
+| 资产文件（文件路线） | ✅ 落 **`games/<game>/audio/`**，不要放 `cocos/assets/` 下（下一行是坑）；harness 靠 `dev/harness/audio` 符号链接读同一份真源，构建靠 `build-cocos.mjs::stageExtraAssets()` 入包
 **运行时消费者** | ✅ **已接（方案 A）**：`audio-voices.ts::withAssets()` 把 asset 挂到 `AudioVoice.asset` ⇒ `SynthAudioBackend` 在 `unlock()` 解码一次进 `_assetBuffers`，命中即**优先于** notes 合成 |
 播放通路 | ✅ WebAudio `decodeAudioData`，同时兼容 Promise 式与旧回调式签名；自带 base64 解码（不依赖 `atob` / `Buffer` —— weapp 两者都不保证有） |
 解码不可用时 | ✅ **自动回退 notes 合成，绝不静音**（这条是刻意的：素材路线不能制造"有文件却放不出"的新缺陷） |
 weapp 真机 | ⚠ `[R]` **未取证**：`wx.createWebAudioContext` 是否提供 `decodeAudioData` 未验 ⇒ 最坏是仍播合成音（不是静音）。真机过一遍前不得宣布"素材已可闻" |
 包体口径 | ✅ 进**主包 JS** 60.5 KB（`§3.9` 内部目标已抬至 4096 KB）；数字取 `AUDIO_ASSET_SIZES` 实测，不预估 |
 **长音频分流** | ✅ **BGM 走 `AudioVoice.assetFile` + 平台原生播放器**（weapp `InnerAudioContext` / web `Audio`）：40 s 走 `decodeAudioData` 会让 **≈7 MB PCM 常驻 JS 堆**；`assetFile` 优先于 `asset`，原生不可用 ⇒ 回退合成。⚠ 短音效**不要**用这条（并发多条撞原生实例池，且 45 KB 不值得起文件） |
-| BGM 启用状态 | ⛔ 通路已就绪但**未启用**：仓库里还没有 BGM mp3 ⇒ `bgm_main` 仍走合成。文件到位后在 voice 表加一行 `assetFile: '<路径>'` 即切换（路径按平台确认，勿猜 Cocos 资源目录） |
+| BGM 启用状态 | ✅ **已启用**（beads）：`games/beads/audio/bgm_porch.mp3` 703.8 KB / 60.03 s，voice 表 `assetFile: 'audio/bgm_porch.mp3'` |
+| **⚠ Cocos 不打包"字符串引用的文件"** | 真机确诊的坑：文件放 `cocos/assets/<任意目录>/` ⇒ 构建产物里 **0 个 mp3**、真机整首没声。Cocos 只打包被场景/预制静态引用的资源与 `resources/`／bundle 目录；运行时用路径字符串交给原生播放器的文件**不在依赖图里**。解法：真源放工程外（`games/<game>/audio/`），由 `build-cocos.mjs::stageExtraAssets()` 在构建后拷进 `build/<platform>/audio/`，运行时相对串 `audio/xxx.mp3` 三端一致 |
+| 播放失败可见性 | ✅ `SynthInnerAudio.onError` 必备：把 `errCode`/原因打进 `[audio]` 日志并永久回退合成。交付时若日志出现该行 ⇒ 是路径/格式问题，别当成"素材音色不好" |
 
 ⇒ 每次交付都要把这张表原样回给用户。**判据家底**：框架侧 6 条（`packages/framework/tests/platform/audio-synth.test.ts`「素材路线 v1.52」）+ 游戏侧 3 条（`audio-dispatch.test.ts`「v1.52 素材接线」）。
 
