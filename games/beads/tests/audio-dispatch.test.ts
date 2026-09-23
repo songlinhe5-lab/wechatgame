@@ -670,13 +670,13 @@ const ids = Object.keys(BEADS_AUDIO_VOICES);
     expect((bgm.notes ?? []).length).toBeGreaterThan(0); // 原生播放器不可用时仍要能回退合成
   });
   it('assetFile 指向的真实文件在两条可见路径上都存在（防"改了路径没跟文件"的静默失效）', () => {
-    const src = 'games/beads/cocos/assets/audio/bgm_porch.mp3';
+    const src = 'games/beads/audio/bgm_porch.mp3'; // 真源在 cocos 工程之外：构建时由 build-cocos 装配进产物
     const harness = 'dev/harness/audio/bgm_porch.mp3'; // 符号链接，harness 静态服务只认 dev/harness 之下
     expect(existsSync(join(ROOT, src)), src).toBe(true);
     expect(existsSync(join(ROOT, harness)), harness).toBe(true);
   });
   it('BGM 体积守 §4.2 预算（≤1536 KB）——超预算属冻结常量越界，必须红', () => {
-    const kb = statSync(join(ROOT, 'games/beads/cocos/assets/audio/bgm_porch.mp3')).size / 1024;
+    const kb = statSync(join(ROOT, 'games/beads/audio/bgm_porch.mp3')).size / 1024;
     expect(kb).toBeLessThanOrEqual(1536);
   });
   it('挂载不改变闭合集：voice 表仍是 20 个 id，notes 也未被抹掉', () => {

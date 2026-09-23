@@ -126,6 +126,11 @@ export interface SynthInnerAudio {
   play(): void;
   stop(): void;
   /**
+   * 可选：注册错误回调。**必须有**，否则"文件不存在/路径不对/格式不支持"这类失败在真机上是
+   * 完全静默的（本次「手机没背景音乐」就是这么发现的）。回调参数是要进日志的原因文本。
+   */
+  onError?(cb: (message: string) => void): void;
+  /**
    * 可选：退后台用 pause 而不是 stop+destroy。少一个实例就少一次整曲重下
    * （实测一次「失焦→回前台」用 stop 路线会再拉 721 KB）。缺此方法则回退 stop+destroy。
    */
@@ -215,6 +220,8 @@ export class SynthAudioBackend implements AudioBackend {
   private readonly _inner = new Map<string, SynthInnerAudio>();
   /** 退后台暂停中的文件循环（期望态仍在 `_wantedLoops`，回前台原地续播，不重建实例）。 */
   private readonly _innerPaused = new Set<string>();
+  /** 运行期报错过的文件 clip ⇒ 此后不再走文件路线（避免反复失败与递归重起）。 */
+  private readonly _fileFailed = new Set<string>();
   private readonly _warned = new Set<string>();
   private readonly _clipVolume = new Map<string, number>();
 
@@ -585,7 +592,7 @@ export class SynthAudioBackend implements AudioBackend {
   /** 无缝循环：把 `loopMs` 乐句**离线渲染成一块 buffer**，用 `source.loop` 循环。 */
   private _startLoop(clipId: string, voice: AudioVoice, base: number, ctx: SynthContext): void {
     // 长音频分流：有 assetFile 且原生播放器可用 ⇒ JS 侧不驻 PCM（见 AudioVoice.assetFile）
-    if (voice.assetFile && this._startFileLoop(clipId, voice, base)) return;
+    if (voice.assetFile && !this._fileFailed.has(clipId) && this._startFileLoop(clipId, voice, base)) return;
     if (this._loops.has(clipId)) return; // ② 幂等：不重启位置
     const src = ctx.createBufferSource?.();
     const buffer = src ? this._renderLoop(clipId, voice, ctx) : null;
@@ -609,6 +616,7 @@ export class SynthAudioBackend implements AudioBackend {
    */
   private _startFileLoop(clipId: string, voice: AudioVoice, base: number): boolean {
     if (this._inner.has(clipId)) return true; // 幂等：已在播就不重启位置（A05-22）
+    if (this._fileFailed.has(clipId)) return false; // 报过错 ⇒ 直接走合成，不再自旋
     const make = this._openInnerAudio;
     const src = voice.assetFile;
     if (!make || !src) return false;
@@ -635,6 +643,25 @@ export class SynthAudioBackend implements AudioBackend {
       return false;
     }
     this._inner.set(clipId, inner);
+    inner.onError?.((message: string) => {
+      // 真机最常见的是「文件没进包 / 路径不对」：报出来 + 永久回退合成，绝不静默没声。
+      this._warnOnce(`assetFile 播放失败（clip=${clipId} src=${src}）⇒ 本 clip 回退合成路线：${message}`);
+      this._fileFailed.add(clipId);
+      if (this._inner.get(clipId) === inner) this._inner.delete(clipId);
+      try {
+        inner.stop();
+      } catch {
+        /* 已经错了，停不掉也不影响回退 */
+      }
+      try {
+        inner.destroy();
+      } catch {
+        /* 同上 */
+      }
+      const ctx2 = this._ctx;
+      const base2 = this._wantedLoops.get(clipId) ?? base;
+      if (ctx2 && this._wantedLoops.has(clipId)) this._startLoop(clipId, voice, base2, ctx2);
+    });
     return true;
   }
 

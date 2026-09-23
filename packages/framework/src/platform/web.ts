@@ -102,6 +102,9 @@ export class WebPlatform extends BasePlatform {
               /* 交由上层回退 */
             }
           },
+          onError: (cb) => {
+            el.addEventListener('error', () => cb(`media error code=${el.error?.code ?? '?'} src=${el.currentSrc}`));
+          },
           pause: () => el.pause(),
           stop: () => {
             el.pause();

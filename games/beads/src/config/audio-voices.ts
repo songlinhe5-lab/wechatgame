@@ -389,8 +389,11 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
     bus: 'music',
     /**
      * 文件路线（v1.52 分流）：BGM 走平台原生播放器 ⇒ JS 堆不驻 60 s × 44.1 kHz × 4 B ≈ 10 MB PCM。
-     * 同一相对串两侧通吃：web/harness 解析为站点根 `/audio/…`（`dev/harness/audio` 是指向
-     * cocos 资产目录的符号链接），weapp 解析为包内相对路径（需 Cocos 构建把该目录带进产物，`[R]` 未验）。
+     * 同一相对串三端通吃：harness 解析为站点根 `/audio/…`（`dev/harness/audio` 是指向
+     * `games/beads/audio/` 的符号链接）；weapp 解析为包内相对路径，文件由 `build-cocos.mjs`
+     * 的 `stageExtraAssets()` 在**构建后**拷进产物 —— ⚠ 不能指望 Cocos 自己打这个包：
+     * 只被运行时字符串引用的资源不在静态依赖图里，实测放 `assets/audio/` 构建后产物 0 个 mp3
+     * （真机因此完全没 BGM，2026-09-23）。
      * ⚠ `loopMs` 在文件路线下只当「是否走 loop 分支」的门用，**实际循环长度 = 文件自身 60.03 s**；
      *   它同时仍是下方 notes 合成回退的渲染周期（20 s 乐句），两个用途同源但值不同，改值前先看判据。
      */

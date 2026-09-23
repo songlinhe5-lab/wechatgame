@@ -477,7 +477,15 @@ class FakeInner implements SynthInnerAudio {
   stops = 0;
   pauses = 0;
   destroys = 0;
+  private _errCb: ((m: string) => void) | null = null;
   constructor(private readonly _fail = false) {}
+  onError(cb: (m: string) => void): void {
+    this._errCb = cb;
+  }
+  /** 模拟真机最常见的失败：文件没进包 / 路径不对（判据要证明它会回退合成而不是静默没声）。 */
+  emitError(message = 'errCode=-1 file not found'): void {
+    this._errCb?.(message);
+  }
   play(): void {
     if (this._fail) throw new Error('play blocked');
     this.plays++;
@@ -630,6 +638,26 @@ describe('文件路线 v1.52：assetFile 走原生播放器，不可用必回退
     b.setVolume('bgm_file', 0.5);
     expect(inner.volume).toBeCloseTo(0.5 * 0.5 * 0.3, 6); // base × perClip × voice.gain
     expect(inner.plays).toBe(before);
+  });
+
+  it('运行期报错（真机典型：文件没进包/路径不对）⇒ 报出原因 + 销毁 + **回退合成续响**，不自旋', () => {
+    const { ctx, rec } = fakeAudio();
+    const warned: string[] = [];
+    const inner = new FakeInner();
+    const b = new SynthAudioBackend(() => ctx, FILE_VOICES, { warn: (m) => warned.push(m) }, () => inner);
+    b.unlock();
+    b.play('bgm_file', { volume: 1, loop: true });
+    expect(rec.buffers).toHaveLength(0); // 先走文件路线，没建 PCM
+    inner.emitError();
+    expect(warned.some((w) => w.includes('audio/bgm_porch') || w.includes('bgm_file'))).toBe(true);
+    expect(warned.some((w) => w.includes('file not found'))).toBe(true); // 原因必须进日志
+    expect(inner.destroys).toBe(1);
+    expect(rec.buffers.length).toBeGreaterThan(0); // 关键：回退合成，BGM 仍响
+    expect(b.activeLoops()).toContain('bgm_file');
+    // 再报一次不应重复起合成、也不应重新尝试文件路线（不自旋）
+    const buffers = rec.buffers.length;
+    inner.emitError();
+    expect(rec.buffers).toHaveLength(buffers);
   });
 
   it('一次性音（loop=false）不受文件路线影响 ⇒ 仍走预渲染 buffer', () => {

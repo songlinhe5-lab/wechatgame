@@ -42,7 +42,7 @@
  * 退出码：0 = 成功；1 = 前置或构建失败；2 = 用法错误。
  */
 
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -194,9 +194,38 @@ if (!built) {
   process.exit(1);
 }
 
+stageExtraAssets({ gameDir, productDir });
 printSummary({ game, platform, productDir, entry, secs });
 printNextSteps({ cocosDir, gameDir, platform, productDir });
 process.exit(0);
+
+/**
+ * 构建期资产装配（WXG-T-203）。**为什么必须显式拷**：Cocos 只打包被场景/预制静态引用、
+ * 或位于 `resources/`／声明为 bundle 的目录里的资源；BGM 这类「运行时用相对路径字符串
+ * 交给平台原生播放器」的文件不在依赖图里 ⇒ 实测放 `assets/audio/` 构建后产物里 **0 个 mp3**
+ * （真机因此完全没背景音乐）。
+ * 约定：`games/<game>/audio/**` ⇒ `build/<platform>/audio/**`，运行时相对串保持 `audio/xxx.mp3`
+ * 三端一致（harness 经 `dev/harness/audio` 符号链接读同一份真源，不复制第二份）。
+ * 体积会被 `check:size` 计入产物目录 ⇒ 包体红线自动守住，不靠人记。
+ */
+function stageExtraAssets({ gameDir, productDir }) {
+  const srcDir = join(gameDir, 'audio');
+  if (!existsSync(srcDir)) return [];
+  const outDir = join(productDir, 'audio');
+  mkdirSync(outDir, { recursive: true });
+  const files = readdirSync(srcDir).filter((f) => /\.(mp3|m4a|wav|ogg)$/i.test(f));
+  let kb = 0;
+  for (const f of files) {
+    const src = join(srcDir, f);
+    if (!statSync(src).isFile()) continue;
+    copyFileSync(src, join(outDir, f));
+    kb += statSync(src).size / 1024;
+  }
+  if (files.length > 0) {
+    console.log(`  📦 资产装配：audio/ ${files.length} 个文件 ≈ ${(kb / 1024).toFixed(2)} MB → ${rel(outDir)}`);
+  }
+  return files;
+}
 
 // ─────────────────────────────────────────────────────────── 报告 ───────────
 
