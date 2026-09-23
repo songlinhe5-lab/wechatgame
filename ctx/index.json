@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2956,
       "lines": 114,
-      "sha256": "7444f0de368ef56b411974a63378a9529b4fe94d9100b9af5f15d2c55d9bdd03",
+      "sha256": "aad7d13f8c28e90cc4ce404e6459e96b88b07ec4032e4fcd5ec3ad972e619e33",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4669,
+      "tokens": 4670,
       "lines": 82,
-      "sha256": "ef2b1d831152739f4a83ed129b7344a85eaa50b566af596d631fdf82c1c9465a",
+      "sha256": "d9d278ead4316198a8449c40636926b59a2d3ea56974f29590582b97d0b762a1",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4641,
+          "tokens": 4642,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -780,12 +780,12 @@
           ]
         },
         {
-          "anchor": "§`my-skills/INDEX.md` — 109 行 / 2474 tok / 实测读 61 次",
+          "anchor": "§`my-skills/INDEX.md` — 110 行 / 2603 tok / 实测读 61 次",
           "level": 2,
           "startLine": 34,
           "endLine": 37,
           "tokens": 123,
-          "summary": "§wxgame skill 家族 INDEX=1+110 · §1 清单（现役 33 个挂四 IDE 链接；存档 1 个",
+          "summary": "§wxgame skill 家族 INDEX=1+111 · §1 清单（现役 33 个挂四 IDE 链接；存档 1 个",
           "keywords": [
             "my-skills/INDEX.md",
             "§1",
@@ -42362,17 +42362,17 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 2474,
-      "lines": 109,
-      "sha256": "4c630b0b660498ce1788ae36e1c0600c018bc46f976d4047d689c884f5ec4459",
+      "tokens": 2603,
+      "lines": 110,
+      "sha256": "fb39a66864c60dd2d3ad0eb8e1c3533440366ae41e833c7f3f6f36193408d08d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame skill 家族 INDEX",
           "level": 1,
           "startLine": 1,
-          "endLine": 110,
-          "tokens": 2467,
+          "endLine": 111,
+          "tokens": 2595,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -42386,8 +42386,8 @@
           "anchor": "§1 清单（现役 33 个挂四 IDE 链接；存档 1 个仅本目录留档）",
           "level": 2,
           "startLine": 6,
-          "endLine": 33,
-          "tokens": 991,
+          "endLine": 34,
+          "tokens": 1107,
           "summary": "编排 wxgame-orchestration 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路",
           "keywords": [
             "IDE",
@@ -42401,8 +42401,8 @@
         {
           "anchor": "§1b. 外来通用·AI 编程工作流（16 个，2026-09-16 装入，挂四 IDE 链接）",
           "level": 2,
-          "startLine": 34,
-          "endLine": 57,
+          "startLine": 35,
+          "endLine": 58,
           "tokens": 529,
           "summary": "来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 _",
           "keywords": [
@@ -42417,8 +42417,8 @@
         {
           "anchor": "§2 默认管线顺序与何时不走全 SOP",
           "level": 2,
-          "startLine": 58,
-          "endLine": 65,
+          "startLine": 59,
+          "endLine": 66,
           "tokens": 140,
           "summary": "全 SOP（新游戏/大功能）：orchestration 阶段诊断 → 按九阶段表 spawn",
           "keywords": [
@@ -42432,9 +42432,9 @@
         {
           "anchor": "§3 Skill 优先级（冲突时高者胜）",
           "level": 2,
-          "startLine": 66,
-          "endLine": 84,
-          "tokens": 300,
+          "startLine": 67,
+          "endLine": 85,
+          "tokens": 312,
           "summary": "",
           "keywords": [
             "Skill",
@@ -42445,8 +42445,8 @@
         {
           "anchor": "§4 路径约定",
           "level": 2,
-          "startLine": 85,
-          "endLine": 98,
+          "startLine": 86,
+          "endLine": 99,
           "tokens": 208,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
@@ -42460,8 +42460,8 @@
         {
           "anchor": "§5 冲突裁决链",
           "level": 2,
-          "startLine": 99,
-          "endLine": 105,
+          "startLine": 100,
+          "endLine": 106,
           "tokens": 85,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 是数值唯一真源",
           "keywords": [
@@ -42476,8 +42476,8 @@
         {
           "anchor": "§6 Provenance 说明",
           "level": 2,
-          "startLine": 106,
-          "endLine": 110,
+          "startLine": 107,
+          "endLine": 111,
           "tokens": 60,
           "summary": "除 audio-spec（框架版）外，各 wxgame-* 均提炼自 Breakout demo 的实际产物，",
           "keywords": [
@@ -54616,10 +54616,136 @@
       ]
     },
     {
+      "path": "my-skills/wxgame-audio-gen/SKILL.md",
+      "tokens": 2513,
+      "lines": 93,
+      "sha256": "be76b07f59a5e227ada0cd06c706d3371fab80990ff956756858100ef0b6dacb",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame 音频资产生成（BGM 云端 + 音效本地）",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 94,
+          "tokens": 2287,
+          "summary": "本 skill 属 wxgame 家族（管线顺序与冲突裁决见 my-skills/INDEX.md）。",
+          "keywords": [
+            "wxgame",
+            "BGM",
+            "skill",
+            "skills",
+            "INDEX",
+            "音频资产生成"
+          ]
+        },
+        {
+          "anchor": "§0 何时用 / 何时不用",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 18,
+          "tokens": 132,
+          "summary": "运行时合成音色达不到要求，需要真素材（本仓 beads 即此例：v1.51/v1.52 改判） 只想要事件表、bus、循",
+          "keywords": [
+            "beads",
+            "bus",
+            "何时用",
+            "何时不用"
+          ]
+        },
+        {
+          "anchor": "§1 两条产出路径",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 63,
+          "tokens": 988,
+          "summary": "",
+          "keywords": [
+            "两条产出路径"
+          ]
+        },
+        {
+          "anchor": "§1.1 音效 —— 本地 jsfxr（推荐默认）",
+          "level": 3,
+          "startLine": 21,
+          "endLine": 40,
+          "tokens": 445,
+          "summary": "",
+          "keywords": [
+            "jsfxr",
+            "音效",
+            "本地",
+            "推荐默认"
+          ]
+        },
+        {
+          "anchor": "§1.2 背景音乐 —— 阿里云百炼 fun-music",
+          "level": 3,
+          "startLine": 41,
+          "endLine": 63,
+          "tokens": 512,
+          "summary": "",
+          "keywords": [
+            "fun",
+            "music",
+            "背景音乐",
+            "阿里云百炼"
+          ]
+        },
+        {
+          "anchor": "§2 接线状态（诚实清单，别把\"有文件\"当\"有声音\"）",
+          "level": 2,
+          "startLine": 64,
+          "endLine": 80,
+          "tokens": 643,
+          "summary": "PCM/MP3/base64 产出 ✅ 可用（SFX 侧已实测：19 条、base64 合计 60.5 KB）",
+          "keywords": [
+            "PCM",
+            "MP3",
+            "base64",
+            "SFX",
+            "接线状态",
+            "诚实清单"
+          ]
+        },
+        {
+          "anchor": "§3 交付与验证判据",
+          "level": 2,
+          "startLine": 81,
+          "endLine": 87,
+          "tokens": 230,
+          "summary": "1. 生成后必跑 node my-skills/wxgame-audio-gen/scripts/gen-sfx.mjs",
+          "keywords": [
+            "node",
+            "skills",
+            "wxgame",
+            "audio",
+            "gen",
+            "scripts"
+          ]
+        },
+        {
+          "anchor": "§4 与其他音频件的关系",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 94,
+          "tokens": 173,
+          "summary": "wxgame-audio-spec = 规格（要什么音、多长、多响、什么红线）；本 skill 不发明规格，只照它产资产",
+          "keywords": [
+            "wxgame",
+            "audio",
+            "spec",
+            "skill",
+            "与其他音频件",
+            "的关系"
+          ]
+        }
+      ]
+    },
+    {
       "path": "my-skills/wxgame-audio-spec/SKILL.md",
-      "tokens": 1209,
+      "tokens": 1278,
       "lines": 63,
-      "sha256": "789e1f54b963da83812beac0836c262275b466cebdb33857d4c24df324f87912",
+      "sha256": "5b2319aeff01cbf42202a2882a957ea7035e656bf16552a52832a61ad86c5564",
       "tier": "normal",
       "sections": [
         {

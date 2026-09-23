@@ -1,6 +1,6 @@
 ---
 name: wxgame-audio-spec
-description: 设计游戏音频规格（事件表/混音/实现策略）时使用——当前为框架版，未填充前只出骨架并显式标 [TODO]，不产伪数值。当用户要求音频事件表、混音规范、音频实现策略、BGM 结构设计，或提到 audio spec、混音时触发。互斥分工：规格设计走本 skill；实际生成配乐文件用 indie-game-ost-pack，生成 UI 口播用 game-ui-voice-pack。
+description: 设计游戏音频规格（事件表/混音/实现策略）时使用——当前为框架版，未填充前只出骨架并显式标 [TODO]，不产伪数值。当用户要求音频事件表、混音规范、音频实现策略、BGM 结构设计，或提到 audio spec、混音时触发。互斥分工：本 skill 只做规格（事件表/混音/循环要求/红线），不产音频文件；要**生成资产**（BGM 或音效）走 `wxgame-audio-gen`（音效全本地零依赖、BGM 走百炼），UI 口播走 `game-ui-voice-pack`；`indie-game-ost-pack` 依赖 Beatra 授权与 credits，未授权时不可用、不要当默认路径。
 ---
 
 # wxgame 音频规格法（五件套 · 框架版）

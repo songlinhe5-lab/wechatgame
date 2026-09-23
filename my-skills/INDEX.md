@@ -23,6 +23,7 @@
 | 域·AI | `game-ai-design` | NPC AI 三层解耦（decide/steer/path）、行为树、寻路；当前无 NPC 玩法，备用 |
 | 执行 | `indie-game-ost-pack` | 生成 8–15 首原创配乐（audio-spec 的执行层） |
 | 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层） |
+| 执行 | `wxgame-audio-gen` | **生成音频资产并接工程**：BGM 走阿里云百炼 `fun-music`（同步返回音频 url，需 key+业务空间 ID，计费），音效走本地 `jsfxr`（零网络、零付费、确定性）。不依赖 Beatra ⇒ 无云账号也能交付。**接线现状：产物可用，运行时消费者未接 ⇒ 只生成文件不会响** |
 | 点名兜底 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；`disable-model-invocation: true`，仅明确点名时加载；references 按需单文件读取 |
 | 存档 | `game-dev-tool-free` | 市场 Boilerplate，不可用；未挂链接，留档备查 |
 
@@ -71,7 +72,7 @@ wxgame-orchestration（流程与裁决）
     > 外来现役（game-numeric-design / game-material-precheck /
       wxgame-minigame-bridge / game-ai-design——外部方法论与平台执行，
       与 wxgame-* 冲突时以后者为准：如数值冻结值一律以 systems-index §3 为准）
-      > 执行 pack（indie-game-ost-pack / game-ui-voice-pack）
+      > 执行层（wxgame-audio-gen 默认｜indie-game-ost-pack 需 Beatra 授权｜game-ui-voice-pack）
         > 外来通用（game-studio 等存档，仅点名）
 ```
 
