@@ -387,6 +387,14 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
   // 曲谱正本 = design/audio/bgm-main-composition.md §3；总 gain 沿用占位表旧值 0.28（**未提高响度**）。
   [AUDIO_CLIP_BGM]: {
     bus: 'music',
+    /**
+     * 文件路线（v1.52 分流）：BGM 走平台原生播放器 ⇒ JS 堆不驻 60 s × 44.1 kHz × 4 B ≈ 10 MB PCM。
+     * 同一相对串两侧通吃：web/harness 解析为站点根 `/audio/…`（`dev/harness/audio` 是指向
+     * cocos 资产目录的符号链接），weapp 解析为包内相对路径（需 Cocos 构建把该目录带进产物，`[R]` 未验）。
+     * ⚠ `loopMs` 在文件路线下只当「是否走 loop 分支」的门用，**实际循环长度 = 文件自身 60.03 s**；
+     *   它同时仍是下方 notes 合成回退的渲染周期（20 s 乐句），两个用途同源但值不同，改值前先看判据。
+     */
+    assetFile: 'audio/bgm_porch.mp3',
     durationMs: BGM_LOOP_MS,
     loopMs: BGM_LOOP_MS,
     wave: 'triangle',

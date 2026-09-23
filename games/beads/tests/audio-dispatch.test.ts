@@ -10,6 +10,9 @@
  * （`tick()` 一次 = 一帧），否则「同帧」无从谈起。
  */
 
+import { existsSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import { MockRewardedAdProvider } from '@wxgame/framework';
@@ -649,7 +652,8 @@ function fillBoard(harness: Harness): void {
 }
 
 describe('v1.52 素材接线：asset 挂载闭合', () => {
-  const ids = Object.keys(BEADS_AUDIO_VOICES);
+  const ROOT = process.cwd().replace(/[/\\]games[/\\]beads$/, '');
+const ids = Object.keys(BEADS_AUDIO_VOICES);
   it('19 条 SFX 全部带 asset（base64 mp3 data URI）', () => {
     const withAsset = ids.filter((id) => id !== AUDIO_CLIP_BGM);
     expect(withAsset).toHaveLength(19);
@@ -659,10 +663,21 @@ describe('v1.52 素材接线：asset 挂载闭合', () => {
       expect((v.asset ?? '').startsWith('data:audio/mpeg;base64,'), id).toBe(true);
     }
   });
-  it('bgm_main 暂无 asset（百炼 key 未跑）⇒ 仍走合成，且必须保留 notes 回退', () => {
+  it('bgm_main 走 **assetFile 文件路线**（不是 base64）⇒ JS 侧不驻 PCM；notes 仍留作回退', () => {
     const bgm = BEADS_AUDIO_VOICES[AUDIO_CLIP_BGM]!;
-    expect(bgm.asset).toBeUndefined();
-    expect((bgm.notes ?? []).length).toBeGreaterThan(0);
+    expect(bgm.asset, 'BGM 不得走 base64（60 s 解码后 ≈10 MB 常驻 JS 堆）').toBeUndefined();
+    expect(bgm.assetFile).toBe('audio/bgm_porch.mp3');
+    expect((bgm.notes ?? []).length).toBeGreaterThan(0); // 原生播放器不可用时仍要能回退合成
+  });
+  it('assetFile 指向的真实文件在两条可见路径上都存在（防"改了路径没跟文件"的静默失效）', () => {
+    const src = 'games/beads/cocos/assets/audio/bgm_porch.mp3';
+    const harness = 'dev/harness/audio/bgm_porch.mp3'; // 符号链接，harness 静态服务只认 dev/harness 之下
+    expect(existsSync(join(ROOT, src)), src).toBe(true);
+    expect(existsSync(join(ROOT, harness)), harness).toBe(true);
+  });
+  it('BGM 体积守 §4.2 预算（≤1536 KB）——超预算属冻结常量越界，必须红', () => {
+    const kb = statSync(join(ROOT, 'games/beads/cocos/assets/audio/bgm_porch.mp3')).size / 1024;
+    expect(kb).toBeLessThanOrEqual(1536);
   });
   it('挂载不改变闭合集：voice 表仍是 20 个 id，notes 也未被抹掉', () => {
     expect(ids).toHaveLength(SPEC_CLIPS.length);
