@@ -4,6 +4,20 @@
   "cols": 14,
   "rows": 13,
   "time": 850,
+  "pricing": {
+    "source": "bot",
+    "actions": 236,
+    "actionsLB": 33,
+    "actionsSplit": {
+      "moves": 118,
+      "places": 33,
+      "directFills": 65,
+      "retrieves": 20
+    },
+    "secPerTap": 3.6,
+    "clamped": false,
+    "cleared": true
+  },
   "cycleProfile": "short",
   "decoys": [],
   "pattern": [

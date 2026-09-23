@@ -48,11 +48,14 @@ export function buildPlateFile({ plateUid, name, gridCols, gridRows, sourcePrevi
  * Cell-Level 构造器（P2b I3 契约）。
  * 在 BeadsLevelRaw 同形基础上补 plateUid + cellPos:{row,col}。
  * misplaced 仅在有值时写入（乙档无 misplaced）。
+ * `pricing` = **dev-only** 定价溯源块（`beads-bot::pricingOf` 产物），
+ * `sync-levels-data.mjs` 装配时整块剔除 ⇒ 不进产物/包体。
  */
 export function buildCellLevel({
   cell, plateUid, id, name, time,
   decoys = [], swaps = [], misplaced,
   palette, paletteCodes,
+  pricing,
 }) {
   return {
     id,
@@ -65,6 +68,7 @@ export function buildCellLevel({
     pattern: cell.pattern,
     swaps,
     ...(misplaced !== undefined ? { misplaced } : {}),
+    ...(pricing !== undefined ? { pricing } : {}),
     ...(palette !== undefined ? { palette } : {}),
     ...(paletteCodes !== undefined ? { paletteCodes } : {}),
     plateUid,

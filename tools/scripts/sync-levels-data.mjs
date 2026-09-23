@@ -219,12 +219,61 @@ export function buildModuleSource(game) {
 }
 
 /**
+ * dev-only 真源字段：随关卡 JSON 落盘（取证/审计用），**不进产物**。
+ * `pricing` = 定价溯源块（生成期 bot 实测动作数/下界/当时单价，或 playtest 实测用时），
+ * 运行期无人读 ⇒ 进包体 = 白付体积与镜像同步成本。构造器 = `beads-bot.ts::pricingOf`。
+ */
+const DEV_ONLY_FIELDS = ['pricing'];
+
+/**
+ * 装配前校验定价溯源与 `time` 一致（**dev 侧断言，不走 BOOT**：BOOT 拿到的产物已被剔过
+ * `pricing`，看不见溯源）。任一不成立 ⇒ throw，与 K-031 同口径：硬红不静默报绿。
+ *
+ * 语义 = **溯源记录**，不是活公式：`secPerTap` 随当时写定，后续回调 `SEC_PER_TAP`
+ * 不致旧关集体报红（v0.3 已允许逐关按实测 `t_act × k` 定价，不再要求全表同单价）。
+ */
+export function assertPricing(uid, lv) {
+  const p = lv.pricing;
+  if (!p) return; // 无溯源块（老关卡 / breakout）⇒ 不断言
+  if (!Number.isInteger(lv.time) || lv.time <= 0)
+    throw new Error(`${uid}: time=${JSON.stringify(lv.time)} 非法`);
+  if (p.source === 'playtest') {
+    if (!(p.tAct > 0) || !(p.k > 0))
+      throw new Error(`${uid}: pricing.source=playtest 但缺 tAct/k（§5.0 公式 v0.3）`);
+    if (Math.abs(lv.time - Math.round(p.tAct * p.k)) > 1)
+      throw new Error(`${uid}: time=${lv.time} 与 playtest 定价 round(tAct=${p.tAct} × k=${p.k}) 不符 ⇒ 改了 time 未回写溯源`);
+    return;
+  }
+  if (p.source !== 'bot')
+    throw new Error(`${uid}: pricing.source=${JSON.stringify(p.source)} 未知（仅 bot/playtest）`);
+  if (!(Number.isInteger(p.actions) && p.actions > 0) || !(p.secPerTap > 0))
+    throw new Error(`${uid}: pricing.source=bot 但 actions/secPerTap 非法`);
+  // 下界不变式：可达数不可能少于可证明下界 ⇒ 破了就是 bot 或度量写错
+  if (p.actionsLB > p.actions)
+    throw new Error(`${uid}: actionsLB=${p.actionsLB} > actions=${p.actions} ⇒ 错位组数下界被突破，疑回归`);
+  if (p.cleared === false)
+    throw new Error(`${uid}: pricing.cleared=false ⇒ 可解性未证实，不可入关（§5.0 硬拦闸）`);
+  if (!p.clamped && Math.abs(lv.time - Math.round(p.actions * p.secPerTap)) > 1)
+    throw new Error(`${uid}: time=${lv.time} 与 round(actions=${p.actions} × secPerTap=${p.secPerTap}) 不符 ⇒ 改了 pattern/time 未重跑 beads-bot --patch`);
+}
+
+/** 剔除 dev-only 字段（浅拷贝；关卡数据本体不突变）。 */
+function stripDevFields(lv) {
+  assertPricing(`L${lv.id}`, lv);
+  if (!DEV_ONLY_FIELDS.some((k) => k in lv)) return lv;
+  const out = {};
+  for (const k of Object.keys(lv)) if (!DEV_ONLY_FIELDS.includes(k)) out[k] = lv[k];
+  return out;
+}
+
+/**
  * 目录模式装配（关卡内容管线 P1）：读 manifest + palette.json + singles/plates，
  * 按 entry.order 展开成与旧单文件**同形同序**的 LevelsData 对象。
  * 装配即断言（任一不成立 throw ⇒ --check/main 硬红，不静默报绿，K-031）：
- *   order 连续 1..N｜uid 唯一｜引用文件存在｜singles/+plates/ 无孤儿文件。
+ *   order 连续 1..N｜uid 唯一｜引用文件存在｜singles/+plates/ 无孤儿文件｜定价溯源与 time 一致。
  * 导出供单测复用（**不写盘**）。
  */
+
 export function assembleFromManifest(game) {
   const man = JSON.parse(readFileSync(game.manifestPath, 'utf8'));
   const paletteDoc = JSON.parse(readFileSync(join(game.levelsDir, man.paletteFile), 'utf8'));
@@ -249,8 +298,8 @@ export function assembleFromManifest(game) {
     if (e.retired) return; // 退役：保留 order 占位，不校验文件也不进产物
     if (!isFile(fp)) throw new Error(`${game.name}: manifest 引用文件缺失 ${e.file}`);
     const obj = JSON.parse(readFileSync(fp, 'utf8'));
-    if (e.kind === 'plate') for (const c of obj.cells) levels.push(c); // P2 填；P1 无 plate
-    else levels.push(obj);
+    if (e.kind === 'plate') for (const c of obj.cells) levels.push(stripDevFields(c)); // P2 填；P1 无 plate
+    else levels.push(stripDevFields(obj));
   });
   for (const sub of ['singles', 'plates']) {
     const d = join(game.levelsDir, sub);

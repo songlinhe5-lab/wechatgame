@@ -33,8 +33,29 @@ export interface MeasureResult {
     readonly m: number;
     /** 错位同色 8 向连通块中位大小（组选真码度量；交换模式下无意义 ⇒ 0）。 */
     readonly bMed: number;
-    /** 真引擎点击数（**只计成功命令** = 人类点击数的下界；bot 探测性误点另计不上）。 */
+    /**
+     * 真引擎点击数（**只计成功命令**）。
+     *
+     * ⚠️ **旧注释「= 人类点击数的下界」已于 2026-09-23 playtest 证伪，不得再用**：
+     * L8 实测人类 104 击 > bot 84 击；`t_act ÷ bot_taps` 跨 0.72–1.27（±38%）
+     * ⇒ **不能用本值推人类用时/点击**。bot 在小而碎的盘上退化到接近「1 击 1 颗」
+     * （L7 `taps = 1.88 × M`）。本值的定位 = **真最小动作数的可达上界**（贪心策略，
+     * 非最优）+ 规模闸的保守剪枝。正本：`levels-spec §5.0` 「bot 的适用边界」/ §5.0.1。
+     */
     readonly taps: number;
+    /**
+     * 可证明的动作数**下界** = 初始盘上「同色 8 向连通错位块」的**个数**（`blobAnchors().length`，
+     * 与玩家选组走同一个 `collectMisplacedGroup`）。
+     *
+     * 成立理由：每颗错位珠必须被某个动作消费，而一次消费（整组取回或盘上直填）
+     * **只能动一个连通组内的珠**（移除只会拆分组、不会让两组连通；填回的是「就位珠」
+     * 不属于错位集）⇒ 消费动作数 ≥ 组数。
+     *
+     * ⚠️ **很松，不得当难度代理量**：v1.46 关表 8 关实测 `actionsLB ÷ actions` = **0.13–0.20**
+     * （L5 组数 33 vs 实测 236 击；L8 最紧 17 vs 84）⇒ 差 5–8 倍且比值会随盘形飘，
+     * 无外推价值。它的作用限于 = 区间左端点 + 异常盘哨兵（`actions < actionsLB` ⇒ 必错）。
+     */
+    readonly actionsLB: number;
     /** 动作分解（取证）：`places` 托盘→洞、`directFills` 盘上锤直填、`retrieves` 整组取回。 */
     readonly split: { readonly moves: number; readonly places: number; readonly directFills: number; readonly retrieves: number };
     readonly cleared: boolean;
@@ -96,6 +117,8 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
         m,
         bMed,
         taps,
+        /** 下界 = 初始错位组数（见 `MeasureResult.actionsLB` 成立理由）。 */
+        actionsLB: sizes.length,
         split,
         cleared: r.cleared,
         time,
@@ -105,6 +128,35 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
 }
 
 // ───────────────────────────────────────────────────────────────────── CLI
+
+/**
+ * 定价溯源块（**dev-only**）：随关卡真源落盘，`sync-levels-data.mjs` 会整块剔除，
+ * 不进 `LEVELS_DATA` / cocos 镜像 / 包体。
+ *
+ * 为何要落：现在 `time` 是个孤儿数字 —— 它是 `taps × SEC_PER_TAP` 算完即扔的结果，
+ * 谁改了 `pattern` 不会有人发现 `time` 已过期。存下动作数 + 当时单价后，
+ * `levels:check` 能校 `time` 与定价方式一致；公式 v0.3 的校准面（bot 值 ↔ 人类
+ * 实测 `t_act`）也有了对齐落点。
+ *
+ * `source` 两态：`bot` = 生成期先验；`playtest` = 已人工试玩，额外带
+ * `tAct`（实测用时）/ `k`（紧度系数）/ `humanActions`（= 结算面板「N 击」），
+ * 此时 `time = round(tAct × k)`（§5.0 公式 v0.3）。
+ *
+ * `clamped` = `taps × SEC_PER_TAP` 被 `LEVEL_TIME_MIN/MAX` 钳过 ⇒ `levels:check`
+ * 的等式不变式跳过本关（钳位上下界住在 `tuning.ts`，本脚本不跨语言再抄一份）。
+ */
+export function pricingOf(res: MeasureResult) {
+    const raw = Math.round(res.taps * SEC_PER_TAP);
+    return {
+        source: 'bot' as const,
+        actions: res.taps,
+        actionsLB: res.actionsLB,
+        actionsSplit: res.split,
+        secPerTap: SEC_PER_TAP,
+        clamped: raw !== res.time,
+        cleared: res.cleared,
+    };
+}
 
 interface PatternDoc {
     cols: number;
@@ -118,6 +170,8 @@ interface PatternDoc {
 interface LevelsDoc {
     levels: BeadsLevelRaw[];
 }
+/** 真源层关卡 = 运行时形状 + dev-only `pricing`（产物不含，故**不进** `BeadsLevelRaw`）。 */
+type SourceLevel = BeadsLevelRaw & { readonly pricing?: ReturnType<typeof pricingOf> };
 
 const argv = process.argv.slice(2);
 const target = argv.find((a) => !a.startsWith('--'));
@@ -129,7 +183,7 @@ if (!target) {
     process.exit(2);
 }
 
-const doc = JSON.parse(readFileSync(target, 'utf8')) as PatternDoc & Partial<LevelsDoc>;
+const doc = JSON.parse(readFileSync(target, 'utf8')) as PatternDoc & Partial<LevelsDoc & { levels: SourceLevel[] }>;
 const results: MeasureResult[] = [];
 
 if (Array.isArray(doc.levels)) {
@@ -143,7 +197,7 @@ if (Array.isArray(doc.levels)) {
             const i = doc.levels.findIndex((l) => l.id === res.id);
             // 实测值回写真源（sync-levels-data 随后同步进 src/cocos）；整体替换而非赋值
             // —— `BeadsLevelRaw.time` 是 readonly（关卡数据不可局部突变）。
-            if (i >= 0) doc.levels[i] = { ...doc.levels[i]!, time: res.time };
+            if (i >= 0) doc.levels[i] = { ...doc.levels[i]!, time: res.time, pricing: pricingOf(res) };
         }
         writeFileSync(target, JSON.stringify(doc, null, 2) + '\n');
     }
@@ -171,7 +225,7 @@ if (Array.isArray(doc.levels)) {
         // 写回位置 = **前端契约**：beads-studio `index.html` 读 `report.difficulty.{score,timeEst,misplaced}`，
         // 装盘读 `levelDraft.time`。字段名不变，值源从 v0.1 公式换成实测；
         // `taps`/`bMed`/`split`/`blockers` 是 v0.2 新增的取证字段。
-        if (doc.levelDraft) doc.levelDraft.time = res.time;
+        if (doc.levelDraft) { doc.levelDraft.time = res.time; (doc.levelDraft as Record<string, unknown>).pricing = pricingOf(res); }
         if (doc.report) {
             doc.report.difficulty = {
                 score: res.difficulty,
@@ -199,5 +253,8 @@ for (const res of results) {
         (res.blockers.length ? `｜⛔ ${res.blockers.join('；')}` : ''),
     );
 }
-console.log(JSON.stringify(results.length === 1 ? results[0] : results));
+// stdout 末行 = 调用方契约（`server.mjs measureWithBot/measureCells` 直接 JSON.parse）：
+// 除 `MeasureResult` 本身外附带 `pricing` 溯源块 ⇒ 调用方不重建构造式，单一真源在 `pricingOf`。
+const out = results.map((r) => ({ ...r, pricing: pricingOf(r) }));
+console.log(JSON.stringify(out.length === 1 ? out[0] : out));
 if (results.some((r) => r.blockers.length > 0)) process.exit(4); // 硬拦：调用方据退出码拒产/拒收

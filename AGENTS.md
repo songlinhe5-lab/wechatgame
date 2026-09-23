@@ -31,7 +31,7 @@
 - **pnpm monorepo**：共用框架 `packages/framework` + 每款游戏 `games/<game>/`（首款示例：`games/breakout`）。
 - **目标平台**：微信小游戏为主；日常验证靠浏览器 harness（`dev/harness`），不依赖真机也能推进逻辑与渲染。
 - **引擎策略**：玩法与框架 core **引擎无关**，可在纯 Node 单测；Cocos 仅作适配/启动壳（见 ADR）。
-- **已知限制**：`build:wx` / Cocos Creator CLI 真机构建尚未接入；无编辑器时**禁止伪造** `.scene` / `.prefab` / `.meta`。
+- **已知限制**：`build:wx` / Cocos Creator CLI 真机构建尚未接入；无编辑器时**禁止伪造** `.scene` / `.prefab` / `.meta`。接链时构建档 minify on / sourcemap off；关卡不加密（裁定见 levels-spec §5.0.3）。
 
 ---
 

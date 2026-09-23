@@ -4,9 +4,9 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "tokens": 1960,
+      "tokens": 1989,
       "lines": 123,
-      "sha256": "459487c6d3af4a28ff91e832c105e37f67cbe9bff4e733e7727545c86173a80e",
+      "sha256": "19f2849d51d395940368a7c05a2f0ec0dc9f89f1bce0ac3aa4226555a5d0cb56",
       "tier": "always",
       "sections": [
         {
@@ -14,7 +14,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 124,
-          "tokens": 1946,
+          "tokens": 1976,
           "summary": "本文件是项目常驻记忆层：新开对话先读这里。",
           "keywords": [
             "AGENTS",
@@ -61,7 +61,7 @@
           "level": 2,
           "startLine": 29,
           "endLine": 37,
-          "tokens": 167,
+          "tokens": 196,
           "summary": "pnpm monorepo：共用框架 packages/framework + 每款游戏 games/<game>/（首",
           "keywords": [
             "pnpm",
@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 2919,
       "lines": 113,
-      "sha256": "387895cbb75be218183b17c02c755cfead94c334121b13ae92fefdb1452bb432",
+      "sha256": "ab689a7def6a91e83e78d9c4d3ee413bc7c7b62b77f041f9f14bf1dbd4a42087",
       "tier": "normal",
       "sections": [
         {
@@ -412,7 +412,7 @@
           "startLine": 7,
           "endLine": 20,
           "tokens": 325,
-          "summary": "AGENTS.md 1960 123 2000 ✅",
+          "summary": "AGENTS.md 1989 123 2000 ✅",
           "keywords": [
             "always",
             "AGENTS",
@@ -20256,17 +20256,17 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 12721,
-      "lines": 400,
-      "sha256": "879ad1db072824fa381cfc588173c5c6938055e814a8865c73d36737d5b16fdb",
+      "tokens": 13944,
+      "lines": 453,
+      "sha256": "c84c8b47a47693602ce1fea279ea82ff978de8cfe024ea28fb3f66b404598f74",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡数据规范（Levels Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 401,
-          "tokens": 12707,
+          "endLine": 454,
+          "tokens": 13930,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.2 · 任务号 WXG-T-130（v1.2 = mispl",
           "keywords": [
             "Levels",
@@ -20385,8 +20385,8 @@
           "anchor": "§5 难度与时长预估（**v1.4 实测口径**，2026-09-21；公式 v0.2 = 真引擎实测点击数 × `SEC_PER_TAP`；**v0.3 起 `time` 正源 = 逐关人工实测 `t_act`，本公式降为新关引导值**，见 §5.0 版本表）",
           "level": 2,
           "startLine": 157,
-          "endLine": 280,
-          "tokens": 5056,
+          "endLine": 333,
+          "tokens": 6279,
           "summary": "重推前提（WXG-T-130 案 A）：核心循环 = 「错位归位」，玩家只处理错位珠；定时供料不存在。",
           "keywords": [
             "SEC_PER_TAP",
@@ -20427,10 +20427,42 @@
           ]
         },
         {
-          "anchor": "§5.1 尾盘满槽（GAP-06）交叉校验 —— ⛔ v1.2 整体作废（WXG-T-130 案 A）",
+          "anchor": "§5.0.2 动作数区间与定价溯源（**dev-only**，WXG-T-203 续作 2026-09-23）",
           "level": 3,
           "startLine": 255,
-          "endLine": 280,
+          "endLine": 295,
+          "tokens": 839,
+          "summary": "为何要落盘：v0.2 把 time = taps × SEC_PER_TAP 算完就扔 taps，导致 time 成为孤",
+          "keywords": [
+            "dev",
+            "only",
+            "WXG",
+            "time",
+            "taps",
+            "SEC_PER_TAP"
+          ]
+        },
+        {
+          "anchor": "§5.0.3 关卡数据不做客户端加密（威胁模型登记，WXG-T-203 续作）",
+          "level": 3,
+          "startLine": 296,
+          "endLine": 307,
+          "tokens": 331,
+          "summary": "结论：客户端加解密不实现，已评估并否推。理由：密钥必须在包内（否则运行期解不开）⇒ unzip 搜密钥",
+          "keywords": [
+            "WXG",
+            "unzip",
+            "关卡数据不做",
+            "客户端加密",
+            "威胁模型登记",
+            "续作"
+          ]
+        },
+        {
+          "anchor": "§5.1 尾盘满槽（GAP-06）交叉校验 —— ⛔ v1.2 整体作废（WXG-T-130 案 A）",
+          "level": 3,
+          "startLine": 308,
+          "endLine": 333,
           "tokens": 1193,
           "summary": "⛔ 作废声明：本节全部前提（定时供料、供料冗余、满槽跳供、死珠棘轮）随供料关停消失——托盘珠唯一来源是玩家取回、必有可周",
           "keywords": [
@@ -20444,8 +20476,8 @@
         {
           "anchor": "§6 布局可视化（图例：`·`=空位　`▓`=锁定 x　`1`–`8`=色板索引对应色）",
           "level": 2,
-          "startLine": 281,
-          "endLine": 370,
+          "startLine": 334,
+          "endLine": 423,
           "tokens": 640,
           "summary": "",
           "keywords": [
@@ -20460,8 +20492,8 @@
         {
           "anchor": "§L1 暖心（6×5）",
           "level": 3,
-          "startLine": 283,
-          "endLine": 290,
+          "startLine": 336,
+          "endLine": 343,
           "tokens": 27,
           "summary": "",
           "keywords": [
@@ -20471,8 +20503,8 @@
         {
           "anchor": "§L2 小屋（8×6）",
           "level": 3,
-          "startLine": 291,
-          "endLine": 299,
+          "startLine": 344,
+          "endLine": 352,
           "tokens": 43,
           "summary": "",
           "keywords": [
@@ -20482,8 +20514,8 @@
         {
           "anchor": "§L3 摆尾小鱼（9×6）",
           "level": 3,
-          "startLine": 300,
-          "endLine": 308,
+          "startLine": 353,
+          "endLine": 361,
           "tokens": 41,
           "summary": "",
           "keywords": [
@@ -20493,8 +20525,8 @@
         {
           "anchor": "§L4 结果的树（10×7）",
           "level": 3,
-          "startLine": 309,
-          "endLine": 318,
+          "startLine": 362,
+          "endLine": 371,
           "tokens": 56,
           "summary": "",
           "keywords": [
@@ -20504,8 +20536,8 @@
         {
           "anchor": "§L5 猫脸（11×8）",
           "level": 3,
-          "startLine": 319,
-          "endLine": 329,
+          "startLine": 372,
+          "endLine": 382,
           "tokens": 81,
           "summary": "",
           "keywords": [
@@ -20515,8 +20547,8 @@
         {
           "anchor": "§L6 顺风帆船（12×9）",
           "level": 3,
-          "startLine": 330,
-          "endLine": 341,
+          "startLine": 383,
+          "endLine": 394,
           "tokens": 101,
           "summary": "",
           "keywords": [
@@ -20526,8 +20558,8 @@
         {
           "anchor": "§L7 升空热气球（13×10）",
           "level": 3,
-          "startLine": 342,
-          "endLine": 354,
+          "startLine": 395,
+          "endLine": 407,
           "tokens": 99,
           "summary": "",
           "keywords": [
@@ -20537,8 +20569,8 @@
         {
           "anchor": "§L8 星际火箭（13×12）",
           "level": 3,
-          "startLine": 355,
-          "endLine": 370,
+          "startLine": 408,
+          "endLine": 423,
           "tokens": 124,
           "summary": "",
           "keywords": [
@@ -20548,8 +20580,8 @@
         {
           "anchor": "§7 关卡设计约束（新增关卡必须遵守）",
           "level": 2,
-          "startLine": 371,
-          "endLine": 381,
+          "startLine": 424,
+          "endLine": 434,
           "tokens": 320,
           "summary": "1. 字符集限定 BEAD_CHARSET=\".x1-9A\"，其余字符（含空格/小写/0）均为错误——校验器报错到 id",
           "keywords": [
@@ -20562,8 +20594,8 @@
         {
           "anchor": "§8 校验分工",
           "level": 2,
-          "startLine": 382,
-          "endLine": 385,
+          "startLine": 435,
+          "endLine": 438,
           "tokens": 128,
           "summary": "与 breakout 判例一致（breakout levels-spec.md §5.1）：结构校验（字符集/行宽/行数",
           "keywords": [
@@ -20577,8 +20609,8 @@
         {
           "anchor": "§9 冲刺模式（sprint）图案来源",
           "level": 2,
-          "startLine": 386,
-          "endLine": 389,
+          "startLine": 439,
+          "endLine": 442,
           "tokens": 137,
           "summary": "sprint 梯级图案从本文件 8 关图案池循环取用（gdd/score-combo.md §2.3），不另建图案库；梯",
           "keywords": [
@@ -20593,8 +20625,8 @@
         {
           "anchor": "§10 变更记录",
           "level": 2,
-          "startLine": 390,
-          "endLine": 401,
+          "startLine": 443,
+          "endLine": 454,
           "tokens": 1594,
           "summary": "v1.1 2026-09-14/15 建档后回写：§5.1 尾盘满槽交叉校验（WXG-T-081）、§1/§2 deco",
           "keywords": [
@@ -38232,7 +38264,7 @@
       "path": "memory/INDEX.md",
       "tokens": 8490,
       "lines": 211,
-      "sha256": "0b505d686cf17626b0b40d80d0d49c366762f3278c5349646bf4c5f0418578fc",
+      "sha256": "c19c93281bf2ab7f47fd90a032257e0f136a58230340775dae01b4708deead81",
       "tier": "normal",
       "sections": [
         {
@@ -38323,7 +38355,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 30 天）",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 29 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -38339,7 +38371,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 25 天）",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 24 天）",
           "level": 3,
           "startLine": 79,
           "endLine": 95,
@@ -38355,7 +38387,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 24 天）",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 23 天）",
           "level": 3,
           "startLine": 96,
           "endLine": 107,
@@ -38371,7 +38403,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 23 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 22 天）",
           "level": 3,
           "startLine": 108,
           "endLine": 124,
@@ -38387,7 +38419,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 22 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 21 天）",
           "level": 3,
           "startLine": 125,
           "endLine": 152,
@@ -38403,7 +38435,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 21 天）",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 20 天）",
           "level": 3,
           "startLine": 153,
           "endLine": 173,
@@ -38419,7 +38451,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 20 天）",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 19 天）",
           "level": 3,
           "startLine": 174,
           "endLine": 191,
@@ -38435,7 +38467,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 19 天）",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 18 天）",
           "level": 3,
           "startLine": 192,
           "endLine": 212,

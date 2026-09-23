@@ -252,6 +252,59 @@ SEC_PER_TAP  = 3.6s（`tuning.ts`；来源见下「取值锚」）
   实测 332 taps ⇒ 1195s，而 time 竟是 120s）已**从关卡表移除**；原 L10 `studio-5-8b07` 顺位为 L9，
   time 由触顶 420s 回写实测 392s。
 
+### 5.0.2 动作数区间与定价溯源（**dev-only**，WXG-T-203 续作 2026-09-23）
+
+**为何要落盘**：v0.2 把 `time = taps × SEC_PER_TAP` 算完就扔 `taps`，导致 `time` 成为**孤儿数字**
+—— 谁改了 `pattern` 都没人能发现 `time` 已过期。现在把定价依据随关卡真源存下，使溯源可校。
+
+**关于「最小动作数」（直接回答，避免后人重新踩）**：真最小**算不出**。它 = 「选锚 → 整组取回或盘上直填
+→ 空格集变化 → 下一批能多大」的自适应排序问题（M≈150 时状态空间指数级）；且**直填绕过托盘**
+（`_tryDirectFillFromBoard`，`retrieve` + `fill` 同帧两写）⇒ 常见的 `2·⌈M/托盘容量⌉` 下界
+**前提不成立**。因此只存两个端点，**不存任何单点「最小值」**：
+
+| 字段 | 定义 | 性质 |
+|---|---|---|
+`actionsLB` | 初始盘「同色 8 向连通错位块」个数（走玩家同一个 `collectMisplacedGroup`） | **可证明下界**：一次消费只能动一个连通组内的珠 ⇒ 消费数 ≥ 组数 |
+`actions` | 真引擎 bot 实测成功命令数 | **可达上界**（贪心、非最优）；亦即旧称的 `taps` |
+
+⚠️ **两者比值不能当预估用**：v1.46 关表 8 关实测 `actionsLB ÷ actions` = **0.13–0.20**（L5 33/236、
+L8 17/84）—— 差 5–8 倍且比值随盘形飘。与 §5.0.1 同一结论：**静态/机算量预测不了人类用时**。
+本区间的真作限 = ① `time` 溯源可校；② 异常盘哨兵（`actions < actionsLB` ⇒ 必错）。
+
+**`pricing` 块（写在 `design/levels/singles/*.json` 的 `time` 之后）**：
+
+```jsonc
+{ "time": 850,
+  "pricing": { "source": "bot", "actions": 236, "actionsLB": 33,
+               "actionsSplit": { "moves":118, "places":33, "directFills":65, "retrieves":20 },
+               "secPerTap": 3.6, "clamped": false, "cleared": true } }
+// 人工试玩后改写（§5.0 公式 v0.3）：
+{ "time": 259,
+  "pricing": { "source": "playtest", "actions": 212, "tAct": 288, "k": 0.9, "measuredAt": "2026-09-23" } }
+```
+
+三条纪律：
+1. **dev-only**：`sync-levels-data.mjs::DEV_ONLY_FIELDS` 在装配时整块剔除 ⇒ **不进** `LEVELS_DATA` /
+   cocos 镜像 / 包体（运行期无人读；实测产物含 `pricing` 数 = 0）。
+2. **不变式**（`assertPricing`，由 `levels:check` 在写盘与校验两条路径上都跑）：
+   `source=bot` ⇒ `time == round(actions × secPerTap)`（除非 `clamped`）且 `actionsLB ≤ actions` 且 `cleared`；
+   `source=playtest` ⇒ `time == round(tAct × k)`。**语义是溯源记录不是活公式** —— `secPerTap` 随当时写定，
+   后续回调 `SEC_PER_TAP` 不致旧关集体报红。单测：`node --test tools/scripts/sync-levels-data.test.mjs`（7 例）。
+3. **写盘入口唯一** = `beads-bot.ts::pricingOf`（studio 一键入关直接透传 bot stdout 的 `pricing`，
+   不在 `server.mjs` 重拼 ⇒ 避免第二份构造式漂移）。
+
+### 5.0.3 关卡数据不做客户端加密（威胁模型登记，WXG-T-203 续作）
+
+结论：**客户端加解密不实现**，已评估并否推。理由：密钥必须在包内（否则运行期解不开）⇒ `unzip` 搜密钥
+或 devtools 断点即得明文；且真正有商业价值的不是 `pattern`（玩家过关时本来就会看到，属内容不属秘密）
+而是**定价逻辑**（`SEC_PER_TAP` / `k` / `STAR3_RATIO` / 广告缺口），它们在 `tuning.ts`，
+同样在包里 —— 只加密关卡 = 白做。量级参照：8 关真源 JSON 合计仅 **8.8 KB**，包体不构成理由。
+
+**接链时必做的最低限（现在无落点：`build:wx` 尚不存在，`settings/v2/packages/builder.json` 为空）**：
+构建档 **开 minify / 关 sourcemap**（别把可读变量名与源码映射送进包），并将本小节当作验收项。
+真要保护定价数据只有一条路：把 `time`/难度/广告参数**移出包体、改为服务端下发**（代价：失去离线可玩 +
+需后端）—— 与本节 v0.3「`time` 应来自实测/运营而非玩家资产」方向一致，待发布阶段单独裁定。
+
 ### 5.1 尾盘满槽（GAP-06）交叉校验 —— ⛔ v1.2 整体作废（WXG-T-130 案 A）
 
 > **⛔ 作废声明**：本节全部前提（定时供料、供料冗余、满槽跳供、死珠棘轮）随供料关停消失——托盘珠唯一来源是玩家取回、必有可周转路径（`core-loop §6`、`tray-spawner §2.4` GAP-06 闭合声明）。原文保留于 git 历史，此处不复制。3★ 与满槽的交叉约束由 §5 重推口径取代。

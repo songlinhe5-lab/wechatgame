@@ -332,6 +332,7 @@ async function ingestLevel(res, id) {
             mkCell({
                 cell, plateUid, id, name,
                 time: measured.results[i].time,
+                pricing: measured.results[i].pricing,
                 decoys: d.decoys ?? [],
                 swaps: init.swaps ?? [],
                 ...(init.misplaced ? { misplaced: init.misplaced } : {}),
@@ -373,6 +374,8 @@ async function ingestLevel(res, id) {
     const level = {
         id: nextId(), name: nameBase, cols: d.cols, rows: d.rows,
         time: measured.time, cycleProfile: 'short',
+        // dev-only 定价溯源（动作数/下界/当时单价）；sync 装配时剔除，不进包体。
+        pricing: measured.pricing,
         decoys: d.decoys || [], pattern: d.pattern, swaps: d.swaps || [],
         ...(d.misplaced ? { misplaced: d.misplaced } : {}),
         ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
