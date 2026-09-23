@@ -54,8 +54,16 @@ import {
  * highlight at 0.10 / 0.62 with size 0.80 × 0.26 and radius 0.13).
  */
 export const BEAD_CARD = {
-  /** Corner radius (`round(BEAD × 0.22)`). */
-  radius: 0.22,
+  /**
+   * Corner radius as a fraction of the **drawn** bead edge.
+   *
+   * **0.22 → 0.30（`bead-visual-style-spec` K1，用户 2026-09-23 拍板）**。旧值在网格
+   * 珠上还叠加了「同心倒推」（珠圆角 = 垫圆角 − inset），实际得到 `50×0.22−6 = 5`，
+   * 在 38px 珠上近乎方角 ⇒ 用户直接判为“变成正方形”。新模型里底图是方角连续一张，
+   * 同心约束已无对象 ⇒ 网格珠与托盘珠共用同一公式 `round(size × radius)`。
+   * 实物熔合后是**圆角方**，不是正圆（参考图仍偏圆，以本值与真机为准）。
+   */
+  radius: 0.30,
   /** L0a 接触阴影（v1.3 · F4）：贴底窄条，x/y/w/h 为边长比例，radius = 主圆角 × 0.5。 */
   contactX: 0.06,
   contactY: -0.02,
@@ -84,6 +92,23 @@ export const BEAD_CARD = {
     { x: 0.1, y: 0.6, w: 0.72, h: 0.26, radius: 0.13 },
     { x: 0.16, y: 0.68, w: 0.56, h: 0.14, radius: 0.07 },
   ] as const),
+  /**
+   * **L1c 中心孔（`bead-visual-style-spec` K2–K4）** —— 实物拼豆最强的识别特征，
+   * 之前完全没做。孔径比例 0.36 从 Midi 实物（⌀5 / 孔 ⌀2.2 = 0.44）收一档，
+   * 避免小屏上吃掉色面；真机嫌小再评估升到 0.44。`[待真机]`
+   */
+  holeRatio: 0.36,
+  /** 孔内壁自阴影的偏移量（半径比例）与 α；光从左上 ⇒ 阴影偏左上，留出右下亮弧。 */
+  holeShadeOffset: 0.22,
+  holeShadeAlpha: 0.3,
+  /**
+   * **L2′ 侧壁高度**（K5）——实物是硬币状，有一条竖向侧壁；旧模型只靠同色压暗倒角，
+   * 读作“斜切边”不读作“厚度”。`lift` 时按 `1 + lift/size` 拉长（§5 空间语言）。
+   */
+  wallRatio: 0.1,
+  /** 侧壁与托盘珠孔底的下暗量（复用既有 mix 族，**零新 hex**）。 */
+  wallDarkMix: -0.42,
+  holeDarkMix: -0.5,
   /** §1.1 最小特征约束: no stroke below 2 design px. */
   minStroke: 2,
 } as const;
@@ -99,11 +124,12 @@ export interface FilledBeadOptions {
   /** L0 shadow opacity override; `selected` passes the darker α (§1.2). */
   readonly shadowAlpha?: number;
   /**
-   * L11 目标色垫（v1.5-r5 → v1.5-r8）：该格 pattern 要求色。
-   * 传入 ⇒ 珠下先画垫，珠体四边内缩 BEAD_DRAW_INSET 露出底色。
-   * 垫**按 pitch 满铺且方角** ⇒ 相邻格的垫连成一片连续目标色图（实物拼豆图纸读法）。
+   * **L1c 孔底透出的目标色**（`bead-visual-style-spec` K3，用户 2026-09-23 拍板）。
+   * 旧名 `padColorIdx`（L11 垫）；垫已升为 B0 底图（`drawTargetTile`），本参现在的唯一职责
+   * = 通孔物理上透下去、看见该格目标色 ⇒ 珠子自带“我该变成什么色”的对照物。
+   * 不传（托盘珠）⇒ 孔底走自身下暗档，不透色。
    */
-  readonly padColorIdx?: number;
+  readonly targetColorIdx?: number;
   /**
    * 珠色墨水组（v1.40 关卡色板）：hex 表 + 预烘焙端点。缺省 ⇒ demo 默认色板
    * （`LEVELS_DATA.palette`）。调用方（view-model）每帧复用同一引用 ⇒ 零分配。
@@ -222,6 +248,33 @@ export function fillPopEnvelope(
 }
 
 /**
+ * **B0 连续目标色底图**（`bead-visual-style-spec` §1 / K8，用户 2026-09-23 拍板）。
+ *
+ * 旧模型下“这一格要什么色”只有两个不一致的载体：`filled` 靠珠周 6px 缝（每格一个圆角块，
+ * 格与格之间还有 `BEAD_GAP=2` 的缝）⇒ 底色被切碎；`empty` 靠亮 `base` 凹坑。
+ * 两边**色档与几何都不一致** ⇒ 有豆/无豆看着是两张图。
+ *
+ * 本函数对**每个可填格**画一块 pitch 满铺、方角、恒为 `edge = mix(base, −0.30)` 的图元，
+ * **与格内有无豆无关** ⇒ 整片谜面连成一张目标色马赛克（实物拼豆图纸的读法）。
+ * 方角 + 边长 = `BEAD_PITCH` 是为了相邻无缝：圆心相距恰为 pitch ⇒ 两垫边缘重合。
+ *
+ * ⛔ 不参与 `lift`、不参与 `scale`（§1.6.1 层序死结论；旧 bug = 抬珠把底一起抬走）。
+ * 零新 hex（复用端点表 `edge`，与空坑暗缘同源）。
+ */
+export function drawTargetTile(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  colorIdx: number,
+  inks: BeadInks = DEMO_BEAD_INKS,
+): void {
+  builder.rect(cx - BEAD_PITCH / 2, cy - BEAD_PITCH / 2, BEAD_PITCH, BEAD_PITCH, {
+    fill: endpointOf(inks, colorIdx).edge,
+    radius: 0,
+  });
+}
+
+/**
  * Draw a complete `filled` bead (§1.1) centred on `(cx, cy)`.
  *
  * ⚠ **v1.5-r8（2026-09-23 用户拍板）：L5 符号层已整层删除**。此前非色相通道只长在珠上
@@ -241,35 +294,18 @@ export function drawFilledBead(
   const base = beadColorOf(inks, colorIdx);
   const y = cy + (options.lift ?? 0);
 
-  // L11 目标色垫（v1.5-r5）—— 画于珠层之下（渲染序 L11 → L0a…L4c）；
-  // 平面、零投影零高光（「不读作珠」§1.9.4）。
-  // ⛔ 垫锁在**格心 `cy`**，不吃 `lift`（§1.6.1 层序死结论 / P0 陷阱 #2：「不参与 `scale` ·
-  //   不参与 `lift` · 恒锁格缘 · 恒画」）。旧写法用 `y` ⇒ G4 波浪（`lift = dy`）与 T-148
-  //   锚组抬起（`lift = -6`）会把垫一起抬走，「珠上移露垫」的读数被自身抹除。
-  // **v1.5-r8（2026-09-23 用户拍板）**：边长由 `outer` 改为 **`BEAD_PITCH`**、圆角归 0
-  //   ⇒ 格内铺满且**格间无缝**（旧写法每格一50px 圆角块，BEAD_GAP=2 与四角共三层
-  //   -> 相邻底色不连）；底色现在整片谜面连成一张目标色图，珠内缩露出的不再是一圈
-  //   孤立的缝而是同一张图。代价：图元数不变（+0）、多出的 2px 面积可忽略。
-  if (options.padColorIdx !== undefined) {
-    const pad = endpointOf(inks, options.padColorIdx);
-    builder.rect(cx - BEAD_PITCH / 2, cy - BEAD_PITCH / 2, BEAD_PITCH, BEAD_PITCH, {
-      fill: pad.edge,
-      radius: 0,
-    });
-  }
-  // 珠体四边内缩（露底色）；无垫（托盘珠）保持满幅。
-  // G1：`scale` **只作用珠体**（见上方禁令），垫留在格距上不随动。
-  const inset = options.padColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
+  // ⚠ **v1.5-r8（`bead-visual-style-spec` B0）**：旧的“珠下先画一块垫”已**上提为 B0 底图**
+  //   （`drawTargetTile`，由 view-model 对每个可填格调，与有无豆无关）⇒ 本函数不再画垫。
+  //   保留的理由：垫锁格心、不吃 lift/scale（§1.6.1 P0 陷阱 #2）—— 同样适用于 B0。
+  // 珠体四边内缩，露出四周的 B0 底图（= 该格目标色）；无目标色（托盘珠）保持满幅。
+  // G1：`scale` **只作用珠体**（见上方禁令）。
+  const inset = options.targetColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
   const size = (outer - inset * 2) * (options.scale ?? 1);
   const left = cx - size / 2;
   const bottom = y - size / 2;
-  // 同心圆角（WXG-T-162 问题 3）：等距内缩要求珠圆角 = 满幅圆角 − inset；
-  // 旧式 round(size×0.22) 在内缩后与垫不同心（INSET=6 时 10 vs 5），缝宽转角处不均。
-  // v1.5-r8：垫已改方角 ⇒ 圆角不再从 `padRadius` 派生，改从**满幅圆角**派生（值不变：50×0.22−6=5）。
-  const radius =
-    inset > 0
-      ? Math.max(1, Math.round(outer * BEAD_CARD.radius) - inset)
-      : Math.round(size * BEAD_CARD.radius);
+  // 圆角统一按**绘出边长**派生（K1）：旧网格珠走「垫圆角 − inset」得到 5 ⇒ 近乎方角；
+  // 底图已是方角连续一张，同心约束无对象 ⇒ 网格珠与托盘珠同公式，不再区分。
+  const radius = Math.round(size * BEAD_CARD.radius);
   const stroke = (ratio: number) => Math.max(BEAD_CARD.minStroke, size * ratio);
   // G4 LOD：`lodLayers` 传入即走降档集（值本身在本轮只有一个档位 ⇒ 不作分支表）。
   const lod = options.lodLayers !== undefined;
@@ -297,6 +333,16 @@ export function drawFilledBead(
 
   // L1 主体.
   builder.rect(left, bottom, size, size, { fill: base, radius });
+
+  // L2′ 侧壁（K5）——珠体下缘一条比 L2 暗倒角更深的带，把“圆角方块”读成“有高度的体”。
+  // `lift` 时按 `1 + lift/size` 拉长 ⇒ 抬起得越高、露出的侧壁越多（§5 空间语言）。
+  // ⚠ 不随 `scale` 额外放大（已在 `size` 内），也不参与 D1 例外：它是静息形状的一部分。
+  const wallH =
+    size * BEAD_CARD.wallRatio * (1 + (options.lift ?? 0) / Math.max(1, outer));
+  builder.rect(left, bottom, size, wallH, {
+    fill: mix(base, BEAD_CARD.wallDarkMix),
+    radius: Math.max(1, radius * 0.6),
+  });
 
   // L2 暗倒角 — bottom + right inner edges, tinted toward black.
   const insetDark = size * BEAD_CARD.bevelInsetDark;
@@ -347,12 +393,30 @@ export function drawFilledBead(
     );
   }
 
-  // L4a/b/c 软高光 — three stacked rounded bars，外扩递减 α / 中心递增 α 模拟柔光（v1.3 · F4，
-  // 取代 v1.2 硬边单高光条）。旧 L5 符号层已删 ⇒ 本层即末层。
-  for (let i = lod ? BEAD_CARD.softHighlight.length - 1 : 0; i < BEAD_CARD.softHighlight.length; i++) {
-    const g = BEAD_CARD.softHighlight[i]!;
+  // L1c 中心孔（K2–K4）——两枚 `circle` 叠出“孔 + 内壁自阴影”：
+  //   ① 孔底 = 该格目标色的 pit 档（K3 “通孔物理上透下去”）；无目标色（托盘珠）→ 自身下暗档。
+  //   ② 阴影圆偏左上（设计空间 y 向上）⇒ 留出**右下亮弧**，与“光从左上”一致。
+  // ⛔ 本层是**识别红线**（ADR-0017 红线段）：LOD 降档也不砍。
+  const holeR = (size * BEAD_CARD.holeRatio) / 2;
+  const holeBottom =
+    options.targetColorIdx !== undefined
+      ? endpointOf(inks, options.targetColorIdx).pit
+      : mix(base, BEAD_CARD.holeDarkMix);
+  builder.circle(cx, y, holeR, { fill: holeBottom });
+  builder.circle(
+    cx - holeR * BEAD_CARD.holeShadeOffset,
+    y + holeR * BEAD_CARD.holeShadeOffset,
+    holeR * 0.86,
+    { fill: BEAD_SHADOW_HEX, alpha: BEAD_CARD.holeShadeAlpha },
+  );
+
+  // L4′ 偏心椭圆高光（K6）——**三层亮条并成一枚**（净 −2 图元/珠）：左上单块拉长椭圆，
+  // α 取原中档。旧 L4a–c 的几何仍留在 `BEAD_CARD.softHighlight` 供回退与历史比对。
+  // G4 LOD：属质感层，降档可砍。
+  if (!lod) {
+    const g = BEAD_CARD.softHighlight[1]!;
     builder.rect(left + size * g.x, bottom + size * g.y, size * g.w, size * g.h, {
-      fill: withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_SOFT_HIGHLIGHT_ALPHAS[i]!),
+      fill: withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_SOFT_HIGHLIGHT_ALPHAS[1]!),
       radius: size * g.radius,
     });
   }
@@ -366,6 +430,11 @@ export function drawEmptySocket(
   size: number = BEAD_CELL,
   colorIdx?: number,
   inks: BeadInks = DEMO_BEAD_INKS,
+  /**
+   * B0 底图已由 `drawTargetTile` 画过 ⇒ 跳过本函数自带的亮 `base` 外块（v1.5-r8）。
+   * 网格空格传 true；托盘空槽（无 `colorIdx`）保持 false，自己带底。
+   */
+  tilePainted = false,
 ): void {
   const left = cx - size / 2;
   const bottom = cy - size / 2;
@@ -375,7 +444,10 @@ export function drawEmptySocket(
 
   // S2 坑底（先画大底，S1 框压在其上）：内缩 6% 的 `pit` 填充。
   const inset = size * SOCKET_CARD.pitInset;
-  builder.rect(left, bottom, size, size, { fill: base, radius });
+  // B0 已铺 ⇒ 不再刷亮 `base`（否则“有豆/无豆”又是两张图）。零新 hex。
+  if (!tilePainted) {
+    builder.rect(left, bottom, size, size, { fill: base, radius });
+  }
   builder.rect(left + inset, bottom + inset, size - inset * 2, size - inset * 2, {
     fill: endpoints.pit,
     radius: Math.max(2, Math.round((size - inset * 2) * BEAD_CARD.radius * 0.8)),

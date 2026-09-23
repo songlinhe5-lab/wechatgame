@@ -16,6 +16,7 @@ import {
   drawEmptySocket,
   drawFilledBead,
   drawLockedBead,
+  drawTargetTile,
 } from '../src/view/bead-render.js';
 import {
   BEAD_BEVEL_DARK_MIX,
@@ -48,7 +49,7 @@ const filled = (colorIdx: number, size = BEAD_CELL) =>
 function beadOnPad(b: RenderModelBuilder, lod?: number): void {
   drawFilledBead(b, 100, 200, 1, {
     size: BEAD_CELL,
-    padColorIdx: 2,
+    targetColorIdx: 2,
     inks: DEMO_BEAD_INKS,
     ...(lod === undefined ? {} : { lodLayers: lod }),
   });
@@ -67,48 +68,56 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
     expect(nextBeadLod(46, false)).toBe(false); // 同一点不降档 ⇒ 无双稳振荡
   });
 
-  it('降档只砍质感层：命令数下降，但 L11 目标色垫红线不丢', () => {
+  it('降档只砍质感层：命令数下降，但中心孔红线不丢', () => {
     const full = beadWithPad();
     const low = beadWithPad(WAVE_LOD_LAYERS);
     expect(low.length).toBeLessThan(full.length);
-    // L11 目标色垫：两版首条逐字段相同（垫不参与 LOD，也不参与 scale / lift）
-    expect(low[0]).toEqual(full[0]);
-    // v1.5-r8：旧「L5 符号红线」随符号层删除而作废（非色相通道改由连续底图承担）。
+    // v1.5-r8 降档集重定：砍 L0a 接触阴影 + L3b rim + L4′ 高光 = **3 条**（旧为 4 条，
+    // 因 L4 三条已并为一枚椭圆高光）。
+    expect(full.length - low.length).toBe(3);
+    // ⛔ 红线：**L1c 中心孔两枚 circle 在降档后逐字段不变**（孔 = 识别特征，任何档不砍）。
+    const holes = (cs: typeof full) => cs.filter((c) => c.kind === 'circle');
+    expect(holes(low)).toHaveLength(2);
+    expect(holes(low)).toEqual(holes(full));
+    // 旧「L5 符号红线」随符号层删除作废；「珠下那块垫」已上提为 B0，不在珠体内。
   });
 });
 
 describe('bead parameter card (assets-spec §1.1)', () => {
-  // §1.1（v1.3 十层卡）：单颗珠 = 11 条图元按序（L0a/L0b/L1/L2×2/L3×2/L3b/L4a-c），L5 之后补齐。
-  it('§1.1 draws the ten card layers in the documented order', () => {
+  // §1.1 v1.5-r8：单颗珠 = **12 条图元**（L0a/L0b/L1/L2′ 侧壁/L2×2/L3×2/L3b/L1c 孔×2/L4′）。
+  // 与旧卡差异：垫上提为 B0（−1）、L5 符号删除（−1）、L4 三条并一枚（−2）、
+  // 新增侧壁（+1）与孔两枚（+2）⇒ 11 → 12。
+  it('§1.1 draws the card layers in the documented order', () => {
     const commands = filled(1);
-    expect(commands.map((c) => c.kind).slice(0, 11)).toEqual([
+    expect(commands.map((c) => c.kind)).toEqual([
       'rect', // L0a 接触阴影
       'rect', // L0b 投影
       'rect', // L1 主体
+      'rect', // L2′ 侧壁（K5）
       'line', // L2 暗倒角 · 下边
       'line', // L2 暗倒角 · 右边
       'line', // L3 亮倒角 · 上边
       'line', // L3 亮倒角 · 左边
       'line', // L3b rim 光 · 上内缘
-      'rect', // L4a 软高光·广
-      'rect', // L4b 软高光·中
-      'rect', // L4c 软高光·核
+      'circle', // L1c 孔底（透目标色 / 无目标色则自身下暗）
+      'circle', // L1c 孔内壁自阴影
+      'rect', // L4′ 偏心椭圆高光（三层并档）
     ]);
-    // v1.5-r8：L5 符号层已删 ⇒ 十层卡即全部，珠体图元数恰为 11（无尾部符号）。
-    expect(commands).toHaveLength(11);
+    // 符号层已删 ⇒ 不应再出现第 13 条；本例同时间接地钉住“不复活符号/不复活珠内垫”。
+    expect(commands).toHaveLength(12);
+    expect(commands.some((c) => c.kind === 'polygon')).toBe(false);
   });
 
-  // L11 目标色垫（v1.5-r8）：按 pitch 满铺且方角 ⇒ 相邻格底色无缝相连。
-  it('§1.1 L11 pad tiles at pitch with square corners so cell colours are gapless', () => {
-    const pad = emit((b) => beadOnPad(b))[0]!;
-    expect(pad.kind).toBe('rect');
-    if (pad.kind !== 'rect') return;
-    expect(pad.w).toBe(BEAD_PITCH);
-    expect(pad.h).toBe(BEAD_PITCH);
-    expect(pad.radius ?? 0).toBe(0);
-    // 相邻两格圆心相距 = pitch ⇒ 两垫边缘重合（无缝）；旧写法垫边长 = BEAD_CELL ⇒ 中间空 2px。
-    expect(pad.x + pad.w).toBe(100 + BEAD_PITCH / 2);
-    expect(BEAD_PITCH - pad.w).toBe(0);
+  // B0 目标色底图（v1.5-r8）：独立函数、pitch 满铺且方角 ⇒ 相邻格底色无缝相连。
+  it('§1.1 B0 target tile spans one full pitch with square corners so cells are gapless', () => {
+    const tile = emit((b) => drawTargetTile(b, 100, 200, 1))[0]!;
+    expect(tile.kind).toBe('rect');
+    if (tile.kind !== 'rect') return;
+    expect(tile.w).toBe(BEAD_PITCH);
+    expect(tile.h).toBe(BEAD_PITCH);
+    expect(tile.radius ?? 0).toBe(0);
+    // 相邻两格圆心相距 = pitch ⇒ 两砖边缘重合（无缝）；旧写法砖边长 = BEAD_CELL ⇒ 中间空 2px。
+    expect(tile.x + tile.w).toBe(100 + BEAD_PITCH / 2);
   });
 
   // L0a 接触阴影：贴底窄条（y = bottom + contactY×BEAD），α 0.12，圆角 = 主圆角 × 0.5。
@@ -152,34 +161,50 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     const dark = mix(base, BEAD_BEVEL_DARK_MIX);
     const light = mix(base, BEAD_BEVEL_LIGHT_MIX);
     const rim = mix(base, BEAD_RIM_MIX);
-    expect(commands[3]).toMatchObject({ kind: 'line', stroke: dark });
+    // v1.5-r8：L2′ 侧壁插在 L1 与倒角之间 ⇒ 五条线整体后移一位（旧 3–7 → 现 4–8）。
     expect(commands[4]).toMatchObject({ kind: 'line', stroke: dark });
-    expect(commands[5]).toMatchObject({ kind: 'line', stroke: light });
+    expect(commands[5]).toMatchObject({ kind: 'line', stroke: dark });
     expect(commands[6]).toMatchObject({ kind: 'line', stroke: light });
-    expect(commands[7]).toMatchObject({ kind: 'line', stroke: rim }); // L3b rim 光
+    expect(commands[7]).toMatchObject({ kind: 'line', stroke: light });
+    expect(commands[8]).toMatchObject({ kind: 'line', stroke: rim }); // L3b rim 光
     // L2 sits on the bottom/right inner edge, L3 on the top/left one.
-    const [l2a, l2b, l3a, l3b] = [commands[3]!, commands[4]!, commands[5]!, commands[6]!];
+    const [l2a, l2b, l3a, l3b] = [commands[4]!, commands[5]!, commands[6]!, commands[7]!];
     const flat = (c: (typeof l2a)) => (c.kind === 'line' ? [c.x1, c.y1, c.x2, c.y2] : []);
     expect(flat(l2a)[1]).toBe(flat(l2b)[1]); // L2 bottom: shared y
     expect(flat(l3b)[0]).toBe(flat(l3a)[0]); // L3 left: shared x
   });
 
-  // L4a/b/c 软高光：三层按 BEAD_CARD.softHighlight 比例定位，α 由 BEAD_SOFT_HIGHLIGHT_ALPHAS 逐层递变。
-  it('§1.1 L4a/b/c stack three soft-highlight bars by edge ratios', () => {
+  // L4′ 偏心椭圆高光（K6，v1.5-r8 三层并一档）+ L1c 中心孔（K2–K4）。
+  it('§1.1 L4′ is a single offset oval highlight and L1c punches one centre hole', () => {
     const size = 50;
     const commands = filled(2, size);
     const left = 100 - size / 2;
     const bottom = 200 - size / 2;
-    for (let i = 0; i < BEAD_CARD.softHighlight.length; i++) {
-      const g = BEAD_CARD.softHighlight[i]!;
-      const bar = commands[8 + i]!;
-      expect(bar.kind === 'rect' && bar.x).toBeCloseTo(left + size * g.x, 6);
-      expect(bar.kind === 'rect' && bar.y).toBeCloseTo(bottom + size * g.y, 6);
-      expect(bar.kind === 'rect' && bar.w).toBeCloseTo(size * g.w, 6);
-      expect(bar.kind === 'rect' && bar.h).toBeCloseTo(size * g.h, 6);
-      expect(bar.kind === 'rect' && bar.radius).toBeCloseTo(size * g.radius, 6);
-      expect(bar.kind === 'rect' && bar.fill).toBe(withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_SOFT_HIGHLIGHT_ALPHAS[i]!));
-    }
+    // L4′：旧 `softHighlight[1]` 的比例与 α 原样沿用（并档不改几何，只减图元数）。
+    const g = BEAD_CARD.softHighlight[1]!;
+    const bar = commands[11]!;
+    expect(bar.kind === 'rect' && bar.x).toBeCloseTo(left + size * g.x, 6);
+    expect(bar.kind === 'rect' && bar.y).toBeCloseTo(bottom + size * g.y, 6);
+    expect(bar.kind === 'rect' && bar.w).toBeCloseTo(size * g.w, 6);
+    expect(bar.kind === 'rect' && bar.h).toBeCloseTo(size * g.h, 6);
+    expect(bar.kind === 'rect' && bar.radius).toBeCloseTo(size * g.radius, 6);
+    expect(bar.kind === 'rect' && bar.fill).toBe(
+      withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_SOFT_HIGHLIGHT_ALPHAS[1]!),
+    );
+    // L1c：两枚 circle = 孔底（居中）+ 内壁自阴影（偏左上 ⇒ 留右下亮弧）。
+    const [hole, shade] = [commands[9]!, commands[10]!];
+    const holeR = (size * BEAD_CARD.holeRatio) / 2;
+    expect(hole.kind).toBe('circle');
+    expect(shade.kind).toBe('circle');
+    if (hole.kind !== 'circle' || shade.kind !== 'circle') return;
+    expect(hole.x).toBe(100);
+    expect(hole.r).toBeCloseTo(holeR, 9);
+    expect(shade.r).toBeCloseTo(holeR * 0.86, 9);
+    // 设计空间 y 向上 ⇒ 阴影往 +y（视觉上方）、往 −x（左）偏移。
+    expect(shade.y).toBeGreaterThan(hole.y);
+    expect(shade.x).toBeLessThan(hole.x);
+    // 无目标色（托盘珠）⇒ 孔底不再是目标色档；有目标色 ⇒ 两者不同。此处只钉“不越界”。
+    expect(holeR).toBeLessThan(size / 2);
   });
 
   // v1.5-r8：旧 §1.5「符号墨水与珠体同源」判据随 L5 符号层删除而移除（symbols.ts 已删）。

@@ -91,6 +91,7 @@ import {
   drawEmptySocket,
   drawFilledBead,
   drawLockedBead,
+  drawTargetTile,
   drawStateRing,
   fillPopEnvelope,
   type FillPopEnvelope,
@@ -791,9 +792,11 @@ function drawGrid(
       }
 
       if (cell.state === 'empty') {
-        // Empty socket — 传目标色 colorIdx 绘 E1 色底 + E4 幽灵符号（§1.2 / §3.8），
-        // 使未填态即可读出该格要填的颜色；仍无投影/倒角/高光 → 不致误读为已填珠。
-        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks);
+        // B0 连续目标色底图（v1.5-r8）：与 filled 分支同一块 `edge` 图元 ⇒ 有豆/无豆一张图。
+        drawTargetTile(builder, bx, cy, cell.colorIdx, inks);
+        // 空格 = 在这张底图上**挖洞**（pit 内缩 + 暗缘 + 下受光）；自带的亮 `base` 外块
+        // 由 `tilePainted = true` 跳过。旧注释里的“E4 幽灵符号”已随 WXG-T-130 降档移除。
+        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true);
         // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
           drawStateRing(builder, bx, cy, snap.gridCell, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
@@ -851,9 +854,9 @@ function drawGrid(
       // FilledBeadOptions 全只读 ⇒ 组装为可变草稿再定型的既有模式（零类分配）。
       const draft: {
         -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
-      } = { padColorIdx: cell.colorIdx, size: snap.gridCell, inks };
+      } = { targetColorIdx: cell.colorIdx, size: snap.gridCell, inks };
       if (inGroup) {
-        draft.lift = 6; // 设计空间 y 向上 ⇒ +lift = 珠体上移露垫（抬起读数）；旧值 -6 方向反了
+        draft.lift = 6; // 设计空间 y 向上 ⇒ +lift = 珠体上移、四周露出更多 B0 底与侧壁（抬起读数）
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
       // G2′ 相 A：点名格在预警窗口内**仍是错位珠**（裁定「甲」⇒ 动手延后），
@@ -885,6 +888,9 @@ function drawGrid(
         draft.scale = deniedPressScale(deniedP);
       }
       const opts: FilledBeadOptions = draft;
+      // B0 连续目标色底图：与 empty 分支同图元同色档 ⇒ 整片谜面一张图（v1.5-r8）。
+      // ⛔ 锁格心、不吃 lift / scale / pop 包络（§1.6.1 P0 陷阱 #2）。
+      drawTargetTile(builder, bx, cy, cell.colorIdx, inks);
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
       // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
       // 候选 I 墨 = `palette.slotBorder`（§1.6.2a）⇒ 非 danger/hint 色，不抢玩法语义。

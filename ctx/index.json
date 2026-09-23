@@ -21107,18 +21107,18 @@
     },
     {
       "path": "games/beads/design/proposals/bead-visual-style-spec.md",
-      "tokens": 5035,
-      "lines": 208,
-      "sha256": "83b0e9a7e05d76f9055026f56f94c90b67ed613adb30c8128c82185452666d72",
+      "tokens": 7263,
+      "lines": 304,
+      "sha256": "9555d2ee2565c9be985c53f24d8b38db1bfb23a8d4a1a34ac79ab80db8d83f6c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§拼豆渲染视觉规格 · 提案 v0.1（决议 v0.2）",
           "level": 1,
           "startLine": 1,
-          "endLine": 209,
-          "tokens": 5017,
-          "summary": "状态 = 已确认・待落码（用户 2026-09-23：Q1–Q7 全按推荐、Q8 = (c)）。决议表见 §9，10 套",
+          "endLine": 305,
+          "tokens": 7245,
+          "summary": "状态 = 已确认・待落码（用户 2026-09-23：Q1–Q7 全按推荐、Q8 = (c)）。决议表见 §9，17 套",
           "keywords": [
             "§9",
             "拼豆渲染视觉",
@@ -21272,7 +21272,7 @@
           "level": 2,
           "startLine": 143,
           "endLine": 159,
-          "tokens": 322,
+          "tokens": 345,
           "summary": "Q1 珠轮廓圆角 ✅ 圆角方 size × 0.30（K1；正圆方案作废）",
           "keywords": [
             "size",
@@ -21282,23 +21282,73 @@
           ]
         },
         {
-          "anchor": "§附录 A · 10 套材质风格参考图（Q8 = (c)）",
+          "anchor": "§附录 A · 材质风格参考图（17 套候选 + 可程序化评级）",
           "level": 2,
           "startLine": 160,
-          "endLine": 198,
-          "tokens": 989,
-          "summary": "十张图沿用同一版式（A 单豆三视 / B 3×3 成块 / C 缺三颗的凹坑 / D 八色横排），",
+          "endLine": 235,
+          "tokens": 1906,
+          "summary": "全部沿用同一版式（A 单豆三视 / B 3×3 成块 / C 缺三颗的凹坑 / D 八色横排），",
           "keywords": [
             "附录",
-            "套材质风格参",
-            "考图"
+            "材质风格参考",
+            "套候选",
+            "可程序化评级"
           ]
         },
         {
-          "anchor": "§A.1 参考图与规格的两处故意不一致",
+          "anchor": "§A.1 候选表（17 套）",
           "level": 3,
-          "startLine": 187,
-          "endLine": 198,
+          "startLine": 175,
+          "endLine": 196,
+          "tokens": 761,
+          "summary": "01 哑光注塑 🟢 基准 就是 K1–K8 本身，零额外",
+          "keywords": [
+            "候选表"
+          ]
+        },
+        {
+          "anchor": "§A.2 移出候选的三类（不静默删，留理由）",
+          "level": 3,
+          "startLine": 197,
+          "endLine": 204,
+          "tokens": 148,
+          "summary": "05 原木 / 激光切割 木纹 = 噪声或位图，两条都违零位图纪律；只能退化成几条弧线，易显脏",
+          "keywords": [
+            "移出候选的三",
+            "不静默删",
+            "留理由"
+          ]
+        },
+        {
+          "anchor": "§A.3 本批新增的真正的东西：非色相通道候选",
+          "level": 3,
+          "startLine": 205,
+          "endLine": 217,
+          "tokens": 277,
+          "summary": "上批删除 L5 符号后，三重编码降为二重（色相 + 明度），而 A3 ① 已量化证明明度单独不够。",
+          "keywords": [
+            "本批新增的真",
+            "正的东西",
+            "非色相通道候"
+          ]
+        },
+        {
+          "anchor": "§A.4 建议的落地顺序",
+          "level": 3,
+          "startLine": 218,
+          "endLine": 223,
+          "tokens": 109,
+          "summary": "先做 01（基准） ⇒ 首批两个材质主题用 02 / 06（只改系数，不碰图元预算，守得住 §1.9.7）",
+          "keywords": [
+            "§1.9.7",
+            "建议的落地顺"
+          ]
+        },
+        {
+          "anchor": "§A.5 参考图与规格的两处故意不一致",
+          "level": 3,
+          "startLine": 224,
+          "endLine": 235,
           "tokens": 193,
           "summary": "1. 图里的珠子仍偏圆，而本规格 K1 定为圆角方（实物熔合后确实是圆角方；参考图未能完全摆脱“圆豆”刻板印象）⇒ 以 ",
           "keywords": [
@@ -21310,9 +21360,9 @@
         {
           "anchor": "§10 落码与文档对齐的动作序列（已确认・待执行）",
           "level": 2,
-          "startLine": 199,
-          "endLine": 209,
-          "tokens": 342,
+          "startLine": 236,
+          "endLine": 250,
+          "tokens": 379,
           "summary": "1. 本文件按确认结果定稿 → 参数进 tuning.ts（表现层，不进 §3 冻结常量）+ bead-render.t",
           "keywords": [
             "§3",
@@ -21321,6 +21371,74 @@
             "render",
             "落码与文档对",
             "齐的动作序列"
+          ]
+        },
+        {
+          "anchor": "§11 实施记录（v0.3，2026-09-23）",
+          "level": 2,
+          "startLine": 251,
+          "endLine": 305,
+          "tokens": 1229,
+          "summary": "",
+          "keywords": [
+            "实施记录"
+          ]
+        },
+        {
+          "anchor": "§11.1 已落码（§10 第 1 步）",
+          "level": 3,
+          "startLine": 253,
+          "endLine": 264,
+          "tokens": 343,
+          "summary": "K1 圆角 BEAD_CARD.radius 0.22 → 0.30；删除「珠圆角 = 垫圆角 − inset」特例（它",
+          "keywords": [
+            "§10",
+            "BEAD_CARD",
+            "radius",
+            "inset",
+            "已落码"
+          ]
+        },
+        {
+          "anchor": "§11.2 图元基线：差分复算结果（§10 第 2 步）",
+          "level": 3,
+          "startLine": 265,
+          "endLine": 280,
+          "tokens": 220,
+          "summary": "同一夹具（13×12，78 填 / 78 空 / 156 可填），git stash 切回 HEAD 量旧值后对比：",
+          "keywords": [
+            "§10",
+            "git",
+            "stash",
+            "HEAD",
+            "图元基线",
+            "差分复算结果"
+          ]
+        },
+        {
+          "anchor": "§11.3 判据改写（不为了变绿而改）",
+          "level": 3,
+          "startLine": 281,
+          "endLine": 296,
+          "tokens": 397,
+          "summary": "原 13 条旧层模型判据已按新模型重写为同强度或更强，未简单删除：",
+          "keywords": [
+            "判据改写",
+            "不为了变绿而"
+          ]
+        },
+        {
+          "anchor": "§11.4 仍未做（下次开口时先读这里）",
+          "level": 3,
+          "startLine": 297,
+          "endLine": 305,
+          "tokens": 206,
+          "summary": "1. K7 微抖动未做 ⇒ 颗间完全规则（待真机定 amplitude）",
+          "keywords": [
+            "amplitude",
+            "仍未做",
+            "下次开口时先",
+            "读这里"
           ]
         }
       ]

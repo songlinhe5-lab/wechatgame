@@ -257,26 +257,35 @@ describe('G4 vfx_complete_wave · 包络（assets-spec §1.6.4）', () => {
 
 // ───────────────────────────────── G4 · 降档与层序死结论
 
-describe('G4 vfx_complete_wave · LOD 降档 + L11 垫不参与 lift', () => {
-  it('降档砍 4 个图元（L0a / L3b / L4a / L4b），L11 垫与 L1 主体恒在', () => {
-    const full = emitBead({ padColorIdx: 0, scale: WAVE_SCALE_PEAK });
-    const lod = emitBead({ padColorIdx: 0, scale: WAVE_SCALE_PEAK, lodLayers: WAVE_LOD_LAYERS });
-    expect(full.length - lod.length).toBe(4);
+describe('G4 vfx_complete_wave · LOD 降档 + B0 底图不参与 lift（v1.5-r8）', () => {
+  it('降档砍 3 个图元（L0a / L3b / L4′），中心孔与 L1 主体恒在', () => {
+    const full = emitBead({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK });
+    const lod = emitBead({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK, lodLayers: WAVE_LOD_LAYERS });
+    // 旧集为 4 条（L4 三条里砍 L4a/L4b）；L4 已并为一枚椭圆高光 ⇒ 降档只砍该 1 条。
+    expect(full.length - lod.length).toBe(3);
     expect(lod.length).toBeGreaterThan(0);
+    // 孔 = 识别红线，降档后仍在。
+    expect(lod.filter((c) => c.kind === 'circle')).toHaveLength(2);
   });
 
-  it('⛔ 垫恒锁格缘：`lift` 只抬珠体，垫 rect 尺寸与 y 一字不动（§1.6.1 P0 陷阱 #2）', () => {
+  it('⛔ 珠体函数不输出底图；`lift` 把整颗珠（含孔）一起抬（§1.6.1 P0 陷阱 #2）', () => {
     // 两侧同走降档 ⇒ 图元集相同，唯一变量 = `lift`。
-    const still = emitBead({ padColorIdx: 0, lodLayers: WAVE_LOD_LAYERS });
-    const lifted = emitBead({ padColorIdx: 0, lift: WAVE_LIFT_PX, lodLayers: WAVE_LOD_LAYERS });
-    const pad = (cmds: readonly DrawCommand[]): RectCommand =>
-      cmds.find((c) => c.kind === 'rect' && c.w === BEAD_PITCH) as RectCommand;
-    expect(pad(lifted).y).toBe(pad(still).y);
-    expect(pad(lifted).h).toBe(BEAD_PITCH);
-    // 对照：同一 `lift` 下珠体（宽 ≠ pitch 的第一条 = L0b 投影）确实上移 ⇒ 「珠上移露垫」读数成立。
-    const body = (cmds: readonly DrawCommand[]): RectCommand =>
-      cmds.filter((c) => c.kind === 'rect' && c.w !== BEAD_PITCH)[0] as RectCommand;
-    expect(body(lifted).y - body(still).y).toBeCloseTo(WAVE_LIFT_PX, 6);
+    const still = emitBead({ targetColorIdx: 0, lodLayers: WAVE_LOD_LAYERS });
+    const lifted = emitBead({ targetColorIdx: 0, lift: WAVE_LIFT_PX, lodLayers: WAVE_LOD_LAYERS });
+    // B0 已上提为独立函数 ⇒ 珠体输出里根本不存在 pitch 宽图元，
+    // “底图被抬走”在结构上不可发生（旧判据靠比对两条 rect，现在由签名保）。
+    const rectAt = (cmds: readonly DrawCommand[], i: number): RectCommand => {
+      const c = cmds[i]!;
+      expect(c.kind).toBe('rect');
+      return c as RectCommand;
+    };
+    expect(still.some((c) => c.kind === 'rect' && c.w === BEAD_PITCH)).toBe(false);
+    // L0b 投影确实上移（降档后 = 第 1 条）⇒ 「珠上移、露出更多底图」读数成立。
+    expect(rectAt(lifted, 1).y - rectAt(still, 1).y).toBeCloseTo(WAVE_LIFT_PX, 6);
+    // 孔必须跟着珠体走 —— 孔不抬的话会在抬升态上“从珠上滑开”。
+    const holeY = (cmds: readonly DrawCommand[]): number =>
+      (cmds.filter((c) => c.kind === 'circle')[0] as { y: number }).y;
+    expect(holeY(lifted) - holeY(still)).toBeCloseTo(WAVE_LIFT_PX, 6);
   });
 });
 

@@ -10,13 +10,13 @@
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import {
+  BEAD_PITCH,
   DESIGN_H,
   DESIGN_W,
   POWERUP_BAND,
   POWERUP_CARD_H,
   POWERUP_CARD_W,
   POWERUP_LABEL_H,
-  PUZZLE_BAND,
   TOUCH_MIN,
   powerupCardRects,
   powerupLabelY,
@@ -35,20 +35,10 @@ function render(harness: Harness): readonly DrawCommand[] {
 }
 
 /**
- * Per-symbol signatures. The three colours of `simpleTestLevel()` are the only
- * symbols the model can contain, and each has a primitive no chrome uses:
- *   ○ 奶白 → the only stroke-only circle
- *   ★ 柠黄 → the only polygon at all (chrome draws rect/circle/line/text)
- *   ● 活力橙 → a filled circle of exactly r = 11 × BEAD/64 (no stroke)
+ * v1.5-r8：旧的「逐符号签名」（○ / ★ / ●）随 L5 符号层删除一并移除 ——
+ * 符号图元不再存在，签名判别式也随之失去对象（且会被 L1c 孔的 circle 误判）。非色相通道
+ * 现在的可机检形式 = “B0 底图砖覆盖全部可填格且与格态无关”（见下方两条判据）。
  */
-const isRingSymbol = (cmd: DrawCommand): boolean =>
-  cmd.kind === 'circle' && cmd.stroke !== undefined && cmd.fill === undefined;
-const isStarSymbol = (cmd: DrawCommand): boolean =>
-  cmd.kind === 'polygon' && cmd.points.length === 20;
-const isDotSymbol = (cmd: DrawCommand): boolean =>
-  cmd.kind === 'circle' && cmd.stroke === undefined && cmd.fill !== undefined;
-// 注：不校验精确 r——band 内的填充圆只可能来自 ● dot 符号（已填满墨与 E4 幽灵都计），
-// 幽灵符号尺寸缩至 ≈BEAD×0.32 会改变 r，故只按「band 内填充圆」识别（参 isRingSymbol 同理）。
 
 /** Vertical centre of a command (polygons have no centre field ⇒ vertex mean). */
 function centreY(cmd: DrawCommand): number {
@@ -62,16 +52,6 @@ function centreY(cmd: DrawCommand): number {
   }
   return Number.NaN;
 }
-
-/**
- * Bead symbols only ever appear **inside the puzzle band**. Needed since S6
- * (WXG-T-060): the 魔法棒 card draws its own 5-point star — the same primitive
- * as the bead ★ — so an unscoped signature would count powerup chrome as beads.
- */
-const onBoard = (cmd: DrawCommand): boolean => {
-  const y = centreY(cmd);
-  return y >= PUZZLE_BAND.yMin && y <= PUZZLE_BAND.yMax;
-};
 
 /** Fill a level completely, one matching bead at a time. */
 function fillBoard(harness: Harness): number {
@@ -109,44 +89,46 @@ describe('beads view model (control-manifest §8)', () => {
     expect(JSON.stringify(harness.game.snapshot)).toBe(before);
   });
 
-  // accessibility A1 的落地断言：L5 符号通道必须覆盖**每一个**已填格（整盘填满时逐格都有满墨符号）。
-  // ⛔ v1.5-r8（2026-09-23 用户拍板）：**L5 符号层整层删除**，目标侧区分改由「连续目标色
-  // 底图」承担。本例由旧「A1 每格发符号」判据**反转**而来 ⇒ 全盘零符号，防符号无声复活。
-  // 代价与色盲口径登记在 art/accessibility.md 末条（三重编码降为二重）。
-  it('v1.5-r8：满盘就位珠不再发射任何 L5 符号', () => {
+  // ⛔ v1.5-r8（2026-09-23 用户拍板）：L5 符号层整层删除，目标侧区分改由
+  // **连续目标色底图 B0** 承担。旧 A1「每已填格都有满墨符号」因此**换成更强的同位判据**：
+  // 底图必须覆盖**每一个可填格**（不是只有已填格），且**放豆前后一模一样**。
+  // ⇒ 这才是「有豆/无豆 = 一张图」的可机检形式（旧「零符号」写法会被孔的 circle 假阳性干扰）。
+  it('v1.5-r8：B0 底图覆盖全部可填格，且放豆前后逐字段不变（= 一张图）', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()], // 3 colours ⇒ validator-legal; '123123' × 5 rows
       saveKey: 'wxgame.beads.test.vm-c',
     });
+    const tiles = (cmds: readonly DrawCommand[]) =>
+      cmds.filter((c) => c.kind === 'rect' && c.w === BEAD_PITCH);
+    const blank = tiles(render(harness));
+    expect(blank).toHaveLength(harness.game.grid.fillableTotal);
     expect(fillBoard(harness)).toBe(30);
-    expect(
-      render(harness).filter(
-        (c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c)),
-      ),
-    ).toHaveLength(0);
+    const after = tiles(render(harness));
+    expect(after).toHaveLength(30);
+    // 逐字段相同 ⇒ 填豆完全不改变背景（色档、位置、圆角均不变）。
+    expect(after).toEqual(blank);
   });
 
-  // A3 灰度可辨（T-085 后）：每一格都带符号——已填格满墨、空格 E4 幽灵符号（α0.20），
-  // 符号总数恒等于格数、与颜色无关（色盲冗余通道：未填态即可按符号规划）。
-  it('A3（v1.5-r8 反转）：empty 与 filled 一律不再发射任何符号', () => {
+  // A3 灰度可辨：旧判据靠“每格都有符号”撑，符号已删 ⇒ 改钉「底图色档与格态无关」。
+  it('A3（v1.5-r8）：空格与有豆格共用同一块底图砖，不因格态改色档', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-d',
     });
-    // 用户 2026-09-16 裁定移除 E4 幽灵符号（accessibility v1.5 A3 降档，含可恢复
-    // 路径）⇒ 空盘零符号（原「30 格幽灵符号 10/10/10」判据随降级作废）。
-    const blank = render(harness);
-    expect(blank.filter((c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c)))).toHaveLength(0);
-
-    // 填每行第 0 列（5 颗就位珠）⇒ 旧判据「这 5 颗发满墨符号」随符号层删除反转为一律零。
+    const tileFills = (cmds: readonly DrawCommand[]) =>
+      cmds
+        .filter((c): c is Extract<DrawCommand, { kind: 'rect' }> => c.kind === 'rect' && c.w === BEAD_PITCH)
+        .map((c) => c.fill)
+        .sort();
+    const blank = tileFills(render(harness));
+    // 填每行第 0 列（5 颗就位珠）⇒ 底图砖集合不得因“有豆/无豆”而发生颜色变化。
     for (let row = 0; row < harness.game.grid.rows; row++) placeColor(harness.game, 1, row, 0);
-    const partial = render(harness);
-    expect(
-      partial.filter((c) => onBoard(c) && (isRingSymbol(c) || isStarSymbol(c) || isDotSymbol(c))),
-    ).toHaveLength(0);
-
+    expect(tileFills(render(harness))).toEqual(blank);
+    // 背景仍覆盖全部可填格（旧“空坑亮 base / 珠下暗 edge”两档并存的情形的回归防线）。
+    expect(blank).toHaveLength(harness.game.grid.fillableTotal);
+    expect(new Set(blank).size).toBeGreaterThan(1); // 确实按目标色分档，不是一色平铺
   });
 
   // A4（WXG-T-062 转真）：三张道具卡**以形状为唯一识别** + 卡下方 28px **文字标签并列**，
@@ -279,12 +261,10 @@ describe('beads view model (control-manifest §8)', () => {
     // 每珠 7 条卡层（L0a/L0b/L1/L2×2/L3×2 取代表值）以上 ⇒ 预算下限按 7 重算。
     expect(commands.length).toBeGreaterThanOrEqual(7 * 156);
     expect(commands.length).toBeGreaterThanOrEqual(900); // architecture-beads §4 规模账
-    // v1.5-r8：旧「符号总数 = 已填格数」判据（本例 156）随 L5 符号层删除作废。
-    const symbols =
-      commands.filter((c) => onBoard(c) && isStarSymbol(c)).length +
-      commands.filter((c) => onBoard(c) && isDotSymbol(c)).length +
-      commands.filter((c) => onBoard(c) && isRingSymbol(c)).length;
-    expect(symbols).toBe(0);
+    // v1.5-r8：旧「符号总数 = 已填格数」判据随符号层删除作废 ⇒ 改钉同等强度的
+    // 「底图砖数 = 可填格数」（与格态无关），并保留每帧命令下限。
+    const tiles = commands.filter((c) => c.kind === 'rect' && c.w === BEAD_PITCH);
+    expect(tiles.length).toBe(harness.game.grid.fillableTotal);
   });
 
   // ux-spec §3.3：暂停面板必须整屏遮挡（防误触/防偷看），并带「暂停」标题。

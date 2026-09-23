@@ -24,6 +24,7 @@ import {
 import {
   BEAD_CARD,
   drawFilledBead,
+  drawTargetTile,
   fillPopEnvelope,
   type FillPopEnvelope,
   type FilledBeadOptions,
@@ -52,6 +53,14 @@ function samples(n: number): number[] {
   const out: number[] = [];
   for (let i = 0; i <= n; i++) out.push(i / n);
   return out;
+}
+
+/** B0 底图（`drawTargetTile`）单独采样：它不接受 scale / lift 形参，结构上无法被珠体包络带动。 */
+function emitTile(colorIdx: number) {
+  const builder = new RenderModelBuilder(750, 1334);
+  builder.begin();
+  drawTargetTile(builder, 100, 200, colorIdx, DEMO_BEAD_INKS);
+  return builder.end().commands;
 }
 
 function emit(options: FilledBeadOptions) {
@@ -159,34 +168,36 @@ describe('G1 vfx_fill_pop · 逐帧包络（assets-spec §1.6.1）', () => {
   });
 });
 
-describe('G1 · 渲染接线：垫不参与 scale（§1.6.1 层序死结论）', () => {
-  const pad = emit({ padColorIdx: 3 });
-  const pop = emit({ padColorIdx: 3, scale: FILL_POP_SCALE_START });
-  const rest = emit({ padColorIdx: 3, scale: 1 });
+describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.6.1 层序死结论 · v1.5-r8）', () => {
+  const pad = emit({ targetColorIdx: 3 });
+  const pop = emit({ targetColorIdx: 3, scale: FILL_POP_SCALE_START });
+  const rest = emit({ targetColorIdx: 3, scale: 1 });
 
-  it('L11 垫 = 第 0 条图元、恒为 pitch 满铺方角 52×52、恒格心（scale 不带动 · v1.5-r8）', () => {
-    for (const commands of [pad, pop, rest]) {
-      const c = commands[0]!;
-      expect(c.kind).toBe('rect');
-      if (c.kind === 'rect') {
-        expect(c.w).toBeCloseTo(BEAD_PITCH, 9);
-        expect(c.h).toBeCloseTo(BEAD_PITCH, 9);
-        expect(c.x).toBeCloseTo(100 - BEAD_PITCH / 2, 9);
-        expect(c.y).toBeCloseTo(200 - BEAD_PITCH / 2, 9);
-        expect(c.radius ?? 0).toBe(0); // v1.5-r8：方角 ⇒ 相邻格底色无缝
-        expect(c.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).edge);
-      }
+  it('B0 = 独立函数画的 pitch 满铺方角单图元；珠体函数不再输出任何 pitch 宽图元', () => {
+    // v1.5-r8：「珠下画一块垫」已上提为 `drawTargetTile` ⇒ scale / lift / pop 包络**在结构上**
+    // 无路径传递给它（旧写法靠“垫不吃 scale”的约定保，现在由函数签名保）。
+    const tile = emitTile(3)[0]!;
+    {
+      expect(tile.kind).toBe('rect');
+      if (tile.kind !== 'rect') return;
+      expect(tile.w).toBeCloseTo(BEAD_PITCH, 9);
+      expect(tile.h).toBeCloseTo(BEAD_PITCH, 9);
+      expect(tile.x).toBeCloseTo(100 - BEAD_PITCH / 2, 9);
+      expect(tile.y).toBeCloseTo(200 - BEAD_PITCH / 2, 9);
+      expect(tile.radius ?? 0).toBe(0); // 方角 ⇒ 相邻格底色无缝
+      expect(tile.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).edge); // 恒为目标色暗档
     }
-    // 垫恒画：与是否处于动画无关（不受动画开关控制）
-    expect(pop[0]!.kind === 'rect' && pop[0]!.fill).toBe(
-      rest[0]!.kind === 'rect' ? rest[0]!.fill : undefined,
-    );
+    // 珠体三条静息/峰值/落座命令里均无 pitch 宽图元 ⇒ 底图不会被珠体包络带动。
+    for (const commands of [pad, pop, rest]) {
+      expect(commands.some((c) => c.kind === 'rect' && c.w === BEAD_PITCH)).toBe(false);
+    }
   });
 
   it('珠体（L0a/L0b/L1）宽度 = (50 − 2×INSET) × scale ⇒ scale 只作用珠体', () => {
     const body = (BEAD_CELL - BEAD_DRAW_INSET * 2) * FILL_POP_SCALE_START;
-    const l0a = pop[1]!,
-      l0b = pop[2]!;
+    // v1.5-r8：珠内已无垫 ⇒ L0a = 第 0 条、L0b = 第 1 条（旧为 [1] / [2]）。
+    const l0a = pop[0]!,
+      l0b = pop[1]!;
     expect(l0a.kind === 'rect' && l0a.w).toBeCloseTo(body * BEAD_CARD.contactW, 6);
     expect(l0b.kind === 'rect' && l0b.w).toBeCloseTo(body, 6);
     expect(l0b.kind === 'rect' && l0b.h).toBeCloseTo(body, 6);
@@ -203,8 +214,8 @@ describe('G1 · 渲染接线：垫不参与 scale（§1.6.1 层序死结论）',
     expect(pop.length).toBe(rest.length);
   });
 
-  it('动画期珠永不越出本格（峰 48.76 < 格 50 ⇒ A5 零重叠的几何前提）', () => {
-    const l0b = pop[2]!;
+  it('动画期珠永不越出本格（峰 40.28 < 格 50 ⇒ A5 零重叠的几何前提）', () => {
+    const l0b = pop[1]!;
     expect(l0b.kind === 'rect' && l0b.w).toBeLessThan(BEAD_CELL);
     // 与邻珠（同为 46）的间隙：pitch 52 − (半峰宽 + 半静息宽) > 0
     const peakHalf = ((BEAD_CELL - BEAD_DRAW_INSET * 2) * FILL_POP_SCALE_START) / 2;
@@ -215,15 +226,15 @@ describe('G1 · 渲染接线：垫不参与 scale（§1.6.1 层序死结论）',
   it('L0a α / 宽比覆写确实进命令（否则「重量+接触」退化为贴图缩放）', () => {
     const env = fillPopEnvelope(PRESS_P, false, fresh());
     const commands = emit({
-      padColorIdx: 3,
+      targetColorIdx: 3,
       scale: env.scale,
       contactAlpha: env.contactAlpha,
       contactWidth: env.contactWidth,
       shadowAlpha: env.shadowAlpha,
       shadowDy: env.shadowDy,
     });
-    const l0a = commands[1]!,
-      l0b = commands[2]!;
+    const l0a = commands[0]!,
+      l0b = commands[1]!;
     expect(l0a.kind === 'rect' && l0a.fill).toBe(withAlpha(BEAD_SHADOW_HEX, env.contactAlpha));
     expect(l0a.kind === 'rect' && l0a.w).toBeCloseTo(
       (BEAD_CELL - BEAD_DRAW_INSET * 2) * env.scale * env.contactWidth,
