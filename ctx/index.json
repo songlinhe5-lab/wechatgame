@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4669,
       "lines": 82,
-      "sha256": "858caa47693d150ec720a6b8a9dcafcf32e8e4f4597370c1538d744ac432dd20",
+      "sha256": "d6996c17445615e5db69a11d8e1a1d360c3fb1f293caae6174accf454d5b1404",
       "tier": "normal",
       "sections": [
         {
@@ -21101,6 +21101,226 @@
             "spec",
             "pow",
             "回传主理人用"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/bead-visual-style-spec.md",
+      "tokens": 5035,
+      "lines": 208,
+      "sha256": "83b0e9a7e05d76f9055026f56f94c90b67ed613adb30c8128c82185452666d72",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§拼豆渲染视觉规格 · 提案 v0.1（决议 v0.2）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 209,
+          "tokens": 5017,
+          "summary": "状态 = 已确认・待落码（用户 2026-09-23：Q1–Q7 全按推荐、Q8 = (c)）。决议表见 §9，10 套",
+          "keywords": [
+            "§9",
+            "拼豆渲染视觉",
+            "规格",
+            "提案",
+            "决议"
+          ]
+        },
+        {
+          "anchor": "§0 要解决什么",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 23,
+          "tokens": 262,
+          "summary": "四条目标，各自给可验收判据（否则\"有质感\"无法收口）：",
+          "keywords": [
+            "要解决什么"
+          ]
+        },
+        {
+          "anchor": "§1 分层模型（自上而下）",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 46,
+          "tokens": 309,
+          "summary": "",
+          "keywords": [
+            "分层模型",
+            "自上而下"
+          ]
+        },
+        {
+          "anchor": "§2 参考图 → 本仓可实现性逐条核对",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 65,
+          "tokens": 355,
+          "summary": "中央通孔（最强识别特征） ❌ 无 新增 L1c P1",
+          "keywords": [
+            "L1c",
+            "参考图",
+            "本仓可实现性",
+            "逐条核对"
+          ]
+        },
+        {
+          "anchor": "§P5 主动放弃项（须知情）",
+          "level": 3,
+          "startLine": 59,
+          "endLine": 65,
+          "tokens": 92,
+          "summary": "程序化颗粒只有两条路，都不划算：① 噪声位图 → 违反零外部资产 + 占包体；② 逐颗撒小图元 → 图元爆量。",
+          "keywords": [
+            "主动放弃项",
+            "须知情"
+          ]
+        },
+        {
+          "anchor": "§3 参数表（每项：建议值 / 派生 / 状态 / 依据 / 回退）",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 81,
+          "tokens": 576,
+          "summary": "K1 珠轮廓圆角 size × 0.30（38px 珠 → 11.4） 现值 0.22 折算后 = 5，近乎方角 ⇒ 用",
+          "keywords": [
+            "size",
+            "参数表",
+            "每项",
+            "建议值",
+            "派生",
+            "状态"
+          ]
+        },
+        {
+          "anchor": "§4 「有豆 / 无豆 = 同一张图」的论证与代价",
+          "level": 2,
+          "startLine": 82,
+          "endLine": 98,
+          "tokens": 366,
+          "summary": "现状（实测数值）：empty 最外层 = 亮 base + 内缩 6% 的 pit(−0.44) + 圆角 r=11 +",
+          "keywords": [
+            "empty",
+            "base",
+            "pit",
+            "有豆",
+            "无豆",
+            "同一张图"
+          ]
+        },
+        {
+          "anchor": "§5 抬起 / 放下的空间语言（解决\"突兀\"）",
+          "level": 2,
+          "startLine": 99,
+          "endLine": 116,
+          "tokens": 272,
+          "summary": "现状：lift = 选中 +6 / 波浪 WAVE_LIFT_PX +3，纯瞬时平移，阴影、侧壁、缩放全部不变 ⇒ 不透",
+          "keywords": [
+            "lift",
+            "WAVE_LIFT_PX",
+            "抬起",
+            "放下的空间语",
+            "解决",
+            "突兀"
+          ]
+        },
+        {
+          "anchor": "§6 图元预算与 LOD（必须一起裁，不能事后补）",
+          "level": 2,
+          "startLine": 117,
+          "endLine": 125,
+          "tokens": 241,
+          "summary": "孔 = +2~3 条/格，侧壁 +1，椭圆高光并档 −2，垫并入底图 −1 ⇒ 净 约 +1~2/格；156 格 ≈ +",
+          "keywords": [
+            "LOD",
+            "图元预算与",
+            "必须一起裁",
+            "不能事后补"
+          ]
+        },
+        {
+          "anchor": "§7 可访问性连锁（改规格必须一起改的账）",
+          "level": 2,
+          "startLine": 126,
+          "endLine": 133,
+          "tokens": 321,
+          "summary": "上批已把 A1 从「色相+符号+明度」三重降为二重（符号层整层删除），并把 B2「符号对珠面 ≥3:1」判为 ⛔ 作废。",
+          "keywords": [
+            "可访问性连锁",
+            "改规格必须一",
+            "起改的账"
+          ]
+        },
+        {
+          "anchor": "§8 色板与相邻格 ΔE（生成侧，与视觉规格耦合）",
+          "level": 2,
+          "startLine": 134,
+          "endLine": 142,
+          "tokens": 275,
+          "summary": "真机取证 + 一次纠错：上一轮我报的 红↔粉 ΔE76 = 29.8 来自错误的色彩转换（sRGB→XYZ 多做了一次逆",
+          "keywords": [
+            "E76",
+            "sRGB",
+            "XYZ",
+            "色板与相邻格",
+            "生成侧",
+            "与视觉规格耦"
+          ]
+        },
+        {
+          "anchor": "§9 确认结果（2026-09-23，用户：「其他走推荐」）",
+          "level": 2,
+          "startLine": 143,
+          "endLine": 159,
+          "tokens": 322,
+          "summary": "Q1 珠轮廓圆角 ✅ 圆角方 size × 0.30（K1；正圆方案作废）",
+          "keywords": [
+            "size",
+            "确认结果",
+            "用户",
+            "其他走推荐"
+          ]
+        },
+        {
+          "anchor": "§附录 A · 10 套材质风格参考图（Q8 = (c)）",
+          "level": 2,
+          "startLine": 160,
+          "endLine": 198,
+          "tokens": 989,
+          "summary": "十张图沿用同一版式（A 单豆三视 / B 3×3 成块 / C 缺三颗的凹坑 / D 八色横排），",
+          "keywords": [
+            "附录",
+            "套材质风格参",
+            "考图"
+          ]
+        },
+        {
+          "anchor": "§A.1 参考图与规格的两处故意不一致",
+          "level": 3,
+          "startLine": 187,
+          "endLine": 198,
+          "tokens": 193,
+          "summary": "1. 图里的珠子仍偏圆，而本规格 K1 定为圆角方（实物熔合后确实是圆角方；参考图未能完全摆脱“圆豆”刻板印象）⇒ 以 ",
+          "keywords": [
+            "参考图与规格",
+            "的两处故意不",
+            "一致"
+          ]
+        },
+        {
+          "anchor": "§10 落码与文档对齐的动作序列（已确认・待执行）",
+          "level": 2,
+          "startLine": 199,
+          "endLine": 209,
+          "tokens": 342,
+          "summary": "1. 本文件按确认结果定稿 → 参数进 tuning.ts（表现层，不进 §3 冻结常量）+ bead-render.t",
+          "keywords": [
+            "§3",
+            "tuning",
+            "bead",
+            "render",
+            "落码与文档对",
+            "齐的动作序列"
           ]
         }
       ]
