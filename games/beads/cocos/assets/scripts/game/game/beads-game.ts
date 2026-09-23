@@ -61,6 +61,7 @@ import {
   HUD_BAND,
   REVIVE_BONUS_SEC,
   REVIVE_MAX_PER_LEVEL,
+  SELECT_LIFT_MS,
   STAMINA_REFILL_PLACEMENT,
   STAGE_BONUS_TIME,
   computeClearStars,
@@ -377,6 +378,13 @@ export class BeadsGame implements Game {
    * `_pulseClock` 单调推进（ms），驱动告急 α、hint 呼吸、满槽脉冲的循环相位。
    */
   private _pulseClock = 0;
+  /**
+   * §5 选中抬起斜坡计时（ms）。**表现层量，不改玩法**；每次“锚建立”归零
+   * （板锚 `selectBoardBead` 非幂等分支 / 托盘 `selectTraySlot` 选中建立）。
+   * 同一字段同时驱动板锚组与托盘珠 ⇒ 两者共用一个时钟，不会出现“板上的珠在动、
+   * 托盘的珠瞬跳”的错拍。进格由快照 `liftProgress` 上报，缓动曲线在 view 侧施。
+   */
+  private _liftElapsedMs = 0;
   /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
   private _wrongFx: { row: number; col: number; elapsedMs: number } | null = null;
   /**
@@ -808,6 +816,11 @@ export class BeadsGame implements Game {
     this._sprintSettle.update(dt * 1000); // 冲刺结算面板同理
     this._stepComboVfx(dt); // §2.5 连击特效：表现层，不被 PAUSED 冻结
     this._pulseClock += Math.max(0, dt) * 1000; // GAP-04/03/10 循环脉冲基准（同判例不冻结）
+    // §5 抬起斜坡：上限钳在 SELECT_LIFT_MS，不等“满了还累”造成无界计数。
+    this._liftElapsedMs = Math.min(
+      SELECT_LIFT_MS,
+      this._liftElapsedMs + Math.max(0, dt) * 1000,
+    );
     this._stepWrongFx(dt);
     this._stepPlaceFx(dt); // G1 落座回弹：同为表现层，不被 PAUSED 冻结
     this._stepDeniedFx(dt); // G7 不可填格轻压：同为表现层（`assets-spec §1.6.7`）
@@ -871,6 +884,7 @@ export class BeadsGame implements Game {
     if (this._countAction(result === 'deselected')) return true; // 整组取消：零事件，锚自然回 none
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
+    this._liftElapsedMs = 0; // §5：托盘选中同样走斜坡（与板锚共用一个时钟）
     this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
     return this._countAction(true);
   }
@@ -891,6 +905,7 @@ export class BeadsGame implements Game {
     if (!this._grid.isMisplaced(row, col)) return false;
     const prev = this._boardSelected;
     if (prev && prev.row === row && prev.col === col) return this._countAction(true); // 幂等：不重发
+    this._liftElapsedMs = 0; // §5：新锚建起 ⇒ 抬起斜坡重来（组内珠一同从底面抬起来）
     this._clearTraySelection(); // 互斥换选：board 锚建立 ⇒ tray 锚清除
     // WXG-T-148 ③ → 【WXG-T-157 裁定改写】：组 = 8 向两步（切比雪夫 ≤2）**同色**错位珠
     //（collectMisplacedGroup 内部筛色）；组色 = 锚珠色（规则 2 直填的对应色基准）。
@@ -3331,6 +3346,8 @@ export class BeadsGame implements Game {
     s.placeRow = pfx ? pfx.row : -1;
     s.placeCol = pfx ? pfx.col : -1;
     s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
+    // §5 抬起斜坡**进格量**（0→1，未缓动）；D1 与 ease 由 view 侧施（快照只报事实）。
+    s.liftProgress = Math.min(1, this._liftElapsedMs / SELECT_LIFT_MS);
     // G7 轻压：多格并存 ⇒ 定长数组逐槽导出，**仅在播槽**可见（120ms 后零残留；
     // 过窗槽只留同格门记忆，不占快照）。曲线在 view 侧纯函数推导（L5）。
     let deniedActive = 0;

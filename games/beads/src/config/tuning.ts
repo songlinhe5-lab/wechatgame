@@ -737,6 +737,29 @@ export const FILL_POP_SHADOW_DY_MIN = 2;
  */
 export const FILL_POP_RESTART_GATE_MS = 120;
 
+/* §5 选中抬起斜坡（`bead-visual-style-spec` v1.5-r10，用户 2026-09-23 裁定
+   「斜坡按 120ms 复用做」）—— 时长**复用 G1 `FILL_POP_MS`、不新增毫秒值**，
+   故 `ux-spec §5` 无需新增行。 */
+/** 抬起斜坡时长（= G1 落座时长 ⇒ 选中→抬起→落座读起来是一个连续动作）。 */
+export const SELECT_LIFT_MS = FILL_POP_MS;
+/**
+ * 板锚组抬起位移（设计 px，y 轴向上）。**单一真源在此**：
+ * `bead-render.BEAD_CARD.liftRef` 与 view-model 均引用本值，避免“改了抬起量、
+ * 三通道响应强度却没跟着改”的静默漂耦。
+ */
+export const SELECT_LIFT_PX = 6;
+/** 托盘 `selected` 抬起位移（§1.2 selected 行既有值 4px，仅从字面量提出）。 */
+export const TRAY_SELECTED_LIFT_PX = 4;
+/**
+ * 二次 ease-out（起点快、终点缓）——选中抬起斜坡专用，D1 不走此函数（直接归 1）。
+ * 入参归一到 [0,1]；**非有限入参按 1 处理**（当作“已到位”而不是“未开始”，
+ * 避免异常值把珠永远压在底面）。
+ */
+export function easeOutQuad(p: number): number {
+  const x = Number.isFinite(p) ? Math.max(0, Math.min(1, p)) : 1;
+  return 1 - (1 - x) * (1 - x);
+}
+
 /* G2′ `vfx_solver_restore` — 解环器归位（WXG-T-150，T-128 动态质感章落码③）。
    规格正本 = assets-spec §1.6.2a；毫秒真源 = ux-spec §5「解环器归位」行
    （**200 + 120/颗、逐颗 80ms 间隔**）⇒ 本组零新造时长、**零 §3 变更**。

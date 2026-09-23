@@ -14,6 +14,9 @@ import type { RenderModelBuilder } from '@wxgame/framework';
 import {
   DESIGN_H,
   DESIGN_W,
+  easeOutQuad,
+  SELECT_LIFT_PX,
+  TRAY_SELECTED_LIFT_PX,
   HUD_BAND,
   PANEL_SCALE_FROM,
   PANEL_SCRIM_ALPHA,
@@ -856,7 +859,11 @@ function drawGrid(
         -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
       } = { targetColorIdx: cell.colorIdx, size: snap.gridCell, inks };
       if (inGroup) {
-        draft.lift = 6; // 设计空间 y 向上 ⇒ +lift = 珠体上移、四周露出更多 B0 底与侧壁（抬起读数）
+        // §5 v1.5-r10：抬起走 120ms ease-out 斜坡（时长复用 G1 `FILL_POP_MS`）。
+        // D1(`reduceMotion`) ⇒ 进格直接归 1（无斜坡、无往复），与其余动效同口径。
+        draft.lift =
+          SELECT_LIFT_PX *
+          (snap.reduceMotion ? 1 : easeOutQuad(snap.liftProgress));
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
       // G2′ 相 A：点名格在预警窗口内**仍是错位珠**（裁定「甲」⇒ 动手延后），
@@ -1001,7 +1008,11 @@ function drawTray(
 
     const selected = slot.state === 'selected';
     // Selected: lift 4px + darker L0 shadow + indicator dot (§1.2 selected row).
-    const lift = selected ? 4 : 0;
+    // §5 v1.5-r10：与板锚组共用 `liftProgress` ⇒ 不会出现“板上的珠在抬、托盘的珠瞬跳”。
+    const lift = selected
+      ? TRAY_SELECTED_LIFT_PX *
+      (snap.reduceMotion ? 1 : easeOutQuad(snap.liftProgress))
+      : 0;
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
       size: TRAY_BEAD_SIZE,
       lift,

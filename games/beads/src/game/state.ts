@@ -237,6 +237,12 @@ export interface BeadsSnapshot {
   placeCol: number;
   placeProgress: number;
   /**
+   * §5 选中抬起斜坡的**进格量**（0→1，未缓动）。快照只报事实，
+   * ease-out 曲线与 D1（`reduceMotion` ⇒ 直接归 1）由 view 侧施。
+   * 板锚组与托盘 `selected` 共用本值（同一时钟，避免错拍）。
+   */
+  liftProgress: number;
+  /**
    * G2′ `vfx_solver_restore` 解环器归位（WXG-T-150 / `assets-spec §1.6.2a`）：
    * 整条序列（相 A 预警 + 相 B 逐颗落座）的单调进度，`0` = 不播放。
    * 绝对毫秒 = `solverProgress × solverSequenceMs(solverCellCount)`（单一真源在 `tuning`，
@@ -397,6 +403,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     placeRow: -1,
     placeCol: -1,
     placeProgress: 0,
+    liftProgress: 0,
     // G2′（WXG-T-150）：预分配容量 ⇒ 逐帧只写值、不新建（热路径零分配）。
     // 上界 = `SOLVER_MAX_CELLS`（点名）与其 2 倍（交换一步两格）。
     solverProgress: 0,

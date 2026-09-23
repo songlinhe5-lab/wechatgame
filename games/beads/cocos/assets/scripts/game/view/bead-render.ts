@@ -15,7 +15,7 @@
  */
 
 import type { RenderModelBuilder } from '../../framework/index';
-import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, SOCKET_CARD, TRAY_SLOT } from '../config/tuning';
+import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, SELECT_LIFT_PX, SOCKET_CARD, TRAY_SLOT } from '../config/tuning';
 import {
   FILL_POP_CONTACT_A_PEAK,
   FILL_POP_CONTACT_W_PEAK,
@@ -114,11 +114,11 @@ export const BEAD_CARD = {
    * 归一化，使高度语言随离开底面的距离连续变化（旧模型只平移，不透明物体凭空挪几 px
    * 就是“突兀”的来源）。
    *
-   * ⚠ `liftRef` 必须与 `view-model` 给 `draft.lift` 的值（选中/锚组抬起 = 6）同量；
+   * ⚠ `liftRef` = **`tuning.SELECT_LIFT_PX`（单一真源）**，与 view-model 给 `draft.lift` 的值同源；
    *   波浪的 `WAVE_LIFT_PX = 3` ⇒ liftT = 0.5（半高 ⇒ 半量的阴影响应）。
-   *   两者改值时必须一起看，否则三通道会整幅偏强/偏弱。
+   *   抬起量改动时三通道响应强度自动跟着改，不会漂耦。
    */
-  liftRef: 6,
+  liftRef: SELECT_LIFT_PX,
   /** 抬到 `liftRef` 时珠体额外放大 4%（与 G1 落座包络的 scale 相乘，峰值合计仍 < 1.12 ≪ 格宽）。 */
   liftScaleGain: 0.04,
   /** 投影偏移放大倍数（150%）与 α 衰减（40%）：离得越远，影子越大越淡。 */
