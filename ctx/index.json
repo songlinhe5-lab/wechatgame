@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3119,
       "lines": 118,
-      "sha256": "7081a898db88616051f52348dd41400711d8bf32a94dd04efca35950edc48a71",
+      "sha256": "ba7246774c3eed14e21e0a4060e386c06e9567a6f394bb3b185fae6becfa0065",
       "tier": "normal",
       "sections": [
         {
@@ -23423,9 +23423,9 @@
     },
     {
       "path": "games/beads/design/proposals/beads-studio-density-tiers.md",
-      "tokens": 15835,
+      "tokens": 15894,
       "lines": 452,
-      "sha256": "0b8e89c15ba53e7cb8af11ee823754e8aef3dc17477d6433f8faf18ff68162fe",
+      "sha256": "9a6ec158a6deccf3e9c754494af75fced6e31cb4e1ee66734d10c9c3498a0f50",
       "tier": "normal",
       "sections": [
         {
@@ -23433,7 +23433,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 453,
-          "tokens": 15814,
+          "tokens": 15873,
           "summary": "文档性质 设计草案（proposal），零代码、零关卡改动、零 §3 改动",
           "keywords": [
             "§3",
