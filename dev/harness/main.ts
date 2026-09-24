@@ -288,9 +288,9 @@ if (isBeads && new URLSearchParams(harnessQuery).get('mode') === 'sprint') {
   beads.startSprint();
 }
 
-// Debug: ?game=beads&dbg=outline ⇒ 盘面叠画虚线轮廓（格底图 tile 品红 vs 珠/槽轮廓青），
-// 肉眼判断缩放后 tile 与格距错位的相邻重叠/不居中。运行时亦可 `__beads.game.setDebugOutlines(true)`。
-if (isBeads && new URLSearchParams(harnessQuery).get('dbg') === 'outline') {
+// Debug 虚线轮廓：harness 里**默认开**（仅 dev 页面；游戏侧 `debugOutlines` 仍默认 false，不漏进真机/构建）。
+// 品红=固定 BEAD_PITCH 诊断参照、青=缩放 gridCell；`?dbg=off` 关；运行时亦可 `__beads.game.setDebugOutlines(b)`。
+if (isBeads && new URLSearchParams(harnessQuery).get('dbg') !== 'off') {
   beads.setDebugOutlines(true);
 }
 
