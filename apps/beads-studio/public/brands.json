@@ -1,0 +1,126 @@
+{
+ "_generated": "⚠️ GENERATED FILE — DO NOT EDIT BY HAND. 真源 games/beads/art/<slug>.json（name/family/beadMm）+ tools/scripts/sync-palettes.mjs 的 dip(mm)。重生成: pnpm run palettes:sync ｜ 漂移门: pnpm run palettes:check ｜ 决策: ADR-0021",
+ "brands": [
+  {
+   "slug": "artkal-a",
+   "name": "Artkal A 软豆",
+   "family": "Artkal",
+   "mm": 2.6,
+   "dip": 16,
+   "colors": 145
+  },
+  {
+   "slug": "artkal-c",
+   "name": "Artkal C 硬豆",
+   "family": "Artkal",
+   "mm": 2.6,
+   "dip": 16,
+   "colors": 174
+  },
+  {
+   "slug": "artkal-m",
+   "name": "Artkal M 软豆",
+   "family": "Artkal",
+   "mm": 2.6,
+   "dip": 16,
+   "colors": 220
+  },
+  {
+   "slug": "artkal-r",
+   "name": "Artkal R 软豆",
+   "family": "Artkal",
+   "mm": 5,
+   "dip": 32,
+   "colors": 89,
+   "pending": true
+  },
+  {
+   "slug": "artkal-s",
+   "name": "Artkal S 硬豆",
+   "family": "Artkal",
+   "mm": 5,
+   "dip": 32,
+   "colors": 210
+  },
+  {
+   "slug": "diamond-dotz",
+   "name": "Diamond Dotz 圆钻",
+   "family": "Diamond Dotz",
+   "mm": 2.88,
+   "dip": 18,
+   "colors": 461
+  },
+  {
+   "slug": "hama-maxi",
+   "name": "Hama Maxi",
+   "family": "Hama",
+   "mm": 10,
+   "dip": 64,
+   "colors": 25
+  },
+  {
+   "slug": "hama-midi",
+   "name": "Hama Midi",
+   "family": "Hama",
+   "mm": 5,
+   "dip": 32,
+   "colors": 92
+  },
+  {
+   "slug": "hama-mini",
+   "name": "Hama Mini",
+   "family": "Hama",
+   "mm": 3,
+   "dip": 20,
+   "colors": 78
+  },
+  {
+   "slug": "mard",
+   "name": "MARD 熔珠",
+   "family": "MARD",
+   "mm": 5,
+   "dip": 32,
+   "colors": 291
+  },
+  {
+   "slug": "nabbi",
+   "name": "Nabbi 熔珠",
+   "family": "Nabbi",
+   "mm": 5,
+   "dip": 32,
+   "colors": 30
+  },
+  {
+   "slug": "perler-caps",
+   "name": "Perler Caps 空心珠",
+   "family": "Perler",
+   "mm": 5,
+   "dip": 32,
+   "colors": 26
+  },
+  {
+   "slug": "perler-mini",
+   "name": "Perler Mini",
+   "family": "Perler",
+   "mm": 2.6,
+   "dip": 16,
+   "colors": 41
+  },
+  {
+   "slug": "perler",
+   "name": "Perler 标准珠",
+   "family": "Perler",
+   "mm": 5,
+   "dip": 32,
+   "colors": 103
+  },
+  {
+   "slug": "yant",
+   "name": "Yant 熔珠",
+   "family": "Yant",
+   "mm": 2.6,
+   "dip": 16,
+   "colors": 119
+  }
+ ]
+}

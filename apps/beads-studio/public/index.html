@@ -222,7 +222,7 @@
             <input type="file" id="file" accept="image/*">
             <label>盘面档位（标准 standard29；选图自动测格切自定义）</label>
             <select id="board">
-                <option value="standard29" selected>standard29 · 29×29（5mm Midi 标准方盘）</option>
+                <option value="standard29" selected>standard29 · 29×29（业界默认标准方盘；豆径看下方品牌）</option>
                 <option value="small18">small18 · 18×18</option>
                 <option value="small14">small14 · 14×14</option>
                 <option value="small16">small16 · 16×16</option>
@@ -241,29 +241,7 @@
             </div>
             <div class="row2">
                 <div><label>候选色集合（量化目标色）</label><select id="palette">
-                        <optgroup label="Artkal">
-                            <option value="artkal-s" selected>S 系 5mm 硬豆 · 210 色</option>
-                            <option value="artkal-c">C 系 2.6mm 硬豆 · 174 色</option>
-                            <option value="artkal-a">A 系 2.6mm 软豆 · 145 色</option>
-                            <option value="artkal-m">M 系 2.6mm 软豆 · 220 色</option>
-                            <option value="artkal-r" disabled>R 系 5mm 软豆 · 89 色（敬请期待）</option>
-                        </optgroup>
-                        <optgroup label="Hama">
-                            <option value="hama-midi">Midi 5mm · 92 色</option>
-                            <option value="hama-mini">Mini 3mm · 78 色</option>
-                            <option value="hama-maxi">Maxi 10mm · 25 色</option>
-                        </optgroup>
-                        <optgroup label="Perler">
-                            <option value="perler">Perler 5mm · 103 色</option>
-                            <option value="perler-mini">Mini 2.6mm · 41 色</option>
-                            <option value="perler-caps">Caps 空心珠 · 26 色</option>
-                        </optgroup>
-                        <optgroup label="其他">
-                            <option value="nabbi">Nabbi · 30 色</option>
-                            <option value="yant">Yant · 119 色</option>
-                            <option value="mard">MARD · 291 色</option>
-                            <option value="diamond-dotz">Diamond Dotz 钻石画 · 461 色</option>
-                        </optgroup>
+                        <!-- 选项由 /brands.json 生成（品牌↔mm↔dip 单一真源，ADR-0021）；本文件不再手写品牌与 mm -->
                     </select></div>
                 <div><label>实际用几种颜色<span id="colorsHint">（参考图，不可入关）</span></label><input type="number" id="colors"
                         value="8" min="3" max="35"></div>
@@ -359,23 +337,94 @@
             $('colors').min = 3; $('colors').max = 35;
             $('colorsHint').textContent = '（参考图，可入关：写回品牌色号）';
         }
-        $('palette').onchange = syncColorsDomain;
+        $('palette').onchange = () => { syncColorsDomain(); refreshInfer(); };
         syncColorsDomain();
 
-        /** 品牌 → 物理 mm（单一真源；偶数整数 dip 阶梯见 DIP_BY_MM，系数 6.4 dip/mm）。 */
-        const BRAND_MM = { 'artkal-s': 5, 'artkal-c': 2.6, 'artkal-a': 2.6, 'artkal-m': 2.6, 'hama-midi': 5, 'hama-mini': 3, 'hama-maxi': 10, 'perler': 5, 'perler-mini': 2.6, 'perler-caps': 5, 'nabbi': 5, 'yant': 2.6, 'mard': 5, 'diamond-dotz': 2.88 };
-        const DIP_BY_MM = { 2.6: 16, 2.88: 18, 3: 20, 5: 32, 10: 64 };
-        /** 选中品牌的物理珠径 mm（表命中优先，否则回退解析下拉标签）。 */
-        function beadMm() {
-            const slug = $('palette').value;
-            if (BRAND_MM[slug] != null) return BRAND_MM[slug];
-            const t = $('palette').selectedOptions[0]?.textContent || '';
-            return parseFloat(t.match(/([\d.]+)\s*mm/)?.[1]) || 5;
+        /**
+         * 品牌表（「候选色系宏」的 studio 侧产物）：/brands.json 与游戏侧 BRANDS **同批
+         * 同函数生成**（真源 = games/beads/art/<slug>.json 的 name/family/beadMm +
+         * sync-palettes.mjs 的唯一 dip(mm)；ADR-0021）。本文件**不再有任何 mm / dip 硬表**：
+         * 下拉标签、每颗标准像素、成品尺寸换算均取自 BRANDS。
+         */
+        let BRANDS = {}; // slug → { slug, name, family, mm, dip, colors, pending? }
+        const brandsReady = fetch('/brands.json')
+            .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+            .then((j) => {
+                const sel = $('palette');
+                const groups = {};
+                for (const b of j.brands) {
+                    BRANDS[b.slug] = b;
+                    let g = groups[b.family];
+                    if (!g) {
+                        g = groups[b.family] = document.createElement('optgroup');
+                        g.label = b.family;
+                        sel.appendChild(g);
+                    }
+                    const o = document.createElement('option');
+                    o.value = b.slug;
+                    // mm 在此仅作**展示**（唯一数值源仍是 brands.json 的 b.mm）
+                    o.textContent = `${b.name} · ${b.mm}mm · ${b.colors} 色${b.pending ? '（敬请期待）' : ''}`;
+                    o.disabled = !!b.pending;
+                    g.appendChild(o);
+                }
+                if (BRANDS['artkal-s']) sel.value = 'artkal-s'; // 默认档保持（旧 HTML 的 selected）
+                syncColorsDomain();
+            })
+            .catch((e) => msg(`品牌表 /brands.json 加载失败（${e.message}）：请跑 \`pnpm run palettes:sync\` 后刷新`, 'err'));
+        /** 当前选中品牌的条目；未就绪 / 未知 slug → null。**不回落默认 5mm**——静默默认就是第二套真源。 */
+        const currentBrand = () => BRANDS[$('palette').value] || null;
+
+        /** 已解像源图的边长与「源图已解像…」提示前缀：换品牌时按新 dip 重推格数并用。 */
+        let srcDims = null;
+        let srcMsgBase = '';
+
+        /**
+         * 格数推断（**每颗像素标准 = 选中品牌的 dip**，真源见 BRANDS / ADR-0021；
+         * `levels-spec §3.1` 的「每颗 32px」= 5mm 品牌的特例，2.6mm ⇒ 16px、同图格数翻倍）。
+         * 优先级：
+         *   1. 正方形 + 边长是 PER_BEAD_PX 的整数倍（允许 ±2px 浮动）→ 标准设计图，直接按每颗 dip 推断
+         *   2. 珠距检测可信（gx≥15）→ 实拍物理盘照片
+         *   3. dip 推断在合法范围内 → 兜底
+         * 推断上限取「解像上限 ÷ 每颗像素」而非单图上限：>SINGLE_MAX 不是非法盘面，而是走**组合图 Plate**
+         *（`server.mjs ingestLevel` 自动均分切块）。`SINGLE_MAX` = §3.3 `GRID_MAX`（**v1.45：50→32**）。
+         * 返回要拼在「源图已解像」后的注记串（可能为空）；副作用 = 回填 #board/#cols/#rows。
+         */
+        async function inferBoard(w, h) {
+            await brandsReady;                 // 品牌表就绪（加载失败已在加载处报红 ⇒ 取不到就不推断，**不默默按 5mm 走**）
+            const brand = currentBrand();
+            if (!brand) return '｜⚠ 品牌表未就绪，未做格数推断（刷新页面；仍不存在则跑 `pnpm run palettes:sync`）';
+            const mm = brand.mm;                        // 品牌物理珠径（成品尺寸用）
+            const PER_BEAD_PX = brand.dip;              // 每颗标准 px（旧 DIP_BY_MM 硬表已删）
+            const MAX_INFER = Math.floor(4096 / PER_BEAD_PX);        // 可推断范围（非单图上限）
+            const SINGLE_MAX = 32;                                   // 单图宽高上限；任一维超过即拆组合图
+            const sug = detectBeadGrid(srcPixels);
+            const cPx = Math.round(w / PER_BEAD_PX), rPx = Math.round(h / PER_BEAD_PX);
+            const isStdSquare = w === h
+                && (w % PER_BEAD_PX <= 2 || w % PER_BEAD_PX >= PER_BEAD_PX - 2);
+            const inferred = (cPx >= 2 && rPx >= 2 && cPx <= MAX_INFER && rPx <= MAX_INFER)
+                ? { cols: cPx, rows: rPx, gx: Math.round(w / cPx), gy: Math.round(h / rPx) } : null;
+            const sugOk = !!(sug && sug.gx >= 15 && sug.gy >= 15
+                && sug.cols <= MAX_INFER && sug.rows <= MAX_INFER);
+            const useSug = (isStdSquare && inferred) ? inferred : sugOk ? sug : inferred;
+            if (!useSug) return '';
+            const dens = Math.max(1, parseInt($('density').value, 10) || 1);   // 1x/2x/3x/4x 边长倍率 ⇒ 珠数≈×n²
+            useSug.cols = Math.min(107, Math.round(useSug.cols * dens));
+            useSug.rows = Math.min(107, Math.round(useSug.rows * dens));
+            $('board').value = 'custom'; $('customSize').style.display = 'grid';
+            $('cols').value = useSug.cols; $('rows').value = useSug.rows;
+            const sizeNote = `成品 ${(useSug.cols * mm / 10).toFixed(1)}×${(useSug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径`;
+            const plateNote = (useSug.cols > SINGLE_MAX || useSug.rows > SINGLE_MAX)
+                ? `｜超单图上限 ${SINGLE_MAX} ⇒ 一键入关自动拆成组合图 Plate（每宫 ≤${SINGLE_MAX}）` : '';
+            return (!isStdSquare && sugOk)
+                ? `｜珠距检测 ${useSug.gx}×${useSug.gy}px ⇒ 建议 ${useSug.cols}×${useSug.rows} 格（${sizeNote}，可手改）${plateNote}`
+                : `｜标准 ${PER_BEAD_PX}px/颗（${brand.name} ${mm}mm）推断 ⇒ ${useSug.cols}×${useSug.rows} 格（${sizeNote}，可手改）${plateNote}`;
         }
-        /** 品牌对应的每颗标准 px（dip）：表优先，否则 mm×6.4 取偶。 */
-        function beadDip() {
-            const mm = beadMm();
-            return DIP_BY_MM[mm] != null ? DIP_BY_MM[mm] : 2 * Math.round((mm * 6.4) / 2);
+
+        /** 选图后改品牌 ⇒ 立即按新 dip 重推（否则屏幕上留着旧品牌的格数与 cm，等于第二个真源的后果）。 */
+        async function refreshInfer() {
+            if (!srcDims) return;
+            const note = await inferBoard(srcDims.w, srcDims.h);
+            msg(srcMsgBase + note, note.startsWith('｜⚠') ? 'err' : 'ok');
         }
 
         /** 错位密度：全错位（引擎 misplaced 初盘，成片错豆）/ 少量交换（才需要 k）。 */
@@ -405,45 +454,17 @@
             const g = cv.getContext('2d', { willReadFrequently: true });
             g.drawImage(img, 0, 0, w, h);
             srcPixels = { w, h, data: g.getImageData(0, 0, w, h).data };
-            // 珠距推断优先级（**每颗像素标准 = 32px**，`levels-spec §3.1` / 管线 `§0.3` 标准档位表）：
-            //   1. 正方形 + 边长是 PER_BEAD_PX 的整数倍（允许 ±2px 浮动）→ 标准设计图，直接按每颗 32px 推断
-            //   2. 珠距检测可信（gx≥15）→ 实拍物理盘照片
-            //   3. 32px 推断在合法范围内 → 兜底
-            // 推断上限取「解像上限 ÷ 每颗像素」而非单图上限：>SINGLE_MAX 不是非法盘面，而是走**组合图 Plate**
-            // （`server.mjs ingestLevel` 自动均分切块）。`SINGLE_MAX` = §3.3 `GRID_MAX`（**v1.45：50→32**）。
-            const PER_BEAD_PX = beadDip();                           // 品牌 mm→dip（5mm=32；2.6mm=16…），不再恒 32
-            const SINGLE_MAX = 32;                                   // 单图宽高上限；任一维超过即拆组合图
-            const MAX_INFER = Math.floor(4096 / PER_BEAD_PX);        // = 128 格（可推断范围，非单图上限）
-            const sug = detectBeadGrid(srcPixels);
-            const cPx = Math.round(w / PER_BEAD_PX), rPx = Math.round(h / PER_BEAD_PX);
-            const isStdSquare = w === h
-                && (w % PER_BEAD_PX <= 2 || w % PER_BEAD_PX >= PER_BEAD_PX - 2);
-            const inferred = (cPx >= 2 && rPx >= 2 && cPx <= MAX_INFER && rPx <= MAX_INFER)
-                ? { cols: cPx, rows: rPx, gx: Math.round(w / cPx), gy: Math.round(h / rPx) } : null;
-            const sugOk = !!(sug && sug.gx >= 15 && sug.gy >= 15
-                && sug.cols <= MAX_INFER && sug.rows <= MAX_INFER);
-            const useSug = (isStdSquare && inferred) ? inferred : sugOk ? sug : inferred;
-            let sugMsg = '';
-            if (useSug) {
-                const dens = Math.max(1, parseInt($('density').value, 10) || 1);   // 1x/2x/3x/4x 边长倍率 ⇒ 珠数≈×n²
-                useSug.cols = Math.min(107, Math.round(useSug.cols * dens));
-                useSug.rows = Math.min(107, Math.round(useSug.rows * dens));
-                const mm = beadMm();
-                $('board').value = 'custom'; $('customSize').style.display = 'grid';
-                $('cols').value = useSug.cols; $('rows').value = useSug.rows;
-                const plateNote = (useSug.cols > SINGLE_MAX || useSug.rows > SINGLE_MAX)
-                    ? `｜超单图上限 ${SINGLE_MAX} ⇒ 一键入关自动拆成组合图 Plate（每宫 ≤${SINGLE_MAX}）` : '';
-                sugMsg = (!isStdSquare && sugOk)
-                    ? `｜珠距检测 ${useSug.gx}×${useSug.gy}px ⇒ 建议 ${useSug.cols}×${useSug.rows} 格（成品 ${(useSug.cols * mm / 10).toFixed(1)}×${(useSug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径，可手改）${plateNote}`
-                    : `｜标准 ${PER_BEAD_PX}px/颗 推断 ⇒ ${useSug.cols}×${useSug.rows} 格（可手改）${plateNote}`;
-            }
+            srcDims = { w, h };
             // 原图缩略图（选图时本地生成，不依赖服务端返图）
             const tk = Math.min(1, THUMB_MAX / Math.max(img.width, img.height));
             const tw = Math.max(1, Math.round(img.width * tk)), th = Math.max(1, Math.round(img.height * tk));
             const tc = new OffscreenCanvas(tw, th);
             tc.getContext('2d').drawImage(img, 0, 0, tw, th);
             srcThumb = await blobToDataURL(await tc.convertToBlob({ type: 'image/jpeg', quality: 0.72 }));
-            msg(`源图已解像：${w}×${h}（RGBA ${Math.round(w * h * 4 / 1024)} KB）｜缩略图 ${tw}×${th}${sugMsg}`, 'ok');
+            srcMsgBase = `源图已解像：${w}×${h}（RGBA ${Math.round(w * h * 4 / 1024)} KB）｜缩略图 ${tw}×${th}`;
+            const sugNote = await inferBoard(w, h);
+            // 品牌表拿不到 = 硬失败（不静默按某默认 mm 推断）⇒ 整条提红，不能混在“ok”里
+            msg(srcMsgBase + sugNote, sugNote.startsWith('｜⚠') ? 'err' : 'ok');
             if (srcUrl) URL.revokeObjectURL(srcUrl);
             srcUrl = URL.createObjectURL(f); // 预览用原文件，缩略图只随 POST 存盘
             if (view === 'src') drawSrc(srcUrl); // 未生成时也能先看原图
@@ -508,6 +529,9 @@
 
         $('gen').onclick = async () => {
             if (!srcPixels) return msg('先选源图', 'err');
+            // 品牌表未就绪 ⇒ 拒生成：空 slug 会被 beads-gen 当“没传 --palette”而静默用默认品牌，
+            // 等于绕过了单一真源（与上面“不默认 5mm”同一口径）。
+            if (!currentBrand()) return msg('品牌表 /brands.json 未就绪：无法确定候选色集合与豆径 ⇒ 先跑 pnpm run palettes:sync 再刷新', 'err');
             const cols = parseInt($('cols').value, 10), rows = parseInt($('rows').value, 10);
             if (!cols || !rows) return msg('盘面尺寸非法', 'err');
             const q = new URLSearchParams({

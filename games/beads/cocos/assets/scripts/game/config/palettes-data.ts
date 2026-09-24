@@ -5,8 +5,9 @@
  * Regenerate:      node tools/scripts/sync-palettes.mjs
  * Drift guard:     pnpm run palettes:check（pnpm run verify 内）
  *
- * 品牌色板注册表：游戏侧经 view/palette.ts re-export PALETTES / getBeadPalette 消费；
- * beads-studio server 直读真源 JSON。关卡按 slug+色号引用本表渲染（v1.40）。
+ * 品牌色板注册表：游戏侧经 view/palette.ts re-export PALETTES / getBeadPalette 与
+ * BRANDS / getBeadBrand 消费；beads-studio server 直读真源 JSON、前端读同批生成的 brands.json。
+ * 关卡按 slug+色号引用本表渲染（v1.40）。
  * 存储形态：每品牌一条 payload = codes '|'-连接 hex（去 #）→ XOR 密钥流 → base64，
  * 模块加载期自解码。⚠️ 这是**混淆**不是加密（客户端无真加密，密钥随包发布），
  * 仅防明文提取；色板数据本身是公开色号/色值。
@@ -21,6 +22,28 @@ export interface BeadsPaletteEntry {
   readonly source: string;
   /** 收录状态备注（如与官方色数差异）。 */
   readonly note: string;
+}
+
+/**
+ * 品牌物理元数据（「候选色系宏」派生表 · ADR-0021）：真源 = art/<slug>.json 的
+ * name / family / beadMm；dip 由生成器唯一实现 dip(mm)=6.4 dip/mm 取偶算出，
+ * 本文件只携带结果。**⚠ 不参与 §3.3 渲染几何**（BEAD_CELL/GAP/PITCH 各自冻结）：
+ * mm/dip 是品牌物理口径，供 studio 由照片算珠数与成品尺寸、及未来选档使用。
+ */
+export interface BeadBrand {
+  readonly slug: string;
+  /** 显示名（不含 mm —— mm 只在数值字段住一次）。 */
+  readonly name: string;
+  /** 品牌家族（studio 下拉分组用）。 */
+  readonly family: string;
+  /** 豆子物理宽度 mm。 */
+  readonly mm: number;
+  /** 每颗标准像素（dip）= dip(mm)；源图/做图域，非渲染 cell。 */
+  readonly dip: number;
+  /** 收录色数（codes/palette 长度）。 */
+  readonly colors: number;
+  /** true = 目录在册但暂不开放功能（如 artkal-r，2026-09-21 用户裁定）。 */
+  readonly pending?: boolean;
 }
 
 const KEY = 'beads-art-v1';
@@ -81,3 +104,27 @@ export const PALETTES: { readonly [slug: string]: BeadsPaletteEntry } = (() => {
   }
   return Object.freeze(out);
 })();
+
+/** slug → 品牌物理元数据（mm/dip；生成于 art/<slug>.json，dip 由生成器唯一实现派生）。 */
+export const BRANDS: { readonly [slug: string]: BeadBrand } = Object.freeze({
+  "artkal-a": {"slug":"artkal-a","name":"Artkal A 软豆","family":"Artkal","mm":2.6,"dip":16,"colors":145},
+  "artkal-c": {"slug":"artkal-c","name":"Artkal C 硬豆","family":"Artkal","mm":2.6,"dip":16,"colors":174},
+  "artkal-m": {"slug":"artkal-m","name":"Artkal M 软豆","family":"Artkal","mm":2.6,"dip":16,"colors":220},
+  "artkal-r": {"slug":"artkal-r","name":"Artkal R 软豆","family":"Artkal","mm":5,"dip":32,"colors":89,"pending":true},
+  "artkal-s": {"slug":"artkal-s","name":"Artkal S 硬豆","family":"Artkal","mm":5,"dip":32,"colors":210},
+  "diamond-dotz": {"slug":"diamond-dotz","name":"Diamond Dotz 圆钻","family":"Diamond Dotz","mm":2.88,"dip":18,"colors":461},
+  "hama-maxi": {"slug":"hama-maxi","name":"Hama Maxi","family":"Hama","mm":10,"dip":64,"colors":25},
+  "hama-midi": {"slug":"hama-midi","name":"Hama Midi","family":"Hama","mm":5,"dip":32,"colors":92},
+  "hama-mini": {"slug":"hama-mini","name":"Hama Mini","family":"Hama","mm":3,"dip":20,"colors":78},
+  "mard": {"slug":"mard","name":"MARD 熔珠","family":"MARD","mm":5,"dip":32,"colors":291},
+  "nabbi": {"slug":"nabbi","name":"Nabbi 熔珠","family":"Nabbi","mm":5,"dip":32,"colors":30},
+  "perler-caps": {"slug":"perler-caps","name":"Perler Caps 空心珠","family":"Perler","mm":5,"dip":32,"colors":26},
+  "perler-mini": {"slug":"perler-mini","name":"Perler Mini","family":"Perler","mm":2.6,"dip":16,"colors":41},
+  "perler": {"slug":"perler","name":"Perler 标准珠","family":"Perler","mm":5,"dip":32,"colors":103},
+  "yant": {"slug":"yant","name":"Yant 熔珠","family":"Yant","mm":2.6,"dip":16,"colors":119},
+});
+
+/** 按 slug 取品牌元数据；未知 slug → null。**只查表不算 mm→dip**（真源在生成期）。 */
+export function getBeadBrand(slug: string): BeadBrand | null {
+  return BRANDS[slug] ?? null;
+}

@@ -58,6 +58,7 @@ games/<game>/
 - ✅ 关卡 → `config/levels.ts` 的字符网格 + `legend`，由框架 `compileLevels()` 校验
 - ✅ 内容注册 → `DataRegistry<T>`，运行时按 id 查
 - ✅ 颜色 → `view/palette.ts`，代码里不出现 `#rrggbb` 字面量
+- ✅ 品牌豆径 mm ↔ dip（「候选色系宏」）→ 真源只有一份：`games/beads/art/<slug>.json` 的 `name / family / beadMm`；`dip(mm)` **唯一实现住在生成器** `tools/scripts/sync-palettes.mjs`，产物 `palettes-data.ts` 的 `BRANDS` 与 `apps/beads-studio/public/brands.json` 同批生成，下游（游戏 `view/palette.ts` re-export、studio 前端下拉与 `PER_BEAD_PX`、`beads-gen` 物理尺寸注记）**一律查表、不再算 mm→dip，也不许回落默认 5mm**（ADR-0021；漂移门 `palettes:check` 逐字节比对两份产物，缺 `beadMm` 即 fail-closed；⚠ 本表不参与 §3.3 渲染几何 `BEAD_CELL/GAP/PITCH`）
 
 **自查**：`grep -nE '#[0-9a-fA-F]{6}' games/*/src/**/*.ts`，除 `palette.ts` 外都应无命中。
 

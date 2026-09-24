@@ -1,6 +1,9 @@
 {
  "_source": "https://github.com/maxcleme/beadcolors（社区实物校准库，raw CSV，抓取日 2026-09-21）",
  "_note": "Perler 5mm 熔珠（美国）：103 色（社区校准值）。仅参考图纸用，非游戏真源。",
+ "name": "Perler 标准珠",
+ "family": "Perler",
+ "beadMm": 5,
  "codes": [
   "80-15089",
   "80-15179",

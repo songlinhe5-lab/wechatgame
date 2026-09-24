@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4670,
       "lines": 82,
-      "sha256": "ad421e0d7d947ff9b342d61340610b102ab73557f75880ec54e9faedc203889e",
+      "sha256": "1719fbb7154d376401314311df1f4268b17c1254a31ba0123104528373e60c85",
       "tier": "normal",
       "sections": [
         {
@@ -700,12 +700,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 336 行 / 7699 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 337 行 / 7890 tok / 实测读 42 次",
           "level": 2,
           "startLine": 14,
           "endLine": 17,
           "tokens": 254,
-          "summary": "§控制清单 — 可立即执行的一页规则=1+337 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
+          "summary": "§控制清单 — 可立即执行的一页规则=1+338 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
           "keywords": [
             "§0",
             "§1",
@@ -7089,6 +7089,151 @@
       ]
     },
     {
+      "path": "docs/architecture/adr/ADR-0021-beads-brand-mm-dip-ssot.md",
+      "tokens": 3985,
+      "lines": 130,
+      "sha256": "913b707a8317e1797962a98b599c1975198afe20cb7e29afcc6d2d0d86dad8af",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0021 — 品牌物理珠径 mm↔dip 挂在「候选色系宏」（art/<slug>.json）上做唯一真源",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 131,
+          "tokens": 3952,
+          "summary": "状态：Accepted（2026-09-24，程基岩 / engineering-lead；用户裁定「单一真源」，WXG",
+          "keywords": [
+            "ADR",
+            "dip",
+            "art",
+            "slug",
+            "json",
+            "Accepted"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 35,
+          "tokens": 671,
+          "summary": "「候选色系宏」= games/beads/art/<slug>.json 这组品牌色板（现 15 份在册：artkal-",
+          "keywords": [
+            "Context",
+            "games",
+            "beads",
+            "art",
+            "slug",
+            "json"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 36,
+          "endLine": 44,
+          "tokens": 544,
+          "summary": "A1（采纳）A 的变体 art/<slug>.json 加顶层 name / family / beadMm（+ 可选 ",
+          "keywords": [
+            "Alternatives",
+            "art",
+            "slug",
+            "json",
+            "name",
+            "family"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 45,
+          "endLine": 62,
+          "tokens": 498,
+          "summary": "采 A1：品牌 mm 作为 art/<slug>.json 的顶层字段与 name / family 一起成为「候选色系",
+          "keywords": [
+            "Decision",
+            "art",
+            "slug",
+            "json",
+            "name",
+            "family"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 121,
+          "tokens": 1824,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 65,
+          "endLine": 78,
+          "tokens": 385,
+          "summary": "mm↔dip 的人写副本从 4 处降到 1 处（真源）；其余两份是同批生成物，由 palettes:check 一扇门锁",
+          "keywords": [
+            "dip",
+            "palettes",
+            "check",
+            "正面"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面（已知成本，非风险）",
+          "level": 3,
+          "startLine": 79,
+          "endLine": 107,
+          "tokens": 994,
+          "summary": "1. dip 只存在于生成期，运行时代码里没有 dip(mm) 函数。若将来要按\"任意未在表内的 mm\"实时换算，",
+          "keywords": [
+            "dip",
+            "负面",
+            "已知成本",
+            "非风险"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 108,
+          "endLine": 121,
+          "tokens": 418,
+          "summary": "server.mjs 未改：/brands.json 走既有静态 public/ 路由（零依赖 node，MIME 表已",
+          "keywords": [
+            "server",
+            "mjs",
+            "brands",
+            "json",
+            "public",
+            "node"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 122,
+          "endLine": 131,
+          "tokens": 242,
+          "summary": "游戏要按品牌档位改变盘面几何（§3.3 BEAD_CELL/GAP/PITCH 变更） 另立 §3 变更单（本 ADR ",
+          "keywords": [
+            "§3.3",
+            "§3",
+            "Review",
+            "Triggers",
+            "BEAD_CELL",
+            "GAP"
+          ]
+        }
+      ]
+    },
+    {
       "path": "docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md",
       "tokens": 14849,
       "lines": 460,
@@ -8097,17 +8242,17 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 7699,
-      "lines": 336,
-      "sha256": "37c433124f2ae0e024acbe661e94117c0cbd919bc1f369eaae694ec18157bd5f",
+      "tokens": 7890,
+      "lines": 337,
+      "sha256": "a85064b7f34d5df4b9348e148a6da50d3037e28999d23f95a0a42d9bd59d66a5",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§控制清单 — 可立即执行的一页规则",
           "level": 1,
           "startLine": 1,
-          "endLine": 337,
-          "tokens": 7683,
+          "endLine": 338,
+          "tokens": 7874,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -8160,8 +8305,8 @@
           "anchor": "§3 数据驱动，不硬编码",
           "level": 2,
           "startLine": 53,
-          "endLine": 65,
-          "tokens": 155,
+          "endLine": 66,
+          "tokens": 346,
           "summary": "❌ 系统文件里出现魔法数字（if (levelIndex === 3) speed = 620）",
           "keywords": [
             "levelIndex",
@@ -8173,8 +8318,8 @@
         {
           "anchor": "§4 事件是通知，不是状态",
           "level": 2,
-          "startLine": 66,
-          "endLine": 77,
+          "startLine": 67,
+          "endLine": 78,
           "tokens": 164,
           "summary": "✅ 事件总线只用来广播\"发生了什么\"：brick:destroyed / paddle:hit / ball:lost",
           "keywords": [
@@ -8189,8 +8334,8 @@
         {
           "anchor": "§5 存档",
           "level": 2,
-          "startLine": 78,
-          "endLine": 87,
+          "startLine": 79,
+          "endLine": 88,
           "tokens": 134,
           "summary": "✅ 一律走 SaveManager<T>：带 version + migrations + validate",
           "keywords": [
@@ -8204,8 +8349,8 @@
         {
           "anchor": "§6 输入",
           "level": 2,
-          "startLine": 88,
-          "endLine": 98,
+          "startLine": 89,
+          "endLine": 99,
           "tokens": 220,
           "summary": "✅ 游戏只读 InputManager.snapshot（逐帧不可变）",
           "keywords": [
@@ -8217,8 +8362,8 @@
         {
           "anchor": "§7 状态机",
           "level": 2,
-          "startLine": 99,
-          "endLine": 107,
+          "startLine": 100,
+          "endLine": 108,
           "tokens": 115,
           "summary": "✅ 用 StateMachine<S> 的转移表声明合法边；非法转移自动失败",
           "keywords": [
@@ -8229,8 +8374,8 @@
         {
           "anchor": "§8 渲染",
           "level": 2,
-          "startLine": 108,
-          "endLine": 118,
+          "startLine": 109,
+          "endLine": 119,
           "tokens": 185,
           "summary": "✅ 游戏只产出 RenderModel（rect / circle / line / text / polygon）",
           "keywords": [
@@ -8245,8 +8390,8 @@
         {
           "anchor": "§9 平台差异",
           "level": 2,
-          "startLine": 119,
-          "endLine": 126,
+          "startLine": 120,
+          "endLine": 127,
           "tokens": 89,
           "summary": "✅ 一切宿主差异写在 platform/{node,web,weapp}.ts 里，通过 Platform 接口暴露",
           "keywords": [
@@ -8261,8 +8406,8 @@
         {
           "anchor": "§10 网络与安全（后续游戏适用）",
           "level": 2,
-          "startLine": 127,
-          "endLine": 136,
+          "startLine": 128,
+          "endLine": 137,
           "tokens": 137,
           "summary": "✅ 服务端权威：客户端只做本地预测与表现，判定结果以服务端为准",
           "keywords": [
@@ -8273,8 +8418,8 @@
         {
           "anchor": "§11 测试",
           "level": 2,
-          "startLine": 137,
-          "endLine": 155,
+          "startLine": 138,
+          "endLine": 156,
           "tokens": 204,
           "summary": "✅ 验证驱动：先写测试，再实现",
           "keywords": [
@@ -8284,8 +8429,8 @@
         {
           "anchor": "§12 提交前自查表",
           "level": 2,
-          "startLine": 156,
-          "endLine": 175,
+          "startLine": 157,
+          "endLine": 176,
           "tokens": 226,
           "summary": "",
           "keywords": [
@@ -8295,8 +8440,8 @@
         {
           "anchor": "§13 反模式速查（见到就打回）",
           "level": 2,
-          "startLine": 176,
-          "endLine": 201,
+          "startLine": 177,
+          "endLine": 202,
           "tokens": 743,
           "summary": "在 update() 里 arr.filter(...) 原地遍历 + for 循环；池化临时数组",
           "keywords": [
@@ -8311,8 +8456,8 @@
         {
           "anchor": "§14 Cocos MCP 编辑器接入（ADR-0009）",
           "level": 2,
-          "startLine": 202,
-          "endLine": 214,
+          "startLine": 203,
+          "endLine": 215,
           "tokens": 450,
           "summary": "接入定位：验证 / 构建 / 资源刷新闭环——不是\"用 AI 搭场景\"。插件在编辑器侧，运行时包体零影响。",
           "keywords": [
@@ -8325,8 +8470,8 @@
         {
           "anchor": "§15 构建层语言契约（ADR-0012，根因 G10）",
           "level": 2,
-          "startLine": 215,
-          "endLine": 235,
+          "startLine": 216,
+          "endLine": 236,
           "tokens": 874,
           "summary": "Cocos 脚本打包把所有平台降到 ES5，且 built-in 不 polyfill、语法照旧降级。其中一条不对称会静",
           "keywords": [
@@ -8341,8 +8486,8 @@
         {
           "anchor": "§16 音频后端契约（ADR-0013，根因 BD-05b）",
           "level": 2,
-          "startLine": 236,
-          "endLine": 254,
+          "startLine": 237,
+          "endLine": 255,
           "tokens": 758,
           "summary": "选型已冻结：systems-index §3.12 = 程序化合成、主包音频 0 KB（判据 A05-25）。要出声只能",
           "keywords": [
@@ -8357,8 +8502,8 @@
         {
           "anchor": "§17 宿主输入归一化（ADR-0011 §3(e)，根因 缺陷 C1）",
           "level": 2,
-          "startLine": 255,
-          "endLine": 312,
+          "startLine": 256,
+          "endLine": 313,
           "tokens": 1726,
           "summary": "屏幕坐标的唯一契约 = 屏幕 CSS px · 左上原点；DPR 永不进 Viewport / InputManager",
           "keywords": [
@@ -8373,8 +8518,8 @@
         {
           "anchor": "§18 外来吸收四条（CCGS `gameplay-code`，WXG-T-175）",
           "level": 2,
-          "startLine": 313,
-          "endLine": 337,
+          "startLine": 314,
+          "endLine": 338,
           "tokens": 601,
           "summary": "来源：Claude Code Game Studios（MIT）.claude/rules/gameplay-code.",
           "keywords": [

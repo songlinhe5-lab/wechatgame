@@ -23,6 +23,21 @@ export function getBeadPalette(slug: string): BeadsPaletteEntry | null {
   return PALETTES[slug] ?? null;
 }
 
+// ───────────────────────────────── 品牌物理元数据（「候选色系宏」· ADR-0021）──
+
+/**
+ * slug → { name, family, mm, dip, colors }：品牌豆径 mm 与每颗标准像素 dip 的**只读派生表**
+ *（真源 = `games/beads/art/<slug>.json` 的 `beadMm`，dip 由 `tools/scripts/sync-palettes.mjs`
+ *  的唯一 `dip(mm)` 在生成期算出；漂移门 `palettes:check`）。
+ *
+ * ⚠ **不参与渲染几何**：本表是品牌物理口径（照片算珠数 / 成品尺寸 / 未来选档），
+ *   游戏内盘面尺寸仍由 §3.3 冻结常量 `BEAD_CELL=50 / GAP=2 / PITCH=52` 决定，
+ *   **不得由 dip 推导**（IMPACT-0020a §7.1 K-A：源图域与渲染域数值相同与否皆不互推）。
+ *   beads-studio 前端读同批生成的 `apps/beads-studio/public/brands.json` —— 两处同一真源。
+ */
+export { BRANDS, getBeadBrand } from '../config/palettes-data';
+export type { BeadBrand } from '../config/palettes-data';
+
 // ───────────────────────────────────────────── bead inks（v1.40 关卡色板）──
 
 /**

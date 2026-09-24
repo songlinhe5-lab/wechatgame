@@ -1,6 +1,10 @@
 {
  "_source": "https://github.com/maxcleme/beadcolors (raw/artkal_r.csv)",
  "_note": "Artkal R 系列 5mm 软豆：社区校准库 88 色。⚠️ 2026-09-21 用户裁决：保留选项暂不做功能输出。仅参考图纸用，非游戏真源。",
+ "name": "Artkal R 软豆",
+ "family": "Artkal",
+ "beadMm": 5,
+ "pending": true,
  "codes": [
   "R01",
   "R02",

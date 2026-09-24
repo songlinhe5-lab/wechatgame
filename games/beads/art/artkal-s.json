@@ -1,6 +1,9 @@
 {
  "_source": "https://github.com/maxcleme/beadcolors (raw/artkal_s.csv, 实物校准) + beadinn.com (SE 珠光补遗)",
  "_note": "Artkal S 系列 5mm 硬豆 midi：官方宣称 225 色（含珠光/夜光/霓虹），社区校准库 198 色 + beadinn SE 珠光 17 色为当前可得最全集；同号冲突取社区校准值。抓取日 2026-09-21。仅参考图纸用，非游戏真源。",
+ "name": "Artkal S 硬豆",
+ "family": "Artkal",
+ "beadMm": 5,
  "codes": [
   "S01",
   "S02",

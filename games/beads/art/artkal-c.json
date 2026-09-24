@@ -1,6 +1,9 @@
 {
  "_source": "https://github.com/maxcleme/beadcolors (raw/artkal_c.csv)",
  "_note": "Artkal C 系列 2.6mm 硬豆 mini：官方宣称已扩至 437 色，社区校准库现收录 174 色（旧版基准）。抓取日 2026-09-21。仅参考图纸用，非游戏真源。",
+ "name": "Artkal C 硬豆",
+ "family": "Artkal",
+ "beadMm": 2.6,
  "codes": [
   "C01",
   "C02",

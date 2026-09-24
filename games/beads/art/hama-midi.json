@@ -1,6 +1,9 @@
 {
  "_source": "https://github.com/maxcleme/beadcolors（社区实物校准库，raw CSV，抓取日 2026-09-21）",
  "_note": "Hama Midi 5mm 熔珠（丹麦）：92 色（社区校准值）。仅参考图纸用，非游戏真源。",
+ "name": "Hama Midi",
+ "family": "Hama",
+ "beadMm": 5,
  "codes": [
   "H01",
   "H02",

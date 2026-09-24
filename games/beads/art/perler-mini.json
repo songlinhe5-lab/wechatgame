@@ -1,6 +1,9 @@
 {
  "_source": "https://github.com/maxcleme/beadcolors（社区实物校准库，raw CSV，抓取日 2026-09-21）",
  "_note": "Perler Mini 2.6mm 熔珠（美国）：41 色（社区校准值）。仅参考图纸用，非游戏真源。",
+ "name": "Perler Mini",
+ "family": "Perler",
+ "beadMm": 2.6,
  "codes": [
   "80-14110",
   "80-15179",

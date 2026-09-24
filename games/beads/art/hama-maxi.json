@@ -1,6 +1,9 @@
 {
  "_source": "https://github.com/maxcleme/beadcolors（社区实物校准库，raw CSV，抓取日 2026-09-21）",
  "_note": "Hama Maxi 10mm 熔珠（丹麦，幼童）：25 色（社区校准值）。仅参考图纸用，非游戏真源。",
+ "name": "Hama Maxi",
+ "family": "Hama",
+ "beadMm": 10,
  "codes": [
   "H01",
   "H03",

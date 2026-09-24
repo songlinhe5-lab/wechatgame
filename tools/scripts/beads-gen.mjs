@@ -7,12 +7,14 @@
  * **本工具不判 PASS** —— 能否入关由 `levels.ts` 的 BOOT 校验决定，当前有两条硬约束（见文末）。
  *
  * ── 盘面档位（用户 2026-09-20 调研；落档 games/beads/design/proposals/board-size-29-mvp.md）──
- *   standard29  29×29  = 841    5mm Midi   **标准方形盘**（业界默认「标准盘」）
- *   maxi29      29×29  = 841    10mm Maxi  格数同上、物理更大
- *   small18     18×18  = 324    5mm Midi   小号方盘（套装常见）
- *   small16     16×16  = 256    5mm Midi
- *   small14     14×14  = 196    5mm Midi
- *   mini107    107×107 = 11449  2.6mm Mini 28cm 方盘（⚠️ 仅供导出参考图，不可入关）
+ *   standard29  29×29  = 841   **标准方形盘**（业界默认「标准盘」）
+ *   maxi29      29×29  = 841   格数同上、物理更大（Maxi 大盘）
+ *   small18     18×18  = 324   小号方盘（套装常见）
+ *   small16     16×16  = 256
+ *   small14     14×14  = 196
+ *   mini107    107×107 = 11449 密盘（⚠️ 仅供导出参考图，不可入关）
+ *   ⚠️ 档位只定**格数**，不定豆径：报告里的 mm 与物理尺寸来自 `--palette` 品牌的
+ *      `art/<slug>.json` 的 `beadMm`（单一真源，ADR-0021），或显式 `--beadMm` 覆盖。
  *
  * ── 异形盘（非规则网格用「空位」语义表达，引擎侧无需改动）────────────────
  *   --shape circle | hex | heart    形状外的格 = 空位（渲染空白、不计完成）
@@ -154,15 +156,18 @@ function buildPalette(n) {
 const CHAR = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // idx 1..35 → 字符（⚠️ 游戏 charset 仅到 'A'=10）
 /**
  * 盘面档位（落档口径见 design/proposals/board-size-29-mvp.md）。
- * `--board <name>` 只覆盖 cols / rows / beadMm 三个默认值；显式 `--cols/--rows` 优先。
+ * `--board <name>` 只覆盖 cols / rows 两个默认值；显式 `--cols/--rows` 优先。
+ * ⚠️ **不含豆径 mm**（ADR-0021）：原 `beadMm: 5 / 10 / 2.6` 字段已删 —— 盘具档位是**格数**
+ *   概念，豆径是**品牌**属性，唯一真源 = `games/beads/art/<slug>.json` 的 `beadMm`
+ *  （见下方 `beadMm` 解析）。两处各写一份 mm 必然漂移（2.6 与 2.6mm 品牌不同步过一次）。
  */
 const BOARD_PRESETS = {
-  standard29: { cols: 29, rows: 29, beadMm: 5, note: '5mm Midi 标准方形盘（业界默认）' },
-  maxi29: { cols: 29, rows: 29, beadMm: 10, note: '10mm Maxi，格数同 standard29、物理更大' },
-  small18: { cols: 18, rows: 18, beadMm: 5, note: '5mm Midi 小号方盘' },
-  small16: { cols: 16, rows: 16, beadMm: 5, note: '5mm Midi 小号方盘' },
-  small14: { cols: 14, rows: 14, beadMm: 5, note: '5mm Midi 小号方盘' },
-  mini107: { cols: 107, rows: 107, beadMm: 2.6, note: '2.6mm Mini（28cm 方盘；仅供导出参考图）' },
+  standard29: { cols: 29, rows: 29, note: '标准方形盘（业界默认 29×29）' },
+  maxi29: { cols: 29, rows: 29, note: 'Maxi 大盘格数同 standard29、物理更大（豆径随 --palette 品牌）' },
+  small18: { cols: 18, rows: 18, note: '小号方盘 18×18' },
+  small16: { cols: 16, rows: 16, note: '小号方盘 16×16' },
+  small14: { cols: 14, rows: 14, note: '小号方盘 14×14' },
+  mini107: { cols: 107, rows: 107, note: '107×107 密盘（仅供导出参考图；豆径随 --palette 品牌）' },
 };
 
 /**
@@ -227,7 +232,6 @@ const hasExplicitSize = A.includes('--cols') || A.includes('--rows');
 // cols/rows 用 let：异形盘包围盒裁剪（下方 trim 块）会重赋值为裁后尺寸，下游全走裁后坐标
 let cols = hasExplicitSize ? Math.max(1, parseInt(arg('cols', '12'), 10)) : preset?.cols ?? 12;
 let rows = hasExplicitSize ? Math.max(1, parseInt(arg('rows', '12'), 10)) : preset?.rows ?? 12;
-const beadMm = parseFloat(arg('beadMm', String(preset?.beadMm ?? 5))) || 5;
 const shape = arg('shape', 'square'); // square（默认）| circle | hex | heart
 if (!['square', 'circle', 'hex', 'heart'].includes(shape)) {
   console.error('⚠️ --shape 只支持 square / circle / hex / heart');
@@ -286,7 +290,7 @@ const BRAND = (() => {
     // 去重同步 codes：Set 去重 hex 时保留首个索引，色号随同取同位（v1.40 品牌引用制：关卡存色号不存 hex）
     const uniq = new Map();
     j.palette.forEach((h, i) => { if (!uniq.has(h)) uniq.set(h, (j.codes ?? [])[i] ?? null); });
-    return { hex: [...uniq.keys()], codes: [...uniq.values()], src: j._source, raw: j.palette.length };
+    return { hex: [...uniq.keys()], codes: [...uniq.values()], src: j._source, raw: j.palette.length, beadMm: typeof j.beadMm === 'number' ? j.beadMm : null };
   } catch {
     return null;
   }
@@ -295,6 +299,17 @@ if (isBrandPalette && !BRAND) {
   console.error(`⚠️ --palette ${paletteArg} 需要 games/beads/art/${paletteArg}.json（未找到，见 WXG-T-179）`);
   process.exit(3);
 }
+/**
+ * 豆径 mm（**只做报告里的物理尺寸注记**，不参与像素/格数计算）：
+ *   优先级 = 显式 `--beadMm` ＞ 品牌色板 `art/<slug>.json` 的 `beadMm`（单一真源，ADR-0021）。
+ *   两者皆无（程序化色板 `--palette 8` 且不写 `--beadMm`）⇒ `null`，注记省略；
+ *   ⚠️ **不回落 5mm** —— 静默默认就是第二套真源（同 index.html 品牌表未就绪时不推断的口径）。
+ */
+const beadMm = (() => {
+  const explicit = parseFloat(arg('beadMm', ''));
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  return BRAND?.beadMm ?? null;
+})();
 const palHex = isBrandPalette ? BRAND.hex : buildPalette(paletteSize);
 const palRgb = palHex.map((h) => {
   const n = parseInt(h.slice(1), 16);
@@ -1392,8 +1407,9 @@ if (misMode !== 'none' && der.ok && der.misplaced) {
 console.log('=== beads 拼豆生成报告 ===');
 console.log(
   '盘面档位 ' + (boardName || '(自定义)') + '：' + cols + '×' + rows + ' = ' + cols * rows + ' 格' +
-  '｜豆径 ' + beadMm + 'mm' +
-  '｜物理约 ' + Math.round((cols * beadMm) / 10 * 10) / 10 + '×' + Math.round((rows * beadMm) / 10 * 10) / 10 + ' cm' +
+  (beadMm
+    ? '｜豆径 ' + beadMm + 'mm｜物理约 ' + Math.round((cols * beadMm) / 10 * 10) / 10 + '×' + Math.round((rows * beadMm) / 10 * 10) / 10 + ' cm'
+    : '｜豆径 未定（品牌色板无 beadMm，且未给 --beadMm ⇒ 不算物理尺寸，不默认 5mm）') +
   (preset ? '｜' + preset.note : '') +
   (shape !== 'square' ? '｜异形 ' + shape + '（形状内 ' + shapeCells + ' 格，其余为空位）' : ''),
 );

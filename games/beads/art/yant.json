@@ -1,6 +1,9 @@
 {
  "_source": "https://github.com/maxcleme/beadcolors（社区实物校准库，raw CSV，抓取日 2026-09-21）",
  "_note": "Yant 熔珠：119 色（社区校准值）。仅参考图纸用，非游戏真源。",
+ "name": "Yant 熔珠",
+ "family": "Yant",
+ "beadMm": 2.6,
  "codes": [
   "Y002",
   "Y003",
