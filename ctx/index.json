@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3155,
       "lines": 119,
-      "sha256": "7f1ebfa48c9d79291d0d8ad71100c98db9f4c50be06d693c96647cf8f248eee5",
+      "sha256": "9808b9fc29d54403f37563f580ad0b5d8d9796c36003fa84ef3a99a1c080c3ad",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4680,
       "lines": 82,
-      "sha256": "68dbd8062e62ed177523e26d275578a7850849f284133bbec2f22d35cf92f03b",
+      "sha256": "b4777486187173d62aab3db39c24922fdca789b4ba2a80842c337190372ede9c",
       "tier": "normal",
       "sections": [
         {
@@ -716,7 +716,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 289 行 / 17707 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 289 行 / 17913 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -21584,17 +21584,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 26762,
-      "lines": 66,
-      "sha256": "c9a9d3a15a53609cf35c9ce21589364fc7afd60f71082f3965d9787913907f99",
+      "tokens": 27657,
+      "lines": 67,
+      "sha256": "d56d9ddd7e15e0b53fe9add5bf9d3a0e246853f84d8ae00e7eea2e6876fbeae9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 67,
-          "tokens": 26744,
+          "endLine": 68,
+          "tokens": 27639,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -21609,8 +21609,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 67,
-          "tokens": 26586,
+          "endLine": 68,
+          "tokens": 27481,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -21622,9 +21622,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 17707,
+      "tokens": 17913,
       "lines": 289,
-      "sha256": "8ac0aa69794241be2b8b9047f5e24551fc0475ef63c6e2dfdcbd94ef6369a284",
+      "sha256": "6112df2cf23acf21c058d58c7d3e7ff81fabe084ad6c526ad232565e0282d33c",
       "tier": "hot",
       "sections": [
         {
@@ -21632,7 +21632,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 290,
-          "tokens": 17690,
+          "tokens": 17896,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.41 · 任务号 WXG-T-180（v1.41 = 难度/",
           "keywords": [
             "Systems",
@@ -21675,7 +21675,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 244,
-          "tokens": 12895,
+          "tokens": 13101,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -21883,7 +21883,7 @@
           "level": 3,
           "startLine": 231,
           "endLine": 244,
-          "tokens": 1748,
+          "tokens": 1955,
           "summary": "MISPLACED_PAIRS_MIN 1 单关错位交换对数下限；0 = 无错位 = 无玩法 ⇒ 非法，BOOT 拒收",
           "keywords": [
             "Misplaced",

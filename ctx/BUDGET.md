@@ -27,11 +27,11 @@
 | 3 | `production/TASKS-DETAIL.md` | 47271 | 831 | normal |
 | 4 | `production/qa/beads/test-cases.md` | 44755 | 670 | hot |
 | 5 | `games/beads/art/art-bible.md` | 32288 | 492 | normal |
-| 6 | `games/beads/art/accessibility.md` | 27561 | 185 | normal |
-| 7 | `games/beads/design/gdd/systems-index-changelog.md` | 26762 | 66 | normal |
+| 6 | `games/beads/design/gdd/systems-index-changelog.md` | 27657 | 67 | normal |
+| 7 | `games/beads/art/accessibility.md` | 27561 | 185 | normal |
 | 8 | `games/beads/design/ux/ux-spec.md` | 21244 | 357 | normal |
 | 9 | `games/beads/design/levels/levels-spec.md` | 19975 | 493 | normal |
-| 10 | `games/beads/design/gdd/systems-index.md` | 17707 | 289 | hot |
+| 10 | `games/beads/design/gdd/systems-index.md` | 17913 | 289 | hot |
 | 11 | `games/beads/design/gdd/input-control.md` | 16339 | 197 | normal |
 | 12 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15894 | 452 | normal |
 | 13 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 357 | normal |
@@ -52,11 +52,11 @@
 | `production/TASKS-DETAIL.md` | 47271 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 44755 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/art-bible.md` | 32288 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/systems-index-changelog.md` | 27657 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 27561 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/systems-index-changelog.md` | 26762 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 21244 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/levels/levels-spec.md` | 19975 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/systems-index.md` | 17707 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/systems-index.md` | 17913 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 16339 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15894 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
