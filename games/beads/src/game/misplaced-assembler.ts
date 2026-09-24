@@ -25,7 +25,10 @@
  * `cycleProfile` + playtest 调参（v1.23 明写 cycleProfile 不冻结）。
  *
  * 依赖方向：`levels.ts` → 本模块（**本模块不 import `levels.ts`**，避免
- * 校验器与关卡表相互 import 的环；字符集解析在此按同规则本地实现）。
+ * 校验器与关卡表相互 import 的环）。字符集解析不在本模块重写：§3.2 v1.55
+ * 前这里是全仓四份独立解码表之一（与 `levels.ts` 同规则、但需人工同步），
+ * 现统一改为 import `config/bead-charset.ts`（它只依赖 `config/tuning.ts`，
+ * 不构成环；判据 X1）。
  */
 
 import {
@@ -35,6 +38,7 @@ import {
   MISPLACED_PAIRS_MAX,
   MISPLACED_PAIRS_MIN,
 } from '../config/tuning.js';
+import { colorIndexOfChar, isBeadCharsetChar } from '../config/bead-charset.js';
 import type { BeadGrid } from '../entities/grid.js';
 import type { Rng } from '@wxgame/framework';
 
@@ -66,11 +70,10 @@ export function targetCycleLength(profile: CycleProfile): number {
 
 // ─────────────────────────────────────────────────────────── pattern 解析 ────
 
-/** 与 `levels.colorIndexOfChar` 同规则（0 = 不可填/无底色）。本地实现仅为切断 import 环。 */
+/** 与 `config/levels.ts` 同规则（0 = 不可填/无底色）。同源 `bead-charset`，不再造本地表（X1）。 */
 function baseColorOfChar(ch: string): number {
-  if (ch >= '1' && ch <= '9') return ch.charCodeAt(0) - 48;
-  if (ch === 'A') return 10;
-  return 0;
+  const idx = colorIndexOfChar(ch);
+  return typeof idx === 'number' ? idx : 0;
 }
 
 /** 可填格（底色 > 0 的格；`.` / `x` 不算）。 */
@@ -275,10 +278,8 @@ export function applyMisplacedToGrid(
 
 // ─────────────────────────────────────────────────── 全错位初盘（misplaced）──
 
-/** 合法字符（同 `BEAD_CHARSET = ".x1-9A"`）。本地判定以切断 import 环。 */
-function isLegalChar(ch: string): boolean {
-  return ch === '.' || ch === 'x' || (ch >= '1' && ch <= '9') || ch === 'A';
-}
+// 合法字符判定直接用 `isBeadCharsetChar`（上方 import）：§3.2 v1.55 前本处是一个
+// 硬编 `.x1-9A` 的本地副本（全仓第四份解码表），保留包装只会再造一个漂移面。
 
 /**
  * 全错位初盘 rowstring → 每格初始珠色（0 = 无珠 / 不可填）。**假定已通过
@@ -339,7 +340,7 @@ export function validateMisplacedGrid(
     for (let c = 0; c < cols; c++) {
       const pch = prow[c]!;
       const mch = mrow[c]!;
-      if (!isLegalChar(mch)) {
+      if (!isBeadCharsetChar(mch)) {
         errors.push(`${tag} row${r} col${c}: misplaced 非法字符 "${mch}"`);
         continue;
       }

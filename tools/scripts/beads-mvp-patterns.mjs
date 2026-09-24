@@ -9,8 +9,11 @@
  * 与 `beads-gen.mjs`（照片→量化管线，属每日挑战轨）分工不同：那套会做去背景/平滑/碎块合并，
  * 会破坏手工剪影；本工具**原样接受 rowstring**，不改图案像素（只按 swaps 复原初始盘）。
  *
- * 字符集（`systems-index §3.2`）：`.`=void 空位；`1-9A`=色板索引 1..10。
- * 色板真源：`games/beads/src/view/palette.ts::BEAD_PALETTE`。
+ * 字符集（`systems-index §3.2` v1.55）：`.`=void 空位；`1-9`+`A-Z`=色板索引 1–35
+ *（只收大写；`x`=锁定符本工具不支持，手工 MVP 图案无锁定格）。
+ * 表真源 = `tools/scripts/lib/bead-charset.mjs`（与游端 `config/bead-charset.ts` 同源，判据 X1）。
+ * 色板真源：demo 十色 = `design/levels/palette.json` 顶层 `palette`（v1.40 品牌引用制；
+ * 旧注所指 `view/palette.ts::BEAD_PALETTE` 已随 v1.40 删除）。
  *
  * 用法：
  *   node tools/scripts/beads-mvp-patterns.mjs            # 出全部 8 关
@@ -23,6 +26,7 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { dirname as dirOf } from 'node:path';
 import { fileURLToPath as urlToPath } from 'node:url';
+import { BEAD_COLOR_CHARS, EMPTY_CHAR } from './lib/bead-charset.mjs';
 
 const SCRIPT_DIR = dirOf(urlToPath(import.meta.url));
 
@@ -59,7 +63,12 @@ const BEAD_PALETTE = [
     '#33333D', // 10 炭黑
 ];
 const VOID_HEX = '#E9E6F2';
-const CHARSET = '.123456789A';
+/**
+ * 本工具的双向表，**0-based 位序**：下标 0 = `.`（void）、下标 1..35 = 色索引。
+ * §3.2 v1.55 前这里是 `'.123456789A'`（全仓又一份独立表，提案 §5 未点到）：
+ * 抬上限后手工图案写 `B`–`Z` 会被 `decode()` 当作「非法字符」抛错 ⇒ 改由共享表拼接。
+ */
+const CHARSET = EMPTY_CHAR + BEAD_COLOR_CHARS;
 
 // ── argv ──────────────────────────────────────────────────────────────────────
 const A = process.argv.slice(2);
@@ -418,7 +427,7 @@ const draft = {
     version: 2,
     gameId: 'beads',
     description:
-        '拼豆 MVP 前 8 关（ADR-0018 两档：关 1–4 = small14 14×14、关 5–8 = small18 18×18；全错位初盘 misplaced，字符集 .x1-9A，色板索引见 art-bible §3.2）。',
+        '拼豆 MVP 前 8 关（ADR-0018 两档：关 1–4 = small14 14×14、关 5–8 = small18 18×18；全错位初盘 misplaced，字符集 .x1-9A-Z，色板索引见 art-bible §3.2）。',
     levels: [],
 };
 

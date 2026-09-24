@@ -6,6 +6,9 @@
  * re-declare times, spawn intervals or layouts — those are owned by the data,
  * which in turn is frozen by `design/gdd/systems-index.md §3`.
  *
+ * The character ↔ colour-index mapping lives in `./bead-charset.ts` (§3.2 v1.55,
+ * 判据 X1) and is only re-exported here.
+ *
  * Validation errors use the levels-spec §8 format: `L{id} row{i} col{j}: ...`.
  */
 
@@ -22,39 +25,24 @@ import {
   stageParamsFor,
   type StageParams,
 } from './tuning.js';
+import {
+  BEAD_COLOR_CHARS,
+  EMPTY_CHAR,
+  LOCKED_CHAR,
+  charOfColor,
+  colorIndexOfChar,
+  isBeadCharsetChar,
+} from './bead-charset.js';
 import { validateSwaps, validateMisplacedGrid } from '../game/misplaced-assembler.js';
 import { LEVELS_DATA, type BeadsLevelRaw } from './levels-data.js';
 import { PALETTES } from './palettes-data.js';
 
 export type { BeadsLevelRaw };
 
-/** The empty (fillable) character. */
-export const EMPTY_CHAR = '.';
-/** The locked character (not fillable, not counted for completion). */
-export const LOCKED_CHAR = 'x';
-
-/** `.`/`x` → null; `1-9` → 1..9; `A` → 10. Anything else → undefined (invalid). */
-export function colorIndexOfChar(ch: string): number | null | undefined {
-  if (ch === EMPTY_CHAR || ch === LOCKED_CHAR) return null;
-  if (ch >= '1' && ch <= '9') return ch.charCodeAt(0) - 48; // '1' → 1 … '9' → 9
-  if (ch === 'A') return 10;
-  return undefined;
-}
-
-/** Inverse mapping used when generating sprint stage patterns. */export function charOfColor(colorIdx: number): string {
-  if (colorIdx >= 1 && colorIdx <= 9) return String(colorIdx);
-  if (colorIdx === 10) return 'A';
-  throw new Error(`charOfColor: colorIdx ${colorIdx} outside BEAD_CHARSET`);
-}
-
-/**
- * Charset membership. `BEAD_CHARSET = ".x1-9A"` uses a *regex-style* range
- * notation (1-9 = digits one through nine), so a literal `includes()` on the
- * notation string is wrong — expand the range explicitly.
- */
-export function isBeadCharsetChar(ch: string): boolean {
-  return ch === EMPTY_CHAR || ch === LOCKED_CHAR || (ch >= '1' && ch <= '9') || ch === 'A';
-}
+// 字符集映射的唯一真源在 `./bead-charset.ts`（§3.2 v1.55 / 判据 X1：全仓一份解码
+// 表，`entities/grid.ts` 与 `game/misplaced-assembler.ts` 同源 import）。
+// 本模块继续 re-export，既有调用方（含 tests）API 不变。
+export { BEAD_COLOR_CHARS, EMPTY_CHAR, LOCKED_CHAR, charOfColor, colorIndexOfChar, isBeadCharsetChar };
 
 /** Decoy colour characters → palette indices (invalid chars are dropped by the validator first). */
 export function decoyColorIndices(level: BeadsLevelRaw): number[] {
@@ -125,6 +113,7 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
   }
 
   // Charset + row width (levels-spec §7.1: anything outside BEAD_CHARSET is an error).
+  // ⚠️ 不得在此类字符域判定里展开非数组可迭代对象：见下方 patternColors 的 ADR-0012 事故注。
   let fillable = 0;
   for (let i = 0; i < rows; i++) {
     const row = level.pattern[i]!;
@@ -166,6 +155,25 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
   // 不走 view/palette（避免 config → view 反向依赖）。
   const hasSlug = typeof level.palette === 'string';
   const hasCodes = Array.isArray(level.paletteCodes);
+  const maxIdx = colors.length ? colors[colors.length - 1]! : 0;
+  /**
+   * demo 回落色板长度（`LEVELS_DATA.palette` 顶层十色）——**不硬编 10**：
+   * 它才是 `view/palette.ts` 回落链的真实边界，将来 demo 色板改动时本校验跟随。
+   */
+  const demoColorCount = Array.isArray(LEVELS_DATA.palette) ? LEVELS_DATA.palette.length : 0;
+
+  // ── B1（§3.2 v1.55 连带护栏，正本 §2.6-ⓐ / §5-B1）─────────────────────────
+  // `BEAD_COLOR_MAX` 从 10 抬到 35 后，旧上限「顺带」挡住的那个组合失去了守卫：
+  // 一关的 pattern 出现 **索引 > demo 色板** 的色，却**整对 `palette`/`paletteCodes`
+  // 字段缺席** ⇒ 渲染层回落 demo 十色并把越界索引**静默画成炭黑**（`view/palette.ts`
+  // `resolveInkHexes` / `beadColorOf`）。「不限制」不得等于「不限制到全黑」。
+  // 携了成对字段的关走下方原有校验（其中 `codes.length < maxIdx` 已覆盖长度）。
+  if (!hasSlug && !hasCodes && maxIdx > demoColorCount) {
+    errors.push(
+      `${tag}: pattern 最大色索引 ${maxIdx} > demo 色板 ${demoColorCount} 色 ⇒ 必携 palette + paletteCodes（否则回落 demo 十色、越界索引静默兑炭黑）`,
+    );
+  }
+
   if (hasSlug || hasCodes) {
     if (!hasSlug || !hasCodes) {
       errors.push(`${tag}: palette 与 paletteCodes 必须成对出现`);
@@ -175,7 +183,6 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
         errors.push(`${tag}: 未知色板 slug "${level.palette}"（注册表无此品牌，检查 art/<slug>.json 与 palettes:sync）`);
       } else {
         const codes = level.paletteCodes!;
-        const maxIdx = colors.length ? colors[colors.length - 1]! : 0;
         if (codes.length > BEAD_COLOR_MAX) {
           errors.push(`${tag}: paletteCodes ${codes.length} > BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`);
         }

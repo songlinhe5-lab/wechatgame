@@ -63,6 +63,7 @@ import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { dirname as dirOf } from 'node:path';
 import { fileURLToPath as urlToPath } from 'node:url';
+import { BEAD_COLOR_CHARS, BEAD_COLOR_MAX } from './lib/bead-charset.mjs';
 // 本脚本所在目录（tools/scripts/）—— 色板等数据资产按脚本位置解析，不依赖 cwd
 const SCRIPT_DIR = dirOf(urlToPath(import.meta.url));
 
@@ -95,12 +96,14 @@ async function ensurePage() {
 
 // ── 色板 ──────────────────────────────────────────────────────────────────────
 // 用户 2026-09-19 调研的真实拼豆色数：IKEA-Pyssla 10-20 / Nabbi 30-50 / Hama 60-90 /
-// Perler 100+ / Artkal 200+。**而游戏内只冻结 8 色**（`BEAD_COLOR_MAX = 8`，真源
-// `view/palette.ts`）—— 那 8 色全是**高饱和对比色**，照片里的灰/肤/暗部会被硬拽到最近的
-// 饱和色 ⇒ **8 色本身就不保形**，再砍色数必然「看不出形状」。故拆成两个正交旋钮：
-//   · `--palette 8`（默认）= 游戏 8 色真源，产物**可直接进游戏**；
-//   · `--palette N>8`      = 程序化色板（色域覆盖），**仅供调研比较** ——
-//                           游戏暂无对应珠色，**不得直接入关**（报告会标注）。
+// Perler 100+ / Artkal 200+。**游戏侧上限 `BEAD_COLOR_MAX` = 35**（§3.2 v1.55，提案
+// 登记 v1.54；此前为 10、更早前为 8）= 单字符 rowstring 形态的编码天花板
+// `1-9`+`A-Z`，真源 `config/tuning.ts` + `config/bead-charset.ts`。35 色仍不保形：
+// 照片里的灰/肤/暗部会被硬拽到最近色 ⇒ 拆成两个正交旋钮：
+//   · `--palette 10`（默认）= demo 十色真源，产物**可直接进游戏**；
+//   · `--palette N>10`      = 程序化/品牌色板（色域覆盖）——索引 ≤ 35 且**必携**
+//                           `palette`+`paletteCodes` 品牌引用方可入关（>10 色无品牌
+//                           引用会被 BOOT 拒收，见 §5-B1），否则仅供调研比较。
 // v1.40：demo 十色真源 = `games/beads/design/levels/palette.json` 的 `palette`
 // （game-10.json 已删除，v1.40 品牌引用制；关卡内容管线 P1 起从 levels-01-08.json
 // 顶层抽出为独立 palette.json）；与 view/palette.ts DEMO_BEAD_INKS 同源（sync 门禁）。
@@ -153,7 +156,7 @@ function buildPalette(n) {
   }
   return picked.map(rgbToHex);
 }
-const CHAR = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // idx 1..35 → 字符（⚠️ 游戏 charset 仅到 'A'=10）
+const CHAR = BEAD_COLOR_CHARS; // idx 1..35 → 字符（§3.2 v1.55：与游戏 charset 同源，真源 ./lib/bead-charset.mjs）
 /**
  * 盘面档位（落档口径见 design/proposals/board-size-29-mvp.md）。
  * `--board <name>` 只覆盖 cols / rows 两个默认值；显式 `--cols/--rows` 优先。
@@ -874,7 +877,7 @@ function clusterStats(arr) {
  * ⚠️ **必须先把「实际出现的色号」升序重映射到 1..N** —— 大色板下限色后的色号是**原板索引**
  * （Artkal 可达 174），直接用 `CHAR[v-1]` 会越界成 `undefined`（2026-09-20 实测：29×29 首行
  * 输出 229 个字符全是 `undefined` —— 同 K-056 追记的「维度泄漏」型）。
- * @returns {string[]} 29 行 × 29 字符（>10 色时字符用扩展表 1-9+A-Z，超 35 色会越界 ⇒ 调用方须自查）
+ * @returns {string[]} 行列同 pattern 的字符行（色索引用满表 1-9+A-Z，>35 色会越界 ⇒ 上方 throw 拦住）
  */
 function toRowStrings(arr) {
   const used = [...new Set(arr.filter((v) => v > 0))].sort((a, b) => a - b);
@@ -1422,7 +1425,7 @@ const c0 = stats0, c1 = stats1, cm = der.misplaced ? clusterStats(der.misplaced)
 console.log(
   colorsMax > 0
     ? `用色限制：≤${colorsMax} 色（保留 ${JSON.stringify(limit.kept)}，重映射 ${limit.changed} 格）`
-    : '用色限制：不限制（8 色全开）',
+    : `用色限制：不限制（≤${BEAD_COLOR_MAX} 色编码上限内全开）`,
 );
 console.log(
   `调色板 ${PAL_N} 色` +
@@ -1432,7 +1435,11 @@ console.log(
       ? '（程序化色域，⚠️ 游戏暂无对应珠色 ⇒ 不可直接入关）'
       : `（游戏真源前 ${PAL_N} 色）`) +
   `｜选色模式 ${limit.mode}｜最终用色 ${colorsUsed}` +
-  (colorsUsed > 10 ? ' ⚠️ 超 BEAD_COLOR_MAX=10 ⇒ 不可入关' : ' ✅ 合规（≤ BEAD_COLOR_MAX=10）'),
+  (colorsUsed > BEAD_COLOR_MAX
+    ? ` ⚠️ 超 BEAD_COLOR_MAX=${BEAD_COLOR_MAX} ⇒ 不可入关（rowstring 单字符编码天花板已用尽 ⇒ 需换编码格式，另案）`
+    : colorsUsed > GAME_PALETTE.length
+      ? ` ✅ 合规（≤ BEAD_COLOR_MAX=${BEAD_COLOR_MAX}；⚠️ 但 > demo ${GAME_PALETTE.length} 色 ⇒ 入关必携 palette+paletteCodes）`
+      : ` ✅ 合规（≤ BEAD_COLOR_MAX=${BEAD_COLOR_MAX}）`),
 );
 console.log(`色差（0..441，越小越保形）：限色前 ${errPreLimit} → 最终 ${errFinal}`);
 console.log(`聚集度（参数 premedian=${premedian} sample=${sample} smooth=${smoothRounds} minblock=${minBlock} colors=${colorsMax}）：`);

@@ -302,7 +302,9 @@ describe('misplaced 全错位初盘 · validateMisplacedGrid / assembleFromMispl
   });
 
   it('非法字符 ⇒ 拒收', () => {
-    const bad = ['12312B', ...VALID.slice(1)];
+    // §3.2 v1.55：`BEAD_CHARSET` 扩到 `.x1-9A-Z` ⇒ 旧样本 `B`（=索引 11）已合法，
+    // 「非法字符」面移到 charset 之外的小写字母（解码器大小写敏感，见 bead-charset.test.ts）。
+    const bad = ['12312b', ...VALID.slice(1)];
     expect(hasError(validateMisplacedGrid('L1', TEST_PATTERN, bad), '非法字符')).toBe(true);
   });
 

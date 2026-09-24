@@ -24,6 +24,7 @@ import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, existsSync
 import { join, dirname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
+import { BEAD_COLOR_MAX } from '../../tools/scripts/lib/bead-charset.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url)); // apps/beads-studio
 const REPO = join(ROOT, '../..'); // workspace 根（本地跑）；容器内见 Dockerfile 布局
@@ -148,13 +149,32 @@ function listResults() {
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
 /**
+ * demo 回落色板长度（= 游端 `LEVELS_DATA.palette`，真源 `design/levels/palette.json`）。
+ * 不硬编：它才是「无品牌引用时索引能画到多远」的真实边界（§3.2 v1.55 连带）。
+ * ⚠️ 不能改 import `tuning.ts`：本服务跑在纯 Node、不编译 TS；VPS 容器模式（无 `games/`）
+ * 也不能假设文件存在 ⇒ 读不到时回退 10（= 当前 demo 色板实长，不致误拦）。
+ */
+const DEMO_PALETTE_LEN = (() => {
+    try {
+        const p = JSON.parse(readFileSync(join(REPO, 'games/beads/design/levels/palette.json'), 'utf8'));
+        return Array.isArray(p.palette) && p.palette.length > 0 ? p.palette.length : 10;
+    } catch {
+        return 10;
+    }
+})();
+
+/**
  * 「能不能入关」单一判据（值域全部来自 `systems-index §3` 冻结常量，不是 Studio 自定）：
  * 盘面 ≥ 6×5（下限来自 `GRID_MIN_*`，§3.3 v1.37）；≤**32** 为单图，任一维 >32 自动走
- * 组合图 Plate（均分切块，§3.3 v1.45 把切块阈值由 50 改为 32，见关卡内容管线 spec §0）。用色 3–10（`BEAD_COLOR_MAX=10`）。
+ * 组合图 Plate（均分切块，§3.3 v1.45 把切块阈值由 50 改为 32，见关卡内容管线 spec §0）。
+ * 用色 3–**35**（`BEAD_COLOR_MAX`，§3.2 **v1.55** 由 10 抬到 35 = rowstring 单字符编码天花板）。
  *  · 交换对数 1–8（`MISPLACED_PAIRS_MIN/MAX`）。
  *
  * 色板不限（v1.40 品牌引用制，2026-09-21 用户拍板）：关卡写回 `palette`（slug）+
  * `paletteCodes`（紧凑序色号），游戏侧从品牌注册表查 hex 渲染 —— 无映射、无拦截。
+ * ⚠️ **v1.55 后「索引 > demo 色板」的关仍必携品牌引用**（否则游端 BOOT 新校 B1 拒收、
+ * 且不拒也会把越界索引静默画成炭黑）⇒ 本函数不拦「>demo 且无品牌引用」就会
+ * dev 关表绿、产物红（正本 §5-B3）。
  */
 function importBlockers(r, { allowOversize = false } = {}) {
     const b = [];
@@ -163,7 +183,12 @@ function importBlockers(r, { allowOversize = false } = {}) {
     if (!full && r.swaps > 8) b.push(`交换对数 ${r.swaps} > 8（\`MISPLACED_PAIRS_MAX\`）`);
     if (full && r.levelDraft && !Array.isArray(r.levelDraft.misplaced)) b.push('全错位模式但草案缺 misplaced 字段');
     if (r.colors < 3) b.push(`用色 ${r.colors} < 3（BOOT 下限）`);
-    if (r.colors > 10) b.push(`用色 ${r.colors} > 10（\`BEAD_COLOR_MAX\`，§3.2 v1.36）`);
+    if (r.colors > BEAD_COLOR_MAX) b.push(`用色 ${r.colors} > ${BEAD_COLOR_MAX}（\`BEAD_COLOR_MAX\`，§3.2 v1.55；rowstring 单字符编码天花板）`);
+    // B1 的入关期镜像（正本 §5-B3）：pattern 最大色索引超 demo 色板 ⇒ 品牌引用从「可选」变「必携」。
+    // 不补这一条，这种盘会先落进 design/levels 真源、再在游端 BOOT 被拒 = 内容源被写脏。
+    const brandRef = Boolean(r.palette && r.palette !== '10') && Array.isArray(r.levelDraft?.paletteCodes);
+    if (r.colors > DEMO_PALETTE_LEN && !brandRef)
+        b.push(`用色 ${r.colors} > demo 色板 ${DEMO_PALETTE_LEN} ⇒ 必带品牌色板（\`palette\` + \`paletteCodes\`），否则游端 BOOT 拒收/越界索引静默兑炭黑`);
     if (r.cols < 6) b.push(`列数 ${r.cols} < 6（\`GRID_MIN_COLS\`）`);
     if (r.rows < 5) b.push(`行数 ${r.rows} < 5（\`GRID_MIN_ROWS\`）`);
     // >32 不是 blocker：plate 入口本就接受超限母版并自动切块，故**不得**无条件 push（会误杀 ingest）。

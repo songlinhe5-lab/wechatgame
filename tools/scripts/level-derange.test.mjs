@@ -6,11 +6,21 @@ import { rowstringsToSolved, solvedToRowstrings, derangeCell, buildSwaps, buildC
 
 // ── 编解码 ────────────────────────────────────────────────────────────────────
 
-test('rowstringsToSolved：. x 1-9A 正确解码', () => {
-  const { flat, cols, rows } = rowstringsToSolved(['.x1', '2A3']);
-  assert.equal(cols, 3);
+test('rowstringsToSolved：. x 1-9A-Z 正确解码（§3.2 v1.55，`B`/`Z` 不再静默归 0）', () => {
+  const { flat, cols, rows } = rowstringsToSolved(['.x1B', '2AZ3']);
+  assert.equal(cols, 4);
   assert.equal(rows, 2);
-  assert.deepEqual(flat, [0, 0, 1, 2, 10, 3]);
+  assert.deepEqual(flat, [0, 0, 1, 11, 2, 10, 35, 3]);
+});
+
+test('solvedToRowstrings：>12 色不丢色（旧 12 枚 CHAR 的静默截断面，正本 §5-A8）', () => {
+  const cols = 13;
+  const flat = Array.from({ length: cols }, (_, i) => i + 1); // 色 1..13
+  const rows = solvedToRowstrings(flat, ['1'.repeat(cols)], cols, 1);
+  // 本仓旧表只到第 12 枚 ⇒ `charOfColor(13)` 返 undefined ⇒ 拼出 `…Cundefined`；
+  // 现表 35 枚 ⇒ 第 13 色 = `D`，且往返闭合（Plate >12 色不会被默默压回前 12 色）。
+  assert.equal(rows[0], '123456789ABCD');
+  assert.deepEqual(rowstringsToSolved(rows).flat, flat);
 });
 
 test('solvedToRowstrings：x 位保留 x，. 位保留 .，色号重映射', () => {

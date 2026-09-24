@@ -7,18 +7,25 @@
  *   乙（swaps 退化）= ≤8 对异色可填格两两互换（k 尽量大）；
  *   丙（不可错位）= 无任何非恒等位移（tier='丙'，调用方整板 422 拒收）。
  *
- * ponytail: beads-gen.mjs 有同算法（PAL_N 闭包版），刻意不共用（改动风险 > 收益）。
+ * ponytail: ~~beads-gen.mjs 有同算法（PAL_N 闭包版），刻意不共用（改动风险 > 收益）~~
+ * **已还债**（§3.2 v1.55 / 正本 §5-A8）：两份表曾是「一个改、一个漏」的高危面
+ * （本件持 12 枚表、Plate 出 12 色以上静默丢色）。现两个脚本共用
+ * `./lib/bead-charset.mjs` 的一份表；算法本体仍各自保留（那是另一回事）。
  *
- * 无 IO，无外部依赖，无 Math.random（L4）。
+ * 无 IO，无 Math.random（L4）。
  */
 
-const CHAR = '123456789ABCDEFGHIJK'; // idx 1..11（BEAD_COLOR_MAX=10，+1 备用）
-const VOID = '.';
-const LOCKED = 'x';
+import {
+  BEAD_COLOR_CHARS,
+  EMPTY_CHAR as VOID,
+  LOCKED_CHAR as LOCKED,
+  baseColorOfChar,
+  charOfColor,
+} from './lib/bead-charset.mjs';
 
 /**
  * rowstring[] → {flat, cols, rows}。
- * `.`/`x` → 0（不可填）；`1-9` → 1-9；`A` → 10。
+ * `.`/`x` → 0（不可填）；`1-9`+`A-Z` → 1–35（表见 `lib/bead-charset.mjs`）。
  */
 export function rowstringsToSolved(pattern) {
   const rows = pattern.length;
@@ -26,10 +33,9 @@ export function rowstringsToSolved(pattern) {
   const flat = new Array(rows * cols).fill(0);
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      const ch = pattern[r][c];
-      if (ch >= '1' && ch <= '9') flat[r * cols + c] = ch.charCodeAt(0) - 48;
-      else if (ch === 'A') flat[r * cols + c] = 10;
-      // '.' / 'x' → 0（不可填，不进 derange）
+      // 旧版在此内联了第五份解码（`'1'..'9'` 区间 + `ch === 'A'` 特例），
+      // 抬上限后「`B`–`Z` 静默归 0」就藏在这三行里 ⇒ 改调共享表。
+      flat[r * cols + c] = baseColorOfChar(pattern[r][c]);
     }
   }
   return { flat, cols, rows };
@@ -38,7 +44,7 @@ export function rowstringsToSolved(pattern) {
 /**
  * misplacedFlat[] 编码回 rowstring[]。
  * pattern 决定哪些格是 `x`/`.`（保留原位不变）；
- * 颜色按 misplaced 中出现的色号升序重映射到 CHAR 下标（与 solvedToRowstrings 对偶）。
+ * 颜色按 misplaced 中出现的色号升序重映射到字符表下标（与 rowstringsToSolved 对偶）。
  */
 export function solvedToRowstrings(misplacedFlat, pattern, cols, rows) {
   // 收集 misplaced 里出现的色号（升序），建立 colorToChar 映射
@@ -49,7 +55,7 @@ export function solvedToRowstrings(misplacedFlat, pattern, cols, rows) {
       if (v > 0) usedSet.add(v);
     }
   const used = Array.from(usedSet).sort((a, b) => a - b);
-  const colorToChar = new Map(used.map((v, i) => [v, CHAR[i]]));
+  const colorToChar = new Map(used.map((v, i) => [v, charOfColor(i + 1)]));
 
   const out = [];
   for (let r = 0; r < rows; r++) {
@@ -59,7 +65,7 @@ export function solvedToRowstrings(misplacedFlat, pattern, cols, rows) {
       if (pch === LOCKED) { s += LOCKED; continue; }
       if (pch === VOID) { s += VOID; continue; }
       const v = misplacedFlat[r * cols + c];
-      s += v > 0 ? (colorToChar.get(v) ?? CHAR[0]) : VOID;
+      s += v > 0 ? (colorToChar.get(v) ?? BEAD_COLOR_CHARS[0]) : VOID;
     }
     out.push(s);
   }

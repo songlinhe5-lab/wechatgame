@@ -97,11 +97,19 @@ export const POWERUP_BADGE_INSET = 8;
 export const POWERUP_BADGE_GLYPH_EDGE = 10;
 
 // ──────────────────────────────────────────────── §3.2 palette & bead charset
-/** Pattern row charset: `.`=空位 `x`=锁定格 `1-9`+`A`=色板索引 1–10. */
-export const BEAD_CHARSET = '.x1-9A';
-/** Per-level colour-count ceiling. §3.2 v1.36 (用户 2026-09-21 拍板「允许不超过 10 色」，
- * 启用 levels-spec 预留的 v1.1 扩展——索引 9/A 深棕/炭黑入池，ADR-0004 复评条款触发）。 */
-export const BEAD_COLOR_MAX = 10;
+/** Pattern row charset: `.`=空位 `x`=锁定格 `1-9`+`A-Z`=色板索引 1–35（**只收大写**：
+ *  `x`=锁定符 vs `X`=索引 **33**（`Y`=34、`Z`=35）⇒ 解码必须大小写敏感）。§3.2 v1.55（提案 v1.54）。
+ *  ⚠️ 本串是 **regex-style 区间记法**，`BEAD_CHARSET.includes(ch)` 是错的 ⇒ 展开表
+ *  与唯一解码实现见 `config/bead-charset.ts`（判据 X1）。 */
+export const BEAD_CHARSET = '.x1-9A-Z';
+/** Per-level colour-count ceiling. §3.2 v1.55（提案登记 v1.54；用户 2026-09-24 改判
+ *  「放开 10 色上限」⇒ **推翻 v1.36 的 ≤10**）：35 = 当前 rowstring（每格一字符，
+ *  ADR-0004）形态的**编码天花板** `1-9`+`A-Z` ⇒ 在本形态下即「不限制」；>35 需换编码
+ *  格式 = 另案（正本 §8）。语义收窄为「单关 `pattern` **实际用色数**」，**不约束候选
+ *  色板规模**（`PALETTES[slug].codes` 上百条不受本值限制，v1.40 品牌引用制）。
+ *  ⚠️ 抬到 35 后本常量不再顺带挡住「索引 >10 却未携 `palette`+`paletteCodes`」⇒ 该
+ *  组合会让 `view/palette.ts` 静默兑炭黑，改由 `levels.ts` B1 硬校兜住（正本 §2.6-ⓐ）。 */
+export const BEAD_COLOR_MAX = 35;
 /** Per-level decoy-count ceiling. §3.2 v1.17 (U8=D, WXG-T-086): 2→0 — no decoys
  * are supplied; the spawner's A′ invariant (`held ≤ demand`) removes the tail
  * soft-lock at the source, so the decoy subsystem is inert (kept for the schema). */
@@ -488,6 +496,10 @@ export interface StageParams {
 export function stageParamsFor(n: number): StageParams {
   const index = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
   return {
+    // §3.2 v1.55 抬上限后本式的封顶由 10 变 35（高梯级不再在 10 色处触顶）。
+    // 现网不可观测：`buildStagePattern` 另有 `min(params.colors, 池图案实际色数)`
+    // 二次钳制，而池 = 已入库 8 关（实测最大 8 色）⇒ 冲刺实际仍 ≤8 色。
+    // 是否另冻 `SPRINT_COLORS_MAX` = 正本 §7-Q3，推荐 丙（挂账），本单不发明新值。
     colors: Math.min(3 + Math.floor(index / 2), BEAD_COLOR_MAX),
     cells: Math.min(30 + 10 * index, GRID_MAX_COLS * GRID_MAX_ROWS),
     interval: Math.max(6.0 - 0.5 * index, SPAWN_INTERVAL_MIN),

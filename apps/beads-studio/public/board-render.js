@@ -51,9 +51,11 @@
 
     // ── 纯逻辑（可单测） ──
 
-    /** rowstring 字符 → 0-based 色号索引：'1'→0 … '9'→8，'A'→9（charset ".x1-9A"）。
-     *  游戏正源 levels.ts 是 **1-based**（'1'→cc−48，'A'→10）；旧内联写 −55 把 'A'
-     *  算成 10 ⇒ 炭黑珠一直吃 hsl 兑底（自检拓出的陈年 off-by-one，本模块已纠）。 */
+    /** rowstring 字符 → 0-based 色号索引：'1'→0 … '9'→8，'A'→9 … 'Z'→34
+     *  （charset ".x1-9A-Z"，§3.2 v1.55：色索引 1–35，**只收大写**）。
+     *  游戏正源 `config/bead-charset.ts` 是 **1-based**（'1'→1，'Z'→35）；旧内联写 −55 把 'A'
+     *  算成 10 ⇒ 炭黑珠一直吃 hsl 兑底（自检拓出的陈年 off-by-one，本模块已纠）。
+     *  ⚠️ 本函数只在调用方已排除 '.' / 'x' 后使用（两个调用点都先筛）。 */
     function indexFromChar(ch) {
         var c = ch.charCodeAt(0);
         return c >= 65 ? c - 56 : c - 49;

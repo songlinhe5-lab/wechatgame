@@ -139,11 +139,12 @@ describe('S1 core-loop', () => {
   // §8.9 关卡数据含 BEAD_CHARSET 之外字符或全锁定格 → BOOT 拒绝进入该关（校验器报错，
   // 错误含关卡 id + 行列）。
   it('§8-9 illegal charset or all-locked levels are refused at BOOT (id + row + col in error)', () => {
-    // Illegal character 'Z'.
+    // Illegal character 'z'（小写）—— §3.2 v1.55 把 charset 扩到 `.x1-9A-Z` 后，
+    // 本例旧样本 `Z`（=索引 35）已是**合法**色索引，非法面相应移到大小写敏感之外。
     const badChar = createBeadsHarness({
       noAssemble: true,
       levels: [
-        simpleTestLevel({ id: 91, pattern: ['123123', '123123', 'Z23123', '123123', '123123'] }),
+        simpleTestLevel({ id: 91, pattern: ['123123', '123123', 'z23123', '123123', '123123'] }),
       ],
       saveKey: 'wxgame.beads.test.s1bad1',
     });

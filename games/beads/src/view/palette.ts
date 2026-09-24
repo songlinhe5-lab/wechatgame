@@ -9,9 +9,44 @@
 
 import { LEVELS_DATA, type BeadsLevelRaw } from '../config/levels-data.js';
 import { PALETTES, type BeadsPaletteEntry } from '../config/palettes-data.js';
+import { colorIndexOfChar } from '../config/bead-charset.js';
 
 /** 越界 colorIdx 的中性深色兜底（原炭黑珠色，行为与 v1.39 全局表末位一致）。 */
 const BEAD_FALLBACK_HEX = '#33333D';
+
+// ───────────────────────── 静默兜底告警（§3.2 v1.55 护栏 B2）─────────────────
+//
+// 三处兜底此前**全部静默**：无品牌引用 ⇒ 回落 demo 十色、未知色号 ⇒ 兑
+// `BEAD_FALLBACK_HEX`、colorIdx 越界 ⇒ 同样兜底。`BEAD_COLOR_MAX = 10` 时第一道
+// 顺带遮掉了「索引 >10 且无 `paletteCodes`」的组合；抬到 35 后这个组合不再被任何
+// 一层拒收 ⇒ 一关可以完整地跑起来、只是盘面一片炭黑（正本 §2.6-ⓐ）。
+// 现由 `levels.ts` B1 在 BOOT 拒收，本处是**第二层**（dev 预览 / 绕过校验器直设关卡
+// 时不静默）。三个布尔门先行 ⇒ 命中路径上零分配，不破热路径纪律。
+let warnedDemoFallback = false;
+let warnedUnknownCode = false;
+let warnedIndexOutOfRange = false;
+
+/** **测试专用**：复位一次性告警门（生产不调；仓内同类判例 = `beads-game.ts` 的测试期复位）。 */
+export function resetPaletteFallbackWarnings(): void {
+  warnedDemoFallback = false;
+  warnedUnknownCode = false;
+  warnedIndexOutOfRange = false;
+}
+
+/** pattern 里的最大色索引（无分配，不建 Set）；非数组 / 空盘 ⇒ 0。 */
+function maxPatternColorIndex(pattern: readonly string[] | undefined): number {
+  if (!Array.isArray(pattern)) return 0;
+  let max = 0;
+  for (let r = 0; r < pattern.length; r++) {
+    const row = pattern[r];
+    if (typeof row !== 'string') continue;
+    for (let c = 0; c < row.length; c++) {
+      const idx = colorIndexOfChar(row[c]);
+      if (typeof idx === 'number' && idx > max) max = idx;
+    }
+  }
+  return max;
+}
 
 /** 全部受支持色板（品牌色板）的注册表：slug → { codes, palette, source, note }。
  *  数据同源 `games/beads/art/*.json`，与 beads-studio / beads-gen 一致（v1.39）。
@@ -84,32 +119,78 @@ export function beadInksFor(level: BeadsLevelRaw): BeadInks {
 const BEAD_FALLBACK_LIST: readonly string[] = Object.freeze([BEAD_FALLBACK_HEX]);
 
 /**
- * 关卡色板解析（v1.40，品牌引用制）：`palette`（slug）+ `paletteCodes`（≤10 色号，
- * 紧凑序）→ 从注册表 {@link PALETTES} 查 hex。hex 数据只住品牌生成物，关卡不携带。
- * 未知 slug / 未收录色号 → 炭黑兑底（防御，BOOT 校验会先行拦截）。
+ * 关卡色板解析（v1.40，品牌引用制）：`palette`（slug）+ `paletteCodes`（色号，紧凑序）
+ * → 从注册表 {@link PALETTES} 查 hex。hex 数据只住品牌生成物，关卡不携带。
+ * 未知 slug / 未收录色号 → 炭黑兑底（防御，**不静默**：一次性告警见文件头 B2 段）。
  * 仅关卡加载时调用一次（WeakMap 缓存），非热路径。
  */
 function resolveInkHexes(level: BeadsLevelRaw): readonly string[] {
   const slug = level.palette;
   const codes = level.paletteCodes;
   const entry = slug !== undefined ? PALETTES[slug] : undefined;
-  if (!entry || !codes || codes.length === 0) return DEMO_BEAD_INKS.hexes;
+  if (!entry || !codes || codes.length === 0) {
+    // 回落 demo 十色本身是合法路径（现 8 关全部如此），只在**真的会越界**时告警，
+    // 否则每次 demo 关加载都刷一条噪声。
+    const demoLen = DEMO_BEAD_INKS.hexes.length;
+    const need = maxPatternColorIndex(level.pattern);
+    if (!warnedDemoFallback && need > demoLen) {
+      warnedDemoFallback = true;
+      console.warn(
+        `[beads] L${level.id} 未携 palette/paletteCodes ⇒ 回落 demo 色板（${demoLen} 色），但 pattern 最大色索引 = ${need} —— 越界格将渲染为炭黑 ${BEAD_FALLBACK_HEX}（§3.2 v1.55 / B1 应已在 BOOT 拒收本关）`,
+      );
+    }
+    return DEMO_BEAD_INKS.hexes;
+  }
   const out: string[] = [];
   for (let i = 0; i < codes.length; i++) {
     const k = entry.codes.indexOf(codes[i]!);
-    out.push(k >= 0 ? entry.palette[k]! : BEAD_FALLBACK_HEX);
+    if (k >= 0) {
+      out.push(entry.palette[k]!);
+    } else {
+      if (!warnedUnknownCode) {
+        warnedUnknownCode = true;
+        console.warn(
+          `[beads] L${level.id} 色号 "${String(codes[i])}" 不在色板 ${String(slug)} 内 ⇒ 炭黑兜底（检查 art/<slug>.json 与 palettes:sync）`,
+        );
+      }
+      out.push(BEAD_FALLBACK_HEX);
+    }
   }
   return out;
 }
 
-/** HEX for a 1-based palette index within `inks`（越界 → 炭黑兜底）。 */
+/**
+ * HEX for a 1-based palette index within `inks`（越上界 → 炭黑兜底，**一次性告警**）。
+ * ⚠ `colorIdx <= 0`（无珠色 / void / locked）**不告警**：它是渲染层的常规入参（bead-render
+ * 对不可填格也会走到本函数），行为与 v1.54 一致（返 {@link BEAD_FALLBACK_HEX}）；只在
+ * **真越上界**（B2 目标缺口）时报，否则每条正常帧都刷噪声。
+ */
 export function beadColorOf(inks: BeadInks, colorIdx: number): string {
-  return inks.hexes[colorIdx - 1] ?? BEAD_FALLBACK_HEX;
+  const hex = inks.hexes[colorIdx - 1];
+  if (hex === undefined) {
+    warnIndexOutOfRange('beadColorOf', colorIdx, inks.hexes.length);
+    return BEAD_FALLBACK_HEX;
+  }
+  return hex;
 }
 
-/** 端点 for a 1-based palette index within `inks`（越界 → 炭黑兜底）。 */
+/** 端点 for a 1-based palette index within `inks`（越上界 → 炭黑兜底，共用上方一次性告警门）。 */
 export function endpointOf(inks: BeadInks, colorIdx: number): BeadEndpoints {
-  return inks.endpoints[colorIdx - 1] ?? FALLBACK_ENDPOINTS;
+  const ep = inks.endpoints[colorIdx - 1];
+  if (ep === undefined) {
+    warnIndexOutOfRange('endpointOf', colorIdx, inks.endpoints.length);
+    return FALLBACK_ENDPOINTS;
+  }
+  return ep;
+}
+
+/** B2 告警门：只在 `colorIdx > 色板长度` 时报一次（文本包含调用方名以便定位）。 */
+function warnIndexOutOfRange(fn: string, colorIdx: number, len: number): void {
+  if (colorIdx <= len || warnedIndexOutOfRange) return;
+  warnedIndexOutOfRange = true;
+  console.warn(
+    `[beads] ${fn}: colorIdx ${colorIdx} 越出关卡色板（${len} 色）⇒ 炭黑 ${BEAD_FALLBACK_HEX} 兜底；本条仅告警一次`,
+  );
 }
 
 export interface BeadsPalette {

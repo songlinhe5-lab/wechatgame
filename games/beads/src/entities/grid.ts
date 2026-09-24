@@ -16,9 +16,13 @@
  *
  * The charset was validated at BOOT (validateBeadsLevel); this class keeps only
  * defensive assertions (bead-grid §2.1 — the two layers do not repeat work).
+ * Character decoding is NOT re-implemented here: it comes from
+ * `config/bead-charset.ts`, the single table shared with the validator.
  * Row 0 of the pattern is the TOP row (ADR-0004 authoring order), matching
  * `rowCenterY(i)` (§3.3).
  */
+
+import { colorIndexOfChar } from '../config/bead-charset.js';
 
 export type CellState = 'empty' | 'filled' | 'locked';
 
@@ -64,10 +68,15 @@ export class BeadGrid {
           // Outside the pattern shape.
           this._cells.push({ state: 'locked', colorIdx: 0, beadColorIdx: 0, void: true });
         } else {
-          // '1'-'9'/'A' — the 底色 this cell requires (v2.0: boot assembly may
-          // place a DIFFERENT bead here; that assembly lives in E5/BOOT, the
+          // The 底色 this cell requires (v2.0: boot assembly may place a
+          // DIFFERENT bead here; that assembly lives in E5/BOOT, the
           // constructor still yields an empty board).
-          const colorIdx = ch === 'A' ? 10 : ch.charCodeAt(0) - 48;
+          // ⚠️ Decoding goes through the ONE charset table (§3.2 v1.55 / 判据 X1).
+          // This used to be a hand-inlined `ch === 'A' ? 10 : charCodeAt - 48`,
+          // i.e. the third copy of the mapping in the repo — the copy that made
+          // `.x1-9A-Z` a three-way change per colour added.
+          const decoded = colorIndexOfChar(ch);
+          const colorIdx = typeof decoded === 'number' ? decoded : 0;
           fillable++;
           this._cells.push({ state: 'empty', colorIdx, beadColorIdx: 0, void: false });
         }

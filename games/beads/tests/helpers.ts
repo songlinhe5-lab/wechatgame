@@ -21,6 +21,7 @@ import {
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { BeadsGame } from '../src/game/beads-game.js';
 import { CLEAR_PANEL_DELAY_MS, solverSequenceMs } from '../src/config/tuning.js';
+import { colorIndexOfChar } from '../src/config/bead-charset.js';
 import type { BeadsLevelRaw } from '../src/config/levels.js';
 
 export interface Harness {
@@ -163,8 +164,12 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
  * exactly what those "invalid level" cases want).
  */
 function defaultSwaps(pattern: readonly string[]): [number, number, number, number][] {
-  const colorOf = (ch: string): number =>
-    ch >= '1' && ch <= '9' ? Number(ch) : ch === 'A' ? 10 : 0;
+  // 不再造本地解码表（§3.2 v1.55 / 判据 X1）：旧写法 `ch === 'A' ? 10 : 0` 是全仓
+  // 第八份字符↔索引映射，且对 `B`…`Z` 直接当「不可填」⇒ 多色测试关会静默给出空 swaps。
+  const colorOf = (ch: string): number => {
+    const idx = colorIndexOfChar(ch);
+    return typeof idx === 'number' ? idx : 0;
+  };
   const picked: { r: number; c: number; color: number }[] = [];
   for (let r = 0; r < pattern.length && picked.length < 2; r++) {
     const row = pattern[r]!;

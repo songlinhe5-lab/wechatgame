@@ -33,7 +33,7 @@ export interface BeadsLevelRaw {
   /** Decoy colour characters (pattern charset, never part of the pattern). */
   readonly decoys: readonly string[];
   /**
-   * 全错位初盘（可选；v1.3）。rowstring，字符集同 `pattern`（`.x1-9A`），逐格给出
+   * 全错位初盘（可选；v1.3）。rowstring，字符集同 `pattern`（`.x1-9A-Z`），逐格给出
    * **初始珠色**。存在则**替代 `swaps`** 作初盘真源（引擎直读装配、零 RNG ⇒ 输出确定），
    * 用于表达「成片错豆」（swaps 封顶 8 对 ≤16 颗不够）。BOOT 校验：形状一致 +
    * 可填轮廓逐格匹配 pattern + 每色珠数守恒 + 错位格数 ≥1（不强制 100% 全错）。
@@ -41,20 +41,26 @@ export interface BeadsLevelRaw {
    */
   readonly misplaced?: readonly string[];
   /**
-   * Pattern rows, **top to bottom**. Charset `BEAD_CHARSET = ".x1-9A"`
-   * (`.` = empty slot, `x` = locked bead, `1-9`+`A` = palette index 1–10).
+   * Pattern rows, **top to bottom**. Charset `BEAD_CHARSET = ".x1-9A-Z"`
+   * (`.` = empty slot, `x` = locked bead, `1-9`+`A-Z` = palette index 1–35).
+   * ⚠️ §3.2 v1.55 raised the ceiling 10→35 (= the one-char-per-cell rowstring
+   * encoding limit). **Uppercase only**: `x` = locked, `X` = index 33
+   * (`Y` = 34, `Z` = 35) — the validator must stay case-sensitive.
+   * Decode table: `config/bead-charset.ts`.
    */
   readonly pattern: readonly string[];
   /**
-   * 本关品牌色板引用（可选，v1.40）：slug ↔ `games/beads/art/<slug>.json`
+   * 本关品牌色板引用（v1.40）：slug ↔ `games/beads/art/<slug>.json`
    * （如 `'artkal-s'`）。与 {@link paletteCodes} 成对出现；缺省 ⇒ demo 默认色板。
-   * hex 不随关卡携带 —— 只住品牌生成物（`palettes-data.ts`，art/ 编译期打包）。
+   * ⚠️ **§3.2 v1.55 后条件必携**：`pattern` 最大色索引 > demo 色板长度时，成对字段
+   * 不再可选（BOOT 硬校，否则越界索引静默兑炭黑）。hex 不随关卡携带 —— 只住品牌
+   * 生成物（`palettes-data.ts`，art/ 编译期打包）。
    */
   readonly palette?: string;
   /**
-   * 本关用到的品牌色号（可选，v1.40）：紧凑序，`paletteCodes[colorIdx-1]` ↔ 索引
-   * colorIdx，逐项存在于 `PALETTES[palette].codes`。charset/`BEAD_COLOR_MAX`
-   * 上限不变（≤10）。缺省 ⇒ demo 默认色板。
+   * 本关用到的品牌色号（v1.40）：紧凑序，`paletteCodes[colorIdx-1]` ↔ 索引
+   * colorIdx，逐项存在于 `PALETTES[palette].codes`。上限随 `BEAD_COLOR_MAX`（§3.2
+   * v1.55：**≤ 35**，旧值 10）。缺省 ⇒ demo 默认色板（仅当索引不超 demo 色板长度）。
    */
   readonly paletteCodes?: readonly string[];
 }
