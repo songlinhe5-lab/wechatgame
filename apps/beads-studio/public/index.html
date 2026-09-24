@@ -228,7 +228,7 @@
                 <option value="small16">small16 · 16×16</option>
                 <option value="custom">自定义…</option>
             </select>
-            <label>成品密度倍率 1x/2x/3x/4x（边长倍率，珠数≈×n²）</label>
+            <label>单珠尺寸倍率 1x/2x/3x/4x（2x ⇒ 行列÷2、珠数≈÷4；选后即时重推）</label>
             <select id="density">
                 <option value="1" selected>1x（按品牌标准）</option>
                 <option value="2">2x</option>
@@ -338,6 +338,7 @@
             $('colorsHint').textContent = '（参考图，可入关：写回品牌色号）';
         }
         $('palette').onchange = () => { syncColorsDomain(); refreshInfer(); };
+        $('density').onchange = () => refreshInfer();   // 切倍率即时按当前品牌/照片重推行列
         syncColorsDomain();
 
         /**
@@ -407,9 +408,9 @@
                 && sug.cols <= MAX_INFER && sug.rows <= MAX_INFER);
             const useSug = (isStdSquare && inferred) ? inferred : sugOk ? sug : inferred;
             if (!useSug) return '';
-            const dens = Math.max(1, parseInt($('density').value, 10) || 1);   // 1x/2x/3x/4x 边长倍率 ⇒ 珠数≈×n²
-            useSug.cols = Math.min(107, Math.round(useSug.cols * dens));
-            useSug.rows = Math.min(107, Math.round(useSug.rows * dens));
+            const dens = Math.max(1, parseInt($('density').value, 10) || 1);   // 单珠尺寸倍率：N x ⇒ 行列 ÷N、珠数 ≈÷N²
+            useSug.cols = Math.max(2, Math.round(useSug.cols / dens));
+            useSug.rows = Math.max(2, Math.round(useSug.rows / dens));
             $('board').value = 'custom'; $('customSize').style.display = 'grid';
             $('cols').value = useSug.cols; $('rows').value = useSug.rows;
             const sizeNote = `成品 ${(useSug.cols * mm / 10).toFixed(1)}×${(useSug.rows * mm / 10).toFixed(1)} cm @${mm}mm 豆径`;
