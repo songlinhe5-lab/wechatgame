@@ -282,10 +282,19 @@ export function fillPopEnvelope(
  *
  * 本函数对**每个可填格**画一块 pitch 满铺、方角、恒为 `edge = mix(base, −0.30)` 的图元，
  * **与格内有无豆无关** ⇒ 整片谜面连成一张目标色马赛克（实物拼豆图纸的读法）。
- * 方角 + 边长 = `BEAD_PITCH` 是为了相邻无缝：圆心相距恰为 pitch ⇒ 两垫边缘重合。
+ * 方角 + 边长 = **格距** 是为了相邻无缝：圆心相距恰为一个格距 ⇒ 两砖边缘正好相接。
+ *
+ * **边长是入参、不是常量**（`ADR-0020` 附录 A **甲案**，WXG-T-206，用户 2026-09-24 批准「现在就修」）：
+ * 旧写法硬编码绝对 `BEAD_PITCH = 52`，而它必须服务的格心来自相机缩放后的 `BEAD_PITCH·z`
+ *（`gridLayoutFor`）⇒ `z < 1` 时砖比格距宽、相邻砖互相重叠，珠体（缩放 `gridCell`）也随之
+ * 看着不居中、底色透不出来 = 用户报告三症状的**共同根因**。现由调用点 `drawGrid` 传
+ * `snap.gridPitch`，tile 与 `drawFilledBead` / `drawEmptySocket` 所用的缩放 `gridCell` 同尺
+ * ⇒ 相邻恰好相接、零重叠。
+ * **默认值仍取 `BEAD_PITCH`** ⇒ 不传尺寸即 `z = 1` 恒等档**逐位不变**（旧快照与既有断言零漂移；
+ * 「1 点击 = 1 珠逐分复现」类判据的前提）。恒等档不变式由 `tests/view-model.test.ts` 守。
  *
  * ⛔ 不参与 `lift`、不参与 `scale`（§1.6.1 层序死结论；旧 bug = 抬珠把底一起抬走）。
- * 零新 hex（复用端点表 `edge`，与空坑暗缘同源）。
+ * 零新 hex（复用端点表 `edge`，与空坑暗缘同源）；零图元增量（仍是一枚 rect）。
  */
 export function drawTargetTile(
   builder: RenderModelBuilder,
@@ -293,8 +302,9 @@ export function drawTargetTile(
   cy: number,
   colorIdx: number,
   inks: BeadInks = DEMO_BEAD_INKS,
+  size: number = BEAD_PITCH,
 ): void {
-  builder.rect(cx - BEAD_PITCH / 2, cy - BEAD_PITCH / 2, BEAD_PITCH, BEAD_PITCH, {
+  builder.rect(cx - size / 2, cy - size / 2, size, size, {
     fill: endpointOf(inks, colorIdx).edge,
     radius: 0,
   });
@@ -307,8 +317,10 @@ export function drawTargetTile(
  * **珠/槽轮廓** 两层，供肉眼判断缩放后 tile 与格距错位导致的相邻重叠 / 珠体不居中。
  * 纯读参数、不持状态（合 L5）；正常玩法 `snap.debugOutlines === false` ⇒ 从不调用。
  *
- * ⚠ tile 故意用 `BEAD_PITCH`（与 `drawTargetTile` 实画尺寸一致，**不吃相机缩放**），
- * 而珠/槽轮廓用缩放后的 `cellSize` —— 两者宽度一旦不等，即“底图重叠/不居中”的根因可视化。
+ * ⚠ tile 轮廓**仍按固定 `BEAD_PITCH` 画**（品红），是刻意与 `drawEmptySocket` / `drawFilledBead`
+ * 所用的缩放 `cellSize`（即 `gridCell`，青）对照。**甲案（WXG-T-206）后**真实底图 `drawTargetTile`
+ * 已改吃相机缩放（`size = snap.gridPitch`），故**品红框不再是底图当前实画尺寸**，而是「若 tile
+ * 仍不缩放会怎样」的**诊断参照**——它与青色缩放轮廓的宽度差，即低倍率下底图曾致相邻重叠/不居中的可视化。
  */
 export function drawDebugCellOutline(
   builder: RenderModelBuilder,

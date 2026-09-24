@@ -109,6 +109,11 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   });
 
   // B0 目标色底图（v1.5-r8）：独立函数、pitch 满铺且方角 ⇒ 相邻格底色无缝相连。
+  //
+  // ⚠ **恒等档不变式**（`ADR-0020` 附录 A 甲案 / WXG-T-206 后逐字不改）：本例**不传 `size`**
+  // ⇒ 吃默认 `BEAD_PITCH`，测的就是 `z = 1` 那一档。甲案只改 `z ≠ 1` 的呈现，因此本例的
+  // 职责从「证明无缝」升格为「守住恒等档不被顺手改掉」：任何人动默认值即红。
+  // （快照侧同锚见 `view-model.test.ts`；z<1 新行为见下一条与 `view-model.test.ts`。）
   it('§1.1 B0 target tile spans one full pitch with square corners so cells are gapless', () => {
     const tile = emit((b) => drawTargetTile(b, 100, 200, 1))[0]!;
     expect(tile.kind).toBe('rect');
@@ -118,6 +123,27 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(tile.radius ?? 0).toBe(0);
     // 相邻两格圆心相距 = pitch ⇒ 两砖边缘重合（无缝）；旧写法砖边长 = BEAD_CELL ⇒ 中间空 2px。
     expect(tile.x + tile.w).toBe(100 + BEAD_PITCH / 2);
+  });
+
+  // 甲案核心（WXG-T-206）：砖边长是**入参**，必须随相机缩放。旧 bug = 硬编码绝对 52 而格心
+  // 来自 `BEAD_PITCH·z` ⇒ `z < 1` 时相邻重叠。本例只钉「入参透传 + 中心不漂 + 零图元增量」；
+  // 「相邻不重叠」的不共源强度判据在 `view-model.test.ts`（依 K-042：测试里不重推几何公式）。
+  it('甲案（WXG-T-206）：传入缩放格距时 tile 边长随之走，中心与色档不受尺寸影响', () => {
+    const SCALED = 42.4; // 一个 z<1 档的格距（取非整数值：防 `Math.round` 浑水摸鱼）
+    const identity = emit((b) => drawTargetTile(b, 100, 200, 1))[0]!;
+    const tile = emit((b) => drawTargetTile(b, 100, 200, 1, DEMO_BEAD_INKS, SCALED))[0]!;
+    expect(tile.kind).toBe('rect');
+    if (tile.kind !== 'rect' || identity.kind !== 'rect') return;
+    // 仍只一枚图元 ⇒ 零增量（`check:size` 与 §11.2 基线不动）。
+    expect(SCALED).toBeLessThan(BEAD_PITCH); // 前置：本例真的在测 z<1 档
+    expect(tile.w).toBe(SCALED);
+    expect(tile.h).toBe(SCALED);
+    expect(tile.radius ?? 0).toBe(0); // 方角不随缩放变
+    // 以格心为中心：砖变小不致中点漂移（旧 bug 的另一半 = 珠体居中而底图外伸）。
+    expect(tile.x + tile.w / 2).toBeCloseTo(100, 9);
+    expect(tile.y + tile.h / 2).toBeCloseTo(200, 9);
+    // 色档与边长无关（B0 仍是同一张目标色马赛克）。
+    expect(tile.fill).toBe(identity.fill);
   });
 
   // L0a 接触阴影：贴底窄条（y = bottom + contactY×BEAD），α 0.12，圆角 = 主圆角 × 0.5。

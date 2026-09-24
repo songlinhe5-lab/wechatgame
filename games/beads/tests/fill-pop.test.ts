@@ -55,7 +55,14 @@ function samples(n: number): number[] {
   return out;
 }
 
-/** B0 底图（`drawTargetTile`）单独采样：它不接受 scale / lift 形参，结构上无法被珠体包络带动。 */
+/**
+ * B0 底图（`drawTargetTile`）单独采样：它不接受 scale / lift 形参，结构上无法被珠体包络带动。
+ *
+ * ⚠ **恒等档不变式**（`ADR-0020` 附录 A 甲案 / WXG-T-206）：本助手**不传 `size`** ⇒ 吃默认
+ * `BEAD_PITCH`，即 `z = 1` 那一档。甲案只改 `z ≠ 1` 的呈现，所以下面那四条 `BEAD_PITCH`
+ * 断言逐字保留，其职责 = 钉住默认值没被动（动了即红）。缩放档行为不在本文件测（对象 =
+ * 包络与层序，不是格距），见 `view-model.test.ts`。
+ */
 function emitTile(colorIdx: number) {
   const builder = new RenderModelBuilder(750, 1334);
   builder.begin();
@@ -176,6 +183,7 @@ describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.
   it('B0 = 独立函数画的 pitch 满铺方角单图元；珠体函数不再输出任何 pitch 宽图元', () => {
     // v1.5-r8：「珠下画一块垫」已上提为 `drawTargetTile` ⇒ scale / lift / pop 包络**在结构上**
     // 无路径传递给它（旧写法靠“垫不吃 scale”的约定保，现在由函数签名保）。
+    // 下方 `BEAD_PITCH` 四断言 = 恒等档不变式（`emitTile` 不传 size，见助手注）。
     const tile = emitTile(3)[0]!;
     {
       expect(tile.kind).toBe('rect');

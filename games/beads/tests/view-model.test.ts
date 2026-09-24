@@ -22,6 +22,7 @@ import {
   powerupLabelY,
 } from '../src/config/tuning.js';
 import { POWERUP_LABELS } from '../src/systems/powerups.js';
+import { computeFitZoom } from '../src/systems/board-camera.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
@@ -65,6 +66,19 @@ function fillBoard(harness: Harness): number {
   return placed;
 }
 
+/**
+ * 底图砖过滤（`drawTargetTile` 产出的唯一图元）。`pitch` = 本盘实际格距。
+ *
+ * 甲案（`ADR-0020` 附录 A / WXG-T-206）后 tile 边长 = `BEAD_PITCH·z` 而非绝对 52，
+ * 所以缩放档的判据必须传 `snap.gridPitch`。但**恒等档那两条旧判据故意写字面量
+ * `BEAD_PITCH`**（见下方 vm-c / vm-d），它们的作用就是无条件地钉住「z=1 逐位不变」。
+ */
+function tileRects(cmds: readonly DrawCommand[], pitch: number) {
+  return cmds.filter(
+    (c): c is Extract<DrawCommand, { kind: 'rect' }> => c.kind === 'rect' && c.w === pitch,
+  );
+}
+
 describe('beads view model (control-manifest §8)', () => {
   // §8：同一快照渲染两次必须逐字节相同 —— 视图是快照的纯函数。
   it('§8 renders the same snapshot to identical commands', () => {
@@ -99,6 +113,10 @@ describe('beads view model (control-manifest §8)', () => {
       levels: [simpleTestLevel()], // 3 colours ⇒ validator-legal; '123123' × 5 rows
       saveKey: 'wxgame.beads.test.vm-c',
     });
+    // ⚠ **恒等档不变式**（甲案 / WXG-T-206）：6×5 盘被 `computeFitZoom` 的 `Math.min(1, …)`
+    // 钉在 z = 1 ⇒ 格距恰为 `BEAD_PITCH`，所以下面的字面量过滤器**仍然是对的**，本例职责 =
+    // 守住「不缩放时快照与渲染逐位不变」。前置那条保证它不会静默退化成永真过滤（K-041）。
+    expect(harness.game.snapshot.gridPitch).toBe(BEAD_PITCH);
     const tiles = (cmds: readonly DrawCommand[]) =>
       cmds.filter((c) => c.kind === 'rect' && c.w === BEAD_PITCH);
     const blank = tiles(render(harness));
@@ -117,6 +135,9 @@ describe('beads view model (control-manifest §8)', () => {
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-d',
     });
+    // 同上：本例也在 z = 1 恒等档（`simpleTestLevel()` = 6×5），故字面量 `BEAD_PITCH`
+    // 逐字不改——它同时是「甲案没弄坏恒等档」的现场证据。
+    expect(harness.game.snapshot.gridPitch).toBe(BEAD_PITCH);
     const tileFills = (cmds: readonly DrawCommand[]) =>
       cmds
         .filter((c): c is Extract<DrawCommand, { kind: 'rect' }> => c.kind === 'rect' && c.w === BEAD_PITCH)
@@ -263,8 +284,69 @@ describe('beads view model (control-manifest §8)', () => {
     expect(commands.length).toBeGreaterThanOrEqual(900); // architecture-beads §4 规模账
     // v1.5-r8：旧「符号总数 = 已填格数」判据随符号层删除作废 ⇒ 改钉同等强度的
     // 「底图砖数 = 可填格数」（与格态无关），并保留每帧命令下限。
-    const tiles = commands.filter((c) => c.kind === 'rect' && c.w === BEAD_PITCH);
+    // ⚠ **本例是甲案（WXG-T-206）真正改写的断言**：13×12 不是恒等档，而是
+    // `computeFitZoom(13, 12) ≈ 0.9518` 的缩放档 ⇒ 砖宽不再是 52而是 `snap.gridPitch`。
+    // 旧写法在本例下会过滤出 0 块砖、直接红（甲案后）；新写法仍钉住同一强度。
+    const tiles = tileRects(commands, harness.game.snapshot.gridPitch);
     expect(tiles.length).toBe(harness.game.grid.fillableTotal);
+    expect(harness.game.snapshot.gridPitch).toBeLessThan(BEAD_PITCH); // 前置：本例在 z<1 档
+  });
+
+  // ── 甲案主判据（`ADR-0020` 附录 A / WXG-T-206）：tile 必须吃相机缩放 ──────────────────
+  // 上面 vm-c / vm-d 都在 6×5（z=1）⇒ 只能守恒等档，**证不了修复生效**。本例走同一真装配
+  // 路径（`_setupLevel` ⇒ `fitCamera` ⇒ `gridLayoutFor`）拿一个 z<1 的盘，钉两件：
+  //  (1) 砖宽 = `snap.gridPitch`，且命令流里**不再出现**任何 52 宽底图；
+  //  (2) 相邻砖零重叠——不共源不变量：只读命令流的 `x`/`w`，不用 `drawTargetTile` 的公式反推。
+  // 修复前必红：格距 49.49 而砖宽 52 ⇒ 同行缝隙 = −2.51（重叠）；修复后缝隙恰为 0。
+  // （K-036/K-060 判别力：把 `view-model.ts` 两处 `snap.gridPitch` 改回 `BEAD_PITCH` 必红。）
+  // 已做变异自检并存档：旧形态同行最小缝隙 = **−2.508038585209**（必被本例判重叠），
+  // 新形态 = **−1.14e−13**（仅浮点尾数，1e-9 容差内）——重叠那条对历史缺陷形态确有牙。
+  it('甲案（WXG-T-206）：z<1 时底图砖随相机缩放且相邻零重叠', () => {
+    const harness = createBeadsHarness({
+      noAssemble: true,
+      levels: [
+        simpleTestLevel({
+          cols: 13,
+          rows: 12,
+          pattern: Array.from({ length: 12 }, () => '1231231231231'),
+        }),
+      ],
+      saveKey: 'wxgame.beads.test.vm-zoom',
+    });
+    const snap = harness.game.snapshot;
+    // 前置：本盘真的落在缩放档，且格距 = 真源 `computeFitZoom × BEAD_PITCH`（import 真源，
+    // 不在测试里重推公式 ⇒ K-042）。
+    expect(snap.gridPitch).toBeLessThan(BEAD_PITCH);
+    expect(snap.gridPitch).toBe(computeFitZoom(13, 12) * BEAD_PITCH);
+
+    const commands = render(harness);
+    const tiles = tileRects(commands, snap.gridPitch);
+    expect(tiles.length).toBe(harness.game.grid.fillableTotal);
+    expect(tiles.every((t) => t.h === snap.gridPitch)).toBe(true);
+    // (1) 反向锚：旧尺寸的底图砖一片都不剩（防“新旧两套砖都在画”的重复绘制回退）。
+    expect(tileRects(commands, BEAD_PITCH)).toHaveLength(0);
+
+    // (2) 同行相邻砖：后一块左缘不得越过前一块右缘（缝隙 ≥ 0；1e-9 仅为浮点尾数，
+    // 与信号量级 2.51 差 9 个数量级 ⇒ 不会吞掉被测变更，K-041）。
+    let checked = 0;
+    const byRow = new Map<number, typeof tiles>();
+    for (const t of tiles) {
+      const row = byRow.get(t.y);
+      if (row) row.push(t);
+      else byRow.set(t.y, [t]);
+    }
+    for (const row of byRow.values()) {
+      const sorted = [...row].sort((a, b) => a.x - b.x);
+      for (let k = 1; k < sorted.length; k++) {
+        const prev = sorted[k - 1]!;
+        const cur = sorted[k]!;
+        expect(cur.x - (prev.x + prev.w), `相邻底图砖重叠（row y=${cur.y}）`).toBeGreaterThanOrEqual(
+          -1e-9,
+        );
+        checked++;
+      }
+    }
+    expect(checked).toBe(12 * (13 - 1)); // 12 行 × 每行 12 对 = 真验了 144 个相邻缝隙
   });
 
   // ux-spec §3.3：暂停面板必须整屏遮挡（防误触/防偷看），并带「暂停」标题。

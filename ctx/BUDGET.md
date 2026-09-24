@@ -33,7 +33,7 @@
 | 9 | `games/beads/design/gdd/systems-index.md` | 16462 | 288 | hot |
 | 10 | `games/beads/design/gdd/input-control.md` | 16339 | 197 | normal |
 | 11 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15835 | 452 | normal |
-| 12 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 14979 | 357 | normal |
+| 12 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 357 | normal |
 | 13 | `games/beads/design/levels/levels-spec.md` | 14867 | 473 | normal |
 | 14 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 14849 | 460 | normal |
 | 15 | `games/beads/design/audio/audio-spec.md` | 13867 | 381 | normal |
@@ -58,7 +58,7 @@
 | `games/beads/design/gdd/systems-index.md` | 16462 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 16339 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15835 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 14979 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/levels/levels-spec.md` | 14867 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 14849 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 13867 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

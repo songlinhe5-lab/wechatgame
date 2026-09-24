@@ -2775,8 +2775,9 @@ export class BeadsGame implements Game {
 
   /**
    * DEBUG 开关（dev/harness / Console）：开则 `buildRenderModel` 每帧在盘面叠画虚线——
-   * 底图 tile（品红，固定 `BEAD_PITCH`）与珠/槽轮廓（青，缩放 `gridCell`）。用于肉眼判断
-   * 缩放后 tile 与格距错位导致的相邻重叠/不居中。不持久化、不参与玩法；关即零开销（view 跳过）。
+   * 底图 tile 轮廓（品红，固定 `BEAD_PITCH`）与珠/槽轮廓（青，缩放 `gridCell`）。甲案后真实底图
+   * `drawTargetTile` 已随相机缩放，品红框因此是「若 tile 仍不缩放会怎样」的**诊断参照**、非当前实画尺寸；
+   * 与青色缩放轮廓的宽度差即曾致相邻重叠/不居中的可视化。不持久化、不参与玩法；关即零开销（view 跳过）。
    * 用法：`__beads.game.setDebugOutlines(true)` 或 harness `?game=beads&dbg=outline`。
    */
   setDebugOutlines(on: boolean): void {

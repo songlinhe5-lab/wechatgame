@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3119,
       "lines": 118,
-      "sha256": "52d81a41927ae6bec1288e381f6902968ff63019e1336258e0bb045ab1046fed",
+      "sha256": "7081a898db88616051f52348dd41400711d8bf32a94dd04efca35950edc48a71",
       "tier": "normal",
       "sections": [
         {
@@ -6602,9 +6602,9 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md",
-      "tokens": 14979,
+      "tokens": 15152,
       "lines": 357,
-      "sha256": "5ef95b59bfb8cf896baa426b6c34c8198605d2e4fe829183cbfb2fc665bbd551",
+      "sha256": "cc8ae869bcc076af4404706909af23852ffa500c095c7e05666eeb5d43ab18df",
       "tier": "normal",
       "sections": [
         {
@@ -6612,7 +6612,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 358,
-          "tokens": 14945,
+          "tokens": 15118,
           "summary": "编号：ADR-0020（0016–0019 已用；0008 跳空沿 ADR-0015 头注「合规」口径；号只分配不回收）",
           "keywords": [
             "ADR",
@@ -7061,7 +7061,7 @@
           "level": 2,
           "startLine": 321,
           "endLine": 345,
-          "tokens": 1024,
+          "tokens": 1197,
           "summary": "本附录是缺陷登记 + 方案目录，不是决策。任何修法都需要用户拍板 + 真机复验，且多数会牵动 art 轨（ADR-001",
           "keywords": [
             "art",

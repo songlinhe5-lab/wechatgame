@@ -797,7 +797,8 @@ function drawGrid(
 
       if (cell.state === 'empty') {
         // B0 连续目标色底图（v1.5-r8）：与 filled 分支同一块 `edge` 图元 ⇒ 有豆/无豆一张图。
-        drawTargetTile(builder, bx, cy, cell.colorIdx, inks);
+        // 边长传 `snap.gridPitch` = 缩放后的实际格距（ADR-0020 附录 A 甲案 / WXG-T-206）。
+        drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch);
         // 空格 = 在这张底图上**挖洞**（pit 内缩 + 暗缘 + 下受光）；自带的亮 `base` 外块
         // 由 `tilePainted = true` 跳过。旧注释里的“E4 幽灵符号”已随 WXG-T-130 降档移除。
         drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true);
@@ -898,7 +899,8 @@ function drawGrid(
       const opts: FilledBeadOptions = draft;
       // B0 连续目标色底图：与 empty 分支同图元同色档 ⇒ 整片谜面一张图（v1.5-r8）。
       // ⛔ 锁格心、不吃 lift / scale / pop 包络（§1.6.1 P0 陷阱 #2）。
-      drawTargetTile(builder, bx, cy, cell.colorIdx, inks);
+      // 边长同上：= 缩放后格距，与 `opts.size`（`snap.gridCell`）同尺（ADR-0020 甲案）。
+      drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch);
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
       // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
       // 候选 I 墨 = `palette.slotBorder`（§1.6.2a）⇒ 非 danger/hint 色，不抢玩法语义。
