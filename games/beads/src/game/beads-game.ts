@@ -1995,7 +1995,7 @@ export class BeadsGame implements Game {
           }
           return;
         }
-        // 4. Tray band (62² hit area, nearest slot centre wins) — v2.0 内部分支
+        // 4. Tray band (`TRAY_HIT_SIZE`² hit area = 60²，§3.8 v1.57 公式化；旧字面 62) — v2.0 内部分支
         //    4a holding / 4b 空槽，见 `_routeTraySlot`（带级次序不变）。
         const slot = this._hitTraySlot(x, y);
         if (slot >= 0) {
@@ -2725,7 +2725,7 @@ export class BeadsGame implements Game {
 
   // ───────────────────────────────────────────────────────────── hit testing
 
-  /** Nearest tray slot within the 62² hit area (ties → lower index). */
+  /** Nearest tray slot within the `TRAY_HIT_SIZE`² (= 60²，§3.8 v1.57；旧字面 62²) hit area (ties → lower index). */
   private _hitTraySlot(x: number, y: number): number {
     const half = TRAY_HIT_SIZE / 2;
     let best = -1;

@@ -34,9 +34,31 @@ export const TRAY_BAND = { yMin: 216, yMax: 450 } as const;
 // 以下均为**实现派生值**（美术规格数值级落码），非 §3 gameplay 冻结常量。
 
 /** L11 目标色垫 · 珠视觉内缩（v1.5-r5「垫色显缝」，WXG-T-142）：垫 = 全格，珠四边各缩。
- * WXG-T-162 真机 playtest 裁定「乙档」：2→6（旧值在真机 scale 0.5 下仅 ≈1 CSS px 看不见；
- * 6 设计px ≈3 CSS px，图元零增减）。珠/垫圆角同心修正见 bead-render L11 垫分支。 */
-export const BEAD_DRAW_INSET = 6;
+ * WXG-T-162 真机 playtest 裁定「乙档」：2→6（旧值在真机 scale 0.5 下仅 ≈1 CSS px 看不见）。
+ * **v1.57（WXG-T-207-A，§3.3 渲染基尺 5mm→32/dip 基）6 → 4**：按 k = 新/旧 `BEAD_CELL` = 30/50 = 0.6
+ * 机械缩放的**起始值**，art 起始表正本 = `art/assets-spec.md §1.10.2`（其理由不是机械缩放，
+ * 而是「目标色读数已有 B0 满铺底图 + L1c 孔底透色两条并行通道 ⇒ 环带从唯一载体降为帮载体」）。
+ * ⚠️ **`[待真机]`，本值未验收**；回退序 4 → 5 → 3（assets-spec §1.10.2 三档对比表）。
+ * ⚠️ 硬约束②（assets-spec §1.10.9 末）：**本值与 `BEAD_CARD.holeRatio` 必须同提交**
+ * （两者互为对冲：削 inset ⇒ 珠面变大 ⇒ 孔绝对值变大；升 ratio 同理。分开改会留下
+ * 「尺子按实物、孔按保守一档」的混合口径，真机无法归因）⇒ 由 `tests/bead-render.test.ts`
+ * 的同批性断言钉住。
+ * ⚠️ 绝对设计 px、**不随 zoom 缩**（ADR-0015 §3.3-5 未裁项 C-5 的 art 判定 = 保持绝对）。
+ * ⚠️ 仅作用于**传 `targetColorIdx` 的盘面珠**；托盘珠恒 0（见 `bead-render.ts` 的 inset 分支）。 */
+export const BEAD_DRAW_INSET = 4;
+
+/**
+ * 珠面可画边长地板（设计 px）—— **预留、本单未启用**（assets-spec §1.10.2 C-5 护栏建议）。
+ *
+ * 拟用公式（**尚未接入 `bead-render.ts`**）：
+ * `inset_eff = min(BEAD_DRAW_INSET, max(0, (BEAD_CELL × zoom − FACE_MIN) / 2))`
+ * —— 防未来大盘走 fit<1 档时把珠面削到 0（现 8 关全 `fit = 1` ⇒ 落与不落**零行为差异**，
+ * assets-spec §1.10.2 已算；`inset = 6` 时的硬奇异点 `zoom ≤ 0.4` 当前不可达）。
+ *
+ * 状态：仅登记常量与语义，**启用与否属另案**（林绘澄「本批倾向先不落」乙④，解除条件 =
+ * 真机能造出 fit<0.9 的盘，见 assets-spec §1.10.10 第 11 项）。**不进 §3 冻结**（art-owned）。
+ * 启用前不得在任何渲染路径引用本值。 */
+export const FACE_MIN = 12;
 
 /** 空格凹陷坑四层（§1.2 v1.5）：几何以内缩比例表达，墨色端点在 palette 预烘焙表。 */
 export const SOCKET_CARD = Object.freeze({
@@ -125,21 +147,49 @@ export const NEEDED_WEIGHT = 3;
 export const DECOY_WEIGHT = 1;
 
 // ──────────────────────────────────────────────────────────── §3.3 bead grid
-/** Bead edge length (square). */
-export const BEAD_CELL = 50;
-/** Gap between beads. */
+/**
+ * Grid pitch（设计 px，**格心距**）。**§3.3 v1.57（WXG-T-207-A）升为冻结量**
+ * （旧：由 `BEAD_CELL + BEAD_GAP` 派生 = 52；本单为「冻结量换位」——钉住的是格心距，
+ * 不是珠径 ⇒ 任何质感调参都不可能再挪动 5mm↔32 这条映射）。
+ *
+ * 语义 = **5mm 实物 peg 中心距**，与品牌 dip 同尺：`ADR-0021 §3` 冻结
+ * `dip(mm) = 2 × round(mm × 6.4 / 2)` ⇒ `dip(5) = 32` ⇒ **zoom=1 时源图 1 px ↔ 渲染 1 设计 px
+ * 逐格 1:1**。**⚠ 只对 5mm 参照档成立**：其它品牌档（2.6mm→dip16 / 10mm→dip64）不随本值
+ * 搬家，「按所选品牌渲染」属另案（防再造「32 = 恒定量」的 v1.8 式误读；`levels-spec §3`
+ * 的 `dip × dens` 口径才是正本）。
+ *
+ * **推翻 `ADR-0018 §3.4.1①`**（该条以 50 设计px = 5mm 实物等比参照）；被放弃的那一半等比是
+ * 「真机屏上 ≈1:1 物理大小」（旧尺 750 设计px ≈ 72.1mm ≈ iPhone 屏宽；新尺 750/6.4 =
+ * **117.2mm** ⇒ 屏上一颗 5mm 豆只画成 ≈3mm），取「与源图/做图域同尺」换掉它（用户
+ * 2026-09-24 知情裁定；`ADR-0018 §3.4.4` 修订注已登记）。
+ *
+ * **⚠️ 撞数警告**：本值 32 与下行 `GRID_MAX_COLS` 的 32 **不是同一回事**（前者 = 设计px/渲染域，
+ * 后者 = 格数/格数域）。旧注释「与每颗像素标准 32px 严丝合缝」在旧 52 基下只是巧合，
+ * 本单后才是**结构性同尺**（studio `PER_BEAD_PX = brand.dip` 与本值第一次同源同值）。
+ */
+export const BEAD_PITCH = 32;
+/** 格间距。**§3.3 v1.57 不动**：本单唯一不随基尺搬家的渲染域绝对像素量（缝 = 盘面露底色，
+ *  2px 在 30px 珠上占比由 4% 升到 6.7%，缩到 1 有「真机看不见缝」风险，判例同 WXG-T-162 对
+ *  `inset` 的裁定）。 */
 export const BEAD_GAP = 2;
-/** Grid pitch = `BEAD_CELL + BEAD_GAP` = 52. */
-export const BEAD_PITCH = BEAD_CELL + BEAD_GAP;
+/**
+ * Bead edge length（正方形 1:1）。**§3.3 v1.57 由冻结量（旧 50）降为派生量 = 30**；
+ * 珠屏幕径 = `BEAD_CELL × zoom`。绘制边长再减 `BEAD_DRAW_INSET × 2`（见 assets-spec §1.10.1
+ * 「`stroke()` 的基准是绘制边长、不是格径」）⇒ 新尺静息档 = (30 − 8) = **22** 设计 px。
+ */
+export const BEAD_CELL = BEAD_PITCH - BEAD_GAP;
 /**
  * Max columns per level. **v1.45（WXG-T-203）：50 → 32** —— 用户拍板「单图上限 32 个珠子宽度，
  * 超过就拆组合图」。本值语义由 v1.37 的「导入硬顶」升为**单图/组合图（Plate）分界线 = 切块阈值**：
  * 任一维 > 32 ⇒ beads-studio 一键入关自动走 `sliceBoard` 均分切块（k = ceil(n/32)）。
- * 与每颗像素标准 32px（`levels-spec §3.1` v1.8）严丝合缝：1024 源图 → 32×32 最大单图；
+ * 与每颗像素标准 32px（`levels-spec §3`）现为**结构性同尺**（旧 52 基下只是巧合，
+ * v1.57 后 `BEAD_PITCH = 32 = dip(5mm)` 才使两者同源；正本 `levels-spec §3` v1.13 的
+ * `dip × dens` 口径优先于旧 v1.8 单值口径）：1024 源图 → 32×32 最大单图；
  * 2048 → 64×64 母版 → 2×2 均分 ⇒ 恰好 4 宫 32×32、**零残余**（旧 50 阀下 40×40 会被当合法单图，
  * 而 ADR-0018 已裁 29×29 触控不可玩）。
  * 历史：13 → 29（v1.34，对齐 5mm Midi 标准方盘）→ 50（v1.37「最大可玩硬顶」）→ 32（v1.45）。
- * ⚠️ 连带（诚实登记）：① 单屏仍放不下 32 列（32×`BEAD_PITCH` = 1662px ≫ 750px 设计宽）⇒ 靠缩放
+ * ⚠️ 连带（诚实登记）：① 单屏仍放不下 32 列（32×`BEAD_PITCH` = 1024px ≫ 750px 设计宽；旧 52 基
+ * 为 1664px，v1.57 后裕度变大但仍需缩放 ⇒ 本条结论不变）⇒ 靠缩放
  * （ADR-0015 丁-3 已落码）；② 32×32 = 1024 格静态图元 ≈ 1.1 万 ⇒ **LOD 仍待立项**，性能未经真机验证；
  * ③ E1 实测：32×32 **全错位** 176–178 taps 结构性超 420s 预算 ⇒ 单图满尺寸档仍须 ≤60% 整区域就位
  * （`levels-spec §3.1①`）；④ 旧 33–50 维度的异形盘（包围盒裁剪后 33×36 类）从「合法单图」
@@ -186,6 +236,19 @@ export const TRAY_EXPAND_SLOTS = 12;
 export const TRAY_COLS = 12;
 /** Slot edge length. */
 export const TRAY_SLOT = 48;
+/**
+ * 托盘珠绘制边长。**§3.4 v1.57（WXG-T-207-A）由 `view/bead-render.ts` 的私有绝对量升为
+ * §3 派生常量**（K-012 补漏：它一直被 `view/view-model.ts` 与 `tests/bead-render.test.ts`
+ * 消费，却不在冻结表内）。⚠️ 其中「4」= 槽内单边内缩 2px，是**未标定的绝对值**，
+ * 随本单挂 `[待林绘澄]`（assets-spec §1.10.9 托盘族行：本单零改动）。
+ *
+ * ⚠️ **v1.57 引入的视觉反转（如实登记，assets-spec §1.10.8）**：旧尺 盘珠 50 > 托盘珠 44；
+ * 32 基后 **盘珠 30 < 托盘珠 44**（托盘珠屏上径 = 盘珠 2.0×，旧尺为 1.16×）。可辩护理由
+ * = 托盘是取子入口・大热区有利，但属**观感判断** ⇒ `[待真机]`；真机若判不可接受
+ * ⇒ 同尺方案 `TRAY_SLOT 48→32`（连带重开 v1.42 三行态与 `btn_expand` 重叠 48px 的 E2
+ * 真机重验）**属另案，不并入本单**。
+ */
+export const TRAY_BEAD_SIZE = TRAY_SLOT - 4;
 /** Slot gap. */
 export const TRAY_GAP = 6;
 /** 托盘面板竖向内边距（面板高 = rows×54 − 6 + 2×12）。 */
@@ -443,12 +506,31 @@ export const STAR_MAX = 3;
 /** Min hit area for *UI controls* (buttons/cards/gear). */
 export const TOUCH_MIN = 88;
 /**
- * Board/tray beads are the documented exception: hit area = nominal size
- * expanded 8px (grid bead 66², tray bead 62²), overlapping hits resolved by
- * nearest cell centre (ties → smaller row).
+ * 棋盘/托盘珠的外扩命中余量（设计 px）。**§3.8 v1.57（WXG-T-207-A）新冻结**：
+ * 取代旧散文「名义尺寸外扩 8px」⇒ **冻规则不冻数字**（热区数值一律由本值派生）。
  */
-export const GRID_HIT_SIZE = 66;
-export const TRAY_HIT_SIZE = 62;
+export const BEAD_HIT_PAD = 8;
+/**
+ * Board/tray beads are the documented exception（不扩至 `TOUCH_MIN`，防跨格误触），
+ * 相邻重叠按格心最近命中（S2 `input-control §2.2`，对齐 art `accessibility.md` F2）。
+ *
+ * **§3.8 v1.57 公式化**（随 §3.3 同批）：
+ *  • `GRID_HIT_SIZE = BEAD_CELL + 2×BEAD_HIT_PAD` = **46**（旧字面 66 = 50+16，随基尺落 46）；
+ *  • `TRAY_HIT_SIZE = TRAY_BEAD_SIZE + 2×BEAD_HIT_PAD` = **60**。
+ * ⚠️ **旧 62 无出处，本单订正为 60**：`git log -S "TRAY_HIT_SIZE = 62"` 追至 `1c83776`，
+ * `TRAY_SLOT+16 = 64` 与 `TRAY_BEAD_SIZE+16 = 60` 两条算法都得不出 62，而网格侧一致用
+ * **珠名义**（`BEAD_CELL` 而非 pitch）⇒ 托盘侧对齐珠名义 = 60。−2px 触控方向 = 缩小与
+ * `btn_expand` 的既存重叠（利好 E2 待验项），但仍是触控变化 ⇒ `[待真机]`。
+ *
+ * **三条与基尺无关的结构性不变式**（替代旧快照式 `52z < 66z`，由 `tests/tuning.test.ts` 钉住）：
+ *  ① `GRID_HIT_SIZE > BEAD_PITCH` ⇔ `2×PAD > GAP`（16 > 2）⇒ **无死区**（ADR-0015 §3.3-4）；
+ *  ② `GRID_HIT_SIZE ≥ BEAD_CELL`；
+ *  ③ 相邻热区重叠量 = `GRID_HIT_SIZE − BEAD_PITCH = 2×PAD − GAP` = **14px，新旧同值**
+ * （旧 66−52 = 14、新 46−32 = 14）⇒ `IMPACT-0020a` 的「HIT/PITCH 1.269→1.941」是**比值假警报**，
+ * 真正要守的是重叠量与无死区，两者都没变。热区**不需上界**（相邻重叠本就是设计意图）。
+ */
+export const GRID_HIT_SIZE = BEAD_CELL + 2 * BEAD_HIT_PAD;
+export const TRAY_HIT_SIZE = TRAY_BEAD_SIZE + 2 * BEAD_HIT_PAD;
 
 // ──────────────────────────────────────────────────────── §3.10 sprint (C1–C8)
 /** Sprint run length (s); legal [90, 120], out-of-range falls back to default (C1). */
@@ -826,7 +908,10 @@ export const SWEEP_ALPHAS = [0.14, 0.10, 0.06] as const;
    规格正本 = assets-spec §1.6.4；毫秒真源 = ux-spec §5「过关庆祝」行（800ms + 20ms/列）。
    ⚠️ `WAVE_LOD_LAYERS` = **7** 而**不是** §1.6.4 初稿的 6：v1.5-r6 按 B′ 重算后
    可砍集不得包含 **L11 垫**（垫 = 静态谜面载体，三条理由见§1.6.4 LOD 行）
-   ⇒ 保留集 = L0b+L1+L2+L3+L4c+L5 ⊕ 垫。值变更、**非新增常量**，仍归 tuning 呈现层。 */
+   ⇒ 保留集 = L0b+L1+L2+L3+L4c ⊕ 垫（**旧文此处还列 L5 符号层**，该层已随
+      `bead-visual-style-spec` v1.5-r8（2026-09-23，WXG-T-203 `c8d2fe8`）整层删除
+      ⇒ WXG-T-207-A 注释核销；是否因此应重数为 6 = art/QA 另案，本单不动值）。
+   ⚠ **层数与渲染基尺无关** ⇒ 本值不随 §3.3 v1.57 复算，`assets-spec §11.2` 图元基线同理。 */
 export const WAVE_MS = 800;
 export const WAVE_COL_DELAY_MS = 20;
 export const WAVE_SCALE_PEAK = 1.08;
@@ -839,7 +924,7 @@ export const WAVE_LIFT_PX = 3;
  * 240 兜底仍保留防异常（原注「13 ⇒ W=560」随 §3.3 v1.33 作废）。
  */
 export const WAVE_WINDOW_MIN_MS = 240;
-/** 弹跳列的降层档（含垫，见上方⚠️）：L0b+L1+L2+L3+L4c+L5 + L11。 */
+/** 弹跳列的降层档（含垫，见上方⚠️）：L0b+L1+L2+L3+L4c + L11（旧文此处还列已删的 L5 符号层）。 */
 export const WAVE_LOD_LAYERS = 7;
 /**
  * ADR-0017 甲案 · zoom 自适应 LOD 的**触发阈值**（工程通道；本轮只落「满层 / 降档」两态）。
@@ -849,12 +934,27 @@ export const WAVE_LOD_LAYERS = 7;
  * （视口剔除已落，但 fit 档全盘可见 ⇒ 剔不到）；Node 侧建模仅 0.10 ms/帧 ⇒ 瓶颈在真机
  * canvas 执行那 2900 条命令× 60fps。缩到 0.37（珠 19px）时一半以上质感层本来就分辨不出。
  *
- * 阈值 `[待真机]`：取 ADR-0017 建议档起点 zoom 0.9（= 珠 45 设计px）。
+ * 阈值：`BEAD_LOD_CELL` 的出身是**比例**而非绝对地板——取 ADR-0017 建议档起点
+ * `zoom 0.9`。故 **§3.8/§3.3 v1.57（WXG-T-207-A）公式化 = `0.9 × BEAD_CELL` = 27**，
+ * 与 `BEAD_CELL` **同批提交**（P0：若只翻基尺不翻本值，旧 45 在新尺下永不达标
+ * ⇒ **盘面永久降档**，中心孔与质感层集体缺席）。
+ * 公式化后降档触发点仍是 `zoom < 0.9`，与旧尺**行为同构** ⇒ `IMPACT-0020a 摘要③`
+ * 「LOD 档结构性失效 / 默认视角恒降档」不成立（其前提是把 45 当绝对px，变更单 §7 修正一）。
+ * ⚠ 阈值仍未真机验（`ADR-0017` 状态仍 Proposed），且 27 是**格径**而非珠面径
+ * ⇒ 「降档时珠面只余 27−2×inset ≈ 19px，可省的层是否还值得省」= `[待真机 + art]`。
  * 降档层集**复用 `WAVE_LOD_LAYERS`（7 层，art 已在 WXG-T-146 冻结）**，不自造新层集；
- * ADR 的中/低三档细分待 art 冻结后再分。红线不变：**L11 目标色垫与 L5 符号任何档不砍**。
+ * ADR 的中/低三档细分待 art 冻结后再分。红线不变：**L11/B0 目标色底图与 L1c 中心孔
+ * 任何档不砍**（旧文此处写的“L5 符号”已随 v1.5-r8 整层删除，见上方核销注）。
  */
-export const BEAD_LOD_CELL = 45;
-/** 滞回带宽（ADR-0017 §2.1「滞回必需」）：降档 < 45、升档 ≥ 47.5 ⇒ 阈值附近缩放不闪。 */
+export const BEAD_LOD_CELL = BEAD_CELL * 0.9;
+/**
+ * 滞回带宽（ADR-0017 §2.1「滞回必需」）：降档 < 27、升档 ≥ 29.5 ⇒ 阈值附近缩放不闪。
+ *
+ * ⚠️ **v1.57 裁定 = 保持绝对 2.5，不随基尺派生**（主理人任务单 207-A 口径 = art 起始表
+ * `assets-spec §1.10.9`「`BEAD_LOD_HYST` 2.5 不动」）。**诚实登记口径冲突**：变更单 §0.1 曾拟
+ * 派生 `BEAD_CELL/20 = 1.5`；采绝对 2.5 后，带宽占格径比例由旧尺 5% 升到 **9.3%**
+ * ⇒ 升档点从 `0.95×CELL` 变为 `0.983×CELL`（仍 < 1，不会“升不回去”）。后果可接受且**不阻塞**，
+ * 但它是**触控以外的第二个观感项** ⇒ 随 `BEAD_LOD_CELL` 一起挂 `[待真机]`，派生化留另案。 */
 export const BEAD_LOD_HYST = 2.5;
 
 /** LOD 滞回状态机（纯函数、可单测）：输入当前珠屏幕径与上帧降档态，输出本帧是否降档。 */
@@ -1044,22 +1144,52 @@ export const IDENTITY_CAMERA: BoardCamera = { zoom: 1, offsetX: 0, offsetY: 0 };
 //   QA 不得据本组占位数值造判据。
 /** 棋盘区 tap ↔ drag 分界（设计空间 px）：按下到抬起全程 **切比雪夫位移** L∞ = max(|dx|,|dy|) < 此值判为 tap（抬起才提交）；度量形态归 GDD `input-control §2.1` v2.5（WXG-T-171 裁定）。 */
 export const BOARD_TAP_MOVE_THRESHOLD = 8; // [待确认]
-/** 初始「含边距适配」视图四周留白（设计 px）：把棋盘缩放到正好放进 PUZZLE_BAND 且居中不贴边。 */
-export const BOARD_FIT_MARGIN = 24; // [待确认]
-/** 相对「适配 zoom」最多可放大的倍数（缩放上限 = fit × 此值）；下限 = fit（不能再缩到留白更多）。 */
+/**
+ * 初始「含边距适配」视图四周留白（设计 px）：把棋盘缩放到正好放进 PUZZLE_BAND 且居中不贴边。
+ *
+ * **§3.3 v1.57（WXG-T-207-A）由工程占位转正冻结**（旧：仅住本行、带 `[待确认]`、未入 §3 表）。
+ * **裁定 = 不随基尺派生**（保持绝对 24）：留边语义属「屏幕呼吸」而非「珠子尺度」；且派生几乎
+ * 不买空间 —— 取 `PITCH/2 = 16` 时 `c_max = floor(720/32) = 22`（**列数不变**）、仅 `r_max`
+ * 18→19（多 1 行），收益小于把占位值改写的冻结成本（正本变更单 §1.1）。
+ * ⚠ 本值是 **§3.3 顶格档算式的分母项**（`c_max = floor((750−2×24+2)/32) = 22`、
+ * `r_max = floor((640−2×24+2)/32) = 18`）⇒ 顶格档不能建在未冻结的占位值上，这才是转正的动因。
+ * 真机若判「贴边」⇒ 走 §3 变更单，不在本单预登记。
+ */
+export const BOARD_FIT_MARGIN = 24;
+/**
+ * 相对「适配 zoom」最多可放大的倍数（缩放上限 = fit × 此值）；下限 = fit（不能再缩到留白更多）。
+ *
+ * **v1.57 值不动（仍 2.5，仍 `[待确认]`）**，但登记一条既存硬缺陷**随基尺自动消失**：
+ * 29×29 盘达到 `zoom = 1` 所需 span = `natH / (640 − 2×24)` 在旧 52 基 = **1506/592 = 2.544**
+ * ⇒ `ADR-0018 §4.2-1` 据此判「SPAN=2.5 对 29×29 是硬缺陷、复评须 ≥2.6」；32 基下同一算式
+ * = **926/592 = 1.564** ⇒ 余量 60%，**该缺陷不再成立**，`ADR-0018 §5` 复评触发 1 的依据作废
+ * （登记于修订注，正本变更单 §1.1 / §3）。本值仍是未冻结占位 ⇒ 转正与否属另案。
+ */
 export const CAMERA_ZOOM_MAX_SPAN = 2.5; // [待确认]
 
 /**
  * Derive the band-centred grid geometry for a `cols × rows` pattern, optionally
  * transformed by a board camera (WXG-T-169 / ADR-0015 丁-3).
  *
- * Horizontal: centred in 750 (left ≥ 30 holds up to 13 cols: (750−674)/2 = 38).
- * Vertical: centred in PUZZLE_BAND (top ≤ 1120 and bottom ≥ 480 hold up to
- * 12 rows: 1111 / 489).
+ * **本函数零逻辑改动**（§3.3 v1.57）：它已经全量由 `BEAD_PITCH / BEAD_CELL / BEAD_GAP`
+ * 派生 ⇒ 换基尺 = 自动等比缩。动的只是下面的注释快照（旧文是 52 基取证，K-053）。
+ *
+ * Horizontal: centred in 750. Vertical: centred in `PUZZLE_BAND`（高 640）。
+ * 约束**全部符号化、不写快照数**（§3.3 v1.57 新行）：
+ *  `gridLeft ≥ BEAD_CELL/2`（边缘珠外溢不越屏）、`gridTop ≤ PUZZLE_BAND.yMax`、
+ *  `gridBottom ≥ PUZZLE_BAND.yMin`、`natH ≤ 640 − BEAD_CELL`。
+ * 旧文「left ≥ 30 容纳到 13 列：(750−674)/2 = 38」与「12 行：1111/489」均为 52 基快照，
+ * 随本次改注作废（32 基下 13 列 = `(750−414)/2 = 168`）。
+ *
+ * **顶格档（`fit = 1` 的最大盘，由 `BOARD_FIT_MARGIN` 而非本函数决定）**：
+ *  `c_max = floor((750 − 2×24 + 2)/32) = 22`、`r_max = floor((640 − 2×24 + 2)/32) = 18`
+ *  ⇒ **v1.57 顶格档 13×11 → 22×18**（守卫断言见 `tests/board-camera.test.ts` 的
+ *  「§3.3 v1.57 顶格档」例：公式腿 + 字面快照腿双钉）。
  *
  * With `camera` omitted (or identity zoom=1 / offset=0) the produced numbers are
  * **bit-identical** to the pre-zoom version — the level layout, snapshot and
  * every existing assertion must not drift at the identity step (regression anchor).
+ * ⚠ 本句只保证**公式同构**，不保证**快照同值**（常量换尺 ⇒ 坐标逐条重 bless）。
  */
 export function gridLayoutFor(cols: number, rows: number, camera?: BoardCamera): GridLayout {
   const z = camera ? camera.zoom : 1;
@@ -1092,9 +1222,14 @@ export function gridLayoutFor(cols: number, rows: number, camera?: BoardCamera):
  * layout⇄hit regression test so the two can never drift (WXG-T-169 / ADR-0015).
  *
  * The hit radius **scales with zoom** (`GRID_HIT_SIZE · zoom / 2`). This is not
- * polish: at zoom=1.5 the pitch′ = 78 > 66, so an unscaled radius would open a
- * no-hit seam between cells and break `input-control §8-2` (nearest-centre wins,
- * no dead zone). Scaling keeps `52z < 66z` true at every step. Ties → smaller row.
+ * polish: at any zoom the scaled pitch must stay **inside** the scaled hit box, or
+ * an unscaled radius would open a no-hit seam between cells and break
+ * `input-control §8-2` (nearest-centre wins, no dead zone).
+ *
+ * ⚠️ **v1.57（WXG-T-207-A）旧注释的 `52z < 66z` / `zoom=1.5 ⇒ pitch 78 > 66` 是 52 基快照**，
+ * 随基尺作废。换为与尺子无关的**符号不变式**（§3.8 v1.57，由 `tests/tuning.test.ts` 钉住）：
+ * `BEAD_PITCH·z < GRID_HIT_SIZE·z` ⇔ `GAP < 2×BEAD_HIT_PAD` ⇔ `2 < 16` ⇒ **恒真**。
+ * Ties → smaller row.
  */
 export function hitGridCell(
   layout: GridLayout,
@@ -1130,8 +1265,10 @@ export function hitGridCell(
  * WXG-T-062）。
  *
  * 垂直锚定：面板**贴上沿**（v1.20，原「带内居中」）—— 槽簇上移后，带下沿才能
- * 容下 `btn_expand` 的 88 热区而不与 62 槽热区重叠（实测净空 11px）。
- */
+ * 容下 `btn_expand` 的 88 热区而不与槽热区重叠（实测净空 11px）。
+ * ⚠ 旧文此处写的是 **62 槽热区**；§3.8 v1.57 公式化后 `TRAY_HIT_SIZE = 60`（−2px）
+ * ⇒ 与 `btn_expand` 的既存重叠**变小**（方向利好 v1.42 E2 待验项）。但旧括注的「实测净空
+ * 11px」本身是**以 62 为热区量取证的快照数**，换 60 后需重测 ⇒ 不得当作仍成立，`[待真机]`。 */
 export interface TrayLayout {
   readonly rows: number;
   /** 槽间距 = `TRAY_SLOT + TRAY_GAP` = 54。 */

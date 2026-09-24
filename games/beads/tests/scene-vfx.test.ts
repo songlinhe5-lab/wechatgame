@@ -239,7 +239,10 @@ describe('G4 vfx_complete_wave · 包络（assets-spec §1.6.4）', () => {
     expect(crest.dy).toBeCloseTo(WAVE_LIFT_PX, 6);
   });
 
-  it('零叠压：峰径 (BEAD_CELL−2×INSET)×1.08 = 49.68 < pitch 52', () => {
+  // 旧名钉字面量「= 49.68 < pitch 52」是 5mm(50) 基快照（`IMPACT-0020a §7.2-4` 点名的同类样本）。
+  // §3.3 **v1.57** 换 32/dip 基后：`(30 − 2×4) × 1.08 = 23.76 < pitch 32`，缝 8.24px（旧 2.32）。
+  // ⇒ 标题改为只写**公式**（断言本就是符号式，未为绿而改；K-036 / K-053）。
+  it('零叠压：峰径 (BEAD_CELL−2×BEAD_DRAW_INSET)×WAVE_SCALE_PEAK < BEAD_PITCH，且留 ≥2px 缝', () => {
     const drawn = (BEAD_CELL - 2 * BEAD_DRAW_INSET) * WAVE_SCALE_PEAK;
     expect(drawn).toBeLessThan(BEAD_PITCH);
     expect(BEAD_PITCH - drawn).toBeGreaterThan(2); // 留 ≥2px 缝 ⇒ 波浪期不糊成一片

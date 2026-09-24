@@ -248,6 +248,18 @@
       "reason": "beads §3.2 色数放开（10→35）+ 最大化错位提案正本（根因逐条 file:line / 变更 A・B / 施工清单 / 未决 / 边界），依赖清单与口径需整篇同读，拆分断链；沿 ADR-0011/0015/density-tiers 同族先例",
       "note": "2026-09-24 首入 10344 tok（>8000）。§5 施工清单交付工程后可拆册撤销豁免；不得二次追加豁免",
       "taskId": "WXG-T-206"
+    },
+    {
+      "path": "games/beads/design/proposals/sec3-5mm32-render-base-change-final.md",
+      "reason": "beads 乙（渲染域 5mm→32/dip 基）§3.3 定稿单：取值总表/可粘贴新行/四决策/ADR-0018 处置/重烤核实/下游派发/真机必验清单，需整篇同读才能一次翻齐 §3.3，拆分即断链",
+      "note": "2026-09-24 首入 ~15461 tok（>8000）。WXG-T-207-A 落码后可评估拆册/归档撤销豁免；不得二次追加豁免",
+      "taskId": "WXG-T-207"
+    },
+    {
+      "path": "games/beads/design/proposals/sec3-5mm32-render-base-change.md",
+      "reason": "上定的分析附录（草案）：D1–D8 推导与复算脚本留存，与 final 同页可查防跨文件互引",
+      "note": "2026-09-24 ~13320 tok（>8000）；随 final 归档/拆册时一并重估；不得二次追加豁免",
+      "taskId": "WXG-T-207"
     }
   ]
 }

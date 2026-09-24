@@ -38,7 +38,10 @@ try {
 
 const L = R.layout(420, 420, 14, 14);
 assert.ok(Math.abs(L.cell - 30) < 1e-9);
-assert.ok(Math.abs(L.size - (30 * 50) / 52) < 1e-9); // 珠边 = 格边 × BEAD_CELL/BEAD_PITCH
+// 珠边 = 格边 × BEAD_CELL/BEAD_PITCH。§3.3 **v1.57**（WXG-T-207-A）渲染基尺 5mm(50)→32/dip 基：
+// 比值 50/52 → **30/32**（`BEAD_PITCH=32` 冻结、`BEAD_CELL=30` 降为派生）。⚠ 本断言是写死的
+// 数字镜像（`IMPACT-0020a §7.2-2` 建议改为注入值，**未立**），改 tuning.ts 时须成对改这里。
+assert.ok(Math.abs(L.size - (30 * 30) / 32) < 1e-9);
 assert.equal(L.ox, 0);
 
 console.log('board-render selftest OK（7 组断言，含越界告警一次性）');

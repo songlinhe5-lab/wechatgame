@@ -44,16 +44,16 @@ export const BEAD_COLOR_MAX = BEAD_COLOR_CHARS.length;
  * 逐字符一致（判据 X1 校的是映射，不是返回值形态）。
  */
 export function baseColorOfChar(ch) {
-  const pos = BEAD_COLOR_CHARS.indexOf(ch);
-  return pos < 0 ? 0 : pos + 1;
+    const pos = BEAD_COLOR_CHARS.indexOf(ch);
+    return pos < 0 ? 0 : pos + 1;
 }
 
 /** 1-based 色索引 → 字符；越界返回 `undefined`（调用方须显式处理，勿静默拼串）。 */
 export function charOfColor(colorIdx) {
-  return BEAD_COLOR_CHARS[colorIdx - 1];
+    return BEAD_COLOR_CHARS[colorIdx - 1];
 }
 
 /** 字符是否在 `BEAD_CHARSET` 内（与 {@link baseColorOfChar} 同表，不会「合法但解不出」）。 */
 export function isBeadCharsetChar(ch) {
-  return ch === EMPTY_CHAR || ch === LOCKED_CHAR || BEAD_COLOR_CHARS.indexOf(ch) >= 0;
+    return ch === EMPTY_CHAR || ch === LOCKED_CHAR || BEAD_COLOR_CHARS.indexOf(ch) >= 0;
 }

@@ -66,8 +66,11 @@ export function getBeadPalette(slug: string): BeadsPaletteEntry | null {
  *  的唯一 `dip(mm)` 在生成期算出；漂移门 `palettes:check`）。
  *
  * ⚠ **不参与渲染几何**：本表是品牌物理口径（照片算珠数 / 成品尺寸 / 未来选档），
- *   游戏内盘面尺寸仍由 §3.3 冻结常量 `BEAD_CELL=50 / GAP=2 / PITCH=52` 决定，
- *   **不得由 dip 推导**（IMPACT-0020a §7.1 K-A：源图域与渲染域数值相同与否皆不互推）。
+ *   游戏内盘面尺寸仍由 §3.3 冻结常量（v1.57 后：**`BEAD_PITCH=32` 冻结 / `GAP=2` /
+ *   `BEAD_CELL` 派生 = 30**；旧 50/52 基已推翻）决定，
+ *   **不得由 dip 推导**（IMPACT-0020a §7.1 K-A：源图域与渲染域数值相同与否皆不互推；
+ *   ⚠ v1.57 后两域在 **5mm 参照档同值 = 32**，但**同值 ≠ 可互推**：dip 仍只在生成期存在，
+ *   其它品牌档（2.6mm→16 / 10mm→64）不随渲染基尺搬家，本句约束照旧成立）。
  *   beads-studio 前端读同批生成的 `apps/beads-studio/public/brands.json` —— 两处同一真源。
  */
 export { BRANDS, getBeadBrand } from '../config/palettes-data.js';

@@ -17,12 +17,22 @@
  *     /[.16,.68,.56,.14,.07]，y 自**底边**起算）· drawEmptySocket（pitInset .06、
  *     edgeWidth 3/64 min2，S3/S4 内缘光线未移植）· drawLockedBead（fill locked +
  *     背景色 α.9 十字、inset .16、线宽 2）
- *   `games/beads/src/config/tuning.ts`：BEAD_CELL 50 / BEAD_GAP 2 ⇒ 珠占格边 50/52
+ *   `games/beads/src/config/tuning.ts`：**§3.3 v1.57（2026-09-24，WXG-T-207-A）渲染基尺 5mm(50) → 32/dip 基**
+ *     ⇒ `BEAD_PITCH = 32`（冻结量）/ `BEAD_GAP = 2` / `BEAD_CELL` **降为派生 = 30** ⇒ 珠占格边 **30/32**；
+ *     `BEAD_DRAW_INSET` **6 → 4** ⇒ 珠体相对垫内缩 **4/30**（⚠ 两者是**对冲量、必同批改**，
+ *     art 硬约束② = `assets-spec §1.10.9`；本镜像若只改一个就会与游戏预览不一致）。
+ *     ⚠ **本文件与游戏仍是两份实现**（`IMPACT-0020a §7.2-2` 建议改为生成/注入，**未立**）；
+ *     另登一处**既存漂移（本批未改、已报主理人）**：本文件 `RADIUS = 0.22`，而游戏
+ *     `BEAD_CARD.radius = 0.30`（`bead-render.ts:76`，`assets-spec §1.10.5` 裁「0.30 不动」）
+ *     ⇒ 预览圆角比实机更方。**不擅改任何一侧**（改本文件 = 改变做图域预览观感，需 art 签认；
+ *     改游戏值 = 超出 207-A 变更面）⇒ 交主理人转 art/发布裁定。
  *
- * **有意不移植**（预览不需要动效/无障碍层；要升级先立项）：L5 符号层（a11y 三重
- * 编码）、垫随 lift/scale 动效、选中环与呼吸、S3/S4 内缘光、托盘区。L11 目标色垫
- * **已移植**（view-model L792/L850：空格画目标色 socket、有珠画垫+内缩珠，正解/错位
- * 两视图同底）。
+ * **有意不移植**（预览不需要动效/无障碍层；要升级先立项）：垫随 lift/scale 动效、
+ * 选中环与呼吸、S3/S4 内缘光、托盘区。**L5 符号层不属本列**：该层已随 `c8d2fe8`（WXG-T-203，
+ * 记 `[v1.5-r8]`）**整层删除**，可访问性编码口径现为**二重（色相 + 明度）+ 连续目标色底图**（
+ * `systems-index §3.8` v1.57 订正 / `art/accessibility.md` A1）⇒ 旧写「不移植 L5（三重编码）」
+ * 已无对象，随本批订正。目标色底图（旧 L11 / 现 **B0**，按 `BEAD_PITCH` 满铺）**已移植**
+ * （view-model：空格画目标色 socket、有珠画垫 + 内缩珠，正解/错位两视图同底）。
  *
  * 坐标系：设计空间 y 向上，canvas y 向下 —— 凡「自底边」的比例都已翻转，勿再乘错。
  */
@@ -35,7 +45,7 @@
         '#8E6FD9', '#3D7BF5', '#A5652C', '#6B3E1E', '#33333D',
     ];
     var BG = '#ECEAF3', SLOT = '#F7F6FB', LOCKED = '#B9B4CC';
-    var RADIUS = 0.22, CELL_OF_PITCH = 50 / 52;
+    var RADIUS = 0.22, CELL_OF_PITCH = 30 / 32; // = BEAD_CELL / BEAD_PITCH（§3.3 v1.57）；RADIUS 与游戏 0.30 的漂移见头注
     var SHADOW_DY = 3 / 64, SHADOW_A = 0.15, CONTACT_A = 0.12;
     var BEVEL_DARK_W = 5 / 64, BEVEL_DARK_IN = 2 / 64, BEVEL_DARK_MIX = -0.26;
     var BEVEL_LIGHT_W = 4 / 64, BEVEL_LIGHT_IN = 1.5 / 64, BEVEL_LIGHT_MIX = 0.28;
@@ -46,8 +56,9 @@
         { x: 0.16, y: 0.68, w: 0.56, h: 0.14, r: 0.07, a: 0.30 },
     ];
     var SOCKET_EDGE_MIX = -0.3, SOCKET_PIT_MIX = -0.44, SOCKET_PIT_INSET = 0.06, SOCKET_EDGE_W = 3 / 64;
-    /** 珠体相对垫的四边内缩：BEAD_DRAW_INSET 6 / BEAD_CELL 50（tuning.ts，同心圆角式 radius = padR − inset）。 */
-    var BEAD_INSET_RATIO = 6 / 50;
+    /** 珠体相对垫的四边内缩：**§3.3 v1.57 后** = `BEAD_DRAW_INSET 4 / BEAD_CELL 30`（tuning.ts，
+     *  同心圆角式 radius = padR − inset）。旧值 6/50 与 `CELL_OF_PITCH 50/52` 同属 5mm(50) 基快照。 */
+    var BEAD_INSET_RATIO = 4 / 30;
 
     // ── 纯逻辑（可单测） ──
 
@@ -61,7 +72,7 @@
         return c >= 65 ? c - 56 : c - 49;
     }
 
-    /** 网格布局：cell = 可容纳方格边（含 BEAD_GAP 比），珠边 = cell·50/52，整体居中。 */
+    /** 网格布局：cell = 可容纳方格边（含 BEAD_GAP 比），珠边 = cell·BEAD_CELL/BEAD_PITCH（v1.57 = 30/32），整体居中。 */
     function layout(canvasW, canvasH, cols, rows) {
         var cell = Math.min(canvasW / cols, canvasH / rows);
         var size = cell * CELL_OF_PITCH;

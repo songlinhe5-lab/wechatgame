@@ -93,7 +93,7 @@ describe('B2 · 静默兑底告警（§3.2 v1.55 护栏）', () => {
 
   beforeEach(() => {
     resetPaletteFallbackWarnings();
-    warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    warn = vi.spyOn(console, 'warn').mockImplementation(() => { });
   });
 
   it('正常路径不刷日志：demo 关加载与 colorIdx 0（void/locked 常规入参）均静默', () => {

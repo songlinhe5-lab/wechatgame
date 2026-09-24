@@ -438,11 +438,11 @@ const draft = {
 const LEVEL_TIME_MIN = 120;
 const LEVEL_TIME_MAX = 420;
 function computeTime(fillable, colors, adjacency) {
-  const base = 45 + 1.6 * fillable; // 珠数主导
-  const colorAdj = 1 + (colors - 4) * 0.04; // 色数次级（4 色为基准）
-  const clusterAdj = 1 + (0.75 - adjacency) * 0.3; // 聚集度末级（0.75 为基准）
-  const t = Math.round(base * colorAdj * clusterAdj);
-  return Math.max(LEVEL_TIME_MIN, Math.min(LEVEL_TIME_MAX, t));
+    const base = 45 + 1.6 * fillable; // 珠数主导
+    const colorAdj = 1 + (colors - 4) * 0.04; // 色数次级（4 色为基准）
+    const clusterAdj = 1 + (0.75 - adjacency) * 0.3; // 聚集度末级（0.75 为基准）
+    const t = Math.round(base * colorAdj * clusterAdj);
+    return Math.max(LEVEL_TIME_MIN, Math.min(LEVEL_TIME_MAX, t));
 }
 
 let anyError = false;

@@ -35,6 +35,9 @@ import {
   BEAD_GAP,
   DESIGN_W,
   BOARD_FIT_MARGIN,
+  GRID_MIN_COLS,
+  GRID_MIN_ROWS,
+  PUZZLE_BAND,
   LEVEL_TIME_MIN,
   gridLayoutFor,
 } from '../src/config/tuning.js';
@@ -50,11 +53,19 @@ const two = (x: number, y: number, x2: number, y2: number): PinchInput => ({
   y2,
 });
 
-// 6×5 小盘：放进带内富余 → fit=1（不放大）。13×12 大盘：fit<1（缩到含边距）。
+// 6×5 小盘：放进带内富余 → fit=1（不放大）。“大盘”（fit<1）需越过**顶格档**。
+// ⚠ **v1.57（§3.3 5mm→32/dip 基）换尺后的直接后果**：旧夹具 13×12 在新尺下
+// `fit = 1`（顶格档由 13×11 抬到 22×18）⇒ 它不再是“缩放档”，借用它的用例全部当场红。
+// 本文件因此把 `BC×BR` 抬到 **22×19 = 顶格档 + 1 行**（取最小越界量：既仍钉住“fit<1”
+// 这一族行为，又不把夹具无关地拉大）。⛔ 不得为了绿而删断言（K-036）。
 const SC = 6;
 const SR = 5;
-const BC = 13;
-const BR = 12;
+const BC = 22;
+const BR = 19;
+
+/** §3.3 v1.57 顶格档快照（正本 = `systems-index §3.3` “顶格档”行；22×18）。 */
+const TOP_COLS = 22;
+const TOP_ROWS = 18;
 
 describe('computeFitZoom / fitCamera（issue 3 初始适配）', () => {
   it('小盘放得下 → fit=1（不放大到超过自然尺寸）', () => {
@@ -73,6 +84,27 @@ describe('computeFitZoom / fitCamera（issue 3 初始适配）', () => {
     expect(c.zoom).toBeCloseTo(computeFitZoom(BC, BR), 9);
     expect(c.offsetX).toBe(0);
     expect(c.offsetY).toBe(0);
+  });
+
+  // §3.3 v1.57（WXG-T-207-A）新增：**顶格档 22×18**（fit=1 的最大盘）。
+  // 旧 52 基 = 13×11 ⇒ 换尺后“大盘放不下”自动缓解，现关表 8 关全部回到 fit=1。
+  // 本例同时钉两腿：① 公式腿（由 `BOARD_FIT_MARGIN` / `BEAD_PITCH` / `BEAD_GAP` 派生）
+  // ② 快照腿（字面 22×18）——两腿必同时红才能防“换尺但没人重算顶格档”。
+  it('§3.3 v1.57 顶格档 = 22×18（fit=1 的最大盘），越界一档必缩', () => {
+    const bandH = PUZZLE_BAND.yMax - PUZZLE_BAND.yMin;
+    const cMax = Math.floor((DESIGN_W - 2 * BOARD_FIT_MARGIN + BEAD_GAP) / BEAD_PITCH);
+    const rMax = Math.floor((bandH - 2 * BOARD_FIT_MARGIN + BEAD_GAP) / BEAD_PITCH);
+    expect([cMax, rMax]).toEqual([TOP_COLS, TOP_ROWS]); // 快照腿：换尺 ⇒ 本行必跟着 §3 动
+    // 派生守卫（§3.3 顶格档行的工程形式）：`cols ≤ cMax ∧ rows ≤ rMax` ⇔ `fit = 1`。
+    expect(computeFitZoom(TOP_COLS, TOP_ROWS)).toBe(1);
+    expect(computeFitZoom(TOP_COLS - 1, TOP_ROWS - 1)).toBe(1);
+    expect(computeFitZoom(GRID_MIN_COLS, GRID_MIN_ROWS)).toBe(1);
+    // 越界一档：两个轴各钉一条，防“只钉一个轴”的单向漏测。
+    expect(computeFitZoom(TOP_COLS + 1, TOP_ROWS)).toBeLessThan(1);
+    expect(computeFitZoom(TOP_COLS, TOP_ROWS + 1)).toBeLessThan(1);
+    // ⛔ 本例**不**钉“出货关表逐关 fit=1”：那又是对关表内容的巧合耦合（本文件 :236-238
+    // 已登记 v1.46 关表重置失配的教训）。“现 8 关均 ≤ 顶格档”是变更单 §2.2 的
+    // 文档结论，它属 `levels.test.ts` 的规模闸职责，不属相机公式本例。
   });
   it('resetCamera 回恒等（测试基线）', () => {
     const c: BoardCamera = { zoom: 2, offsetX: 5, offsetY: 5 };
@@ -196,14 +228,15 @@ function loadStageForTest(game: BeadsGame, n: number): void {
   (game as unknown as { _loadStage(n: number): void })._loadStage(n);
 }
 
-/** 13×12 大盘（与第 8 关同尺寸 ⇒ fit<1）；时长取关卡下沿，只为重试例少烧表。 */
+/** 22×19 大盘（顶格档 + 1 行 ⇒ fit<1）；时长取关卡下沿，只为重试例少烧表。 */
 function bigTestLevel(): ReturnType<typeof simpleTestLevel> {
   return simpleTestLevel({
     id: 91,
     cols: BC,
     rows: BR,
     time: LEVEL_TIME_MIN,
-    pattern: Array.from({ length: BR }, () => '1231231231231'),
+    // 行宽由 BC 派生（旧硬编 13 字串随 BC=22 与列数不一致，校验器必拒）。
+    pattern: Array.from({ length: BR }, () => '123'.repeat(BC).slice(0, BC)),
   });
 }
 
@@ -232,7 +265,7 @@ function fillCurrentStage(h: Harness): void {
 }
 
 describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）', () => {
-  it('换关（_setupLevel）：13×12 大盘归 fit，且 fit<1 ⇒ 与旧「恒等」档不等价', () => {
+  it('换关（_setupLevel）：22×19 大盘归 fit，且 fit<1 ⇒ 与旧「恒等」档不等价', () => {
     // 受控夹具（先例 = 同文件小盘例喂 smallTestLevel、retry 例喂 bigTestLevel）：
     // 旧版 `goToLevel(7)` + `LEVELS[7 % LEVELS.length]` 是对**出货关表**的巧合耦合 ——
     // 索引 7 在「钳到末关」与「取模」两种映射下落不到同一关，v1.46 关表重置（8 关 → studio 三关）即失配。
@@ -244,7 +277,7 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expect(h.game.levelIndex).toBe(0);
     dirtyCamera(h.game);
 
-    h.game.goToLevel(1); // 6×5 → 13×12（换关即重算 fit）
+    h.game.goToLevel(1); // 6×5 → 22×19（换关即重算 fit）
 
     expect(h.game.grid.cols).toBe(BC);
     expect(h.game.grid.rows).toBe(BR);
@@ -305,6 +338,7 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expect(h.game.stageIndex).toBe(1);
     expect(h.count('sprint:stage')).toBe(2); // 开局横幅 + 换 stage
     expectFitReset(h.game);
+    const stage1Dims: readonly [number, number] = [h.game.grid.cols, h.game.grid.rows];
 
     // 第二档：棋盘尺寸不同，锁住「按新尺寸重算」而非写死 1。
     // 尺寸正本 = `STAGE_PATTERN_POOL`（冲刺 stage 图案走 `buildStagePattern(n)` → pool[n % pool.length]，
@@ -316,7 +350,17 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expect(h.game.grid.cols).toBe(stage7[0]!.length);
     expect(h.game.grid.rows).toBe(stage7.length);
     expectFitReset(h.game);
-    expect(cameraOf(h.game).zoom).toBeLessThan(1);
+    // (b) 两档尺寸不同 ⇒ 排除“两次恰好同尺”的偶然相等。
+    expect([h.game.grid.cols, h.game.grid.rows]).not.toEqual(stage1Dims);
+    // ⚠ 旧腿 `expect(zoom).toBeLessThan(1)` 的前提已被 v1.57 取消：§3.3 换 32 基后顶格档
+    // 抬到 22×18，而冲刺池（= `STAGE_PATTERN_POOL` ≡ `LEVELS` 图案）均≤顶格档 ⇒
+    // **池内不再存在 fit<1 的盘**（不是断言写错，是被测前提消失，变更单 §2.2）。
+    // ⛔ 不删不补是违规（K-036）⇒ “不是写死 1”改由下面探针腿承担：
+    //    对**越界尺寸**直接跑 `fitCamera`，若实现被写成常量 1（或任何定值）本腿必红。
+    const probe: BoardCamera = { zoom: 9, offsetX: 0, offsetY: 0 };
+    fitCamera(probe, BC, BR);
+    expect(probe.zoom).toBeLessThan(1);
+    expect(probe.zoom).toBe(computeFitZoom(BC, BR));
   });
 
   it('后台隐藏（onPause/onResume）当帧不复位 ⇒ 复位由下次装配承担（新口径负向锁）', () => {

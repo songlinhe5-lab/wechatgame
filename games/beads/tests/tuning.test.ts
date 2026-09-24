@@ -12,10 +12,12 @@ import {
   BEAD_CELL,
   BEAD_COLOR_MAX,
   BEAD_GAP,
+  BEAD_HIT_PAD,
   BEAD_PITCH,
   DEFAULT_TUNING,
   DESIGN_H,
   DESIGN_W,
+  GRID_HIT_SIZE,
   GRID_MAX_COLS,
   GRID_MAX_ROWS,
   GRID_MIN_COLS,
@@ -27,11 +29,14 @@ import {
   SPAWN_INTERVAL_MAX,
   SPAWN_INTERVAL_MIN,
   SPRINT_TIME_DEFAULT,
+  TOUCH_MIN,
   TRAY_BAND,
   TRAY_BASE_SLOTS,
+  TRAY_BEAD_SIZE,
   TRAY_COLS,
   TRAY_EXPAND_SLOTS,
   TRAY_GAP,
+  TRAY_HIT_SIZE,
   TRAY_SLOT,
   computeClearStars,
   LEVEL_TIME_MIN,
@@ -102,6 +107,44 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       // Row 0 is the TOP row, so centres descend as the index grows.
       expect(layout.rowCenterY(0)).toBeCloseTo(layout.top - BEAD_CELL / 2, 6);
       expect(layout.rowCenterY(2)).toBeLessThan(layout.rowCenterY(1));
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // §3.8 v1.57（WXG-T-207-A）热区**公式化**后的结构性不变式。旧判据是快照式
+  // `BEAD_PITCH·z < 66·z`（52 基字面量）⇒ 换基尺即成为假绿。本组只钉**与基尺无关**
+  // 的关系（数值全由 `BEAD_HIT_PAD / BEAD_CELL / BEAD_PITCH / TRAY_BEAD_SIZE` 派生），
+  // 正本 = `systems-index §3.8` v1.57 行 + `tuning.ts` §3.8 注释。
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('§3.8 热区（v1.57 公式化：冻规则不冻数字）', () => {
+    it('两个热区都是派生式，不是绝对字面量', () => {
+      expect(GRID_HIT_SIZE).toBe(BEAD_CELL + 2 * BEAD_HIT_PAD);
+      expect(TRAY_HIT_SIZE).toBe(TRAY_BEAD_SIZE + 2 * BEAD_HIT_PAD);
+      // 同尺链：托盘珠径本身也是派生量（v1.57 从 bead-render 上提为 §3.4 常量）。
+      expect(TRAY_BEAD_SIZE).toBe(TRAY_SLOT - 4);
+    });
+
+    it('① 无死区：相邻盘珠热区必相接（`2·PAD > GAP` ⇔ `HIT > PITCH`，与 zoom 同乘可约）', () => {
+      expect(GRID_HIT_SIZE).toBeGreaterThan(BEAD_PITCH);
+      expect(2 * BEAD_HIT_PAD).toBeGreaterThan(BEAD_GAP);
+    });
+
+    it('② 热区不小于它要覆盖的珠面', () => {
+      expect(GRID_HIT_SIZE).toBeGreaterThanOrEqual(BEAD_CELL);
+      expect(TRAY_HIT_SIZE).toBeGreaterThanOrEqual(TRAY_BEAD_SIZE);
+    });
+
+    it('③ 相邻重叠量与基尺无关（= `2·PAD − GAP`）⇒ 换尺不新增跨格误触', () => {
+      expect(GRID_HIT_SIZE - BEAD_PITCH).toBe(2 * BEAD_HIT_PAD - BEAD_GAP);
+      // 快照腿（防“两个错量互相抵消”）：旧 52 基 = 66 − 52 = 14，新 32 基 = 46 − 32 = **14**。
+      // ⇒ `IMPACT-0020a` 的「HIT/PITCH 1.269→1.941」是**比值假警报**，真正要守的
+      // 是重叠量与无死区，两者本单都没变（正本：变更单 §2.4 / `tuning.ts` §3.8 注）。
+      expect(GRID_HIT_SIZE - BEAD_PITCH).toBe(14);
+    });
+
+    it('珠类热区仍不扩至 UI 控件最小值 `TOUCH_MIN`（§3.8 既裁：防跨格误触）', () => {
+      expect(GRID_HIT_SIZE).toBeLessThan(TOUCH_MIN);
+      expect(TRAY_HIT_SIZE).toBeLessThan(TOUCH_MIN);
     });
   });
 

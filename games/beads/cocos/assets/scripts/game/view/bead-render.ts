@@ -3,19 +3,27 @@
  * non-`filled` state variants of §1.2.
  *
  * One bead = L0a 接触阴影 → L0b 投影 → L1 主体 → L2 暗倒角 → L3 亮倒角 → L3b rim 光
- * → L4a/b/c 软高光（三层递减 α）→ L5 符号, drawn in that order (v1.3 十层卡 · F4 质感升级).
+ * → L4a/b/c 软高光（三层递减 α），drawn in that order.
+ * ⚠ 原第十层「**L5 符号**」已随 `bead-visual-style-spec` **v1.5-r8（2026-09-23）整层删除**
+ *   （WXG-T-203 `c8d2fe8`）⇒ 本卡现为九层；本行旧文残留于 WXG-T-207-A 注释核销批清除
+ *   （**层数与渲染基尺无关**，故 §11.2 图元基线不因 v1.57 复算）。
  * Everything here is a **pure function of its arguments**: it reads
  * no game state and returns nothing (control-manifest §8) — which is what makes
  * the card testable by command inspection alone (`tests/bead-render.test.ts`).
  *
  * Geometry is expressed as **ratios of the bead edge**, derived from the 64px
- * reference frame §1.1 works in (r = 0.22×BEAD, shadow dy = 3/64×BEAD, …). That
+ * reference frame §1.1 works in (r = `BEAD_CARD.radius`×BEAD, shadow dy = 3/64×BEAD, …). That
  * keeps one card implementation correct at every size the game uses:
- * `BEAD_CELL = 50` on the board, `TRAY_SLOT − 4 = 44` in the tray.
+ * `BEAD_CELL = PITCH − GAP = 30` on the board, `TRAY_BEAD_SIZE = TRAY_SLOT − 4 = 44` in the tray.
+ * ⚠ **v1.57（WXG-T-207-A）渲染基尺 50/52 → 30/32**：比率制量（radius / 五档线宽 / 孔比 /
+ *   接触阴影…）**一个都不用改**，绝对像素量只有 `BEAD_DRAW_INSET`（6→4）与 `minStroke`（不缩）。
+ * ⚠ 但「比率制 ⇒ 观感等比」是**推论不是实测**：`minStroke = 2` 这条绝对地板会吃掉小珠子上的
+ *   比率差（30px 珠上 `bevelWidthLight 4/64 = 1.875`、`rimWidth 3/64 = 1.406` 均被钳成 2
+ *   ⇒ 三档倒角同宽）⇒ 已登记 `[待林绘澄/真机]`，`assets-spec §1.10.3`。
  */
 
 import type { RenderModelBuilder } from '../../framework/index';
-import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, SELECT_LIFT_PX, SOCKET_CARD, TRAY_SLOT } from '../config/tuning';
+import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, SELECT_LIFT_PX, SOCKET_CARD, TRAY_BEAD_SIZE } from '../config/tuning';
 import {
   FILL_POP_CONTACT_A_PEAK,
   FILL_POP_CONTACT_W_PEAK,
@@ -83,8 +91,22 @@ export const BEAD_CARD = {
   /** L3 stroke width (v1.3: 4/64, was 2). */
   bevelWidthLight: 4 / 64,
   /**
-   * L3b rim 光（v1.3 新增）：上内缘单线，内缩 1/64。线宽 2/64 → **3/64**（「06 珐琅·金属包边」
-   * 加粗上缘高光边；2/64 在 50px 珠上被 `minStroke=2` 钳成 2 ⇒ 无变化，3/64→2.34px 才真变粗）。
+   * L3b rim 光（v1.3 新增）：上内缘单线，内缩 1/64。线宽 **2/64 → 3/64**（「06 珐琅·金属
+   * 包边」加粗上缘高光边）。
+   *
+   * ⚠️ **旧括注的加粗理由是「错基注释」，WXG-T-207-A 核销（正本判定 = `assets-spec §1.10 ②`，
+   * 林绘澄）**：原文写「2/64 在 50px 珠上被 `minStroke=2` 钳住 ⇒ 无变化，3/64 才真变粗」。
+   * 该算式把分母当成 `BEAD_CELL`，**而实装分母是绘制边长** `(outer − 2×inset)`（见本卡
+   * `:410` `size` 与 `:428` `stroke()`）⇒ 旧 50 基盘面上 `size = 50 − 2×6 = 38`，
+   * `38×2/64 = 1.19` 与 `38×3/64 = 1.78` **双双钳到 2.00** —— 那次加粗在盘面对照上
+   * **从来就是 no-op**（不是「换尺后才失效」）。唯一名义越线处是托盘珠（`size = 44`、
+   * `inset = 0`）：`44×3/64 = 2.0625`，超地板 0.0625 设计 px ≈ 0.03 CSS px ⇒ 不可辨。
+   * ⇒ 本句**不得再作为「比例线宽有效」的先例引用**（K-035 族「假绿登记」）。
+   *
+   * v1.57 换 30 基后现状（同一算式）：盘面 `size = 30 − 2×4 = 22` ⇒ `22×{5,4,3}/64 =
+   * {1.72,1.38,1.03}` 全部 < 2 ⇒ **三档倒角 + rim 一起钳平为 2**（层集只剩方向/墨差/同心
+   * 内缩序在承载，`assets-spec §1.10.3` 因此裁「比例不动、地板不动」）。**不在本单解**：
+   * 分母 64→32 翻倍、或 `minStroke`→1 弃地板，两条出路均 `[待林绘澄/真机]`。
    */
   rimInset: 1 / 64,
   rimWidth: 3 / 64,
@@ -99,10 +121,18 @@ export const BEAD_CARD = {
   ] as const),
   /**
    * **L1c 中心孔（`bead-visual-style-spec` K2–K4）** —— 实物拼豆最强的识别特征，
-   * 之前完全没做。孔径比例 0.36 从 Midi 实物（⌀5 / 孔 ⌀2.2 = 0.44）收一档，
-   * 避免小屏上吃掉色面；真机嫌小再评估升到 0.44。`[待真机]`
+   * 之前完全没做。
+   *
+   * **0.36 → 0.44（v1.57 / WXG-T-207-A；art 起始值正本 = `assets-spec §1.10.4`）**：
+   * 0.44 是 Midi 实物真比（孔 ⌀2.2 / 豆 ⌀5），旧值 0.36 是「小屏怕吃掉色面」的**保守一档**；
+   * 在 30px 珠上按实物真比反推，孔**半径** = `(30−2×4)×0.44/2 = 4.84` 设计px（旧尺
+   * `(50−12)×0.36/2 = 6.84`）⇒ 绝对孔径仍缩 29%。**⚠ `[待真机]`**：真机 scale≈0.5 下直径
+   * ≈4.8 CSS px，与当初判 `inset=2`「看不见」只差一档 ⇒ 禁止以「比例没变」判绿（K-035/K-040）。
+   * ⚠️ **硬约束②（`assets-spec §1.10.9`）：本值与 `BEAD_DRAW_INSET` 互为对冲，必须同提交**
+   * （削 inset ⇒ 珠面变大 ⇒ 孔绝对值变大）；分开改会留下混合口径、真机无法归因
+   * ⇒ 由 `tests/bead-render.test.ts` 的同批性断言钉住。
    */
-  holeRatio: 0.36,
+  holeRatio: 0.44,
   /** 孔内壁自阴影的偏移量（半径比例）与 α；光从左上 ⇒ 阴影偏左上，留出右下亮弧。 */
   holeShadeOffset: 0.22,
   holeShadeAlpha: 0.3,
@@ -139,8 +169,15 @@ export const BEAD_CARD = {
   minStroke: 2,
 } as const;
 
-/** Tray bead edge — §1.3 `tray_slot` 同 BEAD（内缩 4）. */
-export const TRAY_BEAD_SIZE = TRAY_SLOT - 4;
+/**
+ * Tray bead edge — §3.4 `TRAY_SLOT − 4`。
+ *
+ * ⚠️ **v1.57（WXG-T-207-A）真源上移 `config/tuning.ts`**（K-012 补漏：本值一直被
+ * `view-model.ts` 与 `tests/bead-render.test.ts` 消费，却住在 view 层、不在 §3 冻结表内）。
+ * 本行降为**再导出**（保留旧 import 路径，不拆消费者），不得在此重算公式。
+ * ⚠ 其中「4」= 槽内单边内缩 2px，是**未标定的绝对值**，本单零改动 ⇒ `[待林绘澄]`。
+ */
+export { TRAY_BEAD_SIZE };
 
 export interface FilledBeadOptions {
   /** Bead edge length; defaults to `BEAD_CELL` (board size). */
@@ -176,7 +213,9 @@ export interface FilledBeadOptions {
   readonly shadowDy?: number;
   /**
    * G4 波浪期的 **LOD 降档**（`assets-spec §1.6.4` / `WAVE_LOD_LAYERS = 7`，WXG-T-146）：
-   * 传入即降层 —— 砍 L0a / L3b / L4a / L4b，保 L0b + L1 + L2 + L3 + L4c + L5。
+   * 传入即降层 —— 砍 L0a / L3b / L4a / L4b，保 L0b + L1 + L2 + L3 + L4c
+   * （旧文此处还列了 **L5 符号**，该层已随 v1.5-r8 整层删除 ⇒ WXG-T-207-A 注释核销；
+   *   保留集是否因此重数为 6 归 art/QA **另案**，本单不动 `WAVE_LOD_LAYERS` 的值）。
    * ⛔ **L11 垫绝不进可砍集**（静态谜面载体 ⇒ 本标志**不影响**上方垫的绘制）。
    * 本轮只预埋 G4 这一档（裁定 5）；G2 的 α 阈值 4 层档 = 规格保留、不实现。
    */

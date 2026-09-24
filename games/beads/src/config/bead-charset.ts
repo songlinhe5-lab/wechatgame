@@ -51,20 +51,20 @@ export const BEAD_COLOR_CHARS: string = COLOR_ALPHABET.slice(0, BEAD_COLOR_MAX);
  * validator reports as `illegal char`).
  */
 export function colorIndexOfChar(ch: string): number | null | undefined {
-  if (ch === EMPTY_CHAR || ch === LOCKED_CHAR) return null;
-  const pos = BEAD_COLOR_CHARS.indexOf(ch);
-  return pos < 0 ? undefined : pos + 1;
+    if (ch === EMPTY_CHAR || ch === LOCKED_CHAR) return null;
+    const pos = BEAD_COLOR_CHARS.indexOf(ch);
+    return pos < 0 ? undefined : pos + 1;
 }
 
 /** Colour index → charset character. Throws outside `[1, BEAD_COLOR_MAX]`. */
 export function charOfColor(colorIdx: number): string {
-  const ch = BEAD_COLOR_CHARS[colorIdx - 1];
-  if (ch === undefined) {
-    throw new Error(
-      `charOfColor: colorIdx ${colorIdx} outside BEAD_CHARSET ${BEAD_CHARSET} (BEAD_COLOR_MAX ${BEAD_COLOR_MAX})`,
-    );
-  }
-  return ch;
+    const ch = BEAD_COLOR_CHARS[colorIdx - 1];
+    if (ch === undefined) {
+        throw new Error(
+            `charOfColor: colorIdx ${colorIdx} outside BEAD_CHARSET ${BEAD_CHARSET} (BEAD_COLOR_MAX ${BEAD_COLOR_MAX})`,
+        );
+    }
+    return ch;
 }
 
 /**
@@ -73,5 +73,5 @@ export function charOfColor(colorIdx: number): string {
  * happen (that split is what proposal §5-A5 warns about).
  */
 export function isBeadCharsetChar(ch: string): boolean {
-  return ch === EMPTY_CHAR || ch === LOCKED_CHAR || BEAD_COLOR_CHARS.indexOf(ch) >= 0;
+    return ch === EMPTY_CHAR || ch === LOCKED_CHAR || BEAD_COLOR_CHARS.indexOf(ch) >= 0;
 }

@@ -7,8 +7,20 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { RenderModelBuilder } from '@wxgame/framework';
-import { BEAD_CELL, BEAD_PITCH, TRAY_SLOT, nextBeadLod, WAVE_LOD_LAYERS } from '../src/config/tuning.js';
+import {
+  BEAD_CELL,
+  BEAD_DRAW_INSET,
+  BEAD_GAP,
+  BEAD_LOD_CELL,
+  BEAD_LOD_HYST,
+  BEAD_PITCH,
+  TRAY_SLOT,
+  nextBeadLod,
+  WAVE_LOD_LAYERS,
+} from '../src/config/tuning.js';
 import {
   BEAD_CARD,
   SELECTED_SHADOW_ALPHA,
@@ -61,11 +73,23 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
       beadOnPad(b, lod),
     );
 
-  it('滞回状态机：降档 < 45、升档 ≥ 47.5 ⇒ 阈值带内不跳变（防 D2 闪烁红线）', () => {
-    expect(nextBeadLod(44, false)).toBe(true); // 满层侧跨过阈值 ⇒ 降档
-    expect(nextBeadLod(46, true)).toBe(true); // 带内保持降档，不闪回满层
-    expect(nextBeadLod(48, true)).toBe(false); // 越过带宽才升档
-    expect(nextBeadLod(46, false)).toBe(false); // 同一点不降档 ⇒ 无双稳振荡
+  it('滞回状态机（§3.8 v1.57 公式化：降档 < 27、升档 ≥ 29.5）⇒ 阈值带内不跳变（防 D2 闪烁红线）', () => {
+    // 阈值不再写死 45/47.5（那是 50/52 基快照）；本例只钉**行为形状**，
+    // 数值一律从 `BEAD_LOD_CELL / BEAD_LOD_HYST` 派生 ⇒ 换基尺时自动跟随。
+    expect(nextBeadLod(BEAD_LOD_CELL - 1, false)).toBe(true); // 跨过阈值 ⇒ 降档
+    expect(nextBeadLod(BEAD_LOD_CELL + BEAD_LOD_HYST - 1, true)).toBe(true); // 带内保持降档，不闪回满层
+    expect(nextBeadLod(BEAD_LOD_CELL + BEAD_LOD_HYST + 1, true)).toBe(false); // 越过带宽才升档
+    expect(nextBeadLod(BEAD_LOD_CELL + 1, false)).toBe(false); // 同一点不降档 ⇒ 无双稳振荡
+  });
+
+  // ⚠️ **P0 捕获器（WXG-T-207-A）**：若有人只翻 `BEAD_CELL` 而忘翻 `BEAD_LOD_CELL`
+  //（旧 45 > 新静息档 30），下一条当场红 ⇒ 盘面永久降档、质感层集体缺席不再可能静默入库。
+  it('§3.3 v1.57 P0 不变式：静息档（zoom=1 ⇒ cell = BEAD_CELL）**不降档**', () => {
+    expect(nextBeadLod(BEAD_CELL, false)).toBe(false);
+    expect(nextBeadLod(BEAD_CELL, true)).toBe(false); // 升档侧也回满层（带内不卡死）
+    expect(BEAD_LOD_CELL).toBeLessThan(BEAD_CELL); // 降档只能发生在 zoom<1 侧
+    expect(BEAD_LOD_CELL).toBe(BEAD_CELL * 0.9); // 出身 = ADR-0017 起点 zoom 0.9（比例、非绝对地板）
+    expect(BEAD_CELL).toBe(BEAD_PITCH - BEAD_GAP); // 基尺同尺链（LOD 跟随此链派生）
   });
 
   it('降档只砍质感层：命令数下降，但中心孔红线不丢', () => {
@@ -129,7 +153,10 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // 来自 `BEAD_PITCH·z` ⇒ `z < 1` 时相邻重叠。本例只钉「入参透传 + 中心不漂 + 零图元增量」；
   // 「相邻不重叠」的不共源强度判据在 `view-model.test.ts`（依 K-042：测试里不重推几何公式）。
   it('甲案（WXG-T-206）：传入缩放格距时 tile 边长随之走，中心与色档不受尺寸影响', () => {
-    const SCALED = 42.4; // 一个 z<1 档的格距（取非整数值：防 `Math.round` 浑水摸鱼）
+    // 一个 z<1 档的格距。⚠ **v1.57（WXG-T-207-A）不再写死 42.4**：旧值在 32 基下已不是
+    // “缩放档”（42.4 > 32，前置断言当场红）。改为**随基尺派生的非整数比例**（取旧 52 基
+    // 14×14 盘的 fit ≈ 0.815 作比例源，仍保持“非整数值：防 `Math.round` 浑水摸鱼”的原意）。
+    const SCALED = BEAD_PITCH * 0.815;
     const identity = emit((b) => drawTargetTile(b, 100, 200, 1))[0]!;
     const tile = emit((b) => drawTargetTile(b, 100, 200, 1, DEMO_BEAD_INKS, SCALED))[0]!;
     expect(tile.kind).toBe('rect');
@@ -376,5 +403,82 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // 可复现：同一输入两次渲染逐字节一致。
   it('is a pure function of its arguments', () => {
     expect(filled(7)).toEqual(filled(7));
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WXG-T-207-A · **art 四条硬约束**（正本 = `art/assets-spec.md §1.10.9`，林绘澄 2026-09-24）。
+//
+// 这四条都是「过程约束的物化」：它们约的是**换尺一批改动不得拆升**，而不是某个像素值。
+// 把它们从注释升级成断言的理由 = K-013（能机器查的不靠人记）；尤其第 ② 条，
+// 「同提交」本身无法被测，但**成对锁**可以让“只改一半”当场红。
+// ─────────────────────────────────────────────────────────────────────────────
+describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
+  /** 与渲染层同式的线宽地板（`bead-render` 内 `stroke()`：地板是绝对值、不随尺缩）。 */
+  const strokeOf = (ratio: number, size: number) => Math.max(BEAD_CARD.minStroke, size * ratio);
+  /** 序不变式裁判：**只允许可等，不允许反向**（钳同值 = 合法退化态）。 */
+  const assertBevelOrder = (dark: number, light: number, rim: number): void => {
+    if (!(dark >= light && light >= rim)) throw new Error('bevel width order violated');
+  };
+
+  // ① 倒角线宽**序**：暗 ≥ 亮 ≥ rim。反转 = 受光边被暗倒角压住 ⇒ 形体读反（光从左上）。
+  it('① 序不变式：暗倒角 ≥ 亮倒角 ≥ rim（钳同值合法、序反转非法）', () => {
+    const d = BEAD_CARD.bevelWidthDark;
+    const l = BEAD_CARD.bevelWidthLight;
+    const r = BEAD_CARD.rimWidth;
+    assertBevelOrder(d, l, r); // 真卡必过
+    expect(() => assertBevelOrder(r, l, d)).toThrow(); // 判别力自证：反序必被拒
+    // 旧 52 基与新 32 基都不得因换尺而失序（换尺只改分母不改**序**）。
+    for (const size of [50, BEAD_CELL, BEAD_CELL - 2 * BEAD_DRAW_INSET]) {
+      const [sd, sl, sr] = [d, l, r].map((x) => strokeOf(x, size));
+      expect(sd >= sl && sl >= sr).toBe(true);
+    }
+    // ⚠ **诚实登记 v1.57 已知代价（不是 bug，不得据此判绿）**：在新静息档绘制边长上
+    // 三档全被 `minStroke=2` 钳成同宽 ⇒ 质感层次抹平（assets-spec §1.10.3 案 A /
+    // 变更单 §2.3-2）。207-B 若选「分母 64→32」或「minStroke→1」，**本行期望值必须跟着改**。
+    const drawn = BEAD_CELL - 2 * BEAD_DRAW_INSET;
+    expect([strokeOf(d, drawn), strokeOf(l, drawn), strokeOf(r, drawn)]).toEqual([2, 2, 2]);
+  });
+
+  // ② 同批性：`BEAD_DRAW_INSET` 与 `BEAD_CARD.holeRatio` **互为对冲**，必须同提交。
+  //    单条断言同时钉两值 ⇒ “只改一个”必红（把「同提交」变成机器可查的成对锁）。
+  //    ⚠ 本例**故意复述两个数字**：它们不是 §3 镜像，而是「成对」这个约束的载体；
+  //    任一值换档必须与另一值同批，并同步本行（正本 = assets-spec §1.10.2 / §1.10.4）。
+  it('② 同批性：BEAD_DRAW_INSET 与 holeRatio 成对（v1.57 锁定值 4 / 0.44）', () => {
+    expect([BEAD_DRAW_INSET, BEAD_CARD.holeRatio]).toEqual([4, 0.44]);
+    // 再钉两个**派生读数**，防「两值都改但改错方向」：绘制边长与孔半径（设计 px）。
+    expect(BEAD_CELL - 2 * BEAD_DRAW_INSET).toBe(22);
+    expect(((BEAD_CELL - 2 * BEAD_DRAW_INSET) * BEAD_CARD.holeRatio) / 2).toBeCloseTo(4.84, 6);
+  });
+
+  // ③ inset 作用域：仅作用于**传 `targetColorIdx` 的盘面珠**；托盘珠恒 0。
+  it('③ inset 作域：仅盘面珠内缩，托盘珠（无 targetColorIdx）恒满幅', () => {
+    const bodyW = (cs: ReturnType<typeof emit>): number => {
+      const c = cs[2]; // L1 主体（层序见上方「documented order」例）
+      return c && c.kind === 'rect' ? c.w : Number.NaN;
+    };
+    const board = emit((b) =>
+      drawFilledBead(b, 100, 200, 1, { size: BEAD_CELL, targetColorIdx: 2, inks: DEMO_BEAD_INKS }),
+    );
+    const tray = emit((b) =>
+      drawFilledBead(b, 100, 200, 1, { size: TRAY_BEAD_SIZE, inks: DEMO_BEAD_INKS }),
+    );
+    expect(bodyW(board)).toBe(BEAD_CELL - 2 * BEAD_DRAW_INSET); // 22 = 盘面珠内缩
+    expect(bodyW(tray)).toBe(TRAY_BEAD_SIZE); // 44 = 托盘珠不缩（inset 恒 0）
+    expect(bodyW(filled(1))).toBe(BEAD_CELL); // 不传目标色也不缩
+    // 钉住**方向**：若有人给托盘也吃 inset，v1.57 后两个尺子会重排（此腿当场红）。
+    expect(bodyW(tray)).toBeGreaterThan(bodyW(board));
+  });
+
+  // ④ 禁改色表：`view/palette.ts` 的 hex 家族在本批（及任何未走 art 单的批次）**一位不动**。
+  //    实现 = 源码指纹锁（而不是把色表拄进测试 ⇒ 避免第二条真源，K-012）：
+  //    先看掉注释（换尺批大量改注，不得误伤），再对**代码里的 hex 序列**取计数 + 摘要。
+  //    要改色表 = 走 art 单（assets-spec §1.9.7①）并同步本快照；两值同改不会默默偷渡。
+  it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
+    const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+    const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
+    expect(hexes.length).toBe(37);
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('fd5a0def780d');
   });
 });

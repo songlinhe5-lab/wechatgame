@@ -260,7 +260,10 @@ describe('beads view model (control-manifest §8)', () => {
     expect(label!.align).toBe('right');
   });
 
-  // architecture-beads §4 规模账：满格 13×12 = 156 珠，每珠 ≥ 6 层 → 指令数随格数线性增长。
+  // architecture-beads §4 规模账：指令数随格数线性增长。
+  // ⚠ 注记订正（WXG-T-207-A 顺手清残留）：旧文称 13×12「= GRID_MAX_COLS × GRID_MAX_ROWS」
+  // 自 v1.34/v1.37/v1.45 起已不成立（现 GRID_MAX = 32×32）⇒ 本例的 13×12 只是**规模夹具**，
+  // 不是硬顶；与基尺无关（预算与图元条数都不随 `BEAD_PITCH` 变），故 v1.57 换尺不动本例。
   it('§4 keeps the full-board command budget at the documented 900+ per frame', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
@@ -268,7 +271,8 @@ describe('beads view model (control-manifest §8)', () => {
         simpleTestLevel({
           cols: 13,
           rows: 12,
-          // 13 列 × 12 行，三色（校验器要求 ≥3 色）——满格 = GRID_MAX_COLS × GRID_MAX_ROWS。
+          // 13 列 × 12 行，三色（校验器要求 ≥3 色）——本例取的是**旧 GRID_MAX 时代的满格夹具**
+          //（现 `GRID_MAX_*` = 32×32，单图上限变更见 §3.3 v1.45 注），与基尺无关。
           pattern: Array.from({ length: 12 }, () => '1231231231231'),
         }),
       ],
@@ -284,31 +288,36 @@ describe('beads view model (control-manifest §8)', () => {
     expect(commands.length).toBeGreaterThanOrEqual(900); // architecture-beads §4 规模账
     // v1.5-r8：旧「符号总数 = 已填格数」判据随符号层删除作废 ⇒ 改钉同等强度的
     // 「底图砖数 = 可填格数」（与格态无关），并保留每帧命令下限。
-    // ⚠ **本例是甲案（WXG-T-206）真正改写的断言**：13×12 不是恒等档，而是
-    // `computeFitZoom(13, 12) ≈ 0.9518` 的缩放档 ⇒ 砖宽不再是 52而是 `snap.gridPitch`。
-    // 旧写法在本例下会过滤出 0 块砖、直接红（甲案后）；新写法仍钉住同一强度。
+    // ⚠ **本例是甲案（WXG-T-206）真正改写的断言**：砖宽 = `snap.gridPitch`（而非硬编 pitch）。
+    // v1.57（§3.3 32 基）后 13×12 回到 **fit=1 恒等档**（顶格档 22×18）⇒ 旧前置
+    // 「`gridPitch < BEAD_PITCH`（本例在 z<1 档）」不再成立。本例职责是**命令预算与砖数守恒**
+    // （与尺子无关），故前置改为符号式同尺锦（不依赖具体 zoom）；
+    // z<1 的真缩放腿已住下一条（夹具换为 22×19）⇒ **未删断言、只是各归其位**（K-036）。
     const tiles = tileRects(commands, harness.game.snapshot.gridPitch);
     expect(tiles.length).toBe(harness.game.grid.fillableTotal);
-    expect(harness.game.snapshot.gridPitch).toBeLessThan(BEAD_PITCH); // 前置：本例在 z<1 档
+    expect(harness.game.snapshot.gridPitch).toBe(computeFitZoom(13, 12) * BEAD_PITCH);
   });
 
   // ── 甲案主判据（`ADR-0020` 附录 A / WXG-T-206）：tile 必须吃相机缩放 ──────────────────
   // 上面 vm-c / vm-d 都在 6×5（z=1）⇒ 只能守恒等档，**证不了修复生效**。本例走同一真装配
   // 路径（`_setupLevel` ⇒ `fitCamera` ⇒ `gridLayoutFor`）拿一个 z<1 的盘，钉两件：
-  //  (1) 砖宽 = `snap.gridPitch`，且命令流里**不再出现**任何 52 宽底图；
+  //  (1) 砖宽 = `snap.gridPitch`，且命令流里**不再出现**任何“旧绝对值宽”底图；
   //  (2) 相邻砖零重叠——不共源不变量：只读命令流的 `x`/`w`，不用 `drawTargetTile` 的公式反推。
-  // 修复前必红：格距 49.49 而砖宽 52 ⇒ 同行缝隙 = −2.51（重叠）；修复后缝隙恰为 0。
+  // 修复前必红（旧 52 基）：格距 49.49 而砖宽 52 ⇒ 同行缝隙 = −2.51（重叠）；修复后缝隙恰为 0。
   // （K-036/K-060 判别力：把 `view-model.ts` 两处 `snap.gridPitch` 改回 `BEAD_PITCH` 必红。）
   // 已做变异自检并存档：旧形态同行最小缝隙 = **−2.508038585209**（必被本例判重叠），
   // 新形态 = **−1.14e−13**（仅浮点尾数，1e-9 容差内）——重叠那条对历史缺陷形态确有牙。
   it('甲案（WXG-T-206）：z<1 时底图砖随相机缩放且相邻零重叠', () => {
+    // ⚠ 夹具由 13×12 换为 **22×19**：v1.57（§3.3 32 基）后顶格档抬到 22×18，
+    // 13×12 已是 fit=1 恒等档 ⇒ 本例的**前置（真的在缩放档）**不成立。22×19 =
+    // 顶格档 + 1 行（竖向恰好越界 ⇒ `fit = 592/606`）。⛔ 不得改用“删前置断言”求绿。
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [
         simpleTestLevel({
-          cols: 13,
-          rows: 12,
-          pattern: Array.from({ length: 12 }, () => '1231231231231'),
+          cols: 22,
+          rows: 19,
+          pattern: Array.from({ length: 19 }, () => '123'.repeat(22).slice(0, 22)),
         }),
       ],
       saveKey: 'wxgame.beads.test.vm-zoom',
@@ -317,7 +326,7 @@ describe('beads view model (control-manifest §8)', () => {
     // 前置：本盘真的落在缩放档，且格距 = 真源 `computeFitZoom × BEAD_PITCH`（import 真源，
     // 不在测试里重推公式 ⇒ K-042）。
     expect(snap.gridPitch).toBeLessThan(BEAD_PITCH);
-    expect(snap.gridPitch).toBe(computeFitZoom(13, 12) * BEAD_PITCH);
+    expect(snap.gridPitch).toBe(computeFitZoom(22, 19) * BEAD_PITCH);
 
     const commands = render(harness);
     const tiles = tileRects(commands, snap.gridPitch);
@@ -346,7 +355,9 @@ describe('beads view model (control-manifest §8)', () => {
         checked++;
       }
     }
-    expect(checked).toBe(12 * (13 - 1)); // 12 行 × 每行 12 对 = 真验了 144 个相邻缝隙
+    // 相邻缝隙对数 = rows × (cols − 1)，由棋盘尺寸派生（v1.57 夹具换 22×19 ⇒ 399 对；
+    // 字面 `12 * (13 - 1)` 是旧 13×12 夹具的快照，随夹具一起失效）。
+    expect(checked).toBe(harness.game.grid.rows * (harness.game.grid.cols - 1)); // 真验了 399 个缝隙
   });
 
   // ux-spec §3.3：暂停面板必须整屏遮挡（防误触/防偷看），并带「暂停」标题。
