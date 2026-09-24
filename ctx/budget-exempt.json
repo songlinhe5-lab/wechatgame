@@ -224,6 +224,24 @@
       "reason": "beads BGM 曲谱与修订取证正本（§0b 判断更正留档 / §3·§7·§8·§9 三首曲谱 / §11–§12 r11–r13 落码对照与真听实测表）：曲谱行、实测数字与作废原文必须同页可查，拆成多文件会让「哪一版听到什么」跨文件互引（同族先例 = audio-spec §4.1、g4-regression-report）；已被 ctx 按章节锚点覆盖，开发期走 §0b / §12 局部读、从不整读",
       "note": "WXG-T-203（2026-09-23）8518 tok 越单文件上限 8000。主因是我把 §13–§14 云端生成通路实测与 §0b 错误原文**原文保留**（不覆写历史判断的既定纪律）。债务显式化：下次修订时评估把 §0b 错误留档外移至 memory 日记、或将三首曲谱抽成 bgm-scores.md 后撤销本豁免；再涨即拆，不得二次追加豁免。登记人 AI（用户授权提交批次内同步登记）",
       "taskId": "WXG-T-203"
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md",
+      "reason": "beads 棋盘调试缩放/聚焦 ADR 正本（五节 + 附录 A 根因/候选修法 + 附录 B 复算与行号索引）；§3 决定依赖 §2 备选否因与 §1 约束邻近性，拆分破坏「备选↔决定↔后果」可追溯（沿 ADR-0011/0015 先例）",
+      "note": "2026-09-24 首入 14979 tok（>8000）。债务显式化：定稿后可评估把附录 B 复算表拆独立件后撤销豁免；再涨即拆，不得二次追加",
+      "taskId": "WXG-T-206"
+    },
+    {
+      "path": "docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md",
+      "reason": "beads 5mm↔32 源图口径 vs 渲染域 50/52 跨域影响评估正本（依赖清单逐条 file:line / 改 32 代价 / (A)(B) 对比 / 下游分流），需整篇同读才能对齐同一口径，拆分即断链",
+      "note": "2026-09-24 首入 14849 tok（>8000）。评估文档、不占 ADR 号、不产 Decision；随 W0 裁定收口后可归档/拆分。不得二次追加豁免",
+      "taskId": "WXG-T-206"
+    },
+    {
+      "path": "games/beads/design/proposals/beads-studio-density-tiers.md",
+      "reason": "beads-studio 密度档位（1x/2x/3x 驱动珠数·平方律）设计提案正本，含 15 条未决 + 关系式 + 状态×输入矩阵；档位算术与 §3 耦合需同页可查，拆分会致「哪档多少珠」跨文件互引",
+      "note": "2026-09-24 首入 15835 tok（>8000）。proposals 定稿后转 production/plans 拆执行计划时可重估体积；不得二次追加豁免",
+      "taskId": "WXG-T-206"
     }
   ]
 }

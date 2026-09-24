@@ -385,17 +385,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2988,
-      "lines": 115,
-      "sha256": "3f864402ab23e60dd15667a7999e2974880070ca791e3b62589af0a7884b32f8",
+      "tokens": 3119,
+      "lines": 118,
+      "sha256": "52d81a41927ae6bec1288e381f6902968ff63019e1336258e0bb045ab1046fed",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 116,
-          "tokens": 2975,
+          "endLine": 119,
+          "tokens": 3106,
           "summary": "生成：2026-09-24 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -424,7 +424,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 403,
+          "tokens": 412,
           "summary": "1 production/qa/beads/g4-regression-report.md 86807 2201 nor",
           "keywords": [
             "Top",
@@ -439,8 +439,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 90,
-          "tokens": 1479,
+          "endLine": 93,
+          "tokens": 1600,
           "summary": "production/qa/beads/g4-regression-report.md 86807 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 91,
-          "endLine": 116,
+          "startLine": 94,
+          "endLine": 119,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4670,
       "lines": 82,
-      "sha256": "d9d278ead4316198a8449c40636926b59a2d3ea56974f29590582b97d0b762a1",
+      "sha256": "ad421e0d7d947ff9b342d61340610b102ab73557f75880ec54e9faedc203889e",
       "tier": "normal",
       "sections": [
         {
@@ -6596,6 +6596,1130 @@
             "未决问题",
             "交主理人",
             "用户拍板"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md",
+      "tokens": 14979,
+      "lines": 357,
+      "sha256": "5ef95b59bfb8cf896baa426b6c34c8198605d2e4fe829183cbfb2fc665bbd551",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0020 — 棋盘缩放/聚焦**调试件**（harness-only，旁路 clamp）+ B0 底图不随缩的缺陷登记",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 358,
+          "tokens": 14945,
+          "summary": "编号：ADR-0020（0016–0019 已用；0008 跳空沿 ADR-0015 头注「合规」口径；号只分配不回收）",
+          "keywords": [
+            "ADR",
+            "harness",
+            "only",
+            "clamp",
+            "棋盘缩放",
+            "聚焦"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 106,
+          "tokens": 3708,
+          "summary": "",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§1.1 直接动因与已锁定决策",
+          "level": 3,
+          "startLine": 25,
+          "endLine": 37,
+          "tokens": 459,
+          "summary": "用户为肉眼排查一个显示缺陷提出调试工具诉求：缩放后盘面的 B0 底图（tile）与珠/槽错位 ⇒ 相邻 tile 互相重",
+          "keywords": [
+            "tile",
+            "直接动因与已",
+            "锁定决策"
+          ]
+        },
+        {
+          "anchor": "§1.2 现状实测（全部读自**工作树**，行号为据）",
+          "level": 3,
+          "startLine": 38,
+          "endLine": 73,
+          "tokens": 1477,
+          "summary": "⚠ 取证口径澄清（诚实声明）：本仓工作树当前不干净——上一轮的「调试虚线轮廓」同族件（bead-render.ts +6",
+          "keywords": [
+            "bead",
+            "render",
+            "现状实测",
+            "全部读自",
+            "工作树",
+            "行号为据"
+          ]
+        },
+        {
+          "anchor": "§1.3 「32px」核实（正面处理用户答复 (a)）",
+          "level": 3,
+          "startLine": 74,
+          "endLine": 87,
+          "tokens": 778,
+          "summary": "我从代码读到的设计空间格距是 52、格宽是 50，都不是 32（tuning.ts:121/123/125）。因此「32",
+          "keywords": [
+            "tuning",
+            "核实",
+            "正面处理用户",
+            "答复"
+          ]
+        },
+        {
+          "anchor": "§1.4 与 ADR-0015 的关系（约束复述，不重开）",
+          "level": 3,
+          "startLine": 88,
+          "endLine": 94,
+          "tokens": 465,
+          "summary": "丁-3「布局即相机」是本调试件得以\"零新坐标层\"的前提（ADR-0015 §3.3）：相机三标量烘进 gridLayou",
+          "keywords": [
+            "§3.3",
+            "ADR",
+            "gridLayou",
+            "的关系",
+            "约束复述",
+            "不重开"
+          ]
+        },
+        {
+          "anchor": "§1.5 「新增 ADR」还是「ADR-0015 增补节」——本文选**新增**，三条理由",
+          "level": 3,
+          "startLine": 95,
+          "endLine": 106,
+          "tokens": 430,
+          "summary": "选新增 ADR-0020，不改 ADR-0015 决策主体。理由：",
+          "keywords": [
+            "ADR",
+            "新增",
+            "还是",
+            "增补节",
+            "本文选",
+            "三条理由"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 107,
+          "endLine": 195,
+          "tokens": 3415,
+          "summary": "",
+          "keywords": [
+            "Alternatives",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§2.1 落地形态",
+          "level": 3,
+          "startLine": 109,
+          "endLine": 116,
+          "tokens": 337,
+          "summary": "甲：harness DOM 控件（页面左下角） 零包体 UI 增量（dev/harness 不进游戏构建图）；复用既有三",
+          "keywords": [
+            "harness",
+            "DOM",
+            "dev",
+            "落地形态"
+          ]
+        },
+        {
+          "anchor": "§2.2 bipolar 滑杆映射（value `v ∈ [−1, 1]` → zoom）",
+          "level": 3,
+          "startLine": 117,
+          "endLine": 136,
+          "tokens": 564,
+          "summary": "甲（已选，规格直译）：",
+          "keywords": [
+            "v ∈ [−1, 1]",
+            "bipolar",
+            "value",
+            "zoom",
+            "滑杆映射"
+          ]
+        },
+        {
+          "anchor": "§2.3 聚焦按钮的边距单位（正面处理用户答复 (a)）",
+          "level": 3,
+          "startLine": 137,
+          "endLine": 161,
+          "tokens": 782,
+          "summary": "聚焦语义 = 横向铺满可视窗、左右各留 N 个\"珠子宽度\"、纵向居中。",
+          "keywords": [
+            "聚焦按钮的边",
+            "距单位",
+            "正面处理用户",
+            "答复"
+          ]
+        },
+        {
+          "anchor": "§2.4 纵向处理",
+          "level": 3,
+          "startLine": 162,
+          "endLine": 170,
+          "tokens": 351,
+          "summary": "甲：只 fit-to-width + 纵向居中 + 溢出靠平移 用户字面「左右各留 N 个珠子宽度」= 宽度驱动；纵向居",
+          "keywords": [
+            "fit",
+            "width",
+            "纵向处理"
+          ]
+        },
+        {
+          "anchor": "§2.5 旁路 clamp 的实现切面",
+          "level": 3,
+          "startLine": 171,
+          "endLine": 183,
+          "tokens": 885,
+          "summary": "甲：BeadsGame 增两个 debug 方法 + board-camera.ts 增一个纯函数 ① setDebug",
+          "keywords": [
+            "clamp",
+            "BeadsGame",
+            "debug",
+            "board",
+            "camera",
+            "setDebug"
+          ]
+        },
+        {
+          "anchor": "§2.6 调试数值的落位（0.1 / 4.0 / N 档 / step）",
+          "level": 3,
+          "startLine": 184,
+          "endLine": 195,
+          "tokens": 416,
+          "summary": "甲：住 dev/harness/（唯一消费方） control-manifest §3「数值 → config/tuni",
+          "keywords": [
+            "§3",
+            "step",
+            "dev",
+            "harness",
+            "control",
+            "manifest"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 196,
+          "endLine": 258,
+          "tokens": 1922,
+          "summary": "",
+          "keywords": [
+            "Decision",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§3.1 一句话",
+          "level": 3,
+          "startLine": 198,
+          "endLine": 201,
+          "tokens": 131,
+          "summary": "harness 左下角 DOM 面板（甲）+ 线性 bipolar 滑杆 v<0: 1+0.9v / v≥0: 1+3v",
+          "keywords": [
+            "harness",
+            "DOM",
+            "bipolar",
+            "一句话"
+          ]
+        },
+        {
+          "anchor": "§3.2 范围与宿主",
+          "level": 3,
+          "startLine": 202,
+          "endLine": 207,
+          "tokens": 264,
+          "summary": "交付物 = dev/harness 内的一块 DOM 面板（左下角）+ games/beads/src 两个 publi",
+          "keywords": [
+            "dev",
+            "harness",
+            "DOM",
+            "games",
+            "beads",
+            "src"
+          ]
+        },
+        {
+          "anchor": "§3.3 相机写入契约（拟增，文档级签名，**不落码**）",
+          "level": 3,
+          "startLine": 208,
+          "endLine": 223,
+          "tokens": 397,
+          "summary": "",
+          "keywords": [
+            "相机写入契约",
+            "拟增",
+            "文档级签名",
+            "不落码"
+          ]
+        },
+        {
+          "anchor": "§3.4 滑杆（锁定甲）",
+          "level": 3,
+          "startLine": 224,
+          "endLine": 227,
+          "tokens": 83,
+          "summary": "v ∈ [−1,1]、step 0.01、v=0 为默认位（z=1.0 恒等档）；下半 z = 1 + 0.9v、上半 ",
+          "keywords": [
+            "step",
+            "滑杆",
+            "锁定甲"
+          ]
+        },
+        {
+          "anchor": "§3.5 聚焦（锁定甲 + 逃生口）",
+          "level": 3,
+          "startLine": 228,
+          "endLine": 234,
+          "tokens": 216,
+          "summary": "聚焦(宽)：debugFocusCamera(N)，N 默认 1，可选 0.5 / 1 / 1.5 / 2（档位在 ha",
+          "keywords": [
+            "debugFocusCamera",
+            "聚焦",
+            "锁定甲",
+            "逃生口"
+          ]
+        },
+        {
+          "anchor": "§3.6 读数区（顺带完成「32px」取证）",
+          "level": 3,
+          "startLine": 235,
+          "endLine": 238,
+          "tokens": 131,
+          "summary": "面板每帧（或滑杆事件）刷一行：z=… · pitchD=… · cellD=… · css=… · lod=… · ti",
+          "keywords": [
+            "pitchD",
+            "cellD",
+            "css",
+            "lod",
+            "读数区",
+            "顺带完成"
+          ]
+        },
+        {
+          "anchor": "§3.7 数值真源与冻结纪律（红线）",
+          "level": 3,
+          "startLine": 239,
+          "endLine": 242,
+          "tokens": 99,
+          "summary": "调试件参数一律不入 §3、不入 tuning.ts（§2.6 甲）；BEAD_CELL/GAP/PITCH/DESIGN",
+          "keywords": [
+            "§3",
+            "§2.6",
+            "tuning",
+            "BEAD_CELL",
+            "GAP",
+            "PITCH"
+          ]
+        },
+        {
+          "anchor": "§3.8 验收口径（不编造 GDD §8）",
+          "level": 3,
+          "startLine": 243,
+          "endLine": 246,
+          "tokens": 168,
+          "summary": "systems-index / input-control §8 没有、也不应有\"调试面板\"条款（调试件不是玩法）。本文",
+          "keywords": [
+            "§8",
+            "GDD",
+            "systems",
+            "index",
+            "input",
+            "control"
+          ]
+        },
+        {
+          "anchor": "§3.9 本文**未**改动的文件（批准后待回写清单，由主理人串行落笔）",
+          "level": 3,
+          "startLine": 247,
+          "endLine": 258,
+          "tokens": 301,
+          "summary": "本 ADR 是 Proposed 草稿：未动任何代码、未动其他 ADR/GDD。批准后须回写：",
+          "keywords": [
+            "ADR",
+            "Proposed",
+            "GDD",
+            "本文",
+            "改动的文件",
+            "批准后待回写"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 259,
+          "endLine": 294,
+          "tokens": 2293,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 261,
+          "endLine": 271,
+          "tokens": 430,
+          "summary": "1. 零新坐标层、零契约扩张：调试件复用丁-3 的\"布局即相机\"单点真源 ⇒ InputSnapshot、RenderM",
+          "keywords": [
+            "InputSnapshot",
+            "RenderM",
+            "正面"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面（**已知成本，白纸黑字，不是\"风险\"**）",
+          "level": 3,
+          "startLine": 272,
+          "endLine": 284,
+          "tokens": 1480,
+          "summary": "1. 没有编译期护栏挡住\"调试件误用于玩法\"。方法必须 public 才能被 harness 调 ⇒ 任何人可以在玩法代",
+          "keywords": [
+            "public",
+            "harness",
+            "负面",
+            "已知成本",
+            "白纸黑字",
+            "不是"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 285,
+          "endLine": 294,
+          "tokens": 349,
+          "summary": "1. 「32px」的最终定性（§1.3 三读法）取决于一次读数，本文按 B 立论；若实测落在 C（屏幕 px），聚焦公式",
+          "keywords": [
+            "§1.3",
+            "中性",
+            "待观察"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件与开放项（Review Triggers & Open Questions）",
+          "level": 2,
+          "startLine": 295,
+          "endLine": 320,
+          "tokens": 1023,
+          "summary": "",
+          "keywords": [
+            "Review",
+            "Triggers",
+            "Open",
+            "Questions",
+            "复评触发条件",
+            "与开放项"
+          ]
+        },
+        {
+          "anchor": "§5.1 需用户/主理人拍板的开放项（本文不代答）",
+          "level": 3,
+          "startLine": 297,
+          "endLine": 307,
+          "tokens": 505,
+          "summary": "① 「32px」定性 甲 = 接受本文工作假设 B（fit 档有效格径 ≈32 设计 px），直接开建面板 / 乙 = ",
+          "keywords": [
+            "fit",
+            "需用户",
+            "主理人拍板的",
+            "开放项",
+            "本文不代答"
+          ]
+        },
+        {
+          "anchor": "§5.2 复评触发条件",
+          "level": 3,
+          "startLine": 308,
+          "endLine": 320,
+          "tokens": 488,
+          "summary": "1. 调试件需要第 4 个以上控件（如 offset、plate、扫光、命中盒可视化）⇒ 复评 §2.1 形态（是否升级",
+          "keywords": [
+            "§2.1",
+            "offset",
+            "plate",
+            "复评触发条件"
+          ]
+        },
+        {
+          "anchor": "§附录 A —— B0 底图不随缩：根因与候选修法（**独立变更，本文不落码**）",
+          "level": 2,
+          "startLine": 321,
+          "endLine": 345,
+          "tokens": 1024,
+          "summary": "本附录是缺陷登记 + 方案目录，不是决策。任何修法都需要用户拍板 + 真机复验，且多数会牵动 art 轨（ADR-001",
+          "keywords": [
+            "art",
+            "ADR",
+            "附录",
+            "底图不随缩",
+            "根因与候选修",
+            "独立变更"
+          ]
+        },
+        {
+          "anchor": "§附录 B —— 实测数字复算（可自证，无外部依赖）",
+          "level": 2,
+          "startLine": 346,
+          "endLine": 358,
+          "tokens": 385,
+          "summary": "",
+          "keywords": [
+            "附录",
+            "实测数字复算",
+            "可自证",
+            "无外部依赖"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md",
+      "tokens": 14849,
+      "lines": 460,
+      "sha256": "c86e587a891799fc13f60c4176d8735e597f0f58ed2fdf62d78c31aacd01ee2a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§IMPACT-0020a — 「5mm ↔ 32px 硬映射」vs 渲染域 50/52：跨域影响评估",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 461,
+          "tokens": 14824,
+          "summary": "类型：影响评估（Impact Assessment），不是 ADR —— 本文不产出 §3 Decision，不占用 A",
+          "keywords": [
+            "§3",
+            "IMPACT",
+            "Impact",
+            "Assessment",
+            "ADR",
+            "Decision"
+          ]
+        },
+        {
+          "anchor": "§摘要（一页结论）",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 18,
+          "tokens": 833,
+          "summary": "1. 两套尺子属实，但不是两套、是三套，且其中一套已是 Accepted 裁定：源图域 32px/珠（levels-sp",
+          "keywords": [
+            "Accepted",
+            "levels",
+            "摘要",
+            "一页结论"
+          ]
+        },
+        {
+          "anchor": "§0 为什么是独立文档，而不是 ADR-0020 的附录",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 26,
+          "tokens": 289,
+          "summary": "三条理由（按 wxgame-adr-arch 规范）：",
+          "keywords": [
+            "ADR",
+            "wxgame",
+            "adr",
+            "arch",
+            "为什么是独立",
+            "文档"
+          ]
+        },
+        {
+          "anchor": "§1 诚实声明（前置）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 36,
+          "tokens": 384,
+          "summary": "工作树不干净：git status --porcelain 当前 12 个 M + 4 个 ??。本文所有 file:l",
+          "keywords": [
+            "git",
+            "status",
+            "porcelain",
+            "file",
+            "诚实声明",
+            "前置"
+          ]
+        },
+        {
+          "anchor": "§2 问题陈述：确实是「两套尺子」吗？",
+          "level": 2,
+          "startLine": 37,
+          "endLine": 65,
+          "tokens": 1114,
+          "summary": "是，但比口号更微妙——而且是三条互斥口径。本仓现存尺子如下：",
+          "keywords": [
+            "问题陈述",
+            "确实是",
+            "两套尺子"
+          ]
+        },
+        {
+          "anchor": "§3 依赖清单：谁在假设 50/52（逐条 file:line）",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 210,
+          "tokens": 3761,
+          "summary": "",
+          "keywords": [
+            "file",
+            "line",
+            "依赖清单",
+            "谁在假设",
+            "逐条"
+          ]
+        },
+        {
+          "anchor": "§3.1 真源与镜像（改值的合法入口）",
+          "level": 3,
+          "startLine": 68,
+          "endLine": 78,
+          "tokens": 261,
+          "summary": "设计真源 games/beads/design/gdd/systems-index.md:98/99/100 BEAD_",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "gdd",
+            "systems",
+            "index"
+          ]
+        },
+        {
+          "anchor": "§3.2 布局与命中（渲染域几何）",
+          "level": 3,
+          "startLine": 79,
+          "endLine": 88,
+          "tokens": 184,
+          "summary": "gridLayoutFor tuning.ts:1056/1057/1058/1059 pitch = BEAD_PIT",
+          "keywords": [
+            "gridLayoutFor",
+            "tuning",
+            "pitch",
+            "BEAD_PIT",
+            "布局与命中",
+            "渲染域几何"
+          ]
+        },
+        {
+          "anchor": "§3.3 缩放/平移界（相机域）",
+          "level": 3,
+          "startLine": 89,
+          "endLine": 99,
+          "tokens": 221,
+          "summary": "boardPx games/beads/src/systems/board-camera.ts:77/78 (cols*",
+          "keywords": [
+            "boardPx",
+            "games",
+            "beads",
+            "src",
+            "systems",
+            "board"
+          ]
+        },
+        {
+          "anchor": "§3.4 LOD 档（阈值直接以「珠屏幕径」为单位）",
+          "level": 3,
+          "startLine": 100,
+          "endLine": 111,
+          "tokens": 230,
+          "summary": "触发量定义 tuning.ts:834 「触发量 = 珠屏幕径 layout.cell = BEAD_CELL × zo",
+          "keywords": [
+            "LOD",
+            "tuning",
+            "layout",
+            "cell",
+            "BEAD_CELL",
+            "阈值直接以"
+          ]
+        },
+        {
+          "anchor": "§3.5 质感层几何（绝对值 vs 比例，**混用是风险源**）",
+          "level": 3,
+          "startLine": 112,
+          "endLine": 126,
+          "tokens": 464,
+          "summary": "层几何总前提 games/beads/src/view/bead-render.ts:11-14 「Geometry i",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "view",
+            "bead",
+            "render"
+          ]
+        },
+        {
+          "anchor": "§3.6 视图循环（哪些走缩放、哪些不走）",
+          "level": 3,
+          "startLine": 127,
+          "endLine": 144,
+          "tokens": 268,
+          "summary": "格心 view-model.ts:759/760 ✅",
+          "keywords": [
+            "view",
+            "model",
+            "视图循环",
+            "哪些走缩放",
+            "哪些不走"
+          ]
+        },
+        {
+          "anchor": "§3.7 图元与包体口径",
+          "level": 3,
+          "startLine": 145,
+          "endLine": 155,
+          "tokens": 318,
+          "summary": "图元基线 games/beads/design/proposals/bead-visual-style-spec.md:",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "proposals",
+            "bead",
+            "visual"
+          ]
+        },
+        {
+          "anchor": "§3.8 关卡内容域（32 的原生栖息地）",
+          "level": 3,
+          "startLine": 156,
+          "endLine": 168,
+          "tokens": 384,
+          "summary": "每颗像素标准 levels-spec.md:73/89/90/101/107/108 「原图宽 ≈ 格数 × 32px（",
+          "keywords": [
+            "levels",
+            "spec",
+            "关卡内容域",
+            "的原生栖息地"
+          ]
+        },
+        {
+          "anchor": "§3.9 beads-studio：50/52 的**第二份实现**（漂移已实证）",
+          "level": 3,
+          "startLine": 169,
+          "endLine": 180,
+          "tokens": 314,
+          "summary": "版面尺子 apps/beads-studio/public/board-render.js:38 var RADIUS ",
+          "keywords": [
+            "beads",
+            "studio",
+            "apps",
+            "public",
+            "board",
+            "render"
+          ]
+        },
+        {
+          "anchor": "§3.10 测试面（回归雷区，实测 70 命中 / 9 文件）",
+          "level": 3,
+          "startLine": 181,
+          "endLine": 203,
+          "tokens": 673,
+          "summary": "grep -rn \"BEAD_PITCH\\ BEAD_CELL\" games/beads/tests/ = 70 命中：",
+          "keywords": [
+            "grep",
+            "BEAD_PITCH",
+            "BEAD_CELL",
+            "games",
+            "beads",
+            "tests"
+          ]
+        },
+        {
+          "anchor": "§3.11 假命中（已排除，防后人重复计数）",
+          "level": 3,
+          "startLine": 204,
+          "endLine": 210,
+          "tokens": 255,
+          "summary": "games/beads/src/view/meta-view.ts 的 cellSize 120/110 —— 选关卡/",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "view",
+            "meta",
+            "cellSize"
+          ]
+        },
+        {
+          "anchor": "§4 走 (B)（渲染域整体改 32 基）的代价与风险",
+          "level": 2,
+          "startLine": 211,
+          "endLine": 306,
+          "tokens": 2815,
+          "summary": "",
+          "keywords": [
+            "渲染域整体改",
+            "的代价与风险"
+          ]
+        },
+        {
+          "anchor": "§4.1 头号反直觉结论：**改尺子修不好用户看到的症状，也不改变观感大小**",
+          "level": 3,
+          "startLine": 213,
+          "endLine": 230,
+          "tokens": 362,
+          "summary": "Node 复算（附录 B）：",
+          "keywords": [
+            "Node",
+            "头号反直觉结",
+            "改尺子修不好",
+            "用户看到的症",
+            "也不改变观感",
+            "大小"
+          ]
+        },
+        {
+          "anchor": "§4.2 LOD 档在 32 基下**结构性失效**（工程可自证，最硬代价）",
+          "level": 3,
+          "startLine": 231,
+          "endLine": 237,
+          "tokens": 258,
+          "summary": "阈值语义：BEAD_LOD_CELL = 45 的来历 = 「zoom 0.9 × 50」（tuning.ts:840，",
+          "keywords": [
+            "LOD",
+            "BEAD_LOD_CELL",
+            "zoom",
+            "tuning",
+            "档在",
+            "基下"
+          ]
+        },
+        {
+          "anchor": "§4.3 `BEAD_DRAW_INSET=6` 与 `minStroke=2` 的**绝对地板塌缩**（工程可自证 + 观感待真机）",
+          "level": 3,
+          "startLine": 238,
+          "endLine": 254,
+          "tokens": 331,
+          "summary": "inset 与 minStroke 都是绝对设计 px，不随 size 缩 ⇒ 它们与尺子的比值会变：",
+          "keywords": [
+            "BEAD_DRAW_INSET=6",
+            "minStroke=2",
+            "BEAD_DRAW_INSET",
+            "minStroke",
+            "inset",
+            "size"
+          ]
+        },
+        {
+          "anchor": "§4.4 命中语义破裂（工程可自证）",
+          "level": 3,
+          "startLine": 255,
+          "endLine": 261,
+          "tokens": 280,
+          "summary": "GRID_HIT_SIZE = 66 = 50 + 2×8，「外扩 8px」的论证依赖 BEAD_CELL（system",
+          "keywords": [
+            "GRID_HIT_SIZE",
+            "BEAD_CELL",
+            "system",
+            "命中语义破裂",
+            "工程可自证"
+          ]
+        },
+        {
+          "anchor": "§4.5 缩放/平移界全表重算（工程可自证，机械但面广）",
+          "level": 3,
+          "startLine": 262,
+          "endLine": 267,
+          "tokens": 191,
+          "summary": "computeFitZoom（:88-92）、boardPx（:77-78）、clampCamera offset 夹取",
+          "keywords": [
+            "computeFitZoom",
+            "boardPx",
+            "clampCamera",
+            "offset",
+            "缩放",
+            "平移界全表重"
+          ]
+        },
+        {
+          "anchor": "§4.6 图元数与包体（**对 (B) 中性偏有利**，工程可自证）",
+          "level": 3,
+          "startLine": 268,
+          "endLine": 273,
+          "tokens": 150,
+          "summary": "程序化渲染（ADR-0005）⇒ 改尺子不动任何位图资产、不动包体。",
+          "keywords": [
+            "ADR",
+            "图元数与包体",
+            "中性偏有利",
+            "工程可自证"
+          ]
+        },
+        {
+          "anchor": "§4.7 已生成关卡**不需重烤**（对 (B) 有利的零成本结论，工程可自证）",
+          "level": 3,
+          "startLine": 274,
+          "endLine": 278,
+          "tokens": 148,
+          "summary": "关卡 JSON 只存 cols/rows/pattern[] 字符行串（ADR-0004 rowstrings），不含 ",
+          "keywords": [
+            "JSON",
+            "cols",
+            "rows",
+            "pattern",
+            "ADR",
+            "rowstrings"
+          ]
+        },
+        {
+          "anchor": "§4.8 beads-studio：必须同批改，否则漂移扩大（工程可自证，**已有实证**）",
+          "level": 3,
+          "startLine": 279,
+          "endLine": 284,
+          "tokens": 219,
+          "summary": "board-render.js:38（CELL_OF_PITCH = 50/52）、:50（BEAD_INSET_RAT",
+          "keywords": [
+            "beads",
+            "studio",
+            "board",
+            "render",
+            "CELL_OF_PITCH",
+            "BEAD_INSET_RAT"
+          ]
+        },
+        {
+          "anchor": "§4.9 会推翻一条 **Accepted** ADR 的基准段（工程可自证，**本文初稿漏检项**）",
+          "level": 3,
+          "startLine": 285,
+          "endLine": 302,
+          "tokens": 495,
+          "summary": "ADR-0018 状态 = Accepted（2026-09-20 用户拍板），其 L24 与 §3.4 L153 写明",
+          "keywords": [
+            "§3.4",
+            "Accepted",
+            "ADR",
+            "L24",
+            "L153",
+            "会推翻一条"
+          ]
+        },
+        {
+          "anchor": "§4.10 ADR 内行号引用已漂（与数值无关的同类症状，工程可自证）",
+          "level": 3,
+          "startLine": 303,
+          "endLine": 306,
+          "tokens": 101,
+          "summary": "ADR-0018:24/26 引 tuning.ts:895（BOARD_FIT_MARGIN）/ :897（CAMER",
+          "keywords": [
+            "ADR",
+            "tuning",
+            "BOARD_FIT_MARGIN",
+            "CAMER",
+            "内行号引用已",
+            "与数值无关的"
+          ]
+        },
+        {
+          "anchor": "§5 (A) vs (B) 三维对比",
+          "level": 2,
+          "startLine": 307,
+          "endLine": 330,
+          "tokens": 1269,
+          "summary": "成本 文档层：1 份换算条款 + §3.3 加一条「本域单位 ≠ 源图单位」注记 + levels-spec 交叉引用。",
+          "keywords": [
+            "§3.3",
+            "levels",
+            "spec",
+            "三维对比"
+          ]
+        },
+        {
+          "anchor": "§5.1 工程侧推荐（**不代裁**，供主理人与 文策渊/林绘澄 决策）",
+          "level": 3,
+          "startLine": 316,
+          "endLine": 330,
+          "tokens": 683,
+          "summary": "推荐：先做 (A)，并把 (A) 拆成两个可独立执行的批次；把 (B) 记为「有明确收益但收益不在用户症状上」的设计轨议",
+          "keywords": [
+            "工程侧推荐",
+            "不代裁",
+            "供主理人与",
+            "文策渊",
+            "林绘澄",
+            "决策"
+          ]
+        },
+        {
+          "anchor": "§6 需下游裁决的开放项（**工程侧不代答**）",
+          "level": 2,
+          "startLine": 331,
+          "endLine": 364,
+          "tokens": 1372,
+          "summary": "",
+          "keywords": [
+            "需下游裁决的",
+            "开放项",
+            "工程侧不代答"
+          ]
+        },
+        {
+          "anchor": "§6.1 交 文策渊（§3 数值真源 / 尺寸与无障碍）",
+          "level": 3,
+          "startLine": 333,
+          "endLine": 343,
+          "tokens": 585,
+          "summary": "W0 （最高优先，否则后续全在沙上）三条口径互斥（§2）：5mm 参照到底是 50（ADR-0018 Accepted ",
+          "keywords": [
+            "§3",
+            "§2",
+            "ADR",
+            "Accepted",
+            "文策渊",
+            "数值真源"
+          ]
+        },
+        {
+          "anchor": "§6.2 交 林绘澄（视觉可读性 / 图元与质感层）",
+          "level": 3,
+          "startLine": 344,
+          "endLine": 353,
+          "tokens": 436,
+          "summary": "L1 BEAD_DRAW_INSET=6 是真机可读性地板（2 在 scale0.5 下 ≈1 CSS px 看不见）。",
+          "keywords": [
+            "BEAD_DRAW_INSET",
+            "scale0",
+            "CSS",
+            "林绘澄",
+            "视觉可读性",
+            "图元与质感层"
+          ]
+        },
+        {
+          "anchor": "§6.3 交关卡内容管线 / beads-studio（不在上述两域内）",
+          "level": 3,
+          "startLine": 354,
+          "endLine": 364,
+          "tokens": 289,
+          "summary": "C1 board-render.js:38 RADIUS=0.22 与游戏侧 0.30 已漂移，与 (A)/(B) 无关",
+          "keywords": [
+            "beads",
+            "studio",
+            "board",
+            "render",
+            "RADIUS",
+            "交关卡内容管"
+          ]
+        },
+        {
+          "anchor": "§7 统一映射口径建议（本轮即可落地，零数值改动）",
+          "level": 2,
+          "startLine": 365,
+          "endLine": 397,
+          "tokens": 1181,
+          "summary": "目标：让「一颗珠」在四个域有一条可引用的换算链，任何一处再写第二套算式即视为缺陷。",
+          "keywords": [
+            "统一映射口径",
+            "建议",
+            "本轮即可落地",
+            "零数值改动"
+          ]
+        },
+        {
+          "anchor": "§7.1 换算链（建议以 `systems-index` 新增**非冻结注记**（§3.3 表下注）为唯一真源，其余全部引用它）",
+          "level": 3,
+          "startLine": 369,
+          "endLine": 388,
+          "tokens": 672,
+          "summary": "",
+          "keywords": [
+            "systems-index",
+            "§3.3",
+            "systems",
+            "index",
+            "换算链",
+            "建议以"
+          ]
+        },
+        {
+          "anchor": "§7.2 机制化守卫（替代「靠自觉」，本仓已有两例漂移实证，§4.8）",
+          "level": 3,
+          "startLine": 389,
+          "endLine": 397,
+          "tokens": 395,
+          "summary": "工程侧建议（本轮不实现，仅供后续立项）：",
+          "keywords": [
+            "§4.8",
+            "机制化守卫",
+            "替代",
+            "靠自觉",
+            "本仓已有两例",
+            "漂移实证"
+          ]
+        },
+        {
+          "anchor": "§附录 A — 两基关键量对照（Node 复算，附录 B 脚本）",
+          "level": 2,
+          "startLine": 398,
+          "endLine": 413,
+          "tokens": 215,
+          "summary": "屏上 pitch @14×18 fit 32.96 33.00 (750−48)/(P·c−2)",
+          "keywords": [
+            "Node",
+            "pitch",
+            "fit",
+            "附录",
+            "两基关键量对",
+            "复算"
+          ]
+        },
+        {
+          "anchor": "§附录 B — 复算脚本（原样可跑）",
+          "level": 2,
+          "startLine": 414,
+          "endLine": 435,
+          "tokens": 312,
+          "summary": "",
+          "keywords": [
+            "附录",
+            "复算脚本",
+            "原样可跑"
+          ]
+        },
+        {
+          "anchor": "§附录 C — 行号索引与重跑命令",
+          "level": 2,
+          "startLine": 436,
+          "endLine": 448,
+          "tokens": 437,
+          "summary": "",
+          "keywords": [
+            "附录",
+            "行号索引与重",
+            "跑命令"
+          ]
+        },
+        {
+          "anchor": "§附录 D — 本文未能自证的项（诚实留白，不假绿）",
+          "level": 2,
+          "startLine": 449,
+          "endLine": 461,
+          "tokens": 429,
+          "summary": "与 文策渊《beads-studio-density-tiers.md》的全量对账 未做（仅读 §0 前 ~40 行，文",
+          "keywords": [
+            "§0",
+            "beads",
+            "studio",
+            "density",
+            "tiers",
+            "附录"
           ]
         }
       ]
@@ -22293,6 +23417,500 @@
             "lift",
             "liftRef",
             "抬起三通道"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/beads-studio-density-tiers.md",
+      "tokens": 15835,
+      "lines": 452,
+      "sha256": "0b8e89c15ba53e7cb8af11ee823754e8aef3dc17477d6433f8faf18ff68162fe",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads-studio 密度档位（1x / 2x / 3x 驱动珠数）设计草案",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 453,
+          "tokens": 15814,
+          "summary": "文档性质 设计草案（proposal），零代码、零关卡改动、零 §3 改动",
+          "keywords": [
+            "§3",
+            "beads",
+            "studio",
+            "proposal",
+            "密度档位",
+            "驱动珠数"
+          ]
+        },
+        {
+          "anchor": "§0 前提订正与口径对账（先纠错，再设计）",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 87,
+          "tokens": 1561,
+          "summary": "",
+          "keywords": [
+            "§0",
+            "前提订正与口",
+            "径对账",
+            "先纠错",
+            "再设计"
+          ]
+        },
+        {
+          "anchor": "§0.1 「5mm ↔ 32」不是一句误传，但也不能当换算桥用",
+          "level": 3,
+          "startLine": 31,
+          "endLine": 46,
+          "tokens": 478,
+          "summary": "本件初稿曾写「任务单前提查无实据」——该判断已被并发成员文档推翻，此处改正。实际情况：",
+          "keywords": [
+            "§0.1",
+            "不是一句误传",
+            "但也不能当换",
+            "算桥用"
+          ]
+        },
+        {
+          "anchor": "§0.2 文策渊 对 W0 的立场（**建议，待确认；本件未改 systems-index / 未改任何 ADR**）",
+          "level": 3,
+          "startLine": 47,
+          "endLine": 58,
+          "tokens": 397,
+          "summary": "(ii) 与 (i) 实际上并不互斥——它们量的是不同的东西，只要把 (ii) 的适用域读窄。两条用户口径相差两天、分属",
+          "keywords": [
+            "§0.2",
+            "systems",
+            "index",
+            "ADR",
+            "文策渊",
+            "的立场"
+          ]
+        },
+        {
+          "anchor": "§0.3 对本件的关键推论：**密度档位不依赖 W0 的裁定结果**",
+          "level": 3,
+          "startLine": 59,
+          "endLine": 76,
+          "tokens": 405,
+          "summary": "本件的全部关系式只走两条链，不碰渲染域：",
+          "keywords": [
+            "§0.3",
+            "对本件的关键",
+            "推论",
+            "密度档位不依",
+            "的裁定结果"
+          ]
+        },
+        {
+          "anchor": "§0.4 口径书写纪律（采 工程侧 K-B，本件全文已按此改）",
+          "level": 3,
+          "startLine": 77,
+          "endLine": 81,
+          "tokens": 75,
+          "summary": "凡提及「一颗珠多大」必须带域名前缀，禁止裸写「32px 的珠」：",
+          "keywords": [
+            "§0.4",
+            "口径书写纪律",
+            "工程侧",
+            "本件全文已按",
+            "此改"
+          ]
+        },
+        {
+          "anchor": "§0.5 另订正一处过时判据",
+          "level": 3,
+          "startLine": 82,
+          "endLine": 87,
+          "tokens": 87,
+          "summary": "K-069 文内「判据线 = time ÷ SEC_PER_TAP（420s → 116 taps）」在 §3.5 v1",
+          "keywords": [
+            "§0.5",
+            "§3.5",
+            "time",
+            "SEC_PER_TAP",
+            "taps",
+            "另订正一处过"
+          ]
+        },
+        {
+          "anchor": "§1 档位语义定义与关系式",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 220,
+          "tokens": 3950,
+          "summary": "",
+          "keywords": [
+            "§1",
+            "档位语义定义",
+            "与关系式"
+          ]
+        },
+        {
+          "anchor": "§1.1 判决：1x/2x/3x = **边长（行列）倍率** ⇒ 珠数 ≈ **×1 / ×4 / ×9（平方律）**",
+          "level": 3,
+          "startLine": 90,
+          "endLine": 105,
+          "tokens": 639,
+          "summary": "这是本件最需要拍板的一条，因为它直接决定用户「动态调整珠数」的直觉对不对。",
+          "keywords": [
+            "§1.1",
+            "判决",
+            "边长",
+            "行列",
+            "倍率",
+            "珠数"
+          ]
+        },
+        {
+          "anchor": "§1.2 关系式集（可直接照抄进未来的实现单）",
+          "level": 3,
+          "startLine": 106,
+          "endLine": 126,
+          "tokens": 584,
+          "summary": "记号：n = 档位序号（1x/2x/3x）；d = 豆径 mm；P(n) = 该档成品边长 mm；cols(n)/row",
+          "keywords": [
+            "§1.2",
+            "cols",
+            "row",
+            "关系式集",
+            "可直接照抄进",
+            "未来的实现单"
+          ]
+        },
+        {
+          "anchor": "§1.3 三档具体数值：基线选一（**不替用户拍板**）",
+          "level": 3,
+          "startLine": 127,
+          "endLine": 175,
+          "tokens": 1509,
+          "summary": "1x 取哪个基线，直接决定 2x/3x 落在哪。三个候选，各带「零残余验证」（即切块后每宫尺寸整齐，不出现 base+1",
+          "keywords": [
+            "§1.3",
+            "base",
+            "三档具体数值",
+            "基线选一",
+            "不替用户拍板"
+          ]
+        },
+        {
+          "anchor": "§1.4 为什么不用「线性珠数律」",
+          "level": 3,
+          "startLine": 176,
+          "endLine": 185,
+          "tokens": 214,
+          "summary": "若定义 N(n) = N(1) × n，则 cols(n) = round(√(N(1))×√n)：18 → 2x = ",
+          "keywords": [
+            "§1.4",
+            "cols",
+            "round",
+            "为什么不用",
+            "线性珠数律"
+          ]
+        },
+        {
+          "anchor": "§1.5 与本仓既有提案的关系：**密度档位语言 = 图鉴宫格语言**（重要交叉引用）",
+          "level": 3,
+          "startLine": 186,
+          "endLine": 214,
+          "tokens": 719,
+          "summary": "本件不是从零开的。用户同一脉络的原始诉求（2026-09-18，转引自 v2-album-dense-boards.md",
+          "keywords": [
+            "§1.5",
+            "album",
+            "dense",
+            "boards",
+            "与本仓既有提",
+            "案的关系"
+          ]
+        },
+        {
+          "anchor": "§1.6 一句话回答任务单的原问题",
+          "level": 3,
+          "startLine": 215,
+          "endLine": 220,
+          "tokens": 145,
+          "summary": "应该提供档位，但它不是「珠数乘法器」，而是「成品尺寸选择器 + 自动切块器」。同一张照片、同一色板，升档得到的是：更大的",
+          "keywords": [
+            "§1.6",
+            "一句话回答任",
+            "务单的原问题"
+          ]
+        },
+        {
+          "anchor": "§2 与既有链路的耦合",
+          "level": 2,
+          "startLine": 221,
+          "endLine": 288,
+          "tokens": 3213,
+          "summary": "",
+          "keywords": [
+            "§2",
+            "与既有链路的",
+            "耦合"
+          ]
+        },
+        {
+          "anchor": "§2.1 k-means 限色：颜色数上限**不随档变**",
+          "level": 3,
+          "startLine": 223,
+          "endLine": 229,
+          "tokens": 245,
+          "summary": "BEAD_COLOR_MAX = 10（systems-index §3.2 v1.36；落码 tuning.ts），i",
+          "keywords": [
+            "§2.1",
+            "§3.2",
+            "means",
+            "BEAD_COLOR_MAX",
+            "systems",
+            "index"
+          ]
+        },
+        {
+          "anchor": "§2.2 Plate 切块：档位与宫数强耦合，且错豆必须切块后重排",
+          "level": 3,
+          "startLine": 230,
+          "endLine": 236,
+          "tokens": 390,
+          "summary": "现行链路已是「母版 > 32 ⇒ 自动切 Plate」（server.mjs:291 isPlate = d.cols>",
+          "keywords": [
+            "§2.2",
+            "Plate",
+            "server",
+            "mjs",
+            "isPlate",
+            "cols"
+          ]
+        },
+        {
+          "anchor": "§2.3 分辨率阈值拒产：不同档对源图最小尺寸要求不同（**且现行是「三处不一致」）**",
+          "level": 3,
+          "startLine": 237,
+          "endLine": 262,
+          "tokens": 710,
+          "summary": "levels-spec §3.1① 的三条线，对应到三档（以基线 B，方图）。⚠️ 下表三列全部是「源图位图 px」需求",
+          "keywords": [
+            "§2.3",
+            "§3.1",
+            "levels",
+            "spec",
+            "分辨率阈值拒",
+            "不同档对源图"
+          ]
+        },
+        {
+          "anchor": "§2.4 错豆构造与可解性：档位**不**改变判据，但**成倍放大验证工作量**",
+          "level": 3,
+          "startLine": 263,
+          "endLine": 273,
+          "tokens": 1313,
+          "summary": "判据不变：可解性的唯一证明是 bot.cleared === true（K-064/K-067；beads-bot.ts",
+          "keywords": [
+            "§2.4",
+            "bot",
+            "cleared",
+            "true",
+            "beads",
+            "错豆构造与可"
+          ]
+        },
+        {
+          "anchor": "§2.5 性能与生成侧：档位真正的硬瓶颈",
+          "level": 3,
+          "startLine": 274,
+          "endLine": 288,
+          "tokens": 423,
+          "summary": "k-means 点集 pts 20,736 82,944 186,624 (cols×8)×(rows×8)，beads",
+          "keywords": [
+            "§2.5",
+            "means",
+            "pts",
+            "cols",
+            "rows",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§3 对玩法 / 关卡 / §3 冻结常量的影响",
+          "level": 2,
+          "startLine": 289,
+          "endLine": 343,
+          "tokens": 1859,
+          "summary": "",
+          "keywords": [
+            "§3",
+            "对玩法",
+            "关卡",
+            "冻结常量的影"
+          ]
+        },
+        {
+          "anchor": "§3.1 触动的 §3 常量：登记，不改",
+          "level": 3,
+          "startLine": 291,
+          "endLine": 305,
+          "tokens": 470,
+          "summary": "GRID_MAX_COLS / GRID_MAX_ROWS 32（§3.3，v1.45 用户拍板 50→32） 是（间接",
+          "keywords": [
+            "§3.1",
+            "§3",
+            "§3.3",
+            "GRID_MAX_COLS",
+            "GRID_MAX_ROWS",
+            "触动的"
+          ]
+        },
+        {
+          "anchor": "§3.2 包体影响（**实测拟合模型，非估算**）",
+          "level": 3,
+          "startLine": 306,
+          "endLine": 333,
+          "tokens": 953,
+          "summary": "自跑测量（2026-09-24，可复现）：",
+          "keywords": [
+            "§3.2",
+            "包体影响",
+            "实测拟合模型",
+            "非估算"
+          ]
+        },
+        {
+          "anchor": "§3.3 对玩法侧的影响：一句话——**不影响 spawner，影响的是盘面规模**",
+          "level": 3,
+          "startLine": 334,
+          "endLine": 343,
+          "tokens": 372,
+          "summary": "玩法侧供料已死（错位珠是唯一供给，tray-spawner v2.0 / WXG-T-136）。⇒ 珠数不进入 spaw",
+          "keywords": [
+            "§3.3",
+            "spawner",
+            "tray",
+            "WXG",
+            "spaw",
+            "对玩法侧的影"
+          ]
+        },
+        {
+          "anchor": "§4 默认档与档位选择 UX 建议",
+          "level": 2,
+          "startLine": 344,
+          "endLine": 381,
+          "tokens": 1103,
+          "summary": "（依 wxgame-ux-spec §4 状态×输入矩阵思路；不画视觉，本件无视觉规格授权。）",
+          "keywords": [
+            "§4",
+            "wxgame",
+            "spec",
+            "默认档与档位",
+            "选择",
+            "建议"
+          ]
+        },
+        {
+          "anchor": "§4.1 默认档：**1x**",
+          "level": 3,
+          "startLine": 348,
+          "endLine": 353,
+          "tokens": 247,
+          "summary": "若采纳基线 B/B+ ⇒ 默认 1x = 18×18。依据：ADR-0018 可玩裁定；systems-index §3",
+          "keywords": [
+            "§4.1",
+            "§3",
+            "ADR",
+            "systems",
+            "index",
+            "默认档"
+          ]
+        },
+        {
+          "anchor": "§4.2 选择位置与可用组合",
+          "level": 3,
+          "startLine": 354,
+          "endLine": 367,
+          "tokens": 325,
+          "summary": "插入点：选源图之后、点「生成」之前（面板内，与 #board 下拉同级）。理由：源图 px 决定该档是否达标（§2.3）",
+          "keywords": [
+            "§4.2",
+            "§2.3",
+            "board",
+            "选择位置与可",
+            "用组合"
+          ]
+        },
+        {
+          "anchor": "§4.3 状态 × 输入矩阵（核心 5 行）",
+          "level": 3,
+          "startLine": 368,
+          "endLine": 381,
+          "tokens": 461,
+          "summary": "未选源图 档位可选，预览显示「成品 ≈ P×P cm（d mm）／N 颗／宫数 k²」 — 拦：「先选源图」（现状已实现",
+          "keywords": [
+            "§4.3",
+            "状态",
+            "输入矩阵",
+            "核心"
+          ]
+        },
+        {
+          "anchor": "§5 开放问题清单（交主理人 / 用户拍板）",
+          "level": 2,
+          "startLine": 382,
+          "endLine": 403,
+          "tokens": 1390,
+          "summary": "Q1 基线取谁（1x = 几格） (a) 29（现默认，零残余最整齐，但 ADR-0018 不可发布档）／(b) 18（",
+          "keywords": [
+            "§5",
+            "ADR",
+            "开放问题清单",
+            "交主理人",
+            "用户拍板"
+          ]
+        },
+        {
+          "anchor": "§6 工作树诚实记录（与本设计无关，勿混）",
+          "level": 2,
+          "startLine": 404,
+          "endLine": 438,
+          "tokens": 957,
+          "summary": "本件撰写期间工作树一直不干净，且本件在两个时间点各跑一次 git status --porcelain 自证，结果不同（",
+          "keywords": [
+            "§6",
+            "git",
+            "status",
+            "porcelain",
+            "工作树诚实记",
+            "与本设计无关"
+          ]
+        },
+        {
+          "anchor": "§7 落点选择说明",
+          "level": 2,
+          "startLine": 439,
+          "endLine": 446,
+          "tokens": 227,
+          "summary": "落 games/beads/design/proposals/ 而非 production/plans/，理由：",
+          "keywords": [
+            "§7",
+            "games",
+            "beads",
+            "design",
+            "proposals",
+            "production"
+          ]
+        },
+        {
+          "anchor": "§8 变更记录",
+          "level": 2,
+          "startLine": 447,
+          "endLine": 453,
+          "tokens": 701,
+          "summary": "v0.1 草案 2026-09-24 首版：订正「5mm↔32 dip」前提；判决平方律（边长倍率，珠数 ≈×1/×4/",
+          "keywords": [
+            "§8",
+            "dip",
+            "变更记录"
           ]
         }
       ]
