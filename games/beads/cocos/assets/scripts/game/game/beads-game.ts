@@ -437,6 +437,8 @@ export class BeadsGame implements Game {
   /** WXG-T-088 accessibility mirror: D1 减弱动效 / E2 大字号（走 snapshot 暴露给 view）。 */
   private _reduceMotion = false;
   private _largeText = false;
+  /** DEBUG 虚线轮廓开关（不持久化；仅 dev/harness 与 Console 临时开，走 snapshot 暴露给 view）。 */
+  private _debugOutlines = false;
   /** §3.8 震动开关镜像（VIBRATE_DEFAULT = ON；init 时从存档装载）。 */
   private _vibrate = VIBRATE_DEFAULT;
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
@@ -2772,6 +2774,16 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * DEBUG 开关（dev/harness / Console）：开则 `buildRenderModel` 每帧在盘面叠画虚线——
+   * 底图 tile（品红，固定 `BEAD_PITCH`）与珠/槽轮廓（青，缩放 `gridCell`）。用于肉眼判断
+   * 缩放后 tile 与格距错位导致的相邻重叠/不居中。不持久化、不参与玩法；关即零开销（view 跳过）。
+   * 用法：`__beads.game.setDebugOutlines(true)` 或 harness `?game=beads&dbg=outline`。
+   */
+  setDebugOutlines(on: boolean): void {
+    this._debugOutlines = on;
+  }
+
+  /**
    * 调试只读口（`BeadsBootstrap` 在 `__WXG_TOUCH_DEBUG` 下暴露给探针 / 真机调试 Console）。
    *
    * 为何公开：**必须走游戏自己的命中函数与当前布局**。探针若自己重推格心/命中公式，
@@ -3249,6 +3261,7 @@ export class BeadsGame implements Game {
     s.sfxMuted = this._sfxMuted;
     s.reduceMotion = this._reduceMotion;
     s.largeText = this._largeText;
+    s.debugOutlines = this._debugOutlines;
     s.vibrate = this._vibrate;
 
     const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);

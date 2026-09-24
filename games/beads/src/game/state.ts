@@ -111,6 +111,8 @@ export interface BeadsSnapshot {
   largeText: boolean;
   /** §3.8 震动开关（WXG-T-164；view 经 snapshot 回显面板行开/关）。 */
   vibrate: boolean;
+  /** DEBUG 虚线轮廓开关（`BeadsGame.setDebugOutlines`）；view 只读快照，正常恒 false。 */
+  debugOutlines: boolean;
 
   /** Sprint HUD — normal mode leaves these at zero and the view hides them. */
   score: number;
@@ -346,6 +348,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     reduceMotion: false,
     largeText: false,
     vibrate: VIBRATE_DEFAULT,
+    debugOutlines: false,
     score: 0,
     multiplier: 1,
     streak: 0,

@@ -288,6 +288,12 @@ if (isBeads && new URLSearchParams(harnessQuery).get('mode') === 'sprint') {
   beads.startSprint();
 }
 
+// Debug: ?game=beads&dbg=outline ⇒ 盘面叠画虚线轮廓（格底图 tile 品红 vs 珠/槽轮廓青），
+// 肉眼判断缩放后 tile 与格距错位的相邻重叠/不居中。运行时亦可 `__beads.game.setDebugOutlines(true)`。
+if (isBeads && new URLSearchParams(harnessQuery).get('dbg') === 'outline') {
+  beads.setDebugOutlines(true);
+}
+
 requestAnimationFrame(frame);
 
 // Expose for console poking during development.

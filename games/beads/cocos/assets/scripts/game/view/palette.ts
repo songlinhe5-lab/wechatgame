@@ -234,6 +234,13 @@ export const BEAD_CONTACT_SHADOW_ALPHA = 0.12;
 /** L4 软高光墨色（`#FFFFFF`）——v1.3 三层 L4a/b/c 复用。 */
 export const BEAD_HIGHLIGHT_HEX = '#FFFFFF';
 /**
+ * DEBUG 虚线轮廓墨（`BeadsGame.setDebugOutlines`）：仅诊断用，不参与正常渲染配色。
+ * 品红 = 底图 tile（固定 `BEAD_PITCH`）；青 = 珠/槽轮廓（相机缩放 `gridCell`）。
+ * 放此处而非 bead-render：arch §3「色值只进 palette」。
+ */
+export const DEBUG_OUTLINE_TILE_HEX = '#FF2BD6';
+export const DEBUG_OUTLINE_SOCKET_HEX = '#26E0FF';
+/**
  * v1.3 十层卡以 L4a/b/c 三层递减 α 软高光取代硬边单高光条（F4）。
  * @deprecated 保留仅供 §1.2 empty/locked「无高光」断言与迁移期引用；bead-render 不再发射 α0.38 单条。
  */

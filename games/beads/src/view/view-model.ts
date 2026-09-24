@@ -95,6 +95,7 @@ import {
   drawFilledBead,
   drawLockedBead,
   drawTargetTile,
+  drawDebugCellOutline,
   drawStateRing,
   fillPopEnvelope,
   type FillPopEnvelope,
@@ -907,6 +908,18 @@ function drawGrid(
       // G7 D1 退化环：同墨同线宽（§1.6.7 候选甲：size 50、α 恒 1、0 往复）。
       if (deniedP > 0 && snap.reduceMotion) {
         drawStateRing(builder, bx, cy, snap.gridCell, palette.slotBorder, 1, DENIED_RING_LINEWIDTH);
+      }
+    }
+  }
+  // DEBUG 轮廓（`setDebugOutlines`）：主循环**之上**再叠一层，压在面板下、格内容之上。
+  if (snap.debugOutlines) {
+    for (let i = 0; i < snap.gridRows; i++) {
+      for (let j = 0; j < snap.gridCols; j++) {
+        const cell = snap.cells[i * snap.gridCols + j]!;
+        if (cell.void) continue;
+        const cx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * j;
+        const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * i;
+        drawDebugCellOutline(builder, cx, cy, snap.gridCell);
       }
     }
   }

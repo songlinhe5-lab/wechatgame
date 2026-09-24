@@ -31,6 +31,8 @@ import {
   BEAD_BEVEL_LIGHT_MIX,
   BEAD_CONTACT_SHADOW_ALPHA,
   BEAD_HIGHLIGHT_HEX,
+  DEBUG_OUTLINE_SOCKET_HEX,
+  DEBUG_OUTLINE_TILE_HEX,
   BEAD_RIM_MIX,
   BEAD_SHADOW_ALPHA,
   BEAD_SHADOW_ALPHA_SELECTED,
@@ -296,6 +298,67 @@ export function drawTargetTile(
     fill: endpointOf(inks, colorIdx).edge,
     radius: 0,
   });
+}
+
+// DEBUG 轮廓墨色真源在 `view/palette.ts`（arch §3：色值只进 palette）：DEBUG_OUTLINE_*_HEX。
+
+/**
+ * DEBUG ONLY（`BeadsGame.setDebugOutlines(true)`）：虚线描出**格底图 tile** 与
+ * **珠/槽轮廓** 两层，供肉眼判断缩放后 tile 与格距错位导致的相邻重叠 / 珠体不居中。
+ * 纯读参数、不持状态（合 L5）；正常玩法 `snap.debugOutlines === false` ⇒ 从不调用。
+ *
+ * ⚠ tile 故意用 `BEAD_PITCH`（与 `drawTargetTile` 实画尺寸一致，**不吃相机缩放**），
+ * 而珠/槽轮廓用缩放后的 `cellSize` —— 两者宽度一旦不等，即“底图重叠/不居中”的根因可视化。
+ */
+export function drawDebugCellOutline(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  cellSize: number,
+): void {
+  dashedRect(builder, cx, cy, BEAD_PITCH, DEBUG_OUTLINE_TILE_HEX);
+  dashedRect(builder, cx, cy, cellSize, DEBUG_OUTLINE_SOCKET_HEX);
+}
+
+function dashedRect(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  size: number,
+  color: string,
+): void {
+  const half = size / 2;
+  const x0 = cx - half;
+  const y0 = cy - half;
+  const x1 = cx + half;
+  const y1 = cy + half;
+  dashEdge(builder, x0, y0, x1, y0, color);
+  dashEdge(builder, x1, y0, x1, y1, color);
+  dashEdge(builder, x1, y1, x0, y1, color);
+  dashEdge(builder, x0, y1, x0, y0, color);
+}
+
+/** 沿一条边按「画一段 / 空一段」逐段发 `line`（无 setLineDash 通道，只能手拼）。 */
+function dashEdge(
+  builder: RenderModelBuilder,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  color: string,
+): void {
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  if (len <= 0) return;
+  const ux = dx / len;
+  const uy = dy / len;
+  const dash = Math.max(3, len / 8);
+  const period = dash * 2;
+  for (let t = 0; t < len; t += period) {
+    const seg = Math.min(dash, len - t);
+    builder.line(x0 + ux * t, y0 + uy * t, x0 + ux * (t + seg), y0 + uy * (t + seg), color, 1.5);
+  }
 }
 
 /**
