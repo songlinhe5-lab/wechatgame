@@ -385,9 +385,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3159,
+      "tokens": 3155,
       "lines": 119,
-      "sha256": "c729fbd0f68990dbedab2be7d73e71cd377e6bc3eb3f6c12783ea7b93369a079",
+      "sha256": "7f1ebfa48c9d79291d0d8ad71100c98db9f4c50be06d693c96647cf8f248eee5",
       "tier": "normal",
       "sections": [
         {
@@ -395,7 +395,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 120,
-          "tokens": 3146,
+          "tokens": 3142,
           "summary": "生成：2026-09-24 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -424,7 +424,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 412,
+          "tokens": 407,
           "summary": "1 production/qa/beads/g4-regression-report.md 86807 2201 nor",
           "keywords": [
             "Top",
@@ -19803,18 +19803,18 @@
     },
     {
       "path": "games/beads/design/gdd/bead-grid.md",
-      "tokens": 11313,
-      "lines": 149,
-      "sha256": "43f31dd47b0d142a819f6bbba02ed1cbe5be5f2321ba5f96ed53606644acbc68",
+      "tokens": 12184,
+      "lines": 150,
+      "sha256": "8a95db3a20feed6035bdd8f6d8d0e3988fe186e80b47392f66444a9a7a4363d8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S3 拼图网格与填色（Bead Grid）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 150,
-          "tokens": 11296,
-          "summary": "项目：games/beads · 版本 v2.8（v2.8 = §3.2 翻值生效连带同步（BEAD_COLOR_MAX",
+          "endLine": 151,
+          "tokens": 12167,
+          "summary": "项目：games/beads · 版本 v2.9（v2.9 = §3.2 批2 落码：max（最大化错位）档转正 ⇒ §",
           "keywords": [
             "§3.2",
             "GDD",
@@ -19984,7 +19984,7 @@
           "level": 2,
           "startLine": 118,
           "endLine": 132,
-          "tokens": 1952,
+          "tokens": 2130,
           "summary": "1. 初始装配（v2.0 改写）：装载合法关卡后，filled 格数 === 可填格总数、locked 格数 === c",
           "keywords": [
             "filled",
@@ -19998,11 +19998,13 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 133,
-          "endLine": 150,
-          "tokens": 3675,
-          "summary": "v2.8 2026-09-24 §3.2 翻值已生效（批1 = A 天花板 + B 护栏）⇒ 本文两处行内注由「提案」改",
+          "endLine": 151,
+          "tokens": 4312,
+          "summary": "v2.9 2026-09-24 §3.2 批2 落码生效 ⇒ max（最大化错位）档在 §8-1 由「未生效」改转正。唯",
           "keywords": [
             "§3.2",
+            "§8",
+            "max",
             "变更记录"
           ]
         }
@@ -22365,18 +22367,18 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 18515,
-      "lines": 492,
-      "sha256": "65ed983ddf1a93eaa1a4e3d4e3f0fdb815f189073030207837ca112dbac96976",
+      "tokens": 19975,
+      "lines": 493,
+      "sha256": "9dd2766a1f9949d316458c7ac75cbf551a8263aca4b006371b0af0f3c60652ad",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡数据规范（Levels Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 493,
-          "tokens": 18501,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.11 · 任务号 WXG-T-130（头注版本与 §10 曾",
+          "endLine": 494,
+          "tokens": 19962,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.12 · 任务号 WXG-T-130（头注版本与 §10 曾",
           "keywords": [
             "§10",
             "Levels",
@@ -22402,7 +22404,7 @@
           "level": 2,
           "startLine": 37,
           "endLine": 85,
-          "tokens": 3047,
+          "tokens": 3520,
           "summary": "尺寸 GRID_MIN_COLS(6) ≤ cols ≤ GRID_MAX_COLS(32)；GRID_MIN_ROWS",
           "keywords": [
             "§6",
@@ -22445,14 +22447,14 @@
           ]
         },
         {
-          "anchor": "§2.3 错位档位与「最大化错位」（提案 v1.10；与 §3.13 v1.54 同批，现行为未改）",
+          "anchor": "§2.3 错位档位与「最大化错位」（**v1.12 生效** = §3.2 批2 已落码；本文口径由「提案」改「生效」）",
           "level": 3,
           "startLine": 73,
           "endLine": 85,
-          "tokens": 975,
-          "summary": "现行为（未改，登记作对照）：beads-gen --mis full 是 all-or-nothing —— 主导色 m",
+          "tokens": 1385,
+          "summary": "生效前的现行行为（登记作历史对照，已被 v1.12 推翻）：beads-gen --mis full 是 all-or-",
           "keywords": [
-            "§3.13",
+            "§3.2",
             "beads",
             "gen",
             "mis",
@@ -22465,7 +22467,7 @@
           "level": 2,
           "startLine": 86,
           "endLine": 155,
-          "tokens": 1967,
+          "tokens": 1992,
           "summary": "重制方案：8 关盘面 10×10 → 29×29 递增，关卡图案由 beads-studio 照片转拼豆管线从原图生成",
           "keywords": [
             "beads",
@@ -22752,8 +22754,8 @@
           "anchor": "§10 变更记录",
           "level": 2,
           "startLine": 480,
-          "endLine": 493,
-          "tokens": 2811,
+          "endLine": 494,
+          "tokens": 3774,
           "summary": "v1.1 2026-09-14/15 建档后回写：§5.1 尾盘满槽交叉校验（WXG-T-081）、§1/§2 deco",
           "keywords": [
             "§5.1",

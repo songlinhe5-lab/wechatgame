@@ -17,11 +17,28 @@ assert.equal(R.mix('#808080', 0), '#808080');
 
 assert.equal(R.beadColor(0), '#FDF6E9'); // 奶白 = 游戏 1 号
 assert.equal(R.beadColor(6), '#3D7BF5'); // 湖蓝 = 7 号
-assert.equal(R.beadColor(99), '#33333D'); // 越界 → 炭黑兜底（palette.ts beadColor 同规则）
+
+// 越界 → 炭黑兜底（palette.ts beadColor 同规则）**且不再静默**（§3.2 v1.55 放开 35 色后的观感项）：
+// 同一索引只报一次（drawBoard 逐格调用，不去重会刷爆 console），不同越界索引各自报一次。
+let warns = 0;
+const realWarn = console.warn;
+console.warn = () => { warns++; };
+try {
+    assert.equal(R.beadColor(99), '#33333D');
+    assert.equal(warns, 1, '越界首次应告警一次');
+    R.beadColor(99); R.beadColor(99);
+    assert.equal(warns, 1, '同一越界索引不得重复告警');
+    assert.equal(R.beadColor(11), '#33333D'); // 35 色域内但超 demo 10 色⇒同样兑底
+    assert.equal(warns, 2, '不同越界索引各自报一次');
+    R.beadColor(9); // 合法索引不得告警
+    assert.equal(warns, 2, '合法索引不得告警');
+} finally {
+    console.warn = realWarn;
+}
 
 const L = R.layout(420, 420, 14, 14);
 assert.ok(Math.abs(L.cell - 30) < 1e-9);
 assert.ok(Math.abs(L.size - (30 * 50) / 52) < 1e-9); // 珠边 = 格边 × BEAD_CELL/BEAD_PITCH
 assert.equal(L.ox, 0);
 
-console.log('board-render selftest OK（6 组断言）');
+console.log('board-render selftest OK（7 组断言，含越界告警一次性）');

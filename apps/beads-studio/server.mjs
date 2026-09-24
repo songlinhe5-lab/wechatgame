@@ -164,6 +164,26 @@ const DEMO_PALETTE_LEN = (() => {
 })();
 
 /**
+ * 逐格数错位颗数（`report.mis` 缺失时的兜底）：两盘同序映射 ⇒ 直接比字符即可，
+ * 不可填位（`.` / `x`）不计。轮廓已不匹配 ⇒ 返 null（不在此处定量，交给游端 BOOT 拦）。
+ */
+function misplacedCount(r) {
+    const p = r.levelDraft?.pattern;
+    const q = r.levelDraft?.misplaced;
+    if (!Array.isArray(p) || !Array.isArray(q) || p.length !== q.length) return null;
+    let n = 0;
+    for (let i = 0; i < p.length; i++) {
+        if (typeof q[i] !== 'string' || q[i].length !== p[i].length) return null;
+        for (let c = 0; c < p[i].length; c++) {
+            const ch = p[i][c];
+            if (ch === '.' || ch === 'x') continue;
+            if (q[i][c] !== ch) n++;
+        }
+    }
+    return n;
+}
+
+/**
  * 「能不能入关」单一判据（值域全部来自 `systems-index §3` 冻结常量，不是 Studio 自定）：
  * 盘面 ≥ 6×5（下限来自 `GRID_MIN_*`，§3.3 v1.37）；≤**32** 为单图，任一维 >32 自动走
  * 组合图 Plate（均分切块，§3.3 v1.45 把切块阈值由 50 改为 32，见关卡内容管线 spec §0）。
@@ -178,10 +198,21 @@ const DEMO_PALETTE_LEN = (() => {
  */
 function importBlockers(r, { allowOversize = false } = {}) {
     const b = [];
-    const full = r.misMode === 'full';
-    if (!r.levelDraft) b.push('无关卡草案（全盘错位需满足主导色 ≤ 可填半数；交换模式需 k ≥ 1）');
-    if (!full && r.swaps > 8) b.push(`交换对数 ${r.swaps} > 8（\`MISPLACED_PAIRS_MAX\`）`);
-    if (full && r.levelDraft && !Array.isArray(r.levelDraft.misplaced)) b.push('全错位模式但草案缺 misplaced 字段');
+    // `max`（§3.2 批2 最大化错位）与 `full` 同属「misplaced 型初盘」：不覆盖则 max 盘会被
+    // 当成 swaps 型误报（「草案缺 misplaced」/「交换对数 > 8」），与旧 `none` 被折叠成 `full` 同族。
+    const misFullish = r.misMode === 'full' || r.misMode === 'max';
+    if (!r.levelDraft) b.push('无关卡草案（全错位/最大化错位需能产出错位盘；交换模式需 k ≥ 1）');
+    if (!misFullish && r.swaps > 8) b.push(`交换对数 ${r.swaps} > 8（\`MISPLACED_PAIRS_MAX\`）`);
+    if (misFullish && r.levelDraft && !Array.isArray(r.levelDraft.misplaced))
+        b.push(`${r.misMode} 模式但草案缺 misplaced 字段`);
+    // max 档使 `M` 成为可变输出 ⇒ 补一条「M ≥ 1」（= 游端 BOOT「错位 ≥1」闸的入关期镜像）。
+    // 无证据时**不判**（列表轻投影不带 report/levelDraft），否则每条 max 历史条目会被误拦。
+    if (r.misMode === 'max') {
+        const M = typeof r.report?.mis?.M === 'number'
+            ? r.report.mis.M
+            : (Array.isArray(r.levelDraft?.misplaced) ? misplacedCount(r) : null);
+        if (M !== null && M < 1) b.push(`最大化错位档 M=${M} < 1 ⇒ 无错豆（游端 BOOT「错位 ≥1」必拒）`);
+    }
     if (r.colors < 3) b.push(`用色 ${r.colors} < 3（BOOT 下限）`);
     if (r.colors > BEAD_COLOR_MAX) b.push(`用色 ${r.colors} > ${BEAD_COLOR_MAX}（\`BEAD_COLOR_MAX\`，§3.2 v1.55；rowstring 单字符编码天花板）`);
     // B1 的入关期镜像（正本 §5-B3）：pattern 最大色索引超 demo 色板 ⇒ 品牌引用从「可选」变「必携」。
@@ -325,8 +356,9 @@ async function ingestLevel(res, id) {
         // 1. 切块：只裁 pattern，不传 misplaced
         const sliced = sliceBoard({ pattern: d.pattern, cols: d.cols, rows: d.rows, gridMax: 32 });
 
-        // 2. 逐格三阶构造初盘（甲/乙/丙）
-        const tierCounts = { '\u7532': 0, '\u4e59': 0, '\u4e19': 0 };
+        // 2. 逐阶构造初盘（甲 / 甲max / 乙 / 丙）
+        // ⚠️ tier 枚举新增必须同步补键：`tierCounts[init.tier]++` 遇未知键会静默算成 NaN。
+        const tierCounts = { '\u7532': 0, '\u7532max': 0, '\u4e59': 0, '\u4e19': 0 };
         const cellEntries = [];
         for (const cell of sliced.cells) {
             const init = buildCellInitial(cell.pattern);
@@ -451,8 +483,9 @@ async function handleGenerate(req, res, url) {
     const rawPath = join(outDir, 'raw.json');
     // 前端已按 cols×K × rows×K 平滑缩放到 w×h ⇒ 直接透传 base64，不再解码重编码
     writeFileSync(rawPath, JSON.stringify({ w, h, data: b64 }));
-    // ⚠ mis 白名单必须与 beads-gen 一致（full/swaps/none）——此前只认 swaps|full，
+    // ⚠ mis 白名单必须与 beads-gen 一致（full/max/swaps/none）——此前只认 swaps|full，
     //    把前端的 none 静默折叠成 full，导致「不错位」永远不生效（2026-09-21 实测）。
+    //    §3.2 批2 加 `max`：漏这一条 = 前端选「最大化错位」又被折叠回 full，低色数图照旧拒产。
     const misRaw = q.get('mis');
     const params = {
         cols,
@@ -466,7 +499,7 @@ async function handleGenerate(req, res, url) {
         smooth: Math.max(0, parseInt(q.get('smooth') || '1', 10)),
         premedian: Math.max(0, parseInt(q.get('premedian') || '0', 10)),
         noframe: q.get('noframe') === '1',
-        mis: misRaw === 'swaps' || misRaw === 'none' ? misRaw : 'full',
+        mis: misRaw === 'swaps' || misRaw === 'none' || misRaw === 'max' ? misRaw : 'full',
     };
     if (params.mis === 'swaps' && params.swaps < 1) params.swaps = 1; // 交换模式下 k≥1
     let pattern;
@@ -496,6 +529,8 @@ async function handleGenerate(req, res, url) {
         colors: pattern.report?.colorsUsed ?? params.colors,
         swaps: params.mis === 'swaps' ? params.swaps : 0,
         misMode: params.mis,
+        // 错位规模（单一真源 = beads-gen 写进 pattern.json 的 `report.mis`：{mode,N,m,M,F,M_max}）。
+        // 不另存一份字段：`report` 已随 result 存盘，双源就必漂移（K-047 口径）。
         createdAt: new Date().toISOString(),
         thumb, // 原图缩略图（dataURL）；**仅存单条详情**，不进列表投影
         levelDraft: pattern.levelDraft ?? null,

@@ -80,11 +80,27 @@
         return out;
     }
 
+    /** 越界索引的告警去重表（键 = `palette:<i>` / `hexes:<i>`）。为何要**每个索引只报一次**：
+     *  本函数在 `drawBoard` 里是**逐格**调用（一次重绘可达数百格），不去重就把 console 刷满。 */
+    var OUT_OF_RANGE_WARNED = {};
+
     /** 珠面颜色：缺省走 10 色游戏真源；传 hexes（色号→hex，artkal 等外部色板）时优先查表，
-     *  否则预览色与实际珠色完全两回事（色号被错配到游戏色，2026-09-21 实测「紫冠橙果」假象）。 */
+     *  否则预览色与实际珠色完全两回事（色号被错配到游戏色，2026-09-21 实测「紫冠橙果」假象）。
+     *  ⚠️ §3.2 v1.55 放开到 35 色后，**无品牌色板时索引 >10 很常见**（demo 色板只 10 色），
+     *  旧行为是静默兑炭黑 ⇒ 用户看到的是“盘面凭空多一片黑”，不知自己少了 `palette`+`paletteCodes`。
+     *  现同一索引告警一次（返回值不变，仍是炭黑）。 */
     function beadColor(index, hexes) {
-        if (hexes) return hexes[index] || BEAD_PALETTE[9];
-        return BEAD_PALETTE[index] || BEAD_PALETTE[9];
+        var hit = hexes ? hexes[index] : BEAD_PALETTE[index];
+        if (hit) return hit;
+        var key = (hexes ? 'hexes:' : 'palette:') + index;
+        if (!OUT_OF_RANGE_WARNED[key] && typeof console !== 'undefined' && console.warn) {
+            OUT_OF_RANGE_WARNED[key] = 1;
+            console.warn('[board-render] 色索引 ' + index + ' 越界 ⇒ 该珠兑炭黑 '
+                + BEAD_PALETTE[9]
+                + (hexes ? '（品牌色板未覆盖该索引）'
+                    : '（未携品牌色板 ⇒ 用色 >10 必带 palette + paletteCodes，§3.2 v1.55 护栏 B1）'));
+        }
+        return BEAD_PALETTE[9];
     }
 
     // ── 绘制 ──

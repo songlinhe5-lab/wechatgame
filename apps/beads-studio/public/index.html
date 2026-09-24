@@ -250,6 +250,7 @@
                 <div><label>错位密度</label><select id="misKind">
                         <option value="none" selected>不错位（实物图纸 · 最像原图）</option>
                         <option value="full">全错位（每颗可填珠都不就位）</option>
+                        <option value="max">最大化错位（色少也能尽量错开）</option>
                         <option value="swaps">少量交换（k 对 ⇒ 仅 2k 颗错位）</option>
                     </select></div>
                 <div id="swapsBox" style="display:none"><label>交换对数 k（1–8）</label><input type="number" id="swaps"
@@ -428,7 +429,8 @@
             msg(srcMsgBase + note, note.startsWith('｜⚠') ? 'err' : 'ok');
         }
 
-        /** 错位密度：全错位（引擎 misplaced 初盘，成片错豆）/ 少量交换（才需要 k）。 */
+        /** 错位密度：全错位（引擎 misplaced 初盘，成片错豆）/ 最大化错位（同走 misplaced，
+         *  但主导色过半时不拒产、只把错不开的强制就位）/ 少量交换（才需要 k）。 */
         $('misKind').onchange = () => {
             $('swapsBox').style.display = $('misKind').value === 'swaps' ? 'block' : 'none';
         };
@@ -590,7 +592,7 @@
             const rp = r.report || {};
             const df = rp.difficulty;
             $('stats').textContent =
-                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : r.misMode === 'none' ? '不错位（实物图纸模式）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
+                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : r.misMode === 'max' ? `最大化错位（错开 ${rp.mis?.M ?? '?'} 颗、强制就位 ${rp.mis?.F ?? '?'} 颗；N=${rp.mis?.N ?? '?'}/m=${rp.mis?.m ?? '?'}）` : r.misMode === 'none' ? '不错位（实物图纸模式）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
                 `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? (df ? df.adjRate : '?')}` +
                 (df ? (df.error
                     ? `\n难度 ——（${df.error}）`
@@ -653,7 +655,7 @@
                     for (const r of list) {
                         const d = document.createElement('div'); d.className = 'item';
                         const noImp = r.importable === false;
-                        d.innerHTML = `<span>${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
+                        d.innerHTML = `<span>${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
                         // 列表是轻投影（不含 pattern/缩略图）⇒ 点开才拉单条全量
                         d.onclick = async () => {
                             try {

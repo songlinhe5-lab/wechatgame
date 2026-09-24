@@ -434,11 +434,22 @@ function balance(solved, allow = null) {
 }
 
 /**
- * 多重集全错位：可填格按色排序后整体循环左移 maxFreq 位。
- * 前提 maxFreq ≤ ⌊N/2⌋（由 balance 保证）⇒ 每格新色必 ≠ 原色（无固定点）。
- * @returns {{ ok: boolean, misplaced: number[], maxFreq: number, N: number, reason?: string }}
+ * 多重集错位：可填格按色排序后整体循环左移 `m`（= 主导色频）位 —— **该左移量已取到
+ * 「同色多重集内重排、不得改色」这条硬约束下的极值**（§3.2 批2；正本 levels-spec §2.3-2）。
+ *
+ * 记号：`N` = 可填格数，`m` = 主导色珠数 ⇒ 固定点数恰为 `F = max(0, 2m − N)`、
+ * 被错位格数 `M = N − F = min(N, 2(N−m))`。
+ * （每色 Y 贡献 `max(0, n_Y + m − N)` 个固定点，而 `Σ n_Y = N` ⇒ 仅主导色可能为正 ⇒ 合计即 `F`。）
+ *   · `m ≤ ⌊N/2⌋` ⇒ `F = 0`、`M = N` = **全错位** ⇒ `max` 在此**等价于 `full`、不打折**；
+ *   · `m > ⌊N/2⌋` ⇒ `F > 0`：`full` 判为不可行（拒产），`max` 判为**守恒下的最优结果**（照出盘）。
+ *
+ * @param {number[]} solved 色号数组（0 = 空位，不参与重排）
+ * @param {'full'|'max'|string} mode `full` = all-or-nothing（够不到全错位 ⇒ ok:false）；
+ *                                 `max` = 尽力错位（除退化盘外**不拒产**，levels-spec §2.3-3）
+ * @returns {{ ok: boolean, misplaced: number[], maxFreq: number, N: number, m: number,
+ *             M: number, F: number, M_max: number, mode: string, reason?: string }}
  */
-function derange(solved) {
+function derange(solved, mode = 'full') {
   const cells = [];
   for (let i = 0; i < solved.length; i++) if (solved[i] > 0) cells.push(i);
   const N = cells.length;
@@ -446,26 +457,35 @@ function derange(solved) {
   for (const i of cells) cnt[solved[i]]++;
   let maxFreq = 0;
   for (let c = 1; c <= PAL_N; c++) if (cnt[c] > maxFreq) maxFreq = cnt[c];
+  const m = maxFreq;
+  const M_max = Math.min(N, 2 * (N - m)); // 守恒下的上界（X2 实测复核，含退化盘时 = 0）
+  const F = Math.max(0, 2 * m - N);
   const misplaced = new Array(solved.length).fill(0);
   for (let i = 0; i < solved.length; i++) if (solved[i] === 0) misplaced[i] = 0;
-  if (N < 2) return { ok: false, misplaced, maxFreq, N, reason: '可填格 < 2' };
-  if (maxFreq > Math.floor(N / 2))
-    return { ok: false, misplaced, maxFreq, N, reason: `主导色 ${maxFreq} > N/2=${Math.floor(N / 2)}，无法全错位` };
+  // 失败记录：`M_max`/`F` 仍为**理论值**（公式给出、未构造），`M = 0` 表示本次没产出错位盘。
+  const fail = (reason) => ({ ok: false, misplaced, maxFreq: m, N, m, M: 0, F, M_max, mode, reason });
+  // 唯一仍不可解的两种退化盘：`M_max = 0 ⇔ N < 2` 或 `m = N`（整盘单色，无异色可换）。
+  // ⚠️ 二者在合法关面（§2 色数 ≥3）内不可达 ⇒ 走到这里就是输入本身该失败，两档都拒。
+  if (N < 2) return fail(`可填格 < 2 ⇒ M_max=${M_max}（N=${N}）`);
+  if (m === N) return fail(`整盘单色（m=N=${N}）⇒ M_max=${M_max}，无任何异色可交换`);
+  // all-or-nothing 分支**只对 full 保留**：max 档的正本裁定是「别判不可解，能错多少错多少」。
+  if (mode !== 'max' && m > Math.floor(N / 2))
+    return fail(`主导色 ${m} > N/2=${Math.floor(N / 2)}，无法全错位（守恒下最多 M_max=${M_max}、F=${F} ⇒ 可用 --mis max 尽力错位）`);
 
   // 按色分组（次级按原索引，稳定）
   const sorted = cells.slice().sort((a, b) => solved[a] - solved[b] || a - b);
   const seqColor = sorted.map((i) => solved[i]);
-  const k = maxFreq;
+  const k = m;
   for (let j = 0; j < sorted.length; j++) {
     misplaced[sorted[j]] = seqColor[(j + k) % N];
   }
-  // 自检：无固定点
-  for (const i of cells) {
-    if (misplaced[i] === solved[i]) {
-      return { ok: false, misplaced, maxFreq, N, reason: `断言失败：格 ${i} 错位后就位` };
-    }
-  }
-  return { ok: true, misplaced, maxFreq, N };
+  // 自检从「无固定点」收紧为「固定点数**恰等于**理论值 F」：多一个 = 构造没到极值，
+  // 少一个 = 极值公式或计数有错。full 时 F=0，与旧断言完全等价（不改既有严格度）。
+  let fixed = 0;
+  for (const i of cells) if (misplaced[i] === solved[i]) fixed++;
+  if (fixed !== F)
+    return fail(`断言失败：固定点 ${fixed} ≠ 理论值 F=${F}（N=${N}, m=${m}）`);
+  return { ok: true, misplaced, maxFreq: m, N, m, M: N - fixed, F, M_max, mode };
 }
 
 /**
@@ -1265,12 +1285,13 @@ const stats1 = clusterStats(solved); // 聚集处理后
 const h0 = hist(solved);
 // ⚠️ 必须把 `--colors` 的保留色集传给 balance（否则它会把禁用色复活，见其头注）
 const allowSet = limit.kept.length ? new Set(limit.kept) : null;
-// 错位模式（`--mis full|swaps|none`；默认：给了 `--swaps K` 就 swaps，否则 full）。
+// 错位模式（`--mis full|max|swaps|none`；默认：给了 `--swaps K` 就 swaps，否则 full）。
 // ⚠ 模式必须在**构造之前**定：否则 `--mis full` 遇上 `--swaps 8` 仍会走交换法，
 //    得到的只是 2k 颗错位（不是全盘错位）—— 静默给错东西。
+// `max`（§3.2 批2）= 最大化错位：够不着全错位时**尽力而为、不判不可解、不拒产**（正本 §2.3）。
 const misMode = arg('mis', parseInt(arg('swaps', '0'), 10) > 0 ? 'swaps' : 'full');
-if (misMode !== 'full' && misMode !== 'swaps' && misMode !== 'none') {
-  console.error(`⚠️ --mis 只支持 full / swaps / none，收到 "${misMode}"`);
+if (misMode !== 'full' && misMode !== 'max' && misMode !== 'swaps' && misMode !== 'none') {
+  console.error(`⚠️ --mis 只支持 full / max / swaps / none，收到 "${misMode}"`);
   process.exit(3);
 }
 // mis=none（实物图纸模式）：跳过配色平衡 —— balance 是为全错位构造的前提（主导色 ≤ N/2，
@@ -1278,7 +1299,12 @@ if (misMode !== 'full' && misMode !== 'swaps' && misMode !== 'none') {
 // 用户实测「树都不绿了」的根因，balancedChanged=103）。
 const { changed, note } = misMode === 'none'
   ? { changed: [], note: 'mis=none 实物图纸模式：跳过配色平衡（不做主导色 ≤ N/2 钳制）' }
-  : balance(solved, allowSet); // 就地改 solved（正确解受平衡约束）
+  // mis=max：平衡是为 `full` 的 Hall 前提（主导色 ≤ N/2）服务的；`max` 不需要它就能出盘，
+  // 而 balance 是**改 pattern 侧的色号**（不是重排）⇒ 跑了反而破坏保形（正本 T2 乙 / §2.3-1：
+  // misplaced 侧永不得改色，改色只允许发生在生成期 pattern 侧 —— 这里是「允许」不是「必须」）。
+  : misMode === 'max'
+    ? { changed: [], note: 'mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）' }
+    : balance(solved, allowSet); // 就地改 solved（正确解受平衡约束）
 // 相邻格 ΔE 约束（v1.6）：放在颜色链路的**最后一步**（balance 之后）⇒ 结果不被后续重分配冲掉。
 // ⚠ 它会轻微挪动颜色直方图 ⇒ 主导色 ≤ N/2 的平衡前提理论上可能被削弱，故 h1 / errFinal 均在其后取。
 const adj = minAdjDE > 0
@@ -1290,16 +1316,20 @@ const errFinal = meanColorErr(solved, avg); // 全部处理之后的最终色差
 const swapsK = misMode === 'swaps' ? Math.max(0, parseInt(arg('swaps', '0'), 10)) : 0;
 const sw = swapsK > 0 ? buildSwaps(solved, swapsK) : null;
 const der = misMode === 'none'
-  ? { ok: false, misplaced: null, maxFreq: 0, N: 0, reason: 'mis=none（实物图纸，不做错位）' }
+  ? { ok: false, misplaced: null, maxFreq: 0, m: 0, N: 0, M: 0, F: 0, M_max: 0, reason: 'mis=none（实物图纸，不做错位）' }
   : sw
     ? {
       ok: sw.pairs === swapsK,
       misplaced: sw.init,
       maxFreq: 0,
+      m: 0,
       N: 0,
+      M: sw.pairs * 2, // 交换法口径：错位颗数恒 = 2k（不是极值问题）
+      F: null,
+      M_max: null,
       reason: sw.pairs < swapsK ? `可配对数不足（实得 ${sw.pairs}/${swapsK}）` : '',
     }
-    : derange(solved);
+    : derange(solved, misMode);
 
 const fillN = solved.filter((v) => v > 0).length;
 const colorsUsed = h1.slice(1).filter((n) => n > 0).length;
@@ -1322,10 +1352,12 @@ const json = {
   ...(isBrandPalette ? { paletteCodes: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => BRAND.codes[c - 1]) } : {}),
   time: null,
   cycleProfile: 'long',
-  // 错位模式（`--mis full|swaps`，定法见上方 swapsK 处）：
+  // 错位模式（`--mis full|max|swaps`，定法见上方 swapsK 处）：
   //   · full  = **全盘错位初盘**（每颗可填珠都不就位，成片错豆）⇒ 走 `misplaced` 字段
   //             （引擎 v1.3 起支持，入库 8 关用的就是它）；前提 = `der.ok`（Hall 条件
   //             maxFreq ≤ N/2，`balance()` 已强制）。
+  //   · max   = 同上走 `misplaced`，但**不要求** Hall 条件：`m > N/2` 时接受 `F` 颗强制就位
+  //             （= 守恒下的极值，不是退让；levels-spec §2.3）⇒ 草案必须携 `misplaced`。
   //   · swaps = 游戏口径的 k 对异色交换 ⇒ 只有 2k 颗错位（29×29 盘上 k=8 仅占 ≈2%）。
   // 两模式互斥：引擎侧 `applyMisplacedToGrid` 见 misplaced 优先、忽略 swaps。
   levelDraft: (() => {
@@ -1342,7 +1374,7 @@ const json = {
       cycleProfile: mis === 'swaps' ? 'short' : 'long',
       decoys: [],
       swaps: mis === 'swaps' ? sw.swaps : [],
-      ...(mis === 'full' ? { misplaced: toRowStrings(der.misplaced) } : {}),
+      ...(mis === 'full' || mis === 'max' ? { misplaced: toRowStrings(der.misplaced) } : {}),
       pattern: toRowStrings(solved),
       // pattern 字符（紧凑序第 i 个用色）对应的**实际色值**：paletteHex[i]
       paletteHex: [...new Set(solved.filter((v) => v > 0))].sort((a, b) => a - b).map((c) => palHex[c - 1]),
@@ -1355,7 +1387,17 @@ const json = {
     cap: Math.floor(fillN / 2),
     maxFreqBefore: Math.max(...h0.slice(1)), maxFreqAfter: Math.max(...h1.slice(1)),
     balancedChanged: changed.length, balanceNote: note ?? null,
-    derangement: der.ok ? 'FULL (0 固定点)' : 'PARTIAL/FAIL: ' + der.reason,
+    derangement: der.ok
+      ? (misMode === 'max' ? `MAXIMAL（M=${der.M}/${der.N} 错位，固定点 = 理论下限 F=${der.F}）` : 'FULL (0 固定点)')
+      : 'PARTIAL/FAIL: ' + der.reason,
+    /**
+     * 错位规模（正本 levels-spec §2.3-6 的输出义务）：`max` 使 `M` 成为**可变输出**，
+     * 报告与草案必须携带 `M`/`N`/`F`（现只报「错位/不错位」则 `time` 定价与规模闸无法追溯）。
+     * 定价链已按 `M×0.8` 估 steps（`level-import.ts:119,142-144`）⇒ M 可变天然兼容、零接线。
+     */
+    mis: misMode === 'swaps'
+      ? { mode: misMode, N: fillN, m: null, M: sw ? sw.pairs * 2 : 0, F: null, M_max: null, swaps: sw ? sw.pairs : 0 }
+      : { mode: misMode, N: der.N, m: der.m, M: der.M, F: der.F, M_max: der.M_max },
     // 聚集度（用户 2026-09-19：「同色大块集中」）—— clusteringBefore = 限色后未做聚集处理
     clusteringParams: { sample, smooth: smoothRounds, minblock: minBlock, colors: colorsMax },
     colorLimit: {
@@ -1420,7 +1462,7 @@ console.log(`棋盘 ${cols}×${rows}=${cols * rows}  可填 ${fillN}  void ${bgR
 console.log(`直方图(平衡后 1..8)= ${JSON.stringify(h1.slice(1))}  cap(≤半数)= ${Math.floor(fillN / 2)}`);
 console.log(`配色平衡改判 ${changed.length} 格${note ? '（' + note + '）' : ''}`);
 console.log(`错位构造：${sw ? `**交换法 k=${sw.pairs}**（游戏口径，可玩）` : `全盘错位（spike 口径，仅验证破碎度；**不可直接做关卡**）`}`);
-console.log(`错位打乱：${der.ok ? (sw ? `交换 ${sw.pairs} 对，全部异色 ⇒ 无固定点 ✓` : `全错位 OK（maxFreq=${der.maxFreq} ≤ ${Math.floor(fillN / 2)}，0 固定点）`) : '不可全错位 → ' + der.reason}`);
+console.log(`错位打乱：${der.ok ? (sw ? `交换 ${sw.pairs} 对，全部异色 ⇒ 无固定点 ✓` : misMode === 'max' ? `最大化错位 OK（N=${der.N} m=${der.maxFreq} ⇒ 错位 M=${der.M}、强制就位 F=${der.F}；全错可行需 m ≤ ${Math.floor(fillN / 2)}）` : `全错位 OK（maxFreq=${der.maxFreq} ≤ ${Math.floor(fillN / 2)}，0 固定点）`) : `不可全错位 → ${der.reason}`}`);
 const c0 = stats0, c1 = stats1, cm = der.misplaced ? clusterStats(der.misplaced) : null; // mis=none 无错位盘
 console.log(
   colorsMax > 0
@@ -1486,18 +1528,35 @@ if (sw) {
     }
   }
 } else if (misMode !== 'none') {
-  // mis=none 无错位盘，全错位断言不适用
+  // mis=none 无错位盘，全错位断言不适用。
+  // `full` 期望 0 固定点（旧断言原文）；`max` 期望**恰为** `F = max(0, 2m−N)` ——
+  // 多于 F = 构造没取到极值，少于 F = 公式/计数错（两种都是 bug，不是“退让”）。
+  let fixed = 0;
   for (let i = 0; i < solved.length; i++) {
-    if (solved[i] > 0 && der.misplaced[i] === solved[i]) {
-      console.error('自检失败：错位后存在就位珠', i);
-      process.exit(1);
-    }
+    if (solved[i] > 0 && der.misplaced[i] === solved[i]) fixed++;
+  }
+  const expectFixed = misMode === 'max' ? der.F : 0;
+  if (fixed !== expectFixed) {
+    console.error(`自检失败：就位珠 ${fixed} 颗 ≠ ${misMode} 档理论值 ${expectFixed} 颗（N=${der.N}、m=${der.maxFreq}、M_max=${der.M_max}）`);
+    process.exit(1);
+  }
+  // 正本 §2.3-3：合法关面（色数 ≥3）恒 `M_max ≥ 1`；BOOT 也硬要求「错位 ≥1」。
+  // ⇒ `max` 档算出 M=0 只能说明盘本身退化（与上面两条互斥、理论上不可达），不允出盘。
+  if (misMode === 'max' && !(der.M >= 1)) {
+    console.error(`自检失败：max 档 M=${der.M} < 1 ⇒ 该盘无任何错位（游端 BOOT「错位 ≥1」必拒）`);
+    process.exit(1);
   }
 }
 if (misMode !== 'none' && Math.max(...h1.slice(1)) > Math.floor(fillN / 2)) {
   // mis=none 不做平衡钳制，主导色超半数是实物图纸的预期形态（如树冠大块绿）
-  console.error('自检失败：平衡后仍有颜色 > 半数');
-  process.exit(1);
+  // mis=max 同上，且**故意为之**：跳过 balance 才能保形，代价就是 `F = max(0, 2m−N)` 颗
+  // 强制就位（不是缺陷）⇒ 本档降为 note，不再 exit 1（正本 §2.3-2 / T2 乙）。
+  if (misMode === 'max') {
+    console.log(`note：max 档不做配色平衡 ⇒ 主导色 ${Math.max(...h1.slice(1))} > 半数 ${Math.floor(fillN / 2)}（因此 ${der.F} 颗强制就位，非缺陷）`);
+  } else {
+    console.error('自检失败：平衡后仍有颜色 > 半数');
+    process.exit(1);
+  }
 }
 console.log('自检：通过');
 
