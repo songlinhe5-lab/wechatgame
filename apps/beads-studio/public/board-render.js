@@ -8,12 +8,12 @@
  *   `games/beads/src/view/palette.ts`
  *     BEAD_PALETTE 10 色真源（L11-22）· BEAD_SHADOW_HEX/α（L155-156）
  *     CONTACT α 0.12（L162）· SOFT_HIGHLIGHT_ALPHAS [.08,.16,.3]（L170）
- *     BEVEL DARK −0.26 / LIGHT +0.2（L173-174）· RIM .38（L176）
+ *     BEVEL DARK −0.26 / LIGHT +0.28（「06 金属包边」）· RIM .5
  *     SOCKET_EDGE_DARK_MIX .3 / PIT_DARKEN .14（L230-232）· mix 语义（L90：−1黑/+1白线性）
  *     面板：background #ECEAF3 · slot #F7F6FB · slotBorder #D8D5E6 · locked #B9B4CC
  *   `games/beads/src/view/bead-render.ts`
  *     BEAD_CARD（radius .22 · shadowDy 3/64 · bevel 暗 5/64@2/64 亮 4/64@1.5/64
- *     · rim 2/64@1/64 · softHighlight 三层 [x.06,y.52,w.82,h.38,r.19]/[.1,.6,.72,.26,.13]
+ *     · rim 3/64@1/64 · softHighlight 三层 [x.06,y.52,w.82,h.38,r.19]/[.1,.6,.72,.26,.13]
  *     /[.16,.68,.56,.14,.07]，y 自**底边**起算）· drawEmptySocket（pitInset .06、
  *     edgeWidth 3/64 min2，S3/S4 内缘光线未移植）· drawLockedBead（fill locked +
  *     背景色 α.9 十字、inset .16、线宽 2）
@@ -38,8 +38,8 @@
     var RADIUS = 0.22, CELL_OF_PITCH = 50 / 52;
     var SHADOW_DY = 3 / 64, SHADOW_A = 0.15, CONTACT_A = 0.12;
     var BEVEL_DARK_W = 5 / 64, BEVEL_DARK_IN = 2 / 64, BEVEL_DARK_MIX = -0.26;
-    var BEVEL_LIGHT_W = 4 / 64, BEVEL_LIGHT_IN = 1.5 / 64, BEVEL_LIGHT_MIX = 0.2;
-    var RIM_W = 2 / 64, RIM_IN = 1 / 64, RIM_MIX = 0.38;
+    var BEVEL_LIGHT_W = 4 / 64, BEVEL_LIGHT_IN = 1.5 / 64, BEVEL_LIGHT_MIX = 0.28;
+    var RIM_W = 3 / 64, RIM_IN = 1 / 64, RIM_MIX = 0.5;
     var SOFT = [
         { x: 0.06, y: 0.52, w: 0.82, h: 0.38, r: 0.19, a: 0.08 },
         { x: 0.10, y: 0.60, w: 0.72, h: 0.26, r: 0.13, a: 0.16 },

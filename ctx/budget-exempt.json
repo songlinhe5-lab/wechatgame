@@ -136,6 +136,12 @@
       "taskId": "WXG-T-130"
     },
     {
+      "path": "games/beads/design/proposals/bead-visual-style-spec.md",
+      "reason": "beads 珠体视觉风格提案正本（17 套样式评级 + §1.9.7 材质主题落码记录），逐轮落码追加；美术/工程按节局部读",
+      "note": "2026-09-23 落「06 珐琅·金属包边」为盘面默认时 +落码记录段致 8124 tok（>8000 上限）。同族先例 art-bible/assets-spec（WXG-T-131）均豁免。债务显式化：backlog 可评估把附录 A（17 套样式卡）拆独立分册后撤销豁免",
+      "taskId": "WXG-T-131"
+    },
+    {
       "path": "games/beads/art/art-bible.md",
       "reason": "beads 美术圣经正本（视觉基调/色板/绘制十层卡/LOD 分档），v1.3 起多轮迭代累积；美术/工程按节局部读",
       "note": "WXG-T-131（2026-09-16）首次入仓即 23687 tok（≈3× 上限）：历史 v1.0→v1.5 全量累积从未入仓（beads art 目录此前未纳管）。债务显式化：backlog 应立「art-bible 拆分」（如 vfx-spec/绘制卡分册），本轮豁免以让规格批量落盘先行",

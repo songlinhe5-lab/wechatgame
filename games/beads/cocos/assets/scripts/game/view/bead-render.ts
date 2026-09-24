@@ -80,9 +80,12 @@ export const BEAD_CARD = {
   bevelWidthDark: 5 / 64,
   /** L3 stroke width (v1.3: 4/64, was 2). */
   bevelWidthLight: 4 / 64,
-  /** L3b rim 光（v1.3 新增）：上内缘单线，内缩 1/64、线宽 2/64。 */
+  /**
+   * L3b rim 光（v1.3 新增）：上内缘单线，内缩 1/64。线宽 2/64 → **3/64**（「06 珐琅·金属包边」
+   * 加粗上缘高光边；2/64 在 50px 珠上被 `minStroke=2` 钳成 2 ⇒ 无变化，3/64→2.34px 才真变粗）。
+   */
   rimInset: 1 / 64,
-  rimWidth: 2 / 64,
+  rimWidth: 3 / 64,
   /**
    * L4a/b/c 软高光三层（v1.3 · F4，取代硬边单高光条）：外扩递减、中心递增叠层模拟柔光。
    * x/y/w/h/radius 均为边长比例，α 见 {@link BEAD_SOFT_HIGHLIGHT_ALPHAS}。

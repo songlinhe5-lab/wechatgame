@@ -48,8 +48,8 @@ L0b 投影    roundRect(x, y − 3/64, 1, 1, r)
            fill #1E2033, α 0.15
 L1 主体    roundRect(x, y, 1, 1, r)              fill base
 L2 暗倒角  下+右内缘（内缩 2/64）   lineWidth stroke(5/64), mix(base,#000,0.26)
-L3 亮倒角  上+左内缘（内缩 1.5/64） lineWidth stroke(4/64), mix(base,#FFF,0.20)
-L3b rim光  上内缘单线（内缩 1/64）  lineWidth stroke(2/64), mix(base,#FFF,0.38)
+L3 亮倒角  上+左内缘（内缩 1.5/64） lineWidth stroke(4/64), mix(base,#FFF,0.28)   // 「06 珐琅·金属包边」2026-09-23 +0.20→+0.28
+L3b rim光  上内缘单线（内缩 1/64）  lineWidth stroke(3/64), mix(base,#FFF,0.50)   // 「06 金属包边」rim 0.38→0.50、线宽 2/64→3/64
 L4a 软高光·广 roundRect(x+0.06, y+0.52, 0.82, 0.38, 0.19)  fill #FFF, α 0.08
 L4b 软高光·中 roundRect(x+0.10, y+0.60, 0.72, 0.26, 0.13)  fill #FFF, α 0.16
 L4c 软高光·核 roundRect(x+0.16, y+0.68, 0.56, 0.14, 0.07)  fill #FFF, α 0.30

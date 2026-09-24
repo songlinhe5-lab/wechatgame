@@ -240,11 +240,16 @@ export const BEAD_HIGHLIGHT_HEX = '#FFFFFF';
 export const BEAD_HIGHLIGHT_ALPHA = 0.38;
 /** L4a/b/c 软高光三层不透明度（外扩递减、中心递增；累计中心 ≈0.48 / 边缘 ≈0.08）。 */
 export const BEAD_SOFT_HIGHLIGHT_ALPHAS: readonly number[] = Object.freeze([0.08, 0.16, 0.3]);
-/** L2 / L3 倒角混色（v1.3 加深/加亮：暗 −0.26、亮 +0.20；原 −0.22 / +0.18）。 */
+/**
+ * L2 / L3 倒角混色。**「06 珐琅·金属包边」材质主题（bead-visual-style-spec 附录 A.4 #1，
+ * 2026-09-23 采纳为盘面默认）**：亮受光面 +0.20 → **+0.28**（更金属的提亮），暗倒角 −0.26
+ * 维持不动（保住「光从左上」的凹凸对比不被抹平）。属 §1.9.7 允许自由换的倒角系数面（零新 hex、
+ * base 不动）。
+ */
 export const BEAD_BEVEL_DARK_MIX = -0.26;
-export const BEAD_BEVEL_LIGHT_MIX = 0.2;
-/** L3b rim 光混色（v1.3 新增：上内缘单线 `mix(base,#FFF,0.38)`）。 */
-export const BEAD_RIM_MIX = 0.38;
+export const BEAD_BEVEL_LIGHT_MIX = 0.28;
+/** L3b rim 光混色（v1.3 新增上内缘单线；「06 金属包边」把 `mix(base,#FFF)` 0.38 → **0.50** 提亮金属包边）。 */
+export const BEAD_RIM_MIX = 0.5;
 
 // ───────────── container plate + glow band / background layers (§1.7/§1.8，F2/F3/F8) ──
 //

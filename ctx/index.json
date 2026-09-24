@@ -385,18 +385,18 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2956,
-      "lines": 114,
-      "sha256": "4f617a73bd8b5c8b73cdf65acee947f018f19f7d93534d08b3fdf203525e2766",
+      "tokens": 2994,
+      "lines": 115,
+      "sha256": "6e4e943986fba3896ec127b014126f43cd305bcde81a926d623ef83ff6f3451b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 115,
-          "tokens": 2943,
-          "summary": "生成：2026-09-23 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "endLine": 116,
+          "tokens": 2981,
+          "summary": "生成：2026-09-24 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -439,8 +439,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 89,
-          "tokens": 1441,
+          "endLine": 90,
+          "tokens": 1479,
           "summary": "production/qa/beads/g4-regression-report.md 86807 见 ctx/budg",
           "keywords": [
             "tokens",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 90,
-          "endLine": 115,
+          "startLine": 91,
+          "endLine": 116,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -8523,9 +8523,9 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 71010,
+      "tokens": 71044,
       "lines": 1449,
-      "sha256": "4dcb86f58df749cd599febf195a688d01baaf93e1933f2e062d31b12b8877fe0",
+      "sha256": "0442061f377c89bb24d8d711a7338660f4fac90ae2ada0b41ab79d1e7fe84771",
       "tier": "normal",
       "sections": [
         {
@@ -8533,7 +8533,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 1450,
-          "tokens": 70996,
+          "tokens": 71030,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -8560,7 +8560,7 @@
           "level": 2,
           "startLine": 33,
           "endLine": 1363,
-          "tokens": 56275,
+          "tokens": 56309,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -8572,7 +8572,7 @@
           "level": 3,
           "startLine": 35,
           "endLine": 89,
-          "tokens": 1328,
+          "tokens": 1362,
           "summary": "单颗珠 = 以下 10 层按序绘制。所有层均为圆角矩形/线/矢量，无贴图无模糊无真渐变；软高光/接触阴影一律靠叠层 + ",
           "keywords": [
             "珠子绘制参数",
@@ -21951,17 +21951,17 @@
     },
     {
       "path": "games/beads/design/proposals/bead-visual-style-spec.md",
-      "tokens": 7996,
-      "lines": 328,
-      "sha256": "9ecf151bdf76c495df3645d3090a7abaf58f633e70fcddc1fa738fcfab25f926",
+      "tokens": 8124,
+      "lines": 330,
+      "sha256": "6686747861233a2d96f0e8d6e59808695f35c7c16c30c2f98a9a9c00659c195c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§拼豆渲染视觉规格 · 提案 v0.1（决议 v0.2）",
           "level": 1,
           "startLine": 1,
-          "endLine": 329,
-          "tokens": 7977,
+          "endLine": 331,
+          "tokens": 8106,
           "summary": "状态 = 已确认・待落码（用户 2026-09-23：Q1–Q7 全按推荐、Q8 = (c)）。决议表见 §9，17 套",
           "keywords": [
             "§9",
@@ -22129,8 +22129,8 @@
           "anchor": "§附录 A · 材质风格参考图（17 套候选 + 可程序化评级）",
           "level": 2,
           "startLine": 160,
-          "endLine": 235,
-          "tokens": 1906,
+          "endLine": 237,
+          "tokens": 2035,
           "summary": "全部沿用同一版式（A 单豆三视 / B 3×3 成块 / C 缺三颗的凹坑 / D 八色横排），",
           "keywords": [
             "附录",
@@ -22180,8 +22180,8 @@
           "anchor": "§A.4 建议的落地顺序",
           "level": 3,
           "startLine": 218,
-          "endLine": 223,
-          "tokens": 109,
+          "endLine": 225,
+          "tokens": 238,
           "summary": "先做 01（基准） ⇒ 首批两个材质主题用 02 / 06（只改系数，不碰图元预算，守得住 §1.9.7）",
           "keywords": [
             "§1.9.7",
@@ -22191,8 +22191,8 @@
         {
           "anchor": "§A.5 参考图与规格的两处故意不一致",
           "level": 3,
-          "startLine": 224,
-          "endLine": 235,
+          "startLine": 226,
+          "endLine": 237,
           "tokens": 193,
           "summary": "1. 图里的珠子仍偏圆，而本规格 K1 定为圆角方（实物熔合后确实是圆角方；参考图未能完全摆脱“圆豆”刻板印象）⇒ 以 ",
           "keywords": [
@@ -22204,8 +22204,8 @@
         {
           "anchor": "§10 落码与文档对齐的动作序列（已确认・待执行）",
           "level": 2,
-          "startLine": 236,
-          "endLine": 250,
+          "startLine": 238,
+          "endLine": 252,
           "tokens": 379,
           "summary": "1. 本文件按确认结果定稿 → 参数进 tuning.ts（表现层，不进 §3 冻结常量）+ bead-render.t",
           "keywords": [
@@ -22220,8 +22220,8 @@
         {
           "anchor": "§11 实施记录（v0.3，2026-09-23）",
           "level": 2,
-          "startLine": 251,
-          "endLine": 329,
+          "startLine": 253,
+          "endLine": 331,
           "tokens": 1961,
           "summary": "",
           "keywords": [
@@ -22231,8 +22231,8 @@
         {
           "anchor": "§11.1 已落码（§10 第 1 步）",
           "level": 3,
-          "startLine": 253,
-          "endLine": 264,
+          "startLine": 255,
+          "endLine": 266,
           "tokens": 343,
           "summary": "K1 圆角 BEAD_CARD.radius 0.22 → 0.30；删除「珠圆角 = 垫圆角 − inset」特例（它",
           "keywords": [
@@ -22246,8 +22246,8 @@
         {
           "anchor": "§11.2 图元基线：差分复算结果（§10 第 2 步）",
           "level": 3,
-          "startLine": 265,
-          "endLine": 280,
+          "startLine": 267,
+          "endLine": 282,
           "tokens": 220,
           "summary": "同一夹具（13×12，78 填 / 78 空 / 156 可填），git stash 切回 HEAD 量旧值后对比：",
           "keywords": [
@@ -22262,8 +22262,8 @@
         {
           "anchor": "§11.3 判据改写（不为了变绿而改）",
           "level": 3,
-          "startLine": 281,
-          "endLine": 296,
+          "startLine": 283,
+          "endLine": 298,
           "tokens": 397,
           "summary": "原 13 条旧层模型判据已按新模型重写为同强度或更强，未简单删除：",
           "keywords": [
@@ -22274,8 +22274,8 @@
         {
           "anchor": "§11.4 仍未做（下次开口时先读这里）",
           "level": 3,
-          "startLine": 297,
-          "endLine": 304,
+          "startLine": 299,
+          "endLine": 306,
           "tokens": 175,
           "summary": "1. K7 微抖动未做 ⇒ 颗间完全规则（待真机定 amplitude）",
           "keywords": [
@@ -22288,8 +22288,8 @@
         {
           "anchor": "§11.5 §5 抬起三通道（v1.5-r9，2026-09-23）",
           "level": 3,
-          "startLine": 305,
-          "endLine": 329,
+          "startLine": 307,
+          "endLine": 331,
           "tokens": 748,
           "summary": "单一高度参量 liftT = clamp(lift) / liftRef（liftRef = 6 = 选中/锚组抬起量；",
           "keywords": [
@@ -39464,7 +39464,7 @@
       "path": "memory/INDEX.md",
       "tokens": 8490,
       "lines": 211,
-      "sha256": "c19c93281bf2ab7f47fd90a032257e0f136a58230340775dae01b4708deead81",
+      "sha256": "4411812fc3ba6660222772001caf64309d807cfbd6ee6600eedaa4a18fadf2d1",
       "tier": "normal",
       "sections": [
         {
@@ -39555,7 +39555,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 29 天）",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 28 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -39571,7 +39571,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 24 天）",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 23 天）",
           "level": 3,
           "startLine": 79,
           "endLine": 95,
@@ -39587,7 +39587,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 23 天）",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 22 天）",
           "level": 3,
           "startLine": 96,
           "endLine": 107,
@@ -39603,7 +39603,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 22 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 21 天）",
           "level": 3,
           "startLine": 108,
           "endLine": 124,
@@ -39619,7 +39619,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 21 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 20 天）",
           "level": 3,
           "startLine": 125,
           "endLine": 152,
@@ -39635,7 +39635,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 20 天）",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 19 天）",
           "level": 3,
           "startLine": 153,
           "endLine": 173,
@@ -39651,7 +39651,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 19 天）",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 18 天）",
           "level": 3,
           "startLine": 174,
           "endLine": 191,
@@ -39667,7 +39667,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 18 天）",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 17 天）",
           "level": 3,
           "startLine": 192,
           "endLine": 212,
