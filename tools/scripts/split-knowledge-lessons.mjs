@@ -54,6 +54,7 @@ export const TAG_TO_SHARD = new Map([
     ['测试', 'testing'],
     ['跨IDE', 'cross-ide'],
     ['环境', 'environment'],
+    ['接入', 'onboarding'],
 ]);
 
 /** 条目块（含标题行）的逐字节文本。 */

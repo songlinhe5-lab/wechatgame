@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 70,
+  "nextId": 75,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1179,6 +1179,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-073",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "外部 skill 批次接入：上游正文零改写 + 本地差异集中登记到 INDEX 批次节",
+      "contentHash": "ddbfe029ff93b7eb7fbcaf25f29543b906f870e4684e19c57e838945c47ca12c",
+      "sourceTask": "WXG-T-208",
+      "addedDate": "2026-09-24",
+      "lastAccess": "2026-09-24",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-074",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "接外部能力前先机械验源：「仓库存在」≠「有可转换的 SKILL.md」",
+      "contentHash": "2ba8f2edaa5cb8da659fa1e46fae88e2e45c04e4792aa9da2c0cba068cbccd3c",
+      "sourceTask": "WXG-T-208",
+      "addedDate": "2026-09-24",
+      "lastAccess": "2026-09-24",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1662,6 +1696,26 @@
       "ids": [
         "K-068",
         "K-069"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-24",
+      "taskId": "WXG-T-208",
+      "kind": "added",
+      "ids": [
+        "K-073",
+        "K-074"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-24",
+      "taskId": "WXG-T-208",
+      "kind": "updated",
+      "ids": [
+        "K-073",
+        "K-074"
       ],
       "note": null
     }

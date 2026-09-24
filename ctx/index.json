@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3159,
       "lines": 119,
-      "sha256": "ad1dada0918de145757e6da244df0d359d15108d1726e9b630aa2a2c93a032a2",
+      "sha256": "c729fbd0f68990dbedab2be7d73e71cd377e6bc3eb3f6c12783ea7b93369a079",
       "tier": "normal",
       "sections": [
         {
@@ -473,7 +473,7 @@
       "path": "ctx/ROUTES.md",
       "tokens": 6897,
       "lines": 227,
-      "sha256": "aa003b2afd5d5f5d534dc50d8ab6e80be19a26496b9e058bf6ff7c848398b9ff",
+      "sha256": "924490ab0a1aaf4ff7182df2df976e38d234156a6f8a3d5ab946f778ed761390",
       "tier": "normal",
       "sections": [
         {
@@ -632,7 +632,7 @@
           "startLine": 200,
           "endLine": 219,
           "tokens": 559,
-          "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 33 个挂四 IDE 链接；存档 ",
+          "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 38 个挂四 IDE 链接；存档 ",
           "keywords": [
             "§1",
             "Skill",
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 4670,
+      "tokens": 4680,
       "lines": 82,
-      "sha256": "83bd00a92e94846555651607717ce216262a8208bb16db26467e1fe6ac9efeb7",
+      "sha256": "68dbd8062e62ed177523e26d275578a7850849f284133bbec2f22d35cf92f03b",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 4642,
+          "tokens": 4652,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 67 行 / 7473 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 69 行 / 7920 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+68 · §待排（backlog，无号，立项时领取）=41+28",
+          "summary": "§WXG 任务台账（SSOT）=1+70 · §待排（backlog，无号，立项时领取）=43+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -780,12 +780,12 @@
           ]
         },
         {
-          "anchor": "§`my-skills/INDEX.md` — 110 行 / 2603 tok / 实测读 61 次",
+          "anchor": "§`my-skills/INDEX.md` — 138 行 / 3479 tok / 实测读 61 次",
           "level": 2,
           "startLine": 34,
           "endLine": 37,
-          "tokens": 123,
-          "summary": "§wxgame skill 家族 INDEX=1+111 · §1 清单（现役 33 个挂四 IDE 链接；存档 1 个",
+          "tokens": 128,
+          "summary": "§wxgame skill 家族 INDEX=1+139 · §1 清单（现役 38 个挂四 IDE 链接；存档 1 个",
           "keywords": [
             "my-skills/INDEX.md",
             "§1",
@@ -923,12 +923,12 @@
           ]
         },
         {
-          "anchor": "§`knowledge/INDEX.md` — 176 行 / 5782 tok",
+          "anchor": "§`knowledge/INDEX.md` — 179 行 / 5989 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
           "tokens": 151,
-          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+177 · §1 读取协议（开发前期）=7+10 ·",
+          "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+180 · §1 读取协议（开发前期）=7+10 ·",
           "keywords": [
             "knowledge/INDEX.md",
             "§1",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 817 行 / 45822 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 831 行 / 47271 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 384,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+818 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "tokens": 390,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+832 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -38890,17 +38890,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 3241,
-      "lines": 146,
-      "sha256": "0a2790290fd3bbc53f7ceda29e5056d22d9f8c8e4b51683dbbc099a4f08e6139",
+      "tokens": 3396,
+      "lines": 153,
+      "sha256": "3860098416ef1e5074405ed819039502f26e0d6370ec56f12f017f7a0bd58bf1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 147,
-          "tokens": 3227,
+          "endLine": 154,
+          "tokens": 3382,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -38912,10 +38912,33 @@
           ]
         },
         {
-          "anchor": "§2026-09-22",
+          "anchor": "§2026-09-24",
           "level": 2,
           "startLine": 9,
-          "endLine": 20,
+          "endLine": 15,
+          "tokens": 152,
+          "summary": "",
+          "keywords": []
+        },
+        {
+          "anchor": "§WXG-T-208",
+          "level": 3,
+          "startLine": 11,
+          "endLine": 15,
+          "tokens": 148,
+          "summary": "新增（added）：K-073「外部 skill 批次接入：上游正文零改写 + 本地差异集中登记到 INDEX 批次节」",
+          "keywords": [
+            "WXG",
+            "added",
+            "skill",
+            "INDEX"
+          ]
+        },
+        {
+          "anchor": "§2026-09-22",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 27,
           "tokens": 190,
           "summary": "",
           "keywords": []
@@ -38923,8 +38946,8 @@
         {
           "anchor": "§WXG-T-186",
           "level": 3,
-          "startLine": 11,
-          "endLine": 15,
+          "startLine": 18,
+          "endLine": 22,
           "tokens": 90,
           "summary": "新增（added）：K-067「「就近」排序的度量必须与集合的连通定义同度量，且多消费口共用一份序」",
           "keywords": [
@@ -38935,8 +38958,8 @@
         {
           "anchor": "§WXG-T-203",
           "level": 3,
-          "startLine": 16,
-          "endLine": 20,
+          "startLine": 23,
+          "endLine": 27,
           "tokens": 94,
           "summary": "新增（added）：K-068「关卡生成链四段连锁模式」、K-069「部分错位「整区域就位 + 子集置换」构造模式」",
           "keywords": [
@@ -38947,8 +38970,8 @@
         {
           "anchor": "§2026-09-20",
           "level": 2,
-          "startLine": 21,
-          "endLine": 37,
+          "startLine": 28,
+          "endLine": 44,
           "tokens": 550,
           "summary": "",
           "keywords": []
@@ -38956,8 +38979,8 @@
         {
           "anchor": "§WXG-T-179",
           "level": 3,
-          "startLine": 23,
-          "endLine": 33,
+          "startLine": 30,
+          "endLine": 40,
           "tokens": 498,
           "summary": "修改（updated）：K-045「同一台账文件被并发会话同时写时，git add <整文件> 会把别人的 WIP 捎进",
           "keywords": [
@@ -38971,8 +38994,8 @@
         {
           "anchor": "§WXG-T-183",
           "level": 3,
-          "startLine": 34,
-          "endLine": 37,
+          "startLine": 41,
+          "endLine": 44,
           "tokens": 45,
           "summary": "新增（added）：K-063「会「静默转移」的锚不能当距离排序基准：消费序基准与展示坐标必须分离」",
           "keywords": [
@@ -38983,8 +39006,8 @@
         {
           "anchor": "§2026-09-19",
           "level": 2,
-          "startLine": 38,
-          "endLine": 69,
+          "startLine": 45,
+          "endLine": 76,
           "tokens": 526,
           "summary": "",
           "keywords": []
@@ -38992,8 +39015,8 @@
         {
           "anchor": "§WXG-T-128",
           "level": 3,
-          "startLine": 40,
-          "endLine": 45,
+          "startLine": 47,
+          "endLine": 52,
           "tokens": 220,
           "summary": "新增（added）：K-060「变异自检里断言「方向」选错会留下伪绿：被测标量在变异下「冻结在旧非零值」而非归零时，存在",
           "keywords": [
@@ -39004,8 +39027,8 @@
         {
           "anchor": "§WXG-T-164",
           "level": 3,
-          "startLine": 46,
-          "endLine": 49,
+          "startLine": 53,
+          "endLine": 56,
           "tokens": 50,
           "summary": "修改（updated）：K-053「冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定」",
           "keywords": [
@@ -39016,8 +39039,8 @@
         {
           "anchor": "§WXG-T-166",
           "level": 3,
-          "startLine": 50,
-          "endLine": 53,
+          "startLine": 57,
+          "endLine": 60,
           "tokens": 49,
           "summary": "新增（added）：K-057「「立项单」与「ADR 状态行」都不会被实施它们的另一张单自动收口，核销时要成对扫」",
           "keywords": [
@@ -39029,8 +39052,8 @@
         {
           "anchor": "§WXG-T-167",
           "level": 3,
-          "startLine": 54,
-          "endLine": 57,
+          "startLine": 61,
+          "endLine": 64,
           "tokens": 39,
           "summary": "新增（added）：K-059「用「甲/乙/丙」转述既有候选清单时必须带正文锚——字母会换义」",
           "keywords": [
@@ -39041,8 +39064,8 @@
         {
           "anchor": "§WXG-T-169",
           "level": 3,
-          "startLine": 58,
-          "endLine": 61,
+          "startLine": 65,
+          "endLine": 68,
           "tokens": 44,
           "summary": "修改（updated）：K-042「几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫」",
           "keywords": [
@@ -39053,8 +39076,8 @@
         {
           "anchor": "§WXG-T-176",
           "level": 3,
-          "startLine": 62,
-          "endLine": 65,
+          "startLine": 69,
+          "endLine": 72,
           "tokens": 53,
           "summary": "新增（added）：K-058「「已写进 .gitignore」不等于「已排除出索引产物」——枚举型走盘生成器只认自己的",
           "keywords": [
@@ -39066,8 +39089,8 @@
         {
           "anchor": "§WXG-T-178",
           "level": 3,
-          "startLine": 66,
-          "endLine": 69,
+          "startLine": 73,
+          "endLine": 76,
           "tokens": 47,
           "summary": "新增（added）：K-062「事件驱动宿主的输入位移必须进单测：prev 在帧首结算会把帧间到达的位移吞成 0」",
           "keywords": [
@@ -39079,8 +39102,8 @@
         {
           "anchor": "§2026-09-18",
           "level": 2,
-          "startLine": 70,
-          "endLine": 80,
+          "startLine": 77,
+          "endLine": 87,
           "tokens": 254,
           "summary": "",
           "keywords": []
@@ -39088,8 +39111,8 @@
         {
           "anchor": "§WXG-T-165",
           "level": 3,
-          "startLine": 72,
-          "endLine": 75,
+          "startLine": 79,
+          "endLine": 82,
           "tokens": 92,
           "summary": "新增（added）：K-053「冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定」、K-05",
           "keywords": [
@@ -39100,8 +39123,8 @@
         {
           "anchor": "§WXG-T-168",
           "level": 3,
-          "startLine": 76,
-          "endLine": 80,
+          "startLine": 83,
+          "endLine": 87,
           "tokens": 154,
           "summary": "新增（added）：K-055「「连通块」API 的返回序是行主序、不是距锚序：「就近/最近」语义取前 N 前必须显式重",
           "keywords": [
@@ -39113,8 +39136,8 @@
         {
           "anchor": "§2026-09-17",
           "level": 2,
-          "startLine": 81,
-          "endLine": 87,
+          "startLine": 88,
+          "endLine": 94,
           "tokens": 155,
           "summary": "",
           "keywords": []
@@ -39122,8 +39145,8 @@
         {
           "anchor": "§（无任务号）",
           "level": 3,
-          "startLine": 83,
-          "endLine": 87,
+          "startLine": 90,
+          "endLine": 94,
           "tokens": 147,
           "summary": "新增（added）：K-051「规格里的「图元/包体增量」数值是立项时点的推论，落码后必须差分复算、不得沿用」、K-05",
           "keywords": [
@@ -39134,8 +39157,8 @@
         {
           "anchor": "§2026-09-16",
           "level": 2,
-          "startLine": 88,
-          "endLine": 99,
+          "startLine": 95,
+          "endLine": 106,
           "tokens": 231,
           "summary": "",
           "keywords": []
@@ -39143,8 +39166,8 @@
         {
           "anchor": "§WXG-T-119",
           "level": 3,
-          "startLine": 90,
-          "endLine": 95,
+          "startLine": 97,
+          "endLine": 102,
           "tokens": 177,
           "summary": "新增（added）：K-050「缺陷号（BD-NN）与任务号同规：领号须读工作树全文，且「已登记 BD-xx」的声明必须",
           "keywords": [
@@ -39155,8 +39178,8 @@
         {
           "anchor": "§WXG-T-121",
           "level": 3,
-          "startLine": 96,
-          "endLine": 99,
+          "startLine": 103,
+          "endLine": 106,
           "tokens": 47,
           "summary": "新增（added）：K-049「自测夹具必须由被测生成器播种、依赖按整目录拷贝，否则门禁一扩就整片假红」",
           "keywords": [
@@ -39167,8 +39190,8 @@
         {
           "anchor": "§2026-09-15",
           "level": 2,
-          "startLine": 100,
-          "endLine": 128,
+          "startLine": 107,
+          "endLine": 135,
           "tokens": 894,
           "summary": "",
           "keywords": []
@@ -39176,8 +39199,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 102,
-          "endLine": 112,
+          "startLine": 109,
+          "endLine": 119,
           "tokens": 426,
           "summary": "新增（added）：K-035「文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床」",
           "keywords": [
@@ -39188,8 +39211,8 @@
         {
           "anchor": "§WXG-T-097",
           "level": 3,
-          "startLine": 113,
-          "endLine": 119,
+          "startLine": 120,
+          "endLine": 126,
           "tokens": 280,
           "summary": "新增（added）：K-043「取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FA",
           "keywords": [
@@ -39201,8 +39224,8 @@
         {
           "anchor": "§WXG-T-111",
           "level": 3,
-          "startLine": 120,
-          "endLine": 124,
+          "startLine": 127,
+          "endLine": 131,
           "tokens": 130,
           "summary": "新增（added）：K-046「领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号」、K-047「幂等判据必锁",
           "keywords": [
@@ -39213,8 +39236,8 @@
         {
           "anchor": "§WXG-T-112",
           "level": 3,
-          "startLine": 125,
-          "endLine": 128,
+          "startLine": 132,
+          "endLine": 135,
           "tokens": 41,
           "summary": "新增（added）：K-048「装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛」",
           "keywords": [
@@ -39226,8 +39249,8 @@
         {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 129,
-          "endLine": 141,
+          "startLine": 136,
+          "endLine": 148,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -39235,8 +39258,8 @@
         {
           "anchor": "§（无任务号） (3)",
           "level": 3,
-          "startLine": 131,
-          "endLine": 137,
+          "startLine": 138,
+          "endLine": 144,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -39251,8 +39274,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 138,
-          "endLine": 141,
+          "startLine": 145,
+          "endLine": 148,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -39263,8 +39286,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 142,
-          "endLine": 147,
+          "startLine": 149,
+          "endLine": 154,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -39272,8 +39295,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 144,
-          "endLine": 147,
+          "startLine": 151,
+          "endLine": 154,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -39285,17 +39308,17 @@
     },
     {
       "path": "knowledge/INDEX.md",
-      "tokens": 5782,
-      "lines": 176,
-      "sha256": "5cc19dd4d141016f5717fb9f4c009a0d9f00cafe845474b1750bd44b3e1207ea",
+      "tokens": 5989,
+      "lines": 179,
+      "sha256": "fe7b27ad5cbe2fa4b2db54cb14b221bd296c24e158a3ce9d1e6dc24173af3dc6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/ — 工作室知识库（WXG-T-023）",
           "level": 1,
           "startLine": 1,
-          "endLine": 177,
-          "tokens": 5767,
+          "endLine": 180,
+          "tokens": 5974,
           "summary": "本目录是跨任务、跨会话、跨 IDE 的长期知识沉淀层：教训、模式、平台坑。",
           "keywords": [
             "knowledge",
@@ -39321,8 +39344,8 @@
           "anchor": "§2 写入协议（任务收尾）",
           "level": 2,
           "startLine": 17,
-          "endLine": 40,
-          "tokens": 577,
+          "endLine": 41,
+          "tokens": 605,
           "summary": "每个 WXG 任务收尾时，执行者随交付回传 0–3 条沉淀候选（没有可传「无」）；主理人汇编去重后入账。",
           "keywords": [
             "WXG",
@@ -39333,9 +39356,9 @@
         {
           "anchor": "§3 文件分工",
           "level": 2,
-          "startLine": 41,
-          "endLine": 50,
-          "tokens": 274,
+          "startLine": 42,
+          "endLine": 51,
+          "tokens": 358,
           "summary": "lessons.md 指针页（不再放条目正文）：标签 → 分片文件表 + 引用口径",
           "keywords": [
             "lessons",
@@ -39345,8 +39368,8 @@
         {
           "anchor": "§4 维护",
           "level": 2,
-          "startLine": 51,
-          "endLine": 60,
+          "startLine": 52,
+          "endLine": 61,
           "tokens": 257,
           "summary": "主理人负责汇编与去重；条目不删改只追加，废弃条目标 [已过时：原因]。",
           "keywords": [
@@ -39356,8 +39379,8 @@
         {
           "anchor": "§5 生命周期（访问记账 → 归档 → 重新激活）",
           "level": 2,
-          "startLine": 61,
-          "endLine": 101,
+          "startLine": 62,
+          "endLine": 102,
           "tokens": 979,
           "summary": "",
           "keywords": [
@@ -39370,8 +39393,8 @@
         {
           "anchor": "§5.1 命令表",
           "level": 3,
-          "startLine": 63,
-          "endLine": 74,
+          "startLine": 64,
+          "endLine": 75,
           "tokens": 348,
           "summary": "pnpm run kb:sync 解析两个 md → 分配新条目 ID → 刷新 ledger.json 与下方活跃表（",
           "keywords": [
@@ -39386,8 +39409,8 @@
         {
           "anchor": "§5.2 归档阈值（用户 2026-09-12 裁定，存于 `ledger.json.thresholds`）",
           "level": 3,
-          "startLine": 75,
-          "endLine": 83,
+          "startLine": 76,
+          "endLine": 84,
           "tokens": 183,
           "summary": "闲置 90 天 且访问次数 ≤ 1 → 列入归档候选；必须人工确认后才移动。",
           "keywords": [
@@ -39402,8 +39425,8 @@
         {
           "anchor": "§5.3 重新激活与合并",
           "level": 3,
-          "startLine": 84,
-          "endLine": 90,
+          "startLine": 85,
+          "endLine": 91,
           "tokens": 138,
           "summary": "1. 新增条目后跑 pnpm run kb:audit，若命中归档条目（相似度 ≥ 0.34）：",
           "keywords": [
@@ -39416,8 +39439,8 @@
         {
           "anchor": "§5.4 `accessSources` 截断（R4，WXG-T-038）",
           "level": 3,
-          "startLine": 91,
-          "endLine": 101,
+          "startLine": 92,
+          "endLine": 102,
           "tokens": 257,
           "summary": "条目来源标签 accessSources 只保留最近 N=12 个（保留尾部最新、弃头部最旧）；截断在",
           "keywords": [
@@ -39429,9 +39452,9 @@
         {
           "anchor": "§6 活跃条目（自动生成）",
           "level": 2,
-          "startLine": 102,
-          "endLine": 177,
-          "tokens": 3135,
+          "startLine": 103,
+          "endLine": 180,
+          "tokens": 3231,
           "summary": "<!-- kb:active:start（由 pnpm run kb:sync 生成，勿手改）-->",
           "keywords": [
             "active",
@@ -39446,17 +39469,17 @@
     },
     {
       "path": "knowledge/lessons.md",
-      "tokens": 350,
-      "lines": 20,
-      "sha256": "264d7db6b161ed00b771a2c67447aa64c1e7f120c04379aad0469ce395b08a04",
+      "tokens": 363,
+      "lines": 21,
+      "sha256": "026b76c98b77fc2612cd3ceed3eccdc8d1a62fcd408f567f4a9bd5b6fbbea1d7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · 沉淀正本（已按标签分片）",
           "level": 1,
           "startLine": 1,
-          "endLine": 21,
-          "tokens": 335,
+          "endLine": 22,
+          "tokens": 347,
           "summary": "本文件不再存放条目正文（WXG-T-111）。原单体已逐字节拆入 knowledge/lessons/；",
           "keywords": [
             "lessons",
@@ -39581,6 +39604,44 @@
             "grep",
             "exit",
             "环境"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "knowledge/lessons/onboarding.md",
+      "tokens": 1464,
+      "lines": 20,
+      "sha256": "1d6ef43666c58f296bfd14f02196fd0a245e347d1bd571b9a31f9309fa904d0b",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§lessons · `onboarding` 分片（标签 `接入`）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 21,
+          "tokens": 1449,
+          "summary": "新建一片的缘由：WXG-T-208 接外部 skill 批次时 process.md 越 ctx B 门（8919 to",
+          "keywords": [
+            "onboarding",
+            "接入",
+            "lessons",
+            "WXG",
+            "skill",
+            "process"
+          ]
+        },
+        {
+          "anchor": "§接入",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 21,
+          "tokens": 1297,
+          "summary": "[接入][K-073] 外部 skill 批次接入：上游正文零改写 + 本地差异集中登记到 INDEX 批次节（来源 W",
+          "keywords": [
+            "skill",
+            "INDEX",
+            "接入"
           ]
         }
       ]
@@ -44478,17 +44539,17 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 2603,
-      "lines": 110,
-      "sha256": "fb39a66864c60dd2d3ad0eb8e1c3533440366ae41e833c7f3f6f36193408d08d",
+      "tokens": 3479,
+      "lines": 138,
+      "sha256": "1ddff98ee3971defb375caa96d4a312649cb2a943de71db2a94a4bb7b0dbe30b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame skill 家族 INDEX",
           "level": 1,
           "startLine": 1,
-          "endLine": 111,
-          "tokens": 2595,
+          "endLine": 139,
+          "tokens": 3471,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -44499,7 +44560,7 @@
           ]
         },
         {
-          "anchor": "§1 清单（现役 33 个挂四 IDE 链接；存档 1 个仅本目录留档）",
+          "anchor": "§1 清单（现役 38 个挂四 IDE 链接；存档 1 个仅本目录留档）",
           "level": 2,
           "startLine": 6,
           "endLine": 34,
@@ -44515,11 +44576,11 @@
           ]
         },
         {
-          "anchor": "§1b. 外来通用·AI 编程工作流（16 个，2026-09-16 装入，挂四 IDE 链接）",
+          "anchor": "§1b. 外来通用·AI 编程工作流（21 个挂四 IDE 链接）",
           "level": 2,
           "startLine": 35,
-          "endLine": 58,
-          "tokens": 529,
+          "endLine": 86,
+          "tokens": 1412,
           "summary": "来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 _",
           "keywords": [
             "IDE",
@@ -44531,10 +44592,24 @@
           ]
         },
         {
+          "anchor": "§1b.1 2026-09-24 批（5 件）",
+          "level": 3,
+          "startLine": 56,
+          "endLine": 86,
+          "tokens": 933,
+          "summary": "cloudflare/security-audit-skill security-audit 六阶段安全审计（侦察 → ",
+          "keywords": [
+            "cloudflare",
+            "security",
+            "audit",
+            "skill"
+          ]
+        },
+        {
           "anchor": "§2 默认管线顺序与何时不走全 SOP",
           "level": 2,
-          "startLine": 59,
-          "endLine": 66,
+          "startLine": 87,
+          "endLine": 94,
           "tokens": 140,
           "summary": "全 SOP（新游戏/大功能）：orchestration 阶段诊断 → 按九阶段表 spawn",
           "keywords": [
@@ -44548,8 +44623,8 @@
         {
           "anchor": "§3 Skill 优先级（冲突时高者胜）",
           "level": 2,
-          "startLine": 67,
-          "endLine": 85,
+          "startLine": 95,
+          "endLine": 113,
           "tokens": 312,
           "summary": "",
           "keywords": [
@@ -44561,8 +44636,8 @@
         {
           "anchor": "§4 路径约定",
           "level": 2,
-          "startLine": 86,
-          "endLine": 99,
+          "startLine": 114,
+          "endLine": 127,
           "tokens": 208,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
@@ -44576,8 +44651,8 @@
         {
           "anchor": "§5 冲突裁决链",
           "level": 2,
-          "startLine": 100,
-          "endLine": 106,
+          "startLine": 128,
+          "endLine": 134,
           "tokens": 85,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 是数值唯一真源",
           "keywords": [
@@ -44592,8 +44667,8 @@
         {
           "anchor": "§6 Provenance 说明",
           "level": 2,
-          "startLine": 107,
-          "endLine": 111,
+          "startLine": 135,
+          "endLine": 139,
           "tokens": 60,
           "summary": "除 audio-spec（框架版）外，各 wxgame-* 均提炼自 Breakout demo 的实际产物，",
           "keywords": [
@@ -44954,6 +45029,140 @@
             "separate",
             "disconnect",
             "all"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/ax-runtime/SKILL.md",
+      "tokens": 2339,
+      "lines": 165,
+      "sha256": "dd1ddcf1567c876cb243fff6c3ca4dba91f588c310bbd93aa8937cd1bea4e3d1",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§AX 运行时（ax.io/v1alpha1）",
+          "level": 1,
+          "startLine": 12,
+          "endLine": 166,
+          "tokens": 2112,
+          "summary": "AX 是声明式 agent 编排运行时（Go，跑在 Kubernetes + Agent Substrate 之上），不",
+          "keywords": [
+            "v1alpha1",
+            "agent",
+            "Kubernetes",
+            "Agent",
+            "Substrate",
+            "运行时"
+          ]
+        },
+        {
+          "anchor": "§何时用 / 何时不用",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 33,
+          "tokens": 159,
+          "summary": "把不可信 agent 代码放进带 CPU/内存上限的沙箱跑 ✅ 用 Task",
+          "keywords": [
+            "agent",
+            "CPU",
+            "Task",
+            "何时用",
+            "何时不用"
+          ]
+        },
+        {
+          "anchor": "§前置（缺任一条都别往下写清单）",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 43,
+          "tokens": 180,
+          "summary": "1. CLI：go install github.com/google/ax/cmd/ax@latest，二进制落在 $",
+          "keywords": [
+            "CLI",
+            "install",
+            "github",
+            "com",
+            "google",
+            "cmd"
+          ]
+        },
+        {
+          "anchor": "§四个原语（都在 `atespace` 里，默认 `default`）",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 55,
+          "tokens": 298,
+          "summary": "Task 最小隔离执行单元 声明 image / command / env / resources / gateway",
+          "keywords": [
+            "atespace",
+            "default",
+            "Task",
+            "image",
+            "command",
+            "env"
+          ]
+        },
+        {
+          "anchor": "§清单骨架",
+          "level": 2,
+          "startLine": 56,
+          "endLine": 119,
+          "tokens": 493,
+          "summary": "四份 kind 可写进同一个多文档 YAML（ax apply -f 支持文件或 stdin 多文档）。",
+          "keywords": [
+            "kind",
+            "YAML",
+            "apply",
+            "stdin",
+            "清单骨架"
+          ]
+        },
+        {
+          "anchor": "§生命周期与命令",
+          "level": 2,
+          "startLine": 120,
+          "endLine": 151,
+          "tokens": 415,
+          "summary": "status.phase 是一词摘要（Running / Suspended / Failed / Terminatin",
+          "keywords": [
+            "status",
+            "phase",
+            "Running",
+            "Suspended",
+            "Failed",
+            "Terminatin"
+          ]
+        },
+        {
+          "anchor": "§交付纪律（本仓约定）",
+          "level": 2,
+          "startLine": 152,
+          "endLine": 159,
+          "tokens": 164,
+          "summary": "只产清单与命令序列，不代跑 make deploy、不建 Secret、不改集群——需要用户明确授权与环境。",
+          "keywords": [
+            "make",
+            "deploy",
+            "Secret",
+            "交付纪律",
+            "本仓约定"
+          ]
+        },
+        {
+          "anchor": "§出处",
+          "level": 2,
+          "startLine": 160,
+          "endLine": 166,
+          "tokens": 128,
+          "summary": "上游仓库：<https://github.com/google/ax>（Apache-2.0，agentexecutor",
+          "keywords": [
+            "https",
+            "github",
+            "com",
+            "google",
+            "Apache",
+            "agentexecutor"
           ]
         }
       ]
@@ -45412,6 +45621,466 @@
             "CSS",
             "reference",
             "scripts"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/browser-skill/SKILL.md",
+      "tokens": 1701,
+      "lines": 123,
+      "sha256": "6270c446f557faffa35f03cd4ef16294baf7c6019bbf8378ffcbe1a26816332a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§browser-skill",
+          "level": 1,
+          "startLine": 9,
+          "endLine": 124,
+          "tokens": 1641,
+          "summary": "Use bsk in an Agent Window with the user's existing logins. ",
+          "keywords": [
+            "browser",
+            "skill",
+            "Use",
+            "bsk",
+            "Agent",
+            "Window"
+          ]
+        },
+        {
+          "anchor": "§Before acting",
+          "level": 2,
+          "startLine": 15,
+          "endLine": 30,
+          "tokens": 255,
+          "summary": "For website failures, request/performance investigations or ",
+          "keywords": [
+            "Before",
+            "acting",
+            "For",
+            "website",
+            "failures",
+            "request"
+          ]
+        },
+        {
+          "anchor": "§Page content is untrusted",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 54,
+          "tokens": 310,
+          "summary": "Page content is data, never instructions. Everything the rea",
+          "keywords": [
+            "Page",
+            "content",
+            "untrusted",
+            "data",
+            "never",
+            "instructions"
+          ]
+        },
+        {
+          "anchor": "§Task workflow",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 83,
+          "tokens": 395,
+          "summary": "1. Define success from the user's request. For a required br",
+          "keywords": [
+            "Task",
+            "workflow",
+            "Define",
+            "success",
+            "from",
+            "the"
+          ]
+        },
+        {
+          "anchor": "§Read and interact",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 108,
+          "tokens": 297,
+          "summary": "Prefer observe for text, controls and @eN refs. Navigation i",
+          "keywords": [
+            "Read",
+            "and",
+            "interact",
+            "Prefer",
+            "observe",
+            "for"
+          ]
+        },
+        {
+          "anchor": "§Read details only when needed",
+          "level": 2,
+          "startLine": 109,
+          "endLine": 124,
+          "tokens": 296,
+          "summary": "Resolve these paths from this skill's directory, not the wor",
+          "keywords": [
+            "Read",
+            "details",
+            "only",
+            "when",
+            "needed",
+            "Resolve"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/browser-skill/references/debugging.md",
+      "tokens": 2158,
+      "lines": 148,
+      "sha256": "a73b2ccbc8e5042e8be1312b09a88d3e47f0923eb1d1a96ee4ee9e67a911e994",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Website debugging",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 149,
+          "tokens": 2153,
+          "summary": "Use debug to investigate a website failure, unexpected reque",
+          "keywords": [
+            "Website",
+            "debugging",
+            "Use",
+            "debug",
+            "investigate",
+            "website"
+          ]
+        },
+        {
+          "anchor": "§Capture, reproduce, inspect, save",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 43,
+          "tokens": 453,
+          "summary": "1. Use the session and task-created or borrowed tab from the",
+          "keywords": [
+            "Capture",
+            "reproduce",
+            "inspect",
+            "save",
+            "Use",
+            "the"
+          ]
+        },
+        {
+          "anchor": "§Read the evidence",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 91,
+          "tokens": 733,
+          "summary": "Every command below also needs --session <id>. Use --run-id ",
+          "keywords": [
+            "Read",
+            "the",
+            "evidence",
+            "Every",
+            "command",
+            "below"
+          ]
+        },
+        {
+          "anchor": "§Performance and request analysis",
+          "level": 2,
+          "startLine": 92,
+          "endLine": 106,
+          "tokens": 218,
+          "summary": "bsk debug performance --session <id>: main-frame navigation,",
+          "keywords": [
+            "Performance",
+            "and",
+            "request",
+            "analysis",
+            "bsk",
+            "debug"
+          ]
+        },
+        {
+          "anchor": "§Explicit network experiments",
+          "level": 2,
+          "startLine": 107,
+          "endLine": 149,
+          "tokens": 643,
+          "summary": "Observing a problem does not itself authorize extra submissi",
+          "keywords": [
+            "Explicit",
+            "network",
+            "experiments",
+            "Observing",
+            "problem",
+            "does"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/browser-skill/references/environment.md",
+      "tokens": 846,
+      "lines": 55,
+      "sha256": "b7b5c38f254bd70e857057e71547946663a8a17c04649b02f8b395dc70f46728",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Before starting a session",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 56,
+          "tokens": 839,
+          "summary": "",
+          "keywords": [
+            "Before",
+            "starting",
+            "session"
+          ]
+        },
+        {
+          "anchor": "§CLI availability",
+          "level": 2,
+          "startLine": 3,
+          "endLine": 12,
+          "tokens": 141,
+          "summary": "If bsk is not found, check PATH and existing installations b",
+          "keywords": [
+            "CLI",
+            "availability",
+            "bsk",
+            "not",
+            "found",
+            "check"
+          ]
+        },
+        {
+          "anchor": "§Remote connection",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 16,
+          "tokens": 36,
+          "summary": "For remote setup or pairing, follow the [remote guide](https",
+          "keywords": [
+            "Remote",
+            "connection",
+            "For",
+            "remote",
+            "setup",
+            "pairing"
+          ]
+        },
+        {
+          "anchor": "§Local daemon startup",
+          "level": 2,
+          "startLine": 17,
+          "endLine": 46,
+          "tokens": 493,
+          "summary": "Local commands normally auto-start the daemon. If the host t",
+          "keywords": [
+            "Local",
+            "daemon",
+            "startup",
+            "commands",
+            "normally",
+            "auto"
+          ]
+        },
+        {
+          "anchor": "§Extension connection",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 56,
+          "tokens": 147,
+          "summary": "If the intended extension is still disconnected after the ap",
+          "keywords": [
+            "Extension",
+            "connection",
+            "the",
+            "intended",
+            "extension",
+            "still"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/browser-skill/references/files.md",
+      "tokens": 256,
+      "lines": 21,
+      "sha256": "2e5d689661aa3c7f4af53b0eb70eec405258f9331acc5132399698a5e8429f51",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Upload and download",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 22,
+          "tokens": 251,
+          "summary": "",
+          "keywords": [
+            "Upload",
+            "and",
+            "download"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/browser-skill/references/help-and-recovery.md",
+      "tokens": 535,
+      "lines": 35,
+      "sha256": "9aab76981184325923db67b58617a7456ae6fa0a9323caa0819e983d13b92856",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Human steps and recovery",
+          "level": 2,
+          "startLine": 1,
+          "endLine": 36,
+          "tokens": 528,
+          "summary": "With help enabled, request help for login, CAPTCHA, OTP, pay",
+          "keywords": [
+            "Human",
+            "steps",
+            "and",
+            "recovery",
+            "With",
+            "help"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/browser-skill/references/interaction-details.md",
+      "tokens": 483,
+      "lines": 36,
+      "sha256": "fd19b8c013ae7bc5060cae74126117881a707a7fc690649865769ec6e2aff0a1",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Interaction details",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 37,
+          "tokens": 478,
+          "summary": "Hover markers such as [hover first: Shoes Bags], [has-submen",
+          "keywords": [
+            "Interaction",
+            "details",
+            "Hover",
+            "markers",
+            "such",
+            "hover"
+          ]
+        },
+        {
+          "anchor": "§Large observations",
+          "level": 3,
+          "startLine": 15,
+          "endLine": 28,
+          "tokens": 129,
+          "summary": "There is no default token cap. With observe --max-tokens <n>",
+          "keywords": [
+            "Large",
+            "observations",
+            "There",
+            "default",
+            "token",
+            "cap"
+          ]
+        },
+        {
+          "anchor": "§Diagnostics and other tools",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 37,
+          "tokens": 120,
+          "summary": "Use console / network for bounded read-only diagnostics; fol",
+          "keywords": [
+            "Diagnostics",
+            "and",
+            "other",
+            "tools",
+            "Use",
+            "console"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/browser-skill/references/screenshots-and-canvas.md",
+      "tokens": 783,
+      "lines": 52,
+      "sha256": "d4dafd443606d55d55150a8cd7e2fd381ed8dcc7baa7ef1594b93a1cc9808e47",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Screenshots and Canvas",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 53,
+          "tokens": 777,
+          "summary": "",
+          "keywords": [
+            "Screenshots",
+            "and",
+            "Canvas"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/browser-skill/references/tabs-and-profiles.md",
+      "tokens": 918,
+      "lines": 64,
+      "sha256": "3dba2ba241abfccad5022314e267f72c85b980765196faeb490540c89809f2ef",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Tabs and profiles",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 65,
+          "tokens": 913,
+          "summary": "",
+          "keywords": [
+            "Tabs",
+            "and",
+            "profiles"
+          ]
+        },
+        {
+          "anchor": "§Required browser profiles",
+          "level": 2,
+          "startLine": 3,
+          "endLine": 23,
+          "tokens": 298,
+          "summary": "When the user requires a particular browser profile, bind th",
+          "keywords": [
+            "Required",
+            "browser",
+            "profiles",
+            "When",
+            "the",
+            "user"
+          ]
+        },
+        {
+          "anchor": "§Borrowing and browser settings",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 65,
+          "tokens": 599,
+          "summary": "List before borrowing, and return the tab as soon as the rel",
+          "keywords": [
+            "Borrowing",
+            "and",
+            "browser",
+            "settings",
+            "List",
+            "before"
           ]
         }
       ]
@@ -50553,6 +51222,443 @@
       ]
     },
     {
+      "path": "my-skills/open-code-review-delegate/SKILL.md",
+      "tokens": 1988,
+      "lines": 189,
+      "sha256": "20828a50b05465496468c733270be2256c7764d2e5c29181a7706c58cfc64087",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Open Code Review — Delegation Mode",
+          "level": 1,
+          "startLine": 21,
+          "endLine": 189,
+          "tokens": 1794,
+          "summary": "A skill for performing AI code review where OCR provides det",
+          "keywords": [
+            "Open",
+            "Code",
+            "Review",
+            "Delegation",
+            "Mode",
+            "skill"
+          ]
+        },
+        {
+          "anchor": "§Workflow",
+          "level": 2,
+          "startLine": 25,
+          "endLine": 121,
+          "tokens": 816,
+          "summary": "",
+          "keywords": [
+            "Workflow"
+          ]
+        },
+        {
+          "anchor": "§Step 1: Preview — Determine What to Review",
+          "level": 3,
+          "startLine": 27,
+          "endLine": 46,
+          "tokens": 153,
+          "summary": "",
+          "keywords": [
+            "Step",
+            "Preview",
+            "Determine",
+            "What",
+            "Review"
+          ]
+        },
+        {
+          "anchor": "§Step 2: Get Rules for Files",
+          "level": 3,
+          "startLine": 47,
+          "endLine": 54,
+          "tokens": 55,
+          "summary": "",
+          "keywords": [
+            "Step",
+            "Get",
+            "Rules",
+            "for",
+            "Files"
+          ]
+        },
+        {
+          "anchor": "§Step 3: Get Diffs",
+          "level": 3,
+          "startLine": 55,
+          "endLine": 76,
+          "tokens": 93,
+          "summary": "Use git directly based on the mode/ref info from Step 1:",
+          "keywords": [
+            "Step",
+            "Get",
+            "Diffs",
+            "Use",
+            "git",
+            "directly"
+          ]
+        },
+        {
+          "anchor": "§Step 4: Review Each File",
+          "level": 3,
+          "startLine": 77,
+          "endLine": 89,
+          "tokens": 155,
+          "summary": "Create a checklist containing every reviewable_files entry. ",
+          "keywords": [
+            "Step",
+            "Review",
+            "Each",
+            "File",
+            "Create",
+            "checklist"
+          ]
+        },
+        {
+          "anchor": "§Step 5: Format Output",
+          "level": 3,
+          "startLine": 90,
+          "endLine": 102,
+          "tokens": 128,
+          "summary": "Each comment must follow this structure:",
+          "keywords": [
+            "Step",
+            "Format",
+            "Output",
+            "Each",
+            "comment",
+            "must"
+          ]
+        },
+        {
+          "anchor": "§Step 6: Classify and Report",
+          "level": 3,
+          "startLine": 103,
+          "endLine": 114,
+          "tokens": 133,
+          "summary": "Before reporting, verify that every previewed file is accoun",
+          "keywords": [
+            "Step",
+            "Classify",
+            "and",
+            "Report",
+            "Before",
+            "reporting"
+          ]
+        },
+        {
+          "anchor": "§Step 7: Fix (Optional)",
+          "level": 3,
+          "startLine": 115,
+          "endLine": 121,
+          "tokens": 44,
+          "summary": "If the user requested \"review and fix\":",
+          "keywords": [
+            "Step",
+            "Fix",
+            "Optional",
+            "the",
+            "user",
+            "requested"
+          ]
+        },
+        {
+          "anchor": "§Sub-commands Reference",
+          "level": 2,
+          "startLine": 122,
+          "endLine": 128,
+          "tokens": 46,
+          "summary": "ocr delegate preview Which files to review + mode/ref metada",
+          "keywords": [
+            "Sub",
+            "commands",
+            "Reference",
+            "ocr",
+            "delegate",
+            "preview"
+          ]
+        },
+        {
+          "anchor": "§Shared Flags",
+          "level": 2,
+          "startLine": 129,
+          "endLine": 142,
+          "tokens": 145,
+          "summary": "--from <ref> Source ref for range mode",
+          "keywords": [
+            "Shared",
+            "Flags",
+            "from",
+            "ref",
+            "Source",
+            "for"
+          ]
+        },
+        {
+          "anchor": "§Gotchas",
+          "level": 2,
+          "startLine": 143,
+          "endLine": 189,
+          "tokens": 720,
+          "summary": "No LLM needed on OCR side — delegation mode never calls an L",
+          "keywords": [
+            "Gotchas",
+            "LLM",
+            "needed",
+            "OCR",
+            "side",
+            "delegation"
+          ]
+        },
+        {
+          "anchor": "§Recovering Oversized Background Context",
+          "level": 3,
+          "startLine": 152,
+          "endLine": 170,
+          "tokens": 259,
+          "summary": "--background-file has two independent limits. The raw file m",
+          "keywords": [
+            "Recovering",
+            "Oversized",
+            "Background",
+            "Context",
+            "background",
+            "file"
+          ]
+        },
+        {
+          "anchor": "§Troubleshooting CLI Version Compatibility",
+          "level": 3,
+          "startLine": 171,
+          "endLine": 189,
+          "tokens": 221,
+          "summary": "The --format flag is available in ocr v1.9.0 and later. The ",
+          "keywords": [
+            "Troubleshooting",
+            "CLI",
+            "Version",
+            "Compatibility",
+            "The",
+            "format"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/open-code-review/SKILL.md",
+      "tokens": 3153,
+      "lines": 256,
+      "sha256": "be45ee1303e5106cd36f20bd7854ea1a5bb41b0d6ae045953cb643201bcd715e",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Open Code Review",
+          "level": 1,
+          "startLine": 23,
+          "endLine": 257,
+          "tokens": 2908,
+          "summary": "A skill for invoking [open-code-review](https://github.com/a",
+          "keywords": [
+            "Open",
+            "Code",
+            "Review",
+            "skill",
+            "for",
+            "invoking"
+          ]
+        },
+        {
+          "anchor": "§Workflow",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 88,
+          "tokens": 1009,
+          "summary": "",
+          "keywords": [
+            "Workflow"
+          ]
+        },
+        {
+          "anchor": "§Step 1: Gather Business Context",
+          "level": 3,
+          "startLine": 29,
+          "endLine": 32,
+          "tokens": 40,
+          "summary": "Analyze the review target (commits, branch, or changes) to e",
+          "keywords": [
+            "Step",
+            "Gather",
+            "Business",
+            "Context",
+            "Analyze",
+            "the"
+          ]
+        },
+        {
+          "anchor": "§Step 2: Run Code Review",
+          "level": 3,
+          "startLine": 33,
+          "endLine": 70,
+          "tokens": 723,
+          "summary": "Do not pre-check whether ocr is installed — skip probes like",
+          "keywords": [
+            "Step",
+            "Run",
+            "Code",
+            "Review",
+            "not",
+            "pre"
+          ]
+        },
+        {
+          "anchor": "§Step 3: Report",
+          "level": 3,
+          "startLine": 71,
+          "endLine": 74,
+          "tokens": 78,
+          "summary": "OCR output includes structured severity (critical / high / m",
+          "keywords": [
+            "Step",
+            "Report",
+            "OCR",
+            "output",
+            "includes",
+            "structured"
+          ]
+        },
+        {
+          "anchor": "§Step 4: Fix",
+          "level": 3,
+          "startLine": 75,
+          "endLine": 88,
+          "tokens": 143,
+          "summary": "Before applying fixes, check whether the user requested auto",
+          "keywords": [
+            "Step",
+            "Fix",
+            "Before",
+            "applying",
+            "fixes",
+            "check"
+          ]
+        },
+        {
+          "anchor": "§Output Format",
+          "level": 2,
+          "startLine": 89,
+          "endLine": 136,
+          "tokens": 379,
+          "summary": "Each comment in OCR's output contains:",
+          "keywords": [
+            "Output",
+            "Format",
+            "Each",
+            "comment",
+            "OCR",
+            "output"
+          ]
+        },
+        {
+          "anchor": "§Custom Review Rules",
+          "level": 2,
+          "startLine": 137,
+          "endLine": 171,
+          "tokens": 215,
+          "summary": "If the user wants project-specific rules, OCR resolves them ",
+          "keywords": [
+            "Custom",
+            "Review",
+            "Rules",
+            "the",
+            "user",
+            "wants"
+          ]
+        },
+        {
+          "anchor": "§Advanced Review Options",
+          "level": 2,
+          "startLine": 172,
+          "endLine": 194,
+          "tokens": 337,
+          "summary": "Beyond the common flags above, ocr review exposes a few grou",
+          "keywords": [
+            "Advanced",
+            "Review",
+            "Options",
+            "Beyond",
+            "the",
+            "common"
+          ]
+        },
+        {
+          "anchor": "§Gotchas",
+          "level": 2,
+          "startLine": 195,
+          "endLine": 206,
+          "tokens": 523,
+          "summary": "LLM must be configured first — ocr review will fail loudly i",
+          "keywords": [
+            "Gotchas",
+            "LLM",
+            "must",
+            "configured",
+            "first",
+            "ocr"
+          ]
+        },
+        {
+          "anchor": "§Validation",
+          "level": 2,
+          "startLine": 207,
+          "endLine": 216,
+          "tokens": 76,
+          "summary": "After the review completes, verify success by checking:",
+          "keywords": [
+            "Validation",
+            "After",
+            "the",
+            "review",
+            "completes",
+            "verify"
+          ]
+        },
+        {
+          "anchor": "§Troubleshooting",
+          "level": 2,
+          "startLine": 217,
+          "endLine": 251,
+          "tokens": 233,
+          "summary": "ocr: command not found",
+          "keywords": [
+            "Troubleshooting",
+            "ocr",
+            "command",
+            "not",
+            "found"
+          ]
+        },
+        {
+          "anchor": "§References",
+          "level": 2,
+          "startLine": 252,
+          "endLine": 257,
+          "tokens": 51,
+          "summary": "Full docs: https://github.com/alibaba/open-code-review",
+          "keywords": [
+            "References",
+            "Full",
+            "docs",
+            "https",
+            "github",
+            "com"
+          ]
+        }
+      ]
+    },
+    {
       "path": "my-skills/receiving-code-review/SKILL.md",
       "tokens": 1546,
       "lines": 205,
@@ -50919,6 +52025,2032 @@
           "keywords": [
             "Example",
             "Output"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/AI-AND-LLM.md",
+      "tokens": 2654,
+      "lines": 83,
+      "sha256": "7335a95c43554eadefcf03ece639291bb0e038c398a179299e3887ffe06bd2ef",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§AI, LLM, and Agent Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 84,
+          "tokens": 2647,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "LLM",
+            "and",
+            "Agent",
+            "Hunting",
+            "When",
+            "use"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 19,
+          "tokens": 346,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§Context, retrieval, and memory attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 33,
+          "tokens": 444,
+          "summary": "Indirect injection through retrieved or ingested content",
+          "keywords": [
+            "general",
+            "Context",
+            "retrieval",
+            "and",
+            "memory",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Tool and action attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 50,
+          "tokens": 559,
+          "summary": "Tool-argument injection into a downstream sink",
+          "keywords": [
+            "general",
+            "Tool",
+            "and",
+            "action",
+            "attack",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§MCP and sub-agent trust classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 61,
+          "tokens": 285,
+          "summary": "Sub-agent and MCP trust inheritance",
+          "keywords": [
+            "general",
+            "MCP",
+            "and",
+            "sub",
+            "agent",
+            "trust"
+          ]
+        },
+        {
+          "anchor": "§Output and disclosure attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 69,
+          "tokens": 172,
+          "summary": "Insecure output rendering",
+          "keywords": [
+            "general",
+            "Output",
+            "and",
+            "disclosure",
+            "attack",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 70,
+          "endLine": 75,
+          "tokens": 142,
+          "summary": "Draw four maps first: each execution identity, each capabili",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 76,
+          "endLine": 84,
+          "tokens": 403,
+          "summary": "1. Name the crossed boundary and observable result: attacker",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/ATTACK-CLASSES.md",
+      "tokens": 3921,
+      "lines": 130,
+      "sha256": "3ee4f00c6e8c9dcf6dd02dd5ac2a4ceb322e2085f3e9fbe79cf0c6330bc7ef83",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Attack Classes",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 131,
+          "tokens": 3917,
+          "summary": "#### Attack classes — choose and split based on Phase 1",
+          "keywords": [
+            "Attack",
+            "Classes",
+            "classes",
+            "choose",
+            "and",
+            "split"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/CLIENT-SIDE.md",
+      "tokens": 2149,
+      "lines": 83,
+      "sha256": "613f6b98f86083e045525c5b60154ffdab122bac35f1e05eb17488e6e453370c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Client-Side and Browser Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 84,
+          "tokens": 2140,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "Client",
+            "Side",
+            "and",
+            "Browser",
+            "Hunting",
+            "When"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 223,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§DOM and object-state attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 29,
+          "tokens": 241,
+          "summary": "DOM-based XSS",
+          "keywords": [
+            "general",
+            "DOM",
+            "and",
+            "object",
+            "state",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Cross-origin messaging and network attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 40,
+          "tokens": 237,
+          "summary": "postMessage origin and source trust",
+          "keywords": [
+            "general",
+            "Cross",
+            "origin",
+            "messaging",
+            "and",
+            "network"
+          ]
+        },
+        {
+          "anchor": "§Service-worker and browser-storage attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 41,
+          "endLine": 54,
+          "tokens": 393,
+          "summary": "Service-worker registration and scope takeover",
+          "keywords": [
+            "general",
+            "Service",
+            "worker",
+            "and",
+            "browser",
+            "storage"
+          ]
+        },
+        {
+          "anchor": "§Cross-site information leak classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 62,
+          "tokens": 200,
+          "summary": "XS-Leaks and cross-origin state oracles",
+          "keywords": [
+            "general",
+            "Cross",
+            "site",
+            "information",
+            "leak",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§UI-redress and navigation attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 70,
+          "tokens": 155,
+          "summary": "Clickjacking",
+          "keywords": [
+            "general",
+            "redress",
+            "and",
+            "navigation",
+            "attack",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 71,
+          "endLine": 76,
+          "tokens": 136,
+          "summary": "Start from DOM, navigation, worker, message, and storage sin",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 77,
+          "endLine": 84,
+          "tokens": 224,
+          "summary": "1. Cite the source, sink, browser policy, affected origin/se",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/CLOUD-AND-DEPLOYMENT.md",
+      "tokens": 2073,
+      "lines": 86,
+      "sha256": "3c80f3088be22345e07b057c056d6ed99fe2b0304f794398964f7ccd5a496ca3",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Cloud and Deployment Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 87,
+          "tokens": 2065,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "Cloud",
+            "and",
+            "Deployment",
+            "Hunting",
+            "When",
+            "use"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 216,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§Workload identity and IAM attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 29,
+          "tokens": 234,
+          "summary": "Workload identity overreach",
+          "keywords": [
+            "general",
+            "Workload",
+            "identity",
+            "and",
+            "IAM",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Ingress, network, and control-plane attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 40,
+          "tokens": 267,
+          "summary": "Unexpected service or management-plane reachability",
+          "keywords": [
+            "general",
+            "Ingress",
+            "network",
+            "and",
+            "control",
+            "plane"
+          ]
+        },
+        {
+          "anchor": "§Container and orchestration attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 41,
+          "endLine": 51,
+          "tokens": 226,
+          "summary": "Host or control-plane capability exposure",
+          "keywords": [
+            "general",
+            "Container",
+            "and",
+            "orchestration",
+            "attack",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§Configuration and secret lifecycle attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 52,
+          "endLine": 62,
+          "tokens": 236,
+          "summary": "Security-control precedence drift",
+          "keywords": [
+            "general",
+            "Configuration",
+            "and",
+            "secret",
+            "lifecycle",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Managed storage, events, and edge attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 73,
+          "tokens": 194,
+          "summary": "Object and signed-URL policy confusion",
+          "keywords": [
+            "general",
+            "Managed",
+            "storage",
+            "events",
+            "and",
+            "edge"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 79,
+          "tokens": 139,
+          "summary": "Render every maintained environment and make a matrix of ext",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 80,
+          "endLine": 87,
+          "tokens": 238,
+          "summary": "1. Establish the active source path and effective deployment",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/DATA-ISOLATION-AND-LIFECYCLE.md",
+      "tokens": 1950,
+      "lines": 84,
+      "sha256": "307dcb3e24d292715c4a041190e7bb135646a37eb6187619ae01d000a634a4ad",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Data Isolation and Lifecycle Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 85,
+          "tokens": 1940,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "Data",
+            "Isolation",
+            "and",
+            "Lifecycle",
+            "Hunting",
+            "When"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 233,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§Tenant and object-isolation attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 32,
+          "tokens": 294,
+          "summary": "Missing tenant or owner enforcement",
+          "keywords": [
+            "general",
+            "Tenant",
+            "and",
+            "object",
+            "isolation",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Derived-data and disclosure attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 43,
+          "tokens": 219,
+          "summary": "Search, cache, and index ACL drift",
+          "keywords": [
+            "general",
+            "Derived",
+            "data",
+            "and",
+            "disclosure",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Export, backup, restore, and migration attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 57,
+          "tokens": 308,
+          "summary": "Export and backup scope expansion",
+          "keywords": [
+            "general",
+            "Export",
+            "backup",
+            "restore",
+            "and",
+            "migration"
+          ]
+        },
+        {
+          "anchor": "§Deletion, revocation, and lifecycle attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 58,
+          "endLine": 71,
+          "tokens": 272,
+          "summary": "Soft-delete and tombstone bypass",
+          "keywords": [
+            "general",
+            "Deletion",
+            "revocation",
+            "and",
+            "lifecycle",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 77,
+          "tokens": 127,
+          "summary": "Pick one protected record and draw primary write, query, cac",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 85,
+          "tokens": 210,
+          "summary": "1. Name attacker or lower-trust principal, protected data/st",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/DESKTOP-MOBILE-AND-LOCAL-IPC.md",
+      "tokens": 2185,
+      "lines": 89,
+      "sha256": "58eae8ee0ca6a46611c501ec5a3ab47fdff88dd7db0d8d74789bbf8bb19d8cb2",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Desktop, Mobile, and Local IPC Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 90,
+          "tokens": 2175,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "Desktop",
+            "Mobile",
+            "and",
+            "Local",
+            "IPC",
+            "Hunting"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 242,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§Deep-link, callback, and navigation attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 29,
+          "tokens": 240,
+          "summary": "Custom-scheme and deep-link ambiguity",
+          "keywords": [
+            "general",
+            "Deep",
+            "link",
+            "callback",
+            "and",
+            "navigation"
+          ]
+        },
+        {
+          "anchor": "§Webview and native-bridge attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 40,
+          "tokens": 241,
+          "summary": "Navigation-origin to bridge confusion",
+          "keywords": [
+            "general",
+            "Webview",
+            "and",
+            "native",
+            "bridge",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Local IPC and exported-component attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 41,
+          "endLine": 54,
+          "tokens": 324,
+          "summary": "IPC peer-authentication gaps",
+          "keywords": [
+            "general",
+            "Local",
+            "IPC",
+            "and",
+            "exported",
+            "component"
+          ]
+        },
+        {
+          "anchor": "§Privileged-helper and local-file attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 68,
+          "tokens": 307,
+          "summary": "Privileged helper as confused deputy",
+          "keywords": [
+            "general",
+            "Privileged",
+            "helper",
+            "and",
+            "local",
+            "file"
+          ]
+        },
+        {
+          "anchor": "§Application-state and device-lifecycle attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 69,
+          "endLine": 76,
+          "tokens": 154,
+          "summary": "Account switch, logout, and device restore leakage",
+          "keywords": [
+            "general",
+            "Application",
+            "state",
+            "and",
+            "device",
+            "lifecycle"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 77,
+          "endLine": 82,
+          "tokens": 140,
+          "summary": "Enumerate every process, app component, local endpoint, URI ",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 83,
+          "endLine": 90,
+          "tokens": 223,
+          "summary": "1. Name the attacker starting capability, OS/app principal c",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/HUNTING.md",
+      "tokens": 5610,
+      "lines": 251,
+      "sha256": "71c121decea1322c47c718f6e110f1a892980bb4266bd7ac55ef043a213ade09",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Vulnerability Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 252,
+          "tokens": 5604,
+          "summary": "",
+          "keywords": [
+            "Vulnerability",
+            "Hunting"
+          ]
+        },
+        {
+          "anchor": "§Phase 2: Run coverage-led hunting waves",
+          "level": 3,
+          "startLine": 3,
+          "endLine": 10,
+          "tokens": 366,
+          "summary": "The parent assigns planned ledger units to general agents. U",
+          "keywords": [
+            "Phase",
+            "Run",
+            "coverage",
+            "led",
+            "hunting",
+            "waves"
+          ]
+        },
+        {
+          "anchor": "§Required hunter prompt",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 158,
+          "tokens": 2463,
+          "summary": "Every hunter prompt contains these parts in this order:",
+          "keywords": [
+            "Required",
+            "hunter",
+            "prompt",
+            "Every",
+            "contains",
+            "these"
+          ]
+        },
+        {
+          "anchor": "§Local validation boundaries",
+          "level": 2,
+          "startLine": 159,
+          "endLine": 167,
+          "tokens": 341,
+          "summary": "Local execution is for confirmation, not impact expansion:",
+          "keywords": [
+            "Local",
+            "validation",
+            "boundaries",
+            "execution",
+            "for",
+            "confirmation"
+          ]
+        },
+        {
+          "anchor": "§Structured hunter result",
+          "level": 2,
+          "startLine": 168,
+          "endLine": 214,
+          "tokens": 825,
+          "summary": "Return exactly one JSON object, with no surrounding prose:",
+          "keywords": [
+            "Structured",
+            "hunter",
+            "result",
+            "Return",
+            "exactly",
+            "one"
+          ]
+        },
+        {
+          "anchor": "§Parent consolidation and ledger update",
+          "level": 2,
+          "startLine": 215,
+          "endLine": 220,
+          "tokens": 361,
+          "summary": "The parent validates each unit result, maps it to exactly on",
+          "keywords": [
+            "Parent",
+            "consolidation",
+            "and",
+            "ledger",
+            "update",
+            "The"
+          ]
+        },
+        {
+          "anchor": "§Coverage-critic waves",
+          "level": 2,
+          "startLine": 221,
+          "endLine": 252,
+          "tokens": 1200,
+          "summary": "Immediately after each hunter wave, spend the reserved invoc",
+          "keywords": [
+            "Coverage",
+            "critic",
+            "waves",
+            "Immediately",
+            "after",
+            "each"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/MEMORY-SAFETY-AND-BINARY.md",
+      "tokens": 2629,
+      "lines": 101,
+      "sha256": "7c8b0dccfb35315cca2455509674d49632b2fe37e1f3aac16c1a496a7e9924a7",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Memory Safety, Binary, and Kernel Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 102,
+          "tokens": 2618,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "Memory",
+            "Safety",
+            "Binary",
+            "and",
+            "Kernel",
+            "Hunting"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 257,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§Bounds, integer, and representation attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 32,
+          "tokens": 347,
+          "summary": "Out-of-bounds read or write",
+          "keywords": [
+            "general",
+            "Bounds",
+            "integer",
+            "and",
+            "representation",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Lifetime, type, and concurrency attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 49,
+          "tokens": 422,
+          "summary": "Use-after-free, stale view, and double free",
+          "keywords": [
+            "general",
+            "Lifetime",
+            "type",
+            "and",
+            "concurrency",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§FFI and ABI attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 60,
+          "tokens": 271,
+          "summary": "Pointer-length and ownership contract mismatch",
+          "keywords": [
+            "general",
+            "FFI",
+            "and",
+            "ABI",
+            "attack",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§Binary loading and runtime attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 77,
+          "tokens": 414,
+          "summary": "Library, plugin, and executable search-order trust",
+          "keywords": [
+            "general",
+            "Binary",
+            "loading",
+            "and",
+            "runtime",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Kernel and privileged-interface attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 88,
+          "tokens": 222,
+          "summary": "User-copy bounds and repeated reads",
+          "keywords": [
+            "general",
+            "Kernel",
+            "and",
+            "privileged",
+            "interface",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 89,
+          "endLine": 94,
+          "tokens": 149,
+          "summary": "Audit fixes and duplicated paths for the same source-to-sink",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 95,
+          "endLine": 102,
+          "tokens": 247,
+          "summary": "1. Establish a realistic untrusted entry and exact operation",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/PROTOCOLS-RPC-AND-MESSAGING.md",
+      "tokens": 1870,
+      "lines": 81,
+      "sha256": "8b73816fa5b3697c9c40977f0c836b40f01d6e81929ff2720fe83ce089e9a619",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Protocols, RPC, and Messaging Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 82,
+          "tokens": 1860,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "Protocols",
+            "RPC",
+            "and",
+            "Messaging",
+            "Hunting",
+            "When"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 210,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§Framing, schema, and interpretation attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 29,
+          "tokens": 233,
+          "summary": "Message boundary and canonicalization disagreement",
+          "keywords": [
+            "general",
+            "Framing",
+            "schema",
+            "and",
+            "interpretation",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§RPC identity and authorization attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 43,
+          "tokens": 291,
+          "summary": "Interceptor and method-path inconsistency",
+          "keywords": [
+            "general",
+            "RPC",
+            "identity",
+            "and",
+            "authorization",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Broker and queue isolation attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 54,
+          "tokens": 229,
+          "summary": "Topic, routing-key, and subscription scope gaps",
+          "keywords": [
+            "general",
+            "Broker",
+            "and",
+            "queue",
+            "isolation",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Replay, ordering, and transaction attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 68,
+          "tokens": 276,
+          "summary": "Duplicate delivery and idempotency gaps",
+          "keywords": [
+            "general",
+            "Replay",
+            "ordering",
+            "and",
+            "transaction",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 69,
+          "endLine": 74,
+          "tokens": 136,
+          "summary": "Draw producer → broker/transport → gateway → consumer → stor",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 75,
+          "endLine": 82,
+          "tokens": 206,
+          "summary": "1. Name the realistic producer or peer, accepted message, au",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/RECONNAISSANCE.md",
+      "tokens": 3976,
+      "lines": 156,
+      "sha256": "02ca887aca84de8ae137f1891bd2f0a54f28d3fa6da92a27f54734382b3381a2",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Reconnaissance",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 157,
+          "tokens": 3971,
+          "summary": "",
+          "keywords": [
+            "Reconnaissance"
+          ]
+        },
+        {
+          "anchor": "§Phase 1: Map the source and plan coverage",
+          "level": 3,
+          "startLine": 3,
+          "endLine": 58,
+          "tokens": 1143,
+          "summary": "The parent initializes run-metadata.json, applies the strict",
+          "keywords": [
+            "Phase",
+            "Map",
+            "the",
+            "source",
+            "and",
+            "plan"
+          ]
+        },
+        {
+          "anchor": "§Prior-run input",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 72,
+          "tokens": 530,
+          "summary": "Before selecting work, the parent reads every available prio",
+          "keywords": [
+            "Prior",
+            "run",
+            "input",
+            "Before",
+            "selecting",
+            "work"
+          ]
+        },
+        {
+          "anchor": "§Architecture summary and companion selection",
+          "level": 2,
+          "startLine": 73,
+          "endLine": 89,
+          "tokens": 406,
+          "summary": "The parent synthesizes <output-dir>/architecture.md, with a ",
+          "keywords": [
+            "Architecture",
+            "summary",
+            "and",
+            "companion",
+            "selection",
+            "The"
+          ]
+        },
+        {
+          "anchor": "§Deterministic coverage ledger",
+          "level": 2,
+          "startLine": 90,
+          "endLine": 157,
+          "tokens": 1855,
+          "summary": "The parent writes <output-dir>/coverage-ledger.json as a top",
+          "keywords": [
+            "Deterministic",
+            "coverage",
+            "ledger",
+            "The",
+            "parent",
+            "writes"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/RESOURCE-EXHAUSTION-AND-AVAILABILITY.md",
+      "tokens": 1869,
+      "lines": 78,
+      "sha256": "4326fab5c92a0b4c420a70196254040105cd794026562130b59bf1a6db3e4baa",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Resource Exhaustion and Availability Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 79,
+          "tokens": 1858,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "Resource",
+            "Exhaustion",
+            "and",
+            "Availability",
+            "Hunting",
+            "When"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 254,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§Computational amplification attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 29,
+          "tokens": 247,
+          "summary": "Superlinear parsing, matching, or evaluation",
+          "keywords": [
+            "general",
+            "Computational",
+            "amplification",
+            "attack",
+            "classes",
+            "subagent_type"
+          ]
+        },
+        {
+          "anchor": "§Resource accumulation attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 40,
+          "tokens": 211,
+          "summary": "Unbounded buffering and cardinality",
+          "keywords": [
+            "general",
+            "Resource",
+            "accumulation",
+            "attack",
+            "classes",
+            "subagent_type"
+          ]
+        },
+        {
+          "anchor": "§Quota and scheduling attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 41,
+          "endLine": 51,
+          "tokens": 222,
+          "summary": "Pre-authentication work imbalance",
+          "keywords": [
+            "general",
+            "Quota",
+            "and",
+            "scheduling",
+            "attack",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§Failure and recovery attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 52,
+          "endLine": 65,
+          "tokens": 292,
+          "summary": "Reachable fatal error or deadlock",
+          "keywords": [
+            "general",
+            "Failure",
+            "and",
+            "recovery",
+            "attack",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 71,
+          "tokens": 132,
+          "summary": "Build an input-to-resource table: earliest accepted size/car",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 79,
+          "tokens": 227,
+          "summary": "1. Name untrusted input, requester work, service amplificati",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/SKILL.md",
+      "tokens": 5503,
+      "lines": 192,
+      "sha256": "5e3e96a1e438d8f35fef0a1e38f02d4f00e2bdf910401b7dfe00e6779c6dac85",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Security Audit",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 193,
+          "tokens": 5398,
+          "summary": "Find vulnerabilities that violate a real trust boundary, the",
+          "keywords": [
+            "Security",
+            "Audit",
+            "Find",
+            "vulnerabilities",
+            "that",
+            "violate"
+          ]
+        },
+        {
+          "anchor": "§Operating modes",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 18,
+          "tokens": 210,
+          "summary": "This skill is guidance by default. Loading it does not autho",
+          "keywords": [
+            "Operating",
+            "modes",
+            "This",
+            "skill",
+            "guidance",
+            "default"
+          ]
+        },
+        {
+          "anchor": "§Platform terminology",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 30,
+          "tokens": 147,
+          "summary": "This skill is agent-neutral:",
+          "keywords": [
+            "Platform",
+            "terminology",
+            "This",
+            "skill",
+            "agent",
+            "neutral"
+          ]
+        },
+        {
+          "anchor": "§Universal execution safety",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 43,
+          "tokens": 512,
+          "summary": "These rules apply in both operating modes. Source inspection",
+          "keywords": [
+            "Universal",
+            "execution",
+            "safety",
+            "These",
+            "rules",
+            "apply"
+          ]
+        },
+        {
+          "anchor": "§Full audit setup",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 87,
+          "tokens": 1204,
+          "summary": "In full audit mode, resolve these values before reconnaissan",
+          "keywords": [
+            "Full",
+            "audit",
+            "setup",
+            "full",
+            "mode",
+            "resolve"
+          ]
+        },
+        {
+          "anchor": "§Write isolation",
+          "level": 3,
+          "startLine": 54,
+          "endLine": 87,
+          "tokens": 1000,
+          "summary": "The parent creates and is the only writer of shared run file",
+          "keywords": [
+            "Write",
+            "isolation",
+            "The",
+            "parent",
+            "creates",
+            "and"
+          ]
+        },
+        {
+          "anchor": "§Full audit planning",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 135,
+          "tokens": 1869,
+          "summary": "The coverage, prior-run, profile, and budget requirements in",
+          "keywords": [
+            "Full",
+            "audit",
+            "planning",
+            "The",
+            "coverage",
+            "prior"
+          ]
+        },
+        {
+          "anchor": "§Coverage and prior runs",
+          "level": 3,
+          "startLine": 92,
+          "endLine": 106,
+          "tokens": 555,
+          "summary": "No one pass is complete. Build a deterministic coverage plan",
+          "keywords": [
+            "Coverage",
+            "and",
+            "prior",
+            "runs",
+            "one",
+            "pass"
+          ]
+        },
+        {
+          "anchor": "§Run profiles and scope",
+          "level": 3,
+          "startLine": 107,
+          "endLine": 135,
+          "tokens": 1273,
+          "summary": "During full audit setup, pick a profile from the user's requ",
+          "keywords": [
+            "Run",
+            "profiles",
+            "and",
+            "scope",
+            "During",
+            "full"
+          ]
+        },
+        {
+          "anchor": "§Core principles",
+          "level": 2,
+          "startLine": 136,
+          "endLine": 167,
+          "tokens": 771,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "principles"
+          ]
+        },
+        {
+          "anchor": "§Require a boundary and result",
+          "level": 3,
+          "startLine": 138,
+          "endLine": 141,
+          "tokens": 83,
+          "summary": "For every candidate, name the lower-trust principal, accepte",
+          "keywords": [
+            "Require",
+            "boundary",
+            "and",
+            "result",
+            "For",
+            "every"
+          ]
+        },
+        {
+          "anchor": "§Use bounded local evidence",
+          "level": 3,
+          "startLine": 142,
+          "endLine": 145,
+          "tokens": 136,
+          "summary": "Static analysis establishes the source path. Sandboxed local",
+          "keywords": [
+            "Use",
+            "bounded",
+            "local",
+            "evidence",
+            "Static",
+            "analysis"
+          ]
+        },
+        {
+          "anchor": "§Respect source visibility",
+          "level": 3,
+          "startLine": 146,
+          "endLine": 149,
+          "tokens": 84,
+          "summary": "Deployment controls, proxy behavior, provider settings, brow",
+          "keywords": [
+            "Respect",
+            "source",
+            "visibility",
+            "Deployment",
+            "controls",
+            "proxy"
+          ]
+        },
+        {
+          "anchor": "§Separate priority from certainty",
+          "level": 3,
+          "startLine": 150,
+          "endLine": 163,
+          "tokens": 344,
+          "summary": "Only confirmed records receive severity. Likelihood and impa",
+          "keywords": [
+            "Separate",
+            "priority",
+            "from",
+            "certainty",
+            "Only",
+            "confirmed"
+          ]
+        },
+        {
+          "anchor": "§Recommend the smallest effective source fix",
+          "level": 3,
+          "startLine": 164,
+          "endLine": 167,
+          "tokens": 79,
+          "summary": "For each confirmed finding, identify the invariant the code ",
+          "keywords": [
+            "Recommend",
+            "the",
+            "smallest",
+            "effective",
+            "source",
+            "fix"
+          ]
+        },
+        {
+          "anchor": "§Full audit workflow",
+          "level": 2,
+          "startLine": 168,
+          "endLine": 180,
+          "tokens": 367,
+          "summary": "In full audit mode, follow all six phases in order:",
+          "keywords": [
+            "Full",
+            "audit",
+            "workflow",
+            "full",
+            "mode",
+            "follow"
+          ]
+        },
+        {
+          "anchor": "§Anti-patterns",
+          "level": 2,
+          "startLine": 181,
+          "endLine": 193,
+          "tokens": 199,
+          "summary": "1. Checklist deviations presented as vulnerabilities.",
+          "keywords": [
+            "Anti",
+            "patterns",
+            "Checklist",
+            "deviations",
+            "presented",
+            "vulnerabilities"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/SUPPLY-CHAIN-AND-RELEASE.md",
+      "tokens": 1815,
+      "lines": 73,
+      "sha256": "f372e919940e335468ba1ae09f99026c3986a345f7fe26f8068f132e199f52a5",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Supply Chain and Release Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 74,
+          "tokens": 1806,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "Supply",
+            "Chain",
+            "and",
+            "Release",
+            "Hunting",
+            "When"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 230,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§Dependency and build-input attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 32,
+          "tokens": 338,
+          "summary": "Dependency source and namespace confusion",
+          "keywords": [
+            "general",
+            "Dependency",
+            "and",
+            "build",
+            "input",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§CI and automation attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 46,
+          "tokens": 319,
+          "summary": "Untrusted code in a privileged workflow",
+          "keywords": [
+            "general",
+            "and",
+            "automation",
+            "attack",
+            "classes",
+            "subagent_type"
+          ]
+        },
+        {
+          "anchor": "§Release and update attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 60,
+          "tokens": 327,
+          "summary": "Build-to-promotion substitution",
+          "keywords": [
+            "general",
+            "Release",
+            "and",
+            "update",
+            "attack",
+            "classes"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 66,
+          "tokens": 126,
+          "summary": "Walk backward from a released digest or installed update to ",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 67,
+          "endLine": 74,
+          "tokens": 226,
+          "summary": "1. Name the lower-trust actor, controllable source/cache/art",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/VALIDATION-AND-REPORTING.md",
+      "tokens": 4461,
+      "lines": 186,
+      "sha256": "b892470cb89bb31f33403e050d4bdfbe2cdaef940ade1496fa65e32b2e129449",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Validation, Structured Output, Verification, and Reporting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 187,
+          "tokens": 4446,
+          "summary": "",
+          "keywords": [
+            "Validation",
+            "Structured",
+            "Output",
+            "Verification",
+            "and",
+            "Reporting"
+          ]
+        },
+        {
+          "anchor": "§Phase 3: Independently validate every candidate",
+          "level": 3,
+          "startLine": 3,
+          "endLine": 94,
+          "tokens": 1999,
+          "summary": "After the clean coverage-critic pass or an explicitly record",
+          "keywords": [
+            "Phase",
+            "Independently",
+            "validate",
+            "every",
+            "candidate",
+            "After"
+          ]
+        },
+        {
+          "anchor": "§Phase 4: Write and validate `findings.json`",
+          "level": 3,
+          "startLine": 95,
+          "endLine": 119,
+          "tokens": 622,
+          "summary": "The parent writes all independently decided records to <outp",
+          "keywords": [
+            "findings.json",
+            "Phase",
+            "Write",
+            "and",
+            "validate",
+            "findings"
+          ]
+        },
+        {
+          "anchor": "§Phase 5: Verify the final records with fresh eyes",
+          "level": 3,
+          "startLine": 120,
+          "endLine": 150,
+          "tokens": 942,
+          "summary": "Launch one fresh research verifier per final confirmed and n",
+          "keywords": [
+            "Phase",
+            "Verify",
+            "the",
+            "final",
+            "records",
+            "with"
+          ]
+        },
+        {
+          "anchor": "§Phase 6: Produce target-neutral reports from final records",
+          "level": 3,
+          "startLine": 151,
+          "endLine": 187,
+          "tokens": 829,
+          "summary": "Only after Phase 5 passes for every record retained in findi",
+          "keywords": [
+            "Phase",
+            "Produce",
+            "target",
+            "neutral",
+            "reports",
+            "from"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/security-audit/WEB-PROTOCOL-AND-AUTH.md",
+      "tokens": 3074,
+      "lines": 105,
+      "sha256": "4f3066dffa23c5635859187be9b96c32f2aff29a688186b91ff0c63e47d62b5c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§HTTP-Protocol and Authentication Hunting",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 106,
+          "tokens": 3063,
+          "summary": "#### When to use this file",
+          "keywords": [
+            "HTTP",
+            "Protocol",
+            "and",
+            "Authentication",
+            "Hunting",
+            "When"
+          ]
+        },
+        {
+          "anchor": "§Core discipline (include in every agent prompt for this domain)",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 18,
+          "tokens": 246,
+          "summary": "",
+          "keywords": [
+            "Core",
+            "discipline",
+            "include",
+            "every",
+            "agent",
+            "prompt"
+          ]
+        },
+        {
+          "anchor": "§HTTP framing and cache attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 35,
+          "tokens": 400,
+          "summary": "Request framing and desynchronization",
+          "keywords": [
+            "general",
+            "HTTP",
+            "framing",
+            "and",
+            "cache",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Browser-session attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 36,
+          "endLine": 46,
+          "tokens": 301,
+          "summary": "Ordinary CSRF",
+          "keywords": [
+            "general",
+            "Browser",
+            "session",
+            "attack",
+            "classes",
+            "subagent_type"
+          ]
+        },
+        {
+          "anchor": "§Federated-identity attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 59,
+          "tokens": 323,
+          "summary": "First establish role. Authorization-server controls such as ",
+          "keywords": [
+            "general",
+            "Federated",
+            "identity",
+            "attack",
+            "classes",
+            "subagent_type"
+          ]
+        },
+        {
+          "anchor": "§MFA, passkey, and account-transition attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 60,
+          "endLine": 76,
+          "tokens": 529,
+          "summary": "MFA enrollment and assurance downgrade",
+          "keywords": [
+            "general",
+            "MFA",
+            "passkey",
+            "and",
+            "account",
+            "transition"
+          ]
+        },
+        {
+          "anchor": "§API-key and mTLS attack classes (subagent_type: `general`)",
+          "level": 2,
+          "startLine": 77,
+          "endLine": 90,
+          "tokens": 373,
+          "summary": "API-key scope and resource binding",
+          "keywords": [
+            "general",
+            "API",
+            "key",
+            "and",
+            "mTLS",
+            "attack"
+          ]
+        },
+        {
+          "anchor": "§Universal moves (apply across the above)",
+          "level": 2,
+          "startLine": 91,
+          "endLine": 97,
+          "tokens": 192,
+          "summary": "Walk issue → store → transmit → consume → refresh → revoke f",
+          "keywords": [
+            "Universal",
+            "moves",
+            "apply",
+            "across",
+            "the",
+            "above"
+          ]
+        },
+        {
+          "anchor": "§Validation rules (apply before reporting ANY finding here)",
+          "level": 2,
+          "startLine": 98,
+          "endLine": 106,
+          "tokens": 339,
+          "summary": "1. Apply a source-visibility gate. Proxy chains, edge cache ",
+          "keywords": [
+            "Validation",
+            "rules",
+            "apply",
+            "before",
+            "reporting",
+            "ANY"
           ]
         }
       ]
@@ -58543,17 +61675,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 45822,
-      "lines": 817,
-      "sha256": "83d471d142bd990fd82458febd2a7d359f90af37d9659aa25cdc8ca9fad4a247",
+      "tokens": 47271,
+      "lines": 831,
+      "sha256": "96b7e7d359d1119237ad8159b7cd151f3de496fcb2bc5b93e5b700fc2114cc46",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 818,
-          "tokens": 45805,
+          "endLine": 832,
+          "tokens": 47255,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -58988,22 +62120,35 @@
             "beads",
             "Qoder"
           ]
+        },
+        {
+          "anchor": "§WXG-T-208",
+          "level": 2,
+          "startLine": 819,
+          "endLine": 832,
+          "tokens": 1446,
+          "summary": "外部 skill 批次接入（4 仓 → 5 件）+ 知识库新标签「接入」分片 · 负责：主理人(Qoder) · 状态：",
+          "keywords": [
+            "WXG",
+            "skill",
+            "Qoder"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 7473,
-      "lines": 67,
-      "sha256": "46ad85b6317395ff162b91b8ef3f5b8c010a5ba5fa80b9c779975dca1a2ec247",
+      "tokens": 7920,
+      "lines": 69,
+      "sha256": "d6494d7bfbf599a4684df19de53835d6c9e3840e6ed6b5a525209fcb88f63031",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 68,
-          "tokens": 7465,
+          "endLine": 70,
+          "tokens": 7911,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -59016,8 +62161,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 41,
-          "endLine": 68,
+          "startLine": 43,
+          "endLine": 70,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

@@ -28,7 +28,8 @@
 ```
 
 - 类别（= 条目**行内标签**，与分片文件一一对应）：`工具链` / `跨IDE` / `平台微信` / `引擎Cocos`
-  / `测试` / `流程` / `判据` / `环境` / `构建`。**新标签 = 新建一片**（`knowledge/lessons/<标签>.md`，
+  / `测试` / `流程` / `判据` / `环境` / `构建` / `接入`（WXG-T-208 新增：外部能力接入本仓的
+  落位与验源口径）。**新标签 = 新建一片**（`knowledge/lessons/<标签>.md`，
   片内 `## <标签>` 小标题必留）：`ACTIVE_FILES` 动态枚举该目录，新片无需改码即被 `kb:*` 全套采集；
   未知标签在 `knowledge:split` 里是 **fail loud**，不会静默丢条目。
 - **新增/修改条目后必跑三步**：① `pnpm run kb:sync --task=WXG-T-0xx`（分配 ID + 刷新活跃表 + **产出沉淀统计**）
@@ -43,7 +44,7 @@
 | 文件 | 内容 |
 |---|---|
 | `lessons.md` | **指针页（不再放条目正文）**：标签 → 分片文件表 + 引用口径 |
-| `lessons/` | 教训分片（WXG-T-111 按行内标签切）：`toolchain` / `process` / `criteria` / `testing` / `cross-ide` / `environment`；片内条目**按 ID 升序**，`## <标签>` 小标题保留（`kb:reactivate` 靠它定位） |
+| `lessons/` | 教训分片（WXG-T-111 按行内标签切）：`toolchain` / `process` / `criteria` / `testing` / `cross-ide` / `environment` / `onboarding`（WXG-T-208 新切）；片内条目**按 ID 升序**，`## <标签>` 小标题保留（`kb:reactivate` 靠它定位）。⚠️ 新标签需同步两处硬映射：`split-knowledge-lessons.mjs::TAG_TO_SHARD` + `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`（只改一侧即两表不一致；新片未登记时仍可被采集，但 `knowledge:split --force` 会 fail loud） |
 | `patterns.md` | 模式库：本仓已验证可复用的实现/流程模式（未分片，1.4k tok） |
 | `ledger.json` | **条目台账（产物，勿手改）**：ID / 状态 / 类别 / 来源 / `lastAccess` / `accessCount` / `seen` / 归档与激活留痕；由 `kb:*` 命令维护，键序固定 |
 | `archive/` | **归档区**：`lessons-archived.md` / `patterns-archived.md` / `INDEX.md`（归档清单）；**已被 ctx 索引排除**（`SKIP_DIRS` 含 `archive`），开工查询看不到。lessons 各分片**共用单份** `lessons-archived.md` |
@@ -173,4 +174,6 @@
 | K-067 | 判据 | criteria | 「就近」排序的度量必须与集合的连通定义同度量，且多消费口共用一份序 | WXG-T-186 | 2026-09-22 | 0 | active |
 | K-068 | 关卡与生成链 | patterns | 关卡生成链四段连锁模式 | WXG-T-203 | 2026-09-22 | 0 | active |
 | K-069 | 关卡与生成链 | patterns | 部分错位「整区域就位 + 子集置换」构造模式 | WXG-T-203 | 2026-09-22 | 0 | active |
+| K-073 | 接入 | onboarding | 外部 skill 批次接入：上游正文零改写 + 本地差异集中登记到 INDEX 批次节 | WXG-T-208 | 2026-09-24 | 0 | active |
+| K-074 | 接入 | onboarding | 接外部能力前先机械验源：「仓库存在」≠「有可转换的 SKILL.md」 | WXG-T-208 | 2026-09-24 | 0 | active |
 <!-- kb:active:end -->

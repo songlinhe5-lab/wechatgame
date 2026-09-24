@@ -815,3 +815,17 @@
 - **取证附带结论**：MCP 预览（wx-compat）无法注入合成触摸事件（`isTrusted:false` 不转发 wx 回调）⇒ 输入类真机问题取证走 Node 真链探针 + 用户设备，不走预览代理。
 - **改号留痕**：本单初稿误标 186，GDD/代码注释/测试标题已同批改为 187（见注 8）。
 - **待办移交**：微信产物重建后真机复测托盘（含满槽场景）；两份临时探针已删（复现步骤存本节 + GDD §8-11 可测形式）。
+
+## WXG-T-208
+
+**外部 skill 批次接入（4 仓 → 5 件）+ 知识库新标签「接入」分片** · 负责：主理人(Qoder) · 状态：✅ 完成（2026-09-24，用户三项拍板：ax 由本仓自撰 / 落位 `my-skills/` 挂四 IDE 链接 / `ocr` 与 `bsk` 都装）
+
+- **范围**：接入 `cloudflare/security-audit-skill`、`alibaba/open-code-review`、`Tencent/BrowserSkill`、`google/ax` 四个外部能力，走 `create-plugin` 转换流程后按用户裁定改以本仓 `my-skills/` 正本 + 四 IDE 链接落位（不产 `.qoder-plugin/` 包，不落 `my-plugins/` vendor）。
+- **交付（5 件现役）**：`security-audit`（SKILL.md + 14 份域文档 + `report-schema.json` + 2 个 `.cjs` 校验器，**省略** 2 个 `.test.cjs`——校验器自带单测、SKILL.md 不引用）、`open-code-review`、`open-code-review-delegate`（同仓两件，后者**不需配 LLM 端点**）、`browser-skill`（取 CLI 捆绑的 `crates/bsk-cli/skill/` 全量版而非宿主插件精简版）、`ax-runtime`（**本仓自撰**）。四 IDE 链接 20 条 `.<ide>/skills/<name> -> ../../my-skills/<name>`；`my-skills/INDEX.md` 新增 §1b.1（来源/许可/省略件/安全审计结论/本地注意/与同域既有件的触发分工），现役计数 33→38；拉取脚本随件跟踪在 `my-skills/_repos/fetch-vendor-skills-2026-09.sh`。
+- **上游无 SKILL.md 的处置**：`google/ax` 经 git trees API 全仓扫描确认 **0 个 SKILL.md**——它是 K8s 上的声明式 agent 编排运行时。按用户裁定改为自撰整理稿，正文只抄官方 `README/DESIGN/docs/concepts/manifests`（快照 2026-09-24 main），首屏显式标「本仓自撰、非上游移植」+「本仓无集群 ⇒ 全文未实测」。
+- **CLI 安装与冒烟（真实产物）**：`ocr` **v1.12.9**（npm 全局，`/opt/homebrew/bin/ocr`）→ `ocr review --preview` 实跑通过（本仓 89 文件变更 / 50 待审，≥v1.10.0 故 `--output` 可用）；`bsk` **0.3.1**（官方 install.sh → `~/.local/bin/bsk`，登录 shell PATH 可达，安装脚本自带 checksum 校验）→ `bsk doctor` 报 daemon ok / protocol 1.3 ok / **`FAIL extension connected`（0 browsers）**。两件冒烟同时扇出真前置：**浏览器扩展须用户手工装**、**`ocr review` 须先配 LLM provider**（本仓无 key ⇒ 可用路径是 delegate 件）。
+- **结构处置（沉淀越门）**：两条新条目使 `knowledge/lessons/process.md` 工作树读数 **8919 tok** 越 ctx B 门（8000），而 `knowledge/INDEX.md §4` 禁为分片加豁免 ⇒ 用户拍板**新建 `接入` 标签片** `knowledge/lessons/onboarding.md`（片内 `## 接入` 小标题保留，片头记新切缘由）。同步两处硬映射：`split-knowledge-lessons.mjs::TAG_TO_SHARD` + `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`（**均追加尾部**，不动既有补号序），并回写 `lessons.md` 指针页表与 `knowledge/INDEX.md` §2 类别枚举 / §3 分片表。结果：process **7627** / onboarding **1464**，`process.md` 与 HEAD 逐字一致（无净 diff）。
+- **并发避让（K 号）**：本树 `ledger.nextId = 70`，而并发会话（beads 视觉样式批）已公布 **K-070–072** 且其入账未落本树 ⇒ 直接 sync 必撞号。做法 = 条目内手工写 **K-073 / K-074** 跳过该段，`kb:sync` 采纳既有 ID 并把 `nextId` 抬到 **75**；两边合并时 `ledger.json` / `CHANGELOG.md` 会冲突，由主理人以 `max(既有 ID)+1` 校准后重跑 `kb:sync`（幂等，不产新条）。若 T-207 批最终未入账，070–072 成永久跳空号（递增不回收，合规）。
+- **门禁结果**：`check:links` OK（agents=7 / skills=39）、`check:secrets` OK、`check:plugins` / `check:mcp` OK、`ctx:build` + `ctx:check` OK、`kb:check` 八重校验 PASSED（活跃 71）、`kb:audit` 归档候选与相似命中均无、`selftest:fast` **8/8 PASS**（含 `knowledge:split:selftest` 45/45 断言，证两处映射同步未破装置）。预算面复核：新入 5 件 `.md` 最大 5608 tok（`security-audit/HUNTING.md`），全部 < 8000 ⇒ 无需登记 `vendor-skills` 豁免；且 ctx 只索引 `.md`，随件 `.cjs`（≈8.4k）天然不在 B 门覆盖面内。
+- **沉淀**：K-073（外部 skill 批次接入：上游正文零改写 + 本地差异集中登记 INDEX 批次节）、K-074（接外部能力前先机械验源：「仓库存在」≠「有可转换的 SKILL.md」）。
+- **余项移交**：① 用户在 Chrome/Edge 装 BrowserSkill 扩展后复跑 `bsk doctor` 至无 FAIL；② `ocr` LLM provider 由用户配置（`ocr config provider`）后方可用非 delegate 件；③ `bsk doctor` 冒烟已自启 daemon（pid 31294），本单未停，随宿主会话自然回收；④ 新 skill 生效需重启/新会话（技能清单在会话装配时读取）；⑤ 本单与 T-206/T-207 各产物**均未 commit**，提交批与 `verify` 全量随下次收口。

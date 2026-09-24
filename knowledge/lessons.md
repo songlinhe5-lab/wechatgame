@@ -11,6 +11,7 @@
 | `测试` | `knowledge/lessons/testing.md` |
 | `跨IDE` | `knowledge/lessons/cross-ide.md` |
 | `环境` | `knowledge/lessons/environment.md` |
+| `接入` | `knowledge/lessons/onboarding.md` |
 
 - **引用口径**：一律写 **K-0NN**（可附任务号），**不写文件路径**；ID → 分片由
   `knowledge/INDEX.md` 活跃表的「分片」列机械解析。
