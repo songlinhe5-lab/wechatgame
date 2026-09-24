@@ -385,9 +385,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 2994,
+      "tokens": 2988,
       "lines": 115,
-      "sha256": "6e4e943986fba3896ec127b014126f43cd305bcde81a926d623ef83ff6f3451b",
+      "sha256": "3f864402ab23e60dd15667a7999e2974880070ca791e3b62589af0a7884b32f8",
       "tier": "normal",
       "sections": [
         {
@@ -395,7 +395,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 116,
-          "tokens": 2981,
+          "tokens": 2975,
           "summary": "生成：2026-09-24 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -424,7 +424,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 408,
+          "tokens": 403,
           "summary": "1 production/qa/beads/g4-regression-report.md 86807 2201 nor",
           "keywords": [
             "Top",
@@ -18534,18 +18534,18 @@
     },
     {
       "path": "games/beads/design/gdd/bead-grid.md",
-      "tokens": 9175,
-      "lines": 145,
-      "sha256": "514aad7d44a996ea7707a4c9ae2f7290b72c19315706a0f009585c099c22ee39",
+      "tokens": 9494,
+      "lines": 146,
+      "sha256": "168f27ed2dba87f737d4fe8a789f62c82fa695eb33333f8690645228dbe68323",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S3 拼图网格与填色（Bead Grid）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 146,
-          "tokens": 9158,
-          "summary": "项目：games/beads · 版本 v2.5 · 任务号 WXG-T-186（v2.5 = 组珠消费序改「沿组连通的",
+          "endLine": 147,
+          "tokens": 9477,
+          "summary": "项目：games/beads · 版本 v2.6 · 任务号 WXG-T-204（v2.6 = 取回落槽回退「自动归类」",
           "keywords": [
             "GDD",
             "Bead",
@@ -18573,7 +18573,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 66,
-          "tokens": 2738,
+          "tokens": 2732,
           "summary": "",
           "keywords": [
             "机制"
@@ -18614,7 +18614,7 @@
           "level": 3,
           "startLine": 48,
           "endLine": 60,
-          "tokens": 912,
+          "tokens": 906,
           "summary": "路径 A · 取回（retrieve）——输入：(row, col)（组收进逐颗执行），来自 S2，锚 = board（",
           "keywords": [
             "retrieve",
@@ -18715,7 +18715,7 @@
           "level": 2,
           "startLine": 117,
           "endLine": 131,
-          "tokens": 1478,
+          "tokens": 1508,
           "summary": "1. 初始装配（v2.0 改写）：装载合法关卡后，filled 格数 === 可填格总数、locked 格数 === c",
           "keywords": [
             "filled",
@@ -18729,11 +18729,10 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 132,
-          "endLine": 146,
-          "tokens": 2505,
-          "summary": "v1.0 2026-09-12 建档八节定稿；后续 v1.0 内回写：WXG-T-061 到达序换基准（§6）、WXG-",
+          "endLine": 147,
+          "tokens": 2703,
+          "summary": "v2.6 2026-09-23 取回落槽回退「自动归类」（WXG-T-204，用户裁定，推翻 v2.3 / WXG-T-",
           "keywords": [
-            "§6",
             "WXG",
             "变更记录"
           ]
@@ -18923,20 +18922,20 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 16009,
-      "lines": 196,
-      "sha256": "333f32f6a3e50bc09d87317d3053315da63d9ec74e584793c87d9c4ae2078775",
+      "tokens": 16339,
+      "lines": 197,
+      "sha256": "3d5e66e8517fe38594c2ae30a004ca934e4c6c95b92f8e50a697f807c210ca53",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S2 输入与操控（Input Control）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 197,
-          "tokens": 15993,
-          "summary": "项目：games/beads · 版本 v2.9 · 任务号 WXG-T-187（v2.9 = §8-11 满槽禁取珠收",
+          "endLine": 198,
+          "tokens": 16323,
+          "summary": "项目：games/beads · 版本 v2.10 · 任务号 WXG-T-204（v2.10 = §2.1 路由 4b",
           "keywords": [
-            "§8",
+            "§2.1",
             "GDD",
             "Input",
             "Control",
@@ -18960,7 +18959,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 69,
-          "tokens": 3855,
+          "tokens": 3877,
           "summary": "",
           "keywords": [
             "机制"
@@ -18971,7 +18970,7 @@
           "level": 3,
           "startLine": 15,
           "endLine": 42,
-          "tokens": 2103,
+          "tokens": 2114,
           "summary": "提交时基（v2.5 新增，ADR-0015 §3.5 C-3 = (a) 主理人已裁）：路由入口从 v2.4 的「单指点",
           "keywords": [
             "§3.5",
@@ -19001,7 +19000,7 @@
           "level": 3,
           "startLine": 51,
           "endLine": 62,
-          "tokens": 341,
+          "tokens": 352,
           "summary": "PLAYING 上表全部",
           "keywords": [
             "PLAYING",
@@ -19114,13 +19113,11 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 178,
-          "endLine": 197,
-          "tokens": 4390,
-          "summary": "v1.0 WXG-T-009 交付 初版八节定稿（§2.1 触摸路由表 / §2.3 状态门禁 / §8 十条硬判据） ",
+          "endLine": 198,
+          "tokens": 4592,
+          "summary": "v2.10 2026-09-23 §2.1 路由 4b 取回落槽回退「自动归类」（WXG-T-204，推翻 v2.6 /",
           "keywords": [
             "§2.1",
-            "§2.3",
-            "§8",
             "WXG",
             "变更记录"
           ]
@@ -20900,18 +20897,18 @@
     },
     {
       "path": "games/beads/design/gdd/tray-spawner.md",
-      "tokens": 7020,
-      "lines": 140,
-      "sha256": "7a7680e14496c9adf6120a2520fb78924f740c7ea315aa48eb8073a5f6e08d2c",
+      "tokens": 7293,
+      "lines": 141,
+      "sha256": "0fc92a7bef51c4cd8d519bb3fdf41754731fc8ae7ebbcaf5ad765377124a4d34",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S4 供料与槽位托盘（Tray Spawner）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 141,
-          "tokens": 7002,
-          "summary": "项目：games/beads · 版本 v2.3 · 任务号 WXG-T-168（v2.3 = 取回落槽改「玩家点槽定落",
+          "endLine": 142,
+          "tokens": 7275,
+          "summary": "项目：games/beads · 版本 v2.4 · 任务号 WXG-T-204（v2.4 = 取回落槽回退「自动归类」",
           "keywords": [
             "GDD",
             "Tray",
@@ -20938,7 +20935,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 65,
-          "tokens": 2701,
+          "tokens": 2638,
           "summary": "",
           "keywords": [
             "机制"
@@ -20949,7 +20946,7 @@
           "level": 3,
           "startLine": 15,
           "endLine": 22,
-          "tokens": 629,
+          "tokens": 597,
           "summary": "槽位数组，容量 = TRAY_BASE_SLOTS（2 行实线，§3.4 v1.42 丙档：12→24，WXG-T-20",
           "keywords": [
             "§3.4",
@@ -20992,7 +20989,7 @@
           "level": 3,
           "startLine": 35,
           "endLine": 65,
-          "tokens": 1668,
+          "tokens": 1636,
           "summary": "入槽出口（v2.0 新增，唯一）：",
           "keywords": [
             "珠子入槽与离",
@@ -21072,7 +21069,7 @@
           "level": 2,
           "startLine": 115,
           "endLine": 132,
-          "tokens": 1356,
+          "tokens": 1319,
           "summary": "1. ⛔ 作废（v2.0 / WXG-T-130，用户裁定案 A 供料关停）。原文要点：60s 内 tray:spawn",
           "keywords": [
             "WXG",
@@ -21087,13 +21084,10 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 133,
-          "endLine": 141,
-          "tokens": 1067,
-          "summary": "v1.1 2026-09-14/15 建档后回写：§2.4 GAP-06 缺口登记（WXG-T-081）、§8-1/2 ",
+          "endLine": 142,
+          "tokens": 1337,
+          "summary": "v2.4 2026-09-23 取回落槽回退「自动归类」（WXG-T-204，用户裁定，推翻 v2.3 / WXG-T-",
           "keywords": [
-            "§2.4",
-            "§8",
-            "GAP",
             "WXG",
             "变更记录"
           ]

@@ -954,10 +954,9 @@ export class BeadsGame implements Game {
 
   /**
    * v2.0 取回命令（Epic T-133 E1）— the S2 route 4b → S3/S4 pair-write as a
-   * public command. Takes the explicit misplaced cell `(row, col)`; **v2.3
-   * (WXG-T-168 用户裁定，推翻 v2.2 裁定①) 落槽 = 玩家点槽定落位**：`landSlot`
-   * = 玩家点击的空槽，珠**就落在那一槽**（`insertRun`）。未传 `landSlot` ⇒ 退回
-   * v2.2 的 `insertGrouped` 自动归类（夹具 / 死路径兼容，玩法入口必传）。
+   * public command. Takes the explicit misplaced cell `(row, col)`. **v2.4
+   * (WXG-T-204 用户裁定，推翻 WXG-T-168) 落槽 = 自动归类**：珠落到同色块尾 /
+   * 最左可用空格（`insertGrouped`），玩家点击的空槽仅作 4b 触发、不参与定位。
    *
    * On success: grid `filled(错位)` → `empty` + 入槽 in the same call
    * stack, then `tray:stored {slot, colorIdx, fromRow, fromCol}` — `slot` =
@@ -966,9 +965,9 @@ export class BeadsGame implements Game {
    *
    * @returns true only when the retrieval was stored.
    */
-  retrieveBead(row: number, col: number, landSlot?: number): boolean {
+  retrieveBead(row: number, col: number): boolean {
     if (this._machine.current !== 'playing') return false;
-    const verdict = judgeRetrieve(this._grid, this._tray, row, col, landSlot);
+    const verdict = judgeRetrieve(this._grid, this._tray, row, col);
     if (verdict.outcome === 'stored') {
       this._emit('tray:stored', {
         slot: verdict.slot,
@@ -986,39 +985,31 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * 整组取回（WXG-T-148 裁定 ③④；**v2.3 WXG-T-168 重写落槽与容量口径**）：把
-   * board 锚的错位珠组**一次**收进托盘，落位 = 从玩家点击的空槽 `targetSlot`
-   * 起**连续相邻**排布（`Tray.insertRun`），推翻 v2.2 裁定① 的「自动归类 /
-   * 点槽仅作触发信号」。
+   * 整组取回（WXG-T-148 裁定③④；**v2.4 WXG-T-204 落槽回退自动归类**）：把 board
+   * 锚的错位珠组**一次**收进托盘，落位 = `insertGrouped` 逐颗自动归类（同色成块、
+   * 紧凑无洞），点击空槽仅作 4b 触发、不参与定位（推翻 WXG-T-168 点槽定落位）。
    *
-   * **容量口径（WXG-T-168 用户裁定②，替换旧「整组拒」）**：可收数
-   * `count = min(组大小, 从 targetSlot 起的连续空槽数)` —— **有多少空槽就收多少
-   * 颗**；所收 = 组珠**消费序的前 `count` 颗**（【WXG-T-186 用户裁定】序 = 拾取时一次算好
-   * 的 `planConsumeOrder` 剥皮序，与直填共用同一份；旧 `_nearestFirst` 几何距序作废）。
-   * 收满 ⇒ 锚清除；未收满 ⇒ 剩余珠留在 board 且**锚改指剩余首颗**（可续点，
-   * 锚变更属内部状态，**不发事件**）。
-   * 连续空槽数 = 0 ⇒ 拒绝（零事件零状态写，满槽禁取珠 §3.13 的组化推广）。
+   * **容量口径（WXG-T-204）**：可收数 `count = min(组大小, tray.freeCount)` ——
+   * 有多少空槽收多少颗；所收 = 组珠**消费序的前 `count` 颗**（【WXG-T-186】序 =
+   * 拾取时算好的 `planConsumeOrder` 剥皮序，与直填共用）。收满 ⇒ 锚清；未收满 ⇒
+   * 余珠留 board、**锚改指剩余首颗**（可续点，锚变更不发事件）。`freeCount = 0`
+   * ⇒ 拒绝（零事件零状态写，满槽禁取珠 §3.13 的组化推广）。
    *
-   * 逐颗复用 `retrieveBead`（judgeRetrieve 逐颗原子 + 逐颗 `tray:stored`）；
-   * 万一中途失败（理论不可达）保守中断。
+   * 逐颗复用 `retrieveBead`（judgeRetrieve 逐颗原子 + 逐颗 `tray:stored`）。
    *
-   * @param targetSlot 玩家点击的空槽；省略 ⇒ 回退第一个空槽（夹具 / 旧调用兼容）。
    * @returns 至少收进 1 颗即 true。
    */
-  retrieveSelectedGroup(targetSlot?: number): boolean {
+  retrieveSelectedGroup(): boolean {
     if (this._machine.current !== 'playing') return false;
     const anchor = this._boardSelected;
     if (!anchor) return false;
-    const start = targetSlot ?? this._tray.firstFree();
-    if (start < 0) return false; // 满槽：无任何空槽
-    // 消费序已在拾取那一下算好（`anchor.order` 剥皮序，与直填共用）⇒ 直接从头截取。
-    // 基准 = **选豆点**（`anchorRow/Col`，拾取后恒定；用户裁定 2026-09-20），非会漂移的头珠坐标。
+    if (this._tray.freeCount === 0) return false; // 满槽：无任何空槽
+    // 消费序已在拾取那一下算好（`anchor.order` 剥皮序，与直填共用）⇒ 逐颗从消费序首部归类收进。
     const ordered = anchor.order;
-    const count = Math.min(ordered.length, this._tray.freeRunFrom(start));
-    if (count <= 0) return false; // 该处无连续空槽 ⇒ 零事件零状态写
+    const count = Math.min(ordered.length, this._tray.freeCount);
     for (let i = 0; i < count; i++) {
       const c = ordered[i]!;
-      if (!this.retrieveBead(c.row, c.col, start + i)) break; // 保守中断（理论不可达）
+      if (!this.retrieveBead(c.row, c.col)) break; // 保守中断（理论不可达：freeCount 已足）
     }
     if (count >= ordered.length) {
       this._boardSelected = null; // 整组离格 ⇒ 锚失效
@@ -2176,9 +2167,9 @@ export class BeadsGame implements Game {
     }
     const anchor = this._boardSelected;
     if (!anchor) return; // 4b 无 board 锚：零事件忽略（见方法头注）
-    // v2.3（WXG-T-168）：点击的空槽 = 落位起点（`slot` 即 API 参数，v2.2「仅触发
-    // 信号」口径作废）；容量不足 ⇒ 按距锚就近部分收纳。
-    this.retrieveSelectedGroup(slot);
+    // v2.4（WXG-T-204）：点击的空槽 = 4b 取回触发（落位由 S4 自动归类，slot 不再下传）；
+    // 容量不足 ⇒ 按消费序前缀部分收纳（能收几颗收几颗）。
+    this.retrieveSelectedGroup();
   }
 
   /**

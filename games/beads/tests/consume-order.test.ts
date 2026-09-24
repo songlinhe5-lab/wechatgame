@@ -173,7 +173,7 @@ describe('WXG-T-186 · 直填与取回共用同一消费序', () => {
         for (let i = 0; i < game.tray.capacity - 3; i++) expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
         expect(game.tray.freeCount).toBe(3);
         expect(game.selectBoardBead(0, 0)).toBe(true);
-        expect(game.retrieveSelectedGroup(game.tray.firstFree())).toBe(true);
+        expect(game.retrieveSelectedGroup()).toBe(true);
         const gone = GROUP.filter(([r, c]) => game.grid.cell(r, c)!.state === 'empty');
         expect(gone).toEqual([[0, 0], [1, 0], [2, 0]]);
         const rest = GROUP.filter(([r, c]) => game.grid.cell(r, c)!.state === 'filled').map(([r, c]) => at(r, c));
