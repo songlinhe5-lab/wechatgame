@@ -284,6 +284,18 @@
       "reason": "任务台账主表（SSOT）：跨 IDE 领号与状态总览，按读取协议每会话开工必读；体积主体不是任务行，而是头注「领号注」数十轮累积的并发/撞号散文（第 5 行单行约占全文一半）。详情走 TASKS-DETAIL 分片局部读",
       "note": "2026-09-25（WXG-T-210）本批仅新增 T-209 追认行 + T-210 行（约 160 tok）即把本文件从约 7919 顶到 8079 越 8000 门 ⇒ 债务归属清楚：本批非根因，文件此前已常驻上限 99%。撤销条件（任一达成即须撤豁免，不得靠豁免放任无界膨胀）：① 跑 tasks:archive --detail-until-under=7000 把老化 ✅ 行成对搬入 production/archive/（不进索引面）使主表自然降回门下——check:tasks 的 H 项观察哨已在报「主表 24 行 > 20，该归档」；② 把头注「领号注」的并发/撞号史拆为 production/TASKS-LEDGER-NOTES.md，主表只留「当前已分配至 / 下一可用号」两行。本批不自做 ①②：① 会搬动其他会话的 ✅ 行、② 会改领号协议正文，均超出皮肤系统批范围。登记人 = 主理人(Qoder)",
       "taskId": "WXG-T-210"
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0022-beads-custom-material-shader-feasibility.md",
+      "reason": "beads 自定义材质/Shader 可行性 ADR（真机 spike 取证快照：三角数/DC/fill 实测表逐条内联），与 ADR-0018/0021 同类一次性取证文档：按 ctx 章节锚点局部读、开发期从不整读",
+      "note": "若后续裁定复开使本 ADR 跨轮累积需拆分附录。登记人 = 主对话（用户直派批，挂靠 WXG-T-210）",
+      "taskId": "WXG-T-210"
+    },
+    {
+      "path": "production/qa/beads/render-perf-device-baseline.md",
+      "reason": "beads 真机渲染性能测量单（鸿蒙/小米逐设备读数表·D1/D2 判据·一次性取证清单），与 g4-regression-report 同族：按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
+      "note": "逐设备读数区块随复测增长，超 2 轮再按测量轮拆分。登记人 = 主对话（用户直派批，挂靠 WXG-T-210）",
+      "taskId": "WXG-T-210"
     }
   ]
 }

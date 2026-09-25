@@ -385,17 +385,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3402,
-      "lines": 125,
-      "sha256": "65f022acb9125b32eb754964afb604ee92e8113353ad07e00b1cde1b4aeafc65",
+      "tokens": 3482,
+      "lines": 127,
+      "sha256": "b3446f93e5b882deb5154b15030dfe990b6f614cdc84b6837f0a1c1d653f1e14",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 126,
-          "tokens": 3389,
+          "endLine": 128,
+          "tokens": 3469,
           "summary": "生成：2026-09-25 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -439,8 +439,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 100,
-          "tokens": 1874,
+          "endLine": 102,
+          "tokens": 1954,
           "summary": "games/beads/art/assets-spec.md 91914 见 ctx/budget-exempt.jso",
           "keywords": [
             "tokens",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 101,
-          "endLine": 126,
+          "startLine": 103,
+          "endLine": 128,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4691,
       "lines": 82,
-      "sha256": "a22679944612a5b11ce9fa6d7a9f05d69a0ce858ed33a94676515f9bae73cc46",
+      "sha256": "26311bb0ef41f43e32bece865df4ecf82da5e96ab4e0cee9192c2f32ae9387be",
       "tier": "normal",
       "sections": [
         {
@@ -7229,6 +7229,565 @@
             "Triggers",
             "BEAD_CELL",
             "GAP"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0022-beads-custom-material-shader-feasibility.md",
+      "tokens": 13644,
+      "lines": 344,
+      "sha256": "ceb4cb6ab28688b9d8c9c3caf1c1c882dd748616c431189a55082ada8b85b884",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0022 — 珠体质感改走自定义材质（fragment shader）的技术可行性：乙案「整盘单 pass」有条件采纳，本轮不落码",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 345,
+          "tokens": 13597,
+          "summary": "状态：Accepted（评估与排期裁定） —— 本 ADR 只冻结「值不值得做、走哪条路、卡在哪、怎么判」，不含任何实现",
+          "keywords": [
+            "ADR",
+            "fragment",
+            "shader",
+            "pass",
+            "Accepted",
+            "珠体质感改走"
+          ]
+        },
+        {
+          "anchor": "§0 结论一句话",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 17,
+          "tokens": 342,
+          "summary": "值得做、但不是现在做：三条路线里只有乙（整盘 1 个 quad + 程序化/SDF fragment shader，GL",
+          "keywords": [
+            "quad",
+            "SDF",
+            "fragment",
+            "shader",
+            "结论一句话"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 80,
+          "tokens": 2161,
+          "summary": "",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§1.1 问题",
+          "level": 3,
+          "startLine": 20,
+          "endLine": 23,
+          "tokens": 157,
+          "summary": "现渲染路径下珠体质感由 CPU 叠层逼近（现状九层叠珠 = 12 命令/珠、4 真 α 混合层、7 次圆角曲线展平；一格",
+          "keywords": [
+            "CPU",
+            "问题"
+          ]
+        },
+        {
+          "anchor": "§1.2 仓库事实（已核实）+ 漂移登记",
+          "level": 3,
+          "startLine": 24,
+          "endLine": 41,
+          "tokens": 905,
+          "summary": "F-1 Cocos Creator 3.8.8，工程已导入（library/、profiles/ 存在） games/b",
+          "keywords": [
+            "Cocos",
+            "Creator",
+            "library",
+            "profiles",
+            "games",
+            "仓库事实"
+          ]
+        },
+        {
+          "anchor": "§1.3 实测证据与两个瓶颈假设",
+          "level": 3,
+          "startLine": 42,
+          "endLine": 58,
+          "tokens": 430,
+          "summary": "temp/beads-facet/ 本轮验证（脚本 ab.mjs / lowcost.mjs / styles.mjs ",
+          "keywords": [
+            "temp",
+            "beads",
+            "facet",
+            "mjs",
+            "lowcost",
+            "styles"
+          ]
+        },
+        {
+          "anchor": "§1.4 约束（引用，不重开）",
+          "level": 3,
+          "startLine": 59,
+          "endLine": 69,
+          "tokens": 390,
+          "summary": "L1：场景只 GameRoot + Bootstrap；.scene/.prefab/.meta 禁手编 ⇒ .effe",
+          "keywords": [
+            "GameRoot",
+            "Bootstrap",
+            "scene",
+            "prefab",
+            "meta",
+            "effe"
+          ]
+        },
+        {
+          "anchor": "§1.5 术语消歧框（必读，防后续会话混用）",
+          "level": 3,
+          "startLine": 70,
+          "endLine": 80,
+          "tokens": 214,
+          "summary": "BeadMaterial（ADR-0019） CPU 侧数值参数表（frozen 单例，喂 drawFilledBead",
+          "keywords": [
+            "BeadMaterial",
+            "ADR",
+            "CPU",
+            "frozen",
+            "drawFilledBead",
+            "术语消歧框"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案（Alternatives）",
+          "level": 2,
+          "startLine": 81,
+          "endLine": 131,
+          "tokens": 2272,
+          "summary": "",
+          "keywords": [
+            "Alternatives",
+            "备选方案"
+          ]
+        },
+        {
+          "anchor": "§2.0 路基｜甲案先手：不碰 GPU，在 CPU 路径内换「高适合度风格」",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 88,
+          "tokens": 193,
+          "summary": "做法：把 temp/beads-facet/ 已证可达的五风格（3–7 命令、0 真 α）落成默认观感 = ADR-00",
+          "keywords": [
+            "GPU",
+            "CPU",
+            "temp",
+            "beads",
+            "facet",
+            "ADR"
+          ]
+        },
+        {
+          "anchor": "§2.1 甲｜逐颗珠一个自定义材质实例（每珠 uniform 不同）",
+          "level": 3,
+          "startLine": 89,
+          "endLine": 97,
+          "tokens": 340,
+          "summary": "机制推演（引擎行为，标待实测）：Cocos 3.8 的 2D 批处理按「材质 + 纹理」归批；每珠独立材质实例（不同 u",
+          "keywords": [
+            "uniform",
+            "Cocos",
+            "逐颗珠一个自",
+            "定义材质实例",
+            "每珠",
+            "不同"
+          ]
+        },
+        {
+          "anchor": "§2.2 乙｜整盘一个 quad + 程序化/SDF fragment shader（推荐终态路线）",
+          "level": 3,
+          "startLine": 98,
+          "endLine": 110,
+          "tokens": 988,
+          "summary": "做法：盘面区域由单个挂自定义 effect 的 2D 渲染器承载（可能载体：给 Graphics 直接换材质，或整盘 q",
+          "keywords": [
+            "quad",
+            "SDF",
+            "fragment",
+            "shader",
+            "effect",
+            "Graphics"
+          ]
+        },
+        {
+          "anchor": "§2.3 丙｜运行时烘焙（RenderTexture / 动态图集）",
+          "level": 3,
+          "startLine": 111,
+          "endLine": 116,
+          "tokens": 264,
+          "summary": "诚实定性：它不提升观感上限——烘的就是现在这些平涂层，一像素不多。它是性能手段不是质感手段，别当质感方案卖（本 ADR ",
+          "keywords": [
+            "RenderTexture",
+            "ADR",
+            "运行时烘焙",
+            "动态图集"
+          ]
+        },
+        {
+          "anchor": "§2.4 四路对比表（含路基）",
+          "level": 3,
+          "startLine": 117,
+          "endLine": 131,
+          "tokens": 377,
+          "summary": "draw call 1（不变） 1→N（大概率断批 [待D6]） 1 1（blit）+ 原 Graphics",
+          "keywords": [
+            "draw",
+            "call",
+            "blit",
+            "Graphics",
+            "四路对比表",
+            "含路基"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 132,
+          "endLine": 146,
+          "tokens": 571,
+          "summary": "1. 质感升级的终态路线 = 乙（整盘单 quad + 程序化/SDF shader，GLSL ES 100 下限）；甲",
+          "keywords": [
+            "Decision",
+            "quad",
+            "SDF",
+            "shader",
+            "GLSL",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 147,
+          "endLine": 176,
+          "tokens": 1277,
+          "summary": "",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§4.1 正面",
+          "level": 3,
+          "startLine": 149,
+          "endLine": 156,
+          "tokens": 300,
+          "summary": "1. 质感与性能同向：乙案第一次让「更好看」与「更省 fill」是同一笔投资（单 pass 替 4~20 层混合），不再",
+          "keywords": [
+            "fill",
+            "pass",
+            "正面"
+          ]
+        },
+        {
+          "anchor": "§4.2 负面（已知成本，不是风险——白纸黑字）",
+          "level": 3,
+          "startLine": 157,
+          "endLine": 167,
+          "tokens": 801,
+          "summary": "1. 验收体系永久双轨：bead-render.test 钉的「12 条图元逐 kind 序列」只在 Graphics ",
+          "keywords": [
+            "bead",
+            "render",
+            "test",
+            "kind",
+            "Graphics",
+            "负面"
+          ]
+        },
+        {
+          "anchor": "§4.3 中性 / 待观察",
+          "level": 3,
+          "startLine": 168,
+          "endLine": 176,
+          "tokens": 144,
+          "summary": "微信各机型 WebGL2 覆盖矩阵（D7）——只影响「以后能不能放宽下限」，不影响首版（首版钉 ES 100）。",
+          "keywords": [
+            "WebGL2",
+            "中性",
+            "待观察"
+          ]
+        },
+        {
+          "anchor": "§5 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 177,
+          "endLine": 189,
+          "tokens": 380,
+          "summary": "1. G1+G2 双门禁过（D3–D5 绿 且 D1/D2 裁 H-FILL）⇒ 本 ADR 转「实施中」，另立实施 A",
+          "keywords": [
+            "Review",
+            "Triggers",
+            "FILL",
+            "ADR",
+            "复评触发条件"
+          ]
+        },
+        {
+          "anchor": "§6 阻塞项与解除条件（三类分开）",
+          "level": 2,
+          "startLine": 190,
+          "endLine": 213,
+          "tokens": 546,
+          "summary": "",
+          "keywords": [
+            "阻塞项与解除",
+            "条件",
+            "三类分开"
+          ]
+        },
+        {
+          "anchor": "§6a. 现在就不能做（硬阻塞）",
+          "level": 3,
+          "startLine": 192,
+          "endLine": 199,
+          "tokens": 288,
+          "summary": "B1 写/导入任何 .effect、编译验证、.meta 生成、编辑器日志回读 编辑器进程未在线（F-3；工程与插件本体",
+          "keywords": [
+            "effect",
+            "meta",
+            "现在就不能做",
+            "硬阻塞"
+          ]
+        },
+        {
+          "anchor": "§6b. 编辑器一开就能做（B1 解除后即可）",
+          "level": 3,
+          "startLine": 200,
+          "endLine": 205,
+          "tokens": 100,
+          "summary": "D3（effect 资产导入→编译链冒烟）、D4（最小 Spike 出图）、D5（draw call 读数）、D6（甲路",
+          "keywords": [
+            "effect",
+            "Spike",
+            "draw",
+            "call",
+            "编辑器一开就",
+            "能做"
+          ]
+        },
+        {
+          "anchor": "§6c. 必须真机数据才能判（编辑器也替代不了）",
+          "level": 3,
+          "startLine": 206,
+          "endLine": 213,
+          "tokens": 105,
+          "summary": "D1/D2（瓶颈假设裁判）、D7（WebGL2/uniform 实配矩阵）、D8（per-pixel 成本与每帧纹理上传",
+          "keywords": [
+            "WebGL2",
+            "uniform",
+            "per",
+            "pixel",
+            "必须真机数据",
+            "才能判"
+          ]
+        },
+        {
+          "anchor": "§7 可执行实测判据（D1–D8）",
+          "level": 2,
+          "startLine": 214,
+          "endLine": 230,
+          "tokens": 1218,
+          "summary": "工具面：Cocos 编辑器 MCP（debug_* 回读 / asset_* 导入，白名单纪律见控制清单 §14）、to",
+          "keywords": [
+            "§14",
+            "Cocos",
+            "MCP",
+            "debug_",
+            "asset_",
+            "可执行实测判"
+          ]
+        },
+        {
+          "anchor": "§8 分层落位与验收方案（本 ADR 的落码边界，非落码）",
+          "level": 2,
+          "startLine": 231,
+          "endLine": 261,
+          "tokens": 1344,
+          "summary": "",
+          "keywords": [
+            "ADR",
+            "分层落位与验",
+            "收方案",
+            "的落码边界",
+            "非落码"
+          ]
+        },
+        {
+          "anchor": "§8.1 代码与资产住哪（核心理由：镜像纪律 + L1–L3 现状原样保持）",
+          "level": 3,
+          "startLine": 233,
+          "endLine": 242,
+          "tokens": 521,
+          "summary": ".effect 源（GLSL） games/beads/cocos/assets/effects/（编辑器导入产 .me",
+          "keywords": [
+            "effect",
+            "GLSL",
+            "games",
+            "beads",
+            "cocos",
+            "assets"
+          ]
+        },
+        {
+          "anchor": "§8.2 「像素等价」放弃后的验收方案（最易被忽略、必须给的那条）",
+          "level": 3,
+          "startLine": 243,
+          "endLine": 252,
+          "tokens": 492,
+          "summary": "三层，从上到下保护强度递减、成本递增：",
+          "keywords": [
+            "像素等价",
+            "放弃后的验收",
+            "方案",
+            "最易被忽略",
+            "必须给的那条"
+          ]
+        },
+        {
+          "anchor": "§8.3 与既有裁定的相容性自检（不推翻已裁的）",
+          "level": 3,
+          "startLine": 253,
+          "endLine": 261,
+          "tokens": 251,
+          "summary": "ADR-0005：本 ADR 是其 §5「新 VFX 使指令数倍增/复评」路径的质感侧延长线，方案 A 在触发前维持现行",
+          "keywords": [
+            "§5",
+            "ADR",
+            "VFX",
+            "与既有裁定的",
+            "相容性自检",
+            "不推翻已裁的"
+          ]
+        },
+        {
+          "anchor": "§9 控制清单增补建议文案（**不入库**，交主理人拍板后由工程单落表）",
+          "level": 2,
+          "startLine": 262,
+          "endLine": 285,
+          "tokens": 484,
+          "summary": "",
+          "keywords": [
+            "控制清单增补",
+            "建议文案",
+            "不入库",
+            "交主理人拍板",
+            "后由工程单落"
+          ]
+        },
+        {
+          "anchor": "§10 未决问题（交主理人 → 用户）",
+          "level": 2,
+          "startLine": 286,
+          "endLine": 294,
+          "tokens": 305,
+          "summary": "Q1 排序：(a) 路基甲案（高适合度皮肤）与 D1/D2 真机测量并行，乙案过双门禁后立项（建议）；(b) 先测量、皮",
+          "keywords": [
+            "未决问题",
+            "交主理人",
+            "用户"
+          ]
+        },
+        {
+          "anchor": "§11 实测回写（2026-09-25 第二轮 · 编辑器进程已上线 · 判据 D3/D4/D5 取证）",
+          "level": 2,
+          "startLine": 295,
+          "endLine": 345,
+          "tokens": 2226,
+          "summary": "本节由主理人侧直接补写（取证方即本会话，事实一手，不再转述以免失真）。本节条目覆盖本文早先与之冲突的表述。",
+          "keywords": [
+            "实测回写",
+            "第二轮",
+            "编辑器进程已",
+            "上线",
+            "判据",
+            "取证"
+          ]
+        },
+        {
+          "anchor": "§11.1 门禁状态变化",
+          "level": 3,
+          "startLine": 299,
+          "endLine": 304,
+          "tokens": 172,
+          "summary": "F-3 的阻塞「编辑器进程不在线」已解除（MCP 实连 127.0.0.1:7456，check_ready:true；",
+          "keywords": [
+            "MCP",
+            "check_ready",
+            "true",
+            "门禁状态变化"
+          ]
+        },
+        {
+          "anchor": "§11.2 实测读数",
+          "level": 3,
+          "startLine": 305,
+          "endLine": 315,
+          "tokens": 278,
+          "summary": "D3 导入→编译 ✅ .effect → cc.EffectAsset，imported:true，产物 library",
+          "keywords": [
+            "effect",
+            "EffectAsset",
+            "imported",
+            "true",
+            "library",
+            "实测读数"
+          ]
+        },
+        {
+          "anchor": "§11.3 改判条目",
+          "level": 3,
+          "startLine": 316,
+          "endLine": 323,
+          "tokens": 613,
+          "summary": "1. §2.2 载体①「给 cc.Graphics 直接换材质」—— 否证。 实测：全场景只有 1 个渲染组件承载 UI",
+          "keywords": [
+            "§2.2",
+            "Graphics",
+            "改判条目"
+          ]
+        },
+        {
+          "anchor": "§11.4 低端机坑清单（本轮新增，按危害排序）",
+          "level": 3,
+          "startLine": 324,
+          "endLine": 336,
+          "tokens": 690,
+          "summary": "P-1 uniform 预算被引擎内建块吃掉。实测 passes[0]._propertyHandleMap 里除我声明",
+          "keywords": [
+            "uniform",
+            "passes",
+            "propertyHandleMap",
+            "低端机坑清单",
+            "本轮新增",
+            "按危害排序"
+          ]
+        },
+        {
+          "anchor": "§11.5 Spike 现场与回滚",
+          "level": 3,
+          "startLine": 337,
+          "endLine": 345,
+          "tokens": 367,
+          "summary": "新增：games/beads/cocos/assets/effects/bead-field.effect、games/",
+          "keywords": [
+            "Spike",
+            "games",
+            "beads",
+            "cocos",
+            "assets",
+            "effects"
           ]
         }
       ]
@@ -68092,6 +68651,441 @@
           "keywords": [
             "Playtest",
             "FTUE",
+            "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/render-perf-device-baseline.md",
+      "tokens": 16703,
+      "lines": 423,
+      "sha256": "3b1630144f6a5d26807d1ae56117d4077ef960004892b99780736bc44b514ab6",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads 渲染性能真机测量单 — ADR-0022 §7 D1 / D2 / D7 / D8",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 424,
+          "tokens": 16683,
+          "summary": "项目：games/beads ｜ 落位：production/qa/beads/ ｜ 作者：严守真（quality-le",
+          "keywords": [
+            "§7",
+            "beads",
+            "ADR",
+            "games",
+            "production",
+            "quality"
+          ]
+        },
+        {
+          "anchor": "§0 三条必读消歧（防后续会话混用）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 30,
+          "tokens": 629,
+          "summary": "G1 / G2 ⚠️ 一词二义：① ADR-0022 §3-2 的 G1 编辑器门禁 / G2 数据门禁（乙案立项双门）",
+          "keywords": [
+            "§3",
+            "ADR",
+            "三条必读消歧",
+            "防后续会话混"
+          ]
+        },
+        {
+          "anchor": "§1 四条判据的通过线（一句话版，摘自 ADR-0022 §7 原文）",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 41,
+          "tokens": 476,
+          "summary": "D1 在低端锚点 ≥2 台产出基线表（fps p10/p50 + 单帧 JS ms + draw call + 三角/顶",
+          "keywords": [
+            "§7",
+            "ADR",
+            "fps",
+            "p10",
+            "p50",
+            "draw"
+          ]
+        },
+        {
+          "anchor": "§2 设备矩阵（≥5 档）",
+          "level": 2,
+          "startLine": 42,
+          "endLine": 102,
+          "tokens": 2593,
+          "summary": "型号只列常见公开档位作采样建议，不预填任何测试数据（全部 [待填]）。SoC 一律人工查表登记（wx.getSystem",
+          "keywords": [
+            "SoC",
+            "getSystem",
+            "设备矩阵"
+          ]
+        },
+        {
+          "anchor": "§2.1 在手设备与缺口（v1.1 登记、v1.2 订正；**查表值一律让位于机侧实读**）",
+          "level": 3,
+          "startLine": 66,
+          "endLine": 86,
+          "tokens": 923,
+          "summary": "⚠️ v1.2 现场教训：下表原按公开资料把畅享记作 HarmonyOS 6，用户机侧实读为 7.0.0 ⇒ 证实查表值",
+          "keywords": [
+            "HarmonyOS",
+            "在手设备与缺",
+            "登记",
+            "订正",
+            "查表值一律让",
+            "位于机侧实读"
+          ]
+        },
+        {
+          "anchor": "§2.2 鸿蒙资格三关（v1.1 新增，**先于一切测量执行**）",
+          "level": 3,
+          "startLine": 87,
+          "endLine": 102,
+          "tokens": 799,
+          "summary": "背景：畅享实读系统为 HarmonyOS 7.0.0（机侧实读，v1.2 订正；公开资料记 6）= 纯血鸿蒙，微信小游戏",
+          "keywords": [
+            "HarmonyOS",
+            "鸿蒙资格三关",
+            "新增",
+            "先于一切测量",
+            "执行"
+          ]
+        },
+        {
+          "anchor": "§3 埋点、记录 schema 与取证命名（D1/D2 共用）",
+          "level": 2,
+          "startLine": 103,
+          "endLine": 144,
+          "tokens": 1198,
+          "summary": "",
+          "keywords": [
+            "schema",
+            "埋点",
+            "记录",
+            "与取证命名",
+            "共用"
+          ]
+        },
+        {
+          "anchor": "§3.1 三个必测量的取法",
+          "level": 3,
+          "startLine": 105,
+          "endLine": 112,
+          "tokens": 314,
+          "summary": "帧时间 / fps p10/p50/p90 自埋 requestAnimationFrame 时间戳环形缓冲（60s ≈",
+          "keywords": [
+            "fps",
+            "p10",
+            "p50",
+            "p90",
+            "requestAnimationFrame",
+            "三个必测量的"
+          ]
+        },
+        {
+          "anchor": "§3.2 α / fill 口径补全（本单要补的口径缺口）",
+          "level": 3,
+          "startLine": 113,
+          "endLine": 127,
+          "tokens": 446,
+          "summary": "现口径（assets-spec §1.6.9 / §1.9.5）只数图元/层级/命令条数，α 层的每像素混合代价不可见（",
+          "keywords": [
+            "§1.6.9",
+            "§1.9.5",
+            "fill",
+            "assets",
+            "spec",
+            "口径补全"
+          ]
+        },
+        {
+          "anchor": "§3.3 记录落盘与命名",
+          "level": 3,
+          "startLine": 128,
+          "endLine": 144,
+          "tokens": 399,
+          "summary": "",
+          "keywords": [
+            "记录落盘与命"
+          ]
+        },
+        {
+          "anchor": "§4 构建与部署前置（从现有产物到真机跑起来）",
+          "level": 2,
+          "startLine": 145,
+          "endLine": 159,
+          "tokens": 1025,
+          "summary": "0 核对产物在位且新鲜：du -sh games/beads/cocos/build/wechatgame（现 2.8 ",
+          "keywords": [
+            "games",
+            "beads",
+            "cocos",
+            "build",
+            "wechatgame",
+            "构建与部署前"
+          ]
+        },
+        {
+          "anchor": "§5 D1 — 现路径真机基线",
+          "level": 2,
+          "startLine": 160,
+          "endLine": 192,
+          "tokens": 1053,
+          "summary": "测什么（每档 × 每盘档，见 §9）：fps p10 / p50（+p90）、单帧 JS ms（buildRenderM",
+          "keywords": [
+            "§9",
+            "fps",
+            "p10",
+            "p50",
+            "p90",
+            "buildRenderM"
+          ]
+        },
+        {
+          "anchor": "§5.1 D1 首轮预读（2026-09-25，探针 v4 粘贴版；**未达轮数与噪声底 ⇒ 不作判据**）",
+          "level": 3,
+          "startLine": 175,
+          "endLine": 192,
+          "tokens": 572,
+          "summary": "⚠️ 本条是「方向性预读」，不是 D1 达线记录：只跑了 1 轮（要求 ≥3 轮），且同类静息窗 A/C 的 p50 差",
+          "keywords": [
+            "p50",
+            "首轮预读",
+            "探针",
+            "粘贴版",
+            "未达轮数与噪",
+            "声底"
+          ]
+        },
+        {
+          "anchor": "§6 D2 — 双变量对照（本单核心）",
+          "level": 2,
+          "startLine": 193,
+          "endLine": 239,
+          "tokens": 1925,
+          "summary": "",
+          "keywords": [
+            "双变量对照",
+            "本单核心"
+          ]
+        },
+        {
+          "anchor": "§6.1 臂矩阵（每臂只改一列）",
+          "level": 3,
+          "startLine": 195,
+          "endLine": 215,
+          "tokens": 1104,
+          "summary": "对照基准 E0 = 现状（12 命令 · 7 曲线 · 4 α · α 面积 A）。",
+          "keywords": [
+            "臂矩阵",
+            "每臂只改一列"
+          ]
+        },
+        {
+          "anchor": "§6.2 执行序（防热降频冒充变量效应）",
+          "level": 3,
+          "startLine": 216,
+          "endLine": 222,
+          "tokens": 141,
+          "summary": "1. 同机、同盘档、同 zoom、同态、同时间（避免来电/后台）；",
+          "keywords": [
+            "zoom",
+            "执行序",
+            "防热降频冒充",
+            "变量效应"
+          ]
+        },
+        {
+          "anchor": "§6.3 判读规则（读数用**帧时间中位数 ms**，fps 只作呈现）",
+          "level": 3,
+          "startLine": 223,
+          "endLine": 239,
+          "tokens": 624,
+          "summary": "敏感线 S = 15%（改善 = (t_基准 − t_臂)/t_基准 ≥ S）——⚠️ ADR §7-D2 原写「建议值",
+          "keywords": [
+            "§7",
+            "fps",
+            "ADR",
+            "判读规则",
+            "读数用",
+            "帧时间中位数"
+          ]
+        },
+        {
+          "anchor": "§7 D7 — 平台能力矩阵",
+          "level": 2,
+          "startLine": 240,
+          "endLine": 316,
+          "tokens": 1982,
+          "summary": "",
+          "keywords": [
+            "平台能力矩阵"
+          ]
+        },
+        {
+          "anchor": "§7.1 采集片段（可粘进小游戏控制台；控制台不可达时改宿主埋点，同一份代码）",
+          "level": 3,
+          "startLine": 242,
+          "endLine": 287,
+          "tokens": 701,
+          "summary": "",
+          "keywords": [
+            "采集片段",
+            "可粘进小游戏",
+            "控制台",
+            "控制台不可达",
+            "时改宿主埋点",
+            "同一份代码"
+          ]
+        },
+        {
+          "anchor": "§7.2 矩阵与判据",
+          "level": 3,
+          "startLine": 288,
+          "endLine": 298,
+          "tokens": 378,
+          "summary": "WebGL2 有无 只登记，首版不赌（设计下限钉死 GLSL ES 100） 拿不到 webgl2 ⇒ 正常（按 ES1",
+          "keywords": [
+            "WebGL2",
+            "GLSL",
+            "webgl2",
+            "ES1",
+            "矩阵与判据"
+          ]
+        },
+        {
+          "anchor": "§7.3 实测回填（v1.3，2026-09-25；屏幕弹窗取证，**不依赖日志通道**）",
+          "level": 3,
+          "startLine": 299,
+          "endLine": 316,
+          "tokens": 831,
+          "summary": "方法注（重要，后续会话请沿用）：探针以 require('./qa-probe.js') 注入 build/wechat",
+          "keywords": [
+            "require",
+            "probe",
+            "build",
+            "wechat",
+            "实测回填",
+            "屏幕弹窗取证"
+          ]
+        },
+        {
+          "anchor": "§8 D8 — 成本上界（本轮 BLOCKED，只落测法与口径）",
+          "level": 2,
+          "startLine": 317,
+          "endLine": 326,
+          "tokens": 461,
+          "summary": "前置声明（诚实）：D8 两项都要求「D4 Spike 场景的 shader 变体开关」与「运行时 3.4 KB 纹理上传",
+          "keywords": [
+            "BLOCKED",
+            "Spike",
+            "shader",
+            "成本上界",
+            "本轮",
+            "只落测法与口"
+          ]
+        },
+        {
+          "anchor": "§9 Playtest / 回归口径（含最小可判样本）",
+          "level": 2,
+          "startLine": 327,
+          "endLine": 351,
+          "tokens": 782,
+          "summary": "盘档（每档都要标 zoom 与态）",
+          "keywords": [
+            "Playtest",
+            "zoom",
+            "回归口径",
+            "含最小可判样"
+          ]
+        },
+        {
+          "anchor": "§10 假绿禁令与缺陷分级",
+          "level": 2,
+          "startLine": 352,
+          "endLine": 379,
+          "tokens": 901,
+          "summary": "",
+          "keywords": [
+            "假绿禁令与缺",
+            "陷分级"
+          ]
+        },
+        {
+          "anchor": "§10.1 什么算假绿（本单硬禁令，违反 = 结论作废并开单）",
+          "level": 3,
+          "startLine": 354,
+          "endLine": 369,
+          "tokens": 620,
+          "summary": "1 ⛔ 禁以 Chrome / 桌面 / web-mobile / 微信开发者工具模拟器 数据替代低端真机 ADR §6",
+          "keywords": [
+            "§6",
+            "Chrome",
+            "web",
+            "mobile",
+            "ADR",
+            "什么算假绿"
+          ]
+        },
+        {
+          "anchor": "§10.2 缺陷分级挂钩（模板同 `bug-severity.md`：`[P?] 现象` + 复现 / 期望 vs 实际 / 环境 / 证据）",
+          "level": 3,
+          "startLine": 370,
+          "endLine": 379,
+          "tokens": 218,
+          "summary": "P0 真机黑屏 / 崩溃 / 卡在首屏；或真机日志通道全不可用（D1/D2 无法取证，阻断 ADR 的 G2，解除条件见",
+          "keywords": [
+            "bug-severity.md",
+            "[P?] 现象",
+            "bug",
+            "severity",
+            "ADR",
+            "缺陷分级挂钩"
+          ]
+        },
+        {
+          "anchor": "§11 口径缺口登记（交主理人分派，本 QA 不改它域文档）",
+          "level": 2,
+          "startLine": 380,
+          "endLine": 392,
+          "tokens": 751,
+          "summary": "DG-1 ADR §7-D1 的 std29 满盘 与 §3 GRID_MAX 32 在入包关卡表中都不存在（现行 8 ",
+          "keywords": [
+            "§7",
+            "§3",
+            "ADR",
+            "std29",
+            "GRID_MAX",
+            "口径缺口登记"
+          ]
+        },
+        {
+          "anchor": "§12 执行 checklist（v1.1 按在手设备与源码核实结果重排）",
+          "level": 2,
+          "startLine": 393,
+          "endLine": 414,
+          "tokens": 958,
+          "summary": "重排原则：先做零成本且能判死资格的事（鸿蒙三关 / D7）→ 再埋点 → 再基线 → 再臂矩阵。",
+          "keywords": [
+            "checklist",
+            "执行",
+            "按在手设备与",
+            "源码核实结果",
+            "重排"
+          ]
+        },
+        {
+          "anchor": "§13 变更记录",
+          "level": 2,
+          "startLine": 415,
+          "endLine": 424,
+          "tokens": 1253,
+          "summary": "v1.0 2026-09-25 首版：由 ADR-0022 §7 的 D1/D2/D7/D8 导出真机测量单（设备矩阵 ",
+          "keywords": [
+            "§7",
+            "ADR",
             "变更记录"
           ]
         }

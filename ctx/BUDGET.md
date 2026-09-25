@@ -34,14 +34,14 @@
 | 10 | `games/beads/design/gdd/systems-index.md` | 20517 | 297 | hot |
 | 11 | `games/beads/design/proposals/bead-visual-style-spec.md` | 17796 | 490 | normal |
 | 12 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 16757 | 487 | normal |
-| 13 | `games/beads/design/gdd/input-control.md` | 16339 | 197 | normal |
-| 14 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15894 | 452 | normal |
-| 15 | `games/beads/design/proposals/sec3-5mm32-render-base-change.md` | 15461 | 364 | normal |
-| 16 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 357 | normal |
-| 17 | `games/beads/design/audio/audio-spec.md` | 13867 | 381 | normal |
-| 18 | `games/beads/design/proposals/sec3-5mm32-render-base-change-final.md` | 13335 | 281 | normal |
-| 19 | `docs/architecture/adr/ADR-0023-beads-procedural-bead-style-plugin.md` | 12653 | 265 | normal |
-| 20 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 525 | normal |
+| 13 | `production/qa/beads/render-perf-device-baseline.md` | 16703 | 423 | normal |
+| 14 | `games/beads/design/gdd/input-control.md` | 16339 | 197 | normal |
+| 15 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15894 | 452 | normal |
+| 16 | `games/beads/design/proposals/sec3-5mm32-render-base-change.md` | 15461 | 364 | normal |
+| 17 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 357 | normal |
+| 18 | `games/beads/design/audio/audio-spec.md` | 13867 | 381 | normal |
+| 19 | `docs/architecture/adr/ADR-0022-beads-custom-material-shader-feasibility.md` | 13644 | 344 | normal |
+| 20 | `games/beads/design/proposals/sec3-5mm32-render-base-change-final.md` | 13335 | 281 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -59,11 +59,13 @@
 | `games/beads/design/gdd/systems-index.md` | 20517 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/bead-visual-style-spec.md` | 17796 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 16757 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/qa/beads/render-perf-device-baseline.md` | 16703 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 16339 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15894 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/sec3-5mm32-render-base-change.md` | 15461 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 13867 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `docs/architecture/adr/ADR-0022-beads-custom-material-shader-feasibility.md` | 13644 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/sec3-5mm32-render-base-change-final.md` | 13335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0023-beads-procedural-bead-style-plugin.md` | 12653 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
