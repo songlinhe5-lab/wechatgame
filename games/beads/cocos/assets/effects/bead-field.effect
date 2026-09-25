@@ -1,0 +1,157 @@
+// SPIKE v2（ADR-0022 判据 D4/D5）：整盘一个图元 + 程序化片元 —— 试错件，默认不接进玩法。
+//
+// v1 的否证：全 UI 共用一块 `cc.Graphics`，换材质 = 面板/按钮/背景一起被重绘成珠子。
+// v2 改走「**独立 Graphics 节点 + 只画一枚满幅 rect**」：几何 = 2 三角，整盘珠子在片元里算。
+// 顶点流仍复用 Graphics 的 a_position / a_color / a_dist ⇒ 零新载体 API 风险。
+//
+// 设计下限：GLSL ES 100（WebGL1）。引擎会同时产出 glsl1/glsl3/glsl4，
+// fwidth 在 glsl1 里自带 `#extension` 守卫（照抄 builtin-graphics.effect 的写法）。
+//
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: bead-vs:vert
+      frag: bead-fs:frag
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: one
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      properties: &props
+        tint:  { value: [1, 1, 1, 1], editor: { type: color } }
+        # std140：vec4 先排、float 后聚（EFX2205 教过：混排会插 12 字节隐式填充）。
+        # CCEffect 块是 YAML，注释只能用 #（用 // 会触发 EFX1001）。
+        shade: { value: [-0.16, -0.30, 0.38, -0.55] }
+        # x = 格原点 X（局部坐标）, y = 格原点 Y, z = 格距, w = 圆角半径
+        grid:  { value: [-330, -330, 66, 20] }
+        pal0:  { value: [0.91, 0.30, 0.24, 1.0] }
+        pal1:  { value: [0.25, 0.75, 0.42, 1.0] }
+        pal2:  { value: [0.24, 0.48, 0.96, 1.0] }
+        pal3:  { value: [0.99, 0.82, 0.25, 1.0] }
+        holeRatio: { value: 0.44, editor: { slide: [0, 0.8, 0.01] } }
+        facetSoft: { value: 0.18, editor: { slide: [0, 1, 0.01] } }
+}%
+
+CCProgram bead-vs %{
+  precision highp float;
+
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+
+  in vec3 a_position;
+  in vec4 a_color;
+  in float a_dist;
+
+  out vec4 v_color;
+  out vec2 v_local;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+    pos = cc_matViewProj * cc_matWorld * pos;
+
+    v_color = a_color;
+    // 整盘只一枚图元 ⇒ 不需要 a_dist（那是 Graphics 逐图元自己的 SDF 距离）。
+    // 保留声明是为了与 builtin-graphics 的顶点流对齐，让同一 effect 两种载体都能编。
+    v_local = a_position.xy;
+
+    return pos;
+  }
+}%
+
+CCProgram bead-fs %{
+  #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])
+
+  precision highp float;
+
+  in vec4 v_color;
+  in vec2 v_local;
+
+  uniform Constant {
+    vec4 tint;
+    // x = 右面暗量, y = 下面暗量, z = 上面亮量, w = 孔底暗量
+    vec4 shade;
+    vec4 grid;
+    vec4 pal0;
+    vec4 pal1;
+    vec4 pal2;
+    vec4 pal3;
+    float holeRatio;
+    float facetSoft;
+  };
+
+  float sdRoundBox (vec2 p, vec2 b, float r) {
+    vec2 q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r;
+  }
+
+  vec4 shadeBy (vec4 c, float k) {
+    vec3 target = k >= 0.0 ? vec3(1.0) : vec3(0.0);
+    return vec4(mix(c.rgb, target, abs(k)), c.a);
+  }
+
+  // 色板取数：全用 step/mix，不写 if —— 低端 GPU 上分支发散是真实成本。
+  vec4 pick (float i) {
+    vec4 c = pal0;
+    c = mix(c, pal1, step(0.5, i) * (1.0 - step(1.5, i)));
+    c = mix(c, pal2, step(1.5, i) * (1.0 - step(2.5, i)));
+    c = mix(c, pal3, step(2.5, i));
+    return c;
+  }
+
+  vec4 frag () {
+    float cs = grid.z;
+    // ⚠ 关键修正（v1 实测到格相位错位）：必须以**格原点**为基准算 fract，
+    //   不能假设节点原点/屏幕中心与格心对齐。格原点只能由布局真源 gridLayoutFor 供。
+    vec2 cell = (v_local - grid.xy) / cs;
+    vec2 ci = floor(cell);
+    vec2 g = cell - ci - vec2(0.5);
+
+    float halfBox = 0.5 * 0.9375;
+    float r = grid.w / cs;
+    float d = sdRoundBox(g * cs, vec2(halfBox * cs), r);
+
+    #if __VERSION__ < 300
+      #ifdef GL_OES_standard_derivatives
+        float aa = fwidth(d);
+      #else
+        float aa = 0.6;
+      #endif
+    #else
+      float aa = fwidth(d);
+    #endif
+    aa = max(aa, 0.35);
+
+    // 每格一色：演示「格索引 → 色板取数」这条通道（正式版索引来自一格一纹素的纹理）
+    float idx = mod(ci.x + ci.y * 3.0, 4.0);
+    vec4 o = pick(idx) * v_color;
+
+    // 四棱刻面：左上受光最亮 / 左主色 / 右暗一档 / 下最暗
+    float up = step(0.0, g.y);
+    float rgt = step(0.0, g.x);
+    float k = mix(0.0, shade.x, rgt);
+    k = mix(k, shade.y, 1.0 - up);
+    k = k + shade.z * up * (1.0 - rgt);
+    o = shadeBy(o, k);
+
+    // 中心孔（识别红线 ⇒ 做成强制输出不变式，LOD 不可砍）
+    float holeR = 0.5 * holeRatio * 0.9375;
+    float hd = length(g) - holeR;
+    float holeMask = 1.0 - smoothstep(-aa / cs, aa / cs, hd);
+    o = mix(o, shadeBy(o, shade.w), holeMask);
+
+    // 珠外透明：让底图/凹槽透出来
+    o.a *= 1.0 - smoothstep(-aa, 0.0, d);
+    o.rgb *= o.a;   // 预乘 α，与 pass 的 blendSrc: one 对齐
+
+    return o;
+  }
+}%

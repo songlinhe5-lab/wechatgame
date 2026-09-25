@@ -17,6 +17,7 @@ import { _decorator } from 'cc';
 import { Bootstrap } from './framework/adapters/cocos/bindings';
 import type { Game } from './framework/core/game/game';
 import { createBeadsShell } from './game/index';
+import { installBeadFieldSpike } from './spike/bead-field-host';
 
 const { ccclass } = _decorator;
 
@@ -108,6 +109,8 @@ export class BeadsBootstrap extends Bootstrap {
       g.__WXG_TOUCH_DEBUG ? shell.play.debugCellCenter(row, col) : null;
     // 拖拽链闸位（手指还在按下时采样）：定位「能缩放不能拖动」到底卡在哪个分支。
     g.__WXG_GESTURE_DEBUG = () => (g.__WXG_TOUCH_DEBUG ? shell.play.debugGestureState() : null);
+    // ADR-0022 Spike（D4/D5/D7）：仅 `?spike=1` 生效，默认零开销。
+    installBeadFieldSpike();
     return shell;
   }
 }
