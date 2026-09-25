@@ -43,6 +43,7 @@ export type PausePanelAction =
   | 'toggle-reduce-motion'
   | 'toggle-large-text'
   | 'toggle-vibrate'
+  | 'toggle-debug-info'
   | 'start-sprint'
   | 'go-menu';
 
@@ -140,17 +141,21 @@ function normalLayout(): PausePanelLayout {
     });
   }
 
-  // Row 4 — 回主菜单次钮（pause-settings v1.3 §8-11）。**WXG-T-177（用户 2026-09-19
-  // 「去冲刺按钮先隐藏」）**：原 2-cell「start-sprint / go-menu」中的冲刺入口隐藏
-  // ⇒ 本行只余「回主菜单」并**居中**（落位表达式与 `sprintLayout` 同源，两模式一致；
-  // 旧 2 格均分见 `ux-spec §3.3` 图，已按 K-053 删划线留档）。恢复时按 U1 原口径
+  // Row 4 — 两格（pause-settings v1.6 §2.2）。**WXG-T-177（用户 2026-09-19
+  // 「去冲刺按钮先隐藏」）**：原 2-cell「start-sprint / go-menu」中的冲刺入口隐藏；
+  // v1.6（debug 工具批）把空出的左格补成「性能信息」覆层开关（真机 QA 无 console，
+  // 需可点击入口），「回主菜单」退回右格——居中口径随 v1.5 作废。恢复冲刺入口时
   // 复建 `'start-sprint'` 即可（`PausePanelAction` 成员与其处理分支均保留）。
   const row4Top = row3Bottom - PANEL_ROW_GAP;
   const row4Bottom = row4Top - PANEL_BUTTON_H;
   const cell2W = (innerWidth - gap) / 2;
   buttons.push({
+    id: 'toggle-debug-info',
+    rect: rect(innerLeft, row4Bottom, cell2W, PANEL_BUTTON_H),
+  });
+  buttons.push({
     id: 'go-menu',
-    rect: rect(innerLeft + (innerWidth - cell2W) / 2, row4Bottom, cell2W, PANEL_BUTTON_H),
+    rect: rect(innerLeft + cell2W + gap, row4Bottom, cell2W, PANEL_BUTTON_H),
   });
 
   _normal = { panel: plate, buttons, titleY: plate.yMax - 60 };
@@ -161,35 +166,9 @@ function normalLayout(): PausePanelLayout {
 function sprintLayout(): PausePanelLayout {
   if (_sprint) return _sprint;
   const full = normalLayout();
-  const plate = full.panel;
-  // 少了第 4 行的一枚 cell ⇒ 整组按钮下移半行距保持视觉居中（旧判例同型）。
-  const shift = (PANEL_BUTTON_H + PANEL_ROW_GAP) / 2;
-  const innerWidth = PANEL_SIZE.w - PANEL_PADDING * 2;
-  const gap = 20;
-  const innerLeft = plate.xMin + PANEL_PADDING;
-  const buttons: PanelButton[] = [];
-  for (const b of full.buttons) {
-    if (b.id === 'start-sprint') continue;
-    if (b.id === 'go-menu') {
-      // 行 4 只剩单钮：水平居中、保持 2-cell 宽（不拉满整行），垂直同其余钮上移半行距。
-      const cell2W = (innerWidth - gap) / 2;
-      buttons.push({
-        id: b.id,
-        rect: rect(
-          innerLeft + (innerWidth - cell2W) / 2,
-          b.rect.yMin + shift,
-          cell2W,
-          PANEL_BUTTON_H,
-        ),
-      });
-      continue;
-    }
-    buttons.push({
-      id: b.id,
-      rect: rect(b.rect.xMin, b.rect.yMin + shift, b.rect.xMax - b.rect.xMin, PANEL_BUTTON_H),
-    });
-  }
-  _sprint = { panel: plate, buttons, titleY: full.titleY };
+  // v1.6 起两模式行 4 都是两格 ⇒ 两布局按钮几何全同，冲刺只隐藏冲刺入口。
+  const buttons = full.buttons.filter((b) => b.id !== 'start-sprint');
+  _sprint = { panel: full.panel, buttons, titleY: full.titleY };
   return _sprint;
 }
 

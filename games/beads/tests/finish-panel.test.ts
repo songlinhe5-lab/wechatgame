@@ -56,7 +56,7 @@ function tapClear(h: Harness, id: 'next' | 'sprint'): boolean {
 }
 
 /** 点通关画面的按钮。 */
-function tapFinish(h: Harness, id: 'replay' | 'sprint'): boolean {
+function tapFinish(h: Harness, id: 'replay' | 'sprint' | 'menu'): boolean {
   const layout = finishPanelLayout(h.game.levelCount);
   const rect = layout.buttons.find((b) => b.id === id)!.rect;
   return h.game.tapDesign((rect.xMin + rect.xMax) / 2, (rect.yMin + rect.yMax) / 2);
@@ -92,9 +92,9 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     expect(layout.titleY).toBeGreaterThan(layout.totalY);
     expect(layout.totalY).toBeGreaterThan(layout.rows[0]!.y);
 
-    // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：原双钮（▶去冲刺 / 重玩第 1 关）
-    // 收敛为**单钮居中**；去冲刺入口不再产出（恢复见 `ux-spec §8` U1 原口径）。
-    expect(layout.buttons.map((b) => b.id)).toEqual(['replay']);
+    // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：去冲刺入口不再产出；
+    // 用户 2026-09-25 直派（core-loop v2.3）：补「回主菜单」副钮 ⇒ 主/副两格。
+    expect(layout.buttons.map((b) => b.id)).toEqual(['replay', 'menu']);
     const lastRowY = layout.rows[layout.rows.length - 1]!.y;
     for (const button of layout.buttons) {
       expect(button.rect.yMax - button.rect.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
@@ -102,25 +102,31 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
       expect(button.rect.xMin).toBeGreaterThan(0);
       expect(button.rect.xMax).toBeLessThan(DESIGN_W);
     }
-    const onlyBtn = layout.buttons[0]!.rect;
-    expect((onlyBtn.xMin + onlyBtn.xMax) / 2).toBe(DESIGN_W / 2);
+    // 两格总宽仍为单钮时代的 CLEAR_BUTTON_W，整体居中，邻格间为 CLEAR_BUTTON_GAP。
+    const first = layout.buttons[0]!.rect;
+    const second = layout.buttons[1]!.rect;
+    expect((first.xMin + second.xMax) / 2).toBe(DESIGN_W / 2);
+    expect(second.xMin - first.xMax).toBeGreaterThan(0); // 缝隙 = CLEAR_BUTTON_GAP，不重叠
   });
 
-  it('labels: main = 重玩第 1 关（WXG-T-177：去冲刺副钮已隐藏，文案分支保留备复建）', () => {
+  it('labels: main = 重玩第 1 关，副 = 回主菜单（去冲刺文案分支保留备复建）', () => {
     expect(finishPanelLabel('replay')).toBe('重玩第 1 关');
+    expect(finishPanelLabel('menu')).toBe('回主菜单');
     expect(finishPanelLabel('sprint')).toBe('▶ 去冲刺');
     expect(FINISH_PANEL_TITLE).toContain('通关');
     expect(FINISH_MAX_STARS_PER_LEVEL).toBe(3);
   });
 
-  it('resolves hits only inside the single button（WXG-T-177：原副钮位零命中）', () => {
+  it('resolves hits inside the two buttons only（区外零响应）', () => {
     const layout = finishPanelLayout(EIGHT.length);
     const primary = layout.buttons[0]!.rect;
+    const secondary = layout.buttons[1]!.rect;
     const centre = (r: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
       [(r.xMin + r.xMax) / 2, (r.yMin + r.yMax) / 2] as const;
 
     expect(hitFinishPanel(...centre(primary), EIGHT.length)).toBe('replay');
-    // 主钮右侧（原副钮「▶去冲刺」区域）+ 总览行 + 屏幕死角：全部零命中（§2.3 面板外零响应）。
+    expect(hitFinishPanel(...centre(secondary), EIGHT.length)).toBe('menu');
+    // 两钮间缝隙 + 总览行 + 屏幕死角：全部零命中（§2.3 面板外零响应）。
     expect(hitFinishPanel(primary.xMax + 5, primary.yMin + 5, EIGHT.length)).toBeNull();
     expect(hitFinishPanel(DESIGN_W / 2, layout.rows[0]!.y, EIGHT.length)).toBeNull();
     expect(hitFinishPanel(0, 0, EIGHT.length)).toBeNull();
@@ -231,7 +237,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     expect(h.game.phase).toBe('finish');
   });
 
-  it('§8-8: FINISH replays from level 1 (normal) and the secondary enters sprint', () => {
+  it('§8-8: FINISH replays from level 1 (normal) and the secondary asks for menu', () => {
     // ① 主钮「重玩第 1 关」→ 从第 1 关重开（整轮重玩）。
     const replay = createBeadsHarness({
       noAssemble: true,
@@ -247,20 +253,24 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     replay.advance(0.2);
     expect(replay.game.finishPanel.visible).toBe(false); // 淡出跑完
 
-    // ② WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：原副钮「▶去冲刺」
-    //（U1 第三处入口）已隐藏 ⇒ **不可达**：面板只产出 `'replay'`，原副钮位点击
-    // 零响应、相位与模式不变（冲刺模式实现保留，仅入口收敛）。
-    const hidden = createBeadsHarness({
+    // ② 用户 2026-09-25 直派（core-loop v2.3）：副钮「回主菜单」→ 上报菜单意图
+    //（go-menu 同通道，pause-settings §2.2 判例：上报意图、切屏归 shell）；
+    // game 相位不动（shell 接管，与暂停面板 go-menu 同判例）。
+    let menuCalls = 0;
+    const withShell = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel({ id: 212 })],
-      saveKey: 'wxgame.beads.test.fin-sprint',
+      saveKey: 'wxgame.beads.test.fin-menu',
+      onMenuRequest: () => {
+        menuCalls++;
+      },
     });
-    reachFinish(hidden);
-    expect(hidden.game.finishPanel.visible).toBe(true);
-    const onlyBtn = finishPanelLayout(1).buttons[0]!.rect;
-    hidden.game.tapDesign(onlyBtn.xMax + 5, onlyBtn.yMin + 5); // 原副钮位
-    expect(hidden.game.phase).toBe('finish');
-    expect(hidden.game.mode).toBe('normal');
+    reachFinish(withShell);
+    expect(withShell.game.finishPanel.visible).toBe(true);
+    expect(tapFinish(withShell, 'menu')).toBe(true);
+    expect(menuCalls).toBe(1);
+    expect(withShell.game.phase).toBe('finish');
+    expect(withShell.game.mode).toBe('normal');
   });
 
   it('collects per-level best stars into the snapshot overview', () => {

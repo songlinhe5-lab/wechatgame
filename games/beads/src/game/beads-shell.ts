@@ -92,6 +92,7 @@ export class BeadsShell implements Game {
         signinDay: 0,
         canClaim: false,
         bgmMuted: false,
+        debugInfo: false,
         sfxMuted: false,
         reduceMotion: false,
         largeText: false,
@@ -324,6 +325,7 @@ export class BeadsShell implements Game {
         v.reduceMotion = this.play.reduceMotion;
         v.largeText = this.play.largeText;
         v.vibrate = this.play.vibrateOn;
+        v.debugInfo = this.play.debugInfo;
         // 选关屏数据（均只读引用，零分配）。
         v.levelCount = this.play.levelCount;
         v.currentLevelIndex = this.play.levelIndex;

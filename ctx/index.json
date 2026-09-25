@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3402,
       "lines": 125,
-      "sha256": "3c7ac84e750ac4bf6734600595f44f1d0375689671bc7b1b918bd35ed8939150",
+      "sha256": "65f022acb9125b32eb754964afb604ee92e8113353ad07e00b1cde1b4aeafc65",
       "tier": "normal",
       "sections": [
         {
@@ -20899,9 +20899,9 @@
     },
     {
       "path": "games/beads/design/gdd/core-loop.md",
-      "tokens": 8496,
+      "tokens": 8681,
       "lines": 167,
-      "sha256": "f548080d0d9f80c8e4a4295cd00eef362318479fb42f1c2807aed25cdcc1afd5",
+      "sha256": "fb3bd897672d7ff393dbfc5c4c3f1bae565474daf8baef087754feba09575104",
       "tier": "normal",
       "sections": [
         {
@@ -20909,8 +20909,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 168,
-          "tokens": 8482,
-          "summary": "项目：games/beads · 版本 v2.2 · 任务号 WXG-T-173（v2.2（WXG-T-173）= U1",
+          "tokens": 8668,
+          "summary": "项目：games/beads · 版本 v2.3 · 任务号 无 WXG-T 号（用户 2026-09-25 直派，同 ",
           "keywords": [
             "GDD",
             "Core",
@@ -20936,7 +20936,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 78,
-          "tokens": 2689,
+          "tokens": 2706,
           "summary": "",
           "keywords": [
             "机制"
@@ -20947,7 +20947,7 @@
           "level": 3,
           "startLine": 15,
           "endLine": 37,
-          "tokens": 562,
+          "tokens": 579,
           "summary": "",
           "keywords": [
             "breakout",
@@ -21054,7 +21054,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 158,
-          "tokens": 2382,
+          "tokens": 2412,
           "summary": "1. 冷启动无存档 → 直接进入第 1 关 PLAYING，全程无主菜单；有存档 → 续进已解锁最远关。",
           "keywords": [
             "PLAYING",
@@ -21604,18 +21604,18 @@
     },
     {
       "path": "games/beads/design/gdd/pause-settings.md",
-      "tokens": 5499,
-      "lines": 128,
-      "sha256": "e65221ce9b027b7c5f20d84cf48c01c17bf57de6edf620bc4b60885537ff0d91",
+      "tokens": 6280,
+      "lines": 131,
+      "sha256": "9f283ae5a2b1b3a3a6780dab7fee24c0ab88837fb1a496bd110b0d4f0a3c0970",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S9 暂停与设置（Pause & Settings）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 129,
-          "tokens": 5483,
-          "summary": "项目：games/beads · 版本 v1.5 · 任务号 WXG-T-177（v1.5 = 「去冲刺（冲刺入口）」行",
+          "endLine": 132,
+          "tokens": 6264,
+          "summary": "项目：games/beads · 版本 v1.6 · 任务号 无 WXG-T 号（debug 工具批，主理人直派，同 Q",
           "keywords": [
             "GDD",
             "Pause",
@@ -21640,8 +21640,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 13,
-          "endLine": 45,
-          "tokens": 1334,
+          "endLine": 46,
+          "tokens": 1524,
           "summary": "",
           "keywords": [
             "机制"
@@ -21666,8 +21666,8 @@
           "anchor": "§2.2 暂停面板（内容清单，冻结范围）",
           "level": 3,
           "startLine": 22,
-          "endLine": 39,
-          "tokens": 791,
+          "endLine": 40,
+          "tokens": 982,
           "summary": "继续 game:resumed → S1 回 PLAYING 主按钮",
           "keywords": [
             "game",
@@ -21681,8 +21681,8 @@
         {
           "anchor": "§2.3 冻结语义（复用 ADR-0007 单点裁决）",
           "level": 3,
-          "startLine": 40,
-          "endLine": 45,
+          "startLine": 41,
+          "endLine": 46,
           "tokens": 234,
           "summary": "进入 PAUSED：S5 计时冻结（含告急判定与连击窗口的 sprint 扩展）、S4 供料心跳冻结；表现层不冻结（脉冲",
           "keywords": [
@@ -21697,8 +21697,8 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 46,
-          "endLine": 54,
+          "startLine": 47,
+          "endLine": 55,
           "tokens": 116,
           "summary": "玩家（经 S2 优先级 1） 齿轮点击 → 暂停请求",
           "keywords": [
@@ -21708,8 +21708,8 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 55,
-          "endLine": 64,
+          "startLine": 56,
+          "endLine": 65,
           "tokens": 178,
           "summary": "game:paused / game:resumed 齿轮/继续按钮（§4 既有事件，S9 是唯一发布方之一） syst",
           "keywords": [
@@ -21724,8 +21724,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 65,
-          "endLine": 71,
+          "startLine": 66,
+          "endLine": 72,
           "tokens": 119,
           "summary": "引用 §3.1：HUD_BAND（齿轮带位）、CAPSULE_AVOID（面板右侧避让——面板宽不得侵入胶囊区）。",
           "keywords": [
@@ -21738,8 +21738,8 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 72,
-          "endLine": 93,
+          "startLine": 73,
+          "endLine": 94,
           "tokens": 969,
           "summary": "极端值",
           "keywords": [
@@ -21749,8 +21749,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 94,
-          "endLine": 99,
+          "startLine": 95,
+          "endLine": 100,
           "tokens": 158,
           "summary": "上游：S1（状态机 PAUSED 节点）、S2（齿轮与面板按钮路由）、S8（设置读写）。",
           "keywords": [
@@ -21761,9 +21761,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 100,
-          "endLine": 118,
-          "tokens": 862,
+          "startLine": 101,
+          "endLine": 120,
+          "tokens": 981,
           "summary": "1. PLAYING 点齿轮 → game:paused 恰 1 次、S1=PAUSED、面板可见、遮罩覆盖棋盘与托盘；",
           "keywords": [
             "PLAYING",
@@ -21777,9 +21777,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 119,
-          "endLine": 129,
-          "tokens": 1199,
+          "startLine": 121,
+          "endLine": 132,
+          "tokens": 1497,
           "summary": "v1.0 WXG-T-015 交付 初版八节定稿（含 P1 冻结：暂停面板能力 / 双模式共用齿轮 / 重玩本关五项重置",
           "keywords": [
             "WXG",
@@ -29099,9 +29099,9 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 33855,
+      "tokens": 34366,
       "lines": 420,
-      "sha256": "0ea677b9d4a4c35790df07d813872304479caa1de7074555e19b13aa0d682f53",
+      "sha256": "6eeb8fc7d9ba495679cdee8c47f480e1a382a027dba06b325b4f6d0f65bcd971",
       "tier": "normal",
       "sections": [
         {
@@ -29109,8 +29109,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 421,
-          "tokens": 33846,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.17 · 任务号 WXG-T-210（v1.17 = 风格池",
+          "tokens": 34357,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.19 · 任务号 无 WXG-T 号（用户 2026-09-",
           "keywords": [
             "Spec",
             "beads",
@@ -29152,7 +29152,7 @@
           "level": 2,
           "startLine": 50,
           "endLine": 166,
-          "tokens": 4822,
+          "tokens": 4847,
           "summary": "",
           "keywords": [
             "§3.1",
@@ -29231,10 +29231,11 @@
           "level": 3,
           "startLine": 164,
           "endLine": 166,
-          "tokens": 29,
-          "summary": "全屏庆祝 + 星级总览（8 关星数和）+「去冲刺」+「重玩第 1 关」。",
+          "tokens": 55,
+          "summary": "全屏庆祝 + 星级总览（8 关星数和）+「重玩第 1 关」+「回主菜单」副钮（v1.18，go-menu 同语义；~~「",
           "keywords": [
             "FINISH",
+            "menu",
             "通关画面",
             "关全清"
           ]
@@ -29244,7 +29245,7 @@
           "level": 2,
           "startLine": 167,
           "endLine": 239,
-          "tokens": 5413,
+          "tokens": 5494,
           "summary": "提交时基分区（v1.9 新增；镜像 gdd/input-control.md v2.5 §2.1「提交时基表」，上位 A",
           "keywords": [
             "§2.3",

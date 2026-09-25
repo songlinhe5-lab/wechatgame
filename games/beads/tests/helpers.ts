@@ -63,6 +63,8 @@ export interface HarnessOptions {
   canStartRun?: () => boolean;
   /** 透传 `BeadsGameOptions.onStaminaRefill`（体力回满激励位发奖，WXG-T-164）。 */
   onStaminaRefill?: () => void;
+  /** 透传 `BeadsGameOptions.onMenuRequest`（回主菜单意图上报，core-loop v2.3）。 */
+  onMenuRequest?: () => void;
 }
 
 export function createBeadsHarness(options: HarnessOptions = {}): Harness {
@@ -92,6 +94,7 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
     ...(options.noAssemble ? { noBootAssembly: true } : {}),
     ...(options.canStartRun ? { canStartRun: options.canStartRun } : {}),
     ...(options.onStaminaRefill ? { onStaminaRefill: options.onStaminaRefill } : {}),
+    ...(options.onMenuRequest ? { onMenuRequest: options.onMenuRequest } : {}),
   });
 
   const emitted: { type: string; payload: unknown }[] = [];

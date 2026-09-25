@@ -113,6 +113,10 @@ export interface BeadsSnapshot {
   vibrate: boolean;
   /** DEBUG 虚线轮廓开关（`BeadsGame.setDebugOutlines`）；view 只读快照，正常恒 false。 */
   debugOutlines: boolean;
+  /** DEBUG 性能覆层开关（`BeadsGame.setDebugInfo`，pause-settings v1.6 §2.2）；唯一持久化的 debug 项。 */
+  debugInfo: boolean;
+  /** DEBUG：帧耗时 EMA（ms），view 派生 fps；开关关闭恒 0（热路径零开销）。 */
+  perfFrameMs: number;
 
   /** Sprint HUD — normal mode leaves these at zero and the view hides them. */
   score: number;
@@ -349,6 +353,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     largeText: false,
     vibrate: VIBRATE_DEFAULT,
     debugOutlines: false,
+    debugInfo: false,
+    perfFrameMs: 0,
     score: 0,
     multiplier: 1,
     streak: 0,

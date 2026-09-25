@@ -156,6 +156,24 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         const r = rig({ initialScreen: 'menu' });
         expect(r.shell.tapMeta(2, 2)).toBe(false);
     });
+
+    it('settings overlay 两列布局：debug-info 钮与震动同排左右，点击经 play 通道切换', () => {
+        // 用户 2026-09-25 直派（ux-spec v1.19）：6 toggle = 3 行 × 2 列；DEBUG 钮
+        // 与暂停面板同串值（toggle-debug-info），动作走 shell default → applySettingsAction。
+        const r = rig({ initialScreen: 'menu' });
+        const open = centerOf('none', 'open-settings');
+        r.shell.tapMeta(open.x, open.y);
+        expect(r.shell.overlay).toBe('settings');
+        const vib = metaLayout('settings').buttons.find((b) => b.id === 'toggle-vibrate')!;
+        const dbg = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-info')!;
+        expect(dbg.box.y).toBe(vib.box.y); // 同排
+        expect(dbg.box.x).toBeGreaterThan(vib.box.x + vib.box.w); // 分居左右
+        expect(r.shell.play.debugInfo).toBe(false);
+        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
+        expect(r.shell.play.debugInfo).toBe(true); // 持久化面见 pause-settings §8-13
+        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
+        expect(r.shell.play.debugInfo).toBe(false);
+    });
 });
 
 describe('BeadsShell — 选关（#1 · WXG-T-180）', () => {

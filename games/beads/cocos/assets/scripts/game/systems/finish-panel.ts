@@ -6,7 +6,8 @@
  * 数据由 `BeadsGame` 持有（`_starsByLevel` = 每关历史最好），本模块只做几何与呈现时序。
  *
  * 冻结来源
- *  - 画面：`ux/ux-spec.md` §3.6「全屏庆祝 + 星级总览（8 关星数和）+「去冲刺」+「重玩第 1 关」」；
+ *  - 画面：`ux/ux-spec.md` §3.6「全屏庆祝 + 星级总览（8 关星数和）+「重玩第 1 关」
+ *    +「回主菜单」副钮（v1.18 直派，go-menu 同语义）」；
  *  - 状态：`gdd/core-loop.md` §4 状态表 `FINISH | 通关画面（8 关全清） | 最后关 LEVEL_CLEAR
  *    确认 | 重玩第 1 关 → PLAYING`；判据 `core-loop §8-8`「第 8 关通过 → 进 FINISH；
  *    FINISH 可重玩第 1 关」；
@@ -27,8 +28,9 @@
  */
 
 import {
-  // WXG-T-177：`CLEAR_BUTTON_GAP` 曾用于第二按钮（去冲刺）落位，入口隐藏后不再需要；
-  // 复建 U1 三处入口时从 `tuning` 重新引入即可。
+  // 用户 2026-09-25 直派：`CLEAR_BUTTON_GAP` 随「回主菜单」副钮两格布局重新引入
+  // （WXG-T-177 曾因单钮居中移出；复建 U1 三处入口时同用此常量）。
+  CLEAR_BUTTON_GAP,
   CLEAR_BUTTON_W,
   DESIGN_H,
   DESIGN_W,
@@ -45,8 +47,8 @@ import {
 } from '../config/tuning';
 import { rectContains, type PanelRect } from './pause-panel';
 
-/** 通关画面能请求的两件事（动作由 `BeadsGame` 执行）。 */
-export type FinishPanelAction = 'replay' | 'sprint';
+/** 通关画面能请求的三件事（动作由 `BeadsGame` 执行）。 */
+export type FinishPanelAction = 'replay' | 'sprint' | 'menu';
 
 export interface FinishButton {
   readonly id: FinishPanelAction;
@@ -113,26 +115,30 @@ function build(levelCount: number): FinishPanelLayout {
     });
   }
 
-  // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：冲刺入口隐藏 ⇒ 仅
-  // 「重玩第 1 关」单按钮并**居中**（旧口径「▶去冲刺 / 重玩第 1 关」2 格均分见
-  // `ux-spec §4` 矩阵行，已按 K-053 删划线留档）。`FinishPanelAction` 保留
-  // `'sprint'` 成员与文案分支以便复建，但本函数不再产出该按钮 ⇒ 该动作永不可达。
+  // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：冲刺入口隐藏，不产出按钮
+  // （旧口径「▶去冲刺 / 重玩第 1 关」2 格均分见 `ux-spec §4` 矩阵行，已按 K-053
+  // 删划线留档）。用户 2026-09-25 直派：补「回主菜单」副钮（core-loop v2.3；
+  // 复用暂停面板 `go-menu` 语义——上报意图、切屏归 shell）⇒ 主/副两格，总宽
+  // 仍为 `CLEAR_BUTTON_W` 整体居中；`CLEAR_BUTTON_GAP` 随两格布局复建引入。
+  // `FinishPanelAction` 的 `'sprint'` 成员与文案分支保留备复建，但不再产出。
   const startX = (DESIGN_W - CLEAR_BUTTON_W) / 2;
   const buttonY = 120;
+  const cellW = (CLEAR_BUTTON_W - CLEAR_BUTTON_GAP) / 2;
   const buttons: FinishButton[] = [
-    { id: 'replay', rect: rect(startX, buttonY, CLEAR_BUTTON_W, PANEL_BUTTON_H) },
+    { id: 'replay', rect: rect(startX, buttonY, cellW, PANEL_BUTTON_H) },
+    { id: 'menu', rect: rect(startX + cellW + CLEAR_BUTTON_GAP, buttonY, cellW, PANEL_BUTTON_H) },
   ];
 
   return { titleY, totalY, rows, buttons };
 }
 
 /**
- * 按钮文案（`ux-spec §4` 矩阵行；「去冲刺」沿用结算面板的副钮文案，U1 三处一致）。
+ * 按钮文案（`ux-spec §4` 矩阵行；「回主菜单」= 暂停面板 go-menu 同语义）。
  * 与结算面板不同：**主钮是「重玩第 1 关」**（`core-loop §4` 把「重玩第 1 关 → PLAYING」
- * 定为本状态的唯一推进出口），冲刺入口按 U1 退为副钮。
+ * 定为本状态的推进出口之一），菜单钮按 v1.18 退为副钮，冲刺入口按 U1 保留分支。
  */
 export function finishPanelLabel(id: FinishPanelAction): string {
-  return id === 'sprint' ? '▶ 去冲刺' : '重玩第 1 关';
+  return id === 'sprint' ? '▶ 去冲刺' : id === 'menu' ? '回主菜单' : '重玩第 1 关';
 }
 
 /** 命中测试（按钮外的任何点击 → null ⇒ 调用方零响应，`input-control §2.3`）。 */

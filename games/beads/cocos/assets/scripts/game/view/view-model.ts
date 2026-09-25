@@ -192,6 +192,8 @@ function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
       return `大字号  ${snap.largeText ? '开' : '关'}`;
     case 'toggle-vibrate':
       return `震动  ${snap.vibrate ? '开' : '关'}`;
+    case 'toggle-debug-info':
+      return `性能信息  ${snap.debugInfo ? '开' : '关'}`;
     case 'start-sprint':
       return '▶ 去冲刺';
     case 'go-menu':
@@ -294,7 +296,8 @@ function drawPausePanel(
     const toggle =
       button.id === 'toggle-reduce-motion' ||
       button.id === 'toggle-large-text' ||
-      button.id === 'toggle-vibrate';
+      button.id === 'toggle-vibrate' ||
+      button.id === 'toggle-debug-info';
     // F6：主按钮 → accent_primary（§3.5 中性强调；白字对比 12.6:1）。
     builder.rect(bx, by, bw, bh, {
       fill: primary ? palette.accentPrimary : palette.slot,
@@ -925,6 +928,31 @@ function drawGrid(
       }
     }
   }
+  // DEBUG 性能覆层（`setDebugInfo`，pause-settings v1.6 §2.2）：主循环之上**最后一层**
+  // （连暂停面板也盖住——测量口径：面板开合不丢帧样本）。半透明窄面板而非全屏
+  // scrim：全屏 α 覆盖会改变 fill 负载，D2 的测量就不干净了。仅开关开启才走
+  // 本分支，正常玩法零调用（本分支内的模板串分配属 debug 工具，可接受）。
+  if (snap.debugInfo) {
+    const fps = snap.perfFrameMs > 0 ? Math.round(1000 / snap.perfFrameMs) : 0;
+    builder.rect(12, DESIGN_H - 148, 316, 136, {
+      fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},0.7)`,
+      radius: 12,
+    });
+    const line = (y: number, text: string): void => {
+      builder.text(28, y, text, {
+        fill: palette.text,
+        font: FONT.panelToggle,
+        align: 'left',
+        baseline: 'middle',
+      });
+    };
+    line(DESIGN_H - 38, `fps ${fps} · ${snap.perfFrameMs.toFixed(1)} ms`);
+    line(
+      DESIGN_H - 76,
+      `${snap.phase} · ${snap.mode === 'sprint' ? '冲刺' : `L${snap.levelIndex + 1}`}`,
+    );
+    line(DESIGN_H - 114, `pitch ${snap.gridPitch.toFixed(1)} · LOD ${snap.beadLodLayers}`);
+  }
 }
 
 // ──────────────────────────────────────────────────────────────────── tray
@@ -1431,7 +1459,7 @@ function drawFinishPanel(
   }
 
   // 主 / 副双钮：主钮 = 「重玩第 1 关」（`core-loop §4` 本状态的推进出口），
-  // 副钮 = 「▶ 去冲刺」（U1：副按钮样式，不抢主钮）。
+  // 副钮 = 「回主菜单」（go-menu 同语义，core-loop v2.3；U1 去冲刺仍隐藏）。
   for (const button of layout.buttons) {
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;

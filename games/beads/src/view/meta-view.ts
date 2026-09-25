@@ -36,12 +36,13 @@ export interface MetaViewData {
     /** 当日签到格（`claims % 7`）。 */
     readonly signinDay: number;
     readonly canClaim: boolean;
-    // settings overlay（复用 S9 五开关，ux-spec v1.7 §2）
+    // settings overlay（复用 S9 开关集，ux-spec v1.7 §2；debug-info 为 v1.19 菜单侧同串值入口）
     readonly bgmMuted: boolean;
     readonly sfxMuted: boolean;
     readonly reduceMotion: boolean;
     readonly largeText: boolean;
     readonly vibrate: boolean;
+    readonly debugInfo: boolean;
     // levels overlay（选关，#1 · WXG-T-180）——均每帧只读引用，不分配。
     readonly levelCount: number;
     /** 当前关（0-based，play.levelIndex）。 */
@@ -68,7 +69,8 @@ export type MetaAction =
     | 'toggle-sfx'
     | 'toggle-reduce-motion'
     | 'toggle-large-text'
-    | 'toggle-vibrate';
+    | 'toggle-vibrate'
+    | 'toggle-debug-info';
 
 interface Box {
     readonly x: number;
@@ -186,18 +188,28 @@ function signinLayout(): MetaLayout {
 function settingsLayout(): MetaLayout {
     const plate = overlayPlate();
     const buttons: MetaButton[] = [];
-    const rowW = plate.w - 80;
-    const rowX = plate.x + 40;
     const ids: MetaAction[] = [
         'toggle-bgm',
         'toggle-sfx',
         'toggle-reduce-motion',
         'toggle-large-text',
         'toggle-vibrate',
+        'toggle-debug-info',
     ];
+    // 左右两列（用户 2026-09-25 直派，ux-spec v1.19）：6 钮 = 3 行 × 2 列，
+    // 总宽/行距沿用旧单列口径（rowW = plate 宽 − 80），列间 gap 24。
+    const rowW = plate.w - 80;
+    const rowX = plate.x + 40;
+    const colGap = 24;
+    const colW = (rowW - colGap) / 2;
     const topY = plate.y + plate.h - 150;
     for (let i = 0; i < ids.length; i++) {
-        buttons.push({ id: ids[i]!, box: box(rowX, topY - i * (TOUCH_MIN + 16), rowW, TOUCH_MIN) });
+        const col = i % 2;
+        const row = (i / 2) | 0;
+        buttons.push({
+            id: ids[i]!,
+            box: box(rowX + col * (colW + colGap), topY - row * (TOUCH_MIN + 16), colW, TOUCH_MIN),
+        });
     }
     // 返回
     const backW = 240;
@@ -263,6 +275,8 @@ function label(id: MetaAction, data: MetaViewData): string {
             return `大字号  ${data.largeText ? '开' : '关'}`;
         case 'toggle-vibrate':
             return `震动  ${data.vibrate ? '开' : '关'}`;
+        case 'toggle-debug-info':
+            return `性能信息  ${data.debugInfo ? '开' : '关'}`;
         default:
             return '';
     }

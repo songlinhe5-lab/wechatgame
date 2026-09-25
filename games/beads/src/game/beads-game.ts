@@ -439,6 +439,10 @@ export class BeadsGame implements Game {
   private _largeText = false;
   /** DEBUG 虚线轮廓开关（不持久化；仅 dev/harness 与 Console 临时开，走 snapshot 暴露给 view）。 */
   private _debugOutlines = false;
+  /** DEBUG 性能覆层开关（唯一**持久化**的 debug 项：走 `settings.debugInfo` 存档通道，pause-settings v1.6 §2.2）——真机 QA 无 console/query，需跨重启保留。 */
+  private _debugInfo = false;
+  /** DEBUG：帧耗时 EMA（ms，α=0.1）；覆层关闭不更新、恒 0，view 派生 fps。 */
+  private _frameMs = 0;
   /** §3.8 震动开关镜像（VIBRATE_DEFAULT = ON；init 时从存档装载）。 */
   private _vibrate = VIBRATE_DEFAULT;
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
@@ -664,6 +668,11 @@ export class BeadsGame implements Game {
     return this._vibrate;
   }
 
+  /** DEBUG 性能覆层开关（pause-settings v1.6；菜单设置 overlay 与暂停面板同串值共读）。 */
+  get debugInfo(): boolean {
+    return this._debugInfo;
+  }
+
   /** BOOT validation failures ('' when the level data is clean). */
   get bootError(): string {
     return this._bootErrors.join('; ');
@@ -724,6 +733,7 @@ export class BeadsGame implements Game {
     this._reduceMotion = normalized.save.settings.reduceMotion;
     this._largeText = normalized.save.settings.largeText;
     this._vibrate = normalized.save.settings.vibrate;
+    this._debugInfo = normalized.save.settings.debugInfo;
     this._applyAudioChannels();
 
     this._subscribe();
@@ -732,6 +742,12 @@ export class BeadsGame implements Game {
 
   update(dt: number): void {
     if (!this._services) return;
+    // DEBUG 性能覆层（settings.debugInfo）：帧耗时 EMA（α=0.1 ≈ 十帧平滑）。只在
+    // 覆层开着时走本分支，正常玩法零开销；关→开时从 0 重起步（首帧即实测值）。
+    if (this._debugInfo && dt > 0) {
+      const ms = dt * 1000;
+      this._frameMs = this._frameMs === 0 ? ms : this._frameMs * 0.9 + ms * 0.1;
+    }
     // ── 输入段（相位无关，WXG-T-100 / BD-34）────────────────────────────────
     // `_handleTap` 的相位路由表已写全四相位（`input-control §2.3 状态门禁`：
     // PAUSED 仅暂停面板按钮；LEVEL_CLEAR / GAME_OVER / FINISH 仅各自面板按钮；
@@ -1320,6 +1336,9 @@ export class BeadsGame implements Game {
         return;
       case 'toggle-vibrate':
         this._setVibrate(!this._vibrate);
+        return;
+      case 'toggle-debug-info':
+        this.setDebugInfo(!this._debugInfo);
         return;
       default:
         return;
@@ -2060,6 +2079,8 @@ export class BeadsGame implements Game {
           this._consumedTap = true;
           this._sfx(AUDIO_CLIP_UI_TAP);
           if (action === 'replay') this.restartRun();
+          else if (action === 'menu')
+            this._onMenuRequest?.(); // core-loop v2.3：go-menu 同通道（pause-settings §2.2 判例）
           else this._startSprintRun();
         }
         return;
@@ -2309,6 +2330,10 @@ export class BeadsGame implements Game {
         // §3.8：只写设置（留 PAUSED），真机 vibrateShort 调用属平台适配层（ponytail:
         // 批0 不接真震动 API，待真机复验窗口接入 adapters）。
         this._setVibrate(!this._vibrate);
+        return;
+      case 'toggle-debug-info':
+        // pause-settings v1.6 §2.2：只写设置 + 经 snapshot 回显（不切相位），真机 QA 无 console 时的性能诊断入口。
+        this.setDebugInfo(!this._debugInfo);
         return;
       case 'go-menu':
         // 回主菜单（pause-settings v1.4 §8-11，WXG-T-165 真机反馈反转）：上报意图、
@@ -2632,6 +2657,7 @@ export class BeadsGame implements Game {
         reduceMotion: this._reduceMotion,
         largeText: this._largeText,
         vibrate: this._vibrate,
+        debugInfo: this._debugInfo,
       },
     });
     save.save();
@@ -2782,6 +2808,20 @@ export class BeadsGame implements Game {
    */
   setDebugOutlines(on: boolean): void {
     this._debugOutlines = on;
+  }
+
+  /**
+   * DEBUG 性能覆层开关（pause-settings v1.6 §2.2）：开则 view 在主循环之上叠画
+   * fps / 帧耗时 / 相位 / 格距·LOD 只读诊断面板。与 `setDebugOutlines` 同走
+   * snapshot 暴露，唯一差别是经 `settings.debugInfo` **持久化**（真机 QA 无
+   * console / query 可用，需跨重启保留）。用法：暂停面板行 4「性能信息」或
+   * `__beads.game.setDebugInfo(true)` / harness `?dbg=info`。
+   */
+  setDebugInfo(on: boolean): void {
+    if (this._debugInfo === on) return;
+    this._debugInfo = on;
+    this._frameMs = 0; // 重开时从首帧实测值重新起步，不读旧 EMA
+    this._persistSettings();
   }
 
   /**
@@ -3263,6 +3303,8 @@ export class BeadsGame implements Game {
     s.reduceMotion = this._reduceMotion;
     s.largeText = this._largeText;
     s.debugOutlines = this._debugOutlines;
+    s.debugInfo = this._debugInfo;
+    s.perfFrameMs = this._frameMs;
     s.vibrate = this._vibrate;
 
     const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);

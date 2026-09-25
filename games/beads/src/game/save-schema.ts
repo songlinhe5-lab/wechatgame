@@ -33,6 +33,12 @@ export interface BeadsSettings {
    * 仅 isMiniGame 平台显示行（pause-settings v1.3 §8-12）；屏震语义不受本开关控制。
    */
   readonly vibrate: boolean;
+  /**
+   * DEBUG 性能覆层开关（pause-settings v1.6 §2.2）：**唯一持久化的 debug 项**——真机
+   * QA 无 console / query 可用，需跨重启保留。缺字段逐字段降级 false（同 v1→v2 判例，
+   * 无需版本 bump）；仅控制覆层绘制，不碰玩法与存档数据。
+   */
+  readonly debugInfo: boolean;
 }
 
 export interface BeadsSave extends SaveDocument {
@@ -114,7 +120,7 @@ export function defaultBeadsSave(): BeadsSave {
     sprintBestStage: 0,
     // 长度在 `normalizeBeadsSave(raw, levelCount)` 里按关卡表补齐（出厂默认不知关卡数）。
     starsByLevel: [],
-    settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: VIBRATE_DEFAULT },
+    settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: VIBRATE_DEFAULT, debugInfo: false },
   };
 }
 
@@ -141,6 +147,7 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
     largeText: boolField(raw, 'largeText', false),
     // §3.8 VIBRATE_DEFAULT = ON：缺字段降级为 true（与其余四开关的 false 相反）。
     vibrate: boolField(raw, 'vibrate', VIBRATE_DEFAULT),
+    debugInfo: boolField(raw, 'debugInfo', false),
   };
 }
 
@@ -220,7 +227,8 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false) ||
     save.settings.reduceMotion !== boolField(raw['settings'], 'reduceMotion', false) ||
     save.settings.largeText !== boolField(raw['settings'], 'largeText', false) ||
-    save.settings.vibrate !== boolField(raw['settings'], 'vibrate', VIBRATE_DEFAULT);
+    save.settings.vibrate !== boolField(raw['settings'], 'vibrate', VIBRATE_DEFAULT) ||
+    save.settings.debugInfo !== boolField(raw['settings'], 'debugInfo', false);
 
   return { save, changed };
 }

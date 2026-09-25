@@ -372,6 +372,7 @@ describe('S9 pause & settings', () => {
       reduceMotion: false,
       largeText: false,
       vibrate: true,
+      debugInfo: false,
     });
 
     // Relaunch on the same storage → both toggles echo back.
@@ -778,5 +779,42 @@ describe('S9 pause & settings', () => {
     expect(game.phase).toBe('playing');
     expect(game.pauseIntent).toBeNull();
     expect(harness.count('game:resumed')).toBe(1);
+  });
+
+  // §8-13 debug 性能覆层（pause-settings v1.6 §2.2）：行 4 新「性能信息」钮——
+  // 即写档（唯一持久化的 debug 项）、snapshot 回显、关时 perfFrameMs 恒 0、
+  // 同存储重启回读；不切相位（与音频开关同纪律）。
+  it('§8-13 debug-info toggle persists, echoes off the snapshot and survives a reboot', () => {
+    const saveKey = 'wxgame.beads.test.s9c13';
+    const harness = createBeadsHarness({ noAssemble: true, saveKey });
+    const game = harness.game;
+    expect(game.snapshot.debugInfo).toBe(false);
+    expect(game.snapshot.perfFrameMs).toBe(0);
+
+    tapGear(game);
+    expect(game.phase).toBe('paused');
+
+    const di = buttonPoint('toggle-debug-info');
+    expect(tap(game, di.x, di.y)).toBe(true);
+    expect(game.phase).toBe('paused'); // 不切相位
+    expect(game.snapshot.debugInfo).toBe(true);
+    expect(JSON.parse(harness.storage.get(saveKey) as string).settings.debugInfo).toBe(true);
+
+    // 同存储重启 → 开关回读（真机 QA 无 console/query，靠它跨重启保留）。
+    const rebooted = createBeadsHarness({
+      noAssemble: true, saveKey, storage: harness.storage
+    });
+    expect(rebooted.game.snapshot.debugInfo).toBe(true);
+
+    // 覆层开着才有帧样本（EMA 起步 = 首帧实测 1/60s，随后按 α=0.1 平滑）。
+    harness.advance(1 / 60);
+    expect(game.snapshot.perfFrameMs).toBeGreaterThan(0);
+    expect(game.snapshot.perfFrameMs).toBeLessThanOrEqual(1000 / 60 + 1e-6);
+
+    // 再点回 OFF：写档反转，EMA 清零（热路径零开销）。
+    expect(tap(game, di.x, di.y)).toBe(true);
+    expect(game.snapshot.debugInfo).toBe(false);
+    harness.advance(1 / 60);
+    expect(game.snapshot.perfFrameMs).toBe(0);
   });
 });

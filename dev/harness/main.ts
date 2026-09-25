@@ -294,6 +294,13 @@ if (isBeads && new URLSearchParams(harnessQuery).get('dbg') !== 'off') {
   beads.setDebugOutlines(true);
 }
 
+// DEBUG 性能覆层：`?dbg=info` 开（真机无 query，走暂停面板行 4 或运行时
+// `__beads.game.setDebugInfo(b)`；设置经 settings.debugInfo 持久化，跨重启保留）。
+// 注：`?dbg=off` 同时关掉两者；`?dbg=info` 单独给出 outlines+info 组合（dev 页面可接受）。
+if (isBeads && new URLSearchParams(harnessQuery).get('dbg') === 'info') {
+  beads.setDebugInfo(true);
+}
+
 requestAnimationFrame(frame);
 
 // Expose for console poking during development.
