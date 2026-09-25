@@ -61,6 +61,9 @@ const STEPS = Object.freeze([
   'framework:sync:check',
   'cocos:check',
   'check:size',
+  // WXG-T-211-B1 / EP11-S2（§12.2 C7/C11/C12）：风格池门禁——逐注册风格双指标 + C12 弱读断言；
+  // 零注册自报 `STATUS: SKIP`（K-036：SKIP ≠ 测，汇总单列）；触门报 C11 五项后 FAIL（不短路本聚合器）。
+  'check:bead-style-pool',
   'test',
   'harness:build',
   'harness:smoke',

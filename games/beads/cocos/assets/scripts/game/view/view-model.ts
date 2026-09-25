@@ -55,7 +55,7 @@ import {
   SWEEP_ALPHAS,
   solverSequenceMs,
   WAVE_MS,
-  WAVE_LOD_LAYERS,
+  WAVE_BEAD_LOD_LAYERS,
   DENIED_RING_LINEWIDTH,
   CONFETTI_COUNT,
   CONFETTI_NOFLY_YMIN,
@@ -890,7 +890,7 @@ function drawGrid(
       if (isWave) {
         draft.scale = wave.scale;
         draft.lift = wave.dy; // y 轴向上 ⇒ +dy = 微抬
-        draft.lodLayers = WAVE_LOD_LAYERS;
+        draft.lodLayers = WAVE_BEAD_LOD_LAYERS; // C7 拆名：波浪降档专用名（zoom LOD = ZOOM_LOD_LAYERS）
       }
       // G7 轻压（§1.6.7）：就位格。优先级 pop/wave > denied（同格重叠窗口让位；
       // 实际上就位格不会进 pop/wave，防御性排序）。scale 只进珠体 = `draft.scale`
@@ -1336,8 +1336,9 @@ function drawSweep(builder: RenderModelBuilder, snap: BeadsSnapshot): void {
   if (snap.sweepProgress <= 0 || snap.reduceMotion) return;
   const cx = sweepCenterX(snap.sweepProgress);
   // 反序绘制：i = 2 广（α0.06）→ 1 中（0.10）→ 0 核心（0.14）⇒ 后画的更亮。
-  // 逐层新建 8-float 数组：`polygon()` **按引用**存 points ⇒ 不能跨帧共用 scratch；
-  // 且仅在 400ms 窗口内分派（与 `drawPowerupBand` 逐帧字面量同判例）。
+  // 逐层新建 8-float 数组是**历史约束**：`[WXG-T-211-A / ADR-0024]` 起 `polygon()` 在建令
+  // 当刻把顶点拷进帧内 arena（值语义），共用 scratch 不再串形。现写法保留（本单只改
+  // 载荷语义，不动出图路径），且仅在 400ms 窗口内分派（与 `drawPowerupBand` 逐帧字面量同判例）。
   for (let i = SWEEP_LAYER_COUNT - 1; i >= 0; i--) {
     builder.polygon(sweepQuad(i, cx, [0, 0, 0, 0, 0, 0, 0, 0]), {
       fill: withAlpha(BEAD_HIGHLIGHT_HEX, SWEEP_ALPHAS[i]!),
@@ -1353,7 +1354,9 @@ const CONFETTI_SCRATCH: ConfettiBeadState = { x: 0, y: 0, theta: 0, alpha: 0 };
 /**
  * 【WXG-T-128 裁定 B（用户 2026-09-17）】规格「预分配 352-float scratch」的**真实现**：
  * 44 枚 × 8 floats 一次性预分配，每枚固定占 `[idx×8, idx×8+8)` 段、逐帧整段重写；
- * `polygon()` 收 `subarray` 视图（零拷贝；framework 契约已放宽并载明「当帧构建、当帧消费」纪律）。
+ * `polygon()` 收 `subarray` 视图。`[WXG-T-211-A / ADR-0024]`：该视图现在**建令当刻被
+ * 拷进帧内 arena**（值语义），旧契约注的「当帧构建、当帧消费 / 跨帧不得改写」纪律作废；
+ * 预分配本身仍有效——它省下的是每帧 44 次数组分配。
  * 兑现 `assets-spec §1.6.6` 落码回写注的待裁差异（原「逐枚新建 8-float」作废）。
  */
 const CONFETTI_POINTS = new Float32Array(CONFETTI_COUNT * 8);

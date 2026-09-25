@@ -906,7 +906,7 @@ export const SWEEP_ALPHAS = [0.14, 0.10, 0.06] as const;
 
 /* G4 `vfx_complete_wave` — 过关庆祝波浪（WXG-T-146，同属 T-128 落码②）。
    规格正本 = assets-spec §1.6.4；毫秒真源 = ux-spec §5「过关庆祝」行（800ms + 20ms/列）。
-   ⚠️ `WAVE_LOD_LAYERS` = **7** 而**不是** §1.6.4 初稿的 6：v1.5-r6 按 B′ 重算后
+   ⚠️ `WAVE_BEAD_LOD_LAYERS` = **7** 而**不是** §1.6.4 初稿的 6：v1.5-r6 按 B′ 重算后
    可砍集不得包含 **L11 垫**（垫 = 静态谜面载体，三条理由见§1.6.4 LOD 行）
    ⇒ 保留集 = L0b+L1+L2+L3+L4c ⊕ 垫（**旧文此处还列 L5 符号层**，该层已随
       `bead-visual-style-spec` v1.5-r8（2026-09-23，WXG-T-203 `c8d2fe8`）整层删除
@@ -924,8 +924,15 @@ export const WAVE_LIFT_PX = 3;
  * 240 兜底仍保留防异常（原注「13 ⇒ W=560」随 §3.3 v1.33 作废）。
  */
 export const WAVE_WINDOW_MIN_MS = 240;
-/** 弹跳列的降层档（含垫，见上方⚠️）：L0b+L1+L2+L3+L4c + L11（旧文此处还列已删的 L5 符号层）。 */
-export const WAVE_LOD_LAYERS = 7;
+/**
+ * G4 波浪期的**降档层集标记**（含垫，见上方⚠️）：L0b+L1+L2+L3+L4c + L11（旧文此处还列已删的 L5 符号层）。
+ *
+ * **WXG-T-211-B1 / §12.2 C7 拆名**：旧名 `WAVE_LOD_LAYERS` 一词两义（本波浪降档 +
+ * 下方 zoom LOD 层集共用一个常量），已拆为 `WAVE_BEAD_LOD_LAYERS`（本常量）与
+ * `ZOOM_LOD_LAYERS` 两名单值仍是 **7**（值不变更，行为不变，盘面逐帧不变）。
+ * 视图侧只判 `!== undefined` ⇒ 数值从不参与算术、纯标记（C7 实测注）。
+ */
+export const WAVE_BEAD_LOD_LAYERS = 7;
 /**
  * ADR-0017 甲案 · zoom 自适应 LOD 的**触发阈值**（工程通道；本轮只落「满层 / 降档」两态）。
  * 触发量 = 珠屏幕径 `layout.cell = BEAD_CELL × zoom` ⇒ 不必给快照新增 zoom 字段。
@@ -942,11 +949,17 @@ export const WAVE_LOD_LAYERS = 7;
  * 「LOD 档结构性失效 / 默认视角恒降档」不成立（其前提是把 45 当绝对px，变更单 §7 修正一）。
  * ⚠ 阈值仍未真机验（`ADR-0017` 状态仍 Proposed），且 27 是**格径**而非珠面径
  * ⇒ 「降档时珠面只余 27−2×inset ≈ 19px，可省的层是否还值得省」= `[待真机 + art]`。
- * 降档层集**复用 `WAVE_LOD_LAYERS`（7 层，art 已在 WXG-T-146 冻结）**，不自造新层集；
+ * 降档层集**= `ZOOM_LOD_LAYERS`（7 层，art 已在 WXG-T-146 冻结；C7 拆名后与波浪降档
+ * 各自一名、值仍同 7，⛔ 不得据此自造新层集）**；
  * ADR 的中/低三档细分待 art 冻结后再分。红线不变：**L11/B0 目标色底图与 L1c 中心孔
  * 任何档不砍**（旧文此处写的“L5 符号”已随 v1.5-r8 整层删除，见上方核销注）。
  */
 export const BEAD_LOD_CELL = BEAD_CELL * 0.9;
+/**
+ * ADR-0017 zoom 自适应 LOD 的**降档层集标记**（C7 拆名产物：从旧 `WAVE_LOD_LAYERS`
+ * 的 zoom 消费者一侧独立命名；值 7 与波浪降档同源同值，去留另见 ADR-0023 §9-1）。
+ */
+export const ZOOM_LOD_LAYERS = 7;
 /**
  * 滞回带宽（ADR-0017 §2.1「滞回必需」）：降档 < 27、升档 ≥ 29.5 ⇒ 阈值附近缩放不闪。
  *
@@ -961,6 +974,38 @@ export const BEAD_LOD_HYST = 2.5;
 export function nextBeadLod(cell: number, wasLow: boolean): boolean {
   return wasLow ? cell < BEAD_LOD_CELL + BEAD_LOD_HYST : cell < BEAD_LOD_CELL;
 }
+
+/* §12.2 **C7 双门禁常量**（WXG-T-211-B1 / EP11-S2）—— 风格进池检查的真源。
+   C7 原文：「新建**两个**门禁常量（命令上限 = 7 / 真 α 上限 = 2，一个常量装不下两个
+   量）」；上限出自 §12.2 S8「全局上限 = 双指标：珠体命令 ≤ 7 且真 α 层 ≤ 2」。
+   计数口径 = `assets-spec` 附 `styles.mjs::probe()`（珠体命令数，底图另计、凹槽另列）。
+   按 **C4**：呈现层系数/门禁常量只进本文件，⛔ 不进 systems-index §3。
+   基线四棱实测 = **6 命令 / 0 真 α**（§12.6）⇒ 门禁脚本 C11 第⑤项的差值基准。 */
+/** 风格珠体图元命令数上限（C7①；超出即触门 ⇒ C11 五项诊断 + 停待确认态）。 */
+export const BEAD_STYLE_MAX_COMMANDS = 7;
+/** 风格**真 α** 层数上限（C7①；真 α 判据 = `alpha<1` 或 fill 为 `rgba(...)`，probe 同源）。 */
+export const BEAD_STYLE_MAX_ALPHA_LAYERS = 2;
+
+/* **复刻·四棱刻面（facet-4）风格系数组**（WXG-T-211-B1 / EP11-S2；C4：逐常量注归属）。
+   来源 = `assets-spec §7.11.1` recipe / spike `styles.mjs::facetBead` 复刻，⛔ 非新造值；
+   §7.12 登记的「表外系数」（−0.34 / −0.16 / 0.09）按 C4 清算进本组。
+   颜色仍走 palette.ts `mix()` 派生（C3 色源唯一），本组只落**系数**。 */
+export const FACET4_STYLE_ID = 'facet-4';
+/**
+ * 复刻·四棱 #1 底 rect 的 `mix(base, −0.34)`（暗底兼描边；§7.11.1）。
+ * ⚠ 职能 = 底衬/描边 ⇒ **不进 C12 珠面族统计域**（contract.ts 层 role 标 `plate`）。
+ */
+export const FACET4_PLATE_MIX = -0.34;
+/** 复刻·四棱 #3 右刻面的 `mix(base, −0.16)`（§7.11.1 / §7.12 表外系数）。 */
+export const FACET4_FACET_RIGHT_MIX = -0.16;
+/** 复刻·四棱四角内缩比 `i2 = 0.09S`（§7.11.1；三角形顶点自格中心收缩量）。 */
+export const FACET4_FACET_INSET = 0.09;
+/**
+ * 复刻·四棱孔半径比 `r = 0.17S`（spike `facetBead` 实测口径）。
+ * ⚠ **偏差登记（不自行消解）**：§7.11.1 行 6 规格 = `pit` 色 + 半径 `0.22S`（`holeRatio 0.44`）；
+ * 本单只**复刻 spike recipe**（盘面逐帧不变纪律），孔规格纠正归 §12.9 步 3/4。
+ */
+export const FACET4_HOLE_RADIUS = 0.17;
 /**
  * 裁定 1（用户 2026-09-16）：结算面板**延迟 WAVE_MS 开**——庆祝先行放完再落遮罩。
  * 代价已写入 ux-spec §5（过关到可点按钮多等 800ms）。

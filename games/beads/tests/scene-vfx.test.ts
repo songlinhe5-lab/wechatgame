@@ -29,7 +29,7 @@ import {
   SWEEP_Y_MIN,
   WAVE_COL_DELAY_MS,
   WAVE_LIFT_PX,
-  WAVE_LOD_LAYERS,
+  WAVE_BEAD_LOD_LAYERS,
   WAVE_MS,
   WAVE_RISE_RATIO,
   WAVE_SCALE_PEAK,
@@ -263,7 +263,7 @@ describe('G4 vfx_complete_wave · 包络（assets-spec §1.6.4）', () => {
 describe('G4 vfx_complete_wave · LOD 降档 + B0 底图不参与 lift（v1.5-r8）', () => {
   it('降档砍 3 个图元（L0a / L3b / L4′），中心孔与 L1 主体恒在', () => {
     const full = emitBead({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK });
-    const lod = emitBead({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK, lodLayers: WAVE_LOD_LAYERS });
+    const lod = emitBead({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK, lodLayers: WAVE_BEAD_LOD_LAYERS });
     // 旧集为 4 条（L4 三条里砍 L4a/L4b）；L4 已并为一枚椭圆高光 ⇒ 降档只砍该 1 条。
     expect(full.length - lod.length).toBe(3);
     expect(lod.length).toBeGreaterThan(0);
@@ -273,8 +273,8 @@ describe('G4 vfx_complete_wave · LOD 降档 + B0 底图不参与 lift（v1.5-r8
 
   it('⛔ 珠体函数不输出底图；`lift` 把整颗珠（含孔）一起抬（§1.6.1 P0 陷阱 #2）', () => {
     // 两侧同走降档 ⇒ 图元集相同，唯一变量 = `lift`。
-    const still = emitBead({ targetColorIdx: 0, lodLayers: WAVE_LOD_LAYERS });
-    const lifted = emitBead({ targetColorIdx: 0, lift: WAVE_LIFT_PX, lodLayers: WAVE_LOD_LAYERS });
+    const still = emitBead({ targetColorIdx: 0, lodLayers: WAVE_BEAD_LOD_LAYERS });
+    const lifted = emitBead({ targetColorIdx: 0, lift: WAVE_LIFT_PX, lodLayers: WAVE_BEAD_LOD_LAYERS });
     // B0 已上提为独立函数 ⇒ 珠体输出里根本不存在 pitch 宽图元，
     // “底图被抬走”在结构上不可发生（旧判据靠比对两条 rect，现在由签名保）。
     const rectAt = (cmds: readonly DrawCommand[], i: number): RectCommand => {

@@ -212,10 +212,10 @@ export interface FilledBeadOptions {
   /** G1：L0b 投影纵向偏移覆写（`/64` 归一比例，静息 = `BEAD_CARD.shadowDy` = 3/64）。 */
   readonly shadowDy?: number;
   /**
-   * G4 波浪期的 **LOD 降档**（`assets-spec §1.6.4` / `WAVE_LOD_LAYERS = 7`，WXG-T-146）：
+   * G4 波浪期的 **LOD 降档**（`assets-spec §1.6.4` / `WAVE_BEAD_LOD_LAYERS = 7`，WXG-T-146；C7 拆名后波浪/zoom LOD 各自一名）：
    * 传入即降层 —— 砍 L0a / L3b / L4a / L4b，保 L0b + L1 + L2 + L3 + L4c
    * （旧文此处还列了 **L5 符号**，该层已随 v1.5-r8 整层删除 ⇒ WXG-T-207-A 注释核销；
-   *   保留集是否因此重数为 6 归 art/QA **另案**，本单不动 `WAVE_LOD_LAYERS` 的值）。
+   *   保留集是否因此重数为 6 归 art/QA **另案**，本单不动 `WAVE_BEAD_LOD_LAYERS` 的值）。
    * ⛔ **L11 垫绝不进可砍集**（静态谜面载体 ⇒ 本标志**不影响**上方垫的绘制）。
    * 本轮只预埋 G4 这一档（裁定 5）；G2 的 α 阈值 4 层档 = 规格保留、不实现。
    */
@@ -621,12 +621,17 @@ export function drawEmptySocket(
   });
 
   // S3 上内缘内阴影线（暗，凹感上半）。
+  // ⚠ **WXG-T-211-B1 / EP11-S1（P0 换向修复，assets-spec §7.11.7-D2）**：设计空间 y 向上，
+  // 旧码把暗线画在 `bottom + inset`（下缘）、亮线画在 `bottom + size − inset`（上缘）
+  // ⇒ 凹槽与珠体**同向**、§1.9.4 通道 2（空/珠区分主轴）失活；两线 y 已对调为
+  // **暗上亮下**，方向由 `tests/bead-render.test.ts` TC-SKT-01 的 `y_dark > y_lit` 锁死
+  // （旧墨色断言拦不住换向，K-035/K-060）。墨色档不改（D3 口径漂移归 art 对齐单）。
   const shadeWidth = Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.shadeWidth);
   builder.line(
     left + inset,
-    bottom + inset,
+    bottom + size - inset,
     left + size - inset,
-    bottom + inset,
+    bottom + size - inset,
     endpoints.edge,
     shadeWidth,
   );
@@ -634,9 +639,9 @@ export function drawEmptySocket(
   // S4 下内缘受光亮线（亮，凹感下半）。
   builder.line(
     left + inset,
-    bottom + size - inset,
+    bottom + inset,
     left + size - inset,
-    bottom + size - inset,
+    bottom + inset,
     endpoints.lit,
     Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.litWidth),
   );

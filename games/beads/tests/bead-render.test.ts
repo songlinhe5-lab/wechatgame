@@ -19,7 +19,7 @@ import {
   BEAD_PITCH,
   TRAY_SLOT,
   nextBeadLod,
-  WAVE_LOD_LAYERS,
+  ZOOM_LOD_LAYERS,
 } from '../src/config/tuning.js';
 import {
   BEAD_CARD,
@@ -94,7 +94,7 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
 
   it('降档只砍质感层：命令数下降，但中心孔红线不丢', () => {
     const full = beadWithPad();
-    const low = beadWithPad(WAVE_LOD_LAYERS);
+    const low = beadWithPad(ZOOM_LOD_LAYERS); // C7 拆名：此例走 zoom LOD 降层路径（同值 7）
     expect(low.length).toBeLessThan(full.length);
     // v1.5-r8 降档集重定：砍 L0a 接触阴影 + L3b rim + L4′ 高光 = **3 条**（旧为 4 条，
     // 因 L4 三条已并为一枚椭圆高光）。
@@ -398,6 +398,57 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // §1.3：托盘珠 = 同 BEAD 内缩 4；尺寸常量必须由 TRAY_SLOT 派生，不能是散落的魔法数。
   it('§1.3 derives the tray bead size from the tray slot', () => {
     expect(TRAY_BEAD_SIZE).toBe(TRAY_SLOT - 4);
+  });
+
+  // ─────────────────────────── TC-SKT-01（§12.9 步 2・assets-spec §7.11.7-D2 P0）───────────────
+  //
+  // 凹槽明暗线 **y 向**回归（判据正本 = `production/qa/beads/test-cases.md §K.4` TC-SKT-01）。
+  // 设计空间 **y 轴向上** ⇒ 「凹」的正确读法 = 暗线走上缘、亮线走下缘（`y_dark > y_lit`）；
+  // 现码曾长期反向（S3 暗线在 `bottom+inset` 下缘、S4 亮线在 `bottom+size−inset` 上缘 ⇒
+  // 与珠体同向、§1.9.4 通道 2 失活）。上方 :348/:385 两条旧例只断言墨色与命令序、从不判 y
+  // ⇒ 换向必假绿（K-035/K-060 同族），本例把方向本身锁死。
+  //
+  // 两条实现纪律（TC-SKT-01 原文）：
+  // ① **按墨色分派**暗/亮（暗 = `edge` 族墨、亮 = `lit` 族墨），不按命令下标 ⇒ 换序不影响判别；
+  // ② ⛔ 禁写成「两线 y 不相等」——换向态同样满足、零判别力；必须是方向断言 `y_dark > y_lit`。
+  // 枚数按 `tilePainted` 两口径分别构造（K-041：4/5 钉错即假红；E 单 §7.11.5 对照行）。
+  describe('TC-SKT-01 凹槽明暗线 y 向（凹读感 = 上暗下亮，y 向上 ⇒ y_dark > y_lit）', () => {
+    type LineCmd = { kind: 'line'; x1: number; y1: number; x2: number; y2: number; stroke: string; lineWidth: number };
+    /** 取凹槽两枚 line，按**墨色**分派暗/亮（墨色不在端点集内 = 构造失效，当场红）。 */
+    const darkLitByInk = (cmds: readonly unknown[], darkInk: string, litInk: string): { dark: LineCmd; lit: LineCmd } => {
+      const lines = cmds.filter((c): c is LineCmd => (c as { kind: string }).kind === 'line');
+      expect(lines).toHaveLength(2);
+      const dark = lines.find((l) => l.stroke === darkInk);
+      const lit = lines.find((l) => l.stroke === litInk);
+      expect(dark, `暗线墨 ${darkInk} 未在场`).toBeDefined();
+      expect(lit, `亮线墨 ${litInk} 未在场`).toBeDefined();
+      return { dark: dark!, lit: lit! };
+    };
+
+    it('托盘空槽口径（tilePainted=false ⇒ 自带大底 = 5 命令）：y_dark > y_lit', () => {
+      const empty = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE));
+      // 枚数口径先钉死（K-041 次数轴 ±0）：大底 rect + S2 坑底 + S1 暗缘框 + S3/S4 两线 = 5。
+      expect(empty).toHaveLength(5);
+      const { dark, lit } = darkLitByInk(
+        empty,
+        mix(DEFAULT_PALETTE.slot, -0.3),   // 中性槽的 edge 族墨（neutralEndpoints）
+        mix(DEFAULT_PALETTE.slot, 0.38),   // lit 族墨（SOCKET_LIT_MIX）
+      );
+      // 方向硬断言（差值、非存在性）：暗线在亮线**上方** = 凹。
+      expect(dark.y1).toBeGreaterThan(lit.y1);
+      expect(dark.y2).toBeGreaterThan(lit.y2);
+    });
+
+    it('网格空格口径（tilePainted=true ⇒ B0 已铺不刷底 = 4 命令）：y_dark > y_lit', () => {
+      const idx = 1; // 奶白 ○
+      const base = beadColorOf(DEMO_BEAD_INKS, idx);
+      const grid = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, idx, DEMO_BEAD_INKS, true));
+      // 枚数口径：S2 坑底 + S1 暗缘框 + S3/S4 两线 = 4（大底由 B0 `drawTargetTile` 承担）。
+      expect(grid).toHaveLength(4);
+      const { dark, lit } = darkLitByInk(grid, mix(base, -0.3), mix(base, 0.38));
+      expect(dark.y1).toBeGreaterThan(lit.y1);
+      expect(dark.y2).toBeGreaterThan(lit.y2);
+    });
   });
 
   // 可复现：同一输入两次渲染逐字节一致。

@@ -133,7 +133,7 @@ export interface BeadsSnapshot {
   gridPitch: number;
   gridCell: number;
   /**
-   * ADR-0017 zoom 自适应 LOD：0 = 满层，>0 = 降层集层数（现复用 `WAVE_LOD_LAYERS`）。
+   * ADR-0017 zoom 自适应 LOD：0 = 满层，>0 = 降层集层数（现 = `ZOOM_LOD_LAYERS`，C7 拆名后不再复用波浪常量）。
    * 阈值与滞回均在 game 侧算完才入快照 ⇒ 视图只读（L5）。
    */
   beadLodLayers: number;

@@ -97,7 +97,7 @@ import {
   gridLayoutFor,
   hitGridCell,
   nextBeadLod,
-  WAVE_LOD_LAYERS,
+  ZOOM_LOD_LAYERS,
   IDENTITY_CAMERA,
   BOARD_TAP_MOVE_THRESHOLD,
   PUZZLE_BAND,
@@ -3203,7 +3203,7 @@ export class BeadsGame implements Game {
     // at any zoom (丁-3). = BEAD_PITCH/BEAD_CELL at identity → snapshot byte-identical.
     s.gridPitch = this._layout.pitch;
     s.gridCell = this._layout.cell;
-    s.beadLodLayers = this._beadLod ? WAVE_LOD_LAYERS : 0; // 0 = 满层；视图只读不判阈值
+    s.beadLodLayers = this._beadLod ? ZOOM_LOD_LAYERS : 0; // 0 = 满层；视图只读不判阈值（C7 拆名：zoom LOD 用 ZOOM_LOD_LAYERS，不再蹭波浪常量）
 
     // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and
     // leans on the always-on ad_badge, §2.6) + the one-shot over-limit hint.

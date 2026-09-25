@@ -31,6 +31,8 @@
     "build:cocos:web": "pnpm -r run build:cocos:web",
     "check:size": "node tools/scripts/check-bundle-size.mjs",
     "check:size:selftest": "node tools/scripts/check-bundle-size.mjs --selftest",
+    "check:bead-style-pool": "node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/check-bead-style-pool.mjs",
+    "check:bead-style-pool:fixtures": "node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/check-bead-style-pool.mjs --fixtures",
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
     "ctx:selftest": "bash tools/scripts/worktree-authoritative-selftest.sh",
