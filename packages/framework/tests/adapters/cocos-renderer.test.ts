@@ -194,6 +194,33 @@ describe('CocosRenderModelRenderer', () => {
     expect(calls.some((c) => c.startsWith('close'))).toBe(false);
   });
 
+  /**
+   * ADR-0024 §6-J5「迁移前后行为逐字不变」的 **adapter 侧取证**（加严，非 ADR 字面清单）：
+   * §11.2 的 SVG 逐字节对拍读的是 `RenderModel`，**不经过**任何 adapter ⇒ 循环边界与门限
+   * 的等价性必须在此钉住，否则「迁完仍全绿」可以是假绿。
+   * 红法：① 把 `for (k = 1; k < count; …)` 写错（起点/终点差一个顶点）⇒ `toEqual` 当场红；
+   *      ② 退回「按引用存 points」⇒ 第二枚复用 scratch 时第一枚跟着变形 ⇒ 同样红；
+   *      ③ 把 skip 门从 `count < 2` 改成 `count < 3` ⇒ 奇数长度那条（2 顶点）少画 ⇒ 红；
+   *      ④ skip 判定挪到 `moveTo` 之后 ⇒ 末条不会出现 ⇒ 红。
+   */
+  it('emits the exact vertex sequence for polygons sharing one scratch array (ADR-0024 J-5)', () => {
+    const { renderer, calls } = makeSetup();
+    const b = new RenderModelBuilder(200, 400);
+    const scratch: number[] = [0, 0, 10, 0, 5, 10];
+    b.begin();
+    b.polygon(scratch, { fill: '#ffffff' });
+    for (let k = 0; k < 6; k += 1) scratch[k] += 20; // 复用同一数组（旧契约下会串形）
+    b.polygon(scratch, { fill: '#ffffff' });
+    b.polygon([1, 1, 2, 2, 3], { fill: '#ffffff' }); // 奇数长度 ⇒ 尾浮点被丢弃，2 顶点照画
+    b.polygon([4, 4, 5], { fill: '#ffffff' }); // count = 1 ⇒ skip（旧 length 3 < 4 同结论）
+    renderer.draw(b.end());
+    expect(calls.filter((c) => /^(moveTo|lineTo|close)/.test(c))).toEqual([
+      'moveTo(-100,-200)', 'lineTo(-90,-200)', 'lineTo(-95,-190)', 'close',
+      'moveTo(-80,-180)', 'lineTo(-70,-180)', 'lineTo(-75,-170)', 'close',
+      'moveTo(-99,-199)', 'lineTo(-98,-198)', 'close',
+    ]);
+  });
+
   it('positions text labels and reports the label count', () => {
     const { renderer, created } = makeSetup();
     const b = new RenderModelBuilder(200, 400);

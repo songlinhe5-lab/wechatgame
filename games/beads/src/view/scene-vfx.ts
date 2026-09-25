@@ -101,8 +101,10 @@ export function sweepCenterX(p: number): number {
  * 第 `i` 层（0=核心 / 1=中 / 2=广）的四角写入 `out[0..7]` 并返回 `out`。
  *
  * 斜切方向：y 越大 x 越靠右 ⇒ 顶部相对底部右移 `SWEEP_TAN × (Y_MAX − Y_MIN) ≈ 442px`（20°）。
- * ⚠️ `out` 由调用方**每次新建**：`RenderModelBuilder.polygon()` **按引用**保存 points
- *    （`render-model.ts:150`）⇒ 多帧共用一块 scratch 会让上一帧命令跟着变形。
+ * `[WXG-T-211-A / ADR-0024]` 本参数的**动机已核销**：`polygon()` 过去按引用保存 points，
+ * 共用 scratch 会让上一帧命令跟着变形；现在建令当刻就把顶点拷进帧内 arena（值语义），
+ * 跨帧复用 scratch 不再串形。此处保留「调用方每次新建」的现状只是为了不把无关改动
+ * 混进本单的零视觉对拍，不是还必要。
  */
 export function sweepQuad(i: number, centerX: number, out: number[]): number[] {
     const half = (SWEEP_WIDTHS[i] ?? SWEEP_WIDTHS[0]!) / 2;
@@ -255,9 +257,11 @@ export function confettiFrame(
 /**
  * 无旋转变换通道 ⇒ 逐帧算四角（规格卡几何式，hw=3/hh=7）。`out` 为 8-float 扁平点列，
  * `off` 指定写入段偏移（默认 0 兼容旧调用）。
- * `[v1.4·WXG-T-128 裁定 B（用户 2026-09-17）]` 支持写入**预分配 scratch 缓冲的段**：
- * 调用方传 `Float32Array(352)` + `off = idx × 8` ⇒ 44 枚各占固定 8-float 段、逐帧整段重写，
- * `polygon()` 以 subarray 视图引用（framework 契约已放宽；段在下一帧前重写安全，见契约注）。
+ * `[v1.4·WXG-T-128 裁定 B（用户 2026-09-17）]` 支持写入**预分配 scratch 缓 冲的段**：
+ * 调用方传 `Float32Array(352)` + `off = idx × 8` ⇒ 44 枚各占固定 8-float 段、逐帧整段重写。
+ * `[WXG-T-211-A / ADR-0024]` `polygon()` 不再以 subarray **视图引用**这段，而是在建令
+ * 当刻逐浮点拷进帧内 arena ⇒「段在下一帧前不得改写」的旧纪律作废；预分配本身仍有效
+ * （它省掉的是每帧 44 次数组分配，而不是拷贝）。
  */
 export function confettiQuad(
     cx: number,

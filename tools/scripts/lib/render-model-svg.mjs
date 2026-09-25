@@ -34,7 +34,7 @@ export function modelToSvg(model) {
 
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" ` +
-      `font-family="ui-sans-serif, system-ui, -apple-system, 'PingFang SC', sans-serif">`,
+    `font-family="ui-sans-serif, system-ui, -apple-system, 'PingFang SC', sans-serif">`,
   );
   parts.push(`<rect width="${w}" height="${h}" fill="${esc(model.background ?? '#0c0b1e')}"/>`);
   parts.push(`<g transform="translate(0 ${h}) scale(1 -1)">`);
@@ -50,37 +50,43 @@ export function modelToSvg(model) {
           : '';
         parts.push(
           `<rect x="${num(cmd.x)}" y="${num(cmd.y)}" width="${num(cmd.w)}" height="${num(cmd.h)}"${rx}` +
-            ` fill="${esc(cmd.fill ?? 'none')}"` +
-            (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
-            `${opacity}/>`,
+          ` fill="${esc(cmd.fill ?? 'none')}"` +
+          (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
+          `${opacity}/>`,
         );
         break;
       }
       case 'circle': {
         parts.push(
           `<circle cx="${num(cmd.x)}" cy="${num(cmd.y)}" r="${num(cmd.r)}"` +
-            ` fill="${esc(cmd.fill ?? 'none')}"` +
-            (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
-            `${opacity}/>`,
+          ` fill="${esc(cmd.fill ?? 'none')}"` +
+          (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
+          `${opacity}/>`,
         );
         break;
       }
       case 'line': {
         parts.push(
           `<line x1="${num(cmd.x1)}" y1="${num(cmd.y1)}" x2="${num(cmd.x2)}" y2="${num(cmd.y2)}"` +
-            ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth)}" stroke-linecap="round"${opacity}/>`,
+          ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth)}" stroke-linecap="round"${opacity}/>`,
         );
         break;
       }
       case 'polygon': {
-        const pts = cmd.points;
-        if (pts.length < 6) break;
+        // [WXG-T-211-A / ADR-0024] payload moved from `cmd.points` into the frame
+        // arena. The gate is the old `pts.length < 6` restated in vertices
+        // (count < 3 ⇔ length < 6), and the pair loop covers exactly the same
+        // index range, so SVG output stays byte-identical (§6-J5 diff gate).
+        const n = cmd.count;
+        if (n < 3) break;
+        const v = model.vertices;
+        const o = cmd.offset;
         const list = [];
-        for (let i = 0; i + 1 < pts.length; i += 2) list.push(`${num(pts[i])},${num(pts[i + 1])}`);
+        for (let k = 0; k < n; k += 1) list.push(`${num(v[o + k * 2])},${num(v[o + k * 2 + 1])}`);
         parts.push(
           `<polygon points="${list.join(' ')}" fill="${esc(cmd.fill ?? 'none')}"` +
-            (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
-            `${opacity}/>`,
+          (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
+          `${opacity}/>`,
         );
         break;
       }
@@ -89,10 +95,10 @@ export function modelToSvg(model) {
         parts.push(
           // Counter-flip so glyphs read the right way up inside the y-flipped group.
           `<g transform="translate(${num(cmd.x)} ${num(cmd.y)}) scale(1 -1)">` +
-            `<text x="0" y="0" fill="${esc(cmd.fill ?? '#ffffff')}" font-size="${num(font.size)}" ` +
-            `font-family="${esc(font.family)}" text-anchor="${ANCHOR[cmd.align ?? 'left'] ?? 'start'}" ` +
-            `dominant-baseline="${BASELINE[cmd.baseline ?? 'middle'] ?? 'central'}"${opacity}>` +
-            `${esc(cmd.text)}</text></g>`,
+          `<text x="0" y="0" fill="${esc(cmd.fill ?? '#ffffff')}" font-size="${num(font.size)}" ` +
+          `font-family="${esc(font.family)}" text-anchor="${ANCHOR[cmd.align ?? 'left'] ?? 'start'}" ` +
+          `dominant-baseline="${BASELINE[cmd.baseline ?? 'middle'] ?? 'central'}"${opacity}>` +
+          `${esc(cmd.text)}</text></g>`,
         );
         break;
       }

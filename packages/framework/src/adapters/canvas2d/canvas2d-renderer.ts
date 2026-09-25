@@ -118,13 +118,13 @@ export class Canvas2DRenderer {
     }
 
     for (const cmd of model.commands) {
-      this._drawCommand(cmd);
+      this._drawCommand(cmd, model.vertices);
     }
 
     ctx.restore();
   }
 
-  private _drawCommand(cmd: DrawCommand): void {
+  private _drawCommand(cmd: DrawCommand, verts: Float64Array): void {
     const ctx = this._ctx;
     switch (cmd.kind) {
       case 'rect': {
@@ -151,11 +151,15 @@ export class Canvas2DRenderer {
         break;
       }
       case 'polygon': {
-        const pts = cmd.points;
-        if (pts.length < 4) break;
+        // Arena spelling of the old `pts.length < 4` gate; skip behaviour is kept
+        // verbatim (ADR-0024 DEC-4). `verts` is passed in rather than reached for
+        // via a helper: a per-command view would allocate on the hot path.
+        const n = cmd.count;
+        if (n < 2) break;
+        const o = cmd.offset;
         ctx.beginPath();
-        ctx.moveTo(pts[0]!, pts[1]!);
-        for (let i = 2; i < pts.length - 1; i += 2) ctx.lineTo(pts[i]!, pts[i + 1]!);
+        ctx.moveTo(verts[o]!, verts[o + 1]!);
+        for (let k = 1; k < n; k += 1) ctx.lineTo(verts[o + k * 2]!, verts[o + k * 2 + 1]!);
         ctx.closePath();
         this._paint(cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
         break;

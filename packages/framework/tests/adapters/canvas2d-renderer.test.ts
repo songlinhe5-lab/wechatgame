@@ -109,6 +109,29 @@ describe('Canvas2DRenderer', () => {
     expect(calls).toContain('lineTo(5,10)');
   });
 
+  /**
+   * ADR-0024 §6-J5 的 **canvas2d 侧取证**（与 cocos 同名判据成对，理由：SVG 对拍不经过
+   * adapter）。额外钉住一条旧行为：**skip 发生在 `beginPath()` 之前**——退化多边形不得
+   * 清空上一条路径。红法同 cocos 侧注（循环边界 / 按引用回归 / 门限改 < 3 / skip 后置）。
+   */
+  it('emits the exact vertex sequence for polygons sharing one scratch array (ADR-0024 J-5)', () => {
+    const { renderer, calls } = makeRenderer();
+    const b = new RenderModelBuilder(100, 100);
+    const scratch: number[] = [0, 0, 10, 0, 5, 10];
+    b.begin();
+    b.polygon(scratch, { fill: '#00f' });
+    for (let k = 0; k < 6; k += 1) scratch[k] += 20; // 复用同一数组（旧契约下会串形）
+    b.polygon(scratch, { fill: '#0f0' });
+    b.polygon([1, 1, 2, 2, 3], { fill: '#f00' }); // 奇数长度 ⇒ 尾浮点被丢弃（口径逐字不变）
+    b.polygon([4, 4, 5], { fill: '#fff' }); // count = 1 ⇒ skip，且不开新路径
+    renderer.draw(b.end());
+    expect(calls.filter((c) => /^(beginPath|moveTo|lineTo|closePath)/.test(c))).toEqual([
+      'beginPath()', 'moveTo(0,0)', 'lineTo(10,0)', 'lineTo(5,10)', 'closePath()',
+      'beginPath()', 'moveTo(20,20)', 'lineTo(30,20)', 'lineTo(25,30)', 'closePath()',
+      'beginPath()', 'moveTo(1,1)', 'lineTo(2,2)', 'closePath()',
+    ]);
+  });
+
   it('undoes the y-flip for text locally and swaps vertical baselines', () => {
     const { ctx, calls, renderer } = makeRenderer();
     const b = new RenderModelBuilder(100, 100);

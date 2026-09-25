@@ -12,7 +12,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { RenderModelBuilder, type DrawCommand, type PolygonCommand } from '@wxgame/framework';
+import { RenderModelBuilder, polygonVertices, type DrawCommand, type PolygonCommand, type RenderModel } from '@wxgame/framework';
 import {
     AUDIO_CLIP_PANEL_IN,
     AUDIO_CLIP_STAR,
@@ -81,11 +81,16 @@ function fillBoard(h: Harness): void {
     }
 }
 
-function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
+/**
+ * `[WXG-T-211-A / ADR-0024]` returns the whole model, not just the command list:
+ * polygon payloads live in `model.vertices` now, so any test that reads a shape
+ * needs the arena alongside the command.
+ */
+function renderSnap(snap: BeadsSnapshot): RenderModel {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
     buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
-    return builder.end().commands;
+    return builder.end();
 }
 
 // ───────────────────────────── ③ 命令层 helper（彩带图元识别）
@@ -99,26 +104,31 @@ const hexToRgb = (hex: string): string => {
 const CONFETTI_RGB = new Set(CONFETTI_COLORS.map(hexToRgb));
 const SCRIM_FILL = `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`;
 
-function isConfettiPoly(cmd: DrawCommand): cmd is PolygonCommand {
-    if (cmd.kind !== 'polygon' || cmd.points.length !== 8 || cmd.fill === undefined) return false;
+/**
+ * 彩带图元识别。`count !== 4` 是旧 `points.length !== 8` 的顶点数写法（8 float = 4 顶点）；
+ * bbox 尺寸闸走 `polygonVertices` 视图（测试侧专用，生产热路径禁调）。
+ */
+function isConfettiPoly(model: RenderModel, cmd: DrawCommand): cmd is PolygonCommand {
+    if (cmd.kind !== 'polygon' || cmd.count !== 4 || cmd.fill === undefined) return false;
     const m = /^rgba\((\d+,\d+,\d+),/.exec(cmd.fill);
     if (m === null || !CONFETTI_RGB.has(m[1]!)) return false;
     // 尺寸闸：6×14 彩带任意旋转的 bbox 边长 ≤ hypot(6,14) ≈ 15.3；排除 HUD 等同色斜置大图元（40×6）。
+    const pts = polygonVertices(model, cmd);
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     for (let k = 0; k < 8; k += 2) {
-        minX = Math.min(minX, cmd.points[k]!);
-        maxX = Math.max(maxX, cmd.points[k]!);
-        minY = Math.min(minY, cmd.points[k + 1]!);
-        maxY = Math.max(maxY, cmd.points[k + 1]!);
+        minX = Math.min(minX, pts[k]!);
+        maxX = Math.max(maxX, pts[k]!);
+        minY = Math.min(minY, pts[k + 1]!);
+        maxY = Math.max(maxY, pts[k + 1]!);
     }
     return maxX - minX <= 16 && maxY - minY <= 16;
 }
 
 /** 彩带多边形在命令流中的下标（前 = MAIN 层、后 = FG 层，以 scrim 为界）。 */
-function confettiIndices(cmds: readonly DrawCommand[]): number[] {
+function confettiIndices(model: RenderModel): number[] {
     const out: number[] = [];
-    cmds.forEach((c, i) => {
-        if (isConfettiPoly(c)) out.push(i);
+    model.commands.forEach((c, i) => {
+        if (isConfettiPoly(model, c)) out.push(i);
     });
     return out;
 }
@@ -130,8 +140,9 @@ function scrimIndex(cmds: readonly DrawCommand[]): number {
 }
 
 /** 多边形重心（禁飞带按中心点判定，与 `drawConfetti` 的 `f.y` 同口径）。 */
-function centroidY(cmd: PolygonCommand): number {
-    return (cmd.points[1]! + cmd.points[3]! + cmd.points[5]! + cmd.points[7]!) / 4;
+function centroidY(model: RenderModel, cmd: PolygonCommand): number {
+    const pts = polygonVertices(model, cmd);
+    return (pts[1]! + pts[3]! + pts[5]! + pts[7]!) / 4;
 }
 
 const freshState = (): ConfettiBeadState => ({ x: 0, y: 0, theta: 0, alpha: 0 });
@@ -376,10 +387,10 @@ describe('G6 彩带 · 命令层（§1.6.6 sandwich 层序死规格 + 禁飞带 
 
     it('sandwich（p=0.2）：MAIN 36 枚全部先于全屏 scrim、FG 8 枚全部在后（800ms 窗口内 44 枚在场）', () => {
         const snap = { ...baseSnap('wxgame.beads.test.g6-sandwich'), confettiProgress: 0.2 };
-        const cmds = renderSnap(snap);
-        const scrim = scrimIndex(cmds);
+        const model = renderSnap(snap);
+        const scrim = scrimIndex(model.commands);
         expect(scrim, '结算面板全屏遮罩缺席').toBeGreaterThan(-1);
-        const idxs = confettiIndices(cmds);
+        const idxs = confettiIndices(model);
         expect(idxs).toHaveLength(CONFETTI_COUNT); // p=0.2：α=1 且无 FG 落禁飞带 ⇒ 44 全画
         expect(idxs.filter((i) => i < scrim)).toHaveLength(CONFETTI_MAIN_COUNT);
         expect(idxs.filter((i) => i > scrim)).toHaveLength(CONFETTI_FG_COUNT);
@@ -398,16 +409,19 @@ describe('G6 彩带 · 命令层（§1.6.6 sandwich 层序死规格 + 禁飞带 
         expect(expectFg).toBeLessThan(CONFETTI_FG_COUNT); // 该进度确实有 FG 撞带（判据非空转）
         expect(expectFg).toBeGreaterThan(0);
 
-        const cmds = renderSnap({ ...baseSnap('wxgame.beads.test.g6-nofly'), confettiProgress: p });
+        const model = renderSnap({ ...baseSnap('wxgame.beads.test.g6-nofly'), confettiProgress: p });
+        const cmds = model.commands;
+        // 谓词需绑定本帧 arena ⇒ 闭包化（同时让 filter 的类型收窄继续成立）。
+        const isPoly = (c: DrawCommand): c is PolygonCommand => isConfettiPoly(model, c);
         const scrim = scrimIndex(cmds);
-        const polys = cmds.filter(isConfettiPoly) as readonly PolygonCommand[];
+        const polys = cmds.filter(isPoly);
         const fgDrawn = cmds
             .map((c, i) => ({ c, i }))
-            .filter(({ c, i }) => i > scrim && isConfettiPoly(c))
+            .filter(({ c, i }) => i > scrim && isPoly(c))
             .map(({ c }) => c as PolygonCommand);
         expect(fgDrawn).toHaveLength(expectFg);
         for (const f of fgDrawn) {
-            const y = centroidY(f);
+            const y = centroidY(model, f);
             expect(y < CONFETTI_NOFLY_YMIN || y > CONFETTI_NOFLY_YMAX).toBe(true); // 留下的全在带外
         }
         expect(polys.length - fgDrawn.length).toBe(CONFETTI_MAIN_COUNT); // MAIN 36 枚照常
@@ -422,8 +436,8 @@ describe('G6 彩带 · 命令层（§1.6.6 sandwich 层序死规格 + 禁飞带 
     });
 
     it('色集：只用 §1.6.6 冻结 5 色（引用既有 token）、禁暖橙 #F59B23（A5 装饰层不携编码义）', () => {
-        const cmds = renderSnap({ ...baseSnap('wxgame.beads.test.g6-colors'), confettiProgress: 0.2 });
-        const polys = cmds.filter(isConfettiPoly) as readonly PolygonCommand[];
+        const model = renderSnap({ ...baseSnap('wxgame.beads.test.g6-colors'), confettiProgress: 0.2 });
+        const polys = model.commands.filter((c) => isConfettiPoly(model, c));
         expect(polys.length).toBeGreaterThan(0);
         const warm = hexToRgb('#F59B23');
         for (const c of polys) {

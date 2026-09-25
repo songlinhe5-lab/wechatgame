@@ -153,6 +153,9 @@ export class CocosRenderModelRenderer {
     const ox = this._centered ? -this._viewport.designWidth / 2 : 0;
     const oy = this._centered ? -this._viewport.designHeight / 2 : 0;
 
+    // Vertex arena (ADR-0024): indexed directly below — no per-command view.
+    const verts = model.vertices;
+
     for (const cmd of model.commands) {
       if (cmd.kind === 'text') {
         this._drawText(cmd, ox, oy);
@@ -183,10 +186,14 @@ export class CocosRenderModelRenderer {
           break;
         }
         case 'polygon': {
-          const pts = cmd.points;
-          if (pts.length < 4) break;
-          g.moveTo(pts[0]! + ox, pts[1]! + oy);
-          for (let i = 2; i < pts.length - 1; i += 2) g.lineTo(pts[i]! + ox, pts[i + 1]! + oy);
+          // `count` is a vertex count; the skip gate is the arena-side spelling of
+          // the old `pts.length < 4` (count < 2 ⇔ length < 4) — behaviour is
+          // unchanged on purpose (ADR-0024 DEC-4).
+          const n = cmd.count;
+          if (n < 2) break;
+          const o = cmd.offset;
+          g.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
+          for (let k = 1; k < n; k += 1) g.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
           g.close();
           this._paint(cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;

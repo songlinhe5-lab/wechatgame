@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
+import { RenderModelBuilder, polygonVertices, type DrawCommand, type RenderModel } from '@wxgame/framework';
 import {
   BEAD_PITCH,
   DESIGN_H,
@@ -28,11 +28,20 @@ import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
-function render(harness: Harness): readonly DrawCommand[] {
+/**
+ * `[WXG-T-211-A / ADR-0024]` polygon payloads are no longer carried by the
+ * command — they live in the frame arena `model.vertices`. Tests that measure a
+ * shape therefore need the model, not just the command list.
+ */
+function renderModel(harness: Harness): RenderModel {
   const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
   builder.begin();
   buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
-  return builder.end().commands;
+  return builder.end();
+}
+
+function render(harness: Harness): readonly DrawCommand[] {
+  return renderModel(harness).commands;
 }
 
 /**
@@ -42,13 +51,13 @@ function render(harness: Harness): readonly DrawCommand[] {
  */
 
 /** Vertical centre of a command (polygons have no centre field ⇒ vertex mean). */
-function centreY(cmd: DrawCommand): number {
+function centreY(model: RenderModel, cmd: DrawCommand): number {
   if (cmd.kind === 'circle' || cmd.kind === 'text') return cmd.y;
   if (cmd.kind === 'rect') return cmd.y + cmd.h / 2;
   if (cmd.kind === 'line') return (cmd.y1 + cmd.y2) / 2;
   if (cmd.kind === 'polygon') {
-    // [WXG-T-128 裁定 B] points 放宽为 number[] | Float32Array ⇒ Array 方法须先收窄
-    const ys = Array.from(cmd.points).filter((_, i) => i % 2 === 1);
+    // [WXG-T-211-A] 载荷 =  arena 切片（旧 `Array.from(cmd.points)` 的同形写法）
+    const ys = Array.from(polygonVertices(model, cmd)).filter((_, i) => i % 2 === 1);
     return ys.reduce((a, b) => a + b, 0) / ys.length;
   }
   return Number.NaN;
@@ -160,9 +169,10 @@ describe('beads view model (control-manifest §8)', () => {
       levels: [simpleTestLevel()],
       saveKey: 'wxgame.beads.test.vm-a4',
     });
-    const commands = render(harness);
+    const model = renderModel(harness);
+    const commands = model.commands;
     const inBand = (cmd: DrawCommand): boolean => {
-      const y = centreY(cmd);
+      const y = centreY(model, cmd);
       return y >= POWERUP_BAND.yMin && y <= POWERUP_BAND.yMax;
     };
     const centreX = (cmd: DrawCommand): number => {
@@ -170,8 +180,8 @@ describe('beads view model (control-manifest §8)', () => {
       if (cmd.kind === 'rect') return cmd.x + cmd.w / 2;
       if (cmd.kind === 'line') return (cmd.x1 + cmd.x2) / 2;
       if (cmd.kind === 'polygon') {
-        // [WXG-T-128 裁定 B] 同上：先收窄再走 Array 方法
-        const xs = Array.from(cmd.points).filter((_, i) => i % 2 === 0);
+        // [WXG-T-211-A] 同上：先取 arena 切片再走 Array 方法
+        const xs = Array.from(polygonVertices(model, cmd)).filter((_, i) => i % 2 === 0);
         return xs.reduce((a, b) => a + b, 0) / xs.length;
       }
       return Number.NaN;
@@ -210,8 +220,8 @@ describe('beads view model (control-manifest §8)', () => {
             inBand(c) &&
             centreX(c) >= r.x &&
             centreX(c) <= r.x + r.w &&
-            centreY(c) >= r.bottom &&
-            centreY(c) <= r.bottom + r.h,
+            centreY(model, c) >= r.bottom &&
+            centreY(model, c) <= r.bottom + r.h,
         )
         .map((c) => c.kind)
         .sort()
