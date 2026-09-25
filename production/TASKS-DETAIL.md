@@ -851,3 +851,18 @@
   3. **α ≤ 2 无真机证据**：真机帧率从未测过（ADR-0022 DR-1），D1/D2 测量单 v1.0 全列 `[待填]` ⇒ 上限属纸面口径，跑完须回头复核。
 - **门禁状态**：`check:links` OK（agents=7 / skills=39）；`check:tasks` 经本批补详情节闭合；`ctx:check` 的 C 项报 `memory/INDEX.md` 与索引不同源（非本批文件，pre-commit 自动重建处置）。
 - **遗留待办（去向见 §12.8 表）**：art 纪律③「投影 α 不得为 0」适用面改写 · 逐风格凹槽层集 · `BEAD_DRAW_INSET` 小豆档定值 · 三角/顶点数并入 QA 埋点 · `pause-settings.md §2.2` S9 内容单源同步 · **C12 在 `assets-spec §1.9.7` 的引用行（art 下批）**。
+
+## WXG-T-211
+
+- **目标**：§12 风格池落码（Q1=甲 三套可即刻；06 只出池条件）——registry + 双门禁 + 四棱转正 + 13/18 + 行4 两钮 + 存档两字段 + 设置态遮罩分列（Q3=甲）。
+- **编排链**：studio-orchestrator 阶段诊断 → 批1 A∥D∥E → 批2 G∥F → 步2 B1；用户四裁（Q-a 补措辞 / 门禁进常门 / 阀活到 S7、**注：B1 回报后按已裁 §12 孔口径甲执行，阀期维持活到 S7** / Sprint-01 不合批）。
+- **已完成**：
+  - **A**：ADR-0024 DEC-1~4 落码（arena+{offset,count}+polygon3；J-4 字面同步「暖帧增量===0+首帧翻倍≤12」）；十层盘 8 关 + FX 夹具 936 枚 SVG 逐字节等值；ADR-0023 文首差异表五处。
+  - **D**：pause-settings v1.7（行4 两钮/行5 保留、§8-14~19）+ save-progress v1.1（§8-11~13）。
+  - **E/E2**：assets-spec v1.5-r16/r17（三套层集 7.11–7.13、C12 引用、投影 α 纪律改述、06 出池门 P-1…P-4）+ C12 弱读统计域措辞钉死（§12.2 八批）。
+  - **G**：`epics-beads-ep11.md`（EP-11 七 Story，宿主拆分 WXG-T-066 法）+ Sprint-01 建议。
+  - **F**：test-cases v1.17 §K 族 + smoke v1.3 SC-ST-01~04 + playtest v1.2 第 4 轮 PT-SKIN-01~08（主对话代落盘，用户批准）。
+  - **B1**：凹槽 y 向修复+断言先行（TC-SKT-01 红→绿+变异）；bead-styles/{contract,registry}.ts（仅 facet-4，盘面 3 复拍逐字节等值）；双门禁常量 + WAVE_LOD_LAYERS 拆名；`check-bead-style-pool.mjs` **进 verify 常门**（C11 五项/C12 弱读三臂/TC-STY-08 两反例臂）；TC-STY-11/SAVE-12腿①/SAVE-13 哨兵 18 例。verify 19 项 = PASS 18/SKIP 1（check:size 既有）；beads 610。
+- **B1 停手点处置（编排代裁，依已裁真源）**：Q1 facet-4 实测 argmax=edge（四刻面近等面积、最大偏离 0.4pp）而非纸面 base ⇒ 采 (a)：断言维持「argmax ∈ base 同族端点集」+ 分布恒打台面（与 §12.2 八批裁定式文本一致，「base 占优」系纸面假设非裁定），art/QA 侧措辞订正列尾单；Q2 孔双口径 = **按 §12 已裁甲口径（单孔）**，步 3 转正时新立对拍基线；Q3 changed 自我比较怪癖随步 5 一并修；Q4 注释旧名字面接受留档。
+- **未开工**：步 3 四棱转正（渲染链消费 registry）→ 步 4 13/18 → 步 5 两钮+存档+遮罩分列 → 步 6 06 [Blocked] → 步 7 真机回评（挂测量单轨）。
+- **红线**：全批未 commit（等用户令）；`check:size` SKIP ≠ 通过；C12 近并列脆弱性已打台面登记。

@@ -296,6 +296,18 @@
       "reason": "beads 真机渲染性能测量单（鸿蒙/小米逐设备读数表·D1/D2 判据·一次性取证清单），与 g4-regression-report 同族：按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
       "note": "逐设备读数区块随复测增长，超 2 轮再按测量轮拆分。登记人 = 主对话（用户直派批，挂靠 WXG-T-210）",
       "taskId": "WXG-T-210"
+    },
+    {
+      "path": "games/beads/design/gdd/pause-settings.md",
+      "reason": "S9 暂停与设置 GDD 正本：巨型版本链头注（v1.0–v1.7 逐批裁定留档，K-053 不静默删）+ §2.2 内容清单 + §8 判据 19 条，与 ux-spec（已豁免）同族「正本+留档」文体；按 ctx 章节锚点局部读、开发期从不整读",
+      "note": "v1.7（WXG-T-211-D）行4/行5 转正 + §8-14~19 后越 8000 门；若后续版本链膨胀到需拆分，按 ux-spec 变更记录区外置的先例处理。登记人 = 主对话（编排代执行）",
+      "taskId": "WXG-T-211"
+    },
+    {
+      "path": "production/qa/beads/playtest-plan.md",
+      "reason": "beads Playtest 计划正本（v1.2 起含第 4 轮皮肤与豆径档 PT-SKIN-01..08 判定线导出）：与 test-cases/g4-regression-report 同族 QA 文档，按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
+      "note": "v1.2 增补后 8100 tok（超 100）；沿 WXG-T-084 豁免口径同批登记。登记人 = 主对话（编排代执行）",
+      "taskId": "WXG-T-211"
     }
   ]
 }
