@@ -176,4 +176,5 @@
 | K-069 | 关卡与生成链 | patterns | 部分错位「整区域就位 + 子集置换」构造模式 | WXG-T-203 | 2026-09-22 | 0 | active |
 | K-073 | 接入 | onboarding | 外部 skill 批次接入：上游正文零改写 + 本地差异集中登记到 INDEX 批次节 | WXG-T-208 | 2026-09-24 | 0 | active |
 | K-074 | 接入 | onboarding | 接外部能力前先机械验源：「仓库存在」≠「有可转换的 SKILL.md」 | WXG-T-208 | 2026-09-24 | 0 | active |
+| K-075 | 接入 | onboarding | 外部决策模型（Jev/System One 类）接入前先过四条件滤网；beads-studio 用例已证伪并拆除，候选场景留档待立项 | — | 2026-09-24 | 0 | active |
 <!-- kb:active:end -->

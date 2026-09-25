@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 75,
+  "nextId": 76,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1213,6 +1213,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-075",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "外部决策模型（Jev/System One 类）接入前先过四条件滤网；beads-studio 用例已证伪并拆除，候选场景留档待立项",
+      "contentHash": "bd4749f3c0ce529c8548400a941bc05d4fea48c14517340feb7b7c4b5ca4bbdb",
+      "sourceTask": null,
+      "addedDate": "2026-09-24",
+      "lastAccess": "2026-09-24",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -1716,6 +1733,15 @@
       "ids": [
         "K-073",
         "K-074"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-24",
+      "taskId": "WXG-T-209",
+      "kind": "added",
+      "ids": [
+        "K-075"
       ],
       "note": null
     }
