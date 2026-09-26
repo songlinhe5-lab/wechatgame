@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 76,
+  "nextId": 81,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "e8f3634536346153b242421b7c6e55cd8f3a71c90c5a0f641aa23cff4a35cb41",
+      "contentHash": "71d99918d201aaa93e333c2c1edc946deeb1cd79c779eee2614b464d5356eaad",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -1224,6 +1224,91 @@
       "sourceTask": null,
       "addedDate": "2026-09-24",
       "lastAccess": "2026-09-24",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-076",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "脏工作树里「这条测试红是不是我引入的」必须用 stash 隔离实测判定，不得凭直觉归因",
+      "contentHash": "73b5bc999a54945b432add1a25df9d0cd2762340e12bbac5f499c38e7c27a542",
+      "sourceTask": "WXG-T-169",
+      "addedDate": "2026-09-26",
+      "lastAccess": "2026-09-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-077",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "给既有渲染路径加缩放/档位能力时，必须盘点该路径所有「绝对像素量」——凡与比例制几何同屏对照者要一起归一",
+      "contentHash": "5b3f592c3db215b58d1bde5aadc675e167d33cd2fed436005e7bdc620131b98b",
+      "sourceTask": "WXG-T-169",
+      "addedDate": "2026-09-26",
+      "lastAccess": "2026-09-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-078",
+      "state": "active",
+      "file": "knowledge/lessons/cross-ide.md",
+      "category": "跨IDE",
+      "title": "跨域共用批次号（`v1.5-rN` 族）取号必须全仓扫占用，「本文件已见最大号」推不出空号",
+      "contentHash": "58075f7296205047cc7bf49d377760d8ae1d5d30b6af4645fdfdd11018383f93",
+      "sourceTask": null,
+      "addedDate": "2026-09-26",
+      "lastAccess": "2026-09-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-079",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "「参数还在、通道已死」：换肤/转正会让表现层入参失去承载体，改值前先验消费者",
+      "contentHash": "ceccf5d5c5a8f4d550efaeeaf328c845cc51088c0414ab8e1164c38fcbb63c53",
+      "sourceTask": null,
+      "addedDate": "2026-09-26",
+      "lastAccess": "2026-09-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-080",
+      "state": "active",
+      "file": "knowledge/lessons/cross-ide.md",
+      "category": "跨IDE",
+      "title": "`kb:sync` 的「谁先跑谁归因」：无主条目会被恰好先运行的那次 sync 记进别人的 Task 号",
+      "contentHash": "3088f278ddd12343bce44be83d1c31c7d66e6a43efb0aa9a6c83d1e1d25bcbb4",
+      "sourceTask": null,
+      "addedDate": "2026-09-26",
+      "lastAccess": "2026-09-26",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -1742,6 +1827,66 @@
       "kind": "added",
       "ids": [
         "K-075"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-26",
+      "taskId": "WXG-T-169",
+      "kind": "added",
+      "ids": [
+        "K-076",
+        "K-077"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-26",
+      "taskId": "WXG-T-169",
+      "kind": "updated",
+      "ids": [
+        "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-26",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-078",
+        "K-079"
+      ],
+      "note": "K-078 / K-079 属 beads 选中抬起立体感批（未挂 Task 号）；原记 WXG-T-169 = 并发会话 kb:sync 串号，本行为订正（条目正文来源行与 sourceTask 自始为「未挂 Task 号」/ null）"
+    },
+    {
+      "date": "2026-09-26",
+      "taskId": "WXG-T-169",
+      "kind": "updated",
+      "ids": [
+        "K-045",
+        "K-076",
+        "K-077"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-26",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-080"
+      ],
+      "note": "beads 立体感批 · 并发 sync 串号坑入账"
+    },
+    {
+      "date": "2026-09-26",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-078",
+        "K-079",
+        "K-080"
       ],
       "note": null
     }

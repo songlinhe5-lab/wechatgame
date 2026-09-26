@@ -44,7 +44,7 @@
 | 文件 | 内容 |
 |---|---|
 | `lessons.md` | **指针页（不再放条目正文）**：标签 → 分片文件表 + 引用口径 |
-| `lessons/` | 教训分片（WXG-T-111 按行内标签切）：`toolchain` / `process` / `criteria` / `testing` / `cross-ide` / `environment` / `onboarding`（WXG-T-208 新切）；片内条目**按 ID 升序**，`## <标签>` 小标题保留（`kb:reactivate` 靠它定位）。⚠️ 新标签需同步两处硬映射：`split-knowledge-lessons.mjs::TAG_TO_SHARD` + `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`（只改一侧即两表不一致；新片未登记时仍可被采集，但 `knowledge:split --force` 会 fail loud） |
+| `lessons/` | 教训分片（WXG-T-111 按行内标签切）：`toolchain` / `process` / `criteria` / `testing` / `cross-ide` / `environment` / `onboarding`（WXG-T-208 新切）/ `engine-cocos`（WXG-T-169 新建，首个 `引擎Cocos` 条目入册）；片内条目**按 ID 升序**，`## <标签>` 小标题保留（`kb:reactivate` 靠它定位）。⚠️ 新标签需同步两处硬映射：`split-knowledge-lessons.mjs::TAG_TO_SHARD` + `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`（只改一侧即两表不一致；新片未登记时仍可被采集，但 `knowledge:split --force` 会 fail loud） |
 | `patterns.md` | 模式库：本仓已验证可复用的实现/流程模式（未分片，1.4k tok） |
 | `ledger.json` | **条目台账（产物，勿手改）**：ID / 状态 / 类别 / 来源 / `lastAccess` / `accessCount` / `seen` / 归档与激活留痕；由 `kb:*` 命令维护，键序固定 |
 | `archive/` | **归档区**：`lessons-archived.md` / `patterns-archived.md` / `INDEX.md`（归档清单）；**已被 ctx 索引排除**（`SKIP_DIRS` 含 `archive`），开工查询看不到。lessons 各分片**共用单份** `lessons-archived.md` |
@@ -177,4 +177,9 @@
 | K-073 | 接入 | onboarding | 外部 skill 批次接入：上游正文零改写 + 本地差异集中登记到 INDEX 批次节 | WXG-T-208 | 2026-09-24 | 0 | active |
 | K-074 | 接入 | onboarding | 接外部能力前先机械验源：「仓库存在」≠「有可转换的 SKILL.md」 | WXG-T-208 | 2026-09-24 | 0 | active |
 | K-075 | 接入 | onboarding | 外部决策模型（Jev/System One 类）接入前先过四条件滤网；beads-studio 用例已证伪并拆除，候选场景留档待立项 | — | 2026-09-24 | 0 | active |
+| K-076 | 测试 | testing | 脏工作树里「这条测试红是不是我引入的」必须用 stash 隔离实测判定，不得凭直觉归因 | WXG-T-169 | 2026-09-26 | 0 | active |
+| K-077 | 引擎Cocos | engine-cocos | 给既有渲染路径加缩放/档位能力时，必须盘点该路径所有「绝对像素量」——凡与比例制几何同屏对照者要一起归一 | WXG-T-169 | 2026-09-26 | 0 | active |
+| K-078 | 跨IDE | cross-ide | 跨域共用批次号（`v1.5-rN` 族）取号必须全仓扫占用，「本文件已见最大号」推不出空号 | WXG-T-169 | 2026-09-26 | 0 | active |
+| K-079 | 引擎Cocos | engine-cocos | 「参数还在、通道已死」：换肤/转正会让表现层入参失去承载体，改值前先验消费者 | WXG-T-169 | 2026-09-26 | 0 | active |
+| K-080 | 跨IDE | cross-ide | `kb:sync` 的「谁先跑谁归因」：无主条目会被恰好先运行的那次 sync 记进别人的 Task 号 | WXG-T-169 | 2026-09-26 | 0 | active |
 <!-- kb:active:end -->

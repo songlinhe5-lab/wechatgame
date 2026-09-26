@@ -122,7 +122,7 @@ export const ARCHIVE_INDEX_PATH = join(ARCHIVE_DIR, 'INDEX.md');
  */
 export const LESSONS_DIR = join(KNOWLEDGE_DIR, 'lessons');
 /** 已知分片顺序（正本映射见 `tools/scripts/split-knowledge-lessons.mjs::TAG_TO_SHARD`，改一侧必同步另一侧）。 */
-export const LESSONS_SHARD_ORDER = ['toolchain', 'process', 'criteria', 'testing', 'cross-ide', 'environment', 'onboarding'];
+export const LESSONS_SHARD_ORDER = ['toolchain', 'process', 'criteria', 'testing', 'cross-ide', 'environment', 'onboarding', 'engine-cocos'];
 const LESSONS_ARCHIVE = 'knowledge/archive/lessons-archived.md';
 const LESSONS_ARCHIVE_ABS = join(ARCHIVE_DIR, 'lessons-archived.md');
 

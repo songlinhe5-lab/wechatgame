@@ -55,6 +55,8 @@ export const TAG_TO_SHARD = new Map([
     ['跨IDE', 'cross-ide'],
     ['环境', 'environment'],
     ['接入', 'onboarding'],
+    // WXG-T-169 沉淀批：`引擎Cocos` 早在 INDEX §2 类别清单内但无条目⇒本片随首条入册新建。
+    ['引擎Cocos', 'engine-cocos'],
 ]);
 
 /** 条目块（含标题行）的逐字节文本。 */
