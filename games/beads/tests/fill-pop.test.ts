@@ -29,6 +29,7 @@ import {
   type FillPopEnvelope,
   type FilledBeadOptions,
 } from '../src/view/bead-render.js';
+import { drawLegacyTenBead } from '../src/view/bead-styles/legacy-ten.js';
 import {
   BEAD_CONTACT_SHADOW_ALPHA,
   BEAD_SHADOW_ALPHA,
@@ -74,6 +75,18 @@ function emit(options: FilledBeadOptions) {
   const builder = new RenderModelBuilder(750, 1334);
   builder.begin();
   drawFilledBead(builder, 100, 200, 1, options);
+  return builder.end().commands;
+}
+
+/**
+ * **对照臂（`legacy-ten`）同一夹具**：G1 包络的四个通道（`contactAlpha` / `contactWidth` /
+ * `shadowAlpha` / `shadowDy`）在四棱基线上**无承载体**（§K.5 行 1/2 同族，台账外连带⇒ 回传登记），
+ * 因此“通道真的进了命令”这一腿只能打十层臂。新基线侧另钉 `scale` 腿（仍有效）。
+ */
+function legacyEmit(options: FilledBeadOptions) {
+  const builder = new RenderModelBuilder(750, 1334);
+  builder.begin();
+  drawLegacyTenBead(builder, 100, 200, 1, options);
   return builder.end().commands;
 }
 
@@ -201,17 +214,29 @@ describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.
     }
   });
 
-  it('珠体（L0a/L0b/L1）宽度 = (50 − 2×INSET) × scale ⇒ scale 只作用珠体', () => {
+  it('[legacy-ten] 珠体（L0a/L0b/L1）宽度 = (50 − 2×INSET) × scale ⇒ scale 只作用珠体', () => {
+    const lpop = legacyEmit({ targetColorIdx: 3, scale: FILL_POP_SCALE_START });
     const body = (BEAD_CELL - BEAD_DRAW_INSET * 2) * FILL_POP_SCALE_START;
     // v1.5-r8：珠内已无垫 ⇒ L0a = 第 0 条、L0b = 第 1 条（旧为 [1] / [2]）。
-    const l0a = pop[0]!,
-      l0b = pop[1]!;
+    const l0a = lpop[0]!,
+      l0b = lpop[1]!;
     expect(l0a.kind === 'rect' && l0a.w).toBeCloseTo(body * BEAD_CARD.contactW, 6);
     expect(l0b.kind === 'rect' && l0b.w).toBeCloseTo(body, 6);
     expect(l0b.kind === 'rect' && l0b.h).toBeCloseTo(body, 6);
   });
 
-  it('静息回归护栏：缺省 options 与 scale=1 完全同流（G1 不破 §1.1 十层卡）', () => {
+  // 新基线侧同题：四棱只有“一条珠体外缘”（#1 底 rect）⇒ scale 腿直接钉在它身上。
+  it('四棱新基线：`scale` 作用珠体（底 rect 边长 = 内缩边长 × scale）', () => {
+    const body = (BEAD_CELL - BEAD_DRAW_INSET * 2) * FILL_POP_SCALE_START;
+    for (const c of pop) {
+      if (c.kind === 'rect') expect(c.w).toBeCloseTo(body, 6);
+      if (c.kind === 'circle') expect(c.r).toBeCloseTo((body * BEAD_CARD.holeRatio) / 2, 6);
+    }
+    // 珠体族零图元超出内缩尺 ⇒ 与下方“不越格”腿共供 A5 前提。
+    expect(rest.filter((c) => c.kind === 'rect')).toHaveLength(1);
+  });
+
+  it('静息回归护栏：缺省 options 与 scale=1 完全同流（G1 不破当前层卡）', () => {
     expect(rest.length).toBe(pad.length);
     for (let i = 0; i < rest.length; i++) {
       expect(rest[i]).toEqual(pad[i]);
@@ -222,8 +247,9 @@ describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.
     expect(pop.length).toBe(rest.length);
   });
 
-  it('动画期珠永不越出本格（峰 40.28 < 格 50 ⇒ A5 零重叠的几何前提）', () => {
-    const l0b = pop[1]!;
+  it('[legacy-ten] 动画期珠永不越出本格（峰 40.28 < 格 50 ⇒ A5 零重叠的几何前提）', () => {
+    const lpop = legacyEmit({ targetColorIdx: 3, scale: FILL_POP_SCALE_START });
+    const l0b = lpop[1]!;
     expect(l0b.kind === 'rect' && l0b.w).toBeLessThan(BEAD_CELL);
     // 与邻珠（同为 46）的间隙：pitch 52 − (半峰宽 + 半静息宽) > 0
     const peakHalf = ((BEAD_CELL - BEAD_DRAW_INSET * 2) * FILL_POP_SCALE_START) / 2;
@@ -231,9 +257,9 @@ describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.
     expect(52 - (peakHalf + restHalf)).toBeGreaterThan(4);
   });
 
-  it('L0a α / 宽比覆写确实进命令（否则「重量+接触」退化为贴图缩放）', () => {
+  it('[legacy-ten] L0a α / 宽比覆写确实进命令（否则「重量+接触」退化为贴图缩放）', () => {
     const env = fillPopEnvelope(PRESS_P, false, fresh());
-    const commands = emit({
+    const commands = legacyEmit({
       targetColorIdx: 3,
       scale: env.scale,
       contactAlpha: env.contactAlpha,

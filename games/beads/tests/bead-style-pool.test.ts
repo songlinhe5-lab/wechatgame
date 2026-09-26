@@ -14,7 +14,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
@@ -85,10 +85,16 @@ describe('TC-STY-09 · C12 主体色不变式·主判据（弱读法，逐 inks 
     });
 
     it('⛔ 非强读法：实测 argmax = edge（族内非 base）不判红，且近并列数值恒打台面', () => {
-        // 实测（本单钉值，步 3 转正时按差分复算重钉）：四枚刻面几近等面积，
-        // 占比序 = edge 2140px > 右刻面 mix(−0.16) 2135px（非端点不参赛）> base 2105px > lit 2100px
-        // ⇒ argmax ∈ base 同族但**不是** base。若实现滑回「最大可见面积者必须 ≡ base」
-        // 的强读法（已作废），本常门会直接 FAIL ⇒ 此处以实测值守绿，⛔ 不写永真断言。
+        // 实测钉值（WXG-T-211-S3 步 3 转正后**差分复算**重钉，⛔ 非「跑一遍把打印值抄进来」）：
+        //   facetPx 7576/14641；占比序 = edge 1913px > 右刻面 mix(−0.16) 1906px（非端点不参赛）
+        //   > base 1882px > lit 1875px ⇒ argmax ∈ base 同族但**不是** base。若实现滑回
+        //   「最大可见面积者必须 ≡ base」的强读法（已作废），本常门会直接 FAIL。
+        // 旧钉值（S2/乙口径，K-053 作废留档）：facetPx 8480，2140/2135/2105/2100 ⇒ argmax 25.2%。
+        //   两值之差**唯一来源 = 孔径 0.17S→0.22S**（被孔移出统计域 904 px）：复算证据
+        //   `temp/wxg-t-211-s3/c12-delta.mjs` 臂 A 逐像素复现旧值 2140/2135/2105/2100，
+        //   臂 B ≡ 臂 C ⇒ 孔底换色 `base`→`pit` 对 C12 **零贡献**（统计域只计 `role:'facet'` 顶面）。
+        //   份额 25.2358%→25.2508% 跨过 `toFixed(1)` 的 25.25 进位线 ⇒ 台面显示 25.2%→25.3%；
+        //   近并列偏离 0.41pp 基本未变 ⇒ C12 脆弱性仍按 §12.2 已裁口径登记，⛔ 不改成阈值。
         expect(ok.code).toBe(0);
         expect(ok.out).toMatch(/^STATUS: OK$/m);
         // ① 全量分布表在场（数值上台面，不静默消解）：逐色 4 条目，非端点层显式标「不参赛」。
@@ -97,9 +103,11 @@ describe('TC-STY-09 · C12 主体色不变式·主判据（弱读法，逐 inks 
                 new RegExp(`colorIdx=${ci} argmax=#\\w+\\(\\d+\\.\\d%\\) facetPx=\\d+/\\d+ 分布=`),
             );
         }
-        // ② 近并列注记在场（ci=1 实钉值：argmax=#b1aca3 25.2% vs base #FDF6E9 24.8%）。
+        // ② 近并列注记在场（ci=1 实钉值：argmax=#b1aca3 25.3% vs base #FDF6E9 24.8%）。
         expect(ok.out).toMatch(/C12 近并列登记 \[facet-4\]：10\/10 色/);
-        expect(ok.out).toMatch(/argmax=#b1aca3 25\.2% vs base #FDF6E9 24\.8%/);
+        expect(ok.out).toMatch(/argmax=#b1aca3 25\.3% vs base #FDF6E9 24\.8%/);
+        // ②′ 占比台面上的 facetPx 也是实测值（统计域尺寸变了 ⇒ 一并钉，⛔ 不只钉百分数）。
+        expect(ok.out).toMatch(/colorIdx=1 argmax=#b1aca3\(25\.3%\) facetPx=7576\/14641/);
         // ③ 弱读口径下无一条 C12 判红（注记文案本身含「不滑回强读法判红」字样 ⇒ 只钉违规标记）。
         expect(ok.out).not.toContain('C12 判红');
     });
@@ -194,5 +202,109 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
         const registry = await import('../src/view/bead-styles/registry.js');
         expect(registry.registeredStyleIds().length).toBeLessThanOrEqual(1);
         expect(registry.registeredStyleIds()).toEqual(['facet-4']);
+    });
+});
+
+/**
+ * **C4 裸系数扫描·风格模块静态门**（`§12.2 C4` / `assets-spec §7.12`）
+ * ────────────────────────────────────────────────
+ * 本判据 = `tuning.ts` §7.12 清算表与 `facet-4.ts` 文件头所声称的**那个机械锚本体**
+ * （WXG-T-211-S3 补齐：上一批只在文档里写了「机械锚 = 本文件的 C4 扫描判据」而**判据不存在**
+ *  ⇒ 属 K-060「文档声称有门、实际无门」的同族，不得再犯）。
+ *
+ * 射程：`src/view/bead-styles/` 下**全部**风格模块（扫目录而非写死文件名 ⇒ 步 4 的 `13`/`18`
+ * 落码即自动受门）；⛔ 不得以「反正没新 hex」（C3）放行系数越界（`§7.12` 原句）。
+ *
+ * ⚠ **先剔注释再扫**：本仓风格模块的注释里**大量**出现 `0.17S`/`−0.34` 等历史口径值
+ *   （作档案用）⇒ 不剔则必假红；剔法 = 去块注释与行注释两种。该剔法不解析字符串，
+ *   故**理论上可被字符串字面量绕过** ⇒ 诚实登记为限制，不冒充完整 AST 门。
+ * ⚠ **豁免名单**：`legacy-ten.ts` = 十层**逐字封箱**件（改动即对照失真，§K.5.1 ④）；
+ *   其裸系数属旧基线档案，淘汰归 S7 回评后的删除批，⛔ 不顺手洗成“合规”。
+ * ⚠ **变异自证（K-060）**：向 `facet-4.ts` 注一枚真码裸系数（`mix(e.base, -0.16)`）
+ *   ⇒ 本条必红；证据 = `temp/wxg-t-211-s3/16-c4-mutation.txt`。
+ */
+describe('C4 裸系数扫描 · 风格模块静态门（§12.2 C4 / assets-spec §7.12 机械锚）', () => {
+    const STYLE_DIR_REL = 'games/beads/src/view/bead-styles';
+    const EXEMPT = new Set(['legacy-ten.ts']);
+    const stripComments = (text: string): string =>
+        text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+    const RULES: ReadonlyArray<readonly [RegExp, string]> = [
+        [/\bmix\(\s*[^,()]+\s*,\s*-?\d[^,()]*\)/g, 'mix(<色>, <字面量>) ⇒ 系数必须住 tuning 命名常量'],
+        [/[*\/]\s*0?\.\d+\b/g, '几何比率字面量（孔径/内缩/半径等）⇒ 必须引 BEAD_CARD / tuning 常量'],
+    ];
+
+    it('风格模块零裸系数（mix 第二参 + 比率字面量；剔注释后扫）', () => {
+        const files = readdirSync(resolve(REPO, STYLE_DIR_REL)).filter(
+            (f) => f.endsWith('.ts') && !EXEMPT.has(f),
+        );
+        // 阳性对照腿（K-060）：目录非空且**确实扫到了 facet-4**，否则「零命中」只是没开门。
+        expect(files).toContain('facet-4.ts');
+        const hits: string[] = [];
+        for (const f of files) {
+            const code = stripComments(readFileSync(resolve(REPO, STYLE_DIR_REL, f), 'utf8'));
+            for (const [re, why] of RULES) {
+                for (const m of code.matchAll(new RegExp(re.source, 'g'))) {
+                    hits.push(`${STYLE_DIR_REL}/${f}: ${JSON.stringify(m[0])} —— ${why}`);
+                }
+            }
+        }
+        expect(hits, 'C4 越界裸系数清单（非空即停手，⛔ 不得改判据求绿）').toEqual([]);
+    });
+
+    it('豁免名单只能缩小射程 ⇒ 豁免项必须逐字封箱件且自带封箱注记', () => {
+        for (const f of EXEMPT) {
+            const text = readFileSync(resolve(REPO, STYLE_DIR_REL, f), 'utf8');
+            expect(text, `${f} 声称豁免但未带封箱注记 ⇒ 不得静默扩豁免`)
+                .toMatch(/封箱对照臂|逐字搬家/);
+        }
+    });
+});
+
+/**
+ * **C2 零分配机械锚·`beadLayers` 返回复用槽**（`§12.2 C2` / ADR-0024 值语义）
+ * ────────────────────────────────────────────────
+ * 本判据 = `contract.ts:119` 与 `bead-render.ts:372` 所声称的**那个锚本体**
+ * （两处均写「`tests/bead-style-pool.test.ts` 钉住两次调用返回同一实例」，
+ *   而 WXG-T-211-S3 开工核门时该判据**不存在** ⇒ 与上方 C4 同一属：文档声称有门、实际无门，
+ *   K-060 同族 ⇒ 本批一并补建。
+ *   **变异自证（K-060）**：M-C `return LAYERS.slice()` → 腿① 判红；M-D `endpointOf(inks, 1)`
+ *   → 腿① 先过后腿② 判红；证据 = `temp/wxg-t-211-s3/17-c2-mutation.txt`。
+ *
+ * 两腿各钉一个不同的退形：
+ *  ① **数组/层对象/顶点元组实例同一** ⇒ 钉住「每次新建」（`.slice()` / `map()` / 展开）；
+ *  ② **值真的重算**（换 `colorIdx` 后墨色变）⇒ 钉住「返回冻结常量或 memo 缓存」的空转实现。
+ * ③ 是**被①∧②蕴含的后果展示**（⇒ 无独立判别力，不冒充第三道门）：把契约的硬后果
+ *    「⛔ 不得跨调用持有 ⇒ 测试留档必先深拷贝」当可读文档钉在测试里，防后来者误用。
+ * ⚠ 若将来改成「按入参缓存」的实现，腿② 亦红 ⇒ 那是把零分配换成随入参增长的一次性分配，
+ *   需另立 ADR 才准改本判据（⛔ 不得为了变绿而改判据，`§11.3`）。
+ */
+describe('C2 零分配机械锚 · beadLayers 返回复用槽（§12.2 C2 / ADR-0024）', () => {
+    it('腿①②：同一数组实例与层对象与 points 元组 + 换色必重算（腿③ = 后果展示，无独立判别力）', async () => {
+        const { DEFAULT_BEAD_STYLE } = await import('../src/view/bead-styles/registry.js');
+        const { DEMO_BEAD_INKS } = await import('../src/view/palette.js');
+        const { BEAD_CELL } = await import('../src/config/tuning.js');
+        const layerFill = (l: unknown): string => (l as { fill: string }).fill;
+        const layerPoints = (l: unknown): readonly number[] =>
+            (l as { points: readonly number[] }).points;
+
+        const a = DEFAULT_BEAD_STYLE.beadLayers({
+            inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: undefined, size: BEAD_CELL,
+        });
+        // 留档必先深拷贝（契约字面）——否则下面比不了「上一次调用的值」。
+        const snapshot = a.map((l) => layerFill(l));
+        const pointsRef = layerPoints(a[1]);
+
+        const b = DEFAULT_BEAD_STYLE.beadLayers({
+            inks: DEMO_BEAD_INKS, colorIdx: 5, targetColorIdx: undefined, size: BEAD_CELL,
+        });
+
+        // 腿① 零分配：数组/层对象/顶点元组均为同一实例。
+        expect(b).toBe(a);
+        expect(b[1]).toBe(a[1]);
+        expect(layerPoints(b[1])).toBe(pointsRef);
+        // 腿② 值真重算（⛔ 不是同一冻结常量的两个名字）。
+        expect(layerFill(b[2])).not.toBe(snapshot[2]);
+        // 腿③ 后果展示（被①∧② 蕴含 ⇒ 不单独主张判别力）：`a` 自己的字段已被第二次调用改掉。
+        expect(layerFill(a[2])).not.toBe(snapshot[2]);
     });
 });

@@ -37,6 +37,14 @@ export interface BeadStyleInput {
     readonly targetColorIdx?: number;
     /** 珠体边长 S（格心局部系）。 */
     readonly size: number;
+    /**
+     * LOD 降档层数（`assets-spec §1.6.4` / `WAVE_BEAD_LOD_LAYERS`、`ZOOM_LOD_LAYERS`）。
+     * `undefined` = 满层；传入即「请降到该层数」——**砍哪几层由风格自己定**（渲染侧
+     * 只透传、不判语义，控制清单 L5），故本字段是**通道**而不是指令表。
+     * ⚠ facet-4 = 6 命令 / 0 真 α，`≤ 7` ⇒ 对本风格**结构性 no-op**（由判据正面钉住
+     * 「传 / 不传输出逐字节等值」，⛔ 不静默当不存在）。旧十层的可砍集在 `legacy-ten.ts`。
+     */
+    readonly lodLayers?: number;
 }
 
 /**
@@ -75,10 +83,42 @@ export type BeadStyleLayer =
         readonly alpha?: number;
     };
 
+/**
+ * 去一层 `readonly` 的**同态映射**（TS 对 `{ -readonly [K in keyof T]: T[K] }` 会自动
+ * **沿 union 分配**）⇒ 风格模块可以持有**模块级可变 scratch 层**并在每帧原地改写，
+ * 从而满足 `C2` 热路径零分配（本契约不要求 `out` 形参：复用槽由风格自己持有，
+ * 因为层的**形状与条数**本来就是风格的静态属性，调用方无从预知尺寸）。
+ * ⚠ 只用于 scratch 声明，⛔ 不得拿它去绕过 `BeadStyleLayer` 的只读语义对外暴露可变对象。
+ */
+type WritableMembers<T> = { -readonly [K in keyof T]: T[K] };
+
+/** 可变底 rect 层（风格模块持有的 scratch 槽位类型）。 */
+export type WritableBeadRect = WritableMembers<Extract<BeadStyleLayer, { kind: 'rect' }>>;
+/** 可变三角层；`points` 字段本身可变，赋入**模块级可变 6 元组**后可原地写元素（零分配、零 cast）。 */
+export type WritableBeadPolygon = WritableMembers<
+  Extract<BeadStyleLayer, { kind: 'polygon' }>
+>;
+/** 可变圆层（孔）。 */
+export type WritableBeadCircle = WritableMembers<Extract<BeadStyleLayer, { kind: 'circle' }>>;
+/**
+ * 可变风格输入槽：渲染侧（`bead-render::drawFilledBead`）逐珠**复用同一对象**写五个字段
+ * ⇒ 输入侧也零分配（C2）。⛔ 仅用于模块级复用槽，不得拿它把可变输入暴露给外部。
+ */
+export type WritableBeadStyleInput = WritableMembers<BeadStyleInput>;
+
 /** 风格模块 = id + 逐 inks 出珠面族图层集（含底衬与孔层，职能由 role 标）。 */
 export interface BeadStyle {
     readonly id: string;
-    /** 纯函数：同一输入必得同一层集（顺序 = 绘制序，门禁与 C12 认定都依赖它）。 */
+    /**
+     * 纯函数：同一输入必得同一层集（顺序 = 绘制序，门禁与 C12 认定都依赖它）。
+     *
+     * ⚠ **热路径复用约定（EP11-S3 / C2）**：本方法**可以**返回模块级复用的数组与层对象
+     * （= scratch，`bead-render` 每帧逐珠消费）⇒ 返回值只在**本次调用到下一次调用之间**有效。
+     * 消费方必须**当帧逐层读完**（现渲染链与风格池门禁均如此），⛔ **不得跨调用持有引用**；
+     * 需留档（测试断言 / 取证快照）⇒ 先深拷贝（`{ ...l, points: [...l.points] }`）。
+     * 正面登记：`tests/bead-style-pool.test.ts` 的 `describe('C2 零分配机械锚 …')` 钉住「两次调用返回**同一实例**」
+     * （零分配的机械证据；WXG-T-211-S3 补建，⛔ 本注不可在无该判据时重写为「已有钉住」）。
+     */
     readonly beadLayers: (input: BeadStyleInput) => readonly BeadStyleLayer[];
 }
 

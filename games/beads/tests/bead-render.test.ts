@@ -1,15 +1,27 @@
 /**
- * Bead parameter card — `art/assets-spec.md` §1.1（v1.3 十层逐层落码）+ §1.2（状态参数）.
+ * Bead parameter card — `art/assets-spec.md` §1.1 + §1.2（**逐层几何判据**）.
  *
  * The card is the contract between `art/` and the renderer: layer order, ratios and
  * minimum features are all spec-fixed, so they are asserted here by command
  * inspection rather than by eyeballing the harness.
+ *
+ * ⚠ **WXG-T-211-S3（四棱转正）后本文件分两臂**（正本 = `production/qa/beads/test-cases.md §K.5`）：
+ *  - **`legacy-ten` 对照臂**：§1.1 十层的逐层几何判据**一条不删**，改指
+ *    `bead-styles/legacy-ten.ts::drawLegacyTenBead`（承重迁移，⛔ 强度不降）。
+ *    这些判据在四棱基线上**没有承载体**（无接触阴影/投影/侧壁/倒角线/rim/软高光），
+ *    留在新臂上会退化成平凡真（`K-060`）。`it` 标题一律带 `[legacy-ten]` 前缀作行锚。
+ *  - **四棱新基线臂**（`drawFilledBead` → `registry` → `facet-4`）：新增层序与 kind 白名单
+ *    判据，锚 `assets-spec §7.11.1` 甲口径（6 命令 / 0 真 α）。
+ *  - **两臂共有**的渲染侧通道（B0 底图、inset 作域、色表锁、凹槽/锁定槽）仍走 `drawFilledBead`。
+ *
+ * 十二行台账的**逐行落点表**（旧锚 ↔ 新锚 ↔ 负向防复活）在 `tests/bead-style-ledger.test.ts`；
+ * 封箱等值证据（sha256）在 `tests/bead-style-seal.test.ts`。
  */
 
 import { describe, it, expect } from 'vitest';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { RenderModelBuilder } from '@wxgame/framework';
+import { RenderModelBuilder, polygonVertices, type PolygonCommand } from '@wxgame/framework';
 import {
   BEAD_CELL,
   BEAD_DRAW_INSET,
@@ -17,6 +29,11 @@ import {
   BEAD_LOD_CELL,
   BEAD_LOD_HYST,
   BEAD_PITCH,
+  BEAD_STYLE_MAX_ALPHA_LAYERS,
+  BEAD_STYLE_MAX_COMMANDS,
+  FACET4_FACET_INSET,
+  FACET4_FACET_RIGHT_MIX,
+  FACET4_PLATE_MIX,
   TRAY_SLOT,
   nextBeadLod,
   ZOOM_LOD_LAYERS,
@@ -42,9 +59,13 @@ import {
   DEFAULT_PALETTE,
   beadColorOf,
   DEMO_BEAD_INKS,
+  endpointOf,
   mix,
   withAlpha,
 } from '../src/view/palette.js';
+import { drawLegacyTenBead } from '../src/view/bead-styles/legacy-ten.js';
+import { DEFAULT_BEAD_STYLE } from '../src/view/bead-styles/registry.js';
+import { isRealAlphaLayer } from '../src/view/bead-styles/contract.js';
 // v1.5-r8：L5 符号层已删 ⇒ `view/symbols.ts` 不再存在，不得重新引入。
 
 function emit(draw: (builder: RenderModelBuilder) => void) {
@@ -54,12 +75,41 @@ function emit(draw: (builder: RenderModelBuilder) => void) {
   return builder.end().commands;
 }
 
+/**
+ * 同上，但保留整个 `RenderModel`：`polygon` 顶点住在模型级 arena（ADR-0024 值语义），
+ * 命令只带 `offset/count` ⇒ 要读顶点必须经 `polygonVertices(model, cmd)` 解引用。
+ */
+function emitModel(draw: (builder: RenderModelBuilder) => void) {
+  const builder = new RenderModelBuilder(750, 1334);
+  builder.begin();
+  draw(builder);
+  const model = builder.end();
+  return { model, commands: model.commands };
+}
+
 const filled = (colorIdx: number, size = BEAD_CELL) =>
   emit((b) => drawFilledBead(b, 100, 200, colorIdx, { size }));
+
+/**
+ * **对照臂**（十层封箱）：§1.1 的逐层几何判据一律打这里。
+ * ⛔ `legacy-ten` 不在 `registry` 内（注册即出池 ⇒ 会触 U16 玩家钮），只由测试显式调用。
+ */
+const legacy = (colorIdx: number, size = BEAD_CELL) =>
+  emit((b) => drawLegacyTenBead(b, 100, 200, colorIdx, { size }));
 
 /** 带 L11 垫的盘上珠（= 出货关的实际形态），可选降档层数。 */
 function beadOnPad(b: RenderModelBuilder, lod?: number): void {
   drawFilledBead(b, 100, 200, 1, {
+    size: BEAD_CELL,
+    targetColorIdx: 2,
+    inks: DEMO_BEAD_INKS,
+    ...(lod === undefined ? {} : { lodLayers: lod }),
+  });
+}
+
+/** 同夹具的十层对照臂版本（通道字段与 `beadOnPad` 逐项一致，唯一变量 = 风格）。 */
+function legacyOnPad(b: RenderModelBuilder, lod?: number): void {
+  drawLegacyTenBead(b, 100, 200, 1, {
     size: BEAD_CELL,
     targetColorIdx: 2,
     inks: DEMO_BEAD_INKS,
@@ -72,6 +122,8 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
     emit((b) =>
       beadOnPad(b, lod),
     );
+  const legacyWithPad = (lod?: number) =>
+    emit((b) => legacyOnPad(b, lod));
 
   it('滞回状态机（§3.8 v1.57 公式化：降档 < 27、升档 ≥ 29.5）⇒ 阈值带内不跳变（防 D2 闪烁红线）', () => {
     // 阈值不再写死 45/47.5（那是 50/52 基快照）；本例只钉**行为形状**，
@@ -92,9 +144,11 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
     expect(BEAD_CELL).toBe(BEAD_PITCH - BEAD_GAP); // 基尺同尺链（LOD 跟随此链派生）
   });
 
-  it('降档只砍质感层：命令数下降，但中心孔红线不丢', () => {
-    const full = beadWithPad();
-    const low = beadWithPad(ZOOM_LOD_LAYERS); // C7 拆名：此例走 zoom LOD 降层路径（同值 7）
+  // ⚠ **S3 承重迁移**：本例断的是「降档**砍哪三层**」，而可砍集（L0a/L3b/L4′）只存在于
+  //   十层 ⇒ 改指 `legacy-ten` 臂（台账外连带，回传登记）。
+  it('[legacy-ten] 降档只砍质感层：命令数下降，但中心孔红线不丢', () => {
+    const full = legacyWithPad();
+    const low = legacyWithPad(ZOOM_LOD_LAYERS); // C7 拆名：此例走 zoom LOD 降层路径（同值 7）
     expect(low.length).toBeLessThan(full.length);
     // v1.5-r8 降档集重定：砍 L0a 接触阴影 + L3b rim + L4′ 高光 = **3 条**（旧为 4 条，
     // 因 L4 三条已并为一枚椭圆高光）。
@@ -105,14 +159,30 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
     expect(holes(low)).toEqual(holes(full));
     // 旧「L5 符号红线」随符号层删除作废；「珠下那块垫」已上提为 B0，不在珠体内。
   });
+
+  // 四棱新基线（`facet-4`）**只有 6 命令 / 0 真 α ⇒ 无可砍集**（≤ C7 命令上限 7）：
+  // `lodLayers` 通道照旧透进契约，但在本风格上是**结构性 no-op**。
+  // ⚠ 本例是「诚实登记」而非「省略」：渲染侧不静默吃掉入参（`contract.ts` 已写该约定），
+  //   而是由本判据正面钉住**传 / 不传逐字节等值**。若日后引入需降档的风格，本例应随之改写。
+  it('四棱基线：`lodLayers` 为结构性 no-op（传 / 不传逐字节等值）', () => {
+    const full = beadWithPad();
+    const low = beadWithPad(ZOOM_LOD_LAYERS);
+    const waveLow = beadWithPad(ZOOM_LOD_LAYERS - 3);
+    expect(low).toEqual(full);
+    expect(waveLow).toEqual(full);
+    // 同时钉住“不是空珠”：no-op 的前提是本臂真的画了 6 条。
+    expect(full).toHaveLength(6);
+  });
 });
 
 describe('bead parameter card (assets-spec §1.1)', () => {
   // §1.1 v1.5-r8：单颗珠 = **12 条图元**（L0a/L0b/L1/L2′ 侧壁/L2×2/L3×2/L3b/L1c 孔×2/L4′）。
   // 与旧卡差异：垫上提为 B0（−1）、L5 符号删除（−1）、L4 三条并一枚（−2）、
   // 新增侧壁（+1）与孔两枚（+2）⇒ 11 → 12。
-  it('§1.1 draws the card layers in the documented order', () => {
-    const commands = filled(1);
+  // ⚠ **S3：本例不再断当前盘面**，而是钉住封箱对照臂的层集结构（⛔ 不得随新基线改写）：
+  //   它同时是「legacy-ten 仍是那十层」的结构锚，逐字节证据另见 `bead-style-seal.test.ts`。
+  it('[legacy-ten] §1.1 draws the card layers in the documented order', () => {
+    const commands = legacy(1);
     expect(commands.map((c) => c.kind)).toEqual([
       'rect', // L0a 接触阴影
       'rect', // L0b 投影
@@ -130,6 +200,131 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     // 符号层已删 ⇒ 不应再出现第 13 条；本例同时间接地钉住“不复活符号/不复活珠内垫”。
     expect(commands).toHaveLength(12);
     expect(commands.some((c) => c.kind === 'polygon')).toBe(false);
+  });
+
+  /* ─────────────────────────────────────────────────────────────────────
+   * 以下为 **四棱新基线臂**（转正后 `drawFilledBead` 的真实输出）。
+   * 正本 = `assets-spec §7.11.1` 行 1–6（甲口径 6 命令 / 0 真 α）。
+   * ⚠ 旧 `tests:131 toHaveLength(12)` / `tests:132 无 polygon` 两条在此**改述 + 反转**：
+   *   前者 → 6 条白名单序；后者 → **kind 白名单 + 条数上限**（ADR-0023 M-5），
+   *   且反转同批由下方 `TC-STY-12` 几何判据承接（⛔ 净放宽，§K.5 附行）。
+   * ───────────────────────────────────────────────────────────────────── */
+
+  // §K.5 行 3–8：层序 = 底 rect → 上/左/右/下 polygon → 孔 circle。
+  it('四棱新基线：6 条层序 = rect → polygon×4 → circle（§7.11.1 绘制序）', () => {
+    const commands = filled(1);
+    expect(commands.map((c) => c.kind)).toEqual([
+      'rect', // #1 底 plate（`mix(base, −0.34)`，暗底兼描边 ⇒ 排除出 C12 统计域）
+      'polygon', // #2 上刻面 `endpoints.lit`
+      'polygon', // #3 左刻面 `endpoints.base`
+      'polygon', // #4 右刻面 `mix(base, −0.16)`
+      'polygon', // #5 下刻面 `endpoints.edge`
+      'circle', // #6 单孔（甲口径，孔底 = 目标色 `pit`）
+    ]);
+    expect(commands).toHaveLength(6);
+  });
+
+  // 旧 `:132`「无 polygon」的**改述形态**（ADR-0023 M-5）：kind 白名单 + 条数上限。
+  // 拦的是“新基线里混进旧层族图元”（line / stroke-only rect / 多一枚 circle），
+  // 而不是“拦 polygon”⇒ 语义从“禁某种图元”升为“只允许可枚举集 + 不触门”。
+  it('四棱新基线：kind 白名单 {rect,polygon,circle} + 条数 ≤ 7 + 真 α ≤ 2（旧「无 polygon」改述）', () => {
+    const ALLOWED = new Set(['rect', 'polygon', 'circle']);
+    for (const colorIdx of [1, 5, 10]) {
+      for (const targetColorIdx of [undefined, 2]) {
+        const commands = emit((b) =>
+          drawFilledBead(b, 100, 200, colorIdx, {
+            size: BEAD_CELL,
+            inks: DEMO_BEAD_INKS,
+            ...(targetColorIdx === undefined ? {} : { targetColorIdx }),
+          }),
+        );
+        expect(commands.length).toBeLessThanOrEqual(BEAD_STYLE_MAX_COMMANDS);
+        for (const c of commands) {
+          expect(ALLOWED.has(c.kind), `kind=${c.kind} ∈ 白名单`).toBe(true);
+        }
+        // 真 α 计数口径引自 `contract.ts::isRealAlphaLayer`（= 门禁 `probe()` 同式，K-042）。
+        const layers = DEFAULT_BEAD_STYLE.beadLayers({
+          inks: DEMO_BEAD_INKS,
+          colorIdx,
+          targetColorIdx,
+          size: BEAD_CELL,
+        });
+        expect(layers.filter(isRealAlphaLayer).length).toBeLessThanOrEqual(BEAD_STYLE_MAX_ALPHA_LAYERS);
+        // 本风格实测就 **等于** 6/0：纸面与实算不符即红（⛔ 不拿上限当现状）。
+        expect(layers).toHaveLength(6);
+        expect(layers.filter(isRealAlphaLayer)).toHaveLength(0);
+      }
+    }
+  });
+
+  // §K.5 行 7 的**凸感唯一载体**：墨序必须是**有序序列**（集合断言不足以锁序）。
+  it('四棱新基线：刻面墨序有序序列 = lit → base → −0.16 → edge（上亮→左本→右中暗→下暗）', () => {
+    const base = beadColorOf(DEMO_BEAD_INKS, 4);
+    const e = endpointOf(DEMO_BEAD_INKS, 4);
+    const inks = filled(4).filter((c) => c.kind === 'polygon').map((c) => (c as { fill: string }).fill);
+    expect(inks).toEqual([e.lit, e.base, mix(base, FACET4_FACET_RIGHT_MIX), e.edge]);
+    // 四档互不相同（否则“序”无意义）且都属本格端点族/同族 mix 派生（C3 零新色）。
+    expect(new Set(inks).size).toBe(4);
+  });
+
+  // §K.5 行 3：主体锥点重指 —— base 不再由「第 3 条 rect」承载。
+  it('四棱新基线：底 rect 不是主体色（承重迁移的正面登记）', () => {
+    const plate = filled(1)[0]!;
+    expect(plate.kind === 'rect' && plate.fill).toBe(mix(beadColorOf(DEMO_BEAD_INKS, 1), FACET4_PLATE_MIX));
+    // ⛔ 不得把“第一条 fill == base”当判据（那是已作废的 C12 强读法）。
+    expect((plate as { fill: string }).fill).not.toBe(beadColorOf(DEMO_BEAD_INKS, 1));
+    // 左刻面才是 base 承载体（行 3 「新 3 polygon = endpoints.base」）。
+    const left = filled(1)[2]!;
+    expect(
+      left.kind === 'polygon' && left.fill,
+    ).toBe(beadColorOf(DEMO_BEAD_INKS, 1));
+  });
+
+  // §7.11.1 几何：四枚三角 = (角A, 角B, 格心)，四角内缩 `FACET4_FACET_INSET × S`。
+  // ⚠ 顶点经 `polygonVertices` 读（命令只存 arena `offset/count`，ADR-0024 值语义）。
+  it('四棱新基线：四枚三角共第三顶点于珠心，且直角边两角内缩 0.09S', () => {
+    const size = 50;
+    const i2 = size * FACET4_FACET_INSET;
+    const h = size / 2;
+    const { model, commands } = emitModel((b) => drawFilledBead(b, 100, 200, 1, { size }));
+    const polys = commands.filter((c) => c.kind === 'polygon') as readonly PolygonCommand[];
+    expect(polys).toHaveLength(4);
+    const vertsOf = (cmd: PolygonCommand): number[] => Array.from(polygonVertices(model, cmd));
+    for (const p of polys) {
+      const v = vertsOf(p);
+      expect(v).toHaveLength(6);
+      // 第三顶点（v[4], v[5]）恒 = 珠心（局部系原点 (0,0) 已由渲染侧平移到 (100,200)）。
+      expect(v[4]).toBeCloseTo(100, 9);
+      expect(v[5]).toBeCloseTo(200, 9);
+    }
+    // 内缩后的角坐标（上刻面 = 左上角 → 右上角）。
+    const top = vertsOf(polys[0]!);
+    expect(top[0]).toBeCloseTo(100 - h + i2, 6);
+    expect(top[1]).toBeCloseTo(200 + h - i2, 6);
+    expect(top[2]).toBeCloseTo(100 + h - i2, 6);
+    expect(top[3]).toBeCloseTo(200 + h - i2, 6);
+  });
+
+  // §K.5 行 10（红线）+ 行 11（已采甲）：单枚 `circle` 且孔底 = 目标色 `pit`。
+  it('四棱新基线：孔 = 恰 1 枚 circle 且孔底 = 目标色 pit（K3；仅“有 circle”无判别力）', () => {
+    const size = 50;
+    const board = emit((b) =>
+      drawFilledBead(b, 100, 200, 1, { size, targetColorIdx: 3, inks: DEMO_BEAD_INKS }),
+    );
+    const holes = board.filter((c) => c.kind === 'circle');
+    expect(holes).toHaveLength(1); // 乙口径双孔随十层退役 ⇒ 恰 1 枚
+    const hole = holes[0]!;
+    expect(hole.kind === 'circle' && hole.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).pit);
+    // ⛔ 不是白孔（`18` spike 曾写 `#FFFFFF` 字面量 ⇒ 同式反例在此会红）。
+    expect(hole.kind === 'circle' && hole.fill).not.toBe('#FFFFFF');
+    // 孔径唯一真源 = 卡（spike 旧口径 0.17 常量已删）；⚠ 吃的是**绘制边长**（盘面珠已内缩）。
+    const drawn = size - 2 * BEAD_DRAW_INSET;
+    expect(hole.kind === 'circle' && hole.r).toBeCloseTo((drawn * BEAD_CARD.holeRatio) / 2, 9);
+    // 无目标色（托盘珠）⇒ 回落本格 `pit`（端点表内色，C3 零新色）。
+    const tray = emit((b) => drawFilledBead(b, 100, 200, 1, { size, inks: DEMO_BEAD_INKS }));
+    const trayHoles = tray.filter((c) => c.kind === 'circle');
+    expect(trayHoles).toHaveLength(1);
+    expect(trayHoles[0]!.kind === 'circle' && trayHoles[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 1).pit);
   });
 
   // B0 目标色底图（v1.5-r8）：独立函数、pitch 满铺且方角 ⇒ 相邻格底色无缝相连。
@@ -174,9 +369,10 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   });
 
   // L0a 接触阴影：贴底窄条（y = bottom + contactY×BEAD），α 0.12，圆角 = 主圆角 × 0.5。
-  it('§1.1 L0a lays a contact-shadow strip just below the bead', () => {
+  // §K.5 行 1：新基线**无承载体** ⇒ 判据改指对照臂；负向防复活在 ledger 文件。
+  it('[legacy-ten] §1.1 L0a lays a contact-shadow strip just below the bead', () => {
     const size = 50;
-    const contact = filled(1, size)[0]!;
+    const contact = legacy(1, size)[0]!;
     const left = 100 - size / 2;
     const bottom = 200 - size / 2;
     expect(contact.kind === 'rect' && contact.x).toBeCloseTo(left + size * BEAD_CARD.contactX, 6);
@@ -189,28 +385,28 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     );
   });
 
-  // L0b 投影：偏移 −3/64×BEAD，α 0.15。
-  it('§1.1 L0b offsets the drop shadow by 3/64 of the edge at α 0.15', () => {
+  // L0b 投影：偏移 −3/64×BEAD，α 0.15。（§K.5 行 2：改指对照臂）
+  it('[legacy-ten] §1.1 L0b offsets the drop shadow by 3/64 of the edge at α 0.15', () => {
     const size = 50;
-    const commands = filled(1, size);
+    const commands = legacy(1, size);
     const shadow = commands[1]!;
     expect(shadow.kind === 'rect' && shadow.y).toBeCloseTo(200 - size / 2 - size * BEAD_CARD.shadowDy, 6);
     expect(shadow.kind === 'rect' && shadow.fill).toBe(withAlpha(BEAD_SHADOW_HEX, BEAD_SHADOW_ALPHA));
     expect(shadow.kind === 'rect' && shadow.radius).toBe(Math.round(size * BEAD_CARD.radius));
   });
 
-  // L1 主体：基色取自色板索引，圆角 round(BEAD × 0.22)。
-  it('§1.1 L1 fills the body with the palette colour for that index', () => {
+  // L1 主体：基色取自色板索引，圆角 round(BEAD × 0.22)。（§K.5 行 3：改指对照臂）
+  it('[legacy-ten] §1.1 L1 fills the body with the palette colour for that index', () => {
     for (const colorIdx of [1, 5, 10]) {
-      const body = filled(colorIdx)[2]!;
+      const body = legacy(colorIdx)[2]!;
       expect(body.kind === 'rect' && body.fill).toBe(beadColorOf(DEMO_BEAD_INKS, colorIdx));
     }
   });
 
-  // L2/L3 倒角：以基色为基准分别向黑/白偏移，并各覆盖两条边。
-  it('§1.1 L2/L3/L3b tint the bevels and rim from the base colour', () => {
+  // L2/L3 倒角：以基色为基准分别向黑/白偏移，并各覆盖两条边。（§K.5 行 5–9：改指对照臂）
+  it('[legacy-ten] §1.1 L2/L3/L3b tint the bevels and rim from the base colour', () => {
     const base = beadColorOf(DEMO_BEAD_INKS, 4);
-    const commands = filled(4);
+    const commands = legacy(4);
     const dark = mix(base, BEAD_BEVEL_DARK_MIX);
     const light = mix(base, BEAD_BEVEL_LIGHT_MIX);
     const rim = mix(base, BEAD_RIM_MIX);
@@ -228,9 +424,10 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   });
 
   // L4′ 偏心椭圆高光（K6，v1.5-r8 三层并一档）+ L1c 中心孔（K2–K4）。
-  it('§1.1 L4′ is a single offset oval highlight and L1c punches one centre hole', () => {
+  // §K.5 行 10–12：新基线 = 单枚孔、无软高光 ⇒ 本例整条改指对照臂（乙口径双孔在此仍真）。
+  it('[legacy-ten] §1.1 L4′ is a single offset oval highlight and L1c punches one centre hole', () => {
     const size = 50;
-    const commands = filled(2, size);
+    const commands = legacy(2, size);
     const left = 100 - size / 2;
     const bottom = 200 - size / 2;
     // L4′：旧 `softHighlight[1]` 的比例与 α 原样沿用（并档不改几何，只减图元数）。
@@ -266,10 +463,12 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // 四个通道共用一个 `liftT` ⇒ 方向必须一致（“平移但阴影不变”就是“突兀”的根源）。
   // ⚠ 显式覆写（G1 包络 / §1.2 selected 的 SELECTED_SHADOW_ALPHA）**优先于 lift 衰减**，
   //   否则本批会静默推翻“选中 = 阴影更深”的 art 语义（见 `§1.2 lift and shadow α` 例）。
-  it('§5 lift drives shadow, contact, body and side wall from one height parameter', () => {
-    const rest = emit((b) => beadOnPad(b));
+  // ⚠ **§K.5 台账外连带（回传登记）**：本例断的四个通道里三个（阴影/接触/侧壁）只存在于
+  //   十层 ⇒ 整条改指对照臂；新基线侧的 lift 行为另见下方两例。
+  it('[legacy-ten] §5 lift drives shadow, contact, body and side wall from one height parameter', () => {
+    const rest = emit((b) => legacyOnPad(b));
     const up = emit((b) =>
-      drawFilledBead(b, 100, 200, 1, {
+      drawLegacyTenBead(b, 100, 200, 1, {
         size: BEAD_CELL,
         targetColorIdx: 2,
         inks: DEMO_BEAD_INKS,
@@ -298,13 +497,59 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     // 红线：满抬起仍不越格（A5 零重叠前提）：静息 38 × 1.04 = 39.52 < BEAD_CELL。
     expect(at(up, 2).w).toBeLessThan(BEAD_CELL);
     // G1 包络仍为基准、lift 只在其上调制 ⇒ 不传 lift 时逐字段等于旧行为（零回归）。
-    expect(emit((b) => beadOnPad(b))).toEqual(rest);
+    expect(emit((b) => legacyOnPad(b))).toEqual(rest);
+  });
+
+  // 四棱新基线上的 `lift`：**只剩平移 + 尺寸增益两通道**（都在渲染侧算，与风格无关）。
+  // 本例同时是「如实不透传」的正面登记：阴影族四个通道字段在六条输出上**无承载体**。
+  it('四棱新基线：lift = 平移 + 尺寸增益（阴影族四通道无承载体 ⇒ 透传不改输出）', () => {
+    const rest = emit((b) => beadOnPad(b));
+    const up = emit((b) =>
+      drawFilledBead(b, 100, 200, 1, {
+        size: BEAD_CELL,
+        targetColorIdx: 2,
+        inks: DEMO_BEAD_INKS,
+        lift: BEAD_CARD.liftRef,
+      }),
+    );
+    // ① 平移：拿珠心量（孔心 = 珠心；四角三角的共点也 = 珠心）⇒ 恰好一个 lift。
+    const holeY = (cs: typeof rest): number =>
+      (cs.find((c) => c.kind === 'circle') as { y: number }).y;
+    expect(holeY(up) - holeY(rest)).toBeCloseTo(BEAD_CARD.liftRef, 9);
+    // ② 尺寸增益：底 rect 边长随 `liftScaleGain` 增长，且满抬起仍不越格（A5 前提）。
+    const plateW = (cs: typeof rest): number =>
+      (cs.find((c) => c.kind === 'rect') as { w: number }).w;
+    const drawn = BEAD_CELL - 2 * BEAD_DRAW_INSET;
+    expect(plateW(up)).toBeCloseTo(drawn * (1 + BEAD_CARD.liftScaleGain), 6);
+    expect(plateW(up)).toBeGreaterThan(plateW(rest));
+    expect(plateW(up)).toBeLessThan(BEAD_CELL);
+    // ③ ⛔ 不静默吃入参也不静默造墨：四个阴影族通道传与不传 ⇒ 逐字节相同。
+    const withShadowChannels = emit((b) =>
+      drawFilledBead(b, 100, 200, 1, {
+        size: BEAD_CELL,
+        targetColorIdx: 2,
+        inks: DEMO_BEAD_INKS,
+        shadowAlpha: 0.9,
+        contactAlpha: 0.9,
+        contactWidth: 3,
+        shadowDy: 0.5,
+      }),
+    );
+    expect(withShadowChannels).toEqual(rest);
+    // ④ 而且 lift 不会把阴影族“买回来”：条数不变、真 α 仍为 0。
+    expect(up).toHaveLength(rest.length);
+    expect(up.some((c) => (c.alpha ?? 1) < 1)).toBe(false);
   });
 
   // §1.1 最小特征约束：线宽 ≥ 2px —— 托盘尺寸（44px 珠）是最小使用场景。
-  it('§1.1 keeps every card stroke ≥ 2px at the smallest bead size', () => {
+  // ⚠ **§K.5 行 5–8**：新基线零 `line` 图元 ⇒ 本例留在新臂上就是平凡真（K-060）。
+  //   改指对照臂；新基线侧的对应门 = 上方 kind 白名单（`line` 不允复活）。
+  it('[legacy-ten] §1.1 keeps every card stroke ≥ 2px at the smallest bead size', () => {
     for (const size of [BEAD_CELL, TRAY_BEAD_SIZE]) {
-      for (const cmd of filled(1, size)) {
+      const commands = legacy(1, size);
+      // 阳性对照（K.1a）：本臂确实有受该地板约束的图元，否则断言无对象。
+      expect(commands.some((c) => c.kind === 'line')).toBe(true);
+      for (const cmd of commands) {
         if (cmd.kind === 'line') expect(cmd.lineWidth).toBeGreaterThanOrEqual(BEAD_CARD.minStroke);
         if (cmd.kind === 'circle' && cmd.lineWidth !== undefined) {
           expect(cmd.lineWidth).toBeGreaterThanOrEqual(BEAD_CARD.minStroke);
@@ -314,10 +559,10 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   });
 
   // §1.2 selected：整体上移 4px + L0 投影加深。
-  it('§1.2 lift and shadow α follow the selected state', () => {
-    const plain = filled(1);
+  it('[legacy-ten] §1.2 lift and shadow α follow the selected state', () => {
+    const plain = legacy(1);
     const selected = emit((b) =>
-      drawFilledBead(b, 100, 200, 1, { size: BEAD_CELL, lift: 4, shadowAlpha: SELECTED_SHADOW_ALPHA }),
+      drawLegacyTenBead(b, 100, 200, 1, { size: BEAD_CELL, lift: 4, shadowAlpha: SELECTED_SHADOW_ALPHA }),
     );
     // L0b 投影（index 1）随 selected 加深；L0a 接触阴影（index 0）固定 α 不受影响。
     expect(selected[1]!.kind === 'rect' && selected[1]!.fill).toBe(
@@ -503,9 +748,12 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   });
 
   // ③ inset 作用域：仅作用于**传 `targetColorIdx` 的盘面珠**；托盘珠恒 0。
-  it('③ inset 作域：仅盘面珠内缩，托盘珠（无 targetColorIdx）恒满幅', () => {
+  // ⚠ **两臂共有**：`inset` 在渲染侧算进 `size` 后才是风格入参 ⇒ 本例**双臂都跑**
+  //   （旧只钉十层一条腿，新基线上静默失效 = 净放宽）；取“第一条 rect”作珠体外缘代理：
+  //   新基线 #1 = plate rect、旧臂 L0b/L1 与之同宽（⛔ 不再按位置硬锚“第 3 条 = 主体”，§K.5 行 3）。
+  it('③ inset 作域：仅盘面珠内缩，托盘珠（无 targetColorIdx）恒满幅（双臂）', () => {
     const bodyW = (cs: ReturnType<typeof emit>): number => {
-      const c = cs[2]; // L1 主体（层序见上方「documented order」例）
+      const c = cs.find((x) => x.kind === 'rect');
       return c && c.kind === 'rect' ? c.w : Number.NaN;
     };
     const board = emit((b) =>
@@ -519,6 +767,20 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
     expect(bodyW(filled(1))).toBe(BEAD_CELL); // 不传目标色也不缩
     // 钉住**方向**：若有人给托盘也吃 inset，v1.57 后两个尺子会重排（此腿当场红）。
     expect(bodyW(tray)).toBeGreaterThan(bodyW(board));
+    // 对照臂同尺：inset 属渲染侧 ⇒ 两臂的**珠体外缘**必须同一个值
+    // （旧臂取 L1 主体 = 第 3 条，第 1 条是窄条接触阴影 ⇒ 不可直接比 index）。
+    const legacyBodyW = (cs: ReturnType<typeof emit>): number => {
+      const c = cs[2];
+      return c && c.kind === 'rect' ? c.w : Number.NaN;
+    };
+    const legacyBoard = emit((b) =>
+      drawLegacyTenBead(b, 100, 200, 1, { size: BEAD_CELL, targetColorIdx: 2, inks: DEMO_BEAD_INKS }),
+    );
+    const legacyTray = emit((b) =>
+      drawLegacyTenBead(b, 100, 200, 1, { size: TRAY_BEAD_SIZE, inks: DEMO_BEAD_INKS }),
+    );
+    expect(legacyBodyW(legacyBoard)).toBe(bodyW(board));
+    expect(legacyBodyW(legacyTray)).toBe(bodyW(tray));
   });
 
   // ④ 禁改色表：`view/palette.ts` 的 hex 家族在本批（及任何未走 art 单的批次）**一位不动**。

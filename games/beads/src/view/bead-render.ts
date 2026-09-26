@@ -1,14 +1,21 @@
 /**
- * Bead parameter card — the six layers of `assets-spec.md` §1.1, plus the two
- * non-`filled` state variants of §1.2.
+ * 珠体与槽的**几何尺子** + **层集回放器**（`assets-spec.md §1.1/§1.2` ·
+ * `bead-visual-style-spec §7.11.1` · EP11-S3 转正）
+ * ─────────────────────────────────────────────────────────────────────────
+ * **S3 起的分工**（§12.9 步 3，本文件的核心改动）：
+ *  · 本文件**不再硬编码任何珠体层集**。`drawFilledBead` = 算尺 →
+ *    `DEFAULT_BEAD_STYLE.beadLayers(...)` → 逐层回放（真源在 `bead-styles/`）。
+ *  · 旧十层（L0a 接触阴影 → L0b 投影 → L1 主体 → L2′ 侧壁 → L2×2 暗倒角 → L3×2 亮倒角
+ *    → L3b rim → L1c 双枚孔 → L4′ 软高光）已**逐字封入** `bead-styles/legacy-ten.ts`：
+ *    对照验收基准 + S7 真机回评前的回退阀；⛔ 不进 registry、不进玩家可选池。
+ *  · 珠参数卡 `BEAD_CARD` **真源已上移 `config/tuning.ts`**（本行旧文为
+ *    「住在本文件」，于 WXG-T-211-S3 核销）。动因 = 风格模块需要 `radius` / `holeRatio`，
+ *    而它们原先住在 `bead-render.ts` ⇒ `registry.ts` 反向 import 本文件即成**循环依赖**；
+ *    同时满足 §12.2 C4「系数只准住 tuning」（v1.57 `TRAY_BEAD_SIZE` 同族判例）。
+ *    本文件只留**再导出**，旧 import 路径零消费者受损。
  *
- * One bead = L0a 接触阴影 → L0b 投影 → L1 主体 → L2 暗倒角 → L3 亮倒角 → L3b rim 光
- * → L4a/b/c 软高光（三层递减 α），drawn in that order.
- * ⚠ 原第十层「**L5 符号**」已随 `bead-visual-style-spec` **v1.5-r8（2026-09-23）整层删除**
- *   （WXG-T-203 `c8d2fe8`）⇒ 本卡现为九层；本行旧文残留于 WXG-T-207-A 注释核销批清除
- *   （**层数与渲染基尺无关**，故 §11.2 图元基线不因 v1.57 复算）。
  * Everything here is a **pure function of its arguments**: it reads
- * no game state and returns nothing (control-manifest §8) — which is what makes
+ * no game state and returns nothing (control-manifest L5) — which is what makes
  * the card testable by command inspection alone (`tests/bead-render.test.ts`).
  *
  * Geometry is expressed as **ratios of the bead edge**, derived from the 64px
@@ -20,10 +27,20 @@
  * ⚠ 但「比率制 ⇒ 观感等比」是**推论不是实测**：`minStroke = 2` 这条绝对地板会吃掉小珠子上的
  *   比率差（30px 珠上 `bevelWidthLight 4/64 = 1.875`、`rimWidth 3/64 = 1.406` 均被钳成 2
  *   ⇒ 三档倒角同宽）⇒ 已登记 `[待林绘澄/真机]`，`assets-spec §1.10.3`。
+ *   ⚠ 四棱转正后**盘上珠不再有 line 图元**（facet-4 = 1 rect + 4 polygon + 1 circle）
+ *   ⇒ 上述地板效应对新基线只适用于 `drawEmptySocket` 的 S1/S3/S4 线与 `drawLockedBead` 斜线；
+ *   十层侧的该登记随 `legacy-ten` 臂保留（对照通道内仍然真实）。
  */
 
 import type { RenderModelBuilder } from '@wxgame/framework';
-import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, SELECT_LIFT_PX, SOCKET_CARD, TRAY_BEAD_SIZE } from '../config/tuning.js';
+import {
+  BEAD_CARD,
+  BEAD_CELL,
+  BEAD_DRAW_INSET,
+  BEAD_PITCH,
+  SOCKET_CARD,
+  TRAY_BEAD_SIZE,
+} from '../config/tuning.js';
 import {
   FILL_POP_CONTACT_A_PEAK,
   FILL_POP_CONTACT_W_PEAK,
@@ -34,18 +51,14 @@ import {
   FILL_POP_SHADOW_A_TROUGH,
   FILL_POP_SHADOW_DY_MIN,
 } from '../config/tuning.js';
+import { DEFAULT_BEAD_STYLE } from './bead-styles/registry.js';
+import type { WritableBeadStyleInput } from './bead-styles/contract.js';
 import {
-  BEAD_BEVEL_DARK_MIX,
-  BEAD_BEVEL_LIGHT_MIX,
   BEAD_CONTACT_SHADOW_ALPHA,
-  BEAD_HIGHLIGHT_HEX,
   DEBUG_OUTLINE_SOCKET_HEX,
   DEBUG_OUTLINE_TILE_HEX,
-  BEAD_RIM_MIX,
   BEAD_SHADOW_ALPHA,
   BEAD_SHADOW_ALPHA_SELECTED,
-  BEAD_SHADOW_HEX,
-  BEAD_SOFT_HIGHLIGHT_ALPHAS,
   beadColorOf,
   DEMO_BEAD_INKS,
   endpointOf,
@@ -59,115 +72,13 @@ import {
 } from './palette.js';
 
 /**
- * §1.1 layer geometry, as fractions of the bead edge. Source values are the
- * spec's 64px example (`r = round(BEAD × 0.22)`, insets 1.5 / 1, widths 3 / 2,
- * highlight at 0.10 / 0.62 with size 0.80 × 0.26 and radius 0.13).
+ * 珠参数卡 —— 真源已上移 `config/tuning.ts`（v1.57 `TRAY_BEAD_SIZE` 判例 + §12.2 C4
+ * 「系数只准住 tuning」；本批直接动因 = `bead-styles/facet-4.ts` 需要 `radius` / `holeRatio`
+ * 两个几何系数，而 `registry.ts` 反过来 import 本文件会成**循环依赖**）。
+ * 本行降为**再导出**（保留旧 import 路径，不拆 `tests/*` 与 `view-model` 消费者）。
  */
-export const BEAD_CARD = {
-  /**
-   * Corner radius as a fraction of the **drawn** bead edge.
-   *
-   * **0.22 → 0.30（`bead-visual-style-spec` K1，用户 2026-09-23 拍板）**。旧值在网格
-   * 珠上还叠加了「同心倒推」（珠圆角 = 垫圆角 − inset），实际得到 `50×0.22−6 = 5`，
-   * 在 38px 珠上近乎方角 ⇒ 用户直接判为“变成正方形”。新模型里底图是方角连续一张，
-   * 同心约束已无对象 ⇒ 网格珠与托盘珠共用同一公式 `round(size × radius)`。
-   * 实物熔合后是**圆角方**，不是正圆（参考图仍偏圆，以本值与真机为准）。
-   */
-  radius: 0.30,
-  /** L0a 接触阴影（v1.3 · F4）：贴底窄条，x/y/w/h 为边长比例，radius = 主圆角 × 0.5。 */
-  contactX: 0.06,
-  contactY: -0.02,
-  contactW: 0.88,
-  contactH: 0.1,
-  contactRadiusScale: 0.5,
-  /** L0b shadow vertical offset (spec: `y − 3` in the 64 frame). */
-  shadowDy: 3 / 64,
-  /** L2 inset from the bottom/right inner edge (v1.3: 2/64, was 1.5). */
-  bevelInsetDark: 2 / 64,
-  /** L3 inset from the top/left inner edge (v1.3: 1.5/64, was 1). */
-  bevelInsetLight: 1.5 / 64,
-  /** L2 stroke width (v1.3: 5/64, was 3). */
-  bevelWidthDark: 5 / 64,
-  /** L3 stroke width (v1.3: 4/64, was 2). */
-  bevelWidthLight: 4 / 64,
-  /**
-   * L3b rim 光（v1.3 新增）：上内缘单线，内缩 1/64。线宽 **2/64 → 3/64**（「06 珐琅·金属
-   * 包边」加粗上缘高光边）。
-   *
-   * ⚠️ **旧括注的加粗理由是「错基注释」，WXG-T-207-A 核销（正本判定 = `assets-spec §1.10 ②`，
-   * 林绘澄）**：原文写「2/64 在 50px 珠上被 `minStroke=2` 钳住 ⇒ 无变化，3/64 才真变粗」。
-   * 该算式把分母当成 `BEAD_CELL`，**而实装分母是绘制边长** `(outer − 2×inset)`（见本卡
-   * `:410` `size` 与 `:428` `stroke()`）⇒ 旧 50 基盘面上 `size = 50 − 2×6 = 38`，
-   * `38×2/64 = 1.19` 与 `38×3/64 = 1.78` **双双钳到 2.00** —— 那次加粗在盘面对照上
-   * **从来就是 no-op**（不是「换尺后才失效」）。唯一名义越线处是托盘珠（`size = 44`、
-   * `inset = 0`）：`44×3/64 = 2.0625`，超地板 0.0625 设计 px ≈ 0.03 CSS px ⇒ 不可辨。
-   * ⇒ 本句**不得再作为「比例线宽有效」的先例引用**（K-035 族「假绿登记」）。
-   *
-   * v1.57 换 30 基后现状（同一算式）：盘面 `size = 30 − 2×4 = 22` ⇒ `22×{5,4,3}/64 =
-   * {1.72,1.38,1.03}` 全部 < 2 ⇒ **三档倒角 + rim 一起钳平为 2**（层集只剩方向/墨差/同心
-   * 内缩序在承载，`assets-spec §1.10.3` 因此裁「比例不动、地板不动」）。**不在本单解**：
-   * 分母 64→32 翻倍、或 `minStroke`→1 弃地板，两条出路均 `[待林绘澄/真机]`。
-   */
-  rimInset: 1 / 64,
-  rimWidth: 3 / 64,
-  /**
-   * L4a/b/c 软高光三层（v1.3 · F4，取代硬边单高光条）：外扩递减、中心递增叠层模拟柔光。
-   * x/y/w/h/radius 均为边长比例，α 见 {@link BEAD_SOFT_HIGHLIGHT_ALPHAS}。
-   */
-  softHighlight: Object.freeze([
-    { x: 0.06, y: 0.52, w: 0.82, h: 0.38, radius: 0.19 },
-    { x: 0.1, y: 0.6, w: 0.72, h: 0.26, radius: 0.13 },
-    { x: 0.16, y: 0.68, w: 0.56, h: 0.14, radius: 0.07 },
-  ] as const),
-  /**
-   * **L1c 中心孔（`bead-visual-style-spec` K2–K4）** —— 实物拼豆最强的识别特征，
-   * 之前完全没做。
-   *
-   * **0.36 → 0.44（v1.57 / WXG-T-207-A；art 起始值正本 = `assets-spec §1.10.4`）**：
-   * 0.44 是 Midi 实物真比（孔 ⌀2.2 / 豆 ⌀5），旧值 0.36 是「小屏怕吃掉色面」的**保守一档**；
-   * 在 30px 珠上按实物真比反推，孔**半径** = `(30−2×4)×0.44/2 = 4.84` 设计px（旧尺
-   * `(50−12)×0.36/2 = 6.84`）⇒ 绝对孔径仍缩 29%。**⚠ `[待真机]`**：真机 scale≈0.5 下直径
-   * ≈4.8 CSS px，与当初判 `inset=2`「看不见」只差一档 ⇒ 禁止以「比例没变」判绿（K-035/K-040）。
-   * ⚠️ **硬约束②（`assets-spec §1.10.9`）：本值与 `BEAD_DRAW_INSET` 互为对冲，必须同提交**
-   * （削 inset ⇒ 珠面变大 ⇒ 孔绝对值变大）；分开改会留下混合口径、真机无法归因
-   * ⇒ 由 `tests/bead-render.test.ts` 的同批性断言钉住。
-   */
-  holeRatio: 0.44,
-  /** 孔内壁自阴影的偏移量（半径比例）与 α；光从左上 ⇒ 阴影偏左上，留出右下亮弧。 */
-  holeShadeOffset: 0.22,
-  holeShadeAlpha: 0.3,
-  /**
-   * **L2′ 侧壁高度**（K5）——实物是硬币状，有一条竖向侧壁；旧模型只靠同色压暗倒角，
-   * 读作“斜切边”不读作“厚度”。`lift` 时按 `1 + lift/size` 拉长（§5 空间语言）。
-   */
-  wallRatio: 0.1,
-  /** 侧壁与托盘珠孔底的下暗量（复用既有 mix 族，**零新 hex**）。 */
-  wallDarkMix: -0.42,
-  holeDarkMix: -0.5,
-  /**
-   * **§5 抬起三通道（`bead-visual-style-spec` v1.5-r9）** —— 以 `liftRef` 为“一次完整抬起”
-   * 归一化，使高度语言随离开底面的距离连续变化（旧模型只平移，不透明物体凭空挪几 px
-   * 就是“突兀”的来源）。
-   *
-   * ⚠ `liftRef` = **`tuning.SELECT_LIFT_PX`（单一真源）**，与 view-model 给 `draft.lift` 的值同源；
-   *   波浪的 `WAVE_LIFT_PX = 3` ⇒ liftT = 0.5（半高 ⇒ 半量的阴影响应）。
-   *   抬起量改动时三通道响应强度自动跟着改，不会漂耦。
-   */
-  liftRef: SELECT_LIFT_PX,
-  /** 抬到 `liftRef` 时珠体额外放大 4%（与 G1 落座包络的 scale 相乘，峰值合计仍 < 1.12 ≪ 格宽）。 */
-  liftScaleGain: 0.04,
-  /** 投影偏移放大倍数（150%）与 α 衰减（40%）：离得越远，影子越大越淡。 */
-  liftShadowDyGain: 1.5,
-  liftShadowFade: 0.4,
-  /** 接触阴影收窄（35%）：离地后接触面应变小而不是留着黑块。
-   * ⚠ **不衰减它的 α** —— §1.2 已把 L0a 定调为「固定 α 不受 lift 影响」（本批上一版
-   *   试图连 α 一起淡掉，被 `§1.2 lift and shadow α` 判据拦下）。只改宽度，不改颜色语义。 */
-  liftContactShrink: 0.35,
-  /** 侧壁在满抬起时多长出 90%（与上面四通道共用 `liftT` ⇒ 方向一致）。 */
-  wallLiftGain: 0.9,
-  /** §1.1 最小特征约束: no stroke below 2 design px. */
-  minStroke: 2,
-} as const;
+export { BEAD_CARD };
+
 
 /**
  * Tray bead edge — §3.4 `TRAY_SLOT − 4`。
@@ -184,13 +95,22 @@ export interface FilledBeadOptions {
   readonly size?: number;
   /** Extra upward offset in design units (tray `selected` lift, §1.2: 4px). */
   readonly lift?: number;
-  /** L0 shadow opacity override; `selected` passes the darker α (§1.2). */
+  /**
+   * L0b 投影 α 覆写；`selected` 传更暗档（§1.2）。
+   * ⚠ **EP11-S3 转正后：本通道在四棱层集下无承载体**（facet-4 无阴影层）⇒ 只对
+   *   `legacy-ten` 臂有效；字段保留是因为盘/托的选中语义仍住在十层对照侧（⛔ 不得
+   *   删 ⇒ 删了回退阀就失真）。本函数**不往风格输入透传**（见 `drawFilledBead` 注）。
+   */
   readonly shadowAlpha?: number;
   /**
-   * **L1c 孔底透出的目标色**（`bead-visual-style-spec` K3，用户 2026-09-23 拍板）。
+   * **孔底透出的目标色**（`bead-visual-style-spec` K3，用户 2026-09-23 拍板）。
    * 旧名 `padColorIdx`（L11 垫）；垫已升为 B0 底图（`drawTargetTile`），本参现在的唯一职责
    * = 通孔物理上透下去、看见该格目标色 ⇒ 珠子自带“我该变成什么色”的对照物。
-   * 不传（托盘珠）⇒ 孔底走自身下暗档，不透色。
+   * 不传（托盘珠）：
+   *  · **四棱（现默认）**⇒ 按 `contract.ts::BeadStyleInput.targetColorIdx` 口径回落**本格**
+   *    `pit`（仍是端点表内色 ⇒ C3 零新色）；
+   *  · `legacy-ten` 臂 ⇒ 走自身下暗档 `mix(base, holeDarkMix)`（乙口径旧行为）。
+   * ⚠ 本参另有一条几何副作用：传入 ⇒ 珠体吃 `BEAD_DRAW_INSET` 内缩以露出 B0 底图。
    */
   readonly targetColorIdx?: number;
   /**
@@ -205,19 +125,25 @@ export interface FilledBeadOptions {
    * ⇒ 层序死结论：**垫不参与 scale / 不参与 lift / 恒锁格缘 / 恒画**。
    */
   readonly scale?: number;
-  /** G1：L0a 接触阴影 α 覆写（静息 = `BEAD_CONTACT_SHADOW_ALPHA`）。 */
+  /**
+   * G1：L0a 接触阴影 α 覆写（静息 = `BEAD_CONTACT_SHADOW_ALPHA`）。
+   * ⚠ **S3 后无承载体**（四棱层集 0 真 α）⇒  legacy-ten 专用通道，同上注。
+   */
   readonly contactAlpha?: number;
-  /** G1：L0a 接触阴影**宽比**覆写（静息 = `BEAD_CARD.contactW` = 0.88）。 */
+  /** G1：L0a 接触阴影**宽比**覆写（静息 = `BEAD_CARD.contactW` = 0.88）。⚠ legacy-ten 专用（同上）。 */
   readonly contactWidth?: number;
-  /** G1：L0b 投影纵向偏移覆写（`/64` 归一比例，静息 = `BEAD_CARD.shadowDy` = 3/64）。 */
+  /** G1：L0b 投影纵向偏移覆写（`/64` 归一，静息 = `BEAD_CARD.shadowDy` = 3/64）。⚠ legacy-ten 专用（同上）。 */
   readonly shadowDy?: number;
   /**
-   * G4 波浪期的 **LOD 降档**（`assets-spec §1.6.4` / `WAVE_BEAD_LOD_LAYERS = 7`，WXG-T-146；C7 拆名后波浪/zoom LOD 各自一名）：
-   * 传入即降层 —— 砍 L0a / L3b / L4a / L4b，保 L0b + L1 + L2 + L3 + L4c
-   * （旧文此处还列了 **L5 符号**，该层已随 v1.5-r8 整层删除 ⇒ WXG-T-207-A 注释核销；
-   *   保留集是否因此重数为 6 归 art/QA **另案**，本单不动 `WAVE_BEAD_LOD_LAYERS` 的值）。
-   * ⛔ **L11 垫绝不进可砍集**（静态谜面载体 ⇒ 本标志**不影响**上方垫的绘制）。
-   * 本轮只预埋 G4 这一档（裁定 5）；G2 的 α 阈值 4 层档 = 规格保留、不实现。
+   * **LOD 降档通道**（`assets-spec §1.6.4`，WXG-T-146；C7 拆名后波浪 = `WAVE_BEAD_LOD_LAYERS = 7`、
+   * zoom = `ZOOM_LOD_LAYERS = 7` 各自一名）：
+   *  · 旧十层：传入即砍 L0a / L3b / L4a / L4b，保 L0b + L1 + L2 + L3 + L4c（可砍集真源
+   *    已随十层搬入 `bead-styles/legacy-ten.ts`）。
+   *  · **四棱（现默认）= 结构性 no-op**：6 命令 / 0 真 α ≤ 7 ⇒ 无可砍集。本字段仍**照原样
+   *    透传给风格**（`BeadStyleInput.lodLayers`，砍哪几层由风格自己定 ⇒ 渲染侧不判语义，
+   *    控制清单 L5），并由判据正面钉住「传 / 不传 ⇒ 输出逐字节等值」
+   *    （⛔ 拿掉通道 / 静默吃掉都算净放宽，§K.5 四类强度纪律）。
+   * ⛔ **B0 底图绝不进可砍集**（静态谜面载体 ⇒ 本标志**不影响**上方垫的绘制）。
    */
   readonly lodLayers?: number;
 }
@@ -412,13 +338,46 @@ function dashEdge(
   }
 }
 
+
 /**
- * Draw a complete `filled` bead (§1.1) centred on `(cx, cy)`.
+ * 逐珠复用的**风格输入槽**（C2 热路径零分配）。
  *
- * ⚠ **v1.5-r8（2026-09-23 用户拍板）：L5 符号层已整层删除**。此前非色相通道只长在珠上
- * （`emitSymbol` 全仓唯一调用点），而目标侧（L11 垫）只有颜色 ⇒ 玩家比对「这颗珠属于这格吗」
- * 时拿不到形状信号，三重编码实际只覆盖一半。本批改为**连续目标色底图**承担该职责，
- * 代价与色盲口径见 `art/accessibility.md` 末条修订。
+ * ⛔ 不得改回「每次调用新建对象字面量 / spread」：spread 既触 `check:es5-spread`
+ * 又是每珠每帧一次堆分配。本槽的生命周期 = 下面 `drawFilledBead` 的一次调用
+ * （写完立刻被层集循环消费完，⛔ 不逃逸、不入任何长期容器）。
+ */
+const styleInput: WritableBeadStyleInput = {
+  inks: DEMO_BEAD_INKS,
+  colorIdx: 1,
+  targetColorIdx: undefined,
+  size: BEAD_CELL,
+  lodLayers: undefined,
+};
+
+/**
+ * 画一颗 `filled` 珠（§1.1 · `bead-visual-style-spec §7.11.1` 甲口径层集），锚点 `(cx, cy)`。
+ *
+ * **EP11-S3 转正后本函数只做三件事**（§12.9 步 3；⛔ 不再持有任何一层硬编码层集）：
+ *  1. **算尺** —— `lift` / `scale` / `BEAD_DRAW_INSET` 三条通道合成绘出边长 `size`，
+ *     y 位移 = `cy + lift`。尺子留在渲染侧：它是**入参的纯函数**，不是风格的几何
+ *     （风格只见 `size`，因而同一风格在盘 22 / 托 44 / zoom 缩放档下都成立）。
+ *  2. **取层集** —— `DEFAULT_BEAD_STYLE.beadLayers(...)`（真源 = `bead-styles/registry.ts`
+ *     → `bead-styles/facet-4.ts`；C9「升级即换肤」= 翻默认即换皮，本函数零改动）。
+ *  3. **回放** —— 逐层映射到 builder 的三个出口 `rect` / `polygon3` / `circle`
+ *     （格心局部系 → 世界系：`x` 加 `cx`、`y` 加 `cy + lift`）。
+ *
+ * ⚠ **热路径零分配（C2）**：层集本身是风格的模块级 scratch，输入槽同上 ⇒ 每珠每帧
+ *   0 次层集/输入对象分配。成立前提是 `ADR-0024` 的 polygon **值拷贝**语义：builder 取到
+ *   的是六个 number 的副本，下一珠改写 scratch 不会串形（判据 J-1/J-3 钉死；
+ *   `tests/bead-style-pool.test.ts` 的 `describe('C2 零分配机械锚 …')` 钉「两次调用返回同一实例」
+ *   = 零分配的机械证据，WXG-T-211-S3 补建，变异自证 M-C/M-D 见 `temp/wxg-t-211-s3/17-c2-mutation.txt`）。
+ * ⚠ **B0 底图不在本函数**：`drawTargetTile` 由 view-model 对每个可填格独立调（v1.5-r8），
+ *   与珠体层集无关 ⇒ 垫锁格心、不吃 lift / scale（§1.6.1 层序死结论）。
+ * ⚠ **旧十层实现**已封入 `bead-styles/legacy-ten.ts`（对照臂 + S7 真机回评前的回退阀；
+ *   ⛔ 不进 registry、不进玩家可选池、生产渲染链不 import 它）。`FilledBeadOptions` 的
+ *   `contactAlpha` / `contactWidth` / `shadowAlpha` / `shadowDy` 四条通道在四棱层集下
+ *   **无承载体**（facet-4 无阴影/接触层、0 真 α）⇒ 它们现在只对 legacy-ten 臂有效，
+ *   本函数**如实不透传**（不假装 G1 包络仍在换肤后的珠上生效）。
  */
 export function drawFilledBead(
   builder: RenderModelBuilder,
@@ -428,157 +387,59 @@ export function drawFilledBead(
   options: FilledBeadOptions = {},
 ): void {
   const outer = options.size ?? BEAD_CELL;
-  const inks = options.inks ?? DEMO_BEAD_INKS;
-  const base = beadColorOf(inks, colorIdx);
   const lift = options.lift ?? 0;
   const y = cy + lift;
   /**
-   * §5 抬起三通道的高度参量：`lift` 归一化到“一次完整抬起”。
-   * 负 `lift` 不视为“陷下去”⇒ 钳到 0（当前无调用方传负值，防误用）。
-   * D1（`reduceMotion`）**不需在此特批**：本批只建“通道↔高度”的静态映射，
-   * 没有任何自发动画与 α 往复（D2 风险）；抬起本身变缓需要 `lift` 自带斜坡，见 §5 注记。
+   * §5 抬起的高度参量：`lift` 归一化到「一次完整抬起」。
+   * 负 `lift` 不视为「陷下去」⇒ 钳到 0（当前无调用方传负值，防误用）。
    */
   const liftT = Math.max(0, lift) / BEAD_CARD.liftRef;
-
-  // ⚠ **v1.5-r8（`bead-visual-style-spec` B0）**：旧的“珠下先画一块垫”已**上提为 B0 底图**
-  //   （`drawTargetTile`，由 view-model 对每个可填格调，与有无豆无关）⇒ 本函数不再画垫。
-  //   保留的理由：垫锁格心、不吃 lift/scale（§1.6.1 P0 陷阱 #2）—— 同样适用于 B0。
   // 珠体四边内缩，露出四周的 B0 底图（= 该格目标色）；无目标色（托盘珠）保持满幅。
-  // G1：`scale` **只作用珠体**（见上方禁令）。
+  // G1：`scale` **只作用珠体**（见 `FilledBeadOptions.scale` 的层序死结论禁令）。
   const inset = options.targetColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
   const size = (outer - inset * 2) * (options.scale ?? 1) * (1 + BEAD_CARD.liftScaleGain * liftT);
-  const left = cx - size / 2;
-  const bottom = y - size / 2;
-  // §5：四个阴影/接触通道随高度连续变化。
-  // ⚠ **显式覆写优先于 lift 调制**：G1 落座包络（`fillPopEnvelope`）与 `selected` 的
-  //   `SELECTED_SHADOW_ALPHA` 都是 art 侧已经定过的语义（「抬起 + 阴影更深 = 重量/强调」），
-  //   而 lift 的物理结论是“抬高 ⇒ 影子变淡”⇒ 两者同现时必须让**覆写赢**，
-  //   否则本批会静默推翻 §1.2 的选中语义（上一版实现就踩了这个坑，由判据拦下）。
-  //   未覆写的通道（如 G4 波浪期）才吃 lift 衰减。
-  const contactAlpha = options.contactAlpha ?? BEAD_CONTACT_SHADOW_ALPHA;
-  const contactWidth = options.contactWidth ?? BEAD_CARD.contactW * (1 - BEAD_CARD.liftContactShrink * liftT);
-  const shadowDy = options.shadowDy ?? BEAD_CARD.shadowDy * (1 + BEAD_CARD.liftShadowDyGain * liftT);
-  const shadowAlpha = options.shadowAlpha !== undefined
-    ? options.shadowAlpha
-    : BEAD_SHADOW_ALPHA * (1 - BEAD_CARD.liftShadowFade * liftT);
-  // 圆角统一按**绘出边长**派生（K1）：旧网格珠走「垫圆角 − inset」得到 5 ⇒ 近乎方角；
-  // 底图已是方角连续一张，同心约束无对象 ⇒ 网格珠与托盘珠同公式，不再区分。
-  const radius = Math.round(size * BEAD_CARD.radius);
-  const stroke = (ratio: number) => Math.max(BEAD_CARD.minStroke, size * ratio);
-  // G4 LOD：`lodLayers` 传入即走降档集（值本身在本轮只有一个档位 ⇒ 不作分支表）。
-  const lod = options.lodLayers !== undefined;
 
-  // L0a 接触阴影 — 贴底窄条，让珠"坐"在面上（v1.3 · F4）；α / 宽比可由 G1 包络覆写，
-  // 未覆写时宽度再受 §5 抬起收窄（α 按 §1.2 固定，不受 lift 影响）。
-  // G4 LOD：本层属可砍集（α 最小的软阴影，集体波浪期看不出差）。G1 不动此层归属。
-  if (!lod) {
-    builder.rect(
-      left + size * BEAD_CARD.contactX,
-      bottom + size * BEAD_CARD.contactY,
-      size * contactWidth,
-      size * BEAD_CARD.contactH,
-      {
-        fill: withAlpha(BEAD_SHADOW_HEX, contactAlpha),
-        radius: Math.round(radius * BEAD_CARD.contactRadiusScale),
-      },
-    );
-  }
+  styleInput.inks = options.inks ?? DEMO_BEAD_INKS;
+  styleInput.colorIdx = colorIdx;
+  styleInput.targetColorIdx = options.targetColorIdx;
+  styleInput.size = size;
+  // G4 波浪降档 / ADR-0017 zoom LOD：通道**照原样透传**给风格（值 = `WAVE_BEAD_LOD_LAYERS`
+  // 或 `ZOOM_LOD_LAYERS`，由调用侧选，本函数不判阈值、不换算）。
+  // facet-4 = 6 命令 / 0 真 α ≤ 7 ⇒ 对本风格是**结构性 no-op**，由判据正面钉住
+  // （「传 lodLayers ⇒ 输出与不传逐字节等值」）；真正的降档语义仍在 legacy-ten 臂。
+  styleInput.lodLayers = options.lodLayers;
+  const layers = DEFAULT_BEAD_STYLE.beadLayers(styleInput);
 
-  // L0b 投影 — offset down by 3/64 of the edge, no stroke（G1：偏移与 α 同步联动；
-  // §5：抬起越高 ⇒ 影子推得越远、同时变淡）。
-  builder.rect(left, bottom - size * shadowDy, size, size, {
-    fill: withAlpha(BEAD_SHADOW_HEX, shadowAlpha),
-    radius,
-  });
-
-  // L1 主体.
-  builder.rect(left, bottom, size, size, { fill: base, radius });
-
-  // L2′ 侧壁（K5）——珠体下缘一条比 L2 暗倒角更深的带，把“圆角方块”读成“有高度的体”。
-  // §5：静息高 `size × wallRatio`；抬起时接近线性长到 ×1.9（升得越高越看得到侧面），
-  // 与投影/接触阴影同一 `liftT` ⇒ 三个通道同向，不会“平移但侧面不变”那种断裂感。
-  // ⚠ 不额外吃 `scale`（已在 `size` 内）；无自发动画 ⇒ 不受 D1 口径约束。
-  const wallH = size * BEAD_CARD.wallRatio * (1 + BEAD_CARD.wallLiftGain * liftT);
-  builder.rect(left, bottom, size, wallH, {
-    fill: mix(base, BEAD_CARD.wallDarkMix),
-    radius: Math.max(1, radius * 0.6),
-  });
-
-  // L2 暗倒角 — bottom + right inner edges, tinted toward black.
-  const insetDark = size * BEAD_CARD.bevelInsetDark;
-  const dark = mix(base, BEAD_BEVEL_DARK_MIX);
-  const darkWidth = stroke(BEAD_CARD.bevelWidthDark);
-  builder.line(left + insetDark, bottom + insetDark, left + size - insetDark, bottom + insetDark, dark, darkWidth);
-  builder.line(
-    left + size - insetDark,
-    bottom + insetDark,
-    left + size - insetDark,
-    bottom + size - insetDark,
-    dark,
-    darkWidth,
-  );
-
-  // L3 亮倒角 — top + left inner edges, tinted toward white.
-  const insetLight = size * BEAD_CARD.bevelInsetLight;
-  const light = mix(base, BEAD_BEVEL_LIGHT_MIX);
-  const lightWidth = stroke(BEAD_CARD.bevelWidthLight);
-  builder.line(
-    left + insetLight,
-    bottom + size - insetLight,
-    left + size - insetLight,
-    bottom + size - insetLight,
-    light,
-    lightWidth,
-  );
-  builder.line(
-    left + insetLight,
-    bottom + insetLight,
-    left + insetLight,
-    bottom + size - insetLight,
-    light,
-    lightWidth,
-  );
-
-  // L3b rim 光 — top inner edge single line, brighter than L3 (v1.3 · F4)。G4 LOD：可砍集。
-  if (!lod) {
-    const insetRim = size * BEAD_CARD.rimInset;
-    const rim = mix(base, BEAD_RIM_MIX);
-    builder.line(
-      left + insetRim,
-      bottom + size - insetRim,
-      left + size - insetRim,
-      bottom + size - insetRim,
-      rim,
-      stroke(BEAD_CARD.rimWidth),
-    );
-  }
-
-  // L1c 中心孔（K2–K4）——两枚 `circle` 叠出“孔 + 内壁自阴影”：
-  //   ① 孔底 = 该格目标色的 pit 档（K3 “通孔物理上透下去”）；无目标色（托盘珠）→ 自身下暗档。
-  //   ② 阴影圆偏左上（设计空间 y 向上）⇒ 留出**右下亮弧**，与“光从左上”一致。
-  // ⛔ 本层是**识别红线**（ADR-0017 红线段）：LOD 降档也不砍。
-  const holeR = (size * BEAD_CARD.holeRatio) / 2;
-  const holeBottom =
-    options.targetColorIdx !== undefined
-      ? endpointOf(inks, options.targetColorIdx).pit
-      : mix(base, BEAD_CARD.holeDarkMix);
-  builder.circle(cx, y, holeR, { fill: holeBottom });
-  builder.circle(
-    cx - holeR * BEAD_CARD.holeShadeOffset,
-    y + holeR * BEAD_CARD.holeShadeOffset,
-    holeR * 0.86,
-    { fill: BEAD_SHADOW_HEX, alpha: BEAD_CARD.holeShadeAlpha },
-  );
-
-  // L4′ 偏心椭圆高光（K6）——**三层亮条并成一枚**（净 −2 图元/珠）：左上单块拉长椭圆，
-  // α 取原中档。旧 L4a–c 的几何仍留在 `BEAD_CARD.softHighlight` 供回退与历史比对。
-  // G4 LOD：属质感层，降档可砍。
-  if (!lod) {
-    const g = BEAD_CARD.softHighlight[1]!;
-    builder.rect(left + size * g.x, bottom + size * g.y, size * g.w, size * g.h, {
-      fill: withAlpha(BEAD_HIGHLIGHT_HEX, BEAD_SOFT_HIGHLIGHT_ALPHAS[1]!),
-      radius: size * g.radius,
-    });
+  for (let i = 0; i < layers.length; i++) {
+    const layer = layers[i];
+    const alpha = layer.alpha;
+    if (layer.kind === 'rect') {
+      const radius = layer.radius ?? 0;
+      if (alpha === undefined) {
+        builder.rect(cx + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius });
+      } else {
+        builder.rect(cx + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius, alpha });
+      }
+    } else if (layer.kind === 'circle') {
+      if (alpha === undefined) {
+        builder.circle(cx + layer.cx, y + layer.cy, layer.r, { fill: layer.fill });
+      } else {
+        builder.circle(cx + layer.cx, y + layer.cy, layer.r, { fill: layer.fill, alpha });
+      }
+    } else {
+      const p = layer.points;
+      if (alpha === undefined) {
+        builder.polygon3(
+          cx + p[0], y + p[1], cx + p[2], y + p[3], cx + p[4], y + p[5],
+          { fill: layer.fill },
+        );
+      } else {
+        builder.polygon3(
+          cx + p[0], y + p[1], cx + p[2], y + p[3], cx + p[4], y + p[5],
+          { fill: layer.fill, alpha },
+        );
+      }
+    }
   }
 }
 

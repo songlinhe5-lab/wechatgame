@@ -37,6 +37,7 @@ import {
   solverSequenceMs,
 } from '../src/config/tuning.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
+import { drawLegacyTenBead } from '../src/view/bead-styles/legacy-ten.js';
 import {
   SWEEP_LAYER_COUNT,
   sweepCenterX,
@@ -261,9 +262,35 @@ describe('G4 vfx_complete_wave · 包络（assets-spec §1.6.4）', () => {
 // ───────────────────────────────── G4 · 降档与层序死结论
 
 describe('G4 vfx_complete_wave · LOD 降档 + B0 底图不参与 lift（v1.5-r8）', () => {
-  it('降档砍 3 个图元（L0a / L3b / L4′），中心孔与 L1 主体恒在', () => {
+  /**
+   * **对照臂（`legacy-ten`）同夹具**：本组两条断的对象是「降档砍哪三层」与
+   * 「lift 驱动阴影衰减/侧壁变长」，两个通道都只在十层存在（§K.5 行 1/2/4/12 同族，
+   * 台账外连带 ⇒ 回传登记）。四棱新基线侧的对应腿：LOD no-op 见
+   * `bead-render.test.ts`，lift 两通道见同文件与 `bead-style-ledger.test.ts`。
+   */
+  function emitLegacyTen(options: FilledBeadOptions): readonly DrawCommand[] {
+    const builder = new RenderModelBuilder(750, 1334);
+    builder.begin();
+    drawLegacyTenBead(builder, 200, 300, 1, options);
+    return builder.end().commands;
+  }
+
+  // 新基线侧正面登记：四棱 6 命令无可砍集 ⇒ `WAVE_BEAD_LOD_LAYERS` 在本臂上是 no-op
+  //（波浪期命令数不降 = 转正的既定后果，⛔ 不得被读成“降档失效”的 bug）。
+  it('四棱新基线：波浪降档不削命令（6 条 ≤ C7 上限 7 ⇒ 结构性 no-op）', () => {
     const full = emitBead({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK });
-    const lod = emitBead({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK, lodLayers: WAVE_BEAD_LOD_LAYERS });
+    const lod = emitBead({
+      targetColorIdx: 0,
+      scale: WAVE_SCALE_PEAK,
+      lodLayers: WAVE_BEAD_LOD_LAYERS,
+    });
+    expect(full).toHaveLength(6);
+    expect(lod).toEqual(full);
+  });
+
+  it('[legacy-ten] 降档砍 3 个图元（L0a / L3b / L4′），中心孔与 L1 主体恒在', () => {
+    const full = emitLegacyTen({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK });
+    const lod = emitLegacyTen({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK, lodLayers: WAVE_BEAD_LOD_LAYERS });
     // 旧集为 4 条（L4 三条里砍 L4a/L4b）；L4 已并为一枚椭圆高光 ⇒ 降档只砍该 1 条。
     expect(full.length - lod.length).toBe(3);
     expect(lod.length).toBeGreaterThan(0);
@@ -271,10 +298,10 @@ describe('G4 vfx_complete_wave · LOD 降档 + B0 底图不参与 lift（v1.5-r8
     expect(lod.filter((c) => c.kind === 'circle')).toHaveLength(2);
   });
 
-  it('⛔ 珠体函数不输出底图；`lift` 把整颗珠（含孔）一起抬（§1.6.1 P0 陷阱 #2）', () => {
+  it('[legacy-ten] ⛔ 珠体函数不输出底图；`lift` 把整颗珠（含孔）一起抬（§1.6.1 P0 陷阱 #2）', () => {
     // 两侧同走降档 ⇒ 图元集相同，唯一变量 = `lift`。
-    const still = emitBead({ targetColorIdx: 0, lodLayers: WAVE_BEAD_LOD_LAYERS });
-    const lifted = emitBead({ targetColorIdx: 0, lift: WAVE_LIFT_PX, lodLayers: WAVE_BEAD_LOD_LAYERS });
+    const still = emitLegacyTen({ targetColorIdx: 0, lodLayers: WAVE_BEAD_LOD_LAYERS });
+    const lifted = emitLegacyTen({ targetColorIdx: 0, lift: WAVE_LIFT_PX, lodLayers: WAVE_BEAD_LOD_LAYERS });
     // B0 已上提为独立函数 ⇒ 珠体输出里根本不存在 pitch 宽图元，
     // “底图被抬走”在结构上不可发生（旧判据靠比对两条 rect，现在由签名保）。
     const rectAt = (cmds: readonly DrawCommand[], i: number): RectCommand => {

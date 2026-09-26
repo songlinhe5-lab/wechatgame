@@ -975,6 +975,136 @@ export function nextBeadLod(cell: number, wasLow: boolean): boolean {
   return wasLow ? cell < BEAD_LOD_CELL + BEAD_LOD_HYST : cell < BEAD_LOD_CELL;
 }
 
+/* **§1.1 珠体参数卡 `BEAD_CARD`（WXG-T-211-S3 / EP11-S3 真源上移）**
+   ───────────────────────────────────────────────────────────────────────────
+   **为什么上移**（判例 = v1.57 `TRAY_BEAD_SIZE` 上移，K-012 补漏同族）：四棱转正后风格层集
+   （`view/bead-styles/facet-4.ts`，经 `registry` 消费）需要卡上的**比率制几何**
+   （`radius` 0.30 / `holeRatio` 0.44），而 `bead-render.ts` 又要 `import` registry 出层集
+   ⇒ 旧住法会造出 `bead-render ⇄ bead-styles` **循环依赖**（ESM 能跑但初始化顺序脆弱、
+   打包期不可静态定序）。上移后 DAG 单向前进：
+   `config/tuning` ← `view/palette` ← `view/bead-styles/*` ← `view/bead-render`。
+   另层合 **C4**（呈现层系数只进本文件）；`bead-render.ts` 降为**再导出**（不拆既有消费者）。
+   ⛔ 字段值与语义**逐字不变**（本批只搬家），因此十层 `legacy-ten` 对照臂与旧判据不受影响。 */
+
+/**
+ * §1.1 layer geometry, as fractions of the bead edge. Source values are the
+ * spec's 64px example (`r = round(BEAD × 0.22)`, insets 1.5 / 1, widths 3 / 2,
+ * highlight at 0.10 / 0.62 with size 0.80 × 0.26 and radius 0.13).
+ */
+export const BEAD_CARD = {
+  /**
+   * Corner radius as a fraction of the **drawn** bead edge.
+   *
+   * **0.22 → 0.30（`bead-visual-style-spec` K1，用户 2026-09-23 拍板）**。旧值在网格
+   * 珠上还叠加了「同心倒推」（珠圆角 = 垫圆角 − inset），实际得到 `50×0.22−6 = 5`，
+   * 在 38px 珠上近乎方角 ⇒ 用户直接判为“变成正方形”。新模型里底图是方角连续一张，
+   * 同心约束已无对象 ⇒ 网格珠与托盘珠共用同一公式 `round(size × radius)`。
+   * 实物熔合后是**圆角方**，不是正圆（参考图仍偏圆，以本值与真机为准）。
+   */
+  radius: 0.30,
+  /** L0a 接触阴影（v1.3 · F4）：贴底窄条，x/y/w/h 为边长比例，radius = 主圆角 × 0.5。 */
+  contactX: 0.06,
+  contactY: -0.02,
+  contactW: 0.88,
+  contactH: 0.1,
+  contactRadiusScale: 0.5,
+  /** L0b shadow vertical offset (spec: `y − 3` in the 64 frame). */
+  shadowDy: 3 / 64,
+  /** L2 inset from the bottom/right inner edge (v1.3: 2/64, was 1.5). */
+  bevelInsetDark: 2 / 64,
+  /** L3 inset from the top/left inner edge (v1.3: 1.5/64, was 1). */
+  bevelInsetLight: 1.5 / 64,
+  /** L2 stroke width (v1.3: 5/64, was 3). */
+  bevelWidthDark: 5 / 64,
+  /** L3 stroke width (v1.3: 4/64, was 2). */
+  bevelWidthLight: 4 / 64,
+  /**
+   * L3b rim 光（v1.3 新增）：上内缘单线，内缩 1/64。线宽 **2/64 → 3/64**（「06 珐琅·金属
+   * 包边」加粗上缘高光边）。
+   *
+   * ⚠️ **旧括注的加粗理由是「错基注释」，WXG-T-207-A 核销（正本判定 = `assets-spec §1.10 ②`，
+   * 林绘澄）**：原文写「2/64 在 50px 珠上被 `minStroke=2` 钳住 ⇒ 无变化，3/64 才真变粗」。
+   * 该算式把分母当成 `BEAD_CELL`，**而实装分母是绘制边长** `(outer − 2×inset)`（见
+   * `bead-render.ts` 十层体的 `size` 与 `stroke()`）⇒ 旧 50 基盘面上 `size = 50 − 2×6 = 38`，
+   * `38×2/64 = 1.19` 与 `38×3/64 = 1.78` **双双钳到 2.00** —— 那次加粗在盘面对照上
+   * **从来就是 no-op**（不是「换尺后才失效」）。唯一名义越线处是托盘珠（`size = 44`、
+   * `inset = 0`）：`44×3/64 = 2.0625`，超地板 0.0625 设计 px ≈ 0.03 CSS px ⇒ 不可辨。
+   * ⇒ 本句**不得再作为「比例线宽有效」的先例引用**（K-035 族「假绿登记」）。
+   *
+   * v1.57 换 30 基后现状（同一算式）：盘面 `size = 30 − 2×4 = 22` ⇒ `22×{5,4,3}/64 =
+   * {1.72,1.38,1.03}` 全部 < 2 ⇒ **三档倒角 + rim 一起钳平为 2**（层集只剩方向/墨差/同心
+   * 内缩序在承载，`assets-spec §1.10.3` 因此裁「比例不动、地板不动」）。**不在本单解**：
+   * 分母 64→32 翻倍、或 `minStroke`→1 弃地板，两条出路均 `[待林绘澄/真机]`。
+   *
+   * ⚠ **WXG-T-211-S3 连带（§K.5 行 9）**：四棱基线**无 rim 线承载体** ⇒ 本字段与
+   * `BEAD_RIM_MIX` / `bevelWidth*` 在默认皮肤下只剩 `legacy-ten` 对照臂消费；
+   * `06` 出池门（K.6）必须继续引用它们，不得因「四棱用不到」删常量。
+   */
+  rimInset: 1 / 64,
+  rimWidth: 3 / 64,
+  /**
+   * L4a/b/c 软高光三层（v1.3 · F4，取代硬边单高光条）：外扩递减、中心递增叠层模拟柔光。
+   * x/y/w/h/radius 均为边长比例，α 见 `palette.ts::BEAD_SOFT_HIGHLIGHT_ALPHAS`。
+   */
+  softHighlight: Object.freeze([
+    { x: 0.06, y: 0.52, w: 0.82, h: 0.38, radius: 0.19 },
+    { x: 0.1, y: 0.6, w: 0.72, h: 0.26, radius: 0.13 },
+    { x: 0.16, y: 0.68, w: 0.56, h: 0.14, radius: 0.07 },
+  ] as const),
+  /**
+   * **L1c 中心孔（`bead-visual-style-spec` K2–K4）** —— 实物拼豆最强的识别特征，
+   * 之前完全没做。
+   *
+   * **0.36 → 0.44（v1.57 / WXG-T-207-A；art 起始值正本 = `assets-spec §1.10.4`）**：
+   * 0.44 是 Midi 实物真比（孔 ⌀2.2 / 豆 ⌀5），旧值 0.36 是「小屏怕吃掉色面」的**保守一档**；
+   * 在 30px 珠上按实物真比反推，孔**半径** = `(30−2×4)×0.44/2 = 4.84` 设计px（旧尺
+   * `(50−12)×0.36/2 = 6.84`）⇒ 绝对孔径仍缩 29%。**⚠ `[待真机]`**：真机 scale≈0.5 下直径
+   * ≈4.8 CSS px，与当初判 `inset=2`「看不见」只差一档 ⇒ 禁止以「比例没变」判绿（K-035/K-040）。
+   * ⚠️ **硬约束②（`assets-spec §1.10.9`）：本值与 `BEAD_DRAW_INSET` 互为对冲，必须同提交**
+   * （削 inset ⇒ 珠面变大 ⇒ 孔绝对值变大）；分开改会留下混合口径、真机无法归因
+   * ⇒ 由 `tests/bead-render.test.ts` 的同批性断言钉住。
+   *
+   * ✅ **WXG-T-211-S3 升为孔径唯一真源**：`facet-4` 孔半径 = `size × holeRatio / 2`
+   * （= §7.11.6「落码以 0.44 为准」），旧 spike 口径 `0.17S` 常量 `FACET4_HOLE_RADIUS`
+   * **随本批退役删除** ⇒ 底图卡与风格孔共用同一把尺（⛔ 风格内不得自孔径）。
+   */
+  holeRatio: 0.44,
+  /** 孔内壁自阴影的偏移量（半径比例）与 α；光从左上 ⇒ 阴影偏左上，留出右下亮弧。 */
+  holeShadeOffset: 0.22,
+  holeShadeAlpha: 0.3,
+  /**
+   * **L2′ 侧壁高度**（K5）——实物是硬币状，有一条竖向侧壁；旧模型只靠同色压暗倒角，
+   * 读作“斜切边”不读作“厚度”。`lift` 时按 `1 + lift/size` 拉长（§5 空间语言）。
+   */
+  wallRatio: 0.1,
+  /** 侧壁与托盘珠孔底的下暗量（复用既有 mix 族，**零新 hex**）。 */
+  wallDarkMix: -0.42,
+  holeDarkMix: -0.5,
+  /**
+   * **§5 抬起三通道（`bead-visual-style-spec` v1.5-r9）** —— 以 `liftRef` 为“一次完整抬起”
+   * 归一化，使高度语言随离开底面的距离连续变化（旧模型只平移，不透明物体凭空挪几 px
+   * 就是“突兀”的来源）。
+   *
+   * ⚠ `liftRef` = **`tuning.SELECT_LIFT_PX`（单一真源）**，与 view-model 给 `draft.lift` 的值同源；
+   *   波浪的 `WAVE_LIFT_PX = 3` ⇒ liftT = 0.5（半高 ⇒ 半量的阴影响应）。
+   *   抬起量改动时三通道响应强度自动跟着改，不会漂耦。
+   */
+  liftRef: SELECT_LIFT_PX,
+  /** 抬到 `liftRef` 时珠体额外放大 4%（与 G1 落座包络的 scale 相乘，峰值合计仍 < 1.12 ≪ 格宽）。 */
+  liftScaleGain: 0.04,
+  /** 投影偏移放大倍数（150%）与 α 衰减（40%）：离得越远，影子越大越淡。 */
+  liftShadowDyGain: 1.5,
+  liftShadowFade: 0.4,
+  /** 接触阴影收窄（35%）：离地后接触面应变小而不是留着黑块。
+   * ⚠ **不衰减它的 α** —— §1.2 已把 L0a 定调为「固定 α 不受 lift 影响」（本批上一版
+   *   试图连 α 一起淡掉，被 `§1.2 lift and shadow α` 判据拦下）。只改宽度，不改颜色语义。 */
+  liftContactShrink: 0.35,
+  /** 侧壁在满抬起时多长出 90%（与上面四通道共用 `liftT` ⇒ 方向一致）。 */
+  wallLiftGain: 0.9,
+  /** §1.1 最小特征约束: no stroke below 2 design px. */
+  minStroke: 2,
+} as const;
+
 /* §12.2 **C7 双门禁常量**（WXG-T-211-B1 / EP11-S2）—— 风格进池检查的真源。
    C7 原文：「新建**两个**门禁常量（命令上限 = 7 / 真 α 上限 = 2，一个常量装不下两个
    量）」；上限出自 §12.2 S8「全局上限 = 双指标：珠体命令 ≤ 7 且真 α 层 ≤ 2」。
@@ -987,9 +1117,33 @@ export const BEAD_STYLE_MAX_COMMANDS = 7;
 export const BEAD_STYLE_MAX_ALPHA_LAYERS = 2;
 
 /* **复刻·四棱刻面（facet-4）风格系数组**（WXG-T-211-B1 / EP11-S2；C4：逐常量注归属）。
-   来源 = `assets-spec §7.11.1` recipe / spike `styles.mjs::facetBead` 复刻，⛔ 非新造值；
-   §7.12 登记的「表外系数」（−0.34 / −0.16 / 0.09）按 C4 清算进本组。
-   颜色仍走 palette.ts `mix()` 派生（C3 色源唯一），本组只落**系数**。 */
+   来源 = `assets-spec §7.11.1` recipe / spike `styles.mjs::facetBead` 复刻，⛔ 非新造值。
+   颜色仍走 palette.ts `mix()` 派生（C3 色源唯一），本组只落**系数**。
+
+   ── **§7.12「五表外系数」清算结论（WXG-T-211-S3 / C4 收账）** ──
+   | 系数 | 归属 | 本单处置 |
+   |---|---|---|
+   | `mix(base, −0.34)` | 四棱 #1 底 rect | ✅ **命名常量** `FACET4_PLATE_MIX`（本组） |
+   | `mix(base, −0.16)` | 四棱 #4 右刻面 | ✅ **命名常量** `FACET4_FACET_RIGHT_MIX`（本组） |
+   | `0.09S` 四角内缩 | 四棱 #2–#5 | ✅ **命名常量** `FACET4_FACET_INSET`（本组） |
+   | 孔半径 | 四棱 #6 | ✅ **归位唯一真源** `BEAD_CARD.holeRatio`（§7.11.6「落码以 0.44 为准」）
+   |     ⇒ 旧 spike 口径常量 `FACET4_HOLE_RADIUS`（0.17）**本批退役删除**（不留无消费者常量） |
+   | `mix(base, +0.34)` | 凹槽 spike 坑底亮 rect | ✅ **按端点表归位**：生产 `drawEmptySocket` 坑底 =
+   |     `endpoints.pit`、亮线 = `SOCKET_LIT_MIX 0.38`（= 端点 `lit`）⇒ **无裸值、无需新常量**
+   |     （§7.12 建议「改引 `lit`」已成立；spike 侧 +0.34 住在 `temp/` 不入库） |
+   | `mix(base, +0.55)` | 凹槽 spike 下亮线 | ✅ 同上：生产实装 = `SOCKET_LIT_MIX 0.38`，**未采纳 0.55**；
+   |     建议档 `BEAD_RIM_MIX 0.50` 属「06 珐琅」主题值 ⇒ **本单零涉及**（任务单已裁），登记待 06 归位 |
+   | `alpha 0.22` | `18` 线稿硬投影 | ⚠ **无承载体**：`18` 风尚未落码（§12.9 步 4）⇒ 命名
+   |     `LINEART_SHADOW_ALPHA` 与它同批入本文件，**不预落无消费者常量**（落在此处 = K-060
+   |     「存在性断言无判别力」的同族死码）。⛔ 不得就地写字面量进 `view/`（步 4 硬门） |
+   | `'#FFFFFF'`（spike `18` 孔） | `18` 孔 fill | ✅ 生产已引 token `BEAD_HIGHLIGHT_HEX`；spike 写法不入库 |
+
+   ⇒ **机械锚**：`tests/bead-style-pool.test.ts` 的「C4 裸系数扫描 · 风格模块静态门」判据钉住风格模块内不得出现
+   `mix(…, <字面量>)` 与孔径字面量（注入一枚裸系数即可判红）。
+   ⚠ **本锚 = WXG-T-211-S3 本批补建**：上一批只在本处写了「机械锚」而**判据并不存在**（文档声称有门、
+   实际无门 = K-060 同族）；补建后的两型真码变异自证（`mix(e.base, -0.16)` / `… / 2 * 0.16`）
+   各判红一次，证据 `temp/wxg-t-211-s3/16-c4-mutation.txt`。已知限制：剔注释后扫描，
+   ⛔ 不解析字符串字面量（诚实登记，不冒充完整 AST 门）。 */
 export const FACET4_STYLE_ID = 'facet-4';
 /**
  * 复刻·四棱 #1 底 rect 的 `mix(base, −0.34)`（暗底兼描边；§7.11.1）。
@@ -1000,12 +1154,6 @@ export const FACET4_PLATE_MIX = -0.34;
 export const FACET4_FACET_RIGHT_MIX = -0.16;
 /** 复刻·四棱四角内缩比 `i2 = 0.09S`（§7.11.1；三角形顶点自格中心收缩量）。 */
 export const FACET4_FACET_INSET = 0.09;
-/**
- * 复刻·四棱孔半径比 `r = 0.17S`（spike `facetBead` 实测口径）。
- * ⚠ **偏差登记（不自行消解）**：§7.11.1 行 6 规格 = `pit` 色 + 半径 `0.22S`（`holeRatio 0.44`）；
- * 本单只**复刻 spike recipe**（盘面逐帧不变纪律），孔规格纠正归 §12.9 步 3/4。
- */
-export const FACET4_HOLE_RADIUS = 0.17;
 /**
  * 裁定 1（用户 2026-09-16）：结算面板**延迟 WAVE_MS 开**——庆祝先行放完再落遮罩。
  * 代价已写入 ux-spec §5（过关到可点按钮多等 800ms）。

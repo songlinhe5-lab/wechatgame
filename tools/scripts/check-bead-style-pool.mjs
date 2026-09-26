@@ -216,7 +216,9 @@ export function auditStyle(style, { inks, tuning, palette, contract, baseline })
             );
         } else if (res.argmaxColor !== base && !family.includes(res.argmaxColor)) {
             // 任务单已裁口径：断言 = 占比最大端点色 ∈ base 同族（beadColorOf + lit/edge/pit）；
-            // 族内非 base（facet-4 实测情形：argmax=edge 25.2% > base 24.8%）不入违规——
+            // 族内非 base（facet-4 实测情形：argmax=edge 25.3% > base 24.8%，自 WXG-T-211-S3
+            // 四棱转正后有实测值；旧乙口径孔径 0.17S 下为 25.2%，孔径改 0.22S 后跨过
+            // toFixed(1) 进位线 ⇒ 差分复算见 spec §11.2-a，⛔ 本注旧值不得再被引用）不入违规——
             // 占比分布表全量输出 + 近并列注记恒打台面，在回传报告里如实登记，⛔ 不在实现侧消解。
             // TC-STY-10 臂 A：须指认越界色**与它所属 colorIdx**（不给数值/归属 = 静默失败，C11 禁止项）。
             // 指认对象 = argmax 本身（它已是端点色但属他格）；若无 argmax（珠面全为锚色派生）则指 offenders。
