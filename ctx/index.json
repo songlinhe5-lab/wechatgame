@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3551,
       "lines": 129,
-      "sha256": "b324e34a24755219751e3cad1325b4f8f5a762b55cad9f2d950dd23eb87d2dc4",
+      "sha256": "594721b6948356ddaeac184754b5caf1215433de43f0df825a162106c48c7617",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4788,
       "lines": 82,
-      "sha256": "10edaf313055f61e10f693d7ea95fd135c12a41227222854b2878410444c7395",
+      "sha256": "de499dbd034aced9bb6b8df098092f02e7291f7c9cb0930f682087f8f63e950e",
       "tier": "normal",
       "sections": [
         {
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 906 行 / 54609 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 907 行 / 54848 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
           "tokens": 417,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+907 · §WXG-T-128=18+120 · §裁定与回写记录（",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+908 · §WXG-T-128=18+120 · §裁定与回写记录（",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -64669,17 +64669,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 54609,
-      "lines": 906,
-      "sha256": "f8fa69ff0c4c19a4200d7098e4abffdd46f2e6fcf71730b556d805d5f368aa52",
+      "tokens": 54848,
+      "lines": 907,
+      "sha256": "dfcb30dc69f71bf8cc9edd13c1beeb3f664f750fd851f4d11dbe6f69c5965852",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 907,
-          "tokens": 54592,
+          "endLine": 908,
+          "tokens": 54831,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -65186,8 +65186,8 @@
           "anchor": "§WXG-T-214",
           "level": 2,
           "startLine": 893,
-          "endLine": 907,
-          "tokens": 1261,
+          "endLine": 908,
+          "tokens": 1500,
           "summary": "beads·格内占比标准落档（满豆26/实心24/孔⌀12）+ 拦截判据（CodeBuddy·用户逐项拍板，2026-0",
           "keywords": [
             "WXG",

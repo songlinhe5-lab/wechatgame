@@ -25,7 +25,7 @@
 | 1 | `games/beads/art/assets-spec.md` | 106974 | 1904 | normal |
 | 2 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
 | 3 | `production/qa/beads/test-cases.md` | 62579 | 810 | hot |
-| 4 | `production/TASKS-DETAIL.md` | 54609 | 906 | normal |
+| 4 | `production/TASKS-DETAIL.md` | 54848 | 907 | normal |
 | 5 | `games/beads/art/accessibility.md` | 35669 | 200 | normal |
 | 6 | `games/beads/design/ux/ux-spec.md` | 35334 | 422 | normal |
 | 7 | `games/beads/art/art-bible.md` | 32288 | 492 | normal |
@@ -50,7 +50,7 @@
 | `games/beads/art/assets-spec.md` | 106974 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 86807 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 62579 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS-DETAIL.md` | 54609 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 54848 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 35669 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 35334 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/art-bible.md` | 32288 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
