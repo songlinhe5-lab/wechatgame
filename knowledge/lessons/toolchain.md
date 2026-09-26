@@ -108,3 +108,9 @@
   规避：① 长期主干间同步**只用 merge commit**（或 rebase），squash 只留给单 PR 内的细碎提交；② 历史已被污染时先**反向吸收**（develop 上 `git merge -X ours origin/master`）让 master 成祖先，再开正向 PR；③ `-X ours/theirs` 后**必核合并树** —— `git diff <合并前 develop 顶点> HEAD` 应为空，非空的每个文件逐个判「真缺功能」还是「历史重复」（本例靠这条抓到重复函数）；④ 生成物（`ctx/*`、`*-data.ts`）冲突后一律**重新生成**再比，不手工挑块；⑤ 合并完跑全量 `verify`，别只看「没有冲突标记」。
   判例引用：合并提交 `4efc511`（develop 反向吸收 master）、`tools/scripts/check-context-budget.mjs`（重复函数案）；同族 K-030（产物新鲜度假绿）、K-046（工作树与主表错位）。
   追记（同日）：**收紧一条已生效的阈值前必须先普查存量数据**。本轮一度把 `header-max-length` 100→96（躲 `* ` 前缀），差一步提交——实测 develop 上仍有 98 / 99 字符的历史标题，而 PR 阶段是**逐条**校 `base..HEAD` 全部提交 ⇒ 新阈值会把下一次 `develop → master` 的 PR 直接判红且历史不可追修。规避：改上限/加严规则前，先跑一次「存量有多少条会立刻违规」的计数（`git log --format=%s | awk 'length>96'` 一类），非零则改走「对新数据生效、对旧数据兜底」（此处 = 工作流按提交类型收窄校验范围），而不是硬收紧。
+
+- **[工具链][K-081] 台账详情节的节标题只认「整行形状」：`## WXG-T-0NN` 后带文字 = 节静默丢失**（来源 WXG-T-214，2026-09-26）
+  现象：补 `WXG-T-214` 详情节时标题写成 `## WXG-T-214 beads·…`（id 后带描述），`check:tasks` 立即红「详情里没有 ## WXG-T-214 小节」——节就写在文件末尾。
+  根因：解析器 `tasks-detail.mjs::HEADING_RE = /^##\s+(WXG-T-\d+)\s*$/` 只认**纯 token 整行**（防误切正文 `##`），id 后带文字即不匹配；配对检查（C 项）是唯一拦截点。
+  规避：① 机器解析的 Markdown，**标题行必须是纯 token**，描述另起一行；② 补完详情节必跑 `check:tasks`；③ 解析器形状变更时同步自查脚本。
+  判例引用：`tools/scripts/lib/tasks-detail.mjs`、`check-tasks.mjs` C 项；同族 K-035。
