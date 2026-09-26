@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3551,
       "lines": 129,
-      "sha256": "6b34b054f1fe3e8cad5c084c93471c10dcb382ee05d471eacaaab599e2da75ba",
+      "sha256": "973ad293415410447c9f75fe80a3f67663f76287d68863c6ca30820130b685ca",
       "tier": "normal",
       "sections": [
         {
@@ -425,7 +425,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 421,
-          "summary": "1 games/beads/art/assets-spec.md 105760 1900 normal",
+          "summary": "1 games/beads/art/assets-spec.md 106434 1902 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -441,7 +441,7 @@
           "startLine": 46,
           "endLine": 104,
           "tokens": 2023,
-          "summary": "games/beads/art/assets-spec.md 105760 见 ctx/budget-exempt.js",
+          "summary": "games/beads/art/assets-spec.md 106434 见 ctx/budget-exempt.js",
           "keywords": [
             "tokens",
             "games",
@@ -11238,17 +11238,17 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 105760,
-      "lines": 1900,
-      "sha256": "39e3ad42ce2d4eb5e21130ddc9069694fd256403cfc819ba63a787cc2042e61c",
+      "tokens": 106434,
+      "lines": 1902,
+      "sha256": "f260c0a145c262c9db78de2f9c22c743bbee617f70005a2b01b7ad0d9ab29398",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》资产规格表（Asset Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1901,
-          "tokens": 105746,
+          "endLine": 1903,
+          "tokens": 106420,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -11274,8 +11274,8 @@
           "anchor": "§1 资产清单（可见元素规格表）",
           "level": 2,
           "startLine": 39,
-          "endLine": 1814,
-          "tokens": 84680,
+          "endLine": 1816,
+          "tokens": 85354,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -11418,8 +11418,8 @@
           "anchor": "§1.10 32 基珠体质感系数重定表（WXG-T-207-B，`[v1.5-r14]`）",
           "level": 3,
           "startLine": 1645,
-          "endLine": 1814,
-          "tokens": 9073,
+          "endLine": 1816,
+          "tokens": 9746,
           "summary": "背景：systems-index 拟 v1.57（正本 design/proposals/sec3-5mm32-rend",
           "keywords": [
             "[v1.5-r14]",
@@ -11433,8 +11433,8 @@
         {
           "anchor": "§2 未来真实资产替换提示词（AI 生成备用）",
           "level": 2,
-          "startLine": 1815,
-          "endLine": 1825,
+          "startLine": 1817,
+          "endLine": 1827,
           "tokens": 168,
           "summary": "bead_set candy-like 3d perler bead set, rounded square beads",
           "keywords": [
@@ -11449,8 +11449,8 @@
         {
           "anchor": "§3 图集策略",
           "level": 2,
-          "startLine": 1826,
-          "endLine": 1834,
+          "startLine": 1828,
+          "endLine": 1836,
           "tokens": 94,
           "summary": "demo（当前） 不建图集，全 Graphics，主包美术位图 = 0 KB",
           "keywords": [
@@ -11462,8 +11462,8 @@
         {
           "anchor": "§4 命名规范",
           "level": 2,
-          "startLine": 1835,
-          "endLine": 1844,
+          "startLine": 1837,
+          "endLine": 1846,
           "tokens": 132,
           "summary": "全小写 + 下划线；模式 {域}_{实体}_{变体}_{状态}.{ext}。",
           "keywords": [
@@ -11474,8 +11474,8 @@
         {
           "anchor": "§5 包体预算表（微信红线 vs 内部目标，**分清两条线**）",
           "level": 2,
-          "startLine": 1845,
-          "endLine": 1862,
+          "startLine": 1847,
+          "endLine": 1864,
           "tokens": 295,
           "summary": "微信红线（不可越） 主包 ≤ 4096 KB",
           "keywords": [
@@ -11488,8 +11488,8 @@
         {
           "anchor": "§6 交付与验收",
           "level": 2,
-          "startLine": 1863,
-          "endLine": 1901,
+          "startLine": 1865,
+          "endLine": 1903,
           "tokens": 4061,
           "summary": "[ ] 全部元素程序化绘制，无外部图片引用。",
           "keywords": [

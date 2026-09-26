@@ -81,6 +81,8 @@ export function drawLegacyTenBead(
   //   （`drawTargetTile`，由 view-model 对每个可填格调，与有无豆无关）⇒ 本函数不再画垫。
   //   保留的理由：垫锁格心、不吃 lift/scale（§1.6.1 P0 陷阱 #2）—— 同样适用于 B0。
   // 珠体四边内缩，露出四周的 B0 底图（= 该格目标色）；无目标色（托盘珠）保持满幅。
+  // ⚠ **本臂保持绝对 `BEAD_DRAW_INSET`**（= HEAD 封箱口径）：`bead-style-seal.test.ts` 腿 1 钉的是
+  //   「与 HEAD 逐字节等值」的回退阀 ⇒ 不得随等比改。真机默认路径走 `drawFilledBead`（已等比）。
   // G1：`scale` **只作用珠体**（见上方禁令）。
   const inset = options.targetColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
   const size = (outer - inset * 2) * (options.scale ?? 1) * (1 + BEAD_CARD.liftScaleGain * liftT);

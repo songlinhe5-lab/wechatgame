@@ -23,7 +23,10 @@
  * keeps one card implementation correct at every size the game uses:
  * `BEAD_CELL = PITCH − GAP = 30` on the board, `TRAY_BEAD_SIZE = TRAY_SLOT − 4 = 44` in the tray.
  * ⚠ **v1.57（WXG-T-207-A）渲染基尺 50/52 → 30/32**：比率制量（radius / 五档线宽 / 孔比 /
- *   接触阴影…）**一个都不用改**，绝对像素量只有 `BEAD_DRAW_INSET`（6→4）与 `minStroke`（不缩）。
+ *   接触阴影…）**一个都不用改**，绝对像素量只有 `minStroke`（不缩）与 `BEAD_DRAW_INSET`
+ *   （v1.57 6→4；**zoom 上线后改按 `outer/BEAD_CELL` 等比缩放**，静息档仍 = 4px，见下）。
+ *   ⚠ 盘面珠的底图 tile 全程比例制（`snap.gridPitch`）⇒ inset 若不随格径缩，珠/背景比例就会
+ *   随 zoom 漂移（这是 WXG-T-169 真机反馈的失配来源）。
  * ⚠ 但「比率制 ⇒ 观感等比」是**推论不是实测**：`minStroke = 2` 这条绝对地板会吃掉小珠子上的
  *   比率差（30px 珠上 `bevelWidthLight 4/64 = 1.875`、`rimWidth 3/64 = 1.406` 均被钳成 2
  *   ⇒ 三档倒角同宽）⇒ 已登记 `[待林绘澄/真机]`，`assets-spec §1.10.3`。
@@ -398,8 +401,13 @@ export function drawFilledBead(
    */
   const liftT = Math.max(0, lift) / BEAD_CARD.liftRef;
   // 珠体四边内缩，露出四周的 B0 底图（= 该格目标色）；无目标色（托盘珠）保持满幅。
+  // ⚠ **inset 随格径等比**（WXG-T-169 zoom 上线后的裁定更替，替 ADR-0015 C-5「保持绝对」）：
+  //   旧实现吃绝对 4px ⇒ 珠/底图比例随 zoom 漂移（珠面/格距 = (30z−8)/32z：zoom 1 = 68.8%，
+  //   大盘 fit 档 z ≈ 0.6 只剩 52% ⇒ 「缩小时豆子比背景小很多」）。`outer/BEAD_CELL` 归一后
+  //   静息档恒 = 4（逐字节不变），且珠面恒为格径
+  //   73.3% ⇒ 比例锁死；`FACE_MIN` 护栏因此在比例制下永不触发（保持「预留未启用」）。
   // G1：`scale` **只作用珠体**（见 `FilledBeadOptions.scale` 的层序死结论禁令）。
-  const inset = options.targetColorIdx !== undefined ? BEAD_DRAW_INSET : 0;
+  const inset = options.targetColorIdx !== undefined ? (BEAD_DRAW_INSET * outer) / BEAD_CELL : 0;
   const size = (outer - inset * 2) * (options.scale ?? 1) * (1 + BEAD_CARD.liftScaleGain * liftT);
 
   styleInput.inks = options.inks ?? DEMO_BEAD_INKS;

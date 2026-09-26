@@ -318,7 +318,8 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     // ⛔ 不是白孔（`18` spike 曾写 `#FFFFFF` 字面量 ⇒ 同式反例在此会红）。
     expect(hole.kind === 'circle' && hole.fill).not.toBe('#FFFFFF');
     // 孔径唯一真源 = 卡（spike 旧口径 0.17 常量已删）；⚠ 吃的是**绘制边长**（盘面珠已内缩）。
-    const drawn = size - 2 * BEAD_DRAW_INSET;
+    // inset 随格径等比（WXG-T-169）⇒ 本例格径 50 ≠ BEAD_CELL，期望值必须同式取比例而非绝对 4。
+    const drawn = size - 2 * ((BEAD_DRAW_INSET * size) / BEAD_CELL);
     expect(hole.kind === 'circle' && hole.r).toBeCloseTo((drawn * BEAD_CARD.holeRatio) / 2, 9);
     // 无目标色（托盘珠）⇒ 回落本格 `pit`（端点表内色，C3 零新色）。
     const tray = emit((b) => drawFilledBead(b, 100, 200, 1, { size, inks: DEMO_BEAD_INKS }));
@@ -781,6 +782,28 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
     );
     expect(legacyBodyW(legacyBoard)).toBe(bodyW(board));
     expect(legacyBodyW(legacyTray)).toBe(bodyW(tray));
+  });
+
+  // ③b inset 随格径等比（WXG-T-169 真机反馈：放大时珠与底图「差不多大」、缩小时珠「小很多」）。
+  // 钉的是**比例不变量**而非某个 zoom 档的绝对值：底图 tile（`snap.gridPitch`）全程比例制，
+  // 而旧实现吃绝对 `BEAD_DRAW_INSET` ⇒ 珠面/格径 从 68.8% 漂到 52%（大盘 fit 档 z ≈ 0.6）。
+  // 静息档（size = BEAD_CELL）与 ③ 同值 ⇒ 本例只防「偷回绝对量」。
+  it('③b inset 随 zoom 等比：任意格径下珠面/格径恒定', () => {
+    // 新基线 #1 = plate rect（珠体外缘）；`legacy-ten` 不钉此例——它按 HEAD 封箱口径**保持绝对
+    // inset**（seal 腿 1 逐字节等值），静息档两臂仍同值（已由 ③ 钉住），差异只在 zoom ≠ 1 档。
+    const faceRatio = (zoom: number): number => {
+      const outer = BEAD_CELL * zoom;
+      const cs = emit((b) =>
+        drawFilledBead(b, 100, 200, 1, { size: outer, targetColorIdx: 2, inks: DEMO_BEAD_INKS }),
+      );
+      const c = cs[0]!;
+      return c.kind === 'rect' ? c.w / outer : Number.NaN;
+    };
+    const identity = faceRatio(1);
+    expect(identity).toBeCloseTo((BEAD_CELL - 2 * BEAD_DRAW_INSET) / BEAD_CELL, 9); // 73.3%
+    for (const zoom of [0.88, 0.8, 0.66]) {
+      expect(faceRatio(zoom)).toBeCloseTo(identity, 9);
+    }
   });
 
   // ④ 禁改色表：`view/palette.ts` 的 hex 家族在本批（及任何未走 art 单的批次）**一位不动**。
