@@ -26,7 +26,7 @@
  */
 
 import type { Game, GameServices, RenderModelBuilder } from '../../framework/index';
-import { STAMINA_START_COST } from '../config/tuning';
+import { FACET4_STYLE_ID, BEAD_SIZE_DEFAULT, STAMINA_START_COST } from '../config/tuning';
 import { BeadsGame, type BeadsGameOptions } from './beads-game';
 import { MetaState } from './meta-state';
 import {
@@ -97,6 +97,9 @@ export class BeadsShell implements Game {
         reduceMotion: false,
         largeText: false,
         vibrate: true,
+        // EP11-S5 行4 两钮（初值 = 默认档，真实值每帧从 play getter 覆盖）。
+        beadStyle: FACET4_STYLE_ID,
+        beadSize: BEAD_SIZE_DEFAULT,
         levelCount: 0,
         currentLevelIndex: 0,
         maxUnlockedLevel: 1,
@@ -263,6 +266,8 @@ export class BeadsShell implements Game {
                 return;
             default:
                 // toggle-* 与 PausePanelAction 同串值：复用 play 的设置 setter（两入口一致）。
+                // EP11-S5 行4 的 cycle-bead-style / cycle-bead-size 同样走本 default 分支
+                // （⛔ 不新造动作名、不在 shell 里重定向）。
                 this.play.applySettingsAction(action as PausePanelAction);
                 return;
         }
@@ -326,6 +331,9 @@ export class BeadsShell implements Game {
         v.largeText = this.play.largeText;
         v.vibrate = this.play.vibrateOn;
         v.debugInfo = this.play.debugInfo;
+        // EP11-S5 行4 两钮回显（与暂停面板共读同一对 getter ⇒ 两入口恒一致）。
+        v.beadStyle = this.play.beadStyle;
+        v.beadSize = this.play.beadSize;
         // 选关屏数据（均只读引用，零分配）。
         v.levelCount = this.play.levelCount;
         v.currentLevelIndex = this.play.levelIndex;

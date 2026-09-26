@@ -230,7 +230,8 @@ describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.
     const body = (BEAD_CELL - BEAD_DRAW_INSET * 2) * FILL_POP_SCALE_START;
     for (const c of pop) {
       if (c.kind === 'rect') expect(c.w).toBeCloseTo(body, 6);
-      if (c.kind === 'circle') expect(c.r).toBeCloseTo((body * BEAD_CARD.holeRatio) / 2, 6);
+      // WXG-T-214：孔径取整（半径取整 ⇒ 直径偶数）⇒ 期望值同式取整。
+      if (c.kind === 'circle') expect(c.r).toBe(Math.round((body * BEAD_CARD.holeRatio) / 2));
     }
     // 珠体族零图元超出内缩尺 ⇒ 与下方“不越格”腿共供 A5 前提。
     expect(rest.filter((c) => c.kind === 'rect')).toHaveLength(1);

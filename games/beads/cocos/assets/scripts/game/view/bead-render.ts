@@ -54,7 +54,7 @@ import {
   FILL_POP_SHADOW_A_TROUGH,
   FILL_POP_SHADOW_DY_MIN,
 } from '../config/tuning';
-import { DEFAULT_BEAD_STYLE } from './bead-styles/registry';
+import { DEFAULT_BEAD_STYLE, DEFAULT_BEAD_STYLE_ID, styleById } from './bead-styles/registry';
 import type { WritableBeadStyleInput } from './bead-styles/contract';
 import {
   BEAD_CONTACT_SHADOW_ALPHA,
@@ -149,6 +149,29 @@ export interface FilledBeadOptions {
    * ⛔ **B0 底图绝不进可砍集**（静态谜面载体 ⇒ 本标志**不影响**上方垫的绘制）。
    */
   readonly lodLayers?: number;
+  /**
+   * **风格 id**（EP11-S5 / S9 v1.7 §2.2 行4 左格；真源 = snapshot `beadStyle`，由
+   * `save-schema::normalizeSettings` 保证已注册）。
+   * 不传 ⇒ `DEFAULT_BEAD_STYLE`（托盘珠等未接线的调用方保持现行为）。
+   * ⚠ **下一帧生效、零过渡**（S6 / `bead-visual-style-spec §12.4`，ux §5 动效表零新行）：
+   *   本函数是每帧重建的纯函数 ⇒ 不传 ⇒ 本帧就是新皮，天然无补间、⛔ 不得引入插值。
+   * ⚠ 未注册 id 回落默认档 = **渲染侧最后防线**（权威降级在 `normalizeSettings`）；
+   *   该分支的存在不由本文件静默吞掉 ⇒ `tests/bead-style-settings.test.ts` 钉住。
+   */
+  readonly styleId?: string;
+  /**
+   * **内缩基准覆写**（EP11-S5 行4 右格「豆径档」）：不传 ⇒ `BEAD_DRAW_INSET`（满豆）；
+   * 小豆档由调用方传 `BEAD_DRAW_INSET_SMALL`。⛔ 不引入第二把尺子（ADR-0023 DEC-7）：
+   * 仍走同一条「基准 × 格径 / `BEAD_CELL`」等比通道，只换基准值。
+   * ⚠ 仅对**传 `targetColorIdx` 的盘面珠**有效（inset 分支同门）⇒ 托盘珠恒满幅、不随档。
+   */
+  readonly drawInset?: number;
+  /**
+   * **不画孔层**（EP11-S5：「满豆有孔 / 小豆无孔」= `assets-spec §7.11` 豆径作用域正文）。
+   * 实现为按 `contract.ts::BeadLayerRole === 'hole'` 跳过 ⇒ ⛔ 不靠风格内重推端点公式
+   * （K-042），也不需为小豆另立一套风格（档与风格正交）。
+   */
+  readonly hideHole?: boolean;
 }
 
 /** 段内插值。**模块级函数而非局部闭包** = 逐帧调用零分配（热路径铁律）。 */
@@ -278,6 +301,47 @@ export function drawTargetTile(
   });
 }
 
+/**
+ * 选中抬起的**格级分离影**（`bead-visual-style-spec §5` 空间语言 · 实施记录 §11.6）。
+ *
+ * **为什么落在格级、而不是往珠体层集里加阴影层**：四棱转正（S8）后默认皮肤 `facet-4`
+ * = 6 命令 / 0 真 α，§5 的「投影 / 接触阴影 / 侧壁」三条高度通道在默认皮肤下**无承载体**
+ *（`FilledBeadOptions.shadowAlpha` 等同源注）⇒ 抬起只剩「平移 + 4% 放大」，不透明物体
+ * 凭空挪几 px 就是用户报的「突兀」。本函数把「影物分离」这一条补回来，且：
+ *  ① **零新色** —— 影色 = 本格目标色的 `pit` 端点（模块级预烘焙查表，热路径零分配），
+ *    与同格的凹槽坑底同源 ⇒ 读作「这颗影躺在该格面上」；
+ *  ② **0 真 α** —— 实色图元，不破四棱基线的「0 α」结构不变式；
+ *  ③ **不占珠体命令预算** —— `§12.6` 计数口径 = 珠体命令数（底图另计）⇒ **C7 双指标零影响**；
+ *  ④ **与风格无关** ⇒ 已注册皮肤全量共用，无需按 styleId 参数化（C8 面零新增）。
+ *
+ * 影**钉在格面静息足迹**（不随 `lift` 平移）⇒ 珠升多少露多少，分离量本身就是高度读数。
+ *
+ * ⛔ 只在 `lift > 0` 时调用（静息也画 = 珠下多一块黑 skirt）；⛔ 不参与 `scale`/pop 包络
+ *（同 B0 判例，§1.6.1 层序死结论）。**托盘珠不走本函数**：白面板上落暗色珠档读作污渍
+ *（`CONFETTI_COLORS` 同判例），且托盘无底图可依。
+ */
+export function drawLiftGroundShadow(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  outer: number,
+  targetColorIdx: number,
+  inks: BeadInks,
+): void {
+  const w = outer * BEAD_CARD.liftShadowW;
+  const h = outer * BEAD_CARD.liftShadowH;
+  builder.rect(
+    cx + outer * BEAD_CARD.liftShadowDx - w / 2,
+    cy - outer * BEAD_CARD.liftShadowDy - h / 2,
+    w,
+    h,
+    {
+      fill: endpointOf(inks, targetColorIdx).pit,
+      radius: Math.round(h / 2),
+    },
+  );
+}
+
 // DEBUG 轮廓墨色真源在 `view/palette.ts`（arch §3：色值只进 palette）：DEBUG_OUTLINE_*_HEX。
 
 /**
@@ -396,10 +460,20 @@ export function drawFilledBead(
   const lift = options.lift ?? 0;
   const y = cy + lift;
   /**
-   * §5 抬起的高度参量：`lift` 归一化到「一次完整抬起」。
+   * §5 抬起的高度参量：`lift` 归一化到「**当前档的一次完整抬起**」。
    * 负 `lift` 不视为「陷下去」⇒ 钳到 0（当前无调用方传负值，防误用）。
+   *
+   * ⚠ **分母随档等比**（`liftRef × outer / BEAD_CELL`，与下方 `inset` 同一条归一通道）：
+   *   `liftRef` 是静息档（`BEAD_CELL`）基准，而调用侧的 `lift` 已按 `view-model::liftScale`
+   *   缩过 ⇒ 分母若仍取静息值，胀档下 `liftT` 会 > 1 ⇒ 放大通道超发（z=3 实算：`liftScaleGain`
+   *   4% → 12%，越过 C5「scale 峰值合计 < 1.12」前提，且「珠—影」间隙占格径比例由 0.0787
+   *   掉到 0.0493 = 各档不同形）。归一后 `liftT` = 进格比例（[0,1]），**各档自相似**；
+   *   `Math.min(1, ·)` 再把 C5 峰值前提在任何档钉住（恒等档取值逐位不变：`6×30/(6×30) = 1`）。
+   *
+   * ⚠ 对照臂 `bead-styles/legacy-ten.ts` 内的同名算式**不改**（“逐字封入、函数体一行未改”
+   *   就是回退阀的定义）⇒ 它的四条通道在胀档仍按静息档归一，差异只在对照臂可见，登记于此。
    */
-  const liftT = Math.max(0, lift) / BEAD_CARD.liftRef;
+  const liftT = Math.min(1, (Math.max(0, lift) * BEAD_CELL) / (BEAD_CARD.liftRef * outer));
   // 珠体四边内缩，露出四周的 B0 底图（= 该格目标色）；无目标色（托盘珠）保持满幅。
   // ⚠ **inset 随格径等比**（WXG-T-169 zoom 上线后的裁定更替，替 ADR-0015 C-5「保持绝对」）：
   //   旧实现吃绝对 4px ⇒ 珠/底图比例随 zoom 漂移（珠面/格距 = (30z−8)/32z：zoom 1 = 68.8%，
@@ -407,7 +481,11 @@ export function drawFilledBead(
   //   静息档恒 = 4（逐字节不变），且珠面恒为格径
   //   73.3% ⇒ 比例锁死；`FACE_MIN` 护栏因此在比例制下永不触发（保持「预留未启用」）。
   // G1：`scale` **只作用珠体**（见 `FilledBeadOptions.scale` 的层序死结论禁令）。
-  const inset = options.targetColorIdx !== undefined ? (BEAD_DRAW_INSET * outer) / BEAD_CELL : 0;
+  // EP11-S5：内缩**基准**可由豆径档覆写（`drawInset`），等比通道本身不变（ADR-0023 DEC-7）。
+  const inset =
+    options.targetColorIdx !== undefined
+      ? ((options.drawInset ?? BEAD_DRAW_INSET) * outer) / BEAD_CELL
+      : 0;
   const size = (outer - inset * 2) * (options.scale ?? 1) * (1 + BEAD_CARD.liftScaleGain * liftT);
 
   styleInput.inks = options.inks ?? DEMO_BEAD_INKS;
@@ -419,10 +497,20 @@ export function drawFilledBead(
   // facet-4 = 6 命令 / 0 真 α ≤ 7 ⇒ 对本风格是**结构性 no-op**，由判据正面钉住
   // （「传 lodLayers ⇒ 输出与不传逐字节等值」）；真正的降档语义仍在 legacy-ten 臂。
   styleInput.lodLayers = options.lodLayers;
-  const layers = DEFAULT_BEAD_STYLE.beadLayers(styleInput);
+  // EP11-S5 **换肤路径**：按 `styleId` 查 registry 取层集（不传 / 未注册 ⇒ 默认档）。
+  // `styleById` = 预建 `Map.get` ⇒ 每珠一次查表仍零分配（C2）；⛔ 不用 `registeredStyleIds()`
+  // （它含 `.map`，每次调用一次堆分配）。
+  const style =
+    options.styleId === undefined || options.styleId === DEFAULT_BEAD_STYLE_ID
+      ? DEFAULT_BEAD_STYLE
+      : styleById(options.styleId) ?? DEFAULT_BEAD_STYLE;
+  const layers = style.beadLayers(styleInput);
+  const hideHole = options.hideHole === true;
 
   for (let i = 0; i < layers.length; i++) {
     const layer = layers[i];
+    // 小豆档无孔（`assets-spec §7.11`）：按 role 跳过 ⇒ 满豆档（不传本参）命令流逐字节不变。
+    if (hideHole && layer.role === 'hole') continue;
     const alpha = layer.alpha;
     if (layer.kind === 'rect') {
       const radius = layer.radius ?? 0;
@@ -472,28 +560,63 @@ export function drawEmptySocket(
    * 网格空格传 true；托盘空槽（无 `colorIdx`）保持 false，自己带底。
    */
   tilePainted = false,
+  /**
+   * **同格「有豆时」的珠体内缩基准**（`BEAD_DRAW_INSET` / `_SMALL`，与 `drawFilledBead`
+   * 的 `drawInset` 同口径；不传 = 0 = 无珠可对照的托盘槽）。
+   *
+   * ⚠ **用户裁定 2026-09-26（WXG-T-214 补）：豆坑恒比豆子小一圈，有豆时看不到豆坑。**
+   * 旧实现把坑画在**格径**（`snap.gridCell` = 30）上，而珠体绘制边长只有
+   * `30 − 2×4 = 22` ⇒ 空槽的暗块（坑底 26.4）**比珠体还大**，有豆/无豆根本不是一张图，
+   * 「豆 vs 底图」的边界被一个比豆还大的坑抢读（旧 v1.5-r8 的「一张图」目标直接落空）。
+   * 本参使坑外廓从**珠体绘制边长**再退一圈 ⇒ 珠落下时把坑整块盖住（几何上恒被覆盖）。
+   */
+  beadInset = 0,
 ): void {
-  const left = cx - size / 2;
-  const bottom = cy - size / 2;
-  const radius = Math.round(size * BEAD_CARD.radius);
+  /**
+   * 坑外廓（**整条不变式的落点**）：
+   *   `珠体绘制边长 = size − 2×(beadInset × size / BEAD_CELL)`（与 `drawFilledBead` 同尺，
+   *    含 zoom 与豆径档 ⇒ 大盘/小豆档自动跟随）；
+   *   `坑 = 珠体绘制边长 − 2 × relief`（`relief` = 一圈，见 `SOCKET_CARD.relief`）。
+   * ⇒ **坑 ⊂ 珠** 恒成立（含圆角：珠半径 `0.30S` > 坑半径 `0.30s`）。
+   */
+  const beadFace = size - (beadInset * size) / BEAD_CELL * 2;
+  const relief = Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.relief);
+  const s = Math.max(BEAD_CARD.minStroke * 2, beadFace - relief * 2);
+  const left = cx - s / 2;
+  const bottom = cy - s / 2;
+  const radius = Math.round(s * BEAD_CARD.radius);
   const base = colorIdx === undefined ? palette.slot : beadColorOf(inks, colorIdx);
   const endpoints = colorIdx === undefined ? neutralEndpoints(palette) : endpointOf(inks, colorIdx);
+  /**
+   * 暗缘墨（S1 外框线 / S3 上内缘内阴影）——**WXG-T-214（2026-09-26 用户拍板）**：
+   * B0 底图铺设时（`tilePainted`）底图墨 = 本格 `edge` ⇒ 旧写法把这两笔画成
+   * **自己的背景色**（逐字同色，不可见）⇒ 凹坑只剩「暗底 + 一条下亮线」，
+   * B1 修好的「暗上亮下」双线只剩一半。改取 `pit`（比 `edge` 深两档，零新 hex、
+   * 与 S2 坑底同源）⇒ 凹感恢复。托盘空槽（`tilePainted = false`，自带亮 `base` 外块）
+   * **保持 `edge` 不变**（白面板上 `pit` 过重），逐字节不变。
+   */
+  const shadeInk = tilePainted ? endpoints.pit : endpoints.edge;
 
   // S2 坑底（先画大底，S1 框压在其上）：内缩 6% 的 `pit` 填充。
-  const inset = size * SOCKET_CARD.pitInset;
+  // ⚠ 坑的全部几何走 `s`（坑外廓），**不用 `size`**（= 格径）——见 `beadInset` 参注。
+  const inset = s * SOCKET_CARD.pitInset;
   // B0 已铺 ⇒ 不再刷亮 `base`（否则“有豆/无豆”又是两张图）。零新 hex。
+  // 托盘槽的「大底」= 槽体本身（不是坑）⇒ 仍按 `size` 画，不随坑缩小。
   if (!tilePainted) {
-    builder.rect(left, bottom, size, size, { fill: base, radius });
+    builder.rect(cx - size / 2, cy - size / 2, size, size, {
+      fill: base,
+      radius: Math.round(size * BEAD_CARD.radius),
+    });
   }
-  builder.rect(left + inset, bottom + inset, size - inset * 2, size - inset * 2, {
+  builder.rect(left + inset, bottom + inset, s - inset * 2, s - inset * 2, {
     fill: endpoints.pit,
-    radius: Math.max(2, Math.round((size - inset * 2) * BEAD_CARD.radius * 0.8)),
+    radius: Math.max(2, Math.round((s - inset * 2) * BEAD_CARD.radius * 0.8)),
   });
 
   // S1 暗缘框（外框线，压住 S2 边界）。
-  builder.rect(left, bottom, size, size, {
-    stroke: endpoints.edge,
-    lineWidth: Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.edgeWidth),
+  builder.rect(left, bottom, s, s, {
+    stroke: shadeInk,
+    lineWidth: Math.max(BEAD_CARD.minStroke, s * SOCKET_CARD.edgeWidth),
     radius,
   });
 
@@ -503,13 +626,14 @@ export function drawEmptySocket(
   // ⇒ 凹槽与珠体**同向**、§1.9.4 通道 2（空/珠区分主轴）失活；两线 y 已对调为
   // **暗上亮下**，方向由 `tests/bead-render.test.ts` TC-SKT-01 的 `y_dark > y_lit` 锁死
   // （旧墨色断言拦不住换向，K-035/K-060）。墨色档不改（D3 口径漂移归 art 对齐单）。
-  const shadeWidth = Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.shadeWidth);
+  // ⚠ WXG-T-214：墨改取 `shadeInk`（底图铺设 = `pit`）—— 旧 `edge` 在 B0 底图上不可见（见其注）。
+  const shadeWidth = Math.max(BEAD_CARD.minStroke, s * SOCKET_CARD.shadeWidth);
   builder.line(
     left + inset,
-    bottom + size - inset,
-    left + size - inset,
-    bottom + size - inset,
-    endpoints.edge,
+    bottom + s - inset,
+    left + s - inset,
+    bottom + s - inset,
+    shadeInk,
     shadeWidth,
   );
 
@@ -517,10 +641,10 @@ export function drawEmptySocket(
   builder.line(
     left + inset,
     bottom + inset,
-    left + size - inset,
+    left + s - inset,
     bottom + inset,
     endpoints.lit,
-    Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.litWidth),
+    Math.max(BEAD_CARD.minStroke, s * SOCKET_CARD.litWidth),
   );
 }
 

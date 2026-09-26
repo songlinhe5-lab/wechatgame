@@ -180,3 +180,25 @@ export function clampCamera(cam: BoardCamera, cols: number, rows: number): void 
   cam.offsetX = clamp(cam.offsetX, -maxOffX, maxOffX);
   cam.offsetY = clamp(cam.offsetY, -maxOffY, maxOffY);
 }
+
+/** slider 归一位置 t∈[0,1] → zoom：fit 与 fit × `CAMERA_ZOOM_MAX_SPAN` 之间线性插值。 */
+export function zoomFromSliderT(t: number, fit: number): number {
+  return fit * (1 + clamp(t, 0, 1) * (CAMERA_ZOOM_MAX_SPAN - 1));
+}
+
+/** zoom → slider 归一位置 t∈[0,1]（`zoomFromSliderT` 的逆；knob 定位用）。 */
+export function sliderTFromZoom(zoom: number, fit: number): number {
+  const span = CAMERA_ZOOM_MAX_SPAN - 1;
+  return span > 0 ? clamp(zoom / fit - 1, 0, span) / span : 0;
+}
+
+/** 直接设定 zoom（slider / 按钮路径），夹取到合法域并按新尺寸夹平移。 */
+export function setCameraZoom(
+  cam: BoardCamera,
+  zoom: number,
+  cols: number,
+  rows: number,
+): void {
+  cam.zoom = zoom;
+  clampCamera(cam, cols, rows);
+}

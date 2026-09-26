@@ -20,7 +20,7 @@
         {
           "category": "scene",
           "name": "scene_execution_control",
-          "enabled": false,
+          "enabled": true,
           "description": "EXECUTION CONTROL: Execute component methods, scene scripts, or restore prefab instances. Use this for running custom logic and managing prefab synchronization."
         },
         {
@@ -44,7 +44,7 @@
         {
           "category": "node",
           "name": "node_lifecycle",
-          "enabled": false,
+          "enabled": true,
           "description": "NODE CREATION & DELETION: Create new nodes or delete existing ones. CRITICAL WORKFLOW for create: 1) Use node_query to find parent UUID, 2) Provide parentUuid (scene root if omitted), 3) Add components or instantiate from prefab. Delete only needs node UUID."
         },
         {
@@ -68,7 +68,7 @@
         {
           "category": "node",
           "name": "node_property_management",
-          "enabled": false,
+          "enabled": true,
           "description": "PROPERTY MANAGEMENT: Reset node properties, transform values, or component settings to defaults. Use this to restore original values and clean up modifications."
         },
         {
@@ -86,7 +86,7 @@
         {
           "category": "component",
           "name": "component_manage",
-          "enabled": false,
+          "enabled": true,
           "description": "COMPONENT MANAGEMENT: Add or remove built-in Cocos Creator components (cc.Sprite, cc.Button, etc.). WORKFLOW: 1) Use node_query to get nodeUuid, 2) Add components with componentType, 3) Use component_query to verify. For custom scripts use node_script_management from node-tools instead."
         },
         {
@@ -134,7 +134,7 @@
         {
           "category": "project",
           "name": "project_manage",
-          "enabled": false,
+          "enabled": true,
           "description": "PROJECT MANAGEMENT: Core project operations and configuration. COMMON WORKFLOWS: get_info for project details, run for preview testing, build for deployment preparation, get_settings for configuration inspection. Note: Build operations require manual interaction due to API limitations."
         },
         {
@@ -260,7 +260,7 @@
         {
           "category": "assetAdvanced",
           "name": "asset_manage",
-          "enabled": false,
+          "enabled": true,
           "description": "ASSET MANAGEMENT: Import, delete, save metadata, or generate URLs for assets. Use this for all asset creation/deletion/modification operations. WORKFLOW: First use asset_query to find assets, then perform operations. Import requires sourcePath+targetUrl, delete needs urls array, save_meta needs urlOrUUID+content, generate_url needs url parameter."
         },
         {
@@ -284,7 +284,7 @@
         {
           "category": "assetAdvanced",
           "name": "asset_operations",
-          "enabled": false,
+          "enabled": true,
           "description": "ASSET OPERATIONS: Create, copy, move, delete, save, and import assets. Use this for all asset file operations and modifications."
         },
         {
@@ -307,7 +307,7 @@
         }
       ],
       "createdAt": "2026-09-13T13:49:01.989Z",
-      "updatedAt": "2026-09-13T15:21:11.595Z"
+      "updatedAt": "2026-09-25T00:44:30.020Z"
     }
   ],
   "currentConfigId": "cef508fd-4f70-4cb6-a949-b10277944178",

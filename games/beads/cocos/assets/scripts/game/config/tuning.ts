@@ -23,8 +23,20 @@ export const SAFE_TOP_H = 120;
 export const HUD_BAND = { yMin: 1214, yMax: 1334 } as const;
 /** WeChat capsule avoidance zone (top-right). */
 export const CAPSULE_AVOID = { xMin: 560, xMax: 750, yMin: 1214, yMax: 1334 } as const;
-/** Puzzle band — the pattern matrix is centred inside it (both axes). */
-export const PUZZLE_BAND = { yMin: 480, yMax: 1120 } as const;
+/** Puzzle band — the pattern matrix is centred inside it (both axes).
+ *
+ * ⚠ **§3.1 换尺（本轮用户拍板）：下沿 480 → 560**（带高 640 → 560）。动的理由只有一个：
+ * 底部要给缩放控件条让出 **合规 88 热区**（§3.8 C1 / `TOUCH_MIN`）且**不与任何可点元素抢**。
+ * 旧布局下「盘面下沿 480 → 托盘槽热区顶 444」只有 36px（含放大态热区下探则 ≤ 23px），
+ * 88 无论如何放不下 ⇒ 只能从盘带让高。
+ * ⚙ **取值 560 而不是 568 的理由（用户选定）**：可用区间为 `yMin ∈ [552, 562]`（下界 =
+ * 控件条底沿不得碰托盘槽热区 444，上界 = `r_max` 须仍 ≥ 16 行）⇒ 取中值 560 同时保住
+ * **顶格档 16 行**与热区，代价是控件条底与槽热区只剩 **8px** 富余（旧取 568 为 16px）⇒ `[待真机]`。
+ * **连带（实测，非推定）**：`r_max` 18 → **16**；关卡池 6 尺寸（12×16 / 8×15 / 14×14 /
+ * 10×14 / 14×13 / 14×12）**全部仍 fit=1**（最大盘 12×16：`natH=510 ≤ 560−48=512`）⇒ **零缩放代价**。
+ * ⚙ 真源回写 = `design/gdd/systems-index.md §3.1/§3.3` + 变更单（与代码同批，非事后补票）。
+ */
+export const PUZZLE_BAND = { yMin: 560, yMax: 1120 } as const;
 /** Tray band (white rounded panel). §3.1 v1.25：下沿 230→216 —— v1.24 冻结的
  * 4 行扩展态（panelH 234）必须完整落带（推导见 design/proposals/tray-24-layout-derivation.md）；
  * 基础态 2 行（panelH 120，y∈[330,450]）与 `btn_expand` 净空 12px 不受影响。 */
@@ -39,13 +51,52 @@ export const TRAY_BAND = { yMin: 216, yMax: 450 } as const;
  * 机械缩放的**起始值**，art 起始表正本 = `art/assets-spec.md §1.10.2`（其理由不是机械缩放，
  * 而是「目标色读数已有 B0 满铺底图 + L1c 孔底透色两条并行通道 ⇒ 环带从唯一载体降为帮载体」）。
  * ⚠️ **`[待真机]`，本值未验收**；回退序 4 → 5 → 3（assets-spec §1.10.2 三档对比表）。
+ *
+ * **4 → 2（WXG-T-214，用户 2026-09-26 拍板「中空的豆子要满豆效果，豆子基本覆盖格子」）**：
+ * 4px 环带下珠面只占格径 22/30 = 73%，读作「格子里摆了个小扣子」而非实拼豆；取 2 ⇒
+ * 珠面 **26/30 = 87%**（屏上 ×0.5 只剩 1 CSS px 环）⇒ 目标色读数由「孔底透色」主担
+ * （`BEAD_CARD.holeRatio` 不变 ⇒ 孔随珠面等比放大到 r 5.72，读数反而更强），
+ * 环带退为帮载体（与 §1.10.2「环带降为帮载体」同一方向，只是把它压到极限一档）。
+ * ⚠️ **硬约束②对冲已按同批处理**：削 inset ⇒ 孔绝对值变大 18% ⇒ 本批**刻意不动**
+ * `BEAD_CARD.holeRatio 0.44`（Midi 实物真比）⇒ 变化可归因到单一变量（inset）。
+ * 下一档（1 ⇒ 珠 28/30 = 93%，环仅 1 设计 px）留作真机 A/B，⛔ 未拍板不擅自再削。
  * ⚠️ 硬约束②（assets-spec §1.10.9 末）：**本值与 `BEAD_CARD.holeRatio` 必须同提交**
  * （两者互为对冲：削 inset ⇒ 珠面变大 ⇒ 孔绝对值变大；升 ratio 同理。分开改会留下
  * 「尺子按实物、孔按保守一档」的混合口径，真机无法归因）⇒ 由 `tests/bead-render.test.ts`
  * 的同批性断言钉住。
- * ⚠️ 绝对设计 px、**不随 zoom 缩**（ADR-0015 §3.3-5 未裁项 C-5 的 art 判定 = 保持绝对）。
+ * ⚠️ **本值是比例基准、不是绝对量**：静息档（`zoom = 1`，格径 = `BEAD_CELL`）每边缩 4px，
+ * 实际内缩 = `本值 × 格径 / BEAD_CELL`。原「绝对不随 zoom 缩」是 ADR-0015 §3.3-5 C-5 的 art
+ * 判定（当时 8 关全 `fit = 1`，未暴露）；WXG-T-169 棋盘相机上线后，底图 tile（`snap.gridPitch`）
+ * 全程比例制 ⇒ 绝对 inset 让珠/背景比例从 69% 漂到 56%（用户真机反馈）⇒ 已改等比，C-5 裁定更替。
  * ⚠️ 仅作用于**传 `targetColorIdx` 的盘面珠**；托盘珠恒 0（见 `bead-render.ts` 的 inset 分支）。 */
-export const BEAD_DRAW_INSET = 4;
+export const BEAD_DRAW_INSET = 2;
+
+/**
+ * **小豆档**单边内缩基准（WXG-T-211-S5 / EP11-S5 · S9 v1.7 §2.2 行4 右格「豆子尺寸」）。
+ * ⚠️ **[暂定·待 PT-SKIN-05 真机 A/B]**：GDD 明文「档间 inset 系数住 `tuning.ts`、本文不钉值
+ * `[待真机 A/B]`」（§12 C5 / §12.8-⑨），spike `temp/beads-facet/styles.mjs` **无小豆档样例**
+ * ⇒ 本值 = 任务单授权的「初值自定最小合理档」，⛔ 不得读成已裁。
+ *
+ * 取值依据（三条，全部走既有通道，⛔ 不另立尺寸真源 = ADR-0023 DEC-7）：
+ *  1. **同一条比例通道**：小豆档不引入第二把尺子，只把 `BEAD_DRAW_INSET` 的基准从 4 换成
+ *     本值 ⇒ 实际内缩仍 = `本值 × 格径 / BEAD_CELL`（WXG-T-169 等比制），zoom / LOD 零改动；
+ *  2. **「最小合理档」= 2 倍满豆内缩**：静息档珠面 `30 − 2×4 = 22` → `30 − 2×8 = 14`，
+ *     珠/格径 73.3% → 46.7%（缝宽 8 → 16）；再大一档（10 ⇒ 珠 10px）已低于 `FACE_MIN 12`，
+ *     而 `FACE_MIN` 在现口径下**永不触发**（见其注）⇒ 14 是「不新造护栏、不触地板」的最大内缩档；
+ *  3. **只缩不胀** ⇒ `assets-spec` A5「珠不重叠」在缩珠方向平凡成立（无越界新证明义务）。
+ *
+ * ⚠️ 作用域 = **仅网格珠珠体（含已填态）**；托盘珠恒满幅不随档（S9 §2.2 / ux §3.3 ④）
+ *     ⇒ 本值只由 `view-model::drawGrid` 传入，托盘侧不传（`bead-render` 的 inset 分支同门）。
+ * ⚠️ **命中判据零变**：`BEAD_HIT_PAD` 名义外扩与珠体**视觉**尺寸无关（ux §3.3「触控不随档降级」）
+ *     ⇒ 本值不进任何命中/判定路径，由 `tests/bead-style-settings.test.ts` 钉「改档零命中面变更」。
+ *
+ * **8 → 3（WXG-T-214，用户 2026-09-26 拍板）**：旧值 8 是「2 倍满豆内缩」时代的产物
+ * （`BEAD_DRAW_INSET` 当时 = 4）；满豆改 2 后该规则已失效，8 只剩一个孤立绝对值 ⇒
+ * 珠面 14（占格径 43.8%）、珠色面积仅 196（19%）⇒ 豆子小到读不出色。
+ * 新值取 **格内面积账**的反解：无孔档**没有孔**，目标色只能靠**环**读 ⇒ 环必须更宽
+ * （`inset 3 ⇒ 环 4 设计 px = 2.0 CSS px`）⇒ 珠面 **24**，与有孔档（珠面 26 / 孔 ⌀12）
+ * 一样把「珠色 : 底色」落在 **≈56 : 44**（576 : 448）。 */
+export const BEAD_DRAW_INSET_SMALL = 3;
 
 /**
  * 珠面可画边长地板（设计 px）—— **预留、本单未启用**（assets-spec §1.10.2 C-5 护栏建议）。
@@ -55,9 +106,9 @@ export const BEAD_DRAW_INSET = 4;
  * —— 防未来大盘走 fit<1 档时把珠面削到 0（现 8 关全 `fit = 1` ⇒ 落与不落**零行为差异**，
  * assets-spec §1.10.2 已算；`inset = 6` 时的硬奇异点 `zoom ≤ 0.4` 当前不可达）。
  *
- * 状态：仅登记常量与语义，**启用与否属另案**（林绘澄「本批倾向先不落」乙④，解除条件 =
- * 真机能造出 fit<0.9 的盘，见 assets-spec §1.10.10 第 11 项）。**不进 §3 冻结**（art-owned）。
- * 启用前不得在任何渲染路径引用本值。 */
+ * 状态：仅登记常量与语义，**仍不启用**——`BEAD_DRAW_INSET` 改随格径等比后，珠面恒 =
+ * `0.733 × 格径`，数学上永不为 0 ⇒ 本护栏在现口径下**永不触发**（原解除条件「fit<0.9 的盘」
+ * 已由等比制直接解掉）。**不进 §3 冻结**（art-owned）。启用前不得在任何渲染路径引用本值。 */
 export const FACE_MIN = 12;
 
 /** 空格凹陷坑四层（§1.2 v1.5）：几何以内缩比例表达，墨色端点在 palette 预烘焙表。 */
@@ -70,6 +121,14 @@ export const SOCKET_CARD = Object.freeze({
   shadeWidth: 2.5 / 64,
   /** S4 下内缘受光亮线宽。 */
   litWidth: 2.5 / 64,
+  /**
+   * **坑外廓相对「珠体绘制边长」再退的一圈**（格径比例；`WXG-T-214` 用户裁定
+   * 「豆坑永远比豆子小一圈，有豆时看不到豆坑」）。
+   * 坑外廓 = `珠体绘制边长 − 2 × max(minStroke, 格径 × 本值)`；恒等档实测
+   * 珠 22 → 坑 **17.8**（旧值 26.4，比珠还大 ⇒ 有豆/无豆不是一张图）。
+   * ⚠ 随格径等比 ⇒ zoom / 豆径档自动跟随；`minStroke` 地板沿用既有口径。
+   */
+  relief: 0.07,
 } as const);
 
 /** 托盘面板「微拱白瓷」三段内阴影（§1.3 v1.5：底缘两段 + 右缘一段）。 */
@@ -685,15 +744,41 @@ export const GEAR_HIT_SIZE = TOUCH_MIN;
 /** Panel size: 560 × 480 (`panel_dialog`, ux-spec §3.3；结算/过关面板共底板). */
 export const PANEL_SIZE = { w: 560, h: 480 } as const;
 /**
- * 暂停面板专有高度（WXG-T-164 批0）：480 → 600，容纳第 4 行「冲刺 / 回主菜单」。
+ * 暂停面板专有高度（WXG-T-164 批0 由 480 扩至 600 容第 4 行 → **WXG-T-211-S5 扩至 718 容第 5 行**）。
+ * 上位裁 = S9 v1.7 **Q2 = 甲「扩行」**（行4 =「珠子风格 / 豆子尺寸」两格，行5 =「性能信息 / 回主菜单」
+ * 两格**原样下移**、语义与动作零改动）；ux §3.3「几何」条的 `PAUSE_PANEL_H` `[待定]` **由本值回填**
+ * （S9 §5 授权「按行高地板 `TOUCH_MIN` 实测回填」，GDD/UX 两份正本都不钉值 ⇒ 本行即唯一真源）。
  * 不污染共享的 `PANEL_SIZE`（结算/失败/通关面板冻结几何不变）。
- * 自然高 = 标题带 100 + 4×行高 88 + 3×行距 30 = 542；+ ≈58 底衬 ⇒ 600（与原 3 行
- * 面板 56px 底衬同量）。ux-spec §3.3 同步补注；本篇不派生。
- */
-export const PAUSE_PANEL_H = 600;
+ *
+ * **实算**（行高地板 `TOUCH_MIN = 88`，`PANEL_ROW_GAP = 30`，标题带 100）：
+ *   自然高 = 100 + 5×88 + 4×30 = **660**；再加 **58 底衬**（= 四行时 600 − 542 的同一底衬值，
+ *   行距与底衬**零改动**、只增一行）⇒ **718**。
+ * **避让复核**（S9 §8-5，沿旧判据）：plate `yMax = (1334 + 718) / 2 = 1026 < CAPSULE_AVOID.yMin 1214`
+ * ⇒ 不侵入微信胶囊区；`yMin = 308 > TRAY_BAND.yMax 450`？—— 否：308 < 450 ⇒ 面板**盖住托盘带**，
+ *   这正是遮罩「防偷看」的既有语义（遮罩覆盖棋盘与托盘，ux §3.3），非新代价；行5 底 `366` 与
+ *   plate 底 `308` 之间即那 58px 底衬，逐行间距 = 现行算式（`pause-panel.ts` 五行同一条链）。
+ * 行重叠 / 避让的最终结论仍由 `tests/pause-settings.test.ts` 的 §8-5 腿跑实测（本注只登记算式）。 */
+export const PAUSE_PANEL_H = 718;
 /** Scrim over board+tray: rgba(42,46,67,0.5) (ux-spec §3.3). */
 export const PANEL_SCRIM_RGB = { r: 42, g: 46, b: 67 } as const;
 export const PANEL_SCRIM_ALPHA = 0.5;
+/**
+ * **设置态**背景遮罩 α（WXG-T-211-S5 / ux §3.3「遮罩」条，裁 = **丙案**（U14 已改丙）：
+ * 面板含行4（珠子风格 / 豆子尺寸）的**设置态期间下调遮罩**，让玩家实时看见自己改档的效果）。
+ * ⚠️ **[暂定·待 PT-SKIN-01 真机校准]**：ux ① 明文「具体 α 值本文不钉 `[待定]`、由落码单实测回填」
+ * ⇒ 本行即落码回填位，取值依据 = 任务单已裁「**初值 0.3**（从 0.5 下调、非 0）」，
+ *   同时守住 ux ②「下调不得为 0」（仍保住面板与背板的对比度下限，可辨程度 `[待真机]`）。
+ * **射程（本批准入的两处，其余零改动）**：① 暂停面板 scrim（`view-model::drawPausePanel`）
+ *   ② 菜单**设置** overlay scrim（`meta-view` 且**仅 `overlay === 'settings'`**；签到 / 选关
+ *   overlay 不属设置态 ⇒ 恒读 `PANEL_SCRIM_ALPHA`）。**结算 / 失败 / 通关 / 冲刺结算四类面板
+ *   继续读 `PANEL_SCRIM_ALPHA` 零改动**（ux ⑥「不得从本行读出全局遮罩变浅」）。
+ * **RGB 三通道零改动**（面板侧仍 = `PANEL_SCRIM_RGB`；⚠ 登记既有不同源事实：菜单 overlay 的
+ * scrim 一直硬编 `rgba(0,0,0,·)`，本批**只换 α 不洗 RGB**——洗 RGB 就是 ux ① 的「RGB 零改动」违例）。
+ * **零新增毫秒值、§5 动效表零新行**；「防误触」不受影响（拦截由 §4 状态门禁保证，与 α 无因果）；
+ * 「防偷看」语义弱化 = ux ④ **已接受代价**，不辩护。
+ * **设置态判定所取（回传已注明）**：任务单已裁「两入口都算设置态」⇒ 判定面 = **overlay 打开期间**，
+ *   暂停面板可见期间即设置态（暂停面板自身承担设置职，内容单源 S9），不引入第三种「子态」。 */
+export const SETTINGS_SCRIM_ALPHA = 0.3;
 /** Panel button height — every row honours the TOUCH_MIN control floor (§3.8). */
 export const PANEL_BUTTON_H = TOUCH_MIN;
 /** Primary button ("继续") width (ux-spec §3.3: 240×88 主钮). */
@@ -831,28 +916,54 @@ export const FILL_POP_SHADOW_DY_MIN = 2;
  */
 export const FILL_POP_RESTART_GATE_MS = 120;
 
-/* §5 选中抬起斜坡（`bead-visual-style-spec` v1.5-r10，用户 2026-09-23 裁定
-   「斜坡按 120ms 复用做」）—— 时长**复用 G1 `FILL_POP_MS`、不新增毫秒值**，
-   故 `ux-spec §5` 无需新增行。 */
-/** 抬起斜坡时长（= G1 落座时长 ⇒ 选中→抬起→落座读起来是一个连续动作）。 */
-export const SELECT_LIFT_MS = FILL_POP_MS;
+/* §5 选中抬起斜坡（v1.5-r16 改独立时长）。历史：`bead-visual-style-spec` v1.5-r10（用户
+   2026-09-23 裁定「斜坡按 120ms 复用做」）⇒ 本值曾 = `FILL_POP_MS` 以避开新增毫秒值。
+   **现解除该裁定**（用户 2026-09-26 要求「回弹 + ease-in-out + 组内错峰」）：回弹需一个
+   「过冲→回落」的完整周期，120ms 内两个阶段各只占 40ms ⇒ 不可读；已同步新增 `ux-spec §5` 行。 */
+/**
+ * 抬起斜坡总时长（含组内错峰展开 + 回弹回落）。
+ * ⚠ 错峰 = **同窗口内的相位偏移**（见 `SELECT_LIFT_STAGGER`）⇒ 改本值不会拉长
+ *   「从选中到可落」的响应预算（首颗珠仍在 `本值 × (1 − 错峰占比)` 内到位）。
+ */
+export const SELECT_LIFT_MS = 200;
 /**
  * 板锚组抬起位移（设计 px，y 轴向上）。**单一真源在此**：
  * `bead-render.BEAD_CARD.liftRef` 与 view-model 均引用本值，避免“改了抬起量、
  * 三通道响应强度却没跟着改”的静默漂耦。
+ *
+ * ⚠ **本值 = 静息档（`gridCell = BEAD_CELL = 30`）基准值，不是绝对量**：盘面一切几何
+ *（珠体边长 / B0 底图 / 分离影）均比例制，抬起量若不走等比，fit 档上就会“珠抬得更高、
+ * 影离得更远”（间隙占格径比例翻倍）⇒ 消费侧乘 `view-model::liftScale = gridCell / BEAD_CELL`，
+ * 算式与 `BEAD_DRAW_INSET` 同形（K-077 判例）。恒等档乘子恰为 1 ⇒ 逐位不变。
  */
 export const SELECT_LIFT_PX = 6;
-/** 托盘 `selected` 抬起位移（§1.2 selected 行既有值 4px，仅从字面量提出）。 */
+/**
+ * 托盘 `selected` 抬起位移（§1.2 selected 行既有值 4px，仅从字面量提出）。
+ * ⚠ **恒用绝对值、不随 zoom 缩**：托盘带（`TRAY_BAND` / `TRAY_SLOT`）不随棋盘相机变尺，
+ * 珠与槽同源 ⇒ 无“与比例制几何同屏对照”的脱钩面（与板上 `SELECT_LIFT_PX` 有意不同）；
+ * 且托盘无底图 ⇒ 也不走 `drawLiftGroundShadow`（污渍判例）。
+ */
 export const TRAY_SELECTED_LIFT_PX = 4;
 /**
- * 二次 ease-out（起点快、终点缓）——选中抬起斜坡专用，D1 不走此函数（直接归 1）。
- * 入参归一到 [0,1]；**非有限入参按 1 处理**（当作“已到位”而不是“未开始”，
- * 避免异常值把珠永远压在底面）。
+ * **组内错峰总占比**（v1.5-r16）：组尾比锚点晚起 `本值 × SELECT_LIFT_MS`（= 200 × 0.35 = 70ms）。
+ * 走相位偏移而非拉长窗口 ⇒ **零新增毫秒值**（仅上面的 `SELECT_LIFT_MS` 一行需拍板）。
+ * 上限 1（= 组尾刚起步时首颗已到位）；0 = 关错峰。取值 `[待真机/playtest]`（半屏大组 24 颗下需看是否偏扰）。
+ * 消费者 = `view/scene-vfx.ts::liftStaggerPhase`。
  */
-export function easeOutQuad(p: number): number {
-  const x = Number.isFinite(p) ? Math.max(0, Math.min(1, p)) : 1;
-  return 1 - (1 - x) * (1 - x);
-}
+export const SELECT_LIFT_STAGGER = 0.35;
+/**
+ * **回弹过冲出现点**（总时长比例）与**过冲量**（一次完整抬起的比例）。
+ * 峰值 抬起量 = `SELECT_LIFT_PX × (1 + 0.12)` = 6.72px（恒等档）⇒ 仍 < 半格（16px），
+ * 不撞 A5 零重叠前提（同 `C5` 的口径：含 `liftScaleGain` 后仍须不越格）。
+ * 两个值都是观感量 ⇒ `[待真机/playtest]` 定细档；消费者 = `view/scene-vfx.ts::liftEase`。
+ */
+export const SELECT_LIFT_PEAK_T = 0.7;
+export const SELECT_LIFT_REBOUND = 0.12;
+
+/* v1.5-r16：旧 `easeOutQuad`（注为「选中抬起斜坡专用」）已删 —— 抬起曲线换成 ease-in-out + 回弹
+   后它**零消费者**（仓内纪律：不留无消费者常量，判例 = `FACET4_HOLE_RADIUS` 退役）。
+   新曲线与逐珠相位住在 `view/scene-vfx.ts`（`liftEase` / `liftStaggerPhase`），与本模块
+   `sweepCenterX` 共用已有的 smoothstep，⛔ 不另开一份缓动函数。 */
 
 /* G2′ `vfx_solver_restore` — 解环器归位（WXG-T-150，T-128 动态质感章落码③）。
    规格正本 = assets-spec §1.6.2a；毫秒真源 = ux-spec §5「解环器归位」行
@@ -916,7 +1027,8 @@ export const WAVE_MS = 800;
 export const WAVE_COL_DELAY_MS = 20;
 export const WAVE_SCALE_PEAK = 1.08;
 export const WAVE_RISE_RATIO = 0.35;
-/** 微抬幅度（与 `WRONG_SHAKE_PX` 同量级；单峰非震动）。 */
+/** 微抬幅度（与 `WRONG_SHAKE_PX` 同量级；单峰非震动）。⚠ **静息档基准值**，同 `SELECT_LIFT_PX`：
+ *  实际位移 = 本值 × `gridCell / BEAD_CELL`（`view-model::liftScale`）—— 波浪与珠体/底图同屏对照，不得走绝对值。 */
 export const WAVE_LIFT_PX = 3;
 /**
  * clamp 下限：逐列窗口 W = max(240, 800 − 20×(N−1)) 在 N ≥ 29 时恒 = **240（触及下限）**
@@ -1085,9 +1197,12 @@ export const BEAD_CARD = {
    * 归一化，使高度语言随离开底面的距离连续变化（旧模型只平移，不透明物体凭空挪几 px
    * 就是“突兀”的来源）。
    *
-   * ⚠ `liftRef` = **`tuning.SELECT_LIFT_PX`（单一真源）**，与 view-model 给 `draft.lift` 的值同源；
+   * ⚠ `liftRef` = **`tuning.SELECT_LIFT_PX`（单一真源 = 静息档一次完整抬起）**，与 view-model 给 `draft.lift` 的值同源；
    *   波浪的 `WAVE_LIFT_PX = 3` ⇒ liftT = 0.5（半高 ⇒ 半量的阴影响应）。
    *   抬起量改动时三通道响应强度自动跟着改，不会漂耦。
+   *   ⚠ **本值 = 静息档分母，不是「任何档都拿它除」**（`bead-render` 于本批订正，旧注曾写反）：
+   *   调用侧的 `lift` 已随档等比缩 ⇒ 消费方需把分母同乘 `outer / BEAD_CELL`，否则胀档下
+   *   liftT > 1 ⇒ 放大通道超发、越过 C5 峰值前提，各档观感不同形。
    */
   liftRef: SELECT_LIFT_PX,
   /** 抬到 `liftRef` 时珠体额外放大 4%（与 G1 落座包络的 scale 相乘，峰值合计仍 < 1.12 ≪ 格宽）。 */
@@ -1101,6 +1216,25 @@ export const BEAD_CARD = {
   liftContactShrink: 0.35,
   /** 侧壁在满抬起时多长出 90%（与上面四通道共用 `liftT` ⇒ 方向一致）。 */
   wallLiftGain: 0.9,
+  /**
+   * **格级抬起分离影**（§5 空间语言 · 四棱基线补做，正本 = `bead-visual-style-spec §11.6`）
+   * —— 宽 / 高 / 偏移一律取**珠体外缘边长 `outer` 的比例**（比率制 ⇒ zoom 档自动跟随，
+   * 与 `radius`/`holeRatio` 同族）。
+   *
+   * 动因：S8 十层退役后默认皮肤 `facet-4` = 6 命令 / **0 真 α** ⇒ 上面 `liftShadow*` /
+   * `liftContact*` / `wallLiftGain` 四条通道**在盘面无承载体**（只在 `legacy-ten` 对照臂活着），
+   * 玩家实际看到的抬起 = 纯平移 + 4% 放大，斜俯视该有的「影物分离」缺席。
+   *
+   * ⚠ **影子钉在格面静息足迹上、不随 `lift` 搬家** —— 分离量由「珠升起来露出多少」
+   * 几何地长出来，因此**不需要**再给影子配时域曲线（斜俯视里地面的影本来就不跟物体一起动）。
+   * 消费方 = `view/bead-render.ts::drawLiftGroundShadow`（仅 `lift > 0` 的选中格调用）。
+   */
+  liftShadowW: 0.66,
+  liftShadowH: 0.2,
+  /** 影的水平偏移：光从左上（§6 光向）⇒ 影偏**右**。 */
+  liftShadowDx: 0.06,
+  /** 影的垂直偏移：落在格心**下方**（设计系 y 向上 ⇒ 调用点取负）。 */
+  liftShadowDy: 0.36,
   /** §1.1 最小特征约束: no stroke below 2 design px. */
   minStroke: 2,
 } as const;
@@ -1150,10 +1284,20 @@ export const BEAD_STYLE_MAX_ALPHA_LAYERS = 2;
    ⛔ 不解析字符串字面量（诚实登记，不冒充完整 AST 门）。 */
 export const FACET4_STYLE_ID = 'facet-4';
 /**
- * 复刻·四棱 #1 底 rect 的 `mix(base, −0.34)`（暗底兼描边；§7.11.1）。
+ * 复刻·四棱 #1 底 rect 的 `mix(base, −0.44)`（暗底兼描边；§7.11.1 的 #1 `plate`）。
  * ⚠ 职能 = 底衬/描边 ⇒ **不进 C12 珠面族统计域**（contract.ts 层 role 标 `plate`）。
+ *
+ * **−0.34 → −0.44（WXG-T-214，2026-09-26 用户拍板）**：四棱 0 真 α ⇒ 珠的轮廓只能由
+ * `plate` 环承载；而 `−0.34` 与 B0 目标底图（`endpoint.edge` = `−0.30`）**只差 4%**
+ * ⇒ 实测对比度 CR 1.03–1.12（10 色），正确落位时珠的**下 / 右刻面**（墨同为 `edge`，
+ * CR 1.00）连同底衬一起溶进底色，只有上/左两个刻面在承载轮廓。
+ * 取 `−0.44` = `−(SOCKET_EDGE_DARK_MIX 0.30 + SOCKET_PIT_DARKEN 0.14)`，即**与「坑底」
+ * 同档**（`endpoint.pit`）⇒ 环与底图恒差两档（CR ≈ 1.7–1.8），且复用既有 mix 族、零新 hex。
+ * ⛔ 不用 `stroke` 实现（`KIND_POLICY['facet-4'].allowStroke = false`，见 `facet-4.ts` 注）。
+ * ⚠ **属视觉变更**：`tests/bead-style-seal.test.ts` 腿 2（`facet-4` #1–#5 ≡ HEAD）需按
+ * 封箱流程重封；本值 **`[待真机]`**（真机 ×0.5 下环宽 ≈1 CSS px）。
  */
-export const FACET4_PLATE_MIX = -0.34;
+export const FACET4_PLATE_MIX = -0.44;
 /** 复刻·四棱 #3 右刻面的 `mix(base, −0.16)`（§7.11.1 / §7.12 表外系数）。 */
 export const FACET4_FACET_RIGHT_MIX = -0.16;
 /**
@@ -1219,6 +1363,54 @@ export const LINEART_EDGE_W = 0.72;
 export const LINEART_EDGE_H = 0.16;
 /** `18` #4 下暗带圆角（§7.11.3 行 4：`r = 0.08S`）。 */
 export const LINEART_EDGE_RADIUS = 0.08;
+
+/* **换肤设置文案与豆径档枚举**（WXG-T-211-S5 / EP11-S5 · §12.9 步 5；S9 v1.7 §2.2 行4 +
+   ux v1.19 §3.3 文案映射表）。两钮 = **选择器钮**（点按循环切档、非开关；钮面 = 标签 +
+   当前值字面 + `▸`，选择即确认、写档一次、无「确认」钮）。
+   ⛔ **文案禁写死款数**（S9 §2.2「珠子风格钮文案规则」条 / U16 = 甲；QA `TC-STY-11` 腿 B 的
+   「共 N 款」grep 门常驻会抓）⇒ 下面的表**只是 styleId → 玩家侧名的映射，不构成池清单**：
+   循环一律走 `registry.registeredStyles()` 的**运行时注册序**（S9 §8-14），表内缺项**不阻断**
+   （`beadStyleLabel()` 回落 id 本身）⇒ 池扩容只改 registry 一处、本表与框都不动（§2.2 ④）。
+   ⚠ 住址权衡（已回传）：「注册即可见」更纯的形态是把 label 做成 `BeadStyle` 契约字段，但那要给
+   三套风格模块各加一字段并牵动 C11 池门禁的层集 schema；本批取本文件既有分工（三个 `*_STYLE_ID`
+   常量本就住这里 ⇒ 同文件引用、零跨模块字面量），并由 `tests/bead-style-settings.test.ts`
+   机检「每个已注册 id 必须有 label」钉住本表不落后于池。 */
+/** styleId → 玩家侧标签（内部正名见各风格模块头注：`facet-4` = 复刻·四棱刻面）。 */
+export const BEAD_STYLE_LABELS: Readonly<Record<string, string>> = Object.freeze({
+  [FACET4_STYLE_ID]: '经典四棱',
+  [DUAL13_STYLE_ID]: '双色对角',
+  [LINEART18_STYLE_ID]: '线稿描边',
+});
+
+/**
+ * 钮面取标签：表内无项 ⇒ 回落 **id 本身**。
+ * ⛔ 不得回落「默认档名」——那会把「未注册 / 未配文案」演成「已注册四棱」，正是 K-035 禁的假象。
+ */
+export function beadStyleLabel(styleId: string): string {
+  return BEAD_STYLE_LABELS[styleId] ?? styleId;
+}
+
+/**
+ * **豆径档枚举**（内部正名「满豆 / 小豆」= S9 §2.2 / §12 S5·S9；玩家侧文案「标准 / 小巧」）。
+ * 存档字段 `settings.beadSize` 即存本枚举单值（S8 §8-11「字段名与结构终稿归代码」），
+ * 逐字段降级见 `save-schema.ts::normalizeSettings`（⛔ 不进 §3 冻结：呈现层量，判例 = `debugInfo`）。
+ */
+export const BEAD_SIZE_FULL = 'full';
+export const BEAD_SIZE_SMALL = 'small';
+/** 豆径档联合类型（`BeadsSettings.beadSize` / `BeadsSnapshot.beadSize` / 循环算式共用）。 */
+export type BeadSizeKind = typeof BEAD_SIZE_FULL | typeof BEAD_SIZE_SMALL;
+/** 循环序 = 数组序（S9 §8-14「两档循环、到末档回第一档」；与风格池同一条「注册序即循环序」口径）。 */
+export const BEAD_SIZE_ORDER: readonly BeadSizeKind[] = Object.freeze([
+  BEAD_SIZE_FULL,
+  BEAD_SIZE_SMALL,
+]);
+/** 默认档 = **满豆**（= 现状档；S8 §8-12 与 S9 §8-18 的降级目标与此同值，⛔ 两处各写一份）。 */
+export const BEAD_SIZE_DEFAULT: BeadSizeKind = BEAD_SIZE_FULL;
+/** 豆径档玩家侧标签（ux §3.3 文案映射表行4-2「标准 → 小巧 →（回第一）」）。 */
+export const BEAD_SIZE_LABELS: Readonly<Record<BeadSizeKind, string>> = Object.freeze({
+  [BEAD_SIZE_FULL]: '标准',
+  [BEAD_SIZE_SMALL]: '小巧',
+});
 /**
  * 裁定 1（用户 2026-09-16）：结算面板**延迟 WAVE_MS 开**——庆祝先行放完再落遮罩。
  * 代价已写入 ux-spec §5（过关到可点按钮多等 800ms）。
@@ -1425,6 +1617,49 @@ export const BOARD_FIT_MARGIN = 24;
  */
 export const CAMERA_ZOOM_MAX_SPAN = 2.5; // [待确认]
 
+// ───────────── 棋盘缩放控件（盘面下方净空带 · 工程占位，与上方相机组同口径）─────────────
+// ⚠ 数值**未冻结**：与 `CAMERA_ZOOM_MAX_SPAN` 同批属 `systems-index §3` 真源（[待确认]）。
+/** 控件条各元素热区边长（= `TOUCH_MIN`，`accessibility C1`「视觉不变、热区扩大」）。 */
+export const ZOOM_CTRL_HOT = TOUCH_MIN;
+/** 控件条距 `PUZZLE_BAND` 左缘的内边距（设计 px）。 */
+export const ZOOM_CTRL_PAD = 12;
+/** slider 轨道热区宽（视觉轨道在热区内缩绘制）。 */
+export const ZOOM_SLIDER_HOT_W = 240;
+/**
+ * 控件条与盘带下沿的**让位量**：放大到最大档时，最底行格的命中框会向下外溢
+ * `BEAD_HIT_PAD × zoom`（热区不随 `BEAD_CELL` 缩 ⇒ 只随 zoom 缩）= 8 × 2.5 = **20**。
+ * 控件条上界 = `PUZZLE_BAND.yMin − 本值` ⇒ 与盘面热区**相切不重叠**（珠子本体永不越带沿）。
+ */
+export const ZOOM_CTRL_BOARD_CLEARANCE = BEAD_HIT_PAD * CAMERA_ZOOM_MAX_SPAN; // 20
+
+/** 缩放控件几何（渲染 `view-model` 与命中 `beads-game` **单一真源**，`gridLayoutFor` 判例）。 */
+export interface ZoomControlLayout {
+  readonly reset: { x: number; y: number; w: number; h: number };
+  readonly fit: { x: number; y: number; w: number; h: number };
+  readonly track: { x: number; y: number; w: number; h: number };
+}
+
+/**
+ * 缩放控件条：[1:1][适配][slider]，各热区 88×88，**落在盘面以外的底部净空带**（现 y∈[452,540]）。
+ * 上沿 = `PUZZLE_BAND.yMin − ZOOM_CTRL_BOARD_CLEARANCE`（与放大态盘热区相切）⇒ 没有一颗珠子的
+ * 点击被吃掉；下沿 = 452，距托盘 row0 槽热区顶 444 有 **8px** 富余（`[待真机]`）⇒ 也不抢托盘。
+ * 零遮叠 = 本函数存在的意义；不变量钉在 `tests/tuning.test.ts`（符号式，不写快照数）。
+ * 事件语义：轨道按下/拖动 → 线性映射 zoom；`reset` → 恒等相机（1.0×）；`fit` → `fitCamera`。
+ */
+export function zoomControlLayout(): ZoomControlLayout {
+  const y = PUZZLE_BAND.yMin - ZOOM_CTRL_BOARD_CLEARANCE - ZOOM_CTRL_HOT;
+  return {
+    reset: { x: ZOOM_CTRL_PAD, y, w: ZOOM_CTRL_HOT, h: ZOOM_CTRL_HOT },
+    fit: { x: ZOOM_CTRL_PAD + ZOOM_CTRL_HOT, y, w: ZOOM_CTRL_HOT, h: ZOOM_CTRL_HOT },
+    track: {
+      x: ZOOM_CTRL_PAD + ZOOM_CTRL_HOT * 2 + 8,
+      y,
+      w: ZOOM_SLIDER_HOT_W,
+      h: ZOOM_CTRL_HOT,
+    },
+  };
+}
+
 /**
  * Derive the band-centred grid geometry for a `cols × rows` pattern, optionally
  * transformed by a board camera (WXG-T-169 / ADR-0015 丁-3).
@@ -1432,17 +1667,18 @@ export const CAMERA_ZOOM_MAX_SPAN = 2.5; // [待确认]
  * **本函数零逻辑改动**（§3.3 v1.57）：它已经全量由 `BEAD_PITCH / BEAD_CELL / BEAD_GAP`
  * 派生 ⇒ 换基尺 = 自动等比缩。动的只是下面的注释快照（旧文是 52 基取证，K-053）。
  *
- * Horizontal: centred in 750. Vertical: centred in `PUZZLE_BAND`（高 640）。
+ * Horizontal: centred in 750. Vertical: centred in `PUZZLE_BAND`（现高 560；旧 640，
+ * 下沿 480→560 为缩放控件条让高，见 §3.1 行注）。
  * 约束**全部符号化、不写快照数**（§3.3 v1.57 新行）：
  *  `gridLeft ≥ BEAD_CELL/2`（边缘珠外溢不越屏）、`gridTop ≤ PUZZLE_BAND.yMax`、
- *  `gridBottom ≥ PUZZLE_BAND.yMin`、`natH ≤ 640 − BEAD_CELL`。
+ *  `gridBottom ≥ PUZZLE_BAND.yMin`、`natH ≤ 带高 − BEAD_CELL`。
  * 旧文「left ≥ 30 容纳到 13 列：(750−674)/2 = 38」与「12 行：1111/489」均为 52 基快照，
  * 随本次改注作废（32 基下 13 列 = `(750−414)/2 = 168`）。
  *
  * **顶格档（`fit = 1` 的最大盘，由 `BOARD_FIT_MARGIN` 而非本函数决定）**：
- *  `c_max = floor((750 − 2×24 + 2)/32) = 22`、`r_max = floor((640 − 2×24 + 2)/32) = 18`
- *  ⇒ **v1.57 顶格档 13×11 → 22×18**（守卫断言见 `tests/board-camera.test.ts` 的
- *  「§3.3 v1.57 顶格档」例：公式腿 + 字面快照腿双钉）。
+ *  `c_max = floor((750 − 2×24 + 2)/32) = 22`、`r_max = floor((560 − 2×24 + 2)/32) = 16`
+ *  ⇒ 历史：13×11（52 基）→ 22×18（§3.3 v1.57）→ **22×16（盘带下沿抬至 560）**。
+ *  守卫断言见 `tests/board-camera.test.ts`「顶格档」例（公式腿 + 字面快照腿双钉）。
  *
  * With `camera` omitted (or identity zoom=1 / offset=0) the produced numbers are
  * **bit-identical** to the pre-zoom version — the level layout, snapshot and

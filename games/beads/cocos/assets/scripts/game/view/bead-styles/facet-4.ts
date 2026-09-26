@@ -99,6 +99,13 @@ function facet4Layers({
 
   // #1 底 rect（`plate` 职能 = 暗底兼描边 ⇒ 排除出 C12 统计域）。radius 与十层同源：
   // `round(0.30S)` = `BEAD_CARD.radius`（§1.1 K1），⛔ 不在风格内重算圆角（K-042）。
+  //
+  // ⚠ **WXG-T-214（2026-09-26 用户拍板）轮廓可读性**：四棱无阴影层 ⇒ 珠的**下 / 右刻面**
+  // 墨 = `edge`，与 B0 目标底图（同为 `edge`）**逐字同色（CR 1.00）**；正确落位时珠的下半圈
+  // 整个溶进底色，只剩上/左两个刻面在承载轮廓。修法 = **加深本行**（`plate` 的职能本就是
+  // 「暗底兼描边」，§7.11.1）⇒ 见 `tuning.FACET4_PLATE_MIX` 注。
+  // ⛔ **不走 `stroke`**：`KIND_POLICY['facet-4'].allowStroke = false`（倒角线族退役的负向
+  // 防复活门，`tests/bead-style-ledger.test.ts` §K.5 行 5–8 + 变异臂），加描边层当场判红。
   PLATE.x = -h;
   PLATE.y = -h;
   PLATE.w = size;
@@ -137,7 +144,11 @@ function facet4Layers({
   // #6 单孔（甲口径，K3）：`r = 0.22S`（唯一真源 = `BEAD_CARD.holeRatio`）、
   // 孔底 = **目标格 `pit`**（通孔物理上透下去看见该格目标色）；无目标色（托盘珠）
   // ⇒ 按契约 `targetColorIdx ?? colorIdx` 回落本格 `pit`（仍是端点表内色，C3 零新色）。
-  HOLE.r = (size * BEAD_CARD.holeRatio) / 2;
+  // ⚠ **孔径取整（用户 2026-09-26 拍板：「孔径为整数、2 的倍数 px」）**：
+  // 半径取整 ⇒ **直径恒为偶数设计 px**；真源仍是 `BEAD_CARD.holeRatio 0.44`（Midi 实物真比），
+  // 本行只在派生末端做一次量化 ⇒ 恒等档珠面 26：⌀11.44 → **12 设计 px（6 CSS px）**，
+  // 小豆档 / zoom 各档同样保证偶数（⌀ 不会出现 11.44 这种半像素值）。
+  HOLE.r = Math.round((size * BEAD_CARD.holeRatio) / 2);
   HOLE.fill = endpointOf(inks, targetColorIdx ?? colorIdx).pit;
 
   return LAYERS;

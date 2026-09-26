@@ -10,7 +10,19 @@
  */
 
 import type { SaveDocument, Storage } from '../../framework/index';
-import { STAR_MAX, VIBRATE_DEFAULT } from '../config/tuning';
+import {
+  BEAD_SIZE_DEFAULT,
+  BEAD_SIZE_ORDER,
+  type BeadSizeKind,
+  STAR_MAX,
+  VIBRATE_DEFAULT,
+} from '../config/tuning';
+// **换肤两字段的注册真源 = style registry**（`view/bead-styles/registry.ts`）：S8 §8-12 构造 ③
+// 「`styleId` 字符串合法但未在 registry 注册 ⇒ 单独回落默认」只能在读档层判，否则非法值会
+// 一路走到渲染侧被「静默兜底」，档内永远留着脏值。方向说明：本行是 game → view 的**只读函数**
+// 引用（registry 仅 import tuning 与三套风格模块，无环）；默认档 id 与渲染默认**同一真源**
+// （`DEFAULT_BEAD_STYLE_ID`），⛔ 不得在存档层另写 `'facet-4'` 字面量。
+import { DEFAULT_BEAD_STYLE_ID, styleById } from '../view/bead-styles/registry';
 
 /**
  * Persisted toggles (save-progress §2.2 + accessibility D1/E2, WXG-T-088): four
@@ -39,6 +51,17 @@ export interface BeadsSettings {
    * 无需版本 bump）；仅控制覆层绘制，不碰玩法与存档数据。
    */
   readonly debugInfo: boolean;
+  /**
+   * 换肤两字段（**EP11-S5 / S8 v1.1 §8-11~13**）：珠子风格与豆径档的末值。
+   * - `beadStyle`：string styleId，默认 `DEFAULT_BEAD_STYLE_ID`（= `facet-4`）；
+   * - `beadSize`：枚举 BeadSizeKind，默认 BEAD_SIZE_DEFAULT（= 'full' 满豆）。
+   * 两者均住 `settings` 对象，随**即写**落盘（§2.5 即写族，与四开关同一写入通道），
+   * **不新造事件名**，**不存历史栈**（只存末值）。
+   * ⛔ **SAVE_VERSION 不 bump**：逐字段降级 = debugInfo 判例，缺字段按单字段默认处理，
+   *   无需版本迁移（S8 §8-12「version 无需为此 bump」）。
+   */
+  readonly beadStyle: string;
+  readonly beadSize: BeadSizeKind;
 }
 
 export interface BeadsSave extends SaveDocument {
@@ -120,7 +143,16 @@ export function defaultBeadsSave(): BeadsSave {
     sprintBestStage: 0,
     // 长度在 `normalizeBeadsSave(raw, levelCount)` 里按关卡表补齐（出厂默认不知关卡数）。
     starsByLevel: [],
-    settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: VIBRATE_DEFAULT, debugInfo: false },
+    settings: {
+      bgmMuted: false,
+      sfxMuted: false,
+      reduceMotion: false,
+      largeText: false,
+      vibrate: VIBRATE_DEFAULT,
+      debugInfo: false,
+      beadStyle: DEFAULT_BEAD_STYLE_ID,
+      beadSize: BEAD_SIZE_DEFAULT,
+    },
   };
 }
 
@@ -140,6 +172,14 @@ function boolField(raw: unknown, key: string, fallback: boolean): boolean {
 
 /** Normalise the `settings` sub-document — never throws, never drops the save. */
 export function normalizeSettings(raw: unknown): BeadsSettings {
+  // 换肤两字段的**逐字段**降级（S8 §8-12 四构造：①缺字段 ②类型错 ③未注册 ④越界）：
+  // - `beadStyle`：非字符串 / 空串 / **未在 registry 注册** ⇒ 单独回落 `DEFAULT_BEAD_STYLE_ID`；
+  // - `beadSize`：非枚举值 ⇒ 单独回落 `BEAD_SIZE_DEFAULT`（= 满豆）。
+  // 两者**互不牵连**，也不牵其余六字段（S9 §8-18「不弃整档、其余字段无损」）；
+  // 本函数只在 BOOT / 写档兜底路径上跑，⛔ 不进每帧热路径（故 `includes` 与 `styleById` 的
+  // 开销可接受；渲染侧每帧取风格走 `bead-render` 的 `styleById`，Map.get 零分配）。
+  const styleRaw = isRecord(raw) ? raw['beadStyle'] : undefined;
+  const sizeRaw = isRecord(raw) ? raw['beadSize'] : undefined;
   return {
     bgmMuted: boolField(raw, 'bgmMuted', false),
     sfxMuted: boolField(raw, 'sfxMuted', false),
@@ -148,6 +188,13 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
     // §3.8 VIBRATE_DEFAULT = ON：缺字段降级为 true（与其余四开关的 false 相反）。
     vibrate: boolField(raw, 'vibrate', VIBRATE_DEFAULT),
     debugInfo: boolField(raw, 'debugInfo', false),
+    beadStyle:
+      typeof styleRaw === 'string' && styleById(styleRaw) !== undefined
+        ? styleRaw
+        : DEFAULT_BEAD_STYLE_ID,
+    beadSize: (BEAD_SIZE_ORDER as readonly string[]).includes(sizeRaw as string)
+      ? (sizeRaw as BeadSizeKind)
+      : BEAD_SIZE_DEFAULT,
   };
 }
 
@@ -191,6 +238,20 @@ function sameNumbers(a: readonly number[], b: readonly number[]): boolean {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
+/** 逐字段比较（含 normalize 兜底的缺字段 / 类型错场景），⛔ 不对整个 settings 对象做序列化比较。 */
+function settingsEqual(a: BeadsSettings, b: BeadsSettings): boolean {
+  return (
+    a.bgmMuted === b.bgmMuted &&
+    a.sfxMuted === b.sfxMuted &&
+    a.reduceMotion === b.reduceMotion &&
+    a.largeText === b.largeText &&
+    a.vibrate === b.vibrate &&
+    a.debugInfo === b.debugInfo &&
+    a.beadStyle === b.beadStyle &&
+    a.beadSize === b.beadSize
+  );
+}
+
 /** Repair a loaded document into a valid one (degrade, never throw). */
 export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeResult {
   const boundedCount = Math.max(1, Math.floor(levelCount));
@@ -201,6 +262,8 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
   const maxUnlocked = levelIndex(raw['maxUnlockedLevel'], boundedCount);
   const current = levelIndex(raw['currentLevel'], boundedCount);
   const rawStars = raw['starsByLevel'];
+  // 一次性取出原始 settings 引用（归一入参、`changed` 比较与注释均读它，⛔ 不二次下标）。
+  const rawSettings = raw['settings'];
 
   const save: BeadsSave = {
     version: SAVE_VERSION,
@@ -211,7 +274,7 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     sprintBestScore: num(raw['sprintBestScore'], 0),
     sprintBestStage: num(raw['sprintBestStage'], 0),
     starsByLevel: normalizeStars(rawStars, boundedCount),
-    settings: normalizeSettings(raw['settings']),
+    settings: normalizeSettings(rawSettings),
   };
 
   const changed =
@@ -222,13 +285,16 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     raw['sprintBestStage'] !== save.sprintBestStage ||
     !Array.isArray(rawStars) ||
     !sameNumbers(rawStars as number[], save.starsByLevel) ||
-    raw['settings'] === undefined ||
-    save.settings.bgmMuted !== boolField(raw['settings'], 'bgmMuted', false) ||
-    save.settings.sfxMuted !== boolField(raw['settings'], 'sfxMuted', false) ||
-    save.settings.reduceMotion !== boolField(raw['settings'], 'reduceMotion', false) ||
-    save.settings.largeText !== boolField(raw['settings'], 'largeText', false) ||
-    save.settings.vibrate !== boolField(raw['settings'], 'vibrate', VIBRATE_DEFAULT) ||
-    save.settings.debugInfo !== boolField(raw['settings'], 'debugInfo', false);
+    rawSettings === undefined ||
+    !isRecord(rawSettings) ||
+    // **B1-Q3 `changed` 自我比较怪癖修正**（EP11-S5）：旧写法将 `normalizeSettings(raw)`
+    // 与 `save.settings`（**同一次 normalize 的产物**）手展开逐字段比较 ⇒ 两恒相等，
+    // settings 字段除了「整体缺失」外永不报 changed（单字段缺失 / 非法值不补写回）。
+    // 现按**原始文档 vs 归一结果**比较 ⇒ 缺字段与非法值都能触发一次补写回。
+    // 口径不变项：仍为 patch 型全量写档、只存末值、不 bump `SAVE_VERSION`（S8 §8-12）。
+    // 下转安全：上一行 `isRecord` 已保证它是对象；字段缺失 / 类型错读出 `undefined` 或不
+    // 等值 ⇒ 恰好是要报 changed 的场景（本处不需要归一后的类型，比较的就是原始脏值）。
+    !settingsEqual(rawSettings as unknown as BeadsSettings, save.settings);
 
   return { save, changed };
 }

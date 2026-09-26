@@ -59,6 +59,7 @@ import {
   DEFAULT_TUNING,
   GEAR_HIT_SIZE,
   HUD_BAND,
+  zoomControlLayout,
   REVIVE_BONUS_SEC,
   REVIVE_MAX_PER_LEVEL,
   SELECT_LIFT_MS,
@@ -98,6 +99,9 @@ import {
   hitGridCell,
   nextBeadLod,
   ZOOM_LOD_LAYERS,
+  BEAD_SIZE_DEFAULT,
+  BEAD_SIZE_ORDER,
+  type BeadSizeKind,
   IDENTITY_CAMERA,
   BOARD_TAP_MOVE_THRESHOLD,
   PUZZLE_BAND,
@@ -109,6 +113,10 @@ import {
   type PowerupType,
 } from '../config/tuning.js';
 import { BEADS_AUDIO_VOICES } from '../config/audio-voices.js';
+// **EP11-S5 / §12.9 步 5**：换肤两钮的循环真源 = style registry（注册序即循环序，S9 §8-14）。
+// 只取**只读函数与默认档 id**（零分配：`registeredStyles()` 返回冻结数组，不取会 `.map` 的
+// `registeredStyleIds()`）；渲染侧另走 `bead-render` 自己的 `styleById` 查表（本文件不持风格对象）。
+import { DEFAULT_BEAD_STYLE_ID, registeredStyles } from '../view/bead-styles/registry.js';
 import {
   LEVELS,
   buildStagePattern,
@@ -146,6 +154,12 @@ import {
   createGesture,
   resetGesture,
   fitCamera,
+  clampCamera,
+  computeFitZoom,
+  resetCamera,
+  setCameraZoom,
+  sliderTFromZoom,
+  zoomFromSliderT,
 } from '../systems/board-camera.js';
 import { GameTimer } from '../systems/timer.js';
 import { SprintTracker } from '../systems/sprint.js';
@@ -445,6 +459,14 @@ export class BeadsGame implements Game {
   private _frameMs = 0;
   /** §3.8 震动开关镜像（VIBRATE_DEFAULT = ON；init 时从存档装载）。 */
   private _vibrate = VIBRATE_DEFAULT;
+  /**
+   * **换肤两档镜像**（EP11-S5 / S9 v1.7 §2.2 行4；S8 §8-11：存档为权威，本处是内存副本）。
+   * `null` 不属本空域——两字段都是**单值**，初值 = 默认档，`init()` 从存档覆盖；
+   * 写入只经 `_cycleBeadStyle` / `_cycleBeadSize` 两枚**循环 setter**（各写各字段恰 1 次，
+   * S9 §8-16）⇒ 不存在第二写入点，也不得把两字段合并成一个「设置对象」写（那会互相重置）。
+   */
+  private _beadStyle: string = DEFAULT_BEAD_STYLE_ID;
+  private _beadSize: BeadSizeKind = BEAD_SIZE_DEFAULT;
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
   private readonly _onMenuRequest?: () => void;
   /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
@@ -466,6 +488,8 @@ export class BeadsGame implements Game {
   private _tapActive = false; // owner pressed inside the board region → tap deferred to lift
   private _tapMoved = false; // single-finger drag past threshold → pan, suppress tap
   private _pinched = false; // a second finger joined → pinch, suppress tap
+  /** 手指落在 slider 轨道上 → 拖拽映射 x→zoom（吞掉棋盘 tap/pan/pinch）。 */
+  private _zoomSliderDrag = false;
   /**
    * 调试专用逐帧累计（`debugGestureState` 读）：pan 分支跑了多少帧、pan 总位移、
    * 进过 drag 态的帧数。预分配常量字段，热路径**零分配**，不影响行为。
@@ -673,6 +697,19 @@ export class BeadsGame implements Game {
     return this._debugInfo;
   }
 
+  /**
+   * 当前珠子风格 id（EP11-S5 / S9 §2.2 行4 左格）。**view 查 registry 的唯一入口**（L5：
+   * 渲染层不持有游戏状态，只读本值），未经渲染侧兵，非法值已在 `normalizeSettings` 降级。
+   */
+  get beadStyle(): string {
+    return this._beadStyle;
+  }
+
+  /** 当前豆径档（EP11-S5 / S9 §2.2 行4 右格；仅网格珠读，托盘珠恒满幅不读本值）。 */
+  get beadSize(): BeadSizeKind {
+    return this._beadSize;
+  }
+
   /** BOOT validation failures ('' when the level data is clean). */
   get bootError(): string {
     return this._bootErrors.join('; ');
@@ -734,6 +771,9 @@ export class BeadsGame implements Game {
     this._largeText = normalized.save.settings.largeText;
     this._vibrate = normalized.save.settings.vibrate;
     this._debugInfo = normalized.save.settings.debugInfo;
+    // EP11-S5：换肤两档从存档装载（非法值已由 `normalizeSettings` 逐字段降级为默认档）。
+    this._beadStyle = normalized.save.settings.beadStyle;
+    this._beadSize = normalized.save.settings.beadSize;
     this._applyAudioChannels();
 
     this._subscribe();
@@ -1340,6 +1380,14 @@ export class BeadsGame implements Game {
       case 'toggle-debug-info':
         this.setDebugInfo(!this._debugInfo);
         return;
+      case 'cycle-bead-style':
+        // EP11-S5 行4 左格（菜单设置 overlay 入口）：与暂停面板同一私有 setter ⇒ 两入口一致。
+        this._cycleBeadStyle();
+        return;
+      case 'cycle-bead-size':
+        // EP11-S5 行4 右格（同上）。
+        this._cycleBeadSize();
+        return;
       default:
         return;
     }
@@ -1892,6 +1940,10 @@ export class BeadsGame implements Game {
 
     if (snap.justDown) {
       vp.screenToDesign(this._pointer, snap.x, snap.y);
+      // 缩放控件（盘面下方净空带）：按下即提交/进入拖拽态，吞掉事件不进棋盘手势。
+      if (playing && this._zoomControlDown(this._pointer.x, this._pointer.y, !!snap.justUp)) {
+        return;
+      }
       // 棋盘区起手域 = PUZZLE_BAND 整块（不限「命中某格」）：真机拖拽可从盘面任意处起手。
       const onBoard =
         playing && this._pointer.y >= PUZZLE_BAND.yMin && this._pointer.y <= PUZZLE_BAND.yMax;
@@ -1910,6 +1962,13 @@ export class BeadsGame implements Game {
         this._handleTap(this._pointer.x, this._pointer.y); // 区外：按下即提交（语义不变）
         return;
       }
+    }
+
+    if (this._zoomSliderDrag && snap.isDown) {
+      vp.screenToDesign(this._pointer, snap.x, snap.y);
+      this._applyZoomSlider(this._pointer.x);
+      if (snap.justUp) this._zoomSliderDrag = false;
+      return;
     }
 
     if (this._tapActive && snap.isDown) {
@@ -1949,6 +2008,7 @@ export class BeadsGame implements Game {
       this._tapActive = false;
       this._tapMoved = false;
       this._pinched = false;
+      this._zoomSliderDrag = false;
       this._dbgPan.frames = 0;
       this._dbgPan.dxSum = 0;
       this._dbgPan.movedFrames = 0;
@@ -1980,6 +2040,13 @@ export class BeadsGame implements Game {
 
   private _routeTap(x: number, y: number): void {
     this._consumedTap = false;
+    // S2 route 0 — 缩放控件（盘面下方净空带）：仅 PLAYING；吞掉不落盘、不进道具/托盘路由。
+    // 与 `_readInput` 的按下拦截共用 `_zoomControlDown`（真机走前者、`tapDesign` 调试走后者）。
+    if (this._machine.current === 'playing' && this._zoomControlDown(x, y, true)) {
+      this._consumedTap = true;
+      this._sfx(AUDIO_CLIP_UI_TAP);
+      return;
+    }
     // S2 route 1 — the gear is evaluated **before** the phase router and it is
     // only meaningful while PLAYING (pause-settings §2.1: 其余状态点齿轮 = 忽略).
     // Crucially the tap is *swallowed* rather than falling through to the
@@ -2282,6 +2349,57 @@ export class BeadsGame implements Game {
     return x >= 0 && x <= GEAR_HIT_SIZE && y >= HUD_BAND.yMin && y <= HUD_BAND.yMax;
   }
 
+  // ────────── 棋盘缩放控件（盘面下方净空带，几何与 view-model 同源 `zoomControlLayout`）
+
+  /** 命中缩放控件条（热区各 88×88）：`reset`「1:1」/ `fit` 适配 / `track` slider。 */
+  private _zoomControlHit(x: number, y: number): 'reset' | 'fit' | 'track' | null {
+    const zc = zoomControlLayout();
+    const inside = (r: { x: number; y: number; w: number; h: number }): boolean =>
+      x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+    if (inside(zc.reset)) return 'reset';
+    if (inside(zc.fit)) return 'fit';
+    if (inside(zc.track)) return 'track';
+    return null;
+  }
+
+  /**
+   * 缩放控件按下处理；返回 true = 事件已消费（不进棋盘 tap/pan/pinch）。
+   * `justUp`（同帧 down+up，WXG-T-170 口径）时 track 只做一次性提交、不进拖拽态。
+   */
+  private _zoomControlDown(x: number, y: number, justUp: boolean): boolean {
+    const hit = this._zoomControlHit(x, y);
+    if (!hit) return false;
+    if (hit === 'reset') {
+      this._resetZoom();
+    } else if (hit === 'fit') {
+      fitCamera(this._camera, this._grid.cols, this._grid.rows);
+      this._recomputeLayout();
+    } else {
+      this._applyZoomSlider(x);
+      this._zoomSliderDrag = !justUp;
+    }
+    return true;
+  }
+
+  /** slider x（设计空间）→ zoom：轨道线性映射，`setCameraZoom` 内夹取到 `[fit, fit×SPAN]`。 */
+  private _applyZoomSlider(x: number): void {
+    const track = zoomControlLayout().track;
+    setCameraZoom(
+      this._camera,
+      zoomFromSliderT((x - track.x) / track.w, computeFitZoom(this._grid.cols, this._grid.rows)),
+      this._grid.cols,
+      this._grid.rows,
+    );
+    this._recomputeLayout();
+  }
+
+  /** 「1:1」：还原 1.0 倍缩放（复位到恒等相机：zoom=1、平移归零）。 */
+  private _resetZoom(): void {
+    resetCamera(this._camera);
+    clampCamera(this._camera, this._grid.cols, this._grid.rows);
+    this._recomputeLayout();
+  }
+
   /**
    * Powerup card hot zone — the *drawn* rect, from the shared
    * `powerupCardRects()` (§3.8: card height ≥ TOUCH_MIN, so no extra expansion;
@@ -2334,6 +2452,14 @@ export class BeadsGame implements Game {
       case 'toggle-debug-info':
         // pause-settings v1.6 §2.2：只写设置 + 经 snapshot 回显（不切相位），真机 QA 无 console 时的性能诊断入口。
         this.setDebugInfo(!this._debugInfo);
+        return;
+      case 'cycle-bead-style':
+        // EP11-S5 行4 左格（S9 §2.2「选择器钮」）：只换档 + 写档，留 PAUSED、不推计时。
+        this._cycleBeadStyle();
+        return;
+      case 'cycle-bead-size':
+        // EP11-S5 行4 右格（同上）。
+        this._cycleBeadSize();
         return;
       case 'go-menu':
         // 回主菜单（pause-settings v1.4 §8-11，WXG-T-165 真机反馈反转）：上报意图、
@@ -2658,6 +2784,9 @@ export class BeadsGame implements Game {
         largeText: this._largeText,
         vibrate: this._vibrate,
         debugInfo: this._debugInfo,
+        // EP11-S5：两字段并入同一次 patch ⇒ 与开关共用「整对象一次写」口径（S8 §6 幂等）。
+        beadStyle: this._beadStyle,
+        beadSize: this._beadSize,
       },
     });
     save.save();
@@ -2693,6 +2822,47 @@ export class BeadsGame implements Game {
     this._vibrate = on;
     this._persistSettings();
     this._emit('settings:vibrate', { on });
+  }
+
+  /**
+   * **行4 左格「珠子风格」循环**（EP11-S5 / S9 v1.7 §2.2、§8-15/§8-16）。
+   *
+   * 循环序 = `registry` **注册序**（§8-15 真源；本函数不重排也不排序）；到达末档回绕到
+   * 首档。当前 id 不在注册表内（理论不可达：读档已在 `normalizeSettings` 降级）⇒ 落 index 0，
+   * ⛔ 不静默留档、也不新增事件名（S8 §8-12「不新造事件」）。
+   *
+   * 三条硬约束：① 每次调用 `_persistSettings()` **恰 1 次**（S9 §8-16「各写各字段恰 1 次」——
+   * 本函数只动 `beadStyle`，绝不顺手写 `beadSize`）；② 不切相位、不推计时、不动棋局（L5）；
+   * ③ 零分配热路径友好——面板点击非每帧，但仍走索引扫而不用 `find`/`map`（§2 纪律统一）。
+   */
+  private _cycleBeadStyle(): void {
+    const styles = registeredStyles();
+    let next = 0;
+    for (let i = 0; i < styles.length; i++) {
+      if (styles[i].id === this._beadStyle) {
+        next = (i + 1) % styles.length;
+        break;
+      }
+    }
+    this._beadStyle = styles[next].id;
+    this._persistSettings();
+  }
+
+  /**
+   * **行4 右格「豆子尺寸」循环**（EP11-S5 / S9 §2.2；档序 = `BEAD_SIZE_ORDER`，住 `tuning.ts`）。
+   * 与 `_cycleBeadStyle` 同门：一次调用只写 `beadSize` 一个字段、`_persistSettings()` 恰 1 次、
+   * 不切相位不推计时。生效面 = **仅网格珠珠体**（含已填态），托盘珠恒满幅不读本值（ux §3.3 ④）。
+   */
+  private _cycleBeadSize(): void {
+    let next = 0;
+    for (let i = 0; i < BEAD_SIZE_ORDER.length; i++) {
+      if (BEAD_SIZE_ORDER[i] === this._beadSize) {
+        next = (i + 1) % BEAD_SIZE_ORDER.length;
+        break;
+      }
+    }
+    this._beadSize = BEAD_SIZE_ORDER[next];
+    this._persistSettings();
   }
 
   /**
@@ -3204,6 +3374,12 @@ export class BeadsGame implements Game {
     s.gridPitch = this._layout.pitch;
     s.gridCell = this._layout.cell;
     s.beadLodLayers = this._beadLod ? ZOOM_LOD_LAYERS : 0; // 0 = 满层；视图只读不判阈值（C7 拆名：zoom LOD 用 ZOOM_LOD_LAYERS，不再蹭波浪常量）
+    // 缩放控件（盘面下方净空带）：slider 位置与倍率读数，视图只读（L5）。
+    s.zoomSliderT = sliderTFromZoom(
+      this._camera.zoom,
+      computeFitZoom(this._grid.cols, this._grid.rows),
+    );
+    s.camZoom = this._camera.zoom;
 
     // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and
     // leans on the always-on ad_badge, §2.6) + the one-shot over-limit hint.
@@ -3306,6 +3482,9 @@ export class BeadsGame implements Game {
     s.debugInfo = this._debugInfo;
     s.perfFrameMs = this._frameMs;
     s.vibrate = this._vibrate;
+    // EP11-S5 行4 两钮的档位回显 + view 换肤渲染的 styleId 入口（L5：view 只读、不判定）。
+    s.beadStyle = this._beadStyle;
+    s.beadSize = this._beadSize;
 
     const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);
     s.banner = copy.banner;

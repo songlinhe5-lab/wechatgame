@@ -108,11 +108,12 @@ describe('TC-STY-09 · C12 主体色不变式·主判据（弱读法，逐 inks 
                 new RegExp(`colorIdx=${ci} argmax=#\\w+\\(\\d+\\.\\d%\\) facetPx=\\d+/\\d+ 分布=`),
             );
         }
-        // ② 近并列注记在场（ci=1 实钉值：argmax=#b1aca3 25.3% vs base #FDF6E9 24.8%）。
+        // ② 近并列注记在场（ci=1 实钉值：argmax=#b1aca3 25.2% vs base #FDF6E9 24.8%）。
+        //   ⚠ WXG-T-214 同步：孔径取整（⌀11.44→12）⇒ 四枚刻面各让 ~70px² 给孔 ⇒ 25.3→25.2。
         expect(ok.out).toMatch(/C12 近并列登记 \[facet-4\]：10\/10 色/);
-        expect(ok.out).toMatch(/argmax=#b1aca3 25\.3% vs base #FDF6E9 24\.8%/);
+        expect(ok.out).toMatch(/argmax=#b1aca3 25\.2% vs base #FDF6E9 24\.8%/);
         // ②′ 占比台面上的 facetPx 也是实测值（统计域尺寸变了 ⇒ 一并钉，⛔ 不只钉百分数）。
-        expect(ok.out).toMatch(/colorIdx=1 argmax=#b1aca3\(25\.3%\) facetPx=7576\/14641/);
+        expect(ok.out).toMatch(/colorIdx=1 argmax=#b1aca3\(25\.2%\) facetPx=7292\/14641/);
         // ③ 弱读口径下无一条 C12 判红（注记文案本身含「不滑回强读法判红」字样 ⇒ 只钉违规标记）。
         expect(ok.out).not.toContain('C12 判红');
     });
@@ -222,14 +223,16 @@ describe('C12 重叠哨兵改写 · 逐风格钉值 + 死层硬门（§12.2 C12 
         // 旧门在这行上会判红（14641×10% = 1464 < 3453）⇒ 本条即「前提失效」的可复现登记。
         expect(ok.out).toMatch(/\[lineart-18\] 命令=5 真α=1 facet重叠px=3453/);
         // 顶面胜出实测逐层 px 钉值（= §6 差分记录的输入，K-051：实算值，⛔ 非解析推导值）。
-        expect(ok.out).toMatch(/\[lineart-18\][^\n]*facet顶面px=#2:9135 #3:1658 #4:1623/);
+        expect(ok.out).toMatch(/\[lineart-18\][^\n]*facet顶面px=#2:8961 #3:1592 #4:1579/);
         // 占比归一自证：三枚顶面之和 == 统计域总像素（叠压不重复计数）。
-        expect(9135 + 1658 + 1623).toBe(12416);
+        // ⚠ WXG-T-214 同步：孔径取整（⌀ 变化）⇒ 18 的孔边缘让出像素 ⇒ 三枚顶面 px 全变。
+        expect(8961 + 1592 + 1579).toBe(12132);
     });
 
     it('腿 ②（其余两套钉值在场 + 零死层）：facet-4 四枚、13 单枚顶面均 > 0', () => {
-        expect(ok.out).toMatch(/\[facet-4\][^\n]*facet重叠px=151 facet顶面px=#2:1875 #3:1882 #4:1906 #5:1913/);
-        expect(ok.out).toMatch(/\[dual-tone-13\][^\n]*facet重叠px=0 facet顶面px=#2:3819/);
+        // ⚠ WXG-T-214 同步：孔径取整（⌀11.44→12）⇒ 四枚刻面各让 ~70px² 给孔（1875→1805 等）。
+        expect(ok.out).toMatch(/\[facet-4\][^\n]*facet重叠px=151 facet顶面px=#2:1805 #3:1811 #4:1835 #5:1841/);
+        expect(ok.out).toMatch(/\[dual-tone-13\][^\n]*facet重叠px=0 facet顶面px=#2:3676/);
         expect(ok.out).not.toContain('C12 死层');
         expect(ok.out).not.toContain('C12 重叠登记缺失');
         expect(ok.out).not.toContain('C12 重叠钉值漂移');
@@ -254,10 +257,13 @@ describe('C12 重叠哨兵改写 · 逐风格钉值 + 死层硬门（§12.2 C12 
 });
 
 describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿）', () => {
-    // 腿 A（呈现门 + 阳性对照）：PAUSED 面板钮表**不含**「珠子风格」「豆子尺寸」，
-    // **但含**对照钮「性能信息」「回主菜单」（view-model.ts:196/:200 已落码锚）⇒
-    // 以对照钮在场证明「面板确实渲染了」，使缺位断言可判红（K-060，⛔ 永真断言）。
-    it('腿 A：PAUSED 帧 text 图元无两新钮字样、有对照钮字样（阳性对照在场）', async () => {
+    // 腿 A（呈现门 + 阳性对照）。**WXG-T-211-S5（步 5）翻转本例**（K-053：旧文字不净删，就地留档）：
+    // 旧断言（步 4 时点）= PAUSED 帧 text 图元 `not.toMatch(/珠子风格|豆子尺寸/)`，
+    // 它钉的是「注册 ≥ 2 而面板无钮 = §12.9 步 5 的**计划内时序**」（S4 登记）。
+    // 步 5 已落码行4 两钮 ⇒ 前提哨兵按 S9 v1.7 §8-19 收口为**反向**：注册数 ≥ 2 ⇒ 钮必 present。
+    // 阳性对照腿（K-060）保留且不可删：两枚对照钮（性能信息 / 回主菜单）必须在场，
+    // 否则「present」会因面板整体未渲染而假绿（历史同族缺陷）。
+    it('腿 A（步 5 已翻转）：注册 ≥ 2 ⇒ PAUSED 帧两钮 present，且现档名入文案', async () => {
         const { createBeadsHarness, simpleTestLevel } = await import('./helpers.js');
         const { RenderModelBuilder } = await import('@wxgame/framework');
         const { DESIGN_H, DESIGN_W, GEAR_HIT_SIZE, HUD_BAND } = await import('../src/config/tuning.js');
@@ -281,21 +287,31 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
             .commands.filter((c) => c.kind === 'text')
             .map((c) => String((c as { text?: unknown }).text));
 
-        expect(texts.join('¦')).not.toMatch(/珠子风格|豆子尺寸/);
-        // 阳性对照腿：两枚已落码对照钮必须在场，否则「不含」只是面板没渲染。
+        // 翻转后的主断言：两钮字样必在。
+        expect(texts.some((t) => t.includes('珠子风格'))).toBe(true);
+        expect(texts.some((t) => t.includes('豆子尺寸'))).toBe(true);
+        // §8-14「钮文案 = 现档显示」：默认档下必带风格名与豆径名（⛔ 不是只有标题）。
+        expect(texts.some((t) => t === '珠子风格  经典四棱')).toBe(true);
+        expect(texts.some((t) => t === '豆子尺寸  标准')).toBe(true);
+        // 阳性对照腿（旧口径原样保留）：两枚已落码对照钮必须在场。
         expect(texts.some((t) => t.includes('性能信息'))).toBe(true);
         expect(texts.some((t) => t === '回主菜单')).toBe(true);
     });
 
-    // 腿 B（文案静态门）：面板/overlay/风格模块文案源不得命中「共 N 款」写死款数。
+    // 腿 B（文案静态门）：面板/overlay/风格模块**与钮文案表**不得命中「共 N 款」写死款数。
+    // **WXG-T-211-S5 扩射程**：行4 钮文案自本批起同时出自 `meta-view.ts`（菜单设置 overlay）
+    // 与 `tuning.ts`（`BEAD_STYLE_LABELS` / `BEAD_SIZE_LABELS` 单源）⇒ 不扩则门只盖住一半。
     // ⛔ 规则可能恒不命中而假绿 ⇒ 变异自证（注入反例可命中→撤销）见
-    //   temp/wxg-t-211-b1/07-* 证据，与 S1/臂 B 变异同批。
+    //   temp/wxg-t-211-b1/07-* 证据，与 S1/臂 B 变异同批；本批改射程后的重跑证据
+    //   = `temp/wxg-t-211-s5/`（收工报告登记编号）。
     it('腿 B：文案源 grep「共 N 款」零命中（静态门本体）', () => {
         const sources = [
             'games/beads/src/view/view-model.ts',
             'games/beads/src/systems/pause-panel.ts',
             'games/beads/src/view/bead-styles/registry.ts',
             'games/beads/src/view/bead-styles/contract.ts',
+            'games/beads/src/view/meta-view.ts',
+            'games/beads/src/config/tuning.ts',
         ];
         for (const file of sources) {
             const text = readFileSync(resolve(REPO, file), 'utf8');
@@ -308,11 +324,9 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
     // 注册数仍为 1 ⇒ 钮必不呈现」这一**前提**。步 4 把 `13`/`18` 入池后该前提**如实失效** ⇒
     // 若继绩钉 ≤ 1，等于禁止入池（与 §12.9 步 4 本身相突）。改钉两件事：
     //  ① 注册数 ≥ 2（入池事实）与**注册序 = `§12.6` 池序**（表行序剔除已移出的 16/19）；
-    //  ② **面板仍无钮**（上方腿 A 已断）——「§8-19 后半句「注册 ≥ 2 时钮出现」**尚未实现**，
-    //     钮与循环属 §12.9 步 5（EP11-S5）⇒ 本批的「注册 ≥ 2 但面板无钮」是**计划内时序**，
-    //     ⛔ 不得当作 §8-19 违反而停批，也不得为了验“后半句”提前造钮（那越出本 Story 切片）。
-    //     → 已回传主理人，供 QA 翻转 `TC-STY-11` 措辞（拆为「呈现门属步 5」与「计数哨属本批」）。
-    it('前提哨兵（步 4 已翻转）：注册数 ≥ 2 且序 = §12.6 池序；「面板无钮」= 步 5 计划内时序（腿 A 断）', async () => {
+    //  ② 注册数 ≥ 2 且默认档不飘。**步 4 当时另钉的「面板仍无钮 = 计划内时序」后半句已随
+    //     EP11-S5（行4 两钮落码）收口** ⇒ 该句现由上方腿 A 的反向断言接管（present）。
+    it('前提哨兵（步 4 已翻转）：注册数 ≥ 2 且序 = §12.6 池序；「面板无钮」已随步 5 收口（腿 A 断）', async () => {
         const registry = await import('../src/view/bead-styles/registry.js');
         const ids = registry.registeredStyleIds();
         expect(ids.length).toBeGreaterThanOrEqual(2);

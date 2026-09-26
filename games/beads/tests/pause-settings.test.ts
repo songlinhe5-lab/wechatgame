@@ -373,6 +373,9 @@ describe('S9 pause & settings', () => {
       largeText: false,
       vibrate: true,
       debugInfo: false,
+      // EP11-S5：本腿未触行4 两钮 ⇒ 存档里两新字段保持默认档（S8 §8-11）。
+      beadStyle: 'facet-4',
+      beadSize: 'full',
     });
 
     // Relaunch on the same storage → both toggles echo back.
@@ -404,7 +407,17 @@ describe('S9 pause & settings', () => {
       expect(rectsOverlap(layout.panel, CAPSULE_AVOID)).toBe(false);
       expect(layout.panel.xMax - layout.panel.xMin).toBe(560);
       // WXG-T-164 批0：暂停面板专有高 480 → 600（容纳第 4 行冲刺/回主菜单）。
-      expect(layout.panel.yMax - layout.panel.yMin).toBe(600);
+      // **EP11-S5（S9 v1.7 五行终态）**：600 → 718 = 标题带 100 + 5×88 + 4×30 = 660
+      //   + 底衬 58（沿用四行时期的 58px 余量，⛔ 不污染共用 `PANEL_SIZE.h` = 480）。
+      //   避让实算：plate yMax = (1334+718)/2 = 1026 < CAPSULE_AVOID.yMin 1214 ✓。
+      expect(layout.panel.yMax - layout.panel.yMin).toBe(718);
+      // S9 §8-5 行重叠复核（EP11-S5 首次成行——五行扩容后「不重叠」才非平凡）：
+      // 任意两钮共享面积 ⇒ 命中测试会因数组序赢者吞掉后者。
+      for (let a = 0; a < layout.buttons.length; a++) {
+        for (let b = a + 1; b < layout.buttons.length; b++) {
+          expect(rectsOverlap(layout.buttons[a]!.rect, layout.buttons[b]!.rect)).toBe(false);
+        }
+      }
       for (const button of layout.buttons) {
         expect(rectsOverlap(button.rect, CAPSULE_AVOID)).toBe(false);
         expect(button.rect.xMax - button.rect.xMin).toBeGreaterThanOrEqual(TOUCH_MIN);
@@ -429,6 +442,15 @@ describe('S9 pause & settings', () => {
       expect(ids).toContain('toggle-large-text');
       expect(ids).toContain('toggle-vibrate');
       expect(ids).toContain('go-menu');
+      // **EP11-S5 / S9 v1.7 §8-14**：行4 两枚选择器钮与行5 两钮**两模式同构常驻**。
+      expect(ids).toContain('cycle-bead-style');
+      expect(ids).toContain('cycle-bead-size');
+      expect(ids).toContain('toggle-debug-info');
+      // 行位序（§2.2 五行终态）：行4 两钮必须在行5（性能信息 / 回主菜单）**之上**。
+      const yOf = (id: string): number =>
+        pausePanelLayout(mode).buttons.find((b) => b.id === id)!.rect.yMin;
+      expect(yOf('cycle-bead-style')).toBeGreaterThan(yOf('toggle-debug-info'));
+      expect(yOf('cycle-bead-size')).toBeGreaterThan(yOf('go-menu'));
     }
   });
 

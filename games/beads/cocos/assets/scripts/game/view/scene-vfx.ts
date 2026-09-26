@@ -31,6 +31,9 @@ import {
     SOLVER_HINT_MS,
     SOLVER_STAGGER_MS,
     SOLVER_PER_BEAD_MS,
+    SELECT_LIFT_PEAK_T,
+    SELECT_LIFT_REBOUND,
+    SELECT_LIFT_STAGGER,
     SWEEP_TAN,
     SWEEP_WIDTHS,
     SWEEP_X_FROM,
@@ -85,6 +88,52 @@ export function solverBeadProgress(tMs: number, step: number): number {
     const tau = tMs - (SOLVER_HINT_MS + SOLVER_STAGGER_MS * step);
     if (tau <= 0 || tau >= SOLVER_PER_BEAD_MS) return 0;
     return tau / SOLVER_PER_BEAD_MS;
+}
+
+// ───────────────────────── §5 选中抬起（v1.5-r16：错峰 + ease-in-out + 回弹）
+
+/**
+ * **组内错峰相位**：同一帧里把“从锚揭开”读出来，而不是整组齐跳（实测 L2/L4 的选中组 = 24/18 颗）。
+ *
+ * 名序 = `snap.boardGroupRows` 的下标 —— 该数组由 game 侧按**消费序**填（`planConsumeOrder`，
+ * 锚恒在序首，WXG-T-186）⇒ 视图只读序号，⛔ 不在本层重算 BFS（L5，也不与玩法序漂耦）。
+ * 形式上沿用 `solverBeadProgress` 的「逐颗局部相位」思路，但走**同窗口偏移**：总时长不变
+ * ⇒ **零新增毫秒值**（与 G2′ 需要逐颗累加时长的口径不同）。首颗占 `[0, 1−SPREAD]`、
+ * 组尾占 `[SPREAD, 1]` ⇒ 组尾与首颗同在 `p = 1` 到位（不留悬珠）。
+ *
+ * D1（`reduceMotion`）**不走本函数**（调用侧直接给 1：无斜坡、无错峰、无回弹）。
+ */
+export function liftStaggerPhase(
+    progress: number,
+    rank: number,
+    lastRank: number,
+): number {
+    const p = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 1;
+    if (!(lastRank > 0) || !(rank > 0)) {
+        return Math.min(1, p / (1 - SELECT_LIFT_STAGGER));
+    }
+    const q = Math.min(1, rank / lastRank) * SELECT_LIFT_STAGGER;
+    return Math.max(0, Math.min(1, (p - q) / (1 - SELECT_LIFT_STAGGER)));
+}
+
+/**
+ * **抬起曲线：ease-in-out 升 + 一次回弹**（用户 2026-09-26 要求）。
+ *
+ * 形状：`[0, PEAK_T]` 走 ease-in-out 升到 `1 + REBOUND`（过冲），`[PEAK_T, 1]` 走 ease-in-out
+ * 落回 `1` ⇒ “拿起来、“抖一下”定住”。分段在 `PEAK_T` 处连续（两段各取到 `1+R`）；
+ * **两端精确 `f(0) = 0`、`f(1) = 1`** ⇒ 稳态抬起量不变（现有 Δy 类判据不漂）。
+ * 缓动复用本模块已有的 `easeInOut`（smoothstep，与 `sweepCenterX` 同源），⛔ 不另开一份。
+ *
+ * 入参 = `liftStaggerPhase` 的**本珠相位**；非有限入参按 1（已到位）处理——与旧 `easeOutQuad`
+ * 同口径（避免异常值把珠永远压在底面）。
+ */
+export function liftEase(p: number): number {
+    const x = Number.isFinite(p) ? Math.max(0, Math.min(1, p)) : 1;
+    if (x <= SELECT_LIFT_PEAK_T) {
+        return (1 + SELECT_LIFT_REBOUND) * easeInOut(x / SELECT_LIFT_PEAK_T);
+    }
+    return 1 + SELECT_LIFT_REBOUND *
+        (1 - easeInOut((x - SELECT_LIFT_PEAK_T) / (1 - SELECT_LIFT_PEAK_T)));
 }
 
 // ───────────────────────────────── G3 `vfx_powerup_sweep`（§1.6.3）

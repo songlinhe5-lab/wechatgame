@@ -13,12 +13,18 @@
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand, type RectCommand } from '@wxgame/framework';
 import {
+  BEAD_CARD,
   BEAD_CELL,
   BEAD_DRAW_INSET,
   BEAD_PITCH,
   CLEAR_PANEL_DELAY_MS,
   GEAR_HIT_SIZE,
   HUD_BAND,
+  SELECT_LIFT_MS,
+  SELECT_LIFT_PX,
+  SELECT_LIFT_PEAK_T,
+  SELECT_LIFT_REBOUND,
+  SELECT_LIFT_STAGGER,
   SWEEP_ALPHAS,
   SWEEP_MS,
   SWEEP_TAN,
@@ -40,13 +46,15 @@ import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.
 import { drawLegacyTenBead } from '../src/view/bead-styles/legacy-ten.js';
 import {
   SWEEP_LAYER_COUNT,
+  liftEase,
+  liftStaggerPhase,
   sweepCenterX,
   sweepQuad,
   waveEnvelope,
   waveWindowMs,
   type WaveEnvelope,
 } from '../src/view/scene-vfx.js';
-import { BEAD_HIGHLIGHT_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, withAlpha } from '../src/view/palette.js';
+import { BEAD_HIGHLIGHT_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, endpointOf, withAlpha } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
@@ -92,6 +100,29 @@ function emitBead(options: FilledBeadOptions): readonly DrawCommand[] {
   drawFilledBead(builder, 200, 300, 1, options);
   return builder.end().commands;
 }
+
+/**
+ * 抬起珠的**珠心 y 与孔径**：取该格窗口内唯一的那枚 `circle` = 孔心（已填格无凹槽图元）。
+ * 定位不用尺寸公式（抄实现 ⇒ 变异时只报「找不到」而不报数字差）；位移拿珠心也是
+ * `§1.2` 既有判例：rect 底边会随放大偏移，珠心才是与缩放无关的正确基准。
+ */
+function liftedBeadAt(snap: BeadsSnapshot, row: number, col: number): { y: number; r: number } {
+  const bx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * col;
+  const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * row;
+  const got = renderSnap(snap).find(
+    (c) =>
+      c.kind === 'circle' &&
+      Math.abs((c as { x: number }).x - bx) <= snap.gridCell / 2 &&
+      Math.abs((c as { y: number }).y - cy) <= snap.gridCell,
+  );
+  expect(got, `格 (${row},${col}) 内未找到孔 ⇒ 本夹具没发抬起（或被可视窗剔除）`).toBeDefined();
+  return { y: (got as { y: number }).y, r: (got as { r: number }).r };
+}
+/** 该格格心 y（与 `drawGrid` 同一公式，⇒ 不依赖实现细节也能算位移）。 */
+const cellCenterY = (snap: BeadsSnapshot, row: number): number =>
+  snap.gridTop - snap.gridCell / 2 - snap.gridPitch * row;
+/** 本文件所有抬起用例的默认锚 = (1,2)（`mkMisplaced` 只摆这一颗）。 */
+const liftedBead = (snap: BeadsSnapshot): { y: number; r: number } => liftedBeadAt(snap, 1, 2);
 
 // ───────────────────────────────── G3 §1.6.3 · 包络
 
@@ -357,5 +388,155 @@ describe('G4 过关庆祝 · 裁定 1 的面板延迟门', () => {
     expect(h.game.phase).toBe('level-clear');
     expect(h.game.snapshot.waveProgress).toBe(0); // 整条关停
     expect(h.game.clearPanel.visible).toBe(true); // 无 800ms 惩罚
+  });
+});
+
+// ───────────────── §5 选中抬起 · 格级分离影（四棱基线补做）
+
+describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`）', () => {
+  /** 空盘 + 一颗色 1 的错位珠（(1,2) 底色 ≠ 1 ⇒ 可作板锚），**尚未选中**。 */
+  function mkMisplaced(saveKey: string): Harness {
+    const h = createBeadsHarness({
+      seed: 'lift-shadow',
+      noAssemble: true,
+      levels: [simpleTestLevel()],
+      saveKey,
+    });
+    h.game.goToLevel(0);
+    expect(h.game.grid.fill(1, 2, 1)).toBe(true);
+    return h;
+  }
+
+  /** 帧内的分离影：宽 = 缩放后格径 × `liftShadowW` 的 rect（该宽度无第二持有者）。 */
+  function pills(snap: BeadsSnapshot): RectCommand[] {
+    const w = snap.gridCell * BEAD_CARD.liftShadowW;
+    return renderSnap(snap).filter(
+      (c): c is RectCommand => c.kind === 'rect' && Math.abs(c.w - w) < 1e-9,
+    );
+  }
+
+  it('静息零影 ⇒ 抬起后每颗抬起格 +1 条，且为**实色**（不破四棱 0 真 α）', () => {
+    const h = mkMisplaced('wxgame.beads.test.lift-shadow-count');
+    expect(pills(h.game.snapshot)).toHaveLength(0); // 未选中 = 无分离影
+    expect(h.game.selectBoardBead(1, 2)).toBe(true);
+    h.advance(SELECT_LIFT_MS / 1000 + 0.02);
+    const got = pills(h.game.snapshot);
+    expect(got).toHaveLength(1); // 组内 1 颗 ⇒ 恰 +1 条命令
+    expect(String(got[0]!.fill).startsWith('rgba')).toBe(false);
+    // 色源 = 本格目标色的 `pit` 端点（零新 hex、与同格凹槽坑底同源）
+    expect(got[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, h.game.grid.requiredColor(1, 2)).pit);
+  });
+
+  it('影钉在格面：中途帧与满帧同坐标（分离量由珠升起露出，不跟物体搬家）', () => {
+    const h = mkMisplaced('wxgame.beads.test.lift-shadow-fixed');
+    expect(h.game.selectBoardBead(1, 2)).toBe(true);
+    h.advance(SELECT_LIFT_MS / 2000);
+    expect(h.game.snapshot.liftProgress).toBeLessThan(1); // 斜坡仍在途 ⇒ 本例非平凡
+    const mid = pills(h.game.snapshot)[0]!;
+    h.advance(SELECT_LIFT_MS / 1000);
+    const full = pills(h.game.snapshot)[0]!;
+    expect(full.y).toBe(mid.y);
+    expect(full.x).toBe(mid.x);
+    // 不越出本格：影底缘 ≥ 格面下缘（否则压到邻格底图 = 串形）。
+    const snap = h.game.snapshot;
+    const cellBottom =
+      snap.gridTop - snap.gridCell / 2 - snap.gridPitch * 1 - snap.gridPitch / 2;
+    expect(full.y).toBeGreaterThanOrEqual(cellBottom);
+  });
+
+  it('抬起量走等比：恒等档逐位不变、缩档随 `gridCell` 同比缩（K-077 同族）', () => {
+    const h = mkMisplaced('wxgame.beads.test.lift-shadow-zoom');
+    expect(h.game.selectBoardBead(1, 2)).toBe(true);
+    h.advance(SELECT_LIFT_MS / 1000 + 0.02);
+    const base = h.game.snapshot;
+    // 本夹具必须在恒等档，否则下一条“逐位不变”不是它想输的断言。
+    expect(base.gridCell).toBe(BEAD_CELL);
+    const at = (z: number) => {
+      const s: BeadsSnapshot = { ...base, gridCell: base.gridCell * z, gridPitch: base.gridPitch * z };
+      const bead = liftedBead(s);
+      return { lift: bead.y - (s.gridTop - s.gridCell / 2 - s.gridPitch * 1), r: bead.r, cell: s.gridCell };
+    };
+    const one = at(1);
+    // ① 恒等档乘子恰为 1 ⇒ 旧行为逐位不变（seal / 「1 点击 = 1 珠」类判据的前提）
+    expect(one.lift).toBe(SELECT_LIFT_PX);
+    // ② 缩档/胀档下抬起量与珠体/影/底图同源 ⇒ 间隙占格径比例恒定（修复前三个档恒为 6）
+    for (const z of [0.75, 1.5, 3]) {
+      const got = at(z);
+      expect(got.lift).toBeCloseTo(SELECT_LIFT_PX * z, 9);
+      /** ③ 孔径/格径 恒定 = 放大通道未超发（`liftT` 按**当前档**归一 + `Math.min(1,·)` 钉 C5 峰值；
+       *  分母若仍吃静息值，z=3 时本值会多 7.7% ⇒ 间隙比例从 0.0787 跌到 0.0493）。
+       *
+       * ⚠ **WXG-T-214 口径更替**：孔径末端取整（半径取整 ⇒ 直径偶数设计 px，用户拍板）
+       * ⇒ 严格等比被打破**最多半像素**：小尺度档上比例偏差可达 ~11%（z=0.75 档珠面 19.5 ⇒
+       * r 4.29→4）。判别力仍在：等比未超发的偏差是 7.7%，而量化误差**恒 ≤ 0.5px** ⇒
+       * 改写成「|r − 等比期望| ≤ 0.5px」，比原 12 位小数等值断言**更弱但仍有判别力**，
+       * ⛔ 不得写成 `toBeCloseTo(…, 0)` 之类的无意义容差。 */
+      const wantR = (one.r / one.cell) * got.cell;
+      // ⛔ 不得写回 `toBeCloseTo(…, 12)`：量化后小尺度档必然偏离（恒等档 r 本身已取整 5.95→6）。
+      // 判别力核算：真超发（分母吃静息值）在 z=3 给 +7.7% ⇒ |r−期望| ≈ 1.0px > 0.5 ⇒ 仍红。
+      expect(Math.abs(got.r - wantR)).toBeLessThanOrEqual(0.5);
+    }
+  });
+});
+
+// ───────────── §5 抬起曲线与错峰（v1.5-r16 · ease-in-out + 回弹 + 组内错峰）
+
+describe('§5 抬起曲线与错峰（v1.5-r16）', () => {
+  /** 两颗同色错位珠的组（列 2 底 = 3 ⇒ 色 1 恒为错位），锚 = (2,2)。 */
+  function mkPairGroup(saveKey: string): Harness {
+    const h = createBeadsHarness({
+      seed: 'lift-stagger',
+      noAssemble: true,
+      levels: [simpleTestLevel()],
+      saveKey,
+    });
+    h.game.goToLevel(0);
+    expect(h.game.grid.fill(1, 2, 1)).toBe(true);
+    expect(h.game.grid.fill(2, 2, 1)).toBe(true);
+    expect(h.game.selectBoardBead(2, 2)).toBe(true);
+    expect(h.game.snapshot.boardGroupCount).toBe(2);
+    return h;
+  }
+
+  it('liftEase：两端精确、峰值 = 1+REBOUND 在 PEAK_T、起手缓（非旧 ease-out 的即跳）', () => {
+    expect(liftEase(0)).toBe(0);
+    expect(liftEase(1)).toBe(1); // 稳态抬起量不变 ⇒ 现有 Δy 类判据不漂
+    expect(liftEase(SELECT_LIFT_PEAK_T)).toBeCloseTo(1 + SELECT_LIFT_REBOUND, 9);
+    const samples: number[] = [];
+    for (let i = 0; i <= 100; i++) samples.push(liftEase(i / 100));
+    expect(Math.max(...samples)).toBeCloseTo(1 + SELECT_LIFT_REBOUND, 6); // 过冲存在且不越此值
+    expect(Math.min(...samples)).toBe(0); // 全程不下穿底面
+    // ease-in 起步：首帧斜率远低于线性（旧 easeOutQuad 首帧斜率 = 2 ⇒ “啪地弹上去”的来源）
+    expect((liftEase(0.02) - liftEase(0)) / 0.02).toBeLessThan(0.25);
+    expect(liftEase(0.9)).toBeGreaterThan(1); // 峰后仍在回落途中，不是一步到位
+  });
+
+  it('liftStaggerPhase：组尾晚起；p=0 全 0、p=1 全到位（不留悬珠）；lastRank=0 退化无错峰', () => {
+    expect(liftStaggerPhase(0, 0, 5)).toBe(0);
+    expect(liftStaggerPhase(0, 5, 5)).toBe(0);
+    expect(liftStaggerPhase(1, 0, 5)).toBe(1);
+    expect(liftStaggerPhase(1, 5, 5)).toBe(1);
+    expect(liftStaggerPhase(0.6, 5, 5)).toBeLessThan(liftStaggerPhase(0.6, 0, 5));
+    expect(liftStaggerPhase(0.5, 0, 0)).toBeCloseTo(0.5 / (1 - SELECT_LIFT_STAGGER), 9);
+  });
+
+  it('帧级：中途帧锚珠高于组尾珠（从锚揭开），满帧两者等高（错峰收敛）', () => {
+    const h = mkPairGroup('wxgame.beads.test.lift-stagger-frame');
+    h.advance((SELECT_LIFT_MS * 0.6) / 1000);
+    const mid = h.game.snapshot;
+    const anchorLift = liftedBeadAt(mid, 2, 2).y - cellCenterY(mid, 2);
+    const tailLift = liftedBeadAt(mid, 1, 2).y - cellCenterY(mid, 1);
+    expect(anchorLift).toBeGreaterThan(tailLift);
+    h.advance(SELECT_LIFT_MS / 1000);
+    const full = h.game.snapshot;
+    expect(liftedBeadAt(full, 2, 2).y - cellCenterY(full, 2)).toBe(SELECT_LIFT_PX);
+    expect(liftedBeadAt(full, 1, 2).y - cellCenterY(full, 1)).toBe(SELECT_LIFT_PX);
+  });
+
+  it('D1（reduceMotion）不走曲线与错峰 ⇒ 同帧整组直接到位（静态）', () => {
+    const h = mkPairGroup('wxgame.beads.test.lift-stagger-d1');
+    const d1: BeadsSnapshot = { ...h.game.snapshot, reduceMotion: true, liftProgress: 0 };
+    expect(liftedBeadAt(d1, 2, 2).y - cellCenterY(d1, 2)).toBe(SELECT_LIFT_PX);
+    expect(liftedBeadAt(d1, 1, 2).y - cellCenterY(d1, 1)).toBe(SELECT_LIFT_PX);
   });
 });

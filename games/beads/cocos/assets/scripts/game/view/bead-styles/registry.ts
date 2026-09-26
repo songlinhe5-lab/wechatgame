@@ -24,9 +24,10 @@
  * 两条结构性约束另钉住「四棱必须居首」：① `DEFAULT_BEAD_STYLE` 直引注册项本身；
  * ② 门禁脚本 `--probe-argmax`（TC-STY-10 臂 B）取 `registeredStyles()[0]` 作探针对象。
  *
- * ⚠ **步 4 计划内中间态**（已回传供 QA 翻转 `TC-STY-11` 措辞）：本表注册数已达 3，
- *   但**面板设置钮属 §12.9 步 5**（EP11-S5）⇒ 「注册 ≥ 2 而面板无钮」是**时序**，
- *   ⛔ 不得读本行如「§8-19 后半句已违反」；亦不得为验该句提前造钮（越出本 Story 切片）。
+ * ✅ **EP11-S5（§12.9 步 5）已收口本中间态**：面板行4 左格 `cycle-bead-style` 与菜单设置
+ *   overlay 同钮均已 present ⇒ 「注册 ≥ 2 ⇒ 钮必 present」（S9 §8-19 后半句）自此成立，
+ *   `tests/bead-style-pool.test.ts::TC-STY-11` 腿 A 已从「无钮」**翻转**为「有钮 + 精确文案」。
+ *   ⛔ 循环序真源仍是本表注册序（非视图侧数组序）；新增风格只 append 本表，钮与循环自动跟随。
  */
 import { FACET4_STYLE_ID } from '../../config/tuning';
 import { DUAL_TONE_13 } from './dual-tone-13';
@@ -65,15 +66,15 @@ export const DEFAULT_BEAD_STYLE_ID = FACET4_STYLE_ID;
 
 /** 全部已注册风格（门禁脚本遍历入口；返回冻结数组，禁运行时增删）。 */
 export function registeredStyles(): readonly BeadStyle[] {
-  return REGISTRY;
+    return REGISTRY;
 }
 
 /** 已注册 styleId 列表（设置钮循环与 §8-19「注册数 ≤ 1 不呈现」的计数入口）。 */
 export function registeredStyleIds(): readonly string[] {
-  return REGISTRY.map((s) => s.id);
+    return REGISTRY.map((s) => s.id);
 }
 
 /** 按 id 取风格；未注册 ⇒ undefined（调用方负责降级，⛔ 不得静默回退他档）。 */
 export function styleById(id: string): BeadStyle | undefined {
-  return BY_ID.get(id);
+    return BY_ID.get(id);
 }

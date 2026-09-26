@@ -16,6 +16,9 @@ import {
   resetCamera,
   fitCamera,
   computeFitZoom,
+  setCameraZoom,
+  sliderTFromZoom,
+  zoomFromSliderT,
   type PinchInput,
 } from '../src/systems/board-camera.js';
 import {
@@ -56,16 +59,18 @@ const two = (x: number, y: number, x2: number, y2: number): PinchInput => ({
 // 6×5 小盘：放进带内富余 → fit=1（不放大）。“大盘”（fit<1）需越过**顶格档**。
 // ⚠ **v1.57（§3.3 5mm→32/dip 基）换尺后的直接后果**：旧夹具 13×12 在新尺下
 // `fit = 1`（顶格档由 13×11 抬到 22×18）⇒ 它不再是“缩放档”，借用它的用例全部当场红。
-// 本文件因此把 `BC×BR` 抬到 **22×19 = 顶格档 + 1 行**（取最小越界量：既仍钉住“fit<1”
+// 本文件因此把 `BC×BR` 抬到 **顶格档 + 1 行**（取最小越界量：既仍钉住“fit<1”
 // 这一族行为，又不把夹具无关地拉大）。⛔ 不得为了绿而删断言（K-036）。
+// ⚠ **盘带下沿 480→560（缩放控件条让高）后本值随之落为 22×17**——形式不变、只跟真源动。
 const SC = 6;
 const SR = 5;
 const BC = 22;
-const BR = 19;
+const BR = 17;
 
-/** §3.3 v1.57 顶格档快照（正本 = `systems-index §3.3` “顶格档”行；22×18）。 */
+/** 顶格档快照（正本 = `systems-index §3.3` “顶格档”行）：
+ * 13×11（52 基）→ 22×18（§3.3 v1.57）→ **22×16**（盘带下沿抬至 560，`r_max` 18→16）。 */
 const TOP_COLS = 22;
-const TOP_ROWS = 18;
+const TOP_ROWS = 16;
 
 describe('computeFitZoom / fitCamera（issue 3 初始适配）', () => {
   it('小盘放得下 → fit=1（不放大到超过自然尺寸）', () => {
@@ -86,11 +91,11 @@ describe('computeFitZoom / fitCamera（issue 3 初始适配）', () => {
     expect(c.offsetY).toBe(0);
   });
 
-  // §3.3 v1.57（WXG-T-207-A）新增：**顶格档 22×18**（fit=1 的最大盘）。
-  // 旧 52 基 = 13×11 ⇒ 换尺后“大盘放不下”自动缓解，现关表 8 关全部回到 fit=1。
+  // 顶格档（fit=1 的最大盘）随盘带高动：13×11（52 基）→ 22×18（§3.3 v1.57）→ **22×16**
+  //（下沿 480→560 为缩放控件条让高，§3.1 换尺）。
   // 本例同时钉两腿：① 公式腿（由 `BOARD_FIT_MARGIN` / `BEAD_PITCH` / `BEAD_GAP` 派生）
-  // ② 快照腿（字面 22×18）——两腿必同时红才能防“换尺但没人重算顶格档”。
-  it('§3.3 v1.57 顶格档 = 22×18（fit=1 的最大盘），越界一档必缩', () => {
+  // ② 快照腿（字面 22×16）——两腿必同时红才能防“换尺但没人重算顶格档”。
+  it('顶格档 = 22×16（fit=1 的最大盘），越界一档必缩', () => {
     const bandH = PUZZLE_BAND.yMax - PUZZLE_BAND.yMin;
     const cMax = Math.floor((DESIGN_W - 2 * BOARD_FIT_MARGIN + BEAD_GAP) / BEAD_PITCH);
     const rMax = Math.floor((bandH - 2 * BOARD_FIT_MARGIN + BEAD_GAP) / BEAD_PITCH);
@@ -228,7 +233,7 @@ function loadStageForTest(game: BeadsGame, n: number): void {
   (game as unknown as { _loadStage(n: number): void })._loadStage(n);
 }
 
-/** 22×19 大盘（顶格档 + 1 行 ⇒ fit<1）；时长取关卡下沿，只为重试例少烧表。 */
+/** 顶格档 + 1 行的大盘（`BC×BR` = 22×17 ⇒ fit<1）；时长取关卡下沿，只为重试例少烧表。 */
 function bigTestLevel(): ReturnType<typeof simpleTestLevel> {
   return simpleTestLevel({
     id: 91,
@@ -265,7 +270,7 @@ function fillCurrentStage(h: Harness): void {
 }
 
 describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）', () => {
-  it('换关（_setupLevel）：22×19 大盘归 fit，且 fit<1 ⇒ 与旧「恒等」档不等价', () => {
+  it('换关（_setupLevel）：`BC×BR` 大盘归 fit，且 fit<1 ⇒ 与旧「恒等」档不等价', () => {
     // 受控夹具（先例 = 同文件小盘例喂 smallTestLevel、retry 例喂 bigTestLevel）：
     // 旧版 `goToLevel(7)` + `LEVELS[7 % LEVELS.length]` 是对**出货关表**的巧合耦合 ——
     // 索引 7 在「钳到末关」与「取模」两种映射下落不到同一关，v1.46 关表重置（8 关 → studio 三关）即失配。
@@ -277,7 +282,7 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expect(h.game.levelIndex).toBe(0);
     dirtyCamera(h.game);
 
-    h.game.goToLevel(1); // 6×5 → 22×19（换关即重算 fit）
+    h.game.goToLevel(1); // 6×5 → `BC×BR`（换关即重算 fit）
 
     expect(h.game.grid.cols).toBe(BC);
     expect(h.game.grid.rows).toBe(BR);
@@ -376,5 +381,36 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
 
     h.game.goToLevel(0); // 下一局装配 = 复位真正发生处
     expectFitReset(h.game);
+  });
+});
+
+describe('盘面下方缩放控件：slider ↔ zoom 映射（与捏合同一夹取域）', () => {
+  // 取 fit<1 的越界盘 ⇒ 端点不等于 1.0，才能区分「slider 下限 = fit」与「恒等 zoom」。
+  const COLS = 29;
+  const ROWS = 29;
+  const fit = computeFitZoom(COLS, ROWS);
+
+  it('端点与往返：t=0 ⇒ fit、t=1 ⇒ fit×SPAN，且 t→zoom→t 恒等', () => {
+    expect(fit).toBeLessThan(1);
+    expect(zoomFromSliderT(0, fit)).toBe(fit);
+    expect(zoomFromSliderT(1, fit)).toBeCloseTo(fit * CAMERA_ZOOM_MAX_SPAN, 10);
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+      expect(sliderTFromZoom(zoomFromSliderT(t, fit), fit)).toBeCloseTo(t, 10);
+    }
+  });
+
+  it('越界 t 被夹到端点（轨道外拖拽不产生域外 zoom）', () => {
+    expect(zoomFromSliderT(-5, fit)).toBe(fit);
+    expect(zoomFromSliderT(5, fit)).toBeCloseTo(fit * CAMERA_ZOOM_MAX_SPAN, 10);
+  });
+
+  it('setCameraZoom 走与捏合同一夹取：超上限落回 fit×SPAN，并按新尺寸重夹平移', () => {
+    const c = cam();
+    c.offsetX = 500;
+    setCameraZoom(c, 999, COLS, ROWS);
+    expect(c.zoom).toBeCloseTo(fit * CAMERA_ZOOM_MAX_SPAN, 10);
+    // 夹取后不得出现「棋盘边缘进入视口」（留空白可拖出）⇒ 与 clampCamera 同口径。
+    clampCamera(c, COLS, ROWS);
+    expect(c.offsetX).toBeLessThan(500);
   });
 });

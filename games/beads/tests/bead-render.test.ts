@@ -25,6 +25,7 @@ import { RenderModelBuilder, polygonVertices, type PolygonCommand } from '@wxgam
 import {
   BEAD_CELL,
   BEAD_DRAW_INSET,
+  BEAD_DRAW_INSET_SMALL,
   BEAD_GAP,
   BEAD_LOD_CELL,
   BEAD_LOD_HYST,
@@ -320,7 +321,12 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     // 孔径唯一真源 = 卡（spike 旧口径 0.17 常量已删）；⚠ 吃的是**绘制边长**（盘面珠已内缩）。
     // inset 随格径等比（WXG-T-169）⇒ 本例格径 50 ≠ BEAD_CELL，期望值必须同式取比例而非绝对 4。
     const drawn = size - 2 * ((BEAD_DRAW_INSET * size) / BEAD_CELL);
-    expect(hole.kind === 'circle' && hole.r).toBeCloseTo((drawn * BEAD_CARD.holeRatio) / 2, 9);
+    // ⚠ **WXG-T-214（用户拍板「孔径取整、2 的倍数」）**：半径在派生末端取整 ⇒ 直径恒为偶数。
+    //   真源仍是 `holeRatio`，本例只是把期望值同步为**取整后**的半径，并**加钉偶数性**（比原断言更强）。
+    const r = hole.kind === 'circle' ? hole.r : NaN;
+    expect(r).toBe(Math.round((drawn * BEAD_CARD.holeRatio) / 2));
+    expect(r * 2).toBe(Math.round(r * 2)); // 半径为 .5 的整数倍 ⇒ 直径为整数
+    expect((r * 2) % 2).toBe(0); // 直径为偶数设计 px
     // 无目标色（托盘珠）⇒ 回落本格 `pit`（端点表内色，C3 零新色）。
     const tray = emit((b) => drawFilledBead(b, 100, 200, 1, { size, inks: DEMO_BEAD_INKS }));
     const trayHoles = tray.filter((c) => c.kind === 'circle');
@@ -444,12 +450,13 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     );
     // L1c：两枚 circle = 孔底（居中）+ 内壁自阴影（偏左上 ⇒ 留右下亮弧）。
     const [hole, shade] = [commands[9]!, commands[10]!];
-    const holeR = (size * BEAD_CARD.holeRatio) / 2;
+    // WXG-T-214：孔径取整（半径取整 ⇒ 直径偶数）⇒ 期望值同式取整。
+    const holeR = Math.round((size * BEAD_CARD.holeRatio) / 2);
     expect(hole.kind).toBe('circle');
     expect(shade.kind).toBe('circle');
     if (hole.kind !== 'circle' || shade.kind !== 'circle') return;
     expect(hole.x).toBe(100);
-    expect(hole.r).toBeCloseTo(holeR, 9);
+    expect(hole.r).toBe(holeR);
     expect(shade.r).toBeCloseTo(holeR * 0.86, 9);
     // 设计空间 y 向上 ⇒ 阴影往 +y（视觉上方）、往 −x（左）偏移。
     expect(shade.y).toBeGreaterThan(hole.y);
@@ -646,6 +653,31 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(TRAY_BEAD_SIZE).toBe(TRAY_SLOT - 4);
   });
 
+  // **豆坑 ⊂ 珠体**（用户裁定 2026-09-26 / WXG-T-214）：坑永远比珠子小一圈 ⇒ 有豆时坑被整块盖住。
+  // 旧实现把坑画在格径（30）上而珠只有 22 ⇒ 坑比珠大，「有豆/无豆一张图」落空（详见 `beadInset` 参注）。
+  // 判据取**包围盒包含**（不只比宽度）：只比宽仍可能外溢 → 圆角处露出就还是看得见坑。
+  it('WXG-T-214 豆坑恒小于珠体：坑外廓完全落在珠体包围盒内（满豆 / 小豆两档）', () => {
+    for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
+      const socket = emit((b) =>
+        drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, 1, DEMO_BEAD_INKS, true, inset),
+      );
+      const bead = emit((b) =>
+        drawFilledBead(b, 100, 200, 1, { size: BEAD_CELL, targetColorIdx: 1, drawInset: inset }),
+      );
+      // 坑 = S1 暗缘框（stroke-only rect）；珠 = #1 底衬 plate rect。
+      const pit = socket.find((c) => c.kind === 'rect' && c.stroke !== undefined) as {
+        x: number; y: number; w: number; h: number;
+      };
+      const plate = bead[0] as { kind: string; x: number; y: number; w: number; h: number };
+      expect(plate.kind).toBe('rect');
+      expect(pit.w).toBeLessThan(plate.w); // 小一圈
+      expect(pit.x).toBeGreaterThan(plate.x); // 且被完全包住
+      expect(pit.y).toBeGreaterThan(plate.y);
+      expect(pit.x + pit.w).toBeLessThan(plate.x + plate.w);
+      expect(pit.y + pit.h).toBeLessThan(plate.y + plate.h);
+    }
+  });
+
   // ─────────────────────────── TC-SKT-01（§12.9 步 2・assets-spec §7.11.7-D2 P0）───────────────
   //
   // 凹槽明暗线 **y 向**回归（判据正本 = `production/qa/beads/test-cases.md §K.4` TC-SKT-01）。
@@ -691,7 +723,10 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       const grid = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, idx, DEMO_BEAD_INKS, true));
       // 枚数口径：S2 坑底 + S1 暗缘框 + S3/S4 两线 = 4（大底由 B0 `drawTargetTile` 承担）。
       expect(grid).toHaveLength(4);
-      const { dark, lit } = darkLitByInk(grid, mix(base, -0.3), mix(base, 0.38));
+      // ⚠ **WXG-T-214（2026-09-26 用户拍板）**：本口径的暗线墨已由 `edge`（= B0 底图墨，
+      // 逐字同色 ⇒ 不可见）改为 `pit` 档 = `−(SOCKET_EDGE_DARK_MIX 0.30 + SOCKET_PIT_DARKEN 0.14)`
+      // ⇒ 暗/亮分派表随之下移一档（**只改取墨，方向断言与枚数口径一字不动**）。
+      const { dark, lit } = darkLitByInk(grid, mix(base, -0.44), mix(base, 0.38));
       expect(dark.y1).toBeGreaterThan(lit.y1);
       expect(dark.y2).toBeGreaterThan(lit.y2);
     });
@@ -733,19 +768,29 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
     // ⚠ **诚实登记 v1.57 已知代价（不是 bug，不得据此判绿）**：在新静息档绘制边长上
     // 三档全被 `minStroke=2` 钳成同宽 ⇒ 质感层次抹平（assets-spec §1.10.3 案 A /
     // 变更单 §2.3-2）。207-B 若选「分母 64→32」或「minStroke→1」，**本行期望值必须跟着改**。
+    //
+    // ⚠ **WXG-T-214（用户拍板「满豆基本覆盖格子」）：`BEAD_DRAW_INSET` 4 → 2**
+    // ⇒ 静息档绘制边长 22 → 26 ⇒ 暗倒角 `26×5/64 = 2.03125` **首次越过地板**（亮/rim 仍被钳 2）。
+    // 这是 §1.10.3 登记的地板效应第一次真实越线：序仍成立（2.03 ≥ 2 ≥ 2），但**层次差只有
+    // 0.03 设计 px（≈0.015 CSS px）⇒ 不可辨**，⛔ 不得据此判「层次已恢复」。
     const drawn = BEAD_CELL - 2 * BEAD_DRAW_INSET;
-    expect([strokeOf(d, drawn), strokeOf(l, drawn), strokeOf(r, drawn)]).toEqual([2, 2, 2]);
+    expect([strokeOf(d, drawn), strokeOf(l, drawn), strokeOf(r, drawn)]).toEqual([2.03125, 2, 2]);
   });
 
   // ② 同批性：`BEAD_DRAW_INSET` 与 `BEAD_CARD.holeRatio` **互为对冲**，必须同提交。
   //    单条断言同时钉两值 ⇒ “只改一个”必红（把「同提交」变成机器可查的成对锁）。
   //    ⚠ 本例**故意复述两个数字**：它们不是 §3 镜像，而是「成对」这个约束的载体；
   //    任一值换档必须与另一值同批，并同步本行（正本 = assets-spec §1.10.2 / §1.10.4）。
-  it('② 同批性：BEAD_DRAW_INSET 与 holeRatio 成对（v1.57 锁定值 4 / 0.44）', () => {
-    expect([BEAD_DRAW_INSET, BEAD_CARD.holeRatio]).toEqual([4, 0.44]);
+  it('② 同批性：BEAD_DRAW_INSET 与 holeRatio 成对（WXG-T-214 锁定值 2 / 0.44）', () => {
+    // ⚠ **WXG-T-214（用户 2026-09-26 拍板「满豆基本覆盖格子」）：4 → 2，holeRatio 刻意不动**
+    // （Midi 实物真比 0.44 ⇒ 变化可归因到单一变量；孔随珠面等比放大到 r 5.72）。
+    // 本行按硬约束②（§1.10.9）同步改写 —— 成对锁的语义未动：任一值换档必须与另一值同批。
+    expect([BEAD_DRAW_INSET, BEAD_CARD.holeRatio]).toEqual([2, 0.44]);
     // 再钉两个**派生读数**，防「两值都改但改错方向」：绘制边长与孔半径（设计 px）。
-    expect(BEAD_CELL - 2 * BEAD_DRAW_INSET).toBe(22);
-    expect(((BEAD_CELL - 2 * BEAD_DRAW_INSET) * BEAD_CARD.holeRatio) / 2).toBeCloseTo(4.84, 6);
+    expect(BEAD_CELL - 2 * BEAD_DRAW_INSET).toBe(26);
+    // 孔径取整后：珠面 26 ⇒ ⌀11.44 → **12 设计 px（r 6 / 6 CSS px）**。
+    expect(((BEAD_CELL - 2 * BEAD_DRAW_INSET) * BEAD_CARD.holeRatio) / 2).toBeCloseTo(5.72, 6);
+    expect(Math.round(((BEAD_CELL - 2 * BEAD_DRAW_INSET) * BEAD_CARD.holeRatio) / 2)).toBe(6);
   });
 
   // ③ inset 作用域：仅作用于**传 `targetColorIdx` 的盘面珠**；托盘珠恒 0。

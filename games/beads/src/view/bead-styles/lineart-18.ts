@@ -39,94 +39,94 @@
  *   `tests/bead-style-pool.test.ts` 的 C4 扫描（扫目录 ⇒ 本文件自动受门）。
  */
 import {
-  BEAD_CARD,
-  LINEART_BAND_H,
-  LINEART_BAND_RADIUS,
-  LINEART_BAND_W,
-  LINEART_BAND_Y,
-  LINEART_EDGE_H,
-  LINEART_EDGE_RADIUS,
-  LINEART_EDGE_W,
-  LINEART_HOLE_STROKE_SCALE,
-  LINEART_MIN_STROKE,
-  LINEART_SHADOW_ALPHA,
-  LINEART_SHADOW_DX,
-  LINEART_SHADOW_DY,
-  LINEART_STROKE_RATIO,
-  LINEART18_STYLE_ID,
+    BEAD_CARD,
+    LINEART_BAND_H,
+    LINEART_BAND_RADIUS,
+    LINEART_BAND_W,
+    LINEART_BAND_Y,
+    LINEART_EDGE_H,
+    LINEART_EDGE_RADIUS,
+    LINEART_EDGE_W,
+    LINEART_HOLE_STROKE_SCALE,
+    LINEART_MIN_STROKE,
+    LINEART_SHADOW_ALPHA,
+    LINEART_SHADOW_DX,
+    LINEART_SHADOW_DY,
+    LINEART_STROKE_RATIO,
+    LINEART18_STYLE_ID,
 } from '../../config/tuning.js';
 import { BEAD_SHADOW_HEX, endpointOf } from '../palette.js';
 import type {
-  BeadStyle,
-  BeadStyleInput,
-  BeadStyleLayer,
-  WritableBeadCircle,
-  WritableBeadRect,
+    BeadStyle,
+    BeadStyleInput,
+    BeadStyleLayer,
+    WritableBeadCircle,
+    WritableBeadRect,
 } from './contract.js';
 
 /* ── 模块级 scratch：五层的形状与条数是风格的静态属性 ⇒ 逐帧原地改写，不新建（C2）。 ── */
 
 /** #1 硬投影（`plate` 职能：底衬/投影 ⇒ 排除出 C12 珠面族统计域；本套唯一真 α 层）。 */
 const SHADOW: WritableBeadRect = {
-  kind: 'rect',
-  role: 'plate',
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
-  fill: BEAD_SHADOW_HEX,
-  radius: 0,
-  alpha: LINEART_SHADOW_ALPHA,
+    kind: 'rect',
+    role: 'plate',
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    fill: BEAD_SHADOW_HEX,
+    radius: 0,
+    alpha: LINEART_SHADOW_ALPHA,
 };
 
 /** #2 主体（描边同路径：`fill + stroke` 仍算 **1 命令**，`§7.11` 读法②）。 */
 const BODY: WritableBeadRect = {
-  kind: 'rect',
-  role: 'facet',
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
-  fill: '',
-  radius: 0,
-  stroke: BEAD_SHADOW_HEX,
-  lineWidth: 0,
+    kind: 'rect',
+    role: 'facet',
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    fill: '',
+    radius: 0,
+    stroke: BEAD_SHADOW_HEX,
+    lineWidth: 0,
 };
 
 /** #3 上亮带（叠压式明暗带 ⇒ `facet`：它是可见珠面，不是底衬）。 */
 const BAND_LIT: WritableBeadRect = {
-  kind: 'rect',
-  role: 'facet',
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
-  fill: '',
-  radius: 0,
+    kind: 'rect',
+    role: 'facet',
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    fill: '',
+    radius: 0,
 };
 
 /** #4 下暗带（同上 `facet`；与 #3 一起构成「叠压式层集」⇒ 面积级重叠是**其身份**）。 */
 const BAND_EDGE: WritableBeadRect = {
-  kind: 'rect',
-  role: 'facet',
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
-  fill: '',
-  radius: 0,
+    kind: 'rect',
+    role: 'facet',
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    fill: '',
+    radius: 0,
 };
 
 /** #5 单孔（甲口径 + 描边；fill = 目标 `pit`，见文件头必改 ①）。 */
 const HOLE: WritableBeadCircle = {
-  kind: 'circle',
-  role: 'hole',
-  cx: 0,
-  cy: 0,
-  r: 0,
-  fill: '',
-  stroke: BEAD_SHADOW_HEX,
-  lineWidth: 0,
+    kind: 'circle',
+    role: 'hole',
+    cx: 0,
+    cy: 0,
+    r: 0,
+    fill: '',
+    stroke: BEAD_SHADOW_HEX,
+    lineWidth: 0,
 };
 
 /**
@@ -143,68 +143,69 @@ const LAYERS: readonly BeadStyleLayer[] = Object.freeze([SHADOW, BODY, BAND_LIT,
  * ⚠ 与 legacy `L0b` 的正下方向不同 = `§7.11.7` D6，两风格同屏永不共存 ⇒ 无现网冲突）。
  */
 function lineart18Layers({
-  inks,
-  colorIdx,
-  targetColorIdx,
-  size,
+    inks,
+    colorIdx,
+    targetColorIdx,
+    size,
 }: BeadStyleInput): readonly BeadStyleLayer[] {
-  const e = endpointOf(inks, colorIdx);
-  const h = size / 2;
-  const lw = Math.max(LINEART_MIN_STROKE, size * LINEART_STROKE_RATIO);
-  const radius = Math.round(size * BEAD_CARD.radius);
+    const e = endpointOf(inks, colorIdx);
+    const h = size / 2;
+    const lw = Math.max(LINEART_MIN_STROKE, size * LINEART_STROKE_RATIO);
+    const radius = Math.round(size * BEAD_CARD.radius);
 
-  // #1 硬投影：`S×S` 满格平移，墨 = `BEAD_SHADOW_HEX` token、α = `LINEART_SHADOW_ALPHA`。
-  // 计真 α 的正是这一枚（C7 判据第一支 `alpha < 1`）⇒ 本套「唯一带真 α 者」的那 1 枚；
-  // ⛔ 不得是「孔内壁自阴影」（那是已否掉的 D4 乙口径第二枚孔，任务单已裁甲口径单孔）。
-  SHADOW.x = -h + size * LINEART_SHADOW_DX;
-  SHADOW.y = -h - size * LINEART_SHADOW_DY; // 绘制侧加负号（系数只存量，见 tuning 注）
-  SHADOW.w = size;
-  SHADOW.h = size;
-  SHADOW.radius = radius;
+    // #1 硬投影：`S×S` 满格平移，墨 = `BEAD_SHADOW_HEX` token、α = `LINEART_SHADOW_ALPHA`。
+    // 计真 α 的正是这一枚（C7 判据第一支 `alpha < 1`）⇒ 本套「唯一带真 α 者」的那 1 枚；
+    // ⛔ 不得是「孔内壁自阴影」（那是已否掉的 D4 乙口径第二枚孔，任务单已裁甲口径单孔）。
+    SHADOW.x = -h + size * LINEART_SHADOW_DX;
+    SHADOW.y = -h - size * LINEART_SHADOW_DY; // 绘制侧加负号（系数只存量，见 tuning 注）
+    SHADOW.w = size;
+    SHADOW.h = size;
+    SHADOW.radius = radius;
 
-  // #2 主体 = `endpoints.base` + 描边同路径 ⇒ C12 两读法均干净的来源（base 可见 ≈66%）。
-  BODY.x = -h;
-  BODY.y = -h;
-  BODY.w = size;
-  BODY.h = size;
-  BODY.fill = e.base;
-  BODY.radius = radius;
-  BODY.lineWidth = lw;
+    // #2 主体 = `endpoints.base` + 描边同路径 ⇒ C12 两读法均干净的来源（base 可见 ≈66%）。
+    BODY.x = -h;
+    BODY.y = -h;
+    BODY.w = size;
+    BODY.h = size;
+    BODY.fill = e.base;
+    BODY.radius = radius;
+    BODY.lineWidth = lw;
 
-  // #3 上亮带：`x∈[−0.31S,+0.31S]`、`y∈[+0.17S,+0.37S]` ⇒ x 由带宽/2 居中导出（⛔ 另立 x 系数）。
-  BAND_LIT.x = -(size * LINEART_BAND_W) / 2;
-  BAND_LIT.y = size * LINEART_BAND_Y;
-  BAND_LIT.w = size * LINEART_BAND_W;
-  BAND_LIT.h = size * LINEART_BAND_H;
-  BAND_LIT.fill = e.lit;
-  BAND_LIT.radius = size * LINEART_BAND_RADIUS;
+    // #3 上亮带：`x∈[−0.31S,+0.31S]`、`y∈[+0.17S,+0.37S]` ⇒ x 由带宽/2 居中导出（⛔ 另立 x 系数）。
+    BAND_LIT.x = -(size * LINEART_BAND_W) / 2;
+    BAND_LIT.y = size * LINEART_BAND_Y;
+    BAND_LIT.w = size * LINEART_BAND_W;
+    BAND_LIT.h = size * LINEART_BAND_H;
+    BAND_LIT.fill = e.lit;
+    BAND_LIT.radius = size * LINEART_BAND_RADIUS;
 
-  // #4 下暗带：`w = 0.72S`、`y∈[−0.36S,−0.20S]`（h = 0.16S、r = 0.08S）。
-  // ⚠ 正本把 x 与 y 的起算都写成 `−0.36S`（spike 字面 `cx − h*0.72` / `cy − h*0.72` 同一系数）
-  //   ⇒ 本处**复用同一系数** `LINEART_EDGE_W`，不另立同值的 `EDGE_X` / `EDGE_Y`（K-042 真源单一）；
-  //   两个语义都是「居中布层」，故 x = −w/2、y = −0.36S 同式成立（若真源日后拆档再改本行）。
-  BAND_EDGE.x = -(size * LINEART_EDGE_W) / 2;
-  BAND_EDGE.y = -(size * LINEART_EDGE_W) / 2;
-  BAND_EDGE.w = size * LINEART_EDGE_W;
-  BAND_EDGE.h = size * LINEART_EDGE_H;
-  BAND_EDGE.fill = e.edge;
-  BAND_EDGE.radius = size * LINEART_EDGE_RADIUS;
+    // #4 下暗带：`w = 0.72S`、`y∈[−0.36S,−0.20S]`（h = 0.16S、r = 0.08S）。
+    // ⚠ 正本把 x 与 y 的起算都写成 `−0.36S`（spike 字面 `cx − h*0.72` / `cy − h*0.72` 同一系数）
+    //   ⇒ 本处**复用同一系数** `LINEART_EDGE_W`，不另立同值的 `EDGE_X` / `EDGE_Y`（K-042 真源单一）；
+    //   两个语义都是「居中布层」，故 x = −w/2、y = −0.36S 同式成立（若真源日后拆档再改本行）。
+    BAND_EDGE.x = -(size * LINEART_EDGE_W) / 2;
+    BAND_EDGE.y = -(size * LINEART_EDGE_W) / 2;
+    BAND_EDGE.w = size * LINEART_EDGE_W;
+    BAND_EDGE.h = size * LINEART_EDGE_H;
+    BAND_EDGE.fill = e.edge;
+    BAND_EDGE.radius = size * LINEART_EDGE_RADIUS;
 
-  // #5 单孔（必改 ①②③）：`r = 0.22S`（唯一真源 = `BEAD_CARD.holeRatio`）、
-  // fill = **目标格 `pit`**（⛔ 白孔，见文件头）、描边 = `lw × 0.7` 并同样受 §1.1 地板钳。
-  HOLE.r = (size * BEAD_CARD.holeRatio) / 2;
-  HOLE.fill = endpointOf(inks, targetColorIdx ?? colorIdx).pit;
-  HOLE.lineWidth = Math.max(LINEART_MIN_STROKE, lw * LINEART_HOLE_STROKE_SCALE);
-  // ⚠ **本行不自检「地板是否抹掉了两档差别」**：实现侧自证自己写的表达式无判别力
-  //   （K-060）⇒ 该约束的**判别力承载体在测试侧** = `tests/bead-style-ledger.test.ts` 附行 B：
-  //   逐尺钉 `holeLw ≥ 地板`（§1.1 红线腿）+ 钉住本尺下 `holeLw === bodyLw` 的**钳平事实**
-  //   （= PT-SKIN-02 A/B 要读的量，⛔ 不靠弃地板求“两档分明”，亦⛔ 不拿注释免责）。
+    // #5 单孔（必改 ①②③）：`r = 0.22S`（唯一真源 = `BEAD_CARD.holeRatio`）、
+    // fill = **目标格 `pit`**（⛔ 白孔，见文件头）、描边 = `lw × 0.7` 并同样受 §1.1 地板钳。
+    // 同 `facet-4` 的取整口径（用户拍板「孔径整数、2 的倍数 px」，§7.11.6 三套同源）。
+    HOLE.r = Math.round((size * BEAD_CARD.holeRatio) / 2);
+    HOLE.fill = endpointOf(inks, targetColorIdx ?? colorIdx).pit;
+    HOLE.lineWidth = Math.max(LINEART_MIN_STROKE, lw * LINEART_HOLE_STROKE_SCALE);
+    // ⚠ **本行不自检「地板是否抹掉了两档差别」**：实现侧自证自己写的表达式无判别力
+    //   （K-060）⇒ 该约束的**判别力承载体在测试侧** = `tests/bead-style-ledger.test.ts` 附行 B：
+    //   逐尺钉 `holeLw ≥ 地板`（§1.1 红线腿）+ 钉住本尺下 `holeLw === bodyLw` 的**钳平事实**
+    //   （= PT-SKIN-02 A/B 要读的量，⛔ 不靠弃地板求“两档分明”，亦⛔ 不拿注释免责）。
 
-  return LAYERS;
+    return LAYERS;
 }
 
 /** 注册对象（`registry.ts` 的注册项；步 5 起才可被玩家切到）。 */
 export const LINEART_18: BeadStyle = {
-  id: LINEART18_STYLE_ID,
-  beadLayers: lineart18Layers,
+    id: LINEART18_STYLE_ID,
+    beadLayers: lineart18Layers,
 };

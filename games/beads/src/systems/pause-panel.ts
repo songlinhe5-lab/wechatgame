@@ -8,12 +8,14 @@
  * resolves from a tap.
  *
  * Frozen sources
- *  - layout: `ux/ux-spec.md` §3.3 (560×600 panel — WXG-T-164 批0 由 480 扩至 600
- *    容纳第 4 行；240×88 primary, ≥88 rows, rgba(42,46,67,0.5) scrim) — mirrored
- *    verbatim in `config/tuning.ts`;
+ *  - layout: `ux/ux-spec.md` §3.3 (560-wide panel, **h = `PAUSE_PANEL_H`**——WXG-T-164 批0
+ *    由 480 扩至 600 容纳第 4 行，**EP11-S5 再扩至 718 容纳第 5 行**；240×88 primary,
+ *    ≥88 rows, rgba(42,46,67,.5) scrim — 设置态遮罩 α 自 EP11-S5 分列为
+ *    `SETTINGS_SCRIM_ALPHA`) — mirrored verbatim in `config/tuning.ts`;
  *  - animation: `ux/ux-spec.md` §5 (入 200ms / 出 150ms, scale 0.9→1.0);
- *  - content list: `pause-settings.md` v1.3 §2.2 (继续 / 重玩本关 / 音乐 / 音效 /
- *    震动) plus the sprint secondary entry (U1) and 回主菜单次钮 (§8-11).
+ *  - content list: `pause-settings.md` **v1.7 §2.2 五行终态**（继续 / 重玩・音乐・音效 /
+ *    减弱动效・大字号・震动 / 珠子风格⇄豆子尺寸 / 性能信息・回主菜单）
+ *    plus the sprint secondary entry (U1，WXG-T-177 起隐藏) and 回主菜单次钮 (§8-11).
  *
  * Hit testing and rendering share `pausePanelLayout()`, so the picture and the
  * hot zones can never drift apart.
@@ -44,6 +46,9 @@ export type PausePanelAction =
   | 'toggle-large-text'
   | 'toggle-vibrate'
   | 'toggle-debug-info'
+  /** EP11-S5 行4：两枚**选择器钮**（非开关）——循环 registry 注册序 / `BEAD_SIZE_ORDER`。 */
+  | 'cycle-bead-style'
+  | 'cycle-bead-size'
   | 'start-sprint'
   | 'go-menu';
 
@@ -90,7 +95,8 @@ let _sprint: PausePanelLayout | null = null;
 
 function panelPlate(): PanelRect {
   const left = (DESIGN_W - PANEL_SIZE.w) / 2;
-  // 高度用暂停面板专有的 PAUSE_PANEL_H（600），宽度沿用共享 PANEL_SIZE.w（560）。
+  // 高度用暂停面板专有的 PAUSE_PANEL_H（EP11-S5 五行 = 718），宽度沿用共享 PANEL_SIZE.w（560）。
+  // ⚠️ ⛔ 不得回写成 `PANEL_SIZE.h`：那是结算/失败面板共用的 480（任务单「不污染共用 PANEL_SIZE」）。
   const bottom = (DESIGN_H - PAUSE_PANEL_H) / 2;
   return rect(left, bottom, PANEL_SIZE.w, PAUSE_PANEL_H);
 }
@@ -141,32 +147,47 @@ function normalLayout(): PausePanelLayout {
     });
   }
 
-  // Row 4 — 两格（pause-settings v1.6 §2.2）。**WXG-T-177（用户 2026-09-19
-  // 「去冲刺按钮先隐藏」）**：原 2-cell「start-sprint / go-menu」中的冲刺入口隐藏；
-  // v1.6（debug 工具批）把空出的左格补成「性能信息」覆层开关（真机 QA 无 console，
-  // 需可点击入口），「回主菜单」退回右格——居中口径随 v1.5 作废。恢复冲刺入口时
-  // 复建 `'start-sprint'` 即可（`PausePanelAction` 成员与其处理分支均保留）。
+  // Row 4 — **EP11-S5 / pause-settings v1.7 §2.2 行4：两枚选择器钮**
+  // （左「珠子风格」右「豆子尺寸」）。与行五的开关族不同门：本行不是 `toggle-*`，
+  // 语义 = 循环切档（S9 §8-15）；几何沿用四行时期的 2-cell 算法（cell 宽 250 ≥ TOUCH_MIN 88）。
   const row4Top = row3Bottom - PANEL_ROW_GAP;
   const row4Bottom = row4Top - PANEL_BUTTON_H;
   const cell2W = (innerWidth - gap) / 2;
+  const row4Ids: PausePanelAction[] = ['cycle-bead-style', 'cycle-bead-size'];
+  for (let i = 0; i < row4Ids.length; i++) {
+    buttons.push({
+      id: row4Ids[i]!,
+      rect: rect(innerLeft + i * (cell2W + gap), row4Bottom, cell2W, PANEL_BUTTON_H),
+    });
+  }
+
+  // Row 5 — **行五（v1.7 终态）：性能信息 / 回主菜单**，即 v1.6 原行4 两钮**原样下移**
+  // （S9 §2.2：语义与动作零变更，只换行位）。历史注记保留：WXG-T-177（用户 2026-09-19
+  // 「去冲刺按钮先隐藏」）原 2-cell「start-sprint / go-menu」中的冲刺入口隐藏；
+  // v1.6（debug 工具批）把空出的左格补成「性能信息」覆层开关。恢复冲刺入口时
+  // 复建 `'start-sprint'` 即可（`PausePanelAction` 成员与其处理分支均保留）。
+  const row5Top = row4Bottom - PANEL_ROW_GAP;
+  const row5Bottom = row5Top - PANEL_BUTTON_H;
   buttons.push({
     id: 'toggle-debug-info',
-    rect: rect(innerLeft, row4Bottom, cell2W, PANEL_BUTTON_H),
+    rect: rect(innerLeft, row5Bottom, cell2W, PANEL_BUTTON_H),
   });
   buttons.push({
     id: 'go-menu',
-    rect: rect(innerLeft + cell2W + gap, row4Bottom, cell2W, PANEL_BUTTON_H),
+    rect: rect(innerLeft + cell2W + gap, row5Bottom, cell2W, PANEL_BUTTON_H),
   });
 
   _normal = { panel: plate, buttons, titleY: plate.yMax - 60 };
   return _normal;
 }
 
-/** Sprint panel: identical minus the redundant sprint entry (already sprinting). */
+/**
+ * 冲刺面板：与普通面板**同构五行**（任务单「normal/sprint 两模式同构」）。
+ * v1.6 起两模式行4/行5 都是两格 ⇒ 两布局按钮几何全同，冲刺只隐藏冲刺入口（若复活）。
+ */
 function sprintLayout(): PausePanelLayout {
   if (_sprint) return _sprint;
   const full = normalLayout();
-  // v1.6 起两模式行 4 都是两格 ⇒ 两布局按钮几何全同，冲刺只隐藏冲刺入口。
   const buttons = full.buttons.filter((b) => b.id !== 'start-sprint');
   _sprint = { panel: full.panel, buttons, titleY: full.titleY };
   return _sprint;

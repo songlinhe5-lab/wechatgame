@@ -18,12 +18,16 @@ import {
     MENU_PRIMARY_W,
     MENU_ROW_GAP,
     MENU_SECONDARY_W,
+    SETTINGS_SCRIM_ALPHA,
+    BEAD_SIZE_LABELS,
     SIGNIN_REWARDS,
     TOUCH_MIN,
+    beadStyleLabel,
 } from '../config/tuning';
 import type { RenderModelBuilder } from '../../framework/index';
 import type { BeadsPalette } from './palette';
 import type { SigninReward } from '../game/meta-state';
+import type { BeadSizeKind } from '../config/tuning';
 
 export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels';
 
@@ -43,6 +47,9 @@ export interface MetaViewData {
     readonly largeText: boolean;
     readonly vibrate: boolean;
     readonly debugInfo: boolean;
+    /** EP11-S5 行4 两钮的菜单侧同串值入口（与暂停面板共读同一对 game getter ⇒ 两入口恒一致）。 */
+    readonly beadStyle: string;
+    readonly beadSize: BeadSizeKind;
     // levels overlay（选关，#1 · WXG-T-180）——均每帧只读引用，不分配。
     readonly levelCount: number;
     /** 当前关（0-based，play.levelIndex）。 */
@@ -70,7 +77,11 @@ export type MetaAction =
     | 'toggle-reduce-motion'
     | 'toggle-large-text'
     | 'toggle-vibrate'
-    | 'toggle-debug-info';
+    | 'toggle-debug-info'
+    /** EP11-S5：与 `PausePanelAction` 同名同语义的选择器钮（行4）；shell 直串值入
+     *  `BeadsGame.applySettingsAction`（既有通道，⛔ 不新造动作名）。 */
+    | 'cycle-bead-style'
+    | 'cycle-bead-size';
 
 interface Box {
     readonly x: number;
@@ -195,9 +206,18 @@ function settingsLayout(): MetaLayout {
         'toggle-large-text',
         'toggle-vibrate',
         'toggle-debug-info',
+        // EP11-S5 / S9 v1.7 §2.2 行4：**内容单源**——两枚选择器钮与暂停面板同一批
+        // game setter（`applySettingsAction` 共用分支），两入口档位永不漂移。
+        'cycle-bead-style',
+        'cycle-bead-size',
     ];
-    // 左右两列（用户 2026-09-25 直派，ux-spec v1.19）：6 钮 = 3 行 × 2 列，
-    // 总宽/行距沿用旧单列口径（rowW = plate 宽 − 80），列间 gap 24。
+    // 左右两列（用户 2026-09-25 直派，ux-spec v1.19）：**EP11-S5 后 8 钮 = 4 行 × 2 列**，
+    // 总宽/列间 gap 24/行距 `TOUCH_MIN + 16` 均沿用旧口径（任务单：行距沿用、plate 高可复算）。
+    // plate 高 **720 不改**，避让实算：`OVERLAY_H` 720 ⇒ plate y∈[307,1027]；
+    //   topY = 307+720−150 = 877，行底依次 877 / 773 / 669 / 565（行高 88）；
+    //   ① 顶行上缘 877+88 = 965 < 1027（标题基线 1027−70 = 957，与钮顶 965 的重叠属既有排版，
+    //      新增行在**下方**生长 ⇒ 不新增冲突）；② 新底行下缘 565 > 返回钮上缘 307+50+88 = 445
+    //      ⇒ 间隙 120 ≥ 0，**不与「返回」/「在线导入」同行族重叠**。
     const rowW = plate.w - 80;
     const rowX = plate.x + 40;
     const colGap = 24;
@@ -277,6 +297,12 @@ function label(id: MetaAction, data: MetaViewData): string {
             return `震动  ${data.vibrate ? '开' : '关'}`;
         case 'toggle-debug-info':
             return `性能信息  ${data.debugInfo ? '开' : '关'}`;
+        // EP11-S5 行4 两枚选择器钮：文案与暂停面板（`view-model::panelLabel`）**同字串**（S9 内容单源）；
+        // ⛔ 禁写死款数（U16=甲），风格名走 `BEAD_STYLE_LABELS` 单源、未注册时回 id 本身。
+        case 'cycle-bead-style':
+            return `珠子风格  ${beadStyleLabel(data.beadStyle)}`;
+        case 'cycle-bead-size':
+            return `豆子尺寸  ${BEAD_SIZE_LABELS[data.beadSize] ?? data.beadSize}`;
         default:
             return '';
     }
@@ -289,6 +315,7 @@ function drawButton(
     palette: BeadsPalette,
     primary: boolean,
     disabled = false,
+    font = FONT_BUTTON,
 ): void {
     builder.rect(b.x, b.y, b.w, b.h, {
         fill: primary ? palette.accentPrimary : palette.slot,
@@ -299,7 +326,7 @@ function drawButton(
     });
     builder.text(b.x + b.w / 2, b.y + b.h / 2, text, {
         fill: primary ? palette.panel : palette.text,
-        font: FONT_BUTTON,
+        font,
         align: 'center',
         baseline: 'middle',
     });
@@ -344,7 +371,16 @@ export function buildMetaView(
     }
 
     // Overlay：先压暗底层菜单，再画面板。
-    builder.rect(0, 0, DESIGN_W, DESIGN_H, { fill: 'rgba(0,0,0,0.5)' });
+    // EP11-S5 / ux §3.3 ⑤（U14=丙，Q3=甲）：**设置态遮罩 α 分列**——仅 `settings` overlay
+    // 读 `SETTINGS_SCRIM_ALPHA`（初值 0.3 [暂定·待 PT-SKIN-01 真机校准]）；
+    // ⚠️ RGB 与其余 overlay **零改动**（菜单侧遮罩历史上就是 `0,0,0`，与 `PANEL_SCRIM_RGB`
+    //   不同源，本批不越界统一）， signin/levels 仍读旧 0.5 字面量。
+    builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+        fill:
+            data.overlay === 'settings'
+                ? `rgba(0,0,0,${SETTINGS_SCRIM_ALPHA})`
+                : 'rgba(0,0,0,0.5)',
+    });
     const plate = overlayPlate();
     builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: 24 });
     const overlayTitle =
@@ -425,6 +461,9 @@ export function buildMetaView(
         if (b.id === 'studio-import' && !data.studioEnabled) continue; // 未配服务 ⇒ 不绘制（也不该被点）
         const primary = b.id === 'claim';
         const disabled = b.id === 'claim' && !data.canClaim;
-        drawButton(builder, b.box, label(b.id, data), palette, primary, disabled);
+        // EP11-S5 行4：选择器钮带现档名（如「珠子风格  经典四棱」）⇒ 30px 字模宽于 colW 248，
+        // 沿用暂停面板同族做法：小字档（不动已冻结的 plate 几何）。
+        const wide = b.id === 'cycle-bead-style' || b.id === 'cycle-bead-size';
+        drawButton(builder, b.box, label(b.id, data), palette, primary, disabled, wide ? FONT_CELL : FONT_BUTTON);
     }
 }

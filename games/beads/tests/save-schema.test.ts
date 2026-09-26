@@ -30,6 +30,13 @@ import {
 
 const LEVEL_COUNT = 8;
 
+/**
+ * EP11-S5（S8 §8-11）两新字段的默认档：补进本文件各**全字段 `toEqual`** 期望，
+ * 以single source 避免逐处漂移（真值仍由 `src` 侧 `DEFAULT_BEAD_STYLE_ID` /
+ * `BEAD_SIZE_DEFAULT` 定，本处只存【期望字面量】，⛔ 不反向引用实现常量以免抹掉回归）。
+ */
+const SETTINGS_DEFAULTS = { beadStyle: 'facet-4', beadSize: 'full' };
+
 const validSave = () => ({
   version: SAVE_VERSION,
   runs: 3,
@@ -40,7 +47,7 @@ const validSave = () => ({
   sprintBestScore: 1200,
   sprintBestStage: 5,
   starsByLevel: [3, 2, 1, 0, 0, 0, 0, 0],
-  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false },
+  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, beadStyle: 'facet-4', beadSize: 'full' },
 });
 
 const storage = () => new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createStorage();
@@ -56,7 +63,7 @@ describe('beads save schema', () => {
       sprintBestScore: 0,
       sprintBestStage: 0,
       starsByLevel: [],
-      settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false },
+      settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, ...SETTINGS_DEFAULTS },
     });
   });
 
@@ -138,6 +145,7 @@ describe('beads save schema', () => {
       largeText: false,
       vibrate: true,
       debugInfo: false,
+      ...SETTINGS_DEFAULTS,
     });
     expect(missing.save.currentLevel).toBe(3); // progression survived
     expect(missing.changed).toBe(true);
@@ -149,6 +157,7 @@ describe('beads save schema', () => {
       largeText: false,
       vibrate: true,
       debugInfo: false,
+      ...SETTINGS_DEFAULTS,
     });
     expect(normalizeSettings({ sfxMuted: true })).toEqual({
       bgmMuted: false,
@@ -157,6 +166,7 @@ describe('beads save schema', () => {
       largeText: false,
       vibrate: true,
       debugInfo: false,
+      ...SETTINGS_DEFAULTS,
     });
     expect(normalizeSettings('nonsense')).toEqual({
       bgmMuted: false,
@@ -165,6 +175,7 @@ describe('beads save schema', () => {
       largeText: false,
       vibrate: true,
       debugInfo: false,
+      ...SETTINGS_DEFAULTS,
     });
     expect(normalizeSettings({ bgmMuted: 'yes' })).toEqual({
       bgmMuted: false,
@@ -173,6 +184,7 @@ describe('beads save schema', () => {
       largeText: false,
       vibrate: true,
       debugInfo: false,
+      ...SETTINGS_DEFAULTS,
     });
   });
 
@@ -217,6 +229,8 @@ describe('beads save schema', () => {
       largeText: false,
       vibrate: true,
       debugInfo: false,
+      // EP11-S5 / S8 §8-13：v1→v2 迁移体**零换肤代码**，两新字段由 normalize 逐字段兜底。
+      ...SETTINGS_DEFAULTS,
     });
   });
 
@@ -250,8 +264,8 @@ describe('beads save schema', () => {
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const SAVE_SRC = resolve(REPO, 'games/beads/src/game/save-schema.ts');
 
-/** 六字段基线（腿① 的「其余无损」参照物）。 */
-const ALL_ON = { bgmMuted: true, sfxMuted: true, reduceMotion: true, largeText: true, vibrate: false, debugInfo: true };
+/** 六字段基线（腿① 的「其余无损」参照物）+ EP11-S5 两新字段（共八字段）。 */
+const ALL_ON = { bgmMuted: true, sfxMuted: true, reduceMotion: true, largeText: true, vibrate: false, debugInfo: true, ...SETTINGS_DEFAULTS };
 
 describe('TC-SAVE-12 腿① · §8-12 字段级隔离结构的现成回归锚（六字段上构造）', () => {
   // §8-12 四构造（①缺失 ②类型错 ③未注册 styleId ④豆径越界）中，**只有腿①可立即执行**：
@@ -276,11 +290,13 @@ describe('TC-SAVE-12 腿① · §8-12 字段级隔离结构的现成回归锚（
     expect(result.save.currentLevel).toBe(3);
     expect(result.save.sprintBestScore).toBe(1200);
     expect(result.save.starsByLevel).toEqual([3, 2, 1, 0, 0, 0, 0, 0]);
-    // 实测登记（不背书）：`changed` 对 settings 是**自我比较**（save.settings 已由
-    // normalizeSettings 产出）⇒ 单字段缺失不触发写回，仅 settings 整体缺失才触发。
-    // 「缺字段是否应补写回」= 回传未决问题（不自行消解；旧档实际写回由 migrate 路径保底）。
-    expect(result.changed).toBe(false);
+    // **B1-Q3 已随 EP11-S5 修正**：旧实现是 `normalizeSettings(raw)` 与同源产物的自我
+    // 比较 ⇒ 单字段缺失永不报 changed；现按「原始文档 vs 归一结果」比较 ⇒ 补写回 1 次。
+    // （patch 型全量写档不变，不 bump 版本，S8 §8-12；本断言即该修正的正面锚。）
+    expect(result.changed).toBe(true);
     expect(normalizeBeadsSave({ ...validSave(), settings: undefined }, LEVEL_COUNT).changed).toBe(true);
+    // 反向下限（阳性对照，K-060）：八字段俱备的完好档仍不得报 changed（否则每次启动都写盘）。
+    expect(normalizeBeadsSave(validSave(), LEVEL_COUNT).changed).toBe(false);
   });
 
   it('`debugInfo` 类型错（非布尔）⇒ 该字段取默认 false，其余五字段无损，不抛异常', () => {
@@ -297,7 +313,7 @@ describe('TC-SAVE-12 腿① · §8-12 字段级隔离结构的现成回归锚（
     // BOOT 不报错：整档非文档输入也只是降级默认（既有判例，本条不重写）。
     expect(() => normalizeBeadsSave({ ...validSave(), settings: 'nonsense' }, LEVEL_COUNT)).not.toThrow();
     expect(normalizeBeadsSave({ ...validSave(), settings: 'nonsense' }, LEVEL_COUNT).save.settings)
-      .toEqual({ bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false });
+      .toEqual({ bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, ...SETTINGS_DEFAULTS });
   });
 });
 

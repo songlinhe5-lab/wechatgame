@@ -14,13 +14,21 @@ import type { RenderModelBuilder } from '../../framework/index';
 import {
   DESIGN_H,
   DESIGN_W,
-  easeOutQuad,
   SELECT_LIFT_PX,
   TRAY_SELECTED_LIFT_PX,
   HUD_BAND,
   PANEL_SCALE_FROM,
   PANEL_SCRIM_ALPHA,
   PANEL_SCRIM_RGB,
+  // EP11-S5 遮罩分列（仅暂停面板读）+ 行4 两钮文案单源（`beadStyleLabel` 未注册时回 id 本身）。
+  SETTINGS_SCRIM_ALPHA,
+  BEAD_SIZE_LABELS,
+  BEAD_SIZE_SMALL,
+  // 等比归一的基尺（与 `BEAD_DRAW_INSET` 同族判例：凡与比例制几何同屏对照的绝对像素量都要跟着缩，K-077）。
+  BEAD_CELL,
+  BEAD_DRAW_INSET,
+  BEAD_DRAW_INSET_SMALL,
+  beadStyleLabel,
   POWERUP_BADGE_GLYPH_EDGE,
   POWERUP_BADGE_INSET,
   POWERUP_BADGE_RADIUS,
@@ -41,6 +49,7 @@ import {
   TRAY_SLOT,
   AD_HINT_TEXT_Y,
   expandButtonLayout,
+  zoomControlLayout,
   EXPAND_BTN_GLYPH_EDGE,
   EXPAND_BTN_GLYPH_GAP,
   EXPAND_BTN_LABEL,
@@ -93,6 +102,7 @@ import {
   TRAY_BEAD_SIZE,
   drawEmptySocket,
   drawFilledBead,
+  drawLiftGroundShadow,
   drawLockedBead,
   drawTargetTile,
   drawDebugCellOutline,
@@ -143,6 +153,8 @@ import {
   confettiIsForeground,
   confettiQuad,
   deniedPressScale,
+  liftEase,
+  liftStaggerPhase,
   solverBeadProgress,
   solverHintAlpha,
   SWEEP_LAYER_COUNT,
@@ -194,6 +206,13 @@ function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
       return `震动  ${snap.vibrate ? '开' : '关'}`;
     case 'toggle-debug-info':
       return `性能信息  ${snap.debugInfo ? '开' : '关'}`;
+    // EP11-S5 行4 两枚**选择器钮**：文案 = 现档显示（S9 v1.7 §8-14）。
+    // ⛔ 禁写死款数与档名（U16=甲：TC-STY-11 腿 B grep 门常驻）——风格名走 `BEAD_STYLE_LABELS`
+    //   单源，未注册 id 回落 id 本身（⛔ 不回落默认档名，K-035「不得把纸面值当已实现」同族）。
+    case 'cycle-bead-style':
+      return `珠子风格  ${beadStyleLabel(snap.beadStyle)}`;
+    case 'cycle-bead-size':
+      return `豆子尺寸  ${BEAD_SIZE_LABELS[snap.beadSize] ?? snap.beadSize}`;
     case 'start-sprint':
       return '▶ 去冲刺';
     case 'go-menu':
@@ -224,6 +243,7 @@ export function buildBeadsView(
   drawHud(builder, snap, palette);
   drawPuzzlePlate(builder, snap, palette); // F2/F3：容器板 + 暖光 band（§1.7）
   drawGrid(builder, snap, palette, inks);
+  drawZoomControls(builder, snap, palette); // 缩放控件条（盘面下方净空带，不遮珠）
   drawTray(builder, snap, palette, inks);
   drawExpandButton(builder, snap, palette);
   drawPowerupBand(builder, snap, palette);
@@ -237,6 +257,70 @@ export function buildBeadsView(
   drawFailPanel(builder, snap, palette);
   drawSprintSettle(builder, snap, palette);
   drawBanners(builder, snap, palette);
+}
+
+// ───────────── 棋盘缩放控件（盘面下方净空带 · `zoomControlLayout` 与命中同源）
+
+/**
+ * [1:1][适配][slider] 控件条 + 当前倍率读数。仅 PLAYING 绘制（面板期由 scrim 盖住）。
+ * 整条**落在盘带下方的净空带**（零遮珠、零抢托盘，不变量钉在 `tests/tuning.test.ts`）；
+ * 视觉在 88 热区内缩（72×56 胶囊 / 12px 轨道），文字 28px（§3.8 E1 下限）；knob 位置 =
+ * 快照 `zoomSliderT`、倍率 = `camZoom`（均为 game 侧派生值，视图不持状态，L5）。
+ */
+function drawZoomControls(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+): void {
+  if (snap.phase !== 'playing') return;
+  const zc = zoomControlLayout();
+  const midY = zc.track.y + zc.track.h / 2;
+  const drawBtn = (r: { x: number; y: number; w: number; h: number }, label: string): void => {
+    const vw = 72;
+    const vh = 56;
+    builder.rect(r.x + (r.w - vw) / 2, r.y + (r.h - vh) / 2, vw, vh, {
+      fill: palette.slot,
+      stroke: palette.slotBorder,
+      lineWidth: 2,
+      radius: 16,
+    });
+    builder.text(r.x + r.w / 2, midY, label, {
+      fill: palette.text,
+      font: FONT.hudSmall,
+      align: 'center',
+      baseline: 'middle',
+    });
+  };
+  drawBtn(zc.reset, '1:1');
+  drawBtn(zc.fit, '适配');
+
+  // 轨道：底槽 + 已选段 + knob。
+  const trackH = 12;
+  builder.rect(zc.track.x, midY - trackH / 2, zc.track.w, trackH, {
+    fill: palette.slot,
+    stroke: palette.slotBorder,
+    lineWidth: 2,
+    radius: trackH / 2,
+  });
+  const t = Math.max(0, Math.min(1, snap.zoomSliderT));
+  const knobX = zc.track.x + zc.track.w * t;
+  if (t > 0) {
+    builder.rect(zc.track.x, midY - trackH / 2, knobX - zc.track.x, trackH, {
+      fill: palette.accentPrimary,
+      radius: trackH / 2,
+    });
+  }
+  builder.circle(knobX, midY, 22, {
+    fill: palette.panel,
+    stroke: palette.accentPrimary,
+    lineWidth: 4,
+  });
+  builder.text(zc.track.x + zc.track.w + 12, midY, `${snap.camZoom.toFixed(2)}×`, {
+    fill: palette.text,
+    font: FONT.hudSmall,
+    align: 'left',
+    baseline: 'middle',
+  });
 }
 
 // ───────────────────────────────────────────────── S9 pause panel (ux-spec §3.3)
@@ -261,9 +345,11 @@ function drawPausePanel(
   const layout = pausePanelLayout(snap.mode);
 
   // Scrim covers the whole canvas — therefore always the board *and* the tray
-  // (pause-settings §2.2: 防误触 + 防偷看).
+  // (pause-settings §2.2：防误触 + 防偷看).
+  // EP11-S5 / ux §3.3 ⑤（U14=丙）：**暂停面板属「设置态」** ⇒ 遮罩 α 分列读
+  // `SETTINGS_SCRIM_ALPHA`（RGB 零改动）；其余面板仍读 `PANEL_SCRIM_ALPHA`。
   builder.rect(0, 0, DESIGN_W, DESIGN_H, {
-    fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA * t})`,
+    fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${SETTINGS_SCRIM_ALPHA * t})`,
   });
 
   // Plate: scale 0.9→1.0 about its centre (ux-spec §5).
@@ -293,11 +379,14 @@ function drawPausePanel(
     // Row-3 accessibility toggles carry longer copy than the 160px cell can hold
     // at the standard button face — a smaller secondary style keeps it inside
     // the plate without touching the frozen panel geometry (§8-5).
+    // EP11-S5：行4 两枚选择器钮（「珠子风格  经典四棱」）文案长度同族 ⇒ 一并入小字档。
     const toggle =
       button.id === 'toggle-reduce-motion' ||
       button.id === 'toggle-large-text' ||
       button.id === 'toggle-vibrate' ||
-      button.id === 'toggle-debug-info';
+      button.id === 'toggle-debug-info' ||
+      button.id === 'cycle-bead-style' ||
+      button.id === 'cycle-bead-size';
     // F6：主按钮 → accent_primary（§3.5 中性强调；白字对比 12.6:1）。
     builder.rect(bx, by, bw, bh, {
       fill: primary ? palette.accentPrimary : palette.slot,
@@ -755,6 +844,21 @@ function drawGrid(
   const solverN = snap.solverCellCount;
   const solverT = solverN > 0 && snap.solverProgress > 0 ? snap.solverProgress * solverSequenceMs(solverN) : -1;
   const solverHintA = solverT > 0 ? solverHintAlpha(solverT) : 0;
+  // EP11-S5 行4 右格：**豆径档只读一次**（循环外派生，⛔ 不进逐珠分支重算）。
+  // 作用域 = 仅网格珠珠体（含已填态）：风格 id 与内缩基准/孔开关均在本函数下发；
+  // 托盘珠另走 `drawTray`（只接风格、不接档 ⇒ 恒满幅、恒有孔，ux §3.3 ④）。
+  const sizeSmall = snap.beadSize === BEAD_SIZE_SMALL;
+  const beadDrawInset = sizeSmall ? BEAD_DRAW_INSET_SMALL : BEAD_DRAW_INSET;
+  /**
+   * **抬起量的等比因子**（`bead-visual-style-spec §11.6` 追记）：`SELECT_LIFT_PX` / `WAVE_LIFT_PX`
+   * 是**静息档（`gridCell = BEAD_CELL`）**基准值，而珠体边长、B0 底图、分离影全是比例制
+   * ⇒ 抬起量不缩就会与影脱钩（fit 档实测间隙占格径比例翻倍 = “小豆抬得更高、影离得更远”）。
+   * 算式沿用 `bead-render.ts` 内缩的同形归一：`基准值 × outer / BEAD_CELL`（先乘后除 ⇒
+   * **恒等档逐位不变**：`6 × 30 / 30 = 6` 精确，不破 seal/复现类判据）。
+   */
+  const liftScale = snap.gridCell / BEAD_CELL;
+  // 组内错峰的名序基准（`boardGroupRows` 已是 game 侧消费序，锚在序首）；颗数 ≤ 1 ⇒ 0 = 无错峰。
+  const groupLastRank = snap.boardGroupCount - 1;
   for (let i = 0; i < snap.gridRows; i++) {
     for (let j = 0; j < snap.gridCols; j++) {
       const cell = snap.cells[i * snap.gridCols + j]!;
@@ -804,7 +908,9 @@ function drawGrid(
         drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch);
         // 空格 = 在这张底图上**挖洞**（pit 内缩 + 暗缘 + 下受光）；自带的亮 `base` 外块
         // 由 `tilePainted = true` 跳过。旧注释里的“E4 幽灵符号”已随 WXG-T-130 降档移除。
-        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true);
+        // 坑外廓按「同格有豆时的珠体绘制边长」退一圈（用户裁定：坑恒小于珠、有豆时看不到坑）
+        // ⇒ 珠体内缩基准与 `drawFilledBead` 同一把尺（满豆 / 小豆档共用 `beadDrawInset`）。
+        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset);
         // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
           drawStateRing(builder, bx, cy, snap.gridCell, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
@@ -853,22 +959,42 @@ function drawGrid(
       // 参与 lift ⇒ 珠上移露垫 = 抬起读数）；③④ 锚 = 8 邻接连通错位珠组 ⇒ 组内全格统一抬起。
       // （原反馈 ①「错位珠恒亮白环」经真机首验用户裁定移除，见 WXG-T-165。）
       let inGroup = false;
+      let groupRank = 0;
       for (let k = 0; k < snap.boardGroupCount; k++) {
         if (snap.boardGroupRows[k] === i && snap.boardGroupCols[k] === j) {
           inGroup = true;
+          groupRank = k; // 名序 = 错峰相位源（不重算 BFS）
           break;
         }
       }
       // FilledBeadOptions 全只读 ⇒ 组装为可变草稿再定型的既有模式（零类分配）。
       const draft: {
         -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K];
-      } = { targetColorIdx: cell.colorIdx, size: snap.gridCell, inks };
+      } = {
+        targetColorIdx: cell.colorIdx,
+        size: snap.gridCell,
+        inks,
+        // EP11-S5 换肤两参：风格按 snapshot id 查 registry（view 不推断）；豆径档走
+        // 同一内缩通道 + 小豆无孔。默认档（`facet-4` + `full`）下 ⇒ `bead-render` 三个
+        // 分支均落到与改前完全同值的路径 ⇒ 封箱基准逐字节不变（由 seal 测试守）。
+        styleId: snap.beadStyle,
+        drawInset: beadDrawInset,
+        hideHole: sizeSmall,
+      };
+      // §5 抬起斜坡值单独存 `groupLift`：下方的分离影要用它，而 `draft.lift`
+      // 随后可能被 G4 波浪覆写（同格重叠窗口 ⇒ 读 draft.lift 会让影在波峰处消失）。
+      // D1(`reduceMotion`) ⇒ 直接归 1：无斜坡、无错峰、无回弹（静态到位），与其余动效同口径。
+      const groupLift = inGroup
+        ? SELECT_LIFT_PX *
+        liftScale *
+        (snap.reduceMotion
+          ? 1
+          : liftEase(liftStaggerPhase(snap.liftProgress, groupRank, groupLastRank)))
+        : 0;
       if (inGroup) {
-        // §5 v1.5-r10：抬起走 120ms ease-out 斜坡（时长复用 G1 `FILL_POP_MS`）。
-        // D1(`reduceMotion`) ⇒ 进格直接归 1（无斜坡、无往复），与其余动效同口径。
-        draft.lift =
-          SELECT_LIFT_PX *
-          (snap.reduceMotion ? 1 : easeOutQuad(snap.liftProgress));
+        // §5 v1.5-r16：200ms 斜坡 = ease-in-out 升 + 一次回弹（`scene-vfx::liftEase`），
+        // 组内逐颗错峰（`liftStaggerPhase`，名序 = 快照里的消费序，本层不重算 BFS）。
+        draft.lift = groupLift;
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
       // G2′ 相 A：点名格在预警窗口内**仍是错位珠**（裁定「甲」⇒ 动手延后），
@@ -889,7 +1015,7 @@ function drawGrid(
       // ⛔ 垫不参与：`scale` 仅珠体、`lift` 不带动 L11（§1.6.1 层序死结论）。
       if (isWave) {
         draft.scale = wave.scale;
-        draft.lift = wave.dy; // y 轴向上 ⇒ +dy = 微抬
+        draft.lift = wave.dy * liftScale; // y 轴向上 ⇒ +dy = 微抬（同走等比因子，与小档珠体不脱钩）
         draft.lodLayers = WAVE_BEAD_LOD_LAYERS; // C7 拆名：波浪降档专用名（zoom LOD = ZOOM_LOD_LAYERS）
       }
       // G7 轻压（§1.6.7）：就位格。优先级 pop/wave > denied（同格重叠窗口让位；
@@ -904,6 +1030,11 @@ function drawGrid(
       // ⛔ 锁格心、不吃 lift / scale / pop 包络（§1.6.1 P0 陷阱 #2）。
       // 边长同上：= 缩放后格距，与 `opts.size`（`snap.gridCell`）同尺（ADR-0020 甲案）。
       drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch);
+      // §5 分离影（仅选中组）：珠抬起来 ⇒ 影留在格面。默认皮肤 `facet-4` 无阴影层，
+      // 本层是盘面**唯一**随高度变化的通道（= 斜俯视的立体感载体）。函数内注释含口径。
+      if (groupLift > 0) {
+        drawLiftGroundShadow(builder, bx, cy, snap.gridCell, cell.colorIdx, inks);
+      }
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
       // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
       // 候选 I 墨 = `palette.slotBorder`（§1.6.2a）⇒ 非 danger/hint 色，不抢玩法语义。
@@ -1052,14 +1183,20 @@ function drawTray(
     const selected = slot.state === 'selected';
     // Selected: lift 4px + darker L0 shadow + indicator dot (§1.2 selected row).
     // §5 v1.5-r10：与板锚组共用 `liftProgress` ⇒ 不会出现“板上的珠在抬、托盘的珠瞬跳”。
+    // ⚠ 托盘**故意不乘 `liftScale`**（板上要走等比）：托盘带不随棋盘相机变尺，
+    //   珠与槽同源 ⇒ 无脱钩面（口径正本 = `tuning.TRAY_SELECTED_LIFT_PX` 注）。
+    // 曲线与板上同源（ease-in-out + 回弹）；托盘无组 ⇒ 不参错峰。
     const lift = selected
       ? TRAY_SELECTED_LIFT_PX *
-      (snap.reduceMotion ? 1 : easeOutQuad(snap.liftProgress))
+      (snap.reduceMotion ? 1 : liftEase(snap.liftProgress))
       : 0;
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
       size: TRAY_BEAD_SIZE,
       lift,
       inks,
+      // EP11-S5 作用域：托盘珠**随风格**（与盘面珠同一层集）但**不随豆径档**
+      // （恒满幅、恒有孔）⇒ 不传 `drawInset` / `hideHole`（assets-spec §7.11）。
+      styleId: snap.beadStyle,
       ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),
     });
     if (selected) {

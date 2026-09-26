@@ -11,11 +11,14 @@
 import type { SlotState } from '../entities/tray';
 import type { CellState } from '../entities/grid';
 import {
+  BEAD_SIZE_DEFAULT,
   DENIED_MAX_CELLS,
+  FACET4_STYLE_ID,
   POWERUP_FREE_USES,
   SOLVER_MAX_CELLS,
   VIBRATE_DEFAULT,
   type BeadsTuning,
+  type BeadSizeKind,
   type PowerupType,
 } from '../config/tuning';
 
@@ -117,6 +120,14 @@ export interface BeadsSnapshot {
   debugInfo: boolean;
   /** DEBUG：帧耗时 EMA（ms），view 派生 fps；开关关闭恒 0（热路径零开销）。 */
   perfFrameMs: number;
+  /**
+   * **珠子风格 id**（EP11-S5 / S9 v1.7 §2.2 行4 左格）：view 层据此查 `bead-styles/registry`
+   * 取层集渲染（含盘面珠与凹槽、⛔ 不自行推断），并回显钮文案。非法值已在
+   * `save-schema::normalizeSettings` 降级为默认档 ⇒ view 可直接消费。
+   */
+  beadStyle: string;
+  /** **豆径档**（EP11-S5 行4 右格）：仅网格珠珠体读取（托盘珠恒满幅，ux §3.3 ④）。 */
+  beadSize: BeadSizeKind;
 
   /** Sprint HUD — normal mode leaves these at zero and the view hides them. */
   score: number;
@@ -137,6 +148,13 @@ export interface BeadsSnapshot {
    * 阈值与滞回均在 game 侧算完才入快照 ⇒ 视图只读（L5）。
    */
   beadLodLayers: number;
+
+  /**
+   * 棋盘缩放控件（盘面下方净空带）：slider 归一位 `0..1` 与当前倍率。
+   * 均**由相机派生**（game 侧算完才入快照）⇒ 视图只读（L5）。
+   */
+  zoomSliderT: number;
+  camZoom: number;
 
   /** Banner text for the current phase ('' when none). */
   banner: string;
@@ -355,6 +373,10 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     debugOutlines: false,
     debugInfo: false,
     perfFrameMs: 0,
+    // 默认档与存档层同一真源（`FACET4_STYLE_ID` = `registry.DEFAULT_BEAD_STYLE_ID` 的 tuning 定义），
+    // ⛔ 不得在 view/game 任一侧另写字面量。
+    beadStyle: FACET4_STYLE_ID,
+    beadSize: BEAD_SIZE_DEFAULT,
     score: 0,
     multiplier: 1,
     streak: 0,
@@ -362,6 +384,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     sprintBestScore: 0,
     isNewBest: false,
     gridLeft: 0,
+    zoomSliderT: 0,
+    camZoom: 1,
     gridTop: 0,
     gridPitch: 0,
     gridCell: 0,

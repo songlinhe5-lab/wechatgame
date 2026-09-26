@@ -14,6 +14,7 @@ import {
   BEAD_GAP,
   BEAD_HIT_PAD,
   BEAD_PITCH,
+  CAMERA_ZOOM_MAX_SPAN,
   DEFAULT_TUNING,
   DESIGN_H,
   DESIGN_W,
@@ -24,6 +25,7 @@ import {
   GRID_MIN_ROWS,
   HUD_BAND,
   POWERUP_BAND,
+  PLATE_OUTSET,
   PUZZLE_BAND,
   CLEAR_STAR_STEP_MS,
   SPAWN_INTERVAL_MAX,
@@ -37,7 +39,9 @@ import {
   TRAY_EXPAND_SLOTS,
   TRAY_GAP,
   TRAY_HIT_SIZE,
+  TRAY_PANEL_PAD,
   TRAY_SLOT,
+  zoomControlLayout,
   computeClearStars,
   LEVEL_TIME_MIN,
   nextTierFor,
@@ -271,5 +275,29 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     expect(TRAY_BAND.yMax - TRAY_BAND.yMin).toBeGreaterThanOrEqual(
       3 * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP + 2 * 12,
     );
+  });
+
+  // 缩放控件条落位不变量（“不影响面板操作”的可机检形式，2026-09-26 盘带下沿 480→560 同批）。
+  // ⛔ 本例五腿均为**符号式**，不写 452/540 这类快照数 ⇒ 真源再换尺时只跟不坏。
+  it('缩放控件条落在盘面与托盘之外的净空带 ⇒ 零遮叠', () => {
+    const zc = zoomControlLayout();
+    const stripTop = zc.track.y + zc.track.h;
+    const stripBottom = zc.reset.y;
+    // ① 热区合规（§3.8 C1 / `TOUCH_MIN`）——底部净空不够时的偷减入口就在此钉住。
+    expect(zc.reset.w).toBeGreaterThanOrEqual(TOUCH_MIN);
+    expect(zc.reset.h).toBeGreaterThanOrEqual(TOUCH_MIN);
+    expect(zc.track.h).toBeGreaterThanOrEqual(TOUCH_MIN);
+    // ② 上界：最大档时盘面最底行命中框下探 `BEAD_HIT_PAD × (fit×SPAN)`（fit ≤ 1 ⇒ 上界取 SPAN）
+    //    ⇒ 控件条顶不得越过它，否则就有珠子的点击被吃掉。
+    expect(stripTop).toBeLessThanOrEqual(PUZZLE_BAND.yMin - BEAD_HIT_PAD * CAMERA_ZOOM_MAX_SPAN);
+    // ③ 下界：托盘 row0 槽命中框顶仍在控件条之下 ⇒ 也不抢托盘（现余量 8px，`[待真机]`）。
+    const trayHitTop = TRAY_BAND.yMax - TRAY_PANEL_PAD - TRAY_SLOT / 2 + TRAY_HIT_SIZE / 2;
+    expect(stripBottom).toBeGreaterThanOrEqual(trayHitTop);
+    // ④ 整条在托盘面板（贴上沿）之上、且不越屏左/右。
+    expect(stripBottom).toBeGreaterThan(TRAY_BAND.yMax);
+    expect(zc.reset.x).toBeGreaterThanOrEqual(0);
+    expect(zc.track.x + zc.track.w).toBeLessThan(DESIGN_W);
+    // ⑤ 视觉不压容器板（`drawPuzzlePlate` 外扩 `PLATE_OUTSET`）⇒ “不影响面板”的字面形式。
+    expect(stripTop).toBeLessThan(PUZZLE_BAND.yMin - PLATE_OUTSET);
   });
 });

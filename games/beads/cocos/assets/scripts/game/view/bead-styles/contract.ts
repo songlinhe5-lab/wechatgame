@@ -114,7 +114,7 @@ type WritableMembers<T> = { -readonly [K in keyof T]: T[K] };
 export type WritableBeadRect = WritableMembers<Extract<BeadStyleLayer, { kind: 'rect' }>>;
 /** 可变三角层；`points` 字段本身可变，赋入**模块级可变 6 元组**后可原地写元素（零分配、零 cast）。 */
 export type WritableBeadPolygon = WritableMembers<
-  Extract<BeadStyleLayer, { kind: 'polygon' }>
+    Extract<BeadStyleLayer, { kind: 'polygon' }>
 >;
 /** 可变圆层（孔）。 */
 export type WritableBeadCircle = WritableMembers<Extract<BeadStyleLayer, { kind: 'circle' }>>;
