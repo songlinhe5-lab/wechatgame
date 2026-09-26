@@ -51,6 +51,16 @@ export interface BeadStyleInput {
  * 珠体图层描述符。字段与 builder 出口逐一对齐（`rect(x,y,w,h,{fill,radius})` /
  * `polygon3(ax,ay,bx,by,cx,cy,{fill})` ADR-0024 / `circle(cx,cy,r,{fill})`），
  * 供 S3 转正时无损回放。
+ *
+ * ⚠ **`stroke` / `lineWidth` 为 `WXG-T-211-S4`（步 4）新增的可选字段**：`18` 线稿描边的
+ * 造型身份就是描边（`assets-spec §7.11.3` 行 2/5 的 `fill + stroke` **同路径**），三态描述符
+ * 原本无表达力 ⇒ 不扩字段就落不了正本（要么丢描边、要么改用 `line` 图元叠层，后者会把
+ * 已退役的线族以「每层 1 命令」的形态请回盘面、**翻倍命令数**）。两条约束随之定死：
+ *  ① 只有 `rect` / `circle` 可带描边（`polygon` 分支不带 ⇒ 刻面必须是一枚枚不透明顶面，
+ *     C12 统计域与 J-3 不串形判据的隐含前提）；
+ *  ② `fill` 仍为**必填** ⇒ “stroke-only 层”在本契约上**结构不可表达**（§K.5 行 5–8 的
+ *     防复活语义因此不从字段上求，改由 `kind` 白名单拦 `line` 图元）。
+ * 真 α 计数与命令计数均**不因 stroke 而变**（`§7.11` 读法②；见 `isRealAlphaLayer` 注）。
  */
 export type BeadStyleLayer =
     | {
@@ -63,6 +73,10 @@ export type BeadStyleLayer =
         readonly fill: string;
         readonly radius?: number;
         readonly alpha?: number;
+        /** 描边墨（只能由 `palette.ts` 端点 / token 给，⛔ hex 字面量，C3）。 */
+        readonly stroke?: string;
+        /** 描边宽（设计 px）；⛔ 风格内自算地板，地板真源 = `BEAD_CARD.minStroke` / `LINEART_MIN_STROKE`。 */
+        readonly lineWidth?: number;
     }
     | {
         /** 三角形专用（本单四棱 = polygon3 消费方）：恰 6 元扁平数组。 */
@@ -81,6 +95,10 @@ export type BeadStyleLayer =
         readonly r: number;
         readonly fill: string;
         readonly alpha?: number;
+        /** 描边墨（`18` 孔 = `BEAD_SHADOW_HEX`，§7.11.3 行 5）。 */
+        readonly stroke?: string;
+        /** 描边宽（`18` 孔 = 主体线宽 × `LINEART_HOLE_STROKE_SCALE`）。 */
+        readonly lineWidth?: number;
     };
 
 /**
@@ -131,6 +149,9 @@ export interface BeadStyle {
  * `fill` 写成 `rgba(...)` 且不带 `alpha` 字段，以此钉住第二支
  * （漏计 ⇒ 实测 α = 2 不触门 ⇒ TC-STY-08 臂 2 必红）。
  * stroke 不计 α、`fill+stroke` 同路径仍只算 1 命令（7.11 读法②）。
+ * ⚠ 本函数只看 `alpha` 与 `fill` 两个轴 ⇒ 给一层加 `stroke` **不会**动它的 α 计数
+ *   （`18` 实测 5 命令 / 1 真 α 的算术基础就在这条上；反验 = `bead-style-pool.test.ts` 的
+ *   `\[lineart-18\] 命令=5 真α=1` 钉值腿）。
  */
 export function isRealAlphaLayer(layer: BeadStyleLayer): boolean {
     return (

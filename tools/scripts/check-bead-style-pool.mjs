@@ -98,27 +98,66 @@ function layerContains(layer, x, y) {
     return inTriangle(layer, x, y);
 }
 
-/** facet 族成员重叠像素数（统计域自洽性哨兵：facet 间重叠会使「占比」语义失真 ⇒ 报数值不猜）。 */
-function facetOverlapPixels(layers, size, grid = SAMPLE_GRID) {
-    const facets = [];
-    for (let i = 0; i < layers.length; i++) if (layers[i].role === 'facet') facets.push(layers[i]);
-    if (facets.length < 2) return 0;
+/**
+ * **逐 facet 层的顶面覆盖实算**（WXG-T-211-S4 / 步 4 新增，本函数的输出 = 重叠判据改写后的
+ * 主担者）：一趟网格采样同时得
+ *  - `overlap`：同时被 ≥2 枚 facet 层包含的样本数（几何事实，语义见下方政策注）；
+ *  - `perFacet[]`：每枚 facet 层的 `{ index, fill, topPixels, coveredPixels }` ——
+ *    `topPixels` = 该层作为**顶面胜出者**的样本数（= 它真正画得出来的面积），
+ *    `coveredPixels` = 它被包含却上有更高层的样本数。
+ * ⚠ 与 `identifyPrimary` 共用 `topLayerAt` ⇒ 两套读数同一顶面口径（⛔ 另起一套采样 = K-042）。
+ */
+export function facetCoverage(layers, size, grid = SAMPLE_GRID) {
+    const idx = [];
+    for (let i = 0; i < layers.length; i++) if (layers[i].role === 'facet') idx.push(i);
+    const stats = new Map(idx.map((i) => [i, { index: i, fill: layers[i].fill, topPixels: 0, coveredPixels: 0 }]));
     let overlap = 0;
+    if (idx.length === 0) return { overlap, perFacet: [] };
     const step = size / grid;
     for (let gy = 0; gy < grid; gy++) {
         const y = -size / 2 + (gy + 0.5) * step;
         for (let gx = 0; gx < grid; gx++) {
             const x = -size / 2 + (gx + 0.5) * step;
-            let hits = 0;
-            for (const f of facets) {
-                if (layerContains(f, x, y)) hits++;
-                if (hits > 1) break;
-            }
-            if (hits > 1) overlap++;
+            const hits = []; // facet 层命中集，自顶向下序
+            for (let i = layers.length - 1; i >= 0; i--) if (stats.has(i) && layerContains(layers[i], x, y)) hits.push(i);
+            if (hits.length > 1) overlap++;
+            if (hits.length === 0) continue;
+            const top = topLayerAt(layers, x, y);
+            const visible = top !== null && top.role === 'facet';
+            stats.get(hits[0])[visible ? 'topPixels' : 'coveredPixels']++;
+            for (let k = 1; k < hits.length; k++) stats.get(hits[k]).coveredPixels++;
         }
     }
-    return overlap;
+    return { overlap, perFacet: idx.map((i) => stats.get(i)) };
 }
+
+/**
+ * **facet 族重叠：从「泛阈值判红」改为「逐风格钉值 + 死层硬门」**（WXG-T-211-S4 / 步 4）
+ * ────────────────────────────────────────────────────────────────
+ * 旧门的推论链只有一环站得住：「facet 间重叠 ⇒ 占比语义失真」。但主体色认定（C12 弱读法）
+ * 自 S3 就走 `topLayerAt` **顶面胜出** ⇒ 每样本只计一次、占比永远归一（实测：`18` 三枚 facet
+ * 顶面占比 73.6% + 13.4% + 13.1% = 100.0%）⇒ **叠压不使语义失真**，旧前提失效。
+ * 而 `§7.11.3` 的 `18` 层集本身就是叠压式（#2 主体满格 rect 上再压两条明暗带）：
+ * 旧门在新套上**必然误伤**（实测 3453px = 全盘 23.6%）。两条出路只有一条合法：
+ * ⛔ 不得为了过旧门而重造型（删带/不叠压 = 改掉正本身份），而是把门改到真正危险的东西上：
+ *  ① **死层硬门**（更强替代）：任一 facet 层顶面可见像素 = 0 ⇒ 判红。被完全遮住的层
+ *     不贡献任何像素却白占一枚命令 ⇒ 那才是“叠压失真”的真形态（旧门对此**反而看不见**：
+ *     完全重叠时旧门只报一个重叠数，不区分“可见”与“死掉”）。
+ *  ② **逐风格钉值**（登记而非阈值）：重叠像素实算值必须等于登记值 ⇒ 任何 facet 几何改动
+ *     都会扯动它 ⇒ 强制重跑差分复算后才能改登记（K-051）。⛔ **不用区间**：区间会把
+ *     尚未解释清的偏差藏进门里（本批实测前曾误推「采样系统性偏低」，复算后证明是我方
+ *     解析期望算错（孔径 0.22S 而非 0.11S）⇒ 先弄清偏差再谈区间）。
+ *  ③ **默认拒绝**：未登记风格一律判违规并打出实算值（⛔ 不得“新套自动继承旧套阈值”）。
+ * ⚠ 本改写只动**统计域自洽性哨兵**，⛔ 不触碰 C12 裁定式（argmax ∈ base 同族）与占比表。
+ * ⚠ 旧 `facetOverlapPixels()` 独立函数的职责已并入 `facetCoverage().overlap`（一趟采样同时得
+ *   重叠数与逐层顶面数 ⇒ 两套读数不会因两趟网格不一致而漂移）。
+ */
+const FACET_OVERLAP_REGISTER = {
+    // 三套均为 colorIdx=1 / size=BEAD_CELL(30) / grid=121 的实算值（`temp/wxg-t-211-s4/` 台面存证）。
+    'facet-4': 151, // 四枚刻面共边带噪声（旧注已标“非面积重叠”，值未变 = S3 基线可复现）
+    'dual-tone-13': 0, // 单枚 facet ⇒ 无重叠对象（结构性事实，不是“调低了阈值”）
+    'lineart-18': 3453, // 叠压式层集（主体 rect 上两条带）⇒ 旧 10% 泛阈值在此必误伤的正因
+};
 
 /* ────────────────────────── C12 主体色认定 ────────────────────────── */
 
@@ -246,21 +285,43 @@ export function auditStyle(style, { inks, tuning, palette, contract, baseline })
             );
         }
     }
-    // 几何与颜色无关（beadLayers 只有 fill 随 ci 变）⇒ 重叠哨兵只算 colorIdx=1 一次。
-    // ⚠ 共边/共点像素会被相邻 facet 双计（facet-4 **实测 151px** ≈ 共边线长 × 网格密度），
-    //   属边界带噪声非面积重叠 ⇒ 只报数不判红；**面积级**重叠（> 统计域 10%）才追加违规。
+    // 几何与颜色无关（beadLayers 只有 fill 随 ci 变）⇒ 重叠/覆盖哨兵只算 colorIdx=1 一次。
+    // ⚠ 旧门「重叠 > 全盘 10% 即红」已在步 4 作废（前提失效 + 对新套必误伤），改写理由
+    //   逐字记在上方 `FACET_OVERLAP_REGISTER` 的政策注里（K-053：旧值旧句留档，不净删）。
     const overlaps = [];
+    let coverage = [];
     {
         const ls = style.beadLayers({ inks, colorIdx: 1, size: tuning.BEAD_CELL });
-        const ov = facetOverlapPixels(ls, tuning.BEAD_CELL);
+        const cov = facetCoverage(ls, tuning.BEAD_CELL);
+        const ov = cov.overlap;
+        coverage = cov.perFacet;
         if (ov > 0) overlaps.push({ colorIdx: 1, pixels: ov });
-        if (ov > 0.1 * (SAMPLE_GRID * SAMPLE_GRID)) {
+        const registered = Object.prototype.hasOwnProperty.call(FACET_OVERLAP_REGISTER, style.id);
+        if (!registered) {
             violations.push(
-                `C12 [${style.id}]：facet 族面积级重叠 ${ov}px（> 全盘 10%）⇒ 统计域自洽性破坏，占比语义失真，报数值不猜，停。`,
+                `C12 重叠登记缺失 [${style.id}]：facet 族重叠实算 ${ov}px，但本风格未在 ` +
+                `FACET_OVERLAP_REGISTER 登记钉值 ⇒ **默认拒绝**（⛔ 不得让新套自动继承旧套阈值）。` +
+                `请先按 K-051 差分复算（重叠像素来由逐层归因 + C12 占比表重跑）后登记。`,
+            );
+        } else if (ov !== FACET_OVERLAP_REGISTER[style.id]) {
+            violations.push(
+                `C12 重叠钉值漂移 [${style.id}]：实算 ${ov}px ≠ 登记 ${FACET_OVERLAP_REGISTER[style.id]}px ` +
+                `⇒ facet 层几何被动过。须先重跑逐层归因与 C12 占比表（更新 §6 差分记录）再改登记值，` +
+                `⛔ 不得就地改阈值求绿。`,
             );
         }
+        // ① 死层硬门（本批替代旧泛阈门的更强判据）：顶面完全不可见的 facet = 无效造型。
+        for (const f of coverage) {
+            if (f.topPixels === 0) {
+                violations.push(
+                    `C12 死层 [${style.id}] #${f.index + 1}（role=facet, fill=${f.fill}）：顶面可见像素 = 0` +
+                    `（被上层全遮蔽，covered=${f.coveredPixels}px）⇒ 该层不贡献任何画面却占一枚命令，` +
+                    `造型意图不成立，判红（⛔ 不得靠删层静默消解，需同批改层集并重钉双指标）。`,
+                );
+            }
+        }
     }
-    return { id: style.id, commands, alpha, c12, overlaps, violations, layers };
+    return { id: style.id, commands, alpha, c12, overlaps, coverage, violations, layers };
 }
 
 /** C11 五项诊断（①②③④⑤ 一条都不许少；两种静默都违 C11）。 */
@@ -333,6 +394,31 @@ export function fixtureForeignBaseFacets() {
     };
 }
 
+/**
+ * **死层反例臂**（步 4 重叠判据改写的变异自证，K-060）：两枚几何全同的 facet，先画的 `#1`
+ * 被后画的 `#2` 完全遮蔽 ⇒ 顶面可见像素 = 0。
+ * ⚑ **重叠量故意做小**（两枚全同三角 = 0.049 全盘，低于旧 10% 泛阈）⇒ 旧门对本臂
+ *   **放行**而新门判红 ⇒ 这才真正证明本批改写是**判别力净增加**，不是「把阈值抬高一档」。
+ * 命令数 4 ≤ 7、真 α 0 ≤ 2 ⇒ **不触 C7 门**；反例夹具永不入 `FACET_OVERLAP_REGISTER`
+ * （默认拒绝亦作用其上）⇒ 本臂会同时打「登记缺失」与「死层」两行，归因断言只钉**死层行**。
+ */
+export function fixtureDeadFacetLayer() {
+    return {
+        id: 'fixture-dead-facet',
+        beadLayers: ({ inks, colorIdx }) => {
+            const e = inks.endpoints[colorIdx - 1];
+            // 上四分之一窄三角（|x| ≤ 4y/11）×两枚全同 ⇒ 重叠 = 单枚面积 ≈ 全盘 4.9%。
+            const tri = [-4, 11, 4, 11, 0, 0];
+            return Object.freeze([
+                { kind: 'polygon', role: 'facet', points: tri, fill: e.lit },
+                { kind: 'polygon', role: 'facet', points: tri, fill: e.base },
+                { kind: 'polygon', role: 'facet', points: [-11, -11, -11, 11, 0, 0], fill: e.edge },
+                { kind: 'circle', role: 'hole', cx: 0, cy: 0, r: 4, fill: e.pit },
+            ]);
+        },
+    };
+}
+
 /* ────────────────────────── CLI ────────────────────────── */
 
 /**
@@ -386,7 +472,7 @@ async function main(argv) {
     // TC-STY-08 两触门臂（只超命令 / 只超 α，单臂无法证明④的判别力）+ TC-STY-10 臂 A（C12 他格色）；
     // ⛔ 反例夹具永不进 registry（epics S2 字面），仅本模式临时注入。
     const styles = useFixtures
-        ? [...registered, fixtureEightCommandsZeroAlpha(), fixtureFiveCommandsThreeAlpha(), fixtureForeignBaseFacets()]
+        ? [...registered, fixtureEightCommandsZeroAlpha(), fixtureFiveCommandsThreeAlpha(), fixtureForeignBaseFacets(), fixtureDeadFacetLayer()]
         : [...registered];
 
     console.log(
@@ -445,10 +531,18 @@ async function main(argv) {
                         `（例 ci=${ci} argmax=${res.argmaxColor} ${(res.argmaxShare * 100).toFixed(1)}% vs base ${base} ${(shareOfBase(res, ci) * 100).toFixed(1)}%；` +
                         `最大偏离 ${(spread * 100).toFixed(1)}pp）` +
                         ` ⇒ 按已裁弱读法（断言对象 = ∈ 同族）判过，⛔ 不滑回强读法判红；` +
-                        `纸面预期（base 占优）与实测差异已回传主理人，实现侧不消解。`
+                        // ⚠ 本注只登记「argmax ≠ base」这一**事实**，不对任何风格宣称「与纸面不符」：
+                        //   各风格的纸面预期见 `assets-spec §7.11.x` 逐套核对结论——四棱（亮底占优）与
+                        //   `13`（珠面域只有一枚 `pit` 三角 ⇒ argmax 预期即 pit）都**在本注下同形**，
+                        //   把注文写成「base 占优预期落空」会谎报后者（K-051 同族：输出不得含未核对的断言）。
+                        `差异是否合纸面预期 ⇒ 逐套查 §7.11.x 核对结论，本行不代定；已回传主理人，实现侧不消解。`
                     );
                 })();
-        console.log(`[${a.id}] 命令=${a.commands} 真α=${a.alpha} facet重叠px=${a.overlaps.reduce((s, o) => s + o.pixels, 0)}\n${c12Summary}${nearNote}`);
+        console.log(
+            `[${a.id}] 命令=${a.commands} 真α=${a.alpha} facet重叠px=${a.overlaps.reduce((s, o) => s + o.pixels, 0)}` +
+            ` facet顶面px=${a.coverage.map((f) => `#${f.index + 1}:${f.topPixels}`).join(' ')}` +
+            `\n${c12Summary}${nearNote}`,
+        );
         allViolations.push(...a.violations);
     }
 

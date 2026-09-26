@@ -33,6 +33,10 @@ import {
   BEAD_STYLE_MAX_COMMANDS,
   FACET4_FACET_RIGHT_MIX,
   FACET4_PLATE_MIX,
+  LINEART_HOLE_STROKE_SCALE,
+  LINEART_MIN_STROKE,
+  LINEART_SHADOW_ALPHA,
+  LINEART_STROKE_RATIO,
 } from '../src/config/tuning.js';
 import {
   BEAD_BEVEL_LIGHT_MIX,
@@ -47,7 +51,7 @@ import {
   mix,
   withAlpha,
 } from '../src/view/palette.js';
-import { DEFAULT_BEAD_STYLE } from '../src/view/bead-styles/registry.js';
+import { DEFAULT_BEAD_STYLE, styleById } from '../src/view/bead-styles/registry.js';
 import {
   endpointFamily,
   isRealAlphaLayer,
@@ -72,6 +76,23 @@ function layersOf(input: Partial<BeadStyleInput> & { inks: BeadStyleInput['inks'
 const baseLayers = () =>
   layersOf({ inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
 
+/**
+ * **步 4 新增：按 styleId 取真实注册风格的层集深拷贝**（⛔ 不再拿构造层集当主臂）。
+ * 未注册 ⇒ 当场红（`toBeTruthy` + `throw`），这就是本批的**红基线**形态：
+ * 断言失败 = 「风格没出池」，而不是静默跳过（K-060）。
+ */
+function styleLayersOf(
+  id: string,
+  input: Partial<BeadStyleInput> & { inks: BeadStyleInput['inks']; colorIdx: number },
+): BeadStyleLayer[] {
+  const style = styleById(id);
+  if (!style) throw new Error(`风格 ${id} 未注册 ⇒ 本批判据无对象可跑（红基线）`);
+  return style.beadLayers({ size: SIZE, ...input }).map((l) => ({
+    ...l,
+    ...(l.kind === 'polygon' ? { points: [...l.points] as typeof l.points } : {}),
+  }));
+}
+
 const realAlphaLayers = (ls: readonly BeadStyleLayer[]) => ls.filter(isRealAlphaLayer);
 
 /**
@@ -92,14 +113,38 @@ function assertNoRealAlphaLayer(ls: readonly BeadStyleLayer[], styleId: string):
 /**
  * **行 2 的逐风格参数化判定**（C8：两臂 ⛔ 不得共用一条泛断言）。
  * `policy.dropShadow` = 该风格**允许的投影/接触族真 α 层数**，逐风格给定。
+ *
+ * ✅ **WXG-T-211-S4（步 4）落定**：`13`/`18` 已真出池 ⇒ 键从「构造臂名」换成**真实 styleId**，
+ *   主臂改喂**真实层集**（本文件头注与旧注均预告「出池时由步 4 用同一函数跑真实层集」）；
+ *   旧构造臂（`mutantHardShadow()` 塞进四棱层集）**降级为变异自证臂**保留，⛔ 不净删。
+ * ⚠ 旧注曾把 `18` 误标为「珐琅」——`18` = **线稿描边**（`assets-spec §7.11.3`），珐琅 = `06`
+ *   （`§7.13`，本批零涉及）；数值未变（1 枚），仅纠正误标（K-053：就地留档，不静默重写）。
  */
 const DROP_SHADOW_POLICY: Readonly<Record<string, { readonly dropShadowLayers: number }>> = {
   // 四棱 = §7.11.1 无投影族。
   'facet-4': { dropShadowLayers: 0 },
-  // `18`（珐琅）= §K.5 行 2 / 7.11.3 行 1：自身硬投影 1 枚（`alpha 0.22`）且**计入真 α**。
-  // ⚠ 该风格归 §12.9 步 4 注册 ⇒ 此处只作**判定式的第二臂参数**与变异自证用，
-  //   不代表 `18` 已出池；出池时由步 4 用同一函数跑真实层集。
-  '18-enamel': { dropShadowLayers: 1 },
+  // `13` 双色对角 = §7.11.2（3 命令 / **0 真 α**，池内最省者）⇒ 同样无投影族。
+  'dual-tone-13': { dropShadowLayers: 0 },
+  // `18` 线稿描边 = §K.5 行 2 / §7.11.3 行 1：自身硬投影 1 枚（`alpha 0.22`）且**计入真 α**。
+  'lineart-18': { dropShadowLayers: 1 },
+};
+
+/**
+ * **行 5–8（`assertKindWhitelist`）的逐风格参数化政策**（C8；⚠ 本表 = WXG-T-211-S4 新增）。
+ * 旧判定式对**任何** `stroke` 层直接判红（理由 = 「倒角线族已退役」），该前提在步 4 后
+ * 只对四棱 / `13` 成立：`18` 的造型身份就是描边（`§7.11.3` 行 2/5 的 `fill + stroke` 同路径，
+ * 命令数不因 stroke 增加 —— `§7.11` 读法②）。⛔ 若不为 `18` 参数化，本门只有两种结局：
+ * 真跑 `18` 层集 ⇒ **假红**（正本造型被自己的判据否证）；或跳过 `18` ⇒ **静默放行**。
+ * 采前者参数化 + 保留两件事不放宽：
+ *  ① `kind` 白名单**对全部风格恒含 `rect/polygon/circle`、恒不含 `line`**（`allowStroke`
+ *     绝不放宽 kind —— 旧 L2/L3 的 `line` 图元仍是负向防复活对象）；
+ *  ② 「stroke-only 层」在 `line` kind 之外的形态 = 契约类型上 `fill` 必填 ⇒ **结构上不可表达**，
+ *     本文件因此不再断言「stroke 必伴 fill」（断言它 = 无判别力的恒真式，K-060）。
+ */
+const KIND_POLICY: Readonly<Record<string, { readonly allowedKinds: readonly string[]; readonly allowStroke: boolean }>> = {
+  'facet-4': { allowedKinds: ['rect', 'polygon', 'circle'], allowStroke: false },
+  'dual-tone-13': { allowedKinds: ['rect', 'polygon', 'circle'], allowStroke: false },
+  'lineart-18': { allowedKinds: ['rect', 'polygon', 'circle'], allowStroke: true },
 };
 
 function assertDropShadowBudget(
@@ -222,13 +267,17 @@ function assertInkOrder(
   }
 }
 
-/** ⛔ 线族（`line` / `stroke`）不复活：新基线 kind 白名单（旧 `tests:132` 的改述形态）。 */
+/** ⛔ 线族（`line` kind）不复活：新基线 kind 白名单（旧 `tests:132` 的改述形态）。
+ *  `stroke` 一支已改为**逐风格政策**（见上方 `KIND_POLICY` 注，WXG-T-211-S4）。 */
 function assertKindWhitelist(ls: readonly BeadStyleLayer[], styleId: string): void {
-  const ALLOWED: readonly string[] = ['rect', 'polygon', 'circle'];
+  const policy = KIND_POLICY[styleId];
+  if (!policy) throw new Error(`风格 ${styleId} 未登记 kind/stroke 政策（⛔ 不得默认放行）`);
   for (const l of ls) {
-    if (!ALLOWED.includes(l.kind)) throw new Error(`[${styleId}] 出现白名单外 kind=${l.kind}`);
-    if ('stroke' in l && (l as { stroke?: string }).stroke !== undefined) {
-      throw new Error(`[${styleId}] 出现 stroke-only 层（倒角线族已退役，§K.5 行 5–8）`);
+    if (!policy.allowedKinds.includes(l.kind)) {
+      throw new Error(`[${styleId}] 出现白名单外 kind=${l.kind}（线族防复活，§K.5 行 5–8）`);
+    }
+    if (!policy.allowStroke && 'stroke' in l && (l as { stroke?: string }).stroke !== undefined) {
+      throw new Error(`[${styleId}] 出现 stroke 层（该风格政策 allowStroke=false ⇒ 倒角线族已退役，§K.5 行 5–8）`);
     }
   }
 }
@@ -241,6 +290,28 @@ function assertWithinBudget(ls: readonly BeadStyleLayer[], styleId: string): voi
   const n = realAlphaLayers(ls).length;
   if (n > BEAD_STYLE_MAX_ALPHA_LAYERS) {
     throw new Error(`[${styleId}] 真 α 层数 ${n} > 上限 ${BEAD_STYLE_MAX_ALPHA_LAYERS}`);
+  }
+}
+
+/**
+ * **描边地板哨（§1.1 `minStroke` = 「no stroke below 2 design px」红线；WXG-T-211-S4 新增）**
+ * ────────────────────────────────────────────────
+ * `18` 是本仓**第一个把描边放进风格契约**的模块 ⇒ 红线只能在此处守：
+ * 带 `stroke` 的层必须同时带正数 `lineWidth`，且**不得低于 `BEAD_CARD.minStroke`**。
+ * ⛔ 不得写成「只比 fill 层不看 stroke」的弱哨（那是把红线从新通道上漏掉）。
+ * 判别力自证（K-060）见附行 B 的**变异 Ⅴ**（把孔档写成未钳的 `lw × 0.7` ⇒ 本哨必红）。
+ */
+function assertStrokeFloored(ls: readonly BeadStyleLayer[], styleId: string): void {
+  for (let i = 0; i < ls.length; i++) {
+    const l = ls[i]! as { stroke?: string; lineWidth?: number };
+    if (l.stroke === undefined) continue;
+    const lw = l.lineWidth ?? 0;
+    if (lw < BEAD_CARD.minStroke) {
+      throw new Error(
+        `[${styleId}] #${i + 1} 带 stroke 但 lineWidth = ${lw} < §1.1 地板 ${BEAD_CARD.minStroke}` +
+          `（小尺上细于此读作断裂发丝 ⇒ 红线；地板真源 = BEAD_CARD.minStroke）`,
+      );
+    }
   }
 }
 
@@ -340,24 +411,50 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
   });
 
   // ── 行 2｜L0b 投影｜作废 + 负向防复活（**逐风格参数化**）──────────────
-  // 判据按 styleId 参数化（C8）：四棱臂断"无"、`18` 臂断"恰 1 枚且计入真 α"。
-  // ⛔ 两臂不得共用一条泛断言 ⇒ 同一函数、两个政策值，各自可被反向变异判红。
-  it('［§K.5 行 2·作废+负向·逐风格参数化］投影族政策：四棱 = 0 枚、18 臂 = 恰 1 枚且计真 α', () => {
+  // 判据按 styleId 参数化（C8）：四棱 / `13` 臂断"无"、`18` 臂断"恰 1 枚且计入真 α"。
+  // ⛔ 两臂不得共用一条泛断言 ⇒ 同一函数、多个政策值，各自可被反向变异判红。
+  // **步 4 后（WXG-T-211-S4）**：三套均喂**真实注册层集**；旧构造层集臂降级为变异自证臂。
+  it('［§K.5 行 2·作废+负向·逐风格参数化］投影族政策：四棱/13 = 0 枚、18 真实层集 = 恰 1 枚计真 α', () => {
     const ls = baseLayers();
+    const l13 = styleLayersOf('dual-tone-13', { inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
+    const l18 = styleLayersOf('lineart-18', { inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
+    // 三套真实层集各自按政策过（未出池 ⇒ styleLayersOf 当场红，本例即红基线承载体）。
     expect(() => assertDropShadowBudget(ls, 'facet-4')).not.toThrow();
-    // 四棱臂变异：复活一枚硬投影 ⇒ 按四棱政策红。
+    expect(() => assertDropShadowBudget(l13, 'dual-tone-13')).not.toThrow();
+    expect(() => assertDropShadowBudget(l18, 'lineart-18')).not.toThrow();
+    // `18` 的那 1 枚真 α 必须就是§7.11.3 行 1 的硬投影（rect + plate 职能），
+    // ⛔ 不得是「内壁阴影」（那是已采甲的 D4 乙口径复活形态，行 11）。
+    const shadows = realAlphaLayers(l18);
+    expect(shadows).toHaveLength(1);
+    expect(shadows[0]!.kind).toBe('rect');
+    expect(shadows[0]!.role).toBe('plate');
+    expect((shadows[0]! as { alpha?: number }).alpha).toBe(LINEART_SHADOW_ALPHA);
+    expect(shadows[0]!.fill).toBe(BEAD_SHADOW_HEX);
+    // **命名常量的消费者自证**（C4）：`alpha: 0.22` / `fill: '#3a…'` 这类**不带乘号**的裸字面
+    // 不在 C4 扫描 R2 射程内（R2 只抓 `* 0.x` / `/ 0.x`）⇒ 只能由本腿钉住「实现吃的是
+    // `LINEART_SHADOW_ALPHA` / `BEAD_SHADOW_HEX`」；否则改了常量而实现写死旧值时无人变红
+    // = 命名常量沦为装饰品（K-042 真源单一的反面）。
+    // 变异自证（正向防复活）：给无投影族的两套各塞一枚硬投影 ⇒ 按各自政策红。
     expect(() => assertDropShadowBudget([...ls, mutantHardShadow()], 'facet-4')).toThrow(
       /facet-4.*投影\/接触族真 α 层数 = 1，政策 = 0/,
     );
-    // 18 臂（步 4 出池前用构造层集跑同一函数）：恰 1 枚合法；两枚 ⇒ 红。
-    const enamel = [...ls, mutantHardShadow()];
-    expect(() => assertDropShadowBudget(enamel, '18-enamel')).not.toThrow();
-    expect(() => assertDropShadowBudget([...enamel, mutantHardShadow()], '18-enamel')).toThrow(
-      /18-enamel.*= 2，政策 = 1/,
+    expect(() => assertDropShadowBudget([...l13, mutantHardShadow()], 'dual-tone-13')).toThrow(
+      /dual-tone-13.*= 1，政策 = 0/,
     );
-    // 两臂政策值确实不同 ⇒ 证明"泛断言"不成立（同一条数据在一臂绿、另一臂红）。
-    expect(() => assertDropShadowBudget(enamel, 'facet-4')).toThrow();
-    expect(() => assertDropShadowBudget(ls, '18-enamel')).toThrow();
+    // 变异自证（超预算）：`18` 再加一枚 ⇒ 红（α 压线者 = 任何新增软光/内阴影即触门，C7）。
+    expect(() => assertDropShadowBudget([...l18, mutantHardShadow()], 'lineart-18')).toThrow(
+      /lineart-18.*= 2，政策 = 1/,
+    );
+    // 反向变异（删投影）⇒ 同样红：政策与实测**双向绑定**，不是只拦「超」的单向门（K-060）。
+    expect(() => assertDropShadowBudget(l18.filter((l) => !isRealAlphaLayer(l)), 'lineart-18')).toThrow(
+      /lineart-18.*= 0，政策 = 1/,
+    );
+    // 交叉验证：同一数据在两臂结果相反 ⇒ 证明"泛断言"不成立。
+    expect(() => assertDropShadowBudget(l18, 'facet-4')).toThrow();
+    expect(() => assertDropShadowBudget(ls, 'lineart-18')).toThrow();
+    // 旧构造臂降级留档：塞进四棱层集后喂「18 政策名」仍须过 ⇒ 证明政策表看的是**层集内容**、
+    // 不是 styleId 字符串（否则本表可被改名绕过）。
+    expect(() => assertDropShadowBudget([...ls, mutantHardShadow()], 'lineart-18')).not.toThrow();
     // 未登记政策的风格 ⇒ 直接红（⛔ 不得默认放行）。
     expect(() => assertDropShadowBudget(ls, 'unknown-style')).toThrow(/未登记投影政策/);
   });
@@ -526,14 +623,27 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
   // ── 行 10｜L1c 孔底｜改述（**红线改述**）────────────────────────────
   // 旧锚：`tests:231-261` 的"两枚 circle"⇒ 改指对照臂；新红线 = 至少 1 枚 circle **且底色 = 目标色 pit**。
   // ⚠ 孔径 0.17↔0.22 之争 = `[待定·不判]`（S9 §5 / C5 待真机 A/B）⇒ 只钉"唯一真源 = 卡"的派生式。
-  it('［§K.5 行 10·改述·红线］孔 = ≥1 枚 circle 且孔底 = 目标色 pit（仅"有 circle"无判别力）', () => {
+  // ✅ **WXG-T-211-S4**：本行从「只跑默认风格」扩为**逐套跑**（E 单 `§7.11.7` C 组必改 ①②
+  //   的机械约束位：`13`/`18` 的孔必须同为一枚 `circle` + 目标色 `pit` + `holeRatio` 派生半径；
+  //   `18` 曾填 `'#FFFFFF'` 字面量、`13` 曾把 base 只落在孔上 ⇒ 两者在本行当场红）。
+  it('［§K.5 行 10·改述·红线·逐套］孔 = 恰 1 枚 circle 且孔底 = 目标色 pit（三套均适用）', () => {
+    for (const id of ['facet-4', 'dual-tone-13', 'lineart-18']) {
+      const ls = id === 'facet-4'
+        ? baseLayers()
+        : styleLayersOf(id, { inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
+      const holes = ls.filter((l) => l.role === 'hole');
+      expect(holes).toHaveLength(1); // 甲口径（⛔ 乙口径 = 2 枚，行 11）
+      expect(holes.every((h) => h.kind === 'circle')).toBe(true);
+      expect(holes[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 2).pit); // 目标格（本夹具 targetColorIdx=2）
+      // 半径**派生**（⛔ 不写死 0.17/0.16/0.15：三套 spike 口径均偏小 23–32%，§7.11.6）。
+      expect(holes[0]!.kind === 'circle' && holes[0]!.r).toBe((SIZE * BEAD_CARD.holeRatio) / 2);
+      // 无目标色 ⇒ 契约口径 `targetColorIdx ?? colorIdx` 回落本格 pit（仍是端点表内色，C3 零新色）。
+      const tray = id === 'facet-4'
+        ? layersOf({ inks: DEMO_BEAD_INKS, colorIdx: 3 })
+        : styleLayersOf(id, { inks: DEMO_BEAD_INKS, colorIdx: 3 });
+      expect(tray.find((l) => l.role === 'hole')!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).pit);
+    }
     const ls = baseLayers();
-    const holes = ls.filter((l) => l.role === 'hole');
-    expect(holes.length).toBeGreaterThanOrEqual(1);
-    expect(holes.every((h) => h.kind === 'circle')).toBe(true);
-    expect(holes[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 2).pit); // 目标格（本夹具 targetColorIdx=2）
-    // 半径**派生**（⛔ 不写死 0.17/0.22：孔径之争归真机 A/B）。
-    expect(holes[0]!.kind === 'circle' && holes[0]!.r).toBe((SIZE * BEAD_CARD.holeRatio) / 2);
     // 变异自证 ①：白孔（`18` spike 曾写 `#FFFFFF` 字面量的违例形态）⇒ 判红。
     const white = ls.map((l) => (l.role === 'hole' ? { ...l, fill: '#FFFFFF' } : l));
     expect(() => assertHoleIsPitOfTarget(white, 2)).toThrow(/应为目标色 pit/);
@@ -542,9 +652,6 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
     expect(() => assertHoleIsPitOfTarget(selfBase, 2)).toThrow(/应为目标色 pit/);
     // 变异自证 ③：不画孔（小豆档误用到满豆档）⇒ 同样判红。
     expect(() => assertHoleIsPitOfTarget(ls.filter((l) => l.role !== 'hole'), 2)).toThrow(/没画孔/);
-    // 无目标色 ⇒ 契约口径 `targetColorIdx ?? colorIdx` 回落本格 pit（仍是端点表内色，C3 零新色）。
-    const tray = layersOf({ inks: DEMO_BEAD_INKS, colorIdx: 3 });
-    expect(tray.find((l) => l.role === 'hole')!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).pit);
   });
 
   /** 行 10 的判定式（吃层集 + 目标格，可喂变异臂）。 */
@@ -561,10 +668,18 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
   // 采甲（用户 2026-09-26 裁定）：孔 = 单枚 circle ⇒「孔内壁深感」通道随十层退役**消失**。
   // ⚠ 该代价 = `[待真机]`（观感归 Playtest），且**必须**在 §6 差分记录显式记账 ⇒ 本例的
   //   机械腿 = 枚数与真 α 计数，二者任一回到乙口径数值即红（= 逼一次"重新记账"）。
-  it('［§K.5 行 11·待裁已采甲］单枚孔 + 零真 α（回到乙口径即红 ⇒ 强制重新记账）', () => {
-    const ls = baseLayers();
-    expect(ls.filter((l) => l.role === 'hole')).toHaveLength(1); // 乙口径 = 2 枚
-    expect(realAlphaLayers(ls)).toHaveLength(0); // 乙口径 = 1 枚（内壁 alpha 0.3 真 α）
+  it('［§K.5 行 11·待裁已采甲］单枚孔 + 真 α 计数按逐风格投影政策（回到乙口径即红 ⇒ 强制重新记账）', () => {
+    // 三套的**孔**侧同构：单枚 circle 且该层非真 α（乙口径的第 2 枚内壁 = `alpha 0.3` 真 α）。
+    for (const id of ['facet-4', 'dual-tone-13', 'lineart-18']) {
+      const ls = id === 'facet-4'
+        ? baseLayers()
+        : styleLayersOf(id, { inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
+      const holes = ls.filter((l) => l.role === 'hole');
+      expect(holes).toHaveLength(1); // 乙口径 = 2 枚
+      expect(realAlphaLayers(holes)).toHaveLength(0); // 内壁真 α 复活即红
+      // 全套真 α 数 = 投影政策值（`18` 的 1 枚来自**硬投影**而非内壁 ⇒ 通道不混用，行 2）。
+      expect(realAlphaLayers(ls)).toHaveLength(DROP_SHADOW_POLICY[id]!.dropShadowLayers);
+    }
     // 十层对照臂仍在：双枚孔 + 内壁真 α（通道未消失，只是移出主盘）。
     const tenHoles = legacyLayerSet().filter((l) => l.role === 'hole');
     expect(tenHoles.length).toBeGreaterThan(1);
@@ -590,6 +705,96 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
     const socket = emitCommands((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE));
     expect(socket.length).toBeGreaterThan(0); // 阳性对照：凹槽确实画了东西
     expect(socket.some((c) => c.kind === 'rect' && c.fill === hl)).toBe(false);
+  });
+
+  // ── 附行 B｜**步 4 入池自证**（WXG-T-211-S4：`13`/`18` 真实层集过逐风格判据族）──
+  // 本行不属旧十二行台账，而是步 4 带进来的**三类新约束**的集中承载体：
+  //  ① 双指标**实测**（C7）：`13` = 3/0、`18` = 5/1 —— 纸面值（§7.11.2/7.11.3）只作对照物，
+  //     断言吃的是**实算层集**（K-051：不符即红、如实报，⛔ 不拿纸面值本断言）；
+  //  ② kind/stroke 逐风格政策（C8）：`18` 允许描边、四棱/`13` 不允许，但 **`line` kind 对
+  //     三套恒禁**（放宽的是 stroke，不是线族复活）；
+  //  ③ **线宽地板**（§1.1 `minStroke`）：`18` 的描边宽不得低于地板；盘面尺上 `0.06S` 实算
+  //     小于地板 ⇒ **被钳**是现状事实（= 任务单 PT-SKIN-02 的 A/B 靶，本批不裁）。
+  it('［§K.5 附行 B·步 4 入池自证］双指标实测 + kind/stroke 逐风格政策 + 描边地板钳制', () => {
+    const l13 = styleLayersOf('dual-tone-13', { inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
+    const l18 = styleLayersOf('lineart-18', { inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
+    // ① 实测枚数（⛔ 不是上限：上限由 assertWithinBudget 另拦，两者不同物）。
+    expect(l13).toHaveLength(3);
+    expect(realAlphaLayers(l13)).toHaveLength(0);
+    expect(l18).toHaveLength(5);
+    expect(realAlphaLayers(l18)).toHaveLength(1);
+    for (const [id, ls] of [['facet-4', baseLayers()], ['dual-tone-13', l13], ['lineart-18', l18]] as const) {
+      expect(() => assertWithinBudget(ls, id)).not.toThrow();
+      expect(() => assertKindWhitelist(ls, id)).not.toThrow();
+    }
+    // ② 描边只以 **`fill + stroke` 同路径**存在（命令数 = 层数，§7.11 读法②）：
+    //    即带 stroke 的层必须同层有非空 fill ⇒ stroke 不带来任何额外命令。
+    const stroked = l18.filter((l) => (l as { stroke?: string }).stroke !== undefined);
+    expect(stroked.length).toBeGreaterThan(0); // 阳性对照：`18` 确实有描边层
+    expect(stroked.every((l) => l.fill !== '')).toBe(true);
+    expect(l18.filter((l) => l.kind === 'rect')).toHaveLength(4);
+    expect(l18.filter((l) => l.kind === 'circle')).toHaveLength(1);
+    // ③ **描边地板红线**（§1.1「no stroke below 2 design px」）：两套 stroke 层均不得低于地板。
+    //    本尺 S=30 下 `0.06S = 1.8` **小于地板 2** ⇒ 地板真在钳（不等式成立本身就是 A/B 读数）。
+    expect(() => assertStrokeFloored(l18, 'lineart-18')).not.toThrow();
+    expect(() => assertStrokeFloored(l13, 'dual-tone-13')).not.toThrow(); // 无 stroke 层 ⇒ 空跑（阳性对照见 Ⅴ）
+    // ④ **钳平事实登记（= 任务单 PT-SKIN-02 的 A/B 靶；本批只记账、不裁）**：
+    //    孔档 = `max(地板, 主体档 × 0.7)`，而主体档本身已被钳到地板 ⇒ **两档同宽**。
+    //    分档条件 = `0.042S > 地板` ⇒ 地板 2 需 S > 47.6、地板 3 需 S > 71.4；现行三把尺
+    //    （盘 22 / 本尺 30 / 托 44）**全在钳平区** ⇒ 「线宽即身份」在纸面上不体现为粗细差
+    //    （与 `§7.11.6` 对凹槽「三口径全被地板钳平 ⇒ 无实测差」同族）。
+    //    ⛔ 不得为了让正本行 5 的「孔线比主体细」在纸面成立而**弃地板**（拿红线换观感），
+    //    也 ⛔ 不得把本腿改写成「两档必须分明」而当场求红。
+    const bodyLw = (l18[1] as { lineWidth?: number }).lineWidth ?? 0;
+    const holeLw = (l18[4] as { lineWidth?: number }).lineWidth ?? 0;
+    // ⚑ 这里吃 **`LINEART_MIN_STROKE`**（PT-SKIN-02 的 A/B 位），⛔ 不吃 `BEAD_CARD.minStroke`：
+    //    A/B 翻到 3 时本判据**不该跟着改**（它登记的是「实现取了哪个值」，红线另有其人——
+    //    红线由 `assertStrokeFloored` 守，它吃 `BEAD_CARD.minStroke`）。两把尺各测一件事。
+    const floor = LINEART_MIN_STROKE;
+    expect(LINEART_MIN_STROKE >= BEAD_CARD.minStroke).toBe(true); // A/B 只准上调，⛔ 不得跌破红线
+    expect(SIZE * LINEART_STROKE_RATIO < floor).toBe(true); // 前提：本尺落在钳平区
+    expect(bodyLw).toBe(floor);
+    expect(holeLw).toBe(floor);
+    // 方向不变式（正本行 5：孔细于主体）——**软腿**：钳平区取等号仍成立，弃比例才红。
+    expect(holeLw).toBeLessThanOrEqual(bodyLw);
+    // 「不自造第三值」机检：两档只能取「地板」或「比例导生」这两个合法值。
+    expect(bodyLw === floor || bodyLw === SIZE * LINEART_STROKE_RATIO).toBe(true);
+    expect(holeLw === floor || holeLw === bodyLw * LINEART_HOLE_STROKE_SCALE).toBe(true);
+    // **大尺分离腿（S=100，钉住比例档不是摆设）**：`0.06×100 = 6 > 地板` ⇒ 地板不再钳，
+    // 正本行 2/5 的「主体 0.06S、孔 0.042S」两级差异**必须**显形。若有人把孔档写成
+    // `Math.max(地板, 主体档)`（= 复制主体档，比例通道死码）⇒ 本腿当场红，而 S=30 腿**测不出**
+    // （钳平区两者都是地板）⇒ 两把尺合起来才有判别力（K-060：单尺必漏）。
+    const BIG = 100;
+    const big18 = styleLayersOf('lineart-18', { size: BIG, inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
+    const bigBodyLw = (big18[1] as { lineWidth?: number }).lineWidth ?? 0;
+    const bigHoleLw = (big18[4] as { lineWidth?: number }).lineWidth ?? 0;
+    expect(BIG * LINEART_STROKE_RATIO > floor).toBe(true); // 前提：大尺落在比例区
+    expect(bigBodyLw).toBe(BIG * LINEART_STROKE_RATIO);
+    expect(bigHoleLw).toBe(bigBodyLw * LINEART_HOLE_STROKE_SCALE);
+    expect(bigHoleLw < bigBodyLw).toBe(true); // 正本行 5 的方向在比例区硬成立
+    // 变异自证（K-060）四型：
+    //  Ⅰ 往**禁 stroke 的风格**（四棱）塞一枚带 stroke 的 rect ⇒ 政策门必红（证明参数化≠全放行）。
+    const ls4 = baseLayers();
+    expect(() =>
+      assertKindWhitelist([...ls4, { ...ls4[0]!, stroke: BEAD_SHADOW_HEX } as BeadStyleLayer], 'facet-4'),
+    ).toThrow(/allowStroke=false/);
+    //  Ⅱ 往 `18` 塞一枚 `line` kind ⇒ 仍红（放宽 stroke 绝不放宽 kind）。
+    expect(() =>
+      assertKindWhitelist([...l18, { kind: 'line', role: 'plate' } as unknown as BeadStyleLayer], 'lineart-18'),
+    ).toThrow(/白名单外 kind=line/);
+    //  Ⅲ 未登记 kind/stroke 政策的风格 ⇒ 直接红（⛔ 不得默认放行）。
+    expect(() => assertKindWhitelist(l18, 'unknown-style')).toThrow(/未登记 kind\/stroke 政策/);
+    //  Ⅳ 枚数偷加一枚 ⇒ 预算门红（实测与上限不混同）。
+    expect(() => assertWithinBudget([...l18, ...l18.slice(0, 3)], 'lineart-18')).toThrow(/命令数 8 > 上限 7/);
+    //  Ⅴ **弃地板**变异：把孔档写成未钳的 `0.06S × 0.7 = 1.26`（= 让 §1.1 红线让位给
+    //     「两档分明」）⇒ 地板哨必红。判别力全在**哨**上（比率腿在此尺下会取等号而放行，
+    //     故 ⛔ 不靠比率腿自证，K-060）。
+    const unclamped = l18.map((l, i) =>
+      i === 4 ? ({ ...l, lineWidth: SIZE * LINEART_STROKE_RATIO * LINEART_HOLE_STROKE_SCALE } as BeadStyleLayer) : l,
+    );
+    expect(((unclamped[4] as { lineWidth?: number }).lineWidth ?? 0) < BEAD_CARD.minStroke).toBe(true); // 前提：变异体确实破线
+    expect(() => assertStrokeFloored(unclamped, 'lineart-18')).toThrow(/< §1.1 地板/);
+    expect(() => assertStrokeFloored(l18, 'lineart-18')).not.toThrow(); // 对照：真层集不破线
   });
 
   // ── 附行｜`tests:132`「无 polygon」反转 ⇒ **同批**由 TC-STY-12 / J-3 承接 ──

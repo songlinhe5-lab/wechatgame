@@ -62,12 +62,17 @@ describe('TC-STY-08 · C11 触门五项 + 双反例臂（§12.2 C7/C11）', () =
         expect(seg).toMatch(/⑤ 与基线四棱 6\/0 差值 = 命令 -1 \/ 真 α \+3/);
     });
 
-    it('真实 registry（facet-4）常门过 = 合规不误伤（臂 C 的门禁侧，测面在 TC-STY-10）', () => {
+    it('真实 registry（三套已注册风格）常门过 = 合规不误伤（臂 C 的门禁侧，测面在 TC-STY-10）', () => {
         const ok = runPool([]);
         expect(ok.code).toBe(0);
         expect(ok.out).toMatch(/^STATUS: OK$/m);
         // 数值表恒打（K-051 禁引纸面值）：facet-4 实测 6 命令 / 0 真 α。
         expect(ok.out).toMatch(/\[facet-4\] 命令=6 真α=0/);
+        // **WXG-T-211-S4（步 4）新增两行的实测钉值**（⛔ 不是把 `assets-spec §7.11.2/7.11.3`
+        // 的纸面值 3/0 与 5/1 抄进来当断言 —— 纸面值只是**本次复算的对照物**；两行不符即红，
+        // 与本文件头注的 K-051 纪律同构：以实测为准，不符如实回报，不反改判据）。
+        expect(ok.out).toMatch(/\[dual-tone-13\] 命令=3 真α=0/);
+        expect(ok.out).toMatch(/\[lineart-18\] 命令=5 真α=1/);
     });
 });
 
@@ -111,6 +116,38 @@ describe('TC-STY-09 · C12 主体色不变式·主判据（弱读法，逐 inks 
         // ③ 弱读口径下无一条 C12 判红（注记文案本身含「不滑回强读法判红」字样 ⇒ 只钉违规标记）。
         expect(ok.out).not.toContain('C12 判红');
     });
+
+    /**
+     * **三套逐风格腿（`QA §K.2 TC-STY-09`「三套逐风格跑（Q1=甲）」的步 4 侧，WXG-T-211-S4）**
+     * ─────────────────────────────────────────────────────────────────
+     * 逐套预期（裁定式 = argmax ∈ 本格 base 同族 {base, lit, edge, pit}，含 pit 派生）：
+     *  - **`13` 双色对角**：层集只有 1 枚 `role:'facet'`（对角三角，墨 = `pit`），亮底 rect 的
+     *    职能 = 底衬 ⇒ `role:'plate'` 排除出统计域（与四棱 #1 同一口径，`§7.11.2` C12 列 +
+     *    `FACET4_PLATE_MIX` 注）⇒ **argmax 预期 = `pit`**，属同族 ⇒ **应过**，且必打近并列注记。
+     *    ⚠ 这与 E 单 `§7.11.2` 行 1 的「最大可见面积者（≈63%）非 base」不矛盾：那是**强读法**
+     *    口径，已按 `QA §K.1`（主理人 2026-09-26 转述裁定）作废，⛔ 不得据此对 `13` 判红。
+     *  - **`18` 线稿描边**：#2 主体 rect = `facet`（base）+ 其上两条明暗带 ⇒ **argmax 预期 = base**
+     *    （池内唯一两读法均 ✅ 者）⇒ **不应打近并列注记**。
+     * 判别力构造（K-060：⛔ 单条「无注记」是缺位断言）：同一输出里 **facet-4 与 `13` 两条注记行
+     * 必须在场**（正面对照），`18` 一条必不在 ⇒ 三套的注记**有无**彼此区分，不是恒真也不是恒假。
+     */
+    it('三套逐风格腿（步 4）：13 argmax = pit（族内⇒过+注记在场）、18 argmax = base（注记不在场）、零判红', () => {
+        expect(ok.code).toBe(0);
+        // 每套都真被逐色审计（10 色 × 3 套）：三套的 ci=1 认定行各自在场。
+        for (const id of ['facet-4', 'dual-tone-13', 'lineart-18']) {
+            const seg = ok.out.split(`[${id}] 命令=`)[1];
+            expect(seg, `${id} 审计段在场`).toBeTruthy();
+            expect(seg).toContain('colorIdx=1 argmax=#');
+            expect(seg).toContain('colorIdx=10 argmax=#');
+            expect(seg).not.toContain('∉ 本格 base 同族');
+        }
+        // 正面对照腿（阳性）：两套族内非 base ⇒ 注记必在（`13` 的 argmax = pit，10/10 色）。
+        expect(ok.out).toMatch(/C12 近并列登记 \[dual-tone-13\]：10\/10 色/);
+        expect(ok.out).toMatch(/C12 近并列登记 \[facet-4\]：10\/10 色/);
+        // 缺位腿：`18` 的 argmax 即 base ⇒ 不近并列（与上方两条在场对照，本条才有判别力）。
+        expect(ok.out).not.toMatch(/C12 近并列登记 \[lineart-18\]/);
+        expect(ok.out).not.toContain('C12 判红');
+    });
 });
 
 describe('TC-STY-10 · C12 反例三臂（验收门：臂 B 不过 ⇒ 门禁不得判「已就位」）', () => {
@@ -144,6 +181,75 @@ describe('TC-STY-10 · C12 反例三臂（验收门：臂 B 不过 ⇒ 门禁不
         const ok = runPool([]);
         expect(ok.code).toBe(0);
         expect(ok.out).toContain('全部过双指标与 C12 弱读断言');
+    });
+
+    // 臂 D（**步 4 新增反例臂** = 本批判据改写的变异自证）：一枚被完全遮蔽的 facet ⇒ 死层硬门必红。
+    // 为何需要它：本批把「facet 重叠 > 10% 即红」改写为「逐风格钉值 + 死层硬门」。
+    // 若新门只是把阈值抬高一档，改写就是换个写法而无判别力增量 ⇒ 本臂的重叠量**故意做小**
+    // （实测 722px = 全盘 4.9%，**低于**旧 10% 阈 1464px）：旧门放行、新门判红，
+    // 且新门能**指认到层号与墨色**（旧门只报一个总量，说不出哪一层失效）。
+    it('臂 D（死层反例·步 4 新门）：顶面可见像素 = 0 的 facet 被指认到层号与墨色（且重叠量在旧阈下）', () => {
+        const fixtures = runPool(['--fixtures']);
+        expect(fixtures.code).toBe(1);
+        const line = fixtures.out.match(/C12 死层 \[fixture-dead-facet\] #\d+[^\n]*/);
+        expect(line, '死层判红行存在（顶面 0 px 的 facet 未被静默放行）').toBeTruthy();
+        expect(line![0]).toMatch(/#1（role=facet, fill=#\w+）：顶面可见像素 = 0/); // 指认到层号 + 墨色
+        expect(line![0]).toContain('covered='); // 遮蔽了多少像素的几何事实（⛔ 不只报退出码）
+        // 旧门对本臂放行的凭证（⇒ 本臂的红只能来自新门）：重叠 722px < 旧 10% 阈 1464px。
+        const ov = Number(fixtures.out.match(/\[fixture-dead-facet\][^\n]*facet重叠px=(\d+)/)?.[1] ?? -1);
+        expect(ov).toBeGreaterThanOrEqual(0);
+        expect(ov < 0.1 * 121 * 121).toBe(true);
+    });
+});
+
+/**
+ * **C12 统计域自洽性哨兵的改写（WXG-T-211-S4 / 步 4）** —— 本文件唯一「判据本体被改动」处
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 旧门：`facet` 族重叠像素 > 全盘 10% ⇒ 判红，理由 = 「重叠使占比语义失真」。
+ * 前提已不成立：主体色认定走 `topLayerAt` **顶面胜出** ⇒ 每样本只计一次、占比恒归一
+ * （实测 `18`：9135 + 1658 + 1623 = 12416 = facetPx，三枚占比 73.6 + 13.4 + 13.1 = 100.0%），
+ * 而 `§7.11.3` 的 `18` 层集本身就是叠压式（满格主体 rect 上压两条明暗带）⇒ 旧门在新套上
+ * **必然误伤**（实算 3453px = 23.6%）。两条出路只有一条合法：⛔ 为重造型过门而删掉正本
+ * 的明暗带（改掉风格身份），故改为「逐风格钉值 + 死层硬门 + 未登记默认拒绝」。
+ * ⛔ C12 **裁定式**（argmax ∈ base 同族）与占比表一字未改 —— 停手门只由裁定式触发。
+ * 政策全文与三项设计取舍住在真源侧（`check-bead-style-pool.mjs::FACET_OVERLAP_REGISTER` 注）。
+ */
+describe('C12 重叠哨兵改写 · 逐风格钉值 + 死层硬门（§12.2 C12 / assets-spec §7.11.3 层集形状）', () => {
+    const ok = runPool([]);
+
+    it('腿 ①（前提失效的台面凭证）：18 重叠 3453px ≫ 旧 10% 阈值，但常门仍 OK 且占比归一', () => {
+        expect(ok.code).toBe(0);
+        // 旧门在这行上会判红（14641×10% = 1464 < 3453）⇒ 本条即「前提失效」的可复现登记。
+        expect(ok.out).toMatch(/\[lineart-18\] 命令=5 真α=1 facet重叠px=3453/);
+        // 顶面胜出实测逐层 px 钉值（= §6 差分记录的输入，K-051：实算值，⛔ 非解析推导值）。
+        expect(ok.out).toMatch(/\[lineart-18\][^\n]*facet顶面px=#2:9135 #3:1658 #4:1623/);
+        // 占比归一自证：三枚顶面之和 == 统计域总像素（叠压不重复计数）。
+        expect(9135 + 1658 + 1623).toBe(12416);
+    });
+
+    it('腿 ②（其余两套钉值在场 + 零死层）：facet-4 四枚、13 单枚顶面均 > 0', () => {
+        expect(ok.out).toMatch(/\[facet-4\][^\n]*facet重叠px=151 facet顶面px=#2:1875 #3:1882 #4:1906 #5:1913/);
+        expect(ok.out).toMatch(/\[dual-tone-13\][^\n]*facet重叠px=0 facet顶面px=#2:3819/);
+        expect(ok.out).not.toContain('C12 死层');
+        expect(ok.out).not.toContain('C12 重叠登记缺失');
+        expect(ok.out).not.toContain('C12 重叠钉值漂移');
+    });
+
+    it('腿 ③（默认拒绝，⛔ 不得默认放行）：未在 FACET_OVERLAP_REGISTER 登记的风格即红', () => {
+        const fixtures = runPool(['--fixtures']);
+        expect(fixtures.code).toBe(1);
+        // 三支反例夹具（8cmd/5cmd/foreign-base/dead-facet）全部未登记 ⇒ 逐支指认。
+        for (const id of ['fixture-8cmd-0alpha', 'fixture-5cmd-3alpha', 'fixture-c12-foreign-base', 'fixture-dead-facet']) {
+            expect(fixtures.out, `${id} 未登记 ⇒ 默认拒绝`).toContain(`C12 重叠登记缺失 [${id}]`);
+        }
+    });
+
+    it('腿 ④（旧口径不得复活）：脚本内不再存在「> 全盘 10%」泛阈值', () => {
+        const text = readFileSync(resolve(REPO, SCRIPT), 'utf8');
+        expect(text).not.toMatch(/0\.1 \* \(SAMPLE_GRID/);
+        // 阳性对照（K-060：⛔ 缺位断言）：同一份文本必须仍含替代它的三道新判据名。
+        expect(text).toContain('FACET_OVERLAP_REGISTER');
+        expect(text).toContain('C12 死层');
     });
 });
 
@@ -197,11 +303,23 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
         }
     });
 
-    // §8-19 计数侧：注册数 ≤ 1 ⇒ 钮不呈现的前提（注册数）如实成立；本单禁新增钮。
-    it('前提哨兵：registry 注册数 ≤ 1（=1 即 facet-4 骨架；钮呈现归步 5，本单不得新增）', async () => {
+    // §8-19 计数侧前提。**WXG-T-211-S4（步 4）翻转本例**（K-053：旧前提不净删，就地留档）：
+    // 旧断言 = `registeredStyleIds().length ≤ 1` 且 `toEqual(['facet-4'])`，它钉的是「步 3 时点
+    // 注册数仍为 1 ⇒ 钮必不呈现」这一**前提**。步 4 把 `13`/`18` 入池后该前提**如实失效** ⇒
+    // 若继绩钉 ≤ 1，等于禁止入池（与 §12.9 步 4 本身相突）。改钉两件事：
+    //  ① 注册数 ≥ 2（入池事实）与**注册序 = `§12.6` 池序**（表行序剔除已移出的 16/19）；
+    //  ② **面板仍无钮**（上方腿 A 已断）——「§8-19 后半句「注册 ≥ 2 时钮出现」**尚未实现**，
+    //     钮与循环属 §12.9 步 5（EP11-S5）⇒ 本批的「注册 ≥ 2 但面板无钮」是**计划内时序**，
+    //     ⛔ 不得当作 §8-19 违反而停批，也不得为了验“后半句”提前造钮（那越出本 Story 切片）。
+    //     → 已回传主理人，供 QA 翻转 `TC-STY-11` 措辞（拆为「呈现门属步 5」与「计数哨属本批」）。
+    it('前提哨兵（步 4 已翻转）：注册数 ≥ 2 且序 = §12.6 池序；「面板无钮」= 步 5 计划内时序（腿 A 断）', async () => {
         const registry = await import('../src/view/bead-styles/registry.js');
-        expect(registry.registeredStyleIds().length).toBeLessThanOrEqual(1);
-        expect(registry.registeredStyleIds()).toEqual(['facet-4']);
+        const ids = registry.registeredStyleIds();
+        expect(ids.length).toBeGreaterThanOrEqual(2);
+        // 序真源 = `bead-visual-style-spec §12.6` 入选池表行序（16/19 已移出）：四棱 → 18 → 13。
+        expect(ids).toEqual(['facet-4', 'lineart-18', 'dual-tone-13']);
+        // 默认档不得随入池飘移（直引 facet-4 ⇒ 盘面与 seal 基准不受本批影响）。
+        expect(registry.DEFAULT_BEAD_STYLE_ID).toBe('facet-4');
     });
 });
 
@@ -306,5 +424,40 @@ describe('C2 零分配机械锚 · beadLayers 返回复用槽（§12.2 C2 / ADR-
         expect(layerFill(b[2])).not.toBe(snapshot[2]);
         // 腿③ 后果展示（被①∧② 蕴含 ⇒ 不单独主张判别力）：`a` 自己的字段已被第二次调用改掉。
         expect(layerFill(a[2])).not.toBe(snapshot[2]);
+    });
+
+    /**
+     * **步 4 扩展射程**：上方两腿原本只测 `DEFAULT_BEAD_STYLE`（四棱）⇒ `13`/`18` 入池后
+     * 「热路径零分配」（§2 / L3 / ADR-0024）只对**一支**成立。本腿把**同一对判据**逐套跑：
+     * ⛔ 不另起口径（口径真源 = 上方腿），⛔ 不因为「新模块照着 facet-4 抄的」就免检。
+     * ⚑ 不钉具体层号（四棱腿已钉）：本腿只钉「数组/层对象/polygon 顶点元组三类实例」
+     *    与「换色后至少一层墨色重算」⇒ 对新套的几何改动不脆，但仍能抓两类退形。
+     */
+    it('腿①②对全部注册风格成立（步 4：13/18 同样走复用槽）', async () => {
+        const registry = await import('../src/view/bead-styles/registry.js');
+        const { DEMO_BEAD_INKS } = await import('../src/view/palette.js');
+        const { BEAD_CELL } = await import('../src/config/tuning.js');
+        const styles = registry.registeredStyles();
+        expect(styles.length).toBeGreaterThanOrEqual(3); // 阳性对照：射程确实不止四棱一支
+        for (const style of styles) {
+            const a = style.beadLayers({ inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2, size: BEAD_CELL });
+            const fillsA = a.map((l) => (l as { fill: string }).fill);
+            const refs = a.slice();
+            const b = style.beadLayers({ inks: DEMO_BEAD_INKS, colorIdx: 5, targetColorIdx: 6, size: BEAD_CELL });
+            // 腿①：数组本体 + 每层对象 + polygon 顶点元组均为同一实例（=0 分配）。
+            expect(b, `${style.id} 腿① 数组实例同一`).toBe(a);
+            for (let i = 0; i < refs.length; i++) {
+                expect(b[i], `${style.id} 腿① 层 #${i + 1} 实例同一`).toBe(refs[i]);
+                if ((b[i] as { points?: unknown }).points !== undefined) {
+                    expect(
+                        (b[i] as { points: unknown }).points,
+                        `${style.id} 腿① 层 #${i + 1} points 元组同一`,
+                    ).toBe((refs[i] as { points: unknown }).points);
+                }
+            }
+            // 腿②：换色后确有重算（全层墨色不变 = 冻结常量/缓存空转 ⇒ 红）。
+            const changed = b.filter((l, i) => (l as { fill: string }).fill !== fillsA[i]).length;
+            expect(changed, `${style.id} 腿② 换色后至少一层重算`).toBeGreaterThan(0);
+        }
     });
 });

@@ -365,6 +365,9 @@ const styleInput: WritableBeadStyleInput = {
  *     → `bead-styles/facet-4.ts`；C9「升级即换肤」= 翻默认即换皮，本函数零改动）。
  *  3. **回放** —— 逐层映射到 builder 的三个出口 `rect` / `polygon3` / `circle`
  *     （格心局部系 → 世界系：`x` 加 `cx`、`y` 加 `cy + lift`）。
+ *     ⚠ **`rect` / `circle` 另透传 `stroke` / `lineWidth`**（§12.9 步 4 为 `18` 线稿描边开的
+ *     字段，`contract.ts::BeadStyleLayer` 两条定死约束之一）；`polygon` 分支**无描边出口**
+ *     ⇒ 刻面必须是不透明顶面（C12 统计域与 J-3 不串形判据的隐含前提）。
  *
  * ⚠ **热路径零分配（C2）**：层集本身是风格的模块级 scratch，输入槽同上 ⇒ 每珠每帧
  *   0 次层集/输入对象分配。成立前提是 `ADR-0024` 的 polygon **值拷贝**语义：builder 取到
@@ -415,16 +418,21 @@ export function drawFilledBead(
     const alpha = layer.alpha;
     if (layer.kind === 'rect') {
       const radius = layer.radius ?? 0;
+      // 描边透传（WXG-T-211-S4 / `assets-spec §7.11.3`）：`fill + stroke` **同路径 = 仍 1 命令**
+      // （§7.11 读法②）⇒ 命令数与真 α 计数均不因 stroke 而变。无描边的层传 `undefined`：
+      // 两个 renderer 均走 `if (stroke)` 分支 ⇒ 不画；且本仓所有命令比对都经
+      // `JSON.stringify`（`bead-style-seal.test.ts::serialize`），**undefined 值不落字段**
+      // ⇒ 四棱/`13` 的整帧命令流逐字节不变（seal 基准不受本批影响，正面预期由该测试守）。
       if (alpha === undefined) {
-        builder.rect(cx + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius });
+        builder.rect(cx + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius, stroke: layer.stroke, lineWidth: layer.lineWidth });
       } else {
-        builder.rect(cx + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius, alpha });
+        builder.rect(cx + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth });
       }
     } else if (layer.kind === 'circle') {
       if (alpha === undefined) {
-        builder.circle(cx + layer.cx, y + layer.cy, layer.r, { fill: layer.fill });
+        builder.circle(cx + layer.cx, y + layer.cy, layer.r, { fill: layer.fill, stroke: layer.stroke, lineWidth: layer.lineWidth });
       } else {
-        builder.circle(cx + layer.cx, y + layer.cy, layer.r, { fill: layer.fill, alpha });
+        builder.circle(cx + layer.cx, y + layer.cy, layer.r, { fill: layer.fill, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth });
       }
     } else {
       const p = layer.points;
