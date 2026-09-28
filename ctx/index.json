@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3551,
       "lines": 129,
-      "sha256": "5e187c591205da95d1e474db712729d0f5ad23dfdb7bc758308c856f4812044e",
+      "sha256": "33e9758e655074c0b96ed59e0eeb2ec14ca7a4e59fefb5fb032a915d49ddaa43",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 4852,
       "lines": 82,
-      "sha256": "9c73110cba2e7e9612d5ad63b12acebcfc30be8156d8b5a306e43225e08f6d79",
+      "sha256": "5c3e56072d31e67fa945ba757f54df0dc9d967a6b5a88e689089a8e408826237",
       "tier": "normal",
       "sections": [
         {
@@ -764,7 +764,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 810 行 / 62579 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 844 行 / 68137 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
@@ -72236,9 +72236,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 62579,
-      "lines": 810,
-      "sha256": "a3804314ccc89b39390e9cb2400a0016a81b21d4a13e65c9fb4fc9d067e603c1",
+      "tokens": 68137,
+      "lines": 844,
+      "sha256": "fe98cb803ecbf5f20e7bd9192d17727558c3f2ae3d4f18cd7e6ac115a2fd4737",
       "tier": "hot",
       "sections": [
         {
@@ -72246,7 +72246,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 17,
-          "tokens": 2314,
+          "tokens": 2357,
           "summary": "任务号：WXG-T-011 / WXG-T-028 / WXG-T-084 / WXG-T-092（复验轮） / WXG",
           "keywords": [
             "beads",
@@ -72765,8 +72765,8 @@
           "anchor": "§I 宿主坐标归一化判据（缺陷 C1 回归闸门，**v1.6 / WXG-T-109 新增**）— 来源 `ADR-0011 §3(e)` + `T-104·A4`",
           "level": 1,
           "startLine": 572,
-          "endLine": 675,
-          "tokens": 9901,
+          "endLine": 676,
+          "tokens": 10699,
           "summary": "归属理由（为何单开 §I，不并入 §A / §G）：本文件的组织法是「每一节 = 一个判据来源家族」 —— §A = 9",
           "keywords": [
             "ADR-0011 §3(e)",
@@ -72825,8 +72825,8 @@
           "anchor": "§变更记录",
           "level": 2,
           "startLine": 614,
-          "endLine": 635,
-          "tokens": 6064,
+          "endLine": 636,
+          "tokens": 6861,
           "summary": "v1.0 2026-09-11 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 严",
           "keywords": [
             "§8",
@@ -72836,8 +72836,8 @@
         {
           "anchor": "§J · v2.0 判据迁移（**WXG-T-144 / Epic T-133**，2026-09-17）——「错位归位」玩法反转的判据面整体换代",
           "level": 2,
-          "startLine": 636,
-          "endLine": 675,
+          "startLine": 637,
+          "endLine": 676,
           "tokens": 1534,
           "summary": "### J.0 范围铁声明",
           "keywords": [
@@ -72852,8 +72852,8 @@
         {
           "anchor": "§J.1 四族改判 ⛔（原供料/道具判据，随玩法反转整体作废）",
           "level": 3,
-          "startLine": 641,
-          "endLine": 649,
+          "startLine": 642,
+          "endLine": 650,
           "tokens": 404,
           "summary": "TC-LOOP-02 / TC-TRAY-01 供料节律（60s tray:spawned 恰 15 次 ±1） ⛔ 作",
           "keywords": [
@@ -72868,8 +72868,8 @@
         {
           "anchor": "§J.2 新玩法判据用例（**[N] 层新增**；与 E1–E5 单测一一对应，代码锚点见 `tests/misplaced*.ts` / `selection-anchor.test.ts`）",
           "level": 3,
-          "startLine": 650,
-          "endLine": 670,
+          "startLine": 651,
+          "endLine": 671,
           "tokens": 766,
           "summary": "TC-J-01 tray-spawner v2.0 §8-2 [Node] 60s 零 tray:spawned + 首",
           "keywords": [
@@ -72884,8 +72884,8 @@
         {
           "anchor": "§J.3 G4 结论联动",
           "level": 3,
-          "startLine": 671,
-          "endLine": 675,
+          "startLine": 672,
+          "endLine": 676,
           "tokens": 77,
           "summary": "E1–E6 落码后：G4 玩法判据面已整体换代（本节 J 系列），但 G4 探针（g4-probe-v1.1.mjs）尚",
           "keywords": [
@@ -72897,9 +72897,9 @@
         {
           "anchor": "§K 风格与豆径族（**v2.1 / WXG-T-211-F 新增**）—— 来源家族 = `pause-settings v1.7 §8-14~19` + `save-progress v1.1 §8-11~13` + `ux-spec v1.19 §4` 行4/BOOT/overlay 各行 + `bead-visual-style-spec §12.2 C1/C5/C6/C7/C8/C9/C11/C12` + `assets-spec v1.5-r16 §1.9.7 7.11–7.13`",
           "level": 1,
-          "startLine": 676,
-          "endLine": 811,
-          "tokens": 16449,
+          "startLine": 677,
+          "endLine": 845,
+          "tokens": 21166,
           "summary": "### K.0 编号与归属（两处必须先看）",
           "keywords": [
             "pause-settings v1.7 §8-14~19",

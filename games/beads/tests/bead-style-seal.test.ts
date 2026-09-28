@@ -6,17 +6,23 @@
  *
  * 数据源 = `tests/__fixtures__/wxg-t-211-s3-seal.json`（**checked-in 封箱件**）：
  *  - `head.*` = 改码前 HEAD（`d058e5d`）实测基准，由 `git` 回退态重抓（`temp/wxg-t-211-s3/capture.sh head`）；
+ *    ⚠ 腿 1 的对照 = `head.legacyFlow` ⊕ `head_liftShadowFade_r5` **合并视图**（上游批 `927535c` 越界追改的
+ *    48 例 `liftShadowFade` 现役值已经 r5 处置迁入档案段，`head.*` 已回补史证态，正本 = K.5.1-补3 遗留条 ③）；
  *  - `s3.*`   = 转正后实测；
  *  - `fixture.*` = **夹具参数连参数一起登记**（breakout `--frames 180` 判例：不登记参数的基准不可复现）。
  *
  * 本文件**只读不算基准**（⛔ 不写文件、⛔ 不需 env 开关）⇒ 可以进全量 `vitest run`。
- * 四条腿：
+ * 四条腿（口径随复评更替，正本链 = `provenance.s3_frame_recheck{,_2,_3,_4,_5}`）：
  *  1. **什么都没变**：`drawLegacyTenBead` 的 96 例命令流 sha ≡ `head.legacyFlow`；
- *  2. **非孔零变更**：`facet-4` 层集 #1–#5 的 45 例 sha ≡ `head.facetNonHoleLayers`
- *     （⇒ 底衬与四枚刻面的几何/墨水与 S2 内联版逐字节同）；
- *  3. **仅孔变化**：#6 的 45 例 sha **全部 ≠** `head.facetHoleLayer` 且 ≡ `s3.facetHoleLayer`
- *     （双孔→单孔 + 孔底 `base`→目标色 `pit` + 半径 0.17→派生自卡）= 本单唯一被允许的视觉变更源；
- *  4. **基线差分自洽**：整帧 §11.2 同构夹具逐 kind 计数 ≡ golden，且 Δ 全部可归因到 78 颗填格。
+ *  2. **非孔零变更**：`facet-4` 层集 #1–#5 的 45 例 sha ≡ `s3.facetNonHoleLayers`
+ *     （比较基自**第三次复评**起改指 `s3.*` = c7d157d 等比 inset + 214 plate 墨这两笔用户拍板的合法改动；
+ *      「S3 转正当时一字未动」的时点事实由腿 2b 钉史证段，**未降级**）；
+ *  3. **仅孔变化**：孔层组（层集 #6 起）的 45 例 sha **全部 ≠** `head.facetHoleLayer` 且 ≡ `s3.facetHoleLayer`
+ *     —— ⚠ 键形语义自**六裁**起更替 = 「#6 HOLE_RING（stroke-only 孔边环，`r = holeR + 1dp`）
+ *      + #7 HOLE（`pit` 填充真透孔底）」**两枚层的 JSON 串联取 sha**（`layerSeal()` 的 `slice(5)` 天然吞两枚
+ *      ⇒ 45 键键形不变、语义变；逐例归因见 `provenance.s3_frame_recheck_5`）；
+ *  4. **基线差分自洽**：整帧 §11.2 同构夹具逐 kind 计数 + total + sha ≡ 登记值，且 Δ 全部可归因到
+ *     78 颗填格珠体差 + 登记的控件插入段。
  *
  * ⛔ 若任一腿红：先查是否**又有人改了封箱代码**（`facet-4.ts` / `legacy-ten.ts` / `bead-render.ts`
  *   的珠体路径），⛔ 不得反向"更新基准让它绿"（K-051 / K-053）。
@@ -54,6 +60,9 @@ const SEAL = JSON.parse(
         frame: Record<string, unknown>;
     };
     head: SealSide;
+    /** r5 处置档案段：`927535c` 越界追改 `head.legacyFlow` 的 48 例（lift=6 半边）现役值在此存档；
+     *  值 ≡ 第五次复评官方重抓的 `s3.legacyFlow` 同键（零手填），⛔ 不随复评漂移。腿 1 合并视图对照。 */
+    head_liftShadowFade_r5?: Record<string, string>;
     s3: SealSide;
     /** S3 转正时刻登记（史证段，不追改；腿 2b 的锚）。 */
     s3AtFormalization?: SealSide & { _readme?: string };
@@ -71,7 +80,18 @@ interface SealSide {
 const sha = (s: string): string => createHash('sha256').update(s).digest('hex');
 
 /* ───── 复评登记常量（213 控件/盘带换尺；原稿因共享树 checkout 事故丢失，本套由换肤线
- * 2026-09-26 依会话记录重建并经用户指令接管，归因链 = provenance.s3_frame_recheck{,_2,_3}）───── */
+ * 2026-09-26 依会话记录重建并经用户指令接管，归因链 = provenance.s3_frame_recheck{,_2,_3,_4,_5}）───── */
+
+/**
+ * ⚠ **基准修订的唯一例外通道 = 复评归因**（本文件头原禁令「⛔ 不得反向更新基准让它绿」保持全效力，
+ *   K-051 / K-053）。走该通道的**必要手续**（缺一即视为刷绿）：
+ *   ① 改动有用户拍板；② 值只能来自官方复取器 `tests/bead-style-seal-recapture.ts` 在**可复现锚（commit）**
+ *   的重抓（⛔ 手填、⛔ 引纸面值、⛔ `temp/wxg-t-211-s3/capture.sh` 旧快照回放）；③ 逐条**流级差分**归因、
+ *   未解释 0 条；④ `production/qa/beads/test-cases.md` 登记段落笔 + `provenance` **新增键**（本次 =
+ *   **K.5.1-补3** / 键 `s3_frame_recheck_5`，四～七裁孔层链，2026-09-28）。
+ *   `head.*` 与 `s3AtFormalization` 属史证段 ⇒ **冻结**，不随复评漂移（`927535c` 曾越界追改
+ *   `head.legacyFlow` 48 例 ⇒ 已按 r5 处置回补史证态，现役值迁入只读档案段 `head_liftShadowFade_r5`）。
+ */
 
 /** 已登记的**非珠体族**插入差：缩放控件条 = 8 条（§3.3 v1.59 zoom T-217 换源后 +1 rect）。 */
 const HUD_ZOOM_CTRL_DELTA: Record<string, number> = { rect: 4, circle: 1, text: 3 };
@@ -292,12 +312,22 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.fixture.frame).toMatchObject({ cols: 13, rows: 12, filled: 78, fillableTotal: 156, noAssemble: true });
     });
 
-    it('腿 1 · 什么都没变：`drawLegacyTenBead` 96 例命令流 ≡ HEAD 逐字节', () => {
+    it('腿 1 · 什么都没变：`drawLegacyTenBead` 96 例命令流 ≡ HEAD 史证段 ⊕ r5 档案段（合并视图）逐字节', () => {
         const got = legacyFlowSeal((b, opts, ci) => drawLegacyTenBead(b, 100, 200, ci, opts));
-        const want = SEAL.head.legacyFlow ?? {};
+        // r5 处置（2026-09-28，正本 = K.5.1-补3 遗留条 ③）：`927535c` 越界追改 `head.legacyFlow` 的 48 例
+        // 已回补史证态，其现役值迁入 `head_liftShadowFade_r5` ⇒ 合并视图 ≡ 追改前「HEAD ⊹ liftShadowFade 0.55」。
+        const arch = SEAL.head_liftShadowFade_r5 ?? {};
+        const archKeys = Object.keys(arch).filter((k) => k !== '_readme');
+        expect(archKeys, 'r5 档案段缺失 ⇒ 48 例无家可归，不得静默回退成恒等断言').toHaveLength(48);
+        const want: Record<string, string> = { ...SEAL.head.legacyFlow, ...Object.fromEntries(archKeys.map((k) => [k, arch[k]])) };
         expect(Object.keys(got).sort()).toEqual(Object.keys(want).sort());
         const diff = Object.keys(want).filter((k) => got[k] !== want[k]);
         expect(diff, `命令流不等的例：${diff.slice(0, 5).join(', ')}`).toEqual([]);
+        // 档案段 ⇄ 史证段逐键互斥于现值 ⇒ 若有人把档案值刷回 head（伪造史证）或两段键集重叠，立即响红。
+        for (const k of archKeys) {
+            expect(arch[k], `${k} 档案值不得 ≡ head 史证值（追改必须可见）`).not.toBe(SEAL.head.legacyFlow![k]);
+            expect(got[k], `${k} 现役值须 ≡ r5 档案段`).toBe(arch[k]);
+        }
         // 阳性对照（K-060）：96 例 sha 互不相同 ⇒ 本判据不是一条恒等的空断言。
         expect(new Set(Object.values(got)).size).toBe(96);
     });
@@ -320,16 +350,40 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         for (const k of Object.keys(h)) expect(hist![k], `${k} 史证段被追改（K-053）`).toBe(h[k]);
     });
 
-    it('腿 3 · 仅孔变化：#6 共 45 例全 ≠ HEAD 且 ≡ S3 登记值（本单唯一被允许的变更源）', () => {
+    it('腿 3 · 仅孔变化：孔层组（六裁起 = #6 HOLE_RING + #7 HOLE 两枚串联）共 45 例全 ≠ HEAD 且 ≡ S3 登记值', () => {
         const { hole } = layerSeal();
         const before = SEAL.head.facetHoleLayer;
         const after = SEAL.s3.facetHoleLayer;
         const changed = Object.keys(before).filter((k) => hole[k] !== before[k]);
         expect(changed).toHaveLength(45); // ⛔ 有任何一例"孔没变"⇒ 说明甲口径没落全
         for (const k of Object.keys(after)) expect(hole[k], `${k} 孔层与 S3 登记不符`).toBe(after[k]);
+        // 键形语义（第六裁拆两枚）自证：孔层组的原文必含**两枚** circle 命令（环 + 底），
+        // ⛔ 不是把「一孔一命令」的旧口径偷偷读成现值 —— 该例把键形钉在判据里，将来拆/并层不改口径即红。
+        const layers = (styleById('facet-4')!).beadLayers({
+            inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: undefined, size: 26,
+        });
+        expect(layers).toHaveLength(7); // PLATE + 4 刻面 + HOLE_RING + HOLE
+        expect(layers.slice(5)).toHaveLength(2);
+        const holeLayers = layers.slice(5);
+        expect(holeLayers).toHaveLength(2);
+        const ring = holeLayers[0]!,
+            pit = holeLayers[1]!;
+        if (ring.kind !== 'circle' || pit.kind !== 'circle') {
+            throw new Error('孔层组不是两枚 circle ⇒ 键形口径已变，本判据与 provenance 须同步复评');
+        }
+        expect(ring.stroke).toBeDefined();
+        expect(ring.fill, 'HOLE_RING 必须是 stroke-only（填色会盖住孔底）').toBeUndefined();
+        expect(pit.stroke, 'HOLE（pit）不带描边（描边归环）').toBeUndefined();
+        expect(pit.fill).toBeDefined();
+        // 恒等档几何（size=26）：真透 ⌀12 / 外缘 ⌀14（cell-standard §孔径 口径，派生自 §3 `holeRatio 0.44` + `holeStrokeWidthPx 1`）。
+        expect(2 * ring.r).toBe(14);
+        expect(2 * pit.r).toBe(12);
+        // 归因登记必须在案（⛔ 无登记的基准追改视为红）。
+        expect(SEAL.provenance.s3_frame_recheck_5, '第五次复评无归因登记').toContain('第五次复评');
+        expect(SEAL.provenance.s3_frame_recheck_5).toContain('HOLE_RING');
     });
 
-    it('腿 4a · 整帧两键 ≡ 第三次复评登记（逐 kind + total + sha），帧长差 = 登记的控件插入段', () => {
+    it('腿 4a · 整帧两键 ≡ 第五次复评登记（逐 kind + total + sha），帧长差 = 登记的控件插入段', () => {
         const f = frameSeal();
         expect(f.kinds).toEqual(SEAL.s3.frame78.kinds);
         expect(f.total).toBe(SEAL.s3.frame78.total);
@@ -356,6 +410,8 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         // 两笔登记差都须有 provenance 归因（⛔ 无登记基准追改视为红）。
         expect(SEAL.provenance.s3_frame_recheck, '控件段无归因登记').toContain('缩放控件');
         expect(SEAL.provenance.s3_frame_recheck_3, '换尺/墨值/底图重推无归因登记').toContain('盘带换尺');
+        expect(SEAL.provenance.s3_frame_recheck_4, '第四次复评无归因登记').toContain('第四次复评');
+        expect(SEAL.provenance.s3_frame_recheck_5, '第五次复评无归因登记').toContain('流级差分');
         // 反演后的流仍不得等于任何旧锁（防「把基准刷回 HEAD」的静默通道）。
         expect(sha(r.flow.join('\n'))).not.toBe(SEAL.head.frame0.sha);
         expect(sha(emptyBoardFlow().join('\n'))).toBe(SEAL.s3.frame0.sha);
@@ -368,19 +424,21 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         for (const k of new Set([...Object.keys(h), ...Object.keys(s)])) {
             delta[k] = (s[k] ?? 0) - (h[k] ?? 0);
         }
-        // 每颗填格：十层 5 rect + 5 line + 2 circle → 四棱 1 rect + 4 polygon + 1 circle；
-        // 另加**登记在案**的控件插入段（rect+3 / circle+1 / text+3）。
+        // 每颗填格：十层 5 rect + 5 line + 2 circle → 四棱 1 rect + 4 polygon + **2 circle**
+        //（六裁拆两枚：#6 HOLE_RING + #7 HOLE ⇒ 孔贡献由 `−1` 回 `0`）；
+        // 另加**登记在案**的控件插入段（rect+4 / circle+1 / text+3，T-217 换源后 8 条）。
         const ctrl = HUD_ZOOM_CTRL_DELTA;
         expect(delta.rect - ctrl.rect).toBe(78 * -4);
         expect(delta.line).toBe(78 * -5);
-        expect(delta.circle - ctrl.circle).toBe(78 * -1); // **孔贡献**：双孔 → 单孔
+        expect(delta.circle - ctrl.circle).toBe(78 * 0); // **孔贡献 = 0**：单孔 → 环+底两枚（六裁，用户拍板）
         expect(delta.polygon).toBe(78 * 4); // **刻面 kind 化**
         expect(delta.text - ctrl.text).toBe(0); // 非珠体族除登记段外零变更
         const totalDelta = SEAL.s3.frame78.total - SEAL.head.frame78.total;
         expect(Object.values(delta).reduce((a, b) => a + b, 0)).toBe(totalDelta);
-        expect(totalDelta).toBe(78 * (-4 - 5 - 1 + 4) + HUD_ZOOM_CTRL_TOTAL);
+        expect(totalDelta).toBe(78 * (-4 - 5 - 0 + 4) + HUD_ZOOM_CTRL_TOTAL);
         // ⛔ 禁止「纸面推算的新基线整帧数」入册（K-051）：以下均**复评登记实测值**自洽核对。
-        expect(SEAL.s3.frame78.total).toBe(1127);
+        expect(SEAL.s3.frame78.total).toBe(1205); // = 1126（recheck_4）+ 78（六裁环）+ 1（T-217 控件轨道）
+        expect(SEAL.s3.frame78.kinds.circle).toBe(160); // = 82 + 78（每颗填格珠 +1 HOLE_RING）
         expect(SEAL.s3AtFormalization!.frame78.total).toBe(1119); // 转正时刻史证（不随复评漂移）
         expect(SEAL.head.frame78.total).toBe(1587); // 旧值仅作历史档案（§K.5.0 作废登记）
     });
