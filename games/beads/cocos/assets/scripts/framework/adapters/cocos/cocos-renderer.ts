@@ -198,9 +198,21 @@ export class CocosRenderModelRenderer {
           this._paint(cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;
         }
+        case 'blit': {
+          // [WXG-T-220 / ADR-0026] Cocos `Graphics` does not support `drawImage`.
+          // Silently skip — the vector fallback path should not emit `blit`
+          // commands, so this branch is only reached if the baked arm is
+          // accidentally used on Cocos. Log once to aid diagnosis.
+          if (!this._blitWarned) {
+            console.warn('[CocosRenderer] `blit` command not supported on Cocos Graphics (ADR-0026 §4.2). Skipping.');
+            this._blitWarned = true;
+          }
+          break;
+        }
       }
     }
   }
+  private _blitWarned = false;
 
   private _drawText(cmd: Extract<DrawCommand, { kind: 'text' }>, ox: number, oy: number): void {
     const label = this._labels.acquire();

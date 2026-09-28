@@ -142,7 +142,7 @@ const DROP_SHADOW_POLICY: Readonly<Record<string, { readonly dropShadowLayers: n
  *     本文件因此不再断言「stroke 必伴 fill」（断言它 = 无判别力的恒真式，K-060）。
  */
 const KIND_POLICY: Readonly<Record<string, { readonly allowedKinds: readonly string[]; readonly allowStroke: boolean }>> = {
-    'facet-4': { allowedKinds: ['rect', 'polygon', 'circle'], allowStroke: false },
+    'facet-4': { allowedKinds: ['rect', 'polygon', 'circle'], allowStroke: true }, // 2026-09-27 孔描边入池
     'dual-tone-13': { allowedKinds: ['rect', 'polygon', 'circle'], allowStroke: false },
     'lineart-18': { allowedKinds: ['rect', 'polygon', 'circle'], allowStroke: true },
 };
@@ -225,23 +225,23 @@ function mutantSoftHighlight(): BeadStyleLayer {
 type Quad = 'top' | 'left' | 'right' | 'bottom';
 
 /**
- * 由顶点判定一枚三角刻面**占据哪四分之一**（§7.11.1 几何 = (角A, 角B, 格心)）：
- * 两枚非格心顶点即该面的两个角，按它们的符号定象限。⛔ 不按数组位置硬锚。
+ * 由顶点判定一枚刻面**占据哪四分之一**。
+ * ⚠ WXG-T-218 改版：`facet-4` 刻面 = 圆角扇（`points = [格心, 边界…]`）；扇形边界
+ * 对称分布于所属半边 ⇒ **边界点坐标和的主轴分量符号**定象限（对三角 6 元组同样成立：
+ * 两角 + 格心的坐标和仍被所属轴支配）。⛔ 不按数组位置硬锚。
  */
 function facetQuadrant(p: BeadStyleLayer): Quad {
     if (p.kind !== 'polygon') throw new Error('非 polygon 层不参与刻面象限判定');
     const v = p.points;
-    const corners = [
-        [v[0]!, v[1]!],
-        [v[2]!, v[3]!],
-    ] as const;
-    const [ax, ay] = corners[0];
-    const [bx, by] = corners[1];
+    let sx = 0;
+    let sy = 0;
+    for (let k = 0; k + 1 < v.length; k += 2) {
+        sx += v[k]!;
+        sy += v[k + 1]!;
+    }
     const abs = (n: number) => Math.abs(n);
-    // 两角同 y ⇒ 水平边（上/下）；两角同 x ⇒ 竖直边（左/右）。
-    if (abs(ay - by) < 1e-9) return ay > 0 ? 'top' : 'bottom';
-    if (abs(ax - bx) < 1e-9) return ax < 0 ? 'left' : 'right';
-    throw new Error(`刻面两角既不同 x 也不同 y（ax=${ax},ay=${ay},bx=${bx},by=${by}）⇒ 不是四分之一面`);
+    if (abs(sy) >= abs(sx)) return sy > 0 ? 'top' : 'bottom';
+    return sx < 0 ? 'left' : 'right';
 }
 
 /**
@@ -475,7 +475,12 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
         expect(ls.filter((l) => l.role === 'facet' && l.fill === base)).toHaveLength(1);
         // C12 认定域（facet 族）四色全属本格端点同族（真源 = `endpointFamily`，⛔ 不另列清单）。
         const family = new Set(endpointFamily(DEMO_BEAD_INKS, 1));
-        const facetFills = ls.filter((l) => l.role === 'facet').map((l) => l.fill);
+        // WXG-T-221 六裁：`circle.fill` 转可选（孔环 = stroke-only）⇒ 联合类型下 `fill` 需窄化。
+        //   facet 族历来带 fill，本行仅做类型收窄，⛔ 不是放宽判据（长度门先于 has()）。
+        const facetFills = ls
+            .filter((l) => l.role === 'facet')
+            .map((l) => l.fill)
+            .filter((f): f is string => f !== undefined);
         expect(facetFills).toHaveLength(4);
         for (const f of facetFills) {
             expect(family.has(f) || f === mix(base, FACET4_FACET_RIGHT_MIX), `墨色 ${f} 越出同族`).toBe(true);
@@ -505,9 +510,9 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
             const r = m.filter((l) => l.kind === 'rect');
             if (r.length !== 1) throw new Error(`rect 计数 = ${r.length}（侧壁复活，§K.5 行 4 负向门）`);
         }).toThrow(/侧壁复活/);
-        // 同时钉住“枚数不会偷越 C7 预算”：真臂 6 条；塞到 8 条 ⇒ 枚数门红。
+        // 同时钉住“枚数不会偷越 C7 预算”：真臂 7 条（六裁孔拆环+底 ⇒ 压线）；塞到 8 条 ⇒ 枚数门红。
         expect(() => assertWithinBudget(ls, 'facet-4')).not.toThrow();
-        expect(() => assertWithinBudget([...ls, ...ls.slice(0, 2)], 'facet-4')).toThrow(/命令数 8 > 上限 7/);
+        expect(() => assertWithinBudget([...ls, ...ls.slice(0, 1)], 'facet-4')).toThrow(/命令数 8 > 上限 7/);
     });
 
     // ── 行 5｜L2 暗倒角·下边｜改述（kind 换，语义保）───────────────────
@@ -606,7 +611,8 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
         // 新基线层集零 stroke / 零 line 图元（= 线族确实没有承载体）。
         const ls = baseLayers();
         expect(() => assertKindWhitelist(ls, 'facet-4')).not.toThrow();
-        expect(ls.some((l) => 'stroke' in l)).toBe(false);
+        // 2026-09-27 孔描边入池 ⇒ facet-4 现在有 stroke 层（孔描边）
+        expect(ls.some((l) => 'stroke' in l)).toBe(true);
         // **阳性对照**（K.1a）：同一哨在对照臂上必须命中，否则本门可能恒不成立而假绿。
         const legacySrc = readFileSync(new URL('../src/view/bead-styles/legacy-ten.ts', import.meta.url), 'utf8');
         expect(() => assertNoRimFamilyConsumer(legacySrc, 'legacy-ten.ts')).toThrow(/BEAD_RIM_MIX/);
@@ -626,25 +632,49 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
     // ✅ **WXG-T-211-S4**：本行从「只跑默认风格」扩为**逐套跑**（E 单 `§7.11.7` C 组必改 ①②
     //   的机械约束位：`13`/`18` 的孔必须同为一枚 `circle` + 目标色 `pit` + `holeRatio` 派生半径；
     //   `18` 曾填 `'#FFFFFF'` 字面量、`13` 曾把 base 只落在孔上 ⇒ 两者在本行当场红）。
-    it('［§K.5 行 10·改述·红线·逐套］孔 = 恰 1 枚 circle 且孔底 = 目标色 pit（三套均适用）', () => {
+    /**
+     * 孔域**层枚数**逐风格（WXG-T-221 六裁「孔径 = 真透」）：facet-4 = 2（stroke-only 孔环 +
+     * pit 孔底两枚同心圆）；`13`/`18` = 1（孔 = 同路径单命令 `fill(+stroke)`，造型身份）。
+     * ⚠ 枚数变风格相关**不等于** D4 乙口径复活 ⇒ 乙口径的识别子 = 「偏心」或「真 α」，
+     *   两枚均在行 11 以负向门拦住（⛔ 不得本行拿枚数当唯一判别子）。
+     */
+    const HOLE_LAYERS: Record<string, number> = { 'facet-4': 2, 'dual-tone-13': 1, 'lineart-18': 1 };
+    /** 孔底 = 带 fill 的那枚（环 stroke-only）；各风格恰 1 枚 ⇒ 判据对象不变。 */
+    const holeBottoms = (ls: readonly BeadStyleLayer[]) =>
+        ls.filter((l) => l.role === 'hole' && l.fill !== undefined);
+    /** 孔域圆心律（同心 = 仍是「一个孔」；乙口径内壁 = 偏心 ⇒ size > 1 即红）。 */
+    const holeCenters = (holes: readonly BeadStyleLayer[]) =>
+        new Set(holes.map((h) => (h.kind === 'circle' ? `${h.cx},${h.cy}` : '—')));
+
+    it('［§K.5 行 10·改述·红线·逐套］孔底唯一且 = 目标色 pit；半径 = 真透派生（三套均适用）', () => {
         for (const id of ['facet-4', 'dual-tone-13', 'lineart-18']) {
             const ls = id === 'facet-4'
                 ? baseLayers()
                 : styleLayersOf(id, { inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
             const holes = ls.filter((l) => l.role === 'hole');
-            expect(holes).toHaveLength(1); // 甲口径（⛔ 乙口径 = 2 枚，行 11）
+            expect(holes, `${id} 孔域枚数`).toHaveLength(HOLE_LAYERS[id]!);
             expect(holes.every((h) => h.kind === 'circle')).toBe(true);
-            expect(holes[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 2).pit); // 目标格（本夹具 targetColorIdx=2）
+            expect(holeCenters(holes).size).toBe(1); // 同心⇒多枚也只是「环+底」，⛔ 非多画一个孔
+            const bottoms = holeBottoms(ls);
+            expect(bottoms).toHaveLength(1); // 孔底唯一（六裁后 facet-4 第二枚 = stroke-only 环）
+            expect(bottoms[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 2).pit); // 目标格（本夹具 targetColorIdx=2）
             // 半径**派生**（⛔ 不写死 0.17/0.16/0.15：三套 spike 口径均偏小 23–32%，§7.11.6）。
             // ⚠ WXG-T-214：末端取整（⇒ 直径偶数设计 px），期望值同式取整 + 钉偶数性。
-            const r = holes[0]!.kind === 'circle' ? holes[0]!.r : NaN;
+            // ⚠ WXG-T-221 六裁：口径 = **真透**（现值 0.44 = 七裁回定，派生后取整）；环 r = 真透 + 1dp 描边中心线。
+            const r = bottoms[0]!.kind === 'circle' ? bottoms[0]!.r : NaN;
             expect(r).toBe(Math.round((SIZE * BEAD_CARD.holeRatio) / 2));
             expect((r * 2) % 2).toBe(0);
+            const rings = holes.filter((h) => h.fill === undefined);
+            expect(rings).toHaveLength(HOLE_LAYERS[id]! - 1);
+            for (const g of rings) {
+                expect(g.kind === 'circle' && g.r).toBe(r + BEAD_CARD.holeStrokeWidthPx);
+            }
             // 无目标色 ⇒ 契约口径 `targetColorIdx ?? colorIdx` 回落本格 pit（仍是端点表内色，C3 零新色）。
             const tray = id === 'facet-4'
                 ? layersOf({ inks: DEMO_BEAD_INKS, colorIdx: 3 })
                 : styleLayersOf(id, { inks: DEMO_BEAD_INKS, colorIdx: 3 });
-            expect(tray.find((l) => l.role === 'hole')!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).pit);
+            expect(holeBottoms(tray)).toHaveLength(1);
+            expect(holeBottoms(tray)[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).pit);
         }
         const ls = baseLayers();
         // 变异自证 ①：白孔（`18` spike 曾写 `#FFFFFF` 字面量的违例形态）⇒ 判红。
@@ -655,6 +685,13 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
         expect(() => assertHoleIsPitOfTarget(selfBase, 2)).toThrow(/应为目标色 pit/);
         // 变异自证 ③：不画孔（小豆档误用到满豆档）⇒ 同样判红。
         expect(() => assertHoleIsPitOfTarget(ls.filter((l) => l.role !== 'hole'), 2)).toThrow(/没画孔/);
+        // 变异自证 ④（六裁新增）：孔底不止一枚（环被误当第二枚孔上色）⇒ 判红。
+        const doubleBottom = ls.map((l) =>
+            l.role === 'hole' && l.fill === undefined
+                ? { ...l, fill: endpointOf(DEMO_BEAD_INKS, 2).pit }
+                : l,
+        );
+        expect(holeBottoms(doubleBottom)).toHaveLength(2);
     });
 
     /** 行 10 的判定式（吃层集 + 目标格，可喂变异臂）。 */
@@ -662,27 +699,36 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
         const holes = ls.filter((l) => l.role === 'hole');
         if (holes.length < 1) throw new Error('满豆档没画孔 ⇒ 触识别红线（C5/C6）');
         const want = endpointOf(DEMO_BEAD_INKS, targetColorIdx).pit;
-        for (const h of holes) {
+        for (const h of holeBottoms(ls)) {
             if (h.fill !== want) throw new Error(`孔底 = ${h.fill}，应为目标色 pit ${want}（K3 透色；白孔/自身色孔均判红）`);
         }
     }
 
     // ── 行 11｜L1c 孔内壁自阴影｜**D4 双口径 ⇒ 已采甲，登记已接受代价** ──
-    // 采甲（用户 2026-09-26 裁定）：孔 = 单枚 circle ⇒「孔内壁深感」通道随十层退役**消失**。
+    // 采甲（用户 2026-09-26 裁定）：孔无内壁阴影层 ⇒「孔内壁深感」通道随十层退役**消失**。
     // ⚠ 该代价 = `[待真机]`（观感归 Playtest），且**必须**在 §6 差分记录显式记账 ⇒ 本例的
-    //   机械腿 = 枚数与真 α 计数，二者任一回到乙口径数值即红（= 逼一次"重新记账"）。
-    it('［§K.5 行 11·待裁已采甲］单枚孔 + 真 α 计数按逐风格投影政策（回到乙口径即红 ⇒ 强制重新记账）', () => {
-        // 三套的**孔**侧同构：单枚 circle 且该层非真 α（乙口径的第 2 枚内壁 = `alpha 0.3` 真 α）。
+    //   机械腿 = 同心律与真 α 计数，二者任一回到乙口径数值即红（= 逼一次"重新记账"）。
+    // ⚠ **WXG-T-221 六裁修正**：旧机械腿拿「枚数 = 1」当判别子；本裁 facet-4 的孔拆为
+    //   同心两枚（stroke-only 环 + pit 底）⇒ 枚数不再能区分甲/乙。改用**不依赖枚数**的
+    //   两个识别子：圆心唯一（同心）+ 孔域零真 α（⛔ 不是放宽：乙口径的第 2 枚必偏心且带 α 0.3）。
+    it('［§K.5 行 11·待裁已采甲］孔域无内壁阴影（同心 + 零真 α）⇒ 回到乙口径形态即红', () => {
+        // 三套的孔侧同构：圆心唯一、孔底非真 α；枚数按风格钉（六裁：facet-4 = 2、其余 = 1）。
         for (const id of ['facet-4', 'dual-tone-13', 'lineart-18']) {
             const ls = id === 'facet-4'
                 ? baseLayers()
                 : styleLayersOf(id, { inks: DEMO_BEAD_INKS, colorIdx: 1, targetColorIdx: 2 });
             const holes = ls.filter((l) => l.role === 'hole');
-            expect(holes).toHaveLength(1); // 乙口径 = 2 枚
+            expect(holes, `${id} 孔域枚数`).toHaveLength(HOLE_LAYERS[id]!);
+            expect(holeCenters(holes).size).toBe(1); // 偏心内壁（乙形态）⇒ size=2 即红
             expect(realAlphaLayers(holes)).toHaveLength(0); // 内壁真 α 复活即红
             // 全套真 α 数 = 投影政策值（`18` 的 1 枚来自**硬投影**而非内壁 ⇒ 通道不混用，行 2）。
             expect(realAlphaLayers(ls)).toHaveLength(DROP_SHADOW_POLICY[id]!.dropShadowLayers);
         }
+        // 变异自证（六裁）：把 facet-4 的孔环抹开（= 乙口径内壁形态）⇒ 同心门红。
+        const shifted = baseLayers().map((l) =>
+            l.role === 'hole' && l.fill === undefined && l.kind === 'circle' ? { ...l, cx: l.cx + 2 } : l,
+        );
+        expect(holeCenters(shifted.filter((l) => l.role === 'hole')).size).toBe(2);
         // 十层对照臂仍在：双枚孔 + 内壁真 α（通道未消失，只是移出主盘）。
         const tenHoles = legacyLayerSet().filter((l) => l.role === 'hole');
         expect(tenHoles.length).toBeGreaterThan(1);
@@ -776,10 +822,11 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
         expect(bigHoleLw).toBe(bigBodyLw * LINEART_HOLE_STROKE_SCALE);
         expect(bigHoleLw < bigBodyLw).toBe(true); // 正本行 5 的方向在比例区硬成立
         // 变异自证（K-060）四型：
-        //  Ⅰ 往**禁 stroke 的风格**（四棱）塞一枚带 stroke 的 rect ⇒ 政策门必红（证明参数化≠全放行）。
-        const ls4 = baseLayers();
+        //  Ⅰ 往**禁 stroke 的风格**（dual-tone-13）塞一枚带 stroke 的 rect ⇒ 政策门必红。
+        //  （注：facet-4 已于 2026-09-27 放宽 stroke ⇒ 孔描边入池）
+        const ls13 = styleById('dual-tone-13')!.beadLayers({ size: 22, colorIdx: 1, inks: DEMO_BEAD_INKS });
         expect(() =>
-            assertKindWhitelist([...ls4, { ...ls4[0]!, stroke: BEAD_SHADOW_HEX } as BeadStyleLayer], 'facet-4'),
+            assertKindWhitelist([...ls13, { ...ls13[0]!, stroke: BEAD_SHADOW_HEX } as BeadStyleLayer], 'dual-tone-13'),
         ).toThrow(/allowStroke=false/);
         //  Ⅱ 往 `18` 塞一枚 `line` kind ⇒ 仍红（放宽 stroke 绝不放宽 kind）。
         expect(() =>

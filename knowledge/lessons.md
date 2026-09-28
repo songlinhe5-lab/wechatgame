@@ -8,6 +8,7 @@
 | `工具链` | `knowledge/lessons/toolchain.md` |
 | `流程` | `knowledge/lessons/process.md` |
 | `判据` | `knowledge/lessons/criteria.md` |
+| `判据渲染` | `knowledge/lessons/criteria-render.md`（WXG-T-221 八裁批新切：`判据` 片越 B 门 8317 tok，渲染/几何序类五条目子切） |
 | `测试` | `knowledge/lessons/testing.md` |
 | `跨IDE` | `knowledge/lessons/cross-ide.md` |
 | `环境` | `knowledge/lessons/environment.md` |

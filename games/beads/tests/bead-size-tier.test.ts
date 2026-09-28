@@ -69,6 +69,9 @@ describe('豆径档 × 风格 矩阵（§12 C5 孔存在性按档 + C8 判据按
 
   for (const s of styles) {
     describe(`风格 ${s.id}`, () => {
+      // **六裁（WXG-T-221）**：facet-4 的孔拆为同心两枚 circle（pit 底 + stroke-only 环）⇒ 满豆档孔图元 2 枚；
+      // 其余风格（`13`/`18`）孔 = 同路径单命令 `fill(+stroke)` ⇒ 仍 1 枚。hideHole 跳 `role==='hole'` 全部层。
+      const HOLE_CIRCLES = s.id === 'facet-4' ? 2 : 1;
       const base: FilledBeadOptions = {
         size: BEAD_CELL,
         targetColorIdx: 2,
@@ -80,13 +83,13 @@ describe('豆径档 × 风格 矩阵（§12 C5 孔存在性按档 + C8 判据按
       const smallNoFlag = emit({ ...base, drawInset: BEAD_DRAW_INSET_SMALL });
 
       // C5 左半：满豆档恒留孔（K3 孔透色是满豆档底盘可读的唯一通道）。
-      it('满豆档：恰 1 枚孔 `circle`（K3 透色通道在场）', () => {
-        expect(countByKind(full, 'circle')).toBe(1);
+      it('满豆档：孔 `circle` 枚数按风格（facet-4 六裁拆环+底=2，其余=1；K3 透色通道在场）', () => {
+        expect(countByKind(full, 'circle')).toBe(HOLE_CIRCLES);
       });
 
       // C5 右半：小豆档不含孔图元，且**只**少孔（其余层一族逐 kind 完全相等 ⇒ 档不是「顺手砍层」）。
       it('小豆档：0 枚孔 `circle`，且除孔外逐 kind 计数与满豆档相同', () => {
-        expect(countByKind(small, 'circle')).toBe(0);
+        expect(countByKind(small, 'circle')).toBe(0); // hideHole 跳 role==='hole' 全部（facet-4 环+底同跳）
         const a = profileMap(full);
         const b = profileMap(small);
         delete a.circle;
@@ -96,7 +99,7 @@ describe('豆径档 × 风格 矩阵（§12 C5 孔存在性按档 + C8 判据按
 
       // C5 判别力自证：撤掉 flag ⇒ 孔必须回来。缺此腿则「小豆 0 circle」可能只是风格本来没孔。
       it('判别力自证：传 `drawInset` 不传 `hideHole` ⇒ 孔仍在（差值确由本参造成）', () => {
-        expect(countByKind(smallNoFlag, 'circle')).toBe(1);
+        expect(countByKind(smallNoFlag, 'circle')).toBe(HOLE_CIRCLES);
       });
 
       // S5 尺寸通道：两档共用同一条内缩通道（⛔ 不另立尺子 = ADR-0023 DEC-7），且静息档珠面精确可算。

@@ -228,10 +228,13 @@ describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.
   // 新基线侧同题：四棱只有“一条珠体外缘”（#1 底 rect）⇒ scale 腿直接钉在它身上。
   it('四棱新基线：`scale` 作用珠体（底 rect 边长 = 内缩边长 × scale）', () => {
     const body = (BEAD_CELL - BEAD_DRAW_INSET * 2) * FILL_POP_SCALE_START;
+    const holeR = Math.round((body * BEAD_CARD.holeRatio) / 2); // 真透半径
     for (const c of pop) {
       if (c.kind === 'rect') expect(c.w).toBeCloseTo(body, 6);
-      // WXG-T-214：孔径取整（半径取整 ⇒ 直径偶数）⇒ 期望值同式取整。
-      if (c.kind === 'circle') expect(c.r).toBe(Math.round((body * BEAD_CARD.holeRatio) / 2));
+      // WXG-T-214：孔径取整（真透半径取整 ⇒ 直径偶数）；**六裁**：孔拆两枚 circle（底 = 真透 r、环 = 真透 r + 边线宽）。
+      if (c.kind === 'circle') {
+        expect(c.r === holeR || c.r === holeR + BEAD_CARD.holeStrokeWidthPx).toBe(true);
+      }
     }
     // 珠体族零图元超出内缩尺 ⇒ 与下方“不越格”腿共供 A5 前提。
     expect(rest.filter((c) => c.kind === 'rect')).toHaveLength(1);

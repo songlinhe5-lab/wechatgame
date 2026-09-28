@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 84,
+  "nextId": 91,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -877,10 +877,10 @@
     {
       "id": "K-052",
       "state": "active",
-      "file": "knowledge/lessons/criteria.md",
-      "category": "判据",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
       "title": "动效时长常量一旦决定「事件发生在哪一帧」，它就是玩法时序而非表现层参数，判据与守卫都得换档",
-      "contentHash": "c182c16afeb8e9f00d1c758a75ec4899868e2944a29820f9d59e3a750c620524",
+      "contentHash": "f0e0d478e2a44be487b06337f84452ce4c68ea92d3dd4215f47a464ec1b21e82",
       "sourceTask": "WXG-T-150",
       "addedDate": "2026-09-17",
       "lastAccess": "2026-09-17",
@@ -928,10 +928,10 @@
     {
       "id": "K-055",
       "state": "active",
-      "file": "knowledge/lessons/criteria.md",
-      "category": "判据",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
       "title": "「连通块」API 的返回序是行主序、不是距锚序：「就近/最近」语义取前 N 前必须显式重排",
-      "contentHash": "31339bf906118669d9e629480ba07c4d5cfa5f9fb97fa9e33277bad4bdfeec1e",
+      "contentHash": "1e007049dd56cd2f2628e283f5bb876877260b6dd1d2121e2289318e4d2edbef",
       "sourceTask": "WXG-T-168",
       "addedDate": "2026-09-18",
       "lastAccess": "2026-09-18",
@@ -945,10 +945,10 @@
     {
       "id": "K-056",
       "state": "active",
-      "file": "knowledge/lessons/criteria.md",
-      "category": "判据",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
       "title": "渲染里「未解锁/扩展」的视觉语言必须随容量语义常量派生：裸行号判定会把已开放行画成未开放，并反噬成「假容量」缺陷报告",
-      "contentHash": "46e93e924a6bfc406e794f658c8cb6f45ca7159ba4b621f41bb6a6cbcfb60a80",
+      "contentHash": "bda2facb99d617bce55929081f1f963b62475d5d6fe4ae3c9b025dae2070e06c",
       "sourceTask": "WXG-T-168",
       "addedDate": "2026-09-18",
       "lastAccess": "2026-09-18",
@@ -1064,10 +1064,10 @@
     {
       "id": "K-063",
       "state": "active",
-      "file": "knowledge/lessons/criteria.md",
-      "category": "判据",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
       "title": "会「静默转移」的锚不能当距离排序基准：消费序基准与展示坐标必须分离",
-      "contentHash": "7782151882a5c2856dbed09b3d1e304152119caf3feef6bf4162ffcd402e0bfc",
+      "contentHash": "9bb05b2ade369d2fdc597f317952ddeeacd7a9cebd23dc7834c5cb8d296647a9",
       "sourceTask": "WXG-T-183",
       "addedDate": "2026-09-20",
       "lastAccess": "2026-09-20",
@@ -1132,10 +1132,10 @@
     {
       "id": "K-067",
       "state": "active",
-      "file": "knowledge/lessons/criteria.md",
-      "category": "判据",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
       "title": "「就近」排序的度量必须与集合的连通定义同度量，且多消费口共用一份序",
-      "contentHash": "7a8f6f5f8f9926807b00032e0f7d082abb25a135a3339c19bd045c0b4786f7ad",
+      "contentHash": "84b2619d10f7601c15e80a0a3dce42a70489fffe08121146c039ee3844dfe0a9",
       "sourceTask": "WXG-T-186",
       "addedDate": "2026-09-22",
       "lastAccess": "2026-09-22",
@@ -1360,6 +1360,125 @@
       "sourceTask": "WXG-T-214",
       "addedDate": "2026-09-26",
       "lastAccess": "2026-09-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-084",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "冻结标量的语义换源会翻转「由该标量派生的显示态分支」，整帧基线随之失效——换源批必须同批登记封箱复评",
+      "contentHash": "7892666332a483c705b52e9904971904490d60747a0a469f77f263edbf887ce9",
+      "sourceTask": "WXG-T-217",
+      "addedDate": "2026-09-27",
+      "lastAccess": "2026-09-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-085",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "缩放/焦点几何的实现与测试一律从布局真源取数，手推「屏幕位置式」必漂",
+      "contentHash": "a786d5b230e7b8eb774bc1e2a122e659f04e2af5af8dc705063f582111f8e367",
+      "sourceTask": "WXG-T-217",
+      "addedDate": "2026-09-27",
+      "lastAccess": "2026-09-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-086",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "α 有两个合法计数式（显式 alpha ∨ rgba 色串），不注明就得到同一盘面两套数",
+      "contentHash": "4e910b65d91177ee998baff9f4258295db9e68b21a4f87539b1e2ba346094497",
+      "sourceTask": "WXG-T-218",
+      "addedDate": "2026-09-27",
+      "lastAccess": "2026-09-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-087",
+      "state": "active",
+      "file": "knowledge/lessons/cross-ide.md",
+      "category": "跨IDE",
+      "title": "并发会话的「台账已落 / 代码不在工作树」不一致：下游把层集当配方真源前必须先做 patch↔现树对账",
+      "contentHash": "1645543b8b4c6a04494792916e18ef0ff03328a55d18b1347ad2d155bb53614d",
+      "sourceTask": "WXG-T-218",
+      "addedDate": "2026-09-27",
+      "lastAccess": "2026-09-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-088",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "渲染形态换轨（图元 → 位图）会让「以图元为统计域」的机检判据当场不可执行 ⇒ 换轨批必须先重设判据，⛔ 沿用旧式当已验",
+      "contentHash": "bfede261b2d8488fde05e4c5f54e785fda1c9460256f662b54675f408e268b0f",
+      "sourceTask": "WXG-T-219",
+      "addedDate": "2026-09-27",
+      "lastAccess": "2026-09-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-089",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "守卫脚本硬编码的目标值与冻结真源脱钩 ⇒ 断言永不触发（假绿守卫）；投放重物前要先实测「守卫能不能红」",
+      "contentHash": "522348a0b1eafca34b053219c69706c7f04e57a2f5736b81d11afbb414e15407",
+      "sourceTask": "WXG-T-219",
+      "addedDate": "2026-09-27",
+      "lastAccess": "2026-09-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-090",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "设备本地存储（`wx.USER_DATA_PATH` / IndexedDB）不是分发通道：开发机预热的缓存在玩家设备上恒为空",
+      "contentHash": "f032b3d936f349fcdff25244a7b8252a54876f0f236846cda3d83f692f547bae",
+      "sourceTask": "WXG-T-219",
+      "addedDate": "2026-09-27",
+      "lastAccess": "2026-09-27",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -1960,6 +2079,70 @@
         "K-081",
         "K-082",
         "K-083"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-27",
+      "taskId": "WXG-T-217",
+      "kind": "added",
+      "ids": [
+        "K-084",
+        "K-085"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-27",
+      "taskId": "WXG-T-217",
+      "kind": "updated",
+      "ids": [
+        "K-084",
+        "K-085"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-27",
+      "taskId": "WXG-T-218",
+      "kind": "added",
+      "ids": [
+        "K-086",
+        "K-087"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-27",
+      "taskId": "WXG-T-218",
+      "kind": "updated",
+      "ids": [
+        "K-086",
+        "K-087"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-27",
+      "taskId": "WXG-T-219",
+      "kind": "added",
+      "ids": [
+        "K-088",
+        "K-089",
+        "K-090"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-09-28",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-052",
+        "K-055",
+        "K-056",
+        "K-063",
+        "K-067"
       ],
       "note": null
     }

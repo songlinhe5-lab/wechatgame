@@ -1,1591 +1,1688 @@
 {
- "_readme": "WXG-T-211-S3（EP11-S3 四棱转正）封箱基准。head.* = 改码前 HEAD 的实测基准（十层 drawFilledBead / S2 内联 facet-4 层集）；s3.* = 转正后实测。生产代码 = games/beads/src/view/bead-styles/{facet-4,legacy-ten}.ts。⛔ 本文件只许由 temp/wxg-t-211-s3/capture.sh head|s3 重跑后人工核对更新，禁止手改数值（K-051）。",
- "fixture": {
-  "frame": {
-   "cols": 13,
-   "design": [
-    750,
-    1334
-   ],
-   "fillableTotal": 156,
-   "filled": 78,
-   "gridCell": 30,
-   "gridPitch": 32,
-   "noAssemble": true,
-   "pattern": "1231231231231 × 12",
-   "rows": 12,
-   "trayBeads": 0,
-   "traySlots": 24
+  "fixture": {
+    "frame": {
+      "cols": 13,
+      "design": [
+        750,
+        1334
+      ],
+      "fillableTotal": 156,
+      "filled": 78,
+      "gridCell": 30,
+      "gridPitch": 32,
+      "noAssemble": true,
+      "pattern": "1231231231231 \u00d7 12",
+      "rows": 12,
+      "trayBeads": 0,
+      "traySlots": 24
+    },
+    "legacyFx": [
+      "ci1-tnone-l0-s1-lodfull-z22",
+      "ci1-tnone-l0-s1-lodfull-z44",
+      "ci1-tnone-l0-s1-lod7-z22",
+      "ci1-tnone-l0-s1-lod7-z44",
+      "ci1-tnone-l0-s1.06-lodfull-z22",
+      "ci1-tnone-l0-s1.06-lodfull-z44",
+      "ci1-tnone-l0-s1.06-lod7-z22",
+      "ci1-tnone-l0-s1.06-lod7-z44",
+      "ci1-tnone-l6-s1-lodfull-z22",
+      "ci1-tnone-l6-s1-lodfull-z44",
+      "ci1-tnone-l6-s1-lod7-z22",
+      "ci1-tnone-l6-s1-lod7-z44",
+      "ci1-tnone-l6-s1.06-lodfull-z22",
+      "ci1-tnone-l6-s1.06-lodfull-z44",
+      "ci1-tnone-l6-s1.06-lod7-z22",
+      "ci1-tnone-l6-s1.06-lod7-z44",
+      "ci1-t4-l0-s1-lodfull-z22",
+      "ci1-t4-l0-s1-lodfull-z44",
+      "ci1-t4-l0-s1-lod7-z22",
+      "ci1-t4-l0-s1-lod7-z44",
+      "ci1-t4-l0-s1.06-lodfull-z22",
+      "ci1-t4-l0-s1.06-lodfull-z44",
+      "ci1-t4-l0-s1.06-lod7-z22",
+      "ci1-t4-l0-s1.06-lod7-z44",
+      "ci1-t4-l6-s1-lodfull-z22",
+      "ci1-t4-l6-s1-lodfull-z44",
+      "ci1-t4-l6-s1-lod7-z22",
+      "ci1-t4-l6-s1-lod7-z44",
+      "ci1-t4-l6-s1.06-lodfull-z22",
+      "ci1-t4-l6-s1.06-lodfull-z44",
+      "ci1-t4-l6-s1.06-lod7-z22",
+      "ci1-t4-l6-s1.06-lod7-z44",
+      "ci2-tnone-l0-s1-lodfull-z22",
+      "ci2-tnone-l0-s1-lodfull-z44",
+      "ci2-tnone-l0-s1-lod7-z22",
+      "ci2-tnone-l0-s1-lod7-z44",
+      "ci2-tnone-l0-s1.06-lodfull-z22",
+      "ci2-tnone-l0-s1.06-lodfull-z44",
+      "ci2-tnone-l0-s1.06-lod7-z22",
+      "ci2-tnone-l0-s1.06-lod7-z44",
+      "ci2-tnone-l6-s1-lodfull-z22",
+      "ci2-tnone-l6-s1-lodfull-z44",
+      "ci2-tnone-l6-s1-lod7-z22",
+      "ci2-tnone-l6-s1-lod7-z44",
+      "ci2-tnone-l6-s1.06-lodfull-z22",
+      "ci2-tnone-l6-s1.06-lodfull-z44",
+      "ci2-tnone-l6-s1.06-lod7-z22",
+      "ci2-tnone-l6-s1.06-lod7-z44",
+      "ci2-t4-l0-s1-lodfull-z22",
+      "ci2-t4-l0-s1-lodfull-z44",
+      "ci2-t4-l0-s1-lod7-z22",
+      "ci2-t4-l0-s1-lod7-z44",
+      "ci2-t4-l0-s1.06-lodfull-z22",
+      "ci2-t4-l0-s1.06-lodfull-z44",
+      "ci2-t4-l0-s1.06-lod7-z22",
+      "ci2-t4-l0-s1.06-lod7-z44",
+      "ci2-t4-l6-s1-lodfull-z22",
+      "ci2-t4-l6-s1-lodfull-z44",
+      "ci2-t4-l6-s1-lod7-z22",
+      "ci2-t4-l6-s1-lod7-z44",
+      "ci2-t4-l6-s1.06-lodfull-z22",
+      "ci2-t4-l6-s1.06-lodfull-z44",
+      "ci2-t4-l6-s1.06-lod7-z22",
+      "ci2-t4-l6-s1.06-lod7-z44",
+      "ci3-tnone-l0-s1-lodfull-z22",
+      "ci3-tnone-l0-s1-lodfull-z44",
+      "ci3-tnone-l0-s1-lod7-z22",
+      "ci3-tnone-l0-s1-lod7-z44",
+      "ci3-tnone-l0-s1.06-lodfull-z22",
+      "ci3-tnone-l0-s1.06-lodfull-z44",
+      "ci3-tnone-l0-s1.06-lod7-z22",
+      "ci3-tnone-l0-s1.06-lod7-z44",
+      "ci3-tnone-l6-s1-lodfull-z22",
+      "ci3-tnone-l6-s1-lodfull-z44",
+      "ci3-tnone-l6-s1-lod7-z22",
+      "ci3-tnone-l6-s1-lod7-z44",
+      "ci3-tnone-l6-s1.06-lodfull-z22",
+      "ci3-tnone-l6-s1.06-lodfull-z44",
+      "ci3-tnone-l6-s1.06-lod7-z22",
+      "ci3-tnone-l6-s1.06-lod7-z44",
+      "ci3-t4-l0-s1-lodfull-z22",
+      "ci3-t4-l0-s1-lodfull-z44",
+      "ci3-t4-l0-s1-lod7-z22",
+      "ci3-t4-l0-s1-lod7-z44",
+      "ci3-t4-l0-s1.06-lodfull-z22",
+      "ci3-t4-l0-s1.06-lodfull-z44",
+      "ci3-t4-l0-s1.06-lod7-z22",
+      "ci3-t4-l0-s1.06-lod7-z44",
+      "ci3-t4-l6-s1-lodfull-z22",
+      "ci3-t4-l6-s1-lodfull-z44",
+      "ci3-t4-l6-s1-lod7-z22",
+      "ci3-t4-l6-s1-lod7-z44",
+      "ci3-t4-l6-s1.06-lodfull-z22",
+      "ci3-t4-l6-s1.06-lodfull-z44",
+      "ci3-t4-l6-s1.06-lod7-z22",
+      "ci3-t4-l6-s1.06-lod7-z44"
+    ],
+    "legacyFxParams": [
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l0-s1-lodfull-z22",
+        "lift": 0,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l0-s1-lodfull-z44",
+        "lift": 0,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l0-s1-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l0-s1-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l0-s1.06-lodfull-z22",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l0-s1.06-lodfull-z44",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l0-s1.06-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l0-s1.06-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l6-s1-lodfull-z22",
+        "lift": 6,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l6-s1-lodfull-z44",
+        "lift": 6,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l6-s1-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l6-s1-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l6-s1.06-lodfull-z22",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l6-s1.06-lodfull-z44",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l6-s1.06-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-tnone-l6-s1.06-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l0-s1-lodfull-z22",
+        "lift": 0,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l0-s1-lodfull-z44",
+        "lift": 0,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l0-s1-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l0-s1-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l0-s1.06-lodfull-z22",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l0-s1.06-lodfull-z44",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l0-s1.06-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l0-s1.06-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l6-s1-lodfull-z22",
+        "lift": 6,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l6-s1-lodfull-z44",
+        "lift": 6,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l6-s1-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l6-s1-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l6-s1.06-lodfull-z22",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l6-s1.06-lodfull-z44",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l6-s1.06-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 1,
+        "label": "ci1-t4-l6-s1.06-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l0-s1-lodfull-z22",
+        "lift": 0,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l0-s1-lodfull-z44",
+        "lift": 0,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l0-s1-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l0-s1-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l0-s1.06-lodfull-z22",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l0-s1.06-lodfull-z44",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l0-s1.06-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l0-s1.06-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l6-s1-lodfull-z22",
+        "lift": 6,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l6-s1-lodfull-z44",
+        "lift": 6,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l6-s1-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l6-s1-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l6-s1.06-lodfull-z22",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l6-s1.06-lodfull-z44",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l6-s1.06-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-tnone-l6-s1.06-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l0-s1-lodfull-z22",
+        "lift": 0,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l0-s1-lodfull-z44",
+        "lift": 0,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l0-s1-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l0-s1-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l0-s1.06-lodfull-z22",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l0-s1.06-lodfull-z44",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l0-s1.06-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l0-s1.06-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l6-s1-lodfull-z22",
+        "lift": 6,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l6-s1-lodfull-z44",
+        "lift": 6,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l6-s1-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l6-s1-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l6-s1.06-lodfull-z22",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l6-s1.06-lodfull-z44",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l6-s1.06-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 2,
+        "label": "ci2-t4-l6-s1.06-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l0-s1-lodfull-z22",
+        "lift": 0,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l0-s1-lodfull-z44",
+        "lift": 0,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l0-s1-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l0-s1-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l0-s1.06-lodfull-z22",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l0-s1.06-lodfull-z44",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l0-s1.06-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l0-s1.06-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l6-s1-lodfull-z22",
+        "lift": 6,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l6-s1-lodfull-z44",
+        "lift": 6,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l6-s1-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l6-s1-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l6-s1.06-lodfull-z22",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l6-s1.06-lodfull-z44",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l6-s1.06-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-tnone-l6-s1.06-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l0-s1-lodfull-z22",
+        "lift": 0,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l0-s1-lodfull-z44",
+        "lift": 0,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l0-s1-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l0-s1-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l0-s1.06-lodfull-z22",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l0-s1.06-lodfull-z44",
+        "lift": 0,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l0-s1.06-lod7-z22",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l0-s1.06-lod7-z44",
+        "lift": 0,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l6-s1-lodfull-z22",
+        "lift": 6,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l6-s1-lodfull-z44",
+        "lift": 6,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l6-s1-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l6-s1-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l6-s1.06-lodfull-z22",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l6-s1.06-lodfull-z44",
+        "lift": 6,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l6-s1.06-lod7-z22",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 22,
+        "targetColorIdx": 4
+      },
+      {
+        "colorIdx": 3,
+        "label": "ci3-t4-l6-s1.06-lod7-z44",
+        "lift": 6,
+        "lodLayers": 7,
+        "scale": 1.06,
+        "size": 44,
+        "targetColorIdx": 4
+      }
+    ],
+    "styleFx": [
+      "ci1-tnone-s22",
+      "ci1-tnone-s30",
+      "ci1-tnone-s44",
+      "ci1-t1-s22",
+      "ci1-t1-s30",
+      "ci1-t1-s44",
+      "ci1-t5-s22",
+      "ci1-t5-s30",
+      "ci1-t5-s44",
+      "ci2-tnone-s22",
+      "ci2-tnone-s30",
+      "ci2-tnone-s44",
+      "ci2-t1-s22",
+      "ci2-t1-s30",
+      "ci2-t1-s44",
+      "ci2-t5-s22",
+      "ci2-t5-s30",
+      "ci2-t5-s44",
+      "ci3-tnone-s22",
+      "ci3-tnone-s30",
+      "ci3-tnone-s44",
+      "ci3-t1-s22",
+      "ci3-t1-s30",
+      "ci3-t1-s44",
+      "ci3-t5-s22",
+      "ci3-t5-s30",
+      "ci3-t5-s44",
+      "ci4-tnone-s22",
+      "ci4-tnone-s30",
+      "ci4-tnone-s44",
+      "ci4-t1-s22",
+      "ci4-t1-s30",
+      "ci4-t1-s44",
+      "ci4-t5-s22",
+      "ci4-t5-s30",
+      "ci4-t5-s44",
+      "ci5-tnone-s22",
+      "ci5-tnone-s30",
+      "ci5-tnone-s44",
+      "ci5-t1-s22",
+      "ci5-t1-s30",
+      "ci5-t1-s44",
+      "ci5-t5-s22",
+      "ci5-t5-s30",
+      "ci5-t5-s44"
+    ],
+    "styleFxParams": [
+      {
+        "colorIdx": 1,
+        "size": 22
+      },
+      {
+        "colorIdx": 1,
+        "size": 30
+      },
+      {
+        "colorIdx": 1,
+        "size": 44
+      },
+      {
+        "colorIdx": 1,
+        "size": 22,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 1,
+        "size": 30,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 1,
+        "size": 44,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 1,
+        "size": 22,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 1,
+        "size": 30,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 1,
+        "size": 44,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 2,
+        "size": 22
+      },
+      {
+        "colorIdx": 2,
+        "size": 30
+      },
+      {
+        "colorIdx": 2,
+        "size": 44
+      },
+      {
+        "colorIdx": 2,
+        "size": 22,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 2,
+        "size": 30,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 2,
+        "size": 44,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 2,
+        "size": 22,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 2,
+        "size": 30,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 2,
+        "size": 44,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 3,
+        "size": 22
+      },
+      {
+        "colorIdx": 3,
+        "size": 30
+      },
+      {
+        "colorIdx": 3,
+        "size": 44
+      },
+      {
+        "colorIdx": 3,
+        "size": 22,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 3,
+        "size": 30,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 3,
+        "size": 44,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 3,
+        "size": 22,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 3,
+        "size": 30,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 3,
+        "size": 44,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 4,
+        "size": 22
+      },
+      {
+        "colorIdx": 4,
+        "size": 30
+      },
+      {
+        "colorIdx": 4,
+        "size": 44
+      },
+      {
+        "colorIdx": 4,
+        "size": 22,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 4,
+        "size": 30,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 4,
+        "size": 44,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 4,
+        "size": 22,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 4,
+        "size": 30,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 4,
+        "size": 44,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 5,
+        "size": 22
+      },
+      {
+        "colorIdx": 5,
+        "size": 30
+      },
+      {
+        "colorIdx": 5,
+        "size": 44
+      },
+      {
+        "colorIdx": 5,
+        "size": 22,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 5,
+        "size": 30,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 5,
+        "size": 44,
+        "targetColorIdx": 1
+      },
+      {
+        "colorIdx": 5,
+        "size": 22,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 5,
+        "size": 30,
+        "targetColorIdx": 5
+      },
+      {
+        "colorIdx": 5,
+        "size": 44,
+        "targetColorIdx": 5
+      }
+    ]
   },
-  "legacyFx": [
-   "ci1-tnone-l0-s1-lodfull-z22",
-   "ci1-tnone-l0-s1-lodfull-z44",
-   "ci1-tnone-l0-s1-lod7-z22",
-   "ci1-tnone-l0-s1-lod7-z44",
-   "ci1-tnone-l0-s1.06-lodfull-z22",
-   "ci1-tnone-l0-s1.06-lodfull-z44",
-   "ci1-tnone-l0-s1.06-lod7-z22",
-   "ci1-tnone-l0-s1.06-lod7-z44",
-   "ci1-tnone-l6-s1-lodfull-z22",
-   "ci1-tnone-l6-s1-lodfull-z44",
-   "ci1-tnone-l6-s1-lod7-z22",
-   "ci1-tnone-l6-s1-lod7-z44",
-   "ci1-tnone-l6-s1.06-lodfull-z22",
-   "ci1-tnone-l6-s1.06-lodfull-z44",
-   "ci1-tnone-l6-s1.06-lod7-z22",
-   "ci1-tnone-l6-s1.06-lod7-z44",
-   "ci1-t4-l0-s1-lodfull-z22",
-   "ci1-t4-l0-s1-lodfull-z44",
-   "ci1-t4-l0-s1-lod7-z22",
-   "ci1-t4-l0-s1-lod7-z44",
-   "ci1-t4-l0-s1.06-lodfull-z22",
-   "ci1-t4-l0-s1.06-lodfull-z44",
-   "ci1-t4-l0-s1.06-lod7-z22",
-   "ci1-t4-l0-s1.06-lod7-z44",
-   "ci1-t4-l6-s1-lodfull-z22",
-   "ci1-t4-l6-s1-lodfull-z44",
-   "ci1-t4-l6-s1-lod7-z22",
-   "ci1-t4-l6-s1-lod7-z44",
-   "ci1-t4-l6-s1.06-lodfull-z22",
-   "ci1-t4-l6-s1.06-lodfull-z44",
-   "ci1-t4-l6-s1.06-lod7-z22",
-   "ci1-t4-l6-s1.06-lod7-z44",
-   "ci2-tnone-l0-s1-lodfull-z22",
-   "ci2-tnone-l0-s1-lodfull-z44",
-   "ci2-tnone-l0-s1-lod7-z22",
-   "ci2-tnone-l0-s1-lod7-z44",
-   "ci2-tnone-l0-s1.06-lodfull-z22",
-   "ci2-tnone-l0-s1.06-lodfull-z44",
-   "ci2-tnone-l0-s1.06-lod7-z22",
-   "ci2-tnone-l0-s1.06-lod7-z44",
-   "ci2-tnone-l6-s1-lodfull-z22",
-   "ci2-tnone-l6-s1-lodfull-z44",
-   "ci2-tnone-l6-s1-lod7-z22",
-   "ci2-tnone-l6-s1-lod7-z44",
-   "ci2-tnone-l6-s1.06-lodfull-z22",
-   "ci2-tnone-l6-s1.06-lodfull-z44",
-   "ci2-tnone-l6-s1.06-lod7-z22",
-   "ci2-tnone-l6-s1.06-lod7-z44",
-   "ci2-t4-l0-s1-lodfull-z22",
-   "ci2-t4-l0-s1-lodfull-z44",
-   "ci2-t4-l0-s1-lod7-z22",
-   "ci2-t4-l0-s1-lod7-z44",
-   "ci2-t4-l0-s1.06-lodfull-z22",
-   "ci2-t4-l0-s1.06-lodfull-z44",
-   "ci2-t4-l0-s1.06-lod7-z22",
-   "ci2-t4-l0-s1.06-lod7-z44",
-   "ci2-t4-l6-s1-lodfull-z22",
-   "ci2-t4-l6-s1-lodfull-z44",
-   "ci2-t4-l6-s1-lod7-z22",
-   "ci2-t4-l6-s1-lod7-z44",
-   "ci2-t4-l6-s1.06-lodfull-z22",
-   "ci2-t4-l6-s1.06-lodfull-z44",
-   "ci2-t4-l6-s1.06-lod7-z22",
-   "ci2-t4-l6-s1.06-lod7-z44",
-   "ci3-tnone-l0-s1-lodfull-z22",
-   "ci3-tnone-l0-s1-lodfull-z44",
-   "ci3-tnone-l0-s1-lod7-z22",
-   "ci3-tnone-l0-s1-lod7-z44",
-   "ci3-tnone-l0-s1.06-lodfull-z22",
-   "ci3-tnone-l0-s1.06-lodfull-z44",
-   "ci3-tnone-l0-s1.06-lod7-z22",
-   "ci3-tnone-l0-s1.06-lod7-z44",
-   "ci3-tnone-l6-s1-lodfull-z22",
-   "ci3-tnone-l6-s1-lodfull-z44",
-   "ci3-tnone-l6-s1-lod7-z22",
-   "ci3-tnone-l6-s1-lod7-z44",
-   "ci3-tnone-l6-s1.06-lodfull-z22",
-   "ci3-tnone-l6-s1.06-lodfull-z44",
-   "ci3-tnone-l6-s1.06-lod7-z22",
-   "ci3-tnone-l6-s1.06-lod7-z44",
-   "ci3-t4-l0-s1-lodfull-z22",
-   "ci3-t4-l0-s1-lodfull-z44",
-   "ci3-t4-l0-s1-lod7-z22",
-   "ci3-t4-l0-s1-lod7-z44",
-   "ci3-t4-l0-s1.06-lodfull-z22",
-   "ci3-t4-l0-s1.06-lodfull-z44",
-   "ci3-t4-l0-s1.06-lod7-z22",
-   "ci3-t4-l0-s1.06-lod7-z44",
-   "ci3-t4-l6-s1-lodfull-z22",
-   "ci3-t4-l6-s1-lodfull-z44",
-   "ci3-t4-l6-s1-lod7-z22",
-   "ci3-t4-l6-s1-lod7-z44",
-   "ci3-t4-l6-s1.06-lodfull-z22",
-   "ci3-t4-l6-s1.06-lodfull-z44",
-   "ci3-t4-l6-s1.06-lod7-z22",
-   "ci3-t4-l6-s1.06-lod7-z44"
-  ],
-  "legacyFxParams": [
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l0-s1-lodfull-z22",
-    "lift": 0,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l0-s1-lodfull-z44",
-    "lift": 0,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l0-s1-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l0-s1-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l0-s1.06-lodfull-z22",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l0-s1.06-lodfull-z44",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l0-s1.06-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l0-s1.06-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l6-s1-lodfull-z22",
-    "lift": 6,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l6-s1-lodfull-z44",
-    "lift": 6,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l6-s1-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l6-s1-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l6-s1.06-lodfull-z22",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l6-s1.06-lodfull-z44",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l6-s1.06-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-tnone-l6-s1.06-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l0-s1-lodfull-z22",
-    "lift": 0,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l0-s1-lodfull-z44",
-    "lift": 0,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l0-s1-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l0-s1-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l0-s1.06-lodfull-z22",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l0-s1.06-lodfull-z44",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l0-s1.06-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l0-s1.06-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l6-s1-lodfull-z22",
-    "lift": 6,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l6-s1-lodfull-z44",
-    "lift": 6,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l6-s1-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l6-s1-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l6-s1.06-lodfull-z22",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l6-s1.06-lodfull-z44",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l6-s1.06-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 1,
-    "label": "ci1-t4-l6-s1.06-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l0-s1-lodfull-z22",
-    "lift": 0,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l0-s1-lodfull-z44",
-    "lift": 0,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l0-s1-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l0-s1-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l0-s1.06-lodfull-z22",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l0-s1.06-lodfull-z44",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l0-s1.06-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l0-s1.06-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l6-s1-lodfull-z22",
-    "lift": 6,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l6-s1-lodfull-z44",
-    "lift": 6,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l6-s1-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l6-s1-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l6-s1.06-lodfull-z22",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l6-s1.06-lodfull-z44",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l6-s1.06-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-tnone-l6-s1.06-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l0-s1-lodfull-z22",
-    "lift": 0,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l0-s1-lodfull-z44",
-    "lift": 0,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l0-s1-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l0-s1-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l0-s1.06-lodfull-z22",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l0-s1.06-lodfull-z44",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l0-s1.06-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l0-s1.06-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l6-s1-lodfull-z22",
-    "lift": 6,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l6-s1-lodfull-z44",
-    "lift": 6,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l6-s1-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l6-s1-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l6-s1.06-lodfull-z22",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l6-s1.06-lodfull-z44",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l6-s1.06-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 2,
-    "label": "ci2-t4-l6-s1.06-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l0-s1-lodfull-z22",
-    "lift": 0,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l0-s1-lodfull-z44",
-    "lift": 0,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l0-s1-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l0-s1-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l0-s1.06-lodfull-z22",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l0-s1.06-lodfull-z44",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l0-s1.06-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l0-s1.06-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l6-s1-lodfull-z22",
-    "lift": 6,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l6-s1-lodfull-z44",
-    "lift": 6,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l6-s1-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l6-s1-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l6-s1.06-lodfull-z22",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l6-s1.06-lodfull-z44",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l6-s1.06-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-tnone-l6-s1.06-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l0-s1-lodfull-z22",
-    "lift": 0,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l0-s1-lodfull-z44",
-    "lift": 0,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l0-s1-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l0-s1-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l0-s1.06-lodfull-z22",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l0-s1.06-lodfull-z44",
-    "lift": 0,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l0-s1.06-lod7-z22",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l0-s1.06-lod7-z44",
-    "lift": 0,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l6-s1-lodfull-z22",
-    "lift": 6,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l6-s1-lodfull-z44",
-    "lift": 6,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l6-s1-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l6-s1-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l6-s1.06-lodfull-z22",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l6-s1.06-lodfull-z44",
-    "lift": 6,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l6-s1.06-lod7-z22",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 22,
-    "targetColorIdx": 4
-   },
-   {
-    "colorIdx": 3,
-    "label": "ci3-t4-l6-s1.06-lod7-z44",
-    "lift": 6,
-    "lodLayers": 7,
-    "scale": 1.06,
-    "size": 44,
-    "targetColorIdx": 4
-   }
-  ],
-  "styleFx": [
-   "ci1-tnone-s22",
-   "ci1-tnone-s30",
-   "ci1-tnone-s44",
-   "ci1-t1-s22",
-   "ci1-t1-s30",
-   "ci1-t1-s44",
-   "ci1-t5-s22",
-   "ci1-t5-s30",
-   "ci1-t5-s44",
-   "ci2-tnone-s22",
-   "ci2-tnone-s30",
-   "ci2-tnone-s44",
-   "ci2-t1-s22",
-   "ci2-t1-s30",
-   "ci2-t1-s44",
-   "ci2-t5-s22",
-   "ci2-t5-s30",
-   "ci2-t5-s44",
-   "ci3-tnone-s22",
-   "ci3-tnone-s30",
-   "ci3-tnone-s44",
-   "ci3-t1-s22",
-   "ci3-t1-s30",
-   "ci3-t1-s44",
-   "ci3-t5-s22",
-   "ci3-t5-s30",
-   "ci3-t5-s44",
-   "ci4-tnone-s22",
-   "ci4-tnone-s30",
-   "ci4-tnone-s44",
-   "ci4-t1-s22",
-   "ci4-t1-s30",
-   "ci4-t1-s44",
-   "ci4-t5-s22",
-   "ci4-t5-s30",
-   "ci4-t5-s44",
-   "ci5-tnone-s22",
-   "ci5-tnone-s30",
-   "ci5-tnone-s44",
-   "ci5-t1-s22",
-   "ci5-t1-s30",
-   "ci5-t1-s44",
-   "ci5-t5-s22",
-   "ci5-t5-s30",
-   "ci5-t5-s44"
-  ],
-  "styleFxParams": [
-   {
-    "colorIdx": 1,
-    "size": 22
-   },
-   {
-    "colorIdx": 1,
-    "size": 30
-   },
-   {
-    "colorIdx": 1,
-    "size": 44
-   },
-   {
-    "colorIdx": 1,
-    "size": 22,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 1,
-    "size": 30,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 1,
-    "size": 44,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 1,
-    "size": 22,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 1,
-    "size": 30,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 1,
-    "size": 44,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 2,
-    "size": 22
-   },
-   {
-    "colorIdx": 2,
-    "size": 30
-   },
-   {
-    "colorIdx": 2,
-    "size": 44
-   },
-   {
-    "colorIdx": 2,
-    "size": 22,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 2,
-    "size": 30,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 2,
-    "size": 44,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 2,
-    "size": 22,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 2,
-    "size": 30,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 2,
-    "size": 44,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 3,
-    "size": 22
-   },
-   {
-    "colorIdx": 3,
-    "size": 30
-   },
-   {
-    "colorIdx": 3,
-    "size": 44
-   },
-   {
-    "colorIdx": 3,
-    "size": 22,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 3,
-    "size": 30,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 3,
-    "size": 44,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 3,
-    "size": 22,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 3,
-    "size": 30,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 3,
-    "size": 44,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 4,
-    "size": 22
-   },
-   {
-    "colorIdx": 4,
-    "size": 30
-   },
-   {
-    "colorIdx": 4,
-    "size": 44
-   },
-   {
-    "colorIdx": 4,
-    "size": 22,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 4,
-    "size": 30,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 4,
-    "size": 44,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 4,
-    "size": 22,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 4,
-    "size": 30,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 4,
-    "size": 44,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 5,
-    "size": 22
-   },
-   {
-    "colorIdx": 5,
-    "size": 30
-   },
-   {
-    "colorIdx": 5,
-    "size": 44
-   },
-   {
-    "colorIdx": 5,
-    "size": 22,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 5,
-    "size": 30,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 5,
-    "size": 44,
-    "targetColorIdx": 1
-   },
-   {
-    "colorIdx": 5,
-    "size": 22,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 5,
-    "size": 30,
-    "targetColorIdx": 5
-   },
-   {
-    "colorIdx": 5,
-    "size": 44,
-    "targetColorIdx": 5
-   }
-  ]
- },
- "head": {
-  "facetHoleLayer": {
-   "ci1-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
-   "ci1-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
-   "ci1-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
-   "ci1-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
-   "ci1-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
-   "ci1-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
-   "ci1-tnone-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
-   "ci1-tnone-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
-   "ci1-tnone-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
-   "ci2-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
-   "ci2-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
-   "ci2-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
-   "ci2-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
-   "ci2-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
-   "ci2-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
-   "ci2-tnone-s22": "512b5cbb3616da000b164340fd5a6b81a7c8f88b34e2865ecdaf10bb6423cfd6",
-   "ci2-tnone-s30": "c7a27e1b0a53117004c4d55a62fdf707a382d37cf484f358b972be14e1e74797",
-   "ci2-tnone-s44": "5f2fc8aa8ba4c621f7a31a2d3b995330b906ac1ff8db26c880be1b8e3c7c5990",
-   "ci3-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
-   "ci3-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
-   "ci3-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
-   "ci3-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
-   "ci3-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
-   "ci3-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
-   "ci3-tnone-s22": "df73dcc52d2962184c33e8e0e48fb290990cc1be81acb716fde4c9c0e00d2cc8",
-   "ci3-tnone-s30": "c398e1b04ef7cf63c00b9ee915e33df4e120b260ebff61c2434f9f3d6eb208ab",
-   "ci3-tnone-s44": "ba33563ef7bf5f256607a580d53c86a6cf24145493907eef7fe9e714b87b294a",
-   "ci4-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
-   "ci4-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
-   "ci4-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
-   "ci4-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
-   "ci4-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
-   "ci4-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
-   "ci4-tnone-s22": "812d4d16172ca17c27f0a05740d39bdad9089d6f86660bd415a59a677f846ede",
-   "ci4-tnone-s30": "ae22d2dc88320cf9b1d07d9d1d39c6b208af1c826ab215836a598cda28696c97",
-   "ci4-tnone-s44": "d86d8a68a42855aad694f7e64ce6eb07594892a651f67c992d7f7ef234a11342",
-   "ci5-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
-   "ci5-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
-   "ci5-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
-   "ci5-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
-   "ci5-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
-   "ci5-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
-   "ci5-tnone-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
-   "ci5-tnone-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
-   "ci5-tnone-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4"
+  "head": {
+    "facetHoleLayer": {
+      "ci1-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
+      "ci1-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
+      "ci1-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
+      "ci1-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
+      "ci1-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
+      "ci1-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
+      "ci1-tnone-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
+      "ci1-tnone-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
+      "ci1-tnone-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
+      "ci2-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
+      "ci2-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
+      "ci2-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
+      "ci2-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
+      "ci2-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
+      "ci2-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
+      "ci2-tnone-s22": "512b5cbb3616da000b164340fd5a6b81a7c8f88b34e2865ecdaf10bb6423cfd6",
+      "ci2-tnone-s30": "c7a27e1b0a53117004c4d55a62fdf707a382d37cf484f358b972be14e1e74797",
+      "ci2-tnone-s44": "5f2fc8aa8ba4c621f7a31a2d3b995330b906ac1ff8db26c880be1b8e3c7c5990",
+      "ci3-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
+      "ci3-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
+      "ci3-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
+      "ci3-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
+      "ci3-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
+      "ci3-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
+      "ci3-tnone-s22": "df73dcc52d2962184c33e8e0e48fb290990cc1be81acb716fde4c9c0e00d2cc8",
+      "ci3-tnone-s30": "c398e1b04ef7cf63c00b9ee915e33df4e120b260ebff61c2434f9f3d6eb208ab",
+      "ci3-tnone-s44": "ba33563ef7bf5f256607a580d53c86a6cf24145493907eef7fe9e714b87b294a",
+      "ci4-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
+      "ci4-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
+      "ci4-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
+      "ci4-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
+      "ci4-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
+      "ci4-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
+      "ci4-tnone-s22": "812d4d16172ca17c27f0a05740d39bdad9089d6f86660bd415a59a677f846ede",
+      "ci4-tnone-s30": "ae22d2dc88320cf9b1d07d9d1d39c6b208af1c826ab215836a598cda28696c97",
+      "ci4-tnone-s44": "d86d8a68a42855aad694f7e64ce6eb07594892a651f67c992d7f7ef234a11342",
+      "ci5-t1-s22": "70177863e186094e556b33f87980ad8c9efd1d929276155a793d82260e3a404e",
+      "ci5-t1-s30": "9b7b52eeb27ff5e44b8895d2dd8dfaa9d585e11978ae18e08314dd376ac7ef76",
+      "ci5-t1-s44": "5ee479d2201e54367944cd1ee9ed9de540fe750067773948b8397d9c0bc47d42",
+      "ci5-t5-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
+      "ci5-t5-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
+      "ci5-t5-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4",
+      "ci5-tnone-s22": "b3a9790b79df81c8e8a413dd1adfaeee6f629080cc49794ccdde251e5f566c5d",
+      "ci5-tnone-s30": "77dfc4e24924af78a5817757454ebe49d38ef3a63cd0a3675cb1b2d8f578a9c7",
+      "ci5-tnone-s44": "e1ca54c3e335e1b474aa3689e6b994c9dfad995de10e69f5f2292a93b69197e4"
+    },
+    "facetNonHoleLayers": {
+      "ci1-t1-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
+      "ci1-t1-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
+      "ci1-t1-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
+      "ci1-t5-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
+      "ci1-t5-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
+      "ci1-t5-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
+      "ci1-tnone-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
+      "ci1-tnone-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
+      "ci1-tnone-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
+      "ci2-t1-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
+      "ci2-t1-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
+      "ci2-t1-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
+      "ci2-t5-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
+      "ci2-t5-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
+      "ci2-t5-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
+      "ci2-tnone-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
+      "ci2-tnone-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
+      "ci2-tnone-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
+      "ci3-t1-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
+      "ci3-t1-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
+      "ci3-t1-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
+      "ci3-t5-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
+      "ci3-t5-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
+      "ci3-t5-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
+      "ci3-tnone-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
+      "ci3-tnone-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
+      "ci3-tnone-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
+      "ci4-t1-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
+      "ci4-t1-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
+      "ci4-t1-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
+      "ci4-t5-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
+      "ci4-t5-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
+      "ci4-t5-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
+      "ci4-tnone-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
+      "ci4-tnone-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
+      "ci4-tnone-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
+      "ci5-t1-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
+      "ci5-t1-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
+      "ci5-t1-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e",
+      "ci5-t5-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
+      "ci5-t5-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
+      "ci5-t5-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e",
+      "ci5-tnone-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
+      "ci5-tnone-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
+      "ci5-tnone-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e"
+    },
+    "frame0": {
+      "sha": "d2354a1941a86ec567edd64b5c33a742ea93fcbbcacf3fd989a89cd52ef852ae",
+      "total": 963
+    },
+    "frame78": {
+      "kinds": {
+        "circle": 159,
+        "line": 610,
+        "polygon": 10,
+        "rect": 799,
+        "text": 9
+      },
+      "sha": "842a42e1f69c04c7799c383c6f29f4f6fc0ab8d7b863e541e702dbd023bb312e",
+      "total": 1587
+    },
+    "legacyFlow": {
+      "ci1-tnone-l0-s1-lodfull-z22": "51e055a2c89dafbb5782ab2a212c437f4f5b40f38143aeb096b2d484bfd64b2c",
+      "ci1-tnone-l0-s1-lodfull-z44": "4301230a9a4b2ed8caa9d39cc4ca5227adf92eaa3621683737ff4ae7346f4e4f",
+      "ci1-tnone-l0-s1-lod7-z22": "f46efaa3d3968f64af6bd912ab66626043f53b3a58e1e71938ee5937491771fe",
+      "ci1-tnone-l0-s1-lod7-z44": "d3fc7d1f22fe06528b38a9b493e18fe03d363bd6d4b7f50c4958ff3cae9caccd",
+      "ci1-tnone-l0-s1.06-lodfull-z22": "9eb27add0e23e7047fca4edb0facc56e06489ce45270348a158430d1e27501fa",
+      "ci1-tnone-l0-s1.06-lodfull-z44": "afdf9898e0ce01bfbdda906869eb4e0d61c31e29fafa72c9ee1c5fd0b31d9f8f",
+      "ci1-tnone-l0-s1.06-lod7-z22": "b5bc497200d81ffbae0eec7d98f9f3ab98d1c3285d673f718ff454bd7feeb896",
+      "ci1-tnone-l0-s1.06-lod7-z44": "8525a18e6a34fa85358c0394026578f408146f6688dc9b69f4b19de652fc0081",
+      "ci1-tnone-l6-s1-lodfull-z22": "026b9f89cc718a13298ae1f30aa026c862ada55bf60628a5d5fb4f5ff30fae0b",
+      "ci1-tnone-l6-s1-lodfull-z44": "3d56efe6cf42e39af2bffb9914d40cf59668f80bbdc2348d21b3cfcd9cf9b687",
+      "ci1-tnone-l6-s1-lod7-z22": "e4ac85552e2ebfcda582195b646c6a26caad1ba45817e34af2d3d6dc2eb607a6",
+      "ci1-tnone-l6-s1-lod7-z44": "edabcc9024e3d879507aa7efcae7f0e0de5bb841c3bdf9627608529e9adb81e2",
+      "ci1-tnone-l6-s1.06-lodfull-z22": "901a61f4872612271396d4cea36c03c095e7d5cc6962184ac7a407ca1dd427b4",
+      "ci1-tnone-l6-s1.06-lodfull-z44": "a6f9bcf8955da5b8fd24124827614de5361fdd0f902569ee6c417dc553122469",
+      "ci1-tnone-l6-s1.06-lod7-z22": "fdae5256726d3b60529c8ac2bf8e270f5d91e6e47fb027c9e3582f88f221fa31",
+      "ci1-tnone-l6-s1.06-lod7-z44": "d31c5f1ec90162f99e7837b6ffc7fe0e2b7f7cd1c152b690fe50a16f357056c9",
+      "ci1-t4-l0-s1-lodfull-z22": "677a5eba4f5e46164f12e62369e8fff55935e64d0efca4e1a1906078014b2f54",
+      "ci1-t4-l0-s1-lodfull-z44": "2fe3d57e39670bcf7fc0d8a1acc66592bde5c6c1ce7f8164d7189692450cc40e",
+      "ci1-t4-l0-s1-lod7-z22": "194367e1d04c339a3194aac76a5010098504ba2bff97a0b3f289335f34258e63",
+      "ci1-t4-l0-s1-lod7-z44": "a99f6ebfd5f50df598a5fd0bc9088d007faae9343984719550c4d1e7980c8c72",
+      "ci1-t4-l0-s1.06-lodfull-z22": "6666212cb7a8abdef2b8fb747eb728cbd9a7af581f489e3de0020b0c16a2b90c",
+      "ci1-t4-l0-s1.06-lodfull-z44": "5e4d00c53fffe2d247db517b70f67590ccad345461b28aa41699a6d785868c86",
+      "ci1-t4-l0-s1.06-lod7-z22": "a2a4c91824febd605c92887238fdd0c9a2e78ef9b3db6f6e9d6902f6804475e8",
+      "ci1-t4-l0-s1.06-lod7-z44": "9e501d50394a19f81aebbbc298abbf78be81172aef63e6204f8b20b58e9d6e1f",
+      "ci1-t4-l6-s1-lodfull-z22": "292a7782939f585ff67c0508d8f0b64e582ebbdc1d5eb804e4f9dde7488df1a1",
+      "ci1-t4-l6-s1-lodfull-z44": "4c432679e3863250b7d71c0cf7ee71cc19a99f1741a6e5f36cb4c5f590d5ced0",
+      "ci1-t4-l6-s1-lod7-z22": "cbe293e9146f5598abc6ce2e4d9ba97c7712fa2a364a215385f88595fc587908",
+      "ci1-t4-l6-s1-lod7-z44": "9ad7889703f03b2469e4335a468a9f33a0fc137112f0522f1f96fc500032cc46",
+      "ci1-t4-l6-s1.06-lodfull-z22": "49573284ad2cf318b32c9089f5b7547e985779d3a79168419be454087d4ea502",
+      "ci1-t4-l6-s1.06-lodfull-z44": "4b932c9d2d98b654b4512d333992900e793d33b363a5782b71c4eed7021b526b",
+      "ci1-t4-l6-s1.06-lod7-z22": "e2b2811230f4fd04fb4dfbac0cff3ef0eac18adc575a61f7d1ae50b522b06fc7",
+      "ci1-t4-l6-s1.06-lod7-z44": "5fe0421d163f5f995cca0702d0693fbadbe2d710f7a4c4b46bba380608e8fa64",
+      "ci2-tnone-l0-s1-lodfull-z22": "4c3a3aee3e58b6638ea21e9c56dd8cf42e359f2900f5c7545cb22421f5808044",
+      "ci2-tnone-l0-s1-lodfull-z44": "7d6a06e587fed5e7af2029e08796499c432d4d0c86e0eae1fa0e45bef14fd788",
+      "ci2-tnone-l0-s1-lod7-z22": "7b1f35ba61113aaac0f5c5efbe529ef0ef1eecb8578e15c65356ead42cb61924",
+      "ci2-tnone-l0-s1-lod7-z44": "e367d92495700324553b4673812df0f660a31af78e2301bab5f269bcf3211bdc",
+      "ci2-tnone-l0-s1.06-lodfull-z22": "c506287e551ce347a0a07b4000bc4022fda022530bcd73774e4b4eee93894e16",
+      "ci2-tnone-l0-s1.06-lodfull-z44": "fe4d42a2a01b0fe1ea2dd426f71fd03713da3b3c2f254f643b3e25927a3cfb9a",
+      "ci2-tnone-l0-s1.06-lod7-z22": "3a2c2e442fbcaa0ac106374b895092d89a6e87faa1eb20fb7d09a11be4252425",
+      "ci2-tnone-l0-s1.06-lod7-z44": "ea7b142f0bdcb8bd92a2e40f581fded63187e6883514693044a09e9597654ee2",
+      "ci2-tnone-l6-s1-lodfull-z22": "564215a00663944a065340fb9f461444264517e02796d6d9cb28cfbba40c5276",
+      "ci2-tnone-l6-s1-lodfull-z44": "43fcc09e63f1c33a62e8cbbcc0900ddbbb8459f615a5d1c14c0d5170173301db",
+      "ci2-tnone-l6-s1-lod7-z22": "049b7a378c82ed68bb905933996dd7849814d982a206e1de0d5b04e8788a9e0e",
+      "ci2-tnone-l6-s1-lod7-z44": "7e723323468c3cba32efd408ba37d0b3f2bad949e75663084014747d6a014f6e",
+      "ci2-tnone-l6-s1.06-lodfull-z22": "76b56644da28dc2173bd9751f21f7e80b23cbd0d2a99d53ecb15b2636c853abd",
+      "ci2-tnone-l6-s1.06-lodfull-z44": "5c6f174ce49d471904d8b3e1099bc6718920e827145a11e84031001aa03b78e0",
+      "ci2-tnone-l6-s1.06-lod7-z22": "52456f953cdb24c436df5a1d41eaf93aca14d2e570e957cfe4ec1dffc52fe600",
+      "ci2-tnone-l6-s1.06-lod7-z44": "d2a12b5f50a37d368dcd9e941fbd4fb160ae13f374dd4e4d4a948ee6c454599a",
+      "ci2-t4-l0-s1-lodfull-z22": "6e06912f43fe5650ae738736387a073fc87ff4f288ce1727829a1a5a78390859",
+      "ci2-t4-l0-s1-lodfull-z44": "d48fd40e2e5597126d1672135339f75e540c897b6fea6c0c40a39bfb9219115f",
+      "ci2-t4-l0-s1-lod7-z22": "a2615a5160ef9cb053b7948982d1c023a0640141b03b26cb43d527eb72da819f",
+      "ci2-t4-l0-s1-lod7-z44": "518208d87cba0af39b65ff31d905ac97783606bcd4e15bb87a7238aba9445824",
+      "ci2-t4-l0-s1.06-lodfull-z22": "e7b79cc2389ffadbc134f5f69866c4efd842f979da1e133696b364727d12b115",
+      "ci2-t4-l0-s1.06-lodfull-z44": "085ec7f9695f949d4d282631f529373208918f3611235058ca99003c12c02e23",
+      "ci2-t4-l0-s1.06-lod7-z22": "601b79f8fec43c5f67b85852b5601ceb3e7cad6e28e4eb63e8fab3d29957f1e6",
+      "ci2-t4-l0-s1.06-lod7-z44": "f462eec6eb9fe49f8197297390d00f1945b7883868ada56b0da438b466d719b2",
+      "ci2-t4-l6-s1-lodfull-z22": "5b0463cb5be3ec3bb6941e69e39f141a88ec68a8fe37d366b67354ba62b98e7a",
+      "ci2-t4-l6-s1-lodfull-z44": "eefc3c3c435c41a7caf4796e307f7dbaa880b649cdaf7bd92f361a3a370cc781",
+      "ci2-t4-l6-s1-lod7-z22": "578131f18841980525198733b7037968ff79a624552ccc870ed01fdd5713376a",
+      "ci2-t4-l6-s1-lod7-z44": "4a92082f2e7b014dc19e773075091cda70610b08a2d72a63f0ba41ee5e331fd2",
+      "ci2-t4-l6-s1.06-lodfull-z22": "7ff1b4d9e9df01a565d8cb8285d3765c8522c0473603cd896dbc9b3868f6407d",
+      "ci2-t4-l6-s1.06-lodfull-z44": "007f18844924e8640e3e4f68b53459e647a54ecbb2959044f552de1b0caaa515",
+      "ci2-t4-l6-s1.06-lod7-z22": "80583f4fca24d52fb17d33524d8a62ef75dbf72c407f5ea4cf4eca75264c1750",
+      "ci2-t4-l6-s1.06-lod7-z44": "a839e54d534417d899310b4d94c5812035f48a5a16bbb6593ddb7fe286461897",
+      "ci3-tnone-l0-s1-lodfull-z22": "6b15138f1ccd17ef87768f28b38ce02663d55d2675d2f0ee2a700883b854524c",
+      "ci3-tnone-l0-s1-lodfull-z44": "97be0ad74cffb4fb6dc8a0229b88a8e41c4afbd0c1ed256e3679b7a1faa1dbcd",
+      "ci3-tnone-l0-s1-lod7-z22": "68b20e27a232bc37466093d7315e34ad543e2f9a99e11461c11cf995c4588558",
+      "ci3-tnone-l0-s1-lod7-z44": "42f14233b90a43861d944b2f2ae75bb45412224087fafcf1b07d37985d066c97",
+      "ci3-tnone-l0-s1.06-lodfull-z22": "2fb319f2fe19b187955802993103b73c5572f075c75af411ecd4c98f9dfe900a",
+      "ci3-tnone-l0-s1.06-lodfull-z44": "b0bb4ad9a9306e954a0d198259819839a2e800dc58d553359f5bbbf094448635",
+      "ci3-tnone-l0-s1.06-lod7-z22": "05b9a1620bf5ce89ccce5a54346155148c465efd9260c3bdbe1332764aed271f",
+      "ci3-tnone-l0-s1.06-lod7-z44": "04328e24a7ca483616a724259f38c7ffcedc8dcc5ca5815ad9686f61f18fcace",
+      "ci3-tnone-l6-s1-lodfull-z22": "5f5389422491ab32665b2584d2d1b76e083dce840daa518785894124392148a3",
+      "ci3-tnone-l6-s1-lodfull-z44": "4e092dd48cc59f571f6b5a4587bcef179ef932bd2fe9cc443a55480ffb16a4eb",
+      "ci3-tnone-l6-s1-lod7-z22": "ca2924bdc4d60e7b13d8a3ca0a043876695b63296835d6a3faca0696d53cc684",
+      "ci3-tnone-l6-s1-lod7-z44": "b257c1f613cb329de22f936dcd1c0bd3bd59ade89b686b2522347873a5bc720f",
+      "ci3-tnone-l6-s1.06-lodfull-z22": "a0419fecb87aff7edb69c47f36c4b3e28b2ec9f11d73c5092846c83fbf782b4c",
+      "ci3-tnone-l6-s1.06-lodfull-z44": "526731e16fa5e4dab2518a9f99e9dcdeee1c741e3c40752ca3f6919fbe60df7b",
+      "ci3-tnone-l6-s1.06-lod7-z22": "ae572dcf5310c63c3c61197ac893eb79e8cc7a695ee3aeecd7c36b83df647854",
+      "ci3-tnone-l6-s1.06-lod7-z44": "661d839052f45fd7225eb02680502675861df9f5258ca4b41ff30895f4c66623",
+      "ci3-t4-l0-s1-lodfull-z22": "22a1eb484b6c8c4b6e53239307c6d6651947ffcb24c0b7ae770af2e4d2d0dcd9",
+      "ci3-t4-l0-s1-lodfull-z44": "fd2a7bea4a94d8fbc1838886aae8f47c456fdbdd716b6d20c154ce5bbd425fd1",
+      "ci3-t4-l0-s1-lod7-z22": "bb57ca54267535fc6ccf7034d813d94b912f59171038641f5ca2ed6dbb62566e",
+      "ci3-t4-l0-s1-lod7-z44": "c9818de77352074f78e704d180bbc4d697071357964185b3c9b59e4c3924ae75",
+      "ci3-t4-l0-s1.06-lodfull-z22": "61a2811c8ca3f382285faa7355f1c285bada960bcd6fa83f49998e2993050e7d",
+      "ci3-t4-l0-s1.06-lodfull-z44": "a02a15b754b9a7d2267ac41faa4e4ffe5c1a47945c53389eeef8a6742c530ea9",
+      "ci3-t4-l0-s1.06-lod7-z22": "91fec0bbf80ef64aa3bf7b993bd8a547dcbaeb4d7a6e28c4f5d5ae4d3ffb1749",
+      "ci3-t4-l0-s1.06-lod7-z44": "02d8baa054acc2b6734b1d78302d45c6972bc56d0ac5e6414f7c287f2247175c",
+      "ci3-t4-l6-s1-lodfull-z22": "40757a14b244d83e1f0547408e625774e849730064a9994a732d245610200897",
+      "ci3-t4-l6-s1-lodfull-z44": "6c1f8e9353898a139d4909a89032c9826e0459e0d0178c7aba0a5e70d54ac66c",
+      "ci3-t4-l6-s1-lod7-z22": "e261b8e34b249cd4dce741e0979f733418127dd08b652bfcd597630548726956",
+      "ci3-t4-l6-s1-lod7-z44": "58a5ab916dffb7b9f4a7e566a10891e6e2cbafb928295dc899cf9c3f155671e0",
+      "ci3-t4-l6-s1.06-lodfull-z22": "f1b9200e5e4882893758e6f0264584a47143b8d3a087a22fb7db187b970fd755",
+      "ci3-t4-l6-s1.06-lodfull-z44": "dc36f802a9b0a6361d92afa9aa8874d80a6f9c15768a8381b0c5d1dc7235812c",
+      "ci3-t4-l6-s1.06-lod7-z22": "896750a510ccef1d28f649ef0ad0bf33d7a0facaa033825e4a1d5a8071734826",
+      "ci3-t4-l6-s1.06-lod7-z44": "003475995228c166a98f68ab6d169b8163b54debf1edab632331e9f3d44a6ad2"
+    }
   },
-  "facetNonHoleLayers": {
-   "ci1-t1-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
-   "ci1-t1-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
-   "ci1-t1-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
-   "ci1-t5-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
-   "ci1-t5-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
-   "ci1-t5-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
-   "ci1-tnone-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
-   "ci1-tnone-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
-   "ci1-tnone-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
-   "ci2-t1-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
-   "ci2-t1-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
-   "ci2-t1-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
-   "ci2-t5-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
-   "ci2-t5-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
-   "ci2-t5-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
-   "ci2-tnone-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
-   "ci2-tnone-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
-   "ci2-tnone-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
-   "ci3-t1-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
-   "ci3-t1-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
-   "ci3-t1-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
-   "ci3-t5-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
-   "ci3-t5-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
-   "ci3-t5-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
-   "ci3-tnone-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
-   "ci3-tnone-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
-   "ci3-tnone-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
-   "ci4-t1-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
-   "ci4-t1-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
-   "ci4-t1-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
-   "ci4-t5-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
-   "ci4-t5-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
-   "ci4-t5-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
-   "ci4-tnone-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
-   "ci4-tnone-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
-   "ci4-tnone-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
-   "ci5-t1-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
-   "ci5-t1-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
-   "ci5-t1-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e",
-   "ci5-t5-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
-   "ci5-t5-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
-   "ci5-t5-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e",
-   "ci5-tnone-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
-   "ci5-tnone-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
-   "ci5-tnone-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e"
+  "s3": {
+    "facetNonHoleLayers": {
+      "ci1-tnone-s22": "97c4df7279e25970ece05487d6bfdc6fc16669e6f53327d3bac65e048fcd712a",
+      "ci1-tnone-s30": "3cd7a3b6d9c3f8b66d95f5b202a12683f2eb95e93bda8c3205fc9b148159b4fe",
+      "ci1-tnone-s44": "40be3c4d7e1f07f56eeda503b823f85564f566fd3eacac79f895a3923c2f560d",
+      "ci1-t1-s22": "97c4df7279e25970ece05487d6bfdc6fc16669e6f53327d3bac65e048fcd712a",
+      "ci1-t1-s30": "3cd7a3b6d9c3f8b66d95f5b202a12683f2eb95e93bda8c3205fc9b148159b4fe",
+      "ci1-t1-s44": "40be3c4d7e1f07f56eeda503b823f85564f566fd3eacac79f895a3923c2f560d",
+      "ci1-t5-s22": "97c4df7279e25970ece05487d6bfdc6fc16669e6f53327d3bac65e048fcd712a",
+      "ci1-t5-s30": "3cd7a3b6d9c3f8b66d95f5b202a12683f2eb95e93bda8c3205fc9b148159b4fe",
+      "ci1-t5-s44": "40be3c4d7e1f07f56eeda503b823f85564f566fd3eacac79f895a3923c2f560d",
+      "ci2-tnone-s22": "6c3c23cf0b0fccaca6bdaefd4cb47196823e3d0a2766b2b55617d3e501b6a83a",
+      "ci2-tnone-s30": "420396d5b5f1241fc1462d7205d3d577b9eab2df8941fa392cce6d22d6a7de50",
+      "ci2-tnone-s44": "26a0dea7a95c04c85151f72c7e6e8b071389f18f026daa2085eda1dca9df0f2b",
+      "ci2-t1-s22": "6c3c23cf0b0fccaca6bdaefd4cb47196823e3d0a2766b2b55617d3e501b6a83a",
+      "ci2-t1-s30": "420396d5b5f1241fc1462d7205d3d577b9eab2df8941fa392cce6d22d6a7de50",
+      "ci2-t1-s44": "26a0dea7a95c04c85151f72c7e6e8b071389f18f026daa2085eda1dca9df0f2b",
+      "ci2-t5-s22": "6c3c23cf0b0fccaca6bdaefd4cb47196823e3d0a2766b2b55617d3e501b6a83a",
+      "ci2-t5-s30": "420396d5b5f1241fc1462d7205d3d577b9eab2df8941fa392cce6d22d6a7de50",
+      "ci2-t5-s44": "26a0dea7a95c04c85151f72c7e6e8b071389f18f026daa2085eda1dca9df0f2b",
+      "ci3-tnone-s22": "5d98cfe1eca0933ba06fcf7033aaec1faf6c01b09bb5e1da22ce589f48514f8b",
+      "ci3-tnone-s30": "805ccbdced7c130b344433357e462b699064faa56a440b9b840613d959bd27e9",
+      "ci3-tnone-s44": "8d0375d5ed0e6d49648f29064f2f2221e4534c83a91f9139b1f89b99ef837989",
+      "ci3-t1-s22": "5d98cfe1eca0933ba06fcf7033aaec1faf6c01b09bb5e1da22ce589f48514f8b",
+      "ci3-t1-s30": "805ccbdced7c130b344433357e462b699064faa56a440b9b840613d959bd27e9",
+      "ci3-t1-s44": "8d0375d5ed0e6d49648f29064f2f2221e4534c83a91f9139b1f89b99ef837989",
+      "ci3-t5-s22": "5d98cfe1eca0933ba06fcf7033aaec1faf6c01b09bb5e1da22ce589f48514f8b",
+      "ci3-t5-s30": "805ccbdced7c130b344433357e462b699064faa56a440b9b840613d959bd27e9",
+      "ci3-t5-s44": "8d0375d5ed0e6d49648f29064f2f2221e4534c83a91f9139b1f89b99ef837989",
+      "ci4-tnone-s22": "061d2a3099a3ee4dc36dfbad738957ea9b108411d3f4a0fa508385565d246530",
+      "ci4-tnone-s30": "5ce3afb2bf3497fbe1190b99a9341a8b9570d30148e00443bd4ef21f6a29edb9",
+      "ci4-tnone-s44": "688645b3a2a444a89c1cd585be1efcce671ce69091cf6adbdfb983eb6a0b9779",
+      "ci4-t1-s22": "061d2a3099a3ee4dc36dfbad738957ea9b108411d3f4a0fa508385565d246530",
+      "ci4-t1-s30": "5ce3afb2bf3497fbe1190b99a9341a8b9570d30148e00443bd4ef21f6a29edb9",
+      "ci4-t1-s44": "688645b3a2a444a89c1cd585be1efcce671ce69091cf6adbdfb983eb6a0b9779",
+      "ci4-t5-s22": "061d2a3099a3ee4dc36dfbad738957ea9b108411d3f4a0fa508385565d246530",
+      "ci4-t5-s30": "5ce3afb2bf3497fbe1190b99a9341a8b9570d30148e00443bd4ef21f6a29edb9",
+      "ci4-t5-s44": "688645b3a2a444a89c1cd585be1efcce671ce69091cf6adbdfb983eb6a0b9779",
+      "ci5-tnone-s22": "ddde8602895b7b3888917d31f1bfdec8eab50aa97361ee367d460a27c7356266",
+      "ci5-tnone-s30": "5e092afd52ad3aaf095b38cbaee687b9f15fb6ad66c918c44f948e0b362c7cbc",
+      "ci5-tnone-s44": "cd0825e5ad13381837410b87508820dec30a87577e074b55501dfb813dbf4e29",
+      "ci5-t1-s22": "ddde8602895b7b3888917d31f1bfdec8eab50aa97361ee367d460a27c7356266",
+      "ci5-t1-s30": "5e092afd52ad3aaf095b38cbaee687b9f15fb6ad66c918c44f948e0b362c7cbc",
+      "ci5-t1-s44": "cd0825e5ad13381837410b87508820dec30a87577e074b55501dfb813dbf4e29",
+      "ci5-t5-s22": "ddde8602895b7b3888917d31f1bfdec8eab50aa97361ee367d460a27c7356266",
+      "ci5-t5-s30": "5e092afd52ad3aaf095b38cbaee687b9f15fb6ad66c918c44f948e0b362c7cbc",
+      "ci5-t5-s44": "cd0825e5ad13381837410b87508820dec30a87577e074b55501dfb813dbf4e29"
+    },
+    "facetHoleLayer": {
+      "ci1-tnone-s22": "d431fe879568bf50778b1caf837cb74d8642a1566b63711f1c2d3eb605032099",
+      "ci1-tnone-s30": "a0282c618871174b097b796f804fecc3095626bb7d494b049e04e80b2bac406e",
+      "ci1-tnone-s44": "b49ad43c0d65249ac3cf12555e429ae57e43489ed29bb2a7e33b9dc5f457f8b3",
+      "ci1-t1-s22": "d431fe879568bf50778b1caf837cb74d8642a1566b63711f1c2d3eb605032099",
+      "ci1-t1-s30": "a0282c618871174b097b796f804fecc3095626bb7d494b049e04e80b2bac406e",
+      "ci1-t1-s44": "b49ad43c0d65249ac3cf12555e429ae57e43489ed29bb2a7e33b9dc5f457f8b3",
+      "ci1-t5-s22": "27cf0366d81fc6f7438b44deb037a056699d8a0626897db49625e2ef6320277e",
+      "ci1-t5-s30": "328a951e2bc40fc15dc45bb742116fce4e69656dd7aa2d8e0b9e23251c7411dd",
+      "ci1-t5-s44": "18c5aa3defa20f63b822a5b32bcabd38f29eebc496eb7687c6d472bca954ee53",
+      "ci2-tnone-s22": "886827535284019fa08c3a665fb136200e8e22117f96c219eb1784d1a89034c7",
+      "ci2-tnone-s30": "90f934e9a9832ce10ed43d25a0a9b80aef527e63c9e85e2d275d5a46fd5f2483",
+      "ci2-tnone-s44": "cf2260abe4f862ab1a8e234a4918e5dbeb393d6de73b921abc7da78c167bef9d",
+      "ci2-t1-s22": "d431fe879568bf50778b1caf837cb74d8642a1566b63711f1c2d3eb605032099",
+      "ci2-t1-s30": "a0282c618871174b097b796f804fecc3095626bb7d494b049e04e80b2bac406e",
+      "ci2-t1-s44": "b49ad43c0d65249ac3cf12555e429ae57e43489ed29bb2a7e33b9dc5f457f8b3",
+      "ci2-t5-s22": "27cf0366d81fc6f7438b44deb037a056699d8a0626897db49625e2ef6320277e",
+      "ci2-t5-s30": "328a951e2bc40fc15dc45bb742116fce4e69656dd7aa2d8e0b9e23251c7411dd",
+      "ci2-t5-s44": "18c5aa3defa20f63b822a5b32bcabd38f29eebc496eb7687c6d472bca954ee53",
+      "ci3-tnone-s22": "d8100d14ea9b97d893d2a8542f72d27eb2d854b65d8b67c0d76539f2548915d7",
+      "ci3-tnone-s30": "e179176cf5349a4afa754c9a3684fd1236301cb9a3d54ac69ee1684834098abe",
+      "ci3-tnone-s44": "2ac0cca2e0ea321e7c4b362966f7c785ae09ca6f64cd35b991c2135d8fc4d3c6",
+      "ci3-t1-s22": "d431fe879568bf50778b1caf837cb74d8642a1566b63711f1c2d3eb605032099",
+      "ci3-t1-s30": "a0282c618871174b097b796f804fecc3095626bb7d494b049e04e80b2bac406e",
+      "ci3-t1-s44": "b49ad43c0d65249ac3cf12555e429ae57e43489ed29bb2a7e33b9dc5f457f8b3",
+      "ci3-t5-s22": "27cf0366d81fc6f7438b44deb037a056699d8a0626897db49625e2ef6320277e",
+      "ci3-t5-s30": "328a951e2bc40fc15dc45bb742116fce4e69656dd7aa2d8e0b9e23251c7411dd",
+      "ci3-t5-s44": "18c5aa3defa20f63b822a5b32bcabd38f29eebc496eb7687c6d472bca954ee53",
+      "ci4-tnone-s22": "4d16f5a008fb6a001ef2f17649484f33a0986e0a5eb60e36abead8bdf23f768b",
+      "ci4-tnone-s30": "2df2e72ea750ecae7a7101a56699d8a3d4047a5613caac69e3c3199bf4079703",
+      "ci4-tnone-s44": "b37c16386726382436bf0bc1293c3b52c3aaff8d370a958db3df73d205326f85",
+      "ci4-t1-s22": "d431fe879568bf50778b1caf837cb74d8642a1566b63711f1c2d3eb605032099",
+      "ci4-t1-s30": "a0282c618871174b097b796f804fecc3095626bb7d494b049e04e80b2bac406e",
+      "ci4-t1-s44": "b49ad43c0d65249ac3cf12555e429ae57e43489ed29bb2a7e33b9dc5f457f8b3",
+      "ci4-t5-s22": "27cf0366d81fc6f7438b44deb037a056699d8a0626897db49625e2ef6320277e",
+      "ci4-t5-s30": "328a951e2bc40fc15dc45bb742116fce4e69656dd7aa2d8e0b9e23251c7411dd",
+      "ci4-t5-s44": "18c5aa3defa20f63b822a5b32bcabd38f29eebc496eb7687c6d472bca954ee53",
+      "ci5-tnone-s22": "27cf0366d81fc6f7438b44deb037a056699d8a0626897db49625e2ef6320277e",
+      "ci5-tnone-s30": "328a951e2bc40fc15dc45bb742116fce4e69656dd7aa2d8e0b9e23251c7411dd",
+      "ci5-tnone-s44": "18c5aa3defa20f63b822a5b32bcabd38f29eebc496eb7687c6d472bca954ee53",
+      "ci5-t1-s22": "d431fe879568bf50778b1caf837cb74d8642a1566b63711f1c2d3eb605032099",
+      "ci5-t1-s30": "a0282c618871174b097b796f804fecc3095626bb7d494b049e04e80b2bac406e",
+      "ci5-t1-s44": "b49ad43c0d65249ac3cf12555e429ae57e43489ed29bb2a7e33b9dc5f457f8b3",
+      "ci5-t5-s22": "27cf0366d81fc6f7438b44deb037a056699d8a0626897db49625e2ef6320277e",
+      "ci5-t5-s30": "328a951e2bc40fc15dc45bb742116fce4e69656dd7aa2d8e0b9e23251c7411dd",
+      "ci5-t5-s44": "18c5aa3defa20f63b822a5b32bcabd38f29eebc496eb7687c6d472bca954ee53"
+    },
+    "frame78": {
+      "total": 1127,
+      "kinds": {
+        "rect": 491,
+        "circle": 82,
+        "line": 220,
+        "text": 12,
+        "polygon": 322
+      },
+      "sha": "b56d5867d12a82e54749f715aa4c71c81f6dcb8dc31a82674700935635f0c1ea",
+      "filled": 78,
+      "fillableTotal": 156
+    },
+    "frame0": {
+      "total": 971,
+      "sha": "225347272345210d5f086b53e60439f53ca857b43b1666bcb81707199d03c1b5"
+    },
+    "legacyFlow": {
+      "ci1-tnone-l0-s1-lodfull-z22": "51e055a2c89dafbb5782ab2a212c437f4f5b40f38143aeb096b2d484bfd64b2c",
+      "ci1-tnone-l0-s1-lodfull-z44": "4301230a9a4b2ed8caa9d39cc4ca5227adf92eaa3621683737ff4ae7346f4e4f",
+      "ci1-tnone-l0-s1-lod7-z22": "f46efaa3d3968f64af6bd912ab66626043f53b3a58e1e71938ee5937491771fe",
+      "ci1-tnone-l0-s1-lod7-z44": "d3fc7d1f22fe06528b38a9b493e18fe03d363bd6d4b7f50c4958ff3cae9caccd",
+      "ci1-tnone-l0-s1.06-lodfull-z22": "9eb27add0e23e7047fca4edb0facc56e06489ce45270348a158430d1e27501fa",
+      "ci1-tnone-l0-s1.06-lodfull-z44": "afdf9898e0ce01bfbdda906869eb4e0d61c31e29fafa72c9ee1c5fd0b31d9f8f",
+      "ci1-tnone-l0-s1.06-lod7-z22": "b5bc497200d81ffbae0eec7d98f9f3ab98d1c3285d673f718ff454bd7feeb896",
+      "ci1-tnone-l0-s1.06-lod7-z44": "8525a18e6a34fa85358c0394026578f408146f6688dc9b69f4b19de652fc0081",
+      "ci1-tnone-l6-s1-lodfull-z22": "026b9f89cc718a13298ae1f30aa026c862ada55bf60628a5d5fb4f5ff30fae0b",
+      "ci1-tnone-l6-s1-lodfull-z44": "3d56efe6cf42e39af2bffb9914d40cf59668f80bbdc2348d21b3cfcd9cf9b687",
+      "ci1-tnone-l6-s1-lod7-z22": "e4ac85552e2ebfcda582195b646c6a26caad1ba45817e34af2d3d6dc2eb607a6",
+      "ci1-tnone-l6-s1-lod7-z44": "edabcc9024e3d879507aa7efcae7f0e0de5bb841c3bdf9627608529e9adb81e2",
+      "ci1-tnone-l6-s1.06-lodfull-z22": "901a61f4872612271396d4cea36c03c095e7d5cc6962184ac7a407ca1dd427b4",
+      "ci1-tnone-l6-s1.06-lodfull-z44": "a6f9bcf8955da5b8fd24124827614de5361fdd0f902569ee6c417dc553122469",
+      "ci1-tnone-l6-s1.06-lod7-z22": "fdae5256726d3b60529c8ac2bf8e270f5d91e6e47fb027c9e3582f88f221fa31",
+      "ci1-tnone-l6-s1.06-lod7-z44": "d31c5f1ec90162f99e7837b6ffc7fe0e2b7f7cd1c152b690fe50a16f357056c9",
+      "ci1-t4-l0-s1-lodfull-z22": "677a5eba4f5e46164f12e62369e8fff55935e64d0efca4e1a1906078014b2f54",
+      "ci1-t4-l0-s1-lodfull-z44": "2fe3d57e39670bcf7fc0d8a1acc66592bde5c6c1ce7f8164d7189692450cc40e",
+      "ci1-t4-l0-s1-lod7-z22": "194367e1d04c339a3194aac76a5010098504ba2bff97a0b3f289335f34258e63",
+      "ci1-t4-l0-s1-lod7-z44": "a99f6ebfd5f50df598a5fd0bc9088d007faae9343984719550c4d1e7980c8c72",
+      "ci1-t4-l0-s1.06-lodfull-z22": "6666212cb7a8abdef2b8fb747eb728cbd9a7af581f489e3de0020b0c16a2b90c",
+      "ci1-t4-l0-s1.06-lodfull-z44": "5e4d00c53fffe2d247db517b70f67590ccad345461b28aa41699a6d785868c86",
+      "ci1-t4-l0-s1.06-lod7-z22": "a2a4c91824febd605c92887238fdd0c9a2e78ef9b3db6f6e9d6902f6804475e8",
+      "ci1-t4-l0-s1.06-lod7-z44": "9e501d50394a19f81aebbbc298abbf78be81172aef63e6204f8b20b58e9d6e1f",
+      "ci1-t4-l6-s1-lodfull-z22": "292a7782939f585ff67c0508d8f0b64e582ebbdc1d5eb804e4f9dde7488df1a1",
+      "ci1-t4-l6-s1-lodfull-z44": "4c432679e3863250b7d71c0cf7ee71cc19a99f1741a6e5f36cb4c5f590d5ced0",
+      "ci1-t4-l6-s1-lod7-z22": "cbe293e9146f5598abc6ce2e4d9ba97c7712fa2a364a215385f88595fc587908",
+      "ci1-t4-l6-s1-lod7-z44": "9ad7889703f03b2469e4335a468a9f33a0fc137112f0522f1f96fc500032cc46",
+      "ci1-t4-l6-s1.06-lodfull-z22": "49573284ad2cf318b32c9089f5b7547e985779d3a79168419be454087d4ea502",
+      "ci1-t4-l6-s1.06-lodfull-z44": "4b932c9d2d98b654b4512d333992900e793d33b363a5782b71c4eed7021b526b",
+      "ci1-t4-l6-s1.06-lod7-z22": "e2b2811230f4fd04fb4dfbac0cff3ef0eac18adc575a61f7d1ae50b522b06fc7",
+      "ci1-t4-l6-s1.06-lod7-z44": "5fe0421d163f5f995cca0702d0693fbadbe2d710f7a4c4b46bba380608e8fa64",
+      "ci2-tnone-l0-s1-lodfull-z22": "4c3a3aee3e58b6638ea21e9c56dd8cf42e359f2900f5c7545cb22421f5808044",
+      "ci2-tnone-l0-s1-lodfull-z44": "7d6a06e587fed5e7af2029e08796499c432d4d0c86e0eae1fa0e45bef14fd788",
+      "ci2-tnone-l0-s1-lod7-z22": "7b1f35ba61113aaac0f5c5efbe529ef0ef1eecb8578e15c65356ead42cb61924",
+      "ci2-tnone-l0-s1-lod7-z44": "e367d92495700324553b4673812df0f660a31af78e2301bab5f269bcf3211bdc",
+      "ci2-tnone-l0-s1.06-lodfull-z22": "c506287e551ce347a0a07b4000bc4022fda022530bcd73774e4b4eee93894e16",
+      "ci2-tnone-l0-s1.06-lodfull-z44": "fe4d42a2a01b0fe1ea2dd426f71fd03713da3b3c2f254f643b3e25927a3cfb9a",
+      "ci2-tnone-l0-s1.06-lod7-z22": "3a2c2e442fbcaa0ac106374b895092d89a6e87faa1eb20fb7d09a11be4252425",
+      "ci2-tnone-l0-s1.06-lod7-z44": "ea7b142f0bdcb8bd92a2e40f581fded63187e6883514693044a09e9597654ee2",
+      "ci2-tnone-l6-s1-lodfull-z22": "564215a00663944a065340fb9f461444264517e02796d6d9cb28cfbba40c5276",
+      "ci2-tnone-l6-s1-lodfull-z44": "43fcc09e63f1c33a62e8cbbcc0900ddbbb8459f615a5d1c14c0d5170173301db",
+      "ci2-tnone-l6-s1-lod7-z22": "049b7a378c82ed68bb905933996dd7849814d982a206e1de0d5b04e8788a9e0e",
+      "ci2-tnone-l6-s1-lod7-z44": "7e723323468c3cba32efd408ba37d0b3f2bad949e75663084014747d6a014f6e",
+      "ci2-tnone-l6-s1.06-lodfull-z22": "76b56644da28dc2173bd9751f21f7e80b23cbd0d2a99d53ecb15b2636c853abd",
+      "ci2-tnone-l6-s1.06-lodfull-z44": "5c6f174ce49d471904d8b3e1099bc6718920e827145a11e84031001aa03b78e0",
+      "ci2-tnone-l6-s1.06-lod7-z22": "52456f953cdb24c436df5a1d41eaf93aca14d2e570e957cfe4ec1dffc52fe600",
+      "ci2-tnone-l6-s1.06-lod7-z44": "d2a12b5f50a37d368dcd9e941fbd4fb160ae13f374dd4e4d4a948ee6c454599a",
+      "ci2-t4-l0-s1-lodfull-z22": "6e06912f43fe5650ae738736387a073fc87ff4f288ce1727829a1a5a78390859",
+      "ci2-t4-l0-s1-lodfull-z44": "d48fd40e2e5597126d1672135339f75e540c897b6fea6c0c40a39bfb9219115f",
+      "ci2-t4-l0-s1-lod7-z22": "a2615a5160ef9cb053b7948982d1c023a0640141b03b26cb43d527eb72da819f",
+      "ci2-t4-l0-s1-lod7-z44": "518208d87cba0af39b65ff31d905ac97783606bcd4e15bb87a7238aba9445824",
+      "ci2-t4-l0-s1.06-lodfull-z22": "e7b79cc2389ffadbc134f5f69866c4efd842f979da1e133696b364727d12b115",
+      "ci2-t4-l0-s1.06-lodfull-z44": "085ec7f9695f949d4d282631f529373208918f3611235058ca99003c12c02e23",
+      "ci2-t4-l0-s1.06-lod7-z22": "601b79f8fec43c5f67b85852b5601ceb3e7cad6e28e4eb63e8fab3d29957f1e6",
+      "ci2-t4-l0-s1.06-lod7-z44": "f462eec6eb9fe49f8197297390d00f1945b7883868ada56b0da438b466d719b2",
+      "ci2-t4-l6-s1-lodfull-z22": "5b0463cb5be3ec3bb6941e69e39f141a88ec68a8fe37d366b67354ba62b98e7a",
+      "ci2-t4-l6-s1-lodfull-z44": "eefc3c3c435c41a7caf4796e307f7dbaa880b649cdaf7bd92f361a3a370cc781",
+      "ci2-t4-l6-s1-lod7-z22": "578131f18841980525198733b7037968ff79a624552ccc870ed01fdd5713376a",
+      "ci2-t4-l6-s1-lod7-z44": "4a92082f2e7b014dc19e773075091cda70610b08a2d72a63f0ba41ee5e331fd2",
+      "ci2-t4-l6-s1.06-lodfull-z22": "7ff1b4d9e9df01a565d8cb8285d3765c8522c0473603cd896dbc9b3868f6407d",
+      "ci2-t4-l6-s1.06-lodfull-z44": "007f18844924e8640e3e4f68b53459e647a54ecbb2959044f552de1b0caaa515",
+      "ci2-t4-l6-s1.06-lod7-z22": "80583f4fca24d52fb17d33524d8a62ef75dbf72c407f5ea4cf4eca75264c1750",
+      "ci2-t4-l6-s1.06-lod7-z44": "a839e54d534417d899310b4d94c5812035f48a5a16bbb6593ddb7fe286461897",
+      "ci3-tnone-l0-s1-lodfull-z22": "6b15138f1ccd17ef87768f28b38ce02663d55d2675d2f0ee2a700883b854524c",
+      "ci3-tnone-l0-s1-lodfull-z44": "97be0ad74cffb4fb6dc8a0229b88a8e41c4afbd0c1ed256e3679b7a1faa1dbcd",
+      "ci3-tnone-l0-s1-lod7-z22": "68b20e27a232bc37466093d7315e34ad543e2f9a99e11461c11cf995c4588558",
+      "ci3-tnone-l0-s1-lod7-z44": "42f14233b90a43861d944b2f2ae75bb45412224087fafcf1b07d37985d066c97",
+      "ci3-tnone-l0-s1.06-lodfull-z22": "2fb319f2fe19b187955802993103b73c5572f075c75af411ecd4c98f9dfe900a",
+      "ci3-tnone-l0-s1.06-lodfull-z44": "b0bb4ad9a9306e954a0d198259819839a2e800dc58d553359f5bbbf094448635",
+      "ci3-tnone-l0-s1.06-lod7-z22": "05b9a1620bf5ce89ccce5a54346155148c465efd9260c3bdbe1332764aed271f",
+      "ci3-tnone-l0-s1.06-lod7-z44": "04328e24a7ca483616a724259f38c7ffcedc8dcc5ca5815ad9686f61f18fcace",
+      "ci3-tnone-l6-s1-lodfull-z22": "5f5389422491ab32665b2584d2d1b76e083dce840daa518785894124392148a3",
+      "ci3-tnone-l6-s1-lodfull-z44": "4e092dd48cc59f571f6b5a4587bcef179ef932bd2fe9cc443a55480ffb16a4eb",
+      "ci3-tnone-l6-s1-lod7-z22": "ca2924bdc4d60e7b13d8a3ca0a043876695b63296835d6a3faca0696d53cc684",
+      "ci3-tnone-l6-s1-lod7-z44": "b257c1f613cb329de22f936dcd1c0bd3bd59ade89b686b2522347873a5bc720f",
+      "ci3-tnone-l6-s1.06-lodfull-z22": "a0419fecb87aff7edb69c47f36c4b3e28b2ec9f11d73c5092846c83fbf782b4c",
+      "ci3-tnone-l6-s1.06-lodfull-z44": "526731e16fa5e4dab2518a9f99e9dcdeee1c741e3c40752ca3f6919fbe60df7b",
+      "ci3-tnone-l6-s1.06-lod7-z22": "ae572dcf5310c63c3c61197ac893eb79e8cc7a695ee3aeecd7c36b83df647854",
+      "ci3-tnone-l6-s1.06-lod7-z44": "661d839052f45fd7225eb02680502675861df9f5258ca4b41ff30895f4c66623",
+      "ci3-t4-l0-s1-lodfull-z22": "22a1eb484b6c8c4b6e53239307c6d6651947ffcb24c0b7ae770af2e4d2d0dcd9",
+      "ci3-t4-l0-s1-lodfull-z44": "fd2a7bea4a94d8fbc1838886aae8f47c456fdbdd716b6d20c154ce5bbd425fd1",
+      "ci3-t4-l0-s1-lod7-z22": "bb57ca54267535fc6ccf7034d813d94b912f59171038641f5ca2ed6dbb62566e",
+      "ci3-t4-l0-s1-lod7-z44": "c9818de77352074f78e704d180bbc4d697071357964185b3c9b59e4c3924ae75",
+      "ci3-t4-l0-s1.06-lodfull-z22": "61a2811c8ca3f382285faa7355f1c285bada960bcd6fa83f49998e2993050e7d",
+      "ci3-t4-l0-s1.06-lodfull-z44": "a02a15b754b9a7d2267ac41faa4e4ffe5c1a47945c53389eeef8a6742c530ea9",
+      "ci3-t4-l0-s1.06-lod7-z22": "91fec0bbf80ef64aa3bf7b993bd8a547dcbaeb4d7a6e28c4f5d5ae4d3ffb1749",
+      "ci3-t4-l0-s1.06-lod7-z44": "02d8baa054acc2b6734b1d78302d45c6972bc56d0ac5e6414f7c287f2247175c",
+      "ci3-t4-l6-s1-lodfull-z22": "40757a14b244d83e1f0547408e625774e849730064a9994a732d245610200897",
+      "ci3-t4-l6-s1-lodfull-z44": "6c1f8e9353898a139d4909a89032c9826e0459e0d0178c7aba0a5e70d54ac66c",
+      "ci3-t4-l6-s1-lod7-z22": "e261b8e34b249cd4dce741e0979f733418127dd08b652bfcd597630548726956",
+      "ci3-t4-l6-s1-lod7-z44": "58a5ab916dffb7b9f4a7e566a10891e6e2cbafb928295dc899cf9c3f155671e0",
+      "ci3-t4-l6-s1.06-lodfull-z22": "f1b9200e5e4882893758e6f0264584a47143b8d3a087a22fb7db187b970fd755",
+      "ci3-t4-l6-s1.06-lodfull-z44": "dc36f802a9b0a6361d92afa9aa8874d80a6f9c15768a8381b0c5d1dc7235812c",
+      "ci3-t4-l6-s1.06-lod7-z22": "896750a510ccef1d28f649ef0ad0bf33d7a0facaa033825e4a1d5a8071734826",
+      "ci3-t4-l6-s1.06-lod7-z44": "003475995228c166a98f68ab6d169b8163b54debf1edab632331e9f3d44a6ad2"
+    }
   },
-  "frame0": {
-   "sha": "d2354a1941a86ec567edd64b5c33a742ea93fcbbcacf3fd989a89cd52ef852ae",
-   "total": 963
+  "s3AtFormalization": {
+    "facetNonHoleLayers": {
+      "ci1-t1-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
+      "ci1-t1-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
+      "ci1-t1-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
+      "ci1-t5-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
+      "ci1-t5-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
+      "ci1-t5-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
+      "ci1-tnone-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
+      "ci1-tnone-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
+      "ci1-tnone-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
+      "ci2-t1-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
+      "ci2-t1-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
+      "ci2-t1-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
+      "ci2-t5-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
+      "ci2-t5-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
+      "ci2-t5-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
+      "ci2-tnone-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
+      "ci2-tnone-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
+      "ci2-tnone-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
+      "ci3-t1-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
+      "ci3-t1-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
+      "ci3-t1-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
+      "ci3-t5-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
+      "ci3-t5-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
+      "ci3-t5-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
+      "ci3-tnone-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
+      "ci3-tnone-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
+      "ci3-tnone-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
+      "ci4-t1-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
+      "ci4-t1-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
+      "ci4-t1-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
+      "ci4-t5-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
+      "ci4-t5-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
+      "ci4-t5-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
+      "ci4-tnone-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
+      "ci4-tnone-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
+      "ci4-tnone-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
+      "ci5-t1-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
+      "ci5-t1-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
+      "ci5-t1-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e",
+      "ci5-t5-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
+      "ci5-t5-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
+      "ci5-t5-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e",
+      "ci5-tnone-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
+      "ci5-tnone-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
+      "ci5-tnone-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e"
+    },
+    "facetHoleLayer": {
+      "ci1-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
+      "ci1-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
+      "ci1-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
+      "ci1-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
+      "ci1-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
+      "ci1-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
+      "ci1-tnone-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
+      "ci1-tnone-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
+      "ci1-tnone-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
+      "ci2-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
+      "ci2-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
+      "ci2-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
+      "ci2-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
+      "ci2-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
+      "ci2-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
+      "ci2-tnone-s22": "9c623e9708a5b91410d6e8ffb18a4d78436dca3ead2d76c126aaedee59050a37",
+      "ci2-tnone-s30": "56032bff4b84b9a44ec926453c7d60a6bfdfb850d797ad8fc7f67f3dd10c1e4f",
+      "ci2-tnone-s44": "dd196d908e14dfad87628a8b7170dc64944392f45968d3c2c020ab24e3fde9ad",
+      "ci3-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
+      "ci3-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
+      "ci3-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
+      "ci3-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
+      "ci3-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
+      "ci3-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
+      "ci3-tnone-s22": "0bdc44b19771938c172b3dcff032f56d80f684e4d91b447f3b5350d2dd19a050",
+      "ci3-tnone-s30": "9c26b90fd9c9cdfebf27821eda01a61a8d1e10573b0760c1dbbedece7e8b405e",
+      "ci3-tnone-s44": "06c7cdeb93628ddd806833bc34f127eeea293066966d9556d4779ad5e6617831",
+      "ci4-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
+      "ci4-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
+      "ci4-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
+      "ci4-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
+      "ci4-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
+      "ci4-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
+      "ci4-tnone-s22": "0b9599b122f9d2d27e8d8875193c3a1da3ba68b401d6eef8eaeb3bc3498841df",
+      "ci4-tnone-s30": "99d959e16b69916c9772718589c46fe37dad5311d3e6289fe29c30a881a55b63",
+      "ci4-tnone-s44": "283b6636e9af11ea2c5161c43b613f4fcc5e551897b5c5787abaa6b04bcecb91",
+      "ci5-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
+      "ci5-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
+      "ci5-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
+      "ci5-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
+      "ci5-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
+      "ci5-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
+      "ci5-tnone-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
+      "ci5-tnone-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
+      "ci5-tnone-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b"
+    },
+    "frame0": {
+      "sha": "d2354a1941a86ec567edd64b5c33a742ea93fcbbcacf3fd989a89cd52ef852ae",
+      "total": 963
+    },
+    "frame78": {
+      "kinds": {
+        "circle": 81,
+        "line": 220,
+        "polygon": 322,
+        "rect": 487,
+        "text": 9
+      },
+      "sha": "594eb606f8b4da6109dc6ef2718ba69c0a69c413949867b57c398999acb9cd42",
+      "total": 1119
+    },
+    "_readme": "S3 \u8f6c\u6b63\u65f6\u523b\uff08HEAD d058e5d\uff09\u767b\u8bb0\u5feb\u7167\uff0c\u53f2\u8bc1\u6bb5\uff1ahead \u2261 \u672c\u6bb5\u975e\u5b54/\u5b54 \u21d2 \u300c\u8f6c\u6b63\u96f6\u8d8a\u754c\u300d\u65f6\u70b9\u4e8b\u5b9e\u6c38\u4e45\u53ef\u6821\uff1b\u26d4 \u4efb\u4f55\u6279\u6b21\u7684\u540e\u7eed\u6539\u52a8\u4e0d\u5f97\u8ffd\u6539\u672c\u6bb5\u3002"
   },
-  "frame78": {
-   "kinds": {
-    "circle": 159,
-    "line": 610,
-    "polygon": 10,
-    "rect": 799,
-    "text": 9
-   },
-   "sha": "842a42e1f69c04c7799c383c6f29f4f6fc0ab8d7b863e541e702dbd023bb312e",
-   "total": 1587
-  },
-  "legacyFlow": {
-   "ci1-tnone-l0-s1-lodfull-z22": "51e055a2c89dafbb5782ab2a212c437f4f5b40f38143aeb096b2d484bfd64b2c",
-   "ci1-tnone-l0-s1-lodfull-z44": "4301230a9a4b2ed8caa9d39cc4ca5227adf92eaa3621683737ff4ae7346f4e4f",
-   "ci1-tnone-l0-s1-lod7-z22": "f46efaa3d3968f64af6bd912ab66626043f53b3a58e1e71938ee5937491771fe",
-   "ci1-tnone-l0-s1-lod7-z44": "d3fc7d1f22fe06528b38a9b493e18fe03d363bd6d4b7f50c4958ff3cae9caccd",
-   "ci1-tnone-l0-s1.06-lodfull-z22": "9eb27add0e23e7047fca4edb0facc56e06489ce45270348a158430d1e27501fa",
-   "ci1-tnone-l0-s1.06-lodfull-z44": "afdf9898e0ce01bfbdda906869eb4e0d61c31e29fafa72c9ee1c5fd0b31d9f8f",
-   "ci1-tnone-l0-s1.06-lod7-z22": "b5bc497200d81ffbae0eec7d98f9f3ab98d1c3285d673f718ff454bd7feeb896",
-   "ci1-tnone-l0-s1.06-lod7-z44": "8525a18e6a34fa85358c0394026578f408146f6688dc9b69f4b19de652fc0081",
-   "ci1-tnone-l6-s1-lodfull-z22": "bec81b83cfb1ca62ece7f8d5fc2ffb3a471b9cd239f6a34d05e48f9176f1979e",
-   "ci1-tnone-l6-s1-lodfull-z44": "0a5c9a7ace43ae05cc63df1f2e73c2786be2f29dea0118ef60085434d0ef4df4",
-   "ci1-tnone-l6-s1-lod7-z22": "5f8f6512c27e70da9dbc2105457509a6243d3c8e2c790bce3b979101fb4a80ce",
-   "ci1-tnone-l6-s1-lod7-z44": "b120fa4f4d38034977baccd6f4ef10a982ec59533fc59a6f2c63cddc48ad5fc4",
-   "ci1-tnone-l6-s1.06-lodfull-z22": "5e99bb99ed0c817df2800ad10f2465d351d5ac5903a5eae55273b49e04bd5e33",
-   "ci1-tnone-l6-s1.06-lodfull-z44": "de1c3f5a4f99fc7865b8ad4c531a6fadd6f202d2eb5722a110e1525b4a1e112a",
-   "ci1-tnone-l6-s1.06-lod7-z22": "5abb2e17997b2f53fd4de31cbf191b48f21c86294f86a4ffe451247bfdc65acd",
-   "ci1-tnone-l6-s1.06-lod7-z44": "8b0f027d9e0dbdf2fd2066193ce8fdecc37ff8b1bea77f57626e20fb82d5ea0c",
-   "ci1-t4-l0-s1-lodfull-z22": "677a5eba4f5e46164f12e62369e8fff55935e64d0efca4e1a1906078014b2f54",
-   "ci1-t4-l0-s1-lodfull-z44": "2fe3d57e39670bcf7fc0d8a1acc66592bde5c6c1ce7f8164d7189692450cc40e",
-   "ci1-t4-l0-s1-lod7-z22": "194367e1d04c339a3194aac76a5010098504ba2bff97a0b3f289335f34258e63",
-   "ci1-t4-l0-s1-lod7-z44": "a99f6ebfd5f50df598a5fd0bc9088d007faae9343984719550c4d1e7980c8c72",
-   "ci1-t4-l0-s1.06-lodfull-z22": "6666212cb7a8abdef2b8fb747eb728cbd9a7af581f489e3de0020b0c16a2b90c",
-   "ci1-t4-l0-s1.06-lodfull-z44": "5e4d00c53fffe2d247db517b70f67590ccad345461b28aa41699a6d785868c86",
-   "ci1-t4-l0-s1.06-lod7-z22": "a2a4c91824febd605c92887238fdd0c9a2e78ef9b3db6f6e9d6902f6804475e8",
-   "ci1-t4-l0-s1.06-lod7-z44": "9e501d50394a19f81aebbbc298abbf78be81172aef63e6204f8b20b58e9d6e1f",
-   "ci1-t4-l6-s1-lodfull-z22": "54a64c20a76d9b98f8846d32a952a5fb1a9748f2ab48d47b535190a36a732078",
-   "ci1-t4-l6-s1-lodfull-z44": "09bc4aeaa745fe98b220f9096529e33b21730d4feaa90d6d60b33b70623f3083",
-   "ci1-t4-l6-s1-lod7-z22": "136cb67e182649ce8aa288c23419193a2c14b6b67b0f4459a4f625092ecd65cc",
-   "ci1-t4-l6-s1-lod7-z44": "487b875edb9be6bd63ebc5a29d19f3245d7b3f2df17a925bed863675d2dcb232",
-   "ci1-t4-l6-s1.06-lodfull-z22": "4879043e6323283e23832a1ad270e793d4c40a35feb3ca60e8f5962d33c837dc",
-   "ci1-t4-l6-s1.06-lodfull-z44": "3109e5fcedf21caf4f82682cedbf98b8831a3b58b88cdaf18f5766e9031e3ccf",
-   "ci1-t4-l6-s1.06-lod7-z22": "d8b9104c5190c5ff1058c2beacd2811ea1420e7216dad0f8ed8952d59a9901e6",
-   "ci1-t4-l6-s1.06-lod7-z44": "ae7d6f449761b14d2e5a48f7e42e5e3858390a808e0b184991a97abfed2cf7f9",
-   "ci2-tnone-l0-s1-lodfull-z22": "4c3a3aee3e58b6638ea21e9c56dd8cf42e359f2900f5c7545cb22421f5808044",
-   "ci2-tnone-l0-s1-lodfull-z44": "7d6a06e587fed5e7af2029e08796499c432d4d0c86e0eae1fa0e45bef14fd788",
-   "ci2-tnone-l0-s1-lod7-z22": "7b1f35ba61113aaac0f5c5efbe529ef0ef1eecb8578e15c65356ead42cb61924",
-   "ci2-tnone-l0-s1-lod7-z44": "e367d92495700324553b4673812df0f660a31af78e2301bab5f269bcf3211bdc",
-   "ci2-tnone-l0-s1.06-lodfull-z22": "c506287e551ce347a0a07b4000bc4022fda022530bcd73774e4b4eee93894e16",
-   "ci2-tnone-l0-s1.06-lodfull-z44": "fe4d42a2a01b0fe1ea2dd426f71fd03713da3b3c2f254f643b3e25927a3cfb9a",
-   "ci2-tnone-l0-s1.06-lod7-z22": "3a2c2e442fbcaa0ac106374b895092d89a6e87faa1eb20fb7d09a11be4252425",
-   "ci2-tnone-l0-s1.06-lod7-z44": "ea7b142f0bdcb8bd92a2e40f581fded63187e6883514693044a09e9597654ee2",
-   "ci2-tnone-l6-s1-lodfull-z22": "2a9514a7821f22ffa4ab849acb7187e7b9378f693381a81b4ec243b1ee99e0c1",
-   "ci2-tnone-l6-s1-lodfull-z44": "6d2a1dd96587929998d4ababedc8b01629d9286051863a2e5d32240fd97575ca",
-   "ci2-tnone-l6-s1-lod7-z22": "db1c2f387fc56865fd303e1ef1c55590f70cf5a855d364703a0761d712743ea2",
-   "ci2-tnone-l6-s1-lod7-z44": "73e36c91ccf5a8e82d78d6e613a06d3c1b6ff41750363541c41c1be9494df5f1",
-   "ci2-tnone-l6-s1.06-lodfull-z22": "8c334d35d8921c04a6b187a05113fa5239784ad29ec91392e428f04841fb6b75",
-   "ci2-tnone-l6-s1.06-lodfull-z44": "fda0eeafb95ede4559240891de5461442bf8b926cbaa114278dabeea49b42e87",
-   "ci2-tnone-l6-s1.06-lod7-z22": "d58f5342c17d7faede0359045baaff4f03e80a7bae5c788bd732950ba864cd40",
-   "ci2-tnone-l6-s1.06-lod7-z44": "0801357e8dafd59d09aaafc743c24575e9352dde88461266c38c78b275c18310",
-   "ci2-t4-l0-s1-lodfull-z22": "6e06912f43fe5650ae738736387a073fc87ff4f288ce1727829a1a5a78390859",
-   "ci2-t4-l0-s1-lodfull-z44": "d48fd40e2e5597126d1672135339f75e540c897b6fea6c0c40a39bfb9219115f",
-   "ci2-t4-l0-s1-lod7-z22": "a2615a5160ef9cb053b7948982d1c023a0640141b03b26cb43d527eb72da819f",
-   "ci2-t4-l0-s1-lod7-z44": "518208d87cba0af39b65ff31d905ac97783606bcd4e15bb87a7238aba9445824",
-   "ci2-t4-l0-s1.06-lodfull-z22": "e7b79cc2389ffadbc134f5f69866c4efd842f979da1e133696b364727d12b115",
-   "ci2-t4-l0-s1.06-lodfull-z44": "085ec7f9695f949d4d282631f529373208918f3611235058ca99003c12c02e23",
-   "ci2-t4-l0-s1.06-lod7-z22": "601b79f8fec43c5f67b85852b5601ceb3e7cad6e28e4eb63e8fab3d29957f1e6",
-   "ci2-t4-l0-s1.06-lod7-z44": "f462eec6eb9fe49f8197297390d00f1945b7883868ada56b0da438b466d719b2",
-   "ci2-t4-l6-s1-lodfull-z22": "bf5c14306b0ac19754620654193d7b20d5b46dc9e9e6816bcd97e166a897bda5",
-   "ci2-t4-l6-s1-lodfull-z44": "5fed3310f27103c69e62275f7d72d41196946fccdab4fb515493a5441c3d1195",
-   "ci2-t4-l6-s1-lod7-z22": "3495fe0ab55d04cc2d41ac31c7ddf2aeedb918069943b16b345053d53c3568b7",
-   "ci2-t4-l6-s1-lod7-z44": "7b5fbeba9c706bf4bc963e08c18315b7acf37dd1356ef1e3dcae697dcae233ee",
-   "ci2-t4-l6-s1.06-lodfull-z22": "3a610df5455d8fe2eaad655b7c62c44c0ab7ba84f93c3db00a436f4917e26417",
-   "ci2-t4-l6-s1.06-lodfull-z44": "f34de6452bbbb10085b81e7df6566a2e0c96493410d02bd158cb5fd0ff6b6e3c",
-   "ci2-t4-l6-s1.06-lod7-z22": "5833d4aa38dc904d34ec780f0153cb049cd1c901c66fdd7378fa53e159ccc901",
-   "ci2-t4-l6-s1.06-lod7-z44": "66b636509d26b8061a479eaaeeb3568cf155e2ded4022837ccd9c0207271748f",
-   "ci3-tnone-l0-s1-lodfull-z22": "6b15138f1ccd17ef87768f28b38ce02663d55d2675d2f0ee2a700883b854524c",
-   "ci3-tnone-l0-s1-lodfull-z44": "97be0ad74cffb4fb6dc8a0229b88a8e41c4afbd0c1ed256e3679b7a1faa1dbcd",
-   "ci3-tnone-l0-s1-lod7-z22": "68b20e27a232bc37466093d7315e34ad543e2f9a99e11461c11cf995c4588558",
-   "ci3-tnone-l0-s1-lod7-z44": "42f14233b90a43861d944b2f2ae75bb45412224087fafcf1b07d37985d066c97",
-   "ci3-tnone-l0-s1.06-lodfull-z22": "2fb319f2fe19b187955802993103b73c5572f075c75af411ecd4c98f9dfe900a",
-   "ci3-tnone-l0-s1.06-lodfull-z44": "b0bb4ad9a9306e954a0d198259819839a2e800dc58d553359f5bbbf094448635",
-   "ci3-tnone-l0-s1.06-lod7-z22": "05b9a1620bf5ce89ccce5a54346155148c465efd9260c3bdbe1332764aed271f",
-   "ci3-tnone-l0-s1.06-lod7-z44": "04328e24a7ca483616a724259f38c7ffcedc8dcc5ca5815ad9686f61f18fcace",
-   "ci3-tnone-l6-s1-lodfull-z22": "929108f0cd1469aa1b96a3c4c97dd02ed8f0da699ceb390304c8e8c9d579a3e5",
-   "ci3-tnone-l6-s1-lodfull-z44": "0c1c88fa9468f826f077e25bb4f1ef53b15c9e8496d0e6b9014ee370071bd52b",
-   "ci3-tnone-l6-s1-lod7-z22": "d3930c5371090b71e3cd51264763d110efa3855f83e5902883a68a094d5247a0",
-   "ci3-tnone-l6-s1-lod7-z44": "5fc607a029a03e06bdcf2ced8a8741273d84845dae666c342455cc43ac9dc4f7",
-   "ci3-tnone-l6-s1.06-lodfull-z22": "89e8908affa35c0c0401503c18d5d04ccbd3812d45d72fa045e4f95d8d81fa2a",
-   "ci3-tnone-l6-s1.06-lodfull-z44": "d845817bcc7fe0ed06a31b957d28cd85ad96db4ebb3044ab71375aed8456dcb3",
-   "ci3-tnone-l6-s1.06-lod7-z22": "f0de467354feb16d2a7570bd8b9463c633ca3de36be3c0ac27edaaceb429ec19",
-   "ci3-tnone-l6-s1.06-lod7-z44": "8734b6cbf41ef826967a81282ec41fa280cb03844395c7dd4ad28d4140a386ee",
-   "ci3-t4-l0-s1-lodfull-z22": "22a1eb484b6c8c4b6e53239307c6d6651947ffcb24c0b7ae770af2e4d2d0dcd9",
-   "ci3-t4-l0-s1-lodfull-z44": "fd2a7bea4a94d8fbc1838886aae8f47c456fdbdd716b6d20c154ce5bbd425fd1",
-   "ci3-t4-l0-s1-lod7-z22": "bb57ca54267535fc6ccf7034d813d94b912f59171038641f5ca2ed6dbb62566e",
-   "ci3-t4-l0-s1-lod7-z44": "c9818de77352074f78e704d180bbc4d697071357964185b3c9b59e4c3924ae75",
-   "ci3-t4-l0-s1.06-lodfull-z22": "61a2811c8ca3f382285faa7355f1c285bada960bcd6fa83f49998e2993050e7d",
-   "ci3-t4-l0-s1.06-lodfull-z44": "a02a15b754b9a7d2267ac41faa4e4ffe5c1a47945c53389eeef8a6742c530ea9",
-   "ci3-t4-l0-s1.06-lod7-z22": "91fec0bbf80ef64aa3bf7b993bd8a547dcbaeb4d7a6e28c4f5d5ae4d3ffb1749",
-   "ci3-t4-l0-s1.06-lod7-z44": "02d8baa054acc2b6734b1d78302d45c6972bc56d0ac5e6414f7c287f2247175c",
-   "ci3-t4-l6-s1-lodfull-z22": "42b8c4bfdb996b6fcc7d9c845d305747e54ffc60d91dafbd7753627bc5921668",
-   "ci3-t4-l6-s1-lodfull-z44": "cce305d8fbd726e48c8fde4552d8fd254a61ed217d8fc7485a424414cb9625b6",
-   "ci3-t4-l6-s1-lod7-z22": "81ffd4a8e3fa493fed42cf30a099f59748818cdc6ed1ed92b7e32ca814234e5c",
-   "ci3-t4-l6-s1-lod7-z44": "b9425969c15a418801a6bf3904fe24d3d7baa487122e15185ef8600b4f30c71f",
-   "ci3-t4-l6-s1.06-lodfull-z22": "6081931d11a7df93fb4bd88f2857a812a4f4f46e243d91115b720cdff1800017",
-   "ci3-t4-l6-s1.06-lodfull-z44": "e630af419dcee871272e48fe67e0edfe8f3c7d75779c9f3fd5aac6c91f139949",
-   "ci3-t4-l6-s1.06-lod7-z22": "2a0ea390b8683f513e1713e877214116162c48ee20c53eaad6a48c319225d096",
-   "ci3-t4-l6-s1.06-lod7-z44": "8a52c37d1043637ebd320753c42ebece24c7f91176a4b6353ca1635bfa016d9d"
+  "provenance": {
+    "head": "d058e5df485b2059135a70a55947124779b878fb \u00b7 HEAD \u5341\u5c42 drawFilledBead + S2 registry \u5185\u8054 facet-4\uff08\u4e59\u53e3\u5f84 base / 0.17S\uff09",
+    "method": "\u9010\u4f8b sha256\uff08\u5e8f\u5217\u5316 = framework RenderModel.commands \u9010\u6761 JSON.stringify\uff0cpolygon \u9876\u70b9\u7ecf polygonVertices \u89e3\u5f15\u7528\uff09\uff1b\u4e24\u904d\u6293\u53d6\u7b49\u503c\u81ea\u8bc1 = ADR-0024 J-5",
+    "s3": "d058e5df485b2059135a70a55947124779b878fb \u00b7 S3 \u5de5\u4f5c\u6811\uff08facet-4.ts \u8f6c\u6b63\u88ab\u6e32\u67d3\u94fe\u6d88\u8d39\uff1b\u5341\u5c42\u5df2\u5c01\u5165 legacy-ten.ts\uff09",
+    "s3_frame_recheck": "2026-09-26 \u7b2c\u4e00\u6b21\u590d\u8bc4\uff1a\u53d8\u66f4\u6e90 = \u5173\u5361\u9762\u677f\u7f29\u653e\u63a7\u4ef6\u63d2\u5165\u6bb5\uff08frame \u6bcf\u5e27 +7 \u6761\uff1arect3/circle1/text3\uff09\u3002\u26a0 \u539f\u767b\u8bb0\u503c\u56e0\u5171\u4eab\u6811 checkout \u4e8b\u6545\u4e22\u5931\uff08\u6362\u80a4\u7ebf 2026-09-26 \u8bef\u56de\u9000\u672a\u6682\u5b58\u7a3f\uff09\uff0c\u672c\u6761\u4e3a\u6eaf\u6e90\u91cd\u5efa\u6ce8\uff0c\u6570\u503c\u5e76\u5165\u7b2c\u4e09\u6b21\u590d\u8bc4\u3002",
+    "s3_frame_recheck_2": "2026-09-26 \u7b2c\u4e8c\u6b21\u590d\u8bc4\uff1a\u53d8\u66f4\u6e90 = WXG-T-213 \u00a73.1 \u76d8\u5e26\u6362\u5c3a\u521d\u7a3f yMin 480\u2192568\uff08\u76d8\u5e26\u65cf\u7eaf\u5e73\u79fb \u0394+44\uff0c\u6761\u6570\u4e0d\u53d8\uff09\u3002\u26a0 \u540c\u4e0a\u4e8b\u6545\u4e22\u5931\uff1b\u968f\u540e\u7528\u6237\u6539\u9009 560\uff08v1.58 \u7ec8\u7a3f\uff09\uff0c\u672c\u94fe\u8def\u7531\u7b2c\u4e09\u6b21\u590d\u8bc4\u8986\u76d6\u3002",
+    "s3_frame_recheck_3": "2026-09-26 \u7b2c\u4e09\u6b21\u590d\u8bc4\uff08\u6362\u80a4\u7ebf\u4f9d\u7528\u6237\u6307\u4ee4\u63a5\u7ba1\u6536\u53e3\uff0c\u5b98\u65b9\u590d\u53d6\u5668\u91cd\u8dd1\u53ef\u518d\u751f\uff09\uff1a\u53d8\u66f4\u6e90 = \u2460 WXG-T-213 \u76d8\u5e26\u6362\u5c3a v1.58 \u7ec8\u7a3f yMin 480\u2192560\uff08\u76d8\u5e26\u65cf \u0394+40\uff09+ \u7f29\u653e\u63a7\u4ef6 7 \u6761\u63d2\u5165\u6bb5\uff1b\u2461 WXG-T-214 \u8f6e\u5ed3\u53ef\u8bfb\u6027\u6279\uff08\u7528\u6237 2026-09-26 \u62cd\u677f\uff09\u52a0\u6df1 FACET4_PLATE_MIX \u21d2 facet \u975e\u5b54\u5c42 45/45 \u58a8\u503c\u6f02\u79fb\u3002\u6838\u5bf9\uff1a\u5b54\u5c42 45/45 \u672a\u6f02\uff08\u9ed8\u8ba4\u6ee1\u8c46\uff0cS5 hideHole \u4e0d\u89e6\uff09\uff1btotal frame78=1126 / frame0=970\uff0c\u9010 kind \u0394 \u5168\u91cf\u53ef\u5f52\u56e0 = 78\u00d7(\u22126) + \u63a7\u4ef6 7\uff08\u5dee\u503c\u817f\u9010\u9879\u9489\uff09\u3002\u5c42\u952e\u6bd4\u8f83\u57fa\u6539\u6307 s3.*\uff08\u8f6c\u6b63\u65f6\u70b9\u53f2\u8bc1\u79fb\u5165 s3AtFormalization \u6bb5\uff0c\u817f 2b \u5b88\u62a4\uff09\u3002\u2462 c7d157d\uff08\u5df2\u5165\u5e93\uff0cK-077\uff09B0 \u5e95\u56fe/\u51f9\u69fd\u968f\u683c\u5f84\u7b49\u6bd4\u91cd\u63a8 \u21d2 \u5dee\u96c6\u8d85\u51fa\u300c\u63d2\u5165+\u7eaf\u5e73\u79fb\u300d\u4e24\u7c7b\uff0c\u817f 4b \u53cd\u6f14\u95ed\u5408\u964d\u7ea7\u4e3a\u8eab\u4efd\u6838\u5bf9\uff08\u6700\u5f3a\u5f62\u6001\u5f85 213 \u6279\u91cd\u5efa\uff0cTASKS-DETAIL \u5df2\u767b\u6b20\u8d26\uff09\uff1b\u672a\u767b\u8bb0\u6f02\u79fb\u4ecd\u7531\u817f 4a \u6574\u5e27\u5b57\u8282\u9501\u5151\u4f4f\u3002\u3010\u6536\u53e3\u4e2d\u6b62 2026-09-26\u3011\u5e76\u53d1\u4f1a\u8bdd\u5728\u6293\u53d6\u540e\u7ee7\u7eed\u5199\u5165 \u21d2 \u672c\u6bb5 frame/\u5c42\u952e\u503c\u5df2\u8fc7\u671f\uff08\u73b0\u6811\u7a7a\u76d8\u5b9e\u6d4b 695f5\u2026 \u4e14\u7a7a\u76d8\u6d41\u8f83\u767b\u8bb0\u591a 1 \u6761\uff0c\u5f52\u56e0\u9700 213/247 \u4f1a\u8bdd\uff09\uff0cs3 frame \u952e\u4e0e nonHole \u767b\u8bb0\u7531\u540e\u7eed\u6279\u6b21\u6309\u51bb\u7ed3\u57fa\u7ebf\u91cd\u5c01\uff1b\u817f 4a \u5b57\u8282\u9501\u4fdd\u8bc1\u672a\u767b\u8bb0\u6f02\u79fb\u4e0d\u653e\u884c\u3002",
+    "s3_frame_recheck_4": "cc41aff+\u5408\u6d41\u6811\uff08c7d157d \u7b49\u6bd4 inset + 213 \u63a7\u4ef6/\u76d8\u5e26 + 247 plate \u58a8 + S5 \u6362\u80a4\u94fe\uff09\u00b7 \u7b2c\u56db\u6b21\u590d\u8bc4\u91cd\u5c01\uff1ahead.legacyFlow \u968f c7d157d \u66f4\u65b0\uff08legacy \u8def\u5f84\u672a\u6539\u4f46 inset \u5171\u4eab \u21d2 \u5750\u6807\u7ea7\u6f02\u79fb\uff09\uff1bs3.frame0/frame78 SHA \u66f4\u65b0\uff08kind \u8ba1\u6570\u4e0d\u53d8\u3001total \u4e0d\u53d8\uff09\uff1bs3.facet{NonHole,Hole}Layers \u968f c7d157d inset \u7b49\u6bd4\u6539 \u21d2 \u5168 45 \u4f8b\u91cd\u53d6\uff1bs3AtFormalization \u4e0e head.frame{0,78} \u51bb\u7ed3\u4e0d\u52a8\uff08\u53f2\u8bc1\u6bb5\uff09\u3002"
   }
- },
- "provenance": {
-  "head": "d058e5df485b2059135a70a55947124779b878fb · HEAD 十层 drawFilledBead + S2 registry 内联 facet-4（乙口径 base / 0.17S）",
-  "method": "逐例 sha256（序列化 = framework RenderModel.commands 逐条 JSON.stringify，polygon 顶点经 polygonVertices 解引用）；两遍抓取等值自证 = ADR-0024 J-5",
-  "s3": "d058e5df485b2059135a70a55947124779b878fb · S3 工作树（facet-4.ts 转正被渲染链消费；十层已封入 legacy-ten.ts）",
-  "s3_frame_recheck": "2026-09-26 第一次复评：变更源 = 关卡面板缩放控件插入段（frame 每帧 +7 条：rect3/circle1/text3）。⚠ 原登记值因共享树 checkout 事故丢失（换肤线 2026-09-26 误回退未暂存稿），本条为溯源重建注，数值并入第三次复评。",
-  "s3_frame_recheck_2": "2026-09-26 第二次复评：变更源 = WXG-T-213 §3.1 盘带换尺初稿 yMin 480→568（盘带族纯平移 Δ+44，条数不变）。⚠ 同上事故丢失；随后用户改选 560（v1.58 终稿），本链路由第三次复评覆盖。",
-  "s3_frame_recheck_3": "2026-09-26 第三次复评（换肤线依用户指令接管收口，官方复取器重跑可再生）：变更源 = ① WXG-T-213 盘带换尺 v1.58 终稿 yMin 480→560（盘带族 Δ+40）+ 缩放控件 7 条插入段；② WXG-T-214 轮廓可读性批（用户 2026-09-26 拍板）加深 FACET4_PLATE_MIX ⇒ facet 非孔层 45/45 墨值漂移。核对：孔层 45/45 未漂（默认满豆，S5 hideHole 不触）；total frame78=1126 / frame0=970，逐 kind Δ 全量可归因 = 78×(−6) + 控件 7（差值腿逐项钉）。层键比较基改指 s3.*（转正时点史证移入 s3AtFormalization 段，腿 2b 守护）。③ c7d157d（已入库，K-077）B0 底图/凹槽随格径等比重推 ⇒ 差集超出「插入+纯平移」两类，腿 4b 反演闭合降级为身份核对（最强形态待 213 批重建，TASKS-DETAIL 已登欠账）；未登记漂移仍由腿 4a 整帧字节锁兑住。【收口中止 2026-09-26】并发会话在抓取后继续写入 ⇒ 本段 frame/层键值已过期（现树空盘实测 695f5… 且空盘流较登记多 1 条，归因需 213/247 会话），s3 frame 键与 nonHole 登记由后续批次按冻结基线重封；腿 4a 字节锁保证未登记漂移不放行。",
-  "s3_frame_recheck_4": "cc41aff+合流树（c7d157d 等比 inset + 213 控件/盘带 + 247 plate 墨 + S5 换肤链）· 第四次复评重封：head.legacyFlow 随 c7d157d 更新（legacy 路径未改但 inset 共享 ⇒ 坐标级漂移）；s3.frame0/frame78 SHA 更新（kind 计数不变、total 不变）；s3.facet{NonHole,Hole}Layers 随 c7d157d inset 等比改 ⇒ 全 45 例重取；s3AtFormalization 与 head.frame{0,78} 冻结不动（史证段）。"
- },
- "s3": {
-  "facetHoleLayer": {
-   "ci1-tnone-s22": "b47f612b6ce61cc98dc239ed158b84faf8116de9f993f9b84f7477915c1d9bc8",
-   "ci1-tnone-s30": "47da62087dcc66a9f9bd07cf2d826aaa079f150b8772540a242c76d1d0cae688",
-   "ci1-tnone-s44": "efe7f6a5dac64bf9967aa32e1d70aba8f5a53eaf2d762b71ffa503f98308f6fa",
-   "ci1-t1-s22": "b47f612b6ce61cc98dc239ed158b84faf8116de9f993f9b84f7477915c1d9bc8",
-   "ci1-t1-s30": "47da62087dcc66a9f9bd07cf2d826aaa079f150b8772540a242c76d1d0cae688",
-   "ci1-t1-s44": "efe7f6a5dac64bf9967aa32e1d70aba8f5a53eaf2d762b71ffa503f98308f6fa",
-   "ci1-t5-s22": "cfa03d0945898241367a70517a281b777c455e0a9e714ce411bd949dabd443d2",
-   "ci1-t5-s30": "ac11715d673141e4b1d95157d97493a64c38e501b8691449a510ea389211d08f",
-   "ci1-t5-s44": "69436aa167cde88d006d7cd49ee836a99dd96bba580f656560953e0e2cafd1cf",
-   "ci2-tnone-s22": "811a258e071063e79e1ec1ef6351633ca1b702b92f2d0508ec7a2e943f019f98",
-   "ci2-tnone-s30": "61c4791f9ef61e0162b66b903210b764ea526c42c971167542d62cc3fc2a0781",
-   "ci2-tnone-s44": "8b459bbdc504ddb4365bddb6b4e2b544ea161937b28425330ab75baec61d1f62",
-   "ci2-t1-s22": "b47f612b6ce61cc98dc239ed158b84faf8116de9f993f9b84f7477915c1d9bc8",
-   "ci2-t1-s30": "47da62087dcc66a9f9bd07cf2d826aaa079f150b8772540a242c76d1d0cae688",
-   "ci2-t1-s44": "efe7f6a5dac64bf9967aa32e1d70aba8f5a53eaf2d762b71ffa503f98308f6fa",
-   "ci2-t5-s22": "cfa03d0945898241367a70517a281b777c455e0a9e714ce411bd949dabd443d2",
-   "ci2-t5-s30": "ac11715d673141e4b1d95157d97493a64c38e501b8691449a510ea389211d08f",
-   "ci2-t5-s44": "69436aa167cde88d006d7cd49ee836a99dd96bba580f656560953e0e2cafd1cf",
-   "ci3-tnone-s22": "e441c19e75ada43f83894208cf38b9c5bdb78412b5fddb3cf8c503bf240fc5a6",
-   "ci3-tnone-s30": "f5e8d6dd5709e7dca7e0d3e23a25bae0f0912b43003673c50f90a3e827740a57",
-   "ci3-tnone-s44": "1180c9be39fbfbdf836d1380d78569d6cc73301318991c7e9ccce5929b8507a3",
-   "ci3-t1-s22": "b47f612b6ce61cc98dc239ed158b84faf8116de9f993f9b84f7477915c1d9bc8",
-   "ci3-t1-s30": "47da62087dcc66a9f9bd07cf2d826aaa079f150b8772540a242c76d1d0cae688",
-   "ci3-t1-s44": "efe7f6a5dac64bf9967aa32e1d70aba8f5a53eaf2d762b71ffa503f98308f6fa",
-   "ci3-t5-s22": "cfa03d0945898241367a70517a281b777c455e0a9e714ce411bd949dabd443d2",
-   "ci3-t5-s30": "ac11715d673141e4b1d95157d97493a64c38e501b8691449a510ea389211d08f",
-   "ci3-t5-s44": "69436aa167cde88d006d7cd49ee836a99dd96bba580f656560953e0e2cafd1cf",
-   "ci4-tnone-s22": "74810613f819aeb8a4ab1a0dcbbcc57d8a621dcc8056bf18f0a94dda30064ae8",
-   "ci4-tnone-s30": "496ee7d3656961e22f383a8cac81ed99a978d98473fc66bd623817c42c73fae4",
-   "ci4-tnone-s44": "6471a3d4f1d6c98ac481506df2acec84246f1afdaef38d297b8d8b3407ccbcdc",
-   "ci4-t1-s22": "b47f612b6ce61cc98dc239ed158b84faf8116de9f993f9b84f7477915c1d9bc8",
-   "ci4-t1-s30": "47da62087dcc66a9f9bd07cf2d826aaa079f150b8772540a242c76d1d0cae688",
-   "ci4-t1-s44": "efe7f6a5dac64bf9967aa32e1d70aba8f5a53eaf2d762b71ffa503f98308f6fa",
-   "ci4-t5-s22": "cfa03d0945898241367a70517a281b777c455e0a9e714ce411bd949dabd443d2",
-   "ci4-t5-s30": "ac11715d673141e4b1d95157d97493a64c38e501b8691449a510ea389211d08f",
-   "ci4-t5-s44": "69436aa167cde88d006d7cd49ee836a99dd96bba580f656560953e0e2cafd1cf",
-   "ci5-tnone-s22": "cfa03d0945898241367a70517a281b777c455e0a9e714ce411bd949dabd443d2",
-   "ci5-tnone-s30": "ac11715d673141e4b1d95157d97493a64c38e501b8691449a510ea389211d08f",
-   "ci5-tnone-s44": "69436aa167cde88d006d7cd49ee836a99dd96bba580f656560953e0e2cafd1cf",
-   "ci5-t1-s22": "b47f612b6ce61cc98dc239ed158b84faf8116de9f993f9b84f7477915c1d9bc8",
-   "ci5-t1-s30": "47da62087dcc66a9f9bd07cf2d826aaa079f150b8772540a242c76d1d0cae688",
-   "ci5-t1-s44": "efe7f6a5dac64bf9967aa32e1d70aba8f5a53eaf2d762b71ffa503f98308f6fa",
-   "ci5-t5-s22": "cfa03d0945898241367a70517a281b777c455e0a9e714ce411bd949dabd443d2",
-   "ci5-t5-s30": "ac11715d673141e4b1d95157d97493a64c38e501b8691449a510ea389211d08f",
-   "ci5-t5-s44": "69436aa167cde88d006d7cd49ee836a99dd96bba580f656560953e0e2cafd1cf"
-  },
-  "facetNonHoleLayers": {
-   "ci1-tnone-s22": "9e62b0a2cc9e164fb9e7a0d7ff7aecf9b14e6961f6ebfbf8c317b0da78f642c3",
-   "ci1-tnone-s30": "19fb676efa546910b53cfcca532194a39c78feb6db1acfe341c5ae4933c958d8",
-   "ci1-tnone-s44": "ae6ebe33024eb9489d8922abb8b2be8d834aca99f9ce8295ef112ce56ab94f7e",
-   "ci1-t1-s22": "9e62b0a2cc9e164fb9e7a0d7ff7aecf9b14e6961f6ebfbf8c317b0da78f642c3",
-   "ci1-t1-s30": "19fb676efa546910b53cfcca532194a39c78feb6db1acfe341c5ae4933c958d8",
-   "ci1-t1-s44": "ae6ebe33024eb9489d8922abb8b2be8d834aca99f9ce8295ef112ce56ab94f7e",
-   "ci1-t5-s22": "9e62b0a2cc9e164fb9e7a0d7ff7aecf9b14e6961f6ebfbf8c317b0da78f642c3",
-   "ci1-t5-s30": "19fb676efa546910b53cfcca532194a39c78feb6db1acfe341c5ae4933c958d8",
-   "ci1-t5-s44": "ae6ebe33024eb9489d8922abb8b2be8d834aca99f9ce8295ef112ce56ab94f7e",
-   "ci2-tnone-s22": "b6361e369695a9f486f3ca6ed6c3eae09b9659f65138281cbad7e0dff421c0d3",
-   "ci2-tnone-s30": "50f0ee46030681ff52af7e100758d4511d72f13e4fe4e6a24fd394f218ddfa6b",
-   "ci2-tnone-s44": "9772d4eeca477e53e72b57da679036ada79174f856ca6238b30a004ff4c409c1",
-   "ci2-t1-s22": "b6361e369695a9f486f3ca6ed6c3eae09b9659f65138281cbad7e0dff421c0d3",
-   "ci2-t1-s30": "50f0ee46030681ff52af7e100758d4511d72f13e4fe4e6a24fd394f218ddfa6b",
-   "ci2-t1-s44": "9772d4eeca477e53e72b57da679036ada79174f856ca6238b30a004ff4c409c1",
-   "ci2-t5-s22": "b6361e369695a9f486f3ca6ed6c3eae09b9659f65138281cbad7e0dff421c0d3",
-   "ci2-t5-s30": "50f0ee46030681ff52af7e100758d4511d72f13e4fe4e6a24fd394f218ddfa6b",
-   "ci2-t5-s44": "9772d4eeca477e53e72b57da679036ada79174f856ca6238b30a004ff4c409c1",
-   "ci3-tnone-s22": "d3f06bba18468b691e2bae4bff85f8f0be3e497a52a4163ea0ab8d836e98b397",
-   "ci3-tnone-s30": "18f81548d15e8180477857c1fcbfe4ac446a8a5748bef9a703155c359e08eb1e",
-   "ci3-tnone-s44": "c83f7706d9aeb19a1445753aa663d2badad093104ec1f928c34dd40f67638082",
-   "ci3-t1-s22": "d3f06bba18468b691e2bae4bff85f8f0be3e497a52a4163ea0ab8d836e98b397",
-   "ci3-t1-s30": "18f81548d15e8180477857c1fcbfe4ac446a8a5748bef9a703155c359e08eb1e",
-   "ci3-t1-s44": "c83f7706d9aeb19a1445753aa663d2badad093104ec1f928c34dd40f67638082",
-   "ci3-t5-s22": "d3f06bba18468b691e2bae4bff85f8f0be3e497a52a4163ea0ab8d836e98b397",
-   "ci3-t5-s30": "18f81548d15e8180477857c1fcbfe4ac446a8a5748bef9a703155c359e08eb1e",
-   "ci3-t5-s44": "c83f7706d9aeb19a1445753aa663d2badad093104ec1f928c34dd40f67638082",
-   "ci4-tnone-s22": "1ca84121f91b8993d94b99600746c414fcfe288b2cda51abe93099c00f7b7376",
-   "ci4-tnone-s30": "b1a3a5117a4beed4f9b7eb5833a0cf637397126a949c7feb862d40c012bfaa02",
-   "ci4-tnone-s44": "a392e80361f41e8d82d7c4005f9f1e835060641638a44fc7c5993830b3cb1a56",
-   "ci4-t1-s22": "1ca84121f91b8993d94b99600746c414fcfe288b2cda51abe93099c00f7b7376",
-   "ci4-t1-s30": "b1a3a5117a4beed4f9b7eb5833a0cf637397126a949c7feb862d40c012bfaa02",
-   "ci4-t1-s44": "a392e80361f41e8d82d7c4005f9f1e835060641638a44fc7c5993830b3cb1a56",
-   "ci4-t5-s22": "1ca84121f91b8993d94b99600746c414fcfe288b2cda51abe93099c00f7b7376",
-   "ci4-t5-s30": "b1a3a5117a4beed4f9b7eb5833a0cf637397126a949c7feb862d40c012bfaa02",
-   "ci4-t5-s44": "a392e80361f41e8d82d7c4005f9f1e835060641638a44fc7c5993830b3cb1a56",
-   "ci5-tnone-s22": "bc5d22341865287eb45f11ac1d9e95bd5e3e24b2fce20ecbc0f9edf37eff73a8",
-   "ci5-tnone-s30": "88da6cdb909a165d2eeb0b94e5c21afc7b4a78b458d20ca1d16b541eaea040b6",
-   "ci5-tnone-s44": "ba1156ef91dfca93e91845f73a6b74f08fa9c8e56531aea304292039a0ea7a0a",
-   "ci5-t1-s22": "bc5d22341865287eb45f11ac1d9e95bd5e3e24b2fce20ecbc0f9edf37eff73a8",
-   "ci5-t1-s30": "88da6cdb909a165d2eeb0b94e5c21afc7b4a78b458d20ca1d16b541eaea040b6",
-   "ci5-t1-s44": "ba1156ef91dfca93e91845f73a6b74f08fa9c8e56531aea304292039a0ea7a0a",
-   "ci5-t5-s22": "bc5d22341865287eb45f11ac1d9e95bd5e3e24b2fce20ecbc0f9edf37eff73a8",
-   "ci5-t5-s30": "88da6cdb909a165d2eeb0b94e5c21afc7b4a78b458d20ca1d16b541eaea040b6",
-   "ci5-t5-s44": "ba1156ef91dfca93e91845f73a6b74f08fa9c8e56531aea304292039a0ea7a0a"
-  },
-  "frame0": {
-   "total": 970,
-   "sha": "5c41e32172861777839c2804f8879e12e730f497988e099977470533de5d1cfb"
-  },
-  "frame78": {
-   "total": 1126,
-   "kinds": {
-    "rect": 490,
-    "circle": 82,
-    "line": 220,
-    "text": 12,
-    "polygon": 322
-   },
-   "sha": "1b5c8639127845d8a1cfc187e4bea5f995027eb282a84cd90ab937b5b5fb2854",
-   "filled": 78,
-   "fillableTotal": 156
-  }
- },
- "s3AtFormalization": {
-  "facetNonHoleLayers": {
-   "ci1-t1-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
-   "ci1-t1-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
-   "ci1-t1-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
-   "ci1-t5-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
-   "ci1-t5-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
-   "ci1-t5-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
-   "ci1-tnone-s22": "9c4c94ee4f571badae1ba9e5bf6586a906af89e48216f6f31317c58eab9da5f9",
-   "ci1-tnone-s30": "58cba73201a32edebe571fb414b8b0c88504d1f976e89469f7ada4f05bdafbda",
-   "ci1-tnone-s44": "8bac3b3d026b770a58066eb1b0288e101d6c7ffde74ad5bc02d3a43ecaefd56f",
-   "ci2-t1-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
-   "ci2-t1-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
-   "ci2-t1-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
-   "ci2-t5-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
-   "ci2-t5-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
-   "ci2-t5-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
-   "ci2-tnone-s22": "27bf0f88738c87ba026f04295a535c0abbc9534732114aaeaea0e74f3d9a8169",
-   "ci2-tnone-s30": "11d4c08cd9802f5523d8e21212af8046bb4665c13578827ac9087699db216c21",
-   "ci2-tnone-s44": "37a38ded394e09206b250be6d7e9de477494af8fd8cc3ac16b4cbe1505de8392",
-   "ci3-t1-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
-   "ci3-t1-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
-   "ci3-t1-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
-   "ci3-t5-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
-   "ci3-t5-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
-   "ci3-t5-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
-   "ci3-tnone-s22": "d803e60863f3dba22e684e115577b6008433dd74dc619d18f5b339d13c9b103e",
-   "ci3-tnone-s30": "d648085831ef3eb4f95065ca31129eeb52d25faa589c0aaea10a363614caec68",
-   "ci3-tnone-s44": "85c4d89d985d248e4dc8855910a52e9a0462db4d0326863e15fd7f38216fd860",
-   "ci4-t1-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
-   "ci4-t1-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
-   "ci4-t1-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
-   "ci4-t5-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
-   "ci4-t5-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
-   "ci4-t5-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
-   "ci4-tnone-s22": "b4c2fc11ca93caf325d9ad5ac8438b2d5282acf86beff29ac96a36cc6fa38d6b",
-   "ci4-tnone-s30": "5d8161a05113e975f02601433c7a0dc0b0c3c6c430a404a44e9dabb3648fb445",
-   "ci4-tnone-s44": "5321835f4e128b37f1002c0affa134dff1a1c2a303f200c0255e471544783b89",
-   "ci5-t1-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
-   "ci5-t1-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
-   "ci5-t1-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e",
-   "ci5-t5-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
-   "ci5-t5-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
-   "ci5-t5-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e",
-   "ci5-tnone-s22": "c5a219cd70dfa1ecdb2f6d5c0fb82a36cb7dd015057ea3c03ae33080d16b6799",
-   "ci5-tnone-s30": "961efbab0073aea5535e0e981f8bc110c983a094fe7676ea78df2bcceb123535",
-   "ci5-tnone-s44": "62ed1d5cfbe0726168a9a81037eead9d993e70c47fe2fbe4e382c4ec1d68738e"
-  },
-  "facetHoleLayer": {
-   "ci1-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
-   "ci1-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
-   "ci1-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
-   "ci1-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
-   "ci1-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
-   "ci1-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
-   "ci1-tnone-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
-   "ci1-tnone-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
-   "ci1-tnone-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
-   "ci2-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
-   "ci2-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
-   "ci2-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
-   "ci2-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
-   "ci2-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
-   "ci2-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
-   "ci2-tnone-s22": "9c623e9708a5b91410d6e8ffb18a4d78436dca3ead2d76c126aaedee59050a37",
-   "ci2-tnone-s30": "56032bff4b84b9a44ec926453c7d60a6bfdfb850d797ad8fc7f67f3dd10c1e4f",
-   "ci2-tnone-s44": "dd196d908e14dfad87628a8b7170dc64944392f45968d3c2c020ab24e3fde9ad",
-   "ci3-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
-   "ci3-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
-   "ci3-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
-   "ci3-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
-   "ci3-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
-   "ci3-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
-   "ci3-tnone-s22": "0bdc44b19771938c172b3dcff032f56d80f684e4d91b447f3b5350d2dd19a050",
-   "ci3-tnone-s30": "9c26b90fd9c9cdfebf27821eda01a61a8d1e10573b0760c1dbbedece7e8b405e",
-   "ci3-tnone-s44": "06c7cdeb93628ddd806833bc34f127eeea293066966d9556d4779ad5e6617831",
-   "ci4-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
-   "ci4-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
-   "ci4-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
-   "ci4-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
-   "ci4-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
-   "ci4-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
-   "ci4-tnone-s22": "0b9599b122f9d2d27e8d8875193c3a1da3ba68b401d6eef8eaeb3bc3498841df",
-   "ci4-tnone-s30": "99d959e16b69916c9772718589c46fe37dad5311d3e6289fe29c30a881a55b63",
-   "ci4-tnone-s44": "283b6636e9af11ea2c5161c43b613f4fcc5e551897b5c5787abaa6b04bcecb91",
-   "ci5-t1-s22": "b0c370a0c3c1ad7eea80955fd52ef73fa11624b6085ba852f5b8f71e4e07ed71",
-   "ci5-t1-s30": "4714e220f161f727df43de7fd1e645e5ed121ae47e08768be858246dd8484a71",
-   "ci5-t1-s44": "b4cbe760538fe04f3ea6cfadacca771baf61fccc40aa4109743149821e64ac51",
-   "ci5-t5-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
-   "ci5-t5-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
-   "ci5-t5-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b",
-   "ci5-tnone-s22": "ba1b1b7350601dc610eb426cad37be1687ff409f2a6306b920b9f416bba3887c",
-   "ci5-tnone-s30": "5c8cf516257d3a3fe05234cd49da276ddfe55540d0f9b3657af85e71c0f392f9",
-   "ci5-tnone-s44": "5fec0ce4199c67776f5abc2fe1b0b07409e3ed78d34a68684c32952f40a5185b"
-  },
-  "frame0": {
-   "sha": "d2354a1941a86ec567edd64b5c33a742ea93fcbbcacf3fd989a89cd52ef852ae",
-   "total": 963
-  },
-  "frame78": {
-   "kinds": {
-    "circle": 81,
-    "line": 220,
-    "polygon": 322,
-    "rect": 487,
-    "text": 9
-   },
-   "sha": "594eb606f8b4da6109dc6ef2718ba69c0a69c413949867b57c398999acb9cd42",
-   "total": 1119
-  },
-  "_readme": "S3 转正时刻（HEAD d058e5d）登记快照，史证段：head ≡ 本段非孔/孔 ⇒ 「转正零越界」时点事实永久可校；⛔ 任何批次的后续改动不得追改本段。"
- }
 }

@@ -14,6 +14,10 @@
  *   GET  /api/results/:id     → 单个 result.json（小游戏在线导入用）
  *   GET  /api/results/:id/level → 直接回 levelDraft（小游戏字段最少化；不可入关 ⇒ 422 + 原因）
  *   DELETE /api/results/:id     → 删除该条结果（整目录；id 走 [a-z0-9-] 白名单，不可逆）
+ *   GET  /api/bake-manifest?id=&style= → 当前关预烘清单（WXG-T-221 S3-lite）：扫 result 用到的色集，
+ *        与 games/beads/assets/{bead,cell}/levels/ 已有文件求差，回 { bead:[{colorIdx,filename}], cell:[...] }（仅缺失项）。
+ *   POST /api/bake-save         → body `{ kind:'bead'|'cell', filename, dataUrl }`；filename 严格白名单、
+ *        解码 base64 PNG 落 games/beads/assets/{kind}/levels/{filename}。两端点仅本地仓开（容器 501）。
  *   GET  /                    → 静态页 public/index.html
  *
  * 存储：data/<board>/<id>/result.json（归类 = 目录即盘面档位）。
@@ -24,7 +28,7 @@ import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, existsSync
 import { join, dirname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
-import { BEAD_COLOR_MAX } from '../../tools/scripts/lib/bead-charset.mjs';
+import { BEAD_COLOR_MAX, baseColorOfChar } from '../../tools/scripts/lib/bead-charset.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url)); // apps/beads-studio
 const REPO = join(ROOT, '../..'); // workspace 根（本地跑）；容器内见 Dockerfile 布局
@@ -450,6 +454,103 @@ async function ingestLevel(res, id) {
     return sendJson(res, 200, { ingested: uid, kind: 'single', id: level.id, file, time: level.time, note: 'harness 即时可玩；确认后请 git 审 diff 并提交' });
 }
 
+// ── [WXG-T-221 / ADR-0027 S3-lite] 当前关预烘导出 ────────────────────────────
+// 产物只落本地资源目录（games/beads/assets/{bead,cell}/levels/），不进 game.json /
+// 不入主包 / 不入分包 ⇒ 本批不触发 S0 包体守卫。运行时烘臂不删（DEC-3 三层读序原样）。
+const BAKE_ASSETS = join(REPO, 'games/beads/assets');
+/**
+ * 层集指纹 = 框架 `bake-schema-version.ts` 的镜像（本服务纯 Node、不编译 TS ⇒ 读不到源，
+ * 手工同步）。⚠ 改框架层集时必须同改这一行，否则文件名 `__v<N>` 与运行时缓存 key 漂移。
+ */
+const BAKE_SCHEMA_VERSION = 1;
+const BAKE_KINDS = new Set(['bead', 'cell']);
+// 严格白名单：仅 `[a-z0-9_-]` + `.png` 结尾（首字符非 `-`/`_` 以免被当参数），禁 `/` `.` ⇒ 天然防穿越。
+const BAKE_FILENAME_RE = /^[a-z0-9][a-z0-9_-]{0,123}\.png$/;
+
+/** 扫 result 用到的色索引集合（1-based、去重升序）：levelDraft.pattern 优先、回落正解 pattern。 */
+function usedColorIdxSet(r) {
+    const rows = r.levelDraft?.pattern || r.pattern;
+    if (!Array.isArray(rows)) return [];
+    const set = new Set();
+    for (const row of rows) {
+        if (typeof row !== 'string') continue;
+        for (const ch of row) {
+            const ci = baseColorOfChar(ch); // '.'/'x'/非法 → 0 ⇒ 丢
+            if (ci > 0) set.add(ci);
+        }
+    }
+    return [...set].sort((a, b) => a - b);
+}
+
+/** 服务端权威生成文件名（前端只回填、不自拼，杜绝双源漂移）。 */
+function bakeFilename(kind, styleId, colorIdx) {
+    const slug = kind === 'cell' ? 'cell' : String(styleId).replace(/[^a-z0-9_-]/g, '-');
+    return `${slug}__c${colorIdx}__v${BAKE_SCHEMA_VERSION}.png`;
+}
+
+/** 跨 board 目录按 id 找一条 result.json（与 GET/DELETE 端点同口径）。 */
+function findResultById(id) {
+    if (!existsSync(DATA)) return null;
+    for (const board of readdirSync(DATA)) {
+        const f = join(DATA, board, id, 'result.json');
+        if (existsSync(f)) return JSON.parse(readFileSync(f, 'utf8'));
+    }
+    return null;
+}
+
+function handleBakeManifest(res, url) {
+    // 仅本地仓（同 ingest 那条守卫的理由：服务无鉴权，这是不开公网的边界）。容器无 games/ ⇒ 501。
+    if (!existsSync(join(REPO, 'games/beads')))
+        return sendJson(res, 501, { error: '当前关预烘导出仅在本地仓运行 beads-studio 时可用（容器/VPS 无 games/ 资源目录）' });
+    const id = url.searchParams.get('id');
+    const styleId = url.searchParams.get('style') || 'facet-4';
+    if (!id || !ID_RE.test(id)) return sendJson(res, 400, { error: 'id 缺失或非法（[a-z0-9-]）' });
+    const r = findResultById(id);
+    if (!r) return sendJson(res, 404, { error: 'not found' });
+    const used = usedColorIdxSet(r);
+    const listExisting = (dir) => { try { return new Set(readdirSync(dir)); } catch { return new Set(); } };
+    const beadExisting = listExisting(join(BAKE_ASSETS, 'bead', 'levels'));
+    const cellExisting = listExisting(join(BAKE_ASSETS, 'cell', 'levels'));
+    const bead = [];
+    const cell = [];
+    for (const ci of used) {
+        const bf = bakeFilename('bead', styleId, ci);
+        if (!beadExisting.has(bf)) bead.push({ colorIdx: ci, filename: bf });
+        const cf = bakeFilename('cell', styleId, ci);
+        if (!cellExisting.has(cf)) cell.push({ colorIdx: ci, filename: cf });
+    }
+    return sendJson(res, 200, {
+        styleId, schemaVersion: BAKE_SCHEMA_VERSION, usedColorIdx: used, bead, cell,
+        counts: { used: used.length, beadMissing: bead.length, cellMissing: cell.length },
+    });
+}
+
+async function handleBakeSave(req, res) {
+    if (!existsSync(join(REPO, 'games/beads')))
+        return sendJson(res, 501, { error: '当前关预烘导出仅在本地仓运行 beads-studio 时可用' });
+    let body;
+    try {
+        body = JSON.parse((await readBody(req)).toString('utf8'));
+    } catch (e) {
+        return sendJson(res, 400, { error: `body 需为 JSON {kind,filename,dataUrl}：${e.message}` });
+    }
+    const { kind, filename, dataUrl } = body || {};
+    if (!BAKE_KINDS.has(kind)) return sendJson(res, 400, { error: 'kind 只允 bead|cell' });
+    if (typeof filename !== 'string' || !BAKE_FILENAME_RE.test(filename))
+        return sendJson(res, 400, { error: 'filename 非法（^[a-z0-9][a-z0-9_-]{0,123}\.png$）' });
+    const m = typeof dataUrl === 'string' ? dataUrl.match(/^data:image\/png;base64,([A-Za-z0-9+/\s=]+)$/) : null;
+    if (!m) return sendJson(res, 400, { error: 'dataUrl 需为 data:image/png;base64,...' });
+    const buf = Buffer.from(m[1].replace(/\s+/g, ''), 'base64');
+    if (!buf.length) return sendJson(res, 400, { error: 'base64 解码为空' });
+    const dir = join(BAKE_ASSETS, kind, 'levels');
+    mkdirSync(dir, { recursive: true });
+    const target = join(dir, filename); // filename 已过白名单（无 `/`、无 `..`）⇒ 必落 dir 内
+    let prevBytes = null;
+    try { prevBytes = readFileSync(target).length; } catch { /* 新文件 */ }
+    writeFileSync(target, buf);
+    return sendJson(res, 200, { saved: `${kind}/levels/${filename}`, bytes: buf.length, overwroteBytes: prevBytes });
+}
+
 async function handleGenerate(req, res, url) {
     const q = url.searchParams;
     const cols = Math.min(107, Math.max(2, parseInt(q.get('cols') || '14', 10)));
@@ -555,6 +656,9 @@ async function handle(req, res) {
     try {
         if (req.method === 'OPTIONS') return send(res, 204, '');
         if (req.method === 'POST' && path === '/api/generate') return await handleGenerate(req, res, url);
+        // [WXG-T-221] 当前关预烘导出（仅本地仓，两 handler 内各自守 501）。
+        if (req.method === 'GET' && path === '/api/bake-manifest') return handleBakeManifest(res, url);
+        if (req.method === 'POST' && path === '/api/bake-save') return await handleBakeSave(req, res);
         // 删除一条已存结果（整目录）：id 走与建目录同一套 `[a-z0-9-]` 白名单，**不碰用户传入的路径片段**。
         // 不可逆（磁盘上唯一副本），所以前端必须二次确认；不提供批量/目录级删除。
         const del = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})$/);
@@ -593,6 +697,17 @@ async function handle(req, res) {
                 }
             }
             return sendJson(res, 404, { error: 'not found' });
+        }
+        // [WXG-T-221] 前端预烘需 import harness 编译产物（framework + beads 视图模块）。studio 静态根
+        // 是 public/、dist 不在其内 ⇒ 单开一条只读映射（同 generic static 的防穿越；容器无 dist ⇒ 404）。
+        if (req.method === 'GET' && path.startsWith('/harness-dist/')) {
+            const HARNESS_DIST = join(REPO, 'dev/harness/dist');
+            const file = join(HARNESS_DIST, path.slice('/harness-dist/'.length));
+            if (!file.startsWith(HARNESS_DIST) || !existsSync(file))
+                return sendJson(res, 404, { error: 'harness dist 缺失：先跑 `pnpm run harness:build`' });
+            const ext = file.slice(file.lastIndexOf('.'));
+            const type = ext === '.js' ? 'text/javascript; charset=utf-8' : ext === '.map' ? 'application/json; charset=utf-8' : 'application/octet-stream';
+            return send(res, 200, readFileSync(file), type);
         }
         // 静态：/ 与 /index.html → public/；其余映射同路径（防穿越）
         const rel = path === '/' ? 'index.html' : path.slice(1);

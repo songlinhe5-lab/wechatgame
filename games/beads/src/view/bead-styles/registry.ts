@@ -12,7 +12,7 @@
  *
  * **S3 起渲染链开始消费本表**：`bead-render::drawFilledBead` 逐珠回放
  * `DEFAULT_BEAD_STYLE.beadLayers(...)` 的层集 ⇒ 盘面从十层变为**复刻·四棱刻面**
- * （6 命令 / 0 真 α，`assets-spec §7.11.1`）。S2 的「渲染链不消费本表 + 盘面逐帧不变」
+ * （**7 命令 / 0 真 α**（六裁孔拆环+底，旧 6 命令基线作废），`assets-spec §7.11.1`）。S2 的「渲染链不消费本表 + 盘面 逐帧不变」
  * 纪律随转正作废，改由 `legacy-ten` 对照臂承接「什么都没变」（§K.5.1 ④）。
  *
  * ⛔ 未注册风格**不得预留 styleId**（`16`/`19` 已移出池、`06` 只出池条件，epics Out of Scope）；
@@ -37,7 +37,7 @@ import type { BeadStyle } from './contract.js';
 
 /**
  * **复刻·四棱刻面**（层集与纠正史见 `facet-4.ts` 头注；S2 内联定义在 S3 提出为独立模块）。
- * 绘制序 = 数组序 = `assets-spec §7.11.1` 行 1–6，实测 **6 命令 / 0 真 α**。
+ * 绘制序 = 数组序 = `assets-spec §7.11.1` 行 1–5 + 孔行（六裁拆二），实测 **7 命令 / 0 真 α**（上限压线）。
  */
 const FACET4_STYLE: BeadStyle = FACET4;
 

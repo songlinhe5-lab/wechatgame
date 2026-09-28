@@ -41,7 +41,7 @@ export interface BeadStyleInput {
      * LOD 降档层数（`assets-spec §1.6.4` / `WAVE_BEAD_LOD_LAYERS`、`ZOOM_LOD_LAYERS`）。
      * `undefined` = 满层；传入即「请降到该层数」——**砍哪几层由风格自己定**（渲染侧
      * 只透传、不判语义，控制清单 L5），故本字段是**通道**而不是指令表。
-     * ⚠ facet-4 = 6 命令 / 0 真 α，`≤ 7` ⇒ 对本风格**结构性 no-op**（由判据正面钉住
+     * ⚠ facet-4 = 7 命令 / 0 真 α（六裁孔拆环+底后），`≤ 7` ⇒ 对本风格**结构性 no-op**（由判据正面钉住
      * 「传 / 不传输出逐字节等值」，⛔ 不静默当不存在）。旧十层的可砍集在 `legacy-ten.ts`。
      */
     readonly lodLayers?: number;
@@ -56,8 +56,9 @@ export interface BeadStyleInput {
  * 造型身份就是描边（`assets-spec §7.11.3` 行 2/5 的 `fill + stroke` **同路径**），三态描述符
  * 原本无表达力 ⇒ 不扩字段就落不了正本（要么丢描边、要么改用 `line` 图元叠层，后者会把
  * 已退役的线族以「每层 1 命令」的形态请回盘面、**翻倍命令数**）。两条约束随之定死：
- *  ① 只有 `rect` / `circle` 可带描边（`polygon` 分支不带 ⇒ 刻面必须是一枚枚不透明顶面，
- *     C12 统计域与 J-3 不串形判据的隐含前提）；
+ *  ① `polygon` 分支的 `stroke` 只限**同色自描边**（`stroke === fill`，封相邻刻面 AA 缝，
+ *     `facet-4` 圆角扇用）；跨色描边仍只走 `rect` / `circle` ⇒ 刻面主体仍是一枚枚不透明
+ *     顶面，C12 统计域与 J-3 不串形判据的隐含前提不变；
  *  ② `fill` 仍为**必填** ⇒ “stroke-only 层”在本契约上**结构不可表达**（§K.5 行 5–8 的
  *     防复活语义因此不从字段上求，改由 `kind` 白名单拦 `line` 图元）。
  * 真 α 计数与命令计数均**不因 stroke 而变**（`§7.11` 读法②；见 `isRealAlphaLayer` 注）。
@@ -79,12 +80,20 @@ export type BeadStyleLayer =
         readonly lineWidth?: number;
     }
     | {
-        /** 三角形专用（本单四棱 = polygon3 消费方）：恰 6 元扁平数组。 */
+        /**
+         * 多边形层：扁平 xy 串（**偶数长度**，周界序）。既有三角消费方继续用 6 元组；
+         * `facet-4` 圆角扇 = 格心 + 弧采样边界（N 点，`WXG-T-218` 用户拍板「多点 polygon
+         * 逼近弧线」）。长度即语义：消费方按 `points.length === 6` 分流 `polygon3` 快路。
+         */
         readonly kind: 'polygon';
         readonly role: BeadLayerRole;
-        readonly points: readonly [number, number, number, number, number, number];
+        readonly points: readonly number[];
         readonly fill: string;
         readonly alpha?: number;
+        /** 自描边墨（约束 ①：只准 `stroke === fill`，C3 色源不变）。 */
+        readonly stroke?: string;
+        /** 自描边宽（设计 px；真源 = `BEAD_CARD` / `FACET4_*` 命名常量，⛔ 风格内裸系数）。 */
+        readonly lineWidth?: number;
     }
     | {
         readonly kind: 'circle';
@@ -93,7 +102,14 @@ export type BeadStyleLayer =
         readonly cx: number;
         readonly cy: number;
         readonly r: number;
-        readonly fill: string;
+        /**
+         * ⚠ **WXG-T-221 六裁（用户 2026-09-28「孔径 = 真透」）：circle 分支 `fill` 改为可选**
+         * —— facet-4 的孔拆为「孔底 pit 圆（真透）+ 孔环描边圆（外扩吃珠面）」两枚同心层，
+         * 后者需 stroke-only 表达。**边界不变**：仍 ⛔ 不引入 `line` 图元（§K.5 防复活语义照旧由
+         * `kind` 白名单拦）；rect / polygon 的 `fill` 仍必填（① 自描边约束不变）。
+         * 省略/空 = 不填色，只画描边（builder CircleCommand 的 `fill?` 本就可选）。
+         */
+        readonly fill?: string;
         readonly alpha?: number;
         /** 描边墨（`18` 孔 = `BEAD_SHADOW_HEX`，§7.11.3 行 5）。 */
         readonly stroke?: string;
@@ -112,7 +128,7 @@ type WritableMembers<T> = { -readonly [K in keyof T]: T[K] };
 
 /** 可变底 rect 层（风格模块持有的 scratch 槽位类型）。 */
 export type WritableBeadRect = WritableMembers<Extract<BeadStyleLayer, { kind: 'rect' }>>;
-/** 可变三角层；`points` 字段本身可变，赋入**模块级可变 6 元组**后可原地写元素（零分配、零 cast）。 */
+/** 可变多边形层；`points` 为可变数组，模块级定长 scratch 原地写元素（零分配、零 cast）。 */
 export type WritableBeadPolygon = WritableMembers<
     Extract<BeadStyleLayer, { kind: 'polygon' }>
 >;
@@ -155,7 +171,7 @@ export interface BeadStyle {
  */
 export function isRealAlphaLayer(layer: BeadStyleLayer): boolean {
     return (
-        (layer.alpha ?? 1) < 1 || layer.fill.slice(0, 4).toLowerCase() === 'rgba'
+        (layer.alpha ?? 1) < 1 || (layer.fill ?? '').slice(0, 4).toLowerCase() === 'rgba'
     );
 }
 

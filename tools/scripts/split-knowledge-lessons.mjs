@@ -51,6 +51,8 @@ export const TAG_TO_SHARD = new Map([
     ['工具链', 'toolchain'],
     ['流程', 'process'],
     ['判据', 'criteria'],
+    // WXG-T-221 八裁批：`判据` 片越 B 门（8317 tok）⇒ 按 INDEX §4「标签内部再切」子切渲染/几何序类五条目（K-052/055/056/063/067）。
+    ['判据渲染', 'criteria-render'],
     ['测试', 'testing'],
     ['跨IDE', 'cross-ide'],
     ['环境', 'environment'],

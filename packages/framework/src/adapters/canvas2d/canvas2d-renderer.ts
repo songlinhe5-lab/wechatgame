@@ -44,6 +44,8 @@ export interface Canvas2DLike {
   fill(): void;
   stroke(): void;
   fillText(text: string, x: number, y: number): void;
+  /** `[WXG-T-220 / ADR-0026]` Used by `blit` commands to draw pre-baked textures. */
+  drawImage?(image: object, x: number, y: number, w: number, h: number): void;
   fillStyle: CanvasPaintStyle;
   strokeStyle: CanvasPaintStyle;
   lineWidth: number;
@@ -51,6 +53,15 @@ export interface Canvas2DLike {
   font: string;
   textAlign: string;
   textBaseline: string;
+}
+
+/**
+ * `[WXG-T-220 / ADR-0026]` Texture registry injected by the adapter layer.
+ * The core layer only stores `textureId` strings; this resolves them to
+ * concrete image sources the Canvas2D context can draw.
+ */
+export interface TextureRegistry {
+  get(textureId: string): object | undefined;
 }
 
 export interface Canvas2DRendererOptions {
@@ -68,12 +79,18 @@ export interface Canvas2DRendererOptions {
    * {@link Viewport} or `InputManager` (L2). Defaults to 1.
    */
   readonly pixelRatio?: number;
+  /**
+   * `[WXG-T-220 / ADR-0026]` Texture registry for `blit` commands. If absent,
+   * `blit` commands are silently skipped (vector fallback path).
+   */
+  readonly textureRegistry?: TextureRegistry;
 }
 
 /** Draw a {@link RenderModel} onto a 2D context. */
 export class Canvas2DRenderer {
   private readonly _applyTransform: boolean;
   private readonly _dpr: number;
+  private readonly _textures: TextureRegistry | undefined;
 
   constructor(
     private readonly _ctx: Canvas2DLike,
@@ -82,6 +99,7 @@ export class Canvas2DRenderer {
   ) {
     this._applyTransform = options.applyViewportTransform ?? true;
     this._dpr = options.pixelRatio && options.pixelRatio > 0 ? options.pixelRatio : 1;
+    this._textures = options.textureRegistry;
   }
 
   /** Render one frame. Does not clear unless the model has a background. */
@@ -187,6 +205,30 @@ export class Canvas2DRenderer {
         } else {
           ctx.textBaseline = baseline;
           ctx.fillText(cmd.text, cmd.x, cmd.y);
+        }
+        break;
+      }
+      case 'blit': {
+        // [WXG-T-220 / ADR-0026] Texture blit. The core layer only stores
+        // `textureId`; we resolve it via the injected registry. Missing texture
+        // or no `drawImage` on the context ⇒ silently skip (vector fallback).
+        const tex = this._textures?.get(cmd.textureId);
+        if (tex && this._ctx.drawImage) {
+          this._ctx.globalAlpha = cmd.alpha ?? 1;
+          if (this._applyTransform) {
+            // Design space is y-up (global transform flips Y); drawImage expects
+            // y-down. Flip around the blit rect's center so the texture lands
+            // right-side up.
+            this._ctx.save();
+            this._ctx.translate(0, cmd.y * 2 + cmd.h);
+            this._ctx.scale(1, -1);
+            this._ctx.drawImage(tex, cmd.x, cmd.y, cmd.w, cmd.h);
+            this._ctx.restore();
+          } else {
+            // No global y-flip ⇒ texture is already in the same orientation as
+            // the vector commands (y-down). Draw directly.
+            this._ctx.drawImage(tex, cmd.x, cmd.y, cmd.w, cmd.h);
+          }
         }
         break;
       }

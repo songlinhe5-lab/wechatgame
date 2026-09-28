@@ -31,7 +31,9 @@ const roundedSqArea = (a: number, r: number): number => a * a - (4 - Math.PI) * 
 function account(inset: number, hole: boolean) {
   const face = BEAD_CELL - 2 * inset;
   const corner = Math.round(face * BEAD_CARD.radius);
+  // WXG-T-221 六裁：holeRatio 口径 = **孔真透**（底色实际透出）；外缘 = 真透 + 2×边线宽（1dp），环外扩吃珠面。
   const holeR = hole ? Math.round((face * BEAD_CARD.holeRatio) / 2) : 0;
+  const outerR = hole ? holeR + BEAD_CARD.holeStrokeWidthPx : 0;
   const foot = roundedSqArea(face, corner);
   const holeA = hole ? Math.PI * holeR * holeR : 0;
   const ink = foot - holeA;
@@ -39,7 +41,7 @@ function account(inset: number, hole: boolean) {
   const ring = TILE - foot;
   const bg = ring + holeA;
   const socket = face - 2 * Math.max(BEAD_CARD.minStroke, BEAD_CELL * 0.07);
-  return { face, corner, holeR, holeD: 2 * holeR, ink, ringW, ring, bg, socket };
+  return { face, corner, outerR, outerD: 2 * outerR, holeR, holeD: 2 * holeR, ink, ringW, ring, bg, socket };
 }
 
 // 确认值（§2）：两档的钉值。⛔ 修改须走 `cell-standard.md` §4 变更纪律。
@@ -47,11 +49,12 @@ const FULL = account(BEAD_DRAW_INSET, true);
 const SMALL = account(BEAD_DRAW_INSET_SMALL, false);
 
 describe('格内占比标准（cell-standard.md §2 确认值）', () => {
-  it('钉值：有孔（inset 2 ⇒ 面 26 / 孔 ⌀12 / 圆角 8）', () => {
+  it('钉值：有孔（inset 2 ⇒ 面 26 / 孔真透 ⌀12 · 外缘 ⌀14 / 圆角 8）', () => {
     expect(BEAD_DRAW_INSET).toBe(2);
     expect(FULL.face).toBe(26);
     expect(FULL.face / BEAD_PITCH).toBeCloseTo(0.8125, 6);
-    expect(FULL.holeD).toBe(12); // 取整后偶数（0.44 真源派生 11.44 → 12）
+    expect(FULL.holeD).toBe(12); // 真透（0.44 派生 11.44 → round 取整 12，WXG-T-221 六裁「孔径 = 真透」+ 七裁「计算后取整 dp」）
+    expect(FULL.outerD).toBe(14); // 外缘 = 真透 + 2×1dp 环（四裁 0.538 外缘制已被更正，视觉等值）
     expect(FULL.corner).toBe(8);
     expect(FULL.socket).toBeCloseTo(21.8, 6);
   });
@@ -66,9 +69,11 @@ describe('格内占比标准（cell-standard.md §2 确认值）', () => {
   });
 
   it('J4：孔径恒为偶数整数设计 px（两档通式，不止钉恒等档）', () => {
+    // 六裁真透制：取整对象 = **真透半径** ⇒ 真透恒偶；外缘 = 真透 + 2×1dp 同偶。
     for (const face of [16, 20, 24, 26, 28, 30, 44]) {
       const r = Math.round((face * BEAD_CARD.holeRatio) / 2);
       expect((2 * r) % 2).toBe(0);
+      expect((2 * (r + BEAD_CARD.holeStrokeWidthPx)) % 2).toBe(0); // 外缘同偶
     }
   });
 
@@ -86,7 +91,8 @@ describe('格内占比标准（cell-standard.md §2 确认值）', () => {
   });
 
   it('J2/J6 实测占位（诚实登记：改常量后这两行会给出新占比，须回写文档 §2）', () => {
-    // 有孔 508.0/516.0 ⇒ 49.6:50.4；无孔 533.9/490.1 ⇒ 52.1:47.9（圆角修正口径，非方角近似）。
+    // 有孔 508.0/516.0 ⇒ 49.6:50.4；无孔 533.9/490.1 ⇒ 52.1:47.9（圆角修正口径；底透 = 环 + **真透**，
+    // 孔边墨环归珠；WXG-T-221 四裁真透 ⌀12 = 旧整圆记账同值）。
     expect(FULL.ink).toBeCloseTo(508.0, 0);
     expect(FULL.bg).toBeCloseTo(516.0, 0);
     expect(SMALL.ink).toBeCloseTo(533.9, 0);

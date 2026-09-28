@@ -112,6 +112,9 @@ function liftedBeadAt(snap: BeadsSnapshot, row: number, col: number): { y: numbe
   const got = renderSnap(snap).find(
     (c) =>
       c.kind === 'circle' &&
+      // **六裁（WXG-T-221）**：facet-4 每颗珠发两枚同心 circle（环 stroke-only + pit 底）；
+      // 抬起量/孔径等比判据锚**孔底 pit**（= 真透，随档纯等比缩放）；环 = pit+1dp 不随格径等比。
+      (c as { fill?: string }).fill !== undefined &&
       Math.abs((c as { x: number }).x - bx) <= snap.gridCell / 2 &&
       Math.abs((c as { y: number }).y - cy) <= snap.gridCell,
   );
@@ -306,16 +309,16 @@ describe('G4 vfx_complete_wave · LOD 降档 + B0 底图不参与 lift（v1.5-r8
     return builder.end().commands;
   }
 
-  // 新基线侧正面登记：四棱 6 命令无可砍集 ⇒ `WAVE_BEAD_LOD_LAYERS` 在本臂上是 no-op
+  // 新基线侧正面登记：四棱 7 命令（六裁孔拆环+底）无可砍集 ⇒ `WAVE_BEAD_LOD_LAYERS` 在本臂上是 no-op
   //（波浪期命令数不降 = 转正的既定后果，⛔ 不得被读成“降档失效”的 bug）。
-  it('四棱新基线：波浪降档不削命令（6 条 ≤ C7 上限 7 ⇒ 结构性 no-op）', () => {
+  it('四棱新基线：波浪降档不削命令（7 条 = C7 上限 7 ⇒ 结构性 no-op）', () => {
     const full = emitBead({ targetColorIdx: 0, scale: WAVE_SCALE_PEAK });
     const lod = emitBead({
       targetColorIdx: 0,
       scale: WAVE_SCALE_PEAK,
       lodLayers: WAVE_BEAD_LOD_LAYERS,
     });
-    expect(full).toHaveLength(6);
+    expect(full).toHaveLength(7);
     expect(lod).toEqual(full);
   });
 
@@ -459,23 +462,25 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
     const one = at(1);
     // ① 恒等档乘子恰为 1 ⇒ 旧行为逐位不变（seal / 「1 点击 = 1 珠」类判据的前提）
     expect(one.lift).toBe(SELECT_LIFT_PX);
-    // ② 缩档/胀档下抬起量与珠体/影/底图同源 ⇒ 间隙占格径比例恒定（修复前三个档恒为 6）
+    expect(one.r).toBe(6);
+    // ② 缩档/胀档下抬起量与珠体/影/底图同源 ⇒ 间隙占格径比例恒定（修复前三个档 恒为 6）
     for (const z of [0.75, 1.5, 3]) {
-      const got = at(z);
-      expect(got.lift).toBeCloseTo(SELECT_LIFT_PX * z, 9);
-      /** ③ 孔径/格径 恒定 = 放大通道未超发（`liftT` 按**当前档**归一 + `Math.min(1,·)` 钉 C5 峰值；
-       *  分母若仍吃静息值，z=3 时本值会多 7.7% ⇒ 间隙比例从 0.0787 跌到 0.0493）。
-       *
-       * ⚠ **WXG-T-214 口径更替**：孔径末端取整（半径取整 ⇒ 直径偶数设计 px，用户拍板）
-       * ⇒ 严格等比被打破**最多半像素**：小尺度档上比例偏差可达 ~11%（z=0.75 档珠面 19.5 ⇒
-       * r 4.29→4）。判别力仍在：等比未超发的偏差是 7.7%，而量化误差**恒 ≤ 0.5px** ⇒
-       * 改写成「|r − 等比期望| ≤ 0.5px」，比原 12 位小数等值断言**更弱但仍有判别力**，
-       * ⛔ 不得写成 `toBeCloseTo(…, 0)` 之类的无意义容差。 */
-      const wantR = (one.r / one.cell) * got.cell;
-      // ⛔ 不得写回 `toBeCloseTo(…, 12)`：量化后小尺度档必然偏离（恒等档 r 本身已取整 5.95→6）。
-      // 判别力核算：真超发（分母吃静息值）在 z=3 给 +7.7% ⇒ |r−期望| ≈ 1.0px > 0.5 ⇒ 仍红。
-      expect(Math.abs(got.r - wantR)).toBeLessThanOrEqual(0.5);
+      expect(at(z).lift).toBeCloseTo(SELECT_LIFT_PX * z, 9);
     }
+    /** ③ 孔径随档缩放（`liftT` 按**当前档**归一 + `Math.min(1,·)` 钉 C5 峰值）。
+     *
+     * ⚠ **WXG-T-214 口径**：孔径末端取整（真透半径取整 ⇒ 直径恒偶）⇒ 严格等比被打破。
+     * **WXG-T-221 七裁（真透制 0.44，派生后取整 dp）实测三档 = 4 / 9 / 18**（注入探针实测，
+     * 非手推：抬起珠 `liftT` 各档钉顶 = 1 ⇒ `size = 26z × 1.04 = 27.04z`，连续真透半径 = 5.9616·z，
+     * got = round(·) ⇒ 0.75→4.47→4 ／ 1.5→8.94→9 ／ 3→17.88→18）。
+     * 与「以**已取整**的恒等档 r=6 为锚」的等比期望 6z 相比，偏差 = 本档取整残差(≤0.5)
+     * ＋ 锚点自身取整偏差 ×z（连续 5.9616 → 6 ⇒ ≈+0.04z）⇒ 带宽式期望易手推凑数
+     * （旧「≤0.5」/四裁版「≤0.5·z」/六裁版手推 6.2419·z ⇒ 5/9/19 皆错，一并作废；
+     * 按本轮探针口径六裁应约为 round(6.52·z) ⇒ 5/9/20，当时钉的 19 与探针式不自洽 ⇒ 六裁读数未取证，不作依据）。
+     * ⇒ 本腿改**逐档零容差钉值**：任何超发（含 C5「scale 峰值合计 <1.12」前提破坏）必红，
+     * 判别力不随档衰减。⚠ §13.3 遗留仍未落：取整应只在烘焙基准生效、运行时连续缩放；
+     * 真落地时本三值随改为 4.47 / 8.94 / 17.88 的连续期望（届时走 §4 变更纪律）。 */
+    expect([at(0.75).r, at(1.5).r, at(3).r]).toEqual([4, 9, 18]);
   });
 });
 

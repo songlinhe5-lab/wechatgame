@@ -196,6 +196,9 @@ export function drawLegacyTenBead(
   //   ① 孔底 = 该格目标色的 pit 档（K3 “通孔物理上透下去”）；无目标色（托盘珠）→ 自身下暗档。
   //   ② 阴影圆偏左上（设计空间 y 向上）⇒ 留出**右下亮弧**，与“光从左上”一致。
   // ⛔ 本层是**识别红线**（ADR-0017 红线段）：LOD 降档也不砍。
+  // 口径：`holeRatio` = **真透半径**（本臂历来回如此：旧 0.44；WXG-T-221 六裁 0.4615 语义回正 →
+  // 七裁回定 0.44 ⇒ 本臂派生值 25×0.44/2 = 11.0 **逐字节回 HEAD**，封箱腿 1 破口随之消失（以复跑为准）；
+  // 四裁 0.538 外缘制曾使本臂孔被动放大 ⇒ 归因在案）；对照臂**不取整**（取整裁定属 facet-4 新基线族）。
   const holeR = (size * BEAD_CARD.holeRatio) / 2;
   const holeBottom =
     options.targetColorIdx !== undefined

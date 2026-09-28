@@ -71,9 +71,8 @@ function inCircle(layer, x, y) {
     return dx * dx + dy * dy <= layer.r * layer.r + EPS;
 }
 
-/** 三角形含点（边函数同号法；points = 6 元扁平数组）。 */
-function inTriangle(layer, x, y) {
-    const [ax, ay, bx, by, cx, cy] = layer.points;
+/** 三角形含点（边函数同号法）。 */
+function triHas(x, y, ax, ay, bx, by, cx, cy) {
     const s = (px, py, qx, qy, rx, ry) => Math.sign((qx - px) * (ry - py) - (qy - py) * (rx - px));
     const d1 = s(x, y, ax, ay, bx, by);
     const d2 = s(x, y, bx, by, cx, cy);
@@ -81,6 +80,18 @@ function inTriangle(layer, x, y) {
     const hasNeg = d1 < 0 || d2 < 0 || d3 < 0;
     const hasPos = d1 > 0 || d2 > 0 || d3 > 0;
     return !(hasNeg && hasPos);
+}
+
+/**
+ * 多边形含点：自 `v0` 的扇形三角化（WXG-T-218：`facet-4` 圆角扇 = 格心 + N 点边界，
+ * 星形于 `v0` ⇒ 扇覆盖充要）。6 元组 = 单三角，同一游标覆盖（旧口径逐字节等值）。
+ */
+function inPolygon(layer, x, y) {
+    const p = layer.points;
+    for (let i = 2; i + 3 < p.length; i += 2) {
+        if (triHas(x, y, p[0], p[1], p[i], p[i + 1], p[i + 2], p[i + 3])) return true;
+    }
+    return false;
 }
 
 /** painter 顶面胜出：返回覆盖 (x,y) 的最上层（数组序从后往前扫），平局取先画者。 */
@@ -95,7 +106,7 @@ function topLayerAt(layers, x, y) {
 function layerContains(layer, x, y) {
     if (layer.kind === 'rect') return inRect(layer, x, y);
     if (layer.kind === 'circle') return inCircle(layer, x, y);
-    return inTriangle(layer, x, y);
+    return inPolygon(layer, x, y);
 }
 
 /**
@@ -154,7 +165,7 @@ export function facetCoverage(layers, size, grid = SAMPLE_GRID) {
  */
 const FACET_OVERLAP_REGISTER = {
     // 三套均为 colorIdx=1 / size=BEAD_CELL(30) / grid=121 的实算值（`temp/wxg-t-211-s4/` 台面存证）。
-    'facet-4': 151, // 四枚刻面共边带噪声（旧注已标“非面积重叠”，值未变 = S3 基线可复现）
+    'facet-4': 119, // WXG-T-218 圆角扇几何重写 ⇒ 共边带收缩（151→119），值未变 = 新基线可复现
     'dual-tone-13': 0, // 单枚 facet ⇒ 无重叠对象（结构性事实，不是“调低了阈值”）
     'lineart-18': 3453, // 叠压式层集（主体 rect 上两条带）⇒ 旧 10% 泛阈值在此必误伤的正因
 };

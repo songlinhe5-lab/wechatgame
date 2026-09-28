@@ -73,9 +73,9 @@ const sha = (s: string): string => createHash('sha256').update(s).digest('hex');
 /* ───── 复评登记常量（213 控件/盘带换尺；原稿因共享树 checkout 事故丢失，本套由换肤线
  * 2026-09-26 依会话记录重建并经用户指令接管，归因链 = provenance.s3_frame_recheck{,_2,_3}）───── */
 
-/** 已登记的**非珠体族**插入差：缩放控件条 = 7 条（静息档 `zoomSliderT = 0`，底图另计）。 */
-const HUD_ZOOM_CTRL_DELTA: Record<string, number> = { rect: 3, circle: 1, text: 3 };
-const HUD_ZOOM_CTRL_TOTAL = 7;
+/** 已登记的**非珠体族**插入差：缩放控件条 = 8 条（§3.3 v1.59 zoom T-217 换源后 +1 rect）。 */
+const HUD_ZOOM_CTRL_DELTA: Record<string, number> = { rect: 4, circle: 1, text: 3 };
+const HUD_ZOOM_CTRL_TOTAL = 8;
 /** 历史档案常量：HEAD 盘带中心 = (480+1120)/2，只作 Δ 基准，非现值。 */
 const HEAD_PUZZLE_BAND_MID_Y = 800;
 /** 盘带族平移矢量：由**现役** `PUZZLE_BAND` 派生（⛔ 非手填）⇒ 同时校带尺与渲染跟随。 */
@@ -380,7 +380,7 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(Object.values(delta).reduce((a, b) => a + b, 0)).toBe(totalDelta);
         expect(totalDelta).toBe(78 * (-4 - 5 - 1 + 4) + HUD_ZOOM_CTRL_TOTAL);
         // ⛔ 禁止「纸面推算的新基线整帧数」入册（K-051）：以下均**复评登记实测值**自洽核对。
-        expect(SEAL.s3.frame78.total).toBe(1126);
+        expect(SEAL.s3.frame78.total).toBe(1127);
         expect(SEAL.s3AtFormalization!.frame78.total).toBe(1119); // 转正时刻史证（不随复评漂移）
         expect(SEAL.head.frame78.total).toBe(1587); // 旧值仅作历史档案（§K.5.0 作废登记）
     });

@@ -1,6 +1,6 @@
 /**
  * WXG-T-169 / ADR-0015 甲′ 相机模型判据（`board-camera.ts`）——直接对应真机三反馈：
- *   ① 缩放相对倍率、有界 [fit, fit×SPAN]（issue 2「有限度」）；
+ *   ① 缩放绝对倍率有界 [CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]（§3.3 v1.59；旧 [fit, fit×SPAN] 退役）；
  *   ② 平移：board ≤ 视口时 offset 锁 0（居中、拖不动也拖不出屏），board > 视口时可
  *      滚到内容边界、棋盘边缘永不离开视口（issue 1 能拖 + issue 2 不拖出屏）；
  *   ③ fitCamera 初始 zoom = 含边距适配、居中不贴边（issue 3）；
@@ -18,6 +18,7 @@ import {
   computeFitZoom,
   setCameraZoom,
   sliderTFromZoom,
+  zoomAtPoint,
   zoomFromSliderT,
   type PinchInput,
 } from '../src/systems/board-camera.js';
@@ -33,7 +34,8 @@ import type { BeadsGame } from '../src/game/beads-game.js';
 import {
   IDENTITY_CAMERA,
   type BoardCamera,
-  CAMERA_ZOOM_MAX_SPAN,
+  CAMERA_ZOOM_MIN,
+  CAMERA_ZOOM_MAX,
   BEAD_PITCH,
   BEAD_GAP,
   DESIGN_W,
@@ -120,49 +122,48 @@ describe('computeFitZoom / fitCamera（issue 3 初始适配）', () => {
   });
 });
 
-describe('applyPinch（issue 2 缩放有界）', () => {
+describe('applyPinch（issue 2 缩放有界 · §3.3 v1.59 绝对档）', () => {
   it('single finger is not a pinch (false, unchanged)', () => {
     const c = cam();
     const g = createGesture();
     const one: PinchInput = { isDown: true, isDown2: false, x: 10, y: 10, x2: 0, y2: 0 };
-    expect(applyPinch(one, c, g, SC, SR)).toBe(false);
+    expect(applyPinch(one, c, g)).toBe(false);
     expect(c.zoom).toBe(1);
   });
   it('anchors on 2nd finger landing without a jump', () => {
     const c = cam();
     c.zoom = 2;
     const g = createGesture();
-    expect(applyPinch(two(100, 100, 200, 100), c, g, SC, SR)).toBe(true);
+    expect(applyPinch(two(100, 100, 200, 100), c, g)).toBe(true);
     expect(c.zoom).toBe(2);
     expect(g.pinchDist0).toBeCloseTo(100, 6);
   });
   it('spread/pinch drives zoom by the relative ratio', () => {
     const c = cam();
     const g = createGesture();
-    applyPinch(two(0, 0, 100, 0), c, g, SC, SR); // anchor 100, zoom0=1
-    applyPinch(two(0, 0, 200, 0), c, g, SC, SR); // ratio 2 → 2
+    applyPinch(two(0, 0, 100, 0), c, g); // anchor 100, zoom0=1
+    applyPinch(two(0, 0, 200, 0), c, g); // ratio 2 → 2
     expect(c.zoom).toBeCloseTo(2, 6);
   });
-  it('clamps to [fit, fit × CAMERA_ZOOM_MAX_SPAN]', () => {
-    const fit = computeFitZoom(SC, SR);
+  it('clamps to the absolute range [CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]（与 fit 无关）', () => {
     const c = cam();
     const g = createGesture();
-    applyPinch(two(0, 0, 100, 0), c, g, SC, SR);
-    applyPinch(two(0, 0, 100000, 0), c, g, SC, SR); // huge spread → max
-    expect(c.zoom).toBeCloseTo(fit * CAMERA_ZOOM_MAX_SPAN, 6);
+    applyPinch(two(0, 0, 100, 0), c, g);
+    applyPinch(two(0, 0, 100000, 0), c, g); // huge spread → max
+    expect(c.zoom).toBeCloseTo(CAMERA_ZOOM_MAX, 6);
     const c2 = cam();
     const g2 = createGesture();
-    applyPinch(two(0, 0, 100, 0), c2, g2, SC, SR);
-    applyPinch(two(0, 0, 0.0001, 0), c2, g2, SC, SR); // collapse → min = fit
-    expect(c2.zoom).toBeCloseTo(fit, 6);
+    applyPinch(two(0, 0, 100, 0), c2, g2);
+    applyPinch(two(0, 0, 0.0001, 0), c2, g2); // collapse → min = CAMERA_ZOOM_MIN（旧「下限 = fit」已退役）
+    expect(c2.zoom).toBeCloseTo(CAMERA_ZOOM_MIN, 6);
   });
   it('2nd finger up drops the anchor (no re-anchor on owner)', () => {
     const c = cam();
     const g = createGesture();
-    applyPinch(two(0, 0, 100, 0), c, g, SC, SR);
+    applyPinch(two(0, 0, 100, 0), c, g);
     expect(g.pinchDist0).toBe(100);
     const lifted: PinchInput = { isDown: true, isDown2: false, x: 0, y: 0, x2: 100, y2: 0 };
-    expect(applyPinch(lifted, c, g, SC, SR)).toBe(false);
+    expect(applyPinch(lifted, c, g)).toBe(false);
     expect(g.pinchDist0).toBe(0);
   });
 });
@@ -176,9 +177,8 @@ describe('applyPan + clampCamera（issue 1 能拖 / issue 2 拖不出屏）', ()
     expect(c.offsetY).toBe(0);
   });
   it('放大到 board > 视口 → 可平移，但夹在内容边界（棋盘边缘不出视口）', () => {
-    const fit = computeFitZoom(BC, BR);
     const c = cam();
-    c.zoom = fit * CAMERA_ZOOM_MAX_SPAN; // 最大放大，棋盘远大于视口
+    c.zoom = CAMERA_ZOOM_MAX; // 最大放大（绝对档，与盘无关），棋盘远大于视口
     clampCamera(c, BC, BR);
     const boardW = (BC * BEAD_PITCH - BEAD_GAP) * c.zoom;
     const maxOffX = (boardW - DESIGN_W) / 2;
@@ -191,7 +191,70 @@ describe('applyPan + clampCamera（issue 1 能拖 / issue 2 拖不出屏）', ()
   it('clampCamera 顺带把越界的 zoom 拉回区间', () => {
     const c: BoardCamera = { zoom: 999, offsetX: 0, offsetY: 0 };
     clampCamera(c, SC, SR);
-    expect(c.zoom).toBeCloseTo(computeFitZoom(SC, SR) * CAMERA_ZOOM_MAX_SPAN, 6);
+    expect(c.zoom).toBeCloseTo(CAMERA_ZOOM_MAX, 6);
+  });
+});
+
+// §3.3 v1.59 `ZOOM_TAP_MIN` 低倍点击档的数学腿（行为正本 = `input-control §2.1`「tap·低倍档」）：
+// 焦点不变式 = 被点珠的格心屏幕位缩放前后不变；屏幕位一律用 `gridLayoutFor`（渲染/命中同一真源）算，
+// 不另写公式（历版正是手推屏幕式错了两回——判据与被测面同源才不会假红）。
+// 诚实登记：板小于视口的盘（如 22×17 @1.0：702 < 750）平移锁 0，焦点补偿被既有口径吞掉
+// ⇒ 跟手分支一律用 32×32 大盘（@1.0 悬挑 X 503 / Y 210）；补偿越界时只验「仍缩到 1.0 + offset 被夹」。
+describe('zoomAtPoint（低倍点击焦点放大）', () => {
+  const BIG = 32; // = GRID_MAX_COLS/ROWS，@1.0 板 1022 大于视口 750 ⇒ 有平移余量可验跟手分支
+  it('焦点 = 盘心：缩放后仍居中（理想 offset = 0，不触夹）', () => {
+    // 奇数盘（21×21）⇒ 盘心恰落中心格心；偶数盘的「盘心」在两格之间，hitGridCell 会选到
+    // 邻格（等距取小者）⇒ 理想 offset = ±PITCH/2·(2j−cols+1) 不为 0（本例旧败因）。
+    const c = cam();
+    c.zoom = 0.3;
+    const before = gridLayoutFor(21, 21, c);
+    const px = before.left + ((21 * BEAD_PITCH - BEAD_GAP) * 0.3) / 2;
+    const py = (before.top + before.bottom) / 2;
+    zoomAtPoint(c, px, py, 1, 21, 21);
+    expect(c.zoom).toBe(1);
+    expect(c.offsetX).toBeCloseTo(0, 9);
+    expect(c.offsetY).toBeCloseTo(0, 9);
+  });
+  it('大盘靠内格跟手：格心屏幕位不变，理想 offset 在悬挑区内未被夹', () => {
+    const c = cam();
+    c.zoom = 0.3;
+    const before = gridLayoutFor(BIG, BIG, c);
+    const bead = { row: 20, col: 10 }; // 距盘心 ≤ 8 格 ⇒ 理想补偿 X −258 / Y +32，均在悬挑区内
+    const px = before.colCenterX(bead.col);
+    const py = before.rowCenterY(bead.row);
+    zoomAtPoint(c, px, py, 1, BIG, BIG);
+    expect(c.zoom).toBe(1);
+    const fresh = gridLayoutFor(BIG, BIG, { zoom: 1, offsetX: 0, offsetY: 0 });
+    const idealX = px - fresh.colCenterX(bead.col);
+    const idealY = py - fresh.rowCenterY(bead.row);
+    const maxOffX = ((BIG * BEAD_PITCH - BEAD_GAP) - DESIGN_W) / 2; // 503
+    const maxOffY = ((BIG * BEAD_PITCH - BEAD_GAP) - (PUZZLE_BAND.yMax - PUZZLE_BAND.yMin)) / 2; // 210
+    expect(Math.abs(idealX)).toBeLessThan(maxOffX); // 本例恰为 −(col−(cols−1)/2)·PITCH = −258
+    expect(Math.abs(idealY)).toBeLessThan(maxOffY);
+    expect(c.offsetX).toBeCloseTo(idealX, 6);
+    expect(c.offsetY).toBeCloseTo(idealY, 6);
+    const after = gridLayoutFor(BIG, BIG, c);
+    expect(after.colCenterX(bead.col)).toBeCloseTo(px, 6);
+    expect(after.rowCenterY(bead.row)).toBeCloseTo(py, 6);
+  });
+  it('补偿越出悬挑区 → 锁边诚实登记：仍缩到 1.0，offset 不越平移有界', () => {
+    const c = cam();
+    c.zoom = 0.3;
+    const before = gridLayoutFor(BIG, BIG, c);
+    const bead = { row: 2, col: 30 }; // Y 理想 = (15.5−2)×32 = +432 > 悬挑 210 ⇒ 必被夹
+    zoomAtPoint(c, before.colCenterX(bead.col), before.rowCenterY(bead.row), 1, BIG, BIG);
+    expect(c.zoom).toBe(1);
+    const maxOffX = ((BIG * BEAD_PITCH - BEAD_GAP) - DESIGN_W) / 2;
+    const maxOffY = ((BIG * BEAD_PITCH - BEAD_GAP) - (PUZZLE_BAND.yMax - PUZZLE_BAND.yMin)) / 2;
+    expect(Math.abs(c.offsetX)).toBeLessThanOrEqual(maxOffX + 1e-6);
+    expect(Math.abs(c.offsetY)).toBeLessThanOrEqual(maxOffY + 1e-6);
+    expect(Math.abs(c.offsetY)).toBeCloseTo(maxOffY, 4); // 确实触夹（不是碰巧在界内）
+  });
+  it('目标超上限被夹到 CAMERA_ZOOM_MAX', () => {
+    const c = cam();
+    c.zoom = 1;
+    zoomAtPoint(c, 400, 800, 9, SC, SR);
+    expect(c.zoom).toBe(CAMERA_ZOOM_MAX);
   });
 });
 
@@ -200,8 +263,9 @@ describe('applyPan + clampCamera（issue 1 能拖 / issue 2 拖不出屏）', ()
 //
 // 判据源 = `ADR-0015 §3.4` 回写后正文：复位档 = 相机归 **fit 初始**（不是归恒等），
 // 实际复位触发点 = **两处**（`_setupLevel`：换关/新局/重试/跳关；`_loadStage`：冲刺换 stage）。
-// 断言一律走 `computeFitZoom(cols, rows)` **函数调用**，不钉字面 zoom：`BOARD_FIT_MARGIN` /
-// `CAMERA_ZOOM_MAX_SPAN` / `BOARD_TAP_MOVE_THRESHOLD` 三个值均 `[待确认]` 工程占位，不作判据。
+// 断言一律走 `computeFitZoom(cols, rows)` **函数调用**，不钉字面 zoom：`BOARD_FIT_MARGIN` 虽已
+// 转正、`BOARD_TAP_MOVE_THRESHOLD` 仍 `[待确认]` 工程占位不作判据；缩放上下限自 **§3.3 v1.59**
+// 已冻结（CAMERA_ZOOM_MIN/MAX），本组仍走符号引用防换尺漂移。
 // 另锁一条**负向**口径（旧 §3.4 误列的复位点）：后台隐藏当帧不复位 ⇒ 见末例。「回菜单」同属
 // 不复位一类（暂停面板次钮只上报意图 + 切屏归 shell，路径上不触碰相机），但那是 shell 接线 ⇒
 // 本节不为其虚构断言；按新口径也**不得**写出「回菜单后当帧复位」这类断言（那本身是错的）。
@@ -212,7 +276,7 @@ function cameraOf(game: BeadsGame): BoardCamera {
   return (game as unknown as { _camera: BoardCamera })._camera;
 }
 
-/** 把相机弄脏：7.5 恒在合法档 [fit, fit×SPAN] 之外 ⇒ 复位缺失必留痕，不靠巧合相等。 */
+/** 把相机弄脏：7.5 恒在合法档 [CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX] 之外 ⇒ 复位缺失必留痕，不靠巧合相等。 */
 function dirtyCamera(game: BeadsGame): void {
   const c = cameraOf(game);
   c.zoom = 7.5;
@@ -384,33 +448,43 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
   });
 });
 
-describe('盘面下方缩放控件：slider ↔ zoom 映射（与捏合同一夹取域）', () => {
-  // 取 fit<1 的越界盘 ⇒ 端点不等于 1.0，才能区分「slider 下限 = fit」与「恒等 zoom」。
+describe('盘面下方缩放控件：slider ↔ zoom 映射（§3.3 v1.59 绝对档，与 fit 无关）', () => {
+  // 夹取域与捏合共用同一绝对区间；轨道端点 = 0.2 / 2.0，不再随盘而变。
   const COLS = 29;
   const ROWS = 29;
-  const fit = computeFitZoom(COLS, ROWS);
 
-  it('端点与往返：t=0 ⇒ fit、t=1 ⇒ fit×SPAN，且 t→zoom→t 恒等', () => {
-    expect(fit).toBeLessThan(1);
-    expect(zoomFromSliderT(0, fit)).toBe(fit);
-    expect(zoomFromSliderT(1, fit)).toBeCloseTo(fit * CAMERA_ZOOM_MAX_SPAN, 10);
+  it('端点与往返：t=0 ⇒ MIN、t=1 ⇒ MAX，且 t→zoom→t 恒等', () => {
+    expect(zoomFromSliderT(0)).toBe(CAMERA_ZOOM_MIN);
+    expect(zoomFromSliderT(1)).toBeCloseTo(CAMERA_ZOOM_MAX, 10);
     for (const t of [0, 0.25, 0.5, 0.75, 1]) {
-      expect(sliderTFromZoom(zoomFromSliderT(t, fit), fit)).toBeCloseTo(t, 10);
+      expect(sliderTFromZoom(zoomFromSliderT(t))).toBeCloseTo(t, 10);
     }
   });
 
   it('越界 t 被夹到端点（轨道外拖拽不产生域外 zoom）', () => {
-    expect(zoomFromSliderT(-5, fit)).toBe(fit);
-    expect(zoomFromSliderT(5, fit)).toBeCloseTo(fit * CAMERA_ZOOM_MAX_SPAN, 10);
+    expect(zoomFromSliderT(-5)).toBe(CAMERA_ZOOM_MIN);
+    expect(zoomFromSliderT(5)).toBeCloseTo(CAMERA_ZOOM_MAX, 10);
   });
 
-  it('setCameraZoom 走与捏合同一夹取：超上限落回 fit×SPAN，并按新尺寸重夹平移', () => {
+  it('fit 不变式（§3.3 v1.59）：MIN ≤ fit ≤ 1 ≤ MAX，最大盘也在区间内', () => {
+    const fit = computeFitZoom(COLS, ROWS);
+    expect(fit).toBeLessThan(1);
+    expect(fit).toBeGreaterThanOrEqual(CAMERA_ZOOM_MIN);
+    expect(1).toBeLessThanOrEqual(CAMERA_ZOOM_MAX);
+  });
+
+  it('setCameraZoom 走与捏合同一夹取：超上限落回 MAX，并按新尺寸重夹平移', () => {
     const c = cam();
-    c.offsetX = 500;
+    c.offsetX = 900;
     setCameraZoom(c, 999, COLS, ROWS);
-    expect(c.zoom).toBeCloseTo(fit * CAMERA_ZOOM_MAX_SPAN, 10);
+    expect(c.zoom).toBeCloseTo(CAMERA_ZOOM_MAX, 10);
     // 夹取后不得出现「棋盘边缘进入视口」（留空白可拖出）⇒ 与 clampCamera 同口径。
+    // （绝对档 2.0 下 29×29 的 maxOff = (928×2 − 750)/2 = 503 ⇒ 900 必被重夹。）
     clampCamera(c, COLS, ROWS);
-    expect(c.offsetX).toBeLessThan(500);
+    expect(c.offsetX).toBeLessThan(900);
+    expect(c.offsetX).toBeCloseTo(
+      ((COLS * BEAD_PITCH - BEAD_GAP) * CAMERA_ZOOM_MAX - DESIGN_W) / 2,
+      4,
+    );
   });
 });

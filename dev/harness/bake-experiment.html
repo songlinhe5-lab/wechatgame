@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>wxgame harness · bake experiment (WXG-T-220)</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0c0b1e;
+            --surface: #171a33;
+            --border: #2c3355;
+            --text: #ffffff;
+            --dim: #a6aec8;
+            --accent: #38e1ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        h1 {
+            font-size: 16px;
+            margin: 16px;
+        }
+
+        .row {
+            display: flex;
+            gap: 16px;
+            padding: 0 16px;
+            flex-wrap: wrap;
+        }
+
+        .arm {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            min-width: 200px;
+        }
+
+        .arm h2 {
+            font-size: 14px;
+            margin: 0 0 8px;
+            color: var(--accent);
+        }
+
+        .arm canvas {
+            display: block;
+            background: repeating-conic-gradient(#333 0% 25%, #444 0% 50%) 50% / 12px 12px;
+            border-radius: 4px;
+            image-rendering: pixelated;
+        }
+
+        .stats {
+            margin-top: 8px;
+            color: var(--dim);
+            font-size: 11px;
+        }
+
+        .controls {
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        button {
+            background: var(--border);
+            color: var(--text);
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            cursor: pointer;
+            font: inherit;
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        select {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font: inherit;
+        }
+
+        #diff-stats {
+            padding: 16px;
+            color: var(--dim);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Bake Experiment — WXG-T-220 · 三臂对比</h1>
+
+    <div class="controls">
+        <label>styleId:
+            <select id="style-id">
+                <option value="facet-4" selected>facet-4</option>
+                <option value="lineart-18">lineart-18</option>
+                <option value="dual-tone-13">dual-tone-13</option>
+            </select>
+        </label>
+        <label>colorIdx:
+            <select id="color-idx">
+                <option value="0">0</option>
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </label>
+        <label>size:
+            <select id="bake-size">
+                <option value="30">30 (BEAD_CELL)</option>
+                <option value="44">44 (TRAY)</option>
+                <option value="112" selected>112 (canonical)</option>
+            </select>
+        </label>
+        <button id="btn-render">Render</button>
+        <button id="btn-perf">Perf Test (×1000)</button>
+    </div>
+
+    <div class="row">
+        <div class="arm">
+            <h2>A · 矢量臂（现役）</h2>
+            <canvas id="cv-vector" width="160" height="160"></canvas>
+            <div class="stats" id="stats-vector">—</div>
+        </div>
+        <div class="arm">
+            <h2>C · 烘焙臂（WXG-T-220）</h2>
+            <canvas id="cv-baked" width="160" height="160"></canvas>
+            <div class="stats" id="stats-baked">—</div>
+        </div>
+        <div class="arm">
+            <h2>Δ · 差异图（放大 4×）</h2>
+            <canvas id="cv-diff" width="160" height="160"></canvas>
+            <div class="stats" id="stats-diff">—</div>
+        </div>
+    </div>
+
+    <div id="diff-stats"></div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@wxgame/framework": "./dist/packages/framework/src/index.js",
+          "@wxgame/framework/": "./dist/packages/framework/src/"
+        }
+      }
+    </script>
+    <script type="module">
+        /**
+         * Bake experiment page — renders a single bead via both arms and compares.
+         *
+         * Arm A = vector (drawFilledBead → RenderModelBuilder → Canvas2DRenderer)
+         * Arm C = baked  (BakeSurface → BakeLru → blit + live hole)
+         * Δ     = per-pixel absolute difference ×4放大
+         */
+
+        // Dynamic imports from the harness modules graph (compiled to dist/).
+        const {
+            RenderModelBuilder, Canvas2DRenderer, Viewport,
+            Canvas2DBakeSurface,
+        } = await import('@wxgame/framework');
+
+        const {
+            drawFilledBead, setBeadBakeRuntime, createDefaultBakeRuntime,
+        } = await import('./dist/games/beads/src/view/bead-render.js');
+
+        const { DEFAULT_BEAD_INKS, endpointOf } = await import('./dist/games/beads/src/view/palette.js');
+        const { BEAD_CARD, BEAD_CELL, BAKE_CANONICAL_SIZE } = await import('./dist/games/beads/src/config/tuning.js');
+
+        // ── DOM refs ──
+        const cvVector = document.getElementById('cv-vector');
+        const cvBaked = document.getElementById('cv-baked');
+        const cvDiff = document.getElementById('cv-diff');
+        const ctxVector = cvVector.getContext('2d');
+        const ctxBaked = cvBaked.getContext('2d');
+        const ctxDiff = cvDiff.getContext('2d');
+
+        // ── BakeSurface for the browser ──
+        const browserCanvasFactory = {
+            createCanvas(w, h) {
+                const el = document.createElement('canvas');
+                el.width = w;
+                el.height = h;
+                return el;
+            },
+        };
+
+        // Texture registry for blit commands.
+        const textureMap = new Map();
+        const textureRegistry = {
+            get(id) { return textureMap.get(id); },
+        };
+
+        const surface = new Canvas2DBakeSurface(browserCanvasFactory, (builder, styleId, colorIdx, size) => {
+            drawFilledBead(builder, size / 2, size / 2, colorIdx, { size, styleId });
+        });
+
+        const runtime = createDefaultBakeRuntime(surface, (texId, result) => {
+            // Convert BakeResult (raw RGBA) to an ImageBitmap for Canvas2D drawImage.
+            const cvs = document.createElement('canvas');
+            cvs.width = result.width;
+            cvs.height = result.height;
+            const c = cvs.getContext('2d');
+            const imgData = new ImageData(
+                new Uint8ClampedArray(result.data.buffer, result.data.byteOffset, result.data.byteLength),
+                result.width, result.height,
+            );
+            c.putImageData(imgData, 0, 0);
+            textureMap.set(texId, cvs);
+        });
+
+        // ── Render functions ──
+        function renderVector(ctx, styleId, colorIdx, size) {
+            const displaySize = Math.max(size, 120);
+            const builder = new RenderModelBuilder(displaySize, displaySize);
+            builder.begin();
+            const t0 = performance.now();
+            drawFilledBead(builder, displaySize / 2, displaySize / 2, colorIdx, {
+                size: displaySize, styleId,
+            });
+            const model = builder.end();
+            const viewport = new Viewport(displaySize, displaySize);
+            const renderer = new Canvas2DRenderer(ctx, viewport, {
+                applyViewportTransform: false,
+            });
+            ctx.clearRect(0, 0, displaySize, displaySize);
+            renderer.draw(model);
+            return { time: performance.now() - t0, commands: model.commands.length };
+        }
+
+        function renderBaked(ctx, styleId, colorIdx, size) {
+            const displaySize = Math.max(size, 120);
+            setBeadBakeRuntime(runtime);
+            const builder = new RenderModelBuilder(displaySize, displaySize);
+            builder.begin();
+            const t0 = performance.now();
+            drawFilledBead(builder, displaySize / 2, displaySize / 2, colorIdx, {
+                size: displaySize, styleId,
+            });
+            const model = builder.end();
+            setBeadBakeRuntime(undefined);
+            const viewport = new Viewport(displaySize, displaySize);
+            const renderer = new Canvas2DRenderer(ctx, viewport, {
+                applyViewportTransform: false,
+                textureRegistry,
+            });
+            ctx.clearRect(0, 0, displaySize, displaySize);
+            renderer.draw(model);
+            return { time: performance.now() - t0, commands: model.commands.length };
+        }
+
+        function computeDiff() {
+            const w = cvVector.width;
+            const h = cvVector.height;
+            const a = ctxVector.getImageData(0, 0, w, h);
+            const b = ctxBaked.getImageData(0, 0, w, h);
+            const diff = ctxDiff.createImageData(w, h);
+            let maxDelta = 0;
+            let nonzeroPixels = 0;
+            for (let i = 0; i < a.data.length; i += 4) {
+                const dr = Math.abs(a.data[i] - b.data[i]);
+                const dg = Math.abs(a.data[i + 1] - b.data[i + 1]);
+                const db = Math.abs(a.data[i + 2] - b.data[i + 2]);
+                const da = Math.abs(a.data[i + 3] - b.data[i + 3]);
+                const delta = Math.max(dr, dg, db, da);
+                if (delta > 0) nonzeroPixels++;
+                if (delta > maxDelta) maxDelta = delta;
+                // Amplify difference ×4 for visibility.
+                const amp = Math.min(255, delta * 4);
+                diff.data[i] = diff.data[i + 1] = diff.data[i + 2] = amp;
+                diff.data[i + 3] = 255;
+            }
+            ctxDiff.putImageData(diff, 0, 0);
+            return { maxDelta, nonzeroPixels, totalPixels: w * h };
+        }
+
+        function render() {
+            const styleId = document.getElementById('style-id').value;
+            const colorIdx = parseInt(document.getElementById('color-idx').value);
+            const size = parseInt(document.getElementById('bake-size').value);
+
+            const vecResult = renderVector(ctxVector, styleId, colorIdx, size);
+            document.getElementById('stats-vector').textContent =
+                `${vecResult.commands} cmds · ${vecResult.time.toFixed(2)}ms`;
+
+            const bakeResult = renderBaked(ctxBaked, styleId, colorIdx, size);
+            document.getElementById('stats-baked').textContent =
+                `${bakeResult.commands} cmds · ${bakeResult.time.toFixed(2)}ms`;
+
+            const diffResult = computeDiff();
+            document.getElementById('stats-diff').textContent =
+                `max Δ = ${diffResult.maxDelta} · ${diffResult.nonzeroPixels}/${diffResult.totalPixels} px differ`;
+
+            document.getElementById('diff-stats').textContent =
+                `Δ summary: ${diffResult.nonzeroPixels} non-zero pixels (${(diffResult.nonzeroPixels / diffResult.totalPixels * 100).toFixed(1)}%), max channel Δ = ${diffResult.maxDelta}`;
+        }
+
+        function perfTest() {
+            const styleId = document.getElementById('style-id').value;
+            const colorIdx = parseInt(document.getElementById('color-idx').value);
+            const size = parseInt(document.getElementById('bake-size').value);
+            const N = 1000;
+
+            // Warm up.
+            renderVector(ctxVector, styleId, colorIdx, size);
+            renderBaked(ctxBaked, styleId, colorIdx, size);
+
+            // Vector arm benchmark.
+            const vecTimes = [];
+            for (let i = 0; i < N; i++) {
+                const t0 = performance.now();
+                renderVector(ctxVector, styleId, colorIdx, size);
+                vecTimes.push(performance.now() - t0);
+            }
+            vecTimes.sort((a, b) => a - b);
+            const vecP50 = vecTimes[Math.floor(N * 0.5)];
+            const vecP95 = vecTimes[Math.floor(N * 0.95)];
+
+            // Baked arm benchmark.
+            setBeadBakeRuntime(runtime);
+            const bakeTimes = [];
+            for (let i = 0; i < N; i++) {
+                const t0 = performance.now();
+                const builder = new RenderModelBuilder(Math.max(size, 120), Math.max(size, 120));
+                builder.begin();
+                drawFilledBead(builder, 60, 60, colorIdx, { size: Math.max(size, 120), styleId });
+                builder.end();
+                bakeTimes.push(performance.now() - t0);
+            }
+            setBeadBakeRuntime(undefined);
+            bakeTimes.sort((a, b) => a - b);
+            const bakeP50 = bakeTimes[Math.floor(N * 0.5)];
+            const bakeP95 = bakeTimes[Math.floor(N * 0.95)];
+
+            document.getElementById('diff-stats').textContent =
+                `Perf (${N} iterations): Vector p50=${vecP50.toFixed(3)}ms p95=${vecP95.toFixed(3)}ms | ` +
+                `Baked p50=${bakeP50.toFixed(3)}ms p95=${bakeP95.toFixed(3)}ms | ` +
+                `Ratio p95=${(bakeP95 / vecP95).toFixed(2)}×`;
+        }
+
+        document.getElementById('btn-render').addEventListener('click', render);
+        document.getElementById('btn-perf').addEventListener('click', perfTest);
+
+        // Initial render.
+        render();
+    </script>
+</body>
+
+</html>

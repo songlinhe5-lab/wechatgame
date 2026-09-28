@@ -12,9 +12,10 @@
  * it produces is folded into `gridLayoutFor`, so render and hit-test stay in
  * lock-step (丁-3 「布局即相机」).
  *
- * View model (真机三反馈修正 WXG-T-169):
+ * View model (真机三反馈修正 WXG-T-169 · §3.3 v1.59 绝对倍率化 WXG-T-217):
  *  - 初始 = 「含边距适配」：棋盘缩到正好放进 PUZZLE_BAND 且居中、四周留白，不贴边。
- *  - 缩放有界：下限 = fit（不能再缩），上限 = fit × CAMERA_ZOOM_MAX_SPAN。
+ *  - 缩放有界（绝对倍率）：`zoom ∈ [CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]` = [0.2, 2.0]；
+ *    `fit` 仅作初始视图，不再是下钳（旧 `fit × CAMERA_ZOOM_MAX_SPAN` 口径已退役）。
  *  - 平移有界：棋盘 ≤ 视口时锁死居中（拖不动，也拖不出屏）；> 视口时按内容边界夹取
  *    （可滚到棋盘四角，但棋盘边缘永不离开视口、也不露出空白）。
  */
@@ -24,8 +25,11 @@ import {
   BEAD_PITCH,
   BEAD_GAP,
   BOARD_FIT_MARGIN,
-  CAMERA_ZOOM_MAX_SPAN,
+  CAMERA_ZOOM_MIN,
+  CAMERA_ZOOM_MAX,
   IDENTITY_CAMERA,
+  gridLayoutFor,
+  hitGridCell,
   type BoardCamera,
 } from '../config/tuning.js';
 
@@ -82,7 +86,9 @@ function boardPx(cols: number, rows: number, zoom: number): { w: number; h: numb
 /**
  * Zoom that fits a `cols × rows` board into the band with `BOARD_FIT_MARGIN`
  * breathing room on every side, capped at 1 (never enlarge past natural size).
- * This is the initial view (居中不贴边) AND the zoom-out floor.
+ * This is the initial view (居中不贴边); since §3.3 v1.59 it is **no longer** the
+ * zoom-out floor (`CAMERA_ZOOM_MIN` is) — it only stays guaranteed inside
+ * `[CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]` via the §3 invariant `MIN ≤ fit ≤ 1 ≤ MAX`.
  */
 export function computeFitZoom(cols: number, rows: number): number {
   const natW = cols * BEAD_PITCH - BEAD_GAP;
@@ -109,7 +115,8 @@ export function fitCamera(cam: BoardCamera, cols: number, rows: number): void {
 /**
  * Fold a two-finger pinch into `cam`. Returns `true` while two fingers are down
  * (caller should recompute the layout); `false` when a single finger is down.
- * Zoom is bounded to `[fit, fit × CAMERA_ZOOM_MAX_SPAN]` for this board.
+ * Zoom is bounded to the absolute range `[CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]`
+ * (§3.3 v1.59; board-independent — `fit` no longer clamps).
  *
  * The ratio is `current / anchor two-finger distance`, so the gesture is
  * scale-relative and never jumps when the second finger lands.
@@ -119,13 +126,7 @@ export function fitCamera(cam: BoardCamera, cols: number, rows: number): void {
  * fingers) is a feel refinement deferred to playtest; add a counter-offset term
  * here if it earns its keep.
  */
-export function applyPinch(
-  snap: PinchInput,
-  cam: BoardCamera,
-  g: Gesture,
-  cols: number,
-  rows: number,
-): boolean {
+export function applyPinch(snap: PinchInput, cam: BoardCamera, g: Gesture): boolean {
   if (!snap.isDown2) {
     // Second finger up (or never down): drop the pinch anchor. The remaining
     // owner finger must NOT be re-read as a pinch (owner non-migration,
@@ -140,8 +141,7 @@ export function applyPinch(
     return true;
   }
   if (dist > 0) {
-    const fit = computeFitZoom(cols, rows);
-    cam.zoom = clamp((g.zoom0 * dist) / g.pinchDist0, fit, fit * CAMERA_ZOOM_MAX_SPAN);
+    cam.zoom = clamp((g.zoom0 * dist) / g.pinchDist0, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
   }
   return true;
 }
@@ -165,15 +165,15 @@ export function applyPan(
 }
 
 /**
- * Clamp zoom (to `[fit, fit × SPAN]`) and pan so the board can never be lost or
- * leave the viewport. Offset limit = how far the board overhangs the window:
+ * Clamp zoom (to the absolute `[CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]`, §3.3 v1.59) and pan
+ * so the board can never be lost or leave the viewport. Offset limit = how far the
+ * board overhangs the window:
  * board ≤ window ⇒ 0 (locked centred — a fitting board cannot be dragged off
  * screen); board > window ⇒ `(board − window)/2` (scroll to each corner, but a
  * board edge never comes inside a window edge, so no empty space beyond it).
  */
 export function clampCamera(cam: BoardCamera, cols: number, rows: number): void {
-  const fit = computeFitZoom(cols, rows);
-  cam.zoom = clamp(cam.zoom, fit, fit * CAMERA_ZOOM_MAX_SPAN);
+  cam.zoom = clamp(cam.zoom, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
   const b = boardPx(cols, rows, cam.zoom);
   const maxOffX = Math.max(0, (b.w - WINDOW_W) / 2);
   const maxOffY = Math.max(0, (b.h - WINDOW_H) / 2);
@@ -181,15 +181,44 @@ export function clampCamera(cam: BoardCamera, cols: number, rows: number): void 
   cam.offsetY = clamp(cam.offsetY, -maxOffY, maxOffY);
 }
 
-/** slider 归一位置 t∈[0,1] → zoom：fit 与 fit × `CAMERA_ZOOM_MAX_SPAN` 之间线性插值。 */
-export function zoomFromSliderT(t: number, fit: number): number {
-  return fit * (1 + clamp(t, 0, 1) * (CAMERA_ZOOM_MAX_SPAN - 1));
+/** slider 归一位置 t∈[0,1] → zoom：绝对档 `[CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]` 线性插值（§3.3 v1.59，与 fit 无关）。 */
+export function zoomFromSliderT(t: number): number {
+  return CAMERA_ZOOM_MIN + clamp(t, 0, 1) * (CAMERA_ZOOM_MAX - CAMERA_ZOOM_MIN);
 }
 
 /** zoom → slider 归一位置 t∈[0,1]（`zoomFromSliderT` 的逆；knob 定位用）。 */
-export function sliderTFromZoom(zoom: number, fit: number): number {
-  const span = CAMERA_ZOOM_MAX_SPAN - 1;
-  return span > 0 ? clamp(zoom / fit - 1, 0, span) / span : 0;
+export function sliderTFromZoom(zoom: number): number {
+  const span = CAMERA_ZOOM_MAX - CAMERA_ZOOM_MIN;
+  return span > 0 ? clamp((zoom - CAMERA_ZOOM_MIN) / span, 0, 1) : 0;
+}
+
+/**
+ * 低倍点击档（§3.3 v1.59 `ZOOM_TAP_MIN`，行为正本 `input-control §2.1`）：
+ * 以设计空间点 (x, y) 为焦点把 zoom 设为 `target`（该点屏幕位置尽量不变），平移保持夹取口径。
+ * 实现＝直接拿 `gridLayoutFor`（渲染/命中唯一真源）算新档零偏移下的目标格屏幕位，再解
+ * `offset = 焦点屏幕位 − 新档零偏移屏幕位`：不另发明屏幕式（历版手推均因与真源微差而错），
+ * 也保证焦点格由 `hitGridCell` 在同一真源下选出。冷路径（一次点击一次），热路径禁 alloc 不适用。
+ * 补偿越出新档平移悬挑时 clampCamera 锁边，被点格不严格跟手——既有口径优先（测试钉两分支）。
+ */
+export function zoomAtPoint(
+  cam: BoardCamera,
+  x: number,
+  y: number,
+  target: number,
+  cols: number,
+  rows: number,
+): void {
+  const z0 = cam.zoom;
+  if (z0 <= 0) return;
+  const z1 = clamp(target, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
+  const cell = hitGridCell(gridLayoutFor(cols, rows, cam), z0, x, y);
+  const j = cell ? cell.col : Math.floor(cols / 2);
+  const i = cell ? cell.row : Math.floor(rows / 2);
+  const fresh = gridLayoutFor(cols, rows, { zoom: z1, offsetX: 0, offsetY: 0 });
+  cam.zoom = z1;
+  cam.offsetX = x - fresh.colCenterX(j);
+  cam.offsetY = y - fresh.rowCenterY(i);
+  clampCamera(cam, cols, rows);
 }
 
 /** 直接设定 zoom（slider / 按钮路径），夹取到合法域并按新尺寸夹平移。 */

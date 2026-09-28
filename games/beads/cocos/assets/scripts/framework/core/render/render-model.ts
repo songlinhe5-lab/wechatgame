@@ -94,12 +94,35 @@ export interface PolygonCommand {
   readonly alpha?: number;
 }
 
+/**
+ * `[WXG-T-220 / ADR-0026]` A texture-rect blit command. The core layer only
+ * stores `textureId` (a string); the adapter resolves it to a concrete image
+ * source via an injected `TextureRegistry`. This keeps the core engine-agnostic
+ * (L2: no `cc` / DOM / `wx` imports in `core/**`).
+ *
+ * Does NOT participate in the vertex arena — blit carries no geometry payload
+ * beyond position and size.
+ */
+export interface BlitCommand {
+  readonly kind: 'blit';
+  /** Texture resource identifier (adapter resolves to concrete image source). */
+  readonly textureId: string;
+  /** Bottom-left corner (design space, same convention as `rect`). */
+  readonly x: number;
+  readonly y: number;
+  /** Draw size (design space; texture is scaled to fit). */
+  readonly w: number;
+  readonly h: number;
+  readonly alpha?: number;
+}
+
 export type DrawCommand =
   | RectCommand
   | CircleCommand
   | LineCommand
   | TextCommand
-  | PolygonCommand;
+  | PolygonCommand
+  | BlitCommand;
 
 /** A full frame description, in design-space units. */
 export interface RenderModel {
@@ -301,6 +324,19 @@ export class RenderModelBuilder {
     v[offset + 5] = y2;
     this._vertexWrites += 6;
     this._commands.push({ kind: 'polygon', offset, count: 3, ...cmd });
+  }
+
+  /**
+   * `[WXG-T-220 / ADR-0026]` Append a texture-rect blit command. Does NOT
+   * participate in the vertex arena (blit carries no geometry payload beyond
+   * position and size). The core layer only stores `textureId`; the adapter
+   * resolves it to a concrete image source.
+   */
+  blit(textureId: string, x: number, y: number, w: number, h: number, alpha?: number): void {
+    this._commands.push({
+      kind: 'blit', textureId, x, y, w, h,
+      ...(alpha !== undefined ? { alpha } : {}),
+    });
   }
 
   /**

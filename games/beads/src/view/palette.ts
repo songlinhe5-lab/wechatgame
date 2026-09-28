@@ -96,6 +96,7 @@ function bakeEndpoints(hexes: readonly string[]): BeadEndpoints[] {
       edge: mix(base, -SOCKET_EDGE_DARK_MIX),
       pit: mix(base, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
       lit: mix(base, SOCKET_LIT_MIX),
+      hole: mix(base, -BEAD_HOLE_STROKE_MIX),
     });
   }
   return out;
@@ -414,6 +415,12 @@ export const SOCKET_EDGE_DARK_MIX = 0.3;
 export const SOCKET_PIT_DARKEN = 0.14;
 /** S4 下内缘受光亮线：`mix(底色, #FFF, 0.38)`（复用珠卡 rim 端点 §1.9.2）。 */
 export const SOCKET_LIT_MIX = 0.38;
+/**
+ * B14 孔边线墨（用户 2026-09-28 三裁，推翻 2026-09-27 二裁的恒定阴影墨）：
+ * `mix(base, #000, 0.58)` = 沿 0.30 → 0.44 的 +0.14 步进节奏再暗一档，
+ * 随珠色走族 ⇒ 恒定墨的 d 比值逐色漂移问题消失，tint mask（ADR-0028）可固化孔环。
+ */
+export const BEAD_HOLE_STROKE_MIX = 0.58;
 
 /** demo 默认墨水组（顶层 `LEVELS_DATA.palette` 十色；预烘焙一次，模块级复用零分配）。 */
 export const DEMO_BEAD_INKS: BeadInks = (() => {
@@ -423,7 +430,7 @@ export const DEMO_BEAD_INKS: BeadInks = (() => {
 
 /**
  * 十色端点查找表（预烘焙，§1.9.5）：索引 0..9 ↔ 珠色 1..10。
- * 每项 `{ base, edge, pit, lit }` —— `buildRenderModel` 热路径只查表不 mix。
+ * 每项 `{ base, edge, pit, lit, hole }` —— `buildRenderModel` 热路径只查表不 mix。
  */
 export interface BeadEndpoints {
   readonly base: string;
@@ -433,6 +440,8 @@ export interface BeadEndpoints {
   readonly pit: string;
   /** S4 受光亮线：`mix(base, #FFF, 0.38)`。 */
   readonly lit: string;
+  /** B14 孔边线：`mix(base, #000, 0.58)`——比外框/坑底（0.44）再暗一档，随珠色走族（2026-09-28 三裁）。 */
+  readonly hole: string;
 }
 
 /** 越界 colorIdx 的端点兑底（炭黑，同 {@link beadColorOf} 行为）。模块级预烘焙，声明于 SOCKET_* 之后。 */
@@ -441,6 +450,7 @@ const FALLBACK_ENDPOINTS: BeadEndpoints = Object.freeze({
   edge: mix(BEAD_FALLBACK_HEX, -SOCKET_EDGE_DARK_MIX),
   pit: mix(BEAD_FALLBACK_HEX, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
   lit: mix(BEAD_FALLBACK_HEX, SOCKET_LIT_MIX),
+  hole: mix(BEAD_FALLBACK_HEX, -BEAD_HOLE_STROKE_MIX),
 });
 
 

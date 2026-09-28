@@ -14,7 +14,7 @@
  *     ⇒ 本模块不自辩：孔 fill 走 `endpointOf(target).pit`（⛔ `'#FFFFFF'` / base 字面），
  *       base 缺席的后果由 C12 **弱读法 + role 域**承接（珠面域 = `#2` 一枚 ⇒ argmax = `pit`
  *       ∈ 本格 base 同族 ⇒ 判过；已裁依据 = QA `test-cases §K.1`「`13` 在弱读下必须过」）。
- *  2. **孔径 = `size × BEAD_CARD.holeRatio / 2`（= 0.22S）** —— spike 的 `0.16S` 偏小 **27%**
+ *  2. **孔径（真透）= `size × BEAD_CARD.holeRatio / 2`**（六裁真透制 + 七裁回定 0.44，派生后取整 dp）—— spike 的 `0.16S` 偏小 **27%**
  *     （`§7.11.6` 同一行），与四棱转正后的口径**同源** ⇒ ⛔ 风格内自孔径（K-042 真源单一）。
  *  3. （必改 ③ = `18` 的白高光引 token ⇒ 与本模块无关，见 `lineart-18.ts`。）
  *
@@ -119,10 +119,12 @@ function dualTone13Layers({
     PT_DIAGONAL[5] = l;
     DIAGONAL.fill = e.pit;
 
-    // #3 单孔（甲口径 / 必改 ①②）：`r = 0.22S`（唯一真源 = `BEAD_CARD.holeRatio`）、
+    // #3 单孔（甲口径 / 必改 ①②）：`r = 真透半径 = holeRatio/2·S`（唯一真源 = `BEAD_CARD.holeRatio`，
+    // **六裁真透制 + 七裁回定 0.44**（2026-09-28；旧 0.22S 指同源口径）、
     // 孔底 = **目标格 `pit`**（通孔物理上透下去看见该格目标色）；无目标色（托盘珠）
     // ⇒ 按契约 `targetColorIdx ?? colorIdx` 回落本格 `pit`（仍是端点表内色，C3 零新色）。
-    // 同 `facet-4` 的取整口径（用户拍板「孔径整数、2 的倍数 px」，§7.11.6 三套同源）。
+    // 同 `facet-4` 的取整口径（用户拍板「孔径整数、2 的倍数 px」，§7.11.6 三套同源；本风格取整对象即真透，
+    // 无孔环层 ⇒ 六裁语义天然成立）。
     HOLE.r = Math.round((size * BEAD_CARD.holeRatio) / 2);
     HOLE.fill = endpointOf(inks, targetColorIdx ?? colorIdx).pit;
 

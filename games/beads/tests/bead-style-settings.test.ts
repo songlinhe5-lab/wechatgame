@@ -967,10 +967,10 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
         const small = frame(harness);
         expect(game.snapshot.gridPitch).toBe(pitch); // 前置：格距不随档 ⇒ 带宽比较才有意义
 
-        // ① 小豆无孔：盘面 `circle` 恰少 `filled` 枚（每颗珠少 1 枚孔层，⛔ 不是整颗消失）。
+        // ① 小豆无孔：盘面 `circle` 恰少 `2 × filled` 枚（**六裁**：facet-4 每颗珠的孔域 = 环+底 2 枚 circle，⛔ 不是整颗消失）。
         const rFull = radii(full, inPuzzle);
         const rSmall = radii(small, inPuzzle);
-        expect(rFull.length - rSmall.length).toBe(filled);
+        expect(rFull.length - rSmall.length).toBe(2 * filled);
         expect(rFull.length).toBeGreaterThan(rSmall.length); // 阳性对照：本档确有孔层可剥
 
         // ② 珠面收窄且恒零重叠（A5「珠面恒 < 格距」在两档下都成立）。
@@ -1054,8 +1054,10 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
         expect(game.beadStyle).toBe(SECOND);
         const after = trayOf(frame(harness));
         expect(after).not.toEqual(base);
-        // 但「恒有孔、恒满幅」仍成立：`circle`（孔层）枚数不随风格变。
-        expect(circles(after)).toBe(circles(base));
+        // 但「恒有孔」仍成立：托盘珠仍画孔（circle > 0）。（**六裁登记**：旧「`circle` 枚数不随风格变」的前提
+        //   = 各风格恒 1 枚孔；facet-4 拆环+底后孔域枚数变风格相关（2 vs 1）⇒ 改钉「恒有孔」而非「枚数相等」，
+        //   ⛔ 不是放宽—「恒满幅不随档」已由上方 `trayOf === base` 逐命令不变承担。）
+        expect(circles(after)).toBeGreaterThan(0);
     });
 
     it('「豆子尺寸」钮文案 = 现档显示（逐档实测，⛔ 不写死档数与款名）', () => {

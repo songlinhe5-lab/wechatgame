@@ -14,7 +14,7 @@ import {
   BEAD_GAP,
   BEAD_HIT_PAD,
   BEAD_PITCH,
-  CAMERA_ZOOM_MAX_SPAN,
+  CAMERA_ZOOM_MAX,
   DEFAULT_TUNING,
   DESIGN_H,
   DESIGN_W,
@@ -287,10 +287,10 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     expect(zc.reset.w).toBeGreaterThanOrEqual(TOUCH_MIN);
     expect(zc.reset.h).toBeGreaterThanOrEqual(TOUCH_MIN);
     expect(zc.track.h).toBeGreaterThanOrEqual(TOUCH_MIN);
-    // ② 上界：最大档时盘面最底行命中框下探 `BEAD_HIT_PAD × (fit×SPAN)`（fit ≤ 1 ⇒ 上界取 SPAN）
+    // ② 上界：最大档时盘面最底行命中框下探 `BEAD_HIT_PAD × CAMERA_ZOOM_MAX`（§3.3 v1.59 绝对档）
     //    ⇒ 控件条顶不得越过它，否则就有珠子的点击被吃掉。
-    expect(stripTop).toBeLessThanOrEqual(PUZZLE_BAND.yMin - BEAD_HIT_PAD * CAMERA_ZOOM_MAX_SPAN);
-    // ③ 下界：托盘 row0 槽命中框顶仍在控件条之下 ⇒ 也不抢托盘（现余量 8px，`[待真机]`）。
+    expect(stripTop).toBeLessThanOrEqual(PUZZLE_BAND.yMin - BEAD_HIT_PAD * CAMERA_ZOOM_MAX);
+    // ③ 下界：托盘 row0 槽命中框顶仍在控件条之下 ⇒ 也不抢托盘（换源后现余量 12px，`[待真机]`）。
     const trayHitTop = TRAY_BAND.yMax - TRAY_PANEL_PAD - TRAY_SLOT / 2 + TRAY_HIT_SIZE / 2;
     expect(stripBottom).toBeGreaterThanOrEqual(trayHitTop);
     // ④ 整条在托盘面板（贴上沿）之上、且不越屏左/右。

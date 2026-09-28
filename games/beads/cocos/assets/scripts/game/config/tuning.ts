@@ -113,8 +113,11 @@ export const FACE_MIN = 12;
 
 /** 空格凹陷坑四层（§1.2 v1.5）：几何以内缩比例表达，墨色端点在 palette 预烘焙表。 */
 export const SOCKET_CARD = Object.freeze({
-  /** S1 暗缘框线宽（坑边比例，min 2px 地板在渲染层）。 */
-  edgeWidth: 3 / 64,
+  /**
+   * S1 暗缘框线宽——**WXG-T-221（用户 2026-09-28 五裁）作废删除**：旧等比 `3/64`（min 2px
+   * 地板在渲染层）改为与珠面外描边对齐的固定 `1` dp（消费点改接 `FACET4_EDGE_INSET_PX`），
+   * ⛔ 不留无消费者常量（C4 判例同 `FACET4_HOLE_RADIUS`）。
+   */
   /** S2 坑底四边内缩（坑边比例 = 6%）。 */
   pitInset: 0.06,
   /** S3 上内缘内阴影线宽。 */
@@ -237,6 +240,19 @@ export const BEAD_GAP = 2;
  * 「`stroke()` 的基准是绘制边长、不是格径」）⇒ 新尺静息档 = (30 − 8) = **22** 设计 px。
  */
 export const BEAD_CELL = BEAD_PITCH - BEAD_GAP;
+
+/**
+ * `[WXG-T-220 / ADR-0025 DEC-2 · WXG-T-221 二批]` 烘焙基准尺寸（px）。
+ *
+ * 128 = 32dip（`BEAD_PITCH` 整格节距）× 2（dpr cap）× 2.0（`CAMERA_ZOOM_MAX`）—— 用户
+ * 2026-09-28 拍板：基准从旧「26dip 珠体边长 ×2×2 + 防截边 pad ≈112」抬到「整格节距 ×2×2 = 128」，
+ * 让底图（格面）与珠子在满 zoom + 满 dpr 下都不截边。所有烘焙纹理统一在此尺寸下创建，
+ * 消费时由 `blit` 命令缩放到珠体当前视觉尺寸。LRU 缓存键不含本值（schema version 另管）。
+ *
+ * ⚠ 本值是烘焙管线的「源分辨率」，不是珠体渲染尺寸。渲染尺寸由 `BEAD_CELL` / `TRAY_BEAD_SIZE`
+ * / `scale` / `lift` 等动态决定；烘焙纹理在 blit 时按目标尺寸缩放（Canvas2D drawImage）。
+ */
+export const BAKE_CANONICAL_SIZE = 128;
 /**
  * Max columns per level. **v1.45（WXG-T-203）：50 → 32** —— 用户拍板「单图上限 32 个珠子宽度，
  * 超过就拆组合图」。本值语义由 v1.37 的「导入硬顶」升为**单图/组合图（Plate）分界线 = 切块阈值**：
@@ -937,6 +953,8 @@ export const SELECT_LIFT_MS = 200;
  * 算式与 `BEAD_DRAW_INSET` 同形（K-077 判例）。恒等档乘子恰为 1 ⇒ 逐位不变。
  */
 export const SELECT_LIFT_PX = 6;
+/** 选中态抬起方向角（度）：0 = 纯上，>0 = 斜上（珠往左上偏，阴影往右下）。§5 空间语言 · 2026-09-27 用户拍板。 */
+export const SELECT_LIFT_ANGLE = 15;
 /**
  * 托盘 `selected` 抬起位移（§1.2 selected 行既有值 4px，仅从字面量提出）。
  * ⚠ **恒用绝对值、不随 zoom 缩**：托盘带（`TRAY_BAND` / `TRAY_SLOT`）不随棋盘相机变尺，
@@ -1179,11 +1197,27 @@ export const BEAD_CARD = {
    * ✅ **WXG-T-211-S3 升为孔径唯一真源**：`facet-4` 孔半径 = `size × holeRatio / 2`
    * （= §7.11.6「落码以 0.44 为准」），旧 spike 口径 `0.17S` 常量 `FACET4_HOLE_RADIUS`
    * **随本批退役删除** ⇒ 底图卡与风格孔共用同一把尺（⛔ 风格内不得自孔径）。
+   *
+   * ⚠ **WXG-T-221（用户 2026-09-28 四裁 A 案 → 六裁语义更正 → 七裁定值）：现值 `0.44`，口径 = 「孔径 = 真透，派生值取整 dp」**。
+   * 四裁曾改钉「孔外缘」（0.538）；用户 09-28 六裁更正语义：`BEAD_DRAW_INSET` 内缩出的珠面**含孔区**，
+   * `holeRatio` 派生的**孔径 = 真透圆**（底色实际透出），孔边线墨环**外扩吃珠面**；
+   * 同日七裁拍板「holeRatio 取 0.44，计算后取整 dp」⇒ 语义不变、值回 0.44（Midi 实物真比），
+   * 接受恒等档 +4.9% 取整偏（旧精确值 0.4615 作废）。
+   * 恒等档 `0.44 × 26 / 2 = 5.72 → round = 6` ⇒ **真透 ⌀12 / 外缘 ⌀14**（与六裁同值同形）；
+   * 面积账与四裁外缘制**视觉逐 texel 等值**（本裁 = 定值，⛔ 非观感变更）；13/18/legacy 同源。
+   * 取整对象 = 真透半径 ⇒ 真透恒偶（J4）；外缘 = 真透 + 2×1dp 同偶。`J7 成对锁`（inset = 2）随本行同批改。
    */
   holeRatio: 0.44,
   /** 孔内壁自阴影的偏移量（半径比例）与 α；光从左上 ⇒ 阴影偏左上，留出右下亮弧。 */
   holeShadeOffset: 0.22,
   holeShadeAlpha: 0.3,
+  /**
+   * **孔描边宽 = 1dp 绝对**（用户 2026-09-28 裁决，推翻 09-27 二裁的「粗环」）：与 plate
+   * 外框同宽（`FACET4_EDGE_INSET_PX = 1` 设者语义），设计 px 直接落地 ⇒ ⛔ 不走比例系数、
+   * 不吃 `minStroke` 地板（旧 `0.0769×size` 在静息 22px 珠面上本就被钳成 2dp，与裁决值 1dp 不符）。
+   * 墨 = 端点族 `hole`（`mix(base, −0.58)`，见 `palette.BEAD_HOLE_STROKE_MIX`）。
+   */
+  holeStrokeWidthPx: 1,
   /**
    * **L2′ 侧壁高度**（K5）——实物是硬币状，有一条竖向侧壁；旧模型只靠同色压暗倒角，
    * 读作“斜切边”不读作“厚度”。`lift` 时按 `1 + lift/size` 拉长（§5 空间语言）。
@@ -1209,7 +1243,7 @@ export const BEAD_CARD = {
   liftScaleGain: 0.04,
   /** 投影偏移放大倍数（150%）与 α 衰减（40%）：离得越远，影子越大越淡。 */
   liftShadowDyGain: 1.5,
-  liftShadowFade: 0.4,
+  liftShadowFade: 0.55,
   /** 接触阴影收窄（35%）：离地后接触面应变小而不是留着黑块。
    * ⚠ **不衰减它的 α** —— §1.2 已把 L0a 定调为「固定 α 不受 lift 影响」（本批上一版
    *   试图连 α 一起淡掉，被 `§1.2 lift and shadow α` 判据拦下）。只改宽度，不改颜色语义。 */
@@ -1260,7 +1294,7 @@ export const BEAD_STYLE_MAX_ALPHA_LAYERS = 2;
    | `mix(base, −0.34)` | 四棱 #1 底 rect | ✅ **命名常量** `FACET4_PLATE_MIX`（本组） |
    | `mix(base, −0.16)` | 四棱 #4 右刻面 | ✅ **命名常量** `FACET4_FACET_RIGHT_MIX`（本组） |
    | `0.09S` 四角内缩 | 四棱 #2–#5 | ✅ **命名常量** `FACET4_FACET_INSET`（本组） |
-   | 孔半径 | 四棱 #6 | ✅ **归位唯一真源** `BEAD_CARD.holeRatio`（§7.11.6「落码以 0.44 为准」）
+   | 孔半径 | 四棱 #6 | ✅ **归位唯一真源** `BEAD_CARD.holeRatio`（§7.11.6「落码以 0.44 为准」；WXG-T-221 六裁真透制 + 七裁回定 0.44（派生值取整 dp），沿革见该常量注）
    |     ⇒ 旧 spike 口径常量 `FACET4_HOLE_RADIUS`（0.17）**本批退役删除**（不留无消费者常量） |
    | `mix(base, +0.34)` | 凹槽 spike 坑底亮 rect | ✅ **按端点表归位**：生产 `drawEmptySocket` 坑底 =
    |     `endpoints.pit`、亮线 = `SOCKET_LIT_MIX 0.38`（= 端点 `lit`）⇒ **无裸值、无需新常量**
@@ -1309,13 +1343,28 @@ export const FACET4_FACET_RIGHT_MIX = -0.16;
  *   改名会牵动风格模块与台账判据的引用面 ⇒ 归后续单独的符号清算批（⛔ 不顺手扩大改动面）。
  */
 export const FACET4_FACET_INSET = 0.09;
+/**
+ * **圆角扇外缘内缩（设计 px，定值）**（`WXG-T-218` 2026-09-27 用户拍板：「多点 polygon
+ * 逼近弧线，边缘描边 1dp」）：四向刻面扇形的外边界 = 珠体外轮廓（`plate` 圆角矩形）
+ * **向内缩 1dp** ⇒ `plate` 暗底只在整圈轮廓露出 1dp 环 = 用户要的「边缘描边」；
+ * 刻面在边中段与四角**全部铺满**（旧三角版的 `0.09S` 缓冲带与角部月牙空隙一并取消）。
+ * ⚠ 设计 px 定值（非比例）：描边语义随 zoom 等比缩放（设计系），与 `minStroke` 地板族不同。
+ */
+export const FACET4_EDGE_INSET_PX = 1;
+/** 圆角扇弧采样步长（度）：45° 圆角弧 / 15° = 3 段 ⇒ 每向扇形恒 8 顶点（定长 scratch）。 */
+export const FACET4_ARC_STEP_DEG = 15;
+/**
+ * 刻面扇形**同色自描边宽**（设计 px；`stroke === fill`，契约约束 ①）：封相邻扇形共享
+ * 对角射线的 AA 发丝缝（复刻 `hole-variant.mjs` 探针 `stroke-width 0.6` 同职责）。
+ */
+export const FACET4_SEAM_STROKE_PX = 0.75;
 
 /* **`13` 双色对角 / `18` 线稿描边风格系数组**（WXG-T-211-S4 / EP11-S4 · §12.9 步 4；C4：逐常量注归属）。
    来源 = `assets-spec §7.11.2 / §7.11.3` 层集正本（逐字抄自 spike `styles.mjs:131-136 / :61-68`
    的**比例**，⛔ 非新造值）；颜色仍走 `palette.ts` 端点与 token（C3 色源唯一，本组只落**系数**）。
 
    两个关键取值已按正本与任务单已裁口径定死：
-   - **孔径不立常量**：`13`/`18` 与四棱同源 = `BEAD_CARD.holeRatio 0.44` ⇒ 半径 `0.22S`
+   - **孔径不立常量**：`13`/`18` 与四棱同源 = `BEAD_CARD.holeRatio` ⇒ 半径 `ratio/2·S`（现值 0.44，WXG-T-221 六裁真透制 + 七裁定值，派生后取整 dp）
      （E 单 C 组必改 ②；spike 的 `0.16S` / `0.15S` 偏小 27% / 32%，`§7.11.6`，⛔ 不照抄）；
    - **`18` 描边地板**：正本 `§7.11.3 / §7.11.6` 的 `LINEART_MIN_STROKE` 取 2 还是 3 已标
      `[待真机]` ⇒ 按任务单已裁：**暂接现码既有 `BEAD_CARD.minStroke` 值**（= 2），
@@ -1607,18 +1656,32 @@ export const BOARD_TAP_MOVE_THRESHOLD = 8; // [待确认]
  */
 export const BOARD_FIT_MARGIN = 24;
 /**
- * 相对「适配 zoom」最多可放大的倍数（缩放上限 = fit × 此值）；下限 = fit（不能再缩到留白更多）。
- *
- * **v1.57 值不动（仍 2.5，仍 `[待确认]`）**，但登记一条既存硬缺陷**随基尺自动消失**：
- * 29×29 盘达到 `zoom = 1` 所需 span = `natH / (640 − 2×24)` 在旧 52 基 = **1506/592 = 2.544**
- * ⇒ `ADR-0018 §4.2-1` 据此判「SPAN=2.5 对 29×29 是硬缺陷、复评须 ≥2.6」；32 基下同一算式
- * = **926/592 = 1.564** ⇒ 余量 60%，**该缺陷不再成立**，`ADR-0018 §5` 复评触发 1 的依据作废
- * （登记于修订注，正本变更单 §1.1 / §3）。本值仍是未冻结占位 ⇒ 转正与否属另案。
+ * 缩放**绝对倍率**下限（§3.3 v1.59 冻结，WXG-T-217，用户 2026-09-27 拍板）。
+ * 取代旧「下限 = fit」口径（`fit` 仅作初始视图，不再是下钳）。
+ * 不变式：`CAMERA_ZOOM_MIN ≤ fit ≤ 1 ≤ CAMERA_ZOOM_MAX`（最大盘 32×32 fit = 512/1022 ≈ 0.501）。
+ * 负面后果如实：小盘可缩至 0.2（22 列盘 ≈140 px 宽、四周大留白），交互合理性 `[待真机 playtest]`。
  */
-export const CAMERA_ZOOM_MAX_SPAN = 2.5; // [待确认]
+export const CAMERA_ZOOM_MIN = 0.2;
+/**
+ * 缩放**绝对倍率**上限（§3.3 v1.59 冻结，WXG-T-217；zoom=1 ⇔ 珠绘制边长恰为静息档 26 设计 px）。
+ *
+ * **退役 `CAMERA_ZOOM_MAX_SPAN`**（旧口径 `fit × 2.5`，从未冻结占位 ⇒ 退役不涉翻改冻结值）。
+ * 现有关卡 `fit` 全 = 1 ⇒ 实盘放大上限由 2.5 **降为 2.0**（用户知情拍板）。
+ * 烘焙侧最大档直接挂本值（`BEAD_CELL × CAMERA_ZOOM_MAX`，不再 × fit，保证只缩小不放大，
+ * 正本 `proposals/bead-visual-style-spec §13`）；低倍段（0.2–0.7）画质/闪烁验证待
+ * `proposals/zoom-bake-mip-validation.md`。
+ */
+export const CAMERA_ZOOM_MAX = 2.0;
+/**
+ * 低倍点击门（§3.3 v1.59 新登，**`[待真机]`**，未验前不作 QA 判据）：
+ * `zoom < 本值` 时棋盘区 tap **不放珠**，改以点击处为焦点放大到 `zoom = 1`。
+ * 理由 = 0.2 档珠热区仅 `GRID_HIT_SIZE × 0.2 ≈ 9` 设计 px 不可命中；
+ * 行为正本 = GDD `input-control §2.1`「棋盘区 tap·低倍档」行（v2.11）。
+ */
+export const ZOOM_TAP_MIN = 0.7; // [待真机]
 
-// ───────────── 棋盘缩放控件（盘面下方净空带 · 工程占位，与上方相机组同口径）─────────────
-// ⚠ 数值**未冻结**：与 `CAMERA_ZOOM_MAX_SPAN` 同批属 `systems-index §3` 真源（[待确认]）。
+// ───────────── 棋盘缩放控件（盘面下方净空带 · 与上方相机组同口径）─────────────
+// ⚠ `ZOOM_CTRL_HOT` 等几何为工程参；净空公式随 §3.3 v1.59 换源（旧 × SPAN）。
 /** 控件条各元素热区边长（= `TOUCH_MIN`，`accessibility C1`「视觉不变、热区扩大」）。 */
 export const ZOOM_CTRL_HOT = TOUCH_MIN;
 /** 控件条距 `PUZZLE_BAND` 左缘的内边距（设计 px）。 */
@@ -1627,10 +1690,12 @@ export const ZOOM_CTRL_PAD = 12;
 export const ZOOM_SLIDER_HOT_W = 240;
 /**
  * 控件条与盘带下沿的**让位量**：放大到最大档时，最底行格的命中框会向下外溢
- * `BEAD_HIT_PAD × zoom`（热区不随 `BEAD_CELL` 缩 ⇒ 只随 zoom 缩）= 8 × 2.5 = **20**。
+ * `BEAD_HIT_PAD × zoom`（热区不随 `BEAD_CELL` 缩 ⇒ 只随 zoom 缩）= 8 × 2.0 = **16**。
+ * §3.3 v1.59：公式换源 `BEAD_HIT_PAD × CAMERA_ZOOM_MAX`（旧 × SPAN = 20）⇒ 控件条整体上移 4px，
+ * §3.1 盘带可行区间下界 552→548，现值 560 仍在区间内（两带值不动）。
  * 控件条上界 = `PUZZLE_BAND.yMin − 本值` ⇒ 与盘面热区**相切不重叠**（珠子本体永不越带沿）。
  */
-export const ZOOM_CTRL_BOARD_CLEARANCE = BEAD_HIT_PAD * CAMERA_ZOOM_MAX_SPAN; // 20
+export const ZOOM_CTRL_BOARD_CLEARANCE = BEAD_HIT_PAD * CAMERA_ZOOM_MAX; // 16
 
 /** 缩放控件几何（渲染 `view-model` 与命中 `beads-game` **单一真源**，`gridLayoutFor` 判例）。 */
 export interface ZoomControlLayout {
@@ -1640,11 +1705,13 @@ export interface ZoomControlLayout {
 }
 
 /**
- * 缩放控件条：[1:1][适配][slider]，各热区 88×88，**落在盘面以外的底部净空带**（现 y∈[452,540]）。
+ * 缩放控件条：[1:1][适配][slider]，各热区 88×88，**落在盘面以外的底部净空带**
+ * （§3.3 v1.59 换源后现 y∈[456,544]；旧 × SPAN 口径为 [452,540]）。
  * 上沿 = `PUZZLE_BAND.yMin − ZOOM_CTRL_BOARD_CLEARANCE`（与放大态盘热区相切）⇒ 没有一颗珠子的
- * 点击被吃掉；下沿 = 452，距托盘 row0 槽热区顶 444 有 **8px** 富余（`[待真机]`）⇒ 也不抢托盘。
+ * 点击被吃掉；下沿 = 456，距托盘 row0 槽热区顶 444 有 **12px** 富余（`[待真机]`）⇒ 也不抢托盘。
  * 零遮叠 = 本函数存在的意义；不变量钉在 `tests/tuning.test.ts`（符号式，不写快照数）。
- * 事件语义：轨道按下/拖动 → 线性映射 zoom；`reset` → 恒等相机（1.0×）；`fit` → `fitCamera`。
+ * 事件语义：轨道按下/拖动 → 线性映射 zoom（绝对档 [CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]）；
+ * `reset` → 恒等相机（1.0×）；`fit` → `fitCamera`。
  */
 export function zoomControlLayout(): ZoomControlLayout {
   const y = PUZZLE_BAND.yMin - ZOOM_CTRL_BOARD_CLEARANCE - ZOOM_CTRL_HOT;

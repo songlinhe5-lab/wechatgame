@@ -36,11 +36,14 @@
  */
 
 import type { RenderModelBuilder } from '../../framework/index';
+import { BakeLru, BAKE_SCHEMA_VERSION, type BakeSurface, type BakeKeyInputs } from '../../framework/index';
 import {
+  BAKE_CANONICAL_SIZE,
   BEAD_CARD,
   BEAD_CELL,
   BEAD_DRAW_INSET,
   BEAD_PITCH,
+  FACET4_EDGE_INSET_PX,
   SOCKET_CARD,
   TRAY_BEAD_SIZE,
 } from '../config/tuning';
@@ -58,6 +61,7 @@ import { DEFAULT_BEAD_STYLE, DEFAULT_BEAD_STYLE_ID, styleById } from './bead-sty
 import type { WritableBeadStyleInput } from './bead-styles/contract';
 import {
   BEAD_CONTACT_SHADOW_ALPHA,
+  BEAD_HOLE_STROKE_MIX,
   DEBUG_OUTLINE_SOCKET_HEX,
   DEBUG_OUTLINE_TILE_HEX,
   BEAD_SHADOW_ALPHA,
@@ -93,11 +97,79 @@ export { BEAD_CARD };
  */
 export { TRAY_BEAD_SIZE };
 
+// ─── [WXG-T-220] 烘焙臂运行时 ────────────────────────────────────────────────
+
+/**
+ * 烘焙臂运行时接口。由适配层注入（harness / wx offscreen），视图层只消费。
+ *
+ * `getTextureId` 封装了 BakeLru + 纹理解析 + 纹理注册的全部细节，
+ * 返回的 `textureId` 可直接传给 `builder.blit()`。
+ *
+ * ⛔ **[WXG-T-221 八裁 2026-09-28] 冻结**：运行时烘焙路线转历史归档（ADR-0025/0028 头注），
+ * 本组注入槽与烘焙臂**不再演进**；灰度从未开启（无生产调用方）。代码暂不物理删的缘由
+ * = tint（ADR-0028）T1'–T4' 未证前的路线史与兜底参照；**复活或删除均须新 ADR**。
+ */
+export interface BeadBakeRuntime {
+  getTextureId(styleId: string, colorIdx: number, bakeSize: number): string;
+}
+
+/** 模块级烘焙运行时槽位（默认 undefined = 烘焙臂未启用，走矢量臂）。 */
+let _bakeRuntime: BeadBakeRuntime | undefined;
+/** Re-entrancy guard: recipe 回调 drawFilledBead 时必须走矢量臂，否则无限递归。 */
+let _baking = false;
+
+/**
+ * 注入烘焙运行时（适配层调用一次）。传 `undefined` 即关闭烘焙臂。
+ * `[WXG-T-220]` 灰度开关：`useBakedBead` 选项只在运行时已注入时生效。
+ */
+export function setBeadBakeRuntime(runtime: BeadBakeRuntime | undefined): void {
+  _bakeRuntime = runtime;
+}
+
+/** 读取当前烘焙运行时（测试用）。 */
+export function getBeadBakeRuntime(): BeadBakeRuntime | undefined {
+  return _bakeRuntime;
+}
+
+/**
+ * 创建默认的烘焙运行时（适配层调用）。
+ *
+ * 封装 `BakeLru` + 纹理注册逻辑：
+ *  - 缓存命中 → 返回已注册 textureId
+ *  - 缓存未命中 → 调 `surface.bake()` → 注册纹理 → 返回 textureId
+ *
+ * `textureCounter` 用于生成唯一 textureId（适配层负责将 BakeResult.data 转为
+ * CanvasImageSource 并注册到 Canvas2DRenderer 的 TextureRegistry）。
+ */
+export function createDefaultBakeRuntime(
+  surface: BakeSurface,
+  registerTexture: (textureId: string, result: { width: number; height: number; data: Uint8Array }) => void,
+  budgetBytes?: number,
+): BeadBakeRuntime {
+  const lru = new BakeLru(surface, budgetBytes !== undefined ? { budgetBytes } : {});
+  const registered = new Set<string>();
+
+  return {
+    getTextureId(styleId: string, colorIdx: number, bakeSize: number): string {
+      const inputs: BakeKeyInputs = { styleId, colorIdx, bakeSchemaVersion: BAKE_SCHEMA_VERSION };
+      const result = lru.getOrBake(inputs, bakeSize);
+      const texId = `bake:${styleId}:${colorIdx}`;
+      if (!registered.has(texId)) {
+        registered.add(texId);
+        registerTexture(texId, result);
+      }
+      return texId;
+    },
+  };
+}
+
 export interface FilledBeadOptions {
   /** Bead edge length; defaults to `BEAD_CELL` (board size). */
   readonly size?: number;
   /** Extra upward offset in design units (tray `selected` lift, §1.2: 4px). */
   readonly lift?: number;
+  /** Extra horizontal offset for diagonal lift (§5: `SELECT_LIFT_ANGLE` 斜上，珠往左上偏). */
+  readonly liftX?: number;
   /**
    * L0b 投影 α 覆写；`selected` 传更暗档（§1.2）。
    * ⚠ **EP11-S3 转正后：本通道在四棱层集下无承载体**（facet-4 无阴影层）⇒ 只对
@@ -422,6 +494,14 @@ const styleInput: WritableBeadStyleInput = {
 };
 
 /**
+ * N 点扇形（WXG-T-218）的**世界系平移缓冲**（C2 热路径零分配）。
+ *
+ * `builder.polygon` 是 ADR-0024 值拷贝语义 ⇒ 复用同一缓冲不会串形；grow 只发生在
+ * 首帧或首次遇到更大顶点数的风格时（当前 facet-4 = 16 floats，一次到位）。
+ */
+let polyWorld: number[] = [];
+
+/**
  * 画一颗 `filled` 珠（§1.1 · `bead-visual-style-spec §7.11.1` 甲口径层集），锚点 `(cx, cy)`。
  *
  * **EP11-S3 转正后本函数只做三件事**（§12.9 步 3；⛔ 不再持有任何一层硬编码层集）：
@@ -430,11 +510,12 @@ const styleInput: WritableBeadStyleInput = {
  *     （风格只见 `size`，因而同一风格在盘 22 / 托 44 / zoom 缩放档下都成立）。
  *  2. **取层集** —— `DEFAULT_BEAD_STYLE.beadLayers(...)`（真源 = `bead-styles/registry.ts`
  *     → `bead-styles/facet-4.ts`；C9「升级即换肤」= 翻默认即换皮，本函数零改动）。
- *  3. **回放** —— 逐层映射到 builder 的三个出口 `rect` / `polygon3` / `circle`
+ *  3. **回放** —— 逐层映射到 builder 的三个出口 `rect` / `polygon` / `circle`
  *     （格心局部系 → 世界系：`x` 加 `cx`、`y` 加 `cy + lift`）。
  *     ⚠ **`rect` / `circle` 另透传 `stroke` / `lineWidth`**（§12.9 步 4 为 `18` 线稿描边开的
- *     字段，`contract.ts::BeadStyleLayer` 两条定死约束之一）；`polygon` 分支**无描边出口**
- *     ⇒ 刻面必须是不透明顶面（C12 统计域与 J-3 不串形判据的隐含前提）。
+ *     字段）；`polygon` 分支自 `WXG-T-218` 起分两路：`points.length === 6` 走 `polygon3`
+ *     快路（既有三角风格逐字节不变）；N 点扇形走 `builder.polygon`（ADR-0024 顶点竞技场），
+ *     并透传**同色自描边**（契约约束 ①：`stroke === fill`，封相邻刻面 AA 缝）。
  *
  * ⚠ **热路径零分配（C2）**：层集本身是风格的模块级 scratch，输入槽同上 ⇒ 每珠每帧
  *   0 次层集/输入对象分配。成立前提是 `ADR-0024` 的 polygon **值拷贝**语义：builder 取到
@@ -458,6 +539,8 @@ export function drawFilledBead(
 ): void {
   const outer = options.size ?? BEAD_CELL;
   const lift = options.lift ?? 0;
+  const liftX = options.liftX ?? 0;
+  const x = cx + liftX;
   const y = cy + lift;
   /**
    * §5 抬起的高度参量：`lift` 归一化到「**当前档的一次完整抬起**」。
@@ -487,6 +570,32 @@ export function drawFilledBead(
       ? ((options.drawInset ?? BEAD_DRAW_INSET) * outer) / BEAD_CELL
       : 0;
   const size = (outer - inset * 2) * (options.scale ?? 1) * (1 + BEAD_CARD.liftScaleGain * liftT);
+
+  // ── [WXG-T-220 / ADR-0025] 烘焙臂分流 ─────────────────────────────────
+  // 运行时已注入 + 不隐藏孔 ⇒ 走烘焙臂（blit + live 孔 circle），跳过风格层集。
+  // 矢量臂永不删除（铁律）：`_bakeRuntime` 为 undefined 时恒走矢量路径。
+  if (_bakeRuntime && !_baking && !options.hideHole) {
+    const styleId = options.styleId ?? DEFAULT_BEAD_STYLE_ID;
+    const inks = options.inks ?? DEMO_BEAD_INKS;
+    _baking = true;
+    let texId: string;
+    try {
+      texId = _bakeRuntime.getTextureId(styleId, colorIdx, BAKE_CANONICAL_SIZE);
+    } finally {
+      _baking = false;
+    }
+    // blit 珠体（纹理含透明角，blit 以 outer 为边长 ⇒ 透明区自然露出 B0 底图）。
+    builder.blit(texId, x - outer / 2, y - outer / 2, outer, outer);
+    // 孔不入烘焙（ADR-0025 DEC-3）：始终 live，K3 孔透目标色；孔边线 = 族墨 `hole`（三裁）。
+    // **六裁（用户 2026-09-28：「孔径 = 真透的区域」）**：拆两枚——孔底 pit（r = 真透，先画）
+    // + 孔环 stroke-only（中心线 = 真透 r + 边线宽，后画；环外扩吃珠面）⇒ 与 facet-4 层集几何/序同构。
+    const holeR = Math.round((size * BEAD_CARD.holeRatio) / 2);
+    const holeFill = endpointOf(inks, options.targetColorIdx ?? colorIdx).pit;
+    const holeLw = BEAD_CARD.holeStrokeWidthPx; // 1dp 绝对，与 facet-4 层集同源（用户 2026-09-28 裁决）
+    builder.circle(x, y, holeR, { fill: holeFill });
+    builder.circle(x, y, holeR + holeLw, { stroke: endpointOf(inks, colorIdx).hole, lineWidth: holeLw });
+    return;
+  }
 
   styleInput.inks = options.inks ?? DEMO_BEAD_INKS;
   styleInput.colorIdx = colorIdx;
@@ -520,28 +629,46 @@ export function drawFilledBead(
       // `JSON.stringify`（`bead-style-seal.test.ts::serialize`），**undefined 值不落字段**
       // ⇒ 四棱/`13` 的整帧命令流逐字节不变（seal 基准不受本批影响，正面预期由该测试守）。
       if (alpha === undefined) {
-        builder.rect(cx + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius, stroke: layer.stroke, lineWidth: layer.lineWidth });
+        builder.rect(x + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius, stroke: layer.stroke, lineWidth: layer.lineWidth });
       } else {
-        builder.rect(cx + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth });
+        builder.rect(x + layer.x, y + layer.y, layer.w, layer.h, { fill: layer.fill, radius, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth });
       }
     } else if (layer.kind === 'circle') {
       if (alpha === undefined) {
-        builder.circle(cx + layer.cx, y + layer.cy, layer.r, { fill: layer.fill, stroke: layer.stroke, lineWidth: layer.lineWidth });
+        builder.circle(x + layer.cx, y + layer.cy, layer.r, { fill: layer.fill, stroke: layer.stroke, lineWidth: layer.lineWidth });
       } else {
-        builder.circle(cx + layer.cx, y + layer.cy, layer.r, { fill: layer.fill, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth });
+        builder.circle(x + layer.cx, y + layer.cy, layer.r, { fill: layer.fill, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth });
       }
     } else {
       const p = layer.points;
-      if (alpha === undefined) {
-        builder.polygon3(
-          cx + p[0], y + p[1], cx + p[2], y + p[3], cx + p[4], y + p[5],
-          { fill: layer.fill },
-        );
+      if (p.length === 6) {
+        // 三角快路：既有 6 元组消费方（`13` 对角 / legacy 臂）逐字节不变。
+        if (alpha === undefined) {
+          builder.polygon3(
+            x + p[0], y + p[1], x + p[2], y + p[3], x + p[4], y + p[5],
+            { fill: layer.fill },
+          );
+        } else {
+          builder.polygon3(
+            x + p[0], y + p[1], x + p[2], y + p[3], x + p[4], y + p[5],
+            { fill: layer.fill, alpha },
+          );
+        }
       } else {
-        builder.polygon3(
-          cx + p[0], y + p[1], cx + p[2], y + p[3], cx + p[4], y + p[5],
-          { fill: layer.fill, alpha },
-        );
+        // N 点扇形（WXG-T-218）：`builder.polygon` 值拷贝进顶点竞技场（ADR-0024 DEC-1），
+        // scratch 复用安全；自描边透传（同色，封 AA 缝；§7.11 读法②仍 1 命令）。
+        // 平移经模块级 grow 缓冲（热路径零分配；扩容只在首帧/更大风格时发生一次）。
+        const n = p.length;
+        if (polyWorld.length < n) polyWorld = new Array<number>(n);
+        for (let k = 0; k < n; k += 2) {
+          polyWorld[k] = x + p[k]!;
+          polyWorld[k + 1] = y + p[k + 1]!;
+        }
+        if (alpha === undefined) {
+          builder.polygon(polyWorld, { fill: layer.fill, stroke: layer.stroke, lineWidth: layer.lineWidth });
+        } else {
+          builder.polygon(polyWorld, { fill: layer.fill, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth });
+        }
       }
     }
   }
@@ -592,10 +719,15 @@ export function drawEmptySocket(
    * B0 底图铺设时（`tilePainted`）底图墨 = 本格 `edge` ⇒ 旧写法把这两笔画成
    * **自己的背景色**（逐字同色，不可见）⇒ 凹坑只剩「暗底 + 一条下亮线」，
    * B1 修好的「暗上亮下」双线只剩一半。改取 `pit`（比 `edge` 深两档，零新 hex、
-   * 与 S2 坑底同源）⇒ 凹感恢复。托盘空槽（`tilePainted = false`，自带亮 `base` 外块）
-   * **保持 `edge` 不变**（白面板上 `pit` 过重），逐字节不变。
+   * 与 S2 坑底同源）⇒ 凹感恢复。
+   *
+   * **WXG-T-221（用户 2026-09-28 五裁）：S1 暗缘框改取孔边线同墨 `hole`（`−0.58`）**
+   * ——「空槽描边与珠面边框对齐（宽 = 1dp）、颜色与孔描边对齐」；仅指框线，
+   * **S3 内阴影线保持 `pit`**（凹感阶梯 pit→hole 仍成立）。托盘空槽（无端点表 hole 档）
+   * 同步用 `mix(slot, −BEAD_HOLE_STROKE_MIX)`，逐字同墨。
    */
   const shadeInk = tilePainted ? endpoints.pit : endpoints.edge;
+  const frameInk = tilePainted ? endpoints.hole : mix(palette.slot, -BEAD_HOLE_STROKE_MIX);
 
   // S2 坑底（先画大底，S1 框压在其上）：内缩 6% 的 `pit` 填充。
   // ⚠ 坑的全部几何走 `s`（坑外廓），**不用 `size`**（= 格径）——见 `beadInset` 参注。
@@ -613,10 +745,11 @@ export function drawEmptySocket(
     radius: Math.max(2, Math.round((s - inset * 2) * BEAD_CARD.radius * 0.8)),
   });
 
-  // S1 暗缘框（外框线，压住 S2 边界）。
+  // S1 暗缘框（外框线，压住 S2 边界）。**五裁：墨 = 孔边线同墨、宽 = 珠缘外描边同宽（1dp 绝对，
+  // ⛔ 不吃 minStroke 地板、不走 SOCKET_CARD.edgeWidth 旧等比口径）；框 ⊃ pit 填充 ⇒ ⊂ 珠不变。
   builder.rect(left, bottom, s, s, {
-    stroke: shadeInk,
-    lineWidth: Math.max(BEAD_CARD.minStroke, s * SOCKET_CARD.edgeWidth),
+    stroke: frameInk,
+    lineWidth: FACET4_EDGE_INSET_PX,
     radius,
   });
 
@@ -651,11 +784,12 @@ export function drawEmptySocket(
 /**
  * 托盘空槽（无目标色）的中性端点：由中性 `slot` 色推导（非珠色预烘焙表）。
  */
-function neutralEndpoints(palette: BeadsPalette): { edge: string; pit: string; lit: string } {
+function neutralEndpoints(palette: BeadsPalette): { edge: string; pit: string; lit: string; hole: string } {
   return {
     edge: mix(palette.slot, -SOCKET_EDGE_DARK_MIX),
     pit: mix(palette.slot, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
     lit: mix(palette.slot, SOCKET_LIT_MIX),
+    hole: mix(palette.slot, -BEAD_HOLE_STROKE_MIX),
   };
 }
 

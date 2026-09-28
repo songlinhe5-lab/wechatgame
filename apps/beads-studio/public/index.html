@@ -210,6 +210,16 @@
             color: #1e8e3e;
         }
     </style>
+    <!-- [WXG-T-221] 预烘前端需 import harness 编译产物（bare `@wxgame/framework` 由 studio server
+         的 /harness-dist/* 只读映射供）。依赖 `pnpm run harness:build` 产出 dev/harness/dist/。 -->
+    <script type="importmap">
+        {
+            "imports": {
+                "@wxgame/framework": "/harness-dist/packages/framework/src/index.js",
+                "@wxgame/framework/": "/harness-dist/packages/framework/src/"
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -300,12 +310,16 @@
                 <button class="ghost" id="dl" disabled>下载 levelDraft JSON</button>
                 <button class="ghost" id="cp" disabled>复制 rowstrings</button>
                 <button class="ghost" id="ing" disabled>一键入关（写回关卡表）</button>
+                <button class="ghost" id="bake" disabled title="先选中一条结果">烘焙本关纹理</button>
+                <div id="bake-status" style="font-size:12px;color:#666;margin-top:4px;min-height:16px"></div>
             </div>
             <div class="card" id="results"><b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small></div>
         </section>
     </main>
     <!-- 盘面绘制共享模块（视觉正源 = games/beads/src/view/{palette,bead-render}.ts，见文件头同步表） -->
     <script src="/board-render.js"></script>
+    <!-- [WXG-T-221] 当前关纹理预烘导出（ES module，依赖上方 importmap + harness dist） -->
+    <script type="module" src="/bake-export.js"></script>
     <script>
         'use strict';
         const $ = (id) => document.getElementById(id);
@@ -609,6 +623,8 @@
             $('badge').textContent = r.importable === false
                 ? (isPaper ? 'ℹ 游戏入关限制（实物图纸不受影响）：' : '⚠ 不可入关：') + (r.blockers || []).join('；')
                 : '';
+            // [WXG-T-221] 把当前结果交给预烘模块（启用/置灰按 demo 盘判定）。
+            if (window.updateBakeButton) window.updateBakeButton(r);
         }
 
         /** 三视图切换（原图 / 正解 / 错位）。 */

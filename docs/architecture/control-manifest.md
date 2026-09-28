@@ -108,7 +108,7 @@ games/<game>/
 
 ## 8. 渲染
 
-- ✅ 游戏只产出 `RenderModel`（`rect` / `circle` / `line` / `text` / `polygon`）
+- ✅ 游戏只产出 `RenderModel`（`rect` / `circle` / `line` / `text` / `polygon` / `blit`）
 - ✅ **坐标系约定（必须遵守）**：设计空间原点在**左下**，`rect` 的 `x,y` 是**左下角**，`circle` 的 `x,y` 是**圆心**，单位是设计空间单位
 - ✅ 适配器负责一切引擎差异（Cocos 的中心原点、Canvas2D 的 y 翻转）
 - ❌ 不在游戏逻辑里出现 `Graphics`、`Label`、`ctx`、`Node`
@@ -335,3 +335,7 @@ dpr=1/2/3 封顶、信箱、边界、非法 dpr、Viewport 往返）。端到端
 `^assets/data/*.json` 在本仓**全不命中**，且强度低于本仓 pre-commit）、15 个引擎专家
 agent（Godot/Unity/Unreal，本仓引擎唯一 = Cocos Creator + 微信小游戏）、
 `systems-index.md` 模板（与本仓同名**冻结真源**冲突，只借鉴其"高风险系统/进度跟踪"章节）。
+
+## 19. 珠面烘焙管线（正本 = ADR-0025／ADR-0027；八条纪律 = ADR-0027 §3 DEC-8）
+
+> ⛔ 包体守卫未归位前向主包投放位图；⛔ 运行时放大烘焙纹理；未命中一律矢量回退。前置：T-215 归位、S0 守卫、ADR-0026 `blit`。

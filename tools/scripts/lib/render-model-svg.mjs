@@ -102,6 +102,18 @@ export function modelToSvg(model) {
         );
         break;
       }
+      case 'blit': {
+        // [WXG-T-220 / ADR-0026] Texture blit — SVG has no native texture
+        // support, so we emit a placeholder rect with a data attribute
+        // identifying the texture. Consumers can post-process to inject
+        // <image> elements if needed.
+        parts.push(
+          `<rect x="${num(cmd.x)}" y="${num(cmd.y)}" width="${num(cmd.w)}" height="${num(cmd.h)}"` +
+          ` fill="none" stroke="#ccc" stroke-width="0.5" stroke-dasharray="2,2"` +
+          ` data-blit="${esc(cmd.textureId)}"${opacity}/>`,
+        );
+        break;
+      }
       default:
         break;
     }

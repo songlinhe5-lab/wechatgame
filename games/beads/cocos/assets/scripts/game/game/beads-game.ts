@@ -104,6 +104,7 @@ import {
   type BeadSizeKind,
   IDENTITY_CAMERA,
   BOARD_TAP_MOVE_THRESHOLD,
+  ZOOM_TAP_MIN,
   PUZZLE_BAND,
   stageParamsFor,
   validatedSprintTime,
@@ -155,10 +156,10 @@ import {
   resetGesture,
   fitCamera,
   clampCamera,
-  computeFitZoom,
   resetCamera,
   setCameraZoom,
   sliderTFromZoom,
+  zoomAtPoint,
   zoomFromSliderT,
 } from '../systems/board-camera';
 import { GameTimer } from '../systems/timer';
@@ -1958,6 +1959,8 @@ export class BeadsGame implements Game {
         // snap.isDown 已因 owner 抬起而 false）⇒ 位移恒 0 = 即时 tap。此处不 return，
         // 下面 `_tapActive && isDown` 守卫自然跳过（isDown=false），到 `justUp` 分支当场提交并复位。
         if (!snap.justUp) return;
+        this._commitBoardTap(this._pointer.x, this._pointer.y); // 即时 tap（同帧 down+up）：同走低倍缩放门
+        return;
       } else {
         this._handleTap(this._pointer.x, this._pointer.y); // 区外：按下即提交（语义不变）
         return;
@@ -1974,7 +1977,7 @@ export class BeadsGame implements Game {
     if (this._tapActive && snap.isDown) {
       if (snap.isDown2) {
         this._pinched = true;
-        if (applyPinch(snap, this._camera, this._gesture, this._grid.cols, this._grid.rows)) this._recomputeLayout();
+        if (applyPinch(snap, this._camera, this._gesture)) this._recomputeLayout();
         return;
       }
       vp.screenToDesign(this._pointer, snap.x, snap.y);
@@ -2003,7 +2006,7 @@ export class BeadsGame implements Game {
     if (snap.justUp) {
       if (this._tapActive && !this._tapMoved && !this._pinched) {
         vp.screenToDesign(this._pointer, snap.x, snap.y);
-        this._handleTap(this._pointer.x, this._pointer.y); // 棋盘区 tap：抬起提交
+        this._commitBoardTap(this._pointer.x, this._pointer.y); // 棋盘区 tap：抬起提交（v2.11 低倍档先过缩放门）
       }
       this._tapActive = false;
       this._tapMoved = false;
@@ -2014,6 +2017,20 @@ export class BeadsGame implements Game {
       this._dbgPan.movedFrames = 0;
       resetGesture(this._gesture);
     }
+  }
+
+  /**
+   * 棋盘区 tap 提交口（抬起帧，两条路径共用：同帧 down+up / 常规 justUp）。
+   * §3.3 v1.59 `ZOOM_TAP_MIN`（`input-control §2.1`「tap·低倍档」v2.11）：低倍下不放珠，
+   * 改以点击处为焦点放大到 1.0（相机态、零玩法指令，计量口径同 drag/捏合，不占 `_tapsPlaying`）。
+   */
+  private _commitBoardTap(x: number, y: number): void {
+    if (this._machine.current === 'playing' && this._camera.zoom < ZOOM_TAP_MIN) {
+      zoomAtPoint(this._camera, x, y, 1, this._grid.cols, this._grid.rows);
+      this._recomputeLayout();
+      return;
+    }
+    this._handleTap(x, y);
   }
 
   /** Fold `_camera` into the grid layout (丁-3). Only called while a gesture is
@@ -2381,12 +2398,12 @@ export class BeadsGame implements Game {
     return true;
   }
 
-  /** slider x（设计空间）→ zoom：轨道线性映射，`setCameraZoom` 内夹取到 `[fit, fit×SPAN]`。 */
+  /** slider x（设计空间）→ zoom：轨道线性映射绝对档 `[CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]`（§3.3 v1.59），`setCameraZoom` 内夹取。 */
   private _applyZoomSlider(x: number): void {
     const track = zoomControlLayout().track;
     setCameraZoom(
       this._camera,
-      zoomFromSliderT((x - track.x) / track.w, computeFitZoom(this._grid.cols, this._grid.rows)),
+      zoomFromSliderT((x - track.x) / track.w),
       this._grid.cols,
       this._grid.rows,
     );
@@ -3375,10 +3392,7 @@ export class BeadsGame implements Game {
     s.gridCell = this._layout.cell;
     s.beadLodLayers = this._beadLod ? ZOOM_LOD_LAYERS : 0; // 0 = 满层；视图只读不判阈值（C7 拆名：zoom LOD 用 ZOOM_LOD_LAYERS，不再蹭波浪常量）
     // 缩放控件（盘面下方净空带）：slider 位置与倍率读数，视图只读（L5）。
-    s.zoomSliderT = sliderTFromZoom(
-      this._camera.zoom,
-      computeFitZoom(this._grid.cols, this._grid.rows),
-    );
+    s.zoomSliderT = sliderTFromZoom(this._camera.zoom);
     s.camZoom = this._camera.zoom;
 
     // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and

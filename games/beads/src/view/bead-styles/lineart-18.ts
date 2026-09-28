@@ -16,8 +16,9 @@
  *       「落码须换 token `BEAD_HIGHLIGHT_HEX`」⇒ 两条读法都指向「⛔ `view/` 零 hex 字面」，
  *       但只有采孔底 = `pit` 才同时满足 K3/C5 与 QA 判据 ⇒ 采之，`BEAD_HIGHLIGHT_HEX`
  *       在本模块**零消费者**（不预 import 无消费者的符号）。**已登记为未决两读法回传**。
- *  2. **孔径 = `size × BEAD_CARD.holeRatio / 2`（= 0.22S）** —— spike 的 `0.15S` 偏小 **32%**
- *     （`§7.11.6`），与四棱转正后口径同源 ⇒ ⛔ 风格内自孔径。
+ *  2. **孔径（真透）= `size × BEAD_CARD.holeRatio / 2`**（六裁真透制 + 七裁回定 0.44，派生后取整 dp）—— spike 的 `0.15S` 偏小 **32%**
+ *     （`§7.11.6`），与四棱转正后口径同源 ⇒ ⛔ 风格内自孔径。本风格孔描边 = 同路径线族（`fill+stroke`
+ *     单命令，造型身份），墨内吃半宽属**该风格自身视觉语言**（⛔ 套 facet-4 的环外扩拆层口径，改动需另裁）。
  *  3. **孔甲口径单孔**（1 枚 `circle`，无内壁自阴影第二枚）⇒ 真 α 恒 1（= D4 已裁的甲口径）。
  *
  * **线宽地板（PT-SKIN-02 A/B 位，任务单已裁）**：正本 `lw = max(3, 0.06S)` 的绝对地板 `3`
@@ -190,7 +191,7 @@ function lineart18Layers({
     BAND_EDGE.fill = e.edge;
     BAND_EDGE.radius = size * LINEART_EDGE_RADIUS;
 
-    // #5 单孔（必改 ①②③）：`r = 0.22S`（唯一真源 = `BEAD_CARD.holeRatio`）、
+    // #5 单孔（必改 ①②③）：`r = 真透半径 = holeRatio/2·S`（唯一真源 = `BEAD_CARD.holeRatio`，六裁真透制）、
     // fill = **目标格 `pit`**（⛔ 白孔，见文件头）、描边 = `lw × 0.7` 并同样受 §1.1 地板钳。
     // 同 `facet-4` 的取整口径（用户拍板「孔径整数、2 的倍数 px」，§7.11.6 三套同源）。
     HOLE.r = Math.round((size * BEAD_CARD.holeRatio) / 2);

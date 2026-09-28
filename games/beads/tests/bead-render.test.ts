@@ -32,7 +32,7 @@ import {
   BEAD_PITCH,
   BEAD_STYLE_MAX_ALPHA_LAYERS,
   BEAD_STYLE_MAX_COMMANDS,
-  FACET4_FACET_INSET,
+  FACET4_EDGE_INSET_PX,
   FACET4_FACET_RIGHT_MIX,
   FACET4_PLATE_MIX,
   TRAY_SLOT,
@@ -161,7 +161,7 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
     // 旧「L5 符号红线」随符号层删除作废；「珠下那块垫」已上提为 B0，不在珠体内。
   });
 
-  // 四棱新基线（`facet-4`）**只有 6 命令 / 0 真 α ⇒ 无可砍集**（≤ C7 命令上限 7）：
+  // 四棱新基线（`facet-4`）**只有 7 命令 / 0 真 α ⇒ 无可砍集**（= C7 命令上限 7，六裁孔拆环+底后压线）：
   // `lodLayers` 通道照旧透进契约，但在本风格上是**结构性 no-op**。
   // ⚠ 本例是「诚实登记」而非「省略」：渲染侧不静默吃掉入参（`contract.ts` 已写该约定），
   //   而是由本判据正面钉住**传 / 不传逐字节等值**。若日后引入需降档的风格，本例应随之改写。
@@ -171,8 +171,8 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
     const waveLow = beadWithPad(ZOOM_LOD_LAYERS - 3);
     expect(low).toEqual(full);
     expect(waveLow).toEqual(full);
-    // 同时钉住“不是空珠”：no-op 的前提是本臂真的画了 6 条。
-    expect(full).toHaveLength(6);
+    // 同时钉住“不是空珠”：no-op 的前提是本臂真的画了 7 条（六裁后）。
+    expect(full).toHaveLength(7);
   });
 });
 
@@ -211,8 +211,10 @@ describe('bead parameter card (assets-spec §1.1)', () => {
    *   且反转同批由下方 `TC-STY-12` 几何判据承接（⛔ 净放宽，§K.5 附行）。
    * ───────────────────────────────────────────────────────────────────── */
 
-  // §K.5 行 3–8：层序 = 底 rect → 上/左/右/下 polygon → 孔 circle。
-  it('四棱新基线：6 条层序 = rect → polygon×4 → circle（§7.11.1 绘制序）', () => {
+  // §K.5 行 3–8：层序 = 底 rect → 上/左/右/下 polygon → 孔环 circle → 孔底 circle
+  //（**WXG-T-221 六裁**：「单孔」语义 = 1 个孔（同心两枚 circle：stroke-only 环 + pit 底），
+  // 旧 #6 单命令 `fill+stroke` 中心线描边会把墨内吃 0.5dp ⇒ 与「孔径 = 真透」不可同真）。
+  it('四棱新基线：7 条层序 = rect → polygon×4 → circle×2（§7.11.1 绘制序，六裁孔拆二）', () => {
     const commands = filled(1);
     expect(commands.map((c) => c.kind)).toEqual([
       'rect', // #1 底 plate（`mix(base, −0.34)`，暗底兼描边 ⇒ 排除出 C12 统计域）
@@ -220,9 +222,10 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       'polygon', // #3 左刻面 `endpoints.base`
       'polygon', // #4 右刻面 `mix(base, −0.16)`
       'polygon', // #5 下刻面 `endpoints.edge`
-      'circle', // #6 单孔（甲口径，孔底 = 目标色 `pit`）
+      'circle', // #6 孔环（stroke-only，中心线 = 真透 r + 边线宽；环外扩吃珠面）
+      'circle', // #7 孔底（甲口径，孔底 = 目标色 `pit`，r = 真透）
     ]);
-    expect(commands).toHaveLength(6);
+    expect(commands).toHaveLength(7);
   });
 
   // 旧 `:132`「无 polygon」的**改述形态**（ADR-0023 M-5）：kind 白名单 + 条数上限。
@@ -251,8 +254,8 @@ describe('bead parameter card (assets-spec §1.1)', () => {
           size: BEAD_CELL,
         });
         expect(layers.filter(isRealAlphaLayer).length).toBeLessThanOrEqual(BEAD_STYLE_MAX_ALPHA_LAYERS);
-        // 本风格实测就 **等于** 6/0：纸面与实算不符即红（⛔ 不拿上限当现状）。
-        expect(layers).toHaveLength(6);
+        // 本风格实测就 **等于** 7/0：纸面与实算不符即红（⛔ 不拿上限当现状；六裁后余量 0，压线登记在案）。
+        expect(layers).toHaveLength(7);
         expect(layers.filter(isRealAlphaLayer)).toHaveLength(0);
       }
     }
@@ -281,57 +284,75 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     ).toBe(beadColorOf(DEMO_BEAD_INKS, 1));
   });
 
-  // §7.11.1 几何：四枚三角 = (角A, 角B, 格心)，四角内缩 `FACET4_FACET_INSET × S`。
+  // §7.11.1 几何（WXG-T-218 改版）：四向刻面 = **圆角扇**（格心 + 两段 45° 圆角弧采样），
+  // 外缘内缩 `FACET4_EDGE_INSET_PX` ⇒ `plate` 只露 1dp 描边环。
   // ⚠ 顶点经 `polygonVertices` 读（命令只存 arena `offset/count`，ADR-0024 值语义）。
-  it('四棱新基线：四枚三角共第三顶点于珠心，且直角边两角内缩 0.09S', () => {
+  it('四棱扇形基线：每向 8 顶点、首顶点 = 珠心、边界沿内缩圆角矩形走', () => {
     const size = 50;
-    const i2 = size * FACET4_FACET_INSET;
     const h = size / 2;
+    const rc = Math.round(size * BEAD_CARD.radius) - FACET4_EDGE_INSET_PX;
+    const a = h - FACET4_EDGE_INSET_PX - rc;
+    const e = h - FACET4_EDGE_INSET_PX;
     const { model, commands } = emitModel((b) => drawFilledBead(b, 100, 200, 1, { size }));
     const polys = commands.filter((c) => c.kind === 'polygon') as readonly PolygonCommand[];
     expect(polys).toHaveLength(4);
     const vertsOf = (cmd: PolygonCommand): number[] => Array.from(polygonVertices(model, cmd));
+    const rad = (deg: number) => (deg * Math.PI) / 180;
     for (const p of polys) {
       const v = vertsOf(p);
-      expect(v).toHaveLength(6);
-      // 第三顶点（v[4], v[5]）恒 = 珠心（局部系原点 (0,0) 已由渲染侧平移到 (100,200)）。
-      expect(v[4]).toBeCloseTo(100, 9);
-      expect(v[5]).toBeCloseTo(200, 9);
+      expect(v).toHaveLength(16); // 格心 1 + 边界 7（两段 45° 弧、15° 步长）
+      // 首顶点恒 = 珠心（局部系原点 (0,0) 已由渲染侧平移到 (100,200)；J-3 结构性共点）。
+      expect(v[0]).toBeCloseTo(100, 9);
+      expect(v[1]).toBeCloseTo(200, 9);
+      // 边界点全部落在内缩圆角矩形闭包内（铺满判据的必要条件）。
+      for (let k = 2; k < v.length; k += 2) {
+        expect(Math.abs(v[k]! - 100)).toBeLessThanOrEqual(e + 1e-9);
+        expect(Math.abs(v[k + 1]! - 200)).toBeLessThanOrEqual(e + 1e-9);
+      }
     }
-    // 内缩后的角坐标（上刻面 = 左上角 → 右上角）。
+    // 上扇形边界抽钉：b0 = 左上圆角 135° 分界点、b3 = 90° 顶边左端、b6 = 右上圆角 45° 分界点。
     const top = vertsOf(polys[0]!);
-    expect(top[0]).toBeCloseTo(100 - h + i2, 6);
-    expect(top[1]).toBeCloseTo(200 + h - i2, 6);
-    expect(top[2]).toBeCloseTo(100 + h - i2, 6);
-    expect(top[3]).toBeCloseTo(200 + h - i2, 6);
+    expect(top[2]).toBeCloseTo(100 - a + rc * Math.cos(rad(135)), 6);
+    expect(top[3]).toBeCloseTo(200 + a + rc * Math.sin(rad(135)), 6);
+    expect(top[8]).toBeCloseTo(100 - a, 6);
+    expect(top[9]).toBeCloseTo(200 + a + rc, 6); // 顶边 y = 200 + e（a + rc = e）
+    expect(top[14]).toBeCloseTo(100 + a + rc * Math.cos(rad(45)), 6);
+    expect(top[15]).toBeCloseTo(200 + a + rc * Math.sin(rad(45)), 6);
   });
 
-  // §K.5 行 10（红线）+ 行 11（已采甲）：单枚 `circle` 且孔底 = 目标色 `pit`。
-  it('四棱新基线：孔 = 恰 1 枚 circle 且孔底 = 目标色 pit（K3；仅“有 circle”无判别力）', () => {
+  // §K.5 行 10（红线）+ 行 11（已采甲）：**单孔语义（六裁后）= 孔域同心两枚 circle**
+  //（stroke-only 环 + pit 底），孔底 = 目标色 `pit`；环/底同心 ⇒ 孔仍是一个。
+  it('四棱新基线：孔 = 同心两枚 circle（环+底）且孔底 = 目标色 pit（K3；仅“有 circle”无判别力）', () => {
     const size = 50;
     const board = emit((b) =>
       drawFilledBead(b, 100, 200, 1, { size, targetColorIdx: 3, inks: DEMO_BEAD_INKS }),
     );
     const holes = board.filter((c) => c.kind === 'circle');
-    expect(holes).toHaveLength(1); // 乙口径双孔随十层退役 ⇒ 恰 1 枚
-    const hole = holes[0]!;
-    expect(hole.kind === 'circle' && hole.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).pit);
+    expect(holes).toHaveLength(2); // 六裁：环 + 底（乙口径内壁阴影第二枚仍不得出现 ⇒ 枚数从 1 改 2，⛔ 非放宽）
+    const pit = holes.find((c) => c.kind === 'circle' && c.fill !== undefined)!;
+    const ring = holes.find((c) => c.kind === 'circle' && c.fill === undefined)!;
+    expect(pit.kind === 'circle' && pit.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).pit);
     // ⛔ 不是白孔（`18` spike 曾写 `#FFFFFF` 字面量 ⇒ 同式反例在此会红）。
-    expect(hole.kind === 'circle' && hole.fill).not.toBe('#FFFFFF');
-    // 孔径唯一真源 = 卡（spike 旧口径 0.17 常量已删）；⚠ 吃的是**绘制边长**（盘面珠已内缩）。
+    expect(pit.kind === 'circle' && pit.fill).not.toBe('#FFFFFF');
+    // 孔径唯一真源 = 卡（**六裁真透制**：r = 真透半径）；⚠ 吃的是**绘制边长**（盘面珠已内缩）。
     // inset 随格径等比（WXG-T-169）⇒ 本例格径 50 ≠ BEAD_CELL，期望值必须同式取比例而非绝对 4。
     const drawn = size - 2 * ((BEAD_DRAW_INSET * size) / BEAD_CELL);
-    // ⚠ **WXG-T-214（用户拍板「孔径取整、2 的倍数」）**：半径在派生末端取整 ⇒ 直径恒为偶数。
-    //   真源仍是 `holeRatio`，本例只是把期望值同步为**取整后**的半径，并**加钉偶数性**（比原断言更强）。
-    const r = hole.kind === 'circle' ? hole.r : NaN;
+    // ⚠ **WXG-T-214（用户拍板「孔径取整、2 的倍数」）**：半径在派生末端取整 ⇒ 真透直径恒为偶数。
+    //   真源仍是 `holeRatio`，本例只是把期望值同步为**取整后**的真透半径，并**加钉偶数性**（比原断言更强）。
+    const r = pit.kind === 'circle' ? pit.r : NaN;
     expect(r).toBe(Math.round((drawn * BEAD_CARD.holeRatio) / 2));
     expect(r * 2).toBe(Math.round(r * 2)); // 半径为 .5 的整数倍 ⇒ 直径为整数
-    expect((r * 2) % 2).toBe(0); // 直径为偶数设计 px
+    expect((r * 2) % 2).toBe(0); // 真透直径为偶数设计 px（J4）
+    // 环 = 同心外扩一枚：中心线 = 真透 r + 边线宽（描边半宽被 pit 盖住 ⇒ 成环 [r, r+lw]）。
+    const rr = ring.kind === 'circle' ? ring.r : NaN;
+    expect(rr).toBe(r + BEAD_CARD.holeStrokeWidthPx);
+    expect((rr * 2) % 2).toBe(0); // 外缘 = 真透 + 2×1dp ⇒ 同偶
     // 无目标色（托盘珠）⇒ 回落本格 `pit`（端点表内色，C3 零新色）。
     const tray = emit((b) => drawFilledBead(b, 100, 200, 1, { size, inks: DEMO_BEAD_INKS }));
     const trayHoles = tray.filter((c) => c.kind === 'circle');
-    expect(trayHoles).toHaveLength(1);
-    expect(trayHoles[0]!.kind === 'circle' && trayHoles[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, 1).pit);
+    expect(trayHoles).toHaveLength(2);
+    const trayPit = trayHoles.find((c) => c.kind === 'circle' && c.fill !== undefined)!;
+    expect(trayPit.kind === 'circle' && trayPit.fill).toBe(endpointOf(DEMO_BEAD_INKS, 1).pit);
   });
 
   // B0 目标色底图（v1.5-r8）：独立函数、pitch 满铺且方角 ⇒ 相邻格底色无缝相连。
@@ -450,13 +471,14 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     );
     // L1c：两枚 circle = 孔底（居中）+ 内壁自阴影（偏左上 ⇒ 留右下亮弧）。
     const [hole, shade] = [commands[9]!, commands[10]!];
-    // WXG-T-214：孔径取整（半径取整 ⇒ 直径偶数）⇒ 期望值同式取整。
-    const holeR = Math.round((size * BEAD_CARD.holeRatio) / 2);
+    // ⚠ 对照臂口径：`legacy-ten` 派生**不取整**（取整裁定属 facet-4 新基线族，退役臂不追改）
+    // ⇒ 期望同式连续值，用 toBeCloseTo（WXG-T-221 七裁回定 ratio 0.44 = 真透制 ⇒ size 50 下 r 11.0，**逐字节回 HEAD**，封箱腿 1 破口随之消失）。
+    const holeR = (size * BEAD_CARD.holeRatio) / 2;
     expect(hole.kind).toBe('circle');
     expect(shade.kind).toBe('circle');
     if (hole.kind !== 'circle' || shade.kind !== 'circle') return;
     expect(hole.x).toBe(100);
-    expect(hole.r).toBe(holeR);
+    expect(hole.r).toBeCloseTo(holeR, 9);
     expect(shade.r).toBeCloseTo(holeR * 0.86, 9);
     // 设计空间 y 向上 ⇒ 阴影往 +y（视觉上方）、往 −x（左）偏移。
     expect(shade.y).toBeGreaterThan(hole.y);
@@ -596,8 +618,8 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(empty[0]).toMatchObject({ kind: 'rect', fill: DEFAULT_PALETTE.slot });
     // S2 坑底 = 中性色暗一档。
     expect(empty[1]!.kind).toBe('rect');
-    // S1 暗缘框 = stroke-only（中性 edge）。
-    expect(empty[2]).toMatchObject({ kind: 'rect', stroke: mix(DEFAULT_PALETTE.slot, -0.3) });
+    // S1 暗缘框 = stroke-only（中性槽 hole 族墨 = mix(slot, −0.58)，WXG-T-221 五裁与孔边线对齐）。
+    expect(empty[2]).toMatchObject({ kind: 'rect', stroke: mix(DEFAULT_PALETTE.slot, -0.58) });
     // S3/S4 明暗方向：上暗下亮（线 y 序 + 墨色）。
     expect(empty[3]!.kind).toBe('line');
     expect(empty[4]!.kind).toBe('line');
@@ -632,10 +654,11 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(base).toMatchObject({ kind: 'rect', fill: beadColorOf(DEMO_BEAD_INKS, idx) });
     // E4 幽灵符号已删除（用户 2026-09-16 裁定，accessibility v1.5 降档登记）。
     expect(cmds.some((c) => c.kind === 'circle')).toBe(false);
-    // S1 暗缘框 = stroke-only，墨 = mix(底色,#000,0.30)（端点表 edge）。
+    // S1 暗缘框 = stroke-only，墨 = mix(slot,#000,0.58)（端点族 hole，WXG-T-221 五裁；
+    // 本例 tilePainted=false ⇒ 托盘口径，大底/框基色 = 中性 `slot`，非目标色 base）。
     const edge = cmds.find((c) => c.kind === 'rect' && c.stroke !== undefined);
-    expect(edge).toMatchObject({ kind: 'rect', stroke: mix(beadColorOf(DEMO_BEAD_INKS, idx), -0.3) });
-    // S3/S4 明暗方向：上暗下亮。
+    expect(edge).toMatchObject({ kind: 'rect', stroke: mix(DEFAULT_PALETTE.slot, -0.58) });
+    // S3/S4 明暗方向：上暗下亮（托盘口径 tilePainted=false ⇒ S3 仍为 `edge`，五裁只改框线）。
     const lines = cmds.filter((c) => c.kind === 'line');
     expect(lines).toHaveLength(2);
     expect((lines[0] as { stroke: string }).stroke).toBe(mix(beadColorOf(DEMO_BEAD_INKS, idx), -0.3));
@@ -709,7 +732,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       expect(empty).toHaveLength(5);
       const { dark, lit } = darkLitByInk(
         empty,
-        mix(DEFAULT_PALETTE.slot, -0.3),   // 中性槽的 edge 族墨（neutralEndpoints）
+        mix(DEFAULT_PALETTE.slot, -0.3),   // 中性槽的 edge 族墨（S3 线；五裁只改 S1 框→hole −0.58，线墨不动）
         mix(DEFAULT_PALETTE.slot, 0.38),   // lit 族墨（SOCKET_LIT_MIX）
       );
       // 方向硬断言（差值、非存在性）：暗线在亮线**上方** = 凹。
@@ -781,15 +804,16 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    单条断言同时钉两值 ⇒ “只改一个”必红（把「同提交」变成机器可查的成对锁）。
   //    ⚠ 本例**故意复述两个数字**：它们不是 §3 镜像，而是「成对」这个约束的载体；
   //    任一值换档必须与另一值同批，并同步本行（正本 = assets-spec §1.10.2 / §1.10.4）。
-  it('② 同批性：BEAD_DRAW_INSET 与 holeRatio 成对（WXG-T-214 锁定值 2 / 0.44）', () => {
-    // ⚠ **WXG-T-214（用户 2026-09-26 拍板「满豆基本覆盖格子」）：4 → 2，holeRatio 刻意不动**
-    // （Midi 实物真比 0.44 ⇒ 变化可归因到单一变量；孔随珠面等比放大到 r 5.72）。
-    // 本行按硬约束②（§1.10.9）同步改写 —— 成对锁的语义未动：任一值换档必须与另一值同批。
+  it('② 同批性：BEAD_DRAW_INSET 与 holeRatio 成对（WXG-T-221 七裁锁定值 2 / 0.44）', () => {
+    // ⚠ **WXG-T-214（用户 2026-09-26 拍板「满豆基本覆盖格子」）：inset 4 → 2，holeRatio 当时刻意不动**
+    // ⚠ **WXG-T-221（用户 2026-09-28 四裁 A 案 0.538 外缘制 → 六裁真透制更正 → 七裁「取 0.44，计算后取整 dp」）：
+    // 现值 0.44，口径 = 「孔径 = 真透」（珠面含孔区，环外扩吃珠面；与外缘制视觉逐 texel 等值）**；inset 不再动。本行按硬约束②（§1.10.9）
+    // 同步改写 —— 成对锁的语义未动：任一值换档必须与另一值同批。
     expect([BEAD_DRAW_INSET, BEAD_CARD.holeRatio]).toEqual([2, 0.44]);
-    // 再钉两个**派生读数**，防「两值都改但改错方向」：绘制边长与孔半径（设计 px）。
+    // 再钉两个**派生读数**，防「两值都改但改错方向」：绘制边长与孔**真透**半径（设计 px）。
     expect(BEAD_CELL - 2 * BEAD_DRAW_INSET).toBe(26);
-    // 孔径取整后：珠面 26 ⇒ ⌀11.44 → **12 设计 px（r 6 / 6 CSS px）**。
-    expect(((BEAD_CELL - 2 * BEAD_DRAW_INSET) * BEAD_CARD.holeRatio) / 2).toBeCloseTo(5.72, 6);
+    // 真透制取整后：珠面 26 ⇒ 26×0.44/2 = 5.72 → round 6 ⇒ **真透 12 dp（+4.9% 取整偏，用户七裁接受）/ 外缘 14 dp**（环外扩 1dp）。
+    expect(((BEAD_CELL - 2 * BEAD_DRAW_INSET) * BEAD_CARD.holeRatio) / 2).toBeCloseTo(5.72, 9);
     expect(Math.round(((BEAD_CELL - 2 * BEAD_DRAW_INSET) * BEAD_CARD.holeRatio) / 2)).toBe(6);
   });
 

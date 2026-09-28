@@ -15,6 +15,7 @@ import {
   DESIGN_H,
   DESIGN_W,
   SELECT_LIFT_PX,
+  SELECT_LIFT_ANGLE,
   TRAY_SELECTED_LIFT_PX,
   HUD_BAND,
   PANEL_SCALE_FROM,
@@ -995,6 +996,8 @@ function drawGrid(
         // §5 v1.5-r16：200ms 斜坡 = ease-in-out 升 + 一次回弹（`scene-vfx::liftEase`），
         // 组内逐颗错峰（`liftStaggerPhase`，名序 = 快照里的消费序，本层不重算 BFS）。
         draft.lift = groupLift;
+        // §5 斜上 15°（2026-09-27 用户拍板）：珠往左上偏，阴影自然往右下（光向一致）。
+        draft.liftX = -groupLift * Math.tan((SELECT_LIFT_ANGLE * Math.PI) / 180);
         draft.shadowAlpha = SELECTED_SHADOW_ALPHA;
       }
       // G2′ 相 A：点名格在预警窗口内**仍是错位珠**（裁定「甲」⇒ 动手延后），
@@ -1190,9 +1193,12 @@ function drawTray(
       ? TRAY_SELECTED_LIFT_PX *
       (snap.reduceMotion ? 1 : liftEase(snap.liftProgress))
       : 0;
+    // §5 斜上 15°（2026-09-27 用户拍板）：托盘珠同步斜上，与板上同口径。
+    const liftX = selected ? -lift * Math.tan((SELECT_LIFT_ANGLE * Math.PI) / 180) : 0;
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
       size: TRAY_BEAD_SIZE,
       lift,
+      liftX,
       inks,
       // EP11-S5 作用域：托盘珠**随风格**（与盘面珠同一层集）但**不随豆径档**
       // （恒满幅、恒有孔）⇒ 不传 `drawInset` / `hideHole`（assets-spec §7.11）。
