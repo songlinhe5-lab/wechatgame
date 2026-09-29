@@ -117,15 +117,13 @@ def render_mask(layers, shape_b):
         if layer["kind"] == "circle":
             continue
         dv, lv = layer.get("d", 1), layer.get("l", 0)
-        if dv >= 1 and lv <= 0:
-            continue
         m = Image.new("L", (RENDER, RENDER), 0)
         draw_layer(ImageDraw.Draw(m), layer, 255 if dv >= 1 else int(dv * 255))
         sel = np.array(m) > 0
-        if dv < 1:
-            rgba[sel, 0] = int(dv * 255)        # R = d
-        if lv > 0:
-            rgba[sel, 1] = int(lv * 255)        # G = l
+        # **D1 修复（WXG-T-229）**：同有孔档——旧逻辑「`d>=1` 不写 R」+「`d==1 且 l==0` 整层跳过」
+        # ⇒ plate 0.56 渗漏。修 = R/G **无条件双写**。
+        rgba[sel, 0] = int(min(dv, 1.0) * 255)  # R = d
+        rgba[sel, 1] = int(min(lv, 1.0) * 255)  # G = l
     return Image.fromarray(rgba, "RGBA")
 
 
@@ -145,7 +143,14 @@ def paint_frame_light(img):
                                               radius=max(0, BEAD_CORNER_DP * PX - w), fill=255)
     inside = np.array(inner_m) > 0
     t = np.where(ring, np.where(inside, 0.35, 1.0), 0.0)   # 内缘 0.35 → 外缘 1.0 斜面
-    d_val = PLATE_D - DARK_STEP * (1.0 - LIGHT) * t        # 背光侧压向 hole 档
+    # **WXG-T-229「甲」外框斜率**（同有孔档）：旧对称余弦 ⇒ 亮色珠外框上=左、无方向；
+    # 改按四扇权重单调斜率：上 0.70 / 左 0.63 / 右 0.52 / 下 0.42（跨度 0.28，外缘 −0.10·t）。
+    _r = np.sqrt(_dx_all ** 2 + _dy_all ** 2) + 1e-6
+    _ux, _uy = _dx_all / _r, _dy_all / _r
+    _left_w = np.clip((-_ux - np.abs(_uy)) * 2, 0, 1)
+    _right_w = np.clip((_ux - np.abs(_uy)) * 2, 0, 1)
+    _side_d = 0.42 + 0.28 * (1.0 * UP_W + 0.75 * _left_w + 0.35 * _right_w)
+    d_val = _side_d - 0.10 * t                              # 外缘略暗（保留斜面方向）
     l_val = LIT_L * UP_W                                    # 受光提亮（上扇同构，无缝）
     a[..., 0][ring] = (np.clip(d_val, 0, 1)[ring] * 255).astype(np.uint8)
     a[..., 1][ring] = (np.clip(l_val, 0, 1)[ring] * 255).astype(np.uint8)

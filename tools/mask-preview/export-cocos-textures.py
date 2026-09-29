@@ -137,15 +137,14 @@ def render_mask(layers, shape_b, skip_lines=False):
         if skip_lines and layer["kind"] == "line":
             continue
         dv, lv = layer.get("d", 1), layer.get("l", 0)
-        if dv >= 1 and lv <= 0:
-            continue
         m = Image.new("L", (RENDER, RENDER), 0)
         draw_layer(ImageDraw.Draw(m), layer, 255 if dv >= 1 else int(dv * 255))
         sel = np.array(m) > 0
-        if dv < 1:
-            rgba[sel, 0] = int(dv * 255)        # R = d
-        if lv > 0:
-            rgba[sel, 1] = int(lv * 255)        # G = l
+        # **D1 修复（WXG-T-229）**：旧逻辑「`d>=1` 不写 R」+「`d==1 且 l==0` 整层跳过」
+        # ⇒ plate 0.56 渗漏，上/左扇实落 0.56（层集应落 1.0）、珠面零纯本色像素。
+        # 修 = R/G **无条件双写**（mask 语义 = 该像素**该层**的 (d,l)，不是叠加层）。
+        rgba[sel, 0] = int(min(dv, 1.0) * 255)  # R = d
+        rgba[sel, 1] = int(min(lv, 1.0) * 255)  # G = l
     return Image.fromarray(rgba, "RGBA")
 
 
@@ -191,7 +190,15 @@ def paint_frame_light(img):
                                               radius=max(0, BEAD_CORNER_DP * PX - w), fill=255)
     inside = np.array(inner_m) > 0
     t = np.where(ring, np.where(inside, 0.35, 1.0), 0.0)   # 内缘 0.35 → 外缘 1.0 斜面
-    d_val = PLATE_D - DARK_STEP * (1.0 - LIGHT) * t        # 背光侧压向 hole 档
+    # **WXG-T-229「甲」外框斜率**：旧式 = 对称余弦（`LIGHT` 峰在左上 ⇒ 上=左）+ 受光靠 `l`
+    # ⇒ 亮色珠外框只有「上左亮 / 右下暗」两档、方向丢失（实测奶白 上137.3 / 左135.5）。
+    # 改按四扇权重给**单调斜率**：上 0.70 / 左 0.63 / 右 0.52 / 下 0.42（跨度 0.28，外缘 −0.10·t）。
+    _r = np.sqrt(_up_dx ** 2 + _up_dy ** 2) + 1e-6
+    _ux, _uy = _up_dx / _r, _up_dy / _r
+    _left_w = np.clip((-_ux - np.abs(_uy)) * 2, 0, 1)
+    _right_w = np.clip((_ux - np.abs(_uy)) * 2, 0, 1)
+    _side_d = 0.42 + 0.28 * (1.0 * UP_W + 0.75 * _left_w + 0.35 * _right_w)
+    d_val = _side_d - 0.10 * t                              # 外缘略暗（保留斜面方向）
     # 受光提亮用上扇隶属 UP_W（与本体上亮扇同构）：上段恒 0.38 与本体无缝，
     # ⛔ 不用余弦 LIGHT（正上只有 0.85 ⇒ 与本体 0.38 差 0.06 = 接缝台阶）
     l_val = LIT_L * UP_W

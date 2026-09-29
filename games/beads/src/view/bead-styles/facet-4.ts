@@ -33,6 +33,8 @@ import {
   BEAD_CARD,
   FACET4_ARC_STEP_DEG,
   FACET4_EDGE_INSET_PX,
+  FACET4_FACET_BOTTOM_MIX,
+  FACET4_FACET_LEFT_MIX,
   FACET4_FACET_RIGHT_MIX,
   FACET4_PLATE_MIX,
   FACET4_SEAM_STROKE_PX,
@@ -131,8 +133,14 @@ function writeFan(
  *
  * 几何（y-up）：外轮廓半宽 `e = S/2 − EDGE_INSET`、圆角半径 `rc = round(0.30S) − EDGE_INSET`、
  * 圆心偏 `a = e − rc`；四枚扇形由对角 45° 射线分界（J-3「四枚共点于格心」由 scratch 首顶点
- * 结构性保证）。墨序 = 上 `lit` → 左 `base` → 右 `mix(base, −0.16)` → 下 `edge`
- * （「上亮→左本→右中暗→下暗」，§7.11.1 的凸感载体；受光左上，与 §6 光向一致）。
+ * 结构性保证）。墨序 = 上 `lit` → 左 `mix(base, FACET4_FACET_LEFT_MIX)` → 右 `mix(base,
+ * FACET4_FACET_RIGHT_MIX)` → 下 `mix(base, FACET4_FACET_BOTTOM_MIX)`（受光左上，与 §6 光向一致）。
+ *
+ * ⚠ **WXG-T-229（2026-09-29 用户拍板「甲」）墨序改值**：左扇由端点 `base`（d=1）改
+ * `−0.08`、右扇 `−0.16→−0.22`、下扇由端点 `edge` 改 `−0.40` ⇒ 四扇 **d 单调**
+ * （1 / 0.92 / 0.78 / 0.60）。原因：tint 合成式 `out = c·d + (1−c)·l` 下 `l` 对亮色珠
+ * 数学无效，上/左同 d=1 会让亮色珠左上象限一整块平光、光向丢失。
+ * ⛔ 下扇不再复用全局 `edge` 端点（避免牵动槽底/B0），改为本风格专用常量。
  */
 function facet4Layers({
   inks,
@@ -168,9 +176,9 @@ function facet4Layers({
 
   // #2–#5 墨序（§7.11.1）+ 同色自描边封对角 AA 缝（契约约束 ①：stroke === fill）。
   FACET_TOP.fill = e.lit;
-  FACET_LEFT.fill = e.base;
+  FACET_LEFT.fill = mix(e.base, FACET4_FACET_LEFT_MIX);
   FACET_RIGHT.fill = mix(e.base, FACET4_FACET_RIGHT_MIX);
-  FACET_BOTTOM.fill = e.edge;
+  FACET_BOTTOM.fill = mix(e.base, FACET4_FACET_BOTTOM_MIX);
   for (const f of [FACET_TOP, FACET_LEFT, FACET_RIGHT, FACET_BOTTOM]) {
     f.stroke = f.fill;
     f.lineWidth = FACET4_SEAM_STROKE_PX;

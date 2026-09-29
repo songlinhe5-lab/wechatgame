@@ -28,7 +28,7 @@ const DIST = join(ROOT, 'dev/harness/dist');
 const { RenderModelBuilder } = await import(pathToFileURL(join(DIST, 'packages/framework/src/core/render/render-model.js')));
 const { drawFilledBead, drawTargetTile, drawEmptySocket } = await import(pathToFileURL(join(DIST, 'games/beads/src/view/bead-render.js')));
 const { DEMO_BEAD_INKS, endpointOf, mix } = await import(pathToFileURL(join(DIST, 'games/beads/src/view/palette.js')));
-const { BEAD_CARD, BEAD_CELL, FACET4_STYLE_ID, FACET4_PLATE_MIX, FACET4_FACET_RIGHT_MIX, BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL } = await import(pathToFileURL(join(DIST, 'games/beads/src/config/tuning.js')));
+const { BEAD_CARD, BEAD_CELL, FACET4_STYLE_ID, FACET4_PLATE_MIX, FACET4_FACET_RIGHT_MIX, FACET4_FACET_LEFT_MIX, FACET4_FACET_BOTTOM_MIX, BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL } = await import(pathToFileURL(join(DIST, 'games/beads/src/config/tuning.js')));
 
 // --holeless：无孔/小豆档（cell-standard-holeless：inset 3 ⇒ 珠面 24dp、hideHole=true），
 // 输出 layers-holeless.json（供 export-cocos-textures-holeless.py 用）。
@@ -77,8 +77,9 @@ function buildDict(base) {
     const coeffs = [
         0,                          // base
         FACET4_PLATE_MIX,           // −0.44 plate / 右扇形
-        FACET4_FACET_RIGHT_MIX,     // −0.16
-        -0.30,                      // 下扇形
+        FACET4_FACET_RIGHT_MIX,     // WXG-T-229：−0.16 → −0.22
+        FACET4_FACET_LEFT_MIX,      // WXG-T-229 新增：左扇 −0.08（旧 = base 端点 d=1）
+        FACET4_FACET_BOTTOM_MIX,    // WXG-T-229 新增：下扇 −0.40（旧 = edge 端点 −0.30）
         -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN), // −0.44 pit
         -BEAD_HOLE_STROKE_MIX,      // −0.58 hole（S3 暗线 + 内阴影末层 + 孔边线）
         -SOCKET_SHADE_MID_MIX,      // −0.68
