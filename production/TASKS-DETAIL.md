@@ -1182,5 +1182,23 @@
 - **口径**：珠（26dp/角 8、真透 ⌀12、B14 环 1dp −0.58、外框 1dp、plate 0.56、lit 0.38、余弦光照）；格（30dp、槽口 24dp=珠面轮廓内缩 1dp 防漏、3dp 斜面背光上+左+右 0.32/受光下 0.70+lit、坑底 0.32=−0.68、格外 0.70、facet-4 同构光照）；编码 R=d/G=l/B=形状、A=255 免疫 Trim、512→LANCZOS×4→128。
 - **验收轨迹**：混色 → 槽口=珠面轮廓 → 3dp 深度+光照 → 缩 1dp 防漏 → 坑底两档加深 → 三边同暗+下边光照；每步 1024 合并预览目视通过。
 - 正式管线移植：照抄脚本公式（纯 numpy 确定性）。未 commit。
+
+### r9+ 批 B（WXG-T-222：beads-studio 导出 tint 资源）
+
+- **用户指令**：以定稿效果（截图四象限：有孔/无孔 × 珠/格）为准，studio 增加导出 tint 资源功能，选项「四向刻面 × 有孔/无孔」，导出四个纹理可下载。
+- **领号**：WXG-T-222（TASKS.md 头注明示下一可用号 = 222）。
+- **落码（apps/beads-studio）**：
+  - `server.mjs` +`GET /api/tint-export?mode=holed|holeless`：**服务端子进程跑定稿烘焙脚本** `tools/mask-preview/export-cocos-textures{,-holeless}.py`（单一真源零移植——烘焙逻辑不搬 JS，杜绝与定稿 py 双实现漂移），读 cocos-assets 四张 PNG 回 base64；本地仓守卫同 bake（无 games/ ⇒ 501）。
+  - `public/tint-export.js`（新）：选档 → fetch → 逐张触发浏览器下载（300ms 间隔防拦截）。
+  - `public/index.html`：详情面板加档位 select（有孔/无孔）+ 导出按钮 + status。
+- **关键设计点**：tint mask **色无关**（一张 mask × 运行时 tint 色，ADR-0028）⇒ 无逐色导出，与 bake-manifest（T-221 逐色位图）正交。
+- **诚实边界**：① 服务端依赖 python3+numpy+pillow（本地满足；容器/VPS 无仓资源 ⇒ 501 同 bake 守卫，失败时 stderr 回显）；② 烘焙脚本跑一次覆盖 cocos-assets（定稿参数幂等，无害）；③ 领号前已核主表/详情/工作树无 222 引用。
+- **验证**：测试实例（PORT=8799）两档端点实测各回 4 文件名正确、非法 mode 400 ✓。未 commit。
+- **追加（同批）：tint 实时预览**。面板加 tint 色 picker + 珠/格双预览 canvas：选档拉四件套（服务端一次，按档缓存）→ 本地 Canvas 按 **shader 同款公式**逐像素合成（`rgb=c·d+(1−c)·l, a=形状`，mask 编码 R=d/G=l/B=形状同源）→ 改色即时重算零请求；导出复用缓存 dataUrl 免二次烘焙。**像素级验证**（playwright 类 eval 抽样）：孔中心 alpha=0 真透、坑底=色×0.32 逐位精确、格外=×0.70 精确、plate+lit 区三元公式吻合、无孔档中心实心 alpha=255 ✓；改色/切档实测即时生效（注：手动 dispatchEvent 须 bubbles:true，原生交互不受影响）。
+- **追加 2（同批）：版面按 tint 档位渲染**。用户报版面未跟随 tint 档位 ⇒ `board-render.js` drawBoard 加 `opts.tint` 分支（珠格=bead sprite×珠色、空槽=grid sprite×目标色、locked 恒旧画法、sprite 未就绪逐格回退旧画法）；`tint-export.js` 暴露 `TintBoard.current()` 按色 sprite 工厂（per 档×色缓存）；档位 change 派发 `tint-change` ⇒ 棋盘自动重绘。浏览器实测有孔（孔透背景）/无孔（实心刻面）版面即时跟随 ✓。
+- **追加 3（用户纠偏「布局都不能变，变的只是豆子样式」）**：首版 sprite 30dp 画布满格画 ⇒ 珠面占 80% 布局观感变了。修正：bead sprite 裁珠面窗口（26/24dp）画到旧珠体矩形（内缩 4/30）+ 珠格补垫（满格 mix(target,−0.30)）+ 空槽 grid 满幅 ⇒ **布局与旧版逐像素一致、仅豆子样式切换**。实测两档布局一致 ✓。
+- **追加 4（垫环翻倍根因）**：珠体 inset 误用 board-render 旧快照 `BEAD_INSET_RATIO 4/30`（珠体 0.733 格）⇒ 与定稿珠面 26dp（0.867 格）冲突、垫环翻倍珠缩水。修正：inset = `(30−faceDp)/2/30`（TintBoard.faceDp 提供，有孔 2/30、无孔 3/30）。实测珠满占比、观感=定稿 ✓（board-render 与游戏的既存漂移见其头注，tint 路径以定稿口径为准）。
+- **追加 5（空位不画格图）**：tint 分支空格仅当有目标色（盘面内待填槽）画 grid sprite；空位（'.'）不画露背景（与旧画法语义一致）。实测图案外干净 ✓。
+- **追加 6（终式，用户拍板）**：版面渲染定式 = **合成图纹理填充**——盘面内格先铺「格图合成」（grid base+mask × 格色），有豆叠「拼豆合成」（bead base+mask × 珠色）；空位不画；平色垫退役。与运行时渲染结构同构（B0 格底 + 珠）。
 - **甲/丙终调（同日）**：甲 D1（暗底 pit + 偏置环 2dp）左上壁 142 / Δ83 / 合成最暗 154；**丙 D2（conic，角度收窄 ±36° + LMAX 0.85）左上壁 142 / Δ94 / 合成最暗 106 ⇒ 深度与方向双超甲**；D3（3dp 同参）Δ90、暗壁更厚。宽度 2dp/3dp 两档均已出图（mask 侧纯几何，不受 C7 约束）；⚠ 2dp 在 dpr1 仅 0.5 物理 px ⇒ 建议 3dp 起步或加 dp 地板，真机 A/B。
 - **验证态（r9）**：beads 全量 732/4（seal 0 红）/ tsc 0 错 / `check:links` / `check:tasks` 绿（终跑见收口段）；⛔ 未 commit / 未 push。

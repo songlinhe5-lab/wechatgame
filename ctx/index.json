@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3569,
       "lines": 130,
-      "sha256": "b22998135bc2e6c403b87e6750e9fdc13b2449625dda3432f652abdcb5bacc1b",
+      "sha256": "7d44f49073d5fe4d45903ee2ec9fd3c36f513cae8a6da5883b9540ae3462a0b2",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5042,
+      "tokens": 5062,
       "lines": 82,
-      "sha256": "ba99cc86067c0bf82f7a24e2e94b56e664a8a6f6ddbb15091f7ec75c4ba35845",
+      "sha256": "4460236fdecff3bc1c80564f74d35bdea9e8a12583b017c608abd5bf599c3333",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 5014,
+          "tokens": 5034,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1186 行 / 73828 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1204 行 / 75082 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 641,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1187 · §WXG-T-128=18+120 · §裁定与回写记录",
+          "tokens": 661,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1205 · §WXG-T-128=18+120 · §裁定与回写记录",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -46887,17 +46887,17 @@
     },
     {
       "path": "memory/2026-09-29.md",
-      "tokens": 2286,
-      "lines": 37,
-      "sha256": "b78f33ca0df5ba50a5a609cebdb69f5aa1a57dac5e0bf20efd99bbe4b988ed77",
+      "tokens": 5272,
+      "lines": 105,
+      "sha256": "d62c3111d04952426eda1e793fa1d31e6411732f67381878f643c8ee23446399",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-09-29",
           "level": 1,
           "startLine": 1,
-          "endLine": 38,
-          "tokens": 2282,
+          "endLine": 106,
+          "tokens": 5269,
           "summary": "",
           "keywords": []
         },
@@ -46964,6 +46964,243 @@
             "textures",
             "有孔"
           ]
+        },
+        {
+          "anchor": "§WXG-T-222：beads-studio 导出 tint 资源（有孔/无孔 × 四向刻面）",
+          "level": 3,
+          "startLine": 39,
+          "endLine": 42,
+          "tokens": 136,
+          "summary": "用户以定稿效果截图（Cocos 四象限）为准，要求 studio 增加导出 tint 资源功能。落码：server GE",
+          "keywords": [
+            "WXG",
+            "beads",
+            "studio",
+            "tint",
+            "Cocos",
+            "server"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加：studio tint 实时预览",
+          "level": 3,
+          "startLine": 43,
+          "endLine": 46,
+          "tokens": 102,
+          "summary": "面板加 tint 色 picker + 珠/格双 canvas 预览：按档缓存四件套 → 本地 Canvas 按 sha",
+          "keywords": [
+            "WXG",
+            "studio",
+            "tint",
+            "picker",
+            "canvas",
+            "Canvas"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 2：studio 版面按 tint 档位渲染",
+          "level": 3,
+          "startLine": 47,
+          "endLine": 50,
+          "tokens": 169,
+          "summary": "用户报「版面没有按照 tint 档位绘制」⇒ 棋盘三视图（正解/错位）改走 tint 渲染路径：board-render",
+          "keywords": [
+            "WXG",
+            "studio",
+            "tint",
+            "board",
+            "render",
+            "追加"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 3：版面布局与豆子样式解耦（用户纠偏）",
+          "level": 3,
+          "startLine": 51,
+          "endLine": 54,
+          "tokens": 163,
+          "summary": "用户报「版面布局都不能变，变的只是豆子的样式」⇒ 首版 tint 渲染把 30dp 画布 sprite 画满格 ⇒ 珠面",
+          "keywords": [
+            "WXG",
+            "tint",
+            "sprite",
+            "追加",
+            "版面布局与豆",
+            "子样式解耦"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 4：珠体 inset 根因修正（垫环翻倍）",
+          "level": 3,
+          "startLine": 55,
+          "endLine": 58,
+          "tokens": 152,
+          "summary": "用户再贴图纠偏 ⇒ 真根因：board-render 旧快照 BEAD_INSET_RATIO = 4/30（珠体 0.",
+          "keywords": [
+            "WXG",
+            "inset",
+            "board",
+            "render",
+            "BEAD_INSET_RATIO",
+            "追加"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 5：空位不画格图",
+          "level": 3,
+          "startLine": 59,
+          "endLine": 62,
+          "tokens": 100,
+          "summary": "用户「没有豆的空格不要展示格图」⇒ tint 分支空格仅当有目标色（盘面内待填槽）画 grid sprite；空位（'.",
+          "keywords": [
+            "WXG",
+            "tint",
+            "grid",
+            "sprite",
+            "追加",
+            "空位不画格图"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 6（终式）：版面渲染 = 合成图纹理填充",
+          "level": 3,
+          "startLine": 63,
+          "endLine": 66,
+          "tokens": 166,
+          "summary": "用户拍板「按 base+mask+color 合成拼豆和格图，合成图作为每格填充纹理」⇒ board-render ti",
+          "keywords": [
+            "WXG",
+            "base",
+            "mask",
+            "color",
+            "board",
+            "render"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 7：版面缩放滤波质量",
+          "level": 3,
+          "startLine": 67,
+          "endLine": 70,
+          "tokens": 123,
+          "summary": "用户问合成纹理尺寸 ⇒ 答案：128×128（服务端定稿脚本 512 超采样→LANCZOS 出图；bead 裁珠面窗口",
+          "keywords": [
+            "WXG",
+            "LANCZOS",
+            "bead",
+            "追加",
+            "版面缩放滤波",
+            "质量"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 8：tint 版面格满铺无缝",
+          "level": 3,
+          "startLine": 71,
+          "endLine": 74,
+          "tokens": 109,
+          "summary": "用户「格子应该挨在一起，中间不要有空隙」⇒ 空隙来自 layout 的 BEAD_GAP（size=cell×30/32",
+          "keywords": [
+            "WXG",
+            "tint",
+            "layout",
+            "BEAD_GAP",
+            "size",
+            "cell"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 9：大画布渲染 + CSS 缩小显示（用户方案）",
+          "level": 3,
+          "startLine": 75,
+          "endLine": 78,
+          "tokens": 144,
+          "summary": "用户提「画布放大到实际需要尺寸，展示时缩小」⇒ 采纳：渲染画布 = cols×32px（clamp 420..1600；",
+          "keywords": [
+            "WXG",
+            "CSS",
+            "cols",
+            "clamp",
+            "追加",
+            "大画布渲染"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 10（用户规格）：渲染=格数×128px + 点击缩放",
+          "level": 3,
+          "startLine": 79,
+          "endLine": 82,
+          "tokens": 147,
+          "summary": "用户规格三条全落地：① 渲染画布 = 格数×128px（sprite 原生 1:1 零缩放采样；clamp ≤8192）",
+          "keywords": [
+            "WXG",
+            "sprite",
+            "clamp",
+            "追加",
+            "用户规格",
+            "渲染"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-222 追加 11：豆孔透色修正（珠格底 = B0 tile，非空槽）",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 86,
+          "tokens": 206,
+          "summary": "用户「豆孔看到的槽色太深，难区分底色」（给了 pit 放淡 / 豆缩小两选项）⇒ 真根因：珠格格底误用了空槽 grid ",
+          "keywords": [
+            "WXG",
+            "tile",
+            "pit",
+            "grid",
+            "追加",
+            "豆孔透色修正"
+          ]
+        },
+        {
+          "anchor": "§定稿变更 v1.0 → v1.1：槽底 → 格底色（用户拍板）",
+          "level": 3,
+          "startLine": 87,
+          "endLine": 93,
+          "tokens": 334,
+          "summary": "用户质疑「取放珠瞬间深坑↔格底跳变突兀？槽设计鸡肋？槽底做成格底色？」⇒ 三问全中要害：①跳变真实（0.32↔0.70 ",
+          "keywords": [
+            "定稿变更",
+            "槽底",
+            "格底色",
+            "用户拍板"
+          ]
+        },
+        {
+          "anchor": "§定稿 v1.1 修订：无孔档坑底恢复深色（用户裁定）",
+          "level": 3,
+          "startLine": 94,
+          "endLine": 97,
+          "tokens": 150,
+          "summary": "用户「无孔档不要改坑底色——不会透坑底，没有这个影响」⇒ v1.1 的「槽底→格底色」只适用有孔档（孔真透才有透色问题）",
+          "keywords": [
+            "定稿",
+            "修订",
+            "无孔档坑底恢",
+            "复深色",
+            "用户裁定"
+          ]
+        },
+        {
+          "anchor": "§★ 有孔/无孔 tint mask 完全定稿（用户确认 studio 效果 OK）",
+          "level": 3,
+          "startLine": 98,
+          "endLine": 106,
+          "tokens": 479,
+          "summary": "用户拍板「完全定稿」（2026-09-29，studio 实观验收通过）。最终口径：",
+          "keywords": [
+            "tint",
+            "mask",
+            "studio",
+            "有孔",
+            "无孔",
+            "完全定稿"
+          ]
         }
       ]
     },
@@ -46971,7 +47208,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9846,
       "lines": 239,
-      "sha256": "d59b5e266596d112cfe9e23338d55b70ac8dd870db3feaedbd3e1ea48a203a6e",
+      "sha256": "825b11fab436a104563abecd143c9d710e662a34d752bb9306964f09e0aa5930",
       "tier": "normal",
       "sections": [
         {
@@ -47062,7 +47299,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 2,286 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 30 天）",
+          "anchor": "§`memory/2026-09-29.md` — 5,272 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -67051,17 +67288,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 73828,
-      "lines": 1186,
-      "sha256": "ef1edd689f3a1f8a4d27854a028fb843abd0bdfa73f51ca6ce1f586631a2a7e2",
+      "tokens": 75082,
+      "lines": 1204,
+      "sha256": "b280052d1e5e01d3892b7673392db0bbfb3fdf6aee01f0620f43faac516f4865",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1187,
-          "tokens": 73812,
+          "endLine": 1205,
+          "tokens": 75065,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -67681,8 +67918,8 @@
           "anchor": "§WXG-T-223",
           "level": 2,
           "startLine": 1124,
-          "endLine": 1187,
-          "tokens": 4201,
+          "endLine": 1205,
+          "tokens": 5454,
           "summary": "名称：beads·空槽凹感改「槽内一周内阴影」（删 S1 描边 + 坑底边对齐珠面描边）",
           "keywords": [
             "WXG",
@@ -67757,8 +67994,8 @@
           "anchor": "§r9+ 批（有孔 tint mask 烘焙纹理定稿 v1.0）",
           "level": 3,
           "startLine": 1179,
-          "endLine": 1187,
-          "tokens": 439,
+          "endLine": 1185,
+          "tokens": 257,
           "summary": "定稿：tools/mask-preview/export-cocos-textures.py 头部冻结口径块（v1.0，",
           "keywords": [
             "tint",
@@ -67767,6 +68004,22 @@
             "preview",
             "export",
             "cocos"
+          ]
+        },
+        {
+          "anchor": "§r9+ 批 B（WXG-T-222：beads-studio 导出 tint 资源）",
+          "level": 3,
+          "startLine": 1186,
+          "endLine": 1205,
+          "tokens": 1417,
+          "summary": "用户指令：以定稿效果（截图四象限：有孔/无孔 × 珠/格）为准，studio 增加导出 tint 资源功能，选项「四向刻",
+          "keywords": [
+            "WXG",
+            "beads",
+            "studio",
+            "tint",
+            "导出",
+            "资源"
           ]
         }
       ]

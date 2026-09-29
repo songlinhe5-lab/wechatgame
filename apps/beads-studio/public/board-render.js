@@ -192,9 +192,22 @@
     function drawBoard(g, canvasW, canvasH, rowsArr, opts) {
         var cols = opts.cols, rows = opts.rows, pat = Array.isArray(opts.pattern) ? opts.pattern : null;
         var hexes = Array.isArray(opts.hexes) && opts.hexes.length ? opts.hexes : null;
+        // [WXG-T-222] tint 渲染路径：opts.tint = { beadFor(hex), gridFor(hex), slotHex }
+        //（tint-export.js 注入）。每格 = mask sprite × 该格色（运行时 tint 渲染预演）；
+        // locked 恒旧画法；sprite 未就绪（null）⇒ 该格回退旧画法。
+        var tint = opts.tint || null;
         g.fillStyle = BG; g.fillRect(0, 0, canvasW, canvasH);
         if (!Array.isArray(rowsArr) && !pat) return;
         var L = layout(canvasW, canvasH, cols, rows);
+        if (tint) {
+            // [WXG-T-222] 格子挨在一起（用户 2026-09-29）：tint 渲染格满铺 cell（无 BEAD_GAP 缝）
+            // ⇒ 格底合成图连成整片（实物拼豆板观感）；珠仍按定稿占比嵌在格中。
+            L = { cell: L.cell, size: L.cell, ox: L.ox, oy: L.oy };
+        }
+        // [WXG-T-222] tint sprite 是 128px 源、版面格 ~13-27px ⇒ 5-10 倍缩小；
+        // Canvas2D 缩小滤波默认 quality=low ⇒ 明显发糊，high 走多步高质量缩放。
+        g.imageSmoothingEnabled = true;
+        g.imageSmoothingQuality = 'high';
         for (var y = 0; y < rows; y++) {
             var line = (rowsArr || [])[y] || '';
             var pLine = (pat || [])[y] || '';
@@ -203,6 +216,34 @@
                 var bx = L.ox + x * L.cell + (L.cell - L.size) / 2;
                 var by = L.oy + y * L.cell + (L.cell - L.size) / 2;
                 var target = tch && tch !== '.' && tch !== 'x' ? beadColor(indexFromChar(tch), hexes) : null;
+                if (tint) {
+                    // [WXG-T-222 终式] 每格填充 = 合成图纹理：
+                    //   **有珠格**：格底 = B0 tile（目标色平铺 ×0.70，无坑）⇒ 豆孔真透透出 tile 色
+                    //              （色相可辨，用户 2026-09-29「孔里槽色太深难辨底色」修正），
+                    //              再叠「拼豆合成」（bead base+mask × 珠色）；
+                    //   **空槽格**：grid base+mask × 目标色（含 3dp 斜面 + 坑底 0.32 深度感）；
+                    //   空位（'.'）不画；locked 恒旧画法。
+                    var isBead = ch && ch !== '.' && ch !== 'x';
+                    var cellHex = target || (isBead ? beadColor(indexFromChar(ch), hexes) : null);
+                    if (ch !== 'x' && cellHex) {
+                        var floor = isBead ? tint.tileFor(cellHex) : tint.gridFor(cellHex);
+                        if (floor) {
+                            g.drawImage(floor, bx, by, L.size, L.size);
+                            if (isBead) {
+                                var bc = beadColor(indexFromChar(ch), hexes);
+                                var sp = tint.beadFor(bc);
+                                if (sp) {
+                                    // 珠体 inset 由定稿珠面 dp 推导（有孔 26dp ⇒ 2/30、无孔 24dp ⇒ 3/30）
+                                    var ins = L.size * (30 - tint.faceDp) / 2 / 30;
+                                    g.drawImage(sp, bx + ins, by + ins, L.size - ins * 2, L.size - ins * 2);
+                                } else {
+                                    drawBead(g, bx, by, L.size, bc, pat ? target : null); // sprite 未就绪回退旧画法
+                                }
+                            }
+                            continue;
+                        }
+                    }
+                }
                 if (!ch || ch === '.') {
                     if (pat) { if (target) drawSocket(g, bx, by, L.size, target); }
                     else if (!pat) drawSocket(g, bx, by, L.size);

@@ -28,7 +28,13 @@ const DIST = join(ROOT, 'dev/harness/dist');
 const { RenderModelBuilder } = await import(pathToFileURL(join(DIST, 'packages/framework/src/core/render/render-model.js')));
 const { drawFilledBead, drawTargetTile, drawEmptySocket } = await import(pathToFileURL(join(DIST, 'games/beads/src/view/bead-render.js')));
 const { DEMO_BEAD_INKS, endpointOf, mix } = await import(pathToFileURL(join(DIST, 'games/beads/src/view/palette.js')));
-const { BEAD_CARD, BEAD_CELL, FACET4_STYLE_ID, FACET4_PLATE_MIX, FACET4_FACET_RIGHT_MIX, BEAD_DRAW_INSET } = await import(pathToFileURL(join(DIST, 'games/beads/src/config/tuning.js')));
+const { BEAD_CARD, BEAD_CELL, FACET4_STYLE_ID, FACET4_PLATE_MIX, FACET4_FACET_RIGHT_MIX, BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL } = await import(pathToFileURL(join(DIST, 'games/beads/src/config/tuning.js')));
+
+// --holeless：无孔/小豆档（cell-standard-holeless：inset 3 ⇒ 珠面 24dp、hideHole=true），
+// 输出 layers-holeless.json（供 export-cocos-textures-holeless.py 用）。
+const HOLELESS = process.argv.includes('--holeless');
+const INSET_DP = HOLELESS ? BEAD_DRAW_INSET_SMALL : BEAD_DRAW_INSET;
+const OUT_JSON = HOLELESS ? 'layers-holeless.json' : 'layers.json';
 const { SOCKET_LIT_MIX, SOCKET_EDGE_DARK_MIX, SOCKET_PIT_DARKEN, SOCKET_SHADE_MID_MIX, SOCKET_SHADE_OUTER_MIX, BEAD_HOLE_STROKE_MIX } = await import(pathToFileURL(join(DIST, 'games/beads/src/view/palette.js')));
 
 // ⛔ **dp 空间烘焙**（2026-09-29）：drawFilledBead/drawEmptySocket 的 size 参数语义是 **dp 数值**
@@ -36,7 +42,7 @@ const { SOCKET_LIT_MIX, SOCKET_EDGE_DARK_MIX, SOCKET_PIT_DARKEN, SOCKET_SHADE_MI
 // ⛔ 传 px 会把所有绝对 dp 量缩半（实测内阴影层 26/25/24/23dp，文档要求 26/24/22/20）。
 // 输出坐标 = dp，由 export 端 ×PX_PER_DP 栅格化。
 const CELL_DP = BEAD_CELL;                       // 30dp 格径
-const BEAD_FACE_DP = CELL_DP - 2 * BEAD_DRAW_INSET; // 26dp 珠面
+const BEAD_FACE_DP = CELL_DP - 2 * INSET_DP;     // 有孔 26dp / 无孔 24dp（inset 3）
 const SIZE = CELL_DP;                            // builder 尺寸 = dp 空间 30×30
 const COLOR_IDX = 5;
 const ep = endpointOf(DEMO_BEAD_INKS, COLOR_IDX);
@@ -44,8 +50,12 @@ const ep = endpointOf(DEMO_BEAD_INKS, COLOR_IDX);
 function captureBead() {
     const b = new RenderModelBuilder(SIZE, SIZE);
     b.begin();
-    // ⛔ 不传 hideHole：孔几何（pit 圆 + 边线环）进 JSON，预览端按 B15 跳过（孔 live 不入 mask）。
-    drawFilledBead(b, SIZE / 2, SIZE / 2, COLOR_IDX, { size: CELL_DP, styleId: FACET4_STYLE_ID, targetColorIdx: COLOR_IDX });
+    // 有孔：不传 hideHole ⇒ 孔几何（pit 圆 + 边线环）进 JSON，预览端按 B15 跳过（孔 live 不入 mask）。
+    // 无孔：hideHole=true（按 role 跳孔层）+ drawInset=SMALL（珠面 24dp；⛔ hideHole 不切 inset 档）。
+    drawFilledBead(b, SIZE / 2, SIZE / 2, COLOR_IDX, {
+        size: CELL_DP, styleId: FACET4_STYLE_ID, targetColorIdx: COLOR_IDX,
+        hideHole: HOLELESS, ...(HOLELESS ? { drawInset: INSET_DP } : {}),
+    });
     return b.end();
 }
 
@@ -55,7 +65,7 @@ function captureCell() {
     // tilePainted=true ⇒ B0 由 drawTargetTile 承担；palette 补 slot 防 tray 路径误用。
     const palette = { slot: ep.base, base: ep.base, pit: ep.pit };
     drawTargetTile(b, SIZE / 2, SIZE / 2, COLOR_IDX, DEMO_BEAD_INKS, CELL_DP);
-    drawEmptySocket(b, SIZE / 2, SIZE / 2, palette, CELL_DP, COLOR_IDX, DEMO_BEAD_INKS, true, BEAD_DRAW_INSET);
+    drawEmptySocket(b, SIZE / 2, SIZE / 2, palette, CELL_DP, COLOR_IDX, DEMO_BEAD_INKS, true, INSET_DP);
     return b.end();
 }
 
@@ -104,12 +114,12 @@ const data = {
     SIZE,            // dp 空间边长（30）
     DP: CELL_DP,     // 格径 dp（兼容旧消费者字段名）
     TEXEL_PER_DP: 1, // layers 坐标已是 dp（兼容旧消费者字段名）
-    HOLE_R: Math.round((BEAD_FACE_DP * BEAD_CARD.holeRatio) / 2), // 真透半径 dp（J4：round(26×0.44/2)=6 ⇒ ⌀12）
+    HOLE_R: HOLELESS ? 0 : Math.round((BEAD_FACE_DP * BEAD_CARD.holeRatio) / 2), // 真透半径 dp（无孔=0；J4 不适用）
     beadLayers: toLayers(captureBead(), buildDict(ep.base)),
     cellLayers: toLayers(captureCell(), buildDict(ep.base)),
     base: ep.base,
 };
 
-writeFileSync(join(OUT, 'layers.json'), JSON.stringify(data));
-console.log(`✅ layers.json（bead:${data.beadLayers.length} cell:${data.cellLayers.length} HOLE_R=${data.HOLE_R}）`);
+writeFileSync(join(OUT, OUT_JSON), JSON.stringify(data));
+console.log(`✅ ${OUT_JSON}（${HOLELESS ? '无孔档 inset 3/珠面 24dp' : '有孔档 inset 2/珠面 26dp'} bead:${data.beadLayers.length} cell:${data.cellLayers.length} HOLE_R=${data.HOLE_R}）`);
 console.log('   cell 各层 d/l：', data.cellLayers.map((l) => `${l.kind}:${l.d.toFixed(2)}/${l.l.toFixed(2)}`).join(' '));

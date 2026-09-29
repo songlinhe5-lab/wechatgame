@@ -17,6 +17,9 @@
  *   GET  /api/bake-manifest?id=&style= → 当前关预烘清单（WXG-T-221 S3-lite）：扫 result 用到的色集，
  *        与 games/beads/assets/{bead,cell}/levels/ 已有文件求差，回 { bead:[{colorIdx,filename}], cell:[...] }（仅缺失项）。
  *   POST /api/bake-save         → body `{ kind:'bead'|'cell', filename, dataUrl }`；filename 严格白名单、
+ *   GET  /api/tint-export?mode=holed|holeless → tint 资源四件套 base64（WXG-T-222；服务端跑定稿
+ *                                    烘焙脚本 tools/mask-preview/export-cocos-textures{,-holeless}.py，
+ *                                    单一真源零移植；色无关 ⇒ 无逐色导出）
  *        解码 base64 PNG 落 games/beads/assets/{kind}/levels/{filename}。两端点仅本地仓开（容器 501）。
  *   GET  /                    → 静态页 public/index.html
  *
@@ -551,6 +554,49 @@ async function handleBakeSave(req, res) {
     return sendJson(res, 200, { saved: `${kind}/levels/${filename}`, bytes: buf.length, overwroteBytes: prevBytes });
 }
 
+/**
+ * GET /api/tint-export?mode=holed|holeless → tint 资源四件套下载（WXG-T-222）。
+ *
+ * **单一真源零移植**（2026-09-29）：烘焙逻辑不搬 JS——服务端子进程直接跑定稿脚本
+ * `tools/mask-preview/export-cocos-textures{,-holeless}.py`（有孔 v1.0 / 无孔 v1.0-holeless，
+ * 用户拍板冻结口径），读 cocos-assets 四张 PNG 回 base64，前端逐张触发浏览器下载。
+ * ⚠ 依赖宿主 python3 + numpy + pillow（本地仓满足；容器/VPS 无 games/ ⇒ 501 同 bake 守卫）。
+ * tint mask 是**色无关**的（一张 mask × 运行时 tint 色），故无逐色导出、与 bake-manifest 不同。
+ */
+const TINT_MODES = {
+    holed: {
+        script: 'tools/mask-preview/export-cocos-textures.py',
+        files: ['bead-tint-128-base.png', 'bead-tint-128-mask.png',
+                'grid-tint-128-base.png', 'grid-tint-128-mask.png'],
+    },
+    holeless: {
+        script: 'tools/mask-preview/export-cocos-textures-holeless.py',
+        files: ['bead-holeless-tint-128-base.png', 'bead-holeless-tint-128-mask.png',
+                'grid-holeless-tint-128-base.png', 'grid-holeless-tint-128-mask.png'],
+    },
+};
+
+function handleTintExport(res, url) {
+    if (!existsSync(join(REPO, 'games/beads')))
+        return sendJson(res, 501, { error: 'tint 导出仅在本地仓运行 beads-studio 时可用（容器/VPS 无仓库资源）' });
+    const mode = url.searchParams.get('mode');
+    const conf = TINT_MODES[mode];
+    if (!conf) return sendJson(res, 400, { error: 'mode 只允 holed|holeless' });
+    const script = join(REPO, conf.script);
+    if (!existsSync(script)) return sendJson(res, 500, { error: `定稿脚本缺失：${conf.script}` });
+    const outDir = join(REPO, 'tools/mask-preview/cocos-assets');
+    const r = spawnSync('python3', [script], { cwd: REPO, encoding: 'utf8', timeout: 60_000 });
+    if (r.status !== 0)
+        return sendJson(res, 500, { error: `烘焙脚本失败（rc=${r.status}；需 python3+numpy+pillow）：${(r.stderr || r.stdout || '').slice(-400)}` });
+    const files = [];
+    for (const name of conf.files) {
+        const p = join(outDir, name);
+        if (!existsSync(p)) return sendJson(res, 500, { error: `脚本未产出 ${name}` });
+        files.push({ filename: name, dataUrl: `data:image/png;base64,${readFileSync(p).toString('base64')}` });
+    }
+    return sendJson(res, 200, { mode, files });
+}
+
 async function handleGenerate(req, res, url) {
     const q = url.searchParams;
     const cols = Math.min(107, Math.max(2, parseInt(q.get('cols') || '14', 10)));
@@ -659,6 +705,7 @@ async function handle(req, res) {
         // [WXG-T-221] 当前关预烘导出（仅本地仓，两 handler 内各自守 501）。
         if (req.method === 'GET' && path === '/api/bake-manifest') return handleBakeManifest(res, url);
         if (req.method === 'POST' && path === '/api/bake-save') return await handleBakeSave(req, res);
+        if (req.method === 'GET' && path === '/api/tint-export') return handleTintExport(res, url);
         // 删除一条已存结果（整目录）：id 走与建目录同一套 `[a-z0-9-]` 白名单，**不碰用户传入的路径片段**。
         // 不可逆（磁盘上唯一副本），所以前端必须二次确认；不提供批量/目录级删除。
         const del = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})$/);

@@ -299,7 +299,7 @@
         </section>
         <section>
             <div class="card">
-                <canvas id="cv" width="420" height="420"></canvas>
+                <canvas id="cv" width="420" height="420" style="width:420px"></canvas>
                 <div class="tabs">
                     <button id="tSrc">原图</button>
                     <button id="tSolved" class="on">正解图</button>
@@ -312,6 +312,30 @@
                 <button class="ghost" id="ing" disabled>一键入关（写回关卡表）</button>
                 <button class="ghost" id="bake" disabled title="先选中一条结果">烘焙本关纹理</button>
                 <div id="bake-status" style="font-size:12px;color:#666;margin-top:4px;min-height:16px"></div>
+                <!-- [WXG-T-222] tint 资源导出（色无关 mask/base 四件套；有孔/无孔切换）+ 实时预览 -->
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid #eee">
+                    <label style="font-size:12px;color:#666">tint 档位
+                        <select id="tint-mode" style="margin:0 6px">
+                            <option value="holed">有孔（四向刻面）</option>
+                            <option value="holeless">无孔（四向刻面）</option>
+                        </select>
+                    </label>
+                    <label style="font-size:12px;color:#666;margin-left:6px">tint 色
+                        <input type="color" id="tint-color" value="#d9534f" style="vertical-align:middle;margin-left:4px">
+                    </label>
+                    <button class="ghost" id="tint-export">导出 tint 资源（4 纹理）</button>
+                    <div id="tint-status" style="font-size:12px;color:#666;margin-top:4px;min-height:16px"></div>
+                    <div style="display:flex;gap:8px;margin-top:6px">
+                        <div style="text-align:center">
+                            <canvas id="tint-cv-bead" width="128" height="128" style="width:160px;height:160px;image-rendering:pixelated;background:#232830;border-radius:4px"></canvas>
+                            <div style="font-size:11px;color:#888">珠</div>
+                        </div>
+                        <div style="text-align:center">
+                            <canvas id="tint-cv-grid" width="128" height="128" style="width:160px;height:160px;image-rendering:pixelated;background:#232830;border-radius:4px"></canvas>
+                            <div style="font-size:11px;color:#888">格</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="card" id="results"><b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small></div>
         </section>
@@ -320,10 +344,12 @@
     <script src="/board-render.js"></script>
     <!-- [WXG-T-221] 当前关纹理预烘导出（ES module，依赖上方 importmap + harness dist） -->
     <script type="module" src="/bake-export.js"></script>
+    <script type="module" src="/tint-export.js"></script>
     <script>
         'use strict';
         const $ = (id) => document.getElementById(id);
         let current = null; // 当前 result.json
+        let lastBoardRows = null; // 最近一次画到盘面的 rowsArr（tint 档位变化时重绘用，WXG-T-222）
         let srcPixels = null; // {w,h,data:Uint8ClampedArray} —— 送服务端的解像结果
         let srcThumb = null;  // 原图缩略图 dataURL（选图即生，随 POST 存盘 ⇒ 历史条目也能看）
         let srcUrl = null;    // 原文件 objectURL（src 视图预览用：448 缩略图放大必糊，2026-09-21）
@@ -574,16 +600,44 @@
             $('gen').disabled = false;
         };
 
-        /** 行字符串数组（pattern / misplaced）→ 画布：绘制逻辑全部在 /board-render.js（与游戏版面同一视觉契约，可复用模块）。
-         *  pattern 一并传入 ⇒ 目标色坑/垫与背景同画，**正解与错位两视图同底**（view-model 同源）。 */
-        function drawBoard(rowsArr) {
+        /** [WXG-T-222 用户规格] 渲染画布 = **格数 × 128px**（sprite 原生 1:1 映射，零缩放采样损失）；
+         *  展示 CSS 缩小到不超过展示区域的最大尺寸；**左键点击放大、右键点击缩小**，
+         *  zoom ∈ [0.2×, 2.0×]（相对 contain 适配尺寸）。 */
+        const boardPx = (cols) => Math.min(8192, Math.max(420, cols * 128));
+        let boardFit = 420, boardZoom = 1; // contain 适配尺寸 / 当前缩放
+
+        function applyBoardZoom() {
             const cv = $('cv');
-            BeadsBoardRender.drawBoard(cv.getContext('2d'), cv.width, cv.height, rowsArr, { cols: current.cols, rows: current.rows, pattern: current.levelDraft?.pattern, hexes: current.paletteHex });
+            const w = Math.round(boardFit * boardZoom);
+            cv.style.width = cv.style.height = w + 'px';
+            cv.title = view === 'src' ? '' : `×${boardZoom.toFixed(2)}（左键放大 / 右键缩小）`;
         }
 
-        /** 原图视图：把缩略图等比画到画布中央（contain，不裁剪）。 */
+        /** 行字符串数组（pattern / misplaced）→ 画布：绘制逻辑全部在 /board-render.js（与游戏版面同一视觉契约，可复用模块）。
+         *  pattern 一并传入 ⇒ 目标色坑/垫与背景同画，**正解与错位两视图同底**（view-model 同源）。
+         *  [WXG-T-222] opts.tint = TintBoard.current() ⇒ 版面按 tint 档位渲染（每格 mask sprite × 格色）。 */
+        function drawBoard(rowsArr) {
+            lastBoardRows = rowsArr;
+            const cv = $('cv');
+            const px = boardPx(current.cols);
+            if (cv.width !== px) { cv.width = px; cv.height = px; }
+            boardFit = Math.min(cv.parentElement.clientWidth - 24 || 420, 560);
+            boardZoom = 1;
+            applyBoardZoom();
+            BeadsBoardRender.drawBoard(cv.getContext('2d'), cv.width, cv.height, rowsArr, {
+                cols: current.cols, rows: current.rows,
+                pattern: current.levelDraft?.pattern, hexes: current.paletteHex,
+                tint: window.TintBoard ? TintBoard.current() : null,
+            });
+        }
+
+        /** 原图视图：把缩略图等比画到画布中央（contain，不裁剪）。缩放重置（zoom 只服务版面）。 */
         function drawSrc(dataUrl) {
             const cv = $('cv'), g = cv.getContext('2d');
+            if (cv.width !== 420) { cv.width = 420; cv.height = 420; } // 原图视图恒 420（盘面大尺寸只服务版面）
+            boardZoom = 1;
+            boardFit = 420;
+            applyBoardZoom();
             g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height);
             if (!dataUrl) {
                 g.fillStyle = '#999'; g.font = '16px sans-serif'; g.textAlign = 'center';
@@ -637,6 +691,24 @@
                 else if (v === 'src') drawSrc(srcUrl || srcThumb);
             };
         }
+
+        // [WXG-T-222] tint 档位就绪/切换 ⇒ 版面按 tint 渲染重绘（原图视图不动）
+        document.addEventListener('tint-change', () => {
+            if (lastBoardRows && current) drawBoard(lastBoardRows);
+        });
+
+        // [WXG-T-222 用户规格] 版面缩放：左键放大 / 右键缩小（阻止系统菜单），zoom ∈ [0.2, 2.0]
+        $('cv').addEventListener('click', () => {
+            if (view === 'src' || !current) return;
+            boardZoom = Math.min(2, boardZoom * 1.25);
+            applyBoardZoom();
+        });
+        $('cv').addEventListener('contextmenu', (ev) => {
+            ev.preventDefault();
+            if (view === 'src' || !current) return;
+            boardZoom = Math.max(0.2, boardZoom / 1.25);
+            applyBoardZoom();
+        });
 
         $('dl').onclick = () => {
             const blob = new Blob([JSON.stringify(current.levelDraft, null, 2)], { type: 'application/json' });
