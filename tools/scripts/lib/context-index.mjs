@@ -361,6 +361,12 @@ export const LIMITS = {
   // WXG-T-211：风格池文档（EP-11 拆分件等）入索引后覆盖下限涨至 4845，生成器
   // 裁撤已到底（收录门槛不可再降）⇒ 沿 T-144 先例重议 4700→4900；下次涨前
   // 先做 ux-spec/S9 版本链注记归并瘦身，不再继续顶上限。
+  //   ⚠ **该瘦身对象经核已失效（2026-09-29 复核）**：`games/beads/design/ux/ux-spec.md`
+  //   ① **不在本表收录**（hot-files 现收 18 文件，主体是 test-cases 章节锚点），
+  //   ② 已在 `ctx/budget-exempt.json` 登记 B 项豁免（18657 tok，走章节锚点局部读）⇒
+  //   **瘦它对常驻开销零收益**。真实收益点 = 本表里 test-cases.md 的章节锚点摘要
+  //   （§A +261 / §K +184 / §I +106 / §G +111 是体积主体），裁它要动 QA 判据可达性
+  //   ⇒ 需 quality-lead 裁定，⛔ 不得由装置侧擅自裁。原注记保留作历史留痕（K-053）。
   // WXG-T-214/221（2026-09-29）：tint mask 探针+烘焙定稿批，memory/2026-09-29 与
   // TASKS-DETAIL r9+ 段入索引 ⇒ 5110 超限 210。**瘦身债（ux-spec/S9 归并）仍未还**，
   // 沿 T-144/T-211 先例重议 4900→5150；连续第三次顶上限 ⇒ 下批必须先还债再议涨。
@@ -848,6 +854,42 @@ export function routesReferencedPaths() {
   return paths;
 }
 
+/**
+ * [WXG-T-224] ROUTES 引用的**锚点级**集合：`路径#锚点`（规则 R 例外①的依据）。
+ * 与 `routesReferencedPaths()` 同源正则，只多捕获 `#` 后的锚点文本。
+ */
+export function routesReferencedAnchors() {
+  let text;
+  try {
+    text = readFileSync(ROUTES_PATH, 'utf8');
+  } catch {
+    return new Set();
+  }
+  const out = new Set();
+  const re = /((?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.md)#([^\s`)|，,。]+)/g;
+  for (const line of text.split('\n')) {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(line)) !== null) {
+      if (!m[1].startsWith('ctx/')) out.add(`${m[1]}#${m[2]}`);
+    }
+  }
+  return out;
+}
+
+/** 每节在「父节（最近的上级 level 节）」下的体量：规则 R 例外②的依据。 */
+function parentTokens(sections) {
+  const out = new Array(sections.length).fill(0);
+  const stack = []; // {level, idx}
+  for (let i = 0; i < sections.length; i += 1) {
+    const lv = sections[i].level ?? 1;
+    while (stack.length && stack[stack.length - 1].level >= lv) stack.pop();
+    out[i] = stack.length ? (sections[stack[stack.length - 1].idx].tokens ?? 0) : 0;
+    stack.push({ level: lv, idx: i });
+  }
+  return out;
+}
+
 /* ── ctx/hot-files.md：热门大文件「章节 → 精确行号」速查（WXG-T-036，q-1）────────────
  *
  * 职责边界（避免与既有产物重复）：
@@ -902,7 +944,20 @@ function renderHotFileBlock(f, reads) {
   // 紧凑单行编码：`锚点=offset+limit`（分隔符 ` · `）。
   // 为什么不用表格：62 行的表格每行多花 ~10 tokens 的管道/对齐开销，
   // 实测 2769 tok（超预算）；紧凑编码在不删任何小节的前提下压到 ~1.9k。
-  L.push(f.sections.map((s) => `${s.anchor}=${s.startLine}+${s.endLine - s.startLine + 1}`).join(' · '));
+  //
+  // [WXG-T-224 · 规则 R（quality-lead 裁定）] **节级裁剪**：只收 L1/L2；
+  // 例外保留 L3 当且仅当 ① 被 ROUTES 以 `路径#锚点` 引用，或 ② **父节 > fileMax（8000，B 项既有常量）**。
+  // 构造保证：被裁 L3 的父节（L2）必在表内 ⇒ 第二跳不破；且父节 ≤8000 ⇒ 最坏退化被 B 项不变量兜住。
+  // ⛔ 纯函数过滤：不删正文、不动判据值；被裁节在 ctx/index.json 仍可查。回滚 = 去掉本 filter。
+  const routedAnchors = routesReferencedAnchors();
+  const pt = parentTokens(f.sections);
+  const kept = f.sections.filter((s, i) => {
+    const lv = s.level ?? 1;
+    if (lv <= 2) return true;
+    if (routedAnchors.has(`${f.path}#${s.anchor}`)) return true;
+    return pt[i] > (LIMITS.fileMax ?? 8000);
+  });
+  L.push(kept.map((s) => `${s.anchor}=${s.startLine}+${s.endLine - s.startLine + 1}`).join(' · '));
   L.push('');
   return L;
 }
