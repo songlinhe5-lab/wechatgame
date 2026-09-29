@@ -97,6 +97,8 @@ function bakeEndpoints(hexes: readonly string[]): BeadEndpoints[] {
       pit: mix(base, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
       lit: mix(base, SOCKET_LIT_MIX),
       hole: mix(base, -BEAD_HOLE_STROKE_MIX),
+      shadeOuter: mix(base, -SOCKET_SHADE_OUTER_MIX),
+      shadeMid: mix(base, -SOCKET_SHADE_MID_MIX),
     });
   }
   return out;
@@ -421,6 +423,15 @@ export const SOCKET_LIT_MIX = 0.38;
  * 随珠色走族 ⇒ 恒定墨的 d 比值逐色漂移问题消失，tint mask（ADR-0028）可固化孔环。
  */
 export const BEAD_HOLE_STROKE_MIX = 0.58;
+/**
+ * **槽内一周内阴影的外两层墨档**（用户 2026-09-28 裁定：槽不做描边，改「内边阴影」；
+ * 阶梯 = `shadeOuter −0.80` → `shadeMid −0.68` → 复用 `hole −0.58`，最内接坑底 `pit −0.44`）。
+ * ⏱ 沿既有 +0.14 / +0.12 / +0.14 步进节奏再往外推两档；⛔ 三层仍只居暗端
+ * ⇒ ADR-0028 §2.1 的 d 通道（multiply）可表达，`base·d` 语义不变。
+ * ⚠ 最内层**复用** `hole` 端点（同 −0.58 档）⇒ 改 `hole` 档即连带改本阶梯末档（耦合已知、已登记）。
+ */
+export const SOCKET_SHADE_OUTER_MIX = 0.8;
+export const SOCKET_SHADE_MID_MIX = 0.68;
 
 /** demo 默认墨水组（顶层 `LEVELS_DATA.palette` 十色；预烘焙一次，模块级复用零分配）。 */
 export const DEMO_BEAD_INKS: BeadInks = (() => {
@@ -430,7 +441,7 @@ export const DEMO_BEAD_INKS: BeadInks = (() => {
 
 /**
  * 十色端点查找表（预烘焙，§1.9.5）：索引 0..9 ↔ 珠色 1..10。
- * 每项 `{ base, edge, pit, lit, hole }` —— `buildRenderModel` 热路径只查表不 mix。
+ * 每项 `{ base, edge, pit, lit, hole, shadeOuter, shadeMid }` —— `buildRenderModel` 热路径只查表不 mix。
  */
 export interface BeadEndpoints {
   readonly base: string;
@@ -442,6 +453,10 @@ export interface BeadEndpoints {
   readonly lit: string;
   /** B14 孔边线：`mix(base, #000, 0.58)`——比外框/坑底（0.44）再暗一档，随珠色走族（2026-09-28 三裁）。 */
   readonly hole: string;
+  /** 槽内阴影**最外层**：`mix(base, #000, 0.80)`（2026-09-28 裁定，替代 S1 暗缘框）。 */
+  readonly shadeOuter: string;
+  /** 槽内阴影**中层**：`mix(base, #000, 0.68)`（阶梯中段）。 */
+  readonly shadeMid: string;
 }
 
 /** 越界 colorIdx 的端点兑底（炭黑，同 {@link beadColorOf} 行为）。模块级预烘焙，声明于 SOCKET_* 之后。 */
@@ -451,6 +466,8 @@ const FALLBACK_ENDPOINTS: BeadEndpoints = Object.freeze({
   pit: mix(BEAD_FALLBACK_HEX, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
   lit: mix(BEAD_FALLBACK_HEX, SOCKET_LIT_MIX),
   hole: mix(BEAD_FALLBACK_HEX, -BEAD_HOLE_STROKE_MIX),
+  shadeOuter: mix(BEAD_FALLBACK_HEX, -SOCKET_SHADE_OUTER_MIX),
+  shadeMid: mix(BEAD_FALLBACK_HEX, -SOCKET_SHADE_MID_MIX),
 });
 
 

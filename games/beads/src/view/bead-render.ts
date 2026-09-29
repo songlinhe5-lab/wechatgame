@@ -43,7 +43,6 @@ import {
   BEAD_CELL,
   BEAD_DRAW_INSET,
   BEAD_PITCH,
-  FACET4_EDGE_INSET_PX,
   SOCKET_CARD,
   TRAY_BEAD_SIZE,
 } from '../config/tuning.js';
@@ -73,6 +72,8 @@ import {
   SOCKET_EDGE_DARK_MIX,
   SOCKET_LIT_MIX,
   SOCKET_PIT_DARKEN,
+  SOCKET_SHADE_MID_MIX,
+  SOCKET_SHADE_OUTER_MIX,
   withAlpha,
   type BeadInks,
   type BeadsPalette,
@@ -696,42 +697,34 @@ export function drawEmptySocket(
    * `30 − 2×4 = 22` ⇒ 空槽的暗块（坑底 26.4）**比珠体还大**，有豆/无豆根本不是一张图，
    * 「豆 vs 底图」的边界被一个比豆还大的坑抢读（旧 v1.5-r8 的「一张图」目标直接落空）。
    * 本参使坑外廓从**珠体绘制边长**再退一圈 ⇒ 珠落下时把坑整块盖住（几何上恒被覆盖）。
+   *
+   * ⚠ **2026-09-28 补裁「坑底边与珠面描边对齐」**：盘面格（`beadInset > 0`）退圈改 **0**
+   * ⇒ 坑外沿与珠面轮廓**重合**（见函数体注，覆盖能力由 PLATE 满铺承担）；
+   * `beadInset = 0` 的托盘槽仍退一圈。
    */
   beadInset = 0,
 ): void {
   /**
-   * 坑外廓（**整条不变式的落点**）：
-   *   `珠体绘制边长 = size − 2×(beadInset × size / BEAD_CELL)`（与 `drawFilledBead` 同尺，
-   *    含 zoom 与豆径档 ⇒ 大盘/小豆档自动跟随）；
-   *   `坑 = 珠体绘制边长 − 2 × relief`（`relief` = 一圈，见 `SOCKET_CARD.relief`）。
-   * ⇒ **坑 ⊂ 珠** 恒成立（含圆角：珠半径 `0.30S` > 坑半径 `0.30s`）。
+   * 珠体绘制边长（与 `drawFilledBead` 同尺，含 zoom 与豆径档 ⇒ 大盘/小豆档自动跟随）：
+   * `size − 2×(beadInset × size / BEAD_CELL)`。
+   * ⚠ **2026-09-28 裁定后「坑 ⊂ 珠」的承载方式变了**：盘面格坑**外沿与珠面轮廓重合**
+   * （不再靠内缩留出空隙），仍被珠整块盖住的原因是 `PLATE` 为满铺不透明 rect，
+   * 而非包围盒更小 ⇒ 判据已改为「外沿对齐 + 坑底 ⊂ 珠」，⛔ 别再按旧口径写断言。
    */
   const beadFace = size - (beadInset * size) / BEAD_CELL * 2;
-  const relief = Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.relief);
+  /**
+   * **坑外廓（用户 2026-09-28 裁定「坑底边与珠面描边对齐」）**：
+   * 盘面格（`beadInset > 0`）**退 0** ⇒ 坑外沿 = 珠面轮廓。珠落下时 `PLATE` 是
+   * 满铺不透明 rect ⇒ 坑仍被**整块盖住**，「有豆/无豆一张图」不变；
+   * J3 判据口径随本裁由「包围盒严格小于」改为「外沿对齐 + 坑底 ⊂ 珠」（见测试）。
+   * 托盘槽（`beadInset = 0`，无珠对照，且 `TRAY_BEAD_SIZE 44 < TRAY_SLOT 48`）
+   * **仍退一圈**——否则坑 = 整槽，珠反而盖不住坑。
+   */
+  const relief = beadInset > 0 ? 0 : Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.relief);
   const s = Math.max(BEAD_CARD.minStroke * 2, beadFace - relief * 2);
-  const left = cx - s / 2;
-  const bottom = cy - s / 2;
-  const radius = Math.round(s * BEAD_CARD.radius);
   const base = colorIdx === undefined ? palette.slot : beadColorOf(inks, colorIdx);
   const endpoints = colorIdx === undefined ? neutralEndpoints(palette) : endpointOf(inks, colorIdx);
-  /**
-   * 暗缘墨（S1 外框线 / S3 上内缘内阴影）——**WXG-T-214（2026-09-26 用户拍板）**：
-   * B0 底图铺设时（`tilePainted`）底图墨 = 本格 `edge` ⇒ 旧写法把这两笔画成
-   * **自己的背景色**（逐字同色，不可见）⇒ 凹坑只剩「暗底 + 一条下亮线」，
-   * B1 修好的「暗上亮下」双线只剩一半。改取 `pit`（比 `edge` 深两档，零新 hex、
-   * 与 S2 坑底同源）⇒ 凹感恢复。
-   *
-   * **WXG-T-221（用户 2026-09-28 五裁）：S1 暗缘框改取孔边线同墨 `hole`（`−0.58`）**
-   * ——「空槽描边与珠面边框对齐（宽 = 1dp）、颜色与孔描边对齐」；仅指框线，
-   * **S3 内阴影线保持 `pit`**（凹感阶梯 pit→hole 仍成立）。托盘空槽（无端点表 hole 档）
-   * 同步用 `mix(slot, −BEAD_HOLE_STROKE_MIX)`，逐字同墨。
-   */
-  const shadeInk = tilePainted ? endpoints.pit : endpoints.edge;
-  const frameInk = tilePainted ? endpoints.hole : mix(palette.slot, -BEAD_HOLE_STROKE_MIX);
 
-  // S2 坑底（先画大底，S1 框压在其上）：内缩 6% 的 `pit` 填充。
-  // ⚠ 坑的全部几何走 `s`（坑外廓），**不用 `size`**（= 格径）——见 `beadInset` 参注。
-  const inset = s * SOCKET_CARD.pitInset;
   // B0 已铺 ⇒ 不再刷亮 `base`（否则“有豆/无豆”又是两张图）。零新 hex。
   // 托盘槽的「大底」= 槽体本身（不是坑）⇒ 仍按 `size` 画，不随坑缩小。
   if (!tilePainted) {
@@ -740,17 +733,35 @@ export function drawEmptySocket(
       radius: Math.round(size * BEAD_CARD.radius),
     });
   }
-  builder.rect(left + inset, bottom + inset, s - inset * 2, s - inset * 2, {
-    fill: endpoints.pit,
-    radius: Math.max(2, Math.round((s - inset * 2) * BEAD_CARD.radius * 0.8)),
-  });
 
-  // S1 暗缘框（外框线，压住 S2 边界）。**五裁：墨 = 孔边线同墨、宽 = 珠缘外描边同宽（1dp 绝对，
-  // ⛔ 不吃 minStroke 地板、不走 SOCKET_CARD.edgeWidth 旧等比口径）；框 ⊃ pit 填充 ⇒ ⊂ 珠不变。
-  builder.rect(left, bottom, s, s, {
-    stroke: frameInk,
-    lineWidth: FACET4_EDGE_INSET_PX,
-    radius,
+  /**
+   * **槽内一周内阴影（替代 S1 暗缘框；用户 2026-09-28 裁定「槽不做描边，增加内边阴影」）**：
+   * 4 枚同心圆角矩形**由大到小**依次 fill（后画的覆盖内部）⇒ 每层只留外沿 1 dp 的环，
+   * 形成 `shadeOuter −0.80` → `shadeMid −0.68` → `hole −0.58` → 中心坑底 `pit −0.44`
+   * 的**由外向内递减实色阶梯**；圆角同层递减 `step` ⇒ 圆角处带宽恒 1 dp
+   * （同 `facet-4` 扇形内缩的 `rc` 递减口径）。
+   * ⛔ 每层只居暗端、零真 α ⇒ ADR-0028 §2.1 的 d 通道（`base·d`）天然可表达。
+   * ⛔ 热路径零分配：4 次直调，不建数组。
+   */
+  const step = SOCKET_CARD.innerShadeStepDp;
+  const r0 = Math.round(s * BEAD_CARD.radius);
+  builder.rect(cx - s / 2, cy - s / 2, s, s, { fill: endpoints.shadeOuter, radius: r0 });
+  const s1 = s - step * 2;
+  builder.rect(cx - s1 / 2, cy - s1 / 2, s1, s1, {
+    fill: endpoints.shadeMid,
+    radius: Math.max(0, r0 - step),
+  });
+  const s2 = s1 - step * 2;
+  builder.rect(cx - s2 / 2, cy - s2 / 2, s2, s2, {
+    fill: endpoints.hole,
+    radius: Math.max(0, r0 - step * 2),
+  });
+  const s3 = s2 - step * 2;
+  const left3 = cx - s3 / 2;
+  const bottom3 = cy - s3 / 2;
+  builder.rect(left3, bottom3, s3, s3, {
+    fill: endpoints.pit,
+    radius: Math.max(0, r0 - step * 3),
   });
 
   // S3 上内缘内阴影线（暗，凹感上半）。
@@ -758,38 +769,51 @@ export function drawEmptySocket(
   // 旧码把暗线画在 `bottom + inset`（下缘）、亮线画在 `bottom + size − inset`（上缘）
   // ⇒ 凹槽与珠体**同向**、§1.9.4 通道 2（空/珠区分主轴）失活；两线 y 已对调为
   // **暗上亮下**，方向由 `tests/bead-render.test.ts` TC-SKT-01 的 `y_dark > y_lit` 锁死
-  // （旧墨色断言拦不住换向，K-035/K-060）。墨色档不改（D3 口径漂移归 art 对齐单）。
-  // ⚠ WXG-T-214：墨改取 `shadeInk`（底图铺设 = `pit`）—— 旧 `edge` 在 B0 底图上不可见（见其注）。
-  const shadeWidth = Math.max(BEAD_CARD.minStroke, s * SOCKET_CARD.shadeWidth);
+  // （旧墨色断言拦不住换向，K-035/K-060）。
+  // ⚠ **墨档随本裁改 `hole`（−0.58）**：旧档（`pit` / 中性 `edge`）是相对「B0 底图 / 旧坑底」
+  // 选的；本裁后两线画在**中心坑底 `pit`（−0.44）**内 ⇒ 沿用旧档会与它同色或更浅，
+  // 暗线反而读作亮线、凹感方向反掉。取 `hole` = 比中心坑底深一档 ⇒ 「上暗」在
+  // 目标色 / 中性 `slot` 两种口径下都成立，且 `tilePainted` 分叉随之删除。
+  const inset = s3 * SOCKET_CARD.pitInset;
+  const shadeWidth = Math.max(BEAD_CARD.minStroke, s3 * SOCKET_CARD.shadeWidth);
   builder.line(
-    left + inset,
-    bottom + s - inset,
-    left + s - inset,
-    bottom + s - inset,
-    shadeInk,
+    left3 + inset,
+    bottom3 + s3 - inset,
+    left3 + s3 - inset,
+    bottom3 + s3 - inset,
+    endpoints.hole,
     shadeWidth,
   );
 
   // S4 下内缘受光亮线（亮，凹感下半）。
   builder.line(
-    left + inset,
-    bottom + inset,
-    left + s - inset,
-    bottom + inset,
+    left3 + inset,
+    bottom3 + inset,
+    left3 + s3 - inset,
+    bottom3 + inset,
     endpoints.lit,
-    Math.max(BEAD_CARD.minStroke, s * SOCKET_CARD.litWidth),
+    Math.max(BEAD_CARD.minStroke, s3 * SOCKET_CARD.litWidth),
   );
 }
 
 /**
  * 托盘空槽（无目标色）的中性端点：由中性 `slot` 色推导（非珠色预烘焙表）。
  */
-function neutralEndpoints(palette: BeadsPalette): { edge: string; pit: string; lit: string; hole: string } {
+function neutralEndpoints(palette: BeadsPalette): {
+  edge: string;
+  pit: string;
+  lit: string;
+  hole: string;
+  shadeOuter: string;
+  shadeMid: string;
+} {
   return {
     edge: mix(palette.slot, -SOCKET_EDGE_DARK_MIX),
     pit: mix(palette.slot, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
     lit: mix(palette.slot, SOCKET_LIT_MIX),
     hole: mix(palette.slot, -BEAD_HOLE_STROKE_MIX),
+    shadeOuter: mix(palette.slot, -SOCKET_SHADE_OUTER_MIX),
+    shadeMid: mix(palette.slot, -SOCKET_SHADE_MID_MIX),
   };
 }
 

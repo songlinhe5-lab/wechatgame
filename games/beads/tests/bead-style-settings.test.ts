@@ -999,33 +999,52 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
         };
         const hFull = rectHist(full);
         const hSmall = rectHist(small);
-        const onlyFull = [...hFull.keys()].filter((w) => !hSmall.has(w));
-        const onlySmall = [...hSmall.keys()].filter((w) => !hFull.has(w));
-        // 随档档数：珠体 1 + 凹槽 2（坑外廓框 / 坑底内缩块）。
-        expect(onlyFull.length).toBe(3);
-        expect(onlySmall.length).toBe(3);
-        // 珠体 = 其中最宽的一档；枚数恰 = 已填珠数（⛔ 不是别的带件）。
-        const beadFull = Math.max(...onlyFull);
-        const beadSmall = Math.max(...onlySmall);
-        expect(hFull.get(beadFull)).toBe(filled);
-        expect(hSmall.get(beadSmall)).toBe(filled);
-        expect(beadSmall).toBeLessThan(beadFull); // 变小（ADR-0023 DEC-7：同一条内缩通道）
-        // 「坑 ⊂ 珠」：同档内两个凹槽宽度档都严格小于珠体。
-        for (const w of onlyFull) if (w !== beadFull) expect(w).toBeLessThan(beadFull);
-        for (const w of onlySmall) if (w !== beadSmall) expect(w).toBeLessThan(beadSmall);
-        // 凹槽随珠体一同收窄：**逐档对应**（坑外廓↔坑外廓、坑底↔坑底），不是只缩一格。
-        // ⚠ 不能写成「max(小豆凹槽) < min(满豆凹槽)」：两档珠面只差 2px 时，小豆**坑外廓**
-        // 会大于满豆**坑底**（19.8 > 19.18）⇒ 那是尺度错位比较，不是本不变式的反例。
-        const restFull = onlyFull.filter((w) => w !== beadFull).sort((a, b) => a - b);
-        const restSmall = onlySmall.filter((w) => w !== beadSmall).sort((a, b) => a - b);
-        expect(restFull.length).toBe(2);
-        expect(restSmall.length).toBe(2);
-        for (let k = 0; k < 2; k += 1) {
-            expect(restSmall[k]!, `凹槽第 ${k + 1} 档未随珠体收窄`).toBeLessThan(restFull[k]!);
+        //
+        //   ⚠ **口径二次更替（用户 2026-09-28 裁定「坑底边与珠面描边对齐」+ 槽内一周内阴影）**：
+        //     ① 凹槽由「坑外廓 + 坑底」2 档变 **4 档同心**（外沿 → 内阴影 2 层 → 中心坑底），
+        //        每层向内 1dp ⇒ 宽度等差、公差 2（两边）。
+        //     ② 「凹槽恒 **<** 珠体」宽度判据**失效**：凹槽**外沿现与珠体同宽** ⇒ 直方图里
+        //        两档合一，`onlyFull`/`onlySmall` 数轴从 3 掉到 1（实测，非放宽）。
+        //        判别子换成**枚数分解 + 等差结构**（比旧口径更强，不是放宽）：
+        //        · 最内档（中心坑底）枚数 = 空格数 ⇒ 反推外沿档枚数 = 珠体 + 空格；
+        //        · **中心坑底仍严格 < 外沿** ⇒ 「有豆时看不到坑」在本腿仍被钉住。
+        // 识别子（实测锚定：盘面带内**最窄的 4 档**就是凹槽 4 层，其余带件 ≥ 418）：
+        // 升序取前 4 档 ⇒ [中心坑底, 内阴影 2, 内阴影 1, 外沿]；外沿与珠体**同宽合并**（本裁）。
+        const groovesOf = (h: Map<number, number>): number[] =>
+            [...h.keys()].sort((a, b) => a - b).slice(0, 4).sort((a, b) => b - a);
+        const groovesFull = groovesOf(hFull);
+        const groovesSmall = groovesOf(hSmall);
+        // 阳性对照：第 5 档必须远宽于凹槽档 ⇒ 保证「最窄 4 档 = 凹槽」这个识别子没被更窄带件污染。
+        expect([...hFull.keys()].sort((a, b) => a - b)[4]!).toBeGreaterThan(groovesFull[0]!);
+        const beadFull = groovesFull[0]!;
+        const beadSmall = groovesSmall[0]!;
+        // 等差结构（每层向内 1dp ⇒ 宽度公差 2）。
+        for (let k = 1; k < 4; k += 1) {
+            expect(groovesFull[k]!, `满豆凹槽第 ${k + 1} 档非等差`).toBe(groovesFull[k - 1]! - 2);
+            expect(groovesSmall[k]!, `小豆凹槽第 ${k + 1} 档非等差`).toBe(groovesSmall[k - 1]! - 2);
         }
-        // 其余带件：一枚不许动。
+        const shadesOf = (b: number): number[] => [b, b - 2, b - 4, b - 6];
+        expect(beadSmall).toBeLessThan(beadFull); // 珠面变小（ADR-0023 DEC-7：同一条内缩通道）
+        // 枚数分解：最内档（只有凹槽贡献）= 空格数 ⇒ 外沿档 = 珠体 + 空格（同宽合并，本裁）。
+        const socketsFull = hFull.get(beadFull - 6)!;
+        const socketsSmall = hSmall.get(beadSmall - 6)!;
+        expect(socketsFull).toBeGreaterThan(0); // 阳性对照：盘上确有空格
+        expect(socketsSmall).toBe(socketsFull); // 空格数不随豆径档变
+        expect(hFull.get(beadFull)).toBe(filled + socketsFull);
+        expect(hSmall.get(beadSmall)).toBe(filled + socketsSmall);
+        // 「中心坑底恒 ⊂ 外沿」⇒ 有豆时坑被整块盖住的不变式仍成立（替代旧「凹槽 < 珠体」）。
+        expect(beadFull - 6).toBeLessThan(beadFull);
+        expect(beadSmall - 6).toBeLessThan(beadSmall);
+        // 凹槽随珠体一同收窄：**逐档对应**（4 档全部同步收窄，不是只缩一格）。
+        const shFull = shadesOf(beadFull);
+        const shSmall = shadesOf(beadSmall);
+        for (let k = 0; k < 4; k += 1) {
+            expect(shSmall[k]!, `凹槽第 ${k + 1} 档未随珠体收窄`).toBeLessThan(shFull[k]!);
+        }
+        // 其余带件：一枚不许动（排除两档各自的「珠体 + 凹槽」随档档）。
+        const moved = new Set<number>([...shFull, ...shSmall]);
         for (const w of hFull.keys()) {
-            if (onlyFull.includes(w)) continue;
+            if (moved.has(w)) continue;
             expect(hSmall.get(w), `宽度 ${w} 的 rect 枚数不得随豆径档变`).toBe(hFull.get(w));
         }
         const b0Full = rectWidths(full, (c) => inPuzzle(c) && (c as unknown as { w: number }).w === pitch);

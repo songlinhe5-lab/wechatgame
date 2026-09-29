@@ -1,0 +1,64 @@
+// Copyright (c) 2024 wechatgame. All rights reserved.
+// ADR-0028 tint mask shader：out = base * d + (1 - base) * l
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs:vert
+      frag: fs:frag
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: one
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+      properties:
+        baseColor: { value: [1.0, 1.0, 1.0, 1.0], editor: { type: color } }
+        maskTexture: { value: white }
+}%
+
+CCProgram vs %{
+  precision highp float;
+
+  #include <builtin/uniforms/cc-global>
+
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+  out vec4 v_color;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 pos = cc_matViewProj * vec4(a_position, 1.0);
+    v_color = a_color;
+    v_uv = a_texCoord;
+    return pos;
+  }
+}%
+
+CCProgram fs %{
+  precision highp float;
+  in vec4 v_color;
+  in vec2 v_uv;
+  uniform Constant {
+    vec4 baseColor;
+  };
+  uniform sampler2D maskTexture;
+  vec4 frag () {
+    // mask 编码（2026-09-29）：R=d / G=l / B=形状 —— 不依赖 cc_spriteTexture
+    //（3.x 自定义 effect 下引擎不绑定该 uniform，恒 white ⇒ 形状 alpha 失效、孔/珠外画黑）
+    vec4 mask = texture(maskTexture, v_uv);
+    vec3 d = vec3(mask.r);      // 暗系数（multiply 路）
+    float l = mask.g;           // 亮系数（screen 路）
+    float shape = mask.b;       // 形状（珠外/孔真透 = 0）
+    vec3 base = baseColor.rgb;
+    // ADR-0028 §2.1：out = base * d + (1 - base) * l
+    vec3 outColor = base * d + (1.0 - base) * l;
+    float alpha = v_color.a * shape;
+    // 预乘 α（与 blendSrc: one 对齐，照抄 bead-field.effect 口径）
+    return vec4(outColor * alpha, alpha);
+  }
+}%

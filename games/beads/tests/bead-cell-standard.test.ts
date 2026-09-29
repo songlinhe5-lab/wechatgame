@@ -104,8 +104,8 @@ describe('格内占比标准（cell-standard.md §2 确认值）', () => {
     const path = await import('node:path');
     const read = (p: string): string =>
       fs.readFileSync(path.resolve(__dirname, p), 'utf8');
-    // J3：坑 ⊂ 珠（包围盒）判据必须在 bead-render.test.ts 在场。
-    expect(read('bead-render.test.ts')).toMatch(/豆坑恒小于珠体/);
+    // J3（2026-09-28 更替口径：坑外沿与珠面对齐 + 中心坑底 ⊂ 珠）判据必须在 bead-render.test.ts 在场。
+    expect(read('bead-render.test.ts')).toMatch(/坑外沿与珠面轮廓对齐/);
     // J7：inset × holeRatio 成对锁必须在场。
     expect(read('bead-render.test.ts')).toMatch(/同批性：BEAD_DRAW_INSET 与 holeRatio 成对/);
     // 凹槽随档恒 ⊂ 珠（豆径档判据的新口径）必须在场。

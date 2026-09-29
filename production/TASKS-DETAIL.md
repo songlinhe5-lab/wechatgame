@@ -1120,4 +1120,67 @@
 - **ADR-0028 §5 回写**：标题/§2 章头残留的「候选、本轮不落码」措辞随八裁订正；新增**执行态段** = `temp/tint-probe/` 按现树整备（B15：孔族墨不入 mask、拆 live 层 A/B 同源重放；早前版把旧等比残留算进 ΔE 已修）后重跑：**mask-stable bead/cell 均 PASS、零族外墨、不透明芯 ΔE mean ≤0.44 / p95 ≤0.62（达 §13.13 T1 平均线）**；未达项如实登记（AA fringe 最劣 11.3、芯 max 4.62）；边界写死 = 本 PASS 仅浏览器通道可行性，**非 T1' 本体**，T2'–T4' 未跑、⛔ 不得外推。证据 `temp/tint-probe/results-r9.log`。
 - **纪律 #1 对照图（WXG-T-214 欠件）**：`temp/bead-hole-ab/`（`compare.mjs` 可再生 + `ab.svg`/`ab.png`）= 恒等档有孔格改前（`53d21ac`，pit 单命令 ⌀12 当外缘）/ 改后（`927535c`，真透 ⌀12 + 1dp 环外缘 ⌀14，几何直读 `FACET4.beadLayers`）；面积账与 `bead-cell-standard::account` 同式复算 = 508.0/516.0 吻合钉值且两版同值 ⇒ 诚实结论：四～七裁真实视觉差 = 1dp 环墨，非孔洞变化；登记入 `cell-standard.md` §4 r9 执行态行。
 - **r5 处置追加（同批 · 用户裁「按建议执行」2026-09-28）**：`head.legacyFlow` 48 例越界追改按 QA 建议③迁入夹具新档案段 `head_liftShadowFade_r5`（回补史证态 + 腿 1 合并视图双向锁，seal 复跑 9/9 绿）；T-215 备份补丁 `temp/bead-relief-compare/wip-215-full-backup.patch` 预写键 `recheck_5/6/7` 就地重编 `_6/_7/_8` 解除字面碰撞；ADR-0028 T2'–T4' 验证批**未立项**（待用户单独拍板，ADR §5 停「前置 PASS」态）。
+
+## WXG-T-223
+
+- **名称**：beads·空槽凹感改「槽内一周内阴影」（删 S1 描边 + 坑底边对齐珠面描边）
+- **负责**：主理人（CodeBuddy）。用户 2026-09-28 三项裁定 + 两轮先问后写（未自行推定数值）。
+- **背景**：前一轮 review 发现空槽凹感全靠 S1 暗缘框（1 dp stroke，`hole −0.58`），且该框与珠外描边**不同轮廓**（坑外廓 21.8 vs 珠面 26）；用户先后裁「槽暂时不要做描边」→「坑底不要描边，增加内边阴影；坑底边与珠面描边对齐」→「内阴影 3 层阶梯 −0.80/−0.68/−0.58」→「删框与内阴影同批替换，不留开关」。
+- **用户裁定（四项）**：① **槽不做描边** ⇒ S1 暗缘框整笔删除（⛔ 不留开关，C4）；② **槽内一周内阴影**（非分层加深、非描边）；③ **坑底边与珠面描边对齐** ⇒ 盘面格 `relief` 退 0；④ **内阴影 = 3 层阶梯 −0.80 / −0.68 / −0.58**，每层 1 dp（承接我呈报的选项 C）。另：去框方式选「同批替换、不留开关」。
+- **落码（四文件）**：
+  - `src/config/tuning.ts`：`SOCKET_CARD` 删 S1 线宽注（连描边本身作废）+ 新增 `innerShadeStepDp = 1`；`relief` 注释重写为**仅托盘槽生效**（分叉）。
+  - `src/view/palette.ts`：新增 `SOCKET_SHADE_OUTER_MIX 0.80` / `SOCKET_SHADE_MID_MIX 0.68`；`BeadEndpoints` 增 `shadeOuter` / `shadeMid` 两字段（`bakeEndpoints` / `FALLBACK_ENDPOINTS` 同步）；最内层**复用**既有 `hole` 档（−0.58，耦合已登记，省一个字段）。
+  - `src/view/bead-render.ts`：`drawEmptySocket` 重写——删 S1 stroke；`relief = beadInset > 0 ? 0 : …`（托盘分叉）；4 枚同心圆角 rect **由大到小**依次 fill（后画覆盖内部 ⇒ 每层留外沿 1 dp 环），圆角逐层递减；S3/S4 改画在中心坑底内；**S3 墨 `pit → hole`**，`tilePainted` 分叉删除；`neutralEndpoints` 同步两字段；删 `FACET4_EDGE_INSET_PX` import（不再消费）。⛔ 热路径零分配：4 次直调、不建数组。
+  - 命令账：盘面空格 **4 → 6**；托盘空槽 **5 → 7**（净 +2）。
+- **判据同批改写（纪律 #3，⛔ 非放宽 = 换识别子）**：
+  - `tests/bead-render.test.ts`：枚数 5→7 / 4→6；新增「**槽侧零 stroke**」断言；J3 由「坑外廓包围盒**严格小于**珠体」→「**外沿相等**（本裁）+ **中心坑底严格 ⊂ 珠**」（旧识别子 = stroke-only rect，随删框失效）。
+  - `tests/bead-style-settings.test.ts`：凹槽由 2 档 → **4 档等差**（实测：满豆 26/24/22/20，小豆 24/22/20/18）；⚠ 凹槽外沿档与珠体宽度**合并** ⇒ 旧 `onlyFull.length = 3` 数轴实测掉到 **1**，若只改数字 = 假绿。新识别子 = 「直方图最窄 4 档 + 枚数分解（外沿枚数 = 已填 26 + 空格 39 = 65）」+ 阳性对照（第 5 档 418 > 凹槽档）⇒ 判别力强于旧口径。
+  - `tests/bead-cell-standard.test.ts`：J3 锚点串 `/豆坑恒小于珠体/` → `/坑外沿与珠面轮廓对齐/`。
+- **文档面（同批）**：`art/cell-standard.md` 新增 **v1.0-r8** 批注（六条：删框 / 内阴影 / 外沿对齐 / S3 墨 / 托盘分叉 / seal 欠账）+ **J3 行口径改写**；两分册（`cell-standard-holed` 21.8→**26**、`cell-standard-holeless` 19.8→**24**）各增内阴影行与 S3 墨行；`bead-visual-style-spec.md` B14 空槽对齐句追加 r8 取代注 + 空格命令账 5→7 + 凹槽 ASCII 图改内阴影 4 层。
+- **验证（本会话实跑）**：`npx vitest run`（beads）= **730 passed / 6 failed (736)**；6 红 = **本批 seal 腿 4a/4b**（整帧层流 `rect 491 → 695`、sha 变）+ 关卡存量 4（`levels` / `misplaced-assembler` / `level-import` / `levels-dir-pipeline`，非本批、不代翻）。`bead-render` 34/34、`bead-cell-standard`、`bead-style-settings` 全绿。
+- **⛔ 欠账（诚实登记）**：① **seal 腿 4a/4b 需第六次复评登记**（属视觉变更 ⇒ 封箱门按设计拦截；⛔ 禁自更新 fixture，K-051/K-053，须走 §K.5.1 复评归因通道）；② **纪律 #1 改前/改后对照图待补**（承前批余项，本批仍无出图）；③ `cocos/assets/scripts/**` 镜像待 `framework:sync`。
+- **诚实边界**：内阴影是**实色阶梯**（层集无渐变图元），非真渐变；`base·d` 乘法本质 ⇒ **暗端退化未解决**（纯黑格 CR 仍 1.00，换载体不修）。未 commit / 未 push。
+
+### r2 批（同日二轮 · 用户「槽的内阴影和孔的内阴影都是 tint 烘焙上纹理使用的」⇒ 零代码 + 三处登记）
+
+- **槽侧：结论 = 已满足，无需改码**。内阴影落在 `drawEmptySocket` ⇒ DEC-4 同源纪律（`bake-recipes.ts::makeCellRecipe` 直接调它）⇒ cell mask **自动带这圈阴影**（每层 = d 通道一级灰阶）。仅补登记：`bead-visual-style-spec` §13 逐项分配表 + 表头读数适用面各加一句「空格凹坑（含内阴影）属 **cell mask**，孔底 `pit`/`targetColorIdx` 仍 live」。
+- **孔侧：用户裁 **D = 不做**（维持现状：只有孔边线）。取证事实：现役 `facet-4` **无孔内壁阴影层**；`holeShadeOffset 0.22 / holeShadeAlpha 0.3` 只被退役对照臂 `legacy-ten` 消费，且是**真 α 0.3 + 恒定墨** ⇒ 进不了 ADR-0028 §2.1 的 d/l 双通道（探针判据钉 `[alpha-layers] bead=0`）。若要真做 = 新增实色阶梯层 ⇒ `facet-4` 已 **7 命令 = C7 上限、余量 0** ⇒ 触 **C11（门禁即报）**。**本批零代码 ⇒ C7 未被触碰**。
+- **⚠ 自纠（登记防复发）**：本会话上一轮把 ADR-0028 §5 执行态 r9 段的「B15 口径：孔族墨 `mix(base,−0.58)` **不入 mask**、拆为 live 层 A/B 两路同源重放」**误读为归属裁定**，并据此向用户呈报了「孔不入 mask」——实际该句是探针为对比两路差异的 **A/B 整备口径**，归属正本 = `bead-visual-style-spec` **B15**（孔边线**入 mask**、`pit` 仍 live）。已在 ADR-0028 该句就地加 ⛔ 口径澄清注（含「勿据此认为孔不入 mask」与本自纠留痕）。
+- **验证态（本轮）**：零代码 ⇒ 未重跑全量（上轮 beads 730/736 态不变）；`check:tasks` / `check:links` 绿。未 commit / 未 push。
+
+### r3 批（同日三轮 · 纪律 #1 对照图，销本批欠账）
+
+- **产物**（`temp/wxg-t-223/`，不入库）：`socket-ab.svg`（改前/改后并排，恒等档格径 32dp、目标色奶白 `#FDF6E9`、12 px/dp、同帧同源）+ `account.txt`（圆角修正面积账）+ `after-commands.json`（改后命令直读）+ `old-code-snippet.txt`（改前旧码出处 = git HEAD `bead-render.ts` 700–790 行 + `tuning.ts` 115–135 行）。
+- **取证方式**：**改后 = 现役 `drawEmptySocket` 命令直读**（实测 `rect 26/24/22/20`、`r = 8/7/6/5`、墨 `#33312F`/`#514F4B`/`#6A6762`/`#8E8A82`，S3 在 `y = 208.8`（上）/ S4 `191.2`（下）⇒ 方向仍为「上暗下亮」）；**改前 = 按 HEAD 旧码公式复现**（`relief 0.07` / `pitInset 0.06` / S1 stroke 1dp）⇒ ⛔ **不是 git 隔离副本直读**，已写进图注与文档（防后人当逐字节证据用）。
+- **面积账（`A(w,r) = w² − (4−π)r²`，格径² = 1024）**：坑总 **449.00 → 621.06**（占格 **43.85% → 60.65%**，+172.06）；中心坑底 **346.57 → 378.54**；旧 S1 单框环 **31.58** ⇒ 新 3 层递减环 **87.12 / 80.84 / 74.56**（合计 242.52）。
+- **⚠ 归因分清（关键，勿混读）**：坑"变大"来自 **裁定③（外沿对齐，`relief` 退 0，每边 +2.1 dp）**，**不是**内阴影造成的；内阴影只占 3 dp 带宽。真实视觉差 = **坑整体放大 + 旧「1 dp 暗框」由「3 层递减实色环」取代**。
+- **执行细节**：用临时 vitest spec（`tests/_tmp223-compare.test.ts`）作 TS 执行器取现役命令，**跑完即删**（`git status` 复核：tests 下只剩本批三个正式改动文件）；零新增依赖（未引入 node-canvas / playwright，与 WXG-T-221 二裁一致）。
+- **登记**：`art/cell-standard.md` r8 执行态段（含产物路径 + 读数 + 诚实边界）+ 主表 T-223 行欠账销项。仍未 commit。
+
+### r4 批（孔中心真透 + 孔口 d 渐变内阴影 · 甲案探针 = 浏览器通道实证 PASS）
+
+- **命题**：tint 制下「孔中心无底色（真透）+ 孔口一圈内阴影」能否成立（用户点名甲案）。
+- **做法**：新建 `temp/tint-probe/hole-shade-ab.mjs`（⛔ **不改 `run.mjs`**，保 r9 可复现）；三列对照 A=现状（孔 live）/ B=甲案（孔中心 `destination-out` 抠 α=0 + 孔口径向渐变 `d 0.42→1.0`，宽 3dp=12 texel）/ C=对照（孔中心填 `pit` 有底色），下层预铺 B0 目标色。浏览器真 Canvas2D 出像素（playwright）。
+- **结果（五色 c1/2/5/8/10 全过）**：**① 孔中心 αmax = 0 ⇒ 真透成立**；**② D 图环带灰 138→162→187→211→236（跨度 98、单调）⇒ 真渐变成立**（⛔ 非实色阶梯）；**③ 五色 D 图逐值全等 ⇒ mask 仍色无关**。
+- **⚠ 暗端退化依旧（与前判互证）**：合成后环带对比随 base 缩放 —— 近黑 `#33333D` 仅 23→47（跨度 24/255），近白 `#FDF6E9` 为 112→234 ⇒ **换 mask 载体不修暗端**。
+- **三个坑（自纠）**：① 首版判据 `v ≥ prev−1` 对全等也 PASS = **假绿**（当时渐变其实没画上）⇒ 判据须带**跨度门**，单调性单独无判别力；② **`arc(x,y,r,0,7)` 的 7 rad > 一整圈 ⇒ 双弧环带 winding 被绕乱 ⇒ 填充区为空**（渐变"没画上"真因，改 `0,Math.PI*2` 即通）；③ `mono` 写成 `v ≥ v[i−1]`（取元素而非数组）⇒ 恒 false。
+- **判据设计教训**：合成后像素随 base 缩放 ⇒ **判据取色无关的 D 图**，拿合成值判近黑色会因绝对跨度塌陷而假红。
+- **⚠ 环境发现**：根 `node_modules` 无 `@wxgame/framework` ⇒ **`run.mjs` 现无法直接 `node` 跑（r9 复现路径在当前环境已断）**。本轮用 `--import` + resolve hook（`temp/tint-probe/loader.mjs`）映射 bare specifier → `dev/harness/dist/packages/framework/src/index.js` 绕过；后续复现照此，或补 workspace 链接。
+- **边界**：浏览器 Canvas2D；wx 侧 `destination-in`/multiply/screen 未验（T2'）；孔中心透出的是 B0 目标色（≠ 现设计 `pit`）⇒ 孔辨识全靠该环，强度需 A/B。产物 `temp/tint-probe/hole-shade-ab.{html,png}`。未 commit。
+### r9 批（预览工具链固化：temp/tint-mask-export → tools/mask-preview/）
+
+- **用户指令**：固化预览三件套（`capture-layers.mjs` 捕获层集 / `preview-app.py` Streamlit 预览 / `layers.json` 中间产物），并对齐 tint-probe 终口径（V4 修正版 + r8 槽内阴影）。
+- **落点**：`tools/mask-preview/`（repo 根 tools 下，不在 `games/` 内 ⇒ 不入 cocos 同步扫描域；目录深度与原 temp 版相同 ⇒ 路径逻辑零改动）。超点名收编 `loader.mjs`/`reg.mjs`（resolve hook：根 node_modules 无 `@wxgame/framework`，不收编则 capture 不可直跑——同 r9 复现断裂根因）。
+- **对齐修复（capture-layers.mjs）**：① 墨档字典漏 `−0.58/−0.68/−0.80` ⇒ **槽内阴影 4 层在预览 mask 里 3 层塌成 d=1**（旧 layers.json 实证）⇒ 已补，重跑后 cell 7 层 d/l 全对（tile 0.70 = B0 `edge` 档 + 内阴影 0.20/0.32/0.42/0.56 + S3 0.42 + S4 l0.38）；② `line` 类整类丢弃（S3/S4 明暗线预览缺失）⇒ 已收编绘制；③ palette 补 `slot`；④ `captureBead` 不传 `hideHole`（孔几何进 JSON，预览按 B15 跳过 = 孔 live）。
+- **对齐修复（preview-app.py）**：① B15：bead 侧跳过全部 circle；② `draw_layer` 支持 line；③ **mask 写入双翻转 bug**（d 路径多一次垂直翻转、l 路径不翻 ⇒ 两路坐标系不一致）统一为图像坐标直写；④ blend 后叠孔底 `pit`（对齐 tint-probe 收尾，孔 live）；⑤ 默认参数 = V4 修正版（0.56/0.42/0.70、lmax 1.0、环 4 texel = 2 本仓 dp、掩膜 0.55/0.85、conic 0=右顺时针四方向定标）。numpy 向量化重写逐像素循环。
+- **未决（登记）**：conic 亮侧方向（现 = 上/左亮）与槽 TC-SKT-01「暗上亮下」相反 ⇒ 三口径（A 物理一致 / B 维持 / C 无方向）待用户拍板，预览按现口径固化、改 stops 即切。streamlit 实跑未验证（py_compile 已过）。
+- temp/tint-mask-export 原目录保留（v1–v3 迭代与 PNG 供追溯，不入库）。未 commit。
+
+### r9+ 批（有孔 tint mask 烘焙纹理定稿 v1.0）
+
+- **定稿**：`tools/mask-preview/export-cocos-textures.py` 头部冻结口径块（v1.0，2026-09-29）——本轮 Cocos 探针迭代收敛的烘焙逻辑冻结为有孔档正式标准，⛔ 改参数须登记。
+- **口径**：珠（26dp/角 8、真透 ⌀12、B14 环 1dp −0.58、外框 1dp、plate 0.56、lit 0.38、余弦光照）；格（30dp、槽口 24dp=珠面轮廓内缩 1dp 防漏、3dp 斜面背光上+左+右 0.32/受光下 0.70+lit、坑底 0.32=−0.68、格外 0.70、facet-4 同构光照）；编码 R=d/G=l/B=形状、A=255 免疫 Trim、512→LANCZOS×4→128。
+- **验收轨迹**：混色 → 槽口=珠面轮廓 → 3dp 深度+光照 → 缩 1dp 防漏 → 坑底两档加深 → 三边同暗+下边光照；每步 1024 合并预览目视通过。
+- 正式管线移植：照抄脚本公式（纯 numpy 确定性）。未 commit。
+- **甲/丙终调（同日）**：甲 D1（暗底 pit + 偏置环 2dp）左上壁 142 / Δ83 / 合成最暗 154；**丙 D2（conic，角度收窄 ±36° + LMAX 0.85）左上壁 142 / Δ94 / 合成最暗 106 ⇒ 深度与方向双超甲**；D3（3dp 同参）Δ90、暗壁更厚。宽度 2dp/3dp 两档均已出图（mask 侧纯几何，不受 C7 约束）；⚠ 2dp 在 dpr1 仅 0.5 物理 px ⇒ 建议 3dp 起步或加 dp 地板，真机 A/B。
 - **验证态（r9）**：beads 全量 732/4（seal 0 红）/ tsc 0 错 / `check:links` / `check:tasks` 绿（终跑见收口段）；⛔ 未 commit / 未 push。

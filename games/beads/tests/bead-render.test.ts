@@ -612,17 +612,21 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // §1.2 locked：主体 + 斜纹，**无高光无符号**。
   it('§1.2 empty (no target) 中性四层凹陷卡（v1.5-r5 改写：原「仅主体+描边」随 E1/E4 作废）', () => {
     const empty = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE));
-    // v1.5 四层：大底 → pit 内缩填充 → S1 暗缘框 → S3/S4 明暗线（共 5 命令）。
-    expect(empty).toHaveLength(5);
+    // **2026-09-28 裁定后**：大底 → 槽内一周内阴影 4 层同心 fill → S3/S4 明暗线（共 7 命令）。
+    // 旧 5 命令 = 大底 + 坑底 + S1 暗缘框 + 两线；本裁**删描边、加内阴影 3 层** ⇒ 净 +2。
+    expect(empty).toHaveLength(7);
     // 大底 = 中性 slot 纯色（无 stroke；旧 E1 tint 已作废）。
     expect(empty[0]).toMatchObject({ kind: 'rect', fill: DEFAULT_PALETTE.slot });
-    // S2 坑底 = 中性色暗一档。
-    expect(empty[1]!.kind).toBe('rect');
-    // S1 暗缘框 = stroke-only（中性槽 hole 族墨 = mix(slot, −0.58)，WXG-T-221 五裁与孔边线对齐）。
-    expect(empty[2]).toMatchObject({ kind: 'rect', stroke: mix(DEFAULT_PALETTE.slot, -0.58) });
+    // 内阴影阶梯（由外向内递减，每层留外沿 1dp）：−0.80 / −0.68 / −0.58，最内接中心坑底 pit −0.44。
+    expect(empty[1]).toMatchObject({ kind: 'rect', fill: mix(DEFAULT_PALETTE.slot, -0.8) });
+    expect(empty[2]).toMatchObject({ kind: 'rect', fill: mix(DEFAULT_PALETTE.slot, -0.68) });
+    expect(empty[3]).toMatchObject({ kind: 'rect', fill: mix(DEFAULT_PALETTE.slot, -0.58) });
+    expect(empty[4]).toMatchObject({ kind: 'rect', fill: mix(DEFAULT_PALETTE.slot, -0.44) });
+    // ⛔ **槽不做描边**（用户 2026-09-28 裁定）：槽侧不得出现任何 stroke-only rect。
+    expect(empty.some((c) => c.kind === 'rect' && c.stroke !== undefined)).toBe(false);
     // S3/S4 明暗方向：上暗下亮（线 y 序 + 墨色）。
-    expect(empty[3]!.kind).toBe('line');
-    expect(empty[4]!.kind).toBe('line');
+    expect(empty[5]!.kind).toBe('line');
+    expect(empty[6]!.kind).toBe('line');
     // 无幽灵符号（a11y 降级，accessibility v1.5）。
     expect(empty.some((c) => c.kind === 'circle')).toBe(false);
     // 无软高光（不读作珠）。
@@ -654,14 +658,14 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(base).toMatchObject({ kind: 'rect', fill: beadColorOf(DEMO_BEAD_INKS, idx) });
     // E4 幽灵符号已删除（用户 2026-09-16 裁定，accessibility v1.5 降档登记）。
     expect(cmds.some((c) => c.kind === 'circle')).toBe(false);
-    // S1 暗缘框 = stroke-only，墨 = mix(slot,#000,0.58)（端点族 hole，WXG-T-221 五裁；
-    // 本例 tilePainted=false ⇒ 托盘口径，大底/框基色 = 中性 `slot`，非目标色 base）。
-    const edge = cmds.find((c) => c.kind === 'rect' && c.stroke !== undefined);
-    expect(edge).toMatchObject({ kind: 'rect', stroke: mix(DEFAULT_PALETTE.slot, -0.58) });
-    // S3/S4 明暗方向：上暗下亮（托盘口径 tilePainted=false ⇒ S3 仍为 `edge`，五裁只改框线）。
+    // ⛔ **槽不做描边**（用户 2026-09-28 裁定）：本口径同样不得出现 stroke-only rect。
+    expect(cmds.some((c) => c.kind === 'rect' && c.stroke !== undefined)).toBe(false);
+    // S3/S4 明暗方向：上暗下亮。
+    // ⚠ S3 墨随本裁由 `edge`（−0.30）改 **`hole` 档（−0.58）**：两线现画在中心坑底 `pit`（−0.44）
+    // 内，沿用旧档会与它同色/更浅 ⇒ 暗线读作亮线、凹感方向反掉。
     const lines = cmds.filter((c) => c.kind === 'line');
     expect(lines).toHaveLength(2);
-    expect((lines[0] as { stroke: string }).stroke).toBe(mix(beadColorOf(DEMO_BEAD_INKS, idx), -0.3));
+    expect((lines[0] as { stroke: string }).stroke).toBe(mix(beadColorOf(DEMO_BEAD_INKS, idx), -0.58));
     expect((lines[1] as { stroke: string }).stroke).toBe(mix(beadColorOf(DEMO_BEAD_INKS, idx), 0.38));
     // 形态区分仍在：无软高光（不读作珠）。
     expect(
@@ -679,7 +683,12 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // **豆坑 ⊂ 珠体**（用户裁定 2026-09-26 / WXG-T-214）：坑永远比珠子小一圈 ⇒ 有豆时坑被整块盖住。
   // 旧实现把坑画在格径（30）上而珠只有 22 ⇒ 坑比珠大，「有豆/无豆一张图」落空（详见 `beadInset` 参注）。
   // 判据取**包围盒包含**（不只比宽度）：只比宽仍可能外溢 → 圆角处露出就还是看得见坑。
-  it('WXG-T-214 豆坑恒小于珠体：坑外廓完全落在珠体包围盒内（满豆 / 小豆两档）', () => {
+  it('坑外沿与珠面轮廓对齐 + 中心坑底恒小于珠体（满豆 / 小豆两档）', () => {
+    // ⚠ **口径更替（用户 2026-09-28 裁定「坑底边与珠面描边对齐」）**：旧判据「坑外廓包围盒
+    // **严格小于**珠体」与本裁不能同真（坑外沿现与珠面轮廓**重合**）⇒ 判别子换成两句：
+    // ① **外沿对齐**：坑外廓与珠体逐边相等（⛔ 不是「小一圈」）；
+    // ② **中心坑底 ⊂ 珠**：真正决定「有豆时看不到坑」的是最内层坑底，它仍严格小于珠体。
+    // 覆盖能力由 `PLATE` 满铺不透明 rect 承担（坑外沿重合也不会外溢）⇒ 不变式未失效。
     for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
       const socket = emit((b) =>
         drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, 1, DEMO_BEAD_INKS, true, inset),
@@ -687,14 +696,21 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       const bead = emit((b) =>
         drawFilledBead(b, 100, 200, 1, { size: BEAD_CELL, targetColorIdx: 1, drawInset: inset }),
       );
-      // 坑 = S1 暗缘框（stroke-only rect）；珠 = #1 底衬 plate rect。
-      const pit = socket.find((c) => c.kind === 'rect' && c.stroke !== undefined) as {
+      const rects = socket.filter((c) => c.kind === 'rect') as {
         x: number; y: number; w: number; h: number;
-      };
+      }[];
+      const outer = rects[0]!; // 坑外廓 = 内阴影最外层
+      const pit = rects[rects.length - 1]!; // 中心坑底 = 内阴影最内层
       const plate = bead[0] as { kind: string; x: number; y: number; w: number; h: number };
       expect(plate.kind).toBe('rect');
-      expect(pit.w).toBeLessThan(plate.w); // 小一圈
-      expect(pit.x).toBeGreaterThan(plate.x); // 且被完全包住
+      // ① 外沿对齐（本裁新增，替换旧「小一圈」断言）。
+      expect(outer.w).toBe(plate.w);
+      expect(outer.h).toBe(plate.h);
+      expect(outer.x).toBe(plate.x);
+      expect(outer.y).toBe(plate.y);
+      // ② 中心坑底仍被完全包住（含圆角 ⇒ 取包围盒四边）。
+      expect(pit.w).toBeLessThan(plate.w);
+      expect(pit.x).toBeGreaterThan(plate.x);
       expect(pit.y).toBeGreaterThan(plate.y);
       expect(pit.x + pit.w).toBeLessThan(plate.x + plate.w);
       expect(pit.y + pit.h).toBeLessThan(plate.y + plate.h);
@@ -726,13 +742,14 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       return { dark: dark!, lit: lit! };
     };
 
-    it('托盘空槽口径（tilePainted=false ⇒ 自带大底 = 5 命令）：y_dark > y_lit', () => {
+    it('托盘空槽口径（tilePainted=false ⇒ 自带大底 = 7 命令）：y_dark > y_lit', () => {
       const empty = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE));
-      // 枚数口径先钉死（K-041 次数轴 ±0）：大底 rect + S2 坑底 + S1 暗缘框 + S3/S4 两线 = 5。
-      expect(empty).toHaveLength(5);
+      // 枚数口径先钉死（K-041 次数轴 ±0）：大底 rect + 内阴影 4 层同心 fill + S3/S4 两线 = 7
+      // （2026-09-28 裁定：删 S1 暗缘框 −1、加内阴影 3 层 +3 ⇒ 旧 5 → 7）。
+      expect(empty).toHaveLength(7);
       const { dark, lit } = darkLitByInk(
         empty,
-        mix(DEFAULT_PALETTE.slot, -0.3),   // 中性槽的 edge 族墨（S3 线；五裁只改 S1 框→hole −0.58，线墨不动）
+        mix(DEFAULT_PALETTE.slot, -0.58),  // 中性槽 hole 族墨（S3 线；本裁随背景改档，见下方注）
         mix(DEFAULT_PALETTE.slot, 0.38),   // lit 族墨（SOCKET_LIT_MIX）
       );
       // 方向硬断言（差值、非存在性）：暗线在亮线**上方** = 凹。
@@ -740,16 +757,16 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       expect(dark.y2).toBeGreaterThan(lit.y2);
     });
 
-    it('网格空格口径（tilePainted=true ⇒ B0 已铺不刷底 = 4 命令）：y_dark > y_lit', () => {
+    it('网格空格口径（tilePainted=true ⇒ B0 已铺不刷底 = 6 命令）：y_dark > y_lit', () => {
       const idx = 1; // 奶白 ○
       const base = beadColorOf(DEMO_BEAD_INKS, idx);
       const grid = emit((b) => drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, idx, DEMO_BEAD_INKS, true));
-      // 枚数口径：S2 坑底 + S1 暗缘框 + S3/S4 两线 = 4（大底由 B0 `drawTargetTile` 承担）。
-      expect(grid).toHaveLength(4);
-      // ⚠ **WXG-T-214（2026-09-26 用户拍板）**：本口径的暗线墨已由 `edge`（= B0 底图墨，
-      // 逐字同色 ⇒ 不可见）改为 `pit` 档 = `−(SOCKET_EDGE_DARK_MIX 0.30 + SOCKET_PIT_DARKEN 0.14)`
-      // ⇒ 暗/亮分派表随之下移一档（**只改取墨，方向断言与枚数口径一字不动**）。
-      const { dark, lit } = darkLitByInk(grid, mix(base, -0.44), mix(base, 0.38));
+      // 枚数口径：内阴影 4 层同心 fill + S3/S4 两线 = 6（大底由 B0 `drawTargetTile` 承担）。
+      expect(grid).toHaveLength(6);
+      // ⚠ **暗线墨档沿革**：`edge`（= B0 底图墨，逐字同色不可见）→ `pit` −0.44（WXG-T-214）
+      // → **`hole` −0.58**（2026-09-28 本裁）：两线现画在中心坑底 `pit` −0.44 内，
+      // 沿用 −0.44 会与它同色 ⇒ 暗线不可见、凹感方向反掉。只改取墨，方向断言一字不动。
+      const { dark, lit } = darkLitByInk(grid, mix(base, -0.58), mix(base, 0.38));
       expect(dark.y1).toBeGreaterThan(lit.y1);
       expect(dark.y2).toBeGreaterThan(lit.y2);
     });
