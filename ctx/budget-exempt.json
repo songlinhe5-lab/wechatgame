@@ -314,6 +314,21 @@
       "reason": "开发日记（按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读）——与 g4-regression-report/test-cases 同族豁免；由 tasks:archive 周期收敛，不手工拆",
       "note": "WXG-T-214/221（2026-09-29）随 tint mask 探针批越至 14337 tok（超 8000 上限 79%）",
       "taskId": "WXG-T-214"
+    },
+    {
+      "path": "games/beads/art/tint-mask-asset-spec.md",
+      "reason": "美术资产规格正本（tint mask 分册）：命名/编码/包体预算/双档位与 a11y 实测——与 assets-spec 同族，按 ctx 章节锚点局部读、开发期从不整读；随 tint 档位与包体策略迭代持续追加，由 art:sync 周期收敛",
+      "taskId": "WXG-T-227"
+    },
+    {
+      "path": "production/plans/wxg-t-226-tint-pipeline-plan.md",
+      "reason": "工程实施方案（一次性计划文档，EP-12 拆分 + ADR-0029 骨架 + 包体/风险实测）：落地后即归档，不持续追加；按章节锚点局部读、从不整读",
+      "taskId": "WXG-T-226"
+    },
+    {
+      "path": "production/qa/beads/wxg-t-228-tint-criteria.md",
+      "reason": "QA 判据分册（TC-TINT-01…22 + C7-b/C12-t/R-9 重设建议）：与 test-cases/g4-regression-report 同族，按章节锚点局部读、开发期从不整读；判据裁定落地后并入 test-cases §L（届时本件冻结）",
+      "taskId": "WXG-T-228"
     }
   ]
 }

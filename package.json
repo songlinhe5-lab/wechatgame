@@ -63,6 +63,7 @@
     "preview:frames:beads": "node tools/scripts/render-harness-frame.mjs --game=beads",
     "preview:clip": "node tools/scripts/render-harness-clip.mjs --game=breakout",
     "preview:clip:beads": "node tools/scripts/render-harness-clip.mjs --game=beads",
+    "art:encode-mask": "python3 games/beads/design/ai-workflows/encode-mask.py",
     "commitlint": "commitlint",
     "verify": "node tools/scripts/verify-all.mjs",
     "check:a11y": "node tools/scripts/check-a11y-anchors.mjs",
