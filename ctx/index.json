@@ -385,9 +385,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3569,
+      "tokens": 3555,
       "lines": 130,
-      "sha256": "f6a526d59a7a80dd588d74e977092652274dc8bea9aa0f383700eb0dbec815f5",
+      "sha256": "2c5271719ebdc6374c8e0f50946536a87f6cacb6ca88b8632c9cc6cf4d8e777e",
       "tier": "normal",
       "sections": [
         {
@@ -395,7 +395,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 131,
-          "tokens": 3556,
+          "tokens": 3542,
           "summary": "生成：2026-09-29 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -424,7 +424,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 410,
+          "tokens": 395,
           "summary": "1 games/beads/art/assets-spec.md 107705 1918 normal",
           "keywords": [
             "Top",
@@ -662,17 +662,17 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5150,
-      "lines": 110,
-      "sha256": "e90d2a120474c27466327b4bfb61a03b80208d3bdbe8f309210cf03ae9eab980",
+      "tokens": 5054,
+      "lines": 106,
+      "sha256": "126fd3076fc8cc759566133f9b2993eeb7ada6f4393d516fa463cb6aa049d191",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§热门大文件行号速查（自动生成，勿手改；重建 `pnpm run ctx:build`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 111,
-          "tokens": 5122,
+          "endLine": 107,
+          "tokens": 5026,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 83 行 / 13535 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 84 行 / 13795 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+84 · §待排（backlog，无号，立项时领取）=57+28",
+          "summary": "§WXG 任务台账（SSOT）=1+85 · §待排（backlog，无号，立项时领取）=58+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1259 行 / 77398 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1289 行 / 77996 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 259,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1260 · §WXG-T-128=18+120 · §真机首验包（待",
+          "tokens": 291,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1290 · §WXG-T-128=18+120 · §真机首验包（待",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -1054,8 +1054,8 @@
           "anchor": "§`games/beads/design/gdd/core-loop.md` — 167 行 / 8681 tok / 实测读 70 次",
           "level": 2,
           "startLine": 102,
-          "endLine": 105,
-          "tokens": 89,
+          "endLine": 107,
+          "tokens": 143,
           "summary": "§GDD · S1 核心循环（Core Loop）· beads=1+168 · §1 目标=9+4 · §2 机制=1",
           "keywords": [
             "§1",
@@ -1064,22 +1064,6 @@
             "beads",
             "design",
             "gdd"
-          ]
-        },
-        {
-          "anchor": "§`games/breakout/art/assets-spec.md` — 252 行 / 4993 tok / 实测读 67 次",
-          "level": 2,
-          "startLine": 106,
-          "endLine": 111,
-          "tokens": 191,
-          "summary": "§《砖阵》资产规格表（Asset Spec）=1+253 · §0 前置约定（程基岩落码直接引用）=11+25 · §1",
-          "keywords": [
-            "§0",
-            "§1",
-            "games",
-            "breakout",
-            "art",
-            "assets"
           ]
         }
       ]
@@ -67432,17 +67416,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 77398,
-      "lines": 1259,
-      "sha256": "3682980bd89363d44b16946d5661c5c3faf364c7113994582725f4581ced9f99",
+      "tokens": 77996,
+      "lines": 1289,
+      "sha256": "21d03ada6efbef8daaa0a8790522e6de55a5913bce0e422a1161179cdb06d25e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1260,
-          "tokens": 77382,
+          "endLine": 1290,
+          "tokens": 77980,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -68253,22 +68237,93 @@
             "cases",
             "执行结果"
           ]
+        },
+        {
+          "anchor": "§WXG-T-225 · 拆 `production/qa/beads/test-cases.md` 判据分片（撤销 WXG-T-084 的 B 项豁免）",
+          "level": 2,
+          "startLine": 1261,
+          "endLine": 1290,
+          "tokens": 568,
+          "summary": "状态：🔄 立项待裁（2026-09-29 立；来源 = WXG-T-224 的 quality-lead 裁定移交项）",
+          "keywords": [
+            "WXG",
+            "production",
+            "beads",
+            "test",
+            "cases",
+            "quality"
+          ]
+        },
+        {
+          "anchor": "§背景",
+          "level": 3,
+          "startLine": 1266,
+          "endLine": 1270,
+          "tokens": 87,
+          "summary": "production/qa/beads/test-cases.md 现 860 行 / 69479 tok，靠 B 项豁",
+          "keywords": [
+            "production",
+            "beads",
+            "test",
+            "cases",
+            "tok",
+            "背景"
+          ]
+        },
+        {
+          "anchor": "§价值（quality-lead 原话）",
+          "level": 3,
+          "startLine": 1271,
+          "endLine": 1278,
+          "tokens": 129,
+          "summary": "1. 撤销 B 项豁免、消掉 69k 整读悬崖；",
+          "keywords": [
+            "quality",
+            "lead",
+            "价值",
+            "原话"
+          ]
+        },
+        {
+          "anchor": "§待裁项（交 quality-lead） (2)",
+          "level": 3,
+          "startLine": 1279,
+          "endLine": 1285,
+          "tokens": 182,
+          "summary": "1. 拆法：按 §A–§K 章节族拆（判据族正交）vs 按系统域（S1–S9）拆 vs 只拆「回填/取证类」（§A.0、",
+          "keywords": [
+            "quality",
+            "lead",
+            "待裁项"
+          ]
+        },
+        {
+          "anchor": "§边界（⛔） (2)",
+          "level": 3,
+          "startLine": 1286,
+          "endLine": 1290,
+          "tokens": 76,
+          "summary": "只做文档拆分与引用面同步，不改判据值、不改判据语义（K-051/K-053：禁自更新 fixture、禁静默删旧文案）；",
+          "keywords": [
+            "fixture",
+            "边界"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 13535,
-      "lines": 83,
-      "sha256": "d17b49217cc24f20dcb38b3201650bf69cf5fa2b089db0b84e2064e8bdc5b439",
+      "tokens": 13795,
+      "lines": 84,
+      "sha256": "8f76aa10bc3b34cd34e720dcd49c646f18cafd298fbbb2ef4270bad60f103df0",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 84,
-          "tokens": 13527,
+          "endLine": 85,
+          "tokens": 13786,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -68281,8 +68336,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 57,
-          "endLine": 84,
+          "startLine": 58,
+          "endLine": 85,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

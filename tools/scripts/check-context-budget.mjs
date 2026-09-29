@@ -28,7 +28,7 @@
  *   D2 第二跳覆盖率（WXG-T-044）ctx/ROUTES.md 引用到的文件（除 always 常驻层与尚未入索引的
  *               新文件）须能在 ctx/hot-files.md 查到 offset/limit（下限 LIMITS.hotFilesCoverageMin）。
  *               **硬门**：属产物衔接完备性（结构指标），不受 WXG-T-026 行为类裁定约束；
- *               断链 = agent 只能退到全量 ctx/index.json（≈195k tok），协议在最需要处失效。
+ *               断链 = agent 只能退到全量 ctx/index.json（**≈2.24MB / ≈61 万估算 tok，整读即爆上下文**），协议在最需要处失效。
  *   E 节省率/护栏/基线（WXG-T-026 ④，纯查表计算，消费 ctx/usage-distribution.json）：
  *               E1 仅锚点式局部读的单次节省率 中位数 ≥70%、P10 ≥40%（含全文读的整体中位数仅展示）；
  *               E2 护栏（**比率**：抖动率 = 抖动组 ÷ 不同 (ide,session,path) 小读组；大文件整文件读率 =
@@ -557,7 +557,7 @@ function checkRoutes(index) {
  * 为什么是**硬门**（而非 E1/E2 那样的报告项）：本指标衡量两个产物之间的**衔接完备性**，
  * 取值与「历史会话读了什么」无关，故不受 WXG-T-026「行为类指标降级」裁定约束。它的
  * 退化形态是**确定性缺陷**——ROUTES 引用了新文件却忘了让它进第二跳——必须在 PR 拦下；
- * 否则 agent 走到该锚点后只能退到机器读的全量 `ctx/index.json`（≈195k 估算 tokens）。
+ * 否则 agent 走到该锚点后只能退到全量 `ctx/index.json`（**≈2.24MB / ≈61 万估算 tokens，禁止整读**）。
  * @param {{files: object[]}} index `ctx/index.json` 内容
  * @returns {{targets: string[], covered: string[], missing: string[], pending: string[],
  *            ok: boolean, ratio: number}}

@@ -64,7 +64,7 @@ export const INDEX_VERSION = 1;
  * `_repos`（WXG-T-176）：`my-skills/_repos/**` 是外来 skill 的上游 git 克隆，已由
  * `.gitignore` 忽略（内嵌仓只能记 gitlink，内容会静默丢失）。但**本生成器不读
  * `.gitignore`** —— 它按 `readdirSync` 走盘 + 只跳本集合（逐段 `entry.name` 匹配），
- * 所以“进 .gitignore = 不进索引”在这条链上**不成立**。2026-09-19 实例：vendor 快照入盘后
+ * 所以"进 .gitignore = 不进索引"在这条链上**不成立**。2026-09-19 实例：vendor 快照入盘后
  * 一次重建就多出 **4.6 万行 / +1.17 MB**（`ctx/index.json` 2.51 MB → 3.68 MB）并被固化进提交。
  * ponytail: 硬编码目录名 = 单一机械开关；新 vendor 目录须同步加这里。
  * 升级路径：改用 `git check-ignore` / `git ls-files` 做唯一真源（价：多一层子进程与平台差异）。
@@ -359,14 +359,19 @@ export const LIMITS = {
   // WXG-T-144：ROUTES 引用的文件改为**必收**（强制收录，见 renderHotFiles）⇒
   // 预算上调 4000→4700（常驻观察哨 13500 为软阈值，允许越）。
   // WXG-T-211：风格池文档（EP-11 拆分件等）入索引后覆盖下限涨至 4845，生成器
-  // 裁撤已到底（收录门槛不可再降）⇒ 沿 T-144 先例重议 4700→4900；下次涨前
+  // 裁撤已到底 ⇒ 沿 T-144 先例重议 4700→4900；下次涨前
   // 先做 ux-spec/S9 版本链注记归并瘦身，不再继续顶上限。
+  //   ⚠ **「收录门槛不可再降」表述经核不准（2026-09-29，WXG-T-224 复核，quality-lead 证伪）**：
+  //   实测 renderHotFiles 的 18 个收录 = `tier:hot` 必收 6（2478 tok）+ ROUTES 强制收录 12
+  //   （2275 tok）⇒ **可选池 = 0 文件**，即**无对象可裁**，而非「门槛不可再降」。原句保留留痕。
   //   ⚠ **该瘦身对象经核已失效（2026-09-29 复核）**：`games/beads/design/ux/ux-spec.md`
   //   ① **不在本表收录**（hot-files 现收 18 文件，主体是 test-cases 章节锚点），
   //   ② 已在 `ctx/budget-exempt.json` 登记 B 项豁免（18657 tok，走章节锚点局部读）⇒
-  //   **瘦它对常驻开销零收益**。真实收益点 = 本表里 test-cases.md 的章节锚点摘要
-  //   （§A +261 / §K +184 / §I +106 / §G +111 是体积主体），裁它要动 QA 判据可达性
-  //   ⇒ 需 quality-lead 裁定，⛔ 不得由装置侧擅自裁。原注记保留作历史留痕（K-053）。
+  //   **瘦它对常驻开销零收益**。真实收益点 = 本表里 test-cases.md 的章节锚点摘要。
+  //   ⚠ **订正（quality-lead 2026-09-29）**：此处原写「§A +261 / §K +184 是体积主体」——
+  //   那是 test-cases **内部行数**，非本表成本；实测锚点条目成本 §A 23 tok / §G 27 / §K 81，
+  //   **成本由锚点文字长度决定，与节体量无关**（test-cases 整块 1412 tok = 本表 27.9%）。
+  //   裁它要动 QA 判据可达性 ⇒ 需 quality-lead 裁定，⛔ 不得由装置侧擅自裁。原注留痕（K-053）。
   // WXG-T-214/221（2026-09-29）：tint mask 探针+烘焙定稿批，memory/2026-09-29 与
   // TASKS-DETAIL r9+ 段入索引 ⇒ 5110 超限 210。**瘦身债（ux-spec/S9 归并）仍未还**，
   // 沿 T-144/T-211 先例重议 4900→5150；连续第三次顶上限 ⇒ 下批必须先还债再议涨。
@@ -411,7 +416,7 @@ export const LIMITS = {
    *       取值与「历史会话读了什么」无关，故不受 WXG-T-026「E1/E2 行为类指标降级为
    *       报告项」裁定约束。它的退化是**本仓可修的确定性缺陷**——ROUTES 引用了新文件
    *       却忘了让它进第二跳——必须在 PR 处拦下，否则 agent 只能退到机器读的全量
-   *       `ctx/index.json`（≈195k 估算 tokens），协议在最需要处断链。
+   *       `ctx/index.json`（**实测 ≈2.24MB / ≈61 万估算 tokens，禁止整读**），协议在最需要处断链。
    *
    * 阈值依据：ROUTES 引用面有限（当前 19 个文件），要求 1.0 会把「预算刚好差一行」
    *       也判失败；跌到 0.9 以下意味着至少 2 个路由目标断链，属实质退化。
@@ -825,7 +830,7 @@ export function routesAnchorRefs(limit = 15) {
  *
  * 为什么需要它：`ctx/hot-files.md` 存在的唯一理由是补齐「ROUTES 锚点 → `offset`/`limit`」
  * 这一跳。若 ROUTES 引用到的文件却查不到行号，agent 只能退到 `ctx/index.json`
- * （全量 JSON，≈195k 估算 tokens，机器读才划算）——协议链路**恰好在最需要的地方断开**。
+ * （全量 JSON；**实测 ≈2.24MB / ≈61 万估算 tokens ⇒ 禁止整读**，只按配方取节）——协议链路**恰好在最需要的地方断开**。
  * 故「ROUTES 引用面」必须是第二跳收录的**最高优先级**，并由门禁 D2（覆盖率硬门）守住。
  *
  * 与 `routesAnchorRefs()` 的分工：后者按行序返回**前 N 条** `路径#锚点` 供 BUDGET 报表展示；
@@ -1013,7 +1018,11 @@ export function renderHotFiles(index, dist = null) {
     L.push('> **协议第二跳**：`ctx/ROUTES.md` 给「意图 → `文件#锚点`」，本表把锚点换算成可直接用的 `offset` / `limit`。');
     L.push('> 读法：`read_file(path, offset, limit)` —— **只取该节**，勿对大文件无条件整读。');
     L.push('> 行内格式：`锚点=offset+limit`（`limit` 已算好）；` · ` 分隔小节。');
-    L.push('> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`（全量，机器读更划算）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。');
+    L.push(
+      '> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`' +
+      '（全量，**禁止整读**（≈2.2MB）；按路径精确取节：`jq .files[]' +
+      ' | select(.path=="<路径>") | .sections ctx/index.json`）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。',
+    );
     L.push('');
     L.push(
       `> 体积预算 ≤ ${LIMITS.hotFilesMaxTokens} 估算 tokens（当前 ${chosen.length} 个文件）：本表是协议常驻开销，` +
@@ -1038,7 +1047,7 @@ export function renderHotFiles(index, dist = null) {
       L.push('## 未收录 · ROUTES 引用的文件（超预算 → 查 `ctx/index.json`）');
       L.push('');
       L.push(
-        '> 下列文件被 `ctx/ROUTES.md` 引用，但未进本表；其锚点行号请查 `ctx/index.json`（全量索引，机器读更划算）。',
+        '> 下列文件被 `ctx/ROUTES.md` 引用，但未进本表；其锚点行号请查 `ctx/index.json`（**禁止整读**，用上式 jq 按路径取 sections）。',
       );
       L.push('');
       for (const f of routedOmitted) L.push(`- \`${f.path}\`（${f.tokens} tok）`);
