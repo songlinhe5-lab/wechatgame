@@ -821,3 +821,19 @@
 - 本单**只立项、不落码**；4 红维持原样，不因「看着像小事」就随手改数。
 - 影响面：① `verify::test` 长期 FAIL ⇒ **绿线不可信**（K-089 同族：守卫/断言长期红会让人对整条门禁脱敏）；② 阻塞任何以「beads 全绿」为前置的验收（如 T-226 落码批的回归门）。
 - 与本单无关、**不得混计**：WXG-T-229 复评后的 11 红已于 `565fa28` 全部转绿（剩 4 红即本单）。
+
+### A 类处置落码（用户 2026-10-02 拍板「A」，2026-10-02 实施）
+
+**前置已查清（结论对「只改值」不利，故同批加了门禁）**：`systems-index §3` 该行明写本值「**随表走 = 当前关数**」，且关表由 **beads-studio 逐张入关重建**（v1.48 入满 8 张）⇒ **9 是中途态、不是终态** ⇒ 只改值必然复发。
+
+1. **`config/tuning.ts::DEMO_LEVEL_COUNT` 8 → 9**（注释记 v1.60 由来 + 门禁⑤ + 「9 是中途态」告警）。
+2. **真源回写**：`systems-index` 版本行 → **v1.60**；§3 `DEMO_LEVEL_COUNT` 行值 8→9 + v1.60 注；`systems-index-changelog.md` 追加 **v1.60** 行（含①②③与「不并入 B 类」的显式声明）。
+3. **新增生成期门禁⑤**（`tools/scripts/sync-levels-data.mjs::assembleFromManifest`）：声明了 `DEMO_LEVEL_COUNT` 的游戏，该值必须 == manifest 当前关数，不等即 `levels:check` 硬红。⛔ 只对声明该常量的游戏生效 ⇒ **breakout legacy 零影响**。
+   - **门禁自证（K-089「先证守卫能红」）**：临时把常量改回 8 ⇒ `levels:check` 立即 exit 1；复原 9 ⇒ 绿。
+   - 头注「覆盖面断言」清单 + `--help` 文本同步加 ⑤。
+4. `framework:sync` 同步 Cocos 镜像（写入 1 = `tuning.ts`）。
+
+**读数**：beads **735/736 绿**（A 类 3 红全转绿）· 剩 **1 红 = B 类**（`levels-dir-pipeline` ① 快照断言）· `levels:check` OK（beads + breakout）· `tsc --noEmit` 0 错。
+
+**B 类仍待裁**（甲重取快照 / 乙降级为一次性历史断言 + ②③担纲 / 丙乙 + 写进关卡内容管线收口清单）——⛔ 本单未代裁。
+

@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3670,
       "lines": 133,
-      "sha256": "d15bc0dadc87f5000494a08873257793bc9cbb18cfb752426de48954a7652227",
+      "sha256": "9441012d474a95a8e41c8b3ec9244797c178b592c0741dec9a4293759b304561",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5014,
       "lines": 106,
-      "sha256": "09fae0f4875333f5b51dd57fa05ba2dfbfa7152b827629f2f5858ee095c3193c",
+      "sha256": "ec4f0cc060385dcde89a3d3fa1aba9298978aaf71937e0df37af13b9d0765960",
       "tier": "normal",
       "sections": [
         {
@@ -716,7 +716,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 299 行 / 22719 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 299 行 / 22997 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 70 行 / 12518 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 70 行 / 12554 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 823 行 / 44909 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 839 行 / 45398 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 251,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+824 · §WXG-T-179=18+78 · §WXG-T-184",
+          "tokens": 252,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+840 · §WXG-T-179=18+78 · §WXG-T-184",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -25203,17 +25203,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 31098,
-      "lines": 70,
-      "sha256": "278ca3a2e8ea56f3417960bf8ba8ffd99a04756848707a6a3b248996a5d11a1b",
+      "tokens": 31647,
+      "lines": 71,
+      "sha256": "43d35ba2d99bc45f16f02337c538803716b7a2778d0f0875dc2ce929140bd04a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 71,
-          "tokens": 31080,
+          "endLine": 72,
+          "tokens": 31629,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -25228,8 +25228,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 71,
-          "tokens": 30921,
+          "endLine": 72,
+          "tokens": 31471,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -25241,9 +25241,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 22719,
+      "tokens": 22997,
       "lines": 299,
-      "sha256": "584d7a31e82d6f90df695f1fa17ca99b12abbe3937f62e8848f9b83b1196992f",
+      "sha256": "100ea0b6949742c0f93b19007153aec0f5c8ab094a0a63075678cb57485abb26",
       "tier": "hot",
       "sections": [
         {
@@ -25251,8 +25251,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 300,
-          "tokens": 22702,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.59 · 任务号 WXG-T-217（v1.59 = §3.",
+          "tokens": 22980,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.60 · 任务号 WXG-T-231（v1.60 = §3 ",
           "keywords": [
             "§3",
             "Systems",
@@ -25294,7 +25294,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 254,
-          "tokens": 17521,
+          "tokens": 17649,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -25400,7 +25400,7 @@
           "level": 3,
           "startLine": 153,
           "endLine": 163,
-          "tokens": 1045,
+          "tokens": 1174,
           "summary": "STAR_TIER_K [1.00, 0.85, 0.70] §3.7 v1.50 冻结变更：删除 STAR3_RATI",
           "keywords": [
             "§3.7",
@@ -68165,17 +68165,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 44909,
-      "lines": 823,
-      "sha256": "2efb9e599659c5fbbd0abcfee74cc349e5300595eb29b2fe98ea676266f143f6",
+      "tokens": 45398,
+      "lines": 839,
+      "sha256": "4eae0f8cb3775f4acd6f92c58a34149dfa51efe27a8edc0b8c05de0e48d47673",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 824,
-          "tokens": 44892,
+          "endLine": 840,
+          "tokens": 45381,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -68847,20 +68847,36 @@
           "anchor": "§状态与影响",
           "level": 2,
           "startLine": 819,
-          "endLine": 824,
-          "tokens": 147,
+          "endLine": 840,
+          "tokens": 636,
           "summary": "本单只立项、不落码；4 红维持原样，不因「看着像小事」就随手改数。",
           "keywords": [
             "状态与影响"
+          ]
+        },
+        {
+          "anchor": "§A 类处置落码（用户 2026-10-02 拍板「A」，2026-10-02 实施）",
+          "level": 3,
+          "startLine": 825,
+          "endLine": 840,
+          "tokens": 465,
+          "summary": "前置已查清（结论对「只改值」不利，故同批加了门禁）：systems-index §3 该行明写本值「随表走 = 当前关数",
+          "keywords": [
+            "§3",
+            "systems",
+            "index",
+            "类处置落码",
+            "用户",
+            "拍板"
           ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 12518,
+      "tokens": 12554,
       "lines": 70,
-      "sha256": "20f9b7a4078efccf3906c60b35ff2661eec97423aeb48aecb55313d38de2641c",
+      "sha256": "1ee3c7acc6f10549f78187e4c9194d80fa2eb9bdf814596e23164127a21a8d2a",
       "tier": "hot",
       "sections": [
         {
@@ -68868,7 +68884,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 71,
-          "tokens": 12509,
+          "tokens": 12546,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

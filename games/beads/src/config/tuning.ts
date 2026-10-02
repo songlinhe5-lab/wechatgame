@@ -585,8 +585,13 @@ export function nextTierFor(starsThisLevel: number, starsPrevLevel: number | nul
  * **2026-09-22 已入满 8 张**（`L00001..L00008`，均 studio 产物、`time` 全来自真引擎实测）⇒ 回到 v1.44 关数基线，
  * 但**内容全换**（旧 demo 1–8 关的 playtest 校准值已脱离关表）。uid 5 位零填充与区间 5–10 不变，
  * 见 `level-content-pipeline.md` §1.2 v0.7。
- * ⚠️ 再入/再移出关时本值需同步改，否则 `levels.test` / `misplaced-assembler.test` / `level-import.test` 三处断言即红。 */
-export const DEMO_LEVEL_COUNT = 8;
+ * ⚠️ 再入/再移出关时本值需同步改，否则 `levels.test` / `misplaced-assembler.test` / `level-import.test` 三处断言即红。
+ * **8 → 9（WXG-T-231，2026-10-02 用户拍板「A」）**：第 9 张由 `81b08ed`（WXG-T-203 关卡表 pre-release
+ * 全量重置，uid 序号改 5 位）入关（`L00009`/`studio-8-f857`，palette `artkal-s`）时漏同步 ⇒ 3 处断言红至今。
+ * ⚠️ **本值设计上「随表走」而关表由 beads-studio 逐张入关重建 ⇒ 9 是中途态、漂移必然复发**
+ * ⇒ 已同批在 `tools/scripts/sync-levels-data.mjs` 加门禁断言⑤：声明了 `DEMO_LEVEL_COUNT` 的游戏，
+ * 该值必须 == manifest `entries` 数，不等即 `levels:check` 硬红（此前只有事后单测红，无生成期拦截）。 */
+export const DEMO_LEVEL_COUNT = 9;
 /**
  * 单关满星数（§3.7 星级 1–3 语义）。`computeClearStars` 的上限、S8 存档
  * `stars` 数组的逐项钳制上界（save-progress §2.2/§6）、通关画面总览的分母共用它。

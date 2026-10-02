@@ -53,6 +53,7 @@
  *   ② 有 `design/levels/*.json` ⇒ **必须**有 `src/config/levels-data.ts`
  *   ③ 有 `levels-data.header.txt` ⇒ **必须**有 JSON（孤儿模板）
  *   ④ `design/levels/` 下 `.json` 必须**恰好 1 个**（多个则歧义）
+ *   ⑤ 声明了 `DEMO_LEVEL_COUNT` 的游戏 ⇒ 该值必须 == manifest 当前关数（WXG-T-231 门禁⑤）
  * 前三条是 K-031 的结构性补丁：**只要游戏加了关卡数据就会被强制登记**。
  *
  * USAGE
@@ -314,6 +315,21 @@ export function assembleFromManifest(game) {
   const out = { version: man.schemaVersion, gameId: man.gameId, palette: paletteDoc.palette };
   if (man.description !== undefined) out.description = man.description;
   out.levels = levels;
+  // 断言⑤（WXG-T-231，2026-10-02）：声明了 `DEMO_LEVEL_COUNT` 的游戏，该值必须 == 当前关数。
+  // 为什么加：此前这类漂移**只在事后单测红**（levels / misplaced-assembler / level-import），
+  // 生成期无拦截 ⇒ 入关批漏同步常量会静默一段时间（`81b08ed` 入第 9 关漏同步，红了 3 天 4 处才被立项）。
+  // 只对**声明了该常量**的游戏生效 ⇒ breakout 等 legacy 单 JSON 模式零影响。
+  const tuningPath = join(GAMES_DIR, game.name, 'src', 'config', 'tuning.ts');
+  if (isFile(tuningPath)) {
+    const declared = /export const DEMO_LEVEL_COUNT = (\d+)/.exec(readFileSync(tuningPath, 'utf8'));
+    if (declared && Number(declared[1]) !== levels.length) {
+      throw new Error(
+        `${game.name}: DEMO_LEVEL_COUNT=${declared[1]} ≠ manifest 当前关数 ${levels.length} —— ` +
+          '入关 / 移出关时必须**同批同步**该常量（systems-index §3 同源），' +
+          '否则 levels / misplaced-assembler / level-import 三处断言当场红',
+      );
+    }
+  }
   return out;
 }
 
@@ -443,6 +459,7 @@ function printHelp() {
 覆盖面断言（任一不成立即 exit 1）：
   ① 有关卡 json ⇒ 必须有 header 模板  ② 有真源 ⇒ 必须有产物
   ③ 有 header 模板 ⇒ 必须有真源  ④ 无 manifest.json 时顶层关卡 .json 必须唯一（有 manifest 走目录模式）
+  ⑤ 声明了 DEMO_LEVEL_COUNT 的游戏 ⇒ 该值 == manifest 当前关数（防入关批漏同步常量）
 
 真源：各游戏 design/gdd/systems-index.md §3（冻结常量）。`);
 }
