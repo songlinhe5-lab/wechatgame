@@ -108,18 +108,24 @@ describe('TC-STY-09 · C12 主体色不变式·主判据（弱读法，逐 inks 
                 new RegExp(`colorIdx=${ci} argmax=#\\w+\\(\\d+\\.\\d%\\) facetPx=\\d+/\\d+ 分布=`),
             );
         }
-        // ② 近并列注记在场（ci=1 实钉值：argmax=#b1aca3 25.2% vs base #FDF6E9 24.7%）。
+        // ② 近并列注记在场（ci=1 实钉值：argmax=#fef9f1 25.0% vs base #FDF6E9 0.0%）。
+        //   ⚠ **WXG-T-229（2026-09-29 用户拍板「甲」）台面值同步**：左扇 `base`→`mix(base,−0.08)`、
+        //     下扇 `edge`→`mix(base,−0.40)` ⇒ **认定域（facet 族）内再无任何一枚层使用 `base` 端点**，
+        //     参赛端点色由 3 枚（`lit`/`base`/`edge`）降为 **1 枚（`lit`）** ⇒ argmax 由 `edge 25.2%`
+        //     变 `lit 25.0%`，base 占比由 24.7% 变 **0.0%**（最大偏离 0.2pp → **25.0pp**）。
+        //     ⛔ 弱读法口径（断言对象 = ∈ base 同族）**未放宽**，但判别力已实质下降 ⇒ 已开单
+        //     **WXG-T-230**（建议按 T-228 的 C12-t 改纹理像素 argmax；tint 臂未落码 ⇒ 本单只裁矢量臂）。
         //   ⚠ WXG-T-218 同步：圆角扇几何重写 ⇒ 统计域扩大（7292→9207）⇒ 24.8→24.7。
         //   ⚠ WXG-T-221 四裁同步：holeRatio 0.44→0.538（外缘制，孔移出统计域变大）⇒ 统计域
         //     9207→8435（四枚顶面 2301/2274/2314/2318 → 2108/2084/2120/2123，各让 ~200px）；
         //     占比序与弱读法结论不变（argmax 仍 = edge 25.2%，实测钉值未动）。
-        //   ⚠ **六裁（真透制）+ 七裁（回定 0.44 取整）facet-4 台面值零变更**：恒等档环 = pit r=6 + 1dp 描边中心线 r=7
-        //     ⇒ 墨覆盖带 6.5–7.5 与四裁外缘制**逐 texel 等值**（六裁 = 语义回正、七裁 = 定值），故 8435 与四枚
-        //     顶面 px 逐字不变；变的是 `13`/`18`（无环层 ⇒ 孔半径 7→6，见 C12 腿①②）。
+        //   ⚠ **六裁（真透制）+ 七裁（回定 0.44 取整）facet-4 台面值零变更**（至 WXG-T-221）。
+        //   ⚠ **WXG-T-229 台面值变更**（见上方 ② 注）：四扇墨全变但**几何零变** ⇒ `facetPx=8435/14641`
+        //     与四枚顶面 px（2108/2084/2120/2123）**逐字不变**；变的是 argmax 归属与 base 占比。
         expect(ok.out).toMatch(/C12 近并列登记 \[facet-4\]：10\/10 色/);
-        expect(ok.out).toMatch(/argmax=#b1aca3 25\.2% vs base #FDF6E9 24\.7%/);
+        expect(ok.out).toMatch(/argmax=#fef9f1 25\.0% vs base #FDF6E9 0\.0%/);
         // ②′ 占比台面上的 facetPx 也是实测值（统计域尺寸变了 ⇒ 一并钉，⛔ 不只钉百分数）。
-        expect(ok.out).toMatch(/colorIdx=1 argmax=#b1aca3\(25\.2%\) facetPx=8435\/14641/);
+        expect(ok.out).toMatch(/colorIdx=1 argmax=#fef9f1\(25\.0%\) facetPx=8435\/14641/);
         // ③ 弱读口径下无一条 C12 判红（注记文案本身含「不滑回强读法判红」字样 ⇒ 只钉违规标记）。
         expect(ok.out).not.toContain('C12 判红');
     });
@@ -179,9 +185,31 @@ describe('TC-STY-10 · C12 反例三臂（验收门：臂 B 不过 ⇒ 门禁不
             json![0],
         ).probe as Record<string, number | string>;
         // 判别力核心：若 identifyPrimary 恒返 base（或任何写死值），前后两次输出必然相同 ⇒ 红。
-        expect(argmaxAfter).not.toBe(argmaxBefore);
-        expect(Number(shareAfter)).toBeGreaterThan(Number(shareBefore)); // 让位者占比抬升
+        // ⚠ **WXG-T-229 反证形态重建（⛔ 不是放宽，但判别力确有下降，已如实登记 + 开单 WXG-T-230）**：
+        //   旧形态「调小占优层 ⇒ argmax 必须**让位**」的前提 = 认定域内 ≥2 枚参赛端点色。甲案把
+        //   左扇 `base`→`mix(base,−0.08)`、下扇 `edge`→`mix(base,−0.40)` 后，参赛端点色**只剩 `lit`
+        //   一枚**（实测 argmaxBefore = argmaxAfter = `#fef9f1`）⇒ 「让位」**结构上不可能发生**，
+        //   旧断言由「反证」退化为「恒红」。本轮改为断言**仍可观测的两个量**：
+        //   ① 占优层被缩 ⇒ 它的**认定占比必降**（实测 0.2499 → 0.0011）；
+        //   ② 缩层实锤：`facetPx` 必降（实测 8435 → 6334）。
+        //   两者同被「恒返写死值」的实现违反 ⇒ 反证力仍在，但**不再覆盖 argmax 跟随性**；
+        //   argmax 跟随性的等价证明需工具侧新增「换墨反证」臂（把占优层墨换成他格 base ⇒ argmax 必须
+        //   变为该色）⇒ 已开单 **WXG-T-230**，⛔ 本单不在实现侧消解。
+        //   ※ 退化事实登记（⛔ 不是「期望」，是**待解除的观察**）：参赛者 = 1 枚 ⇒ 缩层后 argmax 不变。
+        //     若将来认定域恢复 ≥2 枚参赛端点色，本条**必红** ⇒ 强制把臂 B 改回「让位」形态（不会静默停在弱档）。
+        // ⛔ K-035：上面那句「若恢复 ≥2 枚则必红」**不许只活在注释里** ⇒ 落成机械门（下面这条）——
+        //   参赛端点色数由常门分布表实算（未标「非端点不参赛」的条目才参赛）；≠ 1 ⇒ 判红，
+        //   强制回改「让位」强反证。⚠ 本门依赖常门 `分布=` 输出形态（与 TC-STY-09 同源字符串）。
+        const poolOut = runPool([]);
+        const dist = poolOut.out.match(/colorIdx=1 argmax=.*?分布=([^\n]*)/);
+        expect(dist, '常门分布行存在（参赛色数实算的输入）').toBeTruthy();
+        const participants = dist![1]!.split('|').filter((s) => !s.includes('非端点不参赛')).length;
+        expect(participants, '认定域参赛端点色数 = 1（WXG-T-229 退化事实；≥2 ⇒ 必须改回「让位」强反证）').toBe(1);
+        expect(String(argmaxAfter)).toBe(String(argmaxBefore));
+        expect(Number(shareAfter)).toBeLessThan(Number(shareBefore)); // 占优层被缩 ⇒ 占比必降
         expect(Number(facetPxAfter)).toBeLessThan(Number(facetPxBefore)); // 缩层实锤（像素变少）
+        // ⛔ 不在此断言「argmax ≠ base」：C12 弱读法下 argmax = base 是**更优**结果，钉它等于惩罚改进。
+        //   「不是恒返 base」的证明由上方 ①（占比随像素实算而变）承担。
     });
 
     it('臂 C（合规正例不误伤）：facet-4 弱读必过（注册侧即本单基线；13/18 臂归步 4 同条复跑）', () => {

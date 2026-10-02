@@ -31,6 +31,8 @@ import {
     BEAD_CELL,
     BEAD_STYLE_MAX_ALPHA_LAYERS,
     BEAD_STYLE_MAX_COMMANDS,
+    FACET4_FACET_BOTTOM_MIX,
+    FACET4_FACET_LEFT_MIX,
     FACET4_FACET_RIGHT_MIX,
     FACET4_PLATE_MIX,
     LINEART_HOLE_STROKE_SCALE,
@@ -246,7 +248,11 @@ function facetQuadrant(p: BeadStyleLayer): Quad {
 
 /**
  * **行 7 的墨序锚（凸感唯一载体）**：按象限取出四枚刻面的墨色，与**有序序列**逐一比对。
- * 序 = 上 `lit` → 左 `base` → 右 `mix(base,−0.16)` → 下 `edge`（上亮→左本→右中暗→下暗）。
+ * 序 = 上 `lit` → 左 `mix(base, FACET4_FACET_LEFT_MIX)` → 右 `mix(base, FACET4_FACET_RIGHT_MIX)`
+ * → 下 `mix(base, FACET4_FACET_BOTTOM_MIX)`（上亮→左微暗→右中暗→下最暗）。
+ * ⚠ **WXG-T-229（2026-09-29 用户拍板「甲」）**：左扇由端点 `base` 改 `−0.08`、右扇 `−0.16→−0.22`、
+ *   下扇由端点 `edge` 改 `−0.40` ⇒ 四扇 **d 单调**（1 / 0.92 / 0.78 / 0.60）。判据期望值随之同步
+ *   （⛔ 判据钉的是真源常量，不是旧字面量）。
  */
 function assertInkOrder(
     ls: readonly BeadStyleLayer[],
@@ -461,9 +467,14 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
 
     // ── 行 3｜L1 主体｜改述（承重迁移）──────────────────────────────────
     // 旧锚：`tests:203-208`（取"第 3 条 rect = 基色"）⇒ 已改指对照臂。
-    // 新承载体：#1 `rect` 满格 `mix(base,−0.34)`（暗底兼描边，role=plate）+ #3 `polygon` = `base`。
+    // 新承载体：#1 `rect` 满格 `mix(base,−0.44)`（暗底兼描边，role=plate）+ #3 `polygon` = `base`。
     // ⛔ 层序判据不得再按位置硬锚"第 3 条 = 主体"⇒ 主体由 **role** 与 C12 占比认定法识别。
-    it('［§K.5 行 3·改述·承重迁移］主体锚点重指：plate ≠ base，base 由 facet 承载', () => {
+    // ⚠ **WXG-T-229 二次迁移（2026-09-29 用户拍板「甲」）**：四扇墨全部改为 `mix(base, k)`
+    //   （k = +0.38 lit / −0.08 左 / −0.22 右 / −0.40 下）⇒ **`base` 端点本体不再直接出现在
+    //   任何一枚 facet 上**。承载关系由「某一枚 facet = base」改述为「四枚 facet 的**共同基底**
+    //   = base，四档严格单调递减」。⛔ 这不是删判据：本行同步**加严**——新增四档单调性断言
+    //   （甲案「d 单调」的设计意图落码），并把「四扇墨 = 四档 mix(base,·) 有序序列」钉死。
+    it('［§K.5 行 3·改述·承重迁移］主体锚点重指：plate ≠ base，base 由 facet 的 mix 基底承载', () => {
         const ls = baseLayers();
         const base = beadColorOf(DEMO_BEAD_INKS, 1);
         const plates = ls.filter((l) => l.role === 'plate');
@@ -471,8 +482,20 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
         expect(plates[0]!.kind).toBe('rect');
         expect(plates[0]!.fill).toBe(mix(base, FACET4_PLATE_MIX)); // = mix(base,−0.34)（命名常量，非裸字面量）
         expect(plates[0]!.fill).not.toBe(base); // 第 1 条不是主体（旧"第 3 条 = 基色"不再成立）
-        // base 的真实承载体 = 一枚 facet（按 role 找，⛔ 不按 index 找）。
-        expect(ls.filter((l) => l.role === 'facet' && l.fill === base)).toHaveLength(1);
+        // base 的承载体（WXG-T-229 后）：**四枚 facet 全部**是 `base` 的同族 mix 派生，
+        // `base` 端点本体不再直接出现在任一扇（按 role 找，⛔ 不按 index 找）。
+        expect(ls.filter((l) => l.role === 'facet' && l.fill === base)).toHaveLength(0);
+        const e3 = endpointOf(DEMO_BEAD_INKS, 1);
+        expect(ls.filter((l) => l.role === 'facet').map((l) => l.fill)).toEqual([
+            e3.lit,
+            mix(base, FACET4_FACET_LEFT_MIX),
+            mix(base, FACET4_FACET_RIGHT_MIX),
+            mix(base, FACET4_FACET_BOTTOM_MIX),
+        ]);
+        // 四档严格单调递减（d：1 → 0.92 → 0.78 → 0.60）⇒ 甲案「光向不丢」的设计意图落码。
+        expect(FACET4_FACET_LEFT_MIX).toBeLessThan(0);
+        expect(FACET4_FACET_RIGHT_MIX).toBeLessThan(FACET4_FACET_LEFT_MIX);
+        expect(FACET4_FACET_BOTTOM_MIX).toBeLessThan(FACET4_FACET_RIGHT_MIX);
         // C12 认定域（facet 族）四色全属本格端点同族（真源 = `endpointFamily`，⛔ 不另列清单）。
         const family = new Set(endpointFamily(DEMO_BEAD_INKS, 1));
         // WXG-T-221 六裁：`circle.fill` 转可选（孔环 = stroke-only）⇒ 联合类型下 `fill` 需窄化。
@@ -482,8 +505,16 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
             .map((l) => l.fill)
             .filter((f): f is string => f !== undefined);
         expect(facetFills).toHaveLength(4);
+        // WXG-T-229：派生档由 1 枚（右）增至 3 枚（左/右/下）⇒ 候选集随真源常量扩列，
+        // ⛔ 仍不收 `family` 外的裸色（`family.has` 之外只放行这四档命名常量派生）。
+        const derived = new Set([
+            e3.lit,
+            mix(base, FACET4_FACET_LEFT_MIX),
+            mix(base, FACET4_FACET_RIGHT_MIX),
+            mix(base, FACET4_FACET_BOTTOM_MIX),
+        ]);
         for (const f of facetFills) {
-            expect(family.has(f) || f === mix(base, FACET4_FACET_RIGHT_MIX), `墨色 ${f} 越出同族`).toBe(true);
+            expect(family.has(f) || derived.has(f), `墨色 ${f} 越出同族`).toBe(true);
         }
         // 变异自证：把 plate 涂成 base（伪装"第一条就是主体"）⇒ 承重迁移登记被破，必须红。
         const mutant = ls.map((l) => (l.role === 'plate' ? { ...l, fill: base } : l));
@@ -516,44 +547,54 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
     });
 
     // ── 行 5｜L2 暗倒角·下边｜改述（kind 换，语义保）───────────────────
-    // 新承载体 = 下四分之一 `polygon`，fill = `endpoints.edge`（语义锚「下四分之一为暗端」）。
-    it('［§K.5 行 5·改述］暗端语义锚保留：下四分之一 = polygon 且 fill = endpoints.edge', () => {
+    // 新承载体 = 下四分之一 `polygon`，fill = `mix(base, FACET4_FACET_BOTTOM_MIX)`
+    //（语义锚「下四分之一为**最暗端**」保留）。
+    // ⚠ **WXG-T-229「脱钩」登记（2026-09-29）**：旧值 = 全局端点 `endpoints.edge`（−0.30）。
+    //   甲案把它改为**四棱专用** `FACET4_FACET_BOTTOM_MIX = −0.40`，目的 = 加大暗端跨度
+    //   （d：0.70 → 0.60）且**不牵动全局 `edge` 端点**（影响面覆盖槽底/B0 等）。
+    //   ⇒ 本行的正确表述由「fill = `endpoints.edge`」改述为「fill = `mix(base, 本风格下扇常量)`，
+    //   且它必须是四扇中最暗的一档」；「仍复用全局 `edge`」不再是事实，⛔ 不得照旧写。
+    it('［§K.5 行 5·改述］暗端语义锚保留：下四分之一 = polygon 且 fill = mix(base, FACET4_FACET_BOTTOM_MIX)（已脱钩全局 edge 端点）', () => {
         const ls = baseLayers();
+        const base = beadColorOf(DEMO_BEAD_INKS, 1);
         const e = endpointOf(DEMO_BEAD_INKS, 1);
         const bottom = ls.filter((l) => l.role === 'facet' && l.kind === 'polygon' && facetQuadrant(l) === 'bottom');
         expect(bottom).toHaveLength(1);
-        expect(bottom[0]!.fill).toBe(e.edge);
+        expect(bottom[0]!.fill).toBe(mix(base, FACET4_FACET_BOTTOM_MIX));
+        // 「脱钩」事实正面钉死：下扇墨**不再**是全局 `edge` 端点，但仍属 base 同族派生档。
+        expect(bottom[0]!.fill).not.toBe(e.edge);
         // 线判据不得原样沿用：本层 kind 必是 polygon，`line` 在白名单外。
         expect(bottom[0]!.kind).toBe('polygon');
         // 变异自证：下面换成亮端 ⇒ 语义锚红。
         const mutant = ls.map((l) => (l.kind === 'polygon' && facetQuadrant(l) === 'bottom' ? { ...l, fill: e.lit } : l));
         expect(() =>
-            assertInkOrder(mutant, { top: e.lit, left: beadColorOf(DEMO_BEAD_INKS, 1), right: mix(e.base, FACET4_FACET_RIGHT_MIX), bottom: e.edge }, 'facet-4'),
+            assertInkOrder(mutant, { top: e.lit, left: mix(base, FACET4_FACET_LEFT_MIX), right: mix(base, FACET4_FACET_RIGHT_MIX), bottom: mix(base, FACET4_FACET_BOTTOM_MIX) }, 'facet-4'),
         ).toThrow(/bottom 面墨色/);
     });
 
-    // ── 行 6｜L2 暗倒角·右边｜改述（⚠ 表外系数 −0.16 已归位 tuning）─────
+    // ── 行 6｜L2 暗倒角·右边｜改述（⚠ 表外系数已归位 tuning；WXG-T-229：−0.16 → −0.22）─────
     it('［§K.5 行 6·改述］右四分之一 = mix(base, FACET4_FACET_RIGHT_MIX)（系数已入 tuning，⛔ 裸字面量）', () => {
         const ls = baseLayers();
         const base = beadColorOf(DEMO_BEAD_INKS, 1);
         const right = ls.filter((l) => l.role === 'facet' && facetQuadrant(l) === 'right');
         expect(right).toHaveLength(1);
         expect(right[0]!.fill).toBe(mix(base, FACET4_FACET_RIGHT_MIX));
-        expect(FACET4_FACET_RIGHT_MIX).toBe(-0.16); // 与 §7.11.1 行 4 的表外系数同值（命名常量，非就地字面量）
-        // 变异自证：右面误用 edge（= 与下面同色）⇒ 判红（四枚墨色必须四档分明）。
+        // ⚠ WXG-T-229（用户 2026-09-29 拍板「甲」）：−0.16 → **−0.22**（d 0.84 → 0.78）。
+        expect(FACET4_FACET_RIGHT_MIX).toBe(-0.22); // 命名常量，⛔ 就地字面量
+        // 变异自证：右面误用下面同色 ⇒ 判红（四枚墨色必须四档分明）。
         const e = endpointOf(DEMO_BEAD_INKS, 1);
-        const mutant = ls.map((l) => (l.role === 'facet' && facetQuadrant(l) === 'right' ? { ...l, fill: e.edge } : l));
+        const mutant = ls.map((l) => (l.role === 'facet' && facetQuadrant(l) === 'right' ? { ...l, fill: mix(base, FACET4_FACET_BOTTOM_MIX) } : l));
         expect(() =>
-            assertInkOrder(mutant, { top: e.lit, left: base, right: mix(base, FACET4_FACET_RIGHT_MIX), bottom: e.edge }, 'facet-4'),
+            assertInkOrder(mutant, { top: e.lit, left: mix(base, FACET4_FACET_LEFT_MIX), right: mix(base, FACET4_FACET_RIGHT_MIX), bottom: mix(base, FACET4_FACET_BOTTOM_MIX) }, 'facet-4'),
         ).toThrow(/right 面墨色/);
     });
 
     // ── 行 7｜L3 亮倒角·上边｜改述：**墨序必须作有序序列断言** ──────────
-    it('［§K.5 行 7·改述］墨序有序序列 lit → base → −0.16 → edge（集合断言不足以锁序）', () => {
+    it('［§K.5 行 7·改述］墨序有序序列 lit → −0.08 → −0.22 → −0.40（集合断言不足以锁序）', () => {
         const ls = baseLayers();
         const base = beadColorOf(DEMO_BEAD_INKS, 1);
         const e = endpointOf(DEMO_BEAD_INKS, 1);
-        const expected = { top: e.lit, left: base, right: mix(base, FACET4_FACET_RIGHT_MIX), bottom: e.edge };
+        const expected = { top: e.lit, left: mix(base, FACET4_FACET_LEFT_MIX), right: mix(base, FACET4_FACET_RIGHT_MIX), bottom: mix(base, FACET4_FACET_BOTTOM_MIX) };
         expect(() => assertInkOrder(ls, expected, 'facet-4')).not.toThrow();
         // 序 = 数组绘制序也必须是 上→左→右→下（#2–#5，§7.11.1 行 2–5）。
         expect(ls.filter((l) => l.role === 'facet').map((l) => facetQuadrant(l))).toEqual(['top', 'left', 'right', 'bottom']);
@@ -561,7 +602,9 @@ describe('§K.5 十二行迁移台账（EP11-S3 四棱转正 · 逐行落点）'
         const swapped = ls.map((l) => {
             if (l.kind !== 'polygon' || l.role !== 'facet') return l;
             const q = facetQuadrant(l);
-            if (q === 'top') return { ...l, fill: e.edge };
+            // WXG-T-229：上/下真值是 `lit` 与 `mix(base, FACET4_FACET_BOTTOM_MIX)` ⇒ 互换仍**集合不变**，
+            // 只有序变（旧写法用 `e.edge` 已不再是下扇真值，会让变异臂顺带改集合 ⇒ 自证失效）。
+            if (q === 'top') return { ...l, fill: mix(base, FACET4_FACET_BOTTOM_MIX) };
             if (q === 'bottom') return { ...l, fill: e.lit };
             return l;
         });

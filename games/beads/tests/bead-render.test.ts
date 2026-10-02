@@ -33,6 +33,8 @@ import {
   BEAD_STYLE_MAX_ALPHA_LAYERS,
   BEAD_STYLE_MAX_COMMANDS,
   FACET4_EDGE_INSET_PX,
+  FACET4_FACET_BOTTOM_MIX,
+  FACET4_FACET_LEFT_MIX,
   FACET4_FACET_RIGHT_MIX,
   FACET4_PLATE_MIX,
   TRAY_SLOT,
@@ -171,7 +173,7 @@ describe('zoom 自适应 LOD 通道（ADR-0017 甲案 · 大盘手势卡顿优�
     const waveLow = beadWithPad(ZOOM_LOD_LAYERS - 3);
     expect(low).toEqual(full);
     expect(waveLow).toEqual(full);
-    // 同时钉住“不是空珠”：no-op 的前提是本臂真的画了 7 条（六裁后）。
+    // 同时钉住"不是空珠"：no-op 的前提是本臂真的画了 7 条（六裁后）。
     expect(full).toHaveLength(7);
   });
 });
@@ -198,7 +200,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       'circle', // L1c 孔内壁自阴影
       'rect', // L4′ 偏心椭圆高光（三层并档）
     ]);
-    // 符号层已删 ⇒ 不应再出现第 13 条；本例同时间接地钉住“不复活符号/不复活珠内垫”。
+    // 符号层已删 ⇒ 不应再出现第 13 条；本例同时间接地钉住"不复活符号/不复活珠内垫"。
     expect(commands).toHaveLength(12);
     expect(commands.some((c) => c.kind === 'polygon')).toBe(false);
   });
@@ -229,8 +231,8 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   });
 
   // 旧 `:132`「无 polygon」的**改述形态**（ADR-0023 M-5）：kind 白名单 + 条数上限。
-  // 拦的是“新基线里混进旧层族图元”（line / stroke-only rect / 多一枚 circle），
-  // 而不是“拦 polygon”⇒ 语义从“禁某种图元”升为“只允许可枚举集 + 不触门”。
+  // 拦的是"新基线里混进旧层族图元"（line / stroke-only rect / 多一枚 circle），
+  // 而不是"拦 polygon"⇒ 语义从"禁某种图元"升为"只允许可枚举集 + 不触门"。
   it('四棱新基线：kind 白名单 {rect,polygon,circle} + 条数 ≤ 7 + 真 α ≤ 2（旧「无 polygon」改述）', () => {
     const ALLOWED = new Set(['rect', 'polygon', 'circle']);
     for (const colorIdx of [1, 5, 10]) {
@@ -262,26 +264,40 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   });
 
   // §K.5 行 7 的**凸感唯一载体**：墨序必须是**有序序列**（集合断言不足以锁序）。
-  it('四棱新基线：刻面墨序有序序列 = lit → base → −0.16 → edge（上亮→左本→右中暗→下暗）', () => {
+  // ⚠ **WXG-T-229（2026-09-29 用户拍板「甲」）墨序改值**：左扇由端点 `base` 改 `mix(base,−0.08)`、
+  //   右扇 `−0.16→−0.22`、下扇由端点 `edge` 改 `mix(base,−0.40)` ⇒ 四扇 **d 单调**
+  //   （1 / 0.92 / 0.78 / 0.60）。判据期望值同步到新真源（⛔ 不是放宽：四档仍须互不相同且严格递减）。
+  it('四棱新基线：刻面墨序有序序列 = lit → −0.08 → −0.22 → −0.40（上亮→左微暗→右中暗→下最暗）', () => {
     const base = beadColorOf(DEMO_BEAD_INKS, 4);
     const e = endpointOf(DEMO_BEAD_INKS, 4);
     const inks = filled(4).filter((c) => c.kind === 'polygon').map((c) => (c as { fill: string }).fill);
-    expect(inks).toEqual([e.lit, e.base, mix(base, FACET4_FACET_RIGHT_MIX), e.edge]);
-    // 四档互不相同（否则“序”无意义）且都属本格端点族/同族 mix 派生（C3 零新色）。
+    expect(inks).toEqual([
+      e.lit,
+      mix(base, FACET4_FACET_LEFT_MIX),
+      mix(base, FACET4_FACET_RIGHT_MIX),
+      mix(base, FACET4_FACET_BOTTOM_MIX),
+    ]);
+    // 四档互不相同（否则"序"无意义）且都属本格端点族/同族 mix 派生（C3 零新色）。
     expect(new Set(inks).size).toBe(4);
+    // `base` 端点**本体**已不在任一扇（承重二次迁移，§K.5 行 3 同步登记）。
+    expect(inks).not.toContain(e.base);
+    expect(inks).not.toContain(e.edge);
   });
 
   // §K.5 行 3：主体锥点重指 —— base 不再由「第 3 条 rect」承载。
   it('四棱新基线：底 rect 不是主体色（承重迁移的正面登记）', () => {
     const plate = filled(1)[0]!;
     expect(plate.kind === 'rect' && plate.fill).toBe(mix(beadColorOf(DEMO_BEAD_INKS, 1), FACET4_PLATE_MIX));
-    // ⛔ 不得把“第一条 fill == base”当判据（那是已作废的 C12 强读法）。
+    // ⛔ 不得把"第一条 fill == base"当判据（那是已作废的 C12 强读法）。
     expect((plate as { fill: string }).fill).not.toBe(beadColorOf(DEMO_BEAD_INKS, 1));
-    // 左刻面才是 base 承载体（行 3 「新 3 polygon = endpoints.base」）。
+    // 左刻面是 base 的**派生载体**（行 3 「新 3 polygon = mix(base, FACET4_FACET_LEFT_MIX)」）。
+    // ⚠ WXG-T-229：左扇不再**等于** `base` 本体（改 `mix(base,−0.08)`）⇒ 承重二次迁移，
+    //   正面登记改为「= base 的同族派生档，且 ≠ base 本体」（⛔ 不是删判据）。
     const left = filled(1)[2]!;
     expect(
       left.kind === 'polygon' && left.fill,
-    ).toBe(beadColorOf(DEMO_BEAD_INKS, 1));
+    ).toBe(mix(beadColorOf(DEMO_BEAD_INKS, 1), FACET4_FACET_LEFT_MIX));
+    expect(left.kind === 'polygon' && left.fill).not.toBe(beadColorOf(DEMO_BEAD_INKS, 1));
   });
 
   // §7.11.1 几何（WXG-T-218 改版）：四向刻面 = **圆角扇**（格心 + 两段 45° 圆角弧采样），
@@ -322,7 +338,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
 
   // §K.5 行 10（红线）+ 行 11（已采甲）：**单孔语义（六裁后）= 孔域同心两枚 circle**
   //（stroke-only 环 + pit 底），孔底 = 目标色 `pit`；环/底同心 ⇒ 孔仍是一个。
-  it('四棱新基线：孔 = 同心两枚 circle（环+底）且孔底 = 目标色 pit（K3；仅“有 circle”无判别力）', () => {
+  it('四棱新基线：孔 = 同心两枚 circle（环+底）且孔底 = 目标色 pit（K3；仅"有 circle"无判别力）', () => {
     const size = 50;
     const board = emit((b) =>
       drawFilledBead(b, 100, 200, 1, { size, targetColorIdx: 3, inks: DEMO_BEAD_INKS }),
@@ -377,8 +393,8 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // 「相邻不重叠」的不共源强度判据在 `view-model.test.ts`（依 K-042：测试里不重推几何公式）。
   it('甲案（WXG-T-206）：传入缩放格距时 tile 边长随之走，中心与色档不受尺寸影响', () => {
     // 一个 z<1 档的格距。⚠ **v1.57（WXG-T-207-A）不再写死 42.4**：旧值在 32 基下已不是
-    // “缩放档”（42.4 > 32，前置断言当场红）。改为**随基尺派生的非整数比例**（取旧 52 基
-    // 14×14 盘的 fit ≈ 0.815 作比例源，仍保持“非整数值：防 `Math.round` 浑水摸鱼”的原意）。
+    // "缩放档"（42.4 > 32，前置断言当场红）。改为**随基尺派生的非整数比例**（取旧 52 基
+    // 14×14 盘的 fit ≈ 0.815 作比例源，仍保持"非整数值：防 `Math.round` 浑水摸鱼"的原意）。
     const SCALED = BEAD_PITCH * 0.815;
     const identity = emit((b) => drawTargetTile(b, 100, 200, 1))[0]!;
     const tile = emit((b) => drawTargetTile(b, 100, 200, 1, DEMO_BEAD_INKS, SCALED))[0]!;
@@ -483,16 +499,16 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     // 设计空间 y 向上 ⇒ 阴影往 +y（视觉上方）、往 −x（左）偏移。
     expect(shade.y).toBeGreaterThan(hole.y);
     expect(shade.x).toBeLessThan(hole.x);
-    // 无目标色（托盘珠）⇒ 孔底不再是目标色档；有目标色 ⇒ 两者不同。此处只钉“不越界”。
+    // 无目标色（托盘珠）⇒ 孔底不再是目标色档；有目标色 ⇒ 两者不同。此处只钉"不越界"。
     expect(holeR).toBeLessThan(size / 2);
   });
 
   // v1.5-r8：旧 §1.5「符号墨水与珠体同源」判据随 L5 符号层删除而移除（symbols.ts 已删）。
 
   // §5 抬起三通道（v1.5-r9）：投影变远变淡、接触面收窄变淡、珠体与侧壁微涨，
-  // 四个通道共用一个 `liftT` ⇒ 方向必须一致（“平移但阴影不变”就是“突兀”的根源）。
+  // 四个通道共用一个 `liftT` ⇒ 方向必须一致（"平移但阴影不变"就是"突兀"的根源）。
   // ⚠ 显式覆写（G1 包络 / §1.2 selected 的 SELECTED_SHADOW_ALPHA）**优先于 lift 衰减**，
-  //   否则本批会静默推翻“选中 = 阴影更深”的 art 语义（见 `§1.2 lift and shadow α` 例）。
+  //   否则本批会静默推翻"选中 = 阴影更深"的 art 语义（见 `§1.2 lift and shadow α` 例）。
   // ⚠ **§K.5 台账外连带（回传登记）**：本例断的四个通道里三个（阴影/接触/侧壁）只存在于
   //   十层 ⇒ 整条改指对照臂；新基线侧的 lift 行为另见下方两例。
   it('[legacy-ten] §5 lift drives shadow, contact, body and side wall from one height parameter', () => {
@@ -517,7 +533,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(at(up, 0).w).toBeLessThan(at(rest, 0).w);
     expect(alphaOf(at(up, 0))).toBe(alphaOf(at(rest, 0)));
     // L0b 投影：与主体的间距变大（离底面更远）且变淡 —— 注意不能直接比 y：
-    // 整颗珠（含主体底边）本来就被 lift 抬高了，“更远”指的是**投影与主体之间的间距**。
+    // 整颗珠（含主体底边）本来就被 lift 抬高了，"更远"指的是**投影与主体之间的间距**。
     const gap = (cmds: typeof rest): number => at(cmds, 2).y - at(cmds, 1).y;
     expect(gap(up)).toBeGreaterThan(gap(rest));
     expect(alphaOf(at(up, 1))).toBeLessThan(alphaOf(at(rest, 1)));
@@ -566,7 +582,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       }),
     );
     expect(withShadowChannels).toEqual(rest);
-    // ④ 而且 lift 不会把阴影族“买回来”：条数不变、真 α 仍为 0。
+    // ④ 而且 lift 不会把阴影族"买回来"：条数不变、真 α 仍为 0。
     expect(up).toHaveLength(rest.length);
     expect(up.some((c) => (c.alpha ?? 1) < 1)).toBe(false);
   });
@@ -783,7 +799,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
 //
 // 这四条都是「过程约束的物化」：它们约的是**换尺一批改动不得拆升**，而不是某个像素值。
 // 把它们从注释升级成断言的理由 = K-013（能机器查的不靠人记）；尤其第 ② 条，
-// 「同提交」本身无法被测，但**成对锁**可以让“只改一半”当场红。
+// 「同提交」本身无法被测，但**成对锁**可以让"只改一半"当场红。
 // ─────────────────────────────────────────────────────────────────────────────
 describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   /** 与渲染层同式的线宽地板（`bead-render` 内 `stroke()`：地板是绝对值、不随尺缩）。 */
@@ -818,7 +834,7 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   });
 
   // ② 同批性：`BEAD_DRAW_INSET` 与 `BEAD_CARD.holeRatio` **互为对冲**，必须同提交。
-  //    单条断言同时钉两值 ⇒ “只改一个”必红（把「同提交」变成机器可查的成对锁）。
+  //    单条断言同时钉两值 ⇒ "只改一个"必红（把「同提交」变成机器可查的成对锁）。
   //    ⚠ 本例**故意复述两个数字**：它们不是 §3 镜像，而是「成对」这个约束的载体；
   //    任一值换档必须与另一值同批，并同步本行（正本 = assets-spec §1.10.2 / §1.10.4）。
   it('② 同批性：BEAD_DRAW_INSET 与 holeRatio 成对（WXG-T-221 七裁锁定值 2 / 0.44）', () => {
@@ -836,8 +852,8 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
 
   // ③ inset 作用域：仅作用于**传 `targetColorIdx` 的盘面珠**；托盘珠恒 0。
   // ⚠ **两臂共有**：`inset` 在渲染侧算进 `size` 后才是风格入参 ⇒ 本例**双臂都跑**
-  //   （旧只钉十层一条腿，新基线上静默失效 = 净放宽）；取“第一条 rect”作珠体外缘代理：
-  //   新基线 #1 = plate rect、旧臂 L0b/L1 与之同宽（⛔ 不再按位置硬锚“第 3 条 = 主体”，§K.5 行 3）。
+  //   （旧只钉十层一条腿，新基线上静默失效 = 净放宽）；取"第一条 rect"作珠体外缘代理：
+  //   新基线 #1 = plate rect、旧臂 L0b/L1 与之同宽（⛔ 不再按位置硬锚"第 3 条 = 主体"，§K.5 行 3）。
   it('③ inset 作域：仅盘面珠内缩，托盘珠（无 targetColorIdx）恒满幅（双臂）', () => {
     const bodyW = (cs: ReturnType<typeof emit>): number => {
       const c = cs.find((x) => x.kind === 'rect');
