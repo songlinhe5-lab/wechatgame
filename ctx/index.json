@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3670,
       "lines": 133,
-      "sha256": "9441012d474a95a8e41c8b3ec9244797c178b592c0741dec9a4293759b304561",
+      "sha256": "2c1596c05eaace21cc69709dc7bab79f460b6a6842e0e177598344ed865dabdd",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5014,
       "lines": 106,
-      "sha256": "ec4f0cc060385dcde89a3d3fa1aba9298978aaf71937e0df37af13b9d0765960",
+      "sha256": "ad7321de04e9d8a8ad5557f8fdffba56dd8b9034193b75cc9ed71e035720f57f",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 70 行 / 12554 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 70 行 / 12600 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 839 行 / 45398 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 850 行 / 45809 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 252,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+840 · §WXG-T-179=18+78 · §WXG-T-184",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+851 · §WXG-T-179=18+78 · §WXG-T-184",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -68165,17 +68165,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 45398,
-      "lines": 839,
-      "sha256": "4eae0f8cb3775f4acd6f92c58a34149dfa51efe27a8edc0b8c05de0e48d47673",
+      "tokens": 45809,
+      "lines": 850,
+      "sha256": "74816471b6968b48711565a0b37156df84600286ea86a99c9fae2b903be0c1dd",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 840,
-          "tokens": 45381,
+          "endLine": 851,
+          "tokens": 45792,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -68847,8 +68847,8 @@
           "anchor": "§状态与影响",
           "level": 2,
           "startLine": 819,
-          "endLine": 840,
-          "tokens": 636,
+          "endLine": 851,
+          "tokens": 1047,
           "summary": "本单只立项、不落码；4 红维持原样，不因「看着像小事」就随手改数。",
           "keywords": [
             "状态与影响"
@@ -68858,7 +68858,7 @@
           "anchor": "§A 类处置落码（用户 2026-10-02 拍板「A」，2026-10-02 实施）",
           "level": 3,
           "startLine": 825,
-          "endLine": 840,
+          "endLine": 839,
           "tokens": 465,
           "summary": "前置已查清（结论对「只改值」不利，故同批加了门禁）：systems-index §3 该行明写本值「随表走 = 当前关数",
           "keywords": [
@@ -68869,14 +68869,30 @@
             "用户",
             "拍板"
           ]
+        },
+        {
+          "anchor": "§B 类处置落码（用户 2026-10-02 拍板「乙」）",
+          "level": 3,
+          "startLine": 840,
+          "endLine": 851,
+          "tokens": 393,
+          "summary": "选项落地：tests/levels-dir-pipeline.test.ts ① 由「常跑不变量」降级为 it.skip",
+          "keywords": [
+            "tests",
+            "levels",
+            "dir",
+            "pipeline",
+            "test",
+            "skip"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 12554,
+      "tokens": 12600,
       "lines": 70,
-      "sha256": "1ee3c7acc6f10549f78187e4c9194d80fa2eb9bdf814596e23164127a21a8d2a",
+      "sha256": "9e55bfbd8c1712f7288c79079e8a12d07062215e783799bc5be757f1176a6511",
       "tier": "hot",
       "sections": [
         {
@@ -68884,7 +68900,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 71,
-          "tokens": 12546,
+          "tokens": 12591,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
