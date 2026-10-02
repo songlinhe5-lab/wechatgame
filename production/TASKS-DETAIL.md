@@ -779,3 +779,45 @@
 - 处置：本单只登记缺陷与归因（已在 `provenance.s3_frame_recheck_6` 与 QA `K.5.1-补6` 落账）；**根治措施待裁**（候选：封箱腿对「未走复评的整帧漂移」自动报警 / 收口清单加「视觉批必配复评」门禁）⇒ 归主理人。
 
 **台账**：`WXG-T-229` 复评小节已记 ① 的读数与 ② 的归因；本单为其执行入口。
+
+## WXG-T-231
+
+**beads·关卡存量 4 红立项（`DEMO_LEVEL_COUNT` 漂移 + 关卡快照判据过期）** — 2026-10-02 主理人（CodeBuddy）立项，**先确诊后建档**（不凭推测写单）。
+
+## 现象与读数（`pnpm --filter @wxgame/beads run test`）
+
+736 例 / **4 红**，长期使 `pnpm run verify` 的 `test` 项 FAIL（常态 PASS 16 / SKIP 1 / **FAIL 1**）：
+
+| # | 用例 | 断言失败 |
+|---|---|---|
+| 1 | `tests/levels.test.ts` › BOOT validator › *accepts a well-formed level and every shipped level* | `expected LEVELS toHaveLength(8) but got 9` |
+| 2 | `tests/misplaced-assembler.test.ts` › *MVP·全部出货关全错位初盘数据全过 BOOT* | 同上（`8 → 9`） |
+| 3 | `tests/level-import.test.ts` › WXG-T-179 主菜单「导入」钮接线 | `expected 10 to be 9`（导入前 9 关 + 导入 1 = 10，而断言按 8+1=9 推） |
+| 4 | `tests/levels-dir-pipeline.test.ts` › P1 目录化真源不变量 › *产物数据体逐字节等于迁移前快照* | 产物 `src/config/levels-data.ts` ≠ `tests/__fixtures__/levels-body.snapshot` |
+
+## 根因（两类，**不是一个 bug**）
+
+**A 类 · 冻结常量漂移（3 条红，同一根因）**
+- `config/tuning.ts::DEMO_LEVEL_COUNT = 8`，而 `design/levels/manifest.json` 实为 **9 关**（`contentVersion 21`、order 1..9 连续、uid 唯一）。
+- 变更源 = **`81b08ed`（WXG-T-203「关卡表 pre-release 全量重置，uid 序号改 5 位」，已入库且是 HEAD 祖先）** ⇒ 8→9 关时**未同步该常量**。
+- ⛔ 不是笔误而是**已知耦合**：`DEMO_LEVEL_COUNT` 的常量注释自陈「再入/再移出关时本值需同步改，否则 `levels.test` / `misplaced-assembler.test` / `level-import.test` **三处断言即红**」⇒ 本红是这套耦合的第一次真实兑现。
+
+**B 类 · 判据语义过期（1 条红）**
+- `levels-dir-pipeline.test.ts` ① 的设计目的是**证明 P1 目录化迁移那一刀零行为漂移**（快照 = 迁移当时的数据体）。
+- 关表在 P1 之后被**合法变更**（8→9 关）⇒ 该断言按设计**每次内容变更都会红** ⇒ 它锁的是**历史事件**，却被当作**持续不变量**使用。
+- 同文件 ②③（`schemaVersion` 冻结 / manifest order·uid·引用齐全）仍是**活的结构不变量**，未受影响。
+
+## 待裁（⛔ 工程侧不代拍）
+
+**A 类修法**（机械一行，但值须确认）：`DEMO_LEVEL_COUNT` **8 → 9**。⚠ 前置确认：9 关是 pre-release 全量重置后的**终态**还是**中途态**（若后续还要入关，同类漂移会复发 ⇒ 建议同时裁「关数变化 ⇒ 常量必须同批同步」的门禁或把该断言改成读 manifest 长度）。
+
+**B 类处置**（三选一，属判据语义域）：
+- **甲**：重取快照（快，但**永久失去**「P1 迁移零漂移」的证据力 ⇒ 不推荐）；
+- **乙**：① 降级为一次性历史断言（移入 `T-185` 归档段 + `[T-185 迁移期]` 标注），持续不变量交给 ②③（同文件已有）；
+- **丙**：乙 + 把「关表内容变更 ⇒ 快照同步」写进关卡内容管线的收口清单（防同类复发）。
+
+## 状态与影响
+
+- 本单**只立项、不落码**；4 红维持原样，不因「看着像小事」就随手改数。
+- 影响面：① `verify::test` 长期 FAIL ⇒ **绿线不可信**（K-089 同族：守卫/断言长期红会让人对整条门禁脱敏）；② 阻塞任何以「beads 全绿」为前置的验收（如 T-226 落码批的回归门）。
+- 与本单无关、**不得混计**：WXG-T-229 复评后的 11 红已于 `565fa28` 全部转绿（剩 4 红即本单）。
