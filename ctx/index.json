@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3670,
       "lines": 133,
-      "sha256": "2c1596c05eaace21cc69709dc7bab79f460b6a6842e0e177598344ed865dabdd",
+      "sha256": "7fd9424b6db0bdc014c0c6d63667907bf3e889fdc1907d1a3d391e9ae3b26bbd",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5014,
       "lines": 106,
-      "sha256": "ad7321de04e9d8a8ad5557f8fdffba56dd8b9034193b75cc9ed71e035720f57f",
+      "sha256": "a1c8fb05e3ff6b4a84ce9697aebfba303124abfa2c766ffb3844050921ddbcf5",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 70 行 / 12600 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 70 行 / 12645 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 850 行 / 45809 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 867 行 / 46763 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 252,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+851 · §WXG-T-179=18+78 · §WXG-T-184",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+868 · §WXG-T-179=18+78 · §WXG-T-184",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -9710,6 +9710,268 @@
             "view",
             "palette",
             "L260"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0029-beads-tint-mask-pipeline-adoption.md",
+      "tokens": 3161,
+      "lines": 135,
+      "sha256": "6fc51c5a35fad354f5b9f7105a4af41cfe2e0f08af0ccb41524687a41dce13ef",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§ADR-0029 — 豆面/格面 tint mask 正式管线接入（载体 / 孔底 / 真源 / 档位四决策）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 136,
+          "tokens": 3129,
+          "summary": "状态：Accepted（Q1–Q5 已由用户 2026-10-02 逐项拍板；落码分批交付，载体一批延后）",
+          "keywords": [
+            "ADR",
+            "tint",
+            "mask",
+            "Accepted",
+            "豆面",
+            "格面"
+          ]
+        },
+        {
+          "anchor": "§0 结论一句话",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 15,
+          "tokens": 141,
+          "summary": "本批只落「命令层 + Canvas2D/harness」，Cocos 生产通道暂不接 tint（载体决策推迟到有真机帧时",
+          "keywords": [
+            "Canvas2D",
+            "harness",
+            "Cocos",
+            "tint",
+            "结论一句话"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 39,
+          "tokens": 538,
+          "summary": "",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§1.1 要解决的问题",
+          "level": 3,
+          "startLine": 18,
+          "endLine": 25,
+          "tokens": 205,
+          "summary": "WXG-T-226 的目标是把已定稿的 tint mask（有孔 v1.1 / 无孔 v1.0-holeless）接入正",
+          "keywords": [
+            "WXG",
+            "tint",
+            "mask",
+            "holeless",
+            "要解决的问题"
+          ]
+        },
+        {
+          "anchor": "§1.2 为什么载体不能一次拍死",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 39,
+          "tokens": 312,
+          "summary": "方案件原推荐「整盘单图元 + effect」（+1 draw call）。2026-09-29 的 Cocos 探针进展",
+          "keywords": [
+            "effect",
+            "draw",
+            "call",
+            "Cocos",
+            "为什么载体不",
+            "能一次拍死"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案与裁决（用户 2026-10-02 逐项拍板）",
+          "level": 2,
+          "startLine": 40,
+          "endLine": 51,
+          "tokens": 240,
+          "summary": "Q1 Cocos 侧载体 ① 整盘单图元 ② Sprite 池 ③ 分块带状 ④ 本批只落命令层 + Canvas2D ",
+          "keywords": [
+            "Cocos",
+            "Sprite",
+            "Canvas2D",
+            "备选方案与裁",
+            "用户",
+            "逐项拍板"
+          ]
+        },
+        {
+          "anchor": "§3 决定（Decision）",
+          "level": 2,
+          "startLine": 52,
+          "endLine": 85,
+          "tokens": 942,
+          "summary": "",
+          "keywords": [
+            "Decision",
+            "决定"
+          ]
+        },
+        {
+          "anchor": "§DEC-1 · 载体：本批 = 命令层 + Canvas2D/harness；Cocos 生产仍走矢量",
+          "level": 3,
+          "startLine": 54,
+          "endLine": 58,
+          "tokens": 166,
+          "summary": "本批交付面：bake-recipes 改产 d/l mask（spec + 场计算）+ 运行时双臂注入（命中 ⇒ tin",
+          "keywords": [
+            "DEC",
+            "Canvas2D",
+            "harness",
+            "Cocos",
+            "bake",
+            "recipes"
+          ]
+        },
+        {
+          "anchor": "§DEC-2 · 孔底：接受定稿 v1.1（与 studio 定稿同构）",
+          "level": 3,
+          "startLine": 59,
+          "endLine": 64,
+          "tokens": 191,
+          "summary": "tint 臂下孔区真透 ⇒ 透出下层 B0 tile（本格 edge = mix(base, −0.30) = 0.70",
+          "keywords": [
+            "DEC",
+            "studio",
+            "tint",
+            "tile",
+            "edge",
+            "mix"
+          ]
+        },
+        {
+          "anchor": "§DEC-3 · 生成器真源：丙·渐进（不放弃 DEC-4 同源）",
+          "level": 3,
+          "startLine": 65,
+          "endLine": 69,
+          "tokens": 142,
+          "summary": "现状：studio 服务端跑定稿 py 出图（单一真源、零移植）——保留该链路用于资产产出。",
+          "keywords": [
+            "DEC",
+            "studio",
+            "生成器真源",
+            "渐进",
+            "不放弃",
+            "同源"
+          ]
+        },
+        {
+          "anchor": "§DEC-4 · 档位与 dpr：128px 定档 + 高倍段回矢量（⛔ 仍禁运行时放大）",
+          "level": 3,
+          "startLine": 70,
+          "endLine": 75,
+          "tokens": 148,
+          "summary": "128px 是当前唯一烘焙档（BAKE_CANONICAL_SIZE / 定稿脚本 128 输出）。",
+          "keywords": [
+            "DEC",
+            "dpr",
+            "BAKE_CANONICAL_SIZE",
+            "档位与",
+            "定档",
+            "高倍段回矢量"
+          ]
+        },
+        {
+          "anchor": "§DEC-5 · 白名单与回退：未命中一律矢量回退",
+          "level": 3,
+          "startLine": 76,
+          "endLine": 79,
+          "tokens": 83,
+          "summary": "maskId = 白名单(kind, gauge, styleId) 返回 undefined ⇒ 矢量臂（逐字节 = ",
+          "keywords": [
+            "DEC",
+            "maskId",
+            "kind",
+            "gauge",
+            "styleId",
+            "undefined"
+          ]
+        },
+        {
+          "anchor": "§DEC-6 · 灰度 mask 编码沿用 ADR-0028 §2.1（WXG-T-229 已落盘的实测定稿）",
+          "level": 3,
+          "startLine": 80,
+          "endLine": 85,
+          "tokens": 69,
+          "summary": "R = d / G = l / B = 形状 / A = 255（A 恒满幅免疫 Trim）；合成 rgb = base",
+          "keywords": [
+            "§2.1",
+            "DEC",
+            "mask",
+            "ADR",
+            "WXG",
+            "Trim"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 86,
+          "endLine": 103,
+          "tokens": 323,
+          "summary": "正面",
+          "keywords": [
+            "Consequences",
+            "后果"
+          ]
+        },
+        {
+          "anchor": "§5 判据与门禁连锁",
+          "level": 2,
+          "startLine": 104,
+          "endLine": 115,
+          "tokens": 209,
+          "summary": "TC-TINT-12（≈T1' 静态等价） 阻塞项从「D1 未修」转为「D1 已修（WXG-T-229）+ 未落码」⇒ ",
+          "keywords": [
+            "TINT",
+            "WXG",
+            "判据与门禁连"
+          ]
+        },
+        {
+          "anchor": "§6 复评触发条件（Review Triggers）",
+          "level": 2,
+          "startLine": 116,
+          "endLine": 125,
+          "tokens": 193,
+          "summary": "1. T3'/T4' 真机数据到位（命令带宽账 / 低端机帧时间）或显存实测 ⇒ 触发 DEC-1 载体形态裁决（① v",
+          "keywords": [
+            "Review",
+            "Triggers",
+            "DEC",
+            "复评触发条件"
+          ]
+        },
+        {
+          "anchor": "§7 开工序（引用 EP-12，本批范围）",
+          "level": 2,
+          "startLine": 126,
+          "endLine": 136,
+          "tokens": 195,
+          "summary": "S1 makeBeadRecipe / makeCellRecipe 改产 d/l mask（spec 化 + 场计算）",
+          "keywords": [
+            "makeBeadRecipe",
+            "makeCellRecipe",
+            "mask",
+            "spec",
+            "开工序",
+            "引用"
           ]
         }
       ]
@@ -68165,17 +68427,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 45809,
-      "lines": 850,
-      "sha256": "74816471b6968b48711565a0b37156df84600286ea86a99c9fae2b903be0c1dd",
+      "tokens": 46763,
+      "lines": 867,
+      "sha256": "34ed0a9e1fa3899a7efbacf5934f9610c224fb0f0957a9c153cdfc4f535bbef7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 851,
-          "tokens": 45792,
+          "endLine": 868,
+          "tokens": 46746,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -68729,8 +68991,8 @@
           "anchor": "§WXG-T-226",
           "level": 2,
           "startLine": 724,
-          "endLine": 738,
-          "tokens": 594,
+          "endLine": 755,
+          "tokens": 1548,
           "summary": "beads·豆面/格面正式管线落地（tint+mask 运行时渲染 + bake recipe 改产 d/l mask）",
           "keywords": [
             "WXG",
@@ -68742,10 +69004,26 @@
           ]
         },
         {
+          "anchor": "§Q1–Q5 拍板与 ADR-0029 落盘（2026-10-02，用户逐项裁决）",
+          "level": 3,
+          "startLine": 740,
+          "endLine": 755,
+          "tokens": 932,
+          "summary": "裁决：Q1 ④（本批只落命令层 + Canvas2D，Cocos 载体另批）· Q2 ①（接受定稿 v1.1：孔真透 ⇒",
+          "keywords": [
+            "ADR",
+            "Canvas2D",
+            "Cocos",
+            "拍板与",
+            "落盘",
+            "用户逐项裁决"
+          ]
+        },
+        {
           "anchor": "§WXG-T-227",
           "level": 2,
-          "startLine": 739,
-          "endLine": 754,
+          "startLine": 756,
+          "endLine": 771,
           "tokens": 671,
           "summary": "beads·tint mask 资产规格（入库/命名/包体预算/双档位） — 林绘澄（art-director），P1。",
           "keywords": [
@@ -68760,8 +69038,8 @@
         {
           "anchor": "§WXG-T-228",
           "level": 2,
-          "startLine": 755,
-          "endLine": 767,
+          "startLine": 772,
+          "endLine": 784,
           "tokens": 514,
           "summary": "beads·tint 正式管线验收判据（用例 + G 门挂载） — 严守真（quality-lead），P1 reado",
           "keywords": [
@@ -68776,8 +69054,8 @@
         {
           "anchor": "§WXG-T-230",
           "level": 2,
-          "startLine": 768,
-          "endLine": 782,
+          "startLine": 785,
+          "endLine": 799,
           "tokens": 568,
           "summary": "C12 判别力退化处置 + 731100c 未走复评通道的纪律缺陷（2026-09-29 由 WXG-T-229 第六次",
           "keywords": [
@@ -68788,8 +69066,8 @@
         {
           "anchor": "§WXG-T-231",
           "level": 2,
-          "startLine": 783,
-          "endLine": 786,
+          "startLine": 800,
+          "endLine": 803,
           "tokens": 59,
           "summary": "beads·关卡存量 4 红立项（DEMO_LEVEL_COUNT 漂移 + 关卡快照判据过期） — 2026-10-0",
           "keywords": [
@@ -68801,8 +69079,8 @@
         {
           "anchor": "§现象与读数（`pnpm --filter @wxgame/beads run test`）",
           "level": 2,
-          "startLine": 787,
-          "endLine": 797,
+          "startLine": 804,
+          "endLine": 814,
           "tokens": 225,
           "summary": "736 例 / 4 红，长期使 pnpm run verify 的 test 项 FAIL（常态 PASS 16 / S",
           "keywords": [
@@ -68817,8 +69095,8 @@
         {
           "anchor": "§根因（两类，**不是一个 bug**）",
           "level": 2,
-          "startLine": 798,
-          "endLine": 809,
+          "startLine": 815,
+          "endLine": 826,
           "tokens": 356,
           "summary": "A 类 · 冻结常量漂移（3 条红，同一根因）",
           "keywords": [
@@ -68831,8 +69109,8 @@
         {
           "anchor": "§待裁（⛔ 工程侧不代拍）",
           "level": 2,
-          "startLine": 810,
-          "endLine": 818,
+          "startLine": 827,
+          "endLine": 835,
           "tokens": 250,
           "summary": "A 类修法（机械一行，但值须确认）：DEMO_LEVEL_COUNT 8 → 9。⚠ 前置确认：9 关是 pre-rel",
           "keywords": [
@@ -68846,8 +69124,8 @@
         {
           "anchor": "§状态与影响",
           "level": 2,
-          "startLine": 819,
-          "endLine": 851,
+          "startLine": 836,
+          "endLine": 868,
           "tokens": 1047,
           "summary": "本单只立项、不落码；4 红维持原样，不因「看着像小事」就随手改数。",
           "keywords": [
@@ -68857,8 +69135,8 @@
         {
           "anchor": "§A 类处置落码（用户 2026-10-02 拍板「A」，2026-10-02 实施）",
           "level": 3,
-          "startLine": 825,
-          "endLine": 839,
+          "startLine": 842,
+          "endLine": 856,
           "tokens": 465,
           "summary": "前置已查清（结论对「只改值」不利，故同批加了门禁）：systems-index §3 该行明写本值「随表走 = 当前关数",
           "keywords": [
@@ -68873,8 +69151,8 @@
         {
           "anchor": "§B 类处置落码（用户 2026-10-02 拍板「乙」）",
           "level": 3,
-          "startLine": 840,
-          "endLine": 851,
+          "startLine": 857,
+          "endLine": 868,
           "tokens": 393,
           "summary": "选项落地：tests/levels-dir-pipeline.test.ts ① 由「常跑不变量」降级为 it.skip",
           "keywords": [
@@ -68890,9 +69168,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 12600,
+      "tokens": 12645,
       "lines": 70,
-      "sha256": "9e55bfbd8c1712f7288c79079e8a12d07062215e783799bc5be757f1176a6511",
+      "sha256": "9ca95b3a841816d257209a2ec6951e69d1ab58ca8dcc8f615a235a69db6e0a82",
       "tier": "hot",
       "sections": [
         {
@@ -68900,7 +69178,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 71,
-          "tokens": 12591,
+          "tokens": 12636,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
