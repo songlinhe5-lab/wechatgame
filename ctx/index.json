@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "6ff6087dae72e5e5becbf72ac2f56590bfcc602a616b45c537e913eeb856f072",
+      "sha256": "88dd9e43bbb08284ea7d2451747a7151e83b25f6287a99a170f52360cd6bf2fa",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5105,
+      "tokens": 5111,
       "lines": 86,
-      "sha256": "21028d142190139dd75b3ac431e42c01cb9b4f4dc333cd1c0327a404b15a9170",
+      "sha256": "7d35c520dc6f68f8f4305eaca125c8e5051f6c15a623d81a6ddca8771fff8554",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 5077,
+          "tokens": 5083,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 19693 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 77 行 / 19887 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+77 · §待排（backlog，无号，立项时领取）=50+28",
+          "summary": "§WXG 任务台账（SSOT）=1+78 · §待排（backlog，无号，立项时领取）=51+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 2051 行 / 76149 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 2121 行 / 77365 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 1035,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2052 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 1040,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2122 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 3937,
-      "lines": 133,
-      "sha256": "a1dd28a1fbad787eee46194389c8e79c39b1e8436da057626ab258acf44a78e0",
+      "tokens": 4841,
+      "lines": 162,
+      "sha256": "9450709a76851b05b9f36f7d54996b2c8f12fc6cba3d6b904e7f488501b2c225",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 134,
-          "tokens": 3934,
+          "endLine": 163,
+          "tokens": 4838,
           "summary": "",
           "keywords": []
         },
@@ -50248,6 +50248,21 @@
             "外扩必要性实",
             "不能去掉"
           ]
+        },
+        {
+          "anchor": "§WXG-T-239：首屏引导（GAP-03/04）留档 + 实现屏蔽",
+          "level": 3,
+          "startLine": 135,
+          "endLine": 163,
+          "tokens": 885,
+          "summary": "用户裁：「先把新手引导留档，实现上先屏蔽掉，后期统一调整」。",
+          "keywords": [
+            "WXG",
+            "GAP",
+            "首屏引导",
+            "留档",
+            "实现屏蔽"
+          ]
         }
       ]
     },
@@ -50255,7 +50270,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "2b3237efa55537bdb695a43f3ebd6cd72dbf6555b606052e104a69f275cf6802",
+      "sha256": "3b58af4dc591643818eada162145c508661b2e0fbcc7344e61d82b13fe82143f",
       "tier": "normal",
       "sections": [
         {
@@ -50346,7 +50361,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 3,937 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 4,841 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70365,17 +70380,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 76149,
-      "lines": 2051,
-      "sha256": "dfec66905f40f896ed9149aed068236ade1e1dca6b5f0cc6eab054929eb15d03",
+      "tokens": 77365,
+      "lines": 2121,
+      "sha256": "80bbabb70c546d7da70dc75a5d935a1fe66b8899f941d32c1ac2585d11e83c24",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 2052,
-          "tokens": 76132,
+          "endLine": 2122,
+          "tokens": 77348,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71889,22 +71904,142 @@
             "bead",
             "tint"
           ]
+        },
+        {
+          "anchor": "§WXG-T-239",
+          "level": 2,
+          "startLine": 2053,
+          "endLine": 2122,
+          "tokens": 1213,
+          "summary": "beads·首屏引导（GAP-03/04）留档 + 实现屏蔽 — 2026-10-04 用户裁「先把新手引导留档，实现上",
+          "keywords": [
+            "WXG",
+            "beads",
+            "GAP"
+          ]
+        },
+        {
+          "anchor": "§落码（一处开关）",
+          "level": 3,
+          "startLine": 2059,
+          "endLine": 2074,
+          "tokens": 136,
+          "summary": "beads-game.ts 新增 private static readonly ONBOARDING_ENABLED ",
+          "keywords": [
+            "beads",
+            "game",
+            "private",
+            "static",
+            "readonly",
+            "ONBOARDING_ENABLED"
+          ]
+        },
+        {
+          "anchor": "§用户看到的「闪烁蓝框」是什么",
+          "level": 3,
+          "startLine": 2075,
+          "endLine": 2081,
+          "tokens": 124,
+          "summary": "drawStateRing（圆角方框描边 lineWidth 2）+ palette.hintBlue（#3D7BF5）",
+          "keywords": [
+            "drawStateRing",
+            "lineWidth",
+            "palette",
+            "hintBlue",
+            "D7BF5",
+            "用户看到的"
+          ]
+        },
+        {
+          "anchor": "§留档（⛔ 明确没动的）",
+          "level": 3,
+          "startLine": 2082,
+          "endLine": 2088,
+          "tokens": 94,
+          "summary": "规格一字未删：ux-spec §6.3 GAP-03/04 原样保留",
+          "keywords": [
+            "§6.3",
+            "spec",
+            "GAP",
+            "留档",
+            "明确没动的"
+          ]
+        },
+        {
+          "anchor": "§⚠ 恢复时必须知道的两件事",
+          "level": 3,
+          "startLine": 2089,
+          "endLine": 2097,
+          "tokens": 187,
+          "summary": "1. 屏蔽期首次落子照旧写 onboarded: true ⇒ 恢复后老玩家不会看到引导（本身合理：引导只给新玩家）",
+          "keywords": [
+            "onboarded",
+            "true",
+            "恢复时必须知",
+            "道的两件事"
+          ]
+        },
+        {
+          "anchor": "§测试口径变更（四处，均为前提被推翻 ⇒ 改写不删）",
+          "level": 3,
+          "startLine": 2098,
+          "endLine": 2109,
+          "tokens": 285,
+          "summary": "feedback-vfx 首玩腿 onboarding === true + 有蓝环 屏蔽态：onboarding ==",
+          "keywords": [
+            "feedback",
+            "vfx",
+            "onboarding",
+            "true",
+            "测试口径变更",
+            "四处"
+          ]
+        },
+        {
+          "anchor": "§⚠ headless 未能复现「闪烁」（如实记录）",
+          "level": 3,
+          "startLine": 2110,
+          "endLine": 2117,
+          "tokens": 175,
+          "summary": "屏蔽前后各截一张对比：蓝色像素 1270 → 1270（完全相同） ⇒ 该 harness 存档本就",
+          "keywords": [
+            "headless",
+            "harness",
+            "未能复现",
+            "闪烁",
+            "如实记录"
+          ]
+        },
+        {
+          "anchor": "§门禁",
+          "level": 3,
+          "startLine": 2118,
+          "endLine": 2122,
+          "tokens": 36,
+          "summary": "beads 774 绿 + 1 skipped · framework 421 / breakout 239 绿 · v",
+          "keywords": [
+            "beads",
+            "skipped",
+            "framework",
+            "breakout",
+            "门禁"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 19693,
-      "lines": 76,
-      "sha256": "31e5187c4bf3e57996320655dfc5b3f5b22601a8c1e3f16c2906c4fad1021d6c",
+      "tokens": 19887,
+      "lines": 77,
+      "sha256": "2059ac95a3e947db49af7a4fcee2131f89907e9c55fa24694515dc5a2c7fb411",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 77,
-          "tokens": 19684,
+          "endLine": 78,
+          "tokens": 19879,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -71917,8 +72052,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 50,
-          "endLine": 77,
+          "startLine": 51,
+          "endLine": 78,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

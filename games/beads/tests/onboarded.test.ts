@@ -43,16 +43,24 @@ describe('WXG-T-097 BD-32 显式引导标记', () => {
     expect(h.game.snapshot.onboarding).toBe(false);
   });
 
-  it('v2 存量档迁移：runs=0（从未玩过）⇒ onboarded=false（保留引导）', () => {
+  // ⚠ [WXG-T-239 · 2026-10-04 用户裁「先把新手引导留档，实现上先屏蔽掉，后期统一调整」]
+  //    `ONBOARDING_ENABLED = false` ⇒ `onboarding`（**显示**标志）恒 false ⇒ 原断言 `true` 前提被推翻。
+  // ⇒ 改双重断言：**迁移结果正确**（存档 `onboarded === false`，即该玩家仍属「未引导」）
+  //   + **显示层已被开关屏蔽**（`onboarding === false`）。
+  // ⚠ 恢复引导（开关置 true）时本腿应改回 `expect(onboarding).toBe(true)`。
+  it('v2 存量档迁移：runs=0（从未玩过）⇒ 存档 onboarded=false（未引导）；显示层当前被开关屏蔽', () => {
     storage.set(SAVE_KEY, JSON.stringify(v2Doc(0)));
     const h = createBeadsHarness({
       noAssemble: true,
-      levels: [simpleTestLevel()],
-      saveKey: SAVE_KEY,
-      storage,
+            levels: [simpleTestLevel()],
+            saveKey: SAVE_KEY,
+            storage,
     });
     h.advance(1 / 60);
-    expect(h.game.snapshot.onboarding).toBe(true);
+    // ① 迁移结果（**真正的被测对象**，不受屏蔽影响）
+    expect(JSON.parse(String(storage.get(SAVE_KEY)))['onboarded']).toBe(false);
+    // ② 显示层：屏蔽中
+    expect(h.game.snapshot.onboarding).toBe(false);
   });
 
   it('BD-32 病灶回归：首玩 BOOT（runs 自增落盘）后、**落子前**杀进程 ⇒ 重启引导仍在', () => {
@@ -64,7 +72,9 @@ describe('WXG-T-097 BD-32 显式引导标记', () => {
       storage,
     });
     first.advance(1 / 60);
-    expect(first.game.snapshot.onboarding).toBe(true);
+    // [WXG-T-239] 引导显示已屏蔽 ⇒ 断言口径改为「**存档标记**仍为未引导」（本腿真正被测对象）。
+    expect(first.game.snapshot.onboarding).toBe(false);
+    expect(JSON.parse(String(storage.get(SAVE_KEY)))['onboarded']).toBe(false);
     // ——此处「杀进程」：同一 storage 开新 harness（旧实例弃用，不落子）。
     const second = createBeadsHarness({
       noAssemble: true,
@@ -73,8 +83,12 @@ describe('WXG-T-097 BD-32 显式引导标记', () => {
       storage,
     });
     second.advance(1 / 60);
-    // 旧判定 runs>0 会在此 false（永久失引导）；显式标记下引导仍在。
-    expect(second.game.snapshot.onboarding).toBe(true);
+    // 旧判定 runs>0 会在此 false（永久失引导）；显式标记下**存档仍标记「未引导」**。
+    // [WXG-T-239] 引导显示已被 `ONBOARDING_ENABLED = false` 屏蔽 ⇒ 断言改看**存档标记**
+    //   （本腿真正被测对象：BD-32 的「BOOT 自增 runs 不得吃掉引导」）。
+    // ⚠ 恢复引导时本行应改回 `expect(second.game.snapshot.onboarding).toBe(true)`。
+    expect(JSON.parse(String(storage.get(SAVE_KEY)))['onboarded']).toBe(false);
+    expect(second.game.snapshot.onboarding).toBe(false);
   });
 
   it('首次落子置标记并落盘 ⇒ 重启不再见引导', () => {

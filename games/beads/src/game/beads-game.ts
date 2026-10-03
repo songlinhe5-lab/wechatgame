@@ -412,6 +412,35 @@ export class BeadsGame implements Game {
     elapsedMs: number;
   } | null = null;
   /** 首屏引导已完成（老玩家 BOOT 即 true；首次玩家首次落子后置 true）。一置不再重现。 */
+  /**
+   * **[WXG-T-239 · 2026-10-04 用户裁「先把新手引导留档，实现上先屏蔽掉，后期统一调整」]**
+   * GAP-03/04 首屏引导**总开关 —— 当前 = `false`（屏蔽显示，设计与规格全部留档）**。
+   *
+   * ## 屏蔽的是什么
+   * 仅「**引导的显示**」：目标格呼吸框（`drawStateRing` + `palette.hintBlue` #3D7BF5，
+   * α 0.5↔1 循环 ⇒ 用户观感「闪烁蓝框」）与托盘首珠槽呼吸框，两处同时闪。
+   *
+   * ## ⛔ 明确没动的（留档，保后期可原样恢复）
+   * - **规格与留档全在**：`production/qa/beads/` 与 `ux-spec §6.3`（GAP-03/04）**一字未删**。
+   * - `_onboardDone` 判定链**未动**：仍从 `save.data.onboarded` 读、首次落子仍落盘 `onboarded: true`。
+   * - `hintRow` / `hintCol` / `guideSlot` / `firstColor` 的**算法**未动（仅因 `onboarding === false` 而不执行）。
+   * - 「减弱动效」时呼吸转静态（α=1）的分支未动。
+   *
+   * ## 恢复时必须知道的两件事（⚠ 屏蔽期间产生的状态）
+   * 1. **屏蔽期落子照旧写 `onboarded: true`**（本文件首次落子处）⇒ **恢复后老玩家不会看到引导**
+   *    （这本身合理：引导只给新玩家）。⛔ 但**内部要看效果必须清存档**或手动把
+   *    `onboarded` 置 `false`，否则「恢复后没人看到引导」会被误判为功能坏了。
+   * 2. **既有缺陷（本次不修，留档）**：`this._onboardDone = save ? save.data.onboarded : true`
+   *    —— **无存档时默认 `true`（不引导）** ⇒ 「卸载重装 / 清缓存后首次进入」拿不到首玩提示。
+   *    若后期统一调整引导，应一并修（无 save 时应默认 `false`）。
+   *
+   * ## 后期统一调整时的建议（本批不做）
+   * 弱化而非删除更稳（用户尚未裁「彻底去掉」）：呼吸幅度 `0.5↔1` → `0.75↔1`，
+   * 或周期 `HINT_PULSE_MS` 放慢；再或只保留托盘槽那处、去掉盘面目标格那处。
+   * ⇒ **本开关只做「显示与否」，不做参数化**；参数化留待统一调整时一次做完。
+   */
+  private static readonly ONBOARDING_ENABLED = false;
+
   private _onboardDone = true;
   /**
    * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
@@ -3599,7 +3628,14 @@ export class BeadsGame implements Game {
     s.tapHintAnchor = th ? th.anchor : 'cell';
 
     // GAP-03 首屏引导：仅普通模式 PLAYING、首玩且本会话未落过子时激活（§6.3）。
-    s.onboarding = this._mode === 'normal' && s.phase === 'playing' && !this._onboardDone;
+    // [WXG-T-239] `ONBOARDING_ENABLED = false` ⇒ 引导**显示已屏蔽**（设计与规格全留档，恢复见该常量头注）。
+    // ⛔ 短路顺序刻意「开关在前」：关闭时**完全不进**引导算法（`hintRow`/`hintCol`/`guideSlot` 保持 -1）
+    //   ⇒ 零额外计算、且从根上排除「引导半途生效」。
+    s.onboarding =
+      BeadsGame.ONBOARDING_ENABLED
+      && this._mode === 'normal'
+      && s.phase === 'playing'
+      && !this._onboardDone;
     if (s.onboarding) {
       // 首珠 = 托盘当前持有的最前一颗（GAP-02 首供落点）；其色决定单一目标格。
       let guideSlot = -1;

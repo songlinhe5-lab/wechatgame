@@ -2049,3 +2049,73 @@ framework **421** / breakout **239** / beads **774**（+1 skipped）· `verify` 
 **门禁**：`mask:diff` **PASS**（重导出后 4 mask 编码不变式全过、R/G/B mean=max=0）·
 framework **421** / breakout **239** / beads **774**（+1 skipped）· `verify` **PASS 19 / FAIL 0** ·
 `check:tasks` 27/27。
+
+## WXG-T-239
+
+**beads·首屏引导（GAP-03/04）留档 + 实现屏蔽** — 2026-10-04 用户裁「先把新手引导留档，实现上先屏蔽掉，后期统一调整」。
+
+**用户裁定**：「先把新手引导留档，实现上先屏蔽掉，后期统一调整」。
+
+### 落码（一处开关）
+
+`beads-game.ts` 新增 `private static readonly ONBOARDING_ENABLED = false`，并在 `s.onboarding`
+判定里**放在短路最前**：
+
+```ts
+s.onboarding =
+  BeadsGame.ONBOARDING_ENABLED
+  && this._mode === 'normal'
+  && s.phase === 'playing'
+  && !this._onboardDone;
+```
+
+⛔ **短路顺序刻意「开关在前」**：关闭时**完全不进**引导算法（`hintRow` / `hintCol` / `guideSlot`
+保持 −1）⇒ 零额外计算，且从根上排除「引导半途生效」。
+
+### 用户看到的「闪烁蓝框」是什么
+
+`drawStateRing`（圆角方框描边 `lineWidth 2`）+ `palette.hintBlue`（**#3D7BF5**），
+α 呼吸 `breathe(clock, HINT_PULSE_MS, 0.5, 1)` ⇒ **α 在 0.5↔1.0 循环**（用户观感「闪烁」）。
+**两处同时闪**：盘面目标格（首珠该放的那格）+ 托盘首珠所在槽。
+原显示条件：`普通模式 && PLAYING && !_onboardDone`（新玩家 v3 新档 `onboarded: false` 时激活）。
+
+### 留档（⛔ 明确没动的）
+
+- **规格一字未删**：`ux-spec §6.3` GAP-03/04 原样保留
+- `_onboardDone` 判定链**未动**：仍从 `save.data.onboarded` 读、首次落子仍落盘 `onboarded: true`
+- `hintRow` / `hintCol` / `guideSlot` / `firstColor` 的**算法未动**
+- 「减弱动效」时呼吸转静态（α=1）的分支**未动**
+
+### ⚠ 恢复时必须知道的两件事
+
+1. **屏蔽期首次落子照旧写 `onboarded: true`** ⇒ 恢复后老玩家不会看到引导（本身合理：引导只给新玩家）
+   ⛔ 但**内部要看效果必须先清存档**或把 `onboarded` 置 `false`，
+   否则「恢复后没人看到引导」会被**误判为功能坏了**。
+2. **既有缺陷（本次不修，留档）**：`this._onboardDone = save ? save.data.onboarded : true`
+   —— **无存档时默认 `true`（不引导）** ⇒ 「卸载重装 / 清缓存后首次进入」拿不到首玩提示。
+   后期统一调整时应一并修（无 save 时应默认 `false`）。
+
+### 测试口径变更（四处，均为前提被推翻 ⇒ 改写不删）
+
+| 文件 | 原断言 | 改写为 |
+|---|---|---|
+| `feedback-vfx` 首玩腿 | `onboarding === true` + 有蓝环 | 屏蔽态：`onboarding === false` + 三指针全 −1 + **无** `hintBlue` 环 |
+| `feedback-vfx` 落子清引导腿 | 落子后 `true → false` | 屏蔽态落子后**仍**无指针（无「先显示后消失」中间态） |
+| `feedback-vfx` D1 reduceMotion 腿 | 环 α `0.5` / 静态 `1` | **反向守卫**：两种取值下**都不存在** `hintBlue` 环（该通路无消费者，不是被改坏） |
+| `onboarded` 两条迁移腿 | `onboarding === true` | **双重断言**：存档 `onboarded === false`（**真正被测对象** = 迁移逻辑）+ `onboarding === false`（显示屏蔽） |
+
+⚠ **口径要点**：那两条迁移腿本意是验证**存档迁移**（BD-32「BOOT 自增 `runs` 不得吃掉引导」），
+不是验证显示 ⇒ 改看**存档字段**后，屏蔽与否都不影响它们继续守护迁移逻辑。
+
+### ⚠ headless 未能复现「闪烁」（如实记录）
+
+屏蔽前后各截一张对比：**蓝色像素 1270 → 1270（完全相同）** ⇒ 该 harness 存档本就
+`onboarded: true`，引导从未激活 ⇒ **我截到的「蓝」不是引导框**。按形状定位（列投影 `x=69–73` 与
+`x=86–90` 两条竖线相距 17px + 行投影 `y=92–111`）确认：那是**左上角 harness 调试浮层里的小圆环**，
+且两帧亮度差 **0**（**不闪烁**）。
+⇒ **用户所述的闪烁蓝框未能在 headless 复现**；若它在真机出现，需在真机侧定位（可能属真机专属 UI 路径）。
+
+### 门禁
+
+beads **774 绿 + 1 skipped** · framework 421 / breakout 239 绿 · `verify` **PASS 19 / FAIL 0** ·
+`check:tasks` 28/28 配对完整

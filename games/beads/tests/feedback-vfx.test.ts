@@ -69,42 +69,55 @@ const textCmd = (cmds: readonly DrawCommand[], want: string): TextCommand | unde
     cmds.find((c) => c.kind === 'text' && c.text === want) as TextCommand | undefined;
 
 describe('T-087 GAP-03 首屏引导', () => {
-    it('first run (runs==0): pulses the first bead slot + hints its single matching cell', () => {
+    // ── [WXG-T-239 · 2026-10-04 用户裁「先把新手引导留档，实现上先屏蔽掉，后期统一调整」] ──
+    //
+    // ⛔ **本组前两条腿的前提已被该裁定推翻**（原断言「首玩 ⇒ `onboarding === true` + 画蓝呼吸环」）。
+    //    现在 `BeadsGame.ONBOARDING_ENABLED === false` ⇒ **引导显示已屏蔽**。
+    //    ⇒ 改写为「**屏蔽态守卫**」：**开关关闭时引导一律不出现**。
+    //    ⚠ 规格与算法**未删**（`ux-spec §6.3` GAP-03/04 一字未动、`_onboardDone` 链未动），
+    //      恢复时把开关置 `true` 即可原样生效 —— 但**必须先清存档**
+    //      （屏蔽期首次落子照旧写 `onboarded: true`，否则恢复后无人看到引导，会被误判为功能坏）。
+    it('屏蔽态（ONBOARDING_ENABLED=false）· 首玩也不引导：无呼吸环 + 三个指针全 -1', () => {
         const h = createBeadsHarness({
       noAssemble: true,
             levels: [simpleTestLevel()],
-            saveKey: 'wxgame.beads.test.t087-first',
+            saveKey: 'wxgame.beads.test.t239-shielded-first',
         });
-        h.game.giveTrayBead(1); // v2.0（WXG-T-136）：供料关停 ⇒ 首珠由死路径夹具投放
+        h.game.giveTrayBead(1); // 首珠仍在托盘（夹具投放）—— 即便有首珠也不引导
         const s = h.game.snapshot;
         expect(s.phase).toBe('playing');
-        expect(s.onboarding).toBe(true);
-        expect(s.guideSlot).toBeGreaterThanOrEqual(0);
-        expect(s.hintRow).toBeGreaterThanOrEqual(0);
-        expect(s.hintCol).toBeGreaterThanOrEqual(0);
-
-        // 首珠色 == 引导目标格要求色（单一指向，行主序最前）。
-        const firstColor = s.traySlots[s.guideSlot]!.colorIdx;
-        expect(h.game.grid.requiredColor(s.hintRow, s.hintCol)).toBe(firstColor);
-
-        // 视图层：目标格画蓝呼吸环、首珠槽画蓝呼吸环（同色 accent_blue）。
-        expect(renderSnap(s).some((c) => isRing(c, DEFAULT_PALETTE.hintBlue))).toBe(true);
+        // ⛔ 屏蔽：onboarding 恒 false，三个引导指针**恒 -1**（开关在前短路 ⇒ 算法根本不执行）
+        expect(s.onboarding).toBe(false);
+        expect(s.guideSlot).toBe(-1);
+        expect(s.hintRow).toBe(-1);
+        expect(s.hintCol).toBe(-1);
+        // 视图层：**没有**蓝呼吸环（原 GAP-03 的可见产物）
+        expect(renderSnap(s).some((c) => isRing(c, DEFAULT_PALETTE.hintBlue))).toBe(false);
     });
 
-    it('clears on the first placement and never re-shows for the session', () => {
+    it('屏蔽态：落子后仍不引导（指针保持 -1，不存在「先显示后消失」的中间态）', () => {
         const h = createBeadsHarness({
       noAssemble: true,
             levels: [simpleTestLevel()],
-            saveKey: 'wxgame.beads.test.t087-clear',
+            saveKey: 'wxgame.beads.test.t239-shielded-clear',
         });
-        h.game.giveTrayBead(1); // v2.0：首珠由死路径夹具投放
-        expect(h.game.snapshot.onboarding).toBe(true);
+        h.game.giveTrayBead(1);
+        expect(h.game.snapshot.onboarding).toBe(false);
 
-        // Legit placement: use the hinted bead on its hinted cell.
+        // 正常落子（首个空格）—— 屏蔽态下引导算法未跑，故用盘面首个空格而非 hint 坐标。
+        // ⚠ 落子需**先选中托盘珠**（v2.0 供料关停后放置是两步：选珠 → 点格）。
         const s = h.game.snapshot;
-        const slot = s.guideSlot;
-        expect(h.game.selectTraySlot(slot)).toBe(true);
-        expect(h.game.tapGridCell(s.hintRow, s.hintCol)).toBe(true);
+        expect(h.game.selectTraySlot(0), '先选中托盘首珠').toBe(true);
+        let placed = false;
+        outer: for (let r = 0; r < s.gridRows; r++) {
+            for (let c = 0; c < s.gridCols; c++) {
+                const cell = s.cells[r * s.gridCols + c]!;
+                if (cell.void || cell.state !== 'empty') continue;
+                if (h.game.tapGridCell(r, c)) { placed = true; break outer; }
+            }
+        }
+        expect(placed, '至少有一个空格可落').toBe(true);
+        // ⛔ 屏蔽态落子后**仍**无引导指针
         expect(h.game.snapshot.onboarding).toBe(false);
         expect(h.game.snapshot.hintRow).toBe(-1);
         expect(h.game.snapshot.guideSlot).toBe(-1);
@@ -362,26 +375,27 @@ describe('WXG-T-088 D1/E2 可访问性开关消费', () => {
         expect(still!.alpha).toBeCloseTo(1, 5); // 减弱动效 → 静态红字
     });
 
-    it('D1 reduceMotion：hint 呼吸描边退为静态（α 不再 0.5↔1）', () => {
+    // [WXG-T-239] 本腿原验证「引导呼吸环在 reduceMotion 下退为静态」——
+    // ⛔ 该环随 `ONBOARDING_ENABLED = false` **已不再产生** ⇒ 原断言（α=0.5 / α=1）**前提被推翻**。
+    // ⇒ 改写为**反向守卫**：屏蔽态下**无论 reduceMotion 取值，画面都不存在 hintBlue 环**
+    //   （即「D1 减弱动效」这条通路在引导被屏蔽期间**无消费者**，不是被改坏而是无输入）。
+    // ⚠ 恢复引导（开关置 true）时本腿应**改回**原 α 断言（`breathe(0)→0.5` / 静态 `1`）。
+    it('D1 reduceMotion：屏蔽态下引导环不存在（两种取值皆无 ⇒ 该通路无消费者）', () => {
         const h = createBeadsHarness({
       noAssemble: true,
             levels: [simpleTestLevel()],
             saveKey: 'wxgame.beads.test.t088-hint',
         });
-        h.game.giveTrayBead(1); // v2.0（WXG-T-136）：供料关停 ⇒ 引导珠由死路径夹具投放
-        const s = h.game.snapshot;
-        expect(s.onboarding).toBe(true);
+        h.game.giveTrayBead(1);
+        expect(h.game.snapshot.onboarding).toBe(false);
 
-        const pulsing = firstRect(
-            renderSnap({ ...s, reduceMotion: false, pulseClock: 0 }),
-            DEFAULT_PALETTE.hintBlue,
-        );
-        const still = firstRect(
-            renderSnap({ ...s, reduceMotion: true, pulseClock: 0 }),
-            DEFAULT_PALETTE.hintBlue,
-        );
-        expect(pulsing!.alpha).toBeCloseTo(0.5, 5); // breathe(0) → lo
-        expect(still!.alpha).toBeCloseTo(1, 5); // 减弱动效 → 静态描边（保留）
+        for (const reduceMotion of [false, true]) {
+            const cmds = renderSnap({ ...h.game.snapshot, reduceMotion, pulseClock: 0 });
+            expect(
+                firstRect(cmds, DEFAULT_PALETTE.hintBlue),
+                `reduceMotion=${reduceMotion} 时不应存在 hintBlue 环`,
+            ).toBeUndefined();
+        }
     });
 
     it('D1 reduceMotion：错误抖动位移归零（±px → 0）', () => {
