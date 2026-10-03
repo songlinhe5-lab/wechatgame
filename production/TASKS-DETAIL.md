@@ -2326,3 +2326,39 @@ beads **780 绿 + 1 skipped**（新增 3 条）· `verify` **PASS 19 / WARN 0 / 
 **候选解法（主理人定）**：甲 单槽 → 按格去重（每格独立 500ms 窗，全局仍 ≤2 次/秒）；乙 门内第二次命中改播更轻的替代反馈（如 denied-press 轻压）而非静默；丙 维持现状登记已知限制。
 
 ⛔ 涉及 §3.8 冻结口径，美术不单方放宽；实施时须过封箱复评（wrong 通道在 fixture 孔层/整帧有足迹）。
+
+
+## WXG-T-244
+
+**组归位逐颗 BFS 错峰落座动画（纯表现，数据同帧不变）**
+
+**用户裁定**（2026-10-04）：「一组珠子转移到新的槽里，要从当前点击的槽开始，按照 BFS 扩展出去，按照 ease-in-out 时间间隔出现，并且有落下去的抖动效果。」
+
+### 场景锚定
+
+= **board 锚直填的组批量归位**（WXG-T-186）：一次点击填「被点空格 + BFS 连通同色空格一片」。此前所有珠**同帧出现**，无逐颗错峰。
+
+### 落码（三层全部复用现成件，零新常量/零新毫秒/零新图元）
+
+| 层 | 内容 |
+|---|---|
+| game 登记 | 新增 `_groupLandFx` **纯表现**队列（`_noteGroupLand` 惰性建、定长 `SOLVER_MAX_CELLS`、越界静默丢——同 `_noteSolverLand` 判例）；组归位循环里 `used−1` = BFS 序登记 |
+| game 推进 | `_stepGroupLandFx(dt)`：表现层判例（不被 PAUSED 冻结，同 `_stepWrongFx`）；非 playing 作废；`elapsed ≥ totalMs` 清 |
+| 相位口径 | **逐字复刻** `solverBeadProgress`：`tMs = elapsed − SOLVER_STAGGER_MS(80) × step`；`≤0` 未轮到 ⟹ view **不画珠**（= 逐颗「出现」）；`0..SOLVER_PER_BEAD_MS` 送现成 `fillPopEnvelope`（压下回弹 = 「落下抖动」，G1/G2′ 同款） |
+| snapshot | 同构 `solverLand*`：`groupLandRows/Cols/Steps/Count + groupLandElapsedMs`（单调标量，L5 判例） |
+
+⛔ **数据同帧写盘不变**（T-186「无中间态外泄」）：队列只驱动「珠画不画/抖不抖」，规则读取不受影响——守卫 ① 显式断言当帧 `filled`。
+
+⛔ **不复用 `_solverFx` 本体**：那条连**落子执行**都由队列驱动（`_stepSolverFx` 逐颗调 `_solveMisplaced`）；直接挂上去会二次落子破坏 T-186。只借表现口径，不借执行语义。
+
+### 造盘坑（实测踩到，`planGroupFill` 手动调用定位）
+
+组员连通判据是「**沿同色错位珠** ≤2 步」——首版把两颗色 2 错位珠放在切比雪夫距 2 但中间格非同色错位珠的位置 ⟹ 不连通 ⟹ 组只剩锚 ⟹ `alive.length − 1 = 0` ⟹ BFS extra 上限 0 ⟹ 第二颗目标格**永远不被填**（且无任何报错）。修法 = 让组员相邻（`swaps: [[0,2,1,1],[0,3,3,1]]`）。
+
+### 守卫（`tests/group-land-fx.test.ts`，2 条）
+
+① 登记序 = BFS 序：`steps` 恒 `0..n-1`、首格 = 被点格 + **当帧 grid 已 filled**（同帧口径）；② 相位窗口：第一颗在窗口内、第二颗未轮到（错峰实证）· 越总时长后 `count=0`（零常驻）。
+
+### 读数
+
+beads **782 绿 + 1 skipped**（新增 2 条；封箱 9/9 含在内 ⟹ 静息帧零影响实证）· Cocos 镜像同步。

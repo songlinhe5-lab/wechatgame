@@ -385,17 +385,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3687,
-      "lines": 134,
-      "sha256": "b2c5d3e9b79ae2219114553ab9c77c7e1a8210b8ce085debea17d71dec0bf165",
+      "tokens": 3717,
+      "lines": 135,
+      "sha256": "0a125f5cca0d63a2f8cf16a1ec155ea7bc08ae56cf8dc686c3675794fe58bfa1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 135,
-          "tokens": 3674,
+          "endLine": 136,
+          "tokens": 3704,
           "summary": "生成：2026-10-04 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -439,8 +439,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 109,
-          "tokens": 2190,
+          "endLine": 110,
+          "tokens": 2220,
           "summary": "games/beads/art/assets-spec.md 108281 见 ctx/budget-exempt.js",
           "keywords": [
             "tokens",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 110,
-          "endLine": 135,
+          "startLine": 111,
+          "endLine": 136,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5134,
+      "tokens": 5140,
       "lines": 86,
-      "sha256": "2ae63427ec772bbd4b9f7bce9cd65eb3ed348b958b69b20d86d977bdad2f38d5",
+      "sha256": "9af8f5a7d22760f0b873a1cf181ffe21864d64cedb4bedcf4e864d4f4b86750d",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 5106,
+          "tokens": 5112,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 81 行 / 22001 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 82 行 / 22470 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+82 · §待排（backlog，无号，立项时领取）=55+28",
+          "summary": "§WXG 任务台账（SSOT）=1+83 · §待排（backlog，无号，立项时领取）=56+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 2328 行 / 81497 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 2364 行 / 82308 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 1064,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2329 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 1069,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2365 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 7847,
-      "lines": 262,
-      "sha256": "fe5f39883f50f4999667a0e2bdf8c15ccaa1fec9862372476eab6b4d02931542",
+      "tokens": 8345,
+      "lines": 278,
+      "sha256": "7b4fbcfa89d8c070f918c7380101008c658e247131b24e6c115763bfccd90616",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 263,
-          "tokens": 7844,
+          "endLine": 279,
+          "tokens": 8341,
           "summary": "",
           "keywords": []
         },
@@ -50343,6 +50343,22 @@
             "单槽门工程单",
             "首战"
           ]
+        },
+        {
+          "anchor": "§WXG-T-244：组归位逐颗 BFS 错峰落座（ponytail 二战：三层全复用现成件）",
+          "level": 3,
+          "startLine": 264,
+          "endLine": 279,
+          "tokens": 468,
+          "summary": "最懒正解 = 复刻 solverBeadProgress 口径：登记序 = targets 序（targets[0] 天",
+          "keywords": [
+            "WXG",
+            "BFS",
+            "ponytail",
+            "solverBeadProgress",
+            "targets",
+            "组归位逐颗"
+          ]
         }
       ]
     },
@@ -50350,7 +50366,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "ab69ed758bcfe187910433a475a76febca17be2c030d30540f095a97af7215f0",
+      "sha256": "48950d6b73aaa714026caba44eae3dd9961c7f86a03b19bef5093bac7f0dfe17",
       "tier": "normal",
       "sections": [
         {
@@ -50441,7 +50457,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 7,847 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 8,345 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70460,17 +70476,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 81497,
-      "lines": 2328,
-      "sha256": "a4f6058b406715ac9bf76f7098356fb411bdfcd0a6d6092154b8597c9b53ea2e",
+      "tokens": 82308,
+      "lines": 2364,
+      "sha256": "2ec1a0dfb108bd34fe966226912d05ce5e2738b5dd4e98a42662b8712d0e979b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 2329,
-          "tokens": 81480,
+          "endLine": 2365,
+          "tokens": 82291,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -72343,29 +72359,115 @@
           "anchor": "§WXG-T-243",
           "level": 2,
           "startLine": 2318,
-          "endLine": 2329,
+          "endLine": 2330,
           "tokens": 294,
           "summary": "工程单：wrong 单槽 500ms 门吞连点（T-241 扩面后第二个错色格无反馈）",
           "keywords": [
             "WXG",
             "wrong"
           ]
+        },
+        {
+          "anchor": "§WXG-T-244",
+          "level": 2,
+          "startLine": 2331,
+          "endLine": 2365,
+          "tokens": 807,
+          "summary": "组归位逐颗 BFS 错峰落座动画（纯表现，数据同帧不变）",
+          "keywords": [
+            "WXG",
+            "BFS"
+          ]
+        },
+        {
+          "anchor": "§场景锚定",
+          "level": 3,
+          "startLine": 2337,
+          "endLine": 2340,
+          "tokens": 57,
+          "summary": "= board 锚直填的组批量归位（WXG-T-186）：一次点击填「被点空格 + BFS 连通同色空格一片」。此前所有",
+          "keywords": [
+            "board",
+            "WXG",
+            "BFS",
+            "场景锚定"
+          ]
+        },
+        {
+          "anchor": "§落码（三层全部复用现成件，零新常量/零新毫秒/零新图元）",
+          "level": 3,
+          "startLine": 2341,
+          "endLine": 2353,
+          "tokens": 358,
+          "summary": "game 登记 新增 _groupLandFx 纯表现队列（_noteGroupLand 惰性建、定长 SOLVER_M",
+          "keywords": [
+            "game",
+            "groupLandFx",
+            "noteGroupLand",
+            "SOLVER_M",
+            "落码",
+            "三层全部复用"
+          ]
+        },
+        {
+          "anchor": "§造盘坑（实测踩到，`planGroupFill` 手动调用定位）",
+          "level": 3,
+          "startLine": 2354,
+          "endLine": 2357,
+          "tokens": 113,
+          "summary": "组员连通判据是「沿同色错位珠 ≤2 步」——首版把两颗色 2 错位珠放在切比雪夫距 2 但中间格非同色错位珠的位置 ⟹ ",
+          "keywords": [
+            "planGroupFill",
+            "造盘坑",
+            "实测踩到",
+            "手动调用定位"
+          ]
+        },
+        {
+          "anchor": "§守卫（`tests/group-land-fx.test.ts`，2 条）",
+          "level": 3,
+          "startLine": 2358,
+          "endLine": 2361,
+          "tokens": 75,
+          "summary": "① 登记序 = BFS 序：steps 恒 0..n-1、首格 = 被点格 + 当帧 grid 已 filled（同帧口",
+          "keywords": [
+            "tests/group-land-fx.test.ts",
+            "tests",
+            "group",
+            "land",
+            "test",
+            "BFS"
+          ]
+        },
+        {
+          "anchor": "§读数 (4)",
+          "level": 3,
+          "startLine": 2362,
+          "endLine": 2365,
+          "tokens": 38,
+          "summary": "beads 782 绿 + 1 skipped（新增 2 条；封箱 9/9 含在内 ⟹ 静息帧零影响实证）· Cocos",
+          "keywords": [
+            "beads",
+            "skipped",
+            "Cocos",
+            "读数"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 22001,
-      "lines": 81,
-      "sha256": "58f91428b550d2df5302299c477c1479f03bf39d84aab5911b8a6c5afe83deda",
+      "tokens": 22470,
+      "lines": 82,
+      "sha256": "b81b916e5c3ed61cb13a9acb50737fc0ede0016e2c36dbbd3d3bf8de16e32add",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 82,
-          "tokens": 21993,
+          "endLine": 83,
+          "tokens": 22461,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -72378,8 +72480,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 55,
-          "endLine": 82,
+          "startLine": 56,
+          "endLine": 83,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
