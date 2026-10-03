@@ -104,16 +104,32 @@ export interface PolygonCommand {
  * beyond position and size.
  */
 export interface BlitCommand {
-  readonly kind: 'blit';
-  /** Texture resource identifier (adapter resolves to concrete image source). */
-  readonly textureId: string;
-  /** Bottom-left corner (design space, same convention as `rect`). */
-  readonly x: number;
-  readonly y: number;
-  /** Draw size (design space; texture is scaled to fit). */
-  readonly w: number;
-  readonly h: number;
-  readonly alpha?: number;
+    readonly kind: 'blit';
+    /** Texture resource identifier (adapter resolves to concrete image source). */
+    readonly textureId: string;
+    /** Bottom-left corner (design space, same convention as `rect`). */
+    readonly x: number;
+    readonly y: number;
+    /** Draw size (design space; texture is scaled to fit). */
+    readonly w: number;
+    readonly h: number;
+    readonly alpha?: number;
+    /**
+     * `[WXG-T-226 EP12-S2 / ADR-0029 DEC-6]` 着色基色（hex 字符串）。
+     *
+     * 语义 = **灰度 mask × 着色**（ADR-0028 §2.1 的封闭解）：mask 通道
+     * `R=d / G=l / B=形状 / A=255`，消费侧按 `rgb = base·d + (1−base)·l`、`a = B/255` 预乘合成。
+     *
+     * ⛔ core 只存**字符串**（不持引擎对象，L2）；⛔ 无 `tint` 的 blit 语义**逐字节不变**
+     * （`undefined` 字段不落 `JSON.stringify` ⇒ 既有 seal 基准零漂移，同 `stroke` 透传先例）。
+     */
+    readonly tint?: string;
+}
+
+/** `[WXG-T-226 EP12-S2 / 方案件 §3.3 选项 B]` `blit` 的选项对象。 */
+export interface BlitOptions {
+    readonly alpha?: number;
+    readonly tint?: string;
 }
 
 export type DrawCommand =
@@ -331,12 +347,17 @@ export class RenderModelBuilder {
    * participate in the vertex arena (blit carries no geometry payload beyond
    * position and size). The core layer only stores `textureId`; the adapter
    * resolves it to a concrete image source.
+   *
+   * `[WXG-T-226 EP12-S2]` 第 6 参由位置式 `alpha` 改为选项对象（方案件 §3.3 选项 B，
+   * **推荐项**）：既有的位置式 `alpha` 调用会被 TypeScript 编译期捕获（仓内仅 1 处），
+   * 且 `undefined` 字段不落 `JSON.stringify` ⇒ seal 基准零漂移。
    */
-  blit(textureId: string, x: number, y: number, w: number, h: number, alpha?: number): void {
-    this._commands.push({
-      kind: 'blit', textureId, x, y, w, h,
-      ...(alpha !== undefined ? { alpha } : {}),
-    });
+  blit(textureId: string, x: number, y: number, w: number, h: number, opts?: BlitOptions): void {
+      this._commands.push({
+          kind: 'blit', textureId, x, y, w, h,
+          ...(opts?.alpha !== undefined ? { alpha: opts.alpha } : {}),
+          ...(opts?.tint !== undefined ? { tint: opts.tint } : {}),
+      });
   }
 
   /**

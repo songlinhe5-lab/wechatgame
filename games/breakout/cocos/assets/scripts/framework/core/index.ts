@@ -28,3 +28,5 @@ export * from './bake/bake-surface';
 export * from './bake/bake-lru';
 export * from './bake/bake-schema-version';
 export * from './bake/bake-recipes';
+export * from './bake/mask-spec';
+export * from './bake/mask-field';

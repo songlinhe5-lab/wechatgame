@@ -28,3 +28,5 @@ export * from './bake/bake-surface.js';
 export * from './bake/bake-lru.js';
 export * from './bake/bake-schema-version.js';
 export * from './bake/bake-recipes.js';
+export * from './bake/mask-spec.js';
+export * from './bake/mask-field.js';

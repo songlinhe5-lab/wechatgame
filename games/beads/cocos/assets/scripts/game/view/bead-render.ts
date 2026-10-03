@@ -37,6 +37,8 @@
 
 import type { RenderModelBuilder } from '../../framework/index';
 import { BakeLru, BAKE_SCHEMA_VERSION, type BakeSurface, type BakeKeyInputs } from '../../framework/index';
+import type { BeadMaskGauge, BeadMaskKind } from '../../framework/index';
+import { tintMaskId } from './bead-tint-mask';
 import {
   BAKE_CANONICAL_SIZE,
   BEAD_CARD,
@@ -129,8 +131,62 @@ export function setBeadBakeRuntime(runtime: BeadBakeRuntime | undefined): void {
 
 /** 读取当前烘焙运行时（测试用）。 */
 export function getBeadBakeRuntime(): BeadBakeRuntime | undefined {
-  return _bakeRuntime;
+    return _bakeRuntime;
 }
+
+// ─── [WXG-T-226 EP12-S2 / ADR-0029 DEC-5] tint 臂运行时 ────────────────────
+
+/**
+ * tint 臂运行时接口（由适配层注入：Canvas2D/harness 走 S3 的 CPU 预合成通道；Cocos 生产
+ * **本批不接**（DEC-1，`Graphics` 无 image 能力））。视图层只消费。
+ *
+ * `getMaskId` 就是**白名单查表**（`bead-tint-mask.ts::tintMaskId`）：
+ * 返回 `undefined`（风格未定稿 / 档未烘 / 未注入）⇒ **矢量回退**，输出逐字节 = 今日。
+ */
+export interface BeadTintRuntime {
+    getMaskId(kind: BeadMaskKind, gauge: BeadMaskGauge, styleId: string): string | undefined;
+}
+
+/** 模块级 tint 运行时槽位（默认 `undefined` = tint 臂未启用，走矢量臂 —— **绿线锚 V-5**）。 */
+let _tintRuntime: BeadTintRuntime | undefined;
+
+/**
+ * 注入 tint 运行时（适配层调用一次）。传 `undefined` 即关闭 tint 臂。
+ *
+ * ⇒ **一级回滚 = 不调用本函数**（或传 `undefined`）：矢量臂恢复、零删除、零数据迁移。
+ */
+export function setBeadTintRuntime(runtime: BeadTintRuntime | undefined): void {
+    _tintRuntime = runtime;
+}
+
+/** 读取当前 tint 运行时（测试用）。 */
+export function getBeadTintRuntime(): BeadTintRuntime | undefined {
+    return _tintRuntime;
+}
+
+/**
+ * 创建默认 tint 运行时：**白名单即真源**。
+ *
+ * @param resolve 逻辑 maskId → 可 blit 的 textureId（未注册 ⇒ `undefined` ⇒ 矢量回退）。
+ */
+export function createWhitelistBeadTintRuntime(
+    resolve: (maskId: string) => string | undefined,
+): BeadTintRuntime {
+    return {
+        getMaskId(kind, gauge, styleId) {
+            const maskId = tintMaskId(kind, gauge, styleId);
+            if (maskId === undefined) return undefined;
+            const texId = resolve(maskId);
+            return texId === undefined ? undefined : texId;
+        },
+    };
+}
+
+/**
+ * 热路径 scratch（C2 零分配）：`blit` 的选项对象**每珠每帧复用**同一枚，
+ * ⛔ 不在 `drawFilledBead` 内新建字面量（同既有个 `styleInput` 槽写法）。
+ */
+const tintBlitOpts: { tint: string } = { tint: '' };
 
 /**
  * 创建默认的烘焙运行时（适配层调用）。
@@ -245,6 +301,19 @@ export interface FilledBeadOptions {
    * （K-042），也不需为小豆另立一套风格（档与风格正交）。
    */
   readonly hideHole?: boolean;
+  /**
+   * `[WXG-T-226 EP12-S2 / ADR-0029 DEC-5]` **mask 档位**（豆径档）。
+   *
+   * - **不传（默认）⇒ tint 臂永不命中** ⇒ 矢量臂逐字节 = 今日（V-5 绿线锚）。
+   *   这是本批的**安全默认**：调用方尚未接线（`snap.beadSize` → gauge 的接线属 EP12-S3
+   *   的 Canvas2D 通道一并落，否则 tint 臂在游戏内不可达）。
+   * - 传 `'holed'` = 满豆有孔（26dp / 真透 ⌀12）· `'holeless'` = 小豆无孔（24dp）。
+   * - ⛔ **托盘珠恒 `'holed'`**（`assets-spec §7.11`：小豆档只对盘面格生效）—— 托盘调用方
+   *   不应传本参（托盘无 mask 档位之争，且 `hideHole` 已能表达小豆）。
+   * - ⛔ **不新增第二把尺子**（ADR-0023 DEC-7）：本参只把既有豆径档**转写**给白名单查表，
+   *   不新算几何；档位几何仍由 `drawInset` 通道承担。
+   */
+  readonly maskGauge?: BeadMaskGauge;
 }
 
 /** 段内插值。**模块级函数而非局部闭包** = 逐帧调用零分配（热路径铁律）。 */
@@ -572,6 +641,31 @@ export function drawFilledBead(
       : 0;
   const size = (outer - inset * 2) * (options.scale ?? 1) * (1 + BEAD_CARD.liftScaleGain * liftT);
 
+  // ── [WXG-T-226 EP12-S2 / ADR-0029] tint 臂分流（**自上而下，命中即返回**）────
+  // 臂序：① tint 臂 → ② 烘焙臂（历史归档臂，代码一行不改）→ ③ 矢量臂（逐字节 = 今日）。
+  // 注入点与既有 `_bakeRuntime` **并列同型**（`setBeadTintRuntime(undefined)` = tint 臂不存在）。
+  // 白名单未命中（风格未定稿 / 档未烘 / 未注入）⇒ 落 ②/③ ⇒ **矢量臂逐字节不变**（V-5 绿线锚）。
+  const tintStyleId = options.styleId ?? DEFAULT_BEAD_STYLE_ID;
+  if (_tintRuntime !== undefined && !_baking && !options.hideHole && options.maskGauge !== undefined) {
+    const maskId = _tintRuntime.getMaskId('bead', options.maskGauge, tintStyleId);
+    if (maskId !== undefined) {
+      const inks = options.inks ?? DEMO_BEAD_INKS;
+      // tint 合成基色 = 珠的**本色**（`palette` 端点族的 `base`），⛔ 不是 `edge/pit/lit` 派生色。
+      tintBlitOpts.tint = beadColorOf(inks, options.targetColorIdx ?? colorIdx);
+      builder.blit(maskId, x - outer / 2, y - outer / 2, outer, outer, tintBlitOpts);
+      /**
+       * **DEC-2 · 孔底口径（孔区真透）**：tint 臂下**不再画 live `pit` circle / 孔环**
+       * —— 孔的 ⌀12 真透由 mask 的 B 通道自带（+0.5dp 羽化）⇒ 透出下层 **B0 tile**
+       * （本格 `edge = mix(base, −0.30)` = 0.70×目标色），与 studio 定稿 v1.1 结构同构。
+       *
+       * ⚠ 这是**渲染臂差异**，**不是** §3 冻结常量变更（ADR-0029 DEC-2 已说明为何不动
+       * `systems-index §3`）。⚠ 现役 K3 判据文本（「孔底透出目标色 `pit`」）在 tint 臂下
+       * **不再逐字成立** ⇒ 判据改写交 WXG-T-230 / T-228，**本 ADR 与本实现不代改判据**。
+       */
+      return;
+    }
+  }
+
   // ── [WXG-T-220 / ADR-0025] 烘焙臂分流 ─────────────────────────────────
   // 运行时已注入 + 不隐藏孔 ⇒ 走烘焙臂（blit + live 孔 circle），跳过风格层集。
   // 矢量臂永不删除（铁律）：`_bakeRuntime` 为 undefined 时恒走矢量路径。
@@ -586,6 +680,8 @@ export function drawFilledBead(
       _baking = false;
     }
     // blit 珠体（纹理含透明角，blit 以 outer 为边长 ⇒ 透明区自然露出 B0 底图）。
+    // ⚠ 无 `tint`（位图成品路线）：blit 的第 6 参已改选项对象（方案件 §3.3 选项 B），
+    // **不传 opts ⇒ `alpha`/`tint` 字段均不落 `JSON.stringify`** ⇒ 既有断言与 seal 基准零漂移。
     builder.blit(texId, x - outer / 2, y - outer / 2, outer, outer);
     // 孔不入烘焙（ADR-0025 DEC-3）：始终 live，K3 孔透目标色；孔边线 = 族墨 `hole`（三裁）。
     // **六裁（用户 2026-09-28：「孔径 = 真透的区域」）**：拆两枚——孔底 pit（r = 真透，先画）
@@ -675,6 +771,19 @@ export function drawFilledBead(
   }
 }
 
+/**
+ * `[WXG-T-226 EP12-S2 / ADR-0029 DEC-5]` `drawEmptySocket` 的 **tint 臂开关**（末位参，缺省 = 全关）。
+ *
+ * 与 `FilledBeadOptions.maskGauge` 同语义：**不传 ⇒ tint 臂不命中 ⇒ 矢量臂逐字节 = 今日**（V-5）。
+ * 另加 `styleId`（格面 mask 的风格白名单键；不传 ⇒ 默认档 `facet-4`）。
+ */
+export interface EmptySocketTintOptions {
+  /** 同 `FilledBeadOptions.maskGauge`：`'holed'` 盘面有孔 / `'holeless'` 小豆。 */
+  readonly maskGauge?: BeadMaskGauge;
+  /** 风格白名单键；不传 ⇒ `DEFAULT_BEAD_STYLE_ID`。 */
+  readonly styleId?: string;
+}
+
 export function drawEmptySocket(
   builder: RenderModelBuilder,
   cx: number,
@@ -703,6 +812,8 @@ export function drawEmptySocket(
    * `beadInset = 0` 的托盘槽仍退一圈。
    */
   beadInset = 0,
+  /** `[WXG-T-226 EP12-S2]` tint 臂开关（末位参，**缺省 = 全关** ⇒ 矢量臂逐字节不变）。 */
+  options: EmptySocketTintOptions = {},
 ): void {
   /**
    * 珠体绘制边长（与 `drawFilledBead` 同尺，含 zoom 与豆径档 ⇒ 大盘/小豆档自动跟随）：
@@ -724,6 +835,29 @@ export function drawEmptySocket(
   const s = Math.max(BEAD_CARD.minStroke * 2, beadFace - relief * 2);
   const base = colorIdx === undefined ? palette.slot : beadColorOf(inks, colorIdx);
   const endpoints = colorIdx === undefined ? neutralEndpoints(palette) : endpointOf(inks, colorIdx);
+
+  // ── [WXG-T-226 EP12-S2 / ADR-0029 DEC-5] tint 臂（格面）─────────────────
+  // 命中条件（三条**同时**成立，缺一即矢量回退）：
+  //  ① 已注入 tint 运行时且白名单命中（`getMaskId` 返回非 undefined）；
+  //  ② `beadInset > 0` = **盘面格**（托盘槽 `beadInset = 0` 恒矢量 —— §3.6「两档不同形，无 mask 可对应」）；
+  //  ③ 非烘焙递归（`_baking`）。
+  // 命中 ⇒ **1 条 blit**（格面 mask 自带槽口 3dp 斜面 + 槽底 + 格外），跳过 4 内阴影 + 2 明暗线。
+  // B0 底图 rect 由**调用方**画（mask 是格径 30dp、B0 是 pitch 32dp 满铺 ⇒ 缝隙与孔底都靠 B0）。
+  if (
+    _tintRuntime !== undefined &&
+    !_baking &&
+    beadInset > 0 &&
+    colorIdx !== undefined &&
+    options.maskGauge !== undefined
+  ) {
+    const cellStyleId = options.styleId ?? DEFAULT_BEAD_STYLE_ID;
+    const maskId = _tintRuntime.getMaskId('cell', options.maskGauge, cellStyleId);
+    if (maskId !== undefined) {
+      tintBlitOpts.tint = base;
+      builder.blit(maskId, cx - size / 2, cy - size / 2, size, size, tintBlitOpts);
+      return;
+    }
+  }
 
   // B0 已铺 ⇒ 不再刷亮 `base`（否则“有豆/无豆”又是两张图）。零新 hex。
   // 托盘槽的「大底」= 槽体本身（不是坑）⇒ 仍按 `size` 画，不随坑缩小。

@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3670,
       "lines": 133,
-      "sha256": "7fd9424b6db0bdc014c0c6d63667907bf3e889fdc1907d1a3d391e9ae3b26bbd",
+      "sha256": "570285d8dfeabd1491d19ab797ea6b05cd1fc2c7fbbf0bcc0626150f193df268",
       "tier": "normal",
       "sections": [
         {
@@ -396,7 +396,7 @@
           "startLine": 1,
           "endLine": 134,
           "tokens": 3657,
-          "summary": "生成：2026-10-02 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-03 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5014,
       "lines": 106,
-      "sha256": "a1c8fb05e3ff6b4a84ce9697aebfba303124abfa2c766ffb3844050921ddbcf5",
+      "sha256": "7a05bb531a63225d6c8e3cd8c3c27870af1a72819727651e24448fc6a7c8f2ba",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 70 行 / 12645 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 70 行 / 12773 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 867 行 / 46763 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 929 行 / 49668 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 252,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+868 · §WXG-T-179=18+78 · §WXG-T-184",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+930 · §WXG-T-179=18+78 · §WXG-T-184",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48347,7 +48347,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9845,
       "lines": 239,
-      "sha256": "e7e158cfa50be9edb3759dc4d87e190f6dd92ba65357d587dad87cb16e538c66",
+      "sha256": "c31a74f0b292049723e1bba7306018fdd9350d801749cf5432d524eb2eb7aec2",
       "tier": "normal",
       "sections": [
         {
@@ -48438,7 +48438,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 27 天）",
+          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 26 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -48452,7 +48452,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 26 天）",
+          "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 25 天）",
           "level": 3,
           "startLine": 78,
           "endLine": 92,
@@ -48468,7 +48468,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 25 天）",
+          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 24 天）",
           "level": 3,
           "startLine": 93,
           "endLine": 100,
@@ -48484,7 +48484,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 20 天）",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 19 天）",
           "level": 3,
           "startLine": 101,
           "endLine": 106,
@@ -48500,7 +48500,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 15 天）",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 14 天）",
           "level": 3,
           "startLine": 107,
           "endLine": 123,
@@ -48516,7 +48516,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 14 天）",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 13 天）",
           "level": 3,
           "startLine": 124,
           "endLine": 135,
@@ -48532,7 +48532,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 13 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 12 天）",
           "level": 3,
           "startLine": 136,
           "endLine": 152,
@@ -48548,7 +48548,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 12 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 11 天）",
           "level": 3,
           "startLine": 153,
           "endLine": 180,
@@ -48564,7 +48564,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 11 天）",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 10 天）",
           "level": 3,
           "startLine": 181,
           "endLine": 201,
@@ -48580,7 +48580,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 10 天）",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 9 天）",
           "level": 3,
           "startLine": 202,
           "endLine": 219,
@@ -48596,7 +48596,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 9 天）",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 8 天）",
           "level": 3,
           "startLine": 220,
           "endLine": 240,
@@ -68427,17 +68427,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 46763,
-      "lines": 867,
-      "sha256": "34ed0a9e1fa3899a7efbacf5934f9610c224fb0f0957a9c153cdfc4f535bbef7",
+      "tokens": 49668,
+      "lines": 929,
+      "sha256": "6bc79c63e41759d395498732a52aae79abe3ba9deee335ccc0335220e37d602c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 868,
-          "tokens": 46746,
+          "endLine": 930,
+          "tokens": 49651,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -68991,8 +68991,8 @@
           "anchor": "§WXG-T-226",
           "level": 2,
           "startLine": 724,
-          "endLine": 755,
-          "tokens": 1548,
+          "endLine": 779,
+          "tokens": 3152,
           "summary": "beads·豆面/格面正式管线落地（tint+mask 运行时渲染 + bake recipe 改产 d/l mask）",
           "keywords": [
             "WXG",
@@ -69020,10 +69020,25 @@
           ]
         },
         {
+          "anchor": "§S1+S2 落码（程基岩，2026-10-02）",
+          "level": 3,
+          "startLine": 756,
+          "endLine": 779,
+          "tokens": 1591,
+          "summary": "范围：只做 EP-12 S1（改产 d/l mask = spec 化 + 场计算 + mask:diff 对拍门禁）与",
+          "keywords": [
+            "mask",
+            "spec",
+            "diff",
+            "落码",
+            "程基岩"
+          ]
+        },
+        {
           "anchor": "§WXG-T-227",
           "level": 2,
-          "startLine": 756,
-          "endLine": 771,
+          "startLine": 780,
+          "endLine": 795,
           "tokens": 671,
           "summary": "beads·tint mask 资产规格（入库/命名/包体预算/双档位） — 林绘澄（art-director），P1。",
           "keywords": [
@@ -69038,8 +69053,8 @@
         {
           "anchor": "§WXG-T-228",
           "level": 2,
-          "startLine": 772,
-          "endLine": 784,
+          "startLine": 796,
+          "endLine": 808,
           "tokens": 514,
           "summary": "beads·tint 正式管线验收判据（用例 + G 门挂载） — 严守真（quality-lead），P1 reado",
           "keywords": [
@@ -69054,9 +69069,9 @@
         {
           "anchor": "§WXG-T-230",
           "level": 2,
-          "startLine": 785,
-          "endLine": 799,
-          "tokens": 568,
+          "startLine": 809,
+          "endLine": 861,
+          "tokens": 1869,
           "summary": "C12 判别力退化处置 + 731100c 未走复评通道的纪律缺陷（2026-09-29 由 WXG-T-229 第六次",
           "keywords": [
             "WXG",
@@ -69064,10 +69079,25 @@
           ]
         },
         {
+          "anchor": "§S1 + S2 落码（程基岩，2026-10-02 · 主理人代为收尾复核）",
+          "level": 3,
+          "startLine": 824,
+          "endLine": 861,
+          "tokens": 1277,
+          "summary": "交付面（⛔ 未 commit，等主理人发话）",
+          "keywords": [
+            "commit",
+            "落码",
+            "程基岩",
+            "主理人代为收",
+            "尾复核"
+          ]
+        },
+        {
           "anchor": "§WXG-T-231",
           "level": 2,
-          "startLine": 800,
-          "endLine": 803,
+          "startLine": 862,
+          "endLine": 865,
           "tokens": 59,
           "summary": "beads·关卡存量 4 红立项（DEMO_LEVEL_COUNT 漂移 + 关卡快照判据过期） — 2026-10-0",
           "keywords": [
@@ -69079,8 +69109,8 @@
         {
           "anchor": "§现象与读数（`pnpm --filter @wxgame/beads run test`）",
           "level": 2,
-          "startLine": 804,
-          "endLine": 814,
+          "startLine": 866,
+          "endLine": 876,
           "tokens": 225,
           "summary": "736 例 / 4 红，长期使 pnpm run verify 的 test 项 FAIL（常态 PASS 16 / S",
           "keywords": [
@@ -69095,8 +69125,8 @@
         {
           "anchor": "§根因（两类，**不是一个 bug**）",
           "level": 2,
-          "startLine": 815,
-          "endLine": 826,
+          "startLine": 877,
+          "endLine": 888,
           "tokens": 356,
           "summary": "A 类 · 冻结常量漂移（3 条红，同一根因）",
           "keywords": [
@@ -69109,8 +69139,8 @@
         {
           "anchor": "§待裁（⛔ 工程侧不代拍）",
           "level": 2,
-          "startLine": 827,
-          "endLine": 835,
+          "startLine": 889,
+          "endLine": 897,
           "tokens": 250,
           "summary": "A 类修法（机械一行，但值须确认）：DEMO_LEVEL_COUNT 8 → 9。⚠ 前置确认：9 关是 pre-rel",
           "keywords": [
@@ -69124,8 +69154,8 @@
         {
           "anchor": "§状态与影响",
           "level": 2,
-          "startLine": 836,
-          "endLine": 868,
+          "startLine": 898,
+          "endLine": 930,
           "tokens": 1047,
           "summary": "本单只立项、不落码；4 红维持原样，不因「看着像小事」就随手改数。",
           "keywords": [
@@ -69135,8 +69165,8 @@
         {
           "anchor": "§A 类处置落码（用户 2026-10-02 拍板「A」，2026-10-02 实施）",
           "level": 3,
-          "startLine": 842,
-          "endLine": 856,
+          "startLine": 904,
+          "endLine": 918,
           "tokens": 465,
           "summary": "前置已查清（结论对「只改值」不利，故同批加了门禁）：systems-index §3 该行明写本值「随表走 = 当前关数",
           "keywords": [
@@ -69151,8 +69181,8 @@
         {
           "anchor": "§B 类处置落码（用户 2026-10-02 拍板「乙」）",
           "level": 3,
-          "startLine": 857,
-          "endLine": 868,
+          "startLine": 919,
+          "endLine": 930,
           "tokens": 393,
           "summary": "选项落地：tests/levels-dir-pipeline.test.ts ① 由「常跑不变量」降级为 it.skip",
           "keywords": [
@@ -69168,9 +69198,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 12645,
+      "tokens": 12773,
       "lines": 70,
-      "sha256": "9ca95b3a841816d257209a2ec6951e69d1ab58ca8dcc8f615a235a69db6e0a82",
+      "sha256": "56cfcc52594d0abd408011ec4699d0da96a37dfd73e1a6115461dbacc89aa9dd",
       "tier": "hot",
       "sections": [
         {
@@ -69178,7 +69208,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 71,
-          "tokens": 12636,
+          "tokens": 12765,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

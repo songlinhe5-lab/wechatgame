@@ -14,6 +14,12 @@
  */
 
 import type { RenderModelBuilder } from '../render/render-model';
+import { computeMaskField, type MaskField } from './mask-field';
+import {
+    MASK_CANONICAL_SIZE,
+    maskSpecFor,
+    type BeadMaskGauge,
+} from './mask-spec';
 
 /** A recipe that draws one texture (bead face or cell face) onto a builder. */
 export type BeadBakeRecipe = (
@@ -22,6 +28,23 @@ export type BeadBakeRecipe = (
     colorIdx: number,
     size: number,
 ) => void;
+
+/**
+ * `[WXG-T-226 EP12-S1 / ADR-0029 DEC-3 · DEC-6]` **mask 模式**的配方：不吃 builder，
+ * 直接产出**已编码的 d/l mask 场**（`R=d / G=l / B=形状 / A=255`）。
+ *
+ * - 零绘制命令 ⇒ mask 与颜色**无关**（V-1：`colorIdx` 与 `styleId` 在 mask 模式下一律忽略，
+ *   因为 d/l 系数只由「档位 + 层集 + 程序化段」决定；换色只是换 `tint` 参数）。
+ * - `size` 缺省 = `MASK_CANONICAL_SIZE`（128）。
+ * - 落盘/入库（PNG / 纹理）由 adapter 负责（⛔ core 不碰 canvas/平台 API，L2）。
+ */
+export type MaskBakeRecipe = (size?: number) => MaskField;
+
+/** `mode: 'mask'` 的工厂选项。`gauge` 决定档位（`holed` 满豆有孔 / `holeless` 小豆无孔）。 */
+export interface MaskRecipeOptions {
+    readonly mode: 'mask';
+    readonly gauge: BeadMaskGauge;
+}
 
 /** Options a recipe passes through to the injected bead drawer (subset). */
 export interface RecipeBeadDrawOptions {
@@ -70,8 +93,20 @@ export type EmptySocketDraw = (
  * `drawFilledBead(builder, size / 2, size / 2, colorIdx, { size, styleId })`
  * call — the same call the runtime vector arm makes, so a baked PNG and the
  * on-screen bead come from one source (同源判据，见 `bake-recipes.test.ts`).
+ *
+ * `[WXG-T-226 EP12-S1]` `mode: 'mask'` 重载：改产 **d/l mask 场**（不是位图成品）。
+ * 既有调用方（`apps/beads-studio/public/bake-export.js`）**零破坏**（默认仍是位图模式）。
  */
-export function makeBeadRecipe(draw: FilledBeadDraw): BeadBakeRecipe {
+export function makeBeadRecipe(draw: FilledBeadDraw): BeadBakeRecipe;
+export function makeBeadRecipe(_draw: FilledBeadDraw, opts: MaskRecipeOptions): MaskBakeRecipe;
+export function makeBeadRecipe(
+    draw: FilledBeadDraw,
+    opts?: MaskRecipeOptions,
+): BeadBakeRecipe | MaskBakeRecipe {
+    if (opts?.mode === 'mask') {
+        const spec = maskSpecFor(opts.gauge);
+        return (size = MASK_CANONICAL_SIZE) => computeMaskField('bead', spec, size);
+    }
     return (builder, styleId, colorIdx, size) => {
         draw(builder, size / 2, size / 2, colorIdx, { size, styleId });
     };
@@ -104,7 +139,23 @@ export function makeCellRecipe(
     drawTile: TargetTileDraw,
     drawSocket: EmptySocketDraw,
     opts: CellRecipeOptions,
-): BeadBakeRecipe {
+): BeadBakeRecipe;
+export function makeCellRecipe(
+    _drawTile: TargetTileDraw,
+    _drawSocket: EmptySocketDraw,
+    _opts: CellRecipeOptions,
+    maskOpts: MaskRecipeOptions,
+): MaskBakeRecipe;
+export function makeCellRecipe(
+    drawTile: TargetTileDraw,
+    drawSocket: EmptySocketDraw,
+    opts: CellRecipeOptions,
+    maskOpts?: MaskRecipeOptions,
+): BeadBakeRecipe | MaskBakeRecipe {
+    if (maskOpts?.mode === 'mask') {
+        const spec = maskSpecFor(maskOpts.gauge);
+        return (size = MASK_CANONICAL_SIZE) => computeMaskField('cell', spec, size);
+    }
     return (builder, _styleId, colorIdx, size) => {
         const cx = size / 2;
         const cy = size / 2;

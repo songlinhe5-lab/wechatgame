@@ -753,6 +753,30 @@
 
 **登记的欠账**：① K3「孔底透出目标色」判据文本在 tint 臂下不逐字成立（透出的是 B0 tile `edge` 而非 `pit`）⇒ QA 改写；② 载体形态待真机数据；③ LOD 阈值 `[待真机]`；④ 192/256 档待真机测出可接受上限后再议。
 
+### S1+S2 落码（程基岩，2026-10-02）
+
+**范围**：只做 EP-12 **S1**（改产 d/l mask = spec 化 + 场计算 + `mask:diff` 对拍门禁）与 **S2**（双臂注入 + 白名单显式化）。⛔ S3/S4/S5/S6 未做。基线 `4227ffa`，⛔ 未 commit / 未 push。
+
+**① 128px 核实（任务单点名先核处）**：`BAKE_CANONICAL_SIZE` **实值 = 128**（`games/beads/src/config/tuning.ts:271`；v1.57 由「珠体 26×2×2+pad ≈112」抬到「`BEAD_PITCH` 32 × dpr 2 × `ZOOM_MAX` 2.0 = 128」，112 只剩注释/旧测试里的历史字面量）⇒ **与定稿 py 的 `OUT = 128` 同值**，⛔ 无需对齐、未改 §3 冻结量。新立 `MASK_CANONICAL_SIZE = 128`，跨包单测钉住两者相等。
+
+**② S1 落码**：`core/bake/mask-spec.ts`（新）＝定稿口径的 **spec 化载体**：两档 `MaskGaugeSpec`（holed v1.1＝珠 26/角 8/⌀12/孔边 1/羽化 0.5/槽口 12角 8/槽底 0.70/格外 0.70；holeless v1.0-holeless＝珠 24/角 7/无孔/槽口 11角 7/槽底 0.32/格外 0.70）、`MASK_SCHEMA_VERSION = 1`（EP12-S7 独立号，⛔ 不与 `BAKE_SCHEMA_VERSION` 合并）、外框四扇斜率（0.42+0.28×(1.0|0.75|0.35) ⇒ 0.70/0.63/0.52/0.42，外缘 −0.10·t）、`layers*.json` 的 `beadLayers` 内嵌快照。⛔ 未发明数值：逐字承 py 头注，层集逐字段取自 capture 产物。
+
+**② S1 落码（续）**
+- `core/bake/mask-field.ts`（新）＝纯数学场计算 → 已按 DEC-6 编码的交错 RGBA。**逐式复刻 PIL 12.x 位图语义**（`polygon_generic` 扫描线 + `ROUND_UP/DOWN`；`rounded_rectangle` 的 Python 层 `round()` + 4 段 90° `pieslice` + 竖带；`quarter/ellipse_state` 整数跨度状态机；`LANCZOS` support 3 + 系数归一化后量化 2²² + 横纵两遍）。
+- `core/bake/bake-recipes.ts`：`makeBeadRecipe`/`makeCellRecipe` **加 `mode: 'mask'` 重载** ⇒ 返回 `(size?) => MaskField`（零绘制命令、忽略 `styleId`/`colorIdx` ⇒ V-1 mask 与色无关）。**默认仍是位图模式** ⇒ 旧调用方（`bake-export.js`）零破坏。
+- `core/render/render-model.ts`：`BlitCommand` 增 `tint?: string` + `blit()` 第 6 参改**选项对象**（方案件 §3.3 选项 B；仓内仅 1 处调用，编译期捕获）。⛔ 无 `tint` ⇒ 字段不落 `JSON.stringify` ⇒ seal 基准零漂移。
+- 工具：`tools/mask-preview/mask-diff.mjs`（对拍门禁）+ `lib/png-rgba.mjs`（零依赖 PNG 读入器，仅用 `node:zlib`）。
+
+**③ S2 落码**
+- `games/beads/src/view/bead-tint-mask.ts`（新）＝ **DEC-5 显式白名单**：`maskId = 白名单(kind, gauge, styleId)`，**当前只有 `facet-4`**，未命中 ⇒ `undefined` ⇒ 矢量回退。mask id **全部预建**（C2：每珠每帧零堆分配，⛔ 不用模板串拼 id）+ `typeof` 守卫挡原型链键（`'constructor'` 等）。
+- `games/beads/src/view/bead-render.ts`：`setBeadTintRuntime`/`getBeadTintRuntime`/`createWhitelistBeadTintRuntime`（与既有 `_bakeRuntime` **并列同型**槽位，默认 `undefined` ＝ tint 臂不存在）。臂序 **① tint → ② 烘焙臂（代码一行未改）→ ③ 矢量臂**。命中 ⇒ 1 条 `blit(mask, tint = 本色)`，⛔ **不再画 live `pit` circle / 孔环**（DEC-2 孔区真透 ⇒ 透出 B0 tile 的 `edge` −0.30）。格面臂限**盘面格**（`beadInset > 0` 且有 `colorIdx`）⇒ 托盘空槽/锁定格恒矢量（§3.6）。新增 `FilledBeadOptions.maskGauge` + `drawEmptySocket` 末位 `options`：**不传 ⇒ tint 臂永不命中**（安全默认，矢量臂逐字节不变）。
+- ⚠ **口径澄清（供复核）**：任务单把 `setBeadBakeRuntime` 写作「注入点已存在」，而该槽签名是 `getTextureId(styleId, colorIdx, bakeSize)`，与 DEC-5 要求的 `getMaskId(kind, gauge, styleId)` 不同型 ⇒ 我按**方案件 §3.2 与 ADR-0029 DEC-5** 在同文件**并列新增** tint 槽（同名同型同「未注入即不存在」语义），**未改**既有烘焙槽。**若主理人本意是复用同一槽，请裁**。
+
+**④ 真实读数（本批实跑，非声称）**
+- **`mask:diff` 逐字节一致**：四件套（bead/cell × holed/holeless）**R/G/B/A 全通道 mean = 0、max = 0、>1 量化步的像素 = 0/65536** —— 即 TS 场计算对定稿 py 产物**逐字节相等**，强于方案件 §4.3 的建议容差（mean ≤1/255、max ≤2/255，且该建议原文标注「落码前与 QA 对齐」，本批**未**与 QA 对齐，容差问题仍未闭）。编码不变式 I-1…I-8 全过（孔区洪泛 `B<250` 实测 **129.20 dp² ⇒ 等效 ⌀12.83dp**，落在判定带 [11.4, 13.2] 内）。⚠ 该面积比 T-227 `asset-spec §2.3 I-2` 报告的 **114.4 dp² / ⌀12.07dp 大 +14.8 dp²** —— 因 py 与 TS 产物**逐字节相等**，差异只可能来自**量测口径**（阈值/连通域边界取法），非 mask 本身；见未闭项 ③。
+- **单测**：framework **383/383 绿**（36 文件，含新增 `mask-field` 24 + `mask-diff` 5）· beads **753 绿 / 1 skipped**（56 文件，含新增 `bead-tint-arm` 18）· **既有 beads 用例 735 绿 / 1 skipped 55 文件，与基线同结果**（V-5 绿线锚：`bead-style-seal`/`bead-render`/`bead-cell-standard` 零漂移）。
+- **`pnpm -r run typecheck`** 0 错 · **`pnpm run verify`** = **PASS 18 / WARN 0 / SKIP 1（`check:size`，K-089 既有缺口未解除）/ FAIL 0** · `check:arch` OK（L2 无违规）· `check:es5spread` OK（110 文件无非数组展开）· `framework:sync` 已重生成 Cocos 副本（beads 写入 7 / breakout 写入 5）+ `framework:sync:check` 绿。
+
 ## WXG-T-227
 
 **beads·tint mask 资产规格（入库/命名/包体预算/双档位）** — 林绘澄（art-director），P1。
@@ -796,6 +820,44 @@
 - 处置：本单只登记缺陷与归因（已在 `provenance.s3_frame_recheck_6` 与 QA `K.5.1-补6` 落账）；**根治措施待裁**（候选：封箱腿对「未走复评的整帧漂移」自动报警 / 收口清单加「视觉批必配复评」门禁）⇒ 归主理人。
 
 **台账**：`WXG-T-229` 复评小节已记 ① 的读数与 ② 的归因；本单为其执行入口。
+
+### S1 + S2 落码（程基岩，2026-10-02 · 主理人代为收尾复核）
+
+**交付面**（⛔ 未 commit，等主理人发话）
+
+| 面 | 文件 |
+|---|---|
+| mask 规格（定稿口径的 TS spec 化） | `packages/framework/src/core/bake/mask-spec.ts`（含两档层集快照 + `MASK_SCHEMA_VERSION` 独立失效号） |
+| mask 场计算（纯数学） | `packages/framework/src/core/bake/mask-field.ts`（PIL 12.x 栅格化/椭圆状态机/扫描线/LANCZOS ÷4 逐式复刻） |
+| 配方改产 mask | `bake-recipes.ts` 的 `makeBeadRecipe` / `makeCellRecipe` 增 `mode:'mask'` 重载（**默认仍位图模式 ⇒ 既有调用方零破坏**） |
+| 对拍门禁 | `tools/mask-preview/mask-diff.mjs` + `lib/png-rgba.mjs`（零依赖 PNG 读入）+ 单测形态 `framework/tests/core/mask-diff.test.ts` |
+| 双臂注入 + 白名单 | `games/beads/src/view/bead-tint-mask.ts`（显式白名单，预建 id 表保 C2 零分配）+ `bead-render.ts` 的 `setBeadTintRuntime` / `createWhitelistBeadTintRuntime` / `FilledBeadOptions.maskGauge` / `drawEmptySocket` 末位 tint 选项 |
+| `blit` 着色基色 | `render-model.ts` 的 `BlitCommand.tint` + `BlitOptions`（第 6 参改选项对象；**`undefined` 不落 `JSON.stringify` ⇒ seal 基准零漂移**） |
+| 单测 | `framework/tests/core/mask-field.test.ts`（24 例）+ `mask-diff.test.ts`（5 例）+ `games/beads/tests/bead-tint-arm.test.ts`（18 例） |
+
+**实测读数（主理人独立复核，非采信汇报）**
+- `mask:diff` 四件套（bead/cell × holed/holeless）**逐字节一致**：R/G/B `mean=0.0000 max=0 >1步:0/65536`，编码不变式全过 ⇒ **R-4（py/TS 双实现漂移）在本批实测为零**。
+- 关键实测坑（已修并注释在码）：外框左/右扇隶属度⛔不可用「四扇补集」`1−up−right−down`（对角 45° 上三扇全 0 ⇒ 补集给出 `left=1`，把外框 d 从 0.42 抬到 0.63）⇒ 造成四角弧各约 900 px、R 通道 Δ 最大 **57**；改为与定稿 py 同式直算后归零。
+- 绿线锚 V-5：未注入 tint 运行时时「注入前 / 注入后 / 取消注入」三次输出**逐字节相同**；既有 beads 测试 735 绿 + 1 skipped（本批前基线）**零回归**；`bead-style-seal` / `bead-style-pool` / `bead-render` + 新增 tint 臂合计 **83 绿**。
+- 全量 `pnpm run verify`：**PASS 18 / SKIP 1 / FAIL 0**（SKIP 仍 = `check:size`）。
+- `tsc --noEmit` 两包 0 错；`check:arch` OK（1 warning = 既有 editor 产物提醒）；`check:es5spread` OK；`framework:sync:check` 绿（已同步 7 处镜像）。
+
+**DEC 落实对照**
+- DEC-1（本批 = 命令层 + Canvas2D 侧准备；Cocos 生产不接）✅ —— Cocos 载体**未做**。
+- DEC-2（孔区真透、透 B0 tile）✅ —— tint 臂下不再画 live `pit`/孔环，**矢量臂保持不变** ⇒ §3 冻结常量未动。
+- DEC-3（丙·渐进 + `mask:diff`）✅ —— 对拍已绿，但**TS 尚未成为唯一真源**（py 仍是资产产出源，DEC-3 第 ① 步保留）。
+- DEC-4（128px + 高倍回矢量）**部分** ✅ 档位钉住 128（跨包单测钉 `BAKE_CANONICAL_SIZE === MASK_CANONICAL_SIZE`）；⛔ **LOD 回退阈值未落**（`[待真机]`，属 S4）。
+- DEC-5（白名单显式、未命中矢量回退）✅ —— 当前仅 `facet-4`，未定稿风格一律 `undefined`。
+- DEC-6（编码沿用 ADR-0028 §2.1）✅。
+
+**未闭项 / 风险（如实）**
+1. **S3 未做**：Canvas2D 合成通道（`base·d+(1−base)·l` 预乘的实际消费）+ harness 实验页 ⇒ **tint 臂目前无消费者，游戏内不可达**（调用方未接 `maskGauge`）。
+2. **S4 未做**：zoom LOD 回退机制与阈值。
+3. `mask:diff` **未挂进 `verify`**（容差为方案件 §4.3 的**建议值**，原文标注「落码前与 QA 对齐」；本批实测已达逐字节一致 ⇒ 门禁按更严的逐字节判）。挂载与否待主理人裁定。
+4. **K3 判据文本**在 tint 臂下不逐字成立（透出的是 B0 tile `edge` 而非 `pit`）⇒ 仍挂 **WXG-T-230 / T-228**，本批未代改。
+5. `mask-field.ts` 逐式复刻 PIL 12.2 的实现细节（取整/椭圆状态机/LANCZOS 定点）—— 漂移面收敛为「py 与本模块的平台/版本差异」一处，⚠ 若 py 侧升级 PIL 版本需重跑对拍。
+6. `blit` 第 6 参签名变更（位置式 `alpha` → 选项对象）：仓内仅 1 处调用已同步，⛔ 外部调用方需按编译期报错适配。
+
 
 ## WXG-T-231
 
