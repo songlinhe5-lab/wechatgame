@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3664,
       "lines": 133,
-      "sha256": "f686cb8706c81836af114e9e6ac3a28348ec323cd9a363f1fc6cf3e5dd7eb5b0",
+      "sha256": "d76ccc220db6f9b9243053d3c3b9374917c6321421a0e4d43823695a992105e2",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5037,
       "lines": 106,
-      "sha256": "867fdff8123f0d29f56f7d0f2dc86877c887ae58d19f22ac75391c85ae2f54c7",
+      "sha256": "25a4ca681c6825fad7ec9bb90cbd162d8153324aa2d602f19a75b3652061c934",
       "tier": "normal",
       "sections": [
         {
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1131 行 / 55367 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1137 行 / 55597 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 274,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1132 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1138 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48580,17 +48580,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 4794,
-      "lines": 130,
-      "sha256": "0b6bf6521d9cf12b2b9e944d662edea8597da34ee3412b493ef41bc04131af1c",
+      "tokens": 5103,
+      "lines": 141,
+      "sha256": "a66e71bfc2034793e2eb056cefdd4f8738b8f571168793177e85e057ff81afb6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 131,
-          "tokens": 4791,
+          "endLine": 142,
+          "tokens": 5100,
           "summary": "",
           "keywords": []
         },
@@ -48598,8 +48598,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 131,
-          "tokens": 4758,
+          "endLine": 142,
+          "tokens": 5067,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48778,6 +48778,21 @@
             "定点补测",
             "推翻了我自己"
           ]
+        },
+        {
+          "anchor": "§T-235 收口：用户肉眼确认 harness zoom 0.2–2.0 全区间无白线",
+          "level": 3,
+          "startLine": 132,
+          "endLine": 142,
+          "tokens": 286,
+          "summary": "用户主理人目检：harness 下 zoom 0.2 → 2.0 全区间无白线。",
+          "keywords": [
+            "harness",
+            "zoom",
+            "收口",
+            "用户肉眼确认",
+            "全区间无白线"
+          ]
         }
       ]
     },
@@ -48785,7 +48800,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "c66804fcb44cff1905b3a518308a0b5b4ed9906bf4a0dda62466574174fdd621",
+      "sha256": "539de29b6570825663bbcb6c20e85be99ea79d6e0b6978d58bab0b12e6388ff3",
       "tier": "normal",
       "sections": [
         {
@@ -48876,7 +48891,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 4,794 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 5,103 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -68881,17 +68896,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 55367,
-      "lines": 1131,
-      "sha256": "e34c60bfda77cb4b45660a196e4be1d6c6233f87fe3eacd6444d09e0981b1357",
+      "tokens": 55597,
+      "lines": 1137,
+      "sha256": "be11f01e6879458691f316b2a976f3bb02a49e715a89a833abcad3b3d5f4f729",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1132,
-          "tokens": 55350,
+          "endLine": 1138,
+          "tokens": 55580,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -69802,8 +69817,8 @@
           "anchor": "§WXG-T-235",
           "level": 2,
           "startLine": 1054,
-          "endLine": 1132,
-          "tokens": 1805,
+          "endLine": 1138,
+          "tokens": 2035,
           "summary": "beads·B0 底图 TILE_BLEED 外扩（消 AA 接缝白线） — 2026-10-03 用户裁定「甲」。",
           "keywords": [
             "WXG",
@@ -69905,8 +69920,8 @@
           "anchor": "§未闭（如实）",
           "level": 3,
           "startLine": 1120,
-          "endLine": 1132,
-          "tokens": 341,
+          "endLine": 1138,
+          "tokens": 571,
           "summary": "~~⛔ 只验了 zoom 1.0 × dpr 2 一档~~ —— 2026-10-03 已补测（定点缝探针，zoom ∈",
           "keywords": [
             "zoom",
