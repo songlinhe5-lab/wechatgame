@@ -47,7 +47,6 @@ import {
   BEAD_DRAW_INSET,
   BEAD_PITCH,
   LIFT_SHADOW_ALPHA,
-  LIFT_SHADOW_SINK,
   SOCKET_CARD,
   TILE_BLEED,
   TRAY_BEAD_SIZE,
@@ -594,12 +593,22 @@ let polyWorld: number[] = [];
 /**
  * **[WXG-T-236 定标 · 2026-10-03 用户裁定「抬起态要影」+ 选型 C-3]** 抬起态**珠底投影**（半径**跟珠轮廓**、⛔ 不跟槽轮廓）。
  *
- * ## 形状：正圆，半径 = **珠的绘制半宽**，居中
+ * ## 形状：圆角正方形（= 槽的轮廓），不是圆
+ * 用户 2026-10-03 判「圆角轮廓不对」+「影子轮廓要与槽一致，是圆角正方形，而不是圆形」
+ * => 圆角半径取槽的圆角 `round(边长 x BEAD_CARD.radius 0.30)`。
+ *
+ * ## 范围：只画在「珠下缘以下」，孔因此没有影
+ * 用户同轮判「只有珠子下面有影子，孔不要有影子」。真透孔（shape = 0）在珠内部
+ * （y 属于 [格心, 格心 + 2*holeR]）；若影按整块槽画（旧的 r = 边长/2 正圆，跨到 格心+11.7）
+ * => 影的上半伸进珠轮廓内 => 正好从孔里透出来。
+ * => 本实现把影裁到 `y <= 珠下缘`；裁剪后孔区恒不在影内，且不需要挖洞（单轮廓足够）。
+ *
+ * ## 边长来源：珠的绘制轮廓（刻意不跟坑的尺寸公式）
  * **用户 2026-10-03 明确「阴影跟珠子轮廓，不跟槽轮廓」** ⇒ `r` 由 `drawFilledBead` 的珠体边长口径派生：
  * `inset = drawInset × size / BEAD_CELL`、`r = (size − inset×2) / 2`。
  * ⛔ **不引用 `drawEmptySocket` 的坑尺寸 / `relief` / `SOCKET_CARD`**。
  *
- * ## 为什么不跟槽（写成代码结构而非注释的原因）
+ * ## 为什么不跟坑的尺寸公式（写成代码结构而非注释的原因）
  * 盘面格里坑外沿与珠面轮廓**当前恰好同尺**（`view-model` 把同一个 `beadDrawInset` 喂给两者）
  * ⇒ 两者算出的半径**数值相同** ⇒「跟珠还是跟槽」在数值上**不可区分**，光靠注释会漂。
  * 但 **tint 臂的实渲槽比公式值小 1dp**（烘焙 mask `slotHalfDp 12` ⇒ 实渲 24dp，公式给 26dp）
@@ -628,11 +637,38 @@ export function drawLiftBeadShadow(
   size: number = BEAD_CELL,
   /** 珠体内缩基准（`drawFilledBead` 的 `drawInset` 口径）；⛔ **不是**坑的 `beadInset`。 */
   drawInset = 0,
+  /** 抬起量（设计 px，y 轴向上；0 => 无可见带 => 本函数不画任何东西）。 */
+  lift = 0,
 ): void {
   // ⛔ 半径**只**由珠的绘制轮廓派生（`drawFilledBead` 同一把尺）⇒ 槽改影不动，见头注「为什么不跟槽」。
   const inset = (drawInset * size) / BEAD_CELL;
-  const r = (size - inset * 2) / 2;
-  builder.circle(cx, cy - r * LIFT_SHADOW_SINK, r, {
+  const s = size - inset * 2;
+  const hw = s / 2;
+  const r = Math.min(Math.round(s * BEAD_CARD.radius), hw);
+
+  // 可见带 = 槽底沿 y 珠下缘（lift > 0 时才有）。影只画在这条带里。
+  const yBot = -hw;
+  const yTop = Math.min(lift - hw, hw);
+  if (yBot >= yTop) return; // 抬起量不足 => 无可见带 => 不画（常态零开销）
+
+  // 圆角正方形在高度 y 处的半宽（d > 0 落在圆角弧区，用圆弧收窄）。
+  const halfAt = (y: number): number => {
+    const d = Math.abs(y) - (hw - r);
+    return d <= 0 ? hw : hw - r + Math.sqrt(Math.max(0, r * r - d * d));
+  };
+
+  // 轮廓 = 圆角正方形 ∩ {y <= 珠下缘} => 珠的底边那一段（上沿直、下沿为槽的两枚底角弧）。
+  const N = 8;
+  const pts: number[] = [];
+  for (let i = 0; i <= N; i += 1) {
+    const y = yTop + ((yBot - yTop) * i) / N;
+    pts.push(cx + halfAt(y), cy + y);
+  }
+  for (let i = N; i >= 0; i -= 1) {
+    const y = yTop + ((yBot - yTop) * i) / N;
+    pts.push(cx - halfAt(y), cy + y);
+  }
+  builder.polygon(pts, {
     fill: withAlpha(endpointOf(inks, colorIdx).shadeOuter, LIFT_SHADOW_ALPHA),
   });
 }

@@ -1080,6 +1080,7 @@ function drawGrid(
         // 半径**跟珠轮廓**、⛔ 不跟槽（推导见 `bead-render::drawLiftBeadShadow` 头注）。
         drawLiftBeadShadow(
           builder, bx, cy, cell.colorIdx, inks, snap.gridCell, beadDrawInset,
+          groupLift, // 影的上沿 = 珠下缘 => 孔（珠内部）恒无影
         );
       }
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);

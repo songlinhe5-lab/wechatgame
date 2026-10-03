@@ -477,13 +477,17 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
     // ② 抬起：rect 不变、circle +1
     const rectsBefore = renderSnap(snap0).filter((c) => c.kind === 'rect').length;
     const circlesBefore = renderSnap(snap0).filter((c) => c.kind === 'circle').length;
+    const polysBefore = renderSnap(snap0).filter((c) => c.kind === 'polygon').length;
     expect(h.game.selectBoardBead(1, 2)).toBe(true);
     h.advance(SELECT_LIFT_MS / 1000 + 0.02);
     const after = renderSnap(h.game.snapshot);
     expect(after.filter((c) => c.kind === 'rect').length, '抬起不应新增 rect（坑底已常画）')
       .toBe(rectsBefore);
-    expect(after.filter((c) => c.kind === 'circle').length, '抬起应恰好多一枚影圆')
-      .toBe(circlesBefore + 1);
+    // [WXG-T-236 九轮] 影已由**圆**改为**圆角正方形多边形**（⛔ 不是 circle）⇒ 判据同步改数多边形。
+    expect(after.filter((c) => c.kind === 'polygon').length, '抬起应恰好多一枚影多边形')
+      .toBe(polysBefore + 1);
+    expect(after.filter((c) => c.kind === 'circle').length, '⛔ 抬起不得新增 circle（旧圆影已删）')
+      .toBe(circlesBefore);
   });
 
   it('抬起量走等比：恒等档逐位不变、缩档随 `gridCell` 同比缩（K-077 同族）', () => {
