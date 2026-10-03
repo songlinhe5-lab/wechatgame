@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3664,
       "lines": 133,
-      "sha256": "a64b36e9dc5ddfaf7cb9ef22e3e8eda031c17953606cefe80adbce6504c03d68",
+      "sha256": "1fc7db54b9a31b944162b09035870c01e08720ef6735a4aff00d95a787b95f0f",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5037,
+      "tokens": 5043,
       "lines": 106,
-      "sha256": "e558d8c8cff87f10c4a0633d76efa2dfee364b7f4ac2101e84636a60366bde8c",
+      "sha256": "11d7b662df6bfeff7f8fcf13964fe286a6a1c8ea8531d9444f83695967d74db9",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 107,
-          "tokens": 5009,
+          "tokens": 5015,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 74 行 / 14233 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 75 行 / 14661 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+75 · §待排（backlog，无号，立项时领取）=48+28",
+          "summary": "§WXG 任务台账（SSOT）=1+76 · §待排（backlog，无号，立项时领取）=49+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1162 行 / 56327 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1208 行 / 57444 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 275,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1163 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 280,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1209 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48580,17 +48580,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 6699,
-      "lines": 197,
-      "sha256": "4e9a12063ee1bbad913fffcbe3ff55d498cb664261b4b881ebe00f7b32644957",
+      "tokens": 7560,
+      "lines": 222,
+      "sha256": "0bc8581e5552c7b2a7fe48ce593f25997249bf77c1c7c474a04721bbf4c9958b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 198,
-          "tokens": 6696,
+          "endLine": 223,
+          "tokens": 7556,
           "summary": "",
           "keywords": []
         },
@@ -48598,8 +48598,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 198,
-          "tokens": 6664,
+          "endLine": 223,
+          "tokens": 7524,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48856,6 +48856,22 @@
             "全单收口",
             "无接缝"
           ]
+        },
+        {
+          "anchor": "§WXG-T-236：抬起动画复位修复 + 投影形态改「接触影 + 投射阶梯」（用户裁定 Q1 甲 / Q2 丙）",
+          "level": 3,
+          "startLine": 199,
+          "endLine": 223,
+          "tokens": 822,
+          "summary": "问题①（用户报「已抬起的珠点击还会走一遍抬起动画」）：抬起量是一个全局时钟",
+          "keywords": [
+            "WXG",
+            "抬起动画复位",
+            "修复",
+            "投影形态改",
+            "接触影",
+            "投射阶梯"
+          ]
         }
       ]
     },
@@ -48863,7 +48879,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "3c7c5927bdb2649059e7adb2866b91fce1f7d7c92b6cff9ba363299336984ee9",
+      "sha256": "1a3f89ae4f98a8cb250c29dad221d776c935a2240672740bf5a880231125113e",
       "tier": "normal",
       "sections": [
         {
@@ -48954,7 +48970,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 6,699 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 7,560 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -68959,17 +68975,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 56327,
-      "lines": 1162,
-      "sha256": "d69e3074492e170b6b0dc3fef096962fd25cfbb44b7e9bd3450768f2ca8c23ab",
+      "tokens": 57444,
+      "lines": 1208,
+      "sha256": "e7a91137e452c3ac5a962cbd662d00cb5ebfd5ee8629bf50b6e225e9955521ad",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1163,
-          "tokens": 56310,
+          "endLine": 1209,
+          "tokens": 57427,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -70009,22 +70025,92 @@
             "未闭",
             "如实"
           ]
+        },
+        {
+          "anchor": "§WXG-T-236",
+          "level": 2,
+          "startLine": 1164,
+          "endLine": 1209,
+          "tokens": 1113,
+          "summary": "beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性） — 2026-10-03 用户裁定「",
+          "keywords": [
+            "WXG",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§用户报的现象与工程侧已落部分",
+          "level": 3,
+          "startLine": 1168,
+          "endLine": 1189,
+          "tokens": 587,
+          "summary": "用户报两条：① 「已抬起的珠子点击还会走一遍抬起动画」；② 「抬起珠子的阴影是一个横条，没有看到底部的槽的图案以及真实光",
+          "keywords": [
+            "用户报的现象",
+            "与工程侧已落",
+            "部分"
+          ]
+        },
+        {
+          "anchor": "§⛔ 本单正本 = 四件待美术定标（工程侧不自作主张）",
+          "level": 3,
+          "startLine": 1190,
+          "endLine": 1198,
+          "tokens": 210,
+          "summary": "D1 暗底坑底反读（assets-spec §7.11.7）：现有共用坑底套依赖近白底图才读得出凹陷，落到生产 B0",
+          "keywords": [
+            "§7.11.7",
+            "assets",
+            "spec",
+            "本单正本",
+            "四件待美术定",
+            "工程侧不自作"
+          ]
+        },
+        {
+          "anchor": "§⚠ 顺带登记的既有缺口：封箱夹具**无选中态**",
+          "level": 3,
+          "startLine": 1199,
+          "endLine": 1204,
+          "tokens": 136,
+          "summary": "封箱夹具（13×12 / 78 填 / 78 空）从不调用 selectBoardBead / selectTraySl",
+          "keywords": [
+            "selectBoardBead",
+            "selectTraySl",
+            "顺带登记的既",
+            "有缺口",
+            "封箱夹具",
+            "无选中态"
+          ]
+        },
+        {
+          "anchor": "§性能（结论不变：不是瓶颈）",
+          "level": 3,
+          "startLine": 1205,
+          "endLine": 1209,
+          "tokens": 62,
+          "summary": "每颗抬起珠 3 图元（原 1）⇒ 满组 ~25 颗 = +75，相对 450/帧 ≈ +17%；抬起时钟 O(1)；热路",
+          "keywords": [
+            "性能",
+            "结论不变",
+            "不是瓶颈"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 14233,
-      "lines": 74,
-      "sha256": "d8cca1fd76d6e9c7790306e09a58ada2ab717c71cc82ca4b610a857d1332eba6",
+      "tokens": 14661,
+      "lines": 75,
+      "sha256": "65ac2b075486c16211b14d6b74b0b295a34c17f236c750e3504a2ba5d0c4a8fc",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 75,
-          "tokens": 14224,
+          "endLine": 76,
+          "tokens": 14652,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -70037,8 +70123,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 48,
-          "endLine": 75,
+          "startLine": 49,
+          "endLine": 76,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

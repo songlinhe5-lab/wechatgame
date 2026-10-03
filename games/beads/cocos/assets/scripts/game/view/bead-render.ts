@@ -498,19 +498,31 @@ export function drawLiftGroundShadow(
   targetColorIdx: number,
   inks: BeadInks,
 ): void {
-  const w = outer * BEAD_CARD.liftShadowW;
-  const h = outer * BEAD_CARD.liftShadowH;
-  builder.rect(
-    cx + outer * BEAD_CARD.liftShadowDx - w / 2,
-    cy - outer * BEAD_CARD.liftShadowDy - h / 2,
-    w,
-    h,
-    {
-      fill: endpointOf(inks, targetColorIdx).pit,
-      radius: Math.round(h / 2),
-    },
-  );
+  // [WXG-T-236 · 用户 2026-10-03 裁定「丙」] 抬起投影 = **接触影 + 两级投射阶梯**。
+  //
+  // §6 单光源**左上顶光** ⇒ 影朝**右下**投（屏幕系 y 向下 ⇒ dx > 0、dy > 0）。
+  // 墨档梯**引用坑内阴影已定标的端点族**（shadeOuter -0.80 → shadeMid -0.68 → hole -0.58），
+  // ⛔ 不新造数值；越远越淡 ⇒ 单调递减，与坑内梯同一条语言。
+  //
+  // 三段按「先深后浅」绘制 ⇒ 后画的浅段不会盖掉深段的核心。
+  // 墨档**直接引用端点族已预混好的字段**（⛔ 不在本函数混色：色值只进 palette，纪律同 §3）。
+  // 梯序 = 坑内阴影已定标族：shadeOuter(-0.80) → shadeMid(-0.68) → hole(-0.58)，越远越淡。
+  const ep = endpointOf(inks, targetColorIdx);
+  const ladder = [ep.shadeOuter, ep.shadeMid, ep.hole] as const;
+  const steps = BEAD_CARD.castSteps;
+  for (let i = 0; i <= steps; i++) {
+    const w = outer * (BEAD_CARD.liftShadowContactW + BEAD_CARD.castGrowW * i);
+    const h = outer * (BEAD_CARD.liftShadowContactH + BEAD_CARD.castGrowH * i);
+    builder.rect(
+      cx + outer * BEAD_CARD.castDx * i - w / 2,
+      cy + outer * BEAD_CARD.castDy * i - h / 2,
+      w,
+      h,
+      { fill: ladder[Math.min(i, ladder.length - 1)]!, radius: Math.round(h / 2) },
+    );
+  }
 }
+
 
 // DEBUG 轮廓墨色真源在 `view/palette.ts`（arch §3：色值只进 palette）：DEBUG_OUTLINE_*_HEX。
 

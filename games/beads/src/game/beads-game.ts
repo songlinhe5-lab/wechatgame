@@ -900,12 +900,25 @@ export class BeadsGame implements Game {
     if (!this._grid.isMisplaced(row, col)) return false;
     const prev = this._boardSelected;
     if (prev && prev.row === row && prev.col === col) return this._countAction(true); // 幂等：不重发
-    this._liftElapsedMs = 0; // §5：新锚建起 ⇒ 抬起斜坡重来（组内珠一同从底面抬起来）
-    this._clearTraySelection(); // 互斥换选：board 锚建立 ⇒ tray 锚清除
     // WXG-T-148 ③ → 【WXG-T-157 裁定改写】：组 = 8 向两步（切比雪夫 ≤2）**同色**错位珠
-    //（collectMisplacedGroup 内部筛色）；组色 = 锚珠色（规则 2 直填的对应色基准）。
+    // （collectMisplacedGroup 内部筛色）；组色 = 锚珠色（规则 2 直填的对应色基准）。
     // 【WXG-T-186】组成员随即转成剥皮消费序（含锚，锚恒在序首）——直填与取回落槽共用。
     const cells = collectMisplacedGroup(this._grid, row, col);
+    // [WXG-T-236 · 用户 2026-10-03 裁定「甲」] **已完全抬起的组内换锚不再重播斜坡**。
+    //
+    // 缺陷（用户报「已抬起的珠子点击还会走一遍抬起动画」）：抬起量是**一个全局时钟**
+    // （`_liftElapsedMs` / `SELECT_LIFT_MS`）=> 整组共用一个 `liftProgress`；原写法在此**无条件**
+    // 归零 => 点组内**另一颗已抬起**的珠时，整组**掉回地面再抬起一遍** => 观感是「闪了一下」。
+    //
+    // 判据（两条同时成立才**不**复位）：(1) 组**已完全抬起**（时钟到位）；
+    // (2) 新锚**仍属当前已抬起的组**（`cells` 含旧锚）=> 只是换锚，视觉高度不变 => 不该重播。
+    // ⛔ 越界不静默：新锚不在旧组内（换组）或组未抬完（时钟未到位）=> 仍旧复位（= 原行为）。
+    const stillRaised =
+      this._liftElapsedMs >= SELECT_LIFT_MS
+      && prev !== null
+      && cells.some((c) => c.row === prev.row && c.col === prev.col);
+    if (!stillRaised) this._liftElapsedMs = 0; // §5：新锚建起 => 抬起斜坡重来（组内珠一同从底面抬起来）
+    this._clearTraySelection(); // 互斥换选：board 锚建立 => tray 锚清除
     const order = planConsumeOrder(this._grid, row, col, cells);
     this._boardSelected = {
       row,

@@ -416,11 +416,31 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
     return h;
   }
 
-  /** 帧内的分离影：宽 = 缩放后格径 × `liftShadowW` 的 rect（该宽度无第二持有者）。 */
-  function pills(snap: BeadsSnapshot): RectCommand[] {
-    const w = snap.gridCell * BEAD_CARD.liftShadowW;
+  /**
+   * 帧内的分离影**全集**（[WXG-T-236] 接触影 + `castSteps` 级投射阶梯 = 1 + 2 = 3 条/颗）。
+   * 宽度是**格径的线性函数**（`liftShadowContactW + castGrowW × i`）⇒ 用等差筛，三档互不重叠。
+   */
+  function allShadows(snap: BeadsSnapshot): RectCommand[] {
     return renderSnap(snap).filter(
-      (c): c is RectCommand => c.kind === 'rect' && Math.abs(c.w - w) < 1e-9,
+      (c): c is RectCommand =>
+        c.kind === 'rect'
+        && iOfShadowWidth(snap, c.w) !== -1,
+    );
+  }
+
+  /** 该宽度属于第几级阶梯（0 = 接触影）；不是影则 -1。 */
+  function iOfShadowWidth(snap: BeadsSnapshot, w: number): number {
+    for (let i = 0; i <= BEAD_CARD.castSteps; i++) {
+      const expect = snap.gridCell * (BEAD_CARD.liftShadowContactW + BEAD_CARD.castGrowW * i);
+      if (Math.abs(w - expect) < 1e-9) return i;
+    }
+    return -1;
+  }
+
+  /** 接触影（阶梯 i=0）——「影钉在格面」等位置判据只看它。 */
+  function pills(snap: BeadsSnapshot): RectCommand[] {
+    return renderSnap(snap).filter(
+      (c): c is RectCommand => c.kind === 'rect' && iOfShadowWidth(snap, c.w) === 0,
     );
   }
 
@@ -429,11 +449,38 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
     expect(pills(h.game.snapshot)).toHaveLength(0); // 未选中 = 无分离影
     expect(h.game.selectBoardBead(1, 2)).toBe(true);
     h.advance(SELECT_LIFT_MS / 1000 + 0.02);
-    const got = pills(h.game.snapshot);
-    expect(got).toHaveLength(1); // 组内 1 颗 ⇒ 恰 +1 条命令
-    expect(String(got[0]!.fill).startsWith('rgba')).toBe(false);
-    // 色源 = 本格目标色的 `pit` 端点（零新 hex、与同格凹槽坑底同源）
-    expect(got[0]!.fill).toBe(endpointOf(DEMO_BEAD_INKS, h.game.grid.requiredColor(1, 2)).pit);
+    const got = allShadows(h.game.snapshot);
+    // [WXG-T-236] 每颗抬起珠 = 接触影 + 2 级投射阶梯 = 3 条（组内 1 颗 ⇒ 恰 3 条）。
+    expect(got).toHaveLength(1 + BEAD_CARD.castSteps);
+    for (const c of got) expect(String(c.fill).startsWith('rgba')).toBe(false);
+    // 墨档梯 = 坑内阴影已定标端点族：接触最深 `shadeOuter`，向外递浅 `shadeMid → hole`。
+    // ⛔ 旧实现用 `pit`（该族**最浅**一档）⇒ 淡而不暗、读作横条；此项即其回归守卫。
+    const ep = endpointOf(DEMO_BEAD_INKS, h.game.grid.requiredColor(1, 2));
+    const ladder = got
+      .map((c) => iOfShadowWidth(h.game.snapshot, c.w))
+      .sort((a, b) => a - b)
+      .map((i) => [ep.shadeOuter, ep.shadeMid, ep.hole][i]);
+    expect(ladder).toEqual([ep.shadeOuter, ep.shadeMid, ep.hole]);
+    expect(ladder[0]).not.toBe(ep.pit);
+  });
+
+  // [WXG-T-236] 光向 = §6 左上顶光 ⇒ 影朝**右下**投。旧实现符号与注释相反（落在格心上方）。
+  it('投影朝右下（§6 左上顶光）且逐级放大、离接触影更远', () => {
+    const h = mkMisplaced('wxgame.beads.test.lift-shadow-light');
+    expect(h.game.selectBoardBead(1, 2)).toBe(true);
+    h.advance(SELECT_LIFT_MS / 1000 + 0.02);
+    const snap = h.game.snapshot;
+    const byLevel = [0, 1, 2].map((i) =>
+      allShadows(snap).find((c) => iOfShadowWidth(snap, c.w) === i)!,
+    );
+    for (let i = 1; i < byLevel.length; i++) {
+      const prev = byLevel[i - 1]!;
+      const cur = byLevel[i]!;
+      expect(cur.x).toBeGreaterThan(prev.x);      // 向右
+      expect(cur.y).toBeGreaterThan(prev.y);      // 向下（屏幕系 y 向下）
+      expect(cur.w).toBeGreaterThan(prev.w);      // 逐级放大
+      expect(cur.h).toBeGreaterThan(prev.h);
+    }
   });
 
   it('影钉在格面：中途帧与满帧同坐标（分离量由珠升起露出，不跟物体搬家）', () => {
