@@ -59,7 +59,8 @@
 | 3 | bead × holeless × mask | `bead_holeless_128_mask.png` | **4 281** | 小豆档 |
 | 4 | grid × holeless × mask | `grid_holeless_128_mask.png` | **2 808** | 小豆档 |
 | — | **4 mask 小计** | | **19 234 B ≈ 18.78 KB** | |
-| **+9** | **trayCell × 单档 × mask**（**待增**） | `tray_cell_128_mask.png`（命名待裁） | **≈4.8 KB（预估）** | 📌 **WXG-T-237 待增项** — 托盘中性槽；**1 张**（非 2×2）。⛔ 字节/画布/7 道题见 **[`tray-neutral-slot-mask-spec.md`](tray-neutral-slot-mask-spec.md)**；⛔ 本行**不计入**上方「4 mask 小计」与「八件套合计」（那是**已交付**口径，待增件在获批并烘焙前不进预算） |
+| **+9** | **trayCell × 单档 × mask**（**待增**） | `tray_cell_128_mask.png`（命名待裁） | **≈4.8 KB（预估）** | 📌 **WXG-T-237 待增项** — 托盘**中性槽**（不受风格白名单管辖）。
+| **+10** | **trayBead × 单档 × mask**（**待增**） | `tray_bead_128_mask.png`（命名待裁） | **≈8.8 KB（预估）** | 📌 **WXG-T-237 待增项** — 托盘**珠**（**随风格**，走白名单）。**⛔ 不能复用 `bead_holed_128_mask.png`**：托盘珠面 **44dp / 角 13 / 孔 ⌀20**，盘面珠 **26 / 8 / ⌀12** ⇒ 尺寸体系不同。⚠ **两侧风格语义相反**（槽不变 / 珠变）⛔ 字节/画布/7 道题见 **[`tray-neutral-slot-mask-spec.md`](tray-neutral-slot-mask-spec.md)**；⛔ 本行**不计入**上方「4 mask 小计」与「八件套合计」（那是**已交付**口径，待增件在获批并烘焙前不进预算） |
 | 5 | bead × holed × base | `bead_holed_128_base.png` | 3 631 | **条件交付**：Sprite 池载体的占位图 |
 | 6 | grid × holed × base | `grid_holed_128_base.png` | 390 | 同上 |
 | 7 | bead × holeless × base | `bead_holeless_128_base.png` | 1 954 | 同上 |

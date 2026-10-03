@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "f1e0cc5fbee942073832a512514e936308b7e6f5765b1f3246785ac394feb124",
+      "sha256": "e50e54b22fea13248699ee1aaf066eaf1f192a95ff09fd4afd24bdb9758d80e0",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5009,
       "lines": 94,
-      "sha256": "ce1eb2a41e941ac1db5db94010ac7925c847f069588c488864728940b2ec66de",
+      "sha256": "9d1cf341bd6447bbf5701ff296784e05727b39d7be65443da2bd48f139b4d13b",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 17217 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 17366 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1580 行 / 66480 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1623 行 / 67282 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 676,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1581 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1624 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13875,17 +13875,17 @@
     },
     {
       "path": "games/beads/art/tint-mask-asset-spec.md",
-      "tokens": 9608,
-      "lines": 353,
-      "sha256": "0a9a926e5db746059438bd7cbb3ef7da12bb188530c11f67d04455668816ad8f",
+      "tokens": 9733,
+      "lines": 354,
+      "sha256": "9ff87e3dad0e2ef317b3fc8d8a2c602670e0e66d2cc78d2c06bb0c750f5f1c69",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》tint mask 资产规格（`assets-spec` 分册）",
           "level": 1,
           "startLine": 1,
-          "endLine": 354,
-          "tokens": 9589,
+          "endLine": 355,
+          "tokens": 9714,
           "summary": "任务号：WXG-T-227（P1）· 执笔：林绘澄（art-director）· 日期：2026-09-29",
           "keywords": [
             "assets-spec",
@@ -13936,8 +13936,8 @@
           "anchor": "§1 资产清单与命名规范",
           "level": 2,
           "startLine": 51,
-          "endLine": 103,
-          "tokens": 1474,
+          "endLine": 104,
+          "tokens": 1599,
           "summary": "",
           "keywords": [
             "资产清单与命",
@@ -13948,8 +13948,8 @@
           "anchor": "§1.1 清单（8 件套 = 2 kind × 2 gauge × {mask, base}）",
           "level": 3,
           "startLine": 53,
-          "endLine": 72,
-          "tokens": 568,
+          "endLine": 73,
+          "tokens": 693,
           "summary": "1 bead × holed × mask bead_holed_128_mask.png 8 750 主力件（首帧必需",
           "keywords": [
             "kind",
@@ -13963,8 +13963,8 @@
         {
           "anchor": "§1.2 命名规范（**本单裁定项**）",
           "level": 3,
-          "startLine": 73,
-          "endLine": 93,
+          "startLine": 74,
+          "endLine": 94,
           "tokens": 642,
           "summary": "规范性建议名（正表，8 件）：",
           "keywords": [
@@ -13975,8 +13975,8 @@
         {
           "anchor": "§1.3 ⛔ 不得入库的件（探针预览件）",
           "level": 3,
-          "startLine": 94,
-          "endLine": 103,
+          "startLine": 95,
+          "endLine": 104,
           "tokens": 216,
           "summary": "preview-combined-1024.png（54 316 B）+ preview-combined-128.pn",
           "keywords": [
@@ -13990,8 +13990,8 @@
         {
           "anchor": "§2 编码规范与消费方式（**本分册核心**）",
           "level": 2,
-          "startLine": 104,
-          "endLine": 141,
+          "startLine": 105,
+          "endLine": 142,
           "tokens": 959,
           "summary": "",
           "keywords": [
@@ -14003,8 +14003,8 @@
         {
           "anchor": "§2.1 编码（冻结）",
           "level": 3,
-          "startLine": 106,
-          "endLine": 116,
+          "startLine": 107,
+          "endLine": 117,
           "tokens": 218,
           "summary": "R d = 暗系数（out ⊃ base·d） 珠面 0.396–0.867 · 格面 {0.32, 0.70} + 斜",
           "keywords": [
@@ -14017,8 +14017,8 @@
         {
           "anchor": "§2.2 消费方式（运行时必须照此）",
           "level": 3,
-          "startLine": 117,
-          "endLine": 125,
+          "startLine": 118,
+          "endLine": 126,
           "tokens": 365,
           "summary": "1. 合成式（唯一）：rgb = base·d + (1−base)·l、a = B/255，预乘 α。逐通道仿射 ⇒ ",
           "keywords": [
@@ -14031,8 +14031,8 @@
         {
           "anchor": "§2.3 编码不变式（机检项，逐条实测通过）",
           "level": 3,
-          "startLine": 126,
-          "endLine": 141,
+          "startLine": 127,
+          "endLine": 142,
           "tokens": 334,
           "summary": "I-1 四件 A = 255（满幅） 100.00% ×4 ✅",
           "keywords": [
@@ -14044,8 +14044,8 @@
         {
           "anchor": "§3 入库落位与包体预算",
           "level": 2,
-          "startLine": 142,
-          "endLine": 176,
+          "startLine": 143,
+          "endLine": 177,
           "tokens": 870,
           "summary": "",
           "keywords": [
@@ -14056,8 +14056,8 @@
         {
           "anchor": "§3.1 落位（建议）",
           "level": 3,
-          "startLine": 144,
-          "endLine": 152,
+          "startLine": 145,
+          "endLine": 153,
           "tokens": 200,
           "summary": "运行时落位 games/beads/cocos/assets/textures/（唯一；.meta 由编辑器生成，L1）",
           "keywords": [
@@ -14072,8 +14072,8 @@
         {
           "anchor": "§3.2 包体预算表（本分册承诺）",
           "level": 3,
-          "startLine": 153,
-          "endLine": 166,
+          "startLine": 154,
+          "endLine": 167,
           "tokens": 299,
           "summary": "平台红线 主包 ≤ 4096 KB systems-index §3.9（v1.51 起内部目标与红线已合流、缓冲为 0",
           "keywords": [
@@ -14087,8 +14087,8 @@
         {
           "anchor": "§3.3 ⚠️ 环境事实：**资产当前不在工作区**（必须登记）",
           "level": 3,
-          "startLine": 167,
-          "endLine": 176,
+          "startLine": 168,
+          "endLine": 177,
           "tokens": 324,
           "summary": "git HEAD（59dc6a0）内确有 16 件（8 PNG + 8 .meta）+ 2 预览件 + 2 .meta；",
           "keywords": [
@@ -14103,8 +14103,8 @@
         {
           "anchor": "§4 双档位与豆径档驱动的选用规则",
           "level": 2,
-          "startLine": 177,
-          "endLine": 219,
+          "startLine": 178,
+          "endLine": 220,
           "tokens": 695,
           "summary": "",
           "keywords": [
@@ -14116,8 +14116,8 @@
         {
           "anchor": "§4.1 驱动链（复用现役，⛔ 不新增第二把尺子）",
           "level": 3,
-          "startLine": 179,
-          "endLine": 199,
+          "startLine": 180,
+          "endLine": 200,
           "tokens": 354,
           "summary": "",
           "keywords": [
@@ -14130,8 +14130,8 @@
         {
           "anchor": "§4.2 两档的不可混用点（落码逐条守）",
           "level": 3,
-          "startLine": 200,
-          "endLine": 203,
+          "startLine": 201,
+          "endLine": 204,
           "tokens": 43,
           "summary": "见 §0.2 表；槽底分叉（holed 0.70 / holeless 0.32）与孔径（holed ⌀12 / hol",
           "keywords": [
@@ -14146,8 +14146,8 @@
         {
           "anchor": "§4.3 128px 档位的可用上界（**换算，不给新数值**）",
           "level": 3,
-          "startLine": 204,
-          "endLine": 219,
+          "startLine": 205,
+          "endLine": 220,
           "tokens": 239,
           "summary": "128 px ÷ 30 dp = 4.267 device px/dp ⇒ 成立条件 dpr × zoom ≤ 4.26",
           "keywords": [
@@ -14162,8 +14162,8 @@
         {
           "anchor": "§5 可访问性影响（**色相 + 明度二重编码在 tint 制下是否仍成立**）",
           "level": 2,
-          "startLine": 220,
-          "endLine": 294,
+          "startLine": 221,
+          "endLine": 295,
           "tokens": 2149,
           "summary": "口径：本节目的一切读数都是定稿产物的逐像素实测 + 面积加权（复算脚本见 §8），阈值一律用本仓自己的判据「ΔL ≤ 4",
           "keywords": [
@@ -14178,8 +14178,8 @@
         {
           "anchor": "§5.1 关键推导：亮度在 tint 制下是**线性仿射**",
           "level": 3,
-          "startLine": 224,
-          "endLine": 234,
+          "startLine": 225,
+          "endLine": 235,
           "tokens": 167,
           "summary": "out_c = base_c·d + (1−base_c)·l = (d−l)·base_c + l（逐通道同系数）",
           "keywords": [
@@ -14194,8 +14194,8 @@
         {
           "anchor": "§5.2 珠面（filled）实测",
           "level": 3,
-          "startLine": 235,
-          "endLine": 245,
+          "startLine": 236,
+          "endLine": 246,
           "tokens": 255,
           "summary": "珠体不透明区（含外框环） 482.4 dp² 0.6283 0.0876 0.5407 定稿 mask 实测",
           "keywords": [
@@ -14208,8 +14208,8 @@
         {
           "anchor": "§5.3 明度可分档（单链聚类，阈 10.2/255；10 色降序）",
           "level": 3,
-          "startLine": 246,
-          "endLine": 260,
+          "startLine": 247,
+          "endLine": 261,
           "tokens": 232,
           "summary": "10 色本色平面（= accessibility.md A3① 的假设口径） 1.000 0 8",
           "keywords": [
@@ -14222,8 +14222,8 @@
         {
           "anchor": "§5.4 三条结论（照实写、不软化）",
           "level": 3,
-          "startLine": 261,
-          "endLine": 275,
+          "startLine": 262,
+          "endLine": 276,
           "tokens": 607,
           "summary": "① 色相通道：m>0 时「方向保持、饱和度被压缩」；m 塌到 0.18 的区域色相读法基本失效。",
           "keywords": [
@@ -14235,8 +14235,8 @@
         {
           "anchor": "§5.5 小尺寸（小豆档 / 满豆档）可辨性评估（**纸面 + `[待真机]`**）",
           "level": 3,
-          "startLine": 276,
-          "endLine": 286,
+          "startLine": 277,
+          "endLine": 287,
           "tokens": 485,
           "summary": "满豆档孔（⌀12 / 珠 26dp）：孔内 = 透 B0 tile edge = 0.70×目标色 就位（孔内色 = 珠",
           "keywords": [
@@ -14251,8 +14251,8 @@
         {
           "anchor": "§5.6 本分册提请的 a11y 登记（**只交文案，不回写他文件**）",
           "level": 3,
-          "startLine": 287,
-          "endLine": 294,
+          "startLine": 288,
+          "endLine": 295,
           "tokens": 187,
           "summary": "1. A3 量化基准面失效（§5.4②）：建议在 A1/A3 各加一句「量化基准面 = 本色平面；默认皮肤 facet-",
           "keywords": [
@@ -14267,8 +14267,8 @@
         {
           "anchor": "§6 需主理人裁定的两项（**给建议，不代拍**）",
           "level": 2,
-          "startLine": 295,
-          "endLine": 321,
+          "startLine": 296,
+          "endLine": 322,
           "tokens": 879,
           "summary": "",
           "keywords": [
@@ -14281,8 +14281,8 @@
         {
           "anchor": "§Q2 · **孔底口径**（定稿 v1.1 透 B0 tile `edge`（−0.30 = 0.70） vs 现役 live `pit`（−0.44 = 0.56））",
           "level": 3,
-          "startLine": 297,
-          "endLine": 308,
+          "startLine": 298,
+          "endLine": 309,
           "tokens": 345,
           "summary": "美术侧建议：接受定稿 ①（透 edge 0.70）。依据：",
           "keywords": [
@@ -14297,8 +14297,8 @@
         {
           "anchor": "§R-9 · **AA fringe 最劣 ΔE 11.3 > T1「珠边缘 < 5」线的观感可接受性**（题号沿用**方案件 §7.1 的 `R-9`**）",
           "level": 3,
-          "startLine": 309,
-          "endLine": 321,
+          "startLine": 310,
+          "endLine": 322,
           "tokens": 459,
           "summary": "实测边界：AA 带（5 < B < 250）仅存在于 珠面：40.9 dp²（占珠轮廓内 621.4 dp² 的 6.6",
           "keywords": [
@@ -14313,8 +14313,8 @@
         {
           "anchor": "§7 已发现缺陷与风险登记（本分册内编号 **D1–D9**；与方案件 §7.1 的 `R-1…R-12` **不同源、勿混引**）",
           "level": 2,
-          "startLine": 322,
-          "endLine": 337,
+          "startLine": 323,
+          "endLine": 338,
           "tokens": 883,
           "summary": "D1 mask 编码落盘渗漏：d≥1 的层不写 R（且 d=1,l=0 的层整层跳过）⇒ 底层 plate d=0.56",
           "keywords": [
@@ -14329,8 +14329,8 @@
         {
           "anchor": "§8 复算与证据（主理人可逐条复跑）",
           "level": 2,
-          "startLine": 338,
-          "endLine": 348,
+          "startLine": 339,
+          "endLine": 349,
           "tokens": 188,
           "summary": "temp/t227-mask-measure.py §2.3 不变式 I-1…I-7 · §5.2 全表 · §5.3 ",
           "keywords": [
@@ -14345,8 +14345,8 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 349,
-          "endLine": 354,
+          "startLine": 350,
+          "endLine": 355,
           "tokens": 83,
           "summary": "v1.0 · WXG-T-227 2026-09-29 首版：清单/命名/编码/落位/预算/双档位/可访问性影响 + 两",
           "keywords": [
@@ -14358,22 +14358,23 @@
     },
     {
       "path": "games/beads/art/tray-neutral-slot-mask-spec.md",
-      "tokens": 2953,
-      "lines": 129,
-      "sha256": "c396a1ee3314372ef48a659f227025f072c7b6202449a51006ba889e50ac60e8",
+      "tokens": 4156,
+      "lines": 168,
+      "sha256": "76928da7b15f1ab66fb66ebe6402fda5545e1dad5722c1a61fbd245d1751e059",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§托盘中性槽样式 + 专属 mask · 美术定标单",
+          "anchor": "§托盘（中性槽 + 珠）专属 mask · 美术定标单",
           "level": 1,
           "startLine": 1,
-          "endLine": 130,
-          "tokens": 2936,
+          "endLine": 169,
+          "tokens": 4137,
           "summary": "正本 = 本文件（WXG-T-237 美术侧裁定单，2026-10-03 立）。",
           "keywords": [
             "mask",
             "WXG",
-            "托盘中性槽样",
+            "托盘",
+            "中性槽",
             "专属",
             "美术定标单"
           ]
@@ -14381,9 +14382,9 @@
         {
           "anchor": "§0 一句话背景",
           "level": 2,
-          "startLine": 11,
-          "endLine": 18,
-          "tokens": 127,
+          "startLine": 12,
+          "endLine": 24,
+          "tokens": 249,
           "summary": "托盘空槽当前由矢量算法固定死：drawEmptySocket 的矢量臂恒画「4 层同心圆角内阴影 + S3/S4 两线」",
           "keywords": [
             "§0",
@@ -14394,9 +14395,9 @@
         {
           "anchor": "§1 工程侧已定的事实（美术只需知约束，不必重推）",
           "level": 2,
-          "startLine": 19,
-          "endLine": 65,
-          "tokens": 627,
+          "startLine": 25,
+          "endLine": 96,
+          "tokens": 1118,
           "summary": "",
           "keywords": [
             "§1",
@@ -14409,8 +14410,8 @@
         {
           "anchor": "§1.1 托盘几何（冻结值）",
           "level": 3,
-          "startLine": 21,
-          "endLine": 32,
+          "startLine": 27,
+          "endLine": 38,
           "tokens": 151,
           "summary": "托盘列数 TRAY_COLS = 12",
           "keywords": [
@@ -14420,26 +14421,39 @@
           ]
         },
         {
-          "anchor": "§1.2 托盘槽三态 ⇒ mask 只需覆盖一个",
+          "anchor": "§1.2 交付面 = **2 张**（槽 1 + 珠 1），各自的**归属与风格语义不同** ⭐",
           "level": 3,
-          "startLine": 33,
-          "endLine": 42,
-          "tokens": 93,
-          "summary": "空槽（free） drawEmptySocket(..., TRAY_SLOT) ✅ 本单对象",
+          "startLine": 39,
+          "endLine": 61,
+          "tokens": 276,
+          "summary": "托盘槽三态 ⇒ mask 只覆盖空槽：",
           "keywords": [
             "mask",
-            "free",
-            "drawEmptySocket",
-            "TRAY_SLOT",
-            "托盘槽三态",
-            "只需覆盖一个"
+            "交付面",
+            "各自的",
+            "归属与风格语",
+            "义不同"
+          ]
+        },
+        {
+          "anchor": "§2.3 ⭐ 两侧的**风格语义相反**（本单最易漏的一条）",
+          "level": 3,
+          "startLine": 62,
+          "endLine": 73,
+          "tokens": 231,
+          "summary": "托盘槽 中性 · 全局一张 · 不受风格白名单管辖 不变 不变 ⇒ 必须保持",
+          "keywords": [
+            "两侧的",
+            "风格语义相反",
+            "本单最易漏的",
+            "一条"
           ]
         },
         {
           "anchor": "§1.3 与现有 mask 体系的关系",
           "level": 3,
-          "startLine": 43,
-          "endLine": 48,
+          "startLine": 74,
+          "endLine": 79,
           "tokens": 88,
           "summary": "现有体系 = kind × gauge 两轴：kind ∈ {bead,cell} · gauge ∈ {holed,h",
           "keywords": [
@@ -14454,9 +14468,9 @@
         {
           "anchor": "§1.4 尺寸与预算约束",
           "level": 3,
-          "startLine": 49,
-          "endLine": 58,
-          "tokens": 161,
+          "startLine": 80,
+          "endLine": 89,
+          "tokens": 202,
           "summary": "烘焙 canonical MASK_CANONICAL_SIZE = 128（现有四件套画布 = 格径 30dp）",
           "keywords": [
             "canonical",
@@ -14467,8 +14481,8 @@
         {
           "anchor": "§1.5 编码（沿用母体，⛔ 不改）",
           "level": 3,
-          "startLine": 59,
-          "endLine": 65,
+          "startLine": 90,
+          "endLine": 96,
           "tokens": 71,
           "summary": "R = d / G = l / B = 形状 / A = 255；合成式 out = base·d + (1−base)",
           "keywords": [
@@ -14482,9 +14496,9 @@
         {
           "anchor": "§2 美术需交付的（本单正本）",
           "level": 2,
-          "startLine": 66,
-          "endLine": 91,
-          "tokens": 892,
+          "startLine": 97,
+          "endLine": 125,
+          "tokens": 1130,
           "summary": "T-1 中性托盘槽视觉样式 图（静态稿 + 坑口/斜面/坑底/受光缘逐层墨档标注） ⬜ 待出",
           "keywords": [
             "§2",
@@ -14495,9 +14509,9 @@
         {
           "anchor": "§2.1 需要美术裁的题（⛔ 工程不代裁）",
           "level": 3,
-          "startLine": 78,
-          "endLine": 91,
-          "tokens": 651,
+          "startLine": 110,
+          "endLine": 125,
+          "tokens": 856,
           "summary": "Q1 新 kind 还是复用 cell？ 甲 · 新增 kind = trayCell（建议） · 乙 复用 cell ",
           "keywords": [
             "kind",
@@ -14510,8 +14524,8 @@
         {
           "anchor": "§3 工程侧承诺（美术交卷后）",
           "level": 2,
-          "startLine": 92,
-          "endLine": 102,
+          "startLine": 126,
+          "endLine": 136,
           "tokens": 268,
           "summary": "1. 新增 kind = trayCell + 单档 mask（Q1 甲）⇒ MASK_ID_TABLE 加一层。",
           "keywords": [
@@ -14526,9 +14540,9 @@
         {
           "anchor": "§4 验收判据",
           "level": 2,
-          "startLine": 103,
-          "endLine": 119,
-          "tokens": 329,
+          "startLine": 137,
+          "endLine": 156,
+          "tokens": 460,
           "summary": "A-1 命中时托盘空槽 = 恰好 1 条 blit、⛔ 0 条矢量内阴影 rect 单测（命令流） 工程",
           "keywords": [
             "§4",
@@ -14540,9 +14554,9 @@
         {
           "anchor": "§5 边界与风险（如实登记）",
           "level": 2,
-          "startLine": 120,
-          "endLine": 130,
-          "tokens": 388,
+          "startLine": 157,
+          "endLine": 169,
+          "tokens": 577,
           "summary": "B-1 放宽 colorIdx !== undefined 门是结构性改动 该门隐含假设「盘面格才有目标色才能按目标色合",
           "keywords": [
             "§5",
@@ -49357,17 +49371,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 15207,
-      "lines": 459,
-      "sha256": "1e426484e8de2564c2ae2b826f7cc462f7dce9621938083f5ad02d70dd77a7b7",
+      "tokens": 15800,
+      "lines": 480,
+      "sha256": "64f79cf0aa53a3b31e784e5bc79a39eb71696edfd9488a94cd29fd63853db526",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 460,
-          "tokens": 15204,
+          "endLine": 481,
+          "tokens": 15797,
           "summary": "",
           "keywords": []
         },
@@ -49375,8 +49389,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 460,
-          "tokens": 15171,
+          "endLine": 481,
+          "tokens": 15764,
           "summary": "",
           "keywords": [
             "WXG",
@@ -49839,6 +49853,22 @@
             "影宽裁定核销",
             "用户裁"
           ]
+        },
+        {
+          "anchor": "§WXG-T-237 范围扩括：用户裁「乙 · 托盘珠也纳入」（1 张 → 2 张）",
+          "level": 3,
+          "startLine": 461,
+          "endLine": 481,
+          "tokens": 565,
+          "summary": "⚠ 我原先漏核了托盘珠：drawFilledBead 的 tint 门同样含 options.maskGauge !==",
+          "keywords": [
+            "WXG",
+            "drawFilledBead",
+            "tint",
+            "options",
+            "maskGauge",
+            "范围扩括"
+          ]
         }
       ]
     },
@@ -49846,7 +49876,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "770697e52bde23271751927d4731ec1f749cf90911b74a342e6699b3d158af37",
+      "sha256": "d0c253a05462e4d071b052c76516b5bb9d49405900cc344c8fb307d90bbc1202",
       "tier": "normal",
       "sections": [
         {
@@ -49937,7 +49967,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 15,207 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 15,800 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69942,17 +69972,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 66480,
-      "lines": 1580,
-      "sha256": "c5f2620a3e690e969190b7054a1f657179f14d01360fa4c8a916c09c25b4ae22",
+      "tokens": 67282,
+      "lines": 1623,
+      "sha256": "e1425e60e55ef95060c9328d516a9cc93f3c681802a6cf3a7e97d5cd960deeb4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1581,
-          "tokens": 66463,
+          "endLine": 1624,
+          "tokens": 67265,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71206,8 +71236,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1581,
-          "tokens": 1393,
+          "endLine": 1624,
+          "tokens": 2196,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71303,14 +71333,29 @@
             "用户裁",
             "保持现状"
           ]
+        },
+        {
+          "anchor": "§范围扩括（同轮用户裁「乙 · 托盘珠也纳入」）",
+          "level": 3,
+          "startLine": 1582,
+          "endLine": 1624,
+          "tokens": 780,
+          "summary": "追加实测（原先只核了槽、漏了珠）：drawFilledBead 的 tint 门同样含",
+          "keywords": [
+            "drawFilledBead",
+            "tint",
+            "范围扩括",
+            "同轮用户裁",
+            "托盘珠也纳入"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 17217,
+      "tokens": 17366,
       "lines": 76,
-      "sha256": "75f396995f3d37ee8571dae594810107b0c69d212e446105bf0f8788fda04312",
+      "sha256": "5ea90a4eea7a06bb5a1e2ee4de378ad9b0e80e094c9b976a82e30fff5ce62868",
       "tier": "hot",
       "sections": [
         {
@@ -71318,7 +71363,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 17209,
+          "tokens": 17357,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
