@@ -25,8 +25,8 @@ const ASSETS = join(REPO, 'tools/mask-preview/cocos-assets');
 
 /** 四件套 = 2 kind × 2 gauge（`art/tint-mask-asset-spec §1.1`）。 */
 const TARGETS = [
-    { kind: 'bead', gauge: 'holed', file: 'bead-tint-128-mask.png' },
-    { kind: 'cell', gauge: 'holed', file: 'grid-tint-128-mask.png' },
+    { kind: 'bead', gauge: 'holed', file: 'bead-hole-tint-128-mask.png' },
+    { kind: 'cell', gauge: 'holed', file: 'grid-hole-tint-128-mask.png' },
     { kind: 'bead', gauge: 'holeless', file: 'bead-holeless-tint-128-mask.png' },
     { kind: 'cell', gauge: 'holeless', file: 'grid-holeless-tint-128-mask.png' },
 ] as const;

@@ -42,11 +42,11 @@ def over(fg_rgb, fg_a, bg_rgb, bg_a):
     return fg_rgb * fa + bg_rgb * bg_a[..., None] * (1.0 - fa), fg_a + bg_a * (1.0 - fa)
 
 
-grid_rgb, grid_a = composite(SRC / "grid-tint-128-mask.png", (255, 255, 255))  # 先白合成，逐色再算
+grid_rgb, grid_a = composite(SRC / "grid-hole-tint-128-mask.png", (255, 255, 255))  # 先白合成，逐色再算
 rows = []
 for name, base in BASES:
-    g_rgb, g_a = composite(SRC / "grid-tint-128-mask.png", base)
-    b_rgb, b_a = composite(SRC / "bead-tint-128-mask.png", base)
+    g_rgb, g_a = composite(SRC / "grid-hole-tint-128-mask.png", base)
+    b_rgb, b_a = composite(SRC / "bead-hole-tint-128-mask.png", base)
     cell, _ = over(b_rgb, b_a, g_rgb, g_a)                     # 珠叠格 = 有珠的完整格
     empty, _ = over(np.zeros_like(g_rgb), np.zeros_like(g_a), g_rgb, g_a)  # 空格对照
     pair = np.concatenate([empty, cell], axis=1)               # [空格 | 有珠格] 256×128

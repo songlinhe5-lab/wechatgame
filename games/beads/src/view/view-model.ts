@@ -1065,7 +1065,7 @@ function drawGrid(
       // ⛔⛔ `maskGauge` **必须与空格分支逐字同参**（见下方空格调用）：漏传 ⇒
       // `drawEmptySocket` 的 tint 臂命中条件 `options.maskGauge !== undefined` 不成立
       // ⇒ **格面 mask 从不使用**、静默回退矢量臂 ⇒ 坑底取 `endpoints.pit`（mix(base,−0.44) = 0.56×base）
-      // 而非 `grid-tint-128-mask.png` 的 **0.698**（规格判据 I-5/I-6 要求 0.70）
+      // 而非 `grid-hole-tint-128-mask.png` 的 **0.698**（规格判据 I-5/I-6 要求 0.70）
       // ⇒ **珠孔内露出 0.56 而不是 B0 的 0.70**（实测 (120,57,80) vs (150,71,99)）
       // ⇒ 这正是「有珠 / 无珠的格底不是一张图」的**根因**：空格走 mask、有珠格走矢量。
       drawEmptySocket(

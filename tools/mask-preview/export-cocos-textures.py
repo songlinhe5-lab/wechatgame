@@ -19,8 +19,8 @@
    - 512 超采样 → LANCZOS ×4 缩回 128 · 距离计算完成后取整 dp（r7 纪律）
 
 生成 Cocos 探针四件套（128px；格径 30dp 居中，珠面 26dp）：
-  bead-tint-128-mask.png   珠 mask，编码 **R=d / G=l / B=形状**（A=255 满幅 ⇒ 免疫 Trim）
-  grid-tint-128-mask.png   格 mask（同编码；**[WXG-T-237 v7.0] B=槽口内 255 / 格外 0**）
+  bead-hole-tint-128-mask.png   珠 mask，编码 **R=d / G=l / B=形状**（A=255 满幅 ⇒ 免疫 Trim）
+  grid-hole-tint-128-mask.png   格 mask（同编码；**[WXG-T-237 v7.0] B=槽口内 255 / 格外 0**）
   ── 2026-10-04（WXG-T-237 v8.0）**base 四件已停止生成并从库中删除**：核实结论 = blit 链路上
      base **不参与任何混合**（`tint-blit-resolver` 只取 `maskId`；`*-base.png` 全仓无加载方；
      烘焙层 `bake-*` 亦不涉及）。规约 `tint-mask-asset-spec §1.1` 原已把它标「**条件交付**」
@@ -284,8 +284,8 @@ grid_mask = Image.fromarray(gm, "RGBA")
 
 OUT_DIR.mkdir(exist_ok=True)
 for name, img in (
-    ("bead-tint-128-mask.png", bead_mask),
-    ("grid-tint-128-mask.png", grid_mask),
+    ("bead-hole-tint-128-mask.png", bead_mask),
+    ("grid-hole-tint-128-mask.png", grid_mask),
 ):
     img = img.resize((OUT, OUT), Image.LANCZOS)   # ÷4 整数比 LANCZOS ⇒ 边缘平滑（勿改非整数比）
     # 形状通道 = mask 的 B / base 的 A（头注明文「base.A ≡ mask.B 逐像素相等」）⇒

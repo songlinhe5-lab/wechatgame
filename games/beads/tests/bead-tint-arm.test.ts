@@ -58,7 +58,7 @@ afterEach(() => {
 // `drawEmptySocket` 的 tint 臂命中条件里有一条 **`options.maskGauge !== undefined`**。
 // view-model 调有珠格时**漏传 `options`** ⇒ 条件不成立 ⇒ **静默回退矢量臂**（⛔ 不报错、不抛异常、
 // 白名单照样命中不了、命令流只是「多了 4 条 rect」）⇒ **没有任何既有断言发现**。
-// 实测后果：坑底取 `endpoints.pit`（mix(base,−0.44) = 0.56×base）而**非** `grid-tint-128-mask.png`
+// 实测后果：坑底取 `endpoints.pit`（mix(base,−0.44) = 0.56×base）而**非** `grid-hole-tint-128-mask.png`
 // 的 **0.698**（规格判据 I-5/I-6 要求 0.70）⇒ ① 珠孔内露出 0.56 而非 B0 的 0.70
 // ⇒ ② 空格走 mask、有珠格走矢量 ⇒ **「有珠 / 无珠的格底不是一张图」**。
 //

@@ -94,7 +94,7 @@ const MASK_IDS: readonly string[] = [
 ];
 const MASK_URL_PREFIX = '/mask-assets/';
 const MASK_FILE: Readonly<Record<BeadMaskGauge, { bead: string; grid: string }>> = {
-  holed: { bead: 'bead-tint-128-mask.png', grid: 'grid-tint-128-mask.png' },
+  holed: { bead: 'bead-hole-tint-128-mask.png', grid: 'grid-hole-tint-128-mask.png' },
   holeless: { bead: 'bead-holeless-tint-128-mask.png', grid: 'grid-holeless-tint-128-mask.png' },
 };
 

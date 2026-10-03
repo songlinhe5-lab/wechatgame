@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "7d8a064a66f87137e48cbc219b5d779012926f2944b214ca59d9aff7479c350b",
+      "sha256": "9d7a42e75240b07a5886e7452f53a25f27538427c413e7d6abb69b349660c9b5",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5080,
+      "tokens": 5105,
       "lines": 86,
-      "sha256": "c1c8e6cfdc18bb996229bee5171d5ecb309b699730be52f5887991d9cc332ea6",
+      "sha256": "5e44dc8a98e3af52d0a71a450eeec6b6a94a992b7832567f79cb7710320a7276",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 5052,
+          "tokens": 5077,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 19190 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 19583 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1983 行 / 74836 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 2022 行 / 75532 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 1009,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1984 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 1035,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2023 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13843,9 +13843,9 @@
     },
     {
       "path": "games/beads/art/tint-mask-asset-spec.md",
-      "tokens": 10199,
+      "tokens": 10247,
       "lines": 383,
-      "sha256": "7be30548bad7297949955cee62bcc4104e80eb3d4cb0a52c4b55b4f1337b7835",
+      "sha256": "04e0c88e0704eeea52ffafd78b7272aa68e7b8346e7169c9a3bf857c02cf2fe4",
       "tier": "normal",
       "sections": [
         {
@@ -13853,7 +13853,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 384,
-          "tokens": 10180,
+          "tokens": 10228,
           "summary": "任务号：WXG-T-227（P1）· 执笔：林绘澄（art-director）· 日期：2026-09-29",
           "keywords": [
             "assets-spec",
@@ -13905,7 +13905,7 @@
           "level": 2,
           "startLine": 51,
           "endLine": 133,
-          "tokens": 2065,
+          "tokens": 2113,
           "summary": "",
           "keywords": [
             "资产清单与命",
@@ -13949,7 +13949,7 @@
           "level": 3,
           "startLine": 103,
           "endLine": 123,
-          "tokens": 628,
+          "tokens": 676,
           "summary": "规范性建议名（正表，4 件 —— base 四件已于 v8.0 删除，见 §1.1.1）：",
           "keywords": [
             "§1.1.1",
@@ -70350,17 +70350,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 74836,
-      "lines": 1983,
-      "sha256": "cfe96e1ad5d397d69de2c521706b55c8b27deb38ed7c9c8deb84abddbfc500ca",
+      "tokens": 75532,
+      "lines": 2022,
+      "sha256": "d1c57bcaa89b109788044a7f1fc0d571ddf94c56818ff11462330ef8d6eea275",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1984,
-          "tokens": 74819,
+          "endLine": 2023,
+          "tokens": 75515,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71614,8 +71614,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1984,
-          "tokens": 9749,
+          "endLine": 2023,
+          "tokens": 10445,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71844,14 +71844,30 @@
             "生成过程",
             "资产一并去掉"
           ]
+        },
+        {
+          "anchor": "§v9.0：mask 资产改名 —— gauge 显式化（`hole` / `holeless` 对称）",
+          "level": 3,
+          "startLine": 1985,
+          "endLine": 2023,
+          "tokens": 673,
+          "summary": "用户裁定：「改成 bead-hole-tint 前缀的名字，并改引用」。",
+          "keywords": [
+            "hole",
+            "holeless",
+            "mask",
+            "gauge",
+            "bead",
+            "tint"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 19190,
+      "tokens": 19583,
       "lines": 76,
-      "sha256": "f93eab92305e133343aec7cb84f40182d309ef53f74579d6d4a6a482842ef999",
+      "sha256": "c7afbe87e6da9f4b80b2f92bb954a97d0ba272a09a7395b1a57a4cf90145d3af",
       "tier": "hot",
       "sections": [
         {
@@ -71859,7 +71875,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 19181,
+          "tokens": 19574,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

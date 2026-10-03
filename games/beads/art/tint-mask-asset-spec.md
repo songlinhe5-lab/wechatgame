@@ -105,18 +105,18 @@ base 四件须重新生成 —— 代码在 git 历史（`8d7889a` 之前的 `ex
 **规范性建议名（正表，4 件 —— base 四件已于 v8.0 删除，见 §1.1.1）**：
 
 ```
-bead_holed_128_mask.png
-bead_holeless_128_mask.png
-grid_holed_128_mask.png
-grid_holeless_128_mask.png
+bead_hole_tint_128_mask.png       ⛔ 建议名（连字符风格，v9.0 实际采用）
+bead_holeless_tint_128_mask.png
+grid_hole_tint_128_mask.png
+grid_holeless_tint_128_mask.png
 ```
 
-- **模式**：`{kind}_{gauge}_{尺寸}_{角色}.png` —— 对齐母体 §4「全小写 + **下划线**、`{域}_{实体}_{变体}_{状态}`、禁止版本号 / final / 空格 / 中文 / 大写」。
+- **模式**（**v9.0 已更替**：下划线 → 连字符 + 显式 `tint` 段）：`{kind}-{gauge}-tint-{尺寸}-{角色}.png` —— 对齐母体 §4「全小写 + **下划线**、`{域}_{实体}_{变体}_{状态}`、禁止版本号 / final / 空格 / 中文 / 大写」。
 - **三处与现状的冲突（逐条登记，⛔ 不做「半改」）**：
 
 | # | 冲突 | 现状 | 处置建议 |
 |---|---|---|---|
-| **N-1** | **`gauge` 未显式化**：holed 靠「无后缀」隐式表达（`bead-tint-128-mask.png`），holeless 才有后缀 | `git HEAD` 命名 = `bead-tint-128-mask.png` / `bead-holeless-tint-128-mask.png` | **必改**：holed 显式化 ⇒ 与 holeless 对称（「显式优于隐式」；档位是驱动链的一级参数，不该藏在缺省里） |
+| **N-1** | **`gauge` 未显式化**：holed 靠「无后缀」隐式表达（`bead-hole-tint-128-mask.png`），holeless 才有后缀 | `git HEAD` 命名 = `bead-hole-tint-128-mask.png` / `bead-holeless-tint-128-mask.png` | **必改**：holed 显式化 ⇒ 与 holeless 对称（「显式优于隐式」；档位是驱动链的一级参数，不该藏在缺省里） |
 | **N-2** | **连接符与母体 §4 冲突**：现用 **kebab-case**（`-`），母体 §4 要**下划线** | 同上 | **建议改**为下划线；改动面 = py/studio 常量 + 引用点，须**一次改齐** |
 | **N-3** | **方案件 §4.4 提案名与本分册冲突**：方案件拟 `mask__<kind>__<gauge>__v<MASK_SCHEMA_VERSION>.png`（双下划线 + **版本号入名**），而母体 §4 **明禁版本号** | 方案件 §4.4 为**提案**（方案件未落码） | **建议方案件侧让步**：`MASK_SCHEMA_VERSION` 住**纹理 key / 缓存 key / 守卫常量**，**不入文件名**；若主理人要求版本可见，走**清单文件**（如 `mask-manifest.json`）而非文件名 |
 | **N-4** | **`grid` 与 `cell` 双token**：`kind` 语义正本 = `bead \| cell`（ADR-0028 / 方案件 §0.2），而产物名与母体 §4 域表**都没有 `cell`/`grid`**（域表 = bg/bead/tray/item/hud/vfx/ui/audio；旧位图目录用 `cell`） | py/studio 产物名 = `grid-…` | **本分册沿用 `grid`**（既成事实 + 改动面最大）；⇒ **请求母体 §4 域表增列 `grid`**，并**加一句消歧**「`grid`（文件名 token）≡ `cell`（`kind` 语义 token）」，防后人当成两个东西 |

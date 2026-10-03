@@ -1981,3 +1981,42 @@ base 四件须重新生成 —— 代码在 git 历史（`8d7889a` 之前的 `ex
 
 **门禁**：`mask:diff` **PASS**（4 张 mask 编码不变式全过、R/G/B mean=max=0）·
 framework **421** / breakout **239** / beads **774**（+1 skipped）· `verify` **PASS 19 / FAIL 0**。
+
+### v9.0：mask 资产改名 —— gauge 显式化（`hole` / `holeless` 对称）
+
+**用户裁定**：「改成 `bead-hole-tint` 前缀的名字，并改引用」。
+
+**改名**：
+
+| 旧名 | 新名 |
+|---|---|
+| `bead-tint-128-mask.png` | **`bead-hole-tint-128-mask.png`** |
+| `grid-tint-128-mask.png` | **`grid-hole-tint-128-mask.png`** |
+| `bead-holeless-tint-128-mask.png` | 不变 |
+| `grid-holeless-tint-128-mask.png` | 不变 |
+
+⇒ **顺带部分实现规约 §1.2 的 N-1 冲突建议**（原「`gauge` 未显式化：holed 靠无后缀隐式表达」）。
+⚠ **用词与规约原建议不同**：规约写 `holed`，用户裁的是 `hole` ⇒ **以用户为准**，规约 §1.2 已同步
+（命名清单 + 模式行改为 `{kind}-{gauge}-tint-{尺寸}-{角色}.png`）。
+
+**⛔ 逻辑 id 不变**：`mask__grid__holed__v1` / `mask__bead__holed__v1` 等**不动** ——
+那是 `BeadMaskGauge` 键经 `MASK_SCHEMA_VERSION` 拼的，与文件名解耦。
+
+**动作**：
+- `git mv` **6 个文件**：`tools/mask-preview/cocos-assets/` 2 png +
+  `games/beads/cocos/assets/textures/` 2 png + **2 个 `.meta`（png 与 .meta 必须成对改名**，
+  否则 Cocos 编辑器丢 uuid 引用）
+- **17 处引用**同步：`dev/harness/main.ts`（`MASK_FILE`）· `tools/mask-preview/mask-diff.mjs`（TARGETS）·
+  `packages/framework/tests/core/mask-diff.test.ts` · `export-cocos-textures.py`（头注 + 输出元组）·
+  `preview-combined.py` · `games/beads/src/view/view-model.ts`（注释）·
+  `games/beads/tests/bead-tint-arm.test.ts` · 规约 §1.2
+- ⛔ **历史记录不改**：`memory/2026-10-03.md` 里的旧文件名保持原样（日记是时间快照）
+
+**运行时加载链实测**（改名最易漏处 —— 文件名错 ⇒ mask 静默不命中 ⇒ 画面退回矢量臂，**单测不一定红**）：
+- HTTP `/mask-assets/`：**新名 4 个全 200**，**旧名 2 个全 404** ⇒ 确按新名加载
+- ⚠ **截图逐像素对比在此不可用**：改名后 vs 改名前差 1680px，但**遍布全图** ⇒ 是关卡/动画相位差异
+  （同 v60 vs v5.0 那次 63536px）⇒ **已第二次踩这个坑**，验收改名一律用 HTTP 状态码或日志，不用截图。
+
+**门禁**：`mask:diff` **PASS**（重导出后 4 mask 编码不变式全过、R/G/B mean=max=0）·
+framework **421** / breakout **239** / beads **774**（+1 skipped）· `verify` **PASS 19 / FAIL 0** ·
+`check:tasks` 27/27。
