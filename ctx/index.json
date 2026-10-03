@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5080,
       "lines": 86,
-      "sha256": "604c066d16f3d4f1fe6ed31d85bece45801ba4857811a173de26ebe6f251e413",
+      "sha256": "c1c8e6cfdc18bb996229bee5171d5ecb309b699730be52f5887991d9cc332ea6",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 2768,
-      "lines": 93,
-      "sha256": "0c2f6ddfd51f70a874ed6132017f20e51220c66471d716ac16b0b258d4a9a460",
+      "tokens": 3434,
+      "lines": 115,
+      "sha256": "93e90ecc6215f2179fd9d66ec450e6640ef722e19292d80f1429a9dcc4c87a53",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 94,
-          "tokens": 2764,
+          "endLine": 116,
+          "tokens": 3431,
           "summary": "",
           "keywords": []
         },
@@ -50217,6 +50217,22 @@
             "max",
             "收尾确认"
           ]
+        },
+        {
+          "anchor": "§WXG-T-237 v8.0：base 四件移除（透明度只由 mask 承担）",
+          "level": 3,
+          "startLine": 95,
+          "endLine": 116,
+          "tokens": 645,
+          "summary": "用户提问触发：「base.png 绘制时是否真实需要？透明度是否 mask 就可以满足？不需要就去掉生成过程」。",
+          "keywords": [
+            "WXG",
+            "base",
+            "mask",
+            "png",
+            "四件移除",
+            "透明度只由"
+          ]
         }
       ]
     },
@@ -50224,7 +50240,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "58bdf64c00a2971364ff7147bdf378b7c4cb10be643507555fc23f951d789276",
+      "sha256": "c88fe633a26cb2f4d1a55e12007d9d0f3585bc8114864edfbe70e6f5126d738b",
       "tier": "normal",
       "sections": [
         {
@@ -50315,7 +50331,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 2,768 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 3,434 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
