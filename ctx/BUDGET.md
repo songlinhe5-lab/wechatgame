@@ -24,7 +24,7 @@
 |---:|---|---:|---:|:--:|
 | 1 | `games/beads/art/assets-spec.md` | 107705 | 1918 | normal |
 | 2 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
-| 3 | `production/TASKS-DETAIL.md` | 75532 | 2022 | normal |
+| 3 | `production/TASKS-DETAIL.md` | 76149 | 2051 | normal |
 | 4 | `production/qa/beads/test-cases.md` | 71112 | 876 | hot |
 | 5 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43515 | 1206 | normal |
 | 6 | `games/beads/art/accessibility.md` | 35669 | 200 | normal |
@@ -33,7 +33,7 @@
 | 9 | `games/beads/design/gdd/systems-index-changelog.md` | 31647 | 71 | normal |
 | 10 | `games/beads/design/gdd/systems-index.md` | 22997 | 299 | hot |
 | 11 | `games/beads/design/levels/levels-spec.md` | 22859 | 527 | normal |
-| 12 | `production/TASKS.md` | 19583 | 76 | hot |
+| 12 | `production/TASKS.md` | 19693 | 76 | hot |
 | 13 | `memory/2026-10-03.md` | 17764 | 544 | normal |
 | 14 | `games/beads/design/gdd/input-control.md` | 17073 | 199 | normal |
 | 15 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 16757 | 487 | normal |
@@ -49,7 +49,7 @@
 |---|---:|:--:|
 | `games/beads/art/assets-spec.md` | 107705 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 86807 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS-DETAIL.md` | 75532 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 76149 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 71112 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43515 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 35669 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -58,7 +58,7 @@
 | `games/beads/design/gdd/systems-index-changelog.md` | 31647 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/systems-index.md` | 22997 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/levels/levels-spec.md` | 22859 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS.md` | 19583 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS.md` | 19693 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-10-03.md` | 17764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 17073 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 16757 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
