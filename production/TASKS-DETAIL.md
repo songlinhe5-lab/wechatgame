@@ -2147,7 +2147,37 @@ beads **774 绿 + 1 skipped** · framework 421 / breakout 239 绿 · `verify` **
 甲 去掉该点 · 乙 保留但移到珠内/改形 · 丙 保留（用户只是觉得突兀，实际不动）。
 ⛔ 本批**未动**（等裁）。
 
-### ③ 再点击不能取消（⚠ 实测**逻辑正常**，疑为语义差）
+### ③ 再点击取消 —— ✅ **已按用户裁定去掉 toggle**（同日追加）
+
+⚠ **我曾把该句读成「报 bug」，实为「提要求」** —— 用户要的是「选中后**不该**能取消」。
+**教训：用户说「不能 X」时先确认是「报 bug」还是「提要求」** —— 中文否定句方向歧义是真实风险，
+本次因方向读反多做了一轮无用诊断。
+
+**落码**：
+- `entities/tray.ts`：`select()` 的「同色再点 ⇒ `deselectAll` + 返回 `deselected`」**分支删除**，
+  改为 `return 'unchanged'`（**幂等保持选中**、零副作用）
+- `SelectResult` 新增 `'unchanged'`；`'deselected'` **保留在类型里**（⛔ 不破坏外部穷举分支）
+  但 `select()` 已不再产生它
+- `beads-game.ts::selectTraySlot`：加 `unchanged` 分支 ⇒ **零事件、锚不动**
+
+**取消选中的唯一路径** = ① 换选（点他色）② 落子（`bead:placed`）③ 取回（`retrieveBead` 侧清组）。
+
+**测试**：
+- §8-6 腿的「整组静默取消」段**反转**为幂等语义（组仍 `selected`、零新广播、锚 `tray`）
+- **新增正向守卫**：同色连点 **3 次**，断言 `selectedCount` / 槽 state / 事件数 / `selection`
+  **逐字不变** ⇒ 把「不取消」这条新语义钉死，防回归
+
+**实测**：同色再点 ⇒ `selectedCount` 保持 2、`tray:selected` 计数保持 1、`selection` 保持 `tray` ✓
+
+#### ③ 原诊断留档（方向读反的那次）
+
+| 操作 | 槽状态 | `traySelected` |
+|---|---|---|
+| 点槽 0（色 1） | `ss`（**同色组**选中） | 0 |
+| 再点槽 0（同色） | `hhh`（全回） | −1 |
+| 点槽 2（**异色**） | `hhs`（换选） | 2 |
+
+⇒ 当时判「toggle 逻辑正常，疑为语义差」⇒ **方向判反**：那个 toggle 正是用户要**去掉**的。
 
 **实测三例**（直接驱动 `Tray.select`）：
 
@@ -2167,4 +2197,4 @@ beads **774 绿 + 1 skipped** · framework 421 / breakout 239 绿 · `verify` **
 
 ### 读数
 
-beads **775 绿 + 1 skipped** · `check:tasks` 29/29 · `verify` **PASS 19 / FAIL 0**
+beads **776 绿 + 1 skipped** · `check:tasks` 29/29 · `verify` **PASS 19 / FAIL 0**
