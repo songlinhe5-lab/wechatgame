@@ -1492,7 +1492,7 @@
       "file": "knowledge/lessons/criteria-render.md",
       "category": "判据渲染",
       "title": "满铺底图的相邻 rect 会因 AA 边缘覆盖不足而漏出底层：外扩同色可根治，度量必须用「相对局部底色的亮度跳变」而不是纯白阈值",
-      "contentHash": "793e15e94b2071e27b7301b6dd93281b655b378a48b8181677f849cb0de173b9",
+      "contentHash": "db20ee35502b8de9586f70f6a5edaf6caf4f7213985a52297f808655966a4bef",
       "sourceTask": "WXG-T-235",
       "addedDate": "2026-10-03",
       "lastAccess": "2026-10-03",
@@ -2217,6 +2217,15 @@
         "K-031",
         "K-048",
         "K-093"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-03",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-091"
       ],
       "note": null
     },
