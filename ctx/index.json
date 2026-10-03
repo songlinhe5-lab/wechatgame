@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3664,
       "lines": 133,
-      "sha256": "7da9c016b17d22bdd014e096124180c61393c78f0400c6a8a4450b5b8727b411",
+      "sha256": "0367a5e5ce8b074fc9fc8e3c259e96c29b0ab1cc88604c3ec560213c7c064e5f",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5037,
       "lines": 106,
-      "sha256": "84df111557d430180fbda42eaba16c6b2a14d85ea63f84ac26b5d48b3c085259",
+      "sha256": "c709a1e7e614cd0f4921859e1e36fc32e97c90346978aa3f8cc1187bcea854e2",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 74 行 / 13988 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 74 行 / 14167 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1143 行 / 55813 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1148 行 / 55968 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 274,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1144 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1149 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48580,17 +48580,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 5619,
-      "lines": 159,
-      "sha256": "7f441e81dbac6eb2b1c2b43772037df09994c1aa75e7940d88f6512130b3f3d6",
+      "tokens": 5826,
+      "lines": 167,
+      "sha256": "4eb462b1e0259790fe411365e6754fc4bbfe7374c37baa3e368206a8c72dac49",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 160,
-          "tokens": 5616,
+          "endLine": 168,
+          "tokens": 5823,
           "summary": "",
           "keywords": []
         },
@@ -48598,8 +48598,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 160,
-          "tokens": 5584,
+          "endLine": 168,
+          "tokens": 5790,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48809,6 +48809,21 @@
             "tools",
             "scripts"
           ]
+        },
+        {
+          "anchor": "§T-235 第二条欠账闭合：异色格色界平移不可见",
+          "level": 3,
+          "startLine": 161,
+          "endLine": 168,
+          "tokens": 186,
+          "summary": "用户主理人目检：异色相邻格的 0.5px 色界平移不可见（harness zoom 0.2–2.0 全区间）。",
+          "keywords": [
+            "harness",
+            "zoom",
+            "第二条欠账闭",
+            "异色格色界平",
+            "移不可见"
+          ]
         }
       ]
     },
@@ -48816,7 +48831,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "b8650c0952bc2a2ae07051b0ef9e4513316d84212e4f7b5b973f310a650698b4",
+      "sha256": "f10937056056f63cabbe7c1c5a37d8b250d100bd32b8e3b76e44152a8d69a39a",
       "tier": "normal",
       "sections": [
         {
@@ -48907,7 +48922,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 5,619 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 5,826 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -68912,17 +68927,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 55813,
-      "lines": 1143,
-      "sha256": "fbf19a0c81cae0ddc346cb9250458d50509a7eae1bb861ba68bce1b3193a32a6",
+      "tokens": 55968,
+      "lines": 1148,
+      "sha256": "b490b9f80efa3558b8c87a642831c07a3eec6ec6409a28615a0f16f4844ccb90",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1144,
-          "tokens": 55796,
+          "endLine": 1149,
+          "tokens": 55951,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -69833,8 +69848,8 @@
           "anchor": "§WXG-T-235",
           "level": 2,
           "startLine": 1054,
-          "endLine": 1144,
-          "tokens": 2251,
+          "endLine": 1149,
+          "tokens": 2406,
           "summary": "beads·B0 底图 TILE_BLEED 外扩（消 AA 接缝白线） — 2026-10-03 用户裁定「甲」。",
           "keywords": [
             "WXG",
@@ -69936,12 +69951,13 @@
           "anchor": "§未闭（如实）",
           "level": 3,
           "startLine": 1120,
-          "endLine": 1144,
-          "tokens": 787,
-          "summary": "~~⛔ 只验了 zoom 1.0 × dpr 2 一档~~ —— 2026-10-03 已补测（定点缝探针，zoom ∈",
+          "endLine": 1149,
+          "tokens": 941,
+          "summary": "本单仅剩 1 项真机欠账（异色格观感已于 2026-10-03 闭合；回归守卫已落 check:board-seam 进",
           "keywords": [
-            "zoom",
-            "dpr",
+            "check",
+            "board",
+            "seam",
             "未闭",
             "如实"
           ]
@@ -69950,9 +69966,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 13988,
+      "tokens": 14167,
       "lines": 74,
-      "sha256": "7b78813629af7b924be35f956895b955db81b436637551d4e3714ce0d06edd7e",
+      "sha256": "c4aa5ff90433baf2a2b4cbef8f6bfd6056f36cae71c63c958a13628e6bcbcdf3",
       "tier": "hot",
       "sections": [
         {
@@ -69960,7 +69976,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 75,
-          "tokens": 13979,
+          "tokens": 14158,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

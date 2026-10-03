@@ -25,7 +25,7 @@
 | 1 | `games/beads/art/assets-spec.md` | 107705 | 1918 | normal |
 | 2 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
 | 3 | `production/qa/beads/test-cases.md` | 71112 | 876 | hot |
-| 4 | `production/TASKS-DETAIL.md` | 55813 | 1143 | normal |
+| 4 | `production/TASKS-DETAIL.md` | 55968 | 1148 | normal |
 | 5 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43515 | 1206 | normal |
 | 6 | `games/beads/art/accessibility.md` | 35669 | 200 | normal |
 | 7 | `games/beads/design/ux/ux-spec.md` | 35428 | 422 | normal |
@@ -40,8 +40,8 @@
 | 16 | `games/beads/design/proposals/sec3-5mm32-render-base-change.md` | 15461 | 364 | normal |
 | 17 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 357 | normal |
 | 18 | `memory/2026-09-28.md` | 14337 | 256 | normal |
-| 19 | `production/plans/wxg-t-226-tint-pipeline-plan.md` | 14017 | 522 | normal |
-| 20 | `production/TASKS.md` | 13988 | 74 | hot |
+| 19 | `production/TASKS.md` | 14167 | 74 | hot |
+| 20 | `production/plans/wxg-t-226-tint-pipeline-plan.md` | 14017 | 522 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -50,7 +50,7 @@
 | `games/beads/art/assets-spec.md` | 107705 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 86807 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 71112 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS-DETAIL.md` | 55813 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 55968 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43515 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 35669 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 35428 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -65,8 +65,8 @@
 | `games/beads/design/proposals/sec3-5mm32-render-base-change.md` | 15461 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-09-28.md` | 14337 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS.md` | 14167 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/plans/wxg-t-226-tint-pipeline-plan.md` | 14017 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS.md` | 13988 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-spec.md` | 13867 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0022-beads-custom-material-shader-feasibility.md` | 13644 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0023-beads-procedural-bead-style-plugin.md` | 13563 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
