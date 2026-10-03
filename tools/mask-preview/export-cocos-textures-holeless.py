@@ -38,6 +38,11 @@ SS = 4
 RENDER = OUT * SS               # 512
 PX = RENDER / 30.0              # px per dp（layers 为 dp 空间，SIZE=30）
 
+# `[WXG-T-226 WXG-T-232]` 形状通道**去振铃地板**（与有孔档 / `mask-field.ts` 同值）。
+# 无孔档无孔缘羽化，但珠外缘同样是 0↔255 硬台阶 ⇒ LANCZOS 振铃同样会留斑点。
+SHAPE_RINGING_FLOOR = 8
+
+
 # 口径（cell-standard-holeless + v1.0 防漏同构）
 FRAME_DP = 1.0                  # 珠外描边宽（同有孔外框）
 LIT_L = 0.38                    # lit 档
@@ -209,6 +214,12 @@ for name, img in (
     ("grid-holeless-tint-128-mask.png", grid_mask),
 ):
     img = img.resize((OUT, OUT), Image.LANCZOS)   # ÷4 整数比 LANCZOS ⇒ 边缘平滑（勿改非整数比）
+    # 形状通道 = mask 的 B / base 的 A（头注明文「base.A ≡ mask.B 逐像素相等」）⇒
+    # **两侧都要施加地板**，否则去振铃会让这两个通道首次出现差异（2026-10-03 提交前自查抓到）。
+    ch = 2 if "mask" in name else 3
+    arr = np.array(img, dtype=np.uint8).copy()
+    arr[:, :, ch] = np.where(arr[:, :, ch] < SHAPE_RINGING_FLOOR, 0, arr[:, :, ch])
+    img = Image.fromarray(arr, "RGBA")
     img.save(OUT_DIR / name)
     print(f"✅ {OUT_DIR / name}")
 print(f"无孔档 v1.0：编码 R=d/G=l/B=shape · 珠面 {BEAD_DP:.0f}dp（含框，本体 {BEAD_DP - 2*FRAME_DP:.0f}dp）· "

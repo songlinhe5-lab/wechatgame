@@ -47,6 +47,14 @@ SS = 4
 RENDER = OUT * SS               # 512
 PX = RENDER / 30.0              # px per dp（layers 为 dp 空间，SIZE=30）
 
+# `[WXG-T-226 WXG-T-232]` 形状通道**去振铃地板**（与 `mask-field.ts` 的 `applyShapeFloor` 同值）。
+# LANCZOS 在珠外缘的 0↔255 硬台阶两侧各留 1–4/255 的振铃斑点（实测 x=6 shape=4 / x=121 shape=2）
+# ⇒ 落在 B0 底图上成为极淡亮晕，让「亮刻面压格边界」比几何应有值更靠外。
+# ⛔ 地板 8/255 只清斑点：真 AA 边实测 128 / 190（远高于 8）⇒ 不碰真边缘。
+# ⛔ **两侧（py / TS）必须同值**，否则 `mask:diff` 逐字节门立即红。
+SHAPE_RINGING_FLOOR = 8
+
+
 # 口径（cell-standard-holed + 2026-09-29 调整）
 HOLE_DP = 12.0                  # 真透 ⌀12（J4）
 HOLE_RING_DP = 1.0              # 孔边宽（复裁 1dp ⇒ 外缘 ⌀14 = J4 原口径）
@@ -215,8 +223,11 @@ si = Image.fromarray(shape)   # ⚠ fromarray 会拷贝缓冲 ⇒ 必须持有 s
 sd = ImageDraw.Draw(si)
 o0, o1 = (CELL_DP - BEAD_DP) / 2 * PX, (CELL_DP + BEAD_DP) / 2 * PX
 sd.rounded_rectangle([o0, o0, o1, o1], radius=BEAD_CORNER_DP * PX, fill=255)
-# 孔缘羽化：K = smoothstep(r_in − f, r_in + f, dist)，f = 0.5dp
-feather = 0.5 * PX
+# 孔缘羽化：K = smoothstep(r_in − f, r_in + f, dist)
+# ⚠ `f = 0.5dp → 0.25dp`（WXG-T-232，2026-10-03 用户裁「甲」）：原值与 LANCZOS 振铃**叠加**，
+# 实测过渡带 **7px ≈ 1.64dp**（标称 0.5dp = 2.1px）且把全透区侵蚀到 ⌀≈10.5dp（标称 12dp）。
+# ⛔ **物理孔径未动**（`HOLE_DP = 12` 不变；50% 交点仍在 r=25.6px）。
+feather = 0.25 * PX
 ys, xs = np.mgrid[0:RENDER, 0:RENDER]
 dist_h = np.sqrt((xs - C) ** 2 + (ys - C) ** 2)
 K_HOLE = np.clip((dist_h - (HOLE_R_PX - feather)) / (2 * feather), 0, 1)
@@ -277,6 +288,12 @@ for name, img in (
     ("grid-tint-128-mask.png", grid_mask),
 ):
     img = img.resize((OUT, OUT), Image.LANCZOS)   # ÷4 整数比 LANCZOS ⇒ 边缘平滑（勿改非整数比）
+    # 形状通道 = mask 的 B / base 的 A（头注明文「base.A ≡ mask.B 逐像素相等」）⇒
+    # **两侧都要施加地板**，否则去振铃会让这两个通道首次出现差异（2026-10-03 提交前自查抓到）。
+    ch = 2 if "mask" in name else 3
+    arr = np.array(img, dtype=np.uint8).copy()
+    arr[:, :, ch] = np.where(arr[:, :, ch] < SHAPE_RINGING_FLOOR, 0, arr[:, :, ch])
+    img = Image.fromarray(arr, "RGBA")
     img.save(OUT_DIR / name)
     print(f"✅ {OUT_DIR / name}")
 print(f"编码 R=d / G=l / B=shape（A=255 免疫 Trim）· 光照=facet-4 同构亮度场（上1.0/右0.74/下0.37/左0，"

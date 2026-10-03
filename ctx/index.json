@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3670,
       "lines": 133,
-      "sha256": "da8b0832eafcffcdcf9fed60a8d0384ea93d9d97613f433b9ad967312ee6a4f2",
+      "sha256": "5910e537276dea99141884d480afa06a14a8ab855dbcc38920608375ce2f1332",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5025,
+      "tokens": 5031,
       "lines": 106,
-      "sha256": "95a26145c805b701750f97e07fff56b56d8902b4c6e0c7d046240d8b9e83441a",
+      "sha256": "6ce7cc751bf85ca4827f29983af6412ed07ea2c4aeb9aa78a983474ad388a112",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 107,
-          "tokens": 4997,
+          "tokens": 5003,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 72 行 / 13422 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 73 行 / 13642 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+73 · §待排（backlog，无号，立项时领取）=46+28",
+          "summary": "§WXG 任务台账（SSOT）=1+74 · §待排（backlog，无号，立项时领取）=47+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1018 行 / 52969 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1052 行 / 53559 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 263,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1019 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 269,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1053 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48503,17 +48503,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 1944,
-      "lines": 49,
-      "sha256": "41607851c3d13183fb056bd5906fc9dc93b97d234a3cc9479b7ee75936153ef6",
+      "tokens": 2529,
+      "lines": 59,
+      "sha256": "eae9a2e908e09679df5c8823fe49e6916dff83bfb4165883a4f10f979440defa",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 50,
-          "tokens": 1941,
+          "endLine": 60,
+          "tokens": 2526,
           "summary": "",
           "keywords": []
         },
@@ -48521,8 +48521,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 50,
-          "tokens": 1909,
+          "endLine": 60,
+          "tokens": 2494,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48624,6 +48624,21 @@
             "force",
             "device"
           ]
+        },
+        {
+          "anchor": "§WXG-T-232 落码（用户裁「甲」= 缩范围）",
+          "level": 3,
+          "startLine": 51,
+          "endLine": 60,
+          "tokens": 568,
+          "summary": "ⓘ 立项前提被我自己的实测推翻两处（如实留档）：① 「mask 珠径 27.2dp 偏大」= 误判 —— 珠径本来就是 ",
+          "keywords": [
+            "WXG",
+            "mask",
+            "落码",
+            "用户裁",
+            "缩范围"
+          ]
         }
       ]
     },
@@ -48631,7 +48646,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "3b3f2c2ebe77a7b7d6d6b89fc9c5acb16d0793f4305abeca5040844ee97e0a0a",
+      "sha256": "8624587ea5e03e2147dcf8bd15a3c55c4beb993413658b8a6d1952a8de54457d",
       "tier": "normal",
       "sections": [
         {
@@ -48722,7 +48737,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 1,944 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 2,529 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -68727,17 +68742,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 52969,
-      "lines": 1018,
-      "sha256": "272b65abe25ba5ae442705ff91d9dde0c00ca909c2690dfb30faa0e7498d7c93",
+      "tokens": 53559,
+      "lines": 1052,
+      "sha256": "160e9cc3133e170e8c5ecb5531bbbf8b2e544e1a889f96a9465b6a2028055303",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1019,
-          "tokens": 52952,
+          "endLine": 1053,
+          "tokens": 53542,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -69514,9 +69529,9 @@
           "anchor": "§WXG-T-232",
           "level": 2,
           "startLine": 949,
-          "endLine": 971,
-          "tokens": 544,
-          "summary": "beads·盘面 mask 重烘到 26dp 珠径（亮刻面离格边界留缓冲） — 2026-10-03 用户逐轮看图拍板（",
+          "endLine": 987,
+          "tokens": 785,
+          "summary": "beads·盘面 mask 形状通道去振铃 + 孔缘羽化收敛 — 2026-10-03 用户裁「甲」（缩范围）。⚠ 原立",
           "keywords": [
             "WXG",
             "beads",
@@ -69524,10 +69539,74 @@
           ]
         },
         {
+          "anchor": "§⛔ 立项时的两处误判（自查发现，如实留档）",
+          "level": 3,
+          "startLine": 953,
+          "endLine": 963,
+          "tokens": 238,
+          "summary": "1. 「mask 珠径 27.2dp 偏大」= 误判。原判据用 shape > 0 量得 solid 区 x=6..12",
+          "keywords": [
+            "mask",
+            "shape",
+            "solid",
+            "立项时的两处",
+            "误判",
+            "自查发现"
+          ]
+        },
+        {
+          "anchor": "§落码范围（两项，均为技术修复，⛔ 不动物理几何、不动 §3）",
+          "level": 3,
+          "startLine": 964,
+          "endLine": 974,
+          "tokens": 241,
+          "summary": "① 消振铃 珠外缘 2 个 shape 2–4 的斑点 0 个 缩回后对形状通道施加 地板 8/255（applySha",
+          "keywords": [
+            "§3",
+            "shape",
+            "applySha",
+            "落码范围",
+            "两项",
+            "均为技术修复"
+          ]
+        },
+        {
+          "anchor": "§判据（把「看着别扭」变成可测数）",
+          "level": 3,
+          "startLine": 975,
+          "endLine": 979,
+          "tokens": 65,
+          "summary": "mask-field.test.ts 新增 3 条：① 形状通道无振铃斑点（0 < B < 8 计数 = 0）② 珠 s",
+          "keywords": [
+            "mask",
+            "field",
+            "test",
+            "判据",
+            "看着别扭",
+            "变成可测数"
+          ]
+        },
+        {
+          "anchor": "§读数",
+          "level": 3,
+          "startLine": 980,
+          "endLine": 987,
+          "tokens": 119,
+          "summary": "mask:diff 四件套 mean=max=0（逐字节一致） ⇒ py 与 TS 两侧改动完全对齐（bead/cell",
+          "keywords": [
+            "mask",
+            "diff",
+            "mean",
+            "max",
+            "bead",
+            "cell"
+          ]
+        },
+        {
           "anchor": "§WXG-T-233",
           "level": 2,
-          "startLine": 972,
-          "endLine": 1019,
+          "startLine": 988,
+          "endLine": 1035,
           "tokens": 1942,
           "summary": "beads·抬起露槽（选中抬起时补画凹槽） — 2026-10-03 用户裁定「另立故事」。",
           "keywords": [
@@ -69538,8 +69617,8 @@
         {
           "anchor": "§B3/B4 + 接线：收尾与决策归档（CodeBuddy + 用户逐轮，2026-10-03）",
           "level": 3,
-          "startLine": 986,
-          "endLine": 1007,
+          "startLine": 1002,
+          "endLine": 1023,
           "tokens": 973,
           "summary": "四轮架构 review 的最终形态（正本 = ADR-0029 §8）：合成权归宿主注入的 BlitResolver（单",
           "keywords": [
@@ -69554,8 +69633,8 @@
         {
           "anchor": "§harness 观感验证轮（CodeBuddy 无头 Chrome 逐像素，2026-10-03 下午）",
           "level": 3,
-          "startLine": 1008,
-          "endLine": 1019,
+          "startLine": 1024,
+          "endLine": 1035,
           "tokens": 547,
           "summary": "验证能力：机器有 Chrome ⇒ 用 --headless=new --force-device-scale-fact",
           "keywords": [
@@ -69566,22 +69645,35 @@
             "new",
             "force"
           ]
+        },
+        {
+          "anchor": "§WXG-T-234",
+          "level": 2,
+          "startLine": 1036,
+          "endLine": 1053,
+          "tokens": 345,
+          "summary": "beads·孔缘语义定标（mask 亮晕 vs 矢量暗环） — 2026-10-03 用户裁定「另立故事」。",
+          "keywords": [
+            "WXG",
+            "beads",
+            "mask"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 13422,
-      "lines": 72,
-      "sha256": "47c6d9123dcda0e3c54ec0bcd60cbb85a7bf2bb4ad2f5828cd670a3190936db2",
+      "tokens": 13642,
+      "lines": 73,
+      "sha256": "5cbd4a75920777b8bd3020ca805fd19219cb62efb1099aa8a547e7db91244365",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 73,
-          "tokens": 13413,
+          "endLine": 74,
+          "tokens": 13633,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -69594,8 +69686,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 46,
-          "endLine": 73,
+          "startLine": 47,
+          "endLine": 74,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

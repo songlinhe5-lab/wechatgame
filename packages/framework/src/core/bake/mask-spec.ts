@@ -179,7 +179,14 @@ export interface MaskGaugeSpec {
     readonly holeDp: number;
     /** 孔边环宽 dp。 */
     readonly holeRingDp: number;
-    /** 孔缘羽化宽 dp（B 通道 smoothstep；`0` = 无孔档）。 */
+    /**
+     * 孔缘羽化宽 dp（B 通道 smoothstep；`0` = 无孔档）。
+     *
+     * ⚠ **`0.5 → 0.25`（WXG-T-232，2026-10-03 用户裁「甲」**：原 0.5dp 与 LANCZOS 振铃**叠加**，
+     * 实测孔缘过渡带 **7px ≈ 1.64dp**（标称 0.5dp = 2.1px），并把**全透区侵蚀**到 ⌀≈10.5dp
+     * （标称 12dp）⇒ 孔看起来比标称大且边缘过软。收到 0.25dp 后实测 ≈3px（≈0.7dp）。
+     * ⛔ 不是改物理孔径（`holeDp = 12` **未动**，50% 交点仍在 r=25.6px）。
+     */
     readonly holeFeatherDp: number;
     /** plate 档 d（= −0.44）。 */
     readonly plateD: number;
@@ -210,7 +217,7 @@ export const HOLED_MASK_SPEC: MaskGaugeSpec = {
     frameDp: 1,
     holeDp: 12,
     holeRingDp: 1,
-    holeFeatherDp: 0.5,
+    holeFeatherDp: 0.25,
     plateD: 0.56,
     darkStep: 0.14,
     litL: 0.38,

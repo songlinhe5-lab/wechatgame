@@ -679,6 +679,32 @@ function paintFrameLight(p: Planes, spec: MaskGaugeSpec, render: number, px: num
 }
 
 /** 珠面场（512 超采样 → LANCZOS ÷4 → size）。 */
+/**
+ * `[WXG-T-226 WXG-T-232]` **形状通道去振铃地板**（LANCZOS 硬台阶的残留斑点）。
+ *
+ * ## 为什么需要（2026-10-03 实测）
+ *
+ * 珠外缘是 B 通道的 **0 ↔ 255 硬跳**，LANCZOS 在两侧各留 1–4/255 的**振铃斑点**
+ * （实测 `x=6 shape=4`、`x=121 shape=2`）⇒ 它们落在 B0 底图上成为**极淡亮晕**，
+ * 视觉上让「亮刻面压格边界」比几何应有值更靠外（**几何本身是对的**：实测珠 solid 区
+ * `x=9..118 = 110px`，理论 26dp = 110.9px）。
+ *
+ * ## 为什么取 8/255
+ *
+ * 真 AA 边实测值是 **128 / 190**（远高于 8）⇒ 地板**只清振铃斑点，不碰真边缘**；
+ * 孔缘渐变带里 `r=23` 的值 2 也会被清掉 ⇒ 过渡带顺带收窄 1px。
+ *
+ * ⛔ **两侧（py / TS）必须同值** —— 否则 `mask:diff` 逐字节门立即红。
+ */
+const SHAPE_RINGING_FLOOR = 8;
+
+function applyShapeFloor(plane: Uint8Array): Uint8Array {
+    for (let i = 0; i < plane.length; i += 1) {
+        if (plane[i]! < SHAPE_RINGING_FLOOR) plane[i] = 0;
+    }
+    return plane;
+}
+
 function computeBeadPlanes(spec: MaskGaugeSpec, size: number): Planes {
     const render = size * MASK_SUPERSAMPLE;
     const px = render / MASK_CELL_DP;
@@ -689,7 +715,7 @@ function computeBeadPlanes(spec: MaskGaugeSpec, size: number): Planes {
     return {
         r: resampleSquare(p.r, render, size),
         g: resampleSquare(p.g, render, size),
-        b: resampleSquare(beadShapePlane(spec, render, px), render, size),
+        b: applyShapeFloor(resampleSquare(beadShapePlane(spec, render, px), render, size)),
     };
 }
 

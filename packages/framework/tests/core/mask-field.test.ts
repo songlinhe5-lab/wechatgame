@@ -121,6 +121,60 @@ describe('computeMaskField · 编码不变式（DEC-6，承 ADR-0028 §2.1）', 
         expect(dEq).toBeLessThan(13.2);
     });
 
+    // ── [WXG-T-232] 形状通道边缘质量：把「亮刻面压格边界 / 孔缘过软」变成可测数 ──
+    it('WXG-T-232：形状通道**无振铃斑点**（0 < B < 8 的像素 = 0）', () => {
+        // 回归锚：LANCZOS 在珠外缘 0↔255 硬台阶两侧留 1–4/255 的斑点（实测 x=6 B=4 / x=121 B=2），
+        // 它们落在 B0 上成为极淡亮晕 ⇒ 视觉上「亮带压格线」。`applyShapeFloor`（8/255）清之。
+        for (const gauge of ['holed', 'holeless'] as const) {
+            const f = computeMaskField('bead', maskSpecFor(gauge), MASK_CANONICAL_SIZE);
+            let specks = 0;
+            for (let i = 2; i < f.data.length; i += 4) {
+                const b = f.data[i]!;
+                if (b > 0 && b < 8) specks += 1;
+            }
+            expect(specks, `${gauge} 振铃斑点`).toBe(0);
+        }
+    });
+
+    it('WXG-T-232：珠 solid 区 = 26.0dp（±1px），亮刻面到格边界缓冲 ≥ 1.5dp', () => {
+        // 验收项（用户 2026-10-03 裁定的机检数）：不是「看着别扭」，是可测数。
+        const n = MASK_CANONICAL_SIZE;
+        const f = computeMaskField('bead', HOLED_MASK_SPEC, n);
+        // ⚠ 中行穿过**孔心**（B=0）⇒ 不能从中心左右扫；改用**全局包围盒**
+        // （最左/最右的 solid 像素在中高度的两侧，角部圆角不影响 bbox 宽度）。
+        const solidCols: number[] = [];
+        for (let x = 0; x < n; x += 1) {
+            for (let y = 0; y < n; y += 1) {
+                if (f.data[(y * n + x) * 4 + 2]! >= 128) { solidCols.push(x); break; }
+            }
+        }
+        const lo = solidCols[0]!;
+        const hi = solidCols[solidCols.length - 1]!;
+        const beadDp = ((hi - lo + 1) / n) * MASK_CELL_DP;
+        expect(beadDp).toBeGreaterThanOrEqual(25.5);
+        expect(beadDp).toBeLessThanOrEqual(26.5);
+        // 缓冲：格径 30 − 珠 26 ⇒ 每侧 2dp
+        expect((MASK_CELL_DP - beadDp) / 2).toBeGreaterThanOrEqual(1.5);
+    });
+
+    it('WXG-T-232：孔缘 50% 交点 ≈ 标称 ⌀12dp（羽化收到 0.25dp）', () => {
+        // ⛔ 判据用「50% 交点」而非「全透区直径」：任何 AA/羽化都会让全透区小于标称，
+        //    那是几何的必然，不是缺陷（v0.1 我曾把 ⌀10.5 当成「侵蚀」——已自纠）。
+        expect(HOLED_MASK_SPEC.holeFeatherDp).toBe(0.25);
+        const n = MASK_CANONICAL_SIZE;
+        const f = computeMaskField('bead', HOLED_MASK_SPEC, n);
+        const c = Math.floor(n / 2);
+        const at = (r: number) => f.data[((c - r) * n + c) * 4 + 2]!;
+        // 找 B 穿越 128 的半径
+        let r50 = 0;
+        for (let r = 1; r < n / 2; r += 1) {
+            if (at(r) >= 128) { r50 = r; break; }
+        }
+        const holeDp = (2 * r50 / n) * MASK_CELL_DP;
+        expect(holeDp).toBeGreaterThanOrEqual(11.0);
+        expect(holeDp).toBeLessThanOrEqual(13.0);
+    });
+
     it('I-3 holeless 珠面无孔（孔心 B 满幅）', () => {
         const f = computeMaskField('bead', HOLeless_MASK_SPEC, w);
         const c = Math.floor(w / 2);
