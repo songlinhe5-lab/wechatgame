@@ -13,6 +13,10 @@ import { createBeadsHarness, simpleTestLevel, burnToRemaining } from './helpers.
 import { Tray } from '../src/entities/tray.js';
 import { Spawner } from '../src/systems/spawner.js';
 import { TRAY_BASE_SLOTS, TRAY_EXPAND_SLOTS } from '../src/config/tuning.js';
+import { RenderModelBuilder } from '../../../packages/framework/src/core/render/render-model.js';
+import { buildBeadsView } from '../src/view/view-model.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
+import { trayLayout, TRAY_SLOT, TRAY_COLS } from '../src/config/tuning.js';
 
 describe('S4 tray-spawner', () => {
   // §8-1 v2.0 改写替代判据：进 PLAYING 后 60 s 内 `tray:spawned` 计数 === 0
@@ -226,6 +230,38 @@ describe('S4 tray-spawner', () => {
     expect(game.selectTraySlot(2)).toBe(true);
     expect(game.tray.selectedCount, '换选后只剩异色组').toBe(1);
     expect(game.tray.slot(2)!.state).toBe('selected');
+  });
+
+// [WXG-T-240] 蓝点裁撤的**反向守卫**：托盘选中态**不得**再出现 `hintBlue` 圆点。
+  // ⛔ 原 F6「珠下 6px 处 Ø8 圆点 accent_blue」已被用户裁撤（它落在同批补画的坑底上）。
+  it('WXG-T-240 托盘选中态无 hintBlue 圆点（⛔ F6 选中点已裁撤）', () => {
+    const harness = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel()],
+      saveKey: 'wxgame.beads.test.t240-no-blue-dot',
+    });
+    const game = harness.game;
+    const slot = game.giveTrayBead(1);
+    expect(slot).toBeGreaterThanOrEqual(0);
+    game.selectTraySlot(slot);
+
+    const builder = new RenderModelBuilder(750, 1334);
+    builder.begin();
+    buildBeadsView(builder, game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    const list = builder.end().commands;
+    const lay = trayLayout(1);
+    const cx = lay.slotCenterX(slot % TRAY_COLS);
+    const cy = lay.slotCenterY(Math.floor(slot / TRAY_COLS));
+    const r = TRAY_SLOT * 0.75;
+    const blues = list.filter((k) => {
+      const x = (k as { x?: number; cx?: number }).x ?? (k as { cx?: number }).cx;
+      const y = (k as { y?: number; cy?: number }).y ?? (k as { cy?: number }).cy;
+      if (x === undefined || y === undefined) return false;
+      if (Math.hypot(x - cx, y - cy) > r) return false;
+      return String((k as { fill?: string }).fill).toLowerCase()
+        === DEFAULT_PALETTE.hintBlue.toLowerCase();
+    });
+    expect(blues.length, '⛔ 托盘选中态不得有 hintBlue 圆点').toBe(0);
   });
 
   // §8.7 落子成功回执后对应槽变 free；用 bead:placed 计数与 free 槽增量做 1:1 断言。

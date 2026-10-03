@@ -2139,7 +2139,26 @@ beads **774 绿 + 1 skipped** · framework 421 / breakout 239 绿 · `verify` **
 **实测**：槽 0 附近图元 **未选中 3 → 选中 8**（+5 = 坑底/斜面/亮线）。
 **守卫**（`selection-anchor.test.ts`）：选中后槽区**不得为空白**且图元数**增加**。
 
-### ② 多了一个蓝点（⏸ 待裁）
+### ② 多了一个蓝点 —— ✅ **已裁撤**（同日追加，用户裁「蓝点 去掉」）
+
+**裁撤对象**：原 F6 托盘选中点
+`builder.circle(cx, slotBottom - 8, 4, { fill: palette.hintBlue })`
+（F6 规格：「选中点 → accent_blue，§3.5 环状提示 ≤8px 圆点」）。
+
+**裁撤理由**：该点正好落在**同批补画的坑底**上（§①）⇒ 读作「坑底里有个蓝点」，
+与坑的明暗语言混在一起；且抬起动画已足够表达选中
+⇒ 选中信号改为**纯几何语言**（珠抬起 + 坑可见）。
+
+**落码**：
+- `view-model.ts::drawTray`：该 `if (selected) { circle(...) }` 块**整块删除**，
+  原地留**裁撤说明注释**（含原实现代码与理由）
+- ⛔ **非死变量**：`slotBottom` 仍被上方 `drawDashedRect`（扩展行虚线槽）使用
+- 规格侧：`art/assets-spec.md` 的 `selected` 行**已留档裁撤**
+  （⚠ 明确「盘面侧圆点语义不变，裁撤仅针对托盘」）
+
+**实测**：选中后槽区 **8 个图元，其中 `hintBlue` 圆点 0 个** ✓
+**零回归**：删除后 beads **776 绿原样通过** ⇒ **无任何测试依赖该点**（说明它纯是视觉元素）。
+**反向守卫已加**（`tray-spawner.test.ts`）：托盘选中态**不得**出现 `hintBlue` 圆点。
 
 选中时在槽下方 `slotBottom - 8` 画一枚 4px `palette.hintBlue` 圆点
 （**F6 规格**：「选中点 → accent_blue，§3.5 环状提示 ≤8px 圆点」）。
@@ -2197,4 +2216,4 @@ beads **774 绿 + 1 skipped** · framework 421 / breakout 239 绿 · `verify` **
 
 ### 读数
 
-beads **776 绿 + 1 skipped** · `check:tasks` 29/29 · `verify` **PASS 19 / FAIL 0**
+beads **777 绿 + 1 skipped** · `check:tasks` 29/29 · `verify` **PASS 19 / FAIL 0**

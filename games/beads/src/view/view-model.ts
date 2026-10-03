@@ -1283,10 +1283,13 @@ function drawTray(
       styleId: snap.beadStyle,
       ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),
     });
-    if (selected) {
-      // F6：选中点 → accent_blue（§3.5 环状提示 ≤8px 圆点；暖橙仅存珠子本体）。
-      builder.circle(cx, slotBottom - 8, 4, { fill: palette.hintBlue });
-    }
+    // [WXG-T-240 · 2026-10-04 用户裁「蓝点 去掉」] ⛔ **原 F6 选中点已删除**：
+    //   原实现 = `builder.circle(cx, slotBottom - 8, 4, { fill: palette.hintBlue })`
+    //   （F6「选中点 → accent_blue，§3.5 环状提示 ≤8px 圆点」）。
+    //   裁撤理由：**该点正好落在同批补画的坑底上**（WXG-T-240 ①）⇒ 读作「坑底里有个蓝点」，
+    //   与坑的明暗语言混在一起；且抬起动画已足够表达选中。
+    //   ⇒ 选中态的信号改为**纯几何语言**：珠抬起 + 坑可见（见上方 `if (selected) drawEmptySocket`）。
+    //   ⛔ 规格侧同步留档：`ux-spec §3.5` F6 行标「已被用户裁撤（WXG-T-240）」。
     // GAP-03 引导：首珠所在槽外描边脉冲呼吸（与目标格 `hint` 同周期、同色）。
     if (snap.onboarding && idx === snap.guideSlot) {
       drawStateRing(builder, cx, cy, TRAY_SLOT, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
