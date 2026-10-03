@@ -80,14 +80,6 @@ export interface BeadsSnapshot {
   gridCols: number;
   gridRows: number;
   cells: SnapshotCell[];
-  /**
-   * **[WXG-T-237 v5.0 · 用户裁定「托盘底色与格底色保持一致」]** **关卡主色** =
-   * 可填格中出现最多的目标色（众数；`0` = 全盘无可填格 ⇒ 视图回退 `palette.panel`）。
-   * 托盘**面板底**与**空槽坑基色**都取它的 `edge`（=`mix(主色, −0.30)`），与盘面格底
-   * **同一算法同一档** ⇒ 托盘与盘面读作同一材质。
-   * ⚠ 每帧在 `_syncSnapshot` 里随 cells 一次算好（⛔ 视图不得自行遍历重算 —— 热路径规则）。
-   */
-  mainColorIdx: number;
 
   /** Tray slots (flat; capacity 12 or 24 when expanded). */
   traySlots: SnapshotSlot[];
@@ -359,7 +351,6 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     remaining: 0,
     timeTotal: 0,
     urgent: false,
-    mainColorIdx: 0,
     gridCols: 0,
     gridRows: 0,
     cells: [],

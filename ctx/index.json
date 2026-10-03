@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "9b49ef281c006af1e2641db17f440ff574a072cec243646a262f05564869afaa",
+      "sha256": "7ed051081e1964c723b9150ae8941daa53db7bff6eb3d9783283c01164b7a4dd",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5009,
       "lines": 94,
-      "sha256": "76f16bd124bf233ef3cb61b9b2f232828313d8210f4350bdec86f912a6cd319a",
+      "sha256": "43b0dd7393ed71fefca0d9919a740dd2b8edf01cb7977bfc312ae5818c4017d6",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 18118 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 18468 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1826 行 / 71608 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1865 行 / 72426 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 676,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1827 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1866 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -50052,17 +50052,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 653,
-      "lines": 22,
-      "sha256": "b1619edf210616983766b1023ea7fd853ffc309d0713c3707cb200bd0b1bdec1",
+      "tokens": 1360,
+      "lines": 46,
+      "sha256": "6512102e73623588a6dda2f5272c7fdee8c7d5ecdc36f231fa954820e7daa55a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 23,
-          "tokens": 650,
+          "endLine": 47,
+          "tokens": 1356,
           "summary": "",
           "keywords": []
         },
@@ -50081,14 +50081,28 @@
             "托盘底",
             "格底已落码"
           ]
+        },
+        {
+          "anchor": "§WXG-T-237 v6.0：托盘颜色还原为中性（v5.0 整体回滚）",
+          "level": 3,
+          "startLine": 24,
+          "endLine": 47,
+          "tokens": 684,
+          "summary": "用户裁「托盘还是还原之前颜色」（看了 v5.0「托盘底 = 格底」的暗紫红效果图后）⇒ 托盘回中性：",
+          "keywords": [
+            "WXG",
+            "托盘颜色还原",
+            "为中性",
+            "整体回滚"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 10009,
+      "tokens": 10010,
       "lines": 250,
-      "sha256": "e2b7d83395850729e1d4467f7fb497bf7c3fde49b5ad61b31da608bc70d9b6f1",
+      "sha256": "c1b94cc50af9bfed713b46c8e3540bb74634f58835aff897875b27b764db6826",
       "tier": "normal",
       "sections": [
         {
@@ -50179,7 +50193,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 653 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 1,360 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70198,17 +70212,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 71608,
-      "lines": 1826,
-      "sha256": "eaa56b8ddf92541c0a114f36cce7c8752768c84f374669c8e99d90c6605f5177",
+      "tokens": 72426,
+      "lines": 1865,
+      "sha256": "102453ef40a64d5a7350abfe04904cc0beedd45a7d44f14e156ee33f726e0dcb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1827,
-          "tokens": 71591,
+          "endLine": 1866,
+          "tokens": 72410,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71462,8 +71476,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1827,
-          "tokens": 6521,
+          "endLine": 1866,
+          "tokens": 7340,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71631,14 +71645,28 @@
             "格底已落码",
             "本节为当前状"
           ]
+        },
+        {
+          "anchor": "§v6.0：托盘颜色还原为中性（v5.0 整体回滚 · 本节为当前状态）",
+          "level": 3,
+          "startLine": 1828,
+          "endLine": 1866,
+          "tokens": 791,
+          "summary": "用户裁定：「托盘还是还原之前颜色」（看了 v5.0「托盘底 = 格底」的效果图后）。",
+          "keywords": [
+            "托盘颜色还原",
+            "为中性",
+            "整体回滚",
+            "本节为当前状"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 18118,
+      "tokens": 18468,
       "lines": 76,
-      "sha256": "16d7ea6cecf6bb9bdf26c97e4ca80eeba1a120ed394d23af0d8153bcce26da1a",
+      "sha256": "241b3b468152e7a8c75de766f103b1f708f378b1621e8b36c4bc42123abb5570",
       "tier": "hot",
       "sections": [
         {
@@ -71646,7 +71674,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 18109,
+          "tokens": 18459,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

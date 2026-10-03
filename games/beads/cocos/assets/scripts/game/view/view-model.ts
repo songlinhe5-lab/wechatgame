@@ -128,7 +128,6 @@ import {
   POWERUP_SHADOW_ALPHA,
   CONFETTI_COLORS,
   STAR_GOLD,
-  endpointOf,
   withAlpha,
   type BeadInks,
   type BeadsPalette,
@@ -1199,15 +1198,12 @@ function drawTray(
   const lay = trayLayout(rows);
 
   // White rounded panel behind the slots（面板**贴上沿** ⇒ 带下沿让给 `btn_expand`）。
-  // [WXG-T-237 v5.0 · 用户裁定「托盘底色与格底色保持一致」] 面板底走盘面格底的
-  // **同一算法同一档**：`endpointOf(inks, snap.mainColorIdx).edge`（= `mix(主色, −0.30)`）。
-  // 实测与盘面格底逐位同值（#964763 lum 97.8 ≡ 盘面格底 #954763 lum 97.5，同 0.30 暗化档）。
-  // ⚠ **主色 = `snap.mainColorIdx`（众数）** —— 首版预览取 `cells[0]` ⇒ 那是背景格，
-  //   panel 落 #24242B（lum 36.8），比格底暗 60 lum ⇒ 「托盘变近黑」是**取错代表色**，
-  //   不是「一致」的真实效果（预览误导实录，留档）。
-  // `mainColorIdx 0`（全盘无可填格）⇒ 回退 `palette.panel`（⛔ 中性兜底，不猜色）。
+  // [WXG-T-237 v6.0 · 用户 2026-10-04 裁定「托盘还是还原之前颜色」] 面板**回中性** `palette.panel`。
+  // 沿革留档：v5.0 曾改「面板底 = 格底（关卡主色 `edge`）」⇒ 托盘与盘面同色同档（实测 #964763 ≡ 格底 97.5），
+  //   但用户看图后裁「还原」⇒ **托盘保持中性收纳区的读感**，与盘面的彩色目标底**刻意区分**。
+  //   ⛔ 该裁定同时撤掉 `mainColorIdx`（关卡主色）字段：随 v5.0 回滚而无人消费 ⇒ 一并删除（不留死代码）。
   builder.rect(lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, {
-    fill: snap.mainColorIdx > 0 ? endpointOf(inks, snap.mainColorIdx).edge : palette.panel,
+    fill: palette.panel,
     radius: 18,
   });
   // 「微拱白瓷」三段内阴影（§1.3 v1.5，WXG-T-131/143）：底缘两段 + 右缘一段 ——
@@ -1232,15 +1228,10 @@ function drawTray(
       } else {
         // [WXG-T-237 v4.0 · 1:1 格面] 托盘槽**与盘面格同图元同色档**：走 `cell` mask，
         // `beadInset` 与盘面同（`BEAD_DRAW_INSET`）⇒ 坑外沿 ≡ 珠面轮廓（与盘面同一恒等式）；
-        // `trayZone: true` 放宽 tint 门的 `colorIdx` 条件（v5.0 起主路径有主色可传；
-        // 仅 `mainColorIdx 0` 的兜底路径仍依赖它）。
+        // `trayZone: true` 放宽 tint 门的 `colorIdx` 条件（空槽无目标色 ⇒ `base = palette.slot` 中性）。
         // ⛔ 不传 `tilePainted`：托盘没有 B0 底图 rect，槽需自带亮底（与盘面相反）。
-        // [WXG-T-237 v5.0] 空槽坑基色 = **关卡主色**（与面板同源）⇒ 端点族整体走彩色族，
-        // 与盘面格的坑**同一算法同一档**。⛔ `trayZone` 仍保留：`mainColorIdx 0`（无可填格）
-        // 时走中性 + `trayZone`，命中链不回归矢量臂。
         drawEmptySocket(
-          builder, cx, cy, palette, TRAY_SLOT,
-          snap.mainColorIdx > 0 ? snap.mainColorIdx : undefined, inks, false, BEAD_DRAW_INSET,
+          builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
           { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
         );
       }

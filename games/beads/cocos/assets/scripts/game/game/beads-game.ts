@@ -3405,11 +3405,6 @@ export class BeadsGame implements Game {
         s.cells.push({ state: 'empty', colorIdx: 0, beadColorIdx: 0, void: false });
       }
     }
-    // [WXG-T-237 v5.0] 关卡主色 = 可填格（`colorIdx > 0`）目标色的**众数**，随 cells 一次算好
-    // （同循环内顺手做，无额外遍历；全盘无可填格 ⇒ 0，视图回退 `palette.panel`）。
-    // ⛔ 视图不得自行遍历重算（热路径规则）。
-    let mainTallyBest = 0; let mainColorIdx = 0;
-    const mainTally = new Map<number, number>();
     for (let i = 0; i < cellsNeeded; i++) {
       const row = Math.floor(i / this._grid.cols);
       const col = i % this._grid.cols;
@@ -3419,16 +3414,7 @@ export class BeadsGame implements Game {
       out.colorIdx = cell.colorIdx;
       out.beadColorIdx = cell.beadColorIdx;
       out.void = cell.void;
-      if (cell.colorIdx > 0) {
-        const n = (mainTally.get(cell.colorIdx) ?? 0) + 1;
-        mainTally.set(cell.colorIdx, n);
-        // 众数平票取**首个**（遍历序 = 行主序，确定性与 `cells[0]` 口径一致）
-        if (n > mainTallyBest || (n === mainTallyBest && mainColorIdx === 0)) {
-          mainTallyBest = n; mainColorIdx = cell.colorIdx;
-        }
-      }
     }
-    s.mainColorIdx = mainColorIdx;
     s.gridLeft = this._layout.left;
     s.gridTop = this._layout.top;
     // Camera-scaled spacing/size so the render path matches `hitGridCell` exactly
