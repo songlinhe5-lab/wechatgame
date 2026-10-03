@@ -147,9 +147,10 @@ describe('S4 tray-spawner', () => {
   });
 
   // §8-6（v2.2 组选改写，WXG-T-158 裁定②）：点 holding 珠 = 同色全组 selected
-  // （payload `count` = 组珠数）；再点已选组任一颗 = 整组静默取消（零事件）；
-  // 点他色 = 整组换选，同帧至多一色组被选。旧「双击同槽幂等⇒仅广播 1 次」作废。
-  it('§8-6 group select / whole-group silent cancel / switch-select (v2.2)', () => {
+  // （payload `count` = 组珠数）；点他色 = 整组换选，同帧至多一色组被选。
+  // [WXG-T-240 改写] ⛔「再点已选组任一颗 = 整组静默取消」**作废**（用户裁定：那是错误行为）⇒
+  //   同色再点改为**幂等保持**（零新广播、锚不动）；取消的唯一路径 = 换选 / 落子 / 取回。
+  it('§8-6 group select / same-colour idempotent keep / switch-select (v2.2 · WXG-T-240)', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()],
@@ -174,21 +175,57 @@ describe('S4 tray-spawner', () => {
     expect(ev[0]!.slot).toBe(slotA1);
     expect(ev[0]!.count).toBe(2);
 
-    // 再点已选组另一颗 ⇒ 整组静默取消（零新广播，锚回 none）。
+    // [WXG-T-240 · 2026-10-04 用户裁定「再点击能取消，这个是错误的」]
+    // ⛔ **原「再点已选组任一颗 ⇒ 整组静默取消」是错误行为，已去掉 toggle。**
+    //    现在同色再点 = **幂等保持选中**：组仍在 selected、**零新广播**、锚**不回 none**。
     expect(game.selectTraySlot(slotA2)).toBe(true);
-    expect(game.tray.slot(slotA1)!.state).toBe('holding');
-    expect(game.tray.slot(slotA2)!.state).toBe('holding');
-    expect(harness.count('tray:selected')).toBe(1);
-    expect(game.selection).toBe('none');
+    expect(game.tray.slot(slotA1)!.state).toBe('selected');
+    expect(game.tray.slot(slotA2)!.state).toBe('selected');
+    expect(harness.count('tray:selected'), '⛔ 同色再点零新广播').toBe(1);
+    expect(game.selection, '⛔ 同色再点锚保持').toBe('tray');
+    expect(game.tray.selectedCount, '整组仍在选中').toBe(2);
 
-    // 换选：重新组选 A 后点他色 B ⇒ 整组换选，同帧至多一色组被选。
-    expect(game.selectTraySlot(slotA1)).toBe(true);
+    // 取消选中的**唯一路径** = 换选（点他色）⇒ 整组换选，同帧至多一色组被选。
     expect(game.selectTraySlot(slotB)).toBe(true);
-    expect(harness.count('tray:selected')).toBe(3);
+    expect(harness.count('tray:selected')).toBe(2);
     expect(game.tray.slot(slotA1)!.state).toBe('holding');
     expect(game.tray.slot(slotA2)!.state).toBe('holding');
     expect(game.tray.slot(slotB)!.state).toBe('selected');
     expect(game.tray.selectedCount).toBe(1);
+  });
+
+// [WXG-T-240] 去掉 toggle 的**正向守卫**：直接钉死「同色再点 ⇒ 仍选中、零新事件」。
+  // ⛔ 这条是本裁定的**核心语义**，与 §8-6 腿互补（那条走完整流程，本条专测不变式）。
+  it('WXG-T-240 同色再点 = 幂等保持选中（⛔ 不取消 · 零新事件 · 锚不动）', () => {
+    const harness = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel()],
+      saveKey: 'wxgame.beads.test.t240-idem',
+    });
+    const game = harness.game;
+    const a1 = game.giveTrayBead(1);
+    game.giveTrayBead(1); // 同色第二颗 ⇒ 同组
+    game.giveTrayBead(2); // 异色 ⇒ 换选用
+    expect(a1).toBeGreaterThanOrEqual(0);
+
+    game.selectTraySlot(a1);
+    const evAfterFirst = harness.count('tray:selected');
+    expect(evAfterFirst).toBe(1);
+    expect(game.tray.selectedCount).toBe(2);
+
+    // 同色再点三次 ⇒ 状态与事件数**逐字不变**
+    for (let i = 0; i < 3; i += 1) {
+      expect(game.selectTraySlot(a1), `第 ${i + 1} 次同色再点`).toBe(true);
+      expect(game.tray.selectedCount, '组仍选中').toBe(2);
+      expect(game.tray.slot(a1)!.state, '槽仍 selected').toBe('selected');
+      expect(harness.count('tray:selected'), '⛔ 零新广播').toBe(evAfterFirst);
+      expect(game.selection, '⛔ 锚保持 tray').toBe('tray');
+    }
+
+    // 取消的唯一路径 = 换选（点异色）
+    expect(game.selectTraySlot(2)).toBe(true);
+    expect(game.tray.selectedCount, '换选后只剩异色组').toBe(1);
+    expect(game.tray.slot(2)!.state).toBe('selected');
   });
 
   // §8.7 落子成功回执后对应槽变 free；用 bead:placed 计数与 free 槽增量做 1:1 断言。

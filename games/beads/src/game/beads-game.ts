@@ -905,7 +905,10 @@ export class BeadsGame implements Game {
     if (this._machine.current !== 'playing') return false;
     const result = this._tray.select(slot);
     if (result === 'invalid') return false;
-    if (this._countAction(result === 'deselected')) return true; // 整组取消：零事件，锚自然回 none
+    // [WXG-T-240] 同色再点 = **幂等保持选中**：零事件、锚不动（「再点击能取消」是错误行为）。
+    // 口径与 `selectBoardBead` 的「同一颗幂等（§8-6）」同构。
+    if (result === 'unchanged') return this._countAction(true);
+    if (this._countAction(result === 'deselected')) return true; // 兜底：select 已不再产生该值
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._liftElapsedMs = 0; // §5：托盘选中同样走斜坡（与板锚共用一个时钟）

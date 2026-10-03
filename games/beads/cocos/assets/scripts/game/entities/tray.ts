@@ -28,7 +28,12 @@ export interface TraySlot {
 }
 
 /** v2.2 组选结果（原 'already-selected' 幂等语义被 'deselected' 整组取消推翻）。 */
-export type SelectResult = 'selected' | 'deselected' | 'invalid';
+/**
+ * [WXG-T-240] `'unchanged'` = **同色再点的幂等结果**（选中态**保持**，不取消）。
+ * ⛔ `'deselected'` **保留在类型里但 `select()` 已不再产生它**（去掉 toggle，见 `select` 头注）
+ *   —— 保留是为了不破坏外部穷举分支（`beads-game` 仍按它做兜底）；新逻辑请走 `'unchanged'`。
+ */
+export type SelectResult = 'selected' | 'unchanged' | 'deselected' | 'invalid';
 
 export class Tray {
   private readonly _slots: TraySlot[];
@@ -169,15 +174,24 @@ export class Tray {
    * 调用方零事件，锚回 `none`）。@returns 结果，调用方据此决定是否广播
    * `tray:selected {slot, colorIdx, count}`。
    */
+  /**
+   * 选中托盘珠（**同色组**）。
+   *
+   * [WXG-T-240 · 2026-10-04 用户裁定「再点击能取消，这个是错误的」]
+   * ⛔ **去掉 toggle**：原先「点已选中的同色珠 ⇒ `deselectAll` 取消」是**错误行为**。
+   *    现在同色再点 = **幂等保持选中**（返回 `'unchanged'`，零副作用、零事件）——
+   *    与盘面 `selectBoardBead` 的「同一颗幂等（双击零新事件，§8-6 同型判例）」**同构**。
+   *    取消选中的**唯一路径**变成：① 选别的色（换选）② 落子 / 取回（`retrieveBead` 侧清组）。
+   *    ⇒ 理由（用户视角）：托盘珠是「**取珠意图**」，点第二下就撤销意图会让「已拿珠、点格失败、再点珠」
+   *      这类操作流变得易失；意图一旦建立就由后续动作（落子/换选）终止。
+   */
   select(slotIndex: number): SelectResult {
     const slot = this._slots[slotIndex];
     if (!slot || slot.state === 'free') return 'invalid';
     const color = slot.colorIdx;
     const prev = this.selectedSlot;
-    if (prev >= 0 && this._slots[prev]!.colorIdx === color) {
-      this.deselectAll();
-      return 'deselected';
-    }
+    // 同色已选中 ⇒ 幂等保持（⛔ 不再 `deselectAll`；`unchanged` 让调用方零事件）
+    if (prev >= 0 && this._slots[prev]!.colorIdx === color) return 'unchanged';
     this.deselectAll();
     for (const s of this._slots) {
       if (s.state === 'holding' && s.colorIdx === color) s.state = 'selected';
