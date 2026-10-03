@@ -16,6 +16,8 @@ import {
   DESIGN_W,
   SELECT_LIFT_PX,
   SELECT_LIFT_ANGLE,
+  SOLVER_STAGGER_MS,
+  SOLVER_PER_BEAD_MS,
   TRAY_SELECTED_LIFT_PX,
   HUD_BAND,
   PANEL_SCALE_FROM,
@@ -974,7 +976,14 @@ function drawGrid(
       // 由 `SOLVER_STAGGER_MS` 错位起播），与 G1 单槽互斥（game 侧已保证不重叠）。
       const solverStep = solverLandStep(snap, i, j);
       const solverPopP = solverStep >= 0 && solverT > 0 ? solverBeadProgress(solverT, solverStep) : 0;
-      const popProgress = solverPopP > 0 ? solverPopP : popActive ? snap.placeProgress : 0;
+      // [T-244] 组归位落座：`tMs = elapsed − STAGGER×step` ⇒ ≤0 未轮到（**珠不画**＝逐颗「出现」）、
+      // 0..PER_BEAD 送 fill-pop 包络（压下回弹＝「落下去的抖动」，与 G1/G2′ 同一口径）。
+      // 优先级最前：组归位是本格最新事件（同帧与 G1/solver 互斥由 game 侧保证）。
+      const glStep = groupLandStep(snap, i, j);
+      const glT = glStep >= 0 ? snap.groupLandElapsedMs - SOLVER_STAGGER_MS * glStep : -1;
+      const glHidden = glStep >= 0 && glT <= 0;
+      const glPopP = glStep >= 0 && glT > 0 && glT < SOLVER_PER_BEAD_MS ? glT / SOLVER_PER_BEAD_MS : 0;
+      const popProgress = glPopP > 0 ? glPopP : solverPopP > 0 ? solverPopP : popActive ? snap.placeProgress : 0;
       if (popProgress > 0) fillPopEnvelope(popProgress, snap.reduceMotion, pop);
       // WXG-T-148 用户反馈 ②：board 锚珠抬起（lift 沿用托盘 selected 语义，垫不
       // 参与 lift ⇒ 珠上移露垫 = 抬起读数）；③④ 锚 = 8 邻接连通错位珠组 ⇒ 组内全格统一抬起。
@@ -1099,7 +1108,9 @@ function drawGrid(
           -groupLift * Math.tan((SELECT_LIFT_ANGLE * Math.PI) / 180),
         );
       }
-      drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
+      // [T-244] 组落座「出现」语义：相位未到 ⇒ 本格**不画珠**（B0/坑/状态环正常）⇒
+      // 视觉 = 从被点格起逐颗浮现。数据同帧已在盘（规则读取不受表现影响）。
+      if (!glHidden) drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
       // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
       // 候选 I 墨 = `palette.slotBorder`（§1.6.2a）⇒ 非 danger/hint 色，不抢玩法语义。
       if (named) {
@@ -1180,6 +1191,16 @@ function solverLandStep(snap: BeadsSnapshot, row: number, col: number): number {
   for (let k = 0; k < snap.solverLandCount; k++) {
     if (snap.solverLandRows[k] === row && snap.solverLandCols[k] === col) {
       return snap.solverLandSteps[k]!;
+    }
+  }
+  return -1;
+}
+
+/** **[T-244]** 组归位落座格的 BFS 序号（同构 `solverLandStep`；-1 = 非落座格）。 */
+function groupLandStep(snap: BeadsSnapshot, row: number, col: number): number {
+  for (let k = 0; k < snap.groupLandCount; k++) {
+    if (snap.groupLandRows[k] === row && snap.groupLandCols[k] === col) {
+      return snap.groupLandSteps[k]!;
     }
   }
   return -1;

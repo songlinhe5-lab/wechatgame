@@ -289,6 +289,17 @@ export interface BeadsSnapshot {
   solverLandSteps: number[];
   solverLandCount: number;
   /**
+   * **[T-244 · 2026-10-04 用户裁定「组归位逐颗 BFS 错峰出现 + 落下抖动」]** 组批量归位
+   * （board 锚直填，T-186）的**纯表现**落座队列：数据**同帧**写盘（T-186 裁定不变），
+   * 只有「珠画不画/抖不抖」由本队列驱动。`step` = BFS 序号（0 = 被点格）；
+   * `elapsedMs` = 队列单调时钟（view 侧换算每颗局部相位）。
+   */
+  groupLandRows: number[];
+  groupLandCols: number[];
+  groupLandSteps: number[];
+  groupLandCount: number;
+  groupLandElapsedMs: number;
+  /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
    * ⇒ **无空间坐标**，只需一个单调标量（0 = 不绘制）；几何与缓动全在 view 侧推导。
    */
@@ -447,6 +458,11 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     solverLandCols: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
     solverLandSteps: new Array<number>(SOLVER_MAX_CELLS * 2).fill(-1),
     solverLandCount: 0,
+    groupLandRows: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+    groupLandCols: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+    groupLandSteps: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+    groupLandCount: 0,
+    groupLandElapsedMs: 0,
     sweepProgress: 0,
     confettiProgress: 0,
     waveProgress: 0,

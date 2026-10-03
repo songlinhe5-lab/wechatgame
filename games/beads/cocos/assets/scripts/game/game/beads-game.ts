@@ -81,6 +81,7 @@ import {
   SOLVER_HINT_MS,
   SOLVER_MAX_CELLS,
   SOLVER_STAGGER_MS,
+  SOLVER_PER_BEAD_MS,
   solverSequenceMs,
   SWEEP_MS,
   CONFETTI_MS,
@@ -382,6 +383,20 @@ export class BeadsGame implements Game {
    * 数组定长预分配（`SOLVER_MAX_CELLS` / ×2），逐帧只写值（热路径零分配）。
    */
   private _solverFx: SolverFxQueue | null = null;
+  /**
+   * **[T-244]** 组批量归位（T-186 直填）的**纯表现**落座队列：数据同帧写盘不变，
+   * 只驱动 view 侧「逐颗 BFS 错峰出现 + fill-pop 落座抖动」。定长 `SOLVER_MAX_CELLS`
+   * （组归位一次上限 = 组内错位珠数 ≤ 组大小 ≤ 盘格数，安全）。惰性建（首次登记帧分配，
+   * 非每帧路径）。
+   */
+  private _groupLandFx: {
+    rows: number[];
+    cols: number[];
+    steps: number[];
+    count: number;
+    elapsedMs: number;
+    totalMs: number;
+  } | null = null;
   /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
    * ⇒ 无空间坐标，一个计时标量即可（`-1` = 未播放）。触发源 = `powerup:used`。
@@ -832,6 +847,7 @@ export class BeadsGame implements Game {
     // G2′ 相 B 到点动手：**先于**面板与表现层步进，因为本步会写棋盘并可能达成过关
     // （`cleared-priority`，core-loop §2.2.2 ⇒ 完成判定排在同一帧的事件之后）。
     this._stepSolverFx(dt);
+    this._stepGroupLandFx(dt); // [T-244] 组落座表现推进
     // Panel animation is presentation, not gameplay: it keeps running while the
     // world is frozen so the enter/exit ramp never stalls (ux-spec §5).
     this._panel.update(dt * 1000);
@@ -1204,6 +1220,47 @@ export class BeadsGame implements Game {
     fx.landCols[i] = col;
     fx.landSteps[i] = step;
     fx.landCount = i + 1;
+  }
+
+  /**
+   * **[T-244]** 组落座登记（纯表现）。惰性建队列；总时长 = `STAGGER × (count−1) + PER_BEAD`。
+   * ⛔ 与 `_solverFx` 分列：那条连**落子执行**都由队列驱动（解环器语义），组归位的落子是
+   * **同帧**写盘（T-186 裁定）⇒ 只借表现口径、不借执行语义。
+   */
+  private _noteGroupLand(row: number, col: number, step: number): void {
+    if (!this._groupLandFx) {
+      this._groupLandFx = {
+        rows: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+        cols: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+        steps: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+        count: 0,
+        elapsedMs: 0,
+        totalMs: 0,
+      };
+    }
+    const fx = this._groupLandFx!;
+    if (fx.count >= fx.rows.length) return; // 定长越界静默丢（同 _noteSolverLand 判例）
+    fx.rows[fx.count] = row;
+    fx.cols[fx.count] = col;
+    fx.steps[fx.count] = step;
+    fx.count++;
+    fx.totalMs = SOLVER_STAGGER_MS * (fx.count - 1) + SOLVER_PER_BEAD_MS;
+  }
+
+  /**
+   * **[T-244]** 组落座推进。**表现层判例**（同 `_stepWrongFx` / `_stepPlaceFx`：不被
+   * PAUSED 冻结——动画不该因暂停丢尾）；非 playing 相位作废（同 `_stepSolverFx` 的
+   * 「过期坐标不动新棋盘」口径——虽然本队列只动表现，保守同判例）。
+   */
+  private _stepGroupLandFx(dt: number): void {
+    const fx = this._groupLandFx;
+    if (!fx) return;
+    if (this._machine.current !== 'playing') {
+      this._groupLandFx = null;
+      return;
+    }
+    fx.elapsedMs += Math.max(0, dt) * 1000;
+    if (fx.elapsedMs >= fx.totalMs) this._groupLandFx = null;
   }
 
   /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
@@ -1884,7 +1941,8 @@ export class BeadsGame implements Game {
     // ADR-0017 甲案：布局变（= 珠屏幕径变）即重算 LOD 档，带滞回（阈值附近不跳变闪烁）。
     this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
     this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
-    this._solverFx = null; // 换关 / 重试 ⇒ 作废在途的 G2′ 队列（相 B **会写盘**，不能拿旧格坐标动新棋盘）
+    this._solverFx = null; // 换关 / 重试 ⇒ 作废在途的 G2′ 队列
+    this._groupLandFx = null; // [T-244] 同判例：旧格坐标不动新棋盘（相 B **会写盘**，不能拿旧格坐标动新棋盘）
     this._tray.reset();
     this._resetPowerups();
     this._tray.initNeeded(this._grid.neededColorCounts());
@@ -2382,6 +2440,8 @@ export class BeadsGame implements Game {
         continue; // 该员不消费，余序不变
       }
       used++;
+      // [T-244] 表现层登记：step = BFS 序（targets[0] = 被点格 ⇒ 「从当前点击的槽开始扩展」）。
+      this._noteGroupLand(t.row, t.col, used - 1);
       this._emit('bead:placed', { row: t.row, col: t.col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot
       placedAny = true;
       if (used >= consumption.length) break;
@@ -3628,6 +3688,15 @@ export class BeadsGame implements Game {
       s.solverLandRows[i] = sfx && i < sfx.landCount ? sfx.landRows[i]! : -1;
       s.solverLandCols[i] = sfx && i < sfx.landCount ? sfx.landCols[i]! : -1;
       s.solverLandSteps[i] = sfx && i < sfx.landCount ? sfx.landSteps[i]! : -1;
+    }
+    // [T-244] 组落座表现队列
+    const glfx = this._groupLandFx;
+    s.groupLandCount = glfx ? glfx.count : 0;
+    s.groupLandElapsedMs = glfx ? glfx.elapsedMs : 0;
+    for (let i = 0; i < s.groupLandRows.length; i++) {
+      s.groupLandRows[i] = glfx && i < glfx.count ? glfx.rows[i]! : -1;
+      s.groupLandCols[i] = glfx && i < glfx.count ? glfx.cols[i]! : -1;
+      s.groupLandSteps[i] = glfx && i < glfx.count ? glfx.steps[i]! : -1;
     }
     // G3 扫光：只一条单调进度（斜带几何与缓动在 view 侧推导，L5）。
     s.sweepProgress =
