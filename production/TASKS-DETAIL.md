@@ -2235,3 +2235,49 @@ beads **774 绿 + 1 skipped** · framework 421 / breakout 239 绿 · `verify` **
 ### 读数
 
 beads **777 绿 + 1 skipped** · `check:tasks` 29/29 · `verify` **PASS 19 / FAIL 0**
+
+## WXG-T-241
+
+**盘面已选中珠时点错色空格 ⇒ 错珠动画（⛔ 不是「先选一颗珠子」文案）**
+
+**用户报**（2026-10-04）：「提示先选一颗，但是在盘面上已经有选择的珠子了，应该给错珠动画提示」。
+
+### 病灶（提示与画面直接矛盾）
+
+`_routeGridEmpty` 的「先选一颗珠子」文案（`TAP_HINT_NO_SELECTION_TEXT`）**只在真的没选中时成立**。
+但 `_tryDirectFillFromBoard` 在「**board 锚存活** + 点的是**错色空格**」时**也返回 `null`**
+（`target.colorIdx !== anchor.color` ⇒ 不消费）⇒ 玩家**明明已选中**却被告知「先选一颗」。
+
+⛔ 既有 `wrong` fx 只挂在 `_placeSelected`（**托盘锚**）的 `rejected/mismatch` 分支
+⇒ **board 锚这条路径此前无任何反馈**（全测零覆盖 ⇒ 一直没暴露）。
+
+### 修法
+
+按「调用 `_tryDirectFillFromBoard` **返回后** `_boardSelected` 是否**仍存活**」分流：
+
+| 锚状态 | 判读 | 反馈 |
+|---|---|---|
+| **存活** | 已选中，点的是**错色格** | **错珠动画**（GAP-04 `wrong` 态，同 `_armWrongFx` 通道）+ ⛔ 不给文案 |
+| **已清 / 从无** | 组员全死（函数内自行清锚）或本无选中 | 「先选一颗珠子」**保留** |
+
+⚠ **判据必须用「调用后」的锚状态**：组员全死那条路径会**在函数内清锚** ⇒ 若用「进来前」的锚，
+会对一个已不存在的选中态播错珠动画（守卫 ③ 钉死这条）。
+
+### 新增守卫（`tests/board-wrong-fx.test.ts`，3 条）
+
+① 锚存活 + 错色空格 ⇒ `wrongRow/wrongCol` 命中被点格、**推一帧后 `wrongProgress > 0`**
+（起播帧 elapsed=0 ⇒ 进度 0 正常；不推帧只能证「标志被置」、证不了动画在播）、⛔ `tapHintText === ''`；
+② 从无选中 + fillable 空格 ⇒ 文案**保留**（旧行为不回归）+ `wrongRow === -1`；
+③ ⛔ 锚组员全死 + 点空格 ⇒ **回落文案** + `wrongRow === -1`。
+
+### 造盘的三个坑（实测踩到）
+
+⚠ **盘面初始满盘**（`applyMisplacedToGrid` 装配）⇒ 无空格；`noAssemble: true` 会**跳过装配** ⇒ 盘全空 ⇒ 建不了 board 锚。
+⚠ **`grid.retrieve` 只收错位珠**（`grid.ts:134` 的 `beadColorIdx === colorIdx` 守卫）
+⇒ 空格必须 `setBead` 先造成错位、再 `retrieve` **两步**。
+⚠ 直改 `grid` 后**必须 `h.advance(FRAME)`** 让 snapshot 同步（现成测试判例）。
+
+### 读数
+
+beads **780 绿 + 1 skipped**（新增 3 条）· `verify` **PASS 19 / WARN 0 / SKIP 1 / FAIL 0** ·
+`check:tasks` **30/30**。

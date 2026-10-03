@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "02a1c2ddf669fd8ca16bff14a4d45e2cc68f1eceffce7d0f443e57440e57551f",
+      "sha256": "ab03fa4a08c278f4c74df59cebdc5dba29288e3231a8d599ca98be9ab5dac056",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5117,
+      "tokens": 5123,
       "lines": 86,
-      "sha256": "d3a425c65135ae262b1dfde7d3c105b90bfdd1da67adeab0daa1b52522d57f45",
+      "sha256": "56d6d3feb0af653b707b74f0900032c054479eb39e7114e54277574940b0a4bb",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 5089,
+          "tokens": 5095,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 78 行 / 20721 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 79 行 / 21149 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+79 · §待排（backlog，无号，立项时领取）=52+28",
+          "summary": "§WXG 任务台账（SSOT）=1+80 · §待排（backlog，无号，立项时领取）=53+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 2237 行 / 79346 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 2283 行 / 80116 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 1046,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2238 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 1052,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2284 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 6259,
-      "lines": 211,
-      "sha256": "0edde438727101a022c5c9927e46e9d9aee1c394a8be1be16ee6bef8c0c65c98",
+      "tokens": 7083,
+      "lines": 239,
+      "sha256": "c7840271d52459bfca5b8b8ddd478a37a39cd2a517b47277f525dad06c6e84be",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 212,
-          "tokens": 6256,
+          "endLine": 240,
+          "tokens": 7080,
           "summary": "",
           "keywords": []
         },
@@ -50311,6 +50311,22 @@
             "画槽",
             "用户续报"
           ]
+        },
+        {
+          "anchor": "§WXG-T-241：盘面已选中珠时点错色空格 ⇒ 错珠动画（用户报「提示先选一颗，但盘面已有选中的珠子」）",
+          "level": 3,
+          "startLine": 213,
+          "endLine": 240,
+          "tokens": 778,
+          "summary": "病灶（提示与画面直接矛盾）：_routeGridEmpty 的「先选一颗珠子」文案只在真没选中时成立；",
+          "keywords": [
+            "WXG",
+            "routeGridEmpty",
+            "盘面已选中珠",
+            "时点错色空格",
+            "错珠动画",
+            "用户报"
+          ]
         }
       ]
     },
@@ -50318,7 +50334,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "05fcf0839b4a28ac7f449e791f472f173d3f15289ad103afcc6d65cb4d8f7f26",
+      "sha256": "ec4ea9594d147f70c77b33d6c14eec159bad00ea0d7b164dc593ba06c80656fc",
       "tier": "normal",
       "sections": [
         {
@@ -50409,7 +50425,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 6,259 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 7,083 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70428,17 +70444,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 79346,
-      "lines": 2237,
-      "sha256": "a9378a94f7f28d0f2191267dca63987f3ba3c45da3b1220234f84afabe88fccc",
+      "tokens": 80116,
+      "lines": 2283,
+      "sha256": "847aeee434abf2e812b0e6f2c4fc51feb8915104c82173c602be4cf5cf62908f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 2238,
-          "tokens": 79329,
+          "endLine": 2284,
+          "tokens": 80099,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -72162,22 +72178,108 @@
             "verify",
             "PASS"
           ]
+        },
+        {
+          "anchor": "§WXG-T-241",
+          "level": 2,
+          "startLine": 2239,
+          "endLine": 2284,
+          "tokens": 767,
+          "summary": "盘面已选中珠时点错色空格 ⇒ 错珠动画（⛔ 不是「先选一颗珠子」文案）",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§病灶（提示与画面直接矛盾）",
+          "level": 3,
+          "startLine": 2245,
+          "endLine": 2253,
+          "tokens": 161,
+          "summary": "_routeGridEmpty 的「先选一颗珠子」文案（TAP_HINT_NO_SELECTION_TEXT）只在真的没",
+          "keywords": [
+            "routeGridEmpty",
+            "TAP_HINT_NO_SELECTION_TEXT",
+            "病灶",
+            "提示与画面直",
+            "接矛盾"
+          ]
+        },
+        {
+          "anchor": "§修法",
+          "level": 3,
+          "startLine": 2254,
+          "endLine": 2265,
+          "tokens": 194,
+          "summary": "按「调用 _tryDirectFillFromBoard 返回后 _boardSelected 是否仍存活」分流：",
+          "keywords": [
+            "tryDirectFillFromBoard",
+            "boardSelected",
+            "修法"
+          ]
+        },
+        {
+          "anchor": "§新增守卫（`tests/board-wrong-fx.test.ts`，3 条）",
+          "level": 3,
+          "startLine": 2266,
+          "endLine": 2272,
+          "tokens": 126,
+          "summary": "① 锚存活 + 错色空格 ⇒ wrongRow/wrongCol 命中被点格、推一帧后 wrongProgress > ",
+          "keywords": [
+            "tests/board-wrong-fx.test.ts",
+            "tests",
+            "board",
+            "wrong",
+            "test",
+            "wrongRow"
+          ]
+        },
+        {
+          "anchor": "§造盘的三个坑（实测踩到）",
+          "level": 3,
+          "startLine": 2273,
+          "endLine": 2279,
+          "tokens": 123,
+          "summary": "⚠ 盘面初始满盘（applyMisplacedToGrid 装配）⇒ 无空格；noAssemble: true 会跳过装",
+          "keywords": [
+            "applyMisplacedToGrid",
+            "noAssemble",
+            "true",
+            "造盘的三个坑",
+            "实测踩到"
+          ]
+        },
+        {
+          "anchor": "§读数 (3)",
+          "level": 3,
+          "startLine": 2280,
+          "endLine": 2284,
+          "tokens": 34,
+          "summary": "beads 780 绿 + 1 skipped（新增 3 条）· verify PASS 19 / WARN 0 / S",
+          "keywords": [
+            "beads",
+            "skipped",
+            "verify",
+            "PASS",
+            "WARN",
+            "读数"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 20721,
-      "lines": 78,
-      "sha256": "3501e6d99130625e183a950996bfeeaee0711f8a50c5ea8af699a38c7f1e2028",
+      "tokens": 21149,
+      "lines": 79,
+      "sha256": "5e4966b936c0b42e79a2a05d40e2ad166ee27b55c1c43702464272188ea0a504",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 79,
-          "tokens": 20712,
+          "endLine": 80,
+          "tokens": 21140,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -72190,8 +72292,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 52,
-          "endLine": 79,
+          "startLine": 53,
+          "endLine": 80,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

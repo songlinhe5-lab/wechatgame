@@ -2303,7 +2303,22 @@ export class BeadsGame implements Game {
     const direct = this._tryDirectFillFromBoard(row, col);
     if (direct !== null) return this._countAction(direct);
     if (this._grid.isFillable(row, col)) {
-      this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
+      // [WXG-T-241 · 2026-10-04 用户报「提示先选一颗，但盘面上已经有选中的珠子了」]
+      //
+      // 病灶：本分支的 `TAP_HINT_NO_SELECTION_TEXT`（先选一颗珠子）只在**真的没选中**时成立。
+      // 而 `_tryDirectFillFromBoard` 在「**board 锚存活** + 点的是**错色空格**」时**也返回
+      // `null`**（第 2342 行 `target.colorIdx !== anchor.color` ⇒ 不消费）⇒ 玩家**明明已选中**
+      // 却被告知「先选一颗」⇒ **提示与画面直接矛盾**。
+      //
+      // 修法：按「调用返回后 `_boardSelected` 是否**仍存活**」分流 ——
+      //  · 存活 ⇒ 玩家已选中，点的是**错色格** ⇒ 播**错珠动画**（GAP-04 `wrong` 态，与
+      //    `_placeSelected` 的 `mismatch` 分支**同一通道** `_armWrongFx`），⛔ 不给文案。
+      //  · 已清（组员全死 ⇒ `_tryDirectFillFromBoard` 内 2337-2340 自行清锚）或从无
+      //    ⇒ 「先选一颗珠子」成立，文案保留。
+      // ⚠ 判据用**调用后**的锚状态而非「进来前」：组员全死那条路径会清锚 ⇒ 必须落到文案侧，
+      //   否则会对一个已不存在的选中态播错珠动画。
+      if (this._boardSelected) this._armWrongFx(row, col);
+      else this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
     }
     return false;
   }
