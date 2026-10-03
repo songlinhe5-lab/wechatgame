@@ -655,22 +655,32 @@ export function drawLiftBeadShadow(
   // ⛔ 旧写法把上沿钉成「过珠底心的直线」⇒ 两侧珠底向上弯、直线不动 ⇒ 各露一条缝
   //   ⇒ 读作**贴在下方的独立贴片**（用户 2026-10-03 判「为什么不连在一起」）。
   // ⇒ 本写法上沿**逐点跟随珠底弧** ⇒ 严丝合缝、读作珠投下的影。
-  const N = 12;
-  // 圆角正方形在横向偏移 `x` 处、相对其中心的**下沿**高度（直边段 = −hw；弧区按圆弧收）。
-  const bottomAt = (x: number): number => {
-    const d = Math.max(0, Math.abs(x) - (hw - r));
-    return -hw + (r - Math.sqrt(Math.max(0, r * r - d * d)));
+  // 圆角正方形在横向偏移 `x` 处、相对其中心的**下沿**高度（直边段 = −半宽；弧区按圆弧收）。
+  const bottomAt = (half: number, radius: number, x: number): number => {
+    const d = Math.max(0, Math.abs(x) - (half - radius));
+    return -half + (radius - Math.sqrt(Math.max(0, radius * radius - d * d)));
   };
+
+  // ⛔⛔ **上沿必须用「抬起后」的珠尺寸**（用户 2026-10-03 判「影子上沿形状和珠子下沿形状不吻合」）。
+  // `drawFilledBead` 的珠面 = `(outer − inset×2) × scale × (1 + BEAD_CARD.liftScaleGain × liftT)`
+  // ⇒ 满抬起时珠面**放大 4%**（26 → 27.04，半宽 13 → 13.52）。若影沿用未抬起的 26
+  // ⇒ 影上沿比珠底**高 0.52dp 且窄 0.52dp** ⇒ 两侧各露半 dp 槽底缝隙 ⇒ 读作「没连在一起」。
+  // 归一通道与 `drawFilledBead` **逐字同构**（⛔ 不另立推导）。
+  const liftT = Math.min(1, (Math.max(0, lift) * BEAD_CELL) / (BEAD_CARD.liftRef * size));
+  const beadS = s * (1 + BEAD_CARD.liftScaleGain * liftT);
+  const beadHw = beadS / 2;
+  const beadR = Math.min(Math.round(beadS * BEAD_CARD.radius), beadHw);
+
+  // 横向采样范围 = **槽的绘制边长**（影只落在槽内 ⇒ 轮廓与槽一致；槽外的 B0 不着影）。
+  const N = 12;
   const pts: number[] = [];
-  // 上沿：珠底轮廓（= 槽底轮廓整体上移 `lift`）
   for (let i = 0; i <= N; i += 1) {
     const x = -hw + (2 * hw * i) / N;
-    pts.push(cx + x, cy + bottomAt(x) + lift);
+    pts.push(cx + x, cy + bottomAt(beadHw, beadR, x) + lift);   // 上沿 = 抬起后珠底
   }
-  // 下沿：槽底轮廓（回程）
   for (let i = N; i >= 0; i -= 1) {
     const x = -hw + (2 * hw * i) / N;
-    pts.push(cx + x, cy + bottomAt(x));
+    pts.push(cx + x, cy + bottomAt(hw, r, x));                   // 下沿 = 槽底
   }
   builder.polygon(pts, {
     fill: withAlpha(endpointOf(inks, colorIdx).shadeOuter, LIFT_SHADOW_ALPHA),

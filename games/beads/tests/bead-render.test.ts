@@ -726,6 +726,11 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   //
   // 由此得到的四条不变式（逐条对应上面三条裁定 + 一条工程不变量）：
   const SHADOW_LIFT = 6;
+  /** 抬起后珠面边长（与 `drawFilledBead` 的 `1 + liftScaleGain × liftT` **逐字同构**）。 */
+  const liftedBeadFace = (face: number, size: number, lift: number): number => {
+    const liftT = Math.min(1, (Math.max(0, lift) * BEAD_CELL) / (BEAD_CARD.liftRef * size));
+    return face * (1 + BEAD_CARD.liftScaleGain * liftT);
+  };
   /** 圆角正方形在横向偏移 `x` 处、相对其中心的**下沿**高度。圆角 ≡ 槽的 `round(边长 × radius)`。 */
   const socketBottomAt = (face: number, x: number): number => {
     const hw = face / 2;
@@ -733,6 +738,10 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     const d = Math.max(0, Math.abs(x) - (hw - r));
     return -hw + (r - Math.sqrt(Math.max(0, r * r - d * d)));
   };
+  /** 槽的圆角（≡ `round(边长 × BEAD_CARD.radius)`）与半宽。 */
+  const socketGeom = (face: number) => ({
+    hw: face / 2, r: Math.min(Math.round(face * BEAD_CARD.radius), face / 2),
+  });
   const shadowPoly = (inset: number, lift = SHADOW_LIFT) => {
     const { model, commands } = emitModel((b) =>
       drawLiftBeadShadow(b, 100, 200, 1, DEMO_BEAD_INKS, BEAD_CELL, inset, lift),
@@ -762,18 +771,36 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       const poly = shadowPoly(inset)!;
       const { up, dn } = split(poly);
       expect(up.length, '上下沿点数须一致').toBe(dn.length);
+      // ⛔ 上沿用**抬起后**珠尺寸（`liftScaleGain` 通道）—— 用户判「上沿与珠底不吻合」的根因修复。
+      const bFace = liftedBeadFace(face, BEAD_CELL, SHADOW_LIFT);
+      const bg = socketGeom(bFace);
+      expect(bFace, '前置：抬起后珠面必须大于未抬起（liftScaleGain > 0）').toBeGreaterThan(face);
       for (let i = 0; i < up.length; i += 1) {
         const x = up[i]!.x - 100;                    // 相对格心
-        const b = socketBottomAt(face, x);           // 槽底轮廓（相对格心）
         // 下沿 ≡ 槽底轮廓
-        expect(dn[i]!.y - 200, `x=${x.toFixed(2)} 下沿须贴槽底`).toBeCloseTo(b, 6);
-        // 上沿 ≡ 珠底轮廓 = 槽底轮廓 + lift ⇒ **逐点厚度恒 = 抬起量**（= 连成一体，无缝隙）
-        expect(up[i]!.y - 200 - b, `x=${x.toFixed(2)} 上沿须贴珠底`).toBeCloseTo(SHADOW_LIFT, 6);
+        expect(dn[i]!.y - 200, `x=${x.toFixed(2)} 下沿须贴槽底`)
+          .toBeCloseTo(socketBottomAt(face, x), 6);
+        // 上沿 ≡ **抬起后**珠底轮廓
+        expect(up[i]!.y - 200 - SHADOW_LIFT, `x=${x.toFixed(2)} 上沿须贴抬起后的珠底`)
+          .toBeCloseTo(socketBottomAt(bFace, x), 6);
       }
-      // 上沿最高点（珠底两角）≡ cy + lift − 半宽 + 圆角 ⇒ 影伸进槽的两枚底角
+      // ⛔ 回归锚：上沿必须**比「槽底 + 抬起量」更低**（即确实吃到了 4% 放大）。
+      //    删掉 `liftScaleGain` 通道 ⇒ 此腿红（否则「看起来贴合」但实为假绿）。
+      //    ⚠ 中心项 = 上沿里 |x−格心| 最小的那一个（⛔ 不是末位 —— 末位是 x=+半宽）。
+      const centre = up.reduce((a, b) => (Math.abs(b.x - 100) < Math.abs(a.x - 100) ? b : a));
+      const centreUp = centre.y - 200;
+      expect(centreUp, '上沿须低于「槽底 + 抬起量」（4% 放大把珠底压得更低）')
+        .toBeLessThan(socketBottomAt(face, 0) + SHADOW_LIFT);
+      // 中心厚度 = 抬起量 + 珠底被 4% 放大压低的量
+      expect(centreUp - socketBottomAt(face, 0), '中心厚度 ≡ 抬起量 + 放大压低量')
+        .toBeCloseTo(SHADOW_LIFT + socketBottomAt(bFace, 0) - socketBottomAt(face, 0), 6);
+      // 上沿最高点落在**采样范围的两端**（x = ±槽半宽）⇒ 影伸进槽的两枚底角。
+      // ⚠ 采样范围是**槽宽**（不是抬起后珠宽）—— 抬起后珠比槽宽 0.52dp，那 0.52dp 落在槽外的
+      //   B0 上、本批不着影（⛔ 若要连它一起着影 ⇒ 采样范围改珠宽，会伸出槽外，见台账未闭项）。
       const topMost = Math.max(...up.map((p) => p.y));
-      const r = Math.min(Math.round(face * BEAD_CARD.radius), face / 2);
-      expect(topMost - 200, '上沿最高点 ≡ 珠底角').toBeCloseTo(SHADOW_LIFT - face / 2 + r, 6);
+      expect(topMost - 200, '上沿最高点 ≡ 抬起后珠底在槽边缘处的高度')
+        .toBeCloseTo(SHADOW_LIFT + socketBottomAt(bFace, face / 2), 6);
+      expect(bg.hw, '前置：抬起后珠半宽 > 槽半宽（故珠会外伸 0.5dp）').toBeGreaterThan(face / 2);
     }
   });
 

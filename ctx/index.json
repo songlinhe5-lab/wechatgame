@@ -385,9 +385,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3694,
+      "tokens": 3687,
       "lines": 134,
-      "sha256": "ceb6a02c40a6d2f9583e06b05938a193e34acdf628a674285717ec30e1941843",
+      "sha256": "02804e69644060a6edb45a1f343f2b8acd124f93f23950a801e70f0857e62fd6",
       "tier": "normal",
       "sections": [
         {
@@ -395,7 +395,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 135,
-          "tokens": 3681,
+          "tokens": 3674,
           "summary": "生成：2026-10-03 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -424,7 +424,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 398,
+          "tokens": 391,
           "summary": "1 games/beads/art/assets-spec.md 107705 1918 normal",
           "keywords": [
             "Top",
@@ -662,17 +662,17 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5142,
-      "lines": 98,
-      "sha256": "3b6cff93a7808f6ce377cc8ba30123be473103cb5a987cc8389cc1ac3920c8fe",
+      "tokens": 5003,
+      "lines": 94,
+      "sha256": "d981bbd46169517c06a00188e7f9218af23461c6fcafc3400dbfc326dc60d6fc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§热门大文件行号速查（自动生成，勿手改；重建 `pnpm run ctx:build`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 5114,
+          "endLine": 95,
+          "tokens": 4975,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 75 行 / 16355 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 75 行 / 16637 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1478 行 / 64373 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1513 行 / 65083 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 632,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1479 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 670,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1514 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -1006,8 +1006,8 @@
           "anchor": "§`games/breakout/design/levels/levels-spec.md` — 244 行 / 3964 tok / 实测读 104 次",
           "level": 2,
           "startLine": 90,
-          "endLine": 93,
-          "tokens": 109,
+          "endLine": 95,
+          "tokens": 163,
           "summary": "§关卡数据规范（Levels Spec）=1+245 · §1 文件结构总览=10+14 · §2 字段说明=24+65",
           "keywords": [
             "§1",
@@ -1016,22 +1016,6 @@
             "breakout",
             "design",
             "levels"
-          ]
-        },
-        {
-          "anchor": "§`my-skills/wxgame-gdd-writer/SKILL.md` — 104 行 / 1690 tok / 实测读 82 次",
-          "level": 2,
-          "startLine": 94,
-          "endLine": 99,
-          "tokens": 208,
-          "summary": "§wxgame GDD 编写法（工作室验证过的四件套流程）=6+100 · §总流程（顺序执行，前一步是后一步的输入）=",
-          "keywords": [
-            "skills",
-            "wxgame",
-            "gdd",
-            "writer",
-            "SKILL",
-            "tok"
           ]
         }
       ]
@@ -13101,17 +13085,17 @@
     },
     {
       "path": "games/beads/art/lift-socket-styling-decision.md",
-      "tokens": 7137,
-      "lines": 320,
-      "sha256": "d19b5955a6aa3d73478aeb98910fec41577d0a8c8e1a8233746c39bf1765e49b",
+      "tokens": 7737,
+      "lines": 362,
+      "sha256": "db866531bf09a72d07d869e96d07dcbd493370de0f713e9ae4177b7b70862a73",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§抬起态槽与影 · 美术定标单（A–G 七条）",
           "level": 1,
           "startLine": 1,
-          "endLine": 321,
-          "tokens": 7119,
+          "endLine": 363,
+          "tokens": 7719,
           "summary": "正本 = 本文件（WXG-T-236 美术侧裁定单，2026-10-03 立）。",
           "keywords": [
             "WXG",
@@ -13557,8 +13541,8 @@
           "anchor": "§8 十轮补录（2026-10-03 用户问「这影子是贴图吗？为什么不连在一起」）",
           "level": 2,
           "startLine": 288,
-          "endLine": 321,
-          "tokens": 622,
+          "endLine": 324,
+          "tokens": 624,
           "summary": "",
           "keywords": [
             "§8",
@@ -13633,11 +13617,93 @@
           "anchor": "§8.5 封箱",
           "level": 3,
           "startLine": 318,
-          "endLine": 321,
-          "tokens": 39,
+          "endLine": 324,
+          "tokens": 41,
           "summary": "仍未受影响（影只存在于抬起格，夹具无选中态）⇒ 腿 4a/4b 绿，不需要第十次复评。",
           "keywords": [
             "封箱"
+          ]
+        },
+        {
+          "anchor": "§9 十一轮补录（用户判「影子上沿形状和珠子下沿形状不吻合」）",
+          "level": 2,
+          "startLine": 325,
+          "endLine": 363,
+          "tokens": 572,
+          "summary": "",
+          "keywords": [
+            "§9",
+            "十一轮补录",
+            "用户判",
+            "影子上沿形状",
+            "和珠子下沿形",
+            "状不吻合"
+          ]
+        },
+        {
+          "anchor": "§9.1 根因：**珠抬起时会放大 4%，影的上沿却按未放大的尺寸算**",
+          "level": 3,
+          "startLine": 327,
+          "endLine": 339,
+          "tokens": 164,
+          "summary": "drawFilledBead 的珠面边长 = (outer − inset×2) × scale × (1 + BEAD",
+          "keywords": [
+            "drawFilledBead",
+            "outer",
+            "inset",
+            "scale",
+            "BEAD",
+            "根因"
+          ]
+        },
+        {
+          "anchor": "§9.2 落码",
+          "level": 3,
+          "startLine": 340,
+          "endLine": 345,
+          "tokens": 83,
+          "summary": "影的上沿改用抬起后珠尺寸，归一通道与 drawFilledBead 逐字同构",
+          "keywords": [
+            "drawFilledBead",
+            "落码"
+          ]
+        },
+        {
+          "anchor": "§9.3 顺带核实（排除一项疑点）",
+          "level": 3,
+          "startLine": 346,
+          "endLine": 351,
+          "tokens": 87,
+          "summary": "读 bead-tint-128-mask.png 的 shape 通道：实体 112×112px（26.25dp）、",
+          "keywords": [
+            "bead",
+            "tint",
+            "mask",
+            "png",
+            "shape",
+            "顺带核实"
+          ]
+        },
+        {
+          "anchor": "§9.4 单测变更",
+          "level": 3,
+          "startLine": 352,
+          "endLine": 357,
+          "tokens": 84,
+          "summary": "不变式从「上沿 = 下沿 + 抬起量」改为「上沿 ≡ 抬起后珠底轮廓」，",
+          "keywords": [
+            "单测变更"
+          ]
+        },
+        {
+          "anchor": "§9.5 ⛔ 未闭",
+          "level": 3,
+          "startLine": 358,
+          "endLine": 363,
+          "tokens": 96,
+          "summary": "影的横向采样范围 = 槽宽（半宽 13），而抬起后珠半宽 13.52 ⇒ 珠外伸的那 0.52dp",
+          "keywords": [
+            "未闭"
           ]
         }
       ]
@@ -49091,17 +49157,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 13496,
-      "lines": 402,
-      "sha256": "b65acb4b24c4963b42c4ec225a967b0def7812ed475016edbb48d5100db80789",
+      "tokens": 14056,
+      "lines": 420,
+      "sha256": "e13a090ed4ea255c34ba1e1aa74c5975b325f2fff7575bbad271466c1ffc5d09",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 403,
-          "tokens": 13493,
+          "endLine": 421,
+          "tokens": 14053,
           "summary": "",
           "keywords": []
         },
@@ -49109,8 +49175,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 403,
-          "tokens": 13460,
+          "endLine": 421,
+          "tokens": 14020,
           "summary": "",
           "keywords": [
             "WXG",
@@ -49527,6 +49593,22 @@
             "mask",
             "十轮"
           ]
+        },
+        {
+          "anchor": "§WXG-T-236 十一轮：影上沿改用「抬起后」珠尺寸（不吻合的真正根因）",
+          "level": 3,
+          "startLine": 404,
+          "endLine": 421,
+          "tokens": 529,
+          "summary": "根因不是画法，是尺寸口径：drawFilledBead 的珠面 = (outer − inset×2) × scale ",
+          "keywords": [
+            "WXG",
+            "drawFilledBead",
+            "outer",
+            "inset",
+            "scale",
+            "十一轮"
+          ]
         }
       ]
     },
@@ -49534,7 +49616,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "1c18c5b4cdd56b950a1a459ddbff072ec79a1948c23206f6cbc57cdfcc9eeb90",
+      "sha256": "db4c9ea6fa05d6733b5ad03d63f6dc23d6c9ede908b3570e2ec01f9a16c0d9ee",
       "tier": "normal",
       "sections": [
         {
@@ -49625,7 +49707,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 13,496 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 14,056 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69630,17 +69712,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 64373,
-      "lines": 1478,
-      "sha256": "ac2efe0c5d8b52dd6e7c1e7f0740c605d87061cb79dd8652f5568c02b682a359",
+      "tokens": 65083,
+      "lines": 1513,
+      "sha256": "d403bbd7f037cd31c5f7bc3318a13bda014c5e32cbd456038a51b656067e0641",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1479,
-          "tokens": 64356,
+          "endLine": 1514,
+          "tokens": 65066,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -70685,8 +70767,8 @@
           "anchor": "§WXG-T-236",
           "level": 2,
           "startLine": 1164,
-          "endLine": 1479,
-          "tokens": 8043,
+          "endLine": 1514,
+          "tokens": 8753,
           "summary": "beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性） — 2026-10-03 用户裁定「",
           "keywords": [
             "WXG",
@@ -70873,14 +70955,30 @@
             "用户问",
             "是贴图吗"
           ]
+        },
+        {
+          "anchor": "§十一轮：影上沿改用「抬起后」珠尺寸（用户判「上沿形状与珠底不吻合」）",
+          "level": 3,
+          "startLine": 1480,
+          "endLine": 1514,
+          "tokens": 675,
+          "summary": "根因 = 珠抬起时会放大 4%，而影的上沿按未放大的尺寸算。",
+          "keywords": [
+            "十一轮",
+            "影上沿改用",
+            "抬起后",
+            "珠尺寸",
+            "用户判",
+            "上沿形状与珠"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 16355,
+      "tokens": 16637,
       "lines": 75,
-      "sha256": "18e086b82f1528c2fa8302f1b44009ec178e2c09653d1d709b64aedebceee0ce",
+      "sha256": "3e7e94a373ae0d051636b32f66759f2d72a7a53576d2732317ad0443e8ab4988",
       "tier": "hot",
       "sections": [
         {
@@ -70888,7 +70986,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 76,
-          "tokens": 16347,
+          "tokens": 16629,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
