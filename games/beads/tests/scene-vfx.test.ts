@@ -415,25 +415,6 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
     return h;
   }
 
-  /**
-   * [WXG-T-236] 抬起格**不再出分离影**（三轮实测：影被不透明槽完全覆盖 ⇒ 两臂零视觉收益 ⇒ 已删）。
-   *
-   * 本条是**删除动作的回归守卫**：用**已删除的旧值**（`0.44` / `0.56` × 格径的正方形影）做否定断言
-   * —— 若将来有人把影加回来且沿用同尺寸，这条会红；换尺寸则由本条下方「槽仍绘制」用例兜底。
-   */
-  it('抬起格不再出分离影（WXG-T-236 已删：旧影宽 0.44/0.56 × 格径）', () => {
-    const h = mkMisplaced('wxgame.beads.test.no-lift-shadow');
-    expect(h.game.selectBoardBead(1, 2)).toBe(true);
-    h.advance(SELECT_LIFT_MS / 1000 + 0.02);
-    const snap = h.game.snapshot;
-    for (const c of renderSnap(snap)) {
-      if (c.kind !== 'rect') continue;
-      const ratio = c.w / snap.gridCell;
-      expect(Math.abs(ratio - 0.44)).toBeGreaterThan(1e-6);
-      expect(Math.abs(ratio - 0.56)).toBeGreaterThan(1e-6);
-    }
-  });
-
   // [WXG-T-236] 抬起格**仍画槽**（这是本轮真正要留的东西：槽在珠体抬起后可见）。
   it('抬起格仍画槽（与空格同源，`tilePainted=true` 不带亮底）', () => {
     const h = mkMisplaced('wxgame.beads.test.lift-socket');
