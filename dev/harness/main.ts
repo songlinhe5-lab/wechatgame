@@ -11,6 +11,20 @@
  */
 
 import { App, Canvas2DRenderer } from '@wxgame/framework';
+import {
+  TintSpriteCache,
+  createTintBlitResolver,
+  type BlitCommand,
+  type TextureRegistry,
+  type TintCanvasFactory,
+} from '@wxgame/framework';
+import { DEMO_BEAD_INKS } from '../../games/beads/src/view/palette.js';
+import {
+  MASK_SCHEMA_VERSION,
+  tintFx,
+  type BeadMaskGauge,
+} from '@wxgame/framework';
+import { setBeadTintRuntime, createWhitelistBeadTintRuntime } from '../../games/beads/src/view/bead-render.js';
 import { createBreakoutGame, type BreakoutGame } from '../../games/breakout/src/index.js';
 import { createBeadsShell, type BeadsShell } from '../../games/beads/src/index.js';
 
@@ -60,7 +74,172 @@ const app = new App({
 /** Device pixel ratio, capped so a 3× phone does not melt the canvas. */
 const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-const renderer = new Canvas2DRenderer(ctx, app.viewport, { pixelRatio: dpr });
+/* ─────────────────────────────────────────────── [WXG-T-226 EP12-B3] tint 臂装配
+ *
+ * 原理：tint 臂的命令**早就发得出**（`blit(maskId, rect, { fx })`），渲染器也**早就
+ * 消费得了**（`BlitResolver`）。缺的只有两段数据流：① 谁提供 mask 像素与合成器；
+ * ② 谁预热。宿主（这里 = harness）补上这两段，游戏侧不需要任何 canvas 知识。
+ *
+ * ⛔ 默认安全：?tint=off（默认即 on，但要显式关时用）—— 不装配 ⇒ 带 `fx` 的 blit
+ * 被跳过 ⇒ 矢量臂逐字节不变（V-5 绿线锚）。真机侧另有 S5 载体（延后册 D1/D10）。
+ */
+const tintEnabled = harnessParams.get('tint') !== 'off';
+
+/** 4 张定稿 mask 的逻辑 id（正本 = `bead-tint-mask.ts` 的 DEC-5 白名单）。 */
+const MASK_IDS: readonly string[] = [
+  `mask__bead__holed__v${MASK_SCHEMA_VERSION}`,
+  `mask__bead__holeless__v${MASK_SCHEMA_VERSION}`,
+  `mask__grid__holed__v${MASK_SCHEMA_VERSION}`,
+  `mask__grid__holeless__v${MASK_SCHEMA_VERSION}`,
+];
+const MASK_URL_PREFIX = '/mask-assets/';
+const MASK_FILE: Readonly<Record<BeadMaskGauge, { bead: string; grid: string }>> = {
+  holed: { bead: 'bead-tint-128-mask.png', grid: 'grid-tint-128-mask.png' },
+  holeless: { bead: 'bead-holeless-tint-128-mask.png', grid: 'grid-holeless-tint-128-mask.png' },
+};
+
+/** mask 纹理注册表（mask 逻辑 id → 可 drawImage 的 ImageBitmap）。 */
+const maskRegistry = new Map<string, object>();
+/** 装配读数（供 HUD / 控制台；⛔ 非热路径）。 */
+const tintStats = {
+  loaded: 0,
+  ready: false,
+  failed: [] as string[],
+  prewarmed: 0,
+  prewarmMs: 0,
+  /** 活体读数：每帧刷新（`stats` 是 cache 的机械计数）。 */
+  refresh() {
+    const st = tintCache.stats;
+    this.misses = st.misses;
+    this.evictions = st.evictions;
+    this.errors = st.errors;
+    this.sprites = st.sprites;
+  },
+  misses: 0,
+  evictions: 0,
+  errors: 0,
+  sprites: 0,
+};
+
+const maskSource = { get: (id: string): object | undefined => maskRegistry.get(id) };
+const tintCache = new TintSpriteCache(
+  // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）
+  {
+    createCanvas(w: number, h: number) {
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      return c as unknown as ReturnType<TintCanvasFactory['createCanvas']>;
+    },
+  },
+  maskSource,
+  // `ImageData` 是浏览器能力 ⇒ 宿主注入（framework ⛔ 不假设 lib.dom）
+  {
+    createImageData: (w: number, h: number) => new ImageData(w, h),
+    // ⚠ 实测结论（2026-10-03 A/B 截图，见 temp/tint-wiring/sim-flip.mjs）：
+    // **不预镜像** 才是对的 —— `blit` 分支的翻转与帧级 y 翻转**相抵**（两翻 = 恒等），
+    // 因此纹理须为**屏幕朝向**，而定稿 mask PNG 正是屏幕朝向。
+    // 曾按「blit 会翻转 ⇒ 需预镜像」的推理加过 `flipY: true`，结果是**光影反了**（已回退）。
+    // `?flip=1` 保留为反证开关。
+    flipY: harnessParams.get('flip') === '1',
+  },
+);
+const blitResolver = createTintBlitResolver(tintCache, maskSource as TextureRegistry);
+
+/**
+ * 装 mask → 装 tint 运行时 → 预热 ⇒ 三步**串行**。
+ *
+ * ⛔ 运行时**在 mask 就绪之后才注入**（不是「先注入、边加载边生效」）：
+ * 否则前几帧会「部分格走 tint、部分格跳过」= 观感 pop。加载失败 ⇒ 永不注入 ⇒ 恒矢量臂。
+ */
+if (isBeads && tintEnabled) {
+  // ⛔ 不静默：整链失败也要在控制台留痕（否则「看起来没生效」无从排查）
+  void loadMasks()
+    .then(() => {
+      if (tintStats.failed.length > 0) {
+        console.warn('[tint] mask 加载失败 ⇒ tint 臂不注入（保持矢量臂）', tintStats.failed);
+        return;
+      }
+      setBeadTintRuntime(createWhitelistBeadTintRuntime((maskId) =>
+        maskRegistry.has(maskId) ? maskId : undefined,
+      ));
+      prewarmTint();
+      console.info(
+        `[tint] 已装配：${tintStats.loaded}/4 mask · 预烘 ${tintStats.prewarmed} 条 ${tintStats.prewarmMs.toFixed(1)}ms`,
+      );
+    })
+    .catch((err) => { tintStats.failed.push(String(err)); console.warn('[tint] 装配链异常', err); });
+}
+
+/**
+ * 加载 4 张 mask（`<img>` + `decode()`）。
+ *
+ * ## 为什么不用 `fetch` + `createImageBitmap`（2026-10-03 接线实测后改）
+ *
+ * 首版用 `fetch` → `blob` → `createImageBitmap`，在浏览器里**没生效且无从排查**（HUD 只显示
+ * 「加载失败」，控制台无痕）。`Image` + `decode()` 是**最广兼容**的一条路（无 blob、无
+ * `createImageBitmap` 依赖），失败时还有 `onerror` 兜底 ⇒ 失败必留痕。
+ *
+ * `decode()` 需要图片已在文档中（否则部分浏览器不发事件）⇒ 走 `Object.assign` 挂载。
+ */
+function loadImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      // 部分浏览器要图片「在文档里」才 resolve decode()
+      if (!img.isConnected) { Object.assign(document.body, img); }
+      img.decode().then(() => resolve(img), () => resolve(img));
+    };
+    img.onerror = () => reject(new Error(`img load failed: ${url}`));
+    img.src = url;
+  });
+}
+
+async function loadMasks(): Promise<void> {
+  const pairs: ReadonlyArray<readonly [BeadMaskGauge, 'bead' | 'grid']> = [
+    ['holed', 'bead'], ['holed', 'grid'],
+    ['holeless', 'bead'], ['holeless', 'grid'],
+  ];
+  await Promise.all(pairs.map(async ([gauge, kind]) => {
+    const id = `mask__${kind}__${gauge}__v${MASK_SCHEMA_VERSION}`;
+    const file = `${MASK_URL_PREFIX}${MASK_FILE[gauge][kind]}`;
+    try {
+      const img = await loadImage(file);
+      if (img.naturalWidth === 0) throw new Error(`naturalWidth=0 (${file})`);
+      maskRegistry.set(id, img as unknown as object);
+      tintStats.loaded += 1;
+    } catch (err) {
+      // ⛔ 不静默：加载失败会让 tint 臂「看起来没生效」，必须在 HUD + 控制台可见
+      tintStats.failed.push(`${id}(${String(err)})`);
+      console.warn('[tint] mask 加载失败', id, file, err);
+    }
+  }));
+  tintStats.ready = true;
+}
+
+/**
+ * 加载页预热（延后册 D8 / D10）：把「白名单 mask × 珠色集」在进盘前烘完 ⇒ 首帧零合成。
+ * 预热能力是注入式设计**白送**的（直接调 resolver），⛔ 仓内无专用 prewarm API。
+ * ⚠ 计时用宿主 `performance.now()` —— framework ⛔ 不碰时钟（时钟是宿主能力）。
+ */
+function prewarmTint(): void {
+  const colors = DEMO_BEAD_INKS.hexes;
+  const t0 = performance.now();
+  let n = 0;
+  for (const maskId of MASK_IDS) {
+    for (const c of colors) {
+      const cmd: BlitCommand = { kind: 'blit', textureId: maskId, x: 0, y: 0, w: 0, h: 0, fx: tintFx(c) };
+      if (blitResolver.resolve(cmd) !== undefined) n += 1;
+    }
+  }
+  tintStats.prewarmMs = performance.now() - t0;
+  tintStats.prewarmed = n;
+}
+
+const renderer = new Canvas2DRenderer(ctx, app.viewport, {
+  pixelRatio: dpr,
+  blitResolver,
+});
 
 app.onRender = (model) => {
   renderer.draw(model);
@@ -225,11 +404,21 @@ function renderHud(): void {
       s.mode === 'sprint'
         ? `stage ${s.stageIndex + 1}`
         : `level ${s.levelIndex + 1}/${s.levelCount}`;
+    const t = tintStats;
+    const tintLine = tintEnabled
+      ? (t.failed.length > 0
+        ? ` · tint ⛔加载失败 ${t.failed.length}`
+        : (t.ready
+          ? ` · tint ${t.loaded}/4 mask · 预烘 ${t.prewarmed}/${t.prewarmMs.toFixed(1)}ms · miss ${t.misses} evict ${t.evictions} err ${t.errors}`
+          : ' · tint 加载中…'))
+      : ' · tint off';
+    if (t.ready) t.refresh();
     hud.textContent =
       `[beads] phase ${s.phase} · ${s.mode} · ${where} · ` +
       `${Math.ceil(s.remaining)}s${s.urgent ? ' !!!' : ''} · ` +
       `score ${s.score} · ×${s.multiplier} (streak ${s.streak}) · ` +
-      `tray ${holding}/${s.traySlots.length}${s.trayExpanded ? '+扩展' : ''}`;
+      `tray ${holding}/${s.traySlots.length}${s.trayExpanded ? '+扩展' : ''}` +
+      tintLine;
     return;
   }
   const s = breakout.snapshot;
@@ -306,7 +495,11 @@ requestAnimationFrame(frame);
 // Expose for console poking during development.
 Object.assign(window as unknown as Record<string, unknown>, {
   __breakout: { app, game: breakout, fitCanvas },
-  __beads: { app, game: beads, shell: beadsShell, fitCanvas },
+  __beads: {
+    app, game: beads, shell: beadsShell, fitCanvas,
+    // `[WXG-T-226]` tint 臂自诊断：控制台可读 `__beads.tint.stats` / `__beads.tint.registry`
+    tint: { stats: tintStats, registry: maskRegistry, cache: tintCache, resolver: blitResolver },
+  },
 });
 
 // eslint-disable-next-line no-console

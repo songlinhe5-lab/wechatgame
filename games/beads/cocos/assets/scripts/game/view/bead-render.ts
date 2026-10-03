@@ -38,6 +38,7 @@
 import type { RenderModelBuilder } from '../../framework/index';
 import { BakeLru, BAKE_SCHEMA_VERSION, type BakeSurface, type BakeKeyInputs } from '../../framework/index';
 import type { BeadMaskGauge, BeadMaskKind } from '../../framework/index';
+import { tintFx, type BlitFx } from '../../framework/index';
 import { tintMaskId } from './bead-tint-mask';
 import {
   BAKE_CANONICAL_SIZE,
@@ -145,6 +146,18 @@ export function getBeadBakeRuntime(): BeadBakeRuntime | undefined {
  */
 export interface BeadTintRuntime {
     getMaskId(kind: BeadMaskKind, gauge: BeadMaskGauge, styleId: string): string | undefined;
+    /**
+     * `[WXG-T-226 EP12-B4 / ADR-0029 DEC-4]` **放大回退阀**（zoom LOD）。
+     *
+     * 返回 `false` ⇒ 本帧 tint 臂整体停用、落矢量臂（满足 §19「⛔ 运行时放大」）。
+     * ⛔ **不实现 = 永不回退** = 本批默认（阈值 `[待真机]`，`TINT_LOD_MAX_UPSCALE = null`），
+     * 此时注入 tint 运行时 ⇒ 输出与今日矢量臂之外的 tint 臂逐字节相同（V-5 绿线锚）。
+     *
+     * **为什么判据在宿主而不是 `drawFilledBead`**：zoom 在 view 层、dpr 在宿主入口
+     * （beads 内无 dpr 概念）⇒ 判据必须由唯一同时掌握两者的宿主注入，并调纯函数
+     * `tintUpscaleAllowed()`；滞回防抖同理归宿主（`BEAD_LOD_HYST` 同型先例在 view 层）。
+     */
+    allowTint?(): boolean;
 }
 
 /** 模块级 tint 运行时槽位（默认 `undefined` = tint 臂未启用，走矢量臂 —— **绿线锚 V-5**）。 */
@@ -185,8 +198,13 @@ export function createWhitelistBeadTintRuntime(
 /**
  * 热路径 scratch（C2 零分配）：`blit` 的选项对象**每珠每帧复用**同一枚，
  * ⛔ 不在 `drawFilledBead` 内新建字面量（同既有个 `styleInput` 槽写法）。
+ *
+ * `[WXG-T-226 / ADR-0029 §8.2]` `fx` 字段的**值本身也是每次新建**（`tintFx()` 返回
+ * 小对象）⇒ ⛔ 那一次分配发生在**色变化时**才合理；本槽只解决「选项壳」复用。
+ * ⚠ 若 C2 判据将来要求 fx 壳也零分配，则改为「按 base 字符串缓存 fx 对象」的
+ * 预建表（`Map<string, BlitFx>`，条目数 = 关卡色数，实测 7 ⇒ 可忽略）。
  */
-const tintBlitOpts: { tint: string } = { tint: '' };
+const tintBlitOpts: { fx: BlitFx } = { fx: {} };
 
 /**
  * 创建默认的烘焙运行时（适配层调用）。
@@ -646,12 +664,21 @@ export function drawFilledBead(
   // 注入点与既有 `_bakeRuntime` **并列同型**（`setBeadTintRuntime(undefined)` = tint 臂不存在）。
   // 白名单未命中（风格未定稿 / 档未烘 / 未注入）⇒ 落 ②/③ ⇒ **矢量臂逐字节不变**（V-5 绿线锚）。
   const tintStyleId = options.styleId ?? DEFAULT_BEAD_STYLE_ID;
-  if (_tintRuntime !== undefined && !_baking && !options.hideHole && options.maskGauge !== undefined) {
+  // EP12-B4：`allowTint?.() ?? true` = 未实现该方法 ⇒ 永不回退（阈值 `[待真机]`，默认阀闭合）。
+  //
+  // ⚠ `hideHole` 的例外（WXG-T-226 接线批，用户 2026-10-03 裁「甲」）：`hideHole` 是**烘焙臂**
+  // 的遗产（烘焙纹理自带孔 ⇒ 小豆无孔时不能贴）。而 tint 臂的 `holeless` 档 mask **本身就是
+  // 无孔珠** ⇒ 若一并被 `hideHole` 拦住，`bead-holeless-tint-128-mask.png` 这张**定稿资产
+  // 永远没有消费者**（实测接线时才发现：view-model 的小豆档同时传 `hideHole` + `holeless`）。
+  const tintHoleOk = !options.hideHole || options.maskGauge === 'holeless';
+  if (_tintRuntime !== undefined && !_baking && tintHoleOk && options.maskGauge !== undefined
+      && (_tintRuntime.allowTint?.() ?? true)) {
     const maskId = _tintRuntime.getMaskId('bead', options.maskGauge, tintStyleId);
     if (maskId !== undefined) {
       const inks = options.inks ?? DEMO_BEAD_INKS;
       // tint 合成基色 = 珠的**本色**（`palette` 端点族的 `base`），⛔ 不是 `edge/pit/lit` 派生色。
-      tintBlitOpts.tint = beadColorOf(inks, options.targetColorIdx ?? colorIdx);
+      // `[ADR-0029 §8.2]` 具象化在效果模块（`tintFx`），⛔ 不在 beads 手写 `{ base }` 字面量。
+      tintBlitOpts.fx = tintFx(beadColorOf(inks, options.targetColorIdx ?? colorIdx));
       builder.blit(maskId, x - outer / 2, y - outer / 2, outer, outer, tintBlitOpts);
       /**
        * **DEC-2 · 孔底口径（孔区真透）**：tint 臂下**不再画 live `pit` circle / 孔环**
@@ -848,12 +875,15 @@ export function drawEmptySocket(
     !_baking &&
     beadInset > 0 &&
     colorIdx !== undefined &&
-    options.maskGauge !== undefined
+    options.maskGauge !== undefined &&
+    // EP12-B4：与 `drawFilledBead` 同一道放大回退阀（格面 mask 同样是 128px 定档纹理，
+    // ⛔ 放大时必须一并回退，否则出现「珠回退了、格没退」的不一致）。
+    (_tintRuntime.allowTint?.() ?? true)
   ) {
     const cellStyleId = options.styleId ?? DEFAULT_BEAD_STYLE_ID;
     const maskId = _tintRuntime.getMaskId('cell', options.maskGauge, cellStyleId);
     if (maskId !== undefined) {
-      tintBlitOpts.tint = base;
+      tintBlitOpts.fx = tintFx(base);
       builder.blit(maskId, cx - size / 2, cy - size / 2, size, size, tintBlitOpts);
       return;
     }

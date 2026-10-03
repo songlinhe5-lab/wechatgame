@@ -30,3 +30,4 @@ export * from './bake/bake-schema-version';
 export * from './bake/bake-recipes';
 export * from './bake/mask-spec';
 export * from './bake/mask-field';
+export * from './bake/tint-composite';

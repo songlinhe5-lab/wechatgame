@@ -115,21 +115,60 @@ export interface BlitCommand {
     readonly h: number;
     readonly alpha?: number;
     /**
-     * `[WXG-T-226 EP12-S2 / ADR-0029 DEC-6]` 着色基色（hex 字符串）。
+     * `[WXG-T-226 EP12-B3 / ADR-0029 §8.2]` **唯一效果槽**（取代原具名字段 `tint`）。
      *
-     * 语义 = **灰度 mask × 着色**（ADR-0028 §2.1 的封闭解）：mask 通道
-     * `R=d / G=l / B=形状 / A=255`，消费侧按 `rgb = base·d + (1−base)·l`、`a = B/255` 预乘合成。
+     * 着色语义搬到**效果模块**（`bake/tint-composite.ts` 的 `tintFx()` / `tintFxBase()`）；
+     * 权威文本见 `ADR-0029 §8.2` 键名约定表 ⇄ `ADR-0028 §2.1`（编码定义）。
      *
-     * ⛔ core 只存**字符串**（不持引擎对象，L2）；⛔ 无 `tint` 的 blit 语义**逐字节不变**
-     * （`undefined` 字段不落 `JSON.stringify` ⇒ 既有 seal 基准零漂移，同 `stroke` 透传先例）。
+     * ⛔ core 不持引擎对象（L2）；⛔ 无 `fx` 的 blit 语义**逐字节不变**（`undefined` 不落
+     * `JSON.stringify` ⇒ 封箱基准零漂移，同 `stroke` 透传先例）。
      */
-    readonly tint?: string;
+    readonly fx?: BlitFx;
 }
 
-/** `[WXG-T-226 EP12-S2 / 方案件 §3.3 选项 B]` `blit` 的选项对象。 */
+/**
+ * `[WXG-T-226 / ADR-0029 §8.2]` **blit 唯一效果槽的值域**。
+ *
+ * 为什么是「封闭联合」而不是 `unknown`：命令会被 `JSON.stringify` 后取 sha
+ * （`ADR-0026` J-1「sha 计引用不计纹理内容」+ 封箱 / 回放 / 帧 diff）
+ * ⇒ **可哈希性是硬要求**；`unknown` 会让「不小心塞进不可序列化值」变成静默的基准漂移。
+ *
+ * 为什么含 `readonly number[]`：`colorMatrix` / 多段渐变一类效果的自然载荷
+ * ⇒ 现在收进来，就少一类「将来必须回来扩联合」的返工。
+ */
+export type BlitFxValue = string | number | boolean | readonly number[];
+
+/**
+ * `[WXG-T-226 / ADR-0029 §8.2]` **blit 唯一效果槽**（键名不进类型 ⇒ core 永不再为效果改动）。
+ *
+ * ## 规则（硬约束，违反 = 打回）
+ *
+ * 1. ⛔ **效果一律写 `fx`；core 不得为具体效果加字段、加键名联合**。
+ *    ⛔ 特别地：**不要**引入 `kind: 'tint' | 'blend' | …` 这种闭集 ——
+ *    闭集会把「core 永不再动」重新打开（加一种效果 = 改一次 core）。
+ * 2. ⛔ **键名约定登记在 `ADR-0029 §8.2`**，不在 core；生产者用效果模块的具象化 helper
+ *    （如 `tintFx()`），⛔ 不要手写字面量对象。
+ * 3. ⛔ 值必须 **JSON 安全**（见 `BlitFxValue` 的理由）；⛔ 不得放 `undefined`
+ *    （`JSON.stringify` 会**静默丢弃** `undefined` 值 ⇒ 同语义不同 sha）。
+ * 4. ⛔ **键序由构造方固定**：同一效果用同一份**模块级常量**，⛔ 不得按遍历顺序动态建键
+ *    （`JSON.stringify` 按插入序输出 ⇒ 同语义不同 sha ⇒ 封箱基准误报失败）。
+ * 5. ⛔ `alpha` **不是**效果（blit 图元参数）⇒ 保持在 `alpha`，⛔ 不进 `fx`。
+ *
+ * ## 现状键名（正本 = `ADR-0029 §8.2`）
+ *
+ * | 键 | 含义 | 状态 |
+ * |---|---|---|
+ * | `base` | 着色基色（hex） | ✅ 本批（原 `tint` 迁入） |
+ * | `strength` | 着色强度 0–1 | 预留（core 0 改动） |
+ * | `blend` | blend 模式名 | 将来 |
+ * | `matrix` | color matrix（`number[]`） | 将来 |
+ */
+export type BlitFx = Readonly<Record<string, BlitFxValue>>;
+
+/** `[WXG-T-226 / 方案件 §3.3 选项 B]` `blit` 的选项对象。 */
 export interface BlitOptions {
     readonly alpha?: number;
-    readonly tint?: string;
+    readonly fx?: BlitFx;
 }
 
 export type DrawCommand =
@@ -356,7 +395,7 @@ export class RenderModelBuilder {
       this._commands.push({
           kind: 'blit', textureId, x, y, w, h,
           ...(opts?.alpha !== undefined ? { alpha: opts.alpha } : {}),
-          ...(opts?.tint !== undefined ? { tint: opts.tint } : {}),
+          ...(opts?.fx !== undefined ? { fx: opts.fx } : {}),
       });
   }
 

@@ -16,10 +16,29 @@
  * `styleById` 预建 Map 的同款纪律相悖）。
  */
 
-import { MASK_SCHEMA_VERSION, type BeadMaskGauge, type BeadMaskKind } from '../../framework/index';
+import { MASK_CANONICAL_SIZE, MASK_SCHEMA_VERSION, type BeadMaskGauge, type BeadMaskKind } from '../../framework/index';
+import { TINT_LOD_MAX_UPSCALE } from '../config/tuning';
 
 /** 唯一已定稿的风格（= 默认皮肤 `facet-4`）。 */
 export const TINT_MASK_STYLE_ID = 'facet-4';
+
+/**
+ * `[WXG-T-226 EP12-B4 / ADR-0029 DEC-4]` 放大回退判据（纯函数，⛔ 不读宿主状态）。
+ *
+ * @param maskDevicePx 该 mask 在屏上的**设备像素**边长（宿主算：`blit` 矩形边长 × zoom × dpr）
+ * @param maxUpscale   阈值；缺省 = 冻结常量 `TINT_LOD_MAX_UPSCALE`（`null` ⇒ 永不回退）
+ * @returns `false` ⇒ 该帧**不得**走 tint 臂（调用方落矢量臂）
+ *
+ * 宿主侧（唯一知道 zoom / dpr 的一层）在 `BeadTintRuntime.allowTint()` 里调本函数；
+ * 滞回（`BEAD_LOD_HYST` 同型）也归宿主 —— 判据本身保持纯函数、可单测、不引入第二套状态机。
+ */
+export function tintUpscaleAllowed(
+    maskDevicePx: number,
+    maxUpscale: number | null = TINT_LOD_MAX_UPSCALE,
+): boolean {
+    if (maxUpscale === null) return true;
+    return maskDevicePx <= MASK_CANONICAL_SIZE * maxUpscale;
+}
 
 /** `styleId → kind → gauge → mask 逻辑 id`（**id 全部预建**，见文件头 C2 注）。 */
 const MASK_ID_TABLE: Readonly<

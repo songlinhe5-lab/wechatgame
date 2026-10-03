@@ -911,7 +911,10 @@ function drawGrid(
         // 由 `tilePainted = true` 跳过。旧注释里的“E4 幽灵符号”已随 WXG-T-130 降档移除。
         // 坑外廓按「同格有豆时的珠体绘制边长」退一圈（用户裁定：坑恒小于珠、有豆时看不到坑）
         // ⇒ 珠体内缩基准与 `drawFilledBead` 同一把尺（满豆 / 小豆档共用 `beadDrawInset`）。
-        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset);
+        // `[WXG-T-226 EP12-S4]` tint 臂档位驱动：与 `beadDrawInset` **同一把尺**
+        // （`sizeSmall` ⇒ 无孔档），⛔ 不新增推导。托盘槽（`TRAY_SLOT`）**恒矢量**（§3.6）。
+        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset,
+          { maskGauge: sizeSmall ? 'holeless' : 'holed' });
         // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
           drawStateRing(builder, bx, cy, snap.gridCell, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
@@ -981,6 +984,9 @@ function drawGrid(
         styleId: snap.beadStyle,
         drawInset: beadDrawInset,
         hideHole: sizeSmall,
+        // `[WXG-T-226 EP12-S4]` tint 臂档位驱动：⛔ 与 `hideHole` **恒同步**（无孔 ⇔ holeless），
+        // 否则会出现「档位说有孔、mask 是无孔」的错配。⛔ 不传 ⇒ tint 臂不命中（V-5 绿线锚）。
+        maskGauge: sizeSmall ? 'holeless' : 'holed',
       };
       // §5 抬起斜坡值单独存 `groupLift`：下方的分离影要用它，而 `draft.lift`
       // 随后可能被 G4 波浪覆写（同格重叠窗口 ⇒ 读 draft.lift 会让影在波峰处消失）。

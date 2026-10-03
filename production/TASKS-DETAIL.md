@@ -926,4 +926,81 @@
 
 **收口读数**：beads **735 passed / 1 skipped / 0 failed**（736 全消红）· `tsc --noEmit` 0 错 · `levels:check` OK。
 
+### B3+B4 落码与四轮架构 review（CodeBuddy + 用户，2026-10-03）
 
+**范围**：`B3` = Canvas2D 合成消费通道（`core/bake/tint-composite` + `adapters/canvas2d/tint-sprite-cache` + 渲染器 tint 分支 + 门禁）；`B4` = zoom LOD 回退机制（`TINT_LOD_MAX_UPSCALE = null` + `tintUpscaleAllowed()` + `BeadTintRuntime.allowTint()` + 两条臂序）。⛔ Cocos 生产载体（S5）与判据改写（S6）仍未做。基线 `4ef6317`，⛔ 未 commit。
+
+**用户定的四条尺子**（延展性 / 可预见性 / 将来少改动 / 性能优异）⇒ 四轮 review 的收敛结果登记进 `ADR-0029 §8` 与延后册，要点：
+- **合成权归宿主注入的 `BlitResolver`**（单方法）：渲染器不认识任何效果；未注入 = 今日行为（V-5）。
+- **core 收口**：`tint` 是唯一具名效果字段，新增效果一律走 `BlitParams` 袋 ⇒ core 永不再为效果改动。
+- **撤掉两处多余设计**：嵌套 `opts` 袋（X1，会引入分配 + 三态歧义）、`blitMode` 标记（X2）、`prewarm()` 专用 API（X3，注入式设计白送预热）。
+- **性能口径**：单条 128² = 16384 px；单关卡 **7 色**（`design/levels/singles/*.json` 的 `palette` 恒 8 项）⇒ 7 条 = 448 KB，2.5 MiB 装 **40** 条 ⇒ **5.7× 余量**。⛔ 「品牌 2104 色」是**调色板规模**不是工作集（15 份品牌 25–461 色/份），先前引用口径有误，已更正。
+
+**两个真 bug（单测抓出，非测试自身问题）**
+1. **渲染器回落漏洞**：`cmd.tint` 存在但未注入合成器时，三元表达式回落到注册表 ⇒ **把未合成的 d/l mask 当成品贴出**（错色）。修法 = 带 tint 时永不回落（已升为 `ADR-0029 §8.3` 契约）。
+2. **`drawEmptySocket` 漏挂 B4 阀**：只加在 `drawFilledBead` ⇒ 关阀时珠回退、格不退（不一致）。已补。
+
+**LOD 数字**（`outer` = `BEAD_CELL 30` × zoom × dpr vs `MASK_CANONICAL_SIZE 128`）：`dpr = 2` 全区间安全（zoom 2.0 ⇒ 120px = 0.94×）；⛔ `dpr = 3` ⇒ zoom > **1.42** 即放大。阈值仍 `[待真机]`（`null`）。
+
+**读数**：framework **410/410 绿**（新增 `tint-composite` 12 + `tint-sprite-cache` 13 + `canvas2d-renderer-tint` 5 = 30）· beads **761 绿 / 1 skipped**（新增 B4 判据 8）· `pnpm run typecheck` 0 错 · `framework:sync` 已同步 8+5 处 · `pnpm run verify` **PASS 18 / SKIP 1（`check:size`，K-089 既有缺口）/ FAIL 0**。
+
+**未落 / 待裁**：⛔ `view-model` 未传 `maskGauge` ⇒ tint 臂仍**无调用方**（安全默认，屏上仍矢量臂）；⛔ 宿主未注入 resolver。接线作用域待用户裁：**甲 = 只接盘面**（托盘恒矢量，推荐）/ 乙 = 盘面 + 托盘珠。⛔ 未 commit。
+
+## WXG-T-232
+
+**beads·盘面 mask 重烘到 26dp 珠径（亮刻面离格边界留缓冲）** — 2026-10-03 用户逐轮看图拍板（Q2/Q5）。
+
+**起因（tint 臂实测，非推测）**：`tools/mask-preview/cocos-assets/bead-tint-128-mask.png` 的不透明范围 = 行/列 `6..121` = 116/128 × 30dp = **27.2dp**，几乎填满 30dp 的格。逐像素剖面（用户截图 `y=30` 横切两格）：
+
+| 区 | 实测色 | lum | 判读 |
+|---|---|---|---|
+| 珠体主色（plate, d≈1） | `rgb(128,80,98)` | 96 | 中 |
+| **亮刻面（上/左）** | `rgb(168,106,129)` | **127** | **亮 +33%** |
+| **格间缝 = B0 底图** | `rgb(91,56,69)` | **67** | 暗（= 0.70×base，与 `(89,56,68)` 逐字节吻合） |
+| 孔环 | `rgb(208,166,184)` | 181 | 最亮 |
+
+⇒ 亮刻面到格边只剩 ~1.4dp、格间暗缝只剩 ~1dp ⇒ **亮带压在格边界上**，横向排列读成「格间浅色线」。矢量臂无此问题（珠径 26 ⇒ 缓冲 2dp + 缝 1dp）。
+
+**范围**：两档 bead mask 按 **26dp 珠径**重烘（py 口径「珠 26/角 8」需与实际不透明范围对齐）⇒ 重跑 `mask:diff` 四件套（逐字节一致）⇒ 重出四件套产物。
+⛔ **不动** `BEAD_GAP`（用户 2026-10-03 裁「先不要动」）、⛔ 不动 §3 冻结常量、⛔ 不动 `cell-standard` 的 26/24/⌀12 与面积账。
+
+**验收项（含机检数）**：① `mask:diff` 四件套 mean=max=0；② 编码不变式 I-1…I-9；③ **珠体亮刻面与格边界之间可见 B0 缓冲 ≥ 1.5dp**（把「看着别扭」变成可测数）；④ 四扇亮度序（上 ≥ 左 ≥ 右 ≥ 下）；⑤ 孔区 α=0（真透）。
+
+**依赖**：EP12-S1 已落码（`mask-spec` + `mask-field` + `mask:diff`）⇒ 本单只重烘资产 + 复跑对拍。
+**归属**：资产域（林绘澄口径）+ QA 对拍（严守真）。⛔ 未开工。
+
+## WXG-T-233
+
+**beads·抬起露槽（选中抬起时补画凹槽）** — 2026-10-03 用户裁定「另立故事」。
+
+**现状与依据**：静止态**按裁定不画坑** —— `view-model.ts:912` 用户原裁定「坑外廓按『同格有豆时的珠体绘制边长』退一圈（**坑恒小于珠、有豆时看不到坑**）」；抬起高度只用**格级分离影**（`drawLiftGroundShadow`）表达，**没有**回收「坑」⇒ 抬起后露出**平色 B0 底图**（用户反馈：「选择珠子时候，珠子下面漏出的图案不是槽」）。
+
+**要做（三处联动，⛔ 缺一不可）**：
+1. **层序**：有豆 + `lift > 0` ⇒ 在 B0 底图之上、珠体之下补画坑（凹槽口 + pit + 受光缘）
+2. **面积账**：`cell-standard §1/§4` 的「珠:底 49.6:50.4」必重算（抬起态多占一格内面积）
+3. **DEC-2 孔底口径**：孔区真透（透出下层）⇒ 抬起时**坑底该显示什么**（现为 B0 的 `edge`）需重评
+
+**验收**：抬起/落下两态的截图对照 + 面积账新值 + 判据（`cell-standard` J 系 + 孔底 K3 文本）由 QA 更新。
+**归属**：美术定标（林绘澄）+ QA 复评（严守真）。⛔ 未开工。
+
+### B3/B4 + 接线：收尾与决策归档（CodeBuddy + 用户逐轮，2026-10-03）
+
+**四轮架构 review 的最终形态**（正本 = `ADR-0029 §8`）：合成权归宿主注入的 `BlitResolver`（**单方法**、渲染器零效果知识）+ core 收口为**唯一效果槽 `fx`**（键名表 = `§8.4`；⛔ 不引入 `kind` 闭集，⛔ `nested opts` 袋 / `blitMode` / `prewarm()` 三件多余设计已撤）。
+**用户裁定的路线**：Q1 框架层 · Q2 保 26dp 珠径（⇒ **WXG-T-232** 重烘 mask）· Q3 `BEAD_GAP` **先不动** · Q4 **暂不做**常驻像素门禁 · Q5 **甲**（保 26）· **S5 载体 = 甲（按色图集）**。
+
+**本批修掉的 5 个真 bug**（全部由判据/实测抓出，非测试自身问题）：
+1. `putImageData` 传裸 `Uint8ClampedArray` ⇒ 真浏览器抛 `parameter 1 is not of type 'ImageData'` ⇒ **合成产出恒 0 而 410 单测全绿**。修法：`createImageData` 工厂**必填注入**（编译期强制）。
+2. **y 翻转方向搞反（我的推理错）**：曾按「blit 会翻转 ⇒ sprite 需预镜像」落 `flipY: true`。**A/B 截图实测**：`flip=0` 上半 112.3 / 下半 88.6（光影在上 ✔）、`flip=1` 上半 99.7 / 下半 109.4（反 ✘）⇒ 正确是**不预镜像**（`blit` 的翻转与帧级 y 翻转相抵，纹理须为屏幕朝向）。已回退 + 反向教训写进 `§8.5`。
+3. `flipRows` 原地改 `getImageData` 缓冲 ⇒ 若宿主返回共享缓冲会**污染宿主数据**。修法：先拷贝再翻。
+4. `drawEmptySocket` **漏挂 LOD 阀** ⇒ 关阀时珠退格不退（不一致）。
+5. **小豆档（holeless）珠体永远走不了 tint 臂**：臂序挂着 `!options.hideHole`（烘焙臂遗产）⇒ `bead-holeless` 定稿 mask 成**死资产**。修法：`(!hideHole || maskGauge === 'holeless')` + 改判据 + 加回归锚。
+
+**观感侧的诚实结论（tint 臂首轮真实观感）**：孔**真透**（透出 B0 `edge`，合 DEC-2）✓、四扇刻面上/左亮→下暗 ✓、格间缝 = B0 底图（暗，非白）✓；但**已填格缺「豆子坐在凹槽里」的层次**（mask 珠径 27.2 几乎填满格）⇒ 与矢量臂 A/B 对照后立 **WXG-T-233**（抬起露槽）。
+
+**新发现的既有缺陷（不在本批修）**：`facet-4`（默认/生产皮肤）**完全不消费 `lodLayers`** ⇒ **zoom LOD 对真正需要降档的场景（fit 档 2900 条命令）空转**；`legacy-ten` 有 3 处 `if (!lod)`。已登记延后册 **D11**。
+
+**读数**：framework **418 绿**（新增 `ImageData` 实例判据 + `flipY` 判据）· beads **762 绿 / 1 skipped**（含 holeless 回归锚 + B4 阀 8 条）· `pnpm -r typecheck` 0 错 · `framework:sync` 已同步 · `verify` **PASS 18 / WARN 0 / SKIP 1（`check:size`，K-089 既有缺口）/ FAIL 0** · harness build ok。
+
+**自测工具（本批新增，可复用）**：`temp/tint-wiring/sim-flip.mjs`（真 mask PNG → 合成 → 渲染器变换 → 屏幕朝向的离线模拟，A/B 定案用）、`temp/tint-wiring/annotated-cells.png`（用户截图的颜色 → 部件标注）、`/tmp/*.png` 的无头 Chrome 截图法（`--headless=new --force-device-scale-factor=N --window-size=W,H --virtual-time-budget=6000`）⇒ ⛔ Q4 裁「暂不做常驻门禁」，这些留在 `temp/` 供后续复用。
+
+⛔ **本批未 commit**（等用户复核观感后提交）。

@@ -270,6 +270,23 @@ export const BEAD_CELL = BEAD_PITCH - BEAD_GAP;
  */
 export const BAKE_CANONICAL_SIZE = 128;
 /**
+ * `[WXG-T-226 EP12-B4 / ADR-0029 DEC-4]` tint mask 的**放大回退阈值**（zoom LOD）。
+ *
+ * 机制（Q4 ③ 裁定）：`mask 绘制设备像素 > MASK_CANONICAL_SIZE × 本值` ⇒ **该帧回矢量臂**，
+ * 以满足 `control-manifest §19`「⛔ 运行时放大」——**不靠「显式豁免」绕过**。
+ *
+ * ⚠ **`null` = 永不回退 = 本批默认**：阈值 `[待真机]`（ADR-0029 DEC-4 明文「不落数值」），
+ * 真机测出可接受上限前**不填**。`null` 语义取「永不回退」而非「永不 tint」，是为守住
+ * V-5 绿线锚：注入即与今日矢量臂逐字节相同，回退是**显式开启**的阀。
+ *
+ * 实测算式（blit 矩形边长 = `outer` = `BEAD_CELL 30` ⇒ `30 × zoom × dpr` vs 128）：
+ * `dpr = 2` 全区间安全（zoom 2.0 时 120px = 0.94×，只缩不放大）；
+ * ⛔ `dpr = 3` ⇒ zoom > **1.42** 即放大（zoom 2.0 时 180px = 1.41× 须回退）。
+ *
+ * @see `view/bead-tint-mask.ts` 的 `tintUpscaleAllowed()`（纯判据）与 `BeadTintRuntime.allowTint()`（宿主注入口）
+ */
+export const TINT_LOD_MAX_UPSCALE: number | null = null;
+/**
  * Max columns per level. **v1.45（WXG-T-203）：50 → 32** —— 用户拍板「单图上限 32 个珠子宽度，
  * 超过就拆组合图」。本值语义由 v1.37 的「导入硬顶」升为**单图/组合图（Plate）分界线 = 切块阈值**：
  * 任一维 > 32 ⇒ beads-studio 一键入关自动走 `sliceBoard` 均分切块（k = ceil(n/32)）。

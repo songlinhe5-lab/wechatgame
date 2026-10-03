@@ -12,7 +12,7 @@
  * so this file stays runnable under Node.
  */
 
-import type { DrawCommand, RenderModel } from '../../core/render/render-model';
+import type { BlitCommand, DrawCommand, RenderModel } from '../../core/render/render-model';
 import type { Viewport } from '../../core/render/viewport';
 
 /**
@@ -64,6 +64,27 @@ export interface TextureRegistry {
   get(textureId: string): object | undefined;
 }
 
+/**
+ * `[WXG-T-226 EP12-B3 / ADR-0029 §8.1]` **blit 取图解析器**（宿主 / adapter 层注入）。
+ *
+ * ## 契约（总责语义，⛔ 三态只有两态）
+ *
+ * - 返回可 `drawImage` 的对象 ⇒ 贴它。
+ * - 返回 `undefined` ⇒ **显式跳过该 blit**（⛔ 不得回默认注册表把裸 mask 贴出去）。
+ * - **命令带 `fx` ⇒ 本接口总责**：即使返回 `undefined` 也不得回落
+ *   （2026-10-03 由 `canvas2d-renderer-tint.test.ts` 抓到的真 bug：回落 = 用错色渲染）。
+ *
+ * ## 为什么要「一个钩子」而不是「每效果一个分支」
+ *
+ * 衡量命令层的尺子只有一个：**加第 N 种效果要改几处**。本接口让答案是
+ * 「**渲染器 0 处 + core 0 处**，只加 1 个实现」—— 即 Material / Strategy + 依赖倒置的标准形态。
+ *
+ * ⛔ 未注入 ⇒ 退化为「按 `textureId` 查注册表」，即本批之前的行为（V-5 绿线锚）。
+ */
+export interface BlitResolver {
+    resolve(cmd: BlitCommand): object | undefined;
+}
+
 export interface Canvas2DRendererOptions {
   /**
    * When true, applies the viewport letterbox transform (scale + y-flip so
@@ -84,6 +105,11 @@ export interface Canvas2DRendererOptions {
    * `blit` commands are silently skipped (vector fallback path).
    */
   readonly textureRegistry?: TextureRegistry;
+  /**
+   * `[WXG-T-226 EP12-B3 / ADR-0029 §8.1]` 取图解析器（消费 `blit` 的 `fx` 效果槽）。
+   * 若缺省 ⇒ 退化为「按 `textureId` 查 `textureRegistry`」= 本批之前的行为。
+   */
+  readonly blitResolver?: BlitResolver;
 }
 
 /** Draw a {@link RenderModel} onto a 2D context. */
@@ -91,6 +117,8 @@ export class Canvas2DRenderer {
   private readonly _applyTransform: boolean;
   private readonly _dpr: number;
   private readonly _textures: TextureRegistry | undefined;
+  /** 见 `BlitResolver`。缺省 = 直接查注册表（构造期定一次，热路径零分支成本）。 */
+  private readonly _resolve: BlitResolver;
 
   constructor(
     private readonly _ctx: Canvas2DLike,
@@ -100,6 +128,10 @@ export class Canvas2DRenderer {
     this._applyTransform = options.applyViewportTransform ?? true;
     this._dpr = options.pixelRatio && options.pixelRatio > 0 ? options.pixelRatio : 1;
     this._textures = options.textureRegistry;
+    this._resolve = options.blitResolver ?? {
+      // 缺省 = 本批之前的行为：按 `textureId` 查注册表（V-5 绿线锚）。
+      resolve: (cmd: BlitCommand) => this._textures?.get(cmd.textureId),
+    };
   }
 
   /** Render one frame. Does not clear unless the model has a background. */
@@ -212,7 +244,11 @@ export class Canvas2DRenderer {
         // [WXG-T-220 / ADR-0026] Texture blit. The core layer only stores
         // `textureId`; we resolve it via the injected registry. Missing texture
         // or no `drawImage` on the context ⇒ silently skip (vector fallback).
-        const tex = this._textures?.get(cmd.textureId);
+        //
+        // [WXG-T-226 EP12-B3 / ADR-0029 §8.1] **单一解析钩子**：渲染器**不认识任何效果**
+        // （无 `if (cmd.fx?…)` 之类分支）——效果语义全在注入的 `BlitResolver` 里。
+        // 「带 fx ⇒ 总责、不回落」的契约写死在 `BlitResolver` 注释里。
+        const tex = this._resolve.resolve(cmd);
         if (tex && this._ctx.drawImage) {
           this._ctx.globalAlpha = cmd.alpha ?? 1;
           if (this._applyTransform) {
