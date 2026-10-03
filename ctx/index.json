@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "0dff16ab88d91283ddae49f20d66eb99e7066759ce82d9c5eda202846b4e6425",
+      "sha256": "f1e0cc5fbee942073832a512514e936308b7e6f5765b1f3246785ac394feb124",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5009,
       "lines": 94,
-      "sha256": "ee6e5d50a66e7ba631f7544a027209d0cd245498daf78acca0f30f8e957dd5f1",
+      "sha256": "ce1eb2a41e941ac1db5db94010ac7925c847f069588c488864728940b2ec66de",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 17047 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 17217 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1563 行 / 66127 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1580 行 / 66480 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 676,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1564 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1581 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13085,17 +13085,17 @@
     },
     {
       "path": "games/beads/art/lift-socket-styling-decision.md",
-      "tokens": 7737,
-      "lines": 362,
-      "sha256": "db866531bf09a72d07d869e96d07dcbd493370de0f713e9ae4177b7b70862a73",
+      "tokens": 7869,
+      "lines": 368,
+      "sha256": "03e79a1f15a51b265fa52949265d1da5a1158bce83d9031d1f13c5b2e9510c78",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§抬起态槽与影 · 美术定标单（A–G 七条）",
           "level": 1,
           "startLine": 1,
-          "endLine": 363,
-          "tokens": 7719,
+          "endLine": 369,
+          "tokens": 7851,
           "summary": "正本 = 本文件（WXG-T-236 美术侧裁定单，2026-10-03 立）。",
           "keywords": [
             "WXG",
@@ -13628,8 +13628,8 @@
           "anchor": "§9 十一轮补录（用户判「影子上沿形状和珠子下沿形状不吻合」）",
           "level": 2,
           "startLine": 325,
-          "endLine": 363,
-          "tokens": 572,
+          "endLine": 369,
+          "tokens": 697,
           "summary": "",
           "keywords": [
             "§9",
@@ -13696,14 +13696,16 @@
           ]
         },
         {
-          "anchor": "§9.5 ⛔ 未闭",
+          "anchor": "§9.5 ✅ 已核销（用户 2026-10-03 裁「甲 · 保持现状」）",
           "level": 3,
           "startLine": 358,
-          "endLine": 363,
-          "tokens": 96,
-          "summary": "影的横向采样范围 = 槽宽（半宽 13），而抬起后珠半宽 13.52 ⇒ 珠外伸的那 0.52dp",
+          "endLine": 369,
+          "tokens": 204,
+          "summary": "争点：影的横向采样范围 = 槽宽（半宽 13），而抬起后珠半宽 13.52",
           "keywords": [
-            "未闭"
+            "已核销",
+            "用户",
+            "保持现状"
           ]
         }
       ]
@@ -49355,17 +49357,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 14872,
-      "lines": 446,
-      "sha256": "0ced28c5503d1afe654b61e760f7e26706e8474dc5b6e014cd054f090c02df34",
+      "tokens": 15207,
+      "lines": 459,
+      "sha256": "1e426484e8de2564c2ae2b826f7cc462f7dce9621938083f5ad02d70dd77a7b7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 447,
-          "tokens": 14869,
+          "endLine": 460,
+          "tokens": 15204,
           "summary": "",
           "keywords": []
         },
@@ -49373,8 +49375,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 447,
-          "tokens": 14837,
+          "endLine": 460,
+          "tokens": 15171,
           "summary": "",
           "keywords": [
             "WXG",
@@ -49823,6 +49825,20 @@
             "专属",
             "美术定标单"
           ]
+        },
+        {
+          "anchor": "§WXG-T-236 十二轮：影宽裁定核销（用户裁「甲」）",
+          "level": 3,
+          "startLine": 448,
+          "endLine": 460,
+          "tokens": 313,
+          "summary": "裁定：影横向采样 = 槽宽（半宽 13），珠外伸的 0.52dp（落在槽外 B0 上）不着影。",
+          "keywords": [
+            "WXG",
+            "十二轮",
+            "影宽裁定核销",
+            "用户裁"
+          ]
         }
       ]
     },
@@ -49830,7 +49846,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "c2666c6f3ee7b9661155f855de06a148210ac12b3931e18034bd83a3373e6b5e",
+      "sha256": "770697e52bde23271751927d4731ec1f749cf90911b74a342e6699b3d158af37",
       "tier": "normal",
       "sections": [
         {
@@ -49921,7 +49937,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 14,872 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 15,207 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69926,17 +69942,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 66127,
-      "lines": 1563,
-      "sha256": "321a25b5ecd3753c7b0c5ff9de63499a0730a182c032231148544537fc6e3f22",
+      "tokens": 66480,
+      "lines": 1580,
+      "sha256": "c5f2620a3e690e969190b7054a1f657179f14d01360fa4c8a916c09c25b4ae22",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1564,
-          "tokens": 66110,
+          "endLine": 1581,
+          "tokens": 66463,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71190,8 +71206,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1564,
-          "tokens": 1040,
+          "endLine": 1581,
+          "tokens": 1393,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71272,14 +71288,29 @@
             "WXG",
             "领号"
           ]
+        },
+        {
+          "anchor": "§十二轮：影宽裁定核销（用户裁「甲 · 保持现状」）",
+          "level": 3,
+          "startLine": 1565,
+          "endLine": 1581,
+          "tokens": 329,
+          "summary": "争点：影的横向采样范围 = 槽宽（半宽 13），而抬起后珠半宽 13.52（liftScaleGain 0.04 放大 ",
+          "keywords": [
+            "liftScaleGain",
+            "十二轮",
+            "影宽裁定核销",
+            "用户裁",
+            "保持现状"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 17047,
+      "tokens": 17217,
       "lines": 76,
-      "sha256": "9c2039d3c0b9ca328b0884005553a87493bc1f5771d89f93c64da2aa5be48389",
+      "sha256": "75f396995f3d37ee8571dae594810107b0c69d212e446105bf0f8788fda04312",
       "tier": "hot",
       "sections": [
         {
@@ -71287,7 +71318,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 17038,
+          "tokens": 17209,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

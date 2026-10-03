@@ -804,6 +804,23 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     }
   });
 
+  it('②⛔ 影宽 ≡ 槽宽、⛔ 严格小于抬起后珠宽（用户 2026-10-03 裁「甲」：影严格在槽内）', () => {
+    // **裁定内容**：珠抬起时放大 4%（26 → 27.04），外伸的那 0.52dp 落在**槽外的 B0** 上
+    //   ⇒ 用户裁**不**给那 0.52dp 着影（理由：轮廓须与槽一致；槽外本就是 B0 底面，不该有影）。
+    // ⛔ 本腿是**裁定的显式锚**：把采样范围从「槽宽」改成「珠宽」⇒ 此腿红。
+    for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
+      const face = BEAD_CELL - 2 * ((inset * BEAD_CELL) / BEAD_CELL);
+      const bFace = liftedBeadFace(face, BEAD_CELL, SHADOW_LIFT);
+      const { up } = split(shadowPoly(inset)!);
+      const w = Math.max(...up.map((p) => p.x)) - Math.min(...up.map((p) => p.x));
+      expect(bFace, '前置：抬起后珠比槽宽（4% 放大）').toBeGreaterThan(face);
+      expect(w, '影宽 ≡ 槽的绘制边长').toBeCloseTo(face, 6);
+      expect(w, '⛔ 影不得伸到抬起后珠的宽度（那 0.52dp 按裁定不着影）').toBeLessThan(bFace);
+      // 珠外伸量（记录用）：dpr2 下 ≈1 设备 px
+      expect(bFace - w).toBeCloseTo(face * (1 + BEAD_CARD.liftScaleGain) - face, 6);
+    }
+  });
+
   it('② 轮廓 = 圆角正方形（⛔ 不是 circle）+ 左右对称 + 横向铺满槽宽 + 墨 = 族内 shadeOuter', () => {
     for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
       const face = BEAD_CELL - 2 * ((inset * BEAD_CELL) / BEAD_CELL);
