@@ -102,7 +102,7 @@ import {
   SELECTED_SHADOW_ALPHA,
   TRAY_BEAD_SIZE,
   drawEmptySocket,
-  drawLiftSocketShadow,
+  drawLiftBeadShadow,
   drawFilledBead,
   drawLockedBead,
   drawTargetTile,
@@ -913,8 +913,11 @@ function drawGrid(
         // ⇒ 珠体内缩基准与 `drawFilledBead` 同一把尺（满豆 / 小豆档共用 `beadDrawInset`）。
         // `[WXG-T-226 EP12-S4]` tint 臂档位驱动：与 `beadDrawInset` **同一把尺**
         // （`sizeSmall` ⇒ 无孔档），⛔ 不新增推导。托盘槽（`TRAY_SLOT`）**恒矢量**（§3.6）。
+        // ⛔ `styleId` 必须与 `drawFilledBead` 同源（`snap.beadStyle`）：不传 ⇒ 恒用
+        // `DEFAULT_BEAD_STYLE_ID` 的 mask，而**珠**用的是当前风格 ⇒ 换风格时「珠是新风格、槽是默认风格」
+        // ⇒ 又一次「有珠 / 无珠不是一张图」。默认档下两者同值 ⇒ 本条对封箱**零影响**（可证）。
         drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset,
-          { maskGauge: sizeSmall ? 'holeless' : 'holed' });
+          { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle });
         // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
           drawStateRing(builder, bx, cy, snap.gridCell, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
@@ -1055,15 +1058,27 @@ function drawGrid(
         // ⚠ **D1 未核销**（`assets-spec §7.11.7`）：现有坑底套在**近白底图**上读作凹陷，落到生产 B0
         // （`endpoints.edge −0.30` 暗底）上有可能读作凸起。本批按用户要求先做**工程暂定**版，
         // 观感由用户判；美术定标仍挂 WXG-T-236 ⇒ 若读作凸起，改的是**明暗关系**而非结构。
-        drawEmptySocket(
-          builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks,
-          true, beadDrawInset,
-        );
-        // [WXG-T-236 定标 · 2026-10-03 用户裁定「抬起态要影」+ 选型 C-3] 槽内投影（正圆）。
-        // ⛔ 绘制序钉死：**槽之后、珠之前** —— 在槽后 ⇒ 影压在内阴影阶梯与 S4 受光亮线之上（物理正确）；
+      }
+      // [WXG-T-236 八轮 · 2026-10-03 用户裁定「有珠 / 无珠的格底不是一张图 ⇒ 都按无珠的格底实现」]
+      // **有珠格也画坑底**（⛔ 不再只在 `lift > 0` 时画）⇒ 与空格**同图元同色档**（`tilePainted = true`
+      // 跳过自带亮底，因 B0 已由 `drawTargetTile` 铺过；`colorIdx` 传目标色 ⇒ 墨档与空格**同源**）。
+      // ⛔ 绘制序不变式：**坑底 → 影 → 珠**（影夹在两者之间，见下）。
+      // ⛔⛔ `maskGauge` **必须与空格分支逐字同参**（见下方空格调用）：漏传 ⇒
+      // `drawEmptySocket` 的 tint 臂命中条件 `options.maskGauge !== undefined` 不成立
+      // ⇒ **格面 mask 从不使用**、静默回退矢量臂 ⇒ 坑底取 `endpoints.pit`（mix(base,−0.44) = 0.56×base）
+      // 而非 `grid-tint-128-mask.png` 的 **0.698**（规格判据 I-5/I-6 要求 0.70）
+      // ⇒ **珠孔内露出 0.56 而不是 B0 的 0.70**（实测 (120,57,80) vs (150,71,99)）
+      // ⇒ 这正是「有珠 / 无珠的格底不是一张图」的**根因**：空格走 mask、有珠格走矢量。
+      drawEmptySocket(
+        builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset,
+        { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle },
+      );
+      if (groupLift > 0) {
+        // [WXG-T-236 定标 · 用户裁「抬起态要影」+ 选型 C-3，后续裁「影跟珠轮廓」] 珠底投影（正圆）。
+        // ⛔ 绘制序钉死：**坑底之后、珠之前** —— 在坑底后 ⇒ 影压在内阴影阶梯与 S4 受光亮线之上（物理正确）；
         // 在珠前 ⇒ 珠体自然遮住影的上半，只露下弧 ⇒ 读作「圆珠投在槽里」而非「半个圆饼」。
-        // 形状与半径的推导见 `bead-render::drawLiftSocketShadow` 头注（r ≡ 坑半宽 ≡ 珠半径 ⇒ 精确内接）。
-        drawLiftSocketShadow(
+        // 半径**跟珠轮廓**、⛔ 不跟槽（推导见 `bead-render::drawLiftBeadShadow` 头注）。
+        drawLiftBeadShadow(
           builder, bx, cy, cell.colorIdx, inks, snap.gridCell, beadDrawInset,
         );
       }

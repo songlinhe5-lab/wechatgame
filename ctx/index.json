@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3694,
       "lines": 134,
-      "sha256": "efc87df8d9dc5fc9f72bb2b7d6100b2c809f469cdddb3f2a25860d2af384ff72",
+      "sha256": "2160026efb6f1c64fba2ab0662aaff3f524ceda5e31af2193066cd3cb576b812",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5043,
       "lines": 106,
-      "sha256": "9f2b7b91403558bb0f5a693c557128b0e7a67e95167012b3acb9226a292cbad2",
+      "sha256": "222aeeb7e14125a5135402e09008a2b71b29da97475f61c772463c3ef737c0bc",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 75 行 / 15421 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 75 行 / 15745 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1352 行 / 61406 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1405 行 / 62697 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 281,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1353 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1406 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13133,17 +13133,17 @@
     },
     {
       "path": "games/beads/art/lift-socket-styling-decision.md",
-      "tokens": 4719,
-      "lines": 181,
-      "sha256": "0faee5aa3c96781ee0d791224a14da2bda1f301ecd7020878a9fd40e367b1e65",
+      "tokens": 5786,
+      "lines": 245,
+      "sha256": "b99ba54b9b212a77dba6c51894902fa2dd808c0d1ced9d92a4e711183ab9c86b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§抬起态槽与影 · 美术定标单（A–G 七条）",
           "level": 1,
           "startLine": 1,
-          "endLine": 182,
-          "tokens": 4701,
+          "endLine": 246,
+          "tokens": 5768,
           "summary": "正本 = 本文件（WXG-T-236 美术侧裁定单，2026-10-03 立）。",
           "keywords": [
             "WXG",
@@ -13399,13 +13399,117 @@
           "anchor": "§5 纪律与边界",
           "level": 2,
           "startLine": 175,
-          "endLine": 182,
-          "tokens": 244,
+          "endLine": 185,
+          "tokens": 245,
           "summary": "⛔ 本单不代裁；所有 [待真机] 项（薄带可辨性 / 观感 / CVD）在有真机前不得判绿。",
           "keywords": [
             "§5",
             "CVD",
             "纪律与边界"
+          ]
+        },
+        {
+          "anchor": "§6 八轮补录（2026-10-03 用户裁定「有珠 / 无珠格底不是一张图 ⇒ 都按无珠的格底实现」）",
+          "level": 2,
+          "startLine": 186,
+          "endLine": 246,
+          "tokens": 1025,
+          "summary": "",
+          "keywords": [
+            "§6",
+            "八轮补录",
+            "用户裁定",
+            "有珠",
+            "无珠格底不是",
+            "一张图"
+          ]
+        },
+        {
+          "anchor": "§6.1 根因：**不是资产问题，是一处参数漏传**",
+          "level": 3,
+          "startLine": 188,
+          "endLine": 205,
+          "tokens": 262,
+          "summary": "用户报「这里槽的图片不对」并指认 grid-tint-128-mask.png。实测资产是对的",
+          "keywords": [
+            "grid",
+            "tint",
+            "mask",
+            "png",
+            "根因",
+            "不是资产问题"
+          ]
+        },
+        {
+          "anchor": "§6.2 落码",
+          "level": 3,
+          "startLine": 206,
+          "endLine": 212,
+          "tokens": 108,
+          "summary": "有珠格常画坑底（drawEmptySocket 由 lift > 0 门控改为无条件）。",
+          "keywords": [
+            "drawEmptySocket",
+            "lift",
+            "落码"
+          ]
+        },
+        {
+          "anchor": "§6.3 实测（zoom 1.5 静息帧）",
+          "level": 3,
+          "startLine": 213,
+          "endLine": 224,
+          "tokens": 144,
+          "summary": "修前 122 403 px 36 977 px",
+          "keywords": [
+            "zoom",
+            "实测",
+            "静息帧"
+          ]
+        },
+        {
+          "anchor": "§6.4 防静默回退守卫（这类 bug 此前无任何断言能发现）",
+          "level": 3,
+          "startLine": 225,
+          "endLine": 231,
+          "tokens": 132,
+          "summary": "bead-tint-arm.test.ts 新增 3 条：① 传 maskGauge 必命中且只发 1 blit、⛔ 0",
+          "keywords": [
+            "bug",
+            "bead",
+            "tint",
+            "arm",
+            "test",
+            "maskGauge"
+          ]
+        },
+        {
+          "anchor": "§6.5 封箱：第九次复评（严守真）",
+          "level": 3,
+          "startLine": 232,
+          "endLine": 240,
+          "tokens": 182,
+          "summary": "最强反证：legacyFlow 96/96 全等、facetNonHoleLayers 45/45、facetHoleL",
+          "keywords": [
+            "legacyFlow",
+            "facetNonHoleLayers",
+            "facetHoleL",
+            "封箱",
+            "第九次复评",
+            "严守真"
+          ]
+        },
+        {
+          "anchor": "§6.6 ⛔ 未闭（如实）",
+          "level": 3,
+          "startLine": 241,
+          "endLine": 246,
+          "tokens": 112,
+          "summary": "① 矢量臂自身的坑底仍是 pit 0.56，违反判据 I-5 的 0.70 —— 本批只保证「tint 臂命中时」合规；",
+          "keywords": [
+            "pit",
+            "tint",
+            "未闭",
+            "如实"
           ]
         }
       ]
@@ -48859,17 +48963,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 11465,
-      "lines": 338,
-      "sha256": "b1f2bd282e43598c795f20b45be386f982a52e0f32bce6d97dbb0dedb9d468ee",
+      "tokens": 12270,
+      "lines": 365,
+      "sha256": "9eb0b19a65aa990efcc7fd901ad9053154753a23a7173249d9a18df3cba5bc1f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 339,
-          "tokens": 11462,
+          "endLine": 366,
+          "tokens": 12267,
           "summary": "",
           "keywords": []
         },
@@ -48877,8 +48981,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 339,
-          "tokens": 11430,
+          "endLine": 366,
+          "tokens": 12235,
           "summary": "",
           "keywords": [
             "WXG",
@@ -49247,6 +49351,22 @@
             "选型",
             "影已落码"
           ]
+        },
+        {
+          "anchor": "§WXG-T-236 八轮：有珠/无珠格底统一（根因 = maskGauge 漏传）+ 封箱第九次复评",
+          "level": 3,
+          "startLine": 340,
+          "endLine": 366,
+          "tokens": 774,
+          "summary": "根因不是资产：grid-tint-128-mask.png 完全合规（坑底 0.698 ≈ I-5 的 0.70、格外 ",
+          "keywords": [
+            "WXG",
+            "maskGauge",
+            "grid",
+            "tint",
+            "mask",
+            "png"
+          ]
         }
       ]
     },
@@ -49254,7 +49374,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "e7319c71549700514c50528790a34c036cac20f82bba7f52b31fc60a49842a16",
+      "sha256": "fd46a58fbea743712eafaa0749fef35efc794e1e544d7e335896c384cc2434e5",
       "tier": "normal",
       "sections": [
         {
@@ -49345,7 +49465,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 11,465 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 12,270 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69350,17 +69470,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 61406,
-      "lines": 1352,
-      "sha256": "9efa3c682320067bcad32c256629dd3c60c2c374438ac19fa2fbd7d07c78fb21",
+      "tokens": 62697,
+      "lines": 1405,
+      "sha256": "5ef23ac2e1515d21cd5968f830085c35c4e86dd1fb8f162bb195a1255bef937f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1353,
-          "tokens": 61389,
+          "endLine": 1406,
+          "tokens": 62680,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -70405,8 +70525,8 @@
           "anchor": "§WXG-T-236",
           "level": 2,
           "startLine": 1164,
-          "endLine": 1353,
-          "tokens": 5075,
+          "endLine": 1406,
+          "tokens": 6367,
           "summary": "beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性） — 2026-10-03 用户裁定「",
           "keywords": [
             "WXG",
@@ -70546,14 +70666,29 @@
             "选型",
             "影已落码"
           ]
+        },
+        {
+          "anchor": "§八轮：「有珠 / 无珠格底统一」落码 + 封箱第九次复评",
+          "level": 3,
+          "startLine": 1354,
+          "endLine": 1406,
+          "tokens": 1267,
+          "summary": "用户裁定（2026-10-03）：「现在有珠子的格底和没有珠子格底不是一个图，请都按照没有珠子的格底图来实现」，",
+          "keywords": [
+            "八轮",
+            "有珠",
+            "无珠格底统一",
+            "落码",
+            "封箱第九次复"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 15421,
+      "tokens": 15745,
       "lines": 75,
-      "sha256": "313f75fad34642f4203eadf5ab3bf7e2946c772c7b660ebadebb247626aa712b",
+      "sha256": "ed97e74bde7c6b461a6d77db53868a48d6027ca92b22ad5a5ab11eeae120ce14",
       "tier": "hot",
       "sections": [
         {
@@ -70561,7 +70696,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 76,
-          "tokens": 15412,
+          "tokens": 15736,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

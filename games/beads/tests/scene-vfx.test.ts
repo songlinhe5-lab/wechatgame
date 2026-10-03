@@ -421,14 +421,69 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
     return h;
   }
 
-  // [WXG-T-236] 抬起格**仍画槽**（这是本轮真正要留的东西：槽在珠体抬起后可见）。
-  it('抬起格仍画槽（与空格同源，`tilePainted=true` 不带亮底）', () => {
+  // [WXG-T-236 八轮 · 2026-10-03 用户裁定「有珠 / 无珠的格底不是一张图 ⇒ 都按无珠的格底实现」]
+  //
+  // 旧腿「抬起格**仍画**槽」的前提（⛔ 槽只在 `lift > 0` 时画）**已被本裁定推翻** ⇒ 改为两条新不变式：
+  //  ① **有珠格也画坑底**（格底统一）：数「有珠格内的 rect 条数」与「空格内」应**相同**
+  //     —— 同图元同色档（`tilePainted=true` + 同一 `colorIdx` 墨档）。
+  //  ② **抬起只加影、不加坑**：rect 数**逐条不变**，circle 数 **+1**（影）。
+  //     ⚠ 旧腿用 `rect 数增加` 当「抬起多出槽部件」的代理 —— 该代理在新口径下**恒为假**
+  //     （坑底已常画，抬起唯一的增量是**圆形**的影），故必须换判据。
+  it('有珠格也画坑底（格底统一）+ 抬起只多一枚影圆、rect 数不变', () => {
     const h = mkMisplaced('wxgame.beads.test.lift-socket');
-    const before = renderSnap(h.game.snapshot).filter((c) => c.kind === 'rect').length;
+    const snap0 = h.game.snapshot;
+
+    // ① 有珠格 (1,2) 的**坑底层集**与空格 (0,0) 同源：宽度多重集相差**恰好一条**（= 珠的 PLATE）。
+    //    ⚠ 不能只比「条数相等」—— 有珠格还多一枚珠体 PLATE（实测 6 vs 5）；
+    //    也不能只比「条数 ≥」—— 那抓不到「坑底少画一层」。宽度多重集才既能证明**同源**又能定位**唯一增量**。
+    const widthsInCell = (snap: BeadsSnapshot, row: number, col: number): number[] => {
+      const cx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * col;
+      const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * row;
+      const half = snap.gridCell / 2 + 1e-6;
+      return renderSnap(snap)
+        .filter(
+          (c) =>
+            c.kind === 'rect' &&
+            Math.abs((c as { x: number }).x + (c as { w: number }).w / 2 - cx) <= half &&
+            Math.abs((c as { y: number }).y + (c as { h: number }).h / 2 - cy) <= half,
+        )
+        .map((c) => (c as { w: number }).w)
+        .sort((a, b) => b - a);
+    };
+    const wBead = widthsInCell(snap0, 1, 2);
+    const wEmpty = widthsInCell(snap0, 0, 0);
+    // **多重集差**（不是位置假设）：⚠ 格内还有 B0 底图（`gridPitch` 宽，**两格都有** ⇒ 相消），
+    //   所以「最宽那条」是 B0、不是增量 ⇒ 只能按宽度计数做差。
+    const tally = (xs: readonly number[]): Map<number, number> => {
+      const m = new Map<number, number>();
+      for (const x of xs) m.set(x, (m.get(x) ?? 0) + 1);
+      return m;
+    };
+    const tb = tally(wBead);
+    const te = tally(wEmpty);
+    const diff: number[] = [];
+    for (const [w, n] of tb) diff.push(...Array(n - (te.get(w) ?? 0)).fill(w));
+    // 唯一增量 = 珠面绘制边长（`drawFilledBead` 口径：`(outer − inset×2)`，inset 随格径等比）
+    const cell = snap0.gridCell;
+    const expectedBeadFace = cell - 2 * ((BEAD_DRAW_INSET * cell) / BEAD_CELL);
+    expect(diff.length, '有珠格相对空格应恰好多一枚珠面 PLATE').toBe(1);
+    expect(diff[0], '唯一增量 = 珠面绘制边长').toBeCloseTo(expectedBeadFace, 6);
+    // 且坑底层集**逐层同源**（空格的每条宽度在有珠格都至少同样多）
+    for (const [w, n] of te) {
+      expect(tb.get(w) ?? 0, `坑底层宽 ${w} 在有珠格不足 ${n} 条 ⇒ 坑底未与空格同源`)
+        .toBeGreaterThanOrEqual(n);
+    }
+
+    // ② 抬起：rect 不变、circle +1
+    const rectsBefore = renderSnap(snap0).filter((c) => c.kind === 'rect').length;
+    const circlesBefore = renderSnap(snap0).filter((c) => c.kind === 'circle').length;
     expect(h.game.selectBoardBead(1, 2)).toBe(true);
     h.advance(SELECT_LIFT_MS / 1000 + 0.02);
-    const after = renderSnap(h.game.snapshot).filter((c) => c.kind === 'rect').length;
-    expect(after).toBeGreaterThan(before); // 抬起多出槽部件
+    const after = renderSnap(h.game.snapshot);
+    expect(after.filter((c) => c.kind === 'rect').length, '抬起不应新增 rect（坑底已常画）')
+      .toBe(rectsBefore);
+    expect(after.filter((c) => c.kind === 'circle').length, '抬起应恰好多一枚影圆')
+      .toBe(circlesBefore + 1);
   });
 
   it('抬起量走等比：恒等档逐位不变、缩档随 `gridCell` 同比缩（K-077 同族）', () => {

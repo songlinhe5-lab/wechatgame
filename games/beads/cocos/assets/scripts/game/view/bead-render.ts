@@ -592,15 +592,20 @@ let polyWorld: number[] = [];
  *   本函数**如实不透传**（不假装 G1 包络仍在换肤后的珠上生效）。
  */
 /**
- * **[WXG-T-236 定标 · 2026-10-03 用户裁定「抬起态要影」+ 选型 C-3]** 抬起态**槽内投影**。
+ * **[WXG-T-236 定标 · 2026-10-03 用户裁定「抬起态要影」+ 选型 C-3]** 抬起态**珠底投影**（半径**跟珠轮廓**、⛔ 不跟槽轮廓）。
  *
- * ## 形状：正圆，半径 = 坑半宽 = 珠半径，居中
- * 盘面格 `beadInset > 0 ⇒ relief = 0` ⇒ 坑外沿 **≡ 珠面轮廓** ⇒ 坑半宽 **≡ 珠半径**（几何恒等）
- * ⇒ 取 `r = 坑边长 / 2` 即**精确内接于槽**，不外溢。用户两条要求（同形 + 贴槽轮廓）由此同时满足。
+ * ## 形状：正圆，半径 = **珠的绘制半宽**，居中
+ * **用户 2026-10-03 明确「阴影跟珠子轮廓，不跟槽轮廓」** ⇒ `r` 由 `drawFilledBead` 的珠体边长口径派生：
+ * `inset = drawInset × size / BEAD_CELL`、`r = (size − inset×2) / 2`。
+ * ⛔ **不引用 `drawEmptySocket` 的坑尺寸 / `relief` / `SOCKET_CARD`**。
  *
- * ## 与 `drawEmptySocket` 的关系
- * ⛔ **不新算坑尺寸**：本函数复用 `drawEmptySocket` 的**同一把尺**（`beadFace` / `relief` / `s`），
- * 任何一改两侧同改 ⇒ 不会出现「影比槽大/比槽小」的漂移。
+ * ## 为什么不跟槽（写成代码结构而非注释的原因）
+ * 盘面格里坑外沿与珠面轮廓**当前恰好同尺**（`view-model` 把同一个 `beadDrawInset` 喂给两者）
+ * ⇒ 两者算出的半径**数值相同** ⇒「跟珠还是跟槽」在数值上**不可区分**，光靠注释会漂。
+ * 但 **tint 臂的实渲槽比公式值小 1dp**（烘焙 mask `slotHalfDp 12` ⇒ 实渲 24dp，公式给 26dp）
+ * ⇒ 影（r = 13）**本来就该 overhang 实渲槽**；⚠ 若把半径绑在坑上，tint 臂会把影缩到 12
+ * ⇒ **影随槽的实渲尺寸漂移**，而那正是用户否掉的形态。
+ * ⇒ 故本函数**签名上就不接坑参数**（`drawInset` 独立），使「不跟槽」成为**可测不变式**。
  * ⚠ 系数是 **×2**：`beadFace = size − (beadInset×size/BEAD_CELL)×2`。预览期曾误用 ×1 ⇒ 影大 1dp，
  * 正式实现按 ×2（精确内接）。
  *
@@ -614,19 +619,19 @@ let polyWorld: number[] = [];
  * ⛔ 零新 hex / 零新 mix 系数（`tuning.ts::LIFT_SHADOW_ALPHA` 注释记了预览曾用 `−0.88`、
  * 正式改用族内 `shadeOuter` 的理由）。
  */
-export function drawLiftSocketShadow(
+export function drawLiftBeadShadow(
   builder: RenderModelBuilder,
   cx: number,
   cy: number,
   colorIdx: number,
   inks: BeadInks = DEMO_BEAD_INKS,
   size: number = BEAD_CELL,
-  beadInset = 0,
+  /** 珠体内缩基准（`drawFilledBead` 的 `drawInset` 口径）；⛔ **不是**坑的 `beadInset`。 */
+  drawInset = 0,
 ): void {
-  const beadFace = size - (beadInset * size) / BEAD_CELL * 2;
-  const relief = beadInset > 0 ? 0 : Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.relief);
-  const s = Math.max(BEAD_CARD.minStroke * 2, beadFace - relief * 2);
-  const r = s / 2;
+  // ⛔ 半径**只**由珠的绘制轮廓派生（`drawFilledBead` 同一把尺）⇒ 槽改影不动，见头注「为什么不跟槽」。
+  const inset = (drawInset * size) / BEAD_CELL;
+  const r = (size - inset * 2) / 2;
   builder.circle(cx, cy - r * LIFT_SHADOW_SINK, r, {
     fill: withAlpha(endpointOf(inks, colorIdx).shadeOuter, LIFT_SHADOW_ALPHA),
   });

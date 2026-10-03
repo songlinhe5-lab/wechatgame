@@ -52,6 +52,59 @@ afterEach(() => {
     setBeadBakeRuntime(undefined);
 });
 
+// ── [WXG-T-236 八轮] `drawEmptySocket` 的 tint 臂**命中条件守卫** ──────────────────
+//
+// ## 为什么要有这组腿（这正是 bug 能活到今天的原因）
+// `drawEmptySocket` 的 tint 臂命中条件里有一条 **`options.maskGauge !== undefined`**。
+// view-model 调有珠格时**漏传 `options`** ⇒ 条件不成立 ⇒ **静默回退矢量臂**（⛔ 不报错、不抛异常、
+// 白名单照样命中不了、命令流只是「多了 4 条 rect」）⇒ **没有任何既有断言发现**。
+// 实测后果：坑底取 `endpoints.pit`（mix(base,−0.44) = 0.56×base）而**非** `grid-tint-128-mask.png`
+// 的 **0.698**（规格判据 I-5/I-6 要求 0.70）⇒ ① 珠孔内露出 0.56 而非 B0 的 0.70
+// ⇒ ② 空格走 mask、有珠格走矢量 ⇒ **「有珠 / 无珠的格底不是一张图」**。
+//
+// ## 三条腿
+//  ① 传 `maskGauge` ⇒ **必**调 `getMaskId('cell', gauge, styleId)` 且命令流只有 1 条 blit；
+//  ② ⛔ 漏传 `maskGauge` ⇒ **不**调 `getMaskId`（把「静默回退」这件事本身钉成显式判据，
+//     将来若有人删掉该守卫条件，本腿会红）；③ `styleId` **同源**（与 `drawFilledBead` 一致）。
+describe('drawEmptySocket · tint 臂命中条件（八轮：maskGauge 漏传 = 静默回退）', () => {
+    it('① 传 maskGauge + styleId ⇒ 命中 cell mask，且只发 1 条 blit（⛔ 无矢量内阴影 rect）', () => {
+        for (const gauge of ['holed', 'holeless'] as const) {
+            const { runtime, calls } = stubTintRuntime();
+            setBeadTintRuntime(runtime);
+            const cmds = build((b) =>
+                drawEmptySocket(b, 100, 100, palette, BEAD_CELL, 1, DEMO_BEAD_INKS, true, 2,
+                    { maskGauge: gauge, styleId: TINT_MASK_STYLE_ID }),
+            ).commands;
+            expect(calls, `gauge=${gauge} 未调 getMaskId ⇒ tint 臂没命中`).toEqual([
+                { kind: 'cell', gauge, styleId: TINT_MASK_STYLE_ID },
+            ]);
+            expect(cmds.filter((c) => c.kind === 'blit').length, '应恰好 1 条 blit').toBe(1);
+            expect(cmds.filter((c) => c.kind === 'rect').length, '⛔ 命中 tint 臂后不得再发矢量内阴影 rect').toBe(0);
+        }
+    });
+
+    it('② ⛔ 漏传 maskGauge ⇒ 不调 getMaskId（把「静默回退」钉成显式判据）', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        build((b) => drawEmptySocket(b, 100, 100, palette, BEAD_CELL, 1, DEMO_BEAD_INKS, true, 2));
+        // 这条断言是本组的**核心**：它让「漏传 ⇒ 悄悄走矢量」这件事变成**机检可见**，
+        // 而不是一个只有肉眼能发现的观感问题。
+        expect(calls, '漏传 maskGauge ⇒ tint 臂必然不命中（此为已知回退，view-model 侧不得漏传）').toEqual([]);
+    });
+
+    it('③ styleId 由调用方给 ⇒ 不传时回落到 DEFAULT（非默认风格 ⇒ 与珠不同源，须由 view-model 显式传）', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        build((b) =>
+            drawEmptySocket(b, 100, 100, palette, BEAD_CELL, 1, DEMO_BEAD_INKS, true, 2,
+                { maskGauge: 'holed' }),
+        );
+        // 不传 styleId ⇒ 落 `DEFAULT_BEAD_STYLE_ID`；⛔ 这与「珠用 snap.beadStyle」在换风格时不同源
+        // （view-model 已显式补传，本腿守住函数层的缺省行为不被人悄悄改掉）。
+        expect(calls[0]?.styleId).toBe(TINT_MASK_STYLE_ID);
+    });
+});
+
 describe('白名单（DEC-5 · 显式化）', () => {
     it('当前只有 facet-4 在白名单里', () => {
         expect(whitelistedTintStyles()).toEqual([TINT_MASK_STYLE_ID]);

@@ -102,11 +102,26 @@ const HUD_ZOOM_CTRL_TOTAL = 8;
  * S1 暗缘框 rect」**2 枚**改「内阴影阶梯 4 枚同心圆角 rect（shadeOuter/shadeMid/hole/pit）」
  * ⇒ **每空槽 +2 rect**。实测两式独立吻合（provenance `s3_frame_recheck_6`）：
  *   frame0  `+360 = 2 × (156 盘面空槽 + 24 托盘槽)`；
- *   frame78 `+204 = 2 × (78 空槽 + 24 托盘槽)`（填格下的槽不再绘制）。
+ *   frame78 `+204 = 2 × (78 空槽 + 24 托盘槽)`。
+ *   ⚠ **「填格下的槽不再绘制」的前提已被 WXG-T-236 八轮推翻**（用户裁定有珠/无珠格底统一）
+ *     ⇒ 有珠格的坑底另由 `FILLED_SOCKET_FRAME78` 单独登记，两段**不得合并**。
  * ⚠ 该批当时**未走复评通道** ⇒ 本常量属第六次复评**搭车补登记**的存量漂移，已开单 WXG-T-230。
  */
 const SOCKET_INNER_SHADE_FRAME0 = 360;
 const SOCKET_INNER_SHADE_FRAME78 = 204;
+/**
+ * **[WXG-T-236 八轮 · 第九次复评]** 已登记的**有珠格补画坑底**插入段。
+ *
+ * 用户 2026-10-03 裁定「有珠 / 无珠的格底不是一张图 ⇒ 都按无珠的格底实现」⇒ `drawEmptySocket`
+ * 由 `lift > 0` 门控改为**常画**⇒ 78 个有珠格各补一套坑底。
+ * ⛔ **本常量取代**旧的不变式「**填格下的槽不再绘制**」（旧式 `78 × -4` 依赖它，已被本裁定推翻）。
+ *
+ * 每格 = **4 rect**（内阴影阶梯 `shadeOuter/shadeMid/hole/pit`）**+ 2 line**（S3 暗线 / S4 亮线）
+ * = **6 条/格** ⇒ 78 × 6 = **468**。实测 `frame78` total `1409 → 1877`（+468）逐位吻合。
+ * ⚠ 封箱夹具**不注入 tint runtime** ⇒ 记的是**矢量臂**代价；tint 臂命中时每格只 1 blit。
+ */
+const FILLED_SOCKET_PER_CELL = 6;
+const FILLED_SOCKET_FRAME78 = 78 * FILLED_SOCKET_PER_CELL;
 /** 历史档案常量：HEAD 盘带中心 = (480+1120)/2，只作 Δ 基准，非现值。 */
 const HEAD_PUZZLE_BAND_MID_Y = 800;
 /** 盘带族平移矢量：由**现役** `PUZZLE_BAND` 派生（⛔ 非手填）⇒ 同时校带尺与渲染跟随。 */
@@ -417,6 +432,13 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_7).toContain('TILE_BLEED');
         expect(SEAL.provenance.s3_frame_recheck_7).toContain('不是 tint 臂引入');
         expect(SEAL.provenance.s3_frame_recheck_7).toContain('96/96');
+        // 第九次（WXG-T-236 八轮「有珠 / 无珠格底统一」+ 修 maskGauge/styleId 漏传）：归因须点名
+        // ① 根因「漏传 maskGauge ⇒ 静默回退矢量臂」② 本批唯一修订面（78 有珠格 × (4 rect + 2 line)）
+        // ③ 最强反证「legacyFlow 96/96 + frame0 sha 零变更」—— 三者缺一即红。
+        expect(SEAL.provenance.s3_frame_recheck_9, '第九次复评无归因登记').toContain('第九次复评');
+        expect(SEAL.provenance.s3_frame_recheck_9).toContain('maskGauge');
+        expect(SEAL.provenance.s3_frame_recheck_9).toContain('96/96');
+        expect(SEAL.provenance.s3_frame_recheck_9).toContain('468');
         // 反面自证（K-060）：新锁与 HEAD 旧锁必不等，且不等量已在上面逐项登记。
         expect(SEAL.s3.frame0.sha).not.toBe(SEAL.head.frame0.sha);
         expect(SEAL.s3.frame78.sha).not.toBe(SEAL.head.frame78.sha);
@@ -456,17 +478,25 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         // 每颗填格：1 rect + 4 polygon + 2 circle（十层为 5 rect + 5 line + 2 circle）
         // ⇒ 珠体族贡献 rect `78 × (−4)`；**另加** `731100c` 空槽内阴影阶梯（每空槽 +2 rect，
         // 本帧 78 空槽 + 24 托盘槽 = `SOCKET_INNER_SHADE_FRAME78`，已登记）。
-        expect(delta.rect - ctrl.rect).toBe(78 * -4 + SOCKET_INNER_SHADE_FRAME78);
-        expect(delta.line).toBe(78 * -5);
+        // [WXG-T-236 八轮] `+ 78 × (FILLED_SOCKET_PER_CELL − 2)` = **有珠格补画坑底的 4 rect**
+        // （6 条/格里的另2 条是 line，见下一条）。旧式 `78 × -4` 的**「填格下的槽不再绘制」前提
+        // 已被本裁定推翻**，⛔ 不是数字微调。
+        expect(delta.rect - ctrl.rect).toBe(
+            78 * -4 + SOCKET_INNER_SHADE_FRAME78 + 78 * (FILLED_SOCKET_PER_CELL - 2),
+        );
+        expect(delta.line).toBe(78 * -5 + 78 * 2); // +2 = 补画坑底的 S3/S4 两线
         expect(delta.circle - ctrl.circle).toBe(78 * 0); // **孔贡献 = 0**：单孔 → 环+底两枚（六裁，用户拍板）
         expect(delta.polygon).toBe(78 * 4); // **刻面 kind 化**
         expect(delta.text - ctrl.text).toBe(0); // 非珠体族除登记段外零变更
         const totalDelta = SEAL.s3.frame78.total - SEAL.head.frame78.total;
         expect(Object.values(delta).reduce((a, b) => a + b, 0)).toBe(totalDelta);
-        expect(totalDelta).toBe(78 * (-4 - 5 - 0 + 4) + HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME78);
+        expect(totalDelta).toBe(
+            78 * (-4 - 5 - 0 + 4) + HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME78
+            + FILLED_SOCKET_FRAME78,
+        );
         // ⛔ 禁止「纸面推算的新基线整帧数」入册（K-051）：以下均**复评登记实测值**自洽核对。
-        // 1409 = 1205（recheck_5）+ 204（`731100c` 空槽内阴影阶梯，第六次复评搭车补登记）。
-        expect(SEAL.s3.frame78.total).toBe(1409);
+        // 1877 = 1409（recheck_7 态）+ 468（WXG-T-236 八轮「有珠格补画坑底」，第九次复评登记）。
+        expect(SEAL.s3.frame78.total).toBe(1877);
         expect(SEAL.s3.frame78.kinds.circle).toBe(160); // = 82 + 78（每颗填格珠 +1 HOLE_RING）
         expect(SEAL.s3AtFormalization!.frame78.total).toBe(1119); // 转正时刻史证（不随复评漂移）
         expect(SEAL.head.frame78.total).toBe(1587); // 旧值仅作历史档案（§K.5.0 作废登记）
