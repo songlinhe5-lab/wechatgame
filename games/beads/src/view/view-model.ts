@@ -905,7 +905,22 @@ function drawGrid(
       if (cell.state === 'empty') {
         // B0 连续目标色底图（v1.5-r8）：与 filled 分支同一块 `edge` 图元 ⇒ 有豆/无豆一张图。
         // 边长传 `snap.gridPitch` = 缩放后的实际格距（ADR-0020 附录 A 甲案 / WXG-T-206）。
-        drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch);
+        // [WXG-T-242 · 2026-10-04 美术裁定（art-director review）] B0 底图用 **`cx` 不吃 `dx`**。
+        //
+        // 病灶（**可算的几何缺陷**，非主观观感）：`drawTargetTile` 的边长 = `gridPitch` = 32
+        // （`bead-render` 再外扩 `TILE_BLEED 0.5` ⇒ 半宽 **16.5**），而相邻格心距恰为 32
+        // ⇒ B0 是**设计上无缝相接的连续马赛克**。抖 ±3 时：坑心左移 3 ⇒ 该格右沿 `32i+13.5`
+        // 而右邻左沿 `32i+15.5` ⇒ **露 2px 白缝**（缝底是白板）；`sin` 一个周期各露一次
+        // ⇒ 200ms 内 2 周期共 **4 次 2px 亮缝开关**。⚠ `TILE_BLEED` 的全部意义就是盖 1px AA 缝，
+        // 2px 已超出它的余量 ⇒ 玩家读作「**地皮在抖**」而非「这一格被拒」。
+        //
+        // 裁定：**位移属于格内对象（坑 + 红环 + 文字），不属于跨格连续层（B0）**。
+        // 验算：坑外沿半宽 13 ⇒ 坑心 +3 ⇒ 右沿 16 < 16.5 ✓（用尽 0.5px 重叠余量、绝不越入邻格）。
+        // ⛔ **封箱零影响**：静息态 `wrongProgress = 0` ⇒ `isWrong = false` ⇒ `dx = 0` ⇒ `bx ≡ cx`
+        //   ⇒ fixture 逐字节不变，无需重录 / 归因复评。
+        // ⚠ 1043 的 filled 分支同样用 `bx`，**但不改** —— wrong 只在 `state === 'empty'` 可达
+        //   （`placement.ts` 的 `mismatch` 判例 + 红环只画在 empty 分支）⇒ 那里 `dx` 恒 0。
+        drawTargetTile(builder, cx, cy, cell.colorIdx, inks, snap.gridPitch);
         // 空格 = 在这张底图上**挖洞**（pit 内缩 + 暗缘 + 下受光）；自带的亮 `base` 外块
         // 由 `tilePainted = true` 跳过。旧注释里的“E4 幽灵符号”已随 WXG-T-130 降档移除。
         // 坑外廓按「同格有豆时的珠体绘制边长」退一圈（用户裁定：坑恒小于珠、有豆时看不到坑）
@@ -1080,6 +1095,8 @@ function drawGrid(
         drawLiftBeadShadow(
           builder, bx, cy, cell.colorIdx, inks, snap.gridCell, beadDrawInset,
           groupLift, // 影的上沿 = 珠下缘 => 孔（珠内部）恒无影
+          // [WXG-T-242] 影必须**同吃** `liftX`（珠斜上 15°，此前影不偏 ⇒ 横向错位）
+          -groupLift * Math.tan((SELECT_LIFT_ANGLE * Math.PI) / 180),
         );
       }
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
@@ -1267,6 +1284,20 @@ function drawTray(
         builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
         { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
       );
+    // [WXG-T-242 · 2026-10-04 用户裁「阴影要加深、凸显被选中的效果」] 托盘**补分离影**。
+    //
+    // ⚠ 病灶：托盘抬起**原本没有任何分离影**（全仓仅盘面一处 `drawLiftBeadShadow` 调用）
+    //   ⇒ 托盘选中只有「珠抬起 + L0 接触影」，**没有「珠投在槽里」那条影**
+    //   ⇒ 用户「阴影加深」的诉求在托盘侧**无处落地**。
+    // ⇒ 口径与盘面**同源**（同函数、同 `TRAY_SLOT`、同 `BEAD_DRAW_INSET`、同 `liftX` 通道）。
+    // ⛔ 层序：**槽之后、珠之前**（同 WXG-T-240 ② 与盘面）—— 画在珠后会被完全盖住 = 白画。
+    // ⚠ 槽在托盘里是 `tilePainted = false`（无 B0 底图）⇒ 影落在**面板**上（盘面落在坑底上），
+    //   这是同一函数在两种底色上的表现，不是两套口径。
+    if (lift > 0) {
+      drawLiftBeadShadow(
+        builder, cx, cy, TRAY_SLOT, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift, liftX,
+      );
+    }
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
       // [WXG-T-237 v4.0 · 1:1] `outer` = `TRAY_SLOT`(=`BEAD_CELL` 30)，内缩走 `BEAD_DRAW_INSET`
       // ⇒ 珠面 **26** = 盘面珠面（1:1）。⛔ 旧值 `TRAY_BEAD_SIZE 44` 属已废的托盘独立体系。

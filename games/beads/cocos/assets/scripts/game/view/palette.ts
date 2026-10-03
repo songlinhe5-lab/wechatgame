@@ -328,7 +328,12 @@ export function contrastRatio(a: string, b: string): number {
 export const BEAD_SHADOW_HEX = '#1E2033';
 export const BEAD_SHADOW_ALPHA = 0.15;
 /** L0b shadow while `selected` (§1.2: α 0.15 → 0.25). */
-export const BEAD_SHADOW_ALPHA_SELECTED = 0.25;
+/**
+ * **[WXG-T-242 · 2026-10-04 用户裁「阴影本身也要加深」]** `0.25 → 0.40`
+ * —— 选中态珠体自身的 L0 落影（与 `LIFT_SHADOW_ALPHA` 是**两条独立通道**：那条画「珠投在槽里」的
+ * 分离影，这条画珠体自身的接触影）。
+ */
+export const BEAD_SHADOW_ALPHA_SELECTED = 0.40;
 /**
  * L0a 接触阴影（v1.3 十层卡 · F4）：贴底窄条让珠「坐」在面上；墨色复用 {@link BEAD_SHADOW_HEX}。
  */

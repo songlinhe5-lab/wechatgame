@@ -42,6 +42,7 @@ import {
   nextBeadLod,
   ZOOM_LOD_LAYERS,
   LIFT_SHADOW_ALPHA,
+  SELECT_LIFT_PX,
   TILE_BLEED,
 } from '../src/config/tuning.js';
 import {
@@ -725,7 +726,11 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // ⇒ 修正：上下两条边界用**同一套圆角公式**、只差一个 `lift` ⇒ 影恰好填满真实可见缝隙。
   //
   // 由此得到的四条不变式（逐条对应上面三条裁定 + 一条工程不变量）：
-  const SHADOW_LIFT = 6;
+  // [WXG-T-242 · 2026-10-04 用户裁「抬起似乎不是很明显」] `SELECT_LIFT_PX` 6 → 11。
+  // ⚠ 本值**必须引常量**而非字面量：抬起量是 `BEAD_CARD.liftRef`（= `SELECT_LIFT_PX`）的
+  //   **单一真源** ⇒ 归一分母随它变；写死 6 会让「抬起后珠面」的放大按 6/11 打折 ⇒
+  //   影宽腿的 `bFace − w` 断言被连带打红（实测 0.567 vs 期望 1.04）。
+  const SHADOW_LIFT = SELECT_LIFT_PX;
   /** 抬起后珠面边长（与 `drawFilledBead` 的 `1 + liftScaleGain × liftT` **逐字同构**）。 */
   const liftedBeadFace = (face: number, size: number, lift: number): number => {
     const liftT = Math.min(1, (Math.max(0, lift) * BEAD_CELL) / (BEAD_CARD.liftRef * size));

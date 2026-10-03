@@ -639,6 +639,16 @@ export function drawLiftBeadShadow(
   drawInset = 0,
   /** 抬起量（设计 px，y 轴向上；0 => 无可见带 => 本函数不画任何东西）。 */
   lift = 0,
+  /**
+   * **[WXG-T-242 · 2026-10-04 用户报「珠子抬起时候，阴影还是和珠子不太适配，错位了」]**
+   * 抬起方向的水平分量（`drawFilledBead` 的 `liftX` 口径，§5 斜上 `SELECT_LIFT_ANGLE`）。
+   *
+   * 病灶：本函数原先**只吃 `lift`、不吃 `liftX`** ⇒ 影的上下沿都锁 `cx`，
+   * 而珠体是 `x = cx + liftX` ⇒ 珠斜上左偏、影留在原地 ⇒ **横向错位 `liftX`**。
+   * ⇒ 上下沿**同加 `liftX`**，影与珠严格同列（光垂直下 ⇒ 影在珠正下方）。
+   * ⛔ 默认 `0` = 保持旧行为（零调用方 ⇒ 逐字节不变，封箱基线不受影响）。
+   */
+  liftX = 0,
 ): void {
   // ⛔ 半径**只**由珠的绘制轮廓派生（`drawFilledBead` 同一把尺）⇒ 槽改影不动，见头注「为什么不跟槽」。
   const inset = (drawInset * size) / BEAD_CELL;
@@ -676,11 +686,12 @@ export function drawLiftBeadShadow(
   const pts: number[] = [];
   for (let i = 0; i <= N; i += 1) {
     const x = -hw + (2 * hw * i) / N;
-    pts.push(cx + x, cy + bottomAt(beadHw, beadR, x) + lift);   // 上沿 = 抬起后珠底
+    // [WXG-T-242] ⛔ 上下沿**同加** `liftX` —— 影必须与珠同列（此前只有珠偏、影不偏 ⇒ 错位）。
+    pts.push(cx + liftX + x, cy + bottomAt(beadHw, beadR, x) + lift);   // 上沿 = 抬起后珠底
   }
   for (let i = N; i >= 0; i -= 1) {
     const x = -hw + (2 * hw * i) / N;
-    pts.push(cx + x, cy + bottomAt(hw, r, x));                   // 下沿 = 槽底
+    pts.push(cx + liftX + x, cy + bottomAt(hw, r, x));                   // 下沿 = 槽底
   }
   builder.polygon(pts, {
     fill: withAlpha(endpointOf(inks, colorIdx).shadeOuter, LIFT_SHADOW_ALPHA),
