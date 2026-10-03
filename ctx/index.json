@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3694,
       "lines": 134,
-      "sha256": "f125f982dd7d4685964fd9ade2caaee3431ddd31969712c66078b2a5ebc677d9",
+      "sha256": "ceb6a02c40a6d2f9583e06b05938a193e34acdf628a674285717ec30e1941843",
       "tier": "normal",
       "sections": [
         {
@@ -662,17 +662,17 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5043,
-      "lines": 106,
-      "sha256": "3f08bc51b82840353966dc2a78eaba30e8d23120ffac2c4a710aa4460ead01b5",
+      "tokens": 5142,
+      "lines": 98,
+      "sha256": "3b6cff93a7808f6ce377cc8ba30123be473103cb5a987cc8389cc1ac3920c8fe",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§热门大文件行号速查（自动生成，勿手改；重建 `pnpm run ctx:build`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 107,
-          "tokens": 5015,
+          "endLine": 99,
+          "tokens": 5114,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 75 行 / 16092 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 75 行 / 16355 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1445 行 / 63631 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1478 行 / 64373 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 281,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1446 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 632,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1479 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -1022,8 +1022,8 @@
           "anchor": "§`my-skills/wxgame-gdd-writer/SKILL.md` — 104 行 / 1690 tok / 实测读 82 次",
           "level": 2,
           "startLine": 94,
-          "endLine": 97,
-          "tokens": 154,
+          "endLine": 99,
+          "tokens": 208,
           "summary": "§wxgame GDD 编写法（工作室验证过的四件套流程）=6+100 · §总流程（顺序执行，前一步是后一步的输入）=",
           "keywords": [
             "skills",
@@ -1032,38 +1032,6 @@
             "writer",
             "SKILL",
             "tok"
-          ]
-        },
-        {
-          "anchor": "§`games/breakout/design/ux/ux-spec.md` — 225 行 / 3836 tok / 实测读 75 次",
-          "level": 2,
-          "startLine": 98,
-          "endLine": 101,
-          "tokens": 121,
-          "summary": "§UX 规格（UX Spec）=1+226 · §1 设计原则（UX）=9+7 · §2 界面流程（Screen Flo",
-          "keywords": [
-            "§1",
-            "§2",
-            "games",
-            "breakout",
-            "design",
-            "spec"
-          ]
-        },
-        {
-          "anchor": "§`games/beads/design/gdd/core-loop.md` — 167 行 / 8681 tok / 实测读 70 次",
-          "level": 2,
-          "startLine": 102,
-          "endLine": 107,
-          "tokens": 143,
-          "summary": "§GDD · S1 核心循环（Core Loop）· beads=1+168 · §1 目标=9+4 · §2 机制=1",
-          "keywords": [
-            "§1",
-            "§2",
-            "games",
-            "beads",
-            "design",
-            "gdd"
           ]
         }
       ]
@@ -13133,17 +13101,17 @@
     },
     {
       "path": "games/beads/art/lift-socket-styling-decision.md",
-      "tokens": 6474,
-      "lines": 283,
-      "sha256": "70bbc61d45eeed32e1c79c4dcddbe65ed34f963688c1eff80397cd679217b28f",
+      "tokens": 7137,
+      "lines": 320,
+      "sha256": "d19b5955a6aa3d73478aeb98910fec41577d0a8c8e1a8233746c39bf1765e49b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§抬起态槽与影 · 美术定标单（A–G 七条）",
           "level": 1,
           "startLine": 1,
-          "endLine": 284,
-          "tokens": 6456,
+          "endLine": 321,
+          "tokens": 7119,
           "summary": "正本 = 本文件（WXG-T-236 美术侧裁定单，2026-10-03 立）。",
           "keywords": [
             "WXG",
@@ -13517,8 +13485,8 @@
           "anchor": "§7 九轮补录（2026-10-03 用户裁定影的两处缺陷）",
           "level": 2,
           "startLine": 250,
-          "endLine": 284,
-          "tokens": 647,
+          "endLine": 287,
+          "tokens": 649,
           "summary": "用户判：「选中珠子的阴影有问题，应该是只有珠子下面有影子，孔不要有影子，另外影子轮廓",
           "keywords": [
             "§7",
@@ -13577,12 +13545,99 @@
           "anchor": "§7.4 ⛔ 未闭",
           "level": 3,
           "startLine": 281,
-          "endLine": 284,
-          "tokens": 33,
+          "endLine": 287,
+          "tokens": 35,
           "summary": "矢量臂自身的坑底仍是 pit 0.56，违反判据 I-5 的 0.70（八轮遗留，待裁）。",
           "keywords": [
             "pit",
             "未闭"
+          ]
+        },
+        {
+          "anchor": "§8 十轮补录（2026-10-03 用户问「这影子是贴图吗？为什么不连在一起」）",
+          "level": 2,
+          "startLine": 288,
+          "endLine": 321,
+          "tokens": 622,
+          "summary": "",
+          "keywords": [
+            "§8",
+            "十轮补录",
+            "用户问",
+            "这影子是贴图",
+            "为什么不连在",
+            "一起"
+          ]
+        },
+        {
+          "anchor": "§8.1 性质：**不是贴图，是矢量多边形**",
+          "level": 3,
+          "startLine": 290,
+          "endLine": 295,
+          "tokens": 85,
+          "summary": "drawLiftBeadShadow 发的是 builder.polygon（26 个顶点：上沿 13 + 下沿 13）",
+          "keywords": [
+            "drawLiftBeadShadow",
+            "builder",
+            "polygon",
+            "性质",
+            "不是贴图",
+            "是矢量多边形"
+          ]
+        },
+        {
+          "anchor": "§8.2 「不连在一起」的成因（九轮的实现缺陷）",
+          "level": 3,
+          "startLine": 296,
+          "endLine": 300,
+          "tokens": 82,
+          "summary": "九轮把影的上沿钉成「过珠底心的直线」（y = cy + lift − 半宽），而珠是圆角正方形",
+          "keywords": [
+            "lift",
+            "不连在一起",
+            "的成因",
+            "九轮的实现缺"
+          ]
+        },
+        {
+          "anchor": "§8.3 修法：影 = **珠底轮廓 ↔ 槽底轮廓之间的那条真实可见带**",
+          "level": 3,
+          "startLine": 301,
+          "endLine": 307,
+          "tokens": 130,
+          "summary": "上下边界用同一套圆角公式、只差 lift ⇒ 影恰好填满真实可见缝隙：",
+          "keywords": [
+            "lift",
+            "修法",
+            "珠底轮廓",
+            "槽底轮廓之间",
+            "的那条真实可",
+            "见带"
+          ]
+        },
+        {
+          "anchor": "§8.4 单测不变式（四条，按新几何重写）",
+          "level": 3,
+          "startLine": 308,
+          "endLine": 317,
+          "tokens": 199,
+          "summary": "① 逐点钉「下沿 ≡ 槽底轮廓」+「上沿 ≡ 珠底轮廓（= 下沿 + lift）」⇒ 同时证成",
+          "keywords": [
+            "lift",
+            "单测不变式",
+            "四条",
+            "按新几何重写"
+          ]
+        },
+        {
+          "anchor": "§8.5 封箱",
+          "level": 3,
+          "startLine": 318,
+          "endLine": 321,
+          "tokens": 39,
+          "summary": "仍未受影响（影只存在于抬起格，夹具无选中态）⇒ 腿 4a/4b 绿，不需要第十次复评。",
+          "keywords": [
+            "封箱"
           ]
         }
       ]
@@ -49036,17 +49091,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 12877,
-      "lines": 383,
-      "sha256": "9f8e5d2ab8c7c1e72a3c2236052968753dbbb45f52b9e5834f3a0657c15ee2da",
+      "tokens": 13496,
+      "lines": 402,
+      "sha256": "b65acb4b24c4963b42c4ec225a967b0def7812ed475016edbb48d5100db80789",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 384,
-          "tokens": 12873,
+          "endLine": 403,
+          "tokens": 13493,
           "summary": "",
           "keywords": []
         },
@@ -49054,8 +49109,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 384,
-          "tokens": 12841,
+          "endLine": 403,
+          "tokens": 13460,
           "summary": "",
           "keywords": [
             "WXG",
@@ -49456,6 +49511,22 @@
             "推翻七轮正圆",
             "选型"
           ]
+        },
+        {
+          "anchor": "§WXG-T-236 十轮：影 = 珠底↔槽底的真实可见带（回答「是贴图吗？为何不连在一起」）",
+          "level": 3,
+          "startLine": 385,
+          "endLine": 403,
+          "tokens": 582,
+          "summary": "「是贴图吗」⇒ 不是：builder.polygon 26 顶点矢量（⛔ 非 blit / ⛔ 非 mask），",
+          "keywords": [
+            "WXG",
+            "builder",
+            "polygon",
+            "blit",
+            "mask",
+            "十轮"
+          ]
         }
       ]
     },
@@ -49463,7 +49534,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "5f73dea3be1b8f9c8b017061e82debe0da7b0531020dede0e8961a04948dc1ff",
+      "sha256": "1c18c5b4cdd56b950a1a459ddbff072ec79a1948c23206f6cbc57cdfcc9eeb90",
       "tier": "normal",
       "sections": [
         {
@@ -49554,7 +49625,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 12,877 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 13,496 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69559,17 +69630,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 63631,
-      "lines": 1445,
-      "sha256": "c63bc8d9d601a17157deb00f5353a073af71000e1d53e2b90dee1bc0bb266c98",
+      "tokens": 64373,
+      "lines": 1478,
+      "sha256": "ac2efe0c5d8b52dd6e7c1e7f0740c605d87061cb79dd8652f5568c02b682a359",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1446,
-          "tokens": 63615,
+          "endLine": 1479,
+          "tokens": 64356,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -70614,8 +70685,8 @@
           "anchor": "§WXG-T-236",
           "level": 2,
           "startLine": 1164,
-          "endLine": 1446,
-          "tokens": 7301,
+          "endLine": 1479,
+          "tokens": 8043,
           "summary": "beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性） — 2026-10-03 用户裁定「",
           "keywords": [
             "WXG",
@@ -70786,14 +70857,30 @@
             "以下",
             "用户判七轮正"
           ]
+        },
+        {
+          "anchor": "§十轮：影 = 「珠底轮廓 ↔ 槽底轮廓之间的真实可见带」（用户问「是贴图吗？为何不连在一起」）",
+          "level": 3,
+          "startLine": 1447,
+          "endLine": 1479,
+          "tokens": 698,
+          "summary": "用户问：「这影子是贴图吗？为什么不连在一起」。",
+          "keywords": [
+            "十轮",
+            "珠底轮廓",
+            "槽底轮廓之间",
+            "的真实可见带",
+            "用户问",
+            "是贴图吗"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 16092,
+      "tokens": 16355,
       "lines": 75,
-      "sha256": "3a5b7dccc02feb476e205f2702a2144d5d881c08429da85f6297aba42f2cda8e",
+      "sha256": "18e086b82f1528c2fa8302f1b44009ec178e2c09653d1d709b64aedebceee0ce",
       "tier": "hot",
       "sections": [
         {
@@ -70801,7 +70888,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 76,
-          "tokens": 16083,
+          "tokens": 16347,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

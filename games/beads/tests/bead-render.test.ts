@@ -713,19 +713,26 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   });
 
 
-  // ── [WXG-T-236 九轮] 抬起态珠底投影：圆角正方形轮廓 + 只画在珠下缘以下 ──
+  // ── [WXG-T-236 十轮] 抬起态珠底投影 = **珠底轮廓 ↔ 槽底轮廓之间的真实可见带** ──
   //
-  // 用户 2026-10-03 两条裁定：
-  //  ① 「**只有珠子下面有影子，孔不要有影子**」⇒ 影**上沿 ≡ 珠下缘**（`y ≤ cy + lift − 珠半宽`）。
-  //     真透孔在**珠内部**，旧实现（`r = 边长/2` 正圆、跨到 `格心+11.7`）的影上半伸进珠轮廓内
-  //     ⇒ 正好从孔里透出来。裁到珠下缘后**孔区恒不在影内**，且单轮廓即可（不需挖洞）。
-  //  ② 「**影子轮廓要与槽一致，是圆角正方形，而不是圆形**」⇒ 影是**多边形**（⛔ 不是 circle），
-  //     轮廓 = 圆角正方形（圆角 ≡ 槽的 `round(边长 × BEAD_CARD.radius)`）的下缘一段。
+  // 用户 2026-10-03 三轮累计裁定：
+  //  ① 「只有珠子下面有影子，**孔不要有影子**」⇒ 影上界 ≡ 珠下缘（孔在珠内部 ⇒ 恒无影）。
+  //  ② 「影子轮廓**要与槽一致，是圆角正方形，而不是圆形**」。
+  //  ③ 「这影子是贴图吗？**为什么不连在一起**」⇒ 上沿**逐点跟随珠底弧**。
   //
-  // 另保留两条工程不变式：③ **边长跟珠不跟坑**（改坑不动影）；④ `lift = 0` ⇒ **零图元**（常态零开销）。
-  const SHADOW_LIFT = 6; // 任取一个抬起量；上沿随它线性移动
-  // ⚠ polygon 顶点住**模型级 arena**，命令只带 `offset/count`（ADR-0024 值语义）
-  //   ⇒ 必须经 `polygonVertices(model, cmd)` 解引用，⛔ 不能从命令里直接读 `points`。
+  // ③ 的成因：九轮把上沿钉成「过珠底心的**直线**」，而珠是圆角正方形 ⇒ 两侧珠底向上弯、
+  // 直线不动 ⇒ 中间贴合、**两侧各露一条缝** ⇒ 读作贴在下方的独立贴片。
+  // ⇒ 修正：上下两条边界用**同一套圆角公式**、只差一个 `lift` ⇒ 影恰好填满真实可见缝隙。
+  //
+  // 由此得到的四条不变式（逐条对应上面三条裁定 + 一条工程不变量）：
+  const SHADOW_LIFT = 6;
+  /** 圆角正方形在横向偏移 `x` 处、相对其中心的**下沿**高度。圆角 ≡ 槽的 `round(边长 × radius)`。 */
+  const socketBottomAt = (face: number, x: number): number => {
+    const hw = face / 2;
+    const r = Math.min(Math.round(face * BEAD_CARD.radius), hw);
+    const d = Math.max(0, Math.abs(x) - (hw - r));
+    return -hw + (r - Math.sqrt(Math.max(0, r * r - d * d)));
+  };
   const shadowPoly = (inset: number, lift = SHADOW_LIFT) => {
     const { model, commands } = emitModel((b) =>
       drawLiftBeadShadow(b, 100, 200, 1, DEMO_BEAD_INKS, BEAD_CELL, inset, lift),
@@ -735,95 +742,75 @@ describe('bead parameter card (assets-spec §1.1)', () => {
       ? undefined
       : { points: polygonVertices(model, polys[0]!), fill: polys[0]!.fill };
   };
-  /** 圆角正方形在**相对格心**高度 `dy` 处的半宽（圆角半径 ≡ 槽的 `round(边长 × BEAD_CARD.radius)`）。 */
-  const socketHalfAt = (face: number, dy: number): number => {
-    const hw = face / 2;
-    const r = Math.min(Math.round(face * BEAD_CARD.radius), hw);
-    const d = Math.abs(dy) - (hw - r);
-    return d <= 0 ? hw : hw - r + Math.sqrt(Math.max(0, r * r - d * d));
-  };
-  /** 多边形在高度 `y` 处的宽度（取该高度上最外两个点的 x 差）。 */
-  const widthAtY = (p: { points: ArrayLike<number> }, y: number): number => {
-    const xs: number[] = [];
-    for (let i = 0; i + 1 < p.points.length; i += 2) {
-      if (Math.abs(p.points[i + 1]! - y) < 1e-6) xs.push(p.points[i]!);
-    }
-    return xs.length === 0 ? 0 : Math.max(...xs) - Math.min(...xs);
-  };
-  const polyBounds = (p: { points: ArrayLike<number> }) => {
+  /** 把多边形拆成「上沿点列 / 下沿点列」（本实现的顶点顺序固定：上前 N+1、下后 N+1）。 */
+  const split = (p: { points: ArrayLike<number> }) => {
     const xs: number[] = [];
     const ys: number[] = [];
     for (let i = 0; i + 1 < p.points.length; i += 2) { xs.push(p.points[i]!); ys.push(p.points[i + 1]!); }
-    return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
+    const half = xs.length / 2;
+    // 顶点序：上沿 左→右（N+1 点）→ 下沿 右→左（N+1 点）
+    // ⇒ 下沿需 **reverse** 才能与上沿按 x 一一配对。
+    return {
+      up: xs.slice(0, half).map((x, i) => ({ x, y: ys[i]! })),
+      dn: xs.slice(half).map((x, i) => ({ x, y: ys[half + i]! })).reverse(),
+    };
   };
 
-  it('① 上沿 ≡ 珠下缘（⇒ 孔无影）+ 下沿 ≡ 槽底沿', () => {
+  it('①③ 影 = 珠底轮廓 ↔ 槽底轮廓之间的带：逐点厚度 ≡ 抬起量、上沿 ≡ 珠底（⇒ 孔无影 + 连成一体）', () => {
     for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
-      const beadHalf = (BEAD_CELL - 2 * ((inset * BEAD_CELL) / BEAD_CELL)) / 2;
-      const bb = polyBounds(shadowPoly(inset)!);
-      // ① 上沿 = 珠下缘（**这是「孔不要有影」的不变式**：孔在珠内部，恒高于此线）
-      expect(bb.maxY, '影上沿必须钉在珠下缘').toBeCloseTo(200 + SHADOW_LIFT - beadHalf, 6);
-      // 下沿 = 槽底沿（影不越过格心下的槽底）
-      expect(bb.minY).toBeCloseTo(200 - beadHalf, 6);
-      // 影高恒 = 抬起量
-      expect(bb.maxY - bb.minY).toBeCloseTo(SHADOW_LIFT, 6);
+      const face = BEAD_CELL - 2 * ((inset * BEAD_CELL) / BEAD_CELL);
+      const poly = shadowPoly(inset)!;
+      const { up, dn } = split(poly);
+      expect(up.length, '上下沿点数须一致').toBe(dn.length);
+      for (let i = 0; i < up.length; i += 1) {
+        const x = up[i]!.x - 100;                    // 相对格心
+        const b = socketBottomAt(face, x);           // 槽底轮廓（相对格心）
+        // 下沿 ≡ 槽底轮廓
+        expect(dn[i]!.y - 200, `x=${x.toFixed(2)} 下沿须贴槽底`).toBeCloseTo(b, 6);
+        // 上沿 ≡ 珠底轮廓 = 槽底轮廓 + lift ⇒ **逐点厚度恒 = 抬起量**（= 连成一体，无缝隙）
+        expect(up[i]!.y - 200 - b, `x=${x.toFixed(2)} 上沿须贴珠底`).toBeCloseTo(SHADOW_LIFT, 6);
+      }
+      // 上沿最高点（珠底两角）≡ cy + lift − 半宽 + 圆角 ⇒ 影伸进槽的两枚底角
+      const topMost = Math.max(...up.map((p) => p.y));
+      const r = Math.min(Math.round(face * BEAD_CARD.radius), face / 2);
+      expect(topMost - 200, '上沿最高点 ≡ 珠底角').toBeCloseTo(SHADOW_LIFT - face / 2 + r, 6);
     }
   });
 
-  it('② 轮廓 = 圆角正方形（⛔ 不是 circle）+ 左右对称 + 墨 = 族内 shadeOuter', () => {
+  it('② 轮廓 = 圆角正方形（⛔ 不是 circle）+ 左右对称 + 横向铺满槽宽 + 墨 = 族内 shadeOuter', () => {
     for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
+      const face = BEAD_CELL - 2 * ((inset * BEAD_CELL) / BEAD_CELL);
       const cmds = emit((b) =>
         drawLiftBeadShadow(b, 100, 200, 1, DEMO_BEAD_INKS, BEAD_CELL, inset, SHADOW_LIFT),
       );
-      // ⛔ 不得发 circle（旧实现是圆）
       expect(cmds.filter((c) => c.kind === 'circle').length, '⛔ 影不得是圆').toBe(0);
       const poly = shadowPoly(inset)!;
-      expect(poly, '影应存在').toBeDefined();
-      // 墨 = 端点族 `shadeOuter` 带 α（⛔ 零新 hex）
-      expect(poly.fill).toBe(withAlphaShadeOuter(1, LIFT_SHADOW_ALPHA));
-      // 左右对称：所有点成 ± 对（无偏心）
-      const bb = polyBounds(poly);
-      expect((bb.minX + bb.maxX) / 2, '左右须对称').toBeCloseTo(100, 6);
-      // 轮廓 = **槽的圆角正方形** ⇒ 各高度宽度必须**按槽的圆角公式复算**，
-      // ⛔ 不能断言「上沿 = 珠面全宽」—— `抬起量(6) < 圆角半径(8)` 时上沿**已在弧内**（宽 25.49 ≠ 26）。
-      const beadFace = BEAD_CELL - 2 * ((inset * BEAD_CELL) / BEAD_CELL);
-      const yTop = 200 + SHADOW_LIFT - beadFace / 2;
-      const yBot = 200 - beadFace / 2;
-      expect(widthAtY(poly, yTop), '上沿宽度 ≡ 槽轮廓在该高度的宽度').toBeCloseTo(
-        2 * socketHalfAt(beadFace, SHADOW_LIFT - beadFace / 2), 6,
-      );
-      expect(widthAtY(poly, yBot), '下沿宽度 ≡ 槽的直边段宽').toBeCloseTo(
-        2 * (beadFace / 2 - Math.min(Math.round(beadFace * BEAD_CARD.radius), beadFace / 2)), 6,
-      );
-      // ⛔ 圆角必须真的收窄（否则就是直方块，不是「与槽一致的圆角正方形」）
-      expect(widthAtY(poly, yBot)).toBeLessThan(widthAtY(poly, yTop));
-      // 至少 3 个不同 x ⇒ 确有弧/斜边（非纯矩形）
-      const uniqX = new Set<number>();
-      for (let i = 0; i + 1 < poly.points.length; i += 2) uniqX.add(Math.round(poly.points[i]! * 1e3));
-      expect(uniqX.size, '轮廓须含圆角收窄（多个不同 x）').toBeGreaterThan(2);
+      expect(poly.fill, '墨 = 族内 shadeOuter 带 α').toBe(withAlphaShadeOuter(1, LIFT_SHADOW_ALPHA));
+      const { up } = split(poly);
+      // 左右对称
+      for (let i = 0; i < up.length; i += 1) {
+        const j = up.length - 1 - i;
+        expect(up[i]!.x + up[j]!.x, '左右须对称').toBeCloseTo(200, 6);
+        expect(up[i]!.y - up[j]!.y, '上下沿各自左右对称').toBeCloseTo(0, 6);
+      }
+      // 横向铺满槽宽（影伸进两枚底角 ⇒ ⛔ 不是只占中间一段）
+      const xs = up.map((p) => p.x);
+      expect(Math.max(...xs) - Math.min(...xs), '须铺满槽的绘制边长').toBeCloseTo(face, 6);
     }
   });
 
-  it('③ 边长跟珠不跟坑（槽改影不动）', () => {
+  it('③b 边长跟珠不跟坑（槽改影不动）', () => {
     const shadowInset = BEAD_DRAW_INSET_SMALL;
     const socket = emit((b) =>
       drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, 1, DEMO_BEAD_INKS, true, BEAD_DRAW_INSET),
     );
     const socketOuter = socket.find((c) => c.kind === 'rect') as { w: number } | undefined;
     const face = BEAD_CELL - 2 * ((shadowInset * BEAD_CELL) / BEAD_CELL);
-    const poly = shadowPoly(shadowInset)!;
-    const bb = polyBounds(poly);
-    const wTop = widthAtY(poly, 200 + SHADOW_LIFT - face / 2);
-    expect(wTop, '跟小豆档（= 影自己的口径）').toBeCloseTo(
-      2 * socketHalfAt(face, SHADOW_LIFT - face / 2), 6,
-    );
-    // ⛔ 不是满豆档坑轮廓的宽度（满豆档更大 ⇒ 其上沿更宽）
-    const bigFace = BEAD_CELL - 2 * ((BEAD_DRAW_INSET * BEAD_CELL) / BEAD_CELL);
+    const { up } = split(shadowPoly(shadowInset)!);
+    const w = Math.max(...up.map((p) => p.x)) - Math.min(...up.map((p) => p.x));
+    expect(w, '跟小豆档（= 影自己的口径）').toBeCloseTo(face, 6);
     expect(socketOuter!.w, '前置：满豆档坑比小豆档影宽').toBeGreaterThan(face);
-    expect(wTop, '⛔ 不得等于满豆档坑的对应宽度').not.toBeCloseTo(
-      2 * socketHalfAt(bigFace, SHADOW_LIFT - bigFace / 2), 6,
-    );
-    expect(bb.maxY - bb.minY, '影高 ≡ 抬起量').toBeCloseTo(SHADOW_LIFT, 6);
+    expect(w, '⛔ 不得等于满豆档坑宽').not.toBeCloseTo(socketOuter!.w, 6);
   });
 
   it('④ lift = 0 ⇒ 零图元（常态无选中时零开销）', () => {
@@ -832,6 +819,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     );
     expect(cmds.length, '未抬起 ⇒ 不得有任何图元').toBe(0);
   });
+
 
 
 

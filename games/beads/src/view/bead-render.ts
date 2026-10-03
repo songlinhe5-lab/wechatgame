@@ -651,22 +651,26 @@ export function drawLiftBeadShadow(
   const yTop = Math.min(lift - hw, hw);
   if (yBot >= yTop) return; // 抬起量不足 => 无可见带 => 不画（常态零开销）
 
-  // 圆角正方形在高度 y 处的半宽（d > 0 落在圆角弧区，用圆弧收窄）。
-  const halfAt = (y: number): number => {
-    const d = Math.abs(y) - (hw - r);
-    return d <= 0 ? hw : hw - r + Math.sqrt(Math.max(0, r * r - d * d));
+  // 影 = **珠底轮廓 ↔ 槽底轮廓之间的那条真实可见带**（上下两条边界同一套圆角公式、只差 `lift`）。
+  // ⛔ 旧写法把上沿钉成「过珠底心的直线」⇒ 两侧珠底向上弯、直线不动 ⇒ 各露一条缝
+  //   ⇒ 读作**贴在下方的独立贴片**（用户 2026-10-03 判「为什么不连在一起」）。
+  // ⇒ 本写法上沿**逐点跟随珠底弧** ⇒ 严丝合缝、读作珠投下的影。
+  const N = 12;
+  // 圆角正方形在横向偏移 `x` 处、相对其中心的**下沿**高度（直边段 = −hw；弧区按圆弧收）。
+  const bottomAt = (x: number): number => {
+    const d = Math.max(0, Math.abs(x) - (hw - r));
+    return -hw + (r - Math.sqrt(Math.max(0, r * r - d * d)));
   };
-
-  // 轮廓 = 圆角正方形 ∩ {y <= 珠下缘} => 珠的底边那一段（上沿直、下沿为槽的两枚底角弧）。
-  const N = 8;
   const pts: number[] = [];
+  // 上沿：珠底轮廓（= 槽底轮廓整体上移 `lift`）
   for (let i = 0; i <= N; i += 1) {
-    const y = yTop + ((yBot - yTop) * i) / N;
-    pts.push(cx + halfAt(y), cy + y);
+    const x = -hw + (2 * hw * i) / N;
+    pts.push(cx + x, cy + bottomAt(x) + lift);
   }
+  // 下沿：槽底轮廓（回程）
   for (let i = N; i >= 0; i -= 1) {
-    const y = yTop + ((yBot - yTop) * i) / N;
-    pts.push(cx - halfAt(y), cy + y);
+    const x = -hw + (2 * hw * i) / N;
+    pts.push(cx + x, cy + bottomAt(x));
   }
   builder.polygon(pts, {
     fill: withAlpha(endpointOf(inks, colorIdx).shadeOuter, LIFT_SHADOW_ALPHA),
