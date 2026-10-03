@@ -1906,8 +1906,32 @@ check:tasks **27/27** · 效果图 `temp/shadow-preview/v60-revert.png`。
 **测试口径变更**：`mask-field.test.ts` 的 **I-4「格面 B 满幅实底（零 AA 带）」前提被推翻**
 ⇒ 改写为「**槽口内 255 / 格外 0 / 纯二值零振铃**」三条（新口径的反向守卫）。
 
-**⛔ 未闭**：① 资产变更**未过 `mask:diff` CLI**（该脚本 `ERR_MODULE_NOT_FOUND` = 既有缺口；
-**单测形态的对拍门禁已绿**，覆盖同一读数来源）；② 异色格色界平移 0.5px 观感确认（T-235 遗留）仍未做。
+**`mask:diff` 定稿门禁：PASS（收尾时补跑并修好）**。四张图 R/G/B **mean=max=0**、编码不变式全过。
+⚠ **我此前报的「该脚本 `ERR_MODULE_NOT_FOUND` = 既有缺口」是误报** —— 那是**漏了 `--import` flag**
+（正确用法写在脚本头注：`node --import ./tools/scripts/lib/ts-js-resolve.mjs tools/mask-preview/mask-diff.mjs`）。
+同时发现该 CLI 的 **I-4 检查也按旧口径**（格面 B 须 = 255）⇒ 已同步为 v7.0 新口径
+（槽心 255 / 角落 0 / 纯二值），与 `mask-field.test.ts` 一致。**教训：报「既有缺口」前先按头注跑一次。**
+
+**⛔ 未闭**：异色格色界平移 0.5px 观感确认（T-235 白线遗留）仍未做。
 
 **读数**：framework **421 绿** · breakout **239 绿** · beads **774 绿 + 1 skipped** ·
 verify **PASS 19 / WARN 0 / SKIP 1 / FAIL 0** · 效果图 `temp/shadow-preview/v70-final.png`。
+
+
+### 收尾补跑（v7.0 收尾确认）
+
+| 项 | 结果 |
+|---|---|
+| 工作树 | **干净**（无临时文件入库；旧 mask 备份在 `temp/mask-bak-v6/`，未入库） |
+| `mask:diff` CLI（定稿门禁） | ✅ **PASS** —— 四张图 R/G/B mean=max=**0**；**I-4 检查已同步 v7.0 口径** |
+| `mask-diff.test.ts`（对拍单测） | ✅ 5/5 |
+| framework / breakout / beads | ✅ **421 / 239 / 774**（+1 skipped） |
+| `verify` | ✅ **PASS 19 / WARN 0 / SKIP 1 / FAIL 0** |
+| `check:tasks` | ✅ 主表 27 行 27 节配对完整 |
+| 定标单 | 补 **§7 v5.0→v7.0 沿革**，**v4.0 → v7.0**（**6358 tok / B 门 8000**） |
+
+**本轮收尾纠正的两处自身失误**：
+1. **「`mask:diff` CLI 有既有缺口」是误报** —— 实为漏 `--import` flag（用法写在脚本头注）。
+2. **I-4 编码不变式在 CLI 与单测两处口径分叉** —— 本批只改了单测、漏了 CLI ⇒ 收尾时补齐。
+   ⇒ **教训：同一不变式在「单测 + CLI」两处实现时，改一处必须同步另一处**（与 v5.0 那次
+   「`view-model` 改了、`harness` 接线漏了」同型）。

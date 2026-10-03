@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "d321b381e9bb6b04dcf8ea2d3ca8caaaaf6e42b14451ce1a041082c0193116df",
+      "sha256": "7da0cdbe4b45eb2c6898e77a83876c8086723febbd7f6a84dde9ab6d5654b91a",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5041,
+      "tokens": 5056,
       "lines": 86,
-      "sha256": "28bb62c5ff50ee24f2ba96604c384142d0c0e0dca6190d5607aec761c3dbe13d",
+      "sha256": "d0c7beb24ee0841039eb83e6bf4f80e9ce6198e9593a1eadedb419306e939f2f",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 5013,
+          "tokens": 5028,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 18808 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 18876 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1913 行 / 73517 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1937 行 / 73981 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 971,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1914 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 985,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1938 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14326,24 +14326,25 @@
     },
     {
       "path": "games/beads/art/tray-neutral-slot-mask-spec.md",
-      "tokens": 5107,
-      "lines": 243,
-      "sha256": "f59ba5a76758e2d0dfe0d3ea3a58cf929e6dd730a16592f57380186ee1d90dbb",
+      "tokens": 6358,
+      "lines": 304,
+      "sha256": "3213155adb8641c50457fdb3bd0124b7cd0ed0c1c1bebd65ec5d79ba02dbbfb8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§托盘 1:1 格面（不做缩放）· 美术定标单",
           "level": 1,
           "startLine": 1,
-          "endLine": 244,
-          "tokens": 5089,
-          "summary": "正本 = 本文件（WXG-T-237，v4.0 · 已落码，2026-10-03）。",
+          "endLine": 305,
+          "tokens": 6340,
+          "summary": "正本 = 本文件（WXG-T-237，v7.0 · 已落码，2026-10-04；§6 = v4.0 1:1 落码，§7",
           "keywords": [
+            "§6",
+            "§7",
             "WXG",
             "托盘",
             "格面",
-            "不做缩放",
-            "美术定标单"
+            "不做缩放"
           ]
         },
         {
@@ -14575,8 +14576,8 @@
           "anchor": "§6 v4.0 落码实录（2026-10-03 用户裁定「先按照 1:1 的格面实现效果，不做缩放」）",
           "level": 2,
           "startLine": 194,
-          "endLine": 244,
-          "tokens": 1158,
+          "endLine": 247,
+          "tokens": 1159,
           "summary": "",
           "keywords": [
             "§6",
@@ -14655,14 +14656,117 @@
           "anchor": "§6.5 ⛔ 未闭（如实）",
           "level": 3,
           "startLine": 235,
-          "endLine": 244,
-          "tokens": 241,
+          "endLine": 247,
+          "tokens": 243,
           "summary": "Q-B 「格面颜色与托盘底色一致」仍未裁 —— 本批先保 palette.slot 中性底。若裁「同一算法」⇒ 托盘槽底",
           "keywords": [
             "palette",
             "slot",
             "未闭",
             "如实"
+          ]
+        },
+        {
+          "anchor": "§7 v5.0 → v7.0 沿革（三次裁定，当前 = v7.0）",
+          "level": 2,
+          "startLine": 248,
+          "endLine": 305,
+          "tokens": 1214,
+          "summary": "",
+          "keywords": [
+            "§7",
+            "沿革",
+            "三次裁定",
+            "当前"
+          ]
+        },
+        {
+          "anchor": "§7.1 裁定链（一句话each）",
+          "level": 3,
+          "startLine": 250,
+          "endLine": 260,
+          "tokens": 278,
+          "summary": "v4.0 「先按照 1:1 的格面实现效果，不做缩放」 托盘格面 30 / 珠面 26 / pitch 32，槽与珠走盘",
+          "keywords": [
+            "each",
+            "pitch",
+            "裁定链",
+            "一句话"
+          ]
+        },
+        {
+          "anchor": "§7.2 v7.0 的编码事实（决定实现路径）",
+          "level": 3,
+          "startLine": 261,
+          "endLine": 269,
+          "tokens": 139,
+          "summary": "packages/framework/src/core/bake/tint-composite.ts：",
+          "keywords": [
+            "packages",
+            "framework",
+            "src",
+            "core",
+            "bake",
+            "tint"
+          ]
+        },
+        {
+          "anchor": "§7.3 ⛔ 必守约束：槽底不得透明",
+          "level": 3,
+          "startLine": 270,
+          "endLine": 276,
+          "tokens": 98,
+          "summary": "无孔档槽底是 0.32 深坑，透明化会抹平 判据 I-5 钉的「有孔 0.70 / 无孔 0.32」分叉",
+          "keywords": [
+            "必守约束",
+            "槽底不得透明"
+          ]
+        },
+        {
+          "anchor": "§7.4 盘面视觉零变化（有数学解释 + 实测）",
+          "level": 3,
+          "startLine": 277,
+          "endLine": 285,
+          "tokens": 163,
+          "summary": "原 mask 格外 = base·0.70；底色层 edge = mix(base,−0.30) = round(bas",
+          "keywords": [
+            "mask",
+            "base",
+            "edge",
+            "mix",
+            "round",
+            "bas"
+          ]
+        },
+        {
+          "anchor": "§7.5 两处实现坑（已治根，留档）",
+          "level": 3,
+          "startLine": 286,
+          "endLine": 294,
+          "tokens": 200,
+          "summary": "1. LANCZOS 振铃不对等：v7.0 的 0↔255 硬台阶长达一整圈，PIL 的 LANCZOS 与 TS 自实",
+          "keywords": [
+            "LANCZOS",
+            "PIL",
+            "两处实现坑",
+            "已治根",
+            "留档"
+          ]
+        },
+        {
+          "anchor": "§7.6 门禁与「资产 vs 命令」的边界",
+          "level": 3,
+          "startLine": 295,
+          "endLine": 305,
+          "tokens": 246,
+          "summary": "mask:diff 定稿门禁 PASS（四张图：R/G/B mean=max=0，编码不变式全过）。",
+          "keywords": [
+            "mask",
+            "diff",
+            "PASS",
+            "mean",
+            "max",
+            "门禁与"
           ]
         }
       ]
@@ -50020,17 +50124,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 2208,
-      "lines": 74,
-      "sha256": "f7b7abe24dd15b45238c857144589d6d8dc65aabe18bcf4747d229f2bf5fb8fa",
+      "tokens": 2768,
+      "lines": 93,
+      "sha256": "0c2f6ddfd51f70a874ed6132017f20e51220c66471d716ac16b0b258d4a9a460",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 75,
-          "tokens": 2205,
+          "endLine": 94,
+          "tokens": 2764,
           "summary": "",
           "keywords": []
         },
@@ -50079,6 +50183,22 @@
             "out",
             "base"
           ]
+        },
+        {
+          "anchor": "§v7.0 收尾确认（补跑门禁 + 纠正两处自身失误）",
+          "level": 3,
+          "startLine": 76,
+          "endLine": 94,
+          "tokens": 538,
+          "summary": "✅ mask:diff 定稿门禁 PASS（四张图 R/G/B mean=max=0、编码不变式全过）。",
+          "keywords": [
+            "mask",
+            "diff",
+            "PASS",
+            "mean",
+            "max",
+            "收尾确认"
+          ]
         }
       ]
     },
@@ -50086,7 +50206,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "9d09ccb3152972c01609d4f9f69deb30ff64e544a8551da8dd2d6a4551eef78c",
+      "sha256": "58bdf64c00a2971364ff7147bdf378b7c4cb10be643507555fc23f951d789276",
       "tier": "normal",
       "sections": [
         {
@@ -50177,7 +50297,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 2,208 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 2,768 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70196,17 +70316,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 73517,
-      "lines": 1913,
-      "sha256": "b0f0bbfb71407e3e9de8b3313a60040b42a38b2763b6f592deafe29c86baf9ff",
+      "tokens": 73981,
+      "lines": 1937,
+      "sha256": "fdb7aa52dff5dd5cb19a8e55c4a545770d8f4f48964900d0544240ffc6697e1a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1914,
-          "tokens": 73500,
+          "endLine": 1938,
+          "tokens": 73965,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71460,8 +71580,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1914,
-          "tokens": 8431,
+          "endLine": 1938,
+          "tokens": 8895,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71648,8 +71768,8 @@
           "anchor": "§v7.0：格面 mask 槽外透明（资产变更 · 本节为当前状态）",
           "level": 3,
           "startLine": 1867,
-          "endLine": 1914,
-          "tokens": 1066,
+          "endLine": 1920,
+          "tokens": 1203,
           "summary": "用户裁定：「格底的 base 图，槽外面部分的格面要做成透明，在绘制格面时候先绘制一层 −0.30 的底色",
           "keywords": [
             "mask",
@@ -71659,14 +71779,29 @@
             "资产变更",
             "本节为当前状"
           ]
+        },
+        {
+          "anchor": "§收尾补跑（v7.0 收尾确认）",
+          "level": 3,
+          "startLine": 1921,
+          "endLine": 1938,
+          "tokens": 315,
+          "summary": "工作树 干净（无临时文件入库；旧 mask 备份在 temp/mask-bak-v6/，未入库）",
+          "keywords": [
+            "mask",
+            "temp",
+            "bak",
+            "收尾补跑",
+            "收尾确认"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 18808,
+      "tokens": 18876,
       "lines": 76,
-      "sha256": "1161b9fe39de9733877ca2e83f89d740d0501c84e93866fc2ee78bc10f1a2793",
+      "sha256": "3afeee15947d5ba422a586ab80336a26c7d9dbcf105619875d68e85b4eee4ada",
       "tier": "hot",
       "sections": [
         {
@@ -71674,7 +71809,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 18799,
+          "tokens": 18867,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

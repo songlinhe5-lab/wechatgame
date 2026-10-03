@@ -92,11 +92,24 @@ function invariantFailures(kind, gauge, spec, field) {
             break;
         }
     }
-    // I-4：格面 B 满幅。
+    // I-4（v7.0 口径）：格面 B = **槽口内 255 / 格外 0**（纯二值）。
+    // ⛔ 旧口径「格面 B 满幅 255」已被推翻 —— 那正是「格面被 mask 完全遮住」的根因。
+    //   用户裁定「格底 base 图槽外面部分透明；先画 −0.30 底色再叠 base×mask 混合纹理」。
+    // 校验两条：① 槽心（槽底）= 255 —— ⛔ 槽底**不得透明**（无孔档 0.32 深坑承载判据 I-5 分叉）；
+    //         ② 格外（角落）= 0 ⇒ 透明；③ 全场纯二值（无 LANCZOS 振铃中间带）。
     if (kind === 'cell') {
+        const bAt = (x, y) => data[(y * w + x) * 4 + 2];
+        const c = Math.floor(w / 2);
+        if (bAt(c, c) !== 255) {
+            fails.push(`I-4 槽底 B≠255 @px${c},${c} = ${bAt(c, c)}（槽底不得透明：无孔档 0.32 深坑承载判据 I-5）`);
+        }
+        if (bAt(1, 1) !== 0) {
+            fails.push(`I-4 格外 B≠0 @px1,1 = ${bAt(1, 1)}（格外须透明以露出 −0.30 底色层）`);
+        }
         for (let i = 0; i < w * w; i++) {
-            if (data[i * 4 + 2] !== 255) {
-                fails.push(`I-4 格面 B≠255 @px${i % w},${Math.floor(i / w)} = ${data[i * 4 + 2]}`);
+            const b = data[i * 4 + 2];
+            if (b !== 0 && b !== 255) {
+                fails.push(`I-4 shape 非二值 @px${i % w},${Math.floor(i / w)} = ${b}（零振铃中间带）`);
                 break;
             }
         }
