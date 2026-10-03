@@ -1491,8 +1491,8 @@
       "state": "active",
       "file": "knowledge/lessons/criteria-render.md",
       "category": "判据渲染",
-      "title": "满铺底图的相邻 rect 在分数设备像素上会漏出底层：接缝是「AA 覆盖不足」而非取整，用同色外扩根治，度量必须用「相对局部底色的亮度跳变」而不是纯白阈值",
-      "contentHash": "c350939e464ba04136b427c1d106ec8c79dd40a4f56700d6e4f846dd6711949c",
+      "title": "满铺底图的相邻 rect 会因 AA 边缘覆盖不足而漏出底层：外扩同色可根治，度量必须用「相对局部底色的亮度跳变」而不是纯白阈值",
+      "contentHash": "e0ae7989e2b41989e0c951d994ddfb1d2965e0fc1cd87aa8e413cdb7b7c85f92",
       "sourceTask": "WXG-T-235",
       "addedDate": "2026-10-03",
       "lastAccess": "2026-10-03",
@@ -2217,6 +2217,24 @@
         "K-031",
         "K-048",
         "K-093"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-03",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-091"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-03",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-091"
       ],
       "note": null
     }
