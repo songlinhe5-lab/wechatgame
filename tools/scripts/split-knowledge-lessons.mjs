@@ -49,6 +49,9 @@ const outDirAbs = relOr(OUT_DIR_REL);
  */
 export const TAG_TO_SHARD = new Map([
     ['工具链', 'toolchain'],
+    // WXG-T-235 沉淀批：`工具链` 片越 B 门（8411 > 8000）⇒ 按 INDEX §4「标签内部再切」
+    // 子切版本控制/钩子/提交信息类四条目（K-001/031/048/093）。⛔ 不新增豁免（判例 K-025 / WXG-T-041）。
+    ['工具链Git', 'toolchain-git'],
     ['流程', 'process'],
     ['判据', 'criteria'],
     // WXG-T-221 八裁批：`判据` 片越 B 门（8317 tok）⇒ 按 INDEX §4「标签内部再切」子切渲染/几何序类五条目（K-052/055/056/063/067）。

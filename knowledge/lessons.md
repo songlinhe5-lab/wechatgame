@@ -6,6 +6,7 @@
 | 行内标签 | 分片文件 |
 |---|---|
 | `工具链` | `knowledge/lessons/toolchain.md` |
+| `工具链Git` | `knowledge/lessons/toolchain-git.md`（WXG-T-235 沉淀批新切：`工具链` 片越 B 门 8411 > 8000，按 `knowledge/INDEX.md` §4「该标签内部再切」把版本控制/钩子/提交信息类四条目 K-001/031/048/093 子切入新片；⛔ 未新增豁免） |
 | `流程` | `knowledge/lessons/process.md` |
 | `判据` | `knowledge/lessons/criteria.md` |
 | `判据渲染` | `knowledge/lessons/criteria-render.md`（WXG-T-221 八裁批新切：`判据` 片越 B 门 8317 tok，渲染/几何序类五条目子切） |

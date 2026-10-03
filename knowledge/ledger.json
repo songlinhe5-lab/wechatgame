@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 91,
+  "nextId": 94,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -10,10 +10,10 @@
     {
       "id": "K-001",
       "state": "active",
-      "file": "knowledge/lessons/toolchain.md",
-      "category": "工具链",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
       "title": "commitlint 自定义规则必须经 plugins 数组注册",
-      "contentHash": "7db6631b9b053c2bc8df05adf3691ce17f8d1a18ea28325d6d3cbb8d3bc2a18f",
+      "contentHash": "2416849d67562b21b5accf1eca12c941e1241360b8288e8394d83a8732f46927",
       "sourceTask": "WXG-T-021",
       "addedDate": "2026-09-12",
       "lastAccess": "2026-09-12",
@@ -520,10 +520,10 @@
     {
       "id": "K-031",
       "state": "active",
-      "file": "knowledge/lessons/toolchain.md",
-      "category": "工具链",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
       "title": "多产物生成器新增产物时，必须同任务登记 pre-commit 的 `git add` 清单",
-      "contentHash": "96017a157e3d9388b30ada67292a278eca07816d0ffb1592233c2bd58f5df22e",
+      "contentHash": "792826c86917612a5dc8bd8554c7cda02d3149e7767c203eae85834b3e853e79",
       "sourceTask": "WXG-T-036",
       "addedDate": "2026-09-13",
       "lastAccess": "2026-09-13",
@@ -809,10 +809,10 @@
     {
       "id": "K-048",
       "state": "active",
-      "file": "knowledge/lessons/toolchain.md",
-      "category": "工具链",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
       "title": "装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛",
-      "contentHash": "464541de818fce47d7c17236368ba11210dd53af419b484befe738495abadac6",
+      "contentHash": "f8fe53441e98f8580ecedea682d2984e91b5d4f2712f81996dc71c7d917feafd",
       "sourceTask": "WXG-T-112",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -1485,6 +1485,57 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-091",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
+      "title": "满铺底图的相邻 rect 在分数设备像素上会漏出底层：接缝是「AA 覆盖不足」而非取整，用同色外扩根治，度量必须用「相对局部底色的亮度跳变」而不是纯白阈值",
+      "contentHash": "c350939e464ba04136b427c1d106ec8c79dd40a4f56700d6e4f846dd6711949c",
+      "sourceTask": "WXG-T-235",
+      "addedDate": "2026-10-03",
+      "lastAccess": "2026-10-03",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-092",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "走预构建产物的 dev 工具：改源码不会自动生效，参数表现为「静默不生效」而不是报错",
+      "contentHash": "597c4fb639c5db175c00a22d99ee70cb1f24456701e337fa2967e963b364e1e6",
+      "sourceTask": "WXG-T-235",
+      "addedDate": "2026-10-03",
+      "lastAccess": "2026-10-03",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-093",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "提交信息 body 里的 markdown 表格会被 commit-msg 钩子拦下，且报错文案指向的规则清单是误导",
+      "contentHash": "370d970908a7bf41f4bdd69902dfc026401f6f353553a028e01238d8956c8bbb",
+      "sourceTask": "WXG-T-235",
+      "addedDate": "2026-10-03",
+      "lastAccess": "2026-10-03",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -2143,6 +2194,29 @@
         "K-056",
         "K-063",
         "K-067"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-03",
+      "taskId": "WXG-T-235",
+      "kind": "added",
+      "ids": [
+        "K-091",
+        "K-092",
+        "K-093"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-03",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-001",
+        "K-031",
+        "K-048",
+        "K-093"
       ],
       "note": null
     }

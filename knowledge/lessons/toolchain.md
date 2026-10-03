@@ -5,11 +5,6 @@
 
 ## 工具链
 
-- **[工具链][K-001] commitlint 自定义规则必须经 plugins 数组注册**（来源 WXG-T-021 / 修复 commitlint.config.mjs，2026-09-12）
-  现象：任何提交都失败，commitlint 崩溃 `RangeError: Found rules without implementation: subject-no-cn-stop, task-id-required`。
-  根因：把自定义规则函数直接内联进 `rules` 表——commitlint 不支持，只认配置项；自定义规则实现必须经 `plugins: [{ rules: {...} }]` 注册，`rules` 表只写 `[级别, 'always']`。
-  规避：新装 lint 类钩子后，先用一条正常消息 + 一条违规消息双测再投入使用；「实测可用」的注释要能复现。
-
 - **[工具链][K-002] bash heredoc 定界符未加引号 + JSON 内写注释 = 双重坑**（来源 WXG-T-021 / 修复 `tools/scripts/setup-branch-protection.sh`，2026-09-12）
   现象：分支保护脚本报 `review: command not found` 且 `gh api` 返回 HTTP 400（Problems parsing JSON）。
   根因：① `<<JSON` 定界符**未加引号** → heredoc 正文里的反引号 `` `review` `` 被当命令替换执行；② JSON 规范不支持注释，说明文字写进了 payload 体内。
@@ -54,12 +49,6 @@
   根因：契约的两条分支在自测环境里只跑到了宽松那条。
   规避：此类断言必须在**真库 + 默认模式**下复核一次，不能只看自测结果；并在文档写明"提交后自动收录"。
 
-- **[工具链][K-031] 多产物生成器新增产物时，必须同任务登记 pre-commit 的 `git add` 清单**（来源 WXG-T-036 / 修复 `.githooks/pre-commit`，2026-09-13）
-  现象：`ctx:build` 新增第二产物 `ctx/hot-files.md`（协议第二跳，WXG-T-036 q-1），但 pre-commit 仍只 `git add ctx/index.json ctx/BUDGET.md` → 该文件**永不入库**：CI 干净检出无此文件、`ctx/ROUTES.md §0` 第二跳指向空、A 项预算表缺行，且每次提交都被重建却始终停留在工作区。
-  根因：pre-commit 的暂存清单是**硬编码枚举**，与生成器实际落盘产物之间**无任何联动校验**；漏 add 完全静默（无报错、无告警、本地 `ctx:check` 因工作树存在该文件而**假绿**），只在另一台机器 / CI 才暴露。
-  规避：① 生成器每新增一个落盘产物，**必须在本任务内**同步改 `.githooks/pre-commit` 的 `git add` 行，并跑一次真实提交验证入库；② `ctx:check` FAILED 段的修复提示文案同样枚举产物（`check-context-budget.mjs` 三处），须一并更新；③ 根治形态 = 产物清单常量化（单一真源）+ 门禁断言「生成器产出集 == 暂存清单」，当前以人工纪律替代。
-  同类：与 `ctx/reads-ledger.jsonl` 的 commit 清单、记忆层「固定 tag + `compose pull` = 永不更新」同属**枚举清单漏项 → 静默失效**族，判据是「清单是人写的枚举，且没有断言会因漏项而红」。
-
 - **[工具链][K-032]「逃生阀」两侧都支持时，文档必须写成**成对命令**，否则用户困在错误恢复路径**（来源 WXG-T-036 复验 / 修 `check-context-budget.mjs` 提示与 `ctx/ROUTES.md ⑨`，2026-09-13）
   现象：`--working-tree` 在 ROUTES ⑨ 被写成「生成器与门禁**均支持**」，读者理解为「任选其一」；实际只切校验侧时 C 项对**全部 10 个 dirty 文件**报「索引过期」，且同一段 FAILED 提示让人去跑**默认** `ctx:build` —— 跑多少次都不消除（默认索引描述 HEAD，与工作树校验语义必然不符）。
   根因：`--working-tree` 是**模式开关**而非独立功能，索引端与校验端**必须同模式**才有意义；「均支持」这类并列措辞丢掉了「成对」这一必要条件。索引里也未记录构建模式（无 `mode` 字段），事后无法自证。
@@ -82,13 +71,6 @@
   根因：装载函数内部才做「rm -rf 暂存 dir + 重拷编译产物」，而它写在 `await import(...)` **之后**；ESM 命名空间在 import 那一刻已固定，拿到的是**上一轮旧暂存 dir**；“产物↔源码 mtime 自证”只覆盖 dist↔src，**不覆盖装载顺序**。
   规避：① 脚本内先把 harness/暂存装起再 import 被测模块；② 每轮新增依赖时加一道「新符号不在内存就硬抛」防呆（只探存在性，不判数值）；③ 假 FAIL 的第一手排查应是“内存模块 vs 磁盘产物 版本差”，而非先改被测代码。
   判例引用：`production/qa/beads/g4-probe-v1.1.mjs` 修订 40③(a)（`loadHarness` 前置 + 硬抛防呆）；同族 K-036（门禁可信度）。
-
-- **[工具链][K-048] 装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛**（来源 WXG-T-112 / BD-38，改 `tools/scripts/lib/context-index.mjs::WORKTREE_AUTHORITATIVE` + `check-context-budget.mjs` 新增装置自指对账门，2026-09-15）
-  现象：pre-commit 的 ctx 段是「`ctx:build --staged-blobs` → `git add` 四个产物 → `ctx:check --staged` 兜底」。只要提交会让 `memory/INDEX.md` 换字节（改日记即触发），**第一遍必报**「暂存内容与刚重建的索引仍不一致 — memory/INDEX.md」，原样再提交一次才绿。
-  根因：`memory/INDEX.md` 与 `ctx/BUDGET.md` / `ctx/hot-files.md` 同为 `ctx:build` 自己的产物，但只有后两个列进了 `WORKTREE_AUTHORITATIVE`。未登记的那个在 build 期间被本进程改写成新字节，而 `buildIndex()` 对它取源仍走 committed / staged-blobs 分支（dirty → HEAD blob、已暂存 → 暂存 blob）⇒ 索引记**上一轮字节**；钩子随后 `git add` 把**新字节**送进暂存区 ⇒ 终校验必红。取证一眼可辨：`ctx/index.json` 里该文件的 sha 等于 `git show HEAD:<path>`，却不等于暂存 / 工作树的 sha。
-  规避：① 新增 `ctx:build` 写盘的 .md 时，**同时**登记进 `WORKTREE_AUTHORITATIVE` 与钩子的 `git add` 清单，两处缺一不可；② 别指望「先写产物、后建索引」的顺序调整能修好（WXG-T-072 当时只做了这件事，实测仍需两遍）——决定项是**取源分支**，不是写入顺序；③ 也别归因成「作者手跑了 `ctx:build` 才脏」：隔离 worktree 实测三种起手（只暂存自有 .md / 手跑 build 并 add 产物 / 手跑 build 不 add 产物）**第一遍全红**，最规范的用法一样中招；④ 把不变式机械化——`ctx:check` 的「装置自指对账」`C:` 级项断言生成物集合 ⊆ 工作树权威集合，漏登记当场报红并直接给出修法位置，而不是留给下一个提交的人去撞。
-  判据推广：生成器注释里任何「我这一步写完就与磁盘同源了」的断言，都必须有**跨模式**（committed / staged-blobs / working-tree）的取源断言背书，否则它就是下一个 BD-38；自测里要配一条**同流程的红灯**（删掉登记 ⇒ 必须变红），否则绿灯只是巧合。
-  判例引用：BD-38（本条即其关单结论）；同族判例 = `ctx/BUDGET.md` 的 Top-20 自指导致两遍才达不动点（`build-context-index.mjs` 收敛循环注释）。
 
 - **[工具链][K-049] 自测夹具必须由被测生成器播种、依赖按整目录拷贝，否则门禁一扩就整片假红**（来源 WXG-T-121 / BD-39，改 `tools/scripts/context-usage-selftest.sh`，2026-09-16）
   现象：`context-usage-selftest.sh` 在 `3fa3be4`（改动前）与 `e9664da`（改动后）两个点上都测出 **FAIL=63**（组 [6]~[11] 整片红），而它既不在 `verify` 步骤表也不在 CI ⇒ 红了很久无人知晓；BD-39 记的「`kb:selftest` 首跑即 4 FAIL」是同族第二例 ⇒ 判定为**存量腐烂**，不是本轮引入。
