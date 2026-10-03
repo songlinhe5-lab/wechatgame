@@ -506,19 +506,20 @@ describe('托盘保持中性底（WXG-T-237 v6.0）', () => {
 // 静息时珠正好盖住坑，看不出来；但**选中时珠抬起 `TRAY_SELECTED_LIFT_PX`** ⇒ 坑底位置
 // 暴露成一片空白 ⇒ 读作「珠悬在半空」。
 //
-// 修法：**选中态在珠之前补画槽**（口径与空槽路径逐字同源）。
+// 修法：**有珠的槽一律在珠之前补画槽**（口径与空槽路径逐字同源）——
+//   首版只补「选中态」，用户续报「**非抬起状态**也没有槽绘制」⇒ 范围扩到**所有有珠的槽**。
 // ⛔ 层序是本质：画在 `drawFilledBead` **之后**会被珠面完全盖住 = 等于没画。
 describe('托盘选中态画坑（WXG-T-240）', () => {
-    it('选中后槽区域必须有图元（未选中时被珠盖住是正常的，选中抬起后不得为空白）', () => {
+    it('有珠的槽在**静息与选中两态**都不得为空白（WXG-T-240 两轮：① 选中空槽 · ② 静息也画）', () => {
         const h = mkHarness('wxgame.beads.test.t240-tray-slot');
         h.game.giveTrayBead(1);
         const lay = trayLayout(1);
+        // ① 静息（未选中）：珠面 26 / 格面 30 ⇒ 本该露出 4dp 坑沿
         const before = traySlotArtCount(renderSnap(h.game.snapshot), lay, 0);
+        expect(before, '⛔ 静息态槽区不得为空白（否则珠读作浮在面板上）').toBeGreaterThan(0);
+        // ② 选中（珠抬起）：坑位暴露，仍须有图元
         h.game.selectTraySlot(0);
         const after = traySlotArtCount(renderSnap(h.game.snapshot), lay, 0);
-        // ⛔ 核心断言：选中后槽区域**必须有图元**（旧实现此处为 0 ⇒ 读作悬空）
-        expect(after, '选中后槽区域不得为空白').toBeGreaterThan(0);
-        // 选中后图元数**增加**（补画的槽在珠之下 ⇒ 计数变多；旧实现两者相等）
-        expect(after, '选中应比未选中多出槽的图元').toBeGreaterThan(before);
+        expect(after, '⛔ 选中态槽区不得为空白（否则读作悬空）').toBeGreaterThan(0);
     });
 });

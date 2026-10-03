@@ -1259,13 +1259,14 @@ function drawTray(
     // `BEAD_DRAW_INSET` / 同 `maskGauge` / 同 `styleId` / 同 `trayZone`）⇒ 不引入第二套坑绘制。
     // ⛔ **必须画在 `drawFilledBead` 之前**：画在之后会被珠面完全盖住 = 等于没画
     //   （同 WXG-T-236 盘面「抬起格也画坑底」的层序结论）。
-    // 效果与盘面抬起格同观感：珠从坑里抬起，而非悬在半空。
-    if (selected) {
+    // [WXG-T-240 第二轮 · 2026-10-04 用户续报「托盘上珠子**非抬起状态**，没有槽绘制」]
+    // ⇒ 范围由「仅选中态」扩到「**所有有珠的槽**」：静息时珠面 26 / 格面 30 本该露出 **4dp 坑沿**，
+    //   此前不画槽 ⇒ 珠四周什么都没有（读作浮在面板上）；现在静息也见坑沿（珠「坐进」坑里），
+    //   抬起时珠从坑里升起 ⇒ 两种状态语言一致。
       drawEmptySocket(
         builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
         { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
       );
-    }
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
       // [WXG-T-237 v4.0 · 1:1] `outer` = `TRAY_SLOT`(=`BEAD_CELL` 30)，内缩走 `BEAD_DRAW_INSET`
       // ⇒ 珠面 **26** = 盘面珠面（1:1）。⛔ 旧值 `TRAY_BEAD_SIZE 44` 属已废的托盘独立体系。

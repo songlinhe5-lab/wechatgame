@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "27ac3c1e35f1e98271568d2d5053a728f55d89ff0c72dda52192c6e87e524cea",
+      "sha256": "02a1c2ddf669fd8ca16bff14a4d45e2cc68f1eceffce7d0f443e57440e57551f",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5117,
       "lines": 86,
-      "sha256": "17e5bebc2c61259164f4a733d12cb9aec893c952786fcd2124f9f87ba8c4a772",
+      "sha256": "d3a425c65135ae262b1dfde7d3c105b90bfdd1da67adeab0daa1b52522d57f45",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 78 行 / 20546 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 78 行 / 20721 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 2219 行 / 79022 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 2237 行 / 79346 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 1046,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2220 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2238 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 5864,
-      "lines": 197,
-      "sha256": "2970ebcc12e37fecfce9f5a936be957d7e3248a69fdbd345b4958ff1525df853",
+      "tokens": 6259,
+      "lines": 211,
+      "sha256": "0edde438727101a022c5c9927e46e9d9aee1c394a8be1be16ee6bef8c0c65c98",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 198,
-          "tokens": 5860,
+          "endLine": 212,
+          "tokens": 6256,
           "summary": "",
           "keywords": []
         },
@@ -50295,6 +50295,22 @@
             "第三项",
             "蓝点裁撤"
           ]
+        },
+        {
+          "anchor": "§WXG-T-240 第三项：托盘静息态也画槽（用户续报「非抬起状态没有槽绘制」）",
+          "level": 3,
+          "startLine": 199,
+          "endLine": 212,
+          "tokens": 362,
+          "summary": "根因：T-240 ① 我只在选中态补画槽（if (selected)）⇒ 用户续报静息态也没画。",
+          "keywords": [
+            "WXG",
+            "selected",
+            "第三项",
+            "托盘静息态也",
+            "画槽",
+            "用户续报"
+          ]
         }
       ]
     },
@@ -50302,7 +50318,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "5a5adaa47932aa7eda6ca4392bf82cb46f4fbbc17d84ea30f4deae6b6d1461af",
+      "sha256": "05fcf0839b4a28ac7f449e791f472f173d3f15289ad103afcc6d65cb4d8f7f26",
       "tier": "normal",
       "sections": [
         {
@@ -50393,7 +50409,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 5,864 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 6,259 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70412,17 +70428,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 79022,
-      "lines": 2219,
-      "sha256": "57645b37d2b9869d8c83c34aae7930a723cb726d315084e03362f83c2db5f020",
+      "tokens": 79346,
+      "lines": 2237,
+      "sha256": "a9378a94f7f28d0f2191267dca63987f3ba3c45da3b1220234f84afabe88fccc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 2220,
-          "tokens": 79005,
+          "endLine": 2238,
+          "tokens": 79329,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -72061,8 +72077,8 @@
           "anchor": "§WXG-T-240",
           "level": 2,
           "startLine": 2123,
-          "endLine": 2220,
-          "tokens": 1654,
+          "endLine": 2238,
+          "tokens": 1977,
           "summary": "beads·托盘选中态补画槽 — 2026-10-04 用户三项反馈之一（另两项见 §三）。",
           "keywords": [
             "WXG",
@@ -72086,10 +72102,24 @@
           ]
         },
         {
-          "anchor": "§② 多了一个蓝点 —— ✅ **已裁撤**（同日追加，用户裁「蓝点 去掉」）",
+          "anchor": "§①-补 托盘静息态也画槽（✅ 已落，同日第三项裁定）",
           "level": 3,
           "startLine": 2142,
-          "endLine": 2168,
+          "endLine": 2159,
+          "tokens": 300,
+          "summary": "用户续报：「托盘上珠子非抬起状态，没有槽绘制」。",
+          "keywords": [
+            "托盘静息态也",
+            "画槽",
+            "已落",
+            "同日第三项裁"
+          ]
+        },
+        {
+          "anchor": "§② 多了一个蓝点 —— ✅ **已裁撤**（同日追加，用户裁「蓝点 去掉」）",
+          "level": 3,
+          "startLine": 2160,
+          "endLine": 2186,
           "tokens": 484,
           "summary": "裁撤对象：原 F6 托盘选中点",
           "keywords": [
@@ -72104,8 +72134,8 @@
         {
           "anchor": "§③ 再点击取消 —— ✅ **已按用户裁定去掉 toggle**（同日追加）",
           "level": 3,
-          "startLine": 2169,
-          "endLine": 2216,
+          "startLine": 2187,
+          "endLine": 2234,
           "tokens": 786,
           "summary": "⚠ 我曾把该句读成「报 bug」，实为「提要求」 —— 用户要的是「选中后不该能取消」。",
           "keywords": [
@@ -72120,8 +72150,8 @@
         {
           "anchor": "§读数 (2)",
           "level": 3,
-          "startLine": 2217,
-          "endLine": 2220,
+          "startLine": 2235,
+          "endLine": 2238,
           "tokens": 22,
           "summary": "beads 777 绿 + 1 skipped · check:tasks 29/29 · verify PASS 19",
           "keywords": [
@@ -72137,9 +72167,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 20546,
+      "tokens": 20721,
       "lines": 78,
-      "sha256": "475ad8dae49258f2dd5b4dca970180276a2b83dcb2447750dc3a93d7bf7bb4a7",
+      "sha256": "3501e6d99130625e183a950996bfeeaee0711f8a50c5ea8af699a38c7f1e2028",
       "tier": "hot",
       "sections": [
         {
@@ -72147,7 +72177,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 79,
-          "tokens": 20537,
+          "tokens": 20712,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
