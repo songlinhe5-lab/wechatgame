@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "e50e54b22fea13248699ee1aaf066eaf1f192a95ff09fd4afd24bdb9758d80e0",
+      "sha256": "ae0a46351b96f83a3049ae513c4648998a2fe116f8823efefd35aaa543cc36f6",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5009,
       "lines": 94,
-      "sha256": "9d1cf341bd6447bbf5701ff296784e05727b39d7be65443da2bd48f139b4d13b",
+      "sha256": "8168b699ad9462dff99740d3a6a56770d09301e0e8209cbcca4af9790c132a02",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 17366 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 17268 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1623 行 / 67282 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1695 行 / 68748 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 676,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1624 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1696 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13875,9 +13875,9 @@
     },
     {
       "path": "games/beads/art/tint-mask-asset-spec.md",
-      "tokens": 9733,
+      "tokens": 9707,
       "lines": 354,
-      "sha256": "9ff87e3dad0e2ef317b3fc8d8a2c602670e0e66d2cc78d2c06bb0c750f5f1c69",
+      "sha256": "0d548f2c17f61d0ff2559c33c62c45961867e16b248ad02e1641e2a3f09993d8",
       "tier": "normal",
       "sections": [
         {
@@ -13885,7 +13885,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 355,
-          "tokens": 9714,
+          "tokens": 9688,
           "summary": "任务号：WXG-T-227（P1）· 执笔：林绘澄（art-director）· 日期：2026-09-29",
           "keywords": [
             "assets-spec",
@@ -13937,7 +13937,7 @@
           "level": 2,
           "startLine": 51,
           "endLine": 104,
-          "tokens": 1599,
+          "tokens": 1573,
           "summary": "",
           "keywords": [
             "资产清单与命",
@@ -13949,7 +13949,7 @@
           "level": 3,
           "startLine": 53,
           "endLine": 73,
-          "tokens": 693,
+          "tokens": 667,
           "summary": "1 bead × holed × mask bead_holed_128_mask.png 8 750 主力件（首帧必需",
           "keywords": [
             "kind",
@@ -14358,192 +14358,209 @@
     },
     {
       "path": "games/beads/art/tray-neutral-slot-mask-spec.md",
-      "tokens": 4156,
-      "lines": 168,
-      "sha256": "76928da7b15f1ab66fb66ebe6402fda5545e1dad5722c1a61fbd245d1751e059",
+      "tokens": 3311,
+      "lines": 159,
+      "sha256": "7be7ffc6a82729a79f9ca73204a74a17bb1213b453a5e96afe8fc1d140511786",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§托盘（中性槽 + 珠）专属 mask · 美术定标单",
+          "anchor": "§托盘复用盘面 mask + 缩放 · 美术定标单",
           "level": 1,
           "startLine": 1,
-          "endLine": 169,
-          "tokens": 4137,
-          "summary": "正本 = 本文件（WXG-T-237 美术侧裁定单，2026-10-03 立）。",
+          "endLine": 160,
+          "tokens": 3295,
+          "summary": "正本 = 本文件（WXG-T-237，v2.0 · 范围坍缩版，2026-10-03）。",
           "keywords": [
             "mask",
             "WXG",
-            "托盘",
-            "中性槽",
-            "专属",
+            "托盘复用盘面",
+            "缩放",
             "美术定标单"
           ]
         },
         {
-          "anchor": "§0 一句话背景",
+          "anchor": "§0 裁定（2026-10-03，用户原话逐字）",
           "level": 2,
-          "startLine": 12,
-          "endLine": 24,
-          "tokens": 249,
-          "summary": "托盘空槽当前由矢量算法固定死：drawEmptySocket 的矢量臂恒画「4 层同心圆角内阴影 + S3/S4 两线」",
+          "startLine": 11,
+          "endLine": 36,
+          "tokens": 512,
+          "summary": "「托盘完全随 mask 和格面绘制，并在绘制基础上缩放成合适比例的托盘。",
           "keywords": [
             "§0",
-            "drawEmptySocket",
-            "一句话背景"
+            "mask",
+            "裁定",
+            "用户原话逐字"
           ]
         },
         {
-          "anchor": "§1 工程侧已定的事实（美术只需知约束，不必重推）",
-          "level": 2,
+          "anchor": "§0.1 ⭐ 范围坍缩：8 道题作废、0 张新资产",
+          "level": 3,
           "startLine": 25,
-          "endLine": 96,
-          "tokens": 1118,
+          "endLine": 36,
+          "tokens": 200,
+          "summary": "Q1 新 kind trayCell · Q2 画布 · Q3 命名 · Q4 槽底明度 · Q5 坑口圆角 · Q6 ",
+          "keywords": [
+            "kind",
+            "trayCell",
+            "范围坍缩",
+            "道题作废",
+            "张新资产"
+          ]
+        },
+        {
+          "anchor": "§1 工程侧已定的事实",
+          "level": 2,
+          "startLine": 37,
+          "endLine": 78,
+          "tokens": 564,
           "summary": "",
           "keywords": [
             "§1",
             "工程侧已定的",
-            "事实",
-            "美术只需知约",
-            "不必重推"
+            "事实"
           ]
         },
         {
-          "anchor": "§1.1 托盘几何（冻结值）",
-          "level": 3,
-          "startLine": 27,
-          "endLine": 38,
-          "tokens": 151,
-          "summary": "托盘列数 TRAY_COLS = 12",
-          "keywords": [
-            "TRAY_COLS",
-            "托盘几何",
-            "冻结值"
-          ]
-        },
-        {
-          "anchor": "§1.2 交付面 = **2 张**（槽 1 + 珠 1），各自的**归属与风格语义不同** ⭐",
+          "anchor": "§1.1 盘面 mask 的画布比例（R-2 的换算依据）",
           "level": 3,
           "startLine": 39,
-          "endLine": 61,
-          "tokens": 276,
-          "summary": "托盘槽三态 ⇒ mask 只覆盖空槽：",
+          "endLine": 47,
+          "tokens": 74,
+          "summary": "画布 30dp（= 格径） 1",
           "keywords": [
             "mask",
-            "交付面",
-            "各自的",
-            "归属与风格语",
-            "义不同"
+            "盘面",
+            "的画布比例",
+            "的换算依据"
           ]
         },
         {
-          "anchor": "§2.3 ⭐ 两侧的**风格语义相反**（本单最易漏的一条）",
+          "anchor": "§1.2 托盘现状（`drawEmptySocket` 矢量臂 + `neutralEndpoints`）",
           "level": 3,
-          "startLine": 62,
-          "endLine": 73,
-          "tokens": 231,
-          "summary": "托盘槽 中性 · 全局一张 · 不受风格白名单管辖 不变 不变 ⇒ 必须保持",
+          "startLine": 48,
+          "endLine": 57,
+          "tokens": 154,
+          "summary": "托盘画布 TRAY_SLOT = 48 config/tuning.ts",
           "keywords": [
-            "两侧的",
-            "风格语义相反",
-            "本单最易漏的",
-            "一条"
+            "drawEmptySocket",
+            "neutralEndpoints",
+            "TRAY_SLOT",
+            "config",
+            "tuning",
+            "托盘现状"
           ]
         },
         {
-          "anchor": "§1.3 与现有 mask 体系的关系",
+          "anchor": "§1.3 ⭐ 按 R-1/R-2 换算后的几何（**两处冻结值会变**）",
           "level": 3,
-          "startLine": 74,
-          "endLine": 79,
-          "tokens": 88,
-          "summary": "现有体系 = kind × gauge 两轴：kind ∈ {bead,cell} · gauge ∈ {holed,h",
+          "startLine": 58,
+          "endLine": 71,
+          "tokens": 160,
+          "summary": "缩放系数 k = 48 / 30 = 1.6：",
           "keywords": [
-            "mask",
-            "kind",
-            "gauge",
-            "bead",
-            "cell",
-            "holed"
+            "换算后的几何",
+            "两处冻结值会"
           ]
         },
         {
-          "anchor": "§1.4 尺寸与预算约束",
+          "anchor": "§1.4 缩放机制**已具备**，无需新代码机制",
           "level": 3,
-          "startLine": 80,
-          "endLine": 89,
-          "tokens": 202,
-          "summary": "烘焙 canonical MASK_CANONICAL_SIZE = 128（现有四件套画布 = 格径 30dp）",
+          "startLine": 72,
+          "endLine": 78,
+          "tokens": 96,
+          "summary": "builder.blit(maskId, x, y, size, size, …) 本就按 size 缩放 ⇒ R-2 ",
           "keywords": [
-            "canonical",
-            "MASK_CANONICAL_SIZE",
-            "尺寸与预算约"
+            "builder",
+            "blit",
+            "maskId",
+            "size",
+            "缩放机制",
+            "已具备"
           ]
         },
         {
-          "anchor": "§1.5 编码（沿用母体，⛔ 不改）",
-          "level": 3,
-          "startLine": 90,
-          "endLine": 96,
-          "tokens": 71,
-          "summary": "R = d / G = l / B = 形状 / A = 255；合成式 out = base·d + (1−base)",
-          "keywords": [
-            "out",
-            "base",
-            "编码",
-            "沿用母体",
-            "不改"
-          ]
-        },
-        {
-          "anchor": "§2 美术需交付的（本单正本）",
+          "anchor": "§2 需要裁的题（**3 道，全部只涉及口径，⛔ 不涉及视觉**）",
           "level": 2,
-          "startLine": 97,
-          "endLine": 125,
-          "tokens": 1130,
-          "summary": "T-1 中性托盘槽视觉样式 图（静态稿 + 坑口/斜面/坑底/受光缘逐层墨档标注） ⬜ 待出",
+          "startLine": 79,
+          "endLine": 114,
+          "tokens": 848,
+          "summary": "",
           "keywords": [
             "§2",
-            "美术需交付的",
-            "本单正本"
+            "需要裁的题",
+            "全部只涉及口",
+            "不涉及视觉"
           ]
         },
         {
-          "anchor": "§2.1 需要美术裁的题（⛔ 工程不代裁）",
+          "anchor": "§Q-A · 缩放基准：保**画布 48dp**（珠缩到 41.6）还是保**珠 44dp**（画布放到 50.8）？",
           "level": 3,
-          "startLine": 110,
-          "endLine": 125,
-          "tokens": 856,
-          "summary": "Q1 新 kind 还是复用 cell？ 甲 · 新增 kind = trayCell（建议） · 乙 复用 cell ",
+          "startLine": 81,
+          "endLine": 91,
+          "tokens": 282,
+          "summary": "甲（建议） 画布 = TRAY_SLOT 48 不变，珠随盘面比例缩到 41.6dp 零冻结值改动 托盘每行 12 格的",
           "keywords": [
-            "kind",
-            "cell",
-            "trayCell",
-            "需要美术裁的",
-            "工程不代裁"
+            "TRAY_SLOT",
+            "缩放基准",
+            "画布",
+            "珠缩到",
+            "还是保",
+            "画布放到"
           ]
         },
         {
-          "anchor": "§3 工程侧承诺（美术交卷后）",
+          "anchor": "§Q-B · ⭐「格面颜色与托盘底色一致」= **同一算法**还是**同一像素值**？",
+          "level": 3,
+          "startLine": 92,
+          "endLine": 102,
+          "tokens": 287,
+          "summary": "这是本单最大的分叉，两种读法后果完全不同：",
+          "keywords": [
+            "格面颜色与托",
+            "盘底色一致",
+            "同一算法",
+            "还是",
+            "同一像素值"
+          ]
+        },
+        {
+          "anchor": "§Q-C · 若 Q-B 选甲：托盘**面板底色**要不要一起改？",
+          "level": 3,
+          "startLine": 103,
+          "endLine": 114,
+          "tokens": 192,
+          "summary": "现状托盘面板有自己的底色（TRAY_PLATE「微拱白瓷」三段内阴影）。",
+          "keywords": [
+            "TRAY_PLATE",
+            "选甲",
+            "托盘",
+            "面板底色",
+            "要不要一起改"
+          ]
+        },
+        {
+          "anchor": "§3 工程侧承诺（裁完 3 题即落码）",
           "level": 2,
-          "startLine": 126,
-          "endLine": 136,
-          "tokens": 268,
-          "summary": "1. 新增 kind = trayCell + 单档 mask（Q1 甲）⇒ MASK_ID_TABLE 加一层。",
+          "startLine": 115,
+          "endLine": 128,
+          "tokens": 282,
+          "summary": "1. 托盘两个调用点补参：槽与珠各补 { maskGauge: 'holed', styleId: snap.beadS",
           "keywords": [
             "§3",
-            "kind",
-            "trayCell",
-            "mask",
-            "MASK_ID_TABLE",
-            "工程侧承诺"
+            "maskGauge",
+            "holed",
+            "styleId",
+            "snap",
+            "beadS"
           ]
         },
         {
           "anchor": "§4 验收判据",
           "level": 2,
-          "startLine": 137,
-          "endLine": 156,
-          "tokens": 460,
-          "summary": "A-1 命中时托盘空槽 = 恰好 1 条 blit、⛔ 0 条矢量内阴影 rect 单测（命令流） 工程",
+          "startLine": 129,
+          "endLine": 148,
+          "tokens": 457,
+          "summary": "A-1 托盘槽命中时 = 恰好 1 条 blit、⛔ 0 条矢量内阴影 rect 单测（命令流） 工程",
           "keywords": [
             "§4",
             "blit",
@@ -14554,14 +14571,14 @@
         {
           "anchor": "§5 边界与风险（如实登记）",
           "level": 2,
-          "startLine": 157,
-          "endLine": 169,
-          "tokens": 577,
-          "summary": "B-1 放宽 colorIdx !== undefined 门是结构性改动 该门隐含假设「盘面格才有目标色才能按目标色合",
+          "startLine": 149,
+          "endLine": 160,
+          "tokens": 374,
+          "summary": "B-1 放宽 colorIdx 门是唯一结构性改动 该门隐含假设「盘面格才有目标色才能按目标色合成 mask」；须配 A",
           "keywords": [
             "§5",
             "colorIdx",
-            "undefined",
+            "mask",
             "边界与风险",
             "如实登记"
           ]
@@ -49371,17 +49388,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 15800,
-      "lines": 480,
-      "sha256": "64f79cf0aa53a3b31e784e5bc79a39eb71696edfd9488a94cd29fd63853db526",
+      "tokens": 16411,
+      "lines": 500,
+      "sha256": "36306a23fabd1c523a42b774990696b9f8216460df3a6fe4d543d002d3aad4ad",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 481,
-          "tokens": 15797,
+          "endLine": 501,
+          "tokens": 16408,
           "summary": "",
           "keywords": []
         },
@@ -49389,8 +49406,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 481,
-          "tokens": 15764,
+          "endLine": 501,
+          "tokens": 16376,
           "summary": "",
           "keywords": [
             "WXG",
@@ -49869,6 +49886,22 @@
             "maskGauge",
             "范围扩括"
           ]
+        },
+        {
+          "anchor": "§WXG-T-237 v2.0：用户裁定「托盘完全随盘面 mask + 缩放」⇒ 范围坍缩",
+          "level": 3,
+          "startLine": 482,
+          "endLine": 501,
+          "tokens": 584,
+          "summary": "裁定（原文逐字）：「托盘完全随 mask 和格面绘制，并在绘制基础上缩放成合适比例的托盘。",
+          "keywords": [
+            "WXG",
+            "mask",
+            "用户裁定",
+            "托盘完全随盘",
+            "缩放",
+            "范围坍缩"
+          ]
         }
       ]
     },
@@ -49876,7 +49909,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "d0c253a05462e4d071b052c76516b5bb9d49405900cc344c8fb307d90bbc1202",
+      "sha256": "bf8291f67d597e6a2648c2c6c688a5fcb42115ece3ef1e22ef23b6b44c1c4df7",
       "tier": "normal",
       "sections": [
         {
@@ -49967,7 +50000,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 15,800 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 16,411 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69972,17 +70005,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 67282,
-      "lines": 1623,
-      "sha256": "e1425e60e55ef95060c9328d516a9cc93f3c681802a6cf3a7e97d5cd960deeb4",
+      "tokens": 68748,
+      "lines": 1695,
+      "sha256": "2682a853f915c7319f5cb7f45741e5181906c033c43539647fd69c6c9ed6b88e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1624,
-          "tokens": 67265,
+          "endLine": 1696,
+          "tokens": 68731,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71236,8 +71269,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1624,
-          "tokens": 2196,
+          "endLine": 1696,
+          "tokens": 3662,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71348,14 +71381,30 @@
             "同轮用户裁",
             "托盘珠也纳入"
           ]
+        },
+        {
+          "anchor": "§v2.0 范围坍缩：用户裁定「托盘完全随盘面 mask + 缩放」（本节为当前状态）",
+          "level": 3,
+          "startLine": 1625,
+          "endLine": 1696,
+          "tokens": 1433,
+          "summary": "用户裁定原文（逐字）：",
+          "keywords": [
+            "mask",
+            "范围坍缩",
+            "用户裁定",
+            "托盘完全随盘",
+            "缩放",
+            "本节为当前状"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 17366,
+      "tokens": 17268,
       "lines": 76,
-      "sha256": "5ea90a4eea7a06bb5a1e2ee4de378ad9b0e80e094c9b976a82e30fff5ce62868",
+      "sha256": "6ed2ca47bb027cb1467876b884b31e9b554babe96786f66f1bb8f037a6f8838a",
       "tier": "hot",
       "sections": [
         {
@@ -71363,7 +71412,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 17357,
+          "tokens": 17259,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
