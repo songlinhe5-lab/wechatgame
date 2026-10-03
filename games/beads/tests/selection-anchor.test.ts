@@ -21,10 +21,21 @@ import {
 } from '../src/config/tuning.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS, endpointOf } from '../src/view/palette.js';
+import { RenderModelBuilder, type DrawCommand } from '../../../packages/framework/src/core/render/render-model.js';
+import { buildBeadsView } from '../src/view/view-model.js';
+import type { BeadsSnapshot } from '../src/game/state.js';
 
 // ────────────────────────────────────────────────────────── 局面装配助手
 
 /** 6×5 全可填板（simpleTestLevel 图案）。 */
+function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
+  const builder = new RenderModelBuilder(750, 1334);
+  builder.begin();
+  buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+  return builder.end().commands;
+}
+
 function mkHarness(saveKey: string): Harness {
   return createBeadsHarness({
     noAssemble: true, levels: [simpleTestLevel()], saveKey
@@ -436,4 +447,48 @@ describe('E2 · 轻提示迁移与锚生命周期', () => {
     expect(h.emitted.length).toBe(before);
     expect(game.selection).toBe('none');
   });
+});
+
+
+// ── [WXG-T-237 v5.0 · 用户裁定「托盘底色与格底色保持一致」] ──────────────────
+//
+// 三条不变式：
+//  ① 托盘**面板底** = `endpointOf(inks, snap.mainColorIdx).edge` —— 与盘面格底
+//     **同一算法同一档**（`mix(主色, −0.30)`），实测逐位同值。
+//  ② `mainColorIdx` = 可填格目标色的**众数**（`cells[0]` 是背景格，首版预览取错 ⇒
+//     panel 落 #24242B 比格底暗 60 lum —— 预览误导实录）。
+//  ③ `mainColorIdx 0`（全盘无可填格）⇒ 面板回退 `palette.panel`（⛔ 中性兜底，不猜色）。
+describe('托盘底 = 格底（WXG-T-237 v5.0）', () => {
+    it('① 面板底 = 主色 edge（同一算法同一档）· ② 主色 = 众数', () => {
+        const h = mkHarness('wxgame.beads.test.tray-base-v50');
+        const snap = h.game.snapshot;
+        expect(snap.mainColorIdx, '主色 > 0（测试关卡有可填格）').toBeGreaterThan(0);
+        // 众数：可填格里出现最多的 colorIdx
+        const tally = new Map<number, number>();
+        for (const c of snap.cells) {
+            if (c.colorIdx > 0) tally.set(c.colorIdx, (tally.get(c.colorIdx) ?? 0) + 1);
+        }
+        let best = 0; let mode = 0;
+        for (const [k, v] of tally) if (v > best) { best = v; mode = k; }
+        expect(snap.mainColorIdx).toBe(mode);
+        // 面板 rect（托盘带内最大圆角 rect）fill = edge
+        const cmds = renderSnap(snap);
+        const edge = endpointOf(DEMO_BEAD_INKS, snap.mainColorIdx).edge;
+        const panel = cmds.filter(
+            (c) => c.kind === 'rect' && (c as { radius: number }).radius === 18,
+        ) as { fill?: string }[];
+        expect(panel.length, '托盘面板 rect 在场').toBeGreaterThan(0);
+        expect(panel.every((c) => c.fill === edge), '面板底 ≡ 主色 edge').toBe(true);
+    });
+
+    it('③ mainColorIdx 0 ⇒ 面板回退 palette.panel（中性兜底）', () => {
+        const h = mkHarness('wxgame.beads.test.tray-base-v50-zero');
+        const snap = { ...h.game.snapshot, mainColorIdx: 0 };
+        const cmds = renderSnap(snap);
+        const panel = cmds.filter(
+            (c) => c.kind === 'rect' && (c as { radius: number }).radius === 18,
+        ) as { fill?: string }[];
+        expect(panel.length).toBeGreaterThan(0);
+        expect(panel.every((c) => c.fill === DEFAULT_PALETTE.panel), '回退中性').toBe(true);
+    });
 });

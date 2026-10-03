@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "2081d04f04381f41834d43a2be80680d2d4e908bb58f25119e287b803174022c",
+      "sha256": "9b49ef281c006af1e2641db17f440ff574a072cec243646a262f05564869afaa",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5009,
       "lines": 94,
-      "sha256": "e307e510e1a4f0b315446c608b677f87fe758c3cc3ce100c804efe1f36d83b33",
+      "sha256": "76f16bd124bf233ef3cb61b9b2f232828313d8210f4350bdec86f912a6cd319a",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 17671 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 18118 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1786 行 / 70634 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1826 行 / 71608 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 676,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1787 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1827 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -50051,18 +50051,52 @@
       ]
     },
     {
+      "path": "memory/2026-10-04.md",
+      "tokens": 653,
+      "lines": 22,
+      "sha256": "b1619edf210616983766b1023ea7fd853ffc309d0713c3707cb200bd0b1bdec1",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§2026-10-04",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 23,
+          "tokens": 650,
+          "summary": "",
+          "keywords": []
+        },
+        {
+          "anchor": "§WXG-T-237 v5.0：托盘底 = 格底已落码（用户裁「托盘底色与格底色保持一致」）",
+          "level": 3,
+          "startLine": 3,
+          "endLine": 23,
+          "tokens": 616,
+          "summary": "四处落码：① BeadsSnapshot.mainColorIdx（关卡主色 = 可填格目标色众数，随 cells 同循",
+          "keywords": [
+            "WXG",
+            "BeadsSnapshot",
+            "mainColorIdx",
+            "cells",
+            "托盘底",
+            "格底已落码"
+          ]
+        }
+      ]
+    },
+    {
       "path": "memory/INDEX.md",
-      "tokens": 9947,
-      "lines": 245,
-      "sha256": "d40438dab7b2688d6c9d3df9419875d2183c5f4ee7ab39878f2b791aa2d5a006",
+      "tokens": 10009,
+      "lines": 250,
+      "sha256": "e2b7d83395850729e1d4467f7fb497bf7c3fde49b5ad61b31da608bc70d9b6f1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 246,
-          "tokens": 9925,
+          "endLine": 251,
+          "tokens": 9987,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -50132,8 +50166,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 246,
-          "tokens": 8286,
+          "endLine": 251,
+          "tokens": 8348,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -50145,10 +50179,24 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 653 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 78,
+          "endLine": 77,
+          "tokens": 36,
+          "summary": "",
+          "keywords": [
+            "memory/2026-10-04.md",
+            "memory",
+            "tok",
+            "蒸馏到期"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "level": 3,
+          "startLine": 78,
+          "endLine": 83,
           "tokens": 76,
           "summary": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板",
           "keywords": [
@@ -50163,8 +50211,8 @@
         {
           "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 26 天）",
           "level": 3,
-          "startLine": 79,
-          "endLine": 83,
+          "startLine": 84,
+          "endLine": 88,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -50177,8 +50225,8 @@
         {
           "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 25 天）",
           "level": 3,
-          "startLine": 84,
-          "endLine": 98,
+          "startLine": 89,
+          "endLine": 103,
           "tokens": 907,
           "summary": "§WXG-T-221：beads-studio 当前关纹理预烘导出（S3-lite）（Qoder 主理人会话 · 用户三",
           "keywords": [
@@ -50193,8 +50241,8 @@
         {
           "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 24 天）",
           "level": 3,
-          "startLine": 99,
-          "endLine": 106,
+          "startLine": 104,
+          "endLine": 111,
           "tokens": 333,
           "summary": "§WXG-T-217：beads 缩放上下限绝对倍率化 + 低倍点击档（Qoder 主理人会话 · 用户逐项拍板） 3–",
           "keywords": [
@@ -50209,8 +50257,8 @@
         {
           "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 19 天）",
           "level": 3,
-          "startLine": 107,
-          "endLine": 112,
+          "startLine": 112,
+          "endLine": 117,
           "tokens": 118,
           "summary": "§WXG-T-186：beads 组珠消费序改「沿组连通的剥皮序」（Qoder 主理人会话 · 用户四项裁定） 3–15",
           "keywords": [
@@ -50225,8 +50273,8 @@
         {
           "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 14 天）",
           "level": 3,
-          "startLine": 113,
-          "endLine": 129,
+          "startLine": 118,
+          "endLine": 134,
           "tokens": 814,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
@@ -50241,8 +50289,8 @@
         {
           "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 13 天）",
           "level": 3,
-          "startLine": 130,
-          "endLine": 141,
+          "startLine": 135,
+          "endLine": 146,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -50257,8 +50305,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 12 天）",
           "level": 3,
-          "startLine": 142,
-          "endLine": 158,
+          "startLine": 147,
+          "endLine": 163,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -50273,8 +50321,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 11 天）",
           "level": 3,
-          "startLine": 159,
-          "endLine": 186,
+          "startLine": 164,
+          "endLine": 191,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -50289,8 +50337,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 10 天）",
           "level": 3,
-          "startLine": 187,
-          "endLine": 207,
+          "startLine": 192,
+          "endLine": 212,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -50305,8 +50353,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 9 天）",
           "level": 3,
-          "startLine": 208,
-          "endLine": 225,
+          "startLine": 213,
+          "endLine": 230,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -50321,8 +50369,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 8 天）",
           "level": 3,
-          "startLine": 226,
-          "endLine": 246,
+          "startLine": 231,
+          "endLine": 251,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
@@ -70150,17 +70198,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 70634,
-      "lines": 1786,
-      "sha256": "ec7e136a2017f9391a821d57774a53705b0043eaf3adf19efba9fdcc9173c18e",
+      "tokens": 71608,
+      "lines": 1826,
+      "sha256": "eaa56b8ddf92541c0a114f36cce7c8752768c84f374669c8e99d90c6605f5177",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1787,
-          "tokens": 70618,
+          "endLine": 1827,
+          "tokens": 71591,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71414,8 +71462,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1787,
-          "tokens": 5548,
+          "endLine": 1827,
+          "tokens": 6521,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71570,14 +71618,27 @@
             "格面已落码",
             "本节为当前状"
           ]
+        },
+        {
+          "anchor": "§v5.0：托盘底 = 格底已落码（本节为当前状态）",
+          "level": 3,
+          "startLine": 1788,
+          "endLine": 1827,
+          "tokens": 952,
+          "summary": "用户裁定：「托盘底色与格底色保持一致，托盘格子保持紧凑排列」。",
+          "keywords": [
+            "托盘底",
+            "格底已落码",
+            "本节为当前状"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 17671,
+      "tokens": 18118,
       "lines": 76,
-      "sha256": "5a06e9966465ba085c19e29bf6ea21c859b27eb30b5a12e81bc1136a016212f6",
+      "sha256": "16d7ea6cecf6bb9bdf26c97e4ca80eeba1a120ed394d23af0d8153bcce26da1a",
       "tier": "hot",
       "sections": [
         {
@@ -71585,7 +71646,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 17662,
+          "tokens": 18109,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

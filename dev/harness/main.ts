@@ -512,6 +512,7 @@ if (isBeads && new URLSearchParams(harnessQuery).get('lift') === '1') {
   }
 }
 
+
 requestAnimationFrame(frame);
 
 // Expose for console poking during development.
