@@ -22,7 +22,12 @@
   bead-tint-128-base.png   Sprite 占位图（shader 已不读 SpriteFrame 纹理）
   bead-tint-128-mask.png   珠 mask，编码 **R=d / G=l / B=形状**（A=255 满幅 ⇒ 免疫 Trim）
   grid-tint-128-base.png   Sprite 占位图
-  grid-tint-128-mask.png   格 mask（同编码，B=满幅实底）
+  grid-tint-128-mask.png   格 mask（同编码；**[WXG-T-237 v7.0] B=槽口内 255 / 格外 0**）
+  grid-tint-128-base.png   **纯白占位**（A=255，B 通道 100% 实底）—— ⛔ **不参与渲染**：
+                 harness/serve/framework bake 全仓**无加载方**；blit 只用 `*-mask.png`。
+                 公式里的 `base` 是 **`fx.base` 着色基色（hex）**（盘面 = 该格目标色 /
+                 托盘 = `palette.slot`），**不是本文件**。「−0.30 底色层」也**不是**本文件，
+                 而是代码画的 rect（`drawTargetTile` 的 `edge`）。
 
 编码动机（2026-09-29）：3.x 自定义 effect 里 `cc_spriteTexture` 不被引擎绑定（恒 white）⇒
 形状 alpha 必须进 mask 本身 ⇒ B 通道。⇒ 真正「一张 mask × tint 色 = 成品」，SpriteFrame 只剩占位职责。
