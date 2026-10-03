@@ -181,10 +181,28 @@ describe('computeMaskField · 编码不变式（DEC-6，承 ADR-0028 §2.1）', 
         expect(px(f, c, c, 2)).toBe(255);
     });
 
-    it('I-4 格面 B 满幅实底（零 AA 带）', () => {
+    // [WXG-T-237 v7.0 · 用户裁定「格底 base 图的槽外面部分要做成透明」]
+    // ⛔ **旧口径「格面 B 满幅 255」已被推翻**（那正是「格面被 mask 完全遮住」的根因）。
+    // 新口径钉三条：
+    //  ① **槽口内**（3dp 斜面 + 槽底）B = 255 —— 凹陷感由它承担；**槽底两档都必须留**
+    //     （无孔档槽底是 0.32 深坑，透明化会抹平判据 I-5 的分叉）。
+    //  ② **格外** B = 0 ⇒ 透明 ⇒ 露出调用方在下方画的 `−0.30` 底色层。
+    //  ③ 零中间带（无振铃残留）⇒ 形状是**纯二值**，格面边界不会糊。
+    it('I-4 格面 B：槽口内 255 / 格外 0（纯二值，零振铃中间带）', () => {
+        const c = Math.floor(w / 2);
         for (const gauge of ['holed', 'holeless'] as const) {
             const f = computeMaskField('cell', maskSpecFor(gauge), w);
-            for (let i = 0; i < w * w; i++) expect(f.data[i * 4 + 2]).toBe(255);
+            // ① 槽心（槽底）= 255
+            expect(f.data[(c * w + c) * 4 + 2], `${gauge} 槽底 shape`).toBe(255);
+            // ② 格外（四角 + 边缘中点）= 0
+            for (const [x, y] of [[1, 1], [1, c], [c, 1], [w - 2, c], [c, w - 2], [w - 2, w - 2]] as const) {
+                expect(f.data[(y * w + x) * 4 + 2], `${gauge} 格外(${x},${y}) shape 须透明`).toBe(0);
+            }
+            // ③ 纯二值：全场只允许 {0, 255}
+            for (let i = 0; i < w * w; i++) {
+                const b = f.data[i * 4 + 2]!;
+                expect(b === 0 || b === 255, `${gauge} 出现振铃中间值 ${b} @(${i % w},${Math.floor(i / w)})`).toBe(true);
+            }
         }
     });
 

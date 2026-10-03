@@ -1863,3 +1863,51 @@ sha 复现即该恒等的实证，也是「封箱能拦住来回横跳」的一�
 
 **读数**：beads **774 绿 + 1 skipped** · verify **PASS 19 / WARN 0 / SKIP 1 / FAIL 0** ·
 check:tasks **27/27** · 效果图 `temp/shadow-preview/v60-revert.png`。
+
+### v7.0：格面 mask 槽外透明（资产变更 · 本节为当前状态）
+
+**用户裁定**：「格底的 base 图，**槽外面部分的格面要做成透明**，在绘制格面时候**先绘制一层 −0.30 的底色**
+再绘制格面的 base 和 mask 混合纹理。**托盘用的 mask 格面的颜色就可以透明**」。
+
+**编码事实**（`packages/framework/src/core/bake/tint-composite.ts`）：
+`out = base·d + (1−base)·l·shape`，**`alpha = shape = B 通道`**
+⇒ 「槽外透明」= **把格外区域的 B 置 0**（资产侧改动，非代码侧裁剪）。
+
+**落码（资产侧为主）**：
+- `tools/mask-preview/export-cocos-textures{,-holeless}.py`：`gm[...,2] = 0`（格外），
+  斜面区与**槽底**保留 255。
+- `packages/framework/src/core/bake/mask-field.ts`：`computeCellPlanes` 的 b 平面改由新函数
+  `cellShapePlane` 生成，与 py **逐字节一致**（`mask-diff.test.ts` 对拍门禁绿）。
+- **绘制顺序无需改**：盘面 `drawTargetTile`（`edge = mix(base,−0.30)`）本就在 mask 之前画
+  ⇒ 既有实现即符合裁定；托盘**无**那层底色（露面板）亦符合「托盘格面透明」。
+
+**⛔ 必守约束：槽底不得透明** —— 无孔档槽底是 `0.32` 深坑，透明化会抹平
+**判据 I-5** 钉的「有孔 0.70 / 无孔 0.32」分叉。⇒ shape 只在**格外**置 0。
+
+**为什么盘面视觉零变化**（实测证实）：原 mask 格外 = `base·0.70`，而底色层
+`drawTargetTile` 的 `edge = mix(base,−0.30) = round(base×0.7)` ⇒ **两者同值（±1/255）**
+⇒ 改透明后露出的底色与原合成值一致。**实测：新旧截图盘面区差异 = 0px。**
+
+**仅托盘变**（实测 16680px）：格外由 `palette.slot×0.70`（#ADACB0 灰）→ 面板白（#FFFFFF），
+槽的凹陷感由保留下来的 3dp 斜面 + 槽底承担。效果 = 白板上一排排凹进去的小坑。
+
+**封箱零追改**：封箱比较**命令流**，mask 像素是**资产内容**、不进命令流（blit 只带 `fx.base`，
+未变）⇒ `frame78`/`frame0` 的 total/kinds/sha **全不变**，`legacyFlow`/`facet*` 全等。
+登记键 `s3_mask_asset_recolor_v70`（属「资产变更但命令流不变」，非复评）。
+
+**两处实现坑（已治根，留档）**：
+1. **LANCZOS 振铃不对等**：v7.0 的 0↔255 硬台阶长达一整圈，**PIL 的 LANCZOS 与 TS 自实现 LANCZOS
+   振铃幅度不同**（实测残留 1–9/255）⇒ 单靠 `SHAPE_RINGING_FLOOR`（清 <8）**清不掉对方残留**
+   ⇒ 对拍门禁红（max diff 7）。**治根 = shape 在 128 空间直接判定、不经缩放** ——
+   形状本就是**二值语义**，边缘 AA 由 R/G 的斜面光照承担，shape 只决定「实底 or 透明」。
+2. **holeless 槽口参数不同**：22dp / 角 7dp（⛔ 不可硬编码有孔档的 12/8）⇒ py 侧 128 判定必须用
+   本档自身的 `SLOT_HALF_DP`/`SLOT_CORNER_DP`，否则 shape 比槽口大 1dp ⇒ 门禁红。
+
+**测试口径变更**：`mask-field.test.ts` 的 **I-4「格面 B 满幅实底（零 AA 带）」前提被推翻**
+⇒ 改写为「**槽口内 255 / 格外 0 / 纯二值零振铃**」三条（新口径的反向守卫）。
+
+**⛔ 未闭**：① 资产变更**未过 `mask:diff` CLI**（该脚本 `ERR_MODULE_NOT_FOUND` = 既有缺口；
+**单测形态的对拍门禁已绿**，覆盖同一读数来源）；② 异色格色界平移 0.5px 观感确认（T-235 遗留）仍未做。
+
+**读数**：framework **421 绿** · breakout **239 绿** · beads **774 绿 + 1 skipped** ·
+verify **PASS 19 / WARN 0 / SKIP 1 / FAIL 0** · 效果图 `temp/shadow-preview/v70-final.png`。

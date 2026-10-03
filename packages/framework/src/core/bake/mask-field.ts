@@ -719,6 +719,41 @@ function computeBeadPlanes(spec: MaskGaugeSpec, size: number): Planes {
     };
 }
 
+/**
+ * `[WXG-T-237 v7.0]` 格面 mask 的 **B(shape) 平面** —— **在 128 空间直接判定，不经超采样缩放**。
+ *
+ * ## 为什么不用 `resampleSquare`（与定稿 py 的分家点，已对齐）
+ * v7.0 让**格外 = 0** ⇒ 0↔255 硬台阶长达一整圈。LANCZOS 在硬台阶两侧会留**振铃**（实测 1–9/255），
+ * 而 **PIL 的 LANCZOS 与本模块自实现的 LANCZOS 振铃幅度不同** ⇒ 同一 `SHAPE_RINGING_FLOOR`
+ * 地板（清 <8）**清不掉对方残留的那几格** ⇒ 对拍门禁（`mask-diff.test.ts`，逐字节相等）红。
+ * 治根 = **不缩放**：形状本就是**二值语义**（有/无实底），不需要抗锯齿 ——
+ * 边缘的抗锯齿由 R/G 通道的 3dp 斜面光照承担，shape 只决定「实底 or 透明」。
+ * ⛔ 槽口内（3dp 斜面 + 槽底）**必须留 255**：无孔档槽底是 `0.32` 深坑，透明化会抹平
+ * 判据 I-5 钉的「有孔 0.70 / 无孔 0.32」分叉。
+ *
+ * 判定式 ≡ 定稿 py 的 `sd8 <= 0`（槽口棱及其内侧）；两边用**同一像素空间**（128）与同一公式
+ * ⇒ 逐字节一致，无需容差。
+ */
+function cellShapePlane(spec: MaskGaugeSpec, size: number): Uint8Array {
+    const px = size / MASK_CELL_DP;
+    const c = size / 2;
+    const q = (spec.slotHalfDp - spec.slotCornerDp) * px;
+    const cornerPx = spec.slotCornerDp * px;
+    const out = new Uint8Array(size * size);
+    for (let y = 0; y < size; y += 1) {
+        const dy = y - c;
+        for (let x = 0; x < size; x += 1) {
+            const dx = x - c;
+            const qx = Math.abs(dx) - q;
+            const qy = Math.abs(dy) - q;
+            const sd =
+                Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - cornerPx;
+            out[y * size + x] = sd <= 0 ? 255 : 0;
+        }
+    }
+    return out;
+}
+
 /** 格面场（**纯程序化**：⛔ 不消费 `cellLayers` —— 承定稿 py「槽视觉完全程序化」）。 */
 function computeCellPlanes(spec: MaskGaugeSpec, size: number): Planes {
     const render = size * MASK_SUPERSAMPLE;
@@ -761,7 +796,7 @@ function computeCellPlanes(spec: MaskGaugeSpec, size: number): Planes {
     return {
         r: resampleSquare(rHi, render, size),
         g: resampleSquare(gHi, render, size),
-        b: new Uint8Array(size * size).fill(255), // 格面 = 满幅实底
+        b: cellShapePlane(spec, size),   // 槽口内实底 / 格外透明（v7.0，128 空间直接判定）
     };
 }
 

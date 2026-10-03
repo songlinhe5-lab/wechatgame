@@ -253,7 +253,7 @@ bead_base = Image.fromarray(_bbase, "RGBA")
 EDGE_DP = 3.0                                                  # 槽内边沿斜面深度（dp）
 gm = np.zeros((RENDER, RENDER, 4), np.uint8)
 gm[..., 0] = int(0.70 * 255)                                   # 格外圈：−0.30 纯色
-gm[..., 2] = 255
+gm[..., 2] = 0                                                 # [WXG-T-237 v7.0] 格外 shape=0 ⇒ **透明**
 gm[..., 3] = 255                                               # ⚠ A=255（漏设则 PNG 全透明）
 ys_g, xs_g = np.mgrid[0:RENDER, 0:RENDER]
 dxg, dyg = xs_g - C, ys_g - C
@@ -274,9 +274,11 @@ d_val = d_edge + (0.70 - d_edge) * t_in                        # 内缘渐入槽
 l_val = LIT_L * down_w * (1.0 - t_in)                          # 下壁受光提亮（棱最强）
 gm[..., 0][edge_g] = (np.clip(d_val, 0, 1)[edge_g] * 255).astype(np.uint8)
 gm[..., 1][edge_g] = (np.clip(l_val, 0, 1)[edge_g] * 255).astype(np.uint8)
+gm[..., 2][edge_g] = 255                                           # 槽内 3dp 斜面：shape 满幅
 # 槽底（斜面以内）= **格底色 0.70**（−0.30，同 B0 tile；设计变更 v1.0→v1.1，用户 2026-09-29：
 # 「取放珠瞬间深坑↔格底跳变突兀 + 深坑挡目标色辨识」⇒ 槽凹感全交给 3dp 斜面光照，坑底与格底同色）
 gm[..., 0][sd_g < -EDGE_DP * PX] = int(0.70 * 255)
+gm[..., 2][sd_g < -EDGE_DP * PX] = 255                             # 槽底：shape 满幅（⛔ holeless 深坑 0.32 必须保住 ⇒ I-5 分叉）
 grid_mask = Image.fromarray(gm, "RGBA")
 grid_base = Image.new("RGBA", (RENDER, RENDER), (255, 255, 255, 255))
 
@@ -293,6 +295,21 @@ for name, img in (
     ch = 2 if "mask" in name else 3
     arr = np.array(img, dtype=np.uint8).copy()
     arr[:, :, ch] = np.where(arr[:, :, ch] < SHAPE_RINGING_FLOOR, 0, arr[:, :, ch])
+    # [WXG-T-237 v7.0] **格面 mask 的 B(shape) 在 128 空间直接判定**（不经 LANCZOS 缩放）。
+    # 理由：v7.0 让格外 shape=0 ⇒ 0↔255 硬台阶长达一整圈，而 **PIL 的 LANCZOS 与 TS 侧自实现
+    # LANCZOS 对硬边的振铃幅度不同**（实测残留 1–9/255）⇒ 单靠 `SHAPE_RINGING_FLOOR` 无法让
+    # 两边逐字节一致（对拍门禁 `mask-diff.test.ts` 会红）。治根 = 不缩放：形状本就是二值语义，
+    # 无需抗锯齿（AA 由 R/G 的斜面光照承担）。⛔ 槽口内（3dp 斜面 + 槽底）仍 255 —— 无孔档槽底
+    # 0.32 深坑必须保住（判据 I-5 分叉）。
+    if "grid" in name and "mask" in name:
+        ys8, xs8 = np.mgrid[0:OUT, 0:OUT]
+        pxs = OUT / CELL_DP
+        dx8, dy8 = xs8 - OUT / 2, ys8 - OUT / 2
+        qx8 = np.abs(dx8) - (12.0 - 8.0) * pxs
+        qy8 = np.abs(dy8) - (12.0 - 8.0) * pxs
+        sd8 = (np.hypot(np.clip(qx8, 0, None), np.clip(qy8, 0, None))
+               + np.minimum(np.maximum(qx8, qy8), 0) - 8.0 * pxs)
+        arr[:, :, 2] = np.where(sd8 <= 0, 255, 0).astype(np.uint8)
     img = Image.fromarray(arr, "RGBA")
     img.save(OUT_DIR / name)
     print(f"✅ {OUT_DIR / name}")

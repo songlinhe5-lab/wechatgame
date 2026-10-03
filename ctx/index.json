@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "7ed051081e1964c723b9150ae8941daa53db7bff6eb3d9783283c01164b7a4dd",
+      "sha256": "d321b381e9bb6b04dcf8ea2d3ca8caaaaf6e42b14451ce1a041082c0193116df",
       "tier": "normal",
       "sections": [
         {
@@ -662,17 +662,17 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5009,
-      "lines": 94,
-      "sha256": "43b0dd7393ed71fefca0d9919a740dd2b8edf01cb7977bfc312ae5818c4017d6",
+      "tokens": 5041,
+      "lines": 86,
+      "sha256": "28bb62c5ff50ee24f2ba96604c384142d0c0e0dca6190d5607aec761c3dbe13d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§热门大文件行号速查（自动生成，勿手改；重建 `pnpm run ctx:build`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 95,
-          "tokens": 4981,
+          "endLine": 87,
+          "tokens": 5013,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 18468 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 18808 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1865 行 / 72426 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1913 行 / 73517 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 676,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1866 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 971,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1914 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -974,8 +974,8 @@
           "anchor": "§`games/breakout/design/concept.md` — 143 行 / 3110 tok / 实测读 217 次",
           "level": 2,
           "startLine": 82,
-          "endLine": 85,
-          "tokens": 146,
+          "endLine": 87,
+          "tokens": 200,
           "summary": "§《弹球打砖块》一页纸概念（Concept One-Pager）=1+144 · §1 一句话定位=11+4 · §2 ",
           "keywords": [
             "games/breakout/design/concept.md",
@@ -984,38 +984,6 @@
             "games",
             "breakout",
             "design"
-          ]
-        },
-        {
-          "anchor": "§`games/breakout/design/gdd/systems-index.md` — 232 行 / 4600 tok / 实测读 171 次",
-          "level": 2,
-          "startLine": 86,
-          "endLine": 89,
-          "tokens": 106,
-          "summary": "§系统清单与依赖索引（Systems Index）=1+233 · §1 系统清单=8+16 · §2 依赖排序（Dep",
-          "keywords": [
-            "§1",
-            "§2",
-            "games",
-            "breakout",
-            "design",
-            "gdd"
-          ]
-        },
-        {
-          "anchor": "§`games/breakout/design/levels/levels-spec.md` — 244 行 / 3964 tok / 实测读 104 次",
-          "level": 2,
-          "startLine": 90,
-          "endLine": 95,
-          "tokens": 163,
-          "summary": "§关卡数据规范（Levels Spec）=1+245 · §1 文件结构总览=10+14 · §2 字段说明=24+65",
-          "keywords": [
-            "§1",
-            "§2",
-            "games",
-            "breakout",
-            "design",
-            "levels"
           ]
         }
       ]
@@ -50052,17 +50020,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 1360,
-      "lines": 46,
-      "sha256": "6512102e73623588a6dda2f5272c7fdee8c7d5ecdc36f231fa954820e7daa55a",
+      "tokens": 2208,
+      "lines": 74,
+      "sha256": "f7b7abe24dd15b45238c857144589d6d8dc65aabe18bcf4747d229f2bf5fb8fa",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 47,
-          "tokens": 1356,
+          "endLine": 75,
+          "tokens": 2205,
           "summary": "",
           "keywords": []
         },
@@ -50095,6 +50063,22 @@
             "为中性",
             "整体回滚"
           ]
+        },
+        {
+          "anchor": "§WXG-T-237 v7.0：格面 mask 槽外透明（资产变更）",
+          "level": 3,
+          "startLine": 48,
+          "endLine": 75,
+          "tokens": 829,
+          "summary": "编码事实（tint-composite.ts）：out = base·d + (1−base)·l·shape，alph",
+          "keywords": [
+            "WXG",
+            "mask",
+            "tint",
+            "composite",
+            "out",
+            "base"
+          ]
         }
       ]
     },
@@ -50102,7 +50086,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "c1b94cc50af9bfed713b46c8e3540bb74634f58835aff897875b27b764db6826",
+      "sha256": "9d09ccb3152972c01609d4f9f69deb30ff64e544a8551da8dd2d6a4551eef78c",
       "tier": "normal",
       "sections": [
         {
@@ -50193,7 +50177,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 1,360 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 2,208 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70212,17 +70196,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 72426,
-      "lines": 1865,
-      "sha256": "102453ef40a64d5a7350abfe04904cc0beedd45a7d44f14e156ee33f726e0dcb",
+      "tokens": 73517,
+      "lines": 1913,
+      "sha256": "b0f0bbfb71407e3e9de8b3313a60040b42a38b2763b6f592deafe29c86baf9ff",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1866,
-          "tokens": 72410,
+          "endLine": 1914,
+          "tokens": 73500,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71476,8 +71460,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1866,
-          "tokens": 7340,
+          "endLine": 1914,
+          "tokens": 8431,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71659,14 +71643,30 @@
             "整体回滚",
             "本节为当前状"
           ]
+        },
+        {
+          "anchor": "§v7.0：格面 mask 槽外透明（资产变更 · 本节为当前状态）",
+          "level": 3,
+          "startLine": 1867,
+          "endLine": 1914,
+          "tokens": 1066,
+          "summary": "用户裁定：「格底的 base 图，槽外面部分的格面要做成透明，在绘制格面时候先绘制一层 −0.30 的底色",
+          "keywords": [
+            "mask",
+            "base",
+            "格面",
+            "槽外透明",
+            "资产变更",
+            "本节为当前状"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 18468,
+      "tokens": 18808,
       "lines": 76,
-      "sha256": "241b3b468152e7a8c75de766f103b1f708f378b1621e8b36c4bc42123abb5570",
+      "sha256": "1161b9fe39de9733877ca2e83f89d740d0501c84e93866fc2ee78bc10f1a2793",
       "tier": "hot",
       "sections": [
         {
@@ -71674,7 +71674,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 18459,
+          "tokens": 18799,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
