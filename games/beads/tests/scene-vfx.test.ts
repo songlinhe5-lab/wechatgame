@@ -120,6 +120,12 @@ function liftedBeadAt(snap: BeadsSnapshot, row: number, col: number): { y: numbe
       // **六裁（WXG-T-221）**：facet-4 每颗珠发两枚同心 circle（环 stroke-only + pit 底）；
       // 抬起量/孔径等比判据锚**孔底 pit**（= 真透，随档纯等比缩放）；环 = pit+1dp 不随格径等比。
       (c as { fill?: string }).fill !== undefined &&
+      // **[WXG-T-236 定标] 排除抬起槽内投影**：影是**另一枚**带 fill 的 circle（`r ≡ 坑半宽`），
+      // 且**画在珠之前** ⇒ 命令序在珠的孔底之前。原「取第一枚带 fill 的 circle」假设已失效，
+      // 会把影误认成珠（实测误判值 `-1.3` = `-(r13 × LIFT_SHADOW_SINK 0.10)`，正是影的 y 偏移）。
+      // 判别用**半径比**：影 `r = 坑半宽 ≈ 0.43 × gridCell`，孔底 `r ≈ 0.20 × gridCell`
+      // （满豆 ⌀12 孔 / 26dp 珠）⇒ 阈值 0.35 两侧余量充足，且随豆径档/缩放档同比成立。
+      (c as { r: number }).r < snap.gridCell * 0.35 &&
       Math.abs((c as { x: number }).x - bx) <= snap.gridCell / 2 &&
       Math.abs((c as { y: number }).y - cy) <= snap.gridCell,
   );

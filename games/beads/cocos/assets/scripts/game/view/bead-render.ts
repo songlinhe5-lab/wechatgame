@@ -46,6 +46,8 @@ import {
   BEAD_CELL,
   BEAD_DRAW_INSET,
   BEAD_PITCH,
+  LIFT_SHADOW_ALPHA,
+  LIFT_SHADOW_SINK,
   SOCKET_CARD,
   TILE_BLEED,
   TRAY_BEAD_SIZE,
@@ -589,6 +591,47 @@ let polyWorld: number[] = [];
  *   **无承载体**（facet-4 无阴影/接触层、0 真 α）⇒ 它们现在只对 legacy-ten 臂有效，
  *   本函数**如实不透传**（不假装 G1 包络仍在换肤后的珠上生效）。
  */
+/**
+ * **[WXG-T-236 定标 · 2026-10-03 用户裁定「抬起态要影」+ 选型 C-3]** 抬起态**槽内投影**。
+ *
+ * ## 形状：正圆，半径 = 坑半宽 = 珠半径，居中
+ * 盘面格 `beadInset > 0 ⇒ relief = 0` ⇒ 坑外沿 **≡ 珠面轮廓** ⇒ 坑半宽 **≡ 珠半径**（几何恒等）
+ * ⇒ 取 `r = 坑边长 / 2` 即**精确内接于槽**，不外溢。用户两条要求（同形 + 贴槽轮廓）由此同时满足。
+ *
+ * ## 与 `drawEmptySocket` 的关系
+ * ⛔ **不新算坑尺寸**：本函数复用 `drawEmptySocket` 的**同一把尺**（`beadFace` / `relief` / `s`），
+ * 任何一改两侧同改 ⇒ 不会出现「影比槽大/比槽小」的漂移。
+ * ⚠ 系数是 **×2**：`beadFace = size − (beadInset×size/BEAD_CELL)×2`。预览期曾误用 ×1 ⇒ 影大 1dp，
+ * 正式实现按 ×2（精确内接）。
+ *
+ * ## 绘制序（⛔ 不可调换）
+ * 必须在 `drawEmptySocket` **之后**、`drawFilledBead` **之前**：
+ * · 在槽**之后** ⇒ 影压在内阴影阶梯与 S4 受光亮线之上（物理正确）；
+ * · 在珠**之前** ⇒ 珠体上沿自然遮住影的上半 ⇒ 只露下弧，读作「圆珠投在槽里」而非「半个圆饼」。
+ *
+ * ## 墨
+ * `endpoints.shadeOuter`（−0.80，端点族内）**+ `withAlpha(LIFT_SHADOW_ALPHA)`**。
+ * ⛔ 零新 hex / 零新 mix 系数（`tuning.ts::LIFT_SHADOW_ALPHA` 注释记了预览曾用 `−0.88`、
+ * 正式改用族内 `shadeOuter` 的理由）。
+ */
+export function drawLiftSocketShadow(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  colorIdx: number,
+  inks: BeadInks = DEMO_BEAD_INKS,
+  size: number = BEAD_CELL,
+  beadInset = 0,
+): void {
+  const beadFace = size - (beadInset * size) / BEAD_CELL * 2;
+  const relief = beadInset > 0 ? 0 : Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.relief);
+  const s = Math.max(BEAD_CARD.minStroke * 2, beadFace - relief * 2);
+  const r = s / 2;
+  builder.circle(cx, cy - r * LIFT_SHADOW_SINK, r, {
+    fill: withAlpha(endpointOf(inks, colorIdx).shadeOuter, LIFT_SHADOW_ALPHA),
+  });
+}
+
 export function drawFilledBead(
   builder: RenderModelBuilder,
   cx: number,

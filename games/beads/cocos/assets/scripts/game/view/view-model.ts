@@ -102,6 +102,7 @@ import {
   SELECTED_SHADOW_ALPHA,
   TRAY_BEAD_SIZE,
   drawEmptySocket,
+  drawLiftSocketShadow,
   drawFilledBead,
   drawLockedBead,
   drawTargetTile,
@@ -1057,6 +1058,13 @@ function drawGrid(
         drawEmptySocket(
           builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks,
           true, beadDrawInset,
+        );
+        // [WXG-T-236 定标 · 2026-10-03 用户裁定「抬起态要影」+ 选型 C-3] 槽内投影（正圆）。
+        // ⛔ 绘制序钉死：**槽之后、珠之前** —— 在槽后 ⇒ 影压在内阴影阶梯与 S4 受光亮线之上（物理正确）；
+        // 在珠前 ⇒ 珠体自然遮住影的上半，只露下弧 ⇒ 读作「圆珠投在槽里」而非「半个圆饼」。
+        // 形状与半径的推导见 `bead-render::drawLiftSocketShadow` 头注（r ≡ 坑半宽 ≡ 珠半径 ⇒ 精确内接）。
+        drawLiftSocketShadow(
+          builder, bx, cy, cell.colorIdx, inks, snap.gridCell, beadDrawInset,
         );
       }
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);

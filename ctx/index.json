@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3694,
       "lines": 134,
-      "sha256": "f802ea4cdbe187dca04a21e0b2620c42d267e1f8f3f407c12f652e8c456053c0",
+      "sha256": "efc87df8d9dc5fc9f72bb2b7d6100b2c809f469cdddb3f2a25860d2af384ff72",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5043,
       "lines": 106,
-      "sha256": "77fab2bfca2d0996d6c6c0b60bd85bd968cdb46b2b449af8e0fcd7f0d43f5b6c",
+      "sha256": "9f2b7b91403558bb0f5a693c557128b0e7a67e95167012b3acb9226a292cbad2",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 75 行 / 15152 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 75 行 / 15421 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1291 行 / 59759 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1352 行 / 61406 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 281,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1292 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1353 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13133,17 +13133,17 @@
     },
     {
       "path": "games/beads/art/lift-socket-styling-decision.md",
-      "tokens": 3847,
-      "lines": 144,
-      "sha256": "d66c8eab5d9f664c7824017d222538ff4990523b01c90d1441f66a727efc0057",
+      "tokens": 4719,
+      "lines": 181,
+      "sha256": "0faee5aa3c96781ee0d791224a14da2bda1f301ecd7020878a9fd40e367b1e65",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§抬起态槽与影 · 美术定标单（A–G 七条）",
           "level": 1,
           "startLine": 1,
-          "endLine": 145,
-          "tokens": 3829,
+          "endLine": 182,
+          "tokens": 4701,
           "summary": "正本 = 本文件（WXG-T-236 美术侧裁定单，2026-10-03 立）。",
           "keywords": [
             "WXG",
@@ -13156,9 +13156,9 @@
           "anchor": "§0 一句话现状",
           "level": 2,
           "startLine": 12,
-          "endLine": 19,
-          "tokens": 151,
-          "summary": "抬起珠当前「零影」 —— 盘面（生产网格）路径下珠自身无接触阴影、无投影，格面影与槽内影已在 T-236 三～五轮删除。",
+          "endLine": 20,
+          "tokens": 155,
+          "summary": "2026-10-03 用户裁定「抬起态要影」并选型 C-3 ⇒ 已落码：抬起格在槽内画一枚正圆投影，",
           "keywords": [
             "§0",
             "一句话现状"
@@ -13167,9 +13167,9 @@
         {
           "anchor": "§1 实测事实基线",
           "level": 2,
-          "startLine": 20,
-          "endLine": 46,
-          "tokens": 579,
+          "startLine": 21,
+          "endLine": 48,
+          "tokens": 662,
           "summary": "",
           "keywords": [
             "§1",
@@ -13177,26 +13177,26 @@
           ]
         },
         {
-          "anchor": "§1.1 影的三条路径：一条不存在、一条已删、一条只在对照臂",
+          "anchor": "§1.1 影的三条路径：一条已落码、两条不存在",
           "level": 3,
-          "startLine": 22,
-          "endLine": 29,
-          "tokens": 259,
-          "summary": "珠自身接触影 L0a + 投影 L0b BEAD_CARD.liftContactShrink / liftShadow",
+          "startLine": 23,
+          "endLine": 31,
+          "tokens": 350,
+          "summary": "槽内正圆投影 bead-render::drawLiftSocketShadow（r ≡ 坑半宽）+ LIFT_SHAD",
           "keywords": [
-            "L0a",
-            "L0b",
-            "BEAD_CARD",
-            "liftContactShrink",
-            "liftShadow",
-            "影的三条路径"
+            "bead",
+            "render",
+            "drawLiftSocketShadow",
+            "LIFT_SHAD",
+            "影的三条路径",
+            "一条已落码"
           ]
         },
         {
           "anchor": "§1.2 抬起格的两条实测带（用户读作「两根横条」者）",
           "level": 3,
-          "startLine": 30,
-          "endLine": 38,
+          "startLine": 32,
+          "endLine": 40,
           "tokens": 129,
           "summary": "槽底缘受光亮线 (221,152,177) 175.5 槽自身 S4 下内缘亮线（定稿资产，两臂逐字节相同）",
           "keywords": [
@@ -13209,8 +13209,8 @@
         {
           "anchor": "§1.3 抬起量的伴生代价（六轮补算，台账易漏）",
           "level": 3,
-          "startLine": 39,
-          "endLine": 46,
+          "startLine": 41,
+          "endLine": 48,
           "tokens": 117,
           "summary": "珠半 13dp + 抬起 L ⇒ 珠上沿在格心上方 L + 13；格半 15dp ⇒ 只要 L > 2 珠就越格，越格量",
           "keywords": [
@@ -13223,9 +13223,9 @@
         {
           "anchor": "§2 七条逐项",
           "level": 2,
-          "startLine": 47,
-          "endLine": 106,
-          "tokens": 1854,
+          "startLine": 49,
+          "endLine": 143,
+          "tokens": 2634,
           "summary": "",
           "keywords": [
             "§2",
@@ -13235,8 +13235,8 @@
         {
           "anchor": "§A · 定稿槽底缘亮线在小尺寸 + 抬起态下的薄带可辨性",
           "level": 3,
-          "startLine": 49,
-          "endLine": 57,
+          "startLine": 51,
+          "endLine": 59,
           "tokens": 292,
           "summary": "现象：抬起格下缘 1px 级亮带在屏上读作「一根横条」而非凹槽边缘。",
           "keywords": [
@@ -13249,8 +13249,8 @@
         {
           "anchor": "§B · 零对比坑底在暗 B0 上是否可接受 —— ⚠ 台账记法有误，以本条为准",
           "level": 3,
-          "startLine": 58,
-          "endLine": 65,
+          "startLine": 60,
+          "endLine": 67,
           "tokens": 298,
           "summary": "⚠ 纠正：v1.1 不是「0.70 一刀切」，而是按档分叉（tint-mask-asset-spec:40）：holed",
           "keywords": [
@@ -13265,8 +13265,8 @@
         {
           "anchor": "§C · `D1` 暗底坑底反读",
           "level": 3,
-          "startLine": 66,
-          "endLine": 74,
+          "startLine": 68,
+          "endLine": 76,
           "tokens": 272,
           "summary": "现象：共用坑底套依赖近白底图才读得出凹陷；落到生产 B0 暗底上读作凸起。",
           "keywords": [
@@ -13277,8 +13277,8 @@
         {
           "anchor": "§D · `D6` 光向唯一性",
           "level": 3,
-          "startLine": 75,
-          "endLine": 82,
+          "startLine": 77,
+          "endLine": 84,
           "tokens": 216,
           "summary": "分歧：18 风格投影 = 右下斜向 vs legacy L0b = 正下；两套并存于池内，光向不唯一。",
           "keywords": [
@@ -13289,41 +13289,42 @@
           ]
         },
         {
-          "anchor": "§E · 阶梯段数 / 各段 α 与偏移 —— ⚠ **现为空悬项**（台账记为「工程暂定 2 段」已失效）",
+          "anchor": "§E · 阶梯段数 / 各段 α 与偏移 —— ✅ **已定案（2026-10-03）· C-3 正圆**",
           "level": 3,
-          "startLine": 83,
-          "endLine": 90,
-          "tokens": 242,
-          "summary": "原提案：接触影 + 2 级投射阶梯，段数 2、偏移 outer×0.1、放大 +0.14/+0.06，墨档梯引用坑内端点",
+          "startLine": 85,
+          "endLine": 126,
+          "tokens": 1041,
+          "summary": "用户裁定：「抬起态要影」+ 选型 C-3（正圆，r = 珠半径，居中）⇒ 已落码",
           "keywords": [
-            "outer",
             "阶梯段数",
             "各段",
             "与偏移",
-            "现为空悬项",
-            "台账记为"
+            "已定案",
+            "正圆"
           ]
         },
         {
-          "anchor": "§F · 接触影与坑底暗缘的层级关系 —— ⚠ **同为悬项**（且当前无对象）",
+          "anchor": "§F · 接触影与坑底暗缘的层级关系 —— ✅ **已定案（同批随 C-3 落定）**",
           "level": 3,
-          "startLine": 91,
-          "endLine": 97,
-          "tokens": 136,
-          "summary": "原问题：两者同在格面，孰上孰下未定。",
+          "startLine": 127,
+          "endLine": 132,
+          "tokens": 120,
+          "summary": "层级已由实现钉定：影在坑底暗缘之上（drawLiftSocketShadow 排在 drawEmptySocket 之后",
           "keywords": [
+            "drawLiftSocketShadow",
+            "drawEmptySocket",
             "接触影与坑底",
             "暗缘的层级关",
-            "同为悬项",
-            "且当前无对象"
+            "已定案",
+            "同批随"
           ]
         },
         {
-          "anchor": "§G · 封箱夹具无选中态 ⇒ 影层 / 选中态无封箱保护（工程侧缺口，非美术域）",
+          "anchor": "§G · 封箱夹具无选中态 ⇒ 影层 / 选中态无封箱保护 —— ✅ **已裁：非美术域**（2026-10-03）",
           "level": 3,
-          "startLine": 98,
-          "endLine": 106,
-          "tokens": 222,
+          "startLine": 133,
+          "endLine": 143,
+          "tokens": 227,
           "summary": "事实：bead-style-seal 夹具（13×12 / 78 填 / 78 空）从不调用 selectBoardBe",
           "keywords": [
             "bead",
@@ -13337,8 +13338,8 @@
         {
           "anchor": "§3 共同阻塞",
           "level": 2,
-          "startLine": 107,
-          "endLine": 123,
+          "startLine": 144,
+          "endLine": 160,
           "tokens": 482,
           "summary": "",
           "keywords": [
@@ -13349,8 +13350,8 @@
         {
           "anchor": "§3.1 `丁`（抬高位移 6 → 11）撞封箱架构级阻塞 —— 用户 2026-10-03 已裁「暂不实施」",
           "level": 3,
-          "startLine": 109,
-          "endLine": 116,
+          "startLine": 146,
+          "endLine": 153,
           "tokens": 299,
           "summary": "提案理由（几何反推）：可见槽带 = lift + 12 − 13 = lift − 1 ⇒ 6dp 只有 5dp（读不出",
           "keywords": [
@@ -13365,8 +13366,8 @@
         {
           "anchor": "§3.2 「影物分离」当前不可行（E/F 的共同前置）",
           "level": 3,
-          "startLine": 117,
-          "endLine": 123,
+          "startLine": 154,
+          "endLine": 160,
           "tokens": 128,
           "summary": "格 bead 26dp / 槽 24dp（mask slotHalfDp 12）/ 抬起 6dp 的几何下没有可用表现空",
           "keywords": [
@@ -13381,8 +13382,8 @@
         {
           "anchor": "§4 裁定后的落码路径（供裁完直接执行，非本单自决）",
           "level": 2,
-          "startLine": 124,
-          "endLine": 137,
+          "startLine": 161,
+          "endLine": 174,
           "tokens": 244,
           "summary": "A S4 线宽 / SOCKET_LIT_MIX tuning.ts、assets-spec §1.9.2/1.9.3 ",
           "keywords": [
@@ -13397,8 +13398,8 @@
         {
           "anchor": "§5 纪律与边界",
           "level": 2,
-          "startLine": 138,
-          "endLine": 145,
+          "startLine": 175,
+          "endLine": 182,
           "tokens": 244,
           "summary": "⛔ 本单不代裁；所有 [待真机] 项（薄带可辨性 / 观感 / CVD）在有真机前不得判绿。",
           "keywords": [
@@ -48858,17 +48859,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 10539,
-      "lines": 314,
-      "sha256": "fffc9e92996d133166164b3483a5f0b53acf65d4a1417c68f87ee1df0cc5cb8a",
+      "tokens": 11465,
+      "lines": 338,
+      "sha256": "b1f2bd282e43598c795f20b45be386f982a52e0f32bce6d97dbb0dedb9d468ee",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 315,
-          "tokens": 10536,
+          "endLine": 339,
+          "tokens": 11462,
           "summary": "",
           "keywords": []
         },
@@ -48876,8 +48877,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 315,
-          "tokens": 10503,
+          "endLine": 339,
+          "tokens": 11430,
           "summary": "",
           "keywords": [
             "WXG",
@@ -49230,6 +49231,22 @@
             "lift",
             "socket"
           ]
+        },
+        {
+          "anchor": "§WXG-T-236 七轮：用户裁「抬起态要影」+ 选型 C-3 ⇒ 影已落码（E/F 定案）",
+          "level": 3,
+          "startLine": 316,
+          "endLine": 339,
+          "tokens": 896,
+          "summary": "选型走了 8 轮看图（用户逐个否），每轮都有实测依据，否决链已写进定标单与台账。关键三条：",
+          "keywords": [
+            "WXG",
+            "七轮",
+            "用户裁",
+            "抬起态要影",
+            "选型",
+            "影已落码"
+          ]
         }
       ]
     },
@@ -49237,7 +49254,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "f32e5d4110bf578bf5888e3b4d8046e91a8095eedcd104338dbb96b4d1ebd2c2",
+      "sha256": "e7319c71549700514c50528790a34c036cac20f82bba7f52b31fc60a49842a16",
       "tier": "normal",
       "sections": [
         {
@@ -49328,7 +49345,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 10,539 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 11,465 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69333,17 +69350,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 59759,
-      "lines": 1291,
-      "sha256": "00f98e6c1c1c4012606af82e8eb4ee170aeedafa50d48963ec15202394dcdc5e",
+      "tokens": 61406,
+      "lines": 1352,
+      "sha256": "9efa3c682320067bcad32c256629dd3c60c2c374438ac19fa2fbd7d07c78fb21",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1292,
-          "tokens": 59742,
+          "endLine": 1353,
+          "tokens": 61389,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -70388,8 +70405,8 @@
           "anchor": "§WXG-T-236",
           "level": 2,
           "startLine": 1164,
-          "endLine": 1292,
-          "tokens": 3428,
+          "endLine": 1353,
+          "tokens": 5075,
           "summary": "beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性） — 2026-10-03 用户裁定「",
           "keywords": [
             "WXG",
@@ -70505,7 +70522,7 @@
           "anchor": "§性能（结论不变：不是瓶颈）",
           "level": 3,
           "startLine": 1288,
-          "endLine": 1292,
+          "endLine": 1293,
           "tokens": 62,
           "summary": "每颗抬起珠 3 图元（原 1）⇒ 满组 ~25 颗 = +75，相对 450/帧 ≈ +17%；抬起时钟 O(1)；热路",
           "keywords": [
@@ -70513,14 +70530,30 @@
             "结论不变",
             "不是瓶颈"
           ]
+        },
+        {
+          "anchor": "§七轮：用户裁「抬起态要影」+ 选型 C-3 ⇒ 影已落码（E/F 定案）",
+          "level": 3,
+          "startLine": 1294,
+          "endLine": 1353,
+          "tokens": 1619,
+          "summary": "前置问题：用户 2026-10-03 裁「抬起态要影」⇒ 解除 E/F 的空悬。但 §3.2 的三个死结仍在",
+          "keywords": [
+            "§3.2",
+            "七轮",
+            "用户裁",
+            "抬起态要影",
+            "选型",
+            "影已落码"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 15152,
+      "tokens": 15421,
       "lines": 75,
-      "sha256": "22b74b370c89f5af7d0235f3300d3d6dc1567fed85ffecf0127e6cee91f11d67",
+      "sha256": "313f75fad34642f4203eadf5ab3bf7e2946c772c7b660ebadebb247626aa712b",
       "tier": "hot",
       "sections": [
         {
@@ -70528,7 +70561,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 76,
-          "tokens": 15143,
+          "tokens": 15412,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

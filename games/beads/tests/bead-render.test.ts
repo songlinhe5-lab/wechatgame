@@ -40,6 +40,8 @@ import {
   TRAY_SLOT,
   nextBeadLod,
   ZOOM_LOD_LAYERS,
+  LIFT_SHADOW_ALPHA,
+  LIFT_SHADOW_SINK,
   TILE_BLEED,
 } from '../src/config/tuning.js';
 import {
@@ -47,6 +49,7 @@ import {
   SELECTED_SHADOW_ALPHA,
   TRAY_BEAD_SIZE,
   drawEmptySocket,
+  drawLiftSocketShadow,
   drawFilledBead,
   drawLockedBead,
   drawTargetTile,
@@ -76,6 +79,10 @@ import { isRealAlphaLayer } from '../src/view/bead-styles/contract.js';
 const B0_TILE_PX = BEAD_PITCH + 2 * TILE_BLEED;
 
 // v1.5-r8：L5 符号层已删 ⇒ `view/symbols.ts` 不再存在，不得重新引入。
+
+function withAlphaShadeOuter(colorIdx: number, alpha: number): string {
+  return withAlpha(endpointOf(DEMO_BEAD_INKS, colorIdx).shadeOuter, alpha);
+}
 
 function emit(draw: (builder: RenderModelBuilder) => void) {
   const builder = new RenderModelBuilder(750, 1334);
@@ -704,6 +711,66 @@ describe('bead parameter card (assets-spec §1.1)', () => {
   // §1.3：托盘珠 = 同 BEAD 内缩 4；尺寸常量必须由 TRAY_SLOT 派生，不能是散落的魔法数。
   it('§1.3 derives the tray bead size from the tray slot', () => {
     expect(TRAY_BEAD_SIZE).toBe(TRAY_SLOT - 4);
+  });
+
+
+  // ── [WXG-T-236 定标 · 2026-10-03 用户裁定「抬起态要影」+ 选型 C-3] 抬起态槽内投影 ──
+  //
+  // 三条不变式（逐条对应用户的两条要求 + 一条工程不变量）：
+  //  ① **与珠同形**：影是**正圆**，且 `r ≡ 坑半宽 ≡ 珠半径`（盘面格 `beadInset>0 ⇒ relief 0`
+  //     ⇒ 坑外沿 = 珠面轮廓，几何恒等）⇒ 天然内接、不外溢出槽。
+  //     判据用**同式复算**而非硬编码数：直接从 `drawEmptySocket` 的坑外廓反推半宽，
+  //     断言两者相等 —— 这样任一侧改系数都会红（防「影比槽大/比槽小」的静默漂移）。
+  //  ② **贴合槽轮廓**：圆心 x ≡ 槽心 x（左右对称，无偏心）。
+  //  ③ **绘制序**：影夹在「槽之后、珠之前」⇒ 珠体遮住上半 ⇒ 只露下弧。
+  //     本腿只钉坐标恒等；序由 view-model 集成腿（下方）钉。
+  it('抬起槽内投影：正圆 + r ≡ 坑半宽（精确内接）+ 左右对称', () => {
+    for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
+      // 坑外廓 = drawEmptySocket 的第一枚 rect（内阴影最外层）
+      const socket = emit((b) =>
+        drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, 1, DEMO_BEAD_INKS, true, inset),
+      );
+      const outerRect = socket.find((c) => c.kind === 'rect') as
+        | { x: number; y: number; w: number; h: number }
+        | undefined;
+      expect(outerRect, '坑外廓缺失').toBeDefined();
+      const socketHalf = outerRect!.w / 2;
+      const socketCx = outerRect!.x + outerRect!.w / 2;
+
+      // 投影 = **一枚 circle**（若实现改成 rect/椭圆，这条先红）
+      const cmds = emit((b) =>
+        drawLiftSocketShadow(b, 100, 200, 1, DEMO_BEAD_INKS, BEAD_CELL, inset),
+      );
+      const circles = cmds.filter((c) => c.kind === 'circle') as {
+        x: number; y: number; r: number; fill: string;
+      }[];
+      expect(circles.length, '抬起格应恰好一枚投影圆').toBe(1);
+      const sh = circles[0]!;
+
+      // ① 与珠同形 + 精确内接：r 直接等于坑半宽（不写死 13/11 之类）
+      expect(sh.r).toBeCloseTo(socketHalf, 9);
+      // ② 左右对称：圆心 x ≡ 槽心 x
+      expect(sh.x).toBeCloseTo(socketCx, 9);
+      // 圆心 y = 槽心 − r×下沉比例（略向下 ⇒ 光从左上）
+      expect(sh.y).toBeCloseTo(200 - socketHalf * LIFT_SHADOW_SINK, 9);
+      // 墨 = 端点族 `shadeOuter` 带 α（⛔ 零新 hex ⇒ 不得是别的墨）
+      expect(sh.fill).toBe(withAlphaShadeOuter(1, LIFT_SHADOW_ALPHA));
+    }
+  });
+
+  // ② 反向腿：⛔ 若有人把影改成「比槽大」（例如误用 ×1 系数、忘了 relief）⇒ 必红。
+  it('抬起槽内投影：r 不得超过坑半宽（防内接被破坏）', () => {
+    for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
+      const socket = emit((b) =>
+        drawEmptySocket(b, 100, 200, DEFAULT_PALETTE, BEAD_CELL, 1, DEMO_BEAD_INKS, true, inset),
+      );
+      const outerRect = socket.find((c) => c.kind === 'rect') as { w: number } | undefined;
+      const cmds = emit((b) =>
+        drawLiftSocketShadow(b, 100, 200, 1, DEMO_BEAD_INKS, BEAD_CELL, inset),
+      );
+      const sh = cmds.find((c) => c.kind === 'circle') as { r: number } | undefined;
+      expect(sh!.r).toBeLessThanOrEqual(outerRect!.w / 2 + 1e-9);
+    }
   });
 
   // **豆坑 ⊂ 珠体**（用户裁定 2026-09-26 / WXG-T-214）：坑永远比珠子小一圈 ⇒ 有豆时坑被整块盖住。
