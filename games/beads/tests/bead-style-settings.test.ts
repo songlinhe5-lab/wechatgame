@@ -42,6 +42,7 @@ import {
     BEAD_SIZE_LABELS,
     DESIGN_H, DESIGN_W, GEAR_HIT_SIZE, HUD_BAND, POWERUP_BAND, TRAY_BAND, PUZZLE_BAND,
     PANEL_SCRIM_ALPHA, PANEL_SCRIM_RGB, SETTINGS_SCRIM_ALPHA,
+    TILE_BLEED,
     gridLayoutFor,
 } from '../src/config/tuning.js';
 import {
@@ -225,7 +226,7 @@ function b0Tiles(harness: Harness): DrawCommand[] {
     buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return builder
         .end()
-        .commands.filter((c) => c.kind === 'rect' && (c as { w: number }).w === pitch);
+        .commands.filter((c) => c.kind === 'rect' && (c as { w: number }).w === pitch + 2 * TILE_BLEED);
 }
 
 function readSave(storage: Storage): Record<string, unknown> {
@@ -1047,8 +1048,10 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
             if (moved.has(w)) continue;
             expect(hSmall.get(w), `宽度 ${w} 的 rect 枚数不得随豆径档变`).toBe(hFull.get(w));
         }
-        const b0Full = rectWidths(full, (c) => inPuzzle(c) && (c as unknown as { w: number }).w === pitch);
-        const b0Small = rectWidths(small, (c) => inPuzzle(c) && (c as unknown as { w: number }).w === pitch);
+        // [WXG-T-235] B0 绘制边长 = 格距 + 2×TILE_BLEED（外扩与豆径档无关 ⇒ 仍守「B0 不随档」）。
+        const b0w = pitch + 2 * TILE_BLEED;
+        const b0Full = rectWidths(full, (c) => inPuzzle(c) && (c as unknown as { w: number }).w === b0w);
+        const b0Small = rectWidths(small, (c) => inPuzzle(c) && (c as unknown as { w: number }).w === b0w);
         expect(b0Small).toEqual(b0Full);
         expect(b0Full.length).toBe(game.snapshot.gridRows * game.snapshot.gridCols); // 实测口径：B0 满铺整盘
     });

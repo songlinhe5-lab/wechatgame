@@ -23,6 +23,7 @@ import {
     DENIED_PRESS_TROUGH_MS,
     FILL_POP_MS,
     FILL_POP_PRESS_MS,
+  TILE_BLEED,
 } from '../src/config/tuning.js';
 import { fillPopEnvelope, type FillPopEnvelope } from '../src/view/bead-render.js';
 import { deniedPressScale } from '../src/view/scene-vfx.js';
@@ -317,15 +318,18 @@ describe('G7 观感 · 命令层（TC 双断言的 scale/D1 半边）', () => {
         h.advance(FRAME);
         const snap = h.game.snapshot;
         const base = widthsAt(renderSnap(snap), snap, 1, 0);
-        expect(near(base, BEAD_PITCH)).toBe(true); // 垫 = pitch 满铺（v1.5-r8）
+        // [WXG-T-235] 垫 = pitch + 2×TILE_BLEED 满铺（外扩是常数 ⇒ 「垫不参与 scale」仍成立）。
+    expect(near(base, BEAD_PITCH + 2 * TILE_BLEED)).toBe(true);
         expect(near(base, BEAD_CELL - 2 * BEAD_DRAW_INSET)).toBe(true); // 静息珠体 46
         const valley = withDenied(snap, [{ row: 1, col: 0, p: TROUGH_P }]);
         const ws = widthsAt(renderSnap(valley), valley, 1, 0);
         const body = (BEAD_CELL - 2 * BEAD_DRAW_INSET) * DENIED_PRESS_SCALE_TROUGH; // 44.16
         expect(near(ws, body)).toBe(true);
-        expect(near(ws, BEAD_PITCH)).toBe(true); // 垫纹丝不动
-        // 永不越格（A5 零重叠前提）：垫本身铺满 pitch，故只校珠体侧
-        expect(ws.filter((w) => Math.abs(w - BEAD_PITCH) > 0.01).every((w) => w <= BEAD_CELL + 1e-9)).toBe(true);
+        expect(near(ws, BEAD_PITCH + 2 * TILE_BLEED)).toBe(true); // 垫纹丝不动
+        // [WXG-T-235] 永不越格：垫本身铺满 `pitch + 2×TILE_BLEED`（WXG-T-235 起相邻垫**重叠 1px**，
+        // 这是**刻意**的 —— 旧「零重叠」在分数设备像素下漏白；故本条的「非垫」筛阈值同步跟绘制边长）。
+        const b0w = BEAD_PITCH + 2 * TILE_BLEED;
+        expect(ws.filter((w) => Math.abs(w - b0w) > 0.01).every((w) => w <= BEAD_CELL + 1e-9)).toBe(true);
     });
 
     it('locked 格：scale 走 `size` 形参通道 ⇒ 谷帧 50×0.96 = 48（无垫、只缩不胀）', () => {

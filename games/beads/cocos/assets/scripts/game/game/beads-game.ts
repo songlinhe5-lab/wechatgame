@@ -2987,6 +2987,24 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * DEBUG 缩放设定（dev/harness / Console）：直接设相机倍率，**跳过滑杆交互**。
+   *
+   * 用途：把「格间白线是否随缩放相位出现」从肉眼判断变成**可复现的实测**——headless
+   * 截图无法点滑杆，而白线是**分数设备像素**现象（同 `zoom × dpr × 窗口宽` 的相位函数），
+   * 必须能按指定倍率出图才谈得上量化。
+   *
+   * 与 `setDebugOutlines` 同型：**不持久化、不参与玩法、无副作用**（复用同一条
+   * `setCameraZoom` + `_recomputeLayout` 路径 ⇒ 与滑杆设出的状态**完全同构**）。
+   * ⛔ 越界值由 `setCameraZoom` 自带 clamp 兜住（`CAMERA_ZOOM_MIN 0.2 … MAX 2.0`）。
+   *
+   * 用法：`__beads.game.setZoomForDebug(1.37)` 或 harness `?game=beads&zoom=1.37`。
+   */
+  setZoomForDebug(zoom: number): void {
+    setCameraZoom(this._camera, zoom, this._grid.cols, this._grid.rows);
+    this._recomputeLayout();
+  }
+
+  /**
    * DEBUG 开关（dev/harness / Console）：开则 `buildRenderModel` 每帧在盘面叠画虚线——
    * 底图 tile 轮廓（品红，固定 `BEAD_PITCH`）与珠/槽轮廓（青，缩放 `gridCell`）。甲案后真实底图
    * `drawTargetTile` 已随相机缩放，品红框因此是「若 tile 仍不缩放会怎样」的**诊断参照**、非当前实画尺寸；

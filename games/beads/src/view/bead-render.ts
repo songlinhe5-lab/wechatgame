@@ -47,6 +47,7 @@ import {
   BEAD_DRAW_INSET,
   BEAD_PITCH,
   SOCKET_CARD,
+  TILE_BLEED,
   TRAY_BEAD_SIZE,
 } from '../config/tuning.js';
 import {
@@ -455,7 +456,16 @@ export function drawTargetTile(
   inks: BeadInks = DEMO_BEAD_INKS,
   size: number = BEAD_PITCH,
 ): void {
-  builder.rect(cx - size / 2, cy - size / 2, size, size, {
+  // [WXG-T-235 / 2026-10-03 用户裁定「甲」] 每边外扩 `TILE_BLEED`，相邻格**重叠 1 设计px**。
+  //
+  // 实测依据（`tuning.ts` 同名常量注释有完整剖面）：格距在设备像素上多为分数，相邻 rect 的
+  // AA 边缘合计覆盖不足 100% ⇒ 缝里漏出底下约 20% 的白板 ⇒ 格边界上出现 1 device px 亮线
+  // （`edge` 色 lum 97.8 → 亮线 lum 132.3）。**亮度强弱随 `zoom × dpr × 窗口宽` 的相位变化。**
+  //
+  // ⛔ 只放大**绘制**边长：不动布局格距（`gridPitch`）、不动命中判定、不动 `BEAD_GAP`。
+  // 同色相邻格的重叠完全不可见；异色格的色界平移 0.5px。
+  const s = size + TILE_BLEED * 2;
+  builder.rect(cx - s / 2, cy - s / 2, s, s, {
     fill: endpointOf(inks, colorIdx).edge,
     radius: 0,
   });

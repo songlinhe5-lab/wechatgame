@@ -11,7 +11,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder } from '@wxgame/framework';
-import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH } from '../src/config/tuning.js';
+import { BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, TILE_BLEED } from '../src/config/tuning.js';
 import {
   FILL_POP_CONTACT_A_PEAK,
   FILL_POP_MS,
@@ -38,6 +38,11 @@ import {
   endpointOf,
   withAlpha,
 } from '../src/view/palette.js';
+
+/** [WXG-T-235] B0 底图的**绘制**边长（= 格距 + 每边 `TILE_BLEED`）。
+ *  ⚠ 布局格距仍是 `gridPitch`；两者在 WXG-T-235 之前恰好相等，故旧判据写 `BEAD_PITCH` 也过。 */
+const B0_TILE_PX = BEAD_PITCH + 2 * TILE_BLEED;
+
 
 const PRESS_P = FILL_POP_PRESS_MS / FILL_POP_MS; // 40/120 = 1/3
 
@@ -201,16 +206,17 @@ describe('G1 · 渲染接线：scale 只作用珠体，B0 底图不参与（§1.
     {
       expect(tile.kind).toBe('rect');
       if (tile.kind !== 'rect') return;
-      expect(tile.w).toBeCloseTo(BEAD_PITCH, 9);
-      expect(tile.h).toBeCloseTo(BEAD_PITCH, 9);
-      expect(tile.x).toBeCloseTo(100 - BEAD_PITCH / 2, 9);
-      expect(tile.y).toBeCloseTo(200 - BEAD_PITCH / 2, 9);
+      // [WXG-T-235] 绘制边长 = pitch + 2×bleed；⛔ 布局格距仍是 pitch。
+      expect(tile.w).toBeCloseTo(B0_TILE_PX, 9);
+      expect(tile.h).toBeCloseTo(B0_TILE_PX, 9);
+      expect(tile.x).toBeCloseTo(100 - B0_TILE_PX / 2, 9);
+      expect(tile.y).toBeCloseTo(200 - B0_TILE_PX / 2, 9);
       expect(tile.radius ?? 0).toBe(0); // 方角 ⇒ 相邻格底色无缝
       expect(tile.fill).toBe(endpointOf(DEMO_BEAD_INKS, 3).edge); // 恒为目标色暗档
     }
     // 珠体三条静息/峰值/落座命令里均无 pitch 宽图元 ⇒ 底图不会被珠体包络带动。
     for (const commands of [pad, pop, rest]) {
-      expect(commands.some((c) => c.kind === 'rect' && c.w === BEAD_PITCH)).toBe(false);
+      expect(commands.some((c) => c.kind === 'rect' && c.w === B0_TILE_PX)).toBe(false);
     }
   });
 

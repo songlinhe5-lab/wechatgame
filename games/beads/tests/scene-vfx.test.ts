@@ -41,6 +41,7 @@ import {
   WAVE_SCALE_PEAK,
   WAVE_WINDOW_MIN_MS,
   solverSequenceMs,
+  TILE_BLEED,
 } from '../src/config/tuning.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
 import { drawLegacyTenBead } from '../src/view/bead-styles/legacy-ten.js';
@@ -59,6 +60,11 @@ import { buildBeadsView } from '../src/view/view-model.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
+
+/** [WXG-T-235] B0 底图的**绘制**边长（= 格距 + 每边 `TILE_BLEED`）。
+ *  ⚠ 布局格距仍是 `gridPitch`；两者在 WXG-T-235 之前恰好相等，故旧判据写 `BEAD_PITCH` 也过。 */
+const B0_TILE_PX = BEAD_PITCH + 2 * TILE_BLEED;
+
 
 const freshWave = (): WaveEnvelope => ({ scale: 1, dy: 0, active: false });
 
@@ -343,7 +349,7 @@ describe('G4 vfx_complete_wave · LOD 降档 + B0 底图不参与 lift（v1.5-r8
       expect(c.kind).toBe('rect');
       return c as RectCommand;
     };
-    expect(still.some((c) => c.kind === 'rect' && c.w === BEAD_PITCH)).toBe(false);
+    expect(still.some((c) => c.kind === 'rect' && c.w === B0_TILE_PX)).toBe(false);
     // ① 位移：拿孔心（= 珠心，无其他修正）量 ⇒ 恰好等于 lift（rect.y 已不能当尺，
     //    因为 size 与 shadowDy 也会随 lift 变）。
     const holeY = (cmds: readonly DrawCommand[]): number =>

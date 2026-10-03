@@ -490,6 +490,14 @@ if (isBeads && new URLSearchParams(harnessQuery).get('dbg') === 'info') {
   beads.setDebugInfo(true);
 }
 
+// `?zoom=N` 直接设相机倍率（跳过滑杆交互）⇒ headless 截图可按指定倍率出图。
+// 用途：白线是**分数设备像素**相位现象（zoom × dpr × 窗口宽的函数），必须能定点复现才谈量化。
+// 放在 `app.start()` 之后调用，避免首帧用旧 zoom 渲染一帧再跳变。
+{
+  const z = Number(new URLSearchParams(harnessQuery).get('zoom'));
+  if (Number.isFinite(z) && z > 0) beads.setZoomForDebug(z);
+}
+
 requestAnimationFrame(frame);
 
 // Expose for console poking during development.

@@ -17,6 +17,7 @@ import {
   POWERUP_CARD_H,
   POWERUP_CARD_W,
   POWERUP_LABEL_H,
+  TILE_BLEED,
   TOUCH_MIN,
   powerupCardRects,
   powerupLabelY,
@@ -27,6 +28,11 @@ import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
+
+/** [WXG-T-235] B0 底图的**绘制**边长（= 格距 + 每边 `TILE_BLEED`）。
+ *  ⚠ 布局格距仍是 `gridPitch`；两者在 WXG-T-235 之前恰好相等，故旧判据写 `BEAD_PITCH` 也过。 */
+const B0_TILE_PX = BEAD_PITCH + 2 * TILE_BLEED;
+
 
 /**
  * `[WXG-T-211-A / ADR-0024]` polygon payloads are no longer carried by the
@@ -126,8 +132,10 @@ describe('beads view model (control-manifest §8)', () => {
     // 钉在 z = 1 ⇒ 格距恰为 `BEAD_PITCH`，所以下面的字面量过滤器**仍然是对的**，本例职责 =
     // 守住「不缩放时快照与渲染逐位不变」。前置那条保证它不会静默退化成永真过滤（K-041）。
     expect(harness.game.snapshot.gridPitch).toBe(BEAD_PITCH);
+    // [WXG-T-235] B0 tile 绘制边长 = `gridPitch + 2×TILE_BLEED`（用户裁定「甲」：相邻格重叠
+    // 1px 消 AA 接缝的实测白线）。⛔ 布局格距仍是 `gridPitch`。
     const tiles = (cmds: readonly DrawCommand[]) =>
-      cmds.filter((c) => c.kind === 'rect' && c.w === BEAD_PITCH);
+      cmds.filter((c) => c.kind === 'rect' && c.w === B0_TILE_PX);
     const blank = tiles(render(harness));
     expect(blank).toHaveLength(harness.game.grid.fillableTotal);
     expect(fillBoard(harness)).toBe(30);
@@ -149,7 +157,7 @@ describe('beads view model (control-manifest §8)', () => {
     expect(harness.game.snapshot.gridPitch).toBe(BEAD_PITCH);
     const tileFills = (cmds: readonly DrawCommand[]) =>
       cmds
-        .filter((c): c is Extract<DrawCommand, { kind: 'rect' }> => c.kind === 'rect' && c.w === BEAD_PITCH)
+        .filter((c): c is Extract<DrawCommand, { kind: 'rect' }> => c.kind === 'rect' && c.w === B0_TILE_PX)
         .map((c) => c.fill)
         .sort();
     const blank = tileFills(render(harness));
@@ -303,7 +311,8 @@ describe('beads view model (control-manifest §8)', () => {
     // 「`gridPitch < BEAD_PITCH`（本例在 z<1 档）」不再成立。本例职责是**命令预算与砖数守恒**
     // （与尺子无关），故前置改为符号式同尺锦（不依赖具体 zoom）；
     // z<1 的真缩放腿已住下一条（夹具换为 22×19）⇒ **未删断言、只是各归其位**（K-036）。
-    const tiles = tileRects(commands, harness.game.snapshot.gridPitch);
+    // [WXG-T-235] 按**绘制**边长筛（= 格距 + 2×bleed）。
+    const tiles = tileRects(commands, harness.game.snapshot.gridPitch + 2 * TILE_BLEED);
     expect(tiles.length).toBe(harness.game.grid.fillableTotal);
     expect(harness.game.snapshot.gridPitch).toBe(computeFitZoom(13, 12) * BEAD_PITCH);
   });
@@ -340,9 +349,9 @@ describe('beads view model (control-manifest §8)', () => {
     expect(snap.gridPitch).toBe(computeFitZoom(22, 19) * BEAD_PITCH);
 
     const commands = render(harness);
-    const tiles = tileRects(commands, snap.gridPitch);
+    const tiles = tileRects(commands, snap.gridPitch + 2 * TILE_BLEED);
     expect(tiles.length).toBe(harness.game.grid.fillableTotal);
-    expect(tiles.every((t) => t.h === snap.gridPitch)).toBe(true);
+    expect(tiles.every((t) => t.h === snap.gridPitch + 2 * TILE_BLEED)).toBe(true);
     // (1) 反向锚：旧尺寸的底图砖一片都不剩（防“新旧两套砖都在画”的重复绘制回退）。
     expect(tileRects(commands, BEAD_PITCH)).toHaveLength(0);
 
@@ -360,8 +369,10 @@ describe('beads view model (control-manifest §8)', () => {
       for (let k = 1; k < sorted.length; k++) {
         const prev = sorted[k - 1]!;
         const cur = sorted[k]!;
-        expect(cur.x - (prev.x + prev.w), `相邻底图砖重叠（row y=${cur.y}）`).toBeGreaterThanOrEqual(
-          -1e-9,
+        // [WXG-T-235] 旧判据是「相邻砖**零重叠**」（`≥ 0`），现口径改为「**恰好重叠 1px**」——
+        // 零重叠在分数设备像素下会漏白（实测 20% 白板），故本条由「不重叠」翻成「重叠 = 2×bleed」。
+        expect(prev.x + prev.w - cur.x, `相邻底图砖重叠量（row y=${cur.y}）`).toBeCloseTo(
+          2 * TILE_BLEED, 9,
         );
         checked++;
       }

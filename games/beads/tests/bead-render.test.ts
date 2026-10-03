@@ -40,6 +40,7 @@ import {
   TRAY_SLOT,
   nextBeadLod,
   ZOOM_LOD_LAYERS,
+  TILE_BLEED,
 } from '../src/config/tuning.js';
 import {
   BEAD_CARD,
@@ -69,6 +70,11 @@ import {
 import { drawLegacyTenBead } from '../src/view/bead-styles/legacy-ten.js';
 import { DEFAULT_BEAD_STYLE } from '../src/view/bead-styles/registry.js';
 import { isRealAlphaLayer } from '../src/view/bead-styles/contract.js';
+
+/** [WXG-T-235] B0 底图的**绘制**边长（= 格距 + 每边 `TILE_BLEED`）⇒ 相邻重叠 1px。
+ *  ⚠ 布局格距仍是 `BEAD_PITCH`／`gridPitch`；两者在 WXG-T-235 之前恰好相等。 */
+const B0_TILE_PX = BEAD_PITCH + 2 * TILE_BLEED;
+
 // v1.5-r8：L5 符号层已删 ⇒ `view/symbols.ts` 不再存在，不得重新引入。
 
 function emit(draw: (builder: RenderModelBuilder) => void) {
@@ -381,11 +387,14 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     const tile = emit((b) => drawTargetTile(b, 100, 200, 1))[0]!;
     expect(tile.kind).toBe('rect');
     if (tile.kind !== 'rect') return;
-    expect(tile.w).toBe(BEAD_PITCH);
-    expect(tile.h).toBe(BEAD_PITCH);
+    // [WXG-T-235] 绘制边长 = 格距 + 2×TILE_BLEED ⇒ 相邻**重叠 1px**。
+    // 改这条不是审美，是**实测**：满格距时格距在设备像素上多为分数，相邻 rect 的 AA 边缘
+    // 合计覆盖不足 100% ⇒ 缝里漏出底下约 20% 白板（实测格边界出现 1px 亮线，三通道解混合一致）。
+    expect(tile.w).toBe(B0_TILE_PX);
+    expect(tile.h).toBe(B0_TILE_PX);
     expect(tile.radius ?? 0).toBe(0);
-    // 相邻两格圆心相距 = pitch ⇒ 两砖边缘重合（无缝）；旧写法砖边长 = BEAD_CELL ⇒ 中间空 2px。
-    expect(tile.x + tile.w).toBe(100 + BEAD_PITCH / 2);
+    expect(tile.x + tile.w).toBe(100 + B0_TILE_PX / 2);
+    expect(B0_TILE_PX - BEAD_PITCH).toBeCloseTo(1, 9); // 重叠量 = 1 设计px
   });
 
   // 甲案核心（WXG-T-206）：砖边长是**入参**，必须随相机缩放。旧 bug = 硬编码绝对 52 而格心
@@ -402,8 +411,9 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     if (tile.kind !== 'rect' || identity.kind !== 'rect') return;
     // 仍只一枚图元 ⇒ 零增量（`check:size` 与 §11.2 基线不动）。
     expect(SCALED).toBeLessThan(BEAD_PITCH); // 前置：本例真的在测 z<1 档
-    expect(tile.w).toBe(SCALED);
-    expect(tile.h).toBe(SCALED);
+    // [WXG-T-235] 外扩量是常数（0.5/边）⇒ 缩放档下重叠仍是 1px。
+    expect(tile.w).toBe(SCALED + 2 * TILE_BLEED);
+    expect(tile.h).toBe(SCALED + 2 * TILE_BLEED);
     expect(tile.radius ?? 0).toBe(0); // 方角不随缩放变
     // 以格心为中心：砖变小不致中点漂移（旧 bug 的另一半 = 珠体居中而底图外伸）。
     expect(tile.x + tile.w / 2).toBeCloseTo(100, 9);

@@ -411,6 +411,12 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         // 归因登记必须在案（⛔ 无登记的基准追改视为红）。
         expect(SEAL.provenance.s3_frame_recheck_6, '第六次复评无归因登记').toContain('第六次复评');
         expect(SEAL.provenance.s3_frame_recheck_6).toContain('731100c');
+        // 第七次（WXG-T-235 `TILE_BLEED`）：归因须点名常量、点明「非 tint 引入」的两臂对照、
+        // 并给出本批唯一的修订面（156 块 B0 rect 的 w/h）——三者缺一即红。
+        expect(SEAL.provenance.s3_frame_recheck_7, '第七次复评无归因登记').toContain('第七次复评');
+        expect(SEAL.provenance.s3_frame_recheck_7).toContain('TILE_BLEED');
+        expect(SEAL.provenance.s3_frame_recheck_7).toContain('不是 tint 臂引入');
+        expect(SEAL.provenance.s3_frame_recheck_7).toContain('96/96');
         // 反面自证（K-060）：新锁与 HEAD 旧锁必不等，且不等量已在上面逐项登记。
         expect(SEAL.s3.frame0.sha).not.toBe(SEAL.head.frame0.sha);
         expect(SEAL.s3.frame78.sha).not.toBe(SEAL.head.frame78.sha);
@@ -430,6 +436,7 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_4, '第四次复评无归因登记').toContain('第四次复评');
         expect(SEAL.provenance.s3_frame_recheck_5, '第五次复评无归因登记').toContain('流级差分');
         expect(SEAL.provenance.s3_frame_recheck_6, '第六次复评无归因登记').toContain('第六次复评');
+        expect(SEAL.provenance.s3_frame_recheck_7, '第七次复评无归因登记').toContain('WXG-T-235');
         // 反演后的流仍不得等于任何旧锁（防「把基准刷回 HEAD」的静默通道）。
         expect(sha(r.flow.join('\n'))).not.toBe(SEAL.head.frame0.sha);
         expect(sha(emptyBoardFlow().join('\n'))).toBe(SEAL.s3.frame0.sha);

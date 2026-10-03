@@ -385,9 +385,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3670,
+      "tokens": 3664,
       "lines": 133,
-      "sha256": "5910e537276dea99141884d480afa06a14a8ab855dbcc38920608375ce2f1332",
+      "sha256": "4c275bff454e292b234fe6e732b75ecd3a78a453887b960ad220b54fea5215b6",
       "tier": "normal",
       "sections": [
         {
@@ -395,7 +395,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 134,
-          "tokens": 3657,
+          "tokens": 3651,
           "summary": "生成：2026-10-03 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -424,7 +424,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 403,
+          "tokens": 398,
           "summary": "1 games/beads/art/assets-spec.md 107705 1918 normal",
           "keywords": [
             "Top",
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5031,
+      "tokens": 5037,
       "lines": 106,
-      "sha256": "6ce7cc751bf85ca4827f29983af6412ed07ea2c4aeb9aa78a983474ad388a112",
+      "sha256": "4d612e59c7f1728c831dac83768931c4c6df3aada2e10c6f3bddd73d3a35a620",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 107,
-          "tokens": 5003,
+          "tokens": 5009,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 73 行 / 13642 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 74 行 / 13988 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+74 · §待排（backlog，无号，立项时领取）=47+28",
+          "summary": "§WXG 任务台账（SSOT）=1+75 · §待排（backlog，无号，立项时领取）=48+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1052 行 / 53559 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1125 行 / 55168 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 269,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1053 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 274,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1126 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48503,17 +48503,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 2529,
-      "lines": 59,
-      "sha256": "eae9a2e908e09679df5c8823fe49e6916dff83bfb4165883a4f10f979440defa",
+      "tokens": 3280,
+      "lines": 81,
+      "sha256": "d0b67059dfcd04cd8e53f084496a399fa45beed50e1b874132b8e2cf5eb78304",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 60,
-          "tokens": 2526,
+          "endLine": 82,
+          "tokens": 3277,
           "summary": "",
           "keywords": []
         },
@@ -48521,8 +48521,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 60,
-          "tokens": 2494,
+          "endLine": 82,
+          "tokens": 3244,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48639,6 +48639,20 @@
             "用户裁",
             "缩范围"
           ]
+        },
+        {
+          "anchor": "§WXG-T-235 落码（用户裁定「甲」= B0 底图外扩消白线）",
+          "level": 3,
+          "startLine": 61,
+          "endLine": 82,
+          "tokens": 728,
+          "summary": "用户报「格间白线与放大缩小时采样有关」⇒ 实测成立，但成因不是他猜的那一层：白线不在格间，",
+          "keywords": [
+            "WXG",
+            "落码",
+            "用户裁定",
+            "底图外扩消白"
+          ]
         }
       ]
     },
@@ -48646,7 +48660,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "8624587ea5e03e2147dcf8bd15a3c55c4beb993413658b8a6d1952a8de54457d",
+      "sha256": "49716aeb0b62294cb68cd1cde4ffa48b4ff6f48847167bbaa2a1ae42c6c82123",
       "tier": "normal",
       "sections": [
         {
@@ -48737,7 +48751,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 2,529 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 3,280 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -68742,17 +68756,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 53559,
-      "lines": 1052,
-      "sha256": "160e9cc3133e170e8c5ecb5531bbbf8b2e544e1a889f96a9465b6a2028055303",
+      "tokens": 55168,
+      "lines": 1125,
+      "sha256": "f0de1357da6325f8b24304ec53fc98dc169d3602c1191997de735d9e204c5ebc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1053,
-          "tokens": 53542,
+          "endLine": 1126,
+          "tokens": 55151,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -69658,22 +69672,140 @@
             "beads",
             "mask"
           ]
+        },
+        {
+          "anchor": "§WXG-T-235",
+          "level": 2,
+          "startLine": 1054,
+          "endLine": 1126,
+          "tokens": 1606,
+          "summary": "beads·B0 底图 TILE_BLEED 外扩（消 AA 接缝白线） — 2026-10-03 用户裁定「甲」。",
+          "keywords": [
+            "WXG",
+            "beads",
+            "TILE_BLEED"
+          ]
+        },
+        {
+          "anchor": "§起因：用户报「格子之间的白线看起来与放大缩小时采样有关」",
+          "level": 3,
+          "startLine": 1058,
+          "endLine": 1074,
+          "tokens": 404,
+          "summary": "用户初判方向经实测成立。三次实测把「看起来」变成数字：",
+          "keywords": [
+            "起因",
+            "用户报",
+            "格子之间的白",
+            "线看起来与放",
+            "大缩小时采样",
+            "有关"
+          ]
+        },
+        {
+          "anchor": "§落码（⛔ 只放大绘制边长，其余全不动）",
+          "level": 3,
+          "startLine": 1075,
+          "endLine": 1083,
+          "tokens": 201,
+          "summary": "config/tuning.ts 新增 TILE_BLEED = 0.5（每边设计px）。附完整剖面、取值依据与判例。",
+          "keywords": [
+            "config",
+            "tuning",
+            "TILE_BLEED",
+            "落码",
+            "只放大绘制边",
+            "其余全不动"
+          ]
+        },
+        {
+          "anchor": "§配套测具（同批落，dev-only）",
+          "level": 3,
+          "startLine": 1084,
+          "endLine": 1091,
+          "tokens": 170,
+          "summary": "game/beads-game.ts setZoomForDebug(zoom)：照 setDebugOutlines ",
+          "keywords": [
+            "dev",
+            "only",
+            "game",
+            "beads",
+            "setZoomForDebug",
+            "zoom"
+          ]
+        },
+        {
+          "anchor": "§修后实测（对照上表）",
+          "level": 3,
+          "startLine": 1092,
+          "endLine": 1097,
+          "tokens": 90,
+          "summary": "两处剖面点 lum 132.3 / 132.2 → 97.8（= 底色本身，Δ −34.5 / −34.3）",
+          "keywords": [
+            "lum",
+            "修后实测",
+            "对照上表"
+          ]
+        },
+        {
+          "anchor": "§测试口径变更（逐处留决策出处，非数字微调）",
+          "level": 3,
+          "startLine": 1098,
+          "endLine": 1106,
+          "tokens": 141,
+          "summary": "共 10 处「B0 底图 = 满格距、边缘重合」旧不变量：",
+          "keywords": [
+            "测试口径变更",
+            "逐处留决策出",
+            "非数字微调"
+          ]
+        },
+        {
+          "anchor": "§封箱基准：第七次复评（严守真 · 官方复取器重抓）",
+          "level": 3,
+          "startLine": 1107,
+          "endLine": 1119,
+          "tokens": 302,
+          "summary": "现象：bead-style-seal 腿 4a/4b 红（整帧 sha 漂移）；kinds 与 total 未变 ⇒ 纯",
+          "keywords": [
+            "bead",
+            "style",
+            "seal",
+            "sha",
+            "kinds",
+            "total"
+          ]
+        },
+        {
+          "anchor": "§未闭（如实）",
+          "level": 3,
+          "startLine": 1120,
+          "endLine": 1126,
+          "tokens": 142,
+          "summary": "⛔ 只验了 zoom 1.0 × dpr 2 一档；?zoom=N 已落但未做全 zoom × dpr 扫描（temp/",
+          "keywords": [
+            "zoom",
+            "dpr",
+            "temp",
+            "未闭",
+            "如实"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 13642,
-      "lines": 73,
-      "sha256": "5cbd4a75920777b8bd3020ca805fd19219cb62efb1099aa8a547e7db91244365",
+      "tokens": 13988,
+      "lines": 74,
+      "sha256": "7b78813629af7b924be35f956895b955db81b436637551d4e3714ce0d06edd7e",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 74,
-          "tokens": 13633,
+          "endLine": 75,
+          "tokens": 13979,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -69686,8 +69818,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 47,
-          "endLine": 74,
+          "startLine": 48,
+          "endLine": 75,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
