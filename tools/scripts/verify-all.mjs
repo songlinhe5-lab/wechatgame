@@ -76,6 +76,9 @@ const STEPS = Object.freeze([
   // 用 `grep 'SKIP'` 子串判「子命令是否 SKIP」，而本聚合器的汇总行恒含计数「… ｜ SKIP 0 ｜ …」
   // ⇒ 恒定误判 ⇒ 产物齐备时必红。现改为只认该步骤自己的状态行，并在隔离 worktree 实测通过。
   'selftest:fast',
+  // WXG-T-235：盘面 B0 接缝白线守卫。**静态口径门**（无浏览器依赖 ⇒ CI 可跑）；
+  // 同名的**像素复验**模式（`--pixels`，需本地 Chrome + harness）⛔ 不挂本表（CI 无浏览器 ⇒ 必假红）。
+  'check:board-seam',
 ]);
 
 const STATUS_RE = /^STATUS:\s*(OK|WARN|SKIP|FAIL)\b/m;
