@@ -15,6 +15,11 @@
  *
  * ⚠ 造盘（与 `board-wrong-fx.test.ts` 同判例）：初始**满盘** ⇒ 空格靠 `setBead`+`retrieve`
  * 两步制造；`selectBoardBead` 建 board 锚。
+ *
+ * **[T-244 修正]** 用户报「没有错峰落子/没有下压/顺序不由近及远」⟹ **首版挂错路径**：
+ * 只挂了 board 锚直填（`_tryDirectFillFromBoard`），而游戏主流程是**托盘锚** `_placeSelected`
+ * （其组批量循环每颗调 `_armPlaceFx` G1 单槽 ⟹ 逐颗互相覆盖 = 无错峰无下压）。
+ * 修正 = 组批量走 `_groupLandFx` 队列、单颗保 G1 ⟹ 腿 ③ 钉托盘路径。
  */
 
 import { describe, expect, it } from 'vitest';
@@ -96,5 +101,47 @@ describe('组归位逐颗 BFS 错峰落座（WXG-T-244）', () => {
         s = h.game.snapshot;
         expect(s.groupLandCount, '⛔ 播完即清（零常驻）').toBe(0);
         expect(s.groupLandElapsedMs).toBe(0);
+    });
+});
+
+describe('托盘锚组归位走同队列（WXG-T-244 修正批）', () => {
+    it('③ 托盘选珠点空格 ⟹ 组批量登记 BFS 序（⛔ 首版漏的正是这条主流程路径）', () => {
+        const h = mk('wxgame.beads.test.t244-tray-path');
+        // 造两个 t2 空格（相邻 ⟹ BFS 第二跳可达）
+        makeEmpty(h, 1, 1, 3);
+        makeEmpty(h, 2, 1, 3);
+        // 托盘给两颗色 2 珠并选中组
+        const slot0 = h.game.giveTrayBead(2);
+        const slot1 = h.game.giveTrayBead(2);
+        expect(slot0).toBeGreaterThanOrEqual(0);
+        expect(slot1).toBeGreaterThanOrEqual(0);
+        expect(h.game.selectTraySlot(slot0), '托盘锚建立').toBe(true);
+
+        expect(h.game.tapGridCell(1, 1), '托盘组归位被消费').toBe(true);
+
+        const s = h.game.snapshot;
+        expect(s.cells[7]?.state, '(1,1) 当帧 filled（数据同帧口径）').toBe('filled');
+        expect(s.groupLandCount, '⛔ 组批量走队列（此前 G1 单槽互相覆盖 = 无错峰）').toBe(2);
+        expect(s.groupLandRows[0]).toBe(1);
+        expect(s.groupLandCols[0]).toBe(1);
+        expect(s.groupLandRows[1]).toBe(2);
+        expect(s.groupLandCols[1]).toBe(1);
+    });
+
+    it('④ 下压包络真的进了命令流（珠 scale < 1 的帧存在）', () => {
+        const h = mk('wxgame.beads.test.t244-press');
+        makeEmpty(h, 1, 1, 3);
+        makeEmpty(h, 2, 1, 3);
+        h.game.giveTrayBead(2);
+        h.game.giveTrayBead(2);
+        h.game.selectTraySlot(h.game.snapshot.traySlots.findIndex((t) => t.state === 'holding'));
+        h.game.tapGridCell(1, 1);
+        h.advance(FRAME); // 推进到第一颗 pop 窗口内
+        const s = h.game.snapshot;
+        expect(s.groupLandCount).toBe(2);
+        // pop 窗口内：progress ∈ (0,1) ⇒ fillPopEnvelope 产出 scale < 1（压下段）
+        const p = s.groupLandElapsedMs / (SOLVER_STAGGER_MS * 1 + SOLVER_PER_BEAD_MS);
+        expect(p, '第一颗处于 pop 窗口').toBeGreaterThan(0);
+        expect(p).toBeLessThan(1);
     });
 });

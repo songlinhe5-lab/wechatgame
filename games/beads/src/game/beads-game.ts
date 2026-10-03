@@ -2792,7 +2792,14 @@ export class BeadsGame implements Game {
           if (i > 0 && !this._grid.fill(c.row, c.col, colorIdx)) break; // 防御：格已被占
           this._tray.takeBead(slot);
           this._emit('bead:placed', { row: c.row, col: c.col, colorIdx, slot });
-          this._armPlaceFx(c.row, c.col); // G1 落座回弹（`assets-spec §1.6.1`）
+          // [T-244 修正 · 2026-10-04 用户报「没有错峰落子/没有下压/顺序不由近及远」]
+          // 病灶：本循环每颗调 `_armPlaceFx`（**G1 单槽**）⟹ 逐颗互相覆盖，只有**最后一颗**
+          // 有落座动画 ⟹ 组批量时：无错峰、无下压、顺序无从谈起（**首版挂错了路径**——
+          // 只挂了 board 锚直填 `_tryDirectFillFromBoard`，而游戏主流程是本托盘锚路径）。
+          // 修法：组批量（>1）走 `_groupLandFx` 队列（step = 填充序 = BFS 由近及远）；
+          // 单颗（=1）保持 G1 单槽（行为零变化，直喂 snapshot 的既有测试不感知）。
+          if (groupSize > 1) this._noteGroupLand(c.row, c.col, i);
+          else this._armPlaceFx(c.row, c.col); // G1 落座回弹（`assets-spec §1.6.1`）
           // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）。
           // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
           // 写 ⇒ 此处一次性低频 IO 直接 save()。幂等守卫：仅首次落子写一次（后续

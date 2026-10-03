@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "0a125f5cca0d63a2f8cf16a1ec155ea7bc08ae56cf8dc686c3675794fe58bfa1",
+      "sha256": "b2893ca14a8ddf205b45831f594acbb1c64489fe1e3e259a6ce032953687b00a",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 8345,
-      "lines": 278,
-      "sha256": "7b4fbcfa89d8c070f918c7380101008c658e247131b24e6c115763bfccd90616",
+      "tokens": 8621,
+      "lines": 288,
+      "sha256": "511c49b6672f9685a7aa45a7c4e9ff9e3f669051684cac012fac85c64e905c34",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 279,
-          "tokens": 8341,
+          "endLine": 289,
+          "tokens": 8618,
           "summary": "",
           "keywords": []
         },
@@ -50359,6 +50359,22 @@
             "targets",
             "组归位逐颗"
           ]
+        },
+        {
+          "anchor": "§T-244 修正批：挂错路径（ponytail「读全流程」的活教材）",
+          "level": 3,
+          "startLine": 280,
+          "endLine": 289,
+          "tokens": 252,
+          "summary": "用户报「没有错峰/没有下压/顺序不由近及远」⟹ 首版只挂了 board 锚直填路径，游戏主流程是托盘锚",
+          "keywords": [
+            "ponytail",
+            "board",
+            "修正批",
+            "挂错路径",
+            "读全流程",
+            "的活教材"
+          ]
         }
       ]
     },
@@ -50366,7 +50382,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "48950d6b73aaa714026caba44eae3dd9961c7f86a03b19bef5093bac7f0dfe17",
+      "sha256": "36c9941f7761a635202bbbe31daf06e688b53d7a6b537fd3dcaf6db7fae44847",
       "tier": "normal",
       "sections": [
         {
@@ -50457,7 +50473,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 8,345 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 8,621 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
