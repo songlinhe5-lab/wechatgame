@@ -20,7 +20,7 @@ import {
     type BeadTintRuntime,
 } from '../src/view/bead-render.js';
 import { tintMaskId, tintUpscaleAllowed, whitelistedTintStyles, TINT_MASK_STYLE_ID } from '../src/view/bead-tint-mask.js';
-import { BEAD_CARD, BEAD_CELL, BEAD_PITCH, BAKE_CANONICAL_SIZE, TINT_LOD_MAX_UPSCALE } from '../src/config/tuning.js';
+import { BEAD_CARD, BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, BAKE_CANONICAL_SIZE, TINT_LOD_MAX_UPSCALE } from '../src/config/tuning.js';
 import { beadColorOf, DEFAULT_PALETTE, DEMO_BEAD_INKS, type BeadsPalette } from '../src/view/palette.js';
 
 /** 记录调用的 tint 运行时桩（白名单可开关）。 */
@@ -102,6 +102,40 @@ describe('drawEmptySocket · tint 臂命中条件（八轮：maskGauge 漏传 = 
         // 不传 styleId ⇒ 落 `DEFAULT_BEAD_STYLE_ID`；⛔ 这与「珠用 snap.beadStyle」在换风格时不同源
         // （view-model 已显式补传，本腿守住函数层的缺省行为不被人悄悄改掉）。
         expect(calls[0]?.styleId).toBe(TINT_MASK_STYLE_ID);
+    });
+});
+
+// ── [WXG-T-237 v4.0] `trayZone` 的**反向守卫** ────────────────────────────
+//
+// 放宽后的命中条件 = `colorIdx !== undefined || options.trayZone === true`。
+// ⛔ **风险**：若有人把条件改成「无条件放行」（或把 `trayZone` 误传到盘面格），
+//    **盘面格在缺 `colorIdx` 时会误命中托盘分支** ⇒ 用**中性色**渲染 ⇒ 静默错色。
+// ⇒ 两条腿：① 托盘空槽（`colorIdx` 缺 + `trayZone`）必命中；② **盘面格缺 `colorIdx` 且无
+//    `trayZone` ⇒ 必不命中**（把误命中钉死）。
+describe('trayZone 反向守卫（WXG-T-237 v4.0）', () => {
+    it('① 托盘空槽：colorIdx 缺 + trayZone ⇒ 必命中 cell mask，且只发 1 条 blit', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const cmds = build((b) =>
+            drawEmptySocket(b, 100, 100, palette, BEAD_CELL, undefined, DEMO_BEAD_INKS, false, BEAD_DRAW_INSET,
+                { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, trayZone: true }),
+        ).commands;
+        expect(calls, '托盘空槽须命中').toEqual([
+            { kind: 'cell', gauge: 'holed', styleId: TINT_MASK_STYLE_ID },
+        ]);
+        expect(cmds.filter((c) => c.kind === 'blit').length, '恰好 1 条 blit').toBe(1);
+        expect(cmds.filter((c) => c.kind === 'rect').length, '⛔ 命中后不得再发矢量内阴影 rect').toBe(0);
+    });
+
+    it('② ⛔ 盘面格缺 colorIdx 且无 trayZone ⇒ 必不命中（防误用中性色渲染盘面槽）', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        // 与 ① 唯一的差别 = **不传 trayZone**（模拟「有人忘了传」或「盘面格误走此路径」）
+        build((b) =>
+            drawEmptySocket(b, 100, 100, palette, BEAD_CELL, undefined, DEMO_BEAD_INKS, false, BEAD_DRAW_INSET,
+                { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID }),
+        );
+        expect(calls, '⛔ 缺 trayZone ⇒ 必不命中（否则盘面槽会被中性色误渲染）').toEqual([]);
     });
 });
 

@@ -882,6 +882,14 @@ export interface EmptySocketTintOptions {
   readonly maskGauge?: BeadMaskGauge;
   /** 风格白名单键；不传 ⇒ `DEFAULT_BEAD_STYLE_ID`。 */
   readonly styleId?: string;
+  /**
+   * **[WXG-T-237 v4.0]** `true` = 本槽是**托盘槽**（无 per-cell 目标色 ⇒ `base = palette.slot` 中性）。
+   *
+   * 用途：放宽命中条件里的 `colorIdx !== undefined`（托盘空槽没有目标色可传）。
+   * ⛔ **必须显式传** —— 目的是让「盘面格缺 `colorIdx`」时**不会**误命中托盘分支
+   * （那种误命中会让盘面槽用中性色渲染）。反向守卫见 `bead-tint-arm.test.ts`。
+   */
+  readonly trayZone?: boolean;
 }
 
 export function drawEmptySocket(
@@ -947,7 +955,10 @@ export function drawEmptySocket(
     _tintRuntime !== undefined &&
     !_baking &&
     beadInset > 0 &&
-    colorIdx !== undefined &&
+    // [WXG-T-237 v4.0] 托盘**空槽**没有 per-cell 目标色 ⇒ 原条件 `colorIdx !== undefined` 恒不成立
+    // ⇒ 托盘永远走矢量臂。改为「有目标色 **或** 显式 `trayZone`」。
+    // ⛔ `trayZone` 必须由调用方显式传 —— 防止**盘面格**在缺 `colorIdx` 时误命中（那样会用中性色渲染）。
+    (colorIdx !== undefined || options.trayZone === true) &&
     options.maskGauge !== undefined &&
     // EP12-B4：与 `drawFilledBead` 同一道放大回退阀（格面 mask 同样是 128px 定档纹理，
     // ⛔ 放大时必须一并回退，否则出现「珠回退了、格没退」的不一致）。

@@ -376,8 +376,20 @@ export const TRAY_BASE_SLOTS = 24;
 export const TRAY_EXPAND_SLOTS = 12;
 /** Slots per tray row. */
 export const TRAY_COLS = 12;
-/** Slot edge length. */
-export const TRAY_SLOT = 48;
+/**
+ * Slot edge length.
+ *
+ * **[WXG-T-237 v4.0 · 2026-10-03 用户裁定「先按 1:1 的格面实现效果，不做缩放」]**
+ * ⛔ 托盘**不再有独立的尺寸体系** —— 格面/格距/珠面全部**直接由盘面常量派生**：
+ * · `TRAY_SLOT` = `BEAD_CELL`（**30**）⇒ 与盘面格面 **1:1**
+ * · `TRAY_GAP`  = `BEAD_GAP`（**2**）⇒ `pitch = 30 + 2 = 32` = `BEAD_PITCH`（与盘面格距 1:1）
+ * · 托盘珠 `outer` = `TRAY_SLOT`，内缩走 `BEAD_DRAW_INSET` ⇒ 珠面 **26** = 盘面珠面（1:1）
+ *
+ * ⚠ **冻结值变化（如实登记）**：48 → 30（−18）· 珠外廓 44 → 26（−18）· `pitch` 54 → 32（−22）
+ * ⇒ 12 列行宽 642 → **382dp**（−260）⇒ 托盘整块**变窄**，左右留白大增（这正是「不缩放」的直接后果）。
+ * ⚠ `systems-index §3` 冻结常量表须同步标注（⛔ 工程不代改冻结表 —— 由 art/工程在定标单裁后处理）。
+ */
+export const TRAY_SLOT = BEAD_CELL;
 /**
  * 托盘珠绘制边长。**§3.4 v1.57（WXG-T-207-A）由 `view/bead-render.ts` 的私有绝对量升为
  * §3 派生常量**（K-012 补漏：它一直被 `view/view-model.ts` 与 `tests/bead-render.test.ts`
@@ -390,9 +402,17 @@ export const TRAY_SLOT = 48;
  * ⇒ 同尺方案 `TRAY_SLOT 48→32`（连带重开 v1.42 三行态与 `btn_expand` 重叠 48px 的 E2
  * 真机重验）**属另案，不并入本单**。
  */
-export const TRAY_BEAD_SIZE = TRAY_SLOT - 4;
-/** Slot gap. */
-export const TRAY_GAP = 6;
+/**
+ * **[WXG-T-237 v4.0]** 托盘珠的**绘制边长**（不再是 `drawFilledBead` 的 `outer`）。
+ * `outer` 现取 `TRAY_SLOT`（30），内缩走 `BEAD_DRAW_INSET` ⇒ 珠面 = **26** = 盘面珠面（1:1）。
+ * ⛔ 原值 44 是「托盘格 48 独立体系」的产物；1:1 后该体系已废。
+ */
+export const TRAY_BEAD_SIZE = TRAY_SLOT - 2 * BEAD_DRAW_INSET;
+/**
+ * Slot gap. **[WXG-T-237 v4.0]** = `BEAD_GAP`（**2**）⇒ `pitch = TRAY_SLOT + TRAY_GAP = 32`
+ * = `BEAD_PITCH`，与盘面 1:1（原 6 属托盘独立体系）。
+ */
+export const TRAY_GAP = BEAD_GAP;
 /** 托盘面板竖向内边距（面板高 = rows×54 − 6 + 2×12）。 */
 export const TRAY_PANEL_PAD = 12;
 /**

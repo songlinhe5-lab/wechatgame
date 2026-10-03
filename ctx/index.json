@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "bd91e8fd421b7e7a5b8871a6ec0b201bfeacc35e9bfbb26cd276f6440fe0dc89",
+      "sha256": "2081d04f04381f41834d43a2be80680d2d4e908bb58f25119e287b803174022c",
       "tier": "normal",
       "sections": [
         {
@@ -396,7 +396,7 @@
           "startLine": 1,
           "endLine": 135,
           "tokens": 3674,
-          "summary": "生成：2026-10-03 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-04 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5009,
       "lines": 94,
-      "sha256": "90c700cf364ac2185b353fcf04676b69be0b8ecaf2eb16f5bb43cf286c29d269",
+      "sha256": "e307e510e1a4f0b315446c608b677f87fe758c3cc3ce100c804efe1f36d83b33",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 76 行 / 17268 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 76 行 / 17671 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1737 行 / 69549 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1786 行 / 70634 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 676,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1738 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1787 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14358,23 +14358,23 @@
     },
     {
       "path": "games/beads/art/tray-neutral-slot-mask-spec.md",
-      "tokens": 3892,
-      "lines": 189,
-      "sha256": "77b88bd73a9aa13a9bb9da868c8a28560d35c198ea823cdc2b6349a0e0d86507",
+      "tokens": 5107,
+      "lines": 243,
+      "sha256": "f59ba5a76758e2d0dfe0d3ea3a58cf929e6dd730a16592f57380186ee1d90dbb",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§托盘复用盘面 mask + **32dp 布局整体缩放** · 美术定标单",
+          "anchor": "§托盘 1:1 格面（不做缩放）· 美术定标单",
           "level": 1,
           "startLine": 1,
-          "endLine": 190,
-          "tokens": 3869,
-          "summary": "正本 = 本文件（WXG-T-237，v3.0，2026-10-03）。",
+          "endLine": 244,
+          "tokens": 5089,
+          "summary": "正本 = 本文件（WXG-T-237，v4.0 · 已落码，2026-10-03）。",
           "keywords": [
-            "mask",
             "WXG",
-            "托盘复用盘面",
-            "布局整体缩放",
+            "托盘",
+            "格面",
+            "不做缩放",
             "美术定标单"
           ]
         },
@@ -14592,8 +14592,8 @@
           "anchor": "§5 边界与风险（如实登记）",
           "level": 2,
           "startLine": 179,
-          "endLine": 190,
-          "tokens": 374,
+          "endLine": 193,
+          "tokens": 375,
           "summary": "B-1 放宽 colorIdx 门是唯一结构性改动 该门隐含假设「盘面格才有目标色才能按目标色合成 mask」；须配 A",
           "keywords": [
             "§5",
@@ -14601,6 +14601,100 @@
             "mask",
             "边界与风险",
             "如实登记"
+          ]
+        },
+        {
+          "anchor": "§6 v4.0 落码实录（2026-10-03 用户裁定「先按照 1:1 的格面实现效果，不做缩放」）",
+          "level": 2,
+          "startLine": 194,
+          "endLine": 244,
+          "tokens": 1158,
+          "summary": "",
+          "keywords": [
+            "§6",
+            "落码实录",
+            "用户裁定",
+            "先按照",
+            "的格面实现效",
+            "不做缩放"
+          ]
+        },
+        {
+          "anchor": "§6.1 落码内容（四处）",
+          "level": 3,
+          "startLine": 196,
+          "endLine": 207,
+          "tokens": 324,
+          "summary": "① tuning 托盘三常量改由盘面常量派生 TRAY_SLOT = BEAD_CELL（48→30）· TRAY_GA",
+          "keywords": [
+            "tuning",
+            "TRAY_SLOT",
+            "BEAD_CELL",
+            "TRAY_GA",
+            "落码内容",
+            "四处"
+          ]
+        },
+        {
+          "anchor": "§6.2 ⚠ ③ 的「同参」是必须的（不是可选项）",
+          "level": 3,
+          "startLine": 208,
+          "endLine": 214,
+          "tokens": 113,
+          "summary": "drawFilledBead 的 inset 只在 targetColorIdx !== undefined 时生效。",
+          "keywords": [
+            "drawFilledBead",
+            "inset",
+            "targetColorIdx",
+            "undefined",
+            "同参",
+            "是必须的"
+          ]
+        },
+        {
+          "anchor": "§6.3 封箱：第十次复评（已落）",
+          "level": 3,
+          "startLine": 215,
+          "endLine": 224,
+          "tokens": 185,
+          "summary": "frame78 total 1877 与逐 kind 全部不变（rect 1007 / circle 160 / lin",
+          "keywords": [
+            "frame78",
+            "total",
+            "kind",
+            "rect",
+            "circle",
+            "lin"
+          ]
+        },
+        {
+          "anchor": "§6.4 配套测试口径变更（三处）",
+          "level": 3,
+          "startLine": 225,
+          "endLine": 234,
+          "tokens": 227,
+          "summary": "1. bead-render.test.ts ③「托盘珠恒满幅」前提被裁定推翻 ⇒ 改写为「托盘珠 1:1 与盘面珠同尺",
+          "keywords": [
+            "bead",
+            "render",
+            "test",
+            "配套测试口径",
+            "变更",
+            "三处"
+          ]
+        },
+        {
+          "anchor": "§6.5 ⛔ 未闭（如实）",
+          "level": 3,
+          "startLine": 235,
+          "endLine": 244,
+          "tokens": 241,
+          "summary": "Q-B 「格面颜色与托盘底色一致」仍未裁 —— 本批先保 palette.slot 中性底。若裁「同一算法」⇒ 托盘槽底",
+          "keywords": [
+            "palette",
+            "slot",
+            "未闭",
+            "如实"
           ]
         }
       ]
@@ -49408,17 +49502,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 16859,
-      "lines": 516,
-      "sha256": "d272125b0dd873a55d55b1a10cb083432f12eab9d7312328ce44b8f5966253fd",
+      "tokens": 17764,
+      "lines": 544,
+      "sha256": "34023d30ce97fada904e43a8e0db131383b2579fde6c93b914d62c4e9a8004d4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 517,
-          "tokens": 16855,
+          "endLine": 545,
+          "tokens": 17761,
           "summary": "",
           "keywords": []
         },
@@ -49426,8 +49520,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 517,
-          "tokens": 16823,
+          "endLine": 545,
+          "tokens": 17728,
           "summary": "",
           "keywords": [
             "WXG",
@@ -49937,6 +50031,22 @@
             "整体缩放",
             "珠面保住了"
           ]
+        },
+        {
+          "anchor": "§WXG-T-237 v4.0：托盘 1:1 格面已落码（用户裁「不做缩放，开始实现」）",
+          "level": 3,
+          "startLine": 518,
+          "endLine": 545,
+          "tokens": 875,
+          "summary": "四处落码：① tuning 托盘三常量改由盘面常量派生（TRAY_SLOT = BEAD_CELL 48→30、",
+          "keywords": [
+            "WXG",
+            "tuning",
+            "TRAY_SLOT",
+            "BEAD_CELL",
+            "托盘",
+            "格面已落码"
+          ]
         }
       ]
     },
@@ -49944,7 +50054,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "5fdd0a1627943d7f5c3d99f7fbdc6464861b6efdc318785f20def19500056de7",
+      "sha256": "d40438dab7b2688d6c9d3df9419875d2183c5f4ee7ab39878f2b791aa2d5a006",
       "tier": "normal",
       "sections": [
         {
@@ -50035,7 +50145,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 16,859 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -70040,17 +70150,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 69549,
-      "lines": 1737,
-      "sha256": "f0c83dae746d46555e6f164ea4cd592aa70fd3d5ffe7dfb4c959ff3abbdba071",
+      "tokens": 70634,
+      "lines": 1786,
+      "sha256": "ec7e136a2017f9391a821d57774a53705b0043eaf3adf19efba9fdcc9173c18e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1738,
-          "tokens": 69532,
+          "endLine": 1787,
+          "tokens": 70618,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -71304,8 +71414,8 @@
           "anchor": "§WXG-T-237",
           "level": 2,
           "startLine": 1515,
-          "endLine": 1738,
-          "tokens": 4463,
+          "endLine": 1787,
+          "tokens": 5548,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -71447,14 +71557,27 @@
             "整体缩放",
             "本节为当前状"
           ]
+        },
+        {
+          "anchor": "§v4.0：托盘 1:1 格面已落码（本节为当前状态）",
+          "level": 3,
+          "startLine": 1739,
+          "endLine": 1787,
+          "tokens": 1065,
+          "summary": "用户裁定：「先按照 1:1 的格面实现效果，不做缩放。开始实现」。",
+          "keywords": [
+            "托盘",
+            "格面已落码",
+            "本节为当前状"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 17268,
+      "tokens": 17671,
       "lines": 76,
-      "sha256": "6ed2ca47bb027cb1467876b884b31e9b554babe96786f66f1bb8f037a6f8838a",
+      "sha256": "5a06e9966465ba085c19e29bf6ea21c859b27eb30b5a12e81bc1136a016212f6",
       "tier": "hot",
       "sections": [
         {
@@ -71462,7 +71585,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 17259,
+          "tokens": 17662,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

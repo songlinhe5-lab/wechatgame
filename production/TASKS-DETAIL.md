@@ -1735,3 +1735,52 @@ tint 臂不可用时（有珠格仍走矢量）孔内偏暗。改它会动**全�
 **「边缝绝对值一致」与「完全随盘面比例」互斥** —— 若要 2.0dp 就不是「完全随比例」⇒ 需用户明说。
 
 **读数**：定标单 **3892 tok**（B 门内）· verify **PASS 19 / WARN 0 / SKIP 1 / FAIL 0** · check:tasks **27/27**。
+
+### v4.0：托盘 1:1 格面已落码（本节为当前状态）
+
+**用户裁定**：「**先按照 1:1 的格面实现效果，不做缩放。开始实现**」。
+
+**四处落码**（详见定标单 §6）：
+① `tuning` 托盘三常量改由**盘面常量派生**：`TRAY_SLOT = BEAD_CELL`（48→**30**）·
+`TRAY_GAP = BEAD_GAP`（6→**2**）· `TRAY_BEAD_SIZE = TRAY_SLOT − 2×BEAD_DRAW_INSET`（44→**26**，
+语义改为「绘制边长」而非 `drawFilledBead` 的 `outer`）⇒ `pitch` 54→**32** = `BEAD_PITCH`、
+12 列行宽 642→**382**（−260 ⇒ 托盘整块变窄居中，左右留白大增 = 「不做缩放」的直接后果）。
+② 托盘**槽**接线 `cell` mask：`maskGauge:'holed'` + `styleId` + `trayZone:true` +
+`beadInset = BEAD_DRAW_INSET` ⇒ 坑外沿 ≡ 珠面轮廓（**与盘面同一恒等式**）；`tilePainted = false`（托盘无 B0 底图）。
+③ 托盘**珠**接线 `bead` mask 且**与盘面珠同参**：`outer = TRAY_SLOT(30)` + `targetColorIdx` +
+`drawInset = BEAD_DRAW_INSET` ⇒ 珠面 **26 = 盘面珠面**。
+④ **唯一结构性改动**：`drawEmptySocket` tint 门 `colorIdx !== undefined` →
+`colorIdx !== undefined || options.trayZone === true`（托盘空槽无目标色 ⇒ `base = palette.slot`）。
+
+**⚠ ③ 的「同参」是必须的**：`drawFilledBead` 的 `inset` **只在 `targetColorIdx !== undefined` 时生效**
+⇒ 不传则矢量臂按满幅 30 画、tint 臂按 26 画 ⇒ **两臂不同形**（与八轮修过的「`styleId` 漏传」同族）。
+
+**实测**：托盘槽渲染出**与盘面一致的圆角方槽**（内阴影 + 受光缘）· 2 行 × 12 = 24 槽 ·
+行宽 382dp（panelW 406）· pitch 32 · 格面 30 · 珠面 26 · 坑口 24 · 孔 ⌀13.2。
+效果图 `temp/shadow-preview/tray-1to1-zoom.png`。
+
+**封箱：第十次复评已落**（官方复取器）：
+- `frame78` **total 1877 与逐 kind 全部不变**（rect 1007/circle 160/line 376/text 12/polygon 322）
+  **仅 sha 变**（0b3f083e→27a4ae91）⇒ 托盘几何变化**只改命令内容、不改命令数量**
+  （托盘槽/珠的图元数与盘面同构）。
+- `frame0` total 1331 不变、仅 sha 变（11d95ead→73ace06a）。
+- `facetNonHoleLayers` 45/45、`facetHoleLayer` 45/45、`fixture.*` 全等。
+- ⛔ `legacyFlow` 96 例不全等 —— **合法且可归因**：复取矩阵含 `TRAY_BEAD_SIZE` 案
+  （`bead-style-seal-recapture.ts:113`），托盘珠几何正是本批裁定要改的 ⇒ **不是珠体回归**
+  （盘面 `BEAD_CELL` 案全部不变）。
+- 归因键 `provenance.s3_frame_recheck_10`（2825 字）。
+
+**测试口径变更（三处）**：
+① `bead-render.test.ts` ③「托盘珠恒满幅」**前提被裁定推翻** ⇒ 改写为「**托盘珠 1:1 与盘面珠同尺**」
+（`bodyW(tray) ≡ bodyW(board)` + 反向守卫 ⛔ 不得退回满幅）；
+② `pause-settings.test.ts` 托盘点**返回值断言移除**：1:1 后槽位居中（`x 78→199`、`y 414→423`，实测）
+⇒ 该点落入**暂停面板按钮行** ⇒ `tapDesign` 返回 true 是「面板钮响应」（PAUSED 允许行为），
+改以**事件**为准（`tray:selected` 不新增 = §8 口径，比返回值更硬）；
+③ `bead-tint-arm.test.ts` 新增 **`trayZone` 反向守卫**两条。
+
+**⛔ 仍未闭**：**Q-B**（「格面颜色与托盘底色一致」的两种读法，本批先保 `palette.slot` 中性底）·
+**Q-C**（面板底要不要随 Q-B 一起改）· `systems-index §3` 冻结表标注（⛔ 工程不代改）·
+`TINT_LOD_MAX_UPSCALE = null` 的高 dpr 压力未复核。
+
+**读数**：beads **772 绿 + 1 skipped** · verify **PASS 19 / WARN 0 / SKIP 1 / FAIL 0** ·
+check:tasks **27/27** · 定标单 **v4.0**（5107 tok，B 门内）。

@@ -100,7 +100,6 @@ import { pausePanelLayout, type PanelButton } from '../systems/pause-panel';
 import { failPanelLabel, failPanelLayout } from '../systems/fail-panel';
 import {
   SELECTED_SHADOW_ALPHA,
-  TRAY_BEAD_SIZE,
   drawEmptySocket,
   drawLiftBeadShadow,
   drawFilledBead,
@@ -1223,7 +1222,14 @@ function drawTray(
         // RenderModel has no dash stroke — synthesize 6/4 segments (arch §4).
         drawDashedRect(builder, cx - TRAY_SLOT / 2, slotBottom, TRAY_SLOT, TRAY_SLOT, palette.slotBorder);
       } else {
-        drawEmptySocket(builder, cx, cy, palette, TRAY_SLOT);
+        // [WXG-T-237 v4.0 · 1:1 格面] 托盘槽**与盘面格同图元同色档**：走 `cell` mask，
+        // `beadInset` 与盘面同（`BEAD_DRAW_INSET`）⇒ 坑外沿 ≡ 珠面轮廓（与盘面同一恒等式）；
+        // `trayZone: true` 只用于放宽 tint 门的 `colorIdx` 条件（空槽无目标色，`base = palette.slot`）。
+        // ⛔ 不传 `tilePainted`：托盘没有 B0 底图 rect，槽需自带亮底（与盘面相反）。
+        drawEmptySocket(
+          builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
+          { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
+        );
       }
       continue;
     }
@@ -1241,12 +1247,19 @@ function drawTray(
     // §5 斜上 15°（2026-09-27 用户拍板）：托盘珠同步斜上，与板上同口径。
     const liftX = selected ? -lift * Math.tan((SELECT_LIFT_ANGLE * Math.PI) / 180) : 0;
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
-      size: TRAY_BEAD_SIZE,
+      // [WXG-T-237 v4.0 · 1:1] `outer` = `TRAY_SLOT`(=`BEAD_CELL` 30)，内缩走 `BEAD_DRAW_INSET`
+      // ⇒ 珠面 **26** = 盘面珠面（1:1）。⛔ 旧值 `TRAY_BEAD_SIZE 44` 属已废的托盘独立体系。
+      // ⚠ `targetColorIdx` 必须与盘面同传：`drawFilledBead` 的 `inset` 只在它存在时才生效
+      // ⇒ 不传则矢量臂按满幅 30 画、tint 臂按 26 画 ⇒ **两臂不同形**（同八轮修过的那类错配）。
+      size: TRAY_SLOT,
+      targetColorIdx: slot.colorIdx,
+      drawInset: BEAD_DRAW_INSET,
+      // EP11-S5 作用域：托盘珠**随风格**（与盘面珠同一层集）但**不随豆径档**
+      // （恒满幅、恒有孔）⇒ 不传 `hideHole`、不传小豆档 inset（assets-spec §7.11）。
+      maskGauge: 'holed',
       lift,
       liftX,
       inks,
-      // EP11-S5 作用域：托盘珠**随风格**（与盘面珠同一层集）但**不随豆径档**
-      // （恒满幅、恒有孔）⇒ 不传 `drawInset` / `hideHole`（assets-spec §7.11）。
       styleId: snap.beadStyle,
       ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),
     });

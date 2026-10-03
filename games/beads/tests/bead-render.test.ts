@@ -1025,7 +1025,13 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   // ⚠ **两臂共有**：`inset` 在渲染侧算进 `size` 后才是风格入参 ⇒ 本例**双臂都跑**
   //   （旧只钉十层一条腿，新基线上静默失效 = 净放宽）；取"第一条 rect"作珠体外缘代理：
   //   新基线 #1 = plate rect、旧臂 L0b/L1 与之同宽（⛔ 不再按位置硬锚"第 3 条 = 主体"，§K.5 行 3）。
-  it('③ inset 作域：仅盘面珠内缩，托盘珠（无 targetColorIdx）恒满幅（双臂）', () => {
+  // [WXG-T-237 v4.0 · 用户 2026-10-03 裁「先按 1:1 的格面实现效果，不做缩放」]
+  // ⛔ **旧前提被推翻**：原腿钉「托盘珠无 `targetColorIdx` ⇒ 恒满幅（44，inset 恒 0）」。
+  //    1:1 后托盘珠**与盘面珠同参**（`outer = TRAY_SLOT = BEAD_CELL` + `drawInset = BEAD_DRAW_INSET`）
+  //    ⇒ 珠面 **26 = 盘面珠面**。旧断言 `bodyW(tray) > bodyW(board)` 已不成立。
+  //  同参的**必要性**：`drawFilledBead` 的 `inset` 只在 `targetColorIdx !== undefined` 时生效
+  //    ⇒ 不传则矢量臂按满幅 30 画、tint 臂按 26 画 ⇒ **两臂不同形**（同八轮修过的那类错配）。
+  it('③ inset 作域：托盘珠 1:1 与盘面珠同参（双臂同尺）', () => {
     const bodyW = (cs: ReturnType<typeof emit>): number => {
       const c = cs.find((x) => x.kind === 'rect');
       return c && c.kind === 'rect' ? c.w : Number.NaN;
@@ -1033,14 +1039,19 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
     const board = emit((b) =>
       drawFilledBead(b, 100, 200, 1, { size: BEAD_CELL, targetColorIdx: 2, inks: DEMO_BEAD_INKS }),
     );
+    // 与生产 `view-model::drawTray` 的托盘珠调用**逐字同参**
     const tray = emit((b) =>
-      drawFilledBead(b, 100, 200, 1, { size: TRAY_BEAD_SIZE, inks: DEMO_BEAD_INKS }),
+      drawFilledBead(b, 100, 200, 1, {
+        size: TRAY_SLOT, targetColorIdx: 1, drawInset: BEAD_DRAW_INSET, inks: DEMO_BEAD_INKS,
+      }),
     );
-    expect(bodyW(board)).toBe(BEAD_CELL - 2 * BEAD_DRAW_INSET); // 22 = 盘面珠内缩
-    expect(bodyW(tray)).toBe(TRAY_BEAD_SIZE); // 44 = 托盘珠不缩（inset 恒 0）
+    expect(bodyW(board)).toBe(BEAD_CELL - 2 * BEAD_DRAW_INSET); // 26 = 盘面珠内缩
+    expect(bodyW(tray), '1:1 ⇒ 托盘珠面 ≡ 盘面珠面').toBe(BEAD_CELL - 2 * BEAD_DRAW_INSET);
     expect(bodyW(filled(1))).toBe(BEAD_CELL); // 不传目标色也不缩
-    // 钉住**方向**：若有人给托盘也吃 inset，v1.57 后两个尺子会重排（此腿当场红）。
-    expect(bodyW(tray)).toBeGreaterThan(bodyW(board));
+    // 钉住**方向**：托盘珠与盘面珠**同尺**（1:1），不再是「托盘更大」。
+    expect(bodyW(tray)).toBe(bodyW(board));
+    // ⛔ 反向守卫：若有人把托盘珠退回「满幅/无 inset」，此腿红
+    expect(bodyW(tray)).not.toBe(TRAY_SLOT);
     // 对照臂同尺：inset 属渲染侧 ⇒ 两臂的**珠体外缘**必须同一个值
     // （旧臂取 L1 主体 = 第 3 条，第 1 条是窄条接触阴影 ⇒ 不可直接比 index）。
     const legacyBodyW = (cs: ReturnType<typeof emit>): number => {

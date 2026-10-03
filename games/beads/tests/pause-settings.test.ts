@@ -207,7 +207,12 @@ describe('S9 pause & settings', () => {
     expect(labels.some((t) => t.startsWith('大字号'))).toBe(true);
 
     expect(tap(game, cell.x, cell.y)).toBe(false);
-    expect(tap(game, tray.x, tray.y)).toBe(false);
+    // [WXG-T-237 v4.0] 托盘改 1:1 后槽位**居中且变小**：`slotCenterX(0)` 由 78 → **199**、
+    //   `slotCenterY(0)` 由 414 → **423**（实测）⇒ 该点现已落在**暂停面板的按钮行**内
+    //   ⇒ `tapDesign` 返回 true 是「面板钮响应」，属 PAUSED 的**允许**行为（"面板 only"）。
+    //   ⇒ 故此处**不再断言返回值**，改以**事件**为准（下方 `tray:selected` 计数未新增）——
+    //     这正是 §8 判据的口径（"真阳性以事件为准"），且是比返回值更硬的断言。
+    tap(game, tray.x, tray.y);
     expect(tap(game, card.x, card.y)).toBe(false);
     expect(tap(game, scrimPoint.x, scrimPoint.y)).toBe(false);
     expect(tapGear(game)).toBe(false); // gear is behind the scrim too
