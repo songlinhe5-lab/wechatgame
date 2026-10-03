@@ -471,57 +471,6 @@ export function drawTargetTile(
   });
 }
 
-/**
- * 选中抬起的**格级分离影**（`bead-visual-style-spec §5` 空间语言 · 实施记录 §11.6）。
- *
- * **为什么落在格级、而不是往珠体层集里加阴影层**：四棱转正（S8）后默认皮肤 `facet-4`
- * = 6 命令 / 0 真 α，§5 的「投影 / 接触阴影 / 侧壁」三条高度通道在默认皮肤下**无承载体**
- *（`FilledBeadOptions.shadowAlpha` 等同源注）⇒ 抬起只剩「平移 + 4% 放大」，不透明物体
- * 凭空挪几 px 就是用户报的「突兀」。本函数把「影物分离」这一条补回来，且：
- *  ① **零新色** —— 影色 = 本格目标色的 `pit` 端点（模块级预烘焙查表，热路径零分配），
- *    与同格的凹槽坑底同源 ⇒ 读作「这颗影躺在该格面上」；
- *  ② **0 真 α** —— 实色图元，不破四棱基线的「0 α」结构不变式；
- *  ③ **不占珠体命令预算** —— `§12.6` 计数口径 = 珠体命令数（底图另计）⇒ **C7 双指标零影响**；
- *  ④ **与风格无关** ⇒ 已注册皮肤全量共用，无需按 styleId 参数化（C8 面零新增）。
- *
- * 影**钉在格面静息足迹**（不随 `lift` 平移）⇒ 珠升多少露多少，分离量本身就是高度读数。
- *
- * ⛔ 只在 `lift > 0` 时调用（静息也画 = 珠下多一块黑 skirt）；⛔ 不参与 `scale`/pop 包络
- *（同 B0 判例，§1.6.1 层序死结论）。**托盘珠不走本函数**：白面板上落暗色珠档读作污渍
- *（`CONFETTI_COLORS` 同判例），且托盘无底图可依。
- */
-export function drawLiftGroundShadow(
-  builder: RenderModelBuilder,
-  cx: number,
-  cy: number,
-  outer: number,
-  targetColorIdx: number,
-  inks: BeadInks,
-): void {
-  // [WXG-T-236 · 用户 2026-10-03 裁定「丙」] 抬起投影 = **接触影 + 两级投射阶梯**。
-  //
-  // §6 单光源**左上顶光** ⇒ 影朝**右下**投（屏幕系 y 向下 ⇒ dx > 0、dy > 0）。
-  // 墨档梯**引用坑内阴影已定标的端点族**（shadeOuter -0.80 → shadeMid -0.68 → hole -0.58），
-  // ⛔ 不新造数值；越远越淡 ⇒ 单调递减，与坑内梯同一条语言。
-  //
-  // 三段按「先深后浅」绘制 ⇒ 后画的浅段不会盖掉深段的核心。
-  // 墨档**直接引用端点族已预混好的字段**（⛔ 不在本函数混色：色值只进 palette，纪律同 §3）。
-  // 梯序 = 坑内阴影已定标族：shadeOuter(-0.80) → shadeMid(-0.68) → hole(-0.58)，越远越淡。
-  const ep = endpointOf(inks, targetColorIdx);
-  // ⛔ 宽高**同值** ⇒ 影是圆（修「横条感」：被抬起的是圆珠，投影在斜俯视下也接近圆）。
-  const ladder = [ep.shadeOuter, ep.shadeMid, ep.hole] as const;
-  const steps = BEAD_CARD.castSteps;
-  for (let i = 0; i <= steps; i++) {
-    const d = outer * (BEAD_CARD.liftShadowContactD + BEAD_CARD.castGrow * i);
-    builder.rect(
-      cx + outer * BEAD_CARD.castDx * i - d / 2,
-      cy + outer * BEAD_CARD.castDy * i - d / 2,
-      d,
-      d,
-      { fill: ladder[Math.min(i, ladder.length - 1)]!, radius: Math.round(d / 2) },
-    );
-  }
-}
 
 
 // DEBUG 轮廓墨色真源在 `view/palette.ts`（arch §3：色值只进 palette）：DEBUG_OUTLINE_*_HEX。

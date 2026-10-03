@@ -13,7 +13,6 @@
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand, type RectCommand } from '@wxgame/framework';
 import {
-  BEAD_CARD,
   BEAD_CELL,
   BEAD_DRAW_INSET,
   BEAD_PITCH,
@@ -55,7 +54,7 @@ import {
   waveWindowMs,
   type WaveEnvelope,
 } from '../src/view/scene-vfx.js';
-import { BEAD_HIGHLIGHT_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, endpointOf, withAlpha } from '../src/view/palette.js';
+import { BEAD_HIGHLIGHT_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, withAlpha } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
@@ -417,100 +416,32 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
   }
 
   /**
-   * 帧内的分离影**全集**（[WXG-T-236] 接触影 + `castSteps` 级投射阶梯 = 1 + 2 = 3 条/颗）。
-   * 宽度是**格径的线性函数**（`liftShadowContactW + castGrowW × i`）⇒ 用等差筛，三档互不重叠。
+   * [WXG-T-236] 抬起格**不再出分离影**（三轮实测：影被不透明槽完全覆盖 ⇒ 两臂零视觉收益 ⇒ 已删）。
+   *
+   * 本条是**删除动作的回归守卫**：用**已删除的旧值**（`0.44` / `0.56` × 格径的正方形影）做否定断言
+   * —— 若将来有人把影加回来且沿用同尺寸，这条会红；换尺寸则由本条下方「槽仍绘制」用例兜底。
    */
-  function allShadows(snap: BeadsSnapshot): RectCommand[] {
-    return renderSnap(snap).filter(
-      (c): c is RectCommand =>
-        c.kind === 'rect'
-        && iOfShadowWidth(snap, c.w) !== -1,
-    );
-  }
-
-  /** 该宽度属于第几级阶梯（0 = 接触影）；不是影则 -1。 */
-  function iOfShadowWidth(snap: BeadsSnapshot, w: number): number {
-    for (let i = 0; i <= BEAD_CARD.castSteps; i++) {
-      const expect = snap.gridCell * (BEAD_CARD.liftShadowContactD + BEAD_CARD.castGrow * i);
-      if (Math.abs(w - expect) < 1e-9) return i;
-    }
-    return -1;
-  }
-
-  /** 接触影（阶梯 i=0）——「影钉在格面」等位置判据只看它。 */
-  function pills(snap: BeadsSnapshot): RectCommand[] {
-    return renderSnap(snap).filter(
-      (c): c is RectCommand => c.kind === 'rect' && iOfShadowWidth(snap, c.w) === 0,
-    );
-  }
-
-  it('静息零影 ⇒ 抬起后每颗抬起格 +1 条，且为**实色**（不破四棱 0 真 α）', () => {
-    const h = mkMisplaced('wxgame.beads.test.lift-shadow-count');
-    expect(pills(h.game.snapshot)).toHaveLength(0); // 未选中 = 无分离影
-    expect(h.game.selectBoardBead(1, 2)).toBe(true);
-    h.advance(SELECT_LIFT_MS / 1000 + 0.02);
-    const got = allShadows(h.game.snapshot);
-    // [WXG-T-236] 每颗抬起珠 = 接触影 + 2 级投射阶梯 = 3 条（组内 1 颗 ⇒ 恰 3 条）。
-    expect(got).toHaveLength(1 + BEAD_CARD.castSteps);
-    // ⛔ 影必须**圆**（宽高同值）—— 修「横条感」：第一版做成 12.6x4.8 扁胶囊（2.6:1），
-    // 宽高比远大于 1 ⇒ 读作横条（用户二轮反馈）。被抬起的是圆珠 ⇒ 投影也必须圆。
-    for (const c of got) expect(c.w).toBeCloseTo(c.h, 9);
-    for (const c of got) expect(String(c.fill).startsWith('rgba')).toBe(false);
-    // 墨档梯 = 坑内阴影已定标端点族：接触最深 `shadeOuter`，向外递浅 `shadeMid → hole`。
-    // ⛔ 旧实现用 `pit`（该族**最浅**一档）⇒ 淡而不暗、读作横条；此项即其回归守卫。
-    const ep = endpointOf(DEMO_BEAD_INKS, h.game.grid.requiredColor(1, 2));
-    // ⛔ 期望梯**按 `castSteps` 派生**（段数是工程可调项，测试写死档数会在调段数时假红）。
-    const full = [ep.shadeOuter, ep.shadeMid, ep.hole].slice(0, 1 + BEAD_CARD.castSteps);
-    const ladder = got
-      .map((c) => iOfShadowWidth(h.game.snapshot, c.w))
-      .sort((a, b) => a - b)
-      .map((i) => full[i]);
-    expect(ladder).toEqual(full);
-    expect(ladder[0]).not.toBe(ep.pit);
-  });
-
-  // [WXG-T-236] 光向 = §6 左上顶光 ⇒ 影朝**右下**投。旧实现符号与注释相反（落在格心上方）。
-  it('投影朝右下（§6 左上顶光）且逐级放大、离接触影更远', () => {
-    const h = mkMisplaced('wxgame.beads.test.lift-shadow-light');
+  it('抬起格不再出分离影（WXG-T-236 已删：旧影宽 0.44/0.56 × 格径）', () => {
+    const h = mkMisplaced('wxgame.beads.test.no-lift-shadow');
     expect(h.game.selectBoardBead(1, 2)).toBe(true);
     h.advance(SELECT_LIFT_MS / 1000 + 0.02);
     const snap = h.game.snapshot;
-    const byLevel = Array.from({ length: 1 + BEAD_CARD.castSteps }, (_, i) =>
-      allShadows(snap).find((c) => iOfShadowWidth(snap, c.w) === i)!,
-    );
-    expect(byLevel.every(Boolean)).toBe(true);
-    // ⚠ 判据看**中心**而非左缘：影逐级**变大**（每级 ±grow/2）⇒ 左缘必然左移，
-    // 早先按 `x`（左缘）判会假红（实测 352.1 < 352.4）。方向判据一律用中心。
-    const cx = (c: RectCommand) => c.x + c.w / 2;
-    const cy = (c: RectCommand) => c.y + c.h / 2;
-    for (let i = 1; i < byLevel.length; i++) {
-      const prev = byLevel[i - 1]!;
-      const cur = byLevel[i]!;
-      expect(cx(cur)).toBeGreaterThan(cx(prev));  // 向右
-      expect(cy(cur)).toBeGreaterThan(cy(prev));  // 向下（屏幕系 y 向下）
-      expect(cur.w).toBeGreaterThan(prev.w);      // 逐级放大
-      expect(cur.h).toBeGreaterThan(prev.h);
-      expect(cur.w).toBeCloseTo(cur.h, 9);        // ⛔ 圆形（宽高同值）
+    for (const c of renderSnap(snap)) {
+      if (c.kind !== 'rect') continue;
+      const ratio = c.w / snap.gridCell;
+      expect(Math.abs(ratio - 0.44)).toBeGreaterThan(1e-6);
+      expect(Math.abs(ratio - 0.56)).toBeGreaterThan(1e-6);
     }
-    // 偏移以**向下为主**（`castDy > castDx`）⇒ 读作珠子下缘的月牙，不是横带
-    expect(BEAD_CARD.castDy).toBeGreaterThan(BEAD_CARD.castDx);
   });
 
-  it('影钉在格面：中途帧与满帧同坐标（分离量由珠升起露出，不跟物体搬家）', () => {
-    const h = mkMisplaced('wxgame.beads.test.lift-shadow-fixed');
+  // [WXG-T-236] 抬起格**仍画槽**（这是本轮真正要留的东西：槽在珠体抬起后可见）。
+  it('抬起格仍画槽（与空格同源，`tilePainted=true` 不带亮底）', () => {
+    const h = mkMisplaced('wxgame.beads.test.lift-socket');
+    const before = renderSnap(h.game.snapshot).filter((c) => c.kind === 'rect').length;
     expect(h.game.selectBoardBead(1, 2)).toBe(true);
-    h.advance(SELECT_LIFT_MS / 2000);
-    expect(h.game.snapshot.liftProgress).toBeLessThan(1); // 斜坡仍在途 ⇒ 本例非平凡
-    const mid = pills(h.game.snapshot)[0]!;
-    h.advance(SELECT_LIFT_MS / 1000);
-    const full = pills(h.game.snapshot)[0]!;
-    expect(full.y).toBe(mid.y);
-    expect(full.x).toBe(mid.x);
-    // 不越出本格：影底缘 ≥ 格面下缘（否则压到邻格底图 = 串形）。
-    const snap = h.game.snapshot;
-    const cellBottom =
-      snap.gridTop - snap.gridCell / 2 - snap.gridPitch * 1 - snap.gridPitch / 2;
-    expect(full.y).toBeGreaterThanOrEqual(cellBottom);
+    h.advance(SELECT_LIFT_MS / 1000 + 0.02);
+    const after = renderSnap(h.game.snapshot).filter((c) => c.kind === 'rect').length;
+    expect(after).toBeGreaterThan(before); // 抬起多出槽部件
   });
 
   it('抬起量走等比：恒等档逐位不变、缩档随 `gridCell` 同比缩（K-077 同族）', () => {

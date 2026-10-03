@@ -498,6 +498,20 @@ if (isBeads && new URLSearchParams(harnessQuery).get('dbg') === 'info') {
   if (Number.isFinite(z) && z > 0) beads.setZoomForDebug(z);
 }
 
+// `?lift=1` 自动选中第一颗错位珠 ⇒ **选中态在 headless 可达**。
+// 起因（WXG-T-236 二轮）：抬起槽/影的观感问题必须**实际看图**判定，而 headless 点不了一颗珠
+// ⇒ 此前所有「选中态」验证都只能靠命令流取数、无法看图。本参数是**测具**（dev-only，不进构建）。
+// ⛔ 用 `selectBoardBead` 的返回值找错位格（不复制 `isMisplaced` 谓词，见 K-055 同型判例）。
+if (isBeads && new URLSearchParams(harnessQuery).get('lift') === '1') {
+  const snap = beadsShell.play.snapshot;
+  // `SnapshotCell` 无 row/col（按位置索引）⇒ 行列由 index 与 `gridCols` 派生。
+  outer: for (let i = 0; i < snap.cells.length; i++) {
+    const c = snap.cells[i]!;
+    if (c.state !== 'filled' || c.beadColorIdx === c.colorIdx) continue; // 非错位 ⇒ 跳过
+    if (beadsShell.play.selectBoardBead(Math.floor(i / snap.gridCols), i % snap.gridCols)) break outer;
+  }
+}
+
 requestAnimationFrame(frame);
 
 // Expose for console poking during development.

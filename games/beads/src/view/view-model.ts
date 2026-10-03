@@ -103,7 +103,6 @@ import {
   TRAY_BEAD_SIZE,
   drawEmptySocket,
   drawFilledBead,
-  drawLiftGroundShadow,
   drawLockedBead,
   drawTargetTile,
   drawDebugCellOutline,
@@ -1059,7 +1058,6 @@ function drawGrid(
           builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks,
           true, beadDrawInset,
         );
-        drawLiftGroundShadow(builder, bx, cy, snap.gridCell, cell.colorIdx, inks);
       }
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
       // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
