@@ -48580,17 +48580,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 5826,
-      "lines": 167,
-      "sha256": "4eb462b1e0259790fe411365e6754fc4bbfe7374c37baa3e368206a8c72dac49",
+      "tokens": 6266,
+      "lines": 182,
+      "sha256": "37eb2308f84e19180033834e43a2ce502c9a69beea10cb3770edfa04572cddc3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 168,
-          "tokens": 5823,
+          "endLine": 183,
+          "tokens": 6263,
           "summary": "",
           "keywords": []
         },
@@ -48598,8 +48598,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 168,
-          "tokens": 5790,
+          "endLine": 183,
+          "tokens": 6230,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48824,6 +48824,22 @@
             "异色格色界平",
             "移不可见"
           ]
+        },
+        {
+          "anchor": "§dpr 事实核对 + 又一处站不住的推论（已改）",
+          "level": 3,
+          "startLine": 169,
+          "endLine": 183,
+          "tokens": 420,
+          "summary": "iPhone 13 Pro Max = dpr 3（6.7\" 2778×1284 @458ppi，3x）。同代 iPho",
+          "keywords": [
+            "dpr",
+            "iPhone",
+            "Pro",
+            "Max",
+            "ppi",
+            "iPho"
+          ]
         }
       ]
     },
@@ -48831,7 +48847,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "f10937056056f63cabbe7c1c5a37d8b250d100bd32b8e3b76e44152a8d69a39a",
+      "sha256": "bdb3e238d92ebce92fba2a74fca65a152ef72bd676a64940108e5e9919ffdf14",
       "tier": "normal",
       "sections": [
         {
@@ -48922,7 +48938,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 5,826 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 6,266 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69968,7 +69984,7 @@
       "path": "production/TASKS.md",
       "tokens": 14167,
       "lines": 74,
-      "sha256": "c4aa5ff90433baf2a2b4cbef8f6bfd6056f36cae71c63c958a13628e6bcbcdf3",
+      "sha256": "412b993b273d262ff4106ea62773128b79e6e2ed54e1601fb9aad6a6fa647cfc",
       "tier": "hot",
       "sections": [
         {

@@ -80,7 +80,10 @@ function checkDrawUsesBleed() {
   notes.push('C2 OK  drawTargetTile 按 `size + 2 * TILE_BLEED` 外扩，且常量同源导入');
 }
 
-/** C3 · 相邻重叠 = 2 x TILE_BLEED >= 1 设计px（dpr>=1 才可能盖住 1 设备px 的 AA 缝）。 */
+/** C3 · 相邻重叠 = 2 x TILE_BLEED >= 1 **设计px**。
+ *  ⚠️ 口径澄清：重叠的**设备**像素 = `zoom × dpr` ⇒ 只有 `zoom × dpr >= 1` 才够 1 设备px。
+ *  本断言守的是**设计域地板**（外扩量不许被悄悄减到 0.2/0.4 那一档），
+ *  ⛔ 不是「保证盖住 1 设备px」—— 后者尚未建立（实测接缝只在 zoom 1.0 出现，见 K-091 追记）。 */
 function checkOverlapEnough(bleed) {
   if (bleed === null) return;
   const overlap = bleed * 2;
@@ -88,7 +91,7 @@ function checkOverlapEnough(bleed) {
     fail('C3', `相邻重叠 ${overlap} 设计px < 1 => dpr=1 时不足 1 设备px，盖不住实测的 1px AA 缝`);
     return;
   }
-  notes.push(`C3 OK  相邻重叠 ${overlap} 设计px（dpr >= 1 => 恒 >= 1 设备px）`);
+  notes.push(`C3 OK  相邻重叠 ${overlap} 设计px（设备像素 = zoom x dpr；本断言守设计域地板）`);
 }
 
 /** C4 · B0 tile 宽度判据不再用「字面量格距」（那道过滤器曾静默退化为空断言）。 */
