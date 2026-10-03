@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3694,
       "lines": 134,
-      "sha256": "d48f5c48ed527304906cb463f4e78a10fa0fcedee7e704e794e2ba7fc56467b6",
+      "sha256": "80f0724fce0c5fe779f0988e8308857ed44a244558de85e64507ef9bf3450f3b",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5043,
       "lines": 106,
-      "sha256": "82b0f6b17a8321c6c9aeed2b9a22da1b1259a19fe90ef6d8bd1118e6335ac0c4",
+      "sha256": "117b1f0023d04e82ab5bf017ab08b8c4d1af54779b0b68a5e81966e8bf271466",
       "tier": "normal",
       "sections": [
         {
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1279 行 / 59394 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1285 行 / 59552 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 281,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1280 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1286 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48580,17 +48580,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 9479,
-      "lines": 281,
-      "sha256": "bdce2327a2cc14003c053fd0ba7fab8251e94c8f97c75ac3f9b6e0f1befd2900",
+      "tokens": 9806,
+      "lines": 292,
+      "sha256": "525d45211c6898789d8d96abd9546234a68b4d81935578aa135500e4867254b1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 282,
-          "tokens": 9476,
+          "endLine": 293,
+          "tokens": 9803,
           "summary": "",
           "keywords": []
         },
@@ -48598,8 +48598,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 282,
-          "tokens": 9444,
+          "endLine": 293,
+          "tokens": 9771,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48920,6 +48920,22 @@
             "落地",
             "抬高位移"
           ]
+        },
+        {
+          "anchor": "§丁暂不实施 + 六轮补算「越格」代价（我前一版的疏漏）",
+          "level": 3,
+          "startLine": 283,
+          "endLine": 293,
+          "tokens": 301,
+          "summary": "用户 2026-10-03 裁定：丁（SELECT_LIFT_PX 6→11）暂不实施 ⇒ 已写进 tuning.ts ",
+          "keywords": [
+            "SELECT_LIFT_PX",
+            "tuning",
+            "丁暂不实施",
+            "六轮补算",
+            "越格",
+            "代价"
+          ]
         }
       ]
     },
@@ -48927,7 +48943,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "dd66847026f145067c226caa6cb2bc25e5db888b1124cec054fbcf3546698c48",
+      "sha256": "029cc3a3661ea0a3d40af1e5f27016ec3c18c3cdff89e4ec59f1496cc5bdb508",
       "tier": "normal",
       "sections": [
         {
@@ -49018,7 +49034,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 9,479 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 9,806 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -69023,17 +69039,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 59394,
-      "lines": 1279,
-      "sha256": "d9dc35c0327459a9fe567395efd065c11c681fb246a7c79ceeec7fefa3fa5498",
+      "tokens": 59552,
+      "lines": 1285,
+      "sha256": "234a80d79e002a393c691e67d430540aef31b5580c89d588b61733786e644b78",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1280,
-          "tokens": 59377,
+          "endLine": 1286,
+          "tokens": 59535,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -70078,8 +70094,8 @@
           "anchor": "§WXG-T-236",
           "level": 2,
           "startLine": 1164,
-          "endLine": 1280,
-          "tokens": 3063,
+          "endLine": 1286,
+          "tokens": 3222,
           "summary": "beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性） — 2026-10-03 用户裁定「",
           "keywords": [
             "WXG",
@@ -70134,8 +70150,8 @@
           "anchor": "§五轮：删影（甲）已落 + 抬高位移（丁）**撞封箱架构级阻塞**",
           "level": 3,
           "startLine": 1228,
-          "endLine": 1245,
-          "tokens": 446,
+          "endLine": 1251,
+          "tokens": 605,
           "summary": "甲（删影）已落：四轮实测证明「格面影」与「槽内影」都不可见（格面影被不透明槽/mask 完全遮住；",
           "keywords": [
             "mask",
@@ -70149,8 +70165,8 @@
         {
           "anchor": "§⛔ 转美术定标的两条争议（本单正本）",
           "level": 3,
-          "startLine": 1246,
-          "endLine": 1260,
+          "startLine": 1252,
+          "endLine": 1266,
           "tokens": 389,
           "summary": "争议 A · 定稿槽几何在小尺寸 + 抬起状态下的读法（用户 Q2 裁定「是」）",
           "keywords": [
@@ -70162,8 +70178,8 @@
         {
           "anchor": "§⛔ 本单正本 = 四件待美术定标（工程侧不自作主张）",
           "level": 3,
-          "startLine": 1261,
-          "endLine": 1269,
+          "startLine": 1267,
+          "endLine": 1275,
           "tokens": 210,
           "summary": "D1 暗底坑底反读（assets-spec §7.11.7）：现有共用坑底套依赖近白底图才读得出凹陷，落到生产 B0",
           "keywords": [
@@ -70178,8 +70194,8 @@
         {
           "anchor": "§⚠ 顺带登记的既有缺口：封箱夹具**无选中态**",
           "level": 3,
-          "startLine": 1270,
-          "endLine": 1275,
+          "startLine": 1276,
+          "endLine": 1281,
           "tokens": 136,
           "summary": "封箱夹具（13×12 / 78 填 / 78 空）从不调用 selectBoardBead / selectTraySl",
           "keywords": [
@@ -70194,8 +70210,8 @@
         {
           "anchor": "§性能（结论不变：不是瓶颈）",
           "level": 3,
-          "startLine": 1276,
-          "endLine": 1280,
+          "startLine": 1282,
+          "endLine": 1286,
           "tokens": 62,
           "summary": "每颗抬起珠 3 图元（原 1）⇒ 满组 ~25 颗 = +75，相对 450/帧 ≈ +17%；抬起时钟 O(1)；热路",
           "keywords": [
