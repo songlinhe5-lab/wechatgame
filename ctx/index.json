@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3687,
       "lines": 134,
-      "sha256": "88dd9e43bbb08284ea7d2451747a7151e83b25f6287a99a170f52360cd6bf2fa",
+      "sha256": "3c63a9d49c16c3e8e37c36e2e5b184f44f5778216c01e08bcc6db9459d915b43",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5111,
+      "tokens": 5117,
       "lines": 86,
-      "sha256": "7d35c520dc6f68f8f4305eaca125c8e5051f6c15a623d81a6ddca8771fff8554",
+      "sha256": "aca27317aec2b43e663dc188ccf124bda8833ba688c0fa15538011ff76f0ab77",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 5083,
+          "tokens": 5089,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 77 行 / 19887 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 78 行 / 20125 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+78 · §待排（backlog，无号，立项时领取）=51+28",
+          "summary": "§WXG 任务台账（SSOT）=1+79 · §待排（backlog，无号，立项时领取）=52+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 2121 行 / 77365 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 2170 行 / 78120 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
-          "tokens": 1040,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2122 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 1046,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2171 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 4841,
-      "lines": 162,
-      "sha256": "9450709a76851b05b9f36f7d54996b2c8f12fc6cba3d6b904e7f488501b2c225",
+      "tokens": 5497,
+      "lines": 184,
+      "sha256": "87a7595eb5511b98873fade77e93f67bb99168841c1cf73624ee7672bb67cc70",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 163,
-          "tokens": 4838,
+          "endLine": 185,
+          "tokens": 5494,
           "summary": "",
           "keywords": []
         },
@@ -50263,6 +50263,22 @@
             "留档",
             "实现屏蔽"
           ]
+        },
+        {
+          "anchor": "§WXG-T-240：托盘选中态补画槽（用户三项反馈之一）",
+          "level": 3,
+          "startLine": 164,
+          "endLine": 185,
+          "tokens": 633,
+          "summary": "① 槽不显示（已修）：病因 = drawTray 的 if (slot.state === 'free') 才画槽 ⇒ ",
+          "keywords": [
+            "WXG",
+            "drawTray",
+            "slot",
+            "state",
+            "free",
+            "托盘选中态补"
+          ]
         }
       ]
     },
@@ -50270,7 +50286,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "3b58af4dc591643818eada162145c508661b2e0fbcc7344e61d82b13fe82143f",
+      "sha256": "cf6f96d6c9189f4f58621ac419a8a8c49a8f1ed63827578a8cbee68f87e032cf",
       "tier": "normal",
       "sections": [
         {
@@ -50361,7 +50377,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 4,841 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
+          "anchor": "§`memory/2026-10-04.md` — 5,497 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 31 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70380,17 +70396,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 77365,
-      "lines": 2121,
-      "sha256": "80bbabb70c546d7da70dc75a5d935a1fe66b8899f941d32c1ac2585d11e83c24",
+      "tokens": 78120,
+      "lines": 2170,
+      "sha256": "70b4a03f4d971525e24351a09d531f1c602b6239ee876aa5d7b465c58fe87d0d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 2122,
-          "tokens": 77348,
+          "endLine": 2171,
+          "tokens": 78103,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -72024,22 +72040,97 @@
             "breakout",
             "门禁"
           ]
+        },
+        {
+          "anchor": "§WXG-T-240",
+          "level": 2,
+          "startLine": 2123,
+          "endLine": 2171,
+          "tokens": 752,
+          "summary": "beads·托盘选中态补画槽 — 2026-10-04 用户三项反馈之一（另两项见 §三）。",
+          "keywords": [
+            "WXG",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§① 槽不显示（✅ 已修）",
+          "level": 3,
+          "startLine": 2127,
+          "endLine": 2141,
+          "tokens": 259,
+          "summary": "病因：drawTray 里 if (slot.state === 'free') 才画槽 ⇒ 有珠的槽从不画坑。",
+          "keywords": [
+            "drawTray",
+            "slot",
+            "state",
+            "free",
+            "槽不显示",
+            "已修"
+          ]
+        },
+        {
+          "anchor": "§② 多了一个蓝点（⏸ 待裁）",
+          "level": 3,
+          "startLine": 2142,
+          "endLine": 2149,
+          "tokens": 122,
+          "summary": "选中时在槽下方 slotBottom - 8 画一枚 4px palette.hintBlue 圆点",
+          "keywords": [
+            "slotBottom",
+            "palette",
+            "hintBlue",
+            "多了一个蓝点",
+            "待裁"
+          ]
+        },
+        {
+          "anchor": "§③ 再点击不能取消（⚠ 实测**逻辑正常**，疑为语义差）",
+          "level": 3,
+          "startLine": 2150,
+          "endLine": 2167,
+          "tokens": 265,
+          "summary": "实测三例（直接驱动 Tray.select）：",
+          "keywords": [
+            "Tray",
+            "select",
+            "再点击不能取",
+            "实测",
+            "逻辑正常",
+            "疑为语义差"
+          ]
+        },
+        {
+          "anchor": "§读数 (2)",
+          "level": 3,
+          "startLine": 2168,
+          "endLine": 2171,
+          "tokens": 22,
+          "summary": "beads 775 绿 + 1 skipped · check:tasks 29/29 · verify PASS 19",
+          "keywords": [
+            "beads",
+            "skipped",
+            "check",
+            "tasks",
+            "verify",
+            "PASS"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 19887,
-      "lines": 77,
-      "sha256": "2059ac95a3e947db49af7a4fcee2131f89907e9c55fa24694515dc5a2c7fb411",
+      "tokens": 20125,
+      "lines": 78,
+      "sha256": "4516ae9fcb1b56aaeab5a3055da7f00cc28d0b6e490580f7b1d7427eb0197bdc",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 78,
-          "tokens": 19879,
+          "endLine": 79,
+          "tokens": 20116,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -72052,8 +72143,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 51,
-          "endLine": 78,
+          "startLine": 52,
+          "endLine": 79,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

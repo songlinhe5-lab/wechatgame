@@ -18,6 +18,7 @@ import {
   powerupCardRects,
   trayLayout,
   TRAY_COLS,
+  TRAY_SLOT,
 } from '../src/config/tuning.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
@@ -34,6 +35,18 @@ function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
   builder.begin();
   buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
+}
+
+function traySlotArtCount(c: readonly DrawCommand[], lay: ReturnType<typeof trayLayout>, idx: number): number {
+    const cx = lay.slotCenterX(idx % TRAY_COLS);
+    const cy = lay.slotCenterY(Math.floor(idx / TRAY_COLS));
+    const r = TRAY_SLOT * 0.75;
+    return c.filter((k) => {
+        const x = (k as { x?: number; cx?: number }).x ?? (k as { cx?: number }).cx;
+        const y = (k as { y?: number; cy?: number }).y ?? (k as { cy?: number }).cy;
+        if (x === undefined || y === undefined) return false;
+        return Math.hypot(x - cx, y - cy) <= r;
+    }).length;
 }
 
 function mkHarness(saveKey: string): Harness {
@@ -487,3 +500,25 @@ describe('托盘保持中性底（WXG-T-237 v6.0）', () => {
     });
 });
 
+// ── [WXG-T-240 · 2026-10-04 用户报「点击珠子选择时候，下面的槽没有显示」] ──────────
+//
+// 病因：`drawTray` 里 `if (slot.state === 'free')` 才画槽 ⇒ **有珠的槽从不画坑**。
+// 静息时珠正好盖住坑，看不出来；但**选中时珠抬起 `TRAY_SELECTED_LIFT_PX`** ⇒ 坑底位置
+// 暴露成一片空白 ⇒ 读作「珠悬在半空」。
+//
+// 修法：**选中态在珠之前补画槽**（口径与空槽路径逐字同源）。
+// ⛔ 层序是本质：画在 `drawFilledBead` **之后**会被珠面完全盖住 = 等于没画。
+describe('托盘选中态画坑（WXG-T-240）', () => {
+    it('选中后槽区域必须有图元（未选中时被珠盖住是正常的，选中抬起后不得为空白）', () => {
+        const h = mkHarness('wxgame.beads.test.t240-tray-slot');
+        h.game.giveTrayBead(1);
+        const lay = trayLayout(1);
+        const before = traySlotArtCount(renderSnap(h.game.snapshot), lay, 0);
+        h.game.selectTraySlot(0);
+        const after = traySlotArtCount(renderSnap(h.game.snapshot), lay, 0);
+        // ⛔ 核心断言：选中后槽区域**必须有图元**（旧实现此处为 0 ⇒ 读作悬空）
+        expect(after, '选中后槽区域不得为空白').toBeGreaterThan(0);
+        // 选中后图元数**增加**（补画的槽在珠之下 ⇒ 计数变多；旧实现两者相等）
+        expect(after, '选中应比未选中多出槽的图元').toBeGreaterThan(before);
+    });
+});

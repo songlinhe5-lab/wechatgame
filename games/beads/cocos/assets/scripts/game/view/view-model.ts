@@ -1250,6 +1250,22 @@ function drawTray(
       : 0;
     // §5 斜上 15°（2026-09-27 用户拍板）：托盘珠同步斜上，与板上同口径。
     const liftX = selected ? -lift * Math.tan((SELECT_LIFT_ANGLE * Math.PI) / 180) : 0;
+    // [WXG-T-240 · 2026-10-04 用户报「点击珠子选择时候，下面的槽没有显示」]
+    //
+    // 病因：上方 `if (slot.state === 'free')` 才画槽 ⇒ **有珠的槽从不画坑**。静息时珠正好盖住坑，
+    // 看不出来；但**选中时珠抬起 `TRAY_SELECTED_LIFT_PX`** ⇒ 坑底位置暴露成一片空白 ⇒ 读作「悬空」。
+    //
+    // 修法：**选中态在珠之前补画槽**。口径与空槽路径**逐字同源**（同 `TRAY_SLOT` / 同
+    // `BEAD_DRAW_INSET` / 同 `maskGauge` / 同 `styleId` / 同 `trayZone`）⇒ 不引入第二套坑绘制。
+    // ⛔ **必须画在 `drawFilledBead` 之前**：画在之后会被珠面完全盖住 = 等于没画
+    //   （同 WXG-T-236 盘面「抬起格也画坑底」的层序结论）。
+    // 效果与盘面抬起格同观感：珠从坑里抬起，而非悬在半空。
+    if (selected) {
+      drawEmptySocket(
+        builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
+        { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
+      );
+    }
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
       // [WXG-T-237 v4.0 · 1:1] `outer` = `TRAY_SLOT`(=`BEAD_CELL` 30)，内缩走 `BEAD_DRAW_INSET`
       // ⇒ 珠面 **26** = 盘面珠面（1:1）。⛔ 旧值 `TRAY_BEAD_SIZE 44` 属已废的托盘独立体系。
