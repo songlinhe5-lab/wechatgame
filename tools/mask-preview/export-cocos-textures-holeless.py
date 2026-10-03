@@ -175,7 +175,6 @@ bead_mask = paint_frame_light(render_mask(data["beadLayers"], shape_b))
 _bbase = np.zeros((RENDER, RENDER, 4), np.uint8)
 _bbase[..., 0:3] = 255
 _bbase[..., 3] = shape_b
-bead_base = Image.fromarray(_bbase, "RGBA")
 
 # ---------- 3/4. grid mask + base（程序化槽，同 v1.0 结构；尺寸按无孔档） ----------
 EDGE_DP = 3.0                                                  # 槽内边沿斜面深度（dp）
@@ -206,13 +205,10 @@ gm[..., 2][edge_g] = 255                                           # 槽内 3dp 
 gm[..., 0][sd_g < -EDGE_DP * PX] = int(0.32 * 255)
 gm[..., 2][sd_g < -EDGE_DP * PX] = 255                             # 槽底：shape 满幅（⛔ holeless 深坑 0.32 必须保住 ⇒ I-5 分叉）
 grid_mask = Image.fromarray(gm, "RGBA")
-grid_base = Image.new("RGBA", (RENDER, RENDER), (255, 255, 255, 255))
 
 OUT_DIR.mkdir(exist_ok=True)
 for name, img in (
-    ("bead-holeless-tint-128-base.png", bead_base),
     ("bead-holeless-tint-128-mask.png", bead_mask),
-    ("grid-holeless-tint-128-base.png", grid_base),
     ("grid-holeless-tint-128-mask.png", grid_mask),
 ):
     img = img.resize((OUT, OUT), Image.LANCZOS)   # ÷4 整数比 LANCZOS ⇒ 边缘平滑（勿改非整数比）

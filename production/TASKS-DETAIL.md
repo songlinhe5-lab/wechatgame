@@ -1935,3 +1935,49 @@ verify **PASS 19 / WARN 0 / SKIP 1 / FAIL 0** · 效果图 `temp/shadow-preview/
 2. **I-4 编码不变式在 CLI 与单测两处口径分叉** —— 本批只改了单测、漏了 CLI ⇒ 收尾时补齐。
    ⇒ **教训：同一不变式在「单测 + CLI」两处实现时，改一处必须同步另一处**（与 v5.0 那次
    「`view-model` 改了、`harness` 接线漏了」同型）。
+
+### v8.0：base 四件移除（生成过程 + 资产一并去掉）
+
+**触发**：用户问「`base.png` 在绘制纹理时是否真实需要？透明度是否 mask 就可以满足？如果不需要就去掉生成过程」。
+
+**结论：base 不需要 —— 透明度完全由 mask 承担。**
+
+**五处核实（逐条读数，非推断）**：
+
+| 核查点 | 读数 |
+|---|---|
+| `dev/harness/main.ts` 的 `MASK_FILE[gauge][kind]` | blit **只**加载 `*-mask.png` |
+| `packages/framework/src/adapters/canvas2d/tint-blit-resolver.ts:36` | 有 `fx` 时走 `cache.get(cmd.textureId, base)` —— **只用 maskId + 着色基色** |
+| 烘焙层 `bake-recipes.ts` / `bake-surface.ts` / `bake-key.ts` | **不涉及**任何 base PNG |
+| `mask-diff.mjs` / `mask-diff.test.ts` | 门禁**只**比 4 个 mask 文件 |
+| Cocos 侧 `assets/scripts/` | **无** base 引用（原引用只在编辑器缓存 `cocos/temp` / `cocos/library`） |
+
+**为什么透明度不需要 base**：
+
+```
+out = fx.base · d + (1 − fx.base) · l · shape        alpha = shape
+```
+
+- **`alpha = shape = mask 的 B 通道`** ⇒ 透明与否**只由 mask 决定**
+- 公式里的 `base` 是 **`fx.base` 着色基色（hex 字符串**，`colorIdx === undefined ? palette.slot : beadColorOf(inks, colorIdx)`**）**，
+  ⛔ **与任何 `*_base.png` 无关**
+- 「−0.30 底色层」也不是 base.png，而是**代码画的 rect**（`drawTargetTile` 的 `edge`）
+
+**与原规约的一致性**：`tint-mask-asset-spec §1.1` 原文已把 base 标「**条件交付**」并写明
+「走**整盘单图元**（Q1 选项①，推荐）后 base 四件**可省 ⇒ 回吐 KB 级**」
+⇒ 本次是**执行该已写明的条件**，**不是新决策**。
+
+**动作**：
+- `tools/mask-preview/export-cocos-textures{,-holeless}.py`：**删掉** `bead_base` / `grid_base` 的生成与输出元组，
+  头注改为「base 四件已停止生成并从库中删除」+ 回退条件
+- 删 4 个 `*_base.png`（**实测 5 769 B ≈ 5.63 KB**；⚠ 原规约写「6 365 B」有误，已更正）
+  + Cocos 侧 2 个 png + 2 个 `.meta`（成对删，避免编辑器报丢失资源）
+- 规约 §1.1：**八件套 → 四件套**（**19 234 B ≈ 18.78 KB**），新增 **§1.1.1 base 移除裁定**
+  （五处核实表 + 「为什么透明度不需要 base」+ 字节更正 + 回退条件）；§1.2 命名清单 8 件 → 4 件
+
+**⚠ 回退条件（如实登记）**：真机侧若改走「**Sprite 池载体**」路径（Sprite 无 `spriteFrame` 不渲染 ⇒ 需占位图），
+base 四件须重新生成 —— 代码在 git 历史（`8d7889a` 之前的 `export-cocos-textures*.py`）里，
+或按 §1.1.1 规格重写（`bead` 占位 = A 通道取 `shape_b`；`grid` 占位 = 纯白 128²）。
+
+**门禁**：`mask:diff` **PASS**（4 张 mask 编码不变式全过、R/G/B mean=max=0）·
+framework **421** / breakout **239** / beads **774**（+1 skipped）· `verify` **PASS 19 / FAIL 0**。

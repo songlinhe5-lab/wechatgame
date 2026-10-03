@@ -19,15 +19,16 @@
    - 512 超采样 → LANCZOS ×4 缩回 128 · 距离计算完成后取整 dp（r7 纪律）
 
 生成 Cocos 探针四件套（128px；格径 30dp 居中，珠面 26dp）：
-  bead-tint-128-base.png   Sprite 占位图（shader 已不读 SpriteFrame 纹理）
   bead-tint-128-mask.png   珠 mask，编码 **R=d / G=l / B=形状**（A=255 满幅 ⇒ 免疫 Trim）
-  grid-tint-128-base.png   Sprite 占位图
   grid-tint-128-mask.png   格 mask（同编码；**[WXG-T-237 v7.0] B=槽口内 255 / 格外 0**）
-  grid-tint-128-base.png   **纯白占位**（A=255，B 通道 100% 实底）—— ⛔ **不参与渲染**：
-                 harness/serve/framework bake 全仓**无加载方**；blit 只用 `*-mask.png`。
-                 公式里的 `base` 是 **`fx.base` 着色基色（hex）**（盘面 = 该格目标色 /
-                 托盘 = `palette.slot`），**不是本文件**。「−0.30 底色层」也**不是**本文件，
-                 而是代码画的 rect（`drawTargetTile` 的 `edge`）。
+  ── 2026-10-04（WXG-T-237 v8.0）**base 四件已停止生成并从库中删除**：核实结论 = blit 链路上
+     base **不参与任何混合**（`tint-blit-resolver` 只取 `maskId`；`*-base.png` 全仓无加载方；
+     烘焙层 `bake-*` 亦不涉及）。规约 `tint-mask-asset-spec §1.1` 原已把它标「**条件交付**」
+     并写明「走整盘单图元（推荐）后 base 四件可省 ⇒ 回吐 6.2 KB」。
+     透明度**完全由 mask 的 B(shape) 通道承担**（`out = fx.base·d + (1−fx.base)·l·shape`，`alpha = shape`）
+     —— 公式里的 `base` 是 **`fx.base` 着色基色（hex 字符串）**，⛔ 与任何 base.png 文件无关。
+     ⚠ **如将来真机改走「Sprite 池载体」路径**（Sprite 无 spriteFrame 不渲染 ⇒ 需占位图），
+     须从 git 历史（`8d7889a` 之前的版本）恢复本段生成代码。
 
 编码动机（2026-09-29）：3.x 自定义 effect 里 `cc_spriteTexture` 不被引擎绑定（恒 white）⇒
 形状 alpha 必须进 mask 本身 ⇒ B 通道。⇒ 真正「一张 mask × tint 色 = 成品」，SpriteFrame 只剩占位职责。
@@ -244,11 +245,6 @@ shape_b = si_np.astype(np.uint8)
 # （2026-09-29 回退：上一轮误将"槽的暗条删除+亮面"应用到 bead 侧 ⇒ 恢复 facet 刻面直读版。
 #   槽侧的正确改动保留在 grid 分支。）
 bead_mask = paint_frame_light(paint_b14_ring(render_mask(data["beadLayers"], shape_b)))
-# 占位图：RGB=白、A=shape_b（与 mask B 通道**逐像素相等**——同一 K_HOLE 场，语义零歧义）
-_bbase = np.zeros((RENDER, RENDER, 4), np.uint8)
-_bbase[..., 0:3] = 255
-_bbase[..., 3] = shape_b
-bead_base = Image.fromarray(_bbase, "RGBA")
 
 # ---------- 3/4. grid mask + base ----------
 # 用户 2026-09-29 拍板：**槽口轮廓 = 珠面轮廓（26dp 圆角方、角 8dp）**；
@@ -285,13 +281,10 @@ gm[..., 2][edge_g] = 255                                           # 槽内 3dp 
 gm[..., 0][sd_g < -EDGE_DP * PX] = int(0.70 * 255)
 gm[..., 2][sd_g < -EDGE_DP * PX] = 255                             # 槽底：shape 满幅（⛔ holeless 深坑 0.32 必须保住 ⇒ I-5 分叉）
 grid_mask = Image.fromarray(gm, "RGBA")
-grid_base = Image.new("RGBA", (RENDER, RENDER), (255, 255, 255, 255))
 
 OUT_DIR.mkdir(exist_ok=True)
 for name, img in (
-    ("bead-tint-128-base.png", bead_base),
     ("bead-tint-128-mask.png", bead_mask),
-    ("grid-tint-128-base.png", grid_base),
     ("grid-tint-128-mask.png", grid_mask),
 ):
     img = img.resize((OUT, OUT), Image.LANCZOS)   # ÷4 整数比 LANCZOS ⇒ 边缘平滑（勿改非整数比）

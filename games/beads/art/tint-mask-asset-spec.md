@@ -61,25 +61,54 @@
 | — | **4 mask 小计** | | **19 234 B ≈ 18.78 KB** | |
 | ~~+9~~ | ~~trayCell × mask~~ | — | — | ⛔ **已作废**（WXG-T-237 **v2.0**：用户裁「托盘**完全随盘面 mask**+ 缩放」⇒ **不做托盘专属资产**）⇒ **本清单零增量** |
 | ~~+10~~ | ~~trayBead × mask~~ | — | — | ⛔ **已作废**（同上）。📌 托盘改为**复用**上表第 1/2 行（`bead_holed` / `grid_holed`）**并按 `size` 等比缩放** ⇒ **+0 KB**；⛔ 两处冻结值会变（`TRAY_SLOT 48` 与 `TRAY_BEAD_SIZE 44`）⇒ 见 [`tray-neutral-slot-mask-spec.md`](tray-neutral-slot-mask-spec.md) **§1.3 / §2 Q-A** |⛔ 字节/画布/7 道题见 **[`tray-neutral-slot-mask-spec.md`](tray-neutral-slot-mask-spec.md)**；⛔ 本行**不计入**上方「4 mask 小计」与「八件套合计」（那是**已交付**口径，待增件在获批并烘焙前不进预算） |
-| 5 | bead × holed × base | `bead_holed_128_base.png` | 3 631 | **条件交付**：Sprite 池载体的占位图 |
-| 6 | grid × holed × base | `grid_holed_128_base.png` | 390 | 同上 |
-| 7 | bead × holeless × base | `bead_holeless_128_base.png` | 1 954 | 同上 |
-| 8 | grid × holeless × base | `grid_holeless_128_base.png` | 390 | 同上 |
-| — | **4 base 小计** | | **6 365 B ≈ 6.22 KB** | |
-| — | **八件套合计** | | **25 599 B ≈ 25.0 KB** | 与方案件 §6.1 逐字一致 |
+| ~~5–8~~ | ~~× base × 4 件~~ | ~~`*_base.png`~~ | ~~5 769 B ≈ 5.63 KB~~ | ⛔ **已删除（2026-10-04，WXG-T-237 v8.0）**：核实 base **不参与任何混合** ⇒ 停止生成并从库中移除（详见下方「base 移除裁定」） |
+| — | **四件套合计（现行）** | | **19 234 B ≈ 18.78 KB** | 与「4 mask 小计」同值 —— **base 四件已不再计入** |
 
-- **base 的职责**：Sprite 无 `spriteFrame` 不渲染 ⇒ 走 **Sprite 池载体**（方案件 Q1 选项②）时必需；走**整盘单图元**（Q1 选项①，推荐）后 **base 四件可省 ⇒ 回吐 6.2 KB**。⇒ base 在规格中一律标 **「条件交付」**，不得当恒久资产预算。
+### 1.1.1 base 移除裁定（2026-10-04 · WXG-T-237 v8.0 · 用户提问触发）
+
+**结论：base 四件已从库中删除，透明度完全由 mask 的 B(shape) 通道承担。**
+
+**移除依据（逐条核实，非推断）**：
+
+| 核查点 | 读数 |
+|---|---|
+| `dev/harness/main.ts` 的 `MASK_FILE[gauge][kind]` | blit **只**加载 `*-mask.png` |
+| `packages/framework/src/adapters/canvas2d/tint-blit-resolver.ts:36` | 有 `fx` 时走 `cache.get(cmd.textureId, base)` —— **只用 maskId + 着色基色** |
+| 烘焙层 `bake-recipes.ts` / `bake-surface.ts` / `bake-key.ts` | **不涉及**任何 base PNG |
+| `mask-diff.mjs` / `mask-diff.test.ts` | 门禁**只**比 4 个 mask 文件 |
+| Cocos 侧 `games/beads/cocos/assets/scripts/` | **无** base 引用（原引用只在编辑器缓存 `cocos/temp` / `cocos/library`） |
+
+**为什么透明度不需要 base**：
+
+```
+out = fx.base · d + (1 − fx.base) · l · shape        alpha = shape
+```
+
+- **`alpha = shape = mask 的 B 通道`** ⇒ 透明与否**只由 mask 决定**。
+- 公式里的 `base` 是 **`fx.base` 着色基色（hex 字符串**，`colorIdx === undefined ? palette.slot : beadColorOf(inks, colorIdx)`**）**，
+  ⛔ **与任何 `*_base.png` 文件无关**。
+- 「−0.30 底色层」也不是 base.png，而是**代码画的 rect**（`drawTargetTile` 的 `edge`）。
+
+**与本节原记载的一致性**：原文已把 base 标为「**条件交付**」并写明「走**整盘单图元**（Q1 选项①，推荐）
+后 base 四件可省 ⇒ 回吐 KB 级」—— 本次是**执行该已写明的条件**，不是新决策。
+
+⚠ **字节数更正**：原文写「4 base 小计 6 365 B」，**实测为 5 769 B**（bead holed 3 236 / bead holeless 1 753 /
+grid holed 390 / grid holeless 390）⇒ 上表按实测填。
+
+⚠ **若将来要回退**：真机侧若改走「**Sprite 池载体**」路径（Sprite 无 `spriteFrame` 不渲染 ⇒ 需占位图），
+base 四件须重新生成 —— 代码在 git 历史（`8d7889a` 之前的 `export-cocos-textures*.py`）里，
+或按本节规格重写（`bead` 占位 = A 通道取 `shape_b`；`grid` 占位 = 纯白 128²）。
 - **口径**：mask 是**数据资产**（系数图，无颜色）⇒ **§2「未来真实资产替换提示词」对本分册不适用**；视觉资产的替换提示词仍住 `assets-spec §2`。
 
 ### 1.2 命名规范（**本单裁定项**）
 
-**规范性建议名（正表，8 件）**：
+**规范性建议名（正表，4 件 —— base 四件已于 v8.0 删除，见 §1.1.1）**：
 
 ```
-bead_holed_128_mask.png     bead_holed_128_base.png
-bead_holeless_128_mask.png  bead_holeless_128_base.png
-grid_holed_128_mask.png     grid_holed_128_base.png
-grid_holeless_128_mask.png  grid_holeless_128_base.png
+bead_holed_128_mask.png
+bead_holeless_128_mask.png
+grid_holed_128_mask.png
+grid_holeless_128_mask.png
 ```
 
 - **模式**：`{kind}_{gauge}_{尺寸}_{角色}.png` —— 对齐母体 §4「全小写 + **下划线**、`{域}_{实体}_{变体}_{状态}`、禁止版本号 / final / 空格 / 中文 / 大写」。
