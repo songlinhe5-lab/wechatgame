@@ -1004,3 +1004,15 @@
 **自测工具（本批新增，可复用）**：`temp/tint-wiring/sim-flip.mjs`（真 mask PNG → 合成 → 渲染器变换 → 屏幕朝向的离线模拟，A/B 定案用）、`temp/tint-wiring/annotated-cells.png`（用户截图的颜色 → 部件标注）、`/tmp/*.png` 的无头 Chrome 截图法（`--headless=new --force-device-scale-factor=N --window-size=W,H --virtual-time-budget=6000`）⇒ ⛔ Q4 裁「暂不做常驻门禁」，这些留在 `temp/` 供后续复用。
 
 ⛔ **本批未 commit**（等用户复核观感后提交）。
+
+### harness 观感验证轮（CodeBuddy 无头 Chrome 逐像素，2026-10-03 下午）
+
+**验证能力**：机器有 Chrome ⇒ 用 `--headless=new --force-device-scale-factor=N --window-size=W,H --virtual-time-budget=6000` 自己抓两臂截图 + 逐像素剖面，⛔ 不再靠用户肉眼转述。
+
+**已验证通过**：① 光影方向（上/左亮→下暗，A/B 实测）② mask 通道 = `facet-4` 四扇的**忠实编码**（上 `d=1.0,l=0.376`=lit / 左 0.918 / 右 0.776 / 下 0.60，与 `mix(base,−0.08/−0.22/−0.40)` 逐位对应）③ 孔**真透**（`shape=0`）④ 格间 = B0 底色（暗，非白）。
+
+**本轮又抓到 2 个真问题**：
+6. **tint 基色取错索引**（S2 批埋）：`bead-render:681` 用 `targetColorIdx ?? colorIdx`，而**矢量臂 `facet-4:151` 用 `colorIdx`（珠色）**。错位/交换态（`beads-game.ts:2290` 判 `beadColorIdx !== colorIdx` 为合法态）⇒ **两臂渲出不同颜色**（实测逐扇 RGB 距离 **51.7 / 54.6 / 57.3**）。修法：改 `colorIdx` + 加错位态回归锚；**并发现旧判据「tint 基色 = 珠的本色」本身把 bug 断言进去了**（传 `colorIdx:1/targetColorIdx:2` 却期望目标色）⇒ 已按修正语义改写。**修复后逐扇 RGB 距离降到 0.0（上）/ 1.3（下）/ 7.8（左）/ 11.3（右）**。
+7. **孔环缺失 + 孔径/羽化与标称不符**（并入 WXG-T-232）：mask 孔径向剖面 = 真透 `⌀≈10.3dp`（标称 12）+ 羽化带 **≈1.4dp**（标称 0.5）⇒ 合计到 `⌀≈13.6dp`；且孔缘是**亮晕**（`d` 125→210）而**矢量臂孔环 = `mix(base,−0.58)` 暗环**（`facet-4` #6 层）⇒ 两臂孔缘观感不同。
+
+**残留差异归属**：左/右扇 7.8–11.3 RGB 距离的来源已定位 = ① 矢量臂有**同色自描边封对角 AA 缝**（`stroke===fill`，mask 无）② 珠径 27.2 vs 26（mask 覆盖到 B0 上，格间取样因此偏色）⇒ **两者都由 WXG-T-232 消解**。

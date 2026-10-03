@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3670,
       "lines": 133,
-      "sha256": "c8811a83b94ad15b9549e9f02701d78ef56057ddb581abb840363fd728185506",
+      "sha256": "da8b0832eafcffcdcf9fed60a8d0384ea93d9d97613f433b9ad967312ee6a4f2",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5025,
       "lines": 106,
-      "sha256": "1b35de858f8be8a4ebf7c8b55afe7dbdb59f7ab94516b45e8539c66e7d47abf3",
+      "sha256": "95a26145c805b701750f97e07fff56b56d8902b4c6e0c7d046240d8b9e83441a",
       "tier": "normal",
       "sections": [
         {
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1006 行 / 52397 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1018 行 / 52969 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 263,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1007 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1019 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48503,17 +48503,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 1383,
-      "lines": 39,
-      "sha256": "2086aad3577084e71e887a4db042e528f89661bcfe36d4fe3d568dcbb57139dc",
+      "tokens": 1944,
+      "lines": 49,
+      "sha256": "41607851c3d13183fb056bd5906fc9dc93b97d234a3cc9479b7ee75936153ef6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 40,
-          "tokens": 1380,
+          "endLine": 50,
+          "tokens": 1941,
           "summary": "",
           "keywords": []
         },
@@ -48521,8 +48521,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 40,
-          "tokens": 1347,
+          "endLine": 50,
+          "tokens": 1909,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48608,6 +48608,22 @@
             "typechec",
             "门禁与状态"
           ]
+        },
+        {
+          "anchor": "§续：harness 观感验证轮（无头 Chrome 逐像素）",
+          "level": 3,
+          "startLine": 41,
+          "endLine": 50,
+          "tokens": 542,
+          "summary": "验证能力：机器有 Chrome ⇒ --headless=new --force-device-scale-factor",
+          "keywords": [
+            "harness",
+            "Chrome",
+            "headless",
+            "new",
+            "force",
+            "device"
+          ]
         }
       ]
     },
@@ -48615,7 +48631,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "4f183ac6a2701cf025a076dcfb5d5c8a2c32a674fbde44fa77b25e998d6f994c",
+      "sha256": "3b3f2c2ebe77a7b7d6d6b89fc9c5acb16d0793f4305abeca5040844ee97e0a0a",
       "tier": "normal",
       "sections": [
         {
@@ -48706,7 +48722,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 1,383 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 1,944 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -68711,17 +68727,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 52397,
-      "lines": 1006,
-      "sha256": "4c894306f1b5c837fd214d15b35dcf444628253b0fbf1fd78a56a2ef2c311844",
+      "tokens": 52969,
+      "lines": 1018,
+      "sha256": "272b65abe25ba5ae442705ff91d9dde0c00ca909c2690dfb30faa0e7498d7c93",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1007,
-          "tokens": 52380,
+          "endLine": 1019,
+          "tokens": 52952,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -69511,8 +69527,8 @@
           "anchor": "§WXG-T-233",
           "level": 2,
           "startLine": 972,
-          "endLine": 1007,
-          "tokens": 1369,
+          "endLine": 1019,
+          "tokens": 1942,
           "summary": "beads·抬起露槽（选中抬起时补画凹槽） — 2026-10-03 用户裁定「另立故事」。",
           "keywords": [
             "WXG",
@@ -69533,6 +69549,22 @@
             "ADR",
             "BlitResolver",
             "接线"
+          ]
+        },
+        {
+          "anchor": "§harness 观感验证轮（CodeBuddy 无头 Chrome 逐像素，2026-10-03 下午）",
+          "level": 3,
+          "startLine": 1008,
+          "endLine": 1019,
+          "tokens": 547,
+          "summary": "验证能力：机器有 Chrome ⇒ 用 --headless=new --force-device-scale-fact",
+          "keywords": [
+            "harness",
+            "CodeBuddy",
+            "Chrome",
+            "headless",
+            "new",
+            "force"
           ]
         }
       ]

@@ -676,9 +676,13 @@ export function drawFilledBead(
     const maskId = _tintRuntime.getMaskId('bead', options.maskGauge, tintStyleId);
     if (maskId !== undefined) {
       const inks = options.inks ?? DEMO_BEAD_INKS;
-      // tint 合成基色 = 珠的**本色**（`palette` 端点族的 `base`），⛔ 不是 `edge/pit/lit` 派生色。
+      // tint 合成基色 = 珠的**本色**（端点族的 `base`），⛔ 不是 `edge/pit/lit` 派生色。
+      // ⚠ **必须取 `colorIdx`（珠色），⛔ 不是 `targetColorIdx`**（WXG-T-226 接线批修正）：
+      // 矢量臂 `facet-4.ts:151` 的层集用 `endpointOf(inks, colorIdx)` = **珠色**；
+      // 而错位/交换态（`beads-game.ts:2290` 的 `beadColorIdx !== colorIdx`）真实存在
+      // ⇒ 取 targetColorIdx 会让**两臂渲出不同颜色**（实测逐扇 ΔE ≈ 52，2026-10-03）。
       // `[ADR-0029 §8.2]` 具象化在效果模块（`tintFx`），⛔ 不在 beads 手写 `{ base }` 字面量。
-      tintBlitOpts.fx = tintFx(beadColorOf(inks, options.targetColorIdx ?? colorIdx));
+      tintBlitOpts.fx = tintFx(beadColorOf(inks, colorIdx));
       builder.blit(maskId, x - outer / 2, y - outer / 2, outer, outer, tintBlitOpts);
       /**
        * **DEC-2 · 孔底口径（孔区真透）**：tint 臂下**不再画 live `pit` circle / 孔环**

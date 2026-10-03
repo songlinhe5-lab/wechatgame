@@ -101,11 +101,30 @@ describe('双臂分流（V-4 命令流 / DEC-2 孔底）', () => {
         const { runtime } = stubTintRuntime();
         setBeadTintRuntime(runtime);
         const model = build((b) => {
-            drawFilledBead(b, 100, 100, 1, { size: BEAD_CELL, targetColorIdx: 2, maskGauge: 'holed' });
+            // ⚠ `colorIdx` = 珠色；此处与 `targetColorIdx` 同值（已匹配态）。
+            // ⛔ 旧版本条传 `colorIdx:1 / targetColorIdx:2` 并期望**目标色** ⇒ **把 bug 断言进去了**
+            // （矢量臂 `facet-4` 用 `colorIdx`）；已由 WXG-T-226 接线批修正 + 另立错位态用例。
+            drawFilledBead(b, 100, 100, 2, { size: BEAD_CELL, targetColorIdx: 2, maskGauge: 'holed' });
         });
         const cmd = model.commands[0] as BlitCommand;
         // ⛔ 不用 `hexes[idx]` 硬编：色板索引是 **1-based**（`beadColorOf` 口径）。
         expect(tintFxBase(cmd.fx)).toBe(beadColorOf(DEMO_BEAD_INKS, 2));
+    });
+
+    it('tint 基色取**珠色**（⛔ 不取 targetColorIdx）—— 错位态两臂必须同色', () => {
+        // 回归锚（WXG-T-226 接线批）：错位/交换态下 `beadColorIdx !== colorIdx`
+        // （`beads-game.ts:2290` 判它为合法态）⇒ 若 tint 取 targetColorIdx，
+        // 矢量臂（`facet-4` 用 colorIdx）会渲出**另一种颜色**（实测 ΔE ≈ 52）。
+        const { runtime } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const model = build((b) => {
+            drawFilledBead(b, 100, 100, /* colorIdx */ 3, {
+                size: BEAD_CELL, targetColorIdx: 5, maskGauge: 'holed',
+            });
+        });
+        expect(tintFxBase((model.commands[0] as BlitCommand).fx)).toBe(beadColorOf(DEMO_BEAD_INKS, 3));
+        // ⛔ 显式反证：不是目标色
+        expect(tintFxBase((model.commands[0] as BlitCommand).fx)).not.toBe(beadColorOf(DEMO_BEAD_INKS, 5));
     });
 
     it('空格（盘面格）tint 臂命中 ⇒ 1 条 blit，⛔ 无 4 内阴影 + 2 明暗线', () => {
