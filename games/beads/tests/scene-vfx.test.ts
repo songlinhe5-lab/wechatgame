@@ -431,7 +431,7 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
   /** 该宽度属于第几级阶梯（0 = 接触影）；不是影则 -1。 */
   function iOfShadowWidth(snap: BeadsSnapshot, w: number): number {
     for (let i = 0; i <= BEAD_CARD.castSteps; i++) {
-      const expect = snap.gridCell * (BEAD_CARD.liftShadowContactW + BEAD_CARD.castGrowW * i);
+      const expect = snap.gridCell * (BEAD_CARD.liftShadowContactD + BEAD_CARD.castGrow * i);
       if (Math.abs(w - expect) < 1e-9) return i;
     }
     return -1;
@@ -452,15 +452,20 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
     const got = allShadows(h.game.snapshot);
     // [WXG-T-236] 每颗抬起珠 = 接触影 + 2 级投射阶梯 = 3 条（组内 1 颗 ⇒ 恰 3 条）。
     expect(got).toHaveLength(1 + BEAD_CARD.castSteps);
+    // ⛔ 影必须**圆**（宽高同值）—— 修「横条感」：第一版做成 12.6x4.8 扁胶囊（2.6:1），
+    // 宽高比远大于 1 ⇒ 读作横条（用户二轮反馈）。被抬起的是圆珠 ⇒ 投影也必须圆。
+    for (const c of got) expect(c.w).toBeCloseTo(c.h, 9);
     for (const c of got) expect(String(c.fill).startsWith('rgba')).toBe(false);
     // 墨档梯 = 坑内阴影已定标端点族：接触最深 `shadeOuter`，向外递浅 `shadeMid → hole`。
     // ⛔ 旧实现用 `pit`（该族**最浅**一档）⇒ 淡而不暗、读作横条；此项即其回归守卫。
     const ep = endpointOf(DEMO_BEAD_INKS, h.game.grid.requiredColor(1, 2));
+    // ⛔ 期望梯**按 `castSteps` 派生**（段数是工程可调项，测试写死档数会在调段数时假红）。
+    const full = [ep.shadeOuter, ep.shadeMid, ep.hole].slice(0, 1 + BEAD_CARD.castSteps);
     const ladder = got
       .map((c) => iOfShadowWidth(h.game.snapshot, c.w))
       .sort((a, b) => a - b)
-      .map((i) => [ep.shadeOuter, ep.shadeMid, ep.hole][i]);
-    expect(ladder).toEqual([ep.shadeOuter, ep.shadeMid, ep.hole]);
+      .map((i) => full[i]);
+    expect(ladder).toEqual(full);
     expect(ladder[0]).not.toBe(ep.pit);
   });
 
@@ -470,17 +475,25 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
     expect(h.game.selectBoardBead(1, 2)).toBe(true);
     h.advance(SELECT_LIFT_MS / 1000 + 0.02);
     const snap = h.game.snapshot;
-    const byLevel = [0, 1, 2].map((i) =>
+    const byLevel = Array.from({ length: 1 + BEAD_CARD.castSteps }, (_, i) =>
       allShadows(snap).find((c) => iOfShadowWidth(snap, c.w) === i)!,
     );
+    expect(byLevel.every(Boolean)).toBe(true);
+    // ⚠ 判据看**中心**而非左缘：影逐级**变大**（每级 ±grow/2）⇒ 左缘必然左移，
+    // 早先按 `x`（左缘）判会假红（实测 352.1 < 352.4）。方向判据一律用中心。
+    const cx = (c: RectCommand) => c.x + c.w / 2;
+    const cy = (c: RectCommand) => c.y + c.h / 2;
     for (let i = 1; i < byLevel.length; i++) {
       const prev = byLevel[i - 1]!;
       const cur = byLevel[i]!;
-      expect(cur.x).toBeGreaterThan(prev.x);      // 向右
-      expect(cur.y).toBeGreaterThan(prev.y);      // 向下（屏幕系 y 向下）
+      expect(cx(cur)).toBeGreaterThan(cx(prev));  // 向右
+      expect(cy(cur)).toBeGreaterThan(cy(prev));  // 向下（屏幕系 y 向下）
       expect(cur.w).toBeGreaterThan(prev.w);      // 逐级放大
       expect(cur.h).toBeGreaterThan(prev.h);
+      expect(cur.w).toBeCloseTo(cur.h, 9);        // ⛔ 圆形（宽高同值）
     }
+    // 偏移以**向下为主**（`castDy > castDx`）⇒ 读作珠子下缘的月牙，不是横带
+    expect(BEAD_CARD.castDy).toBeGreaterThan(BEAD_CARD.castDx);
   });
 
   it('影钉在格面：中途帧与满帧同坐标（分离量由珠升起露出，不跟物体搬家）', () => {

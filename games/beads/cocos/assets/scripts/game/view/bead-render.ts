@@ -508,17 +508,17 @@ export function drawLiftGroundShadow(
   // 墨档**直接引用端点族已预混好的字段**（⛔ 不在本函数混色：色值只进 palette，纪律同 §3）。
   // 梯序 = 坑内阴影已定标族：shadeOuter(-0.80) → shadeMid(-0.68) → hole(-0.58)，越远越淡。
   const ep = endpointOf(inks, targetColorIdx);
+  // ⛔ 宽高**同值** ⇒ 影是圆（修「横条感」：被抬起的是圆珠，投影在斜俯视下也接近圆）。
   const ladder = [ep.shadeOuter, ep.shadeMid, ep.hole] as const;
   const steps = BEAD_CARD.castSteps;
   for (let i = 0; i <= steps; i++) {
-    const w = outer * (BEAD_CARD.liftShadowContactW + BEAD_CARD.castGrowW * i);
-    const h = outer * (BEAD_CARD.liftShadowContactH + BEAD_CARD.castGrowH * i);
+    const d = outer * (BEAD_CARD.liftShadowContactD + BEAD_CARD.castGrow * i);
     builder.rect(
-      cx + outer * BEAD_CARD.castDx * i - w / 2,
-      cy + outer * BEAD_CARD.castDy * i - h / 2,
-      w,
-      h,
-      { fill: ladder[Math.min(i, ladder.length - 1)]!, radius: Math.round(h / 2) },
+      cx + outer * BEAD_CARD.castDx * i - d / 2,
+      cy + outer * BEAD_CARD.castDy * i - d / 2,
+      d,
+      d,
+      { fill: ladder[Math.min(i, ladder.length - 1)]!, radius: Math.round(d / 2) },
     );
   }
 }

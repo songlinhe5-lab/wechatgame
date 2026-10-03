@@ -385,17 +385,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3664,
-      "lines": 133,
-      "sha256": "1fc7db54b9a31b944162b09035870c01e08720ef6735a4aff00d95a787b95f0f",
+      "tokens": 3694,
+      "lines": 134,
+      "sha256": "6a848ed67bf44aeab7feb431fffcaa3ef09163d2b9ff8f2d3c7ff9ea4d922e94",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 134,
-          "tokens": 3651,
+          "endLine": 135,
+          "tokens": 3681,
           "summary": "生成：2026-10-03 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -439,8 +439,8 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 108,
-          "tokens": 2160,
+          "endLine": 109,
+          "tokens": 2189,
           "summary": "games/beads/art/assets-spec.md 107705 见 ctx/budget-exempt.js",
           "keywords": [
             "tokens",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 109,
-          "endLine": 134,
+          "startLine": 110,
+          "endLine": 135,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5043,
       "lines": 106,
-      "sha256": "11d7b662df6bfeff7f8fcf13964fe286a6a1c8ea8531d9444f83695967d74db9",
+      "sha256": "fd82a70c59bede5c899e4ba3704b6382e4e5a2aa50f635bbd9cf110981ad2007",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 75 行 / 14661 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 75 行 / 14790 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 1208 行 / 57444 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 1224 行 / 58003 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 280,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1209 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+1225 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -48580,17 +48580,17 @@
     },
     {
       "path": "memory/2026-10-03.md",
-      "tokens": 7560,
-      "lines": 222,
-      "sha256": "0bc8581e5552c7b2a7fe48ce593f25997249bf77c1c7c474a04721bbf4c9958b",
+      "tokens": 8132,
+      "lines": 240,
+      "sha256": "656d98457312c5ace47a08805fdd1cf64a654382f63147a5ec3236946fbae104",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-03",
           "level": 1,
           "startLine": 1,
-          "endLine": 223,
-          "tokens": 7556,
+          "endLine": 241,
+          "tokens": 8129,
           "summary": "",
           "keywords": []
         },
@@ -48598,8 +48598,8 @@
           "anchor": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板）",
           "level": 2,
           "startLine": 3,
-          "endLine": 223,
-          "tokens": 7524,
+          "endLine": 241,
+          "tokens": 8097,
           "summary": "",
           "keywords": [
             "WXG",
@@ -48872,6 +48872,22 @@
             "接触影",
             "投射阶梯"
           ]
+        },
+        {
+          "anchor": "§WXG-T-236 二轮修复（用户：「槽还是看不到，仍有一个横条阴影，效果上看起来不好」）",
+          "level": 3,
+          "startLine": 224,
+          "endLine": 241,
+          "tokens": 534,
+          "summary": "「槽看不到」⇒ 已落（不再推给美术）：抬起格 lift > 0 分支调",
+          "keywords": [
+            "WXG",
+            "lift",
+            "二轮修复",
+            "用户",
+            "槽还是看不到",
+            "仍有一个横条"
+          ]
         }
       ]
     },
@@ -48879,7 +48895,7 @@
       "path": "memory/INDEX.md",
       "tokens": 9947,
       "lines": 245,
-      "sha256": "1a3f89ae4f98a8cb250c29dad221d776c935a2240672740bf5a880231125113e",
+      "sha256": "e093708885cc148fb33b4c92092c5bf57c4c579ed9f1d438dbdf5245b5d0ce82",
       "tier": "normal",
       "sections": [
         {
@@ -48970,7 +48986,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 7,560 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
+          "anchor": "§`memory/2026-10-03.md` — 8,132 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -68975,17 +68991,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 57444,
-      "lines": 1208,
-      "sha256": "e7a91137e452c3ac5a962cbd662d00cb5ebfd5ee8629bf50b6e225e9955521ad",
+      "tokens": 58003,
+      "lines": 1224,
+      "sha256": "0a5f2aef07c8321f372f260e07b3dcb68c1a922e0e61b2ed85ac1491c6a1cb4b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1209,
-          "tokens": 57427,
+          "endLine": 1225,
+          "tokens": 57986,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -70030,8 +70046,8 @@
           "anchor": "§WXG-T-236",
           "level": 2,
           "startLine": 1164,
-          "endLine": 1209,
-          "tokens": 1113,
+          "endLine": 1225,
+          "tokens": 1672,
           "summary": "beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性） — 2026-10-03 用户裁定「",
           "keywords": [
             "WXG",
@@ -70052,10 +70068,26 @@
           ]
         },
         {
-          "anchor": "§⛔ 本单正本 = 四件待美术定标（工程侧不自作主张）",
+          "anchor": "§二轮反馈的追加修复（2026-10-03，用户：「槽还是看不到，仍有一个横条阴影，效果上看起来不好」）",
           "level": 3,
           "startLine": 1190,
-          "endLine": 1198,
+          "endLine": 1205,
+          "tokens": 514,
+          "summary": "「槽还是看不到」⇒ 已落（不再推给美术）：抬起格现在也画坑底 ——",
+          "keywords": [
+            "二轮反馈的追",
+            "加修复",
+            "用户",
+            "槽还是看不到",
+            "仍有一个横条",
+            "阴影"
+          ]
+        },
+        {
+          "anchor": "§⛔ 本单正本 = 四件待美术定标（工程侧不自作主张）",
+          "level": 3,
+          "startLine": 1206,
+          "endLine": 1214,
           "tokens": 210,
           "summary": "D1 暗底坑底反读（assets-spec §7.11.7）：现有共用坑底套依赖近白底图才读得出凹陷，落到生产 B0",
           "keywords": [
@@ -70070,8 +70102,8 @@
         {
           "anchor": "§⚠ 顺带登记的既有缺口：封箱夹具**无选中态**",
           "level": 3,
-          "startLine": 1199,
-          "endLine": 1204,
+          "startLine": 1215,
+          "endLine": 1220,
           "tokens": 136,
           "summary": "封箱夹具（13×12 / 78 填 / 78 空）从不调用 selectBoardBead / selectTraySl",
           "keywords": [
@@ -70086,8 +70118,8 @@
         {
           "anchor": "§性能（结论不变：不是瓶颈）",
           "level": 3,
-          "startLine": 1205,
-          "endLine": 1209,
+          "startLine": 1221,
+          "endLine": 1225,
           "tokens": 62,
           "summary": "每颗抬起珠 3 图元（原 1）⇒ 满组 ~25 颗 = +75，相对 450/帧 ≈ +17%；抬起时钟 O(1)；热路",
           "keywords": [
@@ -70100,9 +70132,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 14661,
+      "tokens": 14790,
       "lines": 75,
-      "sha256": "65ac2b075486c16211b14d6b74b0b295a34c17f236c750e3504a2ba5d0c4a8fc",
+      "sha256": "7f4eed1c6ffbb6455768eeaf443929f0d5d299acaa1153bc315a68bc85e12797",
       "tier": "hot",
       "sections": [
         {
@@ -70110,7 +70142,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 76,
-          "tokens": 14652,
+          "tokens": 14782,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

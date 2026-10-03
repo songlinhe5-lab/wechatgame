@@ -1042,6 +1042,23 @@ function drawGrid(
       // §5 分离影（仅选中组）：珠抬起来 ⇒ 影留在格面。默认皮肤 `facet-4` 无阴影层，
       // 本层是盘面**唯一**随高度变化的通道（= 斜俯视的立体感载体）。函数内注释含口径。
       if (groupLift > 0) {
+        // [WXG-T-236 · 用户 2026-10-03 二轮反馈「槽还是看不到」] **抬起格也画坑底**。
+        //
+        // 之前只有 empty 分支画坑（`drawEmptySocket`），抬起格 ⇒ 坑底被珠体盖住 ⇒ 抬起后
+        // **看不到槽**，用户报「格图上的槽还是看不到」。
+        //
+        // 复用口径（⛔ 不新造部件、不新造墨色）：
+        // · `tilePainted = true` ⇒ 跳过本函数自带的亮 `base` 外块（B0 已由 `drawTargetTile` 画过）
+        // · `colorIdx` 传本格目标色 ⇒ 坑底/暗缘/受光线的墨档与同色空格**同源**
+        // · ⛔ **只在 `lift > 0` 时画** ⇒ 静息帧（无选中）命令流**逐字节不变**（封箱基线不受影响）
+        //
+        // ⚠ **D1 未核销**（`assets-spec §7.11.7`）：现有坑底套在**近白底图**上读作凹陷，落到生产 B0
+        // （`endpoints.edge −0.30` 暗底）上有可能读作凸起。本批按用户要求先做**工程暂定**版，
+        // 观感由用户判；美术定标仍挂 WXG-T-236 ⇒ 若读作凸起，改的是**明暗关系**而非结构。
+        drawEmptySocket(
+          builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks,
+          true, beadDrawInset,
+        );
         drawLiftGroundShadow(builder, bx, cy, snap.gridCell, cell.colorIdx, inks);
       }
       drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);

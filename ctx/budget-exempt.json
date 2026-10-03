@@ -329,6 +329,12 @@
       "path": "production/qa/beads/wxg-t-228-tint-criteria.md",
       "reason": "QA 判据分册（TC-TINT-01…22 + C7-b/C12-t/R-9 重设建议）：与 test-cases/g4-regression-report 同族，按章节锚点局部读、开发期从不整读；判据裁定落地后并入 test-cases §L（届时本件冻结）",
       "taskId": "WXG-T-228"
+    },
+    {
+      "path": "memory/2026-10-03.md",
+      "reason": "开发日记（按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读）——与 memory/2026-09-28 同族豁免；由 tasks:archive 周期收敛，不手工拆",
+      "note": "WXG-T-226/235/236（2026-10-03）随 tint 接缝白线 + 抬起投影两批越至 8132 tok（超 8000 上限 1.7%）；⚠ 连续两份日记超限（09-28 已 14337）= 趋势非偶然，宜单独立单收敛策略",
+      "taskId": "WXG-T-236"
     }
   ]
 }
