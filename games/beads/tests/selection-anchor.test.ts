@@ -22,7 +22,8 @@ import {
 } from '../src/config/tuning.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
-import { DEFAULT_PALETTE, DEMO_BEAD_INKS, endpointOf } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS, endpointOf, withAlpha } from '../src/view/palette.js';
+import { LIFT_SHADOW_ALPHA } from '../src/config/tuning.js';
 import { RenderModelBuilder, type DrawCommand } from '../../../packages/framework/src/core/render/render-model.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
@@ -521,5 +522,46 @@ describe('托盘选中态画坑（WXG-T-240）', () => {
         h.game.selectTraySlot(0);
         const after = traySlotArtCount(renderSnap(h.game.snapshot), lay, 0);
         expect(after, '⛔ 选中态槽区不得为空白（否则读作悬空）').toBeGreaterThan(0);
+    });
+});
+
+// ── [T-244 十二批 · 2026-10-04 用户报「盘面阴影 OK，但托盘的珠子阴影还是不行」] ──
+//
+// 病因：`drawLiftBeadShadow` 有 **9 个同类型位置参数**，托盘调用把 `TRAY_SLOT`(30) 填进了
+//   第 4 槽位（`colorIdx`）⇒ `endpointOf` 越出色板 ⇒ 影墨**静默落进 `FALLBACK_ENDPOINTS` 炭黑**
+//   （`warnIndexOutOfRange` 只响一次，且 harness 控制台不归因到本层）⇒ 同一个影函数在盘面
+//   是「珠色影」、在托盘是「一块黑」。
+//   **实测两墨**（本例变异核得：把托盘改回旧写法 ⇒ 本腿红）：错 = `rgba(10,10,12,0.52)`
+//   （炭黑 `#33333D` 的 `shadeOuter`）/ 对 = `rgba(51,49,47,0.52)`（珠色的 `shadeOuter`）
+//   ⇒ 托盘那块比盘面**暗一档且去色**，正是「不行」的读感。已把两处收拢到
+//   `view-model::drawLiftShadowOn`。
+//
+// ⛔ 本例锁的是**调用侧**：`bead-render.test.ts` ①③ 直接调函数、自己传 colorIdx，
+//   对「槽位填错」零判别力（K-035/K-060 同族的验证盲区）。
+describe('抬起影墨两处同口径（T-244 十二批）', () => {
+    /** 一帧里的多边形墨列表（影 = 抬起帧相对静息帧**新出现**的那一条）。 */
+    const polyFills = (cmds: readonly DrawCommand[]): string[] =>
+        cmds.filter((c) => c.kind === 'polygon').map((c) => (c as { fill?: string }).fill ?? '');
+
+    it('托盘选中抬起帧新增的多边形墨 ≡ 该珠 colorIdx 的 `shadeOuter` 带 α（⛔ 不得是越界兜底炭黑）', () => {
+        const h = mkHarness('wxgame.beads.test.t244-tray-lift-shadow');
+        h.game.giveTrayBead(1);
+        h.advance(0.4);                       // 进珠包络越窗（⚠ `advance` 单位是**秒**）
+        const snap = h.game.snapshot;
+        const slot = snap.traySlots[0]!;
+        expect(slot.state, '前置：托盘第 0 槽应有珠（holding = 有珠待取）').toBe('holding');
+
+        const rest = polyFills(renderSnap(snap));                       // 静息：有珠无影
+        h.game.selectTraySlot(0);
+        h.advance(0.4);                                                  // 越过 SELECT_LIFT_MS = 200ms
+        const lifted = polyFills(renderSnap(h.game.snapshot));
+        const added = lifted.filter((f) => !rest.includes(f));
+
+        const ink = withAlpha(endpointOf(DEMO_BEAD_INKS, slot.colorIdx).shadeOuter, LIFT_SHADOW_ALPHA);
+        expect(added, '抬起帧必须新出一条影多边形').toContain(ink);
+        // 反证腿：越界兜底墨（即本批事故值 `colorIdx = TRAY_SLOT`）不得在场。
+        const fallbackInk = withAlpha(endpointOf(DEMO_BEAD_INKS, TRAY_SLOT).shadeOuter, LIFT_SHADOW_ALPHA);
+        expect(fallbackInk, '前置：`TRAY_SLOT` 越出色板 ⇒ 该墨即兜底炭黑').not.toBe(ink);
+        expect(added, '⛔ 影墨不得走越界兜底炭黑（托盘曾填错槽位的事故值）').not.toContain(fallbackInk);
     });
 });

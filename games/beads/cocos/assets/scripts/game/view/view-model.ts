@@ -1116,16 +1116,12 @@ function drawGrid(
         { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle },
       );
       if (groupLift > 0) {
-        // [WXG-T-236 定标 · 用户裁「抬起态要影」+ 选型 C-3，后续裁「影跟珠轮廓」] 珠底投影（正圆）。
+        // [WXG-T-236 定标 · 用户裁「抬起态要影」+ 选型 C-3，后续裁「影跟珠轮廓」] 珠底投影。
         // ⛔ 绘制序钉死：**坑底之后、珠之前** —— 在坑底后 ⇒ 影压在内阴影阶梯与 S4 受光亮线之上（物理正确）；
         // 在珠前 ⇒ 珠体自然遮住影的上半，只露下弧 ⇒ 读作「圆珠投在槽里」而非「半个圆饼」。
         // 半径**跟珠轮廓**、⛔ 不跟槽（推导见 `bead-render::drawLiftBeadShadow` 头注）。
-        drawLiftBeadShadow(
-          builder, bx, cy, cell.colorIdx, inks, snap.gridCell, beadDrawInset,
-          groupLift, // 影的上沿 = 珠下缘 => 孔（珠内部）恒无影
-          // [WXG-T-242] 影必须**同吃** `liftX`（珠斜上 15°，此前影不偏 ⇒ 横向错位）
-          -groupLift * Math.tan((SELECT_LIFT_ANGLE * Math.PI) / 180),
-        );
+        // [T-244 十二批] 口径入 `drawLiftShadowOn`（与托盘共用一处，参该函数注）。
+        drawLiftShadowOn(builder, bx, cy, cell.colorIdx, inks, snap.gridCell, beadDrawInset, groupLift);
       }
       // [T-244] 组落座「出现」语义：相位未到 ⇒ 本格**不画珠**（B0/坑/状态环正常）⇒
       // 视觉 = 从被点格起逐颗浮现。数据同帧已在盘（规则读取不受表现影响）。
@@ -1242,6 +1238,40 @@ function drawTrayPlateShading(
   // 右缘段（α 0.02）。
   builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width);
 }
+/**
+ * **抬起分离影的唯一调用口径**（盘面 `drawGrid` / 托盘 `drawTray` 共用）。
+ *
+ * [T-244 十二批 · 2026-10-04 用户报「盘面阴影 OK，但托盘的珠子阴影还是不行」]
+ * 两处曾各写一遍 `drawLiftBeadShadow` 的 **9 个同类型位置参数**，托盘那份把
+ * `TRAY_SLOT`(30) 填进了第 4 槽位（`colorIdx`）⇒ `endpointOf` 越出 12 色板 ⇒ 影墨
+ * 落进 **`FALLBACK_ENDPOINTS` 炭黑**（且控制台只响一次）⇒ 托盘读作「一块黑」而盘面读作「珠色影」。
+ * ⇒ 收拢到本函数：影墨跟珠色、`liftX` 算一次、`lift <= 0` 早退（静息帧零图元 ⇒ 封箱基线不变）。
+ *
+ * ⚠ **合并的是口径，不是参数值**：两处的 `size` / `drawInset` / `lift` 仍按各自的档传
+ *（盘面 `snap.gridCell` 随 zoom 等比；托盘 `TRAY_SLOT` 恒绝对值）⇒ 参
+ * `tuning.TRAY_SELECTED_LIFT_PX` / `SELECT_LIFT_PX` 两条注。
+ */
+function drawLiftShadowOn(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  /** ⛔ **珠色**的 colorIdx（不是格/槽尺寸！本批事故就在这一个槽位）。 */
+  colorIdx: number,
+  inks: BeadInks,
+  /** 格/槽尺寸（与同帧 `drawFilledBead` 的 `size` 逐字同参）。 */
+  size: number,
+  /** 珠体内缩（与同帧 `drawFilledBead` 的 `drawInset` 逐字同参）。 */
+  drawInset: number,
+  lift: number,
+): void {
+  if (lift <= 0) return;
+  drawLiftBeadShadow(
+    builder, cx, cy, colorIdx, inks, size, drawInset, lift,
+    // [WXG-T-242] 影必须**同吃** `liftX`（珠斜上 15° ⇒ 影与珠同列；此前两处各算一遍）。
+    -lift * Math.tan((SELECT_LIFT_ANGLE * Math.PI) / 180),
+  );
+}
+
 function drawTray(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
@@ -1359,11 +1389,11 @@ function drawTray(
         }
       }
     }
-    if (lift > 0) {
-      drawLiftBeadShadow(
-        builder, cx, cy, TRAY_SLOT, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift, liftX,
-      );
-    }
+    // [T-244 十二批] 口径入 `drawLiftShadowOn`（与盘面共用一处，参该函数注：托盘曾把
+    // `TRAY_SLOT` 填进 `colorIdx` 槽位 ⇒ 影墨落进 `FALLBACK_ENDPOINTS` 炭黑）。
+    // ⚠ 只吃 `lift`（选中抬起），**不吃 `tlDrop`**（进珠下落）—— 与盘面 `glPopP` 同款口径：
+    //   下落包络的影仍属未闭项（影顶会跟不上快速下落的珠底）。
+    drawLiftShadowOn(builder, cx, cy, slot.colorIdx, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift);
     drawFilledBead(builder, cx, cy, slot.colorIdx, {
       // [WXG-T-237 v4.0 · 1:1] `outer` = `TRAY_SLOT`(=`BEAD_CELL` 30)，内缩走 `BEAD_DRAW_INSET`
       // ⇒ 珠面 **26** = 盘面珠面（1:1）。⛔ 旧值 `TRAY_BEAD_SIZE 44` 属已废的托盘独立体系。

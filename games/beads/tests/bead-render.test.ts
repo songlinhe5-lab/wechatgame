@@ -46,7 +46,7 @@ import {
   TILE_BLEED,
 } from '../src/config/tuning.js';
 import {
-    SELECTED_SHADOW_ALPHA,
+  SELECTED_SHADOW_ALPHA,
   TRAY_BEAD_SIZE,
   drawEmptySocket,
   drawLiftBeadShadow,
@@ -770,7 +770,11 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     };
   };
 
-  it('①③ 影 = 珠底轮廓 ↔ 槽底轮廓之间的带：逐点厚度 ≡ 抬起量、上沿 ≡ 珠底（⇒ 孔无影 + 连成一体）', () => {
+  it('①③ 影 = 珠底轮廓↔槽底轮廓之间的带：上沿 ≡ 抬起后珠底 + 咬合（⇒ 孔无影 + 两臂无缝）', () => {
+    // [T-244 十一批] 上沿多一个 `liftShadowBite`（本夹具 size = BEAD_CELL ⇒ 等比系数 = 1）。
+    //   原因见 `tuning.BEAD_CARD.liftShadowBite` 注：影顶按**矢量臂**珠半径算，而生产 tint
+    //   臂的珠轮廓更小 ⇒ 不上沿咬进去就恒留一条亮缝（用户「现在还是珠子与阴影有缝隙」）。
+    const bite = BEAD_CARD.liftShadowBite;
     for (const inset of [BEAD_DRAW_INSET, BEAD_DRAW_INSET_SMALL]) {
       const face = BEAD_CELL - 2 * ((inset * BEAD_CELL) / BEAD_CELL);
       const poly = shadowPoly(inset)!;
@@ -785,27 +789,39 @@ describe('bead parameter card (assets-spec §1.1)', () => {
         // 下沿 ≡ 槽底轮廓
         expect(dn[i]!.y - 200, `x=${x.toFixed(2)} 下沿须贴槽底`)
           .toBeCloseTo(socketBottomAt(face, x), 6);
-        // 上沿 ≡ **抬起后**珠底轮廓
-        expect(up[i]!.y - 200 - SHADOW_LIFT, `x=${x.toFixed(2)} 上沿须贴抬起后的珠底`)
+        // 上沿 ≡ **抬起后**珠底轮廓 + 咬合量
+        expect(up[i]!.y - 200 - SHADOW_LIFT - bite, `x=${x.toFixed(2)} 上沿须贴抬起后的珠底（咬合后）`)
           .toBeCloseTo(socketBottomAt(bFace, x), 6);
       }
-      // ⛔ 回归锚：上沿必须**比「槽底 + 抬起量」更低**（即确实吃到了 4% 放大）。
+      // ⛔ 回归锚：上沿必须**比「槽底 + 抬起量 + 咬合量」更低**（即确实吃到了 4% 放大）。
       //    删掉 `liftScaleGain` 通道 ⇒ 此腿红（否则「看起来贴合」但实为假绿）。
+      //    ⚠ **同加 `bite` 是必要的**：咬合量本身把上沿抬高，不减掉它会拿「咬合」冒充「放大」。
       //    ⚠ 中心项 = 上沿里 |x−格心| 最小的那一个（⛔ 不是末位 —— 末位是 x=+半宽）。
       const centre = up.reduce((a, b) => (Math.abs(b.x - 100) < Math.abs(a.x - 100) ? b : a));
       const centreUp = centre.y - 200;
-      expect(centreUp, '上沿须低于「槽底 + 抬起量」（4% 放大把珠底压得更低）')
-        .toBeLessThan(socketBottomAt(face, 0) + SHADOW_LIFT);
-      // 中心厚度 = 抬起量 + 珠底被 4% 放大压低的量
-      expect(centreUp - socketBottomAt(face, 0), '中心厚度 ≡ 抬起量 + 放大压低量')
-        .toBeCloseTo(SHADOW_LIFT + socketBottomAt(bFace, 0) - socketBottomAt(face, 0), 6);
+      expect(centreUp, '上沿须低于「槽底 + 抬起量 + 咬合量」（4% 放大把珠底压得更低）')
+        .toBeLessThan(socketBottomAt(face, 0) + SHADOW_LIFT + bite);
+      // 中心厚度 = 抬起量 + 珠底被 4% 放大压低的量 − 咬合量
+      expect(centreUp - socketBottomAt(face, 0), '中心厚度 ≡ 抬起量 + 放大压低量 − 咬合量')
+        .toBeCloseTo(SHADOW_LIFT + socketBottomAt(bFace, 0) - socketBottomAt(face, 0) + bite, 6);
       // 上沿最高点落在**采样范围的两端**（x = ±槽半宽）⇒ 影伸进槽的两枚底角。
       // ⚠ 采样范围是**槽宽**（不是抬起后珠宽）—— 抬起后珠比槽宽 0.52dp，那 0.52dp 落在槽外的
       //   B0 上、本批不着影（⛔ 若要连它一起着影 ⇒ 采样范围改珠宽，会伸出槽外，见台账未闭项）。
       const topMost = Math.max(...up.map((p) => p.y));
-      expect(topMost - 200, '上沿最高点 ≡ 抬起后珠底在槽边缘处的高度')
-        .toBeCloseTo(SHADOW_LIFT + socketBottomAt(bFace, face / 2), 6);
+      expect(topMost - 200, '上沿最高点 ≡ 抬起后珠底在槽边缘处的高度 + 咬合量')
+        .toBeCloseTo(SHADOW_LIFT + socketBottomAt(bFace, face / 2) + bite, 6);
       expect(bg.hw, '前置：抬起后珠半宽 > 槽半宽（故珠会外伸 0.5dp）').toBeGreaterThan(face / 2);
+      // [T-244 十一批] **咬合量的两侧边界**（把本批的因果锁住，⛔ 不可只靠注释）：
+      //   • 下限 = 两臂珠轮廓半径最大差 ⇒ 小了缝重现。tint 臂轮廓半宽 = mask 实测
+      //     `bead-hole-tint-128-mask.png` R>127 半宽 **12.77dp**（阈值扫掠 12.42/12.77/12.89/13.12，
+      //     取中位口径）；矢量臂抬起后 = `bFace/2` ⇒ 差 = `bFace/2 − 12.77`。
+      //   • 上限 = 珠半径 − 孔径 ⇒ 过了影会爬上孔底（用户裁定「孔不要有影子」）。
+      const TINT_SILHOUETTE_HALF_DP = 12.77;
+      expect(bite, '咬合量须盖住 tint 臂轮廓差（否则珠与影之间留亮缝）')
+        .toBeGreaterThanOrEqual(bFace / 2 - TINT_SILHOUETTE_HALF_DP);
+      const holeR = (bFace * BEAD_CARD.holeRatio) / 2;
+      expect(bFace / 2 - bite, '咬合后影顶不得爬上孔缘（孔无影）')
+        .toBeGreaterThan(holeR);
     }
   });
 

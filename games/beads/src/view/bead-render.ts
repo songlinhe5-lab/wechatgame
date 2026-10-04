@@ -134,7 +134,7 @@ export function setBeadBakeRuntime(runtime: BeadBakeRuntime | undefined): void {
 
 /** 读取当前烘焙运行时（测试用）。 */
 export function getBeadBakeRuntime(): BeadBakeRuntime | undefined {
-    return _bakeRuntime;
+  return _bakeRuntime;
 }
 
 // ─── [WXG-T-226 EP12-S2 / ADR-0029 DEC-5] tint 臂运行时 ────────────────────
@@ -147,19 +147,19 @@ export function getBeadBakeRuntime(): BeadBakeRuntime | undefined {
  * 返回 `undefined`（风格未定稿 / 档未烘 / 未注入）⇒ **矢量回退**，输出逐字节 = 今日。
  */
 export interface BeadTintRuntime {
-    getMaskId(kind: BeadMaskKind, gauge: BeadMaskGauge, styleId: string): string | undefined;
-    /**
-     * `[WXG-T-226 EP12-B4 / ADR-0029 DEC-4]` **放大回退阀**（zoom LOD）。
-     *
-     * 返回 `false` ⇒ 本帧 tint 臂整体停用、落矢量臂（满足 §19「⛔ 运行时放大」）。
-     * ⛔ **不实现 = 永不回退** = 本批默认（阈值 `[待真机]`，`TINT_LOD_MAX_UPSCALE = null`），
-     * 此时注入 tint 运行时 ⇒ 输出与今日矢量臂之外的 tint 臂逐字节相同（V-5 绿线锚）。
-     *
-     * **为什么判据在宿主而不是 `drawFilledBead`**：zoom 在 view 层、dpr 在宿主入口
-     * （beads 内无 dpr 概念）⇒ 判据必须由唯一同时掌握两者的宿主注入，并调纯函数
-     * `tintUpscaleAllowed()`；滞回防抖同理归宿主（`BEAD_LOD_HYST` 同型先例在 view 层）。
-     */
-    allowTint?(): boolean;
+  getMaskId(kind: BeadMaskKind, gauge: BeadMaskGauge, styleId: string): string | undefined;
+  /**
+   * `[WXG-T-226 EP12-B4 / ADR-0029 DEC-4]` **放大回退阀**（zoom LOD）。
+   *
+   * 返回 `false` ⇒ 本帧 tint 臂整体停用、落矢量臂（满足 §19「⛔ 运行时放大」）。
+   * ⛔ **不实现 = 永不回退** = 本批默认（阈值 `[待真机]`，`TINT_LOD_MAX_UPSCALE = null`），
+   * 此时注入 tint 运行时 ⇒ 输出与今日矢量臂之外的 tint 臂逐字节相同（V-5 绿线锚）。
+   *
+   * **为什么判据在宿主而不是 `drawFilledBead`**：zoom 在 view 层、dpr 在宿主入口
+   * （beads 内无 dpr 概念）⇒ 判据必须由唯一同时掌握两者的宿主注入，并调纯函数
+   * `tintUpscaleAllowed()`；滞回防抖同理归宿主（`BEAD_LOD_HYST` 同型先例在 view 层）。
+   */
+  allowTint?(): boolean;
 }
 
 /** 模块级 tint 运行时槽位（默认 `undefined` = tint 臂未启用，走矢量臂 —— **绿线锚 V-5**）。 */
@@ -171,12 +171,12 @@ let _tintRuntime: BeadTintRuntime | undefined;
  * ⇒ **一级回滚 = 不调用本函数**（或传 `undefined`）：矢量臂恢复、零删除、零数据迁移。
  */
 export function setBeadTintRuntime(runtime: BeadTintRuntime | undefined): void {
-    _tintRuntime = runtime;
+  _tintRuntime = runtime;
 }
 
 /** 读取当前 tint 运行时（测试用）。 */
 export function getBeadTintRuntime(): BeadTintRuntime | undefined {
-    return _tintRuntime;
+  return _tintRuntime;
 }
 
 /**
@@ -185,16 +185,16 @@ export function getBeadTintRuntime(): BeadTintRuntime | undefined {
  * @param resolve 逻辑 maskId → 可 blit 的 textureId（未注册 ⇒ `undefined` ⇒ 矢量回退）。
  */
 export function createWhitelistBeadTintRuntime(
-    resolve: (maskId: string) => string | undefined,
+  resolve: (maskId: string) => string | undefined,
 ): BeadTintRuntime {
-    return {
-        getMaskId(kind, gauge, styleId) {
-            const maskId = tintMaskId(kind, gauge, styleId);
-            if (maskId === undefined) return undefined;
-            const texId = resolve(maskId);
-            return texId === undefined ? undefined : texId;
-        },
-    };
+  return {
+    getMaskId(kind, gauge, styleId) {
+      const maskId = tintMaskId(kind, gauge, styleId);
+      if (maskId === undefined) return undefined;
+      const texId = resolve(maskId);
+      return texId === undefined ? undefined : texId;
+    },
+  };
 }
 
 /**
@@ -657,6 +657,9 @@ export function drawLiftBeadShadow(
   const r = Math.min(Math.round(s * BEAD_CARD.radius), hw);
 
   // 可见带 = 槽底沿 y 珠下缘（lift > 0 时才有）。影只画在这条带里。
+  // ⚠ 本门只决「画不画」，用**未抬起**的 hw ⇒ 不把 `bite` 算进去。ponytail: 抬起初期（lift < bite）
+  //   tint 臂影顶至多探出 `bite − lift` ≤ 1dp（矢量臂仍在珠体覆盖区内看不见），只出现在 200ms
+  //   斜坡开头；若实拍看见开场闪一下，再把门槛改成 `lift > bite`。
   const yBot = -hw;
   const yTop = Math.min(lift - hw, hw);
   if (yBot >= yTop) return; // 抬起量不足 => 无可见带 => 不画（常态零开销）
@@ -680,6 +683,16 @@ export function drawLiftBeadShadow(
   const beadS = s * (1 + BEAD_CARD.liftScaleGain * liftT);
   const beadHw = beadS / 2;
   const beadR = Math.min(Math.round(beadS * BEAD_CARD.radius), beadHw);
+  /**
+   * **[T-244 十一批 · 2026-10-04 用户报「现在还是珠子与阴影有缝隙」] 影顶咬合量**。
+   * 上面的珠半径走的是**矢量臂**口径；生产走 **tint 臂** —— 珠体 = `outer` 帧 blit，
+   * 轮廓半径 = mask 实测 `R>127` 半宽 **≈12.77dp**（且不吃 `liftScaleGain`）
+   * ⇒ 影顶比实渲珠底**低 ≈0.75dp** ⇒ 珠与影之间恒有一条亮缝（与抬起量无关，
+   *   所以十批把 14 降到 9 后缝仍在）。头注曾把这个差**读反**（当成「影外凸进珠覆盖区」）。
+   * ⇒ 上沿往珠体方向探 `BEAD_CARD.liftShadowBite`（等比随档）：影在珠**之前**绘
+   *   ⇒ 探进去的部分被珠盖住 ⇒ **两臂都不露缝**（代价：可见带比抬起量短 1dp）。
+   */
+  const bite = (BEAD_CARD.liftShadowBite * size) / BEAD_CELL;
 
   // 横向采样范围 = **槽的绘制边长**（影只落在槽内 ⇒ 轮廓与槽一致；槽外的 B0 不着影）。
   const N = 12;
@@ -687,7 +700,7 @@ export function drawLiftBeadShadow(
   for (let i = 0; i <= N; i += 1) {
     const x = -hw + (2 * hw * i) / N;
     // [WXG-T-242] ⛔ 上下沿**同加** `liftX` —— 影必须与珠同列（此前只有珠偏、影不偏 ⇒ 错位）。
-    pts.push(cx + liftX + x, cy + bottomAt(beadHw, beadR, x) + lift);   // 上沿 = 抬起后珠底
+    pts.push(cx + liftX + x, cy + bottomAt(beadHw, beadR, x) + lift + bite);   // 上沿 = 抬起后珠底 + 咬合
   }
   for (let i = N; i >= 0; i -= 1) {
     const x = -hw + (2 * hw * i) / N;
@@ -752,7 +765,7 @@ export function drawFilledBead(
   // 永远没有消费者**（实测接线时才发现：view-model 的小豆档同时传 `hideHole` + `holeless`）。
   const tintHoleOk = !options.hideHole || options.maskGauge === 'holeless';
   if (_tintRuntime !== undefined && !_baking && tintHoleOk && options.maskGauge !== undefined
-      && (_tintRuntime.allowTint?.() ?? true)) {
+    && (_tintRuntime.allowTint?.() ?? true)) {
     const maskId = _tintRuntime.getMaskId('bead', options.maskGauge, tintStyleId);
     if (maskId !== undefined) {
       const inks = options.inks ?? DEMO_BEAD_INKS;

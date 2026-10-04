@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "df2bf8302238bdc317fabe9efd30b502294e9597fc42f94f1021f948da02ed0e",
+      "sha256": "409325365de94a6d79f885046929c58d2b458582cc39cd35467463de209b14be",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 16106,
-      "lines": 553,
-      "sha256": "86d50cd689a675688825de391c5aa1549263878aedeca3c4a5dc9f86672aaaf2",
+      "tokens": 17462,
+      "lines": 594,
+      "sha256": "319a8f16b287cf8903fae3fc6b3af7d3d0b844a59cf0fc9b2a5308783843b95a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 554,
-          "tokens": 16103,
+          "endLine": 595,
+          "tokens": 17459,
           "summary": "",
           "keywords": []
         },
@@ -50659,6 +50659,37 @@
             "颗覆盖",
             "改多槽队列"
           ]
+        },
+        {
+          "anchor": "§T-244 十～十一批（用户连报两轮）：托盘抬起 14→9 + 影顶咬合修「珠—影亮缝」",
+          "level": 3,
+          "startLine": 555,
+          "endLine": 574,
+          "tokens": 644,
+          "summary": "十批「抬起位移太高，与投影衔接不上」14 → 9：上一档把上界算成「半格 15」，但那条约束钉的是",
+          "keywords": [
+            "十一批",
+            "用户连报两轮",
+            "托盘抬起",
+            "影顶咬合修",
+            "影亮缝"
+          ]
+        },
+        {
+          "anchor": "§T-244 十二批（用户报「盘面影 OK，托盘影还是不行」）：托盘影墨填错槽位 + 两处口径合并",
+          "level": 3,
+          "startLine": 575,
+          "endLine": 595,
+          "tokens": 637,
+          "summary": "对比结果（同一函数、两套表现）：drawLiftBeadShadow(builder, cx, cy, colorIdx",
+          "keywords": [
+            "drawLiftBeadShadow",
+            "builder",
+            "colorIdx",
+            "十二批",
+            "用户报",
+            "盘面影"
+          ]
         }
       ]
     },
@@ -50666,7 +50697,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "4cb0e6200a6e5f9a607b6c1a944c29003cbcdff857bbc18491ac3bc9b0930463",
+      "sha256": "6804819da3b98f07819d8cd377a32220626aac2f58151f00bd3d23b6e81a3ed2",
       "tier": "normal",
       "sections": [
         {
@@ -50674,7 +50705,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 251,
-          "tokens": 9987,
+          "tokens": 9988,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -50757,7 +50788,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 16,106 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 17,462 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
