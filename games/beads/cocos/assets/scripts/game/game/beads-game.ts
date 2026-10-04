@@ -138,7 +138,7 @@ import {
   encodeFilledBits,
   type CrashSnapshot,
 } from './crash-snapshot';
-import { Tray } from '../entities/tray';
+import { Tray, type SlotState } from '../entities/tray';
 import { PowerupSystem, type MisplacedBead } from '../systems/powerups';
 import { FinishPanel, type FinishPanelAction } from '../systems/finish-panel';
 import { SprintSettlePanel, type SprintSettleAction } from '../systems/sprint-settle';
@@ -398,6 +398,8 @@ export class BeadsGame implements Game {
     count: number;
     elapsedMs: number;
     totalMs: number;
+    /** TEMP-LOG：上次打「播放中」时的 elapsedMs（节流用；裁日志时随字段一起删）。 */
+    loggedMs: number;
   } | null = null;
   /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
@@ -1244,6 +1246,7 @@ export class BeadsGame implements Game {
         count: 0,
         elapsedMs: 0,
         totalMs: 0,
+        loggedMs: 0,
       };
     }
     const fx = this._groupLandFx!;
@@ -1273,6 +1276,14 @@ export class BeadsGame implements Game {
       return;
     }
     fx.elapsedMs += Math.max(0, dt) * 1000;
+    // TEMP-LOG（裁后删除）：「播放中」进度 ⟹ 现有 4 个点（登记/丢弃/播完/初始化）**看不到过程**，
+    //   真机确认「动画真的在推进」只能靠它。节流 50ms（总窗 200ms ⟹ 约 4 条/次，不刷屏）。
+    if (fx.elapsedMs - fx.loggedMs >= 50) {
+      fx.loggedMs = fx.elapsedMs;
+      console.log(
+        `[GLD+播放] t=${performance.now().toFixed(1)}ms elapsed=${fx.elapsedMs.toFixed(0)}/${fx.totalMs.toFixed(0)}ms 颗数=${fx.count}`,
+      );
+    }
     if (fx.elapsedMs >= fx.totalMs) {
       // TEMP-LOG（裁后删除）
       console.log(`[GLD+播完] t=${performance.now().toFixed(1)}ms 颗数=${fx.count} 用时=${fx.elapsedMs.toFixed(0)}ms 总窗=${fx.totalMs.toFixed(0)}ms`);
@@ -1572,10 +1583,16 @@ export class BeadsGame implements Game {
       }
     }
 
-    const traySlots: { colorIdx: number }[] = [];
+    // [T-244 · 2026-10-04 用户令「打印日志确认托盘落珠」时探针实测踩到] ⛔ **旧写法有坑**：
+    //   空槽也填 `colorIdx: 0` ⟹ 从快照**无法区分「空槽」与「色 0 的珠」**（本次托盘珠色恰为 0
+    //   ⟹ 探针据此误判「托盘全空」，实为字段不承载该信息）。⟹ 补 `state`（`SnapshotSlot` 本就
+    //   定义了该字段，只是从没被填）⟹ 任何基于快照的托盘断言自此可靠。
+    const traySlots: { state: SlotState; colorIdx: number }[] = [];
     for (let i = 0; i < this._tray.capacity; i++) {
       const slot = this._tray.slot(i);
-      traySlots.push({ colorIdx: slot && slot.state !== 'free' ? slot.colorIdx : 0 });
+      traySlots.push(
+        slot ? { state: slot.state, colorIdx: slot.colorIdx } : { state: 'free' as SlotState, colorIdx: 0 },
+      );
     }
 
     const sprint = this._sprint;

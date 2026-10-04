@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "c12409f726c186ee9881443e50d83a0f4f17f0378c538b13c926a34618ec6694",
+      "sha256": "415844e0bae94f02b3e4d4d1dd03325b225565fd2055e63b535234b85794a3d1",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 12125,
-      "lines": 408,
-      "sha256": "4d3042657993a9471d0cc0fbbe9d4f956e0f2d80856b13f6491050ea4ca4b3a7",
+      "tokens": 12704,
+      "lines": 427,
+      "sha256": "1030f6fb9025d8cbe60a7b24af23dd4de7c388262884fb20d497b8eba876b74f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 409,
-          "tokens": 12122,
+          "endLine": 428,
+          "tokens": 12701,
           "summary": "",
           "keywords": []
         },
@@ -50500,6 +50500,22 @@
             "总时长仍",
             "用户裁"
           ]
+        },
+        {
+          "anchor": "§T-244 续：日志证实托盘落珠通路正常，但「没看到效果」的真因是单颗可见性",
+          "level": 3,
+          "startLine": 410,
+          "endLine": 428,
+          "tokens": 545,
+          "summary": "用户令：「打印托盘珠子落下动画日志，现在没有看到效果，请根据日志确认」⟹ 走 judgeRetrieve 探针取真读数。",
+          "keywords": [
+            "judgeRetrieve",
+            "日志证实托盘",
+            "落珠通路正常",
+            "没看到效果",
+            "的真因是单颗",
+            "可见性"
+          ]
         }
       ]
     },
@@ -50507,7 +50523,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "71b40a41fed75b3247361635b71652396a747bfc1cae3b425a43d16ffb596cfc",
+      "sha256": "5c954367fc2ead7e2c07b5f621c9d89c51e1cddc9a3e9ae92f8ca5299725c4bf",
       "tier": "normal",
       "sections": [
         {
@@ -50598,7 +50614,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 12,125 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 12,704 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
