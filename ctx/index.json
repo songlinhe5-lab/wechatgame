@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "e939ebaafa8d304520a01b70da25b1e972f99febfb492dc06759dcaec4193160",
+      "sha256": "fa7cb311b7eb3f208adac4e9a0c10d6478610967784976281974fe97c3df2d9a",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 13926,
-      "lines": 472,
-      "sha256": "2241f3badb21f4583b17cad7507e9134af13ed3c9b33aaaf5599aca03a8159c7",
+      "tokens": 14359,
+      "lines": 487,
+      "sha256": "3a860e641ba74cc7e1d7986b1a3737152e563d7ad34774830422815ecbd89ef5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 473,
-          "tokens": 13923,
+          "endLine": 488,
+          "tokens": 14356,
           "summary": "",
           "keywords": []
         },
@@ -50563,6 +50563,22 @@
             "三轮",
             "用户报"
           ]
+        },
+        {
+          "anchor": "§T-244 四轮收尾：托盘日志「一直在打印」= 我把诊断态忘了收尾",
+          "level": 3,
+          "startLine": 474,
+          "endLine": 488,
+          "tokens": 405,
+          "summary": "用户报：「[GLD+播放·托盘] 为什么一直在打印，没有结束」⟹ 我的失误：二轮为定位",
+          "keywords": [
+            "GLD",
+            "四轮收尾",
+            "托盘日志",
+            "一直在打印",
+            "我把诊断态忘",
+            "了收尾"
+          ]
         }
       ]
     },
@@ -50570,7 +50586,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "9fdf644d23f5d132e1e71efe25892ec323913fc516b13773cd6e19658ef1df22",
+      "sha256": "51e2e581dca1895aa34f2f73f07a112825c8d62b9d690844dd982d8f9a9e012b",
       "tier": "normal",
       "sections": [
         {
@@ -50661,7 +50677,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 13,926 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 14,359 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

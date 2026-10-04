@@ -1242,6 +1242,9 @@ function drawTrayPlateShading(
   // 右缘段（α 0.02）。
   builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width);
 }
+/** TEMP-LOG：托盘日志节流游标（上次打印的 `performance.now()`；裁日志时随字段一起删）。 */
+let trayLogLastMs = 0;
+
 function drawTray(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
@@ -1335,17 +1338,21 @@ function drawTray(
     //   这是同一函数在两种底色上的表现，不是两套口径。
     // TEMP-LOG（WXG-T-244 · 用户令「增加日志 [GLD+播放] 到托盘动画里」⟹ 裁后删除）
     // ⟹ 托盘动画此前**零日志**（`[GLD+播放]` 只在盘面格分支）⟹ 真机看不到托盘抬起/回落过程。
-    // [WXG-T-244 二轮 · 用户报「[GLD+播放·托盘] 没有打印」] ⟹ 改为**无条件 + 打 state**：
-    //   原实现挂在 `if (selected)` 上 ⟹ 若 state 永不为 selected 就**一条都不打**（无法区分
-    //   「代码没执行」与「条件没成立」）⟹ 这次让读数自己暴露 state / sel 真值。
-    // ⚠ 临时诊断态：定位后应改回「只打 selected」（24 槽 × 60fps 会刷屏）。
-    // ⟹ 口径与盘面同族前缀（`[GLD+播放·托盘]`）⟹ 一次 grep 即可捞全两处。
-    console.log(
-      `[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms slot=${idx}` +
-      ` state=${slot.state} sel=${selected}` +
-      ` color=${slot.colorIdx} liftP=${snap.liftProgress.toFixed(2)}` +
-      ` lift=${lift.toFixed(1)} liftX=${liftX.toFixed(1)}`,
-    );
+    // TEMP-LOG（WXG-T-244 · 用户令「增加日志 [GLD+播放] 到托盘动画里」⟹ 裁后删除）
+    // ⟹ 托盘动画此前**零日志**（`[GLD+播放]` 只在盘面格分支）⟹ 真机看不到托盘抬起/回落过程。
+    //
+    // [三轮收尾 · 用户报「一直在打印没有结束」] ⟹ 二轮为定位「日志没打」临时改成**无条件**，
+    //   忘了收尾 ⟹ 托盘 24 槽**每帧都渲染** ⟹ 60fps × 6~24 条 = 每秒数百条 ⟹ 刷屏。
+    // ⟹ 现取「只打 **selected**」+ **50ms 节流**（同 game 侧 `[GLD+播放]` 的节流量）。
+    // ⚠ `selected` 槽可能有多个（同色整组）⟹ 节流后仍每 50ms 一条 ⟹ 约 20 条/秒，可接受。
+    if (selected && performance.now() - trayLogLastMs >= 50) {
+      trayLogLastMs = performance.now();
+      console.log(
+        `[GLD+播放·托盘] t=${trayLogLastMs.toFixed(1)}ms slot=${idx}` +
+        ` state=${slot.state} color=${slot.colorIdx}` +
+        ` liftP=${snap.liftProgress.toFixed(2)} lift=${lift.toFixed(1)} liftX=${liftX.toFixed(1)}`,
+      );
+    }
     if (lift > 0) {
       drawLiftBeadShadow(
         builder, cx, cy, TRAY_SLOT, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift, liftX,
