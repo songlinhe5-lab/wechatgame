@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "71ce9568fb844c2313b90245bd22e75a6cc36a4633f87e15248832b2df5a6fe6",
+      "sha256": "e939ebaafa8d304520a01b70da25b1e972f99febfb492dc06759dcaec4193160",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 13512,
-      "lines": 457,
-      "sha256": "f05c61ba8c11e3e0a895dcd0f6520a10c3f2c1e8502530d0ce51e171870e01c4",
+      "tokens": 13926,
+      "lines": 472,
+      "sha256": "2241f3badb21f4583b17cad7507e9134af13ed3c9b33aaaf5599aca03a8159c7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 458,
-          "tokens": 13509,
+          "endLine": 473,
+          "tokens": 13923,
           "summary": "",
           "keywords": []
         },
@@ -50547,6 +50547,22 @@
             "播放",
             "托盘"
           ]
+        },
+        {
+          "anchor": "§T-244 三轮：用户报「[GLD+播放·托盘] 没有打印」= 构建缓存，非代码问题",
+          "level": 3,
+          "startLine": 459,
+          "endLine": 473,
+          "tokens": 383,
+          "summary": "node 层实证日志确实执行（探针跑 view 层，buildBeadsView）：",
+          "keywords": [
+            "GLD",
+            "node",
+            "view",
+            "buildBeadsView",
+            "三轮",
+            "用户报"
+          ]
         }
       ]
     },
@@ -50554,7 +50570,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "7fce992248dd7f38979992495c1a489306d7e4f70d818b87f875fa752b7d61bc",
+      "sha256": "9fdf644d23f5d132e1e71efe25892ec323913fc516b13773cd6e19658ef1df22",
       "tier": "normal",
       "sections": [
         {
@@ -50645,7 +50661,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 13,512 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 13,926 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

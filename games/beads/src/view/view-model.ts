@@ -1335,15 +1335,17 @@ function drawTray(
     //   这是同一函数在两种底色上的表现，不是两套口径。
     // TEMP-LOG（WXG-T-244 · 用户令「增加日志 [GLD+播放] 到托盘动画里」⟹ 裁后删除）
     // ⟹ 托盘动画此前**零日志**（`[GLD+播放]` 只在盘面格分支）⟹ 真机看不到托盘抬起/回落过程。
-    // ⛔ 只对**选中**槽打：托盘 24 槽每帧都渲染 ⟹ 全打会刷屏（24×60fps）。
+    // [WXG-T-244 二轮 · 用户报「[GLD+播放·托盘] 没有打印」] ⟹ 改为**无条件 + 打 state**：
+    //   原实现挂在 `if (selected)` 上 ⟹ 若 state 永不为 selected 就**一条都不打**（无法区分
+    //   「代码没执行」与「条件没成立」）⟹ 这次让读数自己暴露 state / sel 真值。
+    // ⚠ 临时诊断态：定位后应改回「只打 selected」（24 槽 × 60fps 会刷屏）。
     // ⟹ 口径与盘面同族前缀（`[GLD+播放·托盘]`）⟹ 一次 grep 即可捞全两处。
-    if (selected) {
-      console.log(
-        `[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms slot=${idx}` +
-        ` color=${slot.colorIdx} liftP=${snap.liftProgress.toFixed(2)}` +
-        ` lift=${lift.toFixed(1)} liftX=${liftX.toFixed(1)}`,
-      );
-    }
+    console.log(
+      `[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms slot=${idx}` +
+      ` state=${slot.state} sel=${selected}` +
+      ` color=${slot.colorIdx} liftP=${snap.liftProgress.toFixed(2)}` +
+      ` lift=${lift.toFixed(1)} liftX=${liftX.toFixed(1)}`,
+    );
     if (lift > 0) {
       drawLiftBeadShadow(
         builder, cx, cy, TRAY_SLOT, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift, liftX,
