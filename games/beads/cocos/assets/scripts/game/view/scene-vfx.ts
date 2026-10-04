@@ -29,7 +29,8 @@ import {
     DESIGN_H,
     DESIGN_W,
     SOLVER_HINT_MS,
-    SOLVER_STAGGER_MS,
+    GROUP_LAND_SPREAD_MS,
+  SOLVER_STAGGER_MS,
     SOLVER_PER_BEAD_MS,
     SELECT_LIFT_PEAK_T,
     SELECT_LIFT_REBOUND,
@@ -91,16 +92,18 @@ export function solverBeadProgress(tMs: number, step: number): number {
 }
 
 /**
- * **[T-244 修正四批 · 用户裁「乙」]** 第 `order` 颗落珠的**起播偏移**（ms）
- * = `SOLVER_STAGGER_MS × order` ⟹ **每颗固定错峰**（蛇形，由近及远逐颗浮现）。
+ * **[T-244 六批 · 用户裁定「BFS 方式传播 + 间隔缩短 + 整体 ≤0.2 秒」]**
+ * 环 `ring` 的**起播偏移**（ms）= `SPREAD × ring / maxRing`
+ * ⟹ **同环同时出现**（BFS 逐环扩散）+ 环间隔 `SPREAD / maxRing`（环数越多间隔越短）。
  *
- * - `order` = **落珠序号**（`planGroupFill` 填充序 = 被点格 + BFS 由近及远）⟹「由近及远」由填充序保证。
- * - 间隔复用 `SOLVER_STAGGER_MS`（**与 G2′ 解环器逐颗错峰同一常量**，零新值）。
- * - ⛔ 撤销修正二批的「环号 + 平方偏移」：用户明确改口径为**按落珠顺序**逐颗延迟（非同环同时）。
- * - ⛔ game 侧 `totalMs` 用**同式**（跨层同式，注释互指；game 不依赖 view，故不复用函数）。
+ * - `ring` = 环号 = **切比雪夫距离**（BFS 层号，game 侧登记）⟹「由近及远」= BFS 语义本体。
+ * - `maxRing` = 本次最大环号（= `groupLandSteps[count-1]`，环号非递减 ⟹ 末项即最大）。
+ * - ⛔ **总时长与环数无关**：`SPREAD(80) + PER_BEAD(120) = 200ms` 恒定（用户硬上限 0.2 秒）。
+ * - ⛔ game 侧 `totalMs` 用**同式**（跨层同式，注释互指；game 不依赖 view 故不复用函数）。
  */
-export function groupLandOffsetMs(order: number): number {
-  return SOLVER_STAGGER_MS * order;
+export function groupLandOffsetMs(ring: number, maxRing: number): number {
+  if (maxRing <= 0) return 0;
+  return (GROUP_LAND_SPREAD_MS * ring) / maxRing;
 }
 
 /**

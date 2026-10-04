@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "debf4d9b3087d31fe30120a9491dadc000107e005ac355d9f222e000a2d72a5b",
+      "sha256": "3bece57c2ea4832b174942205d2990035e0f890e4fd2eae7ebe15b712bd5b17b",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 10771,
-      "lines": 362,
-      "sha256": "175134631952196830e4574c875072e1c4438a22093fd8ad779412c432cb6e66",
+      "tokens": 11160,
+      "lines": 375,
+      "sha256": "6fa271115142628aea8ccade138478b97fe8e788a9d4e1644f810a241890c68f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 363,
-          "tokens": 10767,
+          "endLine": 376,
+          "tokens": 11157,
           "summary": "",
           "keywords": []
         },
@@ -50453,6 +50453,22 @@
             "五批",
             "只有三个珠有"
           ]
+        },
+        {
+          "anchor": "§T-244 六批：BFS 传播 + 200ms 硬上限（用户裁定「效果对了，但要 BFS 传播 + 间隔缩短 + 整体 ≤0.2s」）",
+          "level": 3,
+          "startLine": 364,
+          "endLine": 376,
+          "tokens": 348,
+          "summary": "恢复环号（chebyshev 复活 —— 四批按「乙」删过，删常量前该确认口径已冻结）。",
+          "keywords": [
+            "BFS",
+            "chebyshev",
+            "六批",
+            "传播",
+            "硬上限",
+            "用户裁定"
+          ]
         }
       ]
     },
@@ -50460,7 +50476,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "fb209f69e0e9d21a517657c54b456b2e80a64b973ca110e41906c97deb9c8817",
+      "sha256": "a7f02c228a5efdf48744405f3f081c4883d31dc56b11036b17130330bf0c2f32",
       "tier": "normal",
       "sections": [
         {
@@ -50551,7 +50567,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 10,771 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 11,160 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

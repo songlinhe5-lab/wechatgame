@@ -77,6 +77,7 @@ import {
   WRONG_FX_MS,
   WRONG_FX_RESTART_GATE_MS,
   FILL_POP_MS,
+  GROUP_LAND_SPREAD_MS,
   GROUP_LAND_MAX,
   FILL_POP_RESTART_GATE_MS,
   SOLVER_HINT_MS,
@@ -1255,9 +1256,9 @@ export class BeadsGame implements Game {
     fx.cols[fx.count] = col;
     fx.steps[fx.count] = step;
     fx.count++;
-    // [T-244 修正四批] 总时长 = **末颗偏移**（`STAGGER × (count−1)`；序号单调递增 ⟹ 末颗即最大）
-    // + 单珠落位窗。间隔复用 `SOLVER_STAGGER_MS`（与 G2′ 解环器逐颗错峰**同一常量**，零新值）。
-    fx.totalMs = SOLVER_STAGGER_MS * (fx.count - 1) + SOLVER_PER_BEAD_MS;
+    // [T-244 六批] 总时长**恒定** = 传播预算 + 单珠落位窗 = 80 + 120 = 200ms（与环数无关）。
+    // ⟹ 环偏移在 80ms 预算内按环号比例分配（`scene-vfx::groupLandOffsetMs` 同式）。
+    fx.totalMs = GROUP_LAND_SPREAD_MS + SOLVER_PER_BEAD_MS;
   }
 
   /** [T-244] 组落座推进。**表现层判例**（同 `_stepWrongFx` / `_stepPlaceFx`：不被
@@ -2461,7 +2462,7 @@ export class BeadsGame implements Game {
       // [T-244] 表现层登记：step = BFS 序（targets[0] = 被点格 ⇒ 「从当前点击的槽开始扩展」）。
       // [T-244] 表现层登记：step = 落珠序（targets[0] = 被点格 ⇒ 「从当前点击的槽开始」）。
       // [T-244 修正四批] step = **落珠序号**（同托盘路径口径）
-      this._noteGroupLand(t.row, t.col, used - 1);
+      this._noteGroupLand(t.row, t.col, chebyshev(t.row, row, t.col, col));
       this._emit('bead:placed', { row: t.row, col: t.col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot
       placedAny = true;
       if (used >= consumption.length) break;
@@ -2828,7 +2829,7 @@ export class BeadsGame implements Game {
           // [T-244 修正四批 · 用户裁「乙」] step = **落珠序号**（`i` = 填充序）⟹ 每颗都错峰（蛇形）。
           // ⛔ 撤销修正二批的「环号 + 同环同时」：用户明确改口径为**按落珠顺序**逐颗延迟。
           // 「由近及远」仍成立 —— `planGroupFill` 的填充序本身 = 被点格 + BFS 由近及远。
-          this._noteGroupLand(c.row, c.col, i);
+          this._noteGroupLand(c.row, c.col, chebyshev(c.row, verdict.row, c.col, verdict.col));
           // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）。
           // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
           // 写 ⇒ 此处一次性低频 IO 直接 save()。幂等守卫：仅首次落子写一次（后续
@@ -3806,3 +3807,13 @@ export function createBeadsGame(options: BeadsGameOptions = {}): BeadsGame {
   return new BeadsGame(options);
 }
 
+/**
+ * **[T-244 六批 · 恢复]** 8 向 BFS 的层号 = **切比雪夫距离**（同色连通格上 8 向 BFS 的最短步数
+ * 恒等该距离）⟹ 环号零计算成本、零新遍历、零分配。
+ *
+ * ⚠ 曾因「乙（落珠序号蛇形）」裁定删掉，2026-10-04 用户改回「**BFS 方式传播**」⟹ 恢复。
+ * 教训：删除时判定「不再有消费者」的常量，可能随口径变更复活 ⟹ 删之前先确认口径已冻结。
+ */
+function chebyshev(r0: number, r1: number, c0: number, c1: number): number {
+  return Math.max(Math.abs(r0 - r1), Math.abs(c0 - c1));
+}
