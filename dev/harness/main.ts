@@ -581,6 +581,17 @@ if (GLD) {
         for (const c of s.cells) if (c.state === 'empty' && c.colorIdx > 0) m.set(c.colorIdx, (m.get(c.colorIdx) ?? 0) + 1);
         return [...m.entries()].map(([k, v]) => `${k}×${v}`).join(' ') || '无';
       })()}`,
+      // ★ 选中色 vs 空格色：**色不匹配 ⟹ judgePlacement rejected ⟹ 不落珠 ⟹ 队列不登记**
+      //   （这是「点了没变化」第二大原因；面板必须同框显示两者）
+      `选中色=${(() => {
+        const h = s.traySlots.filter((t) => t.state === 'holding');
+        const c = [...new Set(h.map((t) => t.colorIdx))];
+        const em = new Set(
+          s.cells.filter((x) => x.state === 'empty' && x.colorIdx > 0).map((x) => x.colorIdx),
+        );
+        if (c.length === 0) return '无（先点托盘珠）';
+        return `${c.join('/')} → ${c.some((x) => em.has(x)) ? '✅ 有对色空格可落' : '⛔ 无对色空格（点了会被拒）'}`;
+      })()}`,
       '按 R = 一键复现（自动按空格色注珠）',
     ].join('\n');
     requestAnimationFrame(tick);
