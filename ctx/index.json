@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "b74d0c0e43793a7b777972e73940c4eff7f89d8b96aff3c8fad70807da12b999",
+      "sha256": "e24d49e9dcdbd030dd82d274a3ac08548d678e602c89bce1afa682e3c156f6bb",
       "tier": "normal",
       "sections": [
         {
@@ -33748,9 +33748,9 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 35428,
+      "tokens": 35508,
       "lines": 422,
-      "sha256": "ad55aa7c9a5b18632edfd47de66fb96989143613c60c979e266fc3a93e958a40",
+      "sha256": "6907fd29537840dab05afe0f075de7399cc6b638ccae8e8d08622cfbb63dfd34",
       "tier": "normal",
       "sections": [
         {
@@ -33758,7 +33758,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 423,
-          "tokens": 35418,
+          "tokens": 35499,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.20 · 任务号 无 WXG-T 号（用户 2026-09-",
           "keywords": [
             "Spec",
@@ -33910,7 +33910,7 @@
           "level": 2,
           "startLine": 240,
           "endLine": 291,
-          "tokens": 6235,
+          "tokens": 6316,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
             "§7",
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 19715,
-      "lines": 667,
-      "sha256": "136953ce998b51a9c21256c430fda1ed09f1646397375c37c6fb91ca3c8ab115",
+      "tokens": 20392,
+      "lines": 687,
+      "sha256": "80edb2be058f2b6f84a245f8ba7f5861da3d1cad9895f3f813b64de9232b118f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 668,
-          "tokens": 19712,
+          "endLine": 688,
+          "tokens": 20389,
           "summary": "",
           "keywords": []
         },
@@ -50722,6 +50722,22 @@
             "这个是有问题",
             "的展示"
           ]
+        },
+        {
+          "anchor": "§T-244 十五批（用户问「托盘选中珠外那圈白框是什么」→ 裁「框与珠子轮廓对不上 ⇒ 删除」）",
+          "level": 3,
+          "startLine": 669,
+          "endLine": 688,
+          "tokens": 636,
+          "summary": "白框身份：drawTray 的选中态状态环 drawStateRing(cx, cy + lift, TRAY_SLOT",
+          "keywords": [
+            "drawTray",
+            "drawStateRing",
+            "lift",
+            "TRAY_SLOT",
+            "十五批",
+            "用户问"
+          ]
         }
       ]
     },
@@ -50729,7 +50745,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "80945f22818cc8093683af49b66aaf9d9d6afe871d27738bbc617ffeb77b7c28",
+      "sha256": "6addc7d9d53bfc7d3e2f1ae5f874d7e30a6c95c2fe50598fbe77a3cbad33fd1d",
       "tier": "normal",
       "sections": [
         {
@@ -50820,7 +50836,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 19,715 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 20,392 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
