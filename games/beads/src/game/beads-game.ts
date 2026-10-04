@@ -103,6 +103,7 @@ import {
   hitGridCell,
   nextBeadLod,
   ZOOM_LOD_LAYERS,
+  BEAD_COLOR_MAX,
   BEAD_SIZE_DEFAULT,
   BEAD_SIZE_ORDER,
   type BeadSizeKind,
@@ -345,8 +346,6 @@ export class BeadsGame implements Game {
    *  八批的单槽字段被逐颗**覆盖** ⟹ 只剩最后几颗有动画（用户实测「只看到最后 3 个」）。
    *  ⟹ 与盘面 groupLand 同构：slots/steps 严格配对 + 错峰按落珠序（复用甲案预算函数）。 */
   private _trayLandFx: { slots: number[]; steps: number[]; elapsedMs: number; totalMs: number } | null = null;
-  /** TEMP-LOG：托盘时钟节流游标（裁日志时随字段一起删）。 */
-  private _liftLogMs = 0;
   /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
   private _wrongFx: { row: number; col: number; elapsedMs: number } | null = null;
   /**
@@ -406,8 +405,6 @@ export class BeadsGame implements Game {
     count: number;
     elapsedMs: number;
     totalMs: number;
-    /** TEMP-LOG：上次打「播放中」时的 elapsedMs（节流用；裁日志时随字段一起删）。 */
-    loggedMs: number;
   } | null = null;
   /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
@@ -452,6 +449,25 @@ export class BeadsGame implements Game {
   private _colorLockMask = 0;
   /** [T-244 十八批] 当前表达档（默认 `pulse`；dev `?cue=` 可切）。 */
   private _colorCue: ColorCueMode = 'pulse';
+  /**
+   * [T-244 二十二批 · 用户令「每次托盘入/出珠结束，珠子前后变化不匹配就要打错误日志」]
+   * **珠色守恒哨兵**的采样缓冲：`_invBefore` = 搬运命令入口的每色计数，`_invNow` = 收口重采，
+   * `_invBase` = 手动体检用的绝对基准（图案目标 + 夹具凭空量）。
+   * 口径：一次搬运命令里珠**只能移动**（盘→托 / 托→盘 / 盘→盘），任一侧凭空增减即写坏。
+   * 实例字段复用 ⇒ **命令边界零分配**（承热路径铁律；明细串只在失败分支拼）。
+   */
+  private readonly _invBefore = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
+  private readonly _invNow = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
+  private readonly _invBase = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
+  /** 图案每色目标计数（装配时重算），供 `checkBeadConservation` 做绝对体检。 */
+  private readonly _invTarget = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
+  /**
+   * `giveTrayBead` 凭空虚造的珠（测试 / harness 夹具专用，非玩法触发源）。
+   * 并入体检基准 ⇒ 夹具不误报；而玩法命令里凭空多出的那颗**仍会报**（它不走这里）。
+   */
+  private readonly _invExtra = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
+  /** 采样那一刻的棋盘对象身份：换关 / 冲刺换 stage 会重建 grid+tray ⇒ 前后不可比。 */
+  private _invGrid: BeadGrid | null = null;
   /**
    * 一次性轻提示（BD-16 无选中点格 / BD-15 扩展位占位共用通道，ux-spec §5 WXG-T-097）。
    * 与 `_wrongFx` 同判例：表现层计时，`TAP_HINT_MS` 后自清，不占常驻分配。
@@ -899,20 +915,6 @@ export class BeadsGame implements Game {
       SELECT_LIFT_MS,
       this._liftElapsedMs + Math.max(0, dt) * 1000,
     );
-    // TEMP-LOG（WXG-T-244 · 用户指「日志要打在动画循环，不是绘制处」⟹ 裁后删除）：
-    // 绘制侧每帧都跑（60fps 稳态也在打）⟹ 只能反映渲染时刻状态，**打不到动画事件流**。
-    // ⟹ 挂到时钟推进处：起播/推进（50ms 节流）+ 到位一次性（到位后停打，不刷屏）。
-    if (this._liftElapsedMs >= SELECT_LIFT_MS) {
-      if (this._liftLogMs < SELECT_LIFT_MS) {
-        this._liftLogMs = SELECT_LIFT_MS;
-        console.log(`[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms ✓到位 ${SELECT_LIFT_MS}ms`);
-      }
-    } else if (this._liftElapsedMs - this._liftLogMs >= 50) {
-      this._liftLogMs = this._liftElapsedMs;
-      console.log(
-        `[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms 推进 elapsed=${this._liftElapsedMs.toFixed(0)}/${SELECT_LIFT_MS}ms`,
-      );
-    }
     this._stepWrongFx(dt);
     this._stepPlaceFx(dt); // G1 落座回弹：同为表现层，不被 PAUSED 冻结
     this._stepDeniedFx(dt); // G7 不可填格轻压：同为表现层（`assets-spec §1.6.7`）
@@ -981,8 +983,6 @@ export class BeadsGame implements Game {
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._liftElapsedMs = 0; // §5：托盘选中同样走斜坡（与板锚共用一个时钟）
-    this._liftLogMs = 0; // TEMP-LOG：重置游标，与新斜坡对齐（裁日志时随行一起删）
-    console.log(`[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms ▶起播（托盘锚建起，斜坡重来）`);
     this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
     return this._countAction(true);
   }
@@ -1021,7 +1021,6 @@ export class BeadsGame implements Game {
       && prev !== null
       && cells.some((c) => c.row === prev.row && c.col === prev.col);
     if (!stillRaised) this._liftElapsedMs = 0; // §5：新锚建起 => 抬起斜坡重来（组内珠一同从底面抬起来）
-    console.log(`[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms ■复位（board 锚接手，托盘时钟清零）`);
     this._clearTraySelection(); // 互斥换选：board 锚建立 => tray 锚清除
     const order = planConsumeOrder(this._grid, row, col, cells);
     this._boardSelected = {
@@ -1048,6 +1047,113 @@ export class BeadsGame implements Game {
    */
   private _clearTraySelection(): void {
     this._tray.deselectAll();
+  }
+
+  // ────────────────────────────────────────────────── 珠色守恒哨兵（T-244 二十二批）
+
+  /**
+   * 把「盘上 filled 珠色 + 托盘 holding 珠色」逐色累加进 `out`。
+   * O(rows·cols + capacity)，只在**玩家命令 / 道具逐颗**边界调，不进 `update`/`step`/`buildRenderModel`。
+   * index 0 照常计数：「色 0 的珠」本身就是异常，让它出现在明细里而不是被默默吃掉。
+   */
+  private _tallyBeadColors(out: number[]): void {
+    out.fill(0);
+    const grid = this._grid;
+    for (let r = 0; r < grid.rows; r++) {
+      for (let c = 0; c < grid.cols; c++) {
+        const cell = grid.cell(r, c);
+        if (cell && cell.state === 'filled') out[cell.beadColorIdx] += 1;
+      }
+    }
+    const tray = this._tray;
+    for (let s = 0; s < tray.capacity; s++) {
+      const slot = tray.slot(s);
+      if (slot && slot.state !== 'free') out[slot.colorIdx] += 1;
+    }
+  }
+
+  /**
+   * 哨兵①（命令**入口**）：采基准并记下棋盘身份。与 `_checkBeadConservation` 成对使用，
+   * ⛔ 只挂**叶级**搬运命令（`retrieveBead` / `_placeSelected` / `_tryDirectFillFromBoard` /
+   * `_solveMisplaced`）——复合命令（`retrieveSelectedGroup` 逐颗调 `retrieveBead`）套上会把基准
+   * 覆盖掉，造成假红。
+   */
+  private _markBeadConservation(): void {
+    this._tallyBeadColors(this._invBefore);
+    this._invGrid = this._grid;
+  }
+
+  /**
+   * 哨兵②（命令**收口**）：每色与入口基准不符 ⇒ `console.error` 打前后明细。
+   * ⛔ **只报不改**（不抛错 / 不回滚 / 不影响裁决）：这是探针；抛错会把一个数据 bug 升级成崩溃。
+   * 棋盘身份变了（过关换关 / 冲刺换 stage ⇒ 托盘已重建）不可比，静默跳过。
+   */
+  private _checkBeadConservation(op: string): void {
+    if (this._grid !== this._invGrid) return;
+    this._tallyBeadColors(this._invNow);
+    this._reportBeadDiff(op, this._invBefore);
+  }
+
+  /** 逐色比对 `_invNow` 与 `base`：相符返回 true；不符 `console.error` 明细后返回 false。 */
+  private _reportBeadDiff(op: string, base: readonly number[]): boolean {
+    let bad = false;
+    for (let i = 0; i < base.length; i++) {
+      if (this._invNow[i] !== base[i]) {
+        bad = true;
+        break;
+      }
+    }
+    if (!bad) return true;
+    const diff: string[] = [];
+    for (let i = 0; i < base.length; i++) {
+      if (this._invNow[i] === base[i]) continue;
+      diff.push(`色${i}:${base[i]}→${this._invNow[i]}`);
+    }
+    const slots: string[] = [];
+    for (let s = 0; s < this._tray.capacity; s++) {
+      const slot = this._tray.slot(s);
+      slots.push(slot && slot.state !== 'free' ? String(slot.colorIdx) : '_');
+    }
+    console.error(
+      `[beads] ⛔ 珠色守恒破坏 · ${op} ⇒ ${diff.join(' ')}` +
+      `｜盘 filled=${this._grid.filledCount}/${this._grid.fillableTotal}` +
+      ` 错位=${this._grid.misplacedCount}` +
+      `｜托 holding=${this._tray.holdingCount} 槽=[${slots.join('')}]`,
+    );
+    return false;
+  }
+
+  /**
+   * **手动体检**（公开）：拿「盘 + 托」实际每色数与**图案每色目标**（另加夹具凭空量）比对。
+   * 抓盘场景专用：抓到一张怪盘时在控制台敲
+   * `__beads.game.checkBeadConservation()` ⇒ 红 = **数据面**被写坏（某色多/少），
+   * 绿 = 数对得上 ⇒ 问题在渲染层，不用再来一轮守恒排查。
+   * 命令级哨兵只管「一次搬运内不增不减」，本函数管「整张盘对不对得起图案」。
+   */
+  checkBeadConservation(op = '手动体检'): boolean {
+    const base = this._invBase;
+    for (let i = 0; i < base.length; i++) base[i] = this._invTarget[i] + this._invExtra[i];
+    this._tallyBeadColors(this._invNow);
+    return this._reportBeadDiff(op, base);
+  }
+
+  /**
+   * 重算体检基准（图案每色目标 + 凭空量归零）。
+   * @param check 是否顺带做一次体检——`false` = 盘此刻故意是空的（冲刺换 stage）
+   *   或夹具跳过了装配（`noAssemble`），此时「珠 = 0 / 图案 ≠ 0」属正常。
+   */
+  private _noteConservationBaseline(check: boolean): void {
+    const target = this._invTarget;
+    target.fill(0);
+    const grid = this._grid;
+    for (let r = 0; r < grid.rows; r++) {
+      for (let c = 0; c < grid.cols; c++) {
+        const cell = grid.cell(r, c);
+        if (cell && cell.colorIdx > 0) target[cell.colorIdx] += 1;
+      }
+    }
+    this._invExtra.fill(0);
+    if (check) this.checkBeadConservation('初盘装配');
   }
 
   /**
@@ -1079,16 +1185,9 @@ export class BeadsGame implements Game {
    */
   retrieveBead(row: number, col: number): boolean {
     if (this._machine.current !== 'playing') return false;
+    this._markBeadConservation(); // [T-244 二十二批] 哨兵入口（盘→托）
     const verdict = judgeRetrieve(this._grid, this._tray, row, col);
     if (verdict.outcome === 'stored') {
-      // TEMP-LOG（WXG-T-244 · 用户报「珠子放到托盘没有触发动画日志」⟹ 裁后删除）：
-      // ⛔ 排查结论：**托盘进珠根本没有动画** —— `tray:stored` 事件发出后 view 侧**零消费**
-      //   （grep 零命中）⟹ 珠是瞬间出现的 ⟹ 不是「动画没触发」，是「动画不存在」。
-      //   本条先补**事件日志**（挂在状态变化处，承「日志打动画循环不打渲染」判例）。
-      console.log(
-        `[GLD+托盘进珠] t=${performance.now().toFixed(1)}ms slot=${verdict.slot}` +
-        ` color=${verdict.colorIdx} from=(${verdict.fromRow},${verdict.fromCol})`,
-      );
       // [T-244 九批] 进珠动画登记（多槽队列：push 不覆盖；总窗恒 200ms 承甲案）
       const tlf = (this._trayLandFx ??= { slots: [], steps: [], elapsedMs: 0, totalMs: GROUP_LAND_TOTAL_MS });
       tlf.slots.push(verdict.slot);
@@ -1099,6 +1198,7 @@ export class BeadsGame implements Game {
         fromRow: verdict.fromRow,
         fromCol: verdict.fromCol,
       });
+      this._checkBeadConservation('取回落槽 retrieve'); // 珠离格必入槽，一处漏写即报
       return true;
     }
     // All refusals are silent by design; only impossible coordinates log.
@@ -1227,6 +1327,7 @@ export class BeadsGame implements Game {
     step = 0,
   ): boolean {
     if (!this._grid.isMisplaced(row, col)) return false;
+    this._markBeadConservation(); // [T-244 二十二批] 哨兵入口（盘→盘，相 B 逐颗驱动时同样过）
     const bead = this._grid.cell(row, col)!.beadColorIdx;
 
     // 1) 首选：珠色的 empty 目标格。2) 退而：被另一颗错位珠占据的同色目标格 ⇒ 交换。
@@ -1251,6 +1352,7 @@ export class BeadsGame implements Game {
       // 解环器路径**不带 slot**（§4 事件表：`bead:placed.slot` 改可选）。
       this._emit('bead:placed', { row: target.row, col: target.col, colorIdx: bead });
       this._noteSolverLand(fx, step, target.row, target.col);
+      this._checkBeadConservation('解环归位 solve');
       return true;
     }
     if (swapWith) {
@@ -1263,6 +1365,7 @@ export class BeadsGame implements Game {
       // 方注已登记。相 B（有 `fx`）不走门，两格共享 `step` ⇒ 同时落座。
       this._noteSolverLand(fx, step, row, col);
       this._noteSolverLand(fx, step, swapWith.row, swapWith.col);
+      this._checkBeadConservation('解环交换 solve');
       return true;
     }
     return false;
@@ -1296,10 +1399,6 @@ export class BeadsGame implements Game {
    * **同帧**写盘（T-186 裁定）⇒ 只借表现口径、不借执行语义。
    */
   private _noteGroupLand(row: number, col: number, step: number): void {
-    // TEMP-LOG（WXG-T-244 · 用户 2026-10-04 令「给播放动画的珠子打日志 + 时间戳」⟹ 裁后删除）
-    console.log(
-      `[GLD+登记] t=${performance.now().toFixed(1)}ms step=${step} (${row},${col}) · 队列 count=${this._groupLandFx?.count ?? 0}→${(this._groupLandFx?.count ?? 0) + 1}`,
-    );
     if (!this._groupLandFx) {
       this._groupLandFx = {
         // [T-244 五批] 容量用 `GROUP_LAND_MAX`（盘面格数上界）⛔ **不再用 `SOLVER_MAX_CELLS`**
@@ -1310,15 +1409,10 @@ export class BeadsGame implements Game {
         count: 0,
         elapsedMs: 0,
         totalMs: 0,
-        loggedMs: 0,
       };
     }
     const fx = this._groupLandFx!;
-    if (fx.count >= fx.rows.length) {
-      // TEMP-LOG（上面已打登记行）⟹ 补一条「被丢弃」，否则前一条会骗人
-      console.log(`[GLD+丢弃] t=${performance.now().toFixed(1)}ms step=${step} (${row},${col}) · 容量已满 ${fx.count}`);
-      return; // 定长越界静默丢（同 _noteSolverLand 判例）
-    }
+    if (fx.count >= fx.rows.length) return; // 定长越界静默丢（同 _noteSolverLand 判例）
     fx.rows[fx.count] = row;
     fx.cols[fx.count] = col;
     fx.steps[fx.count] = step;
@@ -1340,19 +1434,7 @@ export class BeadsGame implements Game {
       return;
     }
     fx.elapsedMs += Math.max(0, dt) * 1000;
-    // TEMP-LOG（裁后删除）：「播放中」进度 ⟹ 现有 4 个点（登记/丢弃/播完/初始化）**看不到过程**，
-    //   真机确认「动画真的在推进」只能靠它。节流 50ms（总窗 200ms ⟹ 约 4 条/次，不刷屏）。
-    if (fx.elapsedMs - fx.loggedMs >= 50) {
-      fx.loggedMs = fx.elapsedMs;
-      console.log(
-        `[GLD+播放] t=${performance.now().toFixed(1)}ms elapsed=${fx.elapsedMs.toFixed(0)}/${fx.totalMs.toFixed(0)}ms 颗数=${fx.count}`,
-      );
-    }
-    if (fx.elapsedMs >= fx.totalMs) {
-      // TEMP-LOG（裁后删除）
-      console.log(`[GLD+播完] t=${performance.now().toFixed(1)}ms 颗数=${fx.count} 用时=${fx.elapsedMs.toFixed(0)}ms 总窗=${fx.totalMs.toFixed(0)}ms`);
-      this._groupLandFx = null;
-    }
+    if (fx.elapsedMs >= fx.totalMs) this._groupLandFx = null;
   }
 
   /** [T-244 八批] 托盘进珠动画推进（表现层判例：不被 PAUSED 冻结；非 playing 作废）。 */
@@ -1445,6 +1527,9 @@ export class BeadsGame implements Game {
   giveTrayBead(colorIdx: number): number {
     const slot = this._tray.insertGrouped(colorIdx);
     if (slot < 0) return -1;
+    // [T-244 二十二批] 本钩子按定义就是「凭空造珠」⇒ 计入体检基准（_invExtra），
+    // 否则夹具与 harness 控制台注入会造成假红。玩法命令里的凭空珠仍会报（它不走这里）。
+    this._invExtra[colorIdx] += 1;
     this._emit('tray:spawned', { slot, colorIdx });
     return slot;
   }
@@ -2059,8 +2144,6 @@ export class BeadsGame implements Game {
     this._colorWavePendingIdx = 0; // [T-244 十八批] 让位门也不能跨关存活（旧盘的待播色在新盘无意义）
     this._colorLockMask = 0;       //   常驻锁定态同样逐盘重建（新布局同号≠同形）
     this._groupLandFx = null; // [T-244] 同判例：旧格坐标不动新棋盘（相 B **会写盘**）
-    // TEMP-LOG（裁后删除）：装配完成即报队列状态 ⟹ 初始化若有动画这里会露出登记日志
-    console.log(`[GLD+初始化] t=${performance.now().toFixed(1)}ms 队列=${this._groupLandFx === null ? '空' : '非空'}`);
     this._tray.reset();
     this._resetPowerups();
     this._tray.initNeeded(this._grid.neededColorCounts());
@@ -2078,6 +2161,9 @@ export class BeadsGame implements Game {
     this._stageIndex = 0;
     this._isNewBest = false;
     this._clearReviveBookkeeping();
+    // [T-244 二十二批] 装配即算守恒基准并体检一次（图案每色目标 vs 初盘每色实数）。
+    // `noAssemble` 夹具盘故意不装配（全盘 empty）⇒ 只算基准不体检，避免假红。
+    this._noteConservationBaseline(!this._noBootAssembly);
   }
 
   /** Fresh sprint run: stage 0 + full countdown. */
@@ -2115,6 +2201,8 @@ export class BeadsGame implements Game {
     this._spawner.interval = stageParamsFor(n).interval;
     this._spawner.setDecoys([]);
     this._stageIndex = n;
+    // [T-244 二十二批] 换 stage ⇒ 棋盘已换且故意是空盘 ⇒ 只重算基准，不体检。
+    this._noteConservationBaseline(false);
   }
 
   /** One PLAYING frame: combo window → countdown (input is read in `update()`). The feed segment is dead (v2.0). */
@@ -2554,7 +2642,7 @@ export class BeadsGame implements Game {
       const src = consumption[used]!;
       const bead = this._grid.retrieve(src.row, src.col);
       if (!bead || !this._grid.fill(t.row, t.col, bead)) {
-        if (bead) this._grid.setBead(src.row, src.col, bead); // 防御回滚（理论不可达：目标已验 empty）
+        if (bead) this._grid.fill(src.row, src.col, bead); // 防御回滚（理论不可达：目标已验 empty）
         continue; // 该员不消费，余序不变
       }
       used++;
@@ -2567,6 +2655,7 @@ export class BeadsGame implements Game {
       if (used >= consumption.length) break;
     }
     if (!placedAny) return false;
+    this._checkBeadConservation('盘内直填 directFill'); // 在过关/换 stage 转换**之前**核（转换会重建棋盘）
 
     // 锚更新：组空 ⇒ 清；否则**头珠**（row/col，展示用）改指剩余组首（消费序），
     // 选豆点 anchorRow/Col 恒不变（用户裁定 2026-09-20）。
@@ -2883,6 +2972,7 @@ export class BeadsGame implements Game {
   private _placeSelected(row: number, col: number): boolean {
     const slotHead = this._tray.selectedSlot;
     if (slotHead < 0) return false; // 防御：无锚不该到达（路由层已拦截并提示）
+    this._markBeadConservation(); // [T-244 二十二批] 哨兵入口（托→盘）
     const colorIdx = this._tray.selectedColor;
     const groupSize = this._tray.selectedCount;
     const verdict = judgePlacement(this._grid, row, col, colorIdx, slotHead);
@@ -2966,6 +3056,7 @@ export class BeadsGame implements Game {
             break; // 过关已判 ⇒ 不再续填（同帧口径与单珠版一致）
           }
         }
+        this._checkBeadConservation('托盘落子 place'); // 每填一格必少一珠，混色重排写坏即报
         return true;
       }
       case 'rejected': {

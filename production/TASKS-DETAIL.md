@@ -2393,6 +2393,29 @@ beads **782 绿 + 1 skipped**（新增 2 条；封箱 9/9 含在内 ⟹ 静息�
 ⚠ 发现 **T-244 前七批改了视觉却从未在 `assets-spec` 建卡** ⟹ 参数（`SPREAD` / `DROP_PX`）
 **无处登记 = 规格漂移**。本批补建 **§1.6.2b `vfx_group_land`**（极简，只记代码真值，不改观感）。
 
+### 二十三批（收口：裁日志 + 一处回滚隐患）
+
+**用户裁定**（2026-10-04）：「那批 TEMP-LOG（裁后删除）的 `[GLD+…]` 一并裁掉」+ 面板选项
+「回滚隐患 本批一并修」。
+
+- **裁 `[GLD+…]` 临时日志**：game 侧 11 处 + view 侧 1 处（登记/丢弃/播完/初始化/播放节流/
+  托盘进珠/起播/复位）全清；随之**只服务于日志节流**的两个游标一并删
+  （`_liftLogMs` 字段 + `_groupLandFx.loggedMs`；grep 全仓零其它引用）。
+  ⛔ **表现层队列字段本身不动**（`_groupLandFx` / `_trayLandFx` 是真代码）。净 −54 行。
+  注：`GldConsoleTrace` 与 `gld-last-frame` 两处 try/catch 探针**此前已随动画重写撤除**，本批无需处理。
+- **【顺带修真隐患】**`_tryDirectFillFromBoard` 的防御回滚 `setBead(src.row, src.col, bead)`
+  **静默失效**：上一行 `retrieve` 已把源格清成 `empty`，而 `setBead` 要求目标为 `filled`
+  ⇒ 恒 false ⇒ 一旦触发那颗珠**凭空蒸发**（本批前一处 16 个色违规的根因，K-013）。
+  修 = 改 `fill(...)`（`retrieve` 的精确逆操作）。理论不可达路径，但它是本函数**唯一「吃掉珠」的入口**，
+  且二十一批守恒哨兵现在抓得到它 ⇒ 修后哨兵无从可抓。
+- **测试入口如实登记**：本批发现前几批用的 `games/beads/tests/scripts/run-node-tests.js`（输出「用例/通过/失败」表）
+  已不在树里（全仓 `find` 零命中）⇒ 本批改跑 `vitest run` = **801 passed / 1 skipped（59 文件）**
+  —— ⚠ **两个计数不可直接对比**（子集 vs 全量），历史「446 绿」不得当作本批基线。
+
+**验证**：`vitest run` 801 passed / 1 skipped · `tsc --noEmit` 0 错 · `framework:sync` 后两镜像同步
+（cocos 副本与 `src` 逐字节一致）· 全仓 grep `GLD` / `TEMP-LOG` / `_liftLogMs` / `loggedMs` **零残留**。
+
+
 ## WXG-T-245
 
 **skill 调用审计（`pnpm run skills:audit`）**
@@ -2413,3 +2436,47 @@ beads **782 绿 + 1 skipped**（新增 2 条；封箱 9/9 含在内 ⟹ 静息�
 **解析踩坑（三次才通）**：块类型是 `tool-call`（**不是** `tool_use`）· 字段 `toolName`/`args`/`toolCallId`
 · ⚠ 每个 message 的 `message` 字段是**字符串化 JSON**（必须二次 `JSON.parse`）· glob 层级
 `<history>/<会话>/<turn>/messages/*.json`（少一层 ⟹ 静默扫到 0 条，最容易误判成「没有记录」）。
+
+## WXG-T-246
+
+**beads·崩溃快照恢复失效（revive 后进度全丢回初盘）**
+
+**来源**：2026-10-04 WXG-T-244 十七批排查期间，本会话在 `dev/harness` 用 `?solveloop=1`
+驱动「填盘 → 崩溃 → 复活」环时顺手发现；用户裁定「已登记未修 —— 要开单」。
+
+### 现象（可复现，但**未确诊**）
+
+崩溃救援链（D-03，WXG-T-059）照常触发（日志 `save.crash: … filled=17`），点「复活」重开后
+**盘面回到本关初始布局**（已填格全丢）⇒ 救援等于重开一局。⛔ 本单只登记现象与候选，
+**不得**在未实测前把任何一条写成根因。
+
+### 链路（读码所得，逐处可查）
+
+| 环节 | 位置 | 事实 |
+|---|---|---|
+| 崩溃落盘 | `beads-game.ts::onSaveCrash(mode, levelIndex, boardSnapshot)` | 位图交 `meta.onSolved` → 存档 `data.board`（`meta-state.ts` 注释称「写入即落盘」，**未运行时验证**） |
+| 复活入口 | `beads-shell.ts::btnRevive` | `meta.reportRun({outcome:'revive'})` → `startLevel(runMode, startIndex, true)` |
+| 索引顶推 | 同处 | `startIndex = (crash ? crash.levelIndex : 0) + 1` ⇒ **下一关** |
+| 恢复消费 | `beads-game.ts::_setupLevel` | `const crash = isRevive ? this._meta.crash?.take(levelIndex) : null;` → null ⇒ 静默不恢复 |
+| 有效性校验 | `beads-game.ts::_fillableCountFor` / `_crashFillableCountFor` | 位图长度须 == 该关可填格数，否则判无效 |
+
+### 三条候选根因（待逐条排除）
+
+1. **跨关索引错位**：位图按**崩溃关**写，`take` 却按 `levelIndex + 1`（新关号）读 ⇒ 恒取不到。
+   ⚠ 疑点：`?solveloop=1` 的 `onRevive` 已刻意回 `levelIndex: 0` 以「避免 +1 顶到下一关」，
+   而真链 UI 走 `startIndex+1` ⇒ 两条路径结论可能不同，须以真链为准实测。
+2. **长度校验判无效**：`_fillableCountFor` 与 `onSaveCrash` 实际写入长度口径不符（普通关 vs 冲刺分叉）。
+3. **写盘时序/覆盖**：revive 路径的 `reportRun` 与位图写入先后不明 ⟹ 位图可能被后一次写档覆盖。
+
+### 下一步（判据先行，先确诊后改码）
+
+- 一次性诊断日志打在**状态变化处**（承 WXG-T-244 二十批判例）：`crash.take()` 的命中/丢弃 + **丢弃原因**
+  （索引不符 / 长度不符 / 无存档），跑真链 `btnRevive` 一次即可定死是哪条候选。
+- 活守卫（确诊后立）：构造「填 N 步 → 崩溃 → 复活」用例，断言复活后 `filled` 计数 **== 崩溃前**
+  且恢复标志存在；既有 `in-level-snapshot` / `meta-state` / `save-schema` 三族疑未覆盖「跨关索引」这条腿。
+- ⛔ 本单不并入动画批（跨域：meta-state + 关卡装配 + 存档层），且不夹带视觉改动。
+
+### 影响与优先级
+
+功能缺陷但不阻断：逻辑/渲染/测试面全绿（beads vitest 801 passed / 1 skipped 时点），
+优先级 = 中（救援名存实亡，上线前须闭；`wxgame-release-checklist` 可将其列为提审前待办）。

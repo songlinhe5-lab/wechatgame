@@ -104,9 +104,12 @@ window.__beads.fitCanvas()
 
 // 常用注入（无公开入口的验证只能走这里）
 window.__beads.game.giveTrayBead(5)     // 向首个空槽注入一颗色 5 的珠（返回槽位，-1 = 满）
+window.__beads.game.checkBeadConservation() // [T-244 二十二批] 珠色守恒体检：「盘 + 托」每色实数 vs 图案目标
+                                          // ⇒ false + 一条 console.error 明细 = **数据面**被写坏（某色多/少）；
+                                          //   true = 数对得上 ⇒ 问题在渲染层。抓到怪盘先敲这一句再开新一轮排查。
 window.__beads.game.goToLevel(3)
 window.__beads.game.startSprint()
-window.__beads.game.usePowerup('region')  // PowerupType 只有三个值：'region' | 'clearAll' | 'random'（tuning.ts L125）
+window.__beads.game.usePowerup('solver')  // PowerupType = POWERUP_TYPES（tuning.ts）：'solver' | 'solverPlus' | 'solverRandom'
 window.__beads.game.tapDesign(x, y)     // 直接送设计空间坐标，绕过指针链路
 ```
 

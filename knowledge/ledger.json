@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 94,
+  "nextId": 96,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1536,6 +1536,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-094",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "dev 调试注入不得绕过玩法命令层直写权威状态（守恒类玩法会被造成死盘）",
+      "contentHash": "9f3cb98395e5d3e39c9aa1f093789e8418f0e429ea788e6cef95feee75b3e90d",
+      "sourceTask": "WXG-T-244",
+      "addedDate": "2026-10-04",
+      "lastAccess": "2026-10-04",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-095",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "「颜色画错了」类投诉先跑逐色计数守恒等式定性，再决定读渲染层还是数据层",
+      "contentHash": "4265cd33648b316c690a2184bd1ada960135f8fff2f3ae8134f5c970a3667f3c",
+      "sourceTask": "WXG-T-244",
+      "addedDate": "2026-10-04",
+      "lastAccess": "2026-10-04",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -2253,6 +2287,25 @@
       "kind": "updated",
       "ids": [
         "K-091"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-04",
+      "taskId": "WXG-T-244",
+      "kind": "added",
+      "ids": [
+        "K-094",
+        "K-095"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-04",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-094"
       ],
       "note": null
     }

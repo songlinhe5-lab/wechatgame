@@ -541,72 +541,14 @@ if (GLD) {
     'position:fixed;left:4px;bottom:4px;z-index:99;font:11px/1.45 monospace;color:#7CFC7C;' +
     'background:rgba(0,0,0,.74);padding:6px 9px;white-space:pre;border-radius:6px;pointer-events:none';
   document.body.appendChild(box);
-  (window as unknown as { __gldKick?: () => void }).__gldKick = () => {
-    // ⚠ **按「空格的目標色」注入同色珠**（首版挑首格目标色 ⟹ 与空格色不匹配 ⟹ 走 rejected
-    //   ⟹ 永远不落座 ⟹ 误报「无对色空格」。这正是「点了没变化」最常见的原因：**颜色不匹配**。
-    const s0 = play.snapshot;
-    // ⛔ 若盘面没有「3 个连通的同色空格」⟹ 组批量只落 1 颗 ⟹ 看不到错峰（用户 2026-10-04
-    //   报「所有珠子同时出现」的真正成因：盘面其余珠**本来就可见**，与落珠无关）。
-    // ⇒ 先**造**出 3 个连通同色空格：扫盘面找同 target 色的 L 形三连，逐格 setBead+retrieve。
-    const at = (r: number, c: number) => r * s0.gridCols + c;
-    const cellAt = (r: number, c: number) =>
-      r >= 0 && c >= 0 && r < s0.cells.length / s0.gridCols && c < s0.gridCols
-        ? s0.cells[at(r, c)]
-        : undefined;
-    outer: for (const cand of s0.cells) {
-      if (cand.state !== 'filled' || cand.colorIdx <= 0) continue;
-      const col = cand.colorIdx;
-      const start = s0.cells.indexOf(cand);
-      const r0 = Math.floor(start / s0.gridCols);
-      const c0 = start % s0.gridCols;
-      // L 形：(r0,c0) (r0,c0+1) (r0+1,c0)
-      const trio = [[r0, c0], [r0, c0 + 1], [r0 + 1, c0]];
-      if (!trio.every(([r, c]) => cellAt(r, c)?.colorIdx === col && cellAt(r, c)?.state === 'filled')) continue;
-      for (const [r, c] of trio) {
-        play.grid.setBead(r, c, col === 1 ? 2 : 1); // 造成错位（retrieve 只收错位珠）
-        play.grid.retrieve(r, c); // ⟹ 空格
-      }
-      break outer;
-    }
-    const s1 = play.snapshot;
-    const i0 = s1.cells.findIndex((c) => c.state === 'empty' && c.colorIdx > 0);
-    if (i0 < 0) {
-      box.textContent += `\n[repro] 盘面无空格（满盘）`;
-      return;
-    }
-    const color = s1.cells[i0]!.colorIdx;
-    let slot = -1;
-    const got: number[] = [];
-    for (let k = 0; k < 3; k += 1) {
-      const r = play.giveTrayBead(color);
-      got.push(r);
-      if (k === 0) slot = r;
-    }
-    box.textContent += `\n[repro] giveTrayBead(${color})×3 → 槽位 [${got.join(',')}]`;
-    if (slot < 0) {
-      box.textContent += ' ⛔ 注入失败（托盘无空槽？容量上限？）';
-      return;
-    }
-    const selOk = play.selectTraySlot(slot);
-    box.textContent += ` selectTraySlot(${slot})=${selOk}`;
-    const s2 = play.snapshot;
-    const i = s2.cells.findIndex((c) => c.state === 'empty' && c.colorIdx === color);
-    if (i < 0) {
-      box.textContent += `\n[repro] 注入后无对色空格`;
-      return;
-    }
-    const row = Math.floor(i / s2.gridCols);
-    const col = i % s2.gridCols;
-    const x = s2.gridLeft + 15 + 32 * col; // BEAD_CELL/2 + BEAD_PITCH（测试 cellCenter 同式）
-    const y = s2.gridTop - 15 - 32 * row;
-    const consumed = play.tapDesign(x, y);
-    box.textContent += `\n[repro] 色${color} 珠3 选中槽${slot} → 点(${row},${col}) consumed=${consumed}`;
-  };
-  window.addEventListener('keydown', (e) => {
-    if ((e as KeyboardEvent).key === 'r' || (e as KeyboardEvent).key === 'R') {
-      (window as unknown as { __gldKick?: () => void }).__gldKick?.();
-    }
-  });
+  // 【WXG-T-244 二十一批 · 用户裁定「直接删掉」】原 `__gldKick`（R 键 / 加载 400ms 自动触发）
+  // 已裁。它给落珠动画造「3 个连通同色空格」的手法是直接对 grid 动手术：
+  //   `grid.setBead(异色)`（**原珠就地销毁**）→ `grid.retrieve()`（**丢弃**，不入托盘）
+  //   → `giveTrayBead(空格底色)×3`（**凭空造珠**）。
+  // v2.0 供料关停（错位珠是唯一供料源）⇒ 净效果 = 某色 −3 / 另一色 +3，**任何合法玩法都补不回来**
+  // ⇒ 造出死盘。实测复现（L00001）：目标 {1:2, 2:62, 3:64} → 注入后 {1:2, 2:59, 3:67}，
+  // 与用户 2026-10-04 抓到的「盘面空格色 ≠ 托盘存珠色」同一签名（±3 = 本钩子的 trio 常量）。
+  // 教训：**调试注入不得绕过玩法命令层写权威状态**；要造前置态就走 `retrieveBead` 等公开命令。
   let prevFilled = -1;
   const tick = (): void => {
     const s = play.snapshot;
@@ -648,12 +590,10 @@ if (GLD) {
         for (const t of s.traySlots) if (t.state !== 'free') m.set(t.colorIdx, (m.get(t.colorIdx) ?? 0) + 1);
         return [...m.entries()].map(([k, v]) => `${k}×${v}`).join(' ') || '无';
       })()}`,
-      '按 R = 一键复现（自动按空格色注珠）',
     ].join('\n');
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
-  setTimeout(() => (window as unknown as { __gldKick?: () => void }).__gldKick?.(), 400);
 }
 
 requestAnimationFrame(frame);

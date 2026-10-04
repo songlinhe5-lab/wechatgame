@@ -103,3 +103,7 @@
   （本例 = ADR-0027 S0），并在复评触发里明写「守卫仍 SKIP / 仍钉旧值 ⇒ 禁止投放」。
   判例引用：`tools/scripts/check-bundle-size.mjs`、`games/beads/design/gdd/systems-index.md §3.9`、
   `docs/architecture/adr/ADR-0027-beads-prebaked-bitmap-skin-assets.md` §1 与 §5-2；同族 K-037（全绿不等于宿主可证）、K-042（判据与被测面同源须另配守卫）。
+
+- **[测试][K-094] dev 调试注入不得绕过玩法命令层直写权威状态（守恒类玩法会被造成死盘）**（WXG-T-244 二十一）
+  harness repro 直调 grid 原语造前置态：`setBead(异色)`（销毁原珠）→`retrieve()`（丢弃不入托）→`giveTrayBead×3`（凭空造珠）；v2.0 供料关停 ⇒ 逐色差 ±3 永不回补 ⇒ 死盘。指纹 = 表象「空格底盘色 ≠ 托盘存珠色」，易误判成渲染 bug。
+  规避：造前置态只走公开命令（`retrieveBead` 等，珠入托盘即守恒）；TEMP 钩子用完即裁、⛔ 不得加载时自动触发。
