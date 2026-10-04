@@ -338,8 +338,10 @@ export class BeadsGame implements Game {
    * 托盘的珠瞬跳”的错拍。进格由快照 `liftProgress` 上报，缓动曲线在 view 侧施。
    */
   private _liftElapsedMs = 0;
-  /** [T-244 八批] 托盘进珠原地出现动画（单槽，一次只进一颗 ⟹ 无需队列）。 */
-  private _trayLandFx: { slot: number; elapsedMs: number } | null = null;
+  /** [T-244 九批] 托盘进珠动画改**多槽队列**：整组取回**逐颗**调 `retrieveBead`（1101 行），
+   *  八批的单槽字段被逐颗**覆盖** ⟹ 只剩最后几颗有动画（用户实测「只看到最后 3 个」）。
+   *  ⟹ 与盘面 groupLand 同构：slots/steps 严格配对 + 错峰按落珠序（复用甲案预算函数）。 */
+  private _trayLandFx: { slots: number[]; steps: number[]; elapsedMs: number; totalMs: number } | null = null;
   /** TEMP-LOG：托盘时钟节流游标（裁日志时随字段一起删）。 */
   private _liftLogMs = 0;
   /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
@@ -1058,8 +1060,10 @@ export class BeadsGame implements Game {
         `[GLD+托盘进珠] t=${performance.now().toFixed(1)}ms slot=${verdict.slot}` +
         ` color=${verdict.colorIdx} from=(${verdict.fromRow},${verdict.fromCol})`,
       );
-      // [T-244 八批] 进珠动画登记（原地出现：复用 groupLand 包络与 200ms 总窗）
-      this._trayLandFx = { slot: verdict.slot, elapsedMs: 0 };
+      // [T-244 九批] 进珠动画登记（多槽队列：push 不覆盖；总窗恒 200ms 承甲案）
+      const tlf = (this._trayLandFx ??= { slots: [], steps: [], elapsedMs: 0, totalMs: GROUP_LAND_TOTAL_MS });
+      tlf.slots.push(verdict.slot);
+      tlf.steps.push(tlf.slots.length - 1);
       this._emit('tray:stored', {
         slot: verdict.slot,
         colorIdx: verdict.colorIdx,
@@ -1331,7 +1335,7 @@ export class BeadsGame implements Game {
       return;
     }
     fx.elapsedMs += Math.max(0, dt) * 1000;
-    if (fx.elapsedMs >= GROUP_LAND_TOTAL_MS) this._trayLandFx = null;
+    if (fx.elapsedMs >= fx.totalMs) this._trayLandFx = null;
   }
 
   /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
@@ -3759,8 +3763,10 @@ export class BeadsGame implements Game {
     s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
     // §5 抬起斜坡**进格量**（0→1，未缓动）；D1 与 ease 由 view 侧施（快照只报事实）。
     s.liftProgress = Math.min(1, this._liftElapsedMs / SELECT_LIFT_MS);
-    // [T-244 八批] 托盘进珠动画快照
-    s.trayLandSlot = this._trayLandFx ? this._trayLandFx.slot : -1;
+    // [T-244 九批] 托盘进珠动画快照（多槽队列）
+    s.trayLandSlots = this._trayLandFx ? this._trayLandFx.slots : [];
+    s.trayLandSteps = this._trayLandFx ? this._trayLandFx.steps : [];
+    s.trayLandCount = this._trayLandFx ? this._trayLandFx.slots.length : 0;
     s.trayLandElapsedMs = this._trayLandFx ? this._trayLandFx.elapsedMs : 0;
     // G7 轻压：多格并存 ⇒ 定长数组逐槽导出，**仅在播槽**可见（120ms 后零残留；
     // 过窗槽只留同格门记忆，不占快照）。曲线在 view 侧纯函数推导（L5）。

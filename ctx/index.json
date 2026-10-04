@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "4ecfb6061eb89be955a9fa0c7bd3b0063ab24d6364dfd36ffbba74e46f9c2e88",
+      "sha256": "df2bf8302238bdc317fabe9efd30b502294e9597fc42f94f1021f948da02ed0e",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 15742,
-      "lines": 540,
-      "sha256": "aa5aed610bdba59dc5658a8b4e833cea1eaae07a3f616ca1132c0ef2ce83bd7c",
+      "tokens": 16106,
+      "lines": 553,
+      "sha256": "86d50cd689a675688825de391c5aa1549263878aedeca3c4a5dc9f86672aaaf2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 541,
-          "tokens": 15739,
+          "endLine": 554,
+          "tokens": 16103,
           "summary": "",
           "keywords": []
         },
@@ -50643,6 +50643,22 @@
             "八批",
             "用户裁"
           ]
+        },
+        {
+          "anchor": "§T-244 九批（用户实测发现）：单槽 fx 被整组取回逐颗覆盖 ⟹ 改多槽队列",
+          "level": 3,
+          "startLine": 542,
+          "endLine": 554,
+          "tokens": 332,
+          "summary": "用户报：「是不是也有动画上限限制，只看到最后 3 个珠子动画」⟹ 不是上限，是我八批的",
+          "keywords": [
+            "九批",
+            "用户实测发现",
+            "单槽",
+            "被整组取回逐",
+            "颗覆盖",
+            "改多槽队列"
+          ]
         }
       ]
     },
@@ -50650,7 +50666,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "9d98d2108c3a9544536470af7b3c30ae969682781fa9c036a624602edaa7928c",
+      "sha256": "4cb0e6200a6e5f9a607b6c1a944c29003cbcdff857bbc18491ac3bc9b0930463",
       "tier": "normal",
       "sections": [
         {
@@ -50741,7 +50757,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 15,742 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 16,106 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
