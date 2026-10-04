@@ -2362,3 +2362,25 @@ beads **780 绿 + 1 skipped**（新增 3 条）· `verify` **PASS 19 / WARN 0 / 
 ### 读数
 
 beads **782 绿 + 1 skipped**（新增 2 条；封箱 9/9 含在内 ⟹ 静息帧零影响实证）· Cocos 镜像同步。
+
+
+## WXG-T-245
+
+**skill 调用审计（`pnpm run skills:audit`）**
+
+**来源**：2026-10-04 用户问「skill 统计为什么没有触发」→ 追加「想看单次会话的调用明细」。
+
+**修正此前的不准确表述**：仓库侧确实**无 hook / 无门禁 / 无统计脚本**（所以「自动触发」不存在），
+但 **IDE 本地会话历史里有完整 `use_skill` tool-call 记录** ⟹ 「数据一直在，只是没人读」。
+
+**落码**：`tools/scripts/skill-audit.mjs`（只读）+ npm script `skills:audit`。
+输出三段：① 按会话分组的 `use_skill` 明细（时间 + skill）② 工具调用 TOP8（对照 `use_skill` 排第 16）
+③ 用过的 skill 集合 + **零调用 skill 清单**（扫 `~/.codebuddy/skills` 与 `my-skills` 的 frontmatter `name`）。
+参数：`--json`（机器可读）、`--conv <会话id前缀>`。
+
+**读数**：全库 51433 条 tool-call · `use_skill` 18 条 · **9 个 skill 用过 / 40 个零调用**
+（含 `ponytail-audit`/`grilling`/`test-driven-development`/`systematic-debugging` 等）。
+
+**解析踩坑（三次才通）**：块类型是 `tool-call`（**不是** `tool_use`）· 字段 `toolName`/`args`/`toolCallId`
+· ⚠ 每个 message 的 `message` 字段是**字符串化 JSON**（必须二次 `JSON.parse`）· glob 层级
+`<history>/<会话>/<turn>/messages/*.json`（少一层 ⟹ 静默扫到 0 条，最容易误判成「没有记录」）。
