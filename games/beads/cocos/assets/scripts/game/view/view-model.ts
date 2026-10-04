@@ -1375,6 +1375,12 @@ function drawTray(
       styleId: snap.beadStyle,
       ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),
     });
+    // [T-244 · 2026-10-04 用户裁「修复 bug」] 选中态**状态环**：单靠位移（即使 14dp）在真机上
+    // 仍有「太小看不清」的天花板 ⟹ 加颜色通道保证「一眼可辨」。口径与盘面 hint 环**同源**
+    // （同 `drawStateRing` / 同 `slotBorder` 色 / 同 2px 线宽），⛔ 中心跟随珠（`cy+lift`）不随槽。
+    if (selected) {
+      drawStateRing(builder, cx, cy + lift, TRAY_SLOT, palette.slotBorder, 1, 2);
+    }
     // [WXG-T-240 · 2026-10-04 用户裁「蓝点 去掉」] ⛔ **原 F6 选中点已删除**：
     //   原实现 = `builder.circle(cx, slotBottom - 8, 4, { fill: palette.hintBlue })`
     //   （F6「选中点 → accent_blue，§3.5 环状提示 ≤8px 圆点」）。

@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "fa7cb311b7eb3f208adac4e9a0c10d6478610967784976281974fe97c3df2d9a",
+      "sha256": "a1cf15a6e4b8518f07071afda7f5850a24f211465801874f8337238efea9c7ca",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 14359,
-      "lines": 487,
-      "sha256": "3a860e641ba74cc7e1d7986b1a3737152e563d7ad34774830422815ecbd89ef5",
+      "tokens": 14701,
+      "lines": 500,
+      "sha256": "5e423158c16fb82c037afef096eddbb9784ab66f4d6956ce55db5accda609589",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 488,
-          "tokens": 14356,
+          "endLine": 501,
+          "tokens": 14698,
           "summary": "",
           "keywords": []
         },
@@ -50579,6 +50579,22 @@
             "我把诊断态忘",
             "了收尾"
           ]
+        },
+        {
+          "anchor": "§T-244 五轮：用户裁「修复 bug，不要修复方向，基本效果都没实现」⟹ 幅度 14 + 选中环",
+          "level": 3,
+          "startLine": 489,
+          "endLine": 501,
+          "tokens": 305,
+          "summary": "用户否决了我的「甲/乙/丙」提问式推进 ⟹ 直接落双通道：TRAY_SELECTED_LIFT_PX 9→14",
+          "keywords": [
+            "bug",
+            "TRAY_SELECTED_LIFT_PX",
+            "五轮",
+            "用户裁",
+            "修复",
+            "不要修复方向"
+          ]
         }
       ]
     },
@@ -50586,7 +50602,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "51e2e581dca1895aa34f2f73f07a112825c8d62b9d690844dd982d8f9a9e012b",
+      "sha256": "deab249f551e8506e1f745444483919f09a9264ad68866ba5ef55e6e7ba4a47b",
       "tier": "normal",
       "sections": [
         {
@@ -50677,7 +50693,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 14,359 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 14,701 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
