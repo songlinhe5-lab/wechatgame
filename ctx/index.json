@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "63ec4569e49da51395748928977bb161a6ab8d51941ebac2c22343a4ecb94568",
+      "sha256": "3970840623ca6709115d670ebcc8217e1f38a11207c2c8aaf084b3cb880b7a99",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 15052,
-      "lines": 514,
-      "sha256": "34bad842a8623455c716d19b9471de0fb44f1c4d1c9fbc9c01fd7cca34bf1ae3",
+      "tokens": 15401,
+      "lines": 527,
+      "sha256": "97ef1dc9fb1831d9d38b4034266ecfb54362f9da70c6e4bca879656b590cc2fb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 515,
-          "tokens": 15049,
+          "endLine": 528,
+          "tokens": 15398,
           "summary": "",
           "keywords": []
         },
@@ -50611,6 +50611,22 @@
             "日志要打在",
             "动画循环"
           ]
+        },
+        {
+          "anchor": "§T-244 七轮：用户报「珠子放到托盘没有触发动画日志」⟹ 根因：**动画根本不存在**",
+          "level": 3,
+          "startLine": 516,
+          "endLine": 528,
+          "tokens": 313,
+          "summary": "核实：tray:stored 事件发出（beads-game.ts:1050），但 view 侧零消费（grep 零命中",
+          "keywords": [
+            "tray",
+            "stored",
+            "beads",
+            "game",
+            "view",
+            "grep"
+          ]
         }
       ]
     },
@@ -50618,7 +50634,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "f7a6bc57e312a05b3d1f6a41c946d3c596f6aa7bbe16cc3937f1f7cbbc93b3c5",
+      "sha256": "5c7bd004f60e9d9cb0d9fffc11486c12105e994b778b0067deb9c157a31e8880",
       "tier": "normal",
       "sections": [
         {
@@ -50709,7 +50725,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 15,052 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 15,401 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

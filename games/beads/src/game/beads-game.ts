@@ -1047,6 +1047,14 @@ export class BeadsGame implements Game {
     if (this._machine.current !== 'playing') return false;
     const verdict = judgeRetrieve(this._grid, this._tray, row, col);
     if (verdict.outcome === 'stored') {
+      // TEMP-LOG（WXG-T-244 · 用户报「珠子放到托盘没有触发动画日志」⟹ 裁后删除）：
+      // ⛔ 排查结论：**托盘进珠根本没有动画** —— `tray:stored` 事件发出后 view 侧**零消费**
+      //   （grep 零命中）⟹ 珠是瞬间出现的 ⟹ 不是「动画没触发」，是「动画不存在」。
+      //   本条先补**事件日志**（挂在状态变化处，承「日志打动画循环不打渲染」判例）。
+      console.log(
+        `[GLD+托盘进珠] t=${performance.now().toFixed(1)}ms slot=${verdict.slot}` +
+        ` color=${verdict.colorIdx} from=(${verdict.fromRow},${verdict.fromCol})`,
+      );
       this._emit('tray:stored', {
         slot: verdict.slot,
         colorIdx: verdict.colorIdx,
