@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "5446bc680a00dd0eef5315ce63511e29c04704a89aba12987e04201a3a143d44",
+      "sha256": "71ce9568fb844c2313b90245bd22e75a6cc36a4633f87e15248832b2df5a6fe6",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 13305,
-      "lines": 448,
-      "sha256": "4622ed0e4c37ae55692f0ee0bb3411a082c1d1fcf88d6e6bb0651396004bbfc3",
+      "tokens": 13512,
+      "lines": 457,
+      "sha256": "f05c61ba8c11e3e0a895dcd0f6520a10c3f2c1e8502530d0ce51e171870e01c4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 449,
-          "tokens": 13302,
+          "endLine": 458,
+          "tokens": 13509,
           "summary": "",
           "keywords": []
         },
@@ -50531,6 +50531,22 @@
             "数分配",
             "单颗独占"
           ]
+        },
+        {
+          "anchor": "§T-244 追加：托盘动画补 `[GLD+播放·托盘]` 日志",
+          "level": 3,
+          "startLine": 450,
+          "endLine": 458,
+          "tokens": 188,
+          "summary": "用户令：「增加日志 [GLD+播放] 到托盘动画里」⟹ 核实：[GLD+播放] 只挂在盘面格渲染分支",
+          "keywords": [
+            "[GLD+播放·托盘]",
+            "GLD",
+            "追加",
+            "托盘动画补",
+            "播放",
+            "托盘"
+          ]
         }
       ]
     },
@@ -50538,7 +50554,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "8187a9cadd6b08acd4974f2b4f802c9483014bce096d536edf9a0a470c07dd4d",
+      "sha256": "7fce992248dd7f38979992495c1a489306d7e4f70d818b87f875fa752b7d61bc",
       "tier": "normal",
       "sections": [
         {
@@ -50629,7 +50645,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 13,305 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 13,512 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

@@ -1333,6 +1333,17 @@ function drawTray(
     // ⛔ 层序：**槽之后、珠之前**（同 WXG-T-240 ② 与盘面）—— 画在珠后会被完全盖住 = 白画。
     // ⚠ 槽在托盘里是 `tilePainted = false`（无 B0 底图）⇒ 影落在**面板**上（盘面落在坑底上），
     //   这是同一函数在两种底色上的表现，不是两套口径。
+    // TEMP-LOG（WXG-T-244 · 用户令「增加日志 [GLD+播放] 到托盘动画里」⟹ 裁后删除）
+    // ⟹ 托盘动画此前**零日志**（`[GLD+播放]` 只在盘面格分支）⟹ 真机看不到托盘抬起/回落过程。
+    // ⛔ 只对**选中**槽打：托盘 24 槽每帧都渲染 ⟹ 全打会刷屏（24×60fps）。
+    // ⟹ 口径与盘面同族前缀（`[GLD+播放·托盘]`）⟹ 一次 grep 即可捞全两处。
+    if (selected) {
+      console.log(
+        `[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms slot=${idx}` +
+        ` color=${slot.colorIdx} liftP=${snap.liftProgress.toFixed(2)}` +
+        ` lift=${lift.toFixed(1)} liftX=${liftX.toFixed(1)}`,
+      );
+    }
     if (lift > 0) {
       drawLiftBeadShadow(
         builder, cx, cy, TRAY_SLOT, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift, liftX,
