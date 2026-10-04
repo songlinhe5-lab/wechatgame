@@ -29,7 +29,9 @@ import {
     DESIGN_H,
     DESIGN_W,
     SOLVER_HINT_MS,
-    GROUP_LAND_SPREAD_MS,
+    GROUP_LAND_MIN_GAP_MS,
+  GROUP_LAND_SPREAD_MS,
+  GROUP_LAND_TOTAL_MS,
   SOLVER_STAGGER_MS,
     SOLVER_PER_BEAD_MS,
     SELECT_LIFT_PEAK_T,
@@ -102,9 +104,20 @@ export function solverBeadProgress(tMs: number, step: number): number {
  * - ⚠ 口径史：环号（BFS 同环同时）↔ 落珠序号（每颗错峰）在 T-244 二~七批间摇摆过两轮，
  *   最终按用户裁定取**落珠序号**；`chebyshev` 因此删了又复活、复活又删。
  */
+/** [T-244 甲案] 错峰**预算**（ms）：`min(SPREAD, (n−1) × MIN_GAP)` ⟹ 1 颗时 = 0（单颗独占整窗）。 */
+export function groupLandSpreadMs(maxOrder: number): number {
+  if (maxOrder <= 0) return 0;
+  return Math.min(GROUP_LAND_SPREAD_MS, maxOrder * GROUP_LAND_MIN_GAP_MS);
+}
+
 export function groupLandOffsetMs(order: number, maxOrder: number): number {
   if (maxOrder <= 0) return 0;
-  return (GROUP_LAND_SPREAD_MS * order) / maxOrder;
+  return (groupLandSpreadMs(maxOrder) * order) / maxOrder;
+}
+
+/** [T-244 甲案] 单颗落位窗（ms）= 总时长 − 错峰预算 ⟹ 1 颗 200ms / 2 颗 135ms / 3+ 70ms。 */
+export function groupLandPerBeadMs(maxOrder: number): number {
+  return Math.max(1, GROUP_LAND_TOTAL_MS - groupLandSpreadMs(maxOrder));
 }
 
 /**

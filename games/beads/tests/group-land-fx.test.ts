@@ -24,7 +24,8 @@
 
 import { describe, expect, it } from 'vitest';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
-import { GROUP_LAND_SPREAD_MS, GROUP_LAND_PER_BEAD_MS, SOLVER_STAGGER_MS } from '../src/config/tuning.js';
+import { groupLandPerBeadMs, groupLandSpreadMs } from '../src/view/scene-vfx.js';
+import { GROUP_LAND_SPREAD_MS, GROUP_LAND_TOTAL_MS, SOLVER_STAGGER_MS } from '../src/config/tuning.js';
 import { groupLandOffsetMs } from '../src/view/scene-vfx.js';
 
 const FRAME = 1 / 60;
@@ -94,11 +95,11 @@ describe('组归位逐颗 BFS 错峰落座（WXG-T-244）', () => {
         const e0 = s.groupLandElapsedMs;
         expect(e0, '起播帧 elapsed≈0').toBeLessThan(SOLVER_STAGGER_MS);
         // 第一颗（step 0）相位已在窗口内
-        expect(e0, '第一颗 tMs ∈ (0, PER_BEAD)').toBeLessThan(GROUP_LAND_PER_BEAD_MS);
+        expect(e0, '第一颗 tMs ∈ (0, PER_BEAD)').toBeLessThan(GROUP_LAND_TOTAL_MS);
         // 第二颗（step 1）未轮到（tMs = e0 − STAGGER ≤ 0 ⇒ view 不画）
         expect(e0 - SOLVER_STAGGER_MS * 1, '第二颗未轮到（错峰）').toBeLessThanOrEqual(0);
 
-        h.advance(GROUP_LAND_PER_BEAD_MS + SOLVER_STAGGER_MS * 2); // 越过总时长
+        h.advance(GROUP_LAND_TOTAL_MS + SOLVER_STAGGER_MS * 2); // 越过总时长
         s = h.game.snapshot;
         expect(s.groupLandCount, '⛔ 播完即清（零常驻）').toBe(0);
         expect(s.groupLandElapsedMs).toBe(0);
@@ -141,7 +142,7 @@ describe('托盘锚组归位走同队列（WXG-T-244 修正批）', () => {
         const s = h.game.snapshot;
         expect(s.groupLandCount).toBe(2);
         // pop 窗口内：progress ∈ (0,1) ⇒ fillPopEnvelope 产出 scale < 1（压下段）
-        const p = s.groupLandElapsedMs / (SOLVER_STAGGER_MS * 1 + GROUP_LAND_PER_BEAD_MS);
+        const p = s.groupLandElapsedMs / (SOLVER_STAGGER_MS * 1 + GROUP_LAND_TOTAL_MS);
         expect(p, '第一颗处于 pop 窗口').toBeGreaterThan(0);
         expect(p).toBeLessThan(1);
     });
@@ -177,7 +178,7 @@ describe('落珠顺序错峰 + 200ms 硬上限（WXG-T-244 七批）', () => {
         expect(gaps[1]).toBeCloseTo(gaps[0]!, 6);
         expect(gaps[2]).toBeCloseTo(gaps[1]!, 6);
         // ⛔ 硬上限：总时长 = 传播预算 + 落位窗 = 200ms，**与环数无关**
-        expect(GROUP_LAND_SPREAD_MS + GROUP_LAND_PER_BEAD_MS, '总时长 ≤ 0.2 秒').toBeLessThanOrEqual(200);
+        expect(GROUP_LAND_TOTAL_MS, '总时长 ≤ 0.2 秒（甲案：恒定总窗，不再是 SPREAD+PER_BEAD 之和）').toBeLessThanOrEqual(200);
         // 颗数多 ⟹ 每颗间隔更短（「间隔缩短」）：预算固定 ⟹ 单颗间隔 = 80/(n−1)
         expect(groupLandOffsetMs(1, 6) - groupLandOffsetMs(0, 6), '6 颗的间隔 < 3 颗的间隔').toBeLessThan(
             groupLandOffsetMs(1, 3) - groupLandOffsetMs(0, 3),
@@ -234,5 +235,23 @@ describe('帧级错峰时序（T-244 四批「乙」· 防回归）', () => {
         // ⛔ 硬上限：越过 200ms 后队列必清（总时长 = SPREAD + PER_BEAD = 200ms）
         h.advance(0.25);
         expect(h.game.snapshot.groupLandCount, '⛔ 200ms 后必清（零常驻）').toBe(0);
+    });
+
+    // [T-244 甲案 · 2026-10-04] 用户连报两次「托盘看不到落珠动画」，日志已证通路正常（登记/推进/播完），
+    // 真因 = 乙案把单颗窗砍到 70ms（@60fps 仅 4.2 帧 ⟹ 人眼捕捉不到）。本条钉死「按颗数分配」：
+    it('⑦ 甲案：错峰预算按颗数分配 ⟹ 单颗独占整窗 200ms（总时长恒定不破 0.2 秒）', () => {
+        // 1 颗（maxOrder=0）⟹ 错峰预算 0、单颗窗 = 全部 200ms
+        expect(groupLandSpreadMs(0), '⛔ 单颗不该有错峰预算（否则白吃单颗窗）').toBe(0);
+        expect(groupLandPerBeadMs(0), '① 单颗窗 = 200ms（12 帧 @60fps ⟹ 可见）').toBe(200);
+        // 2 颗（maxOrder=1）⟹ 错峰 = MIN_GAP 65、单颗窗 135
+        expect(groupLandSpreadMs(1)).toBe(65);
+        expect(groupLandPerBeadMs(1), '② 2 颗时 135ms').toBe(135);
+        // 3 颗（maxOrder=2）⟹ 错峰封顶 SPREAD 130、单颗窗 70
+        expect(groupLandSpreadMs(2), '③ 3 颗时错峰封顶 130').toBe(130);
+        expect(groupLandPerBeadMs(2), '③ 3 颗时 70ms（多颗靠错峰可辨）').toBe(70);
+        // ⛔ 硬上限：任何颗数下总时长都不得超 200ms
+        for (const n of [0, 1, 2, 3, 5, 8, 17, 40]) {
+            expect(groupLandSpreadMs(n) + groupLandPerBeadMs(n), `⛔ ${n + 1} 颗总时长 ≤ 200ms`).toBeLessThanOrEqual(200);
+        }
     });
 });

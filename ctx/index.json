@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "415844e0bae94f02b3e4d4d1dd03325b225565fd2055e63b535234b85794a3d1",
+      "sha256": "5446bc680a00dd0eef5315ce63511e29c04704a89aba12987e04201a3a143d44",
       "tier": "normal",
       "sections": [
         {
@@ -425,7 +425,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 391,
-          "summary": "1 games/beads/art/assets-spec.md 108866 1962 normal",
+          "summary": "1 games/beads/art/assets-spec.md 109137 1976 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -441,7 +441,7 @@
           "startLine": 46,
           "endLine": 110,
           "tokens": 2220,
-          "summary": "games/beads/art/assets-spec.md 108866 见 ctx/budget-exempt.js",
+          "summary": "games/beads/art/assets-spec.md 109137 见 ctx/budget-exempt.js",
           "keywords": [
             "tokens",
             "games",
@@ -12565,17 +12565,17 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 108866,
-      "lines": 1962,
-      "sha256": "e9b72a9b13995ee341f194a9071f4e72d5eb8e17650739e09f42fc46db97bef7",
+      "tokens": 109137,
+      "lines": 1976,
+      "sha256": "22d169b5a10d8985abe510d59e03f127add6aee9ef24f4668fd285261638614d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》资产规格表（Asset Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1963,
-          "tokens": 108851,
+          "endLine": 1977,
+          "tokens": 109123,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -12601,8 +12601,8 @@
           "anchor": "§1 资产清单（可见元素规格表）",
           "level": 2,
           "startLine": 40,
-          "endLine": 1876,
-          "tokens": 87415,
+          "endLine": 1890,
+          "tokens": 87687,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -12685,8 +12685,8 @@
           "anchor": "§1.6 VFX 参数卡（**v1.4 全量升级**：4 行简表 → 7 张可直接落码卡）",
           "level": 3,
           "startLine": 252,
-          "endLine": 1261,
-          "tokens": 36751,
+          "endLine": 1275,
+          "tokens": 37022,
           "summary": "升级理由：v1.3 的 §1.6 只有四行一句话描述（如「scale 1.06→1.0，120ms ease-out-b",
           "keywords": [
             "§1.6",
@@ -12700,8 +12700,8 @@
         {
           "anchor": "§1.7 拼图容器板 + 暖光 band 参数卡（丙案核心，F2/F3） `[v1.3]`",
           "level": 3,
-          "startLine": 1262,
-          "endLine": 1288,
+          "startLine": 1276,
+          "endLine": 1302,
           "tokens": 549,
           "summary": "渲染原语无渐变/模糊 ⇒ 暖晕用同心圆角 rect 叠层 + 由外向内递增 α 模拟伪径向光；容器板复用面板同族 tok",
           "keywords": [
@@ -12716,8 +12716,8 @@
         {
           "anchor": "§1.8 背景层次参数卡（F8，解锁 v1.2「纯色无层次」自限） `[v1.3]`",
           "level": 3,
-          "startLine": 1289,
-          "endLine": 1316,
+          "startLine": 1303,
+          "endLine": 1330,
           "tokens": 2550,
           "summary": "",
           "keywords": [
@@ -12731,8 +12731,8 @@
         {
           "anchor": "§1.9 材质感质感语言卡（v1.5，WXG-T-131）",
           "level": 3,
-          "startLine": 1317,
-          "endLine": 1703,
+          "startLine": 1331,
+          "endLine": 1717,
           "tokens": 23537,
           "summary": "背景：玩法重塑「错位归位」（WXG-T-130）+ 用户裁定「暂时不需要支持色盲玩家，我需要的是珠子和托盘、棋盘都有质感",
           "keywords": [
@@ -12744,8 +12744,8 @@
         {
           "anchor": "§1.10 32 基珠体质感系数重定表（WXG-T-207-B，`[v1.5-r14]`）",
           "level": 3,
-          "startLine": 1704,
-          "endLine": 1876,
+          "startLine": 1718,
+          "endLine": 1890,
           "tokens": 9917,
           "summary": "⚠ 格内占比标准已独立成文（WXG-T-214，2026-09-26）：[art/cell-standard.md](c",
           "keywords": [
@@ -12760,8 +12760,8 @@
         {
           "anchor": "§2 未来真实资产替换提示词（AI 生成备用）",
           "level": 2,
-          "startLine": 1877,
-          "endLine": 1887,
+          "startLine": 1891,
+          "endLine": 1901,
           "tokens": 168,
           "summary": "bead_set candy-like 3d perler bead set, rounded square beads",
           "keywords": [
@@ -12776,8 +12776,8 @@
         {
           "anchor": "§3 图集策略",
           "level": 2,
-          "startLine": 1888,
-          "endLine": 1896,
+          "startLine": 1902,
+          "endLine": 1910,
           "tokens": 94,
           "summary": "demo（当前） 不建图集，全 Graphics，主包美术位图 = 0 KB",
           "keywords": [
@@ -12789,8 +12789,8 @@
         {
           "anchor": "§4 命名规范",
           "level": 2,
-          "startLine": 1897,
-          "endLine": 1906,
+          "startLine": 1911,
+          "endLine": 1920,
           "tokens": 132,
           "summary": "全小写 + 下划线；模式 {域}_{实体}_{变体}_{状态}.{ext}。",
           "keywords": [
@@ -12801,8 +12801,8 @@
         {
           "anchor": "§5 包体预算表（微信红线 vs 内部目标，**分清两条线**）",
           "level": 2,
-          "startLine": 1907,
-          "endLine": 1924,
+          "startLine": 1921,
+          "endLine": 1938,
           "tokens": 295,
           "summary": "微信红线（不可越） 主包 ≤ 4096 KB",
           "keywords": [
@@ -12815,8 +12815,8 @@
         {
           "anchor": "§6 交付与验收",
           "level": 2,
-          "startLine": 1925,
-          "endLine": 1963,
+          "startLine": 1939,
+          "endLine": 1977,
           "tokens": 4061,
           "summary": "[ ] 全部元素程序化绘制，无外部图片引用。",
           "keywords": [
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 12704,
-      "lines": 427,
-      "sha256": "1030f6fb9025d8cbe60a7b24af23dd4de7c388262884fb20d497b8eba876b74f",
+      "tokens": 13305,
+      "lines": 448,
+      "sha256": "4622ed0e4c37ae55692f0ee0bb3411a082c1d1fcf88d6e6bb0651396004bbfc3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 428,
-          "tokens": 12701,
+          "endLine": 449,
+          "tokens": 13302,
           "summary": "",
           "keywords": []
         },
@@ -50516,6 +50516,21 @@
             "的真因是单颗",
             "可见性"
           ]
+        },
+        {
+          "anchor": "§T-244 甲案（用户裁甲）：错峰预算按颗数分配 ⟹ 单颗独占 200ms",
+          "level": 3,
+          "startLine": 429,
+          "endLine": 449,
+          "tokens": 573,
+          "summary": "用户连报两次「托盘还是看不到落珠动画」 ⟹ 日志已证通路完全正常",
+          "keywords": [
+            "甲案",
+            "用户裁甲",
+            "错峰预算按颗",
+            "数分配",
+            "单颗独占"
+          ]
         }
       ]
     },
@@ -50523,7 +50538,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "5c954367fc2ead7e2c07b5f621c9d89c51e1cddc9a3e9ae92f8ca5299725c4bf",
+      "sha256": "8187a9cadd6b08acd4974f2b4f802c9483014bce096d536edf9a0a470c07dd4d",
       "tier": "normal",
       "sections": [
         {
@@ -50614,7 +50629,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 12,704 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 13,305 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
