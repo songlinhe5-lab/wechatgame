@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "44c144d4084e7aeed85e62cfa59e5a9af69b9b871e43dda5632dc5cbf585a36e",
+      "sha256": "5fd6c5a5d17eb76a9c3020c05aedb21ebd9aac02df70b4040219146a16b297a2",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 9104,
-      "lines": 304,
-      "sha256": "2640ddd3f83791438aa312efe203d14885d2fd1d493c33350b19c80f93c3ad66",
+      "tokens": 9528,
+      "lines": 318,
+      "sha256": "b7146fe30b6b40e7e6a7d87838c720367fe39e4aafcfaeb0e07094d8f38b21fd",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 305,
-          "tokens": 9101,
+          "endLine": 319,
+          "tokens": 9525,
           "summary": "",
           "keywords": []
         },
@@ -50391,6 +50391,22 @@
             "下落位移",
             "节奏"
           ]
+        },
+        {
+          "anchor": "§T-244 诊断批：「零变化」的真因 = 默认关卡满盘，两条组归位路径都不可达",
+          "level": 3,
+          "startLine": 306,
+          "endLine": 319,
+          "tokens": 391,
+          "summary": "加 dev-only 诊断（dev/harness/main.ts 的 ?gldbg=1）：屏幕左下角面板显示",
+          "keywords": [
+            "dev",
+            "only",
+            "harness",
+            "main",
+            "gldbg",
+            "诊断批"
+          ]
         }
       ]
     },
@@ -50398,7 +50414,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10009,
       "lines": 250,
-      "sha256": "137e86eec4353ce60f2cb13eae05c131ecc0c360382b281cec968d65e436ab2c",
+      "sha256": "69739739ccaa5d13effba57cb41e9f3c52f418a706d128e0918bc75988789566",
       "tier": "normal",
       "sections": [
         {
@@ -50489,7 +50505,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 9,104 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 9,528 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

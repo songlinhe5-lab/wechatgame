@@ -513,6 +513,82 @@ if (isBeads && new URLSearchParams(harnessQuery).get('lift') === '1') {
 }
 
 
+
+// TEMP-DEBUG（WXG-T-244 诊断 · dev-only 测具，不进构建）：组落座动画观测 + 一键复现。
+//
+// 用途（2026-10-04 用户报「还是没有变化」）：把「动画有没有被触发」变成**屏幕上的一行字**，不用猜。
+// · 面板每帧显示：相位时钟、登记数/环号序、托盘 holding 数、mode；
+// · 「R」键或自动跑一次**一键复现**：托盘注入 3 颗同色珠 → 选中 → 点第一个对色空格（走真链 `tapDesign`）。
+//
+// ⛔ 若面板显示 `groupLand=0` ⟹ 入口条件没满足（单颗走 G1 单槽，见 `beads-game.ts:2809` 的
+//   `if (groupSize > 1)`）；若 `groupLand>0` 但画面无变化 ⟹ 消费链（view-model.ts:984-987/1119）问题。
+const GLD = isBeads && new URLSearchParams(harnessQuery).get('gldbg') === '1';
+if (GLD) {
+  const play = beadsShell.play;
+  const box = document.createElement('div');
+  box.id = 'gldbg';
+  box.style.cssText =
+    'position:fixed;left:4px;bottom:4px;z-index:99;font:11px/1.45 monospace;color:#7CFC7C;' +
+    'background:rgba(0,0,0,.74);padding:6px 9px;white-space:pre;border-radius:6px;pointer-events:none';
+  document.body.appendChild(box);
+  (window as unknown as { __gldKick?: () => void }).__gldKick = () => {
+    // ⚠ **按「空格的目標色」注入同色珠**（首版挑首格目标色 ⟹ 与空格色不匹配 ⟹ 走 rejected
+    //   ⟹ 永远不落座 ⟹ 误报「无对色空格」。这正是「点了没变化」最常见的原因：**颜色不匹配**。
+    const s0 = play.snapshot;
+    const i0 = s0.cells.findIndex((c) => c.state === 'empty' && c.colorIdx > 0);
+    if (i0 < 0) {
+      box.textContent += `\n[repro] 盘面无空格（满盘）`;
+      return;
+    }
+    const color = s0.cells[i0]!.colorIdx;
+    let slot = -1;
+    for (let k = 0; k < 3; k += 1) {
+      const r = play.giveTrayBead(color);
+      if (k === 0) slot = r;
+    }
+    play.selectTraySlot(slot);
+    const s1 = play.snapshot;
+    const i = s1.cells.findIndex((c) => c.state === 'empty' && c.colorIdx === color);
+    if (i < 0) {
+      box.textContent += `\n[repro] 注入后无对色空格`;
+      return;
+    }
+    const row = Math.floor(i / s1.gridCols);
+    const col = i % s1.gridCols;
+    const x = s1.gridLeft + 15 + 32 * col; // BEAD_CELL/2 + BEAD_PITCH（测试 cellCenter 同式）
+    const y = s1.gridTop - 15 - 32 * row;
+    const consumed = play.tapDesign(x, y);
+    box.textContent += `\n[repro] 色${color} 珠3 选中槽${slot} → 点(${row},${col}) consumed=${consumed}`;
+  };
+  window.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'r' || (e as KeyboardEvent).key === 'R') {
+      (window as unknown as { __gldKick?: () => void }).__gldKick?.();
+    }
+  });
+  const tick = (): void => {
+    const s = play.snapshot;
+    const holding = s.traySlots.filter((t) => t.state === 'holding').length;
+    const filled = s.cells.filter((c) => c.state === 'filled').length;
+    box.textContent = [
+      `gld  mode=${s.mode}`,
+      `groupLand=${s.groupLandCount} elapsed=${s.groupLandElapsedMs.toFixed(0)}ms`,
+      `steps=[${Array.from(s.groupLandSteps.slice(0, 4)).join(',')}]`,
+      `cells=[${Array.from(s.groupLandRows.slice(0, 3)).map((r, k) => `${r},${s.groupLandCols[k]}`).join(' ')}]`,
+      `tray holding=${holding} filled=${filled}/${s.cells.length}`,
+      // 空格按目标色分布：一眼看出「点哪个色能落座」
+      `空格色=${(() => {
+        const m = new Map<number, number>();
+        for (const c of s.cells) if (c.state === 'empty' && c.colorIdx > 0) m.set(c.colorIdx, (m.get(c.colorIdx) ?? 0) + 1);
+        return [...m.entries()].map(([k, v]) => `${k}×${v}`).join(' ') || '无';
+      })()}`,
+      '按 R = 一键复现（自动按空格色注珠）',
+    ].join('\n');
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  setTimeout(() => (window as unknown as { __gldKick?: () => void }).__gldKick?.(), 400);
+}
+
 requestAnimationFrame(frame);
 
 // Expose for console poking during development.
