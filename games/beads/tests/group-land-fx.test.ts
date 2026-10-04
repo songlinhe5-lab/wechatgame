@@ -189,3 +189,39 @@ describe('所有落珠都播（T-244 修正三批 · 取消组批量限制）', 
         expect(s.groupLandElapsedMs, '起播帧 elapsed ≈ 0（无额外延迟）').toBeLessThan(SOLVER_STAGGER_MS);
     });
 });
+
+describe('帧级错峰时序（T-244 四批「乙」· 防回归）', () => {
+    it('⑧ 三颗：第 1 颗有 pop 时第 2/3 颗处于隐藏（glHidden）· 80ms 后第 2 颗进场', () => {
+        const h = mk('wxgame.beads.test.t244-frame');
+        makeEmpty(h, 1, 1, 3);
+        makeEmpty(h, 2, 1, 3);
+        makeEmpty(h, 3, 1, 3);
+        for (let k = 0; k < 3; k += 1) h.game.giveTrayBead(2);
+        h.advance(FRAME);
+        h.game.selectTraySlot(h.game.snapshot.traySlots.findIndex((t) => t.state === 'holding'));
+        h.game.tapGridCell(1, 1);
+
+        // 复刻 view 侧判定（`view-model.ts:984-987`）—— ⛔ 不 import view，钉**契约**而非实现
+        const tAt = (step: number): number =>
+            h.game.snapshot.groupLandElapsedMs - groupLandOffsetMs(step);
+        let s = h.game.snapshot;
+        expect(s.groupLandCount, '三颗都登记（steps = 0,1,2）').toBe(3);
+        expect(Array.from(s.groupLandSteps.slice(0, 3))).toEqual([0, 1, 2]);
+
+        // 起播帧：第 1 颗在 pop 窗口（t>0）、第 2/3 颗未轮到（t<=0 ⟹ 隐藏）
+        h.advance(FRAME);
+        s = h.game.snapshot;
+        expect(tAt(0), '第1颗已进窗口').toBeGreaterThan(0);
+        expect(tAt(1), '第2颗未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
+        expect(tAt(2), '第3颗未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
+
+        // 过 80ms：第 2 颗进窗口、第 3 颗仍隐藏
+        h.advance(SOLVER_STAGGER_MS / 1000 + FRAME);
+        s = h.game.snapshot;
+        expect(tAt(1), '第2颗已进窗口').toBeGreaterThan(0);
+        expect(tAt(2), '第3颗仍未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
+        // 第 1 颗已走完窗口（80 + 17 > 120）。⚠ 放宽一帧容差：帧时长量化（16.7ms）会让
+        // 实测 116.7ms 落在 120ms 窗口内尾缘 —— 判「走完」不该对量化误差敏感。
+        expect(tAt(0), '第1颗已走完（±1 帧容差）').toBeGreaterThan(SOLVER_PER_BEAD_MS - 1000 / 60);
+    });
+});
