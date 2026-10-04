@@ -17,7 +17,6 @@ import {
   SELECT_LIFT_PX,
   GROUP_LAND_DROP_PX,
   SELECT_LIFT_ANGLE,
-  TRAY_SELECTED_LIFT_PX,
   HUD_BAND,
   PANEL_SCALE_FROM,
   PANEL_SCRIM_ALPHA,
@@ -854,13 +853,10 @@ function drawGrid(
   const sizeSmall = snap.beadSize === BEAD_SIZE_SMALL;
   const beadDrawInset = sizeSmall ? BEAD_DRAW_INSET_SMALL : BEAD_DRAW_INSET;
   /**
-   * **抬起量的等比因子**（`bead-visual-style-spec §11.6` 追记）：`SELECT_LIFT_PX` / `WAVE_LIFT_PX`
-   * 是**静息档（`gridCell = BEAD_CELL`）**基准值，而珠体边长、B0 底图、分离影全是比例制
-   * ⇒ 抬起量不缩就会与影脱钩（fit 档实测间隙占格径比例翻倍 = “小豆抬得更高、影离得更远”）。
-   * 算式沿用 `bead-render.ts` 内缩的同形归一：`基准值 × outer / BEAD_CELL`（先乘后除 ⇒
-   * **恒等档逐位不变**：`6 × 30 / 30 = 6` 精确，不破 seal/复现类判据）。
+   * 抬起量的等比因子（**盘面与托盘同一式**，T-244 十三批④）⇒ 理据与负面后果见
+   * `selectLiftScale` 函数注（本行不再重列，⛔ 两处各写一遍就是本批要收掉的东西）。
    */
-  const liftScale = snap.gridCell / BEAD_CELL;
+  const liftScale = selectLiftScale(snap);
   // 组内错峰的名序基准（`boardGroupRows` 已是 game 侧消费序，锚在序首）；颗数 ≤ 1 ⇒ 0 = 无错峰。
   const groupLastRank = snap.boardGroupCount - 1;
   for (let i = 0; i < snap.gridRows; i++) {
@@ -1121,7 +1117,10 @@ function drawGrid(
         // 在珠前 ⇒ 珠体自然遮住影的上半，只露下弧 ⇒ 读作「圆珠投在槽里」而非「半个圆饼」。
         // 半径**跟珠轮廓**、⛔ 不跟槽（推导见 `bead-render::drawLiftBeadShadow` 头注）。
         // [T-244 十二批] 口径入 `drawLiftShadowOn`（与托盘共用一处，参该函数注）。
-        drawLiftShadowOn(builder, bx, cy, cell.colorIdx, inks, snap.gridCell, beadDrawInset, groupLift);
+        // [T-244 十三批 · 用户裁「托盘直接用盘面的代码复用」] 影墨由 `cell.colorIdx`（格**目标色**）
+        // 改为**与下一行珠体逐字同参**（`beadColorIdx || colorIdx` = 珠色）⇒ 错位珠不再「灰珠投红影」。
+        // 物理口径：影由**投出它的物体**决定，与格面要求什么色无关（托盘侧本就是这个口径）。
+        drawLiftShadowOn(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, inks, snap.gridCell, beadDrawInset, groupLift);
       }
       // [T-244] 组落座「出现」语义：相位未到 ⇒ 本格**不画珠**（B0/坑/状态环正常）⇒
       // 视觉 = 从被点格起逐颗浮现。数据同帧已在盘（规则读取不受表现影响）。
@@ -1239,6 +1238,22 @@ function drawTrayPlateShading(
   builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width);
 }
 /**
+ * **抬起等比因子的唯一算式**（盘面 `drawGrid` / 托盘 `drawTray` 共用，T-244 十三批 ③④）。
+ *
+ * 理据（`bead-visual-style-spec §11.6` 追记）：`SELECT_LIFT_PX` / `WAVE_LIFT_PX` 是**静息档**
+ * （`gridCell = BEAD_CELL`）基准值，而珠体边长、B0 底图、分离影全是比例制 ⇒ 抬起量不缩就会与
+ * 影脱钩（fit 档实测间隙占格径比例翻倍 = “小豆抬得更高、影离得更远”）。算式沿用 `bead-render.ts`
+ * 内缩的同形归一：`基准值 × outer / BEAD_CELL`（先乘后除 ⇒ **恒等档逐位不变**：`6 × 30 / 30 = 6`
+ * 精确，不破 seal/复现类判据）。
+ *
+ * ⚠ **十三批把它一并发给托盘的代价（诚实记）**：托盘槽不随棋盘变尺（`TRAY_SLOT` 恒 30）⇒
+ * 乘本因子后托盘抬起与**自己的槽**脱钩（fit 档抬得更少、放大档最多 `6 × CAMERA_ZOOM_MAX`）。
+ * 用户 2026-10-04 明令并轨 ⇒ 要恢复「恒绝对」只需去掉 `drawTray` 里的那个因子。
+ */
+function selectLiftScale(snap: BeadsSnapshot): number {
+  return snap.gridCell / BEAD_CELL;
+}
+/**
  * **抬起分离影的唯一调用口径**（盘面 `drawGrid` / 托盘 `drawTray` 共用）。
  *
  * [T-244 十二批 · 2026-10-04 用户报「盘面阴影 OK，但托盘的珠子阴影还是不行」]
@@ -1247,9 +1262,9 @@ function drawTrayPlateShading(
  * 落进 **`FALLBACK_ENDPOINTS` 炭黑**（且控制台只响一次）⇒ 托盘读作「一块黑」而盘面读作「珠色影」。
  * ⇒ 收拢到本函数：影墨跟珠色、`liftX` 算一次、`lift <= 0` 早退（静息帧零图元 ⇒ 封箱基线不变）。
  *
- * ⚠ **合并的是口径，不是参数值**：两处的 `size` / `drawInset` / `lift` 仍按各自的档传
- *（盘面 `snap.gridCell` 随 zoom 等比；托盘 `TRAY_SLOT` 恒绝对值）⇒ 参
- * `tuning.TRAY_SELECTED_LIFT_PX` / `SELECT_LIFT_PX` 两条注。
+ * ⚠ **合并的是口径，不是参数值**：两处的 `size` / `drawInset` 仍按各自的档传（盘面 `snap.gridCell`
+ * 随 zoom 等比；托盘 `TRAY_SLOT` 恒 30）；**`lift` 自十三批起逐字同源**（同 `SELECT_LIFT_PX` ×
+ * 同 `selectLiftScale`）⇒ 参 `tuning.SELECT_LIFT_PX` 注。
  */
 function drawLiftShadowOn(
   builder: RenderModelBuilder,
@@ -1326,13 +1341,16 @@ function drawTray(
     }
 
     const selected = slot.state === 'selected';
-    // Selected: lift 4px + darker L0 shadow + indicator dot (§1.2 selected row).
+    // Selected: lift + darker L0 shadow + indicator dot (§1.2 selected row).
     // §5 v1.5-r10：与板锚组共用 `liftProgress` ⇒ 不会出现“板上的珠在抬、托盘的珠瞬跳”。
-    // ⚠ 托盘**故意不乘 `liftScale`**（板上要走等比）：托盘带不随棋盘相机变尺，
-    //   珠与槽同源 ⇒ 无脱钩面（口径正本 = `tuning.TRAY_SELECTED_LIFT_PX` 注）。
+    // [T-244 十三批 ③④ · 用户裁「抬起量并轨 + 乘 `liftScale`」] 与盘面**逐字一条式**：
+    //   `SELECT_LIFT_PX × selectLiftScale(snap) × liftEase(liftProgress)`。旧常量
+    //   `TRAY_SELECTED_LIFT_PX`（裁定链 4→9→14→9）已删，沿革见 `memory/2026-10-04.md`；
+    //   ⚠ 托盘槽不随棋盘变尺 ⇒ 本因子对托盘是**跨域耦合**（理据与代价见 `selectLiftScale`）。
     // 曲线与板上同源（ease-in-out + 回弹）；托盘无组 ⇒ 不参错峰。
     const lift = selected
-      ? TRAY_SELECTED_LIFT_PX *
+      ? SELECT_LIFT_PX *
+      selectLiftScale(snap) *
       (snap.reduceMotion ? 1 : liftEase(snap.liftProgress))
       : 0;
     // §5 斜上 15°（2026-09-27 用户拍板）：托盘珠同步斜上，与板上同口径。
@@ -1350,10 +1368,19 @@ function drawTray(
     // ⇒ 范围由「仅选中态」扩到「**所有有珠的槽**」：静息时珠面 26 / 格面 30 本该露出 **4dp 坑沿**，
     //   此前不画槽 ⇒ 珠四周什么都没有（读作浮在面板上）；现在静息也见坑沿（珠「坐进」坑里），
     //   抬起时珠从坑里升起 ⇒ 两种状态语言一致。
-      drawEmptySocket(
-        builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
-        { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
-      );
+    // [T-244 十四批 · 用户报「托盘珠发白」· 实测孔心 托盘 (172,172,175) vs 盘面 (142,37,34)]
+    // **有珠的槽必须带色**。tint 臂的珠孔是**真透**（mask ⌀12 alpha ⇒ 透出下层格面 blit，
+    // 实测孔心 = 下层基色 × 0.70）⇒ 这里 `colorIdx` 传 `undefined` 时 socket 落 `palette.slot`
+    // （#F7F6FB 近白）⇒ 托盘珠的孔读作「贴在珠面上的浅灰贴纸」，而盘面珠透的是**目标色**格底（深）
+    // ⇒ 同一颗珠、同一条绘制序，两个域两种话。矢量臂无此病灶（`facet-4` 自画实色孔底
+    // `pit(targetColorIdx ?? colorIdx)`）⇒ **本缺陷只存在于 tint 臂 = 生产臂**。
+    // ⇒ 口径 = 矢量臂契约的同一回落：**托盘没有目标色 ⇒ 用珠自己的颜色**。
+    // ⚠ **空槽不受本批影响**（上方 `state === 'free'` 分支恒 `undefined` = 中性）⇒ v6.0
+    //   「托盘保持中性收纳区读感」的裁定不动，本批改的只是**有珠处透出什么色**。
+    drawEmptySocket(
+      builder, cx, cy, palette, TRAY_SLOT, slot.colorIdx, inks, false, BEAD_DRAW_INSET,
+      { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
+    );
     // [WXG-T-242 · 2026-10-04 用户裁「阴影要加深、凸显被选中的效果」] 托盘**补分离影**。
     //
     // ⚠ 病灶：托盘抬起**原本没有任何分离影**（全仓仅盘面一处 `drawLiftBeadShadow` 调用）
@@ -1367,8 +1394,15 @@ function drawTray(
     // `fillPopEnvelope` 压下（零新缓动、零新常量，总窗 = GROUP_LAND_TOTAL_MS 200ms）。
     // [T-244 九批] 多槽队列 + 按落珠序错峰（与盘面 groupLand 同构，复用甲案预算函数）：
     // 未轮到的珠（t≤0）drop=DROP ⟹ 悬在槽上方 22px，随序依次落下。
+    //   ⚠ 本句已被**十三批**的 `tlHidden` 推翻（未轮到 ⇒ 不画，与盘面同话）；留下只因为
+    //   `tlDrop` 本身仍从 DROP 起算（**轮到**的那颗确实是从 22dp 落下来的）。
     let tlDrop = 0;
     let tlScale = 1;
+    // [T-244 十三批 · 用户裁「托盘动画与盘面不一致」] 「出现」语义与盘面**同一句**：
+    // `step > 0 && t <= 0` ⇒ 相位未到 ⇒ **不画珠**（槽底照常画）。此前九批的队列只补了
+    // 错峰、没补这条 ⇒ 未轮到的珠**冻在槽上方 `GROUP_LAND_DROP_PX`(22dp)** 再落下（22 > 半槽 15
+    // ⇒ 珠整个悬在槽外沿之上）⇒ 多颗进珠读作「一串珠子浮在托盘上」，与盘面「逐颗浮现」不同话。
+    let tlHidden = false;
     if (snap.trayLandCount > 0) {
       let tlStep = -1;
       for (let k = 0; k < snap.trayLandCount; k++) {
@@ -1381,6 +1415,7 @@ function drawTray(
         const tlMax = snap.trayLandSteps[snap.trayLandCount - 1]!;
         const tlT = snap.trayLandElapsedMs - groupLandOffsetMs(tlStep, tlMax);
         const tlP = tlT > 0 ? Math.min(1, tlT / groupLandPerBeadMs(tlMax)) : 0;
+        tlHidden = tlStep > 0 && tlT <= 0;
         tlDrop = groupLandDropDy(tlP, GROUP_LAND_DROP_PX);
         if (tlP > 0) {
           const tp: FillPopEnvelope = { scale: 1, contactAlpha: 0, contactWidth: 0, shadowAlpha: 0, shadowDy: 0 };
@@ -1394,7 +1429,8 @@ function drawTray(
     // ⚠ 只吃 `lift`（选中抬起），**不吃 `tlDrop`**（进珠下落）—— 与盘面 `glPopP` 同款口径：
     //   下落包络的影仍属未闭项（影顶会跟不上快速下落的珠底）。
     drawLiftShadowOn(builder, cx, cy, slot.colorIdx, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift);
-    drawFilledBead(builder, cx, cy, slot.colorIdx, {
+    // [T-244 十三批] 相位未到 ⇒ 整颗珠不画（同盘面 `glHidden`）；槽底已在上方画过 ⇒ 读作「坑先亮、珠后现」。
+    if (!tlHidden) drawFilledBead(builder, cx, cy, slot.colorIdx, {
       // [WXG-T-237 v4.0 · 1:1] `outer` = `TRAY_SLOT`(=`BEAD_CELL` 30)，内缩走 `BEAD_DRAW_INSET`
       // ⇒ 珠面 **26** = 盘面珠面（1:1）。⛔ 旧值 `TRAY_BEAD_SIZE 44` 属已废的托盘独立体系。
       // ⚠ `targetColorIdx` 必须与盘面同传：`drawFilledBead` 的 `inset` 只在它存在时才生效

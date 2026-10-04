@@ -532,9 +532,9 @@ K6 L4′ | L4a–c 三条并为一枚（取 `softHighlight[1]` 几何与 α）�
 
 | 通道 | 归一算式 | 恒等档 |
 |---|---|---|
-| 板锚组抬起 / 波浪微抬 | `基准值 × snap.gridCell / BEAD_CELL`（`view-model::liftScale`，与 `inset` 同形） | `6 × 30 / 30 = 6` **逐位不变** |
+| 板锚组抬起 / 波浪微抬 | `基准值 × snap.gridCell / BEAD_CELL`（`view-model::selectLiftScale`，与 `inset` 同形） | `6 × 30 / 30 = 6` **逐位不变** |
 | `liftT`（高度参量） | `lift / (liftRef × outer / BEAD_CELL)`，再 `Math.min(1, ·)` | = 1 ⇒ 与旧值等 |
-| 托盘 `TRAY_SELECTED_LIFT_PX` | **恒绝对**：托盘带不随相机变尺 ⇒ 无脱钩面 | — |
+| 托盘选中抬起 | **同上一式**（`SELECT_LIFT_PX × selectLiftScale(snap)`，T-244 十三批 ③④ 用户裁并轨）。旧常量 `TRAY_SELECTED_LIFT_PX`（裁定链 4→9→14→9）已删，全文见 `memory/2026-10-04.md`。<br>⚠ **代价诚实记**：托盘槽不随棋盘变尺（`TRAY_SLOT` 恒 30）⇒ 本因子对托盘是**跨域耦合**：fit 档抬得更少、放大档抬到 `6 × CAMERA_ZOOM_MAX` ⇒ 珠上沿越槽。回滚 = 去掉 `drawTray` 的因子即恢复「恒绝对」 | 恒等档 `6` |
 
 - **为什么 `liftT` 的分母也得改**：只缩 `lift` 不改分母 ⇒ 胀档 `liftT = 18/6 = 3` ⇒ `liftScaleGain` 由 4% 变 **12%**，越过 C5「scale 峰值合计 < 1.12」前提，且间隙比例从 0.0787 掉到 0.0493 = **各档不同形**。
 - **对照臂不改**：`bead-styles/legacy-ten.ts` 内同名算式保持原样（「逐字封入、函数体一行未改」就是回退阀的定义）⇒ 其四条通道在胀档仍按静息档归一，差异只在对照臂可见，在此登记不静默。

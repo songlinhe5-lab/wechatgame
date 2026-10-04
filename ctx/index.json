@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "409325365de94a6d79f885046929c58d2b458582cc39cd35467463de209b14be",
+      "sha256": "b74d0c0e43793a7b777972e73940c4eff7f89d8b96aff3c8fad70807da12b999",
       "tier": "normal",
       "sections": [
         {
@@ -28533,9 +28533,9 @@
     },
     {
       "path": "games/beads/design/proposals/bead-visual-style-spec.md",
-      "tokens": 43515,
+      "tokens": 43641,
       "lines": 1206,
-      "sha256": "71c0edcb14f207c484315808be980a94164ef0048e8b12b0baec544a39259c0e",
+      "sha256": "ede090f27a39f6b4b0847c20b1d060a825791f768528fad664f976e8e3513c3e",
       "tier": "normal",
       "sections": [
         {
@@ -28543,7 +28543,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 1207,
-          "tokens": 43497,
+          "tokens": 43622,
           "summary": "状态 = 已确认・待落码（用户 2026-09-23：Q1–Q7 全按推荐、Q8 = (c)）。决议表见 §9，17 套",
           "keywords": [
             "§9",
@@ -28804,7 +28804,7 @@
           "level": 2,
           "startLine": 268,
           "endLine": 583,
-          "tokens": 8217,
+          "tokens": 8343,
           "summary": "",
           "keywords": [
             "实施记录"
@@ -28888,7 +28888,7 @@
           "level": 3,
           "startLine": 480,
           "endLine": 549,
-          "tokens": 2127,
+          "tokens": 2252,
           "summary": "让号自查（承 assets-spec 头注 r14 判例：v1.5-rN = 全工作室共用批次号）：首稿误写 r11，",
           "keywords": [
             "r15",
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 17462,
-      "lines": 594,
-      "sha256": "319a8f16b287cf8903fae3fc6b3af7d3d0b844a59cf0fc9b2a5308783843b95a",
+      "tokens": 19715,
+      "lines": 667,
+      "sha256": "136953ce998b51a9c21256c430fda1ed09f1646397375c37c6fb91ca3c8ab115",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 595,
-          "tokens": 17459,
+          "endLine": 668,
+          "tokens": 19712,
           "summary": "",
           "keywords": []
         },
@@ -50690,6 +50690,38 @@
             "用户报",
             "盘面影"
           ]
+        },
+        {
+          "anchor": "§T-244 十三批（用户裁「托盘直接用盘面的代码复用」）：进珠「出现」语义并轨 + 盘面影墨改珠色",
+          "level": 3,
+          "startLine": 596,
+          "endLine": 639,
+          "tokens": 1300,
+          "summary": "十二批那笔已提交 6385049（pre-commit 五门全绿）。本批开工前先取图证：",
+          "keywords": [
+            "pre",
+            "commit",
+            "十三批",
+            "用户裁",
+            "托盘直接用盘",
+            "面的代码复用"
+          ]
+        },
+        {
+          "anchor": "§T-244 十四批（用户报「这个是有问题的展示，再确认托盘的珠子逻辑和盘面是否完全一致」）：托盘珠孔发白",
+          "level": 3,
+          "startLine": 640,
+          "endLine": 668,
+          "tokens": 861,
+          "summary": "先做全量对齐盘点（不猜）：drawGrid vs drawTray 逐参比对 + 离线探针",
+          "keywords": [
+            "drawGrid",
+            "drawTray",
+            "十四批",
+            "用户报",
+            "这个是有问题",
+            "的展示"
+          ]
         }
       ]
     },
@@ -50697,7 +50729,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "6804819da3b98f07819d8cd377a32220626aac2f58151f00bd3d23b6e81a3ed2",
+      "sha256": "80945f22818cc8093683af49b66aaf9d9d6afe871d27738bbc617ffeb77b7c28",
       "tier": "normal",
       "sections": [
         {
@@ -50788,7 +50820,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 17,462 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 19,715 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

@@ -13,6 +13,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { TRAY_BASE_SLOTS } from '../src/config/tuning.js';
 import {
+  GROUP_LAND_DROP_PX,
   TAP_HINT_NO_SELECTION_TEXT,
   gridLayoutFor,
   powerupCardRects,
@@ -22,7 +23,7 @@ import {
 } from '../src/config/tuning.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
-import { DEFAULT_PALETTE, DEMO_BEAD_INKS, endpointOf, withAlpha } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS, beadColorOf, endpointOf, withAlpha } from '../src/view/palette.js';
 import { LIFT_SHADOW_ALPHA } from '../src/config/tuning.js';
 import { RenderModelBuilder, type DrawCommand } from '../../../packages/framework/src/core/render/render-model.js';
 import { buildBeadsView } from '../src/view/view-model.js';
@@ -525,6 +526,39 @@ describe('托盘选中态画坑（WXG-T-240）', () => {
     });
 });
 
+// ── [T-244 十四批 · 2026-10-04 用户报「托盘的珠子有问题」] ─────────────────────
+//
+// 实测（tint 臂 = 生产臂）：托盘珠孔心 (172,172,175) 浅灰 vs 盘面珠孔心 (142,37,34) 深色。
+// 病因：tint 臂的珠孔**真透**（mask ⌀12 alpha ⇒ 孔色 = 下层槽面 tint 基色 × 0.70），
+//   而有珠的槽曾把 `colorIdx` 传成 `undefined` ⇒ 基色落 `palette.slot`（#F7F6FB 近白）。
+//   盘面传的是**格目标色** ⇒ 同一颗珠两个域两种话。矢量臂无此病灶（`facet-4` 自画实色
+//   孔底 `pit(targetColorIdx ?? colorIdx)`）⇒ 本缺陷**只在生产臂可见**。
+// 修法：托盘无目标色 ⇒ 按矢量臂契约的同一回落，**传珠自己的 `colorIdx`**。
+// ⛔ 空槽（`state === 'free'`）恒中性 ⇒ v6.0「托盘保持中性收纳区」裁定不受本批影响。
+describe('托盘有珠的槽必须带珠色（T-244 十四批 · 孔底透出）', () => {
+    it('有珠槽的 socket 亮底 ≡ 该珠 `colorIdx` 的 base（⛔ 不得仍是中性 `palette.slot`）', () => {
+        const h = mkHarness('wxgame.beads.test.t244-tray-socket-ink');
+        h.game.giveTrayBead(3);
+        h.advance(0.4);                                   // 进珠包络越窗（⚠ 单位 = **秒**）
+        const snap = h.game.snapshot;
+        const slot = snap.traySlots[0]!;
+        expect(slot.state, '前置：第 0 槽应有珠').toBe('holding');
+
+        const lay = trayLayout(1);
+        const cx = lay.slotCenterX(0);
+        const cy = lay.slotCenterY(0);
+        // socket 自带亮底 = 唯一一枚**槽径 30**、居槽心的 rect（珠面 26 / 面板 radius 18 大得多 ⇒ 不撞）
+        const base = (renderSnap(snap) as readonly { kind: string; x?: number; y?: number; w?: number; fill?: string }[]).filter(
+            (k) => k.kind === 'rect' && k.w === TRAY_SLOT
+                && Math.abs((k.x ?? 0) + TRAY_SLOT / 2 - cx) < 0.01
+                && Math.abs((k.y ?? 0) + TRAY_SLOT / 2 - cy) < 0.01,
+        );
+        expect(base.length, '有珠的槽须画出自带亮底（socket base）').toBe(1);
+        expect(base[0]!.fill, '孔底基色 ≡ 珠色（tint 臂透出的就是它）').toBe(beadColorOf(DEMO_BEAD_INKS, slot.colorIdx));
+        expect(base[0]!.fill, '⛔ 不得回退成中性 slot 底（旧口径 ⇒ 托盘珠孔发白）').not.toBe(DEFAULT_PALETTE.slot);
+    });
+});
+
 // ── [T-244 十二批 · 2026-10-04 用户报「盘面阴影 OK，但托盘的珠子阴影还是不行」] ──
 //
 // 病因：`drawLiftBeadShadow` 有 **9 个同类型位置参数**，托盘调用把 `TRAY_SLOT`(30) 填进了
@@ -538,7 +572,7 @@ describe('托盘选中态画坑（WXG-T-240）', () => {
 //
 // ⛔ 本例锁的是**调用侧**：`bead-render.test.ts` ①③ 直接调函数、自己传 colorIdx，
 //   对「槽位填错」零判别力（K-035/K-060 同族的验证盲区）。
-describe('抬起影墨两处同口径（T-244 十二批）', () => {
+describe('抬起影墨与进珠「出现」两处同口径（T-244 十二/十三批）', () => {
     /** 一帧里的多边形墨列表（影 = 抬起帧相对静息帧**新出现**的那一条）。 */
     const polyFills = (cmds: readonly DrawCommand[]): string[] =>
         cmds.filter((c) => c.kind === 'polygon').map((c) => (c as { fill?: string }).fill ?? '');
@@ -563,5 +597,62 @@ describe('抬起影墨两处同口径（T-244 十二批）', () => {
         const fallbackInk = withAlpha(endpointOf(DEMO_BEAD_INKS, TRAY_SLOT).shadeOuter, LIFT_SHADOW_ALPHA);
         expect(fallbackInk, '前置：`TRAY_SLOT` 越出色板 ⇒ 该墨即兜底炭黑').not.toBe(ink);
         expect(added, '⛔ 影墨不得走越界兜底炭黑（托盘曾填错槽位的事故值）').not.toContain(fallbackInk);
+    });
+
+    it('盘面选中抬起影墨 ≡ **珠色**（⛔ 不得是格目标色 ⇒ 错位珠「灰珠投红影」）', () => {
+        const h = mkHarness('wxgame.beads.test.t244-board-lift-ink');
+        const game = h.game;
+        fillBoardInPlace(game);
+        // 同色错位对（WXG-T-157 组选筛色口径）：两颗珠同为色 3，两格目标色互异且均 ≠3
+        // ⇒ 新码下影墨集 = {色3 墨}，旧码下 = {两格目标色墨} ⇒ 两条腿都能红（非假绿）。
+        game.grid.setBead(0, 0, 3);
+        game.grid.setBead(1, 1, 3);
+        h.advance(0.2);
+
+        const rest = game.snapshot;
+        expect(rest.cells[0]!.beadColorIdx, '前置：(0,0) 须为错位珠').not.toBe(rest.cells[0]!.colorIdx);
+        const restFills = polyFills(renderSnap(rest));
+
+        expect(game.selectBoardBead(0, 0), 'board 锚建立').toBe(true);
+        h.advance(0.4);                                                 // 越过 SELECT_LIFT_MS = 200ms
+        const snap = game.snapshot;
+        const added = polyFills(renderSnap(snap)).filter((f) => !restFills.includes(f));
+
+        const cell = snap.cells[0]!;
+        const inkOf = (idx: number) => withAlpha(endpointOf(DEMO_BEAD_INKS, idx).shadeOuter, LIFT_SHADOW_ALPHA);
+        expect(added, '抬起帧影墨须跟珠体同族').toContain(inkOf(cell.beadColorIdx));
+        expect(added, '⛔ 影不得取格**目标色**（本批之前的旧口径）').not.toContain(inkOf(cell.colorIdx));
+    });
+
+    it('托盘进珠：相位未到的珠**不画**（⛔ 不得悬在槽上方等待落下，同盘面 `glHidden`）', () => {
+        const h = mkHarness('wxgame.beads.test.t244-tray-hidden');
+        const game = h.game;
+        // 本盘默认无错位珠（`noAssemble`）⇒ 同上一例口径手工造两颗同色错位珠。
+        fillBoardInPlace(game);
+        game.grid.setBead(0, 0, 3);
+        game.grid.setBead(1, 1, 3);
+        h.advance(0.2);
+        expect(game.grid.isMisplaced(0, 0) && game.grid.isMisplaced(1, 1), '前置：两格皆错位珠').toBe(true);
+        // 同帧两次取回 ⟹ 多槽队列 steps = [0,1]（九批），且 `elapsedMs` 仍为 0
+        expect(game.retrieveBead(0, 0), '第一颗取回').toBe(true);
+        expect(game.retrieveBead(1, 1), '第二颗取回').toBe(true);
+        const snap = game.snapshot;
+        expect(snap.trayLandCount, '前置：托盘队列须有 2 颗').toBe(2);
+        expect(snap.trayLandSteps[1], '前置：第二颗错峰序号 > 0').toBeGreaterThan(0);
+
+        const cmds = renderSnap(snap);
+        /** 该槽「悬空位」（槽心 + 22dp）上是否有图元（r=6 ⇒ 只抓得到以珠心为圆心的层）。 */
+        const artAtHover = (slot: number): number => {
+            const p = trayPoint(game, slot);
+            return cmds.filter((k) => {
+                const x = (k as { x?: number; cx?: number }).x ?? (k as { cx?: number }).cx;
+                const y = (k as { y?: number; cy?: number }).y ?? (k as { cy?: number }).cy;
+                return x !== undefined && y !== undefined
+                    && Math.hypot(x - p.x, y - (p.y + GROUP_LAND_DROP_PX)) <= 6;
+            }).length;
+        };
+        expect(artAtHover(snap.trayLandSlots[1]!), '⛔ 未轮到的珠不得悬在槽上方').toBe(0);
+        // 对照腿：轮到的那颗（step 0）此刻确实从 22dp 处落下 ⇒ 同高度必须有珠。
+        expect(artAtHover(snap.trayLandSlots[0]!), '对照：step 0 那颗在落体起点').toBeGreaterThan(0);
     });
 });
