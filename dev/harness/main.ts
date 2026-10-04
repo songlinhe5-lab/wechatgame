@@ -577,7 +577,7 @@ if (GLD) {
       `groupLand=${s.groupLandCount} elapsed=${s.groupLandElapsedMs.toFixed(0)}ms`,
       `steps=[${Array.from(s.groupLandSteps.slice(0, 4)).join(',')}]`,
       `cells=[${Array.from(s.groupLandRows.slice(0, 3)).map((r, k) => `${r},${s.groupLandCols[k]}`).join(' ')}]`,
-      `tray holding=${holding} filled=${filled}/${s.cells.length} Δ=${dFilled}`,
+      `托盘待用=${holding} filled=${filled}/${s.cells.length} Δ=${dFilled}`,
       // ★ 关键区分：Δfilled > 0 而 groupLand=0 ⟹ **珠落了但延迟队列没登记**（本批 bug）
       //   Δfilled = 0 ⟹ 珠压根没落（裁决层拒：无对色空格 / 点到满格 / 无托盘选中）
       dFilled > 0 && s.groupLandCount === 0 ? '⚠️ 落了珠但队列未登记' : '',
@@ -587,16 +587,24 @@ if (GLD) {
         for (const c of s.cells) if (c.state === 'empty' && c.colorIdx > 0) m.set(c.colorIdx, (m.get(c.colorIdx) ?? 0) + 1);
         return [...m.entries()].map(([k, v]) => `${k}×${v}`).join(' ') || '无';
       })()}`,
-      // ★ 选中色 vs 空格色：**色不匹配 ⟹ judgePlacement rejected ⟹ 不落珠 ⟹ 队列不登记**
-      //   （这是「点了没变化」第二大原因；面板必须同框显示两者）
+      // ★ 选中色 = **点选中的那颗**（`traySelected` 锚槽），⛔ 不是「全部 holding 槽」。
+      //   首版抓 `state === 'holding'`（= 托盘待用珠，非选中）⟹ 点不同珠也显示同一色 = 误导。
       `选中色=${(() => {
-        const h = s.traySlots.filter((t) => t.state === 'holding');
-        const c = [...new Set(h.map((t) => t.colorIdx))];
+        const idx = s.traySelected;
+        if (idx < 0 || !s.traySlots[idx] || s.traySlots[idx]!.state === 'free') {
+          return '无（先点托盘珠）';
+        }
+        const c = s.traySlots[idx]!.colorIdx;
         const em = new Set(
           s.cells.filter((x) => x.state === 'empty' && x.colorIdx > 0).map((x) => x.colorIdx),
         );
-        if (c.length === 0) return '无（先点托盘珠）';
-        return `${c.join('/')} → ${c.some((x) => em.has(x)) ? '✅ 有对色空格可落' : '⛔ 无对色空格（点了会被拒）'}`;
+        return `${c}（槽${idx}） → ${em.has(c) ? '✅ 有对色空格可落' : '⛔ 无对色空格（点了会被拒）'}`;
+      })()}`,
+      // 托盘待用珠的颜色分布（判断「托盘里到底有几种色」；⛔ 与「选中色」区分开）
+      `托盘色=${(() => {
+        const m = new Map<number, number>();
+        for (const t of s.traySlots) if (t.state !== 'free') m.set(t.colorIdx, (m.get(t.colorIdx) ?? 0) + 1);
+        return [...m.entries()].map(([k, v]) => `${k}×${v}`).join(' ') || '无';
       })()}`,
       '按 R = 一键复现（自动按空格色注珠）',
     ].join('\n');
