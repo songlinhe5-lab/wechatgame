@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "4362fd13d41cb137939c911eaca027e3ab856092d579b64f2da812c8ab8b2be7",
+      "sha256": "c12409f726c186ee9881443e50d83a0f4f17f0378c538b13c926a34618ec6694",
       "tier": "normal",
       "sections": [
         {
@@ -425,7 +425,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 391,
-          "summary": "1 games/beads/art/assets-spec.md 108281 1937 normal",
+          "summary": "1 games/beads/art/assets-spec.md 108866 1962 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -441,7 +441,7 @@
           "startLine": 46,
           "endLine": 110,
           "tokens": 2220,
-          "summary": "games/beads/art/assets-spec.md 108281 见 ctx/budget-exempt.js",
+          "summary": "games/beads/art/assets-spec.md 108866 见 ctx/budget-exempt.js",
           "keywords": [
             "tokens",
             "games",
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5146,
       "lines": 86,
-      "sha256": "70842381543a5964ec357b49443d4f8e5036729c0408cff3f3d9a627ff9d3d9e",
+      "sha256": "99d0b539b43f495ad3b53678430e0367f66a7f8983857c3b9fe417442261fbb3",
       "tier": "normal",
       "sections": [
         {
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 2386 行 / 82728 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 2415 行 / 83257 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 81,
           "tokens": 1075,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2387 · §WXG-T-179=18+78 · §WXG-T-18",
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2416 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -12565,17 +12565,17 @@
     },
     {
       "path": "games/beads/art/assets-spec.md",
-      "tokens": 108281,
-      "lines": 1937,
-      "sha256": "36e3e9c2949898e672389569ded973d008d01aba57bca16ce0889f6c66b9f03a",
+      "tokens": 108866,
+      "lines": 1962,
+      "sha256": "e9b72a9b13995ee341f194a9071f4e72d5eb8e17650739e09f42fc46db97bef7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》资产规格表（Asset Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 1938,
-          "tokens": 108266,
+          "endLine": 1963,
+          "tokens": 108851,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -12601,8 +12601,8 @@
           "anchor": "§1 资产清单（可见元素规格表）",
           "level": 2,
           "startLine": 40,
-          "endLine": 1851,
-          "tokens": 86830,
+          "endLine": 1876,
+          "tokens": 87415,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -12685,8 +12685,8 @@
           "anchor": "§1.6 VFX 参数卡（**v1.4 全量升级**：4 行简表 → 7 张可直接落码卡）",
           "level": 3,
           "startLine": 252,
-          "endLine": 1236,
-          "tokens": 36166,
+          "endLine": 1261,
+          "tokens": 36751,
           "summary": "升级理由：v1.3 的 §1.6 只有四行一句话描述（如「scale 1.06→1.0，120ms ease-out-b",
           "keywords": [
             "§1.6",
@@ -12700,8 +12700,8 @@
         {
           "anchor": "§1.7 拼图容器板 + 暖光 band 参数卡（丙案核心，F2/F3） `[v1.3]`",
           "level": 3,
-          "startLine": 1237,
-          "endLine": 1263,
+          "startLine": 1262,
+          "endLine": 1288,
           "tokens": 549,
           "summary": "渲染原语无渐变/模糊 ⇒ 暖晕用同心圆角 rect 叠层 + 由外向内递增 α 模拟伪径向光；容器板复用面板同族 tok",
           "keywords": [
@@ -12716,8 +12716,8 @@
         {
           "anchor": "§1.8 背景层次参数卡（F8，解锁 v1.2「纯色无层次」自限） `[v1.3]`",
           "level": 3,
-          "startLine": 1264,
-          "endLine": 1291,
+          "startLine": 1289,
+          "endLine": 1316,
           "tokens": 2550,
           "summary": "",
           "keywords": [
@@ -12731,8 +12731,8 @@
         {
           "anchor": "§1.9 材质感质感语言卡（v1.5，WXG-T-131）",
           "level": 3,
-          "startLine": 1292,
-          "endLine": 1678,
+          "startLine": 1317,
+          "endLine": 1703,
           "tokens": 23537,
           "summary": "背景：玩法重塑「错位归位」（WXG-T-130）+ 用户裁定「暂时不需要支持色盲玩家，我需要的是珠子和托盘、棋盘都有质感",
           "keywords": [
@@ -12744,8 +12744,8 @@
         {
           "anchor": "§1.10 32 基珠体质感系数重定表（WXG-T-207-B，`[v1.5-r14]`）",
           "level": 3,
-          "startLine": 1679,
-          "endLine": 1851,
+          "startLine": 1704,
+          "endLine": 1876,
           "tokens": 9917,
           "summary": "⚠ 格内占比标准已独立成文（WXG-T-214，2026-09-26）：[art/cell-standard.md](c",
           "keywords": [
@@ -12760,8 +12760,8 @@
         {
           "anchor": "§2 未来真实资产替换提示词（AI 生成备用）",
           "level": 2,
-          "startLine": 1852,
-          "endLine": 1862,
+          "startLine": 1877,
+          "endLine": 1887,
           "tokens": 168,
           "summary": "bead_set candy-like 3d perler bead set, rounded square beads",
           "keywords": [
@@ -12776,8 +12776,8 @@
         {
           "anchor": "§3 图集策略",
           "level": 2,
-          "startLine": 1863,
-          "endLine": 1871,
+          "startLine": 1888,
+          "endLine": 1896,
           "tokens": 94,
           "summary": "demo（当前） 不建图集，全 Graphics，主包美术位图 = 0 KB",
           "keywords": [
@@ -12789,8 +12789,8 @@
         {
           "anchor": "§4 命名规范",
           "level": 2,
-          "startLine": 1872,
-          "endLine": 1881,
+          "startLine": 1897,
+          "endLine": 1906,
           "tokens": 132,
           "summary": "全小写 + 下划线；模式 {域}_{实体}_{变体}_{状态}.{ext}。",
           "keywords": [
@@ -12801,8 +12801,8 @@
         {
           "anchor": "§5 包体预算表（微信红线 vs 内部目标，**分清两条线**）",
           "level": 2,
-          "startLine": 1882,
-          "endLine": 1899,
+          "startLine": 1907,
+          "endLine": 1924,
           "tokens": 295,
           "summary": "微信红线（不可越） 主包 ≤ 4096 KB",
           "keywords": [
@@ -12815,8 +12815,8 @@
         {
           "anchor": "§6 交付与验收",
           "level": 2,
-          "startLine": 1900,
-          "endLine": 1938,
+          "startLine": 1925,
+          "endLine": 1963,
           "tokens": 4061,
           "summary": "[ ] 全部元素程序化绘制，无外部图片引用。",
           "keywords": [
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 11512,
-      "lines": 388,
-      "sha256": "38caa830e5609f181b7adc18ea99a7b37d496b00c94988152aa55c35eaf48c8e",
+      "tokens": 12125,
+      "lines": 408,
+      "sha256": "4d3042657993a9471d0cc0fbbe9d4f956e0f2d80856b13f6491050ea4ca4b3a7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 389,
-          "tokens": 11509,
+          "endLine": 409,
+          "tokens": 12122,
           "summary": "",
           "keywords": []
         },
@@ -50485,6 +50485,21 @@
             "盘面两条路径",
             "统一"
           ]
+        },
+        {
+          "anchor": "§WXG-T-244 乙案：间隔更明显但总时长仍 200ms（用户裁「乙」）",
+          "level": 3,
+          "startLine": 390,
+          "endLine": 409,
+          "tokens": 587,
+          "summary": "用户诉求：「落珠序用在托盘上，现在还没有实现」⟹ 我核实队列早已接在托盘路径",
+          "keywords": [
+            "WXG",
+            "乙案",
+            "间隔更明显但",
+            "总时长仍",
+            "用户裁"
+          ]
         }
       ]
     },
@@ -50492,7 +50507,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "cf8f8c9b1ac8050095988c903a8bedd3ed69f60254dafc36701463457c655b43",
+      "sha256": "71b40a41fed75b3247361635b71652396a747bfc1cae3b425a43d16ffb596cfc",
       "tier": "normal",
       "sections": [
         {
@@ -50583,7 +50598,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 11,512 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 12,125 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -70602,17 +70617,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 82728,
-      "lines": 2386,
-      "sha256": "3c23aeded148e51949331c787c6a4246d2643c7d40a0d247099de7261281375a",
+      "tokens": 83257,
+      "lines": 2415,
+      "sha256": "beb94ac95abdaa40f7ded48bf03c2b04ddc78f93b2d557a6b1bdfe9da5fd007d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 2387,
-          "tokens": 82711,
+          "endLine": 2416,
+          "tokens": 83240,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -72497,8 +72512,8 @@
           "anchor": "§WXG-T-244",
           "level": 2,
           "startLine": 2331,
-          "endLine": 2366,
-          "tokens": 807,
+          "endLine": 2395,
+          "tokens": 1336,
           "summary": "组归位逐颗 BFS 错峰落座动画（纯表现，数据同帧不变）",
           "keywords": [
             "WXG",
@@ -72569,7 +72584,7 @@
           "anchor": "§读数 (4)",
           "level": 3,
           "startLine": 2362,
-          "endLine": 2366,
+          "endLine": 2367,
           "tokens": 38,
           "summary": "beads 782 绿 + 1 skipped（新增 2 条；封箱 9/9 含在内 ⟹ 静息帧零影响实证）· Cocos",
           "keywords": [
@@ -72580,10 +72595,40 @@
           ]
         },
         {
+          "anchor": "§八批（乙案）· 间隔更明显但总时长仍 200ms",
+          "level": 3,
+          "startLine": 2368,
+          "endLine": 2390,
+          "tokens": 422,
+          "summary": "主理人裁「乙」（2026-10-04）：在 200ms 硬上限内重分配预算，而非放宽上限。",
+          "keywords": [
+            "八批",
+            "乙案",
+            "间隔更明显但",
+            "总时长仍"
+          ]
+        },
+        {
+          "anchor": "§补建美术正本卡（诚实登记）",
+          "level": 3,
+          "startLine": 2391,
+          "endLine": 2395,
+          "tokens": 73,
+          "summary": "⚠ 发现 T-244 前七批改了视觉却从未在 assets-spec 建卡 ⟹ 参数（SPREAD / DROP_PX）",
+          "keywords": [
+            "assets",
+            "spec",
+            "SPREAD",
+            "DROP_PX",
+            "补建美术正本",
+            "诚实登记"
+          ]
+        },
+        {
           "anchor": "§WXG-T-245",
           "level": 2,
-          "startLine": 2367,
-          "endLine": 2387,
+          "startLine": 2396,
+          "endLine": 2416,
           "tokens": 417,
           "summary": "skill 调用审计（pnpm run skills:audit）",
           "keywords": [

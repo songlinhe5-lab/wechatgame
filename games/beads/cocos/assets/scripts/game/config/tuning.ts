@@ -1179,7 +1179,7 @@ export const SOLVER_STAGGER_MS = 80;
  * ⛔ 与 `drawLiftBeadShadow` 无关（分离影由 view 层按 board 锚 `groupLift` 触发，不由本通道触发）。
  * 取值 = 观感量（≈ 0.47 格）`[待真机]`。
  */
-export const GROUP_LAND_DROP_PX = 14;
+export const GROUP_LAND_DROP_PX = 22;
 /** 一次点名的上限：沿 §3.6 `SOLVER_PLUS_COUNT`（引用冻结值，不新增）。 */
 export const SOLVER_MAX_CELLS = SOLVER_PLUS_COUNT;
 
@@ -1200,12 +1200,27 @@ export const GROUP_LAND_MAX = 256;
  * 落座动画的**环间传播预算**（ms）—— 环 `k` 的起播偏移 = `SPREAD × k / maxRing`
  * ⟹ **同环同时**（BFS 扩散）、环间隔 `SPREAD / maxRing`（环数越多间隔越短 = 「间隔缩短」）。
  *
- * ## 总时长恒定 = `SPREAD + SOLVER_PER_BEAD_MS` = 80 + 120 = **200ms**
+ * ## 总时长恒定 = `SPREAD + GROUP_LAND_PER_BEAD_MS` = 130 + 70 = **200ms**
  * ⛔ 与环数**无关**（6 环与 2 环都是 200ms）—— 满足用户「整体动画不超过 0.2 秒」的硬上限。
  * ⚠ 「间隔缩短」= **环间**间隔（16ms@5 环 / 40ms@2 环）；单颗落位窗（120ms）保持不变，
  *   否则动画快到看不见压下回弹。
  */
-export const GROUP_LAND_SPREAD_MS = 80;
+export const GROUP_LAND_SPREAD_MS = 130;
+/**
+ * **[T-244 乙案 · 2026-10-04 用户裁「间隔更明显但整体仍 ≤0.2 秒」]** 落座动画**单颗落位窗**（ms）。
+ *
+ * ## 为什么要独立于 `SOLVER_PER_BEAD_MS`
+ *
+ * ⛔ `SOLVER_PER_BEAD_MS`（= `FILL_POP_MS` = 120）是**点名链与落珠链共享**的单一真源
+ * ⟹ 直接改它会连带把「逐颗点名」那条动画的压下窗也砍半（**不在本次诉求内**）。
+ * ⛔ 而「间隔更明显」在数学上必须从 200ms 预算里**抢时间**（`间隔 ⊂ 总时长`）
+ * ⟹ 只能新开一个落珠专属窗，⛔ 不动共享常量。
+ *
+ * 取值 = 70（120 − 50）⟹ 130 + 70 = 200ms **顶满且不破**用户裁定的 0.2 秒硬上限。
+ * ⚠ 代价（已知并接受）：单颗压下回弹比点名链快 42% ⟹ 「压下」观感更脆；
+ *   换来的是错峰间隔 80 → 130ms（1.63×）明显可辨。`[待真机复核压下脆度]`
+ */
+export const GROUP_LAND_PER_BEAD_MS = 70;
 /**
  * 整条序列总时长 = 相 A + 逐颗错开 `80×(n−1)` + 末颗落座 120（§1.6.2a 相序行）。
  * **单一真源函数**：game 侧用它定计时窗口，view 侧用它把单调标量还原成绝对毫秒

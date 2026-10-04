@@ -24,7 +24,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
-import { GROUP_LAND_SPREAD_MS, SOLVER_PER_BEAD_MS, SOLVER_STAGGER_MS } from '../src/config/tuning.js';
+import { GROUP_LAND_SPREAD_MS, GROUP_LAND_PER_BEAD_MS, SOLVER_STAGGER_MS } from '../src/config/tuning.js';
 import { groupLandOffsetMs } from '../src/view/scene-vfx.js';
 
 const FRAME = 1 / 60;
@@ -94,11 +94,11 @@ describe('组归位逐颗 BFS 错峰落座（WXG-T-244）', () => {
         const e0 = s.groupLandElapsedMs;
         expect(e0, '起播帧 elapsed≈0').toBeLessThan(SOLVER_STAGGER_MS);
         // 第一颗（step 0）相位已在窗口内
-        expect(e0, '第一颗 tMs ∈ (0, PER_BEAD)').toBeLessThan(SOLVER_PER_BEAD_MS);
+        expect(e0, '第一颗 tMs ∈ (0, PER_BEAD)').toBeLessThan(GROUP_LAND_PER_BEAD_MS);
         // 第二颗（step 1）未轮到（tMs = e0 − STAGGER ≤ 0 ⇒ view 不画）
         expect(e0 - SOLVER_STAGGER_MS * 1, '第二颗未轮到（错峰）').toBeLessThanOrEqual(0);
 
-        h.advance(SOLVER_PER_BEAD_MS + SOLVER_STAGGER_MS * 2); // 越过总时长
+        h.advance(GROUP_LAND_PER_BEAD_MS + SOLVER_STAGGER_MS * 2); // 越过总时长
         s = h.game.snapshot;
         expect(s.groupLandCount, '⛔ 播完即清（零常驻）').toBe(0);
         expect(s.groupLandElapsedMs).toBe(0);
@@ -141,7 +141,7 @@ describe('托盘锚组归位走同队列（WXG-T-244 修正批）', () => {
         const s = h.game.snapshot;
         expect(s.groupLandCount).toBe(2);
         // pop 窗口内：progress ∈ (0,1) ⇒ fillPopEnvelope 产出 scale < 1（压下段）
-        const p = s.groupLandElapsedMs / (SOLVER_STAGGER_MS * 1 + SOLVER_PER_BEAD_MS);
+        const p = s.groupLandElapsedMs / (SOLVER_STAGGER_MS * 1 + GROUP_LAND_PER_BEAD_MS);
         expect(p, '第一颗处于 pop 窗口').toBeGreaterThan(0);
         expect(p).toBeLessThan(1);
     });
@@ -177,7 +177,7 @@ describe('落珠顺序错峰 + 200ms 硬上限（WXG-T-244 七批）', () => {
         expect(gaps[1]).toBeCloseTo(gaps[0]!, 6);
         expect(gaps[2]).toBeCloseTo(gaps[1]!, 6);
         // ⛔ 硬上限：总时长 = 传播预算 + 落位窗 = 200ms，**与环数无关**
-        expect(GROUP_LAND_SPREAD_MS + SOLVER_PER_BEAD_MS, '总时长 ≤ 0.2 秒').toBeLessThanOrEqual(200);
+        expect(GROUP_LAND_SPREAD_MS + GROUP_LAND_PER_BEAD_MS, '总时长 ≤ 0.2 秒').toBeLessThanOrEqual(200);
         // 颗数多 ⟹ 每颗间隔更短（「间隔缩短」）：预算固定 ⟹ 单颗间隔 = 80/(n−1)
         expect(groupLandOffsetMs(1, 6) - groupLandOffsetMs(0, 6), '6 颗的间隔 < 3 颗的间隔').toBeLessThan(
             groupLandOffsetMs(1, 3) - groupLandOffsetMs(0, 3),
@@ -226,7 +226,7 @@ describe('帧级错峰时序（T-244 四批「乙」· 防回归）', () => {
         expect(tAt(1), '环1 未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
         expect(tAt(2), '环2 未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
 
-        // 过 SPREAD/2（= 40ms = 第 2 颗的偏移）：序号 1 进窗口
+        // 过 SPREAD/2（= 65ms = 第 2 颗的偏移）：序号 1 进窗口
         h.advance(GROUP_LAND_SPREAD_MS / 2 / 1000 + FRAME);
         expect(tAt(1), '第2颗已进窗口').toBeGreaterThan(0);
         expect(tAt(2), '第3颗仍未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);

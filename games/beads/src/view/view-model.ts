@@ -17,7 +17,7 @@ import {
   SELECT_LIFT_PX,
   GROUP_LAND_DROP_PX,
   SELECT_LIFT_ANGLE,
-  SOLVER_PER_BEAD_MS,
+  GROUP_LAND_PER_BEAD_MS,
   TRAY_SELECTED_LIFT_PX,
   HUD_BAND,
   PANEL_SCALE_FROM,
@@ -988,7 +988,7 @@ function drawGrid(
       // 环 0（= 被点格本身）**永不隐藏** ⟹ 「距离 0 = 零延迟」的正确实现（单颗放置的
       // 起播帧照常画珠 ⟹ 与原 G1 单槽同帧等价 ⟹ 封箱基准不变）。
       const glHidden = glStep > 0 && glT <= 0;
-      const glPopP = glStep >= 0 && glT > 0 && glT < SOLVER_PER_BEAD_MS ? glT / SOLVER_PER_BEAD_MS : 0;
+      const glPopP = glStep >= 0 && glT > 0 && glT < GROUP_LAND_PER_BEAD_MS ? glT / GROUP_LAND_PER_BEAD_MS : 0;
       const popProgress = glPopP > 0 ? glPopP : solverPopP > 0 ? solverPopP : popActive ? snap.placeProgress : 0;
       if (popProgress > 0) fillPopEnvelope(popProgress, snap.reduceMotion, pop);
       // TEMP-LOG（WXG-T-244 · 用户令「给播放动画的珠子打日志 + 时间戳」⟹ 裁后删除）

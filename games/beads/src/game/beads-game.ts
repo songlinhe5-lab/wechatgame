@@ -83,7 +83,7 @@ import {
   SOLVER_HINT_MS,
   SOLVER_MAX_CELLS,
   SOLVER_STAGGER_MS,
-  SOLVER_PER_BEAD_MS,
+  GROUP_LAND_PER_BEAD_MS,
   solverSequenceMs,
   SWEEP_MS,
   CONFETTI_MS,
@@ -1258,7 +1258,7 @@ export class BeadsGame implements Game {
     fx.count++;
     // [T-244 七批] 总时长**恒定** = 错峰预算 + 单珠落位窗 = 80 + 120 = 200ms（与颗数无关）。
     // ⟹ 错峰偏移在 80ms 预算内按**落珠序号**等差分配（`scene-vfx::groupLandOffsetMs` 同式）。
-    fx.totalMs = GROUP_LAND_SPREAD_MS + SOLVER_PER_BEAD_MS;
+    fx.totalMs = GROUP_LAND_SPREAD_MS + GROUP_LAND_PER_BEAD_MS;
   }
 
   /** [T-244] 组落座推进。**表现层判例**（同 `_stepWrongFx` / `_stepPlaceFx`：不被
