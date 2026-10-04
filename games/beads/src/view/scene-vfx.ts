@@ -90,6 +90,27 @@ export function solverBeadProgress(tMs: number, step: number): number {
     return tau / SOLVER_PER_BEAD_MS;
 }
 
+/**
+ * **[T-244 修正二批]** 组落座第 `ring` 环的**起播偏移**（ms）= `STAGGER × ring² / 2`
+ * ⟹ 环间隔 `STAGGER/2, 3·STAGGER/2, 5·STAGGER/2…` **随环号递增** = 扩散减速（节奏 ease）。
+ *
+ * ⛔ game 侧 `totalMs` 用**同式**（跨层同式，注释互指；game 不依赖 view，故不复用函数）。
+ * 环号 = **切比雪夫距离**（8 向 BFS 在同色连通格上的最短步数恒等该距离）⟹ 登记侧零计算成本。
+ */
+export function groupLandOffsetMs(ring: number): number {
+  return (SOLVER_STAGGER_MS * ring * ring) / 2;
+}
+
+/**
+ * **[T-244 修正二批]** 落位**下落位移**（y 向上）：`(1−p)² × DROP` —— ease-out 落体
+ * （起步快、末段缓到位），`p` = 该珠的落位包络进度（与压下 pop 同一个 `p`）。
+ * 走 `lift` 通道（G4 波浪同款）⟹ 与 `scale` 压下互不冲突（两通道正交）。
+ */
+export function groupLandDropDy(p: number, dropPx: number): number {
+  const q = Math.min(1, Math.max(0, p));
+  return (1 - q) * (1 - q) * dropPx;
+}
+
 // ───────────────────────── §5 选中抬起（v1.5-r16：错峰 + ease-in-out + 回弹）
 
 /**

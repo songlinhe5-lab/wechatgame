@@ -396,6 +396,8 @@ export class BeadsGame implements Game {
     count: number;
     elapsedMs: number;
     totalMs: number;
+    /** 已登记的最大环号（热路径 O(1) 跟踪，⛔ 不每次重扫数组）。 */
+    maxRing: number;
   } | null = null;
   /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
@@ -1236,6 +1238,7 @@ export class BeadsGame implements Game {
         count: 0,
         elapsedMs: 0,
         totalMs: 0,
+        maxRing: 0,
       };
     }
     const fx = this._groupLandFx!;
@@ -1244,11 +1247,13 @@ export class BeadsGame implements Game {
     fx.cols[fx.count] = col;
     fx.steps[fx.count] = step;
     fx.count++;
-    fx.totalMs = SOLVER_STAGGER_MS * (fx.count - 1) + SOLVER_PER_BEAD_MS;
+    // [T-244 修正二批] 总时长 = **最大环号的平方偏移** + 单珠落位窗（偏移公式与
+    // `scene-vfx::groupLandOffsetMs` 同式：环间隔随环号递增 = 扩散节奏 ease）。
+    if (step > fx.maxRing) fx.maxRing = step;
+    fx.totalMs = (SOLVER_STAGGER_MS * fx.maxRing * fx.maxRing) / 2 + SOLVER_PER_BEAD_MS;
   }
 
-  /**
-   * **[T-244]** 组落座推进。**表现层判例**（同 `_stepWrongFx` / `_stepPlaceFx`：不被
+  /** [T-244] 组落座推进。**表现层判例**（同 `_stepWrongFx` / `_stepPlaceFx`：不被
    * PAUSED 冻结——动画不该因暂停丢尾）；非 playing 相位作废（同 `_stepSolverFx` 的
    * 「过期坐标不动新棋盘」口径——虽然本队列只动表现，保守同判例）。
    */
@@ -2441,7 +2446,8 @@ export class BeadsGame implements Game {
       }
       used++;
       // [T-244] 表现层登记：step = BFS 序（targets[0] = 被点格 ⇒ 「从当前点击的槽开始扩展」）。
-      this._noteGroupLand(t.row, t.col, used - 1);
+      // [T-244 修正二批] step = 环号（切比雪夫距离，被点格 = 环 0）
+      this._noteGroupLand(t.row, t.col, chebyshev(t.row, row, t.col, col));
       this._emit('bead:placed', { row: t.row, col: t.col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot
       placedAny = true;
       if (used >= consumption.length) break;
@@ -2798,7 +2804,10 @@ export class BeadsGame implements Game {
           // 只挂了 board 锚直填 `_tryDirectFillFromBoard`，而游戏主流程是本托盘锚路径）。
           // 修法：组批量（>1）走 `_groupLandFx` 队列（step = 填充序 = BFS 由近及远）；
           // 单颗（=1）保持 G1 单槽（行为零变化，直喂 snapshot 的既有测试不感知）。
-          if (groupSize > 1) this._noteGroupLand(c.row, c.col, i);
+          // [T-244 修正二批] step = **环号**（切比雪夫距离）⟹ 同环同时出现 = 涟漪式扩散
+          if (groupSize > 1) {
+            this._noteGroupLand(c.row, c.col, chebyshev(c.row, verdict.row, c.col, verdict.col));
+          }
           else this._armPlaceFx(c.row, c.col); // G1 落座回弹（`assets-spec §1.6.1`）
           // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）。
           // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
@@ -3775,4 +3784,12 @@ export class BeadsGame implements Game {
 /** Convenience factory used by the dev harness and tests. */
 export function createBeadsGame(options: BeadsGameOptions = {}): BeadsGame {
   return new BeadsGame(options);
+}
+
+/**
+ * **[T-244 修正二批]** 8 向 BFS 的层号 = **切比雪夫距离**（同色连通格上 8 向 BFS 的最短步数
+ * 恒等该距离）⟹ 组落座「环号」零计算成本、零新遍历、零分配。
+ */
+function chebyshev(r0: number, r1: number, c0: number, c1: number): number {
+  return Math.max(Math.abs(r0 - r1), Math.abs(c0 - c1));
 }

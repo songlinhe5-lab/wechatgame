@@ -25,6 +25,7 @@
 import { describe, expect, it } from 'vitest';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import { SOLVER_PER_BEAD_MS, SOLVER_STAGGER_MS } from '../src/config/tuning.js';
+import { groupLandOffsetMs } from '../src/view/scene-vfx.js';
 
 const FRAME = 1 / 60;
 
@@ -143,5 +144,34 @@ describe('托盘锚组归位走同队列（WXG-T-244 修正批）', () => {
         const p = s.groupLandElapsedMs / (SOLVER_STAGGER_MS * 1 + SOLVER_PER_BEAD_MS);
         expect(p, '第一颗处于 pop 窗口').toBeGreaterThan(0);
         expect(p).toBeLessThan(1);
+    });
+});
+
+describe('涟漪式扩散（环号语义 · WXG-T-244 修正二批）', () => {
+    it('⑤ step = 环号（切比雪夫距离）⟹ 同环同 step（同时出现）· 远环 step 更大', () => {
+        const h = mk('wxgame.beads.test.t244-rings');
+        // 造一条「直线三连」t2 空格：(1,1) 被点 / (2,1) 环 1 / (3,1) 环 2
+        makeEmpty(h, 1, 1, 3);
+        makeEmpty(h, 2, 1, 3);
+        makeEmpty(h, 3, 1, 3);
+        h.game.giveTrayBead(2);
+        h.game.giveTrayBead(2);
+        h.game.selectTraySlot(h.game.snapshot.traySlots.findIndex((t) => t.state === 'holding'));
+        h.game.tapGridCell(1, 1);
+
+        const s = h.game.snapshot;
+        // 组大小 = 托盘组内珠数（2）⟹ 只填 2 颗；(3,1) 不会进本批
+        expect(s.groupLandCount).toBe(2);
+        expect(s.groupLandSteps[0], '被点格 = 环 0').toBe(0);
+        expect(s.groupLandSteps[1], '(2,1) 距被点格 1 格 = 环 1').toBe(1);
+    });
+
+    it('⑥ 环起播偏移随环号递增（扩散节奏 ease：间隔 40/120/200…ms）', () => {
+        // 直接对包络函数断言（纯函数、零依赖）—— 环 0/1/2/3 偏移单调递增且增量递增
+        const offs = [0, 1, 2, 3].map((ring) => groupLandOffsetMs(ring));
+        expect(offs).toEqual([0, 40, 160, 360]);
+        const gaps = offs.slice(1).map((v, k) => v - offs[k]!);
+        expect(gaps[1]! > gaps[0]!, '间隔递增 = 先快后慢').toBe(true);
+        expect(gaps[2]! > gaps[1]!, '间隔继续递增').toBe(true);
     });
 });

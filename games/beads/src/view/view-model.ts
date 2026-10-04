@@ -15,8 +15,8 @@ import {
   DESIGN_H,
   DESIGN_W,
   SELECT_LIFT_PX,
+  GROUP_LAND_DROP_PX,
   SELECT_LIFT_ANGLE,
-  SOLVER_STAGGER_MS,
   SOLVER_PER_BEAD_MS,
   TRAY_SELECTED_LIFT_PX,
   HUD_BAND,
@@ -155,6 +155,8 @@ import {
   confettiIsForeground,
   confettiQuad,
   deniedPressScale,
+  groupLandDropDy,
+  groupLandOffsetMs,
   liftEase,
   liftStaggerPhase,
   solverBeadProgress,
@@ -976,11 +978,11 @@ function drawGrid(
       // 由 `SOLVER_STAGGER_MS` 错位起播），与 G1 单槽互斥（game 侧已保证不重叠）。
       const solverStep = solverLandStep(snap, i, j);
       const solverPopP = solverStep >= 0 && solverT > 0 ? solverBeadProgress(solverT, solverStep) : 0;
-      // [T-244] 组归位落座：`tMs = elapsed − STAGGER×step` ⇒ ≤0 未轮到（**珠不画**＝逐颗「出现」）、
-      // 0..PER_BEAD 送 fill-pop 包络（压下回弹＝「落下去的抖动」，与 G1/G2′ 同一口径）。
+      // [T-244 修正二批] 组落座：`step` = **环号**（切比雪夫距离）⟹ **同环同时出现 = 涟漪式扩散**；
+      // 环起播偏移 `STAGGER×ring²/2` ⟹ 间隔随环号递增 = 扩散节奏 ease（先快后慢铺开）。
       // 优先级最前：组归位是本格最新事件（同帧与 G1/solver 互斥由 game 侧保证）。
       const glStep = groupLandStep(snap, i, j);
-      const glT = glStep >= 0 ? snap.groupLandElapsedMs - SOLVER_STAGGER_MS * glStep : -1;
+      const glT = glStep >= 0 ? snap.groupLandElapsedMs - groupLandOffsetMs(glStep) : -1;
       const glHidden = glStep >= 0 && glT <= 0;
       const glPopP = glStep >= 0 && glT > 0 && glT < SOLVER_PER_BEAD_MS ? glT / SOLVER_PER_BEAD_MS : 0;
       const popProgress = glPopP > 0 ? glPopP : solverPopP > 0 ? solverPopP : popActive ? snap.placeProgress : 0;
@@ -1053,6 +1055,10 @@ function drawGrid(
         draft.lift = wave.dy * liftScale; // y 轴向上 ⇒ +dy = 微抬（同走等比因子，与小档珠体不脱钩）
         draft.lodLayers = WAVE_BEAD_LOD_LAYERS; // C7 拆名：波浪降档专用名（zoom LOD = ZOOM_LOD_LAYERS）
       }
+      // [T-244 修正二批] 组落座**下落位移**：走 `lift` 通道（G4 波浪同款）⟹ 与 `scale` 压下正交
+      // （一颗珠同时「从上落下」+「触底压一下」）。`(1−p)²` = ease-out 落体：起步快、末段缓到位。
+      // ⚠ 归一副作用（按既有先例接受）：下落中珠放大 ≤4%（`liftScaleGain`）= 空间感。
+      if (glPopP > 0) draft.lift = groupLandDropDy(glPopP, GROUP_LAND_DROP_PX);
       // G7 轻压（§1.6.7）：就位格。优先级 pop/wave > denied（同格重叠窗口让位；
       // 实际上就位格不会进 pop/wave，防御性排序）。scale 只进珠体 = `draft.scale`
       //（G1 同通道，⛔ 不乘 outer ⇒ L11 垫不参与，§1.6.1 层序死结论）；D1 退环无 scale。

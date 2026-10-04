@@ -1169,6 +1169,17 @@ export const SOLVER_PER_BEAD_MS = FILL_POP_MS;
  * **不动** G1 的手动连点重启门（那是防连点堆叠的，不是为道具设的）。
  */
 export const SOLVER_STAGGER_MS = 80;
+
+/**
+ * **[T-244 修正二批 · 2026-10-04 用户裁定「要有下落位移 + 错峰节奏 ease-in-out + 按环扩散」]**
+ * 组落座珠的**起始下落距离**（设计 px，走 `lift` 通道 = y 轴向上）。
+ *
+ * ⚠ 复用 `lift` 通道（G4 波浪同款，`draft.lift`）⟹ **零新字段**；副作用按既有先例接受：
+ *   `liftT` 归一会让下落中的珠**放大 ≤4%**（`liftScaleGain`）⟹ 读作「远处落下时略大」= 空间感。
+ * ⛔ 与 `drawLiftBeadShadow` 无关（分离影由 view 层按 board 锚 `groupLift` 触发，不由本通道触发）。
+ * 取值 = 观感量（≈ 0.47 格）`[待真机]`。
+ */
+export const GROUP_LAND_DROP_PX = 14;
 /** 一次点名的上限：沿 §3.6 `SOLVER_PLUS_COUNT`（引用冻结值，不新增）。 */
 export const SOLVER_MAX_CELLS = SOLVER_PLUS_COUNT;
 /**
