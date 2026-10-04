@@ -27,6 +27,17 @@ export type BeadsPhase = 'boot' | 'playing' | 'paused' | 'level-clear' | 'game-o
 export type GameMode = 'normal' | 'sprint';
 
 /**
+ * [T-244 十八批 · 用户裁「几种方案都实现出来对比」] **单色齐备提示**的三种候选表达（同一时机、
+ * 同一参与集，只换**渲染通道**）：
+ *  · `jump`  该色珠逐列**跳一次**（十七批现状；走 `lift`+`scale` ⇒ 与落位动画同通道，靠让位门避开的）
+ *  · `pulse` 该色格**亮一档**（单峰 α：格底罩层 + 锁边环，墨 = 本格目标色 `lit`）⇒ **零位移零缩放**
+ *  · `lock`  该色进入**常驻锁定态**（环 α 恒亮到本关结束，无任何往复）
+ *  · `off`   全关（对照基准）
+ * 默认 `pulse`；dev 侧 `?cue=jump|pulse|lock|off` 可切（`BeadsGame.setColorCueMode`）。
+ */
+export type ColorCueMode = 'jump' | 'pulse' | 'lock' | 'off';
+
+/**
  * Declared legal edges. Anything not listed is impossible by construction:
  * cleared/failed/pause all leave PLAYING; only PLAYING resumes from PAUSED;
  * retry / revive (game-over) and next-level (level-clear) re-enter PLAYING.
@@ -325,6 +336,24 @@ export interface BeadsSnapshot {
    */
   waveProgress: number;
   /**
+   * [T-244 十六批] **单色齐备提示**的进度（用户令「某色全部对齐 ⇒ 该色珠子从左到右跳一次」）：
+   * 与 `waveProgress` **同一条曲线**（`scene-vfx::waveEnvelope`），只把参与集从「全场」
+   * 换成「`colorWaveColorIdx` 这一色的珠」，时长/错峰/跳高走 `COLOR_WAVE_*`（十七批与 G4 分家）。
+   * 0 = 不播放；1 = `COLOR_WAVE_MS` 走完。列号仍 = 网格 `j` ⇒ 「从左到右」由 view 侧推导（L5）。
+   * ⛔ **让位门**（十八批）：`jump` 档要等落位三通道（`_placeFx`/`_groupLandFx`/`_solverFx`）全空才起播
+   *   ⇒ 本标量在让位期恒为 0，不是「丢了」。（`pulse`/`lock` 不占位移通道 ⇒ 不等。）
+   */
+  colorWaveProgress: number;
+  /** 本条单色提示的主角色（`colorIdx`，0 = 无）。 */
+  colorWaveColorIdx: number;
+  /** [T-244 十八批] 当前表达档（`setColorCueMode` 写，view 只读）。 */
+  colorCueMode: ColorCueMode;
+  /**
+   * [T-244 十八批] **已齐备色**位图（bit `colorIdx` 置 1 = 该色全部归位，保留到本关结束）。
+   * 判据与触发同在 game 侧（`_maybeColorCue`），view 只查位 ⇒ 合 L5；`colorIdx` ≤ 30（关卡色板上界）。
+   */
+  colorLockedMask: number;
+  /**
    * G7 `vfx_denied_press` 不可填格轻压（WXG-T-152 / `assets-spec §1.6.7`）：
    * **多格并存**（同格 250ms 门，不同格可同时在播）⇒ 定长槽数组
    * （容量 `DENIED_MAX_CELLS` = 工程选择，非规格值），`row = -1` = 空槽，
@@ -473,13 +502,17 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     groupLandSteps: new Array<number>(GROUP_LAND_MAX).fill(-1),
     groupLandCount: 0,
     groupLandElapsedMs: 0,
-      trayLandSlots: [],
-      trayLandSteps: [],
-      trayLandCount: 0,
-      trayLandElapsedMs: 0,
+    trayLandSlots: [],
+    trayLandSteps: [],
+    trayLandCount: 0,
+    trayLandElapsedMs: 0,
     sweepProgress: 0,
     confettiProgress: 0,
     waveProgress: 0,
+    colorWaveProgress: 0,
+    colorWaveColorIdx: 0,
+    colorCueMode: 'pulse',
+    colorLockedMask: 0,
     // G7（WXG-T-152）：与 solver 数组同判例，预分配 ⇒ 逐帧只写值。
     deniedRows: new Array<number>(DENIED_MAX_CELLS).fill(-1),
     deniedCols: new Array<number>(DENIED_MAX_CELLS).fill(-1),

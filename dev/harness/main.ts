@@ -512,6 +512,16 @@ if (isBeads && new URLSearchParams(harnessQuery).get('lift') === '1') {
   }
 }
 
+// [T-244 十八批] `?cue=jump|pulse|lock|off`：切「同色全部归位」提示的表达档（用户裁「几种方案都
+// 实现出来对比」）——`jump` 逐列跳 / `pulse` 亮一档（默认）/ `lock` 常驻环 / `off` 全关（对照）。
+// 四档看到的是**同一时机、同一参与集**，只换渲染通道 ⇒ 对比无需改代码。dev-only，真机无 query。
+{
+  const cue = new URLSearchParams(harnessQuery).get('cue');
+  if (isBeads && (cue === 'jump' || cue === 'pulse' || cue === 'lock' || cue === 'off')) {
+    beads.setColorCueMode(cue);
+  }
+}
+
 
 
 // TEMP-DEBUG（WXG-T-244 诊断 · dev-only 测具，不进构建）：组落座动画观测 + 一键复现。
@@ -540,23 +550,23 @@ if (GLD) {
     // ⇒ 先**造**出 3 个连通同色空格：扫盘面找同 target 色的 L 形三连，逐格 setBead+retrieve。
     const at = (r: number, c: number) => r * s0.gridCols + c;
     const cellAt = (r: number, c: number) =>
-        r >= 0 && c >= 0 && r < s0.cells.length / s0.gridCols && c < s0.gridCols
-            ? s0.cells[at(r, c)]
-            : undefined;
+      r >= 0 && c >= 0 && r < s0.cells.length / s0.gridCols && c < s0.gridCols
+        ? s0.cells[at(r, c)]
+        : undefined;
     outer: for (const cand of s0.cells) {
-        if (cand.state !== 'filled' || cand.colorIdx <= 0) continue;
-        const col = cand.colorIdx;
-        const start = s0.cells.indexOf(cand);
-        const r0 = Math.floor(start / s0.gridCols);
-        const c0 = start % s0.gridCols;
-        // L 形：(r0,c0) (r0,c0+1) (r0+1,c0)
-        const trio = [[r0, c0], [r0, c0 + 1], [r0 + 1, c0]];
-        if (!trio.every(([r, c]) => cellAt(r, c)?.colorIdx === col && cellAt(r, c)?.state === 'filled')) continue;
-        for (const [r, c] of trio) {
-            play.grid.setBead(r, c, col === 1 ? 2 : 1); // 造成错位（retrieve 只收错位珠）
-            play.grid.retrieve(r, c); // ⟹ 空格
-        }
-        break outer;
+      if (cand.state !== 'filled' || cand.colorIdx <= 0) continue;
+      const col = cand.colorIdx;
+      const start = s0.cells.indexOf(cand);
+      const r0 = Math.floor(start / s0.gridCols);
+      const c0 = start % s0.gridCols;
+      // L 形：(r0,c0) (r0,c0+1) (r0+1,c0)
+      const trio = [[r0, c0], [r0, c0 + 1], [r0 + 1, c0]];
+      if (!trio.every(([r, c]) => cellAt(r, c)?.colorIdx === col && cellAt(r, c)?.state === 'filled')) continue;
+      for (const [r, c] of trio) {
+        play.grid.setBead(r, c, col === 1 ? 2 : 1); // 造成错位（retrieve 只收错位珠）
+        play.grid.retrieve(r, c); // ⟹ 空格
+      }
+      break outer;
     }
     const s1 = play.snapshot;
     const i0 = s1.cells.findIndex((c) => c.state === 'empty' && c.colorIdx > 0);

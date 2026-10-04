@@ -30,9 +30,9 @@ import {
     DESIGN_W,
     SOLVER_HINT_MS,
     GROUP_LAND_MIN_GAP_MS,
-  GROUP_LAND_SPREAD_MS,
-  GROUP_LAND_TOTAL_MS,
-  SOLVER_STAGGER_MS,
+    GROUP_LAND_SPREAD_MS,
+    GROUP_LAND_TOTAL_MS,
+    SOLVER_STAGGER_MS,
     SOLVER_PER_BEAD_MS,
     SELECT_LIFT_PEAK_T,
     SELECT_LIFT_REBOUND,
@@ -106,18 +106,18 @@ export function solverBeadProgress(tMs: number, step: number): number {
  */
 /** [T-244 甲案] 错峰**预算**（ms）：`min(SPREAD, (n−1) × MIN_GAP)` ⟹ 1 颗时 = 0（单颗独占整窗）。 */
 export function groupLandSpreadMs(maxOrder: number): number {
-  if (maxOrder <= 0) return 0;
-  return Math.min(GROUP_LAND_SPREAD_MS, maxOrder * GROUP_LAND_MIN_GAP_MS);
+    if (maxOrder <= 0) return 0;
+    return Math.min(GROUP_LAND_SPREAD_MS, maxOrder * GROUP_LAND_MIN_GAP_MS);
 }
 
 export function groupLandOffsetMs(order: number, maxOrder: number): number {
-  if (maxOrder <= 0) return 0;
-  return (groupLandSpreadMs(maxOrder) * order) / maxOrder;
+    if (maxOrder <= 0) return 0;
+    return (groupLandSpreadMs(maxOrder) * order) / maxOrder;
 }
 
 /** [T-244 甲案] 单颗落位窗（ms）= 总时长 − 错峰预算 ⟹ 1 颗 200ms / 2 颗 135ms / 3+ 70ms。 */
 export function groupLandPerBeadMs(maxOrder: number): number {
-  return Math.max(1, GROUP_LAND_TOTAL_MS - groupLandSpreadMs(maxOrder));
+    return Math.max(1, GROUP_LAND_TOTAL_MS - groupLandSpreadMs(maxOrder));
 }
 
 /**
@@ -126,8 +126,8 @@ export function groupLandPerBeadMs(maxOrder: number): number {
  * 走 `lift` 通道（G4 波浪同款）⟹ 与 `scale` 压下互不冲突（两通道正交）。
  */
 export function groupLandDropDy(p: number, dropPx: number): number {
-  const q = Math.min(1, Math.max(0, p));
-  return (1 - q) * (1 - q) * dropPx;
+    const q = Math.min(1, Math.max(0, p));
+    return (1 - q) * (1 - q) * dropPx;
 }
 
 // ───────────────────────── §5 选中抬起（v1.5-r16：错峰 + ease-in-out + 回弹）
@@ -212,12 +212,19 @@ export function sweepQuad(i: number, centerX: number, out: number[]): number[] {
 
 /**
  * 单列窗口时长 `W`（§1.6.4「派生」行的**唯一自洽推导**，不新造时长）：
- * `W = max(WAVE_WINDOW_MIN_MS, WAVE_MS − WAVE_COL_DELAY_MS × (cols − 1))`
+ * `W = max(WAVE_WINDOW_MIN_MS, totalMs − colDelayMs × (cols − 1))`
  * ⇒ cols=13 → 560ms；cols=7 → 680ms；cols=1 → 800ms。
+ *
+ * [T-244 十七批] 后两参有默认值 = G4 原样 ⇒ **既有调用点逐字不变**；单色对齐波浪只换
+ * 时长/错峰两个入参（⛔ 不在调用方重列本式，免得两处推导错开）。
  */
-export function waveWindowMs(cols: number): number {
+export function waveWindowMs(
+    cols: number,
+    totalMs: number = WAVE_MS,
+    colDelayMs: number = WAVE_COL_DELAY_MS,
+): number {
     const c = cols < 1 ? 1 : cols;
-    return Math.max(WAVE_WINDOW_MIN_MS, WAVE_MS - WAVE_COL_DELAY_MS * (c - 1));
+    return Math.max(WAVE_WINDOW_MIN_MS, totalMs - colDelayMs * (c - 1));
 }
 
 export interface WaveEnvelope {
@@ -230,17 +237,23 @@ export interface WaveEnvelope {
 }
 
 /**
- * 第 `j` 列在总时长进度 `t ∈ [0, WAVE_MS]` 下的波形（列错峰 `WAVE_COL_DELAY_MS`）。
+ * 第 `j` 列在总时长进度 `t ∈ [0, 总时长]` 下的波形（列错峰 `colDelayMs`）。
  *
  * 结果写入 `out` 并返回 —— 热路径零分配：调用方在循环**外**建一个槽整帧复用。
+ *
+ * [T-244 十七批] `colDelayMs` / `liftPx` 默认值 = G4 原值 ⇒ G4 调用点不传即逐字不变；
+ * 单色对齐波浪传 `COLOR_WAVE_*`（错峰更紧 + 跳高 = 选中抬起同值）。⛔ 只拆这两个旋钮，
+ * 曲线形状（`WAVE_RISE_RATIO` / `WAVE_SCALE_PEAK` / 单峰 `sin`）**没有分家**。
  */
 export function waveEnvelope(
     j: number,
     t: number,
     windowMs: number,
     out: WaveEnvelope,
+    colDelayMs: number = WAVE_COL_DELAY_MS,
+    liftPx: number = WAVE_LIFT_PX,
 ): WaveEnvelope {
-    const tau = t - WAVE_COL_DELAY_MS * j;
+    const tau = t - colDelayMs * j;
     if (tau <= 0) {
         out.scale = 1;
         out.dy = 0;
@@ -259,7 +272,7 @@ export function waveEnvelope(
             ? 1 + (WAVE_SCALE_PEAK - 1) * easeOut(p / WAVE_RISE_RATIO)
             : WAVE_SCALE_PEAK -
             (WAVE_SCALE_PEAK - 1) * easeIn((p - WAVE_RISE_RATIO) / (1 - WAVE_RISE_RATIO));
-    out.dy = WAVE_LIFT_PX * Math.sin(Math.PI * p);
+    out.dy = liftPx * Math.sin(Math.PI * p);
     out.active = true;
     return out;
 }

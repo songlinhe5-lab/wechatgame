@@ -34,6 +34,9 @@ import {
   SWEEP_Y_MIN,
   WAVE_COL_DELAY_MS,
   WAVE_LIFT_PX,
+  COLOR_WAVE_MS,
+  COLOR_WAVE_SWEEP_MS,
+  COLOR_WAVE_LOCK_RING_ALPHA,
   WAVE_BEAD_LOD_LAYERS,
   WAVE_MS,
   WAVE_RISE_RATIO,
@@ -54,11 +57,17 @@ import {
   waveWindowMs,
   type WaveEnvelope,
 } from '../src/view/scene-vfx.js';
-import { BEAD_HIGHLIGHT_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, withAlpha } from '../src/view/palette.js';
+import {
+  BEAD_HIGHLIGHT_HEX,
+  DEFAULT_PALETTE,
+  DEMO_BEAD_INKS,
+  endpointOf,
+  withAlpha,
+} from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
-import type { BeadsSnapshot } from '../src/game/state.js';
+import type { BeadsSnapshot, ColorCueMode } from '../src/game/state.js';
 
 /** [WXG-T-235] B0 底图的**绘制**边长（= 格距 + 每边 `TILE_BLEED`）。
  *  ⚠ 布局格距仍是 `gridPitch`；两者在 WXG-T-235 之前恰好相等，故旧判据写 `BEAD_PITCH` 也过。 */
@@ -402,6 +411,153 @@ describe('G4 过关庆祝 · 裁定 1 的面板延迟门', () => {
     expect(h.game.phase).toBe('level-clear');
     expect(h.game.snapshot.waveProgress).toBe(0); // 整条关停
     expect(h.game.clearPanel.visible).toBe(true); // 无 800ms 惩罚
+  });
+});
+
+// ───────────────── 单色齐备提示（T-244 十六→十八批 · 三档表达同一个时机、只换渲染通道）
+
+describe('单色齐备提示 · 某色全部归位（T-244 十六/十七/十八批 · jump / pulse / lock）', () => {
+  /**
+   * 公共场景：色 1 只留 `(rows−1, 0)` 一颗未落 ⇒ 用**真实落子**在同帧触发提示；
+   * 色 2 只填了第 1 列（第 4 列仍空）⇒ 本色**未齐**，当「不参与」的对照珠。
+   * 测试关 pattern = 列色 [1,2,3,1,2,3] ⇒ 色 1 跨第 0/3 两列（错峰与参与集都可测）。
+   * `grid.fill` = BOOT 装配（不发 `bead:placed` ⇒ 不误臂）。
+   */
+  const setup = (saveKey: string, mode: ColorCueMode): { h: Harness; restA: number; restB: number } => {
+    const h = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey });
+    h.game.setColorCueMode(mode);
+    const grid = h.game.grid;
+    const lastRow = grid.rows - 1;
+    for (let r = 0; r < grid.rows; r++) {
+      for (const c of [0, 3, 1]) {
+        if (r === lastRow && c === 0) continue;
+        grid.fill(r, c);
+      }
+    }
+    // 静息珠心（提示起播**之前**取）：色 1 = 参与珠、色 2 = 对照珠。
+    const restA = liftedBeadAt(h.game.snapshot, 0, 0).y;
+    const restB = liftedBeadAt(h.game.snapshot, 0, 1).y;
+    const slot = h.game.giveTrayBead(1);
+    expect(slot).toBeGreaterThanOrEqual(0);
+    h.game.selectTraySlot(slot);
+    expect(h.game.tapGridCell(lastRow, 0)).toBe(true);
+    return { h, restA, restB };
+  };
+
+  /** 本格格心的**状态环** α（`stroke` = 指定墨；同格多环取最亮那一枚；无环 = 0）。 */
+  const ringAlphaAt = (snap: BeadsSnapshot, row: number, col: number, ink: string): number => {
+    const cx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * col;
+    const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * row;
+    let best = 0;
+    for (const c of renderSnap(snap)) {
+      if (c.kind !== 'rect' || c.stroke !== ink) continue;
+      if (Math.abs(c.x + c.w / 2 - cx) > 0.5 || Math.abs(c.y + c.h / 2 - cy) > 0.5) continue;
+      best = Math.max(best, c.alpha ?? 1);
+    }
+    return best;
+  };
+
+  /** 整格**罩层**（`pulse` 档的打底光）：边长恰 = `gridPitch`（⛔ 不是 B0 的 `gridPitch + 2×TILE_BLEED`）。 */
+  const washAt = (snap: BeadsSnapshot, row: number, col: number): boolean => {
+    const cx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * col;
+    const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * row;
+    return renderSnap(snap).some(
+      (c) =>
+        c.kind === 'rect' &&
+        c.fill !== undefined &&
+        c.stroke === undefined &&
+        Math.abs(c.w - snap.gridPitch) < 0.01 &&
+        Math.abs(c.x + c.w / 2 - cx) < 0.5 &&
+        Math.abs(c.y + c.h / 2 - cy) < 0.5,
+    );
+  };
+
+  const LIT1 = endpointOf(DEMO_BEAD_INKS, 1).lit;
+  const LIT2 = endpointOf(DEMO_BEAD_INKS, 2).lit;
+
+  it('`jump`：⛔ 落位队列未空不起跳（让位门）；放行后跳高 = `SELECT_LIFT_PX`，邻色静息；走完归零', () => {
+    const { h, restA, restB } = setup('wxgame.beads.test.color-wave-jump', 'jump');
+    // 促成落子那一帧 `_placeFx` 还在跑 ⇒ 门应挡着（旧版在此同帧起跳 ⇒ 与落位争 `draft.lift`）
+    expect(h.game.snapshot.colorWaveColorIdx, '落位队列未空就起跳 ⇒ 让位门失效').toBe(0);
+    expect(h.game.snapshot.colorWaveProgress).toBe(0);
+    const snap0 = h.game.snapshot;
+
+    // 门释放时刻 = 落位队列跑完那一帧（单颗 G1 = 120ms）⇒ ⛔ 不猜采样点，扫整个窗口取**峰值**
+    let peak = 0;
+    let peakNeighbor = 0;
+    let sawProgress = false;
+    let armedIdx = 0;
+    for (let k = 0; k < 20; k++) {
+      h.advance(0.03);
+      const s = h.game.snapshot;
+      sawProgress = sawProgress || s.colorWaveProgress > 0;
+      armedIdx = armedIdx || s.colorWaveColorIdx;
+      expect(s.waveProgress, '与 G4 串了（全盘未达成）').toBe(0);
+      peak = Math.max(peak, liftedBeadAt(s, 0, 0).y - restA);
+      peakNeighbor = Math.max(peakNeighbor, liftedBeadAt(s, 0, 1).y - restB);
+    }
+    const zoomScale = snap0.gridCell / BEAD_CELL;
+    expect(armedIdx, '让位门从未放行 ⇒ 主角色没上').toBe(1);
+    expect(sawProgress).toBe(true);
+    // 下界 0.8×选中高度：既报「没接上波浪」（=0），也报「还在跳 G4 的 3dp」（=3 < 4.8）
+    expect(peak, '该色珠未跳或跳高不够 ⇒ 参与集/`COLOR_WAVE_LIFT_PX` 没接上').toBeGreaterThan(
+      0.8 * SELECT_LIFT_PX * zoomScale,
+    );
+    expect(peakNeighbor, '邻色珠跟着跳 ⇒ 参与集过宽').toBe(0);
+    expect(h.game.snapshot.colorWaveProgress, '到点不自清 ⇒ 通道常驻了').toBe(0);
+  });
+
+  it('`pulse`：光带**从左到右扫过**该色格（列 0 先亮、列 3 后亮）⇒ 珠体零位移；邻色不亮；扫完即消', () => {
+    const { h, restA } = setup('wxgame.beads.test.color-wave-pulse', 'pulse');
+    expect(h.game.snapshot.colorWaveColorIdx, '`pulse` 不占位移通道 ⇒ 应当场起播').toBe(1);
+    // cols=6 ⇒ 错峰 = 600/5 = 120ms、单珠闪 200ms ⇒ 列 0 与列 3 的首亮帧必须差开。
+    // ⛔ 不猜采样点（门释放/帧粒度会浮动）：扫全程，只问顺序与墙钟时长这两个事实。
+    let firstLit0 = -1;
+    let firstLit3 = -1;
+    let lastLit = -1;
+    let sawWash = false;
+    const steps = Math.ceil(COLOR_WAVE_SWEEP_MS / 20) + 4; // 通道全长 + 4 帧收尾
+    for (let k = 0; k < steps; k++) {
+      h.advance(0.02);
+      const s = h.game.snapshot;
+      const lit0 = ringAlphaAt(s, 0, 0, LIT1) > 0;
+      const lit3 = ringAlphaAt(s, 0, 3, LIT1) > 0;
+      if (firstLit0 < 0 && lit0) firstLit0 = k;
+      if (firstLit3 < 0 && lit3) firstLit3 = k;
+      if (lit0 || lit3) lastLit = k;
+      sawWash = sawWash || washAt(s, 0, 0);
+      expect(liftedBeadAt(s, 0, 0).y, 'pulse 档动了珠体 ⇒ 又去抢落位的位移通道').toBe(restA);
+      expect(ringAlphaAt(s, 0, 1, LIT2), '邻色跟着亮 ⇒ 参与集过宽').toBe(0);
+    }
+    const end = h.game.snapshot;
+    expect(firstLit0, '该色格从未亮 ⇒ 亮度通道没接上').toBeGreaterThanOrEqual(0);
+    expect(firstLit3, '光带没扫到后列 ⇒ 不是「从左到右」').toBeGreaterThan(firstLit0);
+    // 二十批：通道比旧的 `COLOR_WAVE_MS` 长 ⇒ 墙钟上“最后一次亮”必须落在旧通道结束之后。
+    // 这一条同时盯 `BeadsGame._colorWaveTotalMs()` 与 view 侧乘数这对耦合（两者不一致 ⇒ 本断言必红）。
+    expect(
+      lastLit * 20,
+      `光带在 ${lastLit * 20}ms 就扫完了 ⇒ pulse 通道未走 ` +
+        `${COLOR_WAVE_SWEEP_MS}ms 长通道（与 BeadsGame._colorWaveTotalMs 不同值？）`,
+    ).toBeGreaterThan(COLOR_WAVE_MS);
+    expect(sawWash, '整格罩层未画 ⇒ 只剩一条细环').toBe(true);
+    expect(ringAlphaAt(end, 0, 3, LIT1), '扫完不清 ⇒ 变成了常驻态').toBe(0);
+    expect(washAt(end, 0, 3)).toBe(false);
+  });
+
+  it('`lock`：零往复 ⇒ 该色**常驻**弱环（跨列都在），未齐色零环；`off` 全关', () => {
+    const { h } = setup('wxgame.beads.test.color-wave-lock', 'lock');
+    const snap = h.game.snapshot;
+    expect(snap.colorWaveProgress, '`lock` 档不该驱动任何动画通道').toBe(0);
+    expect((snap.colorLockedMask >> 1) & 1, '齐备位图未置 ⇒ 常驻态没有载体').toBe(1);
+    // 色 1 跨第 0/3 两列 ⇒ 两列的格都要有环（参与集 = 该色全部珠）
+    expect(ringAlphaAt(snap, 0, 0, LIT1)).toBe(COLOR_WAVE_LOCK_RING_ALPHA);
+    expect(ringAlphaAt(snap, 0, 3, LIT1)).toBe(COLOR_WAVE_LOCK_RING_ALPHA);
+    expect(ringAlphaAt(snap, 0, 1, LIT2), '未齐色也亮 ⇒ 判据漏了参与集').toBe(0);
+    h.advance(1);
+    expect(ringAlphaAt(h.game.snapshot, 0, 0, LIT1), '常驻态不该随时间衰减').toBe(COLOR_WAVE_LOCK_RING_ALPHA);
+
+    h.game.setColorCueMode('off');
+    expect(ringAlphaAt(h.game.snapshot, 0, 0, LIT1)).toBe(0);
   });
 });
 

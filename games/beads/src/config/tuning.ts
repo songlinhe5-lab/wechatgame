@@ -1295,6 +1295,54 @@ export const WAVE_LIFT_PX = 3;
  */
 export const WAVE_WINDOW_MIN_MS = 240;
 /**
+ * [T-244 十七批] **单色对齐波浪**（用户裁「跳得更明显、和选中的高度一致、时间更短、节奏更紧」）。
+ * 三值**全部派生**，零新造数字：
+ * · 高度 = `SELECT_LIFT_PX`（与选中抬起**同一个真源** ⇒ 「同高」是可证的而非目测）
+ * · 时长与列错峰 = G4 的一半 ⇒ 同一段曲线、更紧的拍子（形状/缓动仍同一族）
+ * 窗口沿用 `waveWindowMs` **同一个式**（只换两个入参）。
+ * ⚠ 与 G4 **同一天花板**（见上方 `WAVE_WINDOW_MIN_MS` 注）：cols ≥ 17 时窗口触底 240，
+ *   而进度分母恒 = 本值 ⇒ 大盘末列的包络在尾部被截（G4 当日同构，已登记）。
+ */
+export const COLOR_WAVE_MS = WAVE_MS / 2;
+export const COLOR_WAVE_COL_DELAY_MS = WAVE_COL_DELAY_MS / 2;
+export const COLOR_WAVE_LIFT_PX = SELECT_LIFT_PX;
+/**
+ * [T-244 十九批 · 用户裁「所有该色珠子**从左到右再亮一遍**，像单光源掠过去」] `pulse` 档的**光带横扫**时序。
+ *
+ * 为什么要与 `jump` 分家（不是观感锅，是可算的时间事实）：十七那套沿用 G4 的比例
+ * ⇒ cols=6 时**单珠闪烁窗 350ms** 对**列间错峰 50ms**（闪烁窗 ≫ 错峰）⇒ 50ms 内整批已全亮
+ * ⇒ 眼睛读到的是「一起亮」而不是「扫过」；且错峰量随大盘列数变，同一段光不两段。
+ * 本档钉死两件事：**横穿用时恒定 + 单珠闪烁窗恒定**（错峰量 = 两者派生 ÷ 列间距数）
+ * ⇒ 任何尺寸的盘扫过去都是同一段节奏，且 `travel + flash = 通道全长`（末列恰在通道关闭那帧收尾，无截尾）。
+ * 两者之比 **3:1**（量的多少由下面 `COLOR_WAVE_SWEEP_MS` 定，二十批改过一次）：
+ * 单珠闪窗 = “被看见的一下”量级，横穿 = 光带走完全程。⚠ 仍非 systems-index §3 冻结常量。
+ */
+/**
+ * [T-244 二十批 · 用户裁「一道光横着扫过的时间慢一些」] `pulse` 通道全长另开一条，**回到 G4 的 `WAVE_MS`**。
+ * 旧值 300ms 横穿在 60fps 下只有 18 帧（归一进度还会吃掉末尾几帧）⇒ 眼睛跟不住光带移动。
+ * 现值：横穿 600ms + 单珠闪 200ms（= `GROUP_LAND_TOTAL_MS` 同量级，一次完整可读的亮）。
+ * ⛔ 不新造时长：800ms 是 `WAVE_MS`（G4 全场波浪）既有真源；`jump` 档不连坐（十七批那条“紧凑”仍为 400ms）。
+ */
+export const COLOR_WAVE_SWEEP_MS = WAVE_MS;
+export const COLOR_WAVE_TRAVEL_MS = (COLOR_WAVE_SWEEP_MS * 3) / 4;
+export const COLOR_WAVE_FLASH_MS = COLOR_WAVE_SWEEP_MS - COLOR_WAVE_TRAVEL_MS;
+/** 逐列错峰量 = 横穿用时 ÷ 列间距数（cols ≤ 1 ⇒ 0，不除零）。 */
+export function colorWaveColDelayMs(cols: number): number {
+  return cols < 2 ? 0 : COLOR_WAVE_TRAVEL_MS / (cols - 1);
+}
+/**
+ * [T-244 十八批 · 用户裁「几种方案都实现出来对比」] 单色齐备提示的**亮度通道**峰值（格底罩层 α / 锁边环 α）。
+ * ⛔ 只走亮度（墨 = 本格目标色的 `endpoints.lit` = `mix(base, #FFF, 0.38)`，端点表内既有档）
+ *   ⇒ 不新增色相、不占用 `lift`/`scale`（那是落位动画的专属通道，十七批的冲突根因）。
+ * 峰值取法与 `wrong`/`named`/`denied` 同族（状态环 α ∈ (0,1]），非目测拍脑袋：
+ * · 环 0.9 = 与 `wrong` 满闪同级（一次性宣告必须看得见）
+ * · 罩层 0.14 = `PANEL_SCRIM_ALPHA` 0.35 的一半不到 ⇒ 打底光不糊珠体
+ */
+export const COLOR_WAVE_GLAZE_ALPHA = 0.14;
+export const COLOR_WAVE_RING_ALPHA = 0.9;
+/** 常驻锁定态的环 α（弱于脉冲：常驻不能抢读感）。 */
+export const COLOR_WAVE_LOCK_RING_ALPHA = 0.5;
+/**
  * G4 波浪期的**降档层集标记**（含垫，见上方⚠️）：L0b+L1+L2+L3+L4c + L11（旧文此处还列已删的 L5 符号层）。
  *
  * **WXG-T-211-B1 / §12.2 C7 拆名**：旧名 `WAVE_LOD_LAYERS` 一词两义（本波浪降档 +

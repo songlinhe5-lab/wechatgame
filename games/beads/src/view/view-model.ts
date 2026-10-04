@@ -66,6 +66,15 @@ import {
   solverSequenceMs,
   WAVE_MS,
   WAVE_BEAD_LOD_LAYERS,
+  COLOR_WAVE_COL_DELAY_MS,
+  COLOR_WAVE_LIFT_PX,
+  COLOR_WAVE_MS,
+  COLOR_WAVE_SWEEP_MS,
+  COLOR_WAVE_GLAZE_ALPHA,
+  COLOR_WAVE_RING_ALPHA,
+  COLOR_WAVE_LOCK_RING_ALPHA,
+  COLOR_WAVE_FLASH_MS,
+  colorWaveColDelayMs,
   DENIED_RING_LINEWIDTH,
   CONFETTI_COUNT,
   CONFETTI_NOFLY_YMIN,
@@ -129,6 +138,7 @@ import {
   CONFETTI_COLORS,
   STAR_GOLD,
   withAlpha,
+  endpointOf,
   type BeadInks,
   type BeadsPalette,
 } from './palette.js';
@@ -840,6 +850,24 @@ function drawGrid(
   const wave: WaveEnvelope = { scale: 1, dy: 0, active: false };
   const waveT = snap.waveProgress > 0 && !snap.reduceMotion ? snap.waveProgress * WAVE_MS : -1;
   const waveWindow = waveWindowMs(snap.gridCols);
+  // [T-244 十六批] 单色齐备提示（用户令「某色全部对齐 ⇒ 该色珠子从左到右跳一次」，十七批改紧，
+  // 十八批按用户裁定拆成三档表达对比）：**不新建曲线** —— 三档都走 `waveEnvelope` 同一条单峰包络，
+  // 只换入参 + 一个**参与集**判定（珠色 == 主角色）。`jump` 复用 `waveWindowMs`（与 G4 同式），
+  // `pulse` 用定长闪窗（十九批：光带横穿）；错峰量一律 = 列号 ⇒ 「从左到右」沿用 G4 语义。
+  // D1（`reduceMotion`）分档：`jump` 走位移 ⇒ 与 G4 同口径整条关停；`pulse` 只走 α ⇒
+  //   **不关停**（G2′ 相 A 纯 α 通道同判例），但取消往复 ⇒ 窗口内静态亮（下方 `cwFlash`）。
+  const cue = snap.colorCueMode;
+  // [T-244 二十批] 乘数 = 通道全长，与 `BeadsGame._colorWaveTotalMs()` **必须同值**（否则光带被加速或尾列扫不到）。
+  const cwTotalMs = cue === 'pulse' ? COLOR_WAVE_SWEEP_MS : COLOR_WAVE_MS;
+  const cwT =
+    snap.colorWaveProgress > 0 && (cue === 'pulse' || !snap.reduceMotion)
+      ? snap.colorWaveProgress * cwTotalMs
+      : -1;
+  const cwWindow = waveWindowMs(snap.gridCols, COLOR_WAVE_MS, COLOR_WAVE_COL_DELAY_MS);
+  // [T-244 十九批] `pulse` 档另算错峰：光带**横穿用时与单珠闪烁窗都钉死**（= `COLOR_WAVE_TRAVEL/FLASH_MS`），
+  // 错峰量按列数派生 ⇒ 扫过去的节奏不随大盘尺寸变（十七那套闪烁窗 ≫ 错峰 ⇒ 读成「一起亮」）。
+  const cwFlashDelay = colorWaveColDelayMs(snap.gridCols);
+  const cwColor = snap.colorWaveColorIdx;
   // G2′ `vfx_solver_restore`（WXG-T-150 / §1.6.2a）：快照只给单调标量 ⇒ 绝对毫秒
   // 由**单一真源公式** `solverSequenceMs(count)` 还原（不在本文件重列公式）。
   // ⚠️ 相 A 不受 `reduceMotion` 关停（纯 α 通道，§1.6.2a D1 行）；相 B 的曲线退化
@@ -967,8 +995,29 @@ function drawGrid(
       const isPop = i === snap.placeRow && j === snap.placeCol && snap.placeProgress > 0;
       // G4 波浪**先算**：本列正在弹跳时让 G1 落座回弹让位 —— 两者不叠加，
       // 否则重叠窗口（≤120ms）会产出「波浪 scale + 落座 α/宽比」的错配帧。
+      // [T-244 十六批] 单色提示的**参与集**：本格珠色 == 主角色才参与。
+      // 珠色取法与下方 `drawFilledBead` / `drawLiftShadowOn` 逐字同参（`beadColorIdx || colorIdx`）；
+      // G4 不在场时才走（game 侧已挡 `isComplete` ⇒ 两者不同帧）。
+      const cwHere = cwT > 0 && (cell.beadColorIdx || cell.colorIdx) === cwColor;
+      // [T-244 十八批] `pulse` 档的单峰 α（0 = 本帧不画）；`jump` 档不碰它。
+      let cwFlash = 0;
       if (waveT > 0) waveEnvelope(j, waveT, waveWindow, wave);
-      const isWave = wave.active;
+      else if (cwHere && cue === 'jump') {
+        waveEnvelope(j, cwT, cwWindow, wave, COLOR_WAVE_COL_DELAY_MS, COLOR_WAVE_LIFT_PX);
+      } else if (cwHere && cue === 'pulse') {
+        // 把**跳高参传 1** ⇒ `out.dy` 退化为归一单峰 `sin(πp)` ∈ (0,1]，直接当 α 用
+        //（⛔ 不新建曲线、不新建包络文件；曲线形状与 `jump` 档逐字同源）。
+        // [T-244 十九批] 窗口 = `COLOR_WAVE_FLASH_MS`（只走 `waveWindowMs` 那个式子拿不到：
+        //   它带 `WAVE_WINDOW_MIN_MS = 240` 下限，会把 100ms 的闪窗兜回 240 ⇒ 又变「一起亮」）。
+        waveEnvelope(j, cwT, COLOR_WAVE_FLASH_MS, wave, cwFlashDelay, 1);
+        cwFlash = wave.active ? (snap.reduceMotion ? 1 : wave.dy) : 0;
+      }
+      // ⚠ 槽是**帧内粘性**的（`wave` 每帧只建一次、逐列覆写）⇒ 不参与的格必须把 `active`
+      //   排除在外，否则上一列留下的 `true` 会串到邻色珠上（实测白跳 +3dp）。
+      //   G4 全场时每格都被覆写 ⇒ 旧写法从未暴露这个缺口。
+      // [T-244 十八批] `pulse` 档也覆写同一个槽 ⇒ 必须按档收紧到 `cue === 'jump'`，
+      //   否则亮度通道会被误读成位移（正是本批要消除的那个冲突）。
+      const isWave = (waveT > 0 || (cwHere && cue === 'jump')) && wave.active;
       const popActive = isPop && !isWave;
       // G2′ 相 B：本格若是落座格 ⇒ 走**逐颗队列**通道（每颗一份完整 120ms 包络、
       // 由 `SOLVER_STAGGER_MS` 错位起播），与 G1 单槽互斥（game 侧已保证不重叠）。
@@ -1125,6 +1174,22 @@ function drawGrid(
       // [T-244] 组落座「出现」语义：相位未到 ⇒ 本格**不画珠**（B0/坑/状态环正常）⇒
       // 视觉 = 从被点格起逐颗浮现。数据同帧已在盘（规则读取不受表现影响）。
       if (!glHidden) drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
+      // [T-244 十八批] `pulse` 档：本格目标色的 `lit`（= `mix(base, #FFF, 0.38)`，端点表内既有档）
+      // 只走**亮度通道** ⇒ 罩层打底光 + 锁边环给轮廓（环几何与 `wrong`/`named`/`denied` 同一个
+      // `drawStateRing` ⇒ 「这格有话说」是既有语言）。⛔ 零位移零缩放 ⇒ 与落位动画结构性正交。
+      // 绘制序：珠体**之上**（与其余状态环同层），⛔ 不吃 lift/scale ⇒ 锁格心。
+      if (cwFlash > 0) {
+        const lit = endpointOf(inks, cell.colorIdx).lit;
+        builder.rect(bx - snap.gridPitch / 2, cy - snap.gridPitch / 2, snap.gridPitch, snap.gridPitch, {
+          fill: withAlpha(lit, cwFlash * COLOR_WAVE_GLAZE_ALPHA),
+          radius: 0,
+        });
+        drawStateRing(builder, bx, cy, snap.gridCell, lit, cwFlash * COLOR_WAVE_RING_ALPHA);
+      }
+      // [T-244 十八批] `lock` 档：该色已齐 ⇒ 常驻弱环（无任何往复、无时长；齐了就一直在）。
+      if (cue === 'lock' && ((snap.colorLockedMask >> (cell.beadColorIdx || cell.colorIdx)) & 1) !== 0) {
+        drawStateRing(builder, bx, cy, snap.gridCell, endpointOf(inks, cell.colorIdx).lit, COLOR_WAVE_LOCK_RING_ALPHA);
+      }
       // 相 A 状态环：叠在珠体之上（同 `wrong` / `hint` 判例，最顶层）。
       // 候选 I 墨 = `palette.slotBorder`（§1.6.2a）⇒ 非 danger/hint 色，不抢玩法语义。
       if (named) {

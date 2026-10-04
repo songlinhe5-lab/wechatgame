@@ -87,6 +87,8 @@ import {
   SWEEP_MS,
   CONFETTI_MS,
   WAVE_MS,
+  COLOR_WAVE_MS,
+  COLOR_WAVE_SWEEP_MS,
   CLEAR_PANEL_DELAY_MS,
   DENIED_MAX_CELLS,
   DENIED_PRESS_MS,
@@ -174,6 +176,7 @@ import {
   createSnapshot,
   type BeadsPhase,
   type BeadsSnapshot,
+  type ColorCueMode,
   type GameMode,
 } from './state.js';
 import {
@@ -424,6 +427,31 @@ export class BeadsGame implements Game {
   private _waveElapsedMs = -1;
   /** 庆祝放完后待开的结算面板（避免离场后残留门在别的相位把面板掀开）。 */
   private _clearPanelPending = false;
+  /**
+   * [T-244 十六批 · 用户令「某色全部对齐 ⇒ 该色珠子从左到右跳一次」] **单色对齐波浪**：
+   * G4 的同一条包络（`scene-vfx::waveEnvelope`），只把参与集
+   * 从「全场」换成「该色的珠」⇒ 逐列错峰天然就是「从左到右」。`-1` = 未播放。
+   * 时长/错峰/跳高 = `COLOR_WAVE_*`（十七批按用户反馈改紧，与 G4 分家）。
+   */
+  private _colorWaveElapsedMs = -1;
+  /** 本条波浪的主角色（`_colorWaveElapsedMs >= 0` 时有效，0 = 无）。 */
+  private _colorWaveIdx = 0;
+  /**
+   * [T-244 十八批] **让位门**（只管 `jump` 档）：某色刚齐但落位动画还在跑 ⇒ 本字段存待播的
+   * `colorIdx`（0 = 无），`_stepColorWaveFx` 等到 `_placeFx`/`_groupLandFx`/`_solverFx` **三通道全空**
+   * 那一帧才接管成 `_colorWaveElapsedMs = 0`。
+   *
+   * 病灶（用户报「与落位动画冲突」，非观感锅、是三条通道级事实）：旧版臂在「最后一颗落定那一帧」
+   * ⇒ ① `draft.lift` 先被波浪写、再被组落座同帧覆写 ⇒ 错配帧；② `popActive = isPop && !isWave`
+   * ⇒ 促成对齐那颗自己的回弹被吞；③ 同一批珠连演两遍运动语言。
+   * ⛔ 没用定长让位期（`GROUP_LAND_TOTAL_MS` = 200）：解环器相 B 的序列总长 =
+   *   `solverSequenceMs(3)` = 480ms ⇒ 定长会漏。等队列空比猜时长便宜且不可能错。
+   */
+  private _colorWavePendingIdx = 0;
+  /** [T-244 十八批] 已齐备色位图（bit = `colorIdx`）；`lock` 档的常驻环靠它，换关清零。 */
+  private _colorLockMask = 0;
+  /** [T-244 十八批] 当前表达档（默认 `pulse`；dev `?cue=` 可切）。 */
+  private _colorCue: ColorCueMode = 'pulse';
   /**
    * 一次性轻提示（BD-16 无选中点格 / BD-15 扩展位占位共用通道，ux-spec §5 WXG-T-097）。
    * 与 `_wrongFx` 同判例：表现层计时，`TAP_HINT_MS` 后自清，不占常驻分配。
@@ -890,6 +918,7 @@ export class BeadsGame implements Game {
     this._stepDeniedFx(dt); // G7 不可填格轻压：同为表现层（`assets-spec §1.6.7`）
     this._stepSweepFx(dt); // G3 道具生效扫光：同上（§1.6.3）
     this._stepConfettiFx(dt); // G6 结算彩带：同为表现层不冻结（§1.6.6）
+    this._stepColorWaveFx(dt); // [T-244 十六批] 单色对齐波浪：同为表现层单标量、到点自清
     this._stepTapHint(dt); // BD-16/BD-15 一次性轻提示：同不冻结（表现层）
   }
 
@@ -1916,7 +1945,9 @@ export class BeadsGame implements Game {
       // Architecture §2 note ①: the needed-colour projection consumes placed
       // beads — a data flow piggybacking on the notification, no S3→S4 call.
       bus.on('bead:placed', (payload) => {
-        this._tray.consumeNeeded((payload as { colorIdx: number }).colorIdx);
+        const colorIdx = (payload as { colorIdx: number }).colorIdx;
+        this._tray.consumeNeeded(colorIdx);
+        this._maybeColorCue(colorIdx);
       }),
       // Cross-mode injection defence (score-combo §6): level:cleared is a
       // normal-mode-only event; hearing it during sprint means someone
@@ -2023,6 +2054,10 @@ export class BeadsGame implements Game {
     this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
     this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
     this._solverFx = null; // 换关 / 重试 ⇒ 作废在途的 G2′ 队列
+    this._colorWaveElapsedMs = -1; // [T-244 十六批] 同判例：波浪最多 800ms，但跨关残留会让
+    this._colorWaveIdx = 0;         //   新盘的同号珠白跳一段（列号对新布局无意义）
+    this._colorWavePendingIdx = 0; // [T-244 十八批] 让位门也不能跨关存活（旧盘的待播色在新盘无意义）
+    this._colorLockMask = 0;       //   常驻锁定态同样逐盘重建（新布局同号≠同形）
     this._groupLandFx = null; // [T-244] 同判例：旧格坐标不动新棋盘（相 B **会写盘**）
     // TEMP-LOG（裁后删除）：装配完成即报队列状态 ⟹ 初始化若有动画这里会露出登记日志
     console.log(`[GLD+初始化] t=${performance.now().toFixed(1)}ms 队列=${this._groupLandFx === null ? '空' : '非空'}`);
@@ -3237,6 +3272,16 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * [T-244 十八批] 切**单色齐备提示**的表达档（用户裁「几种方案都实现出来对比」）：
+   * `jump` 逐列跳 / `pulse` 亮一档 / `lock` 常驻环 / `off` 全关（对照）。
+   * 只换渲染通道，**不动触发时机与参与集**（`_maybeColorCue`）⇒ 四档看到的是同一件事。
+   * 不持久化、不参与玩法。用法：harness `?game=beads&cue=pulse` 或 `__beads.game.setColorCueMode('lock')`。
+   */
+  setColorCueMode(mode: ColorCueMode): void {
+    this._colorCue = mode;
+  }
+
+  /**
    * DEBUG 性能覆层开关（pause-settings v1.6 §2.2）：开则 view 在主循环之上叠画
    * fps / 帧耗时 / 相位 / 格距·LOD 只读诊断面板。与 `setDebugOutlines` 同走
    * snapshot 暴露，唯一差别是经 `settings.debugInfo` **持久化**（真机 QA 无
@@ -3555,6 +3600,83 @@ export class BeadsGame implements Game {
     if (this._confettiElapsedMs >= CONFETTI_MS) this._confettiElapsedMs = -1;
   }
 
+  /** [T-244 十六批] 单色提示推进（`_stepConfettiFx` 同判例；时长 = `COLOR_WAVE_MS`，十七批改紧）。 */
+  private _stepColorWaveFx(dt: number): void {
+    if (this._colorWaveElapsedMs < 0) {
+      // [T-244 十八批] **让位门**：`jump` 档必须等落位队列跑完才起跳（见 `_colorWavePendingIdx` 头注）。
+      // 只读三个已有通道的存亡 ⇒ 零新时长零新轮询（本函数本就逐帧在跑）。
+      const pending = this._colorWavePendingIdx;
+      if (
+        pending === 0 ||
+        this._placeFx !== null ||
+        this._groupLandFx !== null ||
+        this._solverFx !== null
+      ) {
+        return;
+      }
+      this._colorWavePendingIdx = 0;
+      this._colorWaveIdx = pending;
+      this._colorWaveElapsedMs = 0;
+      return;
+    }
+    this._colorWaveElapsedMs += Math.max(0, dt) * 1000;
+    if (this._colorWaveElapsedMs >= this._colorWaveTotalMs()) {
+      this._colorWaveElapsedMs = -1;
+      this._colorWaveIdx = 0;
+    }
+  }
+
+  /**
+   * [T-244 二十批] 单色提示通道全长按档分派：`pulse` 走光带横扫 ⇒ `COLOR_WAVE_SWEEP_MS`（800），
+   * `jump` 保持十七批的紧凑 400。⛔ **与 view 侧 `cwT = progress × 同一值` 是一对**（不一致 ⇒ 光带被加速或扫不完，
+   *   `scene-vfx.test.ts` 的「比旧的 400ms 慢」那条断言盯的就是这个耦合）。
+   */
+  private _colorWaveTotalMs(): number {
+    return this._colorCue === 'pulse' ? COLOR_WAVE_SWEEP_MS : COLOR_WAVE_MS;
+  }
+
+  /**
+   * [T-244 十六批] 某色的**全部珠子各归其位** ⇒ 发一条单色齐备提示（十八批 = 三档表达同一个时机、
+   * 同一参与集，只换渲染通道：`jump` 逐列跳 / `pulse` 亮一档 / `lock` 常驻环）。
+   *
+   * 判据（单向即充分）：每个**底色为 C** 的可填格都已填着 C 珠。
+   * 充分性 = 关卡不变式「C 珠总数 == 底色 C 的格数」（`validateBeadsLevel` 静态校验）
+   * ⇒ 全格填对 ⇒ 不存在歪在他格或留在托盘的 C 珠。锁定/镂空格底色恒 0 ⇒ 天然不参与。
+   *
+   * 触发点 = `bead:placed`（放置是全库唯一能让某色「由缺变齐」的边，且各条放置路径——
+   * 单颗 / 组填 / 盘内移动 / 解环器——都已汇流到这条事件）⇒ 无需逐帧轮询。
+   * 代价 O(rows×cols) 落在**输入路径**（非每帧热路径），单循环零分配。
+   *
+   * 单调性 ⇒ 每色至多触发一次：就位珠是终态（`retrieve` 拒绝 ⇒ 齐了不会再缺）。
+   * [T-244 十八批] `_colorLockMask` 不是「防重触发」位图（单调性已保证），而是 `lock` 档的
+   * **常驻表达**载体（齐了就得一直看得出来）。
+   *
+   * ⛔ 全盘达成时不臂：那一帧 `level-clear` 的 G4 全场波浪已在放（本色珠是其子集）
+   *   ⇒ 同一格同帧两条同形语言会互相覆写（`view-model` 里 G4 优先级在前）。
+   *   （锁定位图仍不置 ⇒ 全盘那一帧已无需单色信号。与 G4 同判例。）
+   */
+  private _maybeColorCue(colorIdx: number): void {
+    if (colorIdx <= 0 || this._grid.isComplete()) return;
+    const grid = this._grid;
+    for (let i = 0; i < grid.rows; i++) {
+      for (let j = 0; j < grid.cols; j++) {
+        const cell = grid.cell(i, j);
+        if (!cell || cell.void || cell.colorIdx !== colorIdx) continue;
+        if (cell.state !== 'filled' || cell.beadColorIdx !== colorIdx) return; // 本格还缺 ⇒ 未齐
+      }
+    }
+    this._colorLockMask |= 1 << colorIdx;
+    // ponytail: 单槽——400ms 内连齐两色则后一色接管（前一色的脉冲被截）；要并存再上定长槽数组。
+    if (this._colorCue === 'jump') {
+      this._colorWavePendingIdx = colorIdx; // 让位门 ⇒ 不在此处起播
+    } else if (this._colorCue === 'pulse') {
+      // 亮通道与落位的位移通道正交 ⇒ 不等队列，当场起播（「落定即亮」是本档的卖点）。
+      this._colorWavePendingIdx = 0;
+      this._colorWaveElapsedMs = 0;
+      this._colorWaveIdx = colorIdx;
+    }
+  }
+
   /**
    * 发一次性轻提示（ux-spec §5 WXG-T-097）。**不**发任何玩法事件，也不走
    * `sfx_reject`——它是「前置缺口告知」而不是错误反馈（错误反馈频率上限属 §3.8，
@@ -3813,6 +3935,17 @@ export class BeadsGame implements Game {
     // G4 波浪：全场逐列 ⇒ 一条单调进度（列错峰与曲线在 view 侧推导，L5）。
     s.waveProgress =
       this._waveElapsedMs < 0 ? 0 : Math.min(1, this._waveElapsedMs / WAVE_MS);
+    // [T-244 十六批] 单色对齐波浪：与 G4 同构（一条单调进度 + 主角色），列错峰在 view 侧推导（L5）。
+    // ⚠ 分母 = `_colorWaveTotalMs()`（不是 `WAVE_MS`，也不是死的 `COLOR_WAVE_MS`）：十七批把 `jump` 改紧，
+    //   二十批又给 `pulse` 开了长通道 ⇒ 进度归一必须跟通道同长。
+    s.colorWaveProgress =
+      this._colorWaveElapsedMs < 0
+        ? 0
+        : Math.min(1, this._colorWaveElapsedMs / this._colorWaveTotalMs());
+    s.colorWaveColorIdx = this._colorWaveIdx;
+    // [T-244 十八批] 表达档与常驻锁定态（view 只读；换档不影响判据，只换渲染通道）。
+    s.colorCueMode = this._colorCue;
+    s.colorLockedMask = this._colorLockMask;
     // BD-16/BD-15 轻提示：只给文本与锚点格（无进度曲线——§5 未定淡入淡出，见该行的 `[待确认]`）。
     const th = this._tapHint;
     s.tapHintText = th ? th.text : '';

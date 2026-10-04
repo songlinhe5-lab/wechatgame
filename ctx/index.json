@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "e24d49e9dcdbd030dd82d274a3ac08548d678e602c89bce1afa682e3c156f6bb",
+      "sha256": "b3ecdfea7359629040eee12f54f65d0eb854ff3f0b7d1499fc55608e652892a1",
       "tier": "normal",
       "sections": [
         {
@@ -33748,17 +33748,17 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 35508,
-      "lines": 422,
-      "sha256": "6907fd29537840dab05afe0f075de7399cc6b638ccae8e8d08622cfbb63dfd34",
+      "tokens": 36527,
+      "lines": 423,
+      "sha256": "98a34871539f9afd26944e4cc0fd4e4bc3c2f7eb5b71031e531c30b461393331",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 423,
-          "tokens": 35499,
+          "endLine": 424,
+          "tokens": 36518,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.20 · 任务号 无 WXG-T 号（用户 2026-09-",
           "keywords": [
             "Spec",
@@ -33909,8 +33909,8 @@
           "anchor": "§5 交互反馈与动效时长表（权威毫秒值，回写 art-bible §7 占位）",
           "level": 2,
           "startLine": 240,
-          "endLine": 291,
-          "tokens": 6316,
+          "endLine": 292,
+          "tokens": 7334,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
             "§7",
@@ -33924,8 +33924,8 @@
         {
           "anchor": "§6 首屏留存策略（微信前 10 秒）· WXG-T-081 可执行化重写",
           "level": 2,
-          "startLine": 292,
-          "endLine": 337,
+          "startLine": 293,
+          "endLine": 338,
           "tokens": 2420,
           "summary": "",
           "keywords": [
@@ -33938,8 +33938,8 @@
         {
           "anchor": "§6.1 首 10 秒时间轴（v1.4 随「错位归位」重写；0 文字；引导均为动效，毫秒值见 §5）",
           "level": 3,
-          "startLine": 294,
-          "endLine": 311,
+          "startLine": 295,
+          "endLine": 312,
           "tokens": 812,
           "summary": "玩法前提（v1.4）：L1 开局 = 棋盘全满 + 1 对错位珠（k=1，§3.13 建议值）+ 空托盘（供料关停）。引",
           "keywords": [
@@ -33954,8 +33954,8 @@
         {
           "anchor": "§6.2 首供语义裁定（GAP-02，不可两读）",
           "level": 3,
-          "startLine": 312,
-          "endLine": 325,
+          "startLine": 313,
+          "endLine": 326,
           "tokens": 988,
           "summary": "裁定：采「spawner.reset() 后置 _acc = interval」，不采「_setupLevel 内同步 ",
           "keywords": [
@@ -33970,8 +33970,8 @@
         {
           "anchor": "§6.3 启动路径表（skill §6 要求项，本次补齐）",
           "level": 3,
-          "startLine": 326,
-          "endLine": 337,
+          "startLine": 327,
+          "endLine": 338,
           "tokens": 547,
           "summary": "首次（runs==0） 主菜单（含选关列表）（#1 · v1.14 反转，原「BOOT 直进玩法」作废） 进关后走 §6",
           "keywords": [
@@ -33986,8 +33986,8 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 338,
-          "endLine": 351,
+          "startLine": 339,
+          "endLine": 352,
           "tokens": 1123,
           "summary": "触控 UI 控件 ≥88px（TOUCH_MIN）；棋盘/托盘珠命中区=名义外扩 8px、重叠按格心最近（§3.8 v1",
           "keywords": [
@@ -34002,8 +34002,8 @@
         {
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
-          "startLine": 352,
-          "endLine": 423,
+          "startLine": 353,
+          "endLine": 424,
           "tokens": 9308,
           "summary": "已裁定（沿袭）：~~无主菜单两路径（core-loop 判例）~~ v1.7 反转：主菜单恢复（WXG-T-164），启",
           "keywords": [
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 20392,
-      "lines": 687,
-      "sha256": "80edb2be058f2b6f84a245f8ba7f5861da3d1cad9895f3f813b64de9232b118f",
+      "tokens": 24927,
+      "lines": 831,
+      "sha256": "f761fe4f254d24f12021c7e6d8237fbcb9e694173c9caeb821b00b1c348c645a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 688,
-          "tokens": 20389,
+          "endLine": 832,
+          "tokens": 24923,
           "summary": "",
           "keywords": []
         },
@@ -50738,6 +50738,84 @@
             "十五批",
             "用户问"
           ]
+        },
+        {
+          "anchor": "§T-244 十六批（用户令「某色完全对齐 ⇒ 该色珠子从左到右波浪跳一次」）",
+          "level": 3,
+          "startLine": 689,
+          "endLine": 721,
+          "tokens": 996,
+          "summary": "做法（ponytail 第二级命中：库里已有）：G4 vfx_complete_wave 的包络 scene-vfx::",
+          "keywords": [
+            "ponytail",
+            "vfx_complete_wave",
+            "scene",
+            "vfx",
+            "十六批",
+            "用户令"
+          ]
+        },
+        {
+          "anchor": "§T-244 十七批（用户反馈「跳得更明显、和选中的高度一致、时间再短一些、节奏紧凑一些」）",
+          "level": 3,
+          "startLine": 722,
+          "endLine": 748,
+          "tokens": 818,
+          "summary": "要点：十六批的「完全复用 G4 常量」在本批必须分家，但只分三个旋钮。分家前先确认",
+          "keywords": [
+            "十七批",
+            "用户反馈",
+            "跳得更明显",
+            "和选中的高度",
+            "一致",
+            "时间再短一些"
+          ]
+        },
+        {
+          "anchor": "§T-244 十八批（用户裁「波浪与落位冲突 ⇒ 设计一款能明显提示同色已完全落位的表达」，并选「几种方案都实现出来对比」）",
+          "level": 3,
+          "startLine": 749,
+          "endLine": 783,
+          "tokens": 1300,
+          "summary": "冲突不是观感问题，是三条通道级事实（写代码前先量化，别调时长了事）：",
+          "keywords": [
+            "十八批",
+            "用户裁",
+            "波浪与落位冲",
+            "设计一款能明",
+            "显提示同色已",
+            "完全落位的表"
+          ]
+        },
+        {
+          "anchor": "§T-244 十九批 · `pulse` 档改为「光带从左到右扫过该色珠」",
+          "level": 3,
+          "startLine": 784,
+          "endLine": 811,
+          "tokens": 728,
+          "summary": "用户看完十八批的对比后定方向：「从左到右所有该色珠子再亮一遍，类似单光源掠过去」。",
+          "keywords": [
+            "pulse",
+            "十九批",
+            "档改为",
+            "光带从左到右",
+            "扫过该色珠"
+          ]
+        },
+        {
+          "anchor": "§T-244 二十批 · 光带横扫放慢（`pulse` 通道独立成长通道）",
+          "level": 3,
+          "startLine": 812,
+          "endLine": 832,
+          "tokens": 513,
+          "summary": "用户看完十九批预览：「一道光横着扫过的时间慢一些」。",
+          "keywords": [
+            "pulse",
+            "二十批",
+            "光带横扫放慢",
+            "通道独立成长",
+            "通道"
+          ]
         }
       ]
     },
@@ -50745,7 +50823,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "6addc7d9d53bfc7d3e2f1ae5f874d7e30a6c95c2fe50598fbe77a3cbad33fd1d",
+      "sha256": "58346f3d100b67fe67e3504c5168e816be52317f93f8e12cad4d34de6a3b3337",
       "tier": "normal",
       "sections": [
         {
@@ -50836,7 +50914,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 20,392 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 24,927 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
