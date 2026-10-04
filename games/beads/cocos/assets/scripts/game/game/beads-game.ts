@@ -77,6 +77,7 @@ import {
   WRONG_FX_MS,
   WRONG_FX_RESTART_GATE_MS,
   FILL_POP_MS,
+  GROUP_LAND_MAX,
   FILL_POP_RESTART_GATE_MS,
   SOLVER_HINT_MS,
   SOLVER_MAX_CELLS,
@@ -1234,9 +1235,11 @@ export class BeadsGame implements Game {
     );
     if (!this._groupLandFx) {
       this._groupLandFx = {
-        rows: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
-        cols: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
-        steps: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
+        // [T-244 五批] 容量用 `GROUP_LAND_MAX`（盘面格数上界）⛔ **不再用 `SOLVER_MAX_CELLS`**
+        // —— 那是解环器单次序列上限（=3），曾导致「一次落 17 颗只有前 3 颗有动画」。
+        rows: new Array<number>(GROUP_LAND_MAX).fill(-1),
+        cols: new Array<number>(GROUP_LAND_MAX).fill(-1),
+        steps: new Array<number>(GROUP_LAND_MAX).fill(-1),
         count: 0,
         elapsedMs: 0,
         totalMs: 0,

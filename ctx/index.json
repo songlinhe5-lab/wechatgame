@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "2238eeaea6c645b2123baf6d0f8c98ebbac55b9fa5b9202a72609d61286287a5",
+      "sha256": "debf4d9b3087d31fe30120a9491dadc000107e005ac355d9f222e000a2d72a5b",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 10312,
-      "lines": 345,
-      "sha256": "fab35b0849a170baef9d49c1ec4de230005fec0edd1adc18f6a8039e5eb17bd6",
+      "tokens": 10771,
+      "lines": 362,
+      "sha256": "175134631952196830e4574c875072e1c4438a22093fd8ad779412c432cb6e66",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 346,
-          "tokens": 10309,
+          "endLine": 363,
+          "tokens": 10767,
           "summary": "",
           "keywords": []
         },
@@ -50437,6 +50437,22 @@
             "撤销环号",
             "涟漪"
           ]
+        },
+        {
+          "anchor": "§T-244 五批：修「只有三个珠有动画」——队列容量用错常量（日志抓到的真 bug）",
+          "level": 3,
+          "startLine": 347,
+          "endLine": 363,
+          "tokens": 424,
+          "summary": "用户 console 日志直接抓到：[GLD+登记] step=0..2 后接 14 行 [GLD+丢弃] 容量已满 3",
+          "keywords": [
+            "bug",
+            "console",
+            "GLD",
+            "step",
+            "五批",
+            "只有三个珠有"
+          ]
         }
       ]
     },
@@ -50444,7 +50460,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "9bbd2051fdc3f138e70c35cc7aa3c9dc5273e9d08d7d264cd0839e6722d071d3",
+      "sha256": "fb209f69e0e9d21a517657c54b456b2e80a64b973ca110e41906c97deb9c8817",
       "tier": "normal",
       "sections": [
         {
@@ -50535,7 +50551,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 10,312 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 10,771 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

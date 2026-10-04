@@ -1182,6 +1182,18 @@ export const SOLVER_STAGGER_MS = 80;
 export const GROUP_LAND_DROP_PX = 14;
 /** 一次点名的上限：沿 §3.6 `SOLVER_PLUS_COUNT`（引用冻结值，不新增）。 */
 export const SOLVER_MAX_CELLS = SOLVER_PLUS_COUNT;
+
+/**
+ * **[T-244 五批 · 2026-10-04 修「只有三个珠有动画」]** 落座延迟队列的**容量上界**（颗数）。
+ *
+ * ⛔⛔ **病灶**：`groupLand*` 队列曾用 `SOLVER_MAX_CELLS` 当容量 —— 那个常量是**解环器单次
+ * 序列上限**（= `SOLVER_PLUS_COUNT` = **3**），⛔ **不是盘面容量** ⟹ 一次落 17 颗时第 4 颗起
+ * 全部被静默丢弃（用户报「只有三个珠有出现动画」）。教训：复用常量前先确认它的**语义口径**。
+ *
+ * 取值 = 盘面格数上界（实测封箱盘 13×12 = 156；256 留足余量）。game 侧队列与 snapshot
+ * 暴露数组**共用本常量** ⟹ 零漂移。⛔ 非每帧路径（队列惰性建时才分配）。
+ */
+export const GROUP_LAND_MAX = 256;
 /**
  * 整条序列总时长 = 相 A + 逐颗错开 `80×(n−1)` + 末颗落座 120（§1.6.2a 相序行）。
  * **单一真源函数**：game 侧用它定计时窗口，view 侧用它把单调标量还原成绝对毫秒
