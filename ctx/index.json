@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "3bece57c2ea4832b174942205d2990035e0f890e4fd2eae7ebe15b712bd5b17b",
+      "sha256": "4362fd13d41cb137939c911eaca027e3ab856092d579b64f2da812c8ab8b2be7",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 11160,
-      "lines": 375,
-      "sha256": "6fa271115142628aea8ccade138478b97fe8e788a9d4e1644f810a241890c68f",
+      "tokens": 11512,
+      "lines": 388,
+      "sha256": "38caa830e5609f181b7adc18ea99a7b37d496b00c94988152aa55c35eaf48c8e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 376,
-          "tokens": 11157,
+          "endLine": 389,
+          "tokens": 11509,
           "summary": "",
           "keywords": []
         },
@@ -50469,6 +50469,22 @@
             "硬上限",
             "用户裁定"
           ]
+        },
+        {
+          "anchor": "§T-244 七批：延迟顺序改「落珠顺序」（托盘 + 盘面两条路径统一）",
+          "level": 3,
+          "startLine": 377,
+          "endLine": 389,
+          "tokens": 323,
+          "summary": "用户裁定「托盘落珠也要按照这个动画来，顺序上只要按照落珠顺序展现动画即可」",
+          "keywords": [
+            "七批",
+            "延迟顺序改",
+            "落珠顺序",
+            "托盘",
+            "盘面两条路径",
+            "统一"
+          ]
         }
       ]
     },
@@ -50476,7 +50492,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "a7f02c228a5efdf48744405f3f081c4883d31dc56b11036b17130330bf0c2f32",
+      "sha256": "cf8f8c9b1ac8050095988c903a8bedd3ed69f60254dafc36701463457c655b43",
       "tier": "normal",
       "sections": [
         {
@@ -50567,7 +50583,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 11,160 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 11,512 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

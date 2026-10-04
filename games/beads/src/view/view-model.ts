@@ -978,13 +978,13 @@ function drawGrid(
       // 由 `SOLVER_STAGGER_MS` 错位起播），与 G1 单槽互斥（game 侧已保证不重叠）。
       const solverStep = solverLandStep(snap, i, j);
       const solverPopP = solverStep >= 0 && solverT > 0 ? solverBeadProgress(solverT, solverStep) : 0;
-      // [T-244 修正四批 · 用户裁「乙」] 组落座：`step` = **落珠序号** ⟹ **每颗固定错峰**
-      // （`STAGGER × order`，与 G2′ 同常量）；「由近及远」由 `planGroupFill` 填充序保证。
+      // [T-244 七批] 组落座：`step` = **落珠序号** ⟹ 每颗等差错峰（80ms 预算内均分，总时长恒 200ms）。
+      // 「由近及远」由 `planGroupFill` 填充序保证（被点格 + BFS）。
       // 优先级最前：组归位是本格最新事件（同帧与 G1/solver 互斥由 game 侧保证）。
       const glStep = groupLandStep(snap, i, j);
-      // maxRing = 末项环号（环号非递减 ⟹ 末项即最大）⟹ 偏移在 80ms 预算内按比例分配
-      const glMaxRing = snap.groupLandCount > 0 ? snap.groupLandSteps[snap.groupLandCount - 1]! : 0;
-      const glT = glStep >= 0 ? snap.groupLandElapsedMs - groupLandOffsetMs(glStep, glMaxRing) : -1;
+      // [T-244 七批] maxOrder = 末项序号（序号非递减 ⟹ 末项即最大）⟹ 错峰在 80ms 预算内等差分配
+      const glMaxOrder = snap.groupLandCount > 0 ? snap.groupLandSteps[snap.groupLandCount - 1]! : 0;
+      const glT = glStep >= 0 ? snap.groupLandElapsedMs - groupLandOffsetMs(glStep, glMaxOrder) : -1;
       // 环 0（= 被点格本身）**永不隐藏** ⟹ 「距离 0 = 零延迟」的正确实现（单颗放置的
       // 起播帧照常画珠 ⟹ 与原 G1 单槽同帧等价 ⟹ 封箱基准不变）。
       const glHidden = glStep > 0 && glT <= 0;

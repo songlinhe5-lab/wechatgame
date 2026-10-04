@@ -92,18 +92,19 @@ export function solverBeadProgress(tMs: number, step: number): number {
 }
 
 /**
- * **[T-244 六批 · 用户裁定「BFS 方式传播 + 间隔缩短 + 整体 ≤0.2 秒」]**
- * 环 `ring` 的**起播偏移**（ms）= `SPREAD × ring / maxRing`
- * ⟹ **同环同时出现**（BFS 逐环扩散）+ 环间隔 `SPREAD / maxRing`（环数越多间隔越短）。
+ * **[T-244 七批 · 用户裁定「顺序上只要按照落珠顺序展现动画即可」]**
+ * 第 `order` 颗落珠的**起播偏移**（ms）= `SPREAD × order / maxOrder`
+ * ⟹ **每颗等差错峰**（80ms 预算内均分），落珠顺序 = `planGroupFill` 填充序（被点格 + BFS 由近及远）
+ * ⟹ 视觉上仍是「由近及远逐颗浮现」，只是**同环不再强制同时**（顺序即语义，不再按环聚合）。
  *
- * - `ring` = 环号 = **切比雪夫距离**（BFS 层号，game 侧登记）⟹「由近及远」= BFS 语义本体。
- * - `maxRing` = 本次最大环号（= `groupLandSteps[count-1]`，环号非递减 ⟹ 末项即最大）。
- * - ⛔ **总时长与环数无关**：`SPREAD(80) + PER_BEAD(120) = 200ms` 恒定（用户硬上限 0.2 秒）。
+ * - ⛔ **总时长与颗数无关**：`SPREAD(80) + PER_BEAD(120) = 200ms` 恒定（用户硬上限 0.2 秒）。
  * - ⛔ game 侧 `totalMs` 用**同式**（跨层同式，注释互指；game 不依赖 view 故不复用函数）。
+ * - ⚠ 口径史：环号（BFS 同环同时）↔ 落珠序号（每颗错峰）在 T-244 二~七批间摇摆过两轮，
+ *   最终按用户裁定取**落珠序号**；`chebyshev` 因此删了又复活、复活又删。
  */
-export function groupLandOffsetMs(ring: number, maxRing: number): number {
-  if (maxRing <= 0) return 0;
-  return (GROUP_LAND_SPREAD_MS * ring) / maxRing;
+export function groupLandOffsetMs(order: number, maxOrder: number): number {
+  if (maxOrder <= 0) return 0;
+  return (GROUP_LAND_SPREAD_MS * order) / maxOrder;
 }
 
 /**

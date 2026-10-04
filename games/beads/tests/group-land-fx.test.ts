@@ -147,8 +147,8 @@ describe('托盘锚组归位走同队列（WXG-T-244 修正批）', () => {
     });
 });
 
-describe('BFS 传播 + 200ms 硬上限（WXG-T-244 六批）', () => {
-    it('⑤ step = BFS 环号（切比雪夫距离）⟹ 同环同时、由近及远扩散', () => {
+describe('落珠顺序错峰 + 200ms 硬上限（WXG-T-244 七批）', () => {
+    it('⑤ step = 落珠序号 ⟹ 逐颗递增（由近及远由 planGroupFill 填充序保证）', () => {
         const h = mk('wxgame.beads.test.t244-rings');
         // 造一条「直线三连」t2 空格：(1,1) 被点 / (2,1) 环 1 / (3,1) 环 2
         makeEmpty(h, 1, 1, 3);
@@ -162,29 +162,27 @@ describe('BFS 传播 + 200ms 硬上限（WXG-T-244 六批）', () => {
         const s = h.game.snapshot;
         // 组大小 = 托盘组内珠数（2）⟹ 只填 2 颗；(3,1) 不会进本批
         expect(s.groupLandCount).toBe(2);
-        expect(s.groupLandSteps[0], '被点格 = 环 0（零延迟）').toBe(0);
-        expect(s.groupLandSteps[1], '(2,1) 距被点格 1 格 = 环 1').toBe(1);
-        // [T-244 六批] BFS 传播：同环 = 同 step（本盘 (2,1)/(3,1) 都只注入 1 颗 ⟹ 单珠链）
-        // ⟹ 断言「登记序 = 被点格起、环号非递减」即可（BFS 序由 planGroupFill 保证）。
+        expect(s.groupLandSteps[0], '被点格 = 序号 0（零延迟）').toBe(0);
+        expect(s.groupLandSteps[1], '第二颗 = 序号 1（每颗递增 ⟹ 错峰）').toBe(1);
     });
 
-    it('⑥ 偏移在 80ms 预算内按环比例分配 ⟹ 总时长恒 200ms（与环数无关）', () => {
-        // 环 3 / maxRing 3：偏移 0 / 26.7 / 53.3 / 80
-        const maxRing = 3;
-        const offs = [0, 1, 2, 3].map((ring) => groupLandOffsetMs(ring, maxRing));
+    it('⑥ 偏移在 80ms 预算内等差分配 ⟹ 总时长恒 200ms（与颗数无关）', () => {
+        // 末颗序号 3：偏移 0 / 26.7 / 53.3 / 80
+        const maxOrder = 3;
+        const offs = [0, 1, 2, 3].map((order) => groupLandOffsetMs(order, maxOrder));
         expect(offs[0]).toBe(0);
-        expect(offs[3], '最大环吃满传播预算').toBeCloseTo(GROUP_LAND_SPREAD_MS, 6);
+        expect(offs[3], '末颗吃满错峰预算').toBeCloseTo(GROUP_LAND_SPREAD_MS, 6);
         // 间隔**恒定**（预算按环比例分配 ⟹ 等差；不是递增）
         const gaps = offs.slice(1).map((v, k) => v - offs[k]!);
         expect(gaps[1]).toBeCloseTo(gaps[0]!, 6);
         expect(gaps[2]).toBeCloseTo(gaps[1]!, 6);
         // ⛔ 硬上限：总时长 = 传播预算 + 落位窗 = 200ms，**与环数无关**
         expect(GROUP_LAND_SPREAD_MS + SOLVER_PER_BEAD_MS, '总时长 ≤ 0.2 秒').toBeLessThanOrEqual(200);
-        // 环数多 ⟹ 间隔更短（「间隔缩短」）
-        expect(groupLandOffsetMs(1, 6) - groupLandOffsetMs(0, 6), '6 环的间隔 < 3 环的间隔').toBeLessThan(
+        // 颗数多 ⟹ 每颗间隔更短（「间隔缩短」）：预算固定 ⟹ 单颗间隔 = 80/(n−1)
+        expect(groupLandOffsetMs(1, 6) - groupLandOffsetMs(0, 6), '6 颗的间隔 < 3 颗的间隔').toBeLessThan(
             groupLandOffsetMs(1, 3) - groupLandOffsetMs(0, 3),
         );
-        expect(groupLandOffsetMs(1, 0), '单环（maxRing=0）⟹ 零延迟').toBe(0);
+        expect(groupLandOffsetMs(1, 0), '单颗（maxOrder=0）⟹ 零延迟').toBe(0);
     });
 });
 
@@ -204,7 +202,7 @@ describe('所有落珠都播（T-244 修正三批 · 取消组批量限制）', 
 });
 
 describe('帧级错峰时序（T-244 四批「乙」· 防回归）', () => {
-    it('⑧ 三颗直线（环 0/1/2）：错峰按 BFS 环分配，且总时长 ≤ 200ms', () => {
+    it('⑧ 三颗（序号 0/1/2）：逐颗等差错峰，且总时长 ≤ 200ms', () => {
         const h = mk('wxgame.beads.test.t244-frame');
         makeEmpty(h, 1, 1, 3);
         makeEmpty(h, 2, 1, 3);
@@ -228,10 +226,10 @@ describe('帧级错峰时序（T-244 四批「乙」· 防回归）', () => {
         expect(tAt(1), '环1 未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
         expect(tAt(2), '环2 未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
 
-        // 过 SPREAD/2：环 1 进窗口
+        // 过 SPREAD/2（= 40ms = 第 2 颗的偏移）：序号 1 进窗口
         h.advance(GROUP_LAND_SPREAD_MS / 2 / 1000 + FRAME);
-        expect(tAt(1), '环1 已进窗口').toBeGreaterThan(0);
-        expect(tAt(2), '环2 仍未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
+        expect(tAt(1), '第2颗已进窗口').toBeGreaterThan(0);
+        expect(tAt(2), '第3颗仍未轮到 ⟹ 隐藏').toBeLessThanOrEqual(0);
 
         // ⛔ 硬上限：越过 200ms 后队列必清（总时长 = SPREAD + PER_BEAD = 200ms）
         h.advance(0.25);
