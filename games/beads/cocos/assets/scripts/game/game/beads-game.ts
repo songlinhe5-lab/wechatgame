@@ -1228,6 +1228,10 @@ export class BeadsGame implements Game {
    * **同帧**写盘（T-186 裁定）⇒ 只借表现口径、不借执行语义。
    */
   private _noteGroupLand(row: number, col: number, step: number): void {
+    // TEMP-LOG（WXG-T-244 · 用户 2026-10-04 令「给播放动画的珠子打日志 + 时间戳」⟹ 裁后删除）
+    console.log(
+      `[GLD+登记] t=${performance.now().toFixed(1)}ms step=${step} (${row},${col}) · 队列 count=${this._groupLandFx?.count ?? 0}→${(this._groupLandFx?.count ?? 0) + 1}`,
+    );
     if (!this._groupLandFx) {
       this._groupLandFx = {
         rows: new Array<number>(SOLVER_MAX_CELLS).fill(-1),
@@ -1239,7 +1243,11 @@ export class BeadsGame implements Game {
       };
     }
     const fx = this._groupLandFx!;
-    if (fx.count >= fx.rows.length) return; // 定长越界静默丢（同 _noteSolverLand 判例）
+    if (fx.count >= fx.rows.length) {
+      // TEMP-LOG（上面已打登记行）⟹ 补一条「被丢弃」，否则前一条会骗人
+      console.log(`[GLD+丢弃] t=${performance.now().toFixed(1)}ms step=${step} (${row},${col}) · 容量已满 ${fx.count}`);
+      return; // 定长越界静默丢（同 _noteSolverLand 判例）
+    }
     fx.rows[fx.count] = row;
     fx.cols[fx.count] = col;
     fx.steps[fx.count] = step;
@@ -1261,7 +1269,11 @@ export class BeadsGame implements Game {
       return;
     }
     fx.elapsedMs += Math.max(0, dt) * 1000;
-    if (fx.elapsedMs >= fx.totalMs) this._groupLandFx = null;
+    if (fx.elapsedMs >= fx.totalMs) {
+      // TEMP-LOG（裁后删除）
+      console.log(`[GLD+播完] t=${performance.now().toFixed(1)}ms 颗数=${fx.count} 用时=${fx.elapsedMs.toFixed(0)}ms 总窗=${fx.totalMs.toFixed(0)}ms`);
+      this._groupLandFx = null;
+    }
   }
 
   /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
@@ -1943,7 +1955,9 @@ export class BeadsGame implements Game {
     this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
     this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
     this._solverFx = null; // 换关 / 重试 ⇒ 作废在途的 G2′ 队列
-    this._groupLandFx = null; // [T-244] 同判例：旧格坐标不动新棋盘（相 B **会写盘**，不能拿旧格坐标动新棋盘）
+    this._groupLandFx = null; // [T-244] 同判例：旧格坐标不动新棋盘（相 B **会写盘**）
+    // TEMP-LOG（裁后删除）：装配完成即报队列状态 ⟹ 初始化若有动画这里会露出登记日志
+    console.log(`[GLD+初始化] t=${performance.now().toFixed(1)}ms 队列=${this._groupLandFx === null ? '空' : '非空'}`);
     this._tray.reset();
     this._resetPowerups();
     this._tray.initNeeded(this._grid.neededColorCounts());

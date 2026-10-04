@@ -989,6 +989,15 @@ function drawGrid(
       const glPopP = glStep >= 0 && glT > 0 && glT < SOLVER_PER_BEAD_MS ? glT / SOLVER_PER_BEAD_MS : 0;
       const popProgress = glPopP > 0 ? glPopP : solverPopP > 0 ? solverPopP : popActive ? snap.placeProgress : 0;
       if (popProgress > 0) fillPopEnvelope(popProgress, snap.reduceMotion, pop);
+      // TEMP-LOG（WXG-T-244 · 用户令「给播放动画的珠子打日志 + 时间戳」⟹ 裁后删除）
+      // ⟹ 打出**真正在播动画的珠**：格位、序号、局部相位、下落位移、压下 scale。
+      if (glStep >= 0) {
+        console.log(
+          `[GLD+播放] t=${performance.now().toFixed(1)}ms (${i},${j}) step=${glStep} tMs=${glT.toFixed(0)}ms` +
+          ` p=${glPopP.toFixed(2)} lift=${(groupLandDropDy(glPopP, GROUP_LAND_DROP_PX)).toFixed(1)}` +
+          ` scale=${pop.scale.toFixed(3)}`,
+        );
+      }
       // WXG-T-148 用户反馈 ②：board 锚珠抬起（lift 沿用托盘 selected 语义，垫不
       // 参与 lift ⇒ 珠上移露垫 = 抬起读数）；③④ 锚 = 8 邻接连通错位珠组 ⇒ 组内全格统一抬起。
       // （原反馈 ①「错位珠恒亮白环」经真机首验用户裁定移除，见 WXG-T-165。）
