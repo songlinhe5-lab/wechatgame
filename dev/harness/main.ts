@@ -565,16 +565,22 @@ if (GLD) {
       (window as unknown as { __gldKick?: () => void }).__gldKick?.();
     }
   });
+  let prevFilled = -1;
   const tick = (): void => {
     const s = play.snapshot;
     const holding = s.traySlots.filter((t) => t.state === 'holding').length;
     const filled = s.cells.filter((c) => c.state === 'filled').length;
+    const dFilled = prevFilled < 0 ? 0 : filled - prevFilled;
+    prevFilled = filled;
     box.textContent = [
       `gld  mode=${s.mode}`,
       `groupLand=${s.groupLandCount} elapsed=${s.groupLandElapsedMs.toFixed(0)}ms`,
       `steps=[${Array.from(s.groupLandSteps.slice(0, 4)).join(',')}]`,
       `cells=[${Array.from(s.groupLandRows.slice(0, 3)).map((r, k) => `${r},${s.groupLandCols[k]}`).join(' ')}]`,
-      `tray holding=${holding} filled=${filled}/${s.cells.length}`,
+      `tray holding=${holding} filled=${filled}/${s.cells.length} Δ=${dFilled}`,
+      // ★ 关键区分：Δfilled > 0 而 groupLand=0 ⟹ **珠落了但延迟队列没登记**（本批 bug）
+      //   Δfilled = 0 ⟹ 珠压根没落（裁决层拒：无对色空格 / 点到满格 / 无托盘选中）
+      dFilled > 0 && s.groupLandCount === 0 ? '⚠️ 落了珠但队列未登记' : '',
       // 空格按目标色分布：一眼看出「点哪个色能落座」
       `空格色=${(() => {
         const m = new Map<number, number>();
