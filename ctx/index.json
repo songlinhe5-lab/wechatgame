@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "3970840623ca6709115d670ebcc8217e1f38a11207c2c8aaf084b3cb880b7a99",
+      "sha256": "4ecfb6061eb89be955a9fa0c7bd3b0063ab24d6364dfd36ffbba74e46f9c2e88",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 15401,
-      "lines": 527,
-      "sha256": "97ef1dc9fb1831d9d38b4034266ecfb54362f9da70c6e4bca879656b590cc2fb",
+      "tokens": 15742,
+      "lines": 540,
+      "sha256": "aa5aed610bdba59dc5658a8b4e833cea1eaae07a3f616ca1132c0ef2ce83bd7c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 528,
-          "tokens": 15398,
+          "endLine": 541,
+          "tokens": 15739,
           "summary": "",
           "keywords": []
         },
@@ -50627,6 +50627,22 @@
             "view",
             "grep"
           ]
+        },
+        {
+          "anchor": "§T-244 八批（用户裁「原地出现动画」）：托盘进珠动画落地",
+          "level": 3,
+          "startLine": 529,
+          "endLine": 541,
+          "tokens": 314,
+          "summary": "实现：单槽 fx _trayLandFx {slot, elapsedMs}（一次只进一颗 ⟹ 无需队列，与 group",
+          "keywords": [
+            "trayLandFx",
+            "slot",
+            "elapsedMs",
+            "group",
+            "八批",
+            "用户裁"
+          ]
         }
       ]
     },
@@ -50634,7 +50650,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "5c7bd004f60e9d9cb0d9fffc11486c12105e994b778b0067deb9c157a31e8880",
+      "sha256": "9d98d2108c3a9544536470af7b3c30ae969682781fa9c036a624602edaa7928c",
       "tier": "normal",
       "sections": [
         {
@@ -50725,7 +50741,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 15,401 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 15,742 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

@@ -16,6 +16,7 @@ import {
   DESIGN_W,
   SELECT_LIFT_PX,
   GROUP_LAND_DROP_PX,
+  GROUP_LAND_TOTAL_MS,
   SELECT_LIFT_ANGLE,
   TRAY_SELECTED_LIFT_PX,
   HUD_BAND,
@@ -1333,6 +1334,18 @@ function drawTray(
     // ⛔ 层序：**槽之后、珠之前**（同 WXG-T-240 ② 与盘面）—— 画在珠后会被完全盖住 = 白画。
     // ⚠ 槽在托盘里是 `tilePainted = false`（无 B0 底图）⇒ 影落在**面板**上（盘面落在坑底上），
     //   这是同一函数在两种底色上的表现，不是两套口径。
+    // [T-244 八批 · 用户裁「原地出现动画」] 托盘进珠：复用 groupLand 下落包络 +
+    // `fillPopEnvelope` 压下（零新缓动、零新常量，总窗 = GROUP_LAND_TOTAL_MS 200ms）。
+    const tlActive = snap.trayLandSlot === idx;
+    const tlP = tlActive ? Math.min(1, snap.trayLandElapsedMs / GROUP_LAND_TOTAL_MS) : 0;
+    let tlDrop = 0;
+    let tlScale = 1;
+    if (tlActive) {
+      tlDrop = groupLandDropDy(tlP, GROUP_LAND_DROP_PX);
+      const tp: FillPopEnvelope = { scale: 1, contactAlpha: 0, contactWidth: 0, shadowAlpha: 0, shadowDy: 0 };
+      fillPopEnvelope(tlP, snap.reduceMotion, tp);
+      tlScale = tp.scale;
+    }
     if (lift > 0) {
       drawLiftBeadShadow(
         builder, cx, cy, TRAY_SLOT, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift, liftX,
@@ -1349,8 +1362,9 @@ function drawTray(
       // EP11-S5 作用域：托盘珠**随风格**（与盘面珠同一层集）但**不随豆径档**
       // （恒满幅、恒有孔）⇒ 不传 `hideHole`、不传小豆档 inset（assets-spec §7.11）。
       maskGauge: 'holed',
-      lift,
+      lift: lift + tlDrop,
       liftX,
+      scale: tlScale,
       inks,
       styleId: snap.beadStyle,
       ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),

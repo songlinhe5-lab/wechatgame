@@ -338,6 +338,8 @@ export class BeadsGame implements Game {
    * 托盘的珠瞬跳”的错拍。进格由快照 `liftProgress` 上报，缓动曲线在 view 侧施。
    */
   private _liftElapsedMs = 0;
+  /** [T-244 八批] 托盘进珠原地出现动画（单槽，一次只进一颗 ⟹ 无需队列）。 */
+  private _trayLandFx: { slot: number; elapsedMs: number } | null = null;
   /** TEMP-LOG：托盘时钟节流游标（裁日志时随字段一起删）。 */
   private _liftLogMs = 0;
   /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
@@ -852,7 +854,8 @@ export class BeadsGame implements Game {
     // G2′ 相 B 到点动手：**先于**面板与表现层步进，因为本步会写棋盘并可能达成过关
     // （`cleared-priority`，core-loop §2.2.2 ⇒ 完成判定排在同一帧的事件之后）。
     this._stepSolverFx(dt);
-    this._stepGroupLandFx(dt); // [T-244] 组落座表现推进
+    this._stepGroupLandFx(dt);
+    this._stepTrayLandFx(dt); // [T-244 八批] 托盘进珠：表现层，不被 PAUSED 冻结（同判例） // [T-244] 组落座表现推进
     // Panel animation is presentation, not gameplay: it keeps running while the
     // world is frozen so the enter/exit ramp never stalls (ux-spec §5).
     this._panel.update(dt * 1000);
@@ -1055,6 +1058,8 @@ export class BeadsGame implements Game {
         `[GLD+托盘进珠] t=${performance.now().toFixed(1)}ms slot=${verdict.slot}` +
         ` color=${verdict.colorIdx} from=(${verdict.fromRow},${verdict.fromCol})`,
       );
+      // [T-244 八批] 进珠动画登记（原地出现：复用 groupLand 包络与 200ms 总窗）
+      this._trayLandFx = { slot: verdict.slot, elapsedMs: 0 };
       this._emit('tray:stored', {
         slot: verdict.slot,
         colorIdx: verdict.colorIdx,
@@ -1315,6 +1320,18 @@ export class BeadsGame implements Game {
       console.log(`[GLD+播完] t=${performance.now().toFixed(1)}ms 颗数=${fx.count} 用时=${fx.elapsedMs.toFixed(0)}ms 总窗=${fx.totalMs.toFixed(0)}ms`);
       this._groupLandFx = null;
     }
+  }
+
+  /** [T-244 八批] 托盘进珠动画推进（表现层判例：不被 PAUSED 冻结；非 playing 作废）。 */
+  private _stepTrayLandFx(dt: number): void {
+    const fx = this._trayLandFx;
+    if (!fx) return;
+    if (this._machine.current !== 'playing') {
+      this._trayLandFx = null;
+      return;
+    }
+    fx.elapsedMs += Math.max(0, dt) * 1000;
+    if (fx.elapsedMs >= GROUP_LAND_TOTAL_MS) this._trayLandFx = null;
   }
 
   /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
@@ -3742,6 +3759,9 @@ export class BeadsGame implements Game {
     s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
     // §5 抬起斜坡**进格量**（0→1，未缓动）；D1 与 ease 由 view 侧施（快照只报事实）。
     s.liftProgress = Math.min(1, this._liftElapsedMs / SELECT_LIFT_MS);
+    // [T-244 八批] 托盘进珠动画快照
+    s.trayLandSlot = this._trayLandFx ? this._trayLandFx.slot : -1;
+    s.trayLandElapsedMs = this._trayLandFx ? this._trayLandFx.elapsedMs : 0;
     // G7 轻压：多格并存 ⇒ 定长数组逐槽导出，**仅在播槽**可见（120ms 后零残留；
     // 过窗槽只留同格门记忆，不占快照）。曲线在 view 侧纯函数推导（L5）。
     let deniedActive = 0;

@@ -300,6 +300,10 @@ export interface BeadsSnapshot {
   groupLandSteps: number[];
   groupLandCount: number;
   groupLandElapsedMs: number;
+  /** [T-244 八批 · 用户裁「原地出现动画」] 托盘进珠动画：正在播的槽位（-1 = 无）。 */
+  trayLandSlot: number;
+  /** 托盘进珠动画已播毫秒（与 `GROUP_LAND_TOTAL_MS` 配对）。 */
+  trayLandElapsedMs: number;
   /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
    * ⇒ **无空间坐标**，只需一个单调标量（0 = 不绘制）；几何与缓动全在 view 侧推导。
@@ -465,6 +469,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     groupLandSteps: new Array<number>(GROUP_LAND_MAX).fill(-1),
     groupLandCount: 0,
     groupLandElapsedMs: 0,
+      trayLandSlot: -1,
+      trayLandElapsedMs: 0,
     sweepProgress: 0,
     confettiProgress: 0,
     waveProgress: 0,
