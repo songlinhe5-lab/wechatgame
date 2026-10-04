@@ -147,8 +147,8 @@ describe('托盘锚组归位走同队列（WXG-T-244 修正批）', () => {
     });
 });
 
-describe('涟漪式扩散（环号语义 · WXG-T-244 修正二批）', () => {
-    it('⑤ step = 环号（切比雪夫距离）⟹ 同环同 step（同时出现）· 远环 step 更大', () => {
+describe('按落珠顺序错峰（序号语义 · WXG-T-244 修正四批「乙」）', () => {
+    it('⑤ step = 落珠序号 ⟹ 逐颗递增（每颗错峰；由近及远由填充序保证）', () => {
         const h = mk('wxgame.beads.test.t244-rings');
         // 造一条「直线三连」t2 空格：(1,1) 被点 / (2,1) 环 1 / (3,1) 环 2
         makeEmpty(h, 1, 1, 3);
@@ -162,17 +162,16 @@ describe('涟漪式扩散（环号语义 · WXG-T-244 修正二批）', () => {
         const s = h.game.snapshot;
         // 组大小 = 托盘组内珠数（2）⟹ 只填 2 颗；(3,1) 不会进本批
         expect(s.groupLandCount).toBe(2);
-        expect(s.groupLandSteps[0], '被点格 = 环 0').toBe(0);
-        expect(s.groupLandSteps[1], '(2,1) 距被点格 1 格 = 环 1').toBe(1);
+        expect(s.groupLandSteps[0], '被点格 = 序号 0（零延迟）').toBe(0);
+        expect(s.groupLandSteps[1], '第二颗 = 序号 1（每颗递增 ⟹ 错峰）').toBe(1);
     });
 
-    it('⑥ 环起播偏移随环号递增（扩散节奏 ease：间隔 40/120/200…ms）', () => {
-        // 直接对包络函数断言（纯函数、零依赖）—— 环 0/1/2/3 偏移单调递增且增量递增
-        const offs = [0, 1, 2, 3].map((ring) => groupLandOffsetMs(ring));
-        expect(offs).toEqual([0, 40, 160, 360]);
+    it('⑥ 每颗固定错峰（间隔 = SOLVER_STAGGER_MS，与 G2′ 同常量）', () => {
+        // 纯函数断言（零依赖）：偏移线性 ⟹ 间隔恒定
+        const offs = [0, 1, 2, 3].map((order) => groupLandOffsetMs(order));
+        expect(offs).toEqual([0, SOLVER_STAGGER_MS, SOLVER_STAGGER_MS * 2, SOLVER_STAGGER_MS * 3]);
         const gaps = offs.slice(1).map((v, k) => v - offs[k]!);
-        expect(gaps[1]! > gaps[0]!, '间隔递增 = 先快后慢').toBe(true);
-        expect(gaps[2]! > gaps[1]!, '间隔继续递增').toBe(true);
+        expect(new Set(gaps).size, '间隔恒定（每颗都错峰）').toBe(1);
     });
 });
 

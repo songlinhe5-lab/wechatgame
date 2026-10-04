@@ -91,14 +91,16 @@ export function solverBeadProgress(tMs: number, step: number): number {
 }
 
 /**
- * **[T-244 修正二批]** 组落座第 `ring` 环的**起播偏移**（ms）= `STAGGER × ring² / 2`
- * ⟹ 环间隔 `STAGGER/2, 3·STAGGER/2, 5·STAGGER/2…` **随环号递增** = 扩散减速（节奏 ease）。
+ * **[T-244 修正四批 · 用户裁「乙」]** 第 `order` 颗落珠的**起播偏移**（ms）
+ * = `SOLVER_STAGGER_MS × order` ⟹ **每颗固定错峰**（蛇形，由近及远逐颗浮现）。
  *
- * ⛔ game 侧 `totalMs` 用**同式**（跨层同式，注释互指；game 不依赖 view，故不复用函数）。
- * 环号 = **切比雪夫距离**（8 向 BFS 在同色连通格上的最短步数恒等该距离）⟹ 登记侧零计算成本。
+ * - `order` = **落珠序号**（`planGroupFill` 填充序 = 被点格 + BFS 由近及远）⟹「由近及远」由填充序保证。
+ * - 间隔复用 `SOLVER_STAGGER_MS`（**与 G2′ 解环器逐颗错峰同一常量**，零新值）。
+ * - ⛔ 撤销修正二批的「环号 + 平方偏移」：用户明确改口径为**按落珠顺序**逐颗延迟（非同环同时）。
+ * - ⛔ game 侧 `totalMs` 用**同式**（跨层同式，注释互指；game 不依赖 view，故不复用函数）。
  */
-export function groupLandOffsetMs(ring: number): number {
-  return (SOLVER_STAGGER_MS * ring * ring) / 2;
+export function groupLandOffsetMs(order: number): number {
+  return SOLVER_STAGGER_MS * order;
 }
 
 /**

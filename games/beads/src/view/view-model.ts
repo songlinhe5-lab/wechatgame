@@ -978,8 +978,8 @@ function drawGrid(
       // 由 `SOLVER_STAGGER_MS` 错位起播），与 G1 单槽互斥（game 侧已保证不重叠）。
       const solverStep = solverLandStep(snap, i, j);
       const solverPopP = solverStep >= 0 && solverT > 0 ? solverBeadProgress(solverT, solverStep) : 0;
-      // [T-244 修正二批] 组落座：`step` = **环号**（切比雪夫距离）⟹ **同环同时出现 = 涟漪式扩散**；
-      // 环起播偏移 `STAGGER×ring²/2` ⟹ 间隔随环号递增 = 扩散节奏 ease（先快后慢铺开）。
+      // [T-244 修正四批 · 用户裁「乙」] 组落座：`step` = **落珠序号** ⟹ **每颗固定错峰**
+      // （`STAGGER × order`，与 G2′ 同常量）；「由近及远」由 `planGroupFill` 填充序保证。
       // 优先级最前：组归位是本格最新事件（同帧与 G1/solver 互斥由 game 侧保证）。
       const glStep = groupLandStep(snap, i, j);
       const glT = glStep >= 0 ? snap.groupLandElapsedMs - groupLandOffsetMs(glStep) : -1;

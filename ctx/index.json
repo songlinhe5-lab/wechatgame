@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "bed625adde4a69c4acc4adf7586f7b352fd9a405ef59a87bc03cc230d4ad0402",
+      "sha256": "2238eeaea6c645b2123baf6d0f8c98ebbac55b9fa5b9202a72609d61286287a5",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 9931,
-      "lines": 332,
-      "sha256": "21e2d761d06527654f19d013c610212c1541fe4333cc850626c9f77f5942131f",
+      "tokens": 10312,
+      "lines": 345,
+      "sha256": "fab35b0849a170baef9d49c1ec4de230005fec0edd1adc18f6a8039e5eb17bd6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 333,
-          "tokens": 9928,
+          "endLine": 346,
+          "tokens": 10309,
           "summary": "",
           "keywords": []
         },
@@ -50421,14 +50421,30 @@
             "取消组批量限",
             "零延迟"
           ]
+        },
+        {
+          "anchor": "§T-244 修正四批：改「乙」——按落珠序号逐颗错峰（撤销环号/涟漪）",
+          "level": 3,
+          "startLine": 334,
+          "endLine": 346,
+          "tokens": 351,
+          "summary": "用户裁乙（而非甲环号）⟹ step 从环号（切比雪夫距离）改回落珠序号，",
+          "keywords": [
+            "step",
+            "修正四批",
+            "按落珠序号逐",
+            "颗错峰",
+            "撤销环号",
+            "涟漪"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 10009,
+      "tokens": 10010,
       "lines": 250,
-      "sha256": "d873b04aeb6cf6b6572b2742ef0f599cdac7d55ede4bb278ae8ac07eb3beca9e",
+      "sha256": "9bbd2051fdc3f138e70c35cc7aa3c9dc5273e9d08d7d264cd0839e6722d071d3",
       "tier": "normal",
       "sections": [
         {
@@ -50519,7 +50535,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 9,931 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 10,312 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

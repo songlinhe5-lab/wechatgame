@@ -396,8 +396,6 @@ export class BeadsGame implements Game {
     count: number;
     elapsedMs: number;
     totalMs: number;
-    /** 已登记的最大环号（热路径 O(1) 跟踪，⛔ 不每次重扫数组）。 */
-    maxRing: number;
   } | null = null;
   /**
    * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
@@ -1238,7 +1236,6 @@ export class BeadsGame implements Game {
         count: 0,
         elapsedMs: 0,
         totalMs: 0,
-        maxRing: 0,
       };
     }
     const fx = this._groupLandFx!;
@@ -1247,10 +1244,9 @@ export class BeadsGame implements Game {
     fx.cols[fx.count] = col;
     fx.steps[fx.count] = step;
     fx.count++;
-    // [T-244 修正二批] 总时长 = **最大环号的平方偏移** + 单珠落位窗（偏移公式与
-    // `scene-vfx::groupLandOffsetMs` 同式：环间隔随环号递增 = 扩散节奏 ease）。
-    if (step > fx.maxRing) fx.maxRing = step;
-    fx.totalMs = (SOLVER_STAGGER_MS * fx.maxRing * fx.maxRing) / 2 + SOLVER_PER_BEAD_MS;
+    // [T-244 修正四批] 总时长 = **末颗偏移**（`STAGGER × (count−1)`；序号单调递增 ⟹ 末颗即最大）
+    // + 单珠落位窗。间隔复用 `SOLVER_STAGGER_MS`（与 G2′ 解环器逐颗错峰**同一常量**，零新值）。
+    fx.totalMs = SOLVER_STAGGER_MS * (fx.count - 1) + SOLVER_PER_BEAD_MS;
   }
 
   /** [T-244] 组落座推进。**表现层判例**（同 `_stepWrongFx` / `_stepPlaceFx`：不被
@@ -2446,8 +2442,9 @@ export class BeadsGame implements Game {
       }
       used++;
       // [T-244] 表现层登记：step = BFS 序（targets[0] = 被点格 ⇒ 「从当前点击的槽开始扩展」）。
-      // [T-244 修正二批] step = 环号（切比雪夫距离，被点格 = 环 0）
-      this._noteGroupLand(t.row, t.col, chebyshev(t.row, row, t.col, col));
+      // [T-244] 表现层登记：step = 落珠序（targets[0] = 被点格 ⇒ 「从当前点击的槽开始」）。
+      // [T-244 修正四批] step = **落珠序号**（同托盘路径口径）
+      this._noteGroupLand(t.row, t.col, used - 1);
       this._emit('bead:placed', { row: t.row, col: t.col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot
       placedAny = true;
       if (used >= consumption.length) break;
@@ -2809,8 +2806,12 @@ export class BeadsGame implements Game {
           // ⛔ 单颗时只有环 0 ⟹ 偏移 0 ⟹ 立即起播（与原 G1 单槽同帧起播等价，**无额外延迟**），
           //   观感连续性不断；`placeProgress` 不再被 arm（G1 单槽仅保留给 `_placeSelected` 之外的
           //   单格路径，如解环器相 A），故直喂 snapshot 的既有测试仍零感知。
-          // step = **环号**（切比雪夫距离）⟹ 同环同时出现 = 涟漪式扩散，环间按 `ring²` 递增延迟。
-          this._noteGroupLand(c.row, c.col, chebyshev(c.row, verdict.row, c.col, verdict.col));
+          // [T-244 修正三批] 取消「组批量才播」限制：单颗也走队列；单颗 = 序号 0 ⟹ 零延迟起播。
+          // `placeProgress` 不再被 arm（G1 单槽仅留给解环器相 A）⟹ 直喂 snapshot 的测试零感知。
+          // [T-244 修正四批 · 用户裁「乙」] step = **落珠序号**（`i` = 填充序）⟹ 每颗都错峰（蛇形）。
+          // ⛔ 撤销修正二批的「环号 + 同环同时」：用户明确改口径为**按落珠顺序**逐颗延迟。
+          // 「由近及远」仍成立 —— `planGroupFill` 的填充序本身 = 被点格 + BFS 由近及远。
+          this._noteGroupLand(c.row, c.col, i);
           // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）。
           // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
           // 写 ⇒ 此处一次性低频 IO 直接 save()。幂等守卫：仅首次落子写一次（后续
@@ -3788,10 +3789,3 @@ export function createBeadsGame(options: BeadsGameOptions = {}): BeadsGame {
   return new BeadsGame(options);
 }
 
-/**
- * **[T-244 修正二批]** 8 向 BFS 的层号 = **切比雪夫距离**（同色连通格上 8 向 BFS 的最短步数
- * 恒等该距离）⟹ 组落座「环号」零计算成本、零新遍历、零分配。
- */
-function chebyshev(r0: number, r1: number, c0: number, c1: number): number {
-  return Math.max(Math.abs(r0 - r1), Math.abs(c0 - c1));
-}
