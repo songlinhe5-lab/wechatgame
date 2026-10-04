@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "a1cf15a6e4b8518f07071afda7f5850a24f211465801874f8337238efea9c7ca",
+      "sha256": "63ec4569e49da51395748928977bb161a6ab8d51941ebac2c22343a4ecb94568",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 14701,
-      "lines": 500,
-      "sha256": "5e423158c16fb82c037afef096eddbb9784ab66f4d6956ce55db5accda609589",
+      "tokens": 15052,
+      "lines": 514,
+      "sha256": "34bad842a8623455c716d19b9471de0fb44f1c4d1c9fbc9c01fd7cca34bf1ae3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 501,
-          "tokens": 14698,
+          "endLine": 515,
+          "tokens": 15049,
           "summary": "",
           "keywords": []
         },
@@ -50595,6 +50595,22 @@
             "修复",
             "不要修复方向"
           ]
+        },
+        {
+          "anchor": "§T-244 六轮（用户纠错）：日志要打在**动画循环**，不是绘制处",
+          "level": 3,
+          "startLine": 502,
+          "endLine": 515,
+          "tokens": 323,
+          "summary": "用户指出：[GLD+播放·托盘] 挂在 drawTray（渲染函数）里 —— 绘制每帧都跑",
+          "keywords": [
+            "GLD",
+            "drawTray",
+            "六轮",
+            "用户纠错",
+            "日志要打在",
+            "动画循环"
+          ]
         }
       ]
     },
@@ -50602,7 +50618,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10010,
       "lines": 250,
-      "sha256": "deab249f551e8506e1f745444483919f09a9264ad68866ba5ef55e6e7ba4a47b",
+      "sha256": "f7a6bc57e312a05b3d1f6a41c946d3c596f6aa7bbe16cc3937f1f7cbbc93b3c5",
       "tier": "normal",
       "sections": [
         {
@@ -50693,7 +50709,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 14,701 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 15,052 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

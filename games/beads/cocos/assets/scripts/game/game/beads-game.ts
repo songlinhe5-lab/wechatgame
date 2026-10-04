@@ -338,6 +338,8 @@ export class BeadsGame implements Game {
    * 托盘的珠瞬跳”的错拍。进格由快照 `liftProgress` 上报，缓动曲线在 view 侧施。
    */
   private _liftElapsedMs = 0;
+  /** TEMP-LOG：托盘时钟节流游标（裁日志时随字段一起删）。 */
+  private _liftLogMs = 0;
   /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
   private _wrongFx: { row: number; col: number; elapsedMs: number } | null = null;
   /**
@@ -864,6 +866,20 @@ export class BeadsGame implements Game {
       SELECT_LIFT_MS,
       this._liftElapsedMs + Math.max(0, dt) * 1000,
     );
+    // TEMP-LOG（WXG-T-244 · 用户指「日志要打在动画循环，不是绘制处」⟹ 裁后删除）：
+    // 绘制侧每帧都跑（60fps 稳态也在打）⟹ 只能反映渲染时刻状态，**打不到动画事件流**。
+    // ⟹ 挂到时钟推进处：起播/推进（50ms 节流）+ 到位一次性（到位后停打，不刷屏）。
+    if (this._liftElapsedMs >= SELECT_LIFT_MS) {
+      if (this._liftLogMs < SELECT_LIFT_MS) {
+        this._liftLogMs = SELECT_LIFT_MS;
+        console.log(`[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms ✓到位 ${SELECT_LIFT_MS}ms`);
+      }
+    } else if (this._liftElapsedMs - this._liftLogMs >= 50) {
+      this._liftLogMs = this._liftElapsedMs;
+      console.log(
+        `[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms 推进 elapsed=${this._liftElapsedMs.toFixed(0)}/${SELECT_LIFT_MS}ms`,
+      );
+    }
     this._stepWrongFx(dt);
     this._stepPlaceFx(dt); // G1 落座回弹：同为表现层，不被 PAUSED 冻结
     this._stepDeniedFx(dt); // G7 不可填格轻压：同为表现层（`assets-spec §1.6.7`）
@@ -931,6 +947,8 @@ export class BeadsGame implements Game {
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._liftElapsedMs = 0; // §5：托盘选中同样走斜坡（与板锚共用一个时钟）
+    this._liftLogMs = 0; // TEMP-LOG：重置游标，与新斜坡对齐（裁日志时随行一起删）
+    console.log(`[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms ▶起播（托盘锚建起，斜坡重来）`);
     this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
     return this._countAction(true);
   }
@@ -969,6 +987,7 @@ export class BeadsGame implements Game {
       && prev !== null
       && cells.some((c) => c.row === prev.row && c.col === prev.col);
     if (!stillRaised) this._liftElapsedMs = 0; // §5：新锚建起 => 抬起斜坡重来（组内珠一同从底面抬起来）
+    console.log(`[GLD+播放·托盘] t=${performance.now().toFixed(1)}ms ■复位（board 锚接手，托盘时钟清零）`);
     this._clearTraySelection(); // 互斥换选：board 锚建立 => tray 锚清除
     const order = planConsumeOrder(this._grid, row, col, cells);
     this._boardSelected = {
