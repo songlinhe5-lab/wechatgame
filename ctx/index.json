@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3717,
       "lines": 135,
-      "sha256": "5fd6c5a5d17eb76a9c3020c05aedb21ebd9aac02df70b4040219146a16b297a2",
+      "sha256": "1d2f39a6d11d864839f563ea4526657c58a63b864333c032b5f871f59af29f06",
       "tier": "normal",
       "sections": [
         {
@@ -50142,17 +50142,17 @@
     },
     {
       "path": "memory/2026-10-04.md",
-      "tokens": 9528,
-      "lines": 318,
-      "sha256": "b7146fe30b6b40e7e6a7d87838c720367fe39e4aafcfaeb0e07094d8f38b21fd",
+      "tokens": 9931,
+      "lines": 332,
+      "sha256": "21e2d761d06527654f19d013c610212c1541fe4333cc850626c9f77f5942131f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-04",
           "level": 1,
           "startLine": 1,
-          "endLine": 319,
-          "tokens": 9525,
+          "endLine": 333,
+          "tokens": 9928,
           "summary": "",
           "keywords": []
         },
@@ -50407,6 +50407,20 @@
             "gldbg",
             "诊断批"
           ]
+        },
+        {
+          "anchor": "§T-244 修正三批：所有落珠都播（取消组批量限制）+ 环 0 零延迟",
+          "level": 3,
+          "startLine": 320,
+          "endLine": 333,
+          "tokens": 375,
+          "summary": "用户裁定：「将所有落珠的空格在放置珠子时播动画，按与点击落珠位置的距离决定延迟，由近及远」",
+          "keywords": [
+            "修正三批",
+            "所有落珠都播",
+            "取消组批量限",
+            "零延迟"
+          ]
         }
       ]
     },
@@ -50414,7 +50428,7 @@
       "path": "memory/INDEX.md",
       "tokens": 10009,
       "lines": 250,
-      "sha256": "69739739ccaa5d13effba57cb41e9f3c52f418a706d128e0918bc75988789566",
+      "sha256": "d873b04aeb6cf6b6572b2742ef0f599cdac7d55ede4bb278ae8ac07eb3beca9e",
       "tier": "normal",
       "sections": [
         {
@@ -50505,7 +50519,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 9,528 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
+          "anchor": "§`memory/2026-10-04.md` — 9,931 tok｜0 节｜**蒸馏到期 2026-11-03**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,

@@ -983,7 +983,9 @@ function drawGrid(
       // 优先级最前：组归位是本格最新事件（同帧与 G1/solver 互斥由 game 侧保证）。
       const glStep = groupLandStep(snap, i, j);
       const glT = glStep >= 0 ? snap.groupLandElapsedMs - groupLandOffsetMs(glStep) : -1;
-      const glHidden = glStep >= 0 && glT <= 0;
+      // 环 0（= 被点格本身）**永不隐藏** ⟹ 「距离 0 = 零延迟」的正确实现（单颗放置的
+      // 起播帧照常画珠 ⟹ 与原 G1 单槽同帧等价 ⟹ 封箱基准不变）。
+      const glHidden = glStep > 0 && glT <= 0;
       const glPopP = glStep >= 0 && glT > 0 && glT < SOLVER_PER_BEAD_MS ? glT / SOLVER_PER_BEAD_MS : 0;
       const popProgress = glPopP > 0 ? glPopP : solverPopP > 0 ? solverPopP : popActive ? snap.placeProgress : 0;
       if (popProgress > 0) fillPopEnvelope(popProgress, snap.reduceMotion, pop);

@@ -175,3 +175,18 @@ describe('涟漪式扩散（环号语义 · WXG-T-244 修正二批）', () => {
         expect(gaps[2]! > gaps[1]!, '间隔继续递增').toBe(true);
     });
 });
+
+describe('所有落珠都播（T-244 修正三批 · 取消组批量限制）', () => {
+    it('⑦ 单颗放置也走队列（环 0 ⟹ 零延迟起播，与原 G1 同帧等价）', () => {
+        const h = mk('wxgame.beads.test.t244-single');
+        makeEmpty(h, 1, 1, 3);
+        h.game.giveTrayBead(2); // ⛔ 只给 1 颗 ⟹ groupSize === 1
+        h.game.selectTraySlot(h.game.snapshot.traySlots.findIndex((t) => t.state === 'holding'));
+        expect(h.game.tapGridCell(1, 1), '单颗放置被消费').toBe(true);
+
+        const s = h.game.snapshot;
+        expect(s.groupLandCount, '⛔ 单颗也走队列（此前走 G1 单槽 = 无涟漪语义）').toBe(1);
+        expect(s.groupLandSteps[0], '单颗 = 环 0 ⟹ 偏移 0 ⟹ 立即起播').toBe(0);
+        expect(s.groupLandElapsedMs, '起播帧 elapsed ≈ 0（无额外延迟）').toBeLessThan(SOLVER_STAGGER_MS);
+    });
+});
