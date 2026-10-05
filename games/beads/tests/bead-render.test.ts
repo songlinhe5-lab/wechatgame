@@ -1115,11 +1115,12 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    实现 = 源码指纹锁（而不是把色表拄进测试 ⇒ 避免第二条真源，K-012）：
   //    先看掉注释（换尺批大量改注，不得误伤），再对**代码里的 hex 序列**取计数 + 摘要。
   //    要改色表 = 走 art 单（assets-spec §1.9.7①）并同步本快照；两值同改不会默默偷渡。
+  //    [WXG-T-256] 容器板 + 三层背景退役（art 变更批）⇒ 37/`fd5a0def780d` 追改为 34/`67c2a2c08a92`。
   it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
     const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
     const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
-    expect(hexes.length).toBe(37);
-    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('fd5a0def780d');
+    expect(hexes.length).toBe(34);
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('67c2a2c08a92');
   });
 });

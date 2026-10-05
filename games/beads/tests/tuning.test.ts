@@ -25,7 +25,6 @@ import {
   GRID_MIN_ROWS,
   HUD_BAND,
   POWERUP_BAND,
-  PLATE_OUTSET,
   PUZZLE_BAND,
   CLEAR_STAR_STEP_MS,
   SPAWN_INTERVAL_MAX,
@@ -297,7 +296,8 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     expect(stripBottom).toBeGreaterThan(TRAY_BAND.yMax);
     expect(zc.reset.x).toBeGreaterThanOrEqual(0);
     expect(zc.track.x + zc.track.w).toBeLessThan(DESIGN_W);
-    // ⑤ 视觉不压容器板（`drawPuzzlePlate` 外扩 `PLATE_OUTSET`）⇒ “不影响面板”的字面形式。
-    expect(stripTop).toBeLessThan(PUZZLE_BAND.yMin - PLATE_OUTSET);
+    // ⑤ 视觉不压盘带（[WXG-T-256] 容器板已退役 ⇒ 尺直接贴 `PUZZLE_BAND.yMin`，
+    // 旧式 `− PLATE_OUTSET` 的外扩余量随之消失；“不影响面板”的字面形式不变）。
+    expect(stripTop).toBeLessThan(PUZZLE_BAND.yMin);
   });
 });

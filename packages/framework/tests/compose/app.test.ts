@@ -14,6 +14,14 @@ class FakeGame implements Game {
   paused = 0;
   resumed = 0;
   disposed = 0;
+  /** 脏帧门控用例的旋钮：改这个值就等于改画面内容。 */
+  size = 10;
+  /** 只改墨不改几何——验证 paint 通道入哈希。 */
+  fillAlpha = 1;
+  /** 带 `blit` 的帧：`fx` 逐键入哈希 ⇒ 同样受门控（`WXG-T-250`）。 */
+  emitBlit = false;
+  /** 只改 `fx` 载荷不改几何——验证效果袋入哈希。 */
+  blitFx = 1;
 
   init(services: GameServices): void {
     this.services = services;
@@ -25,7 +33,8 @@ class FakeGame implements Game {
   buildRenderModel(builder: RenderModelBuilder): void {
     this.renderCount++;
     builder.setBackground('#000000');
-    builder.rect(0, 0, 10, 10, { fill: '#fff' });
+    builder.rect(0, 0, this.size, this.size, { fill: '#fff', alpha: this.fillAlpha });
+    if (this.emitBlit) builder.blit('tex', 0, 0, this.size, this.size, { fx: { a: this.blitFx } });
   }
   onPause(): void {
     this.paused++;
@@ -119,11 +128,11 @@ describe('App', () => {
     const showCbs: (() => void)[] = [];
     platform.onHide = (cb) => {
       hideCbs.push(cb);
-      return () => {};
+      return () => { };
     };
     platform.onShow = (cb) => {
       showCbs.push(cb);
-      return () => {};
+      return () => { };
     };
     const game = new FakeGame();
     const app = new App({ game, platform });
@@ -149,7 +158,7 @@ describe('App', () => {
   it('dispose() stops the loop, disposes the game and clears listeners', () => {
     const { app, game } = makeApp();
     const destroyAd = vi.spyOn(app.services.rewardedAd, 'destroy');
-    app.events.on('x', () => {});
+    app.events.on('x', () => { });
     app.start();
     app.dispose();
     expect(game.disposed).toBe(1);
@@ -182,6 +191,101 @@ describe('App', () => {
     app.tick(3 / 60);
     expect(render).toHaveBeenCalledTimes(1);
     expect(game.renderCount).toBe(1);
+    app.stop();
+  });
+
+  // ── 脏帧门控（WXG-T-248 / ADR-0030 §5.0.2）────────────────────────────────
+  // 判据的本体是「屏上已是正确答案 ⇒ 不必重画」，所以每条都同时钉住
+  // buildRenderModel 的调用数（照旧每帧跑）与 onRender 的调用数（可跳）。
+
+  it('脏帧门控：内容逐位相同的帧不重画，但照常建模型', () => {
+    const { app, game } = makeApp();
+    const render = vi.fn();
+    app.onRender = render;
+    app.start();
+    for (let i = 0; i < 5; i += 1) app.tick(1 / 60);
+    expect(game.renderCount).toBe(5);
+    expect(render).toHaveBeenCalledTimes(1);
+    app.stop();
+  });
+
+  it('脏帧门控：内容一变就重画，再变再画', () => {
+    const { app, game } = makeApp();
+    const render = vi.fn();
+    app.onRender = render;
+    app.start();
+    app.tick(1 / 60);
+    app.tick(1 / 60); // 静置 ⇒ 跳过
+    expect(render).toHaveBeenCalledTimes(1);
+    game.size = 11;
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(2);
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(2);
+    app.stop();
+  });
+
+  it('脏帧门控：只改墨不改几何也算脏（alpha 量化到 1/64）', () => {
+    const { app, game } = makeApp();
+    const render = vi.fn();
+    app.onRender = render;
+    app.start();
+    app.tick(1 / 60);
+    game.fillAlpha = 0.9;
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(2);
+    // 亚阈值（< 1/64 ≈ 0.0156）的 alpha 变化按设计不重画。
+    game.fillAlpha = 0.901;
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(2);
+    app.stop();
+  });
+
+  // 上限换档（WXG-T-250 / ADR-0030 §5.0.3）：旧契约是「含 blit 帧掺帧序号 ⇒ 恒判脏」，
+  // 现 `fx` 逐键入门 ⇒ blit 帧与几何帧同待遇，但**换效果必须重画**（否则错色残留）。
+  it('脏帧门控：blit 帧同样受门控，fx 变则必重画', () => {
+    const { app, game } = makeApp();
+    game.emitBlit = true;
+    const render = vi.fn();
+    app.onRender = render;
+    app.start();
+    for (let i = 0; i < 4; i += 1) app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(1);
+    game.blitFx = 2;
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(2);
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(2);
+    app.stop();
+  });
+
+  it('脏帧门控：resize 后必重画（宿主表面已换）', () => {
+    const { app } = makeApp();
+    const render = vi.fn();
+    app.onRender = render;
+    app.start();
+    app.tick(1 / 60);
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(1);
+    app.resize(1290, 2796);
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(2);
+    app.stop();
+  });
+
+  it('脏帧门控：kill switch 关掉即恢复逐帧重画，再打开不继承旧哈希', () => {
+    const { app } = makeApp();
+    const render = vi.fn();
+    app.onRender = render;
+    app.start();
+    app.dirtyGate = false;
+    for (let i = 0; i < 3; i += 1) app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(3);
+    app.dirtyGate = true;
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(4);
+    app.tick(1 / 60);
+    expect(render).toHaveBeenCalledTimes(4);
     app.stop();
   });
 });

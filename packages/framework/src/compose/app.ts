@@ -51,8 +51,26 @@ export class App {
    * Draw callback supplied by the host adapter. Receives the frame's render
    * model plus the interpolation alpha. The model is REUSED between frames —
    * the adapter must not retain it.
+   *
+   * ⚠️ `[WXG-T-248]` **Not called on clean frames**: when the frame's content
+   * hash equals the previous drawn frame's, the redraw is skipped entirely (see
+   * {@link dirtyGate}). A host must therefore never use `onRender` as a per-frame
+   * tick hook, and must not depend on `alpha` changing every frame.
    */
   onRender: ((model: RenderModel, alpha: number) => void) | null = null;
+
+  /**
+   * `[WXG-T-248 / ADR-0030 §5.0.2]` 脏帧门控: skip the redraw when a frame draws
+   * exactly what is already on screen. Measured motivation — the beads vector arm
+   * burned 3.0–3.9 ms CPU per frame replaying identical geometry in 146/150 idle
+   * frames.
+   *
+   * Kept as a runtime kill switch on purpose: a stale-screen defect on a device
+   * must be diagnosable without rebuilding, and the carrier bench A/Bs both
+   * states with the same instrument. `false` restores the pre-248 behaviour
+   * (draw every frame).
+   */
+  dirtyGate = true;
 
   private readonly _builder: RenderModelBuilder;
   private _frameHandle: { cancel(): void } | null = null;
@@ -65,6 +83,13 @@ export class App {
    */
   private _hostDriven = false;
   private _lastFrameMs = 0;
+  /**
+   * Last frame handed to {@link onRender}, as a content hash. `NaN` = "nothing
+   * known on screen", which never compares equal ⇒ forces a redraw. That is the
+   * state after a start, a resize, or a foreground return (WeChat may have
+   * discarded the surface while we were hidden).
+   */
+  private _lastSig = Number.NaN;
   private _unsubs: (() => void)[] = [];
 
   constructor(options: AppOptions) {
@@ -172,11 +197,13 @@ export class App {
     this._unsubs.push(this.platform.onHide(() => this.game.onPause?.()));
     this._unsubs.push(this.platform.onShow(() => {
       this.loop.reset();
+      this._lastSig = Number.NaN;
       this.game.onResume?.();
     }));
 
     this._running = true;
     this._lastFrameMs = this.platform.now();
+    this._lastSig = Number.NaN;
   }
 
   /** Stop the frame loop. Safe to call repeatedly. */
@@ -215,6 +242,9 @@ export class App {
   /** Re-fit the viewport after a screen-size change (WeChat `onResize`). */
   resize(width: number, height: number): void {
     this.viewport.resize(width, height);
+    // The design rect is unchanged, so the content hash is unchanged too — but
+    // the host has just re-sized its surface and whatever was on it is gone.
+    this._lastSig = Number.NaN;
   }
 
   private _schedule(): void {
@@ -259,6 +289,16 @@ export class App {
     this._builder.begin();
     this.game.buildRenderModel(this._builder);
     const model = this._builder.end();
+    if (this.dirtyGate) {
+      // Signature must be read after `end()` and before the next `begin()`.
+      const sig = this._builder.signature();
+      if (sig === this._lastSig) return;
+      this._lastSig = sig;
+    } else {
+      // Turning the gate back on must not inherit a hash from a frame that was
+      // drawn under a different regime.
+      this._lastSig = Number.NaN;
+    }
     this.onRender?.(model, alpha);
   }
 }

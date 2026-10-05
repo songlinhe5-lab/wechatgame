@@ -863,6 +863,35 @@ E1–E6 落码后：**G4 玩法判据面已整体换代**（本节 J 系列）�
 > - **⚠ 可辨性观察（P3，未判红，待主理人裁定）**：下扇 `−0.40`（d=0.60）与 `plate −0.44`（d=0.56）仅差 **0.04**（旧下扇 = `edge −0.30` ⇒ 差 0.14）⇒ 珠体**底缘 1dp 描边环**的对比度由约 **1.52:1** 降至约 **1.14:1**（ci=1 奶白实测换算），降幅约 3.5×。判据侧**无既有阈值可引**（⛔ 不代造判据）。若主理人认为不可接受 ⇒ 需回调下扇或加深 plate，并**同批**复评本段。
 > - **读数**：`pnpm --filter @wxgame/beads run test` = **736 例 / 4 红 / 732 绿**（4 红 = 关卡存量 `levels` / `misplaced-assembler` / `levels-dir-pipeline` / `level-import`，**全非本单**）；`typecheck` = **0 错**。
 
+> **K.5.1-补7 整帧基线第十三次复评修订（2026-10-05 · WXG-T-256 S5′-3 层序 = 视觉裁剪 · 正本 = provenance `s3_frame_recheck_13`）**
+>
+> - **通道声明与流程偏差（⚠ 如实，K-082）**：WXG-T-256 属**整帧非珠体族视觉改动**（容器板 + 三层背景退役）⇒ 封箱腿红为预期。本次重抓由**变更侧（主理人）**执行官方复取器，**未过 QA 之手** ⇒ 与 K-082「更新权在 QA」相悖，**登记为 P3 流程偏差**（不是判据缺陷）；QA 或用户复跑复取器自证等值后即升格为常规登记。⛔ 非手填、非纸面值、非 `capture.sh` 旧快照回放。
+> - **编号口径**：本文 `K.5.1-补` 系列与夹具 `provenance.s3_frame_recheck_*` 键号**不一一对应**（`补7` ↔ **键 13**）；键 **8 不存在**（在册键序 `…_6/_7/_9/_10/_11/_12`，缺号为历史事实）；键 7–12（WXG-T-235/236/237/242 各批）当时**未建文号**，本批**不代补他人登记**。引用一律附 provenance 键名。
+> - **前态锚 / 现态锚**：前 = `3982e43`（在册夹具：frame0 `1331/73ace06a…` · frame78 `1877/27a4ae91…` · `rect 1007`）；现 = `3982e43 + worktree-delta(WXG-T-256 未提交)` ⇒ ⛔ **不满足「可复现 commit 锚」全义**，解除条件见「未决 ①」。
+> - **本批修订面（两处帧 + 一个归因键）**：`s3.frame78.{kinds.rect,total,sha}`（`rect 1007→998` · `total 1877→1868` · sha `d3a57328…`）、`s3.frame0.{total,sha}`（`1331→1322` · sha `0419c9e2…`）、新增 `provenance.s3_frame_recheck_13`。
+> - **流级差分归因（未解释 0 条）**：两帧各 **rect −9** = 容器板 **6**（B1–B3 暖光 band 3 + B4 投影 1 + B5 板体 1 + B5b 内凹 1；B6 完成贴纸在封箱夹具态 `clearPanelVisible=false` ⇒ 0 枚）+ 三层背景 **3**（全屏冷沉 1 + 两档同心提亮 2）；`circle / line / text / polygon` Δ **全 = 0**。底色改由**宿主**铺屏（canvas2d `fillRect` / Cocos `backGraphics`）⇒ **不进命令流、不计帧长**。
+> - **最强反证**：珠体族零变更 = `legacyFlow` **96/96** 与 `facetNonHoleLayers` / `facetHoleLayer` **45/45** 本次重抓**逐字节等值**（未追改）。
+> - **零追改声明**：`head.*`（史证 `frame0 963` / `frame78 1587`）、`s3AtFormalization`（1119）、`head_liftShadowFade_r5`、`s3.legacyFlow` / facet 两族、`fixture.*` 参数段**全部不动**。
+> - **判据同步（本批红 3 条全为「预期红」，无判据自身缺陷）**：① `bead-style-seal` 腿 4a（两处帧长差 `- PLATE_BG_RETIRE_FRAME0`）+ 差分自洽（两处公式 `- PLATE_BG_RETIRE_FRAME78` + `total` 锁改 1868）+ 新增**两个分段登记常量**（`rect` 族，⛔ 不并入他段黑箱常数）+ 键 13 三条存在性断言；② `bead-render` ④ **色表锁** `37/fd5a0def780d` → **`34/67c2a2c08a92`**（退役 `GLOW_WARM_HEX / BG_DEPTH_HEX / BG_LIFT_HEX` 三枚，走 art 单口径 = 本单即 art 变更批，见 `assets-spec §1.7/§1.8` 退役条）；③ `tuning` ⑤ 的尺由 `PUZZLE_BAND.yMin − PLATE_OUTSET` 改贴 `PUZZLE_BAND.yMin`（外扩余量随板消失）；④ **`check:a11y` 一次真红**（A5 锚 `glow_warm` 在 `src` 零命中）⇒ 按退役事实把 A5 状态 **✅ 降 ⚠️**、锚改指现役动效常量 `FILL_POP_SCALE_TROUGH`，并同步 `accessibility.md` 矩阵行与 §3 小结（⛔ 未把锚点抹成 `-` 躲检）。
+> - **未做的差分（诚实登记）**：未在 HEAD 码上跑「裁剪前 harness 逐帧命令流」与裁剪后做**整帧逐行**对照（帧级差由复取器两态计数与常量删除清单承担）⇒ 归因强度 = **复取器实测 + 结构性归因**，弱于逐行 diff。
+> - **读数**：`pnpm -C games/beads test` = **808 passed / 1 skipped（59 文件）**；`typecheck` 0 错 · `cocos:check` 2/2 · `framework:sync:check` 一致（framework 53 + game 47）· `harness:smoke` OK（`rect=129 arc=3412 fill=1569 fillText=12` / `6127 draw commands`）· `verify` **PASS 21 / FAIL 0**（含 `check:a11y` 复绿）。
+> - **未决（QA 侧盯办）**：① 复取锚含未提交工作树 ⇒ 提交后复跑自证等值；② **Cocos 端 dc 未读**（本批提交体 1 块 → **2 块**，按 §5.0.3「dc 随载体数相加」静置期可能 **+1**，⛔ 不纸面宣称收益）⇒ 归 ② 真机/harness 复读；③ 去板后观感 `[待真机 / art 校准]`，若 +1 有代价再议 ③ 换相机 `clearColor`（代价 = 色值双真源）。
+
+> **K.5.1-补8 整帧基线第十四次复评修订（2026-10-05 · WXG-T-256 S5′-4 底图通道 · 正本 = provenance `s3_frame_recheck_14`）**
+>
+> - **通道声明与流程偏差（⚠ 如实，K-082）**：本批属**整帧非珠体族**改动（托盘「桌面」4 条命令打 `back` 键）⇒ 封箱腿 4a/4b 红为预期。重抓仍由**变更侧（主理人）**跑官方复取器 `tests/bead-style-seal-recapture.ts`（`WXG211_CAPTURE=s3`），**未过 QA 之手** ⇒ 延续 `补7` 的 **P3 流程偏差**登记（⛔ 非手填 / 非纸面值 / 非 `capture.sh` 旧快照回放）。
+> - **编号口径**：本文 `K.5.1-补` 系列与夹具 `provenance.s3_frame_recheck_*` 键号**不一一对应**（`补8` ↔ **键 14**）；引用一律附 provenance 键名。
+> - **前态锚 / 现态锚**：前 = `3982e43 + worktree-delta(S5′-3)`（在册：frame0 `1322/0419c9e2…` · frame78 `1868/d3a57328…`）；现 = `3982e43 + worktree-delta(S5′-4 未提交)` ⇒ ⛔ 同 `补7`，**不满足「可复现 commit 锚」全义**，解除条件见「未决 ①」。
+> - **本批修订面（两处帧 sha + 一个归因键 + 一个前态史证键）**：`s3.frame0.sha` `0419c9e2…` → **`907ea480e5f658e2f199b2a9050cb634861bd1e85cfbd35d9814ab0439893480`**；`s3.frame78.sha` `d3a57328…` → **`537de402576afde80f175a7d8bf71fc29b474a6a30b1add5ffa1376026b31d51`**；新增 `provenance.s3_frame_recheck_14`（归因正本）与前态史证键 **`s3_pre_back_channel`**（锁本批前的两枚 sha，⛔ 不随后续复评漂移）。
+> - **流级差分归因（未解释 0 条）**：两帧 `total`（1322 / 1868）与**逐 kind 计数全等**（`rect 998 · circle 160 · line 376 · text 12 · polygon 322` 口径不变）⇒ 本批**不新增 / 不删除图元**，唯一变化 = **4 条命令多一个 `back` 键**（面板底 1 rect + 微拱白瓷影 3 line）。`back` 为**条件展开**，缺省不落键 ⇒ 未打标记者逐字节不变。
+> - **闭合自证（本批新形态，QA 判据强度高于「只贴 sha」）**：腿 4a 对现役两帧流机械剥掉每条尾部的 `back` 键（序列化形态 = 逗号 + `"back":true`） ⇒ 所得 sha **逐字节 ≡ `s3_pre_back_channel`** 的两枚前态锁，且带该键的条数 = 登记常量 **`BACK_KEY_LINES = 4`**。⇒ 同时证明三件事：键**只**落在这 4 条、几何**零**改写、**零**删除。任一不实即红（阳性对照：多标 / 漏标 / 改坐标三向均破坏等值）。
+> - **最强反证**：珠体族零变更 = `legacyFlow` **96/96** 与 `facetNonHoleLayers` / `facetHoleLayer` **45/45** 本次重抓**逐字节等值**（未追改）。
+> - **零追改声明**：`head.*`、`head_liftShadowFade_r5`、`s3AtFormalization`、`s3.legacyFlow` / facet 两族、`fixture.*` 参数段、以及 `补7` 的 `s3_frame_recheck_13` **全部不动**。
+> - **判据同步（本批唯一两条红 = 预期红，无判据自身缺陷）**：① `bead-style-seal` 腿 4a/4b 两处 sha ⇒ 走本通道重抓 + 键 14 四条断言 + 闭合自证；② `bead-tint-arm` 的 `trayZone` 块由「反向守卫（托盘恒矢量）」改写为「**方向守卫（同臂）**」四条腿（① 托盘槽缺 `colorIdx` + `trayZone` ⇒ 必命中且该格 0 rect；②③ 盘面两腿不变；④ 托盘珠 ⇒ 必命中且 `polygon = 0`）——⚠ 这是**随用户裁定翻转的判据对象**，⛔ 不是软化（断言数 4 → 4，且方向由「不得命中」变「必须命中」）；③ 框架新增两条：`render-model.test.ts`「`back` 只落显式声明、缺省不落键」+ `cocos-renderer.test.ts`「路由到 `backGraphics` / 未注入回落主层」。
+> - **读数**：framework **446 passed / 446** · `pnpm -C games/beads test` **810 passed / 1 skipped（59 文件）** · `typecheck` 0 错 · `framework:sync:check` 一致（framework 53 + game 47）· `cocos:check` 检查 2 / 失败 0 · `check:cocos-mask` **4/4** · `check:size` OK（主包 2918.8 KB，超内部目标 2000 KB 的 ⚠ 为存量）· **`verify` PASS 21 / WARN 0 / SKIP 0 / FAIL 0**。
+> - **产物级取证（`[E]` 桌面档，⛔ 不作屏幕层 PASS 证据，K-037）**：web-mobile 产物 · LV1 · Chromium · DPR2。① `carrier=on` 托盘 blit `cell(6,0) n = 24`（S5′-3 时该 cell = 0）；② 关掉 `Graphics` 节点后**面板底仍在** ⇒ 提交体确实换到 `backGraphics`；③ 两段式取回后托盘 2 枚珠在两臂均**完整可见**（月牙缺陷消失）；④ 同态两臂 DC **16 / 16**、Triangle **4029（on） vs 39125（off）**。**未做**：真机（`[R]`）复读与低端机样本。
+> - **未决（QA 侧盯办）**：① 复取锚含未提交工作树 ⇒ 提交后按复取器头注官方跑法复跑自证等值（承 `补7` ①）；② 托盘珠在两臂**色相不同**（on = 暗红纹理、off = 亮粉矢量）与盘面两臂既有差异同源 ⇒ 归 art 校准，QA **不判可接受**；③ `back` 为**逐图元**声明，无「桌面级图元必须沉底」的机械门 ⇒ 漏标即月牙复发（登记于 ADR-0030 §5.7 残留 3），是否升为硬门待 `[R]` 批代价读数；④ dc / Triangle 读数为 `[E]` 档，低端机外推禁止。
+
 > ### K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）
 >
 > | 引用项 | 内容 | 出处 | QA 处置 |

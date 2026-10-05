@@ -26,6 +26,18 @@ export interface RectCommand {
   readonly radius?: number;
   /** 0..1 opacity applied to fill (and stroke). */
   readonly alpha?: number;
+  /**
+   * `[WXG-T-256 / ADR-0030 S5′-4]` **底图通道**：本图元必须落在 blit 载体**之下**
+   * （托盘白瓷面板底、盘面 B0 一类「承着珠子的桌面」）。
+   *
+   * - canvas2d：一帧按命令序单趟绘制，视图本来就先铺桌面再画珠 ⇒ 本标记**无副作用**。
+   * - Cocos：只有一层 `Graphics` 且整层在 blit 之上，故由 adapter 路由到 `backGraphics`
+   *   （宿主挂在 blit 之下的那个提交体）。⛔ 未注入 ⇒ 回落普通 `Graphics`，与旧宿主逐字节等价。
+   *
+   * ⛔ 它**不是** z-index，也不是通用层序表达：只有「必须在 blit 之下」的桌面级图元用。
+   * ⛔ 缺省不落字段（`JSON.stringify` 语义）⇒ 既有 seal / 帧 diff 基准零漂移。
+   */
+  readonly back?: boolean;
 }
 
 export interface CircleCommand {
@@ -48,6 +60,8 @@ export interface LineCommand {
   readonly stroke: string;
   readonly lineWidth: number;
   readonly alpha?: number;
+  /** 同 {@link RectCommand.back}：桌面级图元（面板内阴影线）需要跟底一起沉到 blit 之下。 */
+  readonly back?: boolean;
 }
 
 export type TextAlign = 'left' | 'center' | 'right';
@@ -104,26 +118,26 @@ export interface PolygonCommand {
  * beyond position and size.
  */
 export interface BlitCommand {
-    readonly kind: 'blit';
-    /** Texture resource identifier (adapter resolves to concrete image source). */
-    readonly textureId: string;
-    /** Bottom-left corner (design space, same convention as `rect`). */
-    readonly x: number;
-    readonly y: number;
-    /** Draw size (design space; texture is scaled to fit). */
-    readonly w: number;
-    readonly h: number;
-    readonly alpha?: number;
-    /**
-     * `[WXG-T-226 EP12-B3 / ADR-0029 §8.2]` **唯一效果槽**（取代原具名字段 `tint`）。
-     *
-     * 着色语义搬到**效果模块**（`bake/tint-composite.ts` 的 `tintFx()` / `tintFxBase()`）；
-     * 权威文本见 `ADR-0029 §8.2` 键名约定表 ⇄ `ADR-0028 §2.1`（编码定义）。
-     *
-     * ⛔ core 不持引擎对象（L2）；⛔ 无 `fx` 的 blit 语义**逐字节不变**（`undefined` 不落
-     * `JSON.stringify` ⇒ 封箱基准零漂移，同 `stroke` 透传先例）。
-     */
-    readonly fx?: BlitFx;
+  readonly kind: 'blit';
+  /** Texture resource identifier (adapter resolves to concrete image source). */
+  readonly textureId: string;
+  /** Bottom-left corner (design space, same convention as `rect`). */
+  readonly x: number;
+  readonly y: number;
+  /** Draw size (design space; texture is scaled to fit). */
+  readonly w: number;
+  readonly h: number;
+  readonly alpha?: number;
+  /**
+   * `[WXG-T-226 EP12-B3 / ADR-0029 §8.2]` **唯一效果槽**（取代原具名字段 `tint`）。
+   *
+   * 着色语义搬到**效果模块**（`bake/tint-composite.ts` 的 `tintFx()` / `tintFxBase()`）；
+   * 权威文本见 `ADR-0029 §8.2` 键名约定表 ⇄ `ADR-0028 §2.1`（编码定义）。
+   *
+   * ⛔ core 不持引擎对象（L2）；⛔ 无 `fx` 的 blit 语义**逐字节不变**（`undefined` 不落
+   * `JSON.stringify` ⇒ 封箱基准零漂移，同 `stroke` 透传先例）。
+   */
+  readonly fx?: BlitFx;
 }
 
 /**
@@ -167,8 +181,8 @@ export type BlitFx = Readonly<Record<string, BlitFxValue>>;
 
 /** `[WXG-T-226 / 方案件 §3.3 选项 B]` `blit` 的选项对象。 */
 export interface BlitOptions {
-    readonly alpha?: number;
-    readonly fx?: BlitFx;
+  readonly alpha?: number;
+  readonly fx?: BlitFx;
 }
 
 export type DrawCommand =
@@ -317,8 +331,12 @@ export class RenderModelBuilder {
     this._commands.push({ kind: 'circle', x, y, r, ...cmd });
   }
 
-  line(x1: number, y1: number, x2: number, y2: number, stroke: string, lineWidth = 1, alpha?: number): void {
-    this._commands.push({ kind: 'line', x1, y1, x2, y2, stroke, lineWidth, ...(alpha !== undefined ? { alpha } : {}) });
+  line(x1: number, y1: number, x2: number, y2: number, stroke: string, lineWidth = 1, alpha?: number, back?: boolean): void {
+    this._commands.push({
+      kind: 'line', x1, y1, x2, y2, stroke, lineWidth,
+      ...(alpha !== undefined ? { alpha } : {}),
+      ...(back !== undefined ? { back } : {}),
+    });
   }
 
   text(
@@ -392,11 +410,11 @@ export class RenderModelBuilder {
    * 且 `undefined` 字段不落 `JSON.stringify` ⇒ seal 基准零漂移。
    */
   blit(textureId: string, x: number, y: number, w: number, h: number, opts?: BlitOptions): void {
-      this._commands.push({
-          kind: 'blit', textureId, x, y, w, h,
-          ...(opts?.alpha !== undefined ? { alpha: opts.alpha } : {}),
-          ...(opts?.fx !== undefined ? { fx: opts.fx } : {}),
-      });
+    this._commands.push({
+      kind: 'blit', textureId, x, y, w, h,
+      ...(opts?.alpha !== undefined ? { alpha: opts.alpha } : {}),
+      ...(opts?.fx !== undefined ? { fx: opts.fx } : {}),
+    });
   }
 
   /**
@@ -437,6 +455,73 @@ export class RenderModelBuilder {
   /** Number of arena reallocations since construction. */
   get arenaReallocs(): number {
     return this._arenaReallocs;
+  }
+
+  /**
+   * `[WXG-T-248 / ADR-0030 §5.0.2]` Cheap content hash of the frame that was just
+   * built — the mechanism behind the **脏帧门控**: the carrier bench measured
+   * 146/150 idle frames replaying byte-identical geometry (`chg = 3–4`), so hosts
+   * compare consecutive signatures and skip the whole `clear()` + replay of ~2 000
+   * commands when nothing changed.
+   *
+   * Contract (read it before using it for anything else):
+   *  - **valid between `end()` and the next `begin()`** — it reads the builder's
+   *    own command list and vertex arena, both of which `begin()` rewinds;
+   *  - 32-bit FNV-style mix ⇒ a collision costs one stale frame, not a corrupt
+   *    state. Numbers are quantised to 1/64 design px: a sub-pixel delta is below
+   *    the visibility floor by design, and a *fractional* pitch change must not
+   *    force a repaint every frame;
+   *  - values are mixed in **insertion order**, keys are not. Same `kind` ⇒ same
+   *    shape ⇒ same order, so the walk is order-stable; new command fields are
+   *    picked up automatically (no per-kind switch to maintain). Nested bags
+   *    (`fx`) are walked the same way — legal because `BlitFx` is JSON-safe by
+   *    contract and its producers pin key order (rule 4 in the type doc);
+   *  - frames with no difference return the same number, and the polygon arena is
+   *    covered too (commands only carry `offset`/`count`).
+   *
+   * ponytail: the hash covers a texture **reference** (`textureId`), never its
+   * pixels ⇒ a texture re-baked *in place* under an unchanged id is invisible to
+   * the gate. Safe as long as every producer keys content into the id — today
+   * both do (`tint`: `cache.get(textureId, base)`, and `base` lives in `fx`;
+   * bake: `bake:<styleId>:<colorIdx>` at the constant `BAKE_CANONICAL_SIZE`).
+   * If a producer ever re-bakes in place, mix a per-id content revision here.
+   */
+  signature(): number {
+    let h = 2166136261;
+    const mix = (v: number): void => {
+      h = (Math.imul(h, 16777619) + ((v * 64) | 0)) | 0;
+    };
+    const mixStr = (s: string): void => {
+      for (let i = 0; i < s.length; i += 1) h = (Math.imul(h, 16777619) + s.charCodeAt(i)) | 0;
+    };
+    // Field values, one level of nesting (`fx` bags and `number[]` payloads both
+    // walk as objects ⇒ index/key order is the insertion order).
+    const mixVal = (v: unknown): void => {
+      if (typeof v === 'number') mix(v);
+      else if (typeof v === 'string') mixStr(v);
+      else if (typeof v === 'boolean') mix(v ? 1 : 0);
+      else if (v !== null && typeof v === 'object') {
+        const bag = v as Record<string, unknown>;
+        for (const k in bag) mixVal(bag[k]);
+      }
+    };
+
+    mix(this._width);
+    mix(this._height);
+    if (this._background !== undefined) mixStr(this._background);
+    mix(this._tScale);
+    mix(this._tAx);
+    mix(this._tAy);
+
+    for (const cmd of this._commands) {
+      const rec = cmd as unknown as Record<string, unknown>;
+      for (const key in rec) mixVal(rec[key]);
+    }
+
+    const verts = this._verts;
+    for (let i = 0; i < this._vCursor; i += 1) mix(verts[i]!);
+
+    return h >>> 0;
   }
 
   /** Freeze and return the current frame. */

@@ -63,7 +63,7 @@ function fakeFactory(maskPixels: Record<string, Uint8ClampedArray>) {
   return { factory, slots };
 }
 
-function makeCache(maskPixels: Record<string, Uint8ClampedArray>, options?: { budgetBytes?: number }) {
+function makeCache(maskPixels: Record<string, Uint8ClampedArray>, options?: { budgetBytes?: number; tileInnerPx?: number }) {
   const { factory, slots } = fakeFactory(maskPixels);
   const cache = new TintSpriteCache(
     factory,
@@ -105,11 +105,11 @@ describe('TintSpriteCache · 合成与命中', () => {
     const top = new Uint8ClampedArray(SIZE * SIZE * 4);
     const bottom = new Uint8ClampedArray(SIZE * SIZE * 4);
     for (let y = 0; y < SIZE; y++) {
-        for (let x = 0; x < SIZE; x++) {
-            const i = (y * SIZE + x) * 4;
-            const src = y < SIZE / 2 ? top : bottom;
-            src[i] = 255; src[i + 1] = 0; src[i + 2] = 255; src[i + 3] = 255;
-        }
+      for (let x = 0; x < SIZE; x++) {
+        const i = (y * SIZE + x) * 4;
+        const src = y < SIZE / 2 ? top : bottom;
+        src[i] = 255; src[i + 1] = 0; src[i + 2] = 255; src[i + 3] = 255;
+      }
     }
     top[0] = 11; bottom[(SIZE - 1) * SIZE * 4] = 99;   // 两个特征字节
     const masks: Record<string, Uint8ClampedArray> = {
@@ -296,5 +296,30 @@ describe('TintSpriteCache · 字节预算 LRU', () => {
     cache.get('m', CREAM);
     expect(cache.stats.usedBytes).toBe(one * 2);
     expect(cache.stats.masks).toBe(1);
+  });
+});
+
+// ── [WXG-T-254 / ADR-0030 S5′-2] 底 tile 形态的分流 ─────────────────────────
+//
+// tile id **不对应任何资产**（注册表里没有 `m__tile` 这张图）⇒ 像素必须由源 mask
+// 派生（`composeMaskTile`）。两条腿钉住「宿主不需要新增资产」这件事，以及
+// 「没配 `tileInnerPx` ⇒ 宁可判不可用（落矢量臂），⛔ 不猜一个缩放比」。
+describe('TintSpriteCache · 底 tile 形态（WXG-T-254）', () => {
+  it('① 未配 tileInnerPx ⇒ tile id 返回 undefined，且不去注册表要资产', () => {
+    const { cache, slots } = makeCache({ m: maskWith(255, 0, 255) });
+    expect(cache.get('m__tile', CREAM)).toBeUndefined();
+    expect(slots, '未配 ⇒ 连源 mask 都不该抽').toEqual([]);
+    expect(cache.stats.failed, '⛔ 这不是失败，不该负缓存').toBe(0);
+  });
+
+  it('② 配了 tileInnerPx ⇒ 由源 mask 派生（二次命中同一引用，⛔ 不重复合成）', () => {
+    const { cache, slots } = makeCache({ m: maskWith(255, 0, 255) }, { tileInnerPx: 6 });
+    const a = cache.get('m__tile', CREAM);
+    const b = cache.get('m__tile', CREAM);
+    expect(a).toBeDefined();
+    expect(b).toBe(a);
+    expect(cache.stats.hits).toBe(1);
+    // 源 mask 抽像素 = 1 次 scratch canvas；tile 合成 = 1 次 sprite canvas。
+    expect(slots.length, 'tile 派生只多用一张 sprite，⛔ 不再抽一次源').toBe(2);
   });
 });

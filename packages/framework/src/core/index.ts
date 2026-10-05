@@ -30,4 +30,5 @@ export * from './bake/bake-schema-version.js';
 export * from './bake/bake-recipes.js';
 export * from './bake/mask-spec.js';
 export * from './bake/mask-field.js';
+export * from './bake/mask-tile.js';
 export * from './bake/tint-composite.js';

@@ -2480,3 +2480,748 @@ beads **782 绿 + 1 skipped**（新增 2 条；封箱 9/9 含在内 ⟹ 静息�
 
 功能缺陷但不阻断：逻辑/渲染/测试面全绿（beads vitest 801 passed / 1 skipped 时点），
 优先级 = 中（救援名存实亡，上线前须闭；`wxgame-release-checklist` 可将其列为提审前待办）。
+
+## WXG-T-247
+
+**beads·Cocos 生产通道同源绘制（ADR-0030 载体决策）**
+
+**来源**：2026-10-04 用户令「Cocos 生产通道 需要解决 与 harness 同样的绘制逻辑」；
+真机症状由用户自述 =「使用的是矢量绘制逻辑」。决策件 = `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md`
+（程基岩委草、编排者复核并改领号）。**本批只出文档，零实现代码。**
+
+### 定性（⛔ 不是回归缺陷）
+
+真机没有 tint = 当前架构的**正确行为**，三条事实叠加后结构上不可能发生：
+
+| 事实 | 锚 |
+|---|---|
+| `case 'blit'` 在 Cocos 分支 = warn 一次后静默跳过 | `packages/framework/src/adapters/cocos/cocos-renderer.ts:201–211`（承 `ADR-0026 §4.2`） |
+| Cocos 侧**没有 blit 抽象**（`CocosRendererOptions` 无 `blitResolver`/`textureRegistry`，两者只在 canvas2d 存在） | 对照 `canvas2d-renderer.ts:63/84/107/112/131` |
+| tint 链（装 mask → 注运行时 → 预烘）**只有 dev harness 一个调用点** | `dev/harness/main.ts:120–175`；`setBeadTintRuntime`/`setBeadBakeRuntime` 在 Cocos 侧零调用 |
+
+所以本单的性质是**补一段从未存在的生产通道**，不是修坏掉的东西。
+
+### 推荐路线（待用户裁定后生效）
+
+**丙′「同源 Canvas2D 帧通道」**：Cocos 宿主内实例化现役 `Canvas2DRenderer`（与 harness 逐字同一份代码，
+含同一 `createTintBlitResolver` / `TintSpriteCache` / `compositeTintMask` / `computeMaskField`）产帧
+→ 上传一张 `Texture2D` → Cocos 只显示这一张。**同源 = 同代码，不是同规格**（DEC-3：⛔ 禁止在 Cocos 侧写第二套合成公式）。
+前置 **丁**（carrier 抽象，S1，与载体选型解耦）。落位承 `ADR-0022 §8.1`：触 `cc` 只住 `games/beads/cocos/assets/scripts/`，
+⛔ 不进 framework 镜像 / 不进框架 barrel。
+
+四条支撑与四条硬约束详见 ADR §0 / §3（DEC-4 mask 走运行时程序化 ⇒ 零位图投放、`§19` 与包体守卫不触发；
+DEC-5 纹理尺寸 = 盘面 bounding box × dpr；DEC-6 每帧按当前变换重量绘，⛔ 不用节点缩放；DEC-7 渲染/输入同口径）。
+
+### 最大未知（诚实记录）
+
+- 每帧一次 CPU 2D 填充 + 一次 canvas→GPU 上传，**耗时与显存全 `[待实测]`**；`ADR-0029 §0` 的「真机帧时间与显存」
+  由**采纳门禁降为换代门禁**（DEC-9），边界条件 = 丙′ 在 S2 出数前**不得默认开**（呈现层开关默认关，关 = 与今日逐字节等价）。
+- **单点故障**：离屏 2D canvas 在 Cocos wechatgame 下的可得性、canvas→`Texture2D` 运行时上传——本仓零实测、
+  引擎取证面（`api-verified.md`）无覆盖，⛔ 不得由 web-mobile 浏览器档外推（`ADR-0028 T2'`）。任一不通 ⇒ 丙′ 出局、转 甲′/乙。
+- `[R]` 真机腿仍被环境阻塞（无微信开发者工具 + 无 AppID）⇒ S2 桌面绿**不得**记作「真机通过」（K-037/K-054）。
+
+### 待用户拍板四刀（ADR §7）
+
+1. **Q1 载体**：(a) 先丙′、S2 出数后再决定换不换（推荐）／(b) 直接押 甲′（`ADR-0029 §9` 在册采纳项）／(c) 押 乙（⛔ 不满足诉求本体）。
+2. **Q2 zoom**：(a) 每帧重量绘保锐利（推荐，代价每帧上传）／(b) 缩放期容忍糊 + 停稳重量绘（须 art 复评）／(c) 节点缩放（⛔ 违 §19，须显式豁免）。
+3. **Q3 真机资源**：拿不到 3 台 + 开发者工具时，是否允许 S5 只做「开关默认关的可用通道」并只记 `[E]`（建议：允许）。
+4. **Q4 mask 来源**：(a) 运行时 `computeMaskField`（推荐，零投放）／(b) 用已就位 4 张 PNG（需编辑器产 `.meta`，且 `holeless` 两张缺 ⇒ 今天开不了工）。
+
+### 实施拓扑（裁定后才动码）
+
+S1 carrier 抽象 → S2 取数 Spike（`?parity=1` 默认关）→ {S3 两端同帧像素对拍, S4 mask 运行时接线} → S5 生产宿主接线 → S6 性能复评/换代判据。
+验收一律引用在册工具与在册 TC-ID（`TC-TINT-13/14a/14b/15/16/17/18`），新判据拟 **TC-TINT-23** 交严守真落册，本单不自钉阈值。
+
+### 2026-10-05 用户四刀回话与 ADR 相应改写（本会话实测取证，⛔ 零实现代码）
+
+| 刀 | 用户口径 | ADR 落点 | 本会话新增实测 |
+|---|---|---|---|
+| **Q1 载体** | 「先评估方案的性能后再决定是否与 harness 同源」 | **DEC-1 标注「暂不生效」**；新增 **§5.0 S0 性能评估先行批**；拓扑序改 `S0 → 裁载体 → S1 → …` | 纸面账（可算，无需实测）：丙′ 每脏帧上传 = 可见区 × dpr ⇒ **dpr3 档 6.6 MiB（fit）～12.9 MiB（zoom 2.0 clip）** = **0.4–0.8 GiB/s @60fps**；甲′ = 图集 **458 KB** 一次性 + **零每帧上传**；乙 = mask 128² + 1 draw call。今日矢量臂基线 = 每帧 ≈ **2031 条命令**重放 |
+| **Q2 zoom** | 「需要解释清楚再决定」 | 新增 **§7.1**：拆成**两个正交源**——源 A 帧纹理分辨率（= Q2 三选项）／源 B 珠子本体档位（= 与 Q2 无关的第二刀） | `BEAD_CELL=30`、`CAMERA_ZOOM ∈ [0.2, 2.0]`、`MASK_CANONICAL_SIZE=128`、`TINT_LOD_MAX_UPSCALE=null` ⇒ 珠子物理边长 `30×2×3 = 180 px` = **1.41× 放大**，**harness 今日已如此** ⇒ 选 (a) 也救不了珠子；本单初稿「(a) = 保锐利唯一解」**不准确，已如实修正** |
+| **Q3 真机** | 「具体说明下再决定」 | **F-11 整条改写为「阻塞已不成立」**；§4.2-10 与拓扑说明同步更正；`VERSION.md` 环境表追加 10-05 复核更正块 | `ls /Applications` → `wechatwebdevtools.app`（CLI 在 `Contents/MacOS/cli`，support dir mtime 10-04 23:55）；AppID 在仓（根 `wx63c62151a1c0cf3b` / 构建档 `wx8cf9f756e5390749`）；`build/wechatgame` mtime **10-04 23:54**。**真实设限 = 样本面**：在册 `render-perf-device-baseline.md` 的 L-A/L-B 双低端锚点不齐 ⇒ S0 只能出**方向性预读**，⛔ 不得记 D1/D2「≥2 台低端同向」达线 |
+| **Q4 mask** | 「从主包里来；以后变更皮肤用增量包替换 mask 纹理，换肤功能之后再实现」 | **DEC-4 整条改写**（推翻本单初稿推荐的运行时程序化）；`computeMaskField` 由「运行时」挪到「构建期」（正本产地不变） | 资产实测：四张 128² mask = 8,750 + 4,210 + 3,395 + 2,872 B = **19.2 KB**；`textures.meta` = directory importer 无 bundle 标记 ⇒ 落 `assets/main` **计入主包**（正是所求）。包体实测（`check:size`）：主包 **2866.8 KB / 32 文件**（gzip 1334.6 KB）⇒ 距红线余 **1229 KB**，⚠ **已超内部目标 2000 KB**（守卫仅 WARN，K-089 在数上成立）。换肤前置 = `textures` 目录**改 bundle**（编辑器动作，L1 禁手编 `.meta`）+ 当前 `game.json` **无 `subpackages`** |
+| **第五刀（同日追加）档位规范** | 「按 `BEAD_CELL 32 × zoom 2 × dpr 2` 规范实现 `MASK_CANONICAL_SIZE`；小程序兼顾高低设备，**不特做 dpr3 资源**」 | **DEC-4 新增「档位规范」条** + **§7.1 源 B 改写为已裁、决策 II 关闭**（(D) 加投 256² 标 ⛔ 已否）+ §7 Q2 拆清「仅指源 A」 | 口径订正：32 = `BEAD_PITCH`、**`BEAD_CELL = 30`** 才是 blit 外框（`tuning.ts:316` 与单测 `bead-tint-arm.test.ts:384–389` 早已逐字算过 `120 ≤ 128` / `180 > 128`）⇒ 安全包络 `zoom × dpr ≤ 4.27`（按 32 则只剩 4.0 = dpr2 满 zoom **零余量**）。**遗留冲突**：资产决策管不住真机 DPR ⇒ (A) 保持 `null`（需 §19 例外登记）/ (B) 填 `1.0`（降级正好落在主判低端机 = 最重矢量臂）/ (C) 降 `CAMERA_ZOOM_MAX` 1.4（属 §3 冻结常量变更）**待裁**；⚠ 真机 DPR **在册零实读**且 web 档**引擎封顶 2**（`TC-COORD-03`）⇒ 桌面取证看不到 dpr3，已列为 **S0 真机腿必采项**（现降为 (A) 的**复评依据**，不再是定档前置） |
+| **第六刀（同日）§19 冲突处置** | 「**直接 (A)，之后有问题再调整**」 | **§7.1 三选标 ✅ 已裁 (A)**（(B)/(C) 降为备选、保留机制不删）；**DEC-4 新增「(A) 的落地账」**；**附录 A 新增 §19 tint mask 档位例外文案**（含四条边界，只解「放大」半、不解「投放位图」半）；**S5 新增硬前置** | 代码成本 = **零**（`TINT_LOD_MAX_UPSCALE` 已是 `null`，现状即 (A)；回退机制与单测保留 ⇒ 填 `1.0` 即可调整）。⚠ 换来三笔账：① **`control-manifest §19` 正本待工程单落表** ⇒ 未落表前 S5 呈现层开关**不得默认开**；② `tuning.ts:310`「不靠『显式豁免』绕过」在本裁定下**语义反转** ⇒ 列为 **S1 顺带更正项**（含镜像副本，本批不动码）；③ 例外跟**「128 唯一档」**走、不跟载体走 ⇒ S6 换 甲′/乙 后 (A) 照用，不得当作已解决而重开决策 II |
+
+**新增门禁（Q4 直接后果，⛔ 不可跳）**：投放位图命中 `control-manifest §19` ⇒ 须先过 `TC-TINT-18`（V-9 先证包体守卫**能红**）且 `verify --strict`；
+并须回写 `architecture.md §5.1`「首屏 0 图片」的**例外登记**（首屏唯一位图 = 四张 mask），⛔ 不得留作隐性漂移。
+两张 `holeless` 的 `.meta` 仍待编辑器导入 = (b) 路线今天唯一真阻塞。
+
+**下一步**：S0 三步（① 离屏 canvas 与 canvas→`Texture2D` 的**二值可行性**——最省力的一刀，不通则丙′ 直接出局；② [E]/[SIM] 量级对照，
+跑进在册 D8b「每帧全量 vs 仅脏格上传」口径，⛔ D8b 明文「无通过线，不得自造」⇒ 只出登记值；③ [R] 方向性预读）。
+S0 出数后才回 Q1 选载体、Q2 定 zoom 口径（+ 决策 II 珠档位），可同批一并裁。
+
+### 2026-10-05 → 10-06 第七刀：S0 开工，三臂同宿主实测出数（⚠ 本批**解除「零实现代码」**，限取证面）
+
+用户三令：① §19 例外**现在就落正本**；② 三臂优缺点 + 推荐 + 是否有更优方案；③「**实现后两个方案，并打印真实性能数据做对比后选择**」。
+
+| 项 | 本批交付 | 实测锚 |
+|---|---|---|
+| ① §19.1 例外 | `control-manifest.md` **§19.1** 已落表（四条边界 + 「未落表前开关不得默认开」）⇒ `ADR-0030` S5 硬前置的**文书半边已清**（真机半边仍须 `TC-TINT-18`）；ADR 附录 A 与头注同步标「已落表」 | `docs/architecture/control-manifest.md:343` |
+| ② 载体实现 | 新增 `games/beads/cocos/assets/scripts/spike/carrier-bench.ts`（三臂 = V/C/A 同一页面同一盘面态，`?bench=1` 门，默认零开销）+ `tools/scripts/carrier-bench.mjs`（服务产物 + mask 白名单 + zoom 矩阵 + 表/JSON/MD/截图）；`BeadsBootstrap.ts` +3 行挂载 | `pnpm run cocos:check` 绿 · `framework:sync:check` 绿 · `build:cocos:web` 12.5 s（`.meta` 由编辑器自动生成，⛔ 未手改） |
+| ③ 测量宿主 | **打通一条无需真机、无需人工点按钮的取证通路**：Creator 3.8.8 CLI 产 web-mobile → `node:http` 服务 → playwright chromium **`--use-angle=metal`** → 页内 `EXT_disjoint_timer_query_webgl2` 取真 GPU 时间 + `director.root.device.numDrawCalls/numTris` | 实读 `ANGLE (Apple, ANGLE Metal Renderer: Apple M4)`、dpr **2**、backbuffer 824×1830 |
+| ④ 读数 | 静置档 + 最坏档（`--disturb`）各一份，9 格矩阵（3 臂 × 3 zoom），两轮复跑同向；证据落 `production/qa/beads/evidence/carrier-bench/`（+ `disturb/`） | 详表 = `ADR-0030 §5.0.1` |
+
+**读数要点（三句）**：① **H-CPU 已证**：V 每帧 CPU 重放 3.0–3.9 ms = C/A 的 3–4×，且唯一随 zoom 上升（tris 37k→55k）；
+② **H-FILL 本档判不了**：三臂 GPU p50 不随 zoom 变 ⇒ 假设仍未裁，必走 `[R]` 低端机；
+③ **意外读数 `chg = 3–4/150`**：静置期渲染模型几乎不变 ⇒ **三臂都在每帧做无效重放**（V 白烧 3 ms、C 白传 6 MB）⇒ 脏帧门控是与载体无关、收益更大的前置。
+
+**推荐（数据侧，⛔ 不是裁定）**：先 **脏帧门控** → 主选 **甲′**（引擎原生、零每帧上传、tris 1/11、无任何未证平台能力）；
+**丙′ 降第二候选**（本档最快但 `S0-1` 二值门未过 + 实测每帧 **6,031,680 B** 上传）；**更优形态 = 甲″**（静态底图烘纹理 + 珠层 Sprite 池 + UI 层 Graphics，目标 `dc` 16→≈3）。
+⇒ `ADR-0030` DEC-1（采纳丙′）与 §2.5 结论行已标数据修订与指向 §5.0.1；改裁归用户/主理人。
+
+**未闭环（下一步候选，供拍板）**：① S0 第 1 步 wx 侧二值可行性（`wx.createCanvas` + canvas→纹理）——不通则丙′ 直接出局；
+② 脏帧门控（可单独开单）；③ 甲′ 正式接线 = S1 carrier 抽象 + 分层修 `dc`；④ `[R]` 真机方向性预读（含 DPR 实读）。⛔ 本批未 commit。
+
+---
+
+## WXG-T-248
+
+**beads·脏帧门控（内容指纹判脏，干净帧不重画）**
+
+**来源**：用户 2026-10-05 令「**先开 WXG-T-248「脏帧门控」**」——采纳 T-247 第七刀数据侧推荐次序的第一项（结论 6：`chg=3–4/150` ⇒ 三臂都在每帧无效重放相同几何）。
+本单的性质 = **与载体选型无关的前置收益**：无论最后选 V/C/A 哪条臂，「这帧没变就别重画」都成立。
+
+### 落点裁定（ponytail 阶梯，三条否决给全）
+
+| 候选 | 结论 | 理由 |
+|---|---|---|
+| **甲：`App._render` 跳过 `onRender`** | ✅ **采纳** | 一处生效两宿主（Cocos + canvas2d 同源）；适配器不需要持有任何跨帧状态 |
+| 乙：游戏侧声明 revision（`game.revision` 变了才重画） | ⛔ 否决 | 改动面 = 每个游戏 + 每条动画通道；**漏标一次 = 永久冻屏**，失效面比内容指纹宽 |
+| 丙：把 `signature` 塞进 `RenderModel` 返回值 | ⛔ 否决 | `RenderModel` 形状一变 ⇒ `wxg-t-211-s3-seal.json` **整帧封箱基线漂移**（该基线判据是 `JSON.stringify`），要走 QA 复评；本单零必要 |
+| 丁：在各渲染器内部各自判脏 | ⛔ 否决 | 两份跨帧状态、两个宿主两套失效口；且 `CocosRenderModelRenderer.draw()` 的 `g.clear()` 与命令重放是原子的，跳过只能从「不调 draw」这一侧跳 |
+
+**指纹实现** = `RenderModelBuilder.signature()`（`packages/framework/src/core/render/render-model.ts`）：
+32 位 FNV 风格混合（`Math.imul(h, 16777619)`），数值量化到 **1/64 设计 px**（亚像素抖动按设计**不重画**，⚠ 是契约不是精度损失），
+命令字段走 `for...in` 按**插入序**混值（不按键名 ⇒ 新增字段自动纳入，⛔ 无 per-kind switch 需维护），
+`polygon` 顶点另走 arena（命令里只有 `offset/count`，不混 arena 会漏判）。
+
+**四条契约**（写在 `signature()` 的 doc 上）：① 只在 `end()` 与下一个 `begin()` 之间有效；② 32 位碰撞的代价 = **一帧陈旧**（非状态损坏）；
+③ 1/64 量化按设计；④ `blit` 帧**不参与门控**——`fx` 袋不哈希，掺一个每帧自增的 `_frameSeq` ⇒ 含 blit 的帧**恒判脏**（宁多画不漏画），
+   ⚠ **本条已于同日由 WXG-T-250 作废**（`fx` 逐键入门 ⇒ 恒判脏规则与 `_frameSeq` 均删），原文不删留作契约改道证据；
+以 `ponytail:` 注释登记上限与升级路径（将来要省这档须给 fx 定义可哈希口径）。
+
+**kill switch** = `App.dirtyGate`（默认 `true`）：既是真机「画面不动」类缺陷的**免重构建诊断口**，也是本批 A/B 的**同一把尺**（探针 `?gate=off` / `setGate(false)`）。
+**失效注入点**：`_init()` / `onShow`（微信回前台表面可能已释放）/ `resize()`（设计尺寸不变但宿主表面已换）/ `dirtyGate` 由 false 翻回 true ⇒ 四处一律置 `_lastSig = Number.NaN`（**NaN 永不自等 ⇒ 必重画**，不用 `null` 哨兵是为了让「比较」这条路径零分支）。
+
+### ⚠ 契约变化（宿主侧必读，已登 `control-manifest §8`）
+
+`onRender` **不再是逐帧钩子**：干净帧不回调 ⇒ 宿主不得在 `onRender` 里推进状态、不得依赖 `alpha` 每帧变化（插值补偿须挪到自己的帧回调）。本仓两条现役宿主（`bindings.ts`、harness `harness-runtime.mjs:236`）均已核：前者是纯 `draw()` 转发，后者包 `onRender` 只为捕获 model、内容相同 ⇒ 安全。
+
+### 判据与实测
+
+单测两组（全绿）：`tests/core/render-model.test.ts` 新增 `signature` 六条（同内容同哈希、位置/颜色/文本/尺寸变则变、亚阈值不变、blit 恒变）；
+`tests/compose/app.test.ts` 新增门控六条（同内容 5 帧只画 1 次但 `renderCount==5`、内容再变再画、只改墨也算脏、blit 帧 4/4 必画、`resize` 后必画、关档逐帧 3 画且再开不继承旧哈希）。
+
+**A/B 取证**（`[E]` Apple M4 · dpr2 · backbuffer 824×1830 · frames=150 warmup=40 · gpu=timer · 矢量臂 V）：
+
+| zoom | gate | cmds | dc | tris | **tick p50** | tick p95 | **drawn** | draw p50 | gpu p50 | chg |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0.6 | off | 2031 | 14 | 37170 | 4.40 | 4.60 | 150 | 3.00 | 2.26 (n149) | 4 |
+| 0.6 | **on** | 2031 | 14 | 37170 | **1.20** | 1.40 | **3** | 5.70 (n=3) | 2.51 (n3) | 3 |
+| 1.0 | off | 2031 | 14 | 38194 | 4.50 | 5.00 | 150 | 3.20 | 2.45 (n149) | 3 |
+| 1.0 | **on** | 2031 | 14 | 38194 | **1.30** | 1.50 | **2** | 5.20 (n=2) | 2.91 (n2) | 2 |
+| 2.0 | off | 1916 | 15 | 55145 | 5.00 | 5.90 | 150 | 3.90 | 2.87 (n149) | 4 |
+| 2.0 | **on** | 1916 | 15 | 55145 | **1.10** | 1.80 | **3** | 7.30 (n=3) | 2.80 (n3) | 3 |
+
+**最坏档 `--disturb`**（每帧 ±0.004 zoom 抖动 ⇒ 全盘几何都变）：tick `4.40/4.30/5.00` → `4.80/4.80/5.70`，`drawn 150/150`、`chg 150/150`；
+`draw p50` 两档持平（3.00/3.00、3.00/2.90、3.80/4.00）⇒ 多出来的部分是**纯指纹代价 ≈ +0.4–0.7 ms/帧**，不是重画变贵。
+（⚠ 该档首格 `z0.6-off` 采样窗只收到 **n=125**，`tick n == drawn == 125` 内部自洽，跨组比较时按 n 读。）
+
+**读数结论（四条）**：
+
+1. **省的是 JS/CPU，不是 GPU**：整帧 CPU `4.4–5.0 → 1.1–1.3 ms`（≈**3.6–4.5×**），而 `dc 14/15`、`tris`、GPU p50 `2.26–2.91` **两档一致**
+   ⇒ 引擎每帧仍提交同一份 Graphics buffer，门控只省下 JS 侧重放。**不得写成「GPU 减半」**。
+2. **开档 `draw p50` 读数反而更高（5.2–7.3 ms）无判别力**：样本只剩 2–3 个脏帧 ⇒ ⛔ 不得与关档 3.0–3.9 比大小；判收益只看 `tick p50` 与 `drawn`（已写进驱动器头注）。
+3. **剩余 1.1–1.3 ms = 定步模拟 + `buildRenderModel`**（每帧仍产 2031 个命令对象 + 数组/arena 拷贝）⇒ 门控跳过的是「画」，跳不过「建」。
+   想再赚要让玩法侧声明 revision 以跳过「建」，**属下一单不属本单**（正是被否决的候选乙，代价面已记上表）。
+4. **`frame p50` 三档恒 ≈16.6–16.8 ms**（vsync 锁定）⇒ 本档对帧耗无判别力，⛔ 不得进性能结论。
+
+**截图差分归因（诚实登记，⛔ 不写成「逐像素相同」）**：开/关两档截图差分有 **0.25–0.34%** 非零像素，
+8×10 带直方图定位 = 差异只落在 y10–20 / y70–90 三小簇（HUD 计时文本 + 托盘），**盘面中段 y20–70 逐像素为 0**；
+控制对照 = 门控**前**的 `vector-z1.png` vs 今日 g-on（4823 px）/ g-off（3361 px）落在**同样的带**
+⇒ 归因为两次运行间的**自然状态漂移**（`createRng(Date.now())` 抽珠 + 计时文本），**非陈旧帧缺陷**。
+
+### 交付物与验证
+
+| 项 | 文件 |
+|---|---|
+| 指纹 | `packages/framework/src/core/render/render-model.ts`（`signature()` + `_frameSeq`）⚠ `_frameSeq` 已于 **WXG-T-250** 删除 |
+| 门控 + kill switch | `packages/framework/src/compose/app.ts`（`dirtyGate` / `_lastSig` / `_render` 分支 / 三处失效 / `onRender` jsdoc 警示） |
+| 单测 | `tests/core/render-model.test.ts`、`tests/compose/app.test.ts` |
+| 镜像 | `games/{beads,breakout}/cocos/assets/scripts/framework/**`（`pnpm run framework:sync` 写入，各 2 文件） |
+| 取证件 | `spike/carrier-bench.ts`（`_tickMs`/`_drawnFrames`/`setGate`/`?gate=off`）、`tools/scripts/carrier-bench.mjs`（`--gates=off,on` 维度 + tick/drawn 列） |
+| 契约登记 | `control-manifest.md §8` 两条；`ADR-0030 §5.0.2`（读数与「省 CPU 不省 GPU」） |
+| 证据 | `production/qa/beads/evidence/carrier-bench/gate-ab/` 与 `gate-ab-disturb/`（各 json + md + 6 张截图） |
+
+验证：`pnpm run verify` 全量 **PASS 20 / WARN 0 / SKIP 0 / FAIL 0**（含 `framework:sync:check` / `cocos:check` / `check:size` / `harness:smoke` / `check:host-tests` / `check:board-seam`）；
+`pnpm -r run typecheck` 三包 Done；`pnpm -r run test` ⇒ framework **433** / breakout **239** / beads **801**(+1 skipped)；⛔ 本批未 commit。
+收口轮（文档编辑后）复跑：`verify` **PASS 20 / FAIL 0**·`check:tasks` 主表/详情 **37/37** 配对完整·`check:links` OK·`ctx:build` 已刷索引面。
+
+**沉淀统计（`kb:sync --task=WXG-T-248`）**：**新增 3 / 修改 0 / 激活 0 / 归档 0** ⇒ **K-101**〔判据〕节流类优化会让被优化量样本数骤降而失去判别力；**K-102**〔判据渲染〕跳帧优化落点选回调时机而非返回值形状（形状一变击穿整帧封箱基线）；**K-103**〔测试〕截图差分非零不直接计缺陷（先带直方图定位 + 历史对照）。更正日期口径后二次跑：**新增 0 / 修改 3**；`kb:audit` 无归档候选、无相似命中。
+
+**未闭环（下一步候选）**：① 「建」侧的 revision 通道（跳过 `buildRenderModel`，收益上限 = 再省 1.1 ms）；
+② 回 `ADR-0030 §7 Q1` 裁载体（门控先吃掉了静置期的无效重放 ⇒ 换臂增量收益需按门控后重算，C↔A 的纯载体对比此时才干净）；
+③ wx 侧 `S0-1` 二值可行性；④ `[R]` 低端机方向性预读（本组全部为 `[E]`，⛔ 不得记 D1/D2 达线）。
+
+## WXG-T-249
+
+**beads·甲″ 分层上界实测（取证面新档）**
+
+**来源**：用户 2026-10-05 在「（离屏 canvas + 上传）vs（按色图集 + Sprite 池）」对照之后择 **(A)「开 甲″ 三层工程单」**。
+外部调研同向（业界把「每帧全量纹理上传」列为移动端反模式、2D 网格类走图集 + 渲染序连续 + UI 分层），故本单的目标不是选型，
+而是**把「甲″ 三层到底能省多少」钉成数**，再决定值不值得申请生产接线。
+
+### 落位裁定（ponytail full 阶梯，三档给全）
+
+| 候选 | 实装面 | 裁 |
+|---|---|---|
+| **甲** 取证面新档：`carrier-bench` 加 `layers=full,beads` 维度（`beads` = 非珠层整体停用） | 一个开关 + 一行分支 + 一处显隐收口 | ✅ **采纳**。零生产改动即可出上界数 |
+| **乙** 直接把三层接到生产（静态底图烘纹理 + 珠池 + UI 位置同步） | `cocos-renderer` / `beads-shell` / 场景节点树 | ⛔ 否：`DEC-1` 未裁，ADR-0030 明文「代码在裁定前不动」；**没有数就上三层 = 把最大一笔改动裸做** |
+| **丙** 先让 `signature()` 能判 blit 脏（本批结论 3 的修法） | 框架 `render-model.ts` + 单测 | ⛔ 不属本单（框架单需独立领号 + 单测）；但本批读数正是它的立项理由 |
+
+**为什么用「关组件」而不是「不喂命令」**：`CocosRenderModelRenderer.draw()` 内部才做 `g.clear()`，不喂命令只会让上一帧内容继续提交
+⇒ 读数变成「冻住的矢量层」而非上界。两处显隐（`setArm` 与 `setAtlasLayers`）收进**同一个** `_syncLayers()`（⛔ 两处各写一遍必漂）。
+
+### `[E]` 实测（Apple M4 · dpr2 · 824×1830 · frames=150 warmup=40 · gate=on · 三档 zoom）
+
+| zoom | layers | dc | tris | draw p50 | GPU p50 | tick p50 | drawn | chg |
+|---|---|---|---|---|---|---|---|---|
+|0.6|full|15|3354|1.00|2.15|1.40|150|4|
+|0.6|beads|**2**|**740**|**0.10**|**0.81**|0.90|150|4|
+|1.0|full|15|3354|0.90|2.17|1.30|150|3|
+|1.0|beads|**2**|**740**|**0.10**|**0.79**|0.90|150|3|
+|2.0|full|15|3137|0.90|2.26|1.40|150|4|
+|2.0|beads|**2**|**708**|**0.10**|**0.42**|0.70|150|4|
+
+### 读数结论（四条 + 一处自我更正）
+
+1. **甲″ 收益真实且大**：`dc 15 → 2`、tris −78%、draw CPU −90%、GPU −63～−81% ⇒ 非珠层（静态底图 + HUD 矢量）在甲′ 里
+   占了 **13 dc + ≈0.8 ms CPU + 1.3–1.8 ms GPU**，且**三档 zoom 恒定**（与内容无关）⇒ 纯节点树形态，零平台押注。
+2. ⚠ **归因更正（推翻 §5.0.1 结论 7）**：`dc 16/15` **不是**「Sprite 与 `cc.Graphics` 交错 ⇒ 合批被打断」，而是**相加**
+   （非珠层 13 + 珠池 **2**；280 个 Sprite 自己就合成 2 批 ⇒ 图集/合批在本档已实证，`ADR-0022 D6` 的怀疑桌面部分可销）。
+   待修项随之从「排序避免打断」改为「**别让非珠层每帧全量重放**」。
+3. 🔴 **门控对含 `blit` 的模型恒判脏**：两档 `drawn` 都 **150/150** 而 `chg` 只 3–4 ⇒ `render-model.ts:500` 那条在册 `ponytail:`
+   上限今天撞到，而且**正好撞在推荐主选臂**——其登记理由「它们的成本在上传不在重放 ⇒ 损失小」被本批读数推翻：
+   **甲′/丙′ 目前完全拿不到 §5.0.2 的门控收益**。下一口最小收益单 = `signature()` 逐键走 `fx`，收益上限 = 本表 `beads` 那行。
+   可行前提已核：blit 的 `textureId` 等身份字段是字符串、已被现有 `for...in` 混入，缺的只是 `fx` 这层对象（当前只混 number/string）。
+4. **抖动如实登记**：本次 `full` 档 `dc=15`，§5.0.1 那次 A 臂 `dc=16` ⇒ 差 1 批（节点态/Label 属件抖动），⛔ 不得据此说「改动生效」。
+
+### 交付物与验证
+
+| 项 | 落点 |
+|---|---|
+| 上界档开关 | `games/beads/cocos/assets/scripts/spike/carrier-bench.ts`（`_atlasLayers` / `setAtlasLayers` / `_syncLayers` / `?layers=beads` / `atlasLayers` 列） |
+| 驱动 | `tools/scripts/carrier-bench.mjs`（`--layers=full,beads` 维度，仅对 `atlas` 臂展开 ⇒ ⛔ 不为其余臂白跑同档） |
+| 回写 | `ADR-0030`：新增 **§5.0.3**、头注**第九刀**、§5.0.1 结论 7 就地加更正（原文不删）、三臂优缺点表 A 行加两条 ⚠ |
+| 证据 | `production/qa/beads/evidence/carrier-bench/layers-ab/`（json + md + 6 张截图，`beads` 档截图可见底图/HUD 缺失 = 上界档的画面代价） |
+| 台账 | `TASKS.md` 头注 → **250** + 本行；本详情节 |
+
+生产代码**零改动**（含框架镜像）⇒ `framework:sync` 无需重跑。验证（文档定稿后复跑）：`pnpm run verify` **PASS 20 / WARN 0 / SKIP 0 / FAIL 0**（逐项 20/20，含 `typecheck` / `test` / `cocos:check` / `framework:sync:check` / `harness:*`）· `check:tasks` 主表↔详情配对 OK · `check:links` OK（agents=7 skills=39）· `build:cocos:web` ✅（13.1 s）· `node --check carrier-bench.mjs` ✅ · `ctx:build` 已刷索引面；⛔ 本批未 commit。
+
+### 未闭环（下一步候选）
+
+① `signature()` 逐键走 `fx` ⇒ 让甲′/丙′ 吃到门控（**收益上限已有数 = 本表 `beads` 行**，属框架新单）；
+② 第三档实测（只烘静态底图、UI 照旧重放）⇒ 定甲″ 三层里「底图 vs HUD」的拆分比例；
+③ `DEC-1` 改裁（若裁 甲′，实施面须按**甲″ 三层**写，否则把 13 dc 带进生产）；
+④ wx 侧 `S0-1` 二值门；⑤ `[R]` 低端机方向性预读（本组全部 `[E]`，⛔ 不得记 D1/D2 达线）；
+⑥ `render-model.ts` 里那句 `ponytail:` 注释的**理由**已被本批实测推翻（「损失小」不成立）——正文只改理由不改上限，与 ① 同一框架单内完成（本批零生产改动 ⇒ 不在本批动）。
+
+### 沉淀统计（`kb:sync --task=WXG-T-249`）
+
+- **新增 1**：**K-104**（`[引擎Cocos]`）——上界档必须**停用组件本身**而非「不喂命令」：`clear()` 在绘制入口内部，不喂 = 上一帧内容继续提交 ⇒ 读数成一份冻住的旧画面；并附「多档显隐收敛单一 `_syncLayers()`」与「驱动脚本按臂收敛循环」两条做法。
+- **修改 1**：**K-102**（`[判据渲染]`）——追加追记：其 ④ 项给含 blit 帧判脏写的上限理由「每帧成本在上传不在重放 ⇒ 损失小」已被本批推翻（非珠层仍付 13 dc + ≈0.9 ms CPU）；做法升级为「`ponytail:` 上限必写可验前提，拿到相反数先改理由再回写 ADR，并升格为硬前置」。
+- **激活 0 / 归档 0**；`kb:audit` 无归档候选、无相似命中。
+
+---
+
+## WXG-T-250
+
+### beads·blit 帧可判脏（`fx` 逐键入指纹 ⇒ 门控覆盖 C/A）
+
+**来源**：用户 2026-10-05 在 WXG-T-249 汇报后择 **(A)**（「甲」= 开框架单让 `blit` 可判脏）。承 `ADR-0030 §5.0.3` 结论 3 与未闭环 ①/⑥。
+
+**落位（ponytail 阶梯）**：rung 2——不新建机制。`signature()` 已在册，只是字段遍历只认 number/string ⇒ 对象被跳过。
+⇒ 最短正解 = **把「只混两个类型」换成一个递归 `mixVal`**，并**删掉**旧的保守出口（`_frameSeq` 字段 + `begin()` 自增 + `if (hasBlit) mix(...)`）。
+⛔ 不加 fx 键名白名单、⛔ 不加 revision 通道（那属另一单）。
+
+**为何合法（先核再改）**：`BlitFx` 值域本就是 JSON 安全封闭联合（`string | number | boolean | readonly number[]`），且类型文档规则 4 明文「键序由构造方固定」
+⇒ 与现有「命令字段按插入序混」同口径；数组走 `for...in` 即索引序，无需特例。**热路径零新增分配**（无新集合，仅递归调用）。
+**安全前提已核**：blit 内容是否可能「同 `textureId` 就地变」？两条链都不会——tint 走 `cache.get(textureId, base)`（`base` 在 `fx` 里，本批入门），
+bake 走 `bake:<styleId>:<colorIdx>` 且 `bakeSize = BAKE_CANONICAL_SIZE`（常量，不随 zoom/dpr）⇒ 不会因换档而「同 id 换像素」。
+
+**实测（`[E]` Apple M4 · dpr2 · frames=150 warmup=40 · gate=on · zoom 1.0）**
+
+| 臂 | 修前 drawn | 修后 drawn | 修前 tick p50 | 修后 tick p50 | dc | tris | 上传 |
+|---|---|---|---|---|---|---|---|
+| V（无 blit，对照） | 2–3 | **3** | 1.30 | 1.30 | 14 | 38194 | 0 |
+| C 丙′ | **150** | **3** | — | **0.40** | 2 | 182 | 6,031,680 B × **3 帧** |
+| A 甲′ full | **150** | **2** | 1.30 | **0.40** | 15 | 3354 | 0 |
+| A 甲′ beads（上界） | **150** | **2** | 0.90 | **0.40** | 2 | 740 | 0 |
+
+最坏档（`--disturb`，每帧都变）tick：V **5.10** / C **1.40** / A **1.40** ms ⇒ 递归走 `fx` 的代价读不出（每 blit 一个键）。
+⚠ 无判别力的列（承 K-101）：开档 `draw p50` / `gpu p50` 样本只剩 **2–3 帧** ⇒ 判收益只看 `tick p50` + `drawn`。
+⚠ V 本轮 disturb 5.10 vs §5.0.2 的 4.80 = 运行间漂移（V 不含 blit），⛔ 不得归因为本批。
+**画面正确性**：`drawn=2–3` 的静置截图目测仍为**完整盘**（128 珠 + HUD + 托盘），非黑帧/非缺珠。
+
+**交付物**
+
+| 项 | 文件 |
+|---|---|
+| 指纹换档 | `packages/framework/src/core/render/render-model.ts`（`signature()` 递归 `mixVal`；删 `_frameSeq`；`ponytail:` 上限改写为「计引用不计像素」） |
+| 单测 | `tests/core/render-model.test.ts`（blit 四腿：同内容同指纹 / `fx` 值变 / 数组载荷变 / 有无 `fx`）、`tests/compose/app.test.ts`（blit 四 tick 只画 1 次，改 `fx` 必再画） |
+| 镜像 | `games/{beads,breakout}/cocos/assets/scripts/framework/core/render/render-model.ts`（`framework:sync` 各写 1） |
+| 回写 | `ADR-0030`：头注**第十刀** + 新增 **§5.0.4** + §5.0.2 机制句就地标作废 + §5.0.3 结论 3 标关闭与硬前置已满足 + §5.1 标题改指 |
+| 台账 | `TASKS.md` 头注 → **251** + 本行；T-248 详情节两处就地括注；本详情节 |
+| 证据 | `production/qa/beads/evidence/carrier-bench/gate-blit-ab{,-disturb}/`（json + md + 逐臂截图） |
+
+**验证**：`pnpm run framework:sync` ⇒ beads 写 1 / breakout 写 1；`pnpm --filter @wxgame/framework test` **433 passed**；beads **801 passed + 1 skipped**；
+`build:cocos:web` ✅ · `node tools/scripts/carrier-bench.mjs` 两轮（静置 + disturb）✅ · 文档定稿后 `pnpm run verify` **PASS 20 / WARN 0 / SKIP 0 / FAIL 0**（含 `framework:sync:check` 镜像齐 / `typecheck` / `cocos:check`）· `check:tasks` 39/39 · `check:links` OK · `ctx:build` ✅；⛔ 本批未 commit。
+
+**沉淀统计（`kb:sync --task=WXG-T-250`）**：**新增 0 / 修改 1 / 激活 0 / 归档 0**，`kb:audit` 无候选。
+修改的 **K-102** 追加「追记二」：① 上限换档（`fx` 本就属 JSON 安全封闭联合且键序由构造方钉住 ⇒ 「无可哈希口径」不成立，一个递归 `mixVal` 即可）；
+② 可复用判据：**保守出口（恒判脏）往往是「没查值域」而非「查了做不到」**；③ 新上限的登记格式 = 同时列出「为何今日安全」与「何时失效」。
+
+**未闭环**：① 本批只修地基，**`DEC-1` 仍待裁**（`§7 Q1`）⇒ ✅ **同日 WXG-T-251 已裁 = 甲′ / 甲″ 三层**；② 甲″ 三层的**生产接线**未做（取证面仍是 `beads` 上界档）；③ 第三档（静态底图 vs HUD 拆分比例）仍未测；
+④ wx 侧 `S0-1` 二值门；⑤ `[R]` 低端机（含本批的指纹递归代价）。
+
+---
+
+## WXG-T-251
+
+### beads·`DEC-1` 改裁 = 甲′（实施形态 甲″ 三层）
+
+**来源**：用户 2026-10-05 在 WXG-T-250 汇报后择 **(A)**（「甲」= 回 `§7 Q1` 改裁 `DEC-1` = 甲′，并要求实施面按 甲″ 三层写）。
+**纯文档批**：零代码、零产物、不动 spike；⛔ 裁定生效 ≠ 已实施。
+
+**裁定本体**（`ADR-0030 §3` DEC-1）：
+
+- 采纳 **甲′**（按色图集 + `Sprite` 池）；实施形态 = **甲″ 三层**（L0 静态底图 / L1 珠层（脏帧才同步）/ L2 UI 层（脏帧重放））。
+- 四条理由（逐条对应本单实测）：① 甲′ **零未证平台能力**（丙′ 押的 `S0-1` 二值门至今未过）；② `[E]` 档 CPU 1⁄3、tris 1⁄11、**零每帧上传**；
+  ③ 分层上界已数 `dc 15 → 2`（§5.0.3）；④ 地基已清（§5.0.2 门控 + §5.0.4 `fx` 入门 ⇒ 静置 tick **0.40 ms**）。
+- **三条伴随义务**（与裁定同写一条 DEC，⛔ 不得只拿好处）：(i) 观感一致性 = 同字节产物 + 一次新的 Cocos sprite A/B（UV/Trim、半像素、filter/wrap、**朝向 flip**），
+  S3 对拍由「可选」变**必做**；(ii) ⛔ 不得把非珠层每帧全量重放带进生产（否则 = 白拿 13 dc）；(iii) 280 个 `Sprite` 节点的内存与遍历成本进 `[R]` 低端机预读。
+- **丙′ 未出局**：降为第二候选，若日后 `S0-1` 过且移动端上传实测可接受，可凭 §5.0.1/§5.0.4 数据重开。
+
+**同批扫四节（承 K-105）**：
+
+| 节 | 动作 |
+|---|---|
+| §0 结论 | 修订块收尾加一行：初稿推荐已作废；三条支撑**原样保留**作改道证据（支撑 1 仍成立，但被「押未证平台能力」抵消） |
+| §3 DEC-1 | 就地标「✅ 已改裁」+ 裁定理由 + 三条伴随义务；原「采纳 丙′」正文一字不删 |
+| §5.1 批次表 | ⛔ 不改表原文 ⇒ **新增 §5.2 裁后路由**（逐行判「还算不算数」）+ 开工拓扑 **S1 → S5′ → S3 → `[R]`** |
+| §7 Q1 | 标「✅ 已裁 = (b) 甲′」，并注「下面三行保留为当时的选项清单」（承 K-059：带正文语义锚） |
+
+**本批不裁的三条（列为实施单开工门禁）**：
+① **L0 烘法**：运行时离屏 canvas 一次性上传 ‖ 直投预烘 PNG（包体实测：主包 **2866.8 KB**、距红线余 **1229 KB**、**已超内部目标 866.8 KB**）；
+② **层序**：L0/L1/L2 的 z 序，现网背景是**每帧 `Graphics` 填色** ⇒ 归属未定（归 L0 则背景不得动；有动效就得回 L2）；
+③ **L2 重放粒度**：整层重放 ‖ 只重放变化图元；两种都受 **L5**（UI/渲染不持有游戏状态）约束。
+
+**落位**：
+
+| 面 | 文件 |
+|---|---|
+| ADR | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md`（头注第十一刀 + §0 + §3 + §5.0.4 括注 + **新增 §5.2** + §7 Q1） |
+| 台账 | `TASKS.md` 头注 → **252** + 本行；`TASKS-DETAIL.md` 本节点 + T-250 未闭环 ① 就地括注 |
+| 知识库 | `knowledge/lessons/process.md` 新增一条 ⇒ `kb:sync` 分配 **K-105** |
+| 日记 | `memory/2026-10-04.md` 「三十一批」 |
+
+**验证**：本批零代码 ⇒ `pnpm run verify` **PASS 20 / WARN 0 / SKIP 0 / FAIL 0**（全项为**守恒**验证，不是新功能证据），`check:tasks` 主表 40 行 ⇔ 详情 40 节配对完整 · `check:links` OK · `ctx:build` ✅；⛔ 本批未 commit。
+⚠ 中途曾真红过一次（非假绿）：主表行只写了 **4 列** ⇒ `check:tasks` A 项报「列数 4 ≠ 5」，并连带 `verify:selftest` FAIL（该装置自己重跑注入项时会把仓库现状一起拾到）⇒ 补列与补节后两项均转绿。
+
+**沉淀统计（`kb:sync --task=WXG-T-251`）**：**新增 1 / 修改 0 → 二次跑 新增 0 / 修改 1**（同一条 K-105，因改一处笔误），`kb:audit` 无候选。
+新增的 **K-105**（[流程]）：改裁不是换个结论而是同批扫四节（§0/§Decision/批次表/§未决问题）；⛔ 不删原文只标作废；
+伴随义务与裁定同写一条；实施细节未定的不得代裁；台账钉「裁定生效 ≠ 已实施」。判例链 K-057 / K-059 / K-053。
+
+**未闭环**：① 甲″ 三层的**生产接线**未开工（**S1 carrier 抽象至今未实现**，`case 'blit'` 仍是无条件 warn-skip）⇒ ✅ **同日 WXG-T-252 已交付**；
+② S3 两端同帧对拍未做（现为必做）；③ `[R]` 低端机；④ wx 侧 `S0-1` 二值门；⑤ 第三档（底图 vs HUD 拆分比例）仍未测。
+
+---
+
+## WXG-T-252
+
+### framework·S1 blit carrier 缝（Cocos 侧宿主注入出口）
+
+**来源**：用户 2026-10-05 令「先解释下甲的方案，再开始实施」⇒ 甲 = `ADR-0030` 裁后路由里的 **S1**（第十一刀标为「第一优先、⛔ 唯一硬前置」）。
+
+**先核后写（ponytail 梯子 rung 2）**：`case 'blit'` 在 `cocos-renderer.ts:201` 已是 warn-once + skip；canvas2d 侧同一条命令已有「注入一个钩子、渲染器不认识效果」的成熟形状（`BlitResolver`，`ADR-0029 §8.1`）
+⇒ 本单**不发明新机制**，只把同一形状从「取图」换成「交出」（Cocos `Graphics` 无 `drawImage`，blit 在此根上无法自行落地）。
+
+**交付（三个文件面，共 +37 行）**：
+
+| 位置 | 改动 |
+|---|---|
+| `packages/framework/src/adapters/cocos/cocos-renderer.ts` | 新增结构类型 `CocosBlitCarrierLike { accept(cmd: BlitCommand, x: number, y: number): void }` + `CocosRendererOptions.blitCarrier?` + 字段赋值；`case 'blit'` 改为「有 carrier ⇒ `accept(cmd, cmd.x + ox, cmd.y + oy)` 后 `break`；无 carrier ⇒ 原 warn-once 一字不改」 |
+| `packages/framework/tests/adapters/cocos-renderer.test.ts` | 两腿判据：① 注入必交接，且 `taken[0].cmd` **`toBe`** 原命令对象（零拷贝，`fx` 槽原样在内）、坐标 `(-90, -180)` 走同一套居中换算、`calls` 等于 `['clear']`；② 未注入 ⇒ `['clear','clear']` + `console.warn` **恰一次** |
+| 两镜像副本 | `pnpm run framework:sync` ⇒ beads 写 1 / breakout 写 1 |
+
+**三个刻意的不做什么**：
+① ⛔ **不加 `beginFrame()` 帧边界回调**——宿主自己驱动 `draw()`，生命周期信号它本来就有（已在代码里留 `ponytail:` 注释与升级路径）；
+⇒ ✅ **该升级路径已于 WXG-T-253 触发**：实现体需要「本帧开头收上一帧用剩的 `Sprite`」，而 `draw()` 是 `bindings.ts` 驱动的、载体看不见帧头
+⇒ 补的是**可选**钩子 `beginFrame?()`：不实现的载体零调用，本单那两腿判据不变。
+② ⛔ `accept` **返回 `void`**，不返回 `boolean` —— 返回布尔就是在诱使渲染器「没接住就回落」，而带 `fx` 的命令回落 = 用错色（`ADR-0029 §8.1` 总责语义）；
+③ ⛔ 不拆 `cmd.fx`、⛔ 不抄只读字段进参数 —— `BlitFx` 键名不进类型，传原对象 ⇒ 以后加第 N 种效果改框架 **0 处**。
+铁律合规：⛔ 不 import `cc`、不进 `core`、不进框架 barrel（L2/L3）；热路径零分配（无 `new`、无拷贝）。
+
+**验证**：`framework:sync` ✅ → `pnpm --filter @wxgame/framework test` **435 passed**（+2 条新判据）· beads **801 passed + 1 skipped**（含 `bead-style-seal` = **TC-TINT-16 矢量臂逐字节不变**腿绿）
+· `typecheck` ✅ · `cocos:check` ✅（检查 2 / 失败 0）· `framework:sync:check` ✅（镜像一致，含 §12 ES5 契约）· 收口复跑 `pnpm run verify` **PASS 20 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:tasks` 41/41 配对、`check:es5spread`、`check:size`）；⛔ 本批未 commit。
+
+**沉淀统计**：**0 条新增**——本批可复用判据均已在册（「加一种效果改几处 = 0」属 `ADR-0029 §8.2`；「未注入腿零漂移」属 K-082 封箱家族；「领号认头注 + 主表 5 列」属 K-046 与上一批的 K-105），⛔ 不注水。
+
+**未闭环**：① carrier **实现体**未交（图集 + `Sprite` 池 + 材质 = **S5′**，需先裁 §5.2 末三条门禁）⇒ ✅ **已由 WXG-T-253 交 L1 珠层**（S5′-1），L0/L2 归 S5′-2/-3；② 现网尚未注入 ⇒ 真机仍走矢量臂（本单不改行为）；
+③ S3 两端对拍；④ `[R]` 低端机；⑤ wx 侧 `S0-1`。
+
+---
+
+## WXG-T-253
+
+- **名称**：beads·S5′-1 blit 载体实现体（按色图集 + `Sprite` 池）
+- **负责**：主理人(Qoder) ⇒ 程基岩域（工程实现）
+- **状态**：🚧 已落码、未 commit
+- **上游**：`ADR-0030 §3 DEC-1`（甲′）/ `DEC-2`（载体缝）· `§5.2` 三条门禁 · `§5.3` S5′ 分段 · WXG-T-252（S1 缝）
+
+**用户原话与流程**：「甲」（= 上批四选项之 (A)：裁 §5.2 末三条门禁 ⇒ 出 S5′ 实施计划 ⇒ 落 carrier 实现体）。
+三条门禁不代裁：先取四个硬事实（命令 2990 条里 blit 只占 148 条＝ 5%、现网**只有一块 `Graphics`**（`bindings.ts:177`）、
+`drawBackgroundLayers` 不含 clock、`Graphics.clear()` 无局部擦除），再以选项题求裁 ⇒ 三项均取推荐项。
+
+**交付面（净增 ≈335 行）**：
+
+| 文件 | 内容 |
+|---|---|
+| `host/beads-blit-carrier.ts`（新 285 行） | 实现体：4 张 mask 走 `assetManager.loadAny({uuid})`（正本 = `assets/textures/*.png.meta`，⛔ 不新造资源）→ `TintSpriteCache`（**与 harness 同一份** CPU 预合成）→ 8×8×128² 图集纹理 → `Sprite` 池（`setContentSize(w,h)` + `setPosition(x+w/2, y+h/2)`） |
+| `framework/src/adapters/cocos/cocos-renderer.ts` | `CocosBlitCarrierLike` 加**可选** `beginFrame?()`；`draw()` 开头在有该钩子时调一次（无钩子 ⇒ 零调用） |
+| `framework/src/adapters/cocos/bindings.ts` | `protected createBlitCarrier(root: Node): CocosBlitCarrierLike \| null`（默认 `null`），`_bindRenderer()` 读一次入 options |
+| `BeadsBootstrap.ts` | 覆写钩子 ⇒ `maybeCreateBeadsBlitCarrier(root)` |
+| `tests/adapters/cocos-renderer.test.ts` | 第一腿加帧边界断言：`draw()` 两次 ⇒ `beginFrame` 两次、且先于该帧第一条 blit |
+
+**两个不分段就会坑人的约束**：
+
+1. **默认关**：`?carrier=on`（web）/ 启动参数 `carrier=on`（wx）才接线；关 / 离屏 canvas 不可用 / mask 不足 4 张 ⇒ 都返回 `null`
+   ⇒ 不注入 ⇒ 框架走 warn-once skip ⇒ **现网逐字节不变**。翻默认的时机 = S3 对拍过。
+2. **tint 运行时晚于载体就绪**：`setBeadTintRuntime()` 只在 4 张 mask 全就绪后注入。反序会出现「blit 已发出而载体未备」
+   ⇒ `Graphics` 画不出 blit ⇒ **珠子静默消失**；本约束把失败模式锁成「保持矢量臂」。
+
+**ponytail 选了什么 / 拒了什么**：取 `TintSpriteCache`（已在册、与 harness 同源）而非重写合成；取 `ctx.createImageData` 降级链而非猜全局 `ImageData`；
+`cmd.alpha` **不实现**（珠层 tint 臂只挂 `fx`）但出现即 `console.warn` 一次，⛔ 不静默画成不透明；⛔ 一次写三层（已拒：不可验证）；
+⛔ 不加 `__WXG_CARRIER_DEBUG` 读数口（S3 对拍自有 bench 读数口，等真需要时再加）。
+
+**残留缺陷（明文）**：珠层节点排在 `Graphics` / `Labels` **之后** ⇒ sprite 会盖住 HUD 面板；根因 = 现网只有一块 `Graphics`，盘面底图与 HUD 同体提交
+⇒ 插前插后都错一侧。解除 = S5′-2 把 B0 挪出 `Graphics` 后改插之前（已写在 `_atlasNode()` 的 `ponytail:` 注释）。
+
+**验证**：`framework:sync`（两镜像各写 2）→ framework **435 passed** · beads **801 passed + 1 skipped**（含 `bead-style-seal` = TC-TINT-16 矢量臂腿）
+· `typecheck` 4 包 ✅ · `cocos:check` **检查 2 / 失败 0**，并用 `tsc --listFiles` 核到新文件**确实在检查程序内**（⛔ 不假定「跑了 = 检了」）
+· `framework:sync:check` ✅ · 收口 `pnpm run verify` **PASS 20 / WARN 0 / SKIP 0 / FAIL 0**；⛔ 本批未 commit。
+
+**沉淀统计**：`kb:sync --task=WXG-T-253` ⇒ **新增 1 / 修改 1 / 激活 0 / 归档 0**：新增 **K-106**（[工具链]「门禁跑过」≠「新文件被门禁看到」，`--listFiles` 自证法）；修改 **K-057**（追记：上一批的「⛔ 不加 X」禁令被下一批触发时必须同批回写原处）。`kb:audit` 无归档候选。
+
+**未闭环**：① **S5′-2（L0 烘底图）** 未开 ⇒ 2842 条/帧矢量命令大头仍在；② **S5′-3 层序** 未核；③ 默认关 ⇒ 真机尚未跑 sprite 臂；
+④ **mask 在打包产物里是否保留**未验（`loadAny({uuid})` 编辑器 Preview 可用，构建侧未接）；⑤ S3 两端对拍；⑥ `[R]` 低端机（含 280 个 `Sprite` 节点成本）。
+
+
+---
+
+## WXG-T-254
+
+- **名称**：beads·S5′-2 L0 底 tile（盘面每格 B0 + 格面槽合并为一条 blit）
+- **负责**：主理人(Qoder) ⇒ 程基岩域（框架 + 视图 + 两个宿主）
+- **状态**：🚧 已落码、未 commit
+- **上游**：`ADR-0030 §5.3` S5′ 分段 / `§5.4` 本刀实录 · DEC-3（同源 = 同代码）· WXG-T-253（S5′-1 L1 珠层）
+
+**用户原话（三刀，最后一刀为准）**：① 「甲，但是要先和我确认 L0 烘哪些内容在底图上再实施」；
+② 「128px mask 绘制在 33dp 的 L0 上」；③ **决定性纠正**：「你搞错了，为了将格子之间的缝隙给掩盖住，
+格子合成纹理的**画布设定为 33dp**，但是 **mask 图片只是绘制 32dp 的区域，在画布居中绘制**，
+33dp 主要目的是**背景色统一**，绘制的纹理**还是保持之前的状态**」。
+
+⇒ 落地口径 = **画布 33dp / 内容居中不放大**。第二处口径订正沿用 2026-10-04 二十六批那一条：
+用户写的 `32` = `BEAD_PITCH`（格距），blit 内容的正本外框 = **`BEAD_CELL 30`**（= PITCH − GAP 2）
+⇒ 像素域 `inner = round(128 × 30/33) = 116px`（off 6px），**128² 图集格零改动、零显存增量**。
+
+**为什么不是「把 128px mask 拉伸铺满 33dp」**（我前两轮的误读，A/B 推翻）：槽口 ⌀24→26.4dp、斜面 3→3.3dp，
+而珠体静息只有 26dp ⇒ 每颗珠四周露出一圈槽底。实测：静息最大差 90/255、差 >8 占 4.1%（抬起 14.1%）。
+
+**A/B 四组读数**（脚本 `tools/scripts/l0-tile-ab.mjs` → 图 `production/qa/beads/evidence/l0-tile-ab/`；真 mask PNG + 真 `compositeTintMask` + **将要上线的** `composeMaskTile`；判据 = 36×36dp 裁块，阈值「差 >8/255」占比）：
+
+| 方案 | 静息 | 抬起 6.72dp |
+|---|---|---|
+| 甲 33dp（144px 扩边缩放） | 6 / 0.0% | 68 / 1.7% |
+| 甲 原生 33.75dp（144px 不缩放） | 136 / 2.1% | 136 / 2.9% |
+| 128px 直接铺 33dp（⛔ 拉伸） | 90 / 4.1% | 90 / 14.1% |
+| **本刀：128px 画布 + 内容 116px 居中** | **8 / 0.0%** | **23 / 0.6%** |
+
+⚠ **取证脚本自纠（本单最重要的一条方法论）**：首版 `now` 臂把「有珠格」建模成 `rect + 珠`，漏了 WXG-T-236 八轮起
+「**有珠格也画坑底**」这一层 ⇒ 差值图里那一弯新月是**脚本少画一层**、不是合并代价。补层后本刀抬起读数 **8.1% → 0.6%**。
+教训 = A/B 的「基线臂」必须逐层对齐现役代码，否则会把取证工具的缺陷卖给设计裁定。
+
+**交付面（7 文件，净增 ≈150 行）**：
+
+| 文件 | 内容 |
+|---|---|
+| `packages/framework/src/core/bake/mask-tile.ts`（新 102 行） | `MASK_TILE_SUFFIX` / `isMaskTileId` / `maskTileSourceId` / `maskTileInnerPx` / `composeMaskTile`（**纯 TS 双线性**：边缘色铺满 + 内容居中缩小。⛔ 宿主 `drawImage` ⇒ 采样核随宿主变，两端字节不等，违 DEC-3） |
+| `packages/framework/src/core/index.ts` | `export * from './bake/mask-tile.js'` |
+| `adapters/canvas2d/tint-sprite-cache.ts` | 可选 `tileInnerPx`；`_maskPixelsOf` 见 `__tile` ⇒ 吃**源 mask 像素**派生（未配 ⇒ `undefined` = 宁落矢量臂，⛔ 不猜缩放比）；抽出 `_storeMask()` 共用入缓存路径 |
+| `games/beads/src/view/bead-tint-mask.ts` | `MASK_TILE_ID_TABLE` + `tintTileMaskId()`（单开一表，⛔ 不扩 `BeadMaskKind` —— 那个联合同时是**烘焙面种**，tile 只是新包装不是新面） |
+| `games/beads/src/view/bead-render.ts` | `BeadTintRuntime.getTileMaskId?()`（可选 ⇒ 未实现 = 今日）；`createWhitelistBeadTintRuntime` 按**去后缀 id** 问宿主、返回 tile id ⇒ 宿主注册表零新增条目；`drawTargetTile` 返回 `void→boolean` + 第 7 参 `TargetTileOptions` |
+| `games/beads/src/view/view-model.ts` | 循环外建**一枚** `tileOpts`（空格 / 有珠格共用 ⇒ 两分支同参由对象字面量结构性保证）；命中 ⇒ 跳过本格 `drawEmptySocket`；⛔ `isWrong` 那一格不合并 |
+| `host/beads-blit-carrier.ts` + `dev/harness/main.ts` | 各传 `tileInnerPx = maskTileInnerPx(BEAD_PITCH + TILE_BLEED×2)`（同一式子）；harness 预热集由 4 张源 mask 改为「2 珠面 + 2 底 tile」 |
+
+**ponytail 选了什么 / 拒了什么**：取「tile = 源 mask 的**派生形态**（后缀分流）」而非新造资产 ⇒ 图集与打包零改动；
+取「纯 TS 双线性」而非 `drawImage`；⛔ 不扩 `BeadMaskKind`、⛔ 不给 tile 单开一张资产表、⛔ 不为 tile 加 LOD 阀（缩小居中不属于放大回退管的事）；
+⛔ 不扩 Cocos 图集（`ATLAS_COLS` 只记 30/60 格账，等真机读数拍板）。
+
+**三条不能省的约束**：① DEC-3 同源 ⇒ 派生逻辑住框架共享层；② **wrong 抖动格不合并**（坑住进底图就吃不到 `dx`，
+推到 `bx` 就是 T-242 的「地皮在抖」）；③ **预热集只换不加**（预算 2.5 MiB ≈ 40 张 sprite，6 面都烘 = 60 张会把热路径珠面挤出 LRU ⇒ 首帧反而 miss）。
+
+**验证**：`framework:sync`（写 6 / 未变 94）→ framework **443 passed**（新增 `mask-tile` 6 条 + cache tile 分流 2 条）
+· beads **806 passed + 1 skipped**（新增 `drawTargetTile` tile 臂 4 条 + 白名单 1 条；`bead-style-seal` = TC-TINT-16 矢量臂逐字节不变腿仍绿）
+· `typecheck` ✅ · `cocos:check` 检查 2 / 失败 0 · `framework:sync:check` ✅ · `check:board-seam` OK
+· 收口 `pnpm run verify` **PASS 20 / WARN 0 / SKIP 0 / FAIL 0**；⛔ 本批未 commit。
+
+**沉淀统计**：`kb:sync --task=WXG-T-254` ⇒ **新增 1 / 修改 0 / 激活 0 / 归档 0**（新增 **K-107**：像素 A/B 的基线臂必须逐层对齐现役绘制序）。
+
+**未闭环**：① **S5′-3 层序**未开（珠层仍排 `Graphics` 之后；本刀把 B0 从 rect 变 blit ⇒ 层序问题没变好也没变坏）；
+② 默认关 ⇒ 真机尚未跑 sprite 臂，S3 两端对拍未做；③ `[R]` 低端机（含图集 60/64 余量与 LRU 工作集）；
+④ mask 是否进打包产物未验；⑤ 抬起 0.6% 残差（116/128 重采样在斜面边缘 ≤1 device px 软化）若美术要清零，改的是 mask 档位（256²）而非本包装。
+
+## WXG-T-255
+
+**WXG-T-255 · beads·mask 档位宏 + 构建产物 mask 门禁**（2026-10-05 · 主理人 Qoder · 程基岩域 · `ADR-0030 §5.5` 第十五刀）
+
+**用户裁定（本单的施工图）**：「hole 和 holeless 图片纹理打包到主包，暂时设定宏，指向 hole 相关图片纹理，可以编码切换到 holeless」
+⇒ 两类纹理都要进主包（落地 = 编辑器动作）；**先用宏把运行期钉到 `holed`**，编码可切。
+
+**为什么这条裁定比"等编辑器"重要**：它同时改写了 `warmup()` 的注入前提。旧前提「4/4 齐才注入」= 任何构建档都永不满足
+⇒ `carrier=on` 静默落回矢量臂，且屏幕上无异常。前提收为「宏实际要的那几张齐」后，`holed` 两张已在包 ⇒ **构建档当场可注入**
+⇒ S5′-3 层序、S3 两端对拍、`[R]` 真机三件的验证闸门解除（不必 ④ 落地就能开工）。
+
+**确诊读数（产物级，⛔ 不是推演）**
+
+| 逻辑名 | uuid | 源图 | 两份产物 |
+|---|---|---|---|
+| `mask__bead__holed` | `cbf588aa-3ab8-418a-af42-5ea6b4fe0b9c` | 8,750 B | ✅ `native/cb/…png` |
+| `mask__grid__holed` | `a626af4b-a549-4224-9703-83c8c1da833c` | 3,395 B | ✅ `native/a6/…png` |
+| `mask__bead__holeless` | `dcc16bba-eba7-4404-99e4-85e392b9b405` | 4,210 B | ❌ 不进包 |
+| `mask__grid__holeless` | `f8648f92-945c-4e8f-bd9a-03d5c7a97d7a` | 2,872 B | ❌ 不进包 |
+
+包体不是问题（四张合计 19,227 B；主包在册 2866.8 KB 已超内部目标 2000 KB ⇒ 仅 WARN，K-089 口径）。
+**取证自纠**：第一轮明文 `grep <uuid> config.json` 得出「wechatgame 档一张都没进」= **假阴性**（该档 `uuids` 存压缩 base64 `cb9YiqOrhBiq9CXqa0/guc@6c48a`）
+⇒ 正确取证面 = 直接看 `assets/main/native/<uuid 前 2 位>/<uuid>.png`。沉淀 **K-108**。
+
+**交付**（ponytail：一处守卫住查表处，⛔ 不在两个调用点各写一遍）
+
+| 文件 | 改动 |
+|---|---|
+| `games/beads/src/config/tuning.ts` | `TINT_MASK_GAUGE_PIN: 'holed' \| 'holeless' \| null = 'holed'`，头注明写「临时接线，⛔ 不是 §3 冻结数值」 |
+| `games/beads/src/view/bead-tint-mask.ts` | `resolveTintGauge(gauge, pin?)` 纯函数（只住在 `tintMaskId()` / `tintTileMaskId()` 查表处 ⇒ 一处覆盖两宿主 × 两形态）；`requiredTintMaskIds(pin?)` = 需求集唯一真源；`MASK_ID_TABLE` 本体未改 |
+| `host/beads-blit-carrier.ts` | `MASK_IDS = requiredTintMaskIds()` 驱动装载与 warmup 阈值；`MASK_UUID` **保留四张完整目录** ⇒ 宏改回 `null` 本文件零改动；头注写死「bundle 落地后加载面怎么改」的两种形态 |
+| `dev/harness/main.ts` | `MASK_IDS` 同源派生、`loadMasks()` 按需求集逐张；预热集随需求集收窄（40 张 → 20 张，⛔ 不得反向加回来） |
+| `tools/scripts/check-cocos-mask.mjs`（新） | 产物门禁：解析载体 `MASK_UUID` + `tuning` 宏 ⇒ 逐张核 `native/<xx>/<uuid>.png`；无产物 = **SKIP**（同 `check:size` BD-18 体例），缺张 = **FAIL**；`--pin=` 可否在册宏做反事实提问 |
+| `package.json` / `verify-all.mjs` | `check:cocos-mask` 挂进 verify 链（`check:size` 之后 = 第 **21** 项） |
+| `games/beads/tests/bead-tint-arm.test.ts` | 改 1 条（现役宏语义）+ 新增 2 条（宏两态 / 需求集两态） |
+
+**门禁双腿实跑**（一条只会绿的门不算门）：在册 `'holed'` ⇒ 需求集 2 张 ⇒ `STATUS: OK`（exit 0）；`--pin=null` ⇒ 4 张 ⇒ 两张报 `❌ 不进包` + `STATUS: FAIL`（exit 1）。
+
+**ponytail 选了什么 / 拒了什么**：取「宏只住查表处」而非在每个调用点判档；取「需求集派生」而非在两宿主各抄一份 id 数组；
+⛔ **不预写 `loadBundle` 分支**（无产物可验的预见代码，编辑器落地后按实际 bundle 名再接）；⛔ 不手编 `.meta`（L1）；
+⛔ 不为宏生效期做 holeless↔holed 像素 A/B（两档恒同一张图，无从对比）。
+
+**验证**：beads **808 passed + 1 skipped** · `typecheck` ✅ · `cocos:check` 检查 2 / 失败 0 · `framework:sync`（写 0 / 未变 100 + 69，镜像已一致）·
+收口 `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**（新增第 21 项在本机有产物档上跑 OK）；⛔ 本批未 commit。
+
+**沉淀统计**：`kb:sync --task=WXG-T-255` ⇒ **新增 1 / 修改 0 / 激活 0 / 归档 0**（新增 **K-108**：运行时 uuid 字符串不构成构建期引用 ⇒ 必须有产物级门禁）。
+
+**残留与解除条件**：
+① **④ 的真正落地 = 一条编辑器动作**（`assets/textures` 标 bundle，或给两张 `holeless` 补一条构建期引用）；bundle 路线需改加载面 `assetManager.loadBundle(⋯).load(⋯)`，补引用路线宿主零改动；
+② 落地后 `TINT_MASK_GAUGE_PIN → null` ⇒ 复跑 `pnpm run check:cocos-mask` 验 **4/4**；
+③ 本批**未重新构建产物** ⇒ 宏的运行效果未在构建档/真机跑过（需一次 `pnpm run build:cocos` 复验）；
+④ 关键路径 **④ → ① 层序实装 → ② S3 对拍 → ③ `[R]` 上机**（① 的真因 = 一块 `Graphics` 同装「盘面底板（须在珠下）」与「三处全屏遮罩（须在珠上）」⇒ 插入序必错一侧，解法 = 底板整块挪出 `Graphics`）。
+
+**同日补刀（2026-10-05 · ④ 路线拍板，撤销本批早先「不预写 `loadBundle`」那条取舍）**
+
+用户问「标 bundle 是 Cocos 的要求还是微信的要求」，并择一 **第一解法 = 把 `assets/textures` 配置为 Bundle**，否决「逐张补构建期引用」（理由：每新增一张纹理都要再挂一次材质/引用，不自然）。
+**分层结论**：*引擎侧* = Creator 构建系统的收录规则（本缺口在这里）；*平台侧* = 微信主包 ≤4 MB / 分包与 `game.json subpackages`（与「进不进包」无关，只管已产出的东西怎么摆）。
+官方口径（3.8 Asset Bundle 文档）：Bundle 是**目录级**配置（项目设置 → Bundle 配置，或属性检查器「配置为 Bundle」）；压缩类型 5 种，默认「合并依赖」⇒ bundle 输出为**主包内的本地目录** `assets/<bundle>/`，⛔ 只有选「小游戏分包」才会挪进 `subpackages/`（那才第一次撞上微信规则）。
+
+**落码**：① 载体 `MASK_UUID` → **`MASK_ASSETS`**（每条 = `uuid` + bundle 内 `path`，四张目录不变）；② `loadImageAsset(entry)` 两腿——`loadBundle('textures').load(path, ImageAsset)` 优先，取不到回落 `assetManager.loadAny({ uuid })`（**编辑器动作落地前这是唯一能跑的腿** ⇒ ⛔ 不是预见代码），哪条生效打一行日志；③ 门禁 `check-cocos-mask.mjs` 改成**逐 bundle 扫** `assets/<bundle>/native/<xx>/<uuid>.png`（只扫 `main/` 会把「已落地」误报成「没进包」）。
+
+**待你在编辑器做**（L1 禁手编 `.meta`，本批不伪造）：选中 `assets/textures` → 属性检查器勾「配置为 Bundle」→ Bundle 名称 `textures`（⛔ 内置名）→ 压缩类型**保持默认「合并依赖」**。落地后我收 `TINT_MASK_GAUGE_PIN → null` + `build:cocos` + 门禁验 **4/4**，运行期日志应从「全局 uuid」切成「bundle `textures`」。
+
+**补刀读数**：`cocos:check` 检查 2 / 失败 0 · beads **808 passed + 1 skipped** · `framework:sync` 写 0（镜像已一致）· 门禁双腿复跑（在册 `'holed'` ⇒ `STATUS: OK`；`--pin=null` ⇒ 缺 2 张 `STATUS: FAIL` exit 1）· 收口 `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**。⛔ 未 commit。
+
+**沉淀**：**K-108 修改**（补第 ⑤ 条：出路分两层、「合并进主包 ≠ 微信分包」、Bundle 化的加载面与门禁连带）。
+
+**收口（同日第三刀 · 用户「做完」= Bundle 已在编辑器配好并重构产物）**：`assets/textures.meta` 由编辑器写入 `userData: { isBundle: true, bundleName: "textures" }`（⛔ 非手编，L1 合规）。本侧收口 = `pnpm -C games/beads run build:cocos`（wechatgame debug，**27.6s** 成功，编辑器 MCP 同时在线不冲突）⇒ 产物多出 `assets/textures/`（`config.json` / `index.js` / `native/{dc,f8}` / `import/…`）：
+
+| 腿 | 读数 |
+|---|---|
+| `holeless` 两张 | ✅ `assets/textures/native/dc/dcc16bba-….png`、`f8/f8648f92-….png`（**新增进包**） |
+| `holed` 两张 | ✅ 仍在 `assets/main/native/cb/…`、`a6/…`（被 `.mtl` 引用 ⇒ main 里另有一份，PNG 字节不重复） |
+| 门禁 | 不再需 `--pin` 覆盖，在册宏即读出需求集 **4/4 全 ✅**（逐 bundle 扫生效，没把「已落地」误报成「没进包」） |
+
+⇒ `TINT_MASK_GAUGE_PIN = 'holed' → null`（按档位取，临时接线拆除、只留作 A/B 旋钮；头注改写为「来历 + 债的口径」，并修掉一处笔误 `check:cocos-masks` → `check:cocos-mask`）。连带：`bead-tint-arm.test.ts` 三条断言按新在册语义改写（`null ⇒ 两档不同源`、钉住用显式入参测、需求集在册 4 张 / 钉档 2 张）；`dev/harness/main.ts` 预热注释回到 **4 个 id = 40 张**（预算顶格、非超出）；载体头注改为事实陈述（bundle 已配 ⇒ 装载腿走 `loadBundle`，uuid 只作回退与门禁锚）。
+
+**收口读数**：`framework:sync` 写 1（tuning 镜像）· beads **808 passed + 1 skipped** · `check:cocos-mask` 4/4 `STATUS: OK` · 收口 `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**（含新产物的 `check:size`）。⛔ 未 commit。**仍未跑**：构建档 / 真机的 `carrier=on` 实机观感（holeless 小豆档 A/B 仍是债）。
+---
+
+## WXG-T-256
+
+**WXG-T-256 · beads·S5′-3 层序 = 视觉裁剪解（去容器板 + 统一单层底色 + 第二块提交体 + 载体插序）**（2026-10-05 · 主理人 Qoder · 程基岩域 + 美术域代落盘 · `ADR-0030 §5.6` 第十六刀）
+
+**用户裁定（两项，选项题均取推荐项）**：① **去板范围 = 整块去掉（最彻底）** —— `drawPuzzlePlate` 的 B1–B3 暖光 band + B4 投影 + B5 白板体 + B5b 内凹 + B6 完成贴纸全拆；② **统一背景 = 收成单层纯色背景** —— `drawBackgroundLayers` 的冷沉 + 两档同心提亮退役，只留 `palette.background`。
+第三条是本单给的路线裁定：「**A 起步、B 作为收口替换**」= 底色由**渲染器自己画**（宿主注入第二块提交体），相机 `clearColor` 方案留作 `[R]` 读 dc 后的替换。
+
+**为什么这不是「把底板挪出去」**：§5.5 残留 3 当初的诊断是「一块 `Graphics` 同装底板（珠下）与遮罩（珠上）⇒ 插入序必错一侧，解法 = 底板整块挪出 `Graphics`」。开工复核发现更根本的一条：**裁② 那把尺（按「有没有动效」切 L0/L2）在容器板上失效** —— 板宽 `gridW = (gridCols−1)×snap.gridPitch + gridCell` 随 `camZoom` 每帧重算 ⇒ 「没有动效」为假，烘了就得按缩放档重烘（与「盘面整体缩放、内容不重烘」的用户硬约束冲突）。**去板 + 单层底色 ⇒ 珠下零图元 ⇒ L0 不需要烘 ⇒ 冲突面直接消失**，层序由**节点序**解决（Cocos UI 不需要 zIndex）⇒ ⛔ 框架 `render-model` 零改动，当初预想的「层归属标记」这套新机制**一行都不用写**（改判 = **裁②′**）。
+
+**顺带确诊并修掉一处既有缺陷**：`RenderModelBuilder.setBackground()` 产出的 `model.background` 在 **Cocos 侧此前无任何消费方**（canvas2d 侧 `canvas2d-renderer.ts:165` 有）⇒ 两端底色不一致。`Main.scene` 的 `cc.Camera` 只有 `_color: rgba(0,0,0,255)`、**无** `_clearColor` / `clearFlags` ⇒ 引擎默认清屏色**静态读不出**，⛔ 不得据此断言现网表现。修法 = 宿主注入 `Background` 节点画这一色（复用 canvas2d 语义），**不猜引擎默认值**。
+
+**交付（代码 5 + 判据 4 + 文档 5）**
+
+| 面 | 改动 |
+|---|---|
+| `view/view-model.ts` | 删 `drawPuzzlePlate()` / `drawBackgroundLayers()` 两函数及调用（**−86 行**，⛔ 不留空转代码，留 6 行退役登记指向 §5.6）；`setBackground` 上加「只发一个 token，铺满屏归宿主」 |
+| `config/tuning.ts` / `view/palette.ts` | 退役 `PLATE_*`×8 + `BG_*`×3 = **11 常量** 与 `GLOW_WARM_HEX / BG_DEPTH_HEX / BG_LIFT_HEX` **3 hex**（原地注释留退役登记） |
+| `framework/src/adapters/cocos/cocos-renderer.ts` | `CocosRendererOptions.backGraphics?`（**可选**）+ `draw()` 起手铺一屏 `model.background`；⛔ 未注入 = 逐字节等价（DEC-2 口径） |
+| `framework/src/adapters/cocos/bindings.ts` | 节点序 `GameRoot → Background(Graphics) → BlitLayer(Node) → Graphics(矢量 UI) → Labels`；`createBlitCarrier(_layer: Node)` 形参语义由 GameRoot 改 **BlitLayer**；`backGraphics` 注入 |
+| `cocos/.../beads-blit-carrier.ts` / `BeadsBootstrap.ts` | 图集节点挂 BlitLayer（**兑现旧 `ponytail:` 注**：父节点不再是 GameRoot 末尾 ⇒ 底图之上、矢量 UI 之下，面板/遮罩能压住珠）；覆写签名同步 + 文档写明「⛔ 不是 GameRoot」 |
+| 判据 | 封箱三处（`PLATE_BG_RETIRE_FRAME0/78 = 9` 分段登记常量 + 腿 4a/4b + 差分自洽 + `toBe(1868)` + 键 13 三条断言）· 色表锁 `37/fd5a0def780d` → **`34/67c2a2c08a92`** · `tuning.test` ⑤ 改贴 `PUZZLE_BAND.yMin` · `check:a11y` A5 **✅ → ⚠️**（锚 `glow_warm` → `FILL_POP_SCALE_TROUGH`，`accessibility.md` 矩阵行 + §3 小结同步） |
+| 文档 | `ADR-0030` 头注第十六刀 + §5.2 裁②′ 就地改判 + §5.5 残留 3 标解除 + **新增 §5.6** · `assets-spec` **v1.5-r20**（§1.7/§1.8 退役条 + 基线表「背景/板 −9」订正注） · `art-bible` **v1.5-r3**（§3.1 三 token 行 + §3.5/§4.3/§6/§8 对应条划线留档，K-053） · `systems-index` **v1.61**（§3 值零改动，只作废 `PUZZLE_BAND` 负面后果 ③）+ changelog 行 · QA `test-cases.md` **K.5.1-补7** |
+
+**封箱基线修订 = 唯一通道**：官方复取器 `tests/bead-style-seal-recapture.ts` 重抓 ⇒ `frame78 1877→1868`（`rect 998 · circle 160 · line 376 · text 12 · polygon 322`，sha `d3a57328…`）、`frame0 1331→1322`（sha `0419c9e2…`）；**逐 kind 归因 = 两帧各 rect −9（板 6 + 背景 3），其余 Δ = 0，未解释 0 条**；**最强反证 = 珠体族 `legacyFlow` 96 例 + facet 45 例逐字节等值**；史证 `head.*` / `s3AtFormalization` / `fixture.*` 不动。⚠ **流程偏差如实登记**：本次重抓由**变更侧**执行、未过 QA 之手（K-082「更新权在 QA」）⇒ 记 P3，见 `K.5.1-补7` 首条。
+
+**ponytail 选了什么 / 拒了什么**：取「**删掉冲突对象**」而非「发明层归属标记 + 三处插序判断」；取「宿主画底色（复用 canvas2d 语义）」而非「相机 `clearColor`」（后者把色值真源劈成 `Main.scene` + `palette.ts` 两处，且 ⛔ 猜不出引擎默认值）；取「**两块提交体**」接受 dc 可能 +1 而非为省 1 dc 引入双真源；⛔ 不留 `PLATE_*` 空转常量「以防想恢复」；⛔ 不把 a11y 锚点抹成 `-` 躲检（按事实降档）。
+
+**验证**：beads **808 passed / 1 skipped（59 文件）** · `typecheck` 0 错 · `cocos:check` 检查 2 / 失败 0 · `framework:sync:check` 一致（framework 53 + game 47）· `check:a11y` 一次**真红**后复绿 · `harness:smoke` OK（`rect=129 arc=3412 fill=1569 fillText=12` / `6127 draw commands`）· 收口 `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**。⛔ 未 commit。
+
+**残留与解除条件**：
+① 复取器锚 = `3982e43 + worktree-delta(未提交)` ⇒ 不满足「可复现 commit 锚」全义，**提交后复跑复取器自证等值**；
+② **Cocos 端 dc 未读**（本批提交体 1 → 2 块 ⇒ 按 §5.0.3 静置期可能 **+1**）**解除条件** = ② 真机/harness 复读 dc 与截图（`carrier=on` 两臂）；
+③ 若 +1 有代价 → ③ 换代**相机 `clearColor`**（删这块 rect，代价 = 色值双真源 + 需改 `Main.scene`，L1 侧要走编辑器动作）；
+④ 观感 `[待真机 / art 校准]`：去板后盘/地同色域、暖侧只剩珠子 ⇒ 丙案「双色温对撞」基调是否仍成立归**正主复验**；完成态 B6 贴纸消失，若要补非板形态完成标记 = 另开 art 单；
+⑤ `S3` 两端对拍、`[R]` 低端机预读未动。
+
+**沉淀统计**：`kb:sync --task=WXG-T-256` ⇒ **新增 2 / 修改 0 / 激活 0 / 归档 0**（`kb:audit`：归档候选无、相似命中无）。
+新增 **K-109**「层序死结优先『删掉引起冲突的对象』，而不是给数据模型加『层归属标记』——加标记 = 扩协议，删对象 = 缩问题面」；
+**K-110**「改『渲染真源』字段前必须先 grep 两侧消费方：canvas2d 吃了 ≠ Cocos 吃了，harness 全绿掩盖的是『某个宿主根本没读这个字段』」。
+`ctx:build` 已重跑（knowledge/memory/TASKS/QA 索引面刷新）。
+
+**同批补记（用户 2026-10-05 报「格子背景没了、盘面背景板还在」= 旧产物，非漏删）**：截图里那块白板 = `palette.panel #FFFFFF` + `panelBorder #E2DFF0` 圆角矩形（正是 B5 板体），而 `build/wechatgame` 的时间戳是 **16:04（T-255 收口那次）**、源码与镜像改动在 **16:25 / 16:30** ⇒ 产物早于本批 ⇒ 板必然还在。取证 = debug 产物 `assets/main/index.js` 里 `drawPuzzlePlate` / `PLATE_*` 只剩**注释命中**（函数体已无）。重建后 `check:cocos-mask` 4/4 OK、`check:size` OK、`verify` **PASS 21 / FAIL 0**。
+⚠ **本批一处自伤（如实）**：第一次重建走的是默认档 = **debug**，把在册 **release** 产物原地覆盖 ⇒ `check:size` 当场 **FAIL**（主包 6074.3 KB > 红线 4096，`cc.js` 3365 KB 触发「疑似 debug」启发）⇒ 立即 `build:cocos -- --release` 复原（主包 **2918.3 KB**，仍 ⚠ 超内部目标 2000 但 ≤ 红线 = K-089 口径 OK）。较在册 2866.8 KB **+51.5 KB**，旧产物已被覆盖 ⇒ **未逐文件归因**（本批不动资产，疑为新层节点代码 + 镜像刷新）。沉淀 **K-111**。
+
+**追加验证（用户「坑底是纹理还是矢量图」· 一次性探针跑完即删，⛔ 不入判据）**：同一盘面同一帧两臂对照 ⇒ **矢量臂** `rect 908 / circle 260 / line 320 / polygon 522 / text 12 = 2022 条`；**纹理臂** `blit 280 / rect 20 / circle 4 / line 16 / polygon 10 / text 12 = 342 条`（需求集 = `mask__{bead,grid}__{holed,holeless}__v1` 四张）。
+**分流真源只有一处**：`drawTargetTile` / `drawEmptySocket` 的纹理臂要求 `_tintRuntime !== undefined`，而生产 Cocos 侧该运行时**只由 `beads-blit-carrier` 注入**（`carrierSwitchOn()` ⇒ 默认 `null`）⇒ **当前构建档（不带参数）看到的坑底 = 矢量图**；加 `carrier=on`（web `?carrier=on` / wx 启动参数）且日志 `masks=4/4 carrier=on` 后才是纹理（tile 画布 33dp、内容 30dp 居中，槽与底图同一张图）。harness 侧默认即纹理臂，`?tint=off` 可切回矢量对照（HUD 有 `tint 4/4 mask` / `tint off` 行）。
+**同批补记（2026-10-05 · 用户「真机加了 `carrier=on` 还是矢量图」= 装载腿两处缺陷，⛔ 不是参数没传到）**：web-mobile 产物 + Chromium 复现 ⇒ 控制台 `masks=2/4 carrier=off`（参数**已**生效，载体建了、`loadBundle('textures')` 也成功），缺的是两张 `holeless`。逐形态实测（同一路径换六种写法）定位到两条独立缺陷：
+① **并发 memo**：`ensureMaskBundle()` 记 `_maskBundleTried` 标志位 + 结果槽，而 warmup 对四张 `Promise.all` 并发调它 ⇒ 后三个调用方当场拿 `null` 走全局 uuid 腿（`holeless` 已离开 `main` ⇒ 解不出）。改为缓存 **Promise 本身**。
+② **API 形态**：`bundle.load(path, ImageAsset, cb)` 三参在 3.8.8 把回调当 `options`（`this.onProgress is not a function`）；补成四参后在**构建产物**里只请求到 `import/<uuid>.json`、**永不回调**（连被 `redirect` 回 `main` 的 `holed` 两张也挂），而 `assetManager.loadAny({ bundle, path }, cb)` 同场景直接返回 `ImageAsset` + 128px `HTMLImageElement` ⇒ 取资产一律经 `assetManager`，bundle 句柄只用于注册。
+修后（release 重建）：**web-mobile 产物 `?carrier=on` ⇒ `masks=4/4 carrier=on`** ✅；`check:cocos-mask` 4/4、`check:size` OK（beads 主包在册口径不变）、`verify` **PASS 21 / FAIL 0**（含 `typecheck`）。
+⚠ 更正上一段「追加验证」的隐含前提：那句「加 `carrier=on` 且日志 `masks=4/4` 后才是纹理」在**本批之前对构建产物不成立**（只有编辑器 Preview / harness 成立）。
+⚠ **弱取证面登记**：`check:cocos-mask` 只核 native png 在不在 ⇒ 上面两条它全绿。产物级加载证据 = 跑一次 `?carrier=on` 看 `4/4`（探针留在 `temp/wxg256-socket-arm/probe-carrier.mjs`，⛔ **未入册**，重跑：`node temp/wxg256-socket-arm/probe-carrier.mjs "carrier=on"`；**是否升为常驻 smoke 工具未拍**，代价 = 每次要 Cocos 构建 + Chromium）。沉淀 **K-112**（异步 memo 记 Promise）、**K-113**（跨 Bundle 加载形态）。
+⛔ 未闭：微信真机侧 `carrier=on` 的 `4/4` 与 dc 读数（本地探针只覆盖 web-mobile 运行时，`wx.createCanvas` 离屏能力与 `loadAny` 在 wx 档仍需真机确认）= ② 批。
+
+## WXG-T-258
+
+**WXG-T-258 · beads·格面 mask 退化为纯结构件（格底真透 + 纯色底下沉）· 定标单 v10.0**（2026-10-05 · 主理人 Qoder · 美术域＋程基岩域代落盘 · `ADR-0030 §5.9` 第十九刀）
+
+**用户裁定（原话）**：「两张图的格底应该是透明，可以和纯色底混合」⇒ 接续 WXG-T-257（§5.8）留下的两条未闭；本轮追加「图已经看过了可以，A B C 执行」（A 查格缝点阵 / B 格底真透批 / C 写沉淀）+「再看下真机逻辑是否和 harness 一致」。
+
+**口径**：**有孔档** grid mask 的 shape（B 通道）= **只留 3dp 斜面环**，格底与孔位一律真透 ⇒ 格面 mask 成为**纯结构件**；**无孔档不跟随**（其槽底 = `0.32` 假孔，属结构件，抹平即毁判据 I-5 的「有孔 0.70 / 无孔 0.32」分叉）。格底纯色**下沉到下层**：盘面 = L0 底 tile（§5.8 已把 tile 形态 shape 强制 255 = 满幅不透明），托盘 = `drawEmptySocket` 的 base rect。⇒ 一张源两种包装（cell = 结构件 / tile = 满幅底图）彻底解耦，⛔ 不改 shader、不改 `composeMaskTile`、不改 `systems-index §3` 冻结常量。
+
+**交付（资产 1 + 代码 2 + 判据 1 + 门 1 + 文档 3）**
+
+| 面 | 改动 |
+|---|---|
+| 定稿资产 | `export-cocos-textures.py`：128 空间判定改 `(sd8 <= 0) & (sd8 >= -EDGE_DP * pxs)`（⚠ **512 空间那笔被它覆盖，改它无效** —— 首轮重跑 md5 一字不变才发现）⇒ 新 md5 `8e2deda1`（旧 `ff824d6e`，可由摘掉环带条件的临时脚本逐字节复现）；四张同步进 `cocos/assets/textures/` |
+| `mask-field.ts::cellShapePlane` | TS 场计算按 `spec.gauge` 分叉（有孔 = 环带 / 无孔 = 槽口内整块）⇒ `mask-diff` 逐字节 0 差异（对拍门先红后绿，正是它的职责） |
+| `mask-field.test.ts` I-4 | 「槽口内 255」→「斜面环 255 / 有孔格底 0」，并补**正向**腿（10.5dp 环带必不透明）—— 否则「整格透明」这种错改法也能让 I-4 绿 |
+| 在册 | `ADR-0030` **§5.9** 新增 + §5.8 两条未闭标结；定标单主表行 v10.0；`memory/2026-10-05.md` 第十九刀一节 |
+
+**实测影响面（`?dbg=off`，桌面 Chromium `[E]` 档，⛔ 不作屏幕层/真机 PASS 证据）**：**盘面 0.00% 逐像素变化**（预测成立：下层 tile 与格底同值）· **托盘 20.00%**，槽底 `(170,169,172)` → `(191,191,193)` = 中性方片边消失（`temp/wxg257-maskshape/v258-tray-{before,zoom}.png`）。区域级对比可用 = 已排除 HUD（计时器逐运行变，K-103 同族）。
+
+**A 结案（顺带，非缺陷）**：格缝青 `(38,224,255)` / 品红点阵 = harness **默认开的 DEBUG 虚线轮廓**（`dev/harness/main.ts:496`，`?dbg=off` 关；游戏侧 `debugOutlines` 默认 false ⇒ 不漏进真机/构建）；`dbg=off` 复测两色计数 = **0**，与「三臂同数 20609 px」自洽。上一批登记的「托盘竖粉细线」同族（`DEBUG_OUTLINE_TILE` 品红 = 固定 `BEAD_PITCH` 诊断参照）。⛔ 未改代码。
+
+**真机 vs harness 一致性（本轮可静态取证的部分 + 一处新分叉）**：资产字节（等值腿）✓；派生代码同源（`framework:sync:check`，Cocos 侧 `mask-tile.ts` / `tint-sprite-cache.ts` 为拷贝件）✓；**生效 shader 只有一份** —— `assets/effects/tint-mask.effect`（v7.0 `shape = mask.b`）被两张 `.mtl` 引用并进包，`assets/scripts/game/view/tint-mask.effect`（旧 ADR-0028 编码）**uuid 在 assets 与 build 中零引用 ⇒ 构建已裁，不进包**（死文件，待清）。⚠ **新发现公式分叉**：`shape ∈ (0,1)` 羽化带 CPU 侧 `ls = l·shape`（`tint-composite.ts`）而 GPU 侧不乘 ⇒ 珠 mask 1242 个半透明像素 ΔRGB 最大 **27.8/255**（base 0.70）~ **40.7/255**（base 0.56）；格 mask 纯二值 ⇒ 本批不受影响。⛔ 未擅自改，两侧谁为准待裁（改 CPU 会动 harness 孔缘亮度，可能触到 WXG-T-232 甲钉的过渡带判据）。
+
+**⚠ 一次在册自纠**：`check:size` 逐 `games/*` 报，上一批我把两游戏读数**对调**了 —— 真相 = **beads 主包 2918.8→2919.0 KB（超内部目标 2000，存量 WARN）**、**breakout 1837.8→1886.1 KB（达标）**；beads 大头 = `cc.js` 1360 + `audio/bgm_porch.mp3` 704 + `main/index.js` 464（无 `.map` ⇒ 确为 release）。§5.8 与 memory 均已就地标注二次更正。
+
+**门禁**：framework **447**（含 `mask-diff` 5/5）· beads **811 + 1 skipped** · `check:board-seam` C1–C4 OK · `check:cocos-mask` 定稿等值 4/4 + 需求集 4/4 进包（进包件 `main/native/a6/…png` md5 ≡ 源件）· `framework:sync:check` 一致 · release + web 两档重建 · 沉淀 **K-117 / K-118**（`kb:sync` 新增 2 / 修改 0 / 激活 0 / 归档 0，`kb:audit` 无相似命中）。⛔ 全程未 commit ⇒ **本批字节随 WXG-T-259 一笔落库**。
+
+## WXG-T-259
+
+**WXG-T-259 · beads·tint 合成式三端统一（GPU 为准）+ 旧 effect 死件清**（2026-10-06 · 主理人 Qoder · 框架域＋工程域 · `ADR-0030 §5.10` 第廿刀）
+
+**用户裁定（原话）**：「旧 `assets/scripts/game/view/tint-mask.effect` 死文件清除 / GPU 为准 ⇒ CPU 去乘 shape / 提交」（对上一轮 D 项一致性核查给出的三个待拍板问题的拍板）。
+
+**一、式统一（核心）**
+
+- 分叉：CPU `compositeTintMask` 写 `ls = l·shape`，GPU frag 写 `outColor = base*d + (1-base)*l` 后整体预乘 `alpha`。浏览器 `putImageData` 拿 straight alpha 后自行预乘 ⇒ CPU 在 `shape ∈ (0,1)` 羽化带上多衰一次 ⇒ 两端不同色。
+- 量化：珠 mask 半透明像素 **1242/16384**（shape 0.031–0.996）；旧式偏差 ΔRGB 最大 **27.8/255**（base 0.70）、**40.7/255**（base 0.56）；格 mask 纯二值 ⇒ 本批盘面/托盘零影响。
+- **裁定后发现**：这不是新增口径而是**代码回归规约** —— `tint-mask-asset-spec §5.1`（「合成式（唯一）：`rgb = base·d + (1−base)·l`」）、ADR-0028 §2.1、定标单 §7.2 旁注都不带 shape；`preview-combined.py` 头注自写「与 shader 结果一致」而 `composite()` 代码不符 ⇒ 两处同时修，py 重烘两张 `preview-combined-{128,1024}.png`。
+- 落码：`packages/framework/src/core/bake/tint-composite.ts`（去乘 + 头注重写）· `tools/mask-preview/preview-combined.py` · `tools/mask-preview/export-cocos-textures.py` 头注口径行 · `framework:sync` 到 beads/breakout 拷贝件 · `ADR-0029 §8.2` 键名表公式行。
+- **新回归门**：`tint-composite.test.ts` 羽化带腿（CREAM/CHARCOAL × `shape=128/200` ⇒ RGB 与 shape 无关）；旧式会算 `(68,68,71)` 而非 `(106,106,108)`，差 **38/255** ⇒ 误改回去必红。其余旧腿 shape 全为 0/255 ⇒ 不需迁移（包括 WXG-T-232 甲钉的孔缘过渡带判据，**未受冲击**）。
+
+**二、死件清（带一个镜像树坑）**
+
+- 取证：生效件 = `assets/effects/tint-mask.effect`（uuid `bf89c803`，被 `tint-mask.mtl` / `tint-mask-001.mtl` 引用并进包）；旧件 uuid `a41bc418` 全仓只自见于自己的 `.meta` ⇒ 零引用。
+- ⚠ **坑**：`cocos/assets/scripts/game/**` 不是独立资产而是 `games/beads/src/**` 的**镜像拷贝件**；只删拷贝件后 `framework:sync:check` 报 `OUT … tint-mask.effect (missing)`、`build:cocos` **拒绝构建**（「直接构建会编出旧代码」）⇒ 故须两处一并删（正本 + 拷贝件 + `.meta` = 三文件），beads game 拷贝 47→46。
+- 此旧件早已在册：方案件 `wxg-t-226-tint-pipeline-plan.md` **R-12**「旧编码 RGB=d/A=l ⇒ 待清理」；QA 判据 `wxg-t-228-tint-criteria.md:15` 当时还靠它证明「tint 运行时未落码」⇒ 属历史证据链，两处记录不追改。
+
+**三、在册自纠（上一批的债）**
+
+WXG-T-258 主表行与详情节都写了「定标单 **v10.0**」，但 `tray-neutral-slot-mask-spec.md` 当时**只到 v7.0**（登记与实物不符）。本批补写 **§8 v10.0**（a=258 环带、b=259 式统一），并把头注版本行顶到 v10.0、§7.2 公式行同步、§7.3「槽底不得透明」改写为「已被 v10.0 部分推翻：仅无孔档仍守」。
+
+**四、门禁与未闭**
+
+- framework **448**（+1 新腿，含 `mask-diff` 5/5）· beads **811 + 1 skipped**（零回归）· `framework:sync:check` 一致 · release + web 两档重建 · `check:cocos-mask` 等值 4/4 + 需求集进包 · `check:size` beads **2919.0 KB**（超内部目标、存量 WARN）。
+- ⛔ **本批只证「公式同式」，不证「屏幕逐像素相等」**：真机 S3 同帧对拍仍需 `[R]`（K-037：桌面 Chromium 读数不得当屏幕层 PASS）。
+- 沉淀：**无新建条**（与 K-117 同族）；仅**修订 K-117** 那句公式（`kb:sync` 修改计数见会话结论）。
+
+## WXG-T-260
+
+# ctx B 预算门收敛（knowledge 分片子切 + 四件豁免登记）
+
+> 2026-10-06，主理人(Qoder)·装置域。用户第③项裁定「提交」开工即被 pre-commit 拦下，本单 = 解堵。
+
+**一、拦下的是什么**
+
+- `git commit -F` → `ctx:check FAILED（7）`，**全属 B 项**（任意 `.md` ≤ 8000 估算 token），无一项是代码问题：
+  `ADR-0030` **45088**（新件首次入索引才暴露）· `control-manifest` 8549 · `knowledge/INDEX` 8972 ·
+  `knowledge/CHANGELOG` 8153 · `knowledge/lessons/{engine-cocos 8618, process 8752, testing 8722}`。
+- **归属查清再动手**：逐件按 HEAD blob 实算 token（不是看体积）—— 后六件**在 HEAD 全部门下**
+  （5929 / 7351 / 1688 / 7889 / 7457 / 7975）⇒ 根因 = 本会话 257~259 三批沉淀与登记，不是存量包袋。
+
+**二、三片为何不能豁免（政策而非偏好）**
+
+- 正本：`knowledge/INDEX.md §4`「每片同受 ctx B 门约束，**不得为分片新增豁免**；某片再越阈 ⇒ 该标签内部按子标签再切」
+  + `memory/MEMORY.md:17` 同口径 + 指针页尾「再膨胀处置」。
+- 先试「归档」这条：`kb:audit` 实跑 = **归档候选 0 条**（活跃 115 / 归档 0，阈值 = 闲置 ≥90 天且访问 ≤1）
+  ⇒ 本批无一条可据实归档，⛔ 不得为了过门把在用判据打成“归档”。
+
+**三、子切（仍沿 WXG-T-221 / 235 先例）**
+
+| 原片 | 越限 | 移走 | 新片（新行内标签） | 原片余 |
+|---|---:|---|---|---:|
+| `引擎Cocos` | 8618 | K-108/111/112/113（构建产物/资产装载） | `engine-cocos-build`（`引擎Cocos构建`） | 6090 |
+| `流程` | 8752 | K-045/046/050（台账/领号/并发写盘） | `process-ledger`（`流程台账`） | 5731 |
+| `测试` | 8722 | K-038/042/060/089（守卫与变异的有效性） | `testing-guard`（`测试守卫`） | 6124 |
+
+- **逐字节搬运走脚本，不手工拼**（判例 K-030 / K-043）：临时工具 `temp/w260-subsplit.mjs` 复用
+  `lib/knowledge-ledger.mjs::parseKnowledgeFile` 同一口径，自带**三重自证**（回拼≡原文 / 块数≡lib 条目数 /
+  写后重解析行内标签≡新片），任一不一致即 `exit 1`。
+- ⚠ `knowledge:split` **不能**用于再切：它是一次性迁移工具，`lessons/` 已存在即早退（判例 K-047⑤）。
+- **两处硬映射同笔登记**（INDEX §3 点名）：`split-knowledge-lessons.mjs::TAG_TO_SHARD` +
+  `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`——无机械校验两者同步，只改一侧就是静默漂移。
+- 副作用如实入账：换行内标签改了标题行 ⇒ `contentHash` 变 ⇒ `kb:sync` 报**修改 11 / 新增 0**，
+  `kb:check` **八重 PASSED**（含 `INDEX` 活跃块↔ledger 双向）。`ACTIVE_FILES` 动态枚举⇒ 新片无需改码即被采集。
+
+**四、四件豁免（均带撤销条件，登记者 = 主理人）**
+
+| 文件 | tok | 理由 | 撤销条件 |
+|---|---:|---|---|
+| `ADR-0030` | 45088 | ADR 单文件完整性（沿 0011/0015/0020/0022/0023/0024 七份先例） | S5′ 收口后把 §5 施工记录按 Epic 阶段拆 `ADR-0030-build-log-<phase>.md` |
+| `control-manifest` | 8549 | 铁律 L1–L5 唯一正本，⛔ 不为过门删正文 | 评审清单区抽 `control-manifest-review.md` 或自然回落门下 |
+| `knowledge/INDEX.md` | 8972 | §6 活跃表 = `kb:sync` 生成物（6148）无窗口；**只给入口件，不开分片先例** | 再涨 >500 tok 即外移 §1–§5 协议正文（腾 ≈2825 ≈ 50 条目）并同步 `AGENTS.md §9` / `ctx/ROUTES.md` 锚点 |
+| `knowledge/CHANGELOG.md` | 8153 | `kb:sync` 生成、数据源 `events` append-only 无时间窗 | 给 `renderChangelog` 加窗口（须同步 kb selftest）或按季度归档进 `archive/`（已入 SKIP_DIRS） |
+
+**五、未闭**
+
+- ⚠ **生成物无收敛循环** = 真源缺口（已写进豁免 note）：`CHANGELOG` 只要知识库还活着就单调增长，
+  每次大沉淀批必顶门；本批只登记未改生成器（改它得连带 kb selftest，不夹带进提交解堵）。
+- ⛔ 全程未用 `--no-verify`；本单字节与 257~259 同一笔落库（header 写 `WXG-T-257~260`）。

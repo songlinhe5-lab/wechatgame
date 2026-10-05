@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 96,
+  "nextId": 119,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -639,10 +639,10 @@
     {
       "id": "K-038",
       "state": "active",
-      "file": "knowledge/lessons/testing.md",
-      "category": "测试",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
       "title": "自动化统一走「便捷旁路 API」，真输入链可以整段断链而全绿",
-      "contentHash": "d71b841d97391e834029c4c2de716f52ec5157cb603518fad7cecb84f67db116",
+      "contentHash": "72ad78ec94a4d8289e419ead4f99ea726c804d3438747735c524c61efb6732b9",
       "sourceTask": "WXG-T-096",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -707,10 +707,10 @@
     {
       "id": "K-042",
       "state": "active",
-      "file": "knowledge/lessons/testing.md",
-      "category": "测试",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
       "title": "几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫",
-      "contentHash": "27bbad1c65c6dfa601f730d1cb816bb16b39e4cbfdde5619b2579173aaeade5b",
+      "contentHash": "f947f654aca0ba064242d9ff10a319fe48d6571ce987637bb966ce157b09c831",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -758,10 +758,10 @@
     {
       "id": "K-045",
       "state": "active",
-      "file": "knowledge/lessons/process.md",
-      "category": "流程",
+      "file": "knowledge/lessons/process-ledger.md",
+      "category": "流程台账",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "71d99918d201aaa93e333c2c1edc946deeb1cd79c779eee2614b464d5356eaad",
+      "contentHash": "4793a78fa31796fc70d89ad7d7abb02c8fdcfea1830fa09c5d249b706f0a010e",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -775,10 +775,10 @@
     {
       "id": "K-046",
       "state": "active",
-      "file": "knowledge/lessons/process.md",
-      "category": "流程",
+      "file": "knowledge/lessons/process-ledger.md",
+      "category": "流程台账",
       "title": "领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号",
-      "contentHash": "37d4f9951ec99b672a1b8c83ec80e1d8fb3fc4af8e435a62445ee6e42fccdb5f",
+      "contentHash": "bf8e21c4ad77d92b46993728eec214796cec64dede4599ca7f0b5844342d64e2",
       "sourceTask": "WXG-T-106",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -843,10 +843,10 @@
     {
       "id": "K-050",
       "state": "active",
-      "file": "knowledge/lessons/process.md",
-      "category": "流程",
+      "file": "knowledge/lessons/process-ledger.md",
+      "category": "流程台账",
       "title": "缺陷号（`BD-NN`）与任务号同规：领号须读工作树全文，且「已登记 BD-xx」的声明必须回查台账是否真有正本行",
-      "contentHash": "0fc8dcfd64d081511a3fbe0d819aeb0a69e8be716cd40929f310a69d44c5f7c3",
+      "contentHash": "05b9d7bef8d70e99291887447d6eb5c39d1c445090c50645b835a0bdcc9fa191",
       "sourceTask": "WXG-T-119",
       "addedDate": "2026-09-16",
       "lastAccess": "2026-09-16",
@@ -965,7 +965,7 @@
       "file": "knowledge/lessons/process.md",
       "category": "流程",
       "title": "「立项单」与「ADR 状态行」都不会被实施它们的另一张单自动收口，核销时要成对扫",
-      "contentHash": "ee9aaabcaf63c04565aa417ab4e5174d3fc1b0b46df87f53fa7dd2d8051c0d64",
+      "contentHash": "8cc58e0f38399d55885f9a007ddc0e5d2766a52b87a9aa88d88603c3f249d233",
       "sourceTask": "WXG-T-166",
       "addedDate": "2026-09-19",
       "lastAccess": "2026-09-19",
@@ -1013,10 +1013,10 @@
     {
       "id": "K-060",
       "state": "active",
-      "file": "knowledge/lessons/testing.md",
-      "category": "测试",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
       "title": "变异自检里断言「方向」选错会留下伪绿：被测标量在变异下「冻结在旧非零值」而非归零时，存在性断言无判别力",
-      "contentHash": "4344b9cb41ca2357b292fe73b6442973e0757d689e41038ae2daf35651643fb4",
+      "contentHash": "ec53c9b4a01b685fdd0bc979746c995d06542fd18d090f508175acaaec6db143",
       "sourceTask": "WXG-T-128",
       "addedDate": "2026-09-19",
       "lastAccess": "2026-09-19",
@@ -1455,10 +1455,10 @@
     {
       "id": "K-089",
       "state": "active",
-      "file": "knowledge/lessons/testing.md",
-      "category": "测试",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
       "title": "守卫脚本硬编码的目标值与冻结真源脱钩 ⇒ 断言永不触发（假绿守卫）；投放重物前要先实测「守卫能不能红」",
-      "contentHash": "522348a0b1eafca34b053219c69706c7f04e57a2f5736b81d11afbb414e15407",
+      "contentHash": "c95fe9b1a626bfabdc67dce50e62e0d3da6220be2cf6eebf336b7afceddbdf3c",
       "sourceTask": "WXG-T-219",
       "addedDate": "2026-09-27",
       "lastAccess": "2026-09-27",
@@ -1564,6 +1564,397 @@
       "sourceTask": "WXG-T-244",
       "addedDate": "2026-10-04",
       "lastAccess": "2026-10-04",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-096",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "环境事实表记的是「快照日」不是「现状」，下游当永久事实引用会造出根本不存在的结构性阻塞",
+      "contentHash": "df35d12864ca79253d88868216a44552a4b3adb839a5f51e816c83a4d9b09487",
+      "sourceTask": "WXG-T-247",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-097",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "「不为高 DPR 投放高分辨率资产」≠「高 DPR 设备上不会运行时放大」——投放决策与放大率是两个正交维度，裁一个必须成对登记另一个",
+      "contentHash": "f81484ced8fda743fb5146bc53379c626a96676f2050a76ce534a2c3f667801d",
+      "sourceTask": "WXG-T-247",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-098",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "headless Chromium 取「真 GPU」计时读数的三个坑：默认是软件光栅、扩展枚举名不按文档惯例、帧间隔被 vsync 锁死",
+      "contentHash": "983ecda75db33935c5b8d83a652b8643d8509ecfcb0678b7696fec1b1d87284a",
+      "sourceTask": "WXG-T-247",
+      "addedDate": "2026-10-06",
+      "lastAccess": "2026-10-06",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-099",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "Cocos 宿主里「拿玩法读数」要先分对象层：`app.game` 是 Shell、盘面真身在 `game.play`；取错一层静默返回 0 / setter 无效，而不是报错",
+      "contentHash": "3df9f41d54d095e21fffb8ea211986e20253eb29eee2cbd221598179f2191283",
+      "sourceTask": "WXG-T-247",
+      "addedDate": "2026-10-06",
+      "lastAccess": "2026-10-06",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-100",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "比「换渲染载体」便宜的第一收益往往在载体之外：先量脏帧再比载体；探针热切换载体时「载体状态位」必须最后改",
+      "contentHash": "13cd929d3f65af8a4f1516cbb6ce72bc26aac139731f526013f7c3c70fac8430",
+      "sourceTask": "WXG-T-247",
+      "addedDate": "2026-10-06",
+      "lastAccess": "2026-10-06",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-101",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "节流/跳帧类优化会让「被优化量」的样本数骤降 ⇒ 该指标当场失去判别力；A/B 开工前先定一个不受门控影响的上游总成本列",
+      "contentHash": "488a58b78d412d6551512623adb38fccd5a68275c77046095fe2547b614e6cff",
+      "sourceTask": "WXG-T-248",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-06",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-102",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
+      "title": "给渲染链加「跳帧」类优化时，落点选在回调时机而不是返回值形状；形状一变就击穿整帧封箱基线，而跳帧带来的宿主契约变化必须同批登记",
+      "contentHash": "26ee5a7956df438b68c1e106d0cb89fcdb885c99964c3aa78186577f8717d10b",
+      "sourceTask": "WXG-T-248",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-06",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-103",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "截图差分非零不直接计缺陷：先拿「与被测改动无关的两个历史运行」做控制对照，把运行间状态漂移与真缺陷分开",
+      "contentHash": "283462a5666f74a072f817fd0d90d768a74ec91fcc4339530bd1bf1ada3d0614",
+      "sourceTask": "WXG-T-248",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-06",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-104",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "测「去掉某层能省多少」的上界档：必须停用组件本身，不能只是不喂命令——`clear()` 在绘制入口内部，不喂 = 上一帧内容继续提交 ⇒ 读数是一份冻住的旧画面而不是该层的缺席成本",
+      "contentHash": "739c7367abece8f15fefe748efff6fd3728fdc4a68653f7518000d3f1419c521",
+      "sourceTask": "WXG-T-249",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-105",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "「改裁」不是把 DEC 正文那一行换个结论：同批必扫四节，并把旧推荐原样留作改道证据",
+      "contentHash": "3684e06d04362e84c296ff8ceca7310cc51b2a1998986c026103140dbef434aa",
+      "sourceTask": "WXG-T-251",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-106",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "「门禁跑过」≠「新文件被门禁看到」：守卫输出计数而非清单，覆盖要自证",
+      "contentHash": "77a18b8ba1d24d29fdaa5de96e418801e9c2c14fb808dd2a22e2b3e581dd3ad3",
+      "sourceTask": "WXG-T-253",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-107",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "像素 A/B 的「基线臂」必须逐层对齐现役绘制序，否则工具少画的一层会被读成候选方案的代价",
+      "contentHash": "6e6d6e8da592cbb1967cae929e5f0cf0d9d9934118161681f1af8ba1f24d9436",
+      "sourceTask": "WXG-T-254",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-108",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos-build.md",
+      "category": "引擎Cocos构建",
+      "title": "运行时按 uuid 字符串加载的资产不会进 Cocos 构建产物 ⇒ 「静默降级」必须配一条产物级门禁，源码引用 grep 与 config.json 明文 grep 都不算取证",
+      "contentHash": "d8f41dee8b000ee538dfa1810934f27ffb5fb72cb4e81c91878a5b003d117cea",
+      "sourceTask": "WXG-T-255",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-109",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "层序死结优先「删掉引起冲突的对象」，而不是给数据模型加「层归属标记」——同一绘制体里两成员必须分别站在另一层上/下两侧时，加标记 = 扩协议，删对象 = 缩问题面",
+      "contentHash": "12fc0590cf4f79e9395c77e0c7fc94d23dcf5587f4253977738692043136af77",
+      "sourceTask": "WXG-T-256",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-110",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "改「渲染真源」字段前必须先 grep 两侧消费方：canvas2d 吃了 ≠ Cocos 吃了，harness 全绿掩盖的是「某个宿主根本没读这个字段」",
+      "contentHash": "c4c6a15e38b86a92d1676c53f6775167a8264efffe6853a2479e2256a651e030",
+      "sourceTask": "WXG-T-256",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-111",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos-build.md",
+      "category": "引擎Cocos构建",
+      "title": "「顺手重建产物」前先确认构建档：脚本默认档（debug）≠ 门禁基线档（release）⇒ 一次重建就能原地覆盖在册产物并把包体门禁打红",
+      "contentHash": "0472e277c078343f77e0c43fb3d87ae79aca0c8592c365131f88a97bcbab55fe",
+      "sourceTask": "WXG-T-256",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-112",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos-build.md",
+      "category": "引擎Cocos构建",
+      "title": "异步资源的「只取一次」memo 要记 Promise，不能记「试过」标志位 + 结果槽",
+      "contentHash": "5889d5c37f2a9f2c86589263a8d5e873393aa91016b343a4762d1d78ebc1f7a2",
+      "sourceTask": "WXG-T-256",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-113",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos-build.md",
+      "category": "引擎Cocos构建",
+      "title": "跨 Bundle 按需加载用 `assetManager.loadAny({ bundle, path }, cb)`；`Bundle.load(path, Type, cb)` 三参在 3.8.8 把回调当 options",
+      "contentHash": "6c839419e66e7bc91d95775e8149aa890ff31e920d4803362ac2358681d94d51",
+      "sourceTask": "WXG-T-256",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-114",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "封箱基准「只插键、不动几何」类修订：闭合自证 = 剥键后 sha 逐字节 ≡ 前态锁 + 带键条数 = 登记常量，强于逐行 diff",
+      "contentHash": "868ab8f8dbe45ad2b1b7f6591eb4a865a393809d575a6affcf496c652fb56a9f",
+      "sourceTask": "WXG-T-256",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-115",
+      "state": "active",
+      "file": "knowledge/lessons/criteria.md",
+      "category": "判据",
+      "title": "判据「方向翻转」（不得命中 → 必须命中）必须与「断言数不变」同批登记，否则读者无法区分翻转与软化",
+      "contentHash": "db11de9f17d34c17cf0948104eb9401d04483c3228588efc7c9e6620dee4aa73",
+      "sourceTask": "WXG-T-256",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-116",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "给渲染命令加「层归属」标记前，先枚举每个宿主的绘制模型：单趟按命令序绘制的宿主天然免疫，可能只有一个 adapter 需要改",
+      "contentHash": "ce8d7db6f831b942829f063977a560fbdbeb88889eb8a45126b4f15763eb743c",
+      "sourceTask": "WXG-T-256",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-117",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
+      "title": "tint mask 的透明度不在 A 通道：像素审计必须逐通道，「哪张是权威资产」用重跑生成器比 md5 判定",
+      "contentHash": "fe957902fcca2fd9423c969a5e9489232a11fe71618bc397157393c635ed5765",
+      "sourceTask": "WXG-T-257",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-118",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "修像素级缺陷前先看「门是什么类型的门」；目标文件未入库（无 HEAD 基线）时 A/B 对照臂 = 摘掉新增那一笔调用重建",
+      "contentHash": "737816a31820056eb7c61a8c357cf2ea8f16e17bab440a78e0b923123e02b7f5",
+      "sourceTask": "WXG-T-257",
+      "addedDate": "2026-10-05",
+      "lastAccess": "2026-10-05",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -2306,6 +2697,245 @@
       "kind": "updated",
       "ids": [
         "K-094"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-096"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-097"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-247",
+      "kind": "added",
+      "ids": [
+        "K-098",
+        "K-099",
+        "K-100"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-248",
+      "kind": "added",
+      "ids": [
+        "K-101",
+        "K-102",
+        "K-103"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-248",
+      "kind": "updated",
+      "ids": [
+        "K-101",
+        "K-102",
+        "K-103"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-249",
+      "kind": "added",
+      "ids": [
+        "K-104"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-249",
+      "kind": "updated",
+      "ids": [
+        "K-102"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-250",
+      "kind": "updated",
+      "ids": [
+        "K-102"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-251",
+      "kind": "added",
+      "ids": [
+        "K-105"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-251",
+      "kind": "updated",
+      "ids": [
+        "K-105"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-253",
+      "kind": "added",
+      "ids": [
+        "K-106"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-253",
+      "kind": "updated",
+      "ids": [
+        "K-057"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-254",
+      "kind": "added",
+      "ids": [
+        "K-107"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-255",
+      "kind": "added",
+      "ids": [
+        "K-108"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-255",
+      "kind": "updated",
+      "ids": [
+        "K-108"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-255",
+      "kind": "updated",
+      "ids": [
+        "K-108"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-256",
+      "kind": "added",
+      "ids": [
+        "K-109",
+        "K-110"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-256",
+      "kind": "added",
+      "ids": [
+        "K-111"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-256",
+      "kind": "added",
+      "ids": [
+        "K-112",
+        "K-113"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-256",
+      "kind": "added",
+      "ids": [
+        "K-114",
+        "K-115",
+        "K-116"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-05",
+      "taskId": "WXG-T-256",
+      "kind": "updated",
+      "ids": [
+        "K-114",
+        "K-115",
+        "K-116"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-06",
+      "taskId": "WXG-T-258",
+      "kind": "added",
+      "ids": [
+        "K-117",
+        "K-118"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-06",
+      "taskId": "WXG-T-259",
+      "kind": "updated",
+      "ids": [
+        "K-117"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-06",
+      "taskId": "WXG-T-260",
+      "kind": "updated",
+      "ids": [
+        "K-038",
+        "K-042",
+        "K-045",
+        "K-046",
+        "K-050",
+        "K-060",
+        "K-089",
+        "K-108",
+        "K-111",
+        "K-112",
+        "K-113"
       ],
       "note": null
     }

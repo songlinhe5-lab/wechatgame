@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CocosRenderModelRenderer, parseColorLiteral } from '../../src/adapters/cocos/cocos-renderer.js';
 import { PooledLabelSource } from '../../src/adapters/cocos/label-pool.js';
 import { Viewport } from '../../src/core/render/viewport.js';
 import { RenderModelBuilder } from '../../src/core/render/render-model.js';
+import type { BlitCommand } from '../../src/core/render/render-model.js';
 
 function fakeGraphics() {
   const calls: string[] = [];
@@ -140,6 +141,59 @@ describe('CocosRenderModelRenderer', () => {
     b.circle(50, 100, 5, { fill: '#ffffff' });
     renderer.draw(b.end());
     expect(calls).toContain('circle(50,100,5)');
+  });
+
+  // [WXG-T-252 / ADR-0030 DEC-2] blit 只能「交出」，不能在本 adapter 里落地。
+  // 这三条就是 DEC-2 的验收判据：注入必交接 / 未注入零绘制调用 + warn 一次 /
+  // [WXG-T-253] 帧边界逐帧告知（钩子可选：不实现的载体零调用）。
+  it('hands every blit to an injected carrier, passing the command through untouched', () => {
+    const { g, calls } = fakeGraphics();
+    const { source } = fakeLabels();
+    const viewport = new Viewport(200, 400);
+    const taken: { cmd: BlitCommand; x: number; y: number }[] = [];
+    let frames = 0;
+    const renderer = new CocosRenderModelRenderer(g, source, colors, viewport, {
+      blitCarrier: {
+        accept: (cmd: BlitCommand, x: number, y: number) => {
+          taken.push({ cmd, x, y });
+        },
+        beginFrame: () => {
+          frames++;
+        },
+      },
+    });
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.blit('bead-0', 10, 20, 30, 30);
+    const model = b.end();
+    renderer.draw(model);
+    // 零拷贝：交出的就是原命令对象（fx 槽在内，渲染器不拆不辨）。
+    expect(taken.length).toBe(1);
+    expect(taken[0]!.cmd).toBe(model.commands[0]);
+    // 坐标走与其他分支同一套居中换算（design 200x400 → offset (-100, -200)）。
+    expect(taken[0]!.x).toBe(-90);
+    expect(taken[0]!.y).toBe(-180);
+    // blit 完全不碰 Graphics。
+    expect(calls).toEqual(['clear']);
+    // 帧边界：每调一次 `draw()` 告知一次，且在本帧第一条命令之前（S5′-1 靠它收节点）。
+    expect(frames).toBe(1);
+    renderer.draw(model);
+    expect(frames).toBe(2);
+    expect(taken.length).toBe(2);
+  });
+
+  it('keeps warn-once skip when no carrier is injected', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => { });
+    const { renderer, calls } = makeSetup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.blit('bead-0', 10, 20, 30, 30);
+    const model = b.end();
+    renderer.draw(model);
+    renderer.draw(model);
+    expect(calls).toEqual(['clear', 'clear']);
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
   });
 
   it('prefers roundRect when a radius is supplied', () => {
@@ -380,5 +434,57 @@ describe('CocosRenderModelRenderer transformHost', () => {
     // 未接宿主的调用方（breakout）路径不变：无 host 时构造不报错（makeSetup 未传），
     // 有 host 但无变换 ⇒ 只应看到幂等 reset。
     expect(hostCalls).toEqual(['reset']);
+  });
+});
+
+// ── WXG-T-256 / ADR-0030 S5′-3→S5′-4：底图提交体（`backGraphics`）─────────────
+//
+// Cocos 只有 `Graphics` 一个提交体时，blit 载体整层压在它下面 ⇒ 「桌面」（面板底/内阴影）
+// 会把 sprite 珠子整块盖掉（托盘实测只剩接触影）。本组钉的是路由本身：
+// 带 `back` 的 rect/line 必进底图体，其余一律留在主层，未注入的宿主逐字节等价于旧行为。
+describe('CocosRenderModelRenderer backGraphics（底图通道）', () => {
+  function makeLayered() {
+    const main = fakeGraphics();
+    const back = fakeGraphics();
+    const { source } = fakeLabels();
+    const viewport = new Viewport(200, 400);
+    viewport.resize(200, 400);
+    const renderer = new CocosRenderModelRenderer(main.g, source, colors, viewport, {
+      backGraphics: back.g,
+    });
+    return { main, back, renderer };
+  }
+
+  it('routes back-marked rect/line to the bottom layer and keeps the rest on Graphics', () => {
+    const { main, back, renderer } = makeLayered();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin('#ffffff');
+    b.rect(0, 0, 10, 10, { fill: '#fff', radius: 18, back: true }); // 托盘面板底
+    b.line(0, 0, 10, 0, '#000000', 2, undefined, true); // 白瓷内阴影
+    b.rect(20, 20, 10, 10, { fill: '#fff' }); // HUD
+    b.line(0, 100, 10, 100, '#000000', 1); // HUD 描边
+    renderer.draw(b.end());
+    // 底图层：全屏底色 rect + 面板（走 roundRect）+ 内阴影线，⛔ 不得混进 HUD。
+    expect(back.calls).toEqual([
+      'clear',
+      'rect(-100,-200,200,400)',
+      'fill',
+      'roundRect(-100,-200,10,10,18)',
+      'fill',
+      'moveTo(-100,-200)',
+      'lineTo(-90,-200)',
+      'stroke',
+    ]);
+    // 主层：只剩 HUD（坐标同源）。
+    expect(main.calls).toEqual(['clear', 'rect(-80,-180,10,10)', 'fill', 'moveTo(-100,-100)', 'lineTo(-90,-100)', 'stroke']);
+  });
+
+  it('falls back to the main Graphics when the host injects no backGraphics', () => {
+    const { renderer, calls } = makeSetup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.rect(0, 0, 10, 10, { fill: '#fff', back: true });
+    renderer.draw(b.end());
+    expect(calls).toContain('rect(-100,-200,10,10)');
   });
 });

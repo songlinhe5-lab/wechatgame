@@ -5,5 +5,8 @@
   "uuid": "cdfcacb5-bc63-4418-b7c2-8fc68db9865e",
   "files": [],
   "subMetas": {},
-  "userData": {}
+  "userData": {
+    "isBundle": true,
+    "bundleName": "textures"
+  }
 }

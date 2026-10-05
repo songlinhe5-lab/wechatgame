@@ -728,17 +728,24 @@ function computeBeadPlanes(spec: MaskGaugeSpec, size: number): Planes {
  * 地板（清 <8）**清不掉对方残留的那几格** ⇒ 对拍门禁（`mask-diff.test.ts`，逐字节相等）红。
  * 治根 = **不缩放**：形状本就是**二值语义**（有/无实底），不需要抗锯齿 ——
  * 边缘的抗锯齿由 R/G 通道的 3dp 斜面光照承担，shape 只决定「实底 or 透明」。
- * ⛔ 槽口内（3dp 斜面 + 槽底）**必须留 255**：无孔档槽底是 `0.32` 深坑，透明化会抹平
- * 判据 I-5 钉的「有孔 0.70 / 无孔 0.32」分叉。
+ * `[WXG-T-258]` **有孔档：shape 只留 3dp 斜面环**（格底/孔位一律真透）—— 格面 mask 退化为
+ * **纯结构件**，格底纯色由下层承担（盘面 = L0 底 tile，其 tile 形态 shape 恒 255 满幅不透明；
+ * 托盘 = `drawEmptySocket` 的 base rect）。旧口径「槽口内全 255」让格底成块 `base×0.70` 不透明方片，
+ * 托盘槽四周因此显出一圈与面板底不同色的方片边。
+ * ⛔ **无孔档不跟随**：其槽底是 `0.32` 深坑（假孔），属结构件，抹平即毁判据 I-5 钉的
+ * 「有孔 0.70 / 无孔 0.32」分叉。
  *
- * 判定式 ≡ 定稿 py 的 `sd8 <= 0`（槽口棱及其内侧）；两边用**同一像素空间**（128）与同一公式
- * ⇒ 逐字节一致，无需容差。
+ * 判定式 ≡ 定稿 py 的 `(sd8 <= 0) & (sd8 >= -EDGE_DP * pxs)`（有孔）/ `sd8 <= 0`（无孔）；
+ * 两边用**同一像素空间**（128）与同一公式 ⇒ 逐字节一致，无需容差。
  */
 function cellShapePlane(spec: MaskGaugeSpec, size: number): Uint8Array {
     const px = size / MASK_CELL_DP;
     const c = size / 2;
     const q = (spec.slotHalfDp - spec.slotCornerDp) * px;
     const cornerPx = spec.slotCornerDp * px;
+    // 有孔档 = 环带（槽口棱起、向内 `slotEdgeDp`）；无孔档 = 槽口内整块（保住 0.32 深坑）。
+    const ringOnly = spec.gauge !== 'holeless';
+    const edgePx = spec.slotEdgeDp * px;
     const out = new Uint8Array(size * size);
     for (let y = 0; y < size; y += 1) {
         const dy = y - c;
@@ -748,7 +755,7 @@ function cellShapePlane(spec: MaskGaugeSpec, size: number): Uint8Array {
             const qy = Math.abs(dy) - q;
             const sd =
                 Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - cornerPx;
-            out[y * size + x] = sd <= 0 ? 255 : 0;
+            out[y * size + x] = sd <= 0 && (!ringOnly || sd >= -edgePx) ? 255 : 0;
         }
     }
     return out;
@@ -796,7 +803,7 @@ function computeCellPlanes(spec: MaskGaugeSpec, size: number): Planes {
     return {
         r: resampleSquare(rHi, render, size),
         g: resampleSquare(gHi, render, size),
-        b: cellShapePlane(spec, size),   // 槽口内实底 / 格外透明（v7.0，128 空间直接判定）
+        b: cellShapePlane(spec, size),   // 斜面环实底（有孔档，`[WXG-T-258]`）/ 其余透明（128 空间直接判定）
     };
 }
 

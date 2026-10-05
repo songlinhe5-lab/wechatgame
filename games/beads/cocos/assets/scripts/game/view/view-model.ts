@@ -82,9 +82,6 @@ import {
   HINT_PULSE_MS,
   DANGER_PULSE_MS,
   TRAY_FULL_PULSE_MS,
-  BG_CORE_RECT,
-  BG_DEPTH_ALPHA,
-  BG_LIFT_RECT,
   CLOCK_ICON_DIA,
   GEAR_HOLE_R,
   GEAR_HUB_R,
@@ -92,14 +89,6 @@ import {
   GEAR_TEETH_R0,
   GEAR_TEETH_R1,
   GEAR_TEETH_W,
-  GLOW_BAND_ALPHAS,
-  GLOW_BAND_OUT_MAX,
-  GLOW_BAND_RADIUS_SCALE,
-  PLATE_OUTSET,
-  PLATE_RADIUS,
-  PLATE_SHADOW_ALPHA,
-  PLATE_SHADOW_DY,
-  PLATE_STICKER_OUTSET,
   TIMER_CAPSULE,
   TIMER_CAPSULE_SHADOW_ALPHA,
   TIMER_CAPSULE_SHADOW_DY,
@@ -119,15 +108,13 @@ import {
   fillPopEnvelope,
   type FillPopEnvelope,
   type FilledBeadOptions,
+  type TargetTileOptions,
 } from './bead-render';
 import {
   BEAD_HIGHLIGHT_HEX,
   BEAD_SHADOW_HEX,
-  BG_DEPTH_HEX,
-  BG_LIFT_HEX,
   EXPAND_BTN_INK,
   EXPAND_BTN_TEXT,
-  GLOW_WARM_HEX,
   POWERUP_BADGE_GLYPH,
   POWERUP_INK_CAP,
   POWERUP_INK_MAGNET,
@@ -251,10 +238,10 @@ export function buildBeadsView(
     const s = comboPseudoShake(snap.comboVfxProgress).screenScale;
     if (s !== 1) builder.setTransform(s, DESIGN_W / 2, DESIGN_H / 2);
   }
+  // [WXG-T-256] 统一底色：只发一个 token，由**宿主**铺满屏（canvas2d `fillRect`；Cocos 走珠下的
+  // 第二块 Graphics）。视图层不再画背景层／容器板 ⇒ 「珠下」零图元，层序冲突消解。
   builder.setBackground(palette.background);
-  drawBackgroundLayers(builder); // F8：冷沉 + 中心提亮（§1.8，珠/HUD 之下）
   drawHud(builder, snap, palette);
-  drawPuzzlePlate(builder, snap, palette); // F2/F3：容器板 + 暖光 band（§1.7）
   drawGrid(builder, snap, palette, inks);
   drawZoomControls(builder, snap, palette); // 缩放控件条（盘面下方净空带，不遮珠）
   drawTray(builder, snap, palette, inks);
@@ -643,91 +630,12 @@ function trayFullAlpha(clock: number, reduce: boolean): number {
   return reduce ? 1 : breathe(clock, TRAY_FULL_PULSE_MS, 0.6, 1);
 }
 
-/**
- * F8 背景层次（§1.8）：全屏冷沉 + 屏心两档提亮。全部冷色、ΔL ≤4%、极低对比
- *（≈1.03–1.06:1）——只给冷紫灰底「有空气」的层次感，不抢珠子焦点（铁律 1）。
- * 仅在背景之上、其余一切之下（buildBeadsView 首位）。
- */
-function drawBackgroundLayers(builder: RenderModelBuilder): void {
-  // G2 冷沉层：全屏极淡压暗，破除「纯色无层次」。
-  builder.rect(0, 0, DESIGN_W, DESIGN_H, { fill: withAlpha(BG_DEPTH_HEX, BG_DEPTH_ALPHA) });
-  // G3/G4 中心提亮：两档同心圆角矩形叠层（外广内聚）。
-  builder.rect((DESIGN_W - BG_LIFT_RECT.w) / 2, (DESIGN_H - BG_LIFT_RECT.h) / 2, BG_LIFT_RECT.w, BG_LIFT_RECT.h, {
-    fill: withAlpha(BG_LIFT_HEX, BG_LIFT_RECT.alpha),
-    radius: BG_LIFT_RECT.radius,
-  });
-  builder.rect((DESIGN_W - BG_CORE_RECT.w) / 2, (DESIGN_H - BG_CORE_RECT.h) / 2, BG_CORE_RECT.w, BG_CORE_RECT.h, {
-    fill: withAlpha(BG_LIFT_HEX, BG_CORE_RECT.alpha),
-    radius: BG_CORE_RECT.radius,
-  });
-}
-
-/**
- * F2/F3 拼图容器板 + 暖光 band（§1.7）：B1–B3 同心暖晕（由外向内 α 0.04→0.06）
- * + B4 板投影 + B5 白板体。**全程态常驻**（含全空开局/中途态）——「中途态拼图无
- * 承载板」由本通道根治；暖晕只允许出现在拼图容器外缘（§3.5 暖光纪律）。
- *
- * 几何自快照派生（与 drawGrid 同源同帧）：bandOut = max(0, min(18, availV, availH))
- * clamp 不越 `PUZZLE_BAND`、不越屏；bandOut=0（近满带图案）时三环宽 0 不绘制。
- */
-function drawPuzzlePlate(
-  builder: RenderModelBuilder,
-  snap: BeadsSnapshot,
-  palette: BeadsPalette,
-): void {
-  const gridW = (snap.gridCols - 1) * snap.gridPitch + snap.gridCell;
-  const gridH = (snap.gridRows - 1) * snap.gridPitch + snap.gridCell;
-  const cx = snap.gridLeft + gridW / 2;
-  const cy = snap.gridTop - gridH / 2; // y 轴向上，gridTop 是顶
-
-  // B1–B3 暖光 band：由外向内三环，α 单调递增（roundRect 叠层模拟伪径向光）。
-  const plateW = gridW + PLATE_OUTSET * 2;
-  const plateH = gridH + PLATE_OUTSET * 2;
-  const availV = (PUZZLE_BAND.yMax - PUZZLE_BAND.yMin - plateH) / 2;
-  const availH = (DESIGN_W - plateW) / 2 - 6;
-  const bandOut = Math.max(0, Math.min(GLOW_BAND_OUT_MAX, availV, availH));
-  for (let i = 0; i < GLOW_BAND_ALPHAS.length; i++) {
-    const e = (bandOut * (GLOW_BAND_ALPHAS.length - i)) / GLOW_BAND_ALPHAS.length;
-    if (e <= 0) continue;
-    builder.rect(cx - plateW / 2 - e, cy - plateH / 2 - e, plateW + e * 2, plateH + e * 2, {
-      fill: withAlpha(GLOW_WARM_HEX, GLOW_BAND_ALPHAS[i]!),
-      radius: PLATE_RADIUS + e * GLOW_BAND_RADIUS_SCALE,
-    });
-  }
-
-  // B4 板投影（墨复用 BEAD_SHADOW_HEX，无模糊 ⇒ 偏移圆角矩形近似）。
-  builder.rect(cx - plateW / 2, cy - plateH / 2 - PLATE_SHADOW_DY, plateW, plateH, {
-    fill: withAlpha(BEAD_SHADOW_HEX, PLATE_SHADOW_ALPHA),
-    radius: PLATE_RADIUS,
-  });
-  // B5 板体：白板 + 1px panel_border（面板同族 token，板感语言统一）。
-  builder.rect(cx - plateW / 2, cy - plateH / 2, plateW, plateH, {
-    fill: palette.panel,
-    stroke: palette.panelBorder,
-    lineWidth: 1,
-    radius: PLATE_RADIUS,
-  });
-
-  // B5b 板体内凹层次（#4 · 静态质感增强，provisional）：内缩一圈淡色描边 + 上沿内阴影，
-  // 模拟托盘内陷（与珠体凸起形成 §1.9 凹凸对比）。⚠️ 观感值 `[待 art/playtest 校准]`，不新增层、不动冻结数值。
-  const inset = Math.max(4, Math.round(snap.gridPitch * 0.18));
-  builder.rect(cx - plateW / 2 + inset, cy - plateH / 2 + inset, plateW - inset * 2, plateH - inset * 2, {
-    stroke: withAlpha(BEAD_SHADOW_HEX, 0.08),
-    lineWidth: 2,
-    radius: Math.max(2, PLATE_RADIUS - inset),
-  });
-
-  // B6 完成贴纸：clear 面板可见时板体外扩白描边 + α0.10 投影（v1.2 贴纸感，叠于板体上、珠下）。
-  if (snap.clearPanelVisible) {
-    builder.rect(
-      cx - plateW / 2 - PLATE_STICKER_OUTSET,
-      cy - plateH / 2 - PLATE_STICKER_OUTSET,
-      plateW + PLATE_STICKER_OUTSET * 2,
-      plateH + PLATE_STICKER_OUTSET * 2,
-      { stroke: palette.panel, lineWidth: PLATE_STICKER_OUTSET, radius: PLATE_RADIUS + PLATE_STICKER_OUTSET },
-    );
-  }
-}
+// [WXG-T-256 · 用户 2026-10-05 拍板] F8 三层背景（§1.8）与 F2/F3 拼图容器板 + 暖光 band
+//（§1.7 B1–B6）**整块退役**：界面统一为单层底色（`palette.background`，由宿主铺满屏），
+// 盘面直接坐在底色上 ⇒ 「珠下」不再有随 `camZoom` 重算几何的图元，S5′-3 层序冲突随之消解
+//（裁定正本 = ADR-0030 §5.2 裁②′）。连带：B6 完成贴纸一并消失；`PLATE_*` / `GLOW_BAND_*` /
+// `BG_DEPTH_ALPHA` / `BG_LIFT_RECT` / `BG_CORE_RECT` 与 `BG_DEPTH_HEX` / `BG_LIFT_HEX` /
+// `GLOW_WARM_HEX` 同批退役（⛔ 不留空转常量）。
 
 function drawHud(
   builder: RenderModelBuilder,
@@ -881,6 +789,14 @@ function drawGrid(
   const sizeSmall = snap.beadSize === BEAD_SIZE_SMALL;
   const beadDrawInset = sizeSmall ? BEAD_DRAW_INSET_SMALL : BEAD_DRAW_INSET;
   /**
+   * `[WXG-T-254 / ADR-0030 S5′-2]` **L0 底 tile** 开关（盘面族专用；托盘槽 ⛔ 不传）。
+   *
+   * 命中时 `drawTargetTile` 一条 blit 同时承担 B0 与格面槽 ⇒ 本格**不再**调
+   * `drawEmptySocket`。档位与珠/槽**同一把尺**（`sizeSmall` ⇒ 无孔档），⛔ 不新增推导。
+   * 本框在循环外建一次（旧写法每格新建两个同形字面量 ⇒ 顺手收掉）。
+   */
+  const tileOpts: TargetTileOptions = { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle };
+  /**
    * 抬起量的等比因子（**盘面与托盘同一式**，T-244 十三批④）⇒ 理据与负面后果见
    * `selectLiftScale` 函数注（本行不再重列，⛔ 两处各写一遍就是本批要收掉的东西）。
    */
@@ -948,7 +864,12 @@ function drawGrid(
         //   ⇒ fixture 逐字节不变，无需重录 / 归因复评。
         // ⚠ 1043 的 filled 分支同样用 `bx`，**但不改** —— wrong 只在 `state === 'empty'` 可达
         //   （`placement.ts` 的 `mismatch` 判例 + 红环只画在 empty 分支）⇒ 那里 `dx` 恒 0。
-        drawTargetTile(builder, cx, cy, cell.colorIdx, inks, snap.gridPitch);
+        // [WXG-T-254] **wrong 抖动的本格不合并**：坑已住在底图里 ⇒ 吃不到 `dx` 就丢了这个部件。
+        // 合并后若把 tile 也推到 `bx`，就是 T-242 要修的「地皮在抖」（露 2px 白缝）⇒
+        // 该格（同屏最多 1 格、≤200ms）退回两条的旧路径，其余格照旧一条。
+        const tileMerged = drawTargetTile(
+          builder, cx, cy, cell.colorIdx, inks, snap.gridPitch, isWrong ? undefined : tileOpts,
+        );
         // 空格 = 在这张底图上**挖洞**（pit 内缩 + 暗缘 + 下受光）；自带的亮 `base` 外块
         // 由 `tilePainted = true` 跳过。旧注释里的“E4 幽灵符号”已随 WXG-T-130 降档移除。
         // 坑外廓按「同格有豆时的珠体绘制边长」退一圈（用户裁定：坑恒小于珠、有豆时看不到坑）
@@ -958,8 +879,9 @@ function drawGrid(
         // ⛔ `styleId` 必须与 `drawFilledBead` 同源（`snap.beadStyle`）：不传 ⇒ 恒用
         // `DEFAULT_BEAD_STYLE_ID` 的 mask，而**珠**用的是当前风格 ⇒ 换风格时「珠是新风格、槽是默认风格」
         // ⇒ 又一次「有珠 / 无珠不是一张图」。默认档下两者同值 ⇒ 本条对封箱**零影响**（可证）。
-        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset,
-          { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle });
+        if (!tileMerged) {
+          drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
+        }
         // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
         if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
           drawStateRing(builder, bx, cy, snap.gridCell, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
@@ -1119,7 +1041,7 @@ function drawGrid(
       // B0 连续目标色底图：与 empty 分支同图元同色档 ⇒ 整片谜面一张图（v1.5-r8）。
       // ⛔ 锁格心、不吃 lift / scale / pop 包络（§1.6.1 P0 陷阱 #2）。
       // 边长同上：= 缩放后格距，与 `opts.size`（`snap.gridCell`）同尺（ADR-0020 甲案）。
-      drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch);
+      const tileMergedFilled = drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch, tileOpts);
       // §5 分离影（仅选中组）：珠抬起来 ⇒ 影留在格面。默认皮肤 `facet-4` 无阴影层，
       // 本层是盘面**唯一**随高度变化的通道（= 斜俯视的立体感载体）。函数内注释含口径。
       if (groupLift > 0) {
@@ -1147,10 +1069,11 @@ function drawGrid(
       // 而非 `grid-hole-tint-128-mask.png` 的 **0.698**（规格判据 I-5/I-6 要求 0.70）
       // ⇒ **珠孔内露出 0.56 而不是 B0 的 0.70**（实测 (120,57,80) vs (150,71,99)）
       // ⇒ 这正是「有珠 / 无珠的格底不是一张图」的**根因**：空格走 mask、有珠格走矢量。
-      drawEmptySocket(
-        builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset,
-        { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle },
-      );
+      // [WXG-T-254] 底 tile 命中 ⇒ 槽已在图里 ⇒ 跳过本调用（⛔ 与空格分支共用 `tileOpts`，
+      // 上面那段「两分支同参」的约束由同一个对象字面量结构性保证，不再靠两处抄写）。
+      if (!tileMergedFilled) {
+        drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
+      }
       if (groupLift > 0) {
         // [WXG-T-236 定标 · 用户裁「抬起态要影」+ 选型 C-3，后续裁「影跟珠轮廓」] 珠底投影。
         // ⛔ 绘制序钉死：**坑底之后、珠之前** —— 在坑底后 ⇒ 影压在内阴影阶梯与 S4 受光亮线之上（物理正确）；
@@ -1277,7 +1200,11 @@ function groupLandStep(snap: BeadsSnapshot, row: number, col: number): number {
 }
 
 
-/** 「微拱白瓷」三段内阴影（§1.3 v1.5；几何/α = `tuning.TRAY_PLATE`）。 */
+/** 「微拱白瓷」三段内阴影（§1.3 v1.5；几何/α = `tuning.TRAY_PLATE`）。
+ *
+ * ⚠ 三条线跟面板底一起打 `back`（末位参）⇒ 走 blit 载体之下；否则在 Cocos 宿主上
+ * 会作为 `Graphics` 图元画到托盘珠面上（面板底与内阴影都是「桌面」，不是「overlay」）。
+ */
 function drawTrayPlateShading(
   builder: RenderModelBuilder,
   x: number,
@@ -1287,11 +1214,11 @@ function drawTrayPlateShading(
 ): void {
   const ink = TRAY_PLATE.ink;
   // 底缘外段（α 0.03）。
-  builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width);
+  builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, true);
   // 底缘内段（α 0.05）。
-  builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width);
+  builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width, undefined, true);
   // 右缘段（α 0.02）。
-  builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width);
+  builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width, undefined, true);
 }
 /**
  * **抬起等比因子的唯一算式**（盘面 `drawGrid` / 托盘 `drawTray` 共用，T-244 十三批 ③④）。
@@ -1363,6 +1290,10 @@ function drawTray(
   builder.rect(lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, {
     fill: palette.panel,
     radius: 18,
+    // [S5′-4 · 2026-10-05] 面板底 = **桌面** ⇒ 走 `back` 通道（Cocos 路由到 blit 之下的
+    // `backGraphics`；canvas2d 本来就按命令序先铺底再画珠 ⇒ 无副作用）。
+    // ⛔ 不打本标的代价：托盘槽/珠进 sprite 后被自家面板底整块盖掉（只剩接触影）。
+    back: true,
   });
   // 「微拱白瓷」三段内阴影（§1.3 v1.5，WXG-T-131/143）：底缘两段 + 右缘一段 ——
   // 平面板的轻体积感；α 极低（0.03/0.05/0.02），不与满槽告警危险描边竞争。
@@ -1425,6 +1356,7 @@ function drawTray(
     //   此前不画槽 ⇒ 珠四周什么都没有（读作浮在面板上）；现在静息也见坑沿（珠「坐进」坑里），
     //   抬起时珠从坑里升起 ⇒ 两种状态语言一致。
     // [T-244 十四批 · 用户报「托盘珠发白」· 实测孔心 托盘 (172,172,175) vs 盘面 (142,37,34)]
+    // **[已推翻 → 2026-10-05 新裁定，见本块下方]** 【以下三条为当时理据，原文照录】
     // **有珠的槽必须带色**。tint 臂的珠孔是**真透**（mask ⌀12 alpha ⇒ 透出下层格面 blit，
     // 实测孔心 = 下层基色 × 0.70）⇒ 这里 `colorIdx` 传 `undefined` 时 socket 落 `palette.slot`
     // （#F7F6FB 近白）⇒ 托盘珠的孔读作「贴在珠面上的浅灰贴纸」，而盘面珠透的是**目标色**格底（深）
@@ -1433,8 +1365,15 @@ function drawTray(
     // ⇒ 口径 = 矢量臂契约的同一回落：**托盘没有目标色 ⇒ 用珠自己的颜色**。
     // ⚠ **空槽不受本批影响**（上方 `state === 'free'` 分支恒 `undefined` = 中性）⇒ v6.0
     //   「托盘保持中性收纳区读感」的裁定不动，本批改的只是**有珠处透出什么色**。
+    // [T-244 十四批 · 2026-10-04] 曾把 `slot.colorIdx` 传下来 ⇒ 格底 = 珠色，修的是「托盘珠孔发白」。
+    // [用户 2026-10-05 裁定「格子底色和托盘底色一样，取托盘颜色」]**格底回中性** `palette.slot`
+    // ⇒ 有珠槽与 22 个空槽**同一张图**（珠四周不再是一块珠色方片）。
+    // ⚠ 十四批的病灶并未被撤销：tint 臂的珠孔**真透**（孔色 = 下层基色 × 0.70），格底回中性
+    //   就会透出近白 ⇒ 本批改由**珠自己补 live 孔**承担（下方 `drawFilledBead` 的 `liveHole: true`，
+    //   尺与墨 = 烘焙臂同一条 `drawLiveHole`）。矢量臂不需补（风格层集自画实色孔底）。
+    // ⛔ 一张格面 tile 只有**一个**基色 ⇒ 环与孔共用；要两者异色得扩 mask 合成（已登记，未开批）。
     drawEmptySocket(
-      builder, cx, cy, palette, TRAY_SLOT, slot.colorIdx, inks, false, BEAD_DRAW_INSET,
+      builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
       { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
     );
     // [WXG-T-242 · 2026-10-04 用户裁「阴影要加深、凸显被选中的效果」] 托盘**补分离影**。
@@ -1497,6 +1436,12 @@ function drawTray(
       // EP11-S5 作用域：托盘珠**随风格**（与盘面珠同一层集）但**不随豆径档**
       // （恒满幅、恒有孔）⇒ 不传 `hideHole`、不传小豆档 inset（assets-spec §7.11）。
       maskGauge: 'holed',
+      // [S5′-4 · 2026-10-05] 托盘面板底已改走 `back` 图元（blit 之下）⇒ 托盘珠不再需要排他标，
+      // 与盘面同走纹理臂；`trayZone` 只剩「槽放宽 `colorIdx`」一个职责（见 `drawEmptySocket`）。
+      // [用户 2026-10-05] 格底回中性 ⇒ tint 臂的真透孔需由珠自己补孔底（与**烘焙臂**同一算式）。
+      // ⛔ 只托盘传；盘面珠不传 ⇒ 逐字节不变。
+      liveHole: true,
+      // 与盘面同走纹理臂；`trayZone` 只剩「槽放宽 `colorIdx`」一个职责（见 `drawEmptySocket`）。
       lift: lift + tlDrop,
       liftX,
       scale: tlScale,

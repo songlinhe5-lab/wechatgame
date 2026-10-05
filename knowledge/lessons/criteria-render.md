@@ -42,3 +42,39 @@
   ② ⚠ **dpr 越高不等于越明显**（与直觉相反）：dpr 3 未检出，dpr 1/2 的 `zoom 1.0` 反而检出 ⇒ 白线是**窄窗口现象**。⚠ 顺带纠一处**我自己写错的推论**：外扩量在**设计域**，重叠的**设备**像素 = `zoom × dpr`（不是「dpr ≥ 1 ⇒ 恒 ≥ 1 设备px」）。
   ⛔ 残留边界：以上若为 harness/Chromium 口径，则 **iOS Safari 的 AA 规则一致性未证**（Canvas2D 光栅化跨引擎无强规范）。
   判例引用：`games/beads/src/config/tuning.ts::TILE_BLEED`（含完整剖面、取值依据与判例）、`games/beads/src/view/bead-render.ts::drawTargetTile`、`games/beads/tests/view-model.test.ts`（宽度过滤器 + 「恰好重叠 1px」腿）、`games/beads/tests/__fixtures__/wxg-t-211-s3-seal.json`（`provenance.s3_frame_recheck_7` = 第七次复评归因，含两臂对照实测）；同族 K-051（纸面推论须实测复算——本例「看着别扭」直到剖面才落成量化）、K-060（筛出 0 条的空断言是伪绿）、K-040（判据变更归因）、K-092（定点复现参数是定位相位类问题的前提）。
+
+- **[判据渲染][K-102] 给渲染链加「跳帧」类优化时，落点选在回调时机而不是返回值形状；形状一变就击穿整帧封箱基线，而跳帧带来的宿主契约变化必须同批登记**（来源 WXG-T-248 / ADR-0030 §5.0.2，2026-10-05）
+  现象：要做「内容没变就不重画」。候选落点有三：① 游戏侧声明 revision；② 把指纹塞进 `RenderModel` 返回对象；③ 在 `App._render` 跳过 `onRender`。其二是陷阱：
+  `RenderModel` 多一个字段 ⇒ `wxg-t-211-s3-seal.json` 这类以 `JSON.stringify` 为口径的**整帧封箱基线当场漂移**，必须走 QA 复评才能接着跑。
+  根因：封箱基线钉的是「输出形状」，而门控真正需要的是「是否递送」——两者本可正交；把判据塞进数据面是把零成本改动变成了基线换代。
+  规避：① 跳帧只做在**调用/回调层**（适配器不持跨帧状态，失效口集中一处）；② 跳帧 = **宿主契约变化**（`onRender` 不再是逐帧钩子 ⇒ 不得在里推状态、不得依赖 `alpha` 每帧变），
+  必须同批登进控制清单正本并把警示写进接口 jsdoc，⛔ 不得当「内部优化」静默上；③ 失效面要逐项列举而不是只靠指纹：初始化 / 回前台（`onShow`）/ `resize()`（设计尺寸不变但表面已换）/
+  开关由关翻开——用 `NaN` 哨兵（永不自等 ⇒ 必重画）一处表达「强制脏」，比较路径零分支；④ **不可靠哈希的帧宁多画不漏画**：本例 `blit` 的 `fx` 袋无固定可哈希口径
+  ⇒ 掺一个每帧自增的 `_frameSeq` 使含 blit 帧恒判脏，并用 `ponytail:` 注释登记上限与升级路径；⑤ 内容指纹要按**插入序**混字段而非按键名 switch（新增字段自动纳入，无维护欠账），
+  但**顶点/缓冲类旁路数据必须另走**（命令里只有 `offset/count`，不混旁路就是伪绿判据）；量化粒度（1/64 设计px）要写成**契约**而非精度注脚。
+  追记（2026-10-05 WXG-T-249・**本条 ④ 的「损失小」理由已被实测推翻**）：当时给含 blit 帧判脏写的上限理由是「它们的每帧成本在上传不在命令重放 ⇒ 损失小」；
+  分层上界实测证明：非珠层每帧仍付 **13 dc + ≈0.9 ms CPU + 1.3–1.8 ms GPU**，而取证面两档 `drawn` 全部 **150/150**（`chg` 只 3–4）⇒ **含 blit 的载体完全吃不到跳帧收益**。
+  ⇒ 做法升级：`ponytail:` 上限必须同时写清「损失小」的**可验前提**；一旦实测拿到相反数，**先改注释理由再回写 ADR**，并把该项从「延后」升格为**采纳门禁的硬前置**（⛔ 不得只加一条新注释而不修正旧理由）。
+  追记二（同日 WXG-T-250・**上限已换档**）：`fx` 本就属 JSON 安全的封闭联合（`string | number | boolean | readonly number[]`）且构造方钉住键序
+  ⇒ 「无固定可哈希口径」不成立，字段遍历改成**一个递归 mixVal** 即可（⛔ 不需要键名白名单），`_frameSeq` 整体删除。
+  ⇒ 可复用的判据：**保守出口（恒判脏）往往是「没查值域」而非「查了做不到」**；动手前先读值域定义与它的键序约定。
+  新上限随之换位置：指纹计纹理**引用**（`textureId`）不计像素 ⇒ 就地重烘同 id 纹理对门控隐形；登记时必同时列出**为何今日安全**（内容入 key）与**何时失效**（出现就地重烘的生产者）。
+  判例引用：`packages/framework/src/core/render/render-model.ts::signature`、`packages/framework/src/compose/app.ts::_render`/`dirtyGate`、
+  `docs/architecture/control-manifest.md §8`、`production/qa/beads/evidence/carrier-bench/gate-ab*/`；同族 K-082（封箱基线只归因不代改）、K-084（冻结量换源需同批登记复评）、K-100（先量脏帧再比载体）。
+
+- **[判据渲染][K-117] tint mask 的透明度不在 A 通道：像素审计必须逐通道，「哪张是权威资产」用重跑生成器比 md5 判定**（来源 WXG-T-257 / WXG-T-258，2026-10-05）
+  现象：用户问「这张 mask 是透明底吗」。PIL 采样 8 个点全部 `(178,0,255,255)` ⇒ 我据此答「整张均匀不透明」；
+  而真正的结构（斜面环 / 格底 / 格外）与「用户看到的那张红底图」的差别**全在 B 通道**，A 恒 255。
+  根因：本仓 tint mask 编码 = `R=d`（暗系数）/ `G=l`（高光）/ **`B=shape`（真透在此）** / `A=255 满幅免疫 Cocos Trim`
+  ⇒ **任何按 A 通道的检查（alpha 统计、`getbbox`、红底预览肉眼判）都会得出错误结论**；shader 与 CPU 合成两侧都是
+  `alpha = shape`（`out = fx.base·d + (1−fx.base)·l`；【WXG-T-259】旧 CPU 式多乘一次 `shape`，已按 GPU 口径去掉）。
+  另一层根因：harness 经 `/mask-assets/` 只读映射吃
+  `tools/mask-preview/cocos-assets/`（定稿正本），Cocos 吃 `cocos/assets/textures/`（手抄件）⇒ **两端不同源**，
+  于是「harness 效果 ok、真机/另一档缺底色」这类分裂可以长期存在而不被任何测试抓到。
+  规避/做法：① 审计 mask **一律逐通道列「唯一值 + 计数」**，不看合成色、不采样几点下结论；
+  ② 判权威资产 ⛔ 不比 mtime、不比 git 状态，而是**把生成器拷到 temp 重跑**（jsfxr 式确定性）比 md5 ——
+  与定稿目录逐字节相等者即正本，不等者即漂移；③ 「两端同源」要**进门禁**（等值腿，无产物也跑），
+  否则修完这次下次还会漂；④ 透明度这类**像素级属性**的语义变更，必须同时写**像素断言**（真函数直调 + 统计），
+  静态口径门不算证据。
+  判例引用：`tools/mask-preview/export-cocos-textures.py` 头注、`tools/scripts/check-cocos-mask.mjs`（定稿等值腿）、
+  `packages/framework/src/core/bake/{tint-composite,mask-tile}.ts`；同族 K-047（写方读方不同源 ⇒ 假绿与自毁并存）、K-089（守卫能不能红）。

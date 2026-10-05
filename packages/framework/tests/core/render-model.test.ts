@@ -226,6 +226,21 @@ describe('RenderModelBuilder', () => {
     ]);
   });
 
+  // ── WXG-T-256 / ADR-0030 S5′-4：**底图通道**（`back`）──────────────────────
+
+  it('back 只落在显式声明的 rect/line 上；缺省不落键（seal / signature 零漂移）', () => {
+    const b = new RenderModelBuilder(10, 10);
+    b.begin();
+    b.rect(0, 0, 1, 1, { fill: '#fff', back: true });
+    b.line(0, 0, 1, 1, '#fff', 1, undefined, true);
+    b.rect(0, 0, 1, 1, { fill: '#fff' });
+    b.line(0, 0, 1, 1, '#fff', 1);
+    const cmds = b.end().commands as unknown as ReadonlyArray<Record<string, unknown>>;
+    expect([cmds[0]!.back, cmds[1]!.back]).toEqual([true, true]);
+    expect('back' in cmds[2]!, '⛔ 不传就不落键（`JSON.stringify` 多一字节 = 封箱基准改漂）').toBe(false);
+    expect('back' in cmds[3]!, 'line 同理').toBe(false);
+  });
+
   // ── WXG-T-132 / ADR-0014：全局变换通道 ──────────────────────────────
 
   it('emits no transform field by default (identity frames stay byte-old)', () => {
@@ -264,5 +279,87 @@ describe('RenderModelBuilder', () => {
     b.setTransform(1.015, 5, 5);
     const t = b.end().transform!;
     expect(Object.isFrozen(t)).toBe(true);
+  });
+});
+
+// 脏帧门控的内容指纹（WXG-T-248 / ADR-0030 §5.0.2）——App 侧「同则不重画」的
+// 判据完全取决于下面这六条，逐条钉住契约与量化上限。
+describe('RenderModelBuilder.signature', () => {
+  /** 建一帧并取指纹（与 App._render 同序：begin → 填 → end → signature）。 */
+  const sigOf = (b: RenderModelBuilder, fill: () => void): number => {
+    b.begin();
+    fill();
+    b.end();
+    return b.signature();
+  };
+
+  it('同内容逐帧重建 ⇒ 指纹相同（门控的前提）', () => {
+    const b = new RenderModelBuilder(750, 1334);
+    const fill = (): void => {
+      b.setBackground('#123456');
+      b.circle(10, 20, 5, { fill: '#fff', alpha: 0.5 });
+      b.polygon3(0, 0, 4, 0, 0, 3, { fill: '#abc' });
+    };
+    const first = sigOf(b, fill);
+    expect(sigOf(b, fill)).toBe(first);
+    expect(sigOf(b, fill)).toBe(first);
+  });
+
+  it('几何 / 墨 / 背景 / 变换任一改变 ⇒ 指纹改变', () => {
+    const b = new RenderModelBuilder(750, 1334);
+    const base = sigOf(b, () => {
+      b.rect(0, 0, 10, 10, { fill: '#fff' });
+    });
+    expect(sigOf(b, () => b.rect(1, 0, 10, 10, { fill: '#fff' }))).not.toBe(base);
+    expect(sigOf(b, () => b.rect(0, 0, 10, 10, { fill: '#eee' }))).not.toBe(base);
+    expect(sigOf(b, () => {
+      b.setBackground('#000');
+      b.rect(0, 0, 10, 10, { fill: '#fff' });
+    })).not.toBe(base);
+    expect(sigOf(b, () => {
+      b.setTransform(1.02, 5, 5);
+      b.rect(0, 0, 10, 10, { fill: '#fff' });
+    })).not.toBe(base);
+  });
+
+  it('顶点改变但 offset/count 不变也算脏（arena 入哈希）', () => {
+    const b = new RenderModelBuilder(100, 100);
+    const a = sigOf(b, () => b.polygon([0, 0, 4, 0, 0, 3], { fill: '#fff' }));
+    const c = sigOf(b, () => b.polygon([0, 0, 4, 0, 0, 9], { fill: '#fff' }));
+    expect(c).not.toBe(a);
+  });
+
+  it('亚像素（< 1/64 设计px）变化按设计视为相同——分数间距不逐帧重画', () => {
+    const b = new RenderModelBuilder(100, 100);
+    const a = sigOf(b, () => b.rect(0, 0, 10, 10, { fill: '#fff' }));
+    const c = sigOf(b, () => b.rect(0.01, 0, 10, 10, { fill: '#fff' }));
+    expect(c).toBe(a);
+    expect(sigOf(b, () => b.rect(0.2, 0, 10, 10, { fill: '#fff' }))).not.toBe(a);
+  });
+
+  it('命令数相同但逐值不同 ⇒ 不同（不因长度相等而漏判）', () => {
+    const b = new RenderModelBuilder(100, 100);
+    const a = sigOf(b, () => {
+      b.rect(0, 0, 10, 10, { fill: '#fff' });
+      b.rect(20, 0, 10, 10, { fill: '#000' });
+    });
+    const c = sigOf(b, () => {
+      b.rect(0, 0, 10, 10, { fill: '#000' });
+      b.rect(20, 0, 10, 10, { fill: '#fff' });
+    });
+    expect(c).not.toBe(a);
+  });
+
+  // `[WXG-T-250 / ADR-0030 §5.0.3]` 上限换档：`fx` 逐键入哈希 ⇒ blit 帧不再「恒判脏」。
+  // 下面四条分别钉住：门控前提 / 错色漏画 / 数组载荷 / 有无 fx。
+  it('blit 帧可判干净：同内容同指纹，fx（含数组载荷）变则脏', () => {
+    const b = new RenderModelBuilder(100, 100);
+    const sig = (fx?: Record<string, string | number | boolean | readonly number[]>): number =>
+      sigOf(b, () => { b.blit('tex', 0, 0, 10, 10, fx === undefined ? {} : { fx }); });
+    const base = sig({ base: '#fff' });
+    expect(sig({ base: '#fff' })).toBe(base);
+    expect(sig({ base: '#eee' })).not.toBe(base);
+    expect(sig({ base: '#fff', matrix: [1, 2] })).not.toBe(sig({ base: '#fff', matrix: [1, 3] }));
+    expect(sig()).not.toBe(base);
   });
 });

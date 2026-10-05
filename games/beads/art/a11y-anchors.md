@@ -15,7 +15,7 @@
 | A2b | ⚠️ | `-` | v1.5 降档登记行（E4 移除，Basic 通道收窄）——无「落地」声称可检 |
 | A3 | ⚠️ | `luminance` | 部分降级行：锚点 = 明度计算函数（`view/palette.ts`，6 档量化底座） |
 | A4 | ✅ | `drawPowerupGlyph` | 3 道具形状互异图标（`view/view-model.ts`，不靠颜色） |
-| A5 | ✅ | `glow_warm` | 暖光 band 低饱和色（`view/palette.ts`，层次不破坏三重编码） |
+| A5 | ⚠️ | `FILL_POP_SCALE_TROUGH` | **`[WXG-T-256]` 层次段退役 ⇒ 状态降档（✅ → ⚠️）**：原锚 `glow_warm`（暖光 band）与容器板／三层背景同批整块删除 ⇒ 判据对象不再存在（底色现由宿主单层铺屏，珠下零图元，ΔL 判据自动满足）。本行剩余可检面 = **动效几何核算通道**（G1 落座 scale 谷值常量，`config/tuning.ts`）；矩阵行文字保留作历史时点记录。⛔ 不保留已退役锚点 |
 | A6 | ✅ | `hintAlpha` | 动画不承载独占信息：hint 呼吸在 reduceMotion 下退**静态**描边仍有信息（`view/view-model.ts`） |
 | B1 | ✅ | `#2A2E43` | `text_primary` 值锚（`view/palette.ts:71`，对比度 ≥4.5:1 的底色对） |
 | B2 | ⛔ | `-` | **`[v1.5-r8]` 判据作废**：符号层已删 ⇒ 「符号对珠面 ≥3:1」不再有任何实现对象（`symbolInk` / `SYMBOL_INK_*` 一并删除）。不得复活为死常量 |

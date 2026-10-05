@@ -26,6 +26,15 @@
 >
 > **⇒ 阻塞面已从「无编辑器」收窄为「无微信开发者工具 + 无 AppID」。** 依赖编辑器产物的工作不再受阻；
 > 依赖**真机**的工作（G8 平台层、R4 性能、§8-9 DevTools 帧检）仍然受阻。
+>
+> **⚠ 2026-10-05 复核更正（本表上方是 2026-09-14 快照，不得当现状读）**：
+> ① **微信开发者工具已安装** = `/Applications/wechatwebdevtools.app`（CLI 在 `Contents/MacOS/cli`；
+>   `~/Library/Application Support/微信开发者工具` mtime = 2026-10-04 23:55）；
+> ② **AppID 在仓**：根 `project.config.json` = `wx63c62151a1c0cf3b`，Cocos 构建档 = `wx8cf9f756e5390749`；
+> ③ beads `wechatgame` 产物 **2026-10-04 23:54 刚构建**（`games/beads/cocos/build/wechatgame`，`check:size` 实测 2866.8 KB / 32 文件）。
+> ⇒ **「无法上真机」这条阻塞已不成立**，`[R]` 腿可跑。**教训**：本表的日期是**快照日**而非复核日，
+> 下游 ADR/测量单直接引用会把它当成永久事实（实际发生：`ADR-0029 §0` 与 `ADR-0030` 初稿的 F-11 据它把真机腿判为不可跑）
+> ⇒ **引用本表前先按 `ls /Applications` + `git log -1 --date=iso` 核一次产物时间**。
 
 ---
 

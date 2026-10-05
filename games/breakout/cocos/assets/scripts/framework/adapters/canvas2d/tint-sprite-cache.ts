@@ -19,11 +19,17 @@
  *
  * 用 `tint`（颜色串）而**不是** `colorIdx` 入键：本缓存在 adapter 层，只拿到 blit 上的
  * `tint` 字段（`core/bake/bake-key.ts` 的 `deriveKey` 语义 ⛔ 不动，避免污染烘焙键纪律）。
+ *
+ * ## `[WXG-T-254]` 底 tile 形态
+ *
+ * `maskId` 以 `__tile` 结尾 ⇒ 像素取自去后缀的源 mask，再走 `composeMaskTile` 把格面内容
+ * 居中、外圈铺边缘色（画布给到格距 + 出血，⛔ 内容不跟着放大）。口径与动因见 `core/bake/mask-tile.ts`。
  */
 
 import { compositeTintMask, parseTintColor } from '../../core/bake/tint-composite';
 import { estimateTextureSize, DEFAULT_BAKE_BUDGET_BYTES, BakeCacheCounters } from '../../core/bake/bake-budget';
 import { MASK_CANONICAL_SIZE } from '../../core/bake/mask-spec';
+import { composeMaskTile, isMaskTileId, maskTileSourceId } from '../../core/bake/mask-tile';
 
 /** 最小离屏 canvas 子集（结构化类型 ⇒ `OffscreenCanvas` / DOM canvas / wx canvas 均满足）。 */
 export interface TintCanvasLike {
@@ -92,6 +98,14 @@ export interface TintSpriteCacheOptions {
     readonly size?: number;
     /** 最多缓存几张 mask 的像素（白名单只 4 张；超限清空重来，最省事且无泄漏）。 */
     readonly maxMasks?: number;
+    /**
+     * `[WXG-T-254]` **底 tile 形态**（id 以 `__tile` 结尾）画布里格面内容占的像素边长。
+     *
+     * 由宿主用 `maskTileInnerPx(格距 + 2×出血)` 算 ⇒ 游戏几何常量只有一处真源。
+     * ⚠ **未配 ⇒ tile id 一律视为不可用**（返回 `undefined`）：宁可让视图层的守卫不命中
+     * 而落矢量臂，也不要「B0 已跳过、tile 又烘成拉伸版」这种半吊子画面。
+     */
+    readonly tileInnerPx?: number;
 }
 
 interface MaskEntry {
@@ -153,6 +167,7 @@ export class TintSpriteCache {
     private readonly _createImageData: (w: number, h: number) => TintImageDataLike;
     private readonly _flipY: boolean;
     private readonly _size: number;
+    private readonly _tileInnerPx: number | undefined;
     private readonly _maxMasks: number;
     private readonly _budgetBytes: number;
 
@@ -183,6 +198,7 @@ export class TintSpriteCache {
         this._createImageData = options.createImageData;
         this._flipY = options.flipY;
         this._size = options.size ?? MASK_CANONICAL_SIZE;
+        this._tileInnerPx = options.tileInnerPx;
         this._maxMasks = options.maxMasks ?? DEFAULT_MAX_MASKS;
         this._budgetBytes = options.budgetBytes ?? DEFAULT_BAKE_BUDGET_BYTES;
     }
@@ -287,6 +303,17 @@ export class TintSpriteCache {
         const cached = this._maskPixels.get(maskId);
         if (cached !== undefined) return cached;
 
+        // 「底 tile」形态（`mask-tile.ts`）：吃**源 mask 的像素** + CPU 双线性居中，⛔ 不去
+        // 注册表要一张不存在的资产，也 ⛔ 不用宿主 `drawImage` 缩放（采样核随宿主变 ⇒ 两端字节不等）。
+        if (isMaskTileId(maskId)) {
+            if (this._tileInnerPx === undefined) return undefined;
+            const srcEntry = this._maskPixelsOf(maskTileSourceId(maskId));
+            if (srcEntry === undefined) return undefined;
+            const padded = new Uint8ClampedArray(srcEntry.pixels.length);
+            composeMaskTile(padded, srcEntry.pixels, this._size, this._tileInnerPx);
+            return this._storeMask(maskId, padded);
+        }
+
         const source = this._masks.get(maskId);
         if (source === undefined) return undefined;
         const scratch = this._factory.createCanvas(this._size, this._size);
@@ -299,10 +326,14 @@ export class TintSpriteCache {
         // 共享/复用缓冲，原地翻会**污染宿主的数据**（真浏览器每次新分配 ⇒ 不触发；
         // 测试与 wx 宿主不一定）。4 张 mask × 64 KiB 的拷贝代价可忽略。
         const pixels = this._flipY ? flipRows(new Uint8ClampedArray(raw), this._size, this._size) : raw;
+        return this._storeMask(maskId, pixels);
+    }
 
+    /** 入像素缓存（含超限清空）；tile 形态与源 mask 共用一条路径。 */
+    private _storeMask(maskId: string, pixels: Uint8ClampedArray): MaskEntry {
         const entry: MaskEntry = { pixels, sizeBytes: estimateTextureSize(this._size, this._size) };
         if (this._maskPixels.size >= this._maxMasks) {
-            // mask 张数是白名单常量级（4）；超限直接清空重来（最省事、无逐出顺序要维护）
+            // mask 张数是白名单常量级（4 源 + 2 tile）；超限直接清空重来（最省事、无逐出顺序要维护）
             this._dropAllMasks();
         }
         this._maskPixels.set(maskId, entry);

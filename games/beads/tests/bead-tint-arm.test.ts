@@ -13,15 +13,16 @@ import { RenderModelBuilder, MASK_CANONICAL_SIZE, tintFxBase, type BlitCommand }
 import {
     drawEmptySocket,
     drawFilledBead,
+    drawTargetTile,
     setBeadBakeRuntime,
     setBeadTintRuntime,
     getBeadTintRuntime,
     createWhitelistBeadTintRuntime,
     type BeadTintRuntime,
 } from '../src/view/bead-render.js';
-import { tintMaskId, tintUpscaleAllowed, whitelistedTintStyles, TINT_MASK_STYLE_ID } from '../src/view/bead-tint-mask.js';
-import { BEAD_CARD, BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, BAKE_CANONICAL_SIZE, TINT_LOD_MAX_UPSCALE } from '../src/config/tuning.js';
-import { beadColorOf, DEFAULT_PALETTE, DEMO_BEAD_INKS, type BeadsPalette } from '../src/view/palette.js';
+import { tintMaskId, tintUpscaleAllowed, whitelistedTintStyles, TINT_MASK_STYLE_ID, resolveTintGauge, requiredTintMaskIds, tintTileMaskId } from '../src/view/bead-tint-mask.js';
+import { BEAD_CARD, BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, BAKE_CANONICAL_SIZE, TILE_BLEED, TINT_LOD_MAX_UPSCALE, TRAY_SLOT } from '../src/config/tuning.js';
+import { beadColorOf, DEFAULT_PALETTE, DEMO_BEAD_INKS, endpointOf, type BeadsPalette } from '../src/view/palette.js';
 
 /** 记录调用的 tint 运行时桩（白名单可开关）。 */
 function stubTintRuntime(opts: { hit: boolean } = { hit: true }): {
@@ -105,26 +106,32 @@ describe('drawEmptySocket · tint 臂命中条件（八轮：maskGauge 漏传 = 
     });
 });
 
-// ── [WXG-T-237 v4.0] `trayZone` 的**反向守卫** ────────────────────────────
+// ── [WXG-T-237 v4.0 · S5′-4 恢复] `trayZone` 的**方向守卫** ────────────────────
 //
-// 放宽后的命中条件 = `colorIdx !== undefined || options.trayZone === true`。
-// ⛔ **风险**：若有人把条件改成「无条件放行」（或把 `trayZone` 误传到盘面格），
-//    **盘面格在缺 `colorIdx` 时会误命中托盘分支** ⇒ 用**中性色**渲染 ⇒ 静默错色。
-// ⇒ 两条腿：① 托盘空槽（`colorIdx` 缺 + `trayZone`）必命中；② **盘面格缺 `colorIdx` 且无
-//    `trayZone` ⇒ 必不命中**（把误命中钉死）。
-describe('trayZone 反向守卫（WXG-T-237 v4.0）', () => {
-    it('① 托盘空槽：colorIdx 缺 + trayZone ⇒ 必命中 cell mask，且只发 1 条 blit', () => {
+// 沿革（留档，别再翻烧饼）：
+// · **v4.0**：`trayZone === true` **放宽** `colorIdx` ⇒ 托盘空槽（无 per-cell 目标色）也能进 tint 臂。
+// · **S5′-3 后置批**：在 Cocos 构建产物里实测否掉了它——blit 载体只有一层 sprite、整层压在
+//   `Graphics` 之下，而托盘白瓷面板底在 `Graphics` 里 ⇒ 探针 `cell(6,0) n=24` 确实发了 blit
+//   却被自家面板盖掉（用户报「托盘只剩两排灰色月牙」= 珠的接触影）⇒ 当时把托盘收回矢量。
+// · **S5′-4（本批）**：面板底 + 白瓷内阴影改打 `back` 图元，Cocos adapter 把它们路由到 blit 之下的
+//   `backGraphics` ⇒ 两道排他门已拆，托盘与盘面**同一套图元语言**（换风格时托盘跟随 `beadStyle`）。
+//
+// 四条腿：① 托盘槽缺 `colorIdx` 但带 trayZone ⇒ **必命中**（放宽在）；② 盘面格缺 `colorIdx`
+// 且无 trayZone ⇒ 必不命中（防误用中性色）；③ 盘面格带 `colorIdx` ⇒ 必命中；
+// ④ 托盘珠 ⇒ **必命中**（方向与 S5′-3 那批相反：当年它只能留在矢量）。
+describe('trayZone 方向守卫（S5′-4：面板底走 back ⇒ 托盘区与盘面同臂）', () => {
+    it('① 托盘槽缺 colorIdx + trayZone ⇒ 必命中（base 落中性 `palette.slot`）', () => {
         const { runtime, calls } = stubTintRuntime();
         setBeadTintRuntime(runtime);
         const cmds = build((b) =>
             drawEmptySocket(b, 100, 100, palette, BEAD_CELL, undefined, DEMO_BEAD_INKS, false, BEAD_DRAW_INSET,
                 { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, trayZone: true }),
         ).commands;
-        expect(calls, '托盘空槽须命中').toEqual([
+        expect(calls, '⛔ 托盘槽不得再被排他（面板底已在 blit 之下，不会再被盖）').toEqual([
             { kind: 'cell', gauge: 'holed', styleId: TINT_MASK_STYLE_ID },
         ]);
         expect(cmds.filter((c) => c.kind === 'blit').length, '恰好 1 条 blit').toBe(1);
-        expect(cmds.filter((c) => c.kind === 'rect').length, '⛔ 命中后不得再发矢量内阴影 rect').toBe(0);
+        expect(cmds.filter((c) => c.kind === 'rect').length, '⛔ 命中 tint 臂后不得再发矢量内阴影 rect').toBe(0);
     });
 
     it('② ⛔ 盘面格缺 colorIdx 且无 trayZone ⇒ 必不命中（防误用中性色渲染盘面槽）', () => {
@@ -137,6 +144,63 @@ describe('trayZone 反向守卫（WXG-T-237 v4.0）', () => {
         );
         expect(calls, '⛔ 缺 trayZone ⇒ 必不命中（否则盘面槽会被中性色误渲染）').toEqual([]);
     });
+
+    it('③ 盘面格带 colorIdx 且无 trayZone ⇒ 必命中（收回放宽不许顺手关掉盘面）', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const cmds = build((b) =>
+            drawEmptySocket(b, 100, 100, palette, BEAD_CELL, 1, DEMO_BEAD_INKS, false, BEAD_DRAW_INSET,
+                { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID }),
+        ).commands;
+        expect(calls).toEqual([{ kind: 'cell', gauge: 'holed', styleId: TINT_MASK_STYLE_ID }]);
+        expect(cmds.filter((c) => c.kind === 'blit').length, '恰好 1 条 blit').toBe(1);
+    });
+
+    it('④ 托盘珠（无目标色以外的普通传参）⇒ 必命中 blit', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const cmds = build((b) =>
+            drawFilledBead(b, 100, 100, 1, {
+                maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, inks: DEMO_BEAD_INKS,
+            }),
+        ).commands;
+        expect(calls, '⛔ 托盘珠必须问 mask（与盘面同臂）').toEqual([
+            { kind: 'bead', gauge: 'holed', styleId: TINT_MASK_STYLE_ID },
+        ]);
+        expect(cmds.filter((c) => c.kind === 'blit').length, '恰好 1 条 blit').toBe(1);
+        expect(cmds.filter((c) => c.kind === 'polygon').length, '⛔ 命中后不得再发矢量扇面层').toBe(0);
+    });
+});
+
+// ── [用户 2026-10-05 裁定「格子底色和托盘底色一样，取托盘颜色」] ───────────────
+//
+// 一张格面 tile 只有**一个**基色 ⇒ 珠四周可见的**环**与珠体的**真透孔**共用它：
+// · 旧口径（T-244 十四批）：格底 = 珠色 ⇒ 环对、孔也对，但有珠槽与 22 个空槽不同色。
+// · 新口径：格底 = 中性 `palette.slot` ⇒ 环与空槽同一张图；代价 = 孔透出近白。
+// · 合解：由珠自己补一枚 live 孔（`liveHole`），尺与墨 = **烘焙臂同一条** `drawLiveHole`。
+//
+// 只一条腿：托盘珠 ⇒ 1 blit + 恰 2 circle，且两墨不得错档（底 = `pit`、环 = `hole`）。
+// ⛔ 不另写「不传 `liveHole` ⇒ 零 circle」的对照腿：同文件「双臂分流 · DEC-2」那条已锁住
+//   盘面珠只有 1 条 blit、零 circle ⇒ 再写一条就是重复（YAGNI 同样适用于判据）。
+describe('托盘珠 live 孔（格底中性 ⇒ 孔由珠自补）', () => {
+    it('liveHole ⇒ 1 blit + 2 circle（底 = pit(珠色)、环 = hole(珠色)、r = 珠面×holeRatio/2）', () => {
+        const { runtime } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const model = build((b) => drawFilledBead(b, 100, 100, 2, {
+            size: TRAY_SLOT, targetColorIdx: 2, drawInset: BEAD_DRAW_INSET,
+            maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, inks: DEMO_BEAD_INKS, liveHole: true,
+        }));
+        expect(model.commands.filter((c) => c.kind === 'blit')).toHaveLength(1);
+        const circles = model.commands.filter((c) => c.kind === 'circle');
+        expect(circles, '孔底 + 孔环两枚').toHaveLength(2);
+        const face = TRAY_SLOT - (BEAD_DRAW_INSET * TRAY_SLOT) / BEAD_CELL;
+        const r = Math.round((face * BEAD_CARD.holeRatio) / 2);
+        const ink = endpointOf(DEMO_BEAD_INKS, 2);
+        expect(circles[0]).toMatchObject({ x: 100, y: 100, r, fill: ink.pit });
+        expect(circles[1]).toMatchObject({ r: r + BEAD_CARD.holeStrokeWidthPx, stroke: ink.hole });
+        // ⛔ 不得把环墨与底墨对调（对调后孔读作「亮底 + 暗环」= 反向凹凸）。
+        expect(circles[0]!.fill).not.toBe(ink.hole);
+    });
 });
 
 describe('白名单（DEC-5 · 显式化）', () => {
@@ -146,7 +210,30 @@ describe('白名单（DEC-5 · 显式化）', () => {
 
     it('maskId = 白名单(kind, gauge, styleId)，带 MASK_SCHEMA_VERSION', () => {
         expect(tintMaskId('bead', 'holed', 'facet-4')).toBe('mask__bead__holed__v1');
+        // `[WXG-T-255]` 档位宏现役 = `null`（Bundle 落地后四张齐进产物）⇒ **按档位取**，两档不同源。
         expect(tintMaskId('cell', 'holeless', 'facet-4')).toBe('mask__grid__holeless__v1');
+    });
+
+    it('档位宏（WXG-T-255）：null ⇒ 按档位取；钉住 ⇒ 两档同源（表本体未改）', () => {
+        expect(resolveTintGauge('holeless')).toBe('holeless');
+        expect(resolveTintGauge('holeless', 'holed')).toBe('holed');
+        expect(resolveTintGauge('holed', 'holeless')).toBe('holeless');
+        expect(tintTileMaskId('holeless', TINT_MASK_STYLE_ID)).toBe('mask__grid__holeless__v1__tile');
+        expect(tintTileMaskId('holeless', 'lineart-18')).toBeUndefined();
+    });
+
+    it('需求集 = 宏实际要的那几张（宿主装载 / warmup 阈值唯一真源）', () => {
+        // 在册 `null` ⇒ 四张全要（门禁 `check:cocos-mask` 据同口径验 4/4）。
+        expect(requiredTintMaskIds()).toEqual([
+            'mask__bead__holed__v1',
+            'mask__grid__holed__v1',
+            'mask__bead__holeless__v1',
+            'mask__grid__holeless__v1',
+        ]);
+        expect(requiredTintMaskIds('holed')).toEqual([
+            'mask__bead__holed__v1',
+            'mask__grid__holed__v1',
+        ]);
     });
 
     it('⛔ 未定稿风格一律 undefined（不得给未定稿风格偷烘 mask）', () => {
@@ -433,5 +520,95 @@ describe('EP12-B4 · 放大回退阀（DEC-4）', () => {
             drawFilledBead(b, 100, 100, 1, { size: BEAD_CELL, targetColorIdx: 2, maskGauge: 'holed' });
         });
         expect(JSON.stringify(open.commands)).toBe(JSON.stringify(closed.commands));
+    });
+});
+
+// ── [WXG-T-254 / ADR-0030 S5′-2] `drawTargetTile` 的底 tile 臂 ──────────────────
+//
+// 合并的**几何口径**是本单的全部风险所在（用户裁定：画布 = 格距 + 出血 = 33dp，
+// 内容仍是格径 30dp，⛔ 不跟着画布放大）。腿 ① 把 blit 的边长与纹理 id 钉死；
+// 腿 ②③ 钉住「宿主没实现 / 白名单未命中 ⇒ 逐字节 = 今日那条 rect」（V-5 绿线锚同款）。
+describe('drawTargetTile · 底 tile 臂（WXG-T-254）', () => {
+    const tileRuntime = (hit: boolean): BeadTintRuntime => ({
+        getMaskId: () => undefined,
+        getTileMaskId: (gauge) => (hit ? `mask__grid__${gauge}__v1__tile` : undefined),
+    });
+
+    it('① 命中 ⇒ 1 条 blit（边长 = 格距 + 2×出血 = 33dp、0 条 rect）且返回 true', () => {
+        setBeadTintRuntime(tileRuntime(true));
+        for (const gauge of ['holed', 'holeless'] as const) {
+            let merged: boolean | undefined;
+            const cmds = build((b) => {
+                merged = drawTargetTile(b, 100, 100, 1, DEMO_BEAD_INKS, BEAD_PITCH,
+                    { maskGauge: gauge, styleId: TINT_MASK_STYLE_ID });
+            }).commands;
+            expect(merged, `gauge=${gauge} 未合并`).toBe(true);
+            expect(cmds.filter((c) => c.kind === 'rect').length, '⛔ 合并后不得再发 B0 rect').toBe(0);
+            const blits = cmds.filter((c) => c.kind === 'blit') as BlitCommand[];
+            expect(blits.length).toBe(1);
+            const c = blits[0]!;
+            expect(c.w).toBe(BEAD_PITCH + TILE_BLEED * 2);
+            expect(c.h).toBe(c.w);
+            expect(c.textureId).toContain('__tile');
+            // `fx.base` = 本格目标色本色 ⇒ 与 `drawEmptySocket` 的 tint 臂同源（零新色）。
+            expect(tintFxBase(c.fx!)).toBe(beadColorOf(DEMO_BEAD_INKS, 1));
+        }
+    });
+
+    it('② 宿主未实现 getTileMaskId ⇒ 输出逐字节 = 今日（1 条 rect、返回 false）', () => {
+        const { runtime } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        let merged: boolean | undefined;
+        const withTile = build((b) => {
+            merged = drawTargetTile(b, 100, 100, 1, DEMO_BEAD_INKS, BEAD_PITCH,
+                { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID });
+        });
+        setBeadTintRuntime(undefined);
+        const today = build((b) => drawTargetTile(b, 100, 100, 1, DEMO_BEAD_INKS, BEAD_PITCH));
+        expect(merged).toBe(false);
+        expect(JSON.stringify(withTile.commands)).toBe(JSON.stringify(today.commands));
+    });
+
+    it('③ 白名单未命中（未定稿风格）⇒ 不合并；阀关（allowTint false）⇒ 不合并', () => {
+        setBeadTintRuntime(tileRuntime(false));
+        const cmds = build((b) =>
+            drawTargetTile(b, 100, 100, 1, DEMO_BEAD_INKS, BEAD_PITCH,
+                { maskGauge: 'holed', styleId: 'lineart-18' }),
+        ).commands;
+        expect(cmds.filter((c) => c.kind === 'blit').length).toBe(0);
+
+        setBeadTintRuntime({ ...tileRuntime(true), allowTint: () => false });
+        const blocked = build((b) =>
+            drawTargetTile(b, 100, 100, 1, DEMO_BEAD_INKS, BEAD_PITCH,
+                { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID }),
+        ).commands;
+        expect(blocked.filter((c) => c.kind === 'blit').length, '关阀 ⇒ 整体落矢量').toBe(0);
+        expect(blocked.filter((c) => c.kind === 'rect').length).toBe(1);
+    });
+
+    it('④ 不传 maskGauge（托盘槽 / 未接档）⇒ ⛔ 不调 getTileMaskId、照旧 rect', () => {
+        const calls: string[] = [];
+        setBeadTintRuntime({
+            getMaskId: () => undefined,
+            getTileMaskId: (gauge) => { calls.push(gauge); return 'mask__grid__holed__v1__tile'; },
+        });
+        build((b) => drawTargetTile(b, 100, 100, 1, DEMO_BEAD_INKS, BEAD_PITCH));
+        expect(calls, '⛔ 托盘槽恒 30dp 矢量形态（§3.6），不得被 tile 吞掉').toEqual([]);
+    });
+});
+
+describe('createWhitelistBeadTintRuntime · tile（WXG-T-254）', () => {
+    it('可用性按**去后缀的源 id** 问宿主，返回的却是 tile id（注册表零新增条目）', () => {
+        const asked: string[] = [];
+        const rt = createWhitelistBeadTintRuntime((id) => {
+            asked.push(id);
+            return id === 'mask__grid__holed__v1' ? 'tex:x' : undefined;
+        });
+        expect(rt.getTileMaskId!('holed', TINT_MASK_STYLE_ID)).toBe('mask__grid__holed__v1__tile');
+        expect(asked).toEqual(['mask__grid__holed__v1']);
+
+        const none = createWhitelistBeadTintRuntime(() => undefined);
+        expect(none.getTileMaskId!('holeless', TINT_MASK_STYLE_ID)).toBeUndefined();
+        expect(rt.getTileMaskId!('holed', 'lineart-18')).toBeUndefined();
     });
 });

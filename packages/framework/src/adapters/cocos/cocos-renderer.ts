@@ -13,9 +13,18 @@
  * would otherwise emit 50+ nodes and blow the draw-call budget on low-end
  * Android. Text is the exception (Cocos draws text with `Label` nodes), so
  * labels are pooled and reused.
+ *
+ * WHY AN OPTIONAL *SECOND* ONE ([WXG-T-256 / ADR-0030 S5′-3]):
+ * `model.background` has always been part of the render model and the canvas2d
+ * host has always painted it — the Cocos host silently ignored it, so the two
+ * ends showed different base colours. A flat base fill must sit **under** the
+ * blit carrier (beads), while the vector UI must sit **above** it; one
+ * `Graphics` cannot do both. Hosts that need the base fill inject a second
+ * `Graphics` via {@link CocosRendererOptions.backGraphics}; hosts that don't
+ * (breakout, every unwired scene) are byte-identical to before.
  */
 
-import type { DrawCommand, RenderModel } from '../../core/render/render-model.js';
+import type { BlitCommand, DrawCommand, RenderModel } from '../../core/render/render-model.js';
 import type { Viewport } from '../../core/render/viewport.js';
 
 /** Structural colour (Cocos `Color` uses 0–255 channels). */
@@ -94,6 +103,51 @@ export interface CocosRendererOptions {
    * not wired the node path keep rendering as before).
    */
   readonly transformHost?: CocosTransformHostLike;
+  /**
+   * `[WXG-T-252 / ADR-0030 DEC-2]` **blit 载体缝**（宿主注入）。Cocos `Graphics` 没有
+   * `drawImage`，所以 `blit` 命令在本 adapter 里**无法自行落地**——它只能被**交出**。
+   *
+   * - 有 carrier ⇒ 每条 `blit` 交出一次（坐标已换算到 Cocos UI 空间，与其他分支同源）。
+   * - 无 carrier ⇒ 与本批之前的行为**逐字节等价**（warn-once + skip），
+   *   breakout 与任何未接线的宿主渲染结果零漂移。
+   *
+   * ⛔ **总责语义**（承 `ADR-0029 §8.1`）：返回 `void`，⛔ 不得“没接住就回落”——
+   * 带 `fx` 的命令回落 = 用错色。图集 / 节点池 / 材质全在宿主实现里（S5′），
+   * 本缝只回答一个问题：「加第 N 种载体要改框架几处」⇒ **0 处**。
+   */
+  readonly blitCarrier?: CocosBlitCarrierLike;
+  /**
+   * `[WXG-T-256 / ADR-0030 S5′-3 → S5′-4]` **底图提交体**（宿主注入，可选）。宿主把它挂在
+   * 节点树的**最底层**（blit 载体之下），本 adapter 每帧往上头填两类图元：
+   * ① 一条 `model.background` 的全屏 rect（底色恒在珠下）；
+   * ② 任何带 `back: true` 的 `rect` / `line`（桌面级图元，如托盘白瓷面板底与其内阴影）。
+   * 缺省 ⇒ ② 回落普通 `Graphics`（与旧宿主逐字节等价；引擎清屏色归宿主自己定）。
+   */
+  readonly backGraphics?: CocosGraphicsLike;
+}
+
+/**
+ * Structural view of "take one blit command off the render model".
+ * Mirrors {@link CocosTransformHostLike}: scalar/structural args only, no `cc`,
+ * no allocation on the hot path — the host owns the pool lifecycle.
+ */
+export interface CocosBlitCarrierLike {
+  /**
+   * Hand one blit over. `x` / `y` are the command's bottom-left corner **already
+   * offset into Cocos UI space** (same `ox`/`oy` the vector branches use);
+   * `w` / `h` / `alpha` / `fx` stay on the command (y-up design space, unscaled).
+   *
+   * ponytail: 帧边界由 `beginFrame()` 告知（`[WXG-T-253]` 补上）——实现体需要「上一帧
+   * 用剩的节点本帧开头收掉」，而宿主不是它自己驱动的（`bindings.ts` 每帧调 `draw()`），
+   * 所以这一刀必须由框架递。可选方法：不实现 = 与 T-252 落地时逐字节等价。
+   */
+  accept(cmd: BlitCommand, x: number, y: number): void;
+  /**
+   * Called once at the top of every `draw()` **before** any command is handed
+   * over — the carrier's frame-start hook (reclaim / hide leftover pool nodes).
+   * Optional: absent ⇒ the renderer calls nothing and behaviour is unchanged.
+   */
+  beginFrame?(): void;
 }
 
 /**
@@ -116,6 +170,8 @@ const FALLBACK_CHAR_WIDTH_RATIO = 0.55;
 export class CocosRenderModelRenderer {
   private readonly _centered: boolean;
   private readonly _transformHost: CocosTransformHostLike | undefined;
+  private readonly _blitCarrier: CocosBlitCarrierLike | undefined;
+  private readonly _back: CocosGraphicsLike | undefined;
   private _labelsUsed = 0;
 
   constructor(
@@ -127,6 +183,8 @@ export class CocosRenderModelRenderer {
   ) {
     this._centered = options.convertToCenteredOrigin ?? true;
     this._transformHost = options.transformHost;
+    this._blitCarrier = options.blitCarrier;
+    this._back = options.backGraphics;
   }
 
   /** Labels borrowed during the last frame (telemetry / budget checks). */
@@ -139,6 +197,10 @@ export class CocosRenderModelRenderer {
     g.clear();
     this._labels.releaseAll();
     this._labelsUsed = 0;
+    // [WXG-T-253 / ADR-0030 S5′-1] 帧边界告知：载体在本帧第一条命令交出前收上一帧的剩节点。
+    // 没实现 `beginFrame` 的载体 ⇒ 这里零调用，行为与 T-252 落地时相同。
+    const carrier = this._blitCarrier;
+    if (carrier && carrier.beginFrame) carrier.beginFrame();
 
     // Per-frame dispatch, both branches idempotent: a stale scale from the
     // previous shake frame must never survive a transform-free frame.
@@ -153,6 +215,18 @@ export class CocosRenderModelRenderer {
     const ox = this._centered ? -this._viewport.designWidth / 2 : 0;
     const oy = this._centered ? -this._viewport.designHeight / 2 : 0;
 
+    // [WXG-T-256] 底图：与 canvas2d 同源语义（那里是一帧起手的 fillRect）。坐标走同一对
+    // ox/oy ⇒ 与其他分支共用一次换算；无 backGraphics 的宿主一行不多跑。
+    const back = this._back;
+    if (back) {
+      back.clear();
+      if (model.background) {
+        back.fillColor = this._colors.fromHex(model.background, 1);
+        back.rect(ox, oy, this._viewport.designWidth, this._viewport.designHeight);
+        back.fill();
+      }
+    }
+
     // Vertex arena (ADR-0024): indexed directly below — no per-command view.
     const verts = model.vertices;
 
@@ -166,23 +240,28 @@ export class CocosRenderModelRenderer {
         case 'rect': {
           const x = cmd.x + ox;
           const y = cmd.y + oy;
-          if (cmd.radius && cmd.radius > 0 && g.roundRect) {
-            g.roundRect(x, y, cmd.w, cmd.h, cmd.radius);
+          // [WXG-T-256 / ADR-0030 S5′-4] `back` 图元（桌面底）沉到 blit 之下；
+          // 未注入底图提交体的宿主 ⇒ 回落本层，与旧行为逐字节等价。
+          const t = cmd.back ? (back ?? g) : g;
+          if (cmd.radius && cmd.radius > 0 && t.roundRect) {
+            t.roundRect(x, y, cmd.w, cmd.h, cmd.radius);
           } else {
-            g.rect(x, y, cmd.w, cmd.h);
+            t.rect(x, y, cmd.w, cmd.h);
           }
-          this._paint(cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
+          this._paint(t, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;
         }
         case 'circle': {
           g.circle(cmd.x + ox, cmd.y + oy, cmd.r);
-          this._paint(cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
+          this._paint(g, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;
         }
         case 'line': {
-          g.moveTo(cmd.x1 + ox, cmd.y1 + oy);
-          g.lineTo(cmd.x2 + ox, cmd.y2 + oy);
-          this._paint(undefined, cmd.stroke, cmd.lineWidth, cmd.alpha);
+          // 与 `rect` 同口径：桌面内阴影线跟着面板底一起沉底，否则会画在珠面上。
+          const t = cmd.back ? (back ?? g) : g;
+          t.moveTo(cmd.x1 + ox, cmd.y1 + oy);
+          t.lineTo(cmd.x2 + ox, cmd.y2 + oy);
+          this._paint(t, undefined, cmd.stroke, cmd.lineWidth, cmd.alpha);
           break;
         }
         case 'polygon': {
@@ -195,14 +274,18 @@ export class CocosRenderModelRenderer {
           g.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
           for (let k = 1; k < n; k += 1) g.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
           g.close();
-          this._paint(cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
+          this._paint(g, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;
         }
         case 'blit': {
           // [WXG-T-220 / ADR-0026] Cocos `Graphics` does not support `drawImage`.
-          // Silently skip — the vector fallback path should not emit `blit`
-          // commands, so this branch is only reached if the baked arm is
-          // accidentally used on Cocos. Log once to aid diagnosis.
+          // [WXG-T-252 / ADR-0030 DEC-2] The command can only leave this adapter via an
+          // injected carrier; without one the behaviour is byte-identical to before
+          // (warn once, skip) so every unwired host keeps its current output.
+          if (this._blitCarrier) {
+            this._blitCarrier.accept(cmd, cmd.x + ox, cmd.y + oy);
+            break;
+          }
           if (!this._blitWarned) {
             console.warn('[CocosRenderer] `blit` command not supported on Cocos Graphics (ADR-0026 §4.2). Skipping.');
             this._blitWarned = true;
@@ -267,8 +350,13 @@ export class CocosRenderModelRenderer {
     return text.length * fontSize * FALLBACK_CHAR_WIDTH_RATIO;
   }
 
-  private _paint(fill: string | undefined, stroke: string | undefined, lineWidth: number, alpha: number | undefined): void {
-    const g = this._graphics;
+  private _paint(
+    g: CocosGraphicsLike,
+    fill: string | undefined,
+    stroke: string | undefined,
+    lineWidth: number,
+    alpha: number | undefined,
+  ): void {
     if (fill) {
       g.fillColor = this._colors.fromHex(fill, alpha ?? 1);
       g.fill();

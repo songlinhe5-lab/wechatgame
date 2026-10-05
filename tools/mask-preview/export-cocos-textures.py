@@ -20,12 +20,12 @@
 
 生成 Cocos 探针四件套（128px；格径 30dp 居中，珠面 26dp）：
   bead-hole-tint-128-mask.png   珠 mask，编码 **R=d / G=l / B=形状**（A=255 满幅 ⇒ 免疫 Trim）
-  grid-hole-tint-128-mask.png   格 mask（同编码；**[WXG-T-237 v7.0] B=槽口内 255 / 格外 0**）
+  grid-hole-tint-128-mask.png    格 mask（同编码；**[WXG-T-258] B=3dp 斜面环 255 / 格底与格外 0**，纯结构件）
   ── 2026-10-04（WXG-T-237 v8.0）**base 四件已停止生成并从库中删除**：核实结论 = blit 链路上
      base **不参与任何混合**（`tint-blit-resolver` 只取 `maskId`；`*-base.png` 全仓无加载方；
      烘焙层 `bake-*` 亦不涉及）。规约 `tint-mask-asset-spec §1.1` 原已把它标「**条件交付**」
      并写明「走整盘单图元（推荐）后 base 四件可省 ⇒ 回吐 6.2 KB」。
-     透明度**完全由 mask 的 B(shape) 通道承担**（`out = fx.base·d + (1−fx.base)·l·shape`，`alpha = shape`）
+     透明度**完全由 mask 的 B(shape) 通道承担**（`out = fx.base·d + (1−fx.base)·l`，`alpha = shape`；【WXG-T-259】`l` ⛔ 不乘 shape，与 shader / TS 同式）
      —— 公式里的 `base` 是 **`fx.base` 着色基色（hex 字符串）**，⛔ 与任何 base.png 文件无关。
      ⚠ **如将来真机改走「Sprite 池载体」路径**（Sprite 无 spriteFrame 不渲染 ⇒ 需占位图），
      须从 git 历史（`8d7889a` 之前的版本）恢复本段生成代码。
@@ -279,7 +279,7 @@ gm[..., 2][edge_g] = 255                                           # 槽内 3dp 
 # 槽底（斜面以内）= **格底色 0.70**（−0.30，同 B0 tile；设计变更 v1.0→v1.1，用户 2026-09-29：
 # 「取放珠瞬间深坑↔格底跳变突兀 + 深坑挡目标色辨识」⇒ 槽凹感全交给 3dp 斜面光照，坑底与格底同色）
 gm[..., 0][sd_g < -EDGE_DP * PX] = int(0.70 * 255)
-gm[..., 2][sd_g < -EDGE_DP * PX] = 255                             # 槽底：shape 满幅（⛔ holeless 深坑 0.32 必须保住 ⇒ I-5 分叉）
+gm[..., 2][sd_g < -EDGE_DP * PX] = 255                             # 槽底：shape 满幅（⚠ 本笔在 512 空间，随后被 128 空间判定覆盖，见 OUT 循环）
 grid_mask = Image.fromarray(gm, "RGBA")
 
 OUT_DIR.mkdir(exist_ok=True)
@@ -297,8 +297,8 @@ for name, img in (
     # 理由：v7.0 让格外 shape=0 ⇒ 0↔255 硬台阶长达一整圈，而 **PIL 的 LANCZOS 与 TS 侧自实现
     # LANCZOS 对硬边的振铃幅度不同**（实测残留 1–9/255）⇒ 单靠 `SHAPE_RINGING_FLOOR` 无法让
     # 两边逐字节一致（对拍门禁 `mask-diff.test.ts` 会红）。治根 = 不缩放：形状本就是二值语义，
-    # 无需抗锯齿（AA 由 R/G 的斜面光照承担）。⛔ 槽口内（3dp 斜面 + 槽底）仍 255 —— 无孔档槽底
-    # 0.32 深坑必须保住（判据 I-5 分叉）。
+    # 无需抗锯齿（AA 由 R/G 的斜面光照承担）。[WXG-T-258] 有孔档 shape 只留 3dp 斜面环（见下）；
+    # 无孔档（export-cocos-textures-holeless.py）槽口内整块 255 —— 0.32 深坑必须保住（判据 I-5 分叉）。
     if "grid" in name and "mask" in name:
         ys8, xs8 = np.mgrid[0:OUT, 0:OUT]
         pxs = OUT / CELL_DP
@@ -307,7 +307,13 @@ for name, img in (
         qy8 = np.abs(dy8) - (12.0 - 8.0) * pxs
         sd8 = (np.hypot(np.clip(qx8, 0, None), np.clip(qy8, 0, None))
                + np.minimum(np.maximum(qx8, qy8), 0) - 8.0 * pxs)
-        arr[:, :, 2] = np.where(sd8 <= 0, 255, 0).astype(np.uint8)
+        # [WXG-T-258] **格面 mask = 纯结构件**：shape 只留 3dp 斜面环，格底/孔位一律真透。
+        # 旧口径（v7.0）= 槽口内全 255 ⇒ 格底是一块 base×0.70 的**不透明方片**，托盘槽四周
+        # 因此显出一圈与面板底不同色的方片边。格底纯色改由**下层**承担：盘面 = L0 底 tile
+        # （`composeMaskTile` 的 tile 形态 shape 恒 255，满幅不透明）、托盘 = `drawEmptySocket`
+        # 的 base rect。R 通道 0.70 仍保留 —— tile 形态派生要读它当底图色档。
+        # ⛔ holeless 档不适用：其「槽底」= 假孔 0.32，属结构件，保持不透明。
+        arr[:, :, 2] = np.where((sd8 <= 0) & (sd8 >= -EDGE_DP * pxs), 255, 0).astype(np.uint8)
     img = Image.fromarray(arr, "RGBA")
     img.save(OUT_DIR / name)
     print(f"✅ {OUT_DIR / name}")

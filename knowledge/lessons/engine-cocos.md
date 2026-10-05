@@ -18,3 +18,59 @@
   根因：「退役旧实现」与「换默认档」是同一动作的两面，但**只有代码跟着换**，参数与文档留在原地继续被引用；层序判据又按臂切分（旧判据整体改指对照臂），于是新臂上「通道缺失」不会让任何测试变红。属 K-035（规格已写 ≠ 代码已实现）与 K-060（文档声称有门、实际无门）的**第三形态**：不是没写、不是没门，而是**曾经有、后来没了，周边资产没跟着退役**。
   规避：① 动任何表现层参数前先做一次**消费者核对**——查该字段在**默认档实际层集**里是否被读（只看参数卡与注释必然被骗）；② 结构性换肤（改层集）必须同批把「哪些入参从此无承载体」写进函数注释，并在规格表对应行标「仅对照臂成立」，否则下一轮排查会照旧表开药；③ 要补的视觉线索优先走**与风格无关的层**（底图/格级族），既免逐风格参数化，也不占单卡图元预算（计数口径常把底图另计）；④ 观感结论一律 `[待真机]`，⛔ 不得以「比率与常数齐了」判绿。
   判例引用：`games/beads/src/view/bead-render.ts`（`FilledBeadOptions` 各通道的「无承载体」注）、`games/beads/src/view/bead-styles/facet-4.ts`、`games/beads/src/config/tuning.ts::BEAD_CARD.liftShadow*`；正本 `games/beads/design/proposals/bead-visual-style-spec.md §11.6`。同族 K-035、K-040、K-060；与本片 K-077 同域（都是「尺子/层集在变，旧资产未跟着退役」一类）。
+
+- **[引擎Cocos][K-097] 「不为高 DPR 投放高分辨率资产」≠「高 DPR 设备上不会运行时放大」——投放决策与放大率是两个正交维度，裁一个必须成对登记另一个**（来源 WXG-T-247 / ADR-0030 DEC-4·§7.1 (A)，2026-10-05）
+  现象：为控包体裁「mask 只投 128² 一档、不特做 dpr3 资源，小程序兼顾高低设备」。该算术本身没错（`BEAD_CELL 30 × zoom 2 × dpr 2 = 120 ≤ 128`，与 `tuning.ts:316` 在册注释和单测逐字相同），但被顺推成「于是不存在运行时放大问题」。实际 dpr3 真机上 `30 × zoom × dpr` 照算 ⇒ 满 zoom = 180 px = **1.41× 放大照旧发生**。
+  根因：把**资产投放档位**（我们放什么进包）与**运行时采样比例**（设备上外框 / 纹理边长）当成同一个量。前者可控、后者由 `cell × zoom × dpr` 的乘积决定，⛔ 不受资产决策约束。第二层根因：仓内规范（`control-manifest §19`「⛔ 运行时放大 ⇒ 该帧回矢量臂，不靠显式豁免绕过」）与这条资产裁定方向相反，而冲突点是**注释级**的，没有任何守卫会因此变红。
+  规避：① 裁任何位图档位前先写一行**包络式**：`外框 ≤ 纹理档 ⇔ ？ × zoom_max × dpr_实读`，并明确该式对**哪一档设备成立**——不给全设备结论；② 用 `pitch` 还是 `cell` 作外框基准要显式写明（本例差 2 px ⇒ 包络从 4.27 掉到 4.0 = 满 zoom **零余量**，取整/适配边差即翻向放大）；③ 与既有硬纪律冲突时，**要么改纪律（登记例外并写边界）、要么改做法（回退阀）**，⛔ 不得以"没有测试变红"当作无冲突；例外必须绑成**开工门禁**（本案 = `§19` 例外未落正本前，生产开关不得默认开），否则就是隐性漂移；④ 例外要写清**跟什么走**（本案跟「128 唯一档」走、不跟渲染载体走 ⇒ 换代后仍适用，不得当作已解决重开）；⑤ 决定"接受还是回退"的关键观测量（本案 = 真机 `screen.devicePixelRatio`）要先查是否**有实读**——桌面/web 档若被引擎封顶（本仓 web 档 DPR 封顶 2，`TC-COORD-03`），则桌面取证**结构上看不到**那条腿，必须列为真机必采项。
+  判例引用：`games/beads/src/config/tuning.ts::TINT_LOD_MAX_UPSCALE`（注释与裁定语义反转，S1 顺带更正）、`games/beads/tests/bead-tint-arm.test.ts` 档位组、`docs/architecture/control-manifest.md §19`；同族 K-053（旧裁定的前提条件要写在正文，反转时才发现无人可防）、K-079（参数还在、通道已死）、K-056（渲染量在真机与单测上错开一层）、K-040（观感结论一律 `[待真机]`）。
+
+- **[引擎Cocos][K-099] Cocos 宿主里「拿玩法读数」要先分对象层：`app.game` 是 Shell、盘面真身在 `game.play`；取错一层静默返回 0 / setter 无效，而不是报错**（来源 WXG-T-247 / ADR-0030 §5.0.1 三臂实测，2026-10-06）
+  现象：自建的页内探针拿 `this._app.game` 当「游戏」调 `snapshot()` / `setZoomForDebug()`：冒烟表里 `filled 0`、`zoom` 三档完全不变，但**无任何异常抛出**——看起来像「没进盘」或「参数被 clamp」，实际是取错了对象。真机分层：`app.game` = **BeadsShell**（只有 `screen` / `startGame`），玩法真身 = **`shell.play`（BeadsGame）**（`snapshot` / `setZoomForDebug` / `goToLevel`）；且 `initialScreen='menu'` ⇒ 不主动 `enterPlay()` 永远在菜单。
+  根因：壳与玩法是两个类，harness 侧**本来就是分两个字段暴露的**（`dev/harness/main.ts` 里 `game: beads` 与 `shell: beadsShell` 并列）；而 Cocos 侧只给了 `app.game` 一个入口，名字极易误读成「玩法对象」。访问器不存在时 TS 不报错（调试面走 `AnyObj`），wx/引擎也不会报 `TypeError`——因为 shell 上确实有同名风格的 getter，返回了空集合。
+  规避：① 写跨宿主探针前先**把对象图打印出来**（`Object.keys(app.game)` + `typeof app.game.play`），而不是按名字推；② 每个调试 setter 都要**回读验证**（setter 返回布尔 + 下一次 `phase()` 里带该量），不能只信「调了不报错 = 生效」（同 K-092）；③ 「读数全 0」先查**层级**再查业务；④ 进盘类探针必须显式 `enterPlay()` 并 `waitForFunction(screen==='play' && filled>0)`，等待条件不能只看 `cmds>0`（首帧重绘前会误报）。
+  判例引用：`games/beads/cocos/assets/scripts/spike/carrier-bench.ts`（`_play()` / `phase()` / `_filled()`）、`dev/harness/main.ts`（`__beads` 暴露面）、`games/beads/src/game/beads-shell.ts`；同族 K-092、K-061（「点名了但不动手」）、K-038（旁路 API 假绿）。
+
+- **[引擎Cocos][K-100] 比「换渲染载体」便宜的第一收益往往在载体之外：先量脏帧再比载体；探针热切换载体时「载体状态位」必须最后改**（来源 WXG-T-247 / ADR-0030 §5.0.1，2026-10-06）
+  现象：三臂（矢量 / 离屏 canvas 上传 / 图集 Sprite 池）同宿主实测，**静置不动的 150 帧里模型签名只变 3–4 帧**（`chg = 3–4/150`）⇒ 其余 146 帧都在重放相同几何；另一次 `TypeError: Cannot read properties of null (reading 'draw')` 间歇崩溃于载体切换后的几帧。
+  根因：① 现役渲染回路没有脏帧门控 ⇒ 「每帧全量重放」是现状而非载体代价，于是**载体对比实际测的是无效重放的相对成本**；② `setArm()` 里 `this._arm = arm` 写在 `await ensureMasks()` **之前** ⇒ await 窗口内回路已经认新臂但它的载体（`_c2d` / 图集）还是 null。
+  规避：① 性能对比批开工前先加一个**签名计数器**（计时之后 `JSON.stringify(model)` 与上一帧比，⛔ 不得放进被测计时段内污染 `drawMs`），拿不到脏帧数就不能宣布「X 臂比 Y 臂快 ⇒ 应换 X」；② 「热切换载体」的写法固定为**先备资产、最后改状态位**（`await ensure…()` 全部完成 → 才 `this._arm = arm`）；③ 另记一个对比口径陷阱：若三臂**画的不是同一模型**（tint 运行时把 12 命令/珠压成 1 blit ⇒ `cmds 2031 → 479`），则「矢量↔其他两臂」混有换模型收益，**只有命令数相同的两臂之间才是纯载体对比**——写表时必须把这一列并列输出并明写哪一对才是干净对比；④ 需要一个**最坏档**参数（每帧抖一个微小量使全盘变脏）与静置档成对跑，否则「数据好」可能只是「没扰动」。
+  判例引用：`games/beads/cocos/assets/scripts/spike/carrier-bench.ts`（`modelChanges` / `setArm` / `disturb`）、`docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md §5.0.1` 结论 5·8；同族 K-088（换轨先重设判据）、K-051（规格数值落码后必须差分复算）、K-092。
+
+- **[引擎Cocos][K-104] 测「去掉某层能省多少」的上界档：必须停用组件本身，不能只是不喂命令——`clear()` 在绘制入口内部，不喂 = 上一帧内容继续提交 ⇒ 读数是一份冻住的旧画面而不是该层的缺席成本**（来源 WXG-T-249 / ADR-0030 §5.0.3，2026-10-05）
+  现象：取证面加 `layers=beads` 档（甲 臂只提交珠池）以量「非珠层整体值多少 dc / ms」。若实现成「该层不喂 `RenderModel` 命令」，读数会**低得离谱且不可解释**
+  ——`CocosRenderModelRenderer.draw()` 里才做 `g.clear()`，所以不喂 ⇒ buffer 不清 ⇒ 引擎照常把**上一帧的整份 Geometry** 提交，`dc`/`tris` 反映的是残留画面。
+  根因：`Graphics`（及多数即时模式绘制组件）的「清空」与「绘制」不是同一入口；跳过喂命令只跳过了写入，没跳过提交。
+  规避：① 上界档一律走**组件级停用**（`component.enabled = false` 或 `node.active = false`），并显式区分「隐藏」与「不更新」两种语义；② 停用的那一档**画面必然不完整**，
+  写结论时只能记「上界」⛔ 不得记作可交付形态的成本；③ 多档共用一套显隐逻辑时收敛成**单一 `_syncLayers()`**（`setArm` 与 `setLayers` 各写一遍必漂）；④ 若只需一侧变化，
+  驱动脚本按臂收敛循环（非该臂恒走单档），⛔ 不为其余臂白跑一遍取证。
+  判例引用：`games/beads/cocos/assets/scripts/spike/carrier-bench.ts`（`_syncLayers` / `setAtlasLayers`）、`tools/scripts/carrier-bench.mjs`（`--layers`）、`ADR-0030 §5.0.3` 结论 1·5；同族 K-100（先量脏帧再比载体）。
+
+- **[引擎Cocos][K-109] 层序死结优先「删掉引起冲突的对象」，而不是给数据模型加「层归属标记」——同一绘制体里两成员必须分别站在另一层上/下两侧时，加标记 = 扩协议，删对象 = 缩问题面**（来源 WXG-T-256 / ADR-0030 §5.6，2026-10-05）
+  现象：一块 `Graphics` 同时承载「盘面底板（必须在珠层之下）」与「三处全屏遮罩（必须在珠层之上）」⇒ 载体节点无论插在 `Graphics` 之前还是之后，必有一侧错。
+  当初预想的解 = 框架 `RenderModel` 加 `layer?: 'back'` 归属标记 + 宿主按标记分派 ⇒ 要改跨宿主公共契约、要两宿主同步实现、要判据跟改。
+  根因：冲突不是「缺一个排序字段」，而是「有一块对象的职责本不属于这里」。底板既无动效也无状态，只是被顺手画进了 UI 层。
+  规避：① 遇到层序冲突，先问「引起冲突的那层能不能整个不要」，再问「能不能拆开分别归位」，最后才问「能不能加排序标记」；
+  ② 判定「能不能不要」的尺 = 该对象是否参与交互/动效/状态呈现；三者皆否 ⇒ 大概率是可裁的视觉皮；
+  ③ 冲突面消失后，Cocos UI 靠**节点序**即可定层（⛔ 不需要 `zIndex`，更不需要改框架），框架零改动 = diff 最短且无跨宿主连带；
+  ④ 反过来若确实要加排序字段，先确认「现有消费方是否真的需要它」——本仓 `model.background` 就是加了没人吃（见下条）。
+  判例引用：`ADR-0030 §5.2 裁②′`（改判：按有无动效切层的尺在容器板上失效）、`§5.6`；`games/beads/cocos/assets/scripts/framework/adapters/cocos/cocos-renderer.ts`（节点序 `GameRoot → Background → BlitLayer → Graphics → Labels`）；同族 K-051（判据只引实测不引纸面值）。
+
+- **[引擎Cocos][K-110] 改「渲染真源」字段前必须先 grep 两侧消费方：canvas2d 吃了 ≠ Cocos 吃了，harness 全绿掩盖的是「某个宿主根本没读这个字段」**（来源 WXG-T-256 / ADR-0030 §5.6，2026-10-05）
+  现象：`RenderModel.background` 由 `RenderModelBuilder.setBackground()` 产出，canvas2d 臂 `canvas2d-renderer.ts` 逐帧消费 ⇒ harness 里背景观感一直是对的；
+  Cocos 臂**零消费方** ⇒ 同一份模型在真机侧背景色从未生效，而 `Main.scene` 的 `cc.Camera` 只有 `_color`、没有 `_clearColor`/`clearFlags` ⇒ 引擎默认清屏色**静态读不出来**，屏幕上"看起来有背景"其实来自容器板自己铺的矩形。
+  根因：双宿主（harness + 引擎壳）共用一份 `RenderModel`，但字段是**逐宿主各自实现**的；框架侧新增字段没有"必须有 N 个消费方"的门禁，测试也只跑有实现的那一侧。
+  规避：① 凡动 `RenderModel` / 公共契约字段的语义（含"删掉某个绘制体"），先 `grep` 全宿主消费面再改，把「谁读它」写进 ADR 或代码注释；
+  ② 静态读不出的引擎默认值（清屏色等）**不猜**：要么让宿主自己显式铺一层底色（职责回到代码里、可 grep 可测），要么改引擎属性并留下真机读数；
+  ③ 若把职责挪进编辑器场景（相机 `clearColor`），代价是**色值双真源**（`palette.ts` 与 `.scene` 各一份）⇒ 只有实测证明能换掉 N 枚绘制命令才值得，⛔ 纸面宣称收益；
+  ④ 「顺带修」要在台账里独立成行（本次 = 去板批顺带修掉 Cocos 不消费背景），否则下次读 diff 的人会以为背景一直生效。
+  判例引用：`packages/framework/src/core/render/render-model.ts`（`setBackground`）、`adapters/canvas2d/canvas2d-renderer.ts` vs `adapters/cocos/cocos-renderer.ts`（消费面不对称）、`ADR-0030 §5.6` 残留；同族 K-036/K-037（跑过 ≠ 检了）、K-108（资产"在目录里" ≠ "进了包"）。
+
+- **[引擎Cocos][K-116] 给渲染命令加「层归属」标记前，先枚举每个宿主的绘制模型：单趟按命令序绘制的宿主天然免疫，可能只有一个 adapter 需要改**（来源 WXG-T-256 / ADR-0030 §5.7，2026-10-05）
+  现象：Cocos 侧「桌面级图元（托盘白瓷面板底）被 blit 载体盖住/盖住 blit」的层序死结，预想解是「两趟绘制 + 层标记」⇒ 看起来必须同时改 canvas2d 与 Cocos 两个 adapter + 视图层。
+  根因：两个 adapter 的绘制模型不同 —— Cocos 只有一块 `Graphics` 提交体（层序由节点决定，命令序无关），canvas2d 是**一帧按命令序单趟** `fillRect`。视图本来就先铺桌面再画珠 ⇒ 同一份 `back: true` 在 canvas2d 上**无副作用**，在 Cocos 上才需要路由。
+  规避：① 加协议前先问「哪个宿主真的看不见这个信息」，把改动面收敛到那一处（本批 = Cocos 一行 `const t = cmd.back ? (back ?? g) : g`，canvas2d 零改动）；
+  ② 新标记一律**可选 + 条件展开**（`...(back !== undefined ? { back } : {})`），缺省不落 JSON 键 ⇒ 未打标记者的字节级基准（seal / signature）零漂移，修订面可枚举；
+  ③ 未注入底图体的宿主必须**回落原层**（breakout / 未接线场景逐字节等价），⛔ 让新通道的缺席变成报错或丢图元；
+  ④ 产物级自证法：把上层节点 `active = false` 截一张图 —— 沉底图元仍在 ⇒ 提交体确实换了（比读代码注释硬）。
+  判例引用：`packages/framework/src/core/render/render-model.ts`（`back` 注释）、`packages/framework/src/adapters/cocos/cocos-renderer.ts`、`ADR-0030 §5.7`；同族 K-110（改渲染真源前先 grep 两侧消费方）、K-109（层序死结优先删对象）。

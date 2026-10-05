@@ -321,6 +321,24 @@ export const BAKE_CANONICAL_SIZE = 128;
  */
 export const TINT_LOD_MAX_UPSCALE: number | null = null;
 /**
+ * `[WXG-T-255 / ADR-0030 §5.5]` **mask 档位宏**（编码切换旋钮，⛔ 不是 §3 冻结数值）。
+ *
+ * 来历（2026-10-05）：Cocos 构建期只打包**被引用**的资产，四张定稿 mask 里当时只有 `holed` 两张进主包
+ * （另两张的唯一引用体是宿主里的 uuid **字符串** ⇒ 依赖分析看不见）。那段窗口期用本宏把运行期钉到
+ * `holed` 以解除注入前提；随后用户裁定把 `assets/textures` 配成 Bundle（**引擎侧**目录级全量收录，
+ * 压缩类型默认「合并依赖」= 仍留主包本地目录，⛔ 不是微信分包）⇒ `pnpm run build:cocos` 后
+ * `pnpm run check:cocos-mask` 实测 **4/4** ⇒ 本宏改回 `null`（债已偿）。
+ *
+ * 生效面 = `view/bead-tint-mask.ts` 的**查表处**（一处守卫覆盖两宿主 × 两形态，
+ * ⛔ 不在 `view-model` 两个调用点各写一遍）；同时驱动两宿主的 **装载/预热/warmup 需求集**
+ * （`requiredTintMaskIds()`）。
+ *
+ * 留作旋钮的用场：想临时比某一档观感 ⇒ 本值改 `'holed'` / `'holeless'`（一行，⛔ 不动调用点）。
+ * ⚠ **长期钉住就是债**：两档恒同一张图 ⇒ 未被选中的一对 mask 无消费者，且小豆档（玩家设「小巧」，
+ * 非默认档 `BEAD_SIZE_DEFAULT = full`）在 tint 臂与矢量臂（按 `hideHole`）会**观感分叉**。默认档零影响。
+ */
+export const TINT_MASK_GAUGE_PIN: 'holed' | 'holeless' | null = null;
+/**
  * Max columns per level. **v1.45（WXG-T-203）：50 → 32** —— 用户拍板「单图上限 32 个珠子宽度，
  * 超过就拆组合图」。本值语义由 v1.37 的「导入硬顶」升为**单图/组合图（Plate）分界线 = 切块阈值**：
  * 任一维 > 32 ⇒ beads-studio 一键入关自动走 `sliceBoard` 均分切块（k = ceil(n/32)）。
@@ -2274,32 +2292,14 @@ export function validatedSprintTime(value: number | undefined): number {
   return value;
 }
 
-// ───── v1.3 丙案几何/α 常量（assets-spec §1.7/§1.8 + art-bible §6；F2/F3/F7/F8）──
+// ───── [WXG-T-256 · 用户 2026-10-05 拍板] §1.7 容器板 / §1.8 背景层常量整组退役 ─────
 //
-// 与 WRONG_* 判例同族：**反馈/呈现层参数**，不进 systems-index §3。墨色在 view/palette
-//（GLOW_WARM_HEX 等，control-manifest §3：hex 只住 palette）。
-
-// §1.7 拼图容器板 + 暖光 band（F2/F3）。
-/** 容器板每边外扩（px）：plate = grid 外扩 2×8。 */
-export const PLATE_OUTSET = 8;
-/** 容器板圆角（art-bible §6 圆角规范「拼图容器板 20」）。 */
-export const PLATE_RADIUS = 20;
-/** B4 板投影偏移 (0,−3) / α 0.10（墨复用 BEAD_SHADOW_HEX）。 */
-export const PLATE_SHADOW_DY = 3;
-export const PLATE_SHADOW_ALPHA = 0.1;
-/** 暖光 band：三环 α 由外向内递增（贴板缘累计 ≈0.15，极淡不抢珠焦点）。 */
-export const GLOW_BAND_ALPHAS: readonly [number, number, number] = [0.04, 0.05, 0.06];
-/** bandOut 上限（§1.7 clamp：不越带、不越屏）。 */
-export const GLOW_BAND_OUT_MAX = 18;
-/** band 环圆角增量系数（环圆角 = 板圆角 + 外扩量×0.6，art-bible §6）。 */
-export const GLOW_BAND_RADIUS_SCALE = 0.6;
-/** B6 完成贴纸：板体外扩白描边宽度 / 投影 α（clear 面板可见时叠于板体）。 */
-export const PLATE_STICKER_OUTSET = 6;
-
-// §1.8 背景层次（F8）：全屏冷沉 + 中心两档提亮（ΔL ≤4%，禁止暖色入背景）。
-export const BG_DEPTH_ALPHA = 0.04;
-export const BG_LIFT_RECT = { w: 645, h: 830, radius: 48, alpha: 0.35 } as const;
-export const BG_CORE_RECT = { w: 470, h: 620, radius: 40, alpha: 0.3 } as const;
+// 原 `PLATE_OUTSET` / `PLATE_RADIUS` / `PLATE_SHADOW_DY` / `PLATE_SHADOW_ALPHA` /
+// `GLOW_BAND_ALPHAS` / `GLOW_BAND_OUT_MAX` / `GLOW_BAND_RADIUS_SCALE` /
+// `PLATE_STICKER_OUTSET` / `BG_DEPTH_ALPHA` / `BG_LIFT_RECT` / `BG_CORE_RECT`
+// 随 `drawPuzzlePlate` / `drawBackgroundLayers` 同批删除（⛔ 不留空转常量）。
+// 现口径 = 统一单层底色 `palette.background`；正本 = ADR-0030 §5.2 裁②′ 与
+// `assets-spec §1.7/§1.8` 退役条。**非 systems-index §3 冻结数值**（原组亦属反馈/呈现层参数）。
 
 // art-bible §6 HUD：倒计时白胶囊（F7①）+ 设置 8 齿齿轮（F7②）。
 export const TIMER_CAPSULE = { w: 220, h: 64, radius: 32 } as const;

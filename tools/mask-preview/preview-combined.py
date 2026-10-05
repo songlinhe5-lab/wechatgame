@@ -31,7 +31,7 @@ def composite(mask_png: Path, base) -> np.ndarray:
     a = np.array(Image.open(mask_png).convert("RGB")).astype(np.float32) / 255.0
     d, l, shape = a[..., 0], a[..., 1], a[..., 2]
     b = np.array(base, np.float32) / 255.0
-    out = b * d[..., None] + (1.0 - b) * (l[..., None] * shape[..., None])
+    out = b * d[..., None] + (1.0 - b) * l[..., None]      # [WXG-T-259] l ⛔ 不乘 shape（与 shader / TS 同式）
     alpha = shape
     return out, alpha
 

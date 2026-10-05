@@ -11,7 +11,7 @@
     "6c48a": {
       "importer": "texture",
       "uuid": "cbf588aa-3ab8-418a-af42-5ea6b4fe0b9c@6c48a",
-      "displayName": "bead-tint-128-mask",
+      "displayName": "bead-hole-tint-128-mask",
       "id": "6c48a",
       "name": "texture",
       "userData": {
@@ -35,7 +35,7 @@
     "f9941": {
       "importer": "sprite-frame",
       "uuid": "cbf588aa-3ab8-418a-af42-5ea6b4fe0b9c@f9941",
-      "displayName": "bead-tint-128-mask",
+      "displayName": "bead-hole-tint-128-mask",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {

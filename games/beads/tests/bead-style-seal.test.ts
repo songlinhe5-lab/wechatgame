@@ -64,6 +64,8 @@ const SEAL = JSON.parse(
      *  值 ≡ 第五次复评官方重抓的 `s3.legacyFlow` 同键（零手填），⛔ 不随复评漂移。腿 1 合并视图对照。 */
     head_liftShadowFade_r5?: Record<string, string>;
     s3: SealSide;
+    /** **[WXG-T-256 · S5′-4] 第十四次复评的前态史证**（腿 4a 闭合自证的锚：剥掉 `back` 键 ⇒ sha 必 ≡ 本键）；⛔ 不随复评漂移。 */
+    s3_pre_back_channel?: { _readme?: string; frame0: { total: number; sha: string }; frame78: { total: number; sha: string } };
     /** S3 转正时刻登记（史证段，不追改；腿 2b 的锚）。 */
     s3AtFormalization?: SealSide & { _readme?: string };
     provenance: Record<string, string>;
@@ -122,6 +124,26 @@ const SOCKET_INNER_SHADE_FRAME78 = 204;
  */
 const FILLED_SOCKET_PER_CELL = 6;
 const FILLED_SOCKET_FRAME78 = 78 * FILLED_SOCKET_PER_CELL;
+/**
+ * **[WXG-T-256 · 第十三次复评]** 已登记的**容器板 + 三层背景退役**削减段。
+ *
+ * 用户 2026-10-05 拍板「背景框整块去掉 + 统一单层纯色背景」⇒ `drawPuzzlePlate`（**6 rect**：
+ * band 3 + 投影 1 + 板体 1 + 内凹 1；B6 贴纸在夹具态 `clearPanelVisible=false` ⇒ 0 枚）
+ * 与 `drawBackgroundLayers`（**3 rect**：冷沉 1 + 两档提亮 2）同批删除 ⇒ 两帧各 **rect −9**。
+ * 底色现由**宿主**消费 `model.background`（canvas2d `fillRect` / Cocos `backGraphics` 第二提交体）
+ * ⇒ 不进命令流、不计帧长。归因正本 = provenance `s3_frame_recheck_13`。
+ */
+const PLATE_BG_RETIRE_FRAME0 = 9;
+const PLATE_BG_RETIRE_FRAME78 = 9;
+/**
+ * **[WXG-T-256 · 第十四次复评]** 本批唯一修订面 = 托盘**桌面**打上 `back` 键的条数：
+ * 面板底 **1 rect** + 「微拱白瓷」内阴影 **3 line** = 4。
+ *
+ * ⚠ 这是**键插入**，不是新增图元 ⇒ 两帧 `total` / 逐 kind 计数全等（已在腿 4a 钉住），只有 sha 动。
+ * 闭合自证 = 把流里的 `,"back":true` 剥掉 ⇒ sha 逐字节 ≡ 史证键 `s3_pre_back_channel`
+ * （⛔ 只贴条数差 / 只贴 sha 不构成证据 = QA §K.5.1 唯一例外通道 b 条）。
+ */
+const BACK_KEY_LINES = 4;
 /** 历史档案常量：HEAD 盘带中心 = (480+1120)/2，只作 Δ 基准，非现值。 */
 const HEAD_PUZZLE_BAND_MID_Y = 800;
 /** 盘带族平移矢量：由**现役** `PUZZLE_BAND` 派生（⛔ 非手填）⇒ 同时校带尺与渲染跟随。 */
@@ -299,10 +321,15 @@ function renderModel(harness: Harness): RenderModel {
     return builder.end();
 }
 
-function frameSeal(): SealSide['frame78'] & { fillableTotal: number } {
+/** §11.2 同构夹具（13×12 / 78 填）整帧命令流；与 `frameSeal()` 同源，腿 4a 的闭合自证也读它。 */
+function frameFixture(): { flow: string[]; fillableTotal: number } {
     const { harness, filled } = halfBoardHarness('wxgame.beads.test.s211-seal-frame-check');
     if (filled !== 78) throw new Error(`夹具同构自证失败：填格 ${filled} ≠ 78`);
-    const flow = serialize(renderModel(harness));
+    return { flow: serialize(renderModel(harness)), fillableTotal: harness.game.grid.fillableTotal };
+}
+
+function frameSeal(): SealSide['frame78'] & { fillableTotal: number } {
+    const { flow, fillableTotal } = frameFixture();
     const kinds: Record<string, number> = {};
     for (const line of flow) {
         const kind = (JSON.parse(line) as { kind: string }).kind;
@@ -312,7 +339,7 @@ function frameSeal(): SealSide['frame78'] & { fillableTotal: number } {
         total: flow.length,
         kinds,
         sha: sha(flow.join('\n')),
-        fillableTotal: harness.game.grid.fillableTotal,
+        fillableTotal,
     };
 }
 
@@ -419,10 +446,15 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(f.fillableTotal).toBe(156);
         const emptyFlow = emptyBoardFlow();
         expect(sha(emptyFlow.join('\n'))).toBe(SEAL.s3.frame0.sha);
-        // 非珠体族现口径：帧长差 = 控件条数 **+ 已登记的空槽内阴影阶梯段**（`731100c`，每空槽 +2 rect；
-        // 平移 = 条数中不变，不得拿它抵充增减）。⛔ 两段的数值各自登记，不得合并成一个黑箱常数。
-        expect(emptyFlow.length - SEAL.head.frame0.total).toBe(HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0);
-        expect(SEAL.s3.frame0.total - SEAL.head.frame0.total).toBe(HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0);
+        // 非珠体族现口径：帧长差 = 控件条数 **+ 已登记的空槽内阴影阶梯段 − 已登记的容器板/背景退役段**
+        //（`731100c` 每空槽 +2 rect；WXG-T-256 两帧 −9 rect）。平移 = 条数中不变，不得拿它抵充增减。
+        // ⛔ 三段的数值各自登记，不得合并成一个黑箱常数。
+        expect(emptyFlow.length - SEAL.head.frame0.total).toBe(
+            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0,
+        );
+        expect(SEAL.s3.frame0.total - SEAL.head.frame0.total).toBe(
+            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0,
+        );
         // 归因登记必须在案（⛔ 无登记的基准追改视为红）。
         expect(SEAL.provenance.s3_frame_recheck_6, '第六次复评无归因登记').toContain('第六次复评');
         expect(SEAL.provenance.s3_frame_recheck_6).toContain('731100c');
@@ -439,6 +471,26 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_9).toContain('maskGauge');
         expect(SEAL.provenance.s3_frame_recheck_9).toContain('96/96');
         expect(SEAL.provenance.s3_frame_recheck_9).toContain('468');
+        // 第十三次（WXG-T-256 容器板 + 三层背景退役）：归因须点名 ① 用户拍板 ② 唯一变更源
+        // ③ 削减量（rect −9 = 板 6 + 背景 3）—— 三者缺一即红。
+        expect(SEAL.provenance.s3_frame_recheck_13, '第十三次复评无归因登记').toContain('第十三次复评');
+        expect(SEAL.provenance.s3_frame_recheck_13).toContain('容器板');
+        expect(SEAL.provenance.s3_frame_recheck_13).toContain('rect −9');
+        // 第十四次（WXG-T-256 S5′-4 底图通道）：归因须点名 ① 变更源 `back` ② 计数零变更（只 sha 动）
+        // ③ 前态锁位置 —— 三者缺一即红。
+        expect(SEAL.provenance.s3_frame_recheck_14, '第十四次复评无归因登记').toContain('第十四次复评');
+        expect(SEAL.provenance.s3_frame_recheck_14).toContain('S5′-4');
+        expect(SEAL.provenance.s3_frame_recheck_14).toContain('逐 kind 计数全等');
+        expect(SEAL.provenance.s3_frame_recheck_14).toContain('s3_pre_back_channel');
+        // **闭合自证**（唯一例外通道 b 条）：本批只往 4 条命令的 JSON 末尾插了 `"back":true` 键
+        // ⇒ 剥掉该键后两帧必须**逐字节回到前态锁**。几何 / 墨 / 条数因此不可能被顺手改掉。
+        const stripBack = (flow: string[]): string[] => flow.map((l) => l.replace(',"back":true', ''));
+        const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
+        const backFrame = frameFixture().flow.filter((l) => l.includes(',"back":true'));
+        expect(backEmpty.length, `⛔ 空盘帧的 back 键只准落在面板底 + 三段内阴影（登记 = ${BACK_KEY_LINES}）`).toBe(BACK_KEY_LINES);
+        expect(backFrame.length, '⛔ 78 填帧同上（同一批桌面图元，不随填格数变）').toBe(BACK_KEY_LINES);
+        expect(sha(stripBack(emptyFlow).join('\n')), '空盘帧剥掉 `back` ⇒ 必 ≡ 前态锁').toBe(SEAL.s3_pre_back_channel!.frame0.sha);
+        expect(sha(stripBack(frameFixture().flow).join('\n')), '78 填帧剥掉 `back` ⇒ 必 ≡ 前态锁').toBe(SEAL.s3_pre_back_channel!.frame78.sha);
         // 反面自证（K-060）：新锁与 HEAD 旧锁必不等，且不等量已在上面逐项登记。
         expect(SEAL.s3.frame0.sha).not.toBe(SEAL.head.frame0.sha);
         expect(SEAL.s3.frame78.sha).not.toBe(SEAL.head.frame78.sha);
@@ -482,7 +534,7 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         // （6 条/格里的另2 条是 line，见下一条）。旧式 `78 × -4` 的**「填格下的槽不再绘制」前提
         // 已被本裁定推翻**，⛔ 不是数字微调。
         expect(delta.rect - ctrl.rect).toBe(
-            78 * -4 + SOCKET_INNER_SHADE_FRAME78 + 78 * (FILLED_SOCKET_PER_CELL - 2),
+            78 * -4 + SOCKET_INNER_SHADE_FRAME78 + 78 * (FILLED_SOCKET_PER_CELL - 2) - PLATE_BG_RETIRE_FRAME78,
         );
         expect(delta.line).toBe(78 * -5 + 78 * 2); // +2 = 补画坑底的 S3/S4 两线
         expect(delta.circle - ctrl.circle).toBe(78 * 0); // **孔贡献 = 0**：单孔 → 环+底两枚（六裁，用户拍板）
@@ -492,11 +544,12 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(Object.values(delta).reduce((a, b) => a + b, 0)).toBe(totalDelta);
         expect(totalDelta).toBe(
             78 * (-4 - 5 - 0 + 4) + HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME78
-            + FILLED_SOCKET_FRAME78,
+            + FILLED_SOCKET_FRAME78 - PLATE_BG_RETIRE_FRAME78,
         );
         // ⛔ 禁止「纸面推算的新基线整帧数」入册（K-051）：以下均**复评登记实测值**自洽核对。
-        // 1877 = 1409（recheck_7 态）+ 468（WXG-T-236 八轮「有珠格补画坑底」，第九次复评登记）。
-        expect(SEAL.s3.frame78.total).toBe(1877);
+        // 1877 = 1409（recheck_7 态）+ 468（WXG-T-236 八轮「有珠格补画坑底」，第九次复评登记）；
+        // 1868 = 1877 − 9（WXG-T-256 容器板 + 三层背景退役，第十三次复评登记）。
+        expect(SEAL.s3.frame78.total).toBe(1868);
         expect(SEAL.s3.frame78.kinds.circle).toBe(160); // = 82 + 78（每颗填格珠 +1 HOLE_RING）
         expect(SEAL.s3AtFormalization!.frame78.total).toBe(1119); // 转正时刻史证（不随复评漂移）
         expect(SEAL.head.frame78.total).toBe(1587); // 旧值仅作历史档案（§K.5.0 作废登记）

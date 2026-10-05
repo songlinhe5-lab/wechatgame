@@ -340,6 +340,30 @@
       "path": "memory/2026-10-04.md",
       "reason": "开发日记（按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读）——与 memory/2026-09-28（WXG-T-214）/2026-10-03（WXG-T-236）同族豁免；由 tasks:archive 周期收敛，不手工拆",
       "taskId": "WXG-T-244"
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md",
+      "reason": "ADR 单文件完整性：beads Cocos 生产渲染载体（blit carrier）架构决策正本。§5 施工记录按「刀次」追加，每刀自带「现象↔根因↔修法↔门禁」闭环，拆分会把裁定链断成跨文件互引（沿 ADR-0011/0015/0020/0022/0023/0024 同一豁免政策）。已被 ctx 按章节锚点覆盖，读取走 §5.x 局部读、从不整读",
+      "note": "2026-10-06（WXG-T-260 提交批）首次入索引即 45088 tok（≈5.6× 上限）：历史 S0–S5′-7 二十刀全量累积从未入仓。债务显式化：S5′ 收口后须把 §5 施工记录按 Epic 阶段拆为 ADR-0030-build-log-<phase>.md（正文留结论与指针）后撤销本豁免；不得靠豁免放任第二份同类 ADR 直接开写超限件。登记人 = 主理人(Qoder)",
+      "taskId": "WXG-T-260"
+    },
+    {
+      "path": "docs/architecture/control-manifest.md",
+      "reason": "工程铁律 L1–L5 与评审清单的唯一正本，每次改动都要全量对照；⛔ 不得为满足 token 门删减铁律正文。已被 ctx 按章节锚点覆盖，读取走 §条目局部读",
+      "note": "WXG-T-257~259 tint 口径线登记使其自 7975 越至 8549（+574，超 6.9%）。撤销条件（任一达成即撤豁免）：① 把「评审清单」区抽为 control-manifest-review.md，正本只留铁律表与指针；② 铁律台账随 ADR 收口自然回落 8000 下。不得二次追加同类豁免。登记人 = 主理人(Qoder)",
+      "taskId": "WXG-T-260"
+    },
+    {
+      "path": "knowledge/INDEX.md",
+      "reason": "知识库入口（§1–§5 协议正文 + §6 活跃表）。§6 活跃表是 kb:sync **生成物**（逐条一行，随 115 条活跃条目增长，占 6148 tok），生成器无窗口；读取协议要求它每会话必读。⚠ 本豁免**只给入口件本身**，lessons 各分片仍依 §4 明令「不得新增豁免」，越阈一律再切",
+      "note": "WXG-T-257~259 沉淀批新增条目使其自 7351 越至 8972（正文 2825 + 生成表 6148）。撤销条件：下次再涨 >500 tok 时，把 §1–§5 协议正文外移 `knowledge/PROTOCOL.md`（可腾 ≈2825 tok ≈ 50 条目余量）并同步 AGENTS.md §9 / ctx/ROUTES.md 的 `INDEX.md#§1/§2/§5` 锚点引用，不得继续靠豁免硬扛。登记人 = 主理人(Qoder)",
+      "taskId": "WXG-T-260"
+    },
+    {
+      "path": "knowledge/CHANGELOG.md",
+      "reason": "由 `pnpm run kb:sync` 生成（文件头明示「请勿手改」），数据源 = ledger.events（**append-only**）；渲染器无时间窗，故体积随知识库全生命周期单调增长。与 memory/INDEX.md（WXG-T-139）同族：生成物 ⇒ 由工具链周期收敛，不手工拆",
+      "note": "WXG-T-257~259 三批沉淀使其自 5929 越至 8153。撤销条件（择一，须另立单做）：① 给 renderChangelog 加日期/条数窗（改动须同步 kb selftest）；② 按季度归档为 `knowledge/archive/CHANGELOG-<q>.md`（archive 已在 SKIP_DIRS，不入索引面）。⚠ 真源缺口已登记：本件无自动收敛 ⇒ 每次大沉淀批都会顶门。登记人 = 主理人(Qoder)",
+      "taskId": "WXG-T-260"
     }
   ]
 }

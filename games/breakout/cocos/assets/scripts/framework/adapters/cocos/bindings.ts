@@ -36,6 +36,7 @@ import {
 import { App } from '../../compose/app';
 import type { Game } from '../../core/game/game';
 import { CocosRenderModelRenderer, parseColorLiteral } from './cocos-renderer';
+import type { CocosBlitCarrierLike } from './cocos-renderer';
 import { CocosInputBridge } from './input-bridge';
 import { CocosLoopBridge } from './loop-bridge';
 import { PooledLabelSource } from './label-pool';
@@ -58,6 +59,10 @@ export class Bootstrap extends Component {
   private _app: App | null = null;
   private _loop: CocosLoopBridge | null = null;
   private _graphics: Graphics | null = null;
+  /** `[WXG-T-256]` 底图提交体（`model.background` 的全屏 rect），恒在珠下。 */
+  private _back: Graphics | null = null;
+  /** `[WXG-T-256]` blit 载体层（珠）：夹在底图与矢量 UI 之间。 */
+  private _blitLayer: Node | null = null;
   private _renderer: CocosRenderModelRenderer | null = null;
   private _bridge: CocosInputBridge | null = null;
   private _labels: PooledLabelSource | null = null;
@@ -71,6 +76,23 @@ export class Bootstrap extends Component {
   /** Subclasses / games override this to supply their Game implementation. */
   protected createGame(): Game {
     throw new Error('Bootstrap.createGame() must be overridden by the game project');
+  }
+
+  /**
+   * `[WXG-T-253 / ADR-0030 DEC-2 · S5′]` **blit 载体注入点**（游戏侧可选覆写）。
+   *
+   * 默认 `null` ⇒ 不注入 ⇒ `CocosRenderModelRenderer` 继续走 warn-once skip
+   * （= 今日生产行为，逐字节不变）。
+   *
+   * ⚠ 形参 `[WXG-T-256 / S5′-3]` 由 GameRoot 改为**专用的 BlitLayer 节点**：载体把 `Sprite`
+   * 挂在它下面就自动落在「底图之上、矢量 UI（HUD/面板/彩带）之下」——旧写法（挂 GameRoot 末）
+   * 会把珠排到 `Graphics` 之后 ⇒ 珠子盖住暂停/结算面板与 scrim。BlitLayer 仍是 GameRoot 的子节点
+   * ⇒ WXG-T-132 的整屏节点缩放与 `Graphics` 同一坐标系两个性质都不变。
+   *
+   * ⛔ 框架不造载体：图集 / 节点池 / mask 资产加载全在 `games/<game>/cocos/assets/scripts/`。
+   */
+  protected createBlitCarrier(_layer: Node): CocosBlitCarrierLike | null {
+    return null;
   }
 
   start(): void {
@@ -174,6 +196,17 @@ export class Bootstrap extends Component {
     const transform = root.addComponent(UITransform);
     transform.setContentSize(DESIGN_WIDTH, DESIGN_HEIGHT);
 
+    // [WXG-T-256 / ADR-0030 S5′-3] 层序三叠：底图（`model.background` 全屏 rect）
+    // → BlitLayer（珠）→ Graphics（HUD/面板/遮罩）→ Labels。子节点序 = Cocos UI 绘制序，
+    // 无需 zIndex；底图旧版无人消费（canvas2d 有、Cocos 无 ⇒ 两端底色不一致，本批修掉）。
+    const backNode = new Node('Background');
+    root.addChild(backNode);
+    this._back = backNode.addComponent(Graphics);
+
+    const blitLayer = new Node('BlitLayer');
+    root.addChild(blitLayer);
+    this._blitLayer = blitLayer;
+
     const graphicsNode = new Node('Graphics');
     root.addChild(graphicsNode);
     this._graphics = graphicsNode.addComponent(Graphics);
@@ -201,6 +234,9 @@ export class Bootstrap extends Component {
   /** Called by `launch()` after the App (and its viewport) exist. */
   private _bindRenderer(): void {
     if (!this._app || !this._graphics || !this._labels) return;
+    const blitCarrier = this._root
+      ? this.createBlitCarrier(this._blitLayer ?? this._root)
+      : null;
     this._renderer = new CocosRenderModelRenderer(
       this._graphics,
       this._labels,
@@ -241,6 +277,9 @@ export class Bootstrap extends Component {
             r.setPosition(0, 0, 0);
           },
         },
+        blitCarrier: blitCarrier ?? undefined,
+        // [WXG-T-256] 底图提交体：没注入的宿主（breakout 等）行为零变更。
+        backGraphics: this._back ?? undefined,
       },
     );
   }

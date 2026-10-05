@@ -12,12 +12,15 @@
  * 拷贝件统一由 `framework:sync`（默认 strip-suffix 语义）生成。
  */
 
-import { _decorator } from 'cc';
+import { _decorator, Node } from 'cc';
 
 import { Bootstrap } from './framework/adapters/cocos/bindings';
+import type { CocosBlitCarrierLike } from './framework/adapters/cocos/cocos-renderer';
 import type { Game } from './framework/core/game/game';
 import { createBeadsShell } from './game/index';
+import { maybeCreateBeadsBlitCarrier } from './host/beads-blit-carrier';
 import { installBeadFieldSpike } from './spike/bead-field-host';
+import { maybeInstallCarrierBench } from './spike/carrier-bench';
 
 const { ccclass } = _decorator;
 
@@ -66,22 +69,22 @@ export class BeadsBootstrap extends Bootstrap {
     const shell = createBeadsShell(
       studioBase
         ? {
-            studio: {
-              baseUrl: decodeURIComponent(studioBase),
-              ...(wxReq
-                ? {
-                    get: (url: string): Promise<unknown> =>
-                      new Promise((resolve, reject) =>
-                        wxReq({
-                          url,
-                          success: (res) => resolve(res.data),
-                          fail: (err) => reject(new Error(`wx.request 失败：${err?.errMsg ?? '?'}`)),
-                        }),
-                      ),
-                  }
-                : {}),
-            },
-          }
+          studio: {
+            baseUrl: decodeURIComponent(studioBase),
+            ...(wxReq
+              ? {
+                get: (url: string): Promise<unknown> =>
+                  new Promise((resolve, reject) =>
+                    wxReq({
+                      url,
+                      success: (res) => resolve(res.data),
+                      fail: (err) => reject(new Error(`wx.request 失败：${err?.errMsg ?? '?'}`)),
+                    }),
+                  ),
+              }
+              : {}),
+          },
+        }
         : {},
     );
     const g = globalThis as WxgDebugGlobal;
@@ -111,6 +114,23 @@ export class BeadsBootstrap extends Bootstrap {
     g.__WXG_GESTURE_DEBUG = () => (g.__WXG_TOUCH_DEBUG ? shell.play.debugGestureState() : null);
     // ADR-0022 Spike（D4/D5/D7）：仅 `?spike=1` 生效，默认零开销。
     installBeadFieldSpike();
+    // WXG-T-247 / ADR-0030 S0·S2 三臂载体取证：仅 `?bench=1` 生效，默认零开销。
+    maybeInstallCarrierBench();
     return shell;
+  }
+
+  /**
+   * `[WXG-T-253 / ADR-0030 S5′-1]` blit 载体（甲′ 珠层：按色图集 + `Sprite` 池）。
+   *
+   * 默认**开**（用户 2026-10-05 裁）：`?carrier=off` / 启动参数 `carrier=off`（或 `0`）才不接线
+   * ⇒ 框架走 warn-once skip ⇒ 渲染与矢量臂逐字节相同。打开后珠面由 sprite 提交，
+   * `Graphics` 只留非珠图层。
+   *
+   * ⚠ 形参 `[WXG-T-256 / S5′-3]` = 框架专用的 **BlitLayer** 节点（底图之上、`Graphics` 之下），
+   * ⛔ 不是 GameRoot：直接把图集节点挂到 GameRoot 末尾会让珠层排在 `Graphics`/`Labels` 之后
+   * ⇒ 珠子盖住暂停/结算面板与 scrim（旧残留，已在本单消）。
+   */
+  protected createBlitCarrier(layer: Node): CocosBlitCarrierLike | null {
+    return maybeCreateBeadsBlitCarrier(layer);
   }
 }

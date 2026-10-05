@@ -13,6 +13,7 @@
 | `pnpm run check:host-tests` | **宿主行为测试守卫**（`control-manifest §17` / 根因 缺陷 C1，WXG-T-110）：扫 `packages/framework/src/adapters/<引擎>/` 中含输入归一化模块的适配器，检查是否配对**真正的 Node 行为测试**（判定 = 测试文件**解析到该模块** + **值导入** + **实际调用** + 有 `it(`；**只 `import type`、只读源码跑正则均不算**）。默认 **WARN 且不阻断**（发现缺口退出码仍为 **0**）—— 用户裁定「先观察一轮」，升级条件见脚本输出（**含归一化模块的宿主适配器 ≥ 2 个**时才有真阳性）；`--fail-on-gap` 为**预留**的升级开关，`verify` 当前**不传**它。`--selftest` 桩自测（含反例必报），`pnpm run check:host-tests:selftest` |
 | `pnpm run check:size` | 包体校验（阈值真源 `systems-index §3.8`，红线 4096/30720 KB 与内部目标 2000 KB **分列不混用**）。WXG-T-095 / **BD-18**：覆盖面按 `games/*` **逐游戏**计算，缺产物的游戏被列为**未覆盖**，总结论降为 `SKIP`（旧版在此静默打「✅ OK」）；`--strict` 把未全覆盖判失败，`--json` 机读，`--selftest` 桩自测（`pnpm run check:size:selftest`）。注：`wechatgame` 产物需有效 **AppID**（见 `build-cocos.mjs` 头注），无产物属**环境阻塞**而非可忽略空项 |
 | `pnpm run check:links` | 四 IDE agents/skills/memory/规则指针完整性（**pre-commit 必跑**） |
+| `pnpm run check:cocos-mask` | **构建产物 mask 门禁**（WXG-T-255 / `ADR-0030 §5.5`）：按载体 `MASK_UUID` + `tuning.TINT_MASK_GAUGE_PIN` 派生需求集，逐张核 `build/wechatgame/assets/main/native/<xx>/<uuid>.png` 在不在。存在≠进包：Cocos **构建期依赖分析**只认 `.prefab`/`.scene`/`.mtl` 引用，运行期 uuid 字符串不算 ⇒ 缺张则 `warmup()` 凑不齐、载体**静默落回矢量臂**（屏幕看不出来）。无产物 = `STATUS: SKIP`（⛔ 不当通过，同 `check:size` BD-18）；`--pin=null` 可不改宏做反事实提问（已挂 `verify`） |
 | `pnpm run harness` | 启动浏览器验证器 |
 | `pnpm run harness:build` / `harness:smoke` | 只编译 / 运行时冒烟 |
 | `pnpm run ctx:rotate` | 读账本 `ctx/reads-ledger.jsonl` 分窗轮转（WXG-T-037 R1；默认窗口 20 会话，溢出才落盘） |

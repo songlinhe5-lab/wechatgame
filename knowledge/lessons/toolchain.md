@@ -96,3 +96,13 @@
   根因：解析器 `tasks-detail.mjs::HEADING_RE = /^##\s+(WXG-T-\d+)\s*$/` 只认**纯 token 整行**（防误切正文 `##`），id 后带文字即不匹配；配对检查（C 项）是唯一拦截点。
   规避：① 机器解析的 Markdown，**标题行必须是纯 token**，描述另起一行；② 补完详情节必跑 `check:tasks`；③ 解析器形状变更时同步自查脚本。
   判例引用：`tools/scripts/lib/tasks-detail.mjs`、`check-tasks.mjs` C 项；同族 K-035。
+
+- **[工具链][K-106] 「门禁跑过」≠「新文件被门禁看到」：守卫输出计数而非清单，覆盖要自证**（来源 WXG-T-253 / ADR-0030 S5′-1，2026-10-05）
+  现象：`cocos:check` 报「检查 2 / 失败 0」，很容易被读成「本批新写的 285 行宿主代码过了类型检查」。真正决定覆盖面的
+  是 `tsconfig.check.json` 的 `include` 与编辑器生成的 `temp/tsconfig.cocos.json`，而守卫脚本**不报告看了哪些文件**；
+  若 include 少一条 glob，结果是「静默不检」而不是「检查不过」——假绿比红更难发现。
+  根因：逐游戏循环 + `spawnSync(tsc)` 只拿 exit code 与 stdout 判成败；「覆盖率」不在判据里（同 K-031/K-033 的「漏项静默不扫」，只是这次漏的是**新文件**）。
+  规避：① 新文件**首次**进守卫时，用底层工具的清单开关自证（`tsc -p <config> --noEmit --listFiles` 后 grep 那个文件名），并把这一条核对写进台账读数行（「跑了」与「检到了」分清）；
+  ② 若某个目录天然不在扫描面（例：`games/*/cocos/assets/scripts/**` 不进 ES5 契约门，`check-es5-spread.mjs::isShippedSource` 明写返回 false），
+  要在文档/台账里写明「该面只有编辑器 Preview 可证」，⛔ 不得拿「verify 全绿」给它背书。
+  判例引用：K-036（串联门禁短路即 ✅ 不构成证据）、K-037（指令流全绿 ≠ 屏幕层可证）、K-031/K-033（枚举清单漏项必须**会红**）。

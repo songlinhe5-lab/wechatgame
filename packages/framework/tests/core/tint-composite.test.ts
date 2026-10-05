@@ -4,9 +4,9 @@ import { compositeTintMask, parseTintColor } from '../../src/core/bake/tint-comp
 /**
  * `[WXG-T-226 EP12-B3]` tint 合成数学的判据。
  *
- * 期望值取自**定稿 py 公式**（`tools/mask-preview/preview-combined.py:29-36`，
- * `out = base·d + (1−base)·l·shape`，`alpha = shape`）的独立实算 ⇒ 本测试是
- * 「TS 运行时合成」对「py 资产侧真源」的交叉校验，不是同义反复。
+ * 期望值取自**三端同式**（`assets/effects/tint-mask.effect` frag / `preview-combined.py:29-36` /
+ * 本函数）：`out = base·d + (1−base)·l`，`alpha = shape` ⇒ 本测试是
+ * 「TS 运行时合成」对「shader + py 资产侧真源」的交叉校验，不是同义反复。
  */
 
 const CREAM: [number, number, number] = [0xfd, 0xf6, 0xe9];
@@ -46,7 +46,7 @@ describe('parseTintColor', () => {
   });
 });
 
-describe('compositeTintMask（与定稿 py 同式）', () => {
+describe('compositeTintMask（与 shader / py 同式）', () => {
   it('d=1 且 l=0 ⇒ 逐字节等于本色（亮色珠纯本色像素，D1 修复后的应落值）', () => {
     expect(composite1(px(255, 0, 255), CREAM)).toEqual([253, 246, 233, 255]);
     expect(composite1(px(255, 0, 255), CHARCOAL)).toEqual([0x33, 0x33, 0x3d, 255]);
@@ -69,6 +69,15 @@ describe('compositeTintMask（与定稿 py 同式）', () => {
   it('alpha 取 shape 通道（不是 mask 的 A）', () => {
     expect(composite1(px(143, 97, 128), CREAM)[3]).toBe(128);
     expect(composite1(px(143, 97, 1), CREAM)[3]).toBe(1);
+  });
+
+  // 【WXG-T-259】羽化带（`shape ∈ (0,1)`）钉住 GPU 口径：亮度 ⛔ 不乘 shape。
+  // 旧 CPU 式（`l·shape`）在这三点上会得出 (142,140,135) / (68,68,71) / (112,112,119)，
+  // 与真机 ΔRGB 最大 40.7/255 ⇒ 本腿是两端分叉的唯一回归门。
+  it('羽化带 shape=128/200 ⇒ RGB 与 shape 无关（形状只进 alpha，同 shader）', () => {
+    expect(composite1(px(143, 97, 128), CREAM)).toEqual([143, 141, 139, 128]);
+    expect(composite1(px(143, 97, 128), CHARCOAL)).toEqual([106, 106, 108, 128]);
+    expect(composite1(px(255, 97, 200), CHARCOAL)).toEqual([129, 129, 135, 200]);
   });
 
   it('逐像素独立处理一张 2×2 图（行主序）', () => {

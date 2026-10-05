@@ -365,17 +365,12 @@ export const BEAD_BEVEL_LIGHT_MIX = 0.28;
 /** L3b rim 光混色（v1.3 新增上内缘单线；「06 金属包边」把 `mix(base,#FFF)` 0.38 → **0.50** 提亮金属包边）。 */
 export const BEAD_RIM_MIX = 0.5;
 
-// ───────────── container plate + glow band / background layers (§1.7/§1.8，F2/F3/F8) ──
+// ───────── [已退役 · WXG-T-256] container plate + glow band / background layers (§1.7/§1.8) ──
 //
-// v1.3 丙案三组叠层的墨色（几何/α 在 `config/tuning`）。仅 `palette.ts` 持 hex
-//（control-manifest §3）；都走**叠层递减 α**，禁止实涂（§1.7/§1.8 头注）。
-
-/** 暖光 band 墨色（glow_warm `#FFF3E2`，仅拼图容器外缘，§3.5 暖光纪律）。 */
-export const GLOW_WARM_HEX = '#FFF3E2';
-/** 背景冷沉层（bg_depth `#E3E0EE`，全屏 α0.04，仅冷色，F8）。 */
-export const BG_DEPTH_HEX = '#E3E0EE';
-/** 背景中心提亮（bg_lift `#F4F2FA`，与 bg_base ΔL ≤4%，F8）。 */
-export const BG_LIFT_HEX = '#F4F2FA';
+// [WXG-T-256 · 用户 2026-10-05 拍板] 原「v1.3 丙案三组叠层」墨色 `GLOW_WARM_HEX` /
+// `BG_DEPTH_HEX` / `BG_LIFT_HEX` 随 §1.7 容器板与 §1.8 背景层退役（几何/α 常量同批见
+// `config/tuning.ts`）。现口径 = 全屏单层底色 `background`（bg_base 冷紫灰），由宿主消费
+// `model.background` 铺满屏；正本 = ADR-0030 §5.2 裁②′。
 /** 结算星/缎带金（资产色判例：v1.3 §3.1 无金 token，按 `POWERUP_INK_STAR` 同判例固定；
  *  珠色2 柠黄同值但**语义不同源**——结算场景珠面不在场，无 §3.5 冲突）。 */
 export const STAR_GOLD = '#FFD23F';

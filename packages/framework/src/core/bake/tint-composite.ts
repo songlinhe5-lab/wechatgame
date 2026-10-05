@@ -1,20 +1,25 @@
 /**
  * `[WXG-T-226 EP12-B3 / ADR-0028 §2.1]` tint mask **合成数学**（纯函数，⛔ 无 DOM / 无 canvas）。
  *
- * ## 公式（与定稿 py 逐字同源）
+ * ## 公式（三端同式：GPU shader / CPU 合成 / py 预览）
  *
+ * `games/beads/cocos/assets/effects/tint-mask.effect`（frag）与
  * `tools/mask-preview/preview-combined.py:29-36`：
  * ```
- * out = base·d + (1−base)·l·shape        alpha = shape
+ * out = base·d + (1−base)·l        alpha = shape
  * ```
  * 其中 mask 通道 = `R = d` / `G = l` / `B = shape` / `A = 255`（ADR-0028 §2.1）。
+ *
+ * ⚠ **`l` 不乘 shape（WXG-T-259 裁定「GPU 为准」）**：旧 CPU 式写作 `l·shape`，在
+ * `shape ∈ (0,1)` 羽化带上多衰一次 ⇒ 珠 mask 1242 个半透明像素与真机 ΔRGB 最大 40.7/255（格 mask
+ * 纯二值不受影响）。形状只进 alpha、亮度与 shape 无关才是 shader 口径。
  *
  * ## 两个刻意的取舍
  *
  * 1. **⛔ 不走 `globalCompositeOperation: multiply/screen`**：它在仓内**在役用量 = 0**，
  *    且 `wxg-t-228-tint-criteria.md:81` 明文「⛔ 禁把浏览器可用性外推为真机可用」⇒ 走 CPU 合成。
  * 2. **输出 straight alpha（非预乘）**：本函数的产物交给 `putImageData`，其契约是
- *    **非预乘** RGBA。合成结果的观感与 py 预览一致（py 的 `over()` 内部才做预乘）。
+ *    **非预乘** RGBA。浏览器展示时自行预乘（`rgb·a`）⇒ 与 shader 的 `vec4(outColor*alpha, alpha)` 等价。
  *    `shape = 0` 的像素额外清零 RGB —— 直通 alpha 下留残值会在浏览器内部预乘时产生边缘晕影。
  *
  * 数值口径：8-bit 量化误差 ±1/255（判据 `TC-TINT` 统计容差 ±2/255 覆盖）。
@@ -125,7 +130,7 @@ export function compositeTintMask(
             continue;
         }
         const d = mask[i]! / 255;
-        const ls = (mask[i + 1]! / 255) * shape;
+        const ls = mask[i + 1]! / 255;
         dst[i] = Math.round((br * d + (1 - br) * ls) * 255);
         dst[i + 1] = Math.round((bg * d + (1 - bg) * ls) * 255);
         dst[i + 2] = Math.round((bb * d + (1 - bb) * ls) * 255);

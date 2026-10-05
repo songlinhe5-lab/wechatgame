@@ -526,17 +526,16 @@ describe('托盘选中态画坑（WXG-T-240）', () => {
   });
 });
 
-// ── [T-244 十四批 · 2026-10-04 用户报「托盘的珠子有问题」] ─────────────────────
+// ── [T-244 十四批 · 2026-10-04 → **2026-10-05 推翻**·用户裁「格子底色和托盘底色一样」] ──
 //
-// 实测（tint 臂 = 生产臂）：托盘珠孔心 (172,172,175) 浅灰 vs 盘面珠孔心 (142,37,34) 深色。
-// 病因：tint 臂的珠孔**真透**（mask ⌀12 alpha ⇒ 孔色 = 下层槽面 tint 基色 × 0.70），
-//   而有珠的槽曾把 `colorIdx` 传成 `undefined` ⇒ 基色落 `palette.slot`（#F7F6FB 近白）。
-//   盘面传的是**格目标色** ⇒ 同一颗珠两个域两种话。矢量臂无此病灶（`facet-4` 自画实色
-//   孔底 `pit(targetColorIdx ?? colorIdx)`）⇒ 本缺陷**只在生产臂可见**。
-// 修法：托盘无目标色 ⇒ 按矢量臂契约的同一回落，**传珠自己的 `colorIdx`**。
-// ⛔ 空槽（`state === 'free'`）恒中性 ⇒ v6.0「托盘保持中性收纳区」裁定不受本批影响。
-describe('托盘有珠的槽必须带珠色（T-244 十四批 · 孔底透出）', () => {
-  it('有珠槽的 socket 亮底 ≡ 该珠 `colorIdx` 的 base（⛔ 不得仍是中性 `palette.slot`）', () => {
+// 沿革（留档，别再翻烧饼）：十四批把有珠槽的格底改成**珠色**，修的是 tint 臂真透孔
+//   透出近白（实测孔心 托盘 (172,172,175) vs 盘面 (142,37,34)）。代价当时未记：
+//   有珠槽与 22 个空槽**不同色** ⇒ 珠四周多出一块珠色方片（用户 2026-10-05 报「底色不对」）。
+// 现口径：格底回中性 `palette.slot`（有珠槽 ≡ 空槽同一张图）；**孔不再靠格底借色**，
+//   而由珠自己补 live 孔（tint 臂 `liveHole: true` ⇒ 尺与墨另有一条腿在
+//   `bead-tint-arm.test.ts`；矢量臂由风格层集自画实色孔底，本腿只校调用侧传的色）。
+describe('托盘有珠的槽格底 ≡ 中性（与空槽同色，2026-10-05 推翻十四批）', () => {
+  it('有珠槽的 socket 亮底 ≡ `palette.slot`（⛔ 不得再拿珠色当格底）', () => {
     const h = mkHarness('wxgame.beads.test.t244-tray-socket-ink');
     h.game.giveTrayBead(3);
     h.advance(0.4);                                   // 进珠包络越窗（⚠ 单位 = **秒**）
@@ -553,9 +552,10 @@ describe('托盘有珠的槽必须带珠色（T-244 十四批 · 孔底透出）
         && Math.abs((k.x ?? 0) + TRAY_SLOT / 2 - cx) < 0.01
         && Math.abs((k.y ?? 0) + TRAY_SLOT / 2 - cy) < 0.01,
     );
-    expect(base.length, '有珠的槽须画出自带亮底（socket base）').toBe(1);
-    expect(base[0]!.fill, '孔底基色 ≡ 珠色（tint 臂透出的就是它）').toBe(beadColorOf(DEMO_BEAD_INKS, slot.colorIdx));
-    expect(base[0]!.fill, '⛔ 不得回退成中性 slot 底（旧口径 ⇒ 托盘珠孔发白）').not.toBe(DEFAULT_PALETTE.slot);
+    expect(base.length, '有珠的槽仍须画出槽底（⛔ 不得回退成“有珠就不画坑”）').toBe(1);
+    expect(base[0]!.fill, '格底 ≡ 托盘中性色（与空槽同图）').toBe(DEFAULT_PALETTE.slot);
+    expect(base[0]!.fill, '⛔ 不得再是珠色（十四批旧口径 ⇒ 珠四周多出一块方片）')
+      .not.toBe(beadColorOf(DEMO_BEAD_INKS, slot.colorIdx));
   });
 });
 

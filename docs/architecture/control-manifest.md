@@ -114,6 +114,9 @@ games/<game>/
 - ❌ 不在游戏逻辑里出现 `Graphics`、`Label`、`ctx`、`Node`
 - ✅ 文字走 `RenderModel` 的 `text` 指令；Cocos 侧由 `PooledLabelSource` 池化 `Label` 节点
 - ✅ 尽量合并 draw call（Cocos 下所有矢量图形进**同一个** `Graphics`）
+- ✅ **脏帧门控（WXG-T-248）**：`App._render` 以 `RenderModelBuilder.signature()` 的内容指纹判脏，干净帧**不回调** `onRender`
+  ⇒ ⚠ **`onRender` 不是逐帧 tick 钩子**：宿主不得在其中推进游戏状态、不得依赖 `alpha` 每帧变化（插值补偿放自己的帧回调）
+- ✅ 真机「画面不动」类缺陷先用 `app.dirtyGate = false` 隔离（kill switch，免重构建）；⛔ 生产路径不得有人翻它
 
 ---
 
@@ -339,3 +342,16 @@ agent（Godot/Unity/Unreal，本仓引擎唯一 = Cocos Creator + 微信小游�
 ## 19. 珠面烘焙管线（正本 = ADR-0025／ADR-0027；八条纪律 = ADR-0027 §3 DEC-8）
 
 > ⛔ 包体守卫未归位前向主包投放位图；⛔ 运行时放大烘焙纹理；未命中一律矢量回退。前置：T-215 归位、S0 守卫、ADR-0026 `blit`。
+
+**§19.1 tint mask 档位例外**（正本 = `ADR-0030` DEC-4／§7.1 (A)，用户 2026-10-05 裁「直接 (A)，之后有问题再调整」）：
+
+- ✅ `MASK_CANONICAL_SIZE = 128` 为**唯一投放档**（尺 = `BEAD_CELL 30 × zoom 2.0 × dpr 2 = 120 ≤ 128`），
+  **不为 dpr3 设备加投高分辨率档**；当高 dpr 真机的 blit 外框 `30 × zoom × dpr > 128` 时，
+  **允许该帧轻度运行时放大**（满 zoom × dpr3 ≈ 1.41×），⛔ 不得因此自动回矢量臂（`TINT_LOD_MAX_UPSCALE` 保持 `null`）。
+- 边界（四条，勿当无限授权）：① 只适用于 **mask 档位**，**不适用于帧纹理缩放**（源 A 的 zoom 口径仍待 `ADR-0030` §7 Q2 裁定）；
+  ② 回退机制与单测**保留不删**，填 `1.0` 即恢复 §19 原口径；③ 复评依据 = 真机 `screen.devicePixelRatio` 实读
+  + 同机 tint↔矢量取证（`ADR-0030` S0 真机腿必采项）；④ **包体守卫仍须先过 `TC-TINT-18`**
+  —— 本条例外只解 §19 的「放大」半，**不解「向主包投放位图」半**。
+- ⛔ 本条例外**未落本节之前**，呈现层开关不得默认开（`ADR-0030` S5 硬前置）。
+  ⇒ ✅ **已落表（2026-10-05）**：该硬前置的**文书半边**已解除；S5 真机接线仍须先过 `TC-TINT-18`（边界 ④），
+  且载体改裁（`ADR-0030` 丙′ → 甲′）不改变本条例外的效力（例外跟「128 唯一档」走，不跟载体走）。

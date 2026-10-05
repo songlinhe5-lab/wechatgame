@@ -20,10 +20,12 @@ import {
 } from '@wxgame/framework';
 import { DEMO_BEAD_INKS } from '../../games/beads/src/view/palette.js';
 import {
-  MASK_SCHEMA_VERSION,
+  MASK_TILE_SUFFIX,
+  maskTileInnerPx,
   tintFx,
-  type BeadMaskGauge,
 } from '@wxgame/framework';
+import { BEAD_PITCH, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { requiredTintMaskIds } from '../../games/beads/src/view/bead-tint-mask.js';
 import { setBeadTintRuntime, createWhitelistBeadTintRuntime } from '../../games/beads/src/view/bead-render.js';
 import { createBreakoutGame, type BreakoutGame } from '../../games/breakout/src/index.js';
 import { createBeadsShell, type BeadsShell } from '../../games/beads/src/index.js';
@@ -85,17 +87,22 @@ const dpr = Math.min(window.devicePixelRatio || 1, 2);
  */
 const tintEnabled = harnessParams.get('tint') !== 'off';
 
-/** 4 张定稿 mask 的逻辑 id（正本 = `bead-tint-mask.ts` 的 DEC-5 白名单）。 */
-const MASK_IDS: readonly string[] = [
-  `mask__bead__holed__v${MASK_SCHEMA_VERSION}`,
-  `mask__bead__holeless__v${MASK_SCHEMA_VERSION}`,
-  `mask__grid__holed__v${MASK_SCHEMA_VERSION}`,
-  `mask__grid__holeless__v${MASK_SCHEMA_VERSION}`,
-];
+/**
+ * 本宿主**实际要装**的 mask 逻辑 id（`[WXG-T-255]` 由 `tuning.TINT_MASK_GAUGE_PIN` 派生，
+ * ⛔ 不写死 4 张）。正本 = `bead-tint-mask.ts` 的 DEC-5 白名单 + 档位宏；Cocos 宿主消费
+ * 同一个函数 ⇒ 两端「要哪几张」恒一致（ADR-0030 DEC-3 同源）。
+ */
+const MASK_IDS: readonly string[] = requiredTintMaskIds();
 const MASK_URL_PREFIX = '/mask-assets/';
-const MASK_FILE: Readonly<Record<BeadMaskGauge, { bead: string; grid: string }>> = {
-  holed: { bead: 'bead-hole-tint-128-mask.png', grid: 'grid-hole-tint-128-mask.png' },
-  holeless: { bead: 'bead-holeless-tint-128-mask.png', grid: 'grid-holeless-tint-128-mask.png' },
+/**
+ * 逻辑名（不含 `__vN`）→ 定稿 PNG。**四张完整目录**（含宏当前不用的 `holeless` 两张）
+ * ⇒ 把宏改回 `null` 时本表零改动，与 Cocos 宿主的 `MASK_UUID` 同形。
+ */
+const MASK_FILE: Readonly<Record<string, string>> = {
+  'mask__bead__holed': 'bead-hole-tint-128-mask.png',
+  'mask__bead__holeless': 'bead-holeless-tint-128-mask.png',
+  'mask__grid__holed': 'grid-hole-tint-128-mask.png',
+  'mask__grid__holeless': 'grid-holeless-tint-128-mask.png',
 };
 
 /** mask 纹理注册表（mask 逻辑 id → 可 drawImage 的 ImageBitmap）。 */
@@ -142,6 +149,9 @@ const tintCache = new TintSpriteCache(
     // 曾按「blit 会翻转 ⇒ 需预镜像」的推理加过 `flipY: true`，结果是**光影反了**（已回退）。
     // `?flip=1` 保留为反证开关。
     flipY: harnessParams.get('flip') === '1',
+    // [WXG-T-254 / S5′-2] L0 底 tile：画布 = 格距 + 2×出血（33dp）、内容恒为格径 30dp 居中。
+    // 与 Cocos 宿主同一式子、同一份 `composeMaskTile` ⇒ 两端字节相等（ADR-0030 DEC-3）。
+    tileInnerPx: maskTileInnerPx(BEAD_PITCH + TILE_BLEED * 2),
   },
 );
 const blitResolver = createTintBlitResolver(tintCache, maskSource as TextureRegistry);
@@ -165,14 +175,14 @@ if (isBeads && tintEnabled) {
       ));
       prewarmTint();
       console.info(
-        `[tint] 已装配：${tintStats.loaded}/4 mask · 预烘 ${tintStats.prewarmed} 条 ${tintStats.prewarmMs.toFixed(1)}ms`,
+        `[tint] 已装配：${tintStats.loaded}/${MASK_IDS.length} mask · 预烘 ${tintStats.prewarmed} 条 ${tintStats.prewarmMs.toFixed(1)}ms`,
       );
     })
     .catch((err) => { tintStats.failed.push(String(err)); console.warn('[tint] 装配链异常', err); });
 }
 
 /**
- * 加载 4 张 mask（`<img>` + `decode()`）。
+ * 单张 mask 图加载（`<img>` + `decode()`；调用方 = 下面的 `loadMasks()`，按需求集逐张）。
  *
  * ## 为什么不用 `fetch` + `createImageBitmap`（2026-10-03 接线实测后改）
  *
@@ -195,14 +205,12 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
+/**
+ * 按需求集（`MASK_IDS`，由档位宏派生）加载 mask。
+ */
 async function loadMasks(): Promise<void> {
-  const pairs: ReadonlyArray<readonly [BeadMaskGauge, 'bead' | 'grid']> = [
-    ['holed', 'bead'], ['holed', 'grid'],
-    ['holeless', 'bead'], ['holeless', 'grid'],
-  ];
-  await Promise.all(pairs.map(async ([gauge, kind]) => {
-    const id = `mask__${kind}__${gauge}__v${MASK_SCHEMA_VERSION}`;
-    const file = `${MASK_URL_PREFIX}${MASK_FILE[gauge][kind]}`;
+  await Promise.all(MASK_IDS.map(async (id) => {
+    const file = `${MASK_URL_PREFIX}${MASK_FILE[id.split('__v')[0]!]}`;
     try {
       const img = await loadImage(file);
       if (img.naturalWidth === 0) throw new Error(`naturalWidth=0 (${file})`);
@@ -224,9 +232,17 @@ async function loadMasks(): Promise<void> {
  */
 function prewarmTint(): void {
   const colors = DEMO_BEAD_INKS.hexes;
+  // 底 tile 形态（`__tile`）与源 mask 共用一张资产 ⇒ 像素由 `TintSpriteCache` 派生，⛔ 不另发请求。
+  // ⚠ **预热集只换不加**：预算 `2.5 MiB` ≈ 40 张 sprite（128²×4），色板上限 `BEAD_COLOR_MAX = 10`
+  // ⇒ `[WXG-T-255]` 档位宏在册 `null` ⇒ 需求集 4 个 id ⇒「2 珠面 + 2 底 tile」= **40 张** = 预算顶格；
+  // 宏钉住任一档时收到 2 个 id ⇒ 20 张（⛔ 不管哪态都不得反向加回来）。
+  // 非-tile 格 mask 现在只剩「wrong 抖动那一格」会用（≤1 格 / ≤200ms），让它自然 miss。
+  const ids: readonly string[] = MASK_IDS.filter((id) => id.indexOf('__bead__') >= 0).concat(
+    MASK_IDS.filter((id) => id.indexOf('__grid__') >= 0).map((id) => id + MASK_TILE_SUFFIX),
+  );
   const t0 = performance.now();
   let n = 0;
-  for (const maskId of MASK_IDS) {
+  for (const maskId of ids) {
     for (const c of colors) {
       const cmd: BlitCommand = { kind: 'blit', textureId: maskId, x: 0, y: 0, w: 0, h: 0, fx: tintFx(c) };
       if (blitResolver.resolve(cmd) !== undefined) n += 1;
@@ -524,11 +540,13 @@ if (isBeads && new URLSearchParams(harnessQuery).get('lift') === '1') {
 
 
 
-// TEMP-DEBUG（WXG-T-244 诊断 · dev-only 测具，不进构建）：组落座动画观测 + 一键复现。
+// TEMP-DEBUG（WXG-T-244 诊断 · dev-only 测具，不进构建）：组落座动画**只读**观测面板（`?gldbg=1`）。
 //
 // 用途（2026-10-04 用户报「还是没有变化」）：把「动画有没有被触发」变成**屏幕上的一行字**，不用猜。
-// · 面板每帧显示：相位时钟、登记数/环号序、托盘 holding 数、mode；
-// · 「R」键或自动跑一次**一键复现**：托盘注入 3 颗同色珠 → 选中 → 点第一个对色空格（走真链 `tapDesign`）。
+// · 面板每帧显示：登记数/错峰序/登记格、托盘 holding 数、`filled` 逐帧增量、空格按色分布。
+// · ⛔ 本面板**不改任何权威状态**：曾经的「R 键 / 加载 400ms 自动一键复现」（`__gldKick`）已于
+//   二十一批整条删除（它直写 grid 造死盘，且让**开局自动播落珠动画**被误读成玩法缺陷——判据见
+//   `knowledge/lessons/testing.md [K-094]`）。要测落珠一律走真链点击。
 //
 // ⛔ 若面板显示 `groupLand=0` ⟹ 入口条件没满足（单颗走 G1 单槽，见 `beads-game.ts:2809` 的
 //   `if (groupSize > 1)`）；若 `groupLand>0` 但画面无变化 ⟹ 消费链（view-model.ts:984-987/1119）问题。

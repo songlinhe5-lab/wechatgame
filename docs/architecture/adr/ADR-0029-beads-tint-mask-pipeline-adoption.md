@@ -162,7 +162,7 @@ DEC-1「本批 = 命令层 + Canvas2D」在落码 review 后**细化为三条实
 
 | 键 | 类型 | 语义 | 状态 | 消费方 |
 |---|---|---|---|---|
-| `base` | `string`（hex） | **着色基色**：透过 d/l mask 的颜色变换，`rgb = base·d + (1−base)·l·shape`、`a = shape/255` | ✅ 现行（WXG-T-226 B3） | `TintSpriteCache` + `compositeTintMask` |
+| `base` | `string`（hex） | **着色基色**：透过 d/l mask 的颜色变换，`rgb = base·d + (1−base)·l`、`a = shape/255`（【WXG-T-259】`l` ⛔ 不乘 shape，与 shader / 规约 §5.1 同式）| ✅ 现行（WXG-T-226 B3・式修 WXG-T-259） | `TintSpriteCache` + `compositeTintMask` |
 | `strength` | `number` | 着色强度 0–1（与 `base` 连用） | 预留（启用 **core 0 改动**） | 同上 |
 | `blend` | `string` | blend 模式名 | 将来（⛔ 禁外推浏览器 `globalCompositeOperation` 到真机，K-054） | 新 resolver |
 | `matrix` | `readonly number[]` | color matrix（灰度 / 对比度 / 通道矩阵） | 将来 | 新 resolver |

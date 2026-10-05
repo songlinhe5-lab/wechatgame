@@ -61,6 +61,9 @@ const STEPS = Object.freeze([
   'framework:sync:check',
   'cocos:check',
   'check:size',
+  // WXG-T-255 / ADR-0030 §5.5：构建产物 mask 门禁——载体暖机真要装的每张 mask 必须在产物里。
+  // 无产物 ⇒ `STATUS: SKIP`（同 `check:size` 体例，⛔ 不当通过）；缺张 ⇒ FAIL（防「静默落回矢量臂」）。
+  'check:cocos-mask',
   // WXG-T-211-B1 / EP11-S2（§12.2 C7/C11/C12）：风格池门禁——逐注册风格双指标 + C12 弱读断言；
   // 零注册自报 `STATUS: SKIP`（K-036：SKIP ≠ 测，汇总单列）；触门报 C11 五项后 FAIL（不短路本聚合器）。
   'check:bead-style-pool',
