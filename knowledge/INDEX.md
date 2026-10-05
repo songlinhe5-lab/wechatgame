@@ -72,11 +72,11 @@
 |---|---|
 | `pnpm run kb:sync` | 解析两个 md → 分配新条目 ID → 刷新 `ledger.json` 与下方活跃表（**只重写标记块内**） |
 | `pnpm run kb:collect` | **自动**从 `ctx/reads-ledger.jsonl` 归属 `knowledge/*.md` 的读取（按 offset/limit 命中条目）；**幂等**：同一 `(会话, 条目)` 经 `seen` 持久去重，重复运行不改变计数 |
-| `pnpm run kb:touch -- K-001 K-003` | **显式** +1 次访问（可选 `--date=YYYY-MM-DD` / `--task=WXG-T-0xx`）——用于其他 IDE 或手工补录 |
+| `node tools/scripts/kb-touch.mjs K-001 K-003` | **显式** +1 次访问（可选 `--date=YYYY-MM-DD` / `--task=WXG-T-0xx`）——用于其他 IDE 或手工补录。⚠ 别写成 `pnpm run kb:touch -- K-001`：`parseArgs` 不认裸 `--`，会多报一条「未知条目 ID：--」并 **exit 1**（前面的 ID 仍已写盘成功）；脚本侧收口待领号（WXG-T-260 已登记） |
 | `pnpm run kb:audit` | ① **归档候选**（闲置 ≥ 90 天且访问 ≤ 1 次）② **归档相似命中**（新条目 vs 归档条目相似度 ≥ 0.34）——**只出清单，不自动归档** |
 | `pnpm run kb:archive -- --ids=K-004 --reason="…"` | **人工确认后**执行归档（`--reason` 必填） |
 | `pnpm run kb:reactivate -- --ids=K-004 --reason="…"` | 从归档搬回原文件并激活（保留历史访问计数，+1 次激活留痕） |
-| `pnpm run kb:check` | 六重一致性校验（ID 唯一 / ledger↔md 双向 / archive 排除生效 / 活跃表一致 / 阈值存在 / `accessCount === seen.length` 严格成立） |
+| `pnpm run kb:check` | **八重**一致性校验（ID 唯一 / ledger↔md 双向 / archive 排除生效 / 活跃表一致 / 阈值存在 / `accessCount === seen.length` 严格成立 / `events` 合法 / `contentHash` 一致） |
 
 ### 5.2 归档阈值（用户 2026-09-12 裁定，存于 `ledger.json.thresholds`）
 
@@ -225,4 +225,6 @@
 | K-116 | 引擎Cocos | engine-cocos | 给渲染命令加「层归属」标记前，先枚举每个宿主的绘制模型：单趟按命令序绘制的宿主天然免疫，可能只有一个 adapter 需要改 | WXG-T-256 | 2026-10-05 | 0 | active |
 | K-117 | 判据渲染 | criteria-render | tint mask 的透明度不在 A 通道：像素审计必须逐通道，「哪张是权威资产」用重跑生成器比 md5 判定 | WXG-T-257 | 2026-10-05 | 0 | active |
 | K-118 | 测试 | testing | 修像素级缺陷前先看「门是什么类型的门」；目标文件未入库（无 HEAD 基线）时 A/B 对照臂 = 摘掉新增那一笔调用重建 | WXG-T-257 | 2026-10-05 | 0 | active |
+| K-119 | 工具链 | toolchain | pre-commit 尾部那句「索引与暂存不一致」会掩盖真因；ctx B 越限要先定责再分流，豁免资格由政策而非方便决定 | WXG-T-260 | 2026-10-06 | 0 | active |
+| K-120 | 引擎Cocos构建 | engine-cocos-build | 镜像拷贝树删资产必须「正本 + 拷贝件 + `.meta`」三处成对；只删拷贝件会被 `sync:check` 拦下并拒绝构建（OUT 与 OVER 两个方向都红） | WXG-T-259 | 2026-10-06 | 0 | active |
 <!-- kb:active:end -->

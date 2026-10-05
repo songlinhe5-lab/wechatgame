@@ -106,3 +106,19 @@
   ② 若某个目录天然不在扫描面（例：`games/*/cocos/assets/scripts/**` 不进 ES5 契约门，`check-es5-spread.mjs::isShippedSource` 明写返回 false），
   要在文档/台账里写明「该面只有编辑器 Preview 可证」，⛔ 不得拿「verify 全绿」给它背书。
   判例引用：K-036（串联门禁短路即 ✅ 不构成证据）、K-037（指令流全绿 ≠ 屏幕层可证）、K-031/K-033（枚举清单漏项必须**会红**）。
+
+- **[工具链][K-119] pre-commit 尾部那句「索引与暂存不一致」会掩盖真因；ctx B 越限要先定责再分流，豁免资格由政策而非方便决定**（来源 WXG-T-260 / `production/TASKS-DETAIL.md §WXG-T-260`，2026-10-06）
+  现象：`git commit -F` 被拦，钩子**最后一行**打的是「暂存内容与刚重建的索引仍不一致」⇒ 很容易误读成 C 门（索引过期）而去反复跑
+  `ctx:build`。真因是同一批输出**上面**的 B 项 7 件超 8000 tok；且 `--staged` 只改 C 项数据源，A/B/D/E 一律不变 ⇒ 「重新暂存」不可能治好 B。
+  根因：token 按**内容实算**、不能看字节数（CJK ≈ 3.2 B/token，一行长条目可含 500~1100 tok）；而被索引的是**暂存 blob** ⇒
+  同一会话在多个「只增不减」的登记面（ADR / 控清单 / 知识库 CHANGELOG）连续沉淀，每片距门槛只差几百就一批顶门。
+  规避：① **先定责再动手**：`git show HEAD:<file>` + `estimateTokens` 实算 HEAD 侧——HEAD 门下 ⇒ 越限归本会话，不是存量欠债，处理方式完全不同；
+  ② **分流按政策**：`knowledge/INDEX.md §4` 明令 lessons 分片**不得新增豁免**，越阈只能「标签内部再切」（取向同 K-025；先例 WXG-T-221 / 235）；
+  只有非分片的真源正本（ADR / 控清单 / 知识库入口件）才具备豁免资格，且必须同时写 `reason` + `taskId` + **撤销条件**（缺字段视为配置错误）；
+  ③ **别信直觉上的「归档瘦身」**：先跑 `kb:audit` 看归档候选（阈值 = 闲置 ≥90 天且访问 ≤1）；活跃库往往是 0 条，实跑排除比假设便宜；
+  ④ **再切 ⛔ 手工拼**，自带脚本并三重自证（回拼≡原文逐字节 / 块数≡lib 解析条目数 / 写后重解析行内标签≡新片）；
+  `knowledge:split` 是一次性迁移工具（片目录已存在即早退）**不能**拿来再切；新片须同步两处硬映射
+  （`split-knowledge-lessons.mjs::TAG_TO_SHARD` + `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`，**无机械校验**，只改一侧即静默漂移）；
+  ⑤ 换行内标签会改标题行 ⇒ `contentHash` 变 ⇒ `kb:sync` 报「修改 N / 新增 0」，这是预期副作用不是条目被改。
+  判例引用：K-004（改 md 必重跑 ctx:build——治 C 门≠治 B 门）、K-025（豁免会静默吞掉不一致）、K-030/K-043（手工拼长文件与取证脚本口径）；
+  代码锚：`tools/scripts/check-context-budget.mjs::checkFileMax`、`ctx/budget-exempt.json`。

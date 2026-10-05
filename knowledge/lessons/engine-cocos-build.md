@@ -50,3 +50,16 @@
   ③ 判哪种写法可用**必须在构建产物里试**（web-mobile 产物 + Chromium 即可复现），编辑器 Preview 的资产库会替你把错误抹平；
   ④ 加载腿改动后至少留一条**产物级**证据（日志里的 `4/4`），⛔ 用「文件在包里」当「能加载」的证据。
   判例引用：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts`（`loadImageAsset` 两条腿）、`tools/scripts/check-cocos-mask.mjs`（只核 native png = 弱取证面）、`ADR-0030 §5.6`；同族 K-108、K-111（产物档 ≠ 编辑器档）。
+
+- **[引擎Cocos构建][K-120] 镜像拷贝树删资产必须「正本 + 拷贝件 + `.meta`」三处成对；只删拷贝件会被 `sync:check` 拦下并拒绝构建（OUT 与 OVER 两个方向都红）**（来源 WXG-T-259，2026-10-06）
+  现象：删一个早已零引用的旧 effect 时只删了 `games/beads/cocos/assets/scripts/game/view/tint-mask.effect(+.meta)`；随后
+  `framework:sync:check` 报 `OUT … tint-mask.effect (missing)`，`build:cocos` **前置检查直接拒绝构建**（提示「直接构建会编出旧代码」）。
+  根因：`cocos/assets/scripts/{framework,game}/**` 不是独立资产，而是 `packages/framework/src` 与 `games/<g>/src` 由
+  `sync-framework-to-cocos.mjs` 镜像出的**拷贝件**；正本仍在 src 侧 ⇒ 拷贝树比正本**少**文件同样是「不同源」。
+  规避：① 删镜像资产按**三文件**成对删（正本 + 拷贝件 + 拷贝件 `.meta`），改完必跑 `framework:sync:check` 确认双向一致再跑 `build:cocos`；
+  ② 别把「构建被拦」当障碍——它正是防「编辑器里看不见但源码还在 / 源码删了但产物还在」那道门，**红得有价值**；
+  ③ 判死文件按**运行时引用面**取证（grep 资产 uuid 在全仓的出现：只自见于自己的 `.meta` = 零引用），并先查它是否被**历史证据链**依赖
+  （方案件/QA 判据曾拿它证明「运行时未落码」⇒ 属当时事实，记录不追改）；
+  ④ 删后重建档位前先确认档别（同 K-111），并核对 `check:size` 与进包 JS 里**不再含**该资产 uuid。
+  判例引用：K-108（产物级取证优先于源码 grep）、K-111（构建档）；代码锚：`tools/scripts/sync-framework-to-cocos.mjs`、
+  `tools/scripts/check-framework-sync.mjs`；台账：`production/TASKS-DETAIL.md §WXG-T-259`。

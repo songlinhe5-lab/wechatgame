@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 119,
+  "nextId": 121,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1835,10 +1835,14 @@
       "contentHash": "0472e277c078343f77e0c43fb3d87ae79aca0c8592c365131f88a97bcbab55fe",
       "sourceTask": "WXG-T-256",
       "addedDate": "2026-10-05",
-      "lastAccess": "2026-10-05",
-      "accessCount": 0,
-      "accessSources": [],
-      "seen": [],
+      "lastAccess": "2026-10-06",
+      "accessCount": 1,
+      "accessSources": [
+        "touch:WXG-T-259"
+      ],
+      "seen": [
+        "touch:WXG-T-259#2026-10-06"
+      ],
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
@@ -1955,6 +1959,40 @@
       "sourceTask": "WXG-T-257",
       "addedDate": "2026-10-05",
       "lastAccess": "2026-10-05",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-119",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "pre-commit 尾部那句「索引与暂存不一致」会掩盖真因；ctx B 越限要先定责再分流，豁免资格由政策而非方便决定",
+      "contentHash": "4d08c498bcfb7fe4edc2e2bd86cee960baacfa0f06614d1b19e03b96b5c5285b",
+      "sourceTask": "WXG-T-260",
+      "addedDate": "2026-10-06",
+      "lastAccess": "2026-10-06",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-120",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos-build.md",
+      "category": "引擎Cocos构建",
+      "title": "镜像拷贝树删资产必须「正本 + 拷贝件 + `.meta`」三处成对；只删拷贝件会被 `sync:check` 拦下并拒绝构建（OUT 与 OVER 两个方向都红）",
+      "contentHash": "a2dfd84d31b6dcfa28a2fc09b333b61de4e69f6d9a9fc4c4a02ea9c7e0f14e6c",
+      "sourceTask": "WXG-T-259",
+      "addedDate": "2026-10-06",
+      "lastAccess": "2026-10-06",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -2936,6 +2974,16 @@
         "K-111",
         "K-112",
         "K-113"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-06",
+      "taskId": "WXG-T-260",
+      "kind": "added",
+      "ids": [
+        "K-119",
+        "K-120"
       ],
       "note": null
     }
