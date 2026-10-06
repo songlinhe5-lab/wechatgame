@@ -3363,6 +3363,34 @@ DI = 54.3 / 133.0 / 89.7 / 86.3 / 206.0 / 143.5 / 118.9 / 78.8 / 538.0（L1…L9
 不新增独立 boot 屏 —— S0 内容就地落已实装 shell 主菜单（`meta-view.ts:359-370`）；
 `ux-spec §4` 改 1 行 + 增 1 行（BOOT 停菜单 / 点开始进关）；`meta-view.ts:361` 的 `'拼豆'` ⇒ 读 `app_name`。
 
+### 第三轮（2026-10-07 用户回应后，文策渊回裁）
+
+**① Q6 = 双轨但主客易位**：门禁**只锁单调**（契约，引 `DI_FLOOR/DI_STEP_MIN`，后者是**下界**非「等于 ΔDI」）；
+生成器**保留等差**（默认实现，引 `di_start/di_step`，可配可替换）。两参数**零交集** ⟹ 新增门禁
+**G10 断言：把 `di_step` 45→80，门禁仍绿**。理由：反解 `N_target` 必须有标量目标（否则造关无解），
+但 DI 对 steps 残差最大 ≈58%，锁死公差等于宣称「知道 45 分是什么手感」。
+⛔ **未采纯校验器**（会把用户要求的「线性增长」削成「单调增长」）。
+
+**② 走马灯 = 判 (b) 词义非机制**：用户逐条回 Q1/Q2/Q4/Q6/Q8 无一条反对第三案，且本轮只留「橱窗」删了「走马灯」。
+⟹ 保留「橱窗」作**模块名 + 视觉语义**；走马灯与 tab **同层互斥**（`wall_overflow_mode` 一键切）：
+判据 = **类别维度是否有序** —— 有序（DI 难度带/尺寸/色数）→ `tab`（默认），无序（题材）→ `carousel`。
+
+**③ 命名组合（用户拟「拼豆小橱」的处理）**：
+游戏名 **「拼豆小铺」不动** ｜ **「拼豆小橱」= 主界面橱窗模块名** ｜ slogan **「一颗一条，拼出你的小铺」**。
+⟹ 「**小铺是店，小橱是店里那只陈列柜**」上下位关系，用户拟议的词义全保留。
+⛔ 不改游戏名的**落码级理由**：招牌是 8×8 珠点阵，「橱」16 画（含"厨"多层嵌套）**必糊**，「铺」12 画可辨。
+
+**④ 配置化（用户要求「可配置 + 每类关卡数不固定」）**：
+```
+WallConfig { wall_capacity:12, wall_overflow_mode:'tab'|'carousel', category_dimension:'di',
+             category_max:5, category_min:2, category_floor:8,
+             category_split:'quantile'|'explicit', category_sizes:null }
+DifficultyCurveConfig { curve:'arithmetic', di_start:50, di_step:45, per_category:null, di_ceil:null }
+```
+`split='quantile'` ⟹ **每类关数由 DI 分位决定、不固定**；`'explicit'` 才按 `category_sizes[]` 人工编排。
+⟹ **不再存在「每类关数 = n/K」这个等式**；`category_max` 可配满足「随版本可改」。
+配置项住 `levels-spec §5.0.x` + `tuning.ts`，**不进 §3**（零新增冻结值）。
+
 ### 待用户拍板
 
 Q2 作品墙可点否（建议可点）· Q1 类别维度（建议丙 = DI 难度带，零人工打标）· Q3 slogan ·

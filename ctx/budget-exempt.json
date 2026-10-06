@@ -370,6 +370,11 @@
       "reason": "盘面尺寸可玩性裁定正本（§3.4.5/§3.4.6 为 fit 档推翻链唯一落档处）；WXG-T-262 同日七批续裁注按「不篡改历史」逐批追加致 8414 > 8000，拆分会切断裁定链锚点",
       "note": "下次修订评估把 §3.4.6 七批续裁注正文外移至 systems-index-changelog（ADR 只留指针+现行口径一行）后撤销豁免",
       "taskId": "WXG-T-262"
+    },
+    {
+      "path": "design/proposals/ui-style-redesign/menu-architecture.md",
+      "reason": "WXG-T-266 主菜单架构裁定稿（文策渊三轮累积：初裁第三案 → 用户回应 → 回裁双轨/配置化/命名）。三轮裁定互为上下文、史证表须与结论同文件，拆分会打断裁定链条与推翻依据的追溯；与 TASKS-DETAIL 同族：按章节锚点局部读、开发期从不整读。若后续定稿进正本（ux-spec / levels-spec）则本件归档，届时豁免随行撤销",
+      "taskId": "WXG-T-266"
     }
   ]
 }
