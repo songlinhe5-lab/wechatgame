@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3933,
       "lines": 141,
-      "sha256": "2a23aa2bfabe0f0ce08e10d2458efd343263306cf13236c2f0b9a2511ea8b8f6",
+      "sha256": "f0c9322af0aecdf3a60bb5ad11c58be202db8efcea425971973242e4f46e2fdc",
       "tier": "normal",
       "sections": [
         {
@@ -425,7 +425,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 393,
-          "summary": "1 production/TASKS-DETAIL.md 121215 3638 normal",
+          "summary": "1 production/TASKS-DETAIL.md 121541 3652 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -441,7 +441,7 @@
           "startLine": 46,
           "endLine": 116,
           "tokens": 2433,
-          "summary": "production/TASKS-DETAIL.md 121215 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 121541 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5184,
       "lines": 82,
-      "sha256": "0243029f08f005f99093e5aae1589cb54c1135469e1b69bdf838ef2c207ff601",
+      "sha256": "f7b0488e834be42724b482613a1da7396b6d6b0dc70469f333ffd593b3e286ba",
       "tier": "normal",
       "sections": [
         {
@@ -955,7 +955,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3638 行 / 121215 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3652 行 / 121541 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
@@ -1891,17 +1891,17 @@
     },
     {
       "path": "design/proposals/ui-style-redesign/menu-architecture.md",
-      "tokens": 11066,
-      "lines": 418,
-      "sha256": "7399693eb04c32466dfb2c5762fa20e799dcc98b470ec2bea9e7788334b9402b",
+      "tokens": 11478,
+      "lines": 437,
+      "sha256": "75f1d7d451c6cd0a2621da6a00105f91e9daf006608e8dfd33be39980a5e3b55",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主菜单架构裁定 · 「拼豆小铺」 · WXG-T-266",
           "level": 1,
           "startLine": 1,
-          "endLine": 419,
-          "tokens": 11048,
+          "endLine": 438,
+          "tokens": 11460,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265（林绘澄「暖纸拼豆台」四件：screens.md / tokens.m",
           "keywords": [
             "WXG",
@@ -1916,8 +1916,8 @@
           "level": 2,
           "startLine": 12,
           "endLine": 35,
-          "tokens": 588,
-          "summary": "第三案「单屏作品墙 + 类别延迟生效」 —— 主菜单 = 一块木框橱窗（模块名「拼豆小橱」）+ 一屏 4×3 作品格（可",
+          "tokens": 605,
+          "summary": "第三案「单屏作品墙 + 类别延迟生效」 —— 主菜单 = 一块木框橱窗（模块名「拼豆小铺」）+ 一屏 4×3 作品格（可",
           "keywords": [
             "裁定",
             "一句话"
@@ -1928,7 +1928,7 @@
           "level": 3,
           "startLine": 18,
           "endLine": 28,
-          "tokens": 248,
+          "tokens": 265,
           "summary": "Q2 作品墙是否可点 ✅ 已裁 = 可点（用户采纳） §5.4 硬口径 2 转正",
           "keywords": [
             "§5.4",
@@ -2284,7 +2284,7 @@
           "level": 2,
           "startLine": 338,
           "endLine": 356,
-          "tokens": 468,
+          "tokens": 477,
           "summary": "~~Q1~~ ~~类别维度~~ — ✅ 已裁 = 丙·难度带（用户 2026-10-07）",
           "keywords": [
             "待拍板",
@@ -2297,8 +2297,8 @@
           "anchor": "§10 命名裁定（**回答用户提问**）",
           "level": 2,
           "startLine": 357,
-          "endLine": 398,
-          "tokens": 1111,
+          "endLine": 400,
+          "tokens": 1152,
           "summary": "",
           "keywords": [
             "命名裁定",
@@ -2309,11 +2309,10 @@
           "anchor": "§10.1 裁定（一句话）",
           "level": 3,
           "startLine": 359,
-          "endLine": 363,
-          "tokens": 103,
-          "summary": "游戏名 = 「拼豆小铺」（不动）｜主界面橱窗模块名 = 「拼豆小橱」（采纳用户拟议，但改任模块名）｜slogan = 「",
+          "endLine": 365,
+          "tokens": 144,
+          "summary": "⛔ 第四轮终裁（2026-10-07 用户「还是改回：拼豆小铺」）：全案只保留「拼豆小铺」一词 ——",
           "keywords": [
-            "slogan",
             "裁定",
             "一句话"
           ]
@@ -2321,8 +2320,8 @@
         {
           "anchor": "§10.2 为什么「拼豆小橱」不作 slogan（改判用户拟议，给理由）",
           "level": 3,
-          "startLine": 364,
-          "endLine": 371,
+          "startLine": 366,
+          "endLine": 373,
           "tokens": 203,
           "summary": "N-1 词性不对 slogan 是一句话（承诺/邀请），「拼豆小橱」是名词短语。招牌下挂一个与游戏名只差一字的名词 ⇒ ",
           "keywords": [
@@ -2337,8 +2336,8 @@
         {
           "anchor": "§10.3 为什么不改游戏名为「拼豆小橱」（推翻用户提问的隐含选项）",
           "level": 3,
-          "startLine": 372,
-          "endLine": 383,
+          "startLine": 374,
+          "endLine": 385,
           "tokens": 432,
           "summary": "N-4（最硬） 珠拼点阵可辨性：招牌是 8×8 珠点阵 beadText（§5.3）。「铺」12 画（钅5 + 甫7）；",
           "keywords": [
@@ -2353,8 +2352,8 @@
         {
           "anchor": "§10.4 若用户坚持改游戏名 = 「拼豆小橱」——需同步的文件清单（**本单不建议**）",
           "level": 3,
-          "startLine": 384,
-          "endLine": 398,
+          "startLine": 386,
+          "endLine": 400,
           "tokens": 271,
           "summary": "design/proposals/ui-style-redesign/tokens.md §7 app_name（唯一出",
           "keywords": [
@@ -2369,14 +2368,29 @@
         {
           "anchor": "§11 本轮改动清单（第三轮 · 2026-10-07）",
           "level": 2,
-          "startLine": 399,
-          "endLine": 419,
-          "tokens": 444,
+          "startLine": 401,
+          "endLine": 438,
+          "tokens": 790,
           "summary": "1 抬头 / §1 加「第三轮裁定稿」；§1 补 1.1 逐条修正表、1.2 走马灯口径一句话",
           "keywords": [
             "§1",
             "本轮改动清单",
             "第三轮"
+          ]
+        },
+        {
+          "anchor": "§10.5 第四轮回退（2026-10-07）：「拼豆小橱」撤回，全案只留「拼豆小铺」",
+          "level": 3,
+          "startLine": 423,
+          "endLine": 438,
+          "tokens": 314,
+          "summary": "用户终裁：「还是改回：拼豆小铺」。",
+          "keywords": [
+            "第四轮回退",
+            "拼豆小橱",
+            "撤回",
+            "全案只留",
+            "拼豆小铺"
           ]
         }
       ]
@@ -2644,9 +2658,9 @@
     },
     {
       "path": "design/proposals/ui-style-redesign/tokens.md",
-      "tokens": 2598,
+      "tokens": 2641,
       "lines": 116,
-      "sha256": "68bc5ec26530801c64d63f3e3f1ff415db9e3a6a45c0f5df4c43c2bb1cd48f02",
+      "sha256": "80bf6605f1f0416325917fbc3409a558b893ed4392543c66c11b6fb4857aea14",
       "tier": "normal",
       "sections": [
         {
@@ -2654,7 +2668,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 117,
-          "tokens": 2573,
+          "tokens": 2617,
           "summary": "定稿声明（2026-10-07）：用户已裁 D-2 = 甲案「暖纸拼豆台」⇒ 本表全部取值定稿，不再是提案值；art-b",
           "keywords": [
             "tokens",
@@ -2757,7 +2771,7 @@
           "level": 2,
           "startLine": 101,
           "endLine": 117,
-          "tokens": 680,
+          "tokens": 723,
           "summary": "文案也走令牌：UI 侧不散落字面，落码一律读本表（与「颜色进 palette.ts」同一纪律）。",
           "keywords": [
             "copy",
@@ -74056,9 +74070,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 121215,
-      "lines": 3638,
-      "sha256": "cb1cc9caf8c242fc3bddf6142e81388172a5c546963b1b5543aca48454ed8a31",
+      "tokens": 121541,
+      "lines": 3652,
+      "sha256": "a1e3a237a9506610947c09499f5fc8b2259d8ee4e4efd52332db348dc80589de",
       "tier": "normal",
       "sections": [
         {
@@ -76692,8 +76706,8 @@
           "anchor": "§beads·托盘放大批（槽底深色墨档 + 格缝加大 + 尺回 48/6 系）",
           "level": 1,
           "startLine": 3246,
-          "endLine": 3522,
-          "tokens": 5829,
+          "endLine": 3536,
+          "tokens": 6155,
           "summary": "2026-10-06，主理人(Qoder)·美术域＋工程域代落盘。用户三裁原话：「将托盘格子的 mask 混一个深色，",
           "keywords": [
             "beads",
@@ -76708,8 +76722,8 @@
           "anchor": "§WXG-T-266",
           "level": 2,
           "startLine": 3319,
-          "endLine": 3398,
-          "tokens": 1503,
+          "endLine": 3412,
+          "tokens": 1829,
           "summary": "主菜单架构裁定「单屏作品墙 + 类别延迟生效」+ 图元难度线性公式（文策渊两件，✅ 裁定稿）",
           "keywords": [
             "WXG"
@@ -76791,7 +76805,7 @@
           "level": 3,
           "startLine": 3366,
           "endLine": 3393,
-          "tokens": 682,
+          "tokens": 704,
           "summary": "① Q6 = 双轨但主客易位：门禁只锁单调（契约，引 DI_FLOOR/DI_STEP_MIN，后者是下界非「等于 ΔD",
           "keywords": [
             "DI_FLOOR",
@@ -76802,10 +76816,24 @@
           ]
         },
         {
-          "anchor": "§待用户拍板",
+          "anchor": "§第四轮（2026-10-07 用户终裁）：命名回退「拼豆小铺」",
           "level": 3,
           "startLine": 3394,
-          "endLine": 3398,
+          "endLine": 3407,
+          "tokens": 281,
+          "summary": "用户令：「还是改回：拼豆小铺」 ⟹ ⛔ 第三轮的「铺 = 游戏名 / 橱 = 模块名」作废；",
+          "keywords": [
+            "第四轮",
+            "用户终裁",
+            "命名回退",
+            "拼豆小铺"
+          ]
+        },
+        {
+          "anchor": "§待用户拍板",
+          "level": 3,
+          "startLine": 3408,
+          "endLine": 3412,
           "tokens": 70,
           "summary": "Q2 作品墙可点否（建议可点）· Q1 类别维度（建议丙 = DI 难度带，零人工打标）· Q3 slogan ·",
           "keywords": [
@@ -76816,8 +76844,8 @@
         {
           "anchor": "§WXG-T-265",
           "level": 2,
-          "startLine": 3399,
-          "endLine": 3443,
+          "startLine": 3413,
+          "endLine": 3457,
           "tokens": 752,
           "summary": "整体 UI 美术风格重设计「暖纸拼豆台」甲案（林绘澄四件，✅ 提案已出）",
           "keywords": [
@@ -76827,8 +76855,8 @@
         {
           "anchor": "§流程（SOP 阶段 1）",
           "level": 3,
-          "startLine": 3407,
-          "endLine": 3411,
+          "startLine": 3421,
+          "endLine": 3425,
           "tokens": 53,
           "summary": "主理人派单 → 林绘澄（art-director）两轮：① 提案四件；② 用户三裁后的采纳态修订。",
           "keywords": [
@@ -76842,8 +76870,8 @@
         {
           "anchor": "§用户三裁（2026-10-07）",
           "level": 3,
-          "startLine": 3412,
-          "endLine": 3416,
+          "startLine": 3426,
+          "endLine": 3430,
           "tokens": 68,
           "summary": "D-2 = 甲案（暖纸拼豆台）· D-1 = 游戏名 「拼豆小铺」（非主理人推荐的「豆豆森林」）·",
           "keywords": [
@@ -76853,8 +76881,8 @@
         {
           "anchor": "§林绘澄推翻主理人初稿五处（史证）",
           "level": 3,
-          "startLine": 3417,
-          "endLine": 3424,
+          "startLine": 3431,
+          "endLine": 3438,
           "tokens": 121,
           "summary": "① 底色 #f6efe2 → #F1E8D8（初稿与奶白珠 ΔL 仅 2.7% < 4% 不可辨阈）",
           "keywords": [
@@ -76868,8 +76896,8 @@
         {
           "anchor": "§核心设计语义",
           "level": 3,
-          "startLine": 3425,
-          "endLine": 3429,
+          "startLine": 3439,
+          "endLine": 3443,
           "tokens": 51,
           "summary": "「木 = 可按、纸 = 承载、胶囊 = 状态」——主次按钮靠明度 + 材质 + 位置三通道区分",
           "keywords": [
@@ -76879,8 +76907,8 @@
         {
           "anchor": "§林绘澄第二轮新增建议",
           "level": 3,
-          "startLine": 3430,
-          "endLine": 3434,
+          "startLine": 3444,
+          "endLine": 3448,
           "tokens": 78,
           "summary": "「小铺 = 陈列/收藏」做成木框橱窗：boot = 招牌（珠拼「拼豆小铺」）+ 3 格货架",
           "keywords": [
@@ -76892,8 +76920,8 @@
         {
           "anchor": "§⚠ 待裁（阻塞落码）",
           "level": 3,
-          "startLine": 3435,
-          "endLine": 3443,
+          "startLine": 3449,
+          "endLine": 3457,
           "tokens": 193,
           "summary": "R-12（UX 侧）：boot 页「点开始」与 ux-spec §4「BOOT = 无交互自动过渡」+",
           "keywords": [
@@ -76908,8 +76936,8 @@
         {
           "anchor": "§WXG-T-264",
           "level": 2,
-          "startLine": 3444,
-          "endLine": 3477,
+          "startLine": 3458,
+          "endLine": 3491,
           "tokens": 495,
           "summary": "主界面 UI 重设计提案「手作治愈系」+ 游戏名备选（📋 未排期）",
           "keywords": [
@@ -76919,8 +76947,8 @@
         {
           "anchor": "§设计稿",
           "level": 3,
-          "startLine": 3450,
-          "endLine": 3453,
+          "startLine": 3464,
+          "endLine": 3467,
           "tokens": 29,
           "summary": "design/proposals/ui-redesign-mock.png（两屏并排，实验页 temp/ui-redes",
           "keywords": [
@@ -76935,8 +76963,8 @@
         {
           "anchor": "§风格：「手作治愈系」",
           "level": 3,
-          "startLine": 3454,
-          "endLine": 3458,
+          "startLine": 3468,
+          "endLine": 3472,
           "tokens": 76,
           "summary": "奶油纸纹底 + 木牌容器（HUD/托盘：木色渐变+深木边+木钉）+ 纸板卡（道具/缩放）+",
           "keywords": [
@@ -76948,8 +76976,8 @@
         {
           "anchor": "§玩法表达三处",
           "level": 3,
-          "startLine": 3459,
-          "endLine": 3463,
+          "startLine": 3473,
+          "endLine": 3477,
           "tokens": 80,
           "summary": "① 标题文字用拼豆拼出来（玩法即品牌；beadText 点阵字组件，设计稿已验证可读、字号需加大）；",
           "keywords": [
@@ -76960,8 +76988,8 @@
         {
           "anchor": "§现有功能映射（零新功能）",
           "level": 3,
-          "startLine": 3464,
-          "endLine": 3469,
+          "startLine": 3478,
+          "endLine": 3483,
           "tokens": 98,
           "summary": "boot 标题页（开始按钮）；playing：木牌 HUD（计时/LV/暂停）、画布、木槽托盘 6+6（expandTr",
           "keywords": [
@@ -76976,8 +77004,8 @@
         {
           "anchor": "§游戏名 6 备选（均含品类词利于微信搜索）",
           "level": 3,
-          "startLine": 3470,
-          "endLine": 3473,
+          "startLine": 3484,
+          "endLine": 3487,
           "tokens": 41,
           "summary": "豆豆森林（⭐推荐：树主题+系列化）/ 拼豆小铺 / 拼豆物语 / 拼豆工坊 / 豆趣拼拼 / 颗粒成画。",
           "keywords": [
@@ -76990,8 +77018,8 @@
         {
           "anchor": "§实施路径（届时）",
           "level": 3,
-          "startLine": 3474,
-          "endLine": 3477,
+          "startLine": 3488,
+          "endLine": 3491,
           "tokens": 37,
           "summary": "263 质感先行 → palette 换肤（纸底+木牌）→ boot 标题页新增 → 道具卡/HUD 换肤 → 封箱复评",
           "keywords": [
@@ -77005,8 +77033,8 @@
         {
           "anchor": "§WXG-T-263",
           "level": 2,
-          "startLine": 3478,
-          "endLine": 3520,
+          "startLine": 3492,
+          "endLine": 3534,
           "tokens": 605,
           "summary": "珠面「手绘蜡笔质感」程序化调研留档（📋 未排期）",
           "keywords": [
@@ -77016,8 +77044,8 @@
         {
           "anchor": "§核对结论",
           "level": 3,
-          "startLine": 3484,
-          "endLine": 3489,
+          "startLine": 3498,
+          "endLine": 3503,
           "tokens": 87,
           "summary": "该图约 90% 已是工程程序化渲染（就是 harness 的输出：pattern 关卡 / drawHud /",
           "keywords": [
@@ -77030,8 +77058,8 @@
         {
           "anchor": "§调研结论：程序**能**画出手绘质感",
           "level": 3,
-          "startLine": 3490,
-          "endLine": 3502,
+          "startLine": 3504,
+          "endLine": 3516,
           "tokens": 181,
           "summary": "独立 Canvas 实验页（temp/handdraw-lab/index.html，零侵入生产渲染）四档对比：",
           "keywords": [
@@ -77046,8 +77074,8 @@
         {
           "anchor": "§工程要点",
           "level": 3,
-          "startLine": 3503,
-          "endLine": 3510,
+          "startLine": 3517,
+          "endLine": 3524,
           "tokens": 137,
           "summary": "1. 抖动描边 circle → polygon ⟹ 图元数不变，封箱压力最小",
           "keywords": [
@@ -77059,8 +77087,8 @@
         {
           "anchor": "§踩坑",
           "level": 3,
-          "startLine": 3511,
-          "endLine": 3514,
+          "startLine": 3525,
+          "endLine": 3528,
           "tokens": 30,
           "summary": "首版描边 0.22×R + 近黑色 → 远看糊成黑块 ⟹ 收到 0.11×R + 深绿 #2a4630。",
           "keywords": [
@@ -77071,8 +77099,8 @@
         {
           "anchor": "§待决策点（届时问主理人）",
           "level": 3,
-          "startLine": 3515,
-          "endLine": 3520,
+          "startLine": 3529,
+          "endLine": 3534,
           "tokens": 62,
           "summary": "选 C（只要颗粒）还是 D（颗粒 + 双色区带）？",
           "keywords": [
@@ -77083,8 +77111,8 @@
         {
           "anchor": "§WXG-T-262",
           "level": 2,
-          "startLine": 3521,
-          "endLine": 3522,
+          "startLine": 3535,
+          "endLine": 3536,
           "tokens": 0,
           "summary": "",
           "keywords": [
@@ -77094,8 +77122,8 @@
         {
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
-          "startLine": 3523,
-          "endLine": 3639,
+          "startLine": 3537,
+          "endLine": 3653,
           "tokens": 4535,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
