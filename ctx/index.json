@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3895,
       "lines": 140,
-      "sha256": "5e78f147380c9719f6d2e5de8a483ea4893751d8cd4110be6d5c1a6c5b29a5c1",
+      "sha256": "5cd442f52f3f887ad1d2d46c776905c23d0cd386883f3b37d0dc0b75e1a9c1df",
       "tier": "normal",
       "sections": [
         {
@@ -425,7 +425,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 393,
-          "summary": "1 production/TASKS-DETAIL.md 118456 3479 normal",
+          "summary": "1 production/TASKS-DETAIL.md 118954 3513 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -441,7 +441,7 @@
           "startLine": 46,
           "endLine": 115,
           "tokens": 2395,
-          "summary": "production/TASKS-DETAIL.md 118456 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 118954 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5167,
+      "tokens": 5173,
       "lines": 82,
-      "sha256": "65a9d6c9ccabce0d5eee0b6c2fda7366e91ab9b38da7f47fa4ef7f5c5f03b748",
+      "sha256": "1a4a8161e4838dadac4695adc19f29a63894104707fdc7428990523694f3d51e",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 5139,
+          "tokens": 5145,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 100 行 / 33332 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 101 行 / 33565 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 29,
-          "summary": "§WXG 任务台账（SSOT）=1+101 · §待排（backlog，无号，立项时领取）=74+28",
+          "summary": "§WXG 任务台账（SSOT）=1+102 · §待排（backlog，无号，立项时领取）=75+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,11 +955,11 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3479 行 / 118456 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3513 行 / 118954 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 1316,
+          "tokens": 1322,
           "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+3178 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
@@ -1189,6 +1189,126 @@
           "summary": "参考图（用户提供的关卡页面 UI 设计）：会话内提供，特征 = 粗墨轮廓 + 珠内斑驳 + 深浅绿区带",
           "keywords": [
             "参考"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "design/proposals/ui-redesign.md",
+      "tokens": 1300,
+      "lines": 71,
+      "sha256": "2930d4236a21b43be6927dab5e7f9d56fc9fcaa37758bc7dccf5b72ef15d494a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§提案 · 主界面 UI 重设计 —— 「手作治愈系」（调研留档，**未排期**）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 72,
+          "tokens": 1270,
+          "summary": "状态：提案 / 未排期（2026-10-06，用户令「重新设计主界面 UI：整体风格 + 体现玩法 + 游戏名备选，按钮",
+          "keywords": [
+            "提案",
+            "主界面",
+            "重设计",
+            "手作治愈系",
+            "调研留档",
+            "未排期"
+          ]
+        },
+        {
+          "anchor": "§一、整体风格定位：「手作治愈系」（handcraft cozy）",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 22,
+          "tokens": 348,
+          "summary": "核心概念 「玩家 = 手作匠人，盘面 = 作品台」——UI 不包裹游戏，而是工作台本身",
+          "keywords": [
+            "handcraft",
+            "cozy",
+            "整体风格定位",
+            "手作治愈系"
+          ]
+        },
+        {
+          "anchor": "§二、布局与现有功能映射（按钮全部沿用现有定义，未新增功能）",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 45,
+          "tokens": 330,
+          "summary": "",
+          "keywords": [
+            "布局与现有功",
+            "能映射",
+            "按钮全部沿用",
+            "现有定义",
+            "未新增功能"
+          ]
+        },
+        {
+          "anchor": "§屏 1 · 标题页（`boot` 相位）",
+          "level": 3,
+          "startLine": 25,
+          "endLine": 32,
+          "tokens": 105,
+          "summary": "主视觉大树（手绘珠） 装饰（pattern 渲染器复用）",
+          "keywords": [
+            "boot",
+            "pattern",
+            "标题页",
+            "相位"
+          ]
+        },
+        {
+          "anchor": "§屏 2 · 对局页（`playing`）",
+          "level": 3,
+          "startLine": 33,
+          "endLine": 45,
+          "tokens": 202,
+          "summary": "木牌 HUD：⏱计时 + LV n/9 + ⏸ 现有 drawHud 数据 + paused 相位",
+          "keywords": [
+            "playing",
+            "HUD",
+            "drawHud",
+            "paused",
+            "对局页"
+          ]
+        },
+        {
+          "anchor": "§三、游戏名称备选（6 个，均含品类词利于微信搜索）",
+          "level": 2,
+          "startLine": 46,
+          "endLine": 58,
+          "tokens": 218,
+          "summary": "1 豆豆森林 ⭐推荐 树形关卡主题强关联；「豆豆」系列化潜力（豆豆海洋/豆豆星球）；叠词亲切",
+          "keywords": [
+            "游戏名称备选",
+            "均含品类词利",
+            "于微信搜索"
+          ]
+        },
+        {
+          "anchor": "§四、实施路径（届时）",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 66,
+          "tokens": 106,
+          "summary": "1. WXG-T-263 手绘质感先行（珠面是整个风格的地基）",
+          "keywords": [
+            "WXG",
+            "实施路径",
+            "届时"
+          ]
+        },
+        {
+          "anchor": "§待决策点",
+          "level": 2,
+          "startLine": 67,
+          "endLine": 72,
+          "tokens": 57,
+          "summary": "[ ] 游戏名（6 选 1 或另拟）",
+          "keywords": [
+            "待决策点"
           ]
         }
       ]
@@ -72481,9 +72601,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 118456,
-      "lines": 3479,
-      "sha256": "5bcda377e64dd7389263e880c3df489af54f951069117e958e88759db851bb71",
+      "tokens": 118954,
+      "lines": 3513,
+      "sha256": "a7bf34ddc807621fb9399ce9af2c01780f7ae4c682c491548f4f0035da8cfb11",
       "tier": "normal",
       "sections": [
         {
@@ -75117,8 +75237,8 @@
           "anchor": "§beads·托盘放大批（槽底深色墨档 + 格缝加大 + 尺回 48/6 系）",
           "level": 1,
           "startLine": 3246,
-          "endLine": 3363,
-          "tokens": 3070,
+          "endLine": 3397,
+          "tokens": 3568,
           "summary": "2026-10-06，主理人(Qoder)·美术域＋工程域代落盘。用户三裁原话：「将托盘格子的 mask 混一个深色，",
           "keywords": [
             "beads",
@@ -75130,10 +75250,107 @@
           ]
         },
         {
-          "anchor": "§WXG-T-263",
+          "anchor": "§WXG-T-264",
           "level": 2,
           "startLine": 3319,
-          "endLine": 3361,
+          "endLine": 3352,
+          "tokens": 495,
+          "summary": "主界面 UI 重设计提案「手作治愈系」+ 游戏名备选（📋 未排期）",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§设计稿",
+          "level": 3,
+          "startLine": 3325,
+          "endLine": 3328,
+          "tokens": 29,
+          "summary": "design/proposals/ui-redesign-mock.png（两屏并排，实验页 temp/ui-redes",
+          "keywords": [
+            "design",
+            "proposals",
+            "redesign",
+            "mock",
+            "png",
+            "temp"
+          ]
+        },
+        {
+          "anchor": "§风格：「手作治愈系」",
+          "level": 3,
+          "startLine": 3329,
+          "endLine": 3333,
+          "tokens": 76,
+          "summary": "奶油纸纹底 + 木牌容器（HUD/托盘：木色渐变+深木边+木钉）+ 纸板卡（道具/缩放）+",
+          "keywords": [
+            "HUD",
+            "风格",
+            "手作治愈系"
+          ]
+        },
+        {
+          "anchor": "§玩法表达三处",
+          "level": 3,
+          "startLine": 3334,
+          "endLine": 3338,
+          "tokens": 80,
+          "summary": "① 标题文字用拼豆拼出来（玩法即品牌；beadText 点阵字组件，设计稿已验证可读、字号需加大）；",
+          "keywords": [
+            "beadText",
+            "玩法表达三处"
+          ]
+        },
+        {
+          "anchor": "§现有功能映射（零新功能）",
+          "level": 3,
+          "startLine": 3339,
+          "endLine": 3344,
+          "tokens": 98,
+          "summary": "boot 标题页（开始按钮）；playing：木牌 HUD（计时/LV/暂停）、画布、木槽托盘 6+6（expandTr",
+          "keywords": [
+            "boot",
+            "playing",
+            "HUD",
+            "expandTr",
+            "现有功能映射",
+            "零新功能"
+          ]
+        },
+        {
+          "anchor": "§游戏名 6 备选（均含品类词利于微信搜索）",
+          "level": 3,
+          "startLine": 3345,
+          "endLine": 3348,
+          "tokens": 41,
+          "summary": "豆豆森林（⭐推荐：树主题+系列化）/ 拼豆小铺 / 拼豆物语 / 拼豆工坊 / 豆趣拼拼 / 颗粒成画。",
+          "keywords": [
+            "游戏名",
+            "备选",
+            "均含品类词利",
+            "于微信搜索"
+          ]
+        },
+        {
+          "anchor": "§实施路径（届时）",
+          "level": 3,
+          "startLine": 3349,
+          "endLine": 3352,
+          "tokens": 37,
+          "summary": "263 质感先行 → palette 换肤（纸底+木牌）→ boot 标题页新增 → 道具卡/HUD 换肤 → 封箱复评",
+          "keywords": [
+            "palette",
+            "boot",
+            "HUD",
+            "实施路径",
+            "届时"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-263",
+          "level": 2,
+          "startLine": 3353,
+          "endLine": 3395,
           "tokens": 605,
           "summary": "珠面「手绘蜡笔质感」程序化调研留档（📋 未排期）",
           "keywords": [
@@ -75143,8 +75360,8 @@
         {
           "anchor": "§核对结论",
           "level": 3,
-          "startLine": 3325,
-          "endLine": 3330,
+          "startLine": 3359,
+          "endLine": 3364,
           "tokens": 87,
           "summary": "该图约 90% 已是工程程序化渲染（就是 harness 的输出：pattern 关卡 / drawHud /",
           "keywords": [
@@ -75157,8 +75374,8 @@
         {
           "anchor": "§调研结论：程序**能**画出手绘质感",
           "level": 3,
-          "startLine": 3331,
-          "endLine": 3343,
+          "startLine": 3365,
+          "endLine": 3377,
           "tokens": 181,
           "summary": "独立 Canvas 实验页（temp/handdraw-lab/index.html，零侵入生产渲染）四档对比：",
           "keywords": [
@@ -75173,8 +75390,8 @@
         {
           "anchor": "§工程要点",
           "level": 3,
-          "startLine": 3344,
-          "endLine": 3351,
+          "startLine": 3378,
+          "endLine": 3385,
           "tokens": 137,
           "summary": "1. 抖动描边 circle → polygon ⟹ 图元数不变，封箱压力最小",
           "keywords": [
@@ -75186,8 +75403,8 @@
         {
           "anchor": "§踩坑",
           "level": 3,
-          "startLine": 3352,
-          "endLine": 3355,
+          "startLine": 3386,
+          "endLine": 3389,
           "tokens": 30,
           "summary": "首版描边 0.22×R + 近黑色 → 远看糊成黑块 ⟹ 收到 0.11×R + 深绿 #2a4630。",
           "keywords": [
@@ -75198,8 +75415,8 @@
         {
           "anchor": "§待决策点（届时问主理人）",
           "level": 3,
-          "startLine": 3356,
-          "endLine": 3361,
+          "startLine": 3390,
+          "endLine": 3395,
           "tokens": 62,
           "summary": "选 C（只要颗粒）还是 D（颗粒 + 双色区带）？",
           "keywords": [
@@ -75210,8 +75427,8 @@
         {
           "anchor": "§WXG-T-262",
           "level": 2,
-          "startLine": 3362,
-          "endLine": 3363,
+          "startLine": 3396,
+          "endLine": 3397,
           "tokens": 0,
           "summary": "",
           "keywords": [
@@ -75221,8 +75438,8 @@
         {
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
-          "startLine": 3364,
-          "endLine": 3480,
+          "startLine": 3398,
+          "endLine": 3514,
           "tokens": 4535,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
@@ -75238,17 +75455,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 33332,
-      "lines": 100,
-      "sha256": "df5092755955c5232d0538ff8b2aa783aad7f63464c13296ace8c57309cd48df",
+      "tokens": 33565,
+      "lines": 101,
+      "sha256": "798b1c63479653e0c3d76e199a371f15ff3260845b1782ec45082ab456acfe75",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 101,
-          "tokens": 33323,
+          "endLine": 102,
+          "tokens": 33557,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -75261,8 +75478,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 74,
-          "endLine": 101,
+          "startLine": 75,
+          "endLine": 102,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
