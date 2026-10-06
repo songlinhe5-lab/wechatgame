@@ -385,17 +385,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3855,
-      "lines": 139,
-      "sha256": "f55ca03f0cfc0e4196d8b4091ce1ae34ab9e6f4fb7043f7923058c7b133c345d",
+      "tokens": 3895,
+      "lines": 140,
+      "sha256": "442e4ddbfeb266206707dc15aa28fb0bd32b7590ba6fc2022359d4248997fe3f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 140,
-          "tokens": 3842,
+          "endLine": 141,
+          "tokens": 3882,
           "summary": "生成：2026-10-06 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -425,7 +425,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 393,
-          "summary": "1 production/TASKS-DETAIL.md 113276 3317 normal",
+          "summary": "1 production/TASKS-DETAIL.md 117848 3436 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -439,9 +439,9 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 114,
-          "tokens": 2355,
-          "summary": "production/TASKS-DETAIL.md 113276 见 ctx/budget-exempt.json（无",
+          "endLine": 115,
+          "tokens": 2395,
+          "summary": "production/TASKS-DETAIL.md 117848 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 115,
-          "endLine": 140,
+          "startLine": 116,
+          "endLine": 141,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5119,
+      "tokens": 5161,
       "lines": 82,
-      "sha256": "83552c55796a3f58b5d0acc273a9a5b32e0b04c7b8ea4ecd8414c06f0ff918d3",
+      "sha256": "2edb80ae7e0dec6b153ef003dd4970d9a39b16be8ad7a89cac276405383bba28",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 5091,
+          "tokens": 5133,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -716,7 +716,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 299 行 / 23968 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 299 行 / 26816 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 98 行 / 30950 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 99 行 / 33056 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
-          "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+99 · §待排（backlog，无号，立项时领取）=72+28",
+          "tokens": 29,
+          "summary": "§WXG 任务台账（SSOT）=1+100 · §待排（backlog，无号，立项时领取）=73+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,11 +955,11 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3317 行 / 113276 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3436 行 / 117848 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 1268,
+          "tokens": 1310,
           "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+3178 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
@@ -5177,9 +5177,9 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md",
-      "tokens": 12530,
+      "tokens": 12620,
       "lines": 249,
-      "sha256": "bd665eb77da40449e7ba29ddf21f74dcb8143dbdb8d4043e54970e51589bcd63",
+      "sha256": "dfd0fb811fe6a42cde4f47a00177de63c85fee9a15b1aa83ab592f10fcd60a68",
       "tier": "normal",
       "sections": [
         {
@@ -5187,7 +5187,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 250,
-          "tokens": 12491,
+          "tokens": 12582,
           "summary": "编号：ADR-0015（0008 跳空合规沿 ADR-0013/0014 注；0009–0014 已用；号只分配不回收）",
           "keywords": [
             "core/input",
@@ -5284,7 +5284,7 @@
           "level": 2,
           "startLine": 81,
           "endLine": 131,
-          "tokens": 2940,
+          "tokens": 3030,
           "summary": "",
           "keywords": [
             "Alternatives",
@@ -5310,7 +5310,7 @@
           "level": 3,
           "startLine": 103,
           "endLine": 118,
-          "tokens": 1228,
+          "tokens": 1319,
           "summary": "丁-1：扩 RenderTransform 允许 translate（把 dx/dy 加进全局通道）。",
           "keywords": [
             "RenderTransform",
@@ -6020,17 +6020,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0018-beads-board-size-playability.md",
-      "tokens": 7072,
-      "lines": 254,
-      "sha256": "81e9cf7178e0ea955b6f91822602e58b4bcfca628162d2701460ec8724e7f856",
+      "tokens": 8414,
+      "lines": 261,
+      "sha256": "fcc8958c0f61cc2478e208c4c35e886db86497c334dc1cab70230381ea49d419",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0018 — 盘面尺寸与色数规格决策：可玩性评估与 MVP 档位选定",
           "level": 1,
           "startLine": 1,
-          "endLine": 255,
-          "tokens": 7045,
+          "endLine": 262,
+          "tokens": 8387,
           "summary": "状态：Accepted（2026-09-20 用户拍板）· ⚠ Amended by systems-index v1.",
           "keywords": [
             "ADR",
@@ -6147,8 +6147,8 @@
           "anchor": "§3 决定（Decision）",
           "level": 2,
           "startLine": 121,
-          "endLine": 221,
-          "tokens": 3673,
+          "endLine": 228,
+          "tokens": 4964,
           "summary": "",
           "keywords": [
             "Decision",
@@ -6198,8 +6198,8 @@
           "anchor": "§3.4 初始适配取景与触控基准（5mm Midi 参照 + 留边 1~2 珠宽）",
           "level": 3,
           "startLine": 149,
-          "endLine": 209,
-          "tokens": 3006,
+          "endLine": 216,
+          "tokens": 4297,
           "summary": "#### 3.4.1 zoom=1 的物理参照",
           "keywords": [
             "Midi",
@@ -6213,8 +6213,8 @@
         {
           "anchor": "§3.5 本文不裁定的事项",
           "level": 3,
-          "startLine": 210,
-          "endLine": 221,
+          "startLine": 217,
+          "endLine": 228,
           "tokens": 113,
           "summary": "CAMERA_ZOOM_MAX_SPAN 具体改值（2.5→?） systems-index §3 变更单 + ADR-",
           "keywords": [
@@ -6229,8 +6229,8 @@
         {
           "anchor": "§4 后果（Consequences）",
           "level": 2,
-          "startLine": 222,
-          "endLine": 244,
+          "startLine": 229,
+          "endLine": 251,
           "tokens": 606,
           "summary": "",
           "keywords": [
@@ -6241,8 +6241,8 @@
         {
           "anchor": "§4.1 正面",
           "level": 3,
-          "startLine": 224,
-          "endLine": 231,
+          "startLine": 231,
+          "endLine": 238,
           "tokens": 187,
           "summary": "1. MVP 两档明确（B3 14×14 + B1 18×18），设计轨可立即按此出关，不阻塞于\"29 能不能做\"。",
           "keywords": [
@@ -6253,8 +6253,8 @@
         {
           "anchor": "§4.2 负面（已知成本，白纸黑字）",
           "level": 3,
-          "startLine": 232,
-          "endLine": 237,
+          "startLine": 239,
+          "endLine": 244,
           "tokens": 267,
           "summary": "1. CAMERA_ZOOM_MAX_SPAN=2.5 对 29×29 是硬缺陷：fit(0.393)×2.5=0.98",
           "keywords": [
@@ -6268,8 +6268,8 @@
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 238,
-          "endLine": 244,
+          "startLine": 245,
+          "endLine": 251,
           "tokens": 126,
           "summary": "1. 29×29 能否最终解锁为可玩档，取决于 ADR-0017 LOD 效果 + 真机帧率 + zoom 钳位调整。乐",
           "keywords": [
@@ -6283,8 +6283,8 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 245,
-          "endLine": 255,
+          "startLine": 252,
+          "endLine": 262,
           "tokens": 359,
           "summary": "1. CAMERA_ZOOM_MAX_SPAN 被调整 ⇒ 回写本文 §2.1 表的 max zoom 列与 §2.3 ",
           "keywords": [
@@ -25806,20 +25806,20 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 17073,
-      "lines": 199,
-      "sha256": "6b5c9717bf7f88cb612b1ee13c3c433efb074f340595a54c2ef8c0fffbfbaaa4",
+      "tokens": 17652,
+      "lines": 200,
+      "sha256": "78d309475bb557c227f19e3c796170b5a33c793e596655a0d07aae1ccbf384a8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S2 输入与操控（Input Control）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 200,
-          "tokens": 17057,
-          "summary": "项目：games/beads · 版本 v2.11 · 任务号 WXG-T-217（v2.11 = §2.1 缩放档位冻",
+          "endLine": 201,
+          "tokens": 17637,
+          "summary": "项目：games/beads · 版本 v2.12 · 任务号 WXG-T-262（v2.12 = §6 相机复位口径随",
           "keywords": [
-            "§2.1",
+            "§6",
             "GDD",
             "Input",
             "Control",
@@ -25959,7 +25959,7 @@
           "level": 2,
           "startLine": 96,
           "endLine": 119,
-          "tokens": 952,
+          "tokens": 1055,
           "summary": "极端值",
           "keywords": [
             "边界条件"
@@ -25997,8 +25997,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 179,
-          "endLine": 200,
-          "tokens": 4998,
+          "endLine": 201,
+          "tokens": 5307,
           "summary": "v2.10 2026-09-23 §2.1 路由 4b 取回落槽回退「自动归类」（WXG-T-204，推翻 v2.6 /",
           "keywords": [
             "§2.1",
@@ -27197,17 +27197,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 33421,
-      "lines": 73,
-      "sha256": "7075a182b62d134b75775585bee516b835999904a8325ba831c2a7bb88606d76",
+      "tokens": 36972,
+      "lines": 80,
+      "sha256": "2b6711f88167af5c88c09c7e5c7467c69ec28283120ca717b1b2c59df930c631",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 74,
-          "tokens": 33403,
+          "endLine": 81,
+          "tokens": 36954,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -27222,8 +27222,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 74,
-          "tokens": 33245,
+          "endLine": 81,
+          "tokens": 36796,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -27235,9 +27235,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 23968,
+      "tokens": 26816,
       "lines": 299,
-      "sha256": "2f15f7df53b9d3be5ebeaa7ef807667ac04f427bfc75a2aa21d47f3ed3fbd0c5",
+      "sha256": "dbe5c43eaee6b4471dfe84923cef4d20cc6f190334cb8b31decc0332e76f3ce8",
       "tier": "hot",
       "sections": [
         {
@@ -27245,15 +27245,15 @@
           "level": 1,
           "startLine": 1,
           "endLine": 300,
-          "tokens": 23951,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.62 · 任务号 WXG-T-261（v1.62 = §3.",
+          "tokens": 26799,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.69 · 任务号 WXG-T-262（v1.69 = 纵向操",
           "keywords": [
-            "§3",
             "Systems",
             "Index",
             "beads",
             "games",
-            "WXG"
+            "WXG",
+            "系统清单与依"
           ]
         },
         {
@@ -27288,7 +27288,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 254,
-          "tokens": 18044,
+          "tokens": 18905,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -27334,7 +27334,7 @@
           "level": 3,
           "startLine": 95,
           "endLine": 116,
-          "tokens": 2557,
+          "tokens": 3418,
           "summary": "BEAD_PITCH 32 网格 pitch（设计 px，格心距）。v1.57 升为冻结量（旧：由 BEAD_CELL+",
           "keywords": [
             "Bead",
@@ -72363,9 +72363,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 113276,
-      "lines": 3317,
-      "sha256": "513eec13f3f971fb29cf6898880b985c93e2296df8354698306800666dc7d461",
+      "tokens": 117848,
+      "lines": 3436,
+      "sha256": "cda61199ebee82f37e3de1b826584e0c86b0bdcf96c2a06af32516b87b062cc3",
       "tier": "normal",
       "sections": [
         {
@@ -74999,8 +74999,8 @@
           "anchor": "§beads·托盘放大批（槽底深色墨档 + 格缝加大 + 尺回 48/6 系）",
           "level": 1,
           "startLine": 3246,
-          "endLine": 3318,
-          "tokens": 2459,
+          "endLine": 3320,
+          "tokens": 2462,
           "summary": "2026-10-06，主理人(Qoder)·美术域＋工程域代落盘。用户三裁原话：「将托盘格子的 mask 混一个深色，",
           "keywords": [
             "beads",
@@ -75010,22 +75010,49 @@
             "槽底深色墨档",
             "格缝加大"
           ]
+        },
+        {
+          "anchor": "§WXG-T-262",
+          "level": 2,
+          "startLine": 3319,
+          "endLine": 3320,
+          "tokens": 0,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
+          "level": 1,
+          "startLine": 3321,
+          "endLine": 3437,
+          "tokens": 4535,
+          "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
+          "keywords": [
+            "beads",
+            "fit",
+            "Qoder",
+            "档放开",
+            "只缩不放大",
+            "小盘放大铺满"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 30950,
-      "lines": 98,
-      "sha256": "b49c3f817d0aee94b6fb7c8fd507e9d3d06d033d2581b373530f2b9a0851018d",
+      "tokens": 33056,
+      "lines": 99,
+      "sha256": "7cba0033a1ff16393b76bda84fa93d19e033d0516b241a0aa6cf7402b114262d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 30941,
+          "endLine": 100,
+          "tokens": 33048,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -75038,8 +75065,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 72,
-          "endLine": 99,
+          "startLine": 73,
+          "endLine": 100,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

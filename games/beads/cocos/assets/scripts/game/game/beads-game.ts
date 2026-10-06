@@ -2128,7 +2128,8 @@ export class BeadsGame implements Game {
       applyMisplacedToGrid(this._grid, level.pattern, level.swaps, level.misplaced);
     }
     // WXG-T-172 · F3 甲裁：本行 = 复位点①（换关 / 新局 / 重试 / 跳关共用）。复位档 =
-    // fit 初始（小盘 fit=1 与旧恒等逐位相同）；回菜单 / 后台隐藏当帧不复位，由下次装配复位（ADR-0015 §3.4）。
+    // fit 初始（[WXG-T-262] 小盘 fit > 1 = 整盘放大档，旧「与恒等逐位相同」口径已推翻）；
+    // 回菜单 / 后台隐藏当帧不复位，由下次装配复位（ADR-0015 §3.4）。
     fitCamera(this._camera, this._grid.cols, this._grid.rows);
     resetGesture(this._gesture);
     this._tapActive = false;

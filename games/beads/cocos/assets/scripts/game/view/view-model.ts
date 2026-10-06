@@ -43,7 +43,6 @@ import {
   POWERUP_TYPES,
   powerupCardRects,
   powerupLabelY,
-  PUZZLE_BAND,
   TRAY_BASE_SLOTS,
   TRAY_COLS,
   TRAY_PLATE,
@@ -809,10 +808,16 @@ function drawGrid(
       if (cell.void) continue; // outside the pattern shape — background
       const cx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * j;
       const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * i;
-      // 格心可视窗剔除（丁-3 免 clip）。恒等档所有格心都在带内 ⇒ 零剔除，快照逐位不变。
+      // 格心**离屏**剔除（保留原丁-3 的性能骨架，但窗口从「盘带」换成「整屏」）：
+      // [WXG-T-262 五续裁 v1.67] 用户裁定「上下不限制展示区域，只限制手势区域」⇒
+      // **带内可视窗剔除退役**，溢出行照画（层序现状：盘面盖 HUD、被托盘面板盖）。
+      // ADR-0015 §2.2 丁-3 的「25 < 30/94 不压 HUD/托盘」承重核算随之作废——被替代的
+      // 是它的**动机**（免掉带裁剪），判据仍守「格心」⛔ 不得改格缘。
+      // 手势区不变：带外屏位属 HUD/托盘路由区，点不中（input-control §2.1 带级次序）。
+      // 恒等档所有格心都在屏内 ⇒ 零剔除，封箱快照逐位仍不变。
       if (
-        cy < PUZZLE_BAND.yMin - snap.gridCell ||
-        cy > PUZZLE_BAND.yMax + snap.gridCell ||
+        cy < -snap.gridCell ||
+        cy > DESIGN_H + snap.gridCell ||
         cx < -snap.gridPitch ||
         cx > DESIGN_W + snap.gridPitch
       ) {

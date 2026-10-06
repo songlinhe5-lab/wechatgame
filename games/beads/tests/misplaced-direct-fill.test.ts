@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { gridLayoutFor } from '../src/config/tuning.js';
-import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
+import { createBeadsHarness, simpleTestLevel, pinIdentityCamera, type Harness } from './helpers.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
 
 /**
@@ -26,6 +26,7 @@ describe('WXG-T-162 · board 锚直填（任意距离）', () => {
   beforeEach(() => {
     h = createBeadsHarness({ seed: 'direct-fill-seed', noAssemble: true, levels: [simpleTestLevel()] });
     h.game.goToLevel(0);
+    pinIdentityCamera(h.game); // [WXG-T-262] 换关重入 fit ⇒ 本文件格心坐标（裸 `gridLayoutFor`）回恒等档
     // 底色 pattern='123123' 周期 3 ⇒ 列 0/3 底 1、列 1/4 底 2、列 2/5 底 3。
     //   错位组（色 2，8 向斜连）：锚 (1,2)（底 3）+ 组员 (2,3)（底 1）。
     //   对应色空格（底 2）：(1,1) 距锚 1；(4,4) 距锚切比 3（>2 ⇒ 放开判据点）。
@@ -86,6 +87,7 @@ describe('WXG-T-162 · board 锚直填（任意距离）', () => {
   it('单珠组：beadCount-1=0 ⇒ 只填被点格、不级联', () => {
     const g = createBeadsHarness({ seed: 'single-bead', noAssemble: true, levels: [simpleTestLevel()] });
     g.game.goToLevel(0);
+    pinIdentityCamera(g.game); // [WXG-T-262] 同上
     g.game.grid.fill(0, 0, 2); // (0,0) 底 1 ⇒ 色 2 错位（单珠组）
     expect(g.game.selectBoardBead(0, 0)).toBe(true);
     const p = gridPoint(g.game, 0, 1); // (0,1) 底 2 空
@@ -112,6 +114,7 @@ describe('WXG-T-162 · board 锚直填（任意距离）', () => {
     const g2 = createBeadsHarness({ seed: 'direct-fill-clear', noAssemble: true, levels: [simpleTestLevel()] });
     const game = g2.game;
     game.goToLevel(0);
+    pinIdentityCamera(game); // [WXG-T-262] 同上
     for (let r = 0; r < 5; r++) {
       for (let c = 0; c < 6; c++) {
         if ((r === 0 && c === 0) || (r === 0 && c === 1)) continue; // 预留：错位位 (0,0) + 对应色空格 (0,1)（底 2）

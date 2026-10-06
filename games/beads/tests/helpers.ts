@@ -20,7 +20,7 @@ import {
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { BeadsGame } from '../src/game/beads-game.js';
-import { CLEAR_PANEL_DELAY_MS, solverSequenceMs } from '../src/config/tuning.js';
+import { CLEAR_PANEL_DELAY_MS, solverSequenceMs, IDENTITY_CAMERA } from '../src/config/tuning.js';
 import { colorIndexOfChar } from '../src/config/bead-charset.js';
 import type { BeadsLevelRaw } from '../src/config/levels.js';
 
@@ -59,6 +59,11 @@ export interface HarnessOptions {
    * 默认**装配**（生产语义）；旧「空盘放置流」测试置 true 后自行构造场景。
    */
   noAssemble?: boolean;
+  /**
+   * [WXG-T-262] 默认 true：夹具装配后钉恒等档（见 `pinIdentityCamera`）；置 false 则保留
+   * 生产 fit 初始视图（专给验证 fit/缩放传导本身的判据腿用）。
+   */
+  noCameraPin?: boolean;
   /** 透传 `BeadsGameOptions.canStartRun`（新局开局体力闸门，WXG-T-164）。 */
   canStartRun?: () => boolean;
   /** 透传 `BeadsGameOptions.onStaminaRefill`（体力回满激励位发奖，WXG-T-164）。 */
@@ -124,6 +129,7 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
   }
 
   game.init(services);
+  if (!options.noCameraPin) pinIdentityCamera(game);
 
   const harness: Harness = {
     services,
@@ -157,6 +163,22 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
   };
 
   return harness;
+}
+
+/**
+ * [WXG-T-262] 夹具统一钉**恒等档**：适配新政（用户裁「不是 1:1，整盘放大到左右留空隙；
+ * 初始 = 适配档」）后装配初始 `fit` 可 >1，而本仓像素坐标/命中/封箱字节判据全属恒等档；
+ * fit 落点本身归 `board-camera.test.ts` 钉。凡测试中途 `goToLevel` / `startSprint` 重入
+ * fit 后仍要恒等坐标，再调一次本函数。相机权威存玩法层私有字段（先例 =
+ * board-camera.test `dirtyCamera`），照旧读写、不为测试扩公开 API。
+ * ⚠ 生产初始视图（放大档）在 harness/真机验证，不在本夹具。
+ */
+export function pinIdentityCamera(game: BeadsGame): void {
+  const cam = (game as unknown as { _camera: { zoom: number; offsetX: number; offsetY: number } })._camera;
+  cam.zoom = IDENTITY_CAMERA.zoom;
+  cam.offsetX = IDENTITY_CAMERA.offsetX;
+  cam.offsetY = IDENTITY_CAMERA.offsetY;
+  (game as unknown as { _recomputeLayout(): void })._recomputeLayout();
 }
 
 /**

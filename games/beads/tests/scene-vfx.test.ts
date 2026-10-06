@@ -66,7 +66,7 @@ import {
 } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
-import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
+import { createBeadsHarness, simpleTestLevel, pinIdentityCamera, type Harness } from './helpers.js';
 import type { BeadsSnapshot, ColorCueMode } from '../src/game/state.js';
 
 /** [WXG-T-235] B0 底图的**绘制**边长（= 格距 + 每边 `TILE_BLEED`）。
@@ -573,6 +573,7 @@ describe('§5 选中抬起 · 格级分离影（`bead-visual-style-spec §11.6`�
       saveKey,
     });
     h.game.goToLevel(0);
+    pinIdentityCamera(h.game); // [WXG-T-262] 换关重入 fit ⇒ 本组像素判据回恒等档
     expect(h.game.grid.fill(1, 2, 1)).toBe(true);
     return h;
   }
@@ -695,6 +696,7 @@ describe('§5 抬起曲线与错峰（v1.5-r16）', () => {
       saveKey,
     });
     h.game.goToLevel(0);
+    pinIdentityCamera(h.game); // [WXG-T-262] 换关重入 fit ⇒ 本组像素判据回恒等档
     expect(h.game.grid.fill(1, 2, 1)).toBe(true);
     expect(h.game.grid.fill(2, 2, 1)).toBe(true);
     expect(h.game.selectBoardBead(2, 2)).toBe(true);

@@ -448,8 +448,19 @@ export const TRAY_BEAD_SIZE = TRAY_SLOT - 2 * BEAD_DRAW_INSET;
  * ⇒ `pitch = 54`（v4.0 的 `BEAD_GAP 2` / pitch 32 一并推翻，尺回旧 6/54 系）。
  */
 export const TRAY_GAP = 6;
+/**
+ * 托盘一行（12 列）总宽 = `TRAY_COLS × pitch − TRAY_GAP` = **642**，每边留白 54。
+ * 派生自 §3.4 冻结族，⛔ 另硬编 642。
+ */
+export const TRAY_ROW_WIDTH = TRAY_COLS * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP;
 /** 托盘面板竖向内边距（面板高 = rows×54 − 6 + 2×12）。 */
 export const TRAY_PANEL_PAD = 12;
+/**
+ * 托盘**整体宽度**（面板外宽）= `TRAY_ROW_WIDTH + 2×TRAY_PANEL_PAD` = **666**。
+ * **[WXG-T-262 三续裁 v1.65]** = fit 档**横向目标宽度**正本：用户裁「（适配）放大效果还是
+ * 不够宽，宽度需要对齐托盘整体宽度」⇒ `computeFitZoom` 钉到面板外框（⛔ 不是槽行宽 642）。
+ */
+export const TRAY_PANEL_WIDTH = TRAY_ROW_WIDTH + 2 * TRAY_PANEL_PAD;
 /**
  * `btn_expand` 视觉尺寸（§3.4 v1.20 ← `assets-spec §1.3`：132×48、圆角 24）。
  * 热区高 88 来自 `accessibility C1`（48 < `TOUCH_MIN` ⇒ 视觉不变、热区扩大），
@@ -1998,15 +2009,21 @@ export const BOARD_TAP_MOVE_THRESHOLD = 8; // [待确认]
  * **裁定 = 不随基尺派生**（保持绝对 24）：留边语义属「屏幕呼吸」而非「珠子尺度」；且派生几乎
  * 不买空间 —— 取 `PITCH/2 = 16` 时 `c_max = floor(720/32) = 22`（**列数不变**）、仅 `r_max`
  * 18→19（多 1 行），收益小于把占位值改写的冻结成本（正本变更单 §1.1）。
- * ⚠ 本值是 **§3.3 顶格档算式的分母项**（`c_max = floor((750−2×24+2)/32) = 22`、
+ * ⚠ 本值是 **§3.3 顶格档算式的分母项**（旧 `c_max = floor((750−2×24+2)/32) = 22`、
  * `r_max = floor((640−2×24+2)/32) = 18`）⇒ 顶格档不能建在未冻结的占位值上，这才是转正的动因。
+ * ⚠ **[WXG-T-262 三续裁 v1.65] 作用域再收窄 = 仅平移夹取窗口项**：fit 档横向目标宽改
+ * `TRAY_PANEL_WIDTH`（666，用户裁「对齐托盘整体宽度」）且**高度腿退役**（初屏可不完整，
+ * 带外行走既有格心裁除 + 拖动可见）⇒ 本值不再进 `computeFitZoom`；旧 v1.64「仅纵向留白」
+ * 口径随之作废。本值**零改动**，⛔ 不得删常量（clampCamera/控件净空等消费面另计）。
  * 真机若判「贴边」⇒ 走 §3 变更单，不在本单预登记。
  */
 export const BOARD_FIT_MARGIN = 24;
 /**
  * 缩放**绝对倍率**下限（§3.3 v1.59 冻结，WXG-T-217，用户 2026-09-27 拍板）。
  * 取代旧「下限 = fit」口径（`fit` 仅作初始视图，不再是下钳）。
- * 不变式：`CAMERA_ZOOM_MIN ≤ fit ≤ 1 ≤ CAMERA_ZOOM_MAX`（最大盘 32×32 fit = 512/1022 ≈ 0.501）。
+ * 不变式：`CAMERA_ZOOM_MIN ≤ fit ≤ CAMERA_ZOOM_MAX`（**[WXG-T-262 · 用户 2026-10-06 裁「适配/初始 =
+ * 整盘放大到左右留空隙」推翻旧 `fit ≤ 1`** ⇒ 小盘 fit 可 >1，顶格档仍恰为 1；最大盘 32×32
+ * fit = 512/1022 ≈ 0.501，下界天然成立）。
  * 负面后果如实：小盘可缩至 0.2（22 列盘 ≈140 px 宽、四周大留白），交互合理性 `[待真机 playtest]`。
  */
 export const CAMERA_ZOOM_MIN = 0.2;
@@ -2014,7 +2031,9 @@ export const CAMERA_ZOOM_MIN = 0.2;
  * 缩放**绝对倍率**上限（§3.3 v1.59 冻结，WXG-T-217；zoom=1 ⇔ 珠绘制边长恰为静息档 26 设计 px）。
  *
  * **退役 `CAMERA_ZOOM_MAX_SPAN`**（旧口径 `fit × 2.5`，从未冻结占位 ⇒ 退役不涉翻改冻结值）。
- * 现有关卡 `fit` 全 = 1 ⇒ 实盘放大上限由 2.5 **降为 2.0**（用户知情拍板）。
+ * 现有关卡 `fit` 全 = 1 ⇒ 实盘放大上限由 2.5 **降为 2.0**（用户知情拍板）。[WXG-T-262 注：
+ * 本句前提已变 —— 适配档放大后现有关卡初始 fit 全 >1（顶格档除外），上限仍挂本值 ⇒ 初始档
+ * 不会越过烘焙/LOD 已覆盖的 ×2.0 档。]
  * 烘焙侧最大档直接挂本值（`BEAD_CELL × CAMERA_ZOOM_MAX`，不再 × fit，保证只缩小不放大，
  * 正本 `proposals/bead-visual-style-spec §13`）；低倍段（0.2–0.7）画质/闪烁验证待
  * `proposals/zoom-bake-mip-validation.md`。
@@ -2198,7 +2217,7 @@ export interface TrayLayout {
 
 export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
   const pitch = TRAY_SLOT + TRAY_GAP;
-  const rowWidth = TRAY_COLS * pitch - TRAY_GAP;
+  const rowWidth = TRAY_ROW_WIDTH;
   const left = (width - rowWidth) / 2;
   const panelH = rows * pitch - TRAY_GAP + TRAY_PANEL_PAD * 2;
   return {
@@ -2208,7 +2227,7 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
     left,
     panelX: left - TRAY_PANEL_PAD,
     panelBottom: TRAY_BAND.yMax - panelH,
-    panelW: rowWidth + TRAY_PANEL_PAD * 2,
+    panelW: TRAY_PANEL_WIDTH,
     panelH,
     slotCenterX: (col: number) => left + TRAY_SLOT / 2 + pitch * col,
     slotCenterY: (row: number) =>

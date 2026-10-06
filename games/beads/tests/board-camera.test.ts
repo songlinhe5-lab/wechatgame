@@ -1,8 +1,9 @@
 /**
  * WXG-T-169 / ADR-0015 甲′ 相机模型判据（`board-camera.ts`）——直接对应真机三反馈：
  *   ① 缩放绝对倍率有界 [CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]（§3.3 v1.59；旧 [fit, fit×SPAN] 退役）；
- *   ② 平移：board ≤ 视口时 offset 锁 0（居中、拖不动也拖不出屏），board > 视口时可
- *      滚到内容边界、棋盘边缘永不离开视口（issue 1 能拖 + issue 2 不拖出屏）；
+ *   ② 平移：[WXG-T-262 六续裁 v1.68] 双条件同时满足才夹（拖动边触操作界 **且** 背向边过
+ *      操作心）；[七续裁 v1.69] Y 操作边界 = 「菜单下 ~ 托盘上」（非盘带沿，上下限不对称），
+ *      X 仍整幅对称 = `max(盘, 视口−盘)/2`；
  *   ③ fitCamera 初始 zoom = 含边距适配、居中不贴边（issue 3）；
  *   ④ **WXG-T-172 · F3 甲裁**（以实现为准）后的复位**落点**：复位档 = `fit` 初始，实际复位点
  *      只有 `_setupLevel` / `_loadStage` 两处；回菜单 / 后台隐藏当帧**不**复位（ADR-0015 §3.4）。
@@ -38,17 +39,30 @@ import {
   CAMERA_ZOOM_MAX,
   BEAD_PITCH,
   BEAD_GAP,
-  DESIGN_W,
+  TRAY_PANEL_WIDTH,
+  PUZZLE_BAND,
+  HUD_BAND,
+  TRAY_BAND,
   BOARD_FIT_MARGIN,
   GRID_MIN_COLS,
   GRID_MIN_ROWS,
-  PUZZLE_BAND,
   LEVEL_TIME_MIN,
   gridLayoutFor,
 } from '../src/config/tuning.js';
 import { STAGE_PATTERN_POOL } from '../src/config/levels.js';
 
 const cam = (): BoardCamera => ({ zoom: 1, offsetX: 0, offsetY: 0 });
+
+/** Y 夹取镜像（[v1.69] 与 `clampCamera` 同构，换 band 尺不漂移）：返回 [下限, 上限]。 */
+const OP_LO = TRAY_BAND.yMax + BOARD_FIT_MARGIN;
+const OP_HI = HUD_BAND.yMin - BOARD_FIT_MARGIN;
+const BAND_MID = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
+const OP_MID_REL = (OP_LO + OP_HI) / 2 - BAND_MID;
+const clampY = (bh: number): [number, number] => [
+  Math.min(OP_LO - BAND_MID + bh / 2, OP_MID_REL - bh / 2),
+  Math.max(OP_HI - BAND_MID - bh / 2, OP_MID_REL + bh / 2),
+];
+
 const two = (x: number, y: number, x2: number, y2: number): PinchInput => ({
   isDown: true,
   isDown2: true,
@@ -58,7 +72,8 @@ const two = (x: number, y: number, x2: number, y2: number): PinchInput => ({
   y2,
 });
 
-// 6×5 小盘：放进带内富余 → fit=1（不放大）。“大盘”（fit<1）需越过**顶格档**。
+// 6×5 小盘：**[WXG-T-262 · 用户 2026-10-06 裁「不是 1:1，整盘放大到左右留空隙；初始 = 适配档」]**
+// ⇒ fit = 放大档（本盘越上钳 → `CAMERA_ZOOM_MAX`；旧「fit=1 不放大」口径推翻）。“大盘”（fit<1）仍需越过**顶格档**。
 // ⚠ **v1.57（§3.3 5mm→32/dip 基）换尺后的直接后果**：旧夹具 13×12 在新尺下
 // `fit = 1`（顶格档由 13×11 抬到 22×18）⇒ 它不再是“缩放档”，借用它的用例全部当场红。
 // 本文件因此把 `BC×BR` 抬到 **顶格档 + 1 行**（取最小越界量：既仍钉住“fit<1”
@@ -70,20 +85,28 @@ const BC = 22;
 const BR = 17;
 
 /** 顶格档快照（正本 = `systems-index §3.3` “顶格档”行）：
- * 13×11（52 基）→ 22×18（§3.3 v1.57）→ **22×16**（盘带下沿抬至 560，`r_max` 18→16）。 */
-const TOP_COLS = 22;
-const TOP_ROWS = 16;
+ * 13×11（52 基）→ 22×18（§3.3 v1.57）→ 22×16（盘带下沿抬至 560）→ 20×16（v1.64）→
+ * **列域 20，行数域退役**（§3.3 v1.65 · WXG-T-262 三续裁：fit 只看宽（基准 `TRAY_PANEL_WIDTH`
+ * 666），`floor((666+2)/32)` = 20；行高不再参与 fit ⇒ 顶格档只剩列轴）。 */
+const TOP_COLS = 20;
+const TOP_ROWS = 16; // 仅作“行轴独立性”腿的基准盘高，不再是顶格档约束
 
 describe('computeFitZoom / fitCamera（issue 3 初始适配）', () => {
-  it('小盘放得下 → fit=1（不放大到超过自然尺寸）', () => {
-    expect(computeFitZoom(SC, SR)).toBe(1);
+  it('小盘 → fit = 放大档（WXG-T-262：整盘放大到留边，越上钳钉 `CAMERA_ZOOM_MAX`；⛔ 旧 fit=1 回潮即红）', () => {
+    expect(computeFitZoom(SC, SR)).toBe(CAMERA_ZOOM_MAX);
   });
-  it('大盘 → fit<1，且适配后棋盘确实含边距放进视口', () => {
+  it('中间档（不越上钳的放大盘）→ 1 < fit < MAX', () => {
+    // 12×16（现池最大尺）：[v1.65] fit = 666/382 = 1.743（宽度钉到托盘面板外宽；高度腿已退役）
+    const f = computeFitZoom(12, 16);
+    expect(f).toBeGreaterThan(1);
+    expect(f).toBeLessThan(CAMERA_ZOOM_MAX);
+  });
+  it('大盘 → fit<1，且适配后棋盘不越**托盘整体宽**（[v1.65] 横向目标 = TRAY_PANEL_WIDTH）', () => {
     const fit = computeFitZoom(BC, BR);
     expect(fit).toBeLessThan(1);
     expect(fit).toBeGreaterThan(0);
     const natW = BC * BEAD_PITCH - BEAD_GAP;
-    expect(natW * fit).toBeLessThanOrEqual(DESIGN_W - 2 * BOARD_FIT_MARGIN + 1e-6);
+    expect(natW * fit).toBeLessThanOrEqual(TRAY_PANEL_WIDTH + 1e-6);
   });
   it('fitCamera 把相机设为 zoom=fit、offset=0（居中）', () => {
     const c: BoardCamera = { zoom: 9, offsetX: 50, offsetY: -50 };
@@ -93,22 +116,25 @@ describe('computeFitZoom / fitCamera（issue 3 初始适配）', () => {
     expect(c.offsetY).toBe(0);
   });
 
-  // 顶格档（fit=1 的最大盘）随盘带高动：13×11（52 基）→ 22×18（§3.3 v1.57）→ **22×16**
-  //（下沿 480→560 为缩放控件条让高，§3.1 换尺）。
-  // 本例同时钉两腿：① 公式腿（由 `BOARD_FIT_MARGIN` / `BEAD_PITCH` / `BEAD_GAP` 派生）
-  // ② 快照腿（字面 22×16）——两腿必同时红才能防“换尺但没人重算顶格档”。
-  it('顶格档 = 22×16（fit=1 的最大盘），越界一档必缩', () => {
-    const bandH = PUZZLE_BAND.yMax - PUZZLE_BAND.yMin;
-    const cMax = Math.floor((DESIGN_W - 2 * BOARD_FIT_MARGIN + BEAD_GAP) / BEAD_PITCH);
-    const rMax = Math.floor((bandH - 2 * BOARD_FIT_MARGIN + BEAD_GAP) / BEAD_PITCH);
-    expect([cMax, rMax]).toEqual([TOP_COLS, TOP_ROWS]); // 快照腿：换尺 ⇒ 本行必跟着 §3 动
-    // 派生守卫（§3.3 顶格档行的工程形式）：`cols ≤ cMax ∧ rows ≤ rMax` ⇔ `fit = 1`。
-    expect(computeFitZoom(TOP_COLS, TOP_ROWS)).toBe(1);
-    expect(computeFitZoom(TOP_COLS - 1, TOP_ROWS - 1)).toBe(1);
-    expect(computeFitZoom(GRID_MIN_COLS, GRID_MIN_ROWS)).toBe(1);
-    // 越界一档：两个轴各钉一条，防“只钉一个轴”的单向漏测。
+  // 顶格档（fit ≥ 1 的最大盘）随基准动：13×11（52 基）→ 22×18（§3.3 v1.57）→ 22×16（v1.58 让高）
+  //→ 20×16（v1.64）→ **列域 20，行数域退役**（§3.3 v1.65 · WXG-T-262 三续裁「宽度对齐托盘整体
+  //  宽度」：fit = min(MAX, TRAY_PANEL_WIDTH/natW)，高度腿删除 ⇒ 顶格档只剩列轴）。
+  // 两腿：① 公式腿（列域由 `TRAY_PANEL_WIDTH` 派生）② 快照腿（字面 20）——换尺必同时红。
+  // 旧「纵向由 BOARD_FIT_MARGIN 派生」公式腿随高度腿退役 ⇒ 换成**行轴独立性腿**（防“行高
+  // 静偷偷回 fit 式”回潮，断言加非删，K-036 合规）。
+  it('顶格档 = 列域 20（fit≥1 只看宽，v1.65），越列必缩、行高不参与', () => {
+    const cMax = Math.floor((TRAY_PANEL_WIDTH + BEAD_GAP) / BEAD_PITCH);
+    expect(cMax).toBe(TOP_COLS); // 快照腿：换尺 ⇒ 本行必跟着 §3 动（668/32=20.875→20）
+    // 派生守卫（**[WXG-T-262] `⇔ fit = 1` 改 `⇔ fit ≥ 1`**：顶格档内一律放大或恰压线，
+    // 越档必缩。⛔ 666 非 `32n−2` 整珠宽 ⇒ 不存在恰 `fit=1` 盘宽，勿改回 toBe(1)。
+    expect(computeFitZoom(TOP_COLS, TOP_ROWS)).toBeGreaterThanOrEqual(1);
+    expect(computeFitZoom(TOP_COLS - 1, TOP_ROWS - 1)).toBeGreaterThan(1);
+    expect(computeFitZoom(GRID_MIN_COLS, GRID_MIN_ROWS)).toBe(CAMERA_ZOOM_MAX); // 6×5 越上钳钉格
+    // 越列一档必缩；行数不参与 fit（v1.65 高度腿退役，新长盘初屏上下溢出：带外行
+    // 照画 + 平移拖动可见（上限口径见 clampCamera 族），v1.67/68）。
     expect(computeFitZoom(TOP_COLS + 1, TOP_ROWS)).toBeLessThan(1);
-    expect(computeFitZoom(TOP_COLS, TOP_ROWS + 1)).toBeLessThan(1);
+    expect(computeFitZoom(TOP_COLS, TOP_ROWS + 1)).toBe(computeFitZoom(TOP_COLS, TOP_ROWS));
+    expect(computeFitZoom(TOP_COLS, 40)).toBe(computeFitZoom(TOP_COLS, TOP_ROWS));
     // ⛔ 本例**不**钉“出货关表逐关 fit=1”：那又是对关表内容的巧合耦合（本文件 :236-238
     // 已登记 v1.46 关表重置失配的教训）。“现 8 关均 ≤ 顶格档”是变更单 §2.2 的
     // 文档结论，它属 `levels.test.ts` 的规模闸职责，不属相机公式本例。
@@ -169,22 +195,35 @@ describe('applyPinch（issue 2 缩放有界 · §3.3 v1.59 绝对档）', () => 
 });
 
 describe('applyPan + clampCamera（issue 1 能拖 / issue 2 拖不出屏）', () => {
-  it('board ≤ 视口（fit 视图）→ offset 锁 0，拖不动也拖不出屏', () => {
+  it('窄盘（盘 > 视口一半）仍夹在背向盘缘过中线——双条件缺一不夹，拖动边未触界（[v1.68]）', () => {
     const c = cam();
-    fitCamera(c, SC, SR); // 6×5 → zoom=1，放进带富余
+    fitCamera(c, SC, SR); // 6×5 → zoom=2.0（宽度钉上钳），盘 380×320
     applyPan(9999, -9999, c, SC, SR);
-    expect(c.offsetX).toBe(0);
-    expect(c.offsetY).toBe(0);
+    const bw = (SC * BEAD_PITCH - BEAD_GAP) * c.zoom; // 380 > 750/2 ⇒ 取盘/2分支
+    const bh = (SR * BEAD_PITCH - BEAD_GAP) * c.zoom; // 320 > 560/2 ⇒ 同上
+    expect(c.offsetX).toBeCloseTo(bw / 2, 4);
+    expect(c.offsetY).toBeCloseTo(clampY(bh)[0], 4); // v1.69：下限由新操作窗口定（不对称）
   });
-  it('放大到 board > 视口 → 可平移，但夹在内容边界（棋盘边缘不出视口）', () => {
+  it('窄窄盘（盘 < 视口一半）可拖至拖动方向盘缘顶格操作边界（[v1.68] 旧「盘/2」对窄盘偏严作废）', () => {
+    // 6×5 @0.5 → 95×80：背向边到不了操作心就应先触界 ⇒ 上限 = (窗口−盘)/2 分支
+    const c = cam();
+    c.zoom = 0.5;
+    c.offsetX = 9999;
+    clampCamera(c, SC, SR);
+    expect(c.offsetX).toBeCloseTo((750 - (SC * BEAD_PITCH - BEAD_GAP) * 0.5) / 2, 4); // 327.5
+    c.offsetY = -9999;
+    clampCamera(c, SC, SR);
+    expect(c.offsetY).toBeCloseTo(clampY((SR * BEAD_PITCH - BEAD_GAP) * 0.5)[0], 4); // −326（v1.69 托盘上边界）
+  });
+  it('放大到 board > 视口 → 可平移，上限 = 盘缘至视口中线（[v1.66] 旧「边缘不出视口」作废）', () => {
     const c = cam();
     c.zoom = CAMERA_ZOOM_MAX; // 最大放大（绝对档，与盘无关），棋盘远大于视口
     clampCamera(c, BC, BR);
     const boardW = (BC * BEAD_PITCH - BEAD_GAP) * c.zoom;
-    const maxOffX = (boardW - DESIGN_W) / 2;
+    const maxOffX = boardW / 2; // v1.66：盘缘至中线 ⇒ 上限 = 半盘宽
     expect(maxOffX).toBeGreaterThan(0); // 此时确有可平移余量
     applyPan(999999, 0, c, BC, BR); // 往左猛拖
-    expect(c.offsetX).toBeCloseTo(maxOffX, 4); // 夹到内容边界，不再多
+    expect(c.offsetX).toBeCloseTo(maxOffX, 4); // 夹在「盘缘 = 中线」，不再多
     applyPan(-999999, 0, c, BC, BR); // 反向
     expect(c.offsetX).toBeCloseTo(-maxOffX, 4);
   });
@@ -227,28 +266,32 @@ describe('zoomAtPoint（低倍点击焦点放大）', () => {
     const fresh = gridLayoutFor(BIG, BIG, { zoom: 1, offsetX: 0, offsetY: 0 });
     const idealX = px - fresh.colCenterX(bead.col);
     const idealY = py - fresh.rowCenterY(bead.row);
-    const maxOffX = ((BIG * BEAD_PITCH - BEAD_GAP) - DESIGN_W) / 2; // 503
-    const maxOffY = ((BIG * BEAD_PITCH - BEAD_GAP) - (PUZZLE_BAND.yMax - PUZZLE_BAND.yMin)) / 2; // 210
+    const maxOffX = (BIG * BEAD_PITCH - BEAD_GAP) / 2; // v1.66：盘缘至中线 ⇒ 半盘宽（旧 (b−750)/2=136 作废）
+    const [, yUpper] = clampY((BIG * BEAD_PITCH - BEAD_GAP) * c.zoom); // v1.69 镜像（夹取发生在 zoom=1）
     expect(Math.abs(idealX)).toBeLessThan(maxOffX); // 本例恰为 −(col−(cols−1)/2)·PITCH = −258
-    expect(Math.abs(idealY)).toBeLessThan(maxOffY);
+    expect(Math.abs(idealY)).toBeLessThan(yUpper);
     expect(c.offsetX).toBeCloseTo(idealX, 6);
     expect(c.offsetY).toBeCloseTo(idealY, 6);
     const after = gridLayoutFor(BIG, BIG, c);
     expect(after.colCenterX(bead.col)).toBeCloseTo(px, 6);
     expect(after.rowCenterY(bead.row)).toBeCloseTo(py, 6);
   });
-  it('补偿越出悬挑区 → 锁边诚实登记：仍缩到 1.0，offset 不越平移有界', () => {
+  it('平移上限直检（[v1.69] 新操作窗口）：猛拖 offset 必被夹回不对称区间', () => {
+    // 旧例「焦点补偿越出悬挑区 ⇒ 锁边」的夹具前提随 v1.66 上限放宽而消失
+    // （zoom 0.3→1.0 最大补偿 ≈347，落在新区间内 ⇒ 永不触夹）；
+    // 断言换形为非删（K-036）：改直检上限本身，防「夹取式被改松/改紧」回潮。
     const c = cam();
-    c.zoom = 0.3;
-    const before = gridLayoutFor(BIG, BIG, c);
-    const bead = { row: 2, col: 30 }; // Y 理想 = (15.5−2)×32 = +432 > 悬挑 210 ⇒ 必被夹
-    zoomAtPoint(c, before.colCenterX(bead.col), before.rowCenterY(bead.row), 1, BIG, BIG);
-    expect(c.zoom).toBe(1);
-    const maxOffX = ((BIG * BEAD_PITCH - BEAD_GAP) - DESIGN_W) / 2;
-    const maxOffY = ((BIG * BEAD_PITCH - BEAD_GAP) - (PUZZLE_BAND.yMax - PUZZLE_BAND.yMin)) / 2;
-    expect(Math.abs(c.offsetX)).toBeLessThanOrEqual(maxOffX + 1e-6);
-    expect(Math.abs(c.offsetY)).toBeLessThanOrEqual(maxOffY + 1e-6);
-    expect(Math.abs(c.offsetY)).toBeCloseTo(maxOffY, 4); // 确实触夹（不是碰巧在界内）
+    c.zoom = 1;
+    c.offsetY = 9999;
+    c.offsetX = -9999;
+    clampCamera(c, BIG, BIG);
+    const b = BIG * BEAD_PITCH - BEAD_GAP; // 1022；X > 视口 ⇒ 半盘 511
+    const [yMin, yMax] = clampY(b); // v1.69：+503 / −519（操作心相对带心 −8）
+    expect(c.offsetY).toBeCloseTo(yMax, 4);
+    expect(c.offsetX).toBeCloseTo(-b / 2, 4);
+    c.offsetY = -9999;
+    clampCamera(c, BIG, BIG);
+    expect(c.offsetY).toBeCloseTo(yMin, 4); // 向下拖动边触「托盘上」边界
   });
   it('目标超上限被夹到 CAMERA_ZOOM_MAX', () => {
     const c = cam();
@@ -263,8 +306,8 @@ describe('zoomAtPoint（低倍点击焦点放大）', () => {
 //
 // 判据源 = `ADR-0015 §3.4` 回写后正文：复位档 = 相机归 **fit 初始**（不是归恒等），
 // 实际复位触发点 = **两处**（`_setupLevel`：换关/新局/重试/跳关；`_loadStage`：冲刺换 stage）。
-// 断言一律走 `computeFitZoom(cols, rows)` **函数调用**，不钉字面 zoom：`BOARD_FIT_MARGIN` 虽已
-// 转正、`BOARD_TAP_MOVE_THRESHOLD` 仍 `[待确认]` 工程占位不作判据；缩放上下限自 **§3.3 v1.59**
+// 断言一律走 `computeFitZoom(cols, rows)` **函数调用**，不钉字面 zoom：尺族常量（含
+// `BOARD_FIT_MARGIN`，v1.65 起已退出 fit 算式）不作字面判据；缩放上下限自 **§3.3 v1.59**
 // 已冻结（CAMERA_ZOOM_MIN/MAX），本组仍走符号引用防换尺漂移。
 // 另锁一条**负向**口径（旧 §3.4 误列的复位点）：后台隐藏当帧不复位 ⇒ 见末例。「回菜单」同属
 // 不复位一类（暂停面板次钮只上报意图 + 切屏归 shell，路径上不触碰相机），但那是 shell 接线 ⇒
@@ -354,7 +397,7 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expectFitReset(h.game);
   });
 
-  it('换关（_setupLevel）：6×5 小盘 fit=1，与旧恒等档逐位相同（回归锚）', () => {
+  it('换关（_setupLevel）：6×5 小盘归 **fit 放大档**（[WXG-T-262] 推翻旧「fit=1 与恒等逐位相同」回归锚）', () => {
     const h = createBeadsHarness({
       noAssemble: true,
       levels: [smallTestLevel()],
@@ -367,15 +410,13 @@ describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）
     expect(h.game.grid.cols).toBe(SC);
     expect(h.game.grid.rows).toBe(SR);
     expectFitReset(h.game);
-    expect(cameraOf(h.game).zoom).toBe(IDENTITY_CAMERA.zoom); // 小盘：fit 档与恒等档重合
-    // 「逐位相同」不只 zoom：整张布局在复位后的相机下应与无相机入参完全一致。
+    // [WXG-T-262 · 用户裁「不是 1:1，整盘放大到左右留空隙；初始 = 适配档」]：6×5 越上钳
+    // ⇒ 落点 = `CAMERA_ZOOM_MAX`；⛔ 回潮成恒等 1.0 即本钉红。
+    expect(cameraOf(h.game).zoom).toBe(CAMERA_ZOOM_MAX);
+    // 放大档的布局确实等比放大（列心距 = 基尺节距 × zoom，绕带心）。
     const withCam = gridLayoutFor(SC, SR, cameraOf(h.game));
     const bare = gridLayoutFor(SC, SR);
-    expect(withCam.left).toBe(bare.left);
-    expect(withCam.top).toBe(bare.top);
-    expect(withCam.bottom).toBe(bare.bottom);
-    for (let j = 0; j < SC; j++) expect(withCam.colCenterX(j)).toBe(bare.colCenterX(j));
-    for (let i = 0; i < SR; i++) expect(withCam.rowCenterY(i)).toBe(bare.rowCenterY(i));
+    expect(withCam.pitch).toBeCloseTo(bare.pitch * CAMERA_ZOOM_MAX, 9);
   });
 
   it('重试（retryLevel → _setupLevel）：大盘重新归 fit（不是恒等）', () => {
@@ -475,15 +516,15 @@ describe('盘面下方缩放控件：slider ↔ zoom 映射（§3.3 v1.59 绝对
 
   it('setCameraZoom 走与捏合同一夹取：超上限落回 MAX，并按新尺寸重夹平移', () => {
     const c = cam();
-    c.offsetX = 900;
+    c.offsetX = 2000; // [v1.66] 旧 900 在新上限（半盘 926）内不再触夹 ⇒ 换越界值
     setCameraZoom(c, 999, COLS, ROWS);
     expect(c.zoom).toBeCloseTo(CAMERA_ZOOM_MAX, 10);
-    // 夹取后不得出现「棋盘边缘进入视口」（留空白可拖出）⇒ 与 clampCamera 同口径。
-    // （绝对档 2.0 下 29×29 的 maxOff = (928×2 − 750)/2 = 503 ⇒ 900 必被重夹。）
+    // 夹取上限 = 盘缘至视口中线（[v1.66]）⇒ 与 clampCamera 同口径。
+    // （绝对档 2.0 下 29×29 的 maxOff = 926×2/2 = 926 ⇒ 2000 必被重夹。）
     clampCamera(c, COLS, ROWS);
-    expect(c.offsetX).toBeLessThan(900);
+    expect(c.offsetX).toBeLessThan(2000);
     expect(c.offsetX).toBeCloseTo(
-      ((COLS * BEAD_PITCH - BEAD_GAP) * CAMERA_ZOOM_MAX - DESIGN_W) / 2,
+      (COLS * BEAD_PITCH - BEAD_GAP) * CAMERA_ZOOM_MAX / 2,
       4,
     );
   });

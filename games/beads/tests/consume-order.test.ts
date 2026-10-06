@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BeadGrid } from '../src/entities/grid.js';
 import { planConsumeOrder, type GroupCell } from '../src/systems/consume-order.js';
 import { gridLayoutFor } from '../src/config/tuning.js';
-import { createBeadsHarness, simpleTestLevel } from './helpers.js';
+import { createBeadsHarness, simpleTestLevel, pinIdentityCamera } from './helpers.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
 
 /**
@@ -148,6 +148,7 @@ describe('WXG-T-186 · 直填与取回共用同一消费序', () => {
             levels: [simpleTestLevel({ pattern: PATTERN })],
         });
         hh.game.goToLevel(0);
+        pinIdentityCamera(hh.game); // [WXG-T-262] 换关重入 fit ⇒ 本组格心坐标判据回恒等档
         for (const [r, c] of GROUP) expect(hh.game.grid.fill(r, c, 2)).toBe(true);
         return hh.game;
     };

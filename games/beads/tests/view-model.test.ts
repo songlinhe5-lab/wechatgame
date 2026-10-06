@@ -128,9 +128,10 @@ describe('beads view model (control-manifest §8)', () => {
       levels: [simpleTestLevel()], // 3 colours ⇒ validator-legal; '123123' × 5 rows
       saveKey: 'wxgame.beads.test.vm-c',
     });
-    // ⚠ **恒等档不变式**（甲案 / WXG-T-206）：6×5 盘被 `computeFitZoom` 的 `Math.min(1, …)`
-    // 钉在 z = 1 ⇒ 格距恰为 `BEAD_PITCH`，所以下面的字面量过滤器**仍然是对的**，本例职责 =
-    // 守住「不缩放时快照与渲染逐位不变」。前置那条保证它不会静默退化成永真过滤（K-041）。
+    // ⚠ **恒等档前提**（甲案 / WXG-T-206 · [WXG-T-262] 改由夹具恒等钉提供，非 `min(1,·)`）：
+    // harness 默认 `pinIdentityCamera` ⇒ z = 1、格距恰为 `BEAD_PITCH`，所以下面的字面量过滤器
+    // **仍然是对的**，本例职责 = 守住「不缩放时快照与渲染逐位不变」。前置那条保证它不会静默
+    // 退化成永真过滤（K-041）。
     expect(harness.game.snapshot.gridPitch).toBe(BEAD_PITCH);
     // [WXG-T-235] B0 tile 绘制边长 = `gridPitch + 2×TILE_BLEED`（用户裁定「甲」：相邻格重叠
     // 1px 消 AA 接缝的实测白线）。⛔ 布局格距仍是 `gridPitch`。
@@ -285,6 +286,8 @@ describe('beads view model (control-manifest §8)', () => {
   it('§4 keeps the full-board command budget at the documented 900+ per frame', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
+      // [WXG-T-262] 本例判据本身吃生产 fit 视图（`gridPitch ≡ computeFitZoom × BEAD_PITCH`）⇒ 豁免夹具恒等钉。
+      noCameraPin: true,
       levels: [
         simpleTestLevel({
           cols: 13,
@@ -327,12 +330,12 @@ describe('beads view model (control-manifest §8)', () => {
   // 已做变异自检并存档：旧形态同行最小缝隙 = **−2.508038585209**（必被本例判重叠），
   // 新形态 = **−1.14e−13**（仅浮点尾数，1e-9 容差内）——重叠那条对历史缺陷形态确有牙。
   it('甲案（WXG-T-206）：z<1 时底图砖随相机缩放且相邻零重叠', () => {
-    // ⚠ 夹具由 13×12 换为 **22×19**：v1.57（§3.3 32 基）后顶格档抬到 22×18，
-    // 13×12 已是 fit=1 恒等档 ⇒ 本例的**前置（真的在缩放档）**不成立。22×19 仍取
-    // “越界且富余”一侧（现行顶格档 = 22×16，盘带下沿 480→560 后更低，见 `systems-index §3.3`）
-    // ⇒ `fit = (560 − 48)/606 = 0.845`，z<1 前置成立。⛔ 不得改用“删前置断言”求绿。
+    // ⚠ 夹具由 13×12 换为 **22×19**：宽度钉档后（§3.3 v1.65 · WXG-T-262 三续裁）fit 只看列宽
+    // ⇒ `fit = 666/702 ≈ 0.949`（21 列以上必缩），z<1 前置成立。⛔ 不得改用“删前置断言”求绿。
     const harness = createBeadsHarness({
       noAssemble: true,
+      // [WXG-T-262] z<1 真缩放腿验的就是 fit 传导本身 ⇒ 豁免夹具恒等钉。
+      noCameraPin: true,
       levels: [
         simpleTestLevel({
           cols: 22,

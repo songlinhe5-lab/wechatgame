@@ -364,6 +364,12 @@
       "reason": "由 `pnpm run kb:sync` 生成（文件头明示「请勿手改」），数据源 = ledger.events（**append-only**）；渲染器无时间窗，故体积随知识库全生命周期单调增长。与 memory/INDEX.md（WXG-T-139）同族：生成物 ⇒ 由工具链周期收敛，不手工拆",
       "note": "WXG-T-257~259 三批沉淀使其自 5929 越至 8153。撤销条件（择一，须另立单做）：① 给 renderChangelog 加日期/条数窗（改动须同步 kb selftest）；② 按季度归档为 `knowledge/archive/CHANGELOG-<q>.md`（archive 已在 SKIP_DIRS，不入索引面）。⚠ 真源缺口已登记：本件无自动收敛 ⇒ 每次大沉淀批都会顶门。登记人 = 主理人(Qoder)",
       "taskId": "WXG-T-260"
+    },
+    {
+      "path": "docs/architecture/adr/ADR-0018-beads-board-size-playability.md",
+      "reason": "盘面尺寸可玩性裁定正本（§3.4.5/§3.4.6 为 fit 档推翻链唯一落档处）；WXG-T-262 同日七批续裁注按「不篡改历史」逐批追加致 8414 > 8000，拆分会切断裁定链锚点",
+      "note": "下次修订评估把 §3.4.6 七批续裁注正文外移至 systems-index-changelog（ADR 只留指针+现行口径一行）后撤销豁免",
+      "taskId": "WXG-T-262"
     }
   ]
 }
