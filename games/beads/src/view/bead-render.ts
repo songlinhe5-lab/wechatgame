@@ -348,15 +348,6 @@ export interface FilledBeadOptions {
    *   不新算几何；档位几何仍由 `drawInset` 通道承担。
    */
   readonly maskGauge?: BeadMaskGauge;
-  /**
-   * `[用户 2026-10-05 裁定]` tint 臂命中后**仍补 live 孔**（珠自己画孔底 + 孔环）。
-   *
-   * 动因 = **托盘珠**：它的下层格底是**中性** `palette.slot`（与空槽同色 ⇒ 珠四周的环不抢眼），
-   * 而 tint 臂的珠孔是**真透** ⇒ 不补则孔心透出近白 = 旧「托盘珠发白」病灶。
-   * 矢量臂无此问题（风格层集自画实色孔底），故本标**只在 tint 分支生效**。
-   * ⛔ 缺省不落 ⇒ 盘面珠逐字节不变（盘面孔透出的是**目标色**格底，本就应透）。
-   */
-  readonly liveHole?: boolean;
 }
 
 /** 段内插值。**模块级函数而非局部闭包** = 逐帧调用零分配（热路径铁律）。 */
@@ -864,15 +855,6 @@ export function drawFilledBead(
       tintBlitOpts.fx = tintFx(beadColorOf(inks, colorIdx));
       builder.blit(maskId, x - outer / 2, y - outer / 2, outer, outer, tintBlitOpts);
       /**
-       * `[用户 2026-10-05]` **托盘珠补 live 孔**：托盘格底已回中性 `palette.slot`（⇒ 珠四周
-       * 的环与 22 个空槽同色），但 tint 臂的孔**真透** ⇒ 不补则孔心透出近白（旧「托盘珠发白」）。
-       * 口径 = **烘焙臂同一条算式**（`drawLiveHole`），⛔ 不另立一套几何。
-       * ⛔ 盘面珠不传本标 ⇒ 逐字节不变（盘面的真透孔透出**目标色**格底，本就应透）。
-       */
-      if (options.liveHole === true) {
-        drawLiveHole(builder, x, y, size, inks, options.targetColorIdx ?? colorIdx, colorIdx);
-      }
-      /**
        * **DEC-2 · 孔底口径（孔区真透）**：tint 臂下默认**不画 live `pit` circle / 孔环**
        * —— 孔的 ⌀12 真透由 mask 的 B 通道自带（+0.5dp 羽化）⇒ 透出下层 **B0 tile**
        * （本格 `edge = mix(base, −0.30)` = 0.70×目标色），与 studio 定稿 v1.1 结构同构。
@@ -1060,8 +1042,14 @@ export function drawEmptySocket(
    */
   const relief = beadInset > 0 ? 0 : Math.max(BEAD_CARD.minStroke, size * SOCKET_CARD.relief);
   const s = Math.max(BEAD_CARD.minStroke * 2, beadFace - relief * 2);
-  const base = colorIdx === undefined ? palette.slot : beadColorOf(inks, colorIdx);
-  const endpoints = colorIdx === undefined ? neutralEndpoints(palette) : endpointOf(inks, colorIdx);
+  // [WXG-T-261 · 2026-10-06 用户裁「托盘槽底更深一些」，同日二批续裁「#BCC2CB 仍太浅 ⇒ 深灰」]
+  // 中性锚由 `trayZone` 分流：
+  // 托盘落 `palette.traySlot`（#4A5060），盘面空格仍落 `palette.slot`（#F7F6FB）。
+  // ⚠ 本值**同时**是 `base`（tint 臂的唯一着色入口）与中性 ramp 的锚 ⇒ 槽底与受光缘/坑底
+  // 仍是一条式派生，⛔ 不是两套色阶。
+  const slotFill = options.trayZone === true ? palette.traySlot : palette.slot;
+  const base = colorIdx === undefined ? slotFill : beadColorOf(inks, colorIdx);
+  const endpoints = colorIdx === undefined ? neutralEndpoints(slotFill) : endpointOf(inks, colorIdx);
 
   // ── [WXG-T-226 EP12-S2 / ADR-0029 DEC-5] tint 臂（格面）─────────────────
   // 命中条件（三条**同时**成立，缺一即矢量回退）：
@@ -1086,6 +1074,21 @@ export function drawEmptySocket(
     const cellStyleId = options.styleId ?? DEFAULT_BEAD_STYLE_ID;
     const maskId = _tintRuntime.getMaskId('cell', options.maskGauge, cellStyleId);
     if (maskId !== undefined) {
+      // [WXG-T-261 三批 · 2026-10-06 用户报「槽底没有变化，只有槽边缘的阴影在加深」] 确诊：格 mask 内部
+      // `shape`(B 通道)=0 ⇒ tint blit **只着色槽口斜面环**，槽底面全透明。盘面 `tilePainted=true`
+      // 有 B0 垫底 ⇒ 槽底读 B0，无病灶；托盘无 B0，而本分支此前 early-return 把「自带亮底」rect
+      // 一并跳过 ⇒ 槽底透出托盘面板白瓷 ⇒ `traySlot` 改多深都只作用在边缘环上。
+      // ⇒ 命中且**无底 tile** 时先铺一条底 rect 再 blit（盘面 tilePainted=true 路径与矢量臂逐字节不变 ⇒ 封箱零扰动）。
+      // [WXG-T-261 四批 · 用户裁「托盘槽轮廓外不要有颜色」] 三批补的是**全格径** rect ⇒ 环外沿外露出一圈色带。
+      // 底边改走**环带中线**（`SOCKET_CARD.tintBaseInset/tintBaseRadius`，实量值）= 轮廓外零色、环整幅覆盖底边。
+      if (!tilePainted) {
+        const baseInset = size * SOCKET_CARD.tintBaseInset;
+        const baseSize = size - baseInset * 2;
+        builder.rect(cx - baseSize / 2, cy - baseSize / 2, baseSize, baseSize, {
+          fill: base,
+          radius: size * SOCKET_CARD.tintBaseRadius,
+        });
+      }
       tintBlitOpts.fx = tintFx(base);
       builder.blit(maskId, cx - size / 2, cy - size / 2, size, size, tintBlitOpts);
       return;
@@ -1164,9 +1167,10 @@ export function drawEmptySocket(
 }
 
 /**
- * 托盘空槽（无目标色）的中性端点：由中性 `slot` 色推导（非珠色预烘焙表）。
+ * 无目标色槽（盘面空格 / 托盘槽）的中性端点：由**中性槽底色 `fill`** 推导（非珠色预烘焙表）。
+ * [WXG-T-261] 参数化而非写死 `palette.slot` ⇒ 托盘档只换一个锚，色阶系数不动。
  */
-function neutralEndpoints(palette: BeadsPalette): {
+function neutralEndpoints(fill: string): {
   edge: string;
   pit: string;
   lit: string;
@@ -1175,12 +1179,12 @@ function neutralEndpoints(palette: BeadsPalette): {
   shadeMid: string;
 } {
   return {
-    edge: mix(palette.slot, -SOCKET_EDGE_DARK_MIX),
-    pit: mix(palette.slot, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
-    lit: mix(palette.slot, SOCKET_LIT_MIX),
-    hole: mix(palette.slot, -BEAD_HOLE_STROKE_MIX),
-    shadeOuter: mix(palette.slot, -SOCKET_SHADE_OUTER_MIX),
-    shadeMid: mix(palette.slot, -SOCKET_SHADE_MID_MIX),
+    edge: mix(fill, -SOCKET_EDGE_DARK_MIX),
+    pit: mix(fill, -(SOCKET_EDGE_DARK_MIX + SOCKET_PIT_DARKEN)),
+    lit: mix(fill, SOCKET_LIT_MIX),
+    hole: mix(fill, -BEAD_HOLE_STROKE_MIX),
+    shadeOuter: mix(fill, -SOCKET_SHADE_OUTER_MIX),
+    shadeMid: mix(fill, -SOCKET_SHADE_MID_MIX),
   };
 }
 

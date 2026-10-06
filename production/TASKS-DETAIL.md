@@ -3240,3 +3240,78 @@ WXG-T-258 主表行与详情节都写了「定标单 **v10.0**」，但 `tray-ne
   ⇒ 报「未知条目 ID：--」并 **exit 1**，但前面的真 ID **已写入成功**（假红 + 退出码失真）。
   可用写法 = `node tools/scripts/kb-touch.mjs K-111 --task=WXG-T-259`；INDEX 那一行已改成正面形，
   脚本侧收口（`parseArgs` 丢弃裸 `--`）待单独领号，已波及 `kb:archive` / `kb:reactivate` 同形调用。
+
+## WXG-T-261
+
+# beads·托盘放大批（槽底深色墨档 + 格缝加大 + 尺回 48/6 系）
+
+> 2026-10-06，主理人(Qoder)·美术域＋工程域代落盘。用户三裁原话：「将托盘格子的 mask 混一个深色，
+> 槽底显示更深一些；托盘格子之间增加一些间隔；托盘整体放大一些，两边离边缘不要太远。」
+
+**一、代码（src + 镜像同批，`framework:sync` 写入 1）**
+
+- `tuning.ts`：`TRAY_SLOT` 30→**48** · `TRAY_GAP` 2→**6** ⇒ pitch 54 · 12 列行宽 642 · 每边留白 54
+  （v4.0 期 184）。推翻 WXG-T-237 v4.0「1:1 格面」；保留其 mask 接线（托盘槽吃盘面 `cell` mask 等比，
+  ⛔ 不另建托盘专属 mask）。`TRAY_BEAD_SIZE` 降为**命中框基准**（=44；`TRAY_HIT_SIZE`=60），
+  绘制不读它 ⇒ 托盘珠吃等比 `drawInset`、珠面 ≈**41.6**。
+- `palette.ts`：新 token `traySlot #BCC2CB`（只换托盘槽底，盘面空格仍 `slot`）= art 单合法通道
+  （`assets-spec` **v1.5-r21**，让号自查 r20→r21）；色表锁 **34→35/`38c2bed416c3`**。
+- `view-model.ts` / `bead-render.ts`：托盘珠与盘面珠**逐字同参**（防两臂异形）；槽底墨消费 `traySlot`。
+
+**二、封箱第十五次复评（WXG-T-212 官方例外通道，四步闭环）**
+
+1. **前态锚**：HEAD 隔离副本（`git archive HEAD` + symlink node_modules）逐字节复现现役锁
+   （frame0 1322/`907ea480…` · frame78 1868/`537de402…` · legacyFlow 96 例零差）。
+2. **现态重抓**：官方复取器（临时加 `WXG211_DUMP_FLOW` env 门控 dump，⛔ 不改封存路径）。
+3. **流级差分归因**：两帧各 172 条改写（rect 121 + line 51）全落托盘带 y∈[364,450]，零插入零删除
+   ⇒ 逐 kind 计数与 total 全等、仅两键 sha 动（新锁 `664f99ee9a49…` / `97a42a866f6e…`）；
+   证据 `temp/wxg-t-211-s3/t261-diff-frame{0,78}.txt`。provenance 键 `s3_frame_recheck_15`。
+4. **strip-back 处置**：第十四批闭合自证在几何改写口径下数学上不可存续 ⇒ K-053 划线作废不净删、
+   back 计数腿保留；前态史证键 `s3_pre_tray_261` 接替（total 全等 + sha 不等）；
+   `legacyFlow` 键形 z26→z44 换回转正态（常驻腿读 fixture 登记参数非代码常量，非铁律击穿）。
+
+**三、测试爆炸面与判据修订（4 红→全绿）**
+
+- `bead-render` ④ 色表锁追改；③ 腿改钉等比式 41.6 + 方向 `toBeGreaterThan` + 反向守卫；
+  旧臂封箱口径恒 44 ⇒ **两臂差 2.4dp 如实登记**（⛔ 不为凑绿动旧臂击穿 seal），收口 = S7。
+- `bead-style-seal` 腿 4a：recheck_15 三条查询断言 + 史证断言；删一处恒真 `kinds===undefined`
+  伪绿（K-060）。fixture 经一次性脚本 `temp/wxg-t-211-s3/update-fixture-261.cjs` 更新（防重复守卫）。
+
+**四、文档在册（a4）**：`systems-index` **v1.62**（§3.4 三行 + changelog）· `assets-spec` **v1.5-r21**
+（头注/§1.3/§1.10.9/硬约束③④）· `ADR-0018:197` 反转句口径注（盘珠 30 < 珠面 41.6，不另开 ADR）。
+
+**五、验证**：`framework:sync`（写入 1）· beads **59 files / 812 passed / 1 skipped** ·
+`pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**。**未 commit**。
+
+**五-B、二批续裁（同日 2026-10-06 · 不另领号）**：用户二批两裁 —— ①「托盘槽底色太浅，格底mask混合的颜色需要是深灰或者浅黑」②「托盘珠子孔不透明，看不到下面的槽颜色，孔需要透明透底」。
+落码 = **palette `traySlot` #BCC2CB → #4A5060**（同 token 纯墨改值；色表锁条数仍 35 ⇒ sha1 `38c2bed416c3`→`1979d53033a1`；盘面空格仍 `slot`）+
+**撤 tint 臂托盘珠 `liveHole` 补孔**（`bead-render.ts` 字段+分支、`view-model.ts` 调用参；2026-10-05 药方的病灶前提「真透透出近白格底」随槽底加深消失 ⇒ 补孔 = 盖底；
+撤后 = DEC-2 mask 真透透出槽底、与盘面珠同构；`drawLiveHole` 函数保留 = 烘焙臂仍消费；矢量臂 / 烘焙臂 / 盘面珠零改动）。
+**封箱第十六次复评**（`provenance.s3_frame_recheck_16`）：前态锚 ≡ 现役登记逐字节 MATCH（复取器自证）；流级差分 = 两帧各 **168 条纯墨改写**
+（rect 120 + line 48，仅 fill/stroke 字段，全落托盘带 y∈[336,396.2]；墨 #BCC2CB 族 → #4A5060 族 + 派生 ramp）⇒ 逐 kind 计数与 total 全等、只两键 sha 动
+（`135300071c65…` / `689a2a1b313f…`）；前态史证键 `s3_pre_tray_261b`；最强反证 = legacyFlow 96 例 + facet 层 45+45 例逐字节零变更。
+**判据腿同步** = `bead-tint-arm`「1 blit + 0 circle（⛔ 补孔回潮即红）」/ `bead-style-seal` 腿 4a recheck_16 三查询 + pre261b 钉 / `bead-render` ④ 色表锁追改。
+**文档在册** = assets-spec v1.5-r21 续裁注（头注 / §1.3 empty 卡 / §1.10.9 托盘族行 + 硬约束④）· systems-index v1.62 版本头与 changelog 二批续裁注（不另顶版）。
+**二批验证** = beads 59 files / **812 passed / 1 skipped** · `framework:sync`（写入 3）· `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**。**未 commit**。
+
+**五-C、三批缺陷修复（同日 2026-10-06 · 不另领号）**：用户报「现在槽底没有变化，只有槽边缘的阴影在加深」。
+**确诊**（生产合成函数 `compositeTintMask` 实算 + 命令流探针）：格 mask 通道语义 `R=d / G=l / B=shape`，`grid-hole` 内部 **B=0 ⇒ tint blit 槽底面全透明、只着色槽口斜面环**；
+盘面有 B0 垫底（`tilePainted=true`）⇒ 槽底读 B0 无病灶；托盘无 B0，而 `drawEmptySocket` tint 分支 early-return 把 JSDoc 自己承诺的「自带亮底」rect 一并跳过
+⇒ 槽底实际透出托盘面板白瓷 ⇒ 二批 `#4A5060` 只作用在边缘环上（旧判据腿「命中 ⇒ 0 rect」把这个缺陷钉死过）。**根因修一处** = tint 分支 `!tilePainted` 时先铺与矢量臂同墨同几何的底 rect 再 blit；
+盘面路径与矢量臂逐字节不变 ⇒ **封箱零扰动**（不触发复评，seal 9 例实跑过）。**判据腿重写** = `bead-tint-arm` ①「1 底 rect + 1 blit，底墨 ≡ `traySlot`（⛔ 槽底透面板回潮即红）」。
+**三批验证** = beads **812 passed / 1 skipped** · `framework:sync`（写入 1）· `pnpm run verify` **PASS 21 / FAIL 0**。**未 commit**。
+
+**五-D、四批观感续裁（同日 2026-10-06 · 不另领号）**：用户裁「托盘槽轮廓外不要有颜色」——三批补的底 rect 是**全格径**，
+而格 mask 斜面环外沿在 13/128 处 ⇒ 轮廓外露出一圈 `traySlot` 色带。实量环带（`grid-hole` PNG）：外沿 13 / 内沿 26 px、外圆角 R≈34、角圆心 (47,47)
+⇒ 底 rect 改走**环带中线**（inset 19.5 / 半径 27.5，与角圆心同心）= 环整幅覆盖底边、轮廓外零色。
+**落码** = `SOCKET_CARD` 新增 `tintBaseInset/tintBaseRadius`（art-owned 比例常量，⛔ 不进 §3）+ tint 分支底 rect 换尺；盘面/矢量臂逐字节不变（seal 9 例实跑）。
+**判据** = `bead-tint-arm` ① 加钉 `w/radius` 公式等值（⛔ 全格径底边回潮即红）。**四批验证** = beads **812 / 1 skipped** · `framework:sync`（写入 2）· verify **PASS 21 / FAIL 0**。**未 commit**。
+
+**六、遗留与待裁**
+
+- `[待真机]`：48/6 观感 · ~~`#BCC2CB` 深浅~~（二批判太浅 ⇒ 定稿 `#4A5060`；三批修后槽底才真正吃墨，待复核深灰观感与孔透底观感）· 3 行态面板底压 `btn_expand` ≈14dp（E2 同族）·
+  `SELECT_LIFT × liftScale` 越槽算式按 48 重推（tuning 注已标 30 期快照）。
+- 沉淀候选 3 条（**未写库，待用户/主理人裁**）：① 双引号 shell 内联脚本含反引号 ⇒ 命令替换吞字卡死终端，
+  含反引号/特殊字符的脚本必须落盘再跑；② 封箱复评「等比臂改值、绝对臂锁字节」的两臂差登记法（本批 2.4dp 先例）；
+  ③ 格 mask `B=shape` 内部为 0 ⇒ **tint blit 不含底色**，凡「命中 tint 即可跳过矢量图元」的臂切换须逐图元核对**透明下层假设**（盘面有 B0 成立、托盘无 B0 不成立），且旧判据「命中 ⇒ 0 rect」会把这类缺底缺陷钉死（三批先例）。
+- 上一会话悬挂终端（bquote 续行态）未清理，不影响本批交付。

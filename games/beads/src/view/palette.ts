@@ -209,6 +209,14 @@ export interface BeadsPalette {
   /** Empty-slot inner fill + border. */
   readonly slot: string;
   readonly slotBorder: string;
+  /**
+   * 托盘槽底（slot_fill 的**托盘专用档**，WXG-T-261 · 2026-10-06 用户裁「托盘槽底更深一些」；
+   * 同日二批续裁「#BCC2CB 仍太浅 ⇒ 深灰/浅黑」⇒ 定稿 `#4A5060`）。
+   * ⛔ **不改 `slot`**：`slot`/`slotBorder` 还被 `meta-view` 与 `view-model` 的**按钮/面板底**大量复用
+   * 且带文字 ⇒ 改它会连带把 UI 控件刷深（超出本裁定面）。盘面空格仍用 `slot`。
+   * 消费点 = `bead-render.ts::drawEmptySocket` 的 `options.trayZone` 分支（兼作中性受光/坑底 ramp 的锚）。
+   */
+  readonly traySlot: string;
   /** Expansion-row dashed-slot stroke (slot_dashed)。 */
   readonly slotDashed: string;
   /** Locked-cell hatch colour (art-bible §3.4: #B9B4CC). */
@@ -239,6 +247,7 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   panelBorder: '#E2DFF0', // panel_border 1px
   slot: '#F7F6FB', // slot_fill（v1.2 暖 #EDE7DA 作废）
   slotBorder: '#D8D5E6', // slot_border（v1.2 暖 #D8D0C0 作废）
+  traySlot: '#4A5060', // 托盘槽底（WXG-T-261 二批定稿：#F7F6FB → #BCC2CB 用户仍判「太浅」→ 深灰；⛔ 不影响盘面空格）
   slotDashed: '#C9C5DA', // slot_dashed 扩展行虚线
   locked: '#B9B4CC',
   text: '#2A2E43', // text_primary 深藏青（v1.2 #33333D=珠色10 作废，避免与炭黑珠混）

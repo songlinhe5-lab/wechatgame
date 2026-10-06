@@ -162,7 +162,7 @@ function layerSeal(): { nonHole: Record<string, string>; hole: Record<string, st
 }
 
 function frameSeal(): {
-    total: number; kinds: Record<string, number>; sha: string; filled: number; fillableTotal: number;
+    total: number; kinds: Record<string, number>; sha: string; filled: number; fillableTotal: number; flow: string[];
 } {
     const { harness, filled } = halfBoardHarness('wxgame.beads.test.s211-seal-frame');
     assert.equal(filled, 78);
@@ -172,7 +172,7 @@ function frameSeal(): {
         const kind = (JSON.parse(line) as { kind: string }).kind;
         kinds[kind] = (kinds[kind] ?? 0) + 1;
     }
-    return { total: flow.length, kinds, sha: sha(flow.join('\n')), filled, fillableTotal: harness.game.grid.fillableTotal };
+    return { total: flow.length, kinds, sha: sha(flow.join('\n')), filled, fillableTotal: harness.game.grid.fillableTotal, flow };
 }
 
 const a = { legacy: legacyFlowSeal(), layers: layerSeal(), frame: frameSeal() };
@@ -186,6 +186,13 @@ const empty = createBeadsHarness({
 });
 const emptyFlow = serialize(renderModel(empty));
 const snap = empty.game.snapshot;
+
+// [WXG-T-261] 复评流级差分取证用（env 门控，⛔ 默认不产、不进基准）：dump 两帧流原文，
+// 供 HEAD 隔离副本 ↔ 现工作树 逐行 diff（登记「修订面 = 哪些行改了些什么」）。
+if (process.env.WXG211_DUMP_FLOW) {
+    dump(`${TAG}-frame78-flow.json`, a.frame.flow);
+    dump(`${TAG}-frame0-flow.json`, emptyFlow);
+}
 
 dump(`${TAG}-seal.json`, {
     capturedFrom: `${process.env.WXG211_SOURCE_REV ?? 'unknown'} · ${process.env.WXG211_SOURCE_DESC ?? ''}`,

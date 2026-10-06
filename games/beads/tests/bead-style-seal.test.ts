@@ -64,8 +64,13 @@ const SEAL = JSON.parse(
      *  值 ≡ 第五次复评官方重抓的 `s3.legacyFlow` 同键（零手填），⛔ 不随复评漂移。腿 1 合并视图对照。 */
     head_liftShadowFade_r5?: Record<string, string>;
     s3: SealSide;
-    /** **[WXG-T-256 · S5′-4] 第十四次复评的前态史证**（腿 4a 闭合自证的锚：剥掉 `back` 键 ⇒ sha 必 ≡ 本键）；⛔ 不随复评漂移。 */
+    /** **[WXG-T-256 · S5′-4] 第十四次复评的前态史证**（腿 4a 闭合自证的锚：剥掉 `back` 键 ⇒ sha 必 ≡ 本键）；⛔ 不随复评漂移。
+     *  ⚠ [WXG-T-261 第十五次复评] 等式自本批起**作废**（几何改写 ⇒ 剥键不再能回前态），本段转纯史证、零追改。 */
     s3_pre_back_channel?: { _readme?: string; frame0: { total: number; sha: string }; frame78: { total: number; sha: string } };
+    /** **[WXG-T-261] 第十五次复评的前态史证**（托盘 pitch 32 / 槽底 #F7F6FB 态）：total 须 ≡ 现役 s3.*（计数零变更），sha 必 ≠（改写可见）；⛔ 只读。 */
+    s3_pre_tray_261?: { _readme?: string; frame0: { total: number; sha: string }; frame78: { total: number; sha: string } };
+    /** **[WXG-T-261 二批] 第十六次复评的前态史证**（一批收口锁 #BCC2CB 态）：二批 = 纯墨改写 ⇒ total 须 ≡ 现役、sha 必 ≠；⛔ 只读。 */
+    s3_pre_tray_261b?: { _readme?: string; frame0: { total: number; sha: string }; frame78: { total: number; sha: string } };
     /** S3 转正时刻登记（史证段，不追改；腿 2b 的锚）。 */
     s3AtFormalization?: SealSide & { _readme?: string };
     provenance: Record<string, string>;
@@ -482,15 +487,39 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_14).toContain('S5′-4');
         expect(SEAL.provenance.s3_frame_recheck_14).toContain('逐 kind 计数全等');
         expect(SEAL.provenance.s3_frame_recheck_14).toContain('s3_pre_back_channel');
-        // **闭合自证**（唯一例外通道 b 条）：本批只往 4 条命令的 JSON 末尾插了 `"back":true` 键
-        // ⇒ 剥掉该键后两帧必须**逐字节回到前态锁**。几何 / 墨 / 条数因此不可能被顺手改掉。
-        const stripBack = (flow: string[]): string[] => flow.map((l) => l.replace(',"back":true', ''));
+        // 第十五次（WXG-T-261 托盘放大批）：归因须点名 ① 变更源 `TRAY_SLOT` ② 计数零变更（只两键 sha 动）
+        // ③ strip-back 闭合腿作废的归因（本批属几何改写非纯插键）—— 三者缺一即红。
+        expect(SEAL.provenance.s3_frame_recheck_15, '第十五次复评无归因登记').toContain('第十五次复评');
+        expect(SEAL.provenance.s3_frame_recheck_15).toContain('TRAY_SLOT');
+        expect(SEAL.provenance.s3_frame_recheck_15).toContain('s3_pre_back_channel');
+        // 第十六次（WXG-T-261 二批）：归因须点名 ① traySlot 加深灰 #4A5060（纯墨） ② liveHole 撤除属 tint 臂
+        // 不进矢量字节锁域 ③ 计数零变更（只两键 sha 动）—— 三者缺一即红。
+        expect(SEAL.provenance.s3_frame_recheck_16, '第十六次复评无归因登记').toContain('第十六次复评');
+        expect(SEAL.provenance.s3_frame_recheck_16).toContain('#4A5060');
+        expect(SEAL.provenance.s3_frame_recheck_16).toContain('liveHole');
+        // **back 键计数腿**（保留）：本批不改 back 通道 ⇒ back 键仍只准落在登记条数（拦外溢）。
         const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
         const backFrame = frameFixture().flow.filter((l) => l.includes(',"back":true'));
         expect(backEmpty.length, `⛔ 空盘帧的 back 键只准落在面板底 + 三段内阴影（登记 = ${BACK_KEY_LINES}）`).toBe(BACK_KEY_LINES);
         expect(backFrame.length, '⛔ 78 填帧同上（同一批桌面图元，不随填格数变）').toBe(BACK_KEY_LINES);
-        expect(sha(stripBack(emptyFlow).join('\n')), '空盘帧剥掉 `back` ⇒ 必 ≡ 前态锁').toBe(SEAL.s3_pre_back_channel!.frame0.sha);
-        expect(sha(stripBack(frameFixture().flow).join('\n')), '78 填帧剥掉 `back` ⇒ 必 ≡ 前态锁').toBe(SEAL.s3_pre_back_channel!.frame78.sha);
+        // ⚠ [WXG-T-261 第十五次复评 · K-053 划线作废不净删] 旧闭合自证「剥 back ⇒ ≡ s3_pre_back_channel」
+        //   两行等式作废：本批修订面 = 托盘几何/墨值**改写**（非纯插键）⇒ 剥键后在数学上不可能回到
+        //   第十四批复取前的前态字节。等效证明改由 provenance.s3_frame_recheck_15 的前/现态锚（HEAD 隔离
+        //   副本逐字节复现旧锁）+ 流级差分 172/172 条全落托盘带承接；`s3_pre_back_channel` 转纯史证。
+        //   现役前态锁改钉新史证键：total 全等（计数零变更）+ sha 不等（改写可见）。
+        const pre = SEAL.s3_pre_tray_261;
+        expect(pre, '第十五次复评前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
+        expect(pre!.frame0.total, '前态 frame0 计数须 ≡ 现役（本批零插入零删除）').toBe(SEAL.s3.frame0.total);
+        expect(pre!.frame78.total, '前态 frame78 计数须 ≡ 现役').toBe(SEAL.s3.frame78.total);
+        expect(pre!.frame0.sha, '前态 sha 不得被刷回现役（改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
+        expect(pre!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
+        // 二批（第十六次复评）前态锁：`traySlot` 纯墨 ⇒ total 全等 + sha 不等（同上一键口径）。
+        const preB = SEAL.s3_pre_tray_261b;
+        expect(preB, '二批前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
+        expect(preB!.frame0.total, '二批前态 frame0 计数须 ≡ 现役（纯墨零插入）').toBe(SEAL.s3.frame0.total);
+        expect(preB!.frame78.total, '二批前态 frame78 计数须 ≡ 现役').toBe(SEAL.s3.frame78.total);
+        expect(preB!.frame0.sha, '⛔ 一批收口锁不得被刷回现役（二批墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
+        expect(preB!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
         // 反面自证（K-060）：新锁与 HEAD 旧锁必不等，且不等量已在上面逐项登记。
         expect(SEAL.s3.frame0.sha).not.toBe(SEAL.head.frame0.sha);
         expect(SEAL.s3.frame78.sha).not.toBe(SEAL.head.frame78.sha);

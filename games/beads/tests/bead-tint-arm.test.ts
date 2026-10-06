@@ -21,8 +21,8 @@ import {
     type BeadTintRuntime,
 } from '../src/view/bead-render.js';
 import { tintMaskId, tintUpscaleAllowed, whitelistedTintStyles, TINT_MASK_STYLE_ID, resolveTintGauge, requiredTintMaskIds, tintTileMaskId } from '../src/view/bead-tint-mask.js';
-import { BEAD_CARD, BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, BAKE_CANONICAL_SIZE, TILE_BLEED, TINT_LOD_MAX_UPSCALE, TRAY_SLOT } from '../src/config/tuning.js';
-import { beadColorOf, DEFAULT_PALETTE, DEMO_BEAD_INKS, endpointOf, type BeadsPalette } from '../src/view/palette.js';
+import { BEAD_CARD, BEAD_CELL, BEAD_DRAW_INSET, BEAD_PITCH, BAKE_CANONICAL_SIZE, SOCKET_CARD, TILE_BLEED, TINT_LOD_MAX_UPSCALE, TRAY_SLOT } from '../src/config/tuning.js';
+import { beadColorOf, DEFAULT_PALETTE, DEMO_BEAD_INKS, type BeadsPalette } from '../src/view/palette.js';
 
 /** 记录调用的 tint 运行时桩（白名单可开关）。 */
 function stubTintRuntime(opts: { hit: boolean } = { hit: true }): {
@@ -120,7 +120,7 @@ describe('drawEmptySocket · tint 臂命中条件（八轮：maskGauge 漏传 = 
 // 且无 trayZone ⇒ 必不命中（防误用中性色）；③ 盘面格带 `colorIdx` ⇒ 必命中；
 // ④ 托盘珠 ⇒ **必命中**（方向与 S5′-3 那批相反：当年它只能留在矢量）。
 describe('trayZone 方向守卫（S5′-4：面板底走 back ⇒ 托盘区与盘面同臂）', () => {
-    it('① 托盘槽缺 colorIdx + trayZone ⇒ 必命中（base 落中性 `palette.slot`）', () => {
+    it('① 托盘槽缺 colorIdx + trayZone ⇒ 必命中（1 底 rect + 1 blit；⛔ 槽底透面板回潮即红）', () => {
         const { runtime, calls } = stubTintRuntime();
         setBeadTintRuntime(runtime);
         const cmds = build((b) =>
@@ -131,7 +131,17 @@ describe('trayZone 方向守卫（S5′-4：面板底走 back ⇒ 托盘区与�
             { kind: 'cell', gauge: 'holed', styleId: TINT_MASK_STYLE_ID },
         ]);
         expect(cmds.filter((c) => c.kind === 'blit').length, '恰好 1 条 blit').toBe(1);
-        expect(cmds.filter((c) => c.kind === 'rect').length, '⛔ 命中 tint 臂后不得再发矢量内阴影 rect').toBe(0);
+        // [WXG-T-261 三批 · 2026-10-06] 格 mask 内部 shape=0 ⇒ blit 后槽底全透明；托盘无 B0 ⇒
+        // 命中臂必须先铺**自带亮底** rect（用户报「槽底没变化，只有边缘在加深」= 本 rect 被 early-return 跳过）。
+        // rect 总数钉 1 ⇒ 矢量内阴影 ramp（shadeOuter/…/pit）仍不得回潮。
+        const rects = cmds.filter((c) => c.kind === 'rect');
+        expect(rects.length, '托盘槽命中 tint ⇒ 须补 1 条自带底 rect（⛔ 底透面板）').toBe(1);
+        expect((rects[0] as { fill?: string }).fill, '底墨须 = traySlot（二批深灰 #4A5060）').toBe(palette.traySlot);
+        // [WXG-T-261 四批 · 用户裁「托盘槽轮廓外不要有颜色」] 底边须走环带中线（非全格径）。
+        const baseRect = rects[0] as { w: number; radius: number };
+        expect(baseRect.w, '⛔ 四批「轮廓外零色」回潮（全格径底边 = 环外色带）').toBe(BEAD_CELL * (1 - 2 * SOCKET_CARD.tintBaseInset));
+        expect(baseRect.radius, '底 rect 圆角须与环带中线同心（27.5/128 制）').toBe(BEAD_CELL * SOCKET_CARD.tintBaseRadius);
+        expect(cmds.filter((c) => c.kind === 'line').length, '⛔ 命中 tint 臂后不得再发矢量内阴影线').toBe(0);
     });
 
     it('② ⛔ 盘面格缺 colorIdx 且无 trayZone ⇒ 必不命中（防误用中性色渲染盘面槽）', () => {
@@ -172,34 +182,24 @@ describe('trayZone 方向守卫（S5′-4：面板底走 back ⇒ 托盘区与�
     });
 });
 
-// ── [用户 2026-10-05 裁定「格子底色和托盘底色一样，取托盘颜色」] ───────────────
+// ── [用户 2026-10-05 裁定「格底回中性 ⇒ 珠自补 live 孔」→ **2026-10-06 二批推翻补孔口径**] ──
 //
-// 一张格面 tile 只有**一个**基色 ⇒ 珠四周可见的**环**与珠体的**真透孔**共用它：
-// · 旧口径（T-244 十四批）：格底 = 珠色 ⇒ 环对、孔也对，但有珠槽与 22 个空槽不同色。
-// · 新口径：格底 = 中性 `palette.slot` ⇒ 环与空槽同一张图；代价 = 孔透出近白。
-// · 合解：由珠自己补一枚 live 孔（`liveHole`），尺与墨 = **烘焙臂同一条** `drawLiveHole`。
-//
-// 只一条腿：托盘珠 ⇒ 1 blit + 恰 2 circle，且两墨不得错档（底 = `pit`、环 = `hole`）。
-// ⛔ 不另写「不传 `liveHole` ⇒ 零 circle」的对照腿：同文件「双臂分流 · DEC-2」那条已锁住
-//   盘面珠只有 1 条 blit、零 circle ⇒ 再写一条就是重复（YAGNI 同样适用于判据）。
-describe('托盘珠 live 孔（格底中性 ⇒ 孔由珠自补）', () => {
-    it('liveHole ⇒ 1 blit + 2 circle（底 = pit(珠色)、环 = hole(珠色)、r = 珠面×holeRatio/2）', () => {
+// 沿革（留档，别再翻烧饼）：一张格面 tile 只有一个基色 ⇒ 一版合解 = 珠自己补 live 孔
+//   （`liveHole`），修的是「格底近白 ⇒ 真透透出近白」。二批槽底加深为 `traySlot` 深灰后
+//   前提消失 ⇒ **补孔撤除（`liveHole` 参随删）**，托盘孔与盘面珠同构 = mask 真透、透出下层槽底。
+// 本腿钉现口径：托盘珠 tint 臂 ⇒ 1 blit + **零 circle**（补孔回潮即红）。
+// ⛔ 不另写盘面珠对照腿：同文件「双臂分流 · DEC-2」那条已锁盘面珠 1 blit 零 circle（YAGNI）。
+describe('托盘珠孔真透（WXG-T-261 二批撤 liveHole ⇒ 透出槽底）', () => {
+    it('tint 臂命中 ⇒ 1 blit + 0 circle（⛔ 不得再补孔盖住槽底）', () => {
         const { runtime } = stubTintRuntime();
         setBeadTintRuntime(runtime);
         const model = build((b) => drawFilledBead(b, 100, 100, 2, {
             size: TRAY_SLOT, targetColorIdx: 2, drawInset: BEAD_DRAW_INSET,
-            maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, inks: DEMO_BEAD_INKS, liveHole: true,
+            maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, inks: DEMO_BEAD_INKS,
         }));
         expect(model.commands.filter((c) => c.kind === 'blit')).toHaveLength(1);
-        const circles = model.commands.filter((c) => c.kind === 'circle');
-        expect(circles, '孔底 + 孔环两枚').toHaveLength(2);
-        const face = TRAY_SLOT - (BEAD_DRAW_INSET * TRAY_SLOT) / BEAD_CELL;
-        const r = Math.round((face * BEAD_CARD.holeRatio) / 2);
-        const ink = endpointOf(DEMO_BEAD_INKS, 2);
-        expect(circles[0]).toMatchObject({ x: 100, y: 100, r, fill: ink.pit });
-        expect(circles[1]).toMatchObject({ r: r + BEAD_CARD.holeStrokeWidthPx, stroke: ink.hole });
-        // ⛔ 不得把环墨与底墨对调（对调后孔读作「亮底 + 暗环」= 反向凹凸）。
-        expect(circles[0]!.fill).not.toBe(ink.hole);
+        expect(model.commands.filter((c) => c.kind === 'circle'),
+            '⛔ live 补孔回潮 = 又盖住槽底（二批病灶反向）').toHaveLength(0);
     });
 });
 

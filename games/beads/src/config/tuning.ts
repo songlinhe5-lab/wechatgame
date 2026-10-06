@@ -137,6 +137,16 @@ export const SOCKET_CARD = Object.freeze({
    */
   innerShadeStepDp: 1,
   /**
+   * **tint 臂托盘亮底 rect 的内缩 / 圆角**（格径比例；`WXG-T-261` 四批 · 用户裁「托盘槽轮廓外不要有颜色」）。
+   * 格 mask `grid-hole` 内部 `shape`=0（tint blit 只着色槽口斜面环）⇒ 三批补的**全格径**亮底 rect
+   * 在槽轮廓（环外沿）外露出一圈色带。实量环带（128 画布）：外沿 13 / 内沿 26 px，外圆角 R≈34、
+   * 角圆心 (47,47) ⇒ 底 rect 走**环带中线**（inset 19.5 / 半径 27.5，与角圆心同点同心）= 被环整幅覆盖、
+   * 轮廓外零色。⛔ 盘面路径（`tilePainted=true`）不消费本值；矢量臂字节锁不变。
+   */
+  tintBaseInset: 19.5 / 128,
+  /** 同上：底 rect 圆角（环带中线圆角半径 / 128）。 */
+  tintBaseRadius: 27.5 / 128,
+  /**
    * **坑外廓相对「珠体绘制边长」再退的一圈**（格径比例；`WXG-T-214` 用户裁定
    * 「豆坑永远比豆子小一圈，有豆时看不到豆坑」）。
    * 坑外廓 = `珠体绘制边长 − 2 × max(minStroke, 格径 × 本值)`；恒等档实测
@@ -397,17 +407,21 @@ export const TRAY_COLS = 12;
 /**
  * Slot edge length.
  *
- * **[WXG-T-237 v4.0 · 2026-10-03 用户裁定「先按 1:1 的格面实现效果，不做缩放」]**
- * ⛔ 托盘**不再有独立的尺寸体系** —— 格面/格距/珠面全部**直接由盘面常量派生**：
- * · `TRAY_SLOT` = `BEAD_CELL`（**30**）⇒ 与盘面格面 **1:1**
- * · `TRAY_GAP`  = `BEAD_GAP`（**2**）⇒ `pitch = 30 + 2 = 32` = `BEAD_PITCH`（与盘面格距 1:1）
- * · 托盘珠 `outer` = `TRAY_SLOT`，内缩走 `BEAD_DRAW_INSET` ⇒ 珠面 **26** = 盘面珠面（1:1）
+ * **[WXG-T-261 · 2026-10-06 用户裁定「托盘整体放大一些，两边离边缘不要太远 + 格缝加大」]**
+ * 推翻 WXG-T-237 v4.0 的「1:1 不缩放」（当时 48→30），**尺回到旧 48/6 系**；但**保留 v4.0 的
+ * mask 接线**（托盘槽用盘面 `cell` mask、珠用 `bead` mask，按 `size / BEAD_CELL` 等比缩放，
+ * ⛔ 不另建托盘专属 mask）：
+ * · `TRAY_SLOT = 48` · `TRAY_GAP = 6` ⇒ `pitch = 54`
+ * · 12 列行宽 `12×48 + 11×6` = **642** ⇒ 每边留白 `(750 − 642) / 2` = **54**（v4.0 是 184）
+ * · 托盘珠 `outer = TRAY_SLOT` ⇒ 珠面 = `48 − 2×(2×48/30)` ≈ **41.6**（等比内缩，⚠ 不是
+ *   `TRAY_BEAD_SIZE` 那条 `48 − 4 = 44`，见其注）
  *
- * ⚠ **冻结值变化（如实登记）**：48 → 30（−18）· 珠外廓 44 → 26（−18）· `pitch` 54 → 32（−22）
- * ⇒ 12 列行宽 642 → **382dp**（−260）⇒ 托盘整块**变窄**，左右留白大增（这正是「不缩放」的直接后果）。
- * ⚠ `systems-index §3` 冻结常量表须同步标注（⛔ 工程不代改冻结表 —— 由 art/工程在定标单裁后处理）。
+ * ⚠ **负面后果（诚实记，不隐去）**：3 行展开态 `panelH = 3×54 − 6 + 2×12 = 180` ⇒ 面板底
+ * y=270 压到 `btn_expand` 视觉框（y∈[236,284]）≈14dp（最深一行**槽**只压 2dp）；2 行基础态
+ * `panelH 126` ⇒ 底 y=324 不碰。该重叠在 v1.x 旧尺下同样存在，属在册 **E2 `[待真机]`** 同族，
+ * ⛔ 不作本批判据。`systems-index §3` 冻结表随之顶版（§6 变更记录同批登记）。
  */
-export const TRAY_SLOT = BEAD_CELL;
+export const TRAY_SLOT = 48;
 /**
  * 托盘珠绘制边长。**§3.4 v1.57（WXG-T-207-A）由 `view/bead-render.ts` 的私有绝对量升为
  * §3 派生常量**（K-012 补漏：它一直被 `view/view-model.ts` 与 `tests/bead-render.test.ts`
@@ -421,16 +435,19 @@ export const TRAY_SLOT = BEAD_CELL;
  * 真机重验）**属另案，不并入本单**。
  */
 /**
- * **[WXG-T-237 v4.0]** 托盘珠的**绘制边长**（不再是 `drawFilledBead` 的 `outer`）。
- * `outer` 现取 `TRAY_SLOT`（30），内缩走 `BEAD_DRAW_INSET` ⇒ 珠面 = **26** = 盘面珠面（1:1）。
- * ⛔ 原值 44 是「托盘格 48 独立体系」的产物；1:1 后该体系已废。
+ * **[WXG-T-237 v4.0]** 托盘珠的**名义边长**（不是 `drawFilledBead` 的 `outer`）。
+ * `outer` 现取 `TRAY_SLOT`，内缩按 `outer / BEAD_CELL` **等比** ⇒ 实际珠面 = `SLOT − 2×(2×SLOT/30)`
+ * ⛔ 本常量是**绝对**内缩 4，故 `SLOT ≠ 30` 时两者不等（SLOT=48 ⇒ 本值 44 vs 珠面 ≈41.6）。
+ * 消费面（2026-10-06 grep 实测）= `TRAY_HIT_SIZE` 与 `bead-render.ts` 的 re-export，
+ * **绘制路径不读它** ⇒ 本值是「命中框基准」而非视觉尺。
+ * ⚠ 原值 44 属「托盘格 48 独立体系」；WXG-T-261 把 `TRAY_SLOT` 回到 48 后本值**随之回到 44**。
  */
 export const TRAY_BEAD_SIZE = TRAY_SLOT - 2 * BEAD_DRAW_INSET;
 /**
- * Slot gap. **[WXG-T-237 v4.0]** = `BEAD_GAP`（**2**）⇒ `pitch = TRAY_SLOT + TRAY_GAP = 32`
- * = `BEAD_PITCH`，与盘面 1:1（原 6 属托盘独立体系）。
+ * Slot gap. **[WXG-T-261 · 2026-10-06 用户裁定「托盘格子之间增加一些间隔」]** = **6**
+ * ⇒ `pitch = 54`（v4.0 的 `BEAD_GAP 2` / pitch 32 一并推翻，尺回旧 6/54 系）。
  */
-export const TRAY_GAP = BEAD_GAP;
+export const TRAY_GAP = 6;
 /** 托盘面板竖向内边距（面板高 = rows×54 − 6 + 2×12）。 */
 export const TRAY_PANEL_PAD = 12;
 /**
@@ -1138,7 +1155,8 @@ export const LIFT_SHADOW_ALPHA = 0.52;
  * `view-model::selectLiftScale`）。该常量的裁定链（4→9→14→9 及逐档实测：`lift=14` 珠顶越槽 12.5dp、
  * `lift=9` 影带 8.5dp、`lift=6` 影带 5.5dp）全文在 `memory/2026-10-04.md` T-244 九/十/十三批，
  * ⛔ 不在此重建（代码不留已废值）。
- * ⚠ **负面后果（诚实记，不得隐去）**：托盘槽**不随棋盘相机变尺**（`TRAY_SLOT` 恒 30）⇒ 乘
+ * ⚠ **负面后果（诚实记，不得隐去）**：托盘槽**不随棋盘相机变尺**（T-244 时口径 `TRAY_SLOT` 恒 30；
+ * [WXG-T-261] 尺回 48 ⇒ 下方「越槽 10dp」算式是 30 期快照，需按 48 重推，`[待真机]` 同批）⇒ 乘
  * `liftScale`（= `gridCell / BEAD_CELL`）后抬起量与托盘自己的槽脱钩：大盘 fit 档（`gridCell < 30`）
  * 托盘**抬得更少**，放大档（上限 `CAMERA_ZOOM_MAX`）抬到 `6 × 2 = 12dp` ⇒ 珠上沿越槽
  * `12 + 13 − 15 = 10dp`（插进上一行槽）。回滚口径：`drawTray` 去掉 `liftScale` 因子即恢复「恒绝对」。

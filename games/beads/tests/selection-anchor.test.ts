@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { TRAY_BASE_SLOTS } from '../src/config/tuning.js';
+import { BEAD_CELL, TRAY_BASE_SLOTS } from '../src/config/tuning.js';
 import {
   GROUP_LAND_DROP_PX,
   TAP_HINT_NO_SELECTION_TEXT,
@@ -25,18 +25,22 @@ import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js'
 import type { BeadsGame } from '../src/game/beads-game.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS, beadColorOf, endpointOf, withAlpha } from '../src/view/palette.js';
 import { LIFT_SHADOW_ALPHA } from '../src/config/tuning.js';
-import { RenderModelBuilder, type DrawCommand } from '../../../packages/framework/src/core/render/render-model.js';
+import { RenderModelBuilder, polygonVertices, type DrawCommand } from '../../../packages/framework/src/core/render/render-model.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
 // ────────────────────────────────────────────────────────── 局面装配助手
 
 /** 6×5 全可填板（simpleTestLevel 图案）。 */
-function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
+function renderModel(snap: BeadsSnapshot) {
   const builder = new RenderModelBuilder(750, 1334);
   builder.begin();
   buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
-  return builder.end().commands;
+  return builder.end();
+}
+
+function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
+  return renderModel(snap).commands;
 }
 
 function traySlotArtCount(c: readonly DrawCommand[], lay: ReturnType<typeof trayLayout>, idx: number): number {
@@ -531,11 +535,11 @@ describe('托盘选中态画坑（WXG-T-240）', () => {
 // 沿革（留档，别再翻烧饼）：十四批把有珠槽的格底改成**珠色**，修的是 tint 臂真透孔
 //   透出近白（实测孔心 托盘 (172,172,175) vs 盘面 (142,37,34)）。代价当时未记：
 //   有珠槽与 22 个空槽**不同色** ⇒ 珠四周多出一块珠色方片（用户 2026-10-05 报「底色不对」）。
-// 现口径：格底回中性 `palette.slot`（有珠槽 ≡ 空槽同一张图）；**孔不再靠格底借色**，
-//   而由珠自己补 live 孔（tint 臂 `liveHole: true` ⇒ 尺与墨另有一条腿在
-//   `bead-tint-arm.test.ts`；矢量臂由风格层集自画实色孔底，本腿只校调用侧传的色）。
+// 现口径（WXG-T-261 二批 · 2026-10-06 用户裁「孔需要透明透底」）：槽底加深为 `traySlot` 深灰 ⇒
+//   **补孔撤除**（`liveHole` 已删），真透直接透出槽底（腿在 `bead-tint-arm.test.ts`；
+//   矢量臂由风格层集自画实色孔底，本腿只校调用侧传的色）。
 describe('托盘有珠的槽格底 ≡ 中性（与空槽同色，2026-10-05 推翻十四批）', () => {
-  it('有珠槽的 socket 亮底 ≡ `palette.slot`（⛔ 不得再拿珠色当格底）', () => {
+  it('有珠槽的 socket 亮底 ≡ `palette.traySlot`（⛔ 不得再拿珠色当格底）', () => {
     const h = mkHarness('wxgame.beads.test.t244-tray-socket-ink');
     h.game.giveTrayBead(3);
     h.advance(0.4);                                   // 进珠包络越窗（⚠ 单位 = **秒**）
@@ -546,14 +550,18 @@ describe('托盘有珠的槽格底 ≡ 中性（与空槽同色，2026-10-05 推
     const lay = trayLayout(1);
     const cx = lay.slotCenterX(0);
     const cy = lay.slotCenterY(0);
-    // socket 自带亮底 = 唯一一枚**槽径 30**、居槽心的 rect（珠面 26 / 面板 radius 18 大得多 ⇒ 不撞）
+    // socket 自带亮底 = 唯一一枚**槽径 `TRAY_SLOT`**、居槽心的 rect（珠面比槽小、面板 rect 大得多 ⇒ 不撞）
     const base = (renderSnap(snap) as readonly { kind: string; x?: number; y?: number; w?: number; fill?: string }[]).filter(
       (k) => k.kind === 'rect' && k.w === TRAY_SLOT
         && Math.abs((k.x ?? 0) + TRAY_SLOT / 2 - cx) < 0.01
         && Math.abs((k.y ?? 0) + TRAY_SLOT / 2 - cy) < 0.01,
     );
     expect(base.length, '有珠的槽仍须画出槽底（⛔ 不得回退成“有珠就不画坑”）').toBe(1);
-    expect(base[0]!.fill, '格底 ≡ 托盘中性色（与空槽同图）').toBe(DEFAULT_PALETTE.slot);
+    // [WXG-T-261 · 2026-10-06 用户裁「托盘槽底更深一些」] 锚点由 `slot` 改为**托盘专用档** `traySlot`；
+    // ⛔ 盘面空格仍落 `slot`（同一颗色不会跟着变深）。
+    expect(base[0]!.fill, '格底 ≡ 托盘中性色（与空槽同图）').toBe(DEFAULT_PALETTE.traySlot);
+    expect(DEFAULT_PALETTE.traySlot, '前置：托盘档必须与盘面中性档不同色（否则本批等于没改）')
+      .not.toBe(DEFAULT_PALETTE.slot);
     expect(base[0]!.fill, '⛔ 不得再是珠色（十四批旧口径 ⇒ 珠四周多出一块方片）')
       .not.toBe(beadColorOf(DEMO_BEAD_INKS, slot.colorIdx));
   });
@@ -654,5 +662,66 @@ describe('抬起影墨与进珠「出现」两处同口径（T-244 十二/十三
     expect(artAtHover(snap.trayLandSlots[1]!), '⛔ 未轮到的珠不得悬在槽上方').toBe(0);
     // 对照腿：轮到的那颗（step 0）此刻确实从 22dp 处落下 ⇒ 同高度必须有珠。
     expect(artAtHover(snap.trayLandSlots[0]!), '对照：step 0 那颗在落体起点').toBeGreaterThan(0);
+  });
+
+  // ── [用户 2026-10-06 裁定「盘面放大缩小，不能影响托盘的珠子的 zoom」] ──
+  //
+  // 耦合点只有一处：`drawTray` 的抬起量曾乘 `selectLiftScale(snap)` = `gridCell / BEAD_CELL` = **camZoom**
+  // （T-244 十三批并轨时带进来）。而托盘槽 `TRAY_SLOT` 恒 30、⛔ 不随棋盘变尺 ⇒ 乘上它只会让珠
+  // 抬离**自己的槽**（放大档 12dp、fit 档抬得更少）。⇒ 本例钉「盘面变尺时托盘面板内图元逐位不变」。
+  it('托盘珠抬起 ⛔ 不吃盘面 zoom（`gridCell` 变尺时托盘图元逐位不变）', () => {
+    const h = mkHarness('wxgame.beads.test.tray-lift-zoom-decoupled');
+    h.game.giveTrayBead(1);
+    h.advance(0.4);                                  // 进珠包络越窗（⚠ 单位 = 秒）
+    expect(h.game.selectTraySlot(0)).toBe(true);
+    h.advance(0.4);                                  // 越过 `SELECT_LIFT_MS` = 200ms
+    const base = h.game.snapshot;
+    expect(base.traySlots[0]!.state, '前置：第 0 槽须为 selected').toBe('selected');
+    expect(base.gridCell, '前置：夹具须落恒等档').toBe(BEAD_CELL);
+
+    const lay = trayLayout(Math.ceil(h.game.tray.capacity / TRAY_COLS), h.game.tuning.width);
+    /**
+     * 托盘面板矩形（`trayLayout` 单一真源）内**全部图元坐标**的逐位指纹。
+     *
+     * ⛔ 不取「最上缘」：面板内总有静态高件（实测 y=528）当上界 ⇒ 珠子怎么抬都被它盖住
+     *   ⇒ 变异也量不出来（本例初版就因此假绿）。全量指纹则任何位移都会红。
+     * 六个 kind 逐一入列、⛔ 不写 `default: break`（K-031/K-033：凑不齐的枚举必须**会红**）——
+     * 将来往 `DrawCommand` 联合里加新 kind，末端 `else` 的类型收窄就会编译报错。
+     */
+    const traySig = (z: number): string => {
+      const model = renderModel({
+        ...base,
+        gridCell: BEAD_CELL * z,
+        gridPitch: base.gridPitch * z,
+      });
+      const out: string[] = [];
+      const push = (k: string, x: number, y: number): void => {
+        if (x < lay.panelX || x > lay.panelX + lay.panelW) return;
+        if (y < lay.panelBottom || y > lay.panelBottom + lay.panelH) return;
+        out.push(`${k}:${x.toFixed(2)},${y.toFixed(2)}`);
+      };
+      for (const c of model.commands) {
+        if (c.kind === 'rect' || c.kind === 'blit') {
+          push(c.kind, c.x, c.y); push(c.kind, c.x + c.w, c.y + c.h);
+        } else if (c.kind === 'circle') {
+          push(c.kind, c.x, c.y); push(c.kind, c.x, c.y + c.r);
+        } else if (c.kind === 'line') {
+          push(c.kind, c.x1, c.y1); push(c.kind, c.x2, c.y2);
+        } else if (c.kind === 'text') {
+          push(c.kind, c.x, c.y);
+        } else {
+          const v = polygonVertices(model, c);
+          for (let k = 0; k < c.count; k++) push(c.kind, v[k * 2]!, v[k * 2 + 1]!);
+        }
+      }
+      return out.join('|');
+    };
+
+    const one = traySig(1);
+    expect(one, '前置：托盘面板内必须有图元（空指纹会让下面两条假绿）').not.toBe('');
+    // 变异自证：把 `selectLiftScale(snap)` 加回 `drawTray` ⇒ z=2 抬起 12dp / z=0.5 只抬 3dp
+    // ⇒ 珠与影的坐标集体位移 ⇒ 本两条同时红（实测已验）。
+    expect(traySig(2), '⛔ 托盘图元不得随盘面 zoom 位移').toBe(one);
+    expect(traySig(0.5), '⛔ 托盘图元不得随盘面 zoom 位移').toBe(one);
   });
 });

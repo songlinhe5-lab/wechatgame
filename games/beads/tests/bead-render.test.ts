@@ -1052,7 +1052,10 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    ⇒ 珠面 **26 = 盘面珠面**。旧断言 `bodyW(tray) > bodyW(board)` 已不成立。
   //  同参的**必要性**：`drawFilledBead` 的 `inset` 只在 `targetColorIdx !== undefined` 时生效
   //    ⇒ 不传则矢量臂按满幅 30 画、tint 臂按 26 画 ⇒ **两臂不同形**（同八轮修过的那类错配）。
-  it('③ inset 作域：托盘珠 1:1 与盘面珠同参（双臂同尺）', () => {
+  // [WXG-T-261 · 用户 2026-10-06 裁「托盘整体放大一些」] 1:1 被推翻：`TRAY_SLOT` 回 **48** ⇒
+  //    托盘珠面 = 等比内缩 `48 − 2×(2×48/30)` = **41.6**（> 盘面 26，「托盘更大」方向回归）；
+  //    同参口径不变（⛔ 两臂异形仍是雷）；旧等式 `bodyW(tray) ≡ bodyW(board)` 作废，改钉**方向**。
+  it('③ inset 作域：托盘珠等比内缩·双臂逐字同参（WXG-T-261 尺回 48）', () => {
     const bodyW = (cs: ReturnType<typeof emit>): number => {
       const c = cs.find((x) => x.kind === 'rect');
       return c && c.kind === 'rect' ? c.w : Number.NaN;
@@ -1067,10 +1070,13 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
       }),
     );
     expect(bodyW(board)).toBe(BEAD_CELL - 2 * BEAD_DRAW_INSET); // 26 = 盘面珠内缩
-    expect(bodyW(tray), '1:1 ⇒ 托盘珠面 ≡ 盘面珠面').toBe(BEAD_CELL - 2 * BEAD_DRAW_INSET);
+    // 托盘珠面 ≡ 等比内缩式（与 `bead-tint-arm.test.ts` 同式；⛔ 不是 `TRAY_BEAD_SIZE` 的绝对 4）
+    expect(bodyW(tray), '托盘珠面 = SLOT − 2×(inset×SLOT/BEAD_CELL)').toBe(
+      TRAY_SLOT - (BEAD_DRAW_INSET * TRAY_SLOT) / BEAD_CELL * 2,
+    );
     expect(bodyW(filled(1))).toBe(BEAD_CELL); // 不传目标色也不缩
-    // 钉住**方向**：托盘珠与盘面珠**同尺**（1:1），不再是「托盘更大」。
-    expect(bodyW(tray)).toBe(bodyW(board));
+    // 钉住**方向**（[WXG-T-261] 推翻 1:1）：托盘珠面 **大于** 盘面珠面（48 尺回归）。
+    expect(bodyW(tray)).toBeGreaterThan(bodyW(board));
     // ⛔ 反向守卫：若有人把托盘珠退回「满幅/无 inset」，此腿红
     expect(bodyW(tray)).not.toBe(TRAY_SLOT);
     // 对照臂同尺：inset 属渲染侧 ⇒ 两臂的**珠体外缘**必须同一个值
@@ -1083,10 +1089,15 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
       drawLegacyTenBead(b, 100, 200, 1, { size: BEAD_CELL, targetColorIdx: 2, inks: DEMO_BEAD_INKS }),
     );
     const legacyTray = emit((b) =>
-      drawLegacyTenBead(b, 100, 200, 1, { size: TRAY_BEAD_SIZE, inks: DEMO_BEAD_INKS }),
+      drawLegacyTenBead(b, 100, 200, 1, {
+        size: TRAY_SLOT, targetColorIdx: 1, drawInset: BEAD_DRAW_INSET, inks: DEMO_BEAD_INKS,
+      }),
     );
     expect(legacyBodyW(legacyBoard)).toBe(bodyW(board));
-    expect(legacyBodyW(legacyTray)).toBe(bodyW(tray));
+    // ⚠ [WXG-T-261 登记在册的两臂差] 旧臂按 HEAD 封箱口径**保持绝对 inset**（seal 腿 1 逐字节锁）
+    //   ⇒ 托盘档 48 下旧臂 = `48 − 4` = **44**，与新臂等比 41.6 差 2.4dp（v4.0 时 SLOT=30 两式巧合相等）。
+    //   收口路径 = S7 撤 legacy-ten 后自然消失；⛔ 本批不动旧臂（会击穿 seal）。
+    expect(legacyBodyW(legacyTray), '旧臂封箱口径 = 绝对 inset ⇒ 48 档恒 44').toBe(TRAY_SLOT - 2 * BEAD_DRAW_INSET);
   });
 
   // ③b inset 随格径等比（WXG-T-169 真机反馈：放大时珠与底图「差不多大」、缩小时珠「小很多」）。
@@ -1116,11 +1127,13 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    先看掉注释（换尺批大量改注，不得误伤），再对**代码里的 hex 序列**取计数 + 摘要。
   //    要改色表 = 走 art 单（assets-spec §1.9.7①）并同步本快照；两值同改不会默默偷渡。
   //    [WXG-T-256] 容器板 + 三层背景退役（art 变更批）⇒ 37/`fd5a0def780d` 追改为 34/`67c2a2c08a92`。
+  //    [WXG-T-261] 托盘槽底加深批新增 `traySlot #BCC2CB`（art 裁定批，定标单同批顶版）⇒ 34 → **35**/`38c2bed416c3`。
+  //    [WXG-T-261 二批 · 2026-10-06] 用户仍判「太浅」⇒ `traySlot` 换深灰 `#4A5060`（纯墨改值、条数不动）⇒ 35/`1979d53033a1`。
   it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
     const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
     const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
-    expect(hexes.length).toBe(34);
-    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('67c2a2c08a92');
+    expect(hexes.length).toBe(35);
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('1979d53033a1');
   });
 });

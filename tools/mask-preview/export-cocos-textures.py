@@ -134,7 +134,8 @@ def draw_layer(d, layer, fill):
         x1, y1, x2, y2 = (layer["x1"] * PX, layer["y1"] * PX,
                           layer["x2"] * PX, layer["y2"] * PX)
         y1, y2 = RENDER - y1, RENDER - y2
-        d.line([x1, y1, x2, y2], fill=fill, width=max(1, round(layer.get("lw", 1) * PX)))
+        d.line([x1, y1, x2, y2], fill=fill, width=max(
+            1, round(layer.get("lw", 1) * PX)))
 
 
 def render_mask(layers, shape_b, skip_lines=False):
@@ -195,7 +196,8 @@ def paint_frame_light(img):
     dr = ImageDraw.Draw(ring_m)
     o0, o1 = (CELL_DP - BEAD_DP) / 2 * PX, (CELL_DP + BEAD_DP) / 2 * PX
     w = FRAME_DP * PX
-    dr.rounded_rectangle([o0, o0, o1, o1], radius=BEAD_CORNER_DP * PX, fill=255)
+    dr.rounded_rectangle(
+        [o0, o0, o1, o1], radius=BEAD_CORNER_DP * PX, fill=255)
     dr.rounded_rectangle([o0 + w, o0 + w, o1 - w, o1 - w],
                          radius=max(0, BEAD_CORNER_DP * PX - w), fill=0)
     ring = np.array(ring_m) > 0
@@ -203,7 +205,8 @@ def paint_frame_light(img):
     ImageDraw.Draw(inner_m).rounded_rectangle([o0 + w, o0 + w, o1 - w, o1 - w],
                                               radius=max(0, BEAD_CORNER_DP * PX - w), fill=255)
     inside = np.array(inner_m) > 0
-    t = np.where(ring, np.where(inside, 0.35, 1.0), 0.0)   # 内缘 0.35 → 外缘 1.0 斜面
+    t = np.where(ring, np.where(inside, 0.35, 1.0),
+                 0.0)   # 内缘 0.35 → 外缘 1.0 斜面
     # **WXG-T-229「甲」外框斜率**：旧式 = 对称余弦（`LIGHT` 峰在左上 ⇒ 上=左）+ 受光靠 `l`
     # ⇒ 亮色珠外框只有「上左亮 / 右下暗」两档、方向丢失（实测奶白 上137.3 / 左135.5）。
     # 改按四扇权重给**单调斜率**：上 0.70 / 左 0.63 / 右 0.52 / 下 0.42（跨度 0.28，外缘 −0.10·t）。
@@ -225,7 +228,8 @@ def paint_frame_light(img):
 # ⚠ 孔缘必须羽化：B 通道 255→0 硬跳经 LANCZOS 会振铃 ⇒ 孔缘一圈像素杂质（2026-09-29 实测）。
 # 外框/刻面无此问题（B 恒 255，只有 R/G 变化）。羽化语义：孔缘 alpha 渐出 = 抗锯齿，真透 ⌀12 名义不变。
 shape = np.zeros((RENDER, RENDER), np.uint8)
-si = Image.fromarray(shape)   # ⚠ fromarray 会拷贝缓冲 ⇒ 必须持有 si 并从它取回，画在临时 Image 上会全丢
+# ⚠ fromarray 会拷贝缓冲 ⇒ 必须持有 si 并从它取回，画在临时 Image 上会全丢
+si = Image.fromarray(shape)
 sd = ImageDraw.Draw(si)
 o0, o1 = (CELL_DP - BEAD_DP) / 2 * PX, (CELL_DP + BEAD_DP) / 2 * PX
 sd.rounded_rectangle([o0, o0, o1, o1], radius=BEAD_CORNER_DP * PX, fill=255)
@@ -244,7 +248,8 @@ shape_b = si_np.astype(np.uint8)
 # ---------- 1/2. bead mask + base（base 仅 Sprite 占位） ----------
 # （2026-09-29 回退：上一轮误将"槽的暗条删除+亮面"应用到 bead 侧 ⇒ 恢复 facet 刻面直读版。
 #   槽侧的正确改动保留在 grid 分支。）
-bead_mask = paint_frame_light(paint_b14_ring(render_mask(data["beadLayers"], shape_b)))
+bead_mask = paint_frame_light(paint_b14_ring(
+    render_mask(data["beadLayers"], shape_b)))
 
 # ---------- 3/4. grid mask + base ----------
 # 用户 2026-09-29 拍板：**槽口轮廓 = 珠面轮廓（26dp 圆角方、角 8dp）**；
@@ -254,8 +259,10 @@ bead_mask = paint_frame_light(paint_b14_ring(render_mask(data["beadLayers"], sha
 EDGE_DP = 3.0                                                  # 槽内边沿斜面深度（dp）
 gm = np.zeros((RENDER, RENDER, 4), np.uint8)
 gm[..., 0] = int(0.70 * 255)                                   # 格外圈：−0.30 纯色
-gm[..., 2] = 0                                                 # [WXG-T-237 v7.0] 格外 shape=0 ⇒ **透明**
-gm[..., 3] = 255                                               # ⚠ A=255（漏设则 PNG 全透明）
+# [WXG-T-237 v7.0] 格外 shape=0 ⇒ **透明**
+gm[..., 2] = 0
+# ⚠ A=255（漏设则 PNG 全透明）
+gm[..., 3] = 255
 ys_g, xs_g = np.mgrid[0:RENDER, 0:RENDER]
 dxg, dyg = xs_g - C, ys_g - C
 rg = np.sqrt(dxg ** 2 + dyg ** 2) + 1e-6
@@ -271,15 +278,18 @@ t_in = np.clip(-sd_g / (EDGE_DP * PX), 0, 1)                   # 0=槽口棱 →
 # 斜面光照：受光侧（仅下内壁）→ 本色 0.70 亮；背光侧（**上+左+右**，用户 2026-09-29
 # "左右与上边沿深色一致"）→ −0.68 档 0.32 暗。背光权重 = clip(1−uyg)：上/左右=1、下=0。
 d_edge = 0.70 - 0.38 * np.clip(1.0 - uyg, 0, 1)
-d_val = d_edge + (0.70 - d_edge) * t_in                        # 内缘渐入槽底 0.70（=格底色）
+# 内缘渐入槽底 0.70（=格底色）
+d_val = d_edge + (0.70 - d_edge) * t_in
 l_val = LIT_L * down_w * (1.0 - t_in)                          # 下壁受光提亮（棱最强）
 gm[..., 0][edge_g] = (np.clip(d_val, 0, 1)[edge_g] * 255).astype(np.uint8)
 gm[..., 1][edge_g] = (np.clip(l_val, 0, 1)[edge_g] * 255).astype(np.uint8)
-gm[..., 2][edge_g] = 255                                           # 槽内 3dp 斜面：shape 满幅
+# 槽内 3dp 斜面：shape 满幅
+gm[..., 2][edge_g] = 255
 # 槽底（斜面以内）= **格底色 0.70**（−0.30，同 B0 tile；设计变更 v1.0→v1.1，用户 2026-09-29：
 # 「取放珠瞬间深坑↔格底跳变突兀 + 深坑挡目标色辨识」⇒ 槽凹感全交给 3dp 斜面光照，坑底与格底同色）
 gm[..., 0][sd_g < -EDGE_DP * PX] = int(0.70 * 255)
-gm[..., 2][sd_g < -EDGE_DP * PX] = 255                             # 槽底：shape 满幅（⚠ 本笔在 512 空间，随后被 128 空间判定覆盖，见 OUT 循环）
+# 槽底：shape 满幅（⚠ 本笔在 512 空间，随后被 128 空间判定覆盖，见 OUT 循环）
+gm[..., 2][sd_g < -EDGE_DP * PX] = 255
 grid_mask = Image.fromarray(gm, "RGBA")
 
 OUT_DIR.mkdir(exist_ok=True)
@@ -287,12 +297,14 @@ for name, img in (
     ("bead-hole-tint-128-mask.png", bead_mask),
     ("grid-hole-tint-128-mask.png", grid_mask),
 ):
-    img = img.resize((OUT, OUT), Image.LANCZOS)   # ÷4 整数比 LANCZOS ⇒ 边缘平滑（勿改非整数比）
+    # ÷4 整数比 LANCZOS ⇒ 边缘平滑（勿改非整数比）
+    img = img.resize((OUT, OUT), Image.LANCZOS)
     # 形状通道 = mask 的 B / base 的 A（头注明文「base.A ≡ mask.B 逐像素相等」）⇒
     # **两侧都要施加地板**，否则去振铃会让这两个通道首次出现差异（2026-10-03 提交前自查抓到）。
     ch = 2 if "mask" in name else 3
     arr = np.array(img, dtype=np.uint8).copy()
-    arr[:, :, ch] = np.where(arr[:, :, ch] < SHAPE_RINGING_FLOOR, 0, arr[:, :, ch])
+    arr[:, :, ch] = np.where(
+        arr[:, :, ch] < SHAPE_RINGING_FLOOR, 0, arr[:, :, ch])
     # [WXG-T-237 v7.0] **格面 mask 的 B(shape) 在 128 空间直接判定**（不经 LANCZOS 缩放）。
     # 理由：v7.0 让格外 shape=0 ⇒ 0↔255 硬台阶长达一整圈，而 **PIL 的 LANCZOS 与 TS 侧自实现
     # LANCZOS 对硬边的振铃幅度不同**（实测残留 1–9/255）⇒ 单靠 `SHAPE_RINGING_FLOOR` 无法让
@@ -313,7 +325,8 @@ for name, img in (
         # （`composeMaskTile` 的 tile 形态 shape 恒 255，满幅不透明）、托盘 = `drawEmptySocket`
         # 的 base rect。R 通道 0.70 仍保留 —— tile 形态派生要读它当底图色档。
         # ⛔ holeless 档不适用：其「槽底」= 假孔 0.32，属结构件，保持不透明。
-        arr[:, :, 2] = np.where((sd8 <= 0) & (sd8 >= -EDGE_DP * pxs), 255, 0).astype(np.uint8)
+        arr[:, :, 2] = np.where((sd8 <= 0) & (
+            sd8 >= -EDGE_DP * pxs), 255, 0).astype(np.uint8)
     img = Image.fromarray(arr, "RGBA")
     img.save(OUT_DIR / name)
     print(f"✅ {OUT_DIR / name}")

@@ -255,13 +255,13 @@ describe('makeBeadRecipe / makeCellRecipe · mask 模式（S1 交付面）', () 
     });
 
     it('mask 模式忽略 styleId / colorIdx（d/l 与色无关，V-1）', () => {
-        const recipe = makeBeadRecipe(() => {}, { mode: 'mask', gauge: 'holed' });
+        const recipe = makeBeadRecipe(() => { }, { mode: 'mask', gauge: 'holed' });
         expect(Array.from(recipe(64).data)).toEqual(Array.from(recipe(64).data));
     });
 
     it('两档产出不同（holed 有孔 ⌀12 / holeless 无孔 24dp）', () => {
-        const holed = makeBeadRecipe(() => {}, { mode: 'mask', gauge: 'holed' })(MASK_CANONICAL_SIZE);
-        const holeless = makeBeadRecipe(() => {}, { mode: 'mask', gauge: 'holeless' })(MASK_CANONICAL_SIZE);
+        const holed = makeBeadRecipe(() => { }, { mode: 'mask', gauge: 'holed' })(MASK_CANONICAL_SIZE);
+        const holeless = makeBeadRecipe(() => { }, { mode: 'mask', gauge: 'holeless' })(MASK_CANONICAL_SIZE);
         expect(Array.from(holed.data)).not.toEqual(Array.from(holeless.data));
         const c = Math.floor(MASK_CANONICAL_SIZE / 2);
         expect(holed.data[(c * MASK_CANONICAL_SIZE + c) * 4 + 2]).toBe(0); // 孔心 B=0
@@ -305,7 +305,7 @@ describe('makeBeadRecipe / makeCellRecipe · mask 模式（S1 交付面）', () 
     });
 
     it('MaskBakeRecipe 形状 = (size?) => MaskField', () => {
-        const recipe: MaskBakeRecipe = makeBeadRecipe(() => {}, { mode: 'mask', gauge: 'holed' });
+        const recipe: MaskBakeRecipe = makeBeadRecipe(() => { }, { mode: 'mask', gauge: 'holed' });
         expect(recipe(64).width).toBe(64);
     });
 });

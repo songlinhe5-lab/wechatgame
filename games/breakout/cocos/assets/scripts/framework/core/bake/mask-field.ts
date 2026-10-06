@@ -334,7 +334,7 @@ function forEachFilledEllipseSpan(a: number, b: number, emit: (y: number, xLo: n
     let py = first.y;
     const si = quarterInit(a - 2 * (width - 1), b - 2 * (width - 1));
     let pl = leftmost;
-    for (;;) {
+    for (; ;) {
         const y = py;
         const r = pr;
         let l = pl;

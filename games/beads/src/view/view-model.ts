@@ -1229,9 +1229,11 @@ function drawTrayPlateShading(
  * 内缩的同形归一：`基准值 × outer / BEAD_CELL`（先乘后除 ⇒ **恒等档逐位不变**：`6 × 30 / 30 = 6`
  * 精确，不破 seal/复现类判据）。
  *
- * ⚠ **十三批把它一并发给托盘的代价（诚实记）**：托盘槽不随棋盘变尺（`TRAY_SLOT` 恒 30）⇒
- * 乘本因子后托盘抬起与**自己的槽**脱钩（fit 档抬得更少、放大档最多 `6 × CAMERA_ZOOM_MAX`）。
- * 用户 2026-10-04 明令并轨 ⇒ 要恢复「恒绝对」只需去掉 `drawTray` 里的那个因子。
+ * ⚠ **十三批曾把它一并发给托盘，用户 2026-10-06 裁定收回**（「盘面放大缩小，不能影响托盘的珠子的 zoom」）：
+ * 托盘槽不随棋盘变尺（`TRAY_SLOT` 恒 30）⇒ 乘本因子只会让托盘抬起与**自己的槽**脱钩
+ * （fit 档抬得更少、放大档最多 `6 × CAMERA_ZOOM_MAX`），而托盘珠体/影基准从未变过。
+ * ⇒ `drawTray` 不再乘本因子（抬起恒 `SELECT_LIFT_PX`）；盘面仍乘。托盘与盘面**依旧同源**的部分不变：
+ * 同缓动曲线 · 同时钟 · 同影函数（`drawLiftShadowOn`）· 同影墨口径 · 同斜上角。
  */
 function selectLiftScale(snap: BeadsSnapshot): number {
   return snap.gridCell / BEAD_CELL;
@@ -1330,14 +1332,16 @@ function drawTray(
     const selected = slot.state === 'selected';
     // Selected: lift + darker L0 shadow + indicator dot (§1.2 selected row).
     // §5 v1.5-r10：与板锚组共用 `liftProgress` ⇒ 不会出现“板上的珠在抬、托盘的珠瞬跳”。
-    // [T-244 十三批 ③④ · 用户裁「抬起量并轨 + 乘 `liftScale`」] 与盘面**逐字一条式**：
+    // [T-244 十三批 ③④ · 用户裁「抬起量并轨 + 乘 `liftScale`」] 曾与盘面**逐字一条式**：
     //   `SELECT_LIFT_PX × selectLiftScale(snap) × liftEase(liftProgress)`。旧常量
     //   `TRAY_SELECTED_LIFT_PX`（裁定链 4→9→14→9）已删，沿革见 `memory/2026-10-04.md`；
-    //   ⚠ 托盘槽不随棋盘变尺 ⇒ 本因子对托盘是**跨域耦合**（理据与代价见 `selectLiftScale`）。
+    //   ⚠ **本因子已于 2026-10-06 按用户裁定收回**（「盘面放大缩小，不能影响托盘的珠子的 zoom」）：
+    //   托盘槽不随棋盘变尺（`TRAY_SLOT` 恒 30）⇒ 乘 `camZoom` 只会让珠抬离**自己的槽**
+    //   （放大档 12dp、fit 档抬得更少）⇒ 抬起量与盘面**同值不同尺**（同 `SELECT_LIFT_PX`），
+    //   依旧同源的部分不变：缓动 / 时钟 / 影函数 / 影墨 / 斜上角。理据见 `selectLiftScale` 注。
     // 曲线与板上同源（ease-in-out + 回弹）；托盘无组 ⇒ 不参错峰。
     const lift = selected
       ? SELECT_LIFT_PX *
-      selectLiftScale(snap) *
       (snap.reduceMotion ? 1 : liftEase(snap.liftProgress))
       : 0;
     // §5 斜上 15°（2026-09-27 用户拍板）：托盘珠同步斜上，与板上同口径。
@@ -1369,8 +1373,10 @@ function drawTray(
     // [用户 2026-10-05 裁定「格子底色和托盘底色一样，取托盘颜色」]**格底回中性** `palette.slot`
     // ⇒ 有珠槽与 22 个空槽**同一张图**（珠四周不再是一块珠色方片）。
     // ⚠ 十四批的病灶并未被撤销：tint 臂的珠孔**真透**（孔色 = 下层基色 × 0.70），格底回中性
-    //   就会透出近白 ⇒ 本批改由**珠自己补 live 孔**承担（下方 `drawFilledBead` 的 `liveHole: true`，
-    //   尺与墨 = 烘焙臂同一条 `drawLiveHole`）。矢量臂不需补（风格层集自画实色孔底）。
+    //   就会透出近白 ⇒ 2026-10-05 曾由**珠自己补 live 孔**承担（`liveHole`，尺与墨 = 烘焙臂同一条
+    //   `drawLiveHole`）。[WXG-T-261 二批 · 用户 2026-10-06 裁「孔需要透明透底」] 槽底已加深为
+    //   `traySlot` 深灰 ⇒ 病灶前提（透出近白）消失 ⇒ **补孔撤除**，真透直接透出槽底本身。
+    //   矢量臂本就不补（风格层集自画实色孔底）⇒ 本二批只动 tint 臂调用参，矢量字节锁零扰动。
     // ⛔ 一张格面 tile 只有**一个**基色 ⇒ 环与孔共用；要两者异色得扩 mask 合成（已登记，未开批）。
     drawEmptySocket(
       builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
@@ -1426,10 +1432,11 @@ function drawTray(
     drawLiftShadowOn(builder, cx, cy, slot.colorIdx, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift);
     // [T-244 十三批] 相位未到 ⇒ 整颗珠不画（同盘面 `glHidden`）；槽底已在上方画过 ⇒ 读作「坑先亮、珠后现」。
     if (!tlHidden) drawFilledBead(builder, cx, cy, slot.colorIdx, {
-      // [WXG-T-237 v4.0 · 1:1] `outer` = `TRAY_SLOT`(=`BEAD_CELL` 30)，内缩走 `BEAD_DRAW_INSET`
-      // ⇒ 珠面 **26** = 盘面珠面（1:1）。⛔ 旧值 `TRAY_BEAD_SIZE 44` 属已废的托盘独立体系。
+      // [WXG-T-261 · 2026-10-06 用户裁「托盘整体放大」] `outer` = `TRAY_SLOT`（**48**，v4.0 的 1:1 已推翻），
+      // 内缩按 `outer / BEAD_CELL` 等比 ⇒ 珠面 ≈ **41.6**（盘面珠面 26 的 1.6×）。mask 仍用**盘面那一张**
+      // （⛔ 无托盘专属 mask），变的只是 blit 边长。⚠ `TRAY_BEAD_SIZE 44` 不参与绘制（只当命中框基准）。
       // ⚠ `targetColorIdx` 必须与盘面同传：`drawFilledBead` 的 `inset` 只在它存在时才生效
-      // ⇒ 不传则矢量臂按满幅 30 画、tint 臂按 26 画 ⇒ **两臂不同形**（同八轮修过的那类错配）。
+      // ⇒ 不传则矢量臂按满幅画、tint 臂按内缩画 ⇒ **两臂不同形**（同八轮修过的那类错配）。
       size: TRAY_SLOT,
       targetColorIdx: slot.colorIdx,
       drawInset: BEAD_DRAW_INSET,
@@ -1438,10 +1445,10 @@ function drawTray(
       maskGauge: 'holed',
       // [S5′-4 · 2026-10-05] 托盘面板底已改走 `back` 图元（blit 之下）⇒ 托盘珠不再需要排他标，
       // 与盘面同走纹理臂；`trayZone` 只剩「槽放宽 `colorIdx`」一个职责（见 `drawEmptySocket`）。
-      // [用户 2026-10-05] 格底回中性 ⇒ tint 臂的真透孔需由珠自己补孔底（与**烘焙臂**同一算式）。
-      // ⛔ 只托盘传；盘面珠不传 ⇒ 逐字节不变。
-      liveHole: true,
-      // 与盘面同走纹理臂；`trayZone` 只剩「槽放宽 `colorIdx`」一个职责（见 `drawEmptySocket`）。
+      // [用户 2026-10-06 二批裁「托盘珠子孔不透明，看不到下面的槽颜色 ⇒ 孔要透明透底」]
+      // **撤 `liveHole` 补孔**（2026-10-05 一版药方）：当时病灶 = 格底近白、真透透出近白；
+      // 现槽底已加深 `traySlot` 深灰 ⇒ 真透**正该透出槽底** ⇒ 补孔反而盖底。撤后与盘面珠同构
+      // （DEC-2 孔区真透 · mask B 通道自带），⛔ 盘面珠 / 矢量臂 / 烘焙臂零改动。
       lift: lift + tlDrop,
       liftX,
       scale: tlScale,

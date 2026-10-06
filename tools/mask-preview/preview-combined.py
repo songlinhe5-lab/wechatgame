@@ -28,10 +28,12 @@ BASES = [
 
 def composite(mask_png: Path, base) -> np.ndarray:
     """单张 mask × base ⇒ float RGB（0..1）+ shape alpha。"""
-    a = np.array(Image.open(mask_png).convert("RGB")).astype(np.float32) / 255.0
+    a = np.array(Image.open(mask_png).convert(
+        "RGB")).astype(np.float32) / 255.0
     d, l, shape = a[..., 0], a[..., 1], a[..., 2]
     b = np.array(base, np.float32) / 255.0
-    out = b * d[..., None] + (1.0 - b) * l[..., None]      # [WXG-T-259] l ⛔ 不乘 shape（与 shader / TS 同式）
+    # [WXG-T-259] l ⛔ 不乘 shape（与 shader / TS 同式）
+    out = b * d[..., None] + (1.0 - b) * l[..., None]
     alpha = shape
     return out, alpha
 
@@ -42,16 +44,20 @@ def over(fg_rgb, fg_a, bg_rgb, bg_a):
     return fg_rgb * fa + bg_rgb * bg_a[..., None] * (1.0 - fa), fg_a + bg_a * (1.0 - fa)
 
 
-grid_rgb, grid_a = composite(SRC / "grid-hole-tint-128-mask.png", (255, 255, 255))  # 先白合成，逐色再算
+grid_rgb, grid_a = composite(
+    SRC / "grid-hole-tint-128-mask.png", (255, 255, 255))  # 先白合成，逐色再算
 rows = []
 for name, base in BASES:
     g_rgb, g_a = composite(SRC / "grid-hole-tint-128-mask.png", base)
     b_rgb, b_a = composite(SRC / "bead-hole-tint-128-mask.png", base)
     cell, _ = over(b_rgb, b_a, g_rgb, g_a)                     # 珠叠格 = 有珠的完整格
-    empty, _ = over(np.zeros_like(g_rgb), np.zeros_like(g_a), g_rgb, g_a)  # 空格对照
-    pair = np.concatenate([empty, cell], axis=1)               # [空格 | 有珠格] 256×128
+    empty, _ = over(np.zeros_like(g_rgb),
+                    np.zeros_like(g_a), g_rgb, g_a)  # 空格对照
+    # [空格 | 有珠格] 256×128
+    pair = np.concatenate([empty, cell], axis=1)
     rows.append(pair)
-strip = np.concatenate(rows, axis=0)                           # 4 色 × 256×128 = 256×512
+# 4 色 × 256×128 = 256×512
+strip = np.concatenate(rows, axis=0)
 img = Image.fromarray((np.clip(strip, 0, 1) * 255).astype(np.uint8), "RGB")
 img.save(OUT_DIR / "preview-combined-128.png")
 big = img.resize((1024, 2048), Image.NEAREST)
