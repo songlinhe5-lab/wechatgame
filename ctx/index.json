@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3895,
       "lines": 140,
-      "sha256": "442e4ddbfeb266206707dc15aa28fb0bd32b7590ba6fc2022359d4248997fe3f",
+      "sha256": "5e78f147380c9719f6d2e5de8a483ea4893751d8cd4110be6d5c1a6c5b29a5c1",
       "tier": "normal",
       "sections": [
         {
@@ -425,7 +425,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 393,
-          "summary": "1 production/TASKS-DETAIL.md 117848 3436 normal",
+          "summary": "1 production/TASKS-DETAIL.md 118456 3479 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -441,7 +441,7 @@
           "startLine": 46,
           "endLine": 115,
           "tokens": 2395,
-          "summary": "production/TASKS-DETAIL.md 117848 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 118456 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5161,
+      "tokens": 5167,
       "lines": 82,
-      "sha256": "2edb80ae7e0dec6b153ef003dd4970d9a39b16be8ad7a89cac276405383bba28",
+      "sha256": "65a9d6c9ccabce0d5eee0b6c2fda7366e91ab9b38da7f47fa4ef7f5c5f03b748",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 5133,
+          "tokens": 5139,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 99 行 / 33056 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 100 行 / 33332 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 29,
-          "summary": "§WXG 任务台账（SSOT）=1+100 · §待排（backlog，无号，立项时领取）=73+28",
+          "summary": "§WXG 任务台账（SSOT）=1+101 · §待排（backlog，无号，立项时领取）=74+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -955,11 +955,11 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3436 行 / 117848 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3479 行 / 118456 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 1310,
+          "tokens": 1316,
           "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+3178 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
@@ -1087,6 +1087,108 @@
             "样本代表性边",
             "可外推性",
             "复验补"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "design/proposals/handdraw-bead-texture.md",
+      "tokens": 912,
+      "lines": 48,
+      "sha256": "207bb46c9d2259f5210de17fb4183f02c6a4686015e5ff05dcf37171c2d16b4c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§提案 · 拼豆珠面「手绘蜡笔质感」程序化方案（调研留档，**暂不实施**）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 49,
+          "tokens": 880,
+          "summary": "状态：调研留档 / 未排期（用户 2026-10-06 令「留档暂不开始处理」）",
+          "keywords": [
+            "提案",
+            "拼豆珠面",
+            "手绘蜡笔质感",
+            "程序化方案",
+            "调研留档",
+            "暂不实施"
+          ]
+        },
+        {
+          "anchor": "§背景",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 13,
+          "tokens": 138,
+          "summary": "用户提供了关卡页面的整体 UI 设计参考图（树形拼豆 + HUD + 托盘 + 道具卡）。核对结论：",
+          "keywords": [
+            "HUD",
+            "背景"
+          ]
+        },
+        {
+          "anchor": "§调研结论：程序**能**画出手绘质感（对比稿四档验证）",
+          "level": 2,
+          "startLine": 14,
+          "endLine": 24,
+          "tokens": 192,
+          "summary": "A 现状 纯几何 + 1px 同色自描边 干净「塑料感」",
+          "keywords": [
+            "调研结论",
+            "程序",
+            "画出手绘质感",
+            "对比稿四档验"
+          ]
+        },
+        {
+          "anchor": "§三手法与工程要点",
+          "level": 2,
+          "startLine": 25,
+          "endLine": 32,
+          "tokens": 143,
+          "summary": "1. 顶点抖动描边：circle → polygon ⟹ 图元数不变，封箱压力最小",
+          "keywords": [
+            "circle",
+            "polygon",
+            "三手法与工程",
+            "要点"
+          ]
+        },
+        {
+          "anchor": "§落地路径（届时若实施）",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 38,
+          "tokens": 92,
+          "summary": "1. 在 bead-render 十层体系新增 1 层「质感层」（插在现层序，L4 档之后裁剪）",
+          "keywords": [
+            "bead",
+            "render",
+            "落地路径",
+            "届时若实施"
+          ]
+        },
+        {
+          "anchor": "§待决策点（届时问用户）",
+          "level": 2,
+          "startLine": 39,
+          "endLine": 44,
+          "tokens": 78,
+          "summary": "[ ] 选 C（只要颗粒）还是 D（颗粒 + 双色区带）？",
+          "keywords": [
+            "待决策点",
+            "届时问用户"
+          ]
+        },
+        {
+          "anchor": "§参考",
+          "level": 2,
+          "startLine": 45,
+          "endLine": 49,
+          "tokens": 77,
+          "summary": "参考图（用户提供的关卡页面 UI 设计）：会话内提供，特征 = 粗墨轮廓 + 珠内斑驳 + 深浅绿区带",
+          "keywords": [
+            "参考"
           ]
         }
       ]
@@ -52169,17 +52271,17 @@
     },
     {
       "path": "memory/2026-10-06.md",
-      "tokens": 2263,
-      "lines": 59,
-      "sha256": "43399fb97001b0294c171d6417e67c8992b6516984b6de2b68e67b80267b2284",
+      "tokens": 2680,
+      "lines": 74,
+      "sha256": "3c012ad0d65726d01e29694bcecd5e0a7deb62813b9320026962bde273c7db13",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-06",
           "level": 1,
           "startLine": 1,
-          "endLine": 60,
-          "tokens": 2260,
+          "endLine": 75,
+          "tokens": 2677,
           "summary": "",
           "keywords": []
         },
@@ -52203,8 +52305,8 @@
           "anchor": "§提交被 ctx B 门拦下 → 分片子切 + 四件豁免（WXG-T-260 · 第廿三刀）",
           "level": 2,
           "startLine": 27,
-          "endLine": 60,
-          "tokens": 1331,
+          "endLine": 75,
+          "tokens": 1749,
           "summary": "现象：git commit -F 被 pre-commit 的 ctx:check B 项拦下 7 件（ADR-0030",
           "keywords": [
             "ctx",
@@ -52214,6 +52316,22 @@
             "pre",
             "check"
           ]
+        },
+        {
+          "anchor": "§手绘蜡笔质感调研留档（用户令「留档暂不开始处理」）",
+          "level": 3,
+          "startLine": 61,
+          "endLine": 75,
+          "tokens": 391,
+          "summary": "背景：用户提供关卡页面整体 UI 参考图（树形拼豆+HUD+托盘+道具卡），问「能否程序化实现」。",
+          "keywords": [
+            "HUD",
+            "手绘蜡笔质感",
+            "调研留档",
+            "用户令",
+            "留档暂不开始",
+            "处理"
+          ]
         }
       ]
     },
@@ -52221,7 +52339,7 @@
       "path": "memory/INDEX.md",
       "tokens": 11446,
       "lines": 276,
-      "sha256": "ac5f99dda240d30f62bab179c7f75d416ed1e3d9eb71b8e27c8fa82430d54929",
+      "sha256": "9ad95ac526c460de075051522dc6b0d7af5990b488920e790db2921cdabfacff",
       "tier": "normal",
       "sections": [
         {
@@ -52312,7 +52430,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-06.md` — 2,263 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 30 天）",
+          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 79,
@@ -72363,9 +72481,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 117848,
-      "lines": 3436,
-      "sha256": "cda61199ebee82f37e3de1b826584e0c86b0bdcf96c2a06af32516b87b062cc3",
+      "tokens": 118456,
+      "lines": 3479,
+      "sha256": "5bcda377e64dd7389263e880c3df489af54f951069117e958e88759db851bb71",
       "tier": "normal",
       "sections": [
         {
@@ -74999,8 +75117,8 @@
           "anchor": "§beads·托盘放大批（槽底深色墨档 + 格缝加大 + 尺回 48/6 系）",
           "level": 1,
           "startLine": 3246,
-          "endLine": 3320,
-          "tokens": 2462,
+          "endLine": 3363,
+          "tokens": 3070,
           "summary": "2026-10-06，主理人(Qoder)·美术域＋工程域代落盘。用户三裁原话：「将托盘格子的 mask 混一个深色，",
           "keywords": [
             "beads",
@@ -75012,10 +75130,88 @@
           ]
         },
         {
-          "anchor": "§WXG-T-262",
+          "anchor": "§WXG-T-263",
           "level": 2,
           "startLine": 3319,
-          "endLine": 3320,
+          "endLine": 3361,
+          "tokens": 605,
+          "summary": "珠面「手绘蜡笔质感」程序化调研留档（📋 未排期）",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§核对结论",
+          "level": 3,
+          "startLine": 3325,
+          "endLine": 3330,
+          "tokens": 87,
+          "summary": "该图约 90% 已是工程程序化渲染（就是 harness 的输出：pattern 关卡 / drawHud /",
+          "keywords": [
+            "harness",
+            "pattern",
+            "drawHud",
+            "核对结论"
+          ]
+        },
+        {
+          "anchor": "§调研结论：程序**能**画出手绘质感",
+          "level": 3,
+          "startLine": 3331,
+          "endLine": 3343,
+          "tokens": 181,
+          "summary": "独立 Canvas 实验页（temp/handdraw-lab/index.html，零侵入生产渲染）四档对比：",
+          "keywords": [
+            "Canvas",
+            "temp",
+            "handdraw",
+            "lab",
+            "index",
+            "html"
+          ]
+        },
+        {
+          "anchor": "§工程要点",
+          "level": 3,
+          "startLine": 3344,
+          "endLine": 3351,
+          "tokens": 137,
+          "summary": "1. 抖动描边 circle → polygon ⟹ 图元数不变，封箱压力最小",
+          "keywords": [
+            "circle",
+            "polygon",
+            "工程要点"
+          ]
+        },
+        {
+          "anchor": "§踩坑",
+          "level": 3,
+          "startLine": 3352,
+          "endLine": 3355,
+          "tokens": 30,
+          "summary": "首版描边 0.22×R + 近黑色 → 远看糊成黑块 ⟹ 收到 0.11×R + 深绿 #2a4630。",
+          "keywords": [
+            "a4630",
+            "踩坑"
+          ]
+        },
+        {
+          "anchor": "§待决策点（届时问主理人）",
+          "level": 3,
+          "startLine": 3356,
+          "endLine": 3361,
+          "tokens": 62,
+          "summary": "选 C（只要颗粒）还是 D（颗粒 + 双色区带）？",
+          "keywords": [
+            "待决策点",
+            "届时问主理人"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-262",
+          "level": 2,
+          "startLine": 3362,
+          "endLine": 3363,
           "tokens": 0,
           "summary": "",
           "keywords": [
@@ -75025,8 +75221,8 @@
         {
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
-          "startLine": 3321,
-          "endLine": 3437,
+          "startLine": 3364,
+          "endLine": 3480,
           "tokens": 4535,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
@@ -75042,17 +75238,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 33056,
-      "lines": 99,
-      "sha256": "7cba0033a1ff16393b76bda84fa93d19e033d0516b241a0aa6cf7402b114262d",
+      "tokens": 33332,
+      "lines": 100,
+      "sha256": "df5092755955c5232d0538ff8b2aa783aad7f63464c13296ace8c57309cd48df",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 100,
-          "tokens": 33048,
+          "endLine": 101,
+          "tokens": 33323,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -75065,8 +75261,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 73,
-          "endLine": 100,
+          "startLine": 74,
+          "endLine": 101,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
