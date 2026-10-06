@@ -3405,6 +3405,18 @@ DifficultyCurveConfig { curve:'arithmetic', di_start:50, di_step:45, per_categor
 **新增纪律**：对外命名与屏内命名统一为「拼豆小铺」；任何新增模块名不得与它相差一字，
 新增即需重裁，成员不得自行拟名。
 
+### 第五轮（2026-10-07 用户三项终裁）
+
+1. **Q9 = `carousel`（走马灯机制上）** ⟹ `wall_overflow_mode` 默认由 `tab` **改为 `carousel`**；
+   ⛔ **覆盖**第三轮「有序维度 ⇒ tab」判据（Q1 = DI 难度带有序，本应 tab，用户终裁优先）。
+   `tab` 降级为可替换模式（`wall_overflow_mode` 一键切回）。
+2. **门禁 = 纯单调（不设数值阈值）** ⟹ 只锁**同类别内 `DI` 严格递增**（`DI[i+1] > DI[i]` = 难度不断升级）；
+   ⛔ **删除 `DI_FLOOR` / `DI_STEP_MIN`**（用户「不要具体数值限制」）⟹ 差 > 0 即达标。
+   ⟹ 双轨仍成立：门禁纯单调（零数值）、生成器保留等差（`di_start`/`di_step` 可配）。
+3. **Q5 = `levels` overlay 入口隐藏**（代码与 overlay 保留，入口收敛 ≠ 功能删除，U1 同判例）。
+
+**至此 WXG-T-266 全部待裁项关闭（Q1–Q10）**，可转程基岩（engineering-lead）拆 Epic 进落码批。
+
 ### 待用户拍板
 
 Q2 作品墙可点否（建议可点）· Q1 类别维度（建议丙 = DI 难度带，零人工打标）· Q3 slogan ·
