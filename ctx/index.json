@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3962,
       "lines": 142,
-      "sha256": "f01fd2716cb4d57ad04ca4b52719742c5b45da3899a7616e72ebe1c6cd1154a3",
+      "sha256": "c50f8b4c3905d1242f13896cdfd49fa5304c5370ea992de263c54699a7be1329",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5165,
       "lines": 82,
-      "sha256": "a87739509b3fe1c6f42fa061f153c719c869b406cb22d34066d490fe31dfcd9e",
+      "sha256": "adecec604262ed6bd986fa723fdec6eee8123e14133a91b8d3beddcd567e3164",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 94 行 / 30575 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 94 行 / 30624 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -54367,9 +54367,9 @@
     },
     {
       "path": "memory/2026-10-07.md",
-      "tokens": 2219,
+      "tokens": 2324,
       "lines": 29,
-      "sha256": "e01b31f8301a70462efa925d7f28989f2a8dd88c4e3ace14258d3b90766dd852",
+      "sha256": "0af5564d52de7acb6274a43ea1c04f5455db491d3fa1987889700895d02ada03",
       "tier": "normal",
       "sections": [
         {
@@ -54409,7 +54409,7 @@
           "level": 2,
           "startLine": 19,
           "endLine": 30,
-          "tokens": 817,
+          "tokens": 922,
           "summary": "用户令：「S4 开工」（承批 3 S2/S3 收口后）。",
           "keywords": [
             "WXG",
@@ -54426,7 +54426,7 @@
       "path": "memory/INDEX.md",
       "tokens": 11632,
       "lines": 283,
-      "sha256": "0faf8efa6c228eb8b56974da2af7ac50a97812306e19f3e54499d361da6926c7",
+      "sha256": "072afc64c2757367a656cf82b7c788d2dffa30df8e8c8ba568dc1828efeb3a28",
       "tier": "normal",
       "sections": [
         {
@@ -54517,7 +54517,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 2,219 tok｜2 节｜**蒸馏到期 2026-11-06**（剩 30 天）",
+          "anchor": "§`memory/2026-10-07.md` — 2,324 tok｜2 节｜**蒸馏到期 2026-11-06**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 79,
@@ -77232,9 +77232,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 30575,
+      "tokens": 30624,
       "lines": 94,
-      "sha256": "e6cf0da75ece9e92b0e68f1cd32c7eb9bec73e469f745c1833ae751aa8471172",
+      "sha256": "f95d6a45c1386cee90b0fceef9b093bc3b796280773a995b6ca2fa11931fc8d7",
       "tier": "hot",
       "sections": [
         {
@@ -77242,7 +77242,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 30566,
+          "tokens": 30615,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
