@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 82,
-      "sha256": "b820383ff560faf0b4f73c70e17076c336fb4d65dd1bd276adcbe83674cd385f",
+      "sha256": "47ed642d4a691883f75b6630f2e30719e06a3c402f9a74150cdb0448a63daacf",
       "tier": "normal",
       "sections": [
         {
@@ -1189,6 +1189,448 @@
           "summary": "参考图（用户提供的关卡页面 UI 设计）：会话内提供，特征 = 粗墨轮廓 + 珠内斑驳 + 深浅绿区带",
           "keywords": [
             "参考"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "design/proposals/skin-system/arch.md",
+      "tokens": 3767,
+      "lines": 104,
+      "sha256": "fc24c381bdecd3daa5f95381c3f593df17d6feb3dac3785d401664d9fd9a5134",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§皮肤系统架构（ADR 骨架）· WXG-T-267 · v1.0",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 105,
+          "tokens": 3751,
+          "summary": "作者：程基岩（工程）· 2026-10-08 · 正式 ADR 落 docs/architecture/adr/ 时按编",
+          "keywords": [
+            "ADR",
+            "WXG",
+            "docs",
+            "architecture",
+            "adr",
+            "皮肤系统架构"
+          ]
+        },
+        {
+          "anchor": "§1 上下文（Context）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 19,
+          "tokens": 370,
+          "summary": "用户需求：把「珠面生成 → 盘面呈现」全链路可替换元素参数化，支持整套切换（如「暖纸拼豆台」「瓷白工作台」「手绘蜡笔」各",
+          "keywords": [
+            "Context",
+            "上下文"
+          ]
+        },
+        {
+          "anchor": "§2 备选方案与决定（ADR 骨架，4 条）",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 77,
+          "tokens": 2601,
+          "summary": "",
+          "keywords": [
+            "ADR",
+            "备选方案与决",
+            "骨架"
+          ]
+        },
+        {
+          "anchor": "§D1. 皮肤 = 纯数据包（TS 模块），不是代码包、不是 JSON、不是贴图包",
+          "level": 3,
+          "startLine": 22,
+          "endLine": 43,
+          "tokens": 547,
+          "summary": "方案 A（采纳）：每肤一个 TS 模块，住 games/beads/src/config/skins/<skin-id>",
+          "keywords": [
+            "JSON",
+            "games",
+            "beads",
+            "src",
+            "config",
+            "skins"
+          ]
+        },
+        {
+          "anchor": "§D2. 参数注入，而非全局替换 / 环境变量切换",
+          "level": 3,
+          "startLine": 44,
+          "endLine": 53,
+          "tokens": 692,
+          "summary": "决定：换肤 = 构造时/切换时换引用，渲染链签名零变更：",
+          "keywords": [
+            "参数注入",
+            "而非全局替换",
+            "环境变量切换"
+          ]
+        },
+        {
+          "anchor": "§D3. 封箱体系：只锁「默认肤」，非默认肤走相对快照",
+          "level": 3,
+          "startLine": 54,
+          "endLine": 66,
+          "tokens": 645,
+          "summary": "方案 A（采纳）——「默认肤全封箱 + 其他肤相对快照」：",
+          "keywords": [
+            "封箱体系",
+            "只锁",
+            "默认肤",
+            "非默认肤走相",
+            "对快照"
+          ]
+        },
+        {
+          "anchor": "§D4. 皮肤作用域：**不含珠色基色**（§1.9.7① 纪律维持）；动效参数不入肤",
+          "level": 3,
+          "startLine": 67,
+          "endLine": 71,
+          "tokens": 235,
+          "summary": "珠体基色真源 = 关卡数据 + 品牌色板（PALETTES，beads-studio 入关写入），且 §1.9.7① 明",
+          "keywords": [
+            "§1.9.7",
+            "PALETTES",
+            "beads",
+            "studio",
+            "皮肤作用域",
+            "不含珠色基色"
+          ]
+        },
+        {
+          "anchor": "§D5（并入 D2 记录）. 切换机制与持久化",
+          "level": 3,
+          "startLine": 72,
+          "endLine": 77,
+          "tokens": 360,
+          "summary": "运行时切换：drawFilledBead 是每帧纯函数（styleId 先例：「下一帧生效、零过渡，⛔ 不得引入插值」）",
+          "keywords": [
+            "drawFilledBead",
+            "styleId",
+            "并入",
+            "记录",
+            "切换机制与持",
+            "久化"
+          ]
+        },
+        {
+          "anchor": "§3 数据流总览",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 90,
+          "tokens": 153,
+          "summary": "",
+          "keywords": [
+            "数据流总览"
+          ]
+        },
+        {
+          "anchor": "§4 复评触发条件（Review Triggers，并入正式 ADR §5）",
+          "level": 2,
+          "startLine": 91,
+          "endLine": 98,
+          "tokens": 211,
+          "summary": "1. 任一皮肤获准携带几何类覆写（改变命令数/图元数）⇒ D3 方案 B 升级评审；",
+          "keywords": [
+            "§5",
+            "Review",
+            "Triggers",
+            "ADR",
+            "复评触发条件",
+            "并入正式"
+          ]
+        },
+        {
+          "anchor": "§5 未决问题（交主理人/用户拍板）",
+          "level": 2,
+          "startLine": 99,
+          "endLine": 105,
+          "tokens": 223,
+          "summary": "1. 皮肤切换是否重置 beadStyle：A=各自独立记忆（推荐，正交）；B=皮肤带默认风格、切肤即重置。",
+          "keywords": [
+            "beadStyle",
+            "未决问题",
+            "交主理人",
+            "用户拍板"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "design/proposals/skin-system/mvp.md",
+      "tokens": 1661,
+      "lines": 68,
+      "sha256": "eed9557a164de6da1bbf511d07bbc45bdfdc0ddb9e11ce4af97cec115aaf691a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§MVP 拆分（skin-system MVP）· WXG-T-267 · v1.0",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 69,
+          "tokens": 1646,
+          "summary": "作者：程基岩（工程）· 2026-10-08 · 验收判据只给可测试的断言方向，具体用例归 QA 单（严守真 / wxg",
+          "keywords": [
+            "MVP",
+            "skin",
+            "system",
+            "WXG",
+            "wxg",
+            "拆分"
+          ]
+        },
+        {
+          "anchor": "§0 MVP 范围裁定（先答任务单点名问题）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 18,
+          "tokens": 311,
+          "summary": "第一肤只动「色系 + UI 令牌」，几何/纹理不动 —— 此建议成立，采纳。 理由（四条）：",
+          "keywords": [
+            "MVP",
+            "范围裁定",
+            "先答任务单点",
+            "名问题"
+          ]
+        },
+        {
+          "anchor": "§批 1：皮肤数据结构 + 第一肤「暖纸拼豆台」（色系 + UI 令牌）",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 36,
+          "tokens": 565,
+          "summary": "内容：",
+          "keywords": [
+            "皮肤数据结构",
+            "第一肤",
+            "暖纸拼豆台",
+            "色系",
+            "令牌"
+          ]
+        },
+        {
+          "anchor": "§批 2：端点系数入肤（质感阶梯差异化）",
+          "level": 2,
+          "startLine": 37,
+          "endLine": 50,
+          "tokens": 308,
+          "summary": "内容：",
+          "keywords": [
+            "端点系数入肤",
+            "质感阶梯差异"
+          ]
+        },
+        {
+          "anchor": "§批 3（可选，需用户拍板后再立项）：珠体风格联动 / 珠色映射 / 文案令牌",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 58,
+          "tokens": 109,
+          "summary": "3a beadStyleDefault 联动策略落地（独立记忆 vs 切肤重置，见 arch.md §5-1）。",
+          "keywords": [
+            "§5",
+            "beadStyleDefault",
+            "arch",
+            "可选",
+            "需用户拍板后",
+            "再立项"
+          ]
+        },
+        {
+          "anchor": "§依赖与拓扑",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 69,
+          "tokens": 158,
+          "summary": "",
+          "keywords": [
+            "依赖与拓扑"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "design/proposals/skin-system/replaceable-inventory.md",
+      "tokens": 4523,
+      "lines": 119,
+      "sha256": "1cf59553068ceeb6dbe0fb966477eff30b6eceffbe61df13da6eff58fc4b0bb3",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§可替换元素全链路盘点（replaceable-inventory）· WXG-T-267 · v1.0",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 120,
+          "tokens": 4500,
+          "summary": "作者：程基岩（工程）· 2026-10-08 · 冲突口径：代码现状 > assets-spec > 提案（已按此核对）",
+          "keywords": [
+            "replaceable",
+            "inventory",
+            "WXG",
+            "assets",
+            "spec",
+            "可替换元素全"
+          ]
+        },
+        {
+          "anchor": "§0 总账",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 19,
+          "tokens": 147,
+          "summary": "MVP 入肤（低/中，纯数据可达） 约 30 项（UI 令牌 18 + 端点系数 8 + shadow/槽锚墨 2 + ",
+          "keywords": [
+            "MVP",
+            "shadow",
+            "总账"
+          ]
+        },
+        {
+          "anchor": "§1 珠色墨水层（生成 → 渲染的数据流）",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 30,
+          "tokens": 583,
+          "summary": "关卡色板引用（slug + 色号） src/config/levels-data.ts（BeadsLevelRaw.pa",
+          "keywords": [
+            "slug",
+            "src",
+            "config",
+            "levels",
+            "data",
+            "BeadsLevelRaw"
+          ]
+        },
+        {
+          "anchor": "§2 珠面十层（含现役四棱层集）",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 59,
+          "tokens": 1063,
+          "summary": "现役默认 = facet-4 四棱刻面（7 命令 / 0 真 α）；旧十层已封入 bead-styles/legacy-",
+          "keywords": [
+            "facet",
+            "bead",
+            "styles",
+            "legacy",
+            "珠面十层",
+            "含现役四棱层"
+          ]
+        },
+        {
+          "anchor": "§2a. 现役 facet-4 层集（`src/view/bead-styles/facet-4.ts`）",
+          "level": 3,
+          "startLine": 35,
+          "endLine": 44,
+          "tokens": 390,
+          "summary": "#1 plate 暗底（兼描边环） FACET4_PLATE_MIX −0.44（tuning.ts:1676） mix",
+          "keywords": [
+            "src/view/bead-styles/facet-4.ts",
+            "facet",
+            "src",
+            "view",
+            "bead",
+            "styles"
+          ]
+        },
+        {
+          "anchor": "§2b. legacy-ten 旧十层（对照臂，`bead-styles/legacy-ten.ts`）",
+          "level": 3,
+          "startLine": 45,
+          "endLine": 56,
+          "tokens": 436,
+          "summary": "L0a 接触阴影 BEAD_CARD.contactX/Y/W/H/RadiusScale（tuning.ts:1471",
+          "keywords": [
+            "bead-styles/legacy-ten.ts",
+            "legacy",
+            "ten",
+            "bead",
+            "styles",
+            "L0a"
+          ]
+        },
+        {
+          "anchor": "§2c. `18`/`13` 两套池内风格",
+          "level": 3,
+          "startLine": 57,
+          "endLine": 59,
+          "tokens": 109,
+          "summary": "LINEART_* 系数组（tuning.ts:1744-1773：LINEART_MIN_STROKE〔PT-SKIN",
+          "keywords": [
+            "18",
+            "13",
+            "LINEART_",
+            "tuning",
+            "LINEART_MIN_STROKE",
+            "SKIN"
+          ]
+        },
+        {
+          "anchor": "§3 格 / 槽 / 盘面",
+          "level": 2,
+          "startLine": 60,
+          "endLine": 75,
+          "tokens": 928,
+          "summary": "B0 连续目标色底图 bead-render.ts:473（drawTargetTile）：fill = endpoin",
+          "keywords": [
+            "bead",
+            "render",
+            "drawTargetTile",
+            "fill",
+            "endpoin",
+            "盘面"
+          ]
+        },
+        {
+          "anchor": "§4 UI 令牌（tokens.md 全表 → `BeadsPalette`）",
+          "level": 2,
+          "startLine": 76,
+          "endLine": 98,
+          "tokens": 891,
+          "summary": "现状核对（关键）：BeadsPalette 已是实例注入——beads-game.ts:631（options.pale",
+          "keywords": [
+            "BeadsPalette",
+            "tokens",
+            "beads",
+            "game",
+            "options",
+            "pale"
+          ]
+        },
+        {
+          "anchor": "§5 动画参数（GROUP_LAND / FILL_POP / WRONG / 波浪等）——**建议全部不入肤**",
+          "level": 2,
+          "startLine": 99,
+          "endLine": 111,
+          "tokens": 324,
+          "summary": "tuning.ts:1052-1400（FILL_POP_*、SELECT_LIFT_*、GROUP_LAND_*、WA",
+          "keywords": [
+            "GROUP_LAND",
+            "FILL_POP",
+            "WRONG",
+            "tuning",
+            "FILL_POP_",
+            "SELECT_LIFT_"
+          ]
+        },
+        {
+          "anchor": "§6 与封箱体系的接口（盘点侧小结）",
+          "level": 2,
+          "startLine": 112,
+          "endLine": 120,
+          "tokens": 273,
+          "summary": "色表锁（bead-render.test.ts：35 条 hex + sha1） palette.ts hex 字面量集",
+          "keywords": [
+            "bead",
+            "render",
+            "test",
+            "hex",
+            "sha1",
+            "palette"
           ]
         }
       ]
@@ -53927,7 +54369,7 @@
       "path": "memory/INDEX.md",
       "tokens": 11446,
       "lines": 276,
-      "sha256": "9ad95ac526c460de075051522dc6b0d7af5990b488920e790db2921cdabfacff",
+      "sha256": "9ceb5193f781af47e243f001dc64014d7c4b9b508c14b9ee103f2472f1077848",
       "tier": "normal",
       "sections": [
         {
@@ -53935,7 +54377,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 277,
-          "tokens": 11424,
+          "tokens": 11423,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -54018,7 +54460,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 30 天）",
+          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 29 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 79,
@@ -54034,7 +54476,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 29 天）",
+          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 28 天）",
           "level": 3,
           "startLine": 80,
           "endLine": 84,
@@ -54048,7 +54490,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 28 天）",
+          "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 27 天）",
           "level": 3,
           "startLine": 85,
           "endLine": 103,
@@ -54064,7 +54506,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 27 天）",
+          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 26 天）",
           "level": 3,
           "startLine": 104,
           "endLine": 109,
@@ -54080,7 +54522,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 23 天）",
+          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 22 天）",
           "level": 3,
           "startLine": 110,
           "endLine": 114,
@@ -54094,7 +54536,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 22 天）",
+          "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 21 天）",
           "level": 3,
           "startLine": 115,
           "endLine": 129,
@@ -54110,7 +54552,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 21 天）",
+          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 20 天）",
           "level": 3,
           "startLine": 130,
           "endLine": 137,
@@ -54126,7 +54568,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 16 天）",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 15 天）",
           "level": 3,
           "startLine": 138,
           "endLine": 143,
@@ -54142,7 +54584,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 11 天）",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 10 天）",
           "level": 3,
           "startLine": 144,
           "endLine": 160,
@@ -54158,7 +54600,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 10 天）",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 9 天）",
           "level": 3,
           "startLine": 161,
           "endLine": 172,
@@ -54174,7 +54616,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 9 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 8 天）",
           "level": 3,
           "startLine": 173,
           "endLine": 189,
@@ -54190,7 +54632,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 8 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 7 天）",
           "level": 3,
           "startLine": 190,
           "endLine": 217,
@@ -54206,7 +54648,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 7 天）",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 6 天）",
           "level": 3,
           "startLine": 218,
           "endLine": 238,
@@ -54222,7 +54664,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 6 天）",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 5 天）",
           "level": 3,
           "startLine": 239,
           "endLine": 256,
@@ -54238,7 +54680,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 5 天）",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 4 天）",
           "level": 3,
           "startLine": 257,
           "endLine": 277,
