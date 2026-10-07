@@ -385,9 +385,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3966,
+      "tokens": 3962,
       "lines": 142,
-      "sha256": "a8c13b0b34489cd0d5d06c3693502eca3204663b99b4ad8876e9923f6d1fe2d9",
+      "sha256": "342c328925cfa667d0b979a94bf99658cafcb457d3ceb9fd72eb50de8c70c321",
       "tier": "normal",
       "sections": [
         {
@@ -395,7 +395,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 143,
-          "tokens": 3953,
+          "tokens": 3949,
           "summary": "生成：2026-10-07 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -424,15 +424,15 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 393,
-          "summary": "1 production/TASKS-DETAIL.md 124540 3747 normal",
+          "tokens": 389,
+          "summary": "1 games/beads/art/assets-spec.md 111702 1997 normal",
           "keywords": [
             "Top",
             "tokens",
-            "production",
-            "TASKS",
-            "DETAIL",
-            "normal"
+            "games",
+            "beads",
+            "art",
+            "assets"
           ]
         },
         {
@@ -441,14 +441,14 @@
           "startLine": 46,
           "endLine": 117,
           "tokens": 2466,
-          "summary": "production/TASKS-DETAIL.md 124540 见 ctx/budget-exempt.json（无",
+          "summary": "games/beads/art/assets-spec.md 111702 见 ctx/budget-exempt.js",
           "keywords": [
             "tokens",
-            "production",
-            "TASKS",
-            "DETAIL",
-            "ctx",
-            "budget"
+            "games",
+            "beads",
+            "art",
+            "assets",
+            "spec"
           ]
         },
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5196,
+      "tokens": 5165,
       "lines": 82,
-      "sha256": "f1dd5044693c2a95a5abcfdd307e68fcbb4c8b83544df57bc19a1b0b0d071693",
+      "sha256": "c5e3141ee6c9f7118452090ca159cb73aa20bff365099b588e32d0f8198ef3f5",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 5168,
+          "tokens": 5137,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 105 行 / 35144 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 94 行 / 30161 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
-          "tokens": 29,
-          "summary": "§WXG 任务台账（SSOT）=1+106 · §待排（backlog，无号，立项时领取）=79+28",
+          "tokens": 28,
+          "summary": "§WXG 任务台账（SSOT）=1+95 · §待排（backlog，无号，立项时领取）=68+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -764,11 +764,11 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 917 行 / 74913 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 949 行 / 77020 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
-          "tokens": 1192,
+          "tokens": 1307,
           "summary": "§《拼豆填色消除》(beads) 测试用例 · Test Cases=1+17 · §A 硬判据用例（50 条 = 5 ",
           "keywords": [
             "production",
@@ -955,12 +955,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3747 行 / 124540 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3205 行 / 109500 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 1345,
-          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+3178 · §WXG-T-179=18+78 · §WXG-T-18",
+          "tokens": 1199,
+          "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2666 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -74511,17 +74511,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 124540,
-      "lines": 3747,
-      "sha256": "56eb967e4540ca6d403ea6e535f0090a85d834b1e18e4111efbcceeff3d441c9",
+      "tokens": 109500,
+      "lines": 3205,
+      "sha256": "216bb9009d34ddacc758093c76925cbbc34390336e951aa09b9ea45231076685",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 3178,
-          "tokens": 109124,
+          "endLine": 2666,
+          "tokens": 94882,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -75016,7 +75016,7 @@
           "anchor": "§WXG-T-229",
           "level": 2,
           "startLine": 613,
-          "endLine": 694,
+          "endLine": 693,
           "tokens": 2476,
           "summary": "beads tint mask：D1 编码渗漏修复 + 四扇/外框「甲」案改值落码（2026-09-29）",
           "keywords": [
@@ -75030,7 +75030,7 @@
           "anchor": "§红基线复评（严守真 · 2026-09-29 夜～09-30，QA 复评归因通道）",
           "level": 3,
           "startLine": 662,
-          "endLine": 694,
+          "endLine": 693,
           "tokens": 1161,
           "summary": "背景：本批落码后 beads 736 例 15 红（本批 11 + 关卡存量 4）。按 K-082「珠体族视觉改动 ⇒ ",
           "keywords": [
@@ -75043,8 +75043,8 @@
         {
           "anchor": "§WXG-T-224",
           "level": 2,
-          "startLine": 695,
-          "endLine": 710,
+          "startLine": 694,
+          "endLine": 709,
           "tokens": 485,
           "summary": "ctx·hot-files 收录瘦身（test-cases 锚点摘要只留高频节） — 主理人 2026-09-29 立项",
           "keywords": [
@@ -75059,8 +75059,8 @@
         {
           "anchor": "§WXG-T-225",
           "level": 2,
-          "startLine": 711,
-          "endLine": 723,
+          "startLine": 710,
+          "endLine": 722,
           "tokens": 248,
           "summary": "QA·拆 production/qa/beads/test-cases.md 判据分片（撤销 WXG-T-084 的 B",
           "keywords": [
@@ -75074,9 +75074,9 @@
         {
           "anchor": "§WXG-T-226",
           "level": 2,
-          "startLine": 724,
-          "endLine": 779,
-          "tokens": 3152,
+          "startLine": 723,
+          "endLine": 780,
+          "tokens": 3153,
           "summary": "beads·豆面/格面正式管线落地（tint+mask 运行时渲染 + bake recipe 改产 d/l mask）",
           "keywords": [
             "WXG",
@@ -75090,8 +75090,8 @@
         {
           "anchor": "§Q1–Q5 拍板与 ADR-0029 落盘（2026-10-02，用户逐项裁决）",
           "level": 3,
-          "startLine": 740,
-          "endLine": 755,
+          "startLine": 739,
+          "endLine": 754,
           "tokens": 932,
           "summary": "裁决：Q1 ④（本批只落命令层 + Canvas2D，Cocos 载体另批）· Q2 ①（接受定稿 v1.1：孔真透 ⇒",
           "keywords": [
@@ -75106,9 +75106,9 @@
         {
           "anchor": "§S1+S2 落码（程基岩，2026-10-02）",
           "level": 3,
-          "startLine": 756,
-          "endLine": 779,
-          "tokens": 1591,
+          "startLine": 755,
+          "endLine": 780,
+          "tokens": 1593,
           "summary": "范围：只做 EP-12 S1（改产 d/l mask = spec 化 + 场计算 + mask:diff 对拍门禁）与",
           "keywords": [
             "mask",
@@ -75121,8 +75121,8 @@
         {
           "anchor": "§WXG-T-227",
           "level": 2,
-          "startLine": 780,
-          "endLine": 795,
+          "startLine": 781,
+          "endLine": 796,
           "tokens": 671,
           "summary": "beads·tint mask 资产规格（入库/命名/包体预算/双档位） — 林绘澄（art-director），P1。",
           "keywords": [
@@ -75137,9 +75137,9 @@
         {
           "anchor": "§WXG-T-228",
           "level": 2,
-          "startLine": 796,
-          "endLine": 808,
-          "tokens": 514,
+          "startLine": 797,
+          "endLine": 811,
+          "tokens": 516,
           "summary": "beads·tint 正式管线验收判据（用例 + G 门挂载） — 严守真（quality-lead），P1 reado",
           "keywords": [
             "WXG",
@@ -75153,9 +75153,9 @@
         {
           "anchor": "§WXG-T-230",
           "level": 2,
-          "startLine": 809,
-          "endLine": 861,
-          "tokens": 1869,
+          "startLine": 812,
+          "endLine": 930,
+          "tokens": 4807,
           "summary": "C12 判别力退化处置 + 731100c 未走复评通道的纪律缺陷（2026-09-29 由 WXG-T-229 第六次",
           "keywords": [
             "WXG",
@@ -75165,9 +75165,9 @@
         {
           "anchor": "§S1 + S2 落码（程基岩，2026-10-02 · 主理人代为收尾复核）",
           "level": 3,
-          "startLine": 824,
-          "endLine": 861,
-          "tokens": 1277,
+          "startLine": 827,
+          "endLine": 863,
+          "tokens": 1308,
           "summary": "交付面（⛔ 未 commit，等主理人发话）",
           "keywords": [
             "commit",
@@ -75178,128 +75178,43 @@
           ]
         },
         {
-          "anchor": "§WXG-T-231",
-          "level": 2,
-          "startLine": 862,
-          "endLine": 865,
-          "tokens": 59,
-          "summary": "beads·关卡存量 4 红立项（DEMO_LEVEL_COUNT 漂移 + 关卡快照判据过期） — 2026-10-0",
+          "anchor": "§mask 三方对齐 + `mask:diff` 复绿挂载（程基岩，WXG-T-230 续 · 用户已拍板执行）",
+          "level": 3,
+          "startLine": 864,
+          "endLine": 903,
+          "tokens": 1549,
+          "summary": "① 三方核对表（开工实测，非采信汇报；探针 = md5 + 像素读数 + mask:diff 数值 diff）",
           "keywords": [
+            "mask:diff",
+            "mask",
+            "diff",
             "WXG",
-            "beads",
-            "DEMO_LEVEL_COUNT"
+            "md5",
+            "三方对齐"
           ]
         },
         {
-          "anchor": "§现象与读数（`pnpm --filter @wxgame/beads run test`）",
-          "level": 2,
-          "startLine": 866,
-          "endLine": 876,
-          "tokens": 225,
-          "summary": "736 例 / 4 红，长期使 pnpm run verify 的 test 项 FAIL（常态 PASS 16 / S",
-          "keywords": [
-            "pnpm",
-            "filter",
-            "wxgame",
-            "beads",
-            "run",
-            "test"
-          ]
-        },
-        {
-          "anchor": "§根因（两类，**不是一个 bug**）",
-          "level": 2,
-          "startLine": 877,
-          "endLine": 888,
-          "tokens": 356,
-          "summary": "A 类 · 冻结常量漂移（3 条红，同一根因）",
-          "keywords": [
-            "bug",
-            "根因",
-            "两类",
-            "不是一个"
-          ]
-        },
-        {
-          "anchor": "§待裁（⛔ 工程侧不代拍）",
-          "level": 2,
-          "startLine": 889,
-          "endLine": 897,
-          "tokens": 250,
-          "summary": "A 类修法（机械一行，但值须确认）：DEMO_LEVEL_COUNT 8 → 9。⚠ 前置确认：9 关是 pre-rel",
-          "keywords": [
-            "DEMO_LEVEL_COUNT",
-            "pre",
-            "rel",
-            "待裁",
-            "工程侧不代拍"
-          ]
-        },
-        {
-          "anchor": "§状态与影响",
-          "level": 2,
-          "startLine": 898,
-          "endLine": 948,
-          "tokens": 1856,
-          "summary": "本单只立项、不落码；4 红维持原样，不因「看着像小事」就随手改数。",
-          "keywords": [
-            "状态与影响"
-          ]
-        },
-        {
-          "anchor": "§A 类处置落码（用户 2026-10-02 拍板「A」，2026-10-02 实施）",
+          "anchor": "§续二落码：C12 换墨反证臂 + 封箱腿整帧漂移自动报警（程基岩，WXG-T-230 续二 · 主理人已拍板）",
           "level": 3,
           "startLine": 904,
-          "endLine": 918,
-          "tokens": 465,
-          "summary": "前置已查清（结论对「只改值」不利，故同批加了门禁）：systems-index §3 该行明写本值「随表走 = 当前关数",
+          "endLine": 930,
+          "tokens": 1286,
+          "summary": "改动面（⛔ 未 commit；并发 M 态文件 tuning.ts / bead-render.ts / registr",
           "keywords": [
-            "§3",
-            "systems",
-            "index",
-            "类处置落码",
-            "用户",
-            "拍板"
-          ]
-        },
-        {
-          "anchor": "§B 类处置落码（用户 2026-10-02 拍板「乙」）",
-          "level": 3,
-          "startLine": 919,
-          "endLine": 928,
-          "tokens": 392,
-          "summary": "选项落地：tests/levels-dir-pipeline.test.ts ① 由「常跑不变量」降级为 it.skip",
-          "keywords": [
-            "tests",
-            "levels",
-            "dir",
-            "pipeline",
-            "test",
-            "skip"
-          ]
-        },
-        {
-          "anchor": "§B3+B4 落码与四轮架构 review（CodeBuddy + 用户，2026-10-03）",
-          "level": 3,
-          "startLine": 929,
-          "endLine": 948,
-          "tokens": 788,
-          "summary": "范围：B3 = Canvas2D 合成消费通道（core/bake/tint-composite + adapters/",
-          "keywords": [
-            "review",
-            "CodeBuddy",
-            "Canvas2D",
-            "core",
-            "bake",
-            "tint"
+            "C12",
+            "WXG",
+            "commit",
+            "tuning",
+            "bead",
+            "render"
           ]
         },
         {
           "anchor": "§WXG-T-232",
           "level": 2,
-          "startLine": 949,
-          "endLine": 987,
-          "tokens": 785,
+          "startLine": 931,
+          "endLine": 971,
+          "tokens": 787,
           "summary": "beads·盘面 mask 形状通道去振铃 + 孔缘羽化收敛 — 2026-10-03 用户裁「甲」（缩范围）。⚠ 原立",
           "keywords": [
             "WXG",
@@ -75310,8 +75225,8 @@
         {
           "anchor": "§⛔ 立项时的两处误判（自查发现，如实留档）",
           "level": 3,
-          "startLine": 953,
-          "endLine": 963,
+          "startLine": 935,
+          "endLine": 945,
           "tokens": 238,
           "summary": "1. 「mask 珠径 27.2dp 偏大」= 误判。原判据用 shape > 0 量得 solid 区 x=6..12",
           "keywords": [
@@ -75326,8 +75241,8 @@
         {
           "anchor": "§落码范围（两项，均为技术修复，⛔ 不动物理几何、不动 §3）",
           "level": 3,
-          "startLine": 964,
-          "endLine": 974,
+          "startLine": 946,
+          "endLine": 956,
           "tokens": 241,
           "summary": "① 消振铃 珠外缘 2 个 shape 2–4 的斑点 0 个 缩回后对形状通道施加 地板 8/255（applySha",
           "keywords": [
@@ -75342,8 +75257,8 @@
         {
           "anchor": "§判据（把「看着别扭」变成可测数）",
           "level": 3,
-          "startLine": 975,
-          "endLine": 979,
+          "startLine": 957,
+          "endLine": 961,
           "tokens": 65,
           "summary": "mask-field.test.ts 新增 3 条：① 形状通道无振铃斑点（0 < B < 8 计数 = 0）② 珠 s",
           "keywords": [
@@ -75358,9 +75273,9 @@
         {
           "anchor": "§读数",
           "level": 3,
-          "startLine": 980,
-          "endLine": 987,
-          "tokens": 119,
+          "startLine": 962,
+          "endLine": 971,
+          "tokens": 120,
           "summary": "mask:diff 四件套 mean=max=0（逐字节一致） ⇒ py 与 TS 两侧改动完全对齐（bead/cell",
           "keywords": [
             "mask",
@@ -75374,9 +75289,9 @@
         {
           "anchor": "§WXG-T-233",
           "level": 2,
-          "startLine": 988,
-          "endLine": 1035,
-          "tokens": 1942,
+          "startLine": 972,
+          "endLine": 1021,
+          "tokens": 1943,
           "summary": "beads·抬起露槽（选中抬起时补画凹槽） — 2026-10-03 用户裁定「另立故事」。",
           "keywords": [
             "WXG",
@@ -75386,8 +75301,8 @@
         {
           "anchor": "§B3/B4 + 接线：收尾与决策归档（CodeBuddy + 用户逐轮，2026-10-03）",
           "level": 3,
-          "startLine": 1002,
-          "endLine": 1023,
+          "startLine": 986,
+          "endLine": 1007,
           "tokens": 973,
           "summary": "四轮架构 review 的最终形态（正本 = ADR-0029 §8）：合成权归宿主注入的 BlitResolver（单",
           "keywords": [
@@ -75402,9 +75317,9 @@
         {
           "anchor": "§harness 观感验证轮（CodeBuddy 无头 Chrome 逐像素，2026-10-03 下午）",
           "level": 3,
-          "startLine": 1024,
-          "endLine": 1035,
-          "tokens": 547,
+          "startLine": 1008,
+          "endLine": 1021,
+          "tokens": 548,
           "summary": "验证能力：机器有 Chrome ⇒ 用 --headless=new --force-device-scale-fact",
           "keywords": [
             "harness",
@@ -75418,9 +75333,9 @@
         {
           "anchor": "§WXG-T-234",
           "level": 2,
-          "startLine": 1036,
-          "endLine": 1053,
-          "tokens": 345,
+          "startLine": 1022,
+          "endLine": 1041,
+          "tokens": 346,
           "summary": "beads·孔缘语义定标（mask 亮晕 vs 矢量暗环） — 2026-10-03 用户裁定「另立故事」。",
           "keywords": [
             "WXG",
@@ -75429,159 +75344,11 @@
           ]
         },
         {
-          "anchor": "§WXG-T-235",
-          "level": 2,
-          "startLine": 1054,
-          "endLine": 1192,
-          "tokens": 3382,
-          "summary": "beads·B0 底图 TILE_BLEED 外扩（消 AA 接缝白线） — 2026-10-03 用户裁定「甲」。",
-          "keywords": [
-            "WXG",
-            "beads",
-            "TILE_BLEED"
-          ]
-        },
-        {
-          "anchor": "§起因：用户报「格子之间的白线看起来与放大缩小时采样有关」",
-          "level": 3,
-          "startLine": 1058,
-          "endLine": 1074,
-          "tokens": 404,
-          "summary": "用户初判方向经实测成立。三次实测把「看起来」变成数字：",
-          "keywords": [
-            "起因",
-            "用户报",
-            "格子之间的白",
-            "线看起来与放",
-            "大缩小时采样",
-            "有关"
-          ]
-        },
-        {
-          "anchor": "§落码（⛔ 只放大绘制边长，其余全不动）",
-          "level": 3,
-          "startLine": 1075,
-          "endLine": 1083,
-          "tokens": 201,
-          "summary": "config/tuning.ts 新增 TILE_BLEED = 0.5（每边设计px）。附完整剖面、取值依据与判例。",
-          "keywords": [
-            "config",
-            "tuning",
-            "TILE_BLEED",
-            "落码",
-            "只放大绘制边",
-            "其余全不动"
-          ]
-        },
-        {
-          "anchor": "§配套测具（同批落，dev-only）",
-          "level": 3,
-          "startLine": 1084,
-          "endLine": 1091,
-          "tokens": 170,
-          "summary": "game/beads-game.ts setZoomForDebug(zoom)：照 setDebugOutlines ",
-          "keywords": [
-            "dev",
-            "only",
-            "game",
-            "beads",
-            "setZoomForDebug",
-            "zoom"
-          ]
-        },
-        {
-          "anchor": "§修后实测（对照上表）",
-          "level": 3,
-          "startLine": 1092,
-          "endLine": 1097,
-          "tokens": 90,
-          "summary": "两处剖面点 lum 132.3 / 132.2 → 97.8（= 底色本身，Δ −34.5 / −34.3）",
-          "keywords": [
-            "lum",
-            "修后实测",
-            "对照上表"
-          ]
-        },
-        {
-          "anchor": "§测试口径变更（逐处留决策出处，非数字微调）",
-          "level": 3,
-          "startLine": 1098,
-          "endLine": 1106,
-          "tokens": 141,
-          "summary": "共 10 处「B0 底图 = 满格距、边缘重合」旧不变量：",
-          "keywords": [
-            "测试口径变更",
-            "逐处留决策出",
-            "非数字微调"
-          ]
-        },
-        {
-          "anchor": "§封箱基准：第七次复评（严守真 · 官方复取器重抓）",
-          "level": 3,
-          "startLine": 1107,
-          "endLine": 1119,
-          "tokens": 302,
-          "summary": "现象：bead-style-seal 腿 4a/4b 红（整帧 sha 漂移）；kinds 与 total 未变 ⇒ 纯",
-          "keywords": [
-            "bead",
-            "style",
-            "seal",
-            "sha",
-            "kinds",
-            "total"
-          ]
-        },
-        {
-          "anchor": "§接缝是「窄窗口现象」（本单最有价值的技术沉淀）",
-          "level": 3,
-          "startLine": 1120,
-          "endLine": 1130,
-          "tokens": 229,
-          "summary": "修后共测 12 个档位（dpr 1/2 × zoom {0.2, 0.5, 0.8, 1.0} + dpr 3），接缝一",
-          "keywords": [
-            "dpr",
-            "zoom",
-            "接缝是",
-            "窄窗口现象",
-            "本单最有价值",
-            "的技术沉淀"
-          ]
-        },
-        {
-          "anchor": "§未闭（如实）",
-          "level": 3,
-          "startLine": 1131,
-          "endLine": 1164,
-          "tokens": 1048,
-          "summary": "本单仅剩 1 项真机欠账（异色格观感已于 2026-10-03 闭合；回归守卫已落 check:board-seam 进",
-          "keywords": [
-            "check",
-            "board",
-            "seam",
-            "未闭",
-            "如实"
-          ]
-        },
-        {
-          "anchor": "§收尾（2026-10-04）：观感确认通过 + `TILE_BLEED` 外扩必要性实测",
-          "level": 3,
-          "startLine": 1165,
-          "endLine": 1192,
-          "tokens": 591,
-          "summary": "① 观感确认（用户 2026-10-04 判）：异色格色界平移 0.5px 没有缝隙 ⇒",
-          "keywords": [
-            "TILE_BLEED",
-            "收尾",
-            "观感确认通过",
-            "外扩必要性实"
-          ]
-        },
-        {
           "anchor": "§WXG-T-236",
           "level": 2,
-          "startLine": 1193,
-          "endLine": 1543,
-          "tokens": 8753,
+          "startLine": 1042,
+          "endLine": 1394,
+          "tokens": 8754,
           "summary": "beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性） — 2026-10-03 用户裁定「",
           "keywords": [
             "WXG",
@@ -75591,8 +75358,8 @@
         {
           "anchor": "§用户报的现象与工程侧已落部分",
           "level": 3,
-          "startLine": 1203,
-          "endLine": 1224,
+          "startLine": 1052,
+          "endLine": 1073,
           "tokens": 587,
           "summary": "用户报两条：① 「已抬起的珠子点击还会走一遍抬起动画」；② 「抬起珠子的阴影是一个横条，没有看到底部的槽的图案以及真实光",
           "keywords": [
@@ -75604,8 +75371,8 @@
         {
           "anchor": "§二轮反馈的追加修复（2026-10-03，用户：「槽还是看不到，仍有一个横条阴影，效果上看起来不好」）",
           "level": 3,
-          "startLine": 1225,
-          "endLine": 1240,
+          "startLine": 1074,
+          "endLine": 1089,
           "tokens": 514,
           "summary": "「槽还是看不到」⇒ 已落（不再推给美术）：抬起格现在也画坑底 ——",
           "keywords": [
@@ -75620,8 +75387,8 @@
         {
           "anchor": "§三轮：影层删除 + 两条定稿争议转为美术单（本节为最终状态）",
           "level": 3,
-          "startLine": 1241,
-          "endLine": 1262,
+          "startLine": 1090,
+          "endLine": 1111,
           "tokens": 481,
           "summary": "删除影层（用户裁定 Q1 甲）—— 实测依据",
           "keywords": [
@@ -75635,8 +75402,8 @@
         {
           "anchor": "§五轮：删影（甲）已落 + 抬高位移（丁）**撞封箱架构级阻塞**",
           "level": 3,
-          "startLine": 1263,
-          "endLine": 1286,
+          "startLine": 1112,
+          "endLine": 1135,
           "tokens": 605,
           "summary": "甲（删影）已落：四轮实测证明「格面影」与「槽内影」都不可见（格面影被不透明槽/mask 完全遮住；",
           "keywords": [
@@ -75651,8 +75418,8 @@
         {
           "anchor": "§⛔ 转美术定标的两条争议（本单正本）",
           "level": 3,
-          "startLine": 1287,
-          "endLine": 1301,
+          "startLine": 1136,
+          "endLine": 1150,
           "tokens": 389,
           "summary": "争议 A · 定稿槽几何在小尺寸 + 抬起状态下的读法（用户 Q2 裁定「是」）",
           "keywords": [
@@ -75664,8 +75431,8 @@
         {
           "anchor": "§⛔ 本单正本 = 四件待美术定标（工程侧不自作主张）",
           "level": 3,
-          "startLine": 1302,
-          "endLine": 1310,
+          "startLine": 1151,
+          "endLine": 1159,
           "tokens": 210,
           "summary": "D1 暗底坑底反读（assets-spec §7.11.7）：现有共用坑底套依赖近白底图才读得出凹陷，落到生产 B0",
           "keywords": [
@@ -75680,8 +75447,8 @@
         {
           "anchor": "§⚠ 顺带登记的既有缺口：封箱夹具**无选中态**",
           "level": 3,
-          "startLine": 1311,
-          "endLine": 1316,
+          "startLine": 1160,
+          "endLine": 1165,
           "tokens": 136,
           "summary": "封箱夹具（13×12 / 78 填 / 78 空）从不调用 selectBoardBead / selectTraySl",
           "keywords": [
@@ -75696,8 +75463,8 @@
         {
           "anchor": "§性能（结论不变：不是瓶颈）",
           "level": 3,
-          "startLine": 1317,
-          "endLine": 1322,
+          "startLine": 1166,
+          "endLine": 1171,
           "tokens": 62,
           "summary": "每颗抬起珠 3 图元（原 1）⇒ 满组 ~25 颗 = +75，相对 450/帧 ≈ +17%；抬起时钟 O(1)；热路",
           "keywords": [
@@ -75709,8 +75476,8 @@
         {
           "anchor": "§七轮：用户裁「抬起态要影」+ 选型 C-3 ⇒ 影已落码（E/F 定案）",
           "level": 3,
-          "startLine": 1323,
-          "endLine": 1382,
+          "startLine": 1172,
+          "endLine": 1231,
           "tokens": 1619,
           "summary": "前置问题：用户 2026-10-03 裁「抬起态要影」⇒ 解除 E/F 的空悬。但 §3.2 的三个死结仍在",
           "keywords": [
@@ -75725,8 +75492,8 @@
         {
           "anchor": "§八轮：「有珠 / 无珠格底统一」落码 + 封箱第九次复评",
           "level": 3,
-          "startLine": 1383,
-          "endLine": 1435,
+          "startLine": 1232,
+          "endLine": 1284,
           "tokens": 1267,
           "summary": "用户裁定（2026-10-03）：「现在有珠子的格底和没有珠子格底不是一个图，请都按照没有珠子的格底图来实现」，",
           "keywords": [
@@ -75740,8 +75507,8 @@
         {
           "anchor": "§九轮：影改「圆角正方形 + 只画在珠下缘以下」（用户判七轮正圆选型有误）",
           "level": 3,
-          "startLine": 1436,
-          "endLine": 1475,
+          "startLine": 1285,
+          "endLine": 1324,
           "tokens": 899,
           "summary": "用户裁定：「选中珠子的阴影有问题，应该是只有珠子下面有影子，孔不要有影子，另外影子轮廓",
           "keywords": [
@@ -75756,8 +75523,8 @@
         {
           "anchor": "§十轮：影 = 「珠底轮廓 ↔ 槽底轮廓之间的真实可见带」（用户问「是贴图吗？为何不连在一起」）",
           "level": 3,
-          "startLine": 1476,
-          "endLine": 1508,
+          "startLine": 1325,
+          "endLine": 1357,
           "tokens": 698,
           "summary": "用户问：「这影子是贴图吗？为什么不连在一起」。",
           "keywords": [
@@ -75772,9 +75539,9 @@
         {
           "anchor": "§十一轮：影上沿改用「抬起后」珠尺寸（用户判「上沿形状与珠底不吻合」）",
           "level": 3,
-          "startLine": 1509,
-          "endLine": 1543,
-          "tokens": 675,
+          "startLine": 1358,
+          "endLine": 1394,
+          "tokens": 676,
           "summary": "根因 = 珠抬起时会放大 4%，而影的上沿按未放大的尺寸算。",
           "keywords": [
             "十一轮",
@@ -75788,9 +75555,9 @@
         {
           "anchor": "§WXG-T-237",
           "level": 2,
-          "startLine": 1544,
-          "endLine": 2052,
-          "tokens": 10445,
+          "startLine": 1395,
+          "endLine": 1905,
+          "tokens": 10447,
           "summary": "beads·托盘中性槽样式 + 专属 mask（美术定标单） — 2026-10-03 用户裁「甲 + 另出中立样式与专",
           "keywords": [
             "WXG",
@@ -75801,8 +75568,8 @@
         {
           "anchor": "§起因：托盘槽被矢量算法「焊死」，美术无法设计",
           "level": 3,
-          "startLine": 1548,
-          "endLine": 1559,
+          "startLine": 1399,
+          "endLine": 1410,
           "tokens": 300,
           "summary": "用户裁「甲 · 现状保留」后追加要求「需要美术给我设计一套中性托盘样式，然后做专属 mask」。",
           "keywords": [
@@ -75817,8 +75584,8 @@
         {
           "anchor": "§交付面收窄的实测依据",
           "level": 3,
-          "startLine": 1560,
-          "endLine": 1567,
+          "startLine": 1411,
+          "endLine": 1418,
           "tokens": 115,
           "summary": "托盘三态里只有空槽（free）归 mask：未解锁虚位是 drawDashedRect 合成的虚线框、",
           "keywords": [
@@ -75832,8 +75599,8 @@
         {
           "anchor": "§交付物：定标单已成文",
           "level": 3,
-          "startLine": 1568,
-          "endLine": 1580,
+          "startLine": 1419,
+          "endLine": 1431,
           "tokens": 307,
           "summary": "games/beads/art/tray-neutral-slot-mask-spec.md（2953 tok，在 80",
           "keywords": [
@@ -75848,8 +75615,8 @@
         {
           "anchor": "§⛔ 三条必须先登记的风险",
           "level": 3,
-          "startLine": 1581,
-          "endLine": 1589,
+          "startLine": 1432,
+          "endLine": 1440,
           "tokens": 194,
           "summary": "1. B-1 唯一结构性代码改动 = 放宽 tint 臂的 colorIdx !== undefined 门（托盘无目标",
           "keywords": [
@@ -75863,8 +75630,8 @@
         {
           "anchor": "§领号",
           "level": 3,
-          "startLine": 1590,
-          "endLine": 1593,
+          "startLine": 1441,
+          "endLine": 1444,
           "tokens": 21,
           "summary": "领号锚校准至 WXG-T-237，下一可用号 WXG-T-238。",
           "keywords": [
@@ -75875,8 +75642,8 @@
         {
           "anchor": "§十二轮：影宽裁定核销（用户裁「甲 · 保持现状」）",
           "level": 3,
-          "startLine": 1594,
-          "endLine": 1610,
+          "startLine": 1445,
+          "endLine": 1461,
           "tokens": 329,
           "summary": "争点：影的横向采样范围 = 槽宽（半宽 13），而抬起后珠半宽 13.52（liftScaleGain 0.04 放大 ",
           "keywords": [
@@ -75890,8 +75657,8 @@
         {
           "anchor": "§范围扩括（同轮用户裁「乙 · 托盘珠也纳入」）",
           "level": 3,
-          "startLine": 1611,
-          "endLine": 1653,
+          "startLine": 1462,
+          "endLine": 1504,
           "tokens": 780,
           "summary": "追加实测（原先只核了槽、漏了珠）：drawFilledBead 的 tint 门同样含",
           "keywords": [
@@ -75905,8 +75672,8 @@
         {
           "anchor": "§v2.0 范围坍缩：用户裁定「托盘完全随盘面 mask + 缩放」（本节为当前状态）",
           "level": 3,
-          "startLine": 1654,
-          "endLine": 1725,
+          "startLine": 1505,
+          "endLine": 1576,
           "tokens": 1433,
           "summary": "用户裁定原文（逐字）：",
           "keywords": [
@@ -75921,8 +75688,8 @@
         {
           "anchor": "§v3.0：缩放模型改为「按盘面 32dp 布局 + 整体缩放」（本节为当前状态）",
           "level": 3,
-          "startLine": 1726,
-          "endLine": 1767,
+          "startLine": 1577,
+          "endLine": 1618,
           "tokens": 770,
           "summary": "追加裁定（2026-10-03 用户原话）：「托盘还是按照 32dp 布局格面，然后整体缩放适配左右距离」。",
           "keywords": [
@@ -75936,8 +75703,8 @@
         {
           "anchor": "§v4.0：托盘 1:1 格面已落码（本节为当前状态）",
           "level": 3,
-          "startLine": 1768,
-          "endLine": 1816,
+          "startLine": 1619,
+          "endLine": 1667,
           "tokens": 1065,
           "summary": "用户裁定：「先按照 1:1 的格面实现效果，不做缩放。开始实现」。",
           "keywords": [
@@ -75949,8 +75716,8 @@
         {
           "anchor": "§v5.0：托盘底 = 格底已落码（本节为当前状态）",
           "level": 3,
-          "startLine": 1817,
-          "endLine": 1856,
+          "startLine": 1668,
+          "endLine": 1707,
           "tokens": 952,
           "summary": "用户裁定：「托盘底色与格底色保持一致，托盘格子保持紧凑排列」。",
           "keywords": [
@@ -75962,8 +75729,8 @@
         {
           "anchor": "§v6.0：托盘颜色还原为中性（v5.0 整体回滚 · 本节为当前状态）",
           "level": 3,
-          "startLine": 1857,
-          "endLine": 1895,
+          "startLine": 1708,
+          "endLine": 1746,
           "tokens": 791,
           "summary": "用户裁定：「托盘还是还原之前颜色」（看了 v5.0「托盘底 = 格底」的效果图后）。",
           "keywords": [
@@ -75976,8 +75743,8 @@
         {
           "anchor": "§v7.0：格面 mask 槽外透明（资产变更 · 本节为当前状态）",
           "level": 3,
-          "startLine": 1896,
-          "endLine": 1949,
+          "startLine": 1747,
+          "endLine": 1800,
           "tokens": 1203,
           "summary": "用户裁定：「格底的 base 图，槽外面部分的格面要做成透明，在绘制格面时候先绘制一层 −0.30 的底色",
           "keywords": [
@@ -75992,8 +75759,8 @@
         {
           "anchor": "§收尾补跑（v7.0 收尾确认）",
           "level": 3,
-          "startLine": 1950,
-          "endLine": 1967,
+          "startLine": 1801,
+          "endLine": 1818,
           "tokens": 315,
           "summary": "工作树 干净（无临时文件入库；旧 mask 备份在 temp/mask-bak-v6/，未入库）",
           "keywords": [
@@ -76007,8 +75774,8 @@
         {
           "anchor": "§v8.0：base 四件移除（生成过程 + 资产一并去掉）",
           "level": 3,
-          "startLine": 1968,
-          "endLine": 2013,
+          "startLine": 1819,
+          "endLine": 1864,
           "tokens": 833,
           "summary": "触发：用户问「base.png 在绘制纹理时是否真实需要？透明度是否 mask 就可以满足？如果不需要就去掉生成过程」。",
           "keywords": [
@@ -76023,9 +75790,9 @@
         {
           "anchor": "§v9.0：mask 资产改名 —— gauge 显式化（`hole` / `holeless` 对称）",
           "level": 3,
-          "startLine": 2014,
-          "endLine": 2052,
-          "tokens": 673,
+          "startLine": 1865,
+          "endLine": 1905,
+          "tokens": 674,
           "summary": "用户裁定：「改成 bead-hole-tint 前缀的名字，并改引用」。",
           "keywords": [
             "hole",
@@ -76039,9 +75806,9 @@
         {
           "anchor": "§WXG-T-239",
           "level": 2,
-          "startLine": 2053,
-          "endLine": 2122,
-          "tokens": 1213,
+          "startLine": 1906,
+          "endLine": 1977,
+          "tokens": 1215,
           "summary": "beads·首屏引导（GAP-03/04）留档 + 实现屏蔽 — 2026-10-04 用户裁「先把新手引导留档，实现上",
           "keywords": [
             "WXG",
@@ -76052,8 +75819,8 @@
         {
           "anchor": "§落码（一处开关）",
           "level": 3,
-          "startLine": 2059,
-          "endLine": 2074,
+          "startLine": 1912,
+          "endLine": 1927,
           "tokens": 136,
           "summary": "beads-game.ts 新增 private static readonly ONBOARDING_ENABLED ",
           "keywords": [
@@ -76068,8 +75835,8 @@
         {
           "anchor": "§用户看到的「闪烁蓝框」是什么",
           "level": 3,
-          "startLine": 2075,
-          "endLine": 2081,
+          "startLine": 1928,
+          "endLine": 1934,
           "tokens": 124,
           "summary": "drawStateRing（圆角方框描边 lineWidth 2）+ palette.hintBlue（#3D7BF5）",
           "keywords": [
@@ -76084,8 +75851,8 @@
         {
           "anchor": "§留档（⛔ 明确没动的）",
           "level": 3,
-          "startLine": 2082,
-          "endLine": 2088,
+          "startLine": 1935,
+          "endLine": 1941,
           "tokens": 94,
           "summary": "规格一字未删：ux-spec §6.3 GAP-03/04 原样保留",
           "keywords": [
@@ -76099,8 +75866,8 @@
         {
           "anchor": "§⚠ 恢复时必须知道的两件事",
           "level": 3,
-          "startLine": 2089,
-          "endLine": 2097,
+          "startLine": 1942,
+          "endLine": 1950,
           "tokens": 187,
           "summary": "1. 屏蔽期首次落子照旧写 onboarded: true ⇒ 恢复后老玩家不会看到引导（本身合理：引导只给新玩家）",
           "keywords": [
@@ -76113,8 +75880,8 @@
         {
           "anchor": "§测试口径变更（四处，均为前提被推翻 ⇒ 改写不删）",
           "level": 3,
-          "startLine": 2098,
-          "endLine": 2109,
+          "startLine": 1951,
+          "endLine": 1962,
           "tokens": 285,
           "summary": "feedback-vfx 首玩腿 onboarding === true + 有蓝环 屏蔽态：onboarding ==",
           "keywords": [
@@ -76129,8 +75896,8 @@
         {
           "anchor": "§⚠ headless 未能复现「闪烁」（如实记录）",
           "level": 3,
-          "startLine": 2110,
-          "endLine": 2117,
+          "startLine": 1963,
+          "endLine": 1970,
           "tokens": 175,
           "summary": "屏蔽前后各截一张对比：蓝色像素 1270 → 1270（完全相同） ⇒ 该 harness 存档本就",
           "keywords": [
@@ -76144,9 +75911,9 @@
         {
           "anchor": "§门禁",
           "level": 3,
-          "startLine": 2118,
-          "endLine": 2122,
-          "tokens": 36,
+          "startLine": 1971,
+          "endLine": 1977,
+          "tokens": 37,
           "summary": "beads 774 绿 + 1 skipped · framework 421 / breakout 239 绿 · v",
           "keywords": [
             "beads",
@@ -76159,9 +75926,9 @@
         {
           "anchor": "§WXG-T-240",
           "level": 2,
-          "startLine": 2123,
-          "endLine": 2238,
-          "tokens": 1977,
+          "startLine": 1978,
+          "endLine": 2095,
+          "tokens": 1979,
           "summary": "beads·托盘选中态补画槽 — 2026-10-04 用户三项反馈之一（另两项见 §三）。",
           "keywords": [
             "WXG",
@@ -76171,8 +75938,8 @@
         {
           "anchor": "§① 槽不显示（✅ 已修）",
           "level": 3,
-          "startLine": 2127,
-          "endLine": 2141,
+          "startLine": 1982,
+          "endLine": 1996,
           "tokens": 259,
           "summary": "病因：drawTray 里 if (slot.state === 'free') 才画槽 ⇒ 有珠的槽从不画坑。",
           "keywords": [
@@ -76187,8 +75954,8 @@
         {
           "anchor": "§①-补 托盘静息态也画槽（✅ 已落，同日第三项裁定）",
           "level": 3,
-          "startLine": 2142,
-          "endLine": 2159,
+          "startLine": 1997,
+          "endLine": 2014,
           "tokens": 300,
           "summary": "用户续报：「托盘上珠子非抬起状态，没有槽绘制」。",
           "keywords": [
@@ -76201,8 +75968,8 @@
         {
           "anchor": "§② 多了一个蓝点 —— ✅ **已裁撤**（同日追加，用户裁「蓝点 去掉」）",
           "level": 3,
-          "startLine": 2160,
-          "endLine": 2186,
+          "startLine": 2015,
+          "endLine": 2041,
           "tokens": 484,
           "summary": "裁撤对象：原 F6 托盘选中点",
           "keywords": [
@@ -76217,8 +75984,8 @@
         {
           "anchor": "§③ 再点击取消 —— ✅ **已按用户裁定去掉 toggle**（同日追加）",
           "level": 3,
-          "startLine": 2187,
-          "endLine": 2234,
+          "startLine": 2042,
+          "endLine": 2089,
           "tokens": 786,
           "summary": "⚠ 我曾把该句读成「报 bug」，实为「提要求」 —— 用户要的是「选中后不该能取消」。",
           "keywords": [
@@ -76233,9 +76000,9 @@
         {
           "anchor": "§读数 (2)",
           "level": 3,
-          "startLine": 2235,
-          "endLine": 2238,
-          "tokens": 22,
+          "startLine": 2090,
+          "endLine": 2095,
+          "tokens": 24,
           "summary": "beads 777 绿 + 1 skipped · check:tasks 29/29 · verify PASS 19",
           "keywords": [
             "beads",
@@ -76247,155 +76014,11 @@
           ]
         },
         {
-          "anchor": "§WXG-T-241",
-          "level": 2,
-          "startLine": 2239,
-          "endLine": 2285,
-          "tokens": 768,
-          "summary": "盘面已选中珠时点错色空格 ⇒ 错珠动画（⛔ 不是「先选一颗珠子」文案）",
-          "keywords": [
-            "WXG"
-          ]
-        },
-        {
-          "anchor": "§病灶（提示与画面直接矛盾）",
-          "level": 3,
-          "startLine": 2245,
-          "endLine": 2253,
-          "tokens": 161,
-          "summary": "_routeGridEmpty 的「先选一颗珠子」文案（TAP_HINT_NO_SELECTION_TEXT）只在真的没",
-          "keywords": [
-            "routeGridEmpty",
-            "TAP_HINT_NO_SELECTION_TEXT",
-            "病灶",
-            "提示与画面直",
-            "接矛盾"
-          ]
-        },
-        {
-          "anchor": "§修法",
-          "level": 3,
-          "startLine": 2254,
-          "endLine": 2265,
-          "tokens": 194,
-          "summary": "按「调用 _tryDirectFillFromBoard 返回后 _boardSelected 是否仍存活」分流：",
-          "keywords": [
-            "tryDirectFillFromBoard",
-            "boardSelected",
-            "修法"
-          ]
-        },
-        {
-          "anchor": "§新增守卫（`tests/board-wrong-fx.test.ts`，3 条）",
-          "level": 3,
-          "startLine": 2266,
-          "endLine": 2272,
-          "tokens": 126,
-          "summary": "① 锚存活 + 错色空格 ⇒ wrongRow/wrongCol 命中被点格、推一帧后 wrongProgress > ",
-          "keywords": [
-            "tests/board-wrong-fx.test.ts",
-            "tests",
-            "board",
-            "wrong",
-            "test",
-            "wrongRow"
-          ]
-        },
-        {
-          "anchor": "§造盘的三个坑（实测踩到）",
-          "level": 3,
-          "startLine": 2273,
-          "endLine": 2279,
-          "tokens": 123,
-          "summary": "⚠ 盘面初始满盘（applyMisplacedToGrid 装配）⇒ 无空格；noAssemble: true 会跳过装",
-          "keywords": [
-            "applyMisplacedToGrid",
-            "noAssemble",
-            "true",
-            "造盘的三个坑",
-            "实测踩到"
-          ]
-        },
-        {
-          "anchor": "§读数 (3)",
-          "level": 3,
-          "startLine": 2280,
-          "endLine": 2285,
-          "tokens": 35,
-          "summary": "beads 780 绿 + 1 skipped（新增 3 条）· verify PASS 19 / WARN 0 / S",
-          "keywords": [
-            "beads",
-            "skipped",
-            "verify",
-            "PASS",
-            "WARN",
-            "读数"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-242",
-          "level": 2,
-          "startLine": 2286,
-          "endLine": 2317,
-          "tokens": 1080,
-          "summary": "选中反馈批：影加深 + 错位修复 + B0 不位移（乙裁：盘面 lift 保持 6）",
-          "keywords": [
-            "WXG",
-            "lift"
-          ]
-        },
-        {
-          "anchor": "§落码五处",
-          "level": 3,
-          "startLine": 2292,
-          "endLine": 2299,
-          "tokens": 235,
-          "summary": "① 影跟随 liftX：drawLiftBeadShadow 原先只吃 lift 不吃 liftX ⇒ 珠斜上 15°（",
-          "keywords": [
-            "liftX",
-            "drawLiftBeadShadow",
-            "lift",
-            "落码五处"
-          ]
-        },
-        {
-          "anchor": "§art-director review（用户令「请美术设计重新 review」）——核出三件事",
-          "level": 3,
-          "startLine": 2300,
-          "endLine": 2305,
-          "tokens": 324,
-          "summary": "1. 我的前提错了：wrong fx 从来只在空格上跑（placement.ts 的 mismatch 只在 state",
-          "keywords": [
-            "art",
-            "director",
-            "review",
-            "wrong",
-            "placement",
-            "mismatch"
-          ]
-        },
-        {
-          "anchor": "§乙裁与封箱（第十二次复评，`provenance.s3_frame_recheck_12`）",
-          "level": 3,
-          "startLine": 2306,
-          "endLine": 2317,
-          "tokens": 371,
-          "summary": "用户裁「只落加深+托盘」⇒ 盘面 SELECT_LIFT_PX 保持 6（它经 BEAD_CARD.liftRef 归一",
-          "keywords": [
-            "provenance.s3_frame_recheck_12",
-            "provenance",
-            "s3_frame_recheck_12",
-            "SELECT_LIFT_PX",
-            "BEAD_CARD",
-            "liftRef"
-          ]
-        },
-        {
           "anchor": "§WXG-T-243",
           "level": 2,
-          "startLine": 2318,
-          "endLine": 2330,
-          "tokens": 294,
+          "startLine": 2096,
+          "endLine": 2109,
+          "tokens": 295,
           "summary": "工程单：wrong 单槽 500ms 门吞连点（T-241 扩面后第二个错色格无反馈）",
           "keywords": [
             "WXG",
@@ -76403,159 +76026,11 @@
           ]
         },
         {
-          "anchor": "§WXG-T-244",
-          "level": 2,
-          "startLine": 2331,
-          "endLine": 2418,
-          "tokens": 1917,
-          "summary": "组归位逐颗 BFS 错峰落座动画（纯表现，数据同帧不变）",
-          "keywords": [
-            "WXG",
-            "BFS"
-          ]
-        },
-        {
-          "anchor": "§场景锚定",
-          "level": 3,
-          "startLine": 2337,
-          "endLine": 2340,
-          "tokens": 57,
-          "summary": "= board 锚直填的组批量归位（WXG-T-186）：一次点击填「被点空格 + BFS 连通同色空格一片」。此前所有",
-          "keywords": [
-            "board",
-            "WXG",
-            "BFS",
-            "场景锚定"
-          ]
-        },
-        {
-          "anchor": "§落码（三层全部复用现成件，零新常量/零新毫秒/零新图元）",
-          "level": 3,
-          "startLine": 2341,
-          "endLine": 2353,
-          "tokens": 358,
-          "summary": "game 登记 新增 _groupLandFx 纯表现队列（_noteGroupLand 惰性建、定长 SOLVER_M",
-          "keywords": [
-            "game",
-            "groupLandFx",
-            "noteGroupLand",
-            "SOLVER_M",
-            "落码",
-            "三层全部复用"
-          ]
-        },
-        {
-          "anchor": "§造盘坑（实测踩到，`planGroupFill` 手动调用定位）",
-          "level": 3,
-          "startLine": 2354,
-          "endLine": 2357,
-          "tokens": 113,
-          "summary": "组员连通判据是「沿同色错位珠 ≤2 步」——首版把两颗色 2 错位珠放在切比雪夫距 2 但中间格非同色错位珠的位置 ⟹ ",
-          "keywords": [
-            "planGroupFill",
-            "造盘坑",
-            "实测踩到",
-            "手动调用定位"
-          ]
-        },
-        {
-          "anchor": "§守卫（`tests/group-land-fx.test.ts`，2 条）",
-          "level": 3,
-          "startLine": 2358,
-          "endLine": 2361,
-          "tokens": 75,
-          "summary": "① 登记序 = BFS 序：steps 恒 0..n-1、首格 = 被点格 + 当帧 grid 已 filled（同帧口",
-          "keywords": [
-            "tests/group-land-fx.test.ts",
-            "tests",
-            "group",
-            "land",
-            "test",
-            "BFS"
-          ]
-        },
-        {
-          "anchor": "§读数 (4)",
-          "level": 3,
-          "startLine": 2362,
-          "endLine": 2367,
-          "tokens": 38,
-          "summary": "beads 782 绿 + 1 skipped（新增 2 条；封箱 9/9 含在内 ⟹ 静息帧零影响实证）· Cocos",
-          "keywords": [
-            "beads",
-            "skipped",
-            "Cocos",
-            "读数"
-          ]
-        },
-        {
-          "anchor": "§八批（乙案）· 间隔更明显但总时长仍 200ms",
-          "level": 3,
-          "startLine": 2368,
-          "endLine": 2390,
-          "tokens": 422,
-          "summary": "主理人裁「乙」（2026-10-04）：在 200ms 硬上限内重分配预算，而非放宽上限。",
-          "keywords": [
-            "八批",
-            "乙案",
-            "间隔更明显但",
-            "总时长仍"
-          ]
-        },
-        {
-          "anchor": "§补建美术正本卡（诚实登记）",
-          "level": 3,
-          "startLine": 2391,
-          "endLine": 2395,
-          "tokens": 73,
-          "summary": "⚠ 发现 T-244 前七批改了视觉却从未在 assets-spec 建卡 ⟹ 参数（SPREAD / DROP_PX）",
-          "keywords": [
-            "assets",
-            "spec",
-            "SPREAD",
-            "DROP_PX",
-            "补建美术正本",
-            "诚实登记"
-          ]
-        },
-        {
-          "anchor": "§二十三批（收口：裁日志 + 一处回滚隐患）",
-          "level": 3,
-          "startLine": 2396,
-          "endLine": 2418,
-          "tokens": 562,
-          "summary": "用户裁定（2026-10-04）：「那批 TEMP-LOG（裁后删除）的 [GLD+…] 一并裁掉」+ 面板选项",
-          "keywords": [
-            "TEMP",
-            "LOG",
-            "GLD",
-            "二十三批",
-            "收口",
-            "裁日志"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-245",
-          "level": 2,
-          "startLine": 2419,
-          "endLine": 2439,
-          "tokens": 417,
-          "summary": "skill 调用审计（pnpm run skills:audit）",
-          "keywords": [
-            "WXG",
-            "skill",
-            "pnpm",
-            "run",
-            "skills",
-            "audit"
-          ]
-        },
-        {
           "anchor": "§WXG-T-246",
           "level": 2,
-          "startLine": 2440,
-          "endLine": 2483,
-          "tokens": 909,
+          "startLine": 2110,
+          "endLine": 2155,
+          "tokens": 910,
           "summary": "beads·崩溃快照恢复失效（revive 后进度全丢回初盘）",
           "keywords": [
             "WXG",
@@ -76566,8 +76041,8 @@
         {
           "anchor": "§现象（可复现，但**未确诊**）",
           "level": 3,
-          "startLine": 2447,
-          "endLine": 2452,
+          "startLine": 2117,
+          "endLine": 2122,
           "tokens": 94,
           "summary": "崩溃救援链（D-03，WXG-T-059）照常触发（日志 save.crash: … filled=17），点「复活」重",
           "keywords": [
@@ -76582,8 +76057,8 @@
         {
           "anchor": "§链路（读码所得，逐处可查）",
           "level": 3,
-          "startLine": 2453,
-          "endLine": 2462,
+          "startLine": 2123,
+          "endLine": 2132,
           "tokens": 211,
           "summary": "崩溃落盘 beads-game.ts::onSaveCrash(mode, levelIndex, boardSnaps",
           "keywords": [
@@ -76598,8 +76073,8 @@
         {
           "anchor": "§三条候选根因（待逐条排除）",
           "level": 3,
-          "startLine": 2463,
-          "endLine": 2470,
+          "startLine": 2133,
+          "endLine": 2140,
           "tokens": 183,
           "summary": "1. 跨关索引错位：位图按崩溃关写，take 却按 levelIndex + 1（新关号）读 ⇒ 恒取不到。",
           "keywords": [
@@ -76612,8 +76087,8 @@
         {
           "anchor": "§下一步（判据先行，先确诊后改码）",
           "level": 3,
-          "startLine": 2471,
-          "endLine": 2478,
+          "startLine": 2141,
+          "endLine": 2148,
           "tokens": 194,
           "summary": "一次性诊断日志打在状态变化处（承 WXG-T-244 二十批判例）：crash.take() 的命中/丢弃 + 丢弃原因",
           "keywords": [
@@ -76628,9 +76103,9 @@
         {
           "anchor": "§影响与优先级",
           "level": 3,
-          "startLine": 2479,
-          "endLine": 2483,
-          "tokens": 71,
+          "startLine": 2149,
+          "endLine": 2155,
+          "tokens": 72,
           "summary": "功能缺陷但不阻断：逻辑/渲染/测试面全绿（beads vitest 801 passed / 1 skipped 时点）",
           "keywords": [
             "beads",
@@ -76643,8 +76118,8 @@
         {
           "anchor": "§WXG-T-247",
           "level": 2,
-          "startLine": 2484,
-          "endLine": 2577,
+          "startLine": 2156,
+          "endLine": 2249,
           "tokens": 3844,
           "summary": "beads·Cocos 生产通道同源绘制（ADR-0030 载体决策）",
           "keywords": [
@@ -76657,8 +76132,8 @@
         {
           "anchor": "§定性（⛔ 不是回归缺陷）",
           "level": 3,
-          "startLine": 2492,
-          "endLine": 2503,
+          "startLine": 2164,
+          "endLine": 2175,
           "tokens": 219,
           "summary": "真机没有 tint = 当前架构的正确行为，三条事实叠加后结构上不可能发生：",
           "keywords": [
@@ -76670,8 +76145,8 @@
         {
           "anchor": "§推荐路线（待用户裁定后生效）",
           "level": 3,
-          "startLine": 2504,
-          "endLine": 2514,
+          "startLine": 2176,
+          "endLine": 2186,
           "tokens": 268,
           "summary": "丙′「同源 Canvas2D 帧通道」：Cocos 宿主内实例化现役 Canvas2DRenderer（与 harnes",
           "keywords": [
@@ -76686,8 +76161,8 @@
         {
           "anchor": "§最大未知（诚实记录）",
           "level": 3,
-          "startLine": 2515,
-          "endLine": 2522,
+          "startLine": 2187,
+          "endLine": 2194,
           "tokens": 237,
           "summary": "每帧一次 CPU 2D 填充 + 一次 canvas→GPU 上传，耗时与显存全 [待实测]；ADR-0029 §0 的",
           "keywords": [
@@ -76702,8 +76177,8 @@
         {
           "anchor": "§待用户拍板四刀（ADR §7）",
           "level": 3,
-          "startLine": 2523,
-          "endLine": 2529,
+          "startLine": 2195,
+          "endLine": 2201,
           "tokens": 229,
           "summary": "1. Q1 载体：(a) 先丙′、S2 出数后再决定换不换（推荐）／(b) 直接押 甲′（ADR-0029 §9 在册采",
           "keywords": [
@@ -76716,8 +76191,8 @@
         {
           "anchor": "§实施拓扑（裁定后才动码）",
           "level": 3,
-          "startLine": 2530,
-          "endLine": 2534,
+          "startLine": 2202,
+          "endLine": 2206,
           "tokens": 104,
           "summary": "S1 carrier 抽象 → S2 取数 Spike（?parity=1 默认关）→ {S3 两端同帧像素对拍, S4",
           "keywords": [
@@ -76731,8 +76206,8 @@
         {
           "anchor": "§2026-10-05 用户四刀回话与 ADR 相应改写（本会话实测取证，⛔ 零实现代码）",
           "level": 3,
-          "startLine": 2535,
-          "endLine": 2553,
+          "startLine": 2207,
+          "endLine": 2225,
           "tokens": 1641,
           "summary": "Q1 载体 「先评估方案的性能后再决定是否与 harness 同源」 DEC-1 标注「暂不生效」；新增 §5.0 S0",
           "keywords": [
@@ -76747,8 +76222,8 @@
         {
           "anchor": "§2026-10-05 → 10-06 第七刀：S0 开工，三臂同宿主实测出数（⚠ 本批**解除「零实现代码」**，限取证面）",
           "level": 3,
-          "startLine": 2554,
-          "endLine": 2577,
+          "startLine": 2226,
+          "endLine": 2249,
           "tokens": 877,
           "summary": "用户三令：① §19 例外现在就落正本；② 三臂优缺点 + 推荐 + 是否有更优方案；③「实现后两个方案，并打印真实性能",
           "keywords": [
@@ -76763,9 +76238,9 @@
         {
           "anchor": "§WXG-T-248",
           "level": 2,
-          "startLine": 2578,
-          "endLine": 2666,
-          "tokens": 2695,
+          "startLine": 2250,
+          "endLine": 2340,
+          "tokens": 2696,
           "summary": "beads·脏帧门控（内容指纹判脏，干净帧不重画）",
           "keywords": [
             "WXG",
@@ -76775,8 +76250,8 @@
         {
           "anchor": "§落点裁定（ponytail 阶梯，三条否决给全）",
           "level": 3,
-          "startLine": 2585,
-          "endLine": 2606,
+          "startLine": 2257,
+          "endLine": 2278,
           "tokens": 771,
           "summary": "甲：App._render 跳过 onRender ✅ 采纳 一处生效两宿主（Cocos + canvas2d 同源）；",
           "keywords": [
@@ -76791,8 +76266,8 @@
         {
           "anchor": "§⚠ 契约变化（宿主侧必读，已登 `control-manifest §8`）",
           "level": 3,
-          "startLine": 2607,
-          "endLine": 2610,
+          "startLine": 2279,
+          "endLine": 2282,
           "tokens": 116,
           "summary": "onRender 不再是逐帧钩子：干净帧不回调 ⇒ 宿主不得在 onRender 里推进状态、不得依赖 alpha 每帧",
           "keywords": [
@@ -76807,8 +76282,8 @@
         {
           "anchor": "§判据与实测",
           "level": 3,
-          "startLine": 2611,
-          "endLine": 2644,
+          "startLine": 2283,
+          "endLine": 2316,
           "tokens": 923,
           "summary": "单测两组（全绿）：tests/core/render-model.test.ts 新增 signature 六条（同内容",
           "keywords": [
@@ -76823,9 +76298,9 @@
         {
           "anchor": "§交付物与验证",
           "level": 3,
-          "startLine": 2645,
-          "endLine": 2666,
-          "tokens": 696,
+          "startLine": 2317,
+          "endLine": 2340,
+          "tokens": 697,
           "summary": "指纹 packages/framework/src/core/render/render-model.ts（signat",
           "keywords": [
             "packages",
@@ -76839,8 +76314,8 @@
         {
           "anchor": "§WXG-T-249",
           "level": 2,
-          "startLine": 2667,
-          "endLine": 2737,
+          "startLine": 2341,
+          "endLine": 2411,
           "tokens": 1967,
           "summary": "beads·甲″ 分层上界实测（取证面新档）",
           "keywords": [
@@ -76851,8 +76326,8 @@
         {
           "anchor": "§落位裁定（ponytail full 阶梯，三档给全）",
           "level": 3,
-          "startLine": 2675,
-          "endLine": 2685,
+          "startLine": 2349,
+          "endLine": 2359,
           "tokens": 337,
           "summary": "甲 取证面新档：carrier-bench 加 layers=full,beads 维度（beads = 非珠层整体停用",
           "keywords": [
@@ -76867,8 +76342,8 @@
         {
           "anchor": "§`[E]` 实测（Apple M4 · dpr2 · 824×1830 · frames=150 warmup=40 · gate=on · 三档 zoom）",
           "level": 3,
-          "startLine": 2686,
-          "endLine": 2696,
+          "startLine": 2360,
+          "endLine": 2370,
           "tokens": 100,
           "summary": "0.6 full 15 3354 1.00 2.15 1.40 150 4",
           "keywords": [
@@ -76883,8 +76358,8 @@
         {
           "anchor": "§读数结论（四条 + 一处自我更正）",
           "level": 3,
-          "startLine": 2697,
-          "endLine": 2709,
+          "startLine": 2371,
+          "endLine": 2383,
           "tokens": 465,
           "summary": "1. 甲″ 收益真实且大：dc 15 → 2、tris −78%、draw CPU −90%、GPU −63～−81% ",
           "keywords": [
@@ -76899,8 +76374,8 @@
         {
           "anchor": "§交付物与验证 (2)",
           "level": 3,
-          "startLine": 2710,
-          "endLine": 2721,
+          "startLine": 2384,
+          "endLine": 2395,
           "tokens": 347,
           "summary": "上界档开关 games/beads/cocos/assets/scripts/spike/carrier-bench.t",
           "keywords": [
@@ -76915,8 +76390,8 @@
         {
           "anchor": "§未闭环（下一步候选）",
           "level": 3,
-          "startLine": 2722,
-          "endLine": 2729,
+          "startLine": 2396,
+          "endLine": 2403,
           "tokens": 223,
           "summary": "① signature() 逐键走 fx ⇒ 让甲′/丙′ 吃到门控（收益上限已有数 = 本表 beads 行，属框架新",
           "keywords": [
@@ -76929,8 +76404,8 @@
         {
           "anchor": "§沉淀统计（`kb:sync --task=WXG-T-249`）",
           "level": 3,
-          "startLine": 2730,
-          "endLine": 2737,
+          "startLine": 2404,
+          "endLine": 2411,
           "tokens": 243,
           "summary": "新增 1：K-104（[引擎Cocos]）——上界档必须停用组件本身而非「不喂命令」：clear() 在绘制入口内部，不",
           "keywords": [
@@ -76945,8 +76420,8 @@
         {
           "anchor": "§WXG-T-250",
           "level": 2,
-          "startLine": 2738,
-          "endLine": 2789,
+          "startLine": 2412,
+          "endLine": 2463,
           "tokens": 1396,
           "summary": "",
           "keywords": [
@@ -76956,8 +76431,8 @@
         {
           "anchor": "§beads·blit 帧可判脏（`fx` 逐键入指纹 ⇒ 门控覆盖 C/A）",
           "level": 3,
-          "startLine": 2740,
-          "endLine": 2789,
+          "startLine": 2414,
+          "endLine": 2463,
           "tokens": 1373,
           "summary": "来源：用户 2026-10-05 在 WXG-T-249 汇报后择 (A)（「甲」= 开框架单让 blit 可判脏）。承",
           "keywords": [
@@ -76970,37 +76445,10 @@
           ]
         },
         {
-          "anchor": "§WXG-T-251",
-          "level": 2,
-          "startLine": 2790,
-          "endLine": 2840,
-          "tokens": 1352,
-          "summary": "",
-          "keywords": [
-            "WXG"
-          ]
-        },
-        {
-          "anchor": "§beads·`DEC-1` 改裁 = 甲′（实施形态 甲″ 三层）",
-          "level": 3,
-          "startLine": 2792,
-          "endLine": 2840,
-          "tokens": 1333,
-          "summary": "来源：用户 2026-10-05 在 WXG-T-250 汇报后择 (A)（「甲」= 回 §7 Q1 改裁 DEC-1 ",
-          "keywords": [
-            "DEC-1",
-            "§7",
-            "beads",
-            "DEC",
-            "WXG",
-            "改裁"
-          ]
-        },
-        {
           "anchor": "§WXG-T-252",
           "level": 2,
-          "startLine": 2841,
-          "endLine": 2875,
+          "startLine": 2464,
+          "endLine": 2498,
           "tokens": 1082,
           "summary": "",
           "keywords": [
@@ -77010,8 +76458,8 @@
         {
           "anchor": "§framework·S1 blit carrier 缝（Cocos 侧宿主注入出口）",
           "level": 3,
-          "startLine": 2843,
-          "endLine": 2875,
+          "startLine": 2466,
+          "endLine": 2498,
           "tokens": 1062,
           "summary": "来源：用户 2026-10-05 令「先解释下甲的方案，再开始实施」⇒ 甲 = ADR-0030 裁后路由里的 S1（第",
           "keywords": [
@@ -77026,9 +76474,9 @@
         {
           "anchor": "§WXG-T-253",
           "level": 2,
-          "startLine": 2876,
-          "endLine": 2922,
-          "tokens": 1282,
+          "startLine": 2499,
+          "endLine": 2544,
+          "tokens": 1281,
           "summary": "名称：beads·S5′-1 blit 载体实现体（按色图集 + Sprite 池）",
           "keywords": [
             "WXG",
@@ -77040,9 +76488,9 @@
         {
           "anchor": "§WXG-T-254",
           "level": 2,
-          "startLine": 2923,
-          "endLine": 2984,
-          "tokens": 1820,
+          "startLine": 2545,
+          "endLine": 2608,
+          "tokens": 1821,
           "summary": "名称：beads·S5′-2 L0 底 tile（盘面每格 B0 + 格面槽合并为一条 blit）",
           "keywords": [
             "WXG",
@@ -77052,24 +76500,11 @@
           ]
         },
         {
-          "anchor": "§WXG-T-255",
-          "level": 2,
-          "startLine": 2985,
-          "endLine": 3064,
-          "tokens": 2812,
-          "summary": "WXG-T-255 · beads·mask 档位宏 + 构建产物 mask 门禁（2026-10-05 · 主理人 Q",
-          "keywords": [
-            "WXG",
-            "beads",
-            "mask"
-          ]
-        },
-        {
           "anchor": "§WXG-T-256",
           "level": 2,
-          "startLine": 3065,
-          "endLine": 3118,
-          "tokens": 3460,
+          "startLine": 2609,
+          "endLine": 2664,
+          "tokens": 3461,
           "summary": "WXG-T-256 · beads·S5′-3 层序 = 视觉裁剪解（去容器板 + 统一单层底色 + 第二块提交体 + ",
           "keywords": [
             "WXG",
@@ -77077,66 +76512,10 @@
           ]
         },
         {
-          "anchor": "§WXG-T-258",
-          "level": 2,
-          "startLine": 3119,
-          "endLine": 3145,
-          "tokens": 1448,
-          "summary": "WXG-T-258 · beads·格面 mask 退化为纯结构件（格底真透 + 纯色底下沉）· 定标单 v10.0（2",
-          "keywords": [
-            "WXG",
-            "beads",
-            "mask",
-            "v10"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-259",
-          "level": 2,
-          "startLine": 3146,
-          "endLine": 3176,
-          "tokens": 1194,
-          "summary": "WXG-T-259 · beads·tint 合成式三端统一（GPU 为准）+ 旧 effect 死件清（2026-10",
-          "keywords": [
-            "WXG",
-            "beads",
-            "tint",
-            "GPU",
-            "effect"
-          ]
-        },
-        {
-          "anchor": "§WXG-T-260",
-          "level": 2,
-          "startLine": 3177,
-          "endLine": 3178,
-          "tokens": 0,
-          "summary": "",
-          "keywords": [
-            "WXG"
-          ]
-        },
-        {
-          "anchor": "§ctx B 预算门收敛（knowledge 分片子切 + 四件豁免登记）",
-          "level": 1,
-          "startLine": 3179,
-          "endLine": 3245,
-          "tokens": 1629,
-          "summary": "2026-10-06，主理人(Qoder)·装置域。用户第③项裁定「提交」开工即被 pre-commit 拦下，本单 =",
-          "keywords": [
-            "ctx",
-            "knowledge",
-            "Qoder",
-            "pre",
-            "commit",
-            "预算门收敛"
-          ]
-        },
-        {
           "anchor": "§WXG-T-261",
           "level": 2,
-          "startLine": 3244,
-          "endLine": 3245,
+          "startLine": 2665,
+          "endLine": 2666,
           "tokens": 0,
           "summary": "",
           "keywords": [
@@ -77146,9 +76525,9 @@
         {
           "anchor": "§beads·托盘放大批（槽底深色墨档 + 格缝加大 + 尺回 48/6 系）",
           "level": 1,
-          "startLine": 3246,
-          "endLine": 3582,
-          "tokens": 6994,
+          "startLine": 2667,
+          "endLine": 3015,
+          "tokens": 7001,
           "summary": "2026-10-06，主理人(Qoder)·美术域＋工程域代落盘。用户三裁原话：「将托盘格子的 mask 混一个深色，",
           "keywords": [
             "beads",
@@ -77162,9 +76541,9 @@
         {
           "anchor": "§WXG-T-267",
           "level": 2,
-          "startLine": 3319,
-          "endLine": 3352,
-          "tokens": 542,
+          "startLine": 2742,
+          "endLine": 2777,
+          "tokens": 544,
           "summary": "皮肤替换系统架构设计（🔵 架构设计中，程基岩）",
           "keywords": [
             "WXG"
@@ -77173,8 +76552,8 @@
         {
           "anchor": "§背景：把 A/B 之争升级为皮肤系统",
           "level": 3,
-          "startLine": 3326,
-          "endLine": 3330,
+          "startLine": 2749,
+          "endLine": 2753,
           "tokens": 77,
           "summary": "此前「UI 适配盘面（A）/ 盘面适配 UI（B）」的方向之争，用户升维为：",
           "keywords": [
@@ -77186,8 +76565,8 @@
         {
           "anchor": "§关键先例（工程已探明）",
           "level": 3,
-          "startLine": 3331,
-          "endLine": 3337,
+          "startLine": 2754,
+          "endLine": 2760,
           "tokens": 124,
           "summary": "WXG-T-131 ③：beadStyle 换肤占位已落（demo 阶段：解锁判定 + 一套占位皮肤）",
           "keywords": [
@@ -77201,8 +76580,8 @@
         {
           "anchor": "§范围（待程基岩产出）",
           "level": 3,
-          "startLine": 3338,
-          "endLine": 3344,
+          "startLine": 2761,
+          "endLine": 2767,
           "tokens": 85,
           "summary": "1. 全链路可替换元素盘点（珠面十层 / 格 / 槽 / UI 令牌 / 形状参数）",
           "keywords": [
@@ -77213,9 +76592,9 @@
         {
           "anchor": "§用户四裁（2026-10-07，全部关闭）",
           "level": 3,
-          "startLine": 3345,
-          "endLine": 3352,
-          "tokens": 126,
+          "startLine": 2768,
+          "endLine": 2777,
+          "tokens": 128,
           "summary": "Ⅰ 切肤不重置珠体风格（beadStyle 独立记忆）✅",
           "keywords": [
             "beadStyle",
@@ -77226,9 +76605,9 @@
         {
           "anchor": "§WXG-T-266",
           "level": 2,
-          "startLine": 3353,
-          "endLine": 3458,
-          "tokens": 2122,
+          "startLine": 2778,
+          "endLine": 2885,
+          "tokens": 2123,
           "summary": "主菜单架构裁定「单屏作品墙 + 类别延迟生效」+ 图元难度线性公式（文策渊两件，✅ 裁定稿）",
           "keywords": [
             "WXG"
@@ -77237,8 +76616,8 @@
         {
           "anchor": "§裁定：第三案（**推翻主理人倾向的方案 1**）",
           "level": 3,
-          "startLine": 3360,
-          "endLine": 3369,
+          "startLine": 2785,
+          "endLine": 2794,
           "tokens": 165,
           "summary": "主菜单 = 一块木框橱窗 + 一屏 4×3 作品格（可点）+ 一个木主钮；不设类别层、不设二级橱窗页、",
           "keywords": [
@@ -77251,8 +76630,8 @@
         {
           "anchor": "§难度公式（单一真源，可落码）",
           "level": 3,
-          "startLine": 3370,
-          "endLine": 3381,
+          "startLine": 2795,
+          "endLine": 2806,
           "tokens": 140,
           "summary": "",
           "keywords": [
@@ -77264,8 +76643,8 @@
         {
           "anchor": "§9 关实测（验证单调、无退化）",
           "level": 3,
-          "startLine": 3382,
-          "endLine": 3389,
+          "startLine": 2807,
+          "endLine": 2814,
           "tokens": 117,
           "summary": "DI = 54.3 / 133.0 / 89.7 / 86.3 / 206.0 / 143.5 / 118.9 / 78",
           "keywords": [
@@ -77277,8 +76656,8 @@
         {
           "anchor": "§3 关系",
           "level": 3,
-          "startLine": 3390,
-          "endLine": 3394,
+          "startLine": 2815,
+          "endLine": 2819,
           "tokens": 66,
           "summary": "零新增冻结值、零改动已冻结值；系数住 levels-spec §5.0.x + tuning.ts。",
           "keywords": [
@@ -77293,8 +76672,8 @@
         {
           "anchor": "§R-12 闭合",
           "level": 3,
-          "startLine": 3395,
-          "endLine": 3399,
+          "startLine": 2820,
+          "endLine": 2824,
           "tokens": 70,
           "summary": "不新增独立 boot 屏 —— S0 内容就地落已实装 shell 主菜单（meta-view.ts:359-370）；",
           "keywords": [
@@ -77308,8 +76687,8 @@
         {
           "anchor": "§第三轮（2026-10-07 用户回应后，文策渊回裁）",
           "level": 3,
-          "startLine": 3400,
-          "endLine": 3427,
+          "startLine": 2825,
+          "endLine": 2852,
           "tokens": 704,
           "summary": "① Q6 = 双轨但主客易位：门禁只锁单调（契约，引 DI_FLOOR/DI_STEP_MIN，后者是下界非「等于 ΔD",
           "keywords": [
@@ -77323,8 +76702,8 @@
         {
           "anchor": "§第四轮（2026-10-07 用户终裁）：命名回退「拼豆小铺」",
           "level": 3,
-          "startLine": 3428,
-          "endLine": 3441,
+          "startLine": 2853,
+          "endLine": 2866,
           "tokens": 281,
           "summary": "用户令：「还是改回：拼豆小铺」 ⟹ ⛔ 第三轮的「铺 = 游戏名 / 橱 = 模块名」作废；",
           "keywords": [
@@ -77337,8 +76716,8 @@
         {
           "anchor": "§第五轮（2026-10-07 用户三项终裁）",
           "level": 3,
-          "startLine": 3442,
-          "endLine": 3453,
+          "startLine": 2867,
+          "endLine": 2878,
           "tokens": 278,
           "summary": "1. Q9 = carousel（走马灯机制上） ⟹ wall_overflow_mode 默认由 tab 改为 car",
           "keywords": [
@@ -77353,9 +76732,9 @@
         {
           "anchor": "§待用户拍板",
           "level": 3,
-          "startLine": 3454,
-          "endLine": 3458,
-          "tokens": 70,
+          "startLine": 2879,
+          "endLine": 2885,
+          "tokens": 71,
           "summary": "Q2 作品墙可点否（建议可点）· Q1 类别维度（建议丙 = DI 难度带，零人工打标）· Q3 slogan ·",
           "keywords": [
             "slogan",
@@ -77365,9 +76744,9 @@
         {
           "anchor": "§WXG-T-265",
           "level": 2,
-          "startLine": 3459,
-          "endLine": 3503,
-          "tokens": 752,
+          "startLine": 2886,
+          "endLine": 2932,
+          "tokens": 753,
           "summary": "整体 UI 美术风格重设计「暖纸拼豆台」甲案（林绘澄四件，✅ 提案已出）",
           "keywords": [
             "WXG"
@@ -77376,8 +76755,8 @@
         {
           "anchor": "§流程（SOP 阶段 1）",
           "level": 3,
-          "startLine": 3467,
-          "endLine": 3471,
+          "startLine": 2894,
+          "endLine": 2898,
           "tokens": 53,
           "summary": "主理人派单 → 林绘澄（art-director）两轮：① 提案四件；② 用户三裁后的采纳态修订。",
           "keywords": [
@@ -77391,8 +76770,8 @@
         {
           "anchor": "§用户三裁（2026-10-07）",
           "level": 3,
-          "startLine": 3472,
-          "endLine": 3476,
+          "startLine": 2899,
+          "endLine": 2903,
           "tokens": 68,
           "summary": "D-2 = 甲案（暖纸拼豆台）· D-1 = 游戏名 「拼豆小铺」（非主理人推荐的「豆豆森林」）·",
           "keywords": [
@@ -77402,8 +76781,8 @@
         {
           "anchor": "§林绘澄推翻主理人初稿五处（史证）",
           "level": 3,
-          "startLine": 3477,
-          "endLine": 3484,
+          "startLine": 2904,
+          "endLine": 2911,
           "tokens": 121,
           "summary": "① 底色 #f6efe2 → #F1E8D8（初稿与奶白珠 ΔL 仅 2.7% < 4% 不可辨阈）",
           "keywords": [
@@ -77417,8 +76796,8 @@
         {
           "anchor": "§核心设计语义",
           "level": 3,
-          "startLine": 3485,
-          "endLine": 3489,
+          "startLine": 2912,
+          "endLine": 2916,
           "tokens": 51,
           "summary": "「木 = 可按、纸 = 承载、胶囊 = 状态」——主次按钮靠明度 + 材质 + 位置三通道区分",
           "keywords": [
@@ -77428,8 +76807,8 @@
         {
           "anchor": "§林绘澄第二轮新增建议",
           "level": 3,
-          "startLine": 3490,
-          "endLine": 3494,
+          "startLine": 2917,
+          "endLine": 2921,
           "tokens": 78,
           "summary": "「小铺 = 陈列/收藏」做成木框橱窗：boot = 招牌（珠拼「拼豆小铺」）+ 3 格货架",
           "keywords": [
@@ -77441,9 +76820,9 @@
         {
           "anchor": "§⚠ 待裁（阻塞落码）",
           "level": 3,
-          "startLine": 3495,
-          "endLine": 3503,
-          "tokens": 193,
+          "startLine": 2922,
+          "endLine": 2932,
+          "tokens": 195,
           "summary": "R-12（UX 侧）：boot 页「点开始」与 ux-spec §4「BOOT = 无交互自动过渡」+",
           "keywords": [
             "§4",
@@ -77457,9 +76836,9 @@
         {
           "anchor": "§WXG-T-264",
           "level": 2,
-          "startLine": 3504,
-          "endLine": 3537,
-          "tokens": 495,
+          "startLine": 2933,
+          "endLine": 2968,
+          "tokens": 496,
           "summary": "主界面 UI 重设计提案「手作治愈系」+ 游戏名备选（📋 未排期）",
           "keywords": [
             "WXG"
@@ -77468,8 +76847,8 @@
         {
           "anchor": "§设计稿",
           "level": 3,
-          "startLine": 3510,
-          "endLine": 3513,
+          "startLine": 2939,
+          "endLine": 2942,
           "tokens": 29,
           "summary": "design/proposals/ui-redesign-mock.png（两屏并排，实验页 temp/ui-redes",
           "keywords": [
@@ -77484,8 +76863,8 @@
         {
           "anchor": "§风格：「手作治愈系」",
           "level": 3,
-          "startLine": 3514,
-          "endLine": 3518,
+          "startLine": 2943,
+          "endLine": 2947,
           "tokens": 76,
           "summary": "奶油纸纹底 + 木牌容器（HUD/托盘：木色渐变+深木边+木钉）+ 纸板卡（道具/缩放）+",
           "keywords": [
@@ -77497,8 +76876,8 @@
         {
           "anchor": "§玩法表达三处",
           "level": 3,
-          "startLine": 3519,
-          "endLine": 3523,
+          "startLine": 2948,
+          "endLine": 2952,
           "tokens": 80,
           "summary": "① 标题文字用拼豆拼出来（玩法即品牌；beadText 点阵字组件，设计稿已验证可读、字号需加大）；",
           "keywords": [
@@ -77509,8 +76888,8 @@
         {
           "anchor": "§现有功能映射（零新功能）",
           "level": 3,
-          "startLine": 3524,
-          "endLine": 3529,
+          "startLine": 2953,
+          "endLine": 2958,
           "tokens": 98,
           "summary": "boot 标题页（开始按钮）；playing：木牌 HUD（计时/LV/暂停）、画布、木槽托盘 6+6（expandTr",
           "keywords": [
@@ -77525,8 +76904,8 @@
         {
           "anchor": "§游戏名 6 备选（均含品类词利于微信搜索）",
           "level": 3,
-          "startLine": 3530,
-          "endLine": 3533,
+          "startLine": 2959,
+          "endLine": 2962,
           "tokens": 41,
           "summary": "豆豆森林（⭐推荐：树主题+系列化）/ 拼豆小铺 / 拼豆物语 / 拼豆工坊 / 豆趣拼拼 / 颗粒成画。",
           "keywords": [
@@ -77539,9 +76918,9 @@
         {
           "anchor": "§实施路径（届时）",
           "level": 3,
-          "startLine": 3534,
-          "endLine": 3537,
-          "tokens": 37,
+          "startLine": 2963,
+          "endLine": 2968,
+          "tokens": 39,
           "summary": "263 质感先行 → palette 换肤（纸底+木牌）→ boot 标题页新增 → 道具卡/HUD 换肤 → 封箱复评",
           "keywords": [
             "palette",
@@ -77554,9 +76933,9 @@
         {
           "anchor": "§WXG-T-263",
           "level": 2,
-          "startLine": 3538,
-          "endLine": 3580,
-          "tokens": 605,
+          "startLine": 2969,
+          "endLine": 3013,
+          "tokens": 606,
           "summary": "珠面「手绘蜡笔质感」程序化调研留档（📋 未排期）",
           "keywords": [
             "WXG"
@@ -77565,8 +76944,8 @@
         {
           "anchor": "§核对结论",
           "level": 3,
-          "startLine": 3544,
-          "endLine": 3549,
+          "startLine": 2975,
+          "endLine": 2980,
           "tokens": 87,
           "summary": "该图约 90% 已是工程程序化渲染（就是 harness 的输出：pattern 关卡 / drawHud /",
           "keywords": [
@@ -77579,8 +76958,8 @@
         {
           "anchor": "§调研结论：程序**能**画出手绘质感",
           "level": 3,
-          "startLine": 3550,
-          "endLine": 3562,
+          "startLine": 2981,
+          "endLine": 2993,
           "tokens": 181,
           "summary": "独立 Canvas 实验页（temp/handdraw-lab/index.html，零侵入生产渲染）四档对比：",
           "keywords": [
@@ -77595,8 +76974,8 @@
         {
           "anchor": "§工程要点",
           "level": 3,
-          "startLine": 3563,
-          "endLine": 3570,
+          "startLine": 2994,
+          "endLine": 3001,
           "tokens": 137,
           "summary": "1. 抖动描边 circle → polygon ⟹ 图元数不变，封箱压力最小",
           "keywords": [
@@ -77608,8 +76987,8 @@
         {
           "anchor": "§踩坑",
           "level": 3,
-          "startLine": 3571,
-          "endLine": 3574,
+          "startLine": 3002,
+          "endLine": 3005,
           "tokens": 30,
           "summary": "首版描边 0.22×R + 近黑色 → 远看糊成黑块 ⟹ 收到 0.11×R + 深绿 #2a4630。",
           "keywords": [
@@ -77620,9 +76999,9 @@
         {
           "anchor": "§待决策点（届时问主理人）",
           "level": 3,
-          "startLine": 3575,
-          "endLine": 3580,
-          "tokens": 62,
+          "startLine": 3006,
+          "endLine": 3013,
+          "tokens": 63,
           "summary": "选 C（只要颗粒）还是 D（颗粒 + 双色区带）？",
           "keywords": [
             "待决策点",
@@ -77632,8 +77011,8 @@
         {
           "anchor": "§WXG-T-262",
           "level": 2,
-          "startLine": 3581,
-          "endLine": 3582,
+          "startLine": 3014,
+          "endLine": 3015,
           "tokens": 0,
           "summary": "",
           "keywords": [
@@ -77643,9 +77022,9 @@
         {
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
-          "startLine": 3583,
-          "endLine": 3748,
-          "tokens": 6696,
+          "startLine": 3016,
+          "endLine": 3206,
+          "tokens": 7542,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -77659,9 +77038,9 @@
         {
           "anchor": "§WXG-T-268",
           "level": 2,
-          "startLine": 3700,
-          "endLine": 3748,
-          "tokens": 2158,
+          "startLine": 3135,
+          "endLine": 3206,
+          "tokens": 3002,
           "summary": "EP-12「暖纸拼豆台」UI 风格落地与换肤双面 —— Epic 拆分 + 首冲刺落码批（spawn 程基岩，2026-",
           "keywords": [
             "WXG",
@@ -77672,8 +77051,8 @@
         {
           "anchor": "§交付 A · 拆分件",
           "level": 3,
-          "startLine": 3706,
-          "endLine": 3712,
+          "startLine": 3141,
+          "endLine": 3147,
           "tokens": 332,
           "summary": "production/epics/epics-beads-ep12.md（新，EP-12 编号 grep 确认未占用）：",
           "keywords": [
@@ -77688,8 +77067,8 @@
         {
           "anchor": "§交付 B · 首冲刺落码（EP12-S1）",
           "level": 3,
-          "startLine": 3713,
-          "endLine": 3721,
+          "startLine": 3148,
+          "endLine": 3156,
           "tokens": 391,
           "summary": "palette.ts 五值替换（bg_base #F1E8D8 / panel #FFFCF6 / panel_bord",
           "keywords": [
@@ -77704,8 +77083,8 @@
         {
           "anchor": "§未决问题（4 项，交用户/主理人裁）",
           "level": 3,
-          "startLine": 3722,
-          "endLine": 3730,
+          "startLine": 3157,
+          "endLine": 3165,
           "tokens": 215,
           "summary": "1. 默认肤语义（影响 S8 取值）：A 冷紫灰退役、暖纸即默认（现状，推荐）/ B 冷紫灰收编为可选肤 cool-vi",
           "keywords": [
@@ -77718,8 +77097,8 @@
         {
           "anchor": "§批 2（同日续 · 用户四裁落地 + EP12-S8 换肤通道 + EP12-S9 studio 导出链）",
           "level": 3,
-          "startLine": 3731,
-          "endLine": 3744,
+          "startLine": 3166,
+          "endLine": 3179,
           "tokens": 818,
           "summary": "用户四裁：① 默认肤 = warm-paper + 冷紫灰收编可选肤 cool-violet；② D-5 计时胶囊恒纸底",
           "keywords": [
@@ -77734,8 +77113,8 @@
         {
           "anchor": "§WXG-T-224/268 收口批 · check-secrets WARN 核对留痕（2026-10-07）",
           "level": 3,
-          "startLine": 3745,
-          "endLine": 3748,
+          "startLine": 3180,
+          "endLine": 3183,
           "tokens": 144,
           "summary": "4 处 WECHAT-APPID WARN（ADR-0030:124 / VERSION.md:33 / memory/",
           "keywords": [
@@ -77746,22 +77125,51 @@
             "WECHAT",
             "APPID"
           ]
+        },
+        {
+          "anchor": "§WXG-T-230 · 续二/续三汇编（2026-10-07）",
+          "level": 3,
+          "startLine": 3184,
+          "endLine": 3195,
+          "tokens": 594,
+          "summary": "续二（程基岩，两项落码 ✅）：",
+          "keywords": [
+            "WXG",
+            "续二",
+            "续三汇编"
+          ]
+        },
+        {
+          "anchor": "§★ 判据裁定会（2026-10-07，主理人四项全拍板 ①）",
+          "level": 3,
+          "startLine": 3196,
+          "endLine": 3206,
+          "tokens": 214,
+          "summary": "C12-t 并入 test-cases §L 作为 tint 臂正式判据（统计域=mask 纹理像素 B≥250；盲区 ",
+          "keywords": [
+            "C12",
+            "test",
+            "cases",
+            "tint",
+            "mask",
+            "判据裁定会"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 35144,
-      "lines": 105,
-      "sha256": "cf35aaf8052c23ed1b543251df399d597f3696c585cbacc806bebc98b3c907ab",
+      "tokens": 30161,
+      "lines": 94,
+      "sha256": "4561fef4797737ad9f4f1d2dc24c6f22966b40b282077b26d5045728ce6e9799",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 106,
-          "tokens": 35135,
+          "endLine": 95,
+          "tokens": 30152,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -77774,8 +77182,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 79,
-          "endLine": 106,
+          "startLine": 68,
+          "endLine": 95,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -83999,9 +83407,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 74913,
-      "lines": 917,
-      "sha256": "11d7019b43959af06017a341c5a730057fdf5101bf7fa5a185670a8a26db1a1a",
+      "tokens": 77020,
+      "lines": 949,
+      "sha256": "d2664c9430cd6442a84d4460a98fce8303fc3acfd035e2f1b5f67b815e182761",
       "tier": "hot",
       "sections": [
         {
@@ -84661,8 +84069,8 @@
           "anchor": "§K 风格与豆径族（**v2.1 / WXG-T-211-F 新增**）—— 来源家族 = `pause-settings v1.7 §8-14~19` + `save-progress v1.1 §8-11~13` + `ux-spec v1.19 §4` 行4/BOOT/overlay 各行 + `bead-visual-style-spec §12.2 C1/C5/C6/C7/C8/C9/C11/C12` + `assets-spec v1.5-r16 §1.9.7 7.11–7.13`",
           "level": 1,
           "startLine": 678,
-          "endLine": 918,
-          "tokens": 27548,
+          "endLine": 930,
+          "tokens": 28594,
           "summary": "### K.0 编号与归属（两处必须先看）",
           "keywords": [
             "pause-settings v1.7 §8-14~19",
@@ -84671,6 +84079,78 @@
             "§8",
             "§4",
             "§12.2"
+          ]
+        },
+        {
+          "anchor": "§L · tint 臂判据（WXG-T-226/230 · 2026-10-07 判据裁定会并入；详细推导与盲区推导 = `wxg-t-228-tint-criteria.md §11`）",
+          "level": 1,
+          "startLine": 931,
+          "endLine": 950,
+          "tokens": 1019,
+          "summary": "适用臂：tint 臂（整盘单图元）。矢量臂仍走 C12/C7 现式，两式并存不互替。常量单一化：MASK_SHAPE_O",
+          "keywords": [
+            "wxg-t-228-tint-criteria.md §11",
+            "§11",
+            "tint",
+            "WXG",
+            "wxg",
+            "criteria"
+          ]
+        },
+        {
+          "anchor": "§L.1 C12-t（主体色不变式 · tint 臂）",
+          "level": 2,
+          "startLine": 935,
+          "endLine": 938,
+          "tokens": 339,
+          "summary": "统计域：珠 mask 纹理像素的不透明芯 B ≥ 250。逐像素出图色：(d,l) = (R/255, G/255)，o",
+          "keywords": [
+            "C12",
+            "tint",
+            "mask",
+            "主体色不变式"
+          ]
+        },
+        {
+          "anchor": "§L.2 K3 改写（孔底透色 · tint 臂分述）",
+          "level": 2,
+          "startLine": 939,
+          "endLine": 942,
+          "tokens": 168,
+          "summary": "满豆有孔档孔为真透孔（J4 ⌀12）⇒ tint 臂孔底透出 B0 tile edge 档（−0.30），非 pit（−",
+          "keywords": [
+            "tint",
+            "tile",
+            "edge",
+            "pit",
+            "改写",
+            "孔底透色"
+          ]
+        },
+        {
+          "anchor": "§L.3 C7 拆分（配方复杂度门 + 运行时预算门）",
+          "level": 2,
+          "startLine": 943,
+          "endLine": 946,
+          "tokens": 184,
+          "summary": "C7-a（沿用旧值，语义改写）：统计域 = 层集配方侧；珠体命令数 ≤7 且真 α ≤2；语义 =「配方复杂度上限」——",
+          "keywords": [
+            "拆分",
+            "配方复杂度门",
+            "运行时预算门"
+          ]
+        },
+        {
+          "anchor": "§L.4 R-9 分域（AA fringe · 已裁 ①）",
+          "level": 2,
+          "startLine": 947,
+          "endLine": 950,
+          "tokens": 194,
+          "summary": "芯区（B ≥ 250）：保留 T1 原两线，按距轮廓分两子域——芯区-本体（距轮廓 >2px）：平均 ΔE < 2 + ",
+          "keywords": [
+            "fringe",
+            "分域",
+            "已裁"
           ]
         }
       ]
@@ -84866,17 +84346,17 @@
     },
     {
       "path": "production/qa/beads/wxg-t-228-tint-criteria.md",
-      "tokens": 12295,
-      "lines": 317,
-      "sha256": "35332a9a016d19f9e38a4d69fde3fecec7f8209c41e6efe6f3f8f1f2b0d9280e",
+      "tokens": 16861,
+      "lines": 444,
+      "sha256": "2108a14a3820089d9d926dad7e23ca430dffdfad22483da82732b37b3b4426f0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG-T-228 · 珠面/格面 tint 正式管线**验收判据**（用例映射 + 判据重设建议 + G 门挂载）",
           "level": 1,
           "startLine": 1,
-          "endLine": 318,
-          "tokens": 12260,
+          "endLine": 445,
+          "tokens": 16825,
           "summary": "任务号：WXG-T-228（P1）· 执笔：严守真（quality-lead）· 日期：2026-09-29",
           "keywords": [
             "WXG",
@@ -85302,13 +84782,123 @@
           "anchor": "§10 变更记录",
           "level": 2,
           "startLine": 313,
-          "endLine": 318,
-          "tokens": 139,
+          "endLine": 321,
+          "tokens": 335,
           "summary": "v1.0 · WXG-T-228 2026-09-29 首版：判据映射表（L.1/L.2/L.3，TC-TINT-01…",
           "keywords": [
             "WXG",
             "TINT",
             "变更记录"
+          ]
+        },
+        {
+          "anchor": "§11 §230 判据文本草案（WXG-T-230 续三 · 2026-10-04）",
+          "level": 2,
+          "startLine": 322,
+          "endLine": 445,
+          "tokens": 4350,
+          "summary": "性质：本节是判据文本（拟并入 test-cases.md §L 与 bead-visual-style-spec §12",
+          "keywords": [
+            "§230",
+            "§12",
+            "WXG",
+            "test",
+            "cases",
+            "bead"
+          ]
+        },
+        {
+          "anchor": "§11.1 C12-t 正式文本（拟并入 `§12.2 C12` 补充段 + `test-cases §L`）",
+          "level": 3,
+          "startLine": 329,
+          "endLine": 353,
+          "tokens": 945,
+          "summary": "C12-t（主体色不变式 · tint 臂）—— 判据文本成稿",
+          "keywords": [
+            "§12.2 C12",
+            "test-cases §L",
+            "§12.2",
+            "C12",
+            "test",
+            "cases"
+          ]
+        },
+        {
+          "anchor": "§11.2 K3 正式文本改写稿（tint 臂孔底口径；归属文策渊 / 主理人，⛔ QA 不代拍）",
+          "level": 3,
+          "startLine": 354,
+          "endLine": 371,
+          "tokens": 601,
+          "summary": "旧文（bead-visual-style-spec K 表 K3 行 + §6 Q3 裁定，逐字）：",
+          "keywords": [
+            "§6",
+            "tint",
+            "bead",
+            "visual",
+            "style",
+            "spec"
+          ]
+        },
+        {
+          "anchor": "§11.3 C7 拆分正式文本（C7-a 配方复杂度门 + C7-b 运行时预算门）",
+          "level": 3,
+          "startLine": 372,
+          "endLine": 395,
+          "tokens": 765,
+          "summary": "C7（性能门 · tint 臂拆分）—— 判据文本成稿",
+          "keywords": [
+            "tint",
+            "拆分正式文本",
+            "配方复杂度门",
+            "运行时预算门"
+          ]
+        },
+        {
+          "anchor": "§11.4 R-9 分域正式文本（拟并入 `zoom-bake-mip-validation §3.5 测试 1` 作 T1-b 子指标 + 同步 `ADR-0028 §5` T1' 行）",
+          "level": 3,
+          "startLine": 396,
+          "endLine": 421,
+          "tokens": 678,
+          "summary": "芯区（B ≥ 250）：保留 T1 原两条线，零新增阈值，按「距轮廓」分两子域",
+          "keywords": [
+            "ADR-0028 §5",
+            "§3.5",
+            "§5",
+            "zoom",
+            "bake",
+            "mip"
+          ]
+        },
+        {
+          "anchor": "§11.5 换墨反证臂入判据（TC-STY-10 引用面增补）",
+          "level": 3,
+          "startLine": 422,
+          "endLine": 431,
+          "tokens": 426,
+          "summary": "读数（引 TASKS-DETAIL §WXG-T-230 续二 · 程基岩；本单未复跑，落点 = tools/scrip",
+          "keywords": [
+            "STY",
+            "TASKS",
+            "DETAIL",
+            "WXG",
+            "tools",
+            "scrip"
+          ]
+        },
+        {
+          "anchor": "§11.6 裁定归属与生效条件总表（本节全部文本的现态）",
+          "level": 3,
+          "startLine": 432,
+          "endLine": 445,
+          "tokens": 472,
+          "summary": "1 C12-t 式 + 盲区段 主理人 + 文策渊终裁后入 §12.2 C12 / test-cases §L 文本并入",
+          "keywords": [
+            "§12.2",
+            "C12",
+            "test",
+            "cases",
+            "裁定归属与生",
+            "效条件总表"
           ]
         }
       ]
