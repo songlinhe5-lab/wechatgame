@@ -20,6 +20,7 @@ import { describe, it, expect } from 'vitest';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS, contrastRatio, luminance, withAlpha } from '../src/view/palette.js';
 import { EXPAND_BTN_H, EXPAND_BTN_W, UI_CONTAINER, powerupCardRects, zoomControlLayout } from '../src/config/tuning.js';
 import { buildBeadsView } from '../src/view/view-model.js';
+import { failPanelLayout } from '../src/systems/fail-panel.js';
 import { RenderModelBuilder } from '@wxgame/framework';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 
@@ -156,5 +157,59 @@ describe('[EP12-S2] 控件语言 token 批：逐值对齐 tokens.md §1「新」
                 c.fill === withAlpha(DEFAULT_PALETTE.shadowInk, UI_CONTAINER.shadowAlphaCard),
         );
         expect(shadow, '道具卡投影墨暖化 shadowInk').toBeDefined();
+    });
+});
+
+describe('WXG-T-268 EP12-S4 弹窗族换肤（screens.md S2/S3/S4 · paused/clear/fail）', () => {
+    function render(harness: Harness) {
+        const builder = new RenderModelBuilder(750, 1334);
+        builder.begin();
+        buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+        return builder.end().commands;
+    }
+
+    it('paused：纸面板暖墨投影 + T3 木主钮 + 开关 chip 选中 = 木底（音乐/音效默认开）', () => {
+        const harness = createBeadsHarness({
+            noAssemble: true,
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.ep12-s4-pause',
+        });
+        harness.game.onPause();
+        harness.advance(0.3);
+        const cmds = render(harness);
+        // T1 纸面板投影（shadowInk @ 面板 α）——旧版面板底无投影 ⇒ 新腿
+        expect(
+            cmds.some((c) => c.kind === 'rect' && c.fill === withAlpha(DEFAULT_PALETTE.shadowInk, UI_CONTAINER.shadowAlphaPanel)),
+            '暂停面板 = drawPaperPanel（暖墨投影）',
+        ).toBe(true);
+        // 同一 #8A5B34 fill：旧版仅主钮 1 枚（accentPrimary），新版主钮木化 + ≥1 枚选中 chip ⇒ ≥2
+        const woodRects = cmds.filter((c) => c.kind === 'rect' && c.fill === DEFAULT_PALETTE.woodFace);
+        expect(woodRects.length, '主钮木化 + 至少一枚选中 chip 木底').toBeGreaterThanOrEqual(2);
+    });
+
+    it('fail：续时主钮禁用态（watchingAd）走 woodFaceDisabled，旧 α0.35 蒙版 hack 退出', () => {
+        const harness = createBeadsHarness({
+            noAssemble: true,
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.ep12-s4-fail',
+        });
+        let guard = 0;
+        while (harness.game.phase === 'playing' && guard++ < 20000) harness.advance(0.5);
+        expect(harness.game.phase).toBe('game-over');
+        const revive = failPanelLayout(true).buttons.find((b) => b.id === 'revive')!;
+        harness.game.tapDesign(
+            (revive.rect.xMin + revive.rect.xMax) / 2,
+            (revive.rect.yMin + revive.rect.yMax) / 2,
+        );
+        expect(harness.game.snapshot.watchingAd).toBe(true);
+        const cmds = render(harness);
+        expect(
+            cmds.some((c) => c.kind === 'rect' && c.fill === DEFAULT_PALETTE.woodFaceDisabled),
+            '禁用面 woodFaceDisabled（可点性消失双通道之一）',
+        ).toBe(true);
+        expect(
+            cmds.some((c) => c.kind === 'rect' && c.fill === withAlpha(DEFAULT_PALETTE.panel, 0.35)),
+            '旧 α0.35 蒙版 hack 已移除',
+        ).toBe(false);
     });
 });

@@ -33,7 +33,7 @@
 | 9 | `games/beads/design/ux/ux-spec.md` | 36527 | 423 | normal |
 | 10 | `games/beads/art/accessibility.md` | 35817 | 200 | normal |
 | 11 | `games/beads/art/art-bible.md` | 33553 | 499 | normal |
-| 12 | `production/TASKS.md` | 30389 | 94 | hot |
+| 12 | `production/TASKS.md` | 30575 | 94 | hot |
 | 13 | `games/beads/design/gdd/systems-index.md` | 26816 | 299 | hot |
 | 14 | `games/beads/design/levels/levels-spec.md` | 22859 | 527 | normal |
 | 15 | `memory/2026-10-03.md` | 17764 | 544 | normal |
@@ -58,7 +58,7 @@
 | `games/beads/design/ux/ux-spec.md` | 36527 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 35817 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/art-bible.md` | 33553 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS.md` | 30389 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS.md` | 30575 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/systems-index.md` | 26816 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/levels/levels-spec.md` | 22859 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-10-03.md` | 17764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -81,7 +81,7 @@
 | `docs/engine-reference/cocos/VERSION.md` | 12485 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/bead-grid.md` | 12184 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/bead-style-16-19-semantics.md` | 11661 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `memory/INDEX.md` | 11575 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `memory/INDEX.md` | 11632 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `my-skills/writing-skills/anthropic-best-practices.md` | 11532 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `design/proposals/ui-style-redesign/menu-architecture.md` | 11524 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0024-render-model-polygon-value-copy.md` | 11422 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3962,
       "lines": 142,
-      "sha256": "62487ea37d3875bc818099c48b12a7068f1220ee210f09f9348624540bfdcc96",
+      "sha256": "f01fd2716cb4d57ad04ca4b52719742c5b45da3899a7616e72ebe1c6cd1154a3",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5165,
       "lines": 82,
-      "sha256": "5341b0c2f7f69e7b655a12cbaf18bd336439937e055148df64a0420323e54be8",
+      "sha256": "a87739509b3fe1c6f42fa061f153c719c869b406cb22d34066d490fe31dfcd9e",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 94 行 / 30389 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 94 行 / 30575 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -54367,9 +54367,9 @@
     },
     {
       "path": "memory/2026-10-07.md",
-      "tokens": 1371,
-      "lines": 17,
-      "sha256": "e6e60246d042e7d5a65f2514b303f2d8bdba1acc1bad863ec55e42a50172d37b",
+      "tokens": 2219,
+      "lines": 29,
+      "sha256": "e01b31f8301a70462efa925d7f28989f2a8dd88c4e3ace14258d3b90766dd852",
       "tier": "normal",
       "sections": [
         {
@@ -54403,22 +54403,38 @@
             "裁定",
             "第十八次复评"
           ]
+        },
+        {
+          "anchor": "§WXG-T-268 批 4 · EP12-S4 弹窗族换肤（paused/clear/fail 纸化 + 主钮木化 + disabled 消费）",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 30,
+          "tokens": 817,
+          "summary": "用户令：「S4 开工」（承批 3 S2/S3 收口后）。",
+          "keywords": [
+            "WXG",
+            "EP12",
+            "paused",
+            "clear",
+            "fail",
+            "disabled"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 11575,
-      "lines": 282,
-      "sha256": "d835322f03cfb48160c759ec191e6d69f326f6d055bca8137351f2f036436ba3",
+      "tokens": 11632,
+      "lines": 283,
+      "sha256": "0faf8efa6c228eb8b56974da2af7ac50a97812306e19f3e54499d361da6926c7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 283,
-          "tokens": 11553,
+          "endLine": 284,
+          "tokens": 11610,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -54488,8 +54504,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 283,
-          "tokens": 9914,
+          "endLine": 284,
+          "tokens": 9970,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -54501,11 +54517,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 1,371 tok｜1 节｜**蒸馏到期 2026-11-06**（剩 30 天）",
+          "anchor": "§`memory/2026-10-07.md` — 2,219 tok｜2 节｜**蒸馏到期 2026-11-06**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 78,
-          "tokens": 103,
+          "endLine": 79,
+          "tokens": 160,
           "summary": "§WXG-T-268 批 3 · EP12-S2/S3 落码 + P-3=24 裁定 + 第十八次复评（暖纸换肤续） 8",
           "keywords": [
             "memory/2026-10-07.md",
@@ -54519,8 +54535,8 @@
         {
           "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 29 天）",
           "level": 3,
-          "startLine": 79,
-          "endLine": 85,
+          "startLine": 80,
+          "endLine": 86,
           "tokens": 149,
           "summary": "§合成式三端统一 + 旧 effect 死件清（WXG-T-259 · 第廿刀） 3–26 878 — 用户裁定（原话）",
           "keywords": [
@@ -54535,8 +54551,8 @@
         {
           "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 28 天）",
           "level": 3,
-          "startLine": 86,
-          "endLine": 90,
+          "startLine": 87,
+          "endLine": 91,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -54549,8 +54565,8 @@
         {
           "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 27 天）",
           "level": 3,
-          "startLine": 91,
-          "endLine": 109,
+          "startLine": 92,
+          "endLine": 110,
           "tokens": 1235,
           "summary": "§【WXG-T-244 二十三批 · 收口】裁 [GLD+…] 日志 + 修盘内直填回滚 + 开单 WXG-T-246 ",
           "keywords": [
@@ -54565,8 +54581,8 @@
         {
           "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 26 天）",
           "level": 3,
-          "startLine": 110,
-          "endLine": 115,
+          "startLine": 111,
+          "endLine": 116,
           "tokens": 76,
           "summary": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板",
           "keywords": [
@@ -54581,8 +54597,8 @@
         {
           "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 22 天）",
           "level": 3,
-          "startLine": 116,
-          "endLine": 120,
+          "startLine": 117,
+          "endLine": 121,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -54595,8 +54611,8 @@
         {
           "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 21 天）",
           "level": 3,
-          "startLine": 121,
-          "endLine": 135,
+          "startLine": 122,
+          "endLine": 136,
           "tokens": 907,
           "summary": "§WXG-T-221：beads-studio 当前关纹理预烘导出（S3-lite）（Qoder 主理人会话 · 用户三",
           "keywords": [
@@ -54611,8 +54627,8 @@
         {
           "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 20 天）",
           "level": 3,
-          "startLine": 136,
-          "endLine": 143,
+          "startLine": 137,
+          "endLine": 144,
           "tokens": 333,
           "summary": "§WXG-T-217：beads 缩放上下限绝对倍率化 + 低倍点击档（Qoder 主理人会话 · 用户逐项拍板） 3–",
           "keywords": [
@@ -54627,8 +54643,8 @@
         {
           "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 15 天）",
           "level": 3,
-          "startLine": 144,
-          "endLine": 149,
+          "startLine": 145,
+          "endLine": 150,
           "tokens": 118,
           "summary": "§WXG-T-186：beads 组珠消费序改「沿组连通的剥皮序」（Qoder 主理人会话 · 用户四项裁定） 3–15",
           "keywords": [
@@ -54643,8 +54659,8 @@
         {
           "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 10 天）",
           "level": 3,
-          "startLine": 150,
-          "endLine": 166,
+          "startLine": 151,
+          "endLine": 167,
           "tokens": 814,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
@@ -54659,8 +54675,8 @@
         {
           "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 9 天）",
           "level": 3,
-          "startLine": 167,
-          "endLine": 178,
+          "startLine": 168,
+          "endLine": 179,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -54675,8 +54691,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 8 天）",
           "level": 3,
-          "startLine": 179,
-          "endLine": 195,
+          "startLine": 180,
+          "endLine": 196,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -54691,8 +54707,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 7 天）",
           "level": 3,
-          "startLine": 196,
-          "endLine": 223,
+          "startLine": 197,
+          "endLine": 224,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -54707,8 +54723,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 6 天）",
           "level": 3,
-          "startLine": 224,
-          "endLine": 244,
+          "startLine": 225,
+          "endLine": 245,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -54723,8 +54739,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 5 天）",
           "level": 3,
-          "startLine": 245,
-          "endLine": 262,
+          "startLine": 246,
+          "endLine": 263,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -54739,8 +54755,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 4 天）",
           "level": 3,
-          "startLine": 263,
-          "endLine": 283,
+          "startLine": 264,
+          "endLine": 284,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
@@ -77216,9 +77232,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 30389,
+      "tokens": 30575,
       "lines": 94,
-      "sha256": "a72432c7af04f29964e6b51fe13038a081b9dc0e6ff78fa8d6fc815cda32220b",
+      "sha256": "e6cf0da75ece9e92b0e68f1cd32c7eb9bec73e469f745c1833ae751aa8471172",
       "tier": "hot",
       "sections": [
         {
@@ -77226,7 +77242,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 30380,
+          "tokens": 30566,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -77515,17 +77531,17 @@
     },
     {
       "path": "production/epics/epics-beads-ep12.md",
-      "tokens": 5579,
-      "lines": 138,
-      "sha256": "b0e9cb3b53fea882edb83d6340c44cfc6fdf15b574090973728f3665f4504bfd",
+      "tokens": 6022,
+      "lines": 141,
+      "sha256": "f600930d8d5c9e79a286b5e9ce4f90f01779c40d73ab9baca6ddfdf631ebb30f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic / Story 拆分 · **EP-12「暖纸拼豆台」UI 风格落地与换肤双面**（epics-beads-ep12）",
           "level": 1,
           "startLine": 1,
-          "endLine": 139,
-          "tokens": 5545,
+          "endLine": 142,
+          "tokens": 5988,
           "summary": "任务：WXG-T-268 · P0 ｜ 作者：程基岩（engineering-lead）· 2026-10-07 ｜ 宿",
           "keywords": [
             "beads",
@@ -77565,8 +77581,8 @@
           "anchor": "§2 Story 拆分",
           "level": 2,
           "startLine": 30,
-          "endLine": 99,
-          "tokens": 3787,
+          "endLine": 102,
+          "tokens": 4223,
           "summary": "",
           "keywords": [
             "Story",
@@ -77594,7 +77610,7 @@
           "level": 3,
           "startLine": 39,
           "endLine": 47,
-          "tokens": 485,
+          "tokens": 519,
           "summary": "✅ 状态（2026-10-07 批 3）：用户裁 P-3 = 24（见 §6-4）⇒ 开工阻塞解除，与 S3 同批落码。",
           "keywords": [
             "§6",
@@ -77622,12 +77638,12 @@
           ]
         },
         {
-          "anchor": "§EP12-S4 弹窗族换肤（screens.md S2/S3/S4）",
+          "anchor": "§EP12-S4 弹窗族换肤（screens.md S2/S3/S4）✅（已落码收口，2026-10-07 批 4）",
           "level": 3,
           "startLine": 55,
-          "endLine": 61,
-          "tokens": 267,
-          "summary": "描述：paused / level-clear / game-over 三面板纸化 + 主钮木化（T3）+ 开关纸 ch",
+          "endLine": 64,
+          "tokens": 656,
+          "summary": "✅ 状态（2026-10-07 批 4）：三弹窗（paused / level-clear / game-over）容器",
           "keywords": [
             "EP12",
             "screens",
@@ -77640,8 +77656,8 @@
         {
           "anchor": "§EP12-S5 difficultyOf() 难度分单一真源落码 + 守卫",
           "level": 3,
-          "startLine": 62,
-          "endLine": 68,
+          "startLine": 65,
+          "endLine": 71,
           "tokens": 289,
           "summary": "描述：level-difficulty.md §3 公式落码（DI = round₁₀(M × f_C × f_K)，系",
           "keywords": [
@@ -77656,8 +77672,8 @@
         {
           "anchor": "§EP12-S6 主菜单 / boot 屏「拼豆小铺」落码（menu-architecture §5 + screens.md S0 二合一）",
           "level": 3,
-          "startLine": 69,
-          "endLine": 75,
+          "startLine": 72,
+          "endLine": 78,
           "tokens": 572,
           "summary": "描述：R-12 闭合案落码（T-266 §7.2：不新增独立 boot 屏，S0 内容就地落已实装 meta-view ",
           "keywords": [
@@ -77672,8 +77688,8 @@
         {
           "anchor": "§EP12-S7 finish 通关画面作品上架陈列条（screens.md S5）",
           "level": 3,
-          "startLine": 76,
-          "endLine": 82,
+          "startLine": 79,
+          "endLine": 85,
           "tokens": 196,
           "summary": "描述：通关时已完成图案逐格摆进与 S0 同源的陈列条（已通关 = 珠拼缩略；未通关 = 虚线空槽），复用 EP12-S6",
           "keywords": [
@@ -77687,8 +77703,8 @@
         {
           "anchor": "§EP12-S8 换肤通道批（游戏内裁定①：运行时设置项）",
           "level": 3,
-          "startLine": 83,
-          "endLine": 90,
+          "startLine": 86,
+          "endLine": 93,
           "tokens": 480,
           "summary": "描述：T-267 架构稿 MVP 批 1 收编：BeadsSkin 类型 + src/config/skins/（DEF",
           "keywords": [
@@ -77703,8 +77719,8 @@
         {
           "anchor": "§EP12-S9 beads-studio 导出链携带风格（生成侧裁定②）",
           "level": 3,
-          "startLine": 91,
-          "endLine": 99,
+          "startLine": 94,
+          "endLine": 102,
           "tokens": 497,
           "summary": "描述：studio 生成 → 导出 → 小游戏在线导入全链路（盘点结论：server.mjs /api/generate",
           "keywords": [
@@ -77719,8 +77735,8 @@
         {
           "anchor": "§3 第一个冲刺建议（本单 Sprint-01 已执行）",
           "level": 2,
-          "startLine": 100,
-          "endLine": 109,
+          "startLine": 103,
+          "endLine": 112,
           "tokens": 210,
           "summary": "EP12-S1（已完成收口） ① 任务单点名起点 = §3.1 基础色板 token 替换；② 零几何纯墨 ⇒ 封箱通道",
           "keywords": [
@@ -77735,8 +77751,8 @@
         {
           "anchor": "§4 环境约束声明",
           "level": 2,
-          "startLine": 110,
-          "endLine": 118,
+          "startLine": 113,
+          "endLine": 121,
           "tokens": 210,
           "summary": "无真机：一切观感/对比度精确值/图元实测标 [待真机]/[待实测]；⛔ 不伪造、不假绿（K-1 奶白珠最弱对 / K-2",
           "keywords": [
@@ -77746,9 +77762,9 @@
         {
           "anchor": "§5 统计",
           "level": 2,
-          "startLine": 119,
-          "endLine": 130,
-          "tokens": 207,
+          "startLine": 122,
+          "endLine": 133,
+          "tokens": 214,
           "summary": "Epic 数 1（EP-12，宿主表追加行）",
           "keywords": [
             "Epic",
@@ -77758,8 +77774,8 @@
         {
           "anchor": "§6 未决问题状态（2026-10-07 批 2 更新）",
           "level": 2,
-          "startLine": 131,
-          "endLine": 139,
+          "startLine": 134,
+          "endLine": 142,
           "tokens": 327,
           "summary": "1 默认肤语义 ✅ 已裁：暖纸即默认肤（维持 EP12-S1 落码现状）；冷紫灰收编为可选肤 cool-violet（注",
           "keywords": [

@@ -366,7 +366,8 @@ function drawPausePanel(
   const h = (plate.yMax - plate.yMin) * scale;
   const left = cx - w / 2;
   const bottom = cy - h / 2;
-  builder.rect(left, bottom, w, h, { fill: palette.panel, radius: 24 });
+  // EP12-S4：暂停面板 = T1 纸面板（暖墨投影 + 1px `panelBorder`），几何/缩放不动。
+  drawPaperPanel(builder, left, bottom, w, h, palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel);
 
   builder.text(cx, layout.titleY, '暂停', {
     fill: palette.text,
@@ -393,19 +394,59 @@ function drawPausePanel(
       button.id === 'cycle-bead-style' ||
       button.id === 'cycle-bead-size' ||
       button.id === 'cycle-skin';
-    // F6：主按钮 → accent_primary（§3.5 中性强调；白字对比 12.6:1）。
-    builder.rect(bx, by, bw, bh, {
-      fill: primary ? palette.accentPrimary : palette.slot,
-      stroke: primary ? palette.accentPrimary : palette.slotBorder,
-      lineWidth: 2,
-      radius: 14,
-    });
-    builder.text(bx + bw / 2, by + bh / 2, panelLabel(button, snap), {
-      fill: primary ? palette.panel : palette.text,
-      font: toggle ? FONT.panelToggle : FONT.panelButton,
-      align: 'center',
-      baseline: 'middle',
-    });
+    const label = panelLabel(button, snap);
+    const font = toggle ? FONT.panelToggle : FONT.panelButton;
+    // EP12-S4：三档容器语言分流（screens.md S2 §90 / §4 矩阵）——
+    //   主钮 = T3 木、开关 = 纸 chip（选中 = 木底白字）、次钮/选择器 = T1 纸钮（值字面即状态）。
+    const isChip =
+      button.id === 'toggle-bgm' ||
+      button.id === 'toggle-sfx' ||
+      button.id === 'toggle-reduce-motion' ||
+      button.id === 'toggle-large-text' ||
+      button.id === 'toggle-vibrate' ||
+      button.id === 'toggle-debug-info';
+    const chipOn =
+      (button.id === 'toggle-bgm' && !snap.bgmMuted) ||
+      (button.id === 'toggle-sfx' && !snap.sfxMuted) ||
+      (button.id === 'toggle-reduce-motion' && snap.reduceMotion) ||
+      (button.id === 'toggle-large-text' && snap.largeText) ||
+      (button.id === 'toggle-vibrate' && snap.vibrate) ||
+      (button.id === 'toggle-debug-info' && snap.debugInfo);
+    if (primary) {
+      drawWoodButton(builder, bx, by, bw, bh, palette, UI_CONTAINER.radiusWood, true);
+      builder.text(bx + bw / 2, by + bh / 2, label, {
+        fill: palette.woodText,
+        font,
+        align: 'center',
+        baseline: 'middle',
+      });
+    } else if (isChip) {
+      builder.rect(bx, by, bw, bh, {
+        fill: chipOn ? palette.woodFace : palette.panel,
+        ...(chipOn ? {} : { stroke: palette.panelBorder, lineWidth: UI_CONTAINER.strokePanel }),
+        radius: UI_CONTAINER.radiusChip,
+      });
+      builder.text(bx + bw / 2, by + bh / 2, label, {
+        fill: chipOn ? palette.woodText : palette.textDim,
+        font,
+        align: 'center',
+        baseline: 'middle',
+      });
+    } else {
+      // T1 纸次钮 / 选择器钮（纸底 + 值字面 + ▸，screens.md §143）。
+      builder.rect(bx, by, bw, bh, {
+        fill: palette.panel,
+        stroke: palette.panelBorder,
+        lineWidth: UI_CONTAINER.strokePanel,
+        radius: UI_CONTAINER.radiusCard,
+      });
+      builder.text(bx + bw / 2, by + bh / 2, label, {
+        fill: palette.text,
+        font,
+        align: 'center',
+        baseline: 'middle',
+      });
+    }
   }
 }
 
@@ -528,10 +569,8 @@ function drawFailPanel(
 
   const plate = layout.panel;
   const cx = (plate.xMin + plate.xMax) / 2;
-  builder.rect(plate.xMin, plate.yMin, plate.xMax - plate.xMin, plate.yMax - plate.yMin, {
-    fill: palette.panel,
-    radius: 24,
-  });
+  // EP12-S4：失败面板 = T1 纸面板（暖墨投影 + 1px `panelBorder`）。
+  drawPaperPanel(builder, plate.xMin, plate.yMin, plate.xMax - plate.xMin, plate.yMax - plate.yMin, palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel);
 
   builder.text(cx, layout.titleY, '时间到', {
     fill: palette.text,
@@ -552,23 +591,42 @@ function drawFailPanel(
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;
     const primary = button.id === 'revive';
-    const dimmed = primary && snap.watchingAd;
-    builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-      fill: primary ? palette.accentPrimary : palette.slot, // F6：主钮 → accent_primary。
-      stroke: primary ? palette.accentPrimary : palette.slotBorder,
-      lineWidth: 2,
-      radius: 14,
-    });
-    builder.text(button.rect.xMin + bw / 2, button.rect.yMin + bh / 2, failPanelLabel(button.id), {
-      fill: primary ? palette.panel : palette.text,
-      font: FONT.panelButton,
-      align: 'center',
-      baseline: 'middle',
-    });
-    if (dimmed) {
+    const label = failPanelLabel(button.id);
+    if (primary && snap.watchingAd) {
+      // EP12-S4：主钮禁用态（screens.md §4 矩阵 T3「禁用」列 = 可点性消失双通道）——
+      //   面 `woodFaceDisabled`、字 `woodText`@60%、无受光/承重线、投影 0（替旧 α0.35 蒙版 hack）。
       builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-        fill: withAlpha(palette.panel, 0.35),
-        radius: 14,
+        fill: palette.woodFaceDisabled,
+        radius: UI_CONTAINER.radiusWood,
+      });
+      builder.text(button.rect.xMin + bw / 2, button.rect.yMin + bh / 2, label, {
+        fill: withAlpha(palette.woodText, 0.6),
+        font: FONT.panelButton,
+        align: 'center',
+        baseline: 'middle',
+      });
+    } else if (primary) {
+      // T3 木主钮（续时）。
+      drawWoodButton(builder, button.rect.xMin, button.rect.yMin, bw, bh, palette, UI_CONTAINER.radiusWood, true);
+      builder.text(button.rect.xMin + bw / 2, button.rect.yMin + bh / 2, label, {
+        fill: palette.woodText,
+        font: FONT.panelButton,
+        align: 'center',
+        baseline: 'middle',
+      });
+    } else {
+      // T1 纸次钮（描边，重试）。
+      builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
+        fill: palette.panel,
+        stroke: palette.panelBorder,
+        lineWidth: UI_CONTAINER.strokePanel,
+        radius: UI_CONTAINER.radiusCard,
+      });
+      builder.text(button.rect.xMin + bw / 2, button.rect.yMin + bh / 2, label, {
+        fill: palette.text,
+        font: FONT.panelButton,
+        align: 'center',
+        baseline: 'middle',
       });
     }
   }
@@ -1689,12 +1747,8 @@ function drawClearPanel(
   builder.rect(0, 0, DESIGN_W, DESIGN_H, {
     fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
   });
-  builder.rect(plate.xMin, plate.yMin, w, h, {
-    fill: palette.panel,
-    stroke: palette.slotBorder,
-    lineWidth: 1,
-    radius: 24,
-  });
+  // EP12-S4：过关结算面板 = T1 纸面板（暖墨投影 + 1px `panelBorder`，替旧 slotBorder 描边）。
+  drawPaperPanel(builder, plate.xMin, plate.yMin, w, h, palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel);
 
   // 金色缎带横幅 + 标题（ux-spec §3.4 首行）。
   const ribbonH = 84;
@@ -1735,23 +1789,31 @@ function drawClearPanel(
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;
     const primary = button.id === 'next';
-    builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-      fill: primary ? palette.accentPrimary : palette.panel,
-      stroke: primary ? palette.accentPrimary : palette.slotBorder,
-      lineWidth: 1,
-      radius: 20,
-    });
-    builder.text(
-      button.rect.xMin + bw / 2,
-      button.rect.yMin + bh / 2,
-      clearPanelLabel(button.id, snap.clearLastLevel),
-      {
-        fill: primary ? palette.panel : palette.text, // F6：主钮白字（深藏青底）。
-        font: FONT.panelButton,
-        align: 'center',
-        baseline: 'middle',
-      },
-    );
+    const label = clearPanelLabel(button.id, snap.clearLastLevel);
+    if (primary) {
+      // T3 木主钮（下一关，screens.md S3 §100）。
+      drawWoodButton(builder, button.rect.xMin, button.rect.yMin, bw, bh, palette, UI_CONTAINER.radiusWood, true);
+      builder.text(
+        button.rect.xMin + bw / 2,
+        button.rect.yMin + bh / 2,
+        label,
+        { fill: palette.woodText, font: FONT.panelButton, align: 'center', baseline: 'middle' },
+      );
+    } else {
+      // T1 纸次钮。
+      builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
+        fill: palette.panel,
+        stroke: palette.panelBorder,
+        lineWidth: UI_CONTAINER.strokePanel,
+        radius: UI_CONTAINER.radiusCard,
+      });
+      builder.text(
+        button.rect.xMin + bw / 2,
+        button.rect.yMin + bh / 2,
+        label,
+        { fill: palette.text, font: FONT.panelButton, align: 'center', baseline: 'middle' },
+      );
+    }
   }
 }
 

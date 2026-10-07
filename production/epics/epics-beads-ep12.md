@@ -41,7 +41,7 @@
 > ✅ **状态（2026-10-07 批 3）**：用户裁 **P-3 = 24**（见 §6-4）⇒ 开工阻塞解除，与 S3 同批落码。
 
 - **描述**：art-bible §4 六类图元语言落 `view-model` 通用绘制面：T3/T4 木钮（`wood_face`/`wood_sheen` 1px 顶缘线/`wood_edge` 2px 底缘线/`wood_text`；按下 = y+2px 静态位移 + 投影 α−0.04，零 tween）、T1/T2 纸面（投影 α0.10/0.08 单层柔投影）、T5 纸胶囊、T6 状态描边；新 token（`wood_*` / `card_*` / `text_disabled` / `shadowInk #3D2E1E` 暖化）按消费面入 `palette.ts`（色表锁 +N 走 art 单同步快照通道，R-6 判例）。
-- **验收（批 3 实测读数）**：② 灰度可辨 K-4 ✓；③ 每元素 ≤1 投影 + ≤1 内线 ✓；④ ux-spec §5 零新增 ✓；⑤ **第十八次复评**（QA `K.5.1-补10` · provenance 键 18）流级差分两帧同 18 条（插入 3 + 改写 15 · 未解释 0 条）✓；色表锁 35→**46 条 / `68a4b509bb65`**；11 枚新 token 逐值锁 + `cool-violet` 临时别名（史证/既有冷值，零新色相，冷调口径待 S8）。**⚠ 验收①（4 态矩阵）部分兑现**：pressed/disabled 态 token（`woodFacePressed`/`cardPressed` 等）本批**零帧内消费** ⇒ 归 S4（按下/禁用态）收口。
+- **验收（批 3 实测读数）**：② 灰度可辨 K-4 ✓；③ 每元素 ≤1 投影 + ≤1 内线 ✓；④ ux-spec §5 零新增 ✓；⑤ **第十八次复评**（QA `K.5.1-补10` · provenance 键 18）流级差分两帧同 18 条（插入 3 + 改写 15 · 未解释 0 条）✓；色表锁 35→**46 条 / `68a4b509bb65`**；11 枚新 token 逐值锁 + `cool-violet` 临时别名（史证/既有冷值，零新色相，冷调口径待 S8）。**⚠ 验收①（4 态矩阵）部分兑现**：pressed/disabled 态 token（`woodFacePressed`/`cardPressed` 等）本批**零帧内消费** ⇒ 归 S4（按下/禁用态）收口（**S4 批 4 已收口**：disabled 消费于 fail 主钮；pressed 无快照载体，判交互新增续办）。
 - **估点**：M。**依赖**：EP12-S1。
 - **In**：token 接口扩展 + 通用绘制面 + `shadowInk` 暖化消费。**Out**：各相位逐页换肤（S3/S4）；P-2 虚线槽双漂移（**不得顺手改**，risks §6）；~~P-3 面板圆角 18 vs 24 收敛（**[Blocked: 待裁]**）~~ → **已裁 = 24**（批 3 代码 18→24 收敛，assets-spec §1.3 漂移销案）。
 
@@ -52,12 +52,15 @@
 - **估点**：M。**依赖**：EP12-S2。
 - **In/Out**：In = S1 相位全部控件换肤；Out = `traySlot #4A5060` / 盘面格底 / 珠面一切（不动项）；~~D-5 未裁前告急切纸底不落码~~（已裁恒纸底，本批即按终案落）。
 
-### EP12-S4 弹窗族换肤（screens.md S2/S3/S4）
+### EP12-S4 弹窗族换肤（screens.md S2/S3/S4）✅（已落码收口，2026-10-07 批 4）
+
+> ✅ **状态（2026-10-07 批 4）**：三弹窗（paused / level-clear / game-over）容器与控件换肤落码收口；**disabled 态 token 就此消费**（承 S2 §44「归 S4」），**pressed 态**因无快照载体（面板 tap 抬起才提交，`isDown` 仅存 debug 探针不入 `BeadsSnapshot`）判为**交互新增非换肤**，登记续办（见 In/Out）。
 
 - **描述**：paused / level-clear / game-over 三面板纸化 + 主钮木化（T3）+ 开关纸 chip（选中 = 木底白字）+ 行结构零改动（`ux-spec §3.3` S9 单源逐字沿用）。
-- **验收**：① screens.md S2–S4 换肤点逐条；② art-bible §2 休闲③（danger 只出现在倒计时告急与失败页一处）；③ ux-spec §5 毫秒零新增（面板入 200/出 150、星 150×3、彩带 800 引用）；④ `reduceMotion` 开 ⇒ 按下态退静态（矩阵纪律③）。
+- **验收（批 4 实测读数）**：① screens.md S2–S4 换肤点逐条 ✓（三面板 = `drawPaperPanel` 暖墨投影 + 1px `panelBorder`；主钮 = `drawWoodButton` T3 `radiusWood` 20；开关 = 纸 chip，选中 `woodFace`+`woodText`、关 `panel`+`panelBorder`+`textDim`；次钮/选择器 = 纸底 + 值字面）；② art-bible §2 休闲③ ✓（danger 仍只在倒计时告急 + 失败页，本批零新增 danger 面）；③ ux-spec §5 毫秒零新增 ✓（面板入 200/出 150 不动，仅换 fill/stroke/radius）；④ `reduceMotion` 退静态 ✓（本批无按下 tween，退静态腿天然满足）。**disabled 消费**：fail 续时主钮 `watchingAd` 走 `woodFaceDisabled` + `woodText`@60%（替旧 α0.35 蒙版 hack）。
+- **验证**：beads **853** 全绿（+2 自检：`ui-warm-paper-tokens.test.ts` paused 纸投影+木钮+chip 木底 / fail 禁用真 token+hack 退出）· verify **PASS 22 / FAIL 0** · playing 封箱 frame0 `1325/3269d92b…` · frame78 `1871/749b3ada…` **逐字节 MATCH 零漂**（本批零涉 playing，无封箱复评）· 色表锁 **46 条不动**（零新增 token，全消费既有色）· harness 出图 paused 面板观感已核（`temp/beads-pause-panel.png`）。
 - **估点**：S。**依赖**：EP12-S2。
-- **In/Out**：In = 三弹窗容器与控件换肤；Out = 行结构/事件/文案（U16 不写死款数）；~~`[Blocked: 待裁]` D-5~~ → **已解除（2026-10-07 用户裁：计时胶囊恒纸底，不切纸底）**——EP12-S4 对应局部阻塞解除，S4 落码时告急腿只保「danger 数字/图标 + 脉冲」现状语言。
+- **In/Out**：In = 三弹窗容器与控件换肤 + disabled 态消费；Out = 行结构/事件/文案（U16 不写死款数）；~~`[Blocked: 待裁]` D-5~~ → **已解除（2026-10-07 用户裁：计时胶囊恒纸底，不切纸底）**；**pressed 态实时视觉 = 输入链新增（touch-down 命中态入快照 + 逐钮命中），⛔ 本批不伪造，登记续办**。
 
 ### EP12-S5 difficultyOf() 难度分单一真源落码 + 守卫
 
@@ -121,7 +124,7 @@
 | 项 | 数值 |
 |---|---|
 | Epic 数 | **1**（EP-12，宿主表追加行） |
-| Story 数 | **9**（S1 ✅ 已落码收口 · S2/S3 ✅ 已落码收口（批 3）· S4 呈现 · S5 难度真源 · S6/S7 主菜单与陈列 · S8 换肤通道 · S9 studio 导出链） |
+| Story 数 | **9**（S1 ✅ 已落码收口 · S2/S3 ✅ 已落码收口（批 3）· S4 ✅ 已落码收口（批 4）· S5 难度真源 · S6/S7 主菜单与陈列 · S8 换肤通道 · S9 studio 导出链） |
 | 估点分布 | S × 2 · M × 5 · L × 2 |
 | 判据来源 | art-bible §2/§3.1/§3.2 · screens.md 全 6 相位与状态矩阵 · ux-spec §5 · T-266 公式与陈列序 · T-267 mvp A1–A6 · 本单裁定①②（用户 2026-10-07）——**零新判据** |
 | 待裁项 | P-3 圆角收敛、D-5 告急翻转、art-bible §1.1 橱窗主视觉确认、默认肤语义（见 §0/未决）——**2026-10-07 批 2 状态更新见 §6** |
