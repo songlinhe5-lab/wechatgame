@@ -54,19 +54,21 @@
  *   ③ 有 `levels-data.header.txt` ⇒ **必须**有 JSON（孤儿模板）
  *   ④ `design/levels/` 下 `.json` 必须**恰好 1 个**（多个则歧义）
  *   ⑤ 声明了 `DEMO_LEVEL_COUNT` 的游戏 ⇒ 该值必须 == manifest 当前关数（WXG-T-231 门禁⑤）
+ *   ⑥ 目录模式且该游戏有 `difficulty.ts` ⇒ 同类内 `DI` 无退化（可排出严格序；门禁⑥/G6，WXG-T-266）
  * 前三条是 K-031 的结构性补丁：**只要游戏加了关卡数据就会被强制登记**。
+ * ⇒ ⑥ 需引游戏侧 TS 单一真源 ⇒ `levels:sync`/`levels:check` 带 `--import=./tools/scripts/lib/ts-js-resolve.mjs` 钩子运行。
  *
  * USAGE
- *   node tools/scripts/sync-levels-data.mjs              # 全部游戏：写出漂移的产物
- *   node tools/scripts/sync-levels-data.mjs --check      # 全部游戏：校验，漂移即 exit 1
- *   node tools/scripts/sync-levels-data.mjs --game=beads # 只处理某款游戏
+ *   node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/sync-levels-data.mjs              # 全部游戏：写出漂移的产物
+ *   node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/sync-levels-data.mjs --check      # 全部游戏：校验，漂移即 exit 1
+ *   （或直接 `pnpm levels:sync` / `pnpm levels:check`；钩子必需理由见上⑥）
  *
  * 退出码：0 = 全部一致（或已写出）；1 = 漂移（--check）或覆盖面断言失败；2 = 用法错误。
  */
 
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..', '..');
@@ -341,7 +343,60 @@ export function describeGame(name) {
 
 // ─────────────────────────────────────────────────────────── 主流程 ─────────
 
-function main() {
+/**
+ * 门禁⑥（G6，WXG-T-266 EP12-S5）：生成期难度无退化。
+ *
+ * 判据 = 同类别内 `DI` 严格递增（等价「排序后两两不同」，⛔ **不设任何数值阈值**，§7 G6 第四轮终裁
+ * Q7=③）。现池入关序 ≠ 难度序（H-2）⇒ 只断言「可排出严格序（无并列/退化）」，**不断言入关序本身递增**
+ * （否则现池当场假红）。类别字段未落（CH-C 延 n>12）⇒ 现池按单一隐含类别处理。
+ *
+ * 依赖游戏侧 `difficultyOf()` 单一真源（G1）：以**动态字面 `.ts` 路径** import（Node ≥22.18 原生
+ * type-stripping 认字面 `.ts`；其内部 `./x.js` 传递引用由 `--import=ts-js-resolve` 钩子接住 ⇒ 只在
+ * `levels:sync`/`levels:check` 带钩运行时触发）。**仅目录模式且该游戏有 `difficulty.ts` 才生效** ⇒
+ * breakout（单 JSON）与 `node --test`（不调 main）零牵连。任一违规 ⇒ throw（硬红，K-031 同口径）。
+ */
+async function assertDifficultyChain(games) {
+  for (const game of games) {
+    if (game.mode !== 'dir') continue;
+    const diffPath = join(GAMES_DIR, game.name, 'src', 'game', 'difficulty.ts');
+    if (!isFile(diffPath)) continue; // 该游戏无难度真源 ⇒ 门禁⑥ 不适用
+    const { difficultyOf } = await import(pathToFileURL(diffPath).href);
+    const { levels } = assembleFromManifest(game);
+    // 隐含类别分组（CH-C 前恒单类；有 category 字段则按其分组）。
+    const rows = [];
+    for (const lv of levels) {
+      if (!Array.isArray(lv.pattern)) continue; // 非拼豆型关卡（无 pattern）跳过
+      rows.push({ id: lv.id, di: difficultyOf(lv).di, category: lv.category ?? '__default__' });
+    }
+    checkDifficultyDegeneracy(game.name, rows);
+  }
+}
+
+/**
+ * 纯序校验（与 difficultyOf 解耦 ⇒ 无需 TS loader，可 `node --test`）：同类别内 `DI` 排序后须**严格递增**（
+ * 等价无并列/无退化）。⛔ 不引用任何生成器目标参数（DI 起点/公差）或数值阈值（G10-① / Q7=③）。违规 throw。
+ */
+export function checkDifficultyDegeneracy(gameName, rows) {
+  const byCat = new Map();
+  for (const r of rows) {
+    const arr = byCat.get(r.category) ?? [];
+    arr.push(r);
+    byCat.set(r.category, arr);
+  }
+  for (const [cat, arr] of byCat) {
+    arr.sort((a, b) => a.di - b.di || a.id - b.id); // tie-break = 关号升序（确定性，L4）
+    for (let i = 1; i < arr.length; i++) {
+      if (arr[i].di <= arr[i - 1].di)
+        throw new Error(
+          `${gameName}: 门禁⑥（G6）难度退化 —— 类别 ${cat} 内 DI 非严格递增` +
+            `（L${arr[i - 1].id}=${arr[i - 1].di} → L${arr[i].id}=${arr[i].di}）：` +
+            '新入关不得与同类现关并列或更低（difficultyOf 正本 = 游戏侧单一实现，level-difficulty §3）',
+        );
+    }
+  }
+}
+
+async function main() {
   const { games, problems } = discover();
 
   if (problems.length) {
@@ -357,6 +412,9 @@ function main() {
     console.log('（没有游戏带 design/levels/ 真源，跳过）');
     process.exit(0);
   }
+
+  // 门禁⑥（G6）：难度真源落码后，装配前拦截同类内 DI 并列/退化（§7，WXG-T-266）。
+  await assertDifficultyChain(games);
 
   const drifted = [];
   const inSync = [];
@@ -406,7 +464,10 @@ function main() {
 
 // 仅直接调用时执行（守卫的必要性见文件头「副作用守卫」）。
 if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
-  main();
+  main().catch((e) => {
+    console.error(`❌ ${e instanceof Error ? e.message : e}`);
+    process.exit(1);
+  });
 }
 
 // ─────────────────────────────────────────────────────────── helpers ────────
@@ -441,10 +502,10 @@ function listJson(dir) {
 function printHelp() {
   console.log(`关卡产物生成器（多游戏驱动器，WXG-T-048）
 
-用法：
-  node tools/scripts/sync-levels-data.mjs                # 写出全部漂移的产物
-  node tools/scripts/sync-levels-data.mjs --check        # 只校验，漂移即 exit 1
-  node tools/scripts/sync-levels-data.mjs --game=<name>  # 只处理某款游戏
+用法（⑥ 需引游戏侧 TS 单一真源 ⇒ 带钩子；等价 pnpm levels:sync / levels:check）：
+  node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/sync-levels-data.mjs                # 写出全部漂移的产物
+  node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/sync-levels-data.mjs --check        # 只校验，漂移即 exit 1
+  node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/sync-levels-data.mjs --game=<name>  # 只处理某款游戏
 
 每游戏的文件约定（新增游戏**不需要改本脚本**）——**两种真源模式**：
   【目录模式】design/levels/manifest.json + palette.json + singles/ + plates/  ← beads（P1 起）
@@ -460,6 +521,7 @@ function printHelp() {
   ① 有关卡 json ⇒ 必须有 header 模板  ② 有真源 ⇒ 必须有产物
   ③ 有 header 模板 ⇒ 必须有真源  ④ 无 manifest.json 时顶层关卡 .json 必须唯一（有 manifest 走目录模式）
   ⑤ 声明了 DEMO_LEVEL_COUNT 的游戏 ⇒ 该值 == manifest 当前关数（防入关批漏同步常量）
+  ⑥ 目录模式且该游戏有 difficulty.ts ⇒ 同类内 DI 无退化（可排严格序，⛔无数值阈值；WXG-T-266 门禁⑥/G6）
 
 真源：各游戏 design/gdd/systems-index.md §3（冻结常量）。`);
 }

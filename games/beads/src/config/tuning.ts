@@ -591,6 +591,34 @@ export const MISPLACED_PAIRS_MIN = 1;
  * 单关错位交换对数上限（§3.13 冻结）：= 色板 8 色上限的保守界，防单色全灭型死局。
  */
 export const MISPLACED_PAIRS_MAX = 8;
+
+// ─────────────────────────────────────────── WXG-T-266 EP12-S5 难度分 DI（level-difficulty §3.1）
+/**
+ * 结构难度分 `DI` 公式系数（正本 = `design/proposals/ui-style-redesign/level-difficulty.md` §3；
+ * 实现 = `game/difficulty.ts::difficultyOf()`，全仓唯一）。
+ *
+ * ⛔ **不进 `systems-index §3`**（§6.1：判例同 `PAUSE_PANEL_H`，非玩法冻结常量）。
+ * ⛔ **只用于「序」（陈列序 / 类别分带 / 单调守卫），不得用于「价」**（§1.2：DI 对 steps 绝对
+ * 残差最大 ≈58%；定价继续走实测 `steps × SEC_PER_STEP`，本组零涉）。
+ * 系数全部为**语义锚定值**（非回归拟合，§3.3：n=9 上拟合出 `c_C<0` 物理错误 ⇒ 拒绝拟合标定）。
+ */
+export const DIFFICULTY = Object.freeze({
+    /** 每多 1 色 ⇒ 等效错位珠数 +10%（锚：长环心理难度 > 多个短对换，§3.13）。 */
+    c_C: 0.10,
+    /** 色数参考锚 = 入门图锚（使小色数 `f_C < 1` 得折扣）。 */
+    C_REF: 5,
+    /** 碎片度每高 0.1 ⇒ 等效珠数 +16%（锚：同色聚块可批量落子降步，T-186）。 */
+    c_K: 1.60,
+    /** 碎片度中位锚（聚块 `f_K < 1`、碎片 `f_K > 1`）。 */
+    K_REF: 0.50,
+    /** 防退化地板：`K→0`（近纯色块）时 `f_K` 不得归零（否则 DI=0 退化）。 */
+    FK_FLOOR: 0.35,
+    /** 色数因子钳位下界（C=1 ⇒ 0.60）。 */
+    FC_LO: 0.60,
+    /** 色数因子钳位上界（C≥15 ⇒ 2.00，外推区未实测，§8 B-1）。 */
+    FC_HI: 2.00,
+} as const);
+
 /**
  * 环长分布 `cycleProfile` 的目标环长（v1.23 增补，**levels JSON 建议值、不冻结**）。
  * 环 = 「珠→格→珠」追踪链：`short` 全 2-环（短对换）、`mixed` 长短混合、

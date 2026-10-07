@@ -2,7 +2,7 @@
 // 跑法：node --test tools/scripts/sync-levels-data.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assertPricing } from './sync-levels-data.mjs';
+import { assertPricing, checkDifficultyDegeneracy } from './sync-levels-data.mjs';
 
 // 锚 = L5 `studio-5-21cd` 真值：BAC 199 步 × 1.69s = 336s。
 const bot = (o = {}) => ({
@@ -50,4 +50,23 @@ test('source=playtest：time = round(tAct × k)；缺 tAct/k 或改了 time ⇒ 
 
 test('未知 source ⇒ 抛', () => {
     assert.throws(() => assertPricing('L5', { time: 1, pricing: { source: 'vibes' } }), /未知/);
+});
+
+// ── 门禁⑥（G6）难度无退化（WXG-T-266 EP12-S5；纯序校验，不依赖 difficultyOf ⇒ 无 loader）──
+const row = (id, di, category = '__default__') => ({ id, di, category });
+
+test('G6：同类内 DI 严格可排（乱序入参仍可排）⇒ 放行', () => {
+    checkDifficultyDegeneracy('beads', [row(9, 538), row(1, 54.3), row(5, 206), row(3, 89.7)]);
+    // 入关序 ≠ 难度序（H-2）：上面乱序给出也不应红（只断可排严格序）。
+});
+
+test('G6：同类内两关 DI 并列 ⇒ 退化，抛（有牙）', () => {
+    assert.throws(
+        () => checkDifficultyDegeneracy('beads', [row(1, 100), row(2, 100)]),
+        /难度退化.*非严格递增/s,
+    );
+});
+
+test('G6：跨类别各自可排 ⇒ 不同类并列不红（双轨解耦，G10）', () => {
+    checkDifficultyDegeneracy('beads', [row(1, 100, 'A'), row(2, 100, 'B')]);
 });
