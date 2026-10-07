@@ -1,6 +1,6 @@
 # 《拼豆填色消除》(beads) 测试用例 · Test Cases
 
-- 任务号：WXG-T-011 / WXG-T-028 / **WXG-T-084** / **WXG-T-092（复验轮）** / **WXG-T-098** / **WXG-T-109** / **WXG-T-114（真链口径轮）** / **WXG-T-116（§A4b 去「拟」+ 次按钮真链孪生）** / **WXG-T-144（§J v2.0 判据迁移）** / **WXG-T-146（G1/G3/G4 落码回填 + 裁定 1 面板门新增两条）** / **WXG-T-150（G2′ 解环器归位落码 + 裁定「甲」时序门新增三条）** / **WXG-T-153（G6 结算彩带落码 + TC-PER-26 新增）** / **WXG-T-132（G5 伪震屏全局变换通道落码 + TC-PER-27 新增）** / **WXG-T-169（棋盘缩放/平移 + 抬起才提交：§A2/§A3/§A4 时基改写 + 新增 §A4c；**收口批 v1.15 补 §A4c.2 落点**）** / **WXG-T-170/171/172（T-169 §A4c.4-F1/F2/F3 三缺陷修复批：TC-SUB-06 新落点 + F2 回归例 + TC-CAM-08 新落点）** / **WXG-T-173（U11 丁裁：`core-loop v2.2 §8` 注② 摘出扫光链，下游后移清单同步）** / **WXG-T-211（§K 风格与豆径族，v1.17）** / **WXG-T-212（§K.5.1-补 整帧基线复评：HUD 缩放控件致封箱基线失效，v1.18）** / **WXG-T-212-R2（§K.5.1-补2 整帧基线第二次复评：§3.1 盘带下沿 480→568 换尺 ⇒ 坐标级纯平移，v1.19）** / **WXG-T-214（§K.5.1-补3 整帧基线第三次复评：四～七裁孔层链 ⇒ 孔层键形拆两枚 + 整帧两键重封，v1.20）** / **WXG-T-214-R10（§K.5.1-补4/补5 三/四裁历史追补 + 腿 4b 分桶反演闭合，v1.21）** ｜ 作者：严守真 ｜ 版本 **v1.21** ｜ 日期 **2026-09-28**
+- 任务号：WXG-T-011 / WXG-T-028 / **WXG-T-084** / **WXG-T-092（复验轮）** / **WXG-T-098** / **WXG-T-109** / **WXG-T-114（真链口径轮）** / **WXG-T-116（§A4b 去「拟」+ 次按钮真链孪生）** / **WXG-T-144（§J v2.0 判据迁移）** / **WXG-T-146（G1/G3/G4 落码回填 + 裁定 1 面板门新增两条）** / **WXG-T-150（G2′ 解环器归位落码 + 裁定「甲」时序门新增三条）** / **WXG-T-153（G6 结算彩带落码 + TC-PER-26 新增）** / **WXG-T-132（G5 伪震屏全局变换通道落码 + TC-PER-27 新增）** / **WXG-T-169（棋盘缩放/平移 + 抬起才提交：§A2/§A3/§A4 时基改写 + 新增 §A4c；**收口批 v1.15 补 §A4c.2 落点**）** / **WXG-T-170/171/172（T-169 §A4c.4-F1/F2/F3 三缺陷修复批：TC-SUB-06 新落点 + F2 回归例 + TC-CAM-08 新落点）** / **WXG-T-173（U11 丁裁：`core-loop v2.2 §8` 注② 摘出扫光链，下游后移清单同步）** / **WXG-T-211（§K 风格与豆径族，v1.17）** / **WXG-T-212（§K.5.1-补 整帧基线复评：HUD 缩放控件致封箱基线失效，v1.18）** / **WXG-T-212-R2（§K.5.1-补2 整帧基线第二次复评：§3.1 盘带下沿 480→568 换尺 ⇒ 坐标级纯平移，v1.19）** / **WXG-T-214（§K.5.1-补3 整帧基线第三次复评：四～七裁孔层链 ⇒ 孔层键形拆两枚 + 整帧两键重封，v1.20）** / **WXG-T-214-R10（§K.5.1-补4/补5 三/四裁历史追补 + 腿 4b 分桶反演闭合，v1.21）** / **WXG-T-269-S6（§M 主菜单作品墙硬判据，v1.22）** ｜ 作者：严守真 ｜ 版本 **v1.22** ｜ 日期 **2026-10-07**
 - **判据来源（v1.3 校正）**：9 份系统 GDD 各 §8 —— `core-loop / bead-grid / tray-spawner / input-control / timer-gameover / powerups / save-progress / pause-settings`（timer 12 条、其余各 10 条）+ `score-combo` §8（冲刺 11 条）⇒ **合计 93 条**（`awk '/^## 8\./,0' | grep -cE '^[0-9]+\.'` 逐文件 = 12/11/10/10/10/10/10/10/10）。**v1.2 头部写「合计 61 条」已过期，实际只映射 71 条、22 条零映射**（缺陷 **BD-21**，v1.3 由 §H 补齐）。常量引 `systems-index.md §3`（含 §3.10 冲刺 / §3.11 续时）+ `art/accessibility.md`。
 - **v1.3 新增判据来源（§G 可感知层）**：`design/ux/ux-spec.md §1-3 / §4 尾注 / §5 动效毫秒表 / §6.1–6.2 / §8 裁决表`（WXG-T-081）、`art/assets-spec.md §1.2`（`empty`/`wrong`/`hint` 三态规格）、`art/accessibility.md A2/A2b/A3/B3/C1/D1/E2`、`design/audio/audio-events.md §1 + §4 A05-01..27`（WXG-T-083，该文件明文「**供 WXG-T-084 引用**」）。**全部逐条标注来源，零自造数值。**
 - 常量速查（来源 `systems-index §3`，**v1.4 按 v1.17 现文校正；v1.42 按 §3.4 丙档校正**）：`TRAY_BASE_SLOTS=24`（2 行×12，v1.42 / WXG-T-203 E1 矩阵定案）、`SPAWN_INTERVAL_DEFAULT=4.0s`（区间 [2.0,6.0]）、~~`NEEDED:DECOY=3:1`~~ → **v1.17 冻结 `DECOY_COLORS_MAX=0`（D 方案，杂色池关闭）** ⇒ 凡依赖 3:1 抽色的判据（**S4 §8-3**）现属**不可构造**，见 **BD-28**（本文不擅自删条，只标注）；`LEVEL_TIME_DEFAULT=300s`（区间 [180,420]）、`TIMER_URGENT_T=10s`、`TIMER_TICK=1.0s`、`GRID_MAX=13×12`、`STAR3_RATIO=0.32`、`STAR2_RATIO=0.12`、`DEMO_LEVEL_COUNT=8`、`POWERUP_FREE_USES=1`、`REGION_CLEAR_SLOTS=6`、`RANDOM_CLEAR_COUNT=5`、命中区外扩 8px（66²/62²，**重叠区归属以 §8-4 最近格心为准**，v1.4 按已裁口径补注）。
@@ -947,3 +947,140 @@ E1–E6 落码后：**G4 玩法判据面已整体换代**（本节 J 系列）�
 ## L.4 R-9 分域（AA fringe · 已裁 ①）
 
 **芯区（B ≥ 250）**：保留 T1 原两线，按距轮廓分两子域——芯区-本体（距轮廓 >2px）：平均 ΔE < 2 + p95 登记；芯区-孔缘邻域（距孔缘 ≤2px）：ΔE < 5。**边缘带（5 < B < 250，已裁新值 ①）**：p95(ΔE) ≤ 12 · 单点 max ≤ 20 · **无振铃机械式**（法线方向局部极大值唯一 + 孤立 >20 像素距轮廓 ≤2px 判红 + ΔE 口径钉死 g4-probe 现役式，换式 = 换判据须重裁）。**后果句**：分域是换统计域非放宽容差；若坚持合并域 <5 ⇒ tint 路线不可能通过（等价否决，已被本裁定否决该路径）。
+
+---
+
+# §M · 主菜单作品墙（EP12-S6 / WXG-T-269-S6）
+
+> **节首口径声明（判据谱系）**：本节判据**导自** `design/proposals/ui-style-redesign/menu-architecture.md §5.1–§5.4`（版面线框 / z 序热区 / 珠距档口径 B / 三条硬口径）+ `production/epics/epics-beads-ep12.md` EP12-S6 **验收①–⑦**，**不是 GDD §8**——菜单屏无系统 GDD，故 §A/§H 的「9 份 GDD §8 1:1 映射」计数口径**不含本节**（同 §K/§L 的先例：新来源家族另立一节）。美术侧数值真源 = `games/beads/art/menu-wall-signage-spec.md`（T-1），位表真源 = `games/beads/src/config/sign-glyphs.ts`，实测读数真源 = `games/beads/tests/__fixtures__/wxg-t-269-s6-k6-ledger.json`（下称**台账**）。
+>
+> **M.0 效力边界（四条，引用本节必须整段带上）**
+> 1. ⛔ **零自造数值**：本节凡数值一律引台账/规格实测读数（K-051：纸面/规格增量值落码后必须差分复算，`risks.md` 旧「+77~115 推算」已作废）。
+> 2. ⛔ **命令数不是性能**：2563 / 1036 / −307 / −427 / 513 等一律属**指令流纸面口径**，不得写「性能改善」（正本 = `render-perf-device-baseline.md §10.1 禁令 3`）；真机帧率另列 TC-MN-38（⛔）。
+> 3. ⛔ **屏幕层与观感本批全部未执行**（K-037 指令流可证 ≠ 宿主可证；K-044 判定上限由判据完备性决定）：无编辑器、无真机、无 AppID ⇒ `[Cocos]`/`[Device]`/`[Harness]` 道次一律 `⛔不可测` 或 `待执行`，**禁止标绿**。
+> 4. **SKIP ≠ 测**（K-036）：本轮 beads `946 passed ｜ 2 skipped (948) ｜ 66 files`；两条 skip 与本节无关但如实登记 = `skin-system.test.ts › A6 热路径零分配机械探针`（显式 skip，自报「归另批补齐」）+ `levels-dir-pipeline.test.ts › skipIf(WXG_T185_MIGRATION_RECHECK !== '1')`（条件腿，默认短路）。
+>
+> **M.0b 本轮取证命令（自跑，非引他人读数）**：`npx vitest run tests/meta-menu-wall.test.ts tests/menu-signage-beadtext.test.ts tests/menu-thumb-primitives.test.ts tests/menu-primitives-k6.test.ts tests/beads-shell.test.ts` → **94 passed (5 files)**（= 30 + 16 + 16 + 17 + 15）；`npx vitest run`（beads 全量）→ **946 passed ｜ 2 skipped (948) ｜ 66 files**；`node tools/scripts/verify-all.mjs` → **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0（逐项执行，未短路）**。
+> **道次**（沿用文首图例）：`[Node]` vitest ｜ `[Cocos]` 构建产物像素 ｜ `[Device]` 真机 ｜ `[Harness]` 浏览器 dev 装配。
+
+## M.1 版面与三条硬口径（验收①⑥ · §5.1/§5.2/§5.4）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-01 | 口径①：**主钮 = 当前关**（与墙格解耦；点格改关后主钮跟随该关） | `[Node]` | 验收①·§5.4①·`meta-menu-wall.test.ts` ›「口径①：主钮 = **当前关**（与墙格解耦，点格改关后主钮跟随该关）」 | ✅已验 | 批 6-A 反例臂：shell 侧 `levelIdx = slot` ⇒ 本条 + TC-MN-10 两红 |
+| TC-MN-02 | 口径②：**墙格 = 指定关**（点槽 8 直达 L9，非「槽 8 = 第 8 关」） | `[Node]` | 验收①·§5.4②·`meta-menu-wall.test.ts` ›「口径②：墙格 = **指定关**（点槽 8 直达 L9）」 | ✅已验 | 陈列序末位 = 最难关 L9（DI 538.0，引 S5 批读数，本批 ⛔ 不复算公式） |
+| TC-MN-03 | 口径③：**无第三入口**——菜单动作集恰 `{start, pick-level, open-signin, open-settings}`，`open-levels` 不入布局；16×16 扫面亦无其它动作 | `[Node]` | 验收①·§5.4③·Q5①·`meta-menu-wall.test.ts` ›「口径③：主菜单版面**无第三入口**（`open-levels` 不入布局；扫面亦无其它动作）」 | ✅已验 | 「入口隐藏 ≠ 代码删除」另锚 TC-MN-06 |
+| TC-MN-04 | 未解锁格（槽 1–8）与**越界槽**（第 10–12 格）= 虚线空槽：无编号占位、无「解锁/🔒」字样、`tapMeta` 返 false、不扣心、零 `meta:*` 事件 | `[Node]` | 验收①⑥·§5.4②·`meta-menu-wall.test.ts` ›「未解锁格 = 虚线空槽（无编号、无🔒字样）+ 零热区零事件」＋「越界槽（第 10–12 格，关表短于容量）同为虚线空槽 + 零事件（S6 Out 的溢出不得误接关）」 | ✅已验 | 已解锁格同腿钉「缩略命中 L1 + 有珠 + 虚线段 = 0」（编号退场 → 缩略 oracle 逐位 deep-equal） |
+| TC-MN-05 | 验收⑥：橱窗**木框 / 纸底 / 格间隙 = 零热区**（框带四点 + 间隙点 `hitTestMeta` 为 null；热区表内不存在框级 / 纸底级尺寸对象） | `[Node]` | 验收⑥·§5.2 z 序「仅格可点」·`meta-menu-wall.test.ts` ›「验收⑥：橱窗木框 / 纸底 / 格间隙 = **零热区**（装饰层不建按钮 ⇒ 无从命中）」 | ✅已验 | 结构面 + 坐标面双证：装饰层**不建按钮** ⇒ 无从命中，比纯扫面强 |
+| TC-MN-06 | 版面同源：橱窗 = 4×3 共 12 格（`WALL_CAPACITY ≡ WALL_COLS × WALL_ROWS`）、格宽 `WALL_CELL = 120`、列/行步进与 `levels` overlay **逐格全等**、第 1 行格上沿 ≡ `WALL_GRID_TOP = 898`；overlay 仍可渲染与命中；**L5** 视图对冻结入参只读（两次调用输出全等 + 无 `../game/*` 值导入 + 无 `export let/var`） | `[Node]` | 验收①·Q5①·§5.1/§5.2·`meta-menu-wall.test.ts` ›「橱窗 = 4×3 共 12 格，格距与主菜单一致（overlay 与菜单同一组几何 ⇒ 永不各排一份）」＋「`levels` overlay 仍可渲染与命中（入口隐藏 ≠ 代码删除；此处直接驱动视图，宿主/测试同法）」＋「L5：视图对**冻结入参**只读（两次调用输出全等 ⇒ 不持状态、不写回）」 | ✅已验 | 「搬格不改几何」= 格宽/步进/上沿三点同源，防止 overlay 与菜单各排一份 |
+| TC-MN-07 | P-5 收敛：次级行**恰 2 钮**（签到 / 设置），实测总宽 `2×240 + 24 = 504 ≤ 750`；钮高 ≥ `TOUCH_MIN = 88`；`const gap = 24` 字面已从 `menuLayout()` 收进 `tuning.ts::MENU_SECONDARY_GAP` | `[Node]` | 验收①·§7.4 P-5·§5.1·`meta-menu-wall.test.ts` ›「次级行恰 2 钮（签到 / 设置），总宽 504 ≤ 750 ⇒ P-5 溢出闭合」＋「数据驱动：`const gap = 24` 字面已从 `menuLayout()` 收进 `tuning.ts::MENU_SECONDARY_GAP`」 | ✅已验 | 504 是**实测求和**（非线框纸面）；视图源内 `const gap = 24` 已断言退场 |
+
+## M.2 陈列序 = DI 升序（验收② · 消费 EP12-S5）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-08 | 九格**缩略逐位复现** `level-difficulty §5.2` 墙序 `L1→L8→L4→L3→L7→L2→L6→L5→L9`（索引序 `0,7,3,2,6,1,5,4,8`） | `[Node]` | 验收②·§5.2·`meta-menu-wall.test.ts` ›「主菜单橱窗九格**缩略逐位复现** `level-difficulty §5.2`…」＋前置两例「关号 = 索引+1（陈列序在本池无二义…）」「DI 逐关实算且**本池无并列**…」 | ✅已验 | 前置诚实登记：现池 DI 无并列 ⇒ tie-break「关号升序」分支**不可达**（不假装覆盖）；oracle = 缩略色块反读，非读常量表 |
+| TC-MN-09 | **有牙双臂**：① 阳性对照——九关的 5×5 聚合表**两两不同**（⇒ TC-MN-08 的 oracle 不可能是恒等空断言）；② 反例锁——「按槽直索引」（墙序 = 1..9）与现读序列**逐位不等** ⇒ 该实现必红 | `[Node]` | 验收②·K-060·`meta-menu-wall.test.ts` ›「**阳性对照**（K-060）：九关的 5×5 聚合表**两两不同**…」＋「**反例锁**：「按槽直索引」（墙序 = 1..9）必红 ⇒ 现读序列与恒等序逐位不等」 | ✅已验 | 防假绿谱系的**内建**腿，不靠外部人工突变 |
+| TC-MN-10 | 行为腿反例：点槽 1 → 落 **L8（索引 7）**，⛔ 不是索引 1；**静态门**：`MetaButton` 只携 `slot`（关索引在视图侧无从存在 ⇒ 回归根因被结构封死） | `[Node]` | 验收②①·`meta-menu-wall.test.ts` ›「**行为腿反例**：点槽 1 → 落 L8（索引 7），⛔ 不是索引 1（旧 `beads-shell.ts:258` 的错值）」＋「静态门：`MetaButton` 只携 `slot`（关索引在视图侧无从存在）⇒ 回归根因被结构封死」 | ✅已验 | 批 6-A 登记：视图侧 `levelIdx = slot` ⇒ 3 红（本条为其中行为腿） |
+| TC-MN-11 | 热路径：排序**只住** `_rebuildWallSlots`（一次性），每帧腿（`_metaViewData` / 视图）**零 sort**；同 data 两次 `metaLayout('none')` ⇒ **引用相等**、三帧等长 | `[Node]` | 验收②·热路径零分配铁律·`meta-menu-wall.test.ts` ›「热路径：排序只住在 `_rebuildWallSlots`（一次性），每帧腿（`_metaViewData`/视图）零 sort」 | ✅已验 | 引用相等（非结构等价）才叫「没重算」；退场腿以 `'★'.repeat` 对撞 |
+
+## M.3 首屏分流与文案单源（验收① · §7.1 F-1 / §6 P-7）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-12 | **首屏停主菜单**：`initialScreen` 默认 `'menu'`（`beads-shell.ts:156`）；传 `'play'` ⇒ 直进玩法并扣 1 心；`'play'` + 0 心 ⇒ **回落 menu**（不扣心、不开局） | `[Node]` | 验收①·§7.1 F-1·screens.md S0 二合一·`beads-shell.test.ts` ›「honors initialScreen=play (harness/tests) and spends one heart」＋「initialScreen=play with 0 hearts falls back to the menu (体力系统生效)」＋「startGame from a fresh menu spends one heart」＋「startGame refuses at 0 hearts and stays in the menu」 | ✅已验（分流逻辑层） | 原「启动直进玩法」红线已由 **WXG-T-180 反转、EP12-S6 T-2A Reinforce**；屏幕层实证另列 TC-MN-40（⛔），⇒ 本条只支撑 `smoke-tests.md` 的 SC-01 订正，不代替画面冒烟 |
+| TC-MN-13 | 文案令牌单源（P-7）：`COPY_TOKENS` 逐值对齐 `tokens.md §7` / `menu-architecture §6`（`app_name` 拼豆小铺 / slogan / version / `btn_start_label` = 开始游戏 / 签到 / 设置 / 退役键 `btn_levels_label` = 选关）；slogan·version 读令牌并落位 `MENU_SLOGAN_Y = 968`、`MENU_VERSION_Y = 140`；`MENU_TITLE_Y` 带内**系统字体标题已退场**（text 零增量）；钮标签读令牌且旧字面「开始拼豆」不残留；视图源内无裸字面 + 令牌 import 在场 | `[Node]` | 验收①·§6·Q5①·`meta-menu-wall.test.ts` ›「`COPY_TOKENS` 逐值对齐 `tokens.md §7` / `menu-architecture §6`（消费副本 ≠ 真源即红）」＋「slogan / 版本号读令牌并落位 `MENU_*_Y` 锚；**招牌已换成珠拼**（文字腿退场）」＋「钮标签读令牌（主钮 + 次级 2 钮）」＋「静态门：视图源内标题字面已退场 + 令牌 import 在场」 | ✅已验 | 退役键语义 = **入口退役 ≠ 字面作废**（overlay 仍读「选关」）；屏内只准 3 条 text 标签 + slogan/version（菜单帧 text 族 total 16 = 台账 `full/production.kinds.text`） |
+
+## M.4 招牌 `beadText` 珠拼（验收③④ · §5.3 · T-1 §0.5/§1.5/§1.7/§3.8）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-14 | 位表完整性：四枚字模 = `n×n` 方阵、字符集闭于 `{#, .}`、`n ≡ SIGN_MATRIX_N = 10`；逐枚珠数 ≡ T-1 §1.6 登记表 **37 / 38 / 19 / 54（合计 148）**；`app_name` 每个码点都有字模（生产链路不静默跳字、不走文字回落臂） | `[Node]` | 验收④·T-1 §1.5/§1.6/§0.5·`menu-signage-beadtext.test.ts` ›「四枚字模 = n×n 方阵，字符集闭于 {# , .}，且 n ≡ SIGN_MATRIX_N」＋「每枚字模珠数 ≡ T-1 §1.6 登记表（37 / 38 / 19 / 54；合计 148）」＋「app_name 的每个码点都有字模…」 | ✅已验 | `n`/`beads` 由行串**自算** ⇒ 不存在第二份可漂移读数；⛔ 工程侧不自拟字形（真源 = art T-1） |
+| TC-MN-15 | 位序（**反位即字形废**）：实测珠心集 ≡「`rows[0]` = 视觉顶行 / `c00` = 视觉最左列」换算集；**反例锁**——上下翻 / 左右翻 / 双翻三套反位期望集**全部 ≢ 实测**（「移位 ⇔ 非自对称」写成双向恒等式，`豆` 左右自对称 ⇒ h 翻不移位是事实、不是漏网）；y 向单调 `r00` 珠心 y > `r09` | `[Node]` | 验收④·T-1 §0.5·K-060·`menu-signage-beadtext.test.ts` ›「实测珠心集 ≡ 位表按「rows[0] = 视觉顶行 / c00 = 视觉最左列」换算的期望集」＋「反例锁：上下翻 / 左右翻 / 双翻三套反位期望集**全部** ≢ 实测（防「恒返基准」式自证）」＋「y 向单调：位表顶行（r00）珠心 y > 底行（r09）珠心 y（原点左下、y 向上）」 | ✅已验 | 换算住在 `view/menu-signage.ts`（`y = glyphTop − (r+0.5)·d`）；位序歧义是 T-1 自陈的**首要风险**，本条是主拦截腿 |
+| TC-MN-16 | 招牌几何：`MENU_TITLE_Y = 1040` 语义 = **外接框中心**（高 `n·d = 120`，顶/底沿关于中心对称，⛔ 非 baseline）；总宽 ≡ `SIGN_WIDTH_COEF · n · d = 5.5×10×12 = 660` ≡ tuning 常量 ≤ 可用 `SIGN_AVAIL_W = 702`（余量 42）；四枚字槽等差 `= n·d·(1 + SIGN_GLYPH_GAP_RATIO)`，逐字珠数与位表一致 | `[Node]` | 验收③·§5.3·§7.4 P-6·`menu-signage-beadtext.test.ts` ›「外接框中心 = MENU_TITLE_Y，高 = n·d，顶/底沿关于中心对称 ⇒ 非 baseline 语义」＋「总宽 = `SIGN_WIDTH_COEF · n · d`（4 枚字槽 + 3 个半字宽间隙），且 ≡ tuning 常量、≤ 页面可用宽」＋「四枚字槽等差 = n·d·(1 + SIGN_GLYPH_GAP_RATIO)，逐字珠数与位表一致」 | ✅已验（几何层） | ⚠ 字框 `[980,1100]` 与 slogan（968，行高 28 ⇒ 顶 ≈990）存 **≈2px 微交**：本批**未自改 y**，归 ux 版面重排（T-4）⇒ 屏幕层另列 TC-MN-40（⛔），登 **BD-54** |
+| TC-MN-17 | 珠体通道（不造第二套简化珠）：每颗珠**恒 7 命令**（1 rect + 4 polygon + 2 circle）且系数 ≡ `BEAD_STYLE_MAX_COMMANDS`；招牌发射流**逐字节 ≡** 直调 `drawFilledBead(size = d − BEAD_GAP, targetColorIdx 触发等比内缩)` 的参照流；口径 B 真几何面 `signFaceB(SIGN_BEAD_PITCH=12) = 8.667 ≥ SIGN_FACE_FLOOR = 8` | `[Node]` | 验收③④·T-1 §0.2/§0.3·S0①③④·`menu-signage-beadtext.test.ts` ›「每颗珠恒 7 命令（1 rect + 4 polygon + 2 circle），且系数 ≡ BEAD_STYLE_MAX_COMMANDS」＋「逐字节 ≡ 直接调 `drawFilledBead`（size = d − BEAD_GAP，targetColorIdx 触发等比内缩）的参照流」 | ✅已验 | 口径 B 式 `面 = (d − BEAD_GAP 2) × 26/30`（`BEAD_CELL/BEAD_DRAW_INSET` 派生，⛔ 不新算式）；每珠 7 = 余量 0，多一枚即红 |
+| TC-MN-18 | 色与墨：招牌**零新 hex** ⇒ 发射色集 ≡ **同一珠体通道在该墨下的可发射色集**（⛔ 不列第二份色表、不 mix 新档）；墨索引为**确定性派生**（`SIGN_INK_IDX = 0` ⇒ 走 T-1 §1.7 `relativeLuminance` 通道），且 ∈ `[1, 色表长度]` | `[Node]` | 验收④·T-1 §0.6/§1.7·S0②·K-042·`menu-signage-beadtext.test.ts` ›「招牌零新 hex：发射色集 ≡ 同一珠体通道在该墨下的可发射色集（⛔ 不列第二份色表）」＋「墨索引为确定性派生（SIGN_INK_IDX=0 ⇒ 走 T-1 §1.7 relativeLuminance 通道），且在色表值域内」 | ✅已验（派生层）/ 观感 ⛔ | art 回写 1..10 即覆盖现派生值；「单色墨在 `bg_base` 上的观感与色差」不在本条射程 ⇒ TC-MN-36（⛔），登 ep12 CONCERNS ③ |
+| TC-MN-19 | 降级臂（⛔ 不猜字形、⛔ 不同屏两份标题）：未知字符 ⇒ 跳该字但**保留字槽**（前三槽珠心位置全等、缺字槽无珠、末槽照旧）；全未知 ⇒ 返回 0 让调用方走文字回落；档不符（位表 `n` ≠ 传入 `n`）⇒ **整串不画 + 一次性告警**（`warns.length ≡ 1`，⛔ 每帧刷屏）；`signTierReady()` 现档 `true`、`signTierReady(8, SIGN_PITCH_MAX) === false` | `[Node]` | 验收③·T-1 §1.6/§1.2/§3.8 序 5·K-035·`menu-signage-beadtext.test.ts` ›「未知字符 ⇒ 跳过该字但**保留字槽**（版面不移位）；全未知 ⇒ 返回 0 让调用方回落文字」＋「档不符（位表 n ≠ 传入 n）⇒ 整串不画 + 一次性告警（不静默半画）」＋「`signTierReady()` 自审：现档过；档被改而位表未跟上 ⇒ 先红在这里」 | ✅已验 | 8×8 回落档**无位表**（T-1 明文不预支）⇒ 杠杆序 5 一旦触发须 art 回单补数据；本条钉「档变表未跟上先红」而非伪造位表 |
+| TC-MN-20 | 装配腿（真实菜单帧，不止单函数）：菜单帧实测珠数 ≡ 位表自算 = **148**，且全部落在 `MENU_TITLE_Y` 带内；四枚字槽各自 ≥1 枚珠心（`148 × 7 = 1036` 命令） | `[Node]` | 验收④·§5.3·`meta-menu-wall.test.ts` ›「招牌 = **`beadText` 珠拼**（实测 148 珠 × 7 = 1036 命令落在 `MENU_TITLE_Y` 带内）」 | ✅已验 | 与台账 `diffs.full.signage.total = 1036 / beads = 148` 双路互证（装配腿 vs 差分腿） |
+
+## M.5 作品格珠拼缩略（验收④ · T-1 §3.1–§3.4 案乙）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-21 | 聚合切块规则：切块**覆盖且仅覆盖**每个源格一次（`rows ≥ n`）；`.` / `x` 不入 tally ⇒ 该位**不画珠**（露纸底，⛔ 不画「空珠」）；取块内**计数最大**者，平票 ⇒ **最小 `colorIdx`** 且与块内扫描/行序无关；表为扁平三元组 `[r, c, colorIdx]`，`r/c ∈ [0,n)`、色索引 ∈ `[1, BEAD_COLOR_MAX]` | `[Node]` | 验收④·T-1 §3.1·L4（禁 RNG / 禁依赖扫描序）·`menu-thumb-primitives.test.ts` ›「切块覆盖且仅覆盖每个源格一次（rows ≥ n 时）⇒ 不存在重复计数」＋「`.` / `x` 不入 tally：块内只有空 / 不可填 ⇒ **该位不画珠**（露纸底，⛔ 不画「空珠」）」＋「取块内**计数最大**者；平票 ⇒ **最小 colorIdx**；且与块内扫描/行序无关」＋「表为**扁平三元组** [r,c,colorIdx] 且 r/c 在 [0,n) 内、色索引在 [1,BEAD_COLOR_MAX] 内」 | ✅已验 | 平票双臂（双序对撞）= 反例腿：若实现取「先见者」必红；均匀单色盘 ⇒ 每块一颗同色珠（表长 `3·n²`）为阳性对照 |
+| TC-MN-22 | **单格 ≤ 25 珠硬判据**：九关 × 三档实测全部 `≤ n² ≤ THUMB_BEADS_MAX = 25`；上限押在 `n²` 而与关卡规模**解耦**（人工大盘 30×30 全填 9 色仍 ≤ 25）；渲染实测珠数 ≡ 聚合表读数（不是两套数） | `[Node]` | 验收④·T-1 §3.3（≤25 珠 / ≤178 命令）·`menu-thumb-primitives.test.ts` ›「九关 × 三档实测全部 ≤ 该档 n² ≤ THUMB_BEADS_MAX」＋「上限押在 `n²` 而与关卡规模**解耦**：人工大盘（30×30 全填、9 色）仍 ≤ 25」＋「渲染实测珠数 ≡ 聚合表读数（不是两套数）」 | ✅已验 | 台账 5 档逐关 `L1..L9 = 23/23/18/21/24/22/20/19/23` ⇒ **max 24**（最紧在 L5，余量 1）；4 档 max 16、3 档 max 9；全墙 193 珠 = 1351 命令（T-1 §3.2 表） |
+| TC-MN-23 | 一次性缓存（热路径零分配）：同 `(level, n)` 两次调用 ⇒ **同一引用**（命中 `WeakMap` ⇒ 每帧只 `get`、不重算、不新建数组）；表本体 `Object.freeze`；换肤 / 换墨**不影响**聚合表（表只依赖 `pattern` 与 `n`）⇒ 缓存无需失效键 | `[Node]` | 验收④·T-1 §2·铁律「热路径零分配」·`menu-thumb-primitives.test.ts` ›「同 (level, n) 两次调用 ⇒ **同一引用**…」＋「表本体 `Object.freeze` ⇒ 运行期不可改写位表读数（缓存被污染的风险归零）」＋「换肤 / 换墨不影响聚合表（表只依赖 `pattern` 与 `n`）⇒ 缓存无需失效键」 | ✅已验 | 引用相等而非深相等是本条的牙；`freeze` 防「缓存被就地改写」的静默污染 |
+| TC-MN-24 | 案乙几何与通道：`THUMB_AREA = WALL_CELL(120) − THUMB_TOP_INSET(8) − THUMB_STAR_BAND(28) = 84` 见方坐格顶，珠心全在缩略区内、**星带内零珠**（不叠字、版面不移位）；发射流**逐字节 ≡** `drawFilledBead(size = thumbOuterFor(n), 墨 = beadInksFor(level))`；口径 B 三档皆过地板（`5 档 12.827 / 4 档 16.467 / 3 档 22.533`）且**档越小面越大**；聚合表为空 ⇒ **一命令不发**；缩略发射色 ⊆ 该关墨集 | `[Node]` | 验收④·T-1 §3.2/§3.4（案乙·84 区）/§3.7·§5.3 口径 B·`menu-thumb-primitives.test.ts` ›「缩略区 = 格顶内缩 THUMB_TOP_INSET 的 THUMB_AREA 见方；下部 THUMB_STAR_BAND 留给星（不叠珠）」＋「逐字节 ≡ 直接调 `drawFilledBead`（size = thumbOuterFor(n)，墨 = beadInksFor(level)）的参照流」＋「口径 B 面过地板（三档皆然）⇒ 缩略不退化为「看不见的珠」」＋「聚合表为空 ⇒ 一命令不发（早退，不留「空珠」噪声）」＋「缩略发射色 ∈ 该关墨集（色源唯一，⛔ 不建 UI 简化色表）」 | ✅已验 | 5 档 `pitch = 16.8`、`84 % 5 ≠ 0` 被钉为**真读数**（⛔ 别把浮点当整）；现装占位格几何未动 = 案乙「格几何不动、内缩出缩略区」的交付口径 |
+
+## M.6 K-6 图元差分（验收④ · K-051 禁纸面值）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-25 | 差分腿与生产腿**同源**：不传 `variant` ≡ 传默认值 ⇒ 整帧 sha 等；**L4** 同进程两遍取数全等、**L5** 视图二次调用输出全等；**台账读数 ≡ 现算**（checked-in 件是回归门，不只是档案） | `[Node]` | 验收④·K-051·L4/L5·`menu-primitives-k6.test.ts` ›「不传 variant ≡ 传默认值 ⇒ 整帧 sha 等（差分只换三个形参，数据同源）」＋「L4：同进程两遍取数全等；L5：视图对同一 data 二次调用输出全等」＋「台账读数 ≡ 现算（checked-in 件是回归门，⛔ 不只是档案）」 | ✅已验 | 台账 `capturedFrom = 41a1096612ac25c5… · T-2B 工作树`；`method.forbidden` 自陈 ⛔ 纸面值入册（K-051）／⛔ 反向改基准求绿（K-053） |
+| TC-MN-26 | **Δ招牌 = +1036 命令**（`state=full` 与 `state=first` 两跑）：`Δ(production − signage.off) ≡ 位表自算珠数 × 7`，且增量**闭于珠体三族**（rect +148 / circle +296 / polygon +592；**`text` Δ = 0、`line` Δ = 0**） | `[Node]` | 验收④·K-6·`menu-primitives-k6.test.ts` ›「state=full / state=first：Δ(production − signage.off) ≡ 位表自算珠数 × 7，且增量是**纯珠体族**」（同一用例参数化两跑） | ✅已验 | `text Δ = 0` = 「系统字体文字腿确实退场」的**实测**事实而非注释；台账 `frames.full.production.total = 2563 / beads = 341 / kinds{text:16, rect:355, polygon:1364, circle:682, line:146}`；`signage.off = 1527 / beads 193`；`risks.md` 旧「+77~115 推算」作废 |
+| TC-MN-27 | 五级回退杠杆的差分单调：**Δ缩略 5→4 = −427（61 珠）/ 4→3 = −378（54 珠）/ 5→3 = −805（115 珠）** 逐级严格下降且**不污染 text/line 族**；**Δ陈列格 3→2 行 = −307**（23 珠 + 144 虚线段 + 24 rect + 1 text），**首日态 Δ = −192 纯落 `line`**；**全回落地板 total = 513** ≪ 生产 2563（`allVsFloor` full 2050 / first 1326） | `[Node]` | 验收④·T-1 §3.8（序 1–5）·`menu-primitives-k6.test.ts` ›「缩略 5→4→3：珠数与命令**逐级严格下降**（两态皆然），且不污染文字/线族」＋「陈列格 3→2 行：命令下降；**首日态**（仅 1 关有珠）的 Δ 只落 `line`（虚线空槽）族」＋「全回落地板（招牌 off + 2 行 + 3 档）≪ 生产档 ⇒ 杠杆确有可退空间」 | ✅已验 | 各档实测底座（供真机超线时逐级回落引用）：`floor.allOff 513 / thumb.n3 1758 / thumb.n4 2136 / wall.rows2 2256 / production 2563`；⛔ 以上皆纸面命令数，不得写「性能改善」（M.0 边界 2） |
+| TC-MN-28 | 满载菜单帧的**缩略珠数 ≡ 九关聚合表求和**（`beads` 读数不是另一套账） | `[Node]` | 验收④·K-6·`menu-primitives-k6.test.ts` ›「满载菜单帧的缩略珠数 ≡ 九关聚合表求和 ⇒ beads 读数不是另一套账」 | ✅已验 | 台账口径 `beads = circle / 2`：`full/production beads 341 = 招牌 148 + 缩略 193`；`signage.off beads = 193` 独立同值 ⇒ 两套账互闭合 |
+| TC-MN-29 | 验收③档读数与成本：`8 / 10 / 12` 三档 `5.5·n·d` 恒 = **660**、不变式 `n·d = 120`；`8@15` 面 **11.267** ✓ / `10@12` 面 **8.667** ✓（**采用档**，命令 1036）/ `12@10` 面 **6.933 < SIGN_FACE_FLOOR 8** ✗ ⇒ **12×12 不做**；`菜单满载帧 / 玩法 78 填帧 = 2563 / 1871 = 1.370×`（断言 ∈ (1.3, 1.45)）；逐 kind 求和 ≡ 整帧 `total` | `[Node]` | 验收③④·§5.3（升档式 `d = ⌊W_avail/(5.5n)⌋` 钳 `[10,15]`）·T-1 §1.6/§3.2·`menu-primitives-k6.test.ts` ›「8 / 10 / 12 三档：`5.5·n·d` 恒等、`n·d = 120` 不变式；10@12 过地板、12@10 破地板」＋「菜单满载帧 / 玩法 78 填帧 ≈ 1.37×（主理人「接受 5×5 直接落码」的实测复核）」＋「逐 kind 求和 ≡ 整帧 total（同一帧的两套读数不得分家）」 | ✅已验 | 口径 A（`面 = d`）仅存对照列（`tuning.ts::signFaceA`，旧 `44d`/`8d` 式已按 K-053 划线留档）；台账 `availW 702 / slack 42`；`1.370×` 的真机面 ⇒ TC-MN-38（⛔） |
+
+## M.7 封箱与「未渗漏」自证（验收④ · S0⑤ / L5 / §42⑤）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-30 | 玩法侧零渗漏：playing 四键（`frame0 total 1325 / sha 3269d92b57300bbe…`、`frame78 total 1871 / sha 749b3ada83682ef7…`）≡ 封箱基准**逐字节 MATCH**；台账 `playingSeal.allMatch = true` 复取腿自证；**import 图静态门**（`view-model.ts` / `bead-render.ts` / `beads-shell.ts` / `beads-game.ts` 零引用 `menu-signage`，装配点只在 `meta-view.ts`）；**反例臂**——给结构自证喂「混入非珠圆」的污染帧 ⇒ `countPrimitives` 当场 throw，真菜单帧不 throw，playing 帧不走菜单结构自证（口径不串） | `[Node]` | 验收④·S0⑤·L5·§42⑤·K-053（⛔ 反向改基准求绿）·`menu-primitives-k6.test.ts` ›「playing 四键（frame0/frame78 的 total + sha）≡ 封箱基准，逐字节 MATCH」＋「台账的 playing 复取腿自证 MATCH（同一份取证件的两处读数不得互相打脸）」＋「import 图静态门：`menu-signage` 只被菜单视图引用，玩法侧零引用（L5 / §42⑤）」＋「反例臂：结构自证真的会炸（奇数 `circle`）⇒ 门非恒绿；真帧过得去 ⇒ 红在结构不在形式」 | ✅已验 | 封箱真源 = `tests/__fixtures__/wxg-t-211-s3-seal.json · s3.*`；夹具参数引台账 `playingSeal.fixtureParams`（cols 13 / rows 12 / rowPattern 1231231231231 / filled 78 / noAssemble true）；官方复取器 `WXG211_CAPTURE=t269s6-seal` 重抓同四键（批 6-B 登记） |
+
+## M.8 事件面与铁律自证（验收⑤⑦ · §8 下游单④）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-31 | 验收⑦ `menu:零玩法事件`（**双臂**）：① 菜单**惰性面**点扫（木框左右上下衬 / 格间隙 / 未解锁格 / 越界槽 / 两屏角）⇒ `tapMeta` 全 false 且**零任何事件**（强于「零玩法事件」字面）；② 探针自检阳性对照（同一入口确实记下 `board:selected`，防「零事件 = 探针失效」假绿）+ 热区阳性对照（槽 0 = L1 仍可点 ⇒ `screen` 切 `play`）；③ 菜单三钮（start / open-signin / open-settings）的**合法侧效闭集恰 = `{meta:overlay, stamina:changed}`**，玩法 9 前缀（bead/board/combo/game/level/powerup/sprint/timer/tray）零命中 | `[Node]` | 验收⑦·§8 下游单④·`meta-ui §8-3` 同形状·K-060·`meta-menu-wall.test.ts` ›「验收⑦ · `menu:零玩法事件`：菜单**惰性面**点扫（框/间隙/未解锁格/越界槽/屏角）零事件」＋「验收⑦ 补 · 菜单三钮的合法侧效集 = `meta:overlay` + `stamina:changed`（⛔ 零玩法事件）」 | ✅已验 | 本节唯一「事件面」门，与 §A 输入域判据**不重叠不互替** |
+| TC-MN-32 | 图元族闭集 + **空间闭集**：菜单帧 kind 集恰 `{circle, line, polygon, rect, text}`、**`blit` 不存在**（S0① 只复用珠体**矢量**图元）；`circle` 恒偶、`polygon ≡ 4 × beads`；每颗珠心必在「招牌带」或「某一已解锁格框」内 ⇒ 菜单帧不往别处洒珠 | `[Node]` | S0①·验收④·T-1 §0.2·`meta-menu-wall.test.ts` ›「图元族闭集：菜单帧 = 容器族 + **珠体族**（每珠恒 7 命令）；⛔ 无 `blit`，珠只住在招牌带与已解锁格内」＋`menu-primitives-k6.test.ts` ›「菜单帧图元族闭于五族且无 blit（S0 约束①）」 | ✅已验 | 台账 `menuFrameNonRegression`：`blitCount = 0`、`kindsObserved` 同五族 ⇒ 与 ep12 状态行「菜单帧零 blit」互证 |
+| TC-MN-33 | 三条铁律自证：① **零新 hex**——菜单帧全部 fill/stroke ∈ `DEFAULT_PALETTE` ∪ **珠体通道可发射色集**（同通道口径，⛔ 不是叉乘 facet-4 mix 常数造第二份色源）；空槽虚线 ≡ `slot_dashed #C9C5DA`（tokens.md §1 在册）；`view/menu-signage.ts` 与 `config/sign-glyphs.ts` 源内 **hex 字面 = 0**；② **L4 零 RNG**——6 个改动文件（`meta-view`/`menu-signage`/`beads-shell`/`tuning`/`copy-tokens`/`sign-glyphs`）零 `Math.random`、零 `createRng`；③ **零 §3 变更**——`MENU_*/WALL_*/SIGN_*/THUMB_*` 共 27 枚常量名均不出现在 `systems-index.md §3`（新值只住 `tuning.ts` 派生区，判例 `DIFFICULTY`/`PAUSE_PANEL_H`），且 `WALL_CAPACITY ≡ WALL_COLS × WALL_ROWS` | `[Node]` | T-1 §0.6/§0.7·S0②·验收④·§6.1 判例·`meta-menu-wall.test.ts` ›「零新 hex：菜单帧所有 fill/stroke ∈ `DEFAULT_PALETTE` ∪ **珠体通道可发射色集**（同通道、非第二份色源）」＋「L4 零 RNG：本批改动文件不出现 Math.random / createRng（位表/聚合/陈列序均确定性）」＋「§3 零变更自证：本批新常量名不在 `systems-index.md` §3（新值只住 `tuning.ts` 派生区）」 | ✅已验 | 外部门同向：`verify` 内 `palettes:check` PASS（色表锁 46 条不动）+ `check:arch` PASS（L2/L3 无 `cc`/DOM/`wx`）+ `framework:sync:check` PASS（镜像一致） |
+| TC-MN-34 | 验收⑤：**ux-spec §5 零新增动效 / boot 入场 200ms 复用（tokens §6 定稿）** ⇒ 本批三源文件（`view/meta-view.ts` / `view/menu-signage.ts` / `game/beads-shell.ts`）零 `duration` / `tween` / `ease` 字面 | `[Node·静态扫描]` | 验收⑤·ux-spec §5·tokens §6·**⛔ 零 vitest oracle**（本轮 QA 只读 grep 自证：三文件命中 0 / 0 / 0） | 待执行（静态成立、**无自动化门**） | 登记 **BD-53**：建议把该 grep 固化成 `ui-warm-paper-tokens` 族一例静态门，否则后续批次可**静默**引入新时长字面而无人红 |
+
+## M.9 观感 / 屏幕层 / 真机面（⛔ 不得标绿，K-044）
+
+| 用例 ID | 判据 | 道次 | 映射（验收 / §5.x / 测试文件·用例名） | 本轮结论 | 备注 |
+|---|---|---|---|---|---|
+| TC-MN-35 | 首屏 **5s 内可认出「拼豆小铺」**（珠拼招牌的可读性 / 缩略密度是否糊） | `[Device]` | 验收①·§5.3·ep12 §87 `[待真机]` 项 1·T-1 §7.3 真机必验判据建议① | ⛔不可测（无真机 / 无 AppID / 无编辑器） | 解除条件 = 真机 + AppID（同 M1-6 阻塞因）；⛔ 不得据 TC-MN-14/20 的绿推观感（K-037） |
+| TC-MN-36 | **单色招牌墨在 `bg_base` 上的观感与色差**（含 `SIGN_INK_IDX` 的 art 定值） | `[Device]`（可先 `[Cocos]` 截图差分） | ep12 §87 项 2·T-1 §1.7（墨待定值）/§7.3 建议②·CONCERNS ③ | ⛔不可测（同上） | Node 面只证「派生确定性 + 在色表值域内」（TC-MN-18）；art 回写 1..10 即覆盖，覆盖后须复跑 TC-MN-17/18 通道腿 |
+| TC-MN-37 | **5×5 / 4×4 缩略能否认出「是这一关的作品」**（玩家认关率） | `[Device]` + Playtest | ep12 §87 项 3·T-1 §3.2/§7.1 U 项·§7.3 建议③ | ⛔不可测（同上） | 「认得出」属玩家判定 ⇒ 归 `playtest-plan.md`；命令流层只证主色块聚合正确（TC-MN-21/22），**不证可辨** |
+| TC-MN-38 | 菜单满载帧 **1.370×** 成本在**低端机的实测帧率 / 绘制耗时** | `[Device]` | ep12 §87 项 4·CONCERNS ①·M.0 边界 2 | ⛔不可测（同上） | 超线处置预案 = T-1 §3.8 五级杠杆序 1→5 逐级回落，各档命令数**已实测**（513 / 1758 / 2136 / 2256 / 2563，见 TC-MN-27）⇒ 回落不需再造数 |
+| TC-MN-39 | **虚线空槽 dash 6 / gap 4 的锯齿 / AA 观感**（120 格 = 48 段 line 的屏幕表现） | `[Device]` | ep12 §87 项 5·T-1 §3.6（虚线槽成本） | ⛔不可测（同上） | 段数与族归属已在台账实测（首日态 Δ 纯落 `line` −192，TC-MN-27）；AA 属像素道次 |
+| TC-MN-40 | 屏幕层实证：① **真机/编辑器首屏 = 主菜单（含作品墙）**；② P-6 字框 `[980,1100]` 与 slogan 顶 ≈990 的 **≈2px 微交**是否可见；③ 新增 3 个镜像文件（`copy-tokens` / `sign-glyphs` / `menu-signage`）**无 `.meta`** 的装配后果 | `[Cocos]` / `[Device]` | §7.1 F-1·§7.4 P-6 ④·ep12 CONCERNS ②⑤ | ⛔不可测（无编辑器 / 无真机；⛔ 不伪造 `.meta`） | ⚠ **需主理人核对 shell 分流**：发布宿主 `BeadsBootstrap.ts:69` **不传** `initialScreen` ⇒ 默认 `'menu'`（代码级事实）；但 **`dev/harness/main.ts:60` 默认 `'play'`**（仅 `?meta=menu` 落菜单，注释仍写「保持首启直进玩法红线」）⇒ 浏览器冒烟通道默认不落菜单，登 **BD-56** |
+
+## M.10 · WXG-T-269-S6 质量门结论（G1–G4）
+
+> 判据正本 = 上文 §M（TC-MN-01..40）；冒烟半边 = `smoke-tests.md v1.4`（SC-MN-01/02 + SC-01/SC-11 订正）。
+
+### M.10.1 验收 ①–⑦ × G1–G4 映射
+
+| 验收 | 内容 | G1 静态 verify | G2 单测 | G3 冒烟 | G4 硬判据 |
+|---|---|---|---|---|---|
+| ① | §5.1–§5.4 版面与三条硬口径 + 未解锁格零事件 | ✅ | ✅ TC-MN-01..07/12/13 | ⛔ 未执行（SC-MN-01/02） | ✅ Node 面全过；屏幕层 ⛔（TC-MN-40） |
+| ② | 陈列序单调 ⇒ 复现 §5.2 九关墙序 | ✅ | ✅ TC-MN-08..11 | ⛔ | ✅（含 K-060 双臂） |
+| ③ | 招牌珠距档 `d ∈ [10,15]`（§5.3，零新绘制通道） | ✅ | ✅ TC-MN-16/19/29 | ⛔（档可辨性属真机） | ✅ 读数闭合；观感 ⛔（TC-MN-35） |
+| ④ | K-6 图元线性 ⇒ K-051 差分复算 + 封箱复评 | ✅ | ✅ TC-MN-14..18/20..30/32/33 | ⛔（纸面 ≠ 真机性能） | ✅ Node 面全过；**真机帧率 ⛔（TC-MN-38）** |
+| ⑤ | boot 入场 200ms 复用 ⇒ ux-spec §5 零新增 | ✅ | ⚠ **无 oracle**（仅 QA 只读 grep 0 命中）| ⛔ | ⚠ **待补例**（BD-53） |
+| ⑥ | 橱窗零新热区（框/纸底不可点） | ✅ | ✅ TC-MN-04/05 | ⛔ 未执行（SC-MN-02） | ✅ Node 面过；屏幕命中 ⛔ |
+| ⑦ | `menu:零玩法事件` | ✅ | ✅ TC-MN-31（双臂） | ⛔ | ✅ |
+
+### M.10.2 逐门结论
+
+- **G1 静态门 = PASS**。`verify-all` **22 项逐项执行、未短路**，**WARN 0 ｜ SKIP 0 ｜ FAIL 0**（K-036 无短路可乘）。⚠ 限定：`harness:smoke` 绿 = 自动化结构腿，**不含菜单画面**。
+- **G2 单测门 = PASS**。beads **946 passed / 66 files / 2 skipped**；S6 族 = `meta-menu-wall` 30 + `menu-signage-beadtext` 16 + `menu-thumb-primitives` 16 + `menu-primitives-k6` 17 = **79 例**，另 `beads-shell` 15 例承载分流与作品墙选关；断言密度：§M 34 条 Node 行中 30 条含反例臂或逐字节对撞，唯 TC-MN-34 零 oracle ⇒ 已判 `待执行` 不判绿。
+- **G3 冒烟门 = CONCERNS（未过）**。① 菜单屏在 v1.2/v1.3 清单中零条覆盖（本次以 SC-MN-01/02 补口，本轮 ⛔ 未执行）；② SC-01/SC-11 现文与落码正面冲突 ⇒ 须先落订正再跑；③ 无编辑器/真机/AppID ⇒ 画面半边不可执行。**解除条件** = 真机 + AppID + 编辑器（M1-6）→ 跑 SC-MN-01/02 + 订正后 SC-01/SC-11，且 `[Harness]` 腿显式带 `?meta=menu`（BD-56 核对后）。
+- **G4 硬判据门 = CONCERNS（未过，可进真机）**。§M 40 条中 **34 条 Node ✅**、**1 条待补例**（TC-MN-34／验收⑤）、**5 条 ⛔不可测**（TC-MN-35..39）、**1 条 ⛔ 屏幕/编辑器面**（TC-MN-40）。⛔ 不得以「34/40 绿」叙述整节达标（K-044）。
+- **未过门编号：G3、G4。** **S6 终裁建议 = CONCERNS**（G1/G2 PASS；G3/G4 CONCERNS）。
+
+### M.10.3 BD-MN 缺陷分级（本单内 MN-nn 记；正式号 **BD-53..60** = 现存最大 BD-52 +1，K-050）
+
+| 正式号 | 代号 | 级 | 现象 | 期望 vs 实际 | 环境 | 解除条件 |
+|---|---|---|---|---|---|---|
+| **BD-53** | MN-01 | P3 | 验收⑤（ux §5 零新增动效）无自动化 oracle（三源文件 grep 0 命中但无测试） | 期望 = 一条静态门钉「零新增时长字面」；实际 = 无门，后续批可静默引入 | `[Node]` | 补 1 例进 `ui-warm-paper-tokens` 族静态门 |
+| **BD-54** | MN-02 | P2 | `MENU_TITLE_Y=1040` 改外接框中心后字框 `[980,1100]` 与 slogan 顶 ≈990 微交 ≈2px（P-6 不变式④差 2px） | 期望 = 关系不变式①–⑤ 全满足；实际 = ④ 差 ≈2px；本批未自改 y | `[Cocos]`/`[Device]`（⛔） | T-4 版面重排批 + 屏幕层复验 |
+| **BD-55** | MN-03 | P2 | 菜单满载帧 1.370× 玩法封箱帧（2563/1871），真机低端帧率零读数 | 期望 = 真机帧率达标；实际 = 纸面成本已知、真机未测 | `[Device]`（⛔） | 真机抽检；超线即按 T-1 §3.8 序 1→5 回落（各档命令数已实测） |
+| **BD-56** | MN-04 | P3 | **dev/harness 默认 `initialScreen:'play'`**（注释仍写旧红线）与 S6「首屏停主菜单」不一致 ⇒ 浏览器冒烟默认不落菜单 | 期望 = 各宿主首屏口径一致（发布宿主默认 `'menu'` 已一致）；实际 = dev 通道默认相反 | `[Harness]` | 主理人核对 shell 分流：统一 harness 默认，或冒烟钉死 `?meta=menu` 后复跑 |
+| **BD-57** | MN-05 | P3 | 新增 3 镜像文件（`copy-tokens`/`sign-glyphs`/`menu-signage`）无 `.meta` | 期望 = 编辑器生成随库；实际 = ⛔ 不伪造 | `[Cocos]`（⛔） | 编辑器打开一次生成 `.meta` 并入库（同 T-2A 阻塞因） |
+| **BD-58** | MN-06 | P3 | 台账副本 `tests/__fixtures__/wxg-t-269-s6-k6-ledger.json` 入库待主理人批准 | 期望 = 入库经批准；实际 = 未批（现被 `menu-primitives-k6.test.ts` 作回归门引用） | — | 主理人批准后转正 |
+| **BD-59** | MN-07 | P4（登记，不判缺陷） | 8×8 回落档无位表 ⇒ 杠杆序 5 触发须 art 回单补数据 | 期望 = 档变表未跟上先红；实际 = 红门已在位（`signTierReady(8,SIGN_PITCH_MAX)===false`，合规） | `[Node]` | 触发即开 art 单；工程侧 ⛔ 不伪造位表 |
+| **BD-60** | MN-08 | P3 | 文档冲突面：SC-01/SC-11 陈旧口径待订正（本批 §M 块已出改写文本，落盘前现清单仍会把正确行为判 FAIL）；`core-loop §2.1`/`ux-spec §4` 首屏行回写归 T-4（K-035） | 期望 = 清单口径 == 落码事实；实际 = 落后一个反转批 | `[Node]` 文档面 | 主理人落 SC-01/SC-11 订正 + T-4 回写 `ux-spec §4` 两行 |

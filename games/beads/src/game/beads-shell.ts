@@ -7,13 +7,22 @@
  *   - `meta` = {@link MetaState}  — the out-of-run economy (stamina / signin /
  *     wallet), created at `init` from the injected storage + wall clock.
  *
- * Routing (ux-spec v1.7 §2 / §6.3；#1 · WXG-T-180 反转):
+ * Routing (ux-spec v1.7 §2 / §6.3；#1 · WXG-T-180 反转；EP12-S6 · WXG-T-269-S6 T-2A):
  *   - **首屏停主菜单**（原「启动直进玩法」红线已反转）：`initialScreen` 默认 `'menu'`；
- *     主菜单含**选关列表**（当前关高亮 / 未解锁置灰 / 星级）。
+ *     主菜单即「木框橱窗**作品墙**」（`menu-architecture.md §5.1/§5.4` 三条硬口径）：
+ *     ① 主钮 = **当前关**；② 墙格 = **指定关**；③ **无第三入口**（`open-levels` 钮已从
+ *     菜单布局摘除 = Q5①「入口隐藏、代码保留」⇒ `levels` overlay 仍在册，只是无菜单腿）。
  *   - 菜单入口 = 暂停面板次钮「回主菜单」→ `play` 的 `onMenuRequest` → {@link showMenu}；
  *   - 主菜单主钮「开始游戏」/ 选关点格：**开对应关**并扣 1 心（systems-index §3.14）。
  *     旧口径「有在途（`play.phase==='paused'`）→ 恢复、不扣心」**已随 WXG-T-165 反转作废**
  *     （v1.29：回主菜单 = 弃本局棋盘，关卡解锁进度保留）。
+ *
+ * 陈列序（EP12-S6 Deliverable 2，**回归修复**）：旧口径「墙槽 `i` 直接当关索引」把「第几格」
+ * 误当成「第几关」⇒ 与 `level-difficulty.md §5.2` 九关墙序（DI 升序）恒不符。现由
+ * {@link _rebuildWallSlots} 产出 **`slot → levelIndex` 映射表**（按 `difficultyOf()` 的 `di` 升序、
+ * tie 按关号 `id` 升序），绘制与命中两条腿都**只经映射**取关索引；视图侧 `MetaButton` 也因此
+ * 只携带 `slot`（⛔ 无从「按槽当关」）。表是**一次性缓存**（失效键 = `play.levelCount`），
+ * 每帧 `buildRenderModel` 只读引用 ⇒ 热路径零 sort / 零分配（`control-manifest §2`）。
  *
  * The wall clock is injected (`options.clock`) because `GameServices.platform`
  * exposes only `PlatformInfo` (no wallClock) — the framework stays untouched.
@@ -26,8 +35,12 @@
  */
 
 import type { Game, GameServices, RenderModelBuilder } from '@wxgame/framework';
-import { FACET4_STYLE_ID, BEAD_SIZE_DEFAULT, STAMINA_START_COST } from '../config/tuning.js';
+import { FACET4_STYLE_ID, BEAD_SIZE_DEFAULT, STAMINA_START_COST, WALL_CAPACITY } from '../config/tuning.js';
 import { BeadsGame, type BeadsGameOptions } from './beads-game.js';
+import { LEVELS } from '../config/levels.js';
+import type { BeadsLevelRaw } from '../config/levels-data.js';
+// EP12-S6 陈列序真源：DI 唯一实现 = `difficultyOf()`（S5 · WXG-T-266），⛔ 不在本文件复算公式。
+import { difficultyOf } from './difficulty.js';
 import { MetaState } from './meta-state.js';
 import {
     buildMetaView,
@@ -88,6 +101,22 @@ export class BeadsShell implements Game {
     private readonly _studio?: StudioImportOptions;
     /** 拉取在途门标（防连点重复导入）。 */
     private _studioBusy = false;
+    /**
+     * 陈列序基准表引用：与 {@link BeadsGame} 构造式 `options.levels ?? LEVELS` **逐字同表达式**
+     * ⇒ shell 与 play 读同一张关表（宿主传自定义关表时也不漂移），且**只在构造期取一次**。
+     * ⛔ 不向 play 要关表（`_levels` 是 play 私有面，本批不扩其契约）。
+     */
+    private readonly _wallBaseLevels: readonly BeadsLevelRaw[];
+    /** `slot → levelIndex` 缓存（一次性构建，⛔ 不在每帧路径 sort/map/filter）。 */
+    private _wallSlots: readonly number[] = [];
+    /**
+     * `slot → 关卡本体` 缓存（与 {@link _wallSlots} **同批同序同长**重建）。
+     * EP12-S6 · T-2B：作品格珠拼缩略需要 `pattern` 才能聚合（`menu-wall-signage-spec §3.1`）；
+     * 视图侧⛔ 不得直读全局 `LEVELS`（宿主可下传自定义关表 ⇒ 陈列序对、画错图）。
+     */
+    private _wallLevels: readonly (BeadsLevelRaw | undefined)[] = [];
+    /** 缓存失效键：关表长度（`importLevel` 追加 ⇒ 计数变 ⇒ 重建）。 */
+    private _wallSlotsForCount = -1;
     /** Scratch pointer for screen→design (never retained), same as BeadsGame. */
     private readonly _pointer = { x: 0, y: 0 };
     /** Reused view-data object — buildRenderModel must not allocate (热路径零分配). */
@@ -113,6 +142,10 @@ export class BeadsShell implements Game {
         currentLevelIndex: 0,
         maxUnlockedLevel: 1,
         starsByLevel: [] as readonly number[],
+        // 陈列序映射（每帧只读引用；表由 _wallSlotsFor() 一次性缓存）。
+        wallSlots: [] as readonly number[],
+        // 槽位 → 关卡引用（T-2B 缩略聚合的 pattern 入口；与 wallSlots 同批缓存，每帧只读）。
+        wallLevels: [] as readonly (BeadsLevelRaw | undefined)[],
         studioEnabled: false,
     };
 
@@ -121,6 +154,7 @@ export class BeadsShell implements Game {
         this._metaKey = options.metaKey;
         this._studio = options.studio;
         this._screen = options.initialScreen ?? 'menu';
+        this._wallBaseLevels = options.play?.levels ?? LEVELS;
         this.play = new BeadsGame({
             // EP12-S8：shell 级 palette 选项真正下传 play（此前只作用于菜单侧的独立副本，
             // 与 play 各持一份；收编单源后默认肤 tokens = DEFAULT_PALETTE，缺省行为不变）。
@@ -234,55 +268,66 @@ export class BeadsShell implements Game {
     /**
      * Drive a menu tap in design space (tests/harness without faking pointer
      * events — mirrors `BeadsGame.tapDesign`). @returns true when consumed.
+     * ⚠ **未解锁作品格 / 越界槽 = `false`**（零热区零事件口径的机械可证面：不被任何控件消费，
+     * 与真输入通道 `_readMenuInput` 走同一个 {@link _dispatchMetaTap}）。
      */
     tapMeta(x: number, y: number): boolean {
-        const btn = hitTestMeta(this._overlay, x, y);
-        if (!btn) return false;
-        this._applyMetaAction(btn);
-        return true;
+        return this._dispatchMetaTap(x, y);
     }
 
-    private _applyMetaAction(btn: MetaButton): void {
+    /** 命中 + 派发的唯一腿（菜单 / overlay 共用）；返回是否被控件消费。 */
+    private _dispatchMetaTap(x: number, y: number): boolean {
+        const btn = hitTestMeta(this._overlay, x, y);
+        if (!btn) return false;
+        return this._applyMetaAction(btn);
+    }
+
+    /** @returns false = 该点未消费任何状态变更（留菜单、不扣心、不发事件）。 */
+    private _applyMetaAction(btn: MetaButton): boolean {
         const action: MetaAction = btn.id;
         switch (action) {
             case 'start':
                 this.startGame();
-                return;
+                return true;
             case 'open-levels':
+                // §5.4 口径 3 / Q5①：菜单布局已无本钮 ⇒ 此分支仅为 `levels` overlay **代码保留**腿
+                // （宿主 / 测试可直接驱动该 overlay；⛔ 不删、也不为它新造入口）。
                 this._overlay = 'levels';
                 this._emitOverlay(true);
-                return;
+                return true;
             case 'pick-level': {
-                const i = btn.levelIndex;
-                // 锁定关不可点（索引 ≥ maxUnlockedLevel）；越界不消费。
-                if (i === undefined || i + 1 > this.play.maxUnlockedLevel) return;
-                this._startLevel(i);
-                return;
+                const slot = btn.slot;
+                // 陈列序 = DI 升序 ⇒ **槽位 ≠ 关索引**（旧 `beads-shell.ts:258` 回归根因）。
+                // 未解锁（`levelIdx+1 > maxUnlockedLevel`）与越界槽（映射表短于槽）一律零事件。
+                const levelIdx = slot === undefined ? undefined : this._wallSlotsFor()[slot];
+                if (levelIdx === undefined || levelIdx + 1 > this.play.maxUnlockedLevel) return false;
+                this._startLevel(levelIdx);
+                return true;
             }
             case 'studio-import':
                 this._importFromStudio();
-                return;
+                return true;
             case 'open-signin':
                 this._overlay = 'signin';
                 this._emitOverlay(true);
-                return;
+                return true;
             case 'open-settings':
                 this._overlay = 'settings';
                 this._emitOverlay(true);
-                return;
+                return true;
             case 'back':
                 this._overlay = 'none';
                 this._emitOverlay(false);
-                return;
+                return true;
             case 'claim':
                 this.meta?.claimSignin();
-                return;
+                return true;
             default:
                 // toggle-* 与 PausePanelAction 同串值：复用 play 的设置 setter（两入口一致）。
                 // EP11-S5 行4 的 cycle-bead-style / cycle-bead-size 同样走本 default 分支
                 // （⛔ 不新造动作名、不在 shell 里重定向）。
                 this.play.applySettingsAction(action as PausePanelAction);
-                return;
+                return true;
         }
     }
 
@@ -325,8 +370,65 @@ export class BeadsShell implements Game {
         const snap = services.input.snapshot;
         if (!snap.justDown) return;
         services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
-        const btn = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y);
-        if (btn) this._applyMetaAction(btn);
+        this._dispatchMetaTap(this._pointer.x, this._pointer.y);
+    }
+
+    /**
+     * 作品墙陈列序（EP12-S6 Deliverable 2/6）：返回**缓存引用**，命中缓存时零分配、零排序。
+     * 失效键 = `play.levelCount`（唯一能让关表变长的公开可见面 = `importLevel` 追加）。
+     * ⚠ 同批产出 `slot → 关卡引用`（`_wallLevels`）⇒ 两表永远同步，不存在第二份失效键。
+     */
+    private _wallSlotsFor(): readonly number[] {
+        const n = this.play.levelCount;
+        if (n !== this._wallSlotsForCount) {
+            this._wallSlots = this._rebuildWallSlots(n);
+            this._wallLevels = this._rebuildWallLevels(this._wallSlots);
+            this._wallSlotsForCount = n;
+        }
+        return this._wallSlots;
+    }
+
+    /** `slot → 关卡引用`（先走 {@link _wallSlotsFor} 的同批重建，再取缓存引用 ⇒ 每帧零分配）。 */
+    private _wallLevelsFor(): readonly (BeadsLevelRaw | undefined)[] {
+        this._wallSlotsFor();
+        return this._wallLevels;
+    }
+
+    /**
+     * 按已定陈列序取关卡本体。基准表外的项（beads-studio 导入的追加关）在本 shell 可见面内
+     * **无 raw** ⇒ `undefined` ⇒ 视图该格回落编号占位（与本文件注的「DI 不可得 ⇒ 墙尾后置」同限制）。
+     */
+    private _rebuildWallLevels(slots: readonly number[]): readonly (BeadsLevelRaw | undefined)[] {
+        const base = this._wallBaseLevels;
+        const out: (BeadsLevelRaw | undefined)[] = [];
+        for (let s = 0; s < slots.length; s++) out.push(base[slots[s]!]);
+        return out;
+    }
+
+    /**
+     * `slot → levelIndex`：DI **升序**、tie 按关号 `id` 升序（⇒ `level-difficulty §5.2` 九关墙序
+     * `L1→L8→L4→L3→L7→L2→L6→L5→L9`）。只在关表变更时跑一次（⛔ 非每帧）。
+     * 表长 = `min(n, WALL_CAPACITY)`：超出容量的关本 Story **不实现**（S6 Out），短于容量的空槽
+     * 由视图读成 `undefined` ⇒ 画虚线空槽、零事件。
+     *
+     * ⚠ 关表长于基准表（beads-studio 导入的追加项）时，DI 不可得（其 raw 不在本 shell 可见面内）
+     * ⇒ 按索引升序**后置**于墙尾（行为可预测、不抛错）；该限制已登记于 T-2A 回传 CONCERNS。
+     */
+    private _rebuildWallSlots(n: number): readonly number[] {
+        const base = this._wallBaseLevels;
+        const entries: { readonly idx: number; readonly id: number; readonly di: number }[] = [];
+        for (let i = 0; i < base.length; i++) {
+            const lv = base[i]!;
+            entries.push({ idx: i, id: lv.id, di: difficultyOf(lv).di });
+        }
+        for (let i = base.length; i < n; i++) {
+            entries.push({ idx: i, id: Number.MAX_SAFE_INTEGER, di: Number.POSITIVE_INFINITY });
+        }
+        entries.sort((a, b) => a.di - b.di || a.id - b.id || a.idx - b.idx);
+        const slots: number[] = [];
+        const shown = Math.min(n, WALL_CAPACITY, entries.length);
+        for (let s = 0; s < shown; s++) slots.push(entries[s]!.idx);
+        return slots;
     }
 
     private _metaViewData(): MetaViewData {
@@ -354,6 +456,10 @@ export class BeadsShell implements Game {
         v.currentLevelIndex = this.play.levelIndex;
         v.maxUnlockedLevel = this.play.maxUnlockedLevel;
         v.starsByLevel = this.play.starsByLevelRaw;
+        // 陈列序映射：只读引用缓存表（每帧零分配）。
+        v.wallSlots = this._wallSlotsFor();
+        // 槽位 → 关卡引用（同一缓存批，T-2B 缩略聚合的只读入口）。
+        v.wallLevels = this._wallLevelsFor();
         v.studioEnabled = this._studio !== undefined;
         return v;
     }

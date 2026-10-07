@@ -1144,16 +1144,19 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(mv).toContain("'rgba(0,0,0,0.5)'");
     });
 
-    it('菜单 overlay 判定面 = overlay 打开期间：仅 settings 读下调 α，signin / levels 仍 0.5（真 shell 渲染链）', () => {
+    // 菜单 overlay 判定面 = overlay 打开期间：仅 settings 读下调 α，signin 仍 0.5（真 shell 渲染链）。
+    // ⚠ EP12-S6（Q5①）：`open-levels` 钮已从菜单版面摘除 ⇒ 本例不再能由菜单腿驱动 levels overlay；
+    //   其 `rgba(0,0,0,0.5)` 分支仍由上方**静态穷尽门**（meta-view 含该字面）钉住，不因此漏网。
+    it('菜单 overlay 判定面 = overlay 打开期间：仅 settings 读下调 α，signin 仍 0.5（真 shell 渲染链）', () => {
         const shell = shellRig(newStorage());
         expect(shell.screen).toBe('menu');
         // 主菜单（无 overlay）⇒ 不得有全屏 scrim（阳性对照的另一端）。
+        // EP12-S6：主菜单现为橱窗作品墙 ⇒ 本断言同时钉住「框/纸底不是 scrim、也不压暗菜单」。
         expect(scrimAlphas(metaFrame(shell), '0,0,0')).toEqual([]);
 
         for (const [action, expectAlpha] of [
             ['open-settings', SETTINGS_SCRIM_ALPHA],
             ['open-signin', 0.5],
-            ['open-levels', 0.5],
         ] as const) {
             shell.tapMeta(2, 2); // 先归位（back 由下一轮显式点击）
             const c = metaCenter('none', action);

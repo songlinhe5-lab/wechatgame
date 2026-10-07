@@ -1,0 +1,538 @@
+{
+  "task": "WXG-T-269-S6 · 子单 T-2B（K-6 菜单帧图元实测台账）",
+  "capturedAt": "2026-10-07T12:14:57.231Z",
+  "capturedFrom": "41a1096612ac25c55b52bd6546399c10c645f24a · T-2B 工作树（beadText 招牌 + 作品格珠拼缩略）",
+  "rerun": "WXG269_CAPTURE=<tag> node --experimental-transform-types --import=./tools/scripts/lib/ts-js-resolve.mjs games/beads/tests/menu-primitives-capture.ts",
+  "method": {
+    "primitiveUnit": "1 图元 = 1 条 RenderModel 命令（T-1 §0.2）",
+    "commandsPerBead": 7,
+    "beadsReadout": "beads = circle / 2（facet-4 每珠两枚同心圆；菜单帧非珠图元无 circle）",
+    "rigStates": {
+      "full": "maxUnlocked = 9（满载）",
+      "first": "maxUnlocked = 1（首日）"
+    },
+    "determinism": "同进程两遍全等 + 生产腿 sha 等价自证（本文件 assert，失败不出数）",
+    "forbidden": "⛔ 纸面值入册（K-051）；⛔ 反向改基准求绿（K-053）"
+  },
+  "frames": {
+    "full": {
+      "production": {
+        "total": 2563,
+        "kinds": {
+          "text": 16,
+          "rect": 355,
+          "polygon": 1364,
+          "circle": 682,
+          "line": 146
+        },
+        "beads": 341,
+        "sha": "bc76ed497bd069fcea28684c1eabe8fa0264ba6cb5e3fae87fb2cfb4e45be951",
+        "label": "production",
+        "variant": null,
+        "note": "生产真链路（shell.buildRenderModel ⇒ 招牌珠拼 + 5×5 缩略 + 3 行陈列）"
+      },
+      "signage.off": {
+        "total": 1527,
+        "kinds": {
+          "text": 16,
+          "rect": 207,
+          "line": 146,
+          "polygon": 772,
+          "circle": 386
+        },
+        "beads": 193,
+        "sha": "ad98d9e4caa17e226f261b98ec68be24c0aef67ca89c0c8c0c0819ed1da9a286",
+        "label": "signage.off",
+        "variant": {
+          "signage": false
+        },
+        "note": "差分对照 A 基腿：招牌 beadText 不上屏（也不回落文字）"
+      },
+      "wall.rows2": {
+        "total": 2256,
+        "kinds": {
+          "text": 15,
+          "rect": 331,
+          "polygon": 1272,
+          "circle": 636,
+          "line": 2
+        },
+        "beads": 318,
+        "sha": "4f60d041f2edc75817df05a3d0d7841c2415320bcb7df4f2c152a69c6eb86a71",
+        "label": "wall.rows2",
+        "variant": {
+          "wallRows": 2
+        },
+        "note": "差分对照 B：陈列格 3→2 行（T-1 §3.8 回退序 1）"
+      },
+      "thumb.n4": {
+        "total": 2136,
+        "kinds": {
+          "text": 16,
+          "rect": 294,
+          "polygon": 1120,
+          "circle": 560,
+          "line": 146
+        },
+        "beads": 280,
+        "sha": "b36ebe3a4688f82a82cc7a4f8295933e60abf4d800e72d3dae612b01dcb8ff3e",
+        "label": "thumb.n4",
+        "variant": {
+          "thumbN": 4
+        },
+        "note": "差分对照 C-2：缩略 5→4 档（回退序 2）"
+      },
+      "thumb.n3": {
+        "total": 1758,
+        "kinds": {
+          "text": 16,
+          "rect": 240,
+          "polygon": 904,
+          "circle": 452,
+          "line": 146
+        },
+        "beads": 226,
+        "sha": "5473d67134a25f4182491505687d779cfef6223dbed185624652a054b8e5f153",
+        "label": "thumb.n3",
+        "variant": {
+          "thumbN": 3
+        },
+        "note": "差分对照 C-3：缩略 5→3 档（回退序 3）"
+      },
+      "floor.allOff": {
+        "total": 513,
+        "kinds": {
+          "text": 15,
+          "rect": 82,
+          "line": 2,
+          "polygon": 276,
+          "circle": 138
+        },
+        "beads": 69,
+        "sha": "daf367c14d0eaf0c70e05ffeeca1dc5e7435d7777017bdcb2a4cfce240d9c76a",
+        "label": "floor.allOff",
+        "variant": {
+          "signage": false,
+          "wallRows": 2,
+          "thumbN": 3
+        },
+        "note": "全回落地板（回退序 1+2+5 同时生效的净底座）"
+      }
+    },
+    "first": {
+      "production": {
+        "total": 1741,
+        "kinds": {
+          "text": 8,
+          "rect": 177,
+          "polygon": 684,
+          "circle": 342,
+          "line": 530
+        },
+        "beads": 171,
+        "sha": "ce3f0e6571929356d5a4f71eaba36d0998280c0b460d9ee4d6d410026b4cad6d",
+        "label": "production",
+        "variant": null,
+        "note": "生产真链路（shell.buildRenderModel ⇒ 招牌珠拼 + 5×5 缩略 + 3 行陈列）"
+      },
+      "signage.off": {
+        "total": 705,
+        "kinds": {
+          "text": 8,
+          "rect": 29,
+          "line": 530,
+          "polygon": 92,
+          "circle": 46
+        },
+        "beads": 23,
+        "sha": "8c490e9e48aa2330dd4b96366ad1ffc35ce2e925390a0db4e8c0b50e3e120dda",
+        "label": "signage.off",
+        "variant": {
+          "signage": false
+        },
+        "note": "差分对照 A 基腿：招牌 beadText 不上屏（也不回落文字）"
+      },
+      "wall.rows2": {
+        "total": 1549,
+        "kinds": {
+          "text": 8,
+          "rect": 177,
+          "polygon": 684,
+          "circle": 342,
+          "line": 338
+        },
+        "beads": 171,
+        "sha": "f409561c80088c31c16bc42e55e0a47fe65083dbbe346951a0a4f3261599aa91",
+        "label": "wall.rows2",
+        "variant": {
+          "wallRows": 2
+        },
+        "note": "差分对照 B：陈列格 3→2 行（T-1 §3.8 回退序 1）"
+      },
+      "thumb.n4": {
+        "total": 1685,
+        "kinds": {
+          "text": 8,
+          "rect": 169,
+          "polygon": 652,
+          "circle": 326,
+          "line": 530
+        },
+        "beads": 163,
+        "sha": "b41b6e569d7cbbbab3c60d44e6979b65687895ca1f7fcb72210d165f0b705a29",
+        "label": "thumb.n4",
+        "variant": {
+          "thumbN": 4
+        },
+        "note": "差分对照 C-2：缩略 5→4 档（回退序 2）"
+      },
+      "thumb.n3": {
+        "total": 1643,
+        "kinds": {
+          "text": 8,
+          "rect": 163,
+          "polygon": 628,
+          "circle": 314,
+          "line": 530
+        },
+        "beads": 157,
+        "sha": "d4eaba43570a8c78d631641af1621300e13677b18fd56209656be6c4127ce015",
+        "label": "thumb.n3",
+        "variant": {
+          "thumbN": 3
+        },
+        "note": "差分对照 C-3：缩略 5→3 档（回退序 3）"
+      },
+      "floor.allOff": {
+        "total": 415,
+        "kinds": {
+          "text": 8,
+          "rect": 15,
+          "line": 338,
+          "polygon": 36,
+          "circle": 18
+        },
+        "beads": 9,
+        "sha": "f557087bd41302a7003ec677b80f9b32a620fa68c125681bf88c6ebf5331dc6f",
+        "label": "floor.allOff",
+        "variant": {
+          "signage": false,
+          "wallRows": 2,
+          "thumbN": 3
+        },
+        "note": "全回落地板（回退序 1+2+5 同时生效的净底座）"
+      }
+    }
+  },
+  "diffs": {
+    "full": {
+      "signage": {
+        "total": 1036,
+        "beads": 148,
+        "kinds": {
+          "rect": 148,
+          "polygon": 592,
+          "circle": 296
+        }
+      },
+      "wallRows": {
+        "total": 307,
+        "beads": 23,
+        "kinds": {
+          "text": 1,
+          "rect": 24,
+          "polygon": 92,
+          "circle": 46,
+          "line": 144
+        }
+      },
+      "thumb5to4": {
+        "total": 427,
+        "beads": 61,
+        "kinds": {
+          "rect": 61,
+          "polygon": 244,
+          "circle": 122
+        }
+      },
+      "thumb4to3": {
+        "total": 378,
+        "beads": 54,
+        "kinds": {
+          "rect": 54,
+          "polygon": 216,
+          "circle": 108
+        }
+      },
+      "thumb5to3": {
+        "total": 805,
+        "beads": 115,
+        "kinds": {
+          "rect": 115,
+          "polygon": 460,
+          "circle": 230
+        }
+      },
+      "allVsFloor": {
+        "total": 2050,
+        "beads": 272,
+        "kinds": {
+          "text": 1,
+          "rect": 273,
+          "polygon": 1088,
+          "circle": 544,
+          "line": 144
+        }
+      },
+      "state": "full"
+    },
+    "first": {
+      "signage": {
+        "total": 1036,
+        "beads": 148,
+        "kinds": {
+          "rect": 148,
+          "polygon": 592,
+          "circle": 296
+        }
+      },
+      "wallRows": {
+        "total": 192,
+        "beads": 0,
+        "kinds": {
+          "line": 192
+        }
+      },
+      "thumb5to4": {
+        "total": 56,
+        "beads": 8,
+        "kinds": {
+          "rect": 8,
+          "polygon": 32,
+          "circle": 16
+        }
+      },
+      "thumb4to3": {
+        "total": 42,
+        "beads": 6,
+        "kinds": {
+          "rect": 6,
+          "polygon": 24,
+          "circle": 12
+        }
+      },
+      "thumb5to3": {
+        "total": 98,
+        "beads": 14,
+        "kinds": {
+          "rect": 14,
+          "polygon": 56,
+          "circle": 28
+        }
+      },
+      "allVsFloor": {
+        "total": 1326,
+        "beads": 162,
+        "kinds": {
+          "rect": 162,
+          "polygon": 648,
+          "circle": 324,
+          "line": 192
+        }
+      },
+      "state": "first"
+    }
+  },
+  "tiers": {
+    "note": "面 = (d − BEAD_GAP) × 26/30（口径 B 真几何，`BEAD_DRAW_INSET = 2` ⇒ ratio 26/30）；地板 SIGN_FACE_FLOOR",
+    "beadGap": 2,
+    "availW": 702,
+    "pageBudget": {
+      "totalW_n10d12": 660,
+      "availW": 702,
+      "slack": 42
+    },
+    "adopted": {
+      "n": 10,
+      "d": 12,
+      "faceB": 8.666666666666668,
+      "commands": 1036
+    },
+    "tiers": [
+      {
+        "n": 8,
+        "d": 15,
+        "totalW": 660,
+        "faceB": 11.266666666666667,
+        "faceA": 13,
+        "okUnderB": true,
+        "verdict": "口径 B 过地板"
+      },
+      {
+        "n": 10,
+        "d": 12,
+        "totalW": 660,
+        "faceB": 8.666666666666668,
+        "faceA": 10,
+        "okUnderB": true,
+        "verdict": "口径 B 过地板"
+      },
+      {
+        "n": 12,
+        "d": 10,
+        "totalW": 660,
+        "faceB": 6.933333333333334,
+        "faceA": 8,
+        "okUnderB": false,
+        "verdict": "口径 B 破地板（6.933 < 8）"
+      }
+    ],
+    "thumbTiers": [
+      {
+        "n": 5,
+        "pitch": 16.8,
+        "outer": 14.8,
+        "faceB": 12.826666666666668,
+        "ok": true
+      },
+      {
+        "n": 4,
+        "pitch": 21,
+        "outer": 19,
+        "faceB": 16.46666666666667,
+        "ok": true
+      },
+      {
+        "n": 3,
+        "pitch": 28,
+        "outer": 26,
+        "faceB": 22.533333333333335,
+        "ok": true
+      }
+    ],
+    "thumbArea": 84,
+    "thumbBeadsMax": 25,
+    "perLevelThumbBeads": {
+      "L1": {
+        "n5": 23,
+        "n4": 15,
+        "n3": 9
+      },
+      "L2": {
+        "n5": 23,
+        "n4": 15,
+        "n3": 9
+      },
+      "L3": {
+        "n5": 18,
+        "n4": 13,
+        "n3": 8
+      },
+      "L4": {
+        "n5": 21,
+        "n4": 15,
+        "n3": 9
+      },
+      "L5": {
+        "n5": 24,
+        "n4": 16,
+        "n3": 9
+      },
+      "L6": {
+        "n5": 22,
+        "n4": 15,
+        "n3": 9
+      },
+      "L7": {
+        "n5": 20,
+        "n4": 13,
+        "n3": 8
+      },
+      "L8": {
+        "n5": 19,
+        "n4": 14,
+        "n3": 8
+      },
+      "L9": {
+        "n5": 23,
+        "n4": 16,
+        "n3": 9
+      }
+    },
+    "signGlyphs": {
+      "beads": 148,
+      "commandsPerBead": 7,
+      "total": 1036
+    }
+  },
+  "playingSeal": {
+    "source": "tests/__fixtures__/wxg-t-211-s3-seal.json · s3.*",
+    "fixtureParams": {
+      "cols": 13,
+      "rows": 12,
+      "rowPattern": "1231231231231",
+      "filled": 78,
+      "noAssemble": true
+    },
+    "now": {
+      "frame0": {
+        "total": 1325,
+        "kinds": {
+          "rect": 922,
+          "circle": 4,
+          "line": 377,
+          "text": 12,
+          "polygon": 10
+        },
+        "beads": 2,
+        "sha": "3269d92b57300bbea14d61e7b5c60690684605e77105fe94fffc7d3e047ce806"
+      },
+      "frame78": {
+        "total": 1871,
+        "kinds": {
+          "rect": 1000,
+          "circle": 160,
+          "line": 377,
+          "text": 12,
+          "polygon": 322
+        },
+        "beads": 80,
+        "sha": "749b3ada83682ef7be3b2c0a699dc4f13045ced1c49f5d907e25dfdb6692da65"
+      }
+    },
+    "keys": [
+      {
+        "key": "frame0.total",
+        "now": 1325,
+        "base": 1325
+      },
+      {
+        "key": "frame0.sha",
+        "now": "3269d92b57300bbea14d61e7b5c60690684605e77105fe94fffc7d3e047ce806",
+        "base": "3269d92b57300bbea14d61e7b5c60690684605e77105fe94fffc7d3e047ce806"
+      },
+      {
+        "key": "frame78.total",
+        "now": 1871,
+        "base": 1871
+      },
+      {
+        "key": "frame78.sha",
+        "now": "749b3ada83682ef7be3b2c0a699dc4f13045ced1c49f5d907e25dfdb6692da65",
+        "base": "749b3ada83682ef7be3b2c0a699dc4f13045ced1c49f5d907e25dfdb6692da65"
+      }
+    ],
+    "allMatch": true,
+    "verdict": "MATCH（四键逐字节等 ⇒ playing 命令流零渗漏）"
+  },
+  "menuFrameNonRegression": {
+    "kindsObserved": [
+      "circle",
+      "line",
+      "polygon",
+      "rect",
+      "text"
+    ],
+    "blitCount": 0
+  }
+}

@@ -37,10 +37,14 @@ interface Rig {
     readonly overlayEvents: { open: boolean; name: string }[];
 }
 
-/** Centre of a menu/overlay button, in design space (matches `tapMeta`). */
-function centerOf(overlay: MetaOverlay, id: MetaAction, levelIndex?: number): { x: number; y: number } {
+/**
+ * Centre of a menu/overlay button, in design space (matches `tapMeta`).
+ * EP12-S6：作品格以**墙槽位**定位（`slot`，0-based）——槽位 ≠ 关索引（陈列序 = DI 升序），
+ * 旧参名 `levelIndex` 正是 `beads-shell.ts:258` 回归的温床，就此改名。
+ */
+function centerOf(overlay: MetaOverlay, id: MetaAction, slot?: number): { x: number; y: number } {
     const b = metaLayout(overlay).buttons.find(
-        (btn) => btn.id === id && (levelIndex === undefined || btn.levelIndex === levelIndex),
+        (btn) => btn.id === id && (slot === undefined || btn.slot === slot),
     )!;
     return { x: b.box.x + b.box.w / 2, y: b.box.y + b.box.h / 2 };
 }
@@ -176,35 +180,42 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
     });
 });
 
-describe('BeadsShell — 选关（#1 · WXG-T-180）', () => {
-    it('opens the levels overlay from a menu tap', () => {
+// EP12-S6 · 三条硬口径（§5.4）：主钮 = 当前关、墙格 = 指定关、**无第三入口**。
+// 旧例「从菜单点开 `open-levels` overlay」已随 Q5①（入口隐藏）作废 ⇒ 本文件改钉
+// 「菜单无选关入口」+「橱窗格直接选关」；`levels` overlay 本身（代码保留）由
+// `meta-menu-wall.test.ts` 钉几何同源与可驱动性。
+describe('BeadsShell — 主菜单作品墙选关（EP12-S6 · WXG-T-269-S6 T-2A）', () => {
+    it('主菜单无 `open-levels` 入口（菜单版面零第三钮）', () => {
         const r = rig({ initialScreen: 'menu' });
-        const c = centerOf('none', 'open-levels');
-        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
-        expect(r.shell.overlay).toBe('levels');
+        const ids = metaLayout('none').buttons.map((b) => b.id);
+        expect(ids).not.toContain('open-levels');
+        const o = centerOf('none', 'start');
+        expect(r.shell.tapMeta(o.x, o.y)).toBe(true); // 主钮仍有效（阳性对照）
+        expect(r.shell.overlay).toBe('none'); // 且不会进任何 overlay
     });
 
-    it('picks an unlocked level → enters play at that level and spends one heart', () => {
+    it('点橱窗已解锁格 → 进**映射后的关**（非槽位号）且扣 1 心', () => {
         const r = rig({ initialScreen: 'menu' });
-        const o = centerOf('none', 'open-levels');
-        r.shell.tapMeta(o.x, o.y);
         const before = r.shell.meta!.stamina;
-        const c = centerOf('levels', 'pick-level', 0); // 索引 0 = 已解锁（maxUnlocked=1）
+        // 陈列序 = DI 升序 ⇒ 槽 0 = 最易关 = L1 = 索引 0（唯一开局已解锁的格）。
+        const c = centerOf('none', 'pick-level', 0);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.levelIndex).toBe(0);
         expect(r.shell.meta!.stamina).toBe(before - STAMINA_START_COST);
     });
 
-    it('picks a locked level → 不消费（留菜单、不扣心）', () => {
+    it('未解锁格 → 不消费（`tapMeta` 返回 false、留菜单、不扣心 = 零热区零事件）', () => {
         const r = rig({ initialScreen: 'menu' });
-        const o = centerOf('none', 'open-levels');
-        r.shell.tapMeta(o.x, o.y);
         const before = r.shell.meta!.stamina;
-        const c = centerOf('levels', 'pick-level', 5); // 锁定（maxUnlocked=1）
-        r.shell.tapMeta(c.x, c.y);
+        // 槽 1 = 次易关（L8 ⇒ 索引 7），maxUnlocked=1 ⇒ 未解锁。
+        const c = centerOf('none', 'pick-level', 1);
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(false);
         expect(r.shell.screen).toBe('menu');
+        expect(r.shell.overlay).toBe('none');
         expect(r.shell.meta!.stamina).toBe(before);
+        expect(r.shell.play.levelIndex).toBe(0); // 未跳转
+        expect(r.overlayEvents.length, '零事件：未解锁格不发 `meta:*`').toBe(0);
     });
 });
 

@@ -1027,13 +1027,193 @@ export const SIGNIN_REWARDS: readonly { coins: number; hearts: number }[] = [
  */
 export const HEART_PRICE_LADDER: readonly number[] = [50, 100, 200];
 
-// ─────────── 主菜单（shell 屏）几何（来源：ux-spec v1.7 §2 流程 + meta-ui 线框）
+// ─────────── 主菜单（shell 屏）几何（来源：ux-spec v1.7 §2 流程 + meta-ui 线框；
+//             EP12-S6 版面族扩充，来源 `menu-architecture.md §5.1/§7.4`——**派生版面值，⛔ 不进 §3**）
 /** 主菜单主钮「开始游戏」：复用面板主钮宽 × TOUCH_MIN。 */
 export const MENU_PRIMARY_W = 320;
 /** 主菜单次级入口（签到 / 设置）按钮尺寸。 */
 export const MENU_SECONDARY_W = 240;
 /** 主菜单纵向行距。 */
 export const MENU_ROW_GAP = 36;
+/**
+ * 主菜单次级行**两钮**水平间距（P-5 收敛正本：`menu-architecture §7.4` 记 3 钮 =
+ * `3×240 + 2×24 = 768 > 750` ⇒ 每边溢出 9px；删「选关」钮后 2 钮 = `504 ≤ 750` 自动收敛）。
+ * 本常量即原 `meta-view::menuLayout()` 里的 `const gap = 24` 字面（数据驱动收编）。
+ * ⚠ **口径差登记（⛔ 不擅改判据）**：`tokens.md §4` `space_ctrl_gap` = **16**，而
+ * `menu-architecture §5.1` 线框对本行标注 **gap 24**（＋§7.4 P-5 的 504 实测量）⇒ 两表不一致，
+ * 本批**沿用线框值**（P-5 的收敛算式以它为前提），差值归设计侧复核，不折算、不新造第三个间距。
+ */
+export const MENU_SECONDARY_GAP = 24;
+/**
+ * 招牌基线 y（原 `meta-view.ts:373` 字面 980 收编）。本批 = **系统字体 64px 占位**
+ * （`app_name` 令牌，珠拼 `beadText` 归 T-2B）；P-6 闭合口径：为 `§5.3` 大档
+ * （`d=15` ⇒ 字高 `8d = 120`）自该锚向上生长预留净空 ⇒ 顶 `1040+66 = 1106` < 资源条带 [1130,1180]。
+ */
+export const MENU_TITLE_Y = 1040;
+/** slogan 基线 y（§5.1 L2b：`app_slogan` · `font_label` 28 · `text_secondary`）。 */
+export const MENU_SLOGAN_Y = 968;
+/** 主钮**下缘** y（§5.1 L3 拇指带 = 下 1/3）；次级行由 `MENU_PRIMARY_Y − TOUCH_MIN − MENU_ROW_GAP` 派生。 */
+export const MENU_PRIMARY_Y = 360;
+/** 版本号 label 基线 y（§5.1 底部 `y≈140` 原值）。 */
+export const MENU_VERSION_Y = 140;
+
+// ─────────── 作品墙（EP12-S6 §5.1 L1「木框橱窗」；主菜单与 `levels` overlay **共用**同一组几何
+//             ⇒ 陈列序与格口径单源。旧 `meta-view::levelsLayout()` 内 `cols=4/cellSize=120/gap=22`
+//             三枚字面即本组常量（§3.0 D-1「沿用实装值零新常量」的落点）。
+/** 作品墙列数（`wall_capacity` 派生项之一）。 */
+export const WALL_COLS = 4;
+/** 作品墙行数（9 关现状 = 单层墙，⛔ 轮播/分带归 S6 Out）。 */
+export const WALL_ROWS = 3;
+/** 作品格边长（≥ `TOUCH_MIN` 88 ⇒ 热区达标）。 */
+export const WALL_CELL = 120;
+/** 作品格间距。 */
+export const WALL_GAP = 22;
+/** 一屏作品格容量 = `wall_capacity`（§3.0 D-1 实装值 12；`n > 容量` 的溢出模式本 Story **不实现**）。 */
+export const WALL_CAPACITY = WALL_COLS * WALL_ROWS;
+/** 木框内衬（纸底边缘 → 网格外沿），线框 22（与 `WALL_GAP` 同档，非新数值）。 */
+export const WALL_FRAME_INSET = 22;
+/**
+ * 主菜单网格**上沿** y（= 第 1 行作品格的**上边**；本设计空间 y 向上，`meta-view::pushWallCells`
+ * 由此逐行下推）。橱窗框带由它派生：
+ * 顶 = `WALL_GRID_TOP + WALL_FRAME_INSET` = **920**，底 = 顶 −（墙高 404 + 2×INSET）= **472**。
+ * ⚠ `[待实测]` 回填偏差登记：`menu-architecture §5.1` 建议橱窗带 y∈[540,940]（高 400），而
+ * 墙高实算 `3×120 + 2×22 = 404` **放不下内衬** ⇒ 本批按「框带 ≥ 墙高 + 2×INSET」实算取
+ * [472,920]（顶 −20、底 −68）；主钮顶 448 与框底 472 间隙 24，slogan 底（968−14）与框顶 920 间隙 34。
+ */
+export const WALL_GRID_TOP = 898;
+/** 空槽虚线段长（`§5.4`「未解锁 = 虚线空槽（既有语言）」；同 `view-model::drawDashedRect` 的 6/4 判例值）。 */
+export const WALL_SLOT_DASH = 6;
+/** 空槽虚线间隔（同上；⚠ 与 `view-model` 私有实现的 6/4 **同值不同源**，归并需授权 ⇒ 本批不越界改该文件）。 */
+export const WALL_SLOT_DASH_GAP = 4;
+
+// ─────────── 招牌珠拼 `beadText` 档（EP12-S6 · 子单 T-2B · WXG-T-269-S6）
+//   正本 = `games/beads/art/menu-wall-signage-spec.md`（林绘澄 T-1）**§1.4 档公式重算 / §1.5 位表档 /
+//          §0.4 珠面地板三口径 / §0.7 新常量落点**；版面口径 = `menu-architecture.md §5.3`（该节预登记
+//          `SIGN_*` 命名 ⇒ 本组同名，回写行见 T-1 §6.4）。
+// ⛔ **不进 `systems-index §3`**（菜单屏不在 §3.1 带表 ⇒ 零 §3 变更；art-owned 版面派生值，
+//   判例同 `DIFFICULTY`（`Object.freeze` 组）与 `PAUSE_PANEL_H` / 本文件 `MENU_*`·`WALL_*`（`const` 冻结）
+//   —— 本组沿用 `WALL_*` 同族 **flat `SIGN_*` 命名**，以便与 T-1 §0.7 建议名逐字对齐、零第二口径）。
+// 不变式（T-1 §1.4，本组的**存在理由**）：令 `n·d = 120` ⇒ 总宽 `5.5·n·d = 660`、单字框 `120×120`、
+//   字间 `(n/2)·d = 60` **皆与 `n` 无关** ⇒ 升档对版面零扰动，代价全落在 `d` 与珠数 `n²` 上。
+/**
+ * 字模阵边长 `n`（位表 = `n×n` 布尔方阵，真源 `config/sign-glyphs.ts`）。
+ * **10** = 主理人裁定档（8×8 经 T-1 §1.3 判「行预算不足 + 三类结构损失」不可辨 ⇒ 升档落用户预授权）。
+ */
+export const SIGN_MATRIX_N = 10;
+/**
+ * 招牌珠距 `d`（= 字模格距，设计 px）。**12** 是「守宽上限」与「口径 B 地板下限」**恰好重合**的唯一一档
+ * （`d_max = ⌊702 / (5.5·10)⌋ = 12 = d_min(B)`，T-1 §1.4 注 2）⇒ 既无放大余地也无缩小的余地（除非换 `n`）。
+ * ⚠ 验收③ 的「`d ∈ [10,15]`」由 {@link signPitchFor} 的档换算式覆盖（`n=8→15`、`n=10→12`、`n=12→10` 破地板）。
+ */
+export const SIGN_BEAD_PITCH = 12;
+/** 招牌字数（`app_name` = 拼豆小铺 ⇒ 4；⛔ 视图侧不散字面，串本体读 `copy-tokens.ts::app_name`）。 */
+export const SIGN_GLYPH_COUNT = 4;
+/** 字间 / 单字框 之比（`menu-wall-signage-spec §0.5`「字间 = 半字宽」⇒ 120×0.5 = 60）。 */
+export const SIGN_GLYPH_GAP_RATIO = 0.5;
+/**
+ * 总宽系数（T-1 §1.4 重算式）：`总宽 = 4·n·d + 3·(n/2)·d = 5.5·n·d`；`n=8` 时退化 = 原 §5.3 的 `44d`。
+ * ⇒ 由 {@link signPitchFor} 反解上界 `d ≤ 702 / (5.5·n)`。
+ */
+export const SIGN_WIDTH_COEF = 5.5;
+/** 屏边距（`tokens.md §4` `space_screen_edge` = **24**，在册值 ⇒ 可用宽 `750 − 2×24 = 702`）。 */
+export const SIGN_PAGE_EDGE = 24;
+/**
+ * 招牌带与橱窗框顶的净空下限 `Δ`（`tokens.md §4` `space_band_pad` = **12**）。
+ * 关系不变式（T-1 §2.2，**这才是判据、具体 y 值不是**）：`sign.yMin ≥ frameTop + Δ`。
+ */
+export const SIGN_BAND_PAD = 12;
+/** 珠面地板（T-1 §0.4 的 ≥8 下界；主理人裁**口径 B = 真几何**为准、A 为对照）。 */
+export const SIGN_FACE_FLOOR = 8;
+/**
+ * 真几何内缩比（口径 B）：`1 − 2·BEAD_DRAW_INSET / BEAD_CELL` = **26/30 ≈ 0.8667**。
+ * ⚠ 与 `drawFilledBead` 的等比内缩通道**同一条算式**（`bead-render.ts` `inset = drawInset·outer/BEAD_CELL`）
+ *   ⇒ 传 `targetColorIdx` 即吃到它，本值不是新引入的尺子（`tuning.ts:67–72` 现装注）。
+ * ⚠ T-1 §0.4 表内「珠面恒 = 0.733 × 外缘」= `BEAD_DRAW_INSET` **改 4→2 之前**的遗留读数；
+ *   现值 26/30 与 §3.2 实测表（32.9 / 19.1 / 8.67）逐档吻合 ⇒ 差异列入回写清单（交主理人中转 art）。
+ */
+export const SIGN_FACE_RATIO = (BEAD_CELL - 2 * BEAD_DRAW_INSET) / BEAD_CELL;
+/** 口径 B（真几何）下满足地板的最小 `d`（`(d−2)·26/30 ≥ 8 ⇒ d ≥ 11.23 ⇒ 12`）。 */
+export const SIGN_PITCH_MIN_B = 12;
+/** 口径 A（§5.3 字面 `d − BEAD_GAP`）下的最小 `d`（= 10）；仅作对照列，⛔ 不作落码判据。 */
+export const SIGN_PITCH_MIN_A = 10;
+/** 旧 §5.3 大档上限（`n=8` 时 `d = 15`；亦即验收③区间的上端）。 */
+export const SIGN_PITCH_MAX = 15;
+/** 回落档字模阵（T-1 §3.8 回退序 **5**：性能不达标时招牌回落 `8×8`，省 343 命令，代价 = 不可辨性回归）。 */
+export const SIGN_FALLBACK_MATRIX_N = 8;
+/** 回落档珠距（守不变式 `n·d = 120` ⇒ 版面 footprint 逐值不变；面 B = 11.27 合规）。 */
+export const SIGN_FALLBACK_PITCH = 15;
+/**
+ * 招牌珠色索引（S0 硬约束③ ⇒ **既有珠色**，走 `beadInksFor`/`endpointOf` 通道，⛔ 不取 UI token）。
+ * **0 = art 未定值**（T-1 §1.7 明文「本轮不写死」，索引待 `[待真机]` 观感裁定后由回写单定）
+ *   ⇒ 视图侧按该节给出的**建议口径**确定性派生 = 「demo 十色中 `relativeLuminance` 最高的一档」；
+ *   art 回写填 `1..10` 后即覆盖派生（一行改值、无第二通道）。⛔ 不得在此填十六进制。
+ */
+export const SIGN_INK_IDX = 0;
+/** 单字外接框边长 = `n·d`（= **120**，与 `WALL_CELL` 同值但**不同语义**，勿互推）。 */
+export const SIGN_GLYPH_BOX = SIGN_MATRIX_N * SIGN_BEAD_PITCH;
+/** 字间 = `(n/2)·d`（= **60**；不变式下与 `n` 无关）。 */
+export const SIGN_GLYPH_GAP = SIGN_GLYPH_BOX * SIGN_GLYPH_GAP_RATIO;
+/** 招牌总宽 = `5.5·n·d`（= **660** ≤ {@link SIGN_AVAIL_W} 702 ⇒ 守宽上限）。 */
+export const SIGN_TOTAL_W = SIGN_WIDTH_COEF * SIGN_MATRIX_N * SIGN_BEAD_PITCH;
+/** 可用宽 `W_avail = DESIGN_W − 2·space_screen_edge`（= **702**）。 */
+export const SIGN_AVAIL_W = DESIGN_W - 2 * SIGN_PAGE_EDGE;
+/** 招牌带**左缘**（居中排布，`MENU_TITLE_Y` 语义 = 外接框中心 ⇒ 视图只加半宽/半高）。 */
+export const SIGN_ORIGIN_X = (DESIGN_W - SIGN_TOTAL_W) / 2;
+
+/**
+ * 档换算（T-1 §1.4 上界反解）：给定字模阵 `n` ⇒ **守版面宽度上限**的 `d = ⌊W_avail / (5.5·n)⌋`，
+ * 并钳进验收③区间 `[SIGN_PITCH_MIN_A, SIGN_PITCH_MAX]`。纯函数、零分配。
+ */
+export function signPitchFor(n: number): number {
+    const raw = Math.floor(SIGN_AVAIL_W / (SIGN_WIDTH_COEF * n));
+    return Math.min(SIGN_PITCH_MAX, Math.max(SIGN_PITCH_MIN_A, raw));
+}
+/** 口径 B（真几何，**主理人裁定的地板口径**）：`face = (d − BEAD_GAP) × 26/30`。 */
+export function signFaceB(d: number): number {
+    return (d - BEAD_GAP) * SIGN_FACE_RATIO;
+}
+/** 口径 A（`menu-architecture §5.3` 字面）：`face = d − BEAD_GAP`；仅对照，⛔ 不作判据。 */
+export function signFaceA(d: number): number {
+    return d - BEAD_GAP;
+}
+/** 该字模阵在口径 B 下是否可行（`d = signPitchFor(n)` ⇒ 面 ≥ {@link SIGN_FACE_FLOOR}）。 */
+export function signTierOk(n: number): boolean {
+    return signFaceB(signPitchFor(n)) >= SIGN_FACE_FLOOR;
+}
+
+// ─────────── 作品格珠拼缩略档（EP12-S6 · 子单 T-2B；正本 = `menu-wall-signage-spec` §3.1/§3.2/§3.3/§3.4）
+//   主理人裁定：**案乙**（缩略区 84、现装占位几何不动）+ **5×5 主色块聚合** + **单格 ≤ 25 珠硬判据**。
+//   同 `SIGN_*` 纪律：art-owned 派生版面值，⛔ 不进 §3。
+/**
+ * 缩略字模阵 `n`（**5** = 推荐档）。档上限由案乙的 84 区收到 **7**（面 8.67 压线；8×8 的 7.37 越地板，
+ * T-1 §3.4）⇒ 回退杠杆（§3.8 序 2/3）走 **5 → 4 → 3**，⛔ 不越 7。
+ */
+export const THUMB_MATRIX_N = 5;
+/** 缩略区顶内缩（格顶 → 缩略区顶，= 8；T-1 §3.4 案乙，值标 `[待实测]`）。 */
+export const THUMB_TOP_INSET = 8;
+/** 格底文字带（星位所在，= 28；⚠ 编号已随 T-2B「缩略 + 星」退场 ⇒ 本带只承载星 ⇒ 差值登记回写清单）。 */
+export const THUMB_STAR_BAND = 28;
+/** 缩略区边长 = `WALL_CELL − THUMB_TOP_INSET − THUMB_STAR_BAND`（= **84**，由三件派生 ⇒ 无第二份可漂移读数）。 */
+export const THUMB_AREA = WALL_CELL - THUMB_TOP_INSET - THUMB_STAR_BAND;
+/**
+ * 单格珠数**硬上限** = `THUMB_MATRIX_N²`（= **25**，T-1 §3.3「K-6 关键输入，请作为判据入册」）。
+ * ⚠ 本上限只押在 `n²`、与关卡规模**解耦**（聚合规则自动兜住 L10+ 的大盘）⇒ 这正是本规则的性能安全性来源，
+ *   `tests/menu-thumb-primitives.test.ts` 以「任意 pattern ⇒ 珠数 ≤ 25」的构造反例正面钉住。
+ */
+export const THUMB_BEADS_MAX = THUMB_MATRIX_N * THUMB_MATRIX_N;
+/** 回退档序（§3.8 序 2/3 预置杠杆，逐级触发、不并行）。 */
+export const THUMB_TIERS: readonly number[] = Object.freeze([5, 4, 3]);
+/** 虚线空槽档回退（§3.8 序 4：空格改 48 档格径 ⇒ 48 条 line/格 降为 20 条）。 */
+export const WALL_SLOT_FALLBACK_CELL = 48;
+
+/** 缩略格距 = `THUMB_AREA / n`（5 档 = **16.8**，与 T-1 §3.2 实测表同值）。 */
+export function thumbPitchFor(n: number): number {
+    return THUMB_AREA / n;
+}
+/** 缩略珠的**绘制外缘**（喂给 `drawFilledBead` 的 `size`）= `d − BEAD_GAP` ⇒ 面 = 外缘 × 26/30 = 口径 B。 */
+export function thumbOuterFor(n: number): number {
+    return thumbPitchFor(n) - BEAD_GAP;
+}
 
 // ────────────── §GAP-04/03/10 反馈态动效（来源：ux-spec §5 / art-bible §7，WXG-T-087）
 /**

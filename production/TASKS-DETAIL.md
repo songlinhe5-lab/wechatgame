@@ -3203,3 +3203,21 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | K3 | **跟随定稿**（孔底透 B0 tile edge −0.30；与 226-Q2 裁定连带一致）|
 
 **裁后流水**：① test-cases §L 并入 ✅本批 ② `bead-visual-style-spec §12.2` C5/C12 引用面回写 → 挂文策渊 ③ `ADR-0028 §5` 执行态同步 → 挂程基岩。
+
+## WXG-T-269
+
+### EP12-S6 主菜单「拼豆小铺」作品墙（批 6、双轨并行、QA §M 代落）
+
+- **领号**：269 = 本会话（Qoder）。领号已核：此前仅现于 TASKS.md 头注「下一可用号」，工树/在册无占用（承 WXG-T-268 拆分，按批 6 续，不另拆单）。
+- **范围**：EP12-S6 = R-12 闭合案落码（**不新增独立 boot 屏**，S0 内容就地落已实装 `meta-view`）：招牌 `beadText` 珠拼「拼豆小铺」 + slogan + 木框橱窗 4×3 + 陈列序 = DI 升序（消费 S5） + 主钮语义不变 + 次级行 3→2 钮。估点 L，跨 view + 美术字形/缩略 + QA 封箱复算；依赖 S2✅ S5✅。判据正本 = ep12 §89–95 验收①–⑦ + menu-architecture §5.1–§5.4。
+- **编排（主理人九阶段、双轨并行）**：T-1 林绘澄（招牌字形/橱窗/缩略绘制规格 `art/menu-wall-signage-spec.md`）∥ T-2A 程基岩（工程垂直切片：DI 墙 + 映射 + 3→2 钮 + 令牌）→ G-art 汇合门 PASS（升 10×10@12 落预授权，整树 verify 22/0）→ T-2B 程基岩（beadText 招牌 + 缩略渲染 + K-6 实测台账，四键 MATCH）→ T-3 严守真（§M 硬判据 + G1–G4 独立复验）→ T-4 文策渊（ux-spec §4 两行回写 + tokens 冲突裁定）。round 2b art/design 回写已落工作树。
+- **落码事实（主理人亲验）**：首屏分流 `beads-shell.ts:156 this._screen = options.initialScreen ?? 'menu'`（红线由 WXG-T-180 反转、S6 T-2A reinforce）；招牌 `view/menu-signage.ts::drawBeadText` + `config/sign-glyphs.ts`（T-1 §1.5 `10×10@d=12` 位表逐字转写，⛔ 工程侧不自拟字形）；缩略 `drawLevelThumb`（案乙 `THUMB_AREA = 120−8−28 = 84`、5×5 主色块聚合、单格 ≤ 25 珠硬判据）；`SIGN_*`/`THUMB_*` 档进 `tuning.ts`（Object.freeze，判例 DIFFICULTY）⇒ **零 §3 变更**。
+- **K-6 实测读数（⛔ 非纸面；risks.md 旧「+77~115 推算」作废）**：满载菜单生产帧 `total=2563 / beads=341`；Δ招牌 beadText = +1036（148 珠 × 7，增量闭于珠体三族 rect+148/circle+296/polygon+592、text/line +0）；Δ格 3→2 = −307；Δ缩略 5→4/4→3/5→3 = −427/−378/−805；地板 513；**成本比 = 2563/1871 = 1.370×**（菜单非玩法热循环 ⇒ 接受）。口径 B 面：`10@12` 面 8.667 ≥ 地板 8（采用）/ `12@10` 面 6.933 破地板 ⇒ 不做；总宽 `5.5·n·d = 660 ≤ 702`。
+- **验收④（封箱复评）**：playing 四键逐字节 MATCH — frame0 `1325/3269d92b…`、frame78 `1871/749b3ada…`；两条独立腿互证（K-6 装置内复取 + 官方复取器 `WXG211_CAPTURE=t269s6-seal`）+ import 图静态门（view-model/bead-render/beads-shell/beads-game 零引用 menu-signage）⇒ 珠拼/缩略未渗进盘面命令流。
+- **QA 代落（用户批准全量代落）**：⚠ subagent 返回文本**不落持久转录**（grep 转录 TC-MN/SC-MN/§M = 0）⇒ 按铁律 1 + K-051 不凭记忆伪造 38 例，**重新 spawn quality-lead（readonly）对已落码真实代码重生可逐字落盘草稿**后代落。落 `test-cases.md §M`（TC-MN-01..40 九分组 + M.0 效力边界 + M.10 门结论 G1–G4 映射 + BD 表）+ `smoke-tests.md`（SC-MN-01/02 + SC-01/SC-11 K-053 划线留档订正：旧「冷启动无菜单直进 L1」随首屏红线反转改写为「首屏 = 主菜单」 + v1.4 变更行）。主理人代落时**误缩短已有 v1.3 变更记录行** ⇒ 立即逐字复原（lossy 编辑自查修正）。
+- **BD 领号（K-050 复核纠正 quality-lead off-by-one）**：quality-lead 报最大 = BD-51，主理人读工作树全局实得最大 = **BD-52**（BD-51 iOS 音频、BD-52 珠缝）⇒ 新缺陷从 **BD-53** 起，BD-MN-01..08 → BD-53..60 落盘时重编。
+- **主理人亲验两处默认值**：shell 默认 `'menu'` ✓；harness `dev/harness/main.ts:60` 默认 `'play'`（注释仍写旧红线）⇒ **BD-56 真实不一致**，本批**只文档化不擅改代码**。
+- **终裁 = CONCERNS**（G1/G2 PASS · G3/G4 CONCERNS：菜单冒烟本轮 ⛔ 未执行 + 观感/真机/屏幕 6 项 `[待真机]` 未闭合 + BD-53..60 在册；九关 DI 无并列 ⇒ tie-break 分支不可达，诚实登记）。commit ≠ 闭合宣告，S6 状态行保持 🚧。
+- **阶段 8 汇编**：ctx:build 重跑（387 文件/5917 章节；menu-wall-signage-spec.md 未入索引，dirty 按 HEAD，提交时 pre-commit 自动重建）· check:links OK（agents=7 skills=39）· epics-beads-ep12 S6 状态行 🚧 · epics-beads-status 无 EP-12 行（该件为 EP-01~10 时效声明，不动）。
+- **在册挂账**：BD-53（验收⑤缺静态门）/ BD-56（harness 分流，已核不改码）/ BD-57（镜像 3 文件无 `.meta`，无编辑器阻塞不伪造）/ BD-58（K-6 台账副本入库，主理人倾向批准转正）· `[待真机]` 5 项 · ux-spec §4 两行 + core-loop §2.1 首屏行回写归 T-4。
+- **待 commit**（用户批准「汇编完就提交」）：feat(beads) 整批 S6（代码 + 镜像 + art + design 回写 + QA 文档）。

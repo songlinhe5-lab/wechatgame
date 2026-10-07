@@ -380,7 +380,10 @@ export const LIMITS = {
   // （原目标 ux-spec 零收益；剩余瘦身 = test-cases 锚点摘要，需 quality-lead 裁定，
   // 不属本单域）⇒ 沿先例重议 5150→5300。**下次再涨前必须先走 quality-lead 锚点瘦身裁定**，
   // 本注即留痕。
-  hotFilesMaxTokens: 5300,
+  // WXG-T-269（2026-10-07，用户裁「抬上限」）：EP12-S6 合法文档增量把 tier:hot 必收录常驻集顶到 5480
+  //   （必收录 6 件行号不可省、生成器无法自动裁撤）⇒ 5300→5600（+5.7%）。代价见 ctx/reads-summary.md §②.1
+  //   （常驻一跳开销略增、净收益微降）。撤销条件：下次触 hot-files 瘦身单 WXG-T-224 时评估回落。
+  hotFilesMaxTokens: 5600,
 
   /*
    * ── ROUTES.md 常驻预算（WXG-T-039 R5）────────────────────────────────────────
