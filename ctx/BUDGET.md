@@ -22,7 +22,7 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 122238 | 3690 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 122379 | 3698 | normal |
 | 2 | `games/beads/art/assets-spec.md` | 111702 | 1997 | normal |
 | 3 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
 | 4 | `production/qa/beads/test-cases.md` | 73956 | 905 | hot |
@@ -47,7 +47,7 @@
 
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
-| `production/TASKS-DETAIL.md` | 122238 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 122379 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/assets-spec.md` | 111702 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 86807 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 73956 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
