@@ -160,9 +160,10 @@ export const SOCKET_CARD = Object.freeze({
   relief: 0.07,
 } as const);
 
-/** 托盘面板「微拱白瓷」三段内阴影（§1.3 v1.5：底缘两段 + 右缘一段）。 */
+/** 托盘面板「微拱白瓷」三段内阴影（§1.3 v1.5：底缘两段 + 右缘一段）。
+ *  [EP12-S3] `ink` 字段作废（几何/α 不变、只换墨）：消费点改读 `palette.shadowInk`
+ *  （tokens.md §1 `shadow_ink #3D2E1E` 暖化；原 `#1E2033` 冷墨属珠面影不动项不随迁）。 */
 export const TRAY_PLATE = Object.freeze({
-  ink: '#1E2033',
   /** 底缘外段（α 0.03）。 */
   bottomOuterAlpha: 0.03,
   /** 底缘内段（α 0.05）。 */
@@ -462,13 +463,14 @@ export const TRAY_PANEL_PAD = 12;
  */
 export const TRAY_PANEL_WIDTH = TRAY_ROW_WIDTH + 2 * TRAY_PANEL_PAD;
 /**
- * `btn_expand` 视觉尺寸（§3.4 v1.20 ← `assets-spec §1.3`：132×48、圆角 24）。
+ * `btn_expand` 视觉尺寸（§3.4 v1.20 ← `assets-spec §1.3`：132×48、圆角旧 24）。
  * 热区高 88 来自 `accessibility C1`（48 < `TOUCH_MIN` ⇒ 视觉不变、热区扩大），
  * 二者同心，因此视觉在带下沿居中于热区（y∈[250,298]，热区 y∈[230,318]）。
  */
 export const EXPAND_BTN_W = 132;
 export const EXPAND_BTN_H = 48;
-export const EXPAND_BTN_RADIUS = 24;
+/** [EP12-S3] 木化 T4 档（tokens.md §2 `radius_btn_small` 16，原 §1.3 胶囊 24 作废）。 */
+export const EXPAND_BTN_RADIUS = 16;
 export const EXPAND_BTN_HIT_H = 88;
 /** 按钮内 ▶ 三角边长（§1.3：12px）。 */
 export const EXPAND_BTN_GLYPH_EDGE = 12;
@@ -1763,6 +1765,36 @@ export const LINEART_BAND_W = 0.62;
 export const LINEART_BAND_Y = 0.17;
 /** `18` #3 上亮带高（同上 `h = 0.20S`）。 */
 export const LINEART_BAND_H = 0.2;
+
+/* ── `handdrawn` 手绘有机轮廓（**MVP 原型**，2026-10-07 用户树形参考图定调；⛔ 未过 §12.6 入池评审）──
+ * 造型身份 = 一颗**歪四角方豆**（四角整数偏移 + 每角切角 ⇒ 8 顶点硬轮廓，v2.2 用户
+ * 二批回调「不规则四边形」；v2.1 密采样超椭圆读成齿轮已废）+ 深色轮廓线（stroke-only
+ * 同形多边形）+ 手绘感内环 + 真透孔（4 命令 / 0 真 α）。
+ * 歪斜是**静态形状**（整数偏移表，同 13 的「三角枚数」地位，C4 不扫整数）⇒ 纯函数确定性，
+ * 不违 L4；⛔ 不得改成逐珠随机（像素封箱与可复现性会碎）。
+ * 判据（v2.3 重账，S = 风格入参尺寸，比例均对 S/2；方形角点半宽 = |x|max，对角伸出
+ * 不另计——邻格同形，A5 测试代理 `bead-size-tier` 同口径）：角点最大半宽
+ * = FACE + 2×WOBBLE = 0.90；轮廓线外沿再 + OUTLINE_W = 0.95；满抬起 ×1.04
+ * ⇒ 0.988 < 1 ⇒ **A5 零重叠**静息/抬起两态成立（托盘珠无 inset 是最紧腿；盘面珠另有
+ * BEAD_DRAW_INSET 通道，恒更松；⚠ `minStroke` 地板在小尺寸抬宽另计入尾注，风格块旁）。
+ * v2.3 = 歪斜量从 0.015（±0.7px 不可见，读成正八边）抬到 0.05 ⇒ 角点可见推拉。
+ * C12：facet 域仅主体一枚且 fill ≡ `endpointOf().base` ⇒ 强读法过；轮廓线/内环
+ * stroke-only = `plate` 职能排除出统计域（⛔ 轮廓不走主体自描边——契约约束① 只准
+ * `stroke === fill`）。 */
+/** `handdrawn` 的 styleId（注册序末位 = 设置钮循环末位；原型档，退出 = 从 registry 摘除）。 */
+export const HANDDRAWN_STYLE_ID = 'handdrawn';
+/** 豆体四角半宽比（S/2 的占比；v2.3 歪四角档 = 0.80，歪斜预算让给 WOBBLE，账见上）。 */
+export const HANDDRAWN_FACE_RATIO = 0.8;
+/** 手绘歪斜幅度（半径比；角点整数偏移 ±1 × 本值 ⇒ 每角可见推拉，见上账）。 */
+export const HANDDRAWN_WOBBLE = 0.05;
+/** 切角比例（每角沿相邻两边各取边长此比例的点 ⇒ 硬轮廓圆角感；形状族系数，0 = 尖角）。 */
+export const HANDDRAWN_CHAMFER = 0.24;
+/** 轮廓线宽比（stroke-only 同形多边形，墨 = `edge`；与地板 `BEAD_CARD.minStroke` 取大）。 */
+export const HANDDRAWN_OUTLINE_W = 0.05;
+/** 内环半径比（stroke-only 圆，墨 = `edge`，role = `plate` 排除出 C12 统计域）。 */
+export const HANDDRAWN_RING_RATIO = 0.55;
+/** 内环线宽比（与地板 `BEAD_CARD.minStroke` 取大，⛔ 风格内自算地板）。 */
+export const HANDDRAWN_RING_W = 0.08;
 /** `18` #3 上亮带圆角（§7.11.3 行 3：`r = 0.10S`）。 */
 export const LINEART_BAND_RADIUS = 0.1;
 /** `18` #4 下暗带宽（§7.11.3 行 4：`w = 0.72S`，且 `y∈[−0.36S,−0.20S]` 的下端 = 本值/2 ⇒ 居中导出）。 */
@@ -1771,6 +1803,44 @@ export const LINEART_EDGE_W = 0.72;
 export const LINEART_EDGE_H = 0.16;
 /** `18` #4 下暗带圆角（§7.11.3 行 4：`r = 0.08S`）。 */
 export const LINEART_EDGE_RADIUS = 0.08;
+
+/* ── [EP12-S2 · 控件语言] 容器几何 token（2026-10-07 用户裁 P-3=24 同批）──
+ * 真源 = `design/proposals/ui-style-redesign/tokens.md` §2/§3/§4；墨一律读
+ * `palette`（wood/card/shadowInk 族）。⛔ 只服务 UI 容器/控件；珠面/格面/托盘槽
+ * 属 art-bible §7 不动项零消费。按下态（press）消费面归弹窗批 EP12-S4（playing
+ * 无「按住」视觉态）。 */
+export const UI_CONTAINER = Object.freeze({
+  /** T1 纸面板圆角（**P-3 已裁 = 24**，assets-spec §1.3 口径，代码旧 18 漂移本批收敛）。 */
+  radiusPanel: 24,
+  /** T2 纸卡圆角（= 在册 `POWERUP_CARD_RADIUS` 同值，消费点直用后者）。 */
+  radiusCard: 20,
+  /** T3 木主钮圆角（弹窗主钮消费面 = EP12-S4）。 */
+  radiusWood: 20,
+  /** T4 次级木钮/缩放钮圆角（= 在册 `EXPAND_BTN_RADIUS` 同值）。 */
+  radiusBtnSmall: 16,
+  /** 新 `radius_chip`：LV 纸 chip / 开关 chip（tokens.md §2「新」行）。 */
+  radiusChip: 12,
+  /** 柔投影垂直偏移（tokens.md §4 `shadow_dy`；既有胶囊两处自有 dy 值不动）。 */
+  shadowDy: 3,
+  /** T1 纸面板投影 α（art-bible §5）。 */
+  shadowAlphaPanel: 0.1,
+  /** T2 纸卡投影 α。 */
+  shadowAlphaCard: 0.08,
+  /** 纸面板/纸卡描边（tokens.md §3 `stroke_panel`，art-bible §4「1px」；既有
+   *  缩放钮 lineWidth 2 属 P-1 收编在册态，本批不重开）。 */
+  strokePanel: 1,
+  /** 木钮顶缘受光线（tokens.md §3 `stroke_sheen`）。 */
+  strokeSheen: 1,
+  /** 木钮底缘暗线（tokens.md §3 `stroke_wood_base`）。 */
+  strokeWoodEdge: 2,
+  /** 按下态整体下移（tokens.md §4 `press_dy`；S4 消费）。 */
+  pressDy: 2,
+  /** LV 纸 chip 几何（screens.md S1「LV 纸 chip 96×48」；墨 = panel/panelBorder）。
+   *  x = DESIGN_W − 22 − w（右缘对齐既有 22 留白）；仅普通模式呈现（sprint 自有 HUD 块）。 */
+  lvChipW: 96,
+  lvChipH: 48,
+  lvChipRightInset: 22,
+} as const);
 
 /* **换肤设置文案与豆径档枚举**（WXG-T-211-S5 / EP11-S5 · §12.9 步 5；S9 v1.7 §2.2 行4 +
    ux v1.19 §3.3 文案映射表）。两钮 = **选择器钮**（点按循环切档、非开关；钮面 = 标签 +

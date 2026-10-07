@@ -17,8 +17,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { DEFAULT_PALETTE, DEMO_BEAD_INKS, contrastRatio, luminance } from '../src/view/palette.js';
-import { zoomControlLayout } from '../src/config/tuning.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS, contrastRatio, luminance, withAlpha } from '../src/view/palette.js';
+import { EXPAND_BTN_H, EXPAND_BTN_W, UI_CONTAINER, powerupCardRects, zoomControlLayout } from '../src/config/tuning.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { RenderModelBuilder } from '@wxgame/framework';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
@@ -111,5 +111,50 @@ describe('WXG-T-268 P-1 收编：缩放控件条改读纸面板族（risks.md P-
         const knob = cmds.find((c) => c.kind === 'circle' && c.r === 22);
         expect(knob, 'knob 在场（r22）').toBeDefined();
         expect((knob as { stroke?: string }).stroke, 'knob 描边 ≡ accentPrimary').toBe(DEFAULT_PALETTE.accentPrimary);
+    });
+});
+
+describe('[EP12-S2] 控件语言 token 批：逐值对齐 tokens.md §1「新」行 + 消费面', () => {
+    it('11 枚新 token 入 DEFAULT_PALETTE（真源 tokens.md §1，消费副本 ≠ 真源即红）', () => {
+        expect(DEFAULT_PALETTE.shadowInk, 'shadow_ink 暖墨投影').toBe('#3D2E1E');
+        expect(DEFAULT_PALETTE.woodFace, 'wood_face（≡ accent_primary 同值不同名）').toBe('#8A5B34');
+        expect(DEFAULT_PALETTE.woodFacePressed, 'wood_face_pressed（按下态 S4 消费）').toBe('#7E5230');
+        expect(DEFAULT_PALETTE.woodFaceDisabled, 'wood_face_disabled（禁用态 S4 消费）').toBe('#C7B299');
+        expect(DEFAULT_PALETTE.woodEdge, 'wood_edge 底缘承重线').toBe('#5E3B1E');
+        expect(DEFAULT_PALETTE.woodSheen, 'wood_sheen 顶缘受光线').toBe('#B98A5C');
+        expect(DEFAULT_PALETTE.woodText, 'wood_text 暖白字').toBe('#FFF6E8');
+        expect(DEFAULT_PALETTE.cardPressed, 'card_pressed（纸钮按下态 S4 消费）').toBe('#F4EAD7');
+        expect(DEFAULT_PALETTE.cardDisabled, 'card_disabled（禁用态 S4 消费）').toBe('#F7F2E6');
+        expect(DEFAULT_PALETTE.cardDisabledBorder, 'card_disabled_border（禁用态 S4 消费）').toBe('#EAE0CC');
+        expect(DEFAULT_PALETTE.textDisabled, 'text_disabled（禁用态字）').toBe('#B4A98F');
+        // 材质语义锚：木面字对比 ≥4.5（art-bible §3.2 口径，wood_text on wood_face）。
+        expect(contrastRatio(DEFAULT_PALETTE.woodText, DEFAULT_PALETTE.woodFace)).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('playing 帧消费面：btn_expand 木面 / 道具卡 panelBorder 描边 / 投影暖墨', () => {
+        const harness = sealStyleHarness();
+        const builder = new RenderModelBuilder(750, 1334);
+        builder.begin();
+        buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+        const cmds = builder.end().commands;
+
+        const woodFace = cmds.find(
+            (c) => c.kind === 'rect' && c.w === EXPAND_BTN_W && c.h === EXPAND_BTN_H && c.fill === DEFAULT_PALETTE.woodFace,
+        );
+        expect(woodFace, 'btn_expand 面走 drawWoodButton（woodFace，非旧 EXPAND_BTN_INK 直填）').toBeDefined();
+
+        const card = powerupCardRects()[0]!;
+        const face = cmds.find(
+            (c) => c.kind === 'rect' && c.x === card.x && c.y === card.bottom && c.stroke === DEFAULT_PALETTE.panelBorder,
+        );
+        expect(face, '道具卡描边改读 panelBorder（旧 slotBorder 冷边退出）').toBeDefined();
+        const shadow = cmds.find(
+            (c) =>
+                c.kind === 'rect' &&
+                c.x === card.x &&
+                c.y === card.bottom - 3 &&
+                c.fill === withAlpha(DEFAULT_PALETTE.shadowInk, UI_CONTAINER.shadowAlphaCard),
+        );
+        expect(shadow, '道具卡投影墨暖化 shadowInk').toBeDefined();
     });
 });

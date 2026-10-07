@@ -46,6 +46,7 @@ import {
   TRAY_BASE_SLOTS,
   TRAY_COLS,
   TRAY_PLATE,
+  UI_CONTAINER,
   TRAY_SLOT,
   AD_HINT_TEXT_Y,
   expandButtonLayout,
@@ -113,8 +114,6 @@ import {
 } from './bead-render';
 import {
   BEAD_HIGHLIGHT_HEX,
-  BEAD_SHADOW_HEX,
-  EXPAND_BTN_INK,
   EXPAND_BTN_TEXT,
   POWERUP_BADGE_GLYPH,
   POWERUP_INK_CAP,
@@ -122,7 +121,6 @@ import {
   POWERUP_INK_STAR,
   POWERUP_INK_STRAW,
   POWERUP_INK_WAND,
-  POWERUP_SHADOW_ALPHA,
   CONFETTI_COLORS,
   STAR_GOLD,
   withAlpha,
@@ -652,11 +650,12 @@ function drawHud(
 ): void {
   const midY = (HUD_BAND.yMin + HUD_BAND.yMax) / 2;
 
-  // F7① 倒计时白胶囊（220×64 圆角 32，panel_surface + 1px panel_border + 投影 α0.10）。
+  // F7① 倒计时纸胶囊（220×64 圆角 32，panel + 1px panel_border + 投影 α0.10）。
+  // [EP12-S3] 投影墨暖化 shadowInk；几何/DY/α 不动（screens.md「计时纸胶囊几何不变」）。
   const capLeft = DESIGN_W / 2 - TIMER_CAPSULE.w / 2;
   const capBottom = midY - TIMER_CAPSULE.h / 2;
   builder.rect(capLeft, capBottom - TIMER_CAPSULE_SHADOW_DY, TIMER_CAPSULE.w, TIMER_CAPSULE.h, {
-    fill: withAlpha(BEAD_SHADOW_HEX, TIMER_CAPSULE_SHADOW_ALPHA),
+    fill: withAlpha(palette.shadowInk, TIMER_CAPSULE_SHADOW_ALPHA),
     radius: TIMER_CAPSULE.radius,
   });
   builder.rect(capLeft, capBottom, TIMER_CAPSULE.w, TIMER_CAPSULE.h, {
@@ -690,19 +689,34 @@ function drawHud(
   // 中心孔 r5 填 panel_surface）；v1.2「circle+中心点」作废。热区 88×88 归 game（S2）。
   drawGear(builder, 60, midY, palette);
 
-  // Mode / stage label（F7⑤：最小字号 28px；冷底小字用 text_primary，§3.1 行 58
-  // 「text_secondary 冷底禁用」）。右对齐到屏右 30 边距。
-  // BD-46（WXG-T-127）：原锚 DESIGN_W−220 距白胶囊右缘（485）仅 45px，而 28px
-  // 「STAGE 1」实测宽 ≈117px ⇒ 左段白字压白胶囊隐形、读成「AGE 1」。锚到
-  // DESIGN_W−30 后最宽情形（35px「STAGE 10」≈146px，左缘 ≈574）仍净空胶囊 ≥89px。
+  // Mode / stage label（F7⑤：最小字号 28px）。[EP12-S3 · screens.md S1] normal 模式
+  // 「LV n/N」上 **纸 chip 96×48**（radius_chip 12，panel + 1px panelBorder，无投影，字居中）；
+  // sprint「STAGE n」维持右对齐锚 DESIGN_W−30（BD-46 净空判据不变：chip 左缘距胶囊
+  // 右缘 ≈147px > 原 89px 门槛，仍无压字风险；STAGE 10 ≈146px 不入 chip）。
   const label =
     snap.mode === 'sprint' ? `STAGE ${snap.stageIndex + 1}` : `LV ${snap.levelIndex + 1}/${snap.levelCount}`;
-  builder.text(DESIGN_W - 30, midY, label, {
-    fill: palette.text,
-    font: bodyFont(snap, 'hudSmall'),
-    align: 'right',
-    baseline: 'middle',
-  });
+  if (snap.mode === 'sprint') {
+    builder.text(DESIGN_W - 30, midY, label, {
+      fill: palette.text,
+      font: bodyFont(snap, 'hudSmall'),
+      align: 'right',
+      baseline: 'middle',
+    });
+  } else {
+    builder.rect(DESIGN_W - UI_CONTAINER.lvChipRightInset - UI_CONTAINER.lvChipW, midY - UI_CONTAINER.lvChipH / 2,
+      UI_CONTAINER.lvChipW, UI_CONTAINER.lvChipH, {
+      fill: palette.panel,
+      stroke: palette.panelBorder,
+      lineWidth: UI_CONTAINER.strokePanel,
+      radius: UI_CONTAINER.radiusChip,
+    });
+    builder.text(DESIGN_W - UI_CONTAINER.lvChipRightInset - UI_CONTAINER.lvChipW / 2, midY, label, {
+      fill: palette.text,
+      font: bodyFont(snap, 'hudSmall'),
+      align: 'center',
+      baseline: 'middle',
+    });
+  }
 
   // Sprint-only HUD block: score + multiplier + combo (ux-spec §3: zero score
   // HUD in normal mode — D6 keeps the normal campaign scoreless).
@@ -1214,7 +1228,65 @@ function groupLandStep(snap: BeadsSnapshot, row: number, col: number): number {
 }
 
 
-/** 「微拱白瓷」三段内阴影（§1.3 v1.5；几何/α = `tuning.TRAY_PLATE`）。
+/**
+ * [EP12-S2 · 控件语言] T1 纸面板 / T2 纸卡通用绘制面（art-bible-proposal §4/§5）。
+ * 构成 = 柔投影（同形 rect 竖向偏移一档，墨 `shadowInk`；设计空间 **y-up** ⇒ 影在 `y−dy` 下侧）
+ * → 面（`panel`）→ 1px `panelBorder` 描边。
+ * 每元素 ≤1 层投影 + ≤1 层描边（治愈②）；零渐变、零 blur（渲染原语无模糊 ⇒ 叠层近似判例）。
+ * `back` = 与托盘面板底同走「桌面」通道（blit 之下）；热区/几何由调用方持有。
+ */
+function drawPaperPanel(
+  builder: RenderModelBuilder,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  palette: BeadsPalette,
+  radius: number,
+  shadowAlpha: number,
+  back = false,
+): void {
+  builder.rect(x, y - UI_CONTAINER.shadowDy, w, h, {
+    fill: withAlpha(palette.shadowInk, shadowAlpha),
+    radius,
+    ...(back ? { back: true } : {}),
+  });
+  builder.rect(x, y, w, h, {
+    fill: palette.panel,
+    stroke: palette.panelBorder,
+    lineWidth: UI_CONTAINER.strokePanel,
+    radius,
+    ...(back ? { back: true } : {}),
+  });
+}
+
+/**
+ * [EP12-S2 · 控件语言] T3/T4 木钮通用绘制面（art-bible-proposal §4）。
+ * 构成 = 面 `woodFace` →（T3）顶缘 1px `woodSheen`（内缩 3px）→ 底缘 2px `woodEdge`。
+ * T4 = `sheen: false`（tokens.md §2：同 T3 无受光线）。无渐变、无描边阴影（治愈②）。
+ */
+function drawWoodButton(
+  builder: RenderModelBuilder,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  palette: BeadsPalette,
+  radius: number,
+  sheen: boolean,
+): void {
+  builder.rect(x, y, w, h, { fill: palette.woodFace, radius });
+  if (sheen) {
+    // 顶缘受光线：y-up ⇒ 顶 = y+h。
+    builder.line(x + 3, y + h - UI_CONTAINER.strokeSheen / 2, x + w - 3, y + h - UI_CONTAINER.strokeSheen / 2,
+      palette.woodSheen, UI_CONTAINER.strokeSheen);
+  }
+  // 底缘承重线：y-up ⇒ 底 = y。
+  builder.line(x + 3, y + UI_CONTAINER.strokeWoodEdge / 2, x + w - 3, y + UI_CONTAINER.strokeWoodEdge / 2,
+    palette.woodEdge, UI_CONTAINER.strokeWoodEdge);
+}
+
+/** 「微拱白瓷」三段内阴影（§1.3 v1.5；几何/α = `tuning.TRAY_PLATE`。
  *
  * ⚠ 三条线跟面板底一起打 `back`（末位参）⇒ 走 blit 载体之下；否则在 Cocos 宿主上
  * 会作为 `Graphics` 图元画到托盘珠面上（面板底与内阴影都是「桌面」，不是「overlay」）。
@@ -1225,8 +1297,9 @@ function drawTrayPlateShading(
   y: number,
   w: number,
   h: number,
+  ink: string,
 ): void {
-  const ink = TRAY_PLATE.ink;
+  // [EP12-S3] 墨改读 `palette.shadowInk`（tokens.md §1 暖化；几何/α = TRAY_PLATE 不动）。
   // 底缘外段（α 0.03）。
   builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, true);
   // 底缘内段（α 0.05）。
@@ -1303,17 +1376,14 @@ function drawTray(
   // 沿革留档：v5.0 曾改「面板底 = 格底（关卡主色 `edge`）」⇒ 托盘与盘面同色同档（实测 #964763 ≡ 格底 97.5），
   //   但用户看图后裁「还原」⇒ **托盘保持中性收纳区的读感**，与盘面的彩色目标底**刻意区分**。
   //   ⛔ 该裁定同时撤掉 `mainColorIdx`（关卡主色）字段：随 v5.0 回滚而无人消费 ⇒ 一并删除（不留死代码）。
-  builder.rect(lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, {
-    fill: palette.panel,
-    radius: 18,
-    // [S5′-4 · 2026-10-05] 面板底 = **桌面** ⇒ 走 `back` 通道（Cocos 路由到 blit 之下的
-    // `backGraphics`；canvas2d 本来就按命令序先铺底再画珠 ⇒ 无副作用）。
-    // ⛔ 不打本标的代价：托盘槽/珠进 sprite 后被自家面板底整块盖掉（只剩接触影）。
-    back: true,
-  });
+  // [EP12-S2/S3 · 2026-10-07 用户裁 P-3=24] 外壳改走 T1 通用绘制面：投影（+3px，shadowInk α0.10）
+  //   + 面 + 1px panelBorder 描边 + **圆角 18→24**（assets-spec §1.3 口径收敛，漂移正式消除）；
+  //   仍打 `back`（桌面通道，blit 之下，S5′-4 判例不动）；内部三段微拱内阴影随后叠上（ink 暖化）。
+  drawPaperPanel(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH,
+    palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel, true);
   // 「微拱白瓷」三段内阴影（§1.3 v1.5，WXG-T-131/143）：底缘两段 + 右缘一段 ——
   // 平面板的轻体积感；α 极低（0.03/0.05/0.02），不与满槽告警危险描边竞争。
-  drawTrayPlateShading(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH);
+  drawTrayPlateShading(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, palette.shadowInk);
 
   for (let idx = 0; idx < snap.traySlots.length; idx++) {
     const slot = snap.traySlots[idx]!;
@@ -1499,15 +1569,15 @@ function drawTray(
     builder.rect(lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, {
       stroke: palette.danger,
       lineWidth: 2,
-      radius: 18,
+      radius: UI_CONTAINER.radiusPanel,
       alpha: trayFullAlpha(snap.pulseClock, snap.reduceMotion),
     });
   }
 }
 
 /**
- * `btn_expand`（§1.3 / §3.4 v1.20）：带下沿居底的 132×48 暗色胶囊 + ▶ 12px +
- * 「扩展」28px 白字，右上角常驻 `ad_badge`（`AD_PLACEMENTS` 四位之一）。
+ * `btn_expand`（§1.3 / §3.4 v1.20）：带下沿居底的 132×48 木钮（[EP12] T4）+ ▶ 12px +
+ * 「扩展」28px 暖白字（wood_text），右上角常驻 `ad_badge`（`AD_PLACEMENTS` 四位之一）。
  *
  * 命中框 = 132×**88**（`accessibility C1`「视觉不变、热区扩大」），与渲染同源
  * `expandButtonLayout()` ⇒ 不存在「画出的框 ≠ 点击落点」漂移（WXG-T-062 判例）。
@@ -1523,10 +1593,8 @@ function drawExpandButton(
   if (snap.trayExpanded) return;
   const btn = expandButtonLayout();
   const cy = btn.bottom + btn.h / 2;
-  builder.rect(btn.x, btn.bottom, btn.w, btn.h, {
-    fill: EXPAND_BTN_INK,
-    radius: EXPAND_BTN_RADIUS,
-  });
+  // [EP12-S2/S3] T4 木钮通用面（radius 16、无顶缘受光线）：面 woodFace + 底缘 2px woodEdge。
+  drawWoodButton(builder, btn.x, btn.bottom, btn.w, btn.h, palette, EXPAND_BTN_RADIUS, false);
 
   // `ad_badge`（§1.4：28×28 圆角 8、右上角内缩 8,8、白 ▶ 边 10）——与三张道具卡同 token。
   const badgeX = btn.x + btn.w - POWERUP_BADGE_INSET - POWERUP_BADGE_SIZE;
@@ -1931,15 +1999,15 @@ function drawPowerupBand(
     const free = snap.powerupFreeUses[type] > 0;
     const dim = free ? 1 : 0.35;
 
-    // L0 投影（§1.4 α0.10）。RenderModel 无模糊 ⇒ 用偏移圆角矩形近似（bead L0 判例）。
+    // L0 投影（[EP12-S3] T2 纸卡口径：shadowInk 暖墨 α0.08）。RenderModel 无模糊 ⇒ 偏移圆角矩形近似。
     builder.rect(x, bottom - POWERUP_SHADOW_OFFSET_Y, w, h, {
-      fill: withAlpha(BEAD_SHADOW_HEX, POWERUP_SHADOW_ALPHA),
+      fill: withAlpha(palette.shadowInk, UI_CONTAINER.shadowAlphaCard),
       radius: POWERUP_CARD_RADIUS,
     });
-    // 白卡：圆角 20 + 描边 1px（§1.4）。
+    // 纸卡：圆角 20 + 1px panelBorder 描边（旧 slotBorder 冷边退出，screens.md S1）。
     builder.rect(x, bottom, w, h, {
       fill: free ? palette.panel : withAlpha(palette.panel, 0.55),
-      stroke: free ? palette.slotBorder : withAlpha(palette.slotBorder, 0.4),
+      stroke: free ? palette.panelBorder : withAlpha(palette.panelBorder, 0.4),
       lineWidth: 1,
       radius: POWERUP_CARD_RADIUS,
     });

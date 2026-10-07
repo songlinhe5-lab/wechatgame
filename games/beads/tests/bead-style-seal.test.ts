@@ -31,6 +31,8 @@
 import { describe, it, expect } from 'vitest';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { RenderModelBuilder, polygonVertices, type DrawCommand, type RenderModel } from '@wxgame/framework';
 import { DESIGN_H, DESIGN_W, HUD_BAND, PUZZLE_BAND, ZOOM_CTRL_HOT, zoomControlLayout } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
@@ -76,6 +78,8 @@ const SEAL = JSON.parse(
     /** S3 转正时刻登记（史证段，不追改；腿 2b 的锚）。 */
     s3AtFormalization?: SealSide & { _readme?: string };
     provenance: Record<string, string>;
+    /** **[WXG-T-230-B] 机器可读复评台账**：整帧漂移唯一合法入账口（防伪三锁见 _readme）。 */
+    recheckLedger: { _readme?: string; entries: RecheckLedgerEntry[] };
 };
 
 interface SealSide {
@@ -87,6 +91,9 @@ interface SealSide {
 }
 
 const sha = (s: string): string => createHash('sha256').update(s).digest('hex');
+
+/** 仓根（台账防伪腿读 QA 正本 `production/qa/beads/test-cases.md` 用；同判例 = bead-style-pool.test.ts）。 */
+const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 
 /* ───── 复评登记常量（213 控件/盘带换尺；原稿因共享树 checkout 事故丢失，本套由换肤线
  * 2026-09-26 依会话记录重建并经用户指令接管，归因链 = provenance.s3_frame_recheck{,_2,_3,_4,_5}）───── */
@@ -150,7 +157,15 @@ const PLATE_BG_RETIRE_FRAME78 = 9;
  * 闭合自证 = 把流里的 `,"back":true` 剥掉 ⇒ sha 逐字节 ≡ 史证键 `s3_pre_back_channel`
  * （⛔ 只贴条数差 / 只贴 sha 不构成证据 = QA §K.5.1 唯一例外通道 b 条）。
  */
-const BACK_KEY_LINES = 4;
+const BACK_KEY_LINES = 5;
+/**
+ * **[EP12-S2/S3 · 第十八次复评登记（K.5.1-补10）]** 整帧登记漂移 = 两帧各 +3（复取实测）：
+ * ① 托盘投影 rect（back:true ⇒ BACK_KEY_LINES 4→5）② LV 纸 chip rect 96×48 ③ expand 底缘 line。
+ * 逐 kind 增量另钉 `EP12_S2S3_RECT` / `EP12_S2S3_LINE`（⛔ 非纸面推算，= `s3-seal.json` kinds 实测）。
+ */
+const EP12_S2S3_FRAME_DRIFT = 3;
+const EP12_S2S3_RECT = 2;
+const EP12_S2S3_LINE = 1;
 /** 历史档案常量：HEAD 盘带中心 = (480+1120)/2，只作 Δ 基准，非现值。 */
 const HEAD_PUZZLE_BAND_MID_Y = 800;
 /** 盘带族平移矢量：由**现役** `PUZZLE_BAND` 派生（⛔ 非手填）⇒ 同时校带尺与渲染跟随。 */
@@ -453,14 +468,15 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(f.fillableTotal).toBe(156);
         const emptyFlow = emptyBoardFlow();
         expect(sha(emptyFlow.join('\n'))).toBe(SEAL.s3.frame0.sha);
-        // 非珠体族现口径：帧长差 = 控件条数 **+ 已登记的空槽内阴影阶梯段 − 已登记的容器板/背景退役段**
+        // 非珠体族现口径：帧长差 = 控件条数 **+ 已登记的空槽内阴影阶梯段 − 已登记的容器板/背景退役段
+        // + EP12-S2/S3 登记插入段 3**（第十八次复评，K.5.1-补10）。
         //（`731100c` 每空槽 +2 rect；WXG-T-256 两帧 −9 rect）。平移 = 条数中不变，不得拿它抵充增减。
-        // ⛔ 三段的数值各自登记，不得合并成一个黑箱常数。
+        // ⛔ 各段的数值各自登记，不得合并成一个黑箱常数。
         expect(emptyFlow.length - SEAL.head.frame0.total).toBe(
-            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0,
+            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0 + EP12_S2S3_FRAME_DRIFT,
         );
         expect(SEAL.s3.frame0.total - SEAL.head.frame0.total).toBe(
-            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0,
+            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0 + EP12_S2S3_FRAME_DRIFT,
         );
         // 归因登记必须在案（⛔ 无登记的基准追改视为红）。
         expect(SEAL.provenance.s3_frame_recheck_6, '第六次复评无归因登记').toContain('第六次复评');
@@ -505,10 +521,16 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_17).toContain('#F1E8D8');
         expect(SEAL.provenance.s3_frame_recheck_17).toContain('drawZoomControls');
         expect(SEAL.provenance.s3_frame_recheck_17).toContain('未解释 0 条');
-        // **back 键计数腿**（保留）：本批不改 back 通道 ⇒ back 键仍只准落在登记条数（拦外溢）。
+        // 第十八次（EP12-S2 控件语言 + S3 playing 换肤批，K.5.1-补10）：归因须点名 ① P-3=24 收敛
+        // ② back 键外溢到投影 rect（4→5）③ 未解释 0 条 —— 缺一即红。
+        expect(SEAL.provenance.s3_frame_recheck_18, '第十八次复评无归因登记').toContain('第十八次复评');
+        expect(SEAL.provenance.s3_frame_recheck_18).toContain('P-3');
+        expect(SEAL.provenance.s3_frame_recheck_18).toContain('back 键行数 4→5');
+        expect(SEAL.provenance.s3_frame_recheck_18).toContain('未解释 0 条');
+        // **back 键计数腿**：[EP12-S3] 托盘投影 rect 也打 back ⇒ 登记 4→5（面板底 + 投影 + 三段内阴影）。
         const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
         const backFrame = frameFixture().flow.filter((l) => l.includes(',"back":true'));
-        expect(backEmpty.length, `⛔ 空盘帧的 back 键只准落在面板底 + 三段内阴影（登记 = ${BACK_KEY_LINES}）`).toBe(BACK_KEY_LINES);
+        expect(backEmpty.length, `⛔ 空盘帧的 back 键只准落在面板底 + 投影 + 三段内阴影（登记 = ${BACK_KEY_LINES}）`).toBe(BACK_KEY_LINES);
         expect(backFrame.length, '⛔ 78 填帧同上（同一批桌面图元，不随填格数变）').toBe(BACK_KEY_LINES);
         // ⚠ [WXG-T-261 第十五次复评 · K-053 划线作废不净删] 旧闭合自证「剥 back ⇒ ≡ s3_pre_back_channel」
         //   两行等式作废：本批修订面 = 托盘几何/墨值**改写**（非纯插键）⇒ 剥键后在数学上不可能回到
@@ -517,22 +539,22 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         //   现役前态锁改钉新史证键：total 全等（计数零变更）+ sha 不等（改写可见）。
         const pre = SEAL.s3_pre_tray_261;
         expect(pre, '第十五次复评前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
-        expect(pre!.frame0.total, '前态 frame0 计数须 ≡ 现役（本批零插入零删除）').toBe(SEAL.s3.frame0.total);
-        expect(pre!.frame78.total, '前态 frame78 计数须 ≡ 现役').toBe(SEAL.s3.frame78.total);
+        expect(pre!.frame0.total, '前态 frame0 计数须 ≡ 现役 − 后续登记插入段（第十八批 +3，K.5.1-补10）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT);
+        expect(pre!.frame78.total, '前态 frame78 计数须 ≡ 现役 − 登记插入段').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT);
         expect(pre!.frame0.sha, '前态 sha 不得被刷回现役（改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(pre!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
         // 二批（第十六次复评）前态锁：`traySlot` 纯墨 ⇒ total 全等 + sha 不等（同上一键口径）。
         const preB = SEAL.s3_pre_tray_261b;
         expect(preB, '二批前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
-        expect(preB!.frame0.total, '二批前态 frame0 计数须 ≡ 现役（纯墨零插入）').toBe(SEAL.s3.frame0.total);
-        expect(preB!.frame78.total, '二批前态 frame78 计数须 ≡ 现役').toBe(SEAL.s3.frame78.total);
+        expect(preB!.frame0.total, '二批前态 frame0 计数须 ≡ 现役 − 登记插入段（第十八批 +3）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT);
+        expect(preB!.frame78.total, '二批前态 frame78 计数须 ≡ 现役 − 登记插入段').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT);
         expect(preB!.frame0.sha, '⛔ 一批收口锁不得被刷回现役（二批墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(preB!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
         // 第十七次复评（WXG-T-268 暖纸换值批）前态锁：纯墨改写 + P-1 收编 ⇒ total 全等 + sha 不等（同一键口径）。
         const pre268 = SEAL.s3_pre_ui_268;
         expect(pre268, '第十七次复评前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
-        expect(pre268!.frame0.total, '前态 frame0 计数须 ≡ 现役（纯墨零插入）').toBe(SEAL.s3.frame0.total);
-        expect(pre268!.frame78.total, '前态 frame78 计数须 ≡ 现役').toBe(SEAL.s3.frame78.total);
+        expect(pre268!.frame0.total, '前态 frame0 计数须 ≡ 现役 − 第十八批登记漂移（EP12-S2/S3 属插入型批次，K.5.1-补10）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT);
+        expect(pre268!.frame78.total, '前态 frame78 计数须 ≡ 现役 − 登记漂移').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT);
         expect(pre268!.frame0.sha, '⛔ 换值前收口锁不得被刷回现役（暖纸墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(pre268!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
         // 反面自证（K-060）：新锁与 HEAD 旧锁必不等，且不等量已在上面逐项登记。
@@ -578,9 +600,10 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         // （6 条/格里的另2 条是 line，见下一条）。旧式 `78 × -4` 的**「填格下的槽不再绘制」前提
         // 已被本裁定推翻**，⛔ 不是数字微调。
         expect(delta.rect - ctrl.rect).toBe(
-            78 * -4 + SOCKET_INNER_SHADE_FRAME78 + 78 * (FILLED_SOCKET_PER_CELL - 2) - PLATE_BG_RETIRE_FRAME78,
+            78 * -4 + SOCKET_INNER_SHADE_FRAME78 + 78 * (FILLED_SOCKET_PER_CELL - 2) - PLATE_BG_RETIRE_FRAME78
+            + EP12_S2S3_RECT, // [EP12-S3] 托盘投影 rect + LV 纸 chip rect（第十八次复评实测）
         );
-        expect(delta.line).toBe(78 * -5 + 78 * 2); // +2 = 补画坑底的 S3/S4 两线
+        expect(delta.line).toBe(78 * -5 + 78 * 2 + EP12_S2S3_LINE); // +2 = 补画坑底的 S3/S4 两线；+1 = expand 底缘（EP12-S3）
         expect(delta.circle - ctrl.circle).toBe(78 * 0); // **孔贡献 = 0**：单孔 → 环+底两枚（六裁，用户拍板）
         expect(delta.polygon).toBe(78 * 4); // **刻面 kind 化**
         expect(delta.text - ctrl.text).toBe(0); // 非珠体族除登记段外零变更
@@ -588,12 +611,13 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(Object.values(delta).reduce((a, b) => a + b, 0)).toBe(totalDelta);
         expect(totalDelta).toBe(
             78 * (-4 - 5 - 0 + 4) + HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME78
-            + FILLED_SOCKET_FRAME78 - PLATE_BG_RETIRE_FRAME78,
+            + FILLED_SOCKET_FRAME78 - PLATE_BG_RETIRE_FRAME78 + EP12_S2S3_FRAME_DRIFT,
         );
         // ⛔ 禁止「纸面推算的新基线整帧数」入册（K-051）：以下均**复评登记实测值**自洽核对。
         // 1877 = 1409（recheck_7 态）+ 468（WXG-T-236 八轮「有珠格补画坑底」，第九次复评登记）；
-        // 1868 = 1877 − 9（WXG-T-256 容器板 + 三层背景退役，第十三次复评登记）。
-        expect(SEAL.s3.frame78.total).toBe(1868);
+        // 1868 = 1877 − 9（WXG-T-256 容器板 + 三层背景退役，第十三次复评登记）；
+        // 1871 = 1868 + 3（EP12-S2/S3 控件语言+换肤，第十八次复评登记，K.5.1-补10）。
+        expect(SEAL.s3.frame78.total).toBe(1871);
         expect(SEAL.s3.frame78.kinds.circle).toBe(160); // = 82 + 78（每颗填格珠 +1 HOLE_RING）
         expect(SEAL.s3AtFormalization!.frame78.total).toBe(1119); // 转正时刻史证（不随复评漂移）
         expect(SEAL.head.frame78.total).toBe(1587); // 旧值仅作历史档案（§K.5.0 作废登记）
@@ -608,5 +632,160 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
             text: 9,
             polygon: 10,
         });
+    });
+});
+
+/* ───────────────── 整帧漂移复评登记哨兵（WXG-T-230-B · 731100c 根治「机器拦」） ───────────────── */
+
+interface RecheckLedgerEntry {
+    id: string;
+    /** 归因正本键（fixture provenance 内必须存在）。 */
+    key: string;
+    /** 机械防伪：必须逐字在 provenance[key] 文本内。 */
+    witness: string;
+    /** 复评文号（可选；声明时必须在 QA 正本 test-cases.md 在案 = 唯一例外通道 b 条机械核）。 */
+    qaAnchor?: string;
+    /** 该次复评对两帧 total 的登记贡献。 */
+    frame0: number;
+    frame78: number;
+    note?: string;
+}
+
+/** 纯函数：台账覆盖核对。真数据 ⇒ 返回 []（合规不误伤）；内存篡改克隆 ⇒ 逐条指认（防绕过自证）。 */
+function ledgerCoverageViolations(
+    entries: RecheckLedgerEntry[],
+    seal: { provenance: Record<string, string>; s3: SealSide; head: SealSide },
+    qaDoc: string | null,
+): string[] {
+    const v: string[] = [];
+    for (const f of ['frame0', 'frame78'] as const) {
+        const sum = entries.reduce((s, e) => s + e[f], 0);
+        const delta = f === 'frame0' ? seal.s3.frame0.total - seal.head.frame0.total : seal.s3.frame78.total - seal.head.frame78.total;
+        if (sum !== delta) {
+            v.push(
+                `复评台账 ${f} Σ=${sum} ≠ 现役基准对 HEAD 的 total 差 ${delta}` +
+                ` ⇒ 存在**未入账**整帧漂移（未走 §K.5.1 复评通道，731100c 型纪律缺陷；K-051/K-053）`,
+            );
+        }
+    }
+    for (const e of entries) {
+        const p = seal.provenance[e.key];
+        if (typeof p !== 'string') {
+            v.push(`台账项 ${e.id}：provenance 键 ${e.key} 缺失 ⇒ 归因无正本`);
+            continue;
+        }
+        if (!p.includes(e.witness)) v.push(`台账项 ${e.id}：witness「${e.witness}」不在 ${e.key} 文本内 ⇒ 归因断裂`);
+    }
+    if (qaDoc !== null) {
+        for (const e of entries) {
+            if (e.qaAnchor && !qaDoc.includes(e.qaAnchor)) {
+                v.push(`台账项 ${e.id}：qaAnchor ${e.qaAnchor} 未在 production/qa/beads/test-cases.md 在案 ⇒ 复评通道手续不全（唯一例外通道 b 条）`);
+            }
+        }
+    }
+    return v;
+}
+
+type DriftClass = { kind: 'NONE' } | { kind: 'REGISTERED'; entry: RecheckLedgerEntry } | { kind: 'UNREGISTERED' };
+
+/** 纯函数：整帧 total 漂移分类（报警本体）。已知漂移 ⇔ 台账有同额入账；未知漂移 ⇒ UNREGISTERED。 */
+function classifyTotalDrift(observed: number, registered: number, frame: 'frame0' | 'frame78', entries: RecheckLedgerEntry[]): DriftClass {
+    const d = observed - registered;
+    if (d === 0) return { kind: 'NONE' };
+    const hit = entries.find((e) => e[frame] === d);
+    return hit ? { kind: 'REGISTERED', entry: hit } : { kind: 'UNREGISTERED' };
+}
+
+const driftWarnMessage = (e: RecheckLedgerEntry, frame: string, d: number): string =>
+    `⚠ WARN [整帧漂移·已登记复评] ${frame} 检测到漂移 Δtotal=${d}，台账项 ${e.id}（${e.key}${e.qaAnchor ? ` / ${e.qaAnchor}` : ' / 无文号'}）在案 ⇒ ` +
+    `本报警腿按 WARN 放行（整帧字节锁腿 4a 仍红 = 预期，⛔ 不得当作放行）；` +
+    `请走官方复取器 tests/bead-style-seal-recapture.ts 在可复现锚重封 s3 基线（K.5.1 唯一例外通道 b 条）。`;
+
+const driftFailMessage = (frame: string, d: number): string =>
+    `⛔ FAIL [整帧漂移·未登记] ${frame} 检测到漂移 Δtotal=${d}，复评台账（fixture recheckLedger）无对应入账 ⇒ ` +
+    `731100c 型纪律缺陷（未走 §K.5.1 复评通道）。处置：① 停手，⛔ 不得自改基准/常数/台账求绿（K-051/K-053）；` +
+    `② 复评流程 = 官方复取器 tests/bead-style-seal-recapture.ts 于可复现锚（commit）重抓 + 流级差分归因（未解释 0 条）` +
+    ` + production/qa/beads/test-cases.md §K.5.1-补N 登记 + 夹具 provenance 新键 + 台账（recheckLedger）同步入账；` +
+    `③ 全部手续齐前，整帧两键保持红。`;
+
+/**
+ * **整帧漂移复评登记哨兵（WXG-T-230-B）** —— `731100c` 把 `drawEmptySocket` 改内阴影阶梯但
+ * 未走 §K.5.1 复评通道 ⇒ 第六次复评只能搭车补登记（provenance.s3_frame_recheck_6）。根治 =
+ * 「机器拦」：台账（fixture `recheckLedger`，与 provenance 同件 checked-in）+ 报警腿按
+ * 「已登记复评 ⇒ WARN+指引 / 未登记 ⇒ FAIL+指路复评流程」分类输出。
+ * ⚠ **WARN ≠ 放行**：腿 4a 整帧字节锁全效力，红就是红（本组零放宽既有断言、零删零软化）。
+ * ⛔ 诚实限制（不冒充完整防伪）：台账与 provenance 同为仓内 checked-in 数据，**协调性伪造**
+ *   （同时改基准+台账+provenance+QA 文号）机械上不可分辨 —— 与整套 provenance 体系同信任级；
+ *   本哨兵把绕过成本从「改一个常数」抬到「三处互锁登记 + QA 正本文号 + 全部 diff 可见」。
+ */
+describe('WXG-T-230-B · 整帧漂移复评登记哨兵（未走复评通道的漂移自动报警）', () => {
+    const entries = (): RecheckLedgerEntry[] => SEAL.recheckLedger.entries;
+    const qaDoc = (): string => readFileSync(resolve(REPO, 'production/qa/beads/test-cases.md'), 'utf8');
+
+    it('台账覆盖腿：逐帧 Σ ≡ 帧差 + witness/qaAnchor 归因链在案 + 判据登记常数↔台账一一对应（真数据零违规）', () => {
+        expect(ledgerCoverageViolations(entries(), SEAL, qaDoc())).toEqual([]);
+        // 判据文件里的帧长登记常数不得脱离台账独立存在（防「只改常数」绕过）。
+        const byId = new Map(entries().map((e) => [e.id, e]));
+        expect(byId.get('recheck-1-zoom-ctrl')!.frame0).toBe(HUD_ZOOM_CTRL_TOTAL);
+        expect(byId.get('recheck-1-zoom-ctrl')!.frame78).toBe(HUD_ZOOM_CTRL_TOTAL);
+        expect(byId.get('recheck-6-socket-shade')!.frame0).toBe(SOCKET_INNER_SHADE_FRAME0);
+        expect(byId.get('recheck-6-socket-shade')!.frame78).toBe(SOCKET_INNER_SHADE_FRAME78);
+        expect(byId.get('recheck-9-filled-socket')!.frame0).toBe(0);
+        expect(byId.get('recheck-9-filled-socket')!.frame78).toBe(FILLED_SOCKET_FRAME78);
+        expect(byId.get('recheck-13-plate-bg-retire')!.frame0).toBe(-PLATE_BG_RETIRE_FRAME0);
+        expect(byId.get('recheck-13-plate-bg-retire')!.frame78).toBe(-PLATE_BG_RETIRE_FRAME78);
+        // [EP12-S2/S3] 第十八次复评登记常数 ↔ 台账一一对应（插入型批次）。
+        expect(byId.get('recheck-18-ep12-s2s3')!.frame0).toBe(EP12_S2S3_FRAME_DRIFT);
+        expect(byId.get('recheck-18-ep12-s2s3')!.frame78).toBe(EP12_S2S3_FRAME_DRIFT);
+        // 差分自洽腿的珠体族项（每颗填格 78×(−5)）必须同源入账（少一笔 = Σ 对不上帧差）。
+        expect(byId.get('s3-formalization-bead-family')!.frame78).toBe(78 * -5);
+    });
+
+    it('防绕过反证腿（K-060）：拆项 / 伪 witness / 伪 qaAnchor / 手改基准 四种篡改在覆盖核对下必红（内存克隆，不写夹具）', () => {
+        const cloneEntries = (): RecheckLedgerEntry[] => JSON.parse(JSON.stringify(SEAL.recheckLedger.entries));
+        const doc = qaDoc();
+        // ① 拆项：删掉 recheck-6（= 模拟「漂移不入账」）⇒ Σ 断裂必被指认到帧。
+        const t1 = cloneEntries().filter((e) => e.id !== 'recheck-6-socket-shade');
+        const v1 = ledgerCoverageViolations(t1, SEAL, doc).join('\n');
+        expect(v1).toContain('未入账');
+        expect(v1).toContain('frame0');
+        // ② 伪 witness：归因文本不含所报字样 ⇒ 归因断裂必被指认。
+        const t2 = cloneEntries();
+        t2[0]!.witness = '绝不存在的字样';
+        expect(ledgerCoverageViolations(t2, SEAL, doc).join('\n')).toContain('归因断裂');
+        // ③ 伪 qaAnchor：QA 正本无此文号 ⇒ 手续不全必被指认。
+        const t3 = cloneEntries();
+        t3[0]!.qaAnchor = 'K.5.1-补999';
+        expect(ledgerCoverageViolations(t3, SEAL, doc).join('\n')).toContain('手续不全');
+        // ④ 手改基准：s3 基准被 +1 而台账未入账 ⇒ 未入账漂移必被指认（731100c 型直接命中）。
+        const tampered = JSON.parse(JSON.stringify(SEAL)) as typeof SEAL;
+        tampered.s3.frame0.total += 1;
+        expect(ledgerCoverageViolations(cloneEntries(), tampered, doc).join('\n')).toContain('未入账');
+    });
+
+    it('报警腿：分类器双臂自证（已登记可认 / 未登记可拒）+ 文案指路锚 + 现役整帧实算按语义分类报警', () => {
+        const es = entries();
+        // ① 报警器本体先证真在工作（K-060：⛔ 恒静默的报警器 = 假绿装置）。
+        const reg0 = classifyTotalDrift(SEAL.s3.frame0.total + SOCKET_INNER_SHADE_FRAME0, SEAL.s3.frame0.total, 'frame0', es);
+        expect(reg0).toMatchObject({ kind: 'REGISTERED', entry: { id: 'recheck-6-socket-shade' } });
+        expect(classifyTotalDrift(SEAL.s3.frame0.total + 2, SEAL.s3.frame0.total, 'frame0', es).kind).toBe('UNREGISTERED');
+        const reg78 = classifyTotalDrift(SEAL.s3.frame78.total - PLATE_BG_RETIRE_FRAME78, SEAL.s3.frame78.total, 'frame78', es);
+        expect(reg78).toMatchObject({ kind: 'REGISTERED', entry: { id: 'recheck-13-plate-bg-retire' } });
+        // ② 报警文案锚：两条路都必须**指路**（WARN ⇒ 官方复取器重封；FAIL ⇒ K.5.1 复评流程 + 禁自改）。
+        expect(driftWarnMessage((reg0 as { entry: RecheckLedgerEntry }).entry, 'frame0', SOCKET_INNER_SHADE_FRAME0)).toContain('官方复取器');
+        expect(driftFailMessage('frame0', 2)).toContain('K.5.1');
+        expect(driftFailMessage('frame78', 2)).toContain('⛔ 不得自改基准');
+        // ③ 现役整帧实算：零漂移 ⇒ 报警静默（绿态）；有漂移 ⇒ 按分类报警——
+        //    REGISTERED ⇒ console.warn 后放行本腿（字节锁腿 4a 仍红 = 预期，WARN 不是绿灯）；
+        //    UNREGISTERED ⇒ 本腿 FAIL + 指路复评流程。
+        const emptyLen = emptyBoardFlow().length;
+        const f78 = frameSeal();
+        for (const [frame, cls, observed, registered] of [
+            ['frame0', classifyTotalDrift(emptyLen, SEAL.s3.frame0.total, 'frame0', es), emptyLen, SEAL.s3.frame0.total],
+            ['frame78', classifyTotalDrift(f78.total, SEAL.s3.frame78.total, 'frame78', es), f78.total, SEAL.s3.frame78.total],
+        ] as const) {
+            if (cls.kind === 'REGISTERED') console.warn(driftWarnMessage(cls.entry, frame, observed - registered));
+            if (cls.kind === 'UNREGISTERED') throw new Error(driftFailMessage(frame, observed - registered));
+        }
     });
 });

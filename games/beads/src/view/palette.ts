@@ -238,6 +238,33 @@ export interface BeadsPalette {
   /** Banner backdrop plate. */
   readonly bannerBackdrop: string;
   readonly bannerText: string;
+  // ───────── [EP12-S2 · 2026-10-07 用户裁 P-3=24 同批] 容器/控件语言 token ────────
+  // 真源 = `design/proposals/ui-style-redesign/tokens.md` §1（定稿）；材质语义 =
+  // 「木 = 可交互，纸 = 承载信息，胶囊/描边 = 状态」（art-bible-proposal §4）。
+  // ⛔ 不动项边界：本族只服务 UI 容器/控件，**珠面/格面/托盘槽零消费**（art-bible §7）。
+  /** 投影/内阴影 α 叠层墨（tokens.md `shadow_ink` 暖可可；原恒定冷墨 `#1E2033` 的
+   *  **UI 消费面**暖化——珠面 L0b / 抬起影共用 `BEAD_SHADOW_HEX` 属不动项，不随迁）。 */
+  readonly shadowInk: string;
+  /** 木面（tokens.md `wood_face` ≡ accent_primary 同值不同名，T3/T4 主钮底）。 */
+  readonly woodFace: string;
+  /** 木面按下态（tokens.md `wood_face_pressed`，矩阵「按下」列）。 */
+  readonly woodFacePressed: string;
+  /** 木面禁用态（tokens.md `wood_face_disabled`，可点性消失双通道之一）。 */
+  readonly woodFaceDisabled: string;
+  /** 木底缘 2px 暗线（tokens.md `wood_edge`，art-bible §4 T3/T4）。 */
+  readonly woodEdge: string;
+  /** 木顶缘 1px 受光线（tokens.md `wood_sheen`，T3 专属、按下态隐）。 */
+  readonly woodSheen: string;
+  /** 木面文字/▶（tokens.md `wood_text`，对 wood_face 5.4:1 ✓）。 */
+  readonly woodText: string;
+  /** 纸钮/纸卡按下态面（tokens.md `card_pressed`）。 */
+  readonly cardPressed: string;
+  /** 纸钮禁用态面（tokens.md `card_disabled`）。 */
+  readonly cardDisabled: string;
+  /** 纸钮禁用态描边（tokens.md `card_disabled_border`）。 */
+  readonly cardDisabledBorder: string;
+  /** 纸面禁用态字（tokens.md `text_disabled`，对比豁免登记于 risks R-8）。 */
+  readonly textDisabled: string;
 }
 
 export const DEFAULT_PALETTE: BeadsPalette = {
@@ -247,6 +274,7 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   // ⚠ 换值 5 项：bg_base / panel / panel_border / accent_primary（并入木色）/ ad_badge（= wood_face 引用值）；
   //   `text_primary #2A2E43` 不改 ⇒ `PANEL_SCRIM_RGB (42,46,67)` 零变动（ux v1.16 口径不破）；
   //   `shadow_ink #3D2E1E`（暖化）需新 token + 新消费面（BEAD_SHADOW_HEX 与珠面 L0b 共用、属不动项）⇒ 归 EP12-S2 容器语言批，不在本批。
+  //   〔EP12-S2 已落（2026-10-07 用户裁 P-3=24 同批）：`shadowInk`/wood/card 族 11 枚入表，见下方 token 组注。〕
   background: '#F1E8D8', // bg_base 暖米纸（初稿 #f6efe2 与奶白珠 ΔL 2.7%<4% 不可辨阈作废；冷紫灰 #ECEAF3 作废）
   panel: '#FFFCF6', // panel_surface 暖纸白（原 #FFFFFF）
   panelBorder: '#E6DAC3', // panel_border 1px 暖沙（原 #E2DFF0）
@@ -270,6 +298,20 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   adBadge: '#8A5B34', // ad_badge = wood_face 引用值（tokens.md §1「换」；白 ▶ 对比 5.4:1，原深藏青作废）
   bannerBackdrop: '#33333D',
   bannerText: '#FDF6E9',
+  // [EP12-S2 · 控件语言批] 新 token 组（真源 tokens.md §1「新」行逐值对齐；
+  // ui-warm-paper-tokens.test.ts 加锁）。色表锁 35 → **46** 条走 art 单同步快照通道
+  //（§1.9.7① 判例 = v1.5-r21 / WXG-T-256）。
+  shadowInk: '#3D2E1E', // shadow_ink 暖可可（仅 UI 容器投影/内阴影；⛔ 珠面影不随迁）
+  woodFace: '#8A5B34', // wood_face（≡ accent_primary 引用值，tokens.md 同一枚木）
+  woodFacePressed: '#7E5230', // wood_face_pressed
+  woodFaceDisabled: '#C7B299', // wood_face_disabled
+  woodEdge: '#5E3B1E', // wood_edge 底缘 2px
+  woodSheen: '#B98A5C', // wood_sheen 顶缘 1px 受光线
+  woodText: '#FFF6E8', // wood_text 米白字（对 wood_face 5.4:1 ✓）
+  cardPressed: '#F4EAD7', // card_pressed
+  cardDisabled: '#F7F2E6', // card_disabled
+  cardDisabledBorder: '#EAE0CC', // card_disabled_border
+  textDisabled: '#B4A98F', // text_disabled（R-8 对比豁免）
 };
 
 /**
@@ -518,10 +560,11 @@ export const POWERUP_SHADOW_ALPHA = 0.1;
  * 与道具图标同判例：§1.3 写定的固定色属于**资产参数**而非主题 token，
  * 不进 `BeadsPalette`（本文件是 `view/` 下唯一允许持有 hex 字面量的模块）。
  */
-/** `btn_expand` 胶囊底（§1.3：`#2A2E43`）。 */
-export const EXPAND_BTN_INK = '#2A2E43';
-/** `btn_expand` 的 ▶ 与「扩展」白字（§1.3：白）。 */
-export const EXPAND_BTN_TEXT = '#FFFFFF';
+/** `btn_expand` 胶囊底（[EP12-S3] §1.3 旧固定色 `#2A2E43` 作废 → 木化改读
+ *  `palette.woodFace`；本 token 退役保留为测试锚参照，消费点 = feedback-vfx 用例）。 */
+export const EXPAND_BTN_INK = '#8A5B34';
+/** `btn_expand` 的 ▶ 与「扩展」字（[EP12-S3] 白 → `wood_text #FFF6E8`，改读 `palette.woodText`）。 */
+export const EXPAND_BTN_TEXT = '#FFF6E8';
 
 function parseHex(hex: string): { r: number; g: number; b: number } {
   let h = hex.replace('#', '');

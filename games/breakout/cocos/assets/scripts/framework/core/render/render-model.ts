@@ -363,8 +363,15 @@ export class RenderModelBuilder {
    * Odd-length payloads drop the trailing float (`count = floor(n/2)`), matching
    * what the renderers already ignored, so migration is byte-neutral (§6-J5).
    */
-  polygon(points: readonly number[] | Float32Array, cmd: Omit<PolygonCommand, 'kind' | 'offset' | 'count'> = {}): void {
-    const count = Math.floor(points.length / 2);
+  polygon(
+    points: readonly number[] | Float32Array,
+    cmd: Omit<PolygonCommand, 'kind' | 'offset' | 'count'> = {},
+    // 可选显式浮点数（WXG-T-262 后续手绘原型批）：调用方传**复用缓冲**（如世界系
+    // 平移 arena）时，points.length = 缓冲高水位而非本形顶点数 ⇒ 旧实现由 length
+    // 派生 count 会吃进上一形的残留（串形）。传本参 ⇒ count/拷贝长度以显式值为准。
+    floatCount?: number,
+  ): void {
+    const count = Math.floor((floatCount ?? points.length) / 2);
     const floats = count * 2;
     const offset = this._reserve(floats);
     const verts = this._verts;

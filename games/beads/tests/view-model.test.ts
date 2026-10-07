@@ -19,6 +19,7 @@ import {
   POWERUP_LABEL_H,
   TILE_BLEED,
   TOUCH_MIN,
+  UI_CONTAINER,
   powerupCardRects,
   powerupLabelY,
 } from '../src/config/tuning.js';
@@ -262,9 +263,9 @@ describe('beads view model (control-manifest §8)', () => {
     }
   });
 
-  // BD-46（WXG-T-127）回归：HUD 模式标签右对齐锚必须在屏右 30 边距 —— 原锚
-  // DESIGN_W−220 令白字左段压白胶囊（读成「AGE 1」）。
-  it('BD-46 回归：HUD mode label anchors at DESIGN_W − 30 (clear of the timer capsule)', () => {
+  // BD-46（WXG-T-127）回归 + [EP12-S3]：normal 模式「LV n/N」上 LV 纸 chip（screens.md S1，
+  // 96×48 右内缩 22），锚 = chip 中心居中；净空判据不变（chip 左缘距胶囊右缘 ≈147px > 89px）。
+  it('BD-46 回归：HUD mode label anchors on the LV paper chip (centered, clear of the timer capsule)', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()],
@@ -275,8 +276,15 @@ describe('beads view model (control-manifest §8)', () => {
       (c) => c.kind === 'text' && /^LV |^STAGE /.test(c.text),
     ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
     expect(label, 'HUD 模式标签（LV n/N / STAGE n）未渲染').toBeDefined();
-    expect(label!.x).toBe(DESIGN_W - 30);
-    expect(label!.align).toBe('right');
+    expect(label!.x).toBe(DESIGN_W - UI_CONTAINER.lvChipRightInset - UI_CONTAINER.lvChipW / 2);
+    expect(label!.align).toBe('center');
+    // chip 底在场：panel + panelBorder + radius_chip 12（无投影，非面板级）。
+    const chip = commands.find(
+      (c) => c.kind === 'rect' && c.w === UI_CONTAINER.lvChipW && c.h === UI_CONTAINER.lvChipH,
+    ) as Extract<DrawCommand, { kind: 'rect' }> | undefined;
+    expect(chip, 'LV 纸 chip 96×48 未渲染').toBeDefined();
+    expect(chip!.radius).toBe(UI_CONTAINER.radiusChip);
+    expect(chip!.stroke).toBe(DEFAULT_PALETTE.panelBorder);
   });
 
   // architecture-beads §4 规模账：指令数随格数线性增长。

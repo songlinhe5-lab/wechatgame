@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { BEAD_CELL, TRAY_BASE_SLOTS } from '../src/config/tuning.js';
+import { BEAD_CELL, TRAY_BASE_SLOTS, UI_CONTAINER } from '../src/config/tuning.js';
 import {
   GROUP_LAND_DROP_PX,
   TAP_HINT_NO_SELECTION_TEXT,
@@ -481,8 +481,13 @@ describe('托盘保持中性底（WXG-T-237 v6.0）', () => {
   it('① 面板底 = palette.panel（中性，不随关卡色变）', () => {
     const h = mkHarness('wxgame.beads.test.tray-base-v60');
     const cmds = renderSnap(h.game.snapshot);
+    // [EP12-S3] 托盘面板纸化：圆角 18→radiusPanel(24)，判据改钉「面」图元 =
+    // radius 24 + panelBorder 描边（投影 rect 无描边、告警描边非 panelBorder，均被排除）。
     const panel = cmds.filter(
-      (c) => c.kind === 'rect' && (c as { radius: number }).radius === 18,
+      (c) =>
+        c.kind === 'rect' &&
+        c.radius === UI_CONTAINER.radiusPanel &&
+        (c as { stroke?: string }).stroke === DEFAULT_PALETTE.panelBorder,
     ) as { fill?: string }[];
     expect(panel.length, '托盘面板 rect 在场').toBeGreaterThan(0);
     expect(panel.every((c) => c.fill === DEFAULT_PALETTE.panel), '面板 ≡ 中性 panel').toBe(true);
@@ -492,7 +497,10 @@ describe('托盘保持中性底（WXG-T-237 v6.0）', () => {
     const h = mkHarness('wxgame.beads.test.tray-base-v60-guard');
     const cmds = renderSnap(h.game.snapshot);
     const panel = cmds.filter(
-      (c) => c.kind === 'rect' && (c as { radius: number }).radius === 18,
+      (c) =>
+        c.kind === 'rect' &&
+        c.radius === UI_CONTAINER.radiusPanel &&
+        (c as { stroke?: string }).stroke === DEFAULT_PALETTE.panelBorder,
     ) as { fill?: string }[];
     // 关卡色板所有 `edge`（格底色）—— 托盘底**必须**与之逐条不等
     const edgeSet = new Set<string>();
