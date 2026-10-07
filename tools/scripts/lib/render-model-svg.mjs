@@ -50,7 +50,9 @@ export function modelToSvg(model) {
           : '';
         parts.push(
           `<rect x="${num(cmd.x)}" y="${num(cmd.y)}" width="${num(cmd.w)}" height="${num(cmd.h)}"${rx}` +
-          ` fill="${esc(cmd.fill ?? 'none')}"` +
+          // `||` not `??`：空串 fill = 不填色（与 canvas2d `_paint` 的 falsy 口径对齐；
+          // SVG 里 fill="" 非法会落回默认黑，stroke-only 层会被涂黑）。
+          ` fill="${esc(cmd.fill || 'none')}"` +
           (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
           `${opacity}/>`,
         );
@@ -59,7 +61,7 @@ export function modelToSvg(model) {
       case 'circle': {
         parts.push(
           `<circle cx="${num(cmd.x)}" cy="${num(cmd.y)}" r="${num(cmd.r)}"` +
-          ` fill="${esc(cmd.fill ?? 'none')}"` +
+          ` fill="${esc(cmd.fill || 'none')}"` +
           (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
           `${opacity}/>`,
         );
@@ -84,7 +86,7 @@ export function modelToSvg(model) {
         const list = [];
         for (let k = 0; k < n; k += 1) list.push(`${num(v[o + k * 2])},${num(v[o + k * 2 + 1])}`);
         parts.push(
-          `<polygon points="${list.join(' ')}" fill="${esc(cmd.fill ?? 'none')}"` +
+          `<polygon points="${list.join(' ')}" fill="${esc(cmd.fill || 'none')}"` +
           (cmd.stroke ? ` stroke="${esc(cmd.stroke)}" stroke-width="${num(cmd.lineWidth ?? 1)}"` : '') +
           `${opacity}/>`,
         );

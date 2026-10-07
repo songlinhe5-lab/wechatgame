@@ -69,9 +69,10 @@ const STEPS = Object.freeze([
   'check:bead-style-pool',
   'test',
   'harness:build',
-  // [WXG-T-230 ⏸ 暂缓挂载] mask:diff（py/TS 对拍）——挂载实测即抓到**三方漂移**
-  // （py 代码 237 v7.0 槽内 B=255 ≠ 现役产物 229 批槽底 B=0 ≠ TS spec v1.1），见 mask-diff.mjs
-  // I-4 注与 TASKS-DETAIL。三方对齐（程基岩域）完成后按本注释原样恢复挂载；script 已就位可手动跑。
+  // WXG-T-230（续，2026-10）：mask:diff（py/TS 对拍门禁）——挂载时实测抓到的三方漂移已由
+  // WXG-T-258 定标单 v10.0 复核定档（有孔格底真透 + 3dp 环带正向腿 / 无孔槽底 255 保深坑），
+  // 对齐后四件套逐字节 0 差异 ⇒ 正式挂载。容差语义与 I-1…I-6 判据见 mask-diff.mjs 头注。
+  'mask:diff',
   'harness:smoke',
   // WXG-T-110：§17 宿主行为测试守卫。**新增门禁项一律追加在此，不加 `&&`**。
   // WXG-T-121：装置自测分档 —— fast 档（≈6.5s）入常规门禁；heavy 档（≈26s）走 CI/手动。
