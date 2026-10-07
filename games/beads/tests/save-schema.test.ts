@@ -31,11 +31,12 @@ import {
 const LEVEL_COUNT = 8;
 
 /**
- * EP11-S5（S8 §8-11）两新字段的默认档：补进本文件各**全字段 `toEqual`** 期望，
- * 以single source 避免逐处漂移（真值仍由 `src` 侧 `DEFAULT_BEAD_STYLE_ID` /
- * `BEAD_SIZE_DEFAULT` 定，本处只存【期望字面量】，⛔ 不反向引用实现常量以免抹掉回归）。
+ * EP11-S5（S8 §8-11）两新字段 + EP12-S8 `skinId` 的默认档：补进本文件各**全字段
+ * `toEqual`** 期望，以 single source 避免逐处漂移（真值仍由 `src` 侧
+ * `DEFAULT_BEAD_STYLE_ID` / `BEAD_SIZE_DEFAULT` / `DEFAULT_SKIN_ID` 定，本处只存
+ * 【期望字面量】，⛔ 不反向引用实现常量以免抹掉回归）。
  */
-const SETTINGS_DEFAULTS = { beadStyle: 'facet-4', beadSize: 'full' };
+const SETTINGS_DEFAULTS = { beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper' };
 
 const validSave = () => ({
   version: SAVE_VERSION,
@@ -47,7 +48,7 @@ const validSave = () => ({
   sprintBestScore: 1200,
   sprintBestStage: 5,
   starsByLevel: [3, 2, 1, 0, 0, 0, 0, 0],
-  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, beadStyle: 'facet-4', beadSize: 'full' },
+  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper' },
 });
 
 const storage = () => new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createStorage();

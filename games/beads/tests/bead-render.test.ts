@@ -1129,11 +1129,15 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    [WXG-T-256] 容器板 + 三层背景退役（art 变更批）⇒ 37/`fd5a0def780d` 追改为 34/`67c2a2c08a92`。
   //    [WXG-T-261] 托盘槽底加深批新增 `traySlot #BCC2CB`（art 裁定批，定标单同批顶版）⇒ 34 → **35**/`38c2bed416c3`。
   //    [WXG-T-261 二批 · 2026-10-06] 用户仍判「太浅」⇒ `traySlot` 换深灰 `#4A5060`（纯墨改值、条数不动）⇒ 35/`1979d53033a1`。
+  //    [WXG-T-268 · 2026-10-07 用户裁 D-2 甲案「暖纸拼豆台」] UI 基础色板换值批（纯墨改值、条数不动）：
+  //    `bg_base #F1E8D8` / `panel #FFFCF6` / `panel_border #E6DAC3` / `accent_primary=wood_face #8A5B34` /
+  //    `ad_badge #8A5B34` 五值替换（真源 = tokens.md §1 定稿 ⇒ art-bible §3.1 回写 R-7）⇒ 35/`612ced0aa888`。
+  //    整帧 provenance 走第十七次复评归因通道（`bead-style-seal.test.ts` provenance `s3_frame_recheck_17`）。
   it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
     const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
     const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
     expect(hexes.length).toBe(35);
-    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('1979d53033a1');
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('612ced0aa888');
   });
 });

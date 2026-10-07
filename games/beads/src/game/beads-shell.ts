@@ -37,7 +37,8 @@ import {
     type MetaOverlay,
     type MetaViewData,
 } from '../view/meta-view.js';
-import { DEFAULT_PALETTE, type BeadsPalette } from '../view/palette.js';
+import { DEFAULT_SKIN_ID } from '../config/skins/registry.js';
+import type { BeadsPalette } from '../view/palette.js';
 import type { PausePanelAction } from '../systems/pause-panel.js';
 import { importLatest, type HttpGet } from './level-import.js';
 
@@ -69,7 +70,13 @@ export class BeadsShell implements Game {
     readonly id = 'beads';
     /** The frozen in-run game — public so the harness/tests reach its command API. */
     readonly play: BeadsGame;
-    readonly palette: BeadsPalette;
+    /**
+     * UI 令牌实例（EP12-S8 起为 **getter**：直读 `play.palette` ⇒ 换肤后两屏同帧一致；
+     * 此前是构造期独立常量，菜单与玩法侧可能各持一份——换肤会暴露该漂移，故收编单源）。
+     */
+    get palette(): BeadsPalette {
+        return this.play.palette;
+    }
     /** Created at {@link init} (needs services.storage). Undefined before then. */
     meta?: MetaState;
 
@@ -100,6 +107,8 @@ export class BeadsShell implements Game {
         // EP11-S5 行4 两钮（初值 = 默认档，真实值每帧从 play getter 覆盖）。
         beadStyle: FACET4_STYLE_ID,
         beadSize: BEAD_SIZE_DEFAULT,
+        // EP12-S8 行4 第三钮（初值 = 默认肤，真实值每帧从 play getter 覆盖）。
+        skinId: DEFAULT_SKIN_ID,
         levelCount: 0,
         currentLevelIndex: 0,
         maxUnlockedLevel: 1,
@@ -111,9 +120,11 @@ export class BeadsShell implements Game {
         this._clock = options.clock;
         this._metaKey = options.metaKey;
         this._studio = options.studio;
-        this.palette = options.palette ?? DEFAULT_PALETTE;
         this._screen = options.initialScreen ?? 'menu';
         this.play = new BeadsGame({
+            // EP12-S8：shell 级 palette 选项真正下传 play（此前只作用于菜单侧的独立副本，
+            // 与 play 各持一份；收编单源后默认肤 tokens = DEFAULT_PALETTE，缺省行为不变）。
+            ...(options.palette !== undefined ? { palette: options.palette } : {}),
             ...(options.play ?? {}),
             // 暂停面板「回主菜单」次钮 → 切到菜单（真机反馈裁定：弃本局棋盘——下次「开始游戏」= 全新开当前关）。
             onMenuRequest: () => this.showMenu(),
@@ -174,7 +185,9 @@ export class BeadsShell implements Game {
             this.play.buildRenderModel(builder);
             return;
         }
-        buildMetaView(builder, this._metaViewData(), this.palette);
+        // EP12-S8：菜单侧消费 `play.palette`（换肤后菜单下一帧同步生效）⇒ 换肤「双面」
+        // 的游戏内侧在两屏一致；`this.palette`（构造期选项）保留为兼容字段不再消费。
+        buildMetaView(builder, this._metaViewData(), this.play.palette);
     }
 
     onPause(): void {
@@ -334,6 +347,8 @@ export class BeadsShell implements Game {
         // EP11-S5 行4 两钮回显（与暂停面板共读同一对 getter ⇒ 两入口恒一致）。
         v.beadStyle = this.play.beadStyle;
         v.beadSize = this.play.beadSize;
+        // EP12-S8 皮肤钮回显（同一 getter 单源）。
+        v.skinId = this.play.skinId;
         // 选关屏数据（均只读引用，零分配）。
         v.levelCount = this.play.levelCount;
         v.currentLevelIndex = this.play.levelIndex;

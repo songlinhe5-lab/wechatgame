@@ -71,6 +71,8 @@ const SEAL = JSON.parse(
     s3_pre_tray_261?: { _readme?: string; frame0: { total: number; sha: string }; frame78: { total: number; sha: string } };
     /** **[WXG-T-261 二批] 第十六次复评的前态史证**（一批收口锁 #BCC2CB 态）：二批 = 纯墨改写 ⇒ total 须 ≡ 现役、sha 必 ≠；⛔ 只读。 */
     s3_pre_tray_261b?: { _readme?: string; frame0: { total: number; sha: string }; frame78: { total: number; sha: string } };
+    /** **[WXG-T-268] 第十七次复评的前态史证**（暖纸换值前收口锁）：纯墨改写 + P-1 收编 ⇒ total 须 ≡ 现役、sha 必 ≠；⛔ 只读。 */
+    s3_pre_ui_268?: { _readme?: string; frame0: { total: number; sha: string }; frame78: { total: number; sha: string } };
     /** S3 转正时刻登记（史证段，不追改；腿 2b 的锚）。 */
     s3AtFormalization?: SealSide & { _readme?: string };
     provenance: Record<string, string>;
@@ -497,6 +499,12 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_16, '第十六次复评无归因登记').toContain('第十六次复评');
         expect(SEAL.provenance.s3_frame_recheck_16).toContain('#4A5060');
         expect(SEAL.provenance.s3_frame_recheck_16).toContain('liveHole');
+        // 第十七次（WXG-T-268 暖纸换值批）：归因须点名 ① 五值替换（含 accent_primary 并入 wood_face）
+        // ② P-1 缩放控件收编 ③ 计数零变更（只两键 sha 动）+ 未解释 0 条 —— 缺一即红。
+        expect(SEAL.provenance.s3_frame_recheck_17, '第十七次复评无归因登记').toContain('第十七次复评');
+        expect(SEAL.provenance.s3_frame_recheck_17).toContain('#F1E8D8');
+        expect(SEAL.provenance.s3_frame_recheck_17).toContain('drawZoomControls');
+        expect(SEAL.provenance.s3_frame_recheck_17).toContain('未解释 0 条');
         // **back 键计数腿**（保留）：本批不改 back 通道 ⇒ back 键仍只准落在登记条数（拦外溢）。
         const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
         const backFrame = frameFixture().flow.filter((l) => l.includes(',"back":true'));
@@ -520,6 +528,13 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(preB!.frame78.total, '二批前态 frame78 计数须 ≡ 现役').toBe(SEAL.s3.frame78.total);
         expect(preB!.frame0.sha, '⛔ 一批收口锁不得被刷回现役（二批墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(preB!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
+        // 第十七次复评（WXG-T-268 暖纸换值批）前态锁：纯墨改写 + P-1 收编 ⇒ total 全等 + sha 不等（同一键口径）。
+        const pre268 = SEAL.s3_pre_ui_268;
+        expect(pre268, '第十七次复评前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
+        expect(pre268!.frame0.total, '前态 frame0 计数须 ≡ 现役（纯墨零插入）').toBe(SEAL.s3.frame0.total);
+        expect(pre268!.frame78.total, '前态 frame78 计数须 ≡ 现役').toBe(SEAL.s3.frame78.total);
+        expect(pre268!.frame0.sha, '⛔ 换值前收口锁不得被刷回现役（暖纸墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
+        expect(pre268!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
         // 反面自证（K-060）：新锁与 HEAD 旧锁必不等，且不等量已在上面逐项登记。
         expect(SEAL.s3.frame0.sha).not.toBe(SEAL.head.frame0.sha);
         expect(SEAL.s3.frame78.sha).not.toBe(SEAL.head.frame78.sha);

@@ -6,7 +6,7 @@
  * （子进程 spawn，`--in-raw` 免浏览器路径 ⇒ 服务器无需 playwright/chromium）。
  *
  * API：
- *   POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&noframe=
+ *   POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&noframe=&skin=
  *        body = JSON `{ w, h, data: base64(RGBA), thumb?: dataURL }`
  *        图片由前端 canvas 本地解像（不上传原文件）；`thumb` = ≤256px JPEG 缩略图，
  *        **随结果存盘** ⇒ 历史条目也能回看原图（只存在前端内存里刷新/切条目就丢）。
@@ -35,6 +35,9 @@ import { BEAD_COLOR_MAX, baseColorOfChar } from '../../tools/scripts/lib/bead-ch
 
 const ROOT = dirname(fileURLToPath(import.meta.url)); // apps/beads-studio
 const REPO = join(ROOT, '../..'); // workspace 根（本地跑）；容器内见 Dockerfile 布局
+/** EP12-S9：皮肤 id 白名单（同源 = `games/beads/src/config/skins/registry.ts` 注册表；
+ *  首位 = 默认肤）。⛔ 改游戏侧注册表必须同步此行（本服务不编译 TS，见 handleGenerate 注）。 */
+const SKIN_IDS = ['warm-paper', 'cool-violet'];
 const GEN = existsSync(join(REPO, 'tools/scripts/beads-gen.mjs'))
     ? join(REPO, 'tools/scripts/beads-gen.mjs')
     : join(ROOT, 'vendor/beads-gen.mjs'); // 容器：beads-gen 拷到 vendor/（见 Dockerfile）
@@ -648,6 +651,12 @@ async function handleGenerate(req, res, url) {
         noframe: q.get('noframe') === '1',
         mis: misRaw === 'swaps' || misRaw === 'none' || misRaw === 'max' ? misRaw : 'full',
     };
+    // EP12-S9（裁定②）：生成页「风格」选项 → levelDraft.skin（**引用 id，不传数据本体**）。
+    // 白名单 = 游戏侧已注册皮肤 id（`games/beads/src/config/skins/registry.ts`，本服务纯 Node
+    // 读不到 TS ⇒ 手工同源；改注册表须同步此行）。未注册 / 缺省 ⇒ 取默认肤 'warm-paper'
+    // （与游戏侧 importBlockers「未注册不拒收关卡本体」同口径：生成侧直接收敛，不产脏值）。
+    const skinRaw = q.get('skin');
+    const skin = SKIN_IDS.includes(skinRaw) ? skinRaw : SKIN_IDS[0];
     if (params.mis === 'swaps' && params.swaps < 1) params.swaps = 1; // 交换模式下 k≥1
     let pattern;
     try {
@@ -665,6 +674,8 @@ async function handleGenerate(req, res, url) {
     }
     // 盘面真实尺寸 = beads-gen 裁空边（trim）后的实际行列，而非请求档位（异形/去背景后更小，
     // 2026-09-21 实测：请求 21×21、trim 后 15×17 ⇒ 头不修正则前端按 21×21 画布画 15×17 直接错乱）。
+    // EP12-S9：皮肤引用写入 levelDraft（/level 端点随草案原样下发；旧记录无此字段零影响）。
+    if (pattern.levelDraft) pattern.levelDraft.skin = skin;
     const pat = pattern.pattern ?? [];
     const result = {
         id,

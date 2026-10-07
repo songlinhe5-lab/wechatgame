@@ -3696,3 +3696,52 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - 落码：`clampCamera` Y 窗口 = `[TRAY_BAND.yMax + BOARD_FIT_MARGIN, HUD_BAND.yMin − BOARD_FIT_MARGIN]`（474~1190，716 高）——两侧锚点全部在册（§3.1 带族冻结），「一点」= 既有留边常量 24（`BOARD_FIT_MARGIN` v1.65 退出 fit 后重获消费方），零新冻结。X 用户明确认可 ⇒ 一行未动。
 - 不对称如实入式：盘布局仍锚带心 840（offset=0 语义 = gridLayout 真源不动），新操作心 = 832（差 −8）⇒ Y 上下限不对称。效果分档：长盘（>716 高）= 原 ±b/2 翻转为 +（b/2−8）/−（b/2+8）；中窄盘 = 拖动边触界主导，可拖范围扩大（320 高：±160 → +190/−206）。
 - 测试 = 模块级 `clampY` 镜像函数（与 src 同构；band 尺再搬只红真漂移不假红）；直检腿补向下触「托盘上」边界断言；窄盘/窄窄盘/跟手腿换形。beads **814 + 1 skipped** 全绿 · sync 写入 1 · verify **21/21**。**未 commit**；`[待真机]` 追加 = 8px 不对称是否可感。
+
+## WXG-T-268
+
+**EP-12「暖纸拼豆台」UI 风格落地与换肤双面 —— Epic 拆分 + 首冲刺落码批（spawn 程基岩，2026-10-07）**
+
+用户令（本会话）：「程基岩 Epic 拆分 + 落码批」，主题确认 = 现有 UI 设计主题风格落地（T-265 采纳态 + T-266 裁定）；**随单补充裁定（原话）**：「换肤不光要能设定暖纸拼豆台，studio 生成时候也要增加风格选项暖纸拼豆台」⇒ 换肤双面：① 游戏内运行时设定；② `apps/beads-studio` 生成侧新增风格选项。
+
+### 交付 A · 拆分件
+
+- `production/epics/epics-beads-ep12.md`（新，EP-12 编号 grep 确认未占用）：1 Epic / **9 Story** —— 呈现 S1–S4（色板 token / 容器语言 / 六相位 / 告急页）、难度真源 S5（`difficultyOf()` 单一真源）、主菜单作品墙 S6（T-266 第三案）、finish 陈列 S7、换肤通道 S8（`settings.skinId` + 注册表白名单）、**studio 导出链 S9**（levelDraft schema 增可选 `skin` 字段 = 引用 `BeadsSkin.id` 白名单不传数据本体 + 前端选项 + 导入侧未注册回落 default + 告警）；估点 S×2·M×5·L×2。
+- 判据纪律：只引设计侧既有判据（art-bible §2/§3.1、screens 4 态矩阵、ux-spec §5 毫秒表、T-266 公式），零新判据零新数值；§3 冻结值零涉。
+- 宿主 `epics-beads.md` §1 追加 EP-12 行 + §2 指针 + §5 统计更新。
+- **需向 T-267 同步 2 条**：① T-267 裁Ⅱ「皮肤入口暂不实现、切换走构建期宏」被本单裁定改为**运行时设置项**；② 若未决问题 1 选 A/B，T-267 arch D1「DEFAULT_SKIN.tokens = 冷紫灰现值」表述需随之修订。
+
+### 交付 B · 首冲刺落码（EP12-S1）
+
+- `palette.ts` 五值替换（`bg_base #F1E8D8` / `panel #FFFCF6` / `panel_border #E6DAC3` / `shadow_ink` 不动项除外等，逐值对 §3.1 表）+ `view-model.ts` P-1 缩放钮/滑轨 slot 族纯墨改写（**零几何变更**）；镜像成对（`framework:sync:check` ✅）。
+- 封箱**第十七次复评**：官方复取器差分复算——两帧各 **15 行改写**（字段级 40：panel×16 / P-1×12 / accentPrimary×12），total/逐 kind 全等（1868/1322），**未解释 = 0**；珠体族（legacyFlow 96 + facet 45+45）逐字节不变；色表锁 sha1 `1979d53033a1`→`612ced0aa888`（条数 35 不变）；seal fixture 追改 + 前态史证键 `s3_pre_ui_268`。
+- 新测试 `games/beads/tests/ui-warm-paper-tokens.test.ts`（6 例）；判据脚本复算：textDim on panel **4.64:1 ≥4.5**（§3.2 `[待核]` 闭合）/ 白 ▶ 对 wood 5.4:1 / bg 饱和 **10.4% ≤12%** / 奶白珠 ΔL **5.4% > 4%**。
+- 读数：beads 相关 3 套件 54 例全绿 · `pnpm run verify` **PASS 21 / WARN 0 / FAIL 0** · typecheck 0 · lint 0。
+- `production/qa/beads/test-cases.md` K.5.1-补9 段落笔（含 P3 流程偏差如实登记：复评锚 = 工作树态，commit 后须复跑复取器自证等值）。
+- ⚠ harness 截图证据（ADVISORY）未落 `production/qa/evidence/`（headless 截图需主理人配合），移交下游补。
+
+### 未决问题（4 项，交用户/主理人裁）
+
+1. **默认肤语义**（影响 S8 取值）：A 冷紫灰退役、暖纸即默认（现状，推荐）/ B 冷紫灰收编为可选肤 `cool-violet` / C 回退 S1 走第二肤通道。
+2. **D-5 告急翻转**（阻塞 EP12-S4 局部）：计时胶囊「告急切纸底」vs「恒纸底」（林绘澄建议后者）。
+3. **art-bible §1.1 橱窗主视觉**（林绘澄建议非用户裁）：本拆分按 T-266 第三案落 S6/S7，§1.1 是否作废请确认。
+4. **P-3 面板圆角**（阻塞 S2 一项）：代码 18 vs 规格 24 二选一回写。
+
+**台账登记**：主理人（CodeBuddy）2026-10-07 代登；未 commit（工作树含本单前既有脏文件，未触碰）。
+
+### 批 2（同日续 · 用户四裁落地 + EP12-S8 换肤通道 + EP12-S9 studio 导出链）
+
+**用户四裁**：① 默认肤 = warm-paper + **冷紫灰收编可选肤 `cool-violet`**；② D-5 计时胶囊**恒纸底**（S4 阻塞解除）；③ art-bible §1.1 橱窗作废、按 T-266 作品墙执行（§1.1 仅追加一行裁定注，正文修订归林绘澄）；④ P-3 圆角 18 vs 24 未拍板 ⇒ **EP12-S2 不开工**。
+
+**S8 落码**：`config/skins/{registry,warm-paper,cool-violet}.ts`（warm-paper tokens 直引 `DEFAULT_PALETTE` 同实例 ⇒ 默认渲染逐字节不变；cool-violet 18 字段逐值核 `HEAD e8b81a9` 史证）；`settings.skinId` 逐字段降级（SAVE_VERSION 不 bump）；`beads-game` 换肤引用单点 `_applySkin` + `_cycleSkin`（注册序回绕、恰写档 1 次）；pause-panel 行 4 扩三格（`PAUSE_PANEL_H=718` 与 ux §3.3 零改动）；shell 菜单消费 `play.palette` 两屏一致。
+
+**S9 落码**：`LevelDraft.skin?`（**引用 id 不传数据本体**，白名单 warm-paper/cool-violet）；`validateBeadsLevel` 仅类型校验；`importLevel` K-064 复验（未注册回落 default + 一次性告警）；studio `server.mjs` 白名单收敛 + `public/index.html`「风格」下拉（默认暖纸拼豆台）。踩坑：`levels-data.ts` 是生成物，改入 `levels-data.header.txt` 模板真源后 levels:check 转绿（K-031 族正例）。
+
+**读数**：`pnpm run verify` **21/21 全 PASS** · beads vitest **840 passed / 2 skipped**（A6 热路径零分配机械探针无仓内先例，按 K-035 记 SKIP 待裁）· **封箱/色表锁零触碰**（seal 四腿 + 第十七次复评 + 色表锁 35/`612ced0aa888` 原样绿；cool-violet hex 住 `config/skins/` 不入 palette 锁面）· 珠面族逐字节钉住 · 镜像 sync 写 13。**行为变化 2 条**：cycle-skin 钮 present（注册数 0→2，`S9§8-19` 守卫语义保留）；`BeadsShellOptions.palette` 下传 play 两屏一致。
+
+**未决 4 项（交用户/主理人）**：① A6 探针另批补 / 论证关闭 / 挂 T-267；② E2E 真服务腿未跑（注入式 HTTP 腿已绿）——主理人起 studio 服务实跑入 evidence 或延联调；③ cool-violet 玩家侧名「冷紫灰」为工程占位，是否转林绘澄定名；④ **EP11-S5 台账口径差**：任务单写「本体未开工」，仓内事实 = 已收口（registry 头注 + TC-STY 全在）——本批按仓内事实执行、未顺手实现其遗留项，请核对台账。
+
+**T-267 同步项**：arch.md D5「缺省 `'default'`」与 D1 默认肤表述与实落「默认 = `warm-paper`」不一致，文档修订归文档批，代码以注册表为真源。studio 件未 commit ⇒ 未触发部署（deploy.yml 零改动）。`dev/harness/preview/level-*.svg` 9 件 = verify 冒烟再生成产物随工作树。全程零 commit/push。
+
+### WXG-T-224/268 收口批 · check-secrets WARN 核对留痕（2026-10-07）
+
+- 4 处 `WECHAT-APPID` WARN（ADR-0030:124 / VERSION.md:33 / memory/2026-10-04:952 / TASKS-DETAIL:2541）核对：均为**描述性引用**（记录「AppID 在仓」环境事实），源头 = 根 `project.config.json`（`wx63c62151a1c0cf3b`）与 Cocos 构建档（`wx8cf9f756e5390749`）——两者为微信工程**必需配置**，本就在仓、非本批引入。判定：非泄密，放行；AppID 纪律关注点仍是私钥与 upstream 泄露面（check-secrets 持续盯）。

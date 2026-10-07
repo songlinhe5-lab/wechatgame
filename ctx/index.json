@@ -385,17 +385,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3933,
-      "lines": 141,
-      "sha256": "d6632316f88407be3534629f0e41c6b66458acfeef2bcdd2c59c83d18814b9d2",
+      "tokens": 3966,
+      "lines": 142,
+      "sha256": "a8c13b0b34489cd0d5d06c3693502eca3204663b99b4ad8876e9923f6d1fe2d9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 142,
-          "tokens": 3920,
+          "endLine": 143,
+          "tokens": 3953,
           "summary": "生成：2026-10-07 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -425,7 +425,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 393,
-          "summary": "1 production/TASKS-DETAIL.md 122379 3698 normal",
+          "summary": "1 production/TASKS-DETAIL.md 124540 3747 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -439,9 +439,9 @@
           "anchor": "§3 超限清单（> 8000 tokens = 单文件上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 116,
-          "tokens": 2433,
-          "summary": "production/TASKS-DETAIL.md 122379 见 ctx/budget-exempt.json（无",
+          "endLine": 117,
+          "tokens": 2466,
+          "summary": "production/TASKS-DETAIL.md 124540 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -454,8 +454,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 117,
-          "endLine": 142,
+          "startLine": 118,
+          "endLine": 143,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5190,
+      "tokens": 5196,
       "lines": 82,
-      "sha256": "55e3c291f2d841956e2525af3dabdb7d313b7c6bb32dcbf0f8cc0550a7fc3ac1",
+      "sha256": "f1dd5044693c2a95a5abcfdd307e68fcbb4c8b83544df57bc19a1b0b0d071693",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 5162,
+          "tokens": 5168,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -748,12 +748,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 103 行 / 34279 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 105 行 / 35144 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
           "tokens": 29,
-          "summary": "§WXG 任务台账（SSOT）=1+104 · §待排（backlog，无号，立项时领取）=77+28",
+          "summary": "§WXG 任务台账（SSOT）=1+106 · §待排（backlog，无号，立项时领取）=79+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -764,7 +764,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 905 行 / 73956 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 917 行 / 74913 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
@@ -955,11 +955,11 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3698 行 / 122379 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3747 行 / 124540 tok",
           "level": 2,
           "startLine": 78,
           "endLine": 83,
-          "tokens": 1339,
+          "tokens": 1345,
           "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+3178 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
@@ -1757,17 +1757,17 @@
     },
     {
       "path": "design/proposals/ui-style-redesign/art-bible-proposal.md",
-      "tokens": 4640,
-      "lines": 130,
-      "sha256": "1aa863a7b62f9af00da1341b7887b285424fc6629821dcd7bdceee4e5113d78f",
+      "tokens": 4706,
+      "lines": 131,
+      "sha256": "719d4a0d17553d74495b59efcb5d14df14593d1ac4f828c429c27ab077715262",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§美术圣经 · 「暖纸拼豆台」（整体 UI 风格重设计）· **甲案·采纳态**",
           "level": 1,
           "startLine": 1,
-          "endLine": 131,
-          "tokens": 4610,
+          "endLine": 132,
+          "tokens": 4676,
           "summary": "任务：WXG-T-265 · P0 ｜ 作者：林绘澄 ｜ 状态：采纳态（用户 2026-10-07 拍板：D-2 = 甲",
           "keywords": [
             "WXG",
@@ -1798,8 +1798,8 @@
           "anchor": "§1 一句话风格定位",
           "level": 2,
           "startLine": 24,
-          "endLine": 38,
-          "tokens": 691,
+          "endLine": 39,
+          "tokens": 756,
           "summary": "「暖米纸台上的拼豆工作台」：低饱和纸木容器衬托高饱和几何珠面——珠子是桌上唯一的糖果，UI 是安静的工作台。",
           "keywords": [
             "一句话风格定"
@@ -1809,8 +1809,8 @@
           "anchor": "§1.1 游戏名「拼豆小铺」的命名语义 → 视觉呼应（2026-10-07 定名后新增）",
           "level": 3,
           "startLine": 29,
-          "endLine": 38,
-          "tokens": 552,
+          "endLine": 39,
+          "tokens": 618,
           "summary": "语义拆解：拼豆 = 玩法（品类词，利于微信搜索）；小铺 = 陈列／收藏的扩展空间——不是「森林」那种场景叙事，而是「作品",
           "keywords": [
             "游戏名",
@@ -1823,8 +1823,8 @@
         {
           "anchor": "§2 四条设计支柱的可判读定义（玩家看到什么算达标）",
           "level": 2,
-          "startLine": 39,
-          "endLine": 47,
+          "startLine": 40,
+          "endLine": 48,
           "tokens": 762,
           "summary": "休闲 ① 每屏最多 1 个木质主按钮；② 全部圆角 ≥12、无直角容器；③ 压迫性元素（红色）只允许出现在倒计时告急与失",
           "keywords": [
@@ -1837,8 +1837,8 @@
         {
           "anchor": "§3 色彩系统（具体 HEX）",
           "level": 2,
-          "startLine": 48,
-          "endLine": 75,
+          "startLine": 49,
+          "endLine": 76,
           "tokens": 830,
           "summary": "",
           "keywords": [
@@ -1850,8 +1850,8 @@
         {
           "anchor": "§3.1 UI 基础色板（**定稿值**；即 `art-bible §3.1` 新真源，回写见 `risks.md` R-7）",
           "level": 3,
-          "startLine": 50,
-          "endLine": 69,
+          "startLine": 51,
+          "endLine": 70,
           "tokens": 585,
           "summary": "背景基底 bg_base #F1E8D8 #ECEAF3 冷紫灰 → 暖米纸 text_primary 11.1:1 ✓",
           "keywords": [
@@ -1866,8 +1866,8 @@
         {
           "anchor": "§3.2 对比度声明（对 `accessibility.md` 判据的对齐）",
           "level": 3,
-          "startLine": 70,
-          "endLine": 75,
+          "startLine": 71,
+          "endLine": 76,
           "tokens": 194,
           "summary": "文本类：B1 判据（正文 ≥4.5:1）全部按上表重算，无假绿项；text_secondary on panel #FF",
           "keywords": [
@@ -1882,8 +1882,8 @@
         {
           "anchor": "§4 容器与控件语言（全部可用 rect/circle/ellipse/polygon/line/text 画出）",
           "level": 2,
-          "startLine": 76,
-          "endLine": 90,
+          "startLine": 77,
+          "endLine": 91,
           "tokens": 408,
           "summary": "材质语义总纲：木 = 可交互，纸 = 承载信息，胶囊/描边 = 状态。",
           "keywords": [
@@ -1898,8 +1898,8 @@
         {
           "anchor": "§5 层级与阴影",
           "level": 2,
-          "startLine": 91,
-          "endLine": 96,
+          "startLine": 92,
+          "endLine": 97,
           "tokens": 218,
           "summary": "z 序 5 层（与现渲染序一致，不新造层）：背景（宿主铺单色）→ 盘面珠阵 → 控件带（HUD/缩放/托盘/道具）→ 遮",
           "keywords": [
@@ -1910,8 +1910,8 @@
         {
           "anchor": "§6 文字层级（系统字体，零字体文件）",
           "level": 2,
-          "startLine": 97,
-          "endLine": 109,
+          "startLine": 98,
+          "endLine": 110,
           "tokens": 256,
           "summary": "display 56 系统 bold text_primary 标题页副标题（游戏名「拼豆小铺」本体用珠拼 beadTe",
           "keywords": [
@@ -1926,8 +1926,8 @@
         {
           "anchor": "§7 ⛔ 不动项清单 + 与「干净几何珠面」的共存策略",
           "level": 2,
-          "startLine": 110,
-          "endLine": 125,
+          "startLine": 111,
+          "endLine": 126,
           "tokens": 487,
           "summary": "不动项（逐条，落码与评审都不得触碰）：",
           "keywords": [
@@ -1939,8 +1939,8 @@
         {
           "anchor": "§8 包体承诺",
           "level": 2,
-          "startLine": 126,
-          "endLine": 131,
+          "startLine": 127,
+          "endLine": 132,
           "tokens": 239,
           "summary": "零位图、零字体文件、零新图集 ⇒ 美术位图 +0 KB；图元增量 = 木按钮 sheen/底缘线 +2/钮、木钉圆 0（",
           "keywords": [
@@ -74511,9 +74511,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 122379,
-      "lines": 3698,
-      "sha256": "5e2d58778ccc433ec8e6c9a6023e420005107b4be772d93489d10ef1dbface21",
+      "tokens": 124540,
+      "lines": 3747,
+      "sha256": "56eb967e4540ca6d403ea6e535f0090a85d834b1e18e4111efbcceeff3d441c9",
       "tier": "normal",
       "sections": [
         {
@@ -77644,8 +77644,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3583,
-          "endLine": 3699,
-          "tokens": 4535,
+          "endLine": 3748,
+          "tokens": 6696,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -77655,22 +77655,113 @@
             "只缩不放大",
             "小盘放大铺满"
           ]
+        },
+        {
+          "anchor": "§WXG-T-268",
+          "level": 2,
+          "startLine": 3700,
+          "endLine": 3748,
+          "tokens": 2158,
+          "summary": "EP-12「暖纸拼豆台」UI 风格落地与换肤双面 —— Epic 拆分 + 首冲刺落码批（spawn 程基岩，2026-",
+          "keywords": [
+            "WXG",
+            "Epic",
+            "spawn"
+          ]
+        },
+        {
+          "anchor": "§交付 A · 拆分件",
+          "level": 3,
+          "startLine": 3706,
+          "endLine": 3712,
+          "tokens": 332,
+          "summary": "production/epics/epics-beads-ep12.md（新，EP-12 编号 grep 确认未占用）：",
+          "keywords": [
+            "production",
+            "epics",
+            "beads",
+            "ep12",
+            "grep",
+            "交付"
+          ]
+        },
+        {
+          "anchor": "§交付 B · 首冲刺落码（EP12-S1）",
+          "level": 3,
+          "startLine": 3713,
+          "endLine": 3721,
+          "tokens": 391,
+          "summary": "palette.ts 五值替换（bg_base #F1E8D8 / panel #FFFCF6 / panel_bord",
+          "keywords": [
+            "EP12",
+            "palette",
+            "bg_base",
+            "F1E8D8",
+            "panel",
+            "FFFCF6"
+          ]
+        },
+        {
+          "anchor": "§未决问题（4 项，交用户/主理人裁）",
+          "level": 3,
+          "startLine": 3722,
+          "endLine": 3730,
+          "tokens": 215,
+          "summary": "1. 默认肤语义（影响 S8 取值）：A 冷紫灰退役、暖纸即默认（现状，推荐）/ B 冷紫灰收编为可选肤 cool-vi",
+          "keywords": [
+            "cool",
+            "未决问题",
+            "交用户",
+            "主理人裁"
+          ]
+        },
+        {
+          "anchor": "§批 2（同日续 · 用户四裁落地 + EP12-S8 换肤通道 + EP12-S9 studio 导出链）",
+          "level": 3,
+          "startLine": 3731,
+          "endLine": 3744,
+          "tokens": 818,
+          "summary": "用户四裁：① 默认肤 = warm-paper + 冷紫灰收编可选肤 cool-violet；② D-5 计时胶囊恒纸底",
+          "keywords": [
+            "EP12",
+            "studio",
+            "warm",
+            "paper",
+            "cool",
+            "violet"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-224/268 收口批 · check-secrets WARN 核对留痕（2026-10-07）",
+          "level": 3,
+          "startLine": 3745,
+          "endLine": 3748,
+          "tokens": 144,
+          "summary": "4 处 WECHAT-APPID WARN（ADR-0030:124 / VERSION.md:33 / memory/",
+          "keywords": [
+            "WXG",
+            "check",
+            "secrets",
+            "WARN",
+            "WECHAT",
+            "APPID"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 34279,
-      "lines": 103,
-      "sha256": "07b47f8f379d30fccb9246678b482cb62500c4cc0316725919c7b2a384c29885",
+      "tokens": 35144,
+      "lines": 105,
+      "sha256": "cf35aaf8052c23ed1b543251df399d597f3696c585cbacc806bebc98b3c907ab",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 104,
-          "tokens": 34270,
+          "endLine": 106,
+          "tokens": 35135,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -77683,8 +77774,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 77,
-          "endLine": 104,
+          "startLine": 79,
+          "endLine": 106,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -77958,6 +78049,265 @@
       ]
     },
     {
+      "path": "production/epics/epics-beads-ep12.md",
+      "tokens": 5311,
+      "lines": 138,
+      "sha256": "5f63fe4bcca0e1c4b2edc980c39f20223deafeb5f1b59cf017c45e29de197588",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads · Epic / Story 拆分 · **EP-12「暖纸拼豆台」UI 风格落地与换肤双面**（epics-beads-ep12）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 139,
+          "tokens": 5276,
+          "summary": "任务：WXG-T-268 · P0 ｜ 作者：程基岩（engineering-lead）· 2026-10-07 ｜ 宿",
+          "keywords": [
+            "beads",
+            "Epic",
+            "Story",
+            "epics",
+            "ep12",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§0 阅读约定",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 19,
+          "tokens": 221,
+          "summary": "1. Story 四要素 = 一句话描述 / 验收条目（引用式，标真源出处）/ 估点 S·M·L / 依赖；另给 In/",
+          "keywords": [
+            "Story",
+            "阅读约定"
+          ]
+        },
+        {
+          "anchor": "§1 Epic 列表（拓扑序）",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 29,
+          "tokens": 191,
+          "summary": "EP-12 「暖纸拼豆台」UI 风格落地与换肤双面 甲案采纳态全量落码（6 相位换肤 + 主菜单作品墙 + DI 单一真",
+          "keywords": [
+            "Epic",
+            "列表",
+            "拓扑序"
+          ]
+        },
+        {
+          "anchor": "§2 Story 拆分",
+          "level": 2,
+          "startLine": 30,
+          "endLine": 99,
+          "tokens": 3562,
+          "summary": "",
+          "keywords": [
+            "Story",
+            "拆分"
+          ]
+        },
+        {
+          "anchor": "§EP12-S1 UI 基础色板换值批 ✅（已随本单落码收口，2026-10-07）",
+          "level": 3,
+          "startLine": 32,
+          "endLine": 38,
+          "tokens": 335,
+          "summary": "描述：DEFAULT_PALETTE 五值替换（bg_base #F1E8D8 / panel #FFFCF6 / pa",
+          "keywords": [
+            "EP12",
+            "DEFAULT_PALETTE",
+            "bg_base",
+            "F1E8D8",
+            "panel",
+            "FFFCF6"
+          ]
+        },
+        {
+          "anchor": "§EP12-S2 控件语言落码（T1–T6 容器/按钮语言 + 状态矩阵）",
+          "level": 3,
+          "startLine": 39,
+          "endLine": 47,
+          "tokens": 453,
+          "summary": "⚠ 状态（2026-10-07 批 2）：本 Story 不开工——P-3 面板圆角（18 vs 24）用户尚未拍板（见",
+          "keywords": [
+            "EP12",
+            "Story",
+            "控件语言落码",
+            "容器",
+            "按钮语言",
+            "状态矩阵"
+          ]
+        },
+        {
+          "anchor": "§EP12-S3 playing 页换肤收口（screens.md S1）",
+          "level": 3,
+          "startLine": 48,
+          "endLine": 54,
+          "tokens": 279,
+          "summary": "描述：HUD（齿轮紫不变 + LV 纸 chip 96×48 + 计时纸胶囊几何 220×64 不变）、托盘面板纸化 +",
+          "keywords": [
+            "EP12",
+            "playing",
+            "screens",
+            "HUD",
+            "chip",
+            "页换肤收口"
+          ]
+        },
+        {
+          "anchor": "§EP12-S4 弹窗族换肤（screens.md S2/S3/S4）",
+          "level": 3,
+          "startLine": 55,
+          "endLine": 61,
+          "tokens": 267,
+          "summary": "描述：paused / level-clear / game-over 三面板纸化 + 主钮木化（T3）+ 开关纸 ch",
+          "keywords": [
+            "EP12",
+            "screens",
+            "paused",
+            "level",
+            "clear",
+            "game"
+          ]
+        },
+        {
+          "anchor": "§EP12-S5 difficultyOf() 难度分单一真源落码 + 守卫",
+          "level": 3,
+          "startLine": 62,
+          "endLine": 68,
+          "tokens": 289,
+          "summary": "描述：level-difficulty.md §3 公式落码（DI = round₁₀(M × f_C × f_K)，系",
+          "keywords": [
+            "§3",
+            "EP12",
+            "difficultyOf",
+            "level",
+            "difficulty",
+            "round"
+          ]
+        },
+        {
+          "anchor": "§EP12-S6 主菜单 / boot 屏「拼豆小铺」落码（menu-architecture §5 + screens.md S0 二合一）",
+          "level": 3,
+          "startLine": 69,
+          "endLine": 75,
+          "tokens": 572,
+          "summary": "描述：R-12 闭合案落码（T-266 §7.2：不新增独立 boot 屏，S0 内容就地落已实装 meta-view ",
+          "keywords": [
+            "§5",
+            "§7.2",
+            "EP12",
+            "boot",
+            "menu",
+            "architecture"
+          ]
+        },
+        {
+          "anchor": "§EP12-S7 finish 通关画面作品上架陈列条（screens.md S5）",
+          "level": 3,
+          "startLine": 76,
+          "endLine": 82,
+          "tokens": 196,
+          "summary": "描述：通关时已完成图案逐格摆进与 S0 同源的陈列条（已通关 = 珠拼缩略；未通关 = 虚线空槽），复用 EP12-S6",
+          "keywords": [
+            "EP12",
+            "finish",
+            "screens",
+            "通关画面作品",
+            "上架陈列条"
+          ]
+        },
+        {
+          "anchor": "§EP12-S8 换肤通道批（游戏内裁定①：运行时设置项）",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 90,
+          "tokens": 480,
+          "summary": "描述：T-267 架构稿 MVP 批 1 收编：BeadsSkin 类型 + src/config/skins/（DEF",
+          "keywords": [
+            "EP12",
+            "MVP",
+            "BeadsSkin",
+            "src",
+            "config",
+            "skins"
+          ]
+        },
+        {
+          "anchor": "§EP12-S9 beads-studio 导出链携带风格（生成侧裁定②）",
+          "level": 3,
+          "startLine": 91,
+          "endLine": 99,
+          "tokens": 497,
+          "summary": "描述：studio 生成 → 导出 → 小游戏在线导入全链路（盘点结论：server.mjs /api/generate",
+          "keywords": [
+            "EP12",
+            "beads",
+            "studio",
+            "server",
+            "mjs",
+            "api"
+          ]
+        },
+        {
+          "anchor": "§3 第一个冲刺建议（本单 Sprint-01 已执行）",
+          "level": 2,
+          "startLine": 100,
+          "endLine": 109,
+          "tokens": 210,
+          "summary": "EP12-S1（已完成收口） ① 任务单点名起点 = §3.1 基础色板 token 替换；② 零几何纯墨 ⇒ 封箱通道",
+          "keywords": [
+            "§3.1",
+            "Sprint",
+            "EP12",
+            "token",
+            "第一个冲刺建",
+            "本单"
+          ]
+        },
+        {
+          "anchor": "§4 环境约束声明",
+          "level": 2,
+          "startLine": 110,
+          "endLine": 118,
+          "tokens": 210,
+          "summary": "无真机：一切观感/对比度精确值/图元实测标 [待真机]/[待实测]；⛔ 不伪造、不假绿（K-1 奶白珠最弱对 / K-2",
+          "keywords": [
+            "环境约束声明"
+          ]
+        },
+        {
+          "anchor": "§5 统计",
+          "level": 2,
+          "startLine": 119,
+          "endLine": 130,
+          "tokens": 197,
+          "summary": "Epic 数 1（EP-12，宿主表追加行）",
+          "keywords": [
+            "Epic",
+            "统计"
+          ]
+        },
+        {
+          "anchor": "§6 未决问题状态（2026-10-07 批 2 更新）",
+          "level": 2,
+          "startLine": 131,
+          "endLine": 139,
+          "tokens": 294,
+          "summary": "1 默认肤语义 ✅ 已裁：暖纸即默认肤（维持 EP12-S1 落码现状）；冷紫灰收编为可选肤 cool-violet（注",
+          "keywords": [
+            "EP12",
+            "cool",
+            "violet",
+            "未决问题状态",
+            "更新"
+          ]
+        }
+      ]
+    },
+    {
       "path": "production/epics/epics-beads-status.md",
       "tokens": 2326,
       "lines": 62,
@@ -77984,17 +78334,17 @@
     },
     {
       "path": "production/epics/epics-beads.md",
-      "tokens": 7866,
-      "lines": 284,
-      "sha256": "498a1c974653ded416b7d6bc45cf62588daa70a47dbe9a00da73dcb5e2d34384",
+      "tokens": 8209,
+      "lines": 289,
+      "sha256": "afd680aeabcc9ac98a5377dcbce3b005c67fa5874521bc217582ffb5fdc91c08",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic / Story 拆分（epics-beads）",
           "level": 1,
           "startLine": 1,
-          "endLine": 285,
-          "tokens": 7853,
+          "endLine": 290,
+          "tokens": 8196,
           "summary": "项目：games/beads（拼豆填色消除）· 任务 WXG-T-010 · 版本 v1.0",
           "keywords": [
             "beads",
@@ -78025,8 +78375,8 @@
           "anchor": "§1 Epic 列表（按 systems-index §2 依赖拓扑序）",
           "level": 2,
           "startLine": 27,
-          "endLine": 46,
-          "tokens": 552,
+          "endLine": 47,
+          "tokens": 645,
           "summary": "EP-01 核心循环骨架 立起六状态状态机与关内时序编排，裁决暂停冻结与同帧 cleared 优先 S1 —",
           "keywords": [
             "§2",
@@ -78040,9 +78390,9 @@
         {
           "anchor": "§2 Story 拆分",
           "level": 2,
-          "startLine": 47,
-          "endLine": 240,
-          "tokens": 5485,
+          "startLine": 48,
+          "endLine": 245,
+          "tokens": 5674,
           "summary": "",
           "keywords": [
             "Story",
@@ -78052,8 +78402,8 @@
         {
           "anchor": "§EP-01 核心循环骨架（S1）",
           "level": 3,
-          "startLine": 49,
-          "endLine": 67,
+          "startLine": 50,
+          "endLine": 68,
           "tokens": 569,
           "summary": "EP01-S1 六状态状态机骨架与 BOOT 装配",
           "keywords": [
@@ -78065,8 +78415,8 @@
         {
           "anchor": "§EP-02 拼图网格与填色（S3）",
           "level": 3,
-          "startLine": 68,
-          "endLine": 96,
+          "startLine": 69,
+          "endLine": 97,
           "tokens": 880,
           "summary": "EP02-S1 关卡装载与静态校验器",
           "keywords": [
@@ -78077,8 +78427,8 @@
         {
           "anchor": "§EP-03 供料与槽位托盘（S4）",
           "level": 3,
-          "startLine": 97,
-          "endLine": 119,
+          "startLine": 98,
+          "endLine": 120,
           "tokens": 747,
           "summary": "EP03-S1 托盘模型与加权抽色",
           "keywords": [
@@ -78089,8 +78439,8 @@
         {
           "anchor": "§EP-04 输入与操控（S2）",
           "level": 3,
-          "startLine": 120,
-          "endLine": 142,
+          "startLine": 121,
+          "endLine": 143,
           "tokens": 734,
           "summary": "EP04-S1 五类指令路由表",
           "keywords": [
@@ -78101,8 +78451,8 @@
         {
           "anchor": "§EP-05 倒计时与失败（S5）",
           "level": 3,
-          "startLine": 143,
-          "endLine": 164,
+          "startLine": 144,
+          "endLine": 165,
           "tokens": 769,
           "summary": "EP05-S1 计时器模型与暂停保存",
           "keywords": [
@@ -78113,8 +78463,8 @@
         {
           "anchor": "§EP-06 道具系统（S6）`[待 GDD §8——S6 GDD 未产出，判据到位后回填]`",
           "level": 3,
-          "startLine": 165,
-          "endLine": 176,
+          "startLine": 166,
+          "endLine": 177,
           "tokens": 346,
           "summary": "EP06-S1 三道具效果与免费次数 [待 GDD §8]",
           "keywords": [
@@ -78129,8 +78479,8 @@
         {
           "anchor": "§EP-07 星级与结算（S7）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 177,
-          "endLine": 189,
+          "startLine": 178,
+          "endLine": 190,
           "tokens": 259,
           "summary": "EP07-S1 星级判定与结算面板 [待 GDD §8]",
           "keywords": [
@@ -78144,8 +78494,8 @@
         {
           "anchor": "§EP-08 存档与进度（S8）`[待 GDD §8——S8 GDD 未产出]`",
           "level": 3,
-          "startLine": 190,
-          "endLine": 201,
+          "startLine": 191,
+          "endLine": 202,
           "tokens": 276,
           "summary": "EP08-S1 存档 schema 与校验降级 [待 GDD §8]",
           "keywords": [
@@ -78160,8 +78510,8 @@
         {
           "anchor": "§EP-09 暂停与设置（S9）`[待 GDD §8]`",
           "level": 3,
-          "startLine": 202,
-          "endLine": 214,
+          "startLine": 203,
+          "endLine": 215,
           "tokens": 199,
           "summary": "EP09-S1 暂停面板 [待 GDD §8]",
           "keywords": [
@@ -78175,8 +78525,8 @@
         {
           "anchor": "§EP-10 Cocos 集成与微信构建 `[Blocked: 待编辑器]`",
           "level": 3,
-          "startLine": 215,
-          "endLine": 233,
+          "startLine": 216,
+          "endLine": 234,
           "tokens": 371,
           "summary": "依赖编辑器产物（.scene/.meta/构建/真机）。框架侧 bindings.ts 已写未验证（G1–G9 沿用矩阵",
           "keywords": [
@@ -78191,9 +78541,9 @@
         {
           "anchor": "§EP-11 珠体风格池与豆径档（S3 呈现层 / S9 / S8）",
           "level": 3,
-          "startLine": 234,
-          "endLine": 240,
-          "tokens": 163,
+          "startLine": 235,
+          "endLine": 239,
+          "tokens": 162,
           "summary": "正文拆分件 → [《epics-beads-ep11.md》](./epics-beads-ep11.md)：7 个 S",
           "keywords": [
             "epics",
@@ -78205,10 +78555,26 @@
           ]
         },
         {
+          "anchor": "§EP-12 「暖纸拼豆台」UI 风格落地与换肤双面（S3 呈现层 / S9 / S8 / meta / 工程交付）",
+          "level": 3,
+          "startLine": 240,
+          "endLine": 245,
+          "tokens": 156,
+          "summary": "正文拆分件 → [《epics-beads-ep12.md》](./epics-beads-ep12.md)：9 个 S",
+          "keywords": [
+            "meta",
+            "epics",
+            "beads",
+            "ep12",
+            "暖纸拼豆台",
+            "风格落地与换"
+          ]
+        },
+        {
           "anchor": "§3 第一个冲刺建议（最小可玩垂直切片）",
           "level": 2,
-          "startLine": 241,
-          "endLine": 266,
+          "startLine": 246,
+          "endLine": 271,
           "tokens": 559,
           "summary": "目标：进 PLAYING → 供料入托盘 → 选珠 → 落子（匹配/拒绝）→ 填满进 LEVEL_CLEAR → 归零失",
           "keywords": [
@@ -78222,8 +78588,8 @@
         {
           "anchor": "§4 环境约束声明",
           "level": 2,
-          "startLine": 267,
-          "endLine": 276,
+          "startLine": 272,
+          "endLine": 281,
           "tokens": 294,
           "summary": "无 Cocos 编辑器：验证路径 = 引擎无关玩法跑 vitest（Node）+ dev harness（canvas2",
           "keywords": [
@@ -78238,10 +78604,10 @@
         {
           "anchor": "§5 统计",
           "level": 2,
-          "startLine": 277,
-          "endLine": 285,
-          "tokens": 166,
-          "summary": "Epic 数 11（EP-01…EP-09 系统 + EP-10 工程交付 + EP-11 呈现层风格池）",
+          "startLine": 282,
+          "endLine": 290,
+          "tokens": 225,
+          "summary": "Epic 数 12（EP-01…EP-09 系统 + EP-10 工程交付 + EP-11 呈现层风格池 + EP-12",
           "keywords": [
             "Epic",
             "统计"
@@ -79650,6 +80016,419 @@
           "summary": "v1.0 2026-09-11 初稿：P0–P4 分级表 + S1/S2/S3/S4/S5 与可访问性专项细则 + 报告",
           "keywords": [
             "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/carrier-bench/carrier-bench.md",
+      "tokens": 2248,
+      "lines": 376,
+      "sha256": "99105a7414c0b342ef8dcbc84c74d4545a7d5ad8d31f1e3ab8a4a0b021ccc80c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§三臂载体同宿主性能取证（WXG-T-247 / ADR-0030 S0·S2）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 377,
+          "tokens": 2227,
+          "summary": "档位 = [E] 桌面 web-mobile（真引擎 + 真 GPU 提交，非低端机）；",
+          "keywords": [
+            "WXG",
+            "ADR",
+            "web",
+            "mobile",
+            "GPU",
+            "三臂载体同宿"
+          ]
+        },
+        {
+          "anchor": "§宿主事实",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 46,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "宿主事实"
+          ]
+        },
+        {
+          "anchor": "§读数",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 61,
+          "tokens": 407,
+          "summary": "",
+          "keywords": [
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§逐臂原始 JSON",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 377,
+          "tokens": 1551,
+          "summary": "",
+          "keywords": [
+            "JSON",
+            "逐臂原始"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/carrier-bench/disturb/carrier-bench.md",
+      "tokens": 2244,
+      "lines": 376,
+      "sha256": "053cd01caea51ad574a4ea35b87f63d3efe04d1e792d1fc5aa8b65e5d4cd7a5f",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§三臂载体同宿主性能取证（WXG-T-247 / ADR-0030 S0·S2）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 377,
+          "tokens": 2223,
+          "summary": "档位 = [E] 桌面 web-mobile（真引擎 + 真 GPU 提交，非低端机）；",
+          "keywords": [
+            "WXG",
+            "ADR",
+            "web",
+            "mobile",
+            "GPU",
+            "三臂载体同宿"
+          ]
+        },
+        {
+          "anchor": "§宿主事实",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 46,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "宿主事实"
+          ]
+        },
+        {
+          "anchor": "§读数",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 61,
+          "tokens": 407,
+          "summary": "",
+          "keywords": [
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§逐臂原始 JSON",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 377,
+          "tokens": 1547,
+          "summary": "",
+          "keywords": [
+            "JSON",
+            "逐臂原始"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/carrier-bench/gate-ab-disturb/carrier-bench.md",
+      "tokens": 1865,
+      "lines": 304,
+      "sha256": "1616c7e963aa9d4b2d710bbf16d1a3528b6d0cda74025a501e0d684c857861ee",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§三臂载体同宿主性能取证（WXG-T-247 / ADR-0030 S0·S2）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 305,
+          "tokens": 1845,
+          "summary": "档位 = [E] 桌面 web-mobile（真引擎 + 真 GPU 提交，非低端机）；",
+          "keywords": [
+            "WXG",
+            "ADR",
+            "web",
+            "mobile",
+            "GPU",
+            "三臂载体同宿"
+          ]
+        },
+        {
+          "anchor": "§宿主事实",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 46,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "宿主事实"
+          ]
+        },
+        {
+          "anchor": "§读数",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 58,
+          "tokens": 366,
+          "summary": "",
+          "keywords": [
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§逐臂原始 JSON",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 305,
+          "tokens": 1205,
+          "summary": "",
+          "keywords": [
+            "JSON",
+            "逐臂原始"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/carrier-bench/gate-ab/carrier-bench.md",
+      "tokens": 1868,
+      "lines": 304,
+      "sha256": "b6be6f5cde1eb9e428f8625c99a091fa054390696067838622380abf1b117762",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§三臂载体同宿主性能取证（WXG-T-247 / ADR-0030 S0·S2）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 305,
+          "tokens": 1847,
+          "summary": "档位 = [E] 桌面 web-mobile（真引擎 + 真 GPU 提交，非低端机）；",
+          "keywords": [
+            "WXG",
+            "ADR",
+            "web",
+            "mobile",
+            "GPU",
+            "三臂载体同宿"
+          ]
+        },
+        {
+          "anchor": "§宿主事实",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 46,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "宿主事实"
+          ]
+        },
+        {
+          "anchor": "§读数",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 58,
+          "tokens": 366,
+          "summary": "",
+          "keywords": [
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§逐臂原始 JSON",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 305,
+          "tokens": 1207,
+          "summary": "",
+          "keywords": [
+            "JSON",
+            "逐臂原始"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/carrier-bench/gate-blit-ab-disturb/carrier-bench.md",
+      "tokens": 1178,
+      "lines": 188,
+      "sha256": "a1d6a6f49d92325652336862c81b8178fc449e99c5997a63bf04a41a251da916",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§三臂载体同宿主性能取证（WXG-T-247 / ADR-0030 S0·S2）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 189,
+          "tokens": 1157,
+          "summary": "档位 = [E] 桌面 web-mobile（真引擎 + 真 GPU 提交，非低端机）；",
+          "keywords": [
+            "WXG",
+            "ADR",
+            "web",
+            "mobile",
+            "GPU",
+            "三臂载体同宿"
+          ]
+        },
+        {
+          "anchor": "§宿主事实",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 46,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "宿主事实"
+          ]
+        },
+        {
+          "anchor": "§读数",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 55,
+          "tokens": 219,
+          "summary": "",
+          "keywords": [
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§逐臂原始 JSON",
+          "level": 2,
+          "startLine": 56,
+          "endLine": 189,
+          "tokens": 662,
+          "summary": "",
+          "keywords": [
+            "JSON",
+            "逐臂原始"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/carrier-bench/gate-blit-ab/carrier-bench.md",
+      "tokens": 1413,
+      "lines": 230,
+      "sha256": "04b7d7de58643e6b100b84e402aab93f6f1eb7ecfa6ce95eef066ab79aa12f25",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§三臂载体同宿主性能取证（WXG-T-247 / ADR-0030 S0·S2）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 231,
+          "tokens": 1393,
+          "summary": "档位 = [E] 桌面 web-mobile（真引擎 + 真 GPU 提交，非低端机）；",
+          "keywords": [
+            "WXG",
+            "ADR",
+            "web",
+            "mobile",
+            "GPU",
+            "三臂载体同宿"
+          ]
+        },
+        {
+          "anchor": "§宿主事实",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 46,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "宿主事实"
+          ]
+        },
+        {
+          "anchor": "§读数",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 56,
+          "tokens": 273,
+          "summary": "",
+          "keywords": [
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§逐臂原始 JSON",
+          "level": 2,
+          "startLine": 57,
+          "endLine": 231,
+          "tokens": 841,
+          "summary": "",
+          "keywords": [
+            "JSON",
+            "逐臂原始"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/carrier-bench/layers-ab/carrier-bench.md",
+      "tokens": 1938,
+      "lines": 310,
+      "sha256": "aac8e872e3af0ef2f7892138571090ef1463a6f83fe1846cba879bfbdaff56b5",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§三臂载体同宿主性能取证（WXG-T-247 / ADR-0030 S0·S2）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 311,
+          "tokens": 1918,
+          "summary": "档位 = [E] 桌面 web-mobile（真引擎 + 真 GPU 提交，非低端机）；",
+          "keywords": [
+            "WXG",
+            "ADR",
+            "web",
+            "mobile",
+            "GPU",
+            "三臂载体同宿"
+          ]
+        },
+        {
+          "anchor": "§宿主事实",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 46,
+          "tokens": 177,
+          "summary": "",
+          "keywords": [
+            "宿主事实"
+          ]
+        },
+        {
+          "anchor": "§读数",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 58,
+          "tokens": 379,
+          "summary": "",
+          "keywords": [
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§逐臂原始 JSON",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 311,
+          "tokens": 1261,
+          "summary": "",
+          "keywords": [
+            "JSON",
+            "逐臂原始"
           ]
         }
       ]
@@ -83220,9 +83999,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 73956,
-      "lines": 905,
-      "sha256": "0653bc373f89624a6c914771791fe0788f8198aa6f80a9c32e57e38590eee3e1",
+      "tokens": 74913,
+      "lines": 917,
+      "sha256": "11d7019b43959af06017a341c5a730057fdf5101bf7fa5a185670a8a26db1a1a",
       "tier": "hot",
       "sections": [
         {
@@ -83882,8 +84661,8 @@
           "anchor": "§K 风格与豆径族（**v2.1 / WXG-T-211-F 新增**）—— 来源家族 = `pause-settings v1.7 §8-14~19` + `save-progress v1.1 §8-11~13` + `ux-spec v1.19 §4` 行4/BOOT/overlay 各行 + `bead-visual-style-spec §12.2 C1/C5/C6/C7/C8/C9/C11/C12` + `assets-spec v1.5-r16 §1.9.7 7.11–7.13`",
           "level": 1,
           "startLine": 678,
-          "endLine": 906,
-          "tokens": 26591,
+          "endLine": 918,
+          "tokens": 27548,
           "summary": "### K.0 编号与归属（两处必须先看）",
           "keywords": [
             "pause-settings v1.7 §8-14~19",

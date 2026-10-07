@@ -241,10 +241,15 @@ export interface BeadsPalette {
 }
 
 export const DEFAULT_PALETTE: BeadsPalette = {
-  // v1.3 丙案「双色温对撞」冷底 UI token（真源 = art-bible §3.1 v1.3 表；F1 消漂移）。
-  background: '#ECEAF3', // bg_base 冷紫灰（v1.2 暖米白 #F6F1E7 作废）
-  panel: '#FFFFFF', // panel_surface
-  panelBorder: '#E2DFF0', // panel_border 1px
+  // [WXG-T-268 · 2026-10-07 用户裁 D-2 甲案「暖纸拼豆台」] UI 基础色板换值批：
+  // 真源 = `design/proposals/ui-style-redesign/tokens.md` §1（定稿）⇒ 回写 `art-bible §3.1`（R-7），
+  // 本对象为其消费副本。冷紫灰底（v1.3 丙案「双色温对撞」）整体作废，对撞轴改「暖纸静底 × 糖果珠」。
+  // ⚠ 换值 5 项：bg_base / panel / panel_border / accent_primary（并入木色）/ ad_badge（= wood_face 引用值）；
+  //   `text_primary #2A2E43` 不改 ⇒ `PANEL_SCRIM_RGB (42,46,67)` 零变动（ux v1.16 口径不破）；
+  //   `shadow_ink #3D2E1E`（暖化）需新 token + 新消费面（BEAD_SHADOW_HEX 与珠面 L0b 共用、属不动项）⇒ 归 EP12-S2 容器语言批，不在本批。
+  background: '#F1E8D8', // bg_base 暖米纸（初稿 #f6efe2 与奶白珠 ΔL 2.7%<4% 不可辨阈作废；冷紫灰 #ECEAF3 作废）
+  panel: '#FFFCF6', // panel_surface 暖纸白（原 #FFFFFF）
+  panelBorder: '#E6DAC3', // panel_border 1px 暖沙（原 #E2DFF0）
   slot: '#F7F6FB', // slot_fill（v1.2 暖 #EDE7DA 作废）
   slotBorder: '#D8D5E6', // slot_border（v1.2 暖 #D8D0C0 作废）
   traySlot: '#4A5060', // 托盘槽底（WXG-T-261 二批定稿：#F7F6FB → #BCC2CB 用户仍判「太浅」→ 深灰；⛔ 不影响盘面空格）
@@ -255,12 +260,14 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   // F6 路由（view-model 阶段落地）：textAccent（=珠色3 活力橙）已删除——按消费语义
   // 逐处分流到 accentPrimary（主按钮/角标/连击字，§3.5）/ hintBlue（选中点，环状 ≤8px）/
   // STAR_GOLD（结算星/缎带，资产色）等；暖橙自此仅存在于珠子本体。
-  accentPrimary: '#2A2E43', // accent_primary（§3.5 中性强调）
+  // [WXG-T-268] accent_primary 并入木色 wood_face（tokens.md §1「换」；主按钮底/滑轨已选段/
+  // 角标/连击字同槽全换——消费点零改动，纯值替换）。白 ▶ 对它 5.4:1 ✓（art-bible §3.1）。
+  accentPrimary: '#8A5B34', // accent_primary = wood_face（原 #2A2E43 深藏青；F6 路由语义不变）
   accentPurple: '#7C6FD9', // accent_purple 设置齿轮（F7②）
   success: '#3FBF6B', // success（⚠ 珠色4 同值待冻结变更，§3.5 登记不改项）
   danger: '#E8434A', // danger（对齐 art-bible §3.1；v1.2 #E84C3D=珠色5 作废，避免与玫红珠混）
   hintBlue: '#3D7BF5',
-  adBadge: '#2A2E43', // ad_badge 深藏青（F6：v1.2 亮黄 #FFCB3D 抢焦点作废；白 ▶ 对比 13.4:1）
+  adBadge: '#8A5B34', // ad_badge = wood_face 引用值（tokens.md §1「换」；白 ▶ 对比 5.4:1，原深藏青作废）
   bannerBackdrop: '#33333D',
   bannerText: '#FDF6E9',
 };

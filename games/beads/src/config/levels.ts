@@ -238,6 +238,14 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
     }
   }
 
+  // ── EP12-S9 皮肤引用（可选字段，仅在线导入通道携带）：
+  // 只做**结构**校验（类型错 = 载荷损坏 ⇒ 拒收）；**未注册 id 不在此拒收**——
+  // 皮肤不是玩法载荷，谎报值由 `importLevel` 以本地注册表复验（回落默认 + 告警，
+  // K-064「谎报值不采信」），关卡本体照常可玩（`levels-spec §2` 口径零破坏）。
+  if (level.skin !== undefined && typeof level.skin !== 'string') {
+    errors.push(`${tag}: skin must be a string (skin id reference) when present`);
+  }
+
   return errors;
 }
 

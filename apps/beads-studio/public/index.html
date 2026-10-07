@@ -292,6 +292,14 @@
                         <option value="avg">平均色·照片纹理</option>
                     </select></div>
             </div>
+            <!-- EP12-S9（裁定②）：风格 = 拼豆台皮肤，随 levelDraft.skin 导出（引用 id，不传数据本体）。
+                 选项与白名单同源 = server.mjs SKIN_IDS ⇔ games/beads/src/config/skins/registry.ts 注册表。 -->
+            <div class="row2">
+                <div><label>风格（拼豆台皮肤，随关卡导出）</label><select id="skin">
+                        <option value="warm-paper" selected>暖纸拼豆台（默认）</option>
+                        <option value="cool-violet">冷紫灰</option>
+                    </select></div>
+            </div>
             <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto">
                 铺满整盘（不扣背景；仅游戏关卡盘用——**实物图纸还原务必保持不勾**，否则背景吃掉大半用色预算）</label>
             <button id="gen">生成</button>
@@ -585,6 +593,7 @@
                 smooth: $('smooth').value, premedian: $('premedian').value, shape: shapeValue(),
                 mis: $('misKind').value,
                 noframe: $('noframe').checked ? '1' : '0',
+                skin: $('skin').value,
             });
             $('gen').disabled = true; msg('生成中…');
             try {

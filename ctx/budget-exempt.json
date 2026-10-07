@@ -375,6 +375,11 @@
       "path": "design/proposals/ui-style-redesign/menu-architecture.md",
       "reason": "WXG-T-266 主菜单架构裁定稿（文策渊三轮累积：初裁第三案 → 用户回应 → 回裁双轨/配置化/命名）。三轮裁定互为上下文、史证表须与结论同文件，拆分会打断裁定链条与推翻依据的追溯；与 TASKS-DETAIL 同族：按章节锚点局部读、开发期从不整读。若后续定稿进正本（ux-spec / levels-spec）则本件归档，届时豁免随行撤销",
       "taskId": "WXG-T-266"
+    },
+    {
+      "path": "production/epics/epics-beads.md",
+      "reason": "Epic 台账（EP-11/EP-12 等拆分件正本）：随 Story 增补持续增长，按章节锚点局部读、从不整读；与 TASKS-DETAIL 同族",
+      "taskId": "WXG-T-268"
     }
   ]
 }

@@ -29,6 +29,14 @@ export interface LevelDraft {
      */
     readonly misplaced?: readonly string[];
     readonly paletteHex?: readonly string[];
+    /**
+     * **整套皮肤引用**（EP12-S9 · 裁定②，可选）：值 = 游戏侧已注册皮肤 id 白名单
+     * （`config/skins/registry`，现 `warm-paper` / `cool-violet`）——**只传引用 id，
+     * 不传皮肤数据本体**（T-267 `BeadsSkin` 数据结构接轨）。缺省 / 旧草案无此字段
+     * ⇒ 零影响；未注册 id ⇒ 游戏侧 `importLevel` **不拒收关卡本体**，回落默认肤 +
+     * 一次性告警（K-064「谎报值不采信」，本地注册表为唯一复验真源）。
+     */
+    readonly skin?: string;
 }
 
 /** 列表项（服务端 result.json 的精简投影；只取导入需要的字段）。 */
@@ -151,6 +159,9 @@ export function draftToLevel(draft: LevelDraft, id: number, name: string): Impor
         pattern: draft.pattern,
         swaps,
         ...(draft.misplaced ? { misplaced: draft.misplaced } : {}),
+        // EP12-S9：皮肤引用原样透传（`levels-spec §2` 既有字段零触碰；是否已注册由
+        // 游戏侧 `importLevel` 以本地注册表复验，本转换层不裁决、不静默改写）。
+        ...(draft.skin !== undefined ? { skin: draft.skin } : {}),
     };
     // k 区间 / 交换对合法性 / 色数 / charset 全由 validateBeadsLevel 统一裁决（不在此重复）。
     const errors = validateBeadsLevel(level);

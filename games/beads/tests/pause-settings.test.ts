@@ -381,6 +381,8 @@ describe('S9 pause & settings', () => {
       // EP11-S5：本腿未触行4 两钮 ⇒ 存档里两新字段保持默认档（S8 §8-11）。
       beadStyle: 'facet-4',
       beadSize: 'full',
+      // EP12-S8：本腿未触 cycle-skin ⇒ 皮肤 id 保持默认肤（逐字段降级同判例）。
+      skinId: 'warm-paper',
     });
 
     // Relaunch on the same storage → both toggles echo back.

@@ -17,12 +17,15 @@ import {
   STAR_MAX,
   VIBRATE_DEFAULT,
 } from '../config/tuning';
-// **换肤两字段的注册真源 = style registry**（`view/bead-styles/registry.ts`）：S8 §8-12 构造 ③
-// 「`styleId` 字符串合法但未在 registry 注册 ⇒ 单独回落默认」只能在读档层判，否则非法值会
-// 一路走到渲染侧被「静默兜底」，档内永远留着脏值。方向说明：本行是 game → view 的**只读函数**
-// 引用（registry 仅 import tuning 与三套风格模块，无环）；默认档 id 与渲染默认**同一真源**
-// （`DEFAULT_BEAD_STYLE_ID`），⛔ 不得在存档层另写 `'facet-4'` 字面量。
+// **换肤三字段的注册真源**：珠体风格 = style registry（`view/bead-styles/registry.ts`）；
+// **整套皮肤 = skins registry**（EP12-S8：`config/skins/registry.ts`，用户 2026-10-07 裁定 1
+// 「暖纸即默认 + 冷紫灰收编可选肤」）。S8 §8-12 构造 ③ 「字符串合法但未注册 ⇒ 单独回落
+// 默认」只能在读档层判，否则非法值会一路走到渲染侧被「静默兜底」，档内永远留着脏值。
+// 方向说明：本行是 game → config 的**只读函数**引用（registry 仅 import 两个皮肤模块，
+// 无环）；默认档 id 与渲染默认**同一真源**（`DEFAULT_SKIN_ID`），⛔ 不得在存档层另写
+// `'warm-paper'` 字面量。
 import { DEFAULT_BEAD_STYLE_ID, styleById } from '../view/bead-styles/registry';
+import { DEFAULT_SKIN_ID, skinById } from '../config/skins/registry';
 
 /**
  * Persisted toggles (save-progress §2.2 + accessibility D1/E2, WXG-T-088): four
@@ -62,6 +65,14 @@ export interface BeadsSettings {
    */
   readonly beadStyle: string;
   readonly beadSize: BeadSizeKind;
+  /**
+   * **整套皮肤 id**（EP12-S8 · WXG-T-268 批 2 裁定①；T-267 mvp 批 1）：
+   * string skinId，默认 `DEFAULT_SKIN_ID`（= `'warm-paper'`，注册序首位即默认肤）。
+   * 与 `beadStyle`（珠体风格）**正交两维**（arch.md D5：不合并）；随**即写**落盘
+   * （同上族），不存历史栈。非法值逐字段降级（四构造同 `beadStyle` 判例），
+   * ⛔ **SAVE_VERSION 不 bump**（同上判例）。
+   */
+  readonly skinId: string;
 }
 
 export interface BeadsSave extends SaveDocument {
@@ -152,6 +163,7 @@ export function defaultBeadsSave(): BeadsSave {
       debugInfo: false,
       beadStyle: DEFAULT_BEAD_STYLE_ID,
       beadSize: BEAD_SIZE_DEFAULT,
+      skinId: DEFAULT_SKIN_ID,
     },
   };
 }
@@ -172,14 +184,17 @@ function boolField(raw: unknown, key: string, fallback: boolean): boolean {
 
 /** Normalise the `settings` sub-document — never throws, never drops the save. */
 export function normalizeSettings(raw: unknown): BeadsSettings {
-  // 换肤两字段的**逐字段**降级（S8 §8-12 四构造：①缺字段 ②类型错 ③未注册 ④越界）：
+  // 换肤字段的**逐字段**降级（S8 §8-12 四构造：①缺字段 ②类型错 ③未注册 ④越界）：
   // - `beadStyle`：非字符串 / 空串 / **未在 registry 注册** ⇒ 单独回落 `DEFAULT_BEAD_STYLE_ID`；
-  // - `beadSize`：非枚举值 ⇒ 单独回落 `BEAD_SIZE_DEFAULT`（= 满豆）。
-  // 两者**互不牵连**，也不牵其余六字段（S9 §8-18「不弃整档、其余字段无损」）；
-  // 本函数只在 BOOT / 写档兜底路径上跑，⛔ 不进每帧热路径（故 `includes` 与 `styleById` 的
-  // 开销可接受；渲染侧每帧取风格走 `bead-render` 的 `styleById`，Map.get 零分配）。
+  // - `beadSize`：非枚举值 ⇒ 单独回落 `BEAD_SIZE_DEFAULT`（= 满豆）；
+  // - `skinId`（EP12-S8）：非字符串 / 空串 / **未在 skins registry 注册** ⇒ 单独回落
+  //   `DEFAULT_SKIN_ID`（= 暖纸）。三者**互不牵连**，也不牵其余字段
+  //  （S9 §8-18「不弃整档、其余字段无损」）；
+  // 本函数只在 BOOT / 写档兜底路径上跑，⛔ 不进每帧热路径（故 `includes` 与
+  // `styleById`/`skinById` 的开销可接受；渲染侧每帧取皮肤走实例引用，Map 查表零分配）。
   const styleRaw = isRecord(raw) ? raw['beadStyle'] : undefined;
   const sizeRaw = isRecord(raw) ? raw['beadSize'] : undefined;
+  const skinRaw = isRecord(raw) ? raw['skinId'] : undefined;
   return {
     bgmMuted: boolField(raw, 'bgmMuted', false),
     sfxMuted: boolField(raw, 'sfxMuted', false),
@@ -195,6 +210,10 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
     beadSize: (BEAD_SIZE_ORDER as readonly string[]).includes(sizeRaw as string)
       ? (sizeRaw as BeadSizeKind)
       : BEAD_SIZE_DEFAULT,
+    skinId:
+      typeof skinRaw === 'string' && skinRaw !== '' && skinById(skinRaw) !== undefined
+        ? skinRaw
+        : DEFAULT_SKIN_ID,
   };
 }
 
@@ -248,7 +267,8 @@ function settingsEqual(a: BeadsSettings, b: BeadsSettings): boolean {
     a.vibrate === b.vibrate &&
     a.debugInfo === b.debugInfo &&
     a.beadStyle === b.beadStyle &&
-    a.beadSize === b.beadSize
+    a.beadSize === b.beadSize &&
+    a.skinId === b.skinId
   );
 }
 

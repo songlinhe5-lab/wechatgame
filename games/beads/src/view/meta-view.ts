@@ -24,6 +24,8 @@ import {
     TOUCH_MIN,
     beadStyleLabel,
 } from '../config/tuning.js';
+// EP12-S8：皮肤钮文案单源（`skinLabel` 未注册时回 id 本身，同 `beadStyleLabel` 判例）。
+import { skinLabel } from '../config/skins/registry.js';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import type { BeadsPalette } from './palette.js';
 import type { SigninReward } from '../game/meta-state.js';
@@ -50,6 +52,8 @@ export interface MetaViewData {
     /** EP11-S5 行4 两钮的菜单侧同串值入口（与暂停面板共读同一对 game getter ⇒ 两入口恒一致）。 */
     readonly beadStyle: string;
     readonly beadSize: BeadSizeKind;
+    /** EP12-S8 行4 第三钮回显（与暂停面板共读同一 game getter ⇒ 两入口恒一致）。 */
+    readonly skinId: string;
     // levels overlay（选关，#1 · WXG-T-180）——均每帧只读引用，不分配。
     readonly levelCount: number;
     /** 当前关（0-based，play.levelIndex）。 */
@@ -81,7 +85,9 @@ export type MetaAction =
     /** EP11-S5：与 `PausePanelAction` 同名同语义的选择器钮（行4）；shell 直串值入
      *  `BeadsGame.applySettingsAction`（既有通道，⛔ 不新造动作名）。 */
     | 'cycle-bead-style'
-    | 'cycle-bead-size';
+    | 'cycle-bead-size'
+    /** EP12-S8 行4 第三枚选择器钮：整套皮肤（与暂停面板同一批 game setter，内容单源）。 */
+    | 'cycle-skin';
 
 interface Box {
     readonly x: number;
@@ -206,18 +212,20 @@ function settingsLayout(): MetaLayout {
         'toggle-large-text',
         'toggle-vibrate',
         'toggle-debug-info',
-        // EP11-S5 / S9 v1.7 §2.2 行4：**内容单源**——两枚选择器钮与暂停面板同一批
+        // EP11-S5 / S9 v1.7 §2.2 行4：**内容单源**——选择器钮族与暂停面板同一批
         // game setter（`applySettingsAction` 共用分支），两入口档位永不漂移。
+        // EP12-S8 追加第三枚「皮肤」（cycle-skin）⇒ 9 钮 = 4 行 × 2 列 + 末行单格。
         'cycle-bead-style',
         'cycle-bead-size',
+        'cycle-skin',
     ];
-    // 左右两列（用户 2026-09-25 直派，ux-spec v1.19）：**EP11-S5 后 8 钮 = 4 行 × 2 列**，
+    // 左右两列（用户 2026-09-25 直派，ux-spec v1.19）：**EP12-S8 后 9 钮 = 4 行 × 2 列 + 末行 1 格**，
     // 总宽/列间 gap 24/行距 `TOUCH_MIN + 16` 均沿用旧口径（任务单：行距沿用、plate 高可复算）。
     // plate 高 **720 不改**，避让实算：`OVERLAY_H` 720 ⇒ plate y∈[307,1027]；
-    //   topY = 307+720−150 = 877，行底依次 877 / 773 / 669 / 565（行高 88）；
+    //   topY = 307+720−150 = 877，行底依次 877 / 773 / 669 / 565 / 461（行高 88）；
     //   ① 顶行上缘 877+88 = 965 < 1027（标题基线 1027−70 = 957，与钮顶 965 的重叠属既有排版，
-    //      新增行在**下方**生长 ⇒ 不新增冲突）；② 新底行下缘 565 > 返回钮上缘 307+50+88 = 445
-    //      ⇒ 间隙 120 ≥ 0，**不与「返回」/「在线导入」同行族重叠**。
+    //      新增行在**下方**生长 ⇒ 不新增冲突）；② 新底行下缘 461 > 返回钮上缘 307+50+88 = 445
+    //      ⇒ 间隙 16 ≥ 0，**不与「返回」/「在线导入」同行族重叠**（EP12-S8 前为 120，仍为正）。
     const rowW = plate.w - 80;
     const rowX = plate.x + 40;
     const colGap = 24;
@@ -303,6 +311,10 @@ function label(id: MetaAction, data: MetaViewData): string {
             return `珠子风格  ${beadStyleLabel(data.beadStyle)}`;
         case 'cycle-bead-size':
             return `豆子尺寸  ${BEAD_SIZE_LABELS[data.beadSize] ?? data.beadSize}`;
+        // EP12-S8 行4 第三枚选择器钮：文案与暂停面板（`view-model::panelLabel`）**同字串**（内容单源）；
+        // ⛔ 禁写死款数（U16=甲），皮肤名走 `skin.label` 单源、未注册时回 id 本身。
+        case 'cycle-skin':
+            return `皮肤  ${skinLabel(data.skinId)}`;
         default:
             return '';
     }

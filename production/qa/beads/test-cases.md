@@ -892,6 +892,18 @@ E1–E6 落码后：**G4 玩法判据面已整体换代**（本节 J 系列）�
 > - **产物级取证（`[E]` 桌面档，⛔ 不作屏幕层 PASS 证据，K-037）**：web-mobile 产物 · LV1 · Chromium · DPR2。① `carrier=on` 托盘 blit `cell(6,0) n = 24`（S5′-3 时该 cell = 0）；② 关掉 `Graphics` 节点后**面板底仍在** ⇒ 提交体确实换到 `backGraphics`；③ 两段式取回后托盘 2 枚珠在两臂均**完整可见**（月牙缺陷消失）；④ 同态两臂 DC **16 / 16**、Triangle **4029（on） vs 39125（off）**。**未做**：真机（`[R]`）复读与低端机样本。
 > - **未决（QA 侧盯办）**：① 复取锚含未提交工作树 ⇒ 提交后按复取器头注官方跑法复跑自证等值（承 `补7` ①）；② 托盘珠在两臂**色相不同**（on = 暗红纹理、off = 亮粉矢量）与盘面两臂既有差异同源 ⇒ 归 art 校准，QA **不判可接受**；③ `back` 为**逐图元**声明，无「桌面级图元必须沉底」的机械门 ⇒ 漏标即月牙复发（登记于 ADR-0030 §5.7 残留 3），是否升为硬门待 `[R]` 批代价读数；④ dc / Triangle 读数为 `[E]` 档，低端机外推禁止。
 
+> **K.5.1-补9 整帧基线第十七次复评修订（2026-10-07 · WXG-T-268「暖纸拼豆台」UI 基础色板换值批 · 正本 = provenance `s3_frame_recheck_17`）**
+>
+> - **通道声明与流程偏差（⚠ 如实，K-082）**：本批属**整帧非珠体族**改动（UI 色板五值纯墨改写 + P-1 缩放控件收编）⇒ 封箱腿 4 红为预期。重抓由**变更侧（工程）**跑官方复取器 `tests/bead-style-seal-recapture.ts`（`WXG211_CAPTURE=s3`），**未过 QA 之手** ⇒ 延续 `补7`/`补8` 的 **P3 流程偏差**登记（⛔ 非手填 / 非纸面值 / 非 `capture.sh` 旧快照回放）。
+> - **编号口径**：本段 ↔ **键 17**；引用一律附 provenance 键名。
+> - **前态锚 / 现态锚**：前 = 换值前工作树（复取 ≡ 现役登记逐字节 MATCH：frame0 `1322/135300071c65…` · frame78 `1868/689a2a1b313f…`，legacyFlow 96 例 + facet 45+45 例零差 ⇒ 基准可复现）；现 = 换值后工作树（frame0 `1322/1e5a240a0f59…` · frame78 `1868/05d358879b61…`）⇒ ⛔ 同 `补7`/`补8`，**不满足「可复现 commit 锚」全义**，提交后须复跑自证等值。
+> - **本批修订面**：`s3.frame0.sha` / `s3.frame78.sha` 两键追改（total / 逐 kind 计数全等：`rect 998 · circle 160 · line 376 · text 12 · polygon 322`）；新增归因键 `s3_frame_recheck_17` 与前态史证键 **`s3_pre_ui_268`**（⛔ 不随后续复评漂移）。色表锁 35 条数不变、sha1 `1979d53033a1` → `612ced0aa888`（`bead-render.test.ts` ④，art 单同步快照通道）。
+> - **流级差分归因（未解释 0 条）**：两帧各 **15 行改写**（字段级 40 条，全部仅 fill/stroke）：`#FFFFFF→#FFFCF6` ×14（panel 填充族）· `#F7F6FB→#FFFCF6` ×6 + `#D8D5E6→#E6DAC3` ×6（P-1 缩放钮/轨道 slot 族→panel 族）· `#E2DFF0→#E6DAC3` ×2（panel 描边）· `#2A2E43→#8A5B34` ×12（accentPrimary 消费点）。**零插入零删除**。证据：`temp/wxg-t-211-s3/s3-pre-268-frame{0,78}-flow.json` ↔ `s3-frame{0,78}-flow.json`。
+> - **最强反证**：珠体族零变更 = `legacyFlow` 96/96 与 `facetNonHoleLayers` / `facetHoleLayer` 45/45 重抓逐字节等值（未追改）；`bg_base` 走宿主铺底通道、不进命令流字节锁域。
+> - **零追改声明**：`head.*`、`head_liftShadowFade_r5`、`s3AtFormalization`、`fixture.*`、`s3.legacyFlow` / facet 两族、及 `补7`/`补8` 已登记键**全部不动**。
+> - **判据同步**：`bead-style-seal.test.ts` 新增键 17 归因断言 4 条 + `s3_pre_ui_268` 前态锁 5 条（total 全等 + sha 必 ≠，同键 16 口径）；新增 `tests/ui-warm-paper-tokens.test.ts`（消费副本同步门 + art-bible §3.2 B1 [待核] 闭合：textDim on panel 实测 **4.64:1 ≥ 4.5** ✓ + §2 治愈② bg 饱和度 HSB 10.4% ≤ 12% ✓ + 奶白珠 ΔL 5.4% > 4% ✓ + P-1 行为断言）。
+> - **未决（QA 侧盯办）**：① 复取锚含未提交工作树 ⇒ 提交后复跑自证（承 `补7` ①）；② 暖底观感（奶白珠 ΔL 5.4% 为 10 色最弱对、wood/赭珠同族 K-2）`[待真机]`，回退杠杆 = `bg_base` 加深 `#EDE2CC` 单 token（K-1）；③ `shadow_ink #3D2E1E` 暖化未随本批（与珠面 L0b 共用墨、属不动项）⇒ 归 EP12-S2 容器语言批新 token。
+
 > ### K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）
 >
 > | 引用项 | 内容 | 出处 | QA 处置 |

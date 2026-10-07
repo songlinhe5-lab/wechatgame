@@ -22,6 +22,7 @@ import {
   type BeadSizeKind,
   type PowerupType,
 } from '../config/tuning.js';
+import { DEFAULT_SKIN_ID } from '../config/skins/registry.js';
 
 export type BeadsPhase = 'boot' | 'playing' | 'paused' | 'level-clear' | 'game-over' | 'finish';
 export type GameMode = 'normal' | 'sprint';
@@ -140,6 +141,13 @@ export interface BeadsSnapshot {
   beadStyle: string;
   /** **豆径档**（EP11-S5 行4 右格）：仅网格珠珠体读取（托盘珠恒满幅，ux §3.3 ④）。 */
   beadSize: BeadSizeKind;
+  /**
+   * **整套皮肤 id**（EP12-S8）：view 层据此查 `config/skins/registry` 回显钮文案
+   * （`skin.label` 单源，⛔ 不写死款数）；渲染侧 tokens 走 game 的 `palette` 实例引用
+   * （换肤 = 换引用，view 不感知切换过程）。非法值已在
+   * `save-schema::normalizeSettings` 降级为默认肤 ⇒ view 可直接消费。
+   */
+  skinId: string;
 
   /** Sprint HUD — normal mode leaves these at zero and the view hides them. */
   score: number;
@@ -426,6 +434,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     // ⛔ 不得在 view/game 任一侧另写字面量。
     beadStyle: FACET4_STYLE_ID,
     beadSize: BEAD_SIZE_DEFAULT,
+    // 默认肤与存档层同一真源（`registry.DEFAULT_SKIN_ID`），⛔ 不得另写字面量。
+    skinId: DEFAULT_SKIN_ID,
     score: 0,
     multiplier: 1,
     streak: 0,

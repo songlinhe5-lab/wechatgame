@@ -92,6 +92,8 @@ import {
   TIMER_CAPSULE_SHADOW_ALPHA,
   TIMER_CAPSULE_SHADOW_DY,
 } from '../config/tuning.js';
+// EP12-S8：皮肤钮文案单源（`skinLabel` 未注册时回 id 本身，同 `beadStyleLabel` 判例）。
+import { skinLabel } from '../config/skins/registry.js';
 import type { BeadsSnapshot } from '../game/state.js';
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel.js';
 import { failPanelLabel, failPanelLayout } from '../systems/fail-panel.js';
@@ -212,6 +214,9 @@ function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
       return `珠子风格  ${beadStyleLabel(snap.beadStyle)}`;
     case 'cycle-bead-size':
       return `豆子尺寸  ${BEAD_SIZE_LABELS[snap.beadSize] ?? snap.beadSize}`;
+    // EP12-S8 行4 第三枚选择器钮：文案 = `skin.label` 单源（⛔ 禁写死款数，U16=甲同判例）。
+    case 'cycle-skin':
+      return `皮肤  ${skinLabel(snap.skinId)}`;
     case 'start-sprint':
       return '▶ 去冲刺';
     case 'go-menu':
@@ -278,8 +283,10 @@ function drawZoomControls(
     const vw = 72;
     const vh = 56;
     builder.rect(r.x + (r.w - vw) / 2, r.y + (r.h - vh) / 2, vw, vh, {
-      fill: palette.slot,
-      stroke: palette.slotBorder,
+      // [WXG-T-268 P-1] 缩放钮改读纸面板族（panel/panelBorder），不再消费 slot/slotBorder
+      // （risks.md P-1 跨用收编；tokens.md §1：slot 族仅托盘槽邻接，控件改纸色）。
+      fill: palette.panel,
+      stroke: palette.panelBorder,
       lineWidth: 2,
       radius: 16,
     });
@@ -296,8 +303,9 @@ function drawZoomControls(
   // 轨道：底槽 + 已选段 + knob。
   const trackH = 12;
   builder.rect(zc.track.x, midY - trackH / 2, zc.track.w, trackH, {
-    fill: palette.slot,
-    stroke: palette.slotBorder,
+    // [WXG-T-268 P-1] 滑轨轨道同批收编 → 纸面板族（注释同上）。
+    fill: palette.panel,
+    stroke: palette.panelBorder,
     lineWidth: 2,
     radius: trackH / 2,
   });
@@ -385,7 +393,8 @@ function drawPausePanel(
       button.id === 'toggle-vibrate' ||
       button.id === 'toggle-debug-info' ||
       button.id === 'cycle-bead-style' ||
-      button.id === 'cycle-bead-size';
+      button.id === 'cycle-bead-size' ||
+      button.id === 'cycle-skin';
     // F6：主按钮 → accent_primary（§3.5 中性强调；白字对比 12.6:1）。
     builder.rect(bx, by, bw, bh, {
       fill: primary ? palette.accentPrimary : palette.slot,

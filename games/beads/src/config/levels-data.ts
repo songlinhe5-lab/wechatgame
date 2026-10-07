@@ -63,6 +63,14 @@ export interface BeadsLevelRaw {
    * v1.55：**≤ 35**，旧值 10）。缺省 ⇒ demo 默认色板（仅当索引不超 demo 色板长度）。
    */
   readonly paletteCodes?: readonly string[];
+  /**
+   * **整套皮肤引用**（EP12-S9，可选；仅 beads-studio 在线导入通道携带）：值 = 游戏侧
+   * 已注册皮肤 id（`config/skins/registry` 白名单）。**引用 id，不传数据本体**；
+   * 关卡表真源（`design/levels/`）**不携带**此字段（皮肤是运行时设置，不入关表）。
+   * 校验口径：类型错 ⇒ `validateBeadsLevel` 拒收；字符串未注册 ⇒ 校验放行，
+   * 由 `importLevel` 回落默认肤 + 告警（K-064「谎报值不采信」——未注册不等于非法关卡）。
+   */
+  readonly skin?: string;
 }
 
 export interface LevelsData {

@@ -192,7 +192,9 @@ import {
   preserveCorruptBackup,
   type BeadsSave,
 } from './save-schema';
-import { DEFAULT_PALETTE, beadInksFor, type BeadsPalette } from '../view/palette';
+import { beadInksFor, type BeadsPalette } from '../view/palette';
+// **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
+import { DEFAULT_SKIN, DEFAULT_SKIN_ID, registeredSkins, skinById } from '../config/skins/registry';
 import { buildBeadsView } from '../view/view-model';
 import type { BeadsEvents, BeadsGameOptions } from './beads-game-types';
 
@@ -201,6 +203,21 @@ import type { BeadsEvents, BeadsGameOptions } from './beads-game-types';
  * `./beads-game-types.ts`；此处再导出，保持既有导入路径（`beads-shell.ts` 等）不变。
  */
 export type { BeadsEvents, BeadsGameOptions };
+
+// **EP12-S9**：未注册 skin 引用的一次性告警门（判例 = `palette.ts` 的 B2 兜底告警族：
+// 布尔门先行 ⇒ 命中路径零分配，且不逐条刷噪声）。测试可经 `resetSkinImportWarnings` 复位。
+let warnedUnregisteredSkin = false;
+function warnUnregisteredSkin(id: string): void {
+  if (warnedUnregisteredSkin) return;
+  warnedUnregisteredSkin = true;
+  console.warn(
+    `[beads] importLevel: levelDraft.skin "${id}" 未在皮肤注册表内 ⇒ 不采信（K-064），回落默认肤 ${DEFAULT_SKIN_ID}；本条仅告警一次`,
+  );
+}
+/** **测试专用**：复位皮肤导入一次性告警门（生产不调）。 */
+export function resetSkinImportWarnings(): void {
+  warnedUnregisteredSkin = false;
+}
 
 /**
  * §3.2 限流分档（真源：`audio-events.md §3.2` ↔ `systems-index §3.12`）。
@@ -255,7 +272,14 @@ interface SolverFxQueue {
 export class BeadsGame implements Game {
   readonly id = 'beads';
   readonly tuning: BeadsTuning;
-  readonly palette: BeadsPalette;
+  /**
+   * UI 令牌实例（渲染链唯一消费面：`buildBeadsView` 逐参传递，下游零改动）。
+   * **EP12-S8**：不再是构造期常量——换肤 = **换引用**（arch.md D2：`this.palette =
+   * skin.tokens`，⛔ 禁 `Object.assign` 全局突变），下一帧生效、零过渡。
+   * 初值 = `options.palette ?? DEFAULT_SKIN.tokens`（默认肤 tokens 直引
+   * `DEFAULT_PALETTE` ⇒ 不传时渲染逐字节不变，T-267 mvp A1）。
+   */
+  palette: BeadsPalette;
   /**
    * clip → 合成配方（数值全为**工程占位**，见 `config/audio-voices.ts` 头注）。
    * App 把它转交给 `Platform.createAudioBackend()`，框架不持有玩法音色库（ADR-0013）。
@@ -565,6 +589,12 @@ export class BeadsGame implements Game {
    */
   private _beadStyle: string = DEFAULT_BEAD_STYLE_ID;
   private _beadSize: BeadSizeKind = BEAD_SIZE_DEFAULT;
+  /**
+   * **整套皮肤 id 镜像**（EP12-S8；S8 §8-11 判例同上两字段：存档为权威，本处是内存副本）。
+   * 初值 = 默认肤，`init()` 从存档覆盖；写入只经 `_cycleSkin`（设置钮）与
+   * `importLevel`（studio 导出链，S9）两处，均走 `_applySkin` 单点换引用。
+   */
+  private _skinId: string = DEFAULT_SKIN_ID;
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
   private readonly _onMenuRequest?: () => void;
   /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
@@ -628,7 +658,8 @@ export class BeadsGame implements Game {
 
   constructor(options: BeadsGameOptions = {}) {
     this.tuning = options.tuning ?? DEFAULT_TUNING;
-    this.palette = options.palette ?? DEFAULT_PALETTE;
+    // EP12-S8：默认肤 tokens 直引 DEFAULT_PALETTE ⇒ 不传 options.palette 时渲染逐字节不变。
+    this.palette = options.palette ?? DEFAULT_SKIN.tokens;
     this._saveKey = options.saveKey ?? SAVE_KEY;
     this._levels = options.levels ?? LEVELS;
     this._noBootAssembly = options.noBootAssembly ?? false;
@@ -808,6 +839,11 @@ export class BeadsGame implements Game {
     return this._beadSize;
   }
 
+  /** 当前整套皮肤 id（EP12-S8；shell 菜单回显与暂停面板共用同一 getter ⇒ 两入口恒一致）。 */
+  get skinId(): string {
+    return this._skinId;
+  }
+
   /** BOOT validation failures ('' when the level data is clean). */
   get bootError(): string {
     return this._bootErrors.join('; ');
@@ -872,6 +908,9 @@ export class BeadsGame implements Game {
     // EP11-S5：换肤两档从存档装载（非法值已由 `normalizeSettings` 逐字段降级为默认档）。
     this._beadStyle = normalized.save.settings.beadStyle;
     this._beadSize = normalized.save.settings.beadSize;
+    // EP12-S8：皮肤 id 同批装载并换 tokens 引用（未注册 id 的读档层降级 + 渲染侧
+    // `?? DEFAULT_SKIN` 最后防线双保险，T-267 mvp A4）。
+    this._applySkin(normalized.save.settings.skinId);
     this._applyAudioChannels();
 
     this._subscribe();
@@ -1636,6 +1675,19 @@ export class BeadsGame implements Game {
     if (errors.length) return errors;
     this._levels = this._levels.concat([raw]); // 一次性操作，非热路径（拷写避免改入参冻结数组）
     this.goToLevel(this._levels.length - 1);
+    // EP12-S9（裁定②）：草案携 `skin`（**引用 id，不传数据本体**）⇒ 导入成功后应用。
+    // ⛔ 以**本地注册表**复验，不信任自报值（K-064「谎报值不采信」判例形状）：
+    // 已注册 ⇒ 应用；未注册 ⇒ **不拒收关卡本体**，回落默认肤 + 一次性告警。
+    // 缺 `skin` 字段的旧草案 ⇒ 零影响（settings.skinId 原样保留）。
+    if (typeof raw.skin === 'string') {
+      if (skinById(raw.skin) !== undefined) {
+        this._applySkin(raw.skin);
+      } else {
+        warnUnregisteredSkin(raw.skin);
+        this._applySkin(DEFAULT_SKIN_ID);
+      }
+      this._persistSettings();
+    }
     return [];
   }
 
@@ -1679,6 +1731,10 @@ export class BeadsGame implements Game {
       case 'cycle-bead-size':
         // EP11-S5 行4 右格（同上）。
         this._cycleBeadSize();
+        return;
+      case 'cycle-skin':
+        // EP12-S8 行4 第三格（菜单设置 overlay 入口）：与暂停面板同一私有 setter ⇒ 两入口一致。
+        this._cycleSkin();
         return;
       default:
         return;
@@ -2808,6 +2864,10 @@ export class BeadsGame implements Game {
         // EP11-S5 行4 右格（同上）。
         this._cycleBeadSize();
         return;
+      case 'cycle-skin':
+        // EP12-S8 行4 第三格（S9 §2.2 选择器钮判例）：只换肤 + 写档，留 PAUSED、不推计时。
+        this._cycleSkin();
+        return;
       case 'go-menu':
         // 回主菜单（pause-settings v1.4 §8-11，WXG-T-165 真机反馈反转）：上报意图、
         // 切屏归 shell（本局棋盘不保留，下次「开始游戏」由 shell.goToLevel 复位）。
@@ -3152,6 +3212,8 @@ export class BeadsGame implements Game {
         // EP11-S5：两字段并入同一次 patch ⇒ 与开关共用「整对象一次写」口径（S8 §6 幂等）。
         beadStyle: this._beadStyle,
         beadSize: this._beadSize,
+        // EP12-S8：皮肤 id 并入同一次 patch（同口径；`_cycleSkin` 一次点按仍恰写档 1 次）。
+        skinId: this._skinId,
       },
     });
     save.save();
@@ -3227,6 +3289,37 @@ export class BeadsGame implements Game {
       }
     }
     this._beadSize = BEAD_SIZE_ORDER[next];
+    this._persistSettings();
+  }
+
+  /**
+   * **皮肤换引用单点**（EP12-S8）：写 `_skinId` 镜像 + 换 `palette` 实例引用。
+   * 未注册 id 的**渲染侧最后防线** = `skinById ?? DEFAULT_SKIN`（同 `styleById` 回落
+   * 判例；读档层 `normalizeSettings` 已先降级一层，本防线由测试钉住）。
+   * ⛔ 禁插值/过渡帧（styleId 先例：下一帧生效）；⛔ 不动珠色墨水（皮肤作用域 =
+   * UI 令牌族，arch.md D4 —— 本函数只换 `palette`，`inksCache` 与珠面零涉）。
+   */
+  private _applySkin(id: string): void {
+    this._skinId = id;
+    this.palette = (skinById(id) ?? DEFAULT_SKIN).tokens;
+  }
+
+  /**
+   * **行4「皮肤」循环**（EP12-S8 判例 = `_cycleBeadStyle` 同门）：
+   * 循环序 = `registeredSkins()` 注册序；到达末档回绕；当前 id 不在注册表内
+   * （理论不可达）⇒ 落 index 0。一次调用 `_persistSettings()` 恰 1 次、只写
+   * `skinId` 一个字段、不切相位不推计时不动棋局（L5）。
+   */
+  private _cycleSkin(): void {
+    const skins = registeredSkins();
+    let next = 0;
+    for (let i = 0; i < skins.length; i++) {
+      if (skins[i].id === this._skinId) {
+        next = (i + 1) % skins.length;
+        break;
+      }
+    }
+    this._applySkin(skins[next].id);
     this._persistSettings();
   }
 
@@ -3952,6 +4045,8 @@ export class BeadsGame implements Game {
     // EP11-S5 行4 两钮的档位回显 + view 换肤渲染的 styleId 入口（L5：view 只读、不判定）。
     s.beadStyle = this._beadStyle;
     s.beadSize = this._beadSize;
+    // EP12-S8：皮肤 id 回显（钮文案单源 = `skin.label`；渲染走 palette 实例，不经本值查表）。
+    s.skinId = this._skinId;
 
     const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);
     s.banner = copy.banner;

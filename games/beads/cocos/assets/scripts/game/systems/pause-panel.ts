@@ -49,6 +49,8 @@ export type PausePanelAction =
   /** EP11-S5 行4：两枚**选择器钮**（非开关）——循环 registry 注册序 / `BEAD_SIZE_ORDER`。 */
   | 'cycle-bead-style'
   | 'cycle-bead-size'
+  /** EP12-S8 行4 第三枚选择器钮：循环 `config/skins/registry` 注册序（判例同上两枚）。 */
+  | 'cycle-skin'
   | 'start-sprint'
   | 'go-menu';
 
@@ -147,17 +149,18 @@ function normalLayout(): PausePanelLayout {
     });
   }
 
-  // Row 4 — **EP11-S5 / pause-settings v1.7 §2.2 行4：两枚选择器钮**
-  // （左「珠子风格」右「豆子尺寸」）。与行五的开关族不同门：本行不是 `toggle-*`，
-  // 语义 = 循环切档（S9 §8-15）；几何沿用四行时期的 2-cell 算法（cell 宽 250 ≥ TOUCH_MIN 88）。
+  // Row 4 — **EP11-S5 / pause-settings v1.7 §2.2 行4：选择器钮族**
+  // （「珠子风格」「豆子尺寸」+ **EP12-S8 第三格「皮肤」**）。与行五的开关族不同门：
+  // 本行不是 `toggle-*`，语义 = 循环切档（S9 §8-15）；几何改用行 2/3 的 3-cell 算法
+  // （cell 宽 160 ≥ TOUCH_MIN 88，行数不变 ⇒ PAUSE_PANEL_H 718 与 ux §3.3 面板几何零改动）。
   const row4Top = row3Bottom - PANEL_ROW_GAP;
   const row4Bottom = row4Top - PANEL_BUTTON_H;
   const cell2W = (innerWidth - gap) / 2;
-  const row4Ids: PausePanelAction[] = ['cycle-bead-style', 'cycle-bead-size'];
+  const row4Ids: PausePanelAction[] = ['cycle-bead-style', 'cycle-bead-size', 'cycle-skin'];
   for (let i = 0; i < row4Ids.length; i++) {
     buttons.push({
       id: row4Ids[i]!,
-      rect: rect(innerLeft + i * (cell2W + gap), row4Bottom, cell2W, PANEL_BUTTON_H),
+      rect: rect(innerLeft + i * (cellW + gap), row4Bottom, cellW, PANEL_BUTTON_H),
     });
   }
 
