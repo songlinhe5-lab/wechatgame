@@ -1133,11 +1133,15 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    `bg_base #F1E8D8` / `panel #FFFCF6` / `panel_border #E6DAC3` / `accent_primary=wood_face #8A5B34` /
   //    `ad_badge #8A5B34` 五值替换（真源 = tokens.md §1 定稿 ⇒ art-bible §3.1 回写 R-7）⇒ 35/`612ced0aa888`。
   //    整帧 provenance 走第十七次复评归因通道（`bead-style-seal.test.ts` provenance `s3_frame_recheck_17`）。
+  //    [EP12-S2 · 2026-10-07 用户裁 P-3=24 同批] 控件语言 token 批（art 单同步快照通道，§1.9.7①）：
+  //    `shadowInk`/`wood_*` 六枚/`card_*` 三枚/`textDisabled` 共 **11 枚新 hex** 入表（真源 tokens.md §1「新」行），
+  //    另 `EXPAND_BTN_INK #2A2E43→#8A5B34`、`EXPAND_BTN_TEXT #FFFFFF→#FFF6E8` 两枚换值（btn_expand 木化）
+  //    ⇒ 35 → **46** 条 / `612ced0aa888`→`68a4b509bb65`。
   it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
     const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
     const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
-    expect(hexes.length).toBe(35);
-    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('612ced0aa888');
+    expect(hexes.length).toBe(46);
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('68a4b509bb65');
   });
 });

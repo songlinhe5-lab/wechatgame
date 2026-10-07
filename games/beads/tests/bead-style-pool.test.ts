@@ -122,10 +122,13 @@ describe('TC-STY-09 · C12 主体色不变式·主判据（弱读法，逐 inks 
         //   ⚠ **六裁（真透制）+ 七裁（回定 0.44 取整）facet-4 台面值零变更**（至 WXG-T-221）。
         //   ⚠ **WXG-T-229 台面值变更**（见上方 ② 注）：四扇墨全变但**几何零变** ⇒ `facetPx=8435/14641`
         //     与四枚顶面 px（2108/2084/2120/2123）**逐字不变**；变的是 argmax 归属与 base 占比。
+        //   ⚠ **handdrawn v2 测量口径修正（2026-10-07）**：stroke-only 层（fill 空）不再计为覆盖
+        //     ⇒ 孔环带下的 facet 像素重见天日，facetPx 回到 9207、四枚顶面回到 2301/2274/2314/2318
+        //     （= T-221 让像素前的旧台面，当时缩的是测量假象不是几何）；占比序与弱读结论不变。
         expect(ok.out).toMatch(/C12 近并列登记 \[facet-4\]：10\/10 色/);
         expect(ok.out).toMatch(/argmax=#fef9f1 25\.0% vs base #FDF6E9 0\.0%/);
         // ②′ 占比台面上的 facetPx 也是实测值（统计域尺寸变了 ⇒ 一并钉，⛔ 不只钉百分数）。
-        expect(ok.out).toMatch(/colorIdx=1 argmax=#fef9f1\(25\.0%\) facetPx=8435\/14641/);
+        expect(ok.out).toMatch(/colorIdx=1 argmax=#fef9f1\(25\.0%\) facetPx=9207\/14641/);
         // ③ 弱读口径下无一条 C12 判红（注记文案本身含「不滑回强读法判红」字样 ⇒ 只钉违规标记）。
         expect(ok.out).not.toContain('C12 判红');
     });
@@ -270,7 +273,9 @@ describe('C12 重叠哨兵改写 · 逐风格钉值 + 死层硬门（§12.2 C12 
         // ⚠ WXG-T-218 同步：圆角扇几何重写 ⇒ 四枚刻面各让 ~500px² 给 plate 描边环（1805→2301 等）。
         // ⚠ WXG-T-221 四裁同步：外缘制孔变大 ⇒ 四枚各再让 ~200px²（2301→2108 等，实测台面值重取）。
         //   六裁真透制下 facet-4 墨覆盖带等值 ⇒ 本行不变；`13` 无环层 ⇒ 孔 7→6 ⇒ 顶面回到 3676。
-        expect(ok.out).toMatch(/\[facet-4\][^\n]*facet重叠px=119 facet顶面px=#2:2108 #3:2084 #4:2120 #5:2123/);
+        // ⚠ handdrawn v2 测量口径修正（2026-10-07）：stroke-only 孔环不再计覆盖 ⇒ 读数回到
+        //   T-221 让像素前的 2301/2274/2314/2318（当时缩的是测量假象，见 TC-STY-09 注）。
+        expect(ok.out).toMatch(/\[facet-4\][^\n]*facet重叠px=119 facet顶面px=#2:2301 #3:2274 #4:2314 #5:2318/);
         expect(ok.out).toMatch(/\[dual-tone-13\][^\n]*facet重叠px=0 facet顶面px=#2:3676/);
         expect(ok.out).not.toContain('C12 死层');
         expect(ok.out).not.toContain('C12 重叠登记缺失');
@@ -369,8 +374,10 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
         const registry = await import('../src/view/bead-styles/registry.js');
         const ids = registry.registeredStyleIds();
         expect(ids.length).toBeGreaterThanOrEqual(2);
-        // 序真源 = `bead-visual-style-spec §12.6` 入选池表行序（16/19 已移出）：四棱 → 18 → 13。
-        expect(ids).toEqual(['facet-4', 'lineart-18', 'dual-tone-13']);
+        // 序真源 = `bead-visual-style-spec §12.6` 入选池表行序（16/19 已移出）：四棱 → 18 → 13；
+        // 末位 `handdrawn` = MVP 原型档（2026-10-07 树形参考图批，⛔ 未过 §12.6 入池评审，
+        // 转正/退出登记见 registry.ts 项注）。
+        expect(ids).toEqual(['facet-4', 'lineart-18', 'dual-tone-13', 'handdrawn']);
         // 默认档不得随入池飘移（直引 facet-4 ⇒ 盘面与 seal 基准不受本批影响）。
         expect(registry.DEFAULT_BEAD_STYLE_ID).toBe('facet-4');
     });

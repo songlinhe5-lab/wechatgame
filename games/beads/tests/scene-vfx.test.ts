@@ -537,7 +537,7 @@ describe('单色齐备提示 · 某色全部归位（T-244 十六/十七/十八�
     expect(
       lastLit * 20,
       `光带在 ${lastLit * 20}ms 就扫完了 ⇒ pulse 通道未走 ` +
-        `${COLOR_WAVE_SWEEP_MS}ms 长通道（与 BeadsGame._colorWaveTotalMs 不同值？）`,
+      `${COLOR_WAVE_SWEEP_MS}ms 长通道（与 BeadsGame._colorWaveTotalMs 不同值？）`,
     ).toBeGreaterThan(COLOR_WAVE_MS);
     expect(sawWash, '整格罩层未画 ⇒ 只剩一条细环').toBe(true);
     expect(ringAlphaAt(end, 0, 3, LIT1), '扫完不清 ⇒ 变成了常驻态').toBe(0);

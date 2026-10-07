@@ -959,9 +959,11 @@ export function drawFilledBead(
           polyWorld[k + 1] = y + p[k + 1]!;
         }
         if (alpha === undefined) {
-          builder.polygon(polyWorld, { fill: layer.fill, stroke: layer.stroke, lineWidth: layer.lineWidth });
+          // ⚠ `n` 必传：polyWorld = 模块级共享缓冲，length = 高水位 ⇒ 不传则短风格
+          //   吃进上一风格残留顶点（handdrawn 24f 暴露的串形 bug，根因修在 builder 第三参）。
+          builder.polygon(polyWorld, { fill: layer.fill, stroke: layer.stroke, lineWidth: layer.lineWidth }, n);
         } else {
-          builder.polygon(polyWorld, { fill: layer.fill, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth });
+          builder.polygon(polyWorld, { fill: layer.fill, alpha, stroke: layer.stroke, lineWidth: layer.lineWidth }, n);
         }
       }
     }

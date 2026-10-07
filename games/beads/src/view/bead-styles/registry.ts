@@ -32,6 +32,7 @@
 import { FACET4_STYLE_ID } from '../../config/tuning.js';
 import { DUAL_TONE_13 } from './dual-tone-13.js';
 import { FACET4 } from './facet-4.js';
+import { HANDDRAWN } from './handdrawn.js';
 import { LINEART_18 } from './lineart-18.js';
 import type { BeadStyle } from './contract.js';
 
@@ -50,8 +51,17 @@ const LINEART18_STYLE: BeadStyle = LINEART_18;
 /** **`13` 双色对角**（`§7.11.2` 行 1–3，实测 **3 命令 / 0 真 α** = 池内最省）。 */
 const DUAL13_STYLE: BeadStyle = DUAL_TONE_13;
 
+/**
+ * **`handdrawn` 手绘有机轮廓（MVP 原型，2026-10-07 用户树形参考图定调）**：
+ * 验证「手绘风」对 `BeadStyle` 契约的适配度 = **零契约改动可挂**（4 命令 / 0 真 α，v2 轮廓线 +1，
+ * C12 强读法过）。⚠ 它**不在 `§12.6` 入选池正表中**（未过入池评审）⇒ 本表尾部 append
+ * 属「原型可见档」（玩家可切、门禁脚本照审计）；转正 = 补 §12.6 行 + §6 差分记录，
+ * 退出 = 摘本行（钮与循环自动跟随，注册序真源不变）。
+ */
+const HANDDRAWN_STYLE: BeadStyle = HANDDRAWN;
+
 /** 注册序即循环序（S9 §8-15「注册序」真源，序由 = §12.6 池表行序）；模块级预建 + frozen（ADR-0023 §7）。 */
-const REGISTRY: readonly BeadStyle[] = Object.freeze([FACET4_STYLE, LINEART18_STYLE, DUAL13_STYLE]);
+const REGISTRY: readonly BeadStyle[] = Object.freeze([FACET4_STYLE, LINEART18_STYLE, DUAL13_STYLE, HANDDRAWN_STYLE]);
 
 const BY_ID: ReadonlyMap<string, BeadStyle> = new Map(REGISTRY.map((s) => [s.id, s]));
 

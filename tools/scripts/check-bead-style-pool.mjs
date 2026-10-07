@@ -15,6 +15,9 @@
  *      base 同族四端点集（⛔ 禁锚色派生 / 他格色；⛔ 禁面积阈值化；⛔ 不预设
  *      主体 kind）。占比用**确定性网格采样**数 pixel（字面实现「pixel 数占比」，
  *      不解析圆-三角相交）。
+ *   C. **换墨反证臂（WXG-T-230 ①）**：对 facet-4 把珠面占优层墨（实算取得）换成他格
+ *      base 端点色重跑 `identifyPrimary` ⇒ argmax 必须变为该色；不变 ⇒ FAIL（堵
+ *      「恒返写死值」假绿；与 TC-STY-10 机械门协同，读数恒打）。
  * 输出纪律（C11「禁止两种静默」）：
  *   · 触门 ⇒ 打全**五项**数值（①实测命令 ②实测真α ③两项上限 ④超哪项多少
  *     ⑤与基线四棱 6/0 差值）+ `STATUS: FAIL` + exit 1「停在待确认态」——
@@ -104,6 +107,10 @@ function topLayerAt(layers, x, y) {
 
 /** 单层含点判定（按 kind 分派）。 */
 function layerContains(layer, x, y) {
+    // 测量口径修正（handdrawn v2 轮廓线批暴露）：stroke-only 层（fill 空）不画内部
+    // ⇒ 不得计为覆盖。旧口径「几何包含即覆盖」会把同形轮廓线多边形判成盖住整颗
+    // 豆体 ⇒ facet 顶面零像素假红；描边带本身不计覆盖（保守，两读数仍同一口径）。
+    if (!layer.fill) return false;
     if (layer.kind === 'rect') return inRect(layer, x, y);
     if (layer.kind === 'circle') return inCircle(layer, x, y);
     return inPolygon(layer, x, y);
@@ -168,6 +175,7 @@ const FACET_OVERLAP_REGISTER = {
     'facet-4': 119, // WXG-T-218 圆角扇几何重写 ⇒ 共边带收缩（151→119），值未变 = 新基线可复现
     'dual-tone-13': 0, // 单枚 facet ⇒ 无重叠对象（结构性事实，不是“调低了阈值”）
     'lineart-18': 3453, // 叠压式层集（主体 rect 上两条带）⇒ 旧 10% 泛阈值在此必误伤的正因
+    'handdrawn': 0, // MVP 原型 v2（2026-10-07）：单枚 facet（圆角方豆体）⇒ 无重叠对象；轮廓线/内环 stroke-only 属 plate 不入统计域
 };
 
 /* ────────────────────────── C12 主体色认定 ────────────────────────── */
@@ -348,6 +356,58 @@ function c11Five(id, commands, alpha, tuning, baseline, overCmd, overAlpha) {
         `  ④ 超出 = ${exceed.join('；')}`,
         `  ⑤ 与基线四棱 ${baseline.commands}/${baseline.alpha} 差值 = 命令 ${commands - baseline.commands >= 0 ? '+' : ''}${commands - baseline.commands} / 真 α ${alpha - baseline.alpha >= 0 ? '+' : ''}${alpha - baseline.alpha}（基线来源：${baseline.source}）`,
     ].join('\n');
+}
+
+/* ────────────────────────── C12 换墨反证臂（WXG-T-230 ①） ────────────────────────── */
+
+/**
+ * **换墨反证臂：argmax 跟随性的等价证明**（WXG-T-230 ①，堵「恒返写死值」假绿）
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 机理：把珠面**占优层墨**（实算取得，现 = `lit` 端点；⛔ 不写死层号/墨值）整体换成
+ * **他格 base 端点色**（colorIdx=2 的 base），重跑 `identifyPrimary` ⇒ argmax **必须**
+ * 变为该 base 色；不变 ⇒ 主体色认定对像素不跟随（恒返写死值）⇒ 调用方判 FAIL。
+ * 与既有门协同：
+ *  · TC-STY-10 机械门（「参赛端点色数 = 1」实算断言，恢复 ≥2 枚时必红、强制回改「让位」
+ *    强反证）：本臂**不依赖参赛色数**，在 1 枚退化档与 ≥2 恢复档都是持续反证；
+ *  · 臂 A（他格色夹具）证明「非本族 argmax 会被判红」；本臂证明「argmax 真的跟着像素走」
+ *    —— 两者合起来才闭合「认定函数既会判红、也会跟色」的判别力链；
+ *  · `--probe-argmax`（缩层臂）证明「占比随像素缩放而变」；本臂补上它不再覆盖的
+ *    argmax 归属跟随性（WXG-T-229 甲案 1 枚参赛色下缩层让位结构上不可能 ⇒ 已如实登记）。
+ * ⛔ 纯函数 + 不变异：`beadLayers` 返回**复用槽**（C2）⇒ 换墨走 map+展开**拷贝**新数组，
+ *    绝不改原层对象（否则污染 C2 锚与后续审计）。
+ */
+export function reinkDominantArm(style, { inks, tuning, contract }) {
+    const size = tuning.BEAD_CELL;
+    const layers = style.beadLayers({ inks, colorIdx: 1, size });
+    const family = contract.endpointFamily(inks, 1);
+    const allEndpoints = new Set(inks.endpoints.flatMap((e) => [e.base, e.lit, e.edge, e.pit]));
+    const before = identifyPrimary(layers, family, size, allEndpoints);
+    const head = { argmaxBefore: before.argmaxColor, shareBefore: before.argmaxShare, facetPxBefore: before.facetPixels };
+    if (before.facetPixels === 0) return { id: style.id, ran: false, skip: '珠面族统计域零像素（C12 主门已另行判红）', ...head };
+    if (!before.argmaxColor) return { id: style.id, ran: false, skip: '无端点色 argmax ⇒ 占优层无法指认（C12 主门已另行判红）', ...head };
+    const reinkedColor = inks.hexes[1]; // 他格 base = colorIdx=2 的 base 端点色（全池端点 ⇒ 必参赛）。
+    if (!reinkedColor || reinkedColor === before.argmaxColor) {
+        return { id: style.id, ran: false, skip: `他格 base 不可用（${reinkedColor ?? 'undefined'}）`, ...head };
+    }
+    let reinkedLayers = 0;
+    const reinked = layers.map((l) => {
+        if (l.role !== 'facet' || l.fill !== before.argmaxColor) return l;
+        reinkedLayers++;
+        // 同层 stroke 与 fill 同墨（矢量臂 AA 自描边）⇒ 一并换，保持「整层换墨」语义。
+        return { ...l, fill: reinkedColor, ...(l.stroke === l.fill ? { stroke: reinkedColor } : {}) };
+    });
+    const after = identifyPrimary(reinked, family, size, allEndpoints);
+    return {
+        id: style.id,
+        ran: true,
+        reinkedColor,
+        reinkedLayers,
+        ...head,
+        argmaxAfter: after.argmaxColor,
+        shareAfter: after.argmaxShare,
+        facetPxAfter: after.facetPixels,
+        ok: after.argmaxColor === reinkedColor,
+    };
 }
 
 /* ────────────────────────── 反例夹具（TC-STY-08；⛔ 不进 registry） ────────────────────────── */
@@ -555,6 +615,31 @@ async function main(argv) {
             `\n${c12Summary}${nearNote}`,
         );
         allViolations.push(...a.violations);
+    }
+
+    // C12 换墨反证臂（WXG-T-230 ①）：对 facet-4 实跑「换墨 ⇒ argmax 必跟色」。⛔ 读数恒打
+    //（C11 两种静默都违）；不跟色 ⇒ 计入违规总数，停在待确认态（⛔ 不自行改判定函数求绿）。
+    const facet4Style = registered.find((s) => s.id === 'facet-4');
+    if (!facet4Style) {
+        console.log('[C12 换墨反证] registry 无 facet-4 ⇒ SKIP（无反证对象；SKIP 如实单列，不并入 PASS）。');
+    } else {
+        const arm = reinkDominantArm(facet4Style, { inks, tuning, palette, contract });
+        if (!arm.ran) {
+            console.log(`[C12 换墨反证] [${arm.id}] SKIP：${arm.skip}（before argmax=${arm.argmaxBefore ?? 'null'}）`);
+        } else {
+            console.log(
+                `[C12 换墨反证] [${arm.id}] 换墨 = 占优墨 ${arm.argmaxBefore} → ${arm.reinkedColor}（=colorIdx=2 的 base 端点）×${arm.reinkedLayers} 层；` +
+                `argmax ${arm.argmaxBefore}(${(arm.shareBefore * 100).toFixed(1)}%) → ${arm.argmaxAfter}(${(arm.shareAfter * 100).toFixed(1)}%)；` +
+                `facetPx ${arm.facetPxBefore} → ${arm.facetPxAfter} ⇒ argmax 跟随${arm.ok ? ' ✓' : ' ✗'}`,
+            );
+            if (!arm.ok) {
+                allViolations.push(
+                    `C12 换墨反证 [${arm.id}]：占优层墨换成他格 base（${arm.reinkedColor}）后重跑 identifyPrimary，` +
+                    `argmax = ${arm.argmaxAfter ?? 'null'} ≠ 换入色 ⇒ 主体色认定对像素**不跟随**（恒返写死值嫌疑），` +
+                    `反证不成立判红（WXG-T-230 ①：堵「恒返写死值」假绿；⛔ 不得改判定函数或删臂求绿）。`,
+                );
+            }
+        }
     }
 
     if (allViolations.length > 0) {

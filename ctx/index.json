@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5165,
       "lines": 82,
-      "sha256": "c5e3141ee6c9f7118452090ca159cb73aa20bff365099b588e32d0f8198ef3f5",
+      "sha256": "f15cdd9865011833109a983317f7ec688128094902eb608ddc975fe9293a2de3",
       "tier": "normal",
       "sections": [
         {
@@ -78548,6 +78548,174 @@
             "Self",
             "Review",
             "Spec"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/plans/2026-10-07-handdrawn-board-visual-research.md",
+      "tokens": 3145,
+      "lines": 158,
+      "sha256": "6f02a1e541351e21d14819d6ab35b35affe294c02fcb85037b9ef168f9d0259d",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§手绘整盘视觉方案调研单（珠子换肤 → 盘面级）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 159,
+          "tokens": 3123,
+          "summary": "状态：存档待命（2026-10-07 用户裁定：结论留存，盘面级批次暂不开工，",
+          "keywords": [
+            "手绘整盘视觉",
+            "方案调研单",
+            "珠子换肤",
+            "盘面级"
+          ]
+        },
+        {
+          "anchor": "§0 差距总表（按归属层）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 30,
+          "tokens": 359,
+          "summary": "2 珠缝露蓝色虚线网格 + 碎格底图（噪点最大） 盘面 B0/槽纹理 §1 M",
+          "keywords": [
+            "§1",
+            "差距总表",
+            "按归属层"
+          ]
+        },
+        {
+          "anchor": "§1 去网格纹理 / 底衬降噪（差距 #2）★ 优先",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 57,
+          "tokens": 506,
+          "summary": "现状：盘面每格画 B0 目标色底图（view-model::drawTargetTile，:106/:802；",
+          "keywords": [
+            "view",
+            "model",
+            "drawTargetTile",
+            "去网格纹理",
+            "底衬降噪",
+            "差距"
+          ]
+        },
+        {
+          "anchor": "§2 盘面剪影描边（差距 #1）",
+          "level": 2,
+          "startLine": 58,
+          "endLine": 83,
+          "tokens": 483,
+          "summary": "现状：void 格（关卡数据 .，grid.ts）全链「不存在」语义：不画、不命中、",
+          "keywords": [
+            "void",
+            "grid",
+            "盘面剪影描边",
+            "差距"
+          ]
+        },
+        {
+          "anchor": "§3 大块连通色区底图（差距 #3/#7）",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 98,
+          "tokens": 296,
+          "summary": "现状：关卡数据逐格 colorIdx；同色相邻格已天然连片，但 B0 仍逐格画 ⇒ 缝可见。",
+          "keywords": [
+            "colorIdx",
+            "大块连通色区",
+            "底图",
+            "差距"
+          ]
+        },
+        {
+          "anchor": "§4 孔径与内环（差距 #4）",
+          "level": 2,
+          "startLine": 99,
+          "endLine": 106,
+          "tokens": 124,
+          "summary": "内环收窄：HANDDRAWN_RING_RATIO/_RING_W 是本风格私有 tuning ⇒ 随时可调，",
+          "keywords": [
+            "HANDDRAWN_RING_RATIO",
+            "RING_W",
+            "tuning",
+            "孔径与内环",
+            "差距"
+          ]
+        },
+        {
+          "anchor": "§5 珠面体积渐变 + 轮廓线宽（差距 #5/#6）",
+          "level": 2,
+          "startLine": 107,
+          "endLine": 115,
+          "tokens": 161,
+          "summary": "体积 = 加一枚 lit 亮带（rect/arc 皆可，色源仍 endpointOf 四端点 ⇒ C3 不破；",
+          "keywords": [
+            "lit",
+            "rect",
+            "arc",
+            "endpointOf",
+            "珠面体积渐变",
+            "轮廓线宽"
+          ]
+        },
+        {
+          "anchor": "§6 选中/提示双语言（差距 #8）",
+          "level": 2,
+          "startLine": 116,
+          "endLine": 123,
+          "tokens": 156,
+          "summary": "参考图：红框 = 选中错位珠、黄框 = 目标提示格。现状：单色高亮 + 恒亮白环",
+          "keywords": [
+            "选中",
+            "提示双语言",
+            "差距"
+          ]
+        },
+        {
+          "anchor": "§7 UI 主题白底化（差距 #9）",
+          "level": 2,
+          "startLine": 124,
+          "endLine": 131,
+          "tokens": 109,
+          "summary": "整屏白底 + 线框槽 + 具象道具图标 = 第二套全局皮肤（palette 档切换 + 托盘/HUD/",
+          "keywords": [
+            "palette",
+            "HUD",
+            "主题白底化",
+            "差距"
+          ]
+        },
+        {
+          "anchor": "§8 可行性结论（2026-10-07 用户问「能否做到效果图/90% 接近」，同轮裁定存档）",
+          "level": 2,
+          "startLine": 132,
+          "endLine": 149,
+          "tokens": 309,
+          "summary": "结论：能。90% 接近不需任何新机制，全在现有架构射程内；是工程量/批次问题，",
+          "keywords": [
+            "可行性结论",
+            "用户问",
+            "能否做到效果",
+            "接近",
+            "同轮裁定存档"
+          ]
+        },
+        {
+          "anchor": "§附：本批已入库事实（供引用）",
+          "level": 2,
+          "startLine": 150,
+          "endLine": 159,
+          "tokens": 200,
+          "summary": "handdrawn v2.3 = 歪四角（8 顶点硬轮廓 + 整数角偏移表）+ stroke-only 同形轮廓线",
+          "keywords": [
+            "handdrawn",
+            "stroke",
+            "only",
+            "本批已入库事",
+            "供引用"
           ]
         }
       ]
