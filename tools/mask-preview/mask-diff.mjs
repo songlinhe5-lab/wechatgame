@@ -97,6 +97,8 @@ function invariantFailures(kind, gauge, spec, field) {
     //   用户裁定「格底 base 图槽外面部分透明；先画 −0.30 底色再叠 base×mask 混合纹理」。
     // 校验两条：① 槽心（槽底）= 255 —— ⛔ 槽底**不得透明**（无孔档 0.32 深坑承载判据 I-5 分叉）；
     //         ② 格外（角落）= 0 ⇒ 透明；③ 全场纯二值（无 LANCZOS 振铃中间带）。
+    //   ⚠ [WXG-T-230 未闭] 三方漂移待程基岩对齐：py 代码（237 v7.0，槽内 255）≠ 现役产物（229 批，
+    //   槽底 B=0）≠ TS spec（v1.1）——对齐后本断言按对齐后的口径复核定档。
     if (kind === 'cell') {
         const bAt = (x, y) => data[(y * w + x) * 4 + 2];
         const c = Math.floor(w / 2);
