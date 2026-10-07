@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3962,
       "lines": 142,
-      "sha256": "9f90785cf3d3e69a9aff746bce95dfb8fb2f34e0eeff7bf0480fd228f20ce6bb",
+      "sha256": "62487ea37d3875bc818099c48b12a7068f1220ee210f09f9348624540bfdcc96",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5165,
       "lines": 82,
-      "sha256": "2d757d2a9425c26e9bf063cd547128bf9aa13d3202994b50952e7e5dadde0be1",
+      "sha256": "5341b0c2f7f69e7b655a12cbaf18bd336439937e055148df64a0420323e54be8",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 94 行 / 30365 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 94 行 / 30389 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -764,7 +764,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 949 行 / 77129 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 949 行 / 77141 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
@@ -54367,9 +54367,9 @@
     },
     {
       "path": "memory/2026-10-07.md",
-      "tokens": 1359,
+      "tokens": 1371,
       "lines": 17,
-      "sha256": "a306de771ab0cd0d82d018926f55756ce029551675234f80b58de69eb3d64f04",
+      "sha256": "e6e60246d042e7d5a65f2514b303f2d8bdba1acc1bad863ec55e42a50172d37b",
       "tier": "normal",
       "sections": [
         {
@@ -54393,7 +54393,7 @@
           "level": 2,
           "startLine": 8,
           "endLine": 18,
-          "tokens": 798,
+          "tokens": 810,
           "summary": "用户裁定（原话）：「S2：P-3 面板圆角 拍板 24 / S3 开工」⇒ ① P-3 = 24（以 assets-sp",
           "keywords": [
             "WXG",
@@ -54410,7 +54410,7 @@
       "path": "memory/INDEX.md",
       "tokens": 11575,
       "lines": 282,
-      "sha256": "a5179457c7ee690649b249e2b817dfe0269d976fa8308c40f9844a88b58e15a6",
+      "sha256": "d835322f03cfb48160c759ec191e6d69f326f6d055bca8137351f2f036436ba3",
       "tier": "normal",
       "sections": [
         {
@@ -54501,7 +54501,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 1,359 tok｜1 节｜**蒸馏到期 2026-11-06**（剩 30 天）",
+          "anchor": "§`memory/2026-10-07.md` — 1,371 tok｜1 节｜**蒸馏到期 2026-11-06**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 78,
@@ -77216,9 +77216,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 30365,
+      "tokens": 30389,
       "lines": 94,
-      "sha256": "a90435152d25812ded7376e4e213c6aba0dfda43d0da91b44e3ccac27a4a7876",
+      "sha256": "a72432c7af04f29964e6b51fe13038a081b9dc0e6ff78fa8d6fc815cda32220b",
       "tier": "hot",
       "sections": [
         {
@@ -77226,7 +77226,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 95,
-          "tokens": 30356,
+          "tokens": 30380,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -83632,9 +83632,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 77129,
+      "tokens": 77141,
       "lines": 949,
-      "sha256": "32483fdb578239d49cf4c69e8fbb22955e4433c8bd10e72edc1f33225052389e",
+      "sha256": "365135e7686682e22b9493dd99190a97fc22ea79d5f90f46777dde22f1cc022f",
       "tier": "hot",
       "sections": [
         {
@@ -84295,7 +84295,7 @@
           "level": 1,
           "startLine": 678,
           "endLine": 930,
-          "tokens": 28702,
+          "tokens": 28714,
           "summary": "### K.0 编号与归属（两处必须先看）",
           "keywords": [
             "pause-settings v1.7 §8-14~19",
