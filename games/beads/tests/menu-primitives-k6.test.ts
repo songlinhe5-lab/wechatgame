@@ -87,7 +87,7 @@ function liveLegTable(state: MenuRigState): LegTable {
     const shell = createMenuShell(state);
     const out: LegTable = {};
     for (const leg of CAPTURE_LEGS) {
-        out[leg.label] = { ...countPrimitives(menuModel(shell, leg.variant ?? undefined)), label: leg.label, variant: leg.variant, note: leg.note };
+        out[leg.label] = { ...countPrimitives(menuModel(shell, leg.variant ?? undefined, leg.overlay)), label: leg.label, variant: leg.variant, note: leg.note };
     }
     return out;
 }
@@ -142,28 +142,33 @@ describe('[T-2B][K-6] Δ 招牌 beadText = 「图元 +N」的实测断言（验�
             // 增量族闭于珠体三族 ⇒ 系统字体标题腿确实**退场**（不是与珠拼叠加）。
             expect(prod.kinds['text'] ?? 0, 'text 族零增量').toBe(off.kinds['text'] ?? 0);
             expect(prod.kinds['line'] ?? 0, 'line 族零增量').toBe(off.kinds['line'] ?? 0);
-            expect(prod.kinds['rect']! - off.kinds['rect']!, 'plate').toBe(dBeads);
-            expect(prod.kinds['circle']! - off.kinds['circle']!, '同心孔两枚').toBe(dBeads * 2);
-            expect(prod.kinds['polygon']! - off.kinds['polygon']!, '四棱扇').toBe(dBeads * 4);
-            expect(LEDGER.diffs[state].signage).toEqual({ total: prod.total - off.total, beads: dBeads, kinds: {
-                rect: dBeads, circle: dBeads * 2, polygon: dBeads * 4,
-            } });
+            expect(prod.kinds['rect']! - (off.kinds['rect'] ?? 0), 'plate').toBe(dBeads);
+            expect(prod.kinds['circle']! - (off.kinds['circle'] ?? 0), '同心孔两枚').toBe(dBeads * 2);
+            expect(prod.kinds['polygon']! - (off.kinds['polygon'] ?? 0), '四棱扇').toBe(dBeads * 4);
+            expect(LEDGER.diffs[state].signage).toEqual({
+                total: prod.total - off.total, beads: dBeads, kinds: {
+                    rect: dBeads, circle: dBeads * 2, polygon: dBeads * 4,
+                }
+            });
         });
     }
 
-    it('满载菜单帧的缩略珠数 ≡ 九关聚合表求和 ⇒ beads 读数不是另一套账', () => {
+    it('选关页陈列墙（`levels` overlay）满载缩略珠数 ≡ 九关聚合表求和 ⇒ 墙成本确已搬出菜单', () => {
         const expected = LEVELS.reduce((sum, lv) => sum + levelThumbBeads(lv, THUMB_MATRIX_N), 0);
+        const wall = LIVE.full['wall.rows3']!;
+        // 选关页腿无招牌 beadText（signage 只走菜单支路）⇒ 帧珠数 = 九格缩略求和，不需减。
+        expect(wall.beads, 'levels 帧珠数 ≡ 九关缩略求和（满载）').toBe(expected);
+        // 主菜单帧：走马灯卡（空卡 = 虚线，零缩略珠）⇒ 菜单帧珠数 ≡ 招牌珠数。
         const prod = LIVE.full['production']!;
-        expect(prod.beads - SIGN_BEADS_FROM_GLYPHS, 'production 珠数 − 招牌珠数 = 缩略珠数').toBe(expected);
-        expect(LIVE.full['signage.off']!.beads, 'signage.off 只剩缩略珠').toBe(expected);
+        expect(prod.beads, '菜单帧珠数 ≡ 招牌珠数（卡不贡献缩略）').toBe(SIGN_BEADS_FROM_GLYPHS);
     });
 });
 
-describe('[T-2B][K-6] 五级回退杠杆的差分单调（T-1 §3.8）', () => {
+describe('[T-2B][K-6] 五级回退杠杆的差分单调（选关页墙帧，T-1 §3.8）', () => {
     it('缩略 5→4→3：珠数与命令**逐级严格下降**（两态皆然），且不污染文字/线族', () => {
         for (const state of ['full', 'first'] as const) {
             const t = LIVE[state];
-            const prod = t['production']!;
+            const prod = t['wall.rows3']!;
             const n4 = t['thumb.n4']!;
             const n3 = t['thumb.n3']!;
             expect(prod.beads).toBeGreaterThan(n4.beads);
@@ -179,12 +184,12 @@ describe('[T-2B][K-6] 五级回退杠杆的差分单调（T-1 §3.8）', () => {
     });
 
     it('陈列格 3→2 行：命令下降；**首日态**（仅 1 关有珠）的 Δ 只落 `line`（虚线空槽）族', () => {
-        const prodFull = LIVE.full['production']!;
+        const prodFull = LIVE.full['wall.rows3']!;
         const rows2Full = LIVE.full['wall.rows2']!;
         expect(prodFull.total).toBeGreaterThan(rows2Full.total);
         expect(prodFull.total - rows2Full.total).toBe(LEDGER.diffs.full.wallRows!.total);
 
-        const prod = LIVE.first['production']!;
+        const prod = LIVE.first['wall.rows3']!;
         const rows2 = LIVE.first['wall.rows2']!;
         const beadKinds = ['text', 'rect', 'circle', 'polygon'] as const;
         for (const k of beadKinds) expect(prod.kinds[k]! - rows2.kinds[k]!, `${k} 族应零增量`).toBe(0);
@@ -192,8 +197,8 @@ describe('[T-2B][K-6] 五级回退杠杆的差分单调（T-1 §3.8）', () => {
         expect(prod.total - rows2.total).toBe(LEDGER.diffs.first.wallRows!.total);
     });
 
-    it('全回落地板（招牌 off + 2 行 + 3 档）≪ 生产档 ⇒ 杠杆确有可退空间', () => {
-        const prod = LIVE.full['production']!;
+    it('全回落地板（墙 2 行 + 3 档）≪ 生产墙档 ⇒ 杠杆确有可退空间', () => {
+        const prod = LIVE.full['wall.rows3']!;
         const floor = LIVE.full['floor.allOff']!;
         expect(floor.total).toBeLessThan(prod.total);
         expect(floor.beads).toBeLessThan(prod.beads);
@@ -279,13 +284,16 @@ describe('[T-2B][S0 ⑤] playing 封箱复评：珠拼/缩略未渗进盘面命�
 });
 
 describe('[T-2B][K-6] 成本读数（供 epics 状态行引用，⛔ 不引纸面值）', () => {
-    it('菜单满载帧 / 玩法 78 填帧 ≈ 1.37×（主理人「接受 5×5 直接落码」的实测复核）', () => {
+    it('主菜单帧与选关页墙帧的整帧 total ≡ checked-in 台账（走马灯改造后墙成本已移选关页）', () => {
+        // 不再钉 1.37× 纸面区间（K-053）：回归门 = 台账实测；菜单不再含整墙 ⇒ 旧比值口径作废。
         const menu = LIVE.full['production']!.total;
+        const wall = LIVE.full['wall.rows3']!.total;
         const play = SEAL.s3.frame78.total;
-        const ratio = menu / play;
-        expect(ratio).toBeGreaterThan(1.3);
-        expect(ratio).toBeLessThan(1.45);
-        expect(menu).toBe(LEDGER.frames.full['production']!.total);
+        expect(menu, '主菜单帧 total ≡ 台账').toBe(LEDGER.frames.full['production']!.total);
+        expect(wall, '选关页墙帧 total ≡ 台账').toBe(LEDGER.frames.full['wall.rows3']!.total);
+        // 结构不变式：菜单帧珠数 ≡ 招牌（卡为空 ⇒ 零缩略珠），墙缩略珠只在选关页（上面已钉）。
+        expect(LIVE.full['production']!.beads, '菜单帧珠数 ≡ 招牌珠数').toBe(SIGN_BEADS_FROM_GLYPHS);
+        expect(play, '玩法 78 帧仍取封箱基准（未受菜单改造影响）').toBe(SEAL.s3.frame78.total);
     });
 
     it('逐 kind 求和 ≡ 整帧 total（同一帧的两套读数不得分家）', () => {
@@ -296,7 +304,7 @@ describe('[T-2B][K-6] 成本读数（供 epics 状态行引用，⛔ 不引纸�
                 expect(sum, `${state}/${leg.label} kinds 求和`).toBe(r.total);
             }
         }
-        // 菜单帧非珠族只有 rect/line/text（珠体占去 circle/polygon）⇒ 上面的 1.37× 读数口径可靠。
+        // 菜单帧非珠族只有 rect/line/text（珠体占去 circle/polygon）⇒ 上面的读数口径可靠。
         const prod = LIVE.full['production']!;
         const nonBeadRects = prod.kinds['rect']! - prod.beads;
         expect(nonBeadRects + prod.kinds['line']! + prod.kinds['text']! + prod.beads * BEAD_STYLE_MAX_COMMANDS).toBe(prod.total);

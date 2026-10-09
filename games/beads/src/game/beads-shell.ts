@@ -146,6 +146,10 @@ export class BeadsShell implements Game {
         wallSlots: [] as readonly number[],
         // 槽位 → 关卡引用（T-2B 缩略聚合的 pattern 入口；与 wallSlots 同批缓存，每帧只读）。
         wallLevels: [] as readonly (BeadsLevelRaw | undefined)[],
+        // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里 DI 最高那关；一关未通 ⇒ undefined。
+        carouselLevel: undefined as BeadsLevelRaw | undefined,
+        carouselCleared: 0,
+        carouselTotal: 0,
         studioEnabled: false,
     };
 
@@ -290,8 +294,8 @@ export class BeadsShell implements Game {
                 this.startGame();
                 return true;
             case 'open-levels':
-                // §5.4 口径 3 / Q5①：菜单布局已无本钮 ⇒ 此分支仅为 `levels` overlay **代码保留**腿
-                // （宿主 / 测试可直接驱动该 overlay；⛔ 不删、也不为它新造入口）。
+                // menu-architecture §1.3 第五轮：主菜单走马灯卡 = 菜单唯一选关入口（点卡 → 开 `levels` overlay）。
+                // ⇒ 本分支从「代码保留腿」（Q5①）转正为**实际入口**；墙下移到该 overlay（选关能力不丢）。
                 this._overlay = 'levels';
                 this._emitOverlay(true);
                 return true;
@@ -460,6 +464,25 @@ export class BeadsShell implements Game {
         v.wallSlots = this._wallSlotsFor();
         // 槽位 → 关卡引用（同一缓存批，T-2B 缩略聚合的只读入口）。
         v.wallLevels = this._wallLevelsFor();
+        // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里 `DI` 最高那关。
+        // ⇒ `wallSlots` 已按 DI **升序**缓存 ⇒ **反序取首个已通槽**即 boss；⛔ 每帧零 `difficultyOf`，
+        //   单趟 ≤capacity 整数循环、零分配。星级即「已通关」判据（`starsByLevel[idx] > 0`）。
+        // ponytail: 进度/boss 均在已陈列的 `wallSlots`（≤WALL_CAPACITY）内取；溢出未实现（S6 Out）⇒ 关表 >capacity 时需改全表扫描。
+        const slots = v.wallSlots;
+        const levels = v.wallLevels;
+        const stars = this.play.starsByLevelRaw;
+        let cleared = 0;
+        let boss: BeadsLevelRaw | undefined;
+        for (let s = slots.length - 1; s >= 0; s--) {
+            const idx = slots[s]!;
+            if ((stars[idx] ?? 0) > 0) {
+                cleared++;
+                if (boss === undefined) boss = levels[s];
+            }
+        }
+        v.carouselLevel = boss;
+        v.carouselCleared = cleared;
+        v.carouselTotal = this.play.levelCount;
         v.studioEnabled = this._studio !== undefined;
         return v;
     }

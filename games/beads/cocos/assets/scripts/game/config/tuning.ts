@@ -603,20 +603,20 @@ export const MISPLACED_PAIRS_MAX = 8;
  * 系数全部为**语义锚定值**（非回归拟合，§3.3：n=9 上拟合出 `c_C<0` 物理错误 ⇒ 拒绝拟合标定）。
  */
 export const DIFFICULTY = Object.freeze({
-    /** 每多 1 色 ⇒ 等效错位珠数 +10%（锚：长环心理难度 > 多个短对换，§3.13）。 */
-    c_C: 0.10,
-    /** 色数参考锚 = 入门图锚（使小色数 `f_C < 1` 得折扣）。 */
-    C_REF: 5,
-    /** 碎片度每高 0.1 ⇒ 等效珠数 +16%（锚：同色聚块可批量落子降步，T-186）。 */
-    c_K: 1.60,
-    /** 碎片度中位锚（聚块 `f_K < 1`、碎片 `f_K > 1`）。 */
-    K_REF: 0.50,
-    /** 防退化地板：`K→0`（近纯色块）时 `f_K` 不得归零（否则 DI=0 退化）。 */
-    FK_FLOOR: 0.35,
-    /** 色数因子钳位下界（C=1 ⇒ 0.60）。 */
-    FC_LO: 0.60,
-    /** 色数因子钳位上界（C≥15 ⇒ 2.00，外推区未实测，§8 B-1）。 */
-    FC_HI: 2.00,
+  /** 每多 1 色 ⇒ 等效错位珠数 +10%（锚：长环心理难度 > 多个短对换，§3.13）。 */
+  c_C: 0.10,
+  /** 色数参考锚 = 入门图锚（使小色数 `f_C < 1` 得折扣）。 */
+  C_REF: 5,
+  /** 碎片度每高 0.1 ⇒ 等效珠数 +16%（锚：同色聚块可批量落子降步，T-186）。 */
+  c_K: 1.60,
+  /** 碎片度中位锚（聚块 `f_K < 1`、碎片 `f_K > 1`）。 */
+  K_REF: 0.50,
+  /** 防退化地板：`K→0`（近纯色块）时 `f_K` 不得归零（否则 DI=0 退化）。 */
+  FK_FLOOR: 0.35,
+  /** 色数因子钳位下界（C=1 ⇒ 0.60）。 */
+  FC_LO: 0.60,
+  /** 色数因子钳位上界（C≥15 ⇒ 2.00，外推区未实测，§8 B-1）。 */
+  FC_HI: 2.00,
 } as const);
 
 /**
@@ -1086,6 +1086,31 @@ export const WALL_SLOT_DASH = 6;
 /** 空槽虚线间隔（同上；⚠ 与 `view-model` 私有实现的 6/4 **同值不同源**，归并需授权 ⇒ 本批不越界改该文件）。 */
 export const WALL_SLOT_DASH_GAP = 4;
 
+// ─────────── 走马灯小卡（menu-architecture §1.3 第五轮终裁：主菜单主区由作品墙 → 单卡进度展示，
+//             墙下移 `levels` overlay；卡 = 菜单唯一选关入口，点击 → `open-levels`）。
+//   ⛔ **不进 systems-index §3**（菜单屏不在 §3.1 带表；判例同 `WALL_*` / `MENU_*` flat 命名）。
+/** 走马灯卡宽（**小于**旧 4×3 橱窗框 590 ⇒ 用户「不要做那么大」）。 */
+export const CAROUSEL_W = 300;
+/** 走马灯卡高（上部落位图 + 下部进度/提示两行文字）。 */
+export const CAROUSEL_H = 340;
+/**
+ * 走马灯卡**顶边** y（本设计空间 y 向上 ⇒ 卡占 `[CAROUSEL_TOP − CAROUSEL_H, CAROUSEL_TOP]` =
+ * [520,860]：slogan 底 954 之下、主钮顶 448 之上，两侧留白 ≥ 60）。
+ */
+export const CAROUSEL_TOP = 860;
+/**
+ * 卡内落位图的缩略字模阵（**大于**橱窗格的 `THUMB_MATRIX_N`=5 ⇒ 单卡要看得清成品；8 ⇒ ≤64 珠，
+ * 静态菜单帧可接受）。真源聚合规则仍 = `menu-signage::levelThumbCells`。
+ */
+export const CAROUSEL_THUMB_N = 8;
+/** 卡内落位图边长（> 橱窗 `THUMB_AREA` 84 ⇒ 大图；经 `drawLevelThumb` 的 `area` 参传入）。 */
+export const CAROUSEL_THUMB_AREA = 240;
+/**
+ * 卡内下部**文字带高**（两行：进度 + 选关提示）；落位图坐在文字带之上。
+ * 派生约束：`CAROUSEL_THUMB_AREA + CAROUSEL_TEXT_BAND ≤ CAROUSEL_H`（240 + 100 = 340 = 卡高 ⇒ 恰好充满）。
+ */
+export const CAROUSEL_TEXT_BAND = 100;
+
 // ─────────── 招牌珠拼 `beadText` 档（EP12-S6 · 子单 T-2B · WXG-T-269-S6）
 //   正本 = `games/beads/art/menu-wall-signage-spec.md`（林绘澄 T-1）**§1.4 档公式重算 / §1.5 位表档 /
 //          §0.4 珠面地板三口径 / §0.7 新常量落点**；版面口径 = `menu-architecture.md §5.3`（该节预登记
@@ -1165,20 +1190,20 @@ export const SIGN_ORIGIN_X = (DESIGN_W - SIGN_TOTAL_W) / 2;
  * 并钳进验收③区间 `[SIGN_PITCH_MIN_A, SIGN_PITCH_MAX]`。纯函数、零分配。
  */
 export function signPitchFor(n: number): number {
-    const raw = Math.floor(SIGN_AVAIL_W / (SIGN_WIDTH_COEF * n));
-    return Math.min(SIGN_PITCH_MAX, Math.max(SIGN_PITCH_MIN_A, raw));
+  const raw = Math.floor(SIGN_AVAIL_W / (SIGN_WIDTH_COEF * n));
+  return Math.min(SIGN_PITCH_MAX, Math.max(SIGN_PITCH_MIN_A, raw));
 }
 /** 口径 B（真几何，**主理人裁定的地板口径**）：`face = (d − BEAD_GAP) × 26/30`。 */
 export function signFaceB(d: number): number {
-    return (d - BEAD_GAP) * SIGN_FACE_RATIO;
+  return (d - BEAD_GAP) * SIGN_FACE_RATIO;
 }
 /** 口径 A（`menu-architecture §5.3` 字面）：`face = d − BEAD_GAP`；仅对照，⛔ 不作判据。 */
 export function signFaceA(d: number): number {
-    return d - BEAD_GAP;
+  return d - BEAD_GAP;
 }
 /** 该字模阵在口径 B 下是否可行（`d = signPitchFor(n)` ⇒ 面 ≥ {@link SIGN_FACE_FLOOR}）。 */
 export function signTierOk(n: number): boolean {
-    return signFaceB(signPitchFor(n)) >= SIGN_FACE_FLOOR;
+  return signFaceB(signPitchFor(n)) >= SIGN_FACE_FLOOR;
 }
 
 // ─────────── 作品格珠拼缩略档（EP12-S6 · 子单 T-2B；正本 = `menu-wall-signage-spec` §3.1/§3.2/§3.3/§3.4）
@@ -1208,11 +1233,11 @@ export const WALL_SLOT_FALLBACK_CELL = 48;
 
 /** 缩略格距 = `THUMB_AREA / n`（5 档 = **16.8**，与 T-1 §3.2 实测表同值）。 */
 export function thumbPitchFor(n: number): number {
-    return THUMB_AREA / n;
+  return THUMB_AREA / n;
 }
 /** 缩略珠的**绘制外缘**（喂给 `drawFilledBead` 的 `size`）= `d − BEAD_GAP` ⇒ 面 = 外缘 × 26/30 = 口径 B。 */
 export function thumbOuterFor(n: number): number {
-    return thumbPitchFor(n) - BEAD_GAP;
+  return thumbPitchFor(n) - BEAD_GAP;
 }
 
 // ────────────── §GAP-04/03/10 反馈态动效（来源：ux-spec §5 / art-bible §7，WXG-T-087）

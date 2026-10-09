@@ -342,7 +342,10 @@ async function ingestLevel(res, id) {
     const nextId = () => idCursor++;
 
     const runSync = () => {
-        const a = spawnSync(process.execPath, ['tools/scripts/sync-levels-data.mjs'], { cwd: REPO, encoding: 'utf8' });
+        // ⚠ 必须与 package.json 的 levels:sync 同参：--import=ts-js-resolve.mjs 把源码里的
+        // `.js` ESM 导入解析回 `.ts`（difficulty.ts ← tuning.js 之类）；漏掉 ⇒ Node 找不到
+        // tuning.js，入关误报"未通过、已回滚"（2026-10-07 实测坑）。
+        const a = spawnSync(process.execPath, ['--import=./tools/scripts/lib/ts-js-resolve.mjs', 'tools/scripts/sync-levels-data.mjs'], { cwd: REPO, encoding: 'utf8' });
         if (a.status !== 0) return a;
         return spawnSync(process.execPath, ['tools/scripts/sync-framework-to-cocos.mjs'], { cwd: REPO, encoding: 'utf8' });
     };

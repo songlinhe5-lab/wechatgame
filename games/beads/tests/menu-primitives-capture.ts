@@ -91,7 +91,7 @@ function captureOnce(): Record<MenuRigState, Record<string, LegReading>> {
         const shell = createMenuShell(state);
         const table: Record<string, LegReading> = {};
         for (const leg of CAPTURE_LEGS) {
-            const model = menuModel(shell, leg.variant ?? undefined);
+            const model = menuModel(shell, leg.variant ?? undefined, leg.overlay);
             table[leg.label] = { ...countPrimitives(model), label: leg.label, variant: leg.variant, note: leg.note };
         }
         out[state] = table;
@@ -110,13 +110,14 @@ function delta(a: LegReading, b: LegReading): { total: number; beads: number; ki
 }
 
 function diffTable(state: MenuRigState, t: Record<string, LegReading>) {
+    // 菜单腿 Δ 以 `production` 为基；选关页腿（行数/缩略/地板）以墙生产档 `wall.rows3` 为基。
     return {
         signage: delta(t['production']!, t['signage.off']!),
-        wallRows: delta(t['production']!, t['wall.rows2']!),
-        thumb5to4: delta(t['production']!, t['thumb.n4']!),
+        wallRows: delta(t['wall.rows3']!, t['wall.rows2']!),
+        thumb5to4: delta(t['wall.rows3']!, t['thumb.n4']!),
         thumb4to3: delta(t['thumb.n4']!, t['thumb.n3']!),
-        thumb5to3: delta(t['production']!, t['thumb.n3']!),
-        allVsFloor: delta(t['production']!, t['floor.allOff']!),
+        thumb5to3: delta(t['wall.rows3']!, t['thumb.n3']!),
+        allVsFloor: delta(t['wall.rows3']!, t['floor.allOff']!),
         state,
     };
 }
@@ -292,7 +293,7 @@ for (const leg of CAPTURE_LEGS) {
     const r = t[leg.label]!;
     console.log(
         `  ${leg.label.padEnd(14)} total=${String(r.total).padStart(5)} beads=${String(r.beads).padStart(4)} ` +
-            `kinds=${JSON.stringify(r.kinds)}`,
+        `kinds=${JSON.stringify(r.kinds)}`,
     );
 }
 const d = diffTable('full', t);

@@ -26,6 +26,8 @@ export const COPY_TOKENS = Object.freeze({
     btn_signin_label: '签到',
     /** §6「承（实装值）」：次级纸钮 2。 */
     btn_settings_label: '设置',
+    /** §6（第五轮 §1.3 新增）：走马灯小卡下部第一行前缀（后接 `${cleared}/${total}` 数据段）。 */
+    carousel_progress_label: '闯关进度',
     /**
      * §6 标 **退役**（第四轮 Q5=①：作品墙上提 ⇒ 主菜单钮删除）。
      * 退役 = **入口退役**，非字面作废：`levels` overlay 与代码按 Q5① **保留不删** ⇒ 其钮/标题仍读本值。

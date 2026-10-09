@@ -58,6 +58,8 @@ import { DEFAULT_PALETTE, DEMO_BEAD_INKS, beadInksFor } from '../src/view/palett
 import {
     DESIGN_H,
     DESIGN_W,
+    CAROUSEL_H,
+    CAROUSEL_W,
     MENU_SECONDARY_GAP,
     MENU_SECONDARY_W,
     MENU_SLOGAN_Y,
@@ -70,15 +72,12 @@ import {
     WALL_CAPACITY,
     WALL_CELL,
     WALL_COLS,
-    WALL_FRAME_INSET,
     WALL_GAP,
-    WALL_GRID_TOP,
     WALL_ROWS,
 } from '../src/config/tuning.js';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-/** 网格总宽/总高（与视图同源算式，测试内自算 ⇒ ⛔ 不依赖视图私有量）。 */
-const GRID_W = WALL_COLS * WALL_CELL + (WALL_COLS - 1) * WALL_GAP;
+/** 网格总高（与视图同源算式，测试内自算 ⇒ ⛔ 不依赖视图私有量；验收⑥ 结构面用）。 */
 const GRID_H = WALL_ROWS * WALL_CELL + (WALL_ROWS - 1) * WALL_GAP;
 /** 源码级静态门用（判例 = `bead-style-settings.test.ts::SRC`）。 */
 function SRC(rel: string): string {
@@ -161,17 +160,38 @@ function rig(opts: { maxUnlocked?: number; initialScreen?: 'play' | 'menu' } = {
     };
 }
 
-/** 走**真渲染链**（shell.buildRenderModel ⇒ buildMetaView），不手搓视图入参。 */
-function menuFrame(shell: BeadsShell): readonly DrawCommand[] {
+/** 走真渲染链（shell.buildRenderModel ⇒ buildMetaView），不手搜视图入参。 */
+function frameOf(shell: BeadsShell): readonly DrawCommand[] {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
     shell.buildRenderModel(builder);
     return builder.end().commands;
 }
+/** 菜单帧（shell 默认在菜单、`overlay = 'none'`）。 */
+function menuFrame(shell: BeadsShell): readonly DrawCommand[] {
+    return frameOf(shell);
+}
+/**
+ * 走马灯卡热区（菜单唯一选关入口，`id = 'open-levels'`；§1.3 第五轮：墙已下移 `levels` overlay）。
+ */
+function cardBox() {
+    return metaLayout('none').buttons.find((b) => b.id === 'open-levels')!;
+}
+/** 把 shell 推进 `levels` overlay（点走马灯卡 ⇒ 墙所在屏）。 */
+function openLevels(shell: BeadsShell): void {
+    const c = centerOf(cardBox().box);
+    expect(shell.tapMeta(c.x, c.y), '卡 = 可点入口').toBe(true);
+    expect(shell.overlay).toBe('levels');
+}
+/** **选关页帧**（先点卡开 overlay ⇒ 墙格内容在此可观测）。 */
+function levelsFrame(shell: BeadsShell): readonly DrawCommand[] {
+    openLevels(shell);
+    return frameOf(shell);
+}
 
-/** 主菜单橱窗的作品格（按槽位序 0..WALL_CAPACITY-1）。 */
+/** 作品墙格（墙下移 `levels` overlay 后住这里 ⇒ 与菜单共用同一 `levelsLayout` 几何）。 */
 function wallCells() {
-    return metaLayout('none').buttons.filter((b) => b.id === 'pick-level');
+    return metaLayout('levels').buttons.filter((b) => b.id === 'pick-level');
 }
 
 function centerOf(box: { x: number; y: number; w: number; h: number }): { x: number; y: number } {
@@ -259,9 +279,9 @@ describe('EP12-S6 前置 · 关表与 DI 真源（S5 消费面，⛔ 不复算�
 });
 
 describe('EP12-S6 Deliverable 2 · 陈列序 = DI 升序（九关墙序复现 + slot↔level 回归反例）', () => {
-    it('主菜单橱窗九格**缩略逐位复现** `level-difficulty §5.2`：L1→L8→L4→L3→L7→L2→L6→L5→L9（T-2B 口径）', () => {
+    it('选关页九格**缩略逐位复现** `level-difficulty §5.2`：L1→L8→L4→L3→L7→L2→L6→L5→L9（T-2B 口径，墙下移 `levels` overlay）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
-        const cmds = menuFrame(r.shell);
+        const cmds = levelsFrame(r.shell);
         const seq = wallCells()
             .slice(0, LEVELS.length)
             .map((cell) => levelIdByThumb(cmds, cell));
@@ -281,7 +301,7 @@ describe('EP12-S6 Deliverable 2 · 陈列序 = DI 升序（九关墙序复现 + 
 
     it('**反例锁**：「按槽直索引」（墙序 = 1..9）必红 ⇒ 现读序列与恒等序逐位不等', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
-        const cmds = menuFrame(r.shell);
+        const cmds = levelsFrame(r.shell);
         const seq = wallCells()
             .slice(0, LEVELS.length)
             .map((cell) => levelIdByThumb(cmds, cell));
@@ -294,6 +314,7 @@ describe('EP12-S6 Deliverable 2 · 陈列序 = DI 升序（九关墙序复现 + 
 
     it('**行为腿反例**：点槽 1 → 落 L8（索引 7），⛔ 不是索引 1（旧 `beads-shell.ts:258` 的错值）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
+        openLevels(r.shell); // 墙下移 `levels` overlay ⇒ 先在选关页点格
         const c = centerOf(wallCells()[1]!.box);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
         expect(r.shell.screen).toBe('play');
@@ -338,6 +359,7 @@ describe('EP12-S6 Deliverable 2 · 陈列序 = DI 升序（九关墙序复现 + 
 describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热区（验收⑥）', () => {
     it('口径①：主钮 = **当前关**（与墙格解耦，点格改关后主钮跟随该关）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
+        openLevels(r.shell); // 墙下移 `levels` overlay ⇒ 格在选关页可点
         const cell = wallCells()[2]!; // 槽 2 = L4 = 索引 3
         r.shell.tapMeta(...centerTuple(cell.box));
         expect(r.shell.play.levelIndex).toBe(3);
@@ -351,16 +373,18 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
 
     it('口径②：墙格 = **指定关**（点槽 8 直达 L9）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
+        openLevels(r.shell); // 墙住 `levels` overlay
         const cell = wallCells()[8]!;
         const c = centerOf(cell.box);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
         expect(r.shell.play.levelIndex).toBe(WALL_ORDER_IDS[8]! - 1);
     });
 
-    it('口径③：主菜单版面**无第三入口**（`open-levels` 不入布局；扫面亦无其它动作）', () => {
+    it('口径③：主菜单入口 = **走马灯卡**（`open-levels`）+ 主钮 + 次级 2 钮（菜单主区⛔ 无墙格泄漏）', () => {
         const ids = new Set(metaLayout('none').buttons.map((b) => b.id));
-        expect(ids.has('open-levels'), 'Q5①：入口隐藏').toBe(false);
-        expect([...ids].sort()).toEqual(['open-settings', 'open-signin', 'pick-level', 'start']);
+        expect(ids.has('open-levels'), '§1.3：卡 = 菜单唯一选关入口').toBe(true);
+        expect(ids.has('pick-level'), '菜单主区⛔ 不再排墙格（墙下移 overlay）').toBe(false);
+        expect([...ids].sort()).toEqual(['open-levels', 'open-settings', 'open-signin', 'start']);
         // 扫面（16×16 步长）：菜单全域可命中的动作集恰等于上面四个 ⇒ 无暗道。
         const scanned = new Set<string>();
         for (let x = 0; x <= DESIGN_W; x += 16) {
@@ -369,13 +393,14 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
                 if (b) scanned.add(b.id);
             }
         }
-        expect([...scanned].sort()).toEqual(['open-settings', 'open-signin', 'pick-level', 'start']);
+        expect([...scanned].sort()).toEqual(['open-levels', 'open-settings', 'open-signin', 'start']);
     });
 
-    it('未解锁格 = 虚线空槽（无编号、无🔒字样）+ 零热区零事件', () => {
+    it('未解锁格 = 虚线空槽（无编号、无🔒字样）+ 零热区零事件（墙住 `levels` overlay）', () => {
         const r = rig(); // maxUnlocked = 1 ⇒ 仅槽 0 已解锁
         const before = r.staminaOf();
-        const cmds = menuFrame(r.shell);
+        const cmds = levelsFrame(r.shell); // 先点卡进选关页 ⇒ 墙格内容可观测
+        const eventsBefore = r.overlayEvents.length; // 开页那一次 `meta:overlay` 已记录
         const cells = wallCells();
         expect(levelIdByThumb(cmds, cells[0]!), '槽 0 = L1 已解锁 ⇒ 缩略命中 L1').toBe(1);
         expect(beadsInCell(cmds, cells[0]!), '已解锁格有珠').toBeGreaterThan(0);
@@ -387,9 +412,9 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
             expect(dashedSegmentsIn(cmds, locked), '虚线空槽在场').toBeGreaterThan(0);
         }
         expect(r.shell.screen).toBe('menu');
-        expect(r.shell.overlay).toBe('none');
+        expect(r.shell.overlay, '点未解锁格不换页').toBe('levels');
         expect(r.staminaOf()).toBe(before);
-        expect(r.overlayEvents.length, '零事件：未解锁格不发 `meta:*`').toBe(0);
+        expect(r.overlayEvents.length, '零新增事件：未解锁格不发 `meta:*`').toBe(eventsBefore);
         // 未解锁格内⛔ 不出现「解锁/未解锁/🔒」字样（§5.4 口径 2 = 空槽语言，非文字提示）。
         const texts = cmds.filter((k) => k.kind === 'text').map((k) => String((k as { text?: string }).text ?? ''));
         expect(texts.some((t) => t.includes('解锁') || t.includes('🔒')), texts.join('|')).toBe(false);
@@ -398,7 +423,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
     it('越界槽（第 10–12 格，关表短于容量）同为虚线空槽 + 零事件（S6 Out 的溢出不得误接关）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
         const before = r.staminaOf();
-        const cmds = menuFrame(r.shell);
+        const cmds = levelsFrame(r.shell);
         for (const overflow of wallCells().slice(LEVELS.length)) {
             expect(overflow.slot! >= LEVELS.length).toBe(true);
             expect(beadsInCell(cmds, overflow), '越界槽不画珠').toBe(0);
@@ -410,27 +435,29 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         expect(r.staminaOf()).toBe(before);
     });
 
-    it('验收⑥：橱窗木框 / 纸底 / 格间隙 = **零热区**（装饰层不建按钮 ⇒ 无从命中）', () => {
-        const gridX = DESIGN_W / 2 - GRID_W / 2;
-        const gridTop = WALL_GRID_TOP;
-        // ① 框带（木框环 = 网格外扩 WALL_FRAME_INSET）上的采样点全部落空。
-        const frameRing: [number, number][] = [
-            [gridX - WALL_FRAME_INSET / 2, gridTop + 10], // 左衬
-            [gridX + GRID_W + WALL_FRAME_INSET / 2, gridTop - GRID_H / 2], // 右衬
-            [DESIGN_W / 2, gridTop + WALL_FRAME_INSET / 2], // 上衬
-            [DESIGN_W / 2, gridTop - GRID_H - WALL_FRAME_INSET / 2], // 下衬
-        ];
-        for (const [x, y] of frameRing) expect(hitTestMeta('none', x, y), `框带 (${x},${y})`).toBeNull();
-        // ② 格间隙（纸底露纸处）同样落空。
-        const gapPoint: [number, number] = [gridX + WALL_CELL + WALL_GAP / 2, gridTop - WALL_CELL / 2];
-        expect(hitTestMeta('none', gapPoint[0], gapPoint[1]), '格间隙不属任何热区').toBeNull();
-        // ③ 结构面：热区清单里没有任何「整框 / 整纸」尺寸的对象。
-        const frameW = GRID_W + 2 * WALL_FRAME_INSET;
-        const frameH = GRID_H + 2 * WALL_FRAME_INSET;
-        for (const b of metaLayout('none').buttons) {
-            expect(b.box.w === frameW && b.box.h === frameH, '框级热区不得存在').toBe(false);
-            expect(b.box.w >= DESIGN_W * 0.9 && b.box.h >= GRID_H, '纸底级热区不得存在').toBe(false);
+    it('验收⑥：走马灯卡 = **单热区**（卡内装饰共一块、卡外留白零热区；装饰层不建子钮）', () => {
+        const b = cardBox().box;
+        // ① 卡内任意点（边框 / 落位图 / 两行文字）都命中同一块 `open-levels` 热区 ⇒ 卡内零子钮。
+        for (const [dx, dy] of [
+            [6, 6],
+            [b.w / 2, b.h / 2],
+            [b.w - 6, 6],
+            [6, b.h - 6],
+        ] as const) {
+            expect(hitTestMeta('none', b.x + dx, b.y + dy)?.id, `卡内 (${dx},${dy}) = 卡热区`).toBe('open-levels');
         }
+        // ② 卡外左/右留白落空（卡宽 300 ≪ 750 ⇒ 两侧各留白 225）。
+        const outside: [number, number][] = [
+            [b.x - 30, b.y + b.h / 2],
+            [b.x + b.w + 30, b.y + b.h / 2],
+        ];
+        for (const [x, y] of outside) expect(hitTestMeta('none', x, y), `卡外 (${x},${y})`).toBeNull();
+        // ③ 结构面：热区清单里没有任何「整屏 / 整墙」尺寸的对象（卡是唯一大块，尺寸恒 = CAROUSEL_* 预算）。
+        for (const btn of metaLayout('none').buttons) {
+            expect(btn.box.w >= DESIGN_W * 0.9 && btn.box.h >= GRID_H, '纸底级热区不得存在').toBe(false);
+        }
+        expect(b.w).toBe(CAROUSEL_W);
+        expect(b.h).toBe(CAROUSEL_H);
     });
 });
 
@@ -524,25 +551,22 @@ describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散�
     });
 });
 
-describe('EP12-S6 Deliverable 1 + Q5① · 作品墙嵌主菜单 / `levels` overlay 代码保留且几何同源', () => {
-    it('橱窗 = 4×3 共 12 格，格距与主菜单一致（overlay 与菜单同一组几何 ⇒ 永不各排一份）', () => {
-        const menu = wallCells();
+describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在 `levels` overlay / 主菜单不再排墙（几何只一份）', () => {
+    it('墙 = 4×3 共 12 格（只住 `levels` overlay）；主菜单 ⛔ 无墙格 ⇒ 几何单份、永不各排一份', () => {
         const overlay = metaLayout('levels').buttons.filter((b) => b.id === 'pick-level');
-        expect(menu.length).toBe(WALL_CAPACITY);
         expect(overlay.length).toBe(WALL_CAPACITY);
-        expect(overlay.map((b) => b.slot)).toEqual(menu.map((b) => b.slot));
-        for (let s = 0; s < WALL_CAPACITY; s++) {
-            expect(overlay[s]!.box.w, '格宽同源').toBe(menu[s]!.box.w);
-            expect(overlay[s]!.box.h).toBe(menu[s]!.box.h);
-            expect(menu[s]!.box.w, '格宽 = tuning 常量').toBe(WALL_CELL);
+        for (const cell of overlay) {
+            expect(cell.box.w, '格宽 = tuning 常量').toBe(WALL_CELL);
+            expect(cell.box.h).toBe(WALL_CELL);
         }
-        // 行/列步进同源（只有整组平移量不同：菜单坐在橱窗里、overlay 坐在 plate 里）。
-        const step = (list: typeof menu, i: number) => list[i + 1]!.box.x - list[i]!.box.x;
-        expect(step(overlay, 0), '列步进同源').toBe(step(menu, 0));
-        const rowStep = (list: typeof menu) => list[0]!.box.y - list[WALL_COLS]!.box.y;
-        expect(rowStep(overlay), '行步进同源').toBe(rowStep(menu));
-        // 主菜单橱窗上沿 = `WALL_GRID_TOP`（搬格不改几何口径的直接证据）。
-        expect(menu[0]!.box.y + menu[0]!.box.h, '第 1 行格上沿 = WALL_GRID_TOP').toBe(WALL_GRID_TOP);
+        // 列/行步进同源自洽（同一 `levelsLayout` 一次算定）。
+        const step = (list: typeof overlay, i: number) => list[i + 1]!.box.x - list[i]!.box.x;
+        expect(step(overlay, 1), '列步进一致').toBe(step(overlay, 0));
+        const rowStep = overlay[0]!.box.y - overlay[WALL_COLS]!.box.y;
+        expect(rowStep, '行步进 = 格宽 + 缝').toBe(WALL_CELL + WALL_GAP);
+        // 主菜单版面⛔ 无墙格（走马灯卡取代主区）⇒ 选关入口 = `open-levels`。
+        expect(metaLayout('none').buttons.filter((b) => b.id === 'pick-level').length).toBe(0);
+        expect(metaLayout('none').buttons.some((b) => b.id === 'open-levels')).toBe(true);
     });
 
     it('`levels` overlay 仍可渲染与命中（入口隐藏 ≠ 代码删除；此处直接驱动视图，宿主/测试同法）', () => {
@@ -569,6 +593,10 @@ describe('EP12-S6 Deliverable 1 + Q5① · 作品墙嵌主菜单 / `levels` over
             wallSlots: Object.freeze([...WALL_ORDER_IDS.map((id) => id - 1)]),
             // T-2B：珠拼缩略需关卡本体 ⇒ 与 wallSlots 同序同长（本例直接驱动视图，无 shell 可依）。
             wallLevels: Object.freeze(WALL_ORDER_IDS.map((id) => LEVELS[id - 1]!)),
+            // 走马灯卡（§1.3）：本例只渲 `levels` overlay ⇒ 卡字段不参与本帧渲染，补齐满足入参形状。
+            carouselLevel: LEVELS[WALL_ORDER_IDS[2]! - 1],
+            carouselCleared: 3,
+            carouselTotal: LEVELS.length,
         });
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
@@ -635,17 +663,14 @@ function beadChannelColors(): Set<string> {
 }
 
 describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 / L4 / §3 零变更', () => {
-    it('验收⑦ · `menu:零玩法事件`：菜单**惰性面**点扫（框/间隙/未解锁格/越界槽/屏角）零事件', () => {
+    it('验收⑦ · `menu:零玩法事件`：菜单**惰性面**点扫（卡外留白/屏角）零事件', () => {
         // 惰性面口径比「零玩法事件」**更强**：菜单惰性点扫不得发任何事件；玩法族前缀闭集见下例。
-        const r = rig(); // maxUnlocked = 1 ⇒ 槽 1..8 未解锁、槽 9..11 越界（两者都是空槽）
-        const cells = wallCells();
-        const gridX = DESIGN_W / 2 - GRID_W / 2;
+        const r = rig(); // maxUnlocked = 1
+        const card = cardBox().box;
         const probes: [number, number][] = [
-            [gridX - WALL_FRAME_INSET / 2, WALL_GRID_TOP + 10], // 木框左衬
-            [DESIGN_W / 2, WALL_GRID_TOP - GRID_H - WALL_FRAME_INSET / 2], // 木框下衬
-            [gridX + WALL_CELL + WALL_GAP / 2, WALL_GRID_TOP - WALL_CELL - WALL_GAP / 2], // 格间隙
-            ...cells.slice(1, LEVELS.length).map((c) => centerTuple(c.box)), // 未解锁格
-            ...cells.slice(LEVELS.length).map((c) => centerTuple(c.box)), // 越界槽
+            [card.x - 40, card.y + card.h / 2], // 卡左留白
+            [card.x + card.w + 40, card.y + card.h / 2], // 卡右留白
+            [card.x + card.w / 2, card.y + card.h + 20], // 卡上缘外（招牌/标语区无钮）
             [4, 4],
             [DESIGN_W - 4, DESIGN_H - 4],
         ];
@@ -654,10 +679,10 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
         // 探针自检：同一个 shadow 入口确实能捕获玩法族事件（否则上面的「零事件」可能是探针失效的假绿）。
         r.emitTo('board:selected');
         expect(r.emitted(), '总线 emit 必须被同一入口记下').toEqual(['board:selected']);
-        // 热区阳性对照：已解锁格（槽 0 = L1）仍可点 ⇒ 进玩法。
-        const c0 = centerOf(cells[0]!.box);
-        expect(r.shell.tapMeta(c0.x, c0.y)).toBe(true);
-        expect(r.shell.screen).toBe('play');
+        // 热区阳性对照：走马灯卡（唯一选关入口）仍可点 ⇒ 开 `levels` 选关页。
+        const c = centerOf(card);
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        expect(r.shell.overlay).toBe('levels');
     });
 
     it('验收⑦ 补 · 菜单三钮的合法侧效集 = `meta:overlay` + `stamina:changed`（⛔ 零玩法事件）', () => {
@@ -702,7 +727,7 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
                 const b = cell.box;
                 return c.x >= b.x && c.x <= b.x + b.w && c.y >= b.y && c.y <= b.y + b.h;
             });
-            expect(inSign || inCell, `珠心 (${c.x},${c.y}) 越出招牌带与格框` ).toBe(true);
+            expect(inSign || inCell, `珠心 (${c.x},${c.y}) 越出招牌带与格框`).toBe(true);
         }
     });
 
@@ -781,6 +806,13 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
             'THUMB_STAR_BAND',
             'THUMB_TOP_INSET',
             'WALL_SLOT_FALLBACK_CELL',
+            // 走马灯小卡一组（§1.3 第五轮）：同样只住 `tuning.ts` 派生区，⛔ 不入 §3。
+            'CAROUSEL_W',
+            'CAROUSEL_H',
+            'CAROUSEL_TOP',
+            'CAROUSEL_THUMB_N',
+            'CAROUSEL_THUMB_AREA',
+            'CAROUSEL_TEXT_BAND',
         ]) {
             expect(idx, `§3 不得被写入 ${name}（零 §3 变更）`).not.toContain(name);
         }

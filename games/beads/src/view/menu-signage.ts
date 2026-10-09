@@ -48,7 +48,6 @@ import {
     THUMB_MATRIX_N,
     THUMB_TOP_INSET,
     signFaceB,
-    thumbOuterFor,
     thumbPitchFor,
 } from '../config/tuning.js';
 import { signGlyphOf } from '../config/sign-glyphs.js';
@@ -169,7 +168,7 @@ export function drawBeadText(
                 warnedMissingGlyph = true;
                 console.warn(
                     `[beads] beadText: 码点 ${code} 无 n=${n} 字模 ⇒ 跳过该字（位表真源 = config/sign-glyphs.ts，` +
-                        '字模归 art 单，工程侧不猜字形；本条仅告警一次）',
+                    '字模归 art 单，工程侧不猜字形；本条仅告警一次）',
                 );
             }
             if (code > 0xffff) i++;
@@ -284,6 +283,7 @@ export function levelThumbBeads(level: BeadsLevelRaw, n: number = THUMB_MATRIX_N
  * @param w       格宽
  * @param h       格高
  * @param n       缩略档（缺省 `THUMB_MATRIX_N`；K-6 差分传 4 / 3 ⇒ 同帧对照）
+ * @param area    缩略区边长（缺省 `THUMB_AREA` ⇒ 橱窗格逐字节不变；走马灯卡传大值 ⇒ 单卡大图）
  */
 export function drawLevelThumb(
     builder: RenderModelBuilder,
@@ -293,12 +293,14 @@ export function drawLevelThumb(
     w: number,
     h: number,
     n: number = THUMB_MATRIX_N,
+    area: number = THUMB_AREA,
 ): void {
     const cells = levelThumbCells(level, n);
     if (cells.length === 0) return;
-    const pitch = thumbPitchFor(n);
-    const outer = thumbOuterFor(n);
-    const left = x + (w - THUMB_AREA) / 2;
+    // `area` 缺省 = `THUMB_AREA` ⇒ pitch/outer 逐字 = 旧 `thumbPitchFor(n)`/`thumbOuterFor(n)`（向后兼容）。
+    const pitch = area / n;
+    const outer = pitch - BEAD_GAP;
+    const left = x + (w - area) / 2;
     const top = yBottom + h - THUMB_TOP_INSET;
     const inks = beadInksFor(level);
     for (let i = 0; i < cells.length; i += 3) {

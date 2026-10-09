@@ -65,7 +65,7 @@ import {
 } from '../src/config/tuning.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { signGlyphBeadsOf } from '../src/config/sign-glyphs.js';
-import { buildMetaView, type MetaViewData, type MetaViewVariant } from '../src/view/meta-view.js';
+import { buildMetaView, type MetaOverlay, type MetaViewData, type MetaViewVariant } from '../src/view/meta-view.js';
 
 const CLOCK_START = 1_700_000_000_000;
 const META_KEY = 'wxgame.beads.test.t269s6k6.meta';
@@ -117,14 +117,18 @@ export function viewDataOf(shell: BeadsShell): MetaViewData {
     return (shell as unknown as { _metaViewData(): MetaViewData })._metaViewData();
 }
 
-/** 一帧菜单：`variant === undefined` ⇒ 走 **shell 生产真链路**（上线形态）；否则走视图直调 + 差分参。 */
-export function menuModel(shell: BeadsShell, variant?: MetaViewVariant): RenderModel {
+/** 一帧：`overlay='none' && variant===undefined` ⇒ 走 **shell 生产真链路**（菜单上线形态）；否则走视图直调 + 差分参（可选换 overlay）。 */
+export function menuModel(shell: BeadsShell, variant?: MetaViewVariant, overlay: MetaOverlay = 'none'): RenderModel {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    if (variant === undefined) {
+    if (overlay === 'none' && variant === undefined) {
         shell.buildRenderModel(builder);
     } else {
-        buildMetaView(builder, viewDataOf(shell), shell.play.palette, variant);
+        const base = viewDataOf(shell);
+        // 选关页腿：把 shell 当前（菜单）data 的 `overlay` 改写为 `levels` ⇒ 墙在此渲染。
+        // ⛔ 不在测试侧复算陈列序（仍取 shell 真 data）；只换屏态，与真机打开选关页同源。
+        const data: MetaViewData = overlay === 'none' ? base : { ...base, overlay };
+        buildMetaView(builder, data, shell.play.palette, variant ?? DEFAULT_EXPLICIT);
     }
     return builder.end();
 }
@@ -193,28 +197,38 @@ export function countPrimitives(model: RenderModel): PrimitiveCount {
     return counted;
 }
 
-/** 一腿 = 命名 + variant 参（`null` ⇒ 生产真链路）。台账与测试共读本表（⛔ 两处各写一份）。 */
+/** 一腿 = 命名 + 屏态 + variant 参（`null` ⇒ 生产真链路）。台账与测试共读本表（⛔ 两处各写一份）。 */
 export interface CaptureLeg {
     readonly label: string;
+    /** 量的是哪一屏：`'none'` = 主菜单（走马灯卡）；`'levels'` = 选关页（作品墙）。 */
+    readonly overlay: MetaOverlay;
     readonly variant: MetaViewVariant | null;
     readonly note: string;
 }
 
-export const CAPTURE_LEGS: readonly CaptureLeg[] = [
-    { label: 'production', variant: null, note: '生产真链路（shell.buildRenderModel ⇒ 招牌珠拼 + 5×5 缩略 + 3 行陈列）' },
-    { label: 'signage.off', variant: { signage: false }, note: '差分对照 A 基腿：招牌 beadText 不上屏（也不回落文字）' },
-    { label: 'wall.rows2', variant: { wallRows: 2 }, note: '差分对照 B：陈列格 3→2 行（T-1 §3.8 回退序 1）' },
-    { label: 'thumb.n4', variant: { thumbN: 4 }, note: '差分对照 C-2：缩略 5→4 档（回退序 2）' },
-    { label: 'thumb.n3', variant: { thumbN: 3 }, note: '差分对照 C-3：缩略 5→3 档（回退序 3）' },
-    { label: 'floor.allOff', variant: { signage: false, wallRows: 2, thumbN: 3 }, note: '全回落地板（回退序 1+2+5 同时生效的净底座）' },
-];
-
-/** 生产默认档的显式写法（用于「不传 ≡ 传默认值」的等价自证）。 */
+/** 生产默认档的显式写法（用于「不传 ≡ 传默认值」的等价自证 + 选关页腿基线）。 */
 export const DEFAULT_EXPLICIT: MetaViewVariant = {
     signage: true,
     wallRows: WALL_ROWS,
     thumbN: THUMB_MATRIX_N,
 };
+
+/**
+ * 【EP12-S6 · §1.3 第五轮】主菜单主区由「墙」→「走马灯单卡」⇒ 墙图元成本搬到 `levels` overlay。
+ * 故本表拆两组：
+ *  - **菜单腿**（`overlay='none'`）：只 `production`（招牌 beadText + 单卡）与 `signage.off`（纯卡）。
+ *  - **选关页腿**（`overlay='levels'`）：`wall.rows3`（生产基线）+ 行数/缩略档/地板回退差分。
+ * ⚠ 选关页腿的基线 = `wall.rows3`（不是菜单 `production`）⇒ 行数/缩略/地板 Δ 均相对墙生产档。
+ */
+export const CAPTURE_LEGS: readonly CaptureLeg[] = [
+    { label: 'production', overlay: 'none', variant: null, note: '主菜单生产真链路（shell.buildRenderModel ⇒ 招牌珠拼 + 走马灯单卡）' },
+    { label: 'signage.off', overlay: 'none', variant: { signage: false }, note: '菜单差分基腿：招牌 beadText 不上屏（也不回落文字）' },
+    { label: 'wall.rows3', overlay: 'levels', variant: DEFAULT_EXPLICIT, note: '选关页陈列墙生产基线（4×3=12 格、5×5 缩略）' },
+    { label: 'wall.rows2', overlay: 'levels', variant: { ...DEFAULT_EXPLICIT, wallRows: 2 }, note: '选关页差分 B：陈列格 3→2 行（T-1 §3.8 回退序 1）' },
+    { label: 'thumb.n4', overlay: 'levels', variant: { ...DEFAULT_EXPLICIT, thumbN: 4 }, note: '选关页差分 C-2：缩略 5→4 档（回退序 2）' },
+    { label: 'thumb.n3', overlay: 'levels', variant: { ...DEFAULT_EXPLICIT, thumbN: 3 }, note: '选关页差分 C-3：缩略 5→3 档（回退序 3）' },
+    { label: 'floor.allOff', overlay: 'levels', variant: { signage: false, wallRows: 2, thumbN: 3 }, note: '选关页全回落地板（回退序 1+2+5 同时生效的净底座）' },
+];
 
 /** 位表侧的分子（真源 = `config/sign-glyphs.ts` 自算，非抄来的纸面值）。 */
 export const SIGN_BEADS_FROM_GLYPHS: number = signGlyphBeadsOf(COPY_TOKENS.app_name);

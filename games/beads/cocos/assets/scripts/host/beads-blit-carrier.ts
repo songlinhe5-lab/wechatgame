@@ -192,9 +192,13 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     }
 
     beginFrame(): void {
-        // 上一帧用剩的节点在此收掉：本帧命令尚未交出，收掉的只是上一帧模型的残留
+        // 收上一帧**实际用过**的那批 `[0, _used)`：本帧命令尚未交出，收掉的只是上一帧模型的残留
         // ⇒ 不会有一帧残影（`Sprite` 显隐在引擎提交前生效）。
-        for (let i = this._used; i < this._pool.length; i++) {
+        // ⚠ 区间必须是 `[0, _used)` 而非 `[_used, pool.length)`：后者关的是「上帧没用的尾」（本就
+        //   inactive），而本帧 blit 数 < 上帧时（play→menu 珠数骤减）`[本帧, 上帧)` 段既不被
+        //   `_borrow` 复用、又没在此关掉 ⇒ 停在上帧盘面/托盘位置 = 残影。本帧要哪些由 `_borrow`
+        //   重新 `active=true` 点亮（WXG-T-269 后 play→menu 暴露）。
+        for (let i = 0; i < this._used; i++) {
             const node = this._pool[i]!.node;
             if (node.active) node.active = false;
         }

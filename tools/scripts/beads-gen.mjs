@@ -728,7 +728,10 @@ function smooth(arr, rounds) {
  * 不拿本函数的中间值当保证。
  * @returns {{changed:number, conflicts:number}}
  */
-function separateAdjacent(arr, minDE, avg, maxDriftDE) {
+function separateAdjacent(arr, minDE, avg, maxDriftDE, allow = null) {
+  // ⚠ allow = 限色保留色集（keptPx）。非空时候选**只允许 kept 内色**——否则此步在全色板
+  // 取色会复活禁用色（2026-10-09 实测：--colors 4 产出 8 色、设定 8 产出 9 色的统一根因；
+  // balance 有 allowSet 保护，唯独这步漏了）。
   const d2 = minDE * minDE;
   const drift2 = maxDriftDE * maxDriftDE;
   const N8 = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
@@ -754,7 +757,7 @@ function separateAdjacent(arr, minDE, avg, maxDriftDE) {
       const base = err2(i, cur);
       let best = 0, bestErr = Infinity;
       for (let p = 1; p <= PAL_N; p++) {
-        if (p === cur || !nb.every((v) => palDist(p, v) >= d2)) continue;
+        if (p === cur || (allow && !allow.has(p)) || !nb.every((v) => palDist(p, v) >= d2)) continue;
         const e = err2(i, p);
         if (e - base > drift2 || e >= bestErr) continue;
         bestErr = e; best = p;
@@ -1093,6 +1096,16 @@ function nearestLabIdx(q, labs) {
 }
 
 // 确定性 k-means（Lab 空间，L4：无随机——最远点初始化 + Lloyd 迭代）
+function nearestLabFreeIdx(q, labs, used) {
+  let bi = -1, bd = Infinity;
+  for (let i = 0; i < labs.length; i++) {
+    if (used.has(i)) continue;
+    const p = labs[i];
+    const d = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
+    if (d < bd) { bd = d; bi = i; }
+  }
+  return bi;
+}
 function kmeansLab(pts, k) {
   const centers = [pts[0].slice()];
   const minD = new Float64Array(pts.length).fill(Infinity);
@@ -1145,9 +1158,12 @@ function buildGrid(px, n, cellmode) {
   }
   let colors; // 本轮可用色号（kept 非空 = 已做像素级限色）
   if (n > 0 && n < PAL_N && pts.length) {
-    const seen = new Set();
-    for (const c of kmeansLab(pts, Math.min(n, pts.length))) seen.add(nearestLabIdx(c, PAL_LAB) + 1);
-    colors = [...seen].sort((a, b) => a - b);
+    // 2026-10-09 用户拍板：**产出 = N 或 N−1，不允许其他结果**。每簇贪心取「最近且
+    // 未被占用」的品牌色——簇心互异（最远点初始化）⇒ 候选不因撞色去重而缩水；
+    // k 凑不满（pts 退化，kmeansLab break）时簇数最少 N−1 ⇒ 产出下界 N−1。
+    const used = new Set();
+    for (const c of kmeansLab(pts, Math.min(n, pts.length))) used.add(nearestLabFreeIdx(c, PAL_LAB, used));
+    colors = [...used].sort((a, b) => a - b).map((i) => i + 1);
   } else {
     colors = Array.from({ length: PAL_N }, (_, i) => i + 1); // 不限制 → 全色板
   }
@@ -1308,8 +1324,43 @@ const { changed, note } = misMode === 'none'
 // 相邻格 ΔE 约束（v1.6）：放在颜色链路的**最后一步**（balance 之后）⇒ 结果不被后续重分配冲掉。
 // ⚠ 它会轻微挪动颜色直方图 ⇒ 主导色 ≤ N/2 的平衡前提理论上可能被削弱，故 h1 / errFinal 均在其后取。
 const adj = minAdjDE > 0
-  ? separateAdjacent(solved, minAdjDE, avg, ADJ_MAX_DRIFT_DE)
+  ? separateAdjacent(solved, minAdjDE, avg, ADJ_MAX_DRIFT_DE, allowSet)
   : { changed: 0, conflicts: adjacentConflicts(solved, minAdjDE) };
+// ── 用色保底（2026-10-09 用户拍板：**产出 = N 或 N−1，不允许其他结果**）──
+// 全部改色步骤之后核对：若实际用色 < N−1，把「改判代价最小」（新候选 − 当前色的格均色
+// Lab² 差）的格换判给 0 格候选——这些候选本有 k-means 簇成员，只是被格均色稀释掉。
+// 代价超 TOPUP_MAX_D2（ΔE>25 ⇒ 图内确无该色系，强塞=满盘噪点）则弃该候选：
+// 源图可达色数不足属图像极限，如实欠额并在 report 标注。keptPx 为空（不限色）跳过。
+let colorShortfall = 0; // >0 = 图像可达色数不足 N−1（保底被 ΔE 阈值拦下），report 标注
+if (allowSet && colorsMax > 0 && colorsMax < PAL_N) {
+  const target = Math.min(colorsMax - 1, limit.kept.length);
+  const TOPUP_MAX_D2 = 25 * 25;
+  const usedColors = new Set(solved.filter((v) => v > 0));
+  if (usedColors.size < target) {
+    const cellLabMap = new Map();
+    for (let i = 0; i < solved.length; i++) {
+      if (solved[i] > 0) cellLabMap.set(i, rgb2lab(Math.round(avg[i * 3]), Math.round(avg[i * 3 + 1]), Math.round(avg[i * 3 + 2])));
+    }
+    const dLab = (l, p) => { const t = PAL_LAB[p - 1]; return (t[0] - l[0]) ** 2 + (t[1] - l[1]) ** 2 + (t[2] - l[2]) ** 2; };
+    const topped = [];
+    for (const c of limit.kept) {
+      if (usedColors.size >= target) break;
+      if (usedColors.has(c)) continue;
+      let bi = -1, bcost = Infinity;
+      for (const [i, l] of cellLabMap) {
+        const cost = dLab(l, c) - dLab(l, solved[i]);
+        if (cost < bcost) { bcost = cost; bi = i; }
+      }
+      if (bi < 0 || bcost > TOPUP_MAX_D2) continue; // 图内确无该色系 ⇒ 弃（欠额标注见 report）
+      usedColors.add(c);
+      solved[bi] = c;
+      cellLabMap.delete(bi);
+      topped.push(c);
+    }
+    if (topped.length) console.error(`# 用色保底：+${topped.length} 色（${topped.join(',')}）`);
+  }
+  colorShortfall = Math.max(0, target - usedColors.size);
+}
 const h1 = hist(solved);
 const errFinal = meanColorErr(solved, avg); // 全部处理之后的最终色差 = **形状保真度**（越小越像原图）
 // 错位构造二选一：swaps ⇒ 游戏口径的 k 对异色交换（仅 2k 颗错位）；full ⇒ 全盘错位（每颗都不就位）。
@@ -1333,6 +1384,8 @@ const der = misMode === 'none'
 
 const fillN = solved.filter((v) => v > 0).length;
 const colorsUsed = h1.slice(1).filter((n) => n > 0).length;
+console.error(`# 限色 kept=${limit.kept.length}（${limit.kept.join(',')}）→ 最终用色 ${colorsUsed}：` +
+  h1.map((n, i) => (n ? `${i}×${n}` : null)).filter(Boolean).join(' '));
 
 // 出图 + 落 JSON（--no-png 跳过：预览由 Web 前端 canvas 负责，VPS 免装 chromium）
 if (!has('no-png')) {
@@ -1384,6 +1437,7 @@ const json = {
   misplaced: der.misplaced ? toRowStrings(der.misplaced) : [], // 初始全错位局面（mis=none 时无）
   report: {
     fillable: fillN, voidCells: bgRemoved, colorsUsed,
+    ...(colorShortfall ? { colorShortfall, shortfallNote: `图像可达色数不足：保底后仍缺 ${colorShortfall} 色（候选与全部格均色 Lab ΔE>25，强塞会毁保真；换更丰富的源图或调低用色数）` } : {}),
     cap: Math.floor(fillN / 2),
     maxFreqBefore: Math.max(...h0.slice(1)), maxFreqAfter: Math.max(...h1.slice(1)),
     balancedChanged: changed.length, balanceNote: note ?? null,

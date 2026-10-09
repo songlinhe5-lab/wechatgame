@@ -398,6 +398,12 @@
       "reason": "beads 冒烟清单正本（§0 实跑汇总 + 主链路 SC-01..13 + 冲刺/可感知/风格族/主菜单作品墙各段）：与 test-cases.md（WXG-T-084）/playtest-plan.md（WXG-T-211）/g4-regression-report.md（WXG-T-084）同族 QA 文档，按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
       "note": "2026-10-07（WXG-T-269-S6）新增 SC-MN-01/02 + SC-01/SC-11 K-053 划线订正使其越至 8572 tok（超 7%）。沿同族豁免口径同批登记；若后续多轮冒烟膨胀按测量轮拆分。登记人 = 主理人(Qoder)",
       "taskId": "WXG-T-269"
+    },
+    {
+      "path": "design/proposals/ui-style-redesign/risks.md",
+      "reason": "UI 风格重设计提案·风险台账（按时间序追加、逐条登记+留痕，开发期只按锚点局部读不整读）——与 menu-architecture.md（WXG-T-266 已豁免）同族",
+      "note": "WXG-T-268/269 批追加 EP12 换肤/作品墙风险条目后肨至 8291 tok（超 8000 上限 3.6%）",
+      "taskId": "WXG-T-269"
     }
   ]
 }

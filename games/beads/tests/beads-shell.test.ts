@@ -180,42 +180,52 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
     });
 });
 
-// EP12-S6 · 三条硬口径（§5.4）：主钮 = 当前关、墙格 = 指定关、**无第三入口**。
-// 旧例「从菜单点开 `open-levels` overlay」已随 Q5①（入口隐藏）作废 ⇒ 本文件改钉
-// 「菜单无选关入口」+「橱窗格直接选关」；`levels` overlay 本身（代码保留）由
-// `meta-menu-wall.test.ts` 钉几何同源与可驱动性。
-describe('BeadsShell — 主菜单作品墙选关（EP12-S6 · WXG-T-269-S6 T-2A）', () => {
-    it('主菜单无 `open-levels` 入口（菜单版面零第三钮）', () => {
+// menu-architecture §1.3 第五轮：主菜单主区由作品墙 → **走马灯小卡**；墙下移 `levels` overlay。
+// ⇒ 卡 = 菜单唯一选关入口（`open-levels`），选关行为改在 overlay 内钉；`levels` overlay 几何同源由
+// `meta-menu-wall.test.ts` 兜。
+describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-architecture §1.3 第五轮）', () => {
+    it('主菜单 = 走马灯卡为唯一选关入口（点卡 → 开 `levels`，不扣心、不进玩法）', () => {
         const r = rig({ initialScreen: 'menu' });
         const ids = metaLayout('none').buttons.map((b) => b.id);
-        expect(ids).not.toContain('open-levels');
-        const o = centerOf('none', 'start');
-        expect(r.shell.tapMeta(o.x, o.y)).toBe(true); // 主钮仍有效（阳性对照）
-        expect(r.shell.overlay).toBe('none'); // 且不会进任何 overlay
+        expect(ids, '卡 = 入口').toContain('open-levels');
+        expect(ids, '墙已下移 overlay ⇒ 菜单无 pick-level').not.toContain('pick-level');
+        expect([...new Set(ids)].sort()).toEqual(['open-levels', 'open-settings', 'open-signin', 'start']);
+        const before = r.shell.meta!.stamina;
+        const c = centerOf('none', 'open-levels');
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        expect(r.shell.overlay).toBe('levels');
+        expect(r.shell.screen).toBe('menu'); // 只是开 overlay
+        expect(r.shell.meta!.stamina).toBe(before); // 点入口不扣心
     });
 
-    it('点橱窗已解锁格 → 进**映射后的关**（非槽位号）且扣 1 心', () => {
+    it('overlay 内点已解锁格 → 进**映射后的关**（非槽位号）且扣 1 心', () => {
         const r = rig({ initialScreen: 'menu' });
         const before = r.shell.meta!.stamina;
-        // 陈列序 = DI 升序 ⇒ 槽 0 = 最易关 = L1 = 索引 0（唯一开局已解锁的格）。
-        const c = centerOf('none', 'pick-level', 0);
+        const open = centerOf('none', 'open-levels');
+        r.shell.tapMeta(open.x, open.y);
+        expect(r.shell.overlay).toBe('levels');
+        // 陈列序 = DI 升序 ⇒ 槽 0 = 最易关 = L1 = 索引 0（maxUnlocked=1 时唯一已解锁）。
+        const c = centerOf('levels', 'pick-level', 0);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.levelIndex).toBe(0);
         expect(r.shell.meta!.stamina).toBe(before - STAMINA_START_COST);
     });
 
-    it('未解锁格 → 不消费（`tapMeta` 返回 false、留菜单、不扣心 = 零热区零事件）', () => {
+    it('overlay 内未解锁格 → 不消费（`tapMeta` 返回 false、留选关页、不扣心 = 零新增事件）', () => {
         const r = rig({ initialScreen: 'menu' });
         const before = r.shell.meta!.stamina;
+        const open = centerOf('none', 'open-levels');
+        r.shell.tapMeta(open.x, open.y);
+        const eventsAfterOpen = r.overlayEvents.length; // 开页已发 1 条 meta:overlay
         // 槽 1 = 次易关（L8 ⇒ 索引 7），maxUnlocked=1 ⇒ 未解锁。
-        const c = centerOf('none', 'pick-level', 1);
+        const c = centerOf('levels', 'pick-level', 1);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(false);
         expect(r.shell.screen).toBe('menu');
-        expect(r.shell.overlay).toBe('none');
+        expect(r.shell.overlay).toBe('levels');
         expect(r.shell.meta!.stamina).toBe(before);
         expect(r.shell.play.levelIndex).toBe(0); // 未跳转
-        expect(r.overlayEvents.length, '零事件：未解锁格不发 `meta:*`').toBe(0);
+        expect(r.overlayEvents.length, '零事件：未解锁格不再发 `meta:*`').toBe(eventsAfterOpen);
     });
 });
 

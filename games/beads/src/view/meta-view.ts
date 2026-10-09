@@ -25,6 +25,12 @@
 import {
     DESIGN_H,
     DESIGN_W,
+    CAROUSEL_W,
+    CAROUSEL_H,
+    CAROUSEL_TOP,
+    CAROUSEL_THUMB_N,
+    CAROUSEL_THUMB_AREA,
+    CAROUSEL_TEXT_BAND,
     MENU_PRIMARY_W,
     MENU_PRIMARY_Y,
     MENU_ROW_GAP,
@@ -44,9 +50,7 @@ import {
     UI_CONTAINER,
     WALL_CELL,
     WALL_COLS,
-    WALL_FRAME_INSET,
     WALL_GAP,
-    WALL_GRID_TOP,
     WALL_ROWS,
     WALL_SLOT_DASH,
     WALL_SLOT_DASH_GAP,
@@ -113,6 +117,15 @@ export interface MetaViewData {
      * ⛔ 不拷贝、不持有、不排序（L5）。
      */
     readonly wallLevels: readonly (BeadsLevelRaw | undefined)[];
+    /**
+     * **走马灯小卡**（menu-architecture §1.3 第五轮）：`carouselLevel` = 已通关集合里 `DI`
+     * 最高那关的引用（shell 按已缓存的 DI 升序 `wallSlots` 反序取首个已通槽 ⇒ **每帧零 `difficultyOf`**）；
+     * 一关未通 ⇒ `undefined` ⇒ 卡画虚线空卡。与 {@link wallLevels} 同理 ⇒ 视图⛔ 不 `import { LEVELS }`。
+     * `carouselCleared` / `carouselTotal` = 进度分子/分母（每帧只读整数，不分配）。
+     */
+    readonly carouselLevel: BeadsLevelRaw | undefined;
+    readonly carouselCleared: number;
+    readonly carouselTotal: number;
     /** 宿主配了 beads-studio 服务地址 ⇒ 设置页画「在线导入」钮（WXG-T-179；缺省不画）。 */
     readonly studioEnabled?: boolean;
 }
@@ -223,18 +236,17 @@ const OVERLAY_PLATE: Box = box(
     OVERLAY_H,
 );
 
-// ── 作品墙网格/框带几何（主菜单与 `levels` overlay 同源；全部由 `WALL_*` 常量派生，
-//    模块级一次算定 ⇒ 每帧只读引用，零分配。数值真源见 `tuning.ts` 本组注释。）
+// ── 作品墙网格几何（`levels` overlay 仍用；主菜单已改为走马灯小卡 ⇒ 框带常量退场）。
+//    全部由 `WALL_*` 常量派生，模块级一次算定 ⇒ 每帧只读引用，零分配。数值真源见 `tuning.ts` 本组注释。
 /** 网格总宽 = `4×120 + 3×22` = 546（= 旧 `levelsLayout()` 内同值算式）。 */
 const WALL_GRID_W = WALL_COLS * WALL_CELL + (WALL_COLS - 1) * WALL_GAP;
-/** 网格总高 = `3×120 + 2×22` = 404。 */
-const WALL_GRID_H = WALL_ROWS * WALL_CELL + (WALL_ROWS - 1) * WALL_GAP;
-/** 主菜单橱窗框带（木框**外沿**）= 网格外扩 `WALL_FRAME_INSET` ⇒ x∈[80,670]、y∈[472,920]。 */
-const MENU_WALL_FRAME: Box = box(
-    (DESIGN_W - WALL_GRID_W) / 2 - WALL_FRAME_INSET,
-    WALL_GRID_TOP - WALL_GRID_H - WALL_FRAME_INSET,
-    WALL_GRID_W + 2 * WALL_FRAME_INSET,
-    WALL_GRID_H + 2 * WALL_FRAME_INSET,
+// ── 走马灯小卡几何（menu-architecture §1.3 第五轮终裁：主菜单主区 = 单卡进度展示，卡 = 唯一选关入口）。
+/** 卡外接框（y 向上 ⇒ `box.y` = 下缘 = `CAROUSEL_TOP − CAROUSEL_H`），模块级一次算定。 */
+const CAROUSEL_BOX: Box = box(
+    (DESIGN_W - CAROUSEL_W) / 2,
+    CAROUSEL_TOP - CAROUSEL_H,
+    CAROUSEL_W,
+    CAROUSEL_H,
 );
 /** 星级_label 查表（取代旧每帧 `'★'.repeat(n)+'☆'.repeat(3-n)` ⇒ 逐字同串、每帧零字符串分配）。 */
 const STAR_LABELS: readonly string[] = ['☆☆☆', '★☆☆', '★★☆', '★★★'];
@@ -269,15 +281,16 @@ function pushWallCells(buttons: MetaButton[], startX: number, topY: number, rows
 }
 
 /**
- * 主菜单版面（EP12-S6 · `menu-architecture §5.1`，750×1334，y 向上）：
- * 招牌 → slogan → **木框橱窗作品墙**（原 `levels` overlay 的 4×3 网格上提）→ 主钮 → 次级 2 钮 → 版本号。
- * ⛔ `open-levels` **不入布局** = 主菜单零第三入口（§5.4 口径 3；Q5①「入口隐藏、代码保留」）。
+ * 主菜单版面（menu-architecture §1.3 第五轮终裁后，750×1334，y 向上）：
+ * 招牌 → slogan → **走马灯小卡**（原 4×3 作品墙下移 `levels` overlay）→ 主钮 → 次级 2 钮 → 版本号。
+ * 走马灯卡 = **菜单唯一选关入口**（热区 = 卡本体，`id = 'open-levels'`）；
+ * ⛔ **不设独立选关钮**（一个动作一个控件），§5.4 口径③「零第三入口」仍成立（入口 = 卡本体）。
  */
-function menuLayout(rows: number): MetaLayout {
+function menuLayout(_rows: number): MetaLayout {
     const cx = DESIGN_W / 2;
     const buttons: MetaButton[] = [];
-    // L1 橱窗内的作品墙（热区 = 格；框与纸底零热区 ⇒ 不在本列表内）。
-    pushWallCells(buttons, cx - WALL_GRID_W / 2, WALL_GRID_TOP, rows);
+    // L1 走马灯小卡（热区 = 卡整块 ⇒ 点卡开选关页；卡内零子按钮）。
+    buttons.push({ id: 'open-levels', box: CAROUSEL_BOX });
     // 主钮「开始游戏」= 唯一「继续**当前关**」通道（§5.4 口径 1，语义不变）。
     const primaryY = MENU_PRIMARY_Y;
     buttons.push({ id: 'start', box: box(cx - MENU_PRIMARY_W / 2, primaryY, MENU_PRIMARY_W, TOUCH_MIN) });
@@ -519,29 +532,55 @@ function drawResourceBar(builder: RenderModelBuilder, data: MetaViewData, palett
 }
 
 /**
- * L1 木框橱窗（§5.2：「框与纸底**零热区**」）—— 本函数**不往 `metaLayout` 追加任何按钮**，
- * 故 `hitTestMeta` 无从命中（验收⑥可机械自证）。木/纸材质只用既有 token，⛔ 零新 hex；
- * 具体美术细案（木纹/投影/框型）归 **T-2B 林绘澄**，本批只搭结构腿。
+ * L1 走马灯小卡（menu-architecture §1.3 第五轮终裁）：主菜单唯一选关入口。
+ * - 上部 = **落位图**（`data.carouselLevel` 存在 ⇒ `drawLevelThumb` 现推 boss 关成品；
+ *   缺 ⇒ `drawDashedSocket` 虚线空卡 = 一关未通语言，同 §5.4 口径 2 无文字）；
+ * - 下部文字带 = 进度（`carousel_progress_label` + `${cleared}/${total}`）+ 选关提示（读 `btn_levels_label`）。
+ * 卡 = `metaLayout` 里的单热区（`open-levels`）；本函数**不追加子按钮** ⇒ 卡内无第二命中面。
+ * 容器/虚线只用既有 token，⛔ 零新 hex；文字基线的小像素偏移同 `drawWallCell` 星位判例。
  */
-function drawShopWindowFrame(builder: RenderModelBuilder, palette: BeadsPalette): void {
-    const f = MENU_WALL_FRAME;
-    // 木框（T3 语言：木面 + 底缘承重线 + 顶缘受光线）。
-    builder.rect(f.x, f.y, f.w, f.h, { fill: palette.woodFace, radius: UI_CONTAINER.radiusWood });
-    builder.line(f.x, f.y, f.x + f.w, f.y, palette.woodEdge, UI_CONTAINER.strokeWoodEdge);
-    builder.line(f.x, f.y + f.h, f.x + f.w, f.y + f.h, palette.woodSheen, UI_CONTAINER.strokeSheen);
-    // 纸底（材质语义：纸 = 承载信息），内缩一个框衬 ⇒ 作品格坐在纸上。
-    builder.rect(
-        f.x + WALL_FRAME_INSET,
-        f.y + WALL_FRAME_INSET,
-        f.w - 2 * WALL_FRAME_INSET,
-        f.h - 2 * WALL_FRAME_INSET,
-        {
-            fill: palette.panel,
-            stroke: palette.panelBorder,
-            lineWidth: UI_CONTAINER.strokePanel,
-            radius: UI_CONTAINER.radiusPanel,
-        },
-    );
+function drawCarouselCard(builder: RenderModelBuilder, data: MetaViewData, palette: BeadsPalette): void {
+    const b = CAROUSEL_BOX;
+    // 卡容器（纸格语言：slot 面 + slotBorder，同作品格/次级钮，零新 hex）。
+    builder.rect(b.x, b.y, b.w, b.h, {
+        fill: palette.slot,
+        stroke: palette.slotBorder,
+        lineWidth: 2,
+        radius: UI_CONTAINER.radiusChip,
+    });
+    // 落位图区（卡上部，坐在文字带之上）。
+    const thumbBottom = b.y + CAROUSEL_TEXT_BAND;
+    if (data.carouselLevel !== undefined) {
+        drawLevelThumb(
+            builder,
+            data.carouselLevel,
+            b.x,
+            thumbBottom,
+            b.w,
+            CAROUSEL_THUMB_AREA,
+            CAROUSEL_THUMB_N,
+            CAROUSEL_THUMB_AREA,
+        );
+    } else {
+        drawDashedSocket(
+            builder,
+            box(b.x + (b.w - CAROUSEL_THUMB_AREA) / 2, thumbBottom, CAROUSEL_THUMB_AREA, CAROUSEL_THUMB_AREA),
+            palette.slotDashed,
+        );
+    }
+    // 下部文字带：进度行 + 选关提示行（字面全读令牌，⛔ 不散落）。
+    builder.text(b.x + b.w / 2, b.y + CAROUSEL_TEXT_BAND - 28, `${COPY_TOKENS.carousel_progress_label} ${data.carouselCleared}/${data.carouselTotal}`, {
+        fill: palette.text,
+        font: FONT_LABEL,
+        align: 'center',
+        baseline: 'middle',
+    });
+    builder.text(b.x + b.w / 2, b.y + 26, COPY_TOKENS.btn_levels_label, {
+        fill: palette.textDim,
+        font: FONT_LABEL,
+        align: 'center',
+        baseline: 'middle',
+    });
 }
 
 /**
@@ -621,7 +660,7 @@ function drawWallCell(
             warnedMissingThumbLevel = true;
             console.warn(
                 '[beads] meta-view: wallSlots 有值但 wallLevels 缺项 ⇒ 该格回落编号占位（珠拼缩略需关卡 pattern 本体，' +
-                    '见 beads-shell::_rebuildWallSlots；本条仅告警一次）',
+                '见 beads-shell::_rebuildWallSlots；本条仅告警一次）',
             );
         }
         builder.text(cx, b.box.y + b.box.h / 2 - 8, `${levelIdx + 1}`, {
@@ -680,16 +719,12 @@ export function buildMetaView(
             align: 'center',
             baseline: 'middle',
         });
-        // L1 木框橱窗（零热区装饰层，先画 ⇒ 格坐在纸上）。
-        drawShopWindowFrame(builder, palette);
-        // 作品墙格（热区 = 格本身；与 `hitTestMeta('none', …)` 共用同一缓存布局，每帧只查一次）。
+        // L1 走马灯小卡（卡自绘 ⇒ 其热区 `open-levels` 不走通用钮绘制）。
         const menuButtons = metaLayout('none', rows).buttons;
+        drawCarouselCard(builder, data, palette);
+        // L3 CTA：主钮 + 次级 2 钮（走马灯卡已在上面自绘 ⇒ 跳过 `open-levels`）。
         for (const b of menuButtons) {
-            if (b.id === 'pick-level') drawWallCell(builder, b, data, palette, thumbN);
-        }
-        // L3 CTA：主钮 + 次级 2 钮（`pick-level` 已在上面按橱窗语言绘制）。
-        for (const b of menuButtons) {
-            if (b.id === 'pick-level') continue;
+            if (b.id === 'open-levels') continue;
             drawButton(builder, b.box, label(b.id, data), palette, b.id === 'start');
         }
         // 底部版本号（`version_label` · `font_label` 28 · text_secondary）。

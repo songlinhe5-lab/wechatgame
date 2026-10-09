@@ -15,9 +15,11 @@
  * 封箱联动：本批值变更走第十七次复评归因通道（`bead-style-seal.test.ts` provenance `s3_frame_recheck_17`）
  * 与色表锁追改（`bead-render.test.ts` ④，35 条 / `612ced0aa888`）——本文件不重复锁 sha。
  *
- * **[EP12-S6 · WXG-T-269-S6 T-2A] 追加**：主菜单「木框橱窗作品墙」的**色值消费面**（框/纸/格/空槽
- * 全读既有 token，⛔ 零新 hex）。与 `meta-menu-wall.test.ts` **分工不重叠**：那边钉陈列序 /
- * 热区 / 文案行为，本文件只钉「暖纸与木色在橱窗上的消费是否走对了 token」（K-042：同源判据不两处各钉）。
+ * **[EP12-S6 · WXG-T-269-S6 T-2A] 追加 · menu-architecture §1.3 第五轮刷新**：主菜单主区由「木框橱窗
+ * 作品墙」→「走马灯小卡」（墙下移 `levels` overlay）⇒ 本段改钉**卡/墙的颜色消费面**（卡容器与空卡
+ * 虚线 = slot 族/slot_dashed；墙格 = slot/`accent_primary`/`slot_dashed`，全读既有 token，⛔ 零新 hex）。
+ * ⚠ 菜单木框（`drawShopWindowFrame`）已随墙下移退场 ⇒ wood 族 token 的消费面归 `view-model.ts` 玩法面板
+ * （与本菜单段解耦）。与 `meta-menu-wall.test.ts` **分工不重叠**（K-042）：那边钉陈列序/热区/文案行为。
  */
 
 import { describe, it, expect } from 'vitest';
@@ -26,7 +28,6 @@ import {
     EXPAND_BTN_H,
     EXPAND_BTN_W,
     UI_CONTAINER,
-    WALL_FRAME_INSET,
     powerupCardRects,
     zoomControlLayout,
 } from '../src/config/tuning.js';
@@ -230,15 +231,20 @@ describe('WXG-T-268 EP12-S4 弹窗族换肤（screens.md S2/S3/S4 · paused/clea
 // ───────────────────────── [EP12-S6] 主菜单橱窗（木框 + 纸底 + 作品格/空槽）色值消费面
 
 /**
- * 橱窗夹具：只入**最小数据**（`wallSlots = [0]` ⇒ 槽 0 = 已解锁纸格、其余格越界成空槽），
- * 因此本文件**不拷贝九关陈列序**（那条判据只在 `meta-menu-wall.test.ts` 钉一份）。
+ * 视图夹具：按给定 overlay 与当前关组装**最小数据**（`wallSlots = [0]` ⇒ 槽 0 = 已解锁纸格、
+ * 其余越界成空槽）；走马灯卡状态由 `carouselLevel` 决定（有 ⇒ 现推缩略；无 ⇒ 虚线空卡）。
+ * 本文件**不拷贝九关陈列序**（那条判据只在 `meta-menu-wall.test.ts` 钉一份，K-042）。
  */
-function menuShellCmds(currentLevelIndex: number): readonly DrawCommand[] {
+function metaFrameCmds(opts: {
+    overlay: 'none' | 'signin' | 'settings' | 'levels';
+    currentLevelIndex: number;
+    carouselLevel?: (typeof LEVELS)[number] | undefined;
+}): readonly DrawCommand[] {
     const data: MetaViewData = {
         stamina: 5,
         staminaMax: 5,
         coins: 0,
-        overlay: 'none',
+        overlay: opts.overlay,
         signinDay: 0,
         canClaim: false,
         bgmMuted: false,
@@ -251,13 +257,16 @@ function menuShellCmds(currentLevelIndex: number): readonly DrawCommand[] {
         beadSize: 'full',
         skinId: 'tokens',
         levelCount: 9,
-        currentLevelIndex,
+        currentLevelIndex: opts.currentLevelIndex,
         maxUnlockedLevel: 1,
         starsByLevel: [3, 2, 1, 0, 0, 0, 0, 0, 0],
         wallSlots: [0],
-        // EP12-S6 · T-2B：珠拼缩略需关卡本体（与 `wallSlots` 同序同长）；本文件只钉 token 色消费面，
-        // ⛔ 不在这里反推缩略口径（那条判据只在 `menu-thumb-primitives.test.ts` 钉一份）。
+        // EP12-S6 · T-2B：珠拼缩略需关卡本体（与 `wallSlots` 同序同长）。
         wallLevels: [LEVELS[0]],
+        // 走马灯卡（§1.3）：boss 引用存在 ⇒ 现推缩略；缺 ⇒ 虚线空卡。
+        carouselLevel: opts.carouselLevel,
+        carouselCleared: opts.carouselLevel !== undefined ? 1 : 0,
+        carouselTotal: 9,
     };
     const builder = new RenderModelBuilder(750, 1334);
     builder.begin();
@@ -265,74 +274,57 @@ function menuShellCmds(currentLevelIndex: number): readonly DrawCommand[] {
     return builder.end().commands;
 }
 
-/** 作品格热区矩形（取几何 ⇒ 反推框带；⛔ 不依赖视图私有常量）。 */
+/** `levels` overlay 的作品格热区矩形（墙下移后住这里）。 */
 function wallBoxes() {
-    return metaLayout('none')
+    return metaLayout('levels')
         .buttons.filter((b) => b.id === 'pick-level')
         .map((b) => b.box);
 }
 
-describe('[EP12-S6] 主菜单橱窗·木框与纸底消费既有 token（⛔ 零新 hex）', () => {
-    it('框带尺寸 = 作品格包围盒外扩 `WALL_FRAME_INSET`；木面 = wood_face', () => {
-        const boxes = wallBoxes();
-        const minX = Math.min(...boxes.map((b) => b.x));
-        const maxX = Math.max(...boxes.map((b) => b.x + b.w));
-        const minY = Math.min(...boxes.map((b) => b.y));
-        const maxY = Math.max(...boxes.map((b) => b.y + b.h));
-        const frame = menuShellCmds(4).find(
+describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（⛔ 零新 hex）', () => {
+    it('走马灯小卡（有 boss）：卡容器 = slot 面 + slot_border 描边（同作品格/次级钮纸格语言）', () => {
+        const cmds = metaFrameCmds({ overlay: 'none', currentLevelIndex: 0, carouselLevel: LEVELS[0] });
+        const cardBox = metaLayout('none').buttons.find((b) => b.id === 'open-levels')!.box;
+        const card = cmds.find(
             (c) =>
                 c.kind === 'rect' &&
-                c.fill === DEFAULT_PALETTE.woodFace &&
-                c.x === minX - WALL_FRAME_INSET &&
-                c.w === maxX - minX + 2 * WALL_FRAME_INSET,
+                c.x === cardBox.x &&
+                c.w === cardBox.w &&
+                c.fill === DEFAULT_PALETTE.slot &&
+                c.stroke === DEFAULT_PALETTE.slotBorder,
         );
-        expect(frame, '木框 = wood_face（art-bible §3.1 T3 木语言，⛔ 不新造木色）').toBeDefined();
-        expect((frame as { y: number }).y).toBe(minY - WALL_FRAME_INSET);
-        expect((frame as { h: number }).h).toBe(maxY - minY + 2 * WALL_FRAME_INSET);
+        expect(card, '卡容器 = slot/slot_border（零新 hex）').toBeDefined();
     });
 
-    it('T3 三线：底缘承重线 = wood_edge(2px) / 顶缘受光线 = wood_sheen(1px) / 纸底 = panel + panel_border(1px)', () => {
-        const cmds = menuShellCmds(4);
-        const edge = cmds.find((c) => c.kind === 'line' && c.stroke === DEFAULT_PALETTE.woodEdge);
-        const sheen = cmds.find((c) => c.kind === 'line' && c.stroke === DEFAULT_PALETTE.woodSheen);
-        expect(edge, '框底缘读 wood_edge').toBeDefined();
-        expect((edge as { lineWidth: number }).lineWidth).toBe(UI_CONTAINER.strokeWoodEdge);
-        expect(sheen, '框顶缘读 wood_sheen').toBeDefined();
-        expect((sheen as { lineWidth: number }).lineWidth).toBe(UI_CONTAINER.strokeSheen);
-        const paper = cmds.find(
-            (c) =>
-                c.kind === 'rect' &&
-                c.fill === DEFAULT_PALETTE.panel &&
-                c.stroke === DEFAULT_PALETTE.panelBorder &&
-                c.lineWidth === UI_CONTAINER.strokePanel,
-        );
-        expect(paper, '纸底 = 暖纸白 + 暖沙 1px（tokens.md §1，与面板族同值）').toBeDefined();
+    it('走马灯小卡（一关未通）：虚线空卡 = slot_dashed（与作品格空槽同一既有语言）', () => {
+        const cmds = metaFrameCmds({ overlay: 'none', currentLevelIndex: 0, carouselLevel: undefined });
+        // 菜单无墙 ⇒ slot_dashed 唯一来源 = 空卡虚线框（`drawDashedSocket` 复用）。
+        const dashed = cmds.filter((c) => c.kind === 'line' && c.stroke === DEFAULT_PALETTE.slotDashed);
+        expect(dashed.length, '空卡虚线段在场').toBeGreaterThan(0);
+        expect(DEFAULT_PALETTE.slotDashed, 'slot_dashed 定稿值未漂（§1 扩展行虚线）').toBe('#C9C5DA');
     });
 
-    it('作品格 = slot/slot_border 纸格，当前关描边 = accent_primary(4px)；空槽虚线 = slot_dashed', () => {
+    it('`levels` 墙格 = slot/slot_border 纸格，当前关描边 = accent_primary(4px)；越界格 = slot_dashed', () => {
         // 非当前关（current=4）：槽 0 纸格走 slot_border。
-        const idle = menuShellCmds(4);
+        const idle = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 4, carouselLevel: undefined });
+        const w0 = wallBoxes()[0]!;
         const plain = idle.find(
             (c) =>
                 c.kind === 'rect' &&
                 c.fill === DEFAULT_PALETTE.slot &&
                 c.stroke === DEFAULT_PALETTE.slotBorder &&
-                c.w === wallBoxes()[0]!.w,
+                c.w === w0.w,
         );
         expect(plain, '已解锁非当前格 = slot 面 + slot_border 描边').toBeDefined();
         // 当前关（current=0）：同格改读 accent_primary（= wood_face 同值不同名判例）。
-        const cur = menuShellCmds(0);
+        const cur = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 0, carouselLevel: undefined });
         const hi = cur.find(
-            (c) =>
-                c.kind === 'rect' &&
-                c.stroke === DEFAULT_PALETTE.accentPrimary &&
-                c.w === wallBoxes()[0]!.w,
+            (c) => c.kind === 'rect' && c.stroke === DEFAULT_PALETTE.accentPrimary && c.w === w0.w,
         );
         expect(hi, '当前关高亮描边 = accent_primary').toBeDefined();
         expect((hi as { lineWidth: number }).lineWidth).toBe(4);
         // 未解锁 / 越界格 = 虚线空槽，虚线色 = tokens.md §1 `slot_dashed`（⛔ 不新造灰）。
-        const dashed = menuShellCmds(4).filter((c) => c.kind === 'line' && c.stroke === DEFAULT_PALETTE.slotDashed);
-        expect(dashed.length, '空槽虚线段在场').toBeGreaterThan(0);
-        expect(DEFAULT_PALETTE.slotDashed, 'slot_dashed 定稿值未漂（§1 扩展行虚线）').toBe('#C9C5DA');
+        const dashed = idle.filter((c) => c.kind === 'line' && c.stroke === DEFAULT_PALETTE.slotDashed);
+        expect(dashed.length, '越界空槽虚线段在场').toBeGreaterThan(0);
     });
 });
