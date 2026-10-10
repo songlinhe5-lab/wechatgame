@@ -3,7 +3,7 @@
  *
  * 与 bake-export（T-221 逐色位图成品）不同：tint mask 是**色无关**的
  * （一张 mask × 运行时 tint 色 = 任意珠色，ADR-0028）⇒ 无逐色导出，
- * 只按档位（holed/holeless）出 4 张：bead/grid × base/mask。
+ * 只按档位（holed/holeless）出 2 张 mask：bead/grid（base.png 已于 WXG-T-237 v8.0 移除）。
  *
  * 烘焙逻辑**不搬 JS**（单一真源零移植）：`GET /api/tint-export` 服务端子进程跑
  * 定稿脚本 tools/mask-preview/export-cocos-textures{,-holeless}.py（v1.0 冻结口径），
@@ -16,7 +16,7 @@ function setStatus(text, cls) {
     if (el) { el.textContent = text; el.className = cls || ''; }
 }
 
-// ── 档位缓存：mode → {bead:{base,mask}, grid:{base,mask}}（ImageData）──
+// ── 档位缓存：mode → {bead:{mask}, grid:{mask}}（ImageData）──
 const cache = {};
 let loading = null; // 进行中的 loadMode Promise（防并发重复拉取）
 
@@ -37,7 +37,7 @@ function imgDataFromDataUrl(url) {
 
 async function loadMode(mode) {
     if (cache[mode]) return cache[mode];
-    if (loading) await loading.catch(() => {});
+    if (loading) await loading.catch(() => { });
     if (cache[mode]) return cache[mode];
     loading = (async () => {
         setStatus('烘焙中（服务端跑定稿脚本）…');
@@ -46,20 +46,15 @@ async function loadMode(mode) {
         if (!res.ok) throw new Error(j.error || String(res.status));
         const byName = {};
         for (const f of j.files) byName[f.filename] = f.dataUrl;
-        const pick = (prefix) => ({
-            base: byName[`${prefix}-base.png`],
-            mask: byName[`${prefix}-mask.png`],
-        });
-        const beadPrefix = mode === 'holed' ? 'bead-tint-128' : 'bead-holeless-tint-128';
-        const gridPrefix = mode === 'holed' ? 'grid-tint-128' : 'grid-holeless-tint-128';
-        const [bb, bm, gb, gm] = await Promise.all([
-            imgDataFromDataUrl(pick(beadPrefix).base),
-            imgDataFromDataUrl(pick(beadPrefix).mask),
-            imgDataFromDataUrl(pick(gridPrefix).base),
-            imgDataFromDataUrl(pick(gridPrefix).mask),
+        // base 已于 WXG-T-237 v8.0 移除（透明度只由 mask B(shape) 承担）；holed 改名 *-hole-*（v9.0）。
+        const beadPrefix = mode === 'holed' ? 'bead-hole-tint-128' : 'bead-holeless-tint-128';
+        const gridPrefix = mode === 'holed' ? 'grid-hole-tint-128' : 'grid-holeless-tint-128';
+        const [bm, gm] = await Promise.all([
+            imgDataFromDataUrl(byName[`${beadPrefix}-mask.png`]),
+            imgDataFromDataUrl(byName[`${gridPrefix}-mask.png`]),
         ]);
         cache[mode] = {
-            bead: { base: bb, mask: bm }, grid: { base: gb, mask: gm },
+            bead: { mask: bm }, grid: { mask: gm },
             _urls: byName, // 导出复用（免二次烘焙请求）
         };
         return cache[mode];
@@ -73,24 +68,24 @@ async function loadMode(mode) {
 
 /**
  * shader 同款合成（games/beads/cocos tint-mask.effect 同公式）：
- *   rgb = baseColor·d + (1−baseColor)·l ；a = 形状（mask B）× base alpha。
- * mask 编码 R=d / G=l / B=形状（A=255 满幅，免疫 Trim）。
+ *   rgb = baseColor·d + (1−baseColor)·l ；a = 形状（mask B）。
+ * mask 编码 R=d / G=l / B=形状（A=255 满幅，免疫 Trim）。base.png 已于 v8.0 移除（恒不透明）。
  */
-function composite(mask, base, hex) {
+function composite(mask, hex) {
     const n = hex.replace('#', '');
     const cr = parseInt(n.slice(0, 2), 16) / 255;
     const cg = parseInt(n.slice(2, 4), 16) / 255;
     const cb = parseInt(n.slice(4, 6), 16) / 255;
     const w = mask.width, h = mask.height;
     const out = new ImageData(w, h);
-    const md = mask.data, bd = base.data, od = out.data;
+    const md = mask.data, od = out.data;
     for (let i = 0; i < w * h; i++) {
         const o = i * 4;
         const d = md[o] / 255, l = md[o + 1] / 255, shp = md[o + 2] / 255;
-        od[o]     = (cr * d + (1 - cr) * l) * 255;
+        od[o] = (cr * d + (1 - cr) * l) * 255;
         od[o + 1] = (cg * d + (1 - cg) * l) * 255;
         od[o + 2] = (cb * d + (1 - cb) * l) * 255;
-        od[o + 3] = shp * (bd[o + 3] / 255) * 255;
+        od[o + 3] = shp * 255;
     }
     return out;
 }
@@ -101,7 +96,7 @@ function drawPreview(kind, mode, hex) {
     if (!cv || !m) return;
     const off = document.createElement('canvas');
     off.width = m.mask.width; off.height = m.mask.height;
-    off.getContext('2d').putImageData(composite(m.mask, m.base, hex), 0, 0);
+    off.getContext('2d').putImageData(composite(m.mask, hex), 0, 0);
     const ctx = cv.getContext('2d');
     ctx.clearRect(0, 0, cv.width, cv.height);
     ctx.imageSmoothingEnabled = false; // 1:1 texel 放大（pixelated）
@@ -129,7 +124,7 @@ function spriteFor(kind, mode, hex) {
     spriteCache[mode] = spriteCache[mode] || { bead: {}, grid: {} };
     const bucket = spriteCache[mode][kind];
     if (!bucket[hex]) {
-        const src = composite(m[kind].mask, m[kind].base, hex);
+        const src = composite(m[kind].mask, hex);
         const cv = document.createElement('canvas');
         if (kind === 'bead') {
             // 裁珠面窗口：128px 画布中珠面 = dp/30 居中
@@ -174,9 +169,7 @@ window.TintBoard = {
                     cv.width = cv.height = 128;
                     const g = cv.getContext('2d');
                     const n = hex.replace('#', '');
-                    g.fillStyle = `rgb(${Math.round(parseInt(n.slice(0, 2), 16) * 0.70)},${
-                        Math.round(parseInt(n.slice(2, 4), 16) * 0.70)},${
-                        Math.round(parseInt(n.slice(4, 6), 16) * 0.70)})`;
+                    g.fillStyle = `rgb(${Math.round(parseInt(n.slice(0, 2), 16) * 0.70)},${Math.round(parseInt(n.slice(2, 4), 16) * 0.70)},${Math.round(parseInt(n.slice(4, 6), 16) * 0.70)})`;
                     g.fillRect(0, 0, 128, 128);
                     bucket[hex] = cv;
                 }

@@ -1095,31 +1095,40 @@ function nearestLabIdx(q, labs) {
   return bi;
 }
 
-// 确定性 k-means（Lab 空间，L4：无随机——最远点初始化 + Lloyd 迭代）
-function nearestLabFreeIdx(q, labs, used) {
-  let bi = -1, bd = Infinity;
-  for (let i = 0; i < labs.length; i++) {
-    if (used.has(i)) continue;
-    const p = labs[i];
-    const d = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
-    if (d < bd) { bd = d; bi = i; }
-  }
-  return bi;
-}
+/**
+ * 确定性 k-means（Lab）：k-means++ 播种（D² 概率加权）+ Lloyd。
+ * 播种用固定种子 mulberry32 ⇒ 同输入同输出，零 Math.random（守 L4）。
+ * 旧「最远点 argmax」播种系统性偏向极值（黑底↔白墙），中间调大簇（如屋顶双色）
+ * 只落一个种子 → 两色被并成一簇丢色；D² 加权让大面积中间调按占比获得种子。
+ */
 function kmeansLab(pts, k) {
-  const centers = [pts[0].slice()];
+  let s = 0x9e3779b9 >>> 0;
+  const rnd = () => {
+    s = (s + 0x6d2b79f5) >>> 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const centers = [pts[Math.floor(rnd() * pts.length)].slice()];
   const minD = new Float64Array(pts.length).fill(Infinity);
   while (centers.length < k) {
     const last = centers[centers.length - 1];
-    let bi = -1, bd = 0;
+    let total = 0;
     for (let i = 0; i < pts.length; i++) {
       const q = pts[i];
       const d = (last[0] - q[0]) ** 2 + (last[1] - q[1]) ** 2 + (last[2] - q[2]) ** 2;
       if (d < minD[i]) minD[i] = d;
-      if (minD[i] > bd) { bd = minD[i]; bi = i; }
+      total += minD[i];
     }
-    if (bd <= 1e-12) break; // 剩余点几乎重合，凑不满 k
-    centers.push(pts[bi].slice());
+    if (total <= 1e-12) break; // 剩余点几乎重合，凑不满 k
+    // 按 D² 概率加权取样一个点作新簇心
+    let target = rnd() * total, pick = pts.length - 1;
+    for (let i = 0; i < pts.length; i++) {
+      target -= minD[i];
+      if (target <= 0) { pick = i; break; }
+    }
+    centers.push(pts[pick].slice());
   }
   for (let it = 0; it < 12; it++) {
     const sums = centers.map(() => [0, 0, 0, 0]);
@@ -1158,12 +1167,40 @@ function buildGrid(px, n, cellmode) {
   }
   let colors; // 本轮可用色号（kept 非空 = 已做像素级限色）
   if (n > 0 && n < PAL_N && pts.length) {
-    // 2026-10-09 用户拍板：**产出 = N 或 N−1，不允许其他结果**。每簇贪心取「最近且
-    // 未被占用」的品牌色——簇心互异（最远点初始化）⇒ 候选不因撞色去重而缩水；
-    // k 凑不满（pts 退化，kmeansLab break）时簇数最少 N−1 ⇒ 产出下界 N−1。
-    const used = new Set();
-    for (const c of kmeansLab(pts, Math.min(n, pts.length))) used.add(nearestLabFreeIdx(c, PAL_LAB, used));
-    colors = [...used].sort((a, b) => a - b).map((i) => i + 1);
+    // 2026-10-09 用户修正：colors = **上限**，不限制最小色数。
+    // 流程：k-means(k=N) → 丢弃前景像素<1%的噪声簇 → 逐簇映射品牌珠 → 按珠去重。
+    // 2026-10-09 用户裁定：**不做源级 ΔE 近色合并**；同色/异色只由「色板能否区分」决定——
+    //   两个源簇落到同一颗品牌珠（色板分不出）才算同色（去重），落到不同珠（色板分得出）
+    //   就保持不同色。旧的 mergeCloseCentroids(ΔE12) 会在映射前按源色 ΔE 误并真实两色
+    //   （house 屋顶 terracotta/salmon 源距 ΔE11.3 却分属 S66/SP2 两颗珠），故弃用。
+    const MIN_CLUSTER_PCT = 0.01; // 簇像素占比低于 1% 视为边界噪声（去 speck，非去颜色）
+    const rawCenters = kmeansLab(pts, Math.min(n, pts.length));
+    // 计算每簇像素数并过滤噪声簇
+    const sizes = new Array(rawCenters.length).fill(0);
+    for (const q of pts) sizes[nearestLabIdx(q, rawCenters)]++;
+    // 噪声簇过滤（2026-10-09 修正：苹果棕茎被误杀）：占比分母用**前景像素**而非全图。
+    // 背景（多为纯色边框区）会稀释真实小特征：苹果黑底占全图 53%，棕茎 6747px 仅 0.64%<1%
+    // 却占前景 1.37%>1% —— 应保留。背景 = 图像四边主导的那个簇，其像素不计入分母。
+    // （若主体贴边、四边非纯色，则主导边簇即近似全图，分母回退到全图，行为同旧。）
+    let bgCluster = -1, bgMax = -1;
+    {
+      const tally = new Array(rawCenters.length).fill(0);
+      const bump = (i) => {
+        if (A && !A[i]) return;
+        tally[nearestLabIdx([LAB[i * 3], LAB[i * 3 + 1], LAB[i * 3 + 2]], rawCenters)]++;
+      };
+      for (let x = 0; x < W; x++) { bump(x); bump((H - 1) * W + x); }
+      for (let y = 0; y < H; y++) { bump(y * W); bump(y * W + W - 1); }
+      for (let i = 0; i < tally.length; i++) if (tally[i] > bgMax) { bgMax = tally[i]; bgCluster = i; }
+    }
+    const fgCount = pts.length - (bgCluster >= 0 ? sizes[bgCluster] : 0);
+    const minPts = Math.max(fgCount * MIN_CLUSTER_PCT, 1);
+    const significant = rawCenters.filter((_, i) => sizes[i] >= minPts);
+    const centers = significant.length ? significant : rawCenters; // 不做源级 ΔE 合并（见上）
+    // 逐簇映射品牌珠并按珠去重：同珠=同色（色板分不出），异珠=异色（色板分得出）。
+    const chosen = new Set();
+    for (const c of centers) chosen.add(nearestLabIdx(c, PAL_LAB));
+    colors = [...chosen].map((k) => k + 1).sort((a, b) => a - b);
   } else {
     colors = Array.from({ length: PAL_N }, (_, i) => i + 1); // 不限制 → 全色板
   }
@@ -1223,6 +1260,7 @@ if (shape !== 'square') {
   shapeCells = mask.reduce((a, b) => a + b, 0);
 }
 let bgRemoved = 0;
+let bgColorIdx = 0; // 提升到外层：保底步骤需排除背景色号
 if (!noFrame && shape === 'square') {
   const border = {};
   const push = (i) => (border[grid[i]] = (border[grid[i]] || 0) + 1);
@@ -1236,6 +1274,7 @@ if (!noFrame && shape === 'square') {
   }
   let bg = 0, bn = -1;
   for (const k in border) if (border[k] > bn) { bg = +k; bn = border[k]; }
+  bgColorIdx = bg; // 记录给下游保底步骤
   if (bg > 0) {
     const stack = [];
     const seed = (i) => { if (solved[i] === bg) { solved[i] = 0; stack.push(i); } };
@@ -1249,6 +1288,22 @@ if (!noFrame && shape === 'square') {
       if (r < rows - 1) seed(p + cols);
       if (c > 0) seed(p - 1);
       if (c < cols - 1) seed(p + 1);
+    }
+    // 背景残留清洗（2026-10-09 用户：花盘边缘黑珠）：
+    // flood fill 只删与边框 4 连通可达的背景色格。但主体内部可能有「孤岛」
+    // —— 同样是背景色号但不与边框连通（如绿叶边缘采样到黑底混色，映射回纯黑 S13）。
+    // 追加：非 void 格若色号 === bg 且孤立（4 邻同色 ≤1）→ 判 void。
+    {
+      for (let i = 0; i < solved.length; i++) {
+        if (solved[i] !== bg) continue;
+        const r = (i / cols) | 0, c = i % cols;
+        let same = 0;
+        if (r > 0 && solved[i - cols] === bg) same++;
+        if (r < rows - 1 && solved[i + cols] === bg) same++;
+        if (c > 0 && solved[i - 1] === bg) same++;
+        if (c < cols - 1 && solved[i + 1] === bg) same++;
+        if (same <= 1) { solved[i] = 0; bgRemoved++; }
+      }
     }
   }
 }
@@ -1299,8 +1354,16 @@ const mergedCells = mergeSmallBlocks(solved, minBlock);
 const stats1 = clusterStats(solved); // 聚集处理后
 
 const h0 = hist(solved);
-// ⚠️ 必须把 `--colors` 的保留色集传给 balance（否则它会把禁用色复活，见其头注）
-const allowSet = limit.kept.length ? new Set(limit.kept) : null;
+// ⚠️ 必须把 `--colors` 的保留色集传给 balance（否则它会把禁用色复活，见其头注）。
+// 2026-10-09 修正：只保留「当前盘面实际有格的色号」—— flood fill 后某些 keptPx 色可能已 0 格
+// （如背景色、被合并的邻近色），若仍留在 allowSet 中，balance/separateAdjacent 会把格改判给它们，
+// 制造孤立伪色（用户看到的「一颗近似黄色珠子」即此 bug）。
+let allowSet = null;
+if (limit.kept.length) {
+  const present = new Set();
+  for (const v of solved) if (v > 0) present.add(v);
+  allowSet = new Set(limit.kept.filter((c) => present.has(c)));
+}
 // 错位模式（`--mis full|max|swaps|none`；默认：给了 `--swaps K` 就 swaps，否则 full）。
 // ⚠ 模式必须在**构造之前**定：否则 `--mis full` 遇上 `--swaps 8` 仍会走交换法，
 //    得到的只是 2k 颗错位（不是全盘错位）—— 静默给错东西。
@@ -1326,41 +1389,10 @@ const { changed, note } = misMode === 'none'
 const adj = minAdjDE > 0
   ? separateAdjacent(solved, minAdjDE, avg, ADJ_MAX_DRIFT_DE, allowSet)
   : { changed: 0, conflicts: adjacentConflicts(solved, minAdjDE) };
-// ── 用色保底（2026-10-09 用户拍板：**产出 = N 或 N−1，不允许其他结果**）──
-// 全部改色步骤之后核对：若实际用色 < N−1，把「改判代价最小」（新候选 − 当前色的格均色
-// Lab² 差）的格换判给 0 格候选——这些候选本有 k-means 簇成员，只是被格均色稀释掉。
-// 代价超 TOPUP_MAX_D2（ΔE>25 ⇒ 图内确无该色系，强塞=满盘噪点）则弃该候选：
-// 源图可达色数不足属图像极限，如实欠额并在 report 标注。keptPx 为空（不限色）跳过。
-let colorShortfall = 0; // >0 = 图像可达色数不足 N−1（保底被 ΔE 阈值拦下），report 标注
-if (allowSet && colorsMax > 0 && colorsMax < PAL_N) {
-  const target = Math.min(colorsMax - 1, limit.kept.length);
-  const TOPUP_MAX_D2 = 25 * 25;
-  const usedColors = new Set(solved.filter((v) => v > 0));
-  if (usedColors.size < target) {
-    const cellLabMap = new Map();
-    for (let i = 0; i < solved.length; i++) {
-      if (solved[i] > 0) cellLabMap.set(i, rgb2lab(Math.round(avg[i * 3]), Math.round(avg[i * 3 + 1]), Math.round(avg[i * 3 + 2])));
-    }
-    const dLab = (l, p) => { const t = PAL_LAB[p - 1]; return (t[0] - l[0]) ** 2 + (t[1] - l[1]) ** 2 + (t[2] - l[2]) ** 2; };
-    const topped = [];
-    for (const c of limit.kept) {
-      if (usedColors.size >= target) break;
-      if (usedColors.has(c)) continue;
-      let bi = -1, bcost = Infinity;
-      for (const [i, l] of cellLabMap) {
-        const cost = dLab(l, c) - dLab(l, solved[i]);
-        if (cost < bcost) { bcost = cost; bi = i; }
-      }
-      if (bi < 0 || bcost > TOPUP_MAX_D2) continue; // 图内确无该色系 ⇒ 弃（欠额标注见 report）
-      usedColors.add(c);
-      solved[bi] = c;
-      cellLabMap.delete(bi);
-      topped.push(c);
-    }
-    if (topped.length) console.error(`# 用色保底：+${topped.length} 色（${topped.join(',')}）`);
-  }
-  colorShortfall = Math.max(0, target - usedColors.size);
-}
+// ── 用色保底（已作废，2026-10-09 v6f 政策：色数只设上限不设下限）──
+// 原设计强制产出 ≥ N−1 色，与 v6f「原图用几种就几种」矛盾，且会强塞 1 格孤立色。
+// 保留变量声明供下游 report 引用，逻辑不再执行。
+let colorShortfall = 0;
 const h1 = hist(solved);
 const errFinal = meanColorErr(solved, avg); // 全部处理之后的最终色差 = **形状保真度**（越小越像原图）
 // 错位构造二选一：swaps ⇒ 游戏口径的 k 对异色交换（仅 2k 颗错位）；full ⇒ 全盘错位（每颗都不就位）。

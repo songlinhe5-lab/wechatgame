@@ -17,7 +17,7 @@
  *   GET  /api/bake-manifest?id=&style= → 当前关预烘清单（WXG-T-221 S3-lite）：扫 result 用到的色集，
  *        与 games/beads/assets/{bead,cell}/levels/ 已有文件求差，回 { bead:[{colorIdx,filename}], cell:[...] }（仅缺失项）。
  *   POST /api/bake-save         → body `{ kind:'bead'|'cell', filename, dataUrl }`；filename 严格白名单、
- *   GET  /api/tint-export?mode=holed|holeless → tint 资源四件套 base64（WXG-T-222；服务端跑定稿
+ *   GET  /api/tint-export?mode=holed|holeless → tint mask 双张 base64（WXG-T-222；base 已 v8.0 移除；服务端跑定稿
  *                                    烘焙脚本 tools/mask-preview/export-cocos-textures{,-holeless}.py，
  *                                    单一真源零移植；色无关 ⇒ 无逐色导出）
  *        解码 base64 PNG 落 games/beads/assets/{kind}/levels/{filename}。两端点仅本地仓开（容器 501）。
@@ -561,24 +561,23 @@ async function handleBakeSave(req, res) {
 }
 
 /**
- * GET /api/tint-export?mode=holed|holeless → tint 资源四件套下载（WXG-T-222）。
+ * GET /api/tint-export?mode=holed|holeless → tint mask 双张下载（WXG-T-222；base 已于 WXG-T-237 v8.0 移除）。
  *
  * **单一真源零移植**（2026-09-29）：烘焙逻辑不搬 JS——服务端子进程直接跑定稿脚本
  * `tools/mask-preview/export-cocos-textures{,-holeless}.py`（有孔 v1.0 / 无孔 v1.0-holeless，
- * 用户拍板冻结口径），读 cocos-assets 四张 PNG 回 base64，前端逐张触发浏览器下载。
+ * 用户拍板冻结口径），读 cocos-assets 两张 mask PNG 回 base64，前端逐张触发浏览器下载。
  * ⚠ 依赖宿主 python3 + numpy + pillow（本地仓满足；容器/VPS 无 games/ ⇒ 501 同 bake 守卫）。
  * tint mask 是**色无关**的（一张 mask × 运行时 tint 色），故无逐色导出、与 bake-manifest 不同。
+ * 透明度只由 mask 的 B(shape) 通道承担 ⇒ 无 `*-base.png`（v8.0 移除；v9.0 holed 改名 `*-hole-*`）。
  */
 const TINT_MODES = {
     holed: {
         script: 'tools/mask-preview/export-cocos-textures.py',
-        files: ['bead-tint-128-base.png', 'bead-tint-128-mask.png',
-                'grid-tint-128-base.png', 'grid-tint-128-mask.png'],
+        files: ['bead-hole-tint-128-mask.png', 'grid-hole-tint-128-mask.png'],
     },
     holeless: {
         script: 'tools/mask-preview/export-cocos-textures-holeless.py',
-        files: ['bead-holeless-tint-128-base.png', 'bead-holeless-tint-128-mask.png',
-                'grid-holeless-tint-128-base.png', 'grid-holeless-tint-128-mask.png'],
+        files: ['bead-holeless-tint-128-mask.png', 'grid-holeless-tint-128-mask.png'],
     },
 };
 
