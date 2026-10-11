@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4098,
       "lines": 146,
-      "sha256": "cea3b2bc82f1d9cf028c0e4bf21702a1e0397f6c045945b909ed1a88f5202c10",
+      "sha256": "d113b715b5bce44140eeb4fc2d21d3fa70dc224bce049c67d435870616919654",
       "tier": "normal",
       "sections": [
         {
@@ -396,7 +396,7 @@
           "startLine": 1,
           "endLine": 147,
           "tokens": 4085,
-          "summary": "生成：2026-10-10 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-11 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5589,
       "lines": 86,
-      "sha256": "24a500bacd93407f392585f1d6a4f482cf20b1182d48dfbf6e1ed4da1726c482",
+      "sha256": "71aa02d123270c29526a938576e791903a6308b15d3774e33cd16f48721d6770",
       "tier": "normal",
       "sections": [
         {
@@ -16512,6 +16512,187 @@
             "已核销",
             "用户",
             "保持现状"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/art/menu-showcase-asset-spec.md",
+      "tokens": 5778,
+      "lines": 192,
+      "sha256": "98aaffa2f6ce180c50763b4ebc7c1bdad52f6f85d4357da876c18e73b1883011",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§主菜单「单主题橱窗」切图资产规格（提案 · 待实装）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 193,
+          "tokens": 5753,
+          "summary": "状态：提案 / 待实装 / 未 commit。本单只把已定稿的主菜单视觉方案整理成可切图的美术规格，供切图设计开工；数值",
+          "keywords": [
+            "commit",
+            "主菜单",
+            "单主题橱窗",
+            "切图资产规格",
+            "提案",
+            "待实装"
+          ]
+        },
+        {
+          "anchor": "§0 前置约定",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 23,
+          "tokens": 254,
+          "summary": "设计基准 750 × 1334 设计 px（y 向上，同 ux-spec §3）；参考图为 1536×2752（≈9:1",
+          "keywords": [
+            "§3",
+            "spec",
+            "前置约定"
+          ]
+        },
+        {
+          "anchor": "§1 版面分区与层序",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 54,
+          "tokens": 596,
+          "summary": "自上而下四带（关系不变式优先于具体 y 值，y 值 [待实测]）：",
+          "keywords": [
+            "版面分区与层"
+          ]
+        },
+        {
+          "anchor": "§2 三态规格（核心交互语义）",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 74,
+          "tokens": 487,
+          "summary": "橱窗一次只呈现一个主题，◀ / ▶ 切换上/下一个主题；被呈现主题的状态决定橱窗内容与主 CTA 态：",
+          "keywords": [
+            "CTA",
+            "三态规格",
+            "核心交互语义"
+          ]
+        },
+        {
+          "anchor": "§3 切图资产清单（切图设计主交付）",
+          "level": 2,
+          "startLine": 75,
+          "endLine": 101,
+          "tokens": 1008,
+          "summary": "命名遵 assets-spec §4：全小写下划线、{域}_{实体}_{变体}_{状态}、禁中文/大写/版本号/fina",
+          "keywords": [
+            "§4",
+            "assets",
+            "spec",
+            "fina",
+            "切图资产清单",
+            "切图设计主交"
+          ]
+        },
+        {
+          "anchor": "§4 文字与动态内容（切图设计的关键约束）",
+          "level": 2,
+          "startLine": 102,
+          "endLine": 117,
+          "tokens": 279,
+          "summary": "能动态渲染的文字一律不烘焙进 PNG，只切\"底板\"，文字叠在上层：",
+          "keywords": [
+            "PNG",
+            "文字与动态内",
+            "切图设计的关",
+            "键约束"
+          ]
+        },
+        {
+          "anchor": "§5 图集 / 命名 / 分包",
+          "level": 2,
+          "startLine": 118,
+          "endLine": 144,
+          "tokens": 1156,
+          "summary": "分包归属：菜单 UI 位图（A2–G1）与 boss 缩略（E2）统一进 textures Bundle（ADR-003",
+          "keywords": [
+            "boss",
+            "textures",
+            "Bundle",
+            "ADR",
+            "图集",
+            "命名"
+          ]
+        },
+        {
+          "anchor": "§5.1 工具与工作流（切图 → 入库）",
+          "level": 3,
+          "startLine": 125,
+          "endLine": 144,
+          "tokens": 905,
+          "summary": "环境事实：引擎 Cocos Creator 3.8.8，构建配置 packAutoAtlas: true 已开。",
+          "keywords": [
+            "Cocos",
+            "Creator",
+            "packAutoAtlas",
+            "true",
+            "工具与工作流",
+            "切图"
+          ]
+        },
+        {
+          "anchor": "§6 包体与红线（诚实登记，别当已达标）",
+          "level": 2,
+          "startLine": 145,
+          "endLine": 155,
+          "tokens": 301,
+          "summary": "本方案把主菜单从\"0 位图程序化\"改为\"位图切图\"，主包位图从 0 KB 变正：",
+          "keywords": [
+            "包体与红线",
+            "诚实登记",
+            "别当已达标"
+          ]
+        },
+        {
+          "anchor": "§7 可访问性（三态不得只靠颜色）",
+          "level": 2,
+          "startLine": 156,
+          "endLine": 168,
+          "tokens": 218,
+          "summary": "形/位 锁定=暗柜+灰化；进行中=纯名牌+顶部绶带；已通关=画框内成品图+角上金章 三态结构不同，非仅换色 ✓",
+          "keywords": [
+            "可访问性",
+            "三态不得只靠",
+            "颜色"
+          ]
+        },
+        {
+          "anchor": "§8 未决 · 交主理人对账 · 待实测",
+          "level": 2,
+          "startLine": 169,
+          "endLine": 178,
+          "tokens": 340,
+          "summary": "1. 招牌 logo：切图(A2) vs 程序化 beadText(卡 A) —— 本方案默认切图（AI 蝴蝶结吊牌造型",
+          "keywords": [
+            "logo",
+            "beadText",
+            "未决",
+            "交主理人对账",
+            "待实测"
+          ]
+        },
+        {
+          "anchor": "§9 参考图（`design/references/menu-showcase-20261010/`）",
+          "level": 2,
+          "startLine": 179,
+          "endLine": 193,
+          "tokens": 627,
+          "summary": "v1-mainmenu-final.png 主界面 v1 定稿留档（已通关态：logo 招牌 + 右上三图标 + 放大橱",
+          "keywords": [
+            "design",
+            "references",
+            "menu",
+            "showcase",
+            "mainmenu",
+            "final"
           ]
         }
       ]
@@ -55491,9 +55672,9 @@
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 11885,
+      "tokens": 11889,
       "lines": 295,
-      "sha256": "275d5dcb57c76f77a26f51fb8fc2fefab6fe2bbb9a886da86714cdd21dab2b0a",
+      "sha256": "ea3c4bda1ec444a9df844c53c89b890e7db324cf5b2a5f4250b5b9586f4ef715",
       "tier": "normal",
       "sections": [
         {
@@ -55501,7 +55682,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 296,
-          "tokens": 11863,
+          "tokens": 11867,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -55572,7 +55753,7 @@
           "level": 2,
           "startLine": 67,
           "endLine": 296,
-          "tokens": 10224,
+          "tokens": 10227,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -55584,7 +55765,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-10.md` — 944 tok｜0 节｜**蒸馏到期 2026-11-09**（剩 30 天）",
+          "anchor": "§`memory/2026-10-10.md` — 944 tok｜0 节｜**蒸馏到期 2026-11-09**（剩 29 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -55598,7 +55779,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 29 天）",
+          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 28 天）",
           "level": 3,
           "startLine": 78,
           "endLine": 82,
@@ -55612,7 +55793,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 27 天）",
+          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 26 天）",
           "level": 3,
           "startLine": 83,
           "endLine": 91,
@@ -55628,7 +55809,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 26 天）",
+          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 25 天）",
           "level": 3,
           "startLine": 92,
           "endLine": 98,
@@ -55644,7 +55825,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 25 天）",
+          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 24 天）",
           "level": 3,
           "startLine": 99,
           "endLine": 103,
@@ -55658,7 +55839,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 24 天）",
+          "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 23 天）",
           "level": 3,
           "startLine": 104,
           "endLine": 122,
@@ -55674,7 +55855,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 23 天）",
+          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 22 天）",
           "level": 3,
           "startLine": 123,
           "endLine": 128,
@@ -55690,7 +55871,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 19 天）",
+          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 18 天）",
           "level": 3,
           "startLine": 129,
           "endLine": 133,
@@ -55704,7 +55885,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 18 天）",
+          "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 17 天）",
           "level": 3,
           "startLine": 134,
           "endLine": 148,
@@ -55720,7 +55901,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 17 天）",
+          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 16 天）",
           "level": 3,
           "startLine": 149,
           "endLine": 156,
@@ -55736,7 +55917,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 12 天）",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 11 天）",
           "level": 3,
           "startLine": 157,
           "endLine": 162,
@@ -55752,7 +55933,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 7 天）",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 6 天）",
           "level": 3,
           "startLine": 163,
           "endLine": 179,
@@ -55768,7 +55949,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 6 天）",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 5 天）",
           "level": 3,
           "startLine": 180,
           "endLine": 191,
@@ -55784,7 +55965,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 5 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 4 天）",
           "level": 3,
           "startLine": 192,
           "endLine": 208,
@@ -55800,7 +55981,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 4 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 3 天）",
           "level": 3,
           "startLine": 209,
           "endLine": 236,
@@ -55816,7 +55997,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 3 天）",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 2 天）",
           "level": 3,
           "startLine": 237,
           "endLine": 257,
@@ -55832,7 +56013,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 2 天）",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏到期 2026-10-12**（剩 1 天）",
           "level": 3,
           "startLine": 258,
           "endLine": 275,
@@ -55848,7 +56029,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏到期 2026-10-11**（剩 1 天）",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 0 天）**",
           "level": 3,
           "startLine": 276,
           "endLine": 296,
