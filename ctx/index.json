@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5575,
       "lines": 86,
-      "sha256": "a09b0dcf70d059a1a401d3ca5d67d003f64d0f8fefa3cda8ad5f642c83be831e",
+      "sha256": "e8d7a10708c12b4ac018e72c1cb33fe9221fe04e303bf7c27c3ea20ed00743f9",
       "tier": "normal",
       "sections": [
         {
@@ -939,7 +939,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 138 行 / 6616 tok",
+          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 138 行 / 6770 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
@@ -27289,9 +27289,9 @@
     },
     {
       "path": "games/beads/design/ai-workflows/model-matrix.md",
-      "tokens": 6616,
+      "tokens": 6770,
       "lines": 138,
-      "sha256": "c8d9f4a4189cedee27c385feb5f33227c40c540d5453178faa3e3ebda1f7a5fe",
+      "sha256": "9f0c3cba959dd339454888844f10805a8327d70e06ce465b960646ed6a9bd31c",
       "tier": "normal",
       "sections": [
         {
@@ -27299,7 +27299,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 139,
-          "tokens": 6597,
+          "tokens": 6751,
           "summary": "本文件是「哪个方向用哪个模型 / 哪条通路」的裁定正本。数值类冻结常量仍以",
           "keywords": [
             "生图选型矩阵",
@@ -27391,7 +27391,7 @@
           "level": 2,
           "startLine": 99,
           "endLine": 128,
-          "tokens": 1788,
+          "tokens": 1942,
           "summary": "Flux-dev + 平涂 LoRA 冒烟（heart 单题） 已测毕·不改判（2026-10-09 全套 9 关 + ",
           "keywords": [
             "§6",
@@ -75339,17 +75339,17 @@
     },
     {
       "path": "my-skills/wxgame-image-gen/SKILL.md",
-      "tokens": 2516,
-      "lines": 89,
-      "sha256": "a9c578d6bd1db25b0b3dfe7224d2c44cfa3a0527d137100faef66e0d1ab4b2ee",
+      "tokens": 2627,
+      "lines": 93,
+      "sha256": "a9d688f362a3d6d3304f040f89e5ea80a03e1283cbaf398cc026a40c4f5fc94f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame AI 生图执行路由（四能力 · 云/本地 · 判据）",
           "level": 1,
           "startLine": 6,
-          "endLine": 90,
-          "tokens": 2221,
+          "endLine": 94,
+          "tokens": 2332,
           "summary": "本 skill 属 wxgame 家族（管线顺序与冲突裁决见 my-skills/INDEX.md）。它是执行层：",
           "keywords": [
             "wxgame",
@@ -75396,8 +75396,8 @@
           "anchor": "§2 命令模板（照抄可用）",
           "level": 2,
           "startLine": 29,
-          "endLine": 55,
-          "tokens": 359,
+          "endLine": 59,
+          "tokens": 471,
           "summary": "云 · 文生图（--ref 才是图生图；--seed 会自动关掉 prompt_extend，否则云侧改写你的提示词）",
           "keywords": [
             "ref",
@@ -75410,8 +75410,8 @@
         {
           "anchor": "§3 抠图：默认本地代码，**默认不上大模型**",
           "level": 2,
-          "startLine": 56,
-          "endLine": 66,
+          "startLine": 60,
+          "endLine": 70,
           "tokens": 454,
           "summary": "平色 UI 走 shape=point（纯 PIL/numpy，零 GPU、零下载、确定性）：种子点",
           "keywords": [
@@ -75426,8 +75426,8 @@
         {
           "anchor": "§4 出图后必跑判据（能排序的只有这些）",
           "level": 2,
-          "startLine": 67,
-          "endLine": 79,
+          "startLine": 71,
+          "endLine": 83,
           "tokens": 290,
           "summary": "mask 外 maxdiff 遮罩外逐通道差最大值，必须 0 局部编辑④",
           "keywords": [
@@ -75441,8 +75441,8 @@
         {
           "anchor": "§5 硬禁忌（均已实测确诊，勿重走）",
           "level": 2,
-          "startLine": 80,
-          "endLine": 83,
+          "startLine": 84,
+          "endLine": 87,
           "tokens": 193,
           "summary": "本地 i2i 做单元素资产（构图污染，bbox 77%）｜本地 i2i 做固定风格（锚不动版式）｜整图 denoise=",
           "keywords": [
@@ -75457,8 +75457,8 @@
         {
           "anchor": "§6 交付纪律",
           "level": 2,
-          "startLine": 84,
-          "endLine": 90,
+          "startLine": 88,
+          "endLine": 94,
           "tokens": 197,
           "summary": "1. 每轮报数：本地几张 / 云几张几元（云最差价已由用户指示封顶 0.25 元/张）。",
           "keywords": [

@@ -53,6 +53,10 @@ python3 temp/menu-states/inpaint-add.py <tag> <seed_x> <seed_y> <半径> <半径
 
 脚本尾行自带判据，必须看到 **`硬区外 maxdiff = 0  外溢像素 = 0`**；不等于 0 就是 mask 漏了或羽化没设 0。
 
+⚠ 本仓约定「一次性批跑与判据脚本住 `temp/`、不入库」⇒ 上面这条入口脚本与它的 qwen 后端工作流
+（`temp/menu-states/qwen-turbo-inpaint.api.json`）**没有版本兜底**，temp 一清即断；丢了按
+矩阵 §6「局部重绘入口」行的节点清单重建（骨架用已入库的 `workflows/sdxl-inpaint.api.json`）。
+
 ## 3. 抠图：默认本地代码，**默认不上大模型**
 
 - **平色 UI 走 `shape=point`**（纯 PIL/numpy，零 GPU、零下载、确定性）：种子点

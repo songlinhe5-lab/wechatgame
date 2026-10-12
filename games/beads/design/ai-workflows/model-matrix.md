@@ -105,7 +105,7 @@
 | Turbo 编码器 A/B | **已测毕·路线关闭**（文件已移入 `clip` 键，`CLIPLoaderGGUF` 可见且无需重启） | 两个位置都不通：当 CLIP → 维度 12288 vs 4096，KSampler 直接 RuntimeError；当 PE → 现役工作流 PE 分支 `switch=false` 不进图（换它像素零差，兼作确定性第三样本）。→ **本地换文本编码器不影响小字/版面**，该轴不要再投入；要改 PE 得先改接线（属另一变量，不是编码器变量） |
 | 待授权重下载 | **清单已定（§6.1），本批只建议 1 项** | 本端无 SSH/无写接口，权重只能用户在服务端下；SAM3.1 以外均建议不下或先零下载实测 |
 | **判据证据目录 `temp/model-bench/out/` 已丢** | **本日发现·本地不可恢** | 该目录存着本文件正文引用的全部对比图（`out-v4-s0000{1,2}` / `out-v5-s0000{1,2}` / `out-b1/b2` / Flux・SDXL 对比张 等）。`temp/` 被 gitignore → 无版本兜底；本地 `8188` 无这些文件（从未在本机生成），云端 `8143` 当时 **503**（服务未起）→ 暂捞不回。数字已记录在表，**目视复核需重跑**（v4/v5 对 = ¥6.84）或待云端实例恢复后捞回。教训：判据证据不得只存 `temp/` |
-| 判据脚本入库（`style-metrics.py` / `c-metrics.py` / `badge-contour.py` / `vlm-check.py`） | 暂留 `temp/`（不入库） | 口径已抄录本文件 §4/§5；要长期复测建议提到本目录 |
+| 判据脚本入库（`style-metrics.py` / `c-metrics.py` / `badge-contour.py` / `vlm-check.py`）+ **局部重绘入口** | 暂留 `temp/`（不入库） | 口径已抄录本文件 §4/§5；要长期复测建议提到本目录。⚠ 但 skill `wxgame-image-gen` 的④命令入口就是 `temp/menu-states/inpaint-add.py`（连其 qwen 后端 `temp/menu-states/qwen-turbo-inpaint.api.json`，10 节点：UNETLoader + CLIPLoader + VAELoader，`LoadImage → VAEEncodeForInpaint → KSampler(8 步) → VAEDecode → SaveImage`；mask 极性＝`putalpha(invert(hard))`，透明＝重绘）⇒ **temp 一清即断**。重建口径：以已入库的 `workflows/sdxl-inpaint.api.json` 为骨架换回 qwen 三 Loader + `VAEEncodeForInpaint`，尺寸档走 `--ratio/--mp` |
 
 ### 6.1 待授权下载清单（本端无 SSH/无写接口，只能用户在服务端下）
 
