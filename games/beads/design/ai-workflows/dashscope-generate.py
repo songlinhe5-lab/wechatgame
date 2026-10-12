@@ -14,6 +14,8 @@ wan2.7-image 等），提示词从 temp/beads-positive.sh 正本取（与本地�
   python3 dashscope-generate.py --model qwen-image-3.0-pro --model wan2.7-image --level boss
   # 直接给提示词（临时试构图）
   python3 dashscope-generate.py --model wan2.7-image --text "A flat vector red heart ..."
+  # 指定出图尺寸（竖屏原型）：不给 --size 时 qwen 线一律回 2048x2048 方图
+  python3 dashscope-generate.py --model qwen-image-3.0 --text "..." --size 1152*2048
 
 出图落 temp/dashscope-out/<level>/<model>.png（不入库），供走 studio /api/generate 比对。
 仅标准库（urllib）；DASHSCOPE_API_KEY 读 .env.local。
@@ -100,9 +102,11 @@ def find_image_urls(obj):
 
 
 def call(model, params, prompt, key):
+    # prompt 可为字符串（纯文生图）或 content 列表（图生图：[{image},{text}]）
+    content = [{"text": prompt}] if isinstance(prompt, str) else prompt
     body = {
         "model": model,
-        "input": {"messages": [{"role": "user", "content": [{"text": prompt}]}]},
+        "input": {"messages": [{"role": "user", "content": content}]},
         "parameters": params,
     }
     req = urllib.request.Request(
@@ -120,7 +124,8 @@ def download(url, path):
 
 
 def _parse_args(argv):
-    models, level, text = [], "boss", None
+    models, level, text, ref, seed = [], "boss", None, None, None
+    size = None
     i = 0
     while i < len(argv):
         a = argv[i]
@@ -130,31 +135,48 @@ def _parse_args(argv):
             i += 1; level = argv[i]
         elif a == "--text":
             i += 1; text = argv[i]
+        elif a == "--ref":
+            i += 1; ref = argv[i]
+        elif a == "--seed":
+            i += 1; seed = int(argv[i])
+        elif a == "--size":
+            i += 1; size = argv[i]  # 形如 1152*2048；不给则服务端默认（qwen 线恒为 2048 方图）
         elif a in ("-h", "--help"):
             print(__doc__); raise SystemExit
         else:
             models.append(a)  # 兼容旧位置参数：直接给模型名
         i += 1
-    return models, level, text
+    return models, level, text, ref, seed, size
 
 
 def main():
     argv = __import__("sys").argv[1:]
-    models, level, text = _parse_args(argv)
+    models, level, text, ref, seed, size = _parse_args(argv)
     models = models or list(MODELS)
     prompt = text or load_prompt(level)
     tag = "custom" if text else level
     out_dir = os.path.join(OUT, tag)
     os.makedirs(out_dir, exist_ok=True)
     key = load_key()
+    content = []
+    if ref:  # 图生图：把参考图 base64 内联进 content（qwen-image-edit / wan 参考图腿）
+        import base64
+        mime = "image/png" if ref.lower().endswith(".png") else "image/jpeg"
+        data = base64.b64encode(open(ref, "rb").read()).decode()
+        content.append({"image": f"data:{mime};base64,{data}"})
+    content.append({"text": prompt})
     results = {}
     for model in models:
         params = MODELS.get(model, {"prompt_extend": True})
+        if seed is not None:  # 锁复现：固定 seed 同时关掉服务端提示词改写（漂移主因）
+            params = {**params, "seed": seed, "prompt_extend": False}
+        if size:
+            params = {**params, "size": size}
         slug = model.replace(".", "").replace("-", "_")
-        print(f"\n=== {model} · {tag} ===")
+        print(f"\n=== {model} · {tag}{' · i2i' if ref else ''}{' · ' + size if size else ''}{' · seed' + str(seed) if seed is not None else ''} ===")
         t0 = time.time()
         try:
-            resp = call(model, params, prompt, key)
+            resp = call(model, params, content, key)
         except urllib.error.HTTPError as e:
             msg = e.read().decode()[:400]
             print(f"  ✗ HTTP {e.code}: {msg}")

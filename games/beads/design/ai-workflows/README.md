@@ -2,6 +2,9 @@
 
 拼豆项目本地 AI 生图 → 编码 → 接入 Cocos Creator 的自动化工具集。
 
+> **选型裁定正本：[`model-matrix.md`](./model-matrix.md)**（四方向用哪个模型 / 云还是本地、排除项、价目与限流、判据纪律、本地 ComfyUI 能力边界）。
+> 本 README 只讲**脚本怎么用**；要回答「这批产物该走哪条通路」先读那份矩阵。
+
 ## 环境要求
 
 - Python 3.10+，依赖：`Pillow`、`NumPy`（已装则跳过）
@@ -86,6 +89,7 @@ python3 games/beads/design/ai-workflows/submit-comfyui.py \
 ```
 
 - 尺寸由 `--mp`（megapixels）× `--ratio` 决定：1:1 时 `--mp 1` → 1024×1024（现行产线统一用此档），`--mp 4` → 2048×2048（已废，见下铁规）。
+- `--ratio` 走 `ResolutionSelector` 的 COMBO 枚举，脚本已加本地守卫：非法值直接红字退出并打印合法值（服务端对非法值照样返回 `execution_success` 但**零产物**，静默失败极难查；拿不到 `/object_info` 时只 WARN 不拦）。
 - ❗ **关卡图定位铁规：生成「拼豆转化·平面限色原画」，⛔ 不直接画拼豆面板、⛔ 不出立体渲染**（prompt 零 `bead / pegboard / pixel grid` 类词，拼豆化交给 studio 换肤/限色管线）：
   - 造型：单一主体居中、剪影大胆清晰；细节少到缩到目标格数仍可辨——**原画全 1024 直出（含 boss；2026-10-09 换制：格数由转化器采样决定，1024 对 32×32 档每格仍有 32px 采样余量；⛔ 2048 直出废——SDXL 易崩构图、Flux 实测 shift 错配劣化，旧 boss=2048 规作废）**。
   - 风格：**flat 2D 矢量插画口径——大色块平涂（solid flat fills）+ 锐利边缘**；⛔ 禁 `glossy / sheen / highlight / soft lighting / realistic material / 3D render / gradient / shadow` 类词（v3 实测教训：写「柔和光影/真实材质」出成立体产品渲染，高光渐变被 k-means 压出碎色，用色过多过碎不可拆解）。
@@ -110,6 +114,9 @@ python3 games/beads/design/ai-workflows/submit-comfyui.py \
 
 **云端调用细节**（阿里云百炼 DashScope，`DASHSCOPE_API_KEY` 在 `.env.local`）：`POST …/api/v1/services/aigc/multimodal-generation/generation`，body `{model, input.messages[].content[].text, parameters:{prompt_extend:true}}`，同步返回 `output.choices[].message.content[].image` URL；出图落 `temp/dashscope-out/<level>/<model>.png`（不入库）。
 
+- `--size '宽*高'`（如 `1152*2048`）透传 `parameters.size`：不给则服务端默认，qwen 线恒为 2048 方图。实测 4 模型竖屏档均正常出图；qwen-image-3.0 **1K/2K 同价**（0.18 元/张），竖屏不加价。
+- `--seed N` 同时置 `prompt_extend=False`（服务端提示词改写是主要漂移源）。
+
 **boss 关横比**（同走 studio boss 档 32×32 / noframe 0 / mis=full，全部 cleared；speckle = 孤立豆占比，越低越连贯）：
 
 | 模型 | 色数 | 主导% | speckle% | 出图耗时 | 观感 |
@@ -128,6 +135,8 @@ python3 games/beads/design/ai-workflows/submit-comfyui.py \
 **模型定位**（官方文档口径；非「谁更新」，两条并行产品线均 2026 当前代）：qwen-image-3.0-pro＝旗舰（复杂版面/小字渲染/长指令/摄影级细节，中国第 1、全球第 2 仅次 GPT-Image-2）；wan2.7-image＝万相线，快、大色块、多图一致性（pro 版 4K/品牌色/9 参考图）。**拼豆扁平矢量·无文字场景 → wan2.7 更对口（快 8×、天然大色块）；要严格结构/文字 → 3.0-pro**。未来切云端定稿推荐「3.0-pro + 调优提示词」或「wan2.7（量产占位）」。
 
 **接口自动导出 + 自检链**（本轮一并验证，`games/beads/design/ai-workflows/studio-batch-report.py`）：`POST /api/generate`（限色+错位+服务端 `--patch` 回填真引擎 `report.difficulty`）→ 自检主导色/色数/derangement/cleared/time；`POST /api/results/:id/ingest` 真写 `design/levels` + `levels:sync` + `framework:sync`，**sync 失败自动原子回滚**（实测撞门禁⑤ `DEMO_LEVEL_COUNT` 硬红 → 回滚，真源零污染）。默认档＝普通关 2x/16×16、boss 1x/32×32，`noframe 0`（扣背景）。
+
+**换盘：`--rebuild` 整表重建**（`python3 studio-batch-report.py --rebuild --dir temp/comfyui-out/teaching-set`）：与默认**追加**语义互斥——先 `resetLevels` 一次性清空真源关表（`manifest.entries=[]` + 删 `singles/plates` + contentVersion++ + 常量归零，可 `git checkout` 还原），再逐张 generate→bot 实测→ingest；**每入一张前自动把 `tuning.ts::DEMO_LEVEL_COUNT` 设为「当前关数 + 1」以守门禁⑤**（否则第 2 张起 ingest 撞「声明值 ≠ manifest 关数」硬红），末态净关数 = 实入关数。⚠ **pre-release 专用**：换盘会复用 uid 号段（5 位零填充、区间 5–10），仅未上架阶段可用；换盘后 DI/陈列序/Spearman 会变，须同步重校准下游（difficulty/meta-menu-wall/beads-shell 测试 + k6 台账 + level-difficulty/menu-architecture/TASKS-DETAIL 文档），判据见 `levels-spec.md §10 v1.14`（2026-10-10 teaching-set 换盘）。
 
 ### Prompt 模板
 
@@ -169,8 +178,10 @@ ui_<类别>_<名称>_<状态>.png
 | `encode-mask.py` | 光照参考图 → tint-mask 格式转换 |
 | `submit-comfyui.py` | 向远端 ComfyUI Server API 提交 workflow 并取回出图（标准库；qwen 钉节点 id，含标准 CLIPTextEncode 的 workflow 走通用探测；`--override NODE:KEY=VAL` 可临时改任意节点输入） |
 | `workflows/qwen-image-2.1-t2i.api.json` | qwen-image 2.1 t2i workflow（API 格式正本，192.168.1.16 机器导出） |
+| `workflows/qwen-image-2.1-turbo.api.json` | qwen-image 2.1 **turbo** t2i（8 步蒸馏 / cfg=1 / euler；标准 `KSampler`+`CLIPTextEncode`，走 `submit-comfyui.py` 通用分支：正/负=n4/n5、种子=KSampler、尺寸=EmptyLatentImage）。✅ **实测（2026-10-11，seed 42 / mp 1）：平涂达标**——单主体草莓出纯平涂两大色块、锐边、白底隔离、零渐变/阴影/高光/3D，正中 §「平面限色原画」口径（比 qwen v5 更干净）。⚠ cfg=1 → `--negative` 被忽略。**⚠ 2026-10-12 更正（本条只胜一半）**：多 seed 复测确诊 8 步做 t2i 属**欠采样**（高光 >250 占比 73–80%，首页基线 2.9%），换量化救不了 → 以 `model-matrix.md` §5 为准：**8 步档禁用于 t2i**，只可用于有底图约束的 inpaint/i2i；本条当时系单 seed 单题。证据：`temp/comfyui-out/turbo-test/Qwen_Turbo_00002_.png` |
+| `workflows/qwen-image-2.1-turbo-i2i.api.json` | qwen-image 2.1 **turbo 图生图**（`LoadImage`→`VAEEncode`→`KSampler(denoise)`，无 EmptyLatentImage，出图尺寸=输入）。⚠ **denoise 语义（实测）**：默认 0.65 结构锁得死（草莓→草莓，压不成苹果）；降到 0.5 可保形做态变体。⚠ **产物是整颗按钮贴奶油底的渲染图**，非切图：外缘柔光/AA 融进背景难抠净、几何与源 9-slice 不逐像素对齐 → 宜当 hover/高亮的**构图参照**，运行时换档资产仍走确定性更干净（色准实测中心 (254,156,162) vs 源 (253,150,158)，ΔG≈6；中段横向 max\|Δ\|=1 尚可拉伸）。证据：`temp/btn-cta/_i2i-out/Qwen_I2I_00002_.png` |
 | `workflows/sdxl-sticker.api.json` | SDXL 贴纸描边 workflow（sd_xl_base + StickerSheet/lineart 双 LoRA，cfg=7 负面词生效）。⚠ **实测挂起（2026-10-09，9 轮冒烟确诊）**：两 LoRA 的风格先验与「单主体平涂图标」根本冲突——StickerSheet 出贴纸合集/平铺图案（降权 0.35、负面词均压不住）；关它后 lineart 0.8 带街景/人物（`1solo` 是 danbooru 人物词，禁用）；裸 base 画空心/涂鸦心。换装候选亦否：**Flat style**→空心 logo 环+灰底+装饰心；**StickersRedmond**→白心红徽章+缝线扇贝边+灰底投影（均 seed 4201 同题对照 FAIL，证据 00019/00020）。根因：sd_xl_base 对简单实心图形结构 prior 太弱。**裁定：关卡底图产线维持 qwen-image 2.1 v5（同题 PASS），SDXL 线搁笔**；重启条件＝出现带结构约束（ControlNet/canny）的方案或更强图标底模。证据图：`temp/comfyui-out/sdxl-test/` 00010–00022（00021/00022 为同题复测，结论一致） |
-| `workflows/flux-dev-sticker.api.json` | Flux-dev GGUF 贴纸 workflow（flux1-dev-Q5_K_S + flat-illus-flux-v1/EnvyFluxKawaiiSticker01 双 LoRA；无负面入口，种子在 RandomNoise）。⚠ 实测（2026-10-09，7 轮冒烟 00006–00012）：**结构 prior 强于 SDXL**（零空心/零多主体），但默认采样参数出图柔糊（steps20/simple/shift1.15 太弱）；steps=28+max_shift=1.6 恢复锐度。风格侧：48 kawaii=柔边高光元凶、47 flat-illus=模切白边+投影；最优形态＝**双 LoRA 全关裸 flux**（闭合粗描边+平涂，00011），残留病＝flat-design 长投影（prompt 压不住，00012 反增纸艺纹理）。✅ **2026-10-09 晚突破**：48 换挂 `STICKER_FLUX.safetensors`（47 flat-illus 保留 + steps28/shift1.6）→ 黑闭合粗描边+填实+白底全达标（00013 PASS，CONCERNS：左上 4 点粉高光+右侧暗红阴影略多算）；待全套验证 → ✅ **全套已跑（9/9，`temp/comfy-flux-batch.sh` → `teaching-set-flux/`）**：零崩图、描边优于 qwen v5；butterfly/smiley/star PASS，flower 触边/apple/house CONCERNS，rainbow 5 带与 boss ~9 档超色预算＝与 qwen v5 同病（自然语言限色约束两模型均不服，留给转化器 k-means 强限色） |
+| `workflows/flux-dev-sticker.api.json` | Flux-dev GGUF 贴纸 workflow（flux1-dev-Q5_K_S + flat-illus-flux-v1/EnvyFluxKawaiiSticker01 双 LoRA；无负面入口，种子在 RandomNoise）。⚠ 实测（2026-10-09，7 轮冒烟 00006–00012）：**结构 prior 强于 SDXL**（零空心/零多主体），但默认采样参数出图柔糊（steps20/simple/shift1.15 太弱）；steps=28+max_shift=1.6 恢复锐度。风格侧：48 kawaii=柔边高光元凶、47 flat-illus=模切白边+投影；最优形态＝**双 LoRA 全关裸 flux**（闭合粗描边+平涂，00011），残留病＝flat-design 长投影（prompt 压不住，00012 反增纸艺纹理）。✅ **2026-10-09 晚突破**：48 换挂 `STICKER_FLUX.safetensors`（47 flat-illus 保留 + steps28/shift1.6）→ 黑闭合粗描边+填实+白底全达标（00013 PASS，CONCERNS：左上 4 点粉高光+右侧暗红阴影略多算）；待全套验证 → ✅ **全套已跑（9/9，`temp/comfy-flux-batch.sh` → `teaching-set-flux/`）**：零崩图、描边优于 qwen v5；butterfly/smiley/star PASS，flower 触边/apple/house CONCERNS，rainbow 5 带与 boss ~9 档超色预算＝与 qwen v5 同病（自然语言限色约束两模型均不服，留给转化器 k-means 强限色）。⚠ **2026-10-12 补第二 seed 后推翻**：同配方 heart @seed 4211 出**白底 + 撑满触边**（4201 虽黑底但多一圈模切白边与双层心叠影）→ 「9/9 达标」属**单 seed 结论**，不满足矩阵 §1 顶部「≥2 seed 一致才可翻案」门槛。**裁定：底图产线维持 qwen-image 2.1 v5**，正本见 `model-matrix.md` §6 |
 | `style-brief-for-lora.md` | 关卡底图美术风格规格书（LoRA 选型需求单：四硬指标/限色预算/禁词表/SDXL 失败根因/验收流程） |
 | `studio-batch-report.py` | 批量「导出+自检+效果对比」驱动：起 beads-studio 服务 → 逐张 `POST /api/generate`（限色/错位/服务端 `--patch` 回填真引擎 report）→ PIL 渲染对位/错位珠盘 → 可选 `--ingest`（真写 design/levels + sync，失败原子回滚）→ HTML 报告。默认档对齐 UI（普通关 16×16、boss 32×32、noframe 0）。零第三方依赖（urllib+Pillow） |
 | `dashscope-generate.py` | 阿里云百炼 DashScope 云端生图驱动（本地 qwen2.1 之外的云端后端）：`--model`选模型（qwen-image-3.0-pro/2.1-pro/2.1-turbo、wan2.7-image）、`--level boss|1..8` 或 `--text` 选提示词（取 `temp/beads-positive.sh` 正本）。读 `.env.local` 的 `DASHSCOPE_API_KEY`。仅标准库 |

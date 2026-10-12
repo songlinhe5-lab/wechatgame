@@ -217,6 +217,16 @@
 | 教训库（同域先读） | knowledge/lessons.md（**指针页**：标签 → 分片表） | 350 | 条目正文在 `knowledge/lessons/<标签>.md`；ID → 分片查 `knowledge/INDEX.md` 活跃表「分片」列；引用只写 K-0NN <!-- no-anchor --> |
 | 可复用模式库 | knowledge/patterns.md（整文件） | 711 | 追加式 | <!-- no-anchor -->
 
+### 1.8 AI 生图选型（hot · games/beads/design/ai-workflows/model-matrix.md）
+
+| 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
+|---|---|---:|---|
+| 四方向用哪个模型 / 云还是本地 | games/beads/design/ai-workflows/model-matrix.md#§1 四方向首选矩阵 | 679 | 选型裁定正本；数值仍服从 systems-index §3 |
+| 这条路能不能走（排除项） | games/beads/design/ai-workflows/model-matrix.md#§3 排除项（含理由，勿重走） | 204 | 含价目 §2 |
+| 判据能用哪些 / 已作废哪些 | games/beads/design/ai-workflows/model-matrix.md#§4 判据纪律（哪些能排序，哪些不能） | 319 | 种子噪声洗牌类判据禁用 |
+| 本地 ComfyUI 能力边界 | games/beads/design/ai-workflows/model-matrix.md#§5 本地 ComfyUI 能力边界（2026-10-12 权重清单实证） | 1640 | 节点存在 ≠ 权重存在；分割/抠图三路不合用；现有底座 RGBA 但 alpha 无语义 |
+| 要下哪些权重（待授权清单） | games/beads/design/ai-workflows/model-matrix.md#§6 未决与下一步 | 1985 | §6.1：只建议 SAM3.1 fp16 <2GB（`CheckpointLoaderSimple` 驱动）；GD/ControlNet/Layered/超分 均不下；显存顶 11.8GB |
+
 ## 2. 维护
 
 - 本表锚点须与 `ctx/index.json` 的 `anchor` 一致；改任一被索引 `.md` 的标题后，重跑 `pnpm run ctx:build`

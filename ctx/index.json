@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4098,
       "lines": 146,
-      "sha256": "5ff0c2a862c00c7a7a69420568235f7246d799e7413bb6df49afdaa9ae67190a",
+      "sha256": "46914919a3a0007b01ad1dc8d7c88169c83d5337385ee5c5b7abbbd438eacb6a",
       "tier": "normal",
       "sections": [
         {
@@ -471,17 +471,17 @@
     },
     {
       "path": "ctx/ROUTES.md",
-      "tokens": 6897,
-      "lines": 227,
-      "sha256": "924490ab0a1aaf4ff7182df2df976e38d234156a6f8a3d5ab946f778ed761390",
+      "tokens": 7256,
+      "lines": 237,
+      "sha256": "613edef91acb185f8f43e41b98a7b7b7e006d58946757879f335abb6839e4e39",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文路由表（ctx/ROUTES.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 228,
-          "tokens": 6885,
+          "endLine": 238,
+          "tokens": 7244,
           "summary": "给 agent 的第一跳：开工前先读本表，命中锚点后用 read_file(path, offset, limit) 只",
           "keywords": [
             "ctx",
@@ -524,8 +524,8 @@
           "anchor": "§1 路由表",
           "level": 2,
           "startLine": 99,
-          "endLine": 219,
-          "tokens": 3333,
+          "endLine": 229,
+          "tokens": 3693,
           "summary": "",
           "keywords": [
             "路由表"
@@ -643,10 +643,26 @@
           ]
         },
         {
+          "anchor": "§1.8 AI 生图选型（hot · games/beads/design/ai-workflows/model-matrix.md）",
+          "level": 3,
+          "startLine": 220,
+          "endLine": 229,
+          "tokens": 337,
+          "summary": "四方向用哪个模型 / 云还是本地 games/beads/design/ai-workflows/model-matri",
+          "keywords": [
+            "hot",
+            "games",
+            "beads",
+            "design",
+            "workflows",
+            "model"
+          ]
+        },
+        {
           "anchor": "§2 维护",
           "level": 2,
-          "startLine": 220,
-          "endLine": 228,
+          "startLine": 230,
+          "endLine": 238,
           "tokens": 192,
           "summary": "本表锚点须与 ctx/index.json 的 anchor 一致；改任一被索引 .md 的标题后，重跑 pnpm ru",
           "keywords": [
@@ -662,9 +678,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5589,
+      "tokens": 5569,
       "lines": 86,
-      "sha256": "964af0092019a6f11b0beb918764d6890807555a3a9c1062b10973cc0a8761b9",
+      "sha256": "e4db89ceb90cd9b4693ce31e41d838ecc5728d24baed019afe624cfe927592ec",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +688,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 5561,
+          "tokens": 5541,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -780,12 +796,12 @@
           ]
         },
         {
-          "anchor": "§`my-skills/INDEX.md` — 138 行 / 3479 tok / 实测读 61 次",
+          "anchor": "§`my-skills/INDEX.md` — 139 行 / 3589 tok / 实测读 61 次",
           "level": 2,
           "startLine": 34,
           "endLine": 37,
           "tokens": 117,
-          "summary": "§wxgame skill 家族 INDEX=1+139 · §1 清单（现役 38 个挂四 IDE 链接；存档 1 个",
+          "summary": "§wxgame skill 家族 INDEX=1+140 · §1 清单（现役 38 个挂四 IDE 链接；存档 1 个",
           "keywords": [
             "my-skills/INDEX.md",
             "§1",
@@ -923,10 +939,26 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
+          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 138 行 / 6616 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
+          "tokens": 128,
+          "summary": "§AI 生图选型矩阵（四方向 · 云/本地分工）=1+139 · §1 四方向首选矩阵=11+16 · §2 候选池 ·",
+          "keywords": [
+            "§1",
+            "§2",
+            "games",
+            "beads",
+            "design",
+            "workflows"
+          ]
+        },
+        {
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7341 tok",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 77,
           "tokens": 209,
           "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
@@ -941,8 +973,8 @@
         {
           "anchor": "§`knowledge/INDEX.md` — 232 行 / 9556 tok",
           "level": 2,
-          "startLine": 74,
-          "endLine": 77,
+          "startLine": 78,
+          "endLine": 81,
           "tokens": 92,
           "summary": "§knowledge/ — 工作室知识库（WXG-T-023）=1+233 · §1 读取协议（开发前期）=7+10 ·",
           "keywords": [
@@ -957,9 +989,9 @@
         {
           "anchor": "§`production/TASKS-DETAIL.md` — 3232 行 / 111524 tok",
           "level": 2,
-          "startLine": 78,
-          "endLine": 81,
-          "tokens": 1151,
+          "startLine": 82,
+          "endLine": 87,
+          "tokens": 1205,
           "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2674 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
@@ -968,22 +1000,6 @@
             "DETAIL",
             "tok",
             "WXG"
-          ]
-        },
-        {
-          "anchor": "§`games/breakout/design/concept.md` — 143 行 / 3110 tok / 实测读 217 次",
-          "level": 2,
-          "startLine": 82,
-          "endLine": 87,
-          "tokens": 200,
-          "summary": "§《弹球打砖块》一页纸概念（Concept One-Pager）=1+144 · §1 一句话定位=11+4 · §2 ",
-          "keywords": [
-            "games/breakout/design/concept.md",
-            "§1",
-            "§2",
-            "games",
-            "breakout",
-            "design"
           ]
         }
       ]
@@ -26750,17 +26766,17 @@
     },
     {
       "path": "games/beads/design/ai-workflows/README.md",
-      "tokens": 4240,
-      "lines": 178,
-      "sha256": "18d8ce4e4472488663e25649a719a485e0be1a464298567debdc0065bc0f0be8",
+      "tokens": 5389,
+      "lines": 189,
+      "sha256": "f0f4e97ef873766934babb30153a2769d94b81e8360f31c1d72ed30df8aee8bb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§AI 美术工作流",
           "level": 1,
           "startLine": 1,
-          "endLine": 179,
-          "tokens": 4234,
+          "endLine": 190,
+          "tokens": 5382,
           "summary": "拼豆项目本地 AI 生图 → 编码 → 接入 Cocos Creator 的自动化工具集。",
           "keywords": [
             "Cocos",
@@ -26771,8 +26787,8 @@
         {
           "anchor": "§环境要求",
           "level": 2,
-          "startLine": 5,
-          "endLine": 10,
+          "startLine": 8,
+          "endLine": 13,
           "tokens": 59,
           "summary": "Python 3.10+，依赖：Pillow、NumPy（已装则跳过）",
           "keywords": [
@@ -26785,8 +26801,8 @@
         {
           "anchor": "§产线 A：换肤 Mask 纹理",
           "level": 2,
-          "startLine": 11,
-          "endLine": 70,
+          "startLine": 14,
+          "endLine": 73,
           "tokens": 465,
           "summary": "",
           "keywords": [
@@ -26799,8 +26815,8 @@
         {
           "anchor": "§流程",
           "level": 3,
-          "startLine": 13,
-          "endLine": 18,
+          "startLine": 16,
+          "endLine": 21,
           "tokens": 28,
           "summary": "",
           "keywords": [
@@ -26810,8 +26826,8 @@
         {
           "anchor": "§1 AI 生成参考图（ComfyUI）",
           "level": 3,
-          "startLine": 19,
-          "endLine": 41,
+          "startLine": 22,
+          "endLine": 44,
           "tokens": 190,
           "summary": "推荐模型：SDXL + RealVisXL（写实光影）或 Flux.1 Schnell（快速概念）",
           "keywords": [
@@ -26826,8 +26842,8 @@
         {
           "anchor": "§2 精修（Krita）",
           "level": 3,
-          "startLine": 42,
-          "endLine": 47,
+          "startLine": 45,
+          "endLine": 50,
           "tokens": 29,
           "summary": "去除背景杂色",
           "keywords": [
@@ -26838,8 +26854,8 @@
         {
           "anchor": "§3 通道编码",
           "level": 3,
-          "startLine": 48,
-          "endLine": 62,
+          "startLine": 51,
+          "endLine": 65,
           "tokens": 114,
           "summary": "",
           "keywords": [
@@ -26849,8 +26865,8 @@
         {
           "anchor": "§4 验证",
           "level": 3,
-          "startLine": 63,
-          "endLine": 70,
+          "startLine": 66,
+          "endLine": 73,
           "tokens": 73,
           "summary": "在 Cocos Creator 里：",
           "keywords": [
@@ -26862,9 +26878,9 @@
         {
           "anchor": "§产线 B：游戏 UI 资产",
           "level": 2,
-          "startLine": 71,
-          "endLine": 155,
-          "tokens": 2421,
+          "startLine": 74,
+          "endLine": 164,
+          "tokens": 2885,
           "summary": "",
           "keywords": [
             "产线",
@@ -26875,8 +26891,8 @@
         {
           "anchor": "§流程 (2)",
           "level": 3,
-          "startLine": 73,
-          "endLine": 78,
+          "startLine": 76,
+          "endLine": 81,
           "tokens": 28,
           "summary": "",
           "keywords": [
@@ -26886,9 +26902,9 @@
         {
           "anchor": "§外部 ComfyUI API 出图（192.168.1.16，qwen-image 2.1）",
           "level": 3,
-          "startLine": 79,
-          "endLine": 99,
-          "tokens": 1126,
+          "startLine": 82,
+          "endLine": 103,
+          "tokens": 1211,
           "summary": "",
           "keywords": [
             "ComfyUI",
@@ -26902,9 +26918,9 @@
         {
           "anchor": "§云端模型横比与 Boss 连贯度调优（2026-10-10 定稿留档）",
           "level": 3,
-          "startLine": 100,
-          "endLine": 131,
-          "tokens": 1064,
+          "startLine": 104,
+          "endLine": 140,
+          "tokens": 1444,
           "summary": "现流程仍走本地 ComfyUI qwen-image 2.1（开源）跑通产线；云端为后续可能切用的定稿备选，本节留档结论",
           "keywords": [
             "Boss",
@@ -26918,8 +26934,8 @@
         {
           "anchor": "§Prompt 模板",
           "level": 3,
-          "startLine": 132,
-          "endLine": 139,
+          "startLine": 141,
+          "endLine": 148,
           "tokens": 39,
           "summary": "",
           "keywords": [
@@ -26930,8 +26946,8 @@
         {
           "anchor": "§命名规范",
           "level": 3,
-          "startLine": 140,
-          "endLine": 148,
+          "startLine": 149,
+          "endLine": 157,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -26941,8 +26957,8 @@
         {
           "anchor": "§接入",
           "level": 3,
-          "startLine": 149,
-          "endLine": 155,
+          "startLine": 158,
+          "endLine": 164,
           "tokens": 69,
           "summary": "放入 games/beads/cocos/assets/ui/",
           "keywords": [
@@ -26956,8 +26972,8 @@
         {
           "anchor": "§包体预算参考",
           "level": 2,
-          "startLine": 156,
-          "endLine": 164,
+          "startLine": 165,
+          "endLine": 173,
           "tokens": 70,
           "summary": "Mask 128x128 ~4-6KB 8 张（4 风格 x 2 变体） ~40KB",
           "keywords": [
@@ -26969,15 +26985,162 @@
         {
           "anchor": "§文件清单",
           "level": 2,
-          "startLine": 165,
-          "endLine": 179,
-          "tokens": 1155,
+          "startLine": 174,
+          "endLine": 190,
+          "tokens": 1745,
           "summary": "encode-mask.py 光照参考图 → tint-mask 格式转换",
           "keywords": [
             "encode",
             "mask",
             "tint",
             "文件清单"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/ai-workflows/model-matrix.md",
+      "tokens": 6616,
+      "lines": 138,
+      "sha256": "c8d9f4a4189cedee27c385feb5f33227c40c540d5453178faa3e3ebda1f7a5fe",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§AI 生图选型矩阵（四方向 · 云/本地分工）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 139,
+          "tokens": 6597,
+          "summary": "本文件是「哪个方向用哪个模型 / 哪条通路」的裁定正本。数值类冻结常量仍以",
+          "keywords": [
+            "生图选型矩阵",
+            "四方向",
+            "本地分工"
+          ]
+        },
+        {
+          "anchor": "§1 四方向首选矩阵",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 26,
+          "tokens": 762,
+          "summary": "① 原型设计（新页面首稿、版面探索） 云 qwen-image-2.1-turbo --size 1152*2048 云",
+          "keywords": [
+            "§1",
+            "qwen",
+            "image",
+            "turbo",
+            "size",
+            "四方向首选矩"
+          ]
+        },
+        {
+          "anchor": "§2 候选池 · 价目 · 限流（2026-10-12 官方页核实）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 42,
+          "tokens": 386,
+          "summary": "qwen-image-3.0 0.02 元/张 0.18 元/张（1K=2K 同价，竖屏不加价） 20 输入输出共 10",
+          "keywords": [
+            "§2",
+            "qwen",
+            "image",
+            "候选池",
+            "价目",
+            "限流"
+          ]
+        },
+        {
+          "anchor": "§3 排除项（含理由，勿重走）",
+          "level": 2,
+          "startLine": 43,
+          "endLine": 54,
+          "tokens": 223,
+          "summary": "本地 i2i 做单元素资产 构图污染：把参考图整个橱窗画进来（背景 std 4.1、bbox 77%）",
+          "keywords": [
+            "§3",
+            "i2i",
+            "std",
+            "bbox",
+            "排除项",
+            "含理由"
+          ]
+        },
+        {
+          "anchor": "§4 判据纪律（哪些能排序，哪些不能）",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 74,
+          "tokens": 362,
+          "summary": "已作废（种子噪声 > 模型差，换 seed 后排序洗牌，不得用于选型）：",
+          "keywords": [
+            "§4",
+            "seed",
+            "判据纪律",
+            "哪些能排序",
+            "哪些不能"
+          ]
+        },
+        {
+          "anchor": "§5 本地 ComfyUI 能力边界（2026-10-12 权重清单实证）",
+          "level": 2,
+          "startLine": 75,
+          "endLine": 98,
+          "tokens": 1783,
+          "summary": "服务：192.168.1.16:8188（RTX 2080 Ti 11GB，ComfyUI 0.39.0）。断言能力前查",
+          "keywords": [
+            "§5",
+            "ComfyUI",
+            "RTX",
+            "本地",
+            "能力边界",
+            "权重清单实证"
+          ]
+        },
+        {
+          "anchor": "§6 未决与下一步",
+          "level": 2,
+          "startLine": 99,
+          "endLine": 128,
+          "tokens": 1788,
+          "summary": "Flux-dev + 平涂 LoRA 冒烟（heart 单题） 已测毕·不改判（2026-10-09 全套 9 关 + ",
+          "keywords": [
+            "§6",
+            "Flux",
+            "dev",
+            "LoRA",
+            "heart",
+            "未决与下一步"
+          ]
+        },
+        {
+          "anchor": "§6.1 待授权下载清单（本端无 SSH/无写接口，只能用户在服务端下）",
+          "level": 3,
+          "startLine": 110,
+          "endLine": 128,
+          "tokens": 773,
+          "summary": "显存天花板：11.8GB（/system_stats 实测）；本地 ComfyUI 0.39.0。选型铁规：新模型必须能",
+          "keywords": [
+            "SSH",
+            "system_stats",
+            "ComfyUI",
+            "待授权下载清",
+            "本端无",
+            "无写接口"
+          ]
+        },
+        {
+          "anchor": "§7 变更记录",
+          "level": 2,
+          "startLine": 129,
+          "endLine": 139,
+          "tokens": 967,
+          "summary": "2026-10-12 首版（三轮复测 + 竖屏/量化对照后定稿）。同日两处改判：① 「本地 turbo t2i 过曝＝模",
+          "keywords": [
+            "§7",
+            "turbo",
+            "t2i",
+            "变更记录"
           ]
         }
       ]
@@ -55731,17 +55894,17 @@
     },
     {
       "path": "memory/2026-10-12.md",
-      "tokens": 623,
-      "lines": 10,
-      "sha256": "e56572fa3785dbcef9e9fd150a8c57ed7cc98efb8d9861f7b3a806ab03b738cc",
+      "tokens": 5063,
+      "lines": 76,
+      "sha256": "0bd3cf11d6fcdb02a6969c2db1881fb95069e07ff171f49fbbf1c85b2541f982",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-12",
           "level": 1,
           "startLine": 1,
-          "endLine": 11,
-          "tokens": 620,
+          "endLine": 77,
+          "tokens": 5060,
           "summary": "",
           "keywords": []
         },
@@ -55760,22 +55923,134 @@
             "temp",
             "cut"
           ]
+        },
+        {
+          "anchor": "§AI 生图选型矩阵入库（四方向云/本地分工）",
+          "level": 3,
+          "startLine": 12,
+          "endLine": 21,
+          "tokens": 682,
+          "summary": "落位：裁定正本 games/beads/design/ai-workflows/model-matrix.md（§1 四",
+          "keywords": [
+            "§1",
+            "games",
+            "beads",
+            "design",
+            "workflows",
+            "model"
+          ]
+        },
+        {
+          "anchor": "§编码器 A/B：基线臂测完，turbo 臂卡在「碰不到服务端文件」",
+          "level": 3,
+          "startLine": 22,
+          "endLine": 30,
+          "tokens": 549,
+          "summary": "移文件做不了：192.168.1.16 的 22 端口不接、本机无挂载、ComfyUI 只有 /upload/image",
+          "keywords": [
+            "turbo",
+            "ComfyUI",
+            "upload",
+            "image",
+            "编码器",
+            "基线臂测完"
+          ]
+        },
+        {
+          "anchor": "§目录别名正名 + 编码器 A/B 收尾（同日第 3 批，含两处自纠）",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 38,
+          "tokens": 512,
+          "summary": "用户问「DiT 放 diffusion_models\\ 是不是错了」→ 没错。一个 folder key 挂两目录：un",
+          "keywords": [
+            "DiT",
+            "diffusion_models",
+            "folder",
+            "key",
+            "目录别名正名",
+            "编码器"
+          ]
+        },
+        {
+          "anchor": "§Flux-dev 底图冒烟：矩阵说「未做」，其实早跑完且结论过期（同日第 4 批）",
+          "level": 2,
+          "startLine": 39,
+          "endLine": 47,
+          "tokens": 505,
+          "summary": "开工前先挖了现有证据，省下一次全套批跑：矩阵 §6 记「Flux-dev 冒烟 未做」是过期的——README §wor",
+          "keywords": [
+            "§6",
+            "Flux",
+            "dev",
+            "README",
+            "wor",
+            "底图冒烟"
+          ]
+        },
+        {
+          "anchor": "§SAM 自动出 mask：能跑但不合用，债改用本地轮廓还了（同日第 5 批）",
+          "level": 2,
+          "startLine": 48,
+          "endLine": 59,
+          "tokens": 891,
+          "summary": "先查权重再开工（§5 铁律：节点存在 ≠ 权重存在）：DownloadAndLoadSAM2Model.model 列了",
+          "keywords": [
+            "§5",
+            "SAM",
+            "mask",
+            "DownloadAndLoadSAM2Model",
+            "model",
+            "自动出"
+          ]
+        },
+        {
+          "anchor": "§待授权下载清单：只建议 1 项，Layered 当场实测掉（同日第 6 批）",
+          "level": 2,
+          "startLine": 60,
+          "endLine": 69,
+          "tokens": 710,
+          "summary": "服务端事实：ComfyUI 0.39.0、显存 11.8GB（/system_stats）。本端无 SSH / 无写接口",
+          "keywords": [
+            "Layered",
+            "ComfyUI",
+            "system_stats",
+            "SSH",
+            "待授权下载清",
+            "只建议"
+          ]
+        },
+        {
+          "anchor": "§四能力结论封装为 skill：wxgame-image-gen（同日第 7 批）",
+          "level": 2,
+          "startLine": 70,
+          "endLine": 77,
+          "tokens": 405,
+          "summary": "用户要四个核心结论的 top2 + 封装成可触发 skill → 新建 my-skills/wxgame-image-g",
+          "keywords": [
+            "skill",
+            "wxgame",
+            "image",
+            "gen",
+            "top2",
+            "skills"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 11954,
-      "lines": 300,
-      "sha256": "ffb00bdb17692cd595ae3f1deb374f25921063c867fc51a943b9e4730ba2b571",
+      "tokens": 12290,
+      "lines": 305,
+      "sha256": "8e122c66c972182c193c3a4ea9f3b6b0577accb3bfc13a3e94d5365e114b01a5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 301,
-          "tokens": 11932,
+          "endLine": 306,
+          "tokens": 12268,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -55845,8 +56120,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 301,
-          "tokens": 10293,
+          "endLine": 306,
+          "tokens": 10629,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -55858,24 +56133,25 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-12.md` — 623 tok｜0 节｜**蒸馏到期 2026-11-11**（剩 30 天）",
+          "anchor": "§`memory/2026-10-12.md` — 5,063 tok｜5 节｜**蒸馏到期 2026-11-11**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 77,
-          "tokens": 36,
-          "summary": "",
+          "endLine": 82,
+          "tokens": 372,
+          "summary": "§目录别名正名 + 编码器 A/B 收尾（同日第 3 批，含两处自纠） 31–38 512 — 用户问「DiT 放 di",
           "keywords": [
             "memory/2026-10-12.md",
             "memory",
             "tok",
+            "DiT",
             "蒸馏到期"
           ]
         },
         {
           "anchor": "§`memory/2026-10-10.md` — 944 tok｜0 节｜**蒸馏到期 2026-11-09**（剩 28 天）",
           "level": 3,
-          "startLine": 78,
-          "endLine": 82,
+          "startLine": 83,
+          "endLine": 87,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -55888,8 +56164,8 @@
         {
           "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 27 天）",
           "level": 3,
-          "startLine": 83,
-          "endLine": 87,
+          "startLine": 88,
+          "endLine": 92,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -55902,8 +56178,8 @@
         {
           "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 25 天）",
           "level": 3,
-          "startLine": 88,
-          "endLine": 96,
+          "startLine": 93,
+          "endLine": 101,
           "tokens": 290,
           "summary": "§WXG-T-268 批 3 · EP12-S2/S3 落码 + P-3=24 裁定 + 第十八次复评（暖纸换肤续） 8",
           "keywords": [
@@ -55918,8 +56194,8 @@
         {
           "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 24 天）",
           "level": 3,
-          "startLine": 97,
-          "endLine": 103,
+          "startLine": 102,
+          "endLine": 108,
           "tokens": 149,
           "summary": "§合成式三端统一 + 旧 effect 死件清（WXG-T-259 · 第廿刀） 3–26 878 — 用户裁定（原话）",
           "keywords": [
@@ -55934,8 +56210,8 @@
         {
           "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 23 天）",
           "level": 3,
-          "startLine": 104,
-          "endLine": 108,
+          "startLine": 109,
+          "endLine": 113,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -55948,8 +56224,8 @@
         {
           "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 22 天）",
           "level": 3,
-          "startLine": 109,
-          "endLine": 127,
+          "startLine": 114,
+          "endLine": 132,
           "tokens": 1235,
           "summary": "§【WXG-T-244 二十三批 · 收口】裁 [GLD+…] 日志 + 修盘内直填回滚 + 开单 WXG-T-246 ",
           "keywords": [
@@ -55964,8 +56240,8 @@
         {
           "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 21 天）",
           "level": 3,
-          "startLine": 128,
-          "endLine": 133,
+          "startLine": 133,
+          "endLine": 138,
           "tokens": 76,
           "summary": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板",
           "keywords": [
@@ -55980,8 +56256,8 @@
         {
           "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 17 天）",
           "level": 3,
-          "startLine": 134,
-          "endLine": 138,
+          "startLine": 139,
+          "endLine": 143,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -55994,8 +56270,8 @@
         {
           "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 16 天）",
           "level": 3,
-          "startLine": 139,
-          "endLine": 153,
+          "startLine": 144,
+          "endLine": 158,
           "tokens": 907,
           "summary": "§WXG-T-221：beads-studio 当前关纹理预烘导出（S3-lite）（Qoder 主理人会话 · 用户三",
           "keywords": [
@@ -56010,8 +56286,8 @@
         {
           "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 15 天）",
           "level": 3,
-          "startLine": 154,
-          "endLine": 161,
+          "startLine": 159,
+          "endLine": 166,
           "tokens": 333,
           "summary": "§WXG-T-217：beads 缩放上下限绝对倍率化 + 低倍点击档（Qoder 主理人会话 · 用户逐项拍板） 3–",
           "keywords": [
@@ -56026,8 +56302,8 @@
         {
           "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 10 天）",
           "level": 3,
-          "startLine": 162,
-          "endLine": 167,
+          "startLine": 167,
+          "endLine": 172,
           "tokens": 118,
           "summary": "§WXG-T-186：beads 组珠消费序改「沿组连通的剥皮序」（Qoder 主理人会话 · 用户四项裁定） 3–15",
           "keywords": [
@@ -56042,8 +56318,8 @@
         {
           "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 5 天）",
           "level": 3,
-          "startLine": 168,
-          "endLine": 184,
+          "startLine": 173,
+          "endLine": 189,
           "tokens": 814,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
@@ -56058,8 +56334,8 @@
         {
           "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 4 天）",
           "level": 3,
-          "startLine": 185,
-          "endLine": 196,
+          "startLine": 190,
+          "endLine": 201,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -56074,8 +56350,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 3 天）",
           "level": 3,
-          "startLine": 197,
-          "endLine": 213,
+          "startLine": 202,
+          "endLine": 218,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -56090,8 +56366,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 2 天）",
           "level": 3,
-          "startLine": 214,
-          "endLine": 241,
+          "startLine": 219,
+          "endLine": 246,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -56106,8 +56382,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 1 天）",
           "level": 3,
-          "startLine": 242,
-          "endLine": 262,
+          "startLine": 247,
+          "endLine": 267,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -56122,8 +56398,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 0 天）**",
           "level": 3,
-          "startLine": 263,
-          "endLine": 280,
+          "startLine": 268,
+          "endLine": 285,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -56138,8 +56414,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 1 天）**",
           "level": 3,
-          "startLine": 281,
-          "endLine": 301,
+          "startLine": 286,
+          "endLine": 306,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
@@ -58831,17 +59107,17 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 3479,
-      "lines": 138,
-      "sha256": "1ddff98ee3971defb375caa96d4a312649cb2a943de71db2a94a4bb7b0dbe30b",
+      "tokens": 3589,
+      "lines": 139,
+      "sha256": "f76d1186057975f6c9f14870fa22f4848143c01ef0edde620bc65f3732252562",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame skill 家族 INDEX",
           "level": 1,
           "startLine": 1,
-          "endLine": 139,
-          "tokens": 3471,
+          "endLine": 140,
+          "tokens": 3581,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -58855,8 +59131,8 @@
           "anchor": "§1 清单（现役 38 个挂四 IDE 链接；存档 1 个仅本目录留档）",
           "level": 2,
           "startLine": 6,
-          "endLine": 34,
-          "tokens": 1107,
+          "endLine": 35,
+          "tokens": 1217,
           "summary": "编排 wxgame-orchestration 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路",
           "keywords": [
             "IDE",
@@ -58870,8 +59146,8 @@
         {
           "anchor": "§1b. 外来通用·AI 编程工作流（21 个挂四 IDE 链接）",
           "level": 2,
-          "startLine": 35,
-          "endLine": 86,
+          "startLine": 36,
+          "endLine": 87,
           "tokens": 1412,
           "summary": "来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 _",
           "keywords": [
@@ -58886,8 +59162,8 @@
         {
           "anchor": "§1b.1 2026-09-24 批（5 件）",
           "level": 3,
-          "startLine": 56,
-          "endLine": 86,
+          "startLine": 57,
+          "endLine": 87,
           "tokens": 933,
           "summary": "cloudflare/security-audit-skill security-audit 六阶段安全审计（侦察 → ",
           "keywords": [
@@ -58900,8 +59176,8 @@
         {
           "anchor": "§2 默认管线顺序与何时不走全 SOP",
           "level": 2,
-          "startLine": 87,
-          "endLine": 94,
+          "startLine": 88,
+          "endLine": 95,
           "tokens": 140,
           "summary": "全 SOP（新游戏/大功能）：orchestration 阶段诊断 → 按九阶段表 spawn",
           "keywords": [
@@ -58915,8 +59191,8 @@
         {
           "anchor": "§3 Skill 优先级（冲突时高者胜）",
           "level": 2,
-          "startLine": 95,
-          "endLine": 113,
+          "startLine": 96,
+          "endLine": 114,
           "tokens": 312,
           "summary": "",
           "keywords": [
@@ -58928,8 +59204,8 @@
         {
           "anchor": "§4 路径约定",
           "level": 2,
-          "startLine": 114,
-          "endLine": 127,
+          "startLine": 115,
+          "endLine": 128,
           "tokens": 208,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
@@ -58943,8 +59219,8 @@
         {
           "anchor": "§5 冲突裁决链",
           "level": 2,
-          "startLine": 128,
-          "endLine": 134,
+          "startLine": 129,
+          "endLine": 135,
           "tokens": 85,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 是数值唯一真源",
           "keywords": [
@@ -58959,8 +59235,8 @@
         {
           "anchor": "§6 Provenance 说明",
           "level": 2,
-          "startLine": 135,
-          "endLine": 139,
+          "startLine": 136,
+          "endLine": 140,
           "tokens": 60,
           "summary": "除 audio-spec（框架版）外，各 wxgame-* 均提炼自 Breakout demo 的实际产物，",
           "keywords": [
@@ -74720,6 +74996,136 @@
             "systems",
             "index",
             "工作方式"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-image-gen/SKILL.md",
+      "tokens": 2516,
+      "lines": 89,
+      "sha256": "a9c578d6bd1db25b0b3dfe7224d2c44cfa3a0527d137100faef66e0d1ab4b2ee",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame AI 生图执行路由（四能力 · 云/本地 · 判据）",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 90,
+          "tokens": 2221,
+          "summary": "本 skill 属 wxgame 家族（管线顺序与冲突裁决见 my-skills/INDEX.md）。它是执行层：",
+          "keywords": [
+            "wxgame",
+            "skill",
+            "skills",
+            "INDEX",
+            "生图执行路由",
+            "四能力"
+          ]
+        },
+        {
+          "anchor": "§0 开工前置（三件事，缺一走歪）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 19,
+          "tokens": 183,
+          "summary": "真源 games/beads/design/ai-workflows/model-matrix.md（§1 首选、§3 ",
+          "keywords": [
+            "§1",
+            "§3",
+            "games",
+            "beads",
+            "design",
+            "workflows"
+          ]
+        },
+        {
+          "anchor": "§1 四条能力 → 用哪个模型（top2）",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 28,
+          "tokens": 344,
+          "summary": "① 原型设计（新页面首稿、版面探索） 云 qwen-image-2.1-turbo 云 qwen-image-3.0（要",
+          "keywords": [
+            "top2",
+            "qwen",
+            "image",
+            "turbo",
+            "四条能力",
+            "用哪个模型"
+          ]
+        },
+        {
+          "anchor": "§2 命令模板（照抄可用）",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 55,
+          "tokens": 359,
+          "summary": "云 · 文生图（--ref 才是图生图；--seed 会自动关掉 prompt_extend，否则云侧改写你的提示词）",
+          "keywords": [
+            "ref",
+            "seed",
+            "prompt_extend",
+            "命令模板",
+            "照抄可用"
+          ]
+        },
+        {
+          "anchor": "§3 抠图：默认本地代码，**默认不上大模型**",
+          "level": 2,
+          "startLine": 56,
+          "endLine": 66,
+          "tokens": 454,
+          "summary": "平色 UI 走 shape=point（纯 PIL/numpy，零 GPU、零下载、确定性）：种子点",
+          "keywords": [
+            "shape",
+            "point",
+            "PIL",
+            "numpy",
+            "GPU",
+            "抠图"
+          ]
+        },
+        {
+          "anchor": "§4 出图后必跑判据（能排序的只有这些）",
+          "level": 2,
+          "startLine": 67,
+          "endLine": 79,
+          "tokens": 290,
+          "summary": "mask 外 maxdiff 遮罩外逐通道差最大值，必须 0 局部编辑④",
+          "keywords": [
+            "mask",
+            "maxdiff",
+            "出图后必跑判",
+            "能排序的只有",
+            "这些"
+          ]
+        },
+        {
+          "anchor": "§5 硬禁忌（均已实测确诊，勿重走）",
+          "level": 2,
+          "startLine": 80,
+          "endLine": 83,
+          "tokens": 193,
+          "summary": "本地 i2i 做单元素资产（构图污染，bbox 77%）｜本地 i2i 做固定风格（锚不动版式）｜整图 denoise=",
+          "keywords": [
+            "i2i",
+            "bbox",
+            "denoise",
+            "硬禁忌",
+            "均已实测确诊",
+            "勿重走"
+          ]
+        },
+        {
+          "anchor": "§6 交付纪律",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 90,
+          "tokens": 197,
+          "summary": "1. 每轮报数：本地几张 / 云几张几元（云最差价已由用户指示封顶 0.25 元/张）。",
+          "keywords": [
+            "交付纪律"
           ]
         }
       ]

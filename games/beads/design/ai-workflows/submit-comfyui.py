@@ -52,6 +52,26 @@ def http_json(url: str, payload: dict | None = None) -> dict:
         return json.load(resp)
 
 
+def upload_image(host: str, path: str) -> str:
+    """POST /upload/image（multipart，仅标准库）→ 返回服务器端文件名，供 LoadImage 引用。
+    传入带 alpha 通道的 RGBA PNG 时，ComfyUI LoadImage 会把 alpha 当遮罩输出。"""
+    boundary = uuid.uuid4().hex
+    fn = Path(path).name
+    data = Path(path).read_bytes()
+    body = (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="image"; filename="{fn}"\r\n'
+        f"Content-Type: image/png\r\n\r\n"
+    ).encode() + data + f"\r\n--{boundary}--\r\n".encode()
+    req = urllib.request.Request(
+        f"{host}/upload/image?type=input&overwrite=true", data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return json.load(resp)["name"]
+
+
 def _find_text_encode(wf: dict, io, depth: int = 0) -> str | None:
     """沿链接回溯到 CLIPTextEncode 节点 id（可穿 FluxGuidance 等中转节点）。"""
     if depth > 6 or not isinstance(io, list):
@@ -96,6 +116,12 @@ def patch_workflow(wf: dict, args: argparse.Namespace) -> None:
                 if n.get("class_type") in ("EmptyLatentImage", "EmptySD3LatentImage", "ModelSamplingFlux"):
                     n["inputs"].update(width=side, height=side)
         return
+    if NODES["prompt_switch"] not in wf:
+        # 非 qwen 结构（无 CLIPTextEncode 也无提示词开关，如纯分割/后处理链）：没有可 patch 的提示词档
+        if any(v is not None for v in (args.prompt, args.seed, args.ratio, args.mp)) or args.enhance:
+            print("WARN: 工作流无 CLIPTextEncode 且非 qwen 结构，--prompt/--seed/--ratio/--mp/--enhance 全部忽略",
+                  file=sys.stderr)
+        return
     sw = wf[NODES["prompt_switch"]]["inputs"]
     if args.prompt:
         sw["on_false"] = args.prompt
@@ -107,6 +133,15 @@ def patch_workflow(wf: dict, args: argparse.Namespace) -> None:
         wf[NODES["ksampler"]]["inputs"]["seed"] = args.seed
         wf[NODES["prompt_enhancer"]]["inputs"]["sampling_mode.seed"] = args.seed
     if args.ratio:
+        # ResolutionSelector 是 COMBO 枚举：非法值服务端照样返回 execution_success 但零产物，必须本地拦住
+        try:
+            opts = http_json(f"{args.host}/object_info/ResolutionSelector")[
+                "ResolutionSelector"]["input"]["required"]["aspect_ratio"][1]["options"]
+        except Exception as e:  # 拿不到枚举就别拦，只提示
+            opts = []
+            print(f"WARN: 取 ResolutionSelector 失败（{e}），跳过 --ratio 校验", file=sys.stderr)
+        if opts and args.ratio not in opts:
+            sys.exit(f"非法 --ratio：{args.ratio!r}\n合法值：{opts}")
         wf[NODES["resolution"]]["inputs"]["aspect_ratio"] = args.ratio
     if args.mp is not None:
         wf[NODES["resolution"]]["inputs"]["megapixels"] = args.mp
@@ -123,6 +158,7 @@ def main() -> int:
     ap.add_argument("--ratio", help='如 "1:1 (Square)"')
     ap.add_argument("--mp", type=float, help="megapixels，2048x2048 ≈ 4")
     ap.add_argument("--out", default="temp/comfyui-out")
+    ap.add_argument("--image", help="上传到 ComfyUI 并填进 workflow 的 LoadImage 节点（inpaint 用带 alpha 遮罩的 RGBA PNG）")
     ap.add_argument("--override", action="append", metavar="NODE:KEY=VAL",
                     help='临时改任意节点输入，如 "18:strength_model=0"（可重复）')
     ap.add_argument("--timeout", type=int, default=600)
@@ -130,6 +166,14 @@ def main() -> int:
 
     wf = json.loads(Path(args.workflow).read_text())
     patch_workflow(wf, args)
+    if args.image:
+        name = upload_image(args.host, args.image)
+        hit = [n for n in wf.values() if n.get("class_type") == "LoadImage"]
+        if not hit:
+            print("WARN: workflow 无 LoadImage 节点，--image 未生效", file=sys.stderr)
+        for n in hit:
+            n["inputs"]["image"] = name
+        print(f"uploaded {args.image} -> {name}", flush=True)
     for ov in getattr(args, "override", None) or []:
         nid, kv = ov.split(":", 1)
         k, v = kv.split("=", 1)
