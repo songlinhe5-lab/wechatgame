@@ -204,7 +204,7 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
         const open = centerOf('none', 'open-levels');
         r.shell.tapMeta(open.x, open.y);
         expect(r.shell.overlay).toBe('levels');
-        // 陈列序 = DI 升序 ⇒ 槽 0 = 最易关 = L1 = 索引 0（maxUnlocked=1 时唯一已解锁）。
+        // 陈列序 = 配置文件恒等序（#2 反转）；maxUnlocked=1 ⇒ 唯一已解锁 = L1（id 1）= 槽 0。
         const c = centerOf('levels', 'pick-level', 0);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
         expect(r.shell.screen).toBe('play');
@@ -218,7 +218,7 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
         const open = centerOf('none', 'open-levels');
         r.shell.tapMeta(open.x, open.y);
         const eventsAfterOpen = r.overlayEvents.length; // 开页已发 1 条 meta:overlay
-        // 槽 1 = 次易关（L8 ⇒ 索引 7），maxUnlocked=1 ⇒ 未解锁。
+        // 槽 1 = L2（索引 1，恒等配置序），maxUnlocked=1 ⇒ 未解锁。
         const c = centerOf('levels', 'pick-level', 1);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(false);
         expect(r.shell.screen).toBe('menu');

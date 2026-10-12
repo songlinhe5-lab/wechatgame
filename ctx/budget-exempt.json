@@ -404,6 +404,11 @@
       "reason": "UI 风格重设计提案·风险台账（按时间序追加、逐条登记+留痕，开发期只按锚点局部读不整读）——与 menu-architecture.md（WXG-T-266 已豁免）同族",
       "note": "WXG-T-268/269 批追加 EP12 换肤/作品墙风险条目后肨至 8291 tok（超 8000 上限 3.6%）",
       "taskId": "WXG-T-269"
+    },
+    {
+      "path": "design/proposals/ui-style-redesign/level-difficulty.md",
+      "reason": "beads 难度分析正本：逐关 DI/steps 实测表（§5.1/§5.2）与 G1–G11 门禁裁定须同页可查——推翻过的结论与支撑数字拆开即断链；与同目录 menu-architecture.md（WXG-T-266）/risks.md 同族。已被 ctx 按章节锚点覆盖，开发期只读 §5.x/§7 局部、从不整读",
+      "taskId": "WXG-T-268"
     }
   ]
 }

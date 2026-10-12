@@ -567,6 +567,28 @@ export const LEVEL_TIME_PER_PAIR = 45;
 export const SEC_PER_STEP = 1.69;
 
 /**
+ * 生成期「工作量」难度门禁（**门禁⑦**，2026-10-10 用户裁定：普通关落区间 / boss 高于阈值）。
+ *
+ * 量纲 = **实测 `steps`（BAC 批量动作数）**，⛔ 不用 `DI` —— 依据 `level-difficulty.md §1.2`
+ * 「DI 够排序不够估工」（2026-10-10 换盘后 DI 对 steps 残差 +102%/−59%、极差 162pp）⇒
+ * 「绝对区间」这种判据只敢压在真源 `steps` 上，不敢压在相对序 `DI` 上。
+ * 本组**不进 `systems-index §3`**（生成期判据、非玩法运行时冻结，同 `DIFFICULTY` 组先例）。
+ *
+ * 三档判据（消费方 = `sync-levels-data.mjs` 门禁⑦ + `apps/beads-studio/server.mjs` 入关当场拒）：
+ * - **首关 = 教学引导关，全豁免**（沿用既有「首关豁免」先例，`ux-spec §1 原则3`「纯动效引导」）。
+ * - `NORMAL_STEPS_MIN = ceil(LEVEL_TIME_MIN ÷ SEC_PER_STEP) = ceil(30 ÷ 1.69) = 18`
+ *   ⇒ **派生自 §3.5**、非新发明：普通关工作量若低于此值，`time` 会被钳到 `LEVEL_TIME_MIN=30s` 而无差异
+ *   （现池最浅普通关 L6=19 恰好通过）。
+ * - `NORMAL_STEPS_MAX = 90`（≈152s）：普通关上限，须明显低于 boss；现池最高普通关 L5=68 通过。
+ * - `BOSS_STEPS_MIN = 120`（≈203s，≈普通上限的 1.33×）：boss 须**跳档**、非「略难的普通关」；现池 boss L9=282 通过。
+ *
+ * 现池校验（2026-10-10，steps）：L1 教学豁免｜L2=30 L3=60 L4=42 L5=68 L6=19 L7=41 L8=22 ∈ [18,90] ✅｜L9 boss 282 ≥ 120 ✅。
+ */
+export const NORMAL_STEPS_MIN = 18;
+export const NORMAL_STEPS_MAX = 90;
+export const BOSS_STEPS_MIN = 120;
+
+/**
  * **时间按 k 定价**（§3.5 v1.23）：`clamp(k × LEVEL_TIME_PER_PAIR, MIN, MAX)`。
  * `k` 非有限 / 非正时按 `LEVEL_TIME_DEFAULT` 兜底（不产生 NaN 倒计时——NaN 永
  * 不到零 = 唯一失败条件永不触发，见 `levels.ts` 同款注释）。
@@ -1226,6 +1248,18 @@ export const THUMB_AREA = WALL_CELL - THUMB_TOP_INSET - THUMB_STAR_BAND;
  *   `tests/menu-thumb-primitives.test.ts` 以「任意 pattern ⇒ 珠数 ≤ 25」的构造反例正面钉住。
  */
 export const THUMB_BEADS_MAX = THUMB_MATRIX_N * THUMB_MATRIX_N;
+
+/**
+ * `[WXG-T-271 / ADR-0031 DEC=C′]` boss 关缩略**静态位图**映射（`level.id` → `textureId`）。
+ *
+ * 命中**且**宿主已装载该 `textureId` ⇒ `drawLevelThumb` 发**一条** `blit` 将原图按面铺满缩略区；
+ * 未命中 / 未就绪 ⇒ 逐字节回退程序化缩略（§19「未命中一律矢量回退」）。
+ * ⛔ src 不存 Cocos 资产路径（bundle/path 属宿主 `beads-blit-carrier.ts`）；
+ * `BeadsLevelRaw` 不带 `kind`（boss 只在生成期排序标）⇒ 映射按显式 `id` 键，新 boss 关追加条目。
+ */
+export const BOSS_THUMB_TEXTURES: Readonly<Record<number, string>> = {
+  9: 'bitmap__boss_l9',
+};
 /** 回退档序（§3.8 序 2/3 预置杠杆，逐级触发、不并行）。 */
 export const THUMB_TIERS: readonly number[] = Object.freeze([5, 4, 3]);
 /** 虚线空槽档回退（§3.8 序 4：空格改 48 档格径 ⇒ 48 条 line/格 降为 20 条）。 */

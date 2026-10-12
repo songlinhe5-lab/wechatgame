@@ -32,10 +32,11 @@ import {
 } from '../framework/adapters/canvas2d/tint-sprite-cache';
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
-import { BEAD_PITCH, TILE_BLEED } from '../game/config/tuning';
+import { BEAD_PITCH, BOSS_THUMB_TEXTURES, TILE_BLEED } from '../game/config/tuning';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { createWhitelistBeadTintRuntime, setBeadTintRuntime } from '../game/view/bead-render';
 import { requiredTintMaskIds } from '../game/view/bead-tint-mask';
+import { setLevelThumbBitmapResolver } from '../game/view/menu-signage';
 
 /**
  * 图集网格：8×8 格 × 128 px = 1024²（一格 = 一个 `maskId|base` 组合）。
@@ -91,6 +92,18 @@ const MASK_ASSETS: Readonly<Record<string, { uuid: string; path: string }>> = {
  */
 const MASK_IDS: readonly string[] = requiredTintMaskIds();
 
+/**
+ * `[WXG-T-271 / ADR-0031 DEC=C′]` boss 缩略**静态位图**表（`textureId` → bundle 内路径）。
+ *
+ * 走现成 `assets/textures` Bundle（已配好、已合并进主包，⛔ 非新建分包）⇒ 以 `loadAny({bundle, path})`
+ * 按路径取（与 mask 同一条 bundle 腿，**不依赖 uuid**；uuid 由编辑器导入时生成，属实施门禁）。
+ * 正本 = `games/beads/design/levels/assets/l9-boss-mandala-256.png`，导入后 path 无扩展名。
+ * 装载失败 / 资产未导 ⇒ 不登记 ⇒ 该关回退程序化缩略（不 gate `_ready`）。
+ */
+const BITMAP_ASSETS: Readonly<Record<string, { path: string }>> = {
+    'bitmap__boss_l9': { path: 'l9-boss-mandala-256' },
+};
+
 type AnyObj = Record<string, any>;
 
 /**
@@ -134,6 +147,8 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     /** `maskId|base` → 图集格（首见即合成 + 整张重传；⚠ 只在换色时发生）。 */
     private readonly _cells = new Map<string, SpriteFrame>();
     private readonly _masks = new Map<string, object>();
+    /** `[WXG-T-271 / ADR-0031 C′]` `textureId` → 预载全彩位图 `SpriteFrame`（静态位图注册表腿）。 */
+    private readonly _bitmaps = new Map<string, SpriteFrame>();
     private readonly _pool: Sprite[] = [];
     private _used = 0;
     private _ready = false;
@@ -188,6 +203,20 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         setBeadTintRuntime(
             createWhitelistBeadTintRuntime((maskId: string) => (this._masks.has(maskId) ? maskId : undefined)),
         );
+        // `[WXG-T-271 / ADR-0031 DEC=C′]` boss 缩略位图（**可选臂**，不 gate `_ready`）：装载成功即登记，
+        // 缺资产 / 失败 ⇒ 该关回退程序化缩略（与未注入等价）。资产未导入时本腿自然空转（先写码、暂不 import）。
+        await Promise.all(
+            Object.entries(BITMAP_ASSETS).map(async ([texId, a]) => {
+                const sf = await loadBitmapSpriteFrame(a.path);
+                if (sf) this._bitmaps.set(texId, sf);
+                else console.warn(`[BeadsBlitCarrier] boss 位图 \`${texId}\`（${a.path}）未就绪 ⇒ 该关缩略走程序化回退`);
+            }),
+        );
+        // 注入位图缩略可用性查询（宿主侧唯一知资产在哪）；未命中关 ⇒ resolver 返 undefined ⇒ 程序化。
+        setLevelThumbBitmapResolver((level) => {
+            const texId = BOSS_THUMB_TEXTURES[level.id];
+            return texId !== undefined && this._bitmaps.has(texId) ? texId : undefined;
+        });
         return loaded;
     }
 
@@ -209,9 +238,13 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         if (!this._ready) return this._bail('载体未就绪', cmd);
         // 总责语义（ADR-0029 §8.1）：带 fx 的命令一律由本载体负责，⛔ 不回落矢量。
         const base = tintFxBase(cmd.fx);
-        if (base === undefined) return this._bail('fx 无 base（注册表腿未实现）', cmd);
-        const frame = this._cell(cmd.textureId, base);
-        if (frame === undefined) return this._bail('图集格解不出（缓存未命中或格用尽）', cmd);
+        // `[WXG-T-271 / ADR-0031 DEC=C′]` 两条腿：带 fx.base → tint 图集格；无 fx.base → 静态位图注册表（boss 缩略等全彩图）。
+        const frame = base !== undefined
+            ? this._cell(cmd.textureId, base)
+            : this._bitmaps.get(cmd.textureId);
+        if (frame === undefined) {
+            return this._bail(base !== undefined ? '图集格解不出（缓存未命中或格用尽）' : '静态位图未装载（注册表腿未命中）', cmd);
+        }
         const sp = this._borrow();
         sp.node.getComponent(UITransform)!.setContentSize(cmd.w, cmd.h);
         if (sp.spriteFrame !== frame) sp.spriteFrame = frame;
@@ -394,6 +427,30 @@ async function loadImageAsset(entry: { uuid: string; path: string }): Promise<ob
             resolve(hit);
         });
     });
+}
+
+/**
+ * `[WXG-T-271 / ADR-0031 DEC=C′]` boss 全彩位图 → `SpriteFrame`（静态位图注册表腿的装载体）。
+ * 与 mask 腿不同：mask 取 `ImageAsset.data` 供 tint 合成，本腿直接把 ImageAsset 包成 `Texture2D` + 整帧 `SpriteFrame`。
+ * ⚠ `Texture2D.image=` + `SpriteFrame.texture=` 的运行时构造 **[待真机取证]**（ADR-0031 §4.2 条 4）；
+ * bundle 不可用 / 资产未导 ⇒ `undefined`（调用方按未就绪处理 → 回退程序化缩略）。
+ */
+async function loadBitmapSpriteFrame(path: string): Promise<SpriteFrame | undefined> {
+    const bundle = await ensureMaskBundle();
+    if (!bundle) return undefined;
+    const asset = await new Promise<ImageAsset | null>((resolve) =>
+        assetManager.loadAny({ bundle: MASK_BUNDLE, path },
+            (err: Error | null, a: ImageAsset) => resolve(err ? null : a)),
+    );
+    if (!asset) {
+        console.warn(`[BeadsBlitCarrier] bundle 里解不出位图 \`${path}\`（未导入？）`);
+        return undefined;
+    }
+    const tex = new Texture2D();
+    tex.image = asset;
+    const sf = new SpriteFrame();
+    sf.texture = tex;
+    return sf;
 }
 
 /**

@@ -2814,16 +2814,18 @@ f_K = max(0.35, 1 + 1.60(K−0.50))        // K = 1−A，A = 同色相邻率
 
 ### 9 关实测（验证单调、无退化）
 
-DI = 54.3 / 133.0 / 89.7 / 86.3 / 206.0 / 143.5 / 118.9 / 78.8 / 538.0（L1…L9）
-⟹ 按 DI 升序**严格递增、最小相邻差 3.4、无并列无钳位**；与实测 `steps` 序 **Spearman = 0.933**。
+DI = 31.8 / 41.0 / 73.7 / 66.8 / 43.7 / 29.9 / 76.8 / 36.4 / 289.7（L1…L9，2026-10-10 换盘后新池）
+⟹ 按 DI 升序**严格递增、无并列无钳位**；与实测 `steps` 序 **Spearman = 0.833**。
 
-⛔ **硬发现**：现池**入关序 ≠ 难度序**（L9 难度是 L1 的 9.9 倍却排最后）
+⛔ **硬发现**：现池**入关序 ≠ 难度序**（L9 难度 289.7 是最易关 L6 29.9 的 9.7 倍却排最后）
 ⟹ 裸用关号陈列 = 难度乱序 ⟹ **必须按 DI 排**（这是实测判据）。
+
+> ⚠ **2026-10-10 换盘更新**：本节原为旧池（2026-10-07）实测（Spearman 0.933、最小相邻差 3.4）；现关表换为 teaching-set 9 关，上述数值已按新池重测（区间 [29.9, 289.7]、首末比 9.69、最小相邻差 1.9）；正本见 `level-difficulty.md §5.1/§5.2`。
 
 ### §3 关系
 
 **零新增冻结值、零改动已冻结值**；系数住 `levels-spec §5.0.x` + `tuning.ts`。
-⛔ **DI 不参与定价**（先验公式对 steps 绝对残差最大 ≈58%，定价与规模闸仍走实测）。
+⛔ **DI 不参与定价**（先验公式对 steps 绝对残差最大 ≈ +102%／最负 ≈ −59%、极差 ≈162pp（2026-10-10 换盘后新池；口径 `k = mean(DI/steps)`，见 `level-difficulty.md §5.3` H-3），定价与规模闸仍走实测）。
 
 ### R-12 闭合
 
@@ -3230,3 +3232,21 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **阶段 8 汇编**：ctx:build 重跑（387 文件/5917 章节；menu-wall-signage-spec.md 未入索引，dirty 按 HEAD，提交时 pre-commit 自动重建）· check:links OK（agents=7 skills=39）· epics-beads-ep12 S6 状态行 🚧 · epics-beads-status 无 EP-12 行（该件为 EP-01~10 时效声明，不动）。
 - **在册挂账**：BD-53（验收⑤缺静态门）/ BD-56（harness 分流，已核不改码）/ BD-57（镜像 3 文件无 `.meta`，无编辑器阻塞不伪造）/ BD-58（K-6 台账副本入库，主理人倾向批准转正）· `[待真机]` 5 项 · ux-spec §4 两行 + core-loop §2.1 首屏行回写归 T-4。
 - **待 commit**（用户批准「汇编完就提交」）：feat(beads) 整批 S6（代码 + 镜像 + art + design 回写 + QA 文档）。
+
+---
+
+## WXG-T-271
+
+### beads·boss 关缩略静态位图臂落码（ADR-0031 DEC=C′）
+
+- **领号**：271 = 本会话（Qoder）。领号已核：真实台账最大 = 270（270 系归档占用未列主表）⇒ +1 领 271，全仓无占用（grep `WXG-T-271` 命中仅本单自身）（判例 K-046）。
+- **决断背景（承上轮）**：用户 2026-10-10 三裁——① 「只补一张 boss PNG」（目标收敛）；② 问「cocos creator 的 MCP 能否代做」；③「暂不开通体积扩展资质」。`cocos-creator` MCP 工具 `action` 枚举实测：**能**驱动导入 + 生成 `.meta`（`asset_operations{import,create,reimport,save}` / `asset_manage{import,save_meta}` / `asset_system{refresh}`），**不能**配 Asset Bundle / 勾选微信分包（枚举无对应项），**不能**触发构建（ADR-0009）；叠 `check:size` 已从 K-089 的 SKIP 转为本机实测有牙（beads 主包 2939.8 KB，+38 KB → ~2978 KB 仍 <4096）⇒ ADR-0031 由方案 A（新建分包）改裁为 **方案 C′（进现成 `assets/textures` Bundle→主包）**。
+- **范围（本批 = 先写码、暂不 import/重建）**：core **零改动**（blit 腿已存，ADR-0026）。三处落码：
+  - `src/config/tuning.ts::BOSS_THUMB_TEXTURES`：`level.id → textureId` 数据驱动表（boss=L00009=**id 9**）。`BeadsLevelRaw` **无 `kind`**（boss 只在生成期排序标、不同步进运行时）⇒ 按显式 id 键，⛔ 不新造字段。
+  - `src/view/menu-signage.ts`：注入式可用性臂 `setLevelThumbBitmapResolver`（与 tint 运行时同型，默认 `undefined` = 逐字节程序化缩略⇒**绿线锚**，既有菜单输出零变更）；`drawLevelThumb` 命中返 textureId ⇒ **恰 1 条 `blit`**（左下原点、铺满 `THUMB_AREA`）后 `return`，未命中落下方程序化。src 不知 boss 是谁 / 资产在哪。
+  - `cocos/assets/scripts/host/beads-blit-carrier.ts`：`accept()` 双腿——带 `fx.base`→tint 图集格，无 `fx.base`→静态位图注册表腿 `_bitmaps`（替旧「注册表腿未实现」bail）；`loadBitmapSpriteFrame`（走 bundle `textures` 按 path 取、**不依赖 uuid**）；warmup 装载注入（**可选臂、不 gate `_ready`**，资产未导入时自然空转）。
+- **镜像**：src 改动经 `pnpm run framework:sync` 传播（写入 2：`game/config/tuning.ts` + `game/view/menu-signage.ts`），carrier 属 host 手写非镜像。`framework:sync:check` 绿。
+- **判据**（ponytail 一个可运行检查）：`tests/boss-thumb-bitmap.test.ts` 三条——未注入 resolver ⇒ 零 blit + 程序化（绿线锚）；命中 ⇒ 恰 1 条 blit + 无叠绘 + 几何（左下原点/铺满 THUMB_AREA）；非位图关 ⇒ 仍程序化。
+- **验证**：typecheck ✓ · test ✓（含新判据）· framework:sync:check ✓ · check:size ✓（本批未重建、产物未变）· check:cocos-mask ✓（零触 mask）· check:links ✓。**封箱不受扰动**（默认 resolver=undefined ⇒ 菜单逐字节不变）。
+- **余项（受 §19 红线 + 真机取证 gate，本批不做）**：MCP `asset_operations.import` 导 PNG→`asset_system.refresh` 生成 `.meta`→CLI `build:cocos` 重建→`check:size` 复核主包 +38KB→真机扫码取证 `Texture2D.image=` 运行时构造（ADR-0031 §4.2 条 4）。受控正文（`control-manifest §19`「向主包投放位图」 + `systems-index §3.8` 总包 30720→20480）另走 §3.9 变更单，本单只记录裁定（ADR-0031 §1.2/§6）、不擅改。
+- **未 commit**（用户未点名提交）。

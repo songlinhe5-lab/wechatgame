@@ -55,6 +55,7 @@
  *   ④ `design/levels/` 下 `.json` 必须**恰好 1 个**（多个则歧义）
  *   ⑤ 声明了 `DEMO_LEVEL_COUNT` 的游戏 ⇒ 该值必须 == manifest 当前关数（WXG-T-231 门禁⑤）
  *   ⑥ 目录模式且该游戏有 `difficulty.ts` ⇒ 同类内 `DI` 无退化（可排出严格序；门禁⑥/G6，WXG-T-266）
+ *   ⑦ 目录模式且该游戏 tuning 声明 `NORMAL_STEPS_MIN` ⇒ 普通关 `steps` 落区间 / boss 高于阈值 / 首关豁免（门禁⑦，2026-10-10）
  * 前三条是 K-031 的结构性补丁：**只要游戏加了关卡数据就会被强制登记**。
  * ⇒ ⑥ 需引游戏侧 TS 单一真源 ⇒ `levels:sync`/`levels:check` 带 `--import=./tools/scripts/lib/ts-js-resolve.mjs` 钩子运行。
  *
@@ -291,8 +292,9 @@ export function assembleFromManifest(game) {
     if (uids.has(e.uid)) throw new Error(`${game.name}: uid 重复 ${e.uid}`);
     uids.add(e.uid);
     // K-031：kind/pack 白名单——typo 或非 main 分片不得静默当成 single / 静默进主包
-    if (e.kind !== 'single' && e.kind !== 'plate')
-      throw new Error(`${game.name}: 未知 kind=${JSON.stringify(e.kind)}（${e.uid}），仅允许 single/plate`);
+    // kind 三值：single（普通关）｜plate（P2 组合图）｜boss（boss 关，仍为单文件盘，仅供门禁⑦/展示层取用）
+    if (e.kind !== 'single' && e.kind !== 'plate' && e.kind !== 'boss')
+      throw new Error(`${game.name}: 未知 kind=${JSON.stringify(e.kind)}（${e.uid}），仅允许 single/plate/boss`);
     if (e.pack !== 'main')
       throw new Error(`${game.name}: pack=${JSON.stringify(e.pack)} 分片未实现（P3），P1 仅允许 main：${e.uid}`);
     const fp = join(game.levelsDir, e.file);
@@ -327,8 +329,8 @@ export function assembleFromManifest(game) {
     if (declared && Number(declared[1]) !== levels.length) {
       throw new Error(
         `${game.name}: DEMO_LEVEL_COUNT=${declared[1]} ≠ manifest 当前关数 ${levels.length} —— ` +
-          '入关 / 移出关时必须**同批同步**该常量（systems-index §3 同源），' +
-          '否则 levels / misplaced-assembler / level-import 三处断言当场红',
+        '入关 / 移出关时必须**同批同步**该常量（systems-index §3 同源），' +
+        '否则 levels / misplaced-assembler / level-import 三处断言当场红',
       );
     }
   }
@@ -389,10 +391,62 @@ export function checkDifficultyDegeneracy(gameName, rows) {
       if (arr[i].di <= arr[i - 1].di)
         throw new Error(
           `${gameName}: 门禁⑥（G6）难度退化 —— 类别 ${cat} 内 DI 非严格递增` +
-            `（L${arr[i - 1].id}=${arr[i - 1].di} → L${arr[i].id}=${arr[i].di}）：` +
-            '新入关不得与同类现关并列或更低（difficultyOf 正本 = 游戏侧单一实现，level-difficulty §3）',
+          `（L${arr[i - 1].id}=${arr[i - 1].di} → L${arr[i].id}=${arr[i].di}）：` +
+          '新入关不得与同类现关并列或更低（difficultyOf 正本 = 游戏侧单一实现，level-difficulty §3）',
         );
     }
+  }
+}
+
+/**
+ * 门禁⑦（工作量难度闸，2026-10-10 用户裁定）：普通关 `steps` 落区间、boss `steps` 高于阈值、教学关全豁免。
+ *
+ * 与门禁⑥（G6）**解耦**：⑥ 只锁「DI 可排严格序」（无数值阈值）；⑦ 管「绝对工作量区间」⇒ 量纲不同、
+ * 职责不同。⛔ 本闸只读 `steps`（实测工作量真源），不读 `DI`（相对序、残差 ±58%~102% 不足以做绝对区间）。
+ * 纯函数（入参预算好）⇒ 可 `node --test` 直测，无需 TS loader。
+ *
+ * @param gameName
+ * @param rows  [{ id, kind:'single'|'plate'|'boss', steps, teaching }]
+ * @param bounds { normalMin, normalMax, bossMin }（真源 = 游戏侧 tuning.ts，由调用方读入）
+ */
+export function checkStepsGate(gameName, rows, bounds) {
+  for (const r of rows) {
+    if (r.teaching) continue; // 首关 = 教学引导关，全豁免（上下界均跳）
+    if (!Number.isFinite(r.steps)) continue; // 无实测 pricing（非拼豆型关）⇒ 不拦
+    if (r.kind === 'boss') {
+      if (r.steps < bounds.bossMin)
+        throw new Error(
+          `${gameName}: 门禁⑦ boss L${r.id} steps=${r.steps} < BOSS_STEPS_MIN=${bounds.bossMin} ⇒ boss 未跳档（须 > 普通上限、≥ ${bounds.bossMin}）`,
+        );
+    } else if (r.steps < bounds.normalMin || r.steps > bounds.normalMax) {
+      throw new Error(
+        `${gameName}: 门禁⑦ 普通关 L${r.id} steps=${r.steps} 越出 [${bounds.normalMin}, ${bounds.normalMax}] ⇒ 过空或逼近 boss`,
+      );
+    }
+  }
+}
+
+/**
+ * 门禁⑦ 驱动：仅目录模式、且游戏侧 tuning.ts 声明了 `NORMAL_STEPS_MIN` 才生效（breakout / 未声明游戏零牵连）。
+ * 直接读原始 manifest + singles（此时 `pricing.steps` 尚未被 stripDevFields 剔除），首关（最小 order 的非退役 entry）= 教学豁免。
+ */
+async function assertStepsGate(games) {
+  for (const game of games) {
+    if (game.mode !== 'dir') continue;
+    const tunePath = join(GAMES_DIR, game.name, 'src', 'config', 'tuning.ts');
+    if (!isFile(tunePath)) continue;
+    const t = await import(pathToFileURL(tunePath).href);
+    if (!Number.isFinite(t.NORMAL_STEPS_MIN)) continue; // 该游戏未声明门禁⑦ ⇒ 不适用
+    const man = JSON.parse(readFileSync(game.manifestPath, 'utf8'));
+    const entries = man.entries.filter((e) => !e.retired).sort((a, b) => a.order - b.order);
+    const firstOrder = entries.length ? entries[0].order : Infinity; // 首关 = 教学
+    const rows = [];
+    for (const e of entries) {
+      const obj = JSON.parse(readFileSync(join(game.levelsDir, e.file), 'utf8'));
+      const cells = e.kind === 'plate' ? obj.cells : [obj];
+      for (const c of cells) rows.push({ id: c.id, kind: e.kind, steps: c.pricing?.steps, teaching: e.order === firstOrder });
+    }
+    checkStepsGate(game.name, rows, { normalMin: t.NORMAL_STEPS_MIN, normalMax: t.NORMAL_STEPS_MAX, bossMin: t.BOSS_STEPS_MIN });
   }
 }
 
@@ -415,6 +469,8 @@ async function main() {
 
   // 门禁⑥（G6）：难度真源落码后，装配前拦截同类内 DI 并列/退化（§7，WXG-T-266）。
   await assertDifficultyChain(games);
+  // 门禁⑦（工作量闸）：普通关 steps 落区间 / boss steps 高于阈值 / 教学首关全豁免（2026-10-10）。
+  await assertStepsGate(games);
 
   const drifted = [];
   const inSync = [];
@@ -522,6 +578,7 @@ function printHelp() {
   ③ 有 header 模板 ⇒ 必须有真源  ④ 无 manifest.json 时顶层关卡 .json 必须唯一（有 manifest 走目录模式）
   ⑤ 声明了 DEMO_LEVEL_COUNT 的游戏 ⇒ 该值 == manifest 当前关数（防入关批漏同步常量）
   ⑥ 目录模式且该游戏有 difficulty.ts ⇒ 同类内 DI 无退化（可排严格序，⛔无数值阈值；WXG-T-266 门禁⑥/G6）
+  ⑦ 目录模式且该游戏声明 NORMAL_STEPS_MIN ⇒ 普通关 steps 落区间、boss steps≥BOSS_STEPS_MIN、首关教学豁免（门禁⑦）
 
 真源：各游戏 design/gdd/systems-index.md §3（冻结常量）。`);
 }

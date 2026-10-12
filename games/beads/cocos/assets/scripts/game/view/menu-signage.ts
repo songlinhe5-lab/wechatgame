@@ -68,6 +68,22 @@ const beadOpts: WritableBeadOptions = {};
 /** 位表「有珠」格字符码点（`'#'`，与 `config/sign-glyphs.ts` 同口径）。 */
 const HASH_CODE = 0x23;
 
+/**
+ * `[WXG-T-271 / ADR-0031 DEC=C′]` 宿主注入的**位图缩略可用性**查询（与 tint 运行时同型的注入式）。
+ *
+ * 给一个关卡，返回可 blit 的 `textureId`（非位图关 / 未装载 ⇒ `undefined`）。
+ * 默认 `undefined` = 位图臂不存在 ⇒ `drawLevelThumb` 逐字节 = 今日程序化缩略（**绿线锚**）。
+ * ⛔ src 不知 boss 是谁、不知资产在哪——映射（`BOSS_THUMB_TEXTURES`）与就绪判断全在宿主。
+ */
+let _thumbBitmap: ((level: BeadsLevelRaw) => string | undefined) | undefined;
+
+/** 宿主注入位图缩略解析器（适配层调一次）；传 `undefined` 即关闭位图臂（= 今日行为）。 */
+export function setLevelThumbBitmapResolver(
+    resolver: ((level: BeadsLevelRaw) => string | undefined) | undefined,
+): void {
+    _thumbBitmap = resolver;
+}
+
 // ───────────────────────────────────────────── 招牌墨（S0 约束③ / T-1 §1.7）
 
 /** 相对亮度最高的一档（1-based 珠色索引；确定性派生、模块级一次算定，⛔ 不落 hex）。 */
@@ -302,6 +318,13 @@ export function drawLevelThumb(
     const outer = pitch - BEAD_GAP;
     const left = x + (w - area) / 2;
     const top = yBottom + h - THUMB_TOP_INSET;
+    // `[WXG-T-271 / ADR-0031 DEC=C′]` 位图臂：宿主命中 textureId ⇒ 原图按面铺满缩略区（1 条 blit）；
+    // 未命中 / 未注入 ⇒ 落下方程序化缩略（绿线锚 = 逐字节今日）。blit x/y = 左下（同 rect）⇒ 顶缘减一面得下缘。
+    const texId = _thumbBitmap?.(level);
+    if (texId !== undefined) {
+        builder.blit(texId, left, top - area, area, area);
+        return;
+    }
     const inks = beadInksFor(level);
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;

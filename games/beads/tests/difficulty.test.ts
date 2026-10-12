@@ -1,7 +1,7 @@
 /**
  * WXG-T-266 EP12-S5 · 难度分 `DI` 单一真源 + 守卫（正本 = level-difficulty.md §3/§5/§7）。
  *
- * 覆盖：验收① §5 现池 9 关逐值复现 + Spearman 0.933；验收② §7 守卫 G1–G10（纯 Node）。
+ * 覆盖：验收① §5 现池 9 关逐值复现 + Spearman 0.833；验收② §7 守卫 G1–G10（纯 Node）。
  * G6 的「可排严格序 + 并列红」判据本体在 `tools/scripts/sync-levels-data.test.mjs`（node --test，
  * 与门禁同侧）；本文件从游戏侧钉住公式真源与其余守卫。
  */
@@ -19,7 +19,7 @@ const SINGLES = at('../design/levels/singles');
 
 /** §5.1 实测表：DI 逐值 + steps（bot 动作数，dev-only 不进产物，故从真源 JSON 读）。 */
 const EXPECT_DI: Record<number, number> = {
-    1: 54.3, 2: 133.0, 3: 89.7, 4: 86.3, 5: 206.0, 6: 143.5, 7: 118.9, 8: 78.8, 9: 538.0,
+    1: 31.8, 2: 41.0, 3: 73.7, 4: 66.8, 5: 43.7, 6: 29.9, 7: 76.8, 8: 36.4, 9: 289.7,
 };
 interface PoolLevel {
     id: number;
@@ -49,21 +49,21 @@ describe('EP12-S5 · 验收① §5 现池 9 关逐值复现', () => {
         }
     });
 
-    it('DI 升序陈列序 = §5.2 九关墙序 L1→L8→L4→L3→L7→L2→L6→L5→L9', () => {
+    it('DI 升序陈列序 = §5.2 九关墙序 L6→L1→L8→L2→L5→L4→L3→L7→L9', () => {
         const order = [...pool].sort((a, b) => a.di - b.di || a.id - b.id).map((p) => p.id);
-        expect(order).toEqual([1, 8, 4, 3, 7, 2, 6, 5, 9]);
+        expect(order).toEqual([6, 1, 8, 2, 5, 4, 3, 7, 9]);
     });
 
-    it('Spearman(DI 序, steps 序) = 0.933（doc 平局按关号升序破，与 §5.2 步序列一致）', () => {
-        // steps 秩：升序、平局按关号升序赋不同秩（L2/L3 同 80 → 5/6），复刻 §5.2「steps 序」列。
+    it('Spearman(DI 序, steps 序) = 0.833（doc 平局按关号升序破，与 §5.2 步序列一致）', () => {
+        // steps 秩：升序、平局按关号升序赋不同秩（现池 steps 全互异 ⇒ 平局臂不可达），复刻 §5.2「steps 序」列。
         const bySteps = [...pool].sort((a, b) => a.steps - b.steps || a.id - b.id);
         const stepRank = new Map<number, number>();
         bySteps.forEach((p, i) => stepRank.set(p.id, i + 1));
         const byDi = [...pool].sort((a, b) => a.di - b.di || a.id - b.id);
-        const d2 = byDi.reduce((s, p, i) => s + (i + 1 - stepRank.get(p.id)! ) ** 2, 0);
+        const d2 = byDi.reduce((s, p, i) => s + (i + 1 - stepRank.get(p.id)!) ** 2, 0);
         const n = pool.length;
         const rho = 1 - (6 * d2) / (n * (n * n - 1));
-        expect(Math.round(rho * 1000) / 1000).toBe(0.933);
+        expect(Math.round(rho * 1000) / 1000).toBe(0.833);
     });
 });
 
@@ -152,11 +152,15 @@ describe('EP12-S5 · §7 守卫', () => {
         }
     });
 
-    it('G10 双轨解耦：门禁/序校验文件零生成器参数（di_start/di_step/DI_FLOOR/DI_STEP_MIN）', () => {
+    it('G10 双轨解耦：DI 侧只锁序（零 DI 数值阈值）；工作量数值闸走 steps 且真源住 tuning', () => {
         const gate = readFileSync(at('../../../tools/scripts/sync-levels-data.mjs'), 'utf8');
+        // DI 侧依旧禁任何公差/阈值参数（⑥ 只锁序）——换盘后「DI 不够估工」的硬约束不松。
         expect(gate).not.toMatch(/di_start|di_step|DI_START|DI_STEP|ΔDI|DI_FLOOR|DI_STEP_MIN/);
-        // Q7=③ 已裁「不设数值阈值」⇒ DI_FLOOR/DI_STEP_MIN 全仓不存在。
         const difficultySrc = readFileSync(at('../src/game/difficulty.ts'), 'utf8');
         expect(difficultySrc).not.toMatch(/DI_FLOOR|DI_STEP_MIN|di_start|di_step/);
+        // 门禁⑦（工作量闸）：2026-10-10 用户裁定推翻原 Q7=③「全仓无数值阈值」的**一部分**——
+        // 只解禁 steps 绝对区间，DI 仍只锁序；且区间真源住 tuning.ts，gate 只引用不写死。
+        expect(gate).toMatch(/checkStepsGate|assertStepsGate/);
+        expect(gate).not.toMatch(/NORMAL_STEPS_MIN\s*=\s*\d/); // gate 内不硬编字面值（读 t.NORMAL_STEPS_MIN）
     });
 });

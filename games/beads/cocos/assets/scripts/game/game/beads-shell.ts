@@ -17,11 +17,11 @@
  *     旧口径「有在途（`play.phase==='paused'`）→ 恢复、不扣心」**已随 WXG-T-165 反转作废**
  *     （v1.29：回主菜单 = 弃本局棋盘，关卡解锁进度保留）。
  *
- * 陈列序（EP12-S6 Deliverable 2，**回归修复**）：旧口径「墙槽 `i` 直接当关索引」把「第几格」
- * 误当成「第几关」⇒ 与 `level-difficulty.md §5.2` 九关墙序（DI 升序）恒不符。现由
- * {@link _rebuildWallSlots} 产出 **`slot → levelIndex` 映射表**（按 `difficultyOf()` 的 `di` 升序、
- * tie 按关号 `id` 升序），绘制与命中两条腿都**只经映射**取关索引；视图侧 `MetaButton` 也因此
- * 只携带 `slot`（⛔ 无从「按槽当关」）。表是**一次性缓存**（失效键 = `play.levelCount`），
+ * 陈列序（2026-10-10 用户裁定 #2 · **退役 EP12-S6 DI 升序陈列**）：墙槽 `i` = 关卡索引 `i`（**配置文件
+ * 顺序** = manifest `order` 升序 = 关号序），**不再按 DI 重排** ⇒ 陈列序 = 解锁序 = id 序，消除
+ * 「首屏第一格（DI 最易但 id 靠后）被锁」的反直觉。难度递增改由**生成期门禁⑦**约束（新关按序追加、boss 殿后）。
+ * {@link _rebuildWallSlots} 产出 **`slot → levelIndex` 恒等映射**（截断到 `WALL_CAPACITY`），绘制与命中
+ * 两条腿仍只经映射取关索引；视图侧 `MetaButton` 只携带 `slot`。表是**一次性缓存**（失效键 = `play.levelCount`），
  * 每帧 `buildRenderModel` 只读引用 ⇒ 热路径零 sort / 零分配（`control-manifest §2`）。
  *
  * The wall clock is injected (`options.clock`) because `GameServices.platform`
@@ -39,8 +39,8 @@ import { FACET4_STYLE_ID, BEAD_SIZE_DEFAULT, STAMINA_START_COST, WALL_CAPACITY }
 import { BeadsGame, type BeadsGameOptions } from './beads-game';
 import { LEVELS } from '../config/levels';
 import type { BeadsLevelRaw } from '../config/levels-data';
-// EP12-S6 陈列序真源：DI 唯一实现 = `difficultyOf()`（S5 · WXG-T-266），⛔ 不在本文件复算公式。
-import { difficultyOf } from './difficulty';
+// 2026-10-10 #2：墙序改配置文件顺序（恒等），本文件不再按 DI 排序 ⇒ 移除 difficultyOf 依赖
+// （DI 真源仍住 difficulty.ts，供门禁⑥/分带用）。
 import { MetaState } from './meta-state';
 import {
     buildMetaView,
@@ -146,7 +146,7 @@ export class BeadsShell implements Game {
         wallSlots: [] as readonly number[],
         // 槽位 → 关卡引用（T-2B 缩略聚合的 pattern 入口；与 wallSlots 同批缓存，每帧只读）。
         wallLevels: [] as readonly (BeadsLevelRaw | undefined)[],
-        // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里 DI 最高那关；一关未通 ⇒ undefined。
+        // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里进度最远那关（配置序末位）；一关未通 ⇒ undefined。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
         carouselCleared: 0,
         carouselTotal: 0,
@@ -301,7 +301,7 @@ export class BeadsShell implements Game {
                 return true;
             case 'pick-level': {
                 const slot = btn.slot;
-                // 陈列序 = DI 升序 ⇒ **槽位 ≠ 关索引**（旧 `beads-shell.ts:258` 回归根因）。
+                // 陈列序 = 配置文件顺序（恒等，槽位 = 关索引）；映射仍经 `_wallSlotsFor()`（保留 slot 间接层，视图契约不变）。
                 // 未解锁（`levelIdx+1 > maxUnlockedLevel`）与越界槽（映射表短于槽）一律零事件。
                 const levelIdx = slot === undefined ? undefined : this._wallSlotsFor()[slot];
                 if (levelIdx === undefined || levelIdx + 1 > this.play.maxUnlockedLevel) return false;
@@ -410,28 +410,16 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * `slot → levelIndex`：DI **升序**、tie 按关号 `id` 升序（⇒ `level-difficulty §5.2` 九关墙序
-     * `L1→L8→L4→L3→L7→L2→L6→L5→L9`）。只在关表变更时跑一次（⛔ 非每帧）。
+     * `slot → levelIndex` = **恒等**（配置文件顺序：`slot s` → 关卡索引 `s` = 关号 `s+1`）。
+     * 2026-10-10 用户裁定 #2：退役 EP12-S6「按 DI 升序重排」⇒ 陈列序 = 解锁序 = id 序。
+     * 难度递增改由**生成期门禁⑦**约束（新关按序追加、boss `kind:"boss"` 殿后），运行时不再排序。
      * 表长 = `min(n, WALL_CAPACITY)`：超出容量的关本 Story **不实现**（S6 Out），短于容量的空槽
-     * 由视图读成 `undefined` ⇒ 画虚线空槽、零事件。
-     *
-     * ⚠ 关表长于基准表（beads-studio 导入的追加项）时，DI 不可得（其 raw 不在本 shell 可见面内）
-     * ⇒ 按索引升序**后置**于墙尾（行为可预测、不抛错）；该限制已登记于 T-2A 回传 CONCERNS。
+     * 由视图读成 `undefined` ⇒ 画虚线空槽、零事件。保留 `slot` 间接层（视图 `MetaButton` 契约不变）。
      */
     private _rebuildWallSlots(n: number): readonly number[] {
-        const base = this._wallBaseLevels;
-        const entries: { readonly idx: number; readonly id: number; readonly di: number }[] = [];
-        for (let i = 0; i < base.length; i++) {
-            const lv = base[i]!;
-            entries.push({ idx: i, id: lv.id, di: difficultyOf(lv).di });
-        }
-        for (let i = base.length; i < n; i++) {
-            entries.push({ idx: i, id: Number.MAX_SAFE_INTEGER, di: Number.POSITIVE_INFINITY });
-        }
-        entries.sort((a, b) => a.di - b.di || a.id - b.id || a.idx - b.idx);
         const slots: number[] = [];
-        const shown = Math.min(n, WALL_CAPACITY, entries.length);
-        for (let s = 0; s < shown; s++) slots.push(entries[s]!.idx);
+        const shown = Math.min(n, WALL_CAPACITY);
+        for (let s = 0; s < shown; s++) slots.push(s);
         return slots;
     }
 
@@ -464,8 +452,8 @@ export class BeadsShell implements Game {
         v.wallSlots = this._wallSlotsFor();
         // 槽位 → 关卡引用（同一缓存批，T-2B 缩略聚合的只读入口）。
         v.wallLevels = this._wallLevelsFor();
-        // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里 `DI` 最高那关。
-        // ⇒ `wallSlots` 已按 DI **升序**缓存 ⇒ **反序取首个已通槽**即 boss；⛔ 每帧零 `difficultyOf`，
+        // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里**进度最远**那关（配置序末位）。
+        // ⇒ `wallSlots` = 恒等配置序 ⇒ **反序取首个已通槽** = 最大 id 已通关；⛔ 每帧零 `difficultyOf`，
         //   单趟 ≤capacity 整数循环、零分配。星级即「已通关」判据（`starsByLevel[idx] > 0`）。
         // ponytail: 进度/boss 均在已陈列的 `wallSlots`（≤WALL_CAPACITY）内取；溢出未实现（S6 Out）⇒ 关表 >capacity 时需改全表扫描。
         const slots = v.wallSlots;

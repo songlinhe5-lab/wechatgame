@@ -6,7 +6,7 @@
  *  - `design/proposals/ui-style-redesign/menu-architecture.md` §5.1（版面）/ §5.4（三条硬口径）
  *    / §6（文案令牌）/ §7.4（P-5 次级行溢出）/ §8；
  *  - `design/proposals/ui-style-redesign/level-difficulty.md` **§5.2 九关墙序**
- *    `L1→L8→L4→L3→L7→L2→L6→L5→L9`（DI 升序 = `game/difficulty.ts::difficultyOf()` 实算）；
+ *    配置文件恒等序 `L1→L2→…→L9`（2026-10-10 用户裁定 #2 · 退役 EP12-S6 DI 升序 ⇒ 槽 i = 关索引 i）；
  *  - `design/proposals/ui-style-redesign/tokens.md` §1（色）/ §5（字级）/ §7（对外称名）；
  *  - `docs/architecture/control-manifest.md` L4（零 RNG）/ L5（视图不持状态）/ §2（热路径零分配）。
  *
@@ -97,8 +97,12 @@ const START = 1_700_000_000_000;
 const META_KEY = 'test.t269s6.meta';
 const PLAY_KEY = 'test.t269s6.play';
 
-/** §5.2 冻结九关墙序（关号；= 本池 `id` = 索引+1，见前置断言）。 */
-const WALL_ORDER_IDS = [1, 8, 4, 3, 7, 2, 6, 5, 9] as const;
+/** 九关墙序 = 配置文件恒等序（关号 = 索引+1；2026-10-10 #2 退役 EP12-S6 DI 升序）。 */
+const WALL_ORDER_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+/** 换盘前 DI 升序（oracle 值）；仅作「⛔ 不得退回按 DI 重排」的反例基线。 */
+const LEGACY_DI_ORDER = [6, 1, 8, 2, 5, 4, 3, 7, 9] as const;
+/** maxUnlocked=1 时唯一已解锁关 = L1（id 1）；恒等序 ⇒ 墙槽 = 0。 */
+const L1_SLOT = WALL_ORDER_IDS.indexOf(1);
 
 interface Rig {
     readonly shell: BeadsShell;
@@ -278,8 +282,8 @@ describe('EP12-S6 前置 · 关表与 DI 真源（S5 消费面，⛔ 不复算�
     });
 });
 
-describe('EP12-S6 Deliverable 2 · 陈列序 = DI 升序（九关墙序复现 + slot↔level 回归反例）', () => {
-    it('选关页九格**缩略逐位复现** `level-difficulty §5.2`：L1→L8→L4→L3→L7→L2→L6→L5→L9（T-2B 口径，墙下移 `levels` overlay）', () => {
+describe('EP12-S6 Deliverable 2 · 陈列序 = 配置文件恒等序（#2 反转：退役 DI 升序重排）', () => {
+    it('选关页九格**缩略逐位复现** §5.2：L1→L2→…→L9（恒等配置序，墙下移 `levels` overlay）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
         const cmds = levelsFrame(r.shell);
         const seq = wallCells()
@@ -299,27 +303,24 @@ describe('EP12-S6 Deliverable 2 · 陈列序 = DI 升序（九关墙序复现 + 
         expect(sigs.size, '九关聚合表互异 ⇒ 错映射必失配').toBe(LEVELS.length);
     });
 
-    it('**反例锁**：「按槽直索引」（墙序 = 1..9）必红 ⇒ 现读序列与恒等序逐位不等', () => {
+    it('**反例锁**（反转）：⛔ 不得退回 EP12-S6「按 DI 升序重排」（基线 = 换盘前 oracle 序）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
         const cmds = levelsFrame(r.shell);
         const seq = wallCells()
             .slice(0, LEVELS.length)
             .map((cell) => levelIdByThumb(cmds, cell));
-        expect(seq, '若红 = 又退回了「第 k 格当第 k 关」的旧口径').not.toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-        // 逐位钉死才能拦「局部平移」型退化：本池 DI 序与恒等序**仅首末两位重合**
-        // （槽 0 = L1 最易、槽 8 = L9 最难 ⇒ 天然同位），中间 7 位全部错位。
-        const sameAsIdentity = seq.filter((v, i) => v === i + 1);
-        expect(sameAsIdentity, `与恒等序的重合位：${sameAsIdentity.join(',')}`).toEqual([1, 9]);
+        // 恒等序即正确（上一例「阳性对照」已证九格缩略两两不同 ⇒ 非空断言）。
+        expect(seq, '若红 = 陈列又按 DI 重排（#2 反转失效）').toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        expect(seq, '⛔ 不得等于换盘前 DI 升序').not.toEqual([...LEGACY_DI_ORDER]);
     });
 
-    it('**行为腿反例**：点槽 1 → 落 L8（索引 7），⛔ 不是索引 1（旧 `beads-shell.ts:258` 的错值）', () => {
+    it('**行为腿**：点槽 1 → 落 L2（索引 1），陈列序 = 关索引（恒等配置序）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
         openLevels(r.shell); // 墙下移 `levels` overlay ⇒ 先在选关页点格
         const c = centerOf(wallCells()[1]!.box);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
         expect(r.shell.screen).toBe('play');
-        expect(r.shell.play.levelIndex, '槽 1 = 次易关 L8 = 索引 7').toBe(7);
-        expect(r.shell.play.levelIndex).not.toBe(1);
+        expect(r.shell.play.levelIndex, '槽 1 = 关索引 1（L2）').toBe(1);
         expect(r.shell.play.levelIndex + 1).toBe(WALL_ORDER_IDS[1]);
     });
 
@@ -334,14 +335,10 @@ describe('EP12-S6 Deliverable 2 · 陈列序 = DI 升序（九关墙序复现 + 
         expect(CODE('game/beads-shell.ts'), '旧「按槽当关」取值面必须消失').not.toContain('btn.levelIndex');
     });
 
-    it('热路径：排序只住在 `_rebuildWallSlots`（一次性），每帧腿（`_metaViewData`/视图）零 sort', () => {
+    it('热路径：陈列序恒等 ⇒ 运行时零排序（`_rebuildWallSlots` 不再 `.sort(`、每帧腿零分配）', () => {
         const shellSrc = CODE('game/beads-shell.ts');
         const sorts = shellSrc.match(/\.sort\(/g) ?? [];
-        expect(sorts.length, '全 shell 恰一处 .sort(').toBe(1);
-        expect(
-            shellSrc.indexOf('.sort('),
-            '且位于 _rebuildWallSlots 之内',
-        ).toBeGreaterThan(shellSrc.indexOf('_rebuildWallSlots('));
+        expect(sorts.length, '全 shell 零 .sort(（2026-10-10 #2 反转：恒等序无需排序）').toBe(0);
         expect(CODE('view/meta-view.ts'), '视图侧⛔ 不排序').not.toContain('.sort(');
         // 版面缓存同一性（每帧 `metaLayout` 不得新建对象）。
         expect(metaLayout('none')).toBe(metaLayout('none'));
@@ -360,15 +357,15 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
     it('口径①：主钮 = **当前关**（与墙格解耦，点格改关后主钮跟随该关）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
         openLevels(r.shell); // 墙下移 `levels` overlay ⇒ 格在选关页可点
-        const cell = wallCells()[2]!; // 槽 2 = L4 = 索引 3
+        const cell = wallCells()[2]!; // 槽 2 = L3 = 索引 2（恒等配置序）
         r.shell.tapMeta(...centerTuple(cell.box));
-        expect(r.shell.play.levelIndex).toBe(3);
+        expect(r.shell.play.levelIndex).toBe(2);
         r.shell.showMenu();
         const start = metaLayout('none').buttons.find((b) => b.id === 'start')!;
         const sc = centerOf(start.box);
         expect(r.shell.tapMeta(sc.x, sc.y)).toBe(true);
         expect(r.shell.screen).toBe('play');
-        expect(r.shell.play.levelIndex, '主钮开的是**当前关**（3），不是槽位号、也不是首关').toBe(3);
+        expect(r.shell.play.levelIndex, '主钮开的是**当前关**（2），不是槽位号、也不是首关').toBe(2);
     });
 
     it('口径②：墙格 = **指定关**（点槽 8 直达 L9）', () => {
@@ -397,15 +394,16 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
     });
 
     it('未解锁格 = 虚线空槽（无编号、无🔒字样）+ 零热区零事件（墙住 `levels` overlay）', () => {
-        const r = rig(); // maxUnlocked = 1 ⇒ 仅槽 0 已解锁
+        const r = rig(); // maxUnlocked = 1 ⇒ 仅 L1 所在墙槽（恒等序 = 槽 0）已解锁，其余锁
         const before = r.staminaOf();
         const cmds = levelsFrame(r.shell); // 先点卡进选关页 ⇒ 墙格内容可观测
         const eventsBefore = r.overlayEvents.length; // 开页那一次 `meta:overlay` 已记录
         const cells = wallCells();
-        expect(levelIdByThumb(cmds, cells[0]!), '槽 0 = L1 已解锁 ⇒ 缩略命中 L1').toBe(1);
-        expect(beadsInCell(cmds, cells[0]!), '已解锁格有珠').toBeGreaterThan(0);
-        expect(dashedSegmentsIn(cmds, cells[0]!)).toBe(0);
-        for (const locked of cells.slice(1, LEVELS.length)) {
+        const unlocked = cells[L1_SLOT]!;
+        expect(levelIdByThumb(cmds, unlocked), `槽 ${L1_SLOT} = L1 已解锁 ⇒ 缩略命中 L1`).toBe(1);
+        expect(beadsInCell(cmds, unlocked), '已解锁格有珠').toBeGreaterThan(0);
+        expect(dashedSegmentsIn(cmds, unlocked)).toBe(0);
+        for (const locked of cells.slice(0, LEVELS.length).filter((c) => c.slot !== L1_SLOT)) {
             const c = centerOf(locked.box);
             expect(r.shell.tapMeta(c.x, c.y), `槽 ${locked.slot} 未解锁 ⇒ 不被消费`).toBe(false);
             expect(beadsInCell(cmds, locked), '未解锁格⛔ 不画珠（也无编号占位）').toBe(0);

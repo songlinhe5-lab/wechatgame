@@ -16,9 +16,10 @@ temp/studio-batch-report.py —— beads-studio 批量「导出 + 自检 + 效�
 零第三方依赖（urllib + PIL + 子进程起 node 服务）。
 
 用法：
-  python3 temp/studio-batch-report.py                       # 仅自检 + 渲染（安全）
-  python3 temp/studio-batch-report.py --ingest              # 额外真导出到 design/levels
-  python3 temp/studio-batch-report.py --dir temp/comfyui-out/teaching-set --mis full
+  python3 studio-batch-report.py                       # 仅自检 + 渲染（安全）
+  python3 studio-batch-report.py --ingest              # 额外真导出到 design/levels（追加，撞门禁⑤ 会回滚）
+  python3 studio-batch-report.py --rebuild             # 整表重建：先清空真源，再逐张入关（自动管 DEMO_LEVEL_COUNT）
+  python3 studio-batch-report.py --dir temp/comfyui-out/teaching-set --mis full
 """
 import argparse, base64, json, os, re, shutil, subprocess, sys, time
 import urllib.request, urllib.error
@@ -37,6 +38,41 @@ def _repo_root(start):
 # 脚本可居任意深度（现 games/beads/design/ai-workflows/），向上找仓库根标记。
 REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
 SERVER = os.path.join(REPO, "apps/beads-studio/server.mjs")
+LEVELS_DIR = os.path.join(REPO, "games/beads/design/levels")
+MANIFEST = os.path.join(LEVELS_DIR, "manifest.json")
+TUNING = os.path.join(REPO, "games/beads/src/config/tuning.ts")
+
+
+def set_demo_count(n):
+    """改 tuning.ts::DEMO_LEVEL_COUNT 字面值（整表重建期随表走，末态 = 入关数）。"""
+    txt = open(TUNING, encoding="utf-8").read()
+    new, k = re.subn(r"(export const DEMO_LEVEL_COUNT = )\d+", lambda m: m.group(1) + str(n), txt, count=1)
+    if k != 1:
+        raise RuntimeError("tuning.ts 未找到 DEMO_LEVEL_COUNT 定义")
+    open(TUNING, "w", encoding="utf-8").write(new)
+
+
+def current_level_count():
+    return len(json.load(open(MANIFEST, encoding="utf-8")).get("entries", []))
+
+
+def reset_table():
+    """pre-release 一次性清空关表真源（manifest.entries=[] + 删 singles/plates + 常量归零）。
+    真源在 git HEAD，跑砸可 `git checkout` 还原（先例 = systems-index §6 v1.44/v1.46 重置）。"""
+    man = json.load(open(MANIFEST, encoding="utf-8"))
+    man["entries"] = []
+    man["contentVersion"] = int(man.get("contentVersion", 0)) + 1
+    with open(MANIFEST, "w", encoding="utf-8") as f:
+        json.dump(man, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    for sub in ("singles", "plates"):
+        d = os.path.join(LEVELS_DIR, sub)
+        if os.path.isdir(d):
+            for fn in os.listdir(d):
+                if fn.endswith(".json"):
+                    os.remove(os.path.join(d, fn))
+    set_demo_count(0)
+    print("[rebuild] 真源关表已清空（contentVersion++ · 常量归零 · 可 git checkout 还原）")
 
 
 # ── 服务生命周期 ────────────────────────────────────────────────
@@ -89,7 +125,7 @@ def board_size(name):
     #   倍率是前端推列/行的旋钮，generate 只收 cols/rows，故此处直接给最终格数。
     m = re.search(r"level-0?(\d+)", name)
     lvl = int(m.group(1)) if m else 0
-    return (32, 32)# if lvl == 9 else (16, 16)
+    return (32, 32) if lvl == 9 else (16, 16)
 
 
 # ── 自检指标 ────────────────────────────────────────────────────
@@ -219,8 +255,12 @@ def main():
     ap.add_argument("--colors", type=int, default=8)
     ap.add_argument("--palette", default="artkal-s")
     ap.add_argument("--port", type=int, default=18799)
-    ap.add_argument("--ingest", action="store_true", help="真导出到 design/levels（默认不写）")
+    ap.add_argument("--ingest", action="store_true", help="真导出到 design/levels（默认不写；追加语义）")
+    ap.add_argument("--rebuild", action="store_true",
+                    help="整表重建：先清空真源关表，再逐张入关；每入一张前把 DEMO_LEVEL_COUNT 设为当前关数+1（守门禁⑤），末态净关数=入关数")
     args = ap.parse_args()
+    if args.rebuild:
+        args.ingest = True
 
     src_dir = os.path.join(REPO, args.dir)
     out_dir = os.path.join(REPO, args.out)
@@ -232,6 +272,8 @@ def main():
     print(f"[driver] 起服务 :{args.port} …")
     srv = start_server(args.port)
     base = f"http://127.0.0.1:{args.port}"
+    if args.rebuild:
+        reset_table()
     rows = []
     try:
         for fn in pngs:
@@ -290,6 +332,8 @@ def main():
                   f"cleared={rec['cleared']} time={rec['time']}s")
             # ingest
             if args.ingest:
+                if args.rebuild:
+                    set_demo_count(current_level_count() + 1)  # 门禁⑤：常量须 == 本张写入后的关数
                 rid = j.get("id")
                 ist, ij = http_json("POST", f"{base}/api/results/{rid}/ingest")
                 if ist == 200:
