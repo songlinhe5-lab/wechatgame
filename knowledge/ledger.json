@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 121,
+  "nextId": 123,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1999,6 +1999,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-121",
+      "state": "active",
+      "file": "knowledge/lessons/art-derivation.md",
+      "category": "美术派生",
+      "title": "迭代缩边前必须先做逐列亮度剖面诊断，搞清用户所见「宽带」的真实像素构成",
+      "contentHash": "270d623f8ae6ca396bd3b64b764543cc55ccc28e3c72f4d4a920b3121856200f",
+      "sourceTask": "WXG-T-268",
+      "addedDate": "2026-10-12",
+      "lastAccess": "2026-10-12",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-122",
+      "state": "active",
+      "file": "knowledge/lessons/art-derivation.md",
+      "category": "美术派生",
+      "title": "全局平滑核会把局部裁切改动跨分支传播，须按分支钳制或收紧作用域",
+      "contentHash": "557d868766b5537c46f41dd353248e9e474c9b1207b70cddb89527995411ba8c",
+      "sourceTask": "WXG-T-268",
+      "addedDate": "2026-10-12",
+      "lastAccess": "2026-10-12",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -2984,6 +3018,16 @@
       "ids": [
         "K-119",
         "K-120"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-12",
+      "taskId": "WXG-T-268",
+      "kind": "added",
+      "ids": [
+        "K-121",
+        "K-122"
       ],
       "note": null
     }

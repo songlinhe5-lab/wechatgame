@@ -18,6 +18,7 @@
 | `接入` | `knowledge/lessons/onboarding.md` |
 | `引擎Cocos` | `knowledge/lessons/engine-cocos.md`（WXG-T-169 新建：类别早列于 §2 但此前无条目） |
 | `引擎Cocos构建` | `knowledge/lessons/engine-cocos-build.md`（WXG-T-260 提交批新切：`引擎Cocos` 片越 B 门 8618 > 8000，构建产物/资产装载类四条目 K-108/111/112/113 子切） |
+| `美术派生` | `knowledge/lessons/art-derivation.md`（btn-arrow pressed 态批新建：程序化派生像素资产的调试法与算法坑，WXG-T-268） |
 
 - **引用口径**：一律写 **K-0NN**（可附任务号），**不写文件路径**；ID → 分片由
   `knowledge/INDEX.md` 活跃表的「分片」列机械解析。

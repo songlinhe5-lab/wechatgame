@@ -217,7 +217,7 @@
 | K-108 | 引擎Cocos构建 | engine-cocos-build | 运行时按 uuid 字符串加载的资产不会进 Cocos 构建产物 ⇒ 「静默降级」必须配一条产物级门禁，源码引用 grep 与 config.json 明文 grep 都不算取证 | WXG-T-255 | 2026-10-05 | 0 | active |
 | K-109 | 引擎Cocos | engine-cocos | 层序死结优先「删掉引起冲突的对象」，而不是给数据模型加「层归属标记」——同一绘制体里两成员必须分别站在另一层上/下两侧时，加标记 = 扩协议，删对象 = 缩问题面 | WXG-T-256 | 2026-10-05 | 0 | active |
 | K-110 | 引擎Cocos | engine-cocos | 改「渲染真源」字段前必须先 grep 两侧消费方：canvas2d 吃了 ≠ Cocos 吃了，harness 全绿掩盖的是「某个宿主根本没读这个字段」 | WXG-T-256 | 2026-10-05 | 0 | active |
-| K-111 | 引擎Cocos构建 | engine-cocos-build | 「顺手重建产物」前先确认构建档：脚本默认档（debug）≠ 门禁基线档（release）⇒ 一次重建就能原地覆盖在册产物并把包体门禁打红 | WXG-T-256 | 2026-10-05 | 0 | active |
+| K-111 | 引擎Cocos构建 | engine-cocos-build | 「顺手重建产物」前先确认构建档：脚本默认档（debug）≠ 门禁基线档（release）⇒ 一次重建就能原地覆盖在册产物并把包体门禁打红 | WXG-T-256 | 2026-10-06 | 1 | active |
 | K-112 | 引擎Cocos构建 | engine-cocos-build | 异步资源的「只取一次」memo 要记 Promise，不能记「试过」标志位 + 结果槽 | WXG-T-256 | 2026-10-05 | 0 | active |
 | K-113 | 引擎Cocos构建 | engine-cocos-build | 跨 Bundle 按需加载用 `assetManager.loadAny({ bundle, path }, cb)`；`Bundle.load(path, Type, cb)` 三参在 3.8.8 把回调当 options | WXG-T-256 | 2026-10-05 | 0 | active |
 | K-114 | 判据 | criteria | 封箱基准「只插键、不动几何」类修订：闭合自证 = 剥键后 sha 逐字节 ≡ 前态锁 + 带键条数 = 登记常量，强于逐行 diff | WXG-T-256 | 2026-10-05 | 0 | active |
@@ -227,4 +227,6 @@
 | K-118 | 测试 | testing | 修像素级缺陷前先看「门是什么类型的门」；目标文件未入库（无 HEAD 基线）时 A/B 对照臂 = 摘掉新增那一笔调用重建 | WXG-T-257 | 2026-10-05 | 0 | active |
 | K-119 | 工具链 | toolchain | pre-commit 尾部那句「索引与暂存不一致」会掩盖真因；ctx B 越限要先定责再分流，豁免资格由政策而非方便决定 | WXG-T-260 | 2026-10-06 | 0 | active |
 | K-120 | 引擎Cocos构建 | engine-cocos-build | 镜像拷贝树删资产必须「正本 + 拷贝件 + `.meta`」三处成对；只删拷贝件会被 `sync:check` 拦下并拒绝构建（OUT 与 OVER 两个方向都红） | WXG-T-259 | 2026-10-06 | 0 | active |
+| K-121 | 美术派生 | art-derivation | 迭代缩边前必须先做逐列亮度剖面诊断，搞清用户所见「宽带」的真实像素构成 | WXG-T-268 | 2026-10-12 | 0 | active |
+| K-122 | 美术派生 | art-derivation | 全局平滑核会把局部裁切改动跨分支传播，须按分支钳制或收紧作用域 | WXG-T-268 | 2026-10-12 | 0 | active |
 <!-- kb:active:end -->
