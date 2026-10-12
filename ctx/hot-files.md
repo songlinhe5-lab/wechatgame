@@ -23,7 +23,7 @@
 
 §wechatgame 项目长期笔记=1+61 · §日志蒸馏规程（R2 · WXG-T-041）=7+6 · §项目约定=13+14 · §常用脚本=27+11 · §SubAgent=38+4 · §Rules=42+3 · §Hooks=45+5 · §Headless / CI=50+8 · §已知限制=58+4
 
-## `production/TASKS.md` — 96 行 / 31904 tok / 实测读 4 次
+## `production/TASKS.md` — 96 行 / 32182 tok / 实测读 4 次
 
 §WXG 任务台账（SSOT）=1+97 · §待排（backlog，无号，立项时领取）=70+28
 

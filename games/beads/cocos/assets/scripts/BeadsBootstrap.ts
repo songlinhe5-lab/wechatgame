@@ -129,8 +129,11 @@ export class BeadsBootstrap extends Bootstrap {
    * ⚠ 形参 `[WXG-T-256 / S5′-3]` = 框架专用的 **BlitLayer** 节点（底图之上、`Graphics` 之下），
    * ⛔ 不是 GameRoot：直接把图集节点挂到 GameRoot 末尾会让珠层排在 `Graphics`/`Labels` 之后
    * ⇒ 珠子盖住暂停/结算面板与 scrim（旧残留，已在本单消）。
+   *
+   * ⚠ 第二形参 `[WXG-T-271 / ADR-0031 §6]` = **BlitLayerUI**（`Graphics` 之上）：boss 缩略这类全彩
+   * 静态位图画在 UI 卡底里，挂珠层会被 `Graphics` 底色盖住（产物实测：blit 已发、屏上零像素）。
    */
-  protected createBlitCarrier(layer: Node): CocosBlitCarrierLike | null {
-    return maybeCreateBeadsBlitCarrier(layer);
+  protected createBlitCarrier(layer: Node, uiLayer: Node): CocosBlitCarrierLike | null {
+    return maybeCreateBeadsBlitCarrier(layer, uiLayer);
   }
 }

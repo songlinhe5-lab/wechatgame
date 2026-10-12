@@ -63,6 +63,8 @@ export class Bootstrap extends Component {
   private _back: Graphics | null = null;
   /** `[WXG-T-256]` blit 载体层（珠）：夹在底图与矢量 UI 之间。 */
   private _blitLayer: Node | null = null;
+  /** `[WXG-T-271 / ADR-0031]` UI 位图层：夹在矢量 UI 与 `Labels` 之间（全彩静态位图专用）。 */
+  private _blitLayerUI: Node | null = null;
   private _renderer: CocosRenderModelRenderer | null = null;
   private _bridge: CocosInputBridge | null = null;
   private _labels: PooledLabelSource | null = null;
@@ -90,8 +92,13 @@ export class Bootstrap extends Component {
    * ⇒ WXG-T-132 的整屏节点缩放与 `Graphics` 同一坐标系两个性质都不变。
    *
    * ⛔ 框架不造载体：图集 / 节点池 / mask 资产加载全在 `games/<game>/cocos/assets/scripts/`。
+   *
+   * ⚠ 第二形参 `[WXG-T-271 / ADR-0031 §6]` = **BlitLayerUI**（`Graphics` 之上、`Labels` 之下）：
+   * 珠层必须在 `Graphics` 之下（不盖面板），但 boss 缩略这类**全彩静态位图**画在 UI 卡底里，
+   * 同一层会被 `Graphics` 的底色矩形整个盖住（浏览器产物 A/B 实测：blit 已发出、槽位无像素）
+   * ⇒ 两条腿需要两个层。不用位图腿的实现者可忽略它。
    */
-  protected createBlitCarrier(_layer: Node): CocosBlitCarrierLike | null {
+  protected createBlitCarrier(_layer: Node, _uiLayer: Node): CocosBlitCarrierLike | null {
     return null;
   }
 
@@ -211,6 +218,12 @@ export class Bootstrap extends Component {
     root.addChild(graphicsNode);
     this._graphics = graphicsNode.addComponent(Graphics);
 
+    // `[WXG-T-271 / ADR-0031]` 静态位图腿专用层：必须在 `Graphics`（卡底/面板）之后、
+    // `Labels` 之前，否则 UI 里的全彩缩略图会被自己那层的底色盖住。
+    const blitLayerUI = new Node('BlitLayerUI');
+    root.addChild(blitLayerUI);
+    this._blitLayerUI = blitLayerUI;
+
     const labelRoot = new Node('Labels');
     root.addChild(labelRoot);
 
@@ -235,7 +248,7 @@ export class Bootstrap extends Component {
   private _bindRenderer(): void {
     if (!this._app || !this._graphics || !this._labels) return;
     const blitCarrier = this._root
-      ? this.createBlitCarrier(this._blitLayer ?? this._root)
+      ? this.createBlitCarrier(this._blitLayer ?? this._root, this._blitLayerUI ?? this._root)
       : null;
     this._renderer = new CocosRenderModelRenderer(
       this._graphics,

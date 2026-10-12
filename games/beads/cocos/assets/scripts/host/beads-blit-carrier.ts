@@ -160,8 +160,13 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     private _atlasTex: Texture2D | null = null;
     private _tintCache: TintSpriteCache | null = null;
 
-    /** @param _layer `bindings.ts` 的 BlitLayer 节点（底图之上、`Graphics` 之下；= GameRoot 子节点 ⇒ 继承整屏缩放）。 */
-    constructor(private readonly _layer: Node) { }
+    /**
+     * @param _layer `bindings.ts` 的 BlitLayer 节点（底图之上、`Graphics` 之下；= GameRoot 子节点 ⇒ 继承整屏缩放）。
+     * @param _uiLayer `bindings.ts` 的 BlitLayerUI 节点（`Graphics` 之上、`Labels` 之下）：
+     *   `[WXG-T-271 / ADR-0031 §6]` 全彩静态位图腿落这里。旧写法两条腿同挂 BlitLayer
+     *   ⇒ 选关墙的卡底/槽位矩形由后置的 `Graphics` 画，位图被底色整个盖住（装载全绿但屏上零像素）。
+     */
+    constructor(private readonly _layer: Node, private readonly _uiLayer: Node) { }
 
     /**
      * 预热：载**需求集**（`MASK_IDS`，由档位宏派生）的 mask → 建合成缓存 → **成功后**才打开 tint 运行时。
@@ -212,6 +217,10 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
                 else console.warn(`[BeadsBlitCarrier] boss 位图 \`${texId}\`（${a.path}）未就绪 ⇒ 该关缩略走程序化回退`);
             }),
         );
+        // 装载成功也要嚷：只靠「无 warn」反推「已上屏」本批已被实测证伪（ADR-0031 §6）。
+        if (Object.keys(BITMAP_ASSETS).length > 0) {
+            console.log(`[BeadsBlitCarrier] boss 位图 ${this._bitmaps.size}/${Object.keys(BITMAP_ASSETS).length} 已装载 ⇒ 落 UI blit 层`);
+        }
         // 注入位图缩略可用性查询（宿主侧唯一知资产在哪）；未命中关 ⇒ resolver 返 undefined ⇒ 程序化。
         setLevelThumbBitmapResolver((level) => {
             const texId = BOSS_THUMB_TEXTURES[level.id];
@@ -246,6 +255,10 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             return this._bail(base !== undefined ? '图集格解不出（缓存未命中或格用尽）' : '静态位图未装载（注册表腿未命中）', cmd);
         }
         const sp = this._borrow();
+        // 两条腿不同层：珠（tint 图集）在 `Graphics` 之下、静态位图在其上。池位是同一条，
+        // 只在层真变了时 setParent（选关墙同屏仅此 1 条位图命令，热路径仍零分配）。
+        const parent = base !== undefined ? this._atlasNode() : this._uiLayer;
+        if (sp.node.parent !== parent) sp.node.setParent(parent);
         sp.node.getComponent(UITransform)!.setContentSize(cmd.w, cmd.h);
         if (sp.spriteFrame !== frame) sp.spriteFrame = frame;
         // blit 的 x/y 是左下角（设计系），Sprite 锚点是中心 ⇒ 补半宽高。
@@ -456,11 +469,12 @@ async function loadBitmapSpriteFrame(path: string): Promise<SpriteFrame | undefi
 /**
  * 注入点（`BeadsBootstrap.createBlitCarrier()` 调）。
  * @param layer `bindings.ts` 的 BlitLayer 节点（⛔ 不是 GameRoot，层序见 [WXG-T-256]）
+ * @param uiLayer `bindings.ts` 的 BlitLayerUI 节点（`Graphics` 之上，静态位图腿专用，[WXG-T-271]）
  * @returns 载体；**任何**前置不满足 ⇒ `null`（= 不注入 = 今日行为）
  */
-export function maybeCreateBeadsBlitCarrier(layer: Node): CocosBlitCarrierLike | null {
+export function maybeCreateBeadsBlitCarrier(layer: Node, uiLayer: Node): CocosBlitCarrierLike | null {
     if (!carrierSwitchOn()) return null;
-    const carrier = new BeadsBlitCarrier(layer);
+    const carrier = new BeadsBlitCarrier(layer, uiLayer);
     // 预热是异步的；就绪前 tint 运行时不打开 ⇒ 该窗口内游戏仍发矢量命令，载体一条也收不到。
     carrier
         .warmup()

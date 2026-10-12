@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4136,
       "lines": 147,
-      "sha256": "3716628e6932ba83b271a106001e691dcdce9c5f969473ae3a765a58587d2fd6",
+      "sha256": "1a3c832a5d379942688e958d5073edab002147c22899bce5ce0d07b13cb9700f",
       "tier": "normal",
       "sections": [
         {
@@ -396,7 +396,7 @@
           "startLine": 1,
           "endLine": 148,
           "tokens": 4123,
-          "summary": "生成：2026-10-12 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-13 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5575,
       "lines": 86,
-      "sha256": "e8d7a10708c12b4ac018e72c1cb33fe9221fe04e303bf7c27c3ea20ed00743f9",
+      "sha256": "4b485870225275b75d9c30be626e7c889575a86871dc747f228e33974382a893",
       "tier": "normal",
       "sections": [
         {
@@ -764,7 +764,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 96 行 / 31904 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 96 行 / 32182 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -12820,17 +12820,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0031-framework-blit-static-bitmap-leg.md",
-      "tokens": 4488,
-      "lines": 137,
-      "sha256": "805dec15bbb36fc79b6d643bb4aa84cebaabde287b4bf13d8b6b5f3bd979f3b1",
+      "tokens": 5517,
+      "lines": 140,
+      "sha256": "38f97fc7faa907e5dd4fd5325c747082421bded7c2c7027fc8187bd49ce8ddbb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0031 · 框架位图子系统：外部静态位图资产的 blit「注册表腿」",
           "level": 1,
           "startLine": 1,
-          "endLine": 138,
-          "tokens": 4460,
+          "endLine": 141,
+          "tokens": 5489,
           "summary": "编号 / 命名：接 ADR-0030；框架级决策，文件名不带游戏前缀（对齐 ADR-0024 render-model-",
           "keywords": [
             "ADR",
@@ -13003,8 +13003,8 @@
           "anchor": "§4 后果（Consequences）",
           "level": 2,
           "startLine": 89,
-          "endLine": 116,
-          "tokens": 866,
+          "endLine": 117,
+          "tokens": 1026,
           "summary": "",
           "keywords": [
             "Consequences",
@@ -13031,8 +13031,8 @@
           "anchor": "§4.2 负面（已知成本，白纸黑字）",
           "level": 3,
           "startLine": 98,
-          "endLine": 108,
-          "tokens": 486,
+          "endLine": 109,
+          "tokens": 646,
           "summary": "1. 工序的自动化可行性分层（MCP 工具 action 枚举实测，cocos-creator MCP）：",
           "keywords": [
             "MCP",
@@ -13046,8 +13046,8 @@
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 109,
-          "endLine": 116,
+          "startLine": 110,
+          "endLine": 117,
           "tokens": 173,
           "summary": "分包批次策略（多少美术 / 几关一图一包）未定——待首次真机分包产物实测后定，本单不给具体数字（K-051：增量型数值须",
           "keywords": [
@@ -13058,8 +13058,8 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 117,
-          "endLine": 130,
+          "startLine": 118,
+          "endLine": 131,
           "tokens": 411,
           "summary": "出现以下任一情况时重新评估本决策：",
           "keywords": [
@@ -13071,9 +13071,9 @@
         {
           "anchor": "§6 复评记录（触发式追加）",
           "level": 2,
-          "startLine": 131,
-          "endLine": 138,
-          "tokens": 401,
+          "startLine": 132,
+          "endLine": 141,
+          "tokens": 1270,
           "summary": "2026-10-10 触发 1（部分兑现） node tools/scripts/check-bundle-size.m",
           "keywords": [
             "node",
@@ -56231,17 +56231,17 @@
     },
     {
       "path": "memory/2026-10-12.md",
-      "tokens": 5063,
-      "lines": 76,
-      "sha256": "0bd3cf11d6fcdb02a6969c2db1881fb95069e07ff171f49fbbf1c85b2541f982",
+      "tokens": 6315,
+      "lines": 96,
+      "sha256": "1a502a96fa64f0716b19f91f04c4695dff713f7a4cd8827717c130ab698734ca",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-12",
           "level": 1,
           "startLine": 1,
-          "endLine": 77,
-          "tokens": 5060,
+          "endLine": 97,
+          "tokens": 6311,
           "summary": "",
           "keywords": []
         },
@@ -56372,22 +56372,54 @@
             "top2",
             "skills"
           ]
+        },
+        {
+          "anchor": "§WXG-T-271 投放取证：装载腿全绿、但位图被 Graphics 盖住（同日第 8 批）",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 87,
+          "tokens": 645,
+          "summary": "用户裁「投放 + 同时起草变更单」→ 编辑器（Creator 3.8.8，工程 games/beads/cocos）起来",
+          "keywords": [
+            "WXG",
+            "Graphics",
+            "Creator",
+            "games",
+            "beads",
+            "cocos"
+          ]
+        },
+        {
+          "anchor": "§层序修复：位图腿真上屏（同日第 9 批）",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 97,
+          "tokens": 558,
+          "summary": "用户从三选项里点「修层序」→ 最小改：框架新增 BlitLayerUI 节点（插在 Graphics 后、Labels ",
+          "keywords": [
+            "BlitLayerUI",
+            "Graphics",
+            "Labels",
+            "层序修复",
+            "位图腿真上屏",
+            "同日第"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 12445,
-      "lines": 307,
-      "sha256": "61f0c2d26b513096f5543214fecc4a49ec65a6fa239646c705f3f538c2e2f871",
+      "tokens": 12575,
+      "lines": 309,
+      "sha256": "bfd3f1ca06688fac3fab1cfd23233b420dd3c6c2de1a9d9cfd5b0009902b5b88",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 308,
-          "tokens": 12422,
+          "endLine": 310,
+          "tokens": 12553,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -56457,8 +56489,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 308,
-          "tokens": 10783,
+          "endLine": 310,
+          "tokens": 10914,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -56470,11 +56502,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-12.md` — 5,063 tok｜5 节｜**蒸馏到期 2026-11-11**（剩 30 天）",
+          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 82,
-          "tokens": 372,
+          "endLine": 84,
+          "tokens": 502,
           "summary": "§目录别名正名 + 编码器 A/B 收尾（同日第 3 批，含两处自纠） 31–38 512 — 用户问「DiT 放 di",
           "keywords": [
             "memory/2026-10-12.md",
@@ -56487,8 +56519,8 @@
         {
           "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 28 天）",
           "level": 3,
-          "startLine": 83,
-          "endLine": 89,
+          "startLine": 85,
+          "endLine": 91,
           "tokens": 190,
           "summary": "§关卡生成期难度门禁⑦（工作量闸）落地 24–32 475 — 触发：用户「关卡生成时算难度需门禁——普通关落区间、bo",
           "keywords": [
@@ -56501,8 +56533,8 @@
         {
           "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 27 天）",
           "level": 3,
-          "startLine": 90,
-          "endLine": 94,
+          "startLine": 92,
+          "endLine": 96,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -56515,8 +56547,8 @@
         {
           "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 25 天）",
           "level": 3,
-          "startLine": 95,
-          "endLine": 103,
+          "startLine": 97,
+          "endLine": 105,
           "tokens": 290,
           "summary": "§WXG-T-268 批 3 · EP12-S2/S3 落码 + P-3=24 裁定 + 第十八次复评（暖纸换肤续） 8",
           "keywords": [
@@ -56531,8 +56563,8 @@
         {
           "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 24 天）",
           "level": 3,
-          "startLine": 104,
-          "endLine": 110,
+          "startLine": 106,
+          "endLine": 112,
           "tokens": 149,
           "summary": "§合成式三端统一 + 旧 effect 死件清（WXG-T-259 · 第廿刀） 3–26 878 — 用户裁定（原话）",
           "keywords": [
@@ -56547,8 +56579,8 @@
         {
           "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 23 天）",
           "level": 3,
-          "startLine": 111,
-          "endLine": 115,
+          "startLine": 113,
+          "endLine": 117,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -56561,8 +56593,8 @@
         {
           "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 22 天）",
           "level": 3,
-          "startLine": 116,
-          "endLine": 134,
+          "startLine": 118,
+          "endLine": 136,
           "tokens": 1235,
           "summary": "§【WXG-T-244 二十三批 · 收口】裁 [GLD+…] 日志 + 修盘内直填回滚 + 开单 WXG-T-246 ",
           "keywords": [
@@ -56577,8 +56609,8 @@
         {
           "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 21 天）",
           "level": 3,
-          "startLine": 135,
-          "endLine": 140,
+          "startLine": 137,
+          "endLine": 142,
           "tokens": 76,
           "summary": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板",
           "keywords": [
@@ -56593,8 +56625,8 @@
         {
           "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 17 天）",
           "level": 3,
-          "startLine": 141,
-          "endLine": 145,
+          "startLine": 143,
+          "endLine": 147,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -56607,8 +56639,8 @@
         {
           "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 16 天）",
           "level": 3,
-          "startLine": 146,
-          "endLine": 160,
+          "startLine": 148,
+          "endLine": 162,
           "tokens": 907,
           "summary": "§WXG-T-221：beads-studio 当前关纹理预烘导出（S3-lite）（Qoder 主理人会话 · 用户三",
           "keywords": [
@@ -56623,8 +56655,8 @@
         {
           "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 15 天）",
           "level": 3,
-          "startLine": 161,
-          "endLine": 168,
+          "startLine": 163,
+          "endLine": 170,
           "tokens": 333,
           "summary": "§WXG-T-217：beads 缩放上下限绝对倍率化 + 低倍点击档（Qoder 主理人会话 · 用户逐项拍板） 3–",
           "keywords": [
@@ -56639,8 +56671,8 @@
         {
           "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 10 天）",
           "level": 3,
-          "startLine": 169,
-          "endLine": 174,
+          "startLine": 171,
+          "endLine": 176,
           "tokens": 118,
           "summary": "§WXG-T-186：beads 组珠消费序改「沿组连通的剥皮序」（Qoder 主理人会话 · 用户四项裁定） 3–15",
           "keywords": [
@@ -56655,8 +56687,8 @@
         {
           "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 5 天）",
           "level": 3,
-          "startLine": 175,
-          "endLine": 191,
+          "startLine": 177,
+          "endLine": 193,
           "tokens": 814,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
@@ -56671,8 +56703,8 @@
         {
           "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 4 天）",
           "level": 3,
-          "startLine": 192,
-          "endLine": 203,
+          "startLine": 194,
+          "endLine": 205,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -56687,8 +56719,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 3 天）",
           "level": 3,
-          "startLine": 204,
-          "endLine": 220,
+          "startLine": 206,
+          "endLine": 222,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -56703,8 +56735,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 2 天）",
           "level": 3,
-          "startLine": 221,
-          "endLine": 248,
+          "startLine": 223,
+          "endLine": 250,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -56719,8 +56751,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 1 天）",
           "level": 3,
-          "startLine": 249,
-          "endLine": 269,
+          "startLine": 251,
+          "endLine": 271,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -56735,8 +56767,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 0 天）**",
           "level": 3,
-          "startLine": 270,
-          "endLine": 287,
+          "startLine": 272,
+          "endLine": 289,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -56751,8 +56783,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 1 天）**",
           "level": 3,
-          "startLine": 288,
-          "endLine": 308,
+          "startLine": 290,
+          "endLine": 310,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
@@ -79423,9 +79455,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 31904,
+      "tokens": 32182,
       "lines": 96,
-      "sha256": "26201b38decc38a277bfd882276c7497749c54de3e4da8e53678aaa818678c9b",
+      "sha256": "9fa865c8a664b7d5c096f1d7c081b198aacfee6548cac2002c67bbb2c9b6ffa3",
       "tier": "hot",
       "sections": [
         {
@@ -79433,7 +79465,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 97,
-          "tokens": 31896,
+          "tokens": 32173,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -82269,6 +82301,145 @@
           "keywords": [
             "JSON",
             "逐臂原始"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/wxg-t-271-boss-thumb-layer.md",
+      "tokens": 2438,
+      "lines": 124,
+      "sha256": "5b8cc13ab72823a201e6883aa76f368483442fdfdd6fdf911097f8d6a3a70078",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WXG-T-271 · boss 缩略静态位图臂 投放取证（2026-10-12）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 125,
+          "tokens": 2417,
+          "summary": "结论一句话：装载腿全绿、位图也确实进了主包，但选关墙上看不见——被 Graphics 层盖住。",
+          "keywords": [
+            "WXG",
+            "boss",
+            "Graphics",
+            "缩略静态位图",
+            "投放取证"
+          ]
+        },
+        {
+          "anchor": "§1 环境与前置",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 16,
+          "tokens": 218,
+          "summary": "引擎 Cocos Creator 3.8.8（/Applications/Cocos/Creator/3.8.8），工程",
+          "keywords": [
+            "Cocos",
+            "Creator",
+            "Applications",
+            "环境与前置"
+          ]
+        },
+        {
+          "anchor": "§2 包体实测（`check:size`）",
+          "level": 2,
+          "startLine": 17,
+          "endLine": 27,
+          "tokens": 179,
+          "summary": "投放前基线（10-07 产物） 2939.8 KB 43 ⚠ 越 2000 内部目标（既存）",
+          "keywords": [
+            "check:size",
+            "check",
+            "size",
+            "包体实测"
+          ]
+        },
+        {
+          "anchor": "§3 运行时取证（web-mobile 产物 + 浏览器）",
+          "level": 2,
+          "startLine": 28,
+          "endLine": 49,
+          "tokens": 228,
+          "summary": "装载腿逐条命中（console 原文）：",
+          "keywords": [
+            "web",
+            "mobile",
+            "console",
+            "运行时取证",
+            "产物",
+            "浏览器"
+          ]
+        },
+        {
+          "anchor": "§4 A/B 互证（定位到层序，非资产、非加载）",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 62,
+          "tokens": 248,
+          "summary": "A 从 carrier._bitmaps 摘掉该位图 ⇒ resolver 返 undefined ⇒ 走程序化臂 第 ",
+          "keywords": [
+            "carrier",
+            "bitmaps",
+            "resolver",
+            "undefined",
+            "互证",
+            "定位到层序"
+          ]
+        },
+        {
+          "anchor": "§5 判据修订（本腿收工标准）",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 71,
+          "tokens": 219,
+          "summary": "1. ❌ 旧口径（不足）：资产已导入 + 无「未就绪」warn + blit 命令已发出。",
+          "keywords": [
+            "warn",
+            "blit",
+            "判据修订",
+            "本腿收工标准"
+          ]
+        },
+        {
+          "anchor": "§6 复现法（证据可重跑）",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 87,
+          "tokens": 206,
+          "summary": "",
+          "keywords": [
+            "复现法",
+            "证据可重跑"
+          ]
+        },
+        {
+          "anchor": "§7 同日修复与复测（§5 条 3 缺口已闭合）",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 118,
+          "tokens": 775,
+          "summary": "改动（层序新增一个节点，两条腿各落一层）：",
+          "keywords": [
+            "§5",
+            "同日修复与复",
+            "缺口已闭合"
+          ]
+        },
+        {
+          "anchor": "§8 遗留：素材自带不透光黑底（美术账，不记在层序上）",
+          "level": 2,
+          "startLine": 119,
+          "endLine": 125,
+          "tokens": 141,
+          "summary": "l9-boss-mandala-256.png 实测：mode RGBA 但 alpha=0 占比 0.00%（全不透光",
+          "keywords": [
+            "boss",
+            "mandala",
+            "png",
+            "mode",
+            "RGBA",
+            "alpha"
           ]
         }
       ]
