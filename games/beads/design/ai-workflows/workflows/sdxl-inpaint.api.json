@@ -1,0 +1,74 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "sd_xl_base_1.0.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": { "title": "SDXL Base" }
+  },
+  "2": {
+    "inputs": {
+      "text": "clean empty flat white canvas, plain white background, no object",
+      "clip": ["1", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "Positive" }
+  },
+  "3": {
+    "inputs": {
+      "text": "mandala, beads, perler, artwork, pattern, object, flower, color, gradient, shadow, texture",
+      "clip": ["1", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "Negative" }
+  },
+  "4": {
+    "inputs": {
+      "image": "placeholder.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": { "title": "源图+遮罩(RGBA)" }
+  },
+  "5": {
+    "inputs": {
+      "grow_mask_by": 6,
+      "pixels": ["4", 0],
+      "mask": ["4", 1],
+      "vae": ["1", 2]
+    },
+    "class_type": "VAEEncodeForInpaint",
+    "_meta": { "title": "Inpaint 编码" }
+  },
+  "6": {
+    "inputs": {
+      "seed": 42,
+      "steps": 28,
+      "cfg": 6.0,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1.0,
+      "model": ["1", 0],
+      "positive": ["2", 0],
+      "negative": ["3", 0],
+      "latent_image": ["5", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": { "title": "K采样器" }
+  },
+  "7": {
+    "inputs": {
+      "samples": ["6", 0],
+      "vae": ["1", 2]
+    },
+    "class_type": "VAEDecode",
+    "_meta": { "title": "VAE解码" }
+  },
+  "8": {
+    "inputs": {
+      "filename_prefix": "inpaint",
+      "images": ["7", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": { "title": "保存" }
+  }
+}
