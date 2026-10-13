@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4136,
       "lines": 147,
-      "sha256": "1a3c832a5d379942688e958d5073edab002147c22899bce5ce0d07b13cb9700f",
+      "sha256": "6d2228263feeb25ebc9e16a8f8b339698de6a373755b2d3f6b978193d100394b",
       "tier": "normal",
       "sections": [
         {
@@ -1788,51 +1788,188 @@
       ]
     },
     {
-      "path": "design/proposals/ui-style-redesign/art-bible-proposal.md",
-      "tokens": 4706,
-      "lines": 131,
-      "sha256": "719d4a0d17553d74495b59efcb5d14df14593d1ac4f828c429c27ab077715262",
+      "path": "design/proposals/ui-style-redesign/art-bible-proposal-v1-archive.md",
+      "tokens": 2593,
+      "lines": 68,
+      "sha256": "777bfab47151b27660ab7e81790c2ce15f4bba60e9fc6d2e88651037d33df8db",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§美术圣经 · 「暖纸拼豆台」（整体 UI 风格重设计）· **甲案·采纳态**",
+          "anchor": "§美术圣经提案 · **v1 史证归档**（暖纸拼豆台 · 扁平矢量 · 零位图态）",
           "level": 1,
           "startLine": 1,
-          "endLine": 132,
-          "tokens": 4676,
-          "summary": "任务：WXG-T-265 · P0 ｜ 作者：林绘澄 ｜ 状态：采纳态（用户 2026-10-07 拍板：D-2 = 甲",
+          "endLine": 69,
+          "tokens": 2562,
+          "summary": "本件不是待办、不是落码依据。 现行规格一律读 art-bible-proposal.md（甲案 v2 · 场景化改政态）",
+          "keywords": [
+            "art",
+            "bible",
+            "proposal",
+            "美术圣经提案",
+            "史证归档",
+            "暖纸拼豆台"
+          ]
+        },
+        {
+          "anchor": "§0（自主件 L12–L20 原样搬入，零改字）",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 24,
+          "tokens": 289,
+          "summary": "① 托盘「木槽 6+6」 按冻结值 24(2行×12) + 扩展 12(1行) 与 systems-index §3.4",
+          "keywords": [
+            "§0",
+            "§3.4",
+            "L12",
+            "L20",
+            "systems",
+            "index"
+          ]
+        },
+        {
+          "anchor": "§1（自主件 L58–L59 原样搬入，零改字）",
+          "level": 2,
+          "startLine": 25,
+          "endLine": 31,
+          "tokens": 109,
+          "summary": "「暖米纸台上的拼豆工作台」：低饱和纸木容器衬托高饱和几何珠面——珠子是桌上唯一的糖果，UI 是安静的工作台。",
+          "keywords": [
+            "§1",
+            "L58",
+            "L59",
+            "自主件",
+            "原样搬入",
+            "零改字"
+          ]
+        },
+        {
+          "anchor": "§1.1（自主件 L63–L70 原样搬入，零改字）",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 44,
+          "tokens": 619,
+          "summary": "语义拆解：拼豆 = 玩法（品类词，利于微信搜索）；小铺 = 陈列／收藏的扩展空间——不是「森林」那种场景叙事，而是「作品",
+          "keywords": [
+            "§1.1",
+            "L63",
+            "L70",
+            "自主件",
+            "原样搬入",
+            "零改字"
+          ]
+        },
+        {
+          "anchor": "§2（自主件 L82–L87 原样搬入，零改字）",
+          "level": 2,
+          "startLine": 45,
+          "endLine": 55,
+          "tokens": 764,
+          "summary": "休闲 ① 每屏最多 1 个木质主按钮；② 全部圆角 ≥12、无直角容器；③ 压迫性元素（红色）只允许出现在倒计时告急与失",
+          "keywords": [
+            "§2",
+            "L82",
+            "L87",
+            "自主件",
+            "原样搬入",
+            "零改字"
+          ]
+        },
+        {
+          "anchor": "§5（自主件 L175–L177 原样搬入，零改字）",
+          "level": 2,
+          "startLine": 56,
+          "endLine": 63,
+          "tokens": 219,
+          "summary": "z 序 5 层（与现渲染序一致，不新造层）：背景（宿主铺单色）→ 盘面珠阵 → 控件带（HUD/缩放/托盘/道具）→ 遮",
+          "keywords": [
+            "§5",
+            "L175",
+            "L177",
+            "HUD",
+            "自主件",
+            "原样搬入"
+          ]
+        },
+        {
+          "anchor": "§8（自主件 L237–L239 原样搬入，零改字）",
+          "level": 2,
+          "startLine": 64,
+          "endLine": 69,
+          "tokens": 239,
+          "summary": "零位图、零字体文件、零新图集 ⇒ 美术位图 +0 KB；图元增量 = 木按钮 sheen/底缘线 +2/钮、木钉圆 0（",
+          "keywords": [
+            "§8",
+            "L237",
+            "L239",
+            "sheen",
+            "自主件",
+            "原样搬入"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "design/proposals/ui-style-redesign/art-bible-proposal.md",
+      "tokens": 7955,
+      "lines": 216,
+      "sha256": "407fc7f555d7a36d2e118d715bdc924621e2edae396fb3b5cd6177dd248ec5b5",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§美术圣经 · 「暖纸拼豆台」→「小铺场景」· **甲案 v2 · 场景化改政态**（v1 扁平矢量降为史证）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 217,
+          "tokens": 7913,
+          "summary": "任务：WXG-T-265 · P0 ｜ 作者：林绘澄 ｜ 状态：v2 改政态（v1 = 用户 2026-10-07 拍板",
           "keywords": [
             "WXG",
             "美术圣经",
             "暖纸拼豆台",
-            "整体",
-            "风格重设计",
-            "甲案"
+            "小铺场景",
+            "甲案",
+            "场景化改政态"
           ]
         },
         {
           "anchor": "§0 史证：本甲案推翻初稿 `design/proposals/ui-redesign.md` 的五条（保留不删，供后人核对）",
           "level": 2,
-          "startLine": 10,
-          "endLine": 23,
-          "tokens": 289,
-          "summary": "① 托盘「木槽 6+6」 按冻结值 24(2行×12) + 扩展 12(1行) 与 systems-index §3.4",
+          "startLine": 11,
+          "endLine": 16,
+          "tokens": 43,
+          "summary": "五条推翻表原文（纯史证，均已成事实裁定，不得据此回改本文）→ art-bible-proposal-v1-archive",
           "keywords": [
             "design/proposals/ui-redesign.md",
-            "§3.4",
             "design",
             "proposals",
             "redesign",
-            "systems"
+            "art",
+            "bible"
+          ]
+        },
+        {
+          "anchor": "§0.5 v2 改政总述（用户 2026-10-13 令：「art-bible 需要调整，现在主要是切合主题的 UI 风格调整」）",
+          "level": 2,
+          "startLine": 17,
+          "endLine": 45,
+          "tokens": 997,
+          "summary": "一句话：v1 的立场是「UI 退到安静的工作台，让珠子当唯一主角」；v2 改为「UI 本身就是小铺场景——容器即道具（麻",
+          "keywords": [
+            "art",
+            "bible",
+            "改政总述",
+            "用户",
+            "需要调整",
+            "现在主要是切"
           ]
         },
         {
           "anchor": "§1 一句话风格定位",
           "level": 2,
-          "startLine": 24,
-          "endLine": 39,
-          "tokens": 756,
-          "summary": "「暖米纸台上的拼豆工作台」：低饱和纸木容器衬托高饱和几何珠面——珠子是桌上唯一的糖果，UI 是安静的工作台。",
+          "startLine": 46,
+          "endLine": 57,
+          "tokens": 359,
+          "summary": "⚠ v2 定位（落码以此为准）：「一只挂着木招牌、亮着射灯的拼豆小铺橱窗：木与绳搭台，珠子唱戏——UI 是有质感的场景道",
           "keywords": [
             "一句话风格定"
           ]
@@ -1840,25 +1977,26 @@
         {
           "anchor": "§1.1 游戏名「拼豆小铺」的命名语义 → 视觉呼应（2026-10-07 定名后新增）",
           "level": 3,
-          "startLine": 29,
-          "endLine": 39,
-          "tokens": 618,
-          "summary": "语义拆解：拼豆 = 玩法（品类词，利于微信搜索）；小铺 = 陈列／收藏的扩展空间——不是「森林」那种场景叙事，而是「作品",
+          "startLine": 53,
+          "endLine": 57,
+          "tokens": 144,
+          "summary": "本节正文（「小铺 = 陈列/收藏」语义 → 橱窗视觉落点两条呼应，2026-10-07 已裁作废）→ art-bible",
           "keywords": [
+            "art",
+            "bible",
             "游戏名",
             "拼豆小铺",
             "的命名语义",
-            "视觉呼应",
-            "定名后新增"
+            "视觉呼应"
           ]
         },
         {
           "anchor": "§2 四条设计支柱的可判读定义（玩家看到什么算达标）",
           "level": 2,
-          "startLine": 40,
-          "endLine": 48,
-          "tokens": 762,
-          "summary": "休闲 ① 每屏最多 1 个木质主按钮；② 全部圆角 ≥12、无直角容器；③ 压迫性元素（红色）只允许出现在倒计时告急与失",
+          "startLine": 58,
+          "endLine": 69,
+          "tokens": 658,
+          "summary": "⚠ v2 改判据（2026-10-13）：下表是 v1 判读，三条已被新风格推翻，不改则 QA 逐帧假红。旧文留档不删，",
           "keywords": [
             "四条设计支柱",
             "的可判读定义",
@@ -1869,9 +2007,9 @@
         {
           "anchor": "§3 色彩系统（具体 HEX）",
           "level": 2,
-          "startLine": 49,
-          "endLine": 76,
-          "tokens": 830,
+          "startLine": 70,
+          "endLine": 119,
+          "tokens": 1404,
           "summary": "",
           "keywords": [
             "HEX",
@@ -1882,8 +2020,8 @@
         {
           "anchor": "§3.1 UI 基础色板（**定稿值**；即 `art-bible §3.1` 新真源，回写见 `risks.md` R-7）",
           "level": 3,
-          "startLine": 51,
-          "endLine": 70,
+          "startLine": 72,
+          "endLine": 91,
           "tokens": 585,
           "summary": "背景基底 bg_base #F1E8D8 #ECEAF3 冷紫灰 → 暖米纸 text_primary 11.1:1 ✓",
           "keywords": [
@@ -1896,10 +2034,26 @@
           ]
         },
         {
+          "anchor": "§3.1b 场景件取色（**v2 新增**；实测自用户交付切图 `sprite-00`，707×459 RGBA，非审美印象）",
+          "level": 3,
+          "startLine": 92,
+          "endLine": 113,
+          "tokens": 538,
+          "summary": "浅木面（招牌 / 铭牌 / 橱窗框） #EDBB82（主带 #E9B57C–#EFBD85） 暗部描边 #562A11 ",
+          "keywords": [
+            "sprite-00",
+            "sprite",
+            "RGBA",
+            "EDBB82",
+            "E9B57C",
+            "EFBD85"
+          ]
+        },
+        {
           "anchor": "§3.2 对比度声明（对 `accessibility.md` 判据的对齐）",
           "level": 3,
-          "startLine": 71,
-          "endLine": 76,
+          "startLine": 114,
+          "endLine": 119,
           "tokens": 194,
           "summary": "文本类：B1 判据（正文 ≥4.5:1）全部按上表重算，无假绿项；text_secondary on panel #FF",
           "keywords": [
@@ -1914,10 +2068,10 @@
         {
           "anchor": "§4 容器与控件语言（全部可用 rect/circle/ellipse/polygon/line/text 画出）",
           "level": 2,
-          "startLine": 77,
-          "endLine": 91,
-          "tokens": 408,
-          "summary": "材质语义总纲：木 = 可交互，纸 = 承载信息，胶囊/描边 = 状态。",
+          "startLine": 120,
+          "endLine": 147,
+          "tokens": 1285,
+          "summary": "⚠ v2 改政（2026-10-13）：本节标题里的括号「全部可用 rect/circle/…画出」只适用于 T1–T6",
           "keywords": [
             "rect",
             "circle",
@@ -1930,38 +2084,35 @@
         {
           "anchor": "§5 层级与阴影",
           "level": 2,
-          "startLine": 92,
-          "endLine": 97,
-          "tokens": 218,
-          "summary": "z 序 5 层（与现渲染序一致，不新造层）：背景（宿主铺单色）→ 盘面珠阵 → 控件带（HUD/缩放/托盘/道具）→ 遮",
+          "startLine": 148,
+          "endLine": 157,
+          "tokens": 402,
+          "summary": "⚠ v2 改政（2026-10-13）：",
           "keywords": [
-            "HUD",
             "层级与阴影"
           ]
         },
         {
           "anchor": "§6 文字层级（系统字体，零字体文件）",
           "level": 2,
-          "startLine": 98,
-          "endLine": 110,
-          "tokens": 256,
-          "summary": "display 56 系统 bold text_primary 标题页副标题（游戏名「拼豆小铺」本体用珠拼 beadTe",
+          "startLine": 158,
+          "endLine": 177,
+          "tokens": 697,
+          "summary": "⚠ v2 改政（2026-10-13）：游戏名「拼豆小铺」由珠拼 beadText 改为位图招牌总成（用户交付件把木板 ",
           "keywords": [
-            "display",
-            "bold",
-            "text_primary",
-            "beadTe",
+            "beadText",
             "文字层级",
-            "系统字体"
+            "系统字体",
+            "零字体文件"
           ]
         },
         {
           "anchor": "§7 ⛔ 不动项清单 + 与「干净几何珠面」的共存策略",
           "level": 2,
-          "startLine": 111,
-          "endLine": 126,
-          "tokens": 487,
-          "summary": "不动项（逐条，落码与评审都不得触碰）：",
+          "startLine": 178,
+          "endLine": 195,
+          "tokens": 677,
+          "summary": "⚠ v2 边界澄清（2026-10-13）：本次改政只动 UI 容器族（T7 场景件）与支柱判读，珠面 / 格面 / 托",
           "keywords": [
             "不动项清单",
             "干净几何珠面",
@@ -1971,12 +2122,11 @@
         {
           "anchor": "§8 包体承诺",
           "level": 2,
-          "startLine": 127,
-          "endLine": 132,
-          "tokens": 239,
-          "summary": "零位图、零字体文件、零新图集 ⇒ 美术位图 +0 KB；图元增量 = 木按钮 sheen/底缘线 +2/钮、木钉圆 0（",
+          "startLine": 196,
+          "endLine": 217,
+          "tokens": 805,
+          "summary": "⚠ v2 改政（2026-10-13）：本节 v1 的「零位图 ⇒ 美术位图 +0 KB」不再成立（下方 v1 原文留档",
           "keywords": [
-            "sheen",
             "包体承诺"
           ]
         }
@@ -3216,9 +3366,9 @@
     },
     {
       "path": "design/proposals/ui-style-redesign/tokens.md",
-      "tokens": 3104,
+      "tokens": 3112,
       "lines": 117,
-      "sha256": "5f65135a7d0827dc9522d507261c22cd1971382ed87d1912317691d0efa1b697",
+      "sha256": "ebb02daf53f8f32d7a0545b75e47ba5a3165616463c39a247ce512eca63c1d1c",
       "tier": "normal",
       "sections": [
         {
@@ -3226,7 +3376,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 118,
-          "tokens": 3079,
+          "tokens": 3087,
           "summary": "定稿声明（2026-10-07）：用户已裁 D-2 = 甲案「暖纸拼豆台」⇒ 本表全部取值定稿，不再是提案值；art-b",
           "keywords": [
             "tokens",
@@ -3329,7 +3479,7 @@
           "level": 2,
           "startLine": 101,
           "endLine": 118,
-          "tokens": 1186,
+          "tokens": 1194,
           "summary": "文案也走令牌：UI 侧不散落字面，落码一律读本表（与「颜色进 palette.ts」同一纪律）。",
           "keywords": [
             "copy",
@@ -56408,18 +56558,67 @@
       ]
     },
     {
+      "path": "memory/2026-10-13.md",
+      "tokens": 2701,
+      "lines": 22,
+      "sha256": "c8c7cd3a8e801a2adb5f8088f3cc066c0a7052131761c82ac0269390a9dabbc0",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§2026-10-13",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 23,
+          "tokens": 2698,
+          "summary": "",
+          "keywords": []
+        },
+        {
+          "anchor": "§美术圣经 v2 改政：主菜单从「扁平矢量·零位图」转向「切合小铺主题的场景化 UI」",
+          "level": 3,
+          "startLine": 3,
+          "endLine": 14,
+          "tokens": 1447,
+          "summary": "改政令：用户 2026-10-13 令「art-bible-proposal 需要调整，现在主要是切合主题的 UI 风格",
+          "keywords": [
+            "art",
+            "bible",
+            "proposal",
+            "美术圣经",
+            "改政",
+            "主菜单从"
+          ]
+        },
+        {
+          "anchor": "§主界面底稿标定与招牌占位件（同日第 2 批，用户点「1/2/3/4」全做）",
+          "level": 3,
+          "startLine": 15,
+          "endLine": 23,
+          "tokens": 1182,
+          "summary": "尺寸规整：整屏定稿图 1520×2736 → 等比缩宽 1500 ⇒ 1500×2700 → 底部裁 32 px（顶部零",
+          "keywords": [
+            "主界面底稿标",
+            "定与招牌占位",
+            "同日第",
+            "用户点",
+            "全做"
+          ]
+        }
+      ]
+    },
+    {
       "path": "memory/INDEX.md",
-      "tokens": 12575,
-      "lines": 309,
-      "sha256": "bfd3f1ca06688fac3fab1cfd23233b420dd3c6c2de1a9d9cfd5b0009902b5b88",
+      "tokens": 12641,
+      "lines": 314,
+      "sha256": "6e886a0bd828fb3cf6d4c60b7a710c0cb46af1f0a26b1fd032ce7d69c07b2eef",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 310,
-          "tokens": 12553,
+          "endLine": 315,
+          "tokens": 12619,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -56489,8 +56688,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 310,
-          "tokens": 10914,
+          "endLine": 315,
+          "tokens": 10980,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -56502,10 +56701,24 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 30 天）",
+          "anchor": "§`memory/2026-10-13.md` — 2,701 tok｜0 节｜**蒸馏到期 2026-11-12**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 84,
+          "endLine": 77,
+          "tokens": 36,
+          "summary": "",
+          "keywords": [
+            "memory/2026-10-13.md",
+            "memory",
+            "tok",
+            "蒸馏到期"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 29 天）",
+          "level": 3,
+          "startLine": 78,
+          "endLine": 89,
           "tokens": 502,
           "summary": "§目录别名正名 + 编码器 A/B 收尾（同日第 3 批，含两处自纠） 31–38 512 — 用户问「DiT 放 di",
           "keywords": [
@@ -56517,10 +56730,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 28 天）",
+          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 27 天）",
           "level": 3,
-          "startLine": 85,
-          "endLine": 91,
+          "startLine": 90,
+          "endLine": 96,
           "tokens": 190,
           "summary": "§关卡生成期难度门禁⑦（工作量闸）落地 24–32 475 — 触发：用户「关卡生成时算难度需门禁——普通关落区间、bo",
           "keywords": [
@@ -56531,10 +56744,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 27 天）",
+          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 26 天）",
           "level": 3,
-          "startLine": 92,
-          "endLine": 96,
+          "startLine": 97,
+          "endLine": 101,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -56545,10 +56758,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 25 天）",
+          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 24 天）",
           "level": 3,
-          "startLine": 97,
-          "endLine": 105,
+          "startLine": 102,
+          "endLine": 110,
           "tokens": 290,
           "summary": "§WXG-T-268 批 3 · EP12-S2/S3 落码 + P-3=24 裁定 + 第十八次复评（暖纸换肤续） 8",
           "keywords": [
@@ -56561,10 +56774,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 24 天）",
+          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 23 天）",
           "level": 3,
-          "startLine": 106,
-          "endLine": 112,
+          "startLine": 111,
+          "endLine": 117,
           "tokens": 149,
           "summary": "§合成式三端统一 + 旧 effect 死件清（WXG-T-259 · 第廿刀） 3–26 878 — 用户裁定（原话）",
           "keywords": [
@@ -56577,10 +56790,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 23 天）",
+          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 22 天）",
           "level": 3,
-          "startLine": 113,
-          "endLine": 117,
+          "startLine": 118,
+          "endLine": 122,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -56591,10 +56804,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 22 天）",
+          "anchor": "§`memory/2026-10-04.md` — 45,107 tok｜14 节｜**蒸馏到期 2026-11-03**（剩 21 天）",
           "level": 3,
-          "startLine": 118,
-          "endLine": 136,
+          "startLine": 123,
+          "endLine": 141,
           "tokens": 1235,
           "summary": "§【WXG-T-244 二十三批 · 收口】裁 [GLD+…] 日志 + 修盘内直填回滚 + 开单 WXG-T-246 ",
           "keywords": [
@@ -56607,10 +56820,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 21 天）",
+          "anchor": "§`memory/2026-10-03.md` — 17,764 tok｜1 节｜**蒸馏到期 2026-11-02**（剩 20 天）",
           "level": 3,
-          "startLine": 137,
-          "endLine": 142,
+          "startLine": 142,
+          "endLine": 147,
           "tokens": 76,
           "summary": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板",
           "keywords": [
@@ -56623,10 +56836,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 17 天）",
+          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 16 天）",
           "level": 3,
-          "startLine": 143,
-          "endLine": 147,
+          "startLine": 148,
+          "endLine": 152,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -56637,10 +56850,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 16 天）",
+          "anchor": "§`memory/2026-09-28.md` — 14,337 tok｜10 节｜**蒸馏到期 2026-10-28**（剩 15 天）",
           "level": 3,
-          "startLine": 148,
-          "endLine": 162,
+          "startLine": 153,
+          "endLine": 167,
           "tokens": 907,
           "summary": "§WXG-T-221：beads-studio 当前关纹理预烘导出（S3-lite）（Qoder 主理人会话 · 用户三",
           "keywords": [
@@ -56653,10 +56866,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 15 天）",
+          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 14 天）",
           "level": 3,
-          "startLine": 163,
-          "endLine": 170,
+          "startLine": 168,
+          "endLine": 175,
           "tokens": 333,
           "summary": "§WXG-T-217：beads 缩放上下限绝对倍率化 + 低倍点击档（Qoder 主理人会话 · 用户逐项拍板） 3–",
           "keywords": [
@@ -56669,10 +56882,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 10 天）",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 9 天）",
           "level": 3,
-          "startLine": 171,
-          "endLine": 176,
+          "startLine": 176,
+          "endLine": 181,
           "tokens": 118,
           "summary": "§WXG-T-186：beads 组珠消费序改「沿组连通的剥皮序」（Qoder 主理人会话 · 用户四项裁定） 3–15",
           "keywords": [
@@ -56685,10 +56898,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 5 天）",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏到期 2026-10-17**（剩 4 天）",
           "level": 3,
-          "startLine": 177,
-          "endLine": 193,
+          "startLine": 182,
+          "endLine": 198,
           "tokens": 814,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
@@ -56701,10 +56914,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 4 天）",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏到期 2026-10-16**（剩 3 天）",
           "level": 3,
-          "startLine": 194,
-          "endLine": 205,
+          "startLine": 199,
+          "endLine": 210,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -56717,10 +56930,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 3 天）",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏到期 2026-10-15**（剩 2 天）",
           "level": 3,
-          "startLine": 206,
-          "endLine": 222,
+          "startLine": 211,
+          "endLine": 227,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -56733,10 +56946,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 2 天）",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏到期 2026-10-14**（剩 1 天）",
           "level": 3,
-          "startLine": 223,
-          "endLine": 250,
+          "startLine": 228,
+          "endLine": 255,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -56749,10 +56962,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏到期 2026-10-13**（剩 1 天）",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 0 天）**",
           "level": 3,
-          "startLine": 251,
-          "endLine": 271,
+          "startLine": 256,
+          "endLine": 276,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -56761,14 +56974,14 @@
             "tok",
             "skills",
             "WXG",
-            "蒸馏到期"
+            "蒸馏已到期"
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 0 天）**",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 1 天）**",
           "level": 3,
-          "startLine": 272,
-          "endLine": 289,
+          "startLine": 277,
+          "endLine": 294,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -56781,10 +56994,10 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 1 天）**",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 2 天）**",
           "level": 3,
-          "startLine": 290,
-          "endLine": 310,
+          "startLine": 295,
+          "endLine": 315,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
