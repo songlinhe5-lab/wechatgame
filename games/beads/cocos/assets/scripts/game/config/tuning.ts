@@ -17,12 +17,66 @@
 export const DESIGN_W = 750;
 /** Design resolution height (px), portrait. */
 export const DESIGN_H = 1334;
-/** Top safe-area height: y ∈ [1214, 1334]. */
+/**
+ * Top safe-area fallback (design px). **⚠ 角色 = fallback，不是下限（v1.75）**：真机顶栏位置由
+ * `getWindowInfo()` / `getMenuButtonBoundingClientRect()` 的**接口值**决定，本值只在**接口给不出有效值**时
+ * 顶上（无 wx 的 harness / node，以及官方明令「部分机型不返回 safeArea 字段」的兼容路径）。
+ * 定稿图版面按本档绘制 ⇒ 无接口时与定稿图一致。
+ */
 export const SAFE_TOP_H = 120;
 /** HUD band: settings gear left, timer capsule centre, capsule-avoid right. */
 export const HUD_BAND = { yMin: 1214, yMax: 1334 } as const;
 /** WeChat capsule avoidance zone (top-right). */
 export const CAPSULE_AVOID = { xMin: 560, xMax: 750, yMin: 1214, yMax: 1334 } as const;
+/**
+ * Bottom safe-area **fallback** (design px) — iOS Home Indicator **34 dp × 750/375 = 68**。
+ * ⚠ v1.75：角色 = 接口无效时的兜底值，**不是下限**（真机一切以 `safeAreaBottom` 换算为准）。
+ *
+ * ⚠ **新增（WXG-T-265 ①iii）**：本仓此前**没有**底部安全常量（breakout 亦无），且现落码最贴底元素
+ * = `TRAY_BAND.yMin 230`（距画布底 230 ≫ 68）⇒ **本值是预防性兜底，不是补漏**；它存在的意义是
+ * 「贴底元素以后会加（广告条 / 底部工具条）」且接口拿不到值时，不再走顶部 120 的老路（无推导写死）。
+ *
+ * 取 68 的推导（后人可重算）：Home Indicator 高 **iOS 全机型恒定 34 dp**（非刘海机 = 0），
+ * `FIT_MODE = FIXED_WIDTH` ⇒ 设计 px = dp × 750/屏宽dp ⇒ 最窄全面屏档 375 dp 时最大 = **68**，
+ * 屏越宽换算值越小（430 dp → 59，**真机走接口就得 59，本值不再参与**）。
+ * **Android 三键导航栏 48 dp ⇒ 100 设计 px** ⇒ 底部遮挡本质上逐机变化，只可能从接口拿。
+ * 已登 `systems-index §3.1`（**v1.74 新增值 · v1.75 改注角色**，与顶栏 `SAFE_TOP_H` 同构）。
+ */
+export const SAFE_BOTTOM_H = 68;
+/**
+ * Edge-avoidance margin (design px)。沿用既存顶栏口径 `124 = SAFE_TOP_H + 4` ⇒ **零新发明**，
+ * 上批已用该 4 px（`menu-architecture.md §5.1b-2`）。
+ */
+export const SAFE_EDGE_MARGIN = 4;
+
+/**
+ * 单边安全偏移（**设计 px**，自屏幕边缘向内）= **接口值优先**；接口给不出有效值才用 fallback。
+ *
+ * **纯函数**：只接三个数，不 import `cc` / `wx` / DOM（L2/L3 ⇒ 可在 Node 单测直接跑）。
+ * 顶/底**共用同一算式**，不留第二份换算（判例 = `menu-signage::signBands` 与绘制共用算式）。
+ *
+ * ⚠ **v1.75 改语义**：旧式 `max(floor, 接口换算)` 会让**静态宏在真机上也赢过接口**（非刘海档胶囊底
+ * 112 被 120 顶到 124；Pro Max 底部换算 59 被 68 顶到 72）⇒ 等于宏当家，已撤回。现式：**接口 > 0 就只信接口**。
+ *
+ * | 边 | `edgeDp` 取什（**全部来自小程序接口**） | 拿不到时的 fallback | 逐机结果（设计 px） |
+ * |---|---|---|---|
+ * | 顶 | `getMenuButtonBoundingClientRect().bottom`（胶囊底缘，**吞点击硬约束**） | `SAFE_TOP_H` | 116（非刘海）/ 137（Android）/ 164（X–14）/ 176（灵动岛）/ 161（Pro Max） |
+ * | 底 | `PlatformInfo.safeAreaBottom`（= `screenHeight − safeArea.bottom`） | `SAFE_BOTTOM_H` | 72（34 dp @375）/ **63**（@430）/ 104（Android 三键）/ 72（inset 0 → fallback） |
+ *
+ * **fallback 触发条件 = `edgeDp ≤ 0` 或 `windowWidthDp ≤ 0`**（含 NaN）。这一条同时兜住三种现实：
+ * ① web / node 无 wx；② 官方兼容点「部分机型不返回 safeArea」（框架此时给 0）；
+ * ③ **Android `targetSdkVersion` 35/36 社区实测 `safeArea` 虚报**（bottom == screenHeight ⇒ inset 算成 0）
+ * ⇒ 脏值走 fallback，**不会**把控件贴到屏幕边。不返回 0、不出 NaN。
+ *
+ * @param edgeDp        该边遮挡深度（**屏幕逻辑 px / dp**，接口原值，不是设计 px）。
+ * @param windowWidthDp 屏幕宽（dp），`getWindowInfo().windowWidth`；`FIXED_WIDTH` 下的换算分母。
+ * @param fallbackH     该边静态兜底值（设计 px），**仅接口无效时生效**。
+ */
+export function safeEdgeInset(edgeDp: number, windowWidthDp: number, fallbackH: number): number {
+    const interfaceOk = edgeDp > 0 && windowWidthDp > 0;
+    const designPx = interfaceOk ? Math.round(edgeDp * (DESIGN_W / windowWidthDp)) : fallbackH;
+    return designPx + SAFE_EDGE_MARGIN;
+}
 /** Puzzle band — the pattern matrix is centred inside it (both axes).
  *
  * ⚠ **§3.1 换尺（本轮用户拍板）：下沿 480 → 560**（带高 640 → 560）。动的理由只有一个：
