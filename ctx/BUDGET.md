@@ -30,18 +30,18 @@
 | 6 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45088 | 1307 | normal |
 | 7 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43641 | 1206 | normal |
 | 8 | `games/beads/design/ux/ux-spec.md` | 38532 | 432 | normal |
-| 9 | `games/beads/design/gdd/systems-index-changelog.md` | 37961 | 82 | normal |
+| 9 | `games/beads/design/gdd/systems-index-changelog.md` | 38409 | 83 | normal |
 | 10 | `games/beads/art/art-bible.md` | 37406 | 528 | normal |
 | 11 | `games/beads/art/accessibility.md` | 35817 | 200 | normal |
 | 12 | `production/TASKS.md` | 32182 | 96 | hot |
-| 13 | `games/beads/design/gdd/systems-index.md` | 27349 | 299 | hot |
+| 13 | `games/beads/design/gdd/systems-index.md` | 27528 | 299 | hot |
 | 14 | `games/beads/design/levels/levels-spec.md` | 24233 | 542 | normal |
-| 15 | `memory/2026-10-03.md` | 17764 | 544 | normal |
-| 16 | `games/beads/design/gdd/input-control.md` | 17652 | 200 | normal |
-| 17 | `production/qa/beads/wxg-t-228-tint-criteria.md` | 16861 | 444 | normal |
-| 18 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 16757 | 487 | normal |
-| 19 | `production/qa/beads/render-perf-device-baseline.md` | 16703 | 423 | normal |
-| 20 | `design/proposals/ui-style-redesign/menu-architecture.md` | 16649 | 535 | normal |
+| 15 | `design/proposals/ui-style-redesign/menu-architecture.md` | 21755 | 668 | normal |
+| 16 | `memory/2026-10-03.md` | 17764 | 544 | normal |
+| 17 | `games/beads/design/gdd/input-control.md` | 17652 | 200 | normal |
+| 18 | `production/qa/beads/wxg-t-228-tint-criteria.md` | 16861 | 444 | normal |
+| 19 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 16757 | 487 | normal |
+| 20 | `production/qa/beads/render-perf-device-baseline.md` | 16703 | 423 | normal |
 
 ## 3. 超限清单（> 8000 tokens = 单文件上限）
 
@@ -55,18 +55,18 @@
 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45088 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43641 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/ux-spec.md` | 38532 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/systems-index-changelog.md` | 37961 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/systems-index-changelog.md` | 38409 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/art-bible.md` | 37406 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/art/accessibility.md` | 35817 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/TASKS.md` | 32182 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/gdd/systems-index.md` | 27349 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/gdd/systems-index.md` | 27528 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/levels/levels-spec.md` | 24233 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `design/proposals/ui-style-redesign/menu-architecture.md` | 21755 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-10-03.md` | 17764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 17652 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/wxg-t-228-tint-criteria.md` | 16861 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 16757 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/render-perf-device-baseline.md` | 16703 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `design/proposals/ui-style-redesign/menu-architecture.md` | 16649 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15894 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/sec3-5mm32-render-base-change.md` | 15461 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -77,7 +77,7 @@
 | `games/beads/art/menu-wall-signage-spec.md` | 13574 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0023-beads-procedural-bead-style-plugin.md` | 13563 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/sec3-5mm32-render-base-change-final.md` | 13335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `memory/INDEX.md` | 12641 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `memory/INDEX.md` | 12858 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 12620 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

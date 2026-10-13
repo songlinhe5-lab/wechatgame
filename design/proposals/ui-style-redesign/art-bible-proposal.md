@@ -3,7 +3,7 @@
 - 任务：WXG-T-265 · P0 ｜ 作者：林绘澄 ｜ 状态：**v2 改政态**（v1 = 用户 **2026-10-07** 拍板的甲案「暖纸拼豆台」扁平矢量；**2026-10-13 用户令改向「切合主题的场景化 UI」** ⇒ 改政总述见 §0.5，v1 正文留档不删（长表外移至 `art-bible-proposal-v1-archive.md`，章节号对应）
 - 上游：`games/beads/design/concept.md` §8（锚点委托 art-bible 定稿）· `games/beads/design/ux/ux-spec.md` §5（毫秒冻结）· `systems-index §3`（数值唯一真源）
 - 采纳口径：本文 §1/§3.1/§4/§5/§6 取代 `games/beads/art/art-bible.md` 同名节的对应内容（回写清单见 `risks.md` R-7/R-8/R-9，经主理人中转）；**乙／丙对照案不再保留**，风格方向唯一 = 甲案。
-> 体积处置（2026-10-13）：主件单文件 token 越门（9696 > 8000）⇒ **v1 史证正文外移**至 `art-bible-proposal-v1-archive.md`（§0/§1/§1.1/§2/§5/§8 六处，章节号一一对应，锚点不断）；⛔ 未走 `ctx/budget-exempt.json` 豁免。
+> 体积处置（2026-10-13）：主件越单文件 token 门 ⇒ **v1 史证正文外移**至 `art-bible-proposal-v1-archive.md`（六处章节号一一对应，锚点不断）；⛔ 未走豁免。
 - ⛔ 范围铁律：**珠面与格面不动**（见 §7）；WXG-T-263 手绘蜡笔质感提案**不实施、不纳入**，本文全部规格在「珠面 = 现行干净几何（复刻·四棱刻面默认皮肤）」前提下成立。
 
 ---
@@ -37,9 +37,9 @@
 2. 位图件走 `ADR-0031` 静态位图腿 ⇒ **该腿现只登记 1 个资产 id**，且其层在 `Graphics` 之上（会盖文字）⇒ 场景背景件需要**第二级位图层**，属工程单，不在本文授权。
 3. 载体 `setContentSize` **无 9-slice** ⇒ 尺寸锁定，美术交付必须按最终 footprint 1:1 出图。
 
-**分工（2026-10-13 补登，差点漏掉）**：主菜单场景化的**切图资产规格正本 = `games/beads/art/menu-showcase-asset-spec.md`**（2026-10-10 提案·待实装，已含 A1–G1 十七行清单、`ui_*` 命名、尺寸、图集/分包、工具流、三态与包体红线）。⇒ **本文只定风格、判据、色板与准入纪律；清单/命名/尺寸/图集一律以该件为准，本文 ⛔ 不复写一份**（不复写 = 防双真源漂移）。
+**分工（2026-10-13 补登）**：主菜单场景化的**切图资产规格正本 = `games/beads/art/menu-showcase-asset-spec.md`**（2026-10-10 提案·待实装，已含 A1–G1 清单、`ui_*` 命名、尺寸、图集/分包、三态与包体红线）。⇒ **本文只定风格、判据、色板与准入纪律；清单/命名/尺寸/图集一律以该件为准，本文 ⛔ 不复写**（防双真源漂移）。
 
-**下游回写面（本批不动，登记待办）**：`games/beads/art/menu-showcase-asset-spec.md`（**先回写**：§3 尺寸与状态列、§6 包体、§8 未决三项，见 §4/§6/§8 注记）、`tokens.md`（wood 族加浅木档 + 新增场景件令牌）、`risks.md` R-7 整表替换清单（现列 §1/§3.1/§3.5/§5/§6 五处，v2 需再加 §4/§8）、正本 `games/beads/art/art-bible.md`、`screens.md` S0、`menu-architecture §5.3`（`SIGN_*` 失去落码对象）、代码 `palette.ts` / `tuning.ts` / `meta-view.ts`。
+**下游回写面（本批不动，登记待办）**：`games/beads/art/menu-showcase-asset-spec.md`（**先回写**：§3 尺寸与状态列、§6 包体、§8 未决三项，见 §4/§6/§8 注记）、`tokens.md`（wood 族加浅木档 + 新增场景件令牌）、`risks.md` R-7 整表替换清单（现列 §1/§3.1/§3.5/§5/§6 五处，v2 需再加 §4/§8）、正本 `games/beads/art/art-bible.md`、`screens.md` S0、`menu-architecture §5.3`（`SIGN_*` 失去落码对象）；**顶栏圆钮撞胶囊已裁 → `menu-architecture §5.1b`**（齿轮左上 + 右上两颗下移；底部签到/设置纸钮已裁退役、三钮语义已裁；两项待裁留该节）。代码 `palette.ts` / `tuning.ts` / `meta-view.ts`。
 
 ---
 
