@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * sync-palettes.mjs — 从 `games/beads/art/*.json` 品牌色板资产生成
+ * sync-palettes.mjs — 从 `games/beads/design/art/specs/*.json` 品牌色板资产生成
  * `games/beads/src/config/palettes-data.ts`（游戏侧可读的色板注册表）。
  *
  * WHY（v1.39→v1.40，用户拍板）：
- *   · 色板真源 = games/beads/art/<slug>.json（studio server / beads-gen 直读；
+ *   · 色板真源 = games/beads/design/art/specs/<slug>.json（studio server / beads-gen 直读；
  *     游戏运行时 Cocos/浏览器无法 import assets 外 JSON ⇒ 编译期打包成 TS 生成物，
  *     经 framework:sync 镜像进 cocos/assets 树 —— JSON 与生成物一致性由 --check 门禁强制）。
  *   · v1.40：珠色渲染改「关卡品牌引用制」（level.palette + paletteCodes），
@@ -35,7 +35,7 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 /** 仓根（已 normalize —— 用于日志里打相对路径，别用字符串拼 `../..` 去 replace，永不相等）。 */
 const REPO_ROOT = resolve(SCRIPT_DIR, '../..');
 const rel = (p) => p.startsWith(REPO_ROOT + '/') ? p.slice(REPO_ROOT.length + 1) : p;
-const ART_DIR = join(SCRIPT_DIR, '../../games/beads/art');
+const ART_DIR = join(SCRIPT_DIR, '../../games/beads/design/art/specs');
 const OUT = join(SCRIPT_DIR, '../../games/beads/src/config/palettes-data.ts');
 /** studio 前端可读的品牌表（与 `BRANDS` 同源同批生成；见 ADR-0021）。 */
 const OUT_BRANDS_JSON = join(SCRIPT_DIR, '../../apps/beads-studio/public/brands.json');
@@ -46,7 +46,7 @@ const KEY = 'beads-art-v1';
 const HEADER = `/**
  * ⚠️ GENERATED FILE — DO NOT EDIT BY HAND.
  *
- * Source of truth: games/beads/art/<slug>.json（品牌色板真源）
+ * Source of truth: games/beads/design/art/specs/<slug>.json（品牌色板真源）
  * Regenerate:      node tools/scripts/sync-palettes.mjs
  * Drift guard:     pnpm run palettes:check（pnpm run verify 内）
  *
@@ -222,7 +222,7 @@ function main() {
         JSON.stringify(
             {
                 _generated:
-                    '⚠️ GENERATED FILE — DO NOT EDIT BY HAND. 真源 games/beads/art/<slug>.json（name/family/beadMm）+ '
+                    '⚠️ GENERATED FILE — DO NOT EDIT BY HAND. 真源 games/beads/design/art/specs/<slug>.json（name/family/beadMm）+ '
                     + 'tools/scripts/sync-palettes.mjs 的 dip(mm)。重生成: pnpm run palettes:sync ｜ 漂移门: pnpm run palettes:check ｜ 决策: ADR-0021',
                 brands,
             },

@@ -1,7 +1,7 @@
 /**
  * WXG-T-268 · 「暖纸拼豆台」UI 基础色板换值批（EP12-S1）· 令牌同步与设计判据复算
  * ─────────────────────────────────────────────────────────────────────────────
- * 真源链 = `design/proposals/ui-style-redesign/tokens.md` §1（定稿，用户 2026-10-07 裁 D-2）
+ * 真源链 = `games/beads/design/art/proposals/ui-style-redesign/tokens.md` §1（定稿，用户 2026-10-07 裁 D-2）
  *   ⇒ `art-bible-proposal.md` §3.1（回写 R-7）⇒ 本文件断言 `palette.ts::DEFAULT_PALETTE`（消费副本）。
  *
  * 判据来源（⛔ 不发明新判据 / 新数值，全部为设计侧既有判据的脚本复算）：

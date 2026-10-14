@@ -1,5 +1,5 @@
 {
- "_generated": "⚠️ GENERATED FILE — DO NOT EDIT BY HAND. 真源 games/beads/art/<slug>.json（name/family/beadMm）+ tools/scripts/sync-palettes.mjs 的 dip(mm)。重生成: pnpm run palettes:sync ｜ 漂移门: pnpm run palettes:check ｜ 决策: ADR-0021",
+ "_generated": "⚠️ GENERATED FILE — DO NOT EDIT BY HAND. 真源 games/beads/design/art/specs/<slug>.json（name/family/beadMm）+ tools/scripts/sync-palettes.mjs 的 dip(mm)。重生成: pnpm run palettes:sync ｜ 漂移门: pnpm run palettes:check ｜ 决策: ADR-0021",
  "brands": [
   {
    "slug": "artkal-a",

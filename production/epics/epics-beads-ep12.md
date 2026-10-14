@@ -1,7 +1,7 @@
 # beads · Epic / Story 拆分 · **EP-12「暖纸拼豆台」UI 风格落地与换肤双面**（epics-beads-ep12）
 
 - **任务**：WXG-T-268 · P0 ｜ **作者**：程基岩（engineering-lead）· 2026-10-07 ｜ **宿主**：[`epics-beads.md`](./epics-beads.md) §1 EP-12 行 + §2 指针
-- **权威来源（冲突以此为准）**：`design/proposals/ui-style-redesign/` 四件采纳态（art-bible-proposal / screens / tokens / risks，用户 2026-10-07 裁 D-1「拼豆小铺」/ D-2 甲案 / D-3 boot 随批）· `design/proposals/ui-style-redesign/menu-architecture.md` + `level-difficulty.md`（WXG-T-266 全部 Q1–Q10 已裁）· `design/proposals/skin-system/` 三件（WXG-T-267 架构稿）· `games/beads/design/ux/ux-spec.md` §5（毫秒冻结）· `systems-index §3`（零新增零改动）
+- **权威来源（冲突以此为准）**：`games/beads/design/art/proposals/ui-style-redesign/` 四件采纳态（art-bible-proposal / screens / tokens / risks，用户 2026-10-07 裁 D-1「拼豆小铺」/ D-2 甲案 / D-3 boot 随批）· `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` + `level-difficulty.md`（WXG-T-266 全部 Q1–Q10 已裁）· `games/beads/design/art/proposals/skin-system/` 三件（WXG-T-267 架构稿）· `games/beads/design/ux/ux-spec.md` §5（毫秒冻结）· `systems-index §3`（零新增零改动）
 - **拆分纪律**：本单判据**只引设计侧既有判据**（art-bible §2 四支柱判读 / §3.1 定稿 HEX 与对比度声明 / screens.md 4 态矩阵与 6 相位 / ux-spec §5 毫秒表 / T-266 难度公式与陈列序律），**零新判据零新数值**；`systems-index §3` 冻结值零涉。
 - **范围铁律**：珠面与格面美术不动（art-bible §7 不动项清单；WXG-T-263 蜡笔不入批）。
 

@@ -10,7 +10,7 @@
 > 归档批次 2026-09-14 10:30 +08:00 — 37 行（WXG-T-1、WXG-T-2、WXG-T-3、WXG-T-4、WXG-T-5、WXG-T-6、WXG-T-7、WXG-T-8、WXG-T-9、WXG-T-10、WXG-T-11、WXG-T-12、WXG-T-13、WXG-T-14、WXG-T-15、WXG-T-16、WXG-T-17、WXG-T-18、WXG-T-19、WXG-T-20、WXG-T-21、WXG-T-22、WXG-T-23、WXG-T-24、WXG-T-25、WXG-T-29、WXG-T-26、WXG-T-27、WXG-T-28、WXG-T-30、WXG-T-31、WXG-T-32、WXG-T-33、WXG-T-34、WXG-T-35、WXG-T-32、WXG-T-36）｜判定：git blame committer-time ≥ 1 天
 | WXG-T-001 | breakout 框架搭建 | 程基岩 | ✅ 完成 | packages/framework 24 模块 + games/breakout |
 | WXG-T-002 | breakout 概念+设计文档 | 文策渊 | ✅ 完成 | games/breakout/design/* |
-| WXG-T-003 | breakout 美术三件套 | 林绘澄 | ✅ 完成 | games/breakout/art/* |
+| WXG-T-003 | breakout 美术三件套 | 林绘澄 | ✅ 完成 | games/breakout/design/art/specs/* |
 | WXG-T-004 | breakout QA 五件套 | 严守真 | ✅ 完成 | games/breakout/../production/qa（月度 G4 门） |
 | WXG-T-005 | breakout 发布清单 | 路远行 | ✅ 完成 | 发布四件套 |
 | WXG-T-006 | beads 概念+美术+GDD 首批 | 文策渊/林绘澄 | ✅ 完成 | concept / art-bible / systems-index 等 |

@@ -1,7 +1,7 @@
 /**
  * **[EP12-S6 · T-2B]** 招牌 `beadText` 位表渲染判据套（WXG-T-269-S6 子单 T-2B / Deliverable 5）。
  * ─────────────────────────────────────────────────────────────────────────────
- * 真源：`games/beads/art/menu-wall-signage-spec.md`（林绘澄 T-1）**§0.5 位表语义** + **§1.5 `10×10 @ d=12` 位表**；
+ * 真源：`games/beads/design/art/specs/menu-wall-signage-spec.md`（林绘澄 T-1）**§0.5 位表语义** + **§1.5 `10×10 @ d=12` 位表**；
  * 换算实现 = `src/view/menu-signage.ts::drawBeadText`；位表数据 = `src/config/sign-glyphs.ts`。
  *
  * ## 本套盯的三个失败模式

@@ -1,7 +1,7 @@
 /**
  * **[EP12-S6 · T-2B]** 作品格珠拼缩略判据套（WXG-T-269-S6 子单 T-2B / Deliverable 5）。
  * ─────────────────────────────────────────────────────────────────────────────
- * 真源：`games/beads/art/menu-wall-signage-spec.md`（林绘澄 T-1）**§3.1 聚合规则** / **§3.2 案乙几何** /
+ * 真源：`games/beads/design/art/specs/menu-wall-signage-spec.md`（林绘澄 T-1）**§3.1 聚合规则** / **§3.2 案乙几何** /
  * **§3.3 单格珠数上限** / **§3.4 档位表**；实现 = `src/view/menu-signage.ts::{levelThumbCells,drawLevelThumb}`。
  * 主理人裁定：案乙（缩略区 84、现装占位格几何不动）+ **5×5 主色块聚合** + **单格 ≤ 25 珠硬判据**。
  *

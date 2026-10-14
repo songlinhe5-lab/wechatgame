@@ -47,7 +47,7 @@
 
 - **名称**：beads 工程化对齐 breakout（用户裁定「参考 breakout 优化 beads 小游戏框架」，用户选 A 档）：① **渲染层符号通道落地**——新增 `view/symbols.ts`（10 符号 ○★●■♥◐▽▲◆✚ 矢量 path，不依赖字体）+ `view/bead-render.ts`（六层参数卡 L0–L5 → DrawCommand，纯函数），修掉 `art/accessibility.md` **A1/A3/B2 三处假绿**（「三重编码」实为颜色+明度两重、灰度可辨不成立、符号对比度无对象）；② **补四组测试**（`view-model` / `levels` + `levels-sync` 对账 / `tuning` / `save-schema`，对齐 breakout 同名判据）；③ **`smoke-harness.mjs` 参数化 game**，让 `?game=beads` 进 CI（现仅断言 breakout 专有字段 `totalBricks`）；④ **文档对账**（`architecture-beads.md` §9「src 未开始」与 §3 实际落地情况、`epics-beads.md` 过期 `[待 GDD §8]` 标记）
 - **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **产出**：games/beads/src/view/symbols.ts（10 符号矢量 path + L5 墨色规则）· games/beads/src/view/bead-render.ts（六层参数卡 L0–L5 + empty/locked 变体）· games/beads/src/view/palette.ts（luminance / contrastRatio / mixWith + 卡面常量）· games/beads/src/view/view-model.ts（接线 + 头注改写）· games/beads/tests/{symbols,bead-render,view-model,tuning,levels,save-schema}.test.ts（**+64 用例，43 → 107**；测试文件 6 → 12，与 breakout 持平）· games/beads/src/config/levels.ts（**修 `validateBeadsLevel` 放行 NaN 时长/供料间隔的缺陷**）· tools/scripts/smoke-harness.mjs 与 lib/harness-runtime.mjs（**参数化 game，`?game=beads` 分支首次进 CI**）· docs/architecture/architecture-beads.md §9 · production/epics/epics-beads.md · games/beads/art/accessibility.md · 本台账
+- **产出**：games/beads/src/view/symbols.ts（10 符号矢量 path + L5 墨色规则）· games/beads/src/view/bead-render.ts（六层参数卡 L0–L5 + empty/locked 变体）· games/beads/src/view/palette.ts（luminance / contrastRatio / mixWith + 卡面常量）· games/beads/src/view/view-model.ts（接线 + 头注改写）· games/beads/tests/{symbols,bead-render,view-model,tuning,levels,save-schema}.test.ts（**+64 用例，43 → 107**；测试文件 6 → 12，与 breakout 持平）· games/beads/src/config/levels.ts（**修 `validateBeadsLevel` 放行 NaN 时长/供料间隔的缺陷**）· tools/scripts/smoke-harness.mjs 与 lib/harness-runtime.mjs（**参数化 game，`?game=beads` 分支首次进 CI**）· docs/architecture/architecture-beads.md §9 · production/epics/epics-beads.md · games/beads/design/art/specs/accessibility.md · 本台账
 
 ---
 
@@ -103,7 +103,7 @@
 
 - **名称**：beads S6 道具系统落码（EP-06，用户裁定「beads 游戏继续规划任务执行」）：① `tuning.ts` 补 §3.6 常量（`POWERUP_TYPES` / `REGION_CLEAR_SLOTS=6` / `RANDOM_CLEAR_COUNT=5` / `POWERUP_FREE_USES=1` / `AD_PLACEMENTS=4`）+ 卡片几何真源 `powerupCardRects()`（视图与 S2 命中测试**共用**，消灭双份常量）；② 新增 `systems/powerups.ts` —— 只读镜像（`tray:spawned`/`bead:placed`/`tray:expanded` + 选中锚点）、三道具效果（region 恒长窗口 + 两端钳制、clearAll 全容量、random 等概率无放回）、三计数独立、**点名归 S6、清槽归 S4**；③ `beads-game` 接线（S2 路由优先级 2 + `usePowerup` + 整关重置 + 崩溃档读写 + 快照字段）；④ 崩溃档 `powerupUses` **上限钳制**关闭（T-059 留的「待 S6 落地补」）；⑤ 视图落 **A4 三图标**（魔法棒/扫帚/磁铁，§1.4 程序化 path）+ 用尽变灰 + `×N` + 占位轻提示。**测试**：新增 `tests/powerups.test.ts` **16 条**（§8 十条判据 1:1 + 常量镜像），beads **129 → 145**。**顺带修两处假绿/失配**：A4 此前标「✅ 落地」而实现是 3 张空白卡（无图标无标签）；A1/A3 符号特征计数被新增图标同原语污染（断言限定进拼图带）。**未闭环**：① §8-4 判据（200 次 ±20%）统计上偏紧（12 槽族极大偏差期望 ≈22%，实测 6 seed 落在 0.104–0.256）⇒ 测试固定 seed 并登记修订建议；② §1.4 卡片几何（176×150 + 卡下方标签）与 §3.1 带高 152 **互相矛盾**，未擅自改尺寸，登记待裁定；③ 图标文字标签未落码
 - **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **产出**：games/beads/src/systems/powerups.ts · src/config/tuning.ts · src/game/{beads-game,state,crash-snapshot}.ts · src/view/{view-model,palette}.ts · tests/powerups.test.ts · games/beads/art/accessibility.md（A4 改真）· 本台账
+- **产出**：games/beads/src/systems/powerups.ts · src/config/tuning.ts · src/game/{beads-game,state,crash-snapshot}.ts · src/view/{view-model,palette}.ts · tests/powerups.test.ts · games/beads/design/art/specs/accessibility.md（A4 改真）· 本台账
 
 ---
 
@@ -119,7 +119,7 @@
 
 - **名称**：**三项待裁定落地**（用户裁定「按推荐」）：① **卡几何（方案 A：改卡高、不动带位）** —— `assets-spec §1.4` 原「卡 176×150 + 卡下方标签 28」与 `systems-index §3.1` 的 `POWERUP_BAND` 高 **152** 无法同时成立（150+4+28 = 182 > 152）⇒ 卡改 **176×116**（+ 间隔 4 + 标签 28 = 148 ≤ 152），**§3.1 与底部留白 48 一字不动**；视图按 §1.4 补齐**角标 28×28 贴右上内缩 (8,8) + 白 ▶ 边 10、圆角 20、描边 1px、投影 α0.10、卡下方 28px 标签**，几何常量与 S2 命中测试共用 `powerupCardRects()` / `powerupLabelY()`；**A4 由此转真**（「形状唯一」+「文字标签并列」两半都在）。② **§8-4 判据改卡方检验** —— 原「各槽偏差 ≤ ±20%」在 n=200 / 12 槽下约一半概率误报（12 槽族极大偏差期望本身 ≈20–24%，单槽 σ ≈ 11%）⇒ 改为 **χ²（df=11、α=0.01、临界 24.725）**，与 seed 无关、误报率恒定 1%。③ **`region` 偶数窗口偏向升格明文** —— 原 §6「实现约定」升为 §2.2 表格内规定（含锚点在内、左 2 右 3），§6 改为指引以免两处漂移。**测试**：`view-model.test.ts` 新增 A4 几何/形状/标签判据、`powerups.test.ts` §8-4 改 χ²，beads **149 → 150**。**新增常量**：`POWERUP_CARD_W/H/RADIUS`、`POWERUP_LABEL_H/GAP`、`POWERUP_BADGE_*`（§1.4 的资产几何，非 §3 数值；**§3 全表零改动**）
 - **负责**：主理人(CodeBuddy)　**状态**：✅ 完成
-- **产出**：games/beads/art/assets-spec.md（§1.4 + 裁定注）· art/accessibility.md（A4 转真 + 落地计数 13）· design/gdd/powerups.md（§2.2 明文 + §6 指引 + §8-4 卡方 + §9 变更记录）· src/config/tuning.ts · src/view/{view-model,palette}.ts · src/systems/powerups.ts（`POWERUP_LABELS`）· tests/{powerups,view-model}.test.ts · systems-index §6 变更记录 · 本台账。**观感复核追加**（同日）：三卡间距 **30 → 60**（三卡总宽 648、两侧余量 51），A4 判据补「整组不贴屏边」断言
+- **产出**：games/beads/design/art/specs/assets-spec.md（§1.4 + 裁定注）· art/accessibility.md（A4 转真 + 落地计数 13）· design/gdd/powerups.md（§2.2 明文 + §6 指引 + §8-4 卡方 + §9 变更记录）· src/config/tuning.ts · src/view/{view-model,palette}.ts · src/systems/powerups.ts（`POWERUP_LABELS`）· tests/{powerups,view-model}.test.ts · systems-index §6 变更记录 · 本台账。**观感复核追加**（同日）：三卡间距 **30 → 60**（三卡总宽 648、两侧余量 51），A4 判据补「整组不贴屏边」断言
 
 ---
 
@@ -1877,7 +1877,7 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - **必读 skill**：`my-skills/wxgame-art-spec-programmatic/SKILL.md`；另读 AGENTS.md、art-bible 现行、bead-render.ts。
 - **约束**：零外部资产；不发明 §3 常量；先问再写；不 commit/push。
 - **后继**：质感规格审定 → 工程实现（与 T-130 的玩法实现 Epic 合并排期）。
-- **完成回传（2026-09-16，林绘澄）**：art-bible **v1.5** + assets-spec **v1.5** 已落盘（实际路径 `games/beads/art/`——任务书写作 `design/art/`，按仓内现行结构落位，已在回传说明）。要点：① **质感语言** = 纯色底 + 同色相明暗端点（明端 `mix #FFF 0.38` / 暗端 `mix #000 0.26` / 坑底 `−0.14`，全部复用既有 mix 判例系数），渲染管线经查**无渐变原语**（RenderModel 仅 rect/circle/line/polygon）⇒ 全部以端点平涂 + 叠层 α 落地；② **空格 = 凹陷四层**（S1 暗缘框 / S2 坑底 / S3 上内阴影 / S4 下受光亮线），珠 = 凸起十层卡零改动 ⇒ **凹凸对比取代幽灵符号**；「must not read as a bead」五形态通道复核成立（assets-spec §1.9.4）；③ **10 色端点对照表 + 推导规则**（assets-spec §1.9.2，向纯黑白混色色相不变 ⇒ 色相间距不塌，奶白明端钳制）；④ **E1/E4 作废标注为引用态**（落点 = T-130 第二批 systems-index 冻结变更 + 工程单，本单零改 §3 / 零代码）；⑤ 新常量组 `SOCKET_*`（7）/ `TRAY_PLATE_*`（3）归 `tuning.ts`，零冻结变更、零外部资产；⑥ **性能**：最坏静态图元 1810→≈2173（+363，典型 +51～+75）；端点 hex 建议模块级预计算（31 串一次构建），防每帧 `mix()` 字符串分配。**未决（待裁）**：珠体 L1 两段伪渐变增项（+1 图元/珠，默认不做）；L5 珠面符号去留（随 T-130 工程单）。`accessibility.md` 无 T-130 笔迹且本单未改（归文策渊）。
+- **完成回传（2026-09-16，林绘澄）**：art-bible **v1.5** + assets-spec **v1.5** 已落盘（实际路径 `games/beads/design/art/specs/`——任务书写作 `design/art/`，按仓内现行结构落位，已在回传说明）。要点：① **质感语言** = 纯色底 + 同色相明暗端点（明端 `mix #FFF 0.38` / 暗端 `mix #000 0.26` / 坑底 `−0.14`，全部复用既有 mix 判例系数），渲染管线经查**无渐变原语**（RenderModel 仅 rect/circle/line/polygon）⇒ 全部以端点平涂 + 叠层 α 落地；② **空格 = 凹陷四层**（S1 暗缘框 / S2 坑底 / S3 上内阴影 / S4 下受光亮线），珠 = 凸起十层卡零改动 ⇒ **凹凸对比取代幽灵符号**；「must not read as a bead」五形态通道复核成立（assets-spec §1.9.4）；③ **10 色端点对照表 + 推导规则**（assets-spec §1.9.2，向纯黑白混色色相不变 ⇒ 色相间距不塌，奶白明端钳制）；④ **E1/E4 作废标注为引用态**（落点 = T-130 第二批 systems-index 冻结变更 + 工程单，本单零改 §3 / 零代码）；⑤ 新常量组 `SOCKET_*`（7）/ `TRAY_PLATE_*`（3）归 `tuning.ts`，零冻结变更、零外部资产；⑥ **性能**：最坏静态图元 1810→≈2173（+363，典型 +51～+75）；端点 hex 建议模块级预计算（31 串一次构建），防每帧 `mix()` 字符串分配。**未决（待裁）**：珠体 L1 两段伪渐变增项（+1 图元/珠，默认不做）；L5 珠面符号去留（随 T-130 工程单）。`accessibility.md` 无 T-130 笔迹且本单未改（归文策渊）。
 
 ---
 
@@ -2073,10 +2073,10 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
   3. `assets-spec.md §1.2` `filled` 行：静态层数 10 → **11**，附裁定语义与副作用。
   4. `assets-spec.md §1.8` 末基线表：新增 **基线 ④ = 1672 + 156 = 1828**（**可达真值非松上界**，因 v1.22 开局即满盘 filled）；记录 **`h` 不变量破例**（每手持珠净值 −1，`h=8⇒1820`、`h=16⇒1812`）。
   5. `bead-grid.md` L74：「错位/就位：珠色≠底色即可辨」的**循环论证**改正为指向 L11（逻辑态 `misplaced` 判定不变）。
-  6. `games/beads/art/style-drafts-20260917.html`：整屏草稿同步（每颗棋盘珠加目标色环、原蓝虚线标注环撤除）。
+  6. `games/beads/design/art/specs/style-drafts-20260917.html`：整屏草稿同步（每颗棋盘珠加目标色环、原蓝虚线标注环撤除）。
 - **本单不改**：`systems-index.md` §3 全部冻结值（零 §3 变更，已在两文显式声明）、`src/**`、`packages/**`、`production/qa/**`、`levels JSON`。`art-bible.md` **亦未改**——经核其 §7.4 已声明「绝对值一律以 `assets-spec` 基线表为唯一真源」，无并存数值需同步。
 - **后继 backlog（需另立单）**：① **渲染层**（`src/view/**`）：view-model 快照对 `filled` 格是否携带 `pattern colorIdx` 需核实（empty 侧已消费同值 ⇒ 源应在，未携带则补字段）；② `tuning.ts` 加环宽常量；③ **真机验收**：「156 格 2px 环」的视觉噪声是否可接受，不可接受 ⇒ 按登记的第一顺位回退砍 L11（−156 层、零玩法语义改变）。
-- **Output Path**：`games/beads/art/accessibility.md`、`games/beads/art/assets-spec.md`、`games/beads/design/gdd/bead-grid.md`、`games/beads/art/style-drafts-20260917.html`、`production/TASKS-DETAIL.md` 的 `## WXG-T-140` 小节（本段）。
+- **Output Path**：`games/beads/design/art/specs/accessibility.md`、`games/beads/design/art/specs/assets-spec.md`、`games/beads/design/gdd/bead-grid.md`、`games/beads/design/art/specs/style-drafts-20260917.html`、`production/TASKS-DETAIL.md` 的 `## WXG-T-140` 小节（本段）。
 - **验收**：已自检——`L11` 在 `assets-spec.md` 命中 §1.1 / §1.2 / §1.8 三处；`v1.5-r3` 在 art 二文命中；`bead-grid.md` L74 无残留旧句。**本单为纯文档裁定落盘，不涉及单测与 `verify`**。**不 commit/push**。
 ## WXG-T-141 · beads·参考竞品四项裁定落盘（托盘 24 槽 / 缩放手势 / HUD / 失败页确认）
 
@@ -2242,7 +2242,7 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 
 - **名称**：**工具 · check:a11y 代码符号锚点机械守卫（K-035 假绿防线，backlog 次项）**
 - **负责**：主理人(Qoder)　**状态**：✅ 完成（2026-09-17；正/反向实测均成立，验法见「验收」行；未 commit）　**P1**
-- **交付面**：① 锚点表 `games/beads/art/a11y-anchors.md`（21 行）+ `games/breakout/art/a11y-anchors.md`（19 行），两矩阵 §2 各加指针行；② `tools/scripts/check-a11y-anchors.mjs`：id 集合相等 + ✅ 行锚点非空 + 非 `-` 锚点在 src 字面命中；③ 挂 `package.json check:a11y` + verify STEPS（check:links 后）。
+- **交付面**：① 锚点表 `games/beads/design/art/specs/a11y-anchors.md`（21 行）+ `games/breakout/design/art/specs/a11y-anchors.md`（19 行），两矩阵 §2 各加指针行；② `tools/scripts/check-a11y-anchors.mjs`：id 集合相等 + ✅ 行锚点非空 + 非 `-` 锚点在 src 字面命中；③ 挂 `package.json check:a11y` + verify STEPS（check:links 后）。
 - **设计取舍（诚实）**：锚点表**独立文件**不入 accessibility.md（WXG-T-130 预算注记指引「再增判据拆独立文件」，该档已豁免态）；脚本**不解析矩阵长文本状态列**（行内嵌 `|` 公式致切分不可靠），状态列一致性归 QA 评审 + §3 小结对账，限制已写脚本头注与表首注。
 - **验收**：正向两游戏全绿；**反向破坏测试**（改一锚点为不存在符号）⇒ FAIL 精确报行，已验后恢复；`pnpm run verify` 新增项 PASS。
 - **首面对账副产品（诚实登记）**：breakout 矩阵 B2 声称 hex（`#0C0B1E` 等）在 src **零命中**（实现 `#0b1021`）——真实文档漂移，新登 backlog 行，不在本单修为（跨域）。
@@ -2378,7 +2378,7 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
   | 实现实际 | `#e8f1ff` = **16.62:1** | `#8b98b8` = **6.56:1** | `#0b1021` |
 
   ⇒ **B2「≥4.5:1」在两侧口径下均成立**（实现侧最低 6.43:1 = `powerupLife #ff5e7a`）⇒ 判据 ✅ 不变，**变的是读数**；文档现写的是文档侧读数，与出货画面不符。
-- **定性结论（诚实）**：`palette.ts` 头注自陈「The art pipeline (games/breakout/art) owns the values」，`art-bible` v2.0 为九节完整版且列明权威常量来源；`src` 系 `6c02732`「vibe coding 框架构建入库」产物 ⇒ **倾向判定为「实现未按 §3.1 落码」，而非原登记的「文档陈旧」**。但两者同出自 `6c02732`，无时间序权威，**方向须用户拍板**，本单不擅自改写任一侧（不 whitewash）。
+- **定性结论（诚实）**：`palette.ts` 头注自陈「The art pipeline (games/breakout/design/art/specs) owns the values」，`art-bible` v2.0 为九节完整版且列明权威常量来源；`src` 系 `6c02732`「vibe coding 框架构建入库」产物 ⇒ **倾向判定为「实现未按 §3.1 落码」，而非原登记的「文档陈旧」**。但两者同出自 `6c02732`，无时间序权威，**方向须用户拍板**，本单不擅自改写任一侧（不 whitewash）。
 - **三选项与裁定**：
 
   | 选项 | 动作 | 代价 | 结果 |
@@ -2389,8 +2389,8 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 
 - **裁定 C 的解除条件（写死，防无限挂账）**：① 走 A 的前置 = art 复验档期 + QA 复跑档期齐备；② 走 B 的前置 = 设计域出具「规格正本重写」决议；③ 两者皆无 ⇒ 保持 ⛔，且**每次对账必须复算两侧读数**（现读数：文档侧 19.40/8.79，实现侧 16.62/6.56），不得凭记忆沿用。
 
-- **本单已改动（方向中性，不含 A/B 择一）**：① 主表领号 + backlog 行定性订正 + BD-36 重复行去重；② `games/breakout/art/a11y-anchors.md` 首注由单向「文档陈旧」改为「双向零重合 · 定性待裁定」并补实测读数与 T-159 指针（锚点列 `textDim` 未动 ⇒ `check:a11y` 仍绿）；③ 本节。
-- **Output Path**：`production/TASKS.md`、`production/TASKS-DETAIL.md` 本节、`games/breakout/art/a11y-anchors.md`。
+- **本单已改动（方向中性，不含 A/B 择一）**：① 主表领号 + backlog 行定性订正 + BD-36 重复行去重；② `games/breakout/design/art/specs/a11y-anchors.md` 首注由单向「文档陈旧」改为「双向零重合 · 定性待裁定」并补实测读数与 T-159 指针（锚点列 `textDim` 未动 ⇒ `check:a11y` 仍绿）；③ 本节。
+- **Output Path**：`production/TASKS.md`、`production/TASKS-DETAIL.md` 本节、`games/breakout/design/art/specs/a11y-anchors.md`。
 - **约束**：未 commit / 未 push。
 
 ---
@@ -2409,7 +2409,7 @@ playwright-cli -s=c1d open --browser=chrome --device="iPhone 15" http://127.0.0.
 - 图元：净 **+0**（变换不改图元数）。毫秒真源 = `ux-spec §5`「连击 ×3（Lv2）」行 **150ms**（冻结，不改）；幅度复用既有 `COMBO_SHAKE_SCALE_MAX`（**零新增冻结常量**）。
 - **编号说明**：本单原拟领 `WXG-T-131`，但并发会话在主理人核查（表内最大号 130）与写入之间领走 T-131（beads 美术质感规格，林绘澄）⇒ **改领 T-132**。撞号由幂等守卫拦下（worktree 侧未误插状态行），已落盘详情内 2 处 T-131 引用同批修正；诚实登记不掩盖。
 - **交叉依赖**：`art-bible §7.3.5`（v1.4-r2 定案段）现与并发会话的 **v1.5「纯色底 + 光影材质」**（T-131）叠加共存于同一文件，本单施工前须以**当时最新的 art-bible** 为准复核 §7.1 Lv2 行措辞是否仍为「整屏 scale 1.00→1.015→1.00，150ms」。
-- **主理人复核（2026-09-16，抽查）**：art-bible/assets-spec **v1.5「纯色底+光影材质」**基调与四层凹陷卡（S1 暗缘/S2 内缩坑底/S3 上内阴影/S4 下受光亮线）已核，数值级可落码 ✅；能力边界遵守（无渐变原语 ⇒ 平涂+α 叠层，承 §1.7/§1.8 判例）✅；**端点表预烘焙**（10 色×3 端点模块级一次构建，热路径零新增字符串分配）—— 这条是成员主动识别的每帧分配风险，处理正确 ✅；凹凸区分「比原方案更强」复核结论 + 验收断言钉住 ✅；零外部资产 ✅。路径纠正（任务书写 design/art/**、实际 games/beads/art/**）属实且处理正确。四小未决裁定：L1 增项默认不做；L5 符号随工程单；`SOCKET_*`/`TRAY_PLATE_*` 常量并入 T-130 工程 Epic；托盘 3 段内阴影保留。
+- **主理人复核（2026-09-16，抽查）**：art-bible/assets-spec **v1.5「纯色底+光影材质」**基调与四层凹陷卡（S1 暗缘/S2 内缩坑底/S3 上内阴影/S4 下受光亮线）已核，数值级可落码 ✅；能力边界遵守（无渐变原语 ⇒ 平涂+α 叠层，承 §1.7/§1.8 判例）✅；**端点表预烘焙**（10 色×3 端点模块级一次构建，热路径零新增字符串分配）—— 这条是成员主动识别的每帧分配风险，处理正确 ✅；凹凸区分「比原方案更强」复核结论 + 验收断言钉住 ✅；零外部资产 ✅。路径纠正（任务书写 design/art/**、实际 games/beads/design/art/specs/**）属实且处理正确。四小未决裁定：L1 增项默认不做；L5 符号随工程单；`SOCKET_*`/`TRAY_PLATE_*` 常量并入 T-130 工程 Epic；托盘 3 段内阴影保留。
 - **落码回写（2026-09-17，本会话）**：① **前置验证项已给结论**——零露黑边（锚点必落屏幕中心：canvas2d letterbox 居中 / Cocos 居中换算+GameRoot 原点；scale>1 ⇒ 内容边缘径向外移；**背景参与变换 ⇒ 无需外扩补边**），推导与未关部分（真机亚像素抖动）登记于 **ADR-0014 §1**。② 接口落地：`RenderModelBuilder.setTransform(scale, anchorX, anchorY)`（**标量入参**，与任务书「如 setTransform({…})」的对象例不同——热路径零分配；恒等帧 `end()` 不产变换位）+ `RenderModel.transform?` + canvas2d ctx 矩阵复合 + Cocos `transformHost`（GameRoot 节点缩放，`bindings.ts` 编辑器半 ⚠）；备选与否因见 ADR-0014 §2（含弃「渲染器内逐点坐标映射」的 setFontSize 重排理由）。③ beads 接线：`buildBeadsView` 头部消费 `comboPseudoShake(p).screenScale`（L5 不破、D1 整条关停、零新冻结常量、图元 +0）；WXG-T-074 历史登记就此收口。④ 判据：framework +10（builder 5 / canvas2d 2 / cocos host 3）+ 新建 `games/beads/tests/combo-shake.test.ts` **8 例**；全矩阵 framework **295** / beads **409** / breakout **239** 全绿，`tsc` exit 0，`check:arch` OK（L2 不破：core 零 cc），`framework:sync` 镜像已同批（beads 写 6 / breakout 写 4）。⑤ 文档回写：ADR-0014 新建、control-manifest 禁例行 +1、art-bible §7.3.5 卡末落码注、QA v1.12 增 TC-PER-27（整条不判 PASS：`[Cocos]`/真机待执行）。⑥ 未关风险：真机构建阻塞（ADR-0009 P2）⇒ 亚像素抖动观察项与节点缩放实机验证挂账；震屏窗口内输入不随变换（≤1.5%/150ms，ADR-0014 §4.1 登记）。
 
 ---

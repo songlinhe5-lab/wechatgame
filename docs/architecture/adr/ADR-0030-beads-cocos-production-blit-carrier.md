@@ -60,7 +60,7 @@
   随后自述真机症状 =「使用的是矢量绘制逻辑」。
 - **上游真源（冲突时自上而下）**：`ADR-0029 §0/§1.1/§5/§6/§8/§9` › `ADR-0028 §2.1/§2.3/§5` ›
   `ADR-0027 §3.1–3.3 / DEC-8` › `ADR-0026 §4.2` › `ADR-0025`（归档）› `ADR-0022 §2/§8/§11` ›
-  `games/beads/art/tint-mask-asset-spec.md §3/§19` › `docs/architecture/control-manifest.md`（L1–L5、§8、§17、§19）›
+  `games/beads/design/art/specs/tint-mask-asset-spec.md §3/§19` › `docs/architecture/control-manifest.md`（L1–L5、§8、§17、§19）›
   `docs/architecture/architecture.md §5.1`（首屏 0 图片是刻意锚）›
   `production/qa/beads/wxg-t-228-tint-criteria.md`（TC-TINT 判据族）›
   `games/beads/design/proposals/tint-mask-deferred-items.md`（D1–D12 / X1–X6）
@@ -1294,7 +1294,7 @@ provenance 新增键 `s3_frame_recheck_14`；前态另立史证键 `s3_pre_back_
 | `docs/architecture/adr/ADR-0022 §2.1/§2.2/§4.2/§7/§8.1/§8.2/§11.2/§11.3/§11.4` | 甲 否决原文 / 乙 实测账本（21917 三角 ↔ 2 三角、+1 draw call）/ P-1…P-8 / 落位纪律表 |
 | `docs/architecture/control-manifest.md §0（L1–L5）/§2/§8/§12/§13/§17/§19` | 附录 A 落表位置；铁律引用 |
 | `docs/architecture/architecture.md §2 末段 / §5 / §5.1` | canvas2d 是「架构的证明」；首屏 0 图片锚（DEC-4） |
-| `games/beads/art/tint-mask-asset-spec.md §1.1/§1.1.1/§3.1/§3.2/§4.3/§7` | 19 234 B 账；base 已删（甲′ 若走 Sprite 需重生成）；落位与硬前置；放大率 4.267；D1/D2/D4/D7/D9 |
+| `games/beads/design/art/specs/tint-mask-asset-spec.md §1.1/§1.1.1/§3.1/§3.2/§4.3/§7` | 19 234 B 账；base 已删（甲′ 若走 Sprite 需重生成）；落位与硬前置；放大率 4.267；D1/D2/D4/D7/D9 |
 | `games/beads/design/proposals/tint-mask-deferred-items.md` D1/D2/D5/D6/D7/D8/D10、X4/X5/X6 | 回退链与 S6 换代方法、禁止外推项 |
 
 ---

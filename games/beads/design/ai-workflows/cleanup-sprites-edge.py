@@ -22,7 +22,7 @@ import os
 import numpy as np
 from PIL import Image
 
-DEFAULT_DIR = "games/beads/design/references/menu-showcase-20261010/sprites-v1-shadow"
+DEFAULT_DIR = "games/beads/design/art/shots/menu-showcase-20261010/sprites-v1-shadow"
 
 
 def components(alpha_mask):

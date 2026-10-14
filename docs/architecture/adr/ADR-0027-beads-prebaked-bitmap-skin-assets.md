@@ -17,10 +17,10 @@
 - **玩家侧预热存在真空洞**（本提案的真实动因）：§13.5 的「beads-studio 预热」写的是烘进 **L2**，而 L2 =
   `wx.USER_DATA_PATH` / IndexedDB = **运行设备本地**。开发者机器上 studio 烘出的字节**传不到玩家设备**
   ⇒ 该裁定只兑现「设计预览一致」，对玩家首屏零收益。要让预热触达玩家，**只能以文件形式分发**（包内或分包）。
-- **色板已有同族先例**：品牌色板真源 = `games/beads/art/<slug>.json` → `tools/scripts/sync-palettes.mjs` 生成
+- **色板已有同族先例**：品牌色板真源 = `games/beads/design/art/specs/<slug>.json` → `tools/scripts/sync-palettes.mjs` 生成
   `src/config/palettes-data.ts`（文件头 `GENERATED FILE — DO NOT EDIT BY HAND` + `palettes:check` 漂移守卫进 verify）。
   ⇒ 「离线从真源生成、入库到游戏目录、机械守卫防漂移」这条工艺链**已在役**，本 ADR 是它的位图版。
-- **色板规模实测**（决定包体可行性，非估算）：`games/beads/art/` 16 份品牌 JSON 合计 **2104 色**
+- **色板规模实测**（决定包体可行性，非估算）：`games/beads/design/art/specs/` 16 份品牌 JSON 合计 **2104 色**
   （artkal-a 145／c 174／m 220／r 89／s 210／diamond-dotz 461／mard 291／hama-maxi 25 …）。
   `BEAD_COLOR_MAX = 35` 是**单关**色数上限，**不是**品牌集规模 ⇒ 「brand 用到的颜色」口径未钉，见 §3 DEC-6。
 - **包体余量的两处失真**（诚实前置）：① `build:wx` 与分包配置未打通，`check:size` 在 `pnpm run verify` 内为

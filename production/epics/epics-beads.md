@@ -239,7 +239,7 @@
 
 ### EP-12 「暖纸拼豆台」UI 风格落地与换肤双面（S3 呈现层 / S9 / S8 / meta / 工程交付）
 
-> **正文拆分件 →** [《epics-beads-ep12.md》](./epics-beads-ep12.md)：9 个 Story（`EP12-S1…S9`：S1 色板换值 ✅ 已随 WXG-T-268 落码收口 · S2–S4 容器语言与逐相位换肤 · S5 `difficultyOf()` 真源 · S6/S7 主菜单作品墙与 finish 陈列 · S8 换肤通道（运行时设置项）· S9 studio 导出链风格字段）+ 判据真源链 + 待裁项。权威 = `design/proposals/ui-style-redesign/` 四件采纳态 + T-266 两件 + `skin-system/` 三件；**零 §3 变更、零新判据**。
+> **正文拆分件 →** [《epics-beads-ep12.md》](./epics-beads-ep12.md)：9 个 Story（`EP12-S1…S9`：S1 色板换值 ✅ 已随 WXG-T-268 落码收口 · S2–S4 容器语言与逐相位换肤 · S5 `difficultyOf()` 真源 · S6/S7 主菜单作品墙与 finish 陈列 · S8 换肤通道（运行时设置项）· S9 studio 导出链风格字段）+ 判据真源链 + 待裁项。权威 = `games/beads/design/art/proposals/ui-style-redesign/` 四件采纳态 + T-266 两件 + `skin-system/` 三件；**零 §3 变更、零新判据**。
 
 ---
 

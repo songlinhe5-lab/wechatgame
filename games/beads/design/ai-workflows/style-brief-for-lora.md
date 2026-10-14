@@ -1,6 +1,6 @@
 # 拼豆关卡底图 · 美术风格规格书（LoRA 选型用）
 
-> 用途：外部 LoRA 调研（Civitai 等）的需求单。真源：`games/beads/art/art-bible.md` §1/§2/§5/§8、
+> 用途：外部 LoRA 调研（Civitai 等）的需求单。真源：`games/beads/design/art/specs/art-bible.md` §1/§2/§5/§8、
 > 本目录 `README.md` 转化铁规、qwen v5 达标批（`temp/comfyui-out/teaching-set/`）、
 > SDXL 失败证据链（`temp/comfyui-out/sdxl-test/` 00010–00022）。
 > 数据（2026-10-09）

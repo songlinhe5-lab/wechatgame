@@ -12,13 +12,18 @@ packages/framework/src/
   platform/    node / web / weapp
 games/<game>/
   design/      概念 · GDD · UX · 关卡 JSON
-  art/         美术圣经 · 资产规格 · 可访问性
+    art/       美术唯一入口（2026-10-14 用户裁定 Q1-A）：
+               specs/ 美术圣经·资产规格·可访问性·色板 json
+               proposals/ 设计提案稿（含 ui-style-redesign、skin-system）
+               shots/ 定稿屏稿/证据图（menu-showcase-*）
+               （外部竞品参考留在 design/references/）
   src/         玩法（引擎无关）
   tests/       vitest（纯 Node）
   cocos/       仅 Bootstrap 壳
 docs/architecture/   主架构 · ADR · 控制清单
 production/qa|release|epics|sprints/
 dev/harness/         浏览器验证器
+# 顶层 design/proposals 已废弃并入 games/<game>/design/art/proposals；QA 取证按批次留在 production/qa（K-125），不属设计稿
 my-skills/           Agent Skills 正本 + INDEX.md
 my-agents/           SubAgent 正本 + INDEX.md
 my-rules/            跨 IDE alwaysApply 规则正本 + INDEX.md

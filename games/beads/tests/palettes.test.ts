@@ -1,5 +1,5 @@
 /**
- * 色板注册表与关卡色板解析（v1.40 品牌引用制）——真源 `games/beads/art/*.json`，
+ * 色板注册表与关卡色板解析（v1.40 品牌引用制）——真源 `games/beads/design/art/specs/*.json`，
  * 产物 `src/config/palettes-data.ts`（紧缩+混淆自解码，门禁 `palettes:check` 防漂移）。
  *
  * 这里只断言「游戏侧读得到、读得对」：

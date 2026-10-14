@@ -50,7 +50,7 @@ export interface BeadsLevelRaw {
    */
   readonly pattern: readonly string[];
   /**
-   * 本关品牌色板引用（v1.40）：slug ↔ `games/beads/art/<slug>.json`
+   * 本关品牌色板引用（v1.40）：slug ↔ `games/beads/design/art/specs/<slug>.json`
    * （如 `'artkal-s'`）。与 {@link paletteCodes} 成对出现；缺省 ⇒ demo 默认色板。
    * ⚠️ **§3.2 v1.55 后条件必携**：`pattern` 最大色索引 > demo 色板长度时，成对字段
    * 不再可选（BOOT 硬校，否则越界索引静默兑炭黑）。hex 不随关卡携带 —— 只住品牌

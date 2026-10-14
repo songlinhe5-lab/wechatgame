@@ -39,7 +39,7 @@ from PIL import Image
 
 SRC = os.environ.get(
     "SPRITE_SRC",
-    "games/beads/design/references/menu-showcase-20261010/v1-mainmenu-final.png",
+    "games/beads/design/art/shots/menu-showcase-20261010/v1-mainmenu-final.png",
 )
 KEEP = os.environ.get("KEEP_SHADOW", "1") == "1"  # 1=保留所有阴影（只键平背景）；0=连投影一起吃
 OUT = os.environ.get("SPRITE_OUT", "temp/sprites-shadow" if KEEP else "temp/sprites-alpha")

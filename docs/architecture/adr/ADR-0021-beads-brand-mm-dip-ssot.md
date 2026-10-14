@@ -6,7 +6,7 @@
 
 ## 1. 上下文（Context）
 
-「候选色系宏」= `games/beads/art/<slug>.json` 这组品牌色板（现 15 份在册：artkal-s/c/a/m/r、
+「候选色系宏」= `games/beads/design/art/specs/<slug>.json` 这组品牌色板（现 15 份在册：artkal-s/c/a/m/r、
 hama-midi/mini/maxi、perler/perler-mini/perler-caps、nabbi、yant、mard、diamond-dotz）。
 它已经是**色板数据的唯一真源**（游戏侧经 `sync-palettes.mjs` 编译期打包成
 `src/config/palettes-data.ts`，studio server 与 beads-gen 直读 JSON）。
@@ -29,7 +29,7 @@ studio 与游戏都从它派生，不得再有多处硬编码。**
 
 - 微信小游戏运行时不能 `import` 包外 JSON ⇒ 游戏侧只能是**编译期生成物**（既有判例）。
 - beads-studio 前端（浏览器）与 server（零依赖 node）也不能 import TS 生成物；容器镜像只 `COPY public/`
-  与 `server.mjs`，**不带 `games/beads/art/`** ⇒ studio 侧必须拿到一份**静态产物**，不能在运行时读真源。
+  与 `server.mjs`，**不带 `games/beads/design/art/specs/`** ⇒ studio 侧必须拿到一份**静态产物**，不能在运行时读真源。
 - `systems-index §3.3` 渲染常量（`BEAD_CELL=50 / GAP=2 / PITCH=52`）**不在本单范围**：
   mm/dip 属源图 / 做图域（照片算珠数、成品尺寸、未来选档），任何「游戏按 dip 渲染 cell」都是另一条 §3 变更。
 
@@ -40,7 +40,7 @@ studio 与游戏都从它派生，不得再有多处硬编码。**
 | **A1（采纳）A 的变体** | `art/<slug>.json` 加顶层 `name / family / beadMm`（+ 可选 `pending`）；`sync-palettes.mjs` 内**唯一** `dip(mm)` 在生成期算，**追加**进既有生成物 `palettes-data.ts` 的 `BRANDS` 表，并同批产出 `apps/beads-studio/public/brands.json`；游戏 `view/palette.ts` re-export，studio 前端 fetch 该 JSON，`beads-gen` 直读同一 JSON 的 `beadMm` | 复用既有管线与既有 `palettes:check` 漂移门（改 `--check` 覆盖两份产物即可）；**不新增 src 文件 ⇒ 不新增 cocos 镜像件、不需要新 `.meta`**（L1：`.meta` 只能编辑器生成，这是当前环境下的硬阻塞）；改动面 6 个代码/文档件 + 15 份数据 |
 | A2（原始推荐路径） | 同 A1，但生成物**另起一个小文件** `src/config/palettes-brands.ts` | 与 A1 等义，但在 `games/beads/src/**` 新增文件 ⇒ `cocos/assets/scripts/game/config/` 出现无 `.meta` 的拷贝件（须开一次 Cocos Creator 才补齐，环境未装编辑器 = 无法自证）；且把「一个宏」拆成两个生成物，阅读成本更高 |
 | B（退路） | 单独一份「候选色系宏」文件（品牌→mm），art JSON 与 studio 各自引用它 | 真源从「色板宏本身」分裂成「色板 + 尺寸表」两份人写数据：同一品牌要改两次，正是本单要消除的形状。否决 |
-| C | 运行时派生：把 `dip(mm)` 实现进游戏 TS 模块，studio 经 `server.mjs` 暴露 `/api/brands`（server 直读 art JSON） | 逻辑上最"纯"，但**违反约束第 2 条**：容器无 `games/beads/art/` ⇒ 线上 studio 直接失效；且 server 需 spawn `--experimental-transform-types` 才能复用 TS 实现（现服务是零依赖纯 node:http）。否决 |
+| C | 运行时派生：把 `dip(mm)` 实现进游戏 TS 模块，studio 经 `server.mjs` 暴露 `/api/brands`（server 直读 art JSON） | 逻辑上最"纯"，但**违反约束第 2 条**：容器无 `games/beads/design/art/specs/` ⇒ 线上 studio 直接失效；且 server 需 spawn `--experimental-transform-types` 才能复用 TS 实现（现服务是零依赖纯 node:http）。否决 |
 
 ## 3. 决定（Decision）
 

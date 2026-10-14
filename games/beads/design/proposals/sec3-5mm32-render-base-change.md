@@ -29,7 +29,7 @@
 - `docs/architecture/adr/ADR-0018-beads-board-size-playability.md`（**Accepted 2026-09-20**）：基准表 `:24`、§3.4.1 `:153`、§3.4.2 搁置注记、§3.4.3 重算表、§4.2-1
 - `ADR-0015`（丁-3「布局即相机」、外溢免 clip `:117`）、`ADR-0017:4`（LOD 两态落码、真机 FPS 未验）、`ADR-0020 §1.3/§1.4/附录 A`（tile 缩放 bug 走甲案，**与本单正交**）
 - `games/beads/design/levels/levels-spec.md` §3.1①（源图 **32 px/颗**标准、25 最低：`:73,89-90,101,107-108`）
-- `games/beads/art/accessibility.md:177` 与 `art/assets-spec.md:63,7`（`BEAD_DRAW_INSET` 2→6 真机裁定、缝宽比 24% vs 竞品 31%、旧同心圆角式 `round(50×0.22)−6=5`）
+- `games/beads/design/art/specs/accessibility.md:177` 与 `art/assets-spec.md:63,7`（`BEAD_DRAW_INSET` 2→6 真机裁定、缝宽比 24% vs 竞品 31%、旧同心圆角式 `round(50×0.22)−6=5`）
 - `design/proposals/bead-visual-style-spec.md §11.2:267-277`（图元基线 1587 = 13×12 夹具 **条数** 分解）
 - `design/proposals/beads-studio-density-tiers.md`（本作者前件，§0 口径对账）、`design/proposals/v2-album-dense-boards.md`（Q13）
 - 判例：K-012（冻结常量 SSOT）、K-035（文档混淆规格与实装 = 假绿）、K-040（文档一致 ≠ 代码一致）、K-042（真源单一化后测试失去自证）、K-051（立项时点推论须差分复算）、K-057（立项单与 ADR 状态行成对核销）

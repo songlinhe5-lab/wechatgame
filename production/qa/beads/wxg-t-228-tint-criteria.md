@@ -6,8 +6,8 @@
 - **口径真源（冲突时自上而下）**：
   1. **定稿口径正本** = `tools/mask-preview/export-cocos-textures.py`（有孔 **v1.1**）· `export-cocos-textures-holeless.py`（无孔 **v1.0-holeless**）
   2. **工程方案** = `production/plans/wxg-t-226-tint-pipeline-plan.md`（EP-12 / V-1…V-9 / R-1…R-12）
-  3. **资产与实测** = `games/beads/art/tint-mask-asset-spec.md`（林绘澄 WXG-T-227；含 §7-D1 渗漏与 §6 R-9 分域建议）
-  4. **几何确认值** = `games/beads/art/cell-standard-{holed,holeless}.md`（J1–J7）
+  3. **资产与实测** = `games/beads/design/art/specs/tint-mask-asset-spec.md`（林绘澄 WXG-T-227；含 §7-D1 渗漏与 §6 R-9 分域建议）
+  4. **几何确认值** = `games/beads/design/art/specs/cell-standard-{holed,holeless}.md`（J1–J7）
   5. **冻结常量** = `systems-index §3.3`（基尺）/ §3.9（包体）
 - **环境事实（做不到的一律明说，⛔ 禁伪造）**：
   - **无 wx 真机** ⇒ `ADR-0028 §5` 的 **T2'（wx composite 支持与质量）/ T3'（命令带宽账）/ T4'（低端机帧时间）不属本单**，全文一律记 `DEFERRED — 需真机`（K-037 / K-054）。

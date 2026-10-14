@@ -1,7 +1,7 @@
 /**
  * 「候选色系宏」= 品牌 mm ↔ dip 单一真源守卫（ADR-0021，WXG-T-206 续）。
  *
- * 真源链：`games/beads/art/<slug>.json`（`beadMm`）→ `tools/scripts/sync-palettes.mjs`
+ * 真源链：`games/beads/design/art/specs/<slug>.json`（`beadMm`）→ `tools/scripts/sync-palettes.mjs`
  * 的唯一 `dip(mm)`（6.4 dip/mm、取偶）→ 两份产物 `BRANDS`（本仓游戏侧，经
  * `view/palette.ts` re-export）与 `apps/beads-studio/public/brands.json`（studio 前端）。
  *
@@ -47,7 +47,7 @@ const DIP_LADDER: { readonly [mm: string]: number } = {
 };
 
 const artJson = (slug: string) =>
-  JSON.parse(readFileSync(new URL(`../art/${slug}.json`, import.meta.url), 'utf8')) as {
+  JSON.parse(readFileSync(new URL(`../design/art/specs/${slug}.json`, import.meta.url), 'utf8')) as {
     name?: string;
     family?: string;
     beadMm?: number;

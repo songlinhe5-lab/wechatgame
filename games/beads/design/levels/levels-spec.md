@@ -86,7 +86,7 @@ LevelsFile（levels-01-08.json）
 ## 3. 前 8 关参数总表（**v1.4 照片转拼豆资源重制**，2026-09-21 用户拍板）
 
 > ⚠ **当前现池 = teaching-set 9 关（2026-10-10 换盘，pre-release 一次性重置）**：现盘径/uid/studio slug/DI 以
-> `design/levels/manifest.json` + `singles/L0000N.json` 与 `design/proposals/ui-style-redesign/level-difficulty.md §5.1`
+> `design/levels/manifest.json` + `singles/L0000N.json` 与 `games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md §5.1`
 > 为**唯一真源**（净关数 = 9 ⇒ `DEMO_LEVEL_COUNT` 不变）。下表 v1.4（10×10→29×29、暖心/小屋/… 主题）与 v1.4 源图 px 口径
 > **降为历史重制计划（留档史证，非现役关表）**；现役逐关产物见下方「产物登记表」。换盘驱动 = `design/ai-workflows/studio-batch-report.py --rebuild`。
 

@@ -606,7 +606,7 @@
       ]
     },
     {
-      "path": "games/beads/art/accessibility.md",
+      "path": "games/beads/design/art/specs/accessibility.md",
       "tokens": 1763,
       "sections": [
         {
@@ -642,7 +642,7 @@
       ]
     },
     {
-      "path": "games/beads/art/art-bible.md",
+      "path": "games/beads/design/art/specs/art-bible.md",
       "tokens": 4511,
       "sections": [
         {
@@ -738,7 +738,7 @@
       ]
     },
     {
-      "path": "games/beads/art/assets-spec.md",
+      "path": "games/beads/design/art/specs/assets-spec.md",
       "tokens": 2861,
       "sections": [
         {

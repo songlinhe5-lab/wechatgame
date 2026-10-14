@@ -180,7 +180,7 @@
 **beads·格内占比标准落档（满豆26/实心24/孔⌀12）+ 拦截判据**（CodeBuddy·用户逐项拍板，2026-09-26）
 
 - **背景**：用户 2026-09-26 起对 beads 珠体渲染（facet-4 默认皮肤）多轮调研后逐项拍板：①「坑永远比豆小一圈，有豆时看不到豆坑」（旧坑画在格径 30 上、比珠面 22 还大）；②「满豆基本覆盖格子」（`BEAD_DRAW_INSET` 4→2，珠面 22→26）；③「实心档重定 8→3」（珠面 14→24，旧值系「2 倍满豆内缩」规则在满豆改 2 后失效的孤立遗产）；④「孔径取整、2 的倍数 px」（⌀11.44→12）；⑤格内占比标准确认并要求落档+拦截+变更纪律。
-- **标准正本**：`games/beads/art/cell-standard.md`（§1 基准口径 / §2 确认值表 / §3 判据 J1–J7 / §4 变更纪律：改值须调研对照图+面积账（含圆角修正，方角近似不认）+原因说明+文档判据同批+台账登记 / §5 明确不做：颜色辨识度与相邻格可辨单开话题，J2 标注为代理指标非感知标准）。
+- **标准正本**：`games/beads/design/art/specs/cell-standard.md`（§1 基准口径 / §2 确认值表 / §3 判据 J1–J7 / §4 变更纪律：改值须调研对照图+面积账（含圆角修正，方角近似不认）+原因说明+文档判据同批+台账登记 / §5 明确不做：颜色辨识度与相邻格可辨单开话题，J2 标注为代理指标非感知标准）。
 - **拦截判据**：`games/beads/tests/bead-cell-standard.test.ts`（6 例全解析，只吃 tuning 真源）：两档钉值 + J1 环≥2 设计px / J2 底透≥30% 格径² / J4 孔径偶数 / J5 面≥70% 格径 / J6 珠:底∈[40,60] / J3·J7 锚点在场检查（防宿主判据与标准文档被删）。
 - **落码连带**：`BEAD_DRAW_INSET` 4→2、`_SMALL` 8→3、坑外廓=珠面−2×relief（`SOCKET_CARD.relief 0.07`，旧坑 26.4>珠 22 的根因修复）、孔径取整（facet-4/13/18 三套同源，§7.11.6；十层对照臂不动）、plate 墨 −0.34→−0.44（下/右刻面与 B0 底图同色 CR 1.00 的轮廓修复，⛔ 不走 stroke：`KIND_POLICY.allowStroke=false`）。
 - **判据同步（全往强改）**：坑⊂珠 包围盒判据新建（bead-render）；孔径取整期望+偶数性钉（bead-render/ledger/fill-pop）；同批性锁 2/0.44+派生 26/6.0；豆径档判据改写「凹槽随档恒⊂珠」（旧「凹槽不随档」与新裁定不可同真，属加强非放宽）；scene-vfx 等比判据改量化容差 ≤0.5px（判别力核过：真超发 +7.7% ⇒ 1.0px 仍红）；pool C12 钉值按实测同步（25.3→25.2%、facetPx 7576→7292 等）。
@@ -300,7 +300,7 @@
 - **落位（用户直接指令）**：「进主包游戏目录，新关走分包」⇒ DEC-5：主包 = 仅 brand 集；新关色集随**该关**进分包，
   与关卡 manifest 版本号耦合发布（`bakeSchemaVersion` 变 ⇒ 相关分包全量重出，不做增量纹理补丁）。
 - **取证实测（先算再写，非估算）**：
-  - `games/beads/art/` **16 份品牌 JSON 合计 2104 色**（artkal-a 145／c 174／m 220／r 89／s 210／diamond-dotz 461／mard 291／hama-maxi 25 …）
+  - `games/beads/design/art/specs/` **16 份品牌 JSON 合计 2104 色**（artkal-a 145／c 174／m 220／r 89／s 210／diamond-dotz 461／mard 291／hama-maxi 25 …）
     ⇒ **`BEAD_COLOR_MAX = 35` 是单关上限，不是品牌集规模** ⇒「brand 用到的颜色」口径未钉 = **DEC-6**，三档待拍：
     **P1** 首屏必用色并集 ≈0.16–0.4 MB／**P2** 单品牌整张（145 色 = 290 张）≈1.5–3.5 MB **已顶穿主包余量**／
     **P3** 全品牌 2104 色 = 4208 张 ≈20–50 MB **主包不可能、分包亦顶穿 ≤30 MB 总红线** ⇒ **P3 被数学否掉**。
@@ -605,7 +605,7 @@
 ③ mask 生成**不是改 recipe 返回类型**，须新增 `MaskSpec`（纯数据）+ 场计算（core 纯数学）+ adapter 落盘三层。
 包体实测：4 mask 18.8KB + 4 base 6.2KB = **25.0KB = 主包 0.61%**；⛔ `control-manifest §19` + ADR-0027 §5-2 两道前置未解除 ⇒ 现在不得投放。
 
-**林绘澄（227）** — 资产规格 `games/beads/art/tint-mask-asset-spec.md`（352 行）。可访问性：二重编码仍成立但被区域压缩（珠面明度档 8→6；holeless 空槽 5 档/坑底 4 档 ⇒ 小豆档欠账加重）；**发现最高优先 D1**。
+**林绘澄（227）** — 资产规格 `games/beads/design/art/specs/tint-mask-asset-spec.md`（352 行）。可访问性：二重编码仍成立但被区域压缩（珠面明度档 8→6；holeless 空槽 5 档/坑底 4 档 ⇒ 小豆档欠账加重）；**发现最高优先 D1**。
 
 **严守真（228）** — 判据分册 `production/qa/beads/wxg-t-228-tint-criteria.md`。质量门裁定 **CONCERNS**：G1–G3 未执行（零落码 ⇒ 待执行预期红基线）、**G4 未过**（判据族未可执行 + D1 使 V-3 必红 + C7/C12 未裁 + R-9 未裁）。判据映射 TC-TINT-01…22（L.1 编码不变式 11 / L.2 静态等价 2 / L.3 运行时门禁 9）。
 
@@ -790,7 +790,7 @@
 
 **beads·tint mask 资产规格（入库/命名/包体预算/双档位）** — 林绘澄（art-director），P1。
 
-> ⚠ 本行由主理人（CodeBuddy）于 WXG-T-229 批次代补；正文正本 = `games/beads/art/tint-mask-asset-spec.md`（352 行 / 9.4k tok）。
+> ⚠ 本行由主理人（CodeBuddy）于 WXG-T-229 批次代补；正文正本 = `games/beads/design/art/specs/tint-mask-asset-spec.md`（352 行 / 9.4k tok）。
 > ⚠ **本分册的 D1 已由 WXG-T-229 修复**（上/左扇实落 0.56 → 1.0），但其连带的 a11y/资产读数**尚未随修复重算**，见文末「待同步」。
 
 - **编码与合成（唯一）**：`R = d / G = l / B = 形状 / A = 255`（A 恒满幅免疫 Trim）；`rgb = base·d + (1−base)·l`、`a = B/255`，**预乘 α**；tint 只吃颜色字符串，mask 侧零颜色（V-1 mask-stable 红线）；**逐层覆盖 = 双通道同写**（`d=1` 层须显式写 `R=255`）；未命中一律矢量回退。
@@ -1051,7 +1051,7 @@
 
 **beads·抬起投影形态定标（接触影/投射阶梯 + 坑底暗底读法 + 光向唯一性）** — 2026-10-03 用户裁定「丙」。
 
-> 📄 **美术侧裁定正本 = `games/beads/art/lift-socket-styling-decision.md`（v0.1 · A–G 七条）**。
+> 📄 **美术侧裁定正本 = `games/beads/design/art/specs/lift-socket-styling-decision.md`（v0.1 · A–G 七条）**。
 > 本节是**工程侧取证与留档**；七条的**逐条呈现 / 候选 / 代价 / 需美术提供的参数**以定标单为准。
 > ⚠ 定标单 §1.1 有一处**比本节更彻底的实测结论**：**生产网格的抬起珠当前「零影」** —— 珠自身 L0a/L0b
 > 亦从未在生产网格消费（`drawFilledBead` 内 `shadow` 0 次；`drawLegacyTenBead` 在 `src/` 内只有定义无调用，
@@ -1426,7 +1426,7 @@ tint 臂不可用时（有珠格仍走矢量）孔内偏暗。改它会动**全�
 
 ### 交付物：定标单已成文
 
-`games/beads/art/tray-neutral-slot-mask-spec.md`（2953 tok，在 8000 B 门内）内容：
+`games/beads/design/art/specs/tray-neutral-slot-mask-spec.md`（2953 tok，在 8000 B 门内）内容：
 - **§1 工程契约**（美术只需知约束、不必重推）：托盘几何（`TRAY_SLOT 48` / 珠 `44` / 坑 ≈`41.3dp` /
   墨档 `neutralEndpoints`）· 三态归属 · 现有 `kind × gauge` 两轴的关系（**`gauge` 是豆径档轴、属盘面概念**）
   · 画布与预算（canonical 128、≈4.8 KB/张、upscale 阀现为 `null`）· 编码（沿用母体 `R=d/G=l/B=shape/A=255`）
@@ -2948,7 +2948,7 @@ D-3 = **boot 标题页随本批**。D-4~D-8 维持林绘澄建议值（仍待决
 
 ### 设计稿
 
-`design/proposals/ui-redesign-mock.png`（两屏并排，实验页 `temp/ui-redesign/index.html`）。
+`games/beads/design/art/proposals/ui-redesign-mock.png`（两屏并排，实验页 `temp/ui-redesign/index.html`）。
 
 ### 风格：「手作治愈系」
 
@@ -2999,7 +2999,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | C | B + 每珠 5 个伪随机深浅斑（压暗 16%/提亮 12%，α≈0.3） | 蜡笔颗粒感 |
 | **D** | C + 对角双色渐变（左上提亮/右下压暗） | **最接近参考图** |
 
-对比稿：`design/proposals/handdraw-bead-texture-compare.png`（四档并排 + 整树远看）。
+对比稿：`games/beads/design/art/proposals/handdraw-bead-texture-compare.png`（四档并排 + 整树远看）。
 
 ### 工程要点
 

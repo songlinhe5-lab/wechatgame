@@ -5,7 +5,7 @@
 - **派单原话范围**：把定稿 v1.1 / v1.0-holeless 接入正式管线——① `drawFilledBead`/`drawEmptySocket` 走 tint 路径、② `makeBeadRecipe`/`makeCellRecipe` 改产 d/l mask、③ 有孔/无孔双档位切换（豆径档驱动）、④ 包体与性能估算、⑤ 风险与回滚。
 
 > ## ⛔ 本单三条铁律（贯穿全文，逐条不得违反）
-> 1. **不改定稿数值**。定稿口径正本 = `tools/mask-preview/export-cocos-textures.py`（有孔 v1.1）+ `export-cocos-textures-holeless.py`（无孔 v1.0-holeless）；本文所有数值**逐字引用**这两个脚本与 `games/beads/art/cell-standard-{holed,holeless}.md`，**不发明、不"顺手优化"**。
+> 1. **不改定稿数值**。定稿口径正本 = `tools/mask-preview/export-cocos-textures.py`（有孔 v1.1）+ `export-cocos-textures-holeless.py`（无孔 v1.0-holeless）；本文所有数值**逐字引用**这两个脚本与 `games/beads/design/art/specs/cell-standard-{holed,holeless}.md`，**不发明、不"顺手优化"**。
 > 2. **不动 `LIMITS`/判据**。包体阈值只引 `systems-index §3.9`；判据只引既有 §8 / J1–J7 / C1–C12 / ADR-0028 §5，**不新增硬判据**（新增判据属 QA/美术域，另单）。
 > 3. **不提交代码**。本文不动任何源码；落码另单、经主理人批准。
 
@@ -19,7 +19,7 @@
 |---|---|
 | mask 烘焙口径（有孔 v1.1） | `tools/mask-preview/export-cocos-textures.py`（头注冻结块） |
 | mask 烘焙口径（无孔 v1.0-holeless） | `tools/mask-preview/export-cocos-textures-holeless.py`（头注冻结块） |
-| 几何/占比确认值 | `games/beads/art/cell-standard-holed.md` / `cell-standard-holeless.md`（母体 `cell-standard.md` 的 J1–J7） |
+| 几何/占比确认值 | `games/beads/design/art/specs/cell-standard-holed.md` / `cell-standard-holeless.md`（母体 `cell-standard.md` 的 J1–J7） |
 | 路线决策 | `docs/architecture/adr/ADR-0028-beads-grayscale-mask-tint.md`（现行目标路线，T1'–T4' 未证） |
 | 层数据（DEC-4 同源直读） | `tools/mask-preview/capture-layers.mjs` → `layers.json` / `layers-holeless.json` |
 | 运行时视图层 | `games/beads/src/view/bead-render.ts`、`view-model.ts::drawGrid/drawTray` |

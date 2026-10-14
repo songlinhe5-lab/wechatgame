@@ -161,7 +161,7 @@ const CHAR = BEAD_COLOR_CHARS; // idx 1..35 → 字符（§3.2 v1.55：与游戏
  * 盘面档位（落档口径见 design/proposals/board-size-29-mvp.md）。
  * `--board <name>` 只覆盖 cols / rows 两个默认值；显式 `--cols/--rows` 优先。
  * ⚠️ **不含豆径 mm**（ADR-0021）：原 `beadMm: 5 / 10 / 2.6` 字段已删 —— 盘具档位是**格数**
- *   概念，豆径是**品牌**属性，唯一真源 = `games/beads/art/<slug>.json` 的 `beadMm`
+ *   概念，豆径是**品牌**属性，唯一真源 = `games/beads/design/art/specs/<slug>.json` 的 `beadMm`
  *  （见下方 `beadMm` 解析）。两处各写一份 mm 必然漂移（2.6 与 2.6mm 品牌不同步过一次）。
  */
 const BOARD_PRESETS = {
@@ -256,7 +256,7 @@ const minAdjDE = Math.max(0, parseFloat(arg('minadj', '20')) || 0);
 /** 约束改色时允许的“对照片色误差增量”上限（Lab ΔE76）⇒ 色彩保真硬预算。 */
 const ADJ_MAX_DRIFT_DE = 12;
 const colorsMax = Math.max(0, parseInt(arg('colors', '0'), 10)); // 用色数上限（0/≥色板大小 = 不限制）
-const paletteArg = arg('palette', 'artkal-s'); // 品牌色板 slug（games/beads/art/<slug>.json：artkal-s/c/a/m/r、hama-*、perler*、nabbi、yant、mard、diamond-dotz）| 数字（程序化色域；'10' 游戏真源已从 UI 下架，仅 API 兼容）
+const paletteArg = arg('palette', 'artkal-s'); // 品牌色板 slug（games/beads/design/art/specs/<slug>.json：artkal-s/c/a/m/r、hama-*、perler*、nabbi、yant、mard、diamond-dotz）| 数字（程序化色域；'10' 游戏真源已从 UI 下架，仅 API 兼容）
 const colorsMode = arg('colorsmode', 'error'); // freq（频次优先）| error（ 误差最小优先；默认；仅 keptPx 为空时生效）
 const cellmode = arg('cellmode', 'mode'); // 格级映射风格：mode=主导色（卡通干净）| avg=平均色（照片纹理）
 const premedian = Math.max(0, parseInt(arg('premedian', '0'), 10)); // 源像素中值滤波核大小（0=关；3或5）；在 buildGrid 量化前执行，消 JPEG 块状伪影
@@ -267,7 +267,7 @@ if (!['mode', 'avg'].includes(cellmode)) {
 const isBrandPalette = !/^[0-9]+$/.test(paletteArg); // 非纯数字 = 品牌 slug（⚠️ slug 需匹配 [a-z0-9-]，防路径穿越）
 const paletteSize = isBrandPalette ? 0 : Math.max(2, parseInt(paletteArg, 10));
 
-// 色板落地：数字 ⇒ `buildPalette`；slug ⇒ 读 `games/beads/art/<slug>.json`（真实品牌色，去重）
+// 色板落地：数字 ⇒ `buildPalette`；slug ⇒ 读 `games/beads/design/art/specs/<slug>.json`（真实品牌色，去重）
 const BRAND = (() => {
   if (!isBrandPalette) return null;
   if (!/^[a-z0-9-]+$/.test(paletteArg)) {
@@ -275,13 +275,13 @@ const BRAND = (() => {
     process.exit(3);
   }
   try {
-    // 色板数据是**入库资产**（games/beads/art/）；兼容 spike 期 artkal-s 放 temp/ 的老位置
+    // 色板数据是**入库资产**（games/beads/design/art/specs/）；兼容 spike 期 artkal-s 放 temp/ 的老位置
     const j = (() => {
       for (const f of [
         // ⚠️ 不能放 `design/levels/` —— 目录模式（P1 起）下该目录顶层出现 manifest/palette 以外的
         //    关卡 .json 即触发 sync「stray/歧义」断言报红（旧「恰 1 JSON」 WXG-T-048 门禁同一后果）。故色板归美术资产目录。
-        join(SCRIPT_DIR, `../games/beads/art/${paletteArg}.json`),
-        join(SCRIPT_DIR, `../../games/beads/art/${paletteArg}.json`),
+        join(SCRIPT_DIR, `../games/beads/design/art/specs/${paletteArg}.json`),
+        join(SCRIPT_DIR, `../../games/beads/design/art/specs/${paletteArg}.json`),
         paletteArg === 'artkal-s' ? join(process.cwd(), 'temp/artkal-palette.json') : '', // 老位置仅 artkal-s 兼容
       ]) {
         if (!f) continue;
@@ -299,7 +299,7 @@ const BRAND = (() => {
   }
 })();
 if (isBrandPalette && !BRAND) {
-  console.error(`⚠️ --palette ${paletteArg} 需要 games/beads/art/${paletteArg}.json（未找到，见 WXG-T-179）`);
+  console.error(`⚠️ --palette ${paletteArg} 需要 games/beads/design/art/specs/${paletteArg}.json（未找到，见 WXG-T-179）`);
   process.exit(3);
 }
 /**

@@ -130,7 +130,7 @@
       "taskId": "WXG-T-166"
     },
     {
-      "path": "games/beads/art/accessibility.md",
+      "path": "games/beads/design/art/specs/accessibility.md",
       "reason": "beads 可访问性判据正本（A1–A6/D1 判据行 + 降档登记节）；QA 按判据行局部读，开发期从不整读",
       "note": "WXG-T-130（2026-09-16）首次入仓即 10499 tok：E4 幽灵符号移除的 A2b/A3 降档登记（用户签字）使正文+登记超限。债务显式化：若再增判据，宜把「降档登记节」拆为独立 a11y-changelog.md",
       "taskId": "WXG-T-130"
@@ -142,13 +142,13 @@
       "taskId": "WXG-T-131"
     },
     {
-      "path": "games/beads/art/art-bible.md",
+      "path": "games/beads/design/art/specs/art-bible.md",
       "reason": "beads 美术圣经正本（视觉基调/色板/绘制十层卡/LOD 分档），v1.3 起多轮迭代累积；美术/工程按节局部读",
       "note": "WXG-T-131（2026-09-16）首次入仓即 23687 tok（≈3× 上限）：历史 v1.0→v1.5 全量累积从未入仓（beads art 目录此前未纳管）。债务显式化：backlog 应立「art-bible 拆分」（如 vfx-spec/绘制卡分册），本轮豁免以让规格批量落盘先行",
       "taskId": "WXG-T-131"
     },
     {
-      "path": "games/beads/art/assets-spec.md",
+      "path": "games/beads/design/art/specs/assets-spec.md",
       "reason": "beads 资产规格正本（绘制卡逐图层几何/色值/图元统计表），与 art-bible 互为镜像的数值层；落码时只读对应卡",
       "note": "WXG-T-131（2026-09-16）首次入仓即 24260 tok（≈3× 上限）：同 art-bible，历史累积从未入仓。债务显式化：backlog「assets-spec 拆分」（逐物体分册），另 §1.8 图元统计表为表格密集区可独立",
       "taskId": "WXG-T-131"
@@ -316,7 +316,7 @@
       "taskId": "WXG-T-214"
     },
     {
-      "path": "games/beads/art/tint-mask-asset-spec.md",
+      "path": "games/beads/design/art/specs/tint-mask-asset-spec.md",
       "reason": "美术资产规格正本（tint mask 分册）：命名/编码/包体预算/双档位与 a11y 实测——与 assets-spec 同族，按 ctx 章节锚点局部读、开发期从不整读；随 tint 档位与包体策略迭代持续追加，由 art:sync 周期收敛",
       "taskId": "WXG-T-227"
     },
@@ -372,7 +372,7 @@
       "taskId": "WXG-T-262"
     },
     {
-      "path": "design/proposals/ui-style-redesign/menu-architecture.md",
+      "path": "games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md",
       "reason": "WXG-T-266 主菜单架构裁定稿（文策渊三轮累积：初裁第三案 → 用户回应 → 回裁双轨/配置化/命名）。三轮裁定互为上下文、史证表须与结论同文件，拆分会打断裁定链条与推翻依据的追溯；与 TASKS-DETAIL 同族：按章节锚点局部读、开发期从不整读。若后续定稿进正本（ux-spec / levels-spec）则本件归档，届时豁免随行撤销",
       "taskId": "WXG-T-266"
     },
@@ -382,7 +382,7 @@
       "taskId": "WXG-T-268"
     },
     {
-      "path": "games/beads/art/menu-wall-signage-spec.md",
+      "path": "games/beads/design/art/specs/menu-wall-signage-spec.md",
       "reason": "beads 美术资产规格分册（WXG-T-269-S6 招牌珠拼字形/橱窗/缩略绘制位表与档口径）：与 tint-mask-asset-spec（WXG-T-227）/menu-architecture（WXG-T-266）同族美术规格正本，位表与结论需整篇同读才能对齐同一档，拆分会致「字形↔档↔成本」跨文件互引；已被 ctx 按章节锚点覆盖，读取走局部读、从不整读",
       "note": "2026-10-07（WXG-T-269）首次入仓即 13126 tok（≈1.6× 上限）。债务显式化：若后续招牌/缩略档位继续追加，宜把逐字位表抽为 menu-wall-signage-glyphs.md、正文留档口径与结论后撤销豁免；再涨即拆，不得二次追加同类豁免。登记人 = 主理人(Qoder)",
       "taskId": "WXG-T-269"
@@ -400,15 +400,25 @@
       "taskId": "WXG-T-269"
     },
     {
-      "path": "design/proposals/ui-style-redesign/risks.md",
+      "path": "games/beads/design/art/proposals/ui-style-redesign/risks.md",
       "reason": "UI 风格重设计提案·风险台账（按时间序追加、逐条登记+留痕，开发期只按锚点局部读不整读）——与 menu-architecture.md（WXG-T-266 已豁免）同族",
       "note": "WXG-T-268/269 批追加 EP12 换肤/作品墙风险条目后肨至 8291 tok（超 8000 上限 3.6%）",
       "taskId": "WXG-T-269"
     },
     {
-      "path": "design/proposals/ui-style-redesign/level-difficulty.md",
+      "path": "games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md",
       "reason": "beads 难度分析正本：逐关 DI/steps 实测表（§5.1/§5.2）与 G1–G11 门禁裁定须同页可查——推翻过的结论与支撑数字拆开即断链；与同目录 menu-architecture.md（WXG-T-266）/risks.md 同族。已被 ctx 按章节锚点覆盖，开发期只读 §5.x/§7 局部、从不整读",
       "taskId": "WXG-T-268"
+    },
+    {
+      "path": "games/beads/design/art/proposals/ui-style-redesign/art-bible-proposal.md",
+      "reason": "现行美术圣经提案正本（v2 改政态）：§0 史证/§0.5 改政总述/色板板条须同页；v1 长表已外移 archive 仍贴 8000 上限，再拆断章节锚点。存量超限非本批新增（2026-10-14 落位迁移时被首次改动才暴露），与同目录已豁免件同族",
+      "taskId": "WXG-T-265"
+    },
+    {
+      "path": "games/beads/design/art/specs/menu-showcase-asset-spec.md",
+      "reason": "主界面橱窗/招牌资产规格唯一真源（§1.5 挖空 rect、落位坐标、退役判据须同页可查），拆开则坐标账断链；已被 ctx 按章节锚点覆盖。存量超限非本批新增（2026-10-14 引用订正时暴露），与 menu-wall-signage-spec.md（WXG-T-269 已豁免）同族",
+      "taskId": "WXG-T-269"
     }
   ]
 }
