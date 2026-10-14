@@ -33,7 +33,7 @@
 | 9 | `games/beads/design/ux/ux-spec.md` | 38540 | 432 | normal |
 | 10 | `games/beads/design/art/specs/art-bible.md` | 37413 | 528 | normal |
 | 11 | `games/beads/design/art/specs/accessibility.md` | 35820 | 200 | normal |
-| 12 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 34270 | 935 | normal |
+| 12 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 35581 | 943 | normal |
 | 13 | `production/TASKS.md` | 33228 | 96 | hot |
 | 14 | `games/beads/design/gdd/systems-index.md` | 28408 | 300 | hot |
 | 15 | `games/beads/design/levels/levels-spec.md` | 24237 | 542 | normal |
@@ -58,7 +58,7 @@
 | `games/beads/design/ux/ux-spec.md` | 38540 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/art-bible.md` | 37413 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/accessibility.md` | 35820 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 34270 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 35581 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/TASKS.md` | 33228 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/systems-index.md` | 28408 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/levels/levels-spec.md` | 24237 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -78,6 +78,7 @@
 | `docs/architecture/adr/ADR-0023-beads-procedural-bead-style-plugin.md` | 13563 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/sec3-5mm32-render-base-change-final.md` | 13335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/INDEX.md` | 13076 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/qa/menu-b19/README.md` | 12975 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md` | 12627 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md` | 12620 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

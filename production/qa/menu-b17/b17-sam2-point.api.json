@@ -1,0 +1,10 @@
+{
+  "1": { "class_type": "LoadImage", "inputs": { "image": "placeholder.png" } },
+  "2": { "class_type": "ImageCrop", "inputs": { "image": ["1", 0], "width": 530, "height": 300, "x": 505, "y": 1855 } },
+  "3": { "class_type": "DownloadAndLoadSAM2Model", "inputs": { "model": "sam2_hiera_base_plus.safetensors", "segmentor": "single_image", "device": "cuda", "precision": "fp16" } },
+  "8": { "class_type": "LoadImageMask", "inputs": { "image": "b17-mask-prior.png", "channel": "red" } },
+  "4": { "class_type": "Sam2Segmentation", "inputs": { "sam2_model": ["3", 0], "image": ["2", 0], "keep_model_loaded": true, "individual_objects": false, "mask": ["8", 0] } },
+  "5": { "class_type": "MaskToImage", "inputs": { "mask": ["4", 0] } },
+  "6": { "class_type": "SaveImage", "inputs": { "images": ["5", 0], "filename_prefix": "sam2pt" } },
+  "7": { "class_type": "SaveImage", "inputs": { "images": ["4", 1], "filename_prefix": "sam2pt-cut" } }
+}

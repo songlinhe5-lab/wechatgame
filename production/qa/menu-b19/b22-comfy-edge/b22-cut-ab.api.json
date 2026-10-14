@@ -1,0 +1,471 @@
+{
+ "1": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "b22-src.png"
+  }
+ },
+ "2": {
+  "class_type": "ImageCrop",
+  "inputs": {
+   "image": [
+    "1",
+    0
+   ],
+   "width": 530,
+   "height": 300,
+   "x": 505,
+   "y": 1855
+  }
+ },
+ "3": {
+  "class_type": "DownloadAndLoadSAM2Model",
+  "inputs": {
+   "model": "sam2_hiera_base_plus.safetensors",
+   "segmentor": "single_image",
+   "device": "cuda",
+   "precision": "fp16"
+  }
+ },
+ "8": {
+  "class_type": "LoadImageMask",
+  "inputs": {
+   "image": "b19-mask-prior.png",
+   "channel": "red"
+  }
+ },
+ "9": {
+  "class_type": "LoadImageMask",
+  "inputs": {
+   "image": "b22-gt-mask (1).png",
+   "channel": "red"
+  }
+ },
+ "4": {
+  "class_type": "Sam2Segmentation",
+  "inputs": {
+   "sam2_model": [
+    "3",
+    0
+   ],
+   "image": [
+    "2",
+    0
+   ],
+   "keep_model_loaded": true,
+   "individual_objects": false,
+   "mask": [
+    "8",
+    0
+   ]
+  }
+ },
+ "102": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "4",
+    0
+   ]
+  }
+ },
+ "101": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "102",
+    0
+   ]
+  }
+ },
+ "103": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "101",
+    0
+   ],
+   "filename_prefix": "d1-sam2-raw"
+  }
+ },
+ "20": {
+  "class_type": "LayerMask: MaskGrow",
+  "inputs": {
+   "mask": [
+    "4",
+    0
+   ],
+   "invert_mask": false,
+   "grow": -2,
+   "blur": 1
+  }
+ },
+ "105": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "20",
+    0
+   ]
+  }
+ },
+ "104": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "105",
+    0
+   ]
+  }
+ },
+ "106": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "104",
+    0
+   ],
+   "filename_prefix": "d2-maskgrow-n2b1"
+  }
+ },
+ "30": {
+  "class_type": "LayerMask: MaskEdgeShrink",
+  "inputs": {
+   "mask": [
+    "4",
+    0
+   ],
+   "invert_mask": false,
+   "shrink_level": 2,
+   "soft": 1,
+   "edge_shrink": 1,
+   "edge_reserve": 1
+  }
+ },
+ "108": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "30",
+    0
+   ]
+  }
+ },
+ "107": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "108",
+    0
+   ]
+  }
+ },
+ "109": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "107",
+    0
+   ],
+   "filename_prefix": "d3-edgeshrink"
+  }
+ },
+ "40": {
+  "class_type": "LayerMask: MaskEdgeUltraDetail",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "mask": [
+    "4",
+    0
+   ],
+   "method": "OpenCV-GuidedFilter",
+   "mask_grow": 6,
+   "fix_gap": 0,
+   "fix_threshold": 0.85,
+   "detail_range": 16,
+   "black_point": 0.01,
+   "white_point": 0.99
+  }
+ },
+ "111": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "40",
+    1
+   ]
+  }
+ },
+ "110": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "111",
+    0
+   ]
+  }
+ },
+ "112": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "110",
+    0
+   ],
+   "filename_prefix": "d4-guidedfilter"
+  }
+ },
+ "50": {
+  "class_type": "LayerMask: MaskEdgeUltraDetail",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "mask": [
+    "4",
+    0
+   ],
+   "method": "PyMatting",
+   "mask_grow": 6,
+   "fix_gap": 0,
+   "fix_threshold": 0.85,
+   "detail_range": 16,
+   "black_point": 0.01,
+   "white_point": 0.99
+  }
+ },
+ "114": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "50",
+    1
+   ]
+  }
+ },
+ "113": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "114",
+    0
+   ]
+  }
+ },
+ "115": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "113",
+    0
+   ],
+   "filename_prefix": "d5-pymatting"
+  }
+ },
+ "117": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "9",
+    0
+   ]
+  }
+ },
+ "116": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "117",
+    0
+   ]
+  }
+ },
+ "118": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "116",
+    0
+   ],
+   "filename_prefix": "d6-gt-hard"
+  }
+ },
+ "70": {
+  "class_type": "LayerMask: MaskEdgeUltraDetail",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "mask": [
+    "9",
+    0
+   ],
+   "method": "OpenCV-GuidedFilter",
+   "mask_grow": 6,
+   "fix_gap": 0,
+   "fix_threshold": 0.85,
+   "detail_range": 16,
+   "black_point": 0.01,
+   "white_point": 0.99
+  }
+ },
+ "120": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "70",
+    1
+   ]
+  }
+ },
+ "119": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "120",
+    0
+   ]
+  }
+ },
+ "121": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "119",
+    0
+   ],
+   "filename_prefix": "d7-gt-guidedfilter"
+  }
+ },
+ "80": {
+  "class_type": "LayerMask: MaskEdgeUltraDetail",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "mask": [
+    "9",
+    0
+   ],
+   "method": "PyMatting",
+   "mask_grow": 6,
+   "fix_gap": 0,
+   "fix_threshold": 0.85,
+   "detail_range": 16,
+   "black_point": 0.01,
+   "white_point": 0.99
+  }
+ },
+ "123": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "80",
+    1
+   ]
+  }
+ },
+ "122": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "123",
+    0
+   ]
+  }
+ },
+ "124": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "122",
+    0
+   ],
+   "filename_prefix": "d8-gt-pymatting"
+  }
+ },
+ "90": {
+  "class_type": "LayerMask: MaskEdgeShrink",
+  "inputs": {
+   "mask": [
+    "9",
+    0
+   ],
+   "invert_mask": false,
+   "shrink_level": 2,
+   "soft": 1,
+   "edge_shrink": 1,
+   "edge_reserve": 1
+  }
+ },
+ "126": {
+  "class_type": "InvertMask",
+  "inputs": {
+   "mask": [
+    "90",
+    0
+   ]
+  }
+ },
+ "125": {
+  "class_type": "JoinImageWithAlpha",
+  "inputs": {
+   "image": [
+    "2",
+    0
+   ],
+   "alpha": [
+    "126",
+    0
+   ]
+  }
+ },
+ "127": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "125",
+    0
+   ],
+   "filename_prefix": "d9-gt-edgeshrink"
+  }
+ }
+}

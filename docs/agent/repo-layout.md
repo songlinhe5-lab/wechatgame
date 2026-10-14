@@ -15,7 +15,9 @@ games/<game>/
     art/       美术唯一入口（2026-10-14 用户裁定 Q1-A）：
                specs/ 美术圣经·资产规格·可访问性·色板 json
                proposals/ 设计提案稿（含 ui-style-redesign、skin-system）
-               shots/ 定稿屏稿/证据图（menu-showcase-*）
+               shots/ 每日结论证据流（menu-showcase-* 按日期批次）
+               final/ 资源定稿区（2026-10-14 三分法：prototypes 原型／coordinates 坐标规格图／assets<页面> 资源图，开发统一取用）
+               archive/ 过时设计史证区（只进不出，见其 README）
                （外部竞品参考留在 design/references/）
   src/         玩法（引擎无关）
   tests/       vitest（纯 Node）
