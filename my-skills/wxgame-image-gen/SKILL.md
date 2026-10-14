@@ -14,7 +14,7 @@ description: 为小游戏**生成与修改图像资产**并给出可直接复制
 | 项 | 内容 |
 |---|---|
 | 真源 | `games/beads/design/ai-workflows/model-matrix.md`（§1 首选、§3 排除、§4 判据、§5 本地能力边界、§6.1 待授权下载） |
-| 脚本 | 云 `games/beads/design/ai-workflows/dashscope-generate.py`；本地 `submit-comfyui.py`（服务 `192.168.1.16:8188`，ComfyUI 0.39.0、显存 11.8GB）；局部重绘 `temp/menu-states/inpaint-add.py` |
+| 脚本 | 云 `games/beads/design/ai-workflows/dashscope-generate.py`；本地 `submit-comfyui.py`（服务 `192.168.1.16:8188`，ComfyUI 0.39.0、显存 11.8GB）；局部重绘 `temp/menu-states/inpaint-add.py`；程序化擦除 `remove-box-fill.py`（同目录，见 §3.1） |
 | 铁规 | ① 改判门槛＝同一判据 **≥2 个 seed 复测且结论一致**，单 seed 不得翻案；② 本端**无 SSH/无写接口**，要权重只能出清单让用户在服务端下（`/upload/image` 只进 `input/`） |
 
 ## 1. 四条能力 → 用哪个模型（top2）
@@ -67,6 +67,18 @@ python3 temp/menu-states/inpaint-add.py <tag> <seed_x> <seed_y> <半径> <半径
 - **为什么不用模型抠**：① 本地 2.1 输出**确为 RGBA 但 alpha 无语义**（`alpha=0` 占 0.00%、`alpha>128` 占 100%）；② SAM2 auto 在扁平 UI 只出**合并单 mask**、点提示 `coordinates_positive` 不可脚本化；③ 只要让模型重绘边界，它就刷一圈更亮的奶油色（接触阴影外环亮度 **+18.4** vs 程序化叠放 **−10.8**）→ **加法贴章一律不走 AI**。
 - **何时才值得上分割模型**：照片级/渐变背景。此时唯一建议下载的权重＝ **SAM3.1 fp16（<2GB）**，用通用 `CheckpointLoaderSimple` 驱动 `SAM3_Detect`（提示词 `button:4` 可出多个**独立** mask）。GroundingDINO / ControlNet / 超分 / Layered 均判为不下（依据矩阵 §6.1）。
 - 两个必踩过的坑：`Image.fromarray()` 返回的图 `readonly=1`，`floodfill` 写入**静默落到副本**（必须 `.convert("L")`）；numpy 索引是 `[y, x]` 与 PIL 的 `(x, y)` 相反。
+
+### 3.1 程序化擦除元素（remove-box-fill，零模型）
+
+平涂 UI 背景带上的矩形元素（如橱窗里的木牌）不走 AI inpaint，直接逐行中位数回填：
+
+```bash
+python3 games/beads/design/ai-workflows/remove-box-fill.py <in.png> <out.png> \
+  --box x0,y0,x1,y1 [--left lx0,lx1] [--right rx0,rx1]
+python3 games/beads/design/ai-workflows/remove-box-fill.py --check   # 内置合成自检，改过算法必跑
+```
+
+算法：对擦除域逐行取干净采样带（缺省＝缘外 30..200px）的**中位数色**回填（中位数抗采样带内高光/纹理离群；逐行保纵向渐变），alpha 随行复制；背景横向不均（如有斜向玻璃高光）时给 `--right` 走左右缘中位数插值。⚠ **禁用平移贴补**——会把玻璃高光整块复制进擦除区（橱窗 mock 首版实错）。适用前提：牌框先实测（色相剖面 `r−b` 判据）且背后带横向近均匀；背景有结构（非单调带）时不适用，回到 §2 局部重绘。实证：橱窗高清正本去牌（`final/assets/menu/ui_showcase_frame.png`，复现 maxΔ 0）。
 
 ## 4. 出图后必跑判据（能排序的只有这些）
 

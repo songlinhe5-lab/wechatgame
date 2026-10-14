@@ -75607,17 +75607,17 @@
     },
     {
       "path": "my-skills/wxgame-image-gen/SKILL.md",
-      "tokens": 2627,
-      "lines": 93,
-      "sha256": "a9d688f362a3d6d3304f040f89e5ea80a03e1283cbaf398cc026a40c4f5fc94f",
+      "tokens": 2984,
+      "lines": 105,
+      "sha256": "9e970be00dc5e4b816d77895a28c795ed6cba5570ce83c9f6de66951c410f6bf",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame AI 生图执行路由（四能力 · 云/本地 · 判据）",
           "level": 1,
           "startLine": 6,
-          "endLine": 94,
-          "tokens": 2332,
+          "endLine": 106,
+          "tokens": 2689,
           "summary": "本 skill 属 wxgame 家族（管线顺序与冲突裁决见 my-skills/INDEX.md）。它是执行层：",
           "keywords": [
             "wxgame",
@@ -75633,7 +75633,7 @@
           "level": 2,
           "startLine": 12,
           "endLine": 19,
-          "tokens": 183,
+          "tokens": 203,
           "summary": "真源 games/beads/design/ai-workflows/model-matrix.md（§1 首选、§3 ",
           "keywords": [
             "§1",
@@ -75679,8 +75679,8 @@
           "anchor": "§3 抠图：默认本地代码，**默认不上大模型**",
           "level": 2,
           "startLine": 60,
-          "endLine": 70,
-          "tokens": 454,
+          "endLine": 82,
+          "tokens": 791,
           "summary": "平色 UI 走 shape=point（纯 PIL/numpy，零 GPU、零下载、确定性）：种子点",
           "keywords": [
             "shape",
@@ -75692,10 +75692,26 @@
           ]
         },
         {
+          "anchor": "§3.1 程序化擦除元素（remove-box-fill，零模型）",
+          "level": 3,
+          "startLine": 71,
+          "endLine": 82,
+          "tokens": 318,
+          "summary": "平涂 UI 背景带上的矩形元素（如橱窗里的木牌）不走 AI inpaint，直接逐行中位数回填：",
+          "keywords": [
+            "remove",
+            "box",
+            "fill",
+            "inpaint",
+            "程序化擦除元",
+            "零模型"
+          ]
+        },
+        {
           "anchor": "§4 出图后必跑判据（能排序的只有这些）",
           "level": 2,
-          "startLine": 71,
-          "endLine": 83,
+          "startLine": 83,
+          "endLine": 95,
           "tokens": 290,
           "summary": "mask 外 maxdiff 遮罩外逐通道差最大值，必须 0 局部编辑④",
           "keywords": [
@@ -75709,8 +75725,8 @@
         {
           "anchor": "§5 硬禁忌（均已实测确诊，勿重走）",
           "level": 2,
-          "startLine": 84,
-          "endLine": 87,
+          "startLine": 96,
+          "endLine": 99,
           "tokens": 193,
           "summary": "本地 i2i 做单元素资产（构图污染，bbox 77%）｜本地 i2i 做固定风格（锚不动版式）｜整图 denoise=",
           "keywords": [
@@ -75725,8 +75741,8 @@
         {
           "anchor": "§6 交付纪律",
           "level": 2,
-          "startLine": 88,
-          "endLine": 94,
+          "startLine": 100,
+          "endLine": 106,
           "tokens": 197,
           "summary": "1. 每轮报数：本地几张 / 云几张几元（云最差价已由用户指示封顶 0.25 元/张）。",
           "keywords": [
