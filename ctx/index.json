@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4351,
       "lines": 152,
-      "sha256": "e8791a235e5102df32ce2fd0c6dea13de25a3a6a77a9a86fc6dc202bf21d27ec",
+      "sha256": "2c76b734017a0ea58068ddf0c7b85811dec18a2ec00594234539448c2115fafe",
       "tier": "normal",
       "sections": [
         {
@@ -56740,17 +56740,17 @@
     },
     {
       "path": "memory/2026-10-14.md",
-      "tokens": 8575,
-      "lines": 57,
-      "sha256": "2a10b4528ab10cd83e041aec6e670f2e66d86cfce18d3cd0952f540dacb9aa29",
+      "tokens": 8921,
+      "lines": 59,
+      "sha256": "2c61ddb1d1cce16eccd9925ced7cdcbf7fa69445daf18ceea6430f552ec0d8d0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-14",
           "level": 1,
           "startLine": 1,
-          "endLine": 58,
-          "tokens": 8571,
+          "endLine": 60,
+          "tokens": 8918,
           "summary": "",
           "keywords": []
         },
@@ -56772,8 +56772,8 @@
           "anchor": "§续：柜内木牌定稿（**第十四批** · B25 影层三段式随牌宽 + 回管线）",
           "level": 2,
           "startLine": 11,
-          "endLine": 58,
-          "tokens": 7283,
+          "endLine": 60,
+          "tokens": 7629,
           "summary": "77. 裁定落地：用户单字「A」= 选 B24 交付的 A 方案（先解决 ⚠3「影层随 9-slice 拉伸」，量完接缝",
           "keywords": [
             "B25",
@@ -56790,7 +56790,7 @@
       "path": "memory/INDEX.md",
       "tokens": 13414,
       "lines": 329,
-      "sha256": "2fc8f867cb79b371804404e47df5059d6f303004cb8a8ada0826a828f3061c8a",
+      "sha256": "90354e2fdd44578dc875e21be1236602defca213bc86e7c628fa773acbf473f9",
       "tier": "normal",
       "sections": [
         {
@@ -56881,7 +56881,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-14.md` — 8,575 tok｜2 节｜**蒸馏到期 2026-11-13**（剩 30 天）",
+          "anchor": "§`memory/2026-10-14.md` — 8,921 tok｜2 节｜**蒸馏到期 2026-11-13**（剩 30 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 79,
