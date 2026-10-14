@@ -22,6 +22,7 @@ export class NodePlatform extends BasePlatform {
     isMiniGame: false,
     safeAreaTop: 0,
     safeAreaBottom: 0,
+    capsuleBottomDp: null,
   };
 
   private _pending: ((dtMs: number) => void) | null = null;
@@ -84,5 +85,5 @@ export class NodePlatform extends BasePlatform {
   }
 
   /** Silent in tests — the CI output stays readable. */
-  override log(_level: LogLevel, _message: string, ..._args: unknown[]): void {}
+  override log(_level: LogLevel, _message: string, ..._args: unknown[]): void { }
 }

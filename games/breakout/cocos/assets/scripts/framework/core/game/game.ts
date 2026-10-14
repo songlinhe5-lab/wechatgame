@@ -43,6 +43,17 @@ export interface PlatformInfo {
   /** Safe-area insets in screen pixels (notches); 0 when unknown. */
   readonly safeAreaTop: number;
   readonly safeAreaBottom: number;
+  /**
+   * WeChat menu-button (胶囊) **bottom edge in logical px (dp), measured from the
+   * screen top** — the one top-edge obstacle that *swallows* taps, so top-bar layout
+   * must be derived from it rather than from a static band.
+   *
+   * `null` = 「这个宿主没有接口值」（web / node 无胶囊；小游戏基库缺该 API 或返回值不合法）。
+   * ⚠ 适配层**不得用 0 代替「未知」**：真实胶囊底缘恒 > 0（胶囊坐在状态栏之下），
+   * 因此 `0` / 负数 / NaN 一律归一为 `null`，调用方只分支 `null` 走兜底。
+   * Provenance: `wx.getMenuButtonBoundingClientRect()`（基础库 2.1.0+，返回逻辑 px）.
+   */
+  readonly capsuleBottomDp: number | null;
 }
 
 /** Everything a game may depend on. Constructed by the App, injected once. */

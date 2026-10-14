@@ -38,7 +38,7 @@ describe('NodePlatform', () => {
 
   it('cancels a pending frame', () => {
     const platform = new NodePlatform();
-    const handle = platform.requestFrame(() => {});
+    const handle = platform.requestFrame(() => { });
     handle.cancel();
     expect(platform.hasPendingFrame).toBe(false);
   });
@@ -79,8 +79,8 @@ describe('WebPlatform (headless)', () => {
 
   it('exposes no-op lifecycle hooks without a DOM', () => {
     const platform = new WebPlatform();
-    expect(platform.onHide(() => {})).toBeTypeOf('function');
-    expect(platform.onShow(() => {})).toBeTypeOf('function');
+    expect(platform.onHide(() => { })).toBeTypeOf('function');
+    expect(platform.onShow(() => { })).toBeTypeOf('function');
   });
 });
 
@@ -101,9 +101,10 @@ interface FakeWx {
   offHide(cb: () => void): void;
   onShow(cb: () => void): void;
   offShow(cb: () => void): void;
+  getMenuButtonBoundingClientRect(): { top: number; bottom?: number; left: number; right: number };
 }
 
-function fakeWx(): FakeWx {
+function fakeWx(capsuleBottom: number | null = 83): FakeWx {
   const store = new Map<string, string>();
   return {
     store,
@@ -118,10 +119,12 @@ function fakeWx(): FakeWx {
       screenHeight: 844,
       safeArea: { top: 47, bottom: 810 },
     }),
-    onHide: () => {},
-    offHide: () => {},
-    onShow: () => {},
-    offShow: () => {},
+    onHide: () => { },
+    offHide: () => { },
+    onShow: () => { },
+    offShow: () => { },
+    // 胶囊底缘默认 83 dp = 状态栏 47 + 4 + 高 32（@390 dp 刘海档，官方口径单位 = 逻辑 px）。
+    getMenuButtonBoundingClientRect: () => ({ top: 51, bottom: capsuleBottom ?? undefined, left: 278, right: 365 }),
   };
 }
 
@@ -142,7 +145,7 @@ describe('WeappStorage', () => {
       getStorageSync: () => {
         throw new Error('boom');
       },
-      setStorageSync: () => {},
+      setStorageSync: () => { },
       removeStorageSync: () => {
         throw new Error('boom');
       },
@@ -173,20 +176,30 @@ describe('WeappPlatform', () => {
     expect(platform.info.isMiniGame).toBe(true);
     expect(platform.info.safeAreaTop).toBe(47);
     expect(platform.info.safeAreaBottom).toBe(844 - 810);
+    expect(platform.info.capsuleBottomDp).toBe(83);
     expect(platform.getScreenSize()).toEqual({ width: 390, height: 844, pixelRatio: 3 });
+  });
+
+  it('胶囊底缘：无该 API / 非法值一律给 null（⛔ 不得当 0 传下去，判例 K-124）', () => {
+    expect(new WeappPlatform(fakeWx(0)).info.capsuleBottomDp).toBeNull();
+    expect(new WeappPlatform(fakeWx(null)).info.capsuleBottomDp).toBeNull();
+    const noCapsule = fakeWx() as Partial<FakeWx>;
+    delete noCapsule.getMenuButtonBoundingClientRect;
+    expect(new WeappPlatform(noCapsule as FakeWx).info.capsuleBottomDp).toBeNull();
   });
 
   it('degrades gracefully without a wx global', () => {
     const platform = new WeappPlatform(undefined);
     expect(platform.info.safeAreaTop).toBe(0);
+    expect(platform.info.capsuleBottomDp).toBeNull();
     expect(platform.getScreenSize().width).toBeGreaterThan(0);
     expect(platform.createStorage()).toBeInstanceOf(MemoryStorage);
   });
 
   it('registers and unregisters lifecycle hooks', () => {
     const platform = new WeappPlatform(fakeWx());
-    const unsubHide = platform.onHide(() => {});
-    const unsubShow = platform.onShow(() => {});
+    const unsubHide = platform.onHide(() => { });
+    const unsubShow = platform.onShow(() => { });
     expect(() => {
       unsubHide();
       unsubShow();

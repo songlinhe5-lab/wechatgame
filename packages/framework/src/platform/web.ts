@@ -47,6 +47,8 @@ export class WebPlatform extends BasePlatform {
       isMiniGame: false,
       safeAreaTop: 0,
       safeAreaBottom: 0,
+      // 浏览器宿主无微信胶囊 ⇒ `null`（「无接口值」），不是 0。
+      capsuleBottomDp: null,
     };
     this._storage = options.storage ?? g.localStorage ?? new MemoryStorage();
   }
@@ -97,7 +99,7 @@ export class WebPlatform extends BasePlatform {
             el.loop = handle.loop;
             el.volume = handle.volume;
             try {
-              el.play()?.catch(() => {}); // autoplay 策略拒绝 ⇒ 后端仍会走合成回退
+              el.play()?.catch(() => { }); // autoplay 策略拒绝 ⇒ 后端仍会走合成回退
             } catch {
               /* 交由上层回退 */
             }

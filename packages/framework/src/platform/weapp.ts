@@ -44,6 +44,11 @@ interface WxApi {
   getStorageInfoSync(): { keys?: string[] };
   getSystemInfoSync?(): WxWindowInfo;
   getWindowInfo?(): WxWindowInfo;
+  /**
+   * 微信右上胶囊（「··· / ◎」）矩形，单位 = 逻辑 px（dp）、原点 = 屏左上。
+   * 基础库 2.1.0+；本仓只消费 `bottom`（顶栏避让的唯一硬约束——它会吞点击）。
+   */
+  getMenuButtonBoundingClientRect?(): { top?: number; bottom?: number; left?: number; right?: number };
   onHide?(cb: () => void): void;
   offHide?(cb: () => void): void;
   onShow?(cb: () => void): void;
@@ -125,14 +130,23 @@ export class WeappPlatform extends BasePlatform {
   constructor(wx: WxApi | undefined = getWx()) {
     super();
     this._wx = wx;
-    const safeTop = this._readSafeArea().top;
-    const safeBottom = this._readSafeArea().bottom;
+    const safe = this._readSafeArea();
     this.info = {
       name: 'weapp',
       isMiniGame: true,
-      safeAreaTop: safeTop,
-      safeAreaBottom: safeBottom,
+      safeAreaTop: safe.top,
+      safeAreaBottom: safe.bottom,
+      capsuleBottomDp: this._readCapsuleBottom(),
     };
+  }
+
+  /**
+   * 胶囊底缘（dp，自屏顶）。无 wx / 基库缺该 API / 返回值不合法 ⇒ **`null`**（不是 0），
+   * 由调用方走各自的兜底带（判例 K-124：静态带只当 fallback，不参与取大）。
+   */
+  private _readCapsuleBottom(): number | null {
+    const bottom = this._wx?.getMenuButtonBoundingClientRect?.()?.bottom;
+    return typeof bottom === 'number' && Number.isFinite(bottom) && bottom > 0 ? bottom : null;
   }
 
   private _readSafeArea(): { top: number; bottom: number } {
