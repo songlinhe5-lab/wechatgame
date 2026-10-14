@@ -66,6 +66,7 @@ import {
     DESIGN_H,
     DESIGN_W,
     MENU_PLAQUE_H,
+    MENU_PLAQUE_RIVET_R,
     MENU_PLAQUE_W,
     MENU_PLAQUE_X,
     MENU_PLAQUE_Y,
@@ -203,8 +204,9 @@ function topbarCircles(commands: readonly DrawCommand[]): number {
 export const TOPBAR_CIRCLES = 5;
 
 /**
- * 门楣牌一族非珠圆的计数（§5.1b-2 第十一批）。判据 = 圆心落在**牌体矩形**内
- * （带 y-up [`MENU_PLAQUE_Y`, +H] = [872,910]，与顶栏热区行与招牌珠带均不交 ⇒ 两族不互串）。
+ * 门楣牌一族非珠圆的计数（§5.1b-2 第十一批）。判据 = 圆心落在牌体矩形内 **且** r = 铆钉半径。
+ * ⚠ 第十四批（b″）牌带下移到 [693,731] 后与 `levels` overlay 的作品墙格（墙带 [472,920]）**相交**
+ *   ⇒ 纯几何带会把珠族圆误归牌族（实测 20）；铆钉 r=3.5 vs 珠孔环 r=3 / 孔心 r=2 ⇒ r 判据可分。
  * 主菜单腿应恒 **2**（左右铆钉）；其余屏不画资源条 ⇒ **0**。
  */
 function plaqueCircles(commands: readonly DrawCommand[]): number {
@@ -212,6 +214,7 @@ function plaqueCircles(commands: readonly DrawCommand[]): number {
     for (const c of commands) {
         if (c.kind !== 'circle') continue;
         if (
+            c.r === MENU_PLAQUE_RIVET_R &&
             c.y >= MENU_PLAQUE_Y && c.y <= MENU_PLAQUE_Y + MENU_PLAQUE_H &&
             c.x >= MENU_PLAQUE_X && c.x <= MENU_PLAQUE_X + MENU_PLAQUE_W
         ) n++;

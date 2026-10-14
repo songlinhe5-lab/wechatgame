@@ -1,7 +1,7 @@
 {
   "task": "WXG-T-269-S6 · 子单 T-2B（K-6 菜单帧图元实测台账）",
-  "capturedAt": "2026-10-13T23:41:51.217Z",
-  "capturedFrom": "5703654afdd0ba531478dc705b8c3065e60f65a1 · 第十三批 B28：MENU_TITLE_Y 1040→1012 / MENU_SLOGAN_Y 968→940（P-6 补 ⑥）",
+  "capturedAt": "2026-10-14T13:12:39.448Z",
+  "capturedFrom": "0ab14520abfeb923018f8e112b203c639347530f · 第十四批 b″ 开工单：MENU_TITLE_Y 968 / SLOGAN 827 / 卡 300×220@681 / THUMB 132 / TEXT_BAND 88（牌带下移后 K-6 牌族圆加 r 判据）",
   "rerun": "WXG269_CAPTURE=<tag> node --experimental-transform-types --import=./tools/scripts/lib/ts-js-resolve.mjs games/beads/tests/menu-primitives-capture.ts",
   "method": {
     "primitiveUnit": "1 图元 = 1 条 RenderModel 命令（T-1 §0.2）",
@@ -17,30 +17,30 @@
   "frames": {
     "full": {
       "production": {
-        "total": 1158,
+        "total": 1118,
         "kinds": {
           "rect": 151,
-          "line": 105,
+          "line": 65,
           "circle": 303,
           "text": 7,
           "polygon": 592
         },
         "beads": 148,
-        "sha": "c1d6f98b47e4c533d30e6e7261b0d24be2302cfb738b44cd2a343f38fbd3b15b",
+        "sha": "9df4657ad25b3c98b4dc506318553572d278b4183f4fa7903a90f0cc4a4c8ff9",
         "label": "production",
         "variant": null,
         "note": "主菜单生产真链路（shell.buildRenderModel ⇒ 招牌珠拼 + 走马灯单卡）"
       },
       "signage.off": {
-        "total": 122,
+        "total": 82,
         "kinds": {
           "rect": 3,
-          "line": 105,
+          "line": 65,
           "circle": 7,
           "text": 7
         },
         "beads": 0,
-        "sha": "9bf606b8ff6bd7c05ace3eab1c18f682ecbd0c94f4c9b1c687bd083565c6654d",
+        "sha": "ea234ba2a795473f4edb049db3d006837bd379a6ed42e6b87870ea842490313b",
         "label": "signage.off",
         "variant": {
           "signage": false
@@ -143,30 +143,30 @@
     },
     "first": {
       "production": {
-        "total": 1158,
+        "total": 1118,
         "kinds": {
           "rect": 151,
-          "line": 105,
+          "line": 65,
           "circle": 303,
           "text": 7,
           "polygon": 592
         },
         "beads": 148,
-        "sha": "c1d6f98b47e4c533d30e6e7261b0d24be2302cfb738b44cd2a343f38fbd3b15b",
+        "sha": "9df4657ad25b3c98b4dc506318553572d278b4183f4fa7903a90f0cc4a4c8ff9",
         "label": "production",
         "variant": null,
         "note": "主菜单生产真链路（shell.buildRenderModel ⇒ 招牌珠拼 + 走马灯单卡）"
       },
       "signage.off": {
-        "total": 122,
+        "total": 82,
         "kinds": {
           "rect": 3,
-          "line": 105,
+          "line": 65,
           "circle": 7,
           "text": 7
         },
         "beads": 0,
-        "sha": "9bf606b8ff6bd7c05ace3eab1c18f682ecbd0c94f4c9b1c687bd083565c6654d",
+        "sha": "ea234ba2a795473f4edb049db3d006837bd379a6ed42e6b87870ea842490313b",
         "label": "signage.off",
         "variant": {
           "signage": false

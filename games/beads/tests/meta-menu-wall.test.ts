@@ -69,6 +69,7 @@ import {
     MENU_PLAQUE_W,
     MENU_PLAQUE_X,
     MENU_PLAQUE_Y,
+    MENU_PRIMARY_Y,
     MENU_SLOGAN_Y,
     MENU_TITLE_Y,
     MENU_TOPBAR_RESERVED_ALPHA,
@@ -586,8 +587,12 @@ describe('§5.1b 顶栏三钮落位（2026-10-13 裁定 B + 第三批语义 · �
             const circleBottom = topRowCy(top) - MENU_TOPBAR_VISUAL_D / 2;
             expect(circleBottom - band.yMax, `顶栏档 ${top}：圆下缘距带顶 ≥ Δ${SIGN_BAND_PAD}`).toBeGreaterThanOrEqual(SIGN_BAND_PAD);
         }
-        // 整链随动：招牌↔slogan 的相对关系逐值不变 ⇒ ④ 的既存欠账不因本批加重。
-        expect(MENU_TITLE_Y - MENU_SLOGAN_Y, '中心−基线差 = 72（下移前读数，随动不改）').toBe(72);
+        // 第十四批（b″）：旧「中心−基线差 = 72」不变式系按旧 120 字带推 ⇒ 作废；
+        // 新关系 = 板底（TITLE − 半板高 115）− slogan 字顶（+ 半字高 14）= Δ12。
+        expect(
+            MENU_TITLE_Y - 115 - (MENU_SLOGAN_Y + 14),
+            '板底距 slogan 字顶 = Δ12（板 354×230 顶缘自顶 251）',
+        ).toBe(SIGN_BAND_PAD);
     });
 
     it('真渲染链：逐档三颗圆与带内每一枚珠**两两不相交**（footprint = 口径 B 面半径，⛔ 拿孔环半径当量会低估）', () => {
@@ -663,13 +668,18 @@ describe('§5.1b-2 第十一批 · L4 资源条 = 门楣价目牌（只读零热
     it('P-6 关系不变式①–⑤：资源条让位腿——牌上缘≤招牌下缘−Δ、牌下缘≥卡顶+Δ、不相碰 slogan/顶栏', () => {
         const band = signBands(COPY_TOKENS.app_name.length, MENU_TITLE_Y, SIGN_MATRIX_N, SIGN_BEAD_PITCH);
         // ③ 净空腿的反向对应（牌在招牌**下方**）：招牌下缘 ≥ 牌上缘 + Δ。
-        expect(band.yMin - plaqueTop(), '招牌↔牌净空（旧实测 70 ⇒ 第十三批下移 28 后 42）').toBeGreaterThanOrEqual(SIGN_BAND_PAD);
+        expect(band.yMin - plaqueTop(), '招牌↔牌净空（第十三批 42 ⇒ 第十四批整链下移后 177）').toBeGreaterThanOrEqual(SIGN_BAND_PAD);
         // ⑤ 让位优先于缩字：本批⛔ 动招牌档 ⇒ 档仍在册（`n·d = 120`）。
         expect(SIGN_MATRIX_N * SIGN_BEAD_PITCH, '不变式① n·d = 120（未因让位改档）').toBe(120);
-        // 与 slogan（基线 940，第十三批随招牌整链下移 28；`font_label` 28 ⇒ 下缘 = 基线 − 半字高 14）不相交。
+        // 与 slogan（第十四批基线 827；`font_label` 28 ⇒ 下缘 = 基线 − 半字高 14）不相交。
         expect(MENU_SLOGAN_Y - FONT_LABEL_PX / 2 - plaqueTop(), 'slogan 下缘距牌顶 ≥ 0').toBeGreaterThanOrEqual(0);
         // 与走马灯卡顶缘：不压卡（牌在卡上方）。
         expect(plaque.y - CAROUSEL_TOP, '牌下缘距卡顶 = Δ12').toBe(SIGN_BAND_PAD);
+        // 第十四批「甲：压卡，CTA 不动」：卡底不压 CTA 顶（实测 461 − 448 = 13）。
+        expect(
+            CAROUSEL_TOP - CAROUSEL_H - (MENU_PRIMARY_Y + TOUCH_MIN),
+            '卡底距 CTA 顶 ≥ Δ12（压卡 220 后新判据）',
+        ).toBeGreaterThanOrEqual(SIGN_BAND_PAD);
         // 与顶栏视觉圆（任何逐机档）：圆下缘仍在牌上缘之上。
         for (const top of TOP_TIERS) {
             const cyLow = DESIGN_H - top - TOUCH_MIN / 2;

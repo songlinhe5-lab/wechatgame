@@ -1159,14 +1159,19 @@ export const MENU_PRIMARY_W = 320;
  *   运行时珠拼字带 ⇒ 浅档不撞**只靠 y 余量**，「分列招牌两侧」的设计意图在实装里本就不成立。
  * ⚠ 旧注写作「< 资源条带 [1130,1180]」**已作废**（第十一批）：L4 改为**门楣价目牌**后落在招牌**下方**
  *   （`MENU_PLAQUE_Y` 注）；招牌带下缘与牌体上缘净空 = 旧 `980 − 910 = 70` ⇒ 本批后 `952 − 910 = **42**`（③：`952 ≥ frameTop 920 + Δ12 = 932` ✓ 余 20）。
+ * **第十四批（2026-10-14 · b″ 开工单）：`1012 → 968`** —— 裁定改写「板体全档避让，只许绳入带」
+ * （正本 = menu-architecture.md「裁定改写（2026-10-14）」）：板 354×230 顶缘自顶 251 ⇒ 板带 y-up
+ * [853,1083]，本常量 = 板中心；珠拼带 = [908,1028]。P-6 ⑥ 深档 176 圆底 1084.5 ≥ 1028 + Δ12（余 **56.5**，
+ * 旧「余 12.5」紧档随下移重开）。⚠ 底图同步换代 bg3（招牌让位 + 橱窗下移 279 压 ~90）。
  */
-export const MENU_TITLE_Y = 1012;
+export const MENU_TITLE_Y = 968;
 /**
  * slogan 基线 y（§5.1 L2b：`app_slogan` · `font_label` 28 · `text_secondary`）。
- * **第十三批随招牌整链下移 28**：`968 → 940` ⇒ `MENU_TITLE_Y − MENU_SLOGAN_Y = 72` **逐值不变**
- * ⇒ P-6 ④ 的既存欠账（旧登记「尚差 ≈2px」）**不加重也不顺手修**，仍归 T-4 垂直重排整单。
+ * **第十四批（2026-10-14 · b″ 开工单）：`940 → 827`** = 板底 y-up 853 − Δ12 − 半字高 14。
+ * 旧不变式 `MENU_TITLE_Y − MENU_SLOGAN_Y = 72` 系按旧 120 字带推 ⇒ **本批作废**
+ * （v1.76 changelog 的 896 同错，v1.77 订正）；新关系 = 「板底 − 字顶 = Δ12」。
  */
-export const MENU_SLOGAN_Y = 940;
+export const MENU_SLOGAN_Y = 827;
 /** 主钮**下缘** y（§5.1 L3 拇指带 = 下 1/3）。次级行已于 2026-10-13 退役 ⇒ 本锚不再派生第二行。 */
 export const MENU_PRIMARY_Y = 360;
 /** 版本号 label 基线 y（§5.1 底部 `y≈140` 原值）。 */
@@ -1206,25 +1211,28 @@ export const WALL_SLOT_DASH_GAP = 4;
 //   ⛔ **不进 systems-index §3**（菜单屏不在 §3.1 带表；判例同 `WALL_*` / `MENU_*` flat 命名）。
 /** 走马灯卡宽（**小于**旧 4×3 橱窗框 590 ⇒ 用户「不要做那么大」）。 */
 export const CAROUSEL_W = 300;
-/** 走马灯卡高（上部落位图 + 下部进度/提示两行文字）。 */
-export const CAROUSEL_H = 340;
+/** 走马灯卡高。**第十四批（b″ 开工单 · 用户裁「甲：压卡，CTA 不动」）：`340 → 220`**（门楣牌下移后
+ * 卡底与 CTA [360,448] 重叠 88 的吸收腿；卡底 461 − CTA 顶 448 = Δ13 ≥ Δ12 ✓）。 */
+export const CAROUSEL_H = 220;
 /**
- * 走马灯卡**顶边** y（本设计空间 y 向上 ⇒ 卡占 `[CAROUSEL_TOP − CAROUSEL_H, CAROUSEL_TOP]` =
- * [520,860]：slogan 底 954 之下、主钮顶 448 之上，两侧留白 ≥ 60）。
+ * 走马灯卡**顶边** y（本设计空间 y 向上 ⇒ 卡占 `[CAROUSEL_TOP − CAROUSEL_H, CAROUSEL_TOP]`）。
+ * **第十四批（b″ 开工单）：`860 → 681`** = 牌底 693 − Δ12（牌带随卡整链下移，A 案分配表：
+ * 牌自顶 [693,731] ⇔ y-up [603,641]）；新卡带 = [461,681]。
  */
-export const CAROUSEL_TOP = 860;
+export const CAROUSEL_TOP = 681;
 /**
  * 卡内落位图的缩略字模阵（**大于**橱窗格的 `THUMB_MATRIX_N`=5 ⇒ 单卡要看得清成品；8 ⇒ ≤64 珠，
  * 静态菜单帧可接受）。真源聚合规则仍 = `menu-signage::levelThumbCells`。
  */
 export const CAROUSEL_THUMB_N = 8;
-/** 卡内落位图边长（> 橱窗 `THUMB_AREA` 84 ⇒ 大图；经 `drawLevelThumb` 的 `area` 参传入）。 */
-export const CAROUSEL_THUMB_AREA = 240;
+/** 卡内落位图边长（**第十四批（b″ 开工单）：`240 → 132`**，随压卡缩；8×8 珠距 16.5 仍可读。
+ * 经 `drawLevelThumb` 的 `area` 参传入）。 */
+export const CAROUSEL_THUMB_AREA = 132;
 /**
  * 卡内下部**文字带高**（两行：进度 + 选关提示）；落位图坐在文字带之上。
- * 派生约束：`CAROUSEL_THUMB_AREA + CAROUSEL_TEXT_BAND ≤ CAROUSEL_H`（240 + 100 = 340 = 卡高 ⇒ 恰好充满）。
+ * 派生约束：`CAROUSEL_THUMB_AREA + CAROUSEL_TEXT_BAND ≤ CAROUSEL_H`（**第十四批** 132 + 88 = 220 = 卡高 ⇒ 恰好充满）。
  */
-export const CAROUSEL_TEXT_BAND = 100;
+export const CAROUSEL_TEXT_BAND = 88;
 
 // ─────────── 招牌珠拼 `beadText` 档（EP12-S6 · 子单 T-2B · WXG-T-269-S6）
 //   正本 = `games/beads/design/art/specs/menu-wall-signage-spec.md`（林绘澄 T-1）**§1.4 档公式重算 / §1.5 位表档 /

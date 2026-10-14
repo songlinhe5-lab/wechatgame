@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4259,
       "lines": 149,
-      "sha256": "73b841e075826959bc13b39f73eb28a8fbac4ff1e302976891073b73661bbea0",
+      "sha256": "7a0fbf6c5074d24dd42b3af1f6a29c5f98617ecd23cb9ccf0bf111f782c13a0d",
       "tier": "normal",
       "sections": [
         {
@@ -396,7 +396,7 @@
           "startLine": 1,
           "endLine": 150,
           "tokens": 4246,
-          "summary": "生成：2026-10-14 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-15 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5575,
       "lines": 86,
-      "sha256": "7fb8e3760b9fb7b3ea054eb5c8ef51aad9cd3dc8020ac7616d26fbd69926dfff",
+      "sha256": "7eb3144df32098ac3ac22745a0650acf6ceea42a79ac33891cccb68538067a8c",
       "tier": "normal",
       "sections": [
         {
@@ -732,7 +732,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 300 行 / 28267 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 300 行 / 28408 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -30745,17 +30745,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 40174,
-      "lines": 86,
-      "sha256": "0f08341e1e143bee3f07b179876d8c6ecaf56c8e6d8b108e44dc9d195544c31b",
+      "tokens": 41278,
+      "lines": 88,
+      "sha256": "bf09475d5ba55d6dc142dd4fda96300c92d06df0dfe026433bcdf63d50d3084b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 87,
-          "tokens": 40156,
+          "endLine": 89,
+          "tokens": 41260,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -30770,8 +30770,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 87,
-          "tokens": 39998,
+          "endLine": 89,
+          "tokens": 41102,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -30783,9 +30783,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 28267,
+      "tokens": 28408,
       "lines": 300,
-      "sha256": "ba4bb8aed2125895024d9272c1f30a0780702153927a50a1b8add609fedf22e2",
+      "sha256": "27a7bdffe565da934f39a1fbe0a9efe682ad1db70be0c946b2faa53b1deeeb45",
       "tier": "hot",
       "sections": [
         {
@@ -30793,7 +30793,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 301,
-          "tokens": 28250,
+          "tokens": 28391,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.71 · 任务号 延续 WXG-T-268（v1.71 = ",
           "keywords": [
             "Systems",
@@ -30836,7 +30836,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 255,
-          "tokens": 19932,
+          "tokens": 20073,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -30852,7 +30852,7 @@
           "level": 3,
           "startLine": 69,
           "endLine": 85,
-          "tokens": 2474,
+          "tokens": 2615,
           "summary": "DESIGN_W 750 设计分辨率宽（px），与 breakout 一致（已裁定）",
           "keywords": [
             "DESIGN_W",
