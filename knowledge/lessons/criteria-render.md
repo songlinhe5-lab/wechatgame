@@ -42,7 +42,6 @@
   ② ⚠ **dpr 越高不等于越明显**（与直觉相反）：dpr 3 未检出，dpr 1/2 的 `zoom 1.0` 反而检出 ⇒ 白线是**窄窗口现象**。⚠ 顺带纠一处**我自己写错的推论**：外扩量在**设计域**，重叠的**设备**像素 = `zoom × dpr`（不是「dpr ≥ 1 ⇒ 恒 ≥ 1 设备px」）。
   ⛔ 残留边界：以上若为 harness/Chromium 口径，则 **iOS Safari 的 AA 规则一致性未证**（Canvas2D 光栅化跨引擎无强规范）。
   判例引用：`games/beads/src/config/tuning.ts::TILE_BLEED`（含完整剖面、取值依据与判例）、`games/beads/src/view/bead-render.ts::drawTargetTile`、`games/beads/tests/view-model.test.ts`（宽度过滤器 + 「恰好重叠 1px」腿）、`games/beads/tests/__fixtures__/wxg-t-211-s3-seal.json`（`provenance.s3_frame_recheck_7` = 第七次复评归因，含两臂对照实测）；同族 K-051（纸面推论须实测复算——本例「看着别扭」直到剖面才落成量化）、K-060（筛出 0 条的空断言是伪绿）、K-040（判据变更归因）、K-092（定点复现参数是定位相位类问题的前提）。
-
 - **[判据渲染][K-102] 给渲染链加「跳帧」类优化时，落点选在回调时机而不是返回值形状；形状一变就击穿整帧封箱基线，而跳帧带来的宿主契约变化必须同批登记**（来源 WXG-T-248 / ADR-0030 §5.0.2，2026-10-05）
   现象：要做「内容没变就不重画」。候选落点有三：① 游戏侧声明 revision；② 把指纹塞进 `RenderModel` 返回对象；③ 在 `App._render` 跳过 `onRender`。其二是陷阱：
   `RenderModel` 多一个字段 ⇒ `wxg-t-211-s3-seal.json` 这类以 `JSON.stringify` 为口径的**整帧封箱基线当场漂移**，必须走 QA 复评才能接着跑。
@@ -61,7 +60,6 @@
   新上限随之换位置：指纹计纹理**引用**（`textureId`）不计像素 ⇒ 就地重烘同 id 纹理对门控隐形；登记时必同时列出**为何今日安全**（内容入 key）与**何时失效**（出现就地重烘的生产者）。
   判例引用：`packages/framework/src/core/render/render-model.ts::signature`、`packages/framework/src/compose/app.ts::_render`/`dirtyGate`、
   `docs/architecture/control-manifest.md §8`、`production/qa/beads/evidence/carrier-bench/gate-ab*/`；同族 K-082（封箱基线只归因不代改）、K-084（冻结量换源需同批登记复评）、K-100（先量脏帧再比载体）。
-
 - **[判据渲染][K-117] tint mask 的透明度不在 A 通道：像素审计必须逐通道，「哪张是权威资产」用重跑生成器比 md5 判定**（来源 WXG-T-257 / WXG-T-258，2026-10-05）
   现象：用户问「这张 mask 是透明底吗」。PIL 采样 8 个点全部 `(178,0,255,255)` ⇒ 我据此答「整张均匀不透明」；
   而真正的结构（斜面环 / 格底 / 格外）与「用户看到的那张红底图」的差别**全在 B 通道**，A 恒 255。

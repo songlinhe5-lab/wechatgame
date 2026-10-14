@@ -2088,10 +2088,10 @@
     {
       "id": "K-126",
       "state": "active",
-      "file": "knowledge/lessons/criteria-render.md",
-      "category": "判据渲染",
+      "file": "knowledge/lessons/criteria-measure.md",
+      "category": "判据实测",
       "title": "同一张美术在不同像素网格下量出的「设计 px」并不相同 ⇒ 跨批复用实测值前先对齐网格",
-      "contentHash": "4716c5ad5efb7f97057c4aed51b39d94586b5f39732a213d890540fccefe275c",
+      "contentHash": "3dd82ef4f5ef358de4e4b2449342cc9a5deb8bdca969639241334c5f09af074e",
       "sourceTask": null,
       "addedDate": "2026-10-13",
       "lastAccess": "2026-10-13",
@@ -2105,10 +2105,10 @@
     {
       "id": "K-127",
       "state": "active",
-      "file": "knowledge/lessons/toolchain.md",
-      "category": "工具链",
+      "file": "knowledge/lessons/toolchain-image.md",
+      "category": "工具链图像",
       "title": "PIL `ImageDraw.floodfill` 在 `L` 模式图上静默不灌（0 像素变化、不报错）⇒ 二值补洞别用它",
-      "contentHash": "a578a26ac641c544a9a8881afe4f498fd582171462d32bf402afc925107e3b3a",
+      "contentHash": "8eeacc9dda0504cddfb52c8526613fe81c31531c9e695b69c698131d1009ae67",
       "sourceTask": null,
       "addedDate": "2026-10-13",
       "lastAccess": "2026-10-13",
@@ -2122,10 +2122,10 @@
     {
       "id": "K-128",
       "state": "active",
-      "file": "knowledge/lessons/criteria-render.md",
-      "category": "判据渲染",
+      "file": "knowledge/lessons/criteria-measure.md",
+      "category": "判据实测",
       "title": "在暖色浅底上抠「亮白但自带渐变」的实体：判据要用",
-      "contentHash": "1649ec8d696f973d2ec04c683da05ac2fa8d796aa20dd4d99e08b6cadec3f02a",
+      "contentHash": "906000f9220323be891e779f20a80ac02947f12b32be8df6ce2cd16dba9ed9b7",
       "sourceTask": null,
       "addedDate": "2026-10-13",
       "lastAccess": "2026-10-13",
@@ -2156,10 +2156,10 @@
     {
       "id": "K-130",
       "state": "active",
-      "file": "knowledge/lessons/criteria-render.md",
-      "category": "判据渲染",
+      "file": "knowledge/lessons/criteria-measure.md",
+      "category": "判据实测",
       "title": "量「某件的底缘在第几行」必须把「本体描边」与「柔投影」分成两个读数，占比型判据会系统性把投影算进本体",
-      "contentHash": "618e07c369c6a80a6090e45adf8afa012cdc670b51f4a6dc2104528a4391450c",
+      "contentHash": "fa604aafe5ac6f73da31b999f68bb240a82c33c85d67ef5ccab9f45802c4f22c",
       "sourceTask": null,
       "addedDate": "2026-10-14",
       "lastAccess": "2026-10-14",
@@ -2173,10 +2173,10 @@
     {
       "id": "K-131",
       "state": "active",
-      "file": "knowledge/lessons/criteria-render.md",
-      "category": "判据渲染",
+      "file": "knowledge/lessons/criteria-measure.md",
+      "category": "判据实测",
       "title": "当作「后续测量基准」交付的位图必须无损编码，有损重编码会让「未改动区域逐字节相同」这条自证直接失效",
-      "contentHash": "9091799e7e548af3ee1711c6aae91a036e8aa9e118603e150748b30a283b51cd",
+      "contentHash": "61dcb3ae921ee6ce30dca7601bf91372e04278c27290b07a625748aa9fe3a301",
       "sourceTask": null,
       "addedDate": "2026-10-14",
       "lastAccess": "2026-10-14",
@@ -3311,6 +3311,19 @@
         "K-133",
         "K-134",
         "K-135"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-15",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-126",
+        "K-127",
+        "K-128",
+        "K-130",
+        "K-131"
       ],
       "note": null
     }
