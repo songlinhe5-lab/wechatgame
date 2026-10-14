@@ -35,7 +35,14 @@
  */
 
 import type { Game, GameServices, RenderModelBuilder } from '@wxgame/framework';
-import { FACET4_STYLE_ID, BEAD_SIZE_DEFAULT, STAMINA_START_COST, WALL_CAPACITY } from '../config/tuning.js';
+import {
+    FACET4_STYLE_ID,
+    BEAD_SIZE_DEFAULT,
+    MENU_TOPBAR_TOP_FALLBACK,
+    STAMINA_START_COST,
+    WALL_CAPACITY,
+    menuTopbarTop,
+} from '../config/tuning.js';
 import { BeadsGame, type BeadsGameOptions } from './beads-game.js';
 import { LEVELS } from '../config/levels.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
@@ -126,6 +133,12 @@ export class BeadsShell implements Game {
         coins: 0,
         overlay: 'none' as MetaOverlay,
         signinDay: 0,
+        /**
+         * 顶栏深度（§5.1b 裁定 B：逐机动态避让）。**init 时算定一次 ⇒ 全程不改**，
+         * 故当常量存进复用对象（非每帧重算）。绘制腿与 {@link _dispatchMetaTap} 的命中腿
+         * **共读本值**（否则画位与热位逐机错位）。未 `init`（单测直构 shell）⇒ 留兜底档 124。
+         */
+        topbarTop: MENU_TOPBAR_TOP_FALLBACK,
         canClaim: false,
         bgmMuted: false,
         debugInfo: false,
@@ -190,6 +203,12 @@ export class BeadsShell implements Game {
 
     init(services: GameServices): void {
         this._services = services;
+        // 顶栏避让：两个入参全部来自平台接口（胶囊底缘 dp / 屏宽 dp）；无接口⇒ 124（定稿图档）。
+        // 顺序保证：合成配方先 `viewport.resize(screen)` 再 `game.init(services)` ⇒ 此处 `fit` 已就绪。
+        this._viewData.topbarTop = menuTopbarTop(
+            services.platform.capsuleBottomDp,
+            services.viewport.fit.screenWidth,
+        );
         this.play.init(services);
         const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
         this.meta = new MetaState({
@@ -281,7 +300,7 @@ export class BeadsShell implements Game {
 
     /** 命中 + 派发的唯一腿（菜单 / overlay 共用）；返回是否被控件消费。 */
     private _dispatchMetaTap(x: number, y: number): boolean {
-        const btn = hitTestMeta(this._overlay, x, y);
+        const btn = hitTestMeta(this._overlay, x, y, this._viewData.topbarTop);
         if (!btn) return false;
         return this._applyMetaAction(btn);
     }

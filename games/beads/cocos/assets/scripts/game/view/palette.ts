@@ -49,7 +49,7 @@ function maxPatternColorIndex(pattern: readonly string[] | undefined): number {
 }
 
 /** 全部受支持色板（品牌色板）的注册表：slug → { codes, palette, source, note }。
- *  数据同源 `games/beads/art/*.json`，与 beads-studio / beads-gen 一致（v1.39）。
+ *  数据同源 `games/beads/design/art/specs/*.json`，与 beads-studio / beads-gen 一致（v1.39）。
  *  v1.40 起 game-10 不再是注册表成员（珠色真源已迁关卡数据）。 */
 export { PALETTES };
 /** 按 slug 取色板（如 'artkal-s'）；未知 slug → null。
@@ -62,7 +62,7 @@ export function getBeadPalette(slug: string): BeadsPaletteEntry | null {
 
 /**
  * slug → { name, family, mm, dip, colors }：品牌豆径 mm 与每颗标准像素 dip 的**只读派生表**
- *（真源 = `games/beads/art/<slug>.json` 的 `beadMm`，dip 由 `tools/scripts/sync-palettes.mjs`
+ *（真源 = `games/beads/design/art/specs/<slug>.json` 的 `beadMm`，dip 由 `tools/scripts/sync-palettes.mjs`
  *  的唯一 `dip(mm)` 在生成期算出；漂移门 `palettes:check`）。
  *
  * ⚠ **不参与渲染几何**：本表是品牌物理口径（照片算珠数 / 成品尺寸 / 未来选档），
@@ -239,7 +239,7 @@ export interface BeadsPalette {
   readonly bannerBackdrop: string;
   readonly bannerText: string;
   // ───────── [EP12-S2 · 2026-10-07 用户裁 P-3=24 同批] 容器/控件语言 token ────────
-  // 真源 = `design/proposals/ui-style-redesign/tokens.md` §1（定稿）；材质语义 =
+  // 真源 = `games/beads/design/art/proposals/ui-style-redesign/tokens.md` §1（定稿）；材质语义 =
   // 「木 = 可交互，纸 = 承载信息，胶囊/描边 = 状态」（art-bible-proposal §4）。
   // ⛔ 不动项边界：本族只服务 UI 容器/控件，**珠面/格面/托盘槽零消费**（art-bible §7）。
   /** 投影/内阴影 α 叠层墨（tokens.md `shadow_ink` 暖可可；原恒定冷墨 `#1E2033` 的
@@ -265,11 +265,21 @@ export interface BeadsPalette {
   readonly cardDisabledBorder: string;
   /** 纸面禁用态字（tokens.md `text_disabled`，对比豁免登记于 risks R-8）。 */
   readonly textDisabled: string;
+  // ───── L4 门楣价目牌族（`menu-architecture §5.1b-2` 第九批设计 / 第十一批落码）─────
+  // 三枚值 = **定稿图门楣梁面图内实测**（⛔ 不是 `wood_*` 族的推导值：该族服务扁平矢量
+  // 主钮，牌面要贴画面里的梁木 ⇒ 同色相不同档）。数值字墨**复用 `woodText`**（实测奶油
+  // `#FCF6EB` 与之差 ΔE 不可辨 ⇒ 零新 hex）。资产卡 = `art/menu-showcase-asset-spec.md` B4。
+  /** 牌面（定稿图门楣**下缘描边**实测 `(140,92,42)`；深牌浅字 ⇒ 对 `woodText` 对比 5.3:1 ✓）。 */
+  readonly plaqueFace: string;
+  /** 牌体描边（比牌面再暗一档 `(96,60,26)`，同 `wood_edge` 的「底缘暗线」语义）。 */
+  readonly plaqueEdge: string;
+  /** 牌体上沿受光线 + 两端铆钉（= 梁顶亮部实测 `(247,205,157)`，同 `wood_sheen` 语义）。 */
+  readonly plaqueBevel: string;
 }
 
 export const DEFAULT_PALETTE: BeadsPalette = {
   // [WXG-T-268 · 2026-10-07 用户裁 D-2 甲案「暖纸拼豆台」] UI 基础色板换值批：
-  // 真源 = `design/proposals/ui-style-redesign/tokens.md` §1（定稿）⇒ 回写 `art-bible §3.1`（R-7），
+  // 真源 = `games/beads/design/art/proposals/ui-style-redesign/tokens.md` §1（定稿）⇒ 回写 `art-bible §3.1`（R-7），
   // 本对象为其消费副本。冷紫灰底（v1.3 丙案「双色温对撞」）整体作废，对撞轴改「暖纸静底 × 糖果珠」。
   // ⚠ 换值 5 项：bg_base / panel / panel_border / accent_primary（并入木色）/ ad_badge（= wood_face 引用值）；
   //   `text_primary #2A2E43` 不改 ⇒ `PANEL_SCRIM_RGB (42,46,67)` 零变动（ux v1.16 口径不破）；
@@ -312,6 +322,10 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   cardDisabled: '#F7F2E6', // card_disabled
   cardDisabledBorder: '#EAE0CC', // card_disabled_border
   textDisabled: '#B4A98F', // text_disabled（R-8 对比豁免）
+  // L4 门楣牌族（2026-10-13 用户裁「牌面色是加令牌」⇒ 入表；真源 tokens.md §1「新」行）。
+  plaqueFace: '#8C5C2A', // 牌面（门楣下缘实测）
+  plaqueEdge: '#603C1A', // 牌体描边
+  plaqueBevel: '#F7CD9D', // 上沿受光线 + 铆钉（梁顶亮部实测）
 };
 
 /**

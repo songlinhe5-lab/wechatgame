@@ -3,12 +3,12 @@
  *
  * ## 为什么单独成文件（而不是住在 `meta-view.ts`）
  * `meta-view.ts` 的既有职能 = **版面 / 热区 / 容器**（真源 `menu-architecture §5.1–§5.4`）；本文件的职能 =
- * **把布尔位表与关卡 `pattern` 翻成珠体命令**（真源 `games/beads/art/menu-wall-signage-spec.md` T-1）。
+ * **把布尔位表与关卡 `pattern` 翻成珠体命令**（真源 `games/beads/design/art/specs/menu-wall-signage-spec.md` T-1）。
  * 两个真源、两种变更节奏（档位随 art 回写搬家、版面随 ux 回写搬家），混在一处会让「菜单帧图元差分」（K-6）
  * 与热区表互相牵动。判例形状 = `view/bead-styles/*`（层集住风格文件、调用侧只调）。
  * **装配点仍在 `meta-view::buildMetaView`** ⇒ 本模块不自行决定「画不画、画在哪一带」（L5 同族纪律）。
  *
- * ## S0 五条硬接线约束（`design/proposals/ui-style-redesign/screens.md` §42–§47）逐条落点
+ * ## S0 五条硬接线约束（`games/beads/design/art/proposals/ui-style-redesign/screens.md` §42–§47）逐条落点
  * ① **只复用珠体绘制、⛔ 不改珠面 recipe**：两条腿都只调 `bead-render.ts::drawFilledBead`（与盘面/托盘珠
  *   **同一通道**）⇒ 系数恒 **7 命令/颗**（`facet-4` = 1 `rect` plate + 4 `polygon` 扇 + 2 `circle` 孔，
  *   T-1 §0.3）；层集 / 系数 / 倒角 / 风格池零涉入，蜡笔不入，⛔ 不造「UI 简化珠」第二通道（T-1 §3.7）。

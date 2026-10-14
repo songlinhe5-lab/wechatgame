@@ -31,13 +31,23 @@ import {
     CAROUSEL_THUMB_N,
     CAROUSEL_THUMB_AREA,
     CAROUSEL_TEXT_BAND,
+    MENU_PLAQUE_BEVEL_INSET,
+    MENU_PLAQUE_H,
+    MENU_PLAQUE_ICON_INSET,
+    MENU_PLAQUE_RIVET_INSET,
+    MENU_PLAQUE_RIVET_R,
+    MENU_PLAQUE_STROKE,
+    MENU_PLAQUE_W,
+    MENU_PLAQUE_X,
+    MENU_PLAQUE_Y,
     MENU_PRIMARY_W,
     MENU_PRIMARY_Y,
-    MENU_ROW_GAP,
-    MENU_SECONDARY_GAP,
-    MENU_SECONDARY_W,
     MENU_SLOGAN_Y,
     MENU_TITLE_Y,
+    MENU_TOPBAR_RESERVED_ALPHA,
+    MENU_TOPBAR_TOP_FALLBACK,
+    MENU_TOPBAR_VISUAL_D,
+    MENU_TOPBAR_X,
     MENU_VERSION_Y,
     SETTINGS_SCRIM_ALPHA,
     SIGNIN_REWARDS,
@@ -67,6 +77,9 @@ import type { BeadSizeKind } from '../config/tuning.js';
 // EP12-S6 · T-2B：珠拼图元（招牌 `beadText` + 作品格缩略）的装配入口。本文件只**调用**，
 // ⛔ 不在此处复算位表/聚合口径（真源各住 `config/sign-glyphs.ts` 与 `view/menu-signage.ts`）。
 import { drawBeadText, drawLevelThumb, resetSignageWarnings } from './menu-signage.js';
+// 顶栏设置钮的齿轮图元 = 对局页 HUD 齿轮**同一程序化画法**（§5.1b 收口 ③：两处**入口语义**不合并，
+// 但画法不得各信一份 ⇒ 图元函数复用，零新美术）。
+import { drawGear } from './view-model.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
 
 export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels';
@@ -79,6 +92,13 @@ export interface MetaViewData {
     readonly overlay: MetaOverlay;
     /** 当日签到格（`claims % 7`）。 */
     readonly signinDay: number;
+    /**
+     * 顶栏深度（**自顶**，设计 px）= 逐机值。shell 在 `init` 时按
+     * `menuTopbarTop(platform.capsuleBottomDp, viewport.fit.screenWidth)` 算定一次并恒存 ⇒ 每帧只读整数。
+     * ⚠ 可选（≠ 可省）：旧调用方/单测不传 ⇒ 走 {@link MENU_TOPBAR_TOP_FALLBACK}（= 定稿图档 124），
+     * 版面与热区与本字段引入前逐字节一致。热区与绘制**必须共读本字段**（否则「画 A 位、按 B 位命中」）。
+     */
+    readonly topbarTop?: number;
     readonly canClaim: boolean;
     // settings overlay（复用 S9 开关集，ux-spec v1.7 §2；debug-info 为 v1.19 菜单侧同串值入口）
     readonly bgmMuted: boolean;
@@ -213,10 +233,17 @@ const _layouts = new Map<MetaOverlay, MetaLayout>();
  * ⛔ 生产链路不传 variant ⇒ 本缓存恒空。
  */
 const _layoutsByRows = new Map<MetaOverlay, Map<number, MetaLayout>>();
+/**
+ * **顶栏逐机档缓存**（仅主菜单 `'none'`；键 = `topbarTop` 设计 px）。
+ * 顶栏深度一台机一个值（`init` 时算定 ⇒ 全程恒定）⇒ 本表实际只会有 1–2 个 entry。
+ * ⛔ 不得用字符串拼接键（`buildRenderModel` 每帧走 `metaLayout` ⇒ 字符串键 = 每帧分配，破 §2 热路径零分配）。
+ */
+const _layoutsByTop = new Map<number, MetaLayout>();
 
 const FONT_TITLE = '64px sans-serif';
 const FONT_BUTTON = '30px sans-serif';
-const FONT_SMALL = '24px sans-serif';
+// ⚠ 旧 `FONT_SMALL`（24px）已于第十一批随 L4 门楣牌改写退场：该档**低于 accessibility E1 地板 28**
+//   ⇒ 零消费者后直接删（`noUnusedLocals` 在册）；要更小字号请先解 E1 约束。
 const FONT_CELL = '22px sans-serif';
 /** `tokens.md §5` `font_label` = 28（slogan / 版本号；字族归 T-2B 美术，本批系统字体占位）。 */
 const FONT_LABEL = '28px sans-serif';
@@ -250,6 +277,10 @@ const CAROUSEL_BOX: Box = box(
 );
 /** 星级_label 查表（取代旧每帧 `'★'.repeat(n)+'☆'.repeat(3-n)` ⇒ 逐字同串、每帧零字符串分配）。 */
 const STAR_LABELS: readonly string[] = ['☆☆☆', '★☆☆', '★★☆', '★★★'];
+/** 顶栏预留不实现（公告 / 信箱）两颗的热区**左缘**（只画不注册热区，§5.1b）。 */
+const TOPBAR_RESERVED_X: readonly number[] = [MENU_TOPBAR_X.notice, MENU_TOPBAR_X.mail];
+/** 门楣牌铆钉的**左缘偏移**（牌体左缘起算，两颗）；住模块级 ⇒ ⛔ 不在热路径现造 `[a, b]`（判例同 {@link TOPBAR_RESERVED_X}）。 */
+const PLAQUE_RIVET_DX: readonly number[] = [MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_W - MENU_PLAQUE_RIVET_INSET];
 
 /**
  * 生成 `WALL_CAPACITY`（4×3 = 12）个作品格热区。只带**槽位**——关索引由 shell 的
@@ -281,27 +312,33 @@ function pushWallCells(buttons: MetaButton[], startX: number, topY: number, rows
 }
 
 /**
- * 主菜单版面（menu-architecture §1.3 第五轮终裁后，750×1334，y 向上）：
- * 招牌 → slogan → **走马灯小卡**（原 4×3 作品墙下移 `levels` overlay）→ 主钮 → 次级 2 钮 → 版本号。
+ * 主菜单版面（menu-architecture §1.3 第五轮 + §5.1b 2026-10-13 顶栏裁定，750×1334，y 向上）：
+ * 顶栏三钮 → 招牌 → slogan → **走马灯小卡**（原 4×3 作品墙下移 `levels` overlay）→ 主钮 → 版本号。
  * 走马灯卡 = **菜单唯一选关入口**（热区 = 卡本体，`id = 'open-levels'`）；
  * ⛔ **不设独立选关钮**（一个动作一个控件），§5.4 口径③「零第三入口」仍成立（入口 = 卡本体）。
+ *
+ * @param topbarTop 顶栏**顶缘自顶**深度（设计 px）⇒ 热区顶 `y = DESIGN_H - topbarTop`。
+ *                  缺省走 `MENU_TOPBAR_TOP_FALLBACK` 124 ⇒ 与 §5.1b 落位表（非刘海基准）逐字一致。
+ *
+ * **右上两颗（公告 / 信箱）不注册热区**（§5.1b 三钮语义表：⛔ 预留不实现）⇒
+ * 画禁用态空圆但**点了零事件**，同「未解锁格 = 零热区」口径（不误导）。`open-signin` 动作与
+ * shell 的 overlay 腿按裁定**保留不删**（信箱实装前不可达）。设置钮左上⇒ 不与右上胶囊争。
  */
-function menuLayout(_rows: number): MetaLayout {
+function menuLayout(_rows: number, topbarTop: number): MetaLayout {
     const cx = DESIGN_W / 2;
     const buttons: MetaButton[] = [];
     // L1 走马灯小卡（热区 = 卡整块 ⇒ 点卡开选关页；卡内零子按钮）。
     buttons.push({ id: 'open-levels', box: CAROUSEL_BOX });
     // 主钮「开始游戏」= 唯一「继续**当前关**」通道（§5.4 口径 1，语义不变）。
-    const primaryY = MENU_PRIMARY_Y;
-    buttons.push({ id: 'start', box: box(cx - MENU_PRIMARY_W / 2, primaryY, MENU_PRIMARY_W, TOUCH_MIN) });
-    // 次级入口 **3→2 钮**（签到 / 设置）：P-5 收敛 = `2×240 + 24 = 504 ≤ 750`（旧 3 钮 768 ⇒ 每边溢出 9px）。
-    const secY = primaryY - TOUCH_MIN - MENU_ROW_GAP;
-    const total = MENU_SECONDARY_W * 2 + MENU_SECONDARY_GAP;
-    const left = cx - total / 2;
-    buttons.push({ id: 'open-signin', box: box(left, secY, MENU_SECONDARY_W, TOUCH_MIN) });
+    buttons.push({
+        id: 'start',
+        box: box(cx - MENU_PRIMARY_W / 2, MENU_PRIMARY_Y, MENU_PRIMARY_W, TOUCH_MIN),
+    });
+    // L6 顶栏（y 向上 ⇒ `box.y` = 热区**下缘** = 顶缘 − 88）。非刘海档：y∈[1122,1210] = §5.1b 表逐字值。
+    const topY = DESIGN_H - topbarTop;
     buttons.push({
         id: 'open-settings',
-        box: box(left + MENU_SECONDARY_W + MENU_SECONDARY_GAP, secY, MENU_SECONDARY_W, TOUCH_MIN),
+        box: box(MENU_TOPBAR_X.settings, topY - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN),
     });
     return { buttons, signinCells: [] };
 }
@@ -399,22 +436,36 @@ function settingsLayout(): MetaLayout {
     return { buttons, signinCells: [] };
 }
 
-function buildLayout(overlay: MetaOverlay, rows: number): MetaLayout {
+function buildLayout(overlay: MetaOverlay, rows: number, topbarTop: number): MetaLayout {
     return overlay === 'signin' ? signinLayout()
         : overlay === 'settings' ? settingsLayout()
             : overlay === 'levels' ? levelsLayout(rows)
-                : menuLayout(rows);
+                : menuLayout(rows, topbarTop);
 }
 
 /**
  * Cached layout for one overlay. `rows` 只服务 K-6 差分（生产不传 ⇒ 走默认档一级缓存，
  * 与本参引入前**逐字节一致**）；⛔ 不得当运行时降本开关用（热区口径见 {@link hitTestMeta}）。
+ *
+ * `topbarTop`（仅主菜单腿有用）= 逐机顶栏深度 ⇒ **数值键**二级缓存（{@link _layoutsByTop}）；
+ * 其余 overlay 的版面不吃顶栏深度 ⇒ 仍走 {@link _layouts}，与本参引入前同一张表。
  */
-export function metaLayout(overlay: MetaOverlay, rows: number = WALL_ROWS): MetaLayout {
+export function metaLayout(
+    overlay: MetaOverlay,
+    rows: number = WALL_ROWS,
+    topbarTop: number = MENU_TOPBAR_TOP_FALLBACK,
+): MetaLayout {
+    if (overlay === 'none' && rows === WALL_ROWS && topbarTop !== MENU_TOPBAR_TOP_FALLBACK) {
+        const byTop = _layoutsByTop.get(topbarTop);
+        if (byTop !== undefined) return byTop;
+        const built = buildLayout(overlay, rows, topbarTop);
+        _layoutsByTop.set(topbarTop, built);
+        return built;
+    }
     if (rows === WALL_ROWS) {
         let layout = _layouts.get(overlay);
         if (!layout) {
-            layout = buildLayout(overlay, rows);
+            layout = buildLayout(overlay, rows, topbarTop);
             _layouts.set(overlay, layout);
         }
         return layout;
@@ -426,7 +477,7 @@ export function metaLayout(overlay: MetaOverlay, rows: number = WALL_ROWS): Meta
     }
     const cached = byRows.get(rows);
     if (cached !== undefined) return cached;
-    const layout = buildLayout(overlay, rows);
+    const layout = buildLayout(overlay, rows, topbarTop);
     byRows.set(rows, layout);
     return layout;
 }
@@ -435,9 +486,16 @@ export function metaLayout(overlay: MetaOverlay, rows: number = WALL_ROWS): Meta
  * Resolve a tap on the current screen; `null` when nothing is hit. 返回按钮（携 levelIndex）。
  * ⚠ 恒按**默认陈列行数**查表（`WALL_ROWS`）⇒ 与 `buildMetaView` 的默认腿同源；若未来真要启用
  * 变参行数，必须同批改本函数的 rows 入参口径（否则「画 2 行、按 3 行命中」= 热区漂移）。
+ * ⚠ `topbarTop` 必须与 `buildMetaView` 画的**同一个值**（同读 `MetaViewData.topbarTop`）⇒
+ * 否则顶栏钮会出现「画在上、命中在下」的逐机错位（§5.1b 裁定 B 的动态避让就此失效）。
  */
-export function hitTestMeta(overlay: MetaOverlay, x: number, y: number): MetaButton | null {
-    for (const b of metaLayout(overlay).buttons) {
+export function hitTestMeta(
+    overlay: MetaOverlay,
+    x: number,
+    y: number,
+    topbarTop: number = MENU_TOPBAR_TOP_FALLBACK,
+): MetaButton | null {
+    for (const b of metaLayout(overlay, WALL_ROWS, topbarTop).buttons) {
         if (inBox(b.box, x, y)) return b;
     }
     return null;
@@ -514,21 +572,81 @@ function drawButton(
     });
 }
 
-/** Draw the resource bar (体力 ❤ / 币 🪙) — shared by menu + overlays. */
+/**
+ * L4 资源条 = **钉在展示窗门楣的一条价目牌**（`menu-architecture §5.1b-2` 第九批设计 /
+ * 第十一批落码 2026-10-13）。牌体 x 150–600 × y-up 872–910（= 走马灯卡顶缘 + Δ12），
+ * 只读 ⇒ **零热区**（§5.2 L4）。
+ *
+ * - **图标腿**：`❤` / `🪙` **emoji 占位**（沿用本函数既有字面）。⛔ 本批不自造程序化心/币
+ *   画法 —— 图标形状归切图规格 B5/B6，位图腿受「WebP 能否作 Cocos ImageAsset 源」未验证
+ *   前提约束（§5.1b-2）⇒ 接腿是独立一单；
+ * - **数值字号** = `FONT_LABEL` 28 = accessibility **E1 地板**。⚠ 第九批登记的「26 px」低于
+ *   地板 ⇒ 作废（同批注）；图标与数值合为一条 text ⇒ 每端 1 命令（共 2 条，非 4 条）；
+ * - **墨色全读 palette**：牌面 `plaque_face` / 描边 `plaque_edge` / 亮线与铆钉 `plaque_bevel` /
+ *   字 `wood_text`（对牌面 5.3:1 ✓）⇒ 视图内零 hex 字面（control-manifest §3）。
+ */
 function drawResourceBar(builder: RenderModelBuilder, data: MetaViewData, palette: BeadsPalette): void {
-    const y = DESIGN_H - 180; // 胶囊避让带（y≥1214）之下
-    builder.text(40, y, `❤ ${data.stamina}/${data.staminaMax}`, {
-        fill: palette.text,
-        font: FONT_SMALL,
+    const x = MENU_PLAQUE_X;
+    const y = MENU_PLAQUE_Y;
+    const cy = y + MENU_PLAQUE_H / 2;
+    builder.rect(x, y, MENU_PLAQUE_W, MENU_PLAQUE_H, {
+        fill: palette.plaqueFace,
+        stroke: palette.plaqueEdge,
+        lineWidth: MENU_PLAQUE_STROKE,
+        radius: UI_CONTAINER.radiusChip,
+    });
+    // 上沿受光线（与描边同档宽）：坐在顶缘描边**内侧**，⛔ 压住圆角段。
+    const sheenY = y + MENU_PLAQUE_H - MENU_PLAQUE_STROKE;
+    builder.line(
+        x + MENU_PLAQUE_BEVEL_INSET, sheenY,
+        x + MENU_PLAQUE_W - MENU_PLAQUE_BEVEL_INSET, sheenY,
+        palette.plaqueBevel, MENU_PLAQUE_STROKE,
+    );
+    for (const dx of PLAQUE_RIVET_DX) {
+        builder.circle(x + dx, cy, MENU_PLAQUE_RIVET_R, { fill: palette.plaqueBevel });
+    }
+    builder.text(x + MENU_PLAQUE_ICON_INSET, cy, `❤ ${data.stamina}/${data.staminaMax}`, {
+        fill: palette.woodText,
+        font: FONT_LABEL,
         align: 'left',
         baseline: 'middle',
     });
-    builder.text(DESIGN_W - 40, y, `🪙 ${data.coins}`, {
-        fill: palette.text,
-        font: FONT_SMALL,
+    builder.text(x + MENU_PLAQUE_W - MENU_PLAQUE_ICON_INSET, cy, `${data.coins} 🪙`, {
+        fill: palette.woodText,
+        font: FONT_LABEL,
         align: 'right',
         baseline: 'middle',
     });
+}
+
+/**
+ * L6 顶栏三钮（§5.1b 落位表）。视觉圆 **Ø59 居中于 88×88 热区**（推导 2：热区不得互叠）。
+ * - **左上 设置**（本批实装）= 白圆 + 齿轮，齿轮画法与对局页 HUD **同一函数**
+ *   （§5.1b 收口 ③：裁的是「入口语义不合并」，不是图元不复用 ⇒ 零新画法、零新美术）；
+ * - **右上两颗**（公告 / 信箱）= 预留不实现 ⇒ 只画禁用态空圆（α 0.5），⛔ **不画图标**
+ *   （图标形状归切图规格 B2/B3，且本批未定取色 ⇒ 零自造）；热区也不注册（见 {@link menuLayout}）。
+ *
+ * ⚠ 圆钮无文字 ⇒ 不走 {@link drawButton}（那个是给矩形纸钮用的）。
+ */
+function drawTopbar(builder: RenderModelBuilder, palette: BeadsPalette, topFromTop: number): void {
+    const cy = DESIGN_H - topFromTop - TOUCH_MIN / 2; // 热区中心 = 视觉圆中心
+    const r = MENU_TOPBAR_VISUAL_D / 2;
+    const cxc = MENU_TOPBAR_X.settings + TOUCH_MIN / 2;
+    builder.circle(cxc, cy, r, {
+        fill: palette.panel,
+        stroke: palette.panelBorder,
+        lineWidth: 2,
+    });
+    drawGear(builder, cxc, cy, palette);
+    // 数组住模块级（`buildMetaView` 每帧走本函数 ⇒ ⛔ 不在热路径 `[a, b]` 现造）。
+    for (const x of TOPBAR_RESERVED_X) {
+        builder.circle(x + TOUCH_MIN / 2, cy, r, {
+            fill: palette.panel,
+            stroke: palette.slotBorder,
+            lineWidth: 2,
+            alpha: MENU_TOPBAR_RESERVED_ALPHA,
+        });
+    }
 }
 
 /**
@@ -688,9 +806,12 @@ export function buildMetaView(
     const rows = variant?.wallRows ?? WALL_ROWS;
     const thumbN = variant?.thumbN ?? THUMB_MATRIX_N;
     const withSignage = variant?.signage !== false;
+    // 顶栏深度：shell 逐机算定一次下传；未传（旧调用方 / 单测）⇒ 定稿图档 124。
+    const topbarTop = data.topbarTop ?? MENU_TOPBAR_TOP_FALLBACK;
     builder.setBackground(palette.background);
     if (data.overlay === 'none') {
         drawResourceBar(builder, data, palette);
+        drawTopbar(builder, palette, topbarTop);
         // L2 招牌（P-7：文案仍**只读 `app_name` 令牌**，⛔ 不散字面）：T-2B 起 = `beadText` 珠拼。
         // `MENU_TITLE_Y` 语义 = **外接框中心**（非 baseline，主理人裁定；见 `menu-signage::signBands`）。
         // 返回 0（位表缺字/档不符）⇒ 回落系统字体，两条腿**互斥**、绝不同屏上两份。
@@ -720,11 +841,11 @@ export function buildMetaView(
             baseline: 'middle',
         });
         // L1 走马灯小卡（卡自绘 ⇒ 其热区 `open-levels` 不走通用钮绘制）。
-        const menuButtons = metaLayout('none', rows).buttons;
+        const menuButtons = metaLayout('none', rows, topbarTop).buttons;
         drawCarouselCard(builder, data, palette);
-        // L3 CTA：主钮 + 次级 2 钮（走马灯卡已在上面自绘 ⇒ 跳过 `open-levels`）。
+        // L3 CTA：主钮（走马灯卡与顶栏钮已在上面各自自绘 ⇒ 跳过）。
         for (const b of menuButtons) {
-            if (b.id === 'open-levels') continue;
+            if (b.id === 'open-levels' || b.id === 'open-settings') continue;
             drawButton(builder, b.box, label(b.id, data), palette, b.id === 'start');
         }
         // 底部版本号（`version_label` · `font_label` 28 · text_secondary）。

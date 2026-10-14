@@ -14,6 +14,7 @@
  * 不发明新色相，全部别名到冷肤既有值/改值前史证——`shadowInk #1E2033`（S1 前 UI
  * 投影墨史证）、wood 族 ≡ 旧 btn_expand 面/字 ink（#2A2E43/#FFFFFF）与冷墨、
  * card/text 族 ≡ slot/slotBorder/locked。未消费态（pressed/disabled）归 S4。
+ * **[§5.1b-2 第十一批]** 同策略追加 `plaque_*` 三枚（门楣牌族）：≡ woodFace/shadowInk/textDim。
  */
 import type { BeadsPalette } from '../../view/palette';
 import type { BeadsSkin } from './registry';
@@ -49,6 +50,10 @@ const COOL_VIOLET_TOKENS: BeadsPalette = Object.freeze({
     cardDisabled: '#F7F6FB',
     cardDisabledBorder: '#D8D5E6', // ≡ slotBorder
     textDisabled: '#B9B4CC', // ≡ locked
+    // [§5.1b-2 第十一批] L4 门楣牌族（冷肤仍走同一别名策略：⛔ 不发明新色相）。
+    plaqueFace: '#2A2E43', // ≡ woodFace（冷面钮墨 ⇒ 深牌面）
+    plaqueEdge: '#1E2033', // ≡ shadowInk（深一档描边，同 woodEdge）
+    plaqueBevel: '#6E7288', // ≡ textDim（受光缘/铆钉，冷肤弱化，判例同 woodSheen）
 });
 
 export const COOL_VIOLET_SKIN: BeadsSkin = Object.freeze({

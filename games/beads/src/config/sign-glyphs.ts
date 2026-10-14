@@ -2,7 +2,7 @@
  * 招牌珠拼字模位表（`beadText`）— WXG-T-269-S6 · 子单 T-2B（EP12-S6 美术半边落码）。
  *
  * ## 真源（⛔ 本文件不自拟字形）
- * `games/beads/art/menu-wall-signage-spec.md`（林绘澄 T-1）**§1.5 推荐档 `10×10 @ d=12` 位表**，
+ * `games/beads/design/art/specs/menu-wall-signage-spec.md`（林绘澄 T-1）**§1.5 推荐档 `10×10 @ d=12` 位表**，
  * 四枚字模 `拼 / 豆 / 小 / 铺` 的 40 枚行字符串**逐字转写**（含每字珠数 37 / 38 / 19 / 54 ⇒
  * 合计 **148 珠**，由 `tests/menu-signage-beadtext.test.ts` 与本表自算值逐字对撞，抄错即红）。
  *

@@ -1156,7 +1156,8 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
 
         for (const [action, expectAlpha] of [
             ['open-settings', SETTINGS_SCRIM_ALPHA],
-            ['open-signin', 0.5],
+            // 2026-10-13 §5.1b 第三批：签到入口随底部纸钮退役（信箱实装前不可达）⇒ 菜单腿不再能驱动
+            // signin overlay；其 `rgba(0,0,0,0.5)` 分支与 `levels` 同由上方**静态穷尽门**钉住（同 Q5① 先例）。
         ] as const) {
             shell.tapMeta(2, 2); // 先归位（back 由下一轮显式点击）
             const c = metaCenter('none', action);

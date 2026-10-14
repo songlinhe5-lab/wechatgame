@@ -73,10 +73,36 @@ export const SAFE_EDGE_MARGIN = 4;
  * @param fallbackH     该边静态兜底值（设计 px），**仅接口无效时生效**。
  */
 export function safeEdgeInset(edgeDp: number, windowWidthDp: number, fallbackH: number): number {
-    const interfaceOk = edgeDp > 0 && windowWidthDp > 0;
-    const designPx = interfaceOk ? Math.round(edgeDp * (DESIGN_W / windowWidthDp)) : fallbackH;
-    return designPx + SAFE_EDGE_MARGIN;
+  const interfaceOk = edgeDp > 0 && windowWidthDp > 0;
+  const designPx = interfaceOk ? Math.round(edgeDp * (DESIGN_W / windowWidthDp)) : fallbackH;
+  return designPx + SAFE_EDGE_MARGIN;
 }
+
+// ─────────── 顶栏三钮（`menu-architecture §5.1b` 2026-10-13 用户裁定 · 版面派生值，⛔ 不进 §3）
+/**
+ * 顶栏热区**顶缘自顶**深度（设计 px）= 胶囊底缘接口值换算 + 余量。
+ * 两个入参全部来自小程序接口（`PlatformInfo.capsuleBottomDp` / `viewport.fit.screenWidth`），
+ * `null`（web / node / 无该 API）⇒ 走 `SAFE_TOP_H` 兜底 ⇒ **harness 与定稿图版面一致**。
+ * ⛔ 不在本函数里 `max` 静态带（判例 K-124）。
+ */
+export function menuTopbarTop(capsuleBottomDp: number | null, windowWidthDp: number): number {
+  return safeEdgeInset(capsuleBottomDp ?? 0, windowWidthDp, SAFE_TOP_H);
+}
+/**
+ * 顶栏深度**兜底档** = 124（= `SAFE_TOP_H + SAFE_EDGE_MARGIN`）= 定稿图版面基准。
+ * 供无平台接口可读的场合（单测查版面、未 `init` 的 shell）显式取用，⛔ 不得当真机值。
+ */
+export const MENU_TOPBAR_TOP_FALLBACK = SAFE_TOP_H + SAFE_EDGE_MARGIN;
+/**
+ * 三颗热区**左缘** x（热区尺寸 = `TOUCH_MIN` 88，不新常量）。逐档实测依据 = §5.1b 落位表：
+ * 左上那颗不受胶囊约束（x∈[24,112] 在定稿图内非背景占比 0.00%）；右上两颗按 **pitch = 88**
+ * 排（定稿图视觉 pitch 70 ⇒ 两热区会重叠 18 px 误触），外颗右缘 736 ⇒ 距屏边 14。
+ */
+export const MENU_TOPBAR_X = { settings: 24, notice: 560, mail: 648 } as const;
+/** 顶栏视觉圆直径（定稿图实测 Ø≈59；§5.1b 推导 1「不必缩钮」）。热区 88 同心包裹。 */
+export const MENU_TOPBAR_VISUAL_D = 59;
+/** 未实装的预留钮（公告 / 信箱）画成禁用态 ⇒ 视觉上在、语义上不承诺可点。 */
+export const MENU_TOPBAR_RESERVED_ALPHA = 0.5;
 /** Puzzle band — the pattern matrix is centred inside it (both axes).
  *
  * ⚠ **§3.1 换尺（本轮用户拍板）：下沿 480 → 560**（带高 640 → 560）。动的理由只有一个：
@@ -670,7 +696,7 @@ export const MISPLACED_PAIRS_MAX = 8;
 
 // ─────────────────────────────────────────── WXG-T-266 EP12-S5 难度分 DI（level-difficulty §3.1）
 /**
- * 结构难度分 `DI` 公式系数（正本 = `design/proposals/ui-style-redesign/level-difficulty.md` §3；
+ * 结构难度分 `DI` 公式系数（正本 = `games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md` §3；
  * 实现 = `game/difficulty.ts::difficultyOf()`，全仓唯一）。
  *
  * ⛔ **不进 `systems-index §3`**（§6.1：判例同 `PAUSE_PANEL_H`，非玩法冻结常量）。
@@ -1107,28 +1133,41 @@ export const HEART_PRICE_LADDER: readonly number[] = [50, 100, 200];
 //             EP12-S6 版面族扩充，来源 `menu-architecture.md §5.1/§7.4`——**派生版面值，⛔ 不进 §3**）
 /** 主菜单主钮「开始游戏」：复用面板主钮宽 × TOUCH_MIN。 */
 export const MENU_PRIMARY_W = 320;
-/** 主菜单次级入口（签到 / 设置）按钮尺寸。 */
-export const MENU_SECONDARY_W = 240;
-/** 主菜单纵向行距。 */
-export const MENU_ROW_GAP = 36;
+// 2026-10-13 用户裁定第二批：底部次级行（签到 / 设置纸钮）**整行退役** ⇒
+// `MENU_SECONDARY_W` / `MENU_ROW_GAP` / `MENU_SECONDARY_GAP` 三常量零消费者已删
+//（设置改左上顶栏圆钮，签到待信箱实装；`menu-architecture §5.1/§5.1b` 留档，需重建时读那里）。
 /**
- * 主菜单次级行**两钮**水平间距（P-5 收敛正本：`menu-architecture §7.4` 记 3 钮 =
- * `3×240 + 2×24 = 768 > 750` ⇒ 每边溢出 9px；删「选关」钮后 2 钮 = `504 ≤ 750` 自动收敛）。
- * 本常量即原 `meta-view::menuLayout()` 里的 `const gap = 24` 字面（数据驱动收编）。
- * ⚠ **口径差登记（⛔ 不擅改判据）**：`tokens.md §4` `space_ctrl_gap` = **16**，而
- * `menu-architecture §5.1` 线框对本行标注 **gap 24**（＋§7.4 P-5 的 504 实测量）⇒ 两表不一致，
- * 本批**沿用线框值**（P-5 的收敛算式以它为前提），差值归设计侧复核，不折算、不新造第三个间距。
+ * 招牌外接框中心 y（原 `meta-view.ts:373` 字面 980 收编；语义 = **中心**，⛔ 非 baseline）。
+ *
+ * **第十三批（2026-10-14 · 待办 ② 用户裁定「B28」）：`1040 → 1012`**（招牌 + slogan **整链同步下移 28**）。
+ * 依据 = 本批新增的 **P-6 ⑥ 关系不变式** `顶栏圆下缘 ≥ sign.yMax + Δ`（Δ = 在册 `SIGN_BAND_PAD` 12，零新常量）：
+ * 同心圆下缘最深档 176（灵动岛）= `1334 − 176 − 44 − 29.5 = **1084.5**`，旧带顶 1100 ⇒ 需 `δ ≥ 27.5`
+ * ⇒ 取整 **28** ⇒ 新带 **[952,1072]**，圆距带顶余 **12.5**（Δ12 之上仅多 0.5 px ⇒ 已登记，换 Δ 需重排）。
+ * ⚙ 走「下移」而非「缩钮 / 圆心顶对齐」：缩钮要 Ø59→Ø28 才消得掉（否）；顶对齐要反转「热区 88
+ * **同心包裹**」在册约定并改 `drawTopbar` 算式 + 两处测试 helper（代价大、收益只剩 14.5 px）。本批
+ * ⛔ 不动任何算式与档（`n·d = 120` 不变式 ① 未碰，⑤「让位优先于缩字」同向）。
+ *
+ * ~~旧注「顶 `1040+66 = 1106` < 顶栏视觉圆下缘（非刘海档 124 ⇒ 1136.5），净空 30.5」~~ **已作废（第十三批订正）**：
+ *   ① 半字框 = `120/2 = 60` 非 66 ⇒ 带顶是 1100；② 只算**浅档 124** 就把「不碰」写进注里，深档的碰撞被这笔注
+ *   漏掉（判例同 K-123：取数必须覆盖全档，不能拿舒适档当结论）。
+ * ⚠ **一维读数订正（本批二维复测）**：第十一批登记的「圆下缘 vs 带 [980,1100] 交集 = 161 档 **0.5** /
+ *   164 档 **3.5** / 176 档 **15.5** px」是**纯 y** 口径。按现装位表逐珠核 x ⇒ **161 档 0 珠命中**（落点在
+ *   外接框空角，违例**不成立**）；真实违例 = **164 档 1 珠**（拼 r0c2 擦 1.1）/ **176 档 5 珠**（最深 12.6
+ *   ⇒ 「拼」字首珠被整颗吞）。判据已按两腿固化：⑥ 用外接框口径（保守），另跑真渲染链珠面不相交（精确）。
+ * ⚠ **本批不修的第二条（登记）**：运行时字带 `x[45,705]`（总宽 660 由 ① 派生），顶栏三颗圆心 `x = 68/604/692`
+ *   **全在带内** ⇒ `§5.1b` 落位表那句「招牌左右空档 205/208」是**定稿图木板** x[205,542] 的口径，不适用于
+ *   运行时珠拼字带 ⇒ 浅档不撞**只靠 y 余量**，「分列招牌两侧」的设计意图在实装里本就不成立。
+ * ⚠ 旧注写作「< 资源条带 [1130,1180]」**已作废**（第十一批）：L4 改为**门楣价目牌**后落在招牌**下方**
+ *   （`MENU_PLAQUE_Y` 注）；招牌带下缘与牌体上缘净空 = 旧 `980 − 910 = 70` ⇒ 本批后 `952 − 910 = **42**`（③：`952 ≥ frameTop 920 + Δ12 = 932` ✓ 余 20）。
  */
-export const MENU_SECONDARY_GAP = 24;
+export const MENU_TITLE_Y = 1012;
 /**
- * 招牌基线 y（原 `meta-view.ts:373` 字面 980 收编）。本批 = **系统字体 64px 占位**
- * （`app_name` 令牌，珠拼 `beadText` 归 T-2B）；P-6 闭合口径：为 `§5.3` 大档
- * （`d=15` ⇒ 字高 `8d = 120`）自该锚向上生长预留净空 ⇒ 顶 `1040+66 = 1106` < 资源条带 [1130,1180]。
+ * slogan 基线 y（§5.1 L2b：`app_slogan` · `font_label` 28 · `text_secondary`）。
+ * **第十三批随招牌整链下移 28**：`968 → 940` ⇒ `MENU_TITLE_Y − MENU_SLOGAN_Y = 72` **逐值不变**
+ * ⇒ P-6 ④ 的既存欠账（旧登记「尚差 ≈2px」）**不加重也不顺手修**，仍归 T-4 垂直重排整单。
  */
-export const MENU_TITLE_Y = 1040;
-/** slogan 基线 y（§5.1 L2b：`app_slogan` · `font_label` 28 · `text_secondary`）。 */
-export const MENU_SLOGAN_Y = 968;
-/** 主钮**下缘** y（§5.1 L3 拇指带 = 下 1/3）；次级行由 `MENU_PRIMARY_Y − TOUCH_MIN − MENU_ROW_GAP` 派生。 */
+export const MENU_SLOGAN_Y = 940;
+/** 主钮**下缘** y（§5.1 L3 拇指带 = 下 1/3）。次级行已于 2026-10-13 退役 ⇒ 本锚不再派生第二行。 */
 export const MENU_PRIMARY_Y = 360;
 /** 版本号 label 基线 y（§5.1 底部 `y≈140` 原值）。 */
 export const MENU_VERSION_Y = 140;
@@ -1188,7 +1227,7 @@ export const CAROUSEL_THUMB_AREA = 240;
 export const CAROUSEL_TEXT_BAND = 100;
 
 // ─────────── 招牌珠拼 `beadText` 档（EP12-S6 · 子单 T-2B · WXG-T-269-S6）
-//   正本 = `games/beads/art/menu-wall-signage-spec.md`（林绘澄 T-1）**§1.4 档公式重算 / §1.5 位表档 /
+//   正本 = `games/beads/design/art/specs/menu-wall-signage-spec.md`（林绘澄 T-1）**§1.4 档公式重算 / §1.5 位表档 /
 //          §0.4 珠面地板三口径 / §0.7 新常量落点**；版面口径 = `menu-architecture.md §5.3`（该节预登记
 //          `SIGN_*` 命名 ⇒ 本组同名，回写行见 T-1 §6.4）。
 // ⛔ **不进 `systems-index §3`**（菜单屏不在 §3.1 带表 ⇒ 零 §3 变更；art-owned 版面派生值，
@@ -1281,6 +1320,35 @@ export function signFaceA(d: number): number {
 export function signTierOk(n: number): boolean {
   return signFaceB(signPitchFor(n)) >= SIGN_FACE_FLOOR;
 }
+
+// ─────────── L4 门楣价目牌（❤/🪙；`menu-architecture §5.1b-2` 第九批设计 / 第十一批落码 2026-10-13）
+//   小铺语言 = 「上方麻绳吊招牌、**价目牌钉在展示窗门楣**」⇒ 运行时的「展示窗」= 走马灯小卡
+//   （§1.3 第五轮：作品墙下移 `levels` overlay，卡为其继承者）。
+// ⛔ **不进 `systems-index §3`**（菜单屏版面派生值，判例同 `SIGN_*` / `CAROUSEL_*`）。
+// ⚠ **第九批那组坐标本批作废重登**（`menu-architecture §5.1b-2` 第九批表：牌体自顶 255–293
+//   = y-up 1041–1079）：那是从**定稿图**门楣量出来的，从未对**现役程序化版面**核对 ⇒
+//   与招牌珠拼带 `[980,1100]`（`MENU_TITLE_Y` 中心 ± 半字框 `SIGN_GLYPH_BOX/2`）**交集 38 px
+//   = 整条牌全压在招牌字上**（第八批「非背景占比不构成不撞车的证据」同一根因重演）。
+//   本批按 §7.4 P-6 **不变式 ⑤「资源条带让位优先于招牌缩字」**走让位腿（⛔ 不动 `SIGN_*` 档），
+//   并把牌坐到**运行时唯一空带** [860, 954]（卡顶 → slogan 底，94 px）内，取在册净空 Δ12。
+/** 牌体宽（定稿图门楣可用段 x 150–600 实测 ⇒ 450；居中后左缘恰 = 150）。 */
+export const MENU_PLAQUE_W = 450;
+/** 牌体高（梁面可用高仅 50 ⇒ 收 38；⛔ 首版 52 属单位串位读数，已订正）。 */
+export const MENU_PLAQUE_H = 38;
+/** 牌体**下缘** y（本设计空间 y 向上）= 走马灯卡顶缘 + `SIGN_BAND_PAD`（Δ 12 在册值 ⇒ 零新常量）。 */
+export const MENU_PLAQUE_Y = CAROUSEL_TOP + SIGN_BAND_PAD;
+/** 牌体左缘（由宽派生居中，⛔ 视图侧不复算）。 */
+export const MENU_PLAQUE_X = (DESIGN_W - MENU_PLAQUE_W) / 2;
+/** 牌体描边宽（图内实测 3；圆角复用 `UI_CONTAINER.radiusChip` 12，不新造档）。 */
+export const MENU_PLAQUE_STROKE = 3;
+/** 图标中心距牌体端缘（实测 42 ⇒ 左 x 192 / 右 x 558）。 */
+export const MENU_PLAQUE_ICON_INSET = 42;
+/** 铆钉半径（图内实测 r 3.5）。 */
+export const MENU_PLAQUE_RIVET_R = 3.5;
+/** 铆钉距牌体端缘（实测 18）。 */
+export const MENU_PLAQUE_RIVET_INSET = 18;
+/** 上沿受光线两端内缩（不吃进 r12 圆角段 ⇒ 亮线在直边上）。 */
+export const MENU_PLAQUE_BEVEL_INSET = 8;
 
 // ─────────── 作品格珠拼缩略档（EP12-S6 · 子单 T-2B；正本 = `menu-wall-signage-spec` §3.1/§3.2/§3.3/§3.4）
 //   主理人裁定：**案乙**（缩略区 84、现装占位几何不动）+ **5×5 主色块聚合** + **单格 ≤ 25 珠硬判据**。
@@ -2126,7 +2194,7 @@ export const LINEART_EDGE_H = 0.16;
 export const LINEART_EDGE_RADIUS = 0.08;
 
 /* ── [EP12-S2 · 控件语言] 容器几何 token（2026-10-07 用户裁 P-3=24 同批）──
- * 真源 = `design/proposals/ui-style-redesign/tokens.md` §2/§3/§4；墨一律读
+ * 真源 = `games/beads/design/art/proposals/ui-style-redesign/tokens.md` §2/§3/§4；墨一律读
  * `palette`（wood/card/shadowInk 族）。⛔ 只服务 UI 容器/控件；珠面/格面/托盘槽
  * 属 art-bible §7 不动项零消费。按下态（press）消费面归弹窗批 EP12-S4（playing
  * 无「按住」视觉态）。 */

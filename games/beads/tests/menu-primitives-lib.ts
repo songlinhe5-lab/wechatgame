@@ -26,9 +26,16 @@
  *
  * ## 每珠 7 命令的结构自证（T-1 §0.3）
  * `facet-4` 满层 = 1 `rect`（plate）+ 4 `polygon`（扇）+ 2 `circle`（孔环 / 孔底）
- * = `BEAD_STYLE_MAX_COMMANDS`（7）。菜单帧的**非珠**图元只有 `rect` / `line` / `text`（容器、虚线槽、
- * 文字令牌），**不含 `circle` / `polygon`** ⇒ `circle` 计数是纯珠体读数：`beads = circle / 2`，
- * 且 `polygon` 必等 `beads × 4`；不满足即 throw（口径被破坏时先在这里炸，⛔ 静默出数）。
+ * = `BEAD_STYLE_MAX_COMMANDS`（7）。菜单帧的**非珠**图元旧只 `rect` / `line` / `text`（容器、虚线槽、
+ * 文字令牌），~~**不含 `circle` / `polygon`** ⇒ `circle` 计数是纯珠体读数：`beads = circle / 2`，~~
+ * ⇒ **2026-10-13 §5.1b 顶栏三钮实装后作废**：菜单帧多出「顶栏一族」非珠圆（3 底圆 + 齿轮 hub/孔 = 5）
+ * 与 8 齿线 ⇒ 现口径 `beads = (circle − 顶栏族圆 − 门楣牌族圆) / 2`，且 `polygon` 必等 `beads × 4`；
+ * 两族圆非额定值或不满足上述等式即 throw（口径被破坏时先在这里炸，⛔ 静默出数）。
+ *
+ * ⚠ **第十一批 L4 门楣价目牌**再追加一族非珠圆（铆钉 2）⇒ 同上口径；顶栏与门楣牌均按**带内**
+ * 判据计数（两者 y 带不交 ⇒ 不会互串），其余屏（signin/settings/levels）不画 ⇒ 两族恒 0。
+ *
+ * ⚠ 本改口造成**台账全腿读数与 sha 漂移** ⇒ 须重跑捕获脚本重取台账（⛔ 不得手改 JSON）。
  *
  * 层级：tests（可 import `cc`-free 的 src 与 framework；⛔ 不写业务状态）。
  */
@@ -58,6 +65,11 @@ import {
     BEAD_STYLE_MAX_COMMANDS,
     DESIGN_H,
     DESIGN_W,
+    MENU_PLAQUE_H,
+    MENU_PLAQUE_W,
+    MENU_PLAQUE_X,
+    MENU_PLAQUE_Y,
+    MENU_TOPBAR_X,
     SIGN_BEAD_PITCH,
     SIGN_MATRIX_N,
     THUMB_MATRIX_N,
@@ -65,7 +77,7 @@ import {
 } from '../src/config/tuning.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { signGlyphBeadsOf } from '../src/config/sign-glyphs.js';
-import { buildMetaView, type MetaOverlay, type MetaViewData, type MetaViewVariant } from '../src/view/meta-view.js';
+import { buildMetaView, metaLayout, type MetaOverlay, type MetaViewData, type MetaViewVariant } from '../src/view/meta-view.js';
 
 const CLOCK_START = 1_700_000_000_000;
 const META_KEY = 'wxgame.beads.test.t269s6k6.meta';
@@ -172,29 +184,78 @@ export function countFrame(model: RenderModel): PrimitiveCount {
 }
 
 /**
+ * 顶栏一族非珠圆的计数（§5.1b，2026-10-13）。判据 = 圆心落在**顶栏热区行**内
+ * （招牌珠字带 [980,1100] 与卡/墙均在其下 ⇒ 与珠体不会混淆）。
+ * 主菜单腿应恒 **5**（3 底圆 + 齿轮 hub/孔）；其余屏（signin/settings/levels）不画顶栏 ⇒ **0**。
+ */
+function topbarCircles(commands: readonly DrawCommand[]): number {
+    const row = metaLayout('none').buttons.find((b) => b.id === 'open-settings')!.box;
+    const xs = [MENU_TOPBAR_X.settings, MENU_TOPBAR_X.notice, MENU_TOPBAR_X.mail];
+    let n = 0;
+    for (const c of commands) {
+        if (c.kind !== 'circle') continue;
+        if (c.y >= row.y && c.y <= row.y + row.h && xs.some((x) => c.x >= x && c.x <= x + row.w)) n++;
+    }
+    return n;
+}
+
+/** 顶栏族圆的额定值（菜单腿）；其余腿为 0。导出供台账/求和腿引用（⛔ 别处再写一份 5）。 */
+export const TOPBAR_CIRCLES = 5;
+
+/**
+ * 门楣牌一族非珠圆的计数（§5.1b-2 第十一批）。判据 = 圆心落在**牌体矩形**内
+ * （带 y-up [`MENU_PLAQUE_Y`, +H] = [872,910]，与顶栏热区行与招牌珠带均不交 ⇒ 两族不互串）。
+ * 主菜单腿应恒 **2**（左右铆钉）；其余屏不画资源条 ⇒ **0**。
+ */
+function plaqueCircles(commands: readonly DrawCommand[]): number {
+    let n = 0;
+    for (const c of commands) {
+        if (c.kind !== 'circle') continue;
+        if (
+            c.y >= MENU_PLAQUE_Y && c.y <= MENU_PLAQUE_Y + MENU_PLAQUE_H &&
+            c.x >= MENU_PLAQUE_X && c.x <= MENU_PLAQUE_X + MENU_PLAQUE_W
+        ) n++;
+    }
+    return n;
+}
+
+/** 门楣牌族圆的额定值（菜单腿）；其余腿为 0。同 {@link TOPBAR_CIRCLES}：导出供台账/求和腿单源。 */
+export const PLAQUE_CIRCLES = 2;
+
+/**
  * **菜单帧**的逐 kind 图元计数腿（= {@link countFrame} + 结构自证）：
- * - `circle` 必为偶数（每珠 2）；`polygon` 必为 `beads × 4` ⇒ 否则 throw（口径被破坏不出数）；
- * - 非珠图元只准是 `rect` / `line` / `text`（菜单帧⛔ 无 `blit`，S0 约束①）。
+ * - 珠数 = `(circle − 顶栏族圆 − 门楣牌族圆) / 2`（每珠 2）；`polygon` 必为 `beads × 4` ⇒ 否则 throw；
+ * - 顶栏族圆非 0 / 非 5，或门楣牌族圆非 0 / 非 2 ⇒ throw（各自只该画一次）；
+ * - 非珠图元只准是 `rect` / `line` / `text` + 顶栏 / 门楣牌两族（菜单帧⛔ 无 `blit`，S0 约束①）。
  *
  * ⚠ **playing 帧不走这里**：盘面命令流含非珠 `polygon`（实测 `polygon=322 ≠ 80×4`），
- *   本自证只对「非珠图元族 = rect/line/text」的菜单帧成立 ⇒ 玩法腿用 {@link countFrame}。
+ *   本自证只对「非珠图元族 = rect/line/text（+ 顶栏 / 门楣牌两族圆）」的菜单帧成立 ⇒ 玩法腿用 {@link countFrame}。
  */
 export function countPrimitives(model: RenderModel): PrimitiveCount {
     const counted = countFrame(model);
     const kinds = counted.kinds;
     const circles = kinds['circle'] ?? 0;
     const polygons = kinds['polygon'] ?? 0;
-    if (circles % 2 !== 0) {
-        throw new Error(`K-6 口径破坏：circle=${circles} 非偶数 ⇒ 菜单帧混入非珠圆图元（facet-4 每珠恒 2 圆）`);
+    const topbar = topbarCircles(model.commands);
+    if (topbar !== 0 && topbar !== TOPBAR_CIRCLES) {
+        throw new Error(`K-6 口径破坏：顶栏族圆 = ${topbar}（额定 0 或 ${TOPBAR_CIRCLES}：3 底圆 + 齿轮 hub/孔）`);
     }
-    const beads = circles / 2;
+    const plaque = plaqueCircles(model.commands);
+    if (plaque !== 0 && plaque !== PLAQUE_CIRCLES) {
+        throw new Error(`K-6 口径破坏：门楣牌族圆 = ${plaque}（额定 0 或 ${PLAQUE_CIRCLES}：左右铆钉）`);
+    }
+    const beadCircles = circles - topbar - plaque;
+    if (beadCircles % 2 !== 0) {
+        throw new Error(`K-6 口径破坏：珠体圆 = ${beadCircles}（circle ${circles} − 顶栏 ${topbar} − 门楣牌 ${plaque}）非偶数 ⇒ 菜单帧混入其他非珠圆图元`);
+    }
+    const beads = beadCircles / 2;
     if (polygons !== beads * 4) {
         throw new Error(`K-6 口径破坏：polygon=${polygons} ≠ beads×4=${beads * 4} ⇒ 每珠 7 命令系数（${BEAD_STYLE_MAX_COMMANDS}）不再成立`);
     }
     if (kinds['blit'] !== undefined) {
         throw new Error(`K-6 口径破坏：菜单帧出现 blit=${kinds['blit']}（S0 约束①：只复用珠体矢量图元，⛔ 无贴图珠）`);
     }
-    return counted;
+    return { ...counted, beads };
 }
 
 /** 一腿 = 命名 + 屏态 + variant 参（`null` ⇒ 生产真链路）。台账与测试共读本表（⛔ 两处各写一份）。 */

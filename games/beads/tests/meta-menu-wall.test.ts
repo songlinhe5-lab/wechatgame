@@ -3,11 +3,11 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * 判据真源（⛔ 本文件零新判据、零新数值，全部为既有判据的机械复算）：
  *  - `production/epics/epics-beads-ep12.md` **§73–§78**：S6 验收①–⑦ + In/Out；
- *  - `design/proposals/ui-style-redesign/menu-architecture.md` §5.1（版面）/ §5.4（三条硬口径）
+ *  - `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` §5.1（版面）/ §5.4（三条硬口径）
  *    / §6（文案令牌）/ §7.4（P-5 次级行溢出）/ §8；
- *  - `design/proposals/ui-style-redesign/level-difficulty.md` **§5.2 九关墙序**
+ *  - `games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md` **§5.2 九关墙序**
  *    配置文件恒等序 `L1→L2→…→L9`（2026-10-10 用户裁定 #2 · 退役 EP12-S6 DI 升序 ⇒ 槽 i = 关索引 i）；
- *  - `design/proposals/ui-style-redesign/tokens.md` §1（色）/ §5（字级）/ §7（对外称名）；
+ *  - `games/beads/design/art/proposals/ui-style-redesign/tokens.md` §1（色）/ §5（字级）/ §7（对外称名）；
  *  - `docs/architecture/control-manifest.md` L4（零 RNG）/ L5（视图不持状态）/ §2（热路径零分配）。
  *
  * 本批边界（= S6 Out，⛔ 不在这里长）：珠拼 `beadText`、作品格缩略渲染、橱窗美术细案 ⇒ **T-2B**；
@@ -54,18 +54,30 @@ import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../sr
 import { drawLevelThumb, levelThumbCells, signBands, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
 import { signGlyphBeadsOf } from '../src/config/sign-glyphs.js';
-import { DEFAULT_PALETTE, DEMO_BEAD_INKS, beadInksFor } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, DEMO_BEAD_INKS, beadInksFor, contrastRatio } from '../src/view/palette.js';
 import {
     DESIGN_H,
     DESIGN_W,
     CAROUSEL_H,
+    CAROUSEL_TOP,
     CAROUSEL_W,
-    MENU_SECONDARY_GAP,
-    MENU_SECONDARY_W,
+    MENU_PLAQUE_H,
+    MENU_PLAQUE_ICON_INSET,
+    MENU_PLAQUE_RIVET_INSET,
+    MENU_PLAQUE_RIVET_R,
+    MENU_PLAQUE_STROKE,
+    MENU_PLAQUE_W,
+    MENU_PLAQUE_X,
+    MENU_PLAQUE_Y,
     MENU_SLOGAN_Y,
     MENU_TITLE_Y,
+    MENU_TOPBAR_RESERVED_ALPHA,
+    MENU_TOPBAR_TOP_FALLBACK,
+    MENU_TOPBAR_VISUAL_D,
+    MENU_TOPBAR_X,
     MENU_VERSION_Y,
     SIGN_BEAD_PITCH,
+    SIGN_BAND_PAD,
     SIGN_MATRIX_N,
     THUMB_MATRIX_N,
     TOUCH_MIN,
@@ -74,9 +86,12 @@ import {
     WALL_COLS,
     WALL_GAP,
     WALL_ROWS,
+    signFaceB,
 } from '../src/config/tuning.js';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
+/** 逐机顶栏档（`§5.1b-2` 逐机表设计 px）；顶栏相关判据共用 ⇒ **模块级单源**（第十三批提级）。 */
+const TOP_TIERS = [116, 124, 137, 161, 164, 176];
 /** 网格总高（与视图同源算式，测试内自算 ⇒ ⛔ 不依赖视图私有量；验收⑥ 结构面用）。 */
 const GRID_H = WALL_ROWS * WALL_CELL + (WALL_ROWS - 1) * WALL_GAP;
 /** 源码级静态门用（判例 = `bead-style-settings.test.ts::SRC`）。 */
@@ -377,12 +392,13 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         expect(r.shell.play.levelIndex).toBe(WALL_ORDER_IDS[8]! - 1);
     });
 
-    it('口径③：主菜单入口 = **走马灯卡**（`open-levels`）+ 主钮 + 次级 2 钮（菜单主区⛔ 无墙格泄漏）', () => {
+    it('口径③：主菜单入口 = **走马灯卡**（`open-levels`）+ 主钮 + 顶栏设置钮（菜单主区⛔ 无墙格泄漏）', () => {
         const ids = new Set(metaLayout('none').buttons.map((b) => b.id));
         expect(ids.has('open-levels'), '§1.3：卡 = 菜单唯一选关入口').toBe(true);
         expect(ids.has('pick-level'), '菜单主区⛔ 不再排墙格（墙下移 overlay）').toBe(false);
-        expect([...ids].sort()).toEqual(['open-levels', 'open-settings', 'open-signin', 'start']);
-        // 扫面（16×16 步长）：菜单全域可命中的动作集恰等于上面四个 ⇒ 无暗道。
+        // §5.1b 第三批：右上两颗（公告 / 信箱）= 预留不实现 ⇒ **不注册热区**；底部次级行整行退役。
+        expect([...ids].sort()).toEqual(['open-levels', 'open-settings', 'start']);
+        // 扫面（16×16 步长）：菜单全域可命中的动作集恰等于上面三个 ⇒ 无暗道。
         const scanned = new Set<string>();
         for (let x = 0; x <= DESIGN_W; x += 16) {
             for (let y = 0; y <= DESIGN_H; y += 16) {
@@ -390,7 +406,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
                 if (b) scanned.add(b.id);
             }
         }
-        expect([...scanned].sort()).toEqual(['open-levels', 'open-settings', 'open-signin', 'start']);
+        expect([...scanned].sort()).toEqual(['open-levels', 'open-settings', 'start']);
     });
 
     it('未解锁格 = 虚线空槽（无编号、无🔒字样）+ 零热区零事件（墙住 `levels` overlay）', () => {
@@ -459,29 +475,277 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
     });
 });
 
-describe('EP12-S6 Deliverable 4 · P-5 次级行 3→2 钮 + 间距入 tuning', () => {
-    it('次级行恰 2 钮（签到 / 设置），总宽 504 ≤ 750 ⇒ P-5 溢出闭合', () => {
-        const sec = metaLayout('none').buttons.filter((b) => b.id === 'open-signin' || b.id === 'open-settings');
-        expect(sec.length).toBe(2);
-        const total = MENU_SECONDARY_W * 2 + MENU_SECONDARY_GAP;
-        expect(total, '线框口径 2×240 + 24').toBe(504);
-        expect(total).toBeLessThanOrEqual(DESIGN_W);
-        const [a, b] = [sec[0]!, sec[1]!];
-        expect(a.box.x).toBeGreaterThanOrEqual(0);
-        expect(b.box.x + b.box.h * 0 + b.box.w).toBeLessThanOrEqual(DESIGN_W);
-        expect(b.box.x - (a.box.x + a.box.w), '两钮间距 = 命名常量').toBe(MENU_SECONDARY_GAP);
-        for (const btn of [a, b]) {
-            expect(btn.box.w).toBe(MENU_SECONDARY_W);
-            expect(btn.box.h, '触控下限').toBeGreaterThanOrEqual(TOUCH_MIN);
-            expect(centerOf(btn.box).x).toBeGreaterThan(0);
+describe('§5.1b 顶栏三钮落位（2026-10-13 裁定 B + 第三批语义 · 接 P-5 次级行退位的空位）', () => {
+    /** 顶栏唯一注册的一颗 = 左上设置（其余两颗 = 预留不实现）。 */
+    const settingsBox = () => metaLayout('none').buttons.find((b) => b.id === 'open-settings')!.box;
+    /** 直驱视图的菜单 data（只换 `topbarTop`）；字段形状同 `levels` 用例那份。 */
+    const MENU_DATA_BASE: MetaViewData = Object.freeze({
+        stamina: 5, staminaMax: 5, coins: 0,
+        overlay: 'none' as const, signinDay: 0, canClaim: false,
+        bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false,
+        vibrate: true, debugInfo: false,
+        beadStyle: 'facet-4', beadSize: 'full' as const, skinId: 'tokens',
+        levelCount: LEVELS.length, currentLevelIndex: 0, maxUnlockedLevel: LEVELS.length,
+        starsByLevel: Object.freeze([3, 2, 1, 0, 0, 0, 0, 0, 0]),
+        wallSlots: Object.freeze(WALL_ORDER_IDS.map((id) => id - 1)),
+        wallLevels: Object.freeze(WALL_ORDER_IDS.map((id) => LEVELS[id - 1]!)),
+        carouselLevel: LEVELS[2], carouselCleared: 3, carouselTotal: LEVELS.length,
+    });
+    /** 菜单帧里的顶栏底圆（按 Ø59 筛，⛔ 不靠绘制顺序）。 */
+    const topbarCircles = (cmds: readonly DrawCommand[]) =>
+        cmds.filter((k) => k.kind === 'circle' && (k as { r?: number }).r === MENU_TOPBAR_VISUAL_D / 2) as unknown as readonly {
+            x: number; y: number; alpha?: number; stroke?: string;
+        }[];
+    /** 视觉圆中心 y（热区中心，口径与视图同源）。 */
+    const topRowCy = (top: number) => DESIGN_H - top - TOUCH_MIN / 2;
+
+    it('热区 = §5.1b 落位表逐字坐标（兜底档 124：x∈[24,112] y∈[1122,1210]）', () => {
+        const b = settingsBox();
+        expect(b.w, '热区 = TOUCH_MIN 见方（推导 2）').toBe(TOUCH_MIN);
+        expect(b.h).toBe(TOUCH_MIN);
+        expect(b.x, '左缘 = MENU_TOPBAR_X.settings').toBe(MENU_TOPBAR_X.settings);
+        expect(b.y, '下缘 = 1122').toBe(1122);
+        expect(b.y + b.h, '顶缘 = 1210（自顶 124）').toBe(DESIGN_H - MENU_TOPBAR_TOP_FALLBACK);
+    });
+
+    it('右上两颗预留 ⇒ 零热区（画禁用态圆但点了零事件，同「未解锁格」口径）+ 热区不互叠', () => {
+        const cy = topRowCy(MENU_TOPBAR_TOP_FALLBACK);
+        for (const key of ['notice', 'mail'] as const) {
+            expect(hitTestMeta('none', MENU_TOPBAR_X[key] + TOUCH_MIN / 2, cy), `${key} 心得是空`).toBeNull();
+        }
+        expect(MENU_TOPBAR_X.mail - MENU_TOPBAR_X.notice, '相邻中心距 = pitch 88（定稿图 70 会重叠 18）').toBe(TOUCH_MIN);
+        expect(MENU_TOPBAR_X.notice - (MENU_TOPBAR_X.settings + TOUCH_MIN), '左上与右上不交').toBeGreaterThanOrEqual(0);
+        expect(MENU_TOPBAR_X.mail + TOUCH_MIN, '外颗右缘 736 ⇒ 距屏边 14').toBe(736);
+    });
+
+    it('逐机档：顶缘随接口深度下移 ⇒ 热区同步，且同档命中同一颗', () => {
+        const island = 176; // 灵动岛档（§5.1b-2 逐机表）
+        const box176 = metaLayout('none', WALL_ROWS, island).buttons.find((b) => b.id === 'open-settings')!.box;
+        expect(box176.y + box176.h, '顶缘 = DESIGN_H − 176').toBe(DESIGN_H - island);
+        expect(settingsBox().y - box176.y, '比兜底档低 52 px').toBe(island - MENU_TOPBAR_TOP_FALLBACK);
+        const c = centerOf(box176);
+        expect(hitTestMeta('none', c.x, c.y, island)?.id).toBe('open-settings');
+        expect(hitTestMeta('none', c.x, c.y), '拿旧档查表必落空 ⇒ 视/热不同源即红').toBeNull();
+        // 同档两次查表 = 同一对象（数值键缓存，⛔ 每帧新建/⛔ 字符串键）。
+        expect(metaLayout('none', WALL_ROWS, island)).toBe(metaLayout('none', WALL_ROWS, island));
+    });
+
+    it('绘制腿（走真渲染链）：三颗 Ø59 圆心 = (68/604/692, 1166)；预留两颗 α0.5', () => {
+        const r = rig({ maxUnlocked: LEVELS.length });
+        const tops = topbarCircles(menuFrame(r.shell));
+        expect(tops.length, '三颗顶栏底圆').toBe(3);
+        expect(tops.map((c) => c.x).sort((a, b) => a - b), '圆心 x = §5.1b 表').toEqual([68, 604, 692]);
+        const cy = topRowCy(MENU_TOPBAR_TOP_FALLBACK);
+        for (const c of tops) {
+            expect(c.y, `圆心 y = ${cy}（热区中心）`).toBe(cy);
+            expect(c.stroke, '零新 hex：只用在册 panel/slotBorder').toBeDefined();
+        }
+        for (const c of tops.filter((k) => k.x !== 68)) {
+            expect(c.alpha, '预留钮 = 禁用态').toBe(MENU_TOPBAR_RESERVED_ALPHA);
+        }
+        const settings = tops.find((c) => c.x === 68)!;
+        expect(settings.alpha, '实装钮不得压暗').toBeUndefined();
+        // 齿轮 = 与对局页 HUD 同一画法（§5.1b 收口 ③：图元复用、入口语义不合并）。
+        const gears = menuFrame(r.shell)
+            .filter((k) => k.kind === 'line' && k.stroke === DEFAULT_PALETTE.accentPurple) as unknown as readonly {
+                x1: number; y1: number; x2: number; y2: number;
+            }[];
+        expect(gears.length, '八齿齿轮线只出现在左上那颗').toBeGreaterThanOrEqual(8);
+        for (const g of gears) {
+            expect(g.x1 >= 24 && g.x1 <= 112 && g.y1 >= cy - 44 && g.y1 <= cy + 44, '齿必在左上热区内').toBe(true);
         }
     });
 
-    it('数据驱动：`const gap = 24` 字面已从 `menuLayout()` 收进 `tuning.ts::MENU_SECONDARY_GAP`', () => {
-        expect(SRC('config/tuning.ts')).toContain('export const MENU_SECONDARY_GAP = 24;');
+    it('视-热一致：`data.topbarTop` 逐机档下画的圆心 = 该档热区中心', () => {
+        const island = 176;
+        const box176 = metaLayout('none', WALL_ROWS, island).buttons.find((b) => b.id === 'open-settings')!.box;
+        const c = centerOf(box176);
+        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        builder.begin();
+        buildMetaView(builder, { ...MENU_DATA_BASE, topbarTop: island }, DEFAULT_PALETTE);
+        const tops = topbarCircles(builder.end().commands);
+        expect(tops.length).toBe(3);
+        for (const k of tops) expect(k.y, '三颗同 y（同排观感）').toBe(c.y);
+        expect(tops.some((k) => k.x === c.x), '设置圆心 = 热区中心').toBe(true);
+        expect(c.y).toBe(topRowCy(island));
+    });
+
+    it('不传 `topbarTop` ⇒ 画的仍是兜底档 124（与本字段引入前版面逐字一致）', () => {
+        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        builder.begin();
+        buildMetaView(builder, MENU_DATA_BASE, DEFAULT_PALETTE);
+        const tops = topbarCircles(builder.end().commands);
+        for (const k of tops) expect(k.y).toBe(topRowCy(MENU_TOPBAR_TOP_FALLBACK));
+    });
+
+    // 第十三批（待办 ② · 用户裁定 B28）：招牌带与顶栏圆的关系从「单点 y 值对撞」改为
+    // **P-6 ⑥ 关系不变式**；坐标只是回填结果（拿单点 y 当验收口径正是 P-6 前两轮未闭合的真因）。
+    it('P-6 ⑥（本批新增）：逐档顶栏圆下缘 ≥ 招牌带顶 + Δ12（外接框口径，⛔ 不漏深档）', () => {
+        const band = signBands(COPY_TOKENS.app_name.length, MENU_TITLE_Y, SIGN_MATRIX_N, SIGN_BEAD_PITCH);
+        for (const top of TOP_TIERS) {
+            const circleBottom = topRowCy(top) - MENU_TOPBAR_VISUAL_D / 2;
+            expect(circleBottom - band.yMax, `顶栏档 ${top}：圆下缘距带顶 ≥ Δ${SIGN_BAND_PAD}`).toBeGreaterThanOrEqual(SIGN_BAND_PAD);
+        }
+        // 整链随动：招牌↔slogan 的相对关系逐值不变 ⇒ ④ 的既存欠账不因本批加重。
+        expect(MENU_TITLE_Y - MENU_SLOGAN_Y, '中心−基线差 = 72（下移前读数，随动不改）').toBe(72);
+    });
+
+    it('真渲染链：逐档三颗圆与带内每一枚珠**两两不相交**（footprint = 口径 B 面半径，⛔ 拿孔环半径当量会低估）', () => {
+        const band = signBands(COPY_TOKENS.app_name.length, MENU_TITLE_Y, SIGN_MATRIX_N, SIGN_BEAD_PITCH);
+        const R = MENU_TOPBAR_VISUAL_D / 2;
+        /**
+         * 珠面外缘半径：facet-4 每珠只**发射两枚圆 = 孔环 r3 / 孔心 r2**，珠体走 polygon
+         * ⇒ ⛔ 不得拿 `b.r` 当 footprint（会少算 ≈1.3 px）。真几何口径 = `tuning.ts::signFaceB`
+         * 同一算式（= `SIGN_FACE_RATIO` 那条），单源取用，⛔ 测试内不复算。
+         */
+        const faceR = signFaceB(SIGN_BEAD_PITCH) / 2;
+        for (const top of TOP_TIERS) {
+            const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+            builder.begin();
+            buildMetaView(builder, { ...MENU_DATA_BASE, topbarTop: top }, DEFAULT_PALETTE);
+            const cmds = builder.end().commands;
+            const beads = cmds.filter((k) => {
+                if (k.kind !== 'circle') return false;
+                const c = k as { x: number; y: number };
+                return c.x >= band.x && c.x <= band.x + band.w && c.y >= band.yMin && c.y <= band.yMax;
+            }) as unknown as readonly { x: number; y: number; r: number }[];
+            expect(beads.length, `档 ${top}：带内圆命令 = 148 珠 × 2（孔环 + 孔心）`).toBe(signGlyphBeadsOf(COPY_TOKENS.app_name) * 2);
+            const tops = topbarCircles(cmds);
+            expect(tops.length, `档 ${top}：三颗圆`).toBe(3);
+            let minGap = Number.POSITIVE_INFINITY;
+            for (const t of tops) {
+                for (const b of beads) {
+                    const gap = Math.hypot(t.x - b.x, t.y - b.y) - (R + faceR);
+                    minGap = Math.min(minGap, gap);
+                    expect(gap, `档 ${top}：圆(${t.x},${t.y}) 与珠(${b.x.toFixed(1)},${b.y.toFixed(1)}) 不得相交`).toBeGreaterThanOrEqual(0);
+                }
+            }
+            expect(minGap, `档 ${top}：实测最小间隙（px）`).toBeGreaterThan(0);
+        }
+    });
+
+    it('数据驱动：顶栏坐标只住 `tuning.ts`（视图内⛔ 不得散落 1122/604 这类字面）', () => {
         const mv = CODE('view/meta-view.ts');
-        expect(mv).toContain('MENU_SECONDARY_GAP');
-        expect(mv, '⛔ 视图内不得再散落该字面').not.toContain('const gap = 24');
+        expect(mv, '⛔ 旧次级行常量不得回潮').not.toContain('MENU_SECONDARY_');
+        expect(mv).toContain('MENU_TOPBAR_X');
+        expect(mv).toContain('MENU_TOPBAR_VISUAL_D');
+        expect(SRC('config/tuning.ts')).toContain('export const MENU_TOPBAR_X = { settings: 24, notice: 560, mail: 648 }');
+        expect(SRC('config/tuning.ts'), '退役常量不得复活').not.toContain('export const MENU_SECONDARY_W');
+    });
+});
+
+describe('§5.1b-2 第十一批 · L4 资源条 = 门楣价目牌（只读零热区 + P-6 ⑤ 让位落位）', () => {
+    /** 牌体矩形（y 向上）；与视图同源算式，⛔ 不抄定稿图像素。 */
+    const plaque = { x: MENU_PLAQUE_X, y: MENU_PLAQUE_Y, w: MENU_PLAQUE_W, h: MENU_PLAQUE_H };
+    const plaqueTop = () => MENU_PLAQUE_Y + MENU_PLAQUE_H;
+    /** `tokens.md §5` `font_label` = 28（slogan / 资源条数值共用档；= accessibility **E1 地板**）。 */
+    const FONT_LABEL_PX = 28;
+    /** 牌体帧（走真渲染链）。 */
+    const plaqueCmds = () => {
+        const r = rig({ maxUnlocked: LEVELS.length });
+        return menuFrame(r.shell);
+    };
+    const rectsOf = (cmds: readonly DrawCommand[]) =>
+        cmds.filter((k) => k.kind === 'rect' && (k as { w?: number }).w === MENU_PLAQUE_W) as unknown as readonly {
+            x: number; y: number; w: number; h: number; fill?: string; stroke?: string; lineWidth?: number; radius?: number;
+        }[];
+    const textsOf = (cmds: readonly DrawCommand[]) =>
+        cmds.filter((k) => k.kind === 'text' && (k as { y?: number }).y === MENU_PLAQUE_Y + MENU_PLAQUE_H / 2) as unknown as readonly {
+            x: number; y: number; text: string; fill?: string; font?: string;
+        }[];
+
+    it('落位单源：牌坐卡顶缘 + 在册净空 Δ12，宽由屏宽派生居中（⛔ 视图侧不复算）', () => {
+        expect(MENU_PLAQUE_Y, '下缘 = CAROUSEL_TOP + SIGN_BAND_PAD').toBe(CAROUSEL_TOP + SIGN_BAND_PAD);
+        expect(MENU_PLAQUE_X, '左缘 = 居中派生').toBe((DESIGN_W - MENU_PLAQUE_W) / 2);
+        expect(plaque.x + plaque.w, '右缘 600 ⇒ 距屏边 150').toBe(600);
+    });
+
+    it('P-6 关系不变式①–⑤：资源条让位腿——牌上缘≤招牌下缘−Δ、牌下缘≥卡顶+Δ、不相碰 slogan/顶栏', () => {
+        const band = signBands(COPY_TOKENS.app_name.length, MENU_TITLE_Y, SIGN_MATRIX_N, SIGN_BEAD_PITCH);
+        // ③ 净空腿的反向对应（牌在招牌**下方**）：招牌下缘 ≥ 牌上缘 + Δ。
+        expect(band.yMin - plaqueTop(), '招牌↔牌净空（旧实测 70 ⇒ 第十三批下移 28 后 42）').toBeGreaterThanOrEqual(SIGN_BAND_PAD);
+        // ⑤ 让位优先于缩字：本批⛔ 动招牌档 ⇒ 档仍在册（`n·d = 120`）。
+        expect(SIGN_MATRIX_N * SIGN_BEAD_PITCH, '不变式① n·d = 120（未因让位改档）').toBe(120);
+        // 与 slogan（基线 940，第十三批随招牌整链下移 28；`font_label` 28 ⇒ 下缘 = 基线 − 半字高 14）不相交。
+        expect(MENU_SLOGAN_Y - FONT_LABEL_PX / 2 - plaqueTop(), 'slogan 下缘距牌顶 ≥ 0').toBeGreaterThanOrEqual(0);
+        // 与走马灯卡顶缘：不压卡（牌在卡上方）。
+        expect(plaque.y - CAROUSEL_TOP, '牌下缘距卡顶 = Δ12').toBe(SIGN_BAND_PAD);
+        // 与顶栏视觉圆（任何逐机档）：圆下缘仍在牌上缘之上。
+        for (const top of TOP_TIERS) {
+            const cyLow = DESIGN_H - top - TOUCH_MIN / 2;
+            expect(cyLow - MENU_TOPBAR_VISUAL_D / 2 - plaqueTop(), `顶栏档 ${top} 圆下缘不压牌`).toBeGreaterThanOrEqual(0);
+        }
+    });
+
+    it('只读零热区：牌体与牌内任意点不得命中（同「预留钮/卡外留白」口径）', () => {
+        for (const [dx, dy] of [[2, 2], [plaque.w / 2, plaque.h / 2], [plaque.w - 2, plaque.h - 2]] as const) {
+            expect(hitTestMeta('none', plaque.x + dx, plaque.y + dy), `牌内 (${dx},${dy}) 应空`).toBeNull();
+        }
+        for (const b of metaLayout('none').buttons) {
+            const o = b.box;
+            const overlap = o.x < plaque.x + plaque.w && plaque.x < o.x + o.w && o.y < plaque.y + plaque.h && plaque.y < o.y + plaque.h;
+            expect(overlap, `热区 ${b.id} 不得与牌体重叠`).toBe(false);
+        }
+    });
+
+    it('绘制腿（走真渲染链）：牌 = 1 rect + 1 亮线 + 2 铆钉 + 2 数值；铆钉半径 r3.5、描边宽 3', () => {
+        const cmds = plaqueCmds();
+        const face = rectsOf(cmds);
+        expect(face.length, '牌体唯一一枚').toBe(1);
+        const f = face[0]!;
+        expect([f.x, f.y, f.h], '几何 = tuning').toEqual([MENU_PLAQUE_X, MENU_PLAQUE_Y, MENU_PLAQUE_H]);
+        expect(f.fill, '牌面读 plaque_face').toBe(DEFAULT_PALETTE.plaqueFace);
+        expect(f.stroke, '描边读 plaque_edge').toBe(DEFAULT_PALETTE.plaqueEdge);
+        expect(f.lineWidth).toBe(MENU_PLAQUE_STROKE);
+        const rivets = cmds.filter(
+            (k) => k.kind === 'circle' && (k as { r?: number }).r === MENU_PLAQUE_RIVET_R,
+        ) as unknown as readonly { x: number; y: number; fill?: string }[];
+        expect(rivets.length, '两颗铆钉').toBe(2);
+        expect(rivets.map((c) => c.x).sort((a, b) => a - b), '铆钉 x = 左/右内缩').toEqual([
+            MENU_PLAQUE_X + MENU_PLAQUE_RIVET_INSET,
+            MENU_PLAQUE_X + MENU_PLAQUE_W - MENU_PLAQUE_RIVET_INSET,
+        ]);
+        for (const c of rivets) {
+            expect(c.y, '铆钉坐牌心线').toBe(MENU_PLAQUE_Y + MENU_PLAQUE_H / 2);
+            expect(c.fill, '铆钉读 plaque_bevel').toBe(DEFAULT_PALETTE.plaqueBevel);
+        }
+        const sheen = cmds.filter(
+            (k) => k.kind === 'line' && (k as { stroke?: string }).stroke === DEFAULT_PALETTE.plaqueBevel,
+        ) as unknown as readonly { y1: number; y2: number; lineWidth?: number }[];
+        expect(sheen.length, '上沿受光线唯一一条').toBe(1);
+        expect(sheen[0]!.y1, '亮线坐顶缘描边内侧').toBe(MENU_PLAQUE_Y + MENU_PLAQUE_H - MENU_PLAQUE_STROKE);
+    });
+
+    it('可读性：数值字 = `font_label` 28（E1 地板）、墨读 wood_text 且对牌面 ≥ 4.5:1', () => {
+        const ratio = contrastRatio(DEFAULT_PALETTE.woodText, DEFAULT_PALETTE.plaqueFace);
+        expect(ratio, `实测 ${ratio.toFixed(2)}:1（art-bible §3.2 口径）`).toBeGreaterThanOrEqual(4.5);
+        const rows = textsOf(plaqueCmds());
+        expect(rows.length, '两端的数值（图标与数字合一条）').toBe(2);
+        for (const t of rows) {
+            expect(parseInt(String(t.font), 10), '⛔ 低于 accessibility E1 地板 28（第九批 26 已作废）').toBeGreaterThanOrEqual(28);
+            expect(t.fill, '字墨只读 palette').toBe(DEFAULT_PALETTE.woodText);
+        }
+        expect(rows.map((t) => t.x), '左右内缩 42 对称').toEqual([
+            MENU_PLAQUE_X + MENU_PLAQUE_ICON_INSET,
+            MENU_PLAQUE_X + MENU_PLAQUE_W - MENU_PLAQUE_ICON_INSET,
+        ]);
+    });
+
+    it('数据驱动：牌几何与字号只住 `tuning.ts`/`palette.ts`（视图内⛔ 无坐标与 hex 字面）', () => {
+        const mv = CODE('view/meta-view.ts');
+        expect(mv).toContain('MENU_PLAQUE_Y');
+        expect(mv).toContain('MENU_PLAQUE_ICON_INSET');
+        expect(mv, '⛔ 不得散落牌体坐标字面').not.toMatch(/\b872\b|\b450\b|\bMENU_PLAQUE_W =/);
+        const tuningSrc = SRC('config/tuning.ts');
+        for (const k of ['MENU_PLAQUE_W', 'MENU_PLAQUE_H', 'MENU_PLAQUE_Y', 'MENU_PLAQUE_X', 'MENU_PLAQUE_ICON_INSET']) {
+            expect(tuningSrc, `常量在册 ${k}`).toContain(`export const ${k}`);
+        }
+    });
+
+    it('退场自证：旧资源条腿（`DESIGN_H - 180` + `FONT_SMALL` 24）不得回潮', () => {
+        const mv = CODE('view/meta-view.ts');
+        expect(mv, '旧带位算式已作废').not.toContain('DESIGN_H - 180');
+        expect(mv, '24px 低于 E1 地板 ⇒ 该档已删').not.toContain('FONT_SMALL');
     });
 });
 
@@ -528,7 +792,7 @@ describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散�
         }
     });
 
-    it('钮标签读令牌（主钮 + 次级 2 钮）', () => {
+    it('钮标签读令牌（主钮 + 走马灯卡提示）；顶栏圆钮⛔ 无文字（§5.1b 图标件）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
         const texts = new Set(
             menuFrame(r.shell)
@@ -536,8 +800,10 @@ describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散�
                 .map((k) => String((k as { text?: string }).text)),
         );
         expect(texts.has(COPY_TOKENS.btn_start_label)).toBe(true);
-        expect(texts.has(COPY_TOKENS.btn_signin_label)).toBe(true);
-        expect(texts.has(COPY_TOKENS.btn_settings_label)).toBe(true);
+        expect(texts.has(COPY_TOKENS.btn_levels_label), '卡文字带读表（唯一选关入口提示）').toBe(true);
+        // 底部次级行退役 + 设置改顶栏圆钮 ⇒ 菜单帧不再出现这两个字面（令牌本身仍在，overlay 标题读）。
+        expect(texts.has(COPY_TOKENS.btn_signin_label), '签到纸钮退役 ⇒ 菜单帧不再出现').toBe(false);
+        expect(texts.has(COPY_TOKENS.btn_settings_label), '设置 = 图标件（无文字）').toBe(false);
         expect(texts.has('开始拼豆'), '旧字面不得残留').toBe(false);
     });
 
@@ -683,14 +949,15 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
         expect(r.shell.overlay).toBe('levels');
     });
 
-    it('验收⑦ 补 · 菜单三钮的合法侧效集 = `meta:overlay` + `stamina:changed`（⛔ 零玩法事件）', () => {
+    it('验收⑦ 补 · 菜单钮的合法侧效集 = `meta:overlay` + `stamina:changed`（⛔ 零玩法事件）', () => {
         const PLAY_PREFIXES = ['bead:', 'board:', 'combo:', 'game:', 'level:', 'powerup:', 'sprint:', 'timer:', 'tray:'];
         const r = rig({ maxUnlocked: LEVELS.length });
         const start = metaLayout('none').buttons.find((b) => b.id === 'start')!;
         const sc = centerOf(start.box);
         expect(r.shell.tapMeta(sc.x, sc.y)).toBe(true);
         r.shell.showMenu();
-        for (const id of ['open-signin', 'open-settings'] as const) {
+        // §5.1b 第三批后菜单可点入口 = 主钮 + 卡 + 顶栏设置一颗（签到随纸钮退役 ⇒ 不再遍历）。
+        for (const id of ['open-settings'] as const) {
             const b = metaLayout('none').buttons.find((x) => x.id === id)!;
             const c = centerOf(b.box);
             expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
@@ -710,15 +977,33 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
         expect([...kinds].sort()).toEqual(['circle', 'line', 'polygon', 'rect', 'text']);
         expect(kinds.has('blit'), '⛔ 无贴图珠体（S0 约束①：只复用珠体**矢量**图元）').toBe(false);
         // facet-4 满层 = 1 rect + 4 polygon + 2 circle ⇒ 珠数可由 circle 反算，polygon 必等于 4×。
-        const circles = cmds.filter((k) => k.kind === 'circle').length;
+        // 非珠两族：**顶栏**（三颗底圆 + 齿轮 hub/孔 = 5 圆 + 8 齿线，住顶栏热区行）与
+        // **门楣牌铆钉**（§5.1b-2 第十一批：2 圆，住牌体矩形）⇒ 两者均从珠体读数中剔除。
+        const topRow = metaLayout('none').buttons.find((b) => b.id === 'open-settings')!.box;
+        const inTopbarRow = (c: { x: number; y: number }): boolean =>
+            c.y >= topRow.y && c.y <= topRow.y + topRow.h &&
+            [MENU_TOPBAR_X.settings, MENU_TOPBAR_X.notice, MENU_TOPBAR_X.mail].some(
+                (x) => c.x >= x && c.x <= x + topRow.w,
+            );
+        const inPlaque = (c: { x: number; y: number }): boolean =>
+            c.y >= MENU_PLAQUE_Y && c.y <= MENU_PLAQUE_Y + MENU_PLAQUE_H &&
+            c.x >= MENU_PLAQUE_X && c.x <= MENU_PLAQUE_X + MENU_PLAQUE_W;
+        const isTopbarCircle = (k: DrawCommand): boolean =>
+            k.kind === 'circle' && inTopbarRow(k as unknown as { x: number; y: number });
+        const isPlaqueCircle = (k: DrawCommand): boolean =>
+            k.kind === 'circle' && inPlaque(k as unknown as { x: number; y: number });
+        const isNonBeadCircle = (k: DrawCommand): boolean => isTopbarCircle(k) || isPlaqueCircle(k);
+        const circles = cmds.filter((k) => k.kind === 'circle' && !isNonBeadCircle(k)).length;
         const polygons = cmds.filter((k) => k.kind === 'polygon').length;
+        expect(cmds.filter(isTopbarCircle).length, '顶栏族圆恒 5（3 底圆 + hub + 孔）').toBe(5);
+        expect(cmds.filter(isPlaqueCircle).length, '门楣牌铆钉恒 2').toBe(2);
         expect(circles % 2, '每珠两枚同心圆').toBe(0);
         expect(polygons, '每珠四枚棱扇 ⇒ polygon ≡ 4 × beads').toBe((circles / 2) * 4);
         // 空间闭集：每颗珠必在「招牌带」或「某一已解锁格框」内 ⇒ 菜单帧不往别处洒珠。
         const band = signBands(COPY_TOKENS.app_name.length, MENU_TITLE_Y, SIGN_MATRIX_N, SIGN_BEAD_PITCH);
         const cells = wallCells();
         for (const k of cmds) {
-            if (k.kind !== 'circle') continue;
+            if (k.kind !== 'circle' || isNonBeadCircle(k)) continue;
             const c = k as { x: number; y: number };
             const inSign = c.y >= band.yMin && c.y <= band.yMax && c.x >= band.x && c.x <= band.x + band.w;
             const inCell = cells.some((cell) => {
@@ -773,7 +1058,11 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
     it('§3 零变更自证：本批新常量名不在 `systems-index.md` §3（新值只住 `tuning.ts` 派生区）', () => {
         const idx = readFileSync(resolve(ROOT, '..', 'design', 'gdd', 'systems-index.md'), 'utf8');
         for (const name of [
-            'MENU_SECONDARY_GAP',
+            // 顶栏一组（§5.1b，2026-10-13）：同样只住 `tuning.ts` 派生区，⛔ 不入 §3。
+            'MENU_TOPBAR_X',
+            'MENU_TOPBAR_VISUAL_D',
+            'MENU_TOPBAR_RESERVED_ALPHA',
+            'MENU_TOPBAR_TOP_FALLBACK',
             'MENU_TITLE_Y',
             'MENU_SLOGAN_Y',
             'MENU_VERSION_Y',

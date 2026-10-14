@@ -130,19 +130,26 @@ def _parse_args(argv):
     while i < len(argv):
         a = argv[i]
         if a == "--model":
-            i += 1; models.append(argv[i])
+            i += 1
+            models.append(argv[i])
         elif a == "--level":
-            i += 1; level = argv[i]
+            i += 1
+            level = argv[i]
         elif a == "--text":
-            i += 1; text = argv[i]
+            i += 1
+            text = argv[i]
         elif a == "--ref":
-            i += 1; ref = argv[i]
+            i += 1
+            ref = argv[i]
         elif a == "--seed":
-            i += 1; seed = int(argv[i])
+            i += 1
+            seed = int(argv[i])
         elif a == "--size":
-            i += 1; size = argv[i]  # 形如 1152*2048；不给则服务端默认（qwen 线恒为 2048 方图）
+            i += 1
+            size = argv[i]  # 形如 1152*2048；不给则服务端默认（qwen 线恒为 2048 方图）
         elif a in ("-h", "--help"):
-            print(__doc__); raise SystemExit
+            print(__doc__)
+            raise SystemExit
         else:
             models.append(a)  # 兼容旧位置参数：直接给模型名
         i += 1
@@ -188,17 +195,20 @@ def main():
             continue
         urls = find_image_urls(resp)
         if not urls:
-            print(f"  ✗ 响应无图片 URL：{json.dumps(resp, ensure_ascii=False)[:400]}")
+            print(
+                f"  ✗ 响应无图片 URL：{json.dumps(resp, ensure_ascii=False)[:400]}")
             results[model] = {"ok": False, "err": "no image url", "raw": resp}
             continue
         out = os.path.join(out_dir, f"{slug}.png")
         download(urls[0], out)
         dt = time.time() - t0
         print(f"  ✓ {dt:.1f}s → {os.path.relpath(out, REPO)}  (url×{len(urls)})")
-        results[model] = {"ok": True, "file": out, "secs": round(dt, 1), "n_urls": len(urls)}
+        results[model] = {"ok": True, "file": out,
+                          "secs": round(dt, 1), "n_urls": len(urls)}
     json.dump(results, open(os.path.join(out_dir, "_summary.json"), "w"),
               ensure_ascii=False, indent=2)
-    print(f"\n汇总 → {os.path.relpath(os.path.join(out_dir, '_summary.json'), REPO)}")
+    print(
+        f"\n汇总 → {os.path.relpath(os.path.join(out_dir, '_summary.json'), REPO)}")
 
 
 if __name__ == "__main__":

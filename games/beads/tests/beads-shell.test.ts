@@ -147,10 +147,12 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
 
     it('closes the overlay on back', () => {
         const r = rig({ initialScreen: 'menu' });
-        const open = centerOf('none', 'open-signin');
+        // 2026-10-13 §5.1b 第三批：菜单侧签到入口随底部纸钮退役（信箱实装前不可达）⇒
+        // back 腿改用**设置 overlay** 覆盖（overlay 代码本身按裁定保留不删）。
+        const open = centerOf('none', 'open-settings');
         r.shell.tapMeta(open.x, open.y);
-        expect(r.shell.overlay).toBe('signin');
-        const back = centerOf('signin', 'back');
+        expect(r.shell.overlay).toBe('settings');
+        const back = centerOf('settings', 'back');
         r.shell.tapMeta(back.x, back.y);
         expect(r.shell.overlay).toBe('none');
         expect(r.overlayEvents.some((e) => !e.open)).toBe(true);
@@ -189,7 +191,9 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
         const ids = metaLayout('none').buttons.map((b) => b.id);
         expect(ids, '卡 = 入口').toContain('open-levels');
         expect(ids, '墙已下移 overlay ⇒ 菜单无 pick-level').not.toContain('pick-level');
-        expect([...new Set(ids)].sort()).toEqual(['open-levels', 'open-settings', 'open-signin', 'start']);
+        expect([...new Set(ids)].sort()).toEqual(['open-levels', 'open-settings', 'start']);
+        // §5.1b：右上两颗（公告 / 信箱）= 预留不实现 ⇒ **不注册热区**（画禁用态圆，点了零事件）。
+        expect(ids, '⛔ 菜单不得有签到热区').not.toContain('open-signin');
         const before = r.shell.meta!.stamina;
         const c = centerOf('none', 'open-levels');
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);

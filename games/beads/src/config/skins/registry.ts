@@ -1,5 +1,5 @@
 /**
- * 皮肤注册表（EP12-S8 · WXG-T-268 批 2；架构真源 = `design/proposals/skin-system/arch.md` D1/D5
+ * 皮肤注册表（EP12-S8 · WXG-T-268 批 2；架构真源 = `games/beads/design/art/proposals/skin-system/arch.md` D1/D5
  * + `epics-beads-ep12.md` S8）。
  * ─────────────────────────────────────────────────────────────────────────────
  * **本表 = 玩家可选皮肤池的唯一真源**（判例 = `view/bead-styles/registry.ts` 同构）：

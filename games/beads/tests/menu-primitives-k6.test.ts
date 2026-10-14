@@ -1,7 +1,7 @@
 /**
  * **[EP12-S6 · T-2B]** K-6 菜单帧图元实测判据套（WXG-T-269-S6 子单 T-2B / Deliverable 4 + 5）。
  * ─────────────────────────────────────────────────────────────────────────────
- * 真源：`risks.md` **K-6**（菜单帧图元 +N 的性能敞口）；`design/proposals/ui-style-redesign/screens.md`
+ * 真源：`risks.md` **K-6**（菜单帧图元 +N 的性能敞口）；`games/beads/design/art/proposals/ui-style-redesign/screens.md`
  * S0 **§42 约束⑤**（⛔ 不进 playing `buildRenderModel` 盘面/托盘命令流）；
  * `production/epics/epics-beads-ep12.md` §73–§78（验收④「实测差分 / 封箱复评」）。
  *
@@ -43,8 +43,10 @@ import { createBeadsHarness, placeColor, simpleTestLevel } from './helpers.js';
 import {
     CAPTURE_LEGS,
     DEFAULT_EXPLICIT,
+    PLAQUE_CIRCLES,
     SIGN_BEADS_FROM_GLYPHS,
     SIGN_COMMANDS_FROM_GLYPHS,
+    TOPBAR_CIRCLES,
     countFrame,
     countPrimitives,
     createMenuShell,
@@ -304,9 +306,14 @@ describe('[T-2B][K-6] 成本读数（供 epics 状态行引用，⛔ 不引纸�
                 expect(sum, `${state}/${leg.label} kinds 求和`).toBe(r.total);
             }
         }
-        // 菜单帧非珠族只有 rect/line/text（珠体占去 circle/polygon）⇒ 上面的读数口径可靠。
+        // 菜单帧非珠族 = rect/line/text + **顶栏一族**（§5.1b：3 底圆 + 齿轮 hub/孔 = 5 圆，
+        // 8 齿线已计入 `line`）+ **门楣牌一族**（§5.1b-2 第十一批：铆钉 2 圆，牌体 rect / 亮线 line
+        // / 两条数值 text 已计入各自 kind）⇒ 珠体外圆必须单独加回，否则两套读数分家。
         const prod = LIVE.full['production']!;
         const nonBeadRects = prod.kinds['rect']! - prod.beads;
-        expect(nonBeadRects + prod.kinds['line']! + prod.kinds['text']! + prod.beads * BEAD_STYLE_MAX_COMMANDS).toBe(prod.total);
+        expect(
+            nonBeadRects + prod.kinds['line']! + prod.kinds['text']! + prod.beads * BEAD_STYLE_MAX_COMMANDS + TOPBAR_CIRCLES + PLAQUE_CIRCLES,
+            '非珠 rect + line + text + 珠体 7 + 顶栏族圆 + 门楣牌族圆 ≡ total',
+        ).toBe(prod.total);
     });
 });

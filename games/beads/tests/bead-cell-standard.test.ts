@@ -111,6 +111,6 @@ describe('格内占比标准（cell-standard.md §2 确认值）', () => {
     // 凹槽随档恒 ⊂ 珠（豆径档判据的新口径）必须在场。
     expect(read('bead-style-settings.test.ts')).toMatch(/凹槽随档但恒 ⊂ 珠体/);
     // 标准文档本体必须在场（⛔ 文档被删/改名 = 判据失去正本）。
-    expect(read(path.join('..', 'art', 'cell-standard.md'))).toMatch(/格内占比标准/);
+    expect(read(path.join('..', 'design', 'art', 'specs', 'cell-standard.md'))).toMatch(/格内占比标准/);
   });
 });

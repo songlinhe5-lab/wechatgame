@@ -1,7 +1,7 @@
 /**
  * 结构难度分 `DI`（WXG-T-266 EP12-S5 · **单一真源**）。
  *
- * 正本公式 = `design/proposals/ui-style-redesign/level-difficulty.md §3`；落码后**本函数即唯一实现**
+ * 正本公式 = `games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md §3`；落码后**本函数即唯一实现**
  * （§4「单一真源声明」：文档只引函数名，不引数值副本）。系数住 `tuning.ts::DIFFICULTY`（不进 §3）。
  *
  * 铁律：

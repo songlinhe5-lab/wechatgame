@@ -4,7 +4,7 @@
  *
  * 防什么：accessibility.md 状态列混淆「规格已写」与「代码已实现」= 第 5 轮假绿的温床
  *（判例 K-035，WXG-T-084/091）。本脚本把「声称落地」降级为**可机检凭证**：
- *   ① 锚点表（games/<game>/art/a11y-anchors.md）id 集合 == 矩阵（games/<game>/art/accessibility.md §2）行 id 集合；
+ *   ① 锚点表（games/<game>/design/art/specs/a11y-anchors.md）id 集合 == 矩阵（同目录 accessibility.md §2）行 id 集合；
  *   ② 锚点表状态列为 ✅ 的行 ⇒ 锚点列非空；
  *   ③ 任意行给出的非 `-` 锚点 ⇒ 在该游戏 src 下全部 .ts 字面命中 ≥1（多锚点 `;` 分隔，全须命中）。
  * 诚实边界（不掩饰）：矩阵状态列 ↔ 锚点表状态列的语义一致性不做机检——矩阵长文本行内
@@ -44,14 +44,14 @@ function tableRows(text, idRe) {
 const gamesDir = join(ROOT, 'games');
 let checkedGames = 0;
 for (const game of readdirSync(gamesDir)) {
-    const anchorPath = join(gamesDir, game, 'art', 'a11y-anchors.md');
-    const matrixPath = join(gamesDir, game, 'art', 'accessibility.md');
+    const anchorPath = join(gamesDir, game, 'design', 'art', 'specs', 'a11y-anchors.md');
+    const matrixPath = join(gamesDir, game, 'design', 'art', 'specs', 'accessibility.md');
     if (!existsSync(anchorPath) && !existsSync(matrixPath)) continue;
     checkedGames += 1;
     const gid = `games/${game}`;
 
     if (!existsSync(anchorPath)) {
-        errors.push(`${gid}: 有 accessibility.md 但缺锚点表 art/a11y-anchors.md（K-035 纪律）`);
+        errors.push(`${gid}: 有 accessibility.md 但缺锚点表 design/art/specs/a11y-anchors.md（K-035 纪律）`);
         continue;
     }
     if (!existsSync(matrixPath)) {
@@ -94,7 +94,7 @@ for (const game of readdirSync(gamesDir)) {
 
 if (checkedGames === 0) {
     console.log('STATUS: SKIP');
-    console.log('check:a11y —— 未找到任何 games/*/art/accessibility.md，无可检面对象');
+    console.log('check:a11y —— 未找到任何 games/*/design/art/specs/accessibility.md，无可检面对象');
     process.exit(0);
 }
 

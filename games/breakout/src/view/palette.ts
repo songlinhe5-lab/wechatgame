@@ -2,7 +2,7 @@
  * Breakout colour palette.
  *
  * Single source of truth for every colour the game draws. The art pipeline
- * (games/breakout/art) owns the values; gameplay and the view model only ever
+ * (games/breakout/design/art/specs) owns the values; gameplay and the view model only ever
  * reference names, never literals.
  */
 

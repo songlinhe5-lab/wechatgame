@@ -1,8 +1,8 @@
 /**
  * 文案令牌单源（copy tokens）— WXG-T-269-S6 · 子单 T-2A（EP12-S6 工程切片首落）。
  *
- * 真源链 = `design/proposals/ui-style-redesign/tokens.md` **§7**（对外称名唯一出处）
- *   ⇄ `design/proposals/ui-style-redesign/menu-architecture.md` **§6**（屏内落点表，两表同值）。
+ * 真源链 = `games/beads/design/art/proposals/ui-style-redesign/tokens.md` **§7**（对外称名唯一出处）
+ *   ⇄ `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` **§6**（屏内落点表，两表同值）。
  *
  * 纪律（照抄 §6 抬头，⛔ 不在工程侧放宽）：
  * - **UI 侧不散落字面，落码一律读表**；判据**只看令牌键**，字面可换（`ux-spec §3.3`「文案映射」判例）。

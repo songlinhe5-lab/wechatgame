@@ -1137,11 +1137,14 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    `shadowInk`/`wood_*` 六枚/`card_*` 三枚/`textDisabled` 共 **11 枚新 hex** 入表（真源 tokens.md §1「新」行），
   //    另 `EXPAND_BTN_INK #2A2E43→#8A5B34`、`EXPAND_BTN_TEXT #FFFFFF→#FFF6E8` 两枚换值（btn_expand 木化）
   //    ⇒ 35 → **46** 条 / `612ced0aa888`→`68a4b509bb65`。
+  //    [§5.1b-2 第十一批 · 2026-10-13 用户裁定「牌面色加令牌」] L4 门楣价目牌三枚入表
+  //    （真源 tokens.md §1）：`plaque_face #8C5C2A` / `plaque_edge #603C1A` / `plaque_bevel #F7CD9D`；
+  //    数值墨复用在册 `wood_text`（⇒ 零第四枚）⇒ 46 → **49** 条 / `68a4b509bb65`→`5f97298f7361`。
   it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
     const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
     const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
-    expect(hexes.length).toBe(46);
-    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('68a4b509bb65');
+    expect(hexes.length).toBe(49);
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('5f97298f7361');
   });
 });

@@ -796,8 +796,9 @@ function drawHud(
   }
 }
 
-/** F7② 8 齿齿轮（accent_purple，Ø48）：hub + 均匀齿线 + 中心孔（程序化，零资产）。 */
-function drawGear(builder: RenderModelBuilder, cx: number, cy: number, palette: BeadsPalette): void {
+/** F7② 8 齿齿轮（accent_purple，Ø48）：hub + 均匀齿线 + 中心孔（程序化，零资产）。
+ * ⚙ 导出口径（2026-10-13 顶栏实装）：主菜单左上设置钮共用本函数 ⇒ 两屏齿轮画法单源（入口语义仍不合并，§5.1b 收口 ③）。 */
+export function drawGear(builder: RenderModelBuilder, cx: number, cy: number, palette: BeadsPalette): void {
   for (let i = 0; i < GEAR_TEETH; i++) {
     const deg = ((i * 360) / GEAR_TEETH + 22.5) * (Math.PI / 180); // 半齿偏移避免针朝正上
     const cos = Math.cos(deg);

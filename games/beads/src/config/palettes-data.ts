@@ -1,7 +1,7 @@
 /**
  * ⚠️ GENERATED FILE — DO NOT EDIT BY HAND.
  *
- * Source of truth: games/beads/art/<slug>.json（品牌色板真源）
+ * Source of truth: games/beads/design/art/specs/<slug>.json（品牌色板真源）
  * Regenerate:      node tools/scripts/sync-palettes.mjs
  * Drift guard:     pnpm run palettes:check（pnpm run verify 内）
  *

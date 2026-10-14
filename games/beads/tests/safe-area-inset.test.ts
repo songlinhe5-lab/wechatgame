@@ -1,7 +1,7 @@
 /**
  * **[WXG-T-265 ①iii]** 单边安全偏移纯函数判据套（顶栏胶囊避让 + 底部 Home Indicator 避让）。
  * ─────────────────────────────────────────────────────────────────────────────
- * 真源：`design/proposals/ui-style-redesign/menu-architecture.md` **§5.1b-2**（裁定 B 规则式）
+ * 真源：`games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` **§5.1b-2**（裁定 B 规则式）
  *      + `design/gdd/systems-index.md §3.1`（`SAFE_TOP_H` 120 / `SAFE_BOTTOM_H` 68 = **fallback**，v1.75）；
  * 实现 = `src/config/tuning.ts::safeEdgeInset`（纯函数，不 import `cc`/`wx` ⇒ L2/L3）。
  *
@@ -21,6 +21,7 @@
 import { describe, expect, it } from 'vitest';
 import {
     DESIGN_W, SAFE_TOP_H, SAFE_BOTTOM_H, SAFE_EDGE_MARGIN, safeEdgeInset,
+    MENU_TOPBAR_TOP_FALLBACK, menuTopbarTop,
 } from '../src/config/tuning.js';
 
 /** 顶栏：`edgeDp` = 胶囊底缘（接口值），`fallbackH` = SAFE_TOP_H。 */
@@ -98,8 +99,26 @@ describe('safeEdgeInset — 退化与防御', () => {
     it('遮挡值为负（脏数据）-> 同样退化，不得把控件推到屏外', () => {
         expect(topbar(-10, 390)).toBe(SAFE_TOP_H + SAFE_EDGE_MARGIN);
     });
-    it('harness / web 无 wx：胶囊与 inset 均 0 -> 顶 124 / 底 72（与真机非刘海档一致）', () => {
+    it('harness / web 无 wx：胶囊与 inset 均 0 -> 顶 124 / 底 72（走兜底档）', () => {
         expect(topbar(0, 0)).toBe(124);
         expect(bottom(0, 0)).toBe(72);
+        // ~~旧注「与真机非刘海档一致」~~ ⇒ **v1.75 后作废**：非刘海真机走接口换算 112 + 4 = **116**，
+        // 124 现在**只在无接口值时出现**（定稿图版面基准）。
+        expect(topbar(56, 375)).not.toBe(topbar(0, 375));
+    });
+});
+
+describe('menuTopbarTop — 顶栏 wrapper（接口原值直喂，⛔ 不留第二份换算）', () => {
+    it('`capsuleBottomDp = null`（适配层无接口值的唯一写法）⇒ 逐字等于兜底档 124', () => {
+        expect(menuTopbarTop(null, 390)).toBe(MENU_TOPBAR_TOP_FALLBACK);
+        expect(MENU_TOPBAR_TOP_FALLBACK).toBe(SAFE_TOP_H + SAFE_EDGE_MARGIN);
+    });
+    it('接口有值 ⇒ 只信接口，且与纯函数腿**同一读数**（顶栏不另算一份）', () => {
+        expect(menuTopbarTop(56, 375)).toBe(topbar(56, 375)); // 非刘海 116
+        expect(menuTopbarTop(90, 393)).toBe(topbar(90, 393)); // 灵动岛 176
+        expect(menuTopbarTop(90, 393)).toBe(176);
+    });
+    it('适配层若拿 0 当「未知」⇒ 仍归一到兜底档（与 `null` 同路 ⇒ 契约可验）', () => {
+        expect(menuTopbarTop(0, 390)).toBe(MENU_TOPBAR_TOP_FALLBACK);
     });
 });
