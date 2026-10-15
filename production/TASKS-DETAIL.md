@@ -3250,3 +3250,21 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **验证**：typecheck ✓ · test ✓（含新判据）· framework:sync:check ✓ · check:size ✓（本批未重建、产物未变）· check:cocos-mask ✓（零触 mask）· check:links ✓。**封箱不受扰动**（默认 resolver=undefined ⇒ 菜单逐字节不变）。
 - **余项（受 §19 红线 + 真机取证 gate，本批不做）**：MCP `asset_operations.import` 导 PNG→`asset_system.refresh` 生成 `.meta`→CLI `build:cocos` 重建→`check:size` 复核主包 +38KB→真机扫码取证 `Texture2D.image=` 运行时构造（ADR-0031 §4.2 条 4）。受控正文（`control-manifest §19`「向主包投放位图」 + `systems-index §3.8` 总包 30720→20480）另走 §3.9 变更单，本单只记录裁定（ADR-0031 §1.2/§6）、不擅改。
 - **未 commit**（用户未点名提交）。
+
+## WXG-T-272
+
+> memory·日记长节外移 + Qoder 长期记忆清理（上下文瘦身）｜主理人(Qoder)｜2026-10-15 用户令「上下文内容太多，剔除无用上下文」
+
+- **背景**：会话注入面过大（目录树 + 记忆总览 + 定向日记）。体检定位大头：`ctx/index.json` 2.7MB（机器读、hooks 依赖，**不动**）、`memory/2026-10-04.md` 150KB、`temp/` 572 文件（未授权不动，待用户点名）。
+- **日记外移（文件侧）**：用现成工具 `pnpm run memory:split`（WXG-T-106 机械口径，dry-run 先跑）对 5 篇（10-04/10-03/09-28/10-13/10-14）外移 31 个 >600 tok `##` 节 → `memory/details/`（详情件 18→49），逐字节搬运 + 工具自带回读校验；5 篇合计 323KB→114KB。`ctx:build` 重建 + `ctx:check` A/B/C/D/D2+E3 全绿；`memory/INDEX.md` 与 ctx 产物由脚本自动更新。
+- **Qoder 长期记忆清理（记忆侧，删 11 条，逐条经用户裁决）**：
+  - 首轮低价值 2 条（单点实现细节，不满足入库重要性原则）；
+  - A1 登录安全策略（失败锁定/短信/IP 审计）＝本仓无登录后端，grep 证实为串台误录；
+  - A2 「大图切多关」Plate 主题整档 ×3（architecture 子集条 + pitfalls 正本条 + P2b 算法条）——用户裁「暂不需要，将来再梳理」；底档 = P2 spec §0.2、`tools/scripts/level-derange.mjs`、日记详情件；
+  - A3 直填vs级联悬置条（`_nearestFirst` 已删、级联问题被 G-3 裁定关闭，条目描述已废）；
+  - A4 P2b 工程经验条（教训 1/2 逐字重复，教训 3 随 A2 整档归档）；
+  - B1 `games/beads/art/` 矛盾条（目录不存在，与 `design/art/` 现行正本冲突，保留正确条）；
+  - B2 品牌色合并待裁条（`MIN_BRAND_DE` 全仓零命中，路线已被像素级 k-means 正本承载）。
+- **保留**：G-3 裁定、剥皮 task_summary（带校正段）、验证盲区专条、k-means 架构正本、安全区双条（分工非重复）。
+- **零代码改动**（`src/**` / `packages/framework/**` 未动）⇒ 未重跑 verify；`check:links` 实跑 OK。
+- **遗留**：`temp/`（572 文件 + 208 目录）与 `.playwright-cli/` 旧日志仍在目录树注入面内，待用户点名后清理。
