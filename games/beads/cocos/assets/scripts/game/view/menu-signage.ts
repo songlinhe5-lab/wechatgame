@@ -299,7 +299,9 @@ export function levelThumbBeads(level: BeadsLevelRaw, n: number = THUMB_MATRIX_N
  * @param w       格宽
  * @param h       格高
  * @param n       缩略档（缺省 `THUMB_MATRIX_N`；K-6 差分传 4 / 3 ⇒ 同帧对照）
- * @param area    缩略区边长（缺省 `THUMB_AREA` ⇒ 橱窗格逐字节不变；走马灯卡传大值 ⇒ 单卡大图）
+ * @param area    缩略区边长（缺省 `THUMB_AREA` ⇒ 橱窗格逐字节不变；Boss 图位传图位宽 ⇒ 大图）
+ * @param inkOverride `[WXG-T-281]` 墨集覆盖（未通关置灰传 `palette.beadGrayInksFor`）；
+ *                    给了 ⇒ **不走位图臂**（预烘彩图无灰度版）⇒ 落程序化缩略。
  */
 export function drawLevelThumb(
     builder: RenderModelBuilder,
@@ -310,6 +312,7 @@ export function drawLevelThumb(
     h: number,
     n: number = THUMB_MATRIX_N,
     area: number = THUMB_AREA,
+    inkOverride?: BeadInks,
 ): void {
     const cells = levelThumbCells(level, n);
     if (cells.length === 0) return;
@@ -320,12 +323,12 @@ export function drawLevelThumb(
     const top = yBottom + h - THUMB_TOP_INSET;
     // `[WXG-T-271 / ADR-0031 DEC=C′]` 位图臂：宿主命中 textureId ⇒ 原图按面铺满缩略区（1 条 blit）；
     // 未命中 / 未注入 ⇒ 落下方程序化缩略（绿线锚 = 逐字节今日）。blit x/y = 左下（同 rect）⇒ 顶缘减一面得下缘。
-    const texId = _thumbBitmap?.(level);
+    const texId = inkOverride === undefined ? _thumbBitmap?.(level) : undefined;
     if (texId !== undefined) {
         builder.blit(texId, left, top - area, area, area);
         return;
     }
-    const inks = beadInksFor(level);
+    const inks = inkOverride ?? beadInksFor(level);
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;
         const c = cells[i + 1]!;

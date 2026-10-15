@@ -295,6 +295,11 @@ export class RenderModelBuilder {
     this._height = h;
   }
 
+  /** 当前设计高（`[WXG-T-280]` 动态高档下全屏图元读它，⛔ 不复用静态 `DESIGN_H` 常量）。 */
+  get height(): number {
+    return this._height;
+  }
+
   begin(background?: string): void {
     this._commands.length = 0;
     // Rewind the arena cursor; the buffer itself (and its capacity) is kept.

@@ -126,6 +126,8 @@ export class Bootstrap extends Component {
       platform: detectPlatform(),
       designWidth: DESIGN_WIDTH,
       designHeight: DESIGN_HEIGHT,
+      // `[WXG-T-280]` 宽恒定版式（菜单链式底锚需要真全屏高）。
+      dynamicHeight: true,
     });
 
     app.onRender = (model) => {
@@ -133,6 +135,8 @@ export class Bootstrap extends Component {
     };
 
     this._app = app;
+    // 动态高：GameRoot 尺寸跟上实际设计高（构造基准档下为恒等操作）。
+    this._root?.getComponent(UITransform)?.setContentSize(app.viewport.designWidth, app.viewport.designHeight);
     this._bindRenderer();
     this._bindInput();
     this._loop = new CocosLoopBridge(app, this);

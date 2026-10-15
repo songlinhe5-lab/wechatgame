@@ -30,6 +30,11 @@ export interface AppOptions {
   readonly platform?: Platform;
   readonly designWidth?: number;
   readonly designHeight?: number;
+  /**
+   * `[WXG-T-280]` 宽恒定版式：设计高随屏幅动态重算（见 `Viewport`）。
+   * 开启后每帧 `builder` 与设计高同步；缺省 `false` = 旧行为逐字节不变。
+   */
+  readonly dynamicHeight?: boolean;
   readonly fixedDt?: number;
   readonly maxSubSteps?: number;
   /** Seed for the framework RNG. Use a fixed seed in tests/replays. */
@@ -95,7 +100,7 @@ export class App {
   constructor(options: AppOptions) {
     this.game = options.game;
     this.platform = options.platform ?? detectPlatform();
-    this.viewport = new Viewport(options.designWidth ?? 750, options.designHeight ?? 1334);
+    this.viewport = new Viewport(options.designWidth ?? 750, options.designHeight ?? 1334, options.dynamicHeight === true);
     this._builder = new RenderModelBuilder(this.viewport.designWidth, this.viewport.designHeight);
 
     this.events = new EventBus<EventMap>();
@@ -242,6 +247,8 @@ export class App {
   /** Re-fit the viewport after a screen-size change (WeChat `onResize`). */
   resize(width: number, height: number): void {
     this.viewport.resize(width, height);
+    // 动态高档：builder 的设计高必须跟上（`end()` 写进 model 的高供游戏侧读）。
+    this._builder.resize(this.viewport.designWidth, this.viewport.designHeight);
     // The design rect is unchanged, so the content hash is unchanged too — but
     // the host has just re-sized its surface and whatever was on it is gone.
     this._lastSig = Number.NaN;

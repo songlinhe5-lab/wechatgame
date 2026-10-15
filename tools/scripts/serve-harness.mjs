@@ -43,15 +43,20 @@ function argValue(flag, fallback) {
 const PORT = Number(argValue('--port', process.env['PORT'] ?? 4173));
 
 /**
- * `[WXG-T-226 EP12-B3]` **只读资源前缀映射**（⛔ 不复制文件 ⇒ 无副本漂移）。
+ * `[WXG-T-226 EP12-B3]` / `[WXG-T-280]` **只读资源前缀映射**（⛔ 不复制文件 ⇒ 无副本漂移）。
  *
- * `/mask-assets/<file>` ⇒ `<repo>/tools/mask-preview/cocos-assets/<file>`。
+ * 白名单表（前缀 → 仓内真源目录）：
+ * - `/mask-assets/*`   ⇒ `tools/mask-preview/cocos-assets/*`（4 张定稿 tint mask）
+ * - `/menu-assets/*`   ⇒ `games/beads/design/art/final/assets/menu/*`（主菜单定稿位图）
+ *
  * 存在的理由：harness 的静态服务**只服务 `dev/harness/`**（见 `resolveTarget` 的目录守卫），
- * 而 4 张定稿 mask 产物的真源在 `tools/mask-preview/cocos-assets/` ⇒ 不映射就 fetch 不到。
- * ⛔ 只读、只这一个前缀、⛔ 不得用于任意目录（映射表是白名单，不是「再开放一个根」）。
+ * 而产物真源在别处 ⇒ 不映射就 fetch 不到。⛔ 只读、只这条前缀、⛔ 不得用于任意目录
+ * （映射表是白名单，不是「再开放一个根」）。
  */
-const MASK_ASSET_PREFIX = '/mask-assets/';
-const MASK_ASSET_DIR = join(ROOT, 'tools', 'mask-preview', 'cocos-assets');
+const ASSET_MAPS = [
+  { prefix: '/mask-assets/', dir: join(ROOT, 'tools', 'mask-preview', 'cocos-assets') },
+  { prefix: '/menu-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'art', 'final', 'assets', 'menu') },
+];
 const HOST = argValue('--host', '127.0.0.1');
 const SKIP_BUILD = hasFlag('--no-build');
 const BUILD_ONLY = hasFlag('--build-only');
@@ -133,15 +138,17 @@ const MIME = {
 function resolveTarget(urlPath) {
   const decoded = decodeURIComponent(urlPath.split('?')[0].split('#')[0]);
 
-  // `[WXG-T-226]` 只读映射前缀：/mask-assets/* ⇒ tools/mask-preview/cocos-assets/*
-  if (decoded.startsWith(MASK_ASSET_PREFIX)) {
-    const rel = normalize(decoded.slice(MASK_ASSET_PREFIX.length)).replace(/^([/\\])+/, '');
-    if (rel === '') return null;
-    const mapped = join(MASK_ASSET_DIR, rel);
-    // 目录守卫：解析后必须仍在映射根内
-    if (mapped !== MASK_ASSET_DIR && !mapped.startsWith(MASK_ASSET_DIR + sep)) return null;
-    if (!existsSync(mapped) || !statSync(mapped).isFile()) return null;
-    return mapped;
+  // `[WXG-T-226 / WXG-T-280]` 只读映射前缀（白名单表逐条，目录守卫不变）
+  for (const { prefix, dir } of ASSET_MAPS) {
+    if (decoded.startsWith(prefix)) {
+      const rel = normalize(decoded.slice(prefix.length)).replace(/^([/\\])+/, '');
+      if (rel === '') return null;
+      const mapped = join(dir, rel);
+      // 目录守卫：解析后必须仍在映射根内
+      if (mapped !== dir && !mapped.startsWith(dir + sep)) return null;
+      if (!existsSync(mapped) || !statSync(mapped).isFile()) return null;
+      return mapped;
+    }
   }
 
   const relative = normalize(decoded).replace(/^([/\\])+/, '');

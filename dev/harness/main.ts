@@ -24,7 +24,8 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
 import { requiredTintMaskIds } from '../../games/beads/src/view/bead-tint-mask.js';
 import { setBeadTintRuntime, createWhitelistBeadTintRuntime } from '../../games/beads/src/view/bead-render.js';
 import { createBreakoutGame, type BreakoutGame } from '../../games/breakout/src/index.js';
@@ -70,6 +71,9 @@ const app = new App({
   game,
   designWidth: 750,
   designHeight: 1334,
+  // `[WXG-T-280]` 宽恒定版式：菜单链式底锚需要真全屏高（与 Cocos 宿主 `bindings.ts` 同档）；
+  // breakout 不开 ⇒ 旧信箱行为逐字节不变。
+  dynamicHeight: isBeads,
   seed: 'harness',
 });
 
@@ -129,6 +133,32 @@ const tintStats = {
 };
 
 const maskSource = { get: (id: string): object | undefined => maskRegistry.get(id) };
+/**
+ * `[WXG-T-280]` 主菜单位图注册表（`MENU_TEXTURES` 逻辑 id → 解码后的 `<img>`）。
+ * 可用性腿由 {@link setMenuBitmapResolver} 在**全部 settle 后**才注入（同 mask 判例 ⇒ 不半程 pop）；
+ * ⛔ 本表只管像素，「画哪」的几何全在视图锚定档（单一真源）。
+ */
+const menuRegistry = new Map<string, object>();
+const MENU_URL_PREFIX = '/menu-assets/';
+/** textureId → 定稿文件名（真源 = `design/art/final/assets/menu/`，经 serve-harness 白名单映射）。 */
+const MENU_FILE: Readonly<Record<string, string>> = {
+  [MENU_TEXTURES.logo]: 'ui_menu_logo.webp',
+  [MENU_TEXTURES.caseFrame]: 'ui_showcase_frame.png',
+  [MENU_TEXTURES.plate]: 'ui_showcase_plate.png',
+  [MENU_TEXTURES.cta]: 'ui_btn_start_9s.png',
+  [MENU_TEXTURES.ctaPressed]: 'ui_btn_start_9s_pressed.png',
+  [MENU_TEXTURES.btnCircle]: 'ui_btn_circle_normal.png',
+  [MENU_TEXTURES.btnCirclePressed]: 'ui_btn_circle_pressed.png',
+  [MENU_TEXTURES.btnArrow]: 'ui_btn_arrow_bg_normal.png',
+  [MENU_TEXTURES.btnArrowPressed]: 'ui_btn_arrow_bg_pressed.png',
+  [MENU_TEXTURES.iconSettings]: 'ui_icon_settings.png',
+  [MENU_TEXTURES.iconSound]: 'ui_icon_sound.png',
+  [MENU_TEXTURES.iconMail]: 'ui_icon_mail.png',
+  [MENU_TEXTURES.iconArrowLeft]: 'ui_icon_arrow_left.png',
+  [MENU_TEXTURES.iconArrowRight]: 'ui_icon_arrow_right.png',
+  [MENU_TEXTURES.iconCoin]: 'asset-icon-coin.webp',
+  [MENU_TEXTURES.iconStamina]: 'asset-icon-stamina.webp',
+};
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）
   {
@@ -154,7 +184,20 @@ const tintCache = new TintSpriteCache(
     tileInnerPx: maskTileInnerPx(BEAD_PITCH + TILE_BLEED * 2),
   },
 );
-const blitResolver = createTintBlitResolver(tintCache, maskSource as TextureRegistry);
+// `[WXG-T-280]` 取图注册表合并菜单位图（无 fx 的 blit 直走本表）；第三参 = nine-slice
+// 烘面离屏工厂（CTA 预烘用；与 tintCache 工厂同一 DOM 能力，framework ⛔ 不碰 DOM）。
+const blitSource: TextureRegistry = {
+  get: (id: string) => menuRegistry.get(id) ?? maskRegistry.get(id),
+};
+// `CanvasLike` 是 resolver 模块内私有型 ⇒ 同 `TintCanvasFactory` 判例在宿主侧 `as unknown` 注入。
+type NineSliceCanvasFactory = NonNullable<Parameters<typeof createTintBlitResolver>[2]>;
+const createNineSliceCanvas: NineSliceCanvasFactory = (w: number, h: number) => {
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(w));
+  c.height = Math.max(1, Math.round(h));
+  return c as unknown as ReturnType<NineSliceCanvasFactory>;
+};
+const blitResolver = createTintBlitResolver(tintCache, blitSource, createNineSliceCanvas);
 
 /**
  * 装 mask → 装 tint 运行时 → 预热 ⇒ 三步**串行**。
@@ -179,6 +222,27 @@ if (isBeads && tintEnabled) {
       );
     })
     .catch((err) => { tintStats.failed.push(String(err)); console.warn('[tint] 装配链异常', err); });
+}
+
+/**
+ * `[WXG-T-280]` 主菜单位图接线（`?menu=off` ⇒ 不装配 ⇒ 菜单恒程序化腿）。
+ * 单张失败只留控制台痕 ⇒ 该元素保持程序化（resolver 按 id 查存在性）。
+ */
+if (isBeads && harnessParams.get('menu') !== 'off') {
+  void Promise.all(
+    Object.entries(MENU_FILE).map(async ([id, file]) => {
+      try {
+        const img = await loadImage(`${MENU_URL_PREFIX}${file}`);
+        if (img.naturalWidth === 0) throw new Error(`naturalWidth=0 (${file})`);
+        menuRegistry.set(id, img as unknown as object);
+      } catch (err) {
+        console.warn('[menu] 位图加载失败 ⇒ 该腿保持程序化', id, file, err);
+      }
+    }),
+  ).then(() => {
+    setMenuBitmapResolver((textureId: string) => menuRegistry.has(textureId));
+    console.info(`[menu] 位图腿就绪：${menuRegistry.size}/${Object.keys(MENU_FILE).length}`);
+  });
 }
 
 /**
@@ -623,6 +687,8 @@ Object.assign(window as unknown as Record<string, unknown>, {
     app, game: beads, shell: beadsShell, fitCanvas,
     // `[WXG-T-226]` tint 臂自诊断：控制台可读 `__beads.tint.stats` / `__beads.tint.registry`
     tint: { stats: tintStats, registry: maskRegistry, cache: tintCache, resolver: blitResolver },
+    // `[WXG-T-280]` 菜单位图臂自诊断：`__beads.menu.registry`（textureId → img）。
+    menu: { registry: menuRegistry, files: MENU_FILE },
   },
 });
 

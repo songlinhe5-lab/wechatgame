@@ -26,15 +26,25 @@ export interface FitResult {
 
 export class Viewport {
   readonly designWidth: number;
-  readonly designHeight: number;
+  /**
+   * `[WXG-T-280]` 设计高。静态档（默认）= 构造值恒定 + letterbox；
+   * `dynamicHeight` 档 = 每次 `resize` 按屏幅重算（`designWidth × 屏高/屏宽`，
+   * 不低于构造基准值 ⇒ 宽屏矮屏退回信箱老路）。菜单链式（底锚 CTA）需要真全屏高。
+   */
+  designHeight: number;
+  /** 构造基准高（动态档的下限与回落档）。 */
+  readonly baseDesignHeight: number;
+  private readonly _dynamicHeight: boolean;
   private _fit: FitResult;
 
-  constructor(designWidth: number, designHeight: number) {
+  constructor(designWidth: number, designHeight: number, dynamicHeight = false) {
     if (designWidth <= 0 || designHeight <= 0) {
       throw new Error('Viewport: design size must be positive');
     }
     this.designWidth = designWidth;
     this.designHeight = designHeight;
+    this.baseDesignHeight = designHeight;
+    this._dynamicHeight = dynamicHeight;
     this._fit = {
       scale: 1,
       offsetX: 0,
@@ -61,6 +71,14 @@ export class Viewport {
    *              instead of letterboxing; used for full-bleed backgrounds.
    */
   resize(screenWidth: number, screenHeight: number, cover = false): FitResult {
+    // 动态档：先按屏幅重算设计高（宽恒定 ⇒ scale 分母不变），再走原换算。
+    // ⚠ 本方法内**两次**读写 designHeight 是刻意的：fit 必须与最终高同帧一致。
+    if (this._dynamicHeight && screenWidth > 0 && screenHeight > 0) {
+      this.designHeight = Math.max(
+        this.baseDesignHeight,
+        Math.round((this.designWidth * screenHeight) / screenWidth),
+      );
+    }
     const sx = screenWidth / this.designWidth;
     const sy = screenHeight / this.designHeight;
     const scale = cover ? Math.max(sx, sy) : Math.min(sx, sy);

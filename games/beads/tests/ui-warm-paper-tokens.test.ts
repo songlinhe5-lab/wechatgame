@@ -232,7 +232,7 @@ describe('WXG-T-268 EP12-S4 弹窗族换肤（screens.md S2/S3/S4 · paused/clea
 
 /**
  * 视图夹具：按给定 overlay 与当前关组装**最小数据**（`wallSlots = [0]` ⇒ 槽 0 = 已解锁纸格、
- * 其余越界成空槽）；走马灯卡状态由 `carouselLevel` 决定（有 ⇒ 现推缩略；无 ⇒ 虚线空卡）。
+ * 其余越界成空槽）；走马灯 Boss 图由 `carouselLevel` 决定（有 ⇒ 原生阵缩略；无 ⇒ 虚线空槽）。
  * 本文件**不拷贝九关陈列序**（那条判据只在 `meta-menu-wall.test.ts` 钉一份，K-042）。
  */
 function metaFrameCmds(opts: {
@@ -263,10 +263,8 @@ function metaFrameCmds(opts: {
         wallSlots: [0],
         // EP12-S6 · T-2B：珠拼缩略需关卡本体（与 `wallSlots` 同序同长）。
         wallLevels: [LEVELS[0]],
-        // 走马灯卡（§1.3）：boss 引用存在 ⇒ 现推缩略；缺 ⇒ 虚线空卡。
+        // 走马灯 Boss 图（[WXG-T-281]）：引用存在 ⇒ 原生阵缩略；缺 ⇒ 虚线空槽。
         carouselLevel: opts.carouselLevel,
-        carouselCleared: opts.carouselLevel !== undefined ? 1 : 0,
-        carouselTotal: 9,
     };
     const builder = new RenderModelBuilder(750, 1334);
     builder.begin();

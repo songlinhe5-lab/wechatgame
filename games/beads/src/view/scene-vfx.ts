@@ -195,16 +195,17 @@ export function sweepCenterX(p: number): number {
  * 跨帧复用 scratch 不再串形。此处保留「调用方每次新建」的现状只是为了不把无关改动
  * 混进本单的零视觉对拍，不是还必要。
  */
-export function sweepQuad(i: number, centerX: number, out: number[]): number[] {
+export function sweepQuad(i: number, centerX: number, out: number[], dy = 0): number[] {
     const half = (SWEEP_WIDTHS[i] ?? SWEEP_WIDTHS[0]!) / 2;
+    const yTop = SWEEP_Y_MAX + dy; // `[WXG-T-280]` 动态高：顶缘随 HUD 带上移，不盖 HUD
     out[0] = centerX - half + SWEEP_TAN * SWEEP_Y_MIN;
     out[1] = SWEEP_Y_MIN;
     out[2] = centerX + half + SWEEP_TAN * SWEEP_Y_MIN;
     out[3] = SWEEP_Y_MIN;
-    out[4] = centerX + half + SWEEP_TAN * SWEEP_Y_MAX;
-    out[5] = SWEEP_Y_MAX;
-    out[6] = centerX - half + SWEEP_TAN * SWEEP_Y_MAX;
-    out[7] = SWEEP_Y_MAX;
+    out[4] = centerX + half + SWEEP_TAN * yTop;
+    out[5] = yTop;
+    out[6] = centerX - half + SWEEP_TAN * yTop;
+    out[7] = yTop;
     return out;
 }
 

@@ -11,7 +11,7 @@
  * 2. **抄错位表**：本工程文件是 T-1 位表的**逐字转写**，珠数计数是最廉价的指纹
  *    ⇒ 腿 1 把每枚字模的 `#` 计数与 T-1 §1.6 登记表逐字对撞。
  *    ⚠ 这里引 T-1 数字是**转写保真门**（对撞「我方数据 ≠ 规格件数据」），与 K-6 禁的「纸面推算值入册」（K-051）
- *      不是同一件事 —— 后者归 `menu-primitives-k6.test.ts`，全部用实测帧相减。
+ *      不是同一件事 —— 后者原住 `menu-primitives-k6.test.ts`（已随 [WXG-T-280] 锚定档唯一退场）。
  * 3. **私造通道**：招牌若不走 `drawFilledBead` 既有珠体通道，系数 7 / 口径 B / 色源唯一三条都会飘
  *    ⇒ 腿 4 用「同一条通道、同样入参」画参照珠做逐字节流对撞。
  *
@@ -25,7 +25,6 @@ import {
     BEAD_STYLE_MAX_COMMANDS,
     DESIGN_H,
     DESIGN_W,
-    MENU_TITLE_Y,
     SIGN_BEAD_PITCH,
     SIGN_FACE_FLOOR,
     SIGN_GLYPH_GAP_RATIO,
@@ -49,6 +48,8 @@ import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.
 import { DEMO_BEAD_INKS } from '../src/view/palette.js';
 
 const APP = COPY_TOKENS.app_name;
+/** 招牌中心 y 测试档值（旧第十四批静态锚已随锚定档退场 ⇒ 本套只把中心当**纯函数入参**，⛔ 非版面真源）。 */
+const SIGN_CY = 968;
 
 type CircleCmd = Extract<DrawCommand, { kind: 'circle' }>;
 type RectCmd = Extract<DrawCommand, { kind: 'rect' }>;
@@ -57,7 +58,7 @@ type PolyCmd = Extract<DrawCommand, { kind: 'polygon' }>;
 /** 只画招牌的一帧 ⇒ 命令流无噪声（容器 / 文字令牌不进场）。 */
 function paintSign(
     text: string = APP,
-    centerY: number = MENU_TITLE_Y,
+    centerY: number = SIGN_CY,
     n: number = SIGN_MATRIX_N,
     d: number = SIGN_BEAD_PITCH,
 ): { beads: number; circles: CircleCmd[]; rects: RectCmd[]; polys: PolyCmd[]; flow: string[] } {
@@ -163,19 +164,19 @@ describe('[T-2B] 位表数据完整性（T-1 §1.5 逐字转写的保真门）',
 describe('[T-2B] 位表行主序 / y 向（防反位，T-1 §0.5）', () => {
     it('实测珠心集 ≡ 位表按「rows[0] = 视觉顶行 / c00 = 视觉最左列」换算的期望集', () => {
         const { circles } = paintSign();
-        expect(actualCenters(circles)).toEqual(expectedCenters(APP, MENU_TITLE_Y, SIGN_MATRIX_N, SIGN_BEAD_PITCH));
+        expect(actualCenters(circles)).toEqual(expectedCenters(APP, SIGN_CY, SIGN_MATRIX_N, SIGN_BEAD_PITCH));
     });
 
     it('反例锁：上下翻 / 左右翻 / 双翻三套反位期望集**全部** ≢ 实测（防「恒返基准」式自证）', () => {
         const seen = actualCenters(paintSign().circles);
         const n = SIGN_MATRIX_N;
         for (const flip of ['v', 'h', 'both'] as const) {
-            const flipped = expectedCenters(APP, MENU_TITLE_Y, n, SIGN_BEAD_PITCH, flip);
+            const flipped = expectedCenters(APP, SIGN_CY, n, SIGN_BEAD_PITCH, flip);
             expect(flipped, `反位（${flip}）不得与实测相等`).not.toEqual(seen);
             // 逐枚字模的**双向**恒等式：移位 ⇔ 非自对称（`豆` 本身左右对称 ⇒ h 翻不移位是事实，不是漏网）。
             for (const g of SIGN_GLYPHS) {
-                const one = expectedCenters(g.char, MENU_TITLE_Y, n, SIGN_BEAD_PITCH, flip);
-                const straight = expectedCenters(g.char, MENU_TITLE_Y, n, SIGN_BEAD_PITCH);
+                const one = expectedCenters(g.char, SIGN_CY, n, SIGN_BEAD_PITCH, flip);
+                const straight = expectedCenters(g.char, SIGN_CY, n, SIGN_BEAD_PITCH);
                 const moved = one.length !== straight.length || one.some((v, i) => v !== straight[i]);
                 expect(moved, `「${g.char}」在 ${flip} 翻下是否移位`).toBe(!selfSymmetric(g.rows, n, flip));
             }
@@ -186,18 +187,18 @@ describe('[T-2B] 位表行主序 / y 向（防反位，T-1 §0.5）', () => {
 
     it('y 向单调：位表顶行（r00）珠心 y > 底行（r09）珠心 y（原点左下、y 向上）', () => {
         const circles = actualCenters(paintSign().circles).map((s) => Number(s.split('|')[1]));
-        const topRowY = MENU_TITLE_Y + (SIGN_MATRIX_N * SIGN_BEAD_PITCH) / 2 - 0.5 * SIGN_BEAD_PITCH;
-        const bottomRowY = MENU_TITLE_Y - (SIGN_MATRIX_N * SIGN_BEAD_PITCH) / 2 + 0.5 * SIGN_BEAD_PITCH;
+        const topRowY = SIGN_CY + (SIGN_MATRIX_N * SIGN_BEAD_PITCH) / 2 - 0.5 * SIGN_BEAD_PITCH;
+        const bottomRowY = SIGN_CY - (SIGN_MATRIX_N * SIGN_BEAD_PITCH) / 2 + 0.5 * SIGN_BEAD_PITCH;
         expect(Math.max(...circles)).toBe(topRowY);
         expect(Math.min(...circles)).toBe(bottomRowY);
         expect(topRowY).toBeGreaterThan(bottomRowY);
     });
 });
 
-describe('[T-2B] 招牌几何（`MENU_TITLE_Y` = 外接框中心；主理人裁定）', () => {
-    it('外接框中心 = MENU_TITLE_Y，高 = n·d，顶/底沿关于中心对称 ⇒ 非 baseline 语义', () => {
-        const bands = signBands(APP.length, MENU_TITLE_Y);
-        expect((bands.yMin + bands.yMax) / 2).toBe(MENU_TITLE_Y);
+describe('[T-2B] 招牌几何（`SIGN_CY` = 外接框中心；主理人裁定）', () => {
+    it('外接框中心 = SIGN_CY，高 = n·d，顶/底沿关于中心对称 ⇒ 非 baseline 语义', () => {
+        const bands = signBands(APP.length, SIGN_CY);
+        expect((bands.yMin + bands.yMax) / 2).toBe(SIGN_CY);
         expect(bands.h).toBe(SIGN_MATRIX_N * SIGN_BEAD_PITCH);
         const centers = paintSign().circles;
         expect(Math.max(...centers.map((c) => c.y)) < bands.yMax).toBe(true);
@@ -205,7 +206,7 @@ describe('[T-2B] 招牌几何（`MENU_TITLE_Y` = 外接框中心；主理人裁�
     });
 
     it('总宽 = `SIGN_WIDTH_COEF · n · d`（4 枚字槽 + 3 个半字宽间隙），且 ≡ tuning 常量、≤ 页面可用宽', () => {
-        const bands = signBands(APP.length, MENU_TITLE_Y);
+        const bands = signBands(APP.length, SIGN_CY);
         const manual =
             APP.length * SIGN_MATRIX_N * SIGN_BEAD_PITCH +
             (APP.length - 1) * SIGN_MATRIX_N * SIGN_BEAD_PITCH * SIGN_GLYPH_GAP_RATIO;
@@ -223,7 +224,7 @@ describe('[T-2B] 招牌几何（`MENU_TITLE_Y` = 外接框中心；主理人裁�
     it('四枚字槽等差 = n·d·(1 + SIGN_GLYPH_GAP_RATIO)，逐字珠数与位表一致', () => {
         const circles = paintSign().circles;
         const step = SIGN_MATRIX_N * SIGN_BEAD_PITCH * (1 + SIGN_GLYPH_GAP_RATIO);
-        const left0 = signBands(APP.length, MENU_TITLE_Y).x;
+        const left0 = signBands(APP.length, SIGN_CY).x;
         for (let i = 0; i < SIGN_GLYPHS.length; i++) {
             const g = SIGN_GLYPHS[i]!;
             const inBand = circles.filter((c) => c.x >= left0 + i * step - 1e-6 && c.x < left0 + i * step + SIGN_MATRIX_N * SIGN_BEAD_PITCH - 1e-6);
@@ -249,7 +250,7 @@ describe('[T-2B] 珠体通道与口径 B（S0 约束①③④）', () => {
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
         // 不排序 ⇒ 与 `drawBeadText` 的发射序（字 / 行 / 列）逐行对齐，流级 diff 才有意义。
-        for (const key of expectedCenters(APP, MENU_TITLE_Y, SIGN_MATRIX_N, SIGN_BEAD_PITCH, 'none', false)) {
+        for (const key of expectedCenters(APP, SIGN_CY, SIGN_MATRIX_N, SIGN_BEAD_PITCH, 'none', false)) {
             const [x, y] = key.split('|')!;
             const opts: FilledBeadOptions = {
                 size: outer,
@@ -304,7 +305,7 @@ describe('[T-2B] 缺失字模的降级臂（⛔ 不猜字形、⛔ 不同屏两�
         // 按字槽分箱：前三槽位置全等（未塌、未左移），缺字槽无珠，末槽照旧在该位置。
         const step = SIGN_MATRIX_N * SIGN_BEAD_PITCH * (1 + SIGN_GLYPH_GAP_RATIO);
         const bandOf = (t: string, i: number): number[] => {
-            const left0 = signBands(t.length, MENU_TITLE_Y).x;
+            const left0 = signBands(t.length, SIGN_CY).x;
             return [...new Set(
                 paintSign(t).circles
                     .filter((c) => c.x >= left0 + i * step - 1e-6 && c.x < left0 + i * step + SIGN_MATRIX_N * SIGN_BEAD_PITCH - 1e-6)
@@ -322,7 +323,7 @@ describe('[T-2B] 缺失字模的降级臂（⛔ 不猜字形、⛔ 不同屏两�
         const original = console.warn;
         console.warn = (...args: unknown[]) => { warns.push(args.join(' ')); };
         try {
-            expect(drawBeadText(new RenderModelBuilder(DESIGN_W, DESIGN_H), APP, MENU_TITLE_Y, 8, SIGN_BEAD_PITCH)).toBe(0);
+            expect(drawBeadText(new RenderModelBuilder(DESIGN_W, DESIGN_H), APP, SIGN_CY, 8, SIGN_BEAD_PITCH)).toBe(0);
         } finally {
             console.warn = original;
         }

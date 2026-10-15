@@ -38,10 +38,10 @@ import type { Game, GameServices, RenderModelBuilder } from '../../framework/ind
 import {
     FACET4_STYLE_ID,
     BEAD_SIZE_DEFAULT,
-    MENU_TOPBAR_TOP_FALLBACK,
     STAMINA_START_COST,
     WALL_CAPACITY,
-    menuTopbarTop,
+    menuAnchors,
+    type MenuAnchors,
 } from '../config/tuning';
 import { BeadsGame, type BeadsGameOptions } from './beads-game';
 import { LEVELS } from '../config/levels';
@@ -53,6 +53,7 @@ import {
     buildMetaView,
     hitTestMeta,
     type MetaAction,
+    type MetaBossState,
     type MetaButton,
     type MetaOverlay,
     type MetaViewData,
@@ -134,11 +135,11 @@ export class BeadsShell implements Game {
         overlay: 'none' as MetaOverlay,
         signinDay: 0,
         /**
-         * 顶栏深度（§5.1b 裁定 B：逐机动态避让）。**init 时算定一次 ⇒ 全程不改**，
-         * 故当常量存进复用对象（非每帧重算）。绘制腿与 {@link _dispatchMetaTap} 的命中腿
-         * **共读本值**（否则画位与热位逐机错位）。未 `init`（单测直构 shell）⇒ 留兜底档 124。
+         * `[WXG-T-280]` 逐机菜单锚（落地单 §2）：**init 算定一次 ⇒ 全程不改**（顶栏避让已并入链内 `bt`）；
+         * 绘制腿（`buildMetaView`）与命中腿（`_dispatchMetaTap`）**共读同一引用**（几何缓存键）。
+         * 未 `init`（单测直构 shell）⇒ `undefined` ⇒ 视图走模块级兜底锚定档（锚定档唯一，⛔ 无第二套几何）。
          */
-        topbarTop: MENU_TOPBAR_TOP_FALLBACK,
+        anchors: undefined as MenuAnchors | undefined,
         canClaim: false,
         bgmMuted: false,
         debugInfo: false,
@@ -161,10 +162,13 @@ export class BeadsShell implements Game {
         wallLevels: [] as readonly (BeadsLevelRaw | undefined)[],
         // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里进度最远那关（配置序末位）；一关未通 ⇒ undefined。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
-        carouselCleared: 0,
-        carouselTotal: 0,
+        carouselState: undefined as MetaBossState | undefined,
         studioEnabled: false,
     };
+    /** ◀▶ 翻页位（`[WXG-T-280]` 落地单 §3；进界由 `_metaViewData` 钳在已通序内，无需复位腿）。 */
+    private _carouselOffset = 0;
+    /** 已通槽逆序 scratch（复用数组 ⇒ 每帧零分配；`[0]` = 进度最远）。 */
+    private readonly _carouselOrder: number[] = [];
 
     constructor(options: BeadsShellOptions) {
         this._clock = options.clock;
@@ -199,16 +203,26 @@ export class BeadsShell implements Game {
         return this._overlay;
     }
 
+    /** `[WXG-T-281]` init 算定的实锚（与 `tapMeta` 热区同源）⇒ 测试/覆盖层读同一几何，⛔ 另算默认档。 */
+    get menuAnchors(): MenuAnchors | undefined {
+        return this._viewData.anchors;
+    }
+
     // ───────────────────────────────────────────────────────────── Game contract
 
     init(services: GameServices): void {
         this._services = services;
-        // 顶栏避让：两个入参全部来自平台接口（胶囊底缘 dp / 屏宽 dp）；无接口⇒ 124（定稿图档）。
-        // 顺序保证：合成配方先 `viewport.resize(screen)` 再 `game.init(services)` ⇒ 此处 `fit` 已就绪。
-        this._viewData.topbarTop = menuTopbarTop(
-            services.platform.capsuleBottomDp,
-            services.viewport.fit.screenWidth,
-        );
+        // `[WXG-T-280]` 菜单链锚：接口值算定一次（顶栏避让 `bt` 已在链内）。⚠ 小游戏宿主下传接口实值；
+        // 非小游戏宿主（浏览器 harness / node）无硬件刘海/Home 条 ⇒ **真值 0**（[WXG-T-281] 排障：旧档传 null
+        // 走 120/68 悲观兜底，1334 屏即落退化态 ⇒ 橱窗压 CTA / slogan 骑资源条）。null 兜底档仅留「未知宿主」直调。
+        const plat = services.platform;
+        this._viewData.anchors = menuAnchors({
+            safeTopDp: plat.isMiniGame ? plat.safeAreaTop : 0,
+            capsuleBottomDp: plat.capsuleBottomDp,
+            safeBottomDp: plat.isMiniGame ? plat.safeAreaBottom : 0,
+            windowWidthDp: services.viewport.fit.screenWidth,
+            designHeight: services.viewport.designHeight,
+        });
         this.play.init(services);
         const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
         this.meta = new MetaState({
@@ -300,7 +314,7 @@ export class BeadsShell implements Game {
 
     /** 命中 + 派发的唯一腿（菜单 / overlay 共用）；返回是否被控件消费。 */
     private _dispatchMetaTap(x: number, y: number): boolean {
-        const btn = hitTestMeta(this._overlay, x, y, this._viewData.topbarTop);
+        const btn = hitTestMeta(this._overlay, x, y, this._viewData.anchors);
         if (!btn) return false;
         return this._applyMetaAction(btn);
     }
@@ -317,6 +331,14 @@ export class BeadsShell implements Game {
                 // ⇒ 本分支从「代码保留腿」（Q5①）转正为**实际入口**；墙下移到该 overlay（选关能力不丢）。
                 this._overlay = 'levels';
                 this._emitOverlay(true);
+                return true;
+            // `[WXG-T-280]` 橱窗 ◀▶：只在锚定档热区表里存在 ⇒ 静态档零影响；语义 = 已通序翻页（集合归本 shell）。
+            case 'carousel-prev':
+                if (this._carouselOffset > 0) this._carouselOffset--;
+                return true;
+            case 'carousel-next':
+                // 上不封顶此处钳 ⇒ 由 `_metaViewData` 按当前已通数收敛（关表变化时自动合法）。
+                this._carouselOffset++;
                 return true;
             case 'pick-level': {
                 const slot = btn.slot;
@@ -471,25 +493,34 @@ export class BeadsShell implements Game {
         v.wallSlots = this._wallSlotsFor();
         // 槽位 → 关卡引用（同一缓存批，T-2B 缩略聚合的只读入口）。
         v.wallLevels = this._wallLevelsFor();
-        // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里**进度最远**那关（配置序末位）。
-        // ⇒ `wallSlots` = 恒等配置序 ⇒ **反序取首个已通槽** = 最大 id 已通关；⛔ 每帧零 `difficultyOf`，
-        //   单趟 ≤capacity 整数循环、零分配。星级即「已通关」判据（`starsByLevel[idx] > 0`）。
+        // 走马灯 Boss 图（`[WXG-T-281]` 用户裁定：只展示 Boss 图、未通关置灰、点图进选关）：
+        // 陈列集 = 「下一未通关」（进度最远，置灰）+ 已通集反序 ⇒ 默认 0 项即进度最远那关；
+        //   ⛔ 每帧零 `difficultyOf`，单趟 ≤capacity 整数循环、零分配。星级即「已通关」判据（`starsByLevel[idx] > 0`）。
         // ponytail: 进度/boss 均在已陈列的 `wallSlots`（≤WALL_CAPACITY）内取；溢出未实现（S6 Out）⇒ 关表 >capacity 时需改全表扫描。
         const slots = v.wallSlots;
         const levels = v.wallLevels;
         const stars = this.play.starsByLevelRaw;
+        const order = this._carouselOrder;
+        order.length = 0;
         let cleared = 0;
-        let boss: BeadsLevelRaw | undefined;
+        let pushingSlot = -1;
         for (let s = slots.length - 1; s >= 0; s--) {
             const idx = slots[s]!;
             if ((stars[idx] ?? 0) > 0) {
                 cleared++;
-                if (boss === undefined) boss = levels[s];
+                order.push(s);
+            } else {
+                pushingSlot = s; // 反序遍历 ⇒ 末次覆盖 = 升序最小未通槽 = 下一要挑的关
             }
         }
+        if (pushingSlot !== -1) order.unshift(pushingSlot);
+        const shown = cleared + (pushingSlot === -1 ? 0 : 1);
+        // `[WXG-T-280]` ◀▶ 翻页：boss = 陈列集逆序第 `offset` 项（默认 0 = 进度最远）；越界就地钳回。
+        if (this._carouselOffset >= shown) this._carouselOffset = Math.max(0, shown - 1);
+        const slot = shown === 0 ? -1 : order[this._carouselOffset]!;
+        const boss = slot === -1 ? undefined : levels[slot];
         v.carouselLevel = boss;
-        v.carouselCleared = cleared;
-        v.carouselTotal = this.play.levelCount;
+        v.carouselState = boss === undefined ? undefined : (slot === pushingSlot ? 'pushing' : 'cleared');
         v.studioEnabled = this._studio !== undefined;
         return v;
     }

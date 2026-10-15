@@ -386,7 +386,7 @@
     "_enabled": true,
     "__prefab": null,
     "maskTexture": {
-      "__uuid__": "cbf588aa-3ab8-418a-af42-5ea6b4fe0b9c@6c48a",
+      "__uuid__": "24f09d0c-f25d-4fa0-b4f5-e68439b4e0bc@6c48a",
       "__expectedType__": "cc.Texture2D"
     },
     "baseColor": {
@@ -528,7 +528,7 @@
     "_enabled": true,
     "__prefab": null,
     "maskTexture": {
-      "__uuid__": "a626af4b-a549-4224-9703-83c8c1da833c@6c48a",
+      "__uuid__": "837889c8-bb8d-4c39-a685-4b75de9094c7@6c48a",
       "__expectedType__": "cc.Texture2D"
     },
     "baseColor": {

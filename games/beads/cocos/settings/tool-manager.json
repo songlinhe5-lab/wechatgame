@@ -8,13 +8,13 @@
         {
           "category": "scene",
           "name": "scene_management",
-          "enabled": false,
+          "enabled": true,
           "description": "SCENE MANAGEMENT: Core scene operations for project workflow. COMMON TASKS: get_current for active scene info, get_list to see all scenes, open to switch scenes, save to persist changes, create for new scenes. WORKFLOW: Always save before switching scenes to avoid data loss."
         },
         {
           "category": "scene",
           "name": "scene_hierarchy",
-          "enabled": false,
+          "enabled": true,
           "description": "SCENE HIERARCHY: Get the complete hierarchy of current scene with optional component information. Use this to inspect scene structure."
         },
         {
@@ -98,7 +98,7 @@
         {
           "category": "component",
           "name": "set_component_property",
-          "enabled": false,
+          "enabled": true,
           "description": "COMPONENT PROPERTY SETTER: Set component properties with strict type validation. CRITICAL WORKFLOW: 1) Use component_query to get exact componentType AND inspect property types, 2) Set properties with MANDATORY propertyType specification, 3) Verify results. SUPPORTS: All Cocos Creator built-in components (cc.Label, cc.Sprite, cc.Button) and custom script components. ⚠️ IMPORTANT: propertyType is REQUIRED - no automatic detection!"
         },
         {
@@ -307,7 +307,7 @@
         }
       ],
       "createdAt": "2026-09-13T13:49:01.989Z",
-      "updatedAt": "2026-09-25T00:44:30.020Z"
+      "updatedAt": "2026-10-15T13:22:47.798Z"
     }
   ],
   "currentConfigId": "cef508fd-4f70-4cb6-a949-b10277944178",

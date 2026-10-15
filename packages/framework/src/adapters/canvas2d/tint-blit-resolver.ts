@@ -15,9 +15,63 @@
  */
 
 import { tintFxBase } from '../../core/bake/tint-composite.js';
+import { nineSliceFxRead } from '../../core/bake/nine-slice-fx.js';
 import type { BlitResolver, TextureRegistry } from './canvas2d-renderer.js';
 import type { BlitCommand } from '../../core/render/render-model.js';
 import type { TintSpriteCache } from './tint-sprite-cache.js';
+
+/** 可 `drawImage` 的源（与注册表同源）。 */
+type Source = { width: number; height: number };
+type Ctx2DLike = {
+  drawImage(image: Source, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
+};
+type CanvasLike = Source & { getContext(t: '2d'): Ctx2DLike | null };
+
+/**
+ * `[WXG-T-280]` nine-slice 预烘：把九段拉成**单张**目标尺寸纹理（渲染器/取图契约不变，
+ * 命中缓存后每帧零绘制）。键 = `texId|w|h|capX|capY`（尺寸档极少，CTA 仅常态/按下态两档）。
+ * 烘面朝向 = 源图同向（与 `TextureRegistry` 条目同一约定，y 翻由渲染器 blit 分支统一处理）。
+ */
+const _nineSlices = new Map<string, CanvasLike>();
+function bakeNineSlice(
+  textureId: string,
+  src: Source,
+  w: number,
+  h: number,
+  capX: number,
+  capY: number,
+  create: (w: number, h: number) => CanvasLike | null,
+): CanvasLike | undefined {
+  // 键 = 纹理 id + 目标尺寸档（⛔ 不拿宿主对象的 `__id` 猜：普通注册表条目没这字段 ⇒ 会撞键）。
+  const key = `${textureId}|${w}|${h}|${capX}|${capY}`;
+  const hit = _nineSlices.get(key);
+  if (hit !== undefined) return hit;
+  const canvas = create(Math.max(1, Math.round(w)), Math.max(1, Math.round(h)));
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return undefined;
+  const sw = src.width;
+  const sh = src.height;
+  const cx = Math.min(capX, sw / 2, w); // 端帽不超源宽一半/目标宽
+  const cy = Math.min(capY, sh / 2, h);
+  const srcRestX = sw - cx * 2;
+  const srcRestY = sh - cy * 2;
+  const dstX = [0, cx, w - cx];
+  const dstW = [cx, w - cx * 2, cx];
+  const srcTop = [0, cy, sh - cy];
+  const srcH = [cy, srcRestY, cy];
+  const dstY = [0, cy, h - cy];
+  const dstH = [cy, h - cy * 2, cy];
+  const srcW = [cx, srcRestX, cx];
+  const srcLeft = [0, cx, sw - cx];
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      if (dstW[c]! <= 0 || dstH[r]! <= 0 || srcW[c]! <= 0 || srcH[r]! <= 0) continue;
+      ctx.drawImage(src, srcLeft[c]!, srcTop[r]!, srcW[c]!, srcH[r]!, dstX[c]!, dstY[r]!, dstW[c]!, dstH[r]!);
+    }
+  }
+  _nineSlices.set(key, canvas);
+  return canvas;
+}
 
 /**
  * 着色策略：`fx` 有 `base` ⇒ 取 CPU 预合成 sprite；否则 ⇒ 原纹理注册表。
@@ -28,10 +82,18 @@ import type { TintSpriteCache } from './tint-sprite-cache.js';
 export function createTintBlitResolver(
     cache: TintSpriteCache,
     registry: TextureRegistry,
+    /** nine-slice 烘面用的小工厂；宿主无离屏能力（不传/返 null）⇒ 九宫格命令跳过。 */
+    createCanvas?: (w: number, h: number) => CanvasLike | null,
 ): BlitResolver {
     return {
         resolve(cmd: BlitCommand): object | undefined {
             if (cmd.fx === undefined) return registry.get(cmd.textureId);
+            const slice = nineSliceFxRead(cmd.fx);
+            if (slice !== undefined) {
+                const src = registry.get(cmd.textureId) as Source | undefined;
+                if (src === undefined || createCanvas === undefined) return undefined;
+                return bakeNineSlice(cmd.textureId, src, cmd.w, cmd.h, slice.capX, slice.capY, createCanvas);
+            }
             const base = tintFxBase(cmd.fx);
             return base === undefined ? undefined : cache.get(cmd.textureId, base);
         },

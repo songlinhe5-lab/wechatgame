@@ -25488,17 +25488,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 3226,
-      "lines": 104,
-      "sha256": "5b9d65506d14424f1e6660c0cebcff803dc0a52b3bc8a79291692b541668101b",
+      "tokens": 5962,
+      "lines": 138,
+      "sha256": "83999490d8cb510f1d60bb2db8bf516c92fe66349400cd1763b65b866b66db15",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§主界面布局落地单 · 「拼豆小铺」菜单屏（规范 v3.3 定稿）",
+          "anchor": "§主界面布局落地单 · 「拼豆小铺」菜单屏（规范 v3.4 定稿）",
           "level": 1,
           "startLine": 1,
-          "endLine": 105,
-          "tokens": 3199,
+          "endLine": 139,
+          "tokens": 5935,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-coords",
           "keywords": [
             "coordinates",
@@ -25529,8 +25529,8 @@
           "anchor": "§2 纵向链（自顶，全常量恒定，逐机只随锚平移）",
           "level": 2,
           "startLine": 22,
-          "endLine": 41,
-          "tokens": 407,
+          "endLine": 44,
+          "tokens": 557,
           "summary": "",
           "keywords": [
             "纵向链",
@@ -25542,9 +25542,9 @@
         {
           "anchor": "§3 元素清单（尺寸 / 横坐标逐机恒定 · 层序沿用 §5.2）",
           "level": 2,
-          "startLine": 42,
-          "endLine": 55,
-          "tokens": 543,
+          "startLine": 45,
+          "endLine": 61,
+          "tokens": 981,
           "summary": "招牌（结+板一体） 视觉 474×180 @x[140,614]（结 187×72 @x280 含内交叠） 居中 bow",
           "keywords": [
             "§5.2",
@@ -25556,25 +25556,27 @@
           ]
         },
         {
-          "anchor": "§4 五档验收账（gap_top / gap_bot，柜隙必须落此表）",
+          "anchor": "§4 五档验收账（gap_top / gap_bot，**组隙**（条窗一体组上:下）必须落此表，v3.4 重出）",
           "level": 2,
-          "startLine": 56,
-          "endLine": 67,
-          "tokens": 212,
-          "summary": "SE 375×667@2x 40 112 0 1334 16 / 32",
+          "startLine": 62,
+          "endLine": 73,
+          "tokens": 250,
+          "summary": "SE 375×667@2x 40 112 0 1334 19 / 38",
           "keywords": [
             "gap_top",
             "gap_bot",
             "五档验收账",
-            "柜隙必须落此"
+            "组隙",
+            "条窗一体组上",
+            "必须落此表"
           ]
         },
         {
           "anchor": "§5 资源文件需求（对齐 `final/README.md` assets/menu 台账）",
           "level": 2,
-          "startLine": 68,
-          "endLine": 90,
-          "tokens": 959,
+          "startLine": 74,
+          "endLine": 96,
+          "tokens": 1008,
           "summary": "已入库可直接用（games/beads/cocos/assets/menu/，台账状态为准）：",
           "keywords": [
             "final/README.md",
@@ -25588,14 +25590,30 @@
         {
           "anchor": "§6 落码改动面（开工清单）",
           "level": 2,
-          "startLine": 91,
-          "endLine": 105,
-          "tokens": 451,
-          "summary": "1. tuning.ts：新增链常量组（16/32/12/180/43/871/0.42）+ 四锚纯函数（裸换算版，与 ",
+          "startLine": 97,
+          "endLine": 109,
+          "tokens": 503,
+          "summary": "1. tuning.ts：新增链常量组（16/32/12/180/46/871/0.42）+ 四锚纯函数（裸换算版，与 ",
           "keywords": [
             "tuning",
             "落码改动面",
             "开工清单"
+          ]
+        },
+        {
+          "anchor": "§7 施工状态（WXG-T-280 · 2026-10-15）",
+          "level": 2,
+          "startLine": 110,
+          "endLine": 139,
+          "tokens": 1915,
+          "summary": "已落码（双端 harness + Cocos，MVVM：shell 算 anchors 一次→ VM 数据→ meta-",
+          "keywords": [
+            "WXG",
+            "harness",
+            "Cocos",
+            "MVVM",
+            "shell",
+            "anchors"
           ]
         }
       ]

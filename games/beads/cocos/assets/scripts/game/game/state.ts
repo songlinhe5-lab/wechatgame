@@ -134,6 +134,12 @@ export interface BeadsSnapshot {
   /** DEBUG：帧耗时 EMA（ms），view 派生 fps；开关关闭恒 0（热路径零开销）。 */
   perfFrameMs: number;
   /**
+   * `[WXG-T-280]` **HUD 顶带逐机平移量**（设计 px）= 实际设计高 − 1334 基准。
+   * 宽恒定版式下高屏多出量全落在顶部净空 ⇒ HUD 带（`HUD_BAND` 为 1334 档真源）
+   * 随屏顶整体上移，不侵入胶囊避让区；静态档（SE/单测）恒 0 ⇒ 旧行为逐字节不变。
+   */
+  hudDy: number;
+  /**
    * **珠子风格 id**（EP11-S5 / S9 v1.7 §2.2 行4 左格）：view 层据此查 `bead-styles/registry`
    * 取层集渲染（含盘面珠与凹槽、⛔ 不自行推断），并回显钮文案。非法值已在
    * `save-schema::normalizeSettings` 降级为默认档 ⇒ view 可直接消费。
@@ -430,6 +436,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     debugOutlines: false,
     debugInfo: false,
     perfFrameMs: 0,
+    hudDy: 0,
     // 默认档与存档层同一真源（`FACET4_STYLE_ID` = `registry.DEFAULT_BEAD_STYLE_ID` 的 tuning 定义），
     // ⛔ 不得在 view/game 任一侧另写字面量。
     beadStyle: FACET4_STYLE_ID,

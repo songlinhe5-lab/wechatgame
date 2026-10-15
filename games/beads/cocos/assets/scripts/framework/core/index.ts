@@ -32,3 +32,4 @@ export * from './bake/mask-spec';
 export * from './bake/mask-field';
 export * from './bake/mask-tile';
 export * from './bake/tint-composite';
+export * from './bake/nine-slice-fx';

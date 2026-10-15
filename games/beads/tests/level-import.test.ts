@@ -188,13 +188,14 @@ describe('WXG-T-179 · 主菜单「导入」钮接线（beads-shell）', () => {
             initialScreen: 'menu',
             studio: { baseUrl: 'http://h:8787', get: async (url: string) => (url.endsWith('/level') ? draftOf() : { results: [{ id: 'x' }] }) },
         });
-        const { metaLayout } = await import('../src/view/meta-view.js');
+        const { metaLayout, hitTestMeta } = await import('../src/view/meta-view.js');
         const btn = metaLayout('settings').buttons.find((b) => b.id === 'studio-import')!;
         const cx = btn.box.x + btn.box.w / 2;
         const cy = btn.box.y + btn.box.h / 2;
 
-        // 菜单层没这颗钮 ⇒ 不命中、不入局（入口只存在于设置页）。
-        expect(shell.tapMeta(cx, cy)).toBe(false);
+        // 菜单层没这颗钮 ⇒ 永不触发 `studio-import`（入口只存在于设置页）。
+        // `[WXG-T-281]` Boss 图位 = 468×528 大热区 ⇒ 本点现可命中 `open-levels`，语义不变（只钉「不是导入钮」）。
+        expect(hitTestMeta('none', cx, cy)?.id).not.toBe('studio-import');
 
         const open = metaLayout('none').buttons.find((b) => b.id === 'open-settings')!;
         expect(shell.tapMeta(open.box.x + open.box.w / 2, open.box.y + open.box.h / 2)).toBe(true);

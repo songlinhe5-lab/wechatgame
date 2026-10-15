@@ -191,7 +191,8 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
         const ids = metaLayout('none').buttons.map((b) => b.id);
         expect(ids, '卡 = 入口').toContain('open-levels');
         expect(ids, '墙已下移 overlay ⇒ 菜单无 pick-level').not.toContain('pick-level');
-        expect([...new Set(ids)].sort()).toEqual(['open-levels', 'open-settings', 'start']);
+        // [WXG-T-280] 锚定档：卡两侧 ◀▶ 翻页两颗（carousel-prev/next）进热区集。
+        expect([...new Set(ids)].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-settings', 'start']);
         // §5.1b：右上两颗（公告 / 信箱）= 预留不实现 ⇒ **不注册热区**（画禁用态圆，点了零事件）。
         expect(ids, '⛔ 菜单不得有签到热区').not.toContain('open-signin');
         const before = r.shell.meta!.stamina;

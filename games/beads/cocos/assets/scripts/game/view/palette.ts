@@ -121,6 +121,30 @@ export function beadInksFor(level: BeadsLevelRaw): BeadInks {
   return inks;
 }
 
+/**
+ * `[WXG-T-281]` 未通关 Boss 图置灰墨集（用户裁定：「走马灯中间只展示 Boss 图，未通关置灰」）：
+ * 逐色 {@link relativeLuminance} 压进中灰带 64..176 ⇒ 明序保留（图仍可辨成品）但零饱和
+ * =「未点亮」。WeakMap 缓存同 {@link beadInksFor} ⇒ 热路径零分配。
+ */
+const grayInksCache = new WeakMap<object, BeadInks>();
+
+export function beadGrayInksFor(level: BeadsLevelRaw): BeadInks {
+  const hit = grayInksCache.get(level);
+  if (hit) return hit;
+  const hexes = Object.freeze(beadInksFor(level).hexes.map(toGrayHex));
+  const inks: BeadInks = { hexes, endpoints: bakeEndpoints(hexes) };
+  grayInksCache.set(level, inks);
+  return inks;
+}
+
+/** 单色置灰：亮度（0..1）→ 中灰带 64..176（⛔ 不直取原亮度：粉蜡色亮度高 ⇒ 灰到不可辨）。 */
+function toGrayHex(hex: string): string {
+  const l = relativeLuminance(hex);
+  const g = Math.round(64 + Math.min(1, Math.max(0, l)) * 112);
+  const s = g.toString(16).padStart(2, '0');
+  return `#${s}${s}${s}`;
+}
+
 /** 防御兑底（`LEVELS_DATA.palette` 缺失时；BOOT 校验会先行拦截，正常不可达）。 */
 const BEAD_FALLBACK_LIST: readonly string[] = Object.freeze([BEAD_FALLBACK_HEX]);
 

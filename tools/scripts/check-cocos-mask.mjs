@@ -9,12 +9,13 @@
 // 「静默降级」这件事在屏幕上看是不动声色的，所以必须有**产物级**门禁。
 //
 // 检什么：载体 `MASK_ASSETS` 表里**该档实际要的那几张**（现役 = `TINT_MASK_GAUGE_PIN` 钉住 `holed` ⇒ 2 张），
-// 逐张在产物 `assets/<bundle>/native/<uuid 前 2 位>/<uuid>.png` 里核在不在（`textures` 配成 Bundle 后
+// 逐张在产物 `assets/<bundle>/native/<uuid 前 2 位>/<uuid>.png|.webp` 里核在不在（`textures` 配成 Bundle 后
 // 就从 `main/` 搬到 `textures/` ⇒ ⛔ 不能只扫 main）。需求集与两个宿主同源，⛔ 不在本脚本再抄一遍 uuid 表。
 //
 // 机读标记 `STATUS: OK|SKIP|FAIL`（供 `verify-all.mjs` 聚合；K-036：SKIP ≠ 测）。
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -63,20 +64,20 @@ function requiredIds(pin, table) {
     return Object.keys(table).filter((k) => pin === null || k.endsWith(`__${pin}`));
 }
 
-/** 产物里该 uuid 的原图（Cocos 命名 = `<bundle>/native/<前2位>/<uuid>.png`；子资源 `<uuid>@6c48a.png` 也算命中）。 */
-function findNative(pngFiles, uuid) {
-    return pngFiles.find((f) => {
+/** 产物里该 uuid 的原图（Cocos 命名 = `<bundle>/native/<前2位>/<uuid>.png|.webp`；子资源 `<uuid>@6c48a.…` 也算命中）。 */
+function findNative(imageFiles, uuid) {
+    return imageFiles.find((f) => {
         const name = f.slice(f.lastIndexOf('/') + 1);
-        return name.startsWith(`${uuid}.png`) || name.startsWith(`${uuid}@`);
+        return name.startsWith(`${uuid}.`) || name.startsWith(`${uuid}@`);
     });
 }
 
 /**
- * 产物里各 bundle 的原图：逐 bundle 扫（`assets/<bundle>/native/<xx>/<uuid>.png`，不写死 `main`）。
+ * 产物里各 bundle 的原图：逐 bundle 扫（`assets/<bundle>/native/<xx>/<uuid>.png|.webp`，不写死 `main`）。
  * `textures` 目录被配置为 Bundle 后，四张就从 `assets/main/native/` 搬进 `assets/textures/native/`，
  * 只查 main 会把「已落地」误报成「没进包」。
  */
-function listNativePngs(buildDir) {
+function listNativeImages(buildDir) {
     const assets = join(buildDir, 'assets');
     if (!existsSync(assets)) return [];
     const out = [];
@@ -86,7 +87,7 @@ function listNativePngs(buildDir) {
         for (const shard of readdirSync(native)) {
             const d = join(native, shard);
             if (!existsSync(d)) continue;
-            for (const f of readdirSync(d)) if (f.endsWith('.png')) out.push(`${bundleName}/${shard}/${f}`);
+            for (const f of readdirSync(d)) if (f.endsWith('.png') || f.endsWith('.webp')) out.push(`${bundleName}/${shard}/${f}`);
         }
     }
     return out;
@@ -119,14 +120,30 @@ console.log(`档位宏 TINT_MASK_GAUGE_PIN = ${pin === null ? 'null（按档位�
 const CANON = 'tools/mask-preview/cocos-assets';
 const SHIPPED = 'games/beads/cocos/assets/textures';
 let drift = false;
+/** 解码后像素 md5（png / 无损 webp 通吃；`[WXG-T-281]` 入库档统一无损 WebP ⇒ 字节 md5 不再可比）。 */
+const PIXEL_MD5_PY =
+    'import sys,hashlib\nfrom PIL import Image\nfor p in sys.argv[1:]:\n    im=Image.open(p).convert("RGBA")\n    print(hashlib.md5(im.tobytes()).hexdigest()[:8])';
+function pixelMd5(p) {
+    try {
+        return execFileSync('python3', ['-c', PIXEL_MD5_PY, p], { encoding: 'utf8' }).trim();
+    } catch {
+        return '解码失败';
+    }
+}
 if (existsSync(join(ROOT, CANON))) {
-    console.log('\n定稿等值（cocos/assets/textures ≡ tools/mask-preview/cocos-assets）：');
+    console.log('\n定稿等值（cocos/assets/textures ≡ tools/mask-preview/cocos-assets，像素级）：');
     for (const f of readdirSync(join(ROOT, CANON)).filter((n) => n.endsWith('tint-128-mask.png')).sort()) {
-        const a = join(ROOT, CANON, f), b = join(ROOT, SHIPPED, f);
-        const md5 = (p) => (existsSync(p) ? createHash('md5').update(readFileSync(p)).digest('hex').slice(0, 8) : '缺失');
-        const [ca, cb] = [md5(a), md5(b)];
-        if (ca === cb) console.log(`  ✅ ${f}（${ca}）`);
-        else { console.log(`  ❌ ${f} 定稿 ${ca} ≠ 产物件 ${cb} ⇒ 两端不同源（重跑 tools/mask-preview/export-cocos-textures*.py 后拷进 ${SHIPPED}）`); drift = true; }
+        const a = join(ROOT, CANON, f);
+        // 入库档优先无损 webp（统一标准）；同名 png 兼容旧拷贝腿。
+        const webp = join(ROOT, SHIPPED, f.replace(/\.png$/, '.webp'));
+        const b = existsSync(webp) ? webp : join(ROOT, SHIPPED, f);
+        const md5 = (p) => (existsSync(p) ? createHash('md5').update(readFileSync(p)).digest('hex').slice(0, 8) : null);
+        const [ha, hb] = [md5(a), md5(b)];
+        let eq;
+        if (ha !== null && hb !== null && ha === hb) eq = true; // 两端同格式字节一致（旧档）
+        else eq = hb !== null && ha !== null && pixelMd5(a) === pixelMd5(b); // 跨格式：解码像素比
+        if (eq) console.log(`  ✅ ${f}（${b.slice(ROOT.length + 1).split('/').pop()}）`);
+        else { console.log(`  ❌ ${f} 定稿 ≠ 产物件（${b.slice(ROOT.length + 1)}）⇒ 两端不同源（重跑 tools/mask-preview/export-cocos-textures*.py 后转**无损 webp** 拷进 ${SHIPPED}）`); drift = true; }
     }
 }
 
@@ -141,11 +158,11 @@ if (found.length === 0) {
 
 let anyFail = false;
 for (const buildDir of found) {
-    const pngs = listNativePngs(buildDir);
-    console.log(`\n产物：${buildDir.slice(ROOT.length + 1)}（native png ${pngs.length} 张）`);
+    const images = listNativeImages(buildDir);
+    console.log(`\n产物：${buildDir.slice(ROOT.length + 1)}（native 图 ${images.length} 张）`);
     for (const id of ids) {
         const uuid = MASK_TABLE[id];
-        const hit = findNative(pngs, uuid);
+        const hit = findNative(images, uuid);
         if (hit) console.log(`  ✅ ${id} → ${uuid}（${hit}）`);
         else {
             console.log(`  ❌ ${id} → ${uuid} **不进包**（构建期无引用 ⇒ 运行期 warmup 凑不齐 ⇒ 静默落回矢量臂）`);
@@ -156,7 +173,7 @@ for (const buildDir of found) {
 
 if (anyFail || drift) {
     console.log('\n构建产物 mask 门禁 — **FAIL**：' + (drift ? '定稿资产漂移。' : '') + (anyFail && drift ? ' + ' : '') + (anyFail ? '需求集有缺张。' : ''));
-    if (drift) console.log('  出路（漂移）：把定稿件拷进 `games/beads/cocos/assets/textures/`（生成器 = `tools/mask-preview/export-cocos-textures*.py`），再重建。');
+    if (drift) console.log('  出路（漂移）：把定稿件转**无损 webp**拷进 `games/beads/cocos/assets/textures/`（生成器 = `tools/mask-preview/export-cocos-textures*.py`），再重建。');
     console.log('  出路（缺张）：把 `assets/textures` 在编辑器里配置为 Bundle（项目设置 → Bundle 配置），重新构建。');
     console.log('        压缩类型 ⛔ 不要选「小游戏分包」（那是微信侧分包），本诉求 = 合并进主包；或给缺的那几张补一条构建期引用（见 ADR-0030 §5.5）。');
     console.log('  临时接线：把 `TINT_MASK_GAUGE_PIN` 钉到已进包的那一档（⛔ 别长期留着）。');

@@ -353,7 +353,7 @@ function drawPausePanel(
   // (pause-settings §2.2：防误触 + 防偷看).
   // EP11-S5 / ux §3.3 ⑤（U14=丙）：**暂停面板属「设置态」** ⇒ 遮罩 α 分列读
   // `SETTINGS_SCRIM_ALPHA`（RGB 零改动）；其余面板仍读 `PANEL_SCRIM_ALPHA`。
-  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+  builder.rect(0, 0, DESIGN_W, builder.height, {
     fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${SETTINGS_SCRIM_ALPHA * t})`,
   });
 
@@ -563,7 +563,7 @@ function drawFailPanel(
   if (!usesFailOverlay(snap)) return;
   const layout = failPanelLayout(snap.reviveAvailable);
 
-  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+  builder.rect(0, 0, DESIGN_W, builder.height, {
     fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
   });
 
@@ -706,7 +706,7 @@ function drawHud(
   snap: BeadsSnapshot,
   palette: BeadsPalette,
 ): void {
-  const midY = (HUD_BAND.yMin + HUD_BAND.yMax) / 2;
+  const midY = (HUD_BAND.yMin + HUD_BAND.yMax) / 2 + snap.hudDy;
 
   // F7① 倒计时纸胶囊（220×64 圆角 32，panel + 1px panel_border + 投影 α0.10）。
   // [EP12-S3] 投影墨暖化 shadowInk；几何/DY/α 不动（screens.md「计时纸胶囊几何不变」）。
@@ -1745,7 +1745,7 @@ function drawClearPanel(
   const h = plate.yMax - plate.yMin;
 
   // 遮罩（量值同 ux-spec §3.3，与暂停面板一致）。
-  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+  builder.rect(0, 0, DESIGN_W, builder.height, {
     fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
   });
   // EP12-S4：过关结算面板 = T1 纸面板（暖墨投影 + 1px `panelBorder`，替旧 slotBorder 描边）。
@@ -1886,7 +1886,7 @@ function drawSweep(builder: RenderModelBuilder, snap: BeadsSnapshot): void {
   // 当刻把顶点拷进帧内 arena（值语义），共用 scratch 不再串形。现写法保留（本单只改
   // 载荷语义，不动出图路径），且仅在 400ms 窗口内分派（与 `drawPowerupBand` 逐帧字面量同判例）。
   for (let i = SWEEP_LAYER_COUNT - 1; i >= 0; i--) {
-    builder.polygon(sweepQuad(i, cx, [0, 0, 0, 0, 0, 0, 0, 0]), {
+    builder.polygon(sweepQuad(i, cx, [0, 0, 0, 0, 0, 0, 0, 0], snap.hudDy), {
       fill: withAlpha(BEAD_HIGHLIGHT_HEX, SWEEP_ALPHAS[i]!),
     });
   }
@@ -1956,12 +1956,12 @@ function drawFinishPanel(
 
   // 全屏遮罩（量值同 ux-spec §3.3，与两个面板一致）+ 顶部三条庆祝色带
   // （程序化，零外部资产；呼应 §3.6「全屏庆祝」）。
-  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+  builder.rect(0, 0, DESIGN_W, builder.height, {
     fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
   });
   const bands = [palette.accentPrimary, palette.adBadge, palette.accentPrimary]; // F6：暖橙→中性强调。
   for (let i = 0; i < bands.length; i++) {
-    builder.rect((i * DESIGN_W) / 3, DESIGN_H - 14, DESIGN_W / 3, 14, { fill: bands[i]! });
+    builder.rect((i * DESIGN_W) / 3, builder.height - 14, DESIGN_W / 3, 14, { fill: bands[i]! });
   }
 
   // 标题 + 总星数（「共 N / M ★」）。
