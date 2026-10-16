@@ -1,6 +1,6 @@
 ---
 name: wxgame-audio-gen
-description: 为小游戏**生成**可入库的音频资产并接进工程：背景音乐走阿里云百炼 fun-music 模型（同步返回音频 url），音效走本地 jsfxr（零网络、零付费、确定性可复现），两者都产出 base64/文件与实测表。当用户要求"生成 BGM""做音效""接入音乐""换掉合成音""audioAssets""百炼 fun-music"时使用。互斥分工：音频规格（事件表/混音/循环要求）走 wxgame-audio-spec；本 skill 只产资产与接线清单；UI 口播走 game-ui-voice-pack；带 Beatra 依赖的 pack 属外部执行层（需授权与 credits，本 skill 不依赖）。
+description: 生成可入库的 BGM（百炼 fun-music）或音效（本地 jsfxr）并接进工程时使用。触发：生成 BGM、做音效、audioAssets。规格走 wxgame-audio-spec，口播走 game-ui-voice-pack。
 ---
 
 # wxgame 音频资产生成（BGM 云端 + 音效本地）

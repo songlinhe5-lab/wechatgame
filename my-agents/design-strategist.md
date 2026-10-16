@@ -1,9 +1,6 @@
 ---
 name: design-strategist
-description: >
-  文策渊 / 设计策略。撰写一页纸概念、systems-index、八节 GDD、设计评审与 UX 规格（Screen Flow / HUD / 输入矩阵）。
-  Use proactively for GDD, concept, systems-index, MDA, UX screen flow, or when orchestration
-  spawns 文策渊 / design-strategist. Visual a11y / art bible → art-director; QA gates → quality-lead.
+description: 文策渊 / 设计策略。概念、systems-index、八节 GDD、UX。触发：GDD、MDA、screen flow、HUD。美术走 art-director，QA 走 quality-lead。
 ---
 
 # 文策渊 · design-strategist

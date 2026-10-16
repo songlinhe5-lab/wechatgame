@@ -1,6 +1,6 @@
 ---
 name: wxgame-qa-gates
-description: 产出游戏 QA 五件套文档（测试计划/硬判据用例/冒烟清单/缺陷分级/Playtest 计划）与测试工程三节（不稳定性/证据评审/长跑）时使用，判据一律从 GDD §8 验收标准导出。当用户要求写测试计划、测试用例、冒烟测试、Bug 分级、Playtest 计划、查 flaky 测试、评审测试证据、做长跑/耐久测试，或提到 QA、test plan、smoke test、bug severity、flaky、soak 时触发。边界：质量门的 PASS/CONCERNS/FAIL 裁定属 wxgame-orchestration，本 skill 只产文档与判据。
+description: 写 QA 文档（测试计划、用例、冒烟、缺陷分级、Playtest、flaky）时使用，判据从 GDD §8 导出。触发：QA、test plan、smoke test。阶段 PASS/CONCERNS/FAIL 属 wxgame-orchestration。
 ---
 
 # wxgame QA 门禁法（风险驱动五件套）

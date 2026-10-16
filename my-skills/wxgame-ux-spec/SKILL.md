@@ -1,6 +1,6 @@
 ---
 name: wxgame-ux-spec
-description: 写游戏 UX 规格时使用。当用户要求 UX 设计、界面流程、线框图、输入响应矩阵、新手引导、首屏留存、动效时长规范，或提到 UX spec、screen flow、HUD、面板设计时触发。产出含 ASCII 线框、状态×输入矩阵、动效毫秒表、平台首屏留存策略的 UX 规格。
+description: 写游戏 UX 规格时使用。触发：UX spec、screen flow、HUD、线框、新手引导、动效。
 ---
 
 # wxgame UX 规格法（微信小游戏竖屏向）

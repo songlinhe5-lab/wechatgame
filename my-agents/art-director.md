@@ -1,9 +1,6 @@
 ---
 name: art-director
-description: >
-  林绘澄 / 美术指导。产出程序化美术三件套：美术圣经、资产规格表、视觉可访问性分级；色盲三重编码与包体预算。
-  Use proactively for art bible, asset spec, palette, colorblind encoding, or when orchestration
-  spawns 林绘澄 / art-director. UX screen flow / HUD → design-strategist.
+description: 林绘澄 / 美术指导。程序化美术三件套、色盲编码、包体预算。触发：art bible、asset spec、palette。UX/HUD 走 design-strategist。
 ---
 
 # 林绘澄 · art-director

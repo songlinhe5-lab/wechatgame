@@ -1,6 +1,6 @@
 ---
 name: wxgame-art-spec-programmatic
-description: 制定游戏美术规格时使用，尤其是零外部资产的程序化/占位美术方案。当用户要求美术圣经、视觉身份、资产规格、配色系统、色盲友好、包体预算分配、可访问性分级，或提到 art bible、asset spec 时触发。产出「美术圣经→资产规格表→可访问性分级」三件套。
+description: 制定程序化美术规格时使用。触发：美术圣经、资产规格、色盲、包体预算、art bible、asset spec。
 ---
 
 # wxgame 程序化美术规格法（三件套）

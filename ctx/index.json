@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5581,
       "lines": 86,
-      "sha256": "86b0af85bedb3bd74e6ced9a7c270689714e6fa4e298e332375f9219858d48cb",
+      "sha256": "998263c7c0d5dc056c12568a68e34462ce69c645c37b15ec8e5723b94959cb74",
       "tier": "normal",
       "sections": [
         {
@@ -812,7 +812,7 @@
           ]
         },
         {
-          "anchor": "§`my-skills/wxgame-orchestration/SKILL.md` — 104 行 / 2194 tok / 实测读 35 次",
+          "anchor": "§`my-skills/wxgame-orchestration/SKILL.md` — 104 行 / 2127 tok / 实测读 35 次",
           "level": 2,
           "startLine": 38,
           "endLine": 41,
@@ -59549,16 +59549,16 @@
     },
     {
       "path": "my-agents/art-director.md",
-      "tokens": 650,
-      "lines": 50,
-      "sha256": "210a55f16b697ab8821cfef5cfefb330effcb748794eeda31cd44f5df4cd3795",
+      "tokens": 602,
+      "lines": 47,
+      "sha256": "4a7bc85e56a6eca9d1f20c5a17e9c5b94a4203a0ec4ccf46a94b2690401b637a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§林绘澄 · art-director",
           "level": 1,
-          "startLine": 9,
-          "endLine": 51,
+          "startLine": 6,
+          "endLine": 48,
           "tokens": 535,
           "summary": "你是本仓工作室的美术指导，由主理人调度。你负责程序化/占位美术规格与可访问性；不是编排者，不代替策划写 GDD、不代替工",
           "keywords": [
@@ -59571,8 +59571,8 @@
         {
           "anchor": "§开工前必读（按序 Read）",
           "level": 2,
-          "startLine": 13,
-          "endLine": 23,
+          "startLine": 10,
+          "endLine": 20,
           "tokens": 108,
           "summary": "1. AGENTS.md",
           "keywords": [
@@ -59585,8 +59585,8 @@
         {
           "anchor": "§职责范围",
           "level": 2,
-          "startLine": 24,
-          "endLine": 30,
+          "startLine": 21,
+          "endLine": 27,
           "tokens": 97,
           "summary": "美术圣经（锚点、配色 HEX、三重编码、构图、形状语言）",
           "keywords": [
@@ -59597,8 +59597,8 @@
         {
           "anchor": "§不做",
           "level": 2,
-          "startLine": 31,
-          "endLine": 37,
+          "startLine": 28,
+          "endLine": 34,
           "tokens": 88,
           "summary": "不发明与 §3 冲突的尺寸/时长；颜色进规格/palette，不在玩法代码散落 hex",
           "keywords": [
@@ -59611,8 +59611,8 @@
         {
           "anchor": "§执行纪律",
           "level": 2,
-          "startLine": 38,
-          "endLine": 43,
+          "startLine": 35,
+          "endLine": 40,
           "tokens": 54,
           "summary": "遵守任务单八要素；先问再写",
           "keywords": [
@@ -59622,8 +59622,8 @@
         {
           "anchor": "§回传主理人（固定结构）",
           "level": 2,
-          "startLine": 44,
-          "endLine": 51,
+          "startLine": 41,
+          "endLine": 48,
           "tokens": 89,
           "summary": "1. 已写 / 拟写文件列表（通常 games/<game>/art/）",
           "keywords": [
@@ -59638,16 +59638,16 @@
     },
     {
       "path": "my-agents/audio-director.md",
-      "tokens": 670,
-      "lines": 50,
-      "sha256": "4d8df0baacaf6d990556db22dfa36fc9ce87252d58d9e784511b580f601643d7",
+      "tokens": 615,
+      "lines": 47,
+      "sha256": "643e57ff61e747b64f560f9786130136d931c365e6374a74a2796eb698c9f55b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§阮和鸣 · audio-director",
           "level": 1,
-          "startLine": 9,
-          "endLine": 51,
+          "startLine": 6,
+          "endLine": 48,
           "tokens": 540,
           "summary": "你是本仓工作室的音频指导，由主理人调度。你负责音频规格（事件表与混音纪律）；实际生成配乐/口播文件属执行 pack，经主",
           "keywords": [
@@ -59660,8 +59660,8 @@
         {
           "anchor": "§开工前必读（按序 Read）",
           "level": 2,
-          "startLine": 13,
-          "endLine": 23,
+          "startLine": 10,
+          "endLine": 20,
           "tokens": 129,
           "summary": "1. AGENTS.md",
           "keywords": [
@@ -59674,8 +59674,8 @@
         {
           "anchor": "§职责范围",
           "level": 2,
-          "startLine": 24,
-          "endLine": 29,
+          "startLine": 21,
+          "endLine": 26,
           "tokens": 89,
           "summary": "音频方向、SFX 事件表、BGM 结构、混音 Bus、实现策略（平台/预加载/存档音量）",
           "keywords": [
@@ -59688,8 +59688,8 @@
         {
           "anchor": "§不做",
           "level": 2,
-          "startLine": 30,
-          "endLine": 36,
+          "startLine": 27,
+          "endLine": 33,
           "tokens": 64,
           "summary": "不发明 UX §5 / GDD 未出现的音效事件",
           "keywords": [
@@ -59701,8 +59701,8 @@
         {
           "anchor": "§执行纪律",
           "level": 2,
-          "startLine": 37,
-          "endLine": 43,
+          "startLine": 34,
+          "endLine": 40,
           "tokens": 69,
           "summary": "遵守任务单八要素；先问再写",
           "keywords": [
@@ -59712,8 +59712,8 @@
         {
           "anchor": "§回传主理人（固定结构）",
           "level": 2,
-          "startLine": 44,
-          "endLine": 51,
+          "startLine": 41,
+          "endLine": 48,
           "tokens": 80,
           "summary": "1. 已写 / 拟写文件列表",
           "keywords": [
@@ -59725,16 +59725,16 @@
     },
     {
       "path": "my-agents/design-strategist.md",
-      "tokens": 674,
-      "lines": 49,
-      "sha256": "21afbb09fc91519f564a0933f2e081767b510a63389fdc5ec2e2f9b2ce88849f",
+      "tokens": 624,
+      "lines": 46,
+      "sha256": "8d72da72f6e34a78128893d049f38fa1618b062cadcad9274a227c691401c681",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§文策渊 · design-strategist",
           "level": 1,
-          "startLine": 9,
-          "endLine": 50,
+          "startLine": 6,
+          "endLine": 47,
           "tokens": 557,
           "summary": "你是本仓工作室的设计策略成员，由主理人调度。你负责策划与 UX 规格产出；不是编排者，不代替工程 / 美术 / QA /",
           "keywords": [
@@ -59746,8 +59746,8 @@
         {
           "anchor": "§开工前必读（按序 Read）",
           "level": 2,
-          "startLine": 13,
-          "endLine": 22,
+          "startLine": 10,
+          "endLine": 19,
           "tokens": 87,
           "summary": "1. AGENTS.md",
           "keywords": [
@@ -59760,8 +59760,8 @@
         {
           "anchor": "§职责范围",
           "level": 2,
-          "startLine": 23,
-          "endLine": 28,
+          "startLine": 20,
+          "endLine": 25,
           "tokens": 80,
           "summary": "一页纸概念、systems-index（含 §3 冻结令）、逐系统八节 GDD、design-review",
           "keywords": [
@@ -59776,8 +59776,8 @@
         {
           "anchor": "§不做",
           "level": 2,
-          "startLine": 29,
-          "endLine": 35,
+          "startLine": 26,
+          "endLine": 32,
           "tokens": 80,
           "summary": "不写 ADR / Epic / 测试用例 / 美术规格 / 发布清单",
           "keywords": [
@@ -59789,8 +59789,8 @@
         {
           "anchor": "§执行纪律",
           "level": 2,
-          "startLine": 36,
-          "endLine": 42,
+          "startLine": 33,
+          "endLine": 39,
           "tokens": 132,
           "summary": "遵守任务单八要素（角色、Task ID、上下文、环境事实、权威来源、Deliverables、Output Path、必",
           "keywords": [
@@ -59804,8 +59804,8 @@
         {
           "anchor": "§回传主理人（固定结构）",
           "level": 2,
-          "startLine": 43,
-          "endLine": 50,
+          "startLine": 40,
+          "endLine": 47,
           "tokens": 85,
           "summary": "1. 已写 / 拟写文件列表（路径）",
           "keywords": [
@@ -59817,16 +59817,16 @@
     },
     {
       "path": "my-agents/engineering-lead.md",
-      "tokens": 640,
-      "lines": 50,
-      "sha256": "9d4c0ddeed157559bc803b93248b964c18fecb2149e74cc463831926d41b743d",
+      "tokens": 590,
+      "lines": 47,
+      "sha256": "6f2f92db7756a2a7a2fde44a49715f6d293858fab374061929e99d5080b4519b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§程基岩 · engineering-lead",
           "level": 1,
-          "startLine": 9,
-          "endLine": 51,
+          "startLine": 6,
+          "endLine": 48,
           "tokens": 533,
           "summary": "你是本仓工作室的工程负责人，由主理人调度。你负责架构决策、控制清单与 Epic/Story 拆分；不是编排者，不代替策划",
           "keywords": [
@@ -59840,8 +59840,8 @@
         {
           "anchor": "§开工前必读（按序 Read）",
           "level": 2,
-          "startLine": 13,
-          "endLine": 23,
+          "startLine": 10,
+          "endLine": 20,
           "tokens": 92,
           "summary": "1. AGENTS.md",
           "keywords": [
@@ -59854,8 +59854,8 @@
         {
           "anchor": "§职责范围",
           "level": 2,
-          "startLine": 24,
-          "endLine": 29,
+          "startLine": 21,
+          "endLine": 26,
           "tokens": 89,
           "summary": "主架构文档、ADR 五节结构（基础层 ≥3 条）、控制清单",
           "keywords": [
@@ -59866,8 +59866,8 @@
         {
           "anchor": "§不做",
           "level": 2,
-          "startLine": 30,
-          "endLine": 36,
+          "startLine": 27,
+          "endLine": 33,
           "tokens": 88,
           "summary": "不写 GDD / UX / 美术规格 / 发布清单 / Playtest 计划正文（可引用）",
           "keywords": [
@@ -59879,8 +59879,8 @@
         {
           "anchor": "§执行纪律",
           "level": 2,
-          "startLine": 37,
-          "endLine": 43,
+          "startLine": 34,
+          "endLine": 40,
           "tokens": 86,
           "summary": "遵守任务单八要素",
           "keywords": [
@@ -59890,8 +59890,8 @@
         {
           "anchor": "§回传主理人（固定结构）",
           "level": 2,
-          "startLine": 44,
-          "endLine": 51,
+          "startLine": 41,
+          "endLine": 48,
           "tokens": 74,
           "summary": "1. 已写 / 拟写文件列表",
           "keywords": [
@@ -59903,16 +59903,16 @@
     },
     {
       "path": "my-agents/quality-lead.md",
-      "tokens": 772,
-      "lines": 52,
-      "sha256": "ffafd83c9557548a8bf77fca3f5b3f22ad01c3c58636767d3611ace825592d87",
+      "tokens": 714,
+      "lines": 48,
+      "sha256": "f726fbd2dbd3e59dab28429dbd45a5f088951f5826e3fa04df419f82c49d4d8f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§严守真 · quality-lead",
           "level": 1,
-          "startLine": 11,
-          "endLine": 53,
+          "startLine": 7,
+          "endLine": 49,
           "tokens": 650,
           "summary": "你是本仓工作室的质量负责人，由主理人调度。你负责 QA 文档与门禁证据；阶段 PASS / CONCERNS / FAI",
           "keywords": [
@@ -59927,8 +59927,8 @@
         {
           "anchor": "§开工前必读（按序 Read）",
           "level": 2,
-          "startLine": 17,
-          "endLine": 24,
+          "startLine": 13,
+          "endLine": 20,
           "tokens": 65,
           "summary": "1. AGENTS.md",
           "keywords": [
@@ -59941,8 +59941,8 @@
         {
           "anchor": "§职责范围",
           "level": 2,
-          "startLine": 25,
-          "endLine": 31,
+          "startLine": 21,
+          "endLine": 27,
           "tokens": 116,
           "summary": "QA 五件套结构：测试计划 / 硬判据用例（§A）/ 冒烟清单 / 缺陷分级 / Playtest 计划",
           "keywords": [
@@ -59953,8 +59953,8 @@
         {
           "anchor": "§不做",
           "level": 2,
-          "startLine": 32,
-          "endLine": 38,
+          "startLine": 28,
+          "endLine": 34,
           "tokens": 68,
           "summary": "不发明新判据；一律从 GDD §8 导出",
           "keywords": [
@@ -59966,8 +59966,8 @@
         {
           "anchor": "§执行纪律",
           "level": 2,
-          "startLine": 39,
-          "endLine": 45,
+          "startLine": 35,
+          "endLine": 41,
           "tokens": 90,
           "summary": "遵守任务单八要素",
           "keywords": [
@@ -59977,8 +59977,8 @@
         {
           "anchor": "§回传主理人（固定结构）",
           "level": 2,
-          "startLine": 46,
-          "endLine": 53,
+          "startLine": 42,
+          "endLine": 49,
           "tokens": 109,
           "summary": "1. 门禁建议：PASS CONCERNS FAIL（附未过/未测的 G 门编号）",
           "keywords": [
@@ -59993,16 +59993,16 @@
     },
     {
       "path": "my-agents/release-ops-lead.md",
-      "tokens": 624,
-      "lines": 49,
-      "sha256": "555bbb50ffb16ba1076c354995c18e2867aef0dc5f68c0ce3e95e283daf82428",
+      "tokens": 555,
+      "lines": 46,
+      "sha256": "4b10751ff1fe4f2c70be38bf1b76d0669a84db08b009f1f9c7b9dd3bf8a18b72",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§路远行 · release-ops-lead",
           "level": 1,
-          "startLine": 9,
-          "endLine": 50,
+          "startLine": 6,
+          "endLine": 47,
           "tokens": 498,
           "summary": "你是本仓工作室的发布运营成员，由主理人调度。你负责上线前清单与回滚预案；最终 QA 门签字仍由严守真证据支撑、编排者裁决",
           "keywords": [
@@ -60015,8 +60015,8 @@
         {
           "anchor": "§开工前必读（按序 Read）",
           "level": 2,
-          "startLine": 13,
-          "endLine": 22,
+          "startLine": 10,
+          "endLine": 19,
           "tokens": 87,
           "summary": "1. AGENTS.md",
           "keywords": [
@@ -60029,8 +60029,8 @@
         {
           "anchor": "§职责范围",
           "level": 2,
-          "startLine": 23,
-          "endLine": 29,
+          "startLine": 20,
+          "endLine": 26,
           "tokens": 74,
           "summary": "六阶段发布清单 + Go/No-Go",
           "keywords": [
@@ -60040,8 +60040,8 @@
         {
           "anchor": "§不做",
           "level": 2,
-          "startLine": 30,
-          "endLine": 36,
+          "startLine": 27,
+          "endLine": 33,
           "tokens": 95,
           "summary": "不编造微信审核细则或官方未公开数字；一律「以官方入口为准」并给链接占位",
           "keywords": [
@@ -60051,8 +60051,8 @@
         {
           "anchor": "§执行纪律",
           "level": 2,
-          "startLine": 37,
-          "endLine": 42,
+          "startLine": 34,
+          "endLine": 39,
           "tokens": 53,
           "summary": "遵守任务单八要素；先问再写",
           "keywords": [
@@ -60062,8 +60062,8 @@
         {
           "anchor": "§回传主理人（固定结构）",
           "level": 2,
-          "startLine": 43,
-          "endLine": 50,
+          "startLine": 40,
+          "endLine": 47,
           "tokens": 83,
           "summary": "1. 已写 / 拟写文件列表（通常 production/release/）",
           "keywords": [
@@ -60077,16 +60077,16 @@
     },
     {
       "path": "my-agents/studio-orchestrator.md",
-      "tokens": 747,
-      "lines": 52,
-      "sha256": "dfdb08ea2bfc701e10cad4b22173ad57394bdcc7fe7e0c9099dbd1f51df28432",
+      "tokens": 697,
+      "lines": 49,
+      "sha256": "4836c93f609ec54ff9be2f4b72462ec879783c8a0425a7d474977e9ed4a55316",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主理人 · studio-orchestrator",
           "level": 1,
-          "startLine": 10,
-          "endLine": 53,
+          "startLine": 7,
+          "endLine": 50,
           "tokens": 625,
           "summary": "你是本仓工作室的编排者。核心身份：只编排，不建造——诊断阶段、路由任务、管质量门、汇编交付；禁止亲自撰写 GDD / A",
           "keywords": [
@@ -60099,8 +60099,8 @@
         {
           "anchor": "§开工前必读（按序 Read）",
           "level": 2,
-          "startLine": 16,
-          "endLine": 23,
+          "startLine": 13,
+          "endLine": 20,
           "tokens": 85,
           "summary": "1. AGENTS.md",
           "keywords": [
@@ -60113,8 +60113,8 @@
         {
           "anchor": "§职责范围",
           "level": 2,
-          "startLine": 24,
-          "endLine": 31,
+          "startLine": 21,
+          "endLine": 28,
           "tokens": 129,
           "summary": "阶段 0：诊断所处阶段与缺口；向用户确认引擎/平台/评审强度",
           "keywords": [
@@ -60124,8 +60124,8 @@
         {
           "anchor": "§不做",
           "level": 2,
-          "startLine": 32,
-          "endLine": 38,
+          "startLine": 29,
+          "endLine": 35,
           "tokens": 71,
           "summary": "不代替任何成员写其专业产出",
           "keywords": [
@@ -60135,8 +60135,8 @@
         {
           "anchor": "§执行纪律",
           "level": 2,
-          "startLine": 39,
-          "endLine": 45,
+          "startLine": 36,
+          "endLine": 42,
           "tokens": 85,
           "summary": "重大决策给用户 2–4 个选项",
           "keywords": [
@@ -60146,8 +60146,8 @@
         {
           "anchor": "§回传用户（固定结构）",
           "level": 2,
-          "startLine": 46,
-          "endLine": 53,
+          "startLine": 43,
+          "endLine": 50,
           "tokens": 68,
           "summary": "1. 阶段诊断结论（当前阶段 / 缺口）",
           "keywords": [
@@ -64150,9 +64150,9 @@
     },
     {
       "path": "my-skills/game-material-precheck/SKILL.md",
-      "tokens": 3878,
+      "tokens": 3811,
       "lines": 187,
-      "sha256": "32cc77cd111e397ef952f739093bd476ef6a69045029b2f29cd570d799f84fd3",
+      "sha256": "28602f2495c5d408a3349f7027b8003971f4794308bf0da87c18ad1bcaf57b4d",
       "tier": "normal",
       "sections": [
         {
@@ -76403,9 +76403,9 @@
     },
     {
       "path": "my-skills/wxgame-adr-arch/SKILL.md",
-      "tokens": 818,
+      "tokens": 743,
       "lines": 50,
-      "sha256": "229a54312cb21624c351a34896c501c78f31ffc3cfa6a0df843ed72e1c3840c0",
+      "sha256": "63ecf6cdbe3e8c86079be60364358a14ec2e1a4075c9a44fc0e587012187d864",
       "tier": "normal",
       "sections": [
         {
@@ -76489,9 +76489,9 @@
     },
     {
       "path": "my-skills/wxgame-art-spec-programmatic/SKILL.md",
-      "tokens": 986,
+      "tokens": 914,
       "lines": 56,
-      "sha256": "5425da340cfcd18bc0c6983758d2f102b148376f1a5d44f0af6c69b1b456b12e",
+      "sha256": "658a4d7be97a65534b02149f5685385728b90afbd307e46f7a4754125f950fab",
       "tier": "normal",
       "sections": [
         {
@@ -76573,9 +76573,9 @@
     },
     {
       "path": "my-skills/wxgame-audio-gen/SKILL.md",
-      "tokens": 2787,
+      "tokens": 2654,
       "lines": 96,
-      "sha256": "234b8b5ef1ef456bce9a318887d688c0863705849df7f6b6992f41fc48d0f6c6",
+      "sha256": "7a48e4905e0eeb40ca003e3c7c43845830f77510fe7bf02783ef162c1ced57e2",
       "tier": "normal",
       "sections": [
         {
@@ -76699,9 +76699,9 @@
     },
     {
       "path": "my-skills/wxgame-audio-spec/SKILL.md",
-      "tokens": 1278,
+      "tokens": 1143,
       "lines": 63,
-      "sha256": "5b2319aeff01cbf42202a2882a957ea7035e656bf16552a52832a61ad86c5564",
+      "sha256": "8a62252cf46d278750523706c7723443e8c4726bf4ad803e0961f945effd9b90",
       "tier": "normal",
       "sections": [
         {
@@ -76815,9 +76815,9 @@
     },
     {
       "path": "my-skills/wxgame-epic-split/SKILL.md",
-      "tokens": 2395,
+      "tokens": 2279,
       "lines": 120,
-      "sha256": "f139e850625f41178151d86c55f1a916f1aa4e324b99bd8ab3ca17cc3f2905f2",
+      "sha256": "0631f35d0449371e086c0f5307fd00880d73f5f76dd7365c6d9798549aeecdba",
       "tier": "normal",
       "sections": [
         {
@@ -77014,9 +77014,9 @@
     },
     {
       "path": "my-skills/wxgame-gdd-writer/SKILL.md",
-      "tokens": 1690,
+      "tokens": 1577,
       "lines": 104,
-      "sha256": "56f15b3e9617d50501035686ca0b7289b55c0a108bde50b57f9beb34a313f8d6",
+      "sha256": "e8492eb21c3d4986c1edb84291932347de2f502602b637c6206f5996a2b22286",
       "tier": "normal",
       "sections": [
         {
@@ -77142,9 +77142,9 @@
     },
     {
       "path": "my-skills/wxgame-image-gen/SKILL.md",
-      "tokens": 2984,
+      "tokens": 2798,
       "lines": 105,
-      "sha256": "9e970be00dc5e4b816d77895a28c795ed6cba5570ce83c9f6de66951c410f6bf",
+      "sha256": "f770c8b08c138e0a6062353934825d7a4ff801e40b9a73c59709f93c53a46f61",
       "tier": "normal",
       "sections": [
         {
@@ -77353,16 +77353,16 @@
     },
     {
       "path": "my-skills/wxgame-minigame-bridge/SKILL.md",
-      "tokens": 2123,
-      "lines": 120,
-      "sha256": "1addc4c98627519baeb78fea7b56f2747fedc00da4f721984ab092578c90e0df",
+      "tokens": 1986,
+      "lines": 114,
+      "sha256": "15d0876605e9c5a89146820ff0d46a87b353245912b5b3d947f07e7e4ada8f17",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame-minigame-bridge — 微信小游戏 MCP 仓库适配层",
           "level": 1,
-          "startLine": 13,
-          "endLine": 121,
+          "startLine": 7,
+          "endLine": 115,
           "tokens": 1884,
           "summary": "定位：适配层，不是工具手册。工具能力全部来自 MCP server",
           "keywords": [
@@ -77377,8 +77377,8 @@
         {
           "anchor": "§1 仓库适配三件事（官方文档与本仓库不匹配处，以本节为准）",
           "level": 2,
-          "startLine": 24,
-          "endLine": 61,
+          "startLine": 18,
+          "endLine": 55,
           "tokens": 601,
           "summary": "",
           "keywords": [
@@ -77391,8 +77391,8 @@
         {
           "anchor": "§① 入口路径映射——`workspacePath` 一律指构建产物",
           "level": 3,
-          "startLine": 26,
-          "endLine": 42,
+          "startLine": 20,
+          "endLine": 36,
           "tokens": 228,
           "summary": "官方假设游戏目录含 game.js。本仓库是 monorepo，仓库根与 Cocos 工程根都没有 game.js，",
           "keywords": [
@@ -77407,8 +77407,8 @@
         {
           "anchor": "§② Cocos 构建前置（当前未通）",
           "level": 3,
-          "startLine": 43,
-          "endLine": 53,
+          "startLine": 37,
+          "endLine": 47,
           "tokens": 178,
           "summary": "MCP 能力链起点是构建产物，而构建链依赖 Cocos Creator 编辑器（ADR-0009 P2）。",
           "keywords": [
@@ -77423,8 +77423,8 @@
         {
           "anchor": "§③ WorkBuddy 例外",
           "level": 3,
-          "startLine": 54,
-          "endLine": 61,
+          "startLine": 48,
+          "endLine": 55,
           "tokens": 155,
           "summary": "四 IDE 中 CodeBuddy / Cursor / Qoder 的能力来自仓库内 MCP 配置（根 .mcp.js",
           "keywords": [
@@ -77439,8 +77439,8 @@
         {
           "anchor": "§2 工具面（不复制清单，防漂移）",
           "level": 2,
-          "startLine": 62,
-          "endLine": 71,
+          "startLine": 56,
+          "endLine": 65,
           "tokens": 181,
           "summary": "约 10 个工具由 MCP 配置自动注入，前缀因宿主而异（CodeBuddy/Qoder/Cursor/WorkBudd",
           "keywords": [
@@ -77455,8 +77455,8 @@
         {
           "anchor": "§3 四场景工作流（沿用官方，路径已按①修正）",
           "level": 2,
-          "startLine": 72,
-          "endLine": 107,
+          "startLine": 66,
+          "endLine": 101,
           "tokens": 645,
           "summary": "",
           "keywords": [
@@ -77469,8 +77469,8 @@
         {
           "anchor": "§场景一：构建产物更新后预览 + 日志循环（最常用）",
           "level": 3,
-          "startLine": 74,
-          "endLine": 86,
+          "startLine": 68,
+          "endLine": 80,
           "tokens": 260,
           "summary": "1. 确认 games/<game>/build/wechatgame/ 存在（不存在 → 走 ADR-0009 构建链",
           "keywords": [
@@ -77485,8 +77485,8 @@
         {
           "anchor": "§场景二：看日志调试",
           "level": 3,
-          "startLine": 87,
-          "endLine": 90,
+          "startLine": 81,
+          "endLine": 84,
           "tokens": 36,
           "summary": "get_logs + filter 正则；日志格式 [时间戳] [级别] 消息。配合截图类工具可取证画面。",
           "keywords": [
@@ -77499,8 +77499,8 @@
         {
           "anchor": "§场景三：真机预览",
           "level": 3,
-          "startLine": 91,
-          "endLine": 99,
+          "startLine": 85,
+          "endLine": 93,
           "tokens": 166,
           "summary": "1. real_device_preview（workspacePath = 构建产物）",
           "keywords": [
@@ -77513,8 +77513,8 @@
         {
           "anchor": "§场景四：上传开发版",
           "level": 3,
-          "startLine": 100,
-          "endLine": 107,
+          "startLine": 94,
+          "endLine": 101,
           "tokens": 130,
           "summary": "1. 高影响动作（control-manifest §15）：调 publish 前必须用户人工确认版本号与描述；",
           "keywords": [
@@ -77529,8 +77529,8 @@
         {
           "anchor": "§4 纪律速查（详见 control-manifest §15）",
           "level": 2,
-          "startLine": 108,
-          "endLine": 115,
+          "startLine": 102,
+          "endLine": 109,
           "tokens": 110,
           "summary": "MCP 配置中包版本锚定（当前 0.1.13），禁止 @latest；升级 = 改锚 +",
           "keywords": [
@@ -77545,8 +77545,8 @@
         {
           "anchor": "§5 跨域与升级",
           "level": 2,
-          "startLine": 116,
-          "endLine": 121,
+          "startLine": 110,
+          "endLine": 115,
           "tokens": 69,
           "summary": "跨域或全流程请求先交 wxgame-orchestration（本 skill 属域·平台执行层）",
           "keywords": [
@@ -77916,9 +77916,9 @@
     },
     {
       "path": "my-skills/wxgame-orchestration/SKILL.md",
-      "tokens": 2194,
+      "tokens": 2127,
       "lines": 104,
-      "sha256": "0f06c45121e85d12793488b58b8e5226b05f5ede0284cc904915d2f3182aadac",
+      "sha256": "9cf4822abcaf2ec206eb9e44597bc5c325d6211ec9b3e5bbc720435e5e0f4c05",
       "tier": "normal",
       "sections": [
         {
@@ -78038,9 +78038,9 @@
     },
     {
       "path": "my-skills/wxgame-qa-gates/SKILL.md",
-      "tokens": 2394,
+      "tokens": 2279,
       "lines": 123,
-      "sha256": "aa548de6042dfa269e4efe33604c0866503e5c6d4d7fac84a47ca6f09f9736b0",
+      "sha256": "f5370e8746a3c26be9eaad240cb68a9908ba45e3f3ed069630baae3ce71f9ae8",
       "tier": "normal",
       "sections": [
         {
@@ -78284,9 +78284,9 @@
     },
     {
       "path": "my-skills/wxgame-release-checklist/SKILL.md",
-      "tokens": 1089,
+      "tokens": 1022,
       "lines": 59,
-      "sha256": "758887bce4758af3a54d938d0668ca5ac7ce848c678b9cf0eb2ee1574829ee28",
+      "sha256": "ebe36838e92908bc9478dacc1e97700edfca109daa0402919df803478d74d6d3",
       "tier": "normal",
       "sections": [
         {
@@ -78382,9 +78382,9 @@
     },
     {
       "path": "my-skills/wxgame-ux-spec/SKILL.md",
-      "tokens": 1340,
+      "tokens": 1267,
       "lines": 78,
-      "sha256": "cdb2e4783c881d7f1d88208aba259769afbd7aff08a7ed8db4a13f572dbbaf02",
+      "sha256": "55483c779b6b45b0c612fea31e8324cbb10e7841f1deca5841ab80c1782a0756",
       "tier": "normal",
       "sections": [
         {

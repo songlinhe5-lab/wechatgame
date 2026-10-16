@@ -1,6 +1,6 @@
 ---
 name: wxgame-gdd-writer
-description: 写本仓库八节体系 GDD、以及做**数值体检**时使用。当用户要求一页纸概念、系统拆解、systems-index 冻结常量、逐系统八节 GDD、数值冻结、设计评审、数值体检/平衡核对/查 §3 与落码漂移，或提到 GDD、MDA、设计支柱、balance check 时触发。输出「一页纸概念 → 系统索引（冻结常量）→ 八节 GDD → 理论评审」四件套，并含「数值平衡核对」章；泛用格式或其他体系的 GDD 不走本 skill。
+description: 写本仓八节 GDD 或做数值体检时使用。触发：GDD、systems-index、MDA、balance check、冻结常量。泛用格式的 GDD 不走本 skill。
 ---
 
 # wxgame GDD 编写法（工作室验证过的四件套流程）

@@ -1,6 +1,6 @@
 ---
 name: wxgame-orchestration
-description: 运行游戏开发工作室专家团流程时使用。当用户要求启动完整游戏开发流程、阶段诊断、质量门评审、调度工作室成员，或提到九阶段流水线、七阶段 SOP、质量门、PASS/CONCERNS/FAIL、spawn 成员、编排时触发。定义九阶段（0–8）流水线、spawn 任务模板与铁律。
+description: 跑工作室全流程、阶段诊断、质量门或调度成员时使用。触发：九阶段、PASS/CONCERNS/FAIL、spawn、编排。
 ---
 
 # wxgame 工作室编排法（九阶段流水线，编号 0–8）

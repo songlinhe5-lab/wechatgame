@@ -1,12 +1,6 @@
 ---
 name: wxgame-minigame-bridge
-description: >
-  本仓库（wechatgame monorepo）的微信小游戏 MCP 适配层：把 weixin-minigame-helper
-  MCP 工具与本仓库真实结构（Cocos 构建产物入口、逐游戏目录、四 IDE 配置）对接。
-  当用户要在本仓库预览/运行/调试已构建的小游戏、热重载、看运行日志、真机扫码、
-  上传开发版，或提到「预览游戏」「跑一下」「真机测试」「上传微信」时触发。
-  与 CodeBuddy 插件内置 skill（weixin-minigame-helper）触发词错开：本 skill 强调
-  Cocos 构建前置、构建产物预览与四 IDE 一致用法；从零生成小游戏代码不归本 skill。
+description: 在本仓库预览、热重载、看日志、真机扫码或上传已构建的微信小游戏时使用。触发：预览游戏、真机测试、上传微信。从零写小游戏代码不归本 skill。
 version: 1.0.0
 ---
 

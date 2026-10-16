@@ -1,6 +1,6 @@
 ---
 name: wxgame-image-gen
-description: 为小游戏**生成与修改图像资产**并给出可直接复制的命令：原型首稿、固定风格二级页、单元素切图、定稿局部微调四条能力各配 top2 模型与参数；抠图默认本地代码逻辑（PIL 洪水填充），默认不上大模型。当用户要求"出图""生图""AI 原型""新页面首稿""改一下这块""换掉这个元素""抠图""去背""切图""以图生图""风格延续""用哪个模型""哪个大模型效果最好"，或提到 model-matrix、inpaint、shape=point、mask 外 maxdiff 时使用。裁定真源是 `games/beads/design/ai-workflows/model-matrix.md`，本 skill 只做执行路由，不复写裁定。互斥分工：美术规格/色盲三重编码/包体预算走 wxgame-art-spec-programmatic；音频资产走 wxgame-audio-gen；玩法数值真源走 systems-index §3。
+description: 生成或修改小游戏图像（原型、二级页、切图、局部微调、抠图）时使用。触发：出图、生图、抠图、去背、inpaint、model-matrix。美术规格走 wxgame-art-spec-programmatic，音频走 wxgame-audio-gen。
 ---
 
 # wxgame AI 生图执行路由（四能力 · 云/本地 · 判据）

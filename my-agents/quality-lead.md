@@ -1,10 +1,6 @@
 ---
 name: quality-lead
-description: >
-  严守真 / 质量负责人。产出 QA 五件套、按 G1–G4 收集证据、向编排者汇报门禁结论。
-  Use proactively for test plans, smoke tests, hard-criteria cases, playtest plans,
-  QA gate evidence, or when studio orchestration spawns 严守真 / quality-lead.
-  Prefer for independent verification after design or implementation deliverables.
+description: 严守真 / 质量负责人。QA 五件套与 G1–G4 证据。触发：test plan、smoke、playtest。阶段裁决属 studio-orchestrator。
 readonly: true
 ---
 

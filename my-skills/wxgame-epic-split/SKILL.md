@@ -1,6 +1,6 @@
 ---
 name: wxgame-epic-split
-description: 做游戏 Epic/Story 拆分、冲刺规划，以及**单个 Story 的实现与验收**时使用。当用户要求拆分任务、排冲刺、拆 Story、Epic 划分、垂直切片、最小可玩版本规划、开发某个 story、验收或关闭 story，或提到 epic、story、sprint、垂直切片、story ready/done 时触发。产出按依赖拓扑序的 Epic 列表 + Story 四要素拆分 + 第一冲刺建议，验收标准只准引用 GDD §8；并覆盖 Story 生命周期后半段（开工门禁 / 实现 / 收工验收）。
+description: 拆 Epic/Story、排冲刺，或实现并验收单个 Story 时使用。触发：epic、story、sprint、垂直切片、story ready/done。验收标准只引用 GDD §8。
 ---
 
 # wxgame Epic/Story 拆分法（拓扑序 + 引用式验收）

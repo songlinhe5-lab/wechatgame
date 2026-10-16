@@ -1,6 +1,6 @@
 ---
 name: game-material-precheck
-description: This skill should be used when auditing game promotional materials, screenshots, CG images, copywriting, event pages, or launch plans for China mainland compliance, legality, IP risk, cultural/religious risk, sensitive-date conflict, and public-opinion risk. It uses the bundled local knowledge base first, optionally refreshes from zzanezhu's Lexiang personal knowledge base when available, cross-checks external public information, and produces a structured HTML audit report.
+description: 审计游戏宣发素材的中国大陆合规、IP、文化与舆情风险，并出 HTML 报告。触发：合规、素材审核、宣发、截图、活动页。
 icon: assets/icon.png
 agent_created: true
 ---

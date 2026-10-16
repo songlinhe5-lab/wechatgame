@@ -1,6 +1,6 @@
 ---
 name: wxgame-adr-arch
-description: 做游戏项目技术架构决策与架构文档时使用。当用户要求写 ADR、架构决策记录、引擎选型、技术架构文档、控制清单，或提到 ADR、architecture、引擎对比、架构评审时触发。产出「主架构文档 + ADR（五节结构）+ 控制清单」三件套，负面后果必须诚实记录。
+description: 写 ADR、技术架构或控制清单时使用。触发：ADR、architecture、引擎选型、架构评审。
 ---
 
 # wxgame 架构决策法（ADR 三件套）
