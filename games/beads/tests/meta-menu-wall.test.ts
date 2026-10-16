@@ -525,6 +525,7 @@ describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在 `levels` overlay / 主�
             largeText: false,
             vibrate: true,
             debugInfo: false,
+            debugGuides: false,
             beadStyle: 'facet-4',
             beadSize: 'full' as const,
             skinId: 'tokens',

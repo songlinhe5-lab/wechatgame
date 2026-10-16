@@ -36,6 +36,8 @@ export interface Canvas2DLike {
   beginPath(): void;
   closePath(): void;
   rect(x: number, y: number, w: number, h: number): void;
+  /** 矩形裁切。测试用的假上下文可以不实现；真 canvas 一定有。 */
+  clip?(): void;
   arc(x: number, y: number, r: number, startAngle: number, endAngle: number): void;
   moveTo(x: number, y: number): void;
   lineTo(x: number, y: number): void;
@@ -238,6 +240,17 @@ export class Canvas2DRenderer {
           ctx.textBaseline = baseline;
           ctx.fillText(cmd.text, cmd.x, cmd.y);
         }
+        break;
+      }
+      case 'clip': {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(cmd.x, cmd.y, cmd.w, cmd.h);
+        ctx.clip?.();
+        break;
+      }
+      case 'unclip': {
+        ctx.restore();
         break;
       }
       case 'blit': {

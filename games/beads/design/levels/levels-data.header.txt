@@ -13,7 +13,12 @@
 
 export interface BeadsLevelRaw {
   readonly id: number;
+  /** 内部名（studio 生成串，⛔ 不上屏）。 */
   readonly name: string;
+  /**
+   * 展示名（可选；主菜单橱窗木牌第二行，建议 ≤ 6 字）。缺省 ⇒ 木牌只显关序「第 N 关」。
+   */
+  readonly title?: string;
   readonly cols: number;
   readonly rows: number;
   readonly time: number;

@@ -1,7 +1,7 @@
 /**
  * **[WXG-T-271 / ADR-0031 DEC=C′]** boss 缩略位图臂判据（本单唯一可运行检查）。
  * ─────────────────────────────────────────────────────────────────────────────
- * 真源：`ADR-0031` §3.1（DEC=C′，进现成 `assets/textures` Bundle）；实现 =
+ * 真源：`ADR-0031` §3.1（位图腿；Boss 原图在 `assets/themes` Bundle）；实现 =
  * `src/view/menu-signage.ts::{setLevelThumbBitmapResolver, drawLevelThumb}` + `tuning.ts::BOSS_THUMB_TEXTURES`。
  * 盯三个失败模式：
  * 1. **未注入 resolver 就画空 / 改变既有输出**：默认臂必须逐字节 = 今日程序化缩略（绿线锚）。

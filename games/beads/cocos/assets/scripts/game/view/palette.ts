@@ -131,16 +131,31 @@ const grayInksCache = new WeakMap<object, BeadInks>();
 export function beadGrayInksFor(level: BeadsLevelRaw): BeadInks {
   const hit = grayInksCache.get(level);
   if (hit) return hit;
-  const hexes = Object.freeze(beadInksFor(level).hexes.map(toGrayHex));
+  const hexes = Object.freeze(beadInksFor(level).hexes.map((h) => toGrayHex(h)));
   const inks: BeadInks = { hexes, endpoints: bakeEndpoints(hexes) };
   grayInksCache.set(level, inks);
   return inks;
 }
 
-/** 单色置灰：亮度（0..1）→ 中灰带 64..176（⛔ 不直取原亮度：粉蜡色亮度高 ⇒ 灰到不可辨）。 */
-function toGrayHex(hex: string): string {
+/**
+ * 未开启（locked）Boss 图墨集：同 {@link beadGrayInksFor} 再淡一档（灰带 156..220），
+ * 拉开与「推关中」的远观差（用户 2026-10-16 裁：两态旧时只差右上 64² 徽标）。
+ */
+const fadedInksCache = new WeakMap<object, BeadInks>();
+
+export function beadFadedInksFor(level: BeadsLevelRaw): BeadInks {
+  const hit = fadedInksCache.get(level);
+  if (hit) return hit;
+  const hexes = Object.freeze(beadInksFor(level).hexes.map((h) => toGrayHex(h, 156, 64)));
+  const inks: BeadInks = { hexes, endpoints: bakeEndpoints(hexes) };
+  fadedInksCache.set(level, inks);
+  return inks;
+}
+
+/** 单色置灰：亮度（0..1）→ 灰带 lo..lo+span（缺省中灰 64..176；⛔ 不直取原亮度：粉蜡色亮度高 ⇒ 灰到不可辨）。 */
+function toGrayHex(hex: string, lo = 64, span = 112): string {
   const l = relativeLuminance(hex);
-  const g = Math.round(64 + Math.min(1, Math.max(0, l)) * 112);
+  const g = Math.round(lo + Math.min(1, Math.max(0, l)) * span);
   const s = g.toString(16).padStart(2, '0');
   return `#${s}${s}${s}`;
 }

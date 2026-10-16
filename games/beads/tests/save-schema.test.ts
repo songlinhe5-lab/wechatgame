@@ -36,7 +36,7 @@ const LEVEL_COUNT = 8;
  * `DEFAULT_BEAD_STYLE_ID` / `BEAD_SIZE_DEFAULT` / `DEFAULT_SKIN_ID` 定，本处只存
  * 【期望字面量】，⛔ 不反向引用实现常量以免抹掉回归）。
  */
-const SETTINGS_DEFAULTS = { beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper' };
+const SETTINGS_DEFAULTS = { beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper', debugGuides: false };
 
 const validSave = () => ({
   version: SAVE_VERSION,
@@ -48,7 +48,7 @@ const validSave = () => ({
   sprintBestScore: 1200,
   sprintBestStage: 5,
   starsByLevel: [3, 2, 1, 0, 0, 0, 0, 0],
-  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper' },
+  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, debugGuides: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper' },
 });
 
 const storage = () => new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }).createStorage();

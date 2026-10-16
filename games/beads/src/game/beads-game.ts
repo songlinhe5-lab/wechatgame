@@ -59,6 +59,7 @@ import {
   DEFAULT_TUNING,
   GEAR_HIT_SIZE,
   HUD_BAND,
+  DESIGN_H,
   zoomControlLayout,
   REVIVE_BONUS_SEC,
   REVIVE_MAX_PER_LEVEL,
@@ -142,11 +143,12 @@ import {
 } from './crash-snapshot.js';
 import { Tray, type SlotState } from '../entities/tray.js';
 import { PowerupSystem, type MisplacedBead } from '../systems/powerups.js';
-import { FinishPanel, type FinishPanelAction } from '../systems/finish-panel.js';
-import { SprintSettlePanel, type SprintSettleAction } from '../systems/sprint-settle.js';
+import { FinishPanel, hitFinishPanel, type FinishPanelAction } from '../systems/finish-panel.js';
+import { SprintSettlePanel, hitSprintSettle, type SprintSettleAction } from '../systems/sprint-settle.js';
 import { comboVfxProgress, comboVfxSpec, type ComboVfxKind, type ComboVfxSpec } from '../view/combo-vfx.js';
 import {
   ClearPanel,
+  hitClearPanel,
   type ClearPanelAction,
   type ClearPanelOptions,
 } from '../systems/clear-panel.js';
@@ -169,7 +171,7 @@ import {
 } from '../systems/board-camera.js';
 import { GameTimer } from '../systems/timer.js';
 import { SprintTracker } from '../systems/sprint.js';
-import { PausePanel, type PausePanelAction } from '../systems/pause-panel.js';
+import { PausePanel, pausePanelLayout, rectContains, type PausePanelAction } from '../systems/pause-panel.js';
 import { hitFailPanel } from '../systems/fail-panel.js';
 import {
   PHASE_TRANSITIONS,
@@ -268,6 +270,10 @@ interface SolverFxQueue {
   readonly landCols: number[];
   readonly landSteps: number[];
 }
+
+/** 结算面板选项两档常量（命中/按下态每帧查表 ⇒ ⛔ 不逐次造对象）。 */
+const CLEAR_OPTS_NORMAL: ClearPanelOptions = Object.freeze({ lastLevel: false });
+const CLEAR_OPTS_LAST: ClearPanelOptions = Object.freeze({ lastLevel: true });
 
 export class BeadsGame implements Game {
   readonly id = 'beads';
@@ -577,6 +583,7 @@ export class BeadsGame implements Game {
   private _debugOutlines = false;
   /** DEBUG 性能覆层开关（唯一**持久化**的 debug 项：走 `settings.debugInfo` 存档通道，pause-settings v1.6 §2.2）——真机 QA 无 console/query，需跨重启保留。 */
   private _debugInfo = false;
+  private _debugGuides = false;
   /** DEBUG：帧耗时 EMA（ms，α=0.1）；覆层关闭不更新、恒 0，view 派生 fps。 */
   private _frameMs = 0;
   /** §3.8 震动开关镜像（VIBRATE_DEFAULT = ON；init 时从存档装载）。 */
@@ -610,6 +617,10 @@ export class BeadsGame implements Game {
 
   /** Scratch point for screen → design conversion (never retained). */
   private readonly _pointer = { x: 0, y: 0 };
+  /** 按下态命中用的独立 scratch（⛔ 不复用 `_pointer`：后者承载棋盘手势起点语义）。 */
+  private readonly _pressPoint = { x: 0, y: 0 };
+  /** 手指按住处的面板钮 id（无 ⇒ null）；每帧由 {@link _pressedButtonNow} 刷新。 */
+  private _pressedButton: string | null = null;
   // ── Board tap / drag / pinch state (WXG-T-169 / ADR-0015 C-3(a)) ──
   // Reused objects + scalars; the input segment must stay allocation-free per frame.
   private readonly _tapStart = { x: 0, y: 0 };
@@ -826,6 +837,11 @@ export class BeadsGame implements Game {
     return this._debugInfo;
   }
 
+  /** 菜单安全区标定线（设置 Debug 开关；view 只读）。 */
+  get debugGuides(): boolean {
+    return this._debugGuides;
+  }
+
   /**
    * 当前珠子风格 id（EP11-S5 / S9 §2.2 行4 左格）。**view 查 registry 的唯一入口**（L5：
    * 渲染层不持有游戏状态，只读本值），未经渲染侧兵，非法值已在 `normalizeSettings` 降级。
@@ -905,6 +921,7 @@ export class BeadsGame implements Game {
     this._largeText = normalized.save.settings.largeText;
     this._vibrate = normalized.save.settings.vibrate;
     this._debugInfo = normalized.save.settings.debugInfo;
+    this._debugGuides = normalized.save.settings.debugGuides;
     // EP11-S5：换肤两档从存档装载（非法值已由 `normalizeSettings` 逐字段降级为默认档）。
     this._beadStyle = normalized.save.settings.beadStyle;
     this._beadSize = normalized.save.settings.beadSize;
@@ -935,6 +952,7 @@ export class BeadsGame implements Game {
     // （`core-loop §2.2.2` / `pause-settings §6`）；放到 `machine.update()` 之后
     // 会把输入挤到计时之后，破坏该序。热路径零分配：`_readInput` 只写复用指针。
     this._readInput();
+    this._pressedButton = this._pressedButtonNow();
     this._machine.update(dt);
     // G2′ 相 B 到点动手：**先于**面板与表现层步进，因为本步会写棋盘并可能达成过关
     // （`cleared-priority`，core-loop §2.2.2 ⇒ 完成判定排在同一帧的事件之后）。
@@ -1723,6 +1741,9 @@ export class BeadsGame implements Game {
         return;
       case 'toggle-debug-info':
         this.setDebugInfo(!this._debugInfo);
+        return;
+      case 'toggle-debug-guides':
+        this.setDebugGuides(!this._debugGuides);
         return;
       case 'cycle-bead-style':
         // EP11-S5 行4 左格（菜单设置 overlay 入口）：与暂停面板同一私有 setter ⇒ 两入口一致。
@@ -2747,9 +2768,19 @@ export class BeadsGame implements Game {
     this._machine.transition('paused');
   }
 
-  /** Gear hot zone: TOUCH_MIN square at the left edge of HUD_BAND. */
+  /**
+   * HUD 带逐机上移量 = 实际设计高 − 1334 基准（`[WXG-T-280]` 宽恒定版式：高屏多出量全落顶部）。
+   * 渲染（`snap.hudDy`）与齿轮热区同读本值 ⇒ 图与热区同源；静态档/无 viewport ⇒ 0。
+   */
+  private _hudDy(): number {
+    const h = this._services?.viewport?.designHeight ?? DESIGN_H;
+    return h > DESIGN_H ? h - DESIGN_H : 0;
+  }
+
+  /** Gear hot zone: TOUCH_MIN square at the left edge of HUD_BAND（随 {@link _hudDy} 上移）. */
   private _hitGear(x: number, y: number): boolean {
-    return x >= 0 && x <= GEAR_HIT_SIZE && y >= HUD_BAND.yMin && y <= HUD_BAND.yMax;
+    const dy = this._hudDy();
+    return x >= 0 && x <= GEAR_HIT_SIZE && y >= HUD_BAND.yMin + dy && y <= HUD_BAND.yMax + dy;
   }
 
   // ────────── 棋盘缩放控件（盘面下方净空带，几何与 view-model 同源 `zoomControlLayout`）
@@ -2886,7 +2917,33 @@ export class BeadsGame implements Game {
 
   /** 面板几何/文案选项（末关把主钮文案切成「查看结果」）。 */
   private _clearPanelOptions(): ClearPanelOptions {
-    return { lastLevel: this._levelIndex >= this._levels.length - 1 };
+    return this._levelIndex >= this._levels.length - 1 ? CLEAR_OPTS_LAST : CLEAR_OPTS_NORMAL;
+  }
+
+  /**
+   * 按下态命中（EP12-S4 续办 · screens.md 控件矩阵「按下」列）：手指**按住**时落在哪块**可见**
+   * 面板的哪颗钮上（无 ⇒ `null`）。与各面板 `hitTest` **同一几何**，但按 `visible` 而非相位/
+   * `interactive` 判——面板钮按下即提交，同帧相位已切走，面板仍在 150ms 淡出，按下态须留到淡完。
+   * 只读、零分配。
+   */
+  private _pressedButtonNow(): string | null {
+    const services = this._services;
+    if (!services || !services.input.snapshot.isDown) return null;
+    const snap = services.input.snapshot;
+    services.viewport.screenToDesign(this._pressPoint, snap.x, snap.y);
+    const x = this._pressPoint.x;
+    const y = this._pressPoint.y;
+    if (this._finishPanel.visible) return hitFinishPanel(x, y, this._levels.length);
+    if (this._clearPanel.visible) return hitClearPanel(x, y, this._clearPanelOptions());
+    if (this._sprintSettle.visible) return hitSprintSettle(x, y);
+    if (this._panel.visible) {
+      for (const b of pausePanelLayout(this._mode).buttons) if (rectContains(b.rect, x, y)) return b.id;
+      return null;
+    }
+    if (this._machine.current === 'game-over' && this._mode !== 'sprint') {
+      return hitFailPanel(x, y, this._reviveCount < REVIVE_MAX_PER_LEVEL);
+    }
+    return null;
   }
 
   /**
@@ -3209,6 +3266,7 @@ export class BeadsGame implements Game {
         largeText: this._largeText,
         vibrate: this._vibrate,
         debugInfo: this._debugInfo,
+        debugGuides: this._debugGuides,
         // EP11-S5：两字段并入同一次 patch ⇒ 与开关共用「整对象一次写」口径（S8 §6 幂等）。
         beadStyle: this._beadStyle,
         beadSize: this._beadSize,
@@ -3477,6 +3535,13 @@ export class BeadsGame implements Game {
     if (this._debugInfo === on) return;
     this._debugInfo = on;
     this._frameMs = 0; // 重开时从首帧实测值重新起步，不读旧 EMA
+    this._persistSettings();
+  }
+
+  /** 菜单安全区标定线。与 `setDebugInfo` 一样即写档，缺字段旧档降级 false。 */
+  setDebugGuides(on: boolean): void {
+    if (this._debugGuides === on) return;
+    this._debugGuides = on;
     this._persistSettings();
   }
 
@@ -3978,6 +4043,8 @@ export class BeadsGame implements Game {
     const finishRows = this._finishPanel.rowsShown(this._levels.length);
     s.finishRowsShown = finishRows;
     s.finishRowPopScale = finishRows > 0 ? this._finishPanel.rowPopScale(finishRows - 1) : 1;
+    s.finishLevels = this._levels; // S7 陈列条：只读引用（视图 ⛔ 不 import LEVELS）
+    s.pressedButton = this._pressedButton;
 
     // S7 冲刺结算面板（ux-spec §3.5 左列）：内容行数据 + 入/出进度一起进快照。
     s.sprintSettleVisible = this._sprintSettle.visible;
@@ -4040,7 +4107,9 @@ export class BeadsGame implements Game {
     s.largeText = this._largeText;
     s.debugOutlines = this._debugOutlines;
     s.debugInfo = this._debugInfo;
+    s.debugGuides = this._debugGuides;
     s.perfFrameMs = this._frameMs;
+    s.hudDy = this._hudDy(); // 动态高：HUD 带随屏顶上移（热区同源 `_hitGear`）
     s.vibrate = this._vibrate;
     // EP11-S5 行4 两钮的档位回显 + view 换肤渲染的 styleId 入口（L5：view 只读、不判定）。
     s.beadStyle = this._beadStyle;

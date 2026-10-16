@@ -46,6 +46,8 @@ export type PausePanelAction =
   | 'toggle-large-text'
   | 'toggle-vibrate'
   | 'toggle-debug-info'
+  /** 菜单设置的安全区标定线。暂停面板不放钮（末行已满），动作仍可被设置 overlay 串进来。 */
+  | 'toggle-debug-guides'
   /** EP11-S5 行4：两枚**选择器钮**（非开关）——循环 registry 注册序 / `BEAD_SIZE_ORDER`。 */
   | 'cycle-bead-style'
   | 'cycle-bead-size'

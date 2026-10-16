@@ -40,9 +40,13 @@ import {
     BEAD_SIZE_DEFAULT,
     STAMINA_START_COST,
     WALL_CAPACITY,
+    MENU_CAROUSEL,
+    MENU_CLIP,
     menuAnchors,
     type MenuAnchors,
 } from '../config/tuning.js';
+import { carouselDamp, carouselPage } from '../config/menu-carousel.js';
+import { THEME_LEVEL_MAX } from '../config/themes.js';
 import { BeadsGame, type BeadsGameOptions } from './beads-game.js';
 import { LEVELS } from '../config/levels.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
@@ -143,6 +147,7 @@ export class BeadsShell implements Game {
         canClaim: false,
         bgmMuted: false,
         debugInfo: false,
+        debugGuides: false,
         sfxMuted: false,
         reduceMotion: false,
         largeText: false,
@@ -163,10 +168,35 @@ export class BeadsShell implements Game {
         // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里进度最远那关（配置序末位）；一关未通 ⇒ undefined。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
         carouselState: undefined as MetaBossState | undefined,
+        carouselDx: 0,
+        carouselT: 0,
+        carouselPeer: undefined as BeadsLevelRaw | undefined,
+        carouselPeerState: undefined as MetaBossState | undefined,
+        carouselPeerSign: undefined as (-1 | 1) | undefined,
+        carouselComingSoon: false,
+        carouselPeerComingSoon: false,
         studioEnabled: false,
+        /** 按下态：`hitTestMeta` 返回的缓存钮引用（每帧由 `_readMenuInput` 覆盖，零分配）。 */
+        pressed: null as MetaButton | null,
     };
-    /** ◀▶ 翻页位（`[WXG-T-280]` 落地单 §3；进界由 `_metaViewData` 钳在已通序内，无需复位腿）。 */
+    /** ◀▶ 翻页位（`[WXG-T-280]` 落地单 §3；进界由 `_fillCarousel` 钳在陈列序内）。 */
     private _carouselOffset = 0;
+    private _carouselDx = 0;
+    private _carouselT = 0;
+    private _shown = 0;
+    private _pushingSlot = -1;
+    private _glass = false;
+    private _dragging = false;
+    private _pressX = 0;
+    private _pressY = 0;
+    private _lastX = 0;
+    private _lastT = 0;
+    private _vx = 0;
+    private _animOn = false;
+    private _animFrom = 0;
+    private _animTo = 0;
+    private _animStart = 0;
+    private _animDir: -1 | 0 | 1 = 0;
     /** 已通槽逆序 scratch（复用数组 ⇒ 每帧零分配；`[0]` = 进度最远）。 */
     private readonly _carouselOrder: number[] = [];
 
@@ -249,6 +279,7 @@ export class BeadsShell implements Game {
         // 菜单：推进体力恢复（离线 f(Δt)）+ 读点击。play 冻结（不 update ⇒ 倒计时不走）。
         this.meta?.refresh();
         this._readMenuInput();
+        this._stepCarousel();
     }
 
     buildRenderModel(builder: RenderModelBuilder): void {
@@ -334,11 +365,10 @@ export class BeadsShell implements Game {
                 return true;
             // `[WXG-T-280]` 橱窗 ◀▶：只在锚定档热区表里存在 ⇒ 静态档零影响；语义 = 已通序翻页（集合归本 shell）。
             case 'carousel-prev':
-                if (this._carouselOffset > 0) this._carouselOffset--;
+                this._nudge(-1);
                 return true;
             case 'carousel-next':
-                // 上不封顶此处钳 ⇒ 由 `_metaViewData` 按当前已通数收敛（关表变化时自动合法）。
-                this._carouselOffset++;
+                this._nudge(1);
                 return true;
             case 'pick-level': {
                 const slot = btn.slot;
@@ -413,9 +443,135 @@ export class BeadsShell implements Game {
         const services = this._services;
         if (!services) return;
         const snap = services.input.snapshot;
-        if (!snap.justDown) return;
+        if (!snap.isDown) {
+            if (this._glass) this._releaseGlass();
+            this._viewData.pressed = null;
+            return;
+        }
         services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
-        this._dispatchMetaTap(this._pointer.x, this._pointer.y);
+        const now = this._clock();
+        if (snap.justDown) {
+            const btn = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+            if (btn?.id === 'open-levels' && this._overlay === 'none') {
+                // 点在玻璃上先记下来，松手再决定是点按还是翻页。
+                this._animOn = false;
+                this._glass = true;
+                this._dragging = false;
+                this._pressX = this._pointer.x - this._carouselDx;
+                this._pressY = this._pointer.y;
+                this._lastX = this._pointer.x;
+                this._lastT = now;
+                this._vx = 0;
+            } else {
+                if (btn) this._applyMetaAction(btn);
+            }
+        } else if (this._glass) {
+            const raw = this._pointer.x - this._pressX;
+            const dt = now - this._lastT;
+            if (dt > 0) this._vx = (this._pointer.x - this._lastX) / dt;
+            this._lastX = this._pointer.x;
+            this._lastT = now;
+            if (!this._dragging) {
+                const adx = raw < 0 ? -raw : raw;
+                const ady = this._pointer.y - this._pressY;
+                const ay = ady < 0 ? -ady : ady;
+                if (adx > MENU_CAROUSEL.tapPx || ay > MENU_CAROUSEL.tapPx) this._dragging = true;
+            }
+            if (this._dragging) {
+                this._fillCarousel();
+                this._setSlide(carouselDamp(raw, this._carouselOffset, this._shown));
+            }
+        }
+        // 拖玻璃时不点亮滑过的别的钮。
+        this._viewData.pressed = this._dragging
+            ? null
+            : hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+    }
+
+    /** 松手：位移没过点按线 ⇒ 进选关；否则按阈值 / 快甩决定翻页或回弹。 */
+    private _releaseGlass(): void {
+        this._fillCarousel();
+        const page = this._dragging ? carouselPage(this._carouselDx, this._vx, this._carouselOffset, this._shown) : 0;
+        this._glass = false;
+        if (!this._dragging) {
+            this._dragging = false;
+            this._overlay = 'levels';
+            this._emitOverlay(true);
+            return;
+        }
+        this._dragging = false;
+        this._startAnim(page);
+    }
+
+    /** ◀▶ 与滑动松手共用。`page` 0 = 回到当前项。 */
+    private _nudge(page: -1 | 1): void {
+        if (this._animOn || this._dragging) return;
+        this._fillCarousel();
+        if (this._carouselOffset + page < 0 || this._carouselOffset + page >= this._shown) return;
+        this._carouselDx = 0;
+        this._startAnim(page);
+    }
+
+    private _startAnim(page: -1 | 0 | 1): void {
+        this._animFrom = this._carouselDx;
+        this._animTo = page === 0 ? 0 : page === 1 ? -MENU_CLIP.w : MENU_CLIP.w;
+        this._animDir = page;
+        this._animStart = this._clock();
+        this._animOn = this._animFrom !== this._animTo;
+        if (!this._animOn) this._setSlide(0);
+    }
+
+    private _setSlide(dx: number): void {
+        this._carouselDx = dx;
+        const w = MENU_CLIP.w;
+        this._carouselT = w > 0 ? Math.min(1, Math.abs(dx) / w) : 0;
+    }
+
+    private _stepCarousel(): void {
+        if (this._dragging) return;
+        if (!this._animOn) {
+            if (this._carouselDx !== 0 || this._carouselT !== 0) this._setSlide(0);
+            return;
+        }
+        const u = (this._clock() - this._animStart) / MENU_CAROUSEL.snapMs;
+        if (!(u < 1)) {
+            this._carouselOffset += this._animDir;
+            this._animOn = false;
+            this._animDir = 0;
+            this._setSlide(0);
+            return;
+        }
+        const inv = 1 - u;
+        const e = 1 - inv * inv * inv;
+        this._setSlide(this._animFrom + (this._animTo - this._animFrom) * e);
+    }
+
+    /** 陈列序写进复用数组。返回值走字段，不分配。 */
+    private _fillCarousel(): void {
+        const slots = this._wallSlotsFor();
+        const stars = this.play.starsByLevelRaw;
+        const order = this._carouselOrder;
+        order.length = 0;
+        let pushingSlot = -1;
+        for (let s = slots.length - 1; s >= 0; s--) {
+            const idx = slots[s]!;
+            if ((stars[idx] ?? 0) > 0) order.push(s);
+            else pushingSlot = s;
+        }
+        if (pushingSlot !== -1) order.unshift(pushingSlot);
+        this._pushingSlot = pushingSlot;
+        // 前 THEME_LEVEL_MAX 页是已开放主题；再加一页空橱窗（敬请期待）。
+        this._shown = THEME_LEVEL_MAX + 1;
+        if (this._carouselOffset >= this._shown) this._carouselOffset = Math.max(0, this._shown - 1);
+        if (this._carouselOffset < 0) this._carouselOffset = 0;
+    }
+
+    /** 相邻项在左（-1，内容右移）还是在右（+1）。没有则 0。 */
+    private _peerSign(): -1 | 0 | 1 {
+        if (this._animOn && this._animDir !== 0) return this._animDir;
+        if (this._carouselDx > 0) return -1;
+        if (this._carouselDx < 0) return 1;
+        return 0;
     }
 
     /**
@@ -479,6 +635,7 @@ export class BeadsShell implements Game {
         v.largeText = this.play.largeText;
         v.vibrate = this.play.vibrateOn;
         v.debugInfo = this.play.debugInfo;
+        v.debugGuides = this.play.debugGuides;
         // EP11-S5 行4 两钮回显（与暂停面板共读同一对 getter ⇒ 两入口恒一致）。
         v.beadStyle = this.play.beadStyle;
         v.beadSize = this.play.beadSize;
@@ -497,30 +654,38 @@ export class BeadsShell implements Game {
         // 陈列集 = 「下一未通关」（进度最远，置灰）+ 已通集反序 ⇒ 默认 0 项即进度最远那关；
         //   ⛔ 每帧零 `difficultyOf`，单趟 ≤capacity 整数循环、零分配。星级即「已通关」判据（`starsByLevel[idx] > 0`）。
         // ponytail: 进度/boss 均在已陈列的 `wallSlots`（≤WALL_CAPACITY）内取；溢出未实现（S6 Out）⇒ 关表 >capacity 时需改全表扫描。
-        const slots = v.wallSlots;
         const levels = v.wallLevels;
-        const stars = this.play.starsByLevelRaw;
+        this._fillCarousel();
         const order = this._carouselOrder;
-        order.length = 0;
-        let cleared = 0;
-        let pushingSlot = -1;
-        for (let s = slots.length - 1; s >= 0; s--) {
-            const idx = slots[s]!;
-            if ((stars[idx] ?? 0) > 0) {
-                cleared++;
-                order.push(s);
-            } else {
-                pushingSlot = s; // 反序遍历 ⇒ 末次覆盖 = 升序最小未通槽 = 下一要挑的关
-            }
+        const pushingSlot = this._pushingSlot;
+        const off = this._carouselOffset;
+        const soon = off === THEME_LEVEL_MAX;
+        v.carouselComingSoon = soon;
+        if (soon || off !== 0 || order.length === 0) {
+            v.carouselLevel = undefined;
+            v.carouselState = undefined;
+        } else {
+            const slot = order[0]!;
+            const boss = levels[slot];
+            v.carouselLevel = boss;
+            v.carouselState = boss === undefined ? undefined : (slot === pushingSlot ? 'pushing' : 'cleared');
         }
-        if (pushingSlot !== -1) order.unshift(pushingSlot);
-        const shown = cleared + (pushingSlot === -1 ? 0 : 1);
-        // `[WXG-T-280]` ◀▶ 翻页：boss = 陈列集逆序第 `offset` 项（默认 0 = 进度最远）；越界就地钳回。
-        if (this._carouselOffset >= shown) this._carouselOffset = Math.max(0, shown - 1);
-        const slot = shown === 0 ? -1 : order[this._carouselOffset]!;
-        const boss = slot === -1 ? undefined : levels[slot];
-        v.carouselLevel = boss;
-        v.carouselState = boss === undefined ? undefined : (slot === pushingSlot ? 'pushing' : 'cleared');
+        v.carouselDx = this._carouselDx;
+        v.carouselT = this._carouselT;
+        const sign = this._peerSign();
+        const pi = off + sign;
+        const peerSoon = sign !== 0 && pi === THEME_LEVEL_MAX;
+        v.carouselPeerComingSoon = peerSoon;
+        v.carouselPeerSign = sign === 0 ? undefined : sign;
+        if (sign === 0 || pi !== 0 || order.length === 0) {
+            v.carouselPeer = undefined;
+            v.carouselPeerState = undefined;
+        } else {
+            const peerSlot = order[0]!;
+            const peer = levels[peerSlot];
+            v.carouselPeer = peer;
+            v.carouselPeerState = peer === undefined ? undefined : (peerSlot === pushingSlot ? 'pushing' : 'cleared');
+        }
         v.studioEnabled = this._studio !== undefined;
         return v;
     }

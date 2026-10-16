@@ -834,6 +834,8 @@ describe('TC-SAVE-13 运行时腿 · S8 §8-13：不含两字段的存量档 ⇒
         // EP12-S8：skinId 同为「本判据的新增字段族」——对照臂必须齐备该字段，
         // 否则两臂都因缺 skinId 补写一次，差值归零、判据失真（同 `levelCount` 夹具注）。
         complete.settings['skinId'] = 'warm-paper';
+        // Debug 标定线同为逐字段降级：对照臂齐备，否则两臂都补写一次、差值归零。
+        complete.settings['debugGuides'] = false;
         controlStore.set(SAVE_KEY, JSON.stringify(complete));
         const ctl = spyStorage(controlStore);
         createBeadsHarness({ noAssemble: true, levels: [levelOf(5)], saveKey: SAVE_KEY, storage: ctl.storage });
@@ -1208,7 +1210,7 @@ function metaCenter(overlay: Parameters<typeof metaLayout>[0], id: MetaAction): 
 }
 
 describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容单源）+ ux §4「设置 overlay」行', () => {
-    it('9 钮 = 4 行 × 2 列 + 末行单格（EP12-S8 增 cycle-skin）：三枚选择器钮各恰一次，行距沿用旧等差、列间不重叠', () => {
+    it('10 钮 = 5 行 × 2 列（末行 Debug 补上空格）：三枚选择器钮各恰一次，行距沿用旧等差、列间不重叠', () => {
         const buttons = metaLayout('settings').buttons;
         const grid = buttons.filter((b) => b.id !== 'back' && b.id !== 'studio-import');
         const ids = grid.map((b) => b.id);
@@ -1218,11 +1220,11 @@ describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容�
         expect(ids.filter((i) => i === 'cycle-skin').length).toBe(1); // EP12-S8
 
         const rows = [...new Set(grid.map((b) => b.box.y))].sort((a, b) => b - a);
-        expect(grid.length).toBe(9); // 前提哨兵：8 旧钮 + cycle-skin
-        expect(rows.length).toBe(Math.ceil(grid.length / 2)); // 两列 ⇒ 行数 = ⌈钮数 / 2⌉（末行单格）
-        // 末行单格：最低一行的钮恰 1 枚（第 9 钮），其余行各 2 枚。
+        expect(grid.length).toBe(10); // 8 旧钮 + cycle-skin + Debug（末行空格）
+        expect(rows.length).toBe(Math.ceil(grid.length / 2)); // 两列 ⇒ 行数 = ⌈钮数 / 2⌉
+        // 末行两枚：皮肤 + Debug，plate 高不长。
         const bottomRowY = rows[rows.length - 1]!;
-        expect(grid.filter((b) => b.box.y === bottomRowY).length).toBe(1);
+        expect(grid.filter((b) => b.box.y === bottomRowY).length).toBe(2);
         const gaps = rows.slice(1).map((y, i) => rows[i]! - y);
         expect(new Set(gaps).size).toBe(1); // 行距沿用（等差）
         expect(gaps[0]).toBeGreaterThan(0);

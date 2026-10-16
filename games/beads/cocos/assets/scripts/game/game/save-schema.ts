@@ -49,11 +49,16 @@ export interface BeadsSettings {
    */
   readonly vibrate: boolean;
   /**
-   * DEBUG 性能覆层开关（pause-settings v1.6 §2.2）：**唯一持久化的 debug 项**——真机
-   * QA 无 console / query 可用，需跨重启保留。缺字段逐字段降级 false（同 v1→v2 判例，
-   * 无需版本 bump）；仅控制覆层绘制，不碰玩法与存档数据。
+   * DEBUG 性能覆层开关（pause-settings v1.6 §2.2）：真机 QA 无 console / query 可用，
+   * 需跨重启保留。缺字段逐字段降级 false（同 v1→v2 判例，无需版本 bump）；仅控制覆层
+   * 绘制，不碰玩法与存档数据。
    */
   readonly debugInfo: boolean;
+  /**
+   * 菜单安全区标定线（设置里的 Debug 开关）。缺字段逐字段降级 false，
+   * ⛔ SAVE_VERSION 不 bump（同 `debugInfo`）。只控制菜单上的三条标定线。
+   */
+  readonly debugGuides: boolean;
   /**
    * 换肤两字段（**EP11-S5 / S8 v1.1 §8-11~13**）：珠子风格与豆径档的末值。
    * - `beadStyle`：string styleId，默认 `DEFAULT_BEAD_STYLE_ID`（= `facet-4`）；
@@ -161,6 +166,7 @@ export function defaultBeadsSave(): BeadsSave {
       largeText: false,
       vibrate: VIBRATE_DEFAULT,
       debugInfo: false,
+      debugGuides: false,
       beadStyle: DEFAULT_BEAD_STYLE_ID,
       beadSize: BEAD_SIZE_DEFAULT,
       skinId: DEFAULT_SKIN_ID,
@@ -203,6 +209,7 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
     // §3.8 VIBRATE_DEFAULT = ON：缺字段降级为 true（与其余四开关的 false 相反）。
     vibrate: boolField(raw, 'vibrate', VIBRATE_DEFAULT),
     debugInfo: boolField(raw, 'debugInfo', false),
+    debugGuides: boolField(raw, 'debugGuides', false),
     beadStyle:
       typeof styleRaw === 'string' && styleById(styleRaw) !== undefined
         ? styleRaw
@@ -266,6 +273,7 @@ function settingsEqual(a: BeadsSettings, b: BeadsSettings): boolean {
     a.largeText === b.largeText &&
     a.vibrate === b.vibrate &&
     a.debugInfo === b.debugInfo &&
+    a.debugGuides === b.debugGuides &&
     a.beadStyle === b.beadStyle &&
     a.beadSize === b.beadSize &&
     a.skinId === b.skinId

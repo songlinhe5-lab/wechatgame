@@ -61,6 +61,7 @@
 - **验证**：beads **853** 全绿（+2 自检：`ui-warm-paper-tokens.test.ts` paused 纸投影+木钮+chip 木底 / fail 禁用真 token+hack 退出）· verify **PASS 22 / FAIL 0** · playing 封箱 frame0 `1325/3269d92b…` · frame78 `1871/749b3ada…` **逐字节 MATCH 零漂**（本批零涉 playing，无封箱复评）· 色表锁 **46 条不动**（零新增 token，全消费既有色）· harness 出图 paused 面板观感已核（`temp/beads-pause-panel.png`）。
 - **估点**：S。**依赖**：EP12-S2。
 - **In/Out**：In = 三弹窗容器与控件换肤 + disabled 态消费；Out = 行结构/事件/文案（U16 不写死款数）；~~`[Blocked: 待裁]` D-5~~ → **已解除（2026-10-07 用户裁：计时胶囊恒纸底，不切纸底）**；**pressed 态实时视觉 = 输入链新增（touch-down 命中态入快照 + 逐钮命中），⛔ 本批不伪造，登记续办**。
+- **续办收口（2026-10-15 P3）**：快照新增 `pressedButton`（`BeadsGame::_pressedButtonNow`，每帧 `isDown` 时按**可见面板**与各面板 `hit*` 同几何求，⛔ 不看相位/`interactive`——按下即提交的钮同帧已切相位，淡出 150ms 内仍须显按下态；零分配，`ClearPanelOptions` 两档冻结常量）。视图：T3 木钮 `woodFacePressed` + 隐受光线、T1 纸钮/chip 关 `cardPressed`、chip 开 `woodFacePressed`、accent 主钮 `woodFacePressed`；整体下沉 `UI_PRESS_SINK = 2`（art-bible-proposal §4「y+2」），`reduceMotion` 只换面。禁用钮（fail `watchingAd`）不显按下。主菜单同步：`MetaViewData.pressed`（shell `_readMenuInput` 派发**后**按新 overlay 求 `hitTestMeta`），CTA/顶栏圆钮/◀▶ 换 pressed 纹（CTA pressed 纹自带台面下移 ⇒ 不叠运行时位移，文案按 D16/源高 240 同比下沉）；缺纹落程序化换面。
 
 ### EP12-S5 difficultyOf() 难度分单一真源落码 + 守卫 ✅（已落码收口，2026-10-07 批 5）
 
@@ -94,7 +95,9 @@
 - **估点**：L。**依赖**：EP12-S2、EP12-S5。
 - **In/Out**：In = 上列全部；Out = 走马灯机制（Q9 = carousel 仅在 `n > wall_capacity` 溢出时按 `wall_overflow_mode` 配置生效，9 关现状为单层墙，**本 Story 不实现轮播**）；类别分带（K(n)=0 现状）；`ux-spec §4` 两行回写（T-266 §7.3，归主理人转 UX 轨）。
 
-### EP12-S7 finish 通关画面作品上架陈列条（screens.md S5）
+### EP12-S7 finish 通关画面作品上架陈列条（screens.md S5）✅（已落码，2026-10-15 P3 批 · 观感 `[待真机]`）
+
+> ✅ **状态（2026-10-15 P3）**：几何 = `finish-panel.ts::buildShelf`（并入 `FinishPanelLayout.shelf`，按关数缓存零逐帧分配）；常量 `tuning.ts::FINISH_SHELF`（派生版面值，⛔ 不进 §3）。条夹在**按钮行上缘**与「总览末行下缘 / `CONFETTI_NOFLY_YMIN`」较低者之间居中（关数少时总览行高悬、净空带会跨进禁飞带 ⇒ 封顶）。绘制 = `view-model::drawFinishPanel` 纸底板 + 逐格（`finishStars[i] > 0` ⇒ `drawLevelThumb` 珠拼缩略；否则 `drawDashedRect` 虚线空槽），随总览行同步入场（`i < finishRowsShown`）；关卡本体经快照 `finishLevels`（只读引用，视图 ⛔ 不 import LEVELS）。**验收①实测**：9 关档 底板 557×69 @y[225.5,294.5]、格边 **53**（高分 64 / 宽分 53.3 取小）；1/8/9 关三档均 格 ≤160 · 条宽 ≤560 · 禁飞带外 · 不压总览行与按钮 ✓。**③ 零新热区** ✓（格心 `hitFinishPanel` 恒 null）。**CONCERNS**：9 关档格边 53 远小于上限 160（净空带只有 104 高）⇒ 5×5 缩略单珠 ≈8.6px，「能否认出是这一关」`[待真机]`；若不达标需让出总览行高度（版面改动，另裁）。K-6 图元差分本批未复算（台账门禁已于 WXG-T-281 退役）。测试：`tests/p3-pressed-shelf.test.ts`。
 
 - **描述**：通关时已完成图案逐格摆进与 S0 同源的陈列条（已通关 = 珠拼缩略；未通关 = 虚线空槽），复用 EP12-S6 缩略绘制通道；纯展示零热区零新功能。
 - **验收**：① screens.md S5（格 ≤160、条宽 ≤560、落在彩带禁飞带 y∈[447,787] 之外，精确 y 实测回填 `[待实测]`）；② art-bible §1.1 命名语义闭环（S0 空槽在此填满）；③ 零新热区判据 + 图元差分复算（K-6 同面）。

@@ -12,6 +12,8 @@
  * **bottom-left**, y grows upward.
  */
 
+import { OPEN_THEMES } from './themes';
+
 // ──────────────────────────────────────── §3.1 canvas, safe area & layout bands
 /** Design resolution width (px). */
 export const DESIGN_W = 750;
@@ -99,8 +101,11 @@ export const MENU_TOPBAR_TOP_FALLBACK = SAFE_TOP_H + SAFE_EDGE_MARGIN;
  * 排（定稿图视觉 pitch 70 ⇒ 两热区会重叠 18 px 误触），外颗右缘 736 ⇒ 距屏边 14。
  */
 export const MENU_TOPBAR_X = { settings: 24, notice: 560, mail: 648 } as const;
-/** 顶栏视觉圆直径（定稿图实测 Ø≈59；§5.1b 推导 1「不必缩钮」）。热区 88 同心包裹。 */
-export const MENU_TOPBAR_VISUAL_D = 59;
+/**
+ * 顶栏视觉圆直径 = 80（落地单 v3.5，用户 2026-10-15 裁：`ui_btn_circle_*` 与三枚 `ui_icon_*` 同为
+ * 160×160 px @2x ⇒ 80 设计 px；旧 59/64 作废）。热区 88 同心包裹（视觉比热区小 8，邻钮视觉隙 8）。
+ */
+export const MENU_TOPBAR_VISUAL_D = 80;
 /** 未实装的预留钮（公告 / 信箱）画成禁用态 ⇒ 视觉上在、语义上不承诺可点。 */
 export const MENU_TOPBAR_RESERVED_ALPHA = 0.5;
 /** Puzzle band — the pattern matrix is centred inside it (both axes).
@@ -999,6 +1004,12 @@ export const FINISH_STAR_GAP = 8;
  * 同一关的 3 颗同时入场（派生项，登记台账）。
  */
 export const FINISH_LEVEL_STEP_MS = 150;
+/**
+ * S7 作品陈列条（EP12-S7 · screens.md S5「格 ≤160 见方、条宽 ≤560、落在彩带禁飞带外」）。
+ * 条落在**总览末行与按钮行之间**的净空带（9 关档 ≈ 104 高 ⇒ 格 ≈ 53）；格边 = min(上限, 宽分, 高分)。
+ * 派生版面值，⛔ 不进 §3。
+ */
+export const FINISH_SHELF = { w: 560, cellMax: 160, gap: 8, pad: 8, margin: 12 } as const;
 
 // ──────────────────────────────────────────────────── §2.5 combo VFX (Lv1–3)
 /**
@@ -1131,8 +1142,10 @@ export const HEART_PRICE_LADDER: readonly number[] = [50, 100, 200];
 
 // ─────────── 主菜单（shell 屏）几何（来源：ux-spec v1.7 §2 流程 + meta-ui 线框；
 //             EP12-S6 版面族扩充，来源 `menu-architecture.md §5.1/§7.4`——**派生版面值，⛔ 不进 §3**）
-/** 主菜单主钮「开始游戏」：复用面板主钮宽 × TOUCH_MIN。 */
-export const MENU_PRIMARY_W = 320;
+/** 主菜单主钮「开始游戏」宽 = mock 框 324（落地单 v3.5，用户 2026-10-15 裁；旧 320 作废）。 */
+export const MENU_PRIMARY_W = 324;
+/** 主菜单主钮左缘 x = mock 框 218（与橱窗/Boss 位同一套 mock 坐标，⛔ 不再按 750 居中重算）。 */
+export const MENU_CTA_X = 218;
 // 2026-10-13 用户裁定第二批：底部次级行（签到 / 设置纸钮）**整行退役** ⇒
 // `MENU_SECONDARY_W` / `MENU_ROW_GAP` / `MENU_SECONDARY_GAP` 三常量零消费者已删
 //（设置改左上顶栏圆钮，签到待信箱实装；`menu-architecture §5.1/§5.1b` 留档，需重建时读那里）。
@@ -1146,16 +1159,35 @@ export const MENU_PRIMARY_W = 320;
 // ─────────── 主菜单落位链常量（真值算式见文件末尾 {@link menuAnchors}）
 /** 顶隙（st → 结顶，已含边距语义 ⇒ 裸换算，⛔ 不再 +`SAFE_EDGE_MARGIN`，落地单 §1 防双加注）。 */
 export const MENU_CHAIN_GAP_TOP = 16;
+/**
+ * 无刘海 / 无灵动岛时结顶距屏顶的下限（设计 px）。= 加长前的绳长：结顶至少这么远，原图那段绳子才完整露出。
+ * 加长段只服务安全区更深的机型（灵动岛结顶 119，绳要接到屏顶），浅档多出来的绳允许被屏顶裁掉。
+ */
+export const MENU_BOW_MIN_FROM_TOP = 61;
 /** 底隙（CTA 底缘 → safeBottom 上缘，同上已含边距）。 */
 export const MENU_CHAIN_GAP_BOTTOM = 32;
-/** 招牌链高：结顶 `bow0` → 板底 `sign1`（结/板交叠后视觉 180，整块 logo 承担）。 */
-export const MENU_SIGN_CHAIN_H = 180;
-/** 资源条体高（棕色圆角矩形本体，v3.4 旧 43+缝3 作废）。 */
-export const MENU_BAR_H = 46;
+/**
+ * 招牌链高：结顶 `bow0` → 板底 `sign1`。v3.7 图内结顶 y=159、板底 y=586，等比 370/960 后链高 ≈ 165。
+ * v3.9 只在图顶加了 150px 绳子，结与板的图内间距不变，链高仍是 165。
+ */
+export const MENU_SIGN_CHAIN_H = 165;
+/**
+ * 资源条体高。v3.9（用户 2026-10-16「太高、不能超过背景板」）：46 的顶缘探出橱窗木纹
+ * （框图顶约 5px 透明 + 描边 3 居中）。顶板木纹厚约 22，但数值字是 28 的地板，条高收到 32 才能把字包住。
+ */
+export const MENU_BAR_H = 32;
+/**
+ * 条顶相对橱窗图框下移。框顶木盖约在图内 4–27px（亮面在上、立面在下）。
+ * 7 时条顶还压在盖的亮面上，看起来骑在框外。14 让亮面留在条上方，条身嵌进上沿立面。
+ */
+export const MENU_BAR_TOP_INSET = 14;
 /** 橱窗高（含楣，v3.3 裁定**恒定不拉伸**）。 */
 export const MENU_CASE_H = 871;
-/** 条窗一体组高 = 条 46 + 缝 **0** + 窗 871 = 917（v3.4；不变式⑤ `case0 == bar0 + 46`）。 */
-export const MENU_CASE_GROUP_H = MENU_BAR_H + MENU_CASE_H;
+/**
+ * 纵向堆叠组高 = 橱窗 871。⚠ v3.6（用户 2026-10-15）：资源条**嵌在橱窗顶部**（覆盖楣的上 46 px），
+ * 不再占堆叠高度；v3.4 的「条 46 + 缝 0 + 窗 871 = 917」作废。不变式 ⑤a 改为 `bar 顶 == case 顶`。
+ */
+export const MENU_CASE_GROUP_H = MENU_CASE_H;
 /** 自由区分隙：组上隙 = (zone − 917)/3、下隙 = 2×上隙（柜隙上:下 = 1:2，v3.3 裁定迁整组口径）。 */
 export const MENU_CASE_GAP_RATIO = 2;
 /** 走马灯卡 / ◀▶ 圆心的窗内纵向分割（定稿实测：顶 = case0 + 0.42×871 + 卡半高）。 */
@@ -1165,30 +1197,72 @@ export const MENU_CASE_SPLIT = 0.42;
  * 属落地单 §3 登记漂移（「高 92 或维持 88 开工时定」本批取 92：五档验收账即按此算）。
  */
 export const MENU_CTA_H = 92;
-/** Δ12 只作组隙下限（五档最小 gap_top = 19 ✓）⇒ 复用在册 `SIGN_BAND_PAD`，零新常量。 */
+/** Δ12 只作组隙下限（五档最小 gap_top = 39 ✓）⇒ 复用在册 `SIGN_BAND_PAD`，零新常量。 */
 
-/** 招牌整块（结+板+字一体，`ui_menu_logo`）视觉框：474×180 @x[140,614]（落地单 §3）。 */
-export const MENU_SIGN_FRAME = { x: 140, w: 474, h: MENU_SIGN_CHAIN_H } as const;
-/** 资源条本体框 439×46 @x156（定稿实测 x[156,595]；中心 375.5≈居中）。 */
-export const MENU_BAR_FRAME = { x: 156, w: 439 } as const;
+/**
+ * 招牌整块（`ui_menu_logo`，含绳）图框：370×298 @x190（居中），**等比**（960×772 × 370/960）。
+ * v3.9（用户 2026-10-16）：绳向上加长 150px（622→772），灵动岛档结顶 119 时绳顶接到屏顶。
+ * `bowYOff` = 图顶到结顶（图内 y=309 → 119）。`boardCyOff` = 图顶到板心（图内 y≈560 → 216），无位图时字样居中。
+ * 板体图内 x[11,948] 未动 ⇒ 绘制右缘 ≈ 556，与公告钮视觉左缘 564 留 8。
+ */
+export const MENU_SIGN_FRAME = { x: 190, w: 370, h: 298, bowYOff: 119, boardCyOff: 216 } as const;
+/**
+ * 资源条本体框 442×32 @x154（中心 375）。
+ * 462 的圆角贴上框肩，描边探出木纹。收到 442 后，条顶那一行（木纹 x[151,597]）
+ * 直边落在约 166–584，两端各留一截肩。
+ */
+export const MENU_BAR_FRAME = { x: 154, w: 442 } as const;
 /** 橱窗框体 544×871 @x107（mock 实测框；`ui_showcase_frame` 重缩后目标框）。 */
 export const MENU_CASE_FRAME = { x: 107, w: 544 } as const;
-/** Boss 关图位（玻璃白板区）468×528 @x[146,614]，窗内偏移 y[130,658]（定稿实测）。 */
+/** Boss 关图位（玻璃白板区）468×528 @x[146,614]，窗内偏移 y[130,658]（定稿实测）。点击热区仍是这块。 */
 export const MENU_BOSS_SLOT = { x: 146, yOff: 130, w: 468, h: 528 } as const;
+/** 走马灯裁切区 = 橱窗白底。`ui_showcase_frame` 白卡：x197、宽 361，距柜顶 168、高 527。 */
+export const MENU_CLIP = { x: 197, yOff: 168, w: 361, h: 527 } as const;
+/** 通关飘带：整枚落在裁切区内，右上内缩。跟内容一起滑。 */
+export const MENU_SEAL = { w: 101, h: 140, inset: 12 } as const;
+/** 未开启大锁边长（花心居中）。 */
+export const MENU_LOCK_D = 220;
+/**
+ * 进行中沙漏。宽按源图 820×1008 等比。mx/my = 不透明像素重心占图幅的比例
+ * （源图重心偏左，按外接框中心摆会偏约 20px）。换图后重测这两个数。
+ */
+export const MENU_PROGRESS = { h: 210, w: 171, mx: 0.381, my: 0.486 } as const;
+/** CTA 文案纹理：高 56，重心落在钮面自顶 42%（原型）。aspect = 源图 964/253。 */
+export const MENU_CTA_LABEL = { h: 56, fromTop: 0.42, aspect: 964 / 253 } as const;
+/**
+ * 走马灯手感。`flickPxPerMs` / `endFollow` / `snapMs` 是临时值，真机验收后回填落地单 §8。
+ * ponytail: 到头只乘一个系数、松手用三次缓出。手感不够再换曲线，别先加弹簧。
+ */
+export const MENU_CAROUSEL = {
+    tapPx: 10,
+    pageFrac: 0.3,
+    flickPxPerMs: 0.6,
+    endFollow: 0.35,
+    snapMs: 180,
+} as const;
 /** 状态徽标 64² @x[538,602]，窗内偏移顶 y=142（玻璃区右上角、内缩 12；三态图形资产待裁 ⇒ 程序化占位）。 */
 export const MENU_BADGE = { x: 538, yOff: 142, d: 64 } as const;
 /** 完成态 boss icon Ø160，圆心 = 窗内偏移 y 394（cx 380，居中于 Boss 图位）。 */
 export const MENU_DONE_ICON = { cx: 380, yOff: 394, d: 160 } as const;
+/** 橱窗 Boss 原图边长。源图 256²，花约占 2/3；540 时花约 360，重心与盖章同心。 */
+export const MENU_BOSS_ART_D = 540;
 /** 橱窗内木牌（`ui_showcase_plate`）定稿含影实测框 214×100，中心 x 381、窗内偏移顶 y=652（§8.7 牌宽口径待对账）。 */
 export const MENU_PLATE = { cx: 381, yOff: 652, w: 214, h: 100 } as const;
+/**
+ * 木牌标题行心（距牌顶，设计px；牌面心 ≈ 46，下缘为投影）。有关名 ⇒ 两行（关序 28 / 关名 30，E1 地板 28），
+ * 无关名 ⇒ 关序单行居牌面心（用户 2026-10-16 裁「橱窗下板子补关卡标题」）。
+ */
+export const MENU_PLATE_TITLE = { line1Off: 30, line2Off: 62, singleOff: 46 } as const;
 /** ◀▶ 翻页钮视觉 64² 左缘 x（右缘 = 750−26−64=660 ⇒ 镜像；热区 88² 同心）。 */
 export const MENU_ARROW_X = { left: 26, right: 660 } as const;
 /** ◀▶ 视觉边长（热区 `TOUCH_MIN` 同心包裹）。 */
 export const MENU_ARROW_VISUAL_D = 64;
 /** 位图腿的目标绘制尺寸（源图 @2x/高清 ⇒ 按屏上框重缩，落地单 §5「接线时按目标尺寸重缩」）。 */
-export const MENU_TOPBAR_ICON_D = 40;
-export const MENU_ARROW_ICON_D = 36;
-export const MENU_BAR_ICON_D = 36;
+/** 顶栏图标：`ui_icon_*` 画布与圆底同为 160² ⇒ 与圆同尺寸 80 绘制（字形自带留白，旧 40 会把字形缩到 ≈24）。 */
+export const MENU_TOPBAR_ICON_D = MENU_TOPBAR_VISUAL_D;
+/** 向标源图 58×87。方框 36² 会把字拉扁；高 36、宽 24（36×58/87）居中画在圆钮上。 */
+export const MENU_ARROW_ICON = { w: 24, h: 36 } as const;
+export const MENU_BAR_ICON_D = 24;
 /** 顶栏钮视觉直径复用在册 `MENU_TOPBAR_VISUAL_D`；热区左缘复用 `MENU_TOPBAR_X`。 */
 
 /**
@@ -1214,13 +1288,33 @@ export const MENU_TEXTURES = {
   iconArrowRight: 'bitmap__menu_icon_arrow_right',
   iconCoin: 'bitmap__menu_icon_coin',
   iconStamina: 'bitmap__menu_icon_stamina',
+  /** 未开启大锁。 */
+  badgeLocked: 'bitmap__menu_badge_locked',
+  /** v3.8 进行中沙漏（花心）。 */
+  badgeProgress: 'bitmap__menu_badge_progress',
+  /** v3.8 通关飘带。 */
+  sealCleared: 'bitmap__menu_seal_cleared',
+  /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
+  ctaLabel: 'bitmap__menu_cta_label',
+  /** 橱窗中央主题原图。id 来自本版开放的第一个主题；缺资产回退豆阵。 */
+  bossArt: OPEN_THEMES[0].textureId,
 } as const;
+
+/**
+ * 按下态整体下沉量（设计 px；art-bible-proposal §4 / §T7「按下 = y+2 位移」，y-up ⇒ 绘制减此值）。
+ * `reduceMotion` ⇒ 不位移、只换面（accessibility D1 同族）。
+ */
+export const UI_PRESS_SINK = 2;
 
 /**
  * CTA 9-slice 端帽（源纹 200×240 @2x 实测：corner~top 80/96、left 76 ⇒ 对称化取整，
  * 落码单位 = 源纹理 px，与 `nineSliceFx` 入参同口径）。
  */
 export const MENU_CTA_SLICE = { capX: 76, capY: 96 } as const;
+/** CTA pressed 源纹的台面下移量（源 px，menu-showcase-asset-spec §5.1「逐列下移 D=16」）⇒ 文案随台面同比下沉。 */
+export const MENU_CTA_PRESSED_D = 16;
+/** CTA 源纹高（源 px，同上 200×240）。 */
+export const MENU_CTA_SRC_H = 240;
 
 /** {@link menuAnchors} 入参（全部**屏幕逻辑 px / dp**，接口原值；宿主无该接口时传 **`null`** ⇒ 兜底）。 */
 export interface MenuAnchorsInput {
@@ -1255,9 +1349,9 @@ export interface MenuAnchors {
   readonly signTopY: number;
   /** 板底（slogan 带、资源条组都从它往下排）。 */
   readonly signBotY: number;
-  /** 资源条上缘（底缘 = caseTopY，一体缝 0）。 */
+  /** 资源条上缘 = 橱窗上缘（v3.6：条嵌在橱窗顶部，向下覆盖 MENU_BAR_H）。 */
   readonly barTopY: number;
-  /** 橱窗上缘 = barTopY − MENU_BAR_H。 */
+  /** 橱窗上缘（= barTopY）。 */
   readonly caseTopY: number;
   /** 橱窗下缘（恒定高，⛔ 不拉伸）。 */
   readonly caseBotY: number;
@@ -1286,18 +1380,20 @@ export function menuAnchors(input: MenuAnchorsInput): MenuAnchors {
   const sb = safeBottomDp !== null && safeBottomDp >= 0 && k > 0 ? Math.round(safeBottomDp * k) : SAFE_BOTTOM_H;
   const H = designHeight > 0 ? designHeight : DESIGN_H;
   // ── 链式（顶部深度系，落地单 §2 逐行）
-  const bow0 = st + MENU_CHAIN_GAP_TOP;
+  // 结顶 = 安全区下固定 16；无刘海时不低于 MENU_BOW_MIN_FROM_TOP，否则绳子被屏顶裁掉、牌子贴顶。
+  const bow0 = Math.max(st + MENU_CHAIN_GAP_TOP, MENU_BOW_MIN_FROM_TOP);
   const sign1 = bow0 + MENU_SIGN_CHAIN_H;
   const cta1 = H - sb - MENU_CHAIN_GAP_BOTTOM;
   const cta0 = cta1 - MENU_CTA_H;
   const zone = cta0 - sign1;
   const gapTopRaw = (zone - MENU_CASE_GROUP_H) / (1 + MENU_CASE_GAP_RATIO);
-  // Δ12 只作组隙下限（落地单 §2）：五档接口档最小 19 ⇒ 钳位不触发、不变式② 在浮点域精确；
-  // 只在 fallback 档（无接口 st=120/sb=68 叠 H=1334 ⇒ zone < 917）防负隙穿模。
+  // Δ12 只作组隙下限（落地单 §2）：五档接口档最小 gapTop ≈38（SE，v3.9 结顶下限 61）⇒ 钳位不触发、不变式② 在浮点域精确；
+  // 只在 fallback 档（无接口 st=120/sb=68 叠 H=1334 ⇒ zone < 871）防负隙穿模。
   const gapTop = Math.max(gapTopRaw, SIGN_BAND_PAD);
   const gapBot = zone - MENU_CASE_GROUP_H - gapTop;
-  const bar0 = sign1 + gapTop;
-  const case0 = bar0 + MENU_BAR_H;
+  // 资源条嵌在橱窗顶部：橱窗顶 = 招牌底 + gapTop；条顶 = 橱窗顶（条覆盖楣的上 MENU_BAR_H）。
+  const case0 = sign1 + gapTop;
+  const bar0 = case0;
   const case1 = case0 + MENU_CASE_H;
   const bt = menuTopbarTop(capsuleBottomDp, windowWidthDp);
   // ── 翻 y-up
@@ -1497,7 +1593,7 @@ export const THUMB_BEADS_MAX = THUMB_MATRIX_N * THUMB_MATRIX_N;
  * `BeadsLevelRaw` 不带 `kind`（boss 只在生成期排序标）⇒ 映射按显式 `id` 键，新 boss 关追加条目。
  */
 export const BOSS_THUMB_TEXTURES: Readonly<Record<number, string>> = {
-  9: 'bitmap__boss_l9',
+  9: OPEN_THEMES[0].textureId,
 };
 /** 回退档序（§3.8 序 2/3 预置杠杆，逐级触发、不并行）。 */
 export const THUMB_TIERS: readonly number[] = Object.freeze([5, 4, 3]);

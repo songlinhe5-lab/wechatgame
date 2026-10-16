@@ -51,18 +51,24 @@ function bakeNineSlice(
   if (!canvas || !ctx) return undefined;
   const sw = src.width;
   const sh = src.height;
-  const cx = Math.min(capX, sw / 2, w); // 端帽不超源宽一半/目标宽
-  const cy = Math.min(capY, sh / 2, h);
-  const srcRestX = sw - cx * 2;
-  const srcRestY = sh - cy * 2;
+  // 端帽按源纹 px 裁。目标比源纹矮（CTA 240→92）时，端帽跟较短边同比缩小，只拉中间。
+  // 放得下时不放大端帽。旧写法把源纹 px 直接当目标 px，圆角被压扁。
+  const srcCx = Math.min(capX, sw / 2);
+  const srcCy = Math.min(capY, sh / 2);
+  let fit = Math.min(w / sw, h / sh);
+  if (!(fit > 0) || fit > 1) fit = 1;
+  const cx = Math.min(srcCx * fit, w / 2);
+  const cy = Math.min(srcCy * fit, h / 2);
+  const srcRestX = sw - srcCx * 2;
+  const srcRestY = sh - srcCy * 2;
   const dstX = [0, cx, w - cx];
   const dstW = [cx, w - cx * 2, cx];
-  const srcTop = [0, cy, sh - cy];
-  const srcH = [cy, srcRestY, cy];
+  const srcTop = [0, srcCy, sh - srcCy];
+  const srcH = [srcCy, srcRestY, srcCy];
   const dstY = [0, cy, h - cy];
   const dstH = [cy, h - cy * 2, cy];
-  const srcW = [cx, srcRestX, cx];
-  const srcLeft = [0, cx, sw - cx];
+  const srcW = [srcCx, srcRestX, srcCx];
+  const srcLeft = [0, srcCx, sw - srcCx];
   for (let r = 0; r < 3; r++) {
     for (let c = 0; c < 3; c++) {
       if (dstW[c]! <= 0 || dstH[r]! <= 0 || srcW[c]! <= 0 || srcH[r]! <= 0) continue;

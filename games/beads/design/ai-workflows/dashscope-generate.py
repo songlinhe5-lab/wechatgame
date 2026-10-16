@@ -46,6 +46,8 @@ OUT = os.path.join(REPO, "temp", "dashscope-out")
 
 # 已注册云端模型 → 单图 parameters（wan2.7 示例是 sequential 多图，这里取单图档）
 MODELS = {
+    # 非 pro 3.0：model-matrix §1 ③ 云端备选（背景最纯，0.18 元/张）；pro 版按用户指示排除。
+    "qwen-image-3.0": {"prompt_extend": True},
     "qwen-image-3.0-pro": {"prompt_extend": True},
     "qwen-image-2.1-pro": {"prompt_extend": True},
     "qwen-image-2.1-turbo": {"prompt_extend": True},

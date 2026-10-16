@@ -36,7 +36,7 @@ import {
 import { App } from '../../compose/app.js';
 import type { Game } from '../../core/game/game.js';
 import { CocosRenderModelRenderer, parseColorLiteral } from './cocos-renderer.js';
-import type { CocosBlitCarrierLike } from './cocos-renderer.js';
+import type { CocosBlitCarrierLike, CocosClipHostLike } from './cocos-renderer.js';
 import { CocosInputBridge } from './input-bridge.js';
 import { CocosLoopBridge } from './loop-bridge.js';
 import { PooledLabelSource } from './label-pool.js';
@@ -65,6 +65,8 @@ export class Bootstrap extends Component {
   private _blitLayer: Node | null = null;
   /** `[WXG-T-271 / ADR-0031]` UI 位图层：夹在矢量 UI 与 `Labels` 之间（全彩静态位图专用）。 */
   private _blitLayerUI: Node | null = null;
+  /** 菜单走马灯蒙版。默认不建（breakout）。beads 覆写 {@link createMenuClip}。 */
+  private _menuClip: { host: CocosClipHostLike; blitLayer: Node } | null = null;
   private _renderer: CocosRenderModelRenderer | null = null;
   private _bridge: CocosInputBridge | null = null;
   private _labels: PooledLabelSource | null = null;
@@ -98,8 +100,26 @@ export class Bootstrap extends Component {
    * 同一层会被 `Graphics` 的底色矩形整个盖住（浏览器产物 A/B 实测：blit 已发出、槽位无像素）
    * ⇒ 两条腿需要两个层。不用位图腿的实现者可忽略它。
    */
-  protected createBlitCarrier(_layer: Node, _uiLayer: Node): CocosBlitCarrierLike | null {
+  protected createBlitCarrier(_layer: Node, _uiLayer: Node, _clipLayer?: Node): CocosBlitCarrierLike | null {
     return null;
+  }
+
+  /**
+   * 菜单走马灯裁切。默认不建节点。
+   * `blitLayer` 必须是蒙版节点的子节点：模板测试只罩子树。
+   * 调用点在 BlitLayerUI 之后、Labels 之前，滑动层压住窗框、压不住文字。
+   */
+  protected createMenuClip(_parent: Node): { host: CocosClipHostLike; blitLayer: Node } | null {
+    return null;
+  }
+
+  /**
+   * 设计高是否随屏幅动态（宽恒 750、高 = max(基准, 750×屏高/屏宽)）。默认 `false` = 固定 1334，
+   * 与历史行为逐字节相同；只有游戏的版式已按 `viewport.designHeight` 适配时才覆写为 `true`
+   * （beads 菜单 + 对局 HUD 已适配；breakout 未适配 ⇒ 保持默认）。
+   */
+  protected useDynamicHeight(): boolean {
+    return false;
   }
 
   start(): void {
@@ -126,8 +146,8 @@ export class Bootstrap extends Component {
       platform: detectPlatform(),
       designWidth: DESIGN_WIDTH,
       designHeight: DESIGN_HEIGHT,
-      // `[WXG-T-280]` 宽恒定版式（菜单链式底锚需要真全屏高）。
-      dynamicHeight: true,
+      // `[WXG-T-280]` 宽恒定版式（菜单链式底锚需要真全屏高）；逐游戏声明，默认关。
+      dynamicHeight: this.useDynamicHeight(),
     });
 
     app.onRender = (model) => {
@@ -228,6 +248,8 @@ export class Bootstrap extends Component {
     root.addChild(blitLayerUI);
     this._blitLayerUI = blitLayerUI;
 
+    this._menuClip = this.createMenuClip(root);
+
     const labelRoot = new Node('Labels');
     root.addChild(labelRoot);
 
@@ -252,7 +274,11 @@ export class Bootstrap extends Component {
   private _bindRenderer(): void {
     if (!this._app || !this._graphics || !this._labels) return;
     const blitCarrier = this._root
-      ? this.createBlitCarrier(this._blitLayer ?? this._root, this._blitLayerUI ?? this._root)
+      ? this.createBlitCarrier(
+        this._blitLayer ?? this._root,
+        this._blitLayerUI ?? this._root,
+        this._menuClip?.blitLayer,
+      )
       : null;
     this._renderer = new CocosRenderModelRenderer(
       this._graphics,
@@ -295,6 +321,7 @@ export class Bootstrap extends Component {
           },
         },
         blitCarrier: blitCarrier ?? undefined,
+        clipHost: this._menuClip?.host,
         // [WXG-T-256] 底图提交体：没注入的宿主（breakout 等）行为零变更。
         backGraphics: this._back ?? undefined,
       },

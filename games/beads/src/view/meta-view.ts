@@ -31,20 +31,32 @@ import {
     MENU_PLAQUE_RIVET_R,
     MENU_PLAQUE_STROKE,
     MENU_PRIMARY_W,
-    MENU_ARROW_ICON_D,
+    MENU_CTA_X,
+    MENU_ARROW_ICON,
     MENU_ARROW_VISUAL_D,
     MENU_ARROW_X,
     MENU_BADGE,
     MENU_BAR_FRAME,
     MENU_BAR_H,
     MENU_BAR_ICON_D,
+    MENU_BAR_TOP_INSET,
     MENU_BOSS_SLOT,
     MENU_CASE_FRAME,
+    MENU_CLIP,
+    MENU_CTA_LABEL,
     MENU_CASE_H,
     MENU_CTA_H,
+    MENU_CTA_PRESSED_D,
     MENU_CTA_SLICE,
+    MENU_CTA_SRC_H,
+    UI_PRESS_SINK,
+    MENU_BOSS_ART_D,
     MENU_DONE_ICON,
+    MENU_LOCK_D,
+    MENU_PROGRESS,
+    MENU_SEAL,
     MENU_PLATE,
+    MENU_PLATE_TITLE,
     MENU_SIGN_FRAME,
     MENU_TEXTURES,
     MENU_TOPBAR_ICON_D,
@@ -54,7 +66,6 @@ import {
     MENU_TOPBAR_X,
     SETTINGS_SCRIM_ALPHA,
     SIGNIN_REWARDS,
-    SIGN_BAND_PAD,
     SIGN_BEAD_PITCH,
     SIGN_MATRIX_N,
     BEAD_SIZE_LABELS,
@@ -73,11 +84,13 @@ import {
 } from '../config/tuning.js';
 // EP12-S6 · P-7：屏内文案一律读表（`tokens.md §7` / `menu-architecture §6`），⛔ 不散落字面。
 import { COPY_TOKENS } from '../config/copy-tokens.js';
+import { THEME_COMING_SOON } from '../config/themes.js';
+import { plateFade } from '../config/menu-carousel.js';
 // EP12-S8：皮肤钮文案单源（`skinLabel` 未注册时回 id 本身，同 `beadStyleLabel` 判例）。
 import { skinLabel } from '../config/skins/registry.js';
 // `[WXG-T-280]` CTA 九宫格效果键的唯一构造入口（core 只定义键名，消费在两侧 adapter）。
 import { nineSliceFx, type RenderModelBuilder } from '@wxgame/framework';
-import { beadGrayInksFor, type BeadsPalette } from './palette.js';
+import { beadFadedInksFor, DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette.js';
 import type { SigninReward } from '../game/meta-state.js';
 import type { BeadSizeKind } from '../config/tuning.js';
 // EP12-S6 · T-2B：珠拼图元（招牌 `beadText` + 作品格缩略）的装配入口。本文件只**调用**，
@@ -106,6 +119,8 @@ export interface MetaViewData {
     readonly largeText: boolean;
     readonly vibrate: boolean;
     readonly debugInfo: boolean;
+    /** 设置 Debug 开关：菜单上画安全区顶 / 胶囊底 / 安全区底三条标定线。 */
+    readonly debugGuides: boolean;
     /** EP11-S5 行4 两钮的菜单侧同串值入口（与暂停面板共读同一对 game getter ⇒ 两入口恒一致）。 */
     readonly beadStyle: string;
     readonly beadSize: BeadSizeKind;
@@ -154,8 +169,28 @@ export interface MetaViewData {
      * `[WXG-T-280]` Boss 图位三态（缺省视图按在册数据推定：有卡=cleared，有解锁=pushing，余=locked）。
      */
     readonly carouselState?: MetaBossState;
+    /**
+     * 走马灯视觉偏移（设计 px，正 = 内容右移）。`reduceMotion` 时视图忽略它，改用 {@link carouselT} 淡变。
+     * 缺省 0。
+     */
+    readonly carouselDx?: number;
+    /** 0..1，朝相邻项走了多少。木牌文字按它做两段淡变。缺省 0。 */
+    readonly carouselT?: number;
+    /** 正在露出的相邻项。没有则不画。 */
+    readonly carouselPeer?: BeadsLevelRaw;
+    readonly carouselPeerState?: MetaBossState;
+    /** 相邻项在哪一侧：+1 在右（下一项），-1 在左。缺省按 `carouselDx` 的符号猜。 */
+    readonly carouselPeerSign?: -1 | 1;
+    /** 下标 = `THEME_LEVEL_MAX` 的空橱窗。中间置灰花，木牌写「敬请期待」。 */
+    readonly carouselComingSoon?: boolean;
+    readonly carouselPeerComingSoon?: boolean;
     /** 宿主配了 beads-studio 服务地址 ⇒ 设置页画「在线导入」钮（WXG-T-179；缺省不画）。 */
     readonly studioEnabled?: boolean;
+    /**
+     * **按下态**（P3 · screens.md 控件矩阵「按下」列）：手指按住处的控件 = `hitTestMeta` 返回的
+     * **同一缓存对象**（视图按引用比对 ⇒ 零分配）；未按 / 未命中 ⇒ `null` / 缺省。
+     */
+    readonly pressed?: MetaButton | null;
 }
 
 /**
@@ -195,6 +230,8 @@ export type MetaAction =
     | 'toggle-large-text'
     | 'toggle-vibrate'
     | 'toggle-debug-info'
+    /** 设置 Debug：安全区标定线。与 `PausePanelAction` 同串值，shell 走 default → `applySettingsAction`。 */
+    | 'toggle-debug-guides'
     /** EP11-S5：与 `PausePanelAction` 同名同语义的选择器钮（行4）；shell 直串值入
      *  `BeadsGame.applySettingsAction`（既有通道，⛔ 不新造动作名）。 */
     | 'cycle-bead-style'
@@ -370,12 +407,14 @@ function settingsLayout(): MetaLayout {
         'toggle-debug-info',
         // EP11-S5 / S9 v1.7 §2.2 行4：**内容单源**——选择器钮族与暂停面板同一批
         // game setter（`applySettingsAction` 共用分支），两入口档位永不漂移。
-        // EP12-S8 追加第三枚「皮肤」（cycle-skin）⇒ 9 钮 = 4 行 × 2 列 + 末行单格。
+        // EP12-S8 追加第三枚「皮肤」（cycle-skin）。末行空格放 Debug（安全区标定线），
+        // 仍是 5 行 × 2 列，plate 高 720 不改。
         'cycle-bead-style',
         'cycle-bead-size',
         'cycle-skin',
+        'toggle-debug-guides',
     ];
-    // 左右两列（用户 2026-09-25 直派，ux-spec v1.19）：**EP12-S8 后 9 钮 = 4 行 × 2 列 + 末行 1 格**，
+    // 左右两列（用户 2026-09-25 直派，ux-spec v1.19）：**10 钮 = 5 行 × 2 列**（末行 = 皮肤 + Debug），
     // 总宽/列间 gap 24/行距 `TOUCH_MIN + 16` 均沿用旧口径（任务单：行距沿用、plate 高可复算）。
     // plate 高 **720 不改**，避让实算：`OVERLAY_H` 720 ⇒ plate y∈[307,1027]；
     //   topY = 307+720−150 = 877，行底依次 877 / 773 / 669 / 565 / 461（行高 88）；
@@ -446,6 +485,7 @@ export function setMenuBitmapResolver(fn?: (textureId: string) => boolean): void
 interface AnchoredMenuGeo {
     readonly caseBox: Box;
     readonly bossBox: Box;
+    readonly clipBox: Box;
     readonly badgeBox: Box;
     readonly plateBox: Box;
     readonly signBox: Box;
@@ -461,8 +501,6 @@ interface AnchoredMenuGeo {
     readonly topbarCy: number;
     /** 完成态 boss icon 圆心 y。 */
     readonly doneCy: number;
-    /** slogan 基线 y = 板底 − Δ12 − 半字高 14（第十四批 `MENU_SLOGAN_Y` 同关系）。 */
-    readonly sloganY: number;
     /** 版本号基线 y = CTA 下缘与屏底**净空带**（Δ32 + sb）的中点 ⇒ 恒不侵入 CTA（静态档 `MENU_VERSION_Y` 在系高随档变深后会坐进钮带）。 */
     readonly versionY: number;
 }
@@ -475,10 +513,12 @@ function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     const r = Math.round;
     const caseBox = box(MENU_CASE_FRAME.x, r(a.caseTopY) - MENU_CASE_H, MENU_CASE_FRAME.w, MENU_CASE_H);
     const bossBox = box(MENU_BOSS_SLOT.x, r(a.caseTopY - MENU_BOSS_SLOT.yOff) - MENU_BOSS_SLOT.h, MENU_BOSS_SLOT.w, MENU_BOSS_SLOT.h);
+    const clipBox = box(MENU_CLIP.x, r(a.caseTopY - MENU_CLIP.yOff) - MENU_CLIP.h, MENU_CLIP.w, MENU_CLIP.h);
     const badgeBox = box(MENU_BADGE.x, r(a.caseTopY - MENU_BADGE.yOff) - MENU_BADGE.d, MENU_BADGE.d, MENU_BADGE.d);
     const plateBox = box(MENU_PLATE.cx - MENU_PLATE.w / 2, r(a.caseTopY - MENU_PLATE.yOff) - MENU_PLATE.h, MENU_PLATE.w, MENU_PLATE.h);
-    const signBox = box(MENU_SIGN_FRAME.x, r(a.signTopY) - MENU_SIGN_FRAME.h, MENU_SIGN_FRAME.w, MENU_SIGN_FRAME.h);
-    const ctaBox = box((DESIGN_W - MENU_PRIMARY_W) / 2, r(a.ctaBotY), MENU_PRIMARY_W, MENU_CTA_H);
+    // 招牌图框：图顶 = 结顶 + bowYOff（绳向上伸出结顶）；y-up 下框底 = 图顶 − h。
+    const signBox = box(MENU_SIGN_FRAME.x, r(a.signTopY + MENU_SIGN_FRAME.bowYOff) - MENU_SIGN_FRAME.h, MENU_SIGN_FRAME.w, MENU_SIGN_FRAME.h);
+    const ctaBox = box(MENU_CTA_X, r(a.ctaBotY), MENU_PRIMARY_W, MENU_CTA_H);
     const ctaHit = box(ctaBox.x, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, MENU_PRIMARY_W, TOUCH_MIN);
     const arrowY = r(a.caseCenterY) - MENU_ARROW_VISUAL_D / 2;
     const arrowL = box(MENU_ARROW_X.left, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);
@@ -486,14 +526,18 @@ function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     const arrowPad = (TOUCH_MIN - MENU_ARROW_VISUAL_D) / 2;
     const arrowLHit = box(arrowL.x - arrowPad, arrowY - arrowPad, TOUCH_MIN, TOUCH_MIN);
     const arrowRHit = box(arrowR.x - arrowPad, arrowY - arrowPad, TOUCH_MIN, TOUCH_MIN);
-    const barBox = box(MENU_BAR_FRAME.x, r(a.barTopY) - MENU_BAR_H, MENU_BAR_FRAME.w, MENU_BAR_H);
+    const barBox = box(
+        MENU_BAR_FRAME.x,
+        r(a.barTopY) - MENU_BAR_TOP_INSET - MENU_BAR_H,
+        MENU_BAR_FRAME.w,
+        MENU_BAR_H,
+    );
     const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const geo: AnchoredMenuGeo = {
-        caseBox, bossBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,
+        caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,
         arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),
-        sloganY: r(a.signBotY) - SIGN_BAND_PAD - 14,
         versionY: r(a.ctaBotY) / 2,
     };
     _anchoredGeo.set(a, geo);
@@ -604,6 +648,8 @@ function label(id: MetaAction, data: MetaViewData): string {
             return `震动  ${data.vibrate ? '开' : '关'}`;
         case 'toggle-debug-info':
             return `性能信息  ${data.debugInfo ? '开' : '关'}`;
+        case 'toggle-debug-guides':
+            return `Debug  ${data.debugGuides ? '开' : '关'}`;
         // EP11-S5 行4 两枚选择器钮：文案与暂停面板（`view-model::panelLabel`）**同字串**（S9 内容单源）；
         // ⛔ 禁写死款数（U16=甲），风格名走 `BEAD_STYLE_LABELS` 单源、未注册时回 id 本身。
         case 'cycle-bead-style':
@@ -619,6 +665,16 @@ function label(id: MetaAction, data: MetaViewData): string {
     }
 }
 
+/** 按下态绘制 y 偏移（y-up ⇒ 下沉为负；`reduceMotion` ⇒ 0，只换面）。 */
+function pressDy(data: MetaViewData, pressed: boolean): number {
+    return pressed && !data.reduceMotion ? -UI_PRESS_SINK : 0;
+}
+
+/** 当前按住的是否为该动作（主菜单锚定档每动作唯一一枚钮 ⇒ 按 id 比对即可）。 */
+function isPressed(data: MetaViewData, id: MetaAction): boolean {
+    return data.pressed?.id === id;
+}
+
 function drawButton(
     builder: RenderModelBuilder,
     b: Box,
@@ -627,15 +683,20 @@ function drawButton(
     primary: boolean,
     disabled = false,
     font = FONT_BUTTON,
+    pressed = false,
+    dy = 0,
 ): void {
-    builder.rect(b.x, b.y, b.w, b.h, {
-        fill: primary ? palette.accentPrimary : palette.slot,
+    const y = b.y + dy;
+    builder.rect(b.x, y, b.w, b.h, {
+        fill: primary
+            ? (pressed ? palette.woodFacePressed : palette.accentPrimary)
+            : pressed ? palette.cardPressed : palette.slot,
         stroke: primary ? palette.accentPrimary : palette.slotBorder,
         lineWidth: 2,
         radius: 14,
         ...(disabled ? { alpha: 0.5 } : {}),
     });
-    builder.text(b.x + b.w / 2, b.y + b.h / 2, text, {
+    builder.text(b.x + b.w / 2, y + b.h / 2, text, {
         fill: primary ? palette.panel : palette.text,
         font,
         align: 'center',
@@ -682,15 +743,17 @@ function drawResourceBar(
     const coinIcon = MENU_TEXTURES.iconCoin;
     if (_menuBitmapReady(staminaIcon) && _menuBitmapReady(coinIcon)) {
         const d = MENU_BAR_ICON_D;
-        builder.blit(staminaIcon, x + MENU_PLAQUE_RIVET_INSET, cy - d / 2, d, d);
-        builder.blit(coinIcon, x + g.w - MENU_PLAQUE_RIVET_INSET - d, cy - d / 2, d, d);
-        builder.text(x + MENU_PLAQUE_RIVET_INSET + d + 8, cy, `${data.stamina}/${data.staminaMax}`, {
+        // 铆钉在端缘内 18、半径 3.5。图标从铆钉外缘再让 6，避免心/星压住点。
+        const iconX = MENU_PLAQUE_RIVET_INSET + MENU_PLAQUE_RIVET_R + 6;
+        builder.blit(staminaIcon, x + iconX, cy - d / 2, d, d);
+        builder.blit(coinIcon, x + g.w - iconX - d, cy - d / 2, d, d);
+        builder.text(x + iconX + d + 8, cy, `${data.stamina}/${data.staminaMax}`, {
             fill: palette.woodText,
             font: FONT_LABEL,
             align: 'left',
             baseline: 'middle',
         });
-        builder.text(x + g.w - MENU_PLAQUE_RIVET_INSET - d - 8, cy, `${data.coins}`, {
+        builder.text(x + g.w - iconX - d - 8, cy, `${data.coins}`, {
             fill: palette.woodText,
             font: FONT_LABEL,
             align: 'right',
@@ -726,6 +789,7 @@ function drawResourceBar(
  */
 function drawTopbar(
     builder: RenderModelBuilder,
+    data: MetaViewData,
     palette: BeadsPalette,
     geo: AnchoredMenuGeo,
 ): void {
@@ -734,11 +798,15 @@ function drawTopbar(
     const cxc = MENU_TOPBAR_X.settings + TOUCH_MIN / 2;
     const circleTex = MENU_TEXTURES.btnCircle;
     const circleReady = _menuBitmapReady(circleTex);
+    // 设置钮按下：底换 pressed 纹（缺 ⇒ normal 纹）/ 程序化换 cardPressed；盘与图标同沉。
+    const pressed = isPressed(data, 'open-settings');
+    const scy = cy + pressDy(data, pressed);
     if (circleReady) {
-        builder.blit(circleTex, cxc - r, cy - r, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_VISUAL_D);
+        const tex = pressed && _menuBitmapReady(MENU_TEXTURES.btnCirclePressed) ? MENU_TEXTURES.btnCirclePressed : circleTex;
+        builder.blit(tex, cxc - r, scy - r, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_VISUAL_D);
     } else {
-        builder.circle(cxc, cy, r, {
-            fill: palette.panel,
+        builder.circle(cxc, scy, r, {
+            fill: pressed ? palette.cardPressed : palette.panel,
             stroke: palette.panelBorder,
             lineWidth: 2,
         });
@@ -746,9 +814,9 @@ function drawTopbar(
     const settingsIcon = MENU_TEXTURES.iconSettings;
     if (_menuBitmapReady(settingsIcon)) {
         const id = MENU_TOPBAR_ICON_D;
-        builder.blit(settingsIcon, cxc - id / 2, cy - id / 2, id, id);
+        builder.blit(settingsIcon, cxc - id / 2, scy - id / 2, id, id);
     } else {
-        drawGear(builder, cxc, cy, palette);
+        drawGear(builder, cxc, scy, palette);
     }
     // 数组住模块级（`buildMetaView` 每帧走本函数 ⇒ ⛔ 不在热路径 `[a, b]` 现造）。
     for (let i = 0; i < TOPBAR_RESERVED_X.length; i++) {
@@ -794,19 +862,33 @@ function drawDashedSocket(builder: RenderModelBuilder, b: Box, color: string): v
  * 橱窗 ◀▶（`[WXG-T-280]` 落地单 §3）：位图腿 = `btnArrow` 底 + 向标 icon；未就绪 ⇒
  * 程序化圆 + ◀/▶ 字模（同纸格语言，零新 hex）。几何由 {@link anchoredGeo} 传入，本函数不复算。
  */
-function drawArrow(builder: RenderModelBuilder, b: Box, dir: 'left' | 'right', palette: BeadsPalette): void {
+function drawArrow(
+    builder: RenderModelBuilder,
+    data: MetaViewData,
+    b: Box,
+    dir: 'left' | 'right',
+    palette: BeadsPalette,
+): void {
+    const pressed = isPressed(data, dir === 'left' ? 'carousel-prev' : 'carousel-next');
+    const dy = pressDy(data, pressed);
     const cx = b.x + b.w / 2;
-    const cy = b.y + b.h / 2;
+    const cy = b.y + b.h / 2 + dy;
     const iconTex = dir === 'left' ? MENU_TEXTURES.iconArrowLeft : MENU_TEXTURES.iconArrowRight;
     if (_menuBitmapReady(MENU_TEXTURES.btnArrow)) {
-        builder.blit(MENU_TEXTURES.btnArrow, b.x, b.y, b.w, b.h);
+        const bg = pressed && _menuBitmapReady(MENU_TEXTURES.btnArrowPressed) ? MENU_TEXTURES.btnArrowPressed : MENU_TEXTURES.btnArrow;
+        builder.blit(bg, b.x, b.y + dy, b.w, b.h);
         if (_menuBitmapReady(iconTex)) {
-            const id = MENU_ARROW_ICON_D;
-            builder.blit(iconTex, cx - id / 2, cy - id / 2, id, id);
+            const iw = MENU_ARROW_ICON.w;
+            const ih = MENU_ARROW_ICON.h;
+            builder.blit(iconTex, cx - iw / 2, cy - ih / 2, iw, ih);
             return;
         }
     } else {
-        builder.circle(cx, cy, b.w / 2, { fill: palette.panel, stroke: palette.panelBorder, lineWidth: 2 });
+        builder.circle(cx, cy, b.w / 2, {
+            fill: pressed ? palette.cardPressed : palette.panel,
+            stroke: palette.panelBorder,
+            lineWidth: 2,
+        });
     }
     builder.text(cx, cy, dir === 'left' ? '◀' : '▶', {
         fill: palette.text,
@@ -822,6 +904,161 @@ function drawArrow(builder: RenderModelBuilder, b: Box, dir: 'left' | 'right', p
  * 热区全走 {@link menuLayoutAnchored}（与 `g` 同源），本函数内⛔ 不新建任何命中面。
  * 层序：资源条 → 顶栏 → 橱窗框 → Boss 图位（白板+图）→ 三态徽标 → 木牌 → ◀▶ → 招牌 → slogan → CTA → 版本号。
  */
+/**
+ * 玻璃里的一项：Boss 原图 + 三态盖章，整体平移 `dx`。原图未装上才回退豆阵。
+ * `alpha` < 1 只在 `reduceMotion` 的交叉淡变里出现。
+ */
+function drawShowcaseItem(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    g: AnchoredMenuGeo,
+    level: BeadsLevelRaw | undefined,
+    state: MetaBossState,
+    dx: number,
+    alpha: number,
+    comingSoon: boolean,
+): void {
+    if (alpha <= 0) return;
+    const ink = alpha < 1 ? alpha : undefined;
+    if (comingSoon) {
+        drawComingSoonMark(builder, palette, MENU_DONE_ICON.cx + dx, g.doneCy, ink);
+        return;
+    }
+    if (level !== undefined && _menuBitmapReady(MENU_TEXTURES.bossArt)) {
+        const d = MENU_BOSS_ART_D;
+        builder.blit(
+            MENU_TEXTURES.bossArt,
+            MENU_DONE_ICON.cx + dx - d / 2,
+            g.doneCy - d / 2,
+            d, d,
+            ink === undefined ? undefined : { alpha: ink },
+        );
+    } else if (level !== undefined) {
+        drawLevelThumb(
+            builder, level, g.bossBox.x + dx, g.bossBox.y, g.bossBox.w, g.bossBox.h,
+            Math.max(level.rows, level.cols), g.bossBox.w,
+            state === 'locked' ? beadFadedInksFor(level) : undefined,
+            ink,
+        );
+    } else {
+        drawDashedSocket(builder, { x: g.bossBox.x + dx, y: g.bossBox.y, w: g.bossBox.w, h: g.bossBox.h }, palette.slotDashed);
+    }
+    const cx = MENU_DONE_ICON.cx + dx;
+    const cy = g.doneCy;
+    if (state === 'cleared') {
+        const top = g.clipBox.y + g.clipBox.h;
+        const x = g.clipBox.x + g.clipBox.w - MENU_SEAL.inset - MENU_SEAL.w + dx;
+        const y = top - MENU_SEAL.inset - MENU_SEAL.h;
+        if (_menuBitmapReady(MENU_TEXTURES.sealCleared)) {
+            builder.blit(MENU_TEXTURES.sealCleared, x, y, MENU_SEAL.w, MENU_SEAL.h, ink === undefined ? undefined : { alpha: ink });
+        } else {
+            builder.circle(x + MENU_SEAL.w / 2, y + MENU_SEAL.h / 2, 28, { fill: palette.panel, stroke: palette.success, lineWidth: 2 });
+            builder.text(x + MENU_SEAL.w / 2, y + MENU_SEAL.h / 2, '通', {
+                fill: palette.success, font: FONT_BUTTON, align: 'center', baseline: 'middle',
+                ...(ink === undefined ? {} : { alpha: ink }),
+            });
+        }
+        return;
+    }
+    const locked = state === 'locked';
+    const tex = locked ? MENU_TEXTURES.badgeLocked : MENU_TEXTURES.badgeProgress;
+    if (_menuBitmapReady(tex)) {
+        if (locked) {
+            builder.blit(tex, cx - MENU_LOCK_D / 2, cy - MENU_LOCK_D / 2, MENU_LOCK_D, MENU_LOCK_D, ink === undefined ? undefined : { alpha: ink });
+        } else {
+            const w = MENU_PROGRESS.w;
+            const h = MENU_PROGRESS.h;
+            // 源图重心不在外接框中心：my 从图片顶边量起，设计空间 y 向上。
+            builder.blit(tex, cx - MENU_PROGRESS.mx * w, cy - (1 - MENU_PROGRESS.my) * h, w, h, ink === undefined ? undefined : { alpha: ink });
+        }
+        return;
+    }
+    const d = locked ? MENU_LOCK_D : 160;
+    builder.circle(cx, cy, d / 2, {
+        fill: locked ? palette.slot : palette.accentPrimary,
+        stroke: locked ? palette.slotBorder : palette.accentPrimary,
+        lineWidth: 2,
+    });
+    builder.text(cx, cy, locked ? '锁' : '推', {
+        fill: locked ? palette.textDim : palette.panel,
+        font: FONT_BUTTON, align: 'center', baseline: 'middle',
+    });
+}
+
+/** 空橱窗中央的置灰花。半径写死，热路径不分配。 */
+const SOON_PETALS = 6;
+const SOON_RING = 108;
+const SOON_CORE_R = 40;
+const SOON_PETAL_R = 32;
+
+function drawComingSoonMark(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    cx: number,
+    cy: number,
+    alpha: number | undefined,
+): void {
+    const mark = {
+        fill: palette.locked,
+        stroke: palette.textDim,
+        lineWidth: 3,
+        ...(alpha === undefined ? {} : { alpha }),
+    };
+    builder.circle(cx, cy, SOON_CORE_R, mark);
+    for (let i = 0; i < SOON_PETALS; i++) {
+        const a = (Math.PI * 2 * i) / SOON_PETALS - Math.PI / 2;
+        builder.circle(cx + Math.cos(a) * SOON_RING, cy + Math.sin(a) * SOON_RING, SOON_PETAL_R, mark);
+    }
+}
+
+/** 木牌上的「敬请期待」。`alpha` ≤ 0 不画。 */
+function drawComingSoonPlate(
+    builder: RenderModelBuilder,
+    g: AnchoredMenuGeo,
+    palette: BeadsPalette,
+    alpha: number,
+): void {
+    if (alpha <= 0) return;
+    const top = g.plateBox.y + g.plateBox.h;
+    const a = alpha < 1 ? alpha : undefined;
+    builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.singleOff, THEME_COMING_SOON, {
+        fill: palette.woodEdge,
+        font: FONT_BUTTON,
+        align: 'center',
+        baseline: 'middle',
+        ...(a === undefined ? {} : { alpha: a }),
+    });
+}
+
+/** 木牌上的关序 / 关名。`alpha` ≤ 0 不画。 */
+function drawPlateTitle(
+    builder: RenderModelBuilder,
+    lv: BeadsLevelRaw,
+    g: AnchoredMenuGeo,
+    palette: BeadsPalette,
+    alpha: number,
+): void {
+    if (alpha <= 0) return;
+    const top = g.plateBox.y + g.plateBox.h;
+    const seq = `第 ${lv.id} 关`;
+    const a = alpha < 1 ? alpha : undefined;
+    if (lv.title) {
+        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line1Off, seq, {
+            fill: palette.woodFace, font: FONT_LABEL, align: 'center', baseline: 'middle',
+            ...(a === undefined ? {} : { alpha: a }),
+        });
+        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line2Off, lv.title, {
+            fill: palette.woodEdge, font: FONT_BUTTON, align: 'center', baseline: 'middle',
+            ...(a === undefined ? {} : { alpha: a }),
+        });
+    } else {
+        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.singleOff, seq, {
+            fill: palette.woodEdge, font: FONT_BUTTON, align: 'center', baseline: 'middle',
+            ...(a === undefined ? {} : { alpha: a }),
+        });
+    }
+}
+
 function drawMenuAnchored(
     builder: RenderModelBuilder,
     data: MetaViewData,
@@ -829,19 +1066,18 @@ function drawMenuAnchored(
     g: AnchoredMenuGeo,
     withSignage: boolean,
 ): void {
-    drawResourceBar(builder, data, palette, g.barBox);
-    drawTopbar(builder, palette, g);
+    drawTopbar(builder, data, palette, g);
     // 展示窗框：位图整件 / 未就绪 ⇒ 虚线空槽（同 §5.4 口径，⛔ 不自造第二套框语言）。
     if (_menuBitmapReady(MENU_TEXTURES.caseFrame)) {
         builder.blit(MENU_TEXTURES.caseFrame, g.caseBox.x, g.caseBox.y, g.caseBox.w, g.caseBox.h);
     } else {
         drawDashedSocket(builder, g.caseBox, palette.slotDashed);
     }
-    // Boss 图位（玻璃白板区，`[WXG-T-281]` 用户裁定：走马灯中间只展示 Boss 图、未通关置灰、
-    // 点图进选关 ⇒ 旧 300×220 白卡退场，`open-levels` 热区 = 图位）。三态先定（置灰与徽标共态源）。
+    // 资源条嵌在橱窗顶部（v3.6）：画在窗框之后，覆盖楣的上 46 px。
+    drawResourceBar(builder, data, palette, g.barBox);
+    // 走马灯（落地单 §8）：窗框不动，豆画 + 盖章在玻璃内水平滑，裁到 clipBox。
     const state: MetaBossState =
         data.carouselState ?? (data.carouselLevel !== undefined ? 'cleared' : data.maxUnlockedLevel > 0 ? 'pushing' : 'locked');
-    // 白板底（程序化腿纸格：slot/slot_border 同作品格语言；位图腿 ⇒ 橱窗框资产自带白板 ⇒ 不叠平涂面）。
     if (!_menuBitmapReady(MENU_TEXTURES.caseFrame)) {
         builder.rect(g.bossBox.x, g.bossBox.y, g.bossBox.w, g.bossBox.h, {
             fill: palette.slot,
@@ -850,62 +1086,37 @@ function drawMenuAnchored(
             radius: UI_CONTAINER.radiusChip,
         });
     }
-    // 图走**关卡原生阵**（rows/cols 取大；⛔ 不用选关墙小格的 5 档 ⇒ 摊在整窗玻璃上即巨型豆）；
-    // 未通关 ⇒ 灰墨（`drawLevelThumb` 内灰度不走位图臂）。
-    if (data.carouselLevel !== undefined) {
-        const lv = data.carouselLevel;
-        drawLevelThumb(
-            builder,
-            lv,
-            g.bossBox.x,
-            g.bossBox.y,
-            g.bossBox.w,
-            g.bossBox.h,
-            Math.max(lv.rows, lv.cols),
-            g.bossBox.w,
-            state === 'cleared' ? undefined : beadGrayInksFor(lv),
+    const slide = data.reduceMotion ? 0 : (data.carouselDx ?? 0);
+    const travel = data.carouselT ?? 0;
+    builder.clip(g.clipBox.x, g.clipBox.y, g.clipBox.w, g.clipBox.h);
+    drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true);
+    if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
+        const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
+        const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
+        drawShowcaseItem(
+            builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
+            peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
         );
-    } else {
-        drawDashedSocket(builder, g.bossBox, palette.slotDashed);
     }
-    // 三态徽标（图形资产待裁 ⇒ 程序化：推/锁 chip；cleared ⇒ 中央 Ø160 圆 + ✓）。
-    if (state === 'cleared') {
-        const d = MENU_DONE_ICON.d;
-        builder.circle(MENU_DONE_ICON.cx, g.doneCy, d / 2, { fill: palette.panel, stroke: palette.success, lineWidth: 2 });
-        builder.text(MENU_DONE_ICON.cx, g.doneCy, '✓', {
-            fill: palette.success,
-            font: FONT_TITLE,
-            align: 'center',
-            baseline: 'middle',
-        });
-    } else {
-        const bx = g.badgeBox.x + g.badgeBox.w / 2;
-        const by = g.badgeBox.y + g.badgeBox.h / 2;
-        const pushing = state === 'pushing';
-        builder.circle(bx, by, g.badgeBox.w / 2, {
-            fill: pushing ? palette.accentPrimary : palette.slot,
-            stroke: pushing ? palette.accentPrimary : palette.slotBorder,
-            lineWidth: 2,
-        });
-        builder.text(bx, by, pushing ? '推' : '锁', {
-            fill: pushing ? palette.panel : palette.textDim,
-            font: FONT_BUTTON,
-            align: 'center',
-            baseline: 'middle',
-        });
-    }
-    // 木牌（卡底衬板）：无牌则无底面 ⇒ 缺资产**不画**，⛔ 不拿 slot 矩形冒名。
+    builder.unclip();
+    // 木牌板固定。文字按 travel 两段淡变（先出后进，不重叠）。
     if (_menuBitmapReady(MENU_TEXTURES.plate)) {
         builder.blit(MENU_TEXTURES.plate, g.plateBox.x, g.plateBox.y, g.plateBox.w, g.plateBox.h);
+        const fade = plateFade(travel);
+        if (data.carouselComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[0]);
+        else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0]);
+        if (data.carouselPeerComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[1]);
+        else if (data.carouselPeer !== undefined) drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1]);
     }
     // ◀▶ 翻页（热区 = `carousel-prev/next`；无热区语义 ⇒ 壳侧处理）。
-    drawArrow(builder, g.arrowL, 'left', palette);
-    drawArrow(builder, g.arrowR, 'right', palette);
+    drawArrow(builder, data, g.arrowL, 'left', palette);
+    drawArrow(builder, data, g.arrowR, 'right', palette);
     // 招牌：位图 logo 优先；缺 ⇒ beadText / 系统字体回落（两腿互斥，同静态档；中心 = signBox 中心）。
     if (_menuBitmapReady(MENU_TEXTURES.logo)) {
         builder.blit(MENU_TEXTURES.logo, g.signBox.x, g.signBox.y, g.signBox.w, g.signBox.h);
     } else if (withSignage) {
-        const signCy = g.signBox.y + g.signBox.h / 2;
+        // 字样居中于板心（图顶 − boardCyOff），非图框中心（图框含绳，板心偏下）。
+        const signCy = g.signBox.y + g.signBox.h - MENU_SIGN_FRAME.boardCyOff;
         const beads = drawBeadText(builder, COPY_TOKENS.app_name, signCy, SIGN_MATRIX_N, SIGN_BEAD_PITCH);
         if (beads === 0) {
             builder.text(DESIGN_W / 2, signCy, COPY_TOKENS.app_name, {
@@ -916,25 +1127,34 @@ function drawMenuAnchored(
             });
         }
     }
-    builder.text(DESIGN_W / 2, g.sloganY, COPY_TOKENS.app_slogan, {
-        fill: palette.textDim,
-        font: FONT_LABEL,
-        align: 'center',
-        baseline: 'middle',
-    });
+    // slogan 已退场（落地单 v3.5，用户 2026-10-15 裁：五档坐标图本无此元素，SE 档板→条仅 19px 放不下）。
     // CTA：九宫格位图（fx 槽 = 唯一拉伸通道）+ 文本；缺 ⇒ 旧纸钮（热区恒 `ctaHit`，与绘制同心）。
+    // 按下：pressed 源纹自带台面下移（D=16 源 px，⛔ 不再叠运行时位移）⇒ 文案按 D/源高 同比下沉；
+    // 缺 pressed 纹 ⇒ normal 纹 + 运行时下沉（与纸钮同口径）。
+    const ctaPressed = isPressed(data, 'start');
     if (_menuBitmapReady(MENU_TEXTURES.cta)) {
-        builder.blit(MENU_TEXTURES.cta, g.ctaBox.x, g.ctaBox.y, g.ctaBox.w, g.ctaBox.h, {
+        const bakedPress = ctaPressed && _menuBitmapReady(MENU_TEXTURES.ctaPressed);
+        const dy = bakedPress ? 0 : pressDy(data, ctaPressed);
+        const textDy = bakedPress ? -Math.round((MENU_CTA_PRESSED_D * g.ctaBox.h) / MENU_CTA_SRC_H) : dy;
+        builder.blit(bakedPress ? MENU_TEXTURES.ctaPressed : MENU_TEXTURES.cta, g.ctaBox.x, g.ctaBox.y + dy, g.ctaBox.w, g.ctaBox.h, {
             fx: nineSliceFx(MENU_CTA_SLICE.capX, MENU_CTA_SLICE.capY),
         });
-        builder.text(g.ctaBox.x + g.ctaBox.w / 2, g.ctaBox.y + g.ctaBox.h / 2, label('start', data), {
-            fill: palette.panel,
-            font: FONT_BUTTON,
-            align: 'center',
-            baseline: 'middle',
-        });
+        if (_menuBitmapReady(MENU_TEXTURES.ctaLabel)) {
+            const lh = MENU_CTA_LABEL.h;
+            const lw = lh * MENU_CTA_LABEL.aspect;
+            const cx = g.ctaBox.x + g.ctaBox.w / 2;
+            const cy = g.ctaBox.y + g.ctaBox.h * (1 - MENU_CTA_LABEL.fromTop) + textDy;
+            builder.blit(MENU_TEXTURES.ctaLabel, cx - lw / 2, cy - lh / 2, lw, lh);
+        } else {
+            builder.text(g.ctaBox.x + g.ctaBox.w / 2, g.ctaBox.y + g.ctaBox.h / 2 + textDy, label('start', data), {
+                fill: palette.panel,
+                font: FONT_BUTTON,
+                align: 'center',
+                baseline: 'middle',
+            });
+        }
     } else {
-        drawButton(builder, g.ctaBox, label('start', data), palette, true);
+        drawButton(builder, g.ctaBox, label('start', data), palette, true, false, FONT_BUTTON, ctaPressed, pressDy(data, ctaPressed));
     }
     builder.text(DESIGN_W / 2, g.versionY, COPY_TOKENS.version_label, {
         fill: palette.textDim,
@@ -1034,6 +1254,7 @@ export function buildMetaView(
     builder.setBackground(palette.background);
     if (data.overlay === 'none') {
         drawMenuAnchored(builder, data, palette, anchoredGeo(A), withSignage);
+        if (data.debugGuides) drawSafeGuides(builder, A);
         return;
     }
 
@@ -1110,6 +1331,32 @@ export function buildMetaView(
         // EP11-S5 行4：选择器钮带现档名（如「珠子风格  经典四棱」）⇒ 30px 字模宽于 colW 248，
         // 沿用暂停面板同族做法：小字档（不动已冻结的 plate 几何）。
         const wide = b.id === 'cycle-bead-style' || b.id === 'cycle-bead-size';
-        drawButton(builder, b.box, label(b.id, data), palette, primary, disabled, wide ? FONT_CELL : FONT_BUTTON);
+        const pressed = data.pressed === b && !disabled;
+        drawButton(builder, b.box, label(b.id, data), palette, primary, disabled, wide ? FONT_CELL : FONT_BUTTON, pressed, pressDy(data, pressed));
+    }
+    if (data.debugGuides) drawSafeGuides(builder, A);
+}
+
+/**
+ * 安全区标定线（设置 Debug 开）。横线 = 设计空间 y-up；数字 = 距屏顶的设计 px
+ * （`st` / 胶囊底 / `H − sb`），对着真机截图读。
+ */
+function drawSafeGuides(builder: RenderModelBuilder, a: MenuAnchors): void {
+    const ink = DEBUG_OUTLINE_TILE_HEX;
+    const cap = Math.round(a.H - a.btTopY - 4);
+    const marks = [
+        { y: a.H - a.st, text: `safe ${a.st}`, x: 16 },
+        { y: a.H - cap, text: `cap ${cap}`, x: 280 },
+        { y: a.sb, text: `home ${a.sb}`, x: 16 },
+    ];
+    for (const m of marks) {
+        builder.line(0, m.y, DESIGN_W, m.y, ink, 3);
+        const below = m.y > a.H * 0.5;
+        builder.text(m.x, below ? m.y - 18 : m.y + 18, m.text, {
+            fill: ink,
+            font: '22px sans-serif',
+            align: 'left',
+            baseline: 'middle',
+        });
     }
 }

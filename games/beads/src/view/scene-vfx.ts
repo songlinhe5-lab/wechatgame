@@ -313,8 +313,8 @@ export function confettiPhaseDeg(idx: number): number {
 }
 
 /** 五档错高（idx mod 5，规格卡原式）：起点在屏底往上阶梯分布，避免齐平运动。 */
-export function confettiSpawnY(idx: number): number {
-    return DESIGN_H - (idx % 5) * CONFETTI_SPAWN_STEP_Y;
+export function confettiSpawnY(idx: number, top: number = DESIGN_H): number {
+    return top - (idx % 5) * CONFETTI_SPAWN_STEP_Y;
 }
 
 /** idx < 36 ⇒ MAIN（面板遮罩之前）；其余 ⇒ FOREGROUND（面板之后）。 */
@@ -340,6 +340,8 @@ export function confettiFrame(
     idx: number,
     p: number,
     out: ConfettiBeadState,
+    /** 动态高：屏顶设计 y（缺省 = 1334 基准 ⇒ 既有调用逐字不变）；落距同按它缩放。 */
+    top: number = DESIGN_H,
 ): ConfettiBeadState {
     const u = p < 0 ? 0 : p > 1 ? 1 : p;
     const phase = confettiPhaseDeg(idx);
@@ -348,7 +350,7 @@ export function confettiFrame(
         CONFETTI_SWAY_PX *
         Math.sin(2 * Math.PI * (CONFETTI_SWAY_CYCLES * u + phase / 360));
     out.y =
-        confettiSpawnY(idx) - DESIGN_H * CONFETTI_FALL_FACTOR * easeIn(u);
+        confettiSpawnY(idx, top) - top * CONFETTI_FALL_FACTOR * easeIn(u);
     out.theta = 360 * CONFETTI_SPIN_TURNS * u + phase;
     out.alpha =
         u < CONFETTI_FADE_START

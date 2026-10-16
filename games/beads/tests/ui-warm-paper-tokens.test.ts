@@ -253,6 +253,7 @@ function metaFrameCmds(opts: {
         largeText: false,
         vibrate: true,
         debugInfo: false,
+        debugGuides: false,
         beadStyle: 'facet-4',
         beadSize: 'full',
         skinId: 'tokens',

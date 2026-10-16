@@ -313,7 +313,9 @@ export function drawLevelThumb(
     n: number = THUMB_MATRIX_N,
     area: number = THUMB_AREA,
     inkOverride?: BeadInks,
+    alpha?: number,
 ): void {
+    if (alpha !== undefined && alpha <= 0) return;
     const cells = levelThumbCells(level, n);
     if (cells.length === 0) return;
     // `area` 缺省 = `THUMB_AREA` ⇒ pitch/outer 逐字 = 旧 `thumbPitchFor(n)`/`thumbOuterFor(n)`（向后兼容）。
@@ -325,9 +327,11 @@ export function drawLevelThumb(
     // 未命中 / 未注入 ⇒ 落下方程序化缩略（绿线锚 = 逐字节今日）。blit x/y = 左下（同 rect）⇒ 顶缘减一面得下缘。
     const texId = inkOverride === undefined ? _thumbBitmap?.(level) : undefined;
     if (texId !== undefined) {
-        builder.blit(texId, left, top - area, area, area);
+        builder.blit(texId, left, top - area, area, area, alpha !== undefined && alpha < 1 ? { alpha } : undefined);
         return;
     }
+    // ponytail: 程序化缩略没有逐珠 alpha。减少动效的淡变在 0.5 处硬切，位图缩略才真淡。
+    if (alpha !== undefined && alpha < 0.5) return;
     const inks = inkOverride ?? beadInksFor(level);
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;

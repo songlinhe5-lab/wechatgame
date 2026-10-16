@@ -23,6 +23,7 @@ import {
   type PowerupType,
 } from '../config/tuning';
 import { DEFAULT_SKIN_ID } from '../config/skins/registry';
+import type { BeadsLevelRaw } from '../config/levels-data';
 
 export type BeadsPhase = 'boot' | 'playing' | 'paused' | 'level-clear' | 'game-over' | 'finish';
 export type GameMode = 'normal' | 'sprint';
@@ -129,8 +130,10 @@ export interface BeadsSnapshot {
   vibrate: boolean;
   /** DEBUG 虚线轮廓开关（`BeadsGame.setDebugOutlines`）；view 只读快照，正常恒 false。 */
   debugOutlines: boolean;
-  /** DEBUG 性能覆层开关（`BeadsGame.setDebugInfo`，pause-settings v1.6 §2.2）；唯一持久化的 debug 项。 */
+  /** DEBUG 性能覆层开关（`BeadsGame.setDebugInfo`，pause-settings v1.6 §2.2）。 */
   debugInfo: boolean;
+  /** 菜单安全区标定线（`BeadsGame.setDebugGuides`）；持久化，玩法快照只回显。 */
+  debugGuides: boolean;
   /** DEBUG：帧耗时 EMA（ms），view 派生 fps；开关关闭恒 0（热路径零开销）。 */
   perfFrameMs: number;
   /**
@@ -245,6 +248,16 @@ export interface BeadsSnapshot {
   finishRowsShown: number;
   /** 最新入场那一行的弹跳缩放（0→1.2→1；稳定 = 1）。 */
   finishRowPopScale: number;
+  /**
+   * S7 作品陈列条的关卡本体（与 `finishStars` 同序同长；**只读引用**，game 侧关表）。
+   * 视图据 `finishStars[i] > 0` 画珠拼缩略、否则虚线空槽（EP12-S7，screens.md S5）。
+   */
+  finishLevels: readonly BeadsLevelRaw[];
+  /**
+   * **按下态**（EP12-S4 续办）：手指按住处的当前相位面板钮 id（无 ⇒ `null`）。
+   * 视图按 screens.md 控件矩阵「按下」列换面 + 下沉 2px（`reduceMotion` ⇒ 只换面不位移）。
+   */
+  pressedButton: string | null;
 
   /** S7 冲刺结算面板（`ux-spec §3.5` 左列，GAME_OVER · 冲刺态）：可见性 + 入/出进度。 */
   sprintSettleVisible: boolean;
@@ -435,6 +448,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     vibrate: VIBRATE_DEFAULT,
     debugOutlines: false,
     debugInfo: false,
+    debugGuides: false,
     perfFrameMs: 0,
     hudDy: 0,
     // 默认档与存档层同一真源（`FACET4_STYLE_ID` = `registry.DEFAULT_BEAD_STYLE_ID` 的 tuning 定义），
@@ -486,6 +500,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     finishStars: [],
     finishRowsShown: 0,
     finishRowPopScale: 1,
+    finishLevels: [],
+    pressedButton: null,
     sprintSettleVisible: false,
     sprintSettleProgress: 0,
     sprintSettleInteractive: false,

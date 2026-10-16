@@ -20,9 +20,9 @@
  * 就是这条路径）。本文件是它的生产化——⛔ 不重造合成，只换资产来源与生命周期。
  */
 
-import { AssetManager, assetManager, ImageAsset, Node, Rect, Size, Sprite, SpriteFrame, Texture2D, UIOpacity, UITransform } from 'cc';
+import { AssetManager, assetManager, Color, Graphics, ImageAsset, Node, Rect, Size, Sprite, SpriteFrame, sys, Texture2D, UIOpacity, UITransform } from 'cc';
 
-import type { CocosBlitCarrierLike } from '../framework/adapters/cocos/cocos-renderer';
+import type { CocosBlitCarrierLike, CocosClipHostLike } from '../framework/adapters/cocos/cocos-renderer';
 import type { BlitCommand } from '../framework/core/render/render-model';
 import {
     TintSpriteCache,
@@ -33,6 +33,7 @@ import {
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
 import { BEAD_PITCH, BOSS_THUMB_TEXTURES, MENU_TEXTURES, TILE_BLEED } from '../game/config/tuning';
+import { OPEN_THEMES } from '../game/config/themes';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { nineSliceFxRead } from '../framework/core/bake/nine-slice-fx';
 import { createWhitelistBeadTintRuntime, setBeadTintRuntime } from '../game/view/bead-render';
@@ -63,7 +64,8 @@ const ATLAS_ROWS = 8;
 const TILE_INNER_PX = maskTileInnerPx(BEAD_PITCH + TILE_BLEED * 2);
 
 /**
- * mask 逻辑名 → Cocos 资产坐标（正本 = `tools/mask-preview/cocos-assets/*.png`，入库档统一 **无损 WebP**
+ * mask 逻辑名 → Cocos 资产坐标（正本 = `tools/mask-preview/cocos-assets/*.png`，入包件恒为**定稿原样 RGBA PNG**
+ * （mask 的 R/G/B 是 shader 系数，⛔ 不过调色板量化；视觉件才走量化 PNG，微信白名单不含 webp `[WXG-T-282]`）
  * `[WXG-T-281]`：编码输入只允许 lossless（已验逐位一致），⛔ 不新造资源）。
  *
  * 两个字段各有用（WXG-T-255）：
@@ -80,10 +82,10 @@ const TILE_INNER_PX = maskTileInnerPx(BEAD_PITCH + TILE_BLEED * 2);
  * 产物级校验收在 `pnpm run check:cocos-mask`。
  */
 const MASK_ASSETS: Readonly<Record<string, { uuid: string; path: string }>> = {
-    'mask__bead__holed': { uuid: '24f09d0c-f25d-4fa0-b4f5-e68439b4e0bc', path: 'bead-hole-tint-128-mask' },
-    'mask__bead__holeless': { uuid: '271574f2-d9bc-4100-b6ab-e5d3494647e4', path: 'bead-holeless-tint-128-mask' },
-    'mask__grid__holed': { uuid: '837889c8-bb8d-4c39-a685-4b75de9094c7', path: 'grid-hole-tint-128-mask' },
-    'mask__grid__holeless': { uuid: '5dcc92a9-a54f-4693-9b85-a3159cf362e3', path: 'grid-holeless-tint-128-mask' },
+    'mask__bead__holed': { uuid: 'b1330826-5069-49dd-aec6-15ca127c80d1', path: 'bead-hole-tint-128-mask' },
+    'mask__bead__holeless': { uuid: '29396c51-96d5-47ac-b365-34d9f1cc599a', path: 'bead-holeless-tint-128-mask' },
+    'mask__grid__holed': { uuid: 'f384842f-4f57-469c-a088-e07e16dd3fd1', path: 'grid-hole-tint-128-mask' },
+    'mask__grid__holeless': { uuid: '53ccf050-9caa-4bc5-9a95-5cb8562f4db4', path: 'grid-holeless-tint-128-mask' },
 };
 
 /**
@@ -96,17 +98,18 @@ const MASK_ASSETS: Readonly<Record<string, { uuid: string; path: string }>> = {
 const MASK_IDS: readonly string[] = requiredTintMaskIds();
 
 /**
- * `[WXG-T-271 / ADR-0031 DEC=C′]` boss 缩略**静态位图**表（`textureId` → bundle 内路径）。
+ * `[WXG-T-271 / ADR-0031]` 静态位图表（`textureId` → bundle 内路径）。
  *
- * 走现成 `assets/textures` Bundle（已配好、已合并进主包，⛔ 非新建分包）⇒ 以 `loadAny({bundle, path})`
- * 按路径取（与 mask 同一条 bundle 腿，**不依赖 uuid**；uuid 由编辑器导入时生成，属实施门禁）。
- * 正本 = `games/beads/design/levels/assets/l9-boss-mandala-256.png`，导入后 path 无扩展名。
- * 装载失败 / 资产未导 ⇒ 不登记 ⇒ 该关回退程序化缩略（不 gate `_ready`）。
+ * 菜单 UI 走现成 `textures`（已合并进主包）。主题橱窗图走 `OPEN_THEMES`（本版开放的前 N 个）。
+ * 以 `loadAny({bundle, path})` 按路径取，**不依赖 uuid**。path 无扩展名。
+ * 装载失败 / 资产未导 ⇒ 不登记 ⇒ 该元素回退程序化（不 gate `_ready`）。
  */
-const BITMAP_ASSETS: Readonly<Record<string, { path: string }>> = {
-    'bitmap__boss_l9': { path: 'l9-boss-mandala-256' },
+const THEME_TEXTURE_IDS: ReadonlySet<string> = new Set(OPEN_THEMES.map((t) => t.textureId));
+
+const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>> = {
+    ...Object.fromEntries(OPEN_THEMES.map((t) => [t.textureId, { path: t.art, bundle: t.bundle }])),
     // `[WXG-T-280]` 主菜单位图 16 件（正本 = `design/art/final/assets/menu/`，拷入现成 `textures` Bundle；
-    // ⛔ 不新分包）。logo/coin/stamina 走 webp（`.png` 同名片段不入库 ⇒ bundle 内路径唯一）；
+    // ⛔ 不新分包）。全部入库为调色板量化 PNG（微信包内白名单不含 webp，见代码包文档）；
     // 未导入/解不出 ⇒ 不登记 ⇒ 该元素程序化腿（同 boss 缩略语义，不 gate `_ready`）。
     [MENU_TEXTURES.logo]: { path: 'ui_menu_logo' },
     [MENU_TEXTURES.caseFrame]: { path: 'ui_showcase_frame' },
@@ -124,7 +127,20 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string }>> = {
     [MENU_TEXTURES.iconArrowRight]: { path: 'ui_icon_arrow_right' },
     [MENU_TEXTURES.iconCoin]: { path: 'asset-icon-coin' },
     [MENU_TEXTURES.iconStamina]: { path: 'asset-icon-stamina' },
+    [MENU_TEXTURES.badgeLocked]: { path: 'ui_menu_badge_locked' },
+    // v3.8：沙漏 / 通关飘带 / CTA 艺术字。未导入 ⇒ 该元素走程序化腿。
+    [MENU_TEXTURES.badgeProgress]: { path: 'ui_menu_badge_progress' },
+    [MENU_TEXTURES.sealCleared]: { path: 'ui_menu_seal_cleared' },
+    [MENU_TEXTURES.ctaLabel]: { path: 'ui_menu_cta_label' },
 };
+
+/**
+ * 必须画在 `Graphics` **之下**的静态位图（其余静态位图在其上，见 `accept`）。
+ * harness 是单画布按命令序叠画：橱窗框先发、资源条/缩略珠后发，所以后者在框上。
+ * Cocos 分层：Graphics（矢量）在 BlitLayer 之上，静态位图默认在 Graphics 之上 ⇒ 不透明的橱窗框
+ * 会把框内的矢量图元（资源条板、缩略珠）整个盖住。把框放到 Graphics 之下，两端叠序一致。
+ */
+const BELOW_GRAPHICS: ReadonlySet<string> = new Set([MENU_TEXTURES.caseFrame]);
 
 type AnyObj = Record<string, any>;
 
@@ -187,13 +203,17 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
      *   `[WXG-T-271 / ADR-0031 §6]` 全彩静态位图腿落这里。旧写法两条腿同挂 BlitLayer
      *   ⇒ 选关墙的卡底/槽位矩形由后置的 `Graphics` 画，位图被底色整个盖住（装载全绿但屏上零像素）。
      */
-    constructor(private readonly _layer: Node, private readonly _uiLayer: Node) { }
+    constructor(private readonly _layer: Node, private readonly _uiLayer: Node, private readonly _clipLayer: Node | null = null) { }
+    /** 裁切期间的 blit 改挂到蒙版下（坐标与 UI 层相同）。 */
+    private _clipOn = false;
 
     /**
      * 预热：载**需求集**（`MASK_IDS`，由档位宏派生）的 mask → 建合成缓存 → **成功后**才打开 tint 运行时。
      * @returns 就绪的 mask 张数（< 需求集 ⇒ 调用方按失败处理，⛔ 不留半套注入态）
      */
     async warmup(): Promise<number> {
+        // WEBP 能力只认引擎的 sys.hasFeature(WEBP)，不做真图探测（用户 2026-10-16 裁定）。
+        console.log(`[BeadsBlitCarrier] WEBP 能力 sys.hasFeature=${sys.hasFeature(sys.Feature.WEBP)}`);
         const images = await Promise.all(
             MASK_IDS.map(async (id) => {
                 const img = await loadImageAsset(MASK_ASSETS[id.split('__v')[0]!]!);
@@ -233,9 +253,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // 缺资产 / 失败 ⇒ 该关回退程序化缩略（与未注入等价）。资产未导入时本腿自然空转（先写码、暂不 import）。
         await Promise.all(
             Object.entries(BITMAP_ASSETS).map(async ([texId, a]) => {
-                const sf = await loadBitmapSpriteFrame(a.path);
+                const sf = await loadBitmapSpriteFrame(a.path, a.bundle);
                 if (sf) this._bitmaps.set(texId, sf);
-                else console.warn(`[BeadsBlitCarrier] 静态位图 \`${texId}\`（${a.path}）未就绪 ⇒ 该元素走程序化回退`);
+                else console.warn(`[BeadsBlitCarrier] 静态位图 \`${texId}\`（${a.bundle ?? 'textures'}/${a.path}）未就绪 ⇒ 该元素走程序化回退`);
             }),
         );
         // 装载成功也要嚷：只靠「无 warn」反推「已上屏」本批已被实测证伪（ADR-0031 §6）。
@@ -264,6 +284,15 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             if (node.active) node.active = false;
         }
         this._used = 0;
+        this._clipOn = false;
+    }
+
+    pushClip(): void {
+        this._clipOn = this._clipLayer !== null;
+    }
+
+    popClip(): void {
+        this._clipOn = false;
     }
 
     accept(cmd: BlitCommand, x: number, y: number): void {
@@ -284,11 +313,37 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const sp = this._borrow();
         // 两条腿不同层：珠（tint 图集）在 `Graphics` 之下、静态位图在其上。池位是同一条，
         // 只在层真变了时 setParent（选关墙同屏仅此 1 条位图命令，热路径仍零分配）。
-        const parent = base !== undefined ? this._atlasNode() : this._uiLayer;
-        if (sp.node.parent !== parent) sp.node.setParent(parent);
+        const below = base !== undefined || BELOW_GRAPHICS.has(cmd.textureId);
+        const parent = this._clipOn && this._clipLayer ? this._clipLayer : (below ? this._atlasNode() : this._uiLayer);
+        if (sp.node.parent !== parent) {
+            sp.node.setParent(parent);
+            // 框垫底：同层若有珠（同属 BlitAtlas），框必须在它们之下。
+            if (base === undefined && below) sp.node.setSiblingIndex(0);
+        }
         // border 全 0 的帧 SLICED ≡ SIMPLE ⇒ 恒按命令语义赋值（同帧混发两类也不残留）。
         sp.type = ns !== undefined ? Sprite.Type.SLICED : Sprite.Type.SIMPLE;
-        sp.node.getComponent(UITransform)!.setContentSize(cmd.w, cmd.h);
+        // Boss 原图四周是透明边。默认 trim 会把花拉满内容框；关掉才按原图留白居中。
+        if (sp.type === Sprite.Type.SIMPLE) {
+            const trim = !THEME_TEXTURE_IDS.has(cmd.textureId);
+            if (sp.trim !== trim) sp.trim = trim;
+        }
+        // Cocos 把 inset（源纹 px）直接当内容 px 摆顶点。目标比源纹矮时圆角被压扁。
+        // 内容放大到源纹空间再整体缩回，端帽跟高度同比，只拉中间。池位复用 ⇒ 非九宫格必须回到 1。
+        let drawW = cmd.w;
+        let drawH = cmd.h;
+        let fit = 1;
+        if (ns !== undefined) {
+            const sw = frame.rect.width;
+            const sh = frame.rect.height;
+            const vs = sw > 0 && sh > 0 ? Math.min(cmd.w / sw, cmd.h / sh) : 1;
+            if (vs > 0 && vs < 1) {
+                fit = vs;
+                drawW = cmd.w / vs;
+                drawH = cmd.h / vs;
+            }
+        }
+        sp.node.getComponent(UITransform)!.setContentSize(drawW, drawH);
+        if (sp.node.scale.x !== fit) sp.node.setScale(fit, fit, 1);
         if (sp.spriteFrame !== frame) sp.spriteFrame = frame;
         // blit 的 x/y 是左下角（设计系），Sprite 锚点是中心 ⇒ 补半宽高。
         sp.node.setPosition(x + cmd.w / 2, y + cmd.h / 2, 0);
@@ -349,20 +404,14 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     /** 已配过 border 的 `textureId`（一纹理一值 ⇒ 只写一次；键 = 裸串，热路径命中零分配）。 */
     private readonly _sliced = new Set<string>();
     /**
-     * `[WXG-T-280]` 九宫格端帽 → SpriteFrame border（源纹 px）。Cocos 3.8 `SpriteFrame.border`
-     * 为 `EdgeInsets` 实例（left/right/top/bottom）；取不到该形状 ⇒ warn-once、按整张拉伸降级
-     * （观感 = 端帽被拉宽，不丢像素）。
+     * `[WXG-T-280]` 九宫格端帽 → SpriteFrame inset（源纹 px）。
+     * Cocos 3.8 没有 `border.left`；端帽是 `insetLeft/Right/Top/Bottom`，写入会重算 sliced UV。
      */
     private _ensureSliceBorder(textureId: string, frame: SpriteFrame, capX: number, capY: number): void {
         if (this._sliced.has(textureId)) return;
         this._sliced.add(textureId);
-        const b = (frame as AnyObj).border as AnyObj | undefined;
-        if (!b || typeof b.left !== 'number') {
-            this._bail('nine-slice border 不可写（引擎形状变化？）⇒ 按拉伸降级', { kind: 'blit', textureId, x: 0, y: 0, w: 0, h: 0 } as BlitCommand);
-            return;
-        }
-        b.left = b.right = capX;
-        b.top = b.bottom = capY;
+        frame.insetLeft = frame.insetRight = capX;
+        frame.insetTop = frame.insetBottom = capY;
     }
 
     /** 借一个池位（不够就长；上限 = 同屏珠数，实测 ~280 见 §5.2 伴随义务 (iii)）。 */
@@ -439,6 +488,28 @@ type MaskBundle = AssetManager.Bundle;
  */
 let _maskBundlePromise: Promise<MaskBundle | null> | null = null;
 
+const _extraBundlePromises = new Map<string, Promise<MaskBundle | null>>();
+
+/** 菜单位图走 `textures`；主题关卡原图走各自的包（现在只有 `themes`）。 */
+function ensureNamedBundle(name: string): Promise<MaskBundle | null> {
+    if (name === MASK_BUNDLE) return ensureMaskBundle();
+    const hit = _extraBundlePromises.get(name);
+    if (hit) return hit;
+    const pending = new Promise<MaskBundle | null>((resolve) => {
+        assetManager.loadBundle(name, (err: Error | null, bundle: MaskBundle) => {
+            if (err || !bundle) {
+                console.warn(`[BeadsBlitCarrier] bundle \`${name}\` 不可用（未配成 Bundle？）⇒ 该包位图不登记：${String(err)}`);
+                resolve(null);
+                return;
+            }
+            console.log(`[BeadsBlitCarrier] 位图装载腿 = bundle \`${name}\``);
+            resolve(bundle);
+        });
+    });
+    _extraBundlePromises.set(name, pending);
+    return pending;
+}
+
 function ensureMaskBundle(): Promise<MaskBundle | null> {
     if (_maskBundlePromise) return _maskBundlePromise;
     _maskBundlePromise = new Promise((resolve) => {
@@ -494,27 +565,72 @@ async function loadImageAsset(entry: { uuid: string; path: string }): Promise<ob
 }
 
 /**
- * `[WXG-T-271 / ADR-0031 DEC=C′]` boss 全彩位图 → `SpriteFrame`（静态位图注册表腿的装载体）。
- * 与 mask 腿不同：mask 取 `ImageAsset.data` 供 tint 合成，本腿直接把 ImageAsset 包成 `Texture2D` + 整帧 `SpriteFrame`。
- * ⚠ `Texture2D.image=` + `SpriteFrame.texture=` 的运行时构造 **[待真机取证]**（ADR-0031 §4.2 条 4）；
- * bundle 不可用 / 资产未导 ⇒ `undefined`（调用方按未就绪处理 → 回退程序化缩略）。
+ * `[WXG-T-271 / ADR-0031 DEC=C′]` 静态位图 → 构建产物里的 `SpriteFrame`。
+ * 真机上 `new Texture2D(); tex.image = imageAsset` 拿到的是导入 json 里的 0×0，
+ * 帧矩形跟着变成 0，程序化回退又被「已装载」关掉，图就空了。
+ * 改取 `${path}/spriteFrame`（导入时已经写好像素矩形）。尺寸仍是 0 则不登记，让该元素回程序化。
  */
-async function loadBitmapSpriteFrame(path: string): Promise<SpriteFrame | undefined> {
-    const bundle = await ensureMaskBundle();
+async function loadBitmapSpriteFrame(path: string, bundleName: string = MASK_BUNDLE): Promise<SpriteFrame | undefined> {
+    const bundle = await ensureNamedBundle(bundleName);
     if (!bundle) return undefined;
-    const asset = await new Promise<ImageAsset | null>((resolve) =>
-        assetManager.loadAny({ bundle: MASK_BUNDLE, path },
-            (err: Error | null, a: ImageAsset) => resolve(err ? null : a)),
+    const sf = await new Promise<SpriteFrame | null>((resolve) =>
+        assetManager.loadAny({ bundle: bundleName, path: `${path}/spriteFrame` },
+            (err: Error | null, a: SpriteFrame) => resolve(err ? null : a)),
     );
-    if (!asset) {
-        console.warn(`[BeadsBlitCarrier] bundle 里解不出位图 \`${path}\`（未导入？）`);
+    const tex = sf?.texture;
+    if (!sf || !tex || tex.width === 0 || tex.height === 0) {
+        console.warn(`[BeadsBlitCarrier] bundle \`${bundleName}\` 里解不出位图 \`${path}\`（未导入或尺寸为 0）`);
         return undefined;
     }
-    const tex = new Texture2D();
-    tex.image = asset;
-    const sf = new SpriteFrame();
-    sf.texture = tex;
+    // 小图导入时 packable=true，上屏后被收进空动态图集。关掉才画自己的纹理。
+    sf.packable = false;
+    // 导入帧裁过透明边。blit 按整图盒子拉伸，拉回整张纹理，和 harness 同一张图。
+    sf.rect = new Rect(0, 0, tex.width, tex.height);
+    sf.originalSize = new Size(tex.width, tex.height);
     return sf;
+}
+
+/** 引擎 `stencil-manager` 的 ENTER_LEVEL。不引用 `cc.Mask`：mask 模块关着，`addComponent(Mask)` 会把真机打崩。 */
+const STENCIL_ENTER = 2;
+
+function setStencil(g: Graphics, stage: number): void {
+    (g as unknown as { stencilStage: number }).stencilStage = stage;
+}
+
+/**
+ * 橱窗走马灯蒙版。模板矩形画在本节点，被裁的 sprite / 矢量是它的子节点。
+ * 矩形每帧由 `clip` 命令重画；α=0 所以蒙版本身不显色。
+ */
+export function createShowcaseClip(parent: Node): { host: CocosClipHostLike; blitLayer: Node } {
+    const node = new Node('ShowcaseClip');
+    parent.addChild(node);
+    const mask = node.addComponent(Graphics);
+    const ink = new Color(255, 255, 255, 0);
+
+    const blitLayer = new Node('ShowcaseClipBlit');
+    node.addChild(blitLayer);
+    const penNode = new Node('ShowcaseClipGraphics');
+    node.addChild(penNode);
+    const pen = penNode.addComponent(Graphics);
+
+    return {
+        blitLayer,
+        host: {
+            graphics: pen,
+            beginFrame(): void {
+                pen.clear();
+                mask.clear();
+                setStencil(mask, 0);
+            },
+            push(x: number, y: number, w: number, h: number): void {
+                setStencil(mask, STENCIL_ENTER);
+                mask.fillColor = ink;
+                mask.rect(x, y, w, h);
+                mask.fill();
+            },
+            pop(): void { /* 子树画完由引擎退出模板 */ },
+        },
+    };
 }
 
 /**
@@ -523,9 +639,9 @@ async function loadBitmapSpriteFrame(path: string): Promise<SpriteFrame | undefi
  * @param uiLayer `bindings.ts` 的 BlitLayerUI 节点（`Graphics` 之上，静态位图腿专用，[WXG-T-271]）
  * @returns 载体；**任何**前置不满足 ⇒ `null`（= 不注入 = 今日行为）
  */
-export function maybeCreateBeadsBlitCarrier(layer: Node, uiLayer: Node): CocosBlitCarrierLike | null {
+export function maybeCreateBeadsBlitCarrier(layer: Node, uiLayer: Node, clipLayer?: Node): CocosBlitCarrierLike | null {
     if (!carrierSwitchOn()) return null;
-    const carrier = new BeadsBlitCarrier(layer, uiLayer);
+    const carrier = new BeadsBlitCarrier(layer, uiLayer, clipLayer ?? null);
     // 预热是异步的；就绪前 tint 运行时不打开 ⇒ 该窗口内游戏仍发矢量命令，载体一条也收不到。
     carrier
         .warmup()

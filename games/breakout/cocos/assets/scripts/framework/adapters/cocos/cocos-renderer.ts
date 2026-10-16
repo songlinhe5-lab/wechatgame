@@ -124,6 +124,22 @@ export interface CocosRendererOptions {
    * 缺省 ⇒ ② 回落普通 `Graphics`（与旧宿主逐字节等价；引擎清屏色归宿主自己定）。
    */
   readonly backGraphics?: CocosGraphicsLike;
+  /**
+   * 矩形裁切宿主（菜单走马灯）。缺省 ⇒ `clip`/`unclip` 不做事，其余命令照旧
+   * （breakout 与未接线宿主零漂移）。`graphics` 与主 `Graphics` 同一坐标系。
+   */
+  readonly clipHost?: CocosClipHostLike;
+}
+
+/**
+ * 裁切宿主。`push` 的矩形已经换算到 Cocos UI 空间（与 blit 的 x/y 同口径）。
+ * `graphics` 用来画被裁的矢量；宿主自己保证它落在蒙版下面。
+ */
+export interface CocosClipHostLike {
+  beginFrame(): void;
+  push(x: number, y: number, w: number, h: number): void;
+  pop(): void;
+  readonly graphics: CocosGraphicsLike;
 }
 
 /**
@@ -142,6 +158,12 @@ export interface CocosBlitCarrierLike {
    * 所以这一刀必须由框架递。可选方法：不实现 = 与 T-252 落地时逐字节等价。
    */
   accept(cmd: BlitCommand, x: number, y: number): void;
+  /**
+   * 进入/离开裁切：实现体把这期间的 blit 挂到蒙版节点下。可选；不实现 = 不改父节点。
+   * 坐标不变（蒙版节点与 BlitLayer 同一原点），所以这里不传矩形。
+   */
+  pushClip?(): void;
+  popClip?(): void;
   /**
    * Called once at the top of every `draw()` **before** any command is handed
    * over — the carrier's frame-start hook (reclaim / hide leftover pool nodes).
@@ -172,7 +194,9 @@ export class CocosRenderModelRenderer {
   private readonly _transformHost: CocosTransformHostLike | undefined;
   private readonly _blitCarrier: CocosBlitCarrierLike | undefined;
   private readonly _back: CocosGraphicsLike | undefined;
+  private readonly _clipHost: CocosClipHostLike | undefined;
   private _labelsUsed = 0;
+  private _clipped = false;
 
   constructor(
     private readonly _graphics: CocosGraphicsLike,
@@ -185,6 +209,7 @@ export class CocosRenderModelRenderer {
     this._transformHost = options.transformHost;
     this._blitCarrier = options.blitCarrier;
     this._back = options.backGraphics;
+    this._clipHost = options.clipHost;
   }
 
   /** Labels borrowed during the last frame (telemetry / budget checks). */
@@ -201,6 +226,8 @@ export class CocosRenderModelRenderer {
     // 没实现 `beginFrame` 的载体 ⇒ 这里零调用，行为与 T-252 落地时相同。
     const carrier = this._blitCarrier;
     if (carrier && carrier.beginFrame) carrier.beginFrame();
+    this._clipped = false;
+    if (this._clipHost) this._clipHost.beginFrame();
 
     // Per-frame dispatch, both branches idempotent: a stale scale from the
     // previous shake frame must never survive a transform-free frame.
@@ -231,10 +258,28 @@ export class CocosRenderModelRenderer {
     const verts = model.vertices;
 
     for (const cmd of model.commands) {
+      if (cmd.kind === 'clip') {
+        const host = this._clipHost;
+        if (host) {
+          host.push(cmd.x + ox, cmd.y + oy, cmd.w, cmd.h);
+          this._clipped = true;
+        }
+        if (carrier && carrier.pushClip) carrier.pushClip();
+        continue;
+      }
+      if (cmd.kind === 'unclip') {
+        if (this._clipHost) this._clipHost.pop();
+        if (carrier && carrier.popClip) carrier.popClip();
+        this._clipped = false;
+        continue;
+      }
       if (cmd.kind === 'text') {
         this._drawText(cmd, ox, oy);
         continue;
       }
+
+      // 裁切期间矢量改画到蒙版下的 Graphics（同一坐标系）；没宿主就仍画主层。
+      const pen = this._clipped && this._clipHost ? this._clipHost.graphics : g;
 
       switch (cmd.kind) {
         case 'rect': {
@@ -242,7 +287,7 @@ export class CocosRenderModelRenderer {
           const y = cmd.y + oy;
           // [WXG-T-256 / ADR-0030 S5′-4] `back` 图元（桌面底）沉到 blit 之下；
           // 未注入底图提交体的宿主 ⇒ 回落本层，与旧行为逐字节等价。
-          const t = cmd.back ? (back ?? g) : g;
+          const t = cmd.back ? (back ?? pen) : pen;
           if (cmd.radius && cmd.radius > 0 && t.roundRect) {
             t.roundRect(x, y, cmd.w, cmd.h, cmd.radius);
           } else {
@@ -252,13 +297,13 @@ export class CocosRenderModelRenderer {
           break;
         }
         case 'circle': {
-          g.circle(cmd.x + ox, cmd.y + oy, cmd.r);
-          this._paint(g, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
+          pen.circle(cmd.x + ox, cmd.y + oy, cmd.r);
+          this._paint(pen, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;
         }
         case 'line': {
           // 与 `rect` 同口径：桌面内阴影线跟着面板底一起沉底，否则会画在珠面上。
-          const t = cmd.back ? (back ?? g) : g;
+          const t = cmd.back ? (back ?? pen) : pen;
           t.moveTo(cmd.x1 + ox, cmd.y1 + oy);
           t.lineTo(cmd.x2 + ox, cmd.y2 + oy);
           this._paint(t, undefined, cmd.stroke, cmd.lineWidth, cmd.alpha);
@@ -271,10 +316,10 @@ export class CocosRenderModelRenderer {
           const n = cmd.count;
           if (n < 2) break;
           const o = cmd.offset;
-          g.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
-          for (let k = 1; k < n; k += 1) g.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
-          g.close();
-          this._paint(g, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
+          pen.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
+          for (let k = 1; k < n; k += 1) pen.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
+          pen.close();
+          this._paint(pen, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;
         }
         case 'blit': {

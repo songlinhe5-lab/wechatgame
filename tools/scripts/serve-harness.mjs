@@ -41,6 +41,22 @@ function argValue(flag, fallback) {
 }
 
 const PORT = Number(argValue('--port', process.env['PORT'] ?? 4173));
+const SYNC_SCRIPT = join(ROOT, 'tools', 'scripts', 'sync-framework-to-cocos.mjs');
+
+/**
+ * 主页（及全部玩法）只有 `games/<game>/src` 一份。harness 直接编译它；
+ * Cocos 只编译 `cocos/assets/scripts/` 里的物理拷贝。每次起 harness 顺手把拷贝刷齐，
+ * 避免只改了浏览器、编辑器里还是旧主页。
+ */
+function syncCocosMirror() {
+  console.log('🔁 syncing Cocos mirror ← games/*/src …');
+  const result = spawnSync(process.execPath, [SYNC_SCRIPT], { cwd: ROOT, stdio: 'inherit' });
+  if (result.error) {
+    console.error(`❌ could not sync Cocos mirror: ${result.error.message}`);
+    process.exit(1);
+  }
+  if (result.status !== 0) process.exit(result.status ?? 1);
+}
 
 /**
  * `[WXG-T-226 EP12-B3]` / `[WXG-T-280]` **只读资源前缀映射**（⛔ 不复制文件 ⇒ 无副本漂移）。
@@ -48,6 +64,7 @@ const PORT = Number(argValue('--port', process.env['PORT'] ?? 4173));
  * 白名单表（前缀 → 仓内真源目录）：
  * - `/mask-assets/*`   ⇒ `tools/mask-preview/cocos-assets/*`（4 张定稿 tint mask）
  * - `/menu-assets/*`   ⇒ `games/beads/design/art/final/assets/menu/*`（主菜单定稿位图）
+ * - `/level-assets/*`  ⇒ `games/beads/design/levels/assets/*`（Boss 原图）
  *
  * 存在的理由：harness 的静态服务**只服务 `dev/harness/`**（见 `resolveTarget` 的目录守卫），
  * 而产物真源在别处 ⇒ 不映射就 fetch 不到。⛔ 只读、只这条前缀、⛔ 不得用于任意目录
@@ -56,6 +73,7 @@ const PORT = Number(argValue('--port', process.env['PORT'] ?? 4173));
 const ASSET_MAPS = [
   { prefix: '/mask-assets/', dir: join(ROOT, 'tools', 'mask-preview', 'cocos-assets') },
   { prefix: '/menu-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'art', 'final', 'assets', 'menu') },
+  { prefix: '/level-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'levels', 'assets') },
 ];
 const HOST = argValue('--host', '127.0.0.1');
 const SKIP_BUILD = hasFlag('--no-build');
@@ -107,6 +125,7 @@ function build() {
   console.log('✅ build ok');
 }
 
+syncCocosMirror();
 if (!SKIP_BUILD) build();
 if (BUILD_ONLY) {
   process.exit(0);

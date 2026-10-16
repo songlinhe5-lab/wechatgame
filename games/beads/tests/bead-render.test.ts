@@ -601,7 +601,7 @@ describe('bead parameter card (assets-spec §1.1)', () => {
     expect(withShadowChannels).toEqual(rest);
     // ④ 而且 lift 不会把阴影族"买回来"：条数不变、真 α 仍为 0。
     expect(up).toHaveLength(rest.length);
-    expect(up.some((c) => (c.alpha ?? 1) < 1)).toBe(false);
+    expect(up.some((c) => ('alpha' in c ? c.alpha ?? 1 : 1) < 1)).toBe(false);
   });
 
   // §1.1 最小特征约束：线宽 ≥ 2px —— 托盘尺寸（44px 珠）是最小使用场景。

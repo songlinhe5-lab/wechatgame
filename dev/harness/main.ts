@@ -25,6 +25,7 @@ import {
   tintFx,
 } from '@wxgame/framework';
 import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { OPEN_THEMES } from '../../games/beads/src/config/themes.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
 import { requiredTintMaskIds } from '../../games/beads/src/view/bead-tint-mask.js';
 import { setBeadTintRuntime, createWhitelistBeadTintRuntime } from '../../games/beads/src/view/bead-render.js';
@@ -142,6 +143,7 @@ const menuRegistry = new Map<string, object>();
 const MENU_URL_PREFIX = '/menu-assets/';
 /** textureId → 定稿文件名（真源 = `design/art/final/assets/menu/`，经 serve-harness 白名单映射）。 */
 const MENU_FILE: Readonly<Record<string, string>> = {
+  ...Object.fromEntries(OPEN_THEMES.map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
   [MENU_TEXTURES.logo]: 'ui_menu_logo.webp',
   [MENU_TEXTURES.caseFrame]: 'ui_showcase_frame.png',
   [MENU_TEXTURES.plate]: 'ui_showcase_plate.png',
@@ -158,6 +160,11 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.iconArrowRight]: 'ui_icon_arrow_right.png',
   [MENU_TEXTURES.iconCoin]: 'asset-icon-coin.webp',
   [MENU_TEXTURES.iconStamina]: 'asset-icon-stamina.webp',
+  // 三态徽标（C6）：推/锁 128² @2x（64dp）；完成章 320² @2x（Ø160dp）。
+  [MENU_TEXTURES.badgeLocked]: 'ui_menu_badge_locked.png',
+  [MENU_TEXTURES.badgeProgress]: 'ui_menu_badge_progress.webp',
+  [MENU_TEXTURES.sealCleared]: 'ui_menu_seal_cleared.webp',
+  [MENU_TEXTURES.ctaLabel]: 'ui_menu_cta_label.webp',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）
@@ -232,7 +239,7 @@ if (isBeads && harnessParams.get('menu') !== 'off') {
   void Promise.all(
     Object.entries(MENU_FILE).map(async ([id, file]) => {
       try {
-        const img = await loadImage(`${MENU_URL_PREFIX}${file}`);
+        const img = await loadImage(file.startsWith('/') ? file : `${MENU_URL_PREFIX}${file}`);
         if (img.naturalWidth === 0) throw new Error(`naturalWidth=0 (${file})`);
         menuRegistry.set(id, img as unknown as object);
       } catch (err) {

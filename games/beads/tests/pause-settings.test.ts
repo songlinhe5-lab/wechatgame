@@ -378,6 +378,7 @@ describe('S9 pause & settings', () => {
       largeText: false,
       vibrate: true,
       debugInfo: false,
+      debugGuides: false,
       // EP11-S5：本腿未触行4 两钮 ⇒ 存档里两新字段保持默认档（S8 §8-11）。
       beadStyle: 'facet-4',
       beadSize: 'full',

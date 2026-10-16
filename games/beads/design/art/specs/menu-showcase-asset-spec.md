@@ -3,7 +3,7 @@
 > **状态**：**提案 / 待实装 / 未 commit**。本单只把已定稿的主菜单视觉方案整理成**可切图的美术规格**，供切图设计开工；数值一律 `[待实测]`，不冻结。
 > **从属**：母体 = [`assets-spec.md`](assets-spec.md)（§3 图集策略 / §4 命名规范 / §5 包体预算为正本，冲突以母体为准）。
 > **关联**：
-> - 位图腿 = [`ADR-0031`](../../../docs/architecture/adr/ADR-0031-framework-blit-static-bitmap-leg.md) **DEC=C′**（位图进现成 `textures` Bundle → 主包；boss 缩略 `bitmap__boss_l9` 已在此路线）。
+> - 位图腿 = [`ADR-0031`](../../../docs/architecture/adr/ADR-0031-framework-blit-static-bitmap-leg.md)。菜单 UI 进 `textures`（主包）；Boss 原图 `bitmap__boss_l9` 进 `themes`（`assets/themes`，微信分包）。
 > - **本方案是对 [`menu-wall-signage-spec.md`](menu-wall-signage-spec.md) 卡 B/卡 C「作品墙 grid」模型的界面重设计**（墙→单主题橱窗 + ◀▶ 切换 + 三态）。招牌字形卡 A 仍有效（见 §8 抉择）。⛔ 本单**不覆写**旧卡既有内容，交主理人对账后再决定合并/取代。
 > - 版面/交互上位 = `design/ux/ux-spec.md` §4（BOOT 主菜单屏）；本文只补**视觉与切图**面。
 > **真源纪律**：色值仍走 `palette.ts`（`view/` 唯一 hex 持有处，L5）；本单**零新增 hex**。
@@ -93,7 +93,7 @@
 | D2 | 「正在挑战」绶带 | `ui_menu_ribbon_current` | ≈ 260×72 | 整图 | — | **动态或半固定** | 位图切图（绶带底）+ 上叠「正在挑战」 | textures |
 | D3 | 「已通关」金章 | `ui_menu_seal_cleared` | ≈ 130×150 | 整图 | — | **烘焙**（四字固定） | 位图切图 | textures |
 | E1 | boss 成品画框 | `ui_menu_boss_frame` | ≈ 420×420 | 9-slice / 整图 | — | — | 位图切图（框）；**成品图本体见 E2** | textures |
-| E2 | **boss 缩略成品图** | `bitmap__boss_l{N}` | 256×256 | 逐关位图 | 每主题一张 | — | **非固定切图**：由关卡 pattern 生成的 boss 珠拼缩略，**走 ADR-0031 C′ 位图腿**（`textures` bundle，如 `l9-boss-mandala-256.png`） | textures |
+| E2 | **boss 缩略成品图** | `bitmap__boss_l{N}` | 256×256 | 逐关位图 | 每主题一张 | — | **非固定切图**：由关卡 pattern 生成的 boss 珠拼缩略，走位图腿。`l9-boss-mandala-256.png` 在 `assets/themes`（Bundle `themes`，微信分包） | themes |
 | F1 | 切换钮·上一个 | `ui_btn_prev` | 88×88 | 整图 | `_normal` `_pressed` `_disabled` | 箭头 | 位图切图（◀）；禁用态=已到首 | textures |
 | F2 | 切换钮·下一个 | `ui_btn_next` | 88×88 | 整图 | 同上 | 箭头 | 位图切图（▶）；禁用态=已到尾 | textures |
 | G1 | 主 CTA「开始游戏」 | `ui_btn_start` | ≈ 480×120 | **9-slice** | `_normal` `_pressed` `_disabled`(锁定态灰) | **动态**（文案可换） | 位图切图胶囊底 + 上叠「开始游戏」 | textures |
@@ -120,7 +120,7 @@
 
 ## 5. 图集 / 命名 / 分包
 
-- **分包归属**：菜单 UI 位图（A2–G1）与 boss 缩略（E2）**统一进 `textures` Bundle**（ADR-0031 C′：复用现成 `textures`→主包，不新建分包）。
+- **分包归属**：菜单 UI 位图（A2–G1）进 `textures` Bundle（合并进主包）。Boss 原图（E2）进 `themes` Bundle（`assets/themes`，微信分包）。
 - **图集策略**：首版可**逐图入库**（同 demo 现状，未压图集）；量上来后并入 `atlas_ui_01`（1024²，padding 2px，`assets-spec §3`）。切图**导出留 2px 透明外边**防图集渗色。
 - **命名**：严格 §4 规范（`ui_` 前缀 + 状态后缀）；`bitmap__boss_l{N}` 沿用 ADR-0031 既有 textureId 约定（双下划线前缀标位图族）。
 - **`.meta` 纪律**：位图入 `cocos/assets` 由 **Cocos 编辑器/MCP 生成 `.meta`**，⛔ 禁手写（L1）；投放与构建受 §19 红线与 ADR-0031 时序约束（先规格→变更单→import→重建）。
@@ -138,7 +138,7 @@
 | 柜内木牌（B19 → **B25 定稿**，含二维实测影） | 资产 `production/qa/menu-b19/asset/plate-shadow@2x.png`（**422×172 @2x**，牌体 161×381，四周留 2px 透明边） | **九宫 border（@2x px）= L 64 / R 73 / T 4 / B 168**（T+B=资产高 ⇒ 纵向中段高度 0，**牌高永不重采样**；横向拉伸带 285 @2x = 142.5 设计px）。端帽宽 E = 24 设计px，与牌体**共用同一条切片线**（端帽须整块带走悬在牌体外的影：牌左 349 / 牌右裙边 744 稿px）。⛔ **不走整图 `setContentSize`**：实测三段式裙边伸出恒 21 设备px，整图横拉随倍率摊平（×1.47 → 32 px）⇒ 影角变形。备选（blit 腿）= 预切三张 `b25-shadow-slice/plate-{left,mid,right}.png`。判据与读数正本：`production/qa/menu-b19/README.md` 的 **B25** 章 |
 | 图集打包 | **Cocos 内置 Auto Atlas**（`assets/textures/menu/` 右键 Create → Auto Atlas，生成 `.pac`） | 别用 TexturePacker；`.pac` 设 Padding 2px / Max Size 2048；`.meta` 由编辑器出（合 L1） |
 | 压缩 | pngquant / Squoosh（入库前） | 主包余量仅 ~1.1 MB（见 §6），氛围层（射灯 C2）能省则省 |
-| boss 缩略 E2 | **不走切图工具** | 关卡 pattern 生成的逐关位图，走 ADR-0031 C′，直落 `textures` bundle |
+| boss 缩略 E2 | **不走切图工具** | 关卡 pattern 生成的逐关位图，直落 `assets/themes`（Bundle `themes`） |
 | 拆件 mood（**初步自动切图规则·第一步**） | `design/ai-workflows/cut-sprites-local.py`（numpy+PIL，零外依） | 平背景洪水填充去底 → 连通域拆件 → 透明底单图；逐像素不重绘。`KEEP_SHADOW=1` 只键平背景保留投影（留档这套）/ `=0` 连投影一起吃。仅产**构图参照底稿**，非工程落库资产；换图调 `C`/阈值。产出见 §9 `sprites-v1-shadow/` |
 | 四周独立纹理修正（**初步切图规则·第二步**） | `design/ai-workflows/cleanup-sprites-edge.py` | 第一步按 PAD=8 裁图会把相邻元素蹭在裁剪框边缘的碎块（箭头盘残弧、邻居图标边角）带进精灵四周。本步对每张透明底图做「只保留最大不透明连通域」清除这些独立碎块（幂等，已干净则 no-op）。⚠ 假设每张=单一主导元素；多部件元素改 `--min-area N` 只删小碎块 |
 | 顶栏圆钮元件（**分层底板+图标**） | 产出于 `games/beads/design/art/shots/menu-showcase-20261010/btn-circle/`（脚本化派生自 sprite-01/02/03） | 三个顶栏钮共用一枚白盘：`ui_btn_circle_normal`（盘+宽柔投影）/ `ui_btn_circle_pressed`（盘不位移、投影紧贴盘底变深窄）+ 3 张纯图标叠层 `ui_icon_sound/mail/settings`（色度>55 或暗灰核心抠、剔除盘底暖 bevel）。**边缘 4× 超采样+解析 AA 圆抗锯齿**。`_disabled` 不烘→运行时对按钮容器 tint（盘+图标一起灰/淡）；按下位移也走运行时节点 y 下沉。仅构图/装配参照，真资产 §5 走 Figma 矢量（天然无锯齿、可任意 @2x）|

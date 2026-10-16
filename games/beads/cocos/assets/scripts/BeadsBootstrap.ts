@@ -15,10 +15,10 @@
 import { _decorator, Node } from 'cc';
 
 import { Bootstrap } from './framework/adapters/cocos/bindings';
-import type { CocosBlitCarrierLike } from './framework/adapters/cocos/cocos-renderer';
+import type { CocosBlitCarrierLike, CocosClipHostLike } from './framework/adapters/cocos/cocos-renderer';
 import type { Game } from './framework/core/game/game';
 import { createBeadsShell } from './game/index';
-import { maybeCreateBeadsBlitCarrier } from './host/beads-blit-carrier';
+import { createShowcaseClip, maybeCreateBeadsBlitCarrier } from './host/beads-blit-carrier';
 import { installBeadFieldSpike } from './spike/bead-field-host';
 import { maybeInstallCarrierBench } from './spike/carrier-bench';
 
@@ -45,6 +45,11 @@ interface WxgDebugGlobal {
 
 @ccclass('BeadsBootstrap')
 export class BeadsBootstrap extends Bootstrap {
+  /** beads 版式已按动态设计高适配（菜单锚点链 + 对局 HUD `hudDy`）。 */
+  protected useDynamicHeight(): boolean {
+    return true;
+  }
+
   protected createGame(): Game {
     // Shell 组合 play + meta（WXG-T-164 批0）；clock 默认 Date.now，weapp 可用。
     // 在线导入（WXG-T-179）：开发者工具「编译模式 → 启动参数」传
@@ -133,7 +138,11 @@ export class BeadsBootstrap extends Bootstrap {
    * ⚠ 第二形参 `[WXG-T-271 / ADR-0031 §6]` = **BlitLayerUI**（`Graphics` 之上）：boss 缩略这类全彩
    * 静态位图画在 UI 卡底里，挂珠层会被 `Graphics` 底色盖住（产物实测：blit 已发、屏上零像素）。
    */
-  protected createBlitCarrier(layer: Node, uiLayer: Node): CocosBlitCarrierLike | null {
-    return maybeCreateBeadsBlitCarrier(layer, uiLayer);
+  protected createBlitCarrier(layer: Node, uiLayer: Node, clipLayer?: Node): CocosBlitCarrierLike | null {
+    return maybeCreateBeadsBlitCarrier(layer, uiLayer, clipLayer);
+  }
+
+  protected createMenuClip(parent: Node): { host: CocosClipHostLike; blitLayer: Node } {
+    return createShowcaseClip(parent);
   }
 }

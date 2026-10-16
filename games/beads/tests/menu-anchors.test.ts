@@ -16,11 +16,12 @@ import type { MenuAnchorsInput } from '../src/config/tuning.js';
 
 /** st/cap/sb = **dp 原值**（×k 后应落 §4 表的设计 px）。 */
 const TIERS = [
-    { name: 'SE', st: 20, cap: 56, sb: 0, wW: 375, H: 1334, gap: [19, 38] },
-    { name: 'Android 挖孔', st: 29, cap: 64, sb: 0, wW: 360, H: 1625, gap: [109, 219] },
-    { name: 'X-14', st: 47, cap: 80, sb: 34, wW: 375, H: 1624, gap: [75, 150] },
-    { name: '灵动岛', st: 54, cap: 83, sb: 34, wW: 393, H: 1626, gap: [74, 147] },
-    { name: '16 Pro Max', st: 54, cap: 90, sb: 34, wW: 440, H: 1630, gap: [81, 162] },
+    // v3.7：招牌缩至 370×240（链 165）+ 资源条嵌窗顶（组高 871）后的五档账（真值由公式算出，见 tuning 注释）。
+    { name: 'SE', st: 20, cap: 56, sb: 0, wW: 375, H: 1334, gap: [38, 75] },
+    { name: 'Android 挖孔', st: 29, cap: 64, sb: 0, wW: 360, H: 1625, gap: [130, 259] },
+    { name: 'X-14', st: 47, cap: 80, sb: 34, wW: 375, H: 1624, gap: [95, 191] },
+    { name: '灵动岛', st: 54, cap: 83, sb: 34, wW: 393, H: 1626, gap: [94, 188] },
+    { name: '16 Pro Max', st: 54, cap: 90, sb: 34, wW: 440, H: 1630, gap: [101, 203] },
 ] as const;
 
 const toInput = (t: (typeof TIERS)[number]): MenuAnchorsInput => ({
@@ -46,8 +47,8 @@ describe('menuAnchors · 五档验收账（落地单 §4）', () => {
             expect(caseFromTop + a.gapBot + MENU_CTA_H + 32 + a.sb).toBeCloseTo(a.H, 9);
             // ② 比例隙：gapBot = 2×gapTop（钳未触发档，浮点域精确）。
             expect(a.gapBot).toBeCloseTo(2 * a.gapTop, 9);
-            // ⑤a 资源条↔橱窗一体缝 0：case 顶缘 = bar 底缘 + MENU_BAR_H(46)。
-            expect(fromTop(a.H, a.caseTopY)).toBeCloseTo(fromTop(a.H, a.barTopY) + 46, 9);
+            // ⑤a 资源条嵌窗顶（v3.6）：条顶 = 橱窗顶（条覆盖楣的上 46 px，不占堆叠高度）。
+            expect(fromTop(a.H, a.caseTopY)).toBeCloseTo(fromTop(a.H, a.barTopY), 9);
             // ⑤b 板底组隙下限：bar ≥ sign1 + SIGN_BAND_PAD。
             expect(fromTop(a.H, a.barTopY)).toBeGreaterThanOrEqual(fromTop(a.H, a.signBotY) + SIGN_BAND_PAD - 1e-9);
         });

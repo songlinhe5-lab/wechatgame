@@ -32,12 +32,14 @@ import {
   // （WXG-T-177 曾因单钮居中移出；复建 U1 三处入口时同用此常量）。
   CLEAR_BUTTON_GAP,
   CLEAR_BUTTON_W,
+  CONFETTI_NOFLY_YMIN,
   DESIGN_H,
   DESIGN_W,
   FINISH_LEVEL_STEP_MS,
   FINISH_ROW_GAP,
   FINISH_ROW_H,
   FINISH_ROW_W,
+  FINISH_SHELF,
   FINISH_STAR_GAP,
   FINISH_STAR_SIZE,
   PANEL_BUTTON_H,
@@ -76,6 +78,11 @@ export interface FinishPanelLayout {
   readonly rows: readonly FinishRow[];
   /** 两个按钮，视觉优先级序（主钮「重玩第 1 关」在前）。 */
   readonly buttons: readonly FinishButton[];
+  /**
+   * 作品陈列条（EP12-S7）：底板 + 逐关一格（与 `rows` 同序）。**纯展示、零热区**——
+   * 不进 `buttons`，`hitFinishPanel` 永不命中它。
+   */
+  readonly shelf: { readonly plate: PanelRect; readonly cells: readonly PanelRect[] };
 }
 
 /** 庆祝标题（`ux-spec §3.6` 全屏庆祝；文案为派生项）。 */
@@ -129,7 +136,34 @@ function build(levelCount: number): FinishPanelLayout {
     { id: 'menu', rect: rect(startX + cellW + CLEAR_BUTTON_GAP, buttonY, cellW, PANEL_BUTTON_H) },
   ];
 
-  return { titleY, totalY, rows, buttons };
+  return { titleY, totalY, rows, buttons, shelf: buildShelf(levelCount, rows, buttonY + PANEL_BUTTON_H) };
+}
+
+/**
+ * 陈列条：夹在按钮行上缘与「总览末行下缘 / 彩带禁飞带下缘」较低者之间、水平居中；
+ * 格边取宽/高两向可容纳的较小值（关数少 ⇒ 总览行高悬，净空带会跨进禁飞带 ⇒ 须封顶）。
+ */
+function buildShelf(
+  levelCount: number,
+  rows: readonly FinishRow[],
+  buttonTop: number,
+): FinishPanelLayout['shelf'] {
+  const S = FINISH_SHELF;
+  const rowsBottom = rows.length > 0 ? rows[rows.length - 1]!.y - FINISH_ROW_H / 2 : CONFETTI_NOFLY_YMIN;
+  const top = Math.min(rowsBottom, CONFETTI_NOFLY_YMIN);
+  const n = Math.max(1, levelCount);
+  const byW = (S.w - 2 * S.pad - (n - 1) * S.gap) / n;
+  const byH = top - buttonTop - 2 * S.margin - 2 * S.pad;
+  const cell = Math.max(0, Math.floor(Math.min(S.cellMax, byW, byH)));
+  const plateW = n * cell + (n - 1) * S.gap + 2 * S.pad;
+  const plateH = cell + 2 * S.pad;
+  const plateX = (DESIGN_W - plateW) / 2;
+  const plateY = (buttonTop + top - plateH) / 2;
+  const cells: PanelRect[] = [];
+  for (let i = 0; i < levelCount; i++) {
+    cells.push(rect(plateX + S.pad + i * (cell + S.gap), plateY + S.pad, cell, cell));
+  }
+  return { plate: rect(plateX, plateY, plateW, plateH), cells };
 }
 
 /**

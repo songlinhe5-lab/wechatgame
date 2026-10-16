@@ -17,6 +17,7 @@ import {
     NullAudioBackend,
     Viewport,
     createRng,
+    RenderModelBuilder,
     type EventMap,
     type GameServices,
     type Storage,
@@ -179,6 +180,38 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(r.shell.play.debugInfo).toBe(true); // 持久化面见 pause-settings §8-13
         r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
         expect(r.shell.play.debugInfo).toBe(false);
+    });
+
+    it('设置 Debug 打开后，菜单与设置页都画出安全区标定线', () => {
+        const r = rig({ initialScreen: 'menu' });
+        const open = centerOf('none', 'open-settings');
+        r.shell.tapMeta(open.x, open.y);
+        const btn = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
+        const skin = metaLayout('settings').buttons.find((b) => b.id === 'cycle-skin')!;
+        expect(btn.box.y).toBe(skin.box.y);
+        expect(btn.box.x).toBeGreaterThan(skin.box.x);
+        expect(r.shell.play.debugGuides).toBe(false);
+        r.shell.tapMeta(btn.box.x + btn.box.w / 2, btn.box.y + btn.box.h / 2);
+        expect(r.shell.play.debugGuides).toBe(true);
+
+        const textsOf = (): string[] => {
+            const b = new RenderModelBuilder(750, 1334);
+            b.begin();
+            r.shell.buildRenderModel(b);
+            return b.end().commands
+                .filter((c) => c.kind === 'text')
+                .map((c) => (c as { text: string }).text);
+        };
+        const openTexts = textsOf();
+        expect(openTexts.some((t) => t.startsWith('safe '))).toBe(true);
+        expect(openTexts.some((t) => t.startsWith('cap '))).toBe(true);
+        expect(openTexts.some((t) => t.startsWith('home '))).toBe(true);
+
+        r.shell.tapMeta(centerOf('settings', 'back').x, centerOf('settings', 'back').y);
+        expect(r.shell.overlay).toBe('none');
+        const menuTexts = textsOf();
+        expect(menuTexts.some((t) => t.startsWith('safe '))).toBe(true);
+        expect(menuTexts.some((t) => t.startsWith('home '))).toBe(true);
     });
 });
 

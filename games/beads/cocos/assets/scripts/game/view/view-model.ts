@@ -12,7 +12,6 @@
 
 import type { RenderModelBuilder } from '../../framework/index';
 import {
-  DESIGN_H,
   DESIGN_W,
   SELECT_LIFT_PX,
   GROUP_LAND_DROP_PX,
@@ -46,6 +45,9 @@ import {
   TRAY_BASE_SLOTS,
   TRAY_COLS,
   TRAY_PLATE,
+  THUMB_MATRIX_N,
+  THUMB_TOP_INSET,
+  UI_PRESS_SINK,
   UI_CONTAINER,
   TRAY_SLOT,
   AD_HINT_TEXT_Y,
@@ -144,6 +146,7 @@ import {
   sprintSettleRows,
 } from '../systems/sprint-settle';
 import { comboBurst, comboParticleOffsets, comboPseudoShake } from './combo-vfx';
+import { drawLevelThumb } from './menu-signage';
 import {
   confettiFrame,
   confettiIsForeground,
@@ -238,7 +241,7 @@ export function buildBeadsView(
   // 背景层**参与**变换（前置验证结论，ADR-0014 §1）⇒ 无需外扩补边。
   if (snap.comboVfxKind === 'pseudoShake' && snap.comboVfxProgress > 0 && !snap.reduceMotion) {
     const s = comboPseudoShake(snap.comboVfxProgress).screenScale;
-    if (s !== 1) builder.setTransform(s, DESIGN_W / 2, DESIGN_H / 2);
+    if (s !== 1) builder.setTransform(s, DESIGN_W / 2, builder.height / 2);
   }
   // [WXG-T-256] 统一底色：只发一个 token，由**宿主**铺满屏（canvas2d `fillRect`；Cocos 走珠下的
   // 第二块 Graphics）。视图层不再画背景层／容器板 ⇒ 「珠下」零图元，层序冲突消解。
@@ -380,7 +383,8 @@ function drawPausePanel(
     const bw = (button.rect.xMax - button.rect.xMin) * scale;
     const bh = (button.rect.yMax - button.rect.yMin) * scale;
     const bx = cx + (button.rect.xMin - cx) * scale;
-    const by = cy + (button.rect.yMin - cy) * scale;
+    const by = cy + (button.rect.yMin - cy) * scale + pressDy(snap, button.id);
+    const pressed = snap.pressedButton === button.id;
     const primary = button.id === 'resume';
     // Row-3 accessibility toggles carry longer copy than the 160px cell can hold
     // at the standard button face — a smaller secondary style keeps it inside
@@ -413,7 +417,7 @@ function drawPausePanel(
       (button.id === 'toggle-vibrate' && snap.vibrate) ||
       (button.id === 'toggle-debug-info' && snap.debugInfo);
     if (primary) {
-      drawWoodButton(builder, bx, by, bw, bh, palette, UI_CONTAINER.radiusWood, true);
+      drawWoodButton(builder, bx, by, bw, bh, palette, UI_CONTAINER.radiusWood, true, pressed);
       builder.text(bx + bw / 2, by + bh / 2, label, {
         fill: palette.woodText,
         font,
@@ -422,7 +426,7 @@ function drawPausePanel(
       });
     } else if (isChip) {
       builder.rect(bx, by, bw, bh, {
-        fill: chipOn ? palette.woodFace : palette.panel,
+        fill: chipOn ? (pressed ? palette.woodFacePressed : palette.woodFace) : pressed ? palette.cardPressed : palette.panel,
         ...(chipOn ? {} : { stroke: palette.panelBorder, lineWidth: UI_CONTAINER.strokePanel }),
         radius: UI_CONTAINER.radiusChip,
       });
@@ -435,7 +439,7 @@ function drawPausePanel(
     } else {
       // T1 纸次钮 / 选择器钮（纸底 + 值字面 + ▸，screens.md §143）。
       builder.rect(bx, by, bw, bh, {
-        fill: palette.panel,
+        fill: pressed ? palette.cardPressed : palette.panel,
         stroke: palette.panelBorder,
         lineWidth: UI_CONTAINER.strokePanel,
         radius: UI_CONTAINER.radiusCard,
@@ -473,7 +477,7 @@ function drawSprintSettle(
   const layout = sprintSettleLayout();
   const plate = layout.panel;
 
-  builder.rect(0, 0, DESIGN_W, DESIGN_H, {
+  builder.rect(0, 0, DESIGN_W, builder.height, {
     fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},${PANEL_SCRIM_ALPHA})`,
   });
   builder.rect(plate.xMin, plate.yMin, plate.xMax - plate.xMin, plate.yMax - plate.yMin, {
@@ -533,15 +537,19 @@ function drawSprintSettle(
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;
     const primary = button.id === 'again';
-    builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-      fill: primary ? palette.accentPrimary : palette.panel, // F6：主钮 → accent_primary。
+    const pressed = snap.pressedButton === button.id;
+    const by = button.rect.yMin + pressDy(snap, button.id);
+    builder.rect(button.rect.xMin, by, bw, bh, {
+      fill: primary
+        ? (pressed ? palette.woodFacePressed : palette.accentPrimary) // F6：主钮 → accent_primary（≡ woodFace）。
+        : pressed ? palette.cardPressed : palette.panel,
       stroke: primary ? palette.accentPrimary : palette.slotBorder,
       lineWidth: 1,
       radius: 20,
     });
     builder.text(
       button.rect.xMin + bw / 2,
-      button.rect.yMin + bh / 2,
+      by + bh / 2,
       sprintSettleLabel(button.id),
       {
         fill: primary ? palette.panel : palette.textDim, // F6：主钮白字（深藏青底）。
@@ -607,8 +615,9 @@ function drawFailPanel(
       });
     } else if (primary) {
       // T3 木主钮（续时）。
-      drawWoodButton(builder, button.rect.xMin, button.rect.yMin, bw, bh, palette, UI_CONTAINER.radiusWood, true);
-      builder.text(button.rect.xMin + bw / 2, button.rect.yMin + bh / 2, label, {
+      const by = button.rect.yMin + pressDy(snap, button.id);
+      drawWoodButton(builder, button.rect.xMin, by, bw, bh, palette, UI_CONTAINER.radiusWood, true, snap.pressedButton === button.id);
+      builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
         fill: palette.woodText,
         font: FONT.panelButton,
         align: 'center',
@@ -616,13 +625,14 @@ function drawFailPanel(
       });
     } else {
       // T1 纸次钮（描边，重试）。
-      builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-        fill: palette.panel,
+      const by = button.rect.yMin + pressDy(snap, button.id);
+      builder.rect(button.rect.xMin, by, bw, bh, {
+        fill: snap.pressedButton === button.id ? palette.cardPressed : palette.panel,
         stroke: palette.panelBorder,
         lineWidth: UI_CONTAINER.strokePanel,
         radius: UI_CONTAINER.radiusCard,
       });
-      builder.text(button.rect.xMin + bw / 2, button.rect.yMin + bh / 2, label, {
+      builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
         fill: palette.text,
         font: FONT.panelButton,
         align: 'center',
@@ -899,7 +909,7 @@ function drawGrid(
       // 恒等档所有格心都在屏内 ⇒ 零剔除，封箱快照逐位仍不变。
       if (
         cy < -snap.gridCell ||
-        cy > DESIGN_H + snap.gridCell ||
+        cy > builder.height + snap.gridCell ||
         cx < -snap.gridPitch ||
         cx > DESIGN_W + snap.gridPitch
       ) {
@@ -1220,7 +1230,8 @@ function drawGrid(
   // 本分支，正常玩法零调用（本分支内的模板串分配属 debug 工具，可接受）。
   if (snap.debugInfo) {
     const fps = snap.perfFrameMs > 0 ? Math.round(1000 / snap.perfFrameMs) : 0;
-    builder.rect(12, DESIGN_H - 148, 316, 136, {
+    const top = builder.height; // 动态高：覆层贴屏顶
+    builder.rect(12, top - 148, 316, 136, {
       fill: `rgba(${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b},0.7)`,
       radius: 12,
     });
@@ -1232,12 +1243,12 @@ function drawGrid(
         baseline: 'middle',
       });
     };
-    line(DESIGN_H - 38, `fps ${fps} · ${snap.perfFrameMs.toFixed(1)} ms`);
+    line(top - 38, `fps ${fps} · ${snap.perfFrameMs.toFixed(1)} ms`);
     line(
-      DESIGN_H - 76,
+      top - 76,
       `${snap.phase} · ${snap.mode === 'sprint' ? '冲刺' : `L${snap.levelIndex + 1}`}`,
     );
-    line(DESIGN_H - 114, `pitch ${snap.gridPitch.toFixed(1)} · LOD ${snap.beadLodLayers}`);
+    line(top - 114, `pitch ${snap.gridPitch.toFixed(1)} · LOD ${snap.beadLodLayers}`);
   }
 }
 
@@ -1319,6 +1330,11 @@ function drawPaperPanel(
   });
 }
 
+/** 按下态绘制 y 偏移（y-up ⇒ 下沉为负）；`reduceMotion` ⇒ 0（只换面）。 */
+function pressDy(snap: BeadsSnapshot, id: string): number {
+  return snap.pressedButton === id && !snap.reduceMotion ? -UI_PRESS_SINK : 0;
+}
+
 /**
  * [EP12-S2 · 控件语言] T3/T4 木钮通用绘制面（art-bible-proposal §4）。
  * 构成 = 面 `woodFace` →（T3）顶缘 1px `woodSheen`（内缩 3px）→ 底缘 2px `woodEdge`。
@@ -1333,9 +1349,11 @@ function drawWoodButton(
   palette: BeadsPalette,
   radius: number,
   sheen: boolean,
+  pressed = false,
 ): void {
-  builder.rect(x, y, w, h, { fill: palette.woodFace, radius });
-  if (sheen) {
+  // 按下态（screens.md 控件矩阵）：面换 `woodFacePressed`、受光线隐去；下沉位移由调用方给 y。
+  builder.rect(x, y, w, h, { fill: pressed ? palette.woodFacePressed : palette.woodFace, radius });
+  if (sheen && !pressed) {
     // 顶缘受光线：y-up ⇒ 顶 = y+h。
     builder.line(x + 3, y + h - UI_CONTAINER.strokeSheen / 2, x + w - 3, y + h - UI_CONTAINER.strokeSheen / 2,
       palette.woodSheen, UI_CONTAINER.strokeSheen);
@@ -1791,26 +1809,28 @@ function drawClearPanel(
     const bh = button.rect.yMax - button.rect.yMin;
     const primary = button.id === 'next';
     const label = clearPanelLabel(button.id, snap.clearLastLevel);
+    const pressed = snap.pressedButton === button.id;
+    const by = button.rect.yMin + pressDy(snap, button.id);
     if (primary) {
       // T3 木主钮（下一关，screens.md S3 §100）。
-      drawWoodButton(builder, button.rect.xMin, button.rect.yMin, bw, bh, palette, UI_CONTAINER.radiusWood, true);
+      drawWoodButton(builder, button.rect.xMin, by, bw, bh, palette, UI_CONTAINER.radiusWood, true, pressed);
       builder.text(
         button.rect.xMin + bw / 2,
-        button.rect.yMin + bh / 2,
+        by + bh / 2,
         label,
         { fill: palette.woodText, font: FONT.panelButton, align: 'center', baseline: 'middle' },
       );
     } else {
       // T1 纸次钮。
-      builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-        fill: palette.panel,
+      builder.rect(button.rect.xMin, by, bw, bh, {
+        fill: pressed ? palette.cardPressed : palette.panel,
         stroke: palette.panelBorder,
         lineWidth: UI_CONTAINER.strokePanel,
         radius: UI_CONTAINER.radiusCard,
       });
       builder.text(
         button.rect.xMin + bw / 2,
-        button.rect.yMin + bh / 2,
+        by + bh / 2,
         label,
         { fill: palette.text, font: FONT.panelButton, align: 'center', baseline: 'middle' },
       );
@@ -1852,11 +1872,12 @@ function drawComboVfx(
     const { radial, wave } = comboBurst(p);
     // 边缘径向光：四边各一条随 radial 亮起的色条（程序化，零外部资产）。
     builder.rect(0, 0, DESIGN_W, 12, { fill: withAlpha(BEAD_HIGHLIGHT_HEX, 0.55 * radial) });
-    builder.rect(0, DESIGN_H - 12, DESIGN_W, 12, { fill: withAlpha(BEAD_HIGHLIGHT_HEX, 0.55 * radial) });
-    builder.rect(0, 0, 12, DESIGN_H, { fill: withAlpha(palette.adBadge, 0.5 * radial) });
-    builder.rect(DESIGN_W - 12, 0, 12, DESIGN_H, { fill: withAlpha(palette.adBadge, 0.5 * radial) });
+    const H = builder.height; // 动态高：四边光/波浪跟实际屏高
+    builder.rect(0, H - 12, DESIGN_W, 12, { fill: withAlpha(BEAD_HIGHLIGHT_HEX, 0.55 * radial) });
+    builder.rect(0, 0, 12, H, { fill: withAlpha(palette.adBadge, 0.5 * radial) });
+    builder.rect(DESIGN_W - 12, 0, 12, H, { fill: withAlpha(palette.adBadge, 0.5 * radial) });
     // 珠面波浪：一条自下而上扫过的浅色带（相位 = wave）。
-    const sweepY = wave * DESIGN_H;
+    const sweepY = wave * H;
     const glow = 1 - Math.abs(wave - 0.5) * 2; // 中段最亮
     builder.rect(0, sweepY - 48, DESIGN_W, 96, {
       fill: withAlpha(palette.panel, 0.22 * glow),
@@ -1923,7 +1944,7 @@ function drawConfetti(
   if (p <= 0 || snap.reduceMotion) return;
   for (let idx = 0; idx < CONFETTI_COUNT; idx++) {
     if (confettiIsForeground(idx) !== foreground) continue;
-    const f = confettiFrame(idx, p, CONFETTI_SCRATCH);
+    const f = confettiFrame(idx, p, CONFETTI_SCRATCH, builder.height);
     // 禁飞带：不是淡出，是不画（可读性硬约束，accessibility C1）。
     if (foreground && f.y >= CONFETTI_NOFLY_YMIN && f.y <= CONFETTI_NOFLY_YMAX) continue;
     if (f.alpha <= 0) continue;
@@ -2007,21 +2028,44 @@ function drawFinishPanel(
     }
   }
 
+  // S7 作品陈列条（EP12-S7 · screens.md S5）：纸底板 + 逐关一格，随总览行同步入场；
+  // 已通关（星 > 0）= 珠拼缩略，未通关 = 虚线空槽。纯展示、零热区。
+  const shelf = layout.shelf;
+  if (snap.finishRowsShown > 0 && shelf.cells.length > 0) {
+    const pw = shelf.plate.xMax - shelf.plate.xMin;
+    const ph = shelf.plate.yMax - shelf.plate.yMin;
+    drawPaperPanel(builder, shelf.plate.xMin, shelf.plate.yMin, pw, ph, palette, UI_CONTAINER.radiusCard, UI_CONTAINER.shadowAlphaPanel);
+    for (let i = 0; i < snap.finishRowsShown && i < shelf.cells.length; i++) {
+      const c = shelf.cells[i]!;
+      const cell = c.xMax - c.xMin;
+      const level = snap.finishLevels[i];
+      if (level !== undefined && (snap.finishStars[i] ?? 0) > 0) {
+        drawLevelThumb(builder, level, c.xMin, c.yMin, cell, cell + THUMB_TOP_INSET, THUMB_MATRIX_N, cell);
+      } else {
+        drawDashedRect(builder, c.xMin, c.yMin, cell, cell, palette.slotBorder);
+      }
+    }
+  }
+
   // 主 / 副双钮：主钮 = 「重玩第 1 关」（`core-loop §4` 本状态的推进出口），
   // 副钮 = 「回主菜单」（go-menu 同语义，core-loop v2.3；U1 去冲刺仍隐藏）。
   for (const button of layout.buttons) {
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;
     const primary = button.id === 'replay';
-    builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-      fill: primary ? palette.accentPrimary : palette.panel, // F6：主钮 → accent_primary。
+    const pressed = snap.pressedButton === button.id;
+    const by = button.rect.yMin + pressDy(snap, button.id);
+    builder.rect(button.rect.xMin, by, bw, bh, {
+      fill: primary
+        ? (pressed ? palette.woodFacePressed : palette.accentPrimary) // F6：主钮 → accent_primary（≡ woodFace）。
+        : pressed ? palette.cardPressed : palette.panel,
       stroke: primary ? palette.accentPrimary : palette.slotBorder,
       lineWidth: 1,
       radius: 20,
     });
     builder.text(
       button.rect.xMin + bw / 2,
-      button.rect.yMin + bh / 2,
+      by + bh / 2,
       finishPanelLabel(button.id),
       {
         fill: primary ? palette.panel : palette.textDim, // F6：主钮白字（深藏青底）。

@@ -717,7 +717,8 @@ describe('抬起影墨与进珠「出现」两处同口径（T-244 十二/十三
           push(c.kind, c.x1, c.y1); push(c.kind, c.x2, c.y2);
         } else if (c.kind === 'text') {
           push(c.kind, c.x, c.y);
-        } else {
+        } else if (c.kind === 'polygon') {
+          // clip/unclip（走马灯裁切腿）无顶点坐标 ⇒ 不进几何指纹。
           const v = polygonVertices(model, c);
           for (let k = 0; k < c.count; k++) push(c.kind, v[k * 2]!, v[k * 2 + 1]!);
         }

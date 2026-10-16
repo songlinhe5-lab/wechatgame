@@ -185,13 +185,32 @@ export interface BlitOptions {
   readonly fx?: BlitFx;
 }
 
+/**
+ * 矩形裁切（设计空间，y 向上）。与 {@link UnclipCommand} 成对；渲染器 `save/clip` 与 `restore`。
+ * 只裁命令，不画像素。菜单走马灯用它把滑动内容切在玻璃内。
+ */
+export interface ClipCommand {
+  readonly kind: 'clip';
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
+}
+
+/** 弹出最近一次 {@link ClipCommand}。 */
+export interface UnclipCommand {
+  readonly kind: 'unclip';
+}
+
 export type DrawCommand =
   | RectCommand
   | CircleCommand
   | LineCommand
   | TextCommand
   | PolygonCommand
-  | BlitCommand;
+  | BlitCommand
+  | ClipCommand
+  | UnclipCommand;
 
 /** A full frame description, in design-space units. */
 export interface RenderModel {
@@ -421,6 +440,16 @@ export class RenderModelBuilder {
    * **推荐项**）：既有的位置式 `alpha` 调用会被 TypeScript 编译期捕获（仓内仅 1 处），
    * 且 `undefined` 字段不落 `JSON.stringify` ⇒ seal 基准零漂移。
    */
+  /** 压入矩形裁切（设计空间）。必须有配对的 {@link unclip}。 */
+  clip(x: number, y: number, w: number, h: number): void {
+    this._commands.push({ kind: 'clip', x, y, w, h });
+  }
+
+  /** 弹出最近一次 {@link clip}。 */
+  unclip(): void {
+    this._commands.push({ kind: 'unclip' });
+  }
+
   blit(textureId: string, x: number, y: number, w: number, h: number, opts?: BlitOptions): void {
     this._commands.push({
       kind: 'blit', textureId, x, y, w, h,
