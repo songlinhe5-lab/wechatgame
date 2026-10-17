@@ -7,7 +7,7 @@ import { RenderModelBuilder } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { LEVELS } from '../src/config/levels.js';
 import { carouselDamp, carouselPage, plateFade } from '../src/config/menu-carousel.js';
-import { THEME_COMING_SOON } from '../src/config/themes.js';
+import { ARC_COMING_SOON } from '../src/config/arcs.js';
 import { DESIGN_H, DESIGN_W, MENU_BOSS_SLOT, MENU_CLIP, MENU_TEXTURES } from '../src/config/tuning.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
@@ -84,7 +84,7 @@ describe('橱窗绘制', () => {
     it('空橱窗只写敬请期待，不画主题图和章', () => {
         setMenuBitmapResolver(() => true);
         const cmds = frame(dataFor(lv, { carouselLevel: undefined, carouselComingSoon: true }));
-        const text = cmds.find((c) => c.kind === 'text' && c.text === THEME_COMING_SOON);
+        const text = cmds.find((c) => c.kind === 'text' && c.text === ARC_COMING_SOON);
         expect(text).toBeTruthy();
         expect(cmds.filter((c) => c.kind === 'circle').length).toBeGreaterThanOrEqual(7);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.bossArt)).toBe(false);

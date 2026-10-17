@@ -12,7 +12,7 @@
  * **bottom-left**, y grows upward.
  */
 
-import { OPEN_THEMES } from './themes';
+import { OPEN_ARCS } from './arcs';
 
 // ──────────────────────────────────────── §3.1 canvas, safe area & layout bands
 /** Design resolution width (px). */
@@ -1305,8 +1305,8 @@ export const MENU_TEXTURES = {
   sealCleared: 'bitmap__menu_seal_cleared',
   /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
   ctaLabel: 'bitmap__menu_cta_label',
-  /** 橱窗中央主题原图。id 来自本版开放的第一个主题；缺资产回退豆阵。 */
-  bossArt: OPEN_THEMES[0].textureId,
+  /** 橱窗中央大关原图。id 来自本版开放的第一个大关；缺资产回退豆阵。 */
+  bossArt: OPEN_ARCS[0].textureId,
 } as const;
 
 /**
@@ -1602,7 +1602,7 @@ export const THUMB_BEADS_MAX = THUMB_MATRIX_N * THUMB_MATRIX_N;
  * `BeadsLevelRaw` 不带 `kind`（boss 只在生成期排序标）⇒ 映射按显式 `id` 键，新 boss 关追加条目。
  */
 export const BOSS_THUMB_TEXTURES: Readonly<Record<number, string>> = {
-  9: OPEN_THEMES[0].textureId,
+  9: OPEN_ARCS[0].textureId,
 };
 /** 回退档序（§3.8 序 2/3 预置杠杆，逐级触发、不并行）。 */
 export const THUMB_TIERS: readonly number[] = Object.freeze([5, 4, 3]);

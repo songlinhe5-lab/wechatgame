@@ -33,7 +33,7 @@ import {
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
 import { BEAD_PITCH, BOSS_THUMB_TEXTURES, MENU_TEXTURES, TILE_BLEED } from '../game/config/tuning';
-import { OPEN_THEMES } from '../game/config/themes';
+import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { nineSliceFxRead } from '../framework/core/bake/nine-slice-fx';
 import { createWhitelistBeadTintRuntime, setBeadTintRuntime } from '../game/view/bead-render';
@@ -100,14 +100,14 @@ const MASK_IDS: readonly string[] = requiredTintMaskIds();
 /**
  * `[WXG-T-271 / ADR-0031]` 静态位图表（`textureId` → bundle 内路径）。
  *
- * 菜单 UI 走现成 `textures`（已合并进主包）。主题橱窗图走 `OPEN_THEMES`（本版开放的前 N 个）。
+ * 菜单 UI 走现成 `textures`（已合并进主包）。大关橱窗图走 `OPEN_ARCS`（本版开放的前 N 个）。
  * 以 `loadAny({bundle, path})` 按路径取，**不依赖 uuid**。path 无扩展名。
  * 装载失败 / 资产未导 ⇒ 不登记 ⇒ 该元素回退程序化（不 gate `_ready`）。
  */
-const THEME_TEXTURE_IDS: ReadonlySet<string> = new Set(OPEN_THEMES.map((t) => t.textureId));
+const ARC_TEXTURE_IDS: ReadonlySet<string> = new Set(OPEN_ARCS.map((t) => t.textureId));
 
 const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>> = {
-    ...Object.fromEntries(OPEN_THEMES.map((t) => [t.textureId, { path: t.art, bundle: t.bundle }])),
+    ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, { path: t.art, bundle: t.bundle }])),
     // `[WXG-T-280]` 主菜单位图 16 件（正本 = `design/art/final/assets/menu/`，拷入现成 `textures` Bundle；
     // ⛔ 不新分包）。全部入库为调色板量化 PNG（微信包内白名单不含 webp，见代码包文档）；
     // 未导入/解不出 ⇒ 不登记 ⇒ 该元素程序化腿（同 boss 缩略语义，不 gate `_ready`）。
@@ -324,7 +324,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         sp.type = ns !== undefined ? Sprite.Type.SLICED : Sprite.Type.SIMPLE;
         // Boss 原图四周是透明边。默认 trim 会把花拉满内容框；关掉才按原图留白居中。
         if (sp.type === Sprite.Type.SIMPLE) {
-            const trim = !THEME_TEXTURE_IDS.has(cmd.textureId);
+            const trim = !ARC_TEXTURE_IDS.has(cmd.textureId);
             if (sp.trim !== trim) sp.trim = trim;
         }
         // Cocos 把 inset（源纹 px）直接当内容 px 摆顶点。目标比源纹矮时圆角被压扁。
@@ -490,7 +490,7 @@ let _maskBundlePromise: Promise<MaskBundle | null> | null = null;
 
 const _extraBundlePromises = new Map<string, Promise<MaskBundle | null>>();
 
-/** 菜单位图走 `textures`；主题关卡原图走各自的包（现在只有 `themes`）。 */
+/** 菜单位图走 `textures`；大关关卡原图走各自的包（现在只有 `themes`）。 */
 function ensureNamedBundle(name: string): Promise<MaskBundle | null> {
     if (name === MASK_BUNDLE) return ensureMaskBundle();
     const hit = _extraBundlePromises.get(name);

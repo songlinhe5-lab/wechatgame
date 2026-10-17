@@ -25,7 +25,7 @@ import {
   tintFx,
 } from '@wxgame/framework';
 import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
-import { OPEN_THEMES } from '../../games/beads/src/config/themes.js';
+import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
 import { requiredTintMaskIds } from '../../games/beads/src/view/bead-tint-mask.js';
 import { setBeadTintRuntime, createWhitelistBeadTintRuntime } from '../../games/beads/src/view/bead-render.js';
@@ -143,7 +143,7 @@ const menuRegistry = new Map<string, object>();
 const MENU_URL_PREFIX = '/menu-assets/';
 /** textureId → 定稿文件名（真源 = `design/art/final/assets/menu/`，经 serve-harness 白名单映射）。 */
 const MENU_FILE: Readonly<Record<string, string>> = {
-  ...Object.fromEntries(OPEN_THEMES.map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
+  ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
   [MENU_TEXTURES.logo]: 'ui_menu_logo.webp',
   [MENU_TEXTURES.caseFrame]: 'ui_showcase_frame.png',
   [MENU_TEXTURES.plate]: 'ui_showcase_plate.png',

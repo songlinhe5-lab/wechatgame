@@ -84,7 +84,7 @@ import {
 } from '../config/tuning.js';
 // EP12-S6 · P-7：屏内文案一律读表（`tokens.md §7` / `menu-architecture §6`），⛔ 不散落字面。
 import { COPY_TOKENS } from '../config/copy-tokens.js';
-import { THEME_COMING_SOON } from '../config/themes.js';
+import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
 // EP12-S8：皮肤钮文案单源（`skinLabel` 未注册时回 id 本身，同 `beadStyleLabel` 判例）。
 import { skinLabel } from '../config/skins/registry.js';
@@ -181,7 +181,7 @@ export interface MetaViewData {
     readonly carouselPeerState?: MetaBossState;
     /** 相邻项在哪一侧：+1 在右（下一项），-1 在左。缺省按 `carouselDx` 的符号猜。 */
     readonly carouselPeerSign?: -1 | 1;
-    /** 下标 = `THEME_LEVEL_MAX` 的空橱窗。中间置灰花，木牌写「敬请期待」。 */
+    /** 下标 = `ARC_OPEN_MAX` 的空橱窗。中间置灰花，木牌写「敬请期待」。 */
     readonly carouselComingSoon?: boolean;
     readonly carouselPeerComingSoon?: boolean;
     /** 宿主配了 beads-studio 服务地址 ⇒ 设置页画「在线导入」钮（WXG-T-179；缺省不画）。 */
@@ -1021,7 +1021,7 @@ function drawComingSoonPlate(
     if (alpha <= 0) return;
     const top = g.plateBox.y + g.plateBox.h;
     const a = alpha < 1 ? alpha : undefined;
-    builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.singleOff, THEME_COMING_SOON, {
+    builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.singleOff, ARC_COMING_SOON, {
         fill: palette.woodEdge,
         font: FONT_BUTTON,
         align: 'center',

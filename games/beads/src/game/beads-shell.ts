@@ -46,7 +46,7 @@ import {
     type MenuAnchors,
 } from '../config/tuning.js';
 import { carouselDamp, carouselPage } from '../config/menu-carousel.js';
-import { THEME_LEVEL_MAX } from '../config/themes.js';
+import { ARC_OPEN_MAX } from '../config/arcs.js';
 import { BeadsGame, type BeadsGameOptions } from './beads-game.js';
 import { LEVELS } from '../config/levels.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
@@ -560,8 +560,8 @@ export class BeadsShell implements Game {
         }
         if (pushingSlot !== -1) order.unshift(pushingSlot);
         this._pushingSlot = pushingSlot;
-        // 前 THEME_LEVEL_MAX 页是已开放主题；再加一页空橱窗（敬请期待）。
-        this._shown = THEME_LEVEL_MAX + 1;
+        // 前 ARC_OPEN_MAX 页是已开放大关；再加一页空橱窗（敬请期待）。
+        this._shown = ARC_OPEN_MAX + 1;
         if (this._carouselOffset >= this._shown) this._carouselOffset = Math.max(0, this._shown - 1);
         if (this._carouselOffset < 0) this._carouselOffset = 0;
     }
@@ -659,7 +659,7 @@ export class BeadsShell implements Game {
         const order = this._carouselOrder;
         const pushingSlot = this._pushingSlot;
         const off = this._carouselOffset;
-        const soon = off === THEME_LEVEL_MAX;
+        const soon = off === ARC_OPEN_MAX;
         v.carouselComingSoon = soon;
         if (soon || off !== 0 || order.length === 0) {
             v.carouselLevel = undefined;
@@ -674,7 +674,7 @@ export class BeadsShell implements Game {
         v.carouselT = this._carouselT;
         const sign = this._peerSign();
         const pi = off + sign;
-        const peerSoon = sign !== 0 && pi === THEME_LEVEL_MAX;
+        const peerSoon = sign !== 0 && pi === ARC_OPEN_MAX;
         v.carouselPeerComingSoon = peerSoon;
         v.carouselPeerSign = sign === 0 ? undefined : sign;
         if (sign === 0 || pi !== 0 || order.length === 0) {
