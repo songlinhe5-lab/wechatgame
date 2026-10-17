@@ -817,22 +817,18 @@ export function tierSecondsFor(levelTime: number, tier: number): number {
 }
 
 /**
- * 本局应开哪一档（§3.7 v1.50 双条件闸门）。**没有“选档”操作**——合法档唯一，由存档推导：
+ * 本局应开哪一档（§3.7 v1.78 单条件闸门）。**没有“选档”操作**——合法档唯一，由本关
+ * 历史最高星推导：**档 = min(3, 历史最高 + 1)**（用户 2026-10-16 裁定，star-collect-rule R5）。
  *
- * - **(a) 本关前一档已过** ⇒ `T ≤ starsThisLevel + 1`（1★ 不涉及此条）
- * - **(b) 上一关同档已过** ⇒ `T ≤ starsPrevLevel + 1`；**首关豁免 (b)**
- *   —— 否则 L1 的 2★ 永不可开，而 (b) 是传递的 ⇒ **整张表的 2★/3★ 链在源头永久锁死**
- *   （用户 2026-09-23 补裁）。
- * - `T = 1` 时 (b) 退化为旧推关门「上一关已通关」，与 `maxUnlockedLevel` 同语义。
+ * 旧双条件 (b)「上一关同档已过」腿已删（订正声明 K-053：判据源从 §3.7 v1.50 换为
+ * v1.78）：单条件下不再需要首关豁免——每关自成链，`starsByLevel` 仍是历史最高，
+ * 存档零改动。
  *
- * 前置：因 (a) 保证不跳档，`starsByLevel`（历史最高星）与“档 T 已过”等价 ⇒ **存档不需扩结构**。
- *
- * @param starsPrevLevel 上一关星数；**首关传 `null`**（豁免 (b)）。
+ * @param starsThisLevel 本关历史最高星（新档传 0）。
  */
-export function nextTierFor(starsThisLevel: number, starsPrevLevel: number | null): number {
+export function nextTierFor(starsThisLevel: number): number {
   const bySelf = Math.floor(starsThisLevel) + 1;
-  const byPrev = starsPrevLevel === null ? STAR_TIER_COUNT : Math.floor(starsPrevLevel) + 1;
-  return Math.max(1, Math.min(STAR_TIER_COUNT, bySelf, byPrev));
+  return Math.max(1, Math.min(STAR_TIER_COUNT, bySelf));
 }
 /** Demo level count（**§3.7 v1.46 pre-release 重置第二批**：原 demo 8 关已按用户裁定移出，关表改由
  * beads-studio 生成的盘逐张入关重建，本值**随表走 = 当前关数**（先例 = v1.43 随入关 9→10）；
@@ -965,21 +961,34 @@ export function normalSettleScore(
 }
 
 /**
- * §3.7 v1.50：**星级 = 本局档位**（选档即定星）。剩余时间只决定「成不成」（= 0 即失败），
- * 不再决定“得几星”。`ratio` 仍输出，但只供 `normalSettleScore` 的展示/排行分量。
+ * §3.7 v1.78：**档内按实际用时判星**（三档时钟只收紧倒计时，不压星）。
+ * 倒计时内完成 ⇒ 用时 `elapsed = total − remaining` 对**绝对三线**定星：
+ * ≤ 3★ 线（= `tierSecondsFor(levelTime, 3)`）→ 3★；≤ 2★ 线 → 2★；其余 → 1★
+ * （边界含 `≤`；三线不另存数，⛔ 零新常量，star-collect-rule R1–R3）。
+ * 因此任意档位倒计时内完成都保底 1★；1★ 档快通可当场跳 3★。
  *
- * 旧签名 `(remaining, total, reviveBonusSec, revived)` 已改：**续时不再封 2★**（用户 2026-09-23 裁定
- * 取消封顶）——星级只考核效率，广告救济的是“时间不够”，两线解耦才是本制的目的；
- * 且旧 `starRemaining = remaining − reviveBonusSec` 的扣减本身已是双重惩罚，叠加封顶属重复计罚。
+ * **续时保底（R4，用户裁定）**：本局用过激励视频加时（`revived`）⇒ stars = 进场档位星
+ * （`tier`），⛔ 不按用时跳档——旧 v1.50「选档即定星」对本腿仍是真语义，对未续时腿作废。
+ * `ratio` 仍输出，只供 `normalSettleScore` 的展示/排行分量，与判星无关。
+ *
+ * 订正声明（K-053 换形不换判据源）：旧签名 `(remaining, total, tier)` 的
+ * 「星级 = 档位」语义整族作废（判据正本 = score-combo §8-1 v1.78 四臂族）。
  */
 export function computeClearStars(
   remaining: number,
   total: number,
+  levelTime: number,
   tier: number,
+  revived = false,
 ): { ratio: number; stars: number } {
   const ratio = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
-  const stars = Math.max(1, Math.min(STAR_TIER_COUNT, Math.round(tier)));
-  return { ratio, stars };
+  if (revived) {
+    return { ratio, stars: Math.max(1, Math.min(STAR_TIER_COUNT, Math.round(tier))) };
+  }
+  const elapsed = total - remaining;
+  if (elapsed <= tierSecondsFor(levelTime, 3)) return { ratio, stars: 3 };
+  if (elapsed <= tierSecondsFor(levelTime, 2)) return { ratio, stars: 2 };
+  return { ratio, stars: 1 };
 }
 
 // ─────────────────────────────────────────────────────── §3.6b finish screen

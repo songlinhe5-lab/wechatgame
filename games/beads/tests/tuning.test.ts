@@ -200,7 +200,7 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     });
   });
 
-  describe('三档时钟与选档闸门 (§3.7 v1.50)', () => {
+  describe('三档时钟与选档闸门 (§3.7 v1.78 档内计时判星)', () => {
     it('tierSecondsFor：1★ = time，2★/3★ = ×0.85 / ×0.70，并被 LEVEL_TIME_MIN 兜住', () => {
       expect(STAR_TIER_K).toEqual([1.0, 0.85, 0.7]);
       expect(tierSecondsFor(200, 1)).toBe(200);
@@ -213,31 +213,36 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       expect(tierSecondsFor(200, 0)).toBe(200); // 下界钳到 1★
     });
 
-    it('nextTierFor：双条件闸门（本关前一档 ∧ 上一关同档），且**首关豁免 (b)**', () => {
+    it('nextTierFor：单条件闸门（档 = 本关历史最高 +1，封顶 3★）——v1.78 删 (b) 腿', () => {
       // 全新关 ⇒ 1★
-      expect(nextTierFor(0, 0)).toBe(1);
-      expect(nextTierFor(0, null)).toBe(1); // 首关第一盘
-      // (a) 本关递进：过了 1★ ⇒ 开 2★
-      expect(nextTierFor(1, 3)).toBe(2);
-      expect(nextTierFor(2, 3)).toBe(3);
-      expect(nextTierFor(3, 3)).toBe(3); // 已满星不再升
-      // (b) 跳不过上一关同档：本关已过 2★、上关只 1★ ⇒ 只能回到 2★（=上关+1）
-      expect(nextTierFor(2, 1)).toBe(2);
-      expect(nextTierFor(2, 0)).toBe(1);
-      // **首关必须豁免 (b)**：否则 L1 的 2★ 永不可开、传递性把整表 2★/3★ 链锁死
-      expect(nextTierFor(1, null)).toBe(2);
-      expect(nextTierFor(2, null)).toBe(3);
+      expect(nextTierFor(0)).toBe(1);
+      // 递进：过了 1★ ⇒ 开 2★；过了 2★ ⇒ 开 3★
+      expect(nextTierFor(1)).toBe(2);
+      expect(nextTierFor(2)).toBe(3);
+      // 已满星不再升；越界入参归一
+      expect(nextTierFor(3)).toBe(3);
+      expect(nextTierFor(9)).toBe(3);
+      // 订正声明（K-053 换形不换判据源）：旧双条件臂 `nextTierFor(2, 1) === 2` /
+      // `nextTierFor(2, 0) === 1` / 首关豁免 `null` 臂已整族作废（用户 2026-10-16
+      // 裁定 Q：档位开放改单条件，见 star-collect-rule R5 / §3.7 v1.78）。
     });
 
-    it('computeClearStars：星级 = 档位，剩余时间与是否续时均不再参与判星', () => {
-      // 快得一批（剩 90%）也不能越档：仍是本局档位
-      expect(computeClearStars(270, 300, 1)).toEqual({ ratio: 0.9, stars: 1 });
-      // 压线通关（剩 3s）拿满档星 ⇒ 旧制下这里只会给 1★
-      expect(computeClearStars(3, 300, 3)).toEqual({ ratio: 0.01, stars: 3 });
-      expect(computeClearStars(0, 300, 2)).toEqual({ ratio: 0, stars: 2 });
-      // 越界入参归一（不产生 0★ / 4★）
-      expect(computeClearStars(10, 300, 0).stars).toBe(1);
-      expect(computeClearStars(10, 300, 9).stars).toBe(3);
+    it('computeClearStars：档内按实际用时判星（三线 = tierSecondsFor 三档值）', () => {
+      // 以 levelTime=300 为例：3★ 线 = 210，2★ 线 = 255（均含边界 ≤）。
+      // ① 1★ 档进场、用时 60s ⇒ 当场跳 3★（用户规则「超过 3★ 水平直接给 3 星」）
+      expect(computeClearStars(240, 300, 300, 1)).toEqual({ ratio: 0.8, stars: 3 });
+      // ② 用时 230s ⇒ 2★；③ 用时 280s ⇒ 1★（倒计时内完成保底 1★）
+      expect(computeClearStars(70, 300, 300, 1).stars).toBe(2);
+      expect(computeClearStars(20, 300, 300, 1).stars).toBe(1);
+      // ④ 3★ 档（total=210）倒计时内完成 ⇒ 用时必 ≤210 ⇒ 必 3★（压线含边界）
+      expect(computeClearStars(0, 210, 300, 3).stars).toBe(3);
+      // ⑤ 续时保底 = 进场档位星（用过广告 ⇒ ⛔ 不按用时跳档，R4）
+      expect(computeClearStars(290, 300, 300, 2, true).stars).toBe(2);
+      expect(computeClearStars(290, 300, 300, 1, true).stars).toBe(1);
+      // ⑥ 越界 tier 归一只在**保底臂**成立（未续时星级与 tier 无关）；ratio 仍输出只供结算分
+      expect(computeClearStars(10, 300, 300, 0, true).stars).toBe(1);
+      expect(computeClearStars(10, 300, 300, 9, true).stars).toBe(3);
+      expect(computeClearStars(150, 300, 300, 2).ratio).toBe(0.5);
     });
 
     it('SEC_PER_STEP 量纲 = 每批量动作秒数（旧 SEC_PER_TAP 每点击 3.6s 已重锚）', () => {

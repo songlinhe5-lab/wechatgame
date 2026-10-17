@@ -280,20 +280,20 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
       saveKey: 'wxgame.beads.test.fin-stars',
     });
 
-    // 未通关的关 = 0；通关的关记下本关星级。
+    // 未通关的关 = 0；通关的关记下本关星级（§3.7 v1.78：快通按用时判 3★，K-053 换形）。
     fillBoard(h);
-    expect(h.game.starsByLevel[0]).toBe(1);
+    expect(h.game.starsByLevel[0]).toBe(3);
     expect(h.game.starsByLevel[1]).toBe(0);
     h.game.goToLevel(4);
     fillBoard(h);
-    expect(h.game.starsByLevel[4]).toBe(1);
+    expect(h.game.starsByLevel[4]).toBe(3);
 
     h.advance(1 / 60);
     const snap = h.game.snapshot;
     expect(snap.finishStars).toHaveLength(EIGHT.length);
-    expect(snap.finishStars[0]).toBe(1);
+    expect(snap.finishStars[0]).toBe(3);
     expect(snap.finishStars[1]).toBe(0);
-    expect(snap.finishStars[4]).toBe(1);
+    expect(snap.finishStars[4]).toBe(3);
   });
 
   it('persists the per-level stars across a relaunch (S8 §2.2 stars / §8-2 重启保留)', () => {
@@ -308,20 +308,20 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     const first = createBeadsHarness({
       noAssemble: true, levels: EIGHT, saveKey: KEY, storage: shared
     });
-    fillBoard(first); // L1 ⇒ 1★（首盘 = 1★ 档）
+    fillBoard(first); // L1 快通 ⇒ 用时判 3★（v1.78）
     first.game.goToLevel(4);
-    fillBoard(first); // L5 ⇒ 1★（(b) 闸门下仍只开 1★）
-    expect(first.game.starsByLevel[0]).toBe(1);
-    expect(first.game.starsByLevel[4]).toBe(1);
+    fillBoard(first); // L5 同样快通 3★（单条件闸门：档只看本关历史，(b) 腿已删）
+    expect(first.game.starsByLevel[0]).toBe(3);
+    expect(first.game.starsByLevel[4]).toBe(3);
 
     const second = createBeadsHarness({
       noAssemble: true, levels: EIGHT, saveKey: KEY, storage: shared
     });
-    expect(second.game.starsByLevel[0]).toBe(1); // 从存档装载，非局内累计
-    expect(second.game.starsByLevel[4]).toBe(1);
+    expect(second.game.starsByLevel[0]).toBe(3); // 从存档装载，非局内累计
+    expect(second.game.starsByLevel[4]).toBe(3);
     expect(second.game.starsByLevel[1]).toBe(0);
     second.advance(1 / 60);
-    expect(second.game.snapshot.finishStars).toEqual([1, 0, 0, 0, 1, 0, 0, 0]);
+    expect(second.game.snapshot.finishStars).toEqual([3, 0, 0, 0, 3, 0, 0, 0]);
   });
 
   it('keeps the per-level max: a worse replay never downgrades the overview', () => {
@@ -330,20 +330,20 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
       levels: [simpleTestLevel({ id: 213, time: 300 })],
       saveKey: 'wxgame.beads.test.fin-best',
     });
-    fillBoard(h); // 首关首盘 ⇒ 1★ 档；不推进时钟 ⇒ 大量剩余
-    expect(h.game.starsByLevel[0]).toBe(1);
-    // §3.7 v1.50 回归防线：**星级 = 本局档位，与剩余时间占比完全脱钩**。
-    // 旧制在这里靠 `STAR2_RATIO` 阈值把时间烧进 1★ 区⇒ 得 1★；新制下同一行为
-    // 必须仍是满档星。重打时档由闸门递进到 2★（首关豁免条件 (b)），时钟随之缩放 ×0.85。
+    fillBoard(h); // 首关首盘 ⇒ 1★ 档；快通按用时当场跳 3★（v1.78）
+    expect(h.game.starsByLevel[0]).toBe(3);
+    // §3.7 v1.78 回归防线（K-053 换形不换判据源）：旧 v1.50「星级 = 档位」臂重写为
+    // **封顶 + 历史最好不降级**两线：已 3★ ⇒ 重打档封顶 3★（单条件 R5），时钟 ×0.70；
+    // 3★ 档倒计时内完成用时必 ≤3★ 线 ⇒ 恒 3★，`starsByLevel` 取 max 不因重玩而降。
     h.game.goToLevel(0);
-    expect(h.game.tierThisLevel).toBe(2);
+    expect(h.game.tierThisLevel).toBe(3); // 历史 3★ + 1 封顶，不再停在旧 (b) 闸门的 2★
     const total = h.game.remaining;
-    expect(total).toBe(Math.round(300 * 0.85)); // 2★ 时钟，不是 1★ 的 300
+    expect(total).toBe(Math.round(300 * 0.7)); // 3★ 时钟，不是 1★ 的 300
     while (h.game.remaining > total * 0.02 && h.game.phase === 'playing') h.advance(1 / 60);
     // v2.0 供料已关停（WXG-T-136）⇒ 旧「usePowerup('clearAll') 腾托盘」步骤随
     // 死路径删除；托盘在本玩法下恒为空，无需腾挪。
     fillBoard(h);
-    expect(h.game.lastStars).toBe(2); // 烧掉 98% 时钟仍拿满本档
-    expect(h.game.starsByLevel[0]).toBe(2); // 总览取历史最好（不会因重玩而降）
+    expect(h.game.lastStars).toBe(3); // 烧掉 98% 时钟仍在倒计时内 ⇒ 用时 205.8 ≤ 210 ⇒ 3★
+    expect(h.game.starsByLevel[0]).toBe(3); // 总览取历史最好（不会因重玩而降）
   });
 });

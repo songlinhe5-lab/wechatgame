@@ -87,8 +87,8 @@ describe('S7 score-combo', () => {
   afterEach(() => vi.restoreAllMocks());
 
   // §8.1 普通模式局内全程零分数 HUD 元素；过关后 level:cleared payload 的 stars 与
-  // §3.7 阈值表逐一吻合（ratio=0.32/0.319/0.12/0.119 四点采样）。
-  it('§8-1 normal mode has zero score HUD; 星级 = 档位与剩余时间脱钩（§3.7 v1.50）', () => {
+  // §3.7 v1.78 绝对三线两侧采样逐一吻合（remaining 91/89/46/44 四点）。
+  it('§8-1 normal mode has zero score HUD; 档内按用时判星、三线两侧采样（§3.7 v1.78）', () => {
     // Zero score HUD: render both modes and inspect text commands.
     const normal = createBeadsHarness({
       noAssemble: true,
@@ -117,14 +117,14 @@ describe('S7 score-combo', () => {
       .map((c) => (c as { text: string }).text);
     expect(sprintTexts.some((t) => t.includes('SCORE'))).toBe(true);
 
-    // §3.7 v1.50：**星级 = 本局档位，与剩余时间占比完全脱钩** ⇒ 首盘通关恒 1★，
-    // 无论剩 96s 还是 35.7s。旧「按 ratio 阈值判 3/2/1★」的四点采样因此改为：
-    // 四个采样点**星级均 1★**，而 `ratio` 仍如实上报（C7 结算分要用）。
-    const samples: { remaining: number; ratio: number }[] = [
-      { remaining: 96, ratio: 0.32 },
-      { remaining: 95.7, ratio: 0.319 },
-      { remaining: 36, ratio: 0.12 },
-      { remaining: 35.7, ratio: 0.119 },
+    // §3.7 v1.78（K-053 换形不换判据源）：旧 v1.50「星级 = 档位」⇒ 四点全 1★；新制**档内按用时判星**，
+    // 采样点重锤到**绝对三线两侧**（levelTime=300：3★ 线 elapsed 210 ⇒ remaining 90；2★ 线 255 ⇒ remaining 45）。
+    // `ratio` 仍如实上报（C7 结算分要用）。
+    const samples: { remaining: number; ratio: number; stars: number }[] = [
+      { remaining: 91, ratio: 91 / 300, stars: 3 }, // 用时 209 ≤ 3★ 线
+      { remaining: 89, ratio: 89 / 300, stars: 2 }, // 越 3★ 线 ⇒ 2★
+      { remaining: 46, ratio: 46 / 300, stars: 2 }, // 用时 254 ≤ 2★ 线
+      { remaining: 44, ratio: 44 / 300, stars: 1 }, // 越 2★ 线 ⇒ 保底 1★
     ];
     for (const sample of samples) {
       const harness = createBeadsHarness({
@@ -148,7 +148,7 @@ describe('S7 score-combo', () => {
         placeColor(game, game.grid.requiredColor(last.row, last.col), last.row, last.col),
       ).toBe(true);
       const payload = harness.last<{ ratio: number; stars: number }>('level:cleared')!;
-      expect(payload.stars).toBe(1); // 首盘 = 1★ 档，不看剩余
+      expect(payload.stars).toBe(sample.stars); // 档内计时判星（1★ 档也能当场跳 3★）
       expect(payload.ratio).toBeCloseTo(sample.ratio, 3);
     }
   });

@@ -200,19 +200,21 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     });
     fillBoard(h);
 
-    // §3.7 v1.50：首盘 = 1★ 档 ⇒ **不推进时钟（ratio = 1）也只给 1★**，星级与剩余脱钩。
-    expect(h.game.lastStars).toBe(1);
+    // §3.7 v1.78（K-053 换形）：旧 v1.50「1★ 档快通也只给 1★」作废 ⇒ 档内按用时判星，
+    // 不推进时钟（elapsed ≈ 0 ≤ 3★ 线）当场跳 3★；`ratio` 仍如实上报。
+    expect(h.game.lastStars).toBe(3);
     const cleared = h.last<{ ratio: number; stars: number }>('level:cleared')!;
-    expect(cleared.stars).toBe(1);
+    expect(cleared.stars).toBe(3);
     expect(cleared.ratio).toBeCloseTo(1, 6);
     expect(h.game.lastSettleScore).toBe(
       normalSettleScore(cleared.stars, cleared.ratio, 0, false),
     );
-    // C7：1×1000 + round(1×1000) − 0 + 200（未用扩展）= 2200。
-    expect(h.game.lastSettleScore).toBe(2200);
+    // C7（v1.78 换形）：3×1000 + round(1×1000) − 0 + 200（未用扩展）= 4200。
+    expect(h.game.lastSettleScore).toBe(4200);
 
     // 快照同步给视图的料：星级与「道具 n/3」分母。
-    expect(h.game.snapshot.clearStars).toBe(1);
+    // （v1.78 换形）快照星级 = 本局用时判星结果，与 `lastStars` 同源 ⇒ 3。
+    expect(h.game.snapshot.clearStars).toBe(3);
     expect(h.game.snapshot.clearLastLevel).toBe(true);
   });
 

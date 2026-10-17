@@ -251,7 +251,7 @@ describe('ordinary fail-page revive', () => {
     expect(harness.game.mode).toBe('sprint');
   });
 
-  it('a revived clear keeps its tier star (§3.7 v1.50：不封顶、也不再从 ratio 里扣奖励)', () => {
+  it('a revived clear keeps its tier star (§3.7 v1.78：续时保底 = 进场档位星，不再按用时判星)', () => {
     const harness = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel()],
@@ -264,8 +264,9 @@ describe('ordinary fail-page revive', () => {
     fillBoard(harness.game);
     expect(harness.game.phase).toBe('level-clear');
     const payload = harness.last<{ remaining: number; ratio: number; stars: number }>('level:cleared')!;
-    // 旧断言：stars = 1 且 ratio = 0（`starRemaining = remaining − 180s` 把奖励扣掉 + 续时封顶 2★）。
-    // §3.7 v1.50：星级 = 本局档位（首盘 = 1★），续时既不封顶也不从 ratio 里扣 ⇒ ratio > 0。
+    // 旧断言（v1.50）：星级 = 本局档位。**v1.78 订正（K-053 换形不换判据源）**：未续时改按用时判星，
+    // 续时则保底 = 档位星。本局 1★ 档续时 ⇒ 期望值仍 1★，但语义已换 = **保底腿**在接线层生效
+    // （调用点传 `game.revived`）；用时侧采样臂在 tuning.test / stars-tier.test。
     expect(payload.stars).toBe(1);
     expect(payload.ratio).toBeGreaterThan(0);
     expect(payload.remaining).toBeGreaterThan(0);
@@ -288,12 +289,14 @@ describe('ordinary fail-page revive', () => {
   });
 });
 
-describe('computeClearStars (§3.7 v1.50 选档即定星)', () => {
-  it('星级 = 本局档位；续时不再封顶 2★（用户 2026-09-23 裁定取消）', () => {
-    // 旧断言：同一条 `(200, 300, 60, true).stars === 2`（续时封顶）——已随双重计罚一并废除。
-    // 本值仍归一 ratio（只供 C7 结算分），不再影响 stars。
-    expect(computeClearStars(200, 300, 3)).toEqual({ ratio: 200 / 300, stars: 3 });
-    expect(computeClearStars(3, 300, 1)).toEqual({ ratio: 0.01, stars: 1 });
-    expect(computeClearStars(60, 300, 2).stars).toBe(2);
+describe('computeClearStars (§3.7 v1.78 续时保底腿)', () => {
+  it('用过广告 ⇒ stars = 进场档位星，⛔ 不按用时跳档（R4）', () => {
+    // 订正声明（K-053）：旧 v1.50「选档即定星」三臂已换形为用时判星（主采样族见
+    // tuning.test.ts）；本块只留**续时保底**主题臂。
+    // 未续时：用时 100s ≤ 3★ 线 210 ⇒ 3★（即使只进了 2★ 档）
+    expect(computeClearStars(200, 300, 300, 2)).toEqual({ ratio: 200 / 300, stars: 3 });
+    // 续时：同盘保底回档位星 2★；1★ 档续时快完也不跳 ⇒ 1★
+    expect(computeClearStars(200, 300, 300, 2, true).stars).toBe(2);
+    expect(computeClearStars(290, 300, 300, 1, true).stars).toBe(1);
   });
 });
