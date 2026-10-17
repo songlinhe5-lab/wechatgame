@@ -257,10 +257,10 @@ export interface MetaButton {
     readonly id: MetaAction;
     readonly box: Box;
     /**
-     * `pick-level` 携带的**墙槽位**（0-based，`0 .. WALL_CAPACITY-1`；其余按钮 undefined）。
-     * ⚠ 槽位 **≠ 关索引**：陈列序 = DI 升序 ⇒ 须经 shell 的 `wallSlots` 映射解析。
-     * 旧字段名 `levelIndex` 正是 `beads-shell.ts:258`「按槽当关」回归的温床，就此**更名根治**
-     * （视图内拿不到、也不该拿到关索引）。
+     * `pick-level` 携带的**墙槽位**（0-based，`0 .. WALL_CAPACITY-1`；其余 按钮 undefined）。
+     * ⚠ 槽位 **≠ 关索引**：陈列序 = 配置文件顺序（EP12-S6 已退役 DI 升序，现码恒等），仍须经
+     * shell 的 `wallSlots` 映射解析（视图内拿不到、也不该拿到关索引）。
+     * 旧字段名 `levelIndex` 正是 `beads-shell.ts::_wallSlotsFor`「按槽当关」回归的温床，就此**更名根治**。
      */
     readonly slot?: number;
 }
@@ -1210,15 +1210,19 @@ function drawWallCell(
     }
     const isCurrent = levelIdx === data.currentLevelIndex;
     const stars = data.starsByLevel[levelIdx] ?? 0;
-    builder.rect(b.box.x, b.box.y, b.box.w, b.box.h, {
-        fill: palette.slot,
+    // EP13-S5 · tls §4-R6：按住已解锁格 ⇒ 整格下沉（对象身份比对）；reduceMotion ⇒ 位移归零、换面仍在。
+    const pressed = data.pressed === b;
+    const dy = pressDy(data, pressed);
+    const y = b.box.y + dy;
+    builder.rect(b.box.x, y, b.box.w, b.box.h, {
+        fill: pressed ? palette.cardPressed : palette.slot,
         stroke: isCurrent ? palette.accentPrimary : palette.slotBorder,
         lineWidth: isCurrent ? 4 : 2,
         radius: UI_CONTAINER.radiusChip,
     });
     const cx = b.box.x + b.box.w / 2;
     const level = slot === undefined ? undefined : data.wallLevels[slot];
-    builder.text(cx, b.box.y + THUMB_STAR_BAND / 2, STAR_LABELS[stars] ?? STAR_LABELS[0]!, {
+    builder.text(cx, y + THUMB_STAR_BAND / 2, STAR_LABELS[stars] ?? STAR_LABELS[0]!, {
         fill: stars > 0 ? palette.text : palette.textDim,
         font: FONT_CELL,
         align: 'center',
@@ -1234,7 +1238,7 @@ function drawWallCell(
                 '见 beads-shell::_rebuildWallSlots；本条仅告警一次）',
             );
         }
-        builder.text(cx, b.box.y + b.box.h / 2 - 8, `${levelIdx + 1}`, {
+        builder.text(cx, y + b.box.h / 2 - 8, `${levelIdx + 1}`, {
             fill: palette.text,
             font: FONT_BUTTON,
             align: 'center',
@@ -1242,7 +1246,7 @@ function drawWallCell(
         });
         return;
     }
-    drawLevelThumb(builder, level, b.box.x, b.box.y, b.box.w, b.box.h, thumbN);
+    drawLevelThumb(builder, level, b.box.x, y, b.box.w, b.box.h, thumbN);
 }
 
 /**

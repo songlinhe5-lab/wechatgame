@@ -93,3 +93,12 @@
 >     ⚠ 偏差登记：`locked` 分支落码但本版不可达（存档解锁进度 ≥1）⇒ 只登记不伪造观测；
 >     页头大关名仍归 TODO-1（木牌显示收尾关）；删 `bossArt` 引发两处旧断言换形（K-053）；
 >     选关页测试 R12 旧过渡态臂同步换形。后续：S5（按下态）待开，EP13 收尾。
+>
+> 13. **EP13-S5 选关格按下态 + 陈旧注释订正 = done**（提交本批，沿拆分号 WXG-T-284）：
+>     `drawWallCell` 接入既有 `pressed` 机制（对象身份比对，格底/星带/缩略整体下沉 2px = `UI_PRESS_SINK`）；
+>     `reduceMotion` ⇒ 位移归零但换面仍在（既有 `palette.cardPressed`，零新色）；
+>     `MetaButton.slot` 注释「陈列序 = DI 升序」改为现码口径（配置文件顺序，仍经 `wallSlots` 映射）。
+>     C-3② 「已通关」呈现按规格只核对不建设（符号串 ★ 通道 + 同形同尺）。新测试五臂，beads 1024 绿。
+>     ⚠ 偏差登记：证据落 `qa/beads/evidence/`（仓内惯例，非 Story 所写 `qa/evidence/`）；
+>     规格未钉按下换面色 ⇒ 取既有 `cardPressed` 补全口径；harness 按住截图与真机签署未做
+>     ⇒ evidence 标 ADVISORY 未闭挂账。EP13 五条 Story 全 done。

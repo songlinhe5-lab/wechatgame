@@ -83302,17 +83302,17 @@
     },
     {
       "path": "production/epics/epics-beads-status.md",
-      "tokens": 3490,
-      "lines": 95,
-      "sha256": "df9dd3a064d34708476b945cc444e3e841bc1aa61f9cad956c89471be38407ae",
+      "tokens": 3769,
+      "lines": 104,
+      "sha256": "59b0897cb27817aea7a6fd756249322daecb5d42422426c7a86f0c9c1104db3f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic/Story 状态时效声明（epics-beads 拆分件）",
           "level": 1,
           "startLine": 1,
-          "endLine": 96,
-          "tokens": 3471,
+          "endLine": 105,
+          "tokens": 3749,
           "summary": "正本宿主：production/epics/epics-beads.md（本块原为其顶部「⚠️ 状态时效声明」）",
           "keywords": [
             "beads",
@@ -85422,6 +85422,90 @@
           "summary": "v1.0 2026-10-15 初稿：汇总全仓真机待验项 + K-044 判定上限 + 阻塞清单（P4）",
           "keywords": [
             "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/arc-cell-pressed-evidence.md",
+      "tokens": 943,
+      "lines": 41,
+      "sha256": "84680d6154cd0045d8b8e77e859050809169574a79acc62e2576c958fc9ed40a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§EP13-S5 · 选关格按下态取证（2026-10-17）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 42,
+          "tokens": 927,
+          "summary": "结论：位移腿已用命令级快照证实（目标格整格下沉 2px、其余格零位移；reduceMotion 位移归零但换面仍在）；",
+          "keywords": [
+            "EP13",
+            "reduceMotion",
+            "选关格按下态",
+            "取证"
+          ]
+        },
+        {
+          "anchor": "§1 判据与读数",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 19,
+          "tokens": 377,
+          "summary": "任意格按下态 = −UI_PRESS_SINK（2px），对象身份比对 arc-level-select-spec.md",
+          "keywords": [
+            "UI_PRESS_SINK",
+            "arc",
+            "level",
+            "select",
+            "spec",
+            "判据与读数"
+          ]
+        },
+        {
+          "anchor": "§2 落码面",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 27,
+          "tokens": 160,
+          "summary": "games/beads/src/view/meta-view.ts::drawWallCell：新增 pressed =",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "view",
+            "meta",
+            "drawWallCell"
+          ]
+        },
+        {
+          "anchor": "§3 口径声明",
+          "level": 2,
+          "startLine": 28,
+          "endLine": 32,
+          "tokens": 68,
+          "summary": "Out 未碰：页头大关名（TODO-1）、levelsLayout 几何、WALL_* 数值、未解锁合形（TODO-5）",
+          "keywords": [
+            "Out",
+            "TODO",
+            "levelsLayout",
+            "WALL_",
+            "口径声明"
+          ]
+        },
+        {
+          "anchor": "§4 未闭项与解除条件（ADVISORY）",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 42,
+          "tokens": 204,
+          "summary": "harness 按住截图（常态 vs 按下的同帧对照） 需在浏览器中按住格位后截图，本轮以命令级快照替代；截图流程未固化",
+          "keywords": [
+            "ADVISORY",
+            "harness",
+            "未闭项与解除",
+            "条件"
           ]
         }
       ]
