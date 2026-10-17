@@ -170,6 +170,13 @@ export interface MetaViewData {
      */
     readonly carouselState?: MetaBossState;
     /**
+     * 当前大关页的橱窗图（EP13-S4：shell 按 `ARCS[页].textureId` 取图，⛔ 视图不查表）。
+     * 缺省 ⇒ 落程序化缩略（旧调用方/合成数据兼容，不硬绑首个大关图）。
+     */
+    readonly carouselTextureId?: string;
+    /** 相邻大关页的橱窗图（同上，按 `ARCS[相邻页]` 取）。 */
+    readonly carouselPeerTextureId?: string;
+    /**
      * 走马灯视觉偏移（设计 px，正 = 内容右移）。`reduceMotion` 时视图忽略它，改用 {@link carouselT} 淡变。
      * 缺省 0。
      */
@@ -917,6 +924,7 @@ function drawShowcaseItem(
     dx: number,
     alpha: number,
     comingSoon: boolean,
+    textureId?: string,
 ): void {
     if (alpha <= 0) return;
     const ink = alpha < 1 ? alpha : undefined;
@@ -924,10 +932,10 @@ function drawShowcaseItem(
         drawComingSoonMark(builder, palette, MENU_DONE_ICON.cx + dx, g.doneCy, ink);
         return;
     }
-    if (level !== undefined && _menuBitmapReady(MENU_TEXTURES.bossArt)) {
+    if (level !== undefined && textureId !== undefined && _menuBitmapReady(textureId)) {
         const d = MENU_BOSS_ART_D;
         builder.blit(
-            MENU_TEXTURES.bossArt,
+            textureId,
             MENU_DONE_ICON.cx + dx - d / 2,
             g.doneCy - d / 2,
             d, d,
@@ -1089,13 +1097,14 @@ function drawMenuAnchored(
     const slide = data.reduceMotion ? 0 : (data.carouselDx ?? 0);
     const travel = data.carouselT ?? 0;
     builder.clip(g.clipBox.x, g.clipBox.y, g.clipBox.w, g.clipBox.h);
-    drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true);
+    drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId);
     if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
         const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
         const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
         drawShowcaseItem(
             builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
             peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
+            data.carouselPeerTextureId,
         );
     }
     builder.unclip();

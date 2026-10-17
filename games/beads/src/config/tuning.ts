@@ -12,7 +12,7 @@
  * **bottom-left**, y grows upward.
  */
 
-import { OPEN_ARCS } from './arcs.js';
+import { ARCS } from './arcs.js';
 
 // ──────────────────────────────────────── §3.1 canvas, safe area & layout bands
 /** Design resolution width (px). */
@@ -1305,8 +1305,6 @@ export const MENU_TEXTURES = {
   sealCleared: 'bitmap__menu_seal_cleared',
   /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
   ctaLabel: 'bitmap__menu_cta_label',
-  /** 橱窗中央大关原图。id 来自本版开放的第一个大关；缺资产回退豆阵。 */
-  bossArt: OPEN_ARCS[0].textureId,
 } as const;
 
 /**
@@ -1605,10 +1603,17 @@ export const THUMB_BEADS_MAX = THUMB_MATRIX_N * THUMB_MATRIX_N;
  * 未命中 / 未就绪 ⇒ 逐字节回退程序化缩略（§19「未命中一律矢量回退」）。
  * ⛔ src 不存 Cocos 资产路径（bundle/path 属宿主 `beads-blit-carrier.ts`）；
  * `BeadsLevelRaw` 不带 `kind`（boss 只在生成期排序标）⇒ 映射按显式 `id` 键，新 boss 关追加条目。
+ * EP13-S4：键/图**按大关表派生**（每行 `levelRefs` 末区间 `to` = 该大关收尾关，图 = 行内 `textureId`）；
+ * 旧码硬取首行 `OPEN_ARCS[0]` ⇒ 多过大关时后几行会错用首关图，已消除。
  */
-export const BOSS_THUMB_TEXTURES: Readonly<Record<number, string>> = {
-  9: OPEN_ARCS[0].textureId,
-};
+export const BOSS_THUMB_TEXTURES: Readonly<Record<number, string>> = (() => {
+  const map: Record<number, string> = {};
+  for (const arc of ARCS) {
+    const last = arc.levelRefs[arc.levelRefs.length - 1];
+    if (last !== undefined) map[last[1]] = arc.textureId;
+  }
+  return Object.freeze(map);
+})();
 /** 回退档序（§3.8 序 2/3 预置杠杆，逐级触发、不并行）。 */
 export const THUMB_TIERS: readonly number[] = Object.freeze([5, 4, 3]);
 /** 虚线空槽档回退（§3.8 序 4：空格改 48 档格径 ⇒ 48 条 line/格 降为 20 条）。 */

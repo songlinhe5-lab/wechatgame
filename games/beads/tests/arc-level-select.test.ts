@@ -270,7 +270,7 @@ describe('EP13-S2 · 本页边界（R8–R11）', () => {
         expect(r.shell.play.levelIndex).toBe(before.idx);
     });
 
-    it('R12 空橱窗页开页 = 空清单态（全槽空、零消费；S4 前该页仍可进 = 已知过渡态）', () => {
+    it('R12 空橱窗页 = 无大关实体（S4 收口：图位零事件、不进入 overlay；空清单态本版不可达）', () => {
         const r = rig({ maxUnlocked: 9 });
         // 翻到空橱窗页（◀▶ 一颗 ⇒ 动画由 update 推完）。
         const next = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'carousel-next')!;
@@ -280,17 +280,11 @@ describe('EP13-S2 · 本页边界（R8–R11）', () => {
         r.shell.update(0.016);
         r.now.t += 500;
         r.shell.update(0.016);
-        // 该页无大关实体 ⇒ 进 overlay 后清单为空。
-        openLevels(r.shell);
-        const cmds = frameOf(r.shell);
-        const before = r.shell.meta!.stamina;
-        for (const cell of wallCells()) {
-            expect(beadsIn(cmds, cell), `槽 ${cell.slot} 无珠`).toBe(0);
-            expect(dashedIn(cmds, cell), `槽 ${cell.slot} 空槽语言`).toBeGreaterThan(0);
-            const c = centerOf(cell.box);
-            expect(r.shell.tapMeta(c.x, c.y)).toBe(false);
-        }
-        expect(r.shell.meta!.stamina).toBe(before);
-        expect(r.shell.screen).toBe('menu');
+        // 该页无 `levelRefs` ⇒ 图位零事件（R13：不切 `levels`、不发 `meta:overlay`）。
+        const card = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'open-levels')!;
+        const c = centerOf(card.box);
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(false);
+        expect(r.shell.overlay).toBe('none');
+        expect(r.overlayEvents.length).toBe(0);
     });
 });

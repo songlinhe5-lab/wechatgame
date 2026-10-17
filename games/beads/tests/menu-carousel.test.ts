@@ -7,7 +7,7 @@ import { RenderModelBuilder } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { LEVELS } from '../src/config/levels.js';
 import { carouselDamp, carouselPage, plateFade } from '../src/config/menu-carousel.js';
-import { ARC_COMING_SOON } from '../src/config/arcs.js';
+import { ARC_COMING_SOON, ARCS } from '../src/config/arcs.js';
 import { DESIGN_H, DESIGN_W, MENU_BOSS_SLOT, MENU_CLIP, MENU_TEXTURES } from '../src/config/tuning.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
@@ -20,6 +20,7 @@ const dataFor = (lv: BeadsLevelRaw, extra: Partial<MetaViewData> = {}): MetaView
     debugInfo: false, debugGuides: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'tokens',
     levelCount: LEVELS.length, currentLevelIndex: 0, maxUnlockedLevel: 1,
     starsByLevel: [], wallSlots: [], wallLevels: [], carouselLevel: lv, carouselState: 'pushing',
+    carouselTextureId: ARCS[0].textureId,
     ...extra,
 });
 
@@ -76,7 +77,7 @@ describe('橱窗绘制', () => {
         expect(seal.x + seal.w).toBeLessThanOrEqual(clip.x + clip.w + 0.01);
         expect(seal.y + seal.h).toBeLessThanOrEqual(clip.y + clip.h + 0.01);
         const pushing = frame(dataFor(lv, { carouselState: 'pushing' }));
-        expect(pushing.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.bossArt)).toBe(true);
+        expect(pushing.some((c) => c.kind === 'blit' && c.textureId === ARCS[0].textureId)).toBe(true);
         expect(pushing.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.badgeProgress)).toBe(true);
         expect(pushing.some((c) => c.kind === 'blit' && c.textureId === 'bitmap__menu_badge_pushing')).toBe(false);
     });
@@ -87,7 +88,7 @@ describe('橱窗绘制', () => {
         const text = cmds.find((c) => c.kind === 'text' && c.text === ARC_COMING_SOON);
         expect(text).toBeTruthy();
         expect(cmds.filter((c) => c.kind === 'circle').length).toBeGreaterThanOrEqual(7);
-        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.bossArt)).toBe(false);
+        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === ARCS[0].textureId)).toBe(false);
         expect(cmds.some((c) => c.kind === 'blit' && (c.textureId === MENU_TEXTURES.badgeProgress || c.textureId === MENU_TEXTURES.badgeLocked || c.textureId === MENU_TEXTURES.sealCleared))).toBe(false);
     });
 

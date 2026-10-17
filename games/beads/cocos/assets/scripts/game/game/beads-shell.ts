@@ -174,9 +174,11 @@ export class BeadsShell implements Game {
         wallSlots: [] as readonly number[],
         // 槽位 → 关卡引用（T-2B 缩略聚合的 pattern 入口；与 wallSlots 同批缓存，每帧只读）。
         wallLevels: [] as readonly (BeadsLevelRaw | undefined)[],
-        // 走马灯小卡（menu-architecture §1.3）：boss = 已通关集合里进度最远那关（配置序末位）；一关未通 ⇒ undefined。
+        // 走马灯 = 大关页（EP13-S4）：代表关 = 该大关收尾关（boss），图 = `ARCS[页].textureId`。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
         carouselState: undefined as MetaBossState | undefined,
+        carouselTextureId: undefined as string | undefined,
+        carouselPeerTextureId: undefined as string | undefined,
         carouselDx: 0,
         carouselT: 0,
         carouselPeer: undefined as BeadsLevelRaw | undefined,
@@ -193,7 +195,6 @@ export class BeadsShell implements Game {
     private _carouselDx = 0;
     private _carouselT = 0;
     private _shown = 0;
-    private _pushingSlot = -1;
     private _glass = false;
     private _dragging = false;
     private _pressX = 0;
@@ -206,8 +207,6 @@ export class BeadsShell implements Game {
     private _animTo = 0;
     private _animStart = 0;
     private _animDir: -1 | 0 | 1 = 0;
-    /** 已通槽逆序 scratch（复用数组 ⇒ 每帧零分配；`[0]` = 进度最远）。 */
-    private readonly _carouselOrder: number[] = [];
     /** 菜单侧体力回满广告在途标（EP13-S3）：防连点重复 show；`onClose`/`onError` 清。 */
     private _refillPending = false;
     /** 广告订阅退订器（`init` 登记、`dispose` 释放）。 */
@@ -409,6 +408,9 @@ export class BeadsShell implements Game {
             case 'open-levels':
                 // menu-architecture §1.3 第五轮：主菜单走马灯卡 = 菜单唯一选关入口（点卡 → 开 `levels` overlay）。
                 // ⇒ 本分支从「代码保留腿」（Q5①）转正为**实际入口**；墙下移到该 overlay（选关能力不丢）。
+                // EP13-S4 · R13：末页空橱窗无大关实体 ⇒ 零事件（不切 overlay、不发事件）。
+                this._fillCarousel();
+                if (this._carouselOffset >= ARC_OPEN_MAX) return false;
                 // EP13-S2：记下当前大关页 ⇒ 选关页只列本大关清单（tls §4 注 A：闸门本身不动）。
                 this._overlayArc = this._carouselOffset;
                 this._overlay = 'levels';
@@ -546,6 +548,8 @@ export class BeadsShell implements Game {
         this._glass = false;
         if (!this._dragging) {
             this._dragging = false;
+            // EP13-S4 · R13：空橱窗页松手 ⇒ 零事件（同 `open-levels` 守卫）。
+            if (this._carouselOffset >= ARC_OPEN_MAX) return;
             this._overlayArc = this._carouselOffset; // EP13-S2：同 `open-levels`（两入口同上下文）
             this._overlay = 'levels';
             this._emitOverlay(true);
@@ -598,21 +602,11 @@ export class BeadsShell implements Game {
         this._setSlide(this._animFrom + (this._animTo - this._animFrom) * e);
     }
 
-    /** 陈列序写进复用数组。返回值走字段，不分配。 */
+    /**
+     * 页序按**大关**（EP13-S4，C-2 ③）：前 `ARC_OPEN_MAX` 页 = 已开放大关，末页 = 空橱窗。
+     * 旧码按「关」建陈列序、页数却按大关 = 语义混装 ⇒ 已删（三态归约见 {@link _arcState}）。
+     */
     private _fillCarousel(): void {
-        const slots = this._wallSlotsFor();
-        const stars = this.play.starsByLevelRaw;
-        const order = this._carouselOrder;
-        order.length = 0;
-        let pushingSlot = -1;
-        for (let s = slots.length - 1; s >= 0; s--) {
-            const idx = slots[s]!;
-            if ((stars[idx] ?? 0) > 0) order.push(s);
-            else pushingSlot = s;
-        }
-        if (pushingSlot !== -1) order.unshift(pushingSlot);
-        this._pushingSlot = pushingSlot;
-        // 前 ARC_OPEN_MAX 页是已开放大关；再加一页空橱窗（敬请期待）。
         this._shown = ARC_OPEN_MAX + 1;
         if (this._carouselOffset >= this._shown) this._carouselOffset = Math.max(0, this._shown - 1);
         if (this._carouselOffset < 0) this._carouselOffset = 0;
@@ -679,6 +673,41 @@ export class BeadsShell implements Game {
         return slots;
     }
 
+    /** 大关收尾关（`levelRefs` 末区间 `to`，1-based）→ 关卡本体；越界/空表 ⇒ `undefined`。 */
+    private _arcBossLevel(arcIdx: number): BeadsLevelRaw | undefined {
+        const refs = ARCS[arcIdx]?.levelRefs;
+        if (!refs) return undefined;
+        const last = refs[refs.length - 1]!;
+        return this._wallBaseLevels[last[1] - 1];
+    }
+
+    /**
+     * 大关三态归约（`tls §8.2 TODO-6` 已裁 = 甲，只换数据源）：
+     * 任一关可进未通 ⇒ `pushing`；全通关 ⇒ `cleared`；一关未开 ⇒ `locked`；空清单 ⇒ `undefined`（R12）。
+     * 单趟整数循环、零分配（本池 9 关 ⇒ 每帧至多两页 × 9）。
+     */
+    private _arcState(arcIdx: number): MetaBossState | undefined {
+        const refs = ARCS[arcIdx]?.levelRefs;
+        if (!refs) return undefined;
+        const stars = this.play.starsByLevelRaw;
+        const maxUnlocked = this.play.maxUnlockedLevel;
+        const n = this.play.levelCount;
+        let anyLevel = false;
+        let anyUnlocked = false;
+        let allCleared = true;
+        for (let r = 0; r < refs.length; r++) {
+            const range = refs[r]!;
+            for (let lv = range[0]; lv <= range[1] && lv <= n; lv++) {
+                anyLevel = true;
+                if (lv <= maxUnlocked) anyUnlocked = true;
+                if ((stars[lv - 1] ?? 0) <= 0) allCleared = false;
+            }
+        }
+        if (!anyLevel) return undefined;
+        if (!anyUnlocked) return 'locked';
+        return allCleared ? 'cleared' : 'pushing';
+    }
+
     private _metaViewData(): MetaViewData {
         const v = this._viewData;
         const m = this.meta;
@@ -709,41 +738,32 @@ export class BeadsShell implements Game {
         v.wallSlots = this._wallSlotsFor();
         // 槽位 → 关卡引用（同一缓存批，T-2B 缩略聚合的只读入口）。
         v.wallLevels = this._wallLevelsFor();
-        // 走马灯 Boss 图（`[WXG-T-281]` 用户裁定：只展示 Boss 图、未通关置灰、点图进选关）：
-        // 陈列集 = 「下一未通关」（进度最远，置灰）+ 已通集反序 ⇒ 默认 0 项即进度最远那关；
-        //   ⛔ 每帧零 `difficultyOf`，单趟 ≤capacity 整数循环、零分配。星级即「已通关」判据（`starsByLevel[idx] > 0`）。
-        // ponytail: 进度/boss 均在已陈列的 `wallSlots`（≤WALL_CAPACITY）内取；溢出未实现（S6 Out）⇒ 关表 >capacity 时需改全表扫描。
-        const levels = v.wallLevels;
+        // 走马灯 = **大关页**（EP13-S4，C-2 ③⑤；Q16 = 甲）：代表图 = 该大关收尾关（boss）的橱窗图
+        // （`ARCS[页].textureId`），三态 = `ARCS[页].levelRefs` 归约（判据见 {@link _arcState}）。
+        // 末页 `ARC_OPEN_MAX` = 空橱窗（无大关实体 ⇒ 点图零事件，R13）。
         this._fillCarousel();
-        const order = this._carouselOrder;
-        const pushingSlot = this._pushingSlot;
         const off = this._carouselOffset;
-        const soon = off === ARC_OPEN_MAX;
+        const soon = off >= ARC_OPEN_MAX;
         v.carouselComingSoon = soon;
-        if (soon || off !== 0 || order.length === 0) {
-            v.carouselLevel = undefined;
-            v.carouselState = undefined;
-        } else {
-            const slot = order[0]!;
-            const boss = levels[slot];
-            v.carouselLevel = boss;
-            v.carouselState = boss === undefined ? undefined : (slot === pushingSlot ? 'pushing' : 'cleared');
-        }
+        v.carouselLevel = soon ? undefined : this._arcBossLevel(off);
+        v.carouselState = soon ? undefined : this._arcState(off);
+        v.carouselTextureId = soon ? undefined : ARCS[off]?.textureId;
         v.carouselDx = this._carouselDx;
         v.carouselT = this._carouselT;
         const sign = this._peerSign();
         const pi = off + sign;
         const peerSoon = sign !== 0 && pi === ARC_OPEN_MAX;
+        const peerPage = sign !== 0 && pi >= 0 && pi < ARC_OPEN_MAX ? pi : -1;
         v.carouselPeerComingSoon = peerSoon;
         v.carouselPeerSign = sign === 0 ? undefined : sign;
-        if (sign === 0 || pi !== 0 || order.length === 0) {
+        if (peerPage < 0) {
             v.carouselPeer = undefined;
             v.carouselPeerState = undefined;
+            v.carouselPeerTextureId = undefined;
         } else {
-            const peerSlot = order[0]!;
-            const peer = levels[peerSlot];
-            v.carouselPeer = peer;
-            v.carouselPeerState = peer === undefined ? undefined : (peerSlot === pushingSlot ? 'pushing' : 'cleared');
+            v.carouselPeer = this._arcBossLevel(peerPage);
+            v.carouselPeerState = this._arcState(peerPage);
+            v.carouselPeerTextureId = ARCS[peerPage]?.textureId;
         }
         v.studioEnabled = this._studio !== undefined;
         return v;
