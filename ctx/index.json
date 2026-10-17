@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "e4e93f67441598ca5843d644127d2a55f658a8c088d3b86986f9aaa1bc5876c3",
+      "sha256": "962216340fd98c56354d948e4a4a824f449f77aafa8bbd2686c5710fa3bd17e7",
       "tier": "normal",
       "sections": [
         {
@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5599,
       "lines": 86,
-      "sha256": "8b175d1efd13cac260732ee51e672485a3590cab71dd362a3b194cd33429cf8a",
+      "sha256": "6147d0274b22ab1b966aba5183f5652af3903b0af1fc0e6f8ab80d1cd6ef4c6c",
       "tier": "normal",
       "sections": [
         {
@@ -780,7 +780,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 1088 行 / 89514 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 1099 行 / 90281 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
@@ -89914,9 +89914,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 89514,
-      "lines": 1088,
-      "sha256": "f5ce5cc81cea040513c66d90b00d5e895bb1c7f35e4b28818a7507bdfd536bce",
+      "tokens": 90281,
+      "lines": 1099,
+      "sha256": "fe264ea93e75a19255b622c4df919a81c6fba6867db935341b820382bdaf035f",
       "tier": "hot",
       "sections": [
         {
@@ -90576,8 +90576,8 @@
           "anchor": "§K 风格与豆径族（**v2.1 / WXG-T-211-F 新增**）—— 来源家族 = `pause-settings v1.7 §8-14~19` + `save-progress v1.1 §8-11~13` + `ux-spec v1.19 §4` 行4/BOOT/overlay 各行 + `bead-visual-style-spec §12.2 C1/C5/C6/C7/C8/C9/C11/C12` + `assets-spec v1.5-r16 §1.9.7 7.11–7.13`",
           "level": 1,
           "startLine": 678,
-          "endLine": 930,
-          "tokens": 28718,
+          "endLine": 941,
+          "tokens": 29485,
           "summary": "### K.0 编号与归属（两处必须先看）",
           "keywords": [
             "pause-settings v1.7 §8-14~19",
@@ -90591,8 +90591,8 @@
         {
           "anchor": "§L · tint 臂判据（WXG-T-226/230 · 2026-10-07 判据裁定会并入；详细推导与盲区推导 = `wxg-t-228-tint-criteria.md §11`）",
           "level": 1,
-          "startLine": 931,
-          "endLine": 952,
+          "startLine": 942,
+          "endLine": 963,
           "tokens": 1021,
           "summary": "适用臂：tint 臂（整盘单图元）。矢量臂仍走 C12/C7 现式，两式并存不互替。常量单一化：MASK_SHAPE_O",
           "keywords": [
@@ -90607,8 +90607,8 @@
         {
           "anchor": "§L.1 C12-t（主体色不变式 · tint 臂）",
           "level": 2,
-          "startLine": 935,
-          "endLine": 938,
+          "startLine": 946,
+          "endLine": 949,
           "tokens": 339,
           "summary": "统计域：珠 mask 纹理像素的不透明芯 B ≥ 250。逐像素出图色：(d,l) = (R/255, G/255)，o",
           "keywords": [
@@ -90621,8 +90621,8 @@
         {
           "anchor": "§L.2 K3 改写（孔底透色 · tint 臂分述）",
           "level": 2,
-          "startLine": 939,
-          "endLine": 942,
+          "startLine": 950,
+          "endLine": 953,
           "tokens": 168,
           "summary": "满豆有孔档孔为真透孔（J4 ⌀12）⇒ tint 臂孔底透出 B0 tile edge 档（−0.30），非 pit（−",
           "keywords": [
@@ -90637,8 +90637,8 @@
         {
           "anchor": "§L.3 C7 拆分（配方复杂度门 + 运行时预算门）",
           "level": 2,
-          "startLine": 943,
-          "endLine": 946,
+          "startLine": 954,
+          "endLine": 957,
           "tokens": 184,
           "summary": "C7-a（沿用旧值，语义改写）：统计域 = 层集配方侧；珠体命令数 ≤7 且真 α ≤2；语义 =「配方复杂度上限」——",
           "keywords": [
@@ -90650,8 +90650,8 @@
         {
           "anchor": "§L.4 R-9 分域（AA fringe · 已裁 ①）",
           "level": 2,
-          "startLine": 947,
-          "endLine": 952,
+          "startLine": 958,
+          "endLine": 963,
           "tokens": 195,
           "summary": "芯区（B ≥ 250）：保留 T1 原两线，按距轮廓分两子域——芯区-本体（距轮廓 >2px）：平均 ΔE < 2 + ",
           "keywords": [
@@ -90663,8 +90663,8 @@
         {
           "anchor": "§M · 主菜单招牌 + 走马灯卡 + 选关页作品墙（EP12-S6 / WXG-T-269-S6）",
           "level": 1,
-          "startLine": 953,
-          "endLine": 1089,
+          "startLine": 964,
+          "endLine": 1100,
           "tokens": 12323,
           "summary": "⚠ 走马灯改造（menu-architecture §1.3 第五轮）口径：主菜单主区由「木框橱窗作品墙」→单张走马灯小",
           "keywords": [
@@ -90679,8 +90679,8 @@
         {
           "anchor": "§M.1 版面与三条硬口径（验收①⑥ · §5.1/§5.2/§5.4）",
           "level": 2,
-          "startLine": 968,
-          "endLine": 979,
+          "startLine": 979,
+          "endLine": 990,
           "tokens": 1145,
           "summary": "TC-MN-01 口径①：主钮 = 当前关（与墙格解耦；点格改关后主钮跟随该关） [Node] 验收①·§5.4①·me",
           "keywords": [
@@ -90695,8 +90695,8 @@
         {
           "anchor": "§M.2 陈列序 = DI 升序（验收② · 消费 EP12-S5）",
           "level": 2,
-          "startLine": 980,
-          "endLine": 988,
+          "startLine": 991,
+          "endLine": 999,
           "tokens": 719,
           "summary": "TC-MN-08 九格缩略逐位复现 level-difficulty §5.2 墙序 L1→L8→L4→L3→L7→L2",
           "keywords": [
@@ -90711,8 +90711,8 @@
         {
           "anchor": "§M.3 首屏分流与文案单源（验收① · §7.1 F-1 / §6 P-7）",
           "level": 2,
-          "startLine": 989,
-          "endLine": 995,
+          "startLine": 1000,
+          "endLine": 1006,
           "tokens": 608,
           "summary": "TC-MN-12 首屏停主菜单：initialScreen 默认 'menu'（beads-shell.ts:156）；",
           "keywords": [
@@ -90727,8 +90727,8 @@
         {
           "anchor": "§M.4 招牌 `beadText` 珠拼（验收③④ · §5.3 · T-1 §0.5/§1.5/§1.7/§3.8）",
           "level": 2,
-          "startLine": 996,
-          "endLine": 1007,
+          "startLine": 1007,
+          "endLine": 1018,
           "tokens": 1784,
           "summary": "TC-MN-14 位表完整性：四枚字模 = n×n 方阵、字符集闭于 {#, .}、n ≡ SIGN_MATRIX_N ",
           "keywords": [
@@ -90743,8 +90743,8 @@
         {
           "anchor": "§M.5 作品格珠拼缩略（验收④ · T-1 §3.1–§3.4 案乙）",
           "level": 2,
-          "startLine": 1008,
-          "endLine": 1016,
+          "startLine": 1019,
+          "endLine": 1027,
           "tokens": 1242,
           "summary": "TC-MN-21 聚合切块规则：切块覆盖且仅覆盖每个源格一次（rows ≥ n）；. / x 不入 tally ⇒ 该位",
           "keywords": [
@@ -90759,8 +90759,8 @@
         {
           "anchor": "§M.6 K-6 图元差分（验收④ · K-051 禁纸面值）",
           "level": 2,
-          "startLine": 1017,
-          "endLine": 1026,
+          "startLine": 1028,
+          "endLine": 1037,
           "tokens": 1463,
           "summary": "TC-MN-25 差分腿与生产腿同源：不传 variant ≡ 传默认值 ⇒ 整帧 sha 等；L4 同进程两遍取数全等",
           "keywords": [
@@ -90774,8 +90774,8 @@
         {
           "anchor": "§M.7 封箱与「未渗漏」自证（验收④ · S0⑤ / L5 / §42⑤）",
           "level": 2,
-          "startLine": 1027,
-          "endLine": 1032,
+          "startLine": 1038,
+          "endLine": 1043,
           "tokens": 455,
           "summary": "TC-MN-30 玩法侧零渗漏：playing 四键（frame0 total 1325 / sha 3269d92b5",
           "keywords": [
@@ -90790,8 +90790,8 @@
         {
           "anchor": "§M.8 事件面与铁律自证（验收⑤⑦ · §8 下游单④）",
           "level": 2,
-          "startLine": 1033,
-          "endLine": 1041,
+          "startLine": 1044,
+          "endLine": 1052,
           "tokens": 1179,
           "summary": "TC-MN-31 验收⑦ menu:零玩法事件（双臂）：① 菜单惰性面点扫（木框左右上下衬 / 格间隙 / 未解锁格 /",
           "keywords": [
@@ -90806,8 +90806,8 @@
         {
           "anchor": "§M.9 观感 / 屏幕层 / 真机面（⛔ 不得标绿，K-044）",
           "level": 2,
-          "startLine": 1042,
-          "endLine": 1052,
+          "startLine": 1053,
+          "endLine": 1063,
           "tokens": 848,
           "summary": "TC-MN-35 首屏 5s 内可认出「拼豆小铺」（珠拼招牌的可读性 / 缩略密度是否糊） [Device] 验收①·§",
           "keywords": [
@@ -90821,8 +90821,8 @@
         {
           "anchor": "§M.10 · WXG-T-269-S6 质量门结论（G1–G4）",
           "level": 2,
-          "startLine": 1053,
-          "endLine": 1089,
+          "startLine": 1064,
+          "endLine": 1100,
           "tokens": 1681,
           "summary": "判据正本 = 上文 §M（TC-MN-01..40）；冒烟半边 = smoke-tests.md v1.4（SC-MN-",
           "keywords": [
@@ -90835,8 +90835,8 @@
         {
           "anchor": "§M.10.1 验收 ①–⑦ × G1–G4 映射",
           "level": 3,
-          "startLine": 1057,
-          "endLine": 1068,
+          "startLine": 1068,
+          "endLine": 1079,
           "tokens": 324,
           "summary": "① §5.1–§5.4 版面与三条硬口径 + 未解锁格零事件 ✅ ✅ TC-MN-01..07/12/13 ⛔ 未执行（",
           "keywords": [
@@ -90849,8 +90849,8 @@
         {
           "anchor": "§M.10.2 逐门结论",
           "level": 3,
-          "startLine": 1069,
-          "endLine": 1076,
+          "startLine": 1080,
+          "endLine": 1087,
           "tokens": 430,
           "summary": "G1 静态门 = PASS。verify-all 22 项逐项执行、未短路，WARN 0 ｜ SKIP 0 ｜ FAIL",
           "keywords": [
@@ -90865,8 +90865,8 @@
         {
           "anchor": "§M.10.3 BD-MN 缺陷分级（本单内 MN-nn 记；正式号 **BD-53..60** = 现存最大 BD-52 +1，K-050）",
           "level": 3,
-          "startLine": 1077,
-          "endLine": 1089,
+          "startLine": 1088,
+          "endLine": 1100,
           "tokens": 839,
           "summary": "BD-53 MN-01 P3 验收⑤（ux §5 零新增动效）无自动化 oracle（三源文件 grep 0 命中但无测",
           "keywords": [

@@ -915,6 +915,17 @@ E1–E6 落码后：**G4 玩法判据面已整体换代**（本节 J 系列）�
 > - **判据同步**：`bead-style-seal.test.ts` 新增键 18 归因断言 + `EP12_S2S3_FRAME_DRIFT=3` 登记常数↔台账一一对应 + 差分自洽式 rect/line/total 三处入账；`view-model.test.ts` BD-46 腿改钉 chip 锚；`selection-anchor.test.ts` ①② 两腿 radius 18→24 + 描边判据。
 > - **未决（QA 侧盯办）**：① ~~提交后复跑复取器自证等值~~ ✅ **已闭合（2026-10-07 提交后实测）**：本批入 `develop` 三笔（`71e2f0b` mask:diff 挂载 + `2b49177` handdrawn v2.3 + `28df141（初 d97e9ee 经 amend 更正引用）` EP12-S2/S3），干净树官方复取器 `WXG211_CAPTURE=s3` 重抓 ⇒ frame0 `1325/3269d92b…` · frame78 `1871/749b3ada…` · kinds 与 `legacyFlow 96`/`facet 45` 全案 **五键逐字节 MATCH 现役登记**（承 `补7` ①，自此复取锚已满足「可复现 commit 锚」全义）；② cool-violet 新 token 临时别名待 S8 裁定；③ pressed/disabled 态 token 零帧内消费归 S4；④ 暖纸/木钮整盘观感 `[待真机]`（harness 出图仅供工效初审）。
 
+> ### K.5.1-补11 整帧基线第十九次复评修订（2026-10-17 · EP14-S2 主界面总星数 HUD 最小臂 · 正本 = provenance `s3_frame_recheck_19`）
+>
+> - **通道声明**：属**整帧非珠体族**插入型改动（`star-collect-rule.md` R6/R8 显示腿，沿 WXG-T-288），封箱腿 4 红为预期；重抓由变更侧（工程）跑官方复取器 `tests/bead-style-seal-recapture.ts`（可再生，K-042），本文只给文号与索引、**不重复写入数值**（沿 `补4/补5` 历史追补口径）。
+> - **编号口径**：本段 ↔ **键 19**（键 18 = EP12-S2/S3 控件语言批）；引用一律附 provenance 键名。
+> - **前态 / 现态锚**：前 = 现役登记（第十八次产物）frame0 `1325/3269d92b5730…` · frame78 `1871/749b3ada8368…`；现 = commit `dd57c91`（EP14-S2 落码）复取 frame0 `1326/88103412ec6d…` · frame78 `1872/246ef8194961…`。**本批复取锚已在已提交 commit 上**（补齐 `补10` 未决① 同型欠账）。
+> - **本批修订面**：`s3.frame0` / `s3.frame78` 两键 total+sha+kinds 追改（**text 12→13**，其余 kind 零变）+ 新增归因键 `s3_frame_recheck_19` + 台账入账 `recheck-19-star-total-hud`（frame0 +1 / frame78 +1）。
+> - **流级差分归因（未解释 0 条）**：唯一变化 = 顶栏 HUD 新增 `★n` 一条 `text`（EP14-S2，`view-model.ts::drawHud`）⇒ 两帧各 +1；无改写、无删除。
+> - **最强反证**：珠体族零变更 = `legacyFlow` 96/96 与 facet 两族 45/45 重抓逐字节等值（未追改）；三笔前态史证键（`s3_pre_tray_261` / `261b` / `s3_pre_ui_268`）不漂移，其 total 全等断言改钉「现役 − 第十八批 3 − 第十九批 1」（判据同步条）。
+> - **判据同步**：`bead-style-seal.test.ts` 新增键 19 归因三条断言 + 登记常数 `EP14_S2_STAR_HUD=1` ↔ 台账一一对应 + 帧长差/差分自洽/`delta.text` 三处入账（⛔ 未并入既有黑箱常数，逐段独立登记）。新测 `tests/stars-total-hud.test.ts` 五臂（★0 起始 / 两关 Σ=6 / 同关重玩低星不涨反例 / 顶栏落位净空 / 零分配静态门）。
+> - **未决（QA 侧盯办）**：① 分母形态 `★n/27` 与总星数落位定稿 = `[待 UX 批]`（`star-collect-rule §6-T1`）⇒ EP14-S4 开工时若改写 HUD 需**同批**再复评；② `game.starsByLevelRaw` 为稠密数组、长度 = 关池 ⇒ 新增关池变长会自然括入 Σ（属 R6 口径，若后续要按大关分母需新开判据）；③ 本臂真机观感 `[待真机]`（顶栏拥挤度与 E2 大字号档）。
+
 > ### K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）
 >
 > | 引用项 | 内容 | 出处 | QA 处置 |

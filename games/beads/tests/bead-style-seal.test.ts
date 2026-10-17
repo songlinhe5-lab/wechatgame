@@ -166,6 +166,11 @@ const BACK_KEY_LINES = 5;
 const EP12_S2S3_FRAME_DRIFT = 3;
 const EP12_S2S3_RECT = 2;
 const EP12_S2S3_LINE = 1;
+/**
+ * **[EP14-S2 · 第十九次复评登记（K.5.1-补11）]** 整帧登记漂移 = 两帧各 +1（复取实测）：
+ * 顶栏 HUD 总星数位 `★n` 一条 `text`（`legacyFlow` 96 例与 facet 45+45 例逐字节零差 ⇒ 珠体族未触碰）。
+ */
+const EP14_S2_STAR_HUD = 1;
 /** 历史档案常量：HEAD 盘带中心 = (480+1120)/2，只作 Δ 基准，非现值。 */
 const HEAD_PUZZLE_BAND_MID_Y = 800;
 /** 盘带族平移矢量：由**现役** `PUZZLE_BAND` 派生（⛔ 非手填）⇒ 同时校带尺与渲染跟随。 */
@@ -473,10 +478,10 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         //（`731100c` 每空槽 +2 rect；WXG-T-256 两帧 −9 rect）。平移 = 条数中不变，不得拿它抵充增减。
         // ⛔ 各段的数值各自登记，不得合并成一个黑箱常数。
         expect(emptyFlow.length - SEAL.head.frame0.total).toBe(
-            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0 + EP12_S2S3_FRAME_DRIFT,
+            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0 + EP12_S2S3_FRAME_DRIFT + EP14_S2_STAR_HUD,
         );
         expect(SEAL.s3.frame0.total - SEAL.head.frame0.total).toBe(
-            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0 + EP12_S2S3_FRAME_DRIFT,
+            HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0 + EP12_S2S3_FRAME_DRIFT + EP14_S2_STAR_HUD,
         );
         // 归因登记必须在案（⛔ 无登记的基准追改视为红）。
         expect(SEAL.provenance.s3_frame_recheck_6, '第六次复评无归因登记').toContain('第六次复评');
@@ -527,6 +532,10 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_18).toContain('P-3');
         expect(SEAL.provenance.s3_frame_recheck_18).toContain('back 键行数 4→5');
         expect(SEAL.provenance.s3_frame_recheck_18).toContain('未解释 0 条');
+        // [EP14-S2 · 第十九次复评] 归因登记与逐字节零差反证必须在案。
+        expect(SEAL.provenance.s3_frame_recheck_19, '第十九次复评无归因登记').toContain('第十九次复评');
+        expect(SEAL.provenance.s3_frame_recheck_19).toContain('EP14_S2_STAR_HUD');
+        expect(SEAL.provenance.s3_frame_recheck_19).toContain('未解释 0 条');
         // **back 键计数腿**：[EP12-S3] 托盘投影 rect 也打 back ⇒ 登记 4→5（面板底 + 投影 + 三段内阴影）。
         const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
         const backFrame = frameFixture().flow.filter((l) => l.includes(',"back":true'));
@@ -539,22 +548,22 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         //   现役前态锁改钉新史证键：total 全等（计数零变更）+ sha 不等（改写可见）。
         const pre = SEAL.s3_pre_tray_261;
         expect(pre, '第十五次复评前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
-        expect(pre!.frame0.total, '前态 frame0 计数须 ≡ 现役 − 后续登记插入段（第十八批 +3，K.5.1-补10）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT);
-        expect(pre!.frame78.total, '前态 frame78 计数须 ≡ 现役 − 登记插入段').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT);
+        expect(pre!.frame0.total, '前态 frame0 计数须 ≡ 现役 − 后续登记插入段（第十八批 +3、第十九批 +1）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD);
+        expect(pre!.frame78.total, '前态 frame78 计数须 ≡ 现役 − 登记插入段').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD);
         expect(pre!.frame0.sha, '前态 sha 不得被刷回现役（改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(pre!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
         // 二批（第十六次复评）前态锁：`traySlot` 纯墨 ⇒ total 全等 + sha 不等（同上一键口径）。
         const preB = SEAL.s3_pre_tray_261b;
         expect(preB, '二批前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
-        expect(preB!.frame0.total, '二批前态 frame0 计数须 ≡ 现役 − 登记插入段（第十八批 +3）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT);
-        expect(preB!.frame78.total, '二批前态 frame78 计数须 ≡ 现役 − 登记插入段').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT);
+        expect(preB!.frame0.total, '二批前态 frame0 计数须 ≡ 现役 − 登记插入段（第十八批 +3、第十九批 +1）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD);
+        expect(preB!.frame78.total, '二批前态 frame78 计数须 ≡ 现役 − 登记插入段').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD);
         expect(preB!.frame0.sha, '⛔ 一批收口锁不得被刷回现役（二批墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(preB!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
         // 第十七次复评（WXG-T-268 暖纸换值批）前态锁：纯墨改写 + P-1 收编 ⇒ total 全等 + sha 不等（同一键口径）。
         const pre268 = SEAL.s3_pre_ui_268;
         expect(pre268, '第十七次复评前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
-        expect(pre268!.frame0.total, '前态 frame0 计数须 ≡ 现役 − 第十八批登记漂移（EP12-S2/S3 属插入型批次，K.5.1-补10）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT);
-        expect(pre268!.frame78.total, '前态 frame78 计数须 ≡ 现役 − 登记漂移').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT);
+        expect(pre268!.frame0.total, '前态 frame0 计数须 ≡ 现役 − 第十八/十九批登记漂移（插入型批次）').toBe(SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD);
+        expect(pre268!.frame78.total, '前态 frame78 计数须 ≡ 现役 − 登记漂移').toBe(SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD);
         expect(pre268!.frame0.sha, '⛔ 换值前收口锁不得被刷回现役（暖纸墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(pre268!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
         // 反面自证（K-060）：新锁与 HEAD 旧锁必不等，且不等量已在上面逐项登记。
@@ -606,18 +615,19 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(delta.line).toBe(78 * -5 + 78 * 2 + EP12_S2S3_LINE); // +2 = 补画坑底的 S3/S4 两线；+1 = expand 底缘（EP12-S3）
         expect(delta.circle - ctrl.circle).toBe(78 * 0); // **孔贡献 = 0**：单孔 → 环+底两枚（六裁，用户拍板）
         expect(delta.polygon).toBe(78 * 4); // **刻面 kind 化**
-        expect(delta.text - ctrl.text).toBe(0); // 非珠体族除登记段外零变更
+        expect(delta.text - ctrl.text).toBe(EP14_S2_STAR_HUD); // [EP14-S2 十九批] 顶栏新增 `★n` 一条 text；非珠体族除登记段外零变更
         const totalDelta = SEAL.s3.frame78.total - SEAL.head.frame78.total;
         expect(Object.values(delta).reduce((a, b) => a + b, 0)).toBe(totalDelta);
         expect(totalDelta).toBe(
             78 * (-4 - 5 - 0 + 4) + HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME78
-            + FILLED_SOCKET_FRAME78 - PLATE_BG_RETIRE_FRAME78 + EP12_S2S3_FRAME_DRIFT,
+            + FILLED_SOCKET_FRAME78 - PLATE_BG_RETIRE_FRAME78 + EP12_S2S3_FRAME_DRIFT + EP14_S2_STAR_HUD,
         );
         // ⛔ 禁止「纸面推算的新基线整帧数」入册（K-051）：以下均**复评登记实测值**自洽核对。
         // 1877 = 1409（recheck_7 态）+ 468（WXG-T-236 八轮「有珠格补画坑底」，第九次复评登记）；
         // 1868 = 1877 − 9（WXG-T-256 容器板 + 三层背景退役，第十三次复评登记）；
-        // 1871 = 1868 + 3（EP12-S2/S3 控件语言+换肤，第十八次复评登记，K.5.1-补10）。
-        expect(SEAL.s3.frame78.total).toBe(1871);
+        // 1871 = 1868 + 3（EP12-S2/S3 控件语言+换肤，第十八次复评登记，K.5.1-补10）；
+        // 1872 = 1871 + 1（EP14-S2 顶栏总星数位 `★n`，第十九次复评登记，K.5.1-补11）。
+        expect(SEAL.s3.frame78.total).toBe(1872);
         expect(SEAL.s3.frame78.kinds.circle).toBe(160); // = 82 + 78（每颗填格珠 +1 HOLE_RING）
         expect(SEAL.s3AtFormalization!.frame78.total).toBe(1119); // 转正时刻史证（不随复评漂移）
         expect(SEAL.head.frame78.total).toBe(1587); // 旧值仅作历史档案（§K.5.0 作废登记）
@@ -737,6 +747,9 @@ describe('WXG-T-230-B · 整帧漂移复评登记哨兵（未走复评通道的�
         // [EP12-S2/S3] 第十八次复评登记常数 ↔ 台账一一对应（插入型批次）。
         expect(byId.get('recheck-18-ep12-s2s3')!.frame0).toBe(EP12_S2S3_FRAME_DRIFT);
         expect(byId.get('recheck-18-ep12-s2s3')!.frame78).toBe(EP12_S2S3_FRAME_DRIFT);
+        // [EP14-S2] 第十九次复评登记常数 ↔ 台账一一对应（插入型批次，两帧各 +1）。
+        expect(byId.get('recheck-19-star-total-hud')!.frame0).toBe(EP14_S2_STAR_HUD);
+        expect(byId.get('recheck-19-star-total-hud')!.frame78).toBe(EP14_S2_STAR_HUD);
         // 差分自洽腿的珠体族项（每颗填格 78×(−5)）必须同源入账（少一笔 = Σ 对不上帧差）。
         expect(byId.get('s3-formalization-bead-family')!.frame78).toBe(78 * -5);
     });
