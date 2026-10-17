@@ -36834,6 +36834,129 @@
       ]
     },
     {
+      "path": "games/beads/design/proposals/star-collect-rule.md",
+      "tokens": 2587,
+      "lines": 76,
+      "sha256": "c1618ec9390b54a630d41f78308defbffd74887b1e67ff21b808f3b8936b7fca",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§设计草案 · 星星收集与星级难度（Star Collect Rule）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 77,
+          "tokens": 2564,
+          "summary": "项目：games/beads · 版本 v0.2（用户 2026-10-17 review 回写：规则主体已确认，见 §",
+          "keywords": [
+            "Star",
+            "Collect",
+            "Rule",
+            "beads",
+            "games",
+            "review"
+          ]
+        },
+        {
+          "anchor": "§1 规则总览（玩家视角一圈）",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 17,
+          "tokens": 185,
+          "summary": "第一次进一关，倒计时是宽松的「1★ 线」时长；在倒计时内拼完，用时越短星级越高——",
+          "keywords": [
+            "规则总览",
+            "玩家视角一圈"
+          ]
+        },
+        {
+          "anchor": "§2 细则 R1–R8",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 30,
+          "tokens": 740,
+          "summary": "R1 三条时间线共用一套数：1★ 线 = 关卡 time（现状真源）；2★ 线 = time × 0.85；3★ 线 =",
+          "keywords": [
+            "time",
+            "细则"
+          ]
+        },
+        {
+          "anchor": "§3 与现状代码的关系（落码影响面预览，只登记不施工）",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 36,
+          "tokens": 201,
+          "summary": "已落码且直接可用：三档时钟派生（R1/R2）、档=最高+1 的进档推导（R5 之半）、starsByLevel 存档（R",
+          "keywords": [
+            "starsByLevel",
+            "与现状代码的",
+            "关系",
+            "落码影响面预",
+            "只登记不施工"
+          ]
+        },
+        {
+          "anchor": "§4 冲突登记（与既有裁定的正面碰撞，逐条需用户背书）",
+          "level": 2,
+          "startLine": 37,
+          "endLine": 46,
+          "tokens": 418,
+          "summary": "C1 §3.7 v1.50「档位开放双条件 (a)∧(b) + 首关豁免」 R5 只看本关最高 +1，条件 (b) 退役",
+          "keywords": [
+            "§3.7",
+            "冲突登记",
+            "与既有裁定的",
+            "正面碰撞",
+            "逐条需用户背"
+          ]
+        },
+        {
+          "anchor": "§5 Review 裁定记录（2026-10-17，用户拍板）",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 60,
+          "tokens": 310,
+          "summary": "Q1 1★ 档超时看广告完成给几星 ✅ 给 1★（保底 = 进场档位星）",
+          "keywords": [
+            "Review",
+            "裁定记录",
+            "用户拍板"
+          ]
+        },
+        {
+          "anchor": "§6 待办台账（本裁定链遗留，立项时并入任务拆分）",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 72,
+          "tokens": 330,
+          "summary": "T1 「全 3★ 开大关」的界面告知 UX 设计（选关页/锁态提示/目标进度展示） 设计轨（arc-level-sele",
+          "keywords": [
+            "arc",
+            "level",
+            "sele",
+            "待办台账",
+            "本裁定链遗留",
+            "立项时并入任"
+          ]
+        },
+        {
+          "anchor": "§附录 · 一句话规则卡（可直接抄进加载提示/新手引导）",
+          "level": 2,
+          "startLine": 73,
+          "endLine": 77,
+          "tokens": 54,
+          "summary": "拼得越快，星星越高；星星越高，下次时间越紧。",
+          "keywords": [
+            "附录",
+            "一句话规则卡",
+            "可直接抄进加",
+            "载提示",
+            "新手引导"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/proposals/star-level-rebalance.md",
       "tokens": 7487,
       "lines": 387,
@@ -37118,6 +37241,214 @@
             "spec",
             "score",
             "combo"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/star-utility.md",
+      "tokens": 2732,
+      "lines": 103,
+      "sha256": "8354171753c70f8b092aa9a7cc77c299dbe257580b7e0b858f65706192a0f645",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§设计草案 · 星级的用处（Star Utility）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 104,
+          "tokens": 2714,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v0.2 · 任务号 WXG-T-286（P1；原误占 285 与",
+          "keywords": [
+            "Star",
+            "Utility",
+            "beads",
+            "games",
+            "WXG",
+            "设计草案"
+          ]
+        },
+        {
+          "anchor": "§1 问题定义：星级现在到底哪里有、哪里断",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 24,
+          "tokens": 352,
+          "summary": "现行星级机制（§3.7 v1.50「三档时钟·选档即定星」，已落码 tuning.nextTierFor/tierSec",
+          "keywords": [
+            "§3.7",
+            "tuning",
+            "nextTierFor",
+            "tierSec",
+            "问题定义",
+            "星级现在到底"
+          ]
+        },
+        {
+          "anchor": "§2 候选消费场景（六个，含一个补票）",
+          "level": 2,
+          "startLine": 25,
+          "endLine": 59,
+          "tokens": 1002,
+          "summary": "",
+          "keywords": [
+            "候选消费场景",
+            "六个",
+            "含一个补票"
+          ]
+        },
+        {
+          "anchor": "§A. 把已裁的「累计★ 解锁珠面皮肤」做实 【补票项，非新增】",
+          "level": 3,
+          "startLine": 27,
+          "endLine": 33,
+          "tokens": 218,
+          "summary": "体验一句话：星星攒够了 → 解锁一套新珠面材质，重玩旧关换新皮再拼一遍。",
+          "keywords": [
+            "把已裁的",
+            "累计",
+            "解锁珠面皮肤",
+            "做实",
+            "补票项",
+            "非新增"
+          ]
+        },
+        {
+          "anchor": "§B. 星级总星数 = 新大关（arc）的推门门票",
+          "level": 3,
+          "startLine": 34,
+          "endLine": 40,
+          "tokens": 211,
+          "summary": "体验一句话：大关之间设一道星槛——第一大关攒不够 ★ 就开不了第二大关。",
+          "keywords": [
+            "arc",
+            "星级总星数",
+            "新大关",
+            "的推门门票"
+          ]
+        },
+        {
+          "anchor": "§C. Boss 关星级 = 限定图纸/图鉴收藏",
+          "level": 3,
+          "startLine": 41,
+          "endLine": 47,
+          "tokens": 171,
+          "summary": "体验一句话：L9 boss 拿满 3★ 才点亮\"金框图纸\"，进个人图鉴册（纯收藏，可截图分享）。",
+          "keywords": [
+            "Boss",
+            "boss",
+            "关星级",
+            "限定图纸",
+            "图鉴收藏"
+          ]
+        },
+        {
+          "anchor": "§D. 每日挑战的星级倍率/修饰符",
+          "level": 3,
+          "startLine": 48,
+          "endLine": 53,
+          "tokens": 161,
+          "summary": "体验一句话：今日挑战按昨日最好星级给一个小变化（如 3★ 玩家今日时限 −10%，或开局多一个辅助托盘）。",
+          "keywords": [
+            "每日挑战的星",
+            "级倍率",
+            "修饰符"
+          ]
+        },
+        {
+          "anchor": "§E. 好友/全服星级排行",
+          "level": 3,
+          "startLine": 54,
+          "endLine": 56,
+          "tokens": 53,
+          "summary": "⛔ demo 阶段不可行：concept §7 Won't 已砍社交 + 无服务端（daily-challenge.md",
+          "keywords": [
+            "§7",
+            "demo",
+            "concept",
+            "Won",
+            "daily",
+            "challenge"
+          ]
+        },
+        {
+          "anchor": "§F. 激励视频「保星」位（失败掉星时花广告保住的星）",
+          "level": 3,
+          "startLine": 57,
+          "endLine": 59,
+          "tokens": 77,
+          "summary": "⛔ 不建议：现行制星级=档位、过了就记历史最高，本就无\"掉星\"事件；硬造掉星再卖保住 = 把 v1.50 刚拆开的压力线",
+          "keywords": [
+            "激励视频",
+            "保星",
+            "失败掉星时花",
+            "广告保住的星"
+          ]
+        },
+        {
+          "anchor": "§3 推荐组合（三档）",
+          "level": 2,
+          "startLine": 60,
+          "endLine": 69,
+          "tokens": 201,
+          "summary": "保守 只做 A（补已裁的票） 皮肤阈值表 [待 playtest] 单靠换肤，中期（皮肤解锁完）又回到无目标",
+          "keywords": [
+            "playtest",
+            "推荐组合",
+            "三档"
+          ]
+        },
+        {
+          "anchor": "§4 给用户的问题清单",
+          "level": 2,
+          "startLine": 70,
+          "endLine": 79,
+          "tokens": 259,
+          "summary": "Q1（方向）：三档组合选哪档？推荐中庸。",
+          "keywords": [
+            "给用户的问题",
+            "清单"
+          ]
+        },
+        {
+          "anchor": "§附录 A · 新增常量候选（⛔ 未冻结）",
+          "level": 2,
+          "startLine": 80,
+          "endLine": 87,
+          "tokens": 97,
+          "summary": "SKIN_UNLOCK_STARS 皮肤阈值表 [待 playtest] systems-index §3.7 追加行",
+          "keywords": [
+            "§3.7",
+            "SKIN_UNLOCK_STARS",
+            "playtest",
+            "systems",
+            "index",
+            "附录"
+          ]
+        },
+        {
+          "anchor": "§附录 B · 与既有裁定的相容性总表",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 97,
+          "tokens": 125,
+          "summary": "Q5 = A 完成度纯显示 ✅（外观非门槛） ⚠ 需改判背书 ✅ 同向 ✅ — —",
+          "keywords": [
+            "附录",
+            "与既有裁定的",
+            "相容性总表"
+          ]
+        },
+        {
+          "anchor": "§5 裁定记录（2026-10-17，用户拍板）",
+          "level": 2,
+          "startLine": 98,
+          "endLine": 104,
+          "tokens": 304,
+          "summary": "1. 本提案整体归档，暂不立项：星级消费场景（含「星级解锁下一关」方向）留档备查；待换肤系统真要做时，再回来评估是否增加",
+          "keywords": [
+            "裁定记录",
+            "用户拍板"
           ]
         }
       ]
