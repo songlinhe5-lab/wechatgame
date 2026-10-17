@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "962216340fd98c56354d948e4a4a824f449f77aafa8bbd2686c5710fa3bd17e7",
+      "sha256": "814a4634b66eb59d73eb8176ad766da531eae4e99e5de7480963b6eb4aa2a254",
       "tier": "normal",
       "sections": [
         {
@@ -396,7 +396,7 @@
           "startLine": 1,
           "endLine": 150,
           "tokens": 4258,
-          "summary": "生成：2026-10-17 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-18 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -86296,6 +86296,103 @@
             "mode",
             "RGBA",
             "alpha"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/wxg-t-288-s2-star-hud-evidence.md",
+      "tokens": 2114,
+      "lines": 66,
+      "sha256": "77d7807b470e5c210949ac2bc9e809fbb26dd9168a5b2a0fc1ffce9b7ca69563",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WXG-T-288 · EP14-S2 主界面总星数位 取证（2026-10-17）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 67,
+          "tokens": 2094,
+          "summary": "结论一句话：顶栏总星数位已在真浏览器画面上拍到两态（★0 → 真引擎通关后 ★3），位置在安全区内、与齿轮热区不互掉；",
+          "keywords": [
+            "WXG",
+            "EP14",
+            "主界面总星数",
+            "取证"
+          ]
+        },
+        {
+          "anchor": "§1 环境与取法（可复跑）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 17,
+          "tokens": 408,
+          "summary": "画面级通道（主证据） 浏览器 dev harness 实拍：pnpm run harness → http://127.",
+          "keywords": [
+            "dev",
+            "harness",
+            "pnpm",
+            "run",
+            "http",
+            "环境与取法"
+          ]
+        },
+        {
+          "anchor": "§2 画面级两态读数",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 39,
+          "tokens": 481,
+          "summary": "开局（新档，L1 未通） playing 0 ★0 (120, 1274) 1662",
+          "keywords": [
+            "playing",
+            "画面级两态读"
+          ]
+        },
+        {
+          "anchor": "§3 判据与读数对应",
+          "level": 2,
+          "startLine": 40,
+          "endLine": 49,
+          "tokens": 326,
+          "summary": "总星数 = Σ 各关历史最高星 star-collect-rule.md R6 L1 拿 3★ ⇒ starsTotal",
+          "keywords": [
+            "star",
+            "collect",
+            "rule",
+            "starsTotal",
+            "判据与读数对"
+          ]
+        },
+        {
+          "anchor": "§4 未闭与解除条件",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 57,
+          "tokens": 284,
+          "summary": "分母形态 ★n/27（当前大关容量） R8 的落位与分母明标 [待拍板] = star-collect-rule §6-",
+          "keywords": [
+            "§6",
+            "star",
+            "collect",
+            "rule",
+            "未闭与解除条"
+          ]
+        },
+        {
+          "anchor": "§5 本件初版的三处错判（订正留档，K-053 不静默删）",
+          "level": 2,
+          "startLine": 58,
+          "endLine": 67,
+          "tokens": 358,
+          "summary": "1 「浏览器实拍做不到，只能交离屏 SVG」 浏览器 harness 完全可跑可拍 只验到 weixin MCP（需构建",
+          "keywords": [
+            "SVG",
+            "harness",
+            "weixin",
+            "MCP",
+            "本件初版的三",
+            "处错判"
           ]
         }
       ]
