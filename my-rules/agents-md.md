@@ -20,6 +20,7 @@ trigger: always_on
 - 数值真源 → `games/<game>/design/gdd/systems-index.md` §3
 - 全量验证 → `pnpm run verify`；提交前链接门 → `pnpm run check:links`
 - 先问再写；不伪造编辑器产物；不擅自 commit/push
+- **输出纪律**：书面中文，代号括号回查，引用附出处 → docs/agent/output-style.md
 - **ponytail 必触发（编码类）**：写/改/重构/修复代码开工前调用，按规模定档——小改 `lite`、常规 `full`（默认）、选型/重构 `full`＋最简对比；非编码不用
 - **本轮触发分析**：每轮回复末尾一行列**本轮**触发的 skill（名称 + 次数 + 方式：自动/手动）；无则写「无」；不累计全会话
 
