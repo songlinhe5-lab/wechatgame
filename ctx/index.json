@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "c128641ccbf705e5bf54526f6872b0ddcc46e9838f07db89ccea8bd47f08252d",
+      "sha256": "8c5e7ec73e2fed5a7bb4468ac549353ce056054d53497a902f0183060beca860",
       "tier": "normal",
       "sections": [
         {
@@ -2679,17 +2679,17 @@
     },
     {
       "path": "docs/agent/output-style.md",
-      "tokens": 684,
-      "lines": 23,
-      "sha256": "4022b27157b49554d43222c107fb23da7105c6a9a0ffa6fbb6ca303825a3be05",
+      "tokens": 947,
+      "lines": 31,
+      "sha256": "77a5df1cff35ea77c6da2b1fd0e74d3b22e402196358e43442eae7b4b8d72ea5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§输出表述纪律（对用户回复的语言要求）",
           "level": 1,
           "startLine": 1,
-          "endLine": 24,
-          "tokens": 665,
+          "endLine": 32,
+          "tokens": 928,
           "summary": "正本条文。常驻层指针：my-rules/agents-md.md（四 IDE alwaysApply 规则摘要，因 AG",
           "keywords": [
             "rules",
@@ -2723,10 +2723,24 @@
           ]
         },
         {
-          "anchor": "§会话总结的额外口径（参考 Cursor 表述风格）",
+          "anchor": "§会话收尾：给出三个可继续的新任务选项",
           "level": 2,
           "startLine": 16,
-          "endLine": 20,
+          "endLine": 23,
+          "tokens": 244,
+          "summary": "每次会话（或单项任务）收尾时，除总结外必须给出 3 个具体的下一步任务选项，供用户挑选以持续推进开发、避免 TODO 遗",
+          "keywords": [
+            "TODO",
+            "会话收尾",
+            "给出三个可继",
+            "续的新任务选"
+          ]
+        },
+        {
+          "anchor": "§会话总结的额外口径（参考 Cursor 表述风格）",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 28,
           "tokens": 135,
           "summary": "结构化逐项说明「做了什么、改在哪里、为什么改、遗留什么」，每一条用完整短句表达实际含义，而非内部代号堆砌。",
           "keywords": [
@@ -2740,8 +2754,8 @@
         {
           "anchor": "§为什么放在共享层而不是单个 IDE 的私有记忆",
           "level": 2,
-          "startLine": 21,
-          "endLine": 24,
+          "startLine": 29,
+          "endLine": 32,
           "tokens": 134,
           "summary": "my-rules/agents-md.md 是 Cursor / CodeBuddy / WorkBuddy / Qod",
           "keywords": [
@@ -61960,9 +61974,9 @@
     },
     {
       "path": "my-rules/agents-md.md",
-      "tokens": 498,
+      "tokens": 500,
       "lines": 27,
-      "sha256": "dfde6ef4d6b1dc91b6ce609d1d97206045fecf6d6d4ac6e0b53b7a8a1652f50b",
+      "sha256": "2a8c0055c6c6d7ab8836b3e5249f29a3e6675284f4bba9bb623c435e1a44f2e1",
       "tier": "always",
       "sections": [
         {
@@ -61970,7 +61984,7 @@
           "level": 1,
           "startLine": 8,
           "endLine": 28,
-          "tokens": 453,
+          "tokens": 455,
           "summary": "正本：my-rules/agents-md.md。四 IDE 规则路径均为指向本文件的相对符号链接。",
           "keywords": [
             "AGENTS",
