@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5581,
       "lines": 86,
-      "sha256": "3fb3d4178b6f8484d3c7282541f691c8f3431266264140c9d3fe3506d99db5d7",
+      "sha256": "fb3695094033433424afa2c2ff5b85c2a8b300f232d248c2f48ef75cb70cc3e5",
       "tier": "normal",
       "sections": [
         {
@@ -83302,17 +83302,17 @@
     },
     {
       "path": "production/epics/epics-beads-status.md",
-      "tokens": 2826,
-      "lines": 75,
-      "sha256": "e94a128a385176ed14ce71fdf20cac4809724fba9734aac377d7e2c90edd5d3e",
+      "tokens": 3170,
+      "lines": 85,
+      "sha256": "c54374def31dfcfe20bb2e31fc91330a8771db99069a7eaaa3d70831ad27758f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic/Story 状态时效声明（epics-beads 拆分件）",
           "level": 1,
           "startLine": 1,
-          "endLine": 76,
-          "tokens": 2806,
+          "endLine": 86,
+          "tokens": 3150,
           "summary": "正本宿主：production/epics/epics-beads.md（本块原为其顶部「⚠️ 状态时效声明」）",
           "keywords": [
             "beads",

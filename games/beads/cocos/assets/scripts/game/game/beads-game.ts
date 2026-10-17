@@ -610,6 +610,12 @@ export class BeadsGame implements Game {
   private readonly _onStaminaRefill?: () => void;
   /** 在飞广告种类：区分续时（revive）与体力回满（staminaRefill）的发奖路由。 */
   private _adKind: 'revive' | 'staminaRefill' | null = null;
+  /**
+   * 弃局标（EP13-S3）：`showMenu`（暂停次钮回主菜单）置真，新局装配（两装配入口共经
+   * {@link _clearReviveBookkeeping}）清假。广告发奖是**广播**，续时腿只认机器状态；
+   * 无此标 ⇒ 「上局失败 → 回菜单 → 看体力广告」会被拉回旧失败盘白得加时。
+   */
+  private _abandoned = false;
   /** 0 心被拒时挂起的 run-start 续体（广告回满后重放 retry/restart）。 */
   private _pendingRunStart: (() => boolean) | null = null;
   /** BOOT validation errors — non-empty means the game refuses PLAYING. */
@@ -1607,6 +1613,14 @@ export class BeadsGame implements Game {
     }
     this._machine.transition('playing');
     return true;
+  }
+
+  /**
+   * 回主菜单 = **弃本局**（EP13-S3）：置弃局标 ⇒ 在途/后续广告发奖不得复活旧棋盘。
+   * 下次新局装配（`goToLevel`/retry/restart）自动清除。
+   */
+  abandonRun(): void {
+    this._abandoned = true;
   }
 
   /**
@@ -3036,6 +3050,7 @@ export class BeadsGame implements Game {
     this._failHint = '';
     this._adKind = null;
     this._pendingRunStart = null;
+    this._abandoned = false; // 新局装配 = 重新入局（弃局标只活到下一次装配）
   }
 
   /** 广告发奖分发：按在飞种类路由到续时（revive）或体力回满（staminaRefill）。 */
@@ -3059,6 +3074,9 @@ export class BeadsGame implements Game {
    * No-op unless we are still on the ordinary GAME_OVER overlay.
    */
   private _continueFromReward(): void {
+    // 弃局后（已回主菜单）任何广告发奖不得复活旧棋盘（EP13-S3 串道反例：菜单侧看体力广告
+    // 会广播到这里，旧 `game-over` 机器状态仍在 ⇒ 不加此守卫即白得 REVIVE_BONUS_SEC）。
+    if (this._abandoned) return;
     if (this._machine.current !== 'game-over') return;
     if (this._mode !== 'normal') return;
     if (this._reviveCount >= REVIVE_MAX_PER_LEVEL) return;

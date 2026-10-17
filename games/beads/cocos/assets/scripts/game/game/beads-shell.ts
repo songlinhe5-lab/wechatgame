@@ -39,6 +39,7 @@ import {
     FACET4_STYLE_ID,
     BEAD_SIZE_DEFAULT,
     STAMINA_START_COST,
+    STAMINA_REFILL_PLACEMENT,
     WALL_CAPACITY,
     MENU_CAROUSEL,
     MENU_CLIP,
@@ -207,6 +208,10 @@ export class BeadsShell implements Game {
     private _animDir: -1 | 0 | 1 = 0;
     /** 已通槽逆序 scratch（复用数组 ⇒ 每帧零分配；`[0]` = 进度最远）。 */
     private readonly _carouselOrder: number[] = [];
+    /** 菜单侧体力回满广告在途标（EP13-S3）：防连点重复 show；`onClose`/`onError` 清。 */
+    private _refillPending = false;
+    /** 广告订阅退订器（`init` 登记、`dispose` 释放）。 */
+    private readonly _adOffs: Array<() => void> = [];
 
     constructor(options: BeadsShellOptions) {
         this._clock = options.clock;
@@ -262,6 +267,21 @@ export class BeadsShell implements Game {
             designHeight: services.viewport.designHeight,
         });
         this.play.init(services);
+        // 菜单侧体力回满发奖（EP13-S3）：**广播**订阅，只认自己的在途标 ⇒ 不误接续时/回满腿。
+        const ad = services.rewardedAd;
+        this._adOffs.push(
+            ad.onRewarded(() => {
+                if (!this._refillPending) return;
+                this._refillPending = false;
+                this.meta?.refillStamina();
+            }),
+            ad.onClose(() => {
+                this._refillPending = false;
+            }),
+            ad.onError(() => {
+                this._refillPending = false;
+            }),
+        );
         const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
         this.meta = new MetaState({
             storage: services.storage,
@@ -309,14 +329,16 @@ export class BeadsShell implements Game {
     }
 
     dispose(): void {
+        for (const off of this._adOffs) off();
         this.play.dispose();
         this.meta?.dispose();
     }
 
     // ───────────────────────────────────────────────────────────── routing
 
-    /** 暂停次钮「回主菜单」：切菜单、清 overlay（本局棋盘不保留——重进时由 {@link startGame} 复位）。 */
+    /** 暂停次钮「回主菜单」：切菜单、清 overlay（本局弃置——`play.abandonRun()`) 。 */
     showMenu(): void {
+        this.play.abandonRun();
         this._screen = 'menu';
         this._overlay = 'none';
         this._emitOverlay(true);
@@ -331,14 +353,33 @@ export class BeadsShell implements Game {
         return this._startLevel(this.play.levelIndex);
     }
 
-    /** 进玩法统一下入口：扣心→切屏→`goToLevel(index)` 装配该局。0 心不切屏。 */
+    /**
+     * 进玩法统一下入口：扣心→切屏→`goToLevel(index)` 装配该局。0 心不切屏：
+     * 留本页 + 拉起**既有**体力回满激励位（EP13-S3 · `tls §4-R7`，零新数值）。
+     */
     private _startLevel(index: number): boolean {
-        if (!this.meta || !this.meta.spendStamina(STAMINA_START_COST)) return false;
+        if (!this.meta) return false;
+        if (!this.meta.spendStamina(STAMINA_START_COST)) {
+            this._requestStaminaRefill();
+            return false;
+        }
         this._screen = 'play';
         this._overlay = 'none';
         this._emitOverlay(false);
         this.play.goToLevel(index); // 棋盘复位到该关初始（关卡指针/解锁进度不变）
         return true;
+    }
+
+    /**
+     * 菜单侧 0 心回满位（§3.11 第二 live 位；内容/数值零改动，只复用既有 `stamina-refill` 位）。
+     * 无广告服务/无 meta/已有在飞 ⇒ 零副作用（被拒即停在本页，可再点）。
+     */
+    private _requestStaminaRefill(): void {
+        const ad = this._services?.rewardedAd;
+        if (!ad || !this.meta || this._refillPending) return;
+        this._refillPending = true;
+        ad.load(STAMINA_REFILL_PLACEMENT);
+        ad.show();
     }
 
     /**
