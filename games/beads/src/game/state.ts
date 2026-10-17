@@ -158,6 +158,12 @@ export interface BeadsSnapshot {
    */
   skinId: string;
 
+  /**
+   * 主界面总星数 = **Σ 各关历史最高星**（`star-collect-rule.md` R6/R8，EP14-S2）。
+   * 数值在 `_syncSnapshot()` 里用局部累加算出（热路径零分配）⇒ 视图 ⛔ 不自算、不持有。
+   */
+  starsTotal: number;
+
   /** Sprint HUD — normal mode leaves these at zero and the view hides them. */
   score: number;
   multiplier: number;
@@ -457,6 +463,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     beadSize: BEAD_SIZE_DEFAULT,
     // 默认肤与存档层同一真源（`registry.DEFAULT_SKIN_ID`），⛔ 不得另写字面量。
     skinId: DEFAULT_SKIN_ID,
+    starsTotal: 0,
     score: 0,
     multiplier: 1,
     streak: 0,

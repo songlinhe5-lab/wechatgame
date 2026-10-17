@@ -757,6 +757,16 @@ function drawHud(
   // 中心孔 r5 填 panel_surface）；v1.2「circle+中心点」作废。热区 88×88 归 game（S2）。
   drawGear(builder, 60, midY, palette);
 
+  // EP14-S2 · R8 主界面总星数（`star-collect-rule.md` R6/R8）：数值由快照派生（Σ 历史最高），
+  // 视图 ⛔ 不自算；零热区（只读显示位）。落位 = 顶栏左半（齿轮 88² 热区之右、计时胶囊之左）；
+  // 分母形态（`★n/27` 类）归 `[待 UX 批]` = EP14-S4 / §6-T1，本批按 Story 口径只上最小臂。
+  builder.text(120, midY, `★${snap.starsTotal}`, {
+    fill: palette.text,
+    font: bodyFont(snap, 'hudSmall'),
+    align: 'left',
+    baseline: 'middle',
+  });
+
   // Mode / stage label（F7⑤：最小字号 28px）。[EP12-S3 · screens.md S1] normal 模式
   // 「LV n/N」上 **纸 chip 96×48**（radius_chip 12，panel + 1px panelBorder，无投影，字居中）；
   // sprint「STAGE n」维持右对齐锚 DESIGN_W−30（BD-46 净空判据不变：chip 左缘距胶囊

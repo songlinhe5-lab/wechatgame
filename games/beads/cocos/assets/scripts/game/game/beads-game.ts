@@ -3988,6 +3988,11 @@ export class BeadsGame implements Game {
         : (currentLevel?.name ?? '');
     s.levelCount = this._levels.length;
 
+    // 总星数（EP14-S2 · R6 = Σ 各关历史最高）：局部累加，热路径零分配（L5 / 控制清单）。
+    let starsTotal = 0;
+    for (let i = 0; i < this._starsByLevel.length; i++) starsTotal += this._starsByLevel[i]!;
+    s.starsTotal = starsTotal;
+
     s.remaining = Math.max(0, Math.ceil(this._timer.remaining - 1e-9));
     s.timeTotal = this._timer.total;
     s.urgent = this._timer.remaining <= TIMER_URGENT_T && this._timer.remaining > 0;
