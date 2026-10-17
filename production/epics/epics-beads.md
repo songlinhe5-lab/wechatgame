@@ -244,8 +244,8 @@
 
 ### EP-13 大关选关页落码（S10 元游戏页族 · 导航链）
 
-> **正文拆分件 →** [《epics-beads-ep13.md》](./epics-beads-ep13.md)：5 个 Story（`EP13-S1…S5`）+ C-1…C-5 改动面映射 + `tls §4` 逐行引用式验收；越 B 门史证另挂 [《epics-beads-ep13.s-history.md》](./epics-beads-ep13.s-history.md)（⛔ 只增不改）。权威 = `design/ux/arc-level-select-spec.md` v1.1–v1.3 与其分片 `…s9-history.md §9` + `gdd/meta-ui.md §2.7/§8`；**零 §3 变更、零新判据**。
-> **状态（唯一真源 = [《epics-beads-status.md》](./epics-beads-status.md) 第 9–13 条）**：五 Story **全 done**（沿拆分号 WXG-T-284：S1 `201c0e4` / S2 `74acba8` / S3 `994cb24` / S4 `25015cd` / S5 `6e94f49`）。未闭：C-3④（页头大关名令牌）与 C-6/C-7/C-8 仍为下游占位；规格自陈句 6 处待回写；`epics-beads-ep13-fu-wallcell.md`（3×3 收墙 + 未解锁/越界合形锁格，承 v1.3 与 Q15 改裁）**待领号**。
+> **正文拆分件 →** [《epics-beads-ep13.md》](./epics-beads-ep13.md)：5 个 Story（`EP13-S1…S5`）+ C-1…C-5 改动面映射 + `tls §4` 逐行引用式验收；越 B 门史证另挂 [《epics-beads-ep13.s-history.md》](./epics-beads-ep13.s-history.md)（⛔ 只增不改）。权威 = `design/ux/arc-level-select-spec.md` v1.1–v1.5 与其分片 `…s9-history.md §9` + `gdd/meta-ui.md §2.7/§8`；**零 §3 变更、零新判据**。
+> **状态（唯一真源 = [《epics-beads-status.md》](./epics-beads-status.md) 第 9–14 条）**：五 Story **全 done**（沿拆分号 WXG-T-284：S1 `201c0e4` / S2 `74acba8` / S3 `994cb24` / S4 `25015cd` / S5 `6e94f49`），跟进单 EP13-FU-1（3×3 收墙 + 锁格合形）**已落码 = `044e96a`（WXG-T-290）**。未闭：C-3④（页头大关名令牌）与 C-6/C-7/C-8 仍为下游占位；规格自陈句七处已回写（v1.4 / `4f14028`）；锁格合形的**首日图元代价**（旧 696 → 1423）待美术与 QA 裁，台账生产腿终值待重取。
 
 ---
 

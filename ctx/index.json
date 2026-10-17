@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "6a9daef16e2b0029baee377f2c5734e4bc25104f5e335bbfaf545da04119c5b6",
+      "sha256": "4267cfce3c8177b346fd77c071d6d71d929bdc93844767876f23b6d9faf77047",
       "tier": "normal",
       "sections": [
         {
@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5593,
       "lines": 86,
-      "sha256": "00e52f30f7180fdaed0f0badcd66c7603d7b7f4c2b241f40817647be88917d93",
+      "sha256": "5998e4608329d08bc9f24d46bcee19c5154878ec6272a603d81608e4e2696037",
       "tier": "normal",
       "sections": [
         {
@@ -764,7 +764,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 99 行 / 33845 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 99 行 / 33848 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -82180,9 +82180,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 33845,
+      "tokens": 33848,
       "lines": 99,
-      "sha256": "45d366c2b554f30c8a81c01730937b24c2f0e84067d2177e11216a1b1654238b",
+      "sha256": "d03afb3c0cfd4cb705f42a9131bc3801d2b121a7aa3bea47b3b739e2fd2a0bfe",
       "tier": "hot",
       "sections": [
         {
@@ -82190,7 +82190,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 100,
-          "tokens": 33836,
+          "tokens": 33839,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -82739,9 +82739,9 @@
     },
     {
       "path": "production/epics/epics-beads-ep13-fu-wallcell.md",
-      "tokens": 2125,
+      "tokens": 2141,
       "lines": 77,
-      "sha256": "dee903c7375b1f88e7154227cd0870a6b2bfa9deead9e12a137fa85313c87216",
+      "sha256": "ad0c3aefbd3fc09e971d70f015d7136fa61f2173476efe58f2a35fa21d891e30",
       "tier": "normal",
       "sections": [
         {
@@ -82749,7 +82749,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 78,
-          "tokens": 2096,
+          "tokens": 2111,
           "summary": "本件性质：EP-13 大关选关页落码批的跟进 Story（承 epics-beads-ep13.md §7 后置占位）。",
           "keywords": [
             "§7",
@@ -82849,7 +82849,7 @@
           "level": 2,
           "startLine": 58,
           "endLine": 78,
-          "tokens": 585,
+          "tokens": 601,
           "summary": "Story EP13-FU-1 = WXG-T-290（已领号入台账，沿本件拆分号不另领）",
           "keywords": [
             "Story",
@@ -83494,17 +83494,17 @@
     },
     {
       "path": "production/epics/epics-beads-status.md",
-      "tokens": 3769,
-      "lines": 104,
-      "sha256": "59b0897cb27817aea7a6fd756249322daecb5d42422426c7a86f0c9c1104db3f",
+      "tokens": 4266,
+      "lines": 117,
+      "sha256": "2a96590646773c889bd1bd8ea434c820f7008f5d2b4da17117d60731eea291d6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic/Story 状态时效声明（epics-beads 拆分件）",
           "level": 1,
           "startLine": 1,
-          "endLine": 105,
-          "tokens": 3749,
+          "endLine": 118,
+          "tokens": 4246,
           "summary": "正本宿主：production/epics/epics-beads.md（本块原为其顶部「⚠️ 状态时效声明」）",
           "keywords": [
             "beads",
@@ -83519,9 +83519,9 @@
     },
     {
       "path": "production/epics/epics-beads.md",
-      "tokens": 8599,
+      "tokens": 8632,
       "lines": 295,
-      "sha256": "12674ed10ef93f8c83281ee7233a2c38e1a6c9e855abe5c6eb5d0f7183a6bf6d",
+      "sha256": "ca992847be256c46dcbedbd9d414c9ba2075f9bbf3031e05e4ede01c48ad052e",
       "tier": "normal",
       "sections": [
         {
@@ -83529,7 +83529,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 296,
-          "tokens": 8586,
+          "tokens": 8619,
           "summary": "项目：games/beads（拼豆填色消除）· 任务 WXG-T-010 · 版本 v1.0",
           "keywords": [
             "beads",
@@ -83577,7 +83577,7 @@
           "level": 2,
           "startLine": 49,
           "endLine": 251,
-          "tokens": 5961,
+          "tokens": 5995,
           "summary": "",
           "keywords": [
             "Story",
@@ -83760,7 +83760,7 @@
           "level": 3,
           "startLine": 245,
           "endLine": 251,
-          "tokens": 263,
+          "tokens": 297,
           "summary": "正文拆分件 → [《epics-beads-ep13.md》](./epics-beads-ep13.md)：5 个 S",
           "keywords": [
             "S10",
