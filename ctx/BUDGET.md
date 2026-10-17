@@ -11,19 +11,19 @@
 | `AGENTS.md` | 1989 | 123 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 500 | 27 | 500 | ✅ |
-| `ctx/hot-files.md` | 5581 | 86 | 5600 | ✅ |
+| `ctx/hot-files.md` | 5587 | 86 | 5600 | ✅ |
 | `ctx/ROUTES.md` | 7256 | 237 | 7500 | ✅ |
 
 > AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
 > `ctx/ROUTES.md` 常驻阈值 **7500**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，且低于 B 项通用单文件上限 8000——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。
-> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **15580** 估算 tokens（观察哨软阈值 ≤ 13500，⚠️ 已超——请评估瘦身）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
+> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **15586** 估算 tokens（观察哨软阈值 ≤ 13500，⚠️ 已超——请评估瘦身）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
 
 ## 2. Top 20 大文件（估算 tokens）
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
 | 1 | `games/beads/design/art/specs/assets-spec.md` | 119789 | 2105 | normal |
-| 2 | `production/TASKS-DETAIL.md` | 113411 | 3270 | normal |
+| 2 | `production/TASKS-DETAIL.md` | 114011 | 3280 | normal |
 | 3 | `production/qa/beads/test-cases.md` | 89514 | 1088 | hot |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
 | 5 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45095 | 1307 | normal |
@@ -33,7 +33,7 @@
 | 9 | `games/beads/design/art/specs/art-bible.md` | 37413 | 528 | normal |
 | 10 | `games/beads/design/art/specs/accessibility.md` | 35820 | 200 | normal |
 | 11 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 35581 | 943 | normal |
-| 12 | `production/TASKS.md` | 33619 | 97 | hot |
+| 12 | `production/TASKS.md` | 33759 | 98 | hot |
 | 13 | `games/beads/design/gdd/systems-index.md` | 29140 | 300 | hot |
 | 14 | `memory/2026-10-04.md` | 28255 | 930 | normal |
 | 15 | `games/beads/design/levels/levels-spec.md` | 24237 | 542 | normal |
@@ -48,7 +48,7 @@
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
 | `games/beads/design/art/specs/assets-spec.md` | 119789 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS-DETAIL.md` | 113411 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 114011 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 89514 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 86807 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45095 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -58,7 +58,7 @@
 | `games/beads/design/art/specs/art-bible.md` | 37413 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/accessibility.md` | 35820 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 35581 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS.md` | 33619 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS.md` | 33759 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/systems-index.md` | 29140 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-10-04.md` | 28255 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/levels/levels-spec.md` | 24237 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -103,6 +103,7 @@
 | `games/beads/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.es.md` | 8764 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/core-loop.md` | 8681 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/epics/epics-beads.md` | 8599 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/smoke-tests.md` | 8572 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/menu-showcase-asset-spec.md` | 8563 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/control-manifest.md` | 8552 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -114,7 +115,6 @@
 | `games/beads/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md` | 8335 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/proposals/ui-style-redesign/risks.md` | 8309 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/epics/epics-beads.md` | 8213 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.de.md` | 8150 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/playtest-plan.md` | 8100 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

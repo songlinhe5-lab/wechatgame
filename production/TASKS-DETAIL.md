@@ -3268,3 +3268,13 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **保留**：G-3 裁定、剥皮 task_summary（带校正段）、验证盲区专条、k-means 架构正本、安全区双条（分工非重复）。
 - **零代码改动**（`src/**` / `packages/framework/**` 未动）⇒ 未重跑 verify；`check:links` 实跑 OK。
 - **遗留**：`temp/`（572 文件 + 208 目录）与 `.playwright-cli/` 旧日志仍在目录树注入面内，待用户点名后清理。
+
+## WXG-T-284
+
+> beads·EP-13「大关选关页」拆分 + 五批落码｜主理人(Qoder) spawn 程基岩｜2026-10-16 用户三裁定（清单存大关表 / 点图进本大关列表 / 已通关格直接重玩）+ Q13=乙、Q14 大关改称、Q16/Q17=甲
+
+- **本号性质**：拆分立项号（纯计划批）⇒ 五批落码全部沿用同号不另领；正文 = `production/epics/epics-beads-ep13.md`（READY×5），状态对账 = `epics-beads-status.md` 第 9–13 条，史证 = `epics-beads-ep13.s-history.md`。
+- **五批入库**：S1 `201c0e4` 大关表承载关卡清单 + `themes.ts`→`arcs.ts` 改名（C-1）· S2 `74acba8` 选关页 = 本大关清单 ∩ 闸门（C-2 ①②④ + C-5）· S3 `994cb24` 0 心点格拉既有体力回满位（C-4，含广告串道反例）· S4 `25015cd` 走马灯按大关 + 三态归约（C-2 ③⑤⑥）· S5 `6e94f49` 格按下态 + 陈旧注释订正（C-3 ①②核对③）。
+- **口径**：零 §3 变更、零新判据、零新数值；每批带自带回归腿（末态 beads 1024 passed / 2 skipped，`verify` 22/22，镜像一致）。
+- **台账补登说明（K-046 同型）**：拆分件 §8 「待主理人批准后由领号会话粘贴」的宿主登记拟行当时未落地 ⇒ 五批代码已入库而主表无行。本次按 §8 拟行补行 + 详情节，并将头注由 272 校到 289（⚠ 283/286–289 仍属“用了号未登主表”，待各会话自登）。
+- **未闭（不属本号射程，已挂账）**：① 规格自陈句回写 6 处（`arc-level-select-spec.md` 的版本行 / 术语轮 / §4 两行 / TODO-3 / TODO-6，属设计轨 WXG-T-283 域）；② 跟进单 `epics-beads-ep13-fu-wallcell.md`（3×3 收墙 + 未解锁/越界合形锁格）待领号；③ 下游占位 D-1（C-6 QA 判据族）/ D-2（C-7 art 回写）/ D-3（C-8 图元差分复算）/ D-5（TODO-1 页头大关名令牌）；④ 真机腿与目视项（S3 广告真机、S5 harness 出图签署）；`locked` 态本版不可达。
