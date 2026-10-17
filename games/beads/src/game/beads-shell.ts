@@ -46,7 +46,7 @@ import {
     type MenuAnchors,
 } from '../config/tuning.js';
 import { carouselDamp, carouselPage } from '../config/menu-carousel.js';
-import { ARC_OPEN_MAX } from '../config/arcs.js';
+import { ARC_OPEN_MAX, ARCS } from '../config/arcs.js';
 import { BeadsGame, type BeadsGameOptions } from './beads-game.js';
 import { LEVELS } from '../config/levels.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
@@ -110,6 +110,12 @@ export class BeadsShell implements Game {
     private readonly _metaKey?: string;
     private _screen: ShellScreen;
     private _overlay: MetaOverlay = 'none';
+    /**
+     * `levels` overlay 的**大关页上下文**（EP13-S2）：两处入口（卡点按 / 玻璃松手）打开时
+     * 记下当前走马灯页号 ⇒ 墙集合 = 该大关 `levelRefs` 展开（⛔ 不再全量墙）。
+     * 页面切换只经 `back` 回菜单后重进，故本值在 overlay 生命期内稳定。
+     */
+    private _overlayArc = 0;
     private readonly _studio?: StudioImportOptions;
     /** 拉取在途门标（防连点重复导入）。 */
     private _studioBusy = false;
@@ -129,6 +135,8 @@ export class BeadsShell implements Game {
     private _wallLevels: readonly (BeadsLevelRaw | undefined)[] = [];
     /** 缓存失效键：关表长度（`importLevel` 追加 ⇒ 计数变 ⇒ 重建）。 */
     private _wallSlotsForCount = -1;
+    /** 同上，缓存失效键之二 = 当前大关页（切大关 ⇔ 换清单）。 */
+    private _wallSlotsForArc = -1;
     /** Scratch pointer for screen→design (never retained), same as BeadsGame. */
     private readonly _pointer = { x: 0, y: 0 };
     /** Reused view-data object — buildRenderModel must not allocate (热路径零分配). */
@@ -360,6 +368,8 @@ export class BeadsShell implements Game {
             case 'open-levels':
                 // menu-architecture §1.3 第五轮：主菜单走马灯卡 = 菜单唯一选关入口（点卡 → 开 `levels` overlay）。
                 // ⇒ 本分支从「代码保留腿」（Q5①）转正为**实际入口**；墙下移到该 overlay（选关能力不丢）。
+                // EP13-S2：记下当前大关页 ⇒ 选关页只列本大关清单（tls §4 注 A：闸门本身不动）。
+                this._overlayArc = this._carouselOffset;
                 this._overlay = 'levels';
                 this._emitOverlay(true);
                 return true;
@@ -495,6 +505,7 @@ export class BeadsShell implements Game {
         this._glass = false;
         if (!this._dragging) {
             this._dragging = false;
+            this._overlayArc = this._carouselOffset; // EP13-S2：同 `open-levels`（两入口同上下文）
             this._overlay = 'levels';
             this._emitOverlay(true);
             return;
@@ -576,15 +587,17 @@ export class BeadsShell implements Game {
 
     /**
      * 作品墙陈列序（EP12-S6 Deliverable 2/6）：返回**缓存引用**，命中缓存时零分配、零排序。
-     * 失效键 = `play.levelCount`（唯一能让关表变长的公开可见面 = `importLevel` 追加）。
+     * 失效键 = `play.levelCount` ∪ **当前大关页**（EP13-S2：关表变长、或 `levels` 页切大关 ⇒ 清单变）。
      * ⚠ 同批产出 `slot → 关卡引用`（`_wallLevels`）⇒ 两表永远同步，不存在第二份失效键。
      */
     private _wallSlotsFor(): readonly number[] {
         const n = this.play.levelCount;
-        if (n !== this._wallSlotsForCount) {
-            this._wallSlots = this._rebuildWallSlots(n);
+        const arc = this._overlayArc;
+        if (n !== this._wallSlotsForCount || arc !== this._wallSlotsForArc) {
+            this._wallSlots = this._rebuildWallSlots(arc, n);
             this._wallLevels = this._rebuildWallLevels(this._wallSlots);
             this._wallSlotsForCount = n;
+            this._wallSlotsForArc = arc;
         }
         return this._wallSlots;
     }
@@ -607,16 +620,21 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * `slot → levelIndex` = **恒等**（配置文件顺序：`slot s` → 关卡索引 `s` = 关号 `s+1`）。
-     * 2026-10-10 用户裁定 #2：退役 EP12-S6「按 DI 升序重排」⇒ 陈列序 = 解锁序 = id 序。
-     * 难度递增改由**生成期门禁⑦**约束（新关按序追加、boss `kind:"boss"` 殿后），运行时不再排序。
-     * 表长 = `min(n, WALL_CAPACITY)`：超出容量的关本 Story **不实现**（S6 Out），短于容量的空槽
-     * 由视图读成 `undefined` ⇒ 画虚线空槽、零事件。保留 `slot` 间接层（视图 `MetaButton` 契约不变）。
+     * `slot → levelIndex` = **本大关清单展开**（EP13-S2，`tls §4` 注 A：只换集合来源）：
+     * 大关行的 `levelRefs`（1-based 连续区间）逐区间展开为 0-based 关索引，按区间书写序排列；
+     * 截断到 `WALL_CAPACITY`（本版 9 ≤ 12 ⇒ 不触发溢出；清单短于容量 ⇒ 空槽由视图读成
+     * `undefined` ⇒ 画空槽、零事件）。大关页无实体（空橱窗页）或清单为空 ⇒ 空表（R12 空态）。
+     * 保留 `slot` 间接层（视图 `MetaButton` 契约不变，仍拿不到关索引）。
+     * ponytail: 每次重建走区间循环 ≤ `WALL_CAPACITY` 次，非评分热点；若日后清单行多到百级再谈预展开。
      */
-    private _rebuildWallSlots(n: number): readonly number[] {
+    private _rebuildWallSlots(arc: number, n: number): readonly number[] {
         const slots: number[] = [];
-        const shown = Math.min(n, WALL_CAPACITY);
-        for (let s = 0; s < shown; s++) slots.push(s);
+        const refs = ARCS[arc]?.levelRefs;
+        if (!refs) return slots;
+        for (let r = 0; r < refs.length; r++) {
+            const [from, to] = refs[r]!;
+            for (let lv = from; lv <= to && slots.length < WALL_CAPACITY && lv <= n; lv++) slots.push(lv - 1);
+        }
         return slots;
     }
 

@@ -83302,17 +83302,17 @@
     },
     {
       "path": "production/epics/epics-beads-status.md",
-      "tokens": 2645,
-      "lines": 71,
-      "sha256": "f764b7c2d2b9718e47b251275bafe46fbf43298acbcd78910a55c01ae6f85a5d",
+      "tokens": 2826,
+      "lines": 75,
+      "sha256": "e94a128a385176ed14ce71fdf20cac4809724fba9734aac377d7e2c90edd5d3e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic/Story 状态时效声明（epics-beads 拆分件）",
           "level": 1,
           "startLine": 1,
-          "endLine": 72,
-          "tokens": 2625,
+          "endLine": 76,
+          "tokens": 2806,
           "summary": "正本宿主：production/epics/epics-beads.md（本块原为其顶部「⚠️ 状态时效声明」）",
           "keywords": [
             "beads",

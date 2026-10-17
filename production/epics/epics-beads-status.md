@@ -67,5 +67,9 @@
 >     ② **EP13-S1 大关表承载关卡清单 + 术语改名 = done**（本批提交，沿拆分号 WXG-T-284）：`themes.ts`→`arcs.ts`，
 >     新字段 `levelRefs = [[1, 9]]`（Q17=甲）；表侧不变式四臂 = `tests/arcs.test.ts`；现池零 diff；零 §3 变更。
 >     ⚠ 偏差登记：Epic 引用点清单漏 `tests/menu-carousel.test.ts`（已一并改净）；走马灯字段名实测不含主题字样，
->     无可改，移交 S4。后续：S2（overlay 按大关出格）/ S4（走马灯按大关）待开；`arc-level-select-spec.md` L6
->     「代码侧本批不动」句已成陈旧口径 ⇒ 移交设计轨下批订正。
+>     无可改，移交 S4。`arc-level-select-spec.md` L6「代码侧本批不动」句已成陈旧口径 ⇒ 移交设计轨下批订正。
+>     ③ **EP13-S2 选关页 = 本大关清单 ∩ 闸门 = done**（提交本批，沿拆分号 WXG-T-284）：两入口记大关页上下文、
+>     墙集合改 `levelRefs` 展开（1-based → 0-based，截断 `WALL_CAPACITY`）、`pick-level` 闸门逐字保留；
+>     新测试九臂（R1–R5/R8–R12 + 12 关池反例臂），beads 1008 绿。偏差：本池 1 大关含全池 ⇒
+>     `meta-menu-wall` 集合断言数值不可变形（加指针注释，真判据落新文件）；空橱窗页仍可进空墙 = 过渡态，
+>     零事件归 S4-R13；3×3 改版经核归 `ep13-fu-wallcell` 跟进单。后续：S3（0 心回满）/ S4（走马灯按大关）待开。

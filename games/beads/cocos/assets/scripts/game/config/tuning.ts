@@ -1432,7 +1432,12 @@ export const WALL_ROWS = 3;
 export const WALL_CELL = 120;
 /** 作品格间距。 */
 export const WALL_GAP = 22;
-/** 一屏作品格容量 = `wall_capacity`（§3.0 D-1 实装值 12；`n > 容量` 的溢出模式本 Story **不实现**）。 */
+/**
+ * 一屏作品格容量 = `wall_capacity`（§3.0 D-1 实装值 12）。**容量语义（EP13-S2 起）**：
+ * 墙集合 = 本大关清单（`arcs.ts::levelRefs` 展开）⇒ 本值只封**单大关清单**的展示上限；
+ * 清单短于容量的槽由视图读成 `undefined` ⇒ 空槽、零事件；清单超容量本版 ⛔ 不实现分页
+ * （`tls §8.2 TODO-2`：本版 9 ≤ 12 不触发 Q12）。
+ */
 export const WALL_CAPACITY = WALL_COLS * WALL_ROWS;
 /** 木框内衬（纸底边缘 → 网格外沿），线框 22（与 `WALL_GAP` 同档，非新数值）。 */
 export const WALL_FRAME_INSET = 22;

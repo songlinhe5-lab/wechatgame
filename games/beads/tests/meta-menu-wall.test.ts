@@ -190,7 +190,12 @@ function levelsFrame(shell: BeadsShell): readonly DrawCommand[] {
     return frameOf(shell);
 }
 
-/** 作品墙格（墙下移 `levels` overlay 后住这里 ⇒ 与菜单共用同一 `levelsLayout` 几何）。 */
+/**
+ * 作品墙格（墙下移 `levels` overlay 后住这里 ⇒ 与菜单共用同一 `levelsLayout` 几何）。
+ * ⚠ EP13-S2 起**集合源已换**：墙 = 本大关清单（`arcs.ts::levelRefs` 展开），不再全量墙。
+ * 本池恰 1 大关且清单含全池 ⇒ 本文件原断言**数值不变**（如实保留，不造假形）；集合源换形
+ * 的真判据（池 12 > 清单 9 反例臂）在 `arc-level-select.test.ts`。
+ */
 function wallCells() {
     return metaLayout('levels').buttons.filter((b) => b.id === 'pick-level');
 }
