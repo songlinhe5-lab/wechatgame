@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 136,
+  "nextId": 138,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2254,6 +2254,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-136",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "文档批「本地门全绿」可以是假绿：`ctx:check` 默认校验 HEAD，暂存态超限只有 pre-commit 看得到",
+      "contentHash": "7f9527ca748f753335c1168f0a565fb4495280b0bd6c6f690626e17434e34f46",
+      "sourceTask": "WXG-T-289",
+      "addedDate": "2026-10-17",
+      "lastAccess": "2026-10-17",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-137",
+      "state": "active",
+      "file": "knowledge/lessons/process-ledger.md",
+      "category": "流程台账",
+      "title": "拆分件写好的「待主理人批准后粘贴」不会自动落地：五批代码已入库，主表与 Epic 宿主表仍搜不到该号",
+      "contentHash": "c048ce0be2a2f2df5a73b78872b3ecf30e1c27ecf91b78e9e667dcb1e74a9e20",
+      "sourceTask": "WXG-T-284",
+      "addedDate": "2026-10-17",
+      "lastAccess": "2026-10-17",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3324,6 +3358,25 @@
         "K-128",
         "K-130",
         "K-131"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-17",
+      "taskId": "WXG-T-289",
+      "kind": "added",
+      "ids": [
+        "K-136",
+        "K-137"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-17",
+      "taskId": "WXG-T-289",
+      "kind": "updated",
+      "ids": [
+        "K-137"
       ],
       "note": null
     }

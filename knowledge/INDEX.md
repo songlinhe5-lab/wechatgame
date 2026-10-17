@@ -243,4 +243,6 @@
 | K-133 | 美术派生 | art-derivation | 乘性编码资产的不变量必须写成断言；重采样的负瓣会把实体亮边甩进低 alpha 影区并被反除放大 | WXG-T-269 | 2026-10-14 | 0 | active |
 | K-134 | 美术派生 | art-derivation | 含「悬在实体外的影」的 9-slice 元素：切片线必须把悬影整块关进端帽，⛔ 整图横拉会把影按倍率摊平 | WXG-T-269 | 2026-10-14 | 0 | active |
 | K-135 | 美术派生 | art-derivation | 复用上一批的尺子：先对量纲，再把当初那份原始脚本重跑一遍取靶值 | WXG-T-269 | 2026-10-14 | 0 | active |
+| K-136 | 工具链Git | toolchain-git | 文档批「本地门全绿」可以是假绿：`ctx:check` 默认校验 HEAD，暂存态超限只有 pre-commit 看得到 | WXG-T-289 | 2026-10-17 | 0 | active |
+| K-137 | 流程台账 | process-ledger | 拆分件写好的「待主理人批准后粘贴」不会自动落地：五批代码已入库，主表与 Epic 宿主表仍搜不到该号 | WXG-T-284 | 2026-10-17 | 0 | active |
 <!-- kb:active:end -->

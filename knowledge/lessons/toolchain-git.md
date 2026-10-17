@@ -31,3 +31,9 @@
   根因：commitlint 解析提交信息时，表格行与注释/脚注块的解析互相干扰，导致判定失真；而报错文案给的是**通用规则清单**（哪条都可能），不是定位信息 ⇒ 容易误判成「某条规则没满足」，于是反复去改 header（越改越坏）。
   规避：① 提交信息**只用纯文本**（`·` / `-` / 缩进列表；不用 `|` 表格）——本仓的 `kb:*` 工具与 `memory/` 记账同样按这个口径写。② 钩子报错时**先做二分**：同一 header 换纯文本 body 试一次；能过就说明问题在 body 而非 header。③ 报错文案里的规则清单是**提示不是定位**，不要照着它逐条改 header。
   判例引用：`.githooks/commit-msg`、`docs/ci/commit-and-review-rules.md` §2、`commitlint.config.mjs`（`localRules`：`subject-no-cn-stop` / `task-id-required` 均经 `plugins` 注册）；同族 K-001（自定义规则须经 `plugins` 数组注册——两条都属"钩子报错文案 ≠ 真实触发项"）。
+
+- **[工具链Git][K-136] 文档批「本地门全绿」可以是假绿：`ctx:check` 默认校验 HEAD，暂存态超限只有 pre-commit 看得到**（来源 WXG-T-289 续批 / commit 4f14028，2026-10-17）
+  现象：给 `games/beads/design/ux/arc-level-select-spec.md` 回写七处自陈句后 `pnpm run ctx:check` 报「结构门 A/B/C/D/D2 全部通过」，会话结论据此写下「未超限」；同一内容 `git commit` 被 pre-commit 拦停 —— B 项实测**暂存态 8105 > 单文件上限 8000**。同一条命令两次结论相反。
+  根因：`ctx:check` 的默认口径 = **已提交内容（HEAD）**（索引服务于跳会话读取，描述的是 HEAD 的文件与行号），尚未提交的正文增补完全不在它的视野里；只有 pre-commit 走的 `--staged` 分支才量暂存 blob ⇒ 「本地跑过门」对**未提交**的文档改动无效。
+  规避：① 文档批自检固定**成对**跑：`pnpm run ctx:build -- --working-tree && pnpm run ctx:check -- --working-tree`（只切校验侧 ⇒ C 项对每个 dirty 文件必 FAIL），提交前再由 pre-commit 的 `--staged` 兜一次。② 越 8000 门的处置按 `knowledge/INDEX.md §4`「该标签内部再切」/ 压缩措词（只保留一份批号、叙事归分片），⛔ 不新增豁免（本批即由 8105 压回 7960，余量 40）。③ 汇报「门绿」必须写明**校验对象是 HEAD 还是工作树/暂存**，否则结论对下一会话不可复现。
+  判例引用：K-036/K-037（门禁可信度与取证层次）、K-093（钩子报错文案 ≠ 真实触发项）——三条同属「工具结论要能复现」。

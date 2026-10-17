@@ -23,7 +23,7 @@
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
 | 1 | `games/beads/design/art/specs/assets-spec.md` | 119789 | 2105 | normal |
-| 2 | `production/TASKS-DETAIL.md` | 114011 | 3280 | normal |
+| 2 | `production/TASKS-DETAIL.md` | 114161 | 3281 | normal |
 | 3 | `production/qa/beads/test-cases.md` | 89514 | 1088 | hot |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
 | 5 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45095 | 1307 | normal |
@@ -48,7 +48,7 @@
 | 文件 | tokens | 处置 |
 |---|---:|:--:|
 | `games/beads/design/art/specs/assets-spec.md` | 119789 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `production/TASKS-DETAIL.md` | 114011 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 114161 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/test-cases.md` | 89514 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 86807 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45095 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -91,10 +91,10 @@
 | `games/beads/design/gdd/pause-settings.md` | 11149 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md` | 10775 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/sec3-color-max-35-and-mis-max.md` | 10521 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `knowledge/INDEX.md` | 10390 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `knowledge/INDEX.md` | 10517 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/tint-mask-asset-spec.md` | 10247 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/epics/epics-beads-ep12.md` | 10088 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `knowledge/CHANGELOG.md` | 9851 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `knowledge/CHANGELOG.md` | 10016 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md` | 9487 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-events.md` | 9482 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
