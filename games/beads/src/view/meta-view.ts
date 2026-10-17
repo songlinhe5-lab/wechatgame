@@ -69,6 +69,7 @@ import {
     SIGN_BEAD_PITCH,
     SIGN_MATRIX_N,
     BEAD_SIZE_LABELS,
+    THUMB_AREA,
     THUMB_MATRIX_N,
     THUMB_STAR_BAND,
     TOUCH_MIN,
@@ -332,7 +333,7 @@ const TOPBAR_RESERVED_X: readonly number[] = [MENU_TOPBAR_X.notice, MENU_TOPBAR_
 const TOPBAR_RESERVED_ICON: readonly string[] = [MENU_TEXTURES.iconSound, MENU_TEXTURES.iconMail];
 
 /**
- * 生成 `WALL_CAPACITY`（4×3 = 12）个作品格热区。只带**槽位**——关索引由 shell 的
+ * 生成 `WALL_CAPACITY`（3×3 = 9）个作品格热区。只带**槽位**——关索引由 shell 的
  * `wallSlots` 映射解析 ⇒ 视图侧无从「按槽当关」。
  *
  * 坐标口径（本设计空间 **y 向上**、`box.y` = 下缘）：`topY` = 网格**上沿**（第 1 行格的上边），
@@ -340,7 +341,7 @@ const TOPBAR_RESERVED_ICON: readonly string[] = [MENU_TEXTURES.iconSound, MENU_T
  * `[topY − WALL_GRID_H, topY]`（404 高），与 `tuning::WALL_GRID_TOP` 注的框带派生算式一致。
  *
  * `rows`（缺省 `WALL_ROWS`）= K-6 差分腿的陈列行数（回退序 1「格 3→2 行」）⇒ 槽数 `WALL_COLS × rows`，
- * 列几何与行序**逐字不变**（只是少画一行）；默认档 = `WALL_CAPACITY`（4×3 = 12），与本参引入前一致。
+ * 列几何与行序**逐字不变**（只是少画一行）；默认档 = `WALL_CAPACITY`（3×3 = 9，EP13-FU-1 由 4 列收到 3 列），与本参引入前一致。
  */
 function pushWallCells(buttons: MetaButton[], startX: number, topY: number, rows: number): void {
     const capacity = WALL_COLS * rows;
@@ -1195,6 +1196,40 @@ export function resetMetaViewWarnings(): void {
  *
  * @param thumbN 缩略字模阵（生产恒 `THUMB_MATRIX_N`；4 / 3 = K-6 差分与回退序 2/3）
  */
+/**
+ * 锁格（EP13-FU-1 · tls §4「未解锁格 / 越界空槽」两行，Q15 = 2026-10-17 改裁**合形**）：
+ * 灰色珠阵（有关卡引用时，走橱窗未开启同一墨集 `beadFadedInksFor`）+ 小锁 + **无星**；⛔ 不画虚线空槽。
+ * 越界槽拿不到关卡引用 ⇒ 画不出珠阵（数据驱动，⛔ 不拿别关的图凑），只留格底 + 锁。
+ * 锁尺与回落口径逐字复用走马灯徽标（`MENU_BADGE.d` / 位图未就维 = 圆章 +「锁」字），零新数值零新色。
+ */
+function drawLockedWallCell(
+    builder: RenderModelBuilder,
+    cell: Box,
+    palette: BeadsPalette,
+    level: BeadsLevelRaw | undefined,
+    thumbN: number,
+): void {
+    builder.rect(cell.x, cell.y, cell.w, cell.h, {
+        fill: palette.slot,
+        stroke: palette.slotBorder,
+        lineWidth: 2,
+        radius: UI_CONTAINER.radiusChip,
+    });
+    if (level !== undefined) {
+        drawLevelThumb(builder, level, cell.x, cell.y, cell.w, cell.h, thumbN, THUMB_AREA, beadFadedInksFor(level));
+    }
+    const d = MENU_BADGE.d;
+    const inset = MENU_SEAL.inset;
+    const cx = cell.x + cell.w - d / 2 - inset;
+    const cy = cell.y + cell.h - d / 2 - inset;
+    if (_menuBitmapReady(MENU_TEXTURES.badgeLocked)) {
+        builder.blit(MENU_TEXTURES.badgeLocked, cx - d / 2, cy - d / 2, d, d);
+        return;
+    }
+    builder.circle(cx, cy, d / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });
+    builder.text(cx, cy, '锁', { fill: palette.textDim, font: FONT_CELL, align: 'center', baseline: 'middle' });
+}
+
 function drawWallCell(
     builder: RenderModelBuilder,
     b: MetaButton,
@@ -1205,7 +1240,8 @@ function drawWallCell(
     const slot = b.slot;
     const levelIdx: number | undefined = slot === undefined ? undefined : data.wallSlots[slot];
     if (levelIdx === undefined || levelIdx + 1 > data.maxUnlockedLevel) {
-        drawDashedSocket(builder, b.box, palette.slotDashed);
+        // EP13-FU-1 · Q15 合形：未解锁与越界空槽同走锁格（虚线空槽在墙格路径退场；零热区不变）。
+        drawLockedWallCell(builder, b.box, palette, slot === undefined ? undefined : data.wallLevels[slot], thumbN);
         return;
     }
     const isCurrent = levelIdx === data.currentLevelIndex;

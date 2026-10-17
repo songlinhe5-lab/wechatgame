@@ -257,6 +257,20 @@ function beadsInCell(cmds: readonly DrawCommand[], cell: { box: { x: number; y: 
     return beadSignatureIn(cmds, cell.box).split('\n').filter((s) => s.length > 0).length / 2;
 }
 
+/** 格内星带文本数（★/☆ 串）——「锁格⛔ 无星」的机械证据（EP13-FU-1 · tls §4 Q15 合形）。 */
+function starTextIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
+    const b = cell.box;
+    return cmds.filter(
+        (k) =>
+            k.kind === 'text' &&
+            /[★☆]/.test(String((k as { text?: string }).text ?? '')) &&
+            (k as { x: number }).x >= b.x &&
+            (k as { x: number }).x <= b.x + b.w &&
+            (k as { y: number }).y >= b.y &&
+            (k as { y: number }).y <= b.y + b.h,
+    ).length;
+}
+
 /** 格内虚线（`slot_dashed`）段数——「虚线空槽」的机械证据。 */
 function dashedSegmentsIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
     const b = cell.box;
@@ -397,7 +411,8 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         expect([...scanned].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-settings', 'start']);
     });
 
-    it('未解锁格 = 虚线空槽（无编号、无🔒字样）+ 零热区零事件（墙住 `levels` overlay）', () => {
+    // EP13-FU-1 换形（旧口径 = 「未解锁格 = 虚线空槽」，~~无🔒字样~~ ⇒ Q15 2026-10-17 改裁**合形**）：
+    it('未解锁格 = 锁格合形（灰阵 + 锁 + 无星 + 无虚线）+ 零热区零事件（墙住 `levels` overlay）', () => {
         const r = rig(); // maxUnlocked = 1 ⇒ 仅 L1 所在墙槽（恒等序 = 槽 0）已解锁，其余锁
         const before = r.staminaOf();
         const cmds = levelsFrame(r.shell); // 先点卡进选关页 ⇒ 墙格内容可观测
@@ -410,31 +425,30 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         for (const locked of cells.slice(0, LEVELS.length).filter((c) => c.slot !== L1_SLOT)) {
             const c = centerOf(locked.box);
             expect(r.shell.tapMeta(c.x, c.y), `槽 ${locked.slot} 未解锁 ⇒ 不被消费`).toBe(false);
-            expect(beadsInCell(cmds, locked), '未解锁格⛔ 不画珠（也无编号占位）').toBe(0);
-            expect(dashedSegmentsIn(cmds, locked), '虚线空槽在场').toBeGreaterThan(0);
+            expect(beadsInCell(cmds, locked), '未解锁格 = 灰色珠阵（Q15 合形，⛔ 不再是空槽）').toBeGreaterThan(0);
+            expect(dashedSegmentsIn(cmds, locked), '虚线空槽在墙格路径退场').toBe(0);
+            expect(starTextIn(cmds, locked), '锁格⛔ 无星带').toBe(0);
         }
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.overlay, '点未解锁格不换页').toBe('levels');
         expect(r.staminaOf()).toBe(before);
         expect(r.overlayEvents.length, '零新增事件：未解锁格不发 `meta:*`').toBe(eventsBefore);
-        // 未解锁格内⛔ 不出现「解锁/未解锁/🔒」字样（§5.4 口径 2 = 空槽语言，非文字提示）。
+        // 未解锁格内⛔ 不出现「未解锁」类**教学文字**（§5.4 0 文字教学）；锁章字「锁」= 既有徽标回落语言（EP13-FU-1）。
         const texts = cmds.filter((k) => k.kind === 'text').map((k) => String((k as { text?: string }).text ?? ''));
-        expect(texts.some((t) => t.includes('解锁') || t.includes('🔒')), texts.join('|')).toBe(false);
+        expect(texts.some((t) => t.includes('未解锁') || t.includes('🔒')), texts.join('|')).toBe(false);
     });
 
-    it('越界槽（第 10–12 格，关表短于容量）同为虚线空槽 + 零事件（S6 Out 的溢出不得误接关）', () => {
+    // EP13-FU-1 换形（旧口径 = 「越界槽 = 虚线空槽」）：3×3 = 9 槽与现池 9 关**恰满** ⇒ 生产路径不再有越界槽。
+    // 空循环会假绿 ⇒ 本臂改钉「不可达」这一事实；越界呈现由 `arc-wall-locked.test.ts` 用人为短清单覆盖。
+    it('越界槽在本版不可达（容量 9 = 关池 9）；溢出不得误接关（S6 Out 不变）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
         const before = r.staminaOf();
-        const cmds = levelsFrame(r.shell);
-        for (const overflow of wallCells().slice(LEVELS.length)) {
-            expect(overflow.slot! >= LEVELS.length).toBe(true);
-            expect(beadsInCell(cmds, overflow), '越界槽不画珠').toBe(0);
-            expect(dashedSegmentsIn(cmds, overflow), '越界槽 = 空槽语言').toBeGreaterThan(0);
-            const c = centerOf(overflow.box);
-            expect(r.shell.tapMeta(c.x, c.y)).toBe(false);
-        }
+        levelsFrame(r.shell);
+        expect(wallCells(), '墙 = 容量格数').toHaveLength(WALL_CAPACITY);
+        expect(WALL_CAPACITY, '3×3 改版后容量与关池齐满').toBe(LEVELS.length);
+        expect(wallCells().slice(LEVELS.length), '容量 = 关数 ⇒ 无越界槽').toHaveLength(0);
         expect(r.shell.screen).toBe('menu');
-        expect(r.staminaOf()).toBe(before);
+        expect(r.staminaOf(), '不可达路径零扣心').toBe(before);
     });
 
     it('验收⑥：Boss 图位 = **单热区**（图内共一块、图外留白零热区；装饰层不建子钮）[WXG-T-281]', () => {

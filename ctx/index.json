@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "705c2dda3c949fcc4f9cf1cb26c2d0848646807cb8e3ff4dde37dd2b56e90ca4",
+      "sha256": "6a9daef16e2b0029baee377f2c5734e4bc25104f5e335bbfaf545da04119c5b6",
       "tier": "normal",
       "sections": [
         {
@@ -678,9 +678,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5587,
+      "tokens": 5593,
       "lines": 86,
-      "sha256": "828d2d9eba5a196ab560159190f13c471d6c9c71bda2dae1722455b70e466b8f",
+      "sha256": "00e52f30f7180fdaed0f0badcd66c7603d7b7f4c2b241f40817647be88917d93",
       "tier": "normal",
       "sections": [
         {
@@ -688,7 +688,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 87,
-          "tokens": 5559,
+          "tokens": 5565,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -764,12 +764,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 98 行 / 33759 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 99 行 / 33845 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
-          "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+99 · §待排（backlog，无号，立项时领取）=72+28",
+          "tokens": 29,
+          "summary": "§WXG 任务台账（SSOT）=1+100 · §待排（backlog，无号，立项时领取）=73+28",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -987,11 +987,11 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3281 行 / 114161 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3292 行 / 114828 tok",
           "level": 2,
           "startLine": 82,
           "endLine": 87,
-          "tokens": 1222,
+          "tokens": 1228,
           "summary": "§WXG 任务台账 · 详情（标题制正文侧）=1+2674 · §WXG-T-179=18+78 · §WXG-T-18",
           "keywords": [
             "production/TASKS-DETAIL.md",
@@ -23589,17 +23589,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/risks.md",
-      "tokens": 8309,
-      "lines": 163,
-      "sha256": "d104fb5ec3e4fd28f3b556dd430dc37aad38416d242d56768ed7af886f7b9f55",
+      "tokens": 8560,
+      "lines": 164,
+      "sha256": "c649e184a6b5adad1baf781dc10b983d3e16f6af68ba3d12934d1dd4813edd1c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§风险与未决 · 「暖纸拼豆台」 · WXG-T-265",
           "level": 1,
           "startLine": 1,
-          "endLine": 164,
-          "tokens": 8292,
+          "endLine": 165,
+          "tokens": 8543,
           "summary": "S6 回写批（WXG-T-269-S6 · 2026-10-07，文策渊）：K-6 已从「风险登记」升为「实测台账」（新",
           "keywords": [
             "WXG",
@@ -23670,8 +23670,8 @@
           "anchor": "§4 设计风险（如实登记，不软化）",
           "level": 2,
           "startLine": 49,
-          "endLine": 112,
-          "tokens": 3158,
+          "endLine": 113,
+          "tokens": 3409,
           "summary": "K-1 奶白珠 #FDF6E9 对暖底 #F1E8D8 是 10 色最弱对（ΔL≈5.4%） 真机判糊 ⇒ bg_bas",
           "keywords": [
             "FDF6E9",
@@ -23686,8 +23686,8 @@
           "anchor": "§4b. K-6 实测 Δ 表（WXG-T-269-S6 · 子单 T-2B 台账回写，2026-10-07）",
           "level": 3,
           "startLine": 60,
-          "endLine": 112,
-          "tokens": 2409,
+          "endLine": 113,
+          "tokens": 2660,
           "summary": "本节地位：K-6 的实测正本。⛔ 旧纸面值（本文 K-6 旧杠杆行、menu-architecture §5.3 旧「+",
           "keywords": [
             "§5.3",
@@ -23701,8 +23701,8 @@
         {
           "anchor": "§5 待决策清单（需主理人/用户拍板，本批不代裁）",
           "level": 2,
-          "startLine": 113,
-          "endLine": 129,
+          "startLine": 114,
+          "endLine": 130,
           "tokens": 629,
           "summary": "状态口径（2026-10-07）：D-1 / D-2 / D-3 已裁；D-4 ~ D-10 全部仍为待决策，各行「建议",
           "keywords": [
@@ -23715,8 +23715,8 @@
         {
           "anchor": "§6 现行实现漂移点（本批落码需顺带处理，先例 = v1.5-r4 自查纪律）",
           "level": 2,
-          "startLine": 130,
-          "endLine": 138,
+          "startLine": 131,
+          "endLine": 139,
           "tokens": 289,
           "summary": "P-1 缩放钮/滑轨消费 slot/slotBorder（view-model.ts::drawZoomControls",
           "keywords": [
@@ -23731,8 +23731,8 @@
         {
           "anchor": "§7 环境与验证限制（诚实口径）",
           "level": 2,
-          "startLine": 139,
-          "endLine": 144,
+          "startLine": 140,
+          "endLine": 145,
           "tokens": 139,
           "summary": "无真机、无法交互验证：一切观感/对比度精确值/图元实测数标 [待真机]/[待实测]/[待核]，本批不写「已达标」。",
           "keywords": [
@@ -23743,8 +23743,8 @@
         {
           "anchor": "§8 变更记录 · **WXG-T-269-S6 回写单**（2026-10-07，文策渊）",
           "level": 2,
-          "startLine": 145,
-          "endLine": 164,
+          "startLine": 146,
+          "endLine": 165,
           "tokens": 1402,
           "summary": "本批性质：只把 S6 实测结论回写进正本。实测依据 = 林绘澄 T-1 games/beads/design/art/s",
           "keywords": [
@@ -38726,9 +38726,9 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.md",
-      "tokens": 7960,
+      "tokens": 7933,
       "lines": 185,
-      "sha256": "59304171c067b01d512bb33d1cabc8e8546d4c79991fa0d43d737f64f6ea035e",
+      "sha256": "f4bc8c4894cbe0bc722daaf97a4349da3a8bf6d74a7434580de9c11999fa49ae",
       "tier": "normal",
       "sections": [
         {
@@ -38736,8 +38736,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 186,
-          "tokens": 7918,
-          "summary": "项目：games/beads · 版本 v1.4（C-1…C-5 已落码 = EP13-S1…S5；各批叙事 = 分片 ",
+          "tokens": 7892,
+          "summary": "项目：games/beads · 版本 v1.5（C-1…C-5 已落码 = EP13-S1…S5；v1.3 3×3 +",
           "keywords": [
             "theme-level-select-spec.md",
             "Level",
@@ -38781,7 +38781,7 @@
           "level": 2,
           "startLine": 47,
           "endLine": 81,
-          "tokens": 930,
+          "tokens": 902,
           "summary": "",
           "keywords": [
             "关键界面线框",
@@ -38796,7 +38796,7 @@
           "level": 2,
           "startLine": 82,
           "endLine": 118,
-          "tokens": 1902,
+          "tokens": 1882,
           "summary": "注 A（闸门不变，本批不改造）：_applyMetaAction('pick-level') 现码 = levelIdx",
           "keywords": [
             "applyMetaAction",
@@ -38812,7 +38812,7 @@
           "level": 2,
           "startLine": 119,
           "endLine": 133,
-          "tokens": 676,
+          "tokens": 670,
           "summary": "进入本页（点橱窗图） 面板入 抽屉音 200（出 150） ux-spec §5「面板入 / 出」行，引用、不新行",
           "keywords": [
             "§5",
@@ -38858,7 +38858,7 @@
           "level": 2,
           "startLine": 156,
           "endLine": 182,
-          "tokens": 1519,
+          "tokens": 1537,
           "summary": "",
           "keywords": [
             "决策记录与待",
@@ -38886,7 +38886,7 @@
           "level": 3,
           "startLine": 172,
           "endLine": 182,
-          "tokens": 899,
+          "tokens": 917,
           "summary": "[TODO-1] 页头是否显示大关名 —— 现标题读 btn_levels_label = 选关（copy-tokens",
           "keywords": [
             "meta-ui §2.7",
@@ -38902,7 +38902,7 @@
           "level": 2,
           "startLine": 183,
           "endLine": 186,
-          "tokens": 121,
+          "tokens": 114,
           "summary": "C-1…C-8 整表（§9）、各批改动叙事与 v1.3（3×3 改版）落码面逐字外移至同目录 arc-level-sel",
           "keywords": [
             "§9",
@@ -39021,17 +39021,17 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.s9-history.md",
-      "tokens": 3693,
-      "lines": 42,
-      "sha256": "0f7d527917fedbd543c853db8346e2bca31a3cd3071da800a77633b19734d3bd",
+      "tokens": 3892,
+      "lines": 43,
+      "sha256": "50729d0b53db9a084425c5b8c905426054fc18bf1624c31adc72a16f729d5520",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格 · 大关选关页 · §9 落码改动面分片（arc-level-select-spec.s9-history · 曾用名 `theme-level-select-spec.s9-history.md`）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 43,
-          "tokens": 3649,
+          "endLine": 44,
+          "tokens": 3847,
           "summary": "项目：games/beads · 任务号 WXG-T-283（裁定回写批）· 正本：design/ux/arc-leve",
           "keywords": [
             "§9",
@@ -39047,7 +39047,7 @@
           "level": 2,
           "startLine": 7,
           "endLine": 21,
-          "tokens": 1710,
+          "tokens": 1717,
           "summary": "落码状态（2026-10-17 实测，v1.4 回写）：C-1 / C-2 ①②④（+ C-5）/ C-4 / C-2 ",
           "keywords": [
             "落码改动面登",
@@ -39078,8 +39078,8 @@
           "anchor": "§11 版本与改动史叙事（正本 header 行 + 旧 §9 整行外移 · WXG-T-289 收口批 · **史证只增不改**）",
           "level": 2,
           "startLine": 34,
-          "endLine": 43,
-          "tokens": 577,
+          "endLine": 44,
+          "tokens": 768,
           "summary": "外移动机 = 正本实测 8139 > 8000 B 门；本节逐字保留 v1.0–v1.3 各批叙事原文，正本留指针。",
           "keywords": [
             "§9",
@@ -79425,9 +79425,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 114161,
-      "lines": 3281,
-      "sha256": "fcd0069d8445f1bd43b0072fe9bd75bb58f14219d6956edad279e3b3c484071e",
+      "tokens": 114828,
+      "lines": 3292,
+      "sha256": "a38f07205812036a1a22eda5c2fba14ae953e3e6873696d4bd6becb0de439485",
       "tier": "normal",
       "sections": [
         {
@@ -81948,8 +81948,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3282,
-          "tokens": 11777,
+          "endLine": 3293,
+          "tokens": 12444,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82160,22 +82160,37 @@
             "Qoder",
             "spawn"
           ]
+        },
+        {
+          "anchor": "§WXG-T-290",
+          "level": 2,
+          "startLine": 3283,
+          "endLine": 3293,
+          "tokens": 664,
+          "summary": "beads·EP13 跟进单：选关墙 3×3 收墙 + 未解锁/越界锁格合形｜主理人(Qoder) spawn 程基岩｜",
+          "keywords": [
+            "WXG",
+            "beads",
+            "EP13",
+            "Qoder",
+            "spawn"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 33759,
-      "lines": 98,
-      "sha256": "8437c3e79245582c0b416e7dfb30f49567719442b3eaa2f95ff85e5deff405ed",
+      "tokens": 33845,
+      "lines": 99,
+      "sha256": "45d366c2b554f30c8a81c01730937b24c2f0e84067d2177e11216a1b1654238b",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 33750,
+          "endLine": 100,
+          "tokens": 33836,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -82188,8 +82203,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 72,
-          "endLine": 99,
+          "startLine": 73,
+          "endLine": 100,
           "tokens": 1256,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -82718,6 +82733,145 @@
             "violet",
             "未决问题状态",
             "更新"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/epics/epics-beads-ep13-fu-wallcell.md",
+      "tokens": 2125,
+      "lines": 77,
+      "sha256": "dee903c7375b1f88e7154227cd0870a6b2bfa9deead9e12a137fa85313c87216",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads · EP-13 跟进 · 选关墙「空槽→锁格」落码 Story（epics-beads-ep13-fu-wallcell）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 78,
+          "tokens": 2096,
+          "summary": "本件性质：EP-13 大关选关页落码批的跟进 Story（承 epics-beads-ep13.md §7 后置占位）。",
+          "keywords": [
+            "§7",
+            "beads",
+            "Story",
+            "epics",
+            "ep13",
+            "wallcell"
+          ]
+        },
+        {
+          "anchor": "§0 权威来源（冲突按此序）",
+          "level": 2,
+          "startLine": 5,
+          "endLine": 11,
+          "tokens": 231,
+          "summary": "1. games/beads/design/gdd/systems-index.md §3 冻结常量（本件零涉：WALL",
+          "keywords": [
+            "§3",
+            "games",
+            "beads",
+            "design",
+            "gdd",
+            "systems"
+          ]
+        },
+        {
+          "anchor": "§1 目标",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 15,
+          "tokens": 111,
+          "summary": "把选关墙格的视觉与规格对齐：未解锁格与越界空槽同形（灰色珠阵 + 小锁 + 无星），并把墙从 4×3 = 12 收到 3",
+          "keywords": [
+            "目标"
+          ]
+        },
+        {
+          "anchor": "§2 In / Out",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 30,
+          "tokens": 410,
+          "summary": "In",
+          "keywords": [
+            "Out"
+          ]
+        },
+        {
+          "anchor": "§3 验收（DoD，逐条可测）",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 43,
+          "tokens": 355,
+          "summary": "A1 墙 = 9 格，3 列 × 3 行，列距 22、格宽 120、网格宽 404 meta-menu-wall.tes",
+          "keywords": [
+            "DoD",
+            "meta",
+            "menu",
+            "wall",
+            "tes",
+            "验收"
+          ]
+        },
+        {
+          "anchor": "§4 阻塞 / 依赖",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 49,
+          "tokens": 121,
+          "summary": "[TODO-ART-1] 灰色珠阵的灰度规则：lightness 还是 opacity、底色 slot 用哪一档。art",
+          "keywords": [
+            "TODO",
+            "ART",
+            "lightness",
+            "opacity",
+            "slot",
+            "art"
+          ]
+        },
+        {
+          "anchor": "§5 风险",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 57,
+          "tokens": 170,
+          "summary": "K-6 台账失效：墙从 12 格降到 9 格，wall.rows3 = 1518、floor 504、TC-MN-27/",
+          "keywords": [
+            "wall",
+            "rows3",
+            "floor",
+            "风险"
+          ]
+        },
+        {
+          "anchor": "§6 状态",
+          "level": 2,
+          "startLine": 58,
+          "endLine": 78,
+          "tokens": 585,
+          "summary": "Story EP13-FU-1 = WXG-T-290（已领号入台账，沿本件拆分号不另领）",
+          "keywords": [
+            "Story",
+            "EP13",
+            "WXG",
+            "状态"
+          ]
+        },
+        {
+          "anchor": "§6b. 落码实况与本件预期的偏差（直录，⛔ 不自拍改判据）",
+          "level": 3,
+          "startLine": 67,
+          "endLine": 78,
+          "tokens": 423,
+          "summary": "1 In② 手写 startX 173 / 网格宽 404 WALL_GRID_W 与 startX 在现码是派生式（列",
+          "keywords": [
+            "startX",
+            "WALL_GRID_W",
+            "落码实况与本",
+            "件预期的偏差",
+            "直录",
+            "不自拍改判据"
           ]
         }
       ]

@@ -303,7 +303,7 @@ describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（
         expect(DEFAULT_PALETTE.slotDashed, 'slot_dashed 定稿值未漂（§1 扩展行虚线）').toBe('#C9C5DA');
     });
 
-    it('`levels` 墙格 = slot/slot_border 纸格，当前关描边 = accent_primary(4px)；越界格 = slot_dashed', () => {
+    it('`levels` 墙格 = slot/slot_border 纸格，当前关描边 = accent_primary(4px)；锁格只读既有 token（零新 hex）', () => {
         // 非当前关（current=4）：槽 0 纸格走 slot_border。
         const idle = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 4, carouselLevel: undefined });
         const w0 = wallBoxes()[0]!;
@@ -322,8 +322,10 @@ describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（
         );
         expect(hi, '当前关高亮描边 = accent_primary').toBeDefined();
         expect((hi as { lineWidth: number }).lineWidth).toBe(4);
-        // 未解锁 / 越界格 = 虚线空槽，虚线色 = tokens.md §1 `slot_dashed`（⛔ 不新造灰）。
+        // EP13-FU-1 换形（旧 = 「未解锁/越界格 = `slot_dashed` 虚线空槽」）：Q15 合形 ⇒ 墙格路径零虚线，
+        // 锁格仅复用既有 token（`slot` / `slot_border` / `text_dim` + 未开启灰墨），⛔ 不新造灰。
         const dashed = idle.filter((c) => c.kind === 'line' && c.stroke === DEFAULT_PALETTE.slotDashed);
-        expect(dashed.length, '越界空槽虚线段在场').toBeGreaterThan(0);
+        expect(dashed.length, '墙格路径虚线退场（空卡腿另用 `slot_dashed`，不属本臂）').toBe(0);
+        expect(idle.some((c) => c.kind === 'text' && c.text === '锁'), '锁形通道在位（位图未就绪的圆章回落臂）').toBe(true);
     });
 });

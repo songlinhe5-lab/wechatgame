@@ -1422,8 +1422,8 @@ export function menuAnchors(input: MenuAnchorsInput): MenuAnchors {
 // ─────────── 作品墙（EP12-S6 §5.1 L1「木框橱窗」；主菜单与 `levels` overlay **共用**同一组几何
 //             ⇒ 陈列序与格口径单源。旧 `meta-view::levelsLayout()` 内 `cols=4/cellSize=120/gap=22`
 //             三枚字面即本组常量（§3.0 D-1「沿用实装值零新常量」的落点）。
-/** 作品墙列数（`wall_capacity` 派生项之一）。 */
-export const WALL_COLS = 4;
+/** 作品墙列数（`wall_capacity` 派生项之一；EP13-FU-1 · tls §3 v1.3 由 4 收到 **3** ⇒ 与现池 9 关恰满）。 */
+export const WALL_COLS = 3;
 /** 作品墙行数（9 关现状 = 单层墙，⛔ 轮播/分带归 S6 Out）。 */
 export const WALL_ROWS = 3;
 /** 作品格边长（≥ `TOUCH_MIN` 88 ⇒ 热区达标）。 */

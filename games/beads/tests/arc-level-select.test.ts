@@ -129,6 +129,20 @@ function beadsIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: numb
     return n / 2;
 }
 
+/** 格内星带文本数（★/☆）——「锁格⛔ 无星」的机械证据（EP13-FU-1 · Q15 合形）。 */
+function starIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
+    const b = cell.box;
+    return cmds.filter(
+        (k) =>
+            k.kind === 'text' &&
+            /[★☆]/.test(String((k as { text?: string }).text ?? '')) &&
+            (k as { x: number }).x >= b.x &&
+            (k as { x: number }).x <= b.x + b.w &&
+            (k as { y: number }).y >= b.y &&
+            (k as { y: number }).y <= b.y + b.h,
+    ).length;
+}
+
 /** 格内空槽虚线段数（`slotDashed` 墨）。 */
 function dashedIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
     const b = cell.box;
@@ -198,7 +212,8 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
         expect(r.overlayEvents.at(-1)).toEqual({ open: false, name: 'none' });
     });
 
-    it('R1/R2 未解锁与越界格：同一闸门臂 ⇒ 零事件、零扣心、不消费；空槽虚线在场', () => {
+    // EP13-FU-1 换形（旧尾句 = 「空槽虚线在场」）：Q15 合形 ⇒ 未解锁与越界同走锁格（闸门判据一字不动）。
+    it('R1/R2 未解锁与越界格：同一闸门臂 ⇒ 零事件、零扣心、不消费；锁格合形（灰阵 + 锁 + 无虚线）', () => {
         const r = rig({ maxUnlocked: 1 });
         openLevels(r.shell);
         const cmds = frameOf(r.shell);
@@ -209,8 +224,9 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
         for (const cell of cells.slice(1)) {
             const c = centerOf(cell.box);
             expect(r.shell.tapMeta(c.x, c.y), `槽 ${cell.slot} 未解锁/越界 ⇒ 不消费`).toBe(false);
-            expect(beadsIn(cmds, cell), `槽 ${cell.slot} 不画珠`).toBe(0);
-            expect(dashedIn(cmds, cell), `槽 ${cell.slot} 虚线空槽在场`).toBeGreaterThan(0);
+            expect(beadsIn(cmds, cell), `槽 ${cell.slot} 锁格 = 灰色珠阵`).toBeGreaterThan(0);
+            expect(dashedIn(cmds, cell), `槽 ${cell.slot} 虚线退场`).toBe(0);
+            expect(starIn(cmds, cell), `槽 ${cell.slot} 锁格⛔ 无星`).toBe(0);
         }
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.overlay).toBe('levels');
