@@ -1,8 +1,8 @@
 # 设计草案 · 星星收集与星级难度（Star Collect Rule）· beads
 
-- 项目：`games/beads` · 版本 **v0.2（用户 2026-10-17 review 回写：规则主体已确认，见 §5；立项冻结前不动 §3）** · 任务号 **WXG-T-287**（P1）
+- 项目：`games/beads` · 版本 **v0.3（已立项：WXG-T-288 裁定回写 §3.7 v1.78 完成，EP14 拆分落 `production/epics/epics-beads-ep14.md`）** · 任务号 **WXG-T-287**（P1）
 - 动因：用户 2026-10-17 亲自给出星级使用场景（承接 `star-utility.md` v0.2 归档线，本文是其上位新裁定草案）
-- 性质：**proposal**——所有新增数值 `[待拍板]`/`[待 playtest]`；⛔ 未回写 systems-index §3、未动代码
+- 性质：**proposal → 已转正为规则正本**（§3.7 v1.78 为数值/语义真源，本文承载 R1–R8 完整叙述与待办台账；本文仍不直接定义代码行为，新增数值一律先 `[待拍板]` 后回写 §3）
 - 引用真源：`games/beads/design/gdd/systems-index.md` §3.5/§3.7/§3.11；`games/beads/src/config/tuning.ts:805-835`（`STAR_TIER_K/tierSecondsFor/nextTierFor`）；`games/beads/src/game/beads-game.ts:2233`
 
 ---
@@ -56,7 +56,7 @@
 | Q6 | 教学关特判 | ⏸ **暂缓**：教学关需专门设计引导路径，留任务 → 待办 §6-T2 |
 | Q7 | 超时失败不续时 | ✅ 维持现行：**失败面板提醒「看广告可延长时间」**（与现码失败页一致），不续时即判负、本局无星、不动历史最高 |
 
-规则主体（R1–R8 除 Q3/Q5/Q6 暂缓面）**已确认**；正式立项时再回写 systems-index §3.7 并登记变更记录。
+规则主体（R1–R8 除 Q3/Q5/Q6 暂缓面）**已确认并立项**：2026-10-17 WXG-T-288 已回写 systems-index §3.7（v1.78，五行改语义零数值）与 changelog，下游 `score-combo §2.2/§8-1`、`meta-ui §2.7` 同批同步；落码排期见 EP14。
 
 ## 6. 待办台账（本裁定链遗留，立项时并入任务拆分）
 

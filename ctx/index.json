@@ -387,7 +387,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "8c5e7ec73e2fed5a7bb4468ac549353ce056054d53497a902f0183060beca860",
+      "sha256": "5e945fd0c312f9332b38662085b7992f66bd94b87ac4d8ef439b723810e6c48b",
       "tier": "normal",
       "sections": [
         {
@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5581,
       "lines": 86,
-      "sha256": "055bdd8466df3419dfe36d6f666d8cd95ebfb3ca121dc5735492369229b6da52",
+      "sha256": "79f3f2b5894395c2c89a7039dd9bdb33d159ea563604de04eba0e04829a7748d",
       "tier": "normal",
       "sections": [
         {
@@ -732,7 +732,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 300 行 / 28408 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 300 行 / 29140 tok / 实测读 170 次",
           "level": 2,
           "startLine": 18,
           "endLine": 21,
@@ -29918,17 +29918,17 @@
     },
     {
       "path": "games/beads/design/gdd/meta-ui-changelog.md",
-      "tokens": 4050,
-      "lines": 55,
-      "sha256": "ce7becdb7dfdbb93d515e83820050782fc19496d8f61fba2d816273bd038073f",
+      "tokens": 4421,
+      "lines": 57,
+      "sha256": "1c8baaf23aa037d96577aa495ae0d95573242c357ce9816ac514e634f888876d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§元游戏与图鉴 · §3 变更单草案分片（meta-ui changelog）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 56,
-          "tokens": 4026,
+          "endLine": 58,
+          "tokens": 4397,
           "summary": "项目：games/beads · 任务号 WXG-T-167 / WXG-T-283 · 正本：gdd/meta-ui.",
           "keywords": [
             "§3",
@@ -29959,8 +29959,8 @@
           "anchor": "§2 史证分片（**WXG-T-283 裁定回写批**自 `meta-ui.md` 逐字节外移）",
           "level": 2,
           "startLine": 26,
-          "endLine": 56,
-          "tokens": 2288,
+          "endLine": 58,
+          "tokens": 2658,
           "summary": "外移动机 = R-1 预算门处置（用户 2026-10-16 授权裁定②）：meta-ui.md 实测 9,127 to",
           "keywords": [
             "meta-ui.md",
@@ -30007,8 +30007,8 @@
           "anchor": "§2.3 `meta-ui.md §9` 变更记录史证行（v0.1 … v0.4，含 WXG-T-283 续批回写）",
           "level": 3,
           "startLine": 46,
-          "endLine": 56,
-          "tokens": 1373,
+          "endLine": 58,
+          "tokens": 1743,
           "summary": "v0.1 2026-09-19 建档（草案）：S10 页族 + 图鉴三层对象（Album/Plate/Cell-Leve",
           "keywords": [
             "meta-ui.md §9",
@@ -30023,9 +30023,9 @@
     },
     {
       "path": "games/beads/design/gdd/meta-ui.md",
-      "tokens": 7970,
+      "tokens": 7978,
       "lines": 172,
-      "sha256": "a116786687e745bdefb6dfbdf236d039752bba27b7fc05e5bf33d2beaf70382b",
+      "sha256": "c5de60655e28ba52963c74d1fc32c0e31e74ec246ee5c9fab7c2db6a3bd1176d",
       "tier": "normal",
       "sections": [
         {
@@ -30033,7 +30033,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 173,
-          "tokens": 7953,
+          "tokens": 7961,
           "summary": "项目：games/beads · 版本 v0.4（草案 · 已含六项裁定 + WXG-T-283 三裁定 + 同批续裁 ",
           "keywords": [
             "GDD",
@@ -30061,7 +30061,7 @@
           "level": 2,
           "startLine": 16,
           "endLine": 75,
-          "tokens": 3428,
+          "tokens": 3436,
           "summary": "",
           "keywords": [
             "机制"
@@ -30161,7 +30161,7 @@
           "level": 3,
           "startLine": 65,
           "endLine": 75,
-          "tokens": 1386,
+          "tokens": 1394,
           "summary": "术语正本（Q14 = 已裁 · 用户 2026-10-16 新口径）：文档族内指「关卡内容分组」者统一改称大关 = 一组",
           "keywords": [
             "WXG",
@@ -30951,9 +30951,9 @@
     },
     {
       "path": "games/beads/design/gdd/score-combo.md",
-      "tokens": 5193,
+      "tokens": 5507,
       "lines": 147,
-      "sha256": "4347a9da3f20349acff0bfc6688cfa6e5276ecf3df62af0c45846533684f4eb4",
+      "sha256": "0e4be0e906297971f5eeddc9eb0cbfe304ec4ad6b8f9a7a1d14efe93fe059c32",
       "tier": "normal",
       "sections": [
         {
@@ -30961,7 +30961,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 148,
-          "tokens": 5179,
+          "tokens": 5492,
           "summary": "项目：games/beads · 版本 v1.1 · 任务号 WXG-T-130（v1.1 = 取回不计分不断连 + 「",
           "keywords": [
             "GDD",
@@ -30989,7 +30989,7 @@
           "level": 2,
           "startLine": 14,
           "endLine": 57,
-          "tokens": 1707,
+          "tokens": 1935,
           "summary": "",
           "keywords": [
             "机制"
@@ -31011,15 +31011,15 @@
           "level": 3,
           "startLine": 28,
           "endLine": 32,
-          "tokens": 178,
-          "summary": "星级 = f(剩余时间占比)，来源 §3.7：ratio ≥ STAR3_RATIO(0.32) → 3★；≥ STAR",
+          "tokens": 405,
+          "summary": "星级 = 档内按实际用时判星（§3.7 v1.78 新制，用户 2026-10-17 拍板；正本 proposals/s",
           "keywords": [
             "§3.7",
-            "ratio",
-            "STAR3_RATIO",
-            "STAR",
+            "proposals",
             "普通模式",
-            "星级"
+            "星级",
+            "冻结",
+            "与结算分"
           ]
         },
         {
@@ -31142,7 +31142,7 @@
           "level": 2,
           "startLine": 110,
           "endLine": 124,
-          "tokens": 684,
+          "tokens": 771,
           "summary": "1. 普通模式局内全程零分数 HUD 元素；过关后 level:cleared payload 的 stars 与 §3",
           "keywords": [
             "§3.10",
@@ -31186,17 +31186,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 41278,
-      "lines": 88,
-      "sha256": "bf09475d5ba55d6dc142dd4fda96300c92d06df0dfe026433bcdf63d50d3084b",
+      "tokens": 41877,
+      "lines": 89,
+      "sha256": "5ef023bcc7f73ba39aea52da37a24ac1a451f6aab5248d72a2f19ac4104261e7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 89,
-          "tokens": 41260,
+          "endLine": 90,
+          "tokens": 41859,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -31211,8 +31211,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 89,
-          "tokens": 41102,
+          "endLine": 90,
+          "tokens": 41701,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -31224,9 +31224,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 28408,
+      "tokens": 29140,
       "lines": 300,
-      "sha256": "27a7bdffe565da934f39a1fbe0a9efe682ad1db70be0c946b2faa53b1deeeb45",
+      "sha256": "68ece7fcad8814a020689ed4620e07e9be0a8ce7d1fc96feff2f90b3e072f1f9",
       "tier": "hot",
       "sections": [
         {
@@ -31234,8 +31234,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 301,
-          "tokens": 28391,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.71 · 任务号 延续 WXG-T-268（v1.71 = ",
+          "tokens": 29123,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.78 · 任务号 WXG-T-288（v1.78 = 星级新",
           "keywords": [
             "Systems",
             "Index",
@@ -31277,7 +31277,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 255,
-          "tokens": 20073,
+          "tokens": 20476,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -31383,7 +31383,7 @@
           "level": 3,
           "startLine": 154,
           "endLine": 164,
-          "tokens": 1288,
+          "tokens": 1691,
           "summary": "STAR_TIER_K [1.00, 0.85, 0.70] §3.7 v1.50 冻结变更：删除 STAR3_RATI",
           "keywords": [
             "§3.7",
@@ -36849,9 +36849,9 @@
     },
     {
       "path": "games/beads/design/proposals/star-collect-rule.md",
-      "tokens": 2587,
+      "tokens": 2663,
       "lines": 76,
-      "sha256": "c1618ec9390b54a630d41f78308defbffd74887b1e67ff21b808f3b8936b7fca",
+      "sha256": "be30ecf4b3f18fc067e2e49303ef7d7da7500d6fc9bb675809cac6885a3958ea",
       "tier": "normal",
       "sections": [
         {
@@ -36859,15 +36859,15 @@
           "level": 1,
           "startLine": 1,
           "endLine": 77,
-          "tokens": 2564,
-          "summary": "项目：games/beads · 版本 v0.2（用户 2026-10-17 review 回写：规则主体已确认，见 §",
+          "tokens": 2640,
+          "summary": "项目：games/beads · 版本 v0.3（已立项：WXG-T-288 裁定回写 §3.7 v1.78 完成，EP",
           "keywords": [
+            "§3.7",
             "Star",
             "Collect",
             "Rule",
             "beads",
-            "games",
-            "review"
+            "games"
           ]
         },
         {
@@ -36929,7 +36929,7 @@
           "level": 2,
           "startLine": 47,
           "endLine": 60,
-          "tokens": 310,
+          "tokens": 347,
           "summary": "Q1 1★ 档超时看广告完成给几星 ✅ 给 1★（保底 = 进场档位星）",
           "keywords": [
             "Review",
@@ -82979,6 +82979,203 @@
             "正本行内压缩",
             "留痕",
             "收口批"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/epics/epics-beads-ep14.md",
+      "tokens": 2054,
+      "lines": 73,
+      "sha256": "c8afe2863e69b801fa96d5b02ba0a440360b29a42fc0cadb97c6285794d8dea4",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Epic 拆分 · EP14 星星收集与星级难度（Star Collect）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 74,
+          "tokens": 2031,
+          "summary": "任务号 WXG-T-288（P1）· 2026-10-17 · 工程轨（子代理通道不可用，主理人按 my-skills/",
+          "keywords": [
+            "Epic",
+            "EP14",
+            "Star",
+            "Collect",
+            "beads",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§0 环境事实（先说做不了什么）",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 15,
+          "tokens": 239,
+          "summary": "无 Cocos 编辑器 / 无真机：星级判定、闸门归约、HUD 快照全部可在纯 Node 单测 + 浏览器 harnes",
+          "keywords": [
+            "Cocos",
+            "HUD",
+            "Node",
+            "harnes",
+            "环境事实",
+            "先说做不了什"
+          ]
+        },
+        {
+          "anchor": "§1 Epic 目标",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 21,
+          "tokens": 119,
+          "summary": "让玩家「多打一星」有真实收益：档内更快 = 更高星、星进总账（★ 货币）、总星开下一大关；把 v1.78 星级新制落进引",
+          "keywords": [
+            "Epic",
+            "目标"
+          ]
+        },
+        {
+          "anchor": "§2 Story 列表",
+          "level": 2,
+          "startLine": 22,
+          "endLine": 48,
+          "tokens": 839,
+          "summary": "",
+          "keywords": [
+            "Story",
+            "列表"
+          ]
+        },
+        {
+          "anchor": "§EP14-S1 · 星级结算新制（引擎腿）— M · READY",
+          "level": 3,
+          "startLine": 24,
+          "endLine": 29,
+          "tokens": 259,
+          "summary": "覆盖：R1–R5（star-collect-rule §2）= §3.7 v1.78 全部五条改动。",
+          "keywords": [
+            "§2",
+            "§3.7",
+            "EP14",
+            "READY",
+            "star",
+            "collect"
+          ]
+        },
+        {
+          "anchor": "§EP14-S2 · 主界面总星数显示 — S · READY",
+          "level": 3,
+          "startLine": 30,
+          "endLine": 35,
+          "tokens": 187,
+          "summary": "覆盖：R6/R8（显示腿；货币判定不做）。",
+          "keywords": [
+            "EP14",
+            "READY",
+            "主界面总星数",
+            "显示"
+          ]
+        },
+        {
+          "anchor": "§EP14-S3 · 大关推进闸门（数据/逻辑腿）— M · READY",
+          "level": 3,
+          "startLine": 36,
+          "endLine": 41,
+          "tokens": 177,
+          "summary": "覆盖：R7（推进层）+ meta-ui §2.7 v1.78 闸门行。",
+          "keywords": [
+            "§2.7",
+            "EP14",
+            "READY",
+            "meta",
+            "大关推进闸门",
+            "数据"
+          ]
+        },
+        {
+          "anchor": "§EP14-S4 · 锁态告知与星数 UI 呈现 — BLOCKED",
+          "level": 3,
+          "startLine": 42,
+          "endLine": 45,
+          "tokens": 86,
+          "summary": "阻塞：[待规格] = star-collect-rule §6-T1（「全 3★ 开大关」怎么告诉玩家 + 总星数落位/",
+          "keywords": [
+            "§6",
+            "EP14",
+            "BLOCKED",
+            "star",
+            "collect",
+            "rule"
+          ]
+        },
+        {
+          "anchor": "§EP14-S5 · 教学关引导路径 + L1 特判 — BLOCKED",
+          "level": 3,
+          "startLine": 46,
+          "endLine": 48,
+          "tokens": 41,
+          "summary": "阻塞：[待规格] = §6-T2（教学关专门设计引导路径；L1 首次按 1★ 档起步为现建议、未终裁）。",
+          "keywords": [
+            "§6",
+            "EP14",
+            "BLOCKED",
+            "教学关引导路",
+            "特判"
+          ]
+        },
+        {
+          "anchor": "§3 冲刺编排",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 56,
+          "tokens": 98,
+          "summary": "即刻可做 S1 → S2 纯引擎/快照腿，零编辑器零真机；S1 是 §3.7 漂移的闭环件，优先还债",
+          "keywords": [
+            "§3.7",
+            "冲刺编排"
+          ]
+        },
+        {
+          "anchor": "§4 统计与状态",
+          "level": 2,
+          "startLine": 57,
+          "endLine": 60,
+          "tokens": 75,
+          "summary": "Epic ×1（5 Story）：READY ×3（S1/S2/S3）· BLOCKED ×2（S4/S5）；估点 M×",
+          "keywords": [
+            "Epic",
+            "Story",
+            "READY",
+            "BLOCKED",
+            "统计与状态"
+          ]
+        },
+        {
+          "anchor": "§5 风险与缓解",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 70,
+          "tokens": 269,
+          "summary": "R-1 既有用例锁着 v1.50「续时不封顶」与双条件选档语义，S1 换制即红 S1 DoD 明写「订正换形并声明，⛔ ",
+          "keywords": [
+            "DoD",
+            "风险与缓解"
+          ]
+        },
+        {
+          "anchor": "§6 遗留与在册欠账（不在本 Epic 射程）",
+          "level": 2,
+          "startLine": 71,
+          "endLine": 74,
+          "tokens": 68,
+          "summary": "meta:overlay 字段名漂移（EP13 已裁「登记不动」）；Q12/Q15 选关页旧未决；T3 供给体检（皮肤立",
+          "keywords": [
+            "Epic",
+            "meta",
+            "overlay",
+            "EP13",
+            "Q12",
+            "Q15"
           ]
         }
       ]
