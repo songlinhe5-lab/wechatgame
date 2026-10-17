@@ -38726,9 +38726,9 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.md",
-      "tokens": 7975,
+      "tokens": 7960,
       "lines": 185,
-      "sha256": "212b3d76539a30ece2a589040e9da5f72a41ff0f74530931948dc419025a7c2e",
+      "sha256": "59304171c067b01d512bb33d1cabc8e8546d4c79991fa0d43d737f64f6ea035e",
       "tier": "normal",
       "sections": [
         {
@@ -38736,8 +38736,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 186,
-          "tokens": 7934,
-          "summary": "项目：games/beads · 版本 v1.1（规格先行 · 待落码；v1.1.1 = WXG-T-289 对表实测批",
+          "tokens": 7918,
+          "summary": "项目：games/beads · 版本 v1.4（C-1…C-5 已落码 = EP13-S1…S5；各批叙事 = 分片 ",
           "keywords": [
             "theme-level-select-spec.md",
             "Level",
@@ -38796,7 +38796,7 @@
           "level": 2,
           "startLine": 82,
           "endLine": 118,
-          "tokens": 1912,
+          "tokens": 1902,
           "summary": "注 A（闸门不变，本批不改造）：_applyMetaAction('pick-level') 现码 = levelIdx",
           "keywords": [
             "applyMetaAction",
@@ -38812,7 +38812,7 @@
           "level": 2,
           "startLine": 119,
           "endLine": 133,
-          "tokens": 669,
+          "tokens": 676,
           "summary": "进入本页（点橱窗图） 面板入 抽屉音 200（出 150） ux-spec §5「面板入 / 出」行，引用、不新行",
           "keywords": [
             "§5",
@@ -38858,7 +38858,7 @@
           "level": 2,
           "startLine": 156,
           "endLine": 182,
-          "tokens": 1485,
+          "tokens": 1519,
           "summary": "",
           "keywords": [
             "决策记录与待",
@@ -38886,7 +38886,7 @@
           "level": 3,
           "startLine": 172,
           "endLine": 182,
-          "tokens": 865,
+          "tokens": 899,
           "summary": "[TODO-1] 页头是否显示大关名 —— 现标题读 btn_levels_label = 选关（copy-tokens",
           "keywords": [
             "meta-ui §2.7",
@@ -38902,7 +38902,7 @@
           "level": 2,
           "startLine": 183,
           "endLine": 186,
-          "tokens": 112,
+          "tokens": 121,
           "summary": "C-1…C-8 整表（§9）、各批改动叙事与 v1.3（3×3 改版）落码面逐字外移至同目录 arc-level-sel",
           "keywords": [
             "§9",
@@ -39021,17 +39021,17 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.s9-history.md",
-      "tokens": 3390,
-      "lines": 39,
-      "sha256": "e7ab17fd7f2399baa474e5a66dffcd2b9006f151df2d7df9cc065fe9c97ad32e",
+      "tokens": 3693,
+      "lines": 42,
+      "sha256": "0f7d527917fedbd543c853db8346e2bca31a3cd3071da800a77633b19734d3bd",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格 · 大关选关页 · §9 落码改动面分片（arc-level-select-spec.s9-history · 曾用名 `theme-level-select-spec.s9-history.md`）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 40,
-          "tokens": 3346,
+          "endLine": 43,
+          "tokens": 3649,
           "summary": "项目：games/beads · 任务号 WXG-T-283（裁定回写批）· 正本：design/ux/arc-leve",
           "keywords": [
             "§9",
@@ -39043,26 +39043,26 @@
           ]
         },
         {
-          "anchor": "§9 ⚠ 落码改动面登记（文件级 · 本批**不改码**，供主理人转工程单）",
+          "anchor": "§9 ⚠ 落码改动面登记（文件级 · 建档时「本批不改码」，供主理人转工程单）",
           "level": 2,
           "startLine": 7,
-          "endLine": 19,
-          "tokens": 1530,
-          "summary": "C-1 games/beads/src/config/themes.ts 每行大关新增关卡清单字段（数据形态已钉 = 区",
+          "endLine": 21,
+          "tokens": 1710,
+          "summary": "落码状态（2026-10-17 实测，v1.4 回写）：C-1 / C-2 ①②④（+ C-5）/ C-4 / C-2 ",
           "keywords": [
-            "games",
-            "beads",
-            "src",
-            "config",
-            "themes",
-            "落码改动面登"
+            "落码改动面登",
+            "文件级",
+            "建档时",
+            "本批不改码",
+            "供主理人转工",
+            "程单"
           ]
         },
         {
           "anchor": "§10 已移除 / 不采纳的口径（正本 §4 外移 · **史证：只增不改，号位不复用**）",
           "level": 2,
-          "startLine": 20,
-          "endLine": 31,
+          "startLine": 22,
+          "endLine": 33,
           "tokens": 764,
           "summary": "外移动机 = 正本实测越 B 门；本表作用是防实现复活，故逐字节保留（含 ~~划线~~ 旧口径，K-053）。正本 §4",
           "keywords": [
@@ -39077,9 +39077,9 @@
         {
           "anchor": "§11 版本与改动史叙事（正本 header 行 + 旧 §9 整行外移 · WXG-T-289 收口批 · **史证只增不改**）",
           "level": 2,
-          "startLine": 32,
-          "endLine": 40,
-          "tokens": 458,
+          "startLine": 34,
+          "endLine": 43,
+          "tokens": 577,
           "summary": "外移动机 = 正本实测 8139 > 8000 B 门；本节逐字保留 v1.0–v1.3 各批叙事原文，正本留指针。",
           "keywords": [
             "§9",
