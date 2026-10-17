@@ -24,6 +24,7 @@
 ### EP14-S1 · 星级结算新制（引擎腿）— M · READY
 - 覆盖：R1–R5（star-collect-rule §2）= §3.7 v1.78 全部五条改动。
 - 改动面（预估，实现批以现码复核）：`computeClearStars`（档内三线按用时判星）；`beads-game.ts` 续时局结算腿（保底 = 进场档位星）；失败不续时 = 本局无星（现语义若已如此则只核对）；`tuning.nextTierFor` 删 `starsPrev`/(b) 腿（单条件：档 = 最高 +1，封顶 3★）。
+- **实测锚点（WXG-T-289 对表批，2026-10-17）**：`computeClearStars` 函数体 = `tuning.ts:975`（纯函数），玩法侧调用 = `beads-game.ts:2004`；`nextTierFor` = `tuning.ts:832`（**两参签名** `(starsThisLevel, starsPrevLevel)`，删 (b) 腿 = 删 `byPrev` 枝）；进场档推导 = `beads-game.ts:2233`，时钟重置 = `:2237`（`tierSecondsFor(level.time, tier)`），字段初始化 = `:345`；`starsByLevel` 存档数组 = `:339`。关卡列表字段实名 `_levels`（`:295`，无 `_levelList`）。
 - DoD：`score-combo §8-1`（v1.78）判据族全绿——进场档三线两侧采样〔含 1★ 档当场跳 3★ 正例〕+ 续时保底=档位星 + 失败无星 + 下次进场档=最高+1 四臂，纯 Node；既有用例若断言旧「不封顶/双条件」语义，**订正换形并声明，⛔ 删腿**；`framework:sync:check` + 全套件绿。
 - 依赖：无。可即刻开工，与 EP13 首冲刺互不阻塞。
 

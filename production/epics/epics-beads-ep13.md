@@ -11,7 +11,7 @@
 ## 0. 阅读约定
 
 1. **Story 四要素** = 描述 / 验收（引用式）/ 估点 S·M·L / 依赖；另给改动面 `C-#`、In-Out、证据落点、ready 判定。
-2. **引用锚的读法（K-046）**：文中 `file:line` 一律指**当前工作树**（2026-10-17 实测），行号会漂 ⇒ 落码前复 grep；`tls §4-R<n>` = §4 矩阵自上而下第 n 行。
+2. **引用锚的读法（K-046）**：文中 `file:line` 一律指**当前工作树**（2026-10-17 实测），行号会漂 ⇒ 落码前复 grep；`tls §4-R<n>` = §4 矩阵自上而下第 n 行。—— **WXG-T-289 复核**：本件全部锚点与代码对表一致（含 §2-S1 引用点清单）。
 3. **估点**：S/M/L 只表相对规模，不折人时。
 4. **环境标注**：`[待真机]` = 无真机不可判（不作 DoD 阻塞）；`[Blocked: 待规格回写]` = 已口头拍板但正本现文本仍 `[待裁]`；`[Blocked: 待编辑器]` = 依赖 `.meta`/`.scene`/构建链。
 5. **每 Story 公共 DoD（不再逐条重复）**：① `pnpm run verify` 全绿（含 `check:arch`/`check:es5-spread`/`framework:sync:check`/`levels:check`）；② Logic/Integration 有 `games/beads/tests/<name>.test.ts` 且通过（**BLOCKING**）；③ 动 `games/beads/src/**` ⇒ **同批** `framework:sync` 落镜像（pre-commit 硬门，⛔ 镜像拷贝绝不手改）；④ L1–L5 与 §2 热路径零分配自查（overlay 集合重建属「装载期」还是「每帧」必须写明）。

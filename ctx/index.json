@@ -680,7 +680,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5581,
       "lines": 86,
-      "sha256": "79f3f2b5894395c2c89a7039dd9bdb33d159ea563604de04eba0e04829a7748d",
+      "sha256": "3fb3d4178b6f8484d3c7282541f691c8f3431266264140c9d3fe3506d99db5d7",
       "tier": "normal",
       "sections": [
         {
@@ -38726,18 +38726,18 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.md",
-      "tokens": 7971,
-      "lines": 183,
-      "sha256": "b656782cbe2ebb40e22c59ccd89980c56502cd431b42bb601dd6033030ae8278",
+      "tokens": 7975,
+      "lines": 185,
+      "sha256": "212b3d76539a30ece2a589040e9da5f72a41ff0f74530931948dc419025a7c2e",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§UX 规格 · 大关选关页（Level Select by Arc · 曾用名「主题选关页」/ 原文件名 `theme-level-select-spec.md`，2026-10-17 纯改名批）· beads",
+          "anchor": "§UX 规格 · 大关选关页（Level Select by Arc · 曾用名「主题选关页」，原文件名 `theme-level-select-spec.md`）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 184,
-          "tokens": 7922,
-          "summary": "项目：games/beads · 版本 v1.1（规格先行 · 待落码；v1.0 = 首批，v1.1 = WXG-T-2",
+          "endLine": 186,
+          "tokens": 7934,
+          "summary": "项目：games/beads · 版本 v1.1（规格先行 · 待落码；v1.1.1 = WXG-T-289 对表实测批",
           "keywords": [
             "theme-level-select-spec.md",
             "Level",
@@ -38752,7 +38752,7 @@
           "level": 2,
           "startLine": 12,
           "endLine": 18,
-          "tokens": 202,
+          "tokens": 236,
           "summary": "1. 首屏即玩 → 进关 ≤2 次交互：本页是「第 1 次交互的落点、第 2 次交互的发起点」，见 §6 复核。",
           "keywords": [
             "ux-spec §1",
@@ -38780,8 +38780,8 @@
           "anchor": "§3 关键界面线框（750×1334，坐标 y 向上；几何全部引用现装常量）",
           "level": 2,
           "startLine": 47,
-          "endLine": 80,
-          "tokens": 828,
+          "endLine": 81,
+          "tokens": 930,
           "summary": "",
           "keywords": [
             "关键界面线框",
@@ -38794,9 +38794,9 @@
         {
           "anchor": "§4 状态流转 × 输入响应矩阵（本页穷举；每行可直转 QA 用例）",
           "level": 2,
-          "startLine": 81,
-          "endLine": 117,
-          "tokens": 1842,
+          "startLine": 82,
+          "endLine": 118,
+          "tokens": 1912,
           "summary": "注 A（闸门不变，本批不改造）：_applyMetaAction('pick-level') 现码 = levelIdx",
           "keywords": [
             "applyMetaAction",
@@ -38810,9 +38810,9 @@
         {
           "anchor": "§5 交互反馈与动效（⛔ 零新数值，只引用既有常量与既有行）",
           "level": 2,
-          "startLine": 118,
-          "endLine": 132,
-          "tokens": 674,
+          "startLine": 119,
+          "endLine": 133,
+          "tokens": 669,
           "summary": "进入本页（点橱窗图） 面板入 抽屉音 200（出 150） ux-spec §5「面板入 / 出」行，引用、不新行",
           "keywords": [
             "§5",
@@ -38826,9 +38826,9 @@
         {
           "anchor": "§6 导航成本与首屏留存（本页在留存链上的位置）",
           "level": 2,
-          "startLine": 133,
-          "endLine": 143,
-          "tokens": 508,
+          "startLine": 134,
+          "endLine": 144,
+          "tokens": 488,
           "summary": "≤2 次交互进关复核（红线，逐条验）：",
           "keywords": [
             "导航成本与首",
@@ -38840,9 +38840,9 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 144,
-          "endLine": 154,
-          "tokens": 453,
+          "startLine": 145,
+          "endLine": 155,
+          "tokens": 423,
           "summary": "触控 作品格 = WALL_CELL 120 ≥ TOUCH_MIN 88（§3.8）✅；back 高 = TOUCH_",
           "keywords": [
             "art/accessibility.md",
@@ -38856,9 +38856,9 @@
         {
           "anchor": "§8 决策记录与待确认项",
           "level": 2,
-          "startLine": 155,
-          "endLine": 180,
-          "tokens": 1503,
+          "startLine": 156,
+          "endLine": 182,
+          "tokens": 1485,
           "summary": "",
           "keywords": [
             "决策记录与待",
@@ -38868,8 +38868,8 @@
         {
           "anchor": "§8.1 已裁（谁裁的 + 一句理由，本文不重开）",
           "level": 3,
-          "startLine": 157,
-          "endLine": 170,
+          "startLine": 158,
+          "endLine": 171,
           "tokens": 537,
           "summary": "D1 大关→关卡清单存大关表、追加式、id 稳定；关卡 JSON/manifest 零改动 用户 2026-10-16 ",
           "keywords": [
@@ -38882,52 +38882,156 @@
           ]
         },
         {
-          "anchor": "§8.2 待确认（本文**不代裁**；均已在 `meta-ui §2.7` 挂 Q 号。号位**不复用** ⇒ TODO-3/4/6/7 已裁后仍原行存证，不另开号；本批后**在用待裁仅 TODO-1 / TODO-2 / TODO-5**）",
+          "anchor": "§8.2 待确认与已裁条目（均已在 `meta-ui §2.7` 挂 Q 号；号位**不复用**；在用待裁 = TODO-1 / TODO-2；TODO-5 已裁（10-17）待落码；已裁条目旧文 = 分片 **s8-history**）",
           "level": 3,
-          "startLine": 171,
-          "endLine": 180,
-          "tokens": 882,
+          "startLine": 172,
+          "endLine": 182,
+          "tokens": 865,
           "summary": "[TODO-1] 页头是否显示大关名 —— 现标题读 btn_levels_label = 选关（copy-tokens",
           "keywords": [
             "meta-ui §2.7",
             "§2.7",
             "meta",
             "TODO",
-            "btn_levels_label",
-            "copy"
+            "history",
+            "btn_levels_label"
           ]
         },
         {
           "anchor": "§9 ⚠ 落码改动面登记（**已外移分片**）",
           "level": 2,
-          "startLine": 181,
-          "endLine": 184,
-          "tokens": 149,
-          "summary": "C-1…C-8 整表迁至同目录 arc-level-select-spec.s9-history.md（动机 = 本文实",
+          "startLine": 183,
+          "endLine": 186,
+          "tokens": 112,
+          "summary": "C-1…C-8 整表（§9）、各批改动叙事与 v1.3（3×3 改版）落码面逐字外移至同目录 arc-level-sel",
           "keywords": [
+            "§9",
+            "arc",
+            "level",
+            "sel",
+            "落码改动面登",
+            "已外移分片"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/ux/arc-level-select-spec.s8-history.md",
+      "tokens": 965,
+      "lines": 26,
+      "sha256": "7a6c48d62e190bb8f9c3bf50c819a1c55cbe9cce7e2e73aa1364edd99f84fd8e",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§arc-level-select-spec · §8.2 已裁条目史证分片（逐字外移）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 27,
+          "tokens": 942,
+          "summary": "正本 = arc-level-select-spec.md §8.2（预算门外移，判例 = arc-level-sele",
+          "keywords": [
+            "§8.2",
             "arc",
             "level",
             "select",
             "spec",
-            "history",
-            "落码改动面登"
+            "sele"
+          ]
+        },
+        {
+          "anchor": "§头注「上位正本」行（v1.1 续批时对 `ux-spec §6.3` 触改的登记旧文，WXG-T-289 外移）原文",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 11,
+          "tokens": 81,
+          "summary": "~~ux-spec 仅加一行指针（实测 38,540 tok）~~ ⇒ v1.1 续批再触 §6.3 两行（指针行术语订",
+          "keywords": [
+            "ux-spec §6.3",
+            "§6.3",
+            "spec",
+            "WXG",
+            "tok",
+            "头注"
+          ]
+        },
+        {
+          "anchor": "§[TODO-3 / Q13]（已裁 = 乙，用户 2026-10-16 续批）原文",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 15,
+          "tokens": 169,
+          "summary": "[TODO-3 / Q13] ~~0 心点格的拦截反馈形态~~ ⇒ 已裁 = 乙（用户 2026-10-16 续批）：规",
+          "keywords": [
+            "TODO",
+            "Q13",
+            "已裁",
+            "用户",
+            "续批",
+            "原文"
+          ]
+        },
+        {
+          "anchor": "§[TODO-4 / Q14]（已裁，用户新口径）原文",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 19,
+          "tokens": 129,
+          "summary": "[TODO-4 / Q14] ~~「主题」双义……是否同源 = 待裁~~ ⇒ 已裁（用户新口径）：内容分组改称大关（见文",
+          "keywords": [
+            "TODO",
+            "Q14",
+            "已裁",
+            "用户新口径",
+            "原文"
+          ]
+        },
+        {
+          "anchor": "§[TODO-6 / Q16]（已裁 = 甲，用户 2026-10-16 续批）原文",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 23,
+          "tokens": 169,
+          "summary": "[TODO-6 / Q16] 大关橱窗三态如何由大关清单派生 ⇒ 已裁 = 甲（用户 2026-10-16 续批）：由大",
+          "keywords": [
+            "TODO",
+            "Q16",
+            "已裁",
+            "用户",
+            "续批",
+            "原文"
+          ]
+        },
+        {
+          "anchor": "§[TODO-7 / Q17]（已裁 = 甲，用户 2026-10-16 续批）原文",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 27,
+          "tokens": 159,
+          "summary": "[TODO-7 / Q17] 大关归组歧义 ⇒ 已裁 = 甲（用户 2026-10-16 续批）：L9 即收尾关，大关 ",
+          "keywords": [
+            "TODO",
+            "Q17",
+            "已裁",
+            "用户",
+            "续批",
+            "原文"
           ]
         }
       ]
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.s9-history.md",
-      "tokens": 2894,
-      "lines": 30,
-      "sha256": "8b24d5308250ff41bd08f681deea415d2e906e7cd7655fbde4e2ac1c7f620144",
+      "tokens": 3390,
+      "lines": 39,
+      "sha256": "e7ab17fd7f2399baa474e5a66dffcd2b9006f151df2d7df9cc065fe9c97ad32e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格 · 大关选关页 · §9 落码改动面分片（arc-level-select-spec.s9-history · 曾用名 `theme-level-select-spec.s9-history.md`）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 31,
-          "tokens": 2849,
+          "endLine": 40,
+          "tokens": 3346,
           "summary": "项目：games/beads · 任务号 WXG-T-283（裁定回写批）· 正本：design/ux/arc-leve",
           "keywords": [
             "§9",
@@ -38968,6 +39072,22 @@
             "正本",
             "外移",
             "史证"
+          ]
+        },
+        {
+          "anchor": "§11 版本与改动史叙事（正本 header 行 + 旧 §9 整行外移 · WXG-T-289 收口批 · **史证只增不改**）",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 40,
+          "tokens": 458,
+          "summary": "外移动机 = 正本实测 8139 > 8000 B 门；本节逐字保留 v1.0–v1.3 各批叙事原文，正本留指针。",
+          "keywords": [
+            "§9",
+            "header",
+            "WXG",
+            "版本与改动史",
+            "叙事",
+            "正本"
           ]
         }
       ]
@@ -82566,9 +82686,9 @@
     },
     {
       "path": "production/epics/epics-beads-ep13.md",
-      "tokens": 7940,
+      "tokens": 7972,
       "lines": 198,
-      "sha256": "eb7a8c2f4678a6535e907b1e0279e25d5c4a41fa3a013fc9dcaf40220f5e8c4c",
+      "sha256": "61dadd1c823db3fb53ccb268b54d2351eb7f1f9d8cea27eb443ef388ab972ee1",
       "tier": "normal",
       "sections": [
         {
@@ -82576,7 +82696,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 199,
-          "tokens": 7913,
+          "tokens": 7945,
           "summary": "任务：WXG-T-284 · P1 ｜ 作者：程基岩（engineering-lead）· 2026-10-17 ｜ 性",
           "keywords": [
             "beads",
@@ -82592,7 +82712,7 @@
           "level": 2,
           "startLine": 11,
           "endLine": 22,
-          "tokens": 503,
+          "tokens": 535,
           "summary": "1. Story 四要素 = 描述 / 验收（引用式）/ 估点 S·M·L / 依赖；另给改动面 C-#、In-Out、",
           "keywords": [
             "Story",
@@ -82985,17 +83105,17 @@
     },
     {
       "path": "production/epics/epics-beads-ep14.md",
-      "tokens": 2054,
-      "lines": 73,
-      "sha256": "c8afe2863e69b801fa96d5b02ba0a440360b29a42fc0cadb97c6285794d8dea4",
+      "tokens": 2205,
+      "lines": 74,
+      "sha256": "6712219d05e2ce7b08c4c0f00b2ce1049b0cb0aa33e1744be2ccf627be68757e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Epic 拆分 · EP14 星星收集与星级难度（Star Collect）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 74,
-          "tokens": 2031,
+          "endLine": 75,
+          "tokens": 2183,
           "summary": "任务号 WXG-T-288（P1）· 2026-10-17 · 工程轨（子代理通道不可用，主理人按 my-skills/",
           "keywords": [
             "Epic",
@@ -83038,8 +83158,8 @@
           "anchor": "§2 Story 列表",
           "level": 2,
           "startLine": 22,
-          "endLine": 48,
-          "tokens": 839,
+          "endLine": 49,
+          "tokens": 990,
           "summary": "",
           "keywords": [
             "Story",
@@ -83050,8 +83170,8 @@
           "anchor": "§EP14-S1 · 星级结算新制（引擎腿）— M · READY",
           "level": 3,
           "startLine": 24,
-          "endLine": 29,
-          "tokens": 259,
+          "endLine": 30,
+          "tokens": 411,
           "summary": "覆盖：R1–R5（star-collect-rule §2）= §3.7 v1.78 全部五条改动。",
           "keywords": [
             "§2",
@@ -83065,8 +83185,8 @@
         {
           "anchor": "§EP14-S2 · 主界面总星数显示 — S · READY",
           "level": 3,
-          "startLine": 30,
-          "endLine": 35,
+          "startLine": 31,
+          "endLine": 36,
           "tokens": 187,
           "summary": "覆盖：R6/R8（显示腿；货币判定不做）。",
           "keywords": [
@@ -83079,8 +83199,8 @@
         {
           "anchor": "§EP14-S3 · 大关推进闸门（数据/逻辑腿）— M · READY",
           "level": 3,
-          "startLine": 36,
-          "endLine": 41,
+          "startLine": 37,
+          "endLine": 42,
           "tokens": 177,
           "summary": "覆盖：R7（推进层）+ meta-ui §2.7 v1.78 闸门行。",
           "keywords": [
@@ -83095,8 +83215,8 @@
         {
           "anchor": "§EP14-S4 · 锁态告知与星数 UI 呈现 — BLOCKED",
           "level": 3,
-          "startLine": 42,
-          "endLine": 45,
+          "startLine": 43,
+          "endLine": 46,
           "tokens": 86,
           "summary": "阻塞：[待规格] = star-collect-rule §6-T1（「全 3★ 开大关」怎么告诉玩家 + 总星数落位/",
           "keywords": [
@@ -83111,8 +83231,8 @@
         {
           "anchor": "§EP14-S5 · 教学关引导路径 + L1 特判 — BLOCKED",
           "level": 3,
-          "startLine": 46,
-          "endLine": 48,
+          "startLine": 47,
+          "endLine": 49,
           "tokens": 41,
           "summary": "阻塞：[待规格] = §6-T2（教学关专门设计引导路径；L1 首次按 1★ 档起步为现建议、未终裁）。",
           "keywords": [
@@ -83126,8 +83246,8 @@
         {
           "anchor": "§3 冲刺编排",
           "level": 2,
-          "startLine": 49,
-          "endLine": 56,
+          "startLine": 50,
+          "endLine": 57,
           "tokens": 98,
           "summary": "即刻可做 S1 → S2 纯引擎/快照腿，零编辑器零真机；S1 是 §3.7 漂移的闭环件，优先还债",
           "keywords": [
@@ -83138,8 +83258,8 @@
         {
           "anchor": "§4 统计与状态",
           "level": 2,
-          "startLine": 57,
-          "endLine": 60,
+          "startLine": 58,
+          "endLine": 61,
           "tokens": 75,
           "summary": "Epic ×1（5 Story）：READY ×3（S1/S2/S3）· BLOCKED ×2（S4/S5）；估点 M×",
           "keywords": [
@@ -83153,8 +83273,8 @@
         {
           "anchor": "§5 风险与缓解",
           "level": 2,
-          "startLine": 61,
-          "endLine": 70,
+          "startLine": 62,
+          "endLine": 71,
           "tokens": 269,
           "summary": "R-1 既有用例锁着 v1.50「续时不封顶」与双条件选档语义，S1 换制即红 S1 DoD 明写「订正换形并声明，⛔ ",
           "keywords": [
@@ -83165,8 +83285,8 @@
         {
           "anchor": "§6 遗留与在册欠账（不在本 Epic 射程）",
           "level": 2,
-          "startLine": 71,
-          "endLine": 74,
+          "startLine": 72,
+          "endLine": 75,
           "tokens": 68,
           "summary": "meta:overlay 字段名漂移（EP13 已裁「登记不动」）；Q12/Q15 选关页旧未决；T3 供给体检（皮肤立",
           "keywords": [
