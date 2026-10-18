@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 142,
+  "nextId": 143,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2356,6 +2356,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-142",
+      "state": "active",
+      "file": "knowledge/lessons/cross-ide.md",
+      "category": "跨IDE",
+      "title": "「不擅自 push」的纪律会被 IDE 自动同步静默绕过；推送状态只能靠 ls-remote / reflog 取证，`git status` 永远看不出来",
+      "contentHash": "80bc89d165a2580c77be71ffaf108499e97543ca2bb2701cb2206aac14e0a295",
+      "sourceTask": "WXG-T-292",
+      "addedDate": "2026-10-18",
+      "lastAccess": "2026-10-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3492,6 +3509,15 @@
       "kind": "updated",
       "ids": [
         "K-141"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-18",
+      "taskId": "WXG-T-292",
+      "kind": "added",
+      "ids": [
+        "K-142"
       ],
       "note": null
     }

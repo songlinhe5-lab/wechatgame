@@ -3360,7 +3360,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 > beads·交付格式统一 PNG + 菜单纹理归属腿（BD-61）｜原会话在途未提交 ⇒ **2026-10-18 由 WXG-T-292 会话代收口**（用户选下一步选项 2 授权）｜本会话**未跑过 `git push`**
 
-- ⚠ **推送状态意外（事实先记，不解释为已完成）**：`git reflog show origin/develop` 显示 `update by push` 三跳（`56839f0` → `d9c56d4` → `27c1310`）⇒ 本会话只跑了 `git commit`，**未跑 `git push`**；仓内 `.githooks` 只有 pre-commit / commit-msg（`grep git push .githooks/` 零命中）⇒ 疑为 IDE 侧自动推送。后果：291 的六笔与 292 的两笔**已在 origin/develop**，本地尚余 `3fb7c63`（两份 `.ts.meta`）与 `203aa0e`（台账登记）未推。⇒ **请核实 IDE 的自动推送开关**（若不希望自动推，需关掉；否则本仓的「不擅自 push」纪律在 IDE 层已被绕过）。
+- ⚠ **推送状态（已核实 + 已裁定）**：`git ls-remote origin refs/heads/develop` = 本地 HEAD ⇒ 本会话的 **11 笔已全部在远端**，而本会话**从未跑过 `git push`**。证据链：`git reflog show origin/develop` 多跳 `update by push`，时机在每次 commit 后 30–60 s；仓内 `.githooks` 只有 pre-commit / commit-msg（`grep "git push"` 零命中），`git config` 也无 push 钩子 ⇒ 推送来自 **IDE 侧自动同步**。**用户 2026-10-18 裁定 = 关掉自动推送（纪律优先）**：AGENTS.md §7「不擅自 commit/push」不变，不把已被绕过的事实写进常驻纪律；开关在 IDE 设置里，需用户亲操（agent 改不到）。登记与复测法已入 `memory/MEMORY.md` §Hooks（提一笔 → 等 ≥60 s → `git rev-list --count origin/develop..HEAD` 应 ≥ 1 ⇒ 确认已关）。
 
 - **代收口的边界（先说清哪些不是我做的）**：七笔提交均**逐字携带原会话的工作树内容**，本会话只改了两处台账与本节，⛔ 未改动其实现/资产/文案；拆成七笔只为让每笔能单独回滚。拆组依据 = 文件集互斥且各自自洽（分包腿 / BGM 体积 / 格式换代 / 机检门 / QA 入账 / 原型脚本 / 元数据）。
 - **七笔**：`07f92b3` feat(framework) BGM 分包预载腿（+4 行为判据，默认关、零行为变化）· `c82fd0e` perf(beads) BGM 96→64 kbps（703.8→469.2 KB，接缝跳变 1.0×→0.3×，40 s 档实测否决）· `08ca944` build(beads) PNG 统一（20 件 webp 退役 + harness `MENU_FILE` 改指 + 资产台账订正）· `d9c56d4` test(tools) `check-cocos-mask` 第三腿「菜单纹理归属」+ 假绿哨兵改 `null` + `quantize-cocos-textures.py` 新配方 · `0d9fe43` docs(qa) BD-61 入账（P2 维持）+ 顶栏取证两条硬事实 · `27c1310` docs(beads) 选关弹框原型脚本 + i2i denoise 分档 · `3fb7c63` chore(beads) 两份编辑器生成的 `.ts.meta`。

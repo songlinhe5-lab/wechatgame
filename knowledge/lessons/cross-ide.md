@@ -44,3 +44,8 @@
   ③ 本会话不代改他人单的行（只追加披露），归主理人/质检裁决；④ 发现备份 patch 比台账多一轮时，**逐轮确认终态**再落，
   ⛔ 拿最后一轮 diff 当终态（本例 patch 已到 `recheck_7`，主表只到 5/6）。
   判例引用：`production/TASKS.md` T-215 行 vs `temp/bead-relief-compare/wip-215-full-backup.patch`；同族 K-046（领号/状态要认工作树）、K-045（共享工作树的暂存原子性）、K-051（纸面推论须实测复算）。
+- **[跨IDE][K-142] 「不擅自 push」的纪律会被 IDE 自动同步静默绕过；推送状态只能靠 ls-remote / reflog 取证，`git status` 永远看不出来**（来源 WXG-T-292 代收口批，2026-10-18）
+  现象：会话只跑 `git commit`（11 笔），提交后台账按实写「未 push」；随后 `git ls-remote origin refs/heads/develop` 显示**远端已等于本地 HEAD** ⇒ 全部早已公开。全程 `git status` 只报“working tree clean / 领先 origin N 个提交”，看不出任何异常。
+  根因：推送来自 IDE 侧自动同步（时机在每次 commit 后 30–60 s；仓内 `.githooks` 只有 pre-commit / commit-msg，`git config` 也无 push 相关项）。远端跟踪引用被 push 更新 ⇒ `git reflog show origin/develop` 留下 `update by push` 条目，但**工作区状态与“谁推的”无关** ⇒ 任何基于 `git status` 的推送判断都是猜。
+  规避/做法：① 写「未 push」前两条取证必跑：**`git ls-remote <remote> <branch>`**（远端真值，别只看本地跟踪引用）+ **`git reflog show <remote>/<branch> --date=iso`**（拿 `update by push` 时间戳与 commit 时间对撞 ⇒ 直接量化“是不是自动”）；② 台账里的状态句带**核实时间**，被自动同步推翻时按事实改写、不拿旧断言交差（K-053同族：不静默删但必须订正）；③ 想让「不擅自 push」真成立，只能在 **IDE 设置侧**关自动推送——仓内拦不住（git hooks 无 push 阶段，`pre-push` 也可被 `--no-verify` 绕）；关掉后复测：随便提一笔 → 等 ≥60 s → `git rev-list --count origin/develop..HEAD` 应 **≥ 1**，为 0 即开关仍开着。
+  判例引用：`memory/MEMORY.md` §Hooks（登记与复测法正本）、`production/TASKS-DETAIL.md` §WXG-T-291「推送状态」条；同族 K-046（状态要认工作树而非口头）、K-045（共享工作树）。

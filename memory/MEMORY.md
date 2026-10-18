@@ -47,6 +47,8 @@
 - 实践正本：`docs/agent/hooks-best-practices.md`
 - 跨 IDE 拦提交：`.githooks/pre-commit` → `check:links`；Cursor 另见 `.cursor/hooks.json`（Agent 侧禁 `--no-verify` / L1）。
 - ⚠ **待提交里含被索引 .md 时，先不要跑默认 `pnpm run ctx:build`**（默认模式按 **HEAD** 索引）：它会把 pre-commit 已生成的 `memory/INDEX.md` 回退成 HEAD 基线，而钩子那轮 `--staged-blobs` 又按暂存 blob 记账 ⇒ `ctx:check --staged` 反复报「暂存与索引不一致」（判例：WXG-T-097 连编 2 次被拦）。做法：**连跑 2–3 轮 `node tools/scripts/build-context-index.mjs --staged-blobs` + `git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md memory/INDEX.md`**，到 `check-context-budget.mjs --staged` 绿后再提交。
+- ⚠ **IDE 侧存在「commit 后自动 push」（2026-10-18 实测，用户裁定 = 关掉它）**：本仓 11 笔提交在**未跑过 `git push`** 的情况下已全部落到 `origin/develop`——`git reflog show origin/develop` 有 `update by push` 三跳（时机在每次 commit 后 30–60 s），`git ls-remote origin refs/heads/develop` 直查 = 本地 HEAD，而仓内 `.githooks` 只有 pre-commit / commit-msg（`grep "git push" .githooks/` 零命中）⇒ 推送既不来自仓内也不来自 agent。**开关不在仓内，需在 IDE 设置里关**；关之前提的每一笔都会自动出现在远端 ⇒ AGENTS.md §7「不擅自 push」实际已被绕过（因此不把它写进常驻纪律，只在此登记）。
+- **关掉自动推送后的复测法（可机械执行）**：随便提一笔 → 等 ≥60 s → `git rev-list --count origin/develop..HEAD` 应 **≥ 1**（不再自动推 ⇒ 计数不归零）；若为 **0** ⇒ 开关还开着。取证只靠上面两条命令，⛔ 不要靠 `git status`（它不报未推数，只会给“clean”的错觉）。
 
 ## Headless / CI
 - 正本：`docs/agent/headless-ci-pr-review.md`
