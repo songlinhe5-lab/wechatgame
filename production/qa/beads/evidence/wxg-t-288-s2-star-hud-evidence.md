@@ -1,4 +1,4 @@
-# WXG-T-288 · EP14-S2 主界面总星数位 取证（2026-10-17）
+ 
 
 > 结论一句话：**顶栏总星数位已在真浏览器画面上拍到两态（`★0` → 真引擎通关后 `★3`）**，位置在安全区内、与齿轮热区不互掉；
 > 数值 = Σ 各关历史最高星（规则 R6/R8），整帧代价已走第十九次复评入账（`K.5.1-补11`）。**未闭** = 分母形态与大字号档观感（见 §4）。
@@ -10,7 +10,7 @@
 | 项 | 实况 |
 |---|---|
 | **画面级通道（主证据）** | 浏览器 dev harness 实拍：`pnpm run harness` → `http://127.0.0.1:4173/?game=beads&dbg=off`（默认即落玩法屏，`?meta=menu` 才进主菜单；`?dbg=off` 关品红/青诊断虚线框） |
-| 顶栏取证三个必做前置 | ① **隐藏 harness 自带 DOM 覆层** `#hud`/`#controls`/`#help`（`position:fixed` 正好盖住 design y=1274 那条顶栏 ⇒ 不隐就拍不到）；② 重拍前调 `window.__beads.app.fitCanvas()` 清画布残影（残影会被误读成“虚线框”）；③ 游戏实例在 **`window.__beads.game`**（`app.game` 是 **BeadsShell 外壳**，无 `setDebugOutlines/phase/snapshot`） |
+| 顶栏取证三个必做前置 | ① **隐藏 harness 自带 DOM 覆层** `#hud`/`#controls`/`#help`（`position:fixed` 正好盖住 design y=1274 那条顶栏 ⇒ 不隐就拍不到）；② 重拍前调 **`window.__beads.fitCanvas()`** 清画布残影（残影会被误读成“虚线框”；⚠ 本件初版写的 `__beads.app.fitCanvas()` **不存在**，2026-10-18 实测订正，见 §5 第 4 行）；③ 游戏实例在 **`window.__beads.game`**（`app.game` 是 **BeadsShell 外壳**，无 `setDebugOutlines/phase/snapshot`）；④ **（2026-10-18 补）浏览器视图必须真可见**：页隐时 rAF 停摆且 `img.decode()` 悬挂 ⇒ 菜单位图腿不注入，拍出来是程序化腿的“缺图”假象 |
 | 像素级自证 | 最终两图均校过：品红/青像素 **0 / 0**、左/右黑边非黑像素 **0**、`_debugOutlines/_debugGuides/_debugInfo` 全 false；console 0 error |
 | 离屏等价腿（辅） | `pnpm run preview:frames:beads`（`render-harness-frame.mjs`，引擎 `RenderModel` 1:1 转 SVG）+ 两态探针 `temp/wxg288-s2-evidence/capture-two-states.ts`（不入库，先例 = `temp/probe-seal-inversion-closure.mjs`） |
 | 通关驱动 | 浏览器内用**全公开命令**交替 `retrieveBead → selectTraySlot → tapGridCell`，实测 `{places:102, retrieves:102, gives:0, expands:0, iters:204, endPhase:"level-clear", complete:true, starsTotal:3}`；离屏腿走 `g3-lib.ts::runBot`（同口径，`cleared:true, moves:10`） |
@@ -55,12 +55,16 @@
 | 大字号档（E2）与顶栏拥挤度 | 本件只测默认字号；改字号会移动同带元素，需真屏核对（harness 可预看，但最终签需在真机） | 真机走查一行签署（日期 + 机型 + 结论）；本项 `[待真机]` |
 | 真机/微信开发者工具截图 | 该链仍需要 Cocos **构建产物**（`games/beads/build/wechatgame/` 不存在，ADR-0009 前置未通）——注意：**这挡的只是真机/上传链，不挡浏览器 harness**（本件主证据即来自浏览器） | 构建链打通后补一张实拍 PNG；本臂浏览器两图已取（落盘路径见 §2），不再挂账 |
 
-## 5. 本件初版的三处错判（订正留档，K-053 不静默删）
+## 5. 本件错判订正（初版三处 + 2026-10-18 追加两处；K-053 不静默删）
 
 | # | 初版说法 | 实况 | 成因 |
 |---|---|---|---|
 | 1 | 「浏览器实拍做不到，只能交离屏 SVG」 | 浏览器 harness 完全可跑可拍 | 只验到 weixin MCP（需构建产物）那一条，就推及了整条画面链——**单通道失败 ≠ 取证不可行** |
 | 2 | HUD 命令从 `app.lastModel` 取 | 该字段不存在；真实数据源 = **`app._builder._commands`** | 凭惯例写探测式，未先核 |
 | 3 | 在浏览器里「逐格正填」即可通关 | L1 = **102 颗全错位的解环盘**，`isFillable` 只筛空格、`tapGridCell` 拒绝已占格 ⇒ 必须 `retrieveBead → selectTraySlot → tapGridCell` 交替（实测 204 次动作） | 把**单测夹具**（`simpleTestLevel()` 6×5 空盘）的玩法当成了真关盘型。本臂单测腿（空盘夹具）与离屏探针腿（`runBot`，内部自会取回）均仍成立，错的只是当时手写的浏览器脚本 |
+| 4（2026-10-18） | 前置② 写的 `window.__beads.app.fitCanvas()` | 该路径不存在（实测 `app.fitCanvas === undefined`）；真身 = **`window.__beads.fitCanvas()`** | 凭本节「`app.game` 是外壳」的层级惯例推写了 `app.` 前缀，未实测（同 **K-047**：惯例推断不等于读数） |
+| 5（2026-10-18） | 「按本件配方就能拍到画面」 | **浏览器视图不可见时拍不到位图腿**：`document.visibilityState === 'hidden'` 下 ① rAF 停摆（需手动 `__beads.app.tick(16.7)` 才出一帧；注意 `app.tick` 可用而 `app.fitCanvas` 不可用，两者不同层）；② `HTMLImageElement.decode()` 的 Promise **永不 resolve**，而 `dev/harness/main.ts` 菜单装载器止于 `Image + decode()` ⇒ `Promise.all` 不 settle ⇒ `menu.registry.size === 0`、位图解析器从未注入 ⇒ 画面**静默退化成程序化腿**（看着像“缺图”）。反证资产正常：同 URL 手工 `new Image()` 的 `onload` 正常触发、`naturalWidth` 读数正确（960 / 200） | 把「命令流能跑」当成「屏幕可拍」而没先验可见性（同 **K-037** 族）；页隐是后台打开 tab 的默认态，不报错、不降级提示 |
 
-可复用事实（下次顶栏取证直接拿）：**隐 `#hud`/`#controls`/`#help` + `fitCanvas()` 清残影 + `?dbg=off` + 实例走 `window.__beads.game`**；另注意 L1 倒计时仅 ≈24s，页面内探查 API 会跑进 `game-over`，需 `retryLevel()` 复位。
+可复用事实（下次顶栏取证直接拿）：**隐 `#hud`/`#controls`/`#help` + `window.__beads.fitCanvas()` 清残影 + `?dbg=off` + 实例走 `window.__beads.game`**；另注意 L1 倒计时仅 ≈24s，页面内探查 API 会跑进 `game-over`，需 `retryLevel()` 复位。
+
+**新增前提（2026-10-18）**：实拍前先断言 `document.visibilityState === 'visible'`。不可见时的正确取证层次 = **网络层 + 解码层**（资源状态码、PNG 签名、`createImageBitmap` 成功）而非像素层；⛔ 不得把页隐状态下拍到的程序化腿当画面级证据。

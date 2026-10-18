@@ -371,7 +371,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "f5ff606ed83bac0828a37c80fef3638ee184e9730b715548a8a66e95308646c9",
+      "sha256": "de21d89ec52e1e79fca494fed0d37fe60cc0c51bed5d1b869a8390d5b2bbc269",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5787,
       "lines": 90,
-      "sha256": "17bf7a5b3b9dc5e5fab71db4c3ded6aef6f94cd114d170a7e3485e00a4aa9e65",
+      "sha256": "f83e306d574522c770ff96af133458ec994c5223d3b30e2575c3bac3c2d1e36a",
       "tier": "normal",
       "sections": [
         {
@@ -764,7 +764,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 1099 行 / 90281 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 1123 行 / 92680 tok / 实测读 15 次",
           "level": 2,
           "startLine": 30,
           "endLine": 33,
@@ -86430,31 +86430,17 @@
     },
     {
       "path": "production/qa/beads/evidence/wxg-t-288-s2-star-hud-evidence.md",
-      "tokens": 2114,
-      "lines": 66,
-      "sha256": "77d7807b470e5c210949ac2bc9e809fbb26dd9168a5b2a0fc1ffce9b7ca69563",
+      "tokens": 2643,
+      "lines": 70,
+      "sha256": "fbe44172700b419e35aec0423afe90149fcacec97e1ba39ae3c870ffbc7a38e7",
       "tier": "normal",
       "sections": [
-        {
-          "anchor": "§WXG-T-288 · EP14-S2 主界面总星数位 取证（2026-10-17）",
-          "level": 1,
-          "startLine": 1,
-          "endLine": 67,
-          "tokens": 2094,
-          "summary": "结论一句话：顶栏总星数位已在真浏览器画面上拍到两态（★0 → 真引擎通关后 ★3），位置在安全区内、与齿轮热区不互掉；",
-          "keywords": [
-            "WXG",
-            "EP14",
-            "主界面总星数",
-            "取证"
-          ]
-        },
         {
           "anchor": "§1 环境与取法（可复跑）",
           "level": 2,
           "startLine": 8,
           "endLine": 17,
-          "tokens": 408,
+          "tokens": 497,
           "summary": "画面级通道（主证据） 浏览器 dev harness 实拍：pnpm run harness → http://127.",
           "keywords": [
             "dev",
@@ -86508,19 +86494,19 @@
           ]
         },
         {
-          "anchor": "§5 本件初版的三处错判（订正留档，K-053 不静默删）",
+          "anchor": "§5 本件错判订正（初版三处 + 2026-10-18 追加两处；K-053 不静默删）",
           "level": 2,
           "startLine": 58,
-          "endLine": 67,
-          "tokens": 358,
+          "endLine": 71,
+          "tokens": 812,
           "summary": "1 「浏览器实拍做不到，只能交离屏 SVG」 浏览器 harness 完全可跑可拍 只验到 weixin MCP（需构建",
           "keywords": [
             "SVG",
             "harness",
             "weixin",
             "MCP",
-            "本件初版的三",
-            "处错判"
+            "本件错判订正",
+            "初版三处"
           ]
         }
       ]
@@ -90139,9 +90125,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 90281,
-      "lines": 1099,
-      "sha256": "fe264ea93e75a19255b622c4df919a81c6fba6867db935341b820382bdaf035f",
+      "tokens": 92680,
+      "lines": 1123,
+      "sha256": "f6956e7c0edf312a074f04496df61b6507b84b32c1995ee7f2452a139660b29f",
       "tier": "hot",
       "sections": [
         {
@@ -90889,8 +90875,8 @@
           "anchor": "§M · 主菜单招牌 + 走马灯卡 + 选关页作品墙（EP12-S6 / WXG-T-269-S6）",
           "level": 1,
           "startLine": 964,
-          "endLine": 1100,
-          "tokens": 12323,
+          "endLine": 1124,
+          "tokens": 14722,
           "summary": "⚠ 走马灯改造（menu-architecture §1.3 第五轮）口径：主菜单主区由「木框橱窗作品墙」→单张走马灯小",
           "keywords": [
             "§1.3",
@@ -91047,8 +91033,8 @@
           "anchor": "§M.10 · WXG-T-269-S6 质量门结论（G1–G4）",
           "level": 2,
           "startLine": 1064,
-          "endLine": 1100,
-          "tokens": 1681,
+          "endLine": 1124,
+          "tokens": 4080,
           "summary": "判据正本 = 上文 §M（TC-MN-01..40）；冒烟半边 = smoke-tests.md v1.4（SC-MN-",
           "keywords": [
             "WXG",
@@ -91101,6 +91087,22 @@
             "缺陷分级",
             "本单内",
             "正式号"
+          ]
+        },
+        {
+          "anchor": "§M.11 追加缺陷（2026-10-18 · 交付格式收口批发现，非 S6 本单；正式号 **BD-61** = 全工作树现存最大 BD-60 +1，K-046/K-050）",
+          "level": 3,
+          "startLine": 1101,
+          "endLine": 1124,
+          "tokens": 2352,
+          "summary": "BD-61 AR-01 P2（已确认：用户 2026-10-18 裁维持 P2，不上调） Cocos 投放件 textu",
+          "keywords": [
+            "Cocos",
+            "textu",
+            "追加缺陷",
+            "交付格式收口",
+            "批发现",
+            "本单"
           ]
         }
       ]
