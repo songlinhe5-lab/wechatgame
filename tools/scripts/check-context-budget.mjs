@@ -85,6 +85,12 @@ import {
   residentLimit,
   resolveContent,
   routesReferencedPaths,
+  ROUTES_ANCHOR_REF,
+  routesAnchorsByPath,
+  indexPreferredPaths,
+  normalizeRouteAnchor,
+  parseHotBlocks,
+  secondHopIssues,
   WORKTREE_AUTHORITATIVE,
   BUDGET_MD_REL,
   HOT_FILES_MD_REL,
@@ -467,7 +473,9 @@ function checkStagedFreshness() {
 // 需在该行行尾标注 `<!-- no-anchor -->` 显式豁免锚点校验。
 const NO_ANCHOR_MARKER = /<!--\s*no-anchor\s*-->/;
 // `路径#锚点` 引用；锚点一直取到单元格/行边界（不含 `|`、换行）。
-const ANCHOR_REF = /((?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.md)#([^|\n]*)/g;
+// 【WXG-T-293 前置①】正则与归一化**改从生成器导入**：旧版本地定义与 `routesReferencedAnchors()`
+// 不同源 ⇒ 生成器侧的「ROUTES 引用无条件保留」长期只能命中 8/85（锚点名含空格就在空格处断掉）。
+const ANCHOR_REF = ROUTES_ANCHOR_REF;
 // 路由表「精确锚点」列：以 `.md` 路径开头，锚点段可选（缺失即整文件引用）。
 const REF_CELL = /^\s*((?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.md)(?:#(.*))?/;
 
@@ -516,7 +524,7 @@ function checkRoutes(index) {
     ANCHOR_REF.lastIndex = 0;
     let m;
     while ((m = ANCHOR_REF.exec(line)) !== null) {
-      validateAnchor(m[1], m[2].trim(), lineNo);
+      validateAnchor(m[1], normalizeRouteAnchor(m[2]), lineNo);
     }
 
     // (2) 路由表「精确锚点」列：整文件（非锚点）引用须显式豁免
@@ -595,6 +603,51 @@ function checkHotFilesCoverage(index) {
     );
   }
   return { targets, covered, missing, pending, ok, ratio };
+}
+
+/**
+ * ── D3. 第二跳锚点完备性（WXG-T-293，quality-lead 裁定的机械凭据）───────────────
+ *
+ * 背最：本表现在对锚点做了两件控量（标题截断 + 台账型文件条数上限），光靠 D2（文件级）
+ * 已不足以证明「可寻性没被削」⇒ 这三条必须机械可执、能红，否则又是 K-036（跑过 ≠ 检了）。
+ *
+ *  • **U1 锚点可寻**：ROUTES 引用的每个 `path#anchor`，若该文件已收录，则表内必须命中它——
+ *    命中 = 全名完全相等，或「截断前缀 + …」，**且 `=start+limit` 与 index 完全一致**（行号不得说谎）。
+ *  • **U2 退路二选一**：已收录文件在 index 里的每一节，要么表内有条目覆盖它的行区间，
+ *    要么 ROUTES 已在该行声明「先用 ctx/index.json」。两者都无 ⇒ 真断链。
+ *  • **U3 大族不得孤锚**：表内 L1 族若本身 >fileMax（8000）且有子节，表内必须至少留它的一条子节
+ *    （否则第二跳只会给到一个巨族头，等于没给）。
+ * @param {{files: object[]}} index `ctx/index.json` 内容
+ * @returns {string[]} 失败列表（已入 failures）
+ * 注：解析器与三条断言本体在 `lib/context-index.mjs`（`parseHotBlocks` / `hopHit` /
+ * `secondHopIssues`）——这样 `ctx:hotfiles:selftest` 能 import 同一份逻辑做反事实用例，
+ * 而不会 import 到本 CLI 脚本的执行副作用（跑过≠有效：门必须能红，K-089 先例）。
+ */
+
+
+function checkSecondHop(index) {
+  let hotText;
+  try {
+    hotText = readFileSync(join(ROOT, HOT_FILES_REL), 'utf8');
+  } catch {
+    return [];   // 无本表 ⇒ D2 已报，不重复报
+  }
+  const bad = secondHopIssues(
+    index.files,
+    hotText,
+    routesAnchorsByPath(),
+    indexPreferredPaths(),
+    LIMITS.fileMax ?? 8000,
+  );
+  if (bad.length > 0) {
+    failures.push(
+      `D3: 第二跳锚点完备性失败 ${bad.length} 条 —— 控量（标题截断 / 台账型条数上限）不得伤可寻性：` +
+      bad.slice(0, 6).join('；') +
+      (bad.length > 6 ? `；…共 ${bad.length} 条` : '') +
+      '。回滚 = 去掉 `renderHotFileBlock` 里的截断/上限 filter 并重跑 `pnpm run ctx:build`（⛔ 不靠调大上限绕过、⛔ 不新增豁免）',
+    );
+  }
+  return bad;
 }
 
 /** ── E. 节省率 + 护栏 + 基线回归（WXG-T-026 ④，消费 ctx/usage-distribution.json）── */
@@ -981,6 +1034,7 @@ if (!index) {
   overRows = checkFileMax(index);
   routeRows = checkRoutes(index);
   covReport = checkHotFilesCoverage(index);
+  checkSecondHop(index);
 }
 const freshness = index
   ? STAGED

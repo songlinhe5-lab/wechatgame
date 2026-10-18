@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 143,
+  "nextId": 144,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2373,6 +2373,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-143",
+      "state": "active",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
+      "title": "同一个「引用集」被生成器与门禁各写一份解析正则 ⇒ 一侧的「无条件保留」例外永不触发，规则形同虚设",
+      "contentHash": "3fddf504a2f18d1c5a568119939d487ccae1d3e21203f0506107f991a0019be9",
+      "sourceTask": "WXG-T-293",
+      "addedDate": "2026-10-18",
+      "lastAccess": "2026-10-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3518,6 +3535,15 @@
       "kind": "added",
       "ids": [
         "K-142"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-18",
+      "taskId": "WXG-T-293",
+      "kind": "added",
+      "ids": [
+        "K-143"
       ],
       "note": null
     }

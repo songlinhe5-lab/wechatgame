@@ -391,7 +391,28 @@ export const LIMITS = {
   //   锚点瘦身裁定」**本轮未执行**（已挂 `production/TASKS.md` 待排表：tier:hot 必收录集瘦身 =
   //   test-cases / systems-index 锚点摘要收敛，归 quality-lead + WXG-T-224）。**回落触发条件**：该瘦身单
   //   收口后若必收录集回至 ≤5350 ⇒ 本上限评估降回 5600；**再涨前置**：先还债，不先还债不得再议涨。
-  hotFilesMaxTokens: 5800,
+  //   ⇒ 真正的修法 = 本文件下方的 `hotAnchorLabelMaxChars`（锚点标题截断，行号不动）
+  //     + `hotFileAnchorMax`（只对 ROUTES 声明「先查 index.json」的文件上条数上限），
+  //     两者与回落同批落地（实测锚点行 5559 → ≈ 3.4k tok）。
+  hotFilesMaxTokens: 5600,
+
+  /**
+   * 【WXG-T-293】速查表里单个锚点标题的**显示**截断长度（字符）。
+   * 依据 = quality-lead 裁定：test-cases 一类判据表**不得按条数裁**（会削判据族），
+   * 而成本由「锚点文字长度」决定、与节体量无关 ⇒ 截前缀 + `…`，**`=start+limit` 原样保留**
+   * ⇒ 条数与覆盖不变、只缩文字（实测 test-cases 那行 1559 → 783 tok）。唯一性已验（无重复前缀）。
+   * 取回路径不变：全名仍可在 `ctx/index.json` 查；新门 D3 按「全名 或 截断前缀 + 行号完全一致」命中。
+   */
+  hotAnchorLabelMaxChars: 20,
+
+  /**
+   * 【WXG-T-293】「补足条数上限」：仅对 ROUTES 行内已声明「先用 `ctx/index.json`」的文件生效
+   * （现网 = `production/TASKS-DETAIL.md`，它在本表吃 1208 tok = 21.7%，而 ROUTES §1.6 早把正道写在 index.json）。
+   * 不计入上限的 = ROUTES 引用锚点 + L1 族父节；其余按「锚点名尾数字降序（台账类 = 最新任务号优先），
+   * 无数字则文档序」补到 12；被裁数在行尾如实写出（`…余 N 节 → ctx/index.json`）。
+   * ⛔ 不得拿这个上限去裁 QA 判据表；回滚 = 去掉本行 filter。
+   */
+  hotFileAnchorMax: 12,
 
   /*
    * ── ROUTES.md 常驻预算（WXG-T-039 R5）────────────────────────────────────────
@@ -877,25 +898,173 @@ export function routesReferencedPaths() {
 
 /**
  * [WXG-T-224] ROUTES 引用的**锚点级**集合：`路径#锚点`（规则 R 例外①的依据）。
- * 与 `routesReferencedPaths()` 同源正则，只多捕获 `#` 后的锚点文本。
+ * ⚠ **口径与 D 项同源（WXG-T-293 前置①）**：旧版本地正则
+ * `[^\s`)|，,。]+` 会在**第一个空格/反引号处断掉**，而 ROUTES 的锚点大多含空格
+ * （`§3.7 星级与结算`、`§A1 · 核心循环（S1）— 来源 \`core-loop.md …\``）⇒ 实测 85 条引用只
+ * 命中 8 条 ⇒ 「被 ROUTES 引用的 L3 无条件保留」长期是个**死条件**（命中不了就不保留），
+ * 而 D2 只做文件级 ⇒ 削掉也无门会红（K-036 形态）。现共用 `ROUTES_ANCHOR_REF` + 同一归一化
+ * （仅 `trim()`，⛔ 不剥尾反引号——index 里的锚点名本身就带尾反引号）⇒ 实测 85/85 命中。
  */
-export function routesReferencedAnchors() {
+export const ROUTES_ANCHOR_REF = /((?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.md)#([^|\n]*)/g;
+
+/** ROUTES 引用里的锚点文本归一化（与 `check-context-budget.mjs` D 项**共用**）。 */
+export function normalizeRouteAnchor(a) {
+  return String(a ?? '').trim();
+}
+
+/** 按文件归组的 ROUTES 引用锚点（`Map<path, Set<anchor>>`）。 */
+export function routesAnchorsByPath() {
+  const out = new Map();
   let text;
   try {
     text = readFileSync(ROUTES_PATH, 'utf8');
   } catch {
-    return new Set();
+    return out;
   }
-  const out = new Set();
-  const re = /((?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.md)#([^\s`)|，,。]+)/g;
   for (const line of text.split('\n')) {
-    re.lastIndex = 0;
+    ROUTES_ANCHOR_REF.lastIndex = 0;
     let m;
-    while ((m = re.exec(line)) !== null) {
-      if (!m[1].startsWith('ctx/')) out.add(`${m[1]}#${m[2]}`);
+    while ((m = ROUTES_ANCHOR_REF.exec(line)) !== null) {
+      if (m[1].startsWith('ctx/')) continue;
+      if (!out.has(m[1])) out.set(m[1], new Set());
+      out.get(m[1]).add(normalizeRouteAnchor(m[2]));
     }
   }
   return out;
+}
+
+export function routesReferencedAnchors() {
+  const out = new Set();
+  for (const [p, set] of routesAnchorsByPath()) {
+    for (const a of set) out.add(`${p}#${a}`);
+  }
+  return out;
+}
+
+/**
+ * 「第二跳退路声明」文件集：ROUTES 同一行里既引用该文件、又写着先查 `ctx/index.json`
+ * （现网 = `production/TASKS-DETAIL.md` §1.6：「先用 `ctx/index.json` 查该节…」）。
+ * 只有这类文件才允许上「每文件锚点条数上限」（WXG-T-293 前置②）——因为它们的
+ * 可寻性已由 ROUTES 自身担保在 index.json，不在本表。其余文件（如 QA 判据表）**不受条数上限**。
+ */
+export function indexPreferredPaths() {
+  const out = new Set();
+  let text;
+  try {
+    text = readFileSync(ROUTES_PATH, 'utf8');
+  } catch {
+    return out;
+  }
+  const pathRe = /((?:[A-Za-z0-9_.-]+\/)*[A-Za-z0-9_.-]+\.md)/g;
+  for (const line of text.split('\n')) {
+    if (!line.includes('ctx/index.json')) continue;
+    pathRe.lastIndex = 0;
+    let m;
+    while ((m = pathRe.exec(line)) !== null) {
+      if (!m[1].startsWith('ctx/') && !/^ctx\//.test(m[1])) out.add(m[1]);
+    }
+  }
+  return out;
+}
+
+/**
+ * ── 【WXG-T-293】第二跳锚点完备性（D3）的共用件：解析器 + 命中判定 + 三条断言 ──
+ * 下沉在本 lib 而不是写在 `check-context-budget.mjs` 里，是为了让门禁与
+ * `ctx:hotfiles:selftest` 跑**同一份逻辑**（反事实用例不能靠副本，K-089 先例）。
+ */
+
+/** 解析 `ctx/hot-files.md` → `Map<path, {label,start,limit}[]>`。 */
+export function parseHotBlocks(hotText) {
+  const map = new Map();
+  let cur = null;
+  for (const line of hotText.split('\n')) {
+    const h = /^## `([^`]+)`/.exec(line);
+    if (h) {
+      cur = { path: h[1], entries: [] };
+      map.set(h[1], cur);
+      continue;
+    }
+    if (!cur || !line.startsWith('\u00a7')) continue;
+    // ⚠ 不能用 `split(' · ')`：锚点名**本身就含「 · 」**（如「\u00a7A1 · 核心循环（S1）\u2014 来源 \u3000」），
+    // 一拆就碎 ⇒ 改按「`=start+limit` + 后视分隔符」扫条目。
+    const re = /(.*?)=(\d+)\+(\d+)(?=( \u00b7 |$))/g;
+    let m;
+    while ((m = re.exec(line)) !== null) {
+      // 除首个条目外，label 会带「 \u00b7 」前缀 ⇒ 剔掉，否则除第一条全不命中。
+      cur.entries.push({
+        label: m[1].replace(/^ \u00b7 /, '').trim(),
+        start: Number(m[2]),
+        limit: Number(m[3]),
+      });
+    }
+    cur = null;
+  }
+  return map;
+}
+
+/** 表内条目是否命中该节（含截断前缀情形）；**行号不一致一律算不命中**（行号不得说谎）。 */
+export function hopHit(e, s) {
+  const limit = s.endLine - s.startLine + 1;
+  if (e.start !== s.startLine || e.limit !== limit) return false;
+  if (e.label === s.anchor) return true;
+  return e.label.endsWith('\u2026') && s.anchor.startsWith(e.label.slice(0, -1));
+}
+
+/**
+ * D3 三条断言的纯函数本体。
+ *  • **U1 锚点可寻**：ROUTES 引用的每个 `path#anchor`，若该文件已收录 ⇒ 表内必须命中它
+ *    （全名或截断前缀 + `=start+limit` 与 index 完全一致）。
+ *  • **U2 退路二选一**：已收录文件在 index 里的每一节，要么表内条目覆盖其行区间，
+ *    要么 ROUTES 已声明「先用 ctx/index.json」（preferred 集）；两者都无 = 真断链。
+ *  • **U3 巨族不得孤锚**：表内 L1 族本身 > fileMax 且有子节 ⇒ 至少留一条子节行号。
+ * @param {Array<{path: string, sections?: Array<object>}>} files  index.files
+ * @param {string} hotText  速查表全文
+ * @param {Map<string, Set<string>>} routedByPath  path → ROUTES 引用锚点名
+ * @param {Set<string>} [preferred] 已声明「先查 index.json」的文件集
+ * @param {number} [fileMax] 默认 8000（与 B 项同源常量）
+ * @returns {string[]} 问题列表（空 = 通过）
+ */
+export function secondHopIssues(files, hotText, routedByPath, preferred = new Set(), fileMax = 8000) {
+  const bad = [];
+  const blocks = parseHotBlocks(hotText);
+  const byPath = new Map((files ?? []).map((f) => [f.path, f]));
+  for (const [path, set] of routedByPath ?? []) {
+    const f = byPath.get(path);
+    const blk = blocks.get(path);
+    if (!f || !blk) continue;   // 未收录 ⇒ 走 D2 / 「未收录」清单退路，不在本门范围
+    for (const anchor of set) {
+      const s = (f.sections ?? []).find((x) => x.anchor === anchor);
+      if (!s) continue;         // 失效锚点由 D 项报
+      if (!blk.entries.some((e) => hopHit(e, s))) {
+        bad.push(`U1 ${path}#${String(anchor).slice(0, 46)}（ROUTES 引用锚点在本表查不到对应条目）`);
+      }
+    }
+  }
+  for (const [path, blk] of blocks) {
+    const f = byPath.get(path);
+    if (!f || path.startsWith('ctx/') || preferred.has(path)) continue;
+    for (const s of f.sections ?? []) {
+      if (blk.entries.some((e) => hopHit(e, s))) continue;
+      const under = blk.entries.some((e) => e.start <= s.startLine && s.endLine <= e.start + e.limit - 1);
+      if (!under) bad.push(`U2 ${path} \u00a7${String(s.anchor).slice(0, 40)}（既未列出、也不在任何已列节的行区间内）`);
+    }
+  }
+  for (const [path, blk] of blocks) {
+    const f = byPath.get(path);
+    if (!f) continue;
+    const secs = f.sections ?? [];
+    for (const e of blk.entries) {
+      const root = secs.find((s) => s.anchor === e.label);
+      if (!root || (root.level ?? 1) !== 1) continue;
+      if ((root.tokens ?? 0) <= fileMax) continue;
+      const kids = secs.filter((s) => s !== root && s.startLine >= root.startLine && s.startLine <= root.endLine);
+      if (kids.length === 0) continue;
+      if (!kids.some((k) => blk.entries.some((x) => hopHit(x, k)))) {
+        bad.push(`U3 ${path} \u00a7${String(root.anchor).slice(0, 40)}（巨族 >${fileMax} tok 却只留孤锚，无子节行号）`);
+      }
+    }
+  }
+  return bad;
 }
 
 /** 每节在「父节（最近的上级 level 节）」下的体量：规则 R 例外②的依据。 */
@@ -951,13 +1120,17 @@ export function fileReadsFromDist(dist) {
 }
 
 /** 渲染一个文件的行号速查块（不含文档头尾）。 */
-function renderHotFileBlock(f, reads) {
+export function renderHotFileBlock(f, reads, opts = {}) {
+  const routed = opts.routed ?? new Set();          // 该文件被 ROUTES 引用的锚点名
+  const preferred = opts.preferred === true;        // ROUTES 已声明「先查 index.json」
+  const labelMax = opts.labelMaxChars ?? 0;
+  const anchorMax = opts.anchorMax ?? 0;
   const L = [];
   L.push(
     `## \`${f.path}\` — ${f.lines} 行 / ${f.tokens} tok${reads > 0 ? ` / 实测读 ${reads} 次` : ''}`,
   );
   L.push('');
-  if (f.sections.length === 0) {
+  if ((f.sections?.length ?? 0) === 0) {
     L.push('（无可路由小节：整文件读取）');
     L.push('');
     return L;
@@ -967,18 +1140,46 @@ function renderHotFileBlock(f, reads) {
   // 实测 2769 tok（超预算）；紧凑编码在不删任何小节的前提下压到 ~1.9k。
   //
   // [WXG-T-224 · 规则 R（quality-lead 裁定）] **节级裁剪**：只收 L1/L2；
-  // 例外保留 L3 当且仅当 ① 被 ROUTES 以 `路径#锚点` 引用，或 ② **父节 > fileMax（8000，B 项既有常量）**。
-  // 构造保证：被裁 L3 的父节（L2）必在表内 ⇒ 第二跳不破；且父节 ≤8000 ⇒ 最坏退化被 B 项不变量兜住。
-  // ⛔ 纯函数过滤：不删正文、不动判据值；被裁节在 ctx/index.json 仍可查。回滚 = 去掉本 filter。
-  const routedAnchors = routesReferencedAnchors();
+  // 例外保留 L3 当且仅当 ① 被 ROUTES 以 `路径#锚点` 引用（口径已与 D 项同源，WXG-T-293），
+  // 或 ② **父节 > fileMax（8000）**——但 preferred 文件连例外②一并关闭（见下）。
+  // [WXG-T-293 · 条数上限] preferred 文件额外只保留「ROUTES 引用 + L1 族父 + 最新 N 条」；
+  // 同时关闭例外②（子节随父节走）⇒ 不会留下「孤儿子节」，不变式自然成立。
   const pt = parentTokens(f.sections);
-  const kept = f.sections.filter((s, i) => {
+  const eligible = f.sections.filter((s, i) => {
     const lv = s.level ?? 1;
+    if (routed.has(s.anchor)) return true;
     if (lv <= 2) return true;
-    if (routedAnchors.has(`${f.path}#${s.anchor}`)) return true;
+    if (preferred) return false;
     return pt[i] > (LIMITS.fileMax ?? 8000);
   });
-  L.push(kept.map((s) => `${s.anchor}=${s.startLine}+${s.endLine - s.startLine + 1}`).join(' · '));
+  let shown = eligible;
+  if (anchorMax > 0 && preferred) {
+    const keep = new Set();
+    const rest = [];
+    for (const s of eligible) {
+      if (routed.has(s.anchor) || (s.level ?? 1) === 1) keep.add(s);
+      else rest.push(s);
+    }
+    // 锚点名尾部的数字（`§WXG-T-292` → 292；`§节 24 标题…` → 24）降序；无数字排后保留文档序。
+    // ⚠ 取「最后一个数字串」而非「末尾锚定」：很多标题是 `§节 24 一长串文字`，数字不在末尾。
+    const tail = (a) => { const g = String(a ?? '').match(/\d+/g); return g ? Number(g[g.length - 1]) : -1; };
+    rest.sort((a, b) => tail(b.anchor) - tail(a.anchor) || a.startLine - b.startLine);
+    rest.slice(0, anchorMax).forEach((s) => keep.add(s));
+    shown = eligible.filter((s) => keep.has(s));
+  }
+  const label = (a) =>
+    labelMax > 0 && a.length > labelMax ? `${a.slice(0, labelMax)}\u2026` : a;
+  const line = shown
+    .map((s) => `${label(s.anchor)}=${s.startLine}+${s.endLine - s.startLine + 1}`)
+    .join(' · ');
+  L.push(line);
+  const dropped = f.sections.length - shown.length;
+  if (dropped > 0) {
+    L.push(
+      `> 本表只列 ${shown.length} / ${f.sections.length} 节：其余 ${dropped} 节 → ctx/index.json` +
+      '（按 path 取 `sections[].anchor` / `startLine`，勿整读）。',
+    );
+  }
   L.push('');
   return L;
 }
@@ -998,6 +1199,16 @@ export function renderHotFiles(index, dist = null) {
   // ROUTES 引用面（WXG-T-044）：第二跳的意义就是补齐「ROUTES 锚点 → offset/limit」，
   // 故被 ROUTES 引用到的文件必须优先收录，否则 agent 只能退机器读的全量 index.json。
   const routed = routesReferencedPaths();
+  // 【WXG-T-293】锚点级依据：每文件被 ROUTES 引用的锚点名（口径与 D 项同源）+ 哪些文件已声明
+  // 「先查 index.json」（只有它们吃条数上限）。两者每轮 build 算一次，不逐文件重读 ROUTES。
+  const routedAnchorsByPath = routesAnchorsByPath();
+  const preferredPaths = indexPreferredPaths();
+  const blockOpts = (p) => ({
+    routed: routedAnchorsByPath.get(p) ?? new Set(),
+    preferred: preferredPaths.has(p),
+    labelMaxChars: LIMITS.hotAnchorLabelMaxChars ?? 0,
+    anchorMax: LIMITS.hotFileAnchorMax ?? 0,
+  });
 
   const required = files.filter((f) => f.tier === 'hot' && !excluded(f.path));
   const requiredPaths = new Set(required.map((f) => f.path));
@@ -1035,6 +1246,10 @@ export function renderHotFiles(index, dist = null) {
     L.push('> 读法：`read_file(path, offset, limit)` —— **只取该节**，勿对大文件无条件整读。');
     L.push('> 行内格式：`锚点=offset+limit`（`limit` 已算好）；` · ` 分隔小节。');
     L.push(
+      `> 两条控量规则（WXG-T-293，quality-lead 裁定）：① 锚点名超 ${LIMITS.hotAnchorLabelMaxChars} 字符即截为前缀 + \u2026（**行号不动**，全名仍可在 index.json 查）；` +
+        `② 台账型文件（ROUTES 已声明「先用 \`ctx/index.json\`」）每表最多列 ${LIMITS.hotFileAnchorMax} 条补足项（ROUTES 引用锚点与 L1 族父不计入），行尾如实写出「余 N 节」。`,
+    );
+    L.push(
       '> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`' +
       '（全量，**禁止整读**（≈2.2MB）；按路径精确取节：`jq .files[]' +
       ' | select(.path=="<路径>") | .sections ctx/index.json`）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。',
@@ -1052,7 +1267,7 @@ export function renderHotFiles(index, dist = null) {
       );
     }
     L.push('');
-    for (const f of chosen) L.push(...renderHotFileBlock(f, reads.get(f.path) ?? 0));
+    for (const f of chosen) L.push(...renderHotFileBlock(f, reads.get(f.path) ?? 0, blockOpts(f.path)));
     // 未收录清单（WXG-T-044 瘦身）：**只逐条列 ROUTES 引用到的落选文件**——
     // 它们是协议链路上真会断的节点，agent 需要知道「这个路由目标要另查 index.json」。
     // 其余落选文件（既非 ROUTES 引用、也未命中热度/体积门槛）对路由读取无动作可执行，

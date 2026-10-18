@@ -3387,3 +3387,16 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **体积代价已记账**：`08ca944` 把 5 张原型图从 webp 换成 PNG ⇒ 设证图目录 +≈8 MB（游戏包体不受影响，这些不在构建依赖图里）；若只想让「上架资产」走 PNG、原型图保留 webp，需另裁（现裁定是「一律 PNG」）。
 - **未验/未闭环**：真机 `wx.loadSubpackage` 未跑（需 AppID + 密钥）；分包开关仍默认关（`audio/…`）；`audio-spec` 自己登记的三条未达成（三首同长 40 s / 接缝真听 / 响度校准）仍开；BD-33 仅推进两件。
 - ✅ **上述两类尾巴已由同日本人接续处理（记在 `## WXG-T-292` 续批五，2026-10-18 晚）**：6 个缩进件按 `.editorconfig` 判定后分别收下/退回；`bench/` 定去向 = 图不入库、README + 复现配方入库 ⇒ 工作树已归零（`git status` 空）。
+
+## WXG-T-293
+
+> ctx·第二跳速查表（`ctx/hot-files.md`）控量两件 + 锚点级硬门 D3｜主理人(Qoder)，裁定来自严守真(quality-lead)｜2026-10-18 晚（用户选下一步选项 2 = 还 WXG-T-292 挂下的 hot-files 债）
+
+- **为什么先要裁定**：常量注释自 T-262 起就写着「下次再涨前必须先走 quality-lead 锚点瘦身裁定」，而裁锚点 = 动 QA 判据可达性 ⇒ 装置侧无权自裁。本批把裁定问题连同**实测数据**一起交给 quality-lead（只读、不落盘），拿到结论后实施。
+- **裁定要点（覆盖了原方案）**：① 我提的「每文件 24 条上限」**被判不可接受**——实测必留集 = 31 条（`§A.0` UNTESTED 回填表、`§I.2` 未测护栏、`§K` 判据族、`§M.10` 在办门结论…），24–30 一律 FAIL；② 等量收益改由**锚点标题截断**取得（`hotAnchorLabelMaxChars = 20`，`=offset+limit` 原样 ⇒ 覆盖 53/53 不变，实测 test-cases 那行 1559 → 783 tok）；③ 条数上限（`hotFileAnchorMax = 12`）**只作用于 ROUTES 已声明「先用 ctx/index.json」的文件**（现网 = `production/TASKS-DETAIL.md`，1208 → ≈80 tok），补足序按**锚点名尾数字降序**（文档序会把最新任务号裁掉）；④ 腾出的预算会被生成器**自动回填更多文件** ⇒ 必须三数并报，只看 tokens 会误判。
+- **前置①：顺手修掉一个真缺陷（本批最大收获）**。生成器 `routesReferencedAnchors()` 的正则是 `[^\s`)|，,。]+`，遇空格即断；而 ROUTES 的锚点绝大多数含空格 ⇒ 「被 ROUTES 引用的 L3 无条件保留」这个例外**命中 8/85**，长期是死条件（D2 只查文件级，所以没人被拦）。现把正则与归一化提到 `lib/context-index.mjs`（`ROUTES_ANCHOR_REF` + `normalizeRouteAnchor`）由生成器与 D 项共用 ⇒ 85/85。⚠ 副作用如实记：例外复活后 systems-index 的 10 条 §3.x L3 转为无条件保留（+≈180 tok），由截断与上限吸收。
+- **落地清单**：`lib/context-index.mjs`（共用口径 + `parseHotBlocks`/`hopHit`/`secondHopIssues` 下沉 + `renderHotFileBlock` 截断与上限 + 两个新常量 + `hotFilesMaxTokens` 5800→**5600**）｜`check-context-budget.mjs`（D 项改用共用正则；新硬门 **D3**：U1 ROUTES 引用锚点必须命中且行号一致、U2 未列节须被已列区间覆盖或声明退路、U3 巨族不得只留孤锚；失败文案自带回滚法，⛔ 不调阈不豁免）｜`tools/scripts/context-hotfiles-selftest.mjs`（新增，19 条正反用例）+ `package.json` `ctx:hotfiles:selftest` + 挂 `selftests.mjs` fast 档｜`ctx/ROUTES.md`（⑪·补² 两条规则 + D3；§1.5 test-cases 行加「不按条数裁」声明与退路）｜`production/qa/beads/test-cases.md` 新增 §N 收录面登记（**判据正文零改动**）。
+- **解析器的第二个坑（自纠，写进沉淀）**：D3 首版用 `split(' · ')` 拆条目，而锚点名本身含「 · 」（`§A1 · 核心循环（S1）…`）⇒ 除第一条全不命中，门一上线就报 80 条假红；改按「`=start+limit` + 后视分隔符」扫描并把门与自测都接同一份实现。
+- **三数并报（U6）**：`ctx/hot-files.md` **5793 → 5470 tokens**（上限回落 5800→**5600**，余 130）｜文件块 **20 → 29**（ROUTES 引用面覆盖变好，非失控）｜锚点条目 **351 → 318**（截断不减覆盖，条目数下降来自 TASKS-DETAIL 上限 + 未收录节改为行尾如实写出「余 N 节 → ctx/index.json」）。
+- **验证**：`ctx:hotfiles:selftest` **19/19**（U1/U2/U3 各有「能红」反例 + 「不误报」正例）｜`selftest:fast` **9/9**（含新桩）｜`ctx:check` 默认态 OK 且连跑两遍 `ctx/index.json` + `ctx/hot-files.md` **字节相同**（确定性）｜`check:links` OK｜`pnpm run verify` **PASS 22 / FAIL 0**（见下条补记）｜新桩自身遵守 K-089「先证能红」：解析器 bug 就是靠它把红跑出来后暴露。
+- **遗留**：① ROUTES.md 现 **7441 / 上限 7500**（本批只加两行短注）⇒ 已挂待排表，下次加条目前须先按 ⑫ 瘦身；② `ctx:check` 的 A 项按 HEAD 计量，工作树超量只在提交时红（本轮实测 ROUTES 一度 7701 被这条纪律兜住，处置 = 瘦身而非调阈）；③ 质量门 U5（G4 取回演练 5 条：`§A.0 / §A4c / §G.4 / §I.2 / §M.10`）待严守真跑一次人工取证。

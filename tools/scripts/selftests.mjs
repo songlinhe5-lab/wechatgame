@@ -41,6 +41,10 @@ export const TIERS = {
         // 直接 `node` 执行而非 `pnpm run`：CI 的 ctx job 已记「node_modules 缺失时 pnpm 以
         // 『did you mean to install?』拒绝执行并 exit 1」⇒ 档位项一律绕开包管理器。
         { script: 'ctx:check', argv: ['node', `${S}/check-context-budget.mjs`] },
+        // WXG-T-293：第二跳速查表（hot-files）的控量与 D3 断言自测——正例（截断不算断链）+
+        // 反例必红（行号说谎 / ROUTES 引用锚点被削 / 无退路声明 / 巨族孤锚）。
+        // 它 import 的就是 `lib/context-index.mjs`（与门禁同一份逻辑），故紧跟 ctx:check。
+        { script: 'ctx:hotfiles:selftest', argv: ['node', `${S}/context-hotfiles-selftest.mjs`] },
         { script: 'check:size:selftest', argv: ['node', `${S}/check-bundle-size.mjs`, '--selftest'] },
         { script: 'memory:split:selftest', argv: ['bash', `${S}/split-memory-detail-selftest.sh`] },
         { script: 'memory:distill:selftest', argv: ['bash', `${S}/distill-memory-selftest.sh`] },

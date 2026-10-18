@@ -38,6 +38,7 @@
     "ctx:build": "node tools/scripts/build-context-index.mjs",
     "ctx:check": "node tools/scripts/check-context-budget.mjs",
     "ctx:selftest": "bash tools/scripts/worktree-authoritative-selftest.sh",
+    "ctx:hotfiles:selftest": "node tools/scripts/context-hotfiles-selftest.mjs",
     "ctx:reads": "node tools/scripts/collect-context-reads.mjs",
     "ctx:usage": "node tools/scripts/analyze-context-usage.mjs",
     "ctx:usage:selftest": "bash tools/scripts/context-usage-selftest.sh",
