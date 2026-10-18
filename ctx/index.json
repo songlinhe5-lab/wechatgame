@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5793,
       "lines": 90,
-      "sha256": "3c56956637390f74b37883f7e8084fa91842f241203c45ba880a928ec15d07c5",
+      "sha256": "fc63a0074c5fcb34b726c99f77676848d433373ef26875ceee58c315c30a2391",
       "tier": "normal",
       "sections": [
         {
@@ -21598,6 +21598,238 @@
             "mask",
             "tint",
             "文件清单"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/ai-workflows/bench/i2i-denoise-20261017/README.md",
+      "tokens": 3752,
+      "lines": 163,
+      "sha256": "95773400f385679dd07c795f1d67a2a422c261bdd2bc457cdfab5a4eaa74b9ee",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§i2i 本地 vs 云端对照（2026-10-17）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 164,
+          "tokens": 3739,
+          "summary": "目的：量化「本地 qwen-image-2.1 / 2.1-turbo」与「云端 qwen-image-2.1-turb",
+          "keywords": [
+            "i2i",
+            "qwen",
+            "image",
+            "turbo",
+            "turb",
+            "本地"
+          ]
+        },
+        {
+          "anchor": "§配方（两侧完全一致）",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 22,
+          "tokens": 267,
+          "summary": "参考图：temp/i2i/ref-menu-v3-pushing.png（云端用 1500×2668；本地用 ref-1",
+          "keywords": [
+            "temp",
+            "i2i",
+            "ref",
+            "menu",
+            "pushing",
+            "png"
+          ]
+        },
+        {
+          "anchor": "§结果（`contact-sheet.png`，4 行 × 2 种子）",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 26,
+          "tokens": 10,
+          "summary": "![contact sheet](contact-sheet.png)",
+          "keywords": [
+            "contact-sheet.png",
+            "contact",
+            "sheet",
+            "png",
+            "结果",
+            "种子"
+          ]
+        },
+        {
+          "anchor": "§目视打分（单人、缩略图，0 / 0.5 / 1）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 43,
+          "tokens": 140,
+          "summary": "六条结构规则：",
+          "keywords": [
+            "目视打分",
+            "单人",
+            "缩略图"
+          ]
+        },
+        {
+          "anchor": "§结论（仅限本次样本）",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 50,
+          "tokens": 179,
+          "summary": "云端两档在两个种子上结果稳定，各自都是 6/6。",
+          "keywords": [
+            "结论",
+            "仅限本次样本"
+          ]
+        },
+        {
+          "anchor": "§混合路线：云端参考 → 本地 2.1（25 步）低 denoise（2026-10-17 追加）",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 69,
+          "tokens": 289,
+          "summary": "输入：云 3.0 s23（cloud-qwen-image-3.0-s23.png，经 RGB 缩放到 1152×204",
+          "keywords": [
+            "denoise",
+            "s23",
+            "cloud",
+            "qwen",
+            "image",
+            "png"
+          ]
+        },
+        {
+          "anchor": "§复查更正（2026-10-17，前面的打分作废）",
+          "level": 2,
+          "startLine": 70,
+          "endLine": 88,
+          "tokens": 385,
+          "summary": "第一轮打分只查了六条视觉规则，漏了两条硬规则：格数必须是 3×3（9 格），锁格底部必须无星。复查（recheck-gr",
+          "keywords": [
+            "recheck",
+            "复查更正",
+            "前面的打分作"
+          ]
+        },
+        {
+          "anchor": "§局限",
+          "level": 2,
+          "startLine": 89,
+          "endLine": 94,
+          "tokens": 145,
+          "summary": "样本只有 2 个种子、单人打分，结论只能作为方向，不能当定论。矩阵 §4 的改判门槛是 ≥2 个种子复测，本次刚好满足下",
+          "keywords": [
+            "§4",
+            "局限"
+          ]
+        },
+        {
+          "anchor": "§第三轮：修过沙漏章的云端基底 + 本地 2.1（25 步）抽风格",
+          "level": 2,
+          "startLine": 95,
+          "endLine": 137,
+          "tokens": 1109,
+          "summary": "基底：base-cloud-turbo-s23-fixed.png（云 2.1-turbo s23，已通关 2★ 格的沙",
+          "keywords": [
+            "base",
+            "cloud",
+            "turbo",
+            "s23",
+            "fixed",
+            "png"
+          ]
+        },
+        {
+          "anchor": "§补测 denoise 0.8（同基底、同工作流、种子 23 与 7）",
+          "level": 3,
+          "startLine": 114,
+          "endLine": 124,
+          "tokens": 264,
+          "summary": "产物：fixbase-local21-d0.8-s{23,7}.png；拼图 fixbase-sheet-d08.png",
+          "keywords": [
+            "denoise",
+            "fixbase",
+            "local21",
+            "png",
+            "sheet",
+            "d08"
+          ]
+        },
+        {
+          "anchor": "§0.8 再补两个种子（11、42）",
+          "level": 3,
+          "startLine": 125,
+          "endLine": 137,
+          "tokens": 324,
+          "summary": "产物：fixbase-local21-d0.8-s{11,42}.png；拼图 fixbase-sheet-d08-s1",
+          "keywords": [
+            "fixbase",
+            "local21",
+            "png",
+            "sheet",
+            "d08",
+            "再补两个种子"
+          ]
+        },
+        {
+          "anchor": "§更正（2026-10-17 晚，对比云端与本地 0.8）",
+          "level": 2,
+          "startLine": 138,
+          "endLine": 143,
+          "tokens": 185,
+          "summary": "上文「云 2.1-turbo s7 满足格数和锁格无星」不成立：该图第二行第三格本应是空槽（纯虚线），却画成了锁格；第一",
+          "keywords": [
+            "turbo",
+            "更正",
+            "对比云端与本"
+          ]
+        },
+        {
+          "anchor": "§基底第二次擦除（0★ 沙漏）",
+          "level": 2,
+          "startLine": 144,
+          "endLine": 149,
+          "tokens": 155,
+          "summary": "产物：base-cloud-turbo-s23-fixed2.png（在 base-cloud-turbo-s23-fi",
+          "keywords": [
+            "base",
+            "cloud",
+            "turbo",
+            "s23",
+            "fixed2",
+            "png"
+          ]
+        },
+        {
+          "anchor": "§基底第三次处理（BOSS 灰化）",
+          "level": 2,
+          "startLine": 150,
+          "endLine": 155,
+          "tokens": 198,
+          "summary": "产物：base-cloud-turbo-s23-fixed3.png（在 fixed2 上，仅把 BOSS 格的meda",
+          "keywords": [
+            "BOSS",
+            "base",
+            "cloud",
+            "turbo",
+            "s23",
+            "fixed3"
+          ]
+        },
+        {
+          "anchor": "§基底第四次处理（右上两格补锁）",
+          "level": 2,
+          "startLine": 156,
+          "endLine": 164,
+          "tokens": 290,
+          "summary": "产物：base-cloud-turbo-s23-fixed4.png（在 fixed3 上）。",
+          "keywords": [
+            "base",
+            "cloud",
+            "turbo",
+            "s23",
+            "fixed4",
+            "png"
           ]
         }
       ]

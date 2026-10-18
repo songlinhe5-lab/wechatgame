@@ -100,6 +100,11 @@ production/qa/*/evidence/**/*.json
 production/qa/*/evidence/**/*.png
 production/qa/*/evidence/**/*.jpg
 
+# AI 抽卡/对照取样图：留盘不入库，结论与读数入 md（体例同上段 evidence）。
+# 去向裁定 = WXG-T-292 续批五（2026-10-18）：52 MB / 39 张不入库，同目录 README.md 保留入库
+# （它是 knowledge K-138 与 `design/ai-workflows/model-matrix.md §5` 的证据锚）；重跑可复现。
+games/beads/design/ai-workflows/bench/**/*.png
+
 # Cocos 工程配置含本地微信 AppID（WXG-T-099/B4：红线 control-manifest §10，不入仓；模板见 games/beads/cocos/project.config.example.json）
 games/*/project.config.json
 games/*/project.private.config.json
