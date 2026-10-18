@@ -371,7 +371,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "cada1f37d738fed4fc67735d1284a14e50cf1123bf848c72c371fd7e398da1af",
+      "sha256": "7eaf192832091b0ea87b8a54f8264ffdce947df9ab0e998ef4267462b0018aa7",
       "tier": "normal",
       "sections": [
         {
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5787,
       "lines": 90,
-      "sha256": "ff6bf348c494e2763a692b6bf5c824d31d331f13ae228555bc130f63818c0dba",
+      "sha256": "16368f31809e0b778cd663fc9079c624a77f11a607959661d8751358e294092e",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 103 行 / 34980 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 103 行 / 35098 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -971,7 +971,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3347 行 / 118912 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3358 行 / 119670 tok",
           "level": 2,
           "startLine": 82,
           "endLine": 85,
@@ -79477,9 +79477,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 118912,
-      "lines": 3347,
-      "sha256": "b4b8800c7130dc9c5bc84abaf990b80aa4c053667834834d27fedcacf4060c8c",
+      "tokens": 119670,
+      "lines": 3358,
+      "sha256": "ac93bea25c11d7e2d306bf40eb4e61d10b5acc2012575355f22205817db8248c",
       "tier": "normal",
       "sections": [
         {
@@ -82000,8 +82000,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3348,
-          "tokens": 16527,
+          "endLine": 3359,
+          "tokens": 17286,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82246,8 +82246,8 @@
           "anchor": "§WXG-T-292",
           "level": 2,
           "startLine": 3305,
-          "endLine": 3348,
-          "tokens": 3522,
+          "endLine": 3359,
+          "tokens": 4280,
           "summary": "工程·包体口径收口批（两个脚坑）｜主理人(Qoder)·程基岩域｜2026-10-18 用户选续任选项 B（两项均为欠账",
           "keywords": [
             "WXG",
@@ -82275,7 +82275,7 @@
           "level": 3,
           "startLine": 3336,
           "endLine": 3348,
-          "tokens": 1149,
+          "tokens": 1144,
           "summary": "用户选下一步选项 1 ⇒ 把 A 门余量从 5 tok 做到 160 tok（目标 ≥100）。不删决策指引、不调阈值，",
           "keywords": [
             "AGENTS.md",
@@ -82285,14 +82285,30 @@
             "同日",
             "不另领号"
           ]
+        },
+        {
+          "anchor": "§续批三（同日 2026-10-18，不另领号）：提交分诊 ⇒ `efe179a`",
+          "level": 3,
+          "startLine": 3349,
+          "endLine": 3359,
+          "tokens": 713,
+          "summary": "用户选下一步选项 1 ⇒ 部分暂存只提本三批，未 push。",
+          "keywords": [
+            "efe179a",
+            "push",
+            "续批三",
+            "同日",
+            "不另领号",
+            "提交分诊"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 34980,
+      "tokens": 35098,
       "lines": 103,
-      "sha256": "20c6b231f3b4106ef52b17de2c4a0ce23d76a116fdc047ff31644d15c75cb197",
+      "sha256": "21d8331e57b5e19c916b50c246d0addd9a75a369c33d98c6f0f361246c8a039f",
       "tier": "hot",
       "sections": [
         {
@@ -82300,7 +82316,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 104,
-          "tokens": 34971,
+          "tokens": 35090,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

@@ -3316,7 +3316,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
   - 显式 `--debug` 时构建前先打一行「会覆盖在册 release 基线产物、数字不可作基线」警告；日志名默认档仍 `cli-build-<platform>-release.log`（K-111 ② 的「看日志名定档」习惯不变），debug 档新开 `-debug` 后缀。
   - 头注/用法块/`printNextSteps`/`printHelp` 四处口径同步；`AGENTS.md` §1 与 `memory/MEMORY.md` 已知限制行改写；K-111 条内补「根因已拆」注（旧规避靠人记旗标，本批改默认档）。
 - **实测（三腿闭环，不是纸面宣称）**：`pnpm --filter @wxgame/beads run build:cocos`（不带参数）→ 日志打「wechatgame · **release**」，15.1s 构建成功，`check:size` = **3188.2 KB / 108 文件**（与在册基线数字逐值相等 ⇒ 翻默认不改变产物形态）；再跑 `-- --debug` → 警告如期输出、6548.2 KB 且 `check:size` 自动标「⚠ 疑似 debug 档（数字不可作基线）」；**不带参数重跑即恢复**→ 回到 3188.2 KB（收口后基线仍在册，breakout 1890.3 KB 未被触动）。breakout 侧本轮只改脚本默认，未重建。
-- **未 commit**（用户未点名提交；工树含他会话在途改动）。**遗留**：① ~~引用面 15 个文件仍写 30720 / 「30 MB」~~ ✅ **同日续批已收敛（不另领号，见下「引用面收敛续批」）**；② `control-manifest §19`「向主包投放位图」红线正文仍未回改（ADR-0031 另单）；③ 真开通体积扩展资质时需回升 30720 的变更单（本批只做到与现裁定一致）。
+- **未 commit**（写至本句时用户未点名提交；工树含他会话在途改动）⇒ **后由同日续批三以 `efe179a` 入库（develop，未 push）**。**遗留**：① ~~引用面 15 个文件仍写 30720 / 「30 MB」~~ ✅ **同日续批已收敛（不另领号，见下「引用面收敛续批」）**；② `control-manifest §19`「向主包投放位图」红线正文仍未回改（ADR-0031 另单）；③ 真开通体积扩展资质时需回升 30720 的变更单（本批只做到与现裁定一致）。
 
 - **顺带发现并修的一处常驻文书失真**：`AGENTS.md` §4 原本写着「主包+分包 ≤30MB」（全仓最常被注入的一条口径，与 §3 真源冲突）⇒ 已改 20MB；因 `AGENTS.md` 有 `ctx:check` A 项**硬上限 2000 估算 tokens**（HEAD = 1989，上一在途批的「已知限制」改写已把它顶到 2241），本批按既定处置（**长说明移出常驻文件**）把构建细则/史证归位 `memory/MEMORY.md` §已知限制（含「构建档 = minify on / sourcemap off」与「关卡不加密 `levels-spec.md §5.0.3`」两条），当时工作树 **1995 tokens ✅ 过门**（余量只剩 5 ⇒ 引出续批二）。
 - **首批验证**：`pnpm run verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:size` OK、`test` 全量、`selftest:fast`）· `check:size:selftest` **20/20**（含改过的 A5/A7）· `check:tasks` OK（首跑因新增 backlog 行 178 字符 > 160 而红，已改短后转绿）· `check:links` OK · `ctx:build` + `ctx:check` **结构门 A/B/C/D/D2 + E3 全通过** · `node --check tools/scripts/build-cocos.mjs` OK。
@@ -3343,5 +3343,16 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **阈值本批不动（首批口径）**：`AGENTS.md` 的 A 项 2000 上限一字未改，只在文件头注写明「往里加内容前先等量外移，⛔ 直接调阈」——留下治理规则而不是留下游坑。（⚠ 本条后半已被下一段推翻：**hot-files 的上限本批确实调了**，仅 AGENTS.md 那道未动。）
 - **顺手拦下的提交前红（两个，均为真门非纸面）**：① **B 门：`knowledge/lessons/toolchain.md` 8244 > 8000** —— 新条目 K-141 把自己那片顶超。分片**不得走豁免**（`knowledge/INDEX.md §4` 硬规定）⇒ 处置 = 逐字节搬到同仓有余量的 `process.md`（行内标签由 `工具链` 改 `流程`，ID K-141 不回收）⇒ toolchain **7740** / process **7123**；`kb:sync` 报 **新增 0 / 修改 1（K-141）**，`kb:check` 八重校验通过。② **A 门：`ctx/hot-files.md` 尖峰** —— 已提交态 **5599 / 上限 5600（余量 1 tok）**，工作树实测 5689 ⇒ 任何会话改任一被索引 `.md` 就会把 pre-commit 打断。归因实测：本批只占 **16 tok**（routing.md +1 锚点），超额主体是在途批自然增量（model-matrix +2 标题、test-cases +24 行）。用户裁定 **上限 5600 → 5800（+3.6%）带留痕**：改 `tools/scripts/lib/context-index.mjs::LIMITS.hotFilesMaxTokens` 单处常量（门禁与生成器同源），注释内记「口径 + 用户裁定 + Task ID + 未还债 + 回落触发条件」。⚠ **诚实观察（不粉饰）**：抬阈后生成器会**自动多收录一个文件**（19 → 20）吃掉部分余量，默认态现 5766/5800（余 ≈34）⇒ 真正的修法仍是必收录集锚点瘦身，已挂待排表（T-262 前置「再涨先过 quality-lead 锚点瘦身裁定」本轮未执行，已当债登记）。
 - **沉淀统计（本续批，`kb:sync --task=WXG-T-292`）**：首轮 **新增 1（K-141）/ 修改 0**；因 B 门换片后再跑 ⇒ **新增 0 / 修改 1（K-141 → `流程` 片）**；全程无归档、无相似命中。
-- **验证（两种模式都跑，不只跑默认态）**：`ctx:build --working-tree` + `ctx:check --working-tree` 全绿（AGENTS 1897/2000 ・hot-files 5788/5800 ・ROUTES 7256/7500），再 `ctx:build` 默认态恢复（HEAD 锚定）+ `ctx:check` OK；`check:links` OK、`check:tasks` OK、`pnpm run verify` **PASS 22 / FAIL 0**；`kb:sync` 后 `kb:check` 八重校验与 `kb:audit` 无候选。**未 commit**。
+
+- **验证（两种模式都跑，不只跑默认态）**：`ctx:build --working-tree` + `ctx:check --working-tree` 全绿（AGENTS 1897/2000 ・hot-files 5788/5800 ・ROUTES 7256/7500），再 `ctx:build` 默认态恢复（HEAD 锚定）+ `ctx:check` OK；`check:links` OK、`check:tasks` OK、`pnpm run verify` **PASS 22 / FAIL 0**；`kb:sync` 后 `kb:check` 八重校验与 `kb:audit` 无候选。
+
+### 续批三（同日 2026-10-18，不另领号）：提交分诊 ⇒ `efe179a`
+
+用户选下一步选项 1 ⇒ 部分暂存只提本三批，**未 push**。
+
+- **拆面**：工树 105 个脏路径里只提 **41 件**（脚本 3 + 设计真源/规格 6 + 架构与 ADR 6 + agent 文档 3 + 工程 README 2 + 发布文书 3 + skill 1 + 常驻层 2 + 知识面 9 + 台账 2 + ctx 产物 3 + memory/INDEX 1），机械校零泄漏：`git show --name-only HEAD` 对 `\.(png|webp|mp3|scene|prefab|meta)$|/src/|framework/src` 命中 **0 条** ⇒ WXG-T-291 的资产换代与源码镜像全部未入本笔（仍在工作树 68 个脏路径）。
+- **连带入库（已在提交信息里逐项声明，⛔ 不默认静默携带）**：① 同日「包体口径收口批」的脚本腿与文档行（`targetKbOf` 按游戏分列 + A8、`stageExtraAssets`/`declareSubpackages` 分包腿、§3.9 内部目标行、AGENTS/MEMORY 构建事实订正、`architecture.md` §9、ADR-0027 订正注、`menu-showcase-asset-spec` 现状行）——理由 = 与本批**同文件同表同行**，拆行会产出「文档改了、脚本没改」的中间态（正是本批在修的门↔文档分叉）；② 291 会话的三条沉淀 **K-138/139/140**（`criteria-measure` / `environment` / `toolchain-image`）——理由 = `knowledge/ledger.json` 与 `INDEX`/`CHANGELOG` 是**整层产物**，缺 markdown 则 `kb:check` 的 ledger↔markdown 双向一致必红（先试过只回退这三件重跑 `kb:sync`，实测它不剪旧账 ⇒ “my-only 产物”在不手改产物的前提下不可造）。
+- **依赖排查（避免提交后真机侧隐性回归）**：新 `stageExtraAssets` 改从 `audio-voices.ts::assetFile` 派生拷贝清单 ⇒ 核 HEAD 该行已在（`assetFile: 'audio/bgm_porch.mp3'`）⇒ BGM 装配腿不依赖 291 未提交的那份改写；本次也未暂存 `packages/framework/src/**` ⇒ pre-commit ①¾ 镜像守卫不触发。
+- **钩子与提交后复验**：commit-msg commitlint 通过（header 56 字、body 最长 79 字、含 WXG-T-292）；pre-commit 实跑 check:secrets → check:links → ctx:build --staged-blobs → 重暂存 ctx 三产物 + memory/INDEX.md → ctx:check --staged **OK**；提交后再跑 `kb:check` 八重校验 / `ctx:check` / `check:tasks` 全绿。
+- **台账订正**：本行状态由「已落码、未 commit」改为「已提交 `efe179a`（develop，未 push）」；领号注仍按工作树全局最大号维护，下一可用号 **WXG-T-293**。
 
