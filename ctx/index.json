@@ -371,7 +371,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "de21d89ec52e1e79fca494fed0d37fe60cc0c51bed5d1b869a8390d5b2bbc269",
+      "sha256": "0cee665474d50b4e6b1da0b8e7f78985e17ac192c73e70716981353fdceadaaa",
       "tier": "normal",
       "sections": [
         {
@@ -662,9 +662,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5787,
+      "tokens": 5788,
       "lines": 90,
-      "sha256": "f83e306d574522c770ff96af133458ec994c5223d3b30e2575c3bac3c2d1e36a",
+      "sha256": "2243fc3129800a4f493240fe87be2ba83a7a043eb0326d4231566a5c5e9d7f51",
       "tier": "normal",
       "sections": [
         {
@@ -672,7 +672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 91,
-          "tokens": 5759,
+          "tokens": 5760,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -923,26 +923,10 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 138 行 / 6770 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7520 tok",
           "level": 2,
           "startLine": 70,
           "endLine": 73,
-          "tokens": 128,
-          "summary": "§AI 生图选型矩阵（四方向 · 云/本地分工）=1+139 · §1 四方向首选矩阵=11+16 · §2 候选池 ·",
-          "keywords": [
-            "§1",
-            "§2",
-            "games",
-            "beads",
-            "design",
-            "workflows"
-          ]
-        },
-        {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7520 tok",
-          "level": 2,
-          "startLine": 74,
-          "endLine": 77,
           "tokens": 209,
           "summary": "§Cocos Creator + MCP 安装引导（docs/agent/cocos-setup.md）=1+373 ·",
           "keywords": [
@@ -952,6 +936,22 @@
             "cocos",
             "setup",
             "tok"
+          ]
+        },
+        {
+          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 162 行 / 7805 tok",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 77,
+          "tokens": 129,
+          "summary": "§AI 生图选型矩阵（四方向 · 云/本地分工）=1+163 · §1 四方向首选矩阵=11+16 · §2 候选池 ·",
+          "keywords": [
+            "§1",
+            "§2",
+            "games",
+            "beads",
+            "design",
+            "workflows"
           ]
         },
         {
@@ -21604,17 +21604,17 @@
     },
     {
       "path": "games/beads/design/ai-workflows/model-matrix.md",
-      "tokens": 6770,
-      "lines": 138,
-      "sha256": "9f0c3cba959dd339454888844f10805a8327d70e06ce465b960646ed6a9bd31c",
+      "tokens": 7805,
+      "lines": 162,
+      "sha256": "9fe44ae330477f229dea73ea66a753d8e3e0fbdffadb31ec998168817ff14c1c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§AI 生图选型矩阵（四方向 · 云/本地分工）",
           "level": 1,
           "startLine": 1,
-          "endLine": 139,
-          "tokens": 6751,
+          "endLine": 163,
+          "tokens": 7786,
           "summary": "本文件是「哪个方向用哪个模型 / 哪条通路」的裁定正本。数值类冻结常量仍以",
           "keywords": [
             "生图选型矩阵",
@@ -21689,8 +21689,8 @@
           "anchor": "§5 本地 ComfyUI 能力边界（2026-10-12 权重清单实证）",
           "level": 2,
           "startLine": 75,
-          "endLine": 98,
-          "tokens": 1783,
+          "endLine": 119,
+          "tokens": 2328,
           "summary": "服务：192.168.1.16:8188（RTX 2080 Ti 11GB，ComfyUI 0.39.0）。断言能力前查",
           "keywords": [
             "§5",
@@ -21702,11 +21702,27 @@
           ]
         },
         {
+          "anchor": "§5.x 图生图 denoise 分档（2026-10-17 用户令，按图生图类型调整）",
+          "level": 3,
+          "startLine": 99,
+          "endLine": 119,
+          "tokens": 518,
+          "summary": "参考风格（取画风/配色/质感，允许重排版面，如选关原型） 高；本地 2.1（25 步）当前推荐 0.8（待定稿） 高 d",
+          "keywords": [
+            "§5",
+            "denoise",
+            "图生图",
+            "分档",
+            "用户令",
+            "按图生图类型"
+          ]
+        },
+        {
           "anchor": "§6 未决与下一步",
           "level": 2,
-          "startLine": 99,
-          "endLine": 128,
-          "tokens": 1942,
+          "startLine": 120,
+          "endLine": 150,
+          "tokens": 2028,
           "summary": "Flux-dev + 平涂 LoRA 冒烟（heart 单题） 已测毕·不改判（2026-10-09 全套 9 关 + ",
           "keywords": [
             "§6",
@@ -21720,8 +21736,8 @@
         {
           "anchor": "§6.1 待授权下载清单（本端无 SSH/无写接口，只能用户在服务端下）",
           "level": 3,
-          "startLine": 110,
-          "endLine": 128,
+          "startLine": 132,
+          "endLine": 150,
           "tokens": 773,
           "summary": "显存天花板：11.8GB（/system_stats 实测）；本地 ComfyUI 0.39.0。选型铁规：新模型必须能",
           "keywords": [
@@ -21736,9 +21752,9 @@
         {
           "anchor": "§7 变更记录",
           "level": 2,
-          "startLine": 129,
-          "endLine": 139,
-          "tokens": 967,
+          "startLine": 151,
+          "endLine": 163,
+          "tokens": 1372,
           "summary": "2026-10-12 首版（三轮复测 + 竖屏/量化对照后定稿）。同日两处改判：① 「本地 turbo t2i 过曝＝模",
           "keywords": [
             "§7",
