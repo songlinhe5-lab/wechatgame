@@ -1,6 +1,6 @@
 # 主界面布局落地单 · 「拼豆小铺」菜单屏（规范 v3.8 定稿）
 
-> **用途**：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = `../coordinates/menu-master-coords.png`（SE 总图）+ `menu-coords-*.png` 五档贴装图，底图 = 原型 v3（`../final/prototypes/proto-v3-{pushing,locked,done}-750x1334-at2x.webp`，另有走马灯滑到 35% 的示意帧 `proto-v3-swipe-750x1334-at2x.webp`）；十张同出一脚本 `games/beads/design/ai-workflows/menu-proto-coords.py`（零模型，五档柜隙内置断言对 `menu-anchors.test.ts`）。旧脚本 `temp/menu-mock-tiers.py` / `temp/menu-master-coords.py` 作废。
+> **用途**：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = `../coordinates/menu-master-coords.png`（SE 总图）+ `menu-coords-*.png` 五档贴装图，底图 = 原型 v3（`../final/prototypes/proto-v3-{pushing,locked,done}-750x1334-at2x.png`，另有走马灯滑到 35% 的示意帧 `proto-v3-swipe-750x1334-at2x.png`；2026-10-18 同批由 `.webp` 逐位一致转码，小程序不支持 WebP）；十张同出一脚本 `games/beads/design/ai-workflows/menu-proto-coords.py`（零模型，五档柜隙内置断言对 `menu-anchors.test.ts`）。旧脚本 `temp/menu-mock-tiers.py` / `temp/menu-master-coords.py` 作废。
 > **裁定链**：v3（88/16dp 物理锚 + 余量沉底）→ v3.1（用户 2026-10-14 裁「750dp 宽基准标注」= rpx 语义，顶/底隙迁系内 16/32）→ v3.3（用户同日否「橱窗拉伸」案，裁**柜隙上:下 = 1:2**）→ v3.4（用户 2026-10-15 裁：资源条与橱窗一体成组按 1:2 分隙；资源条改棕色圆角矩形本体实测框；补 boss 关图位/木牌/三态徽标坐标，徽标钉玻璃区右上角）→ v3.5（用户 2026-10-15 P2 定案：① slogan 退场；② ◀▶ 右钮 x=660（与左 26 镜像，旧标 668 为笔误）；③ 顶栏三钮视觉 80（位图 160² @2x）；④ CTA 324×92 @x218）→ **v3.6（用户 2026-10-15 招牌尺寸裁：招牌 `ui_menu_logo` 等比 480×311、蝴蝶结在 st+16 之下；资源条嵌于橱窗顶部、不占堆叠高度，组高 917 → 871）** → **v3.7（用户 2026-10-16：① 招牌缩至 370×240 @x190 避开公告钮（v3.6 板右缘 609 压钮 564）⇒ 招牌链 214 → 165；② 未开启态豆画再淡一档；③ 木牌补关卡标题；④ CTA 文案「开始游戏」上原型）** → **v3.8（用户 2026-10-16，只改三态盖法与 CTA 文案，链与五档账不动）：未开启 = 豆画置灰 + 大锁 220 居中；进行中 = 豆画原色 + 沙漏章高 210 居中；通关 = 豆画原色 + 金章飘带「通关」钉在 boss 图位右上角；盖章与 CTA 文案都按纹理重心居中。CTA 文案改艺术字纹理叠在钮上）** → **v3.8 补（用户 2026-10-16 走马灯裁：橱窗固定、只滑玻璃内的内容；通关飘带跟内容一起滑，整枚贴在玻璃内。细则 §8，落码状态 §9）**。
 > 层序 / 交互语义不在本件重写，沿用 `menu-architecture.md §5.2`；本件只管**落位与尺寸**。
 
@@ -81,16 +81,16 @@ bt     = cap + 4                    # 顶栏钮顶（对齐胶囊底，不占布
 
 | 文件 | 用途 | 状态 |
 |---|---|---|
-| `ui_menu_logo.png/webp`（960×772） | 招牌整块（含蝴蝶结+木牌+字；v3.9 绳加长 150px） | ✅ 已接 |
-| `asset-icon-coin.webp` / `asset-icon-stamina.webp` | 资源条币/心 | ✅ 已接（2026-10-15 双端；按目标位图框缩） |
+| `ui_menu_logo.png`（960×772） | 招牌整块（含蝴蝶结+木牌+字；v3.9 绳加长 150px） | ✅ 已接；✅ 2026-10-18 已裁 = PNG 为现役（距投放件 1.98 vs webp 4.67），webp 已退役（判据与旧值留档 `production/qa/webp-png-duality-20261018.md` B-1） |
+| `asset-icon-coin.png` / `asset-icon-stamina.png` | 资源条币/心 | ✅ 已接（2026-10-15 双端；按目标位图框缩）；2026-10-18 由 webp 逐位一致转码，harness `MENU_FILE` 同批改指 PNG |
 | `ui_btn_circle_normal/pressed.png` + `ui_icon_settings/sound/mail.png` | 顶栏钮 | ✅ 已接（2026-10-15 双端） |
 | `ui_btn_start_9s(_pressed).png` | CTA | ✅ 已接（2026-10-15 双端；9-slice：harness 预烘 / Cocos SLICED） |
 | `ui_showcase_plate.png`（422×172@2x） | 橱窗内木牌 | ✅ 已接（2026-10-15 双端；C2/C5 选型史证保留，实现形态以 carrier/harness 为准） |
 | `ui_showcase_frame.png`（1188×1892 RGBA） | 橱窗框体 | ✅ 已接（2026-10-15 双端；高清原图按框目标尺寸消费） |
-| `ui_menu_badge_pushing.png/.webp`（128² @2x） | 三态徽标·推关中 | ✅ 资产已出；harness/Cocos 已登记；Cocos 已由编辑器导入（`.meta` 为编辑器生成） |
-| `ui_menu_badge_locked.png/.webp`（128² @2x） | 三态徽标·未开启 | ✅ 资产已出；harness/Cocos 已登记；Cocos 已由编辑器导入（`.meta` 为编辑器生成） |
-| `ui_menu_badge_done.png/.webp`（320² @2x，Ø160dp） | 三态徽标·完成章 | ✅ 资产已出；**320 px 已确认定稿**（用户 2026-10-15：完成章 320 px）；harness/Cocos 已登记；Cocos 已由编辑器导入 |
-| `ui_btn_arrow_bg_normal/pressed.png` + `ui_icon_arrow_left/right.png` | ◀▶ | ✅ 已接（2026-10-15 双端；转正曾标待拍板，接线随 16 件纹理集一次性接入；B21 ① pressed 盘体违规登记不变） |
+| `ui_menu_badge_pushing.png`（128² @2x） | 三态徽标·推关中 | ❌ **件已删**（2026-10-16 用户裁「改沙漏」，见 `../final/README.md` 台账行）；现役 = `ui_menu_badge_progress.png`（沙漏章）。本行旧记「资产已出 / 已登记」**与盘面对不上**，订正于 2026-10-18 |
+| `ui_menu_badge_locked.png`（128² @2x） | 三态徽标·未开启 | ✅ 在用；harness/Cocos 已登记；Cocos 已由编辑器导入（`.meta` 为编辑器生成）；同名 webp 已于 2026-10-18 退役 |
+| `ui_menu_badge_done.png`（320² @2x，Ø160dp） | 三态徽标·完成章 | ❌ **件已删**（2026-10-16 用户裁「改飘带」）；现役 = `ui_menu_seal_cleared.png`（金章飘带）。旧记同样订正于 2026-10-18 |
+| `ui_btn_arrow_bg_normal/pressed.png` + `ui_icon_arrow_left/right.png` | ◀▶ | ✅ 已接（2026-10-15 双端；转正曾标待拍板，接线随 16 件纹理集一次性接入；B21 ① pressed 盘体违规登记不变）。⚠ **2026-10-18 新开 BD-61**：Cocos 投放件 `ui_btn_arrow_bg_pressed.png` **看不出按下态**（同族两态互异保持率仅 0.13，投放件距自己正本 16.39、反而距 normal 正本 3.16）；根因 = **RGBA 八叉树量化把 alpha 算进色距 ⇒ 按下暗边被塌缩**（⛔ 不是文件装错：`octree(正本)` 与在册投放件逐像素相等）。设计正本 PNG 本身正确（≡ shots 1010 逐像素等值），已用 `../../ai-workflows/quantize-cocos-textures.py` 重出两件（保持率 0.98）并经编辑器 CLI **release 档重建** ⇒ **BD-61 已闭（2026-10-18，用户裁维持 P2）**；**harness 腿看不出本缺陷**（同 K-110 型双端不一致）。详见 `production/qa/beads/test-cases.md §M.11` |
 
 **缺口（需新产或待裁）**：
 - C1 **公告喇叭图标**：现只有 `ui_icon_sound`，mock 画的是喇叭——转正时确认复用 sound 还是新切。

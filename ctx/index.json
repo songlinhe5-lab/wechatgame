@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5787,
       "lines": 90,
-      "sha256": "16368f31809e0b778cd663fc9079c624a77f11a607959661d8751358e294092e",
+      "sha256": "17bf7a5b3b9dc5e5fab71db4c3ded6aef6f94cd114d170a7e3485e00a4aa9e65",
       "tier": "normal",
       "sections": [
         {
@@ -21907,17 +21907,17 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 2427,
-      "lines": 31,
-      "sha256": "378d045423b558e420ea9e2fc97547d1114fb5ea6a64bd94e3f407963ca792a0",
+      "tokens": 3745,
+      "lines": 50,
+      "sha256": "7c8fee4a8936410b576a6ed5d566473b4d1302fe7c06be8291f6f18afbca5620",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§final —— 资源定稿区（开发统一取用）",
           "level": 1,
           "startLine": 1,
-          "endLine": 32,
-          "tokens": 2410,
+          "endLine": 51,
+          "tokens": 3729,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -21931,7 +21931,7 @@
           "level": 2,
           "startLine": 5,
           "endLine": 12,
-          "tokens": 1466,
+          "tokens": 1557,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） 现行（v3.8，2026-10-16）= proto-v3-",
           "keywords": [
             "prototypes",
@@ -21944,23 +21944,39 @@
           "level": 2,
           "startLine": 13,
           "endLine": 26,
-          "tokens": 767,
-          "summary": "ui_menu_logo.png/webp（960×772） 招牌原件（v3.9 绳加长 150px；位图走原件） ✅ ",
+          "tokens": 1051,
+          "summary": "ui_menu_logo.png（960×772） 招牌原件（v3.9 绳加长 150px；位图走原件） ✅ 已接 as",
           "keywords": [
             "assets",
             "menu",
             "ui_menu_logo",
             "png",
-            "webp",
-            "台账"
+            "台账",
+            "来源"
+          ]
+        },
+        {
+          "anchor": "§选关弹框（草稿 · 待拍板）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 40,
+          "tokens": 534,
+          "summary": "prototypes/levelselect-v1-popup-750x1334-at2x.png 脚本 ../../a",
+          "keywords": [
+            "prototypes",
+            "levelselect",
+            "popup",
+            "x1334",
+            "at2x",
+            "png"
           ]
         },
         {
           "anchor": "§入库判据",
           "level": 2,
-          "startLine": 27,
-          "endLine": 32,
-          "tokens": 72,
+          "startLine": 41,
+          "endLine": 51,
+          "tokens": 468,
           "summary": "1. 用户已对屏稿/规格拍板（引用 shots 批次或 spec 节号）；",
           "keywords": [
             "shots",
@@ -25596,9 +25612,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 7226,
+      "tokens": 7590,
       "lines": 164,
-      "sha256": "2ba7a3a9c739b2a1be46202f47873d7dc54faf11c3a0cc82c5965ba82eef2351",
+      "sha256": "ecbf1e9988b4a59907b4b35c9467f5039f8cd48161ce98616382dcf4a04d7329",
       "tier": "normal",
       "sections": [
         {
@@ -25606,7 +25622,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 165,
-          "tokens": 7200,
+          "tokens": 7564,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -25684,7 +25700,7 @@
           "level": 2,
           "startLine": 78,
           "endLine": 104,
-          "tokens": 1622,
+          "tokens": 1963,
           "summary": "已入库可直接用（games/beads/cocos/assets/menu/，台账状态为准）：",
           "keywords": [
             "final/README.md",
@@ -78090,17 +78106,17 @@
     },
     {
       "path": "my-skills/wxgame-image-gen/SKILL.md",
-      "tokens": 2798,
-      "lines": 105,
-      "sha256": "f770c8b08c138e0a6062353934825d7a4ff801e40b9a73c59709f93c53a46f61",
+      "tokens": 2858,
+      "lines": 107,
+      "sha256": "8461951dee586cf175bb4d96cb165b025258f9639642a4e2ab625f1cc9b17af5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame AI 生图执行路由（四能力 · 云/本地 · 判据）",
           "level": 1,
           "startLine": 6,
-          "endLine": 106,
-          "tokens": 2689,
+          "endLine": 108,
+          "tokens": 2749,
           "summary": "本 skill 属 wxgame 家族（管线顺序与冲突裁决见 my-skills/INDEX.md）。它是执行层：",
           "keywords": [
             "wxgame",
@@ -78147,8 +78163,8 @@
           "anchor": "§2 命令模板（照抄可用）",
           "level": 2,
           "startLine": 29,
-          "endLine": 59,
-          "tokens": 471,
+          "endLine": 61,
+          "tokens": 531,
           "summary": "云 · 文生图（--ref 才是图生图；--seed 会自动关掉 prompt_extend，否则云侧改写你的提示词）",
           "keywords": [
             "ref",
@@ -78161,8 +78177,8 @@
         {
           "anchor": "§3 抠图：默认本地代码，**默认不上大模型**",
           "level": 2,
-          "startLine": 60,
-          "endLine": 82,
+          "startLine": 62,
+          "endLine": 84,
           "tokens": 791,
           "summary": "平色 UI 走 shape=point（纯 PIL/numpy，零 GPU、零下载、确定性）：种子点",
           "keywords": [
@@ -78177,8 +78193,8 @@
         {
           "anchor": "§3.1 程序化擦除元素（remove-box-fill，零模型）",
           "level": 3,
-          "startLine": 71,
-          "endLine": 82,
+          "startLine": 73,
+          "endLine": 84,
           "tokens": 318,
           "summary": "平涂 UI 背景带上的矩形元素（如橱窗里的木牌）不走 AI inpaint，直接逐行中位数回填：",
           "keywords": [
@@ -78193,8 +78209,8 @@
         {
           "anchor": "§4 出图后必跑判据（能排序的只有这些）",
           "level": 2,
-          "startLine": 83,
-          "endLine": 95,
+          "startLine": 85,
+          "endLine": 97,
           "tokens": 290,
           "summary": "mask 外 maxdiff 遮罩外逐通道差最大值，必须 0 局部编辑④",
           "keywords": [
@@ -78208,8 +78224,8 @@
         {
           "anchor": "§5 硬禁忌（均已实测确诊，勿重走）",
           "level": 2,
-          "startLine": 96,
-          "endLine": 99,
+          "startLine": 98,
+          "endLine": 101,
           "tokens": 193,
           "summary": "本地 i2i 做单元素资产（构图污染，bbox 77%）｜本地 i2i 做固定风格（锚不动版式）｜整图 denoise=",
           "keywords": [
@@ -78224,8 +78240,8 @@
         {
           "anchor": "§6 交付纪律",
           "level": 2,
-          "startLine": 100,
-          "endLine": 106,
+          "startLine": 102,
+          "endLine": 108,
           "tokens": 197,
           "summary": "1. 每轮报数：本地几张 / 云几张几元（云最差价已由用户指示封顶 0.25 元/张）。",
           "keywords": [
@@ -94097,6 +94113,138 @@
             "validation",
             "本次新增",
             "关联产物"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/webp-png-duality-20261018.md",
+      "tokens": 2920,
+      "lines": 92,
+      "sha256": "c97b3d724212224e4778248dde568b0c7ddfb84db6fd04dfeedb690b54fe9fb4",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WebP ↔ PNG 同名双版本 待裁清单（2026-10-18）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 93,
+          "tokens": 2902,
+          "summary": "结论一句话：「一律 PNG」裁定（用户 2026-10-17）在执行层遇到的不是格式问题，而是同名两件像素不同代次；",
+          "keywords": [
+            "WebP",
+            "PNG",
+            "同名双版本",
+            "待裁清单"
+          ]
+        },
+        {
+          "anchor": "§0 执行状态（2026-10-18 晚，用户裁 A 项收口）",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 13,
+          "tokens": 215,
+          "summary": "已退役 20 件 webp（A 组 6 + B 组 14）→ 隔离区 temp/webp-retired-2026101",
+          "keywords": [
+            "webp",
+            "temp",
+            "retired",
+            "执行状态",
+            "用户裁",
+            "项收口"
+          ]
+        },
+        {
+          "anchor": "§1 裁定链与本批已执行",
+          "level": 2,
+          "startLine": 14,
+          "endLine": 26,
+          "tokens": 379,
+          "summary": "2026-10-13 菜单资产规格据「招牌 PNG 558.3 KB → WebP q80 55.5 KB」认 WebP",
+          "keywords": [
+            "PNG",
+            "WebP",
+            "q80",
+            "裁定链与本批",
+            "已执行"
+          ]
+        },
+        {
+          "anchor": "§2 本批已转换的 7 件（现役链，零冲突）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 43,
+          "tokens": 347,
+          "summary": "无同名 PNG ⇒ 可机械转码；.webp 解码后逐位重编码（无 resample），maxΔ = 0 自证；原件移入",
+          "keywords": [
+            "PNG",
+            "webp",
+            "resample",
+            "max",
+            "本批已转换的",
+            "现役链"
+          ]
+        },
+        {
+          "anchor": "§3 同名双版本 20 件：判据与读数",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 71,
+          "tokens": 783,
+          "summary": "判据甲（硬）：Cocos 投放件由设计正本量化而来 ⇒ 把投放件分别与设计侧 PNG / webp 比 RGB 均差，差",
+          "keywords": [
+            "Cocos",
+            "PNG",
+            "webp",
+            "RGB",
+            "同名双版本",
+            "判据与读数"
+          ]
+        },
+        {
+          "anchor": "§4 执行待裁时必须一并处理的两个连带项",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 78,
+          "tokens": 183,
+          "summary": "1. harness 仍有 4 处指 webp（dev/harness/main.ts MENU_FILE：logo /",
+          "keywords": [
+            "harness",
+            "webp",
+            "dev",
+            "main",
+            "MENU_FILE",
+            "logo"
+          ]
+        },
+        {
+          "anchor": "§5 不动的 53 件（取证快照）",
+          "level": 2,
+          "startLine": 79,
+          "endLine": 84,
+          "tokens": 134,
+          "summary": "design/art/shots/ 22 件 + production/qa/menu-b*/ 31 件：只经浏览器/读",
+          "keywords": [
+            "design",
+            "art",
+            "shots",
+            "production",
+            "menu",
+            "不动的"
+          ]
+        },
+        {
+          "anchor": "§6 收口结果（2026-10-18 晚·全部裁定完毕）",
+          "level": 2,
+          "startLine": 85,
+          "endLine": 93,
+          "tokens": 623,
+          "summary": "✅ 已按本件判据一次性退役 19 件（A 组 6 + B 组 13，含 ui_menu_logo 根镜像件与 boss ",
+          "keywords": [
+            "ui_menu_logo",
+            "boss",
+            "收口结果",
+            "全部裁定完毕"
           ]
         }
       ]

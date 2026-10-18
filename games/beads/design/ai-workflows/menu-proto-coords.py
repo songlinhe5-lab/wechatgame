@@ -9,7 +9,8 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 ART = "games/beads/design/art/final"
 A = f"{ART}/assets/menu"
-PROTO_V2 = f"{ART}/prototypes/proto-v2-full-750x1334-at2x.webp"
+# 2026-10-18 webp 退役 ⇒ 输入也走 PNG
+PROTO_V2 = f"{ART}/prototypes/proto-v2-full-750x1334-at2x.png"
 LOGO = "games/beads/assets/menu/ui_menu_logo.png"
 F_LIGHT = "/System/Library/Fonts/STHeiti Light.ttc"
 F_BOLD = "/System/Library/Fonts/STHeiti Medium.ttc"
@@ -18,20 +19,24 @@ CTA_TEXT = "开始游戏"                         # copy-tokens `btn_start_label
 
 # ── tuning.ts 常量（750 系）──
 TOPG, BOTG, PAD = 16, 32, 12
-BOW_MIN = 61                                  # 无刘海结顶下限 = 加长前绳长（tuning MENU_BOW_MIN_FROM_TOP）
+# 无刘海结顶下限 = 加长前绳长（tuning MENU_BOW_MIN_FROM_TOP）
+BOW_MIN = 61
 SIGN_CHAIN, BAR_H, BAR_INSET, CASE_H, CTA_H = 165, 32, 14, 871, 92
-SIGN = (190, 370, 298, 119)                   # x, w, h, bowYOff（v3.9 绳加长到 960×772）
+# x, w, h, bowYOff（v3.9 绳加长到 960×772）
+SIGN = (190, 370, 298, 119)
 BAR = (154, 442)                              # 圆角不探出框肩，中心 375
 CASE = (107, 544)
 BOSS = (146, 130, 468, 528)                   # x, yOff, w, h
-CLIP = (168, 130, 422, 528)                   # 走马灯滑动裁切区 = 玻璃内壁（橱窗位图实测 x167..590）
+# 走马灯滑动裁切区 = 玻璃内壁（橱窗位图实测 x167..590）
+CLIP = (168, 130, 422, 528)
 SEAL_H, SEAL_INSET = 140, 12                  # 通关飘带随内容滑动 ⇒ 整枚落在裁切区内
 NEXT_TEXT = ("第 10 关", "小雏菊")             # 滑动示意里的下一项（占位）
 BADGE = (538, 142, 64)
 DONE = (380, 394, 160)                        # cx, yOff, d
 PLATE = (381, 652, 214, 100)                  # cx, yOff, w, h
 PLATE_TITLE = (30, 62)                        # 两行行心距牌顶（关序 28 / 关名 30，E1 地板 28）
-WOOD_FACE, WOOD_EDGE = (138, 91, 52), (94, 59, 30)   # palette woodFace / woodEdge
+# palette woodFace / woodEdge
+WOOD_FACE, WOOD_EDGE = (138, 91, 52), (94, 59, 30)
 ARROW_X, ARROW_D, ARROW_ICON = (26, 660), 64, 36
 TOPBAR_X, TOPBAR_D, HIT = (24, 560, 648), 80, 88
 CTA_X, CTA_W = 218, 324
@@ -47,16 +52,19 @@ def v2crop(x0, y0, x1, y1):
 BAR_IMG = v2crop(156, 248, 595, 294)
 # 豆画：v2 boss 图位（窗顶 294 + 130）内非白像素外接框；正片叠底贴回 ⇒ 白底自然吃掉
 _slot = v2crop(146, 424, 614, 940)
-_ink = ImageOps.invert(_slot.convert("L")).point(lambda v: 255 if v > 30 else 0)
+_ink = ImageOps.invert(_slot.convert("L")).point(
+    lambda v: 255 if v > 30 else 0)
 MANDALA = _slot.crop(_ink.getbbox())
 # 花的重心（图内 0..1）。贴图按外接框中心摆会让花偏上、章跟着偏。
 _rgb = np.asarray(MANDALA.convert("RGB")).astype(np.int16)
 _r, _g, _b = _rgb[:, :, 0], _rgb[:, :, 1], _rgb[:, :, 2]
-_ys, _xs = np.nonzero((np.maximum(np.maximum(_r, _g), _b) - np.minimum(np.minimum(_r, _g), _b)) > 18)
+_ys, _xs = np.nonzero((np.maximum(np.maximum(_r, _g), _b) -
+                      np.minimum(np.minimum(_r, _g), _b)) > 18)
 FLOWER = (_xs.mean() / MANDALA.width, _ys.mean() / MANDALA.height)
 _sat = np.zeros(_r.shape, np.uint8)
 _sat[_ys, _xs] = 255
-BEAD_MASK = Image.fromarray(_sat).filter(ImageFilter.MaxFilter(9))   # 彩豆 + 9px 外扩（豆间缝）
+BEAD_MASK = Image.fromarray(_sat).filter(
+    ImageFilter.MaxFilter(9))   # 彩豆 + 9px 外扩（豆间缝）
 # 只留与花心连通的一块（切件两侧带着白板木边，饱和度也过阈）
 ImageDraw.floodfill(BEAD_MASK, (round(_xs.mean()), round(_ys.mean())), 128)
 BEAD_MASK = BEAD_MASK.point(lambda v: 255 if v == 128 else 0)
@@ -94,7 +102,8 @@ def content_layer(g, s, state):
     lay = Image.new("RGBA", (round(CLIP[2] * s), round(CLIP[3] * s)))
 
     def put(img, x, y, w, h):
-        im = img.convert("RGBA").resize((max(1, round(w * s)), max(1, round(h * s))), Image.LANCZOS)
+        im = img.convert("RGBA").resize(
+            (max(1, round(w * s)), max(1, round(h * s))), Image.LANCZOS)
         lay.alpha_composite(im, (round((x - ox0) * s), round((y - oy0) * s)))
 
     def put_centered(img, cx, cy, w, h):
@@ -108,14 +117,16 @@ def content_layer(g, s, state):
     a = 255 - rgb.min(axis=2)
     a = a * (np.asarray(BEAD_MASK) > 0)          # 去掉 proto-v2 切件里白板灰边，只留豆子
     col = 255 - (255 - rgb) * 255 / np.maximum(a, 1)[..., None]
-    art = Image.fromarray(np.dstack([np.clip(col, 0, 255), a]).astype(np.uint8), "RGBA")
+    art = Image.fromarray(
+        np.dstack([np.clip(col, 0, 255), a]).astype(np.uint8), "RGBA")
     aw = 340
     ah = aw * MANDALA.height / MANDALA.width
     # 花的重心落在图位中心，三态盖章再按各自纹理的重心叠到同一点
     cx, cy = DONE[0], g["case0"] + DONE[1]
     put(art, cx - FLOWER[0] * aw, cy - FLOWER[1] * ah, aw, ah)
     if state == "locked":
-        put_centered(Image.open(f"{A}/ui_menu_badge_locked.png"), cx, cy, 220, 220)
+        put_centered(Image.open(
+            f"{A}/ui_menu_badge_locked.png"), cx, cy, 220, 220)
     elif state == "pushing":
         badge = Image.open(f"{A}/ui_menu_badge_progress.png")
         bh = 200
@@ -133,7 +144,8 @@ def compose(g, s, state, w750=750, content=True, plate_text=PLATE_TEXT):
     cv = Image.new("RGB", (round(w750 * s), round(g["H"] * s)), BG)
 
     def put(img, x, y, w, h, alpha=True):
-        im = img.convert("RGBA").resize((max(1, round(w * s)), max(1, round(h * s))), Image.LANCZOS)
+        im = img.convert("RGBA").resize(
+            (max(1, round(w * s)), max(1, round(h * s))), Image.LANCZOS)
         cv.paste(im, (round(x * s), round(y * s)), im if alpha else None)
 
     def text(cx, cy, txt, size, fill, font=F_BOLD, stroke=0, stroke_fill=None):
@@ -157,15 +169,18 @@ def compose(g, s, state, w750=750, content=True, plate_text=PLATE_TEXT):
     # ◀▶
     for x, icon in zip(ARROW_X, ("left", "right")):
         y = g["arrow_cy"] - ARROW_D / 2
-        put(Image.open(f"{A}/ui_btn_arrow_bg_normal.png"), x, y, ARROW_D, ARROW_D)
+        put(Image.open(f"{A}/ui_btn_arrow_bg_normal.png"),
+            x, y, ARROW_D, ARROW_D)
         ic = Image.open(f"{A}/ui_icon_arrow_{icon}.png")
         iw = ARROW_ICON * ic.width / ic.height
-        put(ic, x + (ARROW_D - iw) / 2, y + (ARROW_D - ARROW_ICON) / 2, iw, ARROW_ICON)
+        put(ic, x + (ARROW_D - iw) / 2, y +
+            (ARROW_D - ARROW_ICON) / 2, iw, ARROW_ICON)
     put(Image.open(LOGO), SIGN[0], g["bow0"] - SIGN[3], SIGN[1], SIGN[2])
     # 顶栏三钮：圆底 + 图标同框 80（热区 88 同心）
     for hx, icon in zip(TOPBAR_X, ("settings", "sound", "mail")):
         x, y = hx + (HIT - TOPBAR_D) / 2, g["bt"] + (HIT - TOPBAR_D) / 2
-        put(Image.open(f"{A}/ui_btn_circle_normal.png"), x, y, TOPBAR_D, TOPBAR_D)
+        put(Image.open(f"{A}/ui_btn_circle_normal.png"),
+            x, y, TOPBAR_D, TOPBAR_D)
         put(Image.open(f"{A}/ui_icon_{icon}.png"), x, y, TOPBAR_D, TOPBAR_D)
     # CTA：正本 200×240 纵向等比缩到 92，横向三段拉伸（端帽 capX 76 源px）+ 文案居台面
     src = Image.open(f"{A}/ui_btn_start_9s.png").convert("RGBA")
@@ -174,14 +189,16 @@ def compose(g, s, state, w750=750, content=True, plate_text=PLATE_TEXT):
     cap = round(76 * hp / 240)
     pill = Image.new("RGBA", (wp, hp))
     pill.paste(src.crop((0, 0, cap, hp)), (0, 0))
-    pill.paste(src.crop((cap, 0, src.width - cap, hp)).resize((wp - 2 * cap, hp)), (cap, 0))
+    pill.paste(src.crop((cap, 0, src.width - cap, hp)
+                        ).resize((wp - 2 * cap, hp)), (cap, 0))
     pill.paste(src.crop((src.width - cap, 0, src.width, hp)), (wp - cap, 0))
     cv.paste(pill, (round(CTA_X * s), round(g["cta0"] * s)), pill)
     label = Image.open(f"{A}/ui_menu_cta_label.png")
     lh = 56
     lw = lh * label.width / label.height
     ox, oy = mass_frac(label)
-    put(label, CTA_X + CTA_W / 2 - ox * lw, g["cta0"] + CTA_H * 0.42 - oy * lh, lw, lh)
+    put(label, CTA_X + CTA_W / 2 - ox * lw,
+        g["cta0"] + CTA_H * 0.42 - oy * lh, lw, lh)
     return cv
 
 
@@ -193,7 +210,8 @@ def swipe(g, s, out_state, in_state, t):
     W = round(CLIP[2] * s)
     strip = Image.new("RGBA", (3 * W, round(CLIP[3] * s)))
     for state, off in ((out_state, -t), (in_state, 1 - t)):
-        strip.alpha_composite(content_layer(g, s, state), (W + round(off * W), 0))
+        strip.alpha_composite(content_layer(g, s, state),
+                              (W + round(off * W), 0))
     win = strip.crop((W, 0, 2 * W, strip.height))
     cv.paste(win, tuple(round(v * s) for v in (CLIP[0], c0 + CLIP[1])), win)
     py = c0 + PLATE[1]
@@ -220,46 +238,58 @@ def annotate(cv, g, s, fs):
                stroke_width=max(2, fs // 8), stroke_fill=(255, 255, 255))
 
     def rect(x, y, w, h, col, txt="", dy=2):
-        d.rectangle([x * s, y * s, (x + w) * s, (y + h) * s], outline=col, width=lw)
+        d.rectangle([x * s, y * s, (x + w) * s, (y + h) * s],
+                    outline=col, width=lw)
         if txt:
             lab(x + 3, y + dy, txt, col)
 
     def circ(cx, cy, r, col):
-        d.ellipse([(cx - r) * s, (cy - r) * s, (cx + r) * s, (cy + r) * s], outline=col, width=lw)
+        d.ellipse([(cx - r) * s, (cy - r) * s, (cx + r) *
+                  s, (cy + r) * s], outline=col, width=lw)
 
     blue, brown, purple, red, green, pink, orange = (
         (0, 80, 220), (140, 80, 20), (130, 0, 180), (210, 0, 0), (0, 140, 0), (210, 0, 110), (230, 120, 0))
     sy = g["bow0"] - SIGN[3]
-    rect(SIGN[0], sy, SIGN[1], SIGN[2], blue, f"招牌 370×298 @({SIGN[0]},{sy:.0f})  结顶{g['bow0']:.0f} 板底{g['sign1']:.0f}", dy=SIGN[2] - 18)
-    rect(CASE[0], c0, CASE[1], CASE_H, brown, f"橱窗(含楣) 544×871 @(107,{c0:.0f})  不拉伸", dy=CASE_H - 50)
+    rect(SIGN[0], sy, SIGN[1], SIGN[2], blue,
+         f"招牌 370×298 @({SIGN[0]},{sy:.0f})  结顶{g['bow0']:.0f} 板底{g['sign1']:.0f}", dy=SIGN[2] - 18)
+    rect(CASE[0], c0, CASE[1], CASE_H, brown,
+         f"橱窗(含楣) 544×871 @(107,{c0:.0f})  不拉伸", dy=CASE_H - 50)
     rect(BAR[0], c0 + BAR_INSET, BAR[1], BAR_H, orange)
-    lab(BAR[0] + 4, c0 + BAR_INSET + BAR_H + 4, f"资源条 442×32 @(154,{c0 + BAR_INSET:.0f}) 落在木纹内", orange)
+    lab(BAR[0] + 4, c0 + BAR_INSET + BAR_H + 4,
+        f"资源条 442×32 @(154,{c0 + BAR_INSET:.0f}) 落在木纹内", orange)
     rect(BOSS[0], c0 + BOSS[1], BOSS[2], BOSS[3], purple, f"Boss图位 468×528 @(146,{c0 + BOSS[1]:.0f})",
          dy=-(fs / s + 4))
     teal = (0, 130, 130)
     for i in range(3):
-        rect(CLIP[0] + i, c0 + CLIP[1] + i, CLIP[2] - 2 * i, CLIP[3] - 2 * i, teal)
-    lab(CLIP[0] + 4, c0 + CLIP[1] + 4, f"滑动裁切区 {CLIP[2]}×{CLIP[3]} @({CLIP[0]},{c0 + CLIP[1]:.0f})", teal)
+        rect(CLIP[0] + i, c0 + CLIP[1] + i,
+             CLIP[2] - 2 * i, CLIP[3] - 2 * i, teal)
+    lab(CLIP[0] + 4, c0 + CLIP[1] + 4,
+        f"滑动裁切区 {CLIP[2]}×{CLIP[3]} @({CLIP[0]},{c0 + CLIP[1]:.0f})", teal)
     lab(CLIP[0] + 4, c0 + CLIP[1] + 4 + fs / s + 2, "= 玻璃内壁 · 豆画+盖章 滑", teal)
     circ(DONE[0], c0 + DONE[1], 100, purple)
     lab(DONE[0], c0 + DONE[1] + 114, "沙漏 / 大锁 按纹理重心居中于花心", purple, "ma")
     sw = SEAL_H * 441 / 610
     sx, sy = seal_xy(c0, sw)
     rect(sx, sy, sw, SEAL_H, red)
-    lab(sx + sw, sy + SEAL_H + 2, f"通关飘带 {sw:.0f}×{SEAL_H} @({sx:.0f},{sy:.0f}) 内缩{SEAL_INSET}", red, "ra")
+    lab(sx + sw, sy + SEAL_H + 2,
+        f"通关飘带 {sw:.0f}×{SEAL_H} @({sx:.0f},{sy:.0f}) 内缩{SEAL_INSET}", red, "ra")
     px, py = PLATE[0] - PLATE[2] / 2, c0 + PLATE[1]
     rect(px, py, PLATE[2], PLATE[3], brown)
     lab(PLATE[0], py - 46, f"木牌 214×100 @({px:.0f},{py:.0f})", brown, "ma")
     lab(PLATE[0], py - 24, "标题：关序28 / 关名30 居中", brown, "ma")
     for x in ARROW_X:
         rect(x, g["arrow_cy"] - ARROW_D / 2, ARROW_D, ARROW_D, green)
-    lab(6, g["arrow_cy"] + 36, f"◀▶ 64² x{ARROW_X[0]}/{ARROW_X[1]} 心y{g['arrow_cy']:.0f}", green)
+    lab(6, g["arrow_cy"] + 36,
+        f"◀▶ 64² x{ARROW_X[0]}/{ARROW_X[1]} 心y{g['arrow_cy']:.0f}", green)
     for hx in TOPBAR_X:
         rect(hx, g["bt"], HIT, HIT, green)
         circ(hx + HIT / 2, g["bt"] + HIT / 2, TOPBAR_D / 2, orange)
-    lab(6, g["bt"] + HIT + 4, f"钮行 bt={g['bt']:.0f} 热区88 视觉Ø80 x24/560/648", green)
-    rect(CTA_X, g["cta0"], CTA_W, CTA_H, pink, f"CTA 324×92 @(218,{g['cta0']:.0f})")
-    lab(CTA_X + 3, g["cta0"] + CTA_H + 4, f"文案纹理重心居中 · 底锚 H−sb−32 = {g['cta1']:.0f}", pink)
+    lab(6, g["bt"] + HIT + 4,
+        f"钮行 bt={g['bt']:.0f} 热区88 视觉Ø80 x24/560/648", green)
+    rect(CTA_X, g["cta0"], CTA_W, CTA_H, pink,
+         f"CTA 324×92 @(218,{g['cta0']:.0f})")
+    lab(CTA_X + 3, g["cta0"] + CTA_H + 4,
+        f"文案纹理重心居中 · 底锚 H−sb−32 = {g['cta1']:.0f}", pink)
     return d, f
 
 
@@ -272,11 +302,14 @@ def master(out, legend_w=330):
     d, f = annotate(cv, g, s, 22)
     d.rectangle([0, 0, 750 * s, g["st"] * s], fill=(20, 20, 20, 60))
     for y, col, txt, tx in [(g["st"], (220, 0, 0), "safeArea.top 40（20dp·接口）", 6),
-                            (g["sign1"], (0, 80, 220), f"板底 {g['sign1']}", 640),
-                            (g["case1"], (0, 140, 140), f"橱窗底 {g['case1']:.0f}", 6),
+                            (g["sign1"], (0, 80, 220),
+                             f"板底 {g['sign1']}", 640),
+                            (g["case1"], (0, 140, 140),
+                             f"橱窗底 {g['case1']:.0f}", 6),
                             (g["cta1"], (0, 160, 0), f"CTA底锚 {g['cta1']}", 6)]:
         d.line([(0, y * s), (750 * s, y * s)], fill=col, width=2)
-        d.text((tx * s, (y - 14) * s), txt, font=f, fill=col, stroke_width=3, stroke_fill="white")
+        d.text((tx * s, (y - 14) * s), txt, font=f,
+               fill=col, stroke_width=3, stroke_fill="white")
     for ya, yb, txt in [(g["sign1"], g["case0"], f"上{g['gap_top']:.0f}"),
                         (g["case1"], g["cta0"], f"下{g['gap_bot']:.0f}")]:
         d.line([(96 * s, ya * s), (96 * s, yb * s)], fill=(200, 0, 0), width=4)
@@ -291,7 +324,8 @@ def master(out, legend_w=330):
         ("规范链：", 26, (0, 130, 0)),
         (f"结顶 = max(safeTop + 16, 61) → {g['bow0']}", 22, (20, 20, 20)),
         (f"招牌链 165 → 板底 {g['sign1']}（图框 370×298 @x190）", 22, (20, 20, 20)),
-        (f"柜隙上 {g['gap_top']:.0f} → 橱窗顶 {g['case0']:.0f}（= 资源条顶）", 22, (20, 20, 20)),
+        (f"柜隙上 {g['gap_top']:.0f} → 橱窗顶 {g['case0']:.0f}（= 资源条顶）",
+         22, (20, 20, 20)),
         ("橱窗 871 恒定；资源条 46 嵌窗顶不占高", 22, (20, 20, 20)),
         (f"柜隙下 {g['gap_bot']:.0f} = 2 × 上", 22, (20, 20, 20)),
         (f"CTA 324×92 底锚 = H − sb − 32 → {g['cta1']}", 22, (20, 20, 20)),
@@ -330,7 +364,8 @@ def master(out, legend_w=330):
     yy = 20
     for txt, size, col in rows:
         if txt:
-            d.text(((750 + 14) * s, yy), txt, font=ImageFont.truetype(F_LIGHT, size), fill=col)
+            d.text(((750 + 14) * s, yy), txt,
+                   font=ImageFont.truetype(F_LIGHT, size), fill=col)
         yy += size + 16
     cv.save(out)
     print("写出", out, cv.size)
@@ -348,28 +383,34 @@ TIERS = [
     ("menu-coords-max440.png", "iPhone 16 Pro Max", 440, 956, 3, 54, 34, 90,
      ("island", 255, 26, 495, 103)),
 ]
-EXPECT_GAPS = [(38, 75), (130, 259), (95, 191), (94, 188), (101, 203)]   # menu-anchors.test.ts 钉值
+EXPECT_GAPS = [(38, 75), (130, 259), (95, 191), (94, 188),
+               (101, 203)]   # menu-anchors.test.ts 钉值
 
 
 def tier(fname, model, w, h, dpr, st_dp, sb_dp, cap_dp, notch, expect):
     k = 750 / w
     s = dpr / k
-    g = anchors(round(st_dp * k), round(sb_dp * k), round(cap_dp * k), round(h * k))
-    assert (round(g["gap_top"]), round(g["gap_bot"])) == expect, (fname, g["gap_top"], g["gap_bot"])
+    g = anchors(round(st_dp * k), round(sb_dp * k),
+                round(cap_dp * k), round(h * k))
+    assert (round(g["gap_top"]), round(g["gap_bot"])
+            ) == expect, (fname, g["gap_top"], g["gap_bot"])
     cv = compose(g, s, "pushing").crop((0, 0, w * dpr, h * dpr))
     fs = 11 * dpr
     d, f = annotate(cv, g, s, fs)
     head = [f"{model}  {w}x{h}dp  {cv.width}x{cv.height}px @{dpr}x  [标注=750 设计px]",
             f"入系 st{g['st']} cap{g['cap']} home{g['sb']} H{g['H']:.0f} | 链165 窗871 | "
             f"柜隙 上{g['gap_top']:.0f}:下{g['gap_bot']:.0f}"]
-    d.rectangle([0, 0, cv.width, 2 * (fs + 4 * dpr) + 2 * dpr], fill=(255, 255, 255, 200))
+    d.rectangle([0, 0, cv.width, 2 * (fs + 4 * dpr) + 2 * dpr],
+                fill=(255, 255, 255, 200))
     for i, t in enumerate(head):
-        d.text((3 * dpr, 2 * dpr + i * (fs + 4 * dpr)), t, font=f, fill=(0, 0, 0))
+        d.text((3 * dpr, 2 * dpr + i * (fs + 4 * dpr)),
+               t, font=f, fill=(0, 0, 0))
     d.rectangle([0, 0, cv.width, g["st"] * s], fill=(20, 20, 20, 90))
     if sb_dp:
         y = (g["H"] - g["sb"]) * s
         d.rectangle([0, y, cv.width, cv.height], fill=(20, 20, 20, 90))
-        d.text((3 * dpr, y + 2 * dpr), f"Home条 inset {sb_dp}dp = {g['sb']}系", font=f, fill="white")
+        d.text((3 * dpr, y + 2 * dpr),
+               f"Home条 inset {sb_dp}dp = {g['sb']}系", font=f, fill="white")
     if notch:
         kind, x0, y0, x1, y1 = notch
         bx = [x0 * s, y0 * s, x1 * s, y1 * s]
@@ -379,7 +420,8 @@ def tier(fname, model, w, h, dpr, st_dp, sb_dp, cap_dp, notch, expect):
             d.rounded_rectangle(bx, radius=(y1 - y0) / 2 * s if kind == "island" else 6 * dpr,
                                 fill=(20, 20, 20, 230))
         name = {"hole": "挖孔", "notch": "刘海", "island": "灵动岛"}[kind]
-        lx, anc = (x1 * s + 4 * dpr, "la") if kind == "hole" else ((x0 + x1) / 2 * s, "ma")
+        lx, anc = (x1 * s + 4 * dpr,
+                   "la") if kind == "hole" else ((x0 + x1) / 2 * s, "ma")
         d.text((lx, (y1 + 4) * s), f"{name} {x1 - x0}×{y1 - y0} 底{y1} ·近似", anchor=anc,
                font=f, fill=(200, 0, 0), stroke_width=2 * dpr, stroke_fill="white")
     cw, ch = 87 * k, 32 * k
@@ -395,12 +437,14 @@ def tier(fname, model, w, h, dpr, st_dp, sb_dp, cap_dp, notch, expect):
 
 if __name__ == "__main__":
     se = anchors(40, 0, 112, 1334)
-    assert (se["sign1"], round(se["case0"]), se["cta1"]) == (226, 264, 1302), se
+    assert (se["sign1"], round(se["case0"]),
+            se["cta1"]) == (226, 264, 1302), se
     for st in ("pushing", "locked", "done"):
-        out = f"{ART}/prototypes/proto-v3-{st}-750x1334-at2x.webp"
+        # 2026-10-17 起统一 PNG（小程序不支持 webp）
+        out = f"{ART}/prototypes/proto-v3-{st}-750x1334-at2x.png"
         compose(se, 2, st).save(out, quality=90)
         print("写出", out)
-    out = f"{ART}/prototypes/proto-v3-swipe-750x1334-at2x.webp"
+    out = f"{ART}/prototypes/proto-v3-swipe-750x1334-at2x.png"
     swipe(se, 2, "done", "pushing", 0.35).save(out, quality=90)
     print("写出", out)
     master(f"{ART}/coordinates/menu-master-coords.png")

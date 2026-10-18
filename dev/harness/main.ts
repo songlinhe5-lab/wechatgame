@@ -141,10 +141,13 @@ const maskSource = { get: (id: string): object | undefined => maskRegistry.get(i
  */
 const menuRegistry = new Map<string, object>();
 const MENU_URL_PREFIX = '/menu-assets/';
-/** textureId → 定稿文件名（真源 = `design/art/final/assets/menu/`，经 serve-harness 白名单映射）。 */
+/** textureId → 定稿文件名（真源 = `design/art/final/assets/menu/`，经 serve-harness 白名单映射）。
+ * 格式口径：**一律 PNG**（用户 2026-10-17 裁：小程序不支持 WebP；K-139）。本表原指 `.webp` 的 6 件已于
+ * 2026-10-18 按「Cocos 投放件反推父本」判据改指 PNG（同名 PNG = 现役真源），待裁双版本清单见
+ * `production/qa/webp-png-duality-20261018.md`。 */
 const MENU_FILE: Readonly<Record<string, string>> = {
   ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
-  [MENU_TEXTURES.logo]: 'ui_menu_logo.webp',
+  [MENU_TEXTURES.logo]: 'ui_menu_logo.png',
   [MENU_TEXTURES.caseFrame]: 'ui_showcase_frame.png',
   [MENU_TEXTURES.plate]: 'ui_showcase_plate.png',
   [MENU_TEXTURES.cta]: 'ui_btn_start_9s.png',
@@ -158,13 +161,13 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.iconMail]: 'ui_icon_mail.png',
   [MENU_TEXTURES.iconArrowLeft]: 'ui_icon_arrow_left.png',
   [MENU_TEXTURES.iconArrowRight]: 'ui_icon_arrow_right.png',
-  [MENU_TEXTURES.iconCoin]: 'asset-icon-coin.webp',
-  [MENU_TEXTURES.iconStamina]: 'asset-icon-stamina.webp',
+  [MENU_TEXTURES.iconCoin]: 'asset-icon-coin.png',
+  [MENU_TEXTURES.iconStamina]: 'asset-icon-stamina.png',
   // 三态徽标（C6）：推/锁 128² @2x（64dp）；完成章 320² @2x（Ø160dp）。
   [MENU_TEXTURES.badgeLocked]: 'ui_menu_badge_locked.png',
-  [MENU_TEXTURES.badgeProgress]: 'ui_menu_badge_progress.webp',
-  [MENU_TEXTURES.sealCleared]: 'ui_menu_seal_cleared.webp',
-  [MENU_TEXTURES.ctaLabel]: 'ui_menu_cta_label.webp',
+  [MENU_TEXTURES.badgeProgress]: 'ui_menu_badge_progress.png',
+  [MENU_TEXTURES.sealCleared]: 'ui_menu_seal_cleared.png',
+  [MENU_TEXTURES.ctaLabel]: 'ui_menu_cta_label.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

@@ -57,6 +57,8 @@ python3 temp/menu-states/inpaint-add.py <tag> <seed_x> <seed_y> <半径> <半径
 （`temp/menu-states/qwen-turbo-inpaint.api.json`）**没有版本兜底**，temp 一清即断；丢了按
 矩阵 §6「局部重绘入口」行的节点清单重建（骨架用已入库的 `workflows/sdxl-inpaint.api.json`）。
 
+> **i2i denoise 分档（2026-10-17 用户令）**：参考风格 → 高 denoise（0.9 起）；局部修改 → 低 denoise（0.3–0.5）；默认 0.65 只作兜底。正本见 `model-matrix.md §5.x`。
+
 ## 3. 抠图：默认本地代码，**默认不上大模型**
 
 - **平色 UI 走 `shape=point`**（纯 PIL/numpy，零 GPU、零下载、确定性）：种子点
