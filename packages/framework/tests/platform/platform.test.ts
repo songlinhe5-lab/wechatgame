@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { NodePlatform } from '../../src/platform/node.js';
 import { WebPlatform } from '../../src/platform/web.js';
-import { WeappPlatform, WeappStorage, isWeapp } from '../../src/platform/weapp.js';
+import { WeappPlatform, WeappStorage, isWeapp, subpackageNamesOf } from '../../src/platform/weapp.js';
 import { detectPlatform, isBrowser } from '../../src/platform/index.js';
 import { MemoryStorage } from '../../src/core/save/storage.js';
 
@@ -204,5 +204,45 @@ describe('WeappPlatform', () => {
       unsubHide();
       unsubShow();
     }).not.toThrow();
+  });
+});
+
+describe('BGM 分包预载（仅 assetFile 落在 subpackages/<name>/ 下才触发）', () => {
+  /** 一个带分包路径的 voice 表（形状同 audio-synth 测试的 bgm_file）。 */
+  const voicesWith = (file: string) => ({
+    bgm_main: { durationMs: 40_000, loopMs: 40_000, bus: 'music', gain: 0.3, notes: [{ freq: 220, durMs: 1000 }], assetFile: file },
+  });
+  const wxWith = (calls: string[], fireFail = false) => ({
+    ...fakeWx(),
+    createWebAudioContext: () => ({ createGain: () => ({ gain: { value: 0 }, connect() { } }), createBuffer: () => ({ getChannelData: () => new Float32Array(1) }), createBufferSource: () => ({ connect() { }, start() { }, stop() { } }), destination: {}, currentTime: 0, state: 'running' }),
+    loadSubpackage: (o: { name: string; fail?: (r: unknown) => void }) => {
+      calls.push(o.name);
+      if (fireFail) o.fail?.({ errMsg: 'loadSubpackage:fail 模拟未上传分包' });
+    },
+  });
+
+  it('subpackageNamesOf：默认 `audio/…` ⇒ 空集；分包路径 ⇒ 去重名', () => {
+    expect(subpackageNamesOf(voicesWith('audio/bgm_porch.mp3') as never)).toEqual([]);
+    expect(subpackageNamesOf(voicesWith('subpackages/audio/bgm_porch.mp3') as never)).toEqual(['audio']);
+    expect(subpackageNamesOf(undefined)).toEqual([]);
+  });
+
+  it('分包路径 ⇒ 建后端时调一次 loadSubpackage；fail 只 log 不抛（降级交给合成腿）', () => {
+    const calls: string[] = [];
+    const platform = new WeappPlatform(wxWith(calls, true) as unknown as FakeWx);
+    expect(() => platform.createAudioBackend({ voices: voicesWith('subpackages/audio/bgm_porch.mp3') } as never)).not.toThrow();
+    expect(calls).toEqual(['audio']);
+  });
+
+  it('非分包路径（今日现状）⇒ 完全不调 loadSubpackage，行为零变化', () => {
+    const calls: string[] = [];
+    const platform = new WeappPlatform(wxWith(calls) as unknown as FakeWx);
+    platform.createAudioBackend({ voices: voicesWith('audio/bgm_porch.mp3') } as never);
+    expect(calls).toEqual([]);
+  });
+
+  it('wx 无 loadSubpackage API ⇒ 不抛（旧基础库 / 编辑器预览）', () => {
+    const platform = new WeappPlatform({ ...fakeWx(), createWebAudioContext: () => ({}) } as unknown as FakeWx);
+    expect(() => platform.createAudioBackend({ voices: voicesWith('subpackages/audio/bgm_porch.mp3') } as never)).not.toThrow();
   });
 });

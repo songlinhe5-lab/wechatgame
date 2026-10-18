@@ -18,6 +18,7 @@ import {
   NullAudioBackend,
   type AudioBackend,
   type AudioBackendOptions,
+  type AudioVoices,
 } from '../core/audio/audio';
 import type { PlatformInfo } from '../core/game/game';
 import { BasePlatform, type FrameHandle, type ScreenSize } from './platform';
@@ -73,6 +74,26 @@ interface WxApi {
     onError?(cb: (res: { errMsg?: string; errCode?: number }) => void): void;
   };
   createInnerAudioContext?(): unknown;
+  /**
+   * 分包预载（BGM 走分包时用：`assetFile` 落在 `subpackages/<name>/…` 下才需要）。
+   * 无此 API / 未声明分包 ⇒ 不调用。失败不致命：`audio-synth` 的 `onError` 会回退合成路线
+   * （“继续回退合成，绝不静默没声”，见 `_startFileLoop`）。
+   */
+  loadSubpackage?(opts: { name: string; success?: (res?: unknown) => void; fail?: (res?: unknown) => void }): unknown;
+}
+
+/**
+ * 从 voice 表里挑出需要预载的分包名（去重）：只有 `assetFile` 形如
+ * `subpackages/<name>/…` 的才计。默认（`audio/…`）⇒ 空集 ⇒ 零行为变化。
+ */
+export function subpackageNamesOf(voices?: AudioVoices): string[] {
+  if (!voices) return [];
+  const out = new Set<string>();
+  for (const v of Object.values(voices)) {
+    const m = /^subpackages\/([^/]+)\//.exec(v.assetFile ?? '');
+    if (m) out.add(m[1]);
+  }
+  return Array.from(out);   // ⛔ 不用 [...out]：Set 展开在 ES5 档塌成 [Set]（ES-01 / ADR-0012）
 }
 
 function getWx(): WxApi | undefined {
@@ -224,6 +245,18 @@ export class WeappPlatform extends BasePlatform {
         return handle;
       },
     );
+    // 分包前置（fire-and-forget）：BGM 要等首次手势 unlock 才起，通常已到位；没到位则
+    // 由 InnerAudioContext.onError 走既有「回退合成」腿。路径不变 ⇒ `subpackageNamesOf` 为空 ⇒ 零行为变化。
+    for (const name of subpackageNamesOf(voices)) {
+      try {
+        wx.loadSubpackage?.({
+          name,
+          fail: (res) => this.log('warn', `[audio] 分包 \`${name}\` 预载失败 ⇒ BGM 将回退合成路线：${String((res as { errMsg?: string })?.errMsg ?? res ?? '')}`),
+        });
+      } catch (e) {
+        this.log('warn', `[audio] 分包 \`${name}\` loadSubpackage 抛错 ⇒ BGM 将回退合成路线：${String(e)}`);
+      }
+    }
     // 首次手势解锁；退后台停曲、回前台补起（期望态在 backend 里，不丢 BGM）。
     const unlock = () => {
       backend.unlock();

@@ -394,6 +394,13 @@ const VOICE_TABLE: Record<string, AudioVoice> = {
      * 的 `stageExtraAssets()` 在**构建后**拷进产物 —— ⚠ 不能指望 Cocos 自己打这个包：
      * 只被运行时字符串引用的资源不在静态依赖图里，实测放 `assets/audio/` 构建后产物 0 个 mp3
      * （真机因此完全没 BGM，2026-09-23）。
+     * ⚠ **本串 = 包体落位的唯一真源**：改成 `subpackages/audio/bgm_porch.mp3` 即把 BGM 挑进微信分包——
+     *   `build-cocos.mjs` 会据此装配并自动写 `game.json` 的 `subpackages[]`，框架 `platform/weapp.ts`
+     *   则在建后端时 `wx.loadSubpackage('audio')` 预载（2026-10-18 已就位，**默认不启用**）。
+     *   分包档本机实测（2026-10-18，BGM 已降为 64 kbps / 469.2 KB）：主包 3188.2 → **2719.0 KB**、分包单列 469.2 KB；
+     *   但 `loadSubpackage` 行为
+     *   只能真机/开发者工具验（A05-27 `[R]` 同批）⇒ 未验前 ⛔ 不切；预载失败时由 `_startFileLoop`
+     *   回退合成路线（不静音）。
      * ⚠ `loopMs` 在文件路线下只当「是否走 loop 分支」的门用，**实际循环长度 = 文件自身 60.03 s**；
      *   它同时仍是下方 notes 合成回退的渲染周期（20 s 乐句），两个用途同源但值不同，改值前先看判据。
      */
