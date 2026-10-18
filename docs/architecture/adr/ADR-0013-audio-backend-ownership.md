@@ -68,7 +68,7 @@ beads 的可玩性缺口里有一条是**彻底静音**：三平台的 `createAu
 **4.3 中性 / 待观察**
 - 本 ADR 落地后暴露一处**文档矛盾**：`docs/architecture/architecture.md` 的包体预算表仍写「首屏音频 ≤ 300 KB / 短音效用压缩音频 / BGM 走远程包或分包」，与 `systems-index §3.12` 的 0 KB 选型冲突 ⇒ 按「先改文档再改代码」同批回写为 0 KB（程序化合成），并引本 ADR。
 - 2026-09-12 登记的「双 `AudioScheduler` 共享一个 backend」缺口**未关闭**：本 ADR 只扩工厂入参，`GameServices` 仍不暴露 backend。beads 继续以「单调度器 + 双逻辑通道」（BGM = loop clip 的 stop/重请求、SFX = 请求闸门）实现，该替代实现的行为由 `pause-settings.test.ts` / 本单的 A05-23 静音双通道用例机验。
-- A05-25 `[C]`（构建产物内音频文件数 = 0）与 A05-27 `[R]`（真机出声 / iOS 解锁 / 退后台恢复 / CPU）**本轮均未验**：`build:wx` 与 Cocos CLI 未接 CI，且无 AppID/真机。
+- A05-25 `[C]`（构建产物内音频文件数 = 0）与 A05-27 `[R]`（真机出声 / iOS 解锁 / 退后台恢复 / CPU）**本轮均未验**：`build:wx` 与 Cocos CLI 未接 CI，且无 AppID/真机。〔**2026-10-18 订正本条理由，不改 §4 结论**：① `build:wx` 是 2026-09-11 已删的死脚本名，现役 = `pnpm run build:cocos`（走编辑器自带 CLI，`--release` 实测 17.1s）⇒ **构建通道已可用**，不再构成「取不到证」的理由；② 且 **A05-25 的旧断言本身已作废**——`systems-index §3.9` v1.51 采样改判后，`audio-events.md:182` 已把「音频文件数 = 0 / 0 KB」标为 **v1.51 反转**，新断言 = BGM 文件数 ≤ 3 且总大小 ≤ 1536 KB（今日 release 产物日志显示 `audio/ 1 个文件 ≈ 0.69 MB`，与新断言同量级）⇒ 本行按旧口径写下的「产物内音频文件数 = 0 待验」已不是现役判据。⚠ **遗留冲突（不属本 ADR、待与音频面裁）**：`systems-index §3.9` v1.52 追加改判写「SFX 也改为素材文件（base64 资产表）」，而 `audio-events.md:182` 的 v1.52 二改写「SFX 侧仍零文件（合成路线不变）」——两处对 SFX 口径相反，本注不选边。③ **仍成立的一半** = A05-27 `[R]` 真机项（需真机 + AppID，不是缺构建）与「CI 未接构建」（产物被 `games/beads/cocos/.gitignore` 排除）。〕
 - `AudioBackend` 接口**未**新增 `unlock/suspend/resume`——它们是 `SynthAudioBackend` 的具体能力，由持有它的平台适配器调用。core 契约保持三方法（`play/stop/stopAll`），避免把 Web Audio 的生命周期形状强加给未来的其它 backend。
 
 ## 5. 复评触发条件（Review Triggers）
