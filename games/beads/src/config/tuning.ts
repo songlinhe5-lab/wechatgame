@@ -1243,11 +1243,11 @@ export const MENU_CTA_LABEL = { h: 56, fromTop: 0.42, aspect: 964 / 253 } as con
  * ponytail: 到头只乘一个系数、松手用三次缓出。手感不够再换曲线，别先加弹簧。
  */
 export const MENU_CAROUSEL = {
-    tapPx: 10,
-    pageFrac: 0.3,
-    flickPxPerMs: 0.6,
-    endFollow: 0.35,
-    snapMs: 180,
+  tapPx: 10,
+  pageFrac: 0.3,
+  flickPxPerMs: 0.6,
+  endFollow: 0.35,
+  snapMs: 180,
 } as const;
 /** 状态徽标 64² @x[538,602]，窗内偏移顶 y=142（玻璃区右上角、内缩 12；三态图形资产待裁 ⇒ 程序化占位）。 */
 export const MENU_BADGE = { x: 538, yOff: 142, d: 64 } as const;
