@@ -1,37 +1,21 @@
 # AGENTS.md — wechatgame 项目级 Agent 指引
 
 > 本文件是**项目常驻记忆层**：新开对话先读这里。
-> 已瘦身拆分（WXG-T-032）：只保留常驻铁律与触发条件；分节路由见 `ctx/ROUTES.md`。
+> 已瘦身拆分（WXG-T-032）：只保留常驻铁律与触发条件；分节路由见 `ctx/ROUTES.md`。四 IDE 路径表已于 2026-10-18（WXG-T-292）移 `docs/agent/routing.md`——本文件受 `ctx:check` **A 项硬上限**，往里加内容前先等量外移，⛔ 不要直接调阈值。
 
-## IDE 常驻指针（alwaysApply）
+## 常驻注入与长期笔记
 
-提示词正文正本：`my-rules/agents-md.md`（并集 frontmatter）。各 IDE 路径为相对符号链接，**不要**在 `.cursor/rules` 等处改摘要：
-
-| IDE | 链接路径 |
-|---|---|
-| Cursor | `.cursor/rules/agents-md.mdc` → `../../my-rules/agents-md.md` |
-| CodeBuddy | `.codebuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
-| WorkBuddy | `.workbuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
-| Qoder | `.qoder/rules/agents-md.md` → `../../my-rules/agents-md.md` |
-
-## 长期笔记 MEMORY（四 IDE 可索引）
-
-| 角色 | 路径 |
-|---|---|
-| **正本** | `memory/MEMORY.md`（日记：`memory/YYYY-MM-DD.md`） |
-| WorkBuddy | `.workbuddy/memory` → `../memory` |
-| CodeBuddy | `.codebuddy/memory` → `../memory` |
-| Qoder | `.qoder/memory` → `../memory` |
-| Cursor | `.cursor/memory/MEMORY.md`（入口指针；内容请读正本） |
+- **提示词正本** = `my-rules/agents-md.md`（每会话强制注入）；**长期笔记正本** = `memory/MEMORY.md`（日记 `memory/YYYY-MM-DD.md`）。各 IDE 路径均为相对符号链接，⛔ 不要在 `.cursor/rules` 等处改摘要。
+- **逐条路径表**（规则件 + 记忆件 × 四 IDE）→ `docs/agent/routing.md` §规则件与 MEMORY 件的四 IDE 落位；链接完整性由 `pnpm run check:links` 机械守。
 
 ---
 
 ## 1. 项目是什么
 
-- **pnpm monorepo**：共用框架 `packages/framework` + 每款游戏 `games/<game>/`（首款示例：`games/breakout`）。
+- **pnpm monorepo**：共用框架 `packages/framework` + 每款游戏 `games/<game>/`。
 - **目标平台**：微信小游戏为主；日常验证靠浏览器 harness（`dev/harness`），不依赖真机也能推进逻辑与渲染。
 - **引擎策略**：玩法与框架 core **引擎无关**，可在纯 Node 单测；Cocos 仅作适配/启动壳（见 ADR）。
-- **已知限制**：`build:wx` / Cocos Creator CLI 真机构建尚未接入；无编辑器时**禁止伪造** `.scene` / `.prefab` / `.meta`。接链时构建档 minify on / sourcemap off；关卡不加密（裁定见 levels-spec §5.0.3）。
+- **已知限制**：**构建可用** = `pnpm run build:cocos`（**默认即 release 基线档**，排错显式 `--debug`，判例 K-111）；缺真机/上传（AppID + 密钥）。⛔ 无编辑器禁止伪造 `.scene`/`.prefab`/`.meta`。细则见 `memory/MEMORY.md` §已知限制。
 
 ---
 
@@ -43,8 +27,7 @@
 | 单域交付物（GDD/UX/ADR/Epic/美术/QA/发布…） | 对应 `my-skills/wxgame-*`；清单 `my-skills/INDEX.md` |
 | 成员委派（SubAgent） | 正本 `my-agents/`；`subagent_type` = `<name>` |
 | 生成配乐 / UI 口播**文件** | `indie-game-ost-pack` / `game-ui-voice-pack`（先查 `wxgame-audio-spec` 事件表） |
-| Godot/Unity/Unreal 查漏 | 仅当用户**明确点名** `game-studio`（已 `disable-model-invocation`） |
-| 市场版「游戏开发助手免费版」 | **不用**；`game-dev-tool-free` 仅存档 |
+| Godot/Unity/Unreal 查漏 · 市场版「游戏开发助手免费版」 | 前者仅当用户**明确点名** `game-studio`（已 `disable-model-invocation`）；后者**不用**（`game-dev-tool-free` 仅存档） |
 | 四 IDE 路径 / skill 优先级细节 | `docs/agent/routing.md`（自本节迁出，WXG-T-032） |
 
 **主理人触发条件（条件式，非默认人格）**：
@@ -83,7 +66,7 @@
 3. 本仓 `wxgame-*` 方法论 > 外来通用 skill  
 4. 文档冲突先改文档再改代码；代码与 §3 冲突以 §3 为准并**登记漂移**
 
-包体：**平台红线**（微信主包 ≤4MB、主包+分包 ≤30MB）与**内部更紧目标**分清，勿混用。
+包体：**平台红线**（主包 ≤4MB、主包+分包 ≤20MB，资质未开通）与**内部更紧目标**分清，勿混用。
 
 ---
 
@@ -109,7 +92,7 @@
 
 ## 8. 分层阅读指引（已精简）
 
-分节阅读路由见 `ctx/ROUTES.md`（**第一跳**：意图 → 锚点）→ `ctx/hot-files.md`（**第二跳**：锚点 → `offset`/`limit` 速查，仅热文件与大文件，由 `pnpm run ctx:build` 生成）；细节见 `docs/agent/{repo-layout,commands,routing}.md`。
+第一跳 `ctx/ROUTES.md`（意图 → 锚点）→ 第二跳 `ctx/hot-files.md`（锚点 → `offset`/`limit`）；细节见 `docs/agent/{repo-layout,commands,routing}.md`。
 
 ---
 
@@ -120,4 +103,4 @@
   `knowledge/lessons.md` 只是指针页；引用一律写 **K-0NN**，不写文件路径。
 - **写**：收尾回传 0–3 条沉淀候选；`kb:sync` 的**沉淀统计（新增/修改/激活/归档）**必须摘入会话结论与台账。
 - 完整协议（记账/归档/激活与工具调用报告纪律）：`knowledge/INDEX.md §1/§2/§5`。
-- **读（memory）**：日志详情**只在四种触发下查** —— ① 改冻结常量/协议/裁定**前**（查当初为什么）② 接续未完成工作 ③ 追溯**用户原话与裁定** ④ 排障找**当初的确诊法**。入口 `memory/INDEX.md`（先 grep 任务号定位到节 → 再看「详情」列分流：未外移只读那一节，已外移改读 `memory/details/<…>.md`）；`MEMORY.md` 可常读。完整协议见 `memory/INDEX.md §1`。
+- **读（memory）**：日志详情**只在四种触发下查** —— ① 改冻结常量/协议/裁定**前**（查当初为什么）② 接续未完成工作 ③ 追溯**用户原话与裁定** ④ 排障找**当初的确诊法**。入口 `memory/INDEX.md`（定位到节 → 按该节「详情」列分流：已外移则读 `memory/details/<…>.md`）；`MEMORY.md` 可常读。完整协议见 `memory/INDEX.md §1`。

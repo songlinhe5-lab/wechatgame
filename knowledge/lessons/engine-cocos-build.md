@@ -29,10 +29,12 @@
   而 `verify` 之前是 21/0 全绿——被覆盖的是**唯一一份**包体基线证据，且旧数字无法逐文件复算。
   根因：构建脚本默认 `debug=true`（含 sourcemap、不压缩），而包体红线只对 release 有意义；产物目录是**覆盖式**输出，没有档名分区，也没有「覆盖前备份/比对」的步骤。
   规避：① 目标是**验证代码是否进产物** ⇒ 用 debug（保留注释与符号名，`grep <函数名>` 只剩注释命中即证明函数已删）；目标是**刷新基线证据** ⇒ 必须 `-- --release`；
+     ✅ **根因已拆（2026-10-18 · WXG-T-292）**：上条规避靠「人记得加旗标」，本批直接**把默认档翻成 release**（脚本现为 `DEBUG = argv.includes('--debug')`）⇒
+     「顺手重建」不再能刷掉基线；`--release` 保留为显式同义旗标（旧文书指令不会反转）；要 debug 必须显式，且跑前会打一行「将覆盖在册基线」警告。
   ② 跑前先看真相源 = `cocos/temp/logs/cli-build-<platform>-release.log` 的 mtime（比 `build/` 目录时间更能说明上一次是什么档）；
   ③ 用户报「改了但画面上还在」时，**第一步比 `build/` 与 `src/` 的 mtime**，别先怀疑漏删——产物时间戳早于源码 = 必然旧画面；
   ④ 覆盖后 `check:size` 若报「疑似 debug」（`cc.js` ≥ 2500 KB 启发）⇒ 先换 release 复测再谈治理，⛔ 不要按 debug 数字去动分包。
-  判例引用：`tools/scripts/build-cocos.mjs`（`RELEASE = argv.includes('--release')`，默认 debug）、`tools/scripts/check-bundle-size.mjs`（`debugSuspect` 启发 + K-089 内部目标口径）、`ADR-0030 §5.6`；同族 K-036/K-037（跑过 ≠ 检了）。
+  判例引用：`tools/scripts/build-cocos.mjs`（旧：`RELEASE = argv.includes('--release')`，默认 debug → 现：`DEBUG = argv.includes('--debug')`，默认 release，WXG-T-292）、`tools/scripts/check-bundle-size.mjs`（`debugSuspect` 启发 + K-089 内部目标口径）、`ADR-0030 §5.6`；同族 K-036/K-037（跑过 ≠ 检了）。
 
 - **[引擎Cocos构建][K-112] 异步资源的「只取一次」memo 要记 Promise，不能记「试过」标志位 + 结果槽**（来源 WXG-T-256 / ADR-0030 §5.6，2026-10-05）
   现象：载体 warmup 对四张 mask `Promise.all` 并发调 `ensureMaskBundle()`；该函数第一行 `_maskBundleTried = true` 后立刻返回，后三个调用方进来看见 flag 已置、结果槽还是 `null` ⇒ **当场拿到 `null`** 走「按 uuid 全局取」回退腿；而两张已离开 `main` 的资产在全局腿解不出 ⇒ 产物实测 `masks=2/4 carrier=off`（灰度闸明明打开，画面仍是矢量臂）。

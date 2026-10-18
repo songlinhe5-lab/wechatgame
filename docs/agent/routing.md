@@ -35,3 +35,27 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 `studio-orchestrator` 是**可召唤的 SubAgent**，不会自动占据主对话。主对话遵守上表即可；需要完整编排人格时再显式委派。
 
 > 注：上句「上表」指 `AGENTS.md` §2 的主理人触发条件表（原文逐字保留于此，WXG-T-032）。
+
+## 规则件与 MEMORY 件的四 IDE 落位
+
+> **迁出缘由**（2026-10-18 · WXG-T-292 瘦身续批）：`AGENTS.md` 受 `ctx:check` **A 项常驻硬上限**（见 `ctx/BUDGET.md` §1）约束，而这两张表是**逐条路径清单**：① always-on 规则件 `my-rules/agents-md.md` 已写明「四 IDE 规则路径均为指向本文件的相对符号链接」；② 链接存在性由 `pnpm run check:links` **机械守**（断链即红）。⇒ 常驻层只留结论与指针，路径表以本文为正本。（⚠ 本节故意不再开三级小标题：每个标题都会变成 `ctx/hot-files.md` 的一行锚点，而那张贴纸式的速查表也有体积硬门。）
+
+**一、提示词（always-on 规则件）** —— 正文正本 `my-rules/agents-md.md`（并集 frontmatter），**不要**在 `.cursor/rules` 等处改摘要：
+
+| IDE | 链接路径 |
+|---|---|
+| Cursor | `.cursor/rules/agents-md.mdc` → `../../my-rules/agents-md.md` |
+| CodeBuddy | `.codebuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
+| WorkBuddy | `.workbuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
+| Qoder | `.qoder/rules/agents-md.md` → `../../my-rules/agents-md.md` |
+
+**二、长期笔记 MEMORY（四 IDE 可索引）**
+
+| 角色 | 路径 |
+|---|---|
+| **正本** | `memory/MEMORY.md`（日记：`memory/YYYY-MM-DD.md`） |
+| WorkBuddy | `.workbuddy/memory` → `../memory` |
+| CodeBuddy | `.codebuddy/memory` → `../memory` |
+| Qoder | `.qoder/memory` → `../memory` |
+| Cursor | `.cursor/memory/MEMORY.md`（入口指针；内容请读正本） |
+

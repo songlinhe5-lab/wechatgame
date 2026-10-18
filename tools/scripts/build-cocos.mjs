@@ -33,7 +33,8 @@
  * ⇒ cwd 自带 game 身份（名字不歧义）、新增游戏零改根脚本。
  *
  * ── 用法 ────────────────────────────────────────────────────────────────
- *   node tools/scripts/build-cocos.mjs                       # 默认 platform=wechatgame
+ *   node tools/scripts/build-cocos.mjs                       # 默认 platform=wechatgame、**默认 release 档**
+ *   node tools/scripts/build-cocos.mjs --debug               # 调试档（sourcemap + 不压缩，包体数字不可作基线）
  *   node tools/scripts/build-cocos.mjs --platform=web-mobile # 手机浏览器预览用
  *   node tools/scripts/build-cocos.mjs --no-build            # 只做前置检查，不构建
  *   node tools/scripts/build-cocos.mjs --open-panel          # 改经 MCP 打开构建面板（不构建）
@@ -42,8 +43,8 @@
  * 退出码：0 = 成功；1 = 前置或构建失败；2 = 用法错误。
  */
 
-import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { basename, join, resolve } from 'node:path';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -71,10 +72,13 @@ const platform = argv.find((a) => a.startsWith('--platform='))?.slice('--platfor
 const NO_BUILD = argv.includes('--no-build');
 const OPEN_PANEL = argv.includes('--open-panel');
 /**
- * 默认 debug=true（便于看报错）。**测包体基线必须用 --release**——
- * debug 产物含 sourcemap 且不压缩，与 §3.8 的红线/目标没有可比性。
+ * 构建档：**默认 release**（= 包体基线档，minify on / sourcemap off）。
+ * 旧口径「默认 debug」已于 2026-10-18（WXG-T-292）翻面：debug 产物含 sourcemap 且不压缩，
+ * 与 §3 冻结的包体红线/目标无可比性，而产物目录是**覆盖式**输出——旧默认档下「顺手重建一次」
+ * 就把在册的 release 基线原地刷成不可基线数字，判例 K-111（WXG-T-256 自伤、WXG-T-271 首测误读 6246 KB）。
+ * ⇒ 要调试得显式 `--debug`；`--release` 保留为**显式 release**（与默认同果，旧指令 / 旧文书不会反转）。
  */
-const RELEASE = argv.includes('--release');
+const DEBUG = argv.includes('--debug') && !argv.includes('--release');
 
 /** 判定游戏：`--game=` 优先，否则取 cwd 的 basename（per-package 调用的正常路径）。 */
 const game = gameArg ? gameArg.slice('--game='.length) : basename(process.cwd());
@@ -161,17 +165,23 @@ if (OPEN_PANEL) {
 }
 
 const logDir = join(cocosDir, 'temp', 'logs');
-const logFile = join(logDir, `cli-build-${platform}${RELEASE ? '-release' : ''}.log`);
+const logFile = join(logDir, `cli-build-${platform}${DEBUG ? '-debug' : '-release'}.log`);
 mkdirSync(logDir, { recursive: true });
+
+if (DEBUG) {
+  console.log('');
+  console.log('  ⚠️  --debug：产物含 sourcemap 且不压缩 ⇒ **会覆盖在册的 release 基线产物**，');
+  console.log('     本档包体数字不可作基线（`check:size` 会报「疑似 debug」）；排错完成后不带参数重跑即可恢复基线档。');
+}
 
 console.log('');
 console.log(
-  `  🔨 命令行构建中（${platform}${RELEASE ? ' · release' : ' · debug'}）… 日志：${rel(logFile)}`,
+  `  🔨 命令行构建中（${platform}${DEBUG ? ' · debug' : ' · release'}）… 日志：${rel(logFile)}`,
 );
 const started = Date.now();
 const run = spawnSync(
   COCOS_APP,
-  ['--project', cocosDir, '--build', `platform=${platform};debug=${RELEASE ? 'false' : 'true'}`],
+  ['--project', cocosDir, '--build', `platform=${platform};debug=${DEBUG ? 'true' : 'false'}`],
   { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
 );
 const secs = ((Date.now() - started) / 1000).toFixed(1);
@@ -204,27 +214,72 @@ process.exit(0);
  * 或位于 `resources/`／声明为 bundle 的目录里的资源；BGM 这类「运行时用相对路径字符串
  * 交给平台原生播放器」的文件不在依赖图里 ⇒ 实测放 `assets/audio/` 构建后产物里 **0 个 mp3**
  * （真机因此完全没背景音乐）。
- * 约定：`games/<game>/audio/**` ⇒ `build/<platform>/audio/**`，运行时相对串保持 `audio/xxx.mp3`
- * 三端一致（harness 经 `dev/harness/audio` 符号链接读同一份真源，不复制第二份）。
+ * 约定：运行时相对串的唯一真源 = 游戏侧 voice 表的 `assetFile`（现值 `audio/bgm_porch.mp3`，
+ * 见 `games/beads/src/config/audio-voices.ts`）⇒ 本函数从它派生要拷哪些文件、拷到哪：
+ *   `games/<game>/audio/x.mp3` ⇒ `build/<platform>/<assetFile 相对串>`，三端一致
+ *   （harness 经 `dev/harness/audio` 符号链接读同一份真源，不复制第二份）。
+ * ⇒ **把 BGM 挑进分包 = 只改 `assetFile` 一处**（改成 `subpackages/audio/x.mp3`）：
+ *   装配目录、`game.json` 的 `subpackages[]` 声明、运行时路径、`check:size` 的分包识别全部自动跟上，
+ *   ⛔ 不会出现“路径改了、声明没改”这类分叉（今天 `game.json` 无 `subpackages` 字段 ⇒ 默认零行为变化）。
  * 体积会被 `check:size` 计入产物目录 ⇒ 包体红线自动守住，不靠人记。
  */
 function stageExtraAssets({ gameDir, productDir }) {
-  const srcDir = join(gameDir, 'audio');
-  if (!existsSync(srcDir)) return [];
-  const outDir = join(productDir, 'audio');
-  mkdirSync(outDir, { recursive: true });
-  const files = readdirSync(srcDir).filter((f) => /\.(mp3|m4a|wav|ogg)$/i.test(f));
+  /** 从 voice 表抽 `assetFile` 相对串（同 `check-cocos-mask.mjs` 解析 `MASK_ASSETS` 的做法）。 */
+  const voicesPath = join(gameDir, 'src', 'config', 'audio-voices.ts');
+  const rels = existsSync(voicesPath)
+    ? [...readFileSync(voicesPath, 'utf8').matchAll(/assetFile:\s*'([^']+)'/g)].map((m) => m[1])
+    : [];
+  if (rels.length === 0) return [];
+  const staged = [];
   let kb = 0;
-  for (const f of files) {
-    const src = join(srcDir, f);
-    if (!statSync(src).isFile()) continue;
-    copyFileSync(src, join(outDir, f));
+  for (const assetRel of rels) {
+    // 仓内正本恒在 `games/<game>/audio/<文件名>`（约定）；`assetFile` 只决定**产物落位**，
+    // 所以源路径按文件名解析，⛔ 不是按 `assetFile` 的目录前缀（分包前缀在仓内不存在）。
+    const src = join(gameDir, 'audio', basename(assetRel));
+    if (!existsSync(src)) {
+      console.log(`  ❌ 资产装配：${assetRel} 的正本不存在（期望 ${src}）⇒ BGM 不会进包，真机将回退合成路线`);
+      continue;
+    }
+    const dst = join(productDir, assetRel);
+    mkdirSync(dirname(dst), { recursive: true });
+    copyFileSync(src, dst);
     kb += statSync(src).size / 1024;
+    staged.push(assetRel);
   }
-  if (files.length > 0) {
-    console.log(`  📦 资产装配：audio/ ${files.length} 个文件 ≈ ${(kb / 1024).toFixed(2)} MB → ${rel(outDir)}`);
+  if (staged.length > 0) {
+    console.log(`  📦 资产装配：${staged.length} 个文件 ≈ ${(kb / 1024).toFixed(2)} MB → ${staged.join('、')}`);
   }
-  return files;
+  declareSubpackages(productDir, staged);
+  return staged;
+}
+
+/**
+ * 若装配件落在 `subpackages/<name>/` 下，把它补进产物 `game.json` 的 `subpackages[]`。
+ * 微信只认这份声明：不声明 ⇒ 文件在盘上但不算分包，也不会被按需下发。
+ * Cocos 自己生成的 `game.json` 不含本仓手工装配件 ⇒ 此处就地合并（只动 `subpackages` 键）。
+ */
+function declareSubpackages(productDir, stagedRels) {
+  const roots = new Map();
+  for (const rel of stagedRels) {
+    const m = /^(subpackages\/[^/]+)\//.exec(rel);
+    if (m) roots.set(m[1], m[1].slice('subpackages/'.length));
+  }
+  if (roots.size === 0) return;
+  const cfgPath = join(productDir, 'game.json');
+  let cfg = {};
+  try {
+    if (existsSync(cfgPath)) cfg = JSON.parse(readFileSync(cfgPath, 'utf8'));
+  } catch {
+    console.log('  ❌ game.json 解析失败 ⇒ 未写入 subpackages 声明（分包不会被按需下发）');
+    return;
+  }
+  const list = Array.isArray(cfg.subpackages) ? cfg.subpackages : [];
+  for (const [root, name] of roots) {
+    if (!list.some((s) => s?.root === root)) list.push({ name, root });
+  }
+  cfg.subpackages = list;
+  writeFileSync(cfgPath, JSON.stringify(cfg, null, 4));
+  console.log(`  📦 game.json 分包声明：${[...roots.keys()].join('、')}（运行时需 wx.loadSubpackage，见 framework/platform/weapp.ts）`);
 }
 
 // ─────────────────────────────────────────────────────────── 报告 ───────────
@@ -245,8 +300,8 @@ function printNextSteps({ cocosDir, gameDir, platform, productDir }) {
     console.log('');
     console.log('  微信小游戏后续：');
     console.log(`    · 包体校验：pnpm run check:size ${rel(productDir)}`);
-    console.log('      ⚠️ 包体数字只对 **release** 产物有意义：debug 含 sourcemap 且不压缩，');
-    console.log('         测基线请用 pnpm run build:cocos --release 后再跑 check:size。');
+    console.log('      本脚本**默认即 release 基线档**（minify on / sourcemap off）⇒ 直接跑 check:size 即可；');
+    console.log('      ⚠️ 若刚用过 `--debug`，包体数字不可作基线，需不带参数重跑一次再测。');
     console.log('    · 真机预览：微信开发者工具打开产物目录 —— 需 AppID + 上传密钥 + IP 白名单');
     console.log('      （密钥严禁入仓；见 control-manifest §10 / ADR-0010 §4.2-5）');
   } else {
@@ -315,7 +370,10 @@ function printHelp() {
   node tools/scripts/build-cocos.mjs [选项]
 
   --platform=<p>   构建平台，默认 wechatgame（可选 web-mobile / web-desktop）
-  --release        debug=false（**测包体基线必须用它**；默认 debug=true 含 sourcemap 且不压缩）
+  （默认即 **release** 基线档：minify on / sourcemap off，可直接跑 check:size）
+  --debug          debug=true（含 sourcemap、不压缩）——仅供看报错；**会覆盖在册 release 基线产物**，
+                   其包体数字不可作基线（旧口径「默认 debug」已于 WXG-T-292 翻面）
+  --release        显式 release（与默认同果，仅为兼容旧文书里的 build:cocos -- --release）
   --no-build       只做前置检查，不执行构建
   --open-panel     改经 MCP 打开编辑器构建面板（不执行 CLI 构建）
   --game=<name>    显式指定游戏（默认取 cwd 的 basename —— per-package 调用的正常路径）
@@ -323,7 +381,7 @@ function printHelp() {
 
 构建能力来源（两轮实测）：
   🚫 MCP 的 project_build_system 无构建 action（ADR-0009 §3.2 P2 偏差）
-  ✅ 编辑器自带 CLI：CocosCreator --project <proj> --build "platform=<p>;debug=true"
+  ✅ 编辑器自带 CLI：CocosCreator --project <proj> --build "platform=<p>;debug=false"
      实测 web-mobile 3.9s 成功；编辑器开着也可并存。
 
 多游戏调用：

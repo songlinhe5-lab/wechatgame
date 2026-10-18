@@ -347,8 +347,8 @@ pnpm run check:size                 # 阈值真源：games/beads/design/gdd/syst
 
 | 项 | 预期 | 依据 / 风险 |
 |---|---|---|
-| 主包体积 | 与 breakout **同量级**（≈1815 KB 的引擎 + 更小的业务代码） | 引擎模块集相同 ⇒ `cocos-js/` 应接近；beads 零位图美术（`assets-spec §3`：主包美术位图 0 KB）。**这是预测，不是实测** |
-| 内部目标 | 主包 ≤ **2000 KB**（红线 4096 / 合计 30720） | `games/beads/design/gdd/systems-index.md` §3.8/§3.9（beads 自己的真源，勿套用了 breakout 的数字） |
+| 主包体积 | 与 breakout **同量级**（≈1815 KB 的引擎 + 更小的业务代码） | 引擎模块集相同 ⇒ `cocos-js/` 应接近；beads 零位图美术（`assets-spec §3`：主包美术位图 0 KB）。**这是预测，不是实测**。⚠ **预测已过期**：菜单 / boss 位图集入库后主包实测 **3188.2 KB**（2026-10-18），且 §3.9 v1.51 起内部目标与红线合流 ⇒ 余量只剩 ≈908 KB（正本读数见 `design/art/specs/menu-showcase-asset-spec.md` §6） |
+| 包体红线 / 目标 | 主包红线 **4096 KB**；**总包红线 20480 KB**（体积扩展资质未开通那一档，开通后才是 30720 KB）；主包**内部目标按游戏分列**：beads **4096 KB**（§3.9 v1.51 起与红线合流）、breakout 2000 KB | `games/beads/design/gdd/systems-index.md` **§3.9**（beads 自己的真源，勿套用 breakout 的数字）；⚠ 本行旧记「主包 ≤ 2000 KB」已作废（beads 内部目标 = 4096 KB）；现状实测 = 主包 **3188.2 KB / 108 文件**（2026-10-18 `check:size`） |
 | **真机帧率** | **未知，且这次比 breakout 更重** | `architecture-beads.md` §8 **R1**。满格 13×12 时 `view-model` 产出 **≥1248 条指令/帧**（每珠 8 条：L0/L1/L2×2/L3×2/L4 + L5 符号）。**符号通道落地前每珠只有 2 条**，即 R1 的暴露面在 WXG-T-052 才真正变大 —— 这是本节最需要实测的一项，触发信号「真机 <30fps」 |
 | 文字居中 | 可能偏 | 缺口 G3（`_anchorForText` 用 `0.55` 估算宽度）在 breakout 侧**未闭环**；beads 的 HUD/面板文字同样走该路径 |
 | 玩法/手感 | 应无偏差 | 同一份 `RenderModel` 已在浏览器 harness 跑通（`?game=beads`），且 `harness:smoke` 已纳入 CI |

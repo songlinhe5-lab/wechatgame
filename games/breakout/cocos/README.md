@@ -230,7 +230,7 @@ export class BreakoutBootstrap extends Bootstrap {
 node tools/scripts/check-bundle-size.mjs games/breakout/build/wechatgame
 ```
 
-主包 > 4 MB 或主包+分包 > 30 MB 会**失败退出**。
+主包 > 4 MB 或主包+分包 > **20 MB** 会**失败退出**（总包红线按「体积扩展资质未开通」取，开通后才是 30 MB；真源 = `design/gdd/systems-index.md` §3.8 **v1.6**，2026-10-18 WXG-T-292）。
 
 ---
 

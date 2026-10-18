@@ -17,6 +17,7 @@
 - **知识沉淀正本已分片**（WXG-T-111）：条目正文在 `knowledge/lessons/<标签>.md`（工具链/流程/判据/测试/跨IDE/环境），`knowledge/lessons.md` 只是**指针页**；`ACTIVE_FILES` 动态枚举该目录 ⇒ 新标签建片即被采集，无需改码。引用条目**只写 K-0NN**（路径会跟布局漂），ID → 分片查 `knowledge/INDEX.md` 活跃表「分片」列；各片共用单份归档面，且同受 B 门约束、**不得加豁免**。
 - **领号认工作树，不认已提交头注**（K-046）：号池真身 = 工作树 ∪ HEAD ∪ 归档的全局最大号 +1；并发会话未提交的号段只在树里，照 `TASKS.md` 头注领号必撞。
 - git 仓库 2026-09-11 才初始化；首个提交 `8263e58` 只含 skill 路径，项目代码基线尚未提交。
+- **设计图 / 资源图格式统一 PNG**（2026-10-17 用户令）：小程序不支持 WebP。之后所有设计图到资源图的生成与落盘一律 `.png`（脚本输出、final 台账、交付清单）；已存在的 `.webp` 原件不回溯转换，除非用户另令。
 - 框架核心 `packages/framework/src/core` 禁止依赖 DOM / `cc` / `wx`，保证能在 Node 里单元测试。
 - Cocos 绑定 `packages/framework/src/adapters/cocos/bindings.ts` 不进入框架 barrel，不能由浏览器 harness 直接编译。
 - 浏览器验证器：`dev/harness` 通过 `tsconfig.harness.json` 单独编译为 ESM，用 `<script type="importmap">` 解析 `@wxgame/framework`。
@@ -57,4 +58,4 @@
 
 ## 已知限制
 - 需要安装 `@resvg/resvg-js` 到 WorkBuddy 托管 Node workspace：`cd ~/.workbuddy/binaries/node/workspace && npm install @resvg/resvg-js`。
-- 小游戏真机构建 `build:wx` 尚未接入 Cocos Creator CLI，目前由浏览器 harness 覆盖游戏逻辑与渲染验证。
+- **构建可用，上真机不可**（2026-10-18 订正本条旧文）：Cocos 构建走 `pnpm run build:cocos`（编辑器自带 CLI；默认 wechatgame，**默认即 release 基线档**（旧默认 debug 会覆盖在册基线产物，判例 K-111；2026-10-18 WXG-T-292 翻面，排错显式 `--debug`），2026-10-18 实测 17.1s）；缺的是**真机预览 / 上传**（微信开发者工具侧 AppID + 上传密钥，密钥严禁入仓）。旧文两个坑（留此作史证）：① 它引用的 `build:wx` 脚本已于 2026-09-11 删除，现役名 = `build:cocos`；② 「Cocos Creator CLI 尚未接入」是误记，2026-09-14（WXG-T-049）已实测推翻——**只有 MCP 通道不可**。环境事实真源 = `docs/engine-reference/cocos/VERSION.md`（带 2026-10-05 复核块；引用前先跑一次廉价复核，判例 K-096）。浏览器 harness 仍是不依赖真机的平常验证通道。**构建档定义**：release = minify on / sourcemap off（= 包体基线档）；**关卡不加密**（裁定 = `games/beads/design/levels/levels-spec.md` §5.0.3；本条自 AGENTS.md §1 因常驻预算外移至此，2026-10-18 WXG-T-292）。

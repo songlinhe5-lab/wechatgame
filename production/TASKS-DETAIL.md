@@ -3301,3 +3301,47 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **已入库两批**：立项回写 + 拆分 `3c889ac`；**EP14-S1 星级结算引擎** `435c8b0`（四臂判据 = `score-combo §8-1` 全绿；旧 v1.50「续时不封顶」与双条件选档用例按 K-053 **换形不删腿**；镜像同步核一致）。
 - **在册风险（拆分件 §5）**：R-1 既有用例锁旧语义 ⇒ 换形逐条对 §3.7 v1.78；R-2 总星数求和不得进 `update`（L5 热路径零分配）；R-3 闸门≠通关章两概念不得混用（S3 单列反例臂）；R-5 续时广告真机腿 `[待真机 + 待广告接入]` 不入本批硬门。
 - **台账补登说明（K-137 同型）**：本号此前只活在拆分件与提交信息里、主表无行（与 283/285/286/287/289 同一形态欠账）⇒ 由 WXG-T-290 收口批补登主表行 + 详情节 + `epics-beads.md` EP-14 三处（Epic 13→14 / Story 52→57 / `[Blocked]` 5→7）。
+
+## WXG-T-292
+
+> 工程·包体口径收口批（两个脚坑）｜主理人(Qoder)·程基岩域｜2026-10-18 用户选续任选项 **B**（两项均为欠账收口，非新功能）
+
+- **脚坑①：总包红线 30720 → 20480 KB（走 §3 变更单，三处同批）**。背景：门禁脚本一直在卡一条总包红线，但该值在 beads 侧**没有 §3 行**，只能挂 breakout §3.8，而那个 30720 本身是按「已开通微信体积扩展资质」写的假设值——用户 2026-10-10 已裁「**暂不开通体积扩展资质**」（正本 `ADR-0031 §1.3`，登记为待办的位置 = `menu-showcase-asset-spec §6`）。本批把它落定：
+  - 文档：`games/beads/design/gdd/systems-index.md` **§3.9 新增「总包红线」= 20480 KB**（v1.79，变更史登 `systems-index-changelog.md`）+ `games/breakout/design/gdd/systems-index.md` **§3.8 同值改冻**（v1.6，§6 追行）+ 两处待办登记就地核销（`menu-showcase-asset-spec §6`、`ADR-0031` 状态行/§1.3/§4.2 条 5）。
+  - 脚本：`tools/scripts/check-bundle-size.mjs` 的 `LIMITS.totalRedlineKb` 30720→20480，头注/报告行/`printHelp` 自动跟随（实跑已输出「主包+分包 ≤ 20480 KB」）。
+  - 自检 **A7**：改钉 `totalRedlineKb === 20480`；顺带把 **A5** 的越界样本从字面 30721 改为 `L.totalRedlineKb + 1` **派生**并补一条「恰好等于红线不报 fail」的边界臂——旧写法下次改值时会**恒绿**（断言只测一个更大的字面数，测不出阈值下移）。
+  - ⚠ **性质是收紧**（不是为新资产开额度）：今后超 20 MB 的包当场红；真开通资质需两游戏 §3 + 脚本同批改，⛔ 不得只改脚本。
+- **脚坑②：`build:cocos` 默认档由 debug 翻为 release**（K-111 根治）。旧行为：根/包内 `build:cocos` 默认 `debug=true`（sourcemap + 不压缩），而产物目录是覆盖式输出⇒ 一次「顺手重建」就把两游戏在册 release 基线刷成不可基线数字（已踩两次：WXG-T-256 自伤、WXG-T-271 首测误读 6246 KB）。`tools/scripts/build-cocos.mjs` 改动：
+  - `RELEASE = argv.includes('--release')` → **`DEBUG = argv.includes('--debug') && !argv.includes('--release')`** ⇒ 默认即基线档；`--release` 保留为同义旗标（旧文书/脚本里 20+ 处 `-- --release` 不会反转成 debug）。
+  - 显式 `--debug` 时构建前先打一行「会覆盖在册 release 基线产物、数字不可作基线」警告；日志名默认档仍 `cli-build-<platform>-release.log`（K-111 ② 的「看日志名定档」习惯不变），debug 档新开 `-debug` 后缀。
+  - 头注/用法块/`printNextSteps`/`printHelp` 四处口径同步；`AGENTS.md` §1 与 `memory/MEMORY.md` 已知限制行改写；K-111 条内补「根因已拆」注（旧规避靠人记旗标，本批改默认档）。
+- **实测（三腿闭环，不是纸面宣称）**：`pnpm --filter @wxgame/beads run build:cocos`（不带参数）→ 日志打「wechatgame · **release**」，15.1s 构建成功，`check:size` = **3188.2 KB / 108 文件**（与在册基线数字逐值相等 ⇒ 翻默认不改变产物形态）；再跑 `-- --debug` → 警告如期输出、6548.2 KB 且 `check:size` 自动标「⚠ 疑似 debug 档（数字不可作基线）」；**不带参数重跑即恢复**→ 回到 3188.2 KB（收口后基线仍在册，breakout 1890.3 KB 未被触动）。breakout 侧本轮只改脚本默认，未重建。
+- **未 commit**（用户未点名提交；工树含他会话在途改动）。**遗留**：① ~~引用面 15 个文件仍写 30720 / 「30 MB」~~ ✅ **同日续批已收敛（不另领号，见下「引用面收敛续批」）**；② `control-manifest §19`「向主包投放位图」红线正文仍未回改（ADR-0031 另单）；③ 真开通体积扩展资质时需回升 30720 的变更单（本批只做到与现裁定一致）。
+
+- **顺带发现并修的一处常驻文书失真**：`AGENTS.md` §4 原本写着「主包+分包 ≤30MB」（全仓最常被注入的一条口径，与 §3 真源冲突）⇒ 已改 20MB；因 `AGENTS.md` 有 `ctx:check` A 项**硬上限 2000 估算 tokens**（HEAD = 1989，上一在途批的「已知限制」改写已把它顶到 2241），本批按既定处置（**长说明移出常驻文件**）把构建细则/史证归位 `memory/MEMORY.md` §已知限制（含「构建档 = minify on / sourcemap off」与「关卡不加密 `levels-spec.md §5.0.3`」两条），当时工作树 **1995 tokens ✅ 过门**（余量只剩 5 ⇒ 引出续批二）。
+- **首批验证**：`pnpm run verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:size` OK、`test` 全量、`selftest:fast`）· `check:size:selftest` **20/20**（含改过的 A5/A7）· `check:tasks` OK（首跑因新增 backlog 行 178 字符 > 160 而红，已改短后转绿）· `check:links` OK · `ctx:build` + `ctx:check` **结构门 A/B/C/D/D2 + E3 全通过** · `node --check tools/scripts/build-cocos.mjs` OK。
+- **首批沉淀统计（kb:sync --task=WXG-T-292）**：**新增 0 / 修改 2 / 激活 0 / 归档 0** —— 修改 **K-089**（追记：一致性断言可钉字面，但**构造越界样本的那条必须从常量派生**，否则改值后恒绿；附「反事实自证」修法）与 **K-111**（注：默认档已翻为 release，「记得加 `--release`」这条规避升根因消除）；`kb:audit` 无归档候选、无相似命中。
+
+### 续批（同日 2026-10-18，不另领号）：包体红线引用面 15 文件收敛
+
+用户选下一步选项 1 ⇒ 把「只有 §3 是真源、其他地方不得再写旧数」这条落到实地。改法分三形：
+
+- **操作用的数值（直接换 20480 + 加「开通档 = 30720」注）**：`docs/agent/cocos-setup.md` §13.5、`docs/agent/commands.md`（`check:size` 行）、`games/beads/cocos/README.md`、`games/breakout/cocos/README.md`、两份 `assets-spec` §5、`production/release/release-checklist.md`、`wechat-submission.md`、`beads/release-checklist.md`（§1.2 前置声明 + §8 B 分包行）、`docs/architecture/architecture.md`（§1.2 硬约束表 + §5 分包行 + §5 阈值真源行）、`my-skills/wxgame-release-checklist/SKILL.md` 铁律①。
+- **原则修正**：`architecture.md` §5 那行一边写「本文件不复述数字」一边复述了 4096/30720/2000 ⇒ 改为**只指真源**（beads §3.9 / breakout §3.8）+ 一句旧值作废说明；SKILL 铁律①同时加「⛔ 不在本 skill 里写死」。
+- **四份 ADR 只加口径注不盲改数**（ADR-0001 / 0027 / 0028-explainer / 0030）：那里的 30 MB 是**论证用数值**（如「P3 全量 2104 色连分包都穿」），收紧到 20 MB 后结论**只会更强、不会翻转** ⇒ 就地加 `（⚠ 现行有效 = 20480 KB，WXG-T-292 注）`，原行文与结论不动。
+- **顺带核销的两类既存漂移**（只在本批已改的那几行里）：① 多处仍写「beads 主包内部目标 2000 KB」（§3.9 v1.51 已抬 4096、门禁已按游戏分列）；② `cocos-setup.md` 与 `beads/cocos/README.md` 仍写「beads 零位图美术 / 美术位图 0 KB」（菜单与 boss 位图已入库）⇒ 现况读数统一指向 `menu-showcase-asset-spec §6`（主包 3188.2 KB / 余量 907.8 KB），beads `assets-spec §5` 旧记 3422.2 / 673.8 同步刷新。
+- **未改的（按纪律）**：`memory/` 日记与 `memory/details/`、`production/archive/`、QA 历史报告、已入库的 TASKS-DETAIL 旧行——这些都是**史证**，不回改（AGENTS.md §4 与 backlog「历史报告不回改」同口径）。
+- **验证**：`check:links` / `check:tasks` / `ctx:build` + `ctx:check` 结构门与 E3 全绿（改动后重跑）；`grep -rn "30720|30 MB|30MB" docs games production my-skills tools` 逐条复查 ⇒ 残留命中均为「开通后才是…」口径句或史证位。**未 commit**。
+
+### 续批二（同日 2026-10-18，不另领号）：`AGENTS.md` 常驻预算瘦身
+
+用户选下一步选项 1 ⇒ 把 A 门余量从 **5 tok** 做到 **160 tok**（目标 ≥100）。**不删决策指引、不调阈值**，只做重复源搬运：
+
+- **重复源审计（动手前先查，否则会把路由改断）**：`grep -rn "AGENTS.md §"` 与 `ctx/ROUTES.md` 锚点表 ⇒ **§1/§2/§3/§4/§7/§9 都被外部按号引用**（ADR-0020/0022、QA 分册、`check-bundle-size.mjs` 头注等），这些节一律原位原名保留；无外部引用的只有顶部两张路径表与 §8 正文。
+- **外移（只搬不删）**：顶部「IDE 常驻指针」表 + 「长期笔记 MEMORY」表共 264 tok 逐字移入 [docs/agent/routing.md](../../docs/agent/routing.md) 新增节 §规则件与 MEMORY 件的四 IDE 落位（含**迁出缘由**：路径由 `check:links` 机械守、always-on 注入层已带同义摘要），AGENTS.md 原处只留两行结论 + 指针（新节名「常驻注入与长期笔记」）。routing.md 547 → 971 tok（上限 8000）。
+- **等量合并（不丢信息）**：§2 表内「Godot/Unity 查漏」与「市场版助手」两行合一（同一句结论在 always-on 规则件末尾已有）；§8 分层阅读压成一行（第一跳/第二跳语义不变）；§9 「读（memory）」保留**四种触发**、只把「grep 任务号/详情列」这类机械描述改为指向 `memory/INDEX.md §1` 正本。
+- **阈值本批不动（首批口径）**：`AGENTS.md` 的 A 项 2000 上限一字未改，只在文件头注写明「往里加内容前先等量外移，⛔ 直接调阈」——留下治理规则而不是留下游坑。（⚠ 本条后半已被下一段推翻：**hot-files 的上限本批确实调了**，仅 AGENTS.md 那道未动。）
+- **顺手拦下的提交前红（两个，均为真门非纸面）**：① **B 门：`knowledge/lessons/toolchain.md` 8244 > 8000** —— 新条目 K-141 把自己那片顶超。分片**不得走豁免**（`knowledge/INDEX.md §4` 硬规定）⇒ 处置 = 逐字节搬到同仓有余量的 `process.md`（行内标签由 `工具链` 改 `流程`，ID K-141 不回收）⇒ toolchain **7740** / process **7123**；`kb:sync` 报 **新增 0 / 修改 1（K-141）**，`kb:check` 八重校验通过。② **A 门：`ctx/hot-files.md` 尖峰** —— 已提交态 **5599 / 上限 5600（余量 1 tok）**，工作树实测 5689 ⇒ 任何会话改任一被索引 `.md` 就会把 pre-commit 打断。归因实测：本批只占 **16 tok**（routing.md +1 锚点），超额主体是在途批自然增量（model-matrix +2 标题、test-cases +24 行）。用户裁定 **上限 5600 → 5800（+3.6%）带留痕**：改 `tools/scripts/lib/context-index.mjs::LIMITS.hotFilesMaxTokens` 单处常量（门禁与生成器同源），注释内记「口径 + 用户裁定 + Task ID + 未还债 + 回落触发条件」。⚠ **诚实观察（不粉饰）**：抬阈后生成器会**自动多收录一个文件**（19 → 20）吃掉部分余量，默认态现 5766/5800（余 ≈34）⇒ 真正的修法仍是必收录集锚点瘦身，已挂待排表（T-262 前置「再涨先过 quality-lead 锚点瘦身裁定」本轮未执行，已当债登记）。
+- **沉淀统计（本续批，`kb:sync --task=WXG-T-292`）**：首轮 **新增 1（K-141）/ 修改 0**；因 B 门换片后再跑 ⇒ **新增 0 / 修改 1（K-141 → `流程` 片）**；全程无归档、无相似命中。
+- **验证（两种模式都跑，不只跑默认态）**：`ctx:build --working-tree` + `ctx:check --working-tree` 全绿（AGENTS 1897/2000 ・hot-files 5788/5800 ・ROUTES 7256/7500），再 `ctx:build` 默认态恢复（HEAD 锚定）+ `ctx:check` OK；`check:links` OK、`check:tasks` OK、`pnpm run verify` **PASS 22 / FAIL 0**；`kb:sync` 后 `kb:check` 八重校验与 `kb:audit` 无候选。**未 commit**。
+

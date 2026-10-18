@@ -19,7 +19,7 @@
 | 场景 | `assets/Main.scene`，节点 = 模板默认（`Canvas` / `Camera`）+ `GameRoot` | 与 breakout **节点集完全相同** |
 | 场景 uuid | `9683d2dd-7e97-4fe3-a54d-3e2ef554406a`（`assets/Main.scene.meta`） | 编辑器生成 |
 | 引擎模块集 | `settings/v2/packages/engine.json`：55 项中 **11 项 true**，与 breakout **逐项相同** | beads 的 `src/**` 按 L3 **不 import `cc`**；用到引擎能力的只有 `framework/adapters/cocos/**`，与 breakout **同一份适配器** |
-| 包体阈值 | 主包 ≤ 4096 / 合计 ≤ 30720 KB（红线）；主包 ≤ **2000 KB**（内部目标）；美术位图 **0 KB** | `games/beads/design/gdd/systems-index.md` §3.8/§3.9（**beads 自己的真源，勿套用 breakout 的数字**） |
+| 包体阈值 | 主包红线 ≤ 4096 / **总包红线 ≤ 20480 KB**（体积扩展资质**未开通**那一档；开通后才是 30720 KB）；主包内部目标 = **4096 KB**（§3.9 v1.51 起与红线合流，旧 2000 KB 自 2026-10-18 起只作美术侧自警线）；⚠ 美术位图**已非 0 KB**（菜单 / boss 位图集已入库，现况读数见 `design/art/specs/menu-showcase-asset-spec.md` §6） | `games/beads/design/gdd/systems-index.md` **§3.9**（**beads 自己的真源，勿套用 breakout 的数字**）；门禁 = `pnpm run check:size` |
 | 玩法逻辑 | 住在 `games/beads/src/`，**不在** `assets/` | L3 铁律：必须能在纯 Node 下单测 |
 
 ---

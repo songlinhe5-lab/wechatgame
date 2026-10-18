@@ -7,11 +7,17 @@
  *    在仓库中均不存在。此为独立缺陷。」
  *
  * ── 阈值真源（一个字都不改，改前先改 §3）─────────────────────────────────
- *   `games/breakout/design/gdd/systems-index.md` §3.8「包体预算」(❄️ 冻结令)
- *     ① 平台红线：主包 ≤ 4096 KB ｜ 主包 + 分包 ≤ 30720 KB   → 超限 FAIL
- *     ② 内部目标：demo 主包合计 ≤ 2000 KB                    → 超目标 WARN（不阻断）
- *   分层口径由 `architecture.md` §2 约束表 / ADR-0001 背书；「红线 vs 目标勿混用」
- *   见 §3.8 末尾的「口径提醒」。**禁止**把 2000 当红线、也**禁止**把 4096 当目标。
+ *   平台红线两家相同（微信硬约束）：主包 ≤ 4096 KB ｜ 主包 + 分包 ≤ 20480 KB  → 超限 FAIL
+ *   ⚠ 总包红线取的是「**未开通体积扩展资质**」那一档（用户 2026-10-10 裁「暂不开通」，ADR-0031 §1.3）。
+ *     旧值 30720 KB（30 MB）= 开通后的上限，**不是我们现在能花到的额度**；真开通需两游戏 §3 同批改 + 本值同批改，
+ *     ⛔ 不得只改脚本（否则「门 ↔ 文档」分叉，K-036 同族）。总包**不按游戏分列**（两家同一账号约束）。
+ *   **内部目标按游戏分列**（各自 §3 冻结值，⛔ 不是一张全局表）：
+ *     · `beads`    = **4096 KB**（`games/beads/.../systems-index.md` §3.9，**v1.51** 用户 2026-09-23 裁「上限增加到 4 MB」
+ *       ⇒ 与红线合流 ⇒ 该游戏**不再有 WARN 缓冲**，只剩红线一道牙）
+ *     · 其余（`breakout` 等）= **2000 KB**（`games/breakout/.../systems-index.md` §3.8，自设更严、「留 ≥2000 KB 安全余量」）
+ *   分层口径由 `architecture.md` §2 约束表 / ADR-0001 背书；「红线 vs 目标勿混用」见 §3.8 末尾「口径提醒」。
+ *   ⚠ 两个方向都犯过：目标做成全局 2000 ⇒ 对 beads 常红（它已裁定抬到 4096）；做成全局 4096 ⇒ 替 breakout
+ *     撤销它的自设目标。故本表按游戏取值，**新增游戏自动走 default**。
  *
  * ── 体积口径（本脚本的裁定 + 一处已登记的文档偏差）───────────────────────
  *   · 判定基准 = **原始字节（raw）**。微信平台按上传文件的实际大小卡口，
@@ -64,12 +70,18 @@ import { tmpdir } from 'node:os';
 /** 1 KB = 1024 B（与 §3.8 的「4096 KB（4 MB）」自洽） */
 const KB = 1024;
 
-/** 阈值真源：systems-index §3.8。单一常量表，禁止在别处再写一份数字。 */
+/** 阈值真源：红线 = 微信硬约束（两家相同）；内部目标 = 各游戏自己的 §3 冻结值。禁止在别处再写一份数字。 */
 const LIMITS = Object.freeze({
   mainRedlineKb: 4096,
-  totalRedlineKb: 30720,
-  mainTargetKb: 2000,
+  /** 总包 = 未开通体积扩展资质档（beads §3.9 v1.79 / breakout §3.8 v1.6，WXG-T-292）；开通后才是 30720。 */
+  totalRedlineKb: 20480,
+  /** beads 按 §3.9 v1.51 = 4096（与红线合流）；其余游戏守 §3.8 的 2000。 */
+  mainTargetKb: { beads: 4096, default: 2000 },
 });
+/** 按游戏取内部目标（未知游戏 / 无游戏名 ⇒ default）。 */
+export function targetKbOf(game, limits = LIMITS) {
+  return limits.mainTargetKb[game ?? ''] ?? limits.mainTargetKb.default;
+}
 
 const argv = process.argv.slice(2);
 if (argv.includes('-h') || argv.includes('--help')) {
@@ -150,9 +162,9 @@ for (const dir of found) {
   const ccJsKb = ccJs ? ccJs.size / 1024 : 0;
   const debugSuspect = ccJsKb >= 2500;
 
-  const verdict = judge({ mainBytes: main.raw, totalBytes });
+  const verdict = judge({ mainBytes: main.raw, totalBytes, game: gameOf(dir, ROOT) });
   if (verdict.fail.length) anyFail = true;
-  results.push({ dir: rel(dir), subSource, main, subs, totalBytes, verdict, ccJsKb, debugSuspect });
+  results.push({ game: gameOf(dir, ROOT) ?? rel(dir), dir: rel(dir), subSource, main, subs, totalBytes, verdict, ccJsKb, debugSuspect });
 }
 
 /** ── 报告 ─────────────────────────────────────────────────────────────── */
@@ -160,9 +172,9 @@ const status = overallStatus({ anyFail, missing });
 if (JSON_OUT) {
   console.log(JSON.stringify({ status, limits: LIMITS, results, covered: [...covered], missing }, null, 2));
 } else {
-  console.log('包体校验（微信小游戏）— 阈值真源 systems-index §3.8');
+  console.log('包体校验（微信小游戏）— 阈值真源 = 各游戏自己的 systems-index §3');
   console.log(`  红线：主包 ≤ ${LIMITS.mainRedlineKb} KB ｜ 主包+分包 ≤ ${LIMITS.totalRedlineKb} KB`);
-  console.log(`  目标：主包合计 ≤ ${LIMITS.mainTargetKb} KB（比红线更严，程序侧按此做）`);
+  console.log(`  目标：内部目标按游戏各自 §3 取值（beads ${LIMITS.mainTargetKb.beads} KB ｜ 其余 ${LIMITS.mainTargetKb.default} KB；未单列的游戏走 default）`);
   console.log('  口径：判定用**原始字节**；gzip 仅供参考（逐文件求和，估算）');
   console.log('');
   for (const r of results) {
@@ -183,10 +195,24 @@ if (JSON_OUT) {
     } else if (r.verdict.warns.length) {
       console.log(`  ⚠️ 超内部目标：${r.verdict.warns.join('；')}`);
     } else {
-      console.log(`  ✅ 达标（主包 ${r.verdict.mainKb.toFixed(1)} KB ≤ 内部目标 ${LIMITS.mainTargetKb} KB）`);
+      console.log(`  ✅ 达标（主包 ${r.verdict.mainKb.toFixed(1)} KB ≤ 内部目标 ${r.verdict.targetKb} KB）`);
     }
     console.log('');
   }
+  // 单行摘要：逐游戏一行、**行首 = 游戏名** ⇒ 可安全 `tail` / `grep`。
+  // 动因（判例 K-140）：`check:size` 逐 `games/*` 报，取数人习惯 `tail` 拿末行 ⇒
+  //   会把最后一个游戏（breakout）的读数当成 beads。本仓 2026-10-05 已为同型错误自纠过一次
+  //   （`production/archive/TASKS-DETAIL-archive.md:4091`），2026-10-18 重现 ⇒ 改输出形状而不是改人。
+  console.log('单行摘要（行首 = 游戏名；⛔ 只取末行会读到最后一个游戏，不是 beads）：');
+  for (const r of results) {
+    const head = r.verdict.fail.length ? '❌ 超红线' : r.verdict.warns.length ? '⚠️ 超内部目标' : '✅ 达标';
+    console.log(
+      `  ${r.game.padEnd(9)} 主包 ${r.verdict.mainKb.toFixed(1)} KB / ${r.main.count} 文件 ｜ ${head}` +
+      ` ｜ 距 ${LIMITS.mainRedlineKb} KB 红线余量 ${(LIMITS.mainRedlineKb - r.verdict.mainKb).toFixed(1)} KB` +
+      `${r.debugSuspect ? ' ｜ ⚠ 疑似 debug 档（数字不可作基线）' : ''}`,
+    );
+  }
+  console.log('');
   if (anyFail) {
     console.log('❌ 包体校验 FAILED —— 超平台红线，**不可上线**。');
     if (results.some((r) => r.debugSuspect)) {
@@ -243,9 +269,10 @@ function listGames() {
  * 判定（纯函数，可单测）：**只判 §3.8 的两条红线 + 一条内部目标**，不做分项。
  * 返回值语义：fail 非空 = 超红线（阻断）；warns 非空 = 红线内但超目标（提示）。
  */
-export function judge({ mainBytes, totalBytes, limits = LIMITS }) {
+export function judge({ mainBytes, totalBytes, game = null, limits = LIMITS }) {
   const mainKb = mainBytes / KB;
   const totalKb = totalBytes / KB;
+  const targetKb = targetKbOf(game, limits);
   const fail = [];
   if (mainKb > limits.mainRedlineKb) {
     fail.push(`主包 ${mainKb.toFixed(1)} KB > 平台红线 ${limits.mainRedlineKb} KB`);
@@ -254,10 +281,10 @@ export function judge({ mainBytes, totalBytes, limits = LIMITS }) {
     fail.push(`主包+分包 ${totalKb.toFixed(1)} KB > 平台红线 ${limits.totalRedlineKb} KB`);
   }
   const warns = [];
-  if (fail.length === 0 && mainKb > limits.mainTargetKb) {
-    warns.push(`主包 ${mainKb.toFixed(1)} KB > 内部目标 ${limits.mainTargetKb} KB`);
+  if (fail.length === 0 && mainKb > targetKb) {
+    warns.push(`主包 ${mainKb.toFixed(1)} KB > 内部目标 ${targetKb} KB（${game ?? 'default'} · §3 冻结值）`);
   }
-  return { mainKb, totalKb, fail, warns, ok: fail.length === 0 };
+  return { mainKb, totalKb, targetKb, fail, warns, ok: fail.length === 0 };
 }
 
 // ─────────────────────────────────────────────────────────── 测量 ───────────
@@ -359,7 +386,7 @@ function runSelftest() {
     assert(
       'A2 超目标未超红线 → ok 且有 warn',
       judge({ mainBytes: 2500 * KB, totalBytes: 2500 * KB }).ok === true &&
-        judge({ mainBytes: 2500 * KB, totalBytes: 2500 * KB }).warns.length === 1,
+      judge({ mainBytes: 2500 * KB, totalBytes: 2500 * KB }).warns.length === 1,
     );
     assert('A3 主包超红线 4096 → fail', judge({ mainBytes: 4097 * KB, totalBytes: 4097 * KB }).fail.length === 1);
     assert(
@@ -367,14 +394,22 @@ function runSelftest() {
       !judge({ mainBytes: 4096 * KB, totalBytes: 4096 * KB }).fail.some((m) => m.includes('主包')),
     );
     assert(
-      'A5 主包小但主包+分包 30721 → fail（合计红线独立生效）',
-      judge({ mainBytes: 1000 * KB, totalBytes: 30721 * KB }).fail.some((m) => m.includes('主包+分包')),
+      'A5 主包小但主包+分包越总包红线 → fail（合计红线独立生效；越界量按红线派生，⛔ 不钉字面数）',
+      judge({ mainBytes: 1000 * KB, totalBytes: (L.totalRedlineKb + 1) * KB }).fail.some((m) => m.includes('主包+分包'))
+      && judge({ mainBytes: 1000 * KB, totalBytes: L.totalRedlineKb * KB }).fail.length === 0,
     );
     assert(
       'A6 超红线时不再报目标 warn（避免噪声）',
       judge({ mainBytes: 5000 * KB, totalBytes: 5000 * KB }).warns.length === 0,
     );
-    assert('A7 阈值表与 §3.8 一致', L.mainRedlineKb === 4096 && L.totalRedlineKb === 30720 && L.mainTargetKb === 2000);
+    assert('A7 阈值表与各游戏 §3 冻结值一致', L.mainRedlineKb === 4096 && L.totalRedlineKb === 20480
+      && L.mainTargetKb.beads === 4096 && L.mainTargetKb.default === 2000
+      && targetKbOf('beads') === 4096 && targetKbOf('breakout') === 2000 && targetKbOf(null) === 2000);
+    assert(
+      'A8 beads 目标已抬到 4096 ⇒ 2500–4096 区间不再报 WARN（而 breakout 仍报）',
+      judge({ mainBytes: 2500 * KB, totalBytes: 2500 * KB, game: 'beads' }).warns.length === 0
+      && judge({ mainBytes: 2500 * KB, totalBytes: 2500 * KB, game: 'breakout' }).warns.length === 1,
+    );
 
     // §B 测量 + 分包识别（真文件，尺寸刻意做小）
     const p1 = join(tmp, 'no-sub');
@@ -460,9 +495,10 @@ function printHelp() {
   --selftest    桩自测（临时目录 + 合成数值，不碰真产物）
   -h, --help    本帮助
 
-阈值（真源 games/breakout/design/gdd/systems-index.md §3.8，改前先改 §3）：
-  平台红线  主包 ≤ 4096 KB ｜ 主包 + 分包 ≤ 30720 KB   → 超限 exit 1
-  内部目标  主包合计 ≤ 2000 KB                          → 超目标仅 warn
+阈值（真源 = 各游戏自己的 systems-index §3：beads §3.9 / breakout §3.8；改前先改对应 §3）：
+  平台红线  主包 ≤ 4096 KB ｜ 主包 + 分包 ≤ 20480 KB   → 超限 exit 1
+            （总包 = **未开通体积扩展资质** 那一档；开通后才是 30720 KB，需两游戏 §3 与本值同批改）
+  内部目标  按游戏各自 §3 取值（beads 4096 ｜ 其余 2000 KB）  → 超目标仅 warn
 
 口径：
   · 判定用**原始字节**（微信按上传文件实际大小卡口）；gzip 仅参考展示。

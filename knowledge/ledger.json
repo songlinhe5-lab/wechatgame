@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 138,
+  "nextId": 142,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1458,7 +1458,7 @@
       "file": "knowledge/lessons/testing-guard.md",
       "category": "测试守卫",
       "title": "守卫脚本硬编码的目标值与冻结真源脱钩 ⇒ 断言永不触发（假绿守卫）；投放重物前要先实测「守卫能不能红」",
-      "contentHash": "c95fe9b1a626bfabdc67dce50e62e0d3da6220be2cf6eebf336b7afceddbdf3c",
+      "contentHash": "0c424944cfbc01a9828cd5ea9361955c80a122f1eb67e318d4a313ddda7d417b",
       "sourceTask": "WXG-T-219",
       "addedDate": "2026-09-27",
       "lastAccess": "2026-09-27",
@@ -1832,7 +1832,7 @@
       "file": "knowledge/lessons/engine-cocos-build.md",
       "category": "引擎Cocos构建",
       "title": "「顺手重建产物」前先确认构建档：脚本默认档（debug）≠ 门禁基线档（release）⇒ 一次重建就能原地覆盖在册产物并把包体门禁打红",
-      "contentHash": "0472e277c078343f77e0c43fb3d87ae79aca0c8592c365131f88a97bcbab55fe",
+      "contentHash": "d331913d0dfae18346aea13754954241a6fced73676b527a01ccc667d526a7bb",
       "sourceTask": "WXG-T-256",
       "addedDate": "2026-10-05",
       "lastAccess": "2026-10-06",
@@ -2282,6 +2282,74 @@
       "sourceTask": "WXG-T-284",
       "addedDate": "2026-10-17",
       "lastAccess": "2026-10-17",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-138",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-image.md",
+      "category": "工具链图像",
+      "title": "i2i 的 denoise 是「风格 ↔ 结构」单调权衡，且不承载离散状态语义 ⇒ 状态位必须程序化重画",
+      "contentHash": "d01930036802579da07c52626ccc8e0c50ec62c7398ad600ccd3ab82a97a32a4",
+      "sourceTask": null,
+      "addedDate": "2026-10-18",
+      "lastAccess": "2026-10-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-139",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "交付格式的判据是「目标运行时能不能解码」，压缩率不构成选型依据；带「未验证前提」的格式裁定不得进产线口径",
+      "contentHash": "d44b2670a90f1be9dded6a9320624ba10ab7c55b5372d80f0a1d86eafbc976b2",
+      "sourceTask": null,
+      "addedDate": "2026-10-18",
+      "lastAccess": "2026-10-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-140",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure.md",
+      "category": "判据实测",
+      "title": "逐对象输出的工具，取数必须按对象名锚定；`tail` 取末行会把最后一个对象的读数当成第一个",
+      "contentHash": "9c5c8be0ec13a050324c91a8b98b403dab2ca8bb2f77704d3e73a196d25cf0d5",
+      "sourceTask": null,
+      "addedDate": "2026-10-18",
+      "lastAccess": "2026-10-18",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-141",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "常驻文件顶到 token 硬门时的处置顺序：先搬「已被机械守卫或强制注入层重复」的内容，⛔ 不是删决策指引、也不是调阈值",
+      "contentHash": "3e71e32b267c55738f81b6c3ce63d5eac0c3284bbf501ef38ca6ca86ae9d5163",
+      "sourceTask": "WXG-T-292",
+      "addedDate": "2026-10-18",
+      "lastAccess": "2026-10-18",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -3377,6 +3445,53 @@
       "kind": "updated",
       "ids": [
         "K-137"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-18",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-138",
+        "K-139"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-18",
+      "taskId": null,
+      "kind": "added",
+      "ids": [
+        "K-140"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-18",
+      "taskId": "WXG-T-292",
+      "kind": "updated",
+      "ids": [
+        "K-089",
+        "K-111"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-18",
+      "taskId": "WXG-T-292",
+      "kind": "added",
+      "ids": [
+        "K-141"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-18",
+      "taskId": "WXG-T-292",
+      "kind": "updated",
+      "ids": [
+        "K-141"
       ],
       "note": null
     }
