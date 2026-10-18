@@ -3356,3 +3356,14 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **钩子与提交后复验**：commit-msg commitlint 通过（header 56 字、body 最长 79 字、含 WXG-T-292）；pre-commit 实跑 check:secrets → check:links → ctx:build --staged-blobs → 重暂存 ctx 三产物 + memory/INDEX.md → ctx:check --staged **OK**；提交后再跑 `kb:check` 八重校验 / `ctx:check` / `check:tasks` 全绿。
 - **台账订正**：本行状态由「已落码、未 commit」改为「已提交 `efe179a`（develop，未 push）」；领号注仍按工作树全局最大号维护，下一可用号 **WXG-T-293**。
 
+## WXG-T-291
+
+> beads·交付格式统一 PNG + 菜单纹理归属腿（BD-61）｜原会话在途未提交 ⇒ **2026-10-18 由 WXG-T-292 会话代收口**（用户选下一步选项 2 授权）｜未 push
+
+- **代收口的边界（先说清哪些不是我做的）**：七笔提交均**逐字携带原会话的工作树内容**，本会话只改了两处台账与本节，⛔ 未改动其实现/资产/文案；拆成七笔只为让每笔能单独回滚。拆组依据 = 文件集互斥且各自自洽（分包腿 / BGM 体积 / 格式换代 / 机检门 / QA 入账 / 原型脚本 / 元数据）。
+- **七笔**：`07f92b3` feat(framework) BGM 分包预载腿（+4 行为判据，默认关、零行为变化）· `c82fd0e` perf(beads) BGM 96→64 kbps（703.8→469.2 KB，接缝跳变 1.0×→0.3×，40 s 档实测否决）· `08ca944` build(beads) PNG 统一（20 件 webp 退役 + harness `MENU_FILE` 改指 + 资产台账订正）· `d9c56d4` test(tools) `check-cocos-mask` 第三腿「菜单纹理归属」+ 假绿哨兵改 `null` + `quantize-cocos-textures.py` 新配方 · `0d9fe43` docs(qa) BD-61 入账（P2 维持）+ 顶栏取证两条硬事实 · `27c1310` docs(beads) 选关弹框原型脚本 + i2i denoise 分档 · `3fb7c63` chore(beads) 两份编辑器生成的 `.ts.meta`。
+- **入库前逐件查过的三件事**：① **零断链**：harness 引用的 24 件图在暂存索引中全部存在（防「删 webp 改指 PNG 但 PNG 未入库」）；② **零隐性依赖**：新 `stageExtraAssets` 从 `audio-voices.ts::assetFile` 派生，HEAD 该行已在 ⇒ BGM 进包腿不依赖未提交改写；③ **镜像不漂**：`framework:sync:check` 在 pre-commit ①¾ 实跑绿（weapp.ts 三份 + audio-voices 两份同批）。
+- **故意没提的（重要，留给归属会话）**：① 6 个**纯缩进重排**件（`games/beads/src/config/{arcs,tuning}.ts` + `tests/{arcs,stars-tier}.test.ts` + 两份镜像）——`git diff -w` 行数均为 **0** ⇒ 按 K-045 / WXG-T-290 先例不代提，原样留在工作树；② `games/beads/design/ai-workflows/bench/`（i2i denoise 抽卡对照图 **52 MB** / 39 张）——⚠ 需你或原会话裁定「入仓 / `.gitignore` / 压缩后入」，本会话不代做这个决定。
+- **体积代价已记账**：`08ca944` 把 5 张原型图从 webp 换成 PNG ⇒ 设证图目录 +≈8 MB（游戏包体不受影响，这些不在构建依赖图里）；若只想让「上架资产」走 PNG、原型图保留 webp，需另裁（现裁定是「一律 PNG」）。
+- **未验/未闭环**：真机 `wx.loadSubpackage` 未跑（需 AppID + 密钥）；分包开关仍默认关（`audio/…`）；`audio-spec` 自己登记的三条未达成（三首同长 40 s / 接缝真听 / 响度校准）仍开；BD-33 仅推进两件。
+
