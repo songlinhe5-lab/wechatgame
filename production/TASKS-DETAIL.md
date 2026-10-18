@@ -3316,7 +3316,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
   - 显式 `--debug` 时构建前先打一行「会覆盖在册 release 基线产物、数字不可作基线」警告；日志名默认档仍 `cli-build-<platform>-release.log`（K-111 ② 的「看日志名定档」习惯不变），debug 档新开 `-debug` 后缀。
   - 头注/用法块/`printNextSteps`/`printHelp` 四处口径同步；`AGENTS.md` §1 与 `memory/MEMORY.md` 已知限制行改写；K-111 条内补「根因已拆」注（旧规避靠人记旗标，本批改默认档）。
 - **实测（三腿闭环，不是纸面宣称）**：`pnpm --filter @wxgame/beads run build:cocos`（不带参数）→ 日志打「wechatgame · **release**」，15.1s 构建成功，`check:size` = **3188.2 KB / 108 文件**（与在册基线数字逐值相等 ⇒ 翻默认不改变产物形态）；再跑 `-- --debug` → 警告如期输出、6548.2 KB 且 `check:size` 自动标「⚠ 疑似 debug 档（数字不可作基线）」；**不带参数重跑即恢复**→ 回到 3188.2 KB（收口后基线仍在册，breakout 1890.3 KB 未被触动）。breakout 侧本轮只改脚本默认，未重建。
-- **未 commit**（写至本句时用户未点名提交；工树含他会话在途改动）⇒ **后由同日续批三以 `efe179a` 入库（develop，未 push）**。**遗留**：① ~~引用面 15 个文件仍写 30720 / 「30 MB」~~ ✅ **同日续批已收敛（不另领号，见下「引用面收敛续批」）**；② `control-manifest §19`「向主包投放位图」红线正文仍未回改（ADR-0031 另单）；③ 真开通体积扩展资质时需回升 30720 的变更单（本批只做到与现裁定一致）。
+- **未 commit**（写至本句时用户未点名提交；工树含他会话在途改动）⇒ **后由同日续批三以 `efe179a` 入库**（现 `efe179a` + `56839f0` 均已在 origin/develop；推送非本会话发起，见 `## WXG-T-291`）。**遗留**：① ~~引用面 15 个文件仍写 30720 / 「30 MB」~~ ✅ **同日续批已收敛（不另领号，见下「引用面收敛续批」）**；② `control-manifest §19`「向主包投放位图」红线正文仍未回改（ADR-0031 另单）；③ 真开通体积扩展资质时需回升 30720 的变更单（本批只做到与现裁定一致）。
 
 - **顺带发现并修的一处常驻文书失真**：`AGENTS.md` §4 原本写着「主包+分包 ≤30MB」（全仓最常被注入的一条口径，与 §3 真源冲突）⇒ 已改 20MB；因 `AGENTS.md` 有 `ctx:check` A 项**硬上限 2000 估算 tokens**（HEAD = 1989，上一在途批的「已知限制」改写已把它顶到 2241），本批按既定处置（**长说明移出常驻文件**）把构建细则/史证归位 `memory/MEMORY.md` §已知限制（含「构建档 = minify on / sourcemap off」与「关卡不加密 `levels-spec.md §5.0.3`」两条），当时工作树 **1995 tokens ✅ 过门**（余量只剩 5 ⇒ 引出续批二）。
 - **首批验证**：`pnpm run verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:size` OK、`test` 全量、`selftest:fast`）· `check:size:selftest` **20/20**（含改过的 A5/A7）· `check:tasks` OK（首跑因新增 backlog 行 178 字符 > 160 而红，已改短后转绿）· `check:links` OK · `ctx:build` + `ctx:check` **结构门 A/B/C/D/D2 + E3 全通过** · `node --check tools/scripts/build-cocos.mjs` OK。
@@ -3354,11 +3354,13 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **连带入库（已在提交信息里逐项声明，⛔ 不默认静默携带）**：① 同日「包体口径收口批」的脚本腿与文档行（`targetKbOf` 按游戏分列 + A8、`stageExtraAssets`/`declareSubpackages` 分包腿、§3.9 内部目标行、AGENTS/MEMORY 构建事实订正、`architecture.md` §9、ADR-0027 订正注、`menu-showcase-asset-spec` 现状行）——理由 = 与本批**同文件同表同行**，拆行会产出「文档改了、脚本没改」的中间态（正是本批在修的门↔文档分叉）；② 291 会话的三条沉淀 **K-138/139/140**（`criteria-measure` / `environment` / `toolchain-image`）——理由 = `knowledge/ledger.json` 与 `INDEX`/`CHANGELOG` 是**整层产物**，缺 markdown 则 `kb:check` 的 ledger↔markdown 双向一致必红（先试过只回退这三件重跑 `kb:sync`，实测它不剪旧账 ⇒ “my-only 产物”在不手改产物的前提下不可造）。
 - **依赖排查（避免提交后真机侧隐性回归）**：新 `stageExtraAssets` 改从 `audio-voices.ts::assetFile` 派生拷贝清单 ⇒ 核 HEAD 该行已在（`assetFile: 'audio/bgm_porch.mp3'`）⇒ BGM 装配腿不依赖 291 未提交的那份改写；本次也未暂存 `packages/framework/src/**` ⇒ pre-commit ①¾ 镜像守卫不触发。
 - **钩子与提交后复验**：commit-msg commitlint 通过（header 56 字、body 最长 79 字、含 WXG-T-292）；pre-commit 实跑 check:secrets → check:links → ctx:build --staged-blobs → 重暂存 ctx 三产物 + memory/INDEX.md → ctx:check --staged **OK**；提交后再跑 `kb:check` 八重校验 / `ctx:check` / `check:tasks` 全绿。
-- **台账订正**：本行状态由「已落码、未 commit」改为「已提交 `efe179a`（develop，未 push）」；领号注仍按工作树全局最大号维护，下一可用号 **WXG-T-293**。
+- **台账订正**：本行状态由「已落码、未 commit」改为「已提交 `efe179a`（现两笔均已在 origin/develop，推送非本会话发起）」；领号注仍按工作树全局最大号维护，下一可用号 **WXG-T-293**。
 
 ## WXG-T-291
 
-> beads·交付格式统一 PNG + 菜单纹理归属腿（BD-61）｜原会话在途未提交 ⇒ **2026-10-18 由 WXG-T-292 会话代收口**（用户选下一步选项 2 授权）｜未 push
+> beads·交付格式统一 PNG + 菜单纹理归属腿（BD-61）｜原会话在途未提交 ⇒ **2026-10-18 由 WXG-T-292 会话代收口**（用户选下一步选项 2 授权）｜本会话**未跑过 `git push`**
+
+- ⚠ **推送状态意外（事实先记，不解释为已完成）**：`git reflog show origin/develop` 显示 `update by push` 三跳（`56839f0` → `d9c56d4` → `27c1310`）⇒ 本会话只跑了 `git commit`，**未跑 `git push`**；仓内 `.githooks` 只有 pre-commit / commit-msg（`grep git push .githooks/` 零命中）⇒ 疑为 IDE 侧自动推送。后果：291 的六笔与 292 的两笔**已在 origin/develop**，本地尚余 `3fb7c63`（两份 `.ts.meta`）与 `203aa0e`（台账登记）未推。⇒ **请核实 IDE 的自动推送开关**（若不希望自动推，需关掉；否则本仓的「不擅自 push」纪律在 IDE 层已被绕过）。
 
 - **代收口的边界（先说清哪些不是我做的）**：七笔提交均**逐字携带原会话的工作树内容**，本会话只改了两处台账与本节，⛔ 未改动其实现/资产/文案；拆成七笔只为让每笔能单独回滚。拆组依据 = 文件集互斥且各自自洽（分包腿 / BGM 体积 / 格式换代 / 机检门 / QA 入账 / 原型脚本 / 元数据）。
 - **七笔**：`07f92b3` feat(framework) BGM 分包预载腿（+4 行为判据，默认关、零行为变化）· `c82fd0e` perf(beads) BGM 96→64 kbps（703.8→469.2 KB，接缝跳变 1.0×→0.3×，40 s 档实测否决）· `08ca944` build(beads) PNG 统一（20 件 webp 退役 + harness `MENU_FILE` 改指 + 资产台账订正）· `d9c56d4` test(tools) `check-cocos-mask` 第三腿「菜单纹理归属」+ 假绿哨兵改 `null` + `quantize-cocos-textures.py` 新配方 · `0d9fe43` docs(qa) BD-61 入账（P2 维持）+ 顶栏取证两条硬事实 · `27c1310` docs(beads) 选关弹框原型脚本 + i2i denoise 分档 · `3fb7c63` chore(beads) 两份编辑器生成的 `.ts.meta`。
