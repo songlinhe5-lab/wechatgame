@@ -371,7 +371,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4271,
       "lines": 149,
-      "sha256": "a544b94a302f8f940aca684d30e8c95cc3614732c757cbe870b85af1778009f0",
+      "sha256": "d088ecc3a360d6e21d393f8a8dea07051a65c96c7024d4a665cd0b3f3feff1a5",
       "tier": "normal",
       "sections": [
         {
@@ -409,7 +409,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 120803 3371 normal",
+          "summary": "1 production/TASKS-DETAIL.md 121804 3389 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -425,7 +425,7 @@
           "startLine": 46,
           "endLine": 124,
           "tokens": 2758,
-          "summary": "production/TASKS-DETAIL.md 120803 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 121804 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5793,
       "lines": 90,
-      "sha256": "fc63a0074c5fcb34b726c99f77676848d433373ef26875ceee58c315c30a2391",
+      "sha256": "1fbddc2a8057ef8d5de9dd5c5f0a387858e9fc7fcb4642dcf7f71cb09f9fe951",
       "tier": "normal",
       "sections": [
         {
@@ -748,7 +748,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 104 行 / 35409 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 104 行 / 35488 tok / 实测读 4 次",
           "level": 2,
           "startLine": 26,
           "endLine": 29,
@@ -971,7 +971,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3371 行 / 120803 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3389 行 / 121804 tok",
           "level": 2,
           "startLine": 82,
           "endLine": 85,
@@ -79741,9 +79741,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 120803,
-      "lines": 3371,
-      "sha256": "b84b42b3b0f92ec8735eb95884e3828c3c47cdf2cc2ebe6cd4b7a08a4d457961",
+      "tokens": 121804,
+      "lines": 3389,
+      "sha256": "933a246b6ee5d7cd069b70ce05bfd985ceb6d5e8d330a07d925e09414f2f1fe1",
       "tier": "normal",
       "sections": [
         {
@@ -82264,8 +82264,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3372,
-          "tokens": 18419,
+          "endLine": 3390,
+          "tokens": 19420,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82510,8 +82510,8 @@
           "anchor": "§WXG-T-292",
           "level": 2,
           "startLine": 3305,
-          "endLine": 3358,
-          "tokens": 4317,
+          "endLine": 3376,
+          "tokens": 5230,
           "summary": "工程·包体口径收口批（两个脚坑）｜主理人(Qoder)·程基岩域｜2026-10-18 用户选续任选项 B（两项均为欠账",
           "keywords": [
             "WXG",
@@ -82567,11 +82567,43 @@
           ]
         },
         {
+          "anchor": "§续批四（同日 2026-10-18 晚，不另领号）：自动推送取证与登记 ⇒ `e34833e`",
+          "level": 3,
+          "startLine": 3359,
+          "endLine": 3362,
+          "tokens": 188,
+          "summary": "用户选下一步选项 1（处置自动推送）。取证结论：git ls-remote origin refs/heads/deve",
+          "keywords": [
+            "e34833e",
+            "git",
+            "remote",
+            "origin",
+            "refs",
+            "heads"
+          ]
+        },
+        {
+          "anchor": "§续批五（同日 2026-10-18 晚，不另领号）：工作树尾巴清理 ⇒ `bf6b89a` / `55bbc4a` / 配方笔",
+          "level": 3,
+          "startLine": 3363,
+          "endLine": 3376,
+          "tokens": 660,
+          "summary": "用户选下一步选项 3 ⇒ 两类尾巴各自拿掉，结果：git status 归零。",
+          "keywords": [
+            "bf6b89a",
+            "55bbc4a",
+            "bbc4a",
+            "git",
+            "status",
+            "续批五"
+          ]
+        },
+        {
           "anchor": "§WXG-T-291",
           "level": 2,
-          "startLine": 3359,
-          "endLine": 3372,
-          "tokens": 1093,
+          "startLine": 3377,
+          "endLine": 3390,
+          "tokens": 1182,
           "summary": "beads·交付格式统一 PNG + 菜单纹理归属腿（BD-61）｜原会话在途未提交 ⇒ 2026-10-18 由 WX",
           "keywords": [
             "WXG",
@@ -82583,9 +82615,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 35409,
+      "tokens": 35488,
       "lines": 104,
-      "sha256": "4851363f1e265c8e1161cc0fa70a31b77c6d18d9e73aa6fbf442d63b0fd31876",
+      "sha256": "d12357f8c323f79fd25a421a823bdcfe1e663475eb09a67cbe3fb467d0fa1613",
       "tier": "hot",
       "sections": [
         {
@@ -82593,7 +82625,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 105,
-          "tokens": 35400,
+          "tokens": 35479,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

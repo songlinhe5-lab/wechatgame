@@ -3356,6 +3356,24 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **钩子与提交后复验**：commit-msg commitlint 通过（header 56 字、body 最长 79 字、含 WXG-T-292）；pre-commit 实跑 check:secrets → check:links → ctx:build --staged-blobs → 重暂存 ctx 三产物 + memory/INDEX.md → ctx:check --staged **OK**；提交后再跑 `kb:check` 八重校验 / `ctx:check` / `check:tasks` 全绿。
 - **台账订正**：本行状态由「已落码、未 commit」改为「已提交 `efe179a`（现两笔均已在 origin/develop，推送非本会话发起）」；领号注仍按工作树全局最大号维护，下一可用号 **WXG-T-293**。
 
+### 续批四（同日 2026-10-18 晚，不另领号）：自动推送取证与登记 ⇒ `e34833e`
+
+用户选下一步选项 1（处置自动推送）。取证结论：`git ls-remote origin refs/heads/develop` = 本地 HEAD ⇒ **本会话全部提交已被推**，而会话内从未跑 `git push`；`update by push` 时间落在每次 commit 后 30–60 s，仓内无任何 push 钩子 ⇒ 定性为 **IDE 用户设置侧自动同步**。用户裁定 = **关掉它（纪律优先）**：AGENTS.md §7 不改写，事实与复测法入 `memory/MEMORY.md` §Hooks，新沉淀 **K-142**（跨IDE：推送状态只能靠 ls-remote / reflog 取证）。（⚠ 本次登记的这几笔在关掉前仍会被自动推。）
+
+### 续批五（同日 2026-10-18 晚，不另领号）：工作树尾巴清理 ⇒ `bf6b89a` / `55bbc4a` / 配方笔
+
+用户选下一步选项 3 ⇒ 两类尾巴各自拿掉，**结果：`git status` 归零**。
+
+- **① 六个「纯缩进重排」件：先定口径再判方向，不是一刀切收下或一刀切退回**。口径正本 = `.editorconfig`（`indent_size = 2`，root = true）。用脚本量每个件工作树 vs HEAD 的**最小缩进层级**：
+  - `src/config/tuning.ts`（+镜像）= `MENU_CAROUSEL` 块 **4 → 2** ⇒ **合规修正**，收下 ⇒ `bf6b89a`（`git diff -w` = 0 行 ⇒ 纯空白；`framework:sync:check` 绿）。
+  - `src/config/arcs.ts`（+镜像）与 `tests/{arcs,stars-tier}.test.ts` = **2 → 4** ⇒ 与口径反向 ⇒ **退回 HEAD**；退回前完整 diff 存 `temp/wxg291-indent-4space-backup.patch`（329 行，temp/ 不入库，可原样取回）。
+  - 为何不“留着不管”：它们在 ⇒ 每个会话的 `git status` 都带一批假改动，正是 K-045（共享工作树噪声）的形态。
+- **② `bench/` 52 MB 抽卡对照图：沿用仓内既有体例定去向，不新造规则**。仓内已有先例：`production/qa/*/evidence/**/*.png` 全部忽略（取样图不入库、脚本与读数入仓）⇒ 同类物同处理：`.gitignore` 新增 `games/beads/design/ai-workflows/bench/**/*.png`。
+  - ⚠ **但 README 必须入库**：它是 `knowledge K-138` 与 `model-matrix §5` 的**证据锚** ⇒ 不入库就是断链。已在 README 顶部补一行口径（图留盘、**判据以本件表格为准**、重跑可复现）；同目录 `prompt.txt` + `run-local.sh`（共 1.8 KB）随之入库，否则“重跑配方”在干净检出无从执行（已核：仅 LAN 内 ComfyUI 地址，无密钥）。
+  - 机械核验：`git check-ignore -v` 对 png 命中新规则、对 README 返回未忽略 ⇒ 只剩该收的三件进去了。
+- **遗留观察（不属本批，需另裁）**：`.git` 目录现 **430 MB**（历史累积的取证图/原型图，非本次造成）⇒ 若要瘦身需走 history rewrite（影响所有 clone + 已推分支），风险高，先挂号待裁。
+- **验证**：`pnpm run verify` 复跑（见下方结论）；本批三笔均过 pre-commit（check:secrets / check:links / ctx 重建与终校）与 commitlint。
+
 ## WXG-T-291
 
 > beads·交付格式统一 PNG + 菜单纹理归属腿（BD-61）｜原会话在途未提交 ⇒ **2026-10-18 由 WXG-T-292 会话代收口**（用户选下一步选项 2 授权）｜本会话**未跑过 `git push`**
@@ -3368,4 +3386,4 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **故意没提的（重要，留给归属会话）**：① 6 个**纯缩进重排**件（`games/beads/src/config/{arcs,tuning}.ts` + `tests/{arcs,stars-tier}.test.ts` + 两份镜像）——`git diff -w` 行数均为 **0** ⇒ 按 K-045 / WXG-T-290 先例不代提，原样留在工作树；② `games/beads/design/ai-workflows/bench/`（i2i denoise 抽卡对照图 **52 MB** / 39 张）——⚠ 需你或原会话裁定「入仓 / `.gitignore` / 压缩后入」，本会话不代做这个决定。
 - **体积代价已记账**：`08ca944` 把 5 张原型图从 webp 换成 PNG ⇒ 设证图目录 +≈8 MB（游戏包体不受影响，这些不在构建依赖图里）；若只想让「上架资产」走 PNG、原型图保留 webp，需另裁（现裁定是「一律 PNG」）。
 - **未验/未闭环**：真机 `wx.loadSubpackage` 未跑（需 AppID + 密钥）；分包开关仍默认关（`audio/…`）；`audio-spec` 自己登记的三条未达成（三首同长 40 s / 接缝真听 / 响度校准）仍开；BD-33 仅推进两件。
-
+- ✅ **上述两类尾巴已由同日本人接续处理（记在 `## WXG-T-292` 续批五，2026-10-18 晚）**：6 个缩进件按 `.editorconfig` 判定后分别收下/退回；`bench/` 定去向 = 图不入库、README + 复现配方入库 ⇒ 工作树已归零（`git status` 空）。
