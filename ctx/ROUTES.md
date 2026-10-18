@@ -71,6 +71,7 @@
 > agent 走到锚点只能退机器读的全量 `ctx/index.json`）；文末「未收录」只列 ROUTES 引用的落选文件
 > （旧版 84 条中 77 条与路由无关，约 1270 tok 被回收）。**门禁 D2（硬门）**：引用面覆盖率 ≥
 > `LIMITS.hotFilesCoverageMin` —— 结构指标，不受 ⑦ 行为类裁定约束，断链即 FAIL。
+> ⑪·补² **第二跳两件控量 + 硬门 D3（WXG-T-293，quality-lead 裁定）**：① 锚点名超 `hotAnchorLabelMaxChars`（20）截前缀 + `…`，**行号不动** ⇒ 覆盖不变；② `hotFileAnchorMax`（12）只作用于 ROUTES 已声明「先用 index.json」的文件（现网 = TASKS-DETAIL），⛔ 不裁 QA 判据表。D3（U1/U2/U3）机械守可寻性，反例必红 = `ctx:hotfiles:selftest`；同批 `hotFilesMaxTokens` 5800→**5600**。
 > ⑫ **本表常驻体积上限（WXG-T-039 R5，2026-09-13）**：本表是协议常驻第二跳且为**手维护路由表**
 > （被索引但非生成物、无生成器控量），设**硬上限 7500 估算 tokens**（`LIMITS.routesMd` ≈ 现值 +20%、
 > 低于 B 项通用 8000）——`pnpm run ctx:check` **A 项**超限即 FAIL + exit 1，处置 = **瘦身**（合并重复
@@ -176,7 +177,7 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| 硬判据总表（50 条） | production/qa/beads/test-cases.md#§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射） | 2507 | |
+| 硬判据总表（50 条） | production/qa/beads/test-cases.md#§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射） | 2507 | ⚠ 本文件锚点**不按条数裁**（裁则削掉 §A.0 / §I.2 / §K / §M.10 等判据与结论态节，WXG-T-293）；控量走标题截断，D3-U1 保命中 |
 | A1 核心循环判据 | production/qa/beads/test-cases.md#§A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10` | 526 | |
 | A2 拼图网格判据 | production/qa/beads/test-cases.md#§A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10` | 480 | |
 | A3 供料托盘判据 | production/qa/beads/test-cases.md#§A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10` | 450 | |
