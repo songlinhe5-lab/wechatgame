@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4272,
       "lines": 149,
-      "sha256": "6b7df2fa7820c28045f0cb01069f3a34fa32339096d5208e30adc7e21c22f587",
+      "sha256": "cc238442bc4f7117aaa89c43d929e14ef6381a66eeb5b59dfb00a2a66b4d77e9",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 129897 3491 normal",
+          "summary": "1 production/TASKS-DETAIL.md 130073 3492 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 124,
           "tokens": 2758,
-          "summary": "production/TASKS-DETAIL.md 129897 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 130073 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "d411b468bf1c0f7448f0025ec6d14339a035696d00ede11c3b0514b90c98909f",
+      "sha256": "4a41c7ee7943597deb310c60a53f0b6073cdbf0f6519541e3cc317e8ff86a10e",
       "tier": "normal",
       "sections": [
         {
@@ -729,12 +729,12 @@
           ]
         },
         {
-          "anchor": "§`memory/MEMORY.md` — 68 行 / 3654 tok / 实测读 16 次",
+          "anchor": "§`memory/MEMORY.md` — 69 行 / 3781 tok / 实测读 16 次",
           "level": 2,
           "startLine": 23,
           "endLine": 26,
           "tokens": 64,
-          "summary": "§wechatgame 项目长期笔记=1+69 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=",
+          "summary": "§wechatgame 项目长期笔记=1+70 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=",
           "keywords": [
             "memory/MEMORY.md",
             "memory",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3491 行 / 129897 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3492 行 / 130073 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -58090,17 +58090,17 @@
     },
     {
       "path": "memory/MEMORY.md",
-      "tokens": 3654,
-      "lines": 68,
-      "sha256": "574c743394c30e7db483eff8988097b2adcdbca63b674d1bd1efd59fe5eabb60",
+      "tokens": 3781,
+      "lines": 69,
+      "sha256": "75921828be3b3f2835056d2b84a5268a8f8b072b7eb3d5274dd29ec0e525eb49",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§wechatgame 项目长期笔记",
           "level": 1,
           "startLine": 1,
-          "endLine": 69,
-          "tokens": 3645,
+          "endLine": 70,
+          "tokens": 3771,
           "summary": "正本路径：仓库根 memory/MEMORY.md。",
           "keywords": [
             "wechatgame",
@@ -58219,8 +58219,8 @@
           "anchor": "§已知限制",
           "level": 2,
           "startLine": 61,
-          "endLine": 69,
-          "tokens": 1089,
+          "endLine": 70,
+          "tokens": 1216,
           "summary": "需要安装 @resvg/resvg-js 到 WorkBuddy 托管 Node workspace：cd ~/.wor",
           "keywords": [
             "resvg",
@@ -80001,9 +80001,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 129897,
-      "lines": 3491,
-      "sha256": "9f748ea1ba32c8e3d1a594d22af61ae9b383ab85fad94391258ba2dc49692470",
+      "tokens": 130073,
+      "lines": 3492,
+      "sha256": "b2b852a7f015c45d1aa8155997086691cd3c74580148f12df301bfbbdea9fc22",
       "tier": "normal",
       "sections": [
         {
@@ -82524,8 +82524,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3492,
-          "tokens": 27512,
+          "endLine": 3493,
+          "tokens": 27688,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82890,8 +82890,8 @@
           "anchor": "§WXG-T-294",
           "level": 2,
           "startLine": 3409,
-          "endLine": 3492,
-          "tokens": 6711,
+          "endLine": 3493,
+          "tokens": 6887,
           "summary": "工程·control-manifest §19 投放门禁扩三条 + beads 发布清单 v1.1 包体论证重算｜主理人",
           "keywords": [
             "§19",
@@ -82953,8 +82953,8 @@
           "anchor": "§续批五（2026-10-19，不另领号）：§8 分包/远程包选型拍板简报（用户选下一步选项 3）",
           "level": 3,
           "startLine": 3464,
-          "endLine": 3492,
-          "tokens": 3335,
+          "endLine": 3493,
+          "tokens": 3511,
           "summary": "新事实（本轮实测，不是推算）：把产物按「原始字节 vs gzip 传输量」分组量了一遍——cc.js 1356.9 → ",
           "keywords": [
             "§8",
@@ -86442,17 +86442,17 @@
     },
     {
       "path": "production/qa/beads/device/2026-10-19/README.md",
-      "tokens": 4845,
-      "lines": 167,
-      "sha256": "3b6cc0c62bc574990cbbfc3451e856cbc52532e0b0fe8a7a08879d4d39a9c1b3",
+      "tokens": 4927,
+      "lines": 169,
+      "sha256": "be830697dd888f433fe074fb4ca49f8e533b6b39199503ec8210e5c13311cf6e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Session 1 真机取证执行卡（2026-10-19）",
           "level": 1,
           "startLine": 1,
-          "endLine": 168,
-          "tokens": 4831,
+          "endLine": 170,
+          "tokens": 4912,
           "summary": "本轮只做 Session 1 · 冒烟与首屏（含新增 D-77 位图腿屏幕层序）。任何一条 FAIL 即停后续场次（de",
           "keywords": [
             "Session",
@@ -86512,8 +86512,8 @@
           "anchor": "§3 SIM 预读（开发者工具模拟器，2026-10-19 15:03 实拍屏）",
           "level": 2,
           "startLine": 62,
-          "endLine": 156,
-          "tokens": 2518,
+          "endLine": 158,
+          "tokens": 2599,
           "summary": "⛔ 本段不是真机判据（K-044 §0-4：模拟器读数禁作证据），只用于提前收窄真机诊断方向。",
           "keywords": [
             "§0",
@@ -86558,8 +86558,8 @@
           "anchor": "§3.3 选关墙实拍（15:27，模拟器）：D-77 多出一条硬前置——**不先解锁到第 9 关就判不了**",
           "level": 3,
           "startLine": 117,
-          "endLine": 143,
-          "tokens": 791,
+          "endLine": 145,
+          "tokens": 873,
           "summary": "点橱窗后进入「选关」面板（3×3），实测：",
           "keywords": [
             "选关墙实拍",
@@ -86572,8 +86572,8 @@
         {
           "anchor": "§3.4 怎么把存档推进到第 9 关（查代码后的三条路，含适用边界）",
           "level": 3,
-          "startLine": 144,
-          "endLine": 156,
+          "startLine": 146,
+          "endLine": 158,
           "tokens": 325,
           "summary": "解锁位字段 = maxUnlockedLevel，存在单局存档里：beads-game.ts:742-743 读 thi",
           "keywords": [
@@ -86588,8 +86588,8 @@
         {
           "anchor": "§5 回传之后谁做什么",
           "level": 2,
-          "startLine": 157,
-          "endLine": 162,
+          "startLine": 159,
+          "endLine": 164,
           "tokens": 152,
           "summary": "我把读数与截图回填 [device-walkthrough.md](../../device-walkthrough.m",
           "keywords": [
@@ -86602,8 +86602,8 @@
         {
           "anchor": "§6 三条禁忌（防假绿）",
           "level": 2,
-          "startLine": 163,
-          "endLine": 168,
+          "startLine": 165,
+          "endLine": 170,
           "tokens": 136,
           "summary": "1. ⛔ 模拟器 / 开发者工具 / web-mobile 的读数当真机证据（它们只作方向参考，render-perf-",
           "keywords": [

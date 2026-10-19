@@ -137,9 +137,11 @@ logo「拼豆小铺」、左右 ◀▶ 翻页钮、`开始游戏`、版本号 `v
 上面「接上即可 `adb exec-out screencap`」对本机**不成立**（实测：`adb connect 192.168.1.165:37941` 后 TCP 可达
 但设备一直 `offline`，`reconnect` 后消失；原因不是网络也不是密钥，而是协议不存在）。
 `hdc`（鸿蒙侧对应工具：`hdc list targets` / `hdc tconn <ip>:<port>` / `hdc shell snapshot_display` + `hdc file recv`）
-**本机未装**（全盘 + `mdfind` 均无；它随 DevEco Studio / Command Line Tools for HarmonyOS 分发，下载需华为开发者账号）。
-⇒ 真机取证改走**两条不依赖 adb/hdc 的路**：**① 开发者工具「真机调试」镜像**（IDE 自己连手机，agent 截 Mac 屏即得真机画面）；
-**② 手机系统截屏 → 隔空投送/微信传到 Mac → 丢进本目录**。若要全自动路线，需用户先装 DevEco Studio 或命令行工具。
+—— **15:4x 更新：已定位并接入环境**，路径 `/Users/stephenhe/Development/command-line-tools/sdk/default/openharmony/toolchains/hdc`（Ver 3.2.0f），已写入 `~/.zshrc` 的 `PATH`。
+`hdc list targets` 已能看到设备序列号 `6UNBB26416051396`，但状态 = **`Unauthorized`** ⇒ 卡在**手机侧授权**
+（`hdc kill` + `hdc start` 重启服务不改变此状态，⛔ 不靠重试磨）；未授权前任何 `hdc shell` 不可用。
+⇒ 当前可立即用的两条：**① 开发者工具「真机调试」镜像**（IDE 自己连手机，agent 截 Mac 屏即得真机画面）；
+**② 手机系统截屏 → 隔空投送/微信传到 Mac → 丢进本目录**。授权一完成则改走 hdc 全自动截图（比镜像窗口更硬）。
 
 ### 3.4 怎么把存档推进到第 9 关（查代码后的三条路，含适用边界）
 
