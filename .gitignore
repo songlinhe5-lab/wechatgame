@@ -127,3 +127,6 @@ games/beads/vitest.config.ts.timestamp-*.mjs
 # beads-studio（WXG-T-179 Web 服务）：用户生成结果与像素底稿是运行时数据，不入库
 apps/beads-studio/data/
 __pycache__/
+
+# 真机通道验证帧（手机桌面，非判据证据）不入库
+production/qa/beads/device/**/PRECHECK_*
