@@ -3476,3 +3476,4 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **节奏 = 先登记、暂不落码**：等 Session 1 真机走查（含 D-77 位图屏幕层序）跑完再动代码——一轮真机只引入一个变量，⛔ 不让分包改动污染本轮基线读数。
 - 已登记不假装完成的部分：走查单 §4 新增 **X-09**（D-78 分包预载 = `⛔ BLOCKED`，解除条件 = B′ 落码 + 重建产物 + `check:size` 分包两项绿），Session 表未加 D-78 空条目；发布清单 §8.1 加「✅ 拍板结果」段（含三条实施前硬前置：X-09 / AUD 真听无 BGM 窗口 / 重跑 `check:size`），§7 第④条从「§8 未拍板」改为「已拍板待实施」。
 - 本轮**零代码改动、未重建产物**（现包仍是单主包形态，与走查单 §1 的「包内资产与仓内等值」读数一致）。
+- **真机这一轮的实际状态（如实报）**：预览器仍在 `http://localhost:3847`（HTTP 200），但探针复测显示 **仍未登录**（`iframe body` 长 0、`cc` 未加载、登录钮在位）⇒ Session 1 零读数，判定列保持 `—`。等待期间补做了一件不需要人也不造假的事：**D-77 代码级预检**——逐行核 `bindings.ts:230-254` 的子节点序（`Background → BlitLayer → Graphics → BlitLayerUI → MenuClip → Labels`）与橱窗独立 blit 层（`BeadsBootstrap.ts:145-147`），确认挂层顺序与 §19 前置 2 口径一致 ⇒ 若真机仍空白，方向应转向「帧未加载 / 尺寸为零 / 透明度 / `carrier=off` 被触发」。该预检只收窄诊断空间，⛔ 不得据此判 PASS（已写进走查单 v1.2 行）。
