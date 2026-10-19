@@ -1,7 +1,7 @@
 # AGENTS.md — wechatgame 项目级 Agent 指引
 
 > 本文件是**项目常驻记忆层**：新开对话先读这里。
-> 已瘦身拆分（WXG-T-032）：只保留常驻铁律与触发条件；分节路由见 `ctx/ROUTES.md`。四 IDE 路径表已于 2026-10-18（WXG-T-292）移 `docs/agent/routing.md`——本文件受 `ctx:check` **A 项硬上限**，往里加内容前先等量外移，⛔ 不要直接调阈值。
+> 已瘦身拆分（WXG-T-032）：只保留常驻铁律与触发条件；分节路由见 `ctx/ROUTES.md`。本文件受 `ctx:check` **A 项硬上限**，往里加内容前先等量外移，⛔ 不要直接调阈值。
 
 ## 常驻注入与长期笔记
 
@@ -28,7 +28,7 @@
 | 成员委派（SubAgent） | 正本 `my-agents/`；`subagent_type` = `<name>` |
 | 生成配乐 / UI 口播**文件** | `indie-game-ost-pack` / `game-ui-voice-pack`（先查 `wxgame-audio-spec` 事件表） |
 | Godot/Unity/Unreal 查漏 · 市场版「游戏开发助手免费版」 | 前者仅当用户**明确点名** `game-studio`（已 `disable-model-invocation`）；后者**不用**（`game-dev-tool-free` 仅存档） |
-| 四 IDE 路径 / skill 优先级细节 | `docs/agent/routing.md`（自本节迁出，WXG-T-032） |
+| 四 IDE 路径 / skill 优先级 | `docs/agent/routing.md` |
 
 **主理人触发条件（条件式，非默认人格）**：
 
@@ -66,17 +66,17 @@
 3. 本仓 `wxgame-*` 方法论 > 外来通用 skill  
 4. 文档冲突先改文档再改代码；代码与 §3 冲突以 §3 为准并**登记漂移**
 
-包体：**平台红线**（主包 ≤4MB、主包+分包 ≤20MB，资质未开通）与**内部更紧目标**分清，勿混用。
+包体：**平台红线**（主包 ≤4MB、主包+分包 ≤20MB，资质未开通）≠ **内部目标**（各游戏 §3 另列）。
 
 ---
 
 ## 5. 目录与产物落位
 
-→ `docs/agent/repo-layout.md`（原 §5 逐字迁出，WXG-T-032）。
+→ `docs/agent/repo-layout.md`。
 
 ## 6. 验证与常用命令
 
-→ `docs/agent/commands.md`（原 §6 逐字迁出，WXG-T-032）。
+→ `docs/agent/commands.md`。
 
 ---
 
@@ -86,14 +86,14 @@
 - **不擅自** `git commit` / `push` / 发布 / 删除高影响产物，除非用户明确要求。
 - **推送口径**：`develop` 由 IDE 自动同步到远端（用户 2026-10-19 裁保留）⇒ 「会话没跑 push」≠「未入远端」；会话仍不得自行 push / 强推。取证只认 `git ls-remote` + `git reflog show origin/<branch>`（正本见 `memory/MEMORY.md` §Hooks，判例 K-142）。
 - **环境做不到的事**写明阻塞与解除条件。
-- 重大决策给 **2–4 个选项**让用户拍板；孤立小问题可直调对应域 skill，无需走满九阶段。
-- QA 文档与判据走 `wxgame-qa-gates`（G1–G4）；阶段 **PASS / CONCERNS / FAIL** 裁决属编排者。
+- 重大决策给 **2–4 个选项**让用户拍板。
+- QA 文档走 `wxgame-qa-gates`（G1–G4）；阶段裁决属编排者（见 §2）。
 
 ---
 
 ## 8. 分层阅读指引（已精简）
 
-第一跳 `ctx/ROUTES.md`（意图 → 锚点）→ 第二跳 `ctx/hot-files.md`（锚点 → `offset`/`limit`）；细节见 `docs/agent/{repo-layout,commands,routing}.md`。
+第一跳 `ctx/ROUTES.md`（意图 → 锚点）→ 第二跳 `ctx/hot-files.md`（锚点 → `offset`/`limit`）。
 
 ---
 
@@ -101,7 +101,7 @@
 
 - **读**：实现/修复/接入/发布类任务开工前，先查 `knowledge/INDEX.md` 活跃表（含「分片」列）定位同域条目，
   只读 `knowledge/lessons/<标签>.md` 里那几条，列入必读。**条目正文已按行内标签分片**（WXG-T-111），
-  `knowledge/lessons.md` 只是指针页；引用一律写 **K-0NN**，不写文件路径。
+  `knowledge/lessons.md` 只是指针页；引用一律写 **K-0NN**。
 - **写**：收尾回传 0–3 条沉淀候选；`kb:sync` 的**沉淀统计（新增/修改/激活/归档）**必须摘入会话结论与台账。
 - 完整协议（记账/归档/激活与工具调用报告纪律）：`knowledge/INDEX.md §1/§2/§5`。
-- **读（memory）**：日志详情**只在四种触发下查** —— ① 改冻结常量/协议/裁定**前**（查当初为什么）② 接续未完成工作 ③ 追溯**用户原话与裁定** ④ 排障找**当初的确诊法**。入口 `memory/INDEX.md`（定位到节 → 按该节「详情」列分流：已外移则读 `memory/details/<…>.md`）；`MEMORY.md` 可常读。完整协议见 `memory/INDEX.md §1`。
+- **读（memory）**：日志详情**只在四种触发下查** —— ① 改冻结常量/协议/裁定**前**（查当初为什么）② 接续未完成工作 ③ 追溯**用户原话与裁定** ④ 排障找**当初的确诊法**。入口 `memory/INDEX.md`（定位到节 → 按「详情」列分流：已外移则读 `memory/details/<…>.md`）；`MEMORY.md` 可常读，完整协议见其 §1。

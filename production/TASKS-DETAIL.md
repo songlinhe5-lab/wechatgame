@@ -3444,3 +3444,19 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **你只需做的**：开发者工具导入 `games/beads/cocos/build/wechatgame` → 预览二维码 → 华为畅享 + 一台 iOS 逐条操作并把截图放进该目录。回传后我负回填与来源同步，阶段裁定归编排者。
 - **预览通道已代拉（同日 09:3x）**：走 `weixin-minigame-helper` MCP 的 `run_game`（workspacePath = 产物绝对路径）⇒ `http://localhost:3847` 已起。SIM 预读定性：未登录态下点「编译」**不注入代码**（两张 `PREVIEW_SIM_boot_*.png`：黑屏、iframe `body` 长 0、`cc` 未加载、Console 0 条）⇒ 属**未编译**而非产物黑屏，避免用户误报缺陷；该读数**禁作真机判据**（K-044 §0-4）。「真机预览 / 上传」属上传链路，未得用户确认不自动调。
 - **本轮验证**：`check:size` OK・`check:cocos-mask` OK・`framework:sync:check` 绿・`check:tasks` 55⇔55・`ctx:check` OK・`check:links` OK・`verify` **PASS 22 / FAIL 0**（零代码改动，产物与本地设置为不入库项）。
+
+### 续批四（2026-10-19，不另领号）：常驻层预算瘦身（用户选下一步选项 2）
+
+两个硬上限**一个都没动**（`residentLimit()` 单源），只按 K-141 的方法搬内容：先做重复源审计，再等量外移。审计出三类可移对象，本轮全部用上：
+
+| 类别 | 判据 | 本轮实例 |
+|---|---|---|
+| ① 读数快照 / 口径修正史证 | 只解释某次数字为什么长这样，不构成规则本体 | ROUTES ⑧ 系列的 457 事件 / 75.5% / 45.4%↔30.1% / 56.7%→59.1% / 两个根会话 ID |
+| ② 与强制注入层逐字重复 | `my-rules/agents-md.md` 每会话已带同义摘要 | AGENTS §7「孤立小问题不必走满九阶段」（§2 表已列）、§5/§6 的「原 §N 逐字迁出」括注 |
+| ③ 同一规则在正文与步骤里讲两遍 | 保留一处 + 指针 | ROUTES §0 第 2 步的选池优先级子条 ⇒ 压成「见前言 ⑪·补」 |
+
+- **新建 `docs/agent/context-metrics-history.md`**（64 行）承接 ①，顶部写明「规则本体仍在 ROUTES ⑦–⑫，本文件只接史证侧」，并声明数字是快照、⛔ 不当现状引用。
+- **ROUTES.md 7441 → 7116（余量 60 → 384）**：⑧ 三条压成 8 行结论 + 指针；⑨ 的「AGENTS 实际已 1743」假绿实例、⑪·补 的「84 条中 77 条 / 1270 tok 回收」外移；§0 子条合并。
+- **AGENTS.md 1961 → 1848（余量 39 → 152）**：前言删搬家史证（`routing.md` 侧已有留痕）、§2 表行去重、§7 删与注入层重复的两处、§9 压缩措辞。**L1–L5 铁律表、§2 路由表、§9 四触发、§7 推送约定等决策指引一条没删**。
+- **取回路径如实说明**：新文件体量 <3000 tok 且不被 ROUTES 以 `路径#锚点` 引用 ⇒ 不进 `ctx/hot-files.md`；读者从 ⑧/⑨ 行内指针直达该文件，这是设计而非漏收录。
+- **验证**：`ctx:check` OK（A/B/C/D/D2/D3/E3）、`check:links` OK、`ctx:hotfiles:selftest` 19/19、`pnpm run verify` **PASS 22 / FAIL 0**。⚠ 常驻总量观察哨仍报 **15641 > 软阈 13500**（单文件门全绿但总量仍漂，正是该哨的本分，不阻断）⇒ 后续若要压总量，得动 `hot-files` 5485 或 ROUTES 本体，属结构性决策，需另单裁。
