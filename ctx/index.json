@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4272,
       "lines": 149,
-      "sha256": "8c01e4dd88c9483c01cba5438b3121ad1328048edd223ab4f94f76951474f18f",
+      "sha256": "62c28d020bd1cbf4c1cf83bc7f1d1844296d6dd1932980f9e1f34c1525729c8c",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 128433 3482 normal",
+          "summary": "1 production/TASKS-DETAIL.md 128800 3485 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 124,
           "tokens": 2758,
-          "summary": "production/TASKS-DETAIL.md 128433 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 128800 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "79700bdeefa46e6b885b175b0982d30808cd0f93e9f8c3a49fb59131788e49ea",
+      "sha256": "7987991649cca6ddb78af1ea046ccd623724b65969cbe1ab286699353a1f99fa",
       "tier": "normal",
       "sections": [
         {
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3482 行 / 128433 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3485 行 / 128800 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -80001,9 +80001,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 128433,
-      "lines": 3482,
-      "sha256": "df3ed1a76c7e5db4dc06d8e8117f52af3705070b0a36d8541fce675625891859",
+      "tokens": 128800,
+      "lines": 3485,
+      "sha256": "409335fe16a96909b5387af0a5d7e11158c6350e5ea7ec4f28b5360887540c7b",
       "tier": "normal",
       "sections": [
         {
@@ -82524,8 +82524,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3483,
-          "tokens": 26048,
+          "endLine": 3486,
+          "tokens": 26415,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82890,8 +82890,8 @@
           "anchor": "§WXG-T-294",
           "level": 2,
           "startLine": 3409,
-          "endLine": 3483,
-          "tokens": 5247,
+          "endLine": 3486,
+          "tokens": 5614,
           "summary": "工程·control-manifest §19 投放门禁扩三条 + beads 发布清单 v1.1 包体论证重算｜主理人",
           "keywords": [
             "§19",
@@ -82953,8 +82953,8 @@
           "anchor": "§续批五（2026-10-19，不另领号）：§8 分包/远程包选型拍板简报（用户选下一步选项 3）",
           "level": 3,
           "startLine": 3464,
-          "endLine": 3483,
-          "tokens": 1872,
+          "endLine": 3486,
+          "tokens": 2238,
           "summary": "新事实（本轮实测，不是推算）：把产物按「原始字节 vs gzip 传输量」分组量了一遍——cc.js 1356.9 → ",
           "keywords": [
             "§8",
@@ -86442,17 +86442,17 @@
     },
     {
       "path": "production/qa/beads/device/2026-10-19/README.md",
-      "tokens": 2654,
-      "lines": 92,
-      "sha256": "55d74c487d59022e10395059dcbeafbfa4d4443ef856b83f73c0cdbe138d895f",
+      "tokens": 3112,
+      "lines": 107,
+      "sha256": "87b4b4a148b000d44feef7ace837e167ce87dd9768f5728ae611b9b856e3d430",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Session 1 真机取证执行卡（2026-10-19）",
           "level": 1,
           "startLine": 1,
-          "endLine": 93,
-          "tokens": 2639,
+          "endLine": 108,
+          "tokens": 3097,
           "summary": "本轮只做 Session 1 · 冒烟与首屏（含新增 D-77 位图腿屏幕层序）。任何一条 FAIL 即停后续场次（de",
           "keywords": [
             "Session",
@@ -86512,8 +86512,8 @@
           "anchor": "§3 SIM 预读（开发者工具模拟器，2026-10-19 15:03 实拍屏）",
           "level": 2,
           "startLine": 62,
-          "endLine": 81,
-          "tokens": 327,
+          "endLine": 96,
+          "tokens": 784,
           "summary": "⛔ 本段不是真机判据（K-044 §0-4：模拟器读数禁作证据），只用于提前收窄真机诊断方向。",
           "keywords": [
             "§0",
@@ -86525,10 +86525,25 @@
           ]
         },
         {
+          "anchor": "§3.1 对上述第 2 条的自纠（同日 15:13 再拍一帧，同机同产物）",
+          "level": 3,
+          "startLine": 82,
+          "endLine": 96,
+          "tokens": 431,
+          "summary": "上一段写的「空玻璃柜」不成立：当时「自动真机调试」对话框正遮挡画面，且首帧尚未画完。",
+          "keywords": [
+            "对上述第",
+            "条的自纠",
+            "同日",
+            "再拍一帧",
+            "同机同产物"
+          ]
+        },
+        {
           "anchor": "§5 回传之后谁做什么",
           "level": 2,
-          "startLine": 82,
-          "endLine": 87,
+          "startLine": 97,
+          "endLine": 102,
           "tokens": 152,
           "summary": "我把读数与截图回填 [device-walkthrough.md](../../device-walkthrough.m",
           "keywords": [
@@ -86541,8 +86556,8 @@
         {
           "anchor": "§6 三条禁忌（防假绿）",
           "level": 2,
-          "startLine": 88,
-          "endLine": 93,
+          "startLine": 103,
+          "endLine": 108,
           "tokens": 136,
           "summary": "1. ⛔ 模拟器 / 开发者工具 / web-mobile 的读数当真机证据（它们只作方向参考，render-perf-",
           "keywords": [
