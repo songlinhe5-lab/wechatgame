@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4272,
       "lines": 149,
-      "sha256": "50d7384255fde7bd8439f88b94021b72d40e6fec5c72d89f6333798d04788d3a",
+      "sha256": "81a20bf7c7af58c7730b0d9401ab85cfea2c0aa7f2eace2d06c81a13ad4a898c",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 126524 3462 normal",
+          "summary": "1 production/TASKS-DETAIL.md 127190 3471 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 124,
           "tokens": 2758,
-          "summary": "production/TASKS-DETAIL.md 126524 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 127190 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "01decc94b9d8952bebece3d9f5c9e95dd6ae3673c48625c09dd78868c0a92225",
+      "sha256": "a7f159b95a51d013e8aa1a9a2f6d94ceb44b85de97a9bcc9158d3f4d0e85651a",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 104 行 / 36731 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 104 行 / 36928 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3462 行 / 126524 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3471 行 / 127190 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -80001,9 +80001,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 126524,
-      "lines": 3462,
-      "sha256": "086901a27e9bef7db7962fd4732654cb11628cc7bb3b1556260d45d09e971862",
+      "tokens": 127190,
+      "lines": 3471,
+      "sha256": "2fb2bbdddf7f002c4baa13c3948c3941457132ba6c940a29952a49e6131f45cf",
       "tier": "normal",
       "sections": [
         {
@@ -82524,8 +82524,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3463,
-          "tokens": 24139,
+          "endLine": 3472,
+          "tokens": 24806,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82890,8 +82890,8 @@
           "anchor": "§WXG-T-294",
           "level": 2,
           "startLine": 3409,
-          "endLine": 3463,
-          "tokens": 3338,
+          "endLine": 3472,
+          "tokens": 4004,
           "summary": "工程·control-manifest §19 投放门禁扩三条 + beads 发布清单 v1.1 包体论证重算｜主理人",
           "keywords": [
             "§19",
@@ -82948,14 +82948,30 @@
             "用户选下一步",
             "选项"
           ]
+        },
+        {
+          "anchor": "§续批五（2026-10-19，不另领号）：§8 分包/远程包选型拍板简报（用户选下一步选项 3）",
+          "level": 3,
+          "startLine": 3464,
+          "endLine": 3472,
+          "tokens": 629,
+          "summary": "新事实（本轮实测，不是推算）：把产物按「原始字节 vs gzip 传输量」分组量了一遍——cc.js 1356.9 → ",
+          "keywords": [
+            "§8",
+            "gzip",
+            "续批五",
+            "不另领号",
+            "分包",
+            "远程包选型拍"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 36731,
+      "tokens": 36928,
       "lines": 104,
-      "sha256": "8c379283c987ff5f34761dd9ea65ca01a8caaa44f8806afafe0a98fbc355b4df",
+      "sha256": "9869b64740011814b4c2eadab6e63ea5956103c684721d5d0bed540174b261c9",
       "tier": "hot",
       "sections": [
         {
@@ -82963,7 +82979,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 105,
-          "tokens": 36723,
+          "tokens": 36919,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -94998,25 +95014,25 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 5022,
-      "lines": 170,
-      "sha256": "c52320859c01632411dfe680c6873b27a16098cd061c70bc890c0e930c7da800",
+      "tokens": 6485,
+      "lines": 198,
+      "sha256": "59c9f18a053323eed5382e2b7d8559f910b071b8ae803a6e381e5615e3ffe180",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§发布清单（Release Checklist）· beads「拼豆小铺」",
           "level": 1,
           "startLine": 1,
-          "endLine": 171,
-          "tokens": 5003,
-          "summary": "版本：v1.1 · 2026-10-19（§1.2 / §7 / §8 的包体论证按 systems-index §3.",
+          "endLine": 199,
+          "tokens": 6466,
+          "summary": "版本：v1.2 · 2026-10-19（§8 补「原始 vs 传输」两个口径 + 新增 B′/E 方案 + §8.1 ",
           "keywords": [
-            "§1.2",
-            "§7",
             "§8",
-            "§3",
+            "§8.1",
             "Release",
-            "Checklist"
+            "Checklist",
+            "beads",
+            "发布清单"
           ]
         },
         {
@@ -95196,8 +95212,8 @@
           "anchor": "§8 分包 / 远程包选型（**发布批拍板，本清单不代裁**）",
           "level": 2,
           "startLine": 145,
-          "endLine": 164,
-          "tokens": 1076,
+          "endLine": 191,
+          "tokens": 2229,
           "summary": "以 2026-10-18 release 重建实测（主包 3188.2 KB / 108 文件）为基线。所有方案都保留现",
           "keywords": [
             "release",
@@ -95208,11 +95224,25 @@
           ]
         },
         {
+          "anchor": "§8.1 决策点（v1.2 收口，给 USER 拍板用）",
+          "level": 3,
+          "startLine": 177,
+          "endLine": 191,
+          "tokens": 528,
+          "summary": "包体已达标 ⇒ 本表只剩一个真问题：低端机首屏要下多少字节，愿意为它付多少复杂度。按「改动量 / 下载收益」排序：",
+          "keywords": [
+            "USER",
+            "决策点",
+            "收口",
+            "拍板用"
+          ]
+        },
+        {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 165,
-          "endLine": 171,
-          "tokens": 347,
+          "startLine": 192,
+          "endLine": 199,
+          "tokens": 662,
           "summary": "v1.0 2026-10-15 初稿（P4）：beads 六阶段清单 + 实测包体基线 + AppID / 产物现状 +",
           "keywords": [
             "beads",
