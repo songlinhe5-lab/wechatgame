@@ -67,7 +67,8 @@
 | ☐ | 🚦 AppID | profile / 工程 / 产物一致 = `wx8cf9f756e5390749` | ✅；⚠ `cocos/build/project.config.json` 的 `wx63c62151a1c0cf3b` 为误开父目录生成，开发者工具**只打开 `build/wechatgame/`** |
 | ☐ | 微信开发者工具 | 已装、已登录有开发权限的微信号；上传密钥 + IP 白名单（CLI 上传时） | ✅ 已装（含 CLI）；登录/密钥 USER 确认 |
 | ☐ | Cocos Creator | 版本 = 工程约定 | ✅ 3.8.8 |
-| ☐ | 产物目录唯一 | 只留一个产物目录 | ⚠ `build/wechatgame` 与 `build/wechatgame-001`（09-29，profile `outputName` 仍指向它）并存 |
+| ☐ | 产物目录唯一 | 只留一个产物目录 | ✅ 2026-10-19 已处置：`build/wechatgame-001`（09-29 旧包）改名 `build/_archive-wechatgame-001-20260929`，profile `outputName` 改指 `wechatgame`（本地工程设置，未入仓）⇒ 现只剩 `wechatgame` + `web-mobile`（非微信产物） |
+| ☐ | 🚦 真机取证入口 | Session 1 执行卡与前置就绪度见 `production/qa/beads/device/2026-10-19/README.md`（负责人 QA + USER） | ✅ 2026-10-19 就绪：产物已重建为 release、`check:cocos-mask` 归属腿 18/18 字节相同、单产物目录、AppID 一致；待 USER 确认登录态与 vConsole |
 | ☐ | `.meta` 完整 | 新增脚本有编辑器生成的 `.meta`（⛔ 不手写） | 用 Creator 打开工程一次让编辑器补齐 |
 
 ---
@@ -76,7 +77,7 @@
 
 | ☐ | 检查项 | 判据 | 负责人 |
 |---|---|---|---|
-| ☐ | 干净构建 | 先 `pnpm run framework:sync`，再 `pnpm --filter @wxgame/beads build:cocos`；产物 mtime 晚于最后一次源码改动 | ENG |
+| ☐ | 干净构建 | 先 `pnpm run framework:sync`，再 `pnpm --filter @wxgame/beads build:cocos`；产物 mtime 晚于最后一次源码改动——✅ **2026-10-19 09:19 实跑**（CLI 默认 release 档，38.1s）；另新增前置「包内资产与仓内等值」（判例 BD-61：“改了投放件但包里仍旧”只能靠归属腿发现） | ENG |
 | ☐ | 🚦 包体 | `check:size` 输出主包 / 分包数值并入本清单 §1.2 | ENG + OPS |
 | ☐ | 分包/远程结构合规 | 按 §8 选定方案；`game.json` `subpackages` 或远程域名配置与方案一致 | ENG |
 | ☐ | 无调试后门 | 无刷屏日志、无探针入口、无 dev 快捷键 | ENG + QA |

@@ -1,6 +1,6 @@
 # beads 真机走查单（P4 · K-044 解除条件逐项走查）
 
-- 版本：v1.0 · 2026-10-15
+- 版本：**v1.1** · 2026-10-19（Session 0 前置逐项实跑校正 + 新增 D-77「位图腿屏幕层序证据」；初稿 v1.0 · 2026-10-15）
 - 适用：`games/beads` 首次真机走查（拿到 AppID 之后、提审之前）
 - 上游：本单**只汇总不新造判据**——每条判据、阈值、解除条件以「来源」列所指文档为准；本单与来源冲突时以来源为准并回改本单
 - 下游：走查结论回填各来源文档的状态列；发布门控见 `production/release/beads/release-checklist.md §3`
@@ -24,11 +24,12 @@
 |---|---|---|---|
 | ☐ | AppID 一致 | 构建 profile / 工程 / 产物三处 = `wx8cf9f756e5390749` | ✅ `cocos/profiles/v2/packages/wechatgame.json`、`cocos/project.config.json`、`build/wechatgame/project.config.json` 一致。⚠ `cocos/build/project.config.json` 是 `wx63c62151a1c0cf3b`——那是开发者工具把 **`build/` 父目录**当工程打开时生成的（已被 `.gitignore`），**走查时只打开 `build/wechatgame/`**，该文件可删 |
 | ☐ | 开发者工具 | 已装、已登录有该 AppID 开发权限的微信号 | ✅ `/Applications/wechatwebdevtools.app`（含 CLI）；登录态需 USER 确认 |
-| ☐ | 构建新鲜 | 产物 mtime 晚于最新源码改动；构建前已 `pnpm run framework:sync` | ⚠ 现产物 `build/wechatgame` 21:14 构建，**早于** P3（按下态 / 陈列条）落码 ⇒ 走查前**重构建** |
-| ☐ | 旧产物清理 | 只保留一个产物目录，防扫错包 | ⚠ 并存 `build/wechatgame`（10-15）与 `build/wechatgame-001`（09-29，profile 的 `outputName` 仍指向它）⇒ 走查前删 `-001` 或改 `outputName` |
-| ☐ | 包体 | `pnpm run check:size` 未越红线 | ✅ 主包 3166.3 KB ≤ 4096（越内部目标 2000，见发布清单 §1.2） |
-| ☐ | 日志通道 | 能拿到真机 console / 探针输出 | 优先 vConsole；拿不到 ⇒ 走 `wx.showModal` 屏幕弹窗取证（`render-perf-device-baseline.md §7.3` 判例），**不得**因此跳过性能项 |
-| ☐ | 取证落盘 | 建 `production/qa/beads/device/<YYYY-MM-DD>/`，文件名 `<条目ID>_<机型档>_<序号>.png/.jsonl` | — |
+| ☐ | 构建新鲜 | 产物 mtime 晚于最新源码改动；构建前已 `pnpm run framework:sync` | ✅ **2026-10-19 09:19 重建**（先 `framework:sync` → CLI `build:cocos`，默认即 **release** 档，38.1s）。⚠ 重要：上一份产物是 10-18 20:24 构的，**不含 21:00 后重烘的两件 ◀▶ 投放件**（BD-61 修复）⇒ 旧包不能用于本轮取证，必须用现包 |
+| ☐ | 旧产物清理 | 只保留一个产物目录，防扫错包 | ✅ 已处置：`build/wechatgame-001`（09-29 旧包）改名为 `build/_archive-wechatgame-001-20260929`（留盘不入库、可改回）；`profiles/v2/packages/wechatgame.json` 的 `outputName` 由 `wechatgame-001` 改为 `wechatgame`（**本地工程设置，未入仓**，不入库不影响别人）。现 `build/` 下只剩 `wechatgame` + `web-mobile`（后者非微信产物） |
+| ☐ | 包体与构建档 | `check:size` 未越红线且**无「疑似 debug」提示** | ✅ 主包 **3188.2 KB / 108 文件 ≤ 4096**（内部目标已与红线合流 = 4096 ⇒ 不再需豁免，发布清单 §1.2）；无「疑似 debug」⇒ 产物为 release 档。⚠ 若看到该提示，先不带参数重跑 `build:cocos` 再测（debug 数字不可作基线，判例 K-111） |
+| ☐ | 包内资产与仓内等值 | `check:cocos-mask` 全绿（含菜单纹理**归属腿**） | ✅ 09:19 重建后实跑：需求集齐张 + 18 件菜单纹理**字节相同**（含 ◀▶ 两件），即「包里的位图 = 仓里的投放件 = 设计正本同源」（判例 BD-61：“改了源件但包里仍旧”，不跑本腿根本看不出来） |
+| ☐ | 日志通道 | 能拿到真机 console / 探针输出 | ⚠ 本轮**待 USER**：优先 vConsole（开发者工具「详情 → 本地设置 → 开启调试模式」+ 真机左上角 vConsole 钮）；拿不到 ⇒ 走 `wx.showModal` 屏幕弹窗取证（`render-perf-device-baseline.md §7.3` 判例），**不得**因此跳过性能项 |
+| ☐ | 取证落盘 | 建 `production/qa/beads/device/<YYYY-MM-DD>/`，文件名 `<条目ID>_<机型档>_<序号>.png/.jsonl` | ✅ 目录已建：`production/qa/beads/device/2026-10-19/`（空目录不入库，首张取证图落盘即自然入库） |
 | ☐ | 设备档 | 至少 L-A + iOS 各 1 台在手 | 见 §2：iOS 低配档缺 ⇒ 相关条目上限受限 |
 
 ---
@@ -61,6 +62,7 @@
 | D-60 | `smoke-tests.md` SC-13 | `onHide` 自动暂停；`onShow` 停 PAUSED | F1 冻结补偿 | — | |
 | D-61 | `test-cases.md` TC-SAVE 族 | 风格 / 豆径 / 皮肤等设置杀进程后一致 | §8-11「与关前最后一帧一致」 | — | |
 | D-66 | `qa/test-plan.md` G5/L4（通用） | 冷启动时长 | ≤1.5s（通用口径，beads 未另钉） | 秒表 3 次取中位 | |
+| **D-77** | `control-manifest §19` 前置 2 + `ADR-0030` S5′-3 + 取证 `evidence/wxg-t-271-boss-thumb-layer.md` | **位图腿必须真的上屏**：选关墙第 9 格（boss 图）看到**照片缩略**而非程序化珠阵； ◀▶ 按下态可见两件互异；橱窗/走马灯位图不被面板盖住 | 看得到且层序正确 = PASS；空白/被盖 = `FAIL`（开缺陷）；**只接受实拍屏面**，⛔ 不接受「日志无 warn / 命令已发出」作证据 | 现包（含 09:19 重建后的两件新 ◀▶ 投放件）；L-A 与 iOS 各 1 张对照 | |
 
 ### Session 2 · 适配（刘海 / 安全区 / 分辨率）
 
@@ -196,3 +198,4 @@
 | 版本 | 日期 | 变更 |
 |---|---|---|
 | v1.0 | 2026-10-15 | 初稿：汇总全仓真机待验项 + K-044 判定上限 + 阻塞清单（P4） |
+| **v1.1** | 2026-10-19 | **Session 0 前置逐项实跑校正 + 新增 D-77（WXG-T-294 续批，为真机走查开工做准备）**：① 产物重建为 release（09:19，38.1s）——旧 10-18 20:24 包**不含 BD-61 重烘的两件 ◀▶ 投放件**，不能拿来取证；② 旧包 `wechatgame-001` 改名归档 + `outputName` 改指 `wechatgame`（本地设置，未入仓），消除扫错包；③ 包体行改为「3188.2 KB ≤ 4096 且无疑似 debug」（内部目标已与红线合流 ⇒ 不再需豁免）；④ 新增前置「包内资产与仓内等值」（`check:cocos-mask` 含归属腿，18 件字节相同）；⑤ **D-77** 把 `§19` 前置 2（位图必须真上屏）列成可执行条目——本单不新造判据，线/来源均指回受控文档；取证目录 `device/2026-10-19/` 已建。**所有判定列仍为 `—`**（⛔ 本轮零真机读数，不得预写 PASS） |
