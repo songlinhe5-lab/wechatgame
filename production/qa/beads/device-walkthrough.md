@@ -23,7 +23,7 @@
 | ☐ | 项 | 判据 | 现状（2026-10-15 核实） |
 |---|---|---|---|
 | ☐ | AppID 一致 | 构建 profile / 工程 / 产物三处 = `wx8cf9f756e5390749` | ✅ `cocos/profiles/v2/packages/wechatgame.json`、`cocos/project.config.json`、`build/wechatgame/project.config.json` 一致。⚠ `cocos/build/project.config.json` 是 `wx63c62151a1c0cf3b`——那是开发者工具把 **`build/` 父目录**当工程打开时生成的（已被 `.gitignore`），**走查时只打开 `build/wechatgame/`**，该文件可删 |
-| ☐ | 开发者工具 | 已装、已登录有该 AppID 开发权限的微信号 | ✅ `/Applications/wechatwebdevtools.app`（含 CLI）；登录态需 USER 确认 |
+| ☐ | 开发者工具 | 已装、已登录有该 AppID 开发权限的微信号 | ✅ 2026-10-19 实测登录态：`cli islogin` 返回 `{"login":true}`；`cli preview` 已跑通并生成扫码图（包 3.1 MB < 4 MB）⇒ **D-39 的「出包成功」仓库侧已验**，真机侧待扫码确认。⚠ 事实更正：`preview` 走 IDE 登录态，**不需**上传密钥/IP 白名单（只有 `upload` 需要）。另：MCP 的网页预览器自有登录态、**与 IDE 不互通**（实测 IDE 已登录而该页面仍黑屏）⇒ 走查取证直接用手机扫码，不必纠结网页模拟器 |
 | ☐ | 构建新鲜 | 产物 mtime 晚于最新源码改动；构建前已 `pnpm run framework:sync` | ✅ **2026-10-19 09:19 重建**（先 `framework:sync` → CLI `build:cocos`，默认即 **release** 档，38.1s）。⚠ 重要：上一份产物是 10-18 20:24 构的，**不含 21:00 后重烘的两件 ◀▶ 投放件**（BD-61 修复）⇒ 旧包不能用于本轮取证，必须用现包 |
 | ☐ | 旧产物清理 | 只保留一个产物目录，防扫错包 | ✅ 已处置：`build/wechatgame-001`（09-29 旧包）改名为 `build/_archive-wechatgame-001-20260929`（留盘不入库、可改回）；`profiles/v2/packages/wechatgame.json` 的 `outputName` 由 `wechatgame-001` 改为 `wechatgame`（**本地工程设置，未入仓**，不入库不影响别人）。现 `build/` 下只剩 `wechatgame` + `web-mobile`（后者非微信产物） |
 | ☐ | 包体与构建档 | `check:size` 未越红线且**无「疑似 debug」提示** | ✅ 主包 **3188.2 KB / 108 文件 ≤ 4096**（内部目标已与红线合流 = 4096 ⇒ 不再需豁免，发布清单 §1.2）；无「疑似 debug」⇒ 产物为 release 档。⚠ 若看到该提示，先不带参数重跑 `build:cocos` 再测（debug 数字不可作基线，判例 K-111） |
