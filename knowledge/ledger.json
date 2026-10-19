@@ -2363,7 +2363,7 @@
       "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "「不擅自 push」的纪律会被 IDE 自动同步静默绕过；推送状态只能靠 ls-remote / reflog 取证，`git status` 永远看不出来",
-      "contentHash": "80bc89d165a2580c77be71ffaf108499e97543ca2bb2701cb2206aac14e0a295",
+      "contentHash": "6da769a398e6e5de3e95c7c286fcd11ea1a1d6c88245877ff4e0bce6cc644e89",
       "sourceTask": "WXG-T-292",
       "addedDate": "2026-10-18",
       "lastAccess": "2026-10-18",
@@ -3544,6 +3544,15 @@
       "kind": "added",
       "ids": [
         "K-143"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-19",
+      "taskId": "WXG-T-294",
+      "kind": "updated",
+      "ids": [
+        "K-142"
       ],
       "note": null
     }

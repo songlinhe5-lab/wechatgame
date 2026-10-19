@@ -6,6 +6,12 @@
 > 数据源 = `knowledge/ledger.json` 的 `events`（**append-only** 追加日志）+ 条目台账（标题取自台账）；
 > 日期倒序，同一日期内按 Task ID 分组。
 
+## 2026-10-19
+
+### WXG-T-294
+
+- **修改**（updated）：K-142「「不擅自 push」的纪律会被 IDE 自动同步静默绕过；推送状态只能靠 ls-remote / reflog 取证，`git status` 永远看不出来」
+
 ## 2026-10-18
 
 ### （无任务号）
