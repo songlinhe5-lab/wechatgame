@@ -12,7 +12,9 @@
 
 import type { RenderModelBuilder } from '@wxgame/framework';
 import {
+  DESIGN_H,
   DESIGN_W,
+  SAFE_EDGE_MARGIN,
   SELECT_LIFT_PX,
   GROUP_LAND_DROP_PX,
   SELECT_LIFT_ANGLE,
@@ -126,6 +128,7 @@ import {
   CONFETTI_COLORS,
   STAR_GOLD,
   withAlpha,
+  DEBUG_OUTLINE_TILE_HEX,
   endpointOf,
   type BeadInks,
   type BeadsPalette,
@@ -711,6 +714,33 @@ function trayFullAlpha(clock: number, reduce: boolean): number {
 // `BG_DEPTH_ALPHA` / `BG_LIFT_RECT` / `BG_CORE_RECT` 与 `BG_DEPTH_HEX` / `BG_LIFT_HEX` /
 // `GLOW_WARM_HEX` 同批退役（⛔ 不留空转常量）。
 
+/** 安全区标定线（`settings.debugGuides`）：与主菜单 `meta-view::drawSafeGuides` 同口径
+ * （三条线 = 顶部安全区 / 胶囊底缘 / Home 条）。入参均 = 距边的设计 px。 */
+export function drawSafeGuideLines(
+  builder: RenderModelBuilder,
+  H: number,
+  st: number,
+  cap: number,
+  sb: number,
+): void {
+  const ink = DEBUG_OUTLINE_TILE_HEX;
+  const marks = [
+    { y: H - st, text: `safe ${st}`, x: 16 },
+    { y: H - cap, text: `cap ${cap}`, x: 280 },
+    { y: sb, text: `home ${sb}`, x: 16 },
+  ];
+  for (const m of marks) {
+    builder.line(0, m.y, DESIGN_W, m.y, ink, 3);
+    const below = m.y > H * 0.5;
+    builder.text(m.x, below ? m.y - 18 : m.y + 18, m.text, {
+      fill: ink,
+      font: '22px sans-serif',
+      align: 'left',
+      baseline: 'middle',
+    });
+  }
+}
+
 function drawHud(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
@@ -814,6 +844,19 @@ function drawHud(
       });
     }
   }
+
+  // `[WXG-T-295 续]` 安全区标定线（设置 Debug 开关）：H = 1334 基准 + 高屏增量 + 胶囊底。
+  if (snap.debugGuides) {
+    // `snap.capsuleBottom` 存的是**避让量**（胶囊底缘 + `SAFE_EDGE_MARGIN`）⇒ 划线回退边距，
+    // 与主菜单 `drawSafeGuides` 的 `H − btTopY − SAFE_EDGE_MARGIN` 同口径。
+    drawSafeGuideLines(
+      builder,
+      DESIGN_H + snap.hudDy + snap.capsuleBottom,
+      snap.safeTop,
+      Math.max(0, snap.capsuleBottom - SAFE_EDGE_MARGIN),
+      snap.safeBottom,
+    );
+  }
 }
 
 /** F7② 8 齿齿轮（accent_purple，Ø48）：hub + 均匀齿线 + 中心孔（程序化，零资产）。
@@ -866,7 +909,7 @@ function drawGrid(
   // D1（`reduceMotion`）分档：`jump` 走位移 ⇒ 与 G4 同口径整条关停；`pulse` 只走 α ⇒
   //   **不关停**（G2′ 相 A 纯 α 通道同判例），但取消往复 ⇒ 窗口内静态亮（下方 `cwFlash`）。
   const cue = snap.colorCueMode;
-  // [T-244 二十批] 乘数 = 通道全长，与 `BeadsGame._colorWaveTotalMs()` **必须同值**（否则光带被加速或尾列扫不到）。
+  // [T-244 二十批] 乘数 = 通道全长，与 `FeedbackFx._colorWaveTotalMs()` **必须同值**（否则光带被加速或尾列扫不到）。
   const cwTotalMs = cue === 'pulse' ? COLOR_WAVE_SWEEP_MS : COLOR_WAVE_MS;
   const cwT =
     snap.colorWaveProgress > 0 && (cue === 'pulse' || !snap.reduceMotion)

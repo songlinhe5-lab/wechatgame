@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { createBeadsHarness, simpleTestLevel, firstEmptyCell, type Harness } from './helpers.js';
-import { gridLayoutFor, PUZZLE_BAND, TRAY_BAND, BOARD_TAP_MOVE_THRESHOLD } from '../src/config/tuning.js';
+import { gridLayoutFor, PUZZLE_BAND, TRAY_BAND, BOARD_TAP_MOVE_THRESHOLD, DESIGN_W } from '../src/config/tuning.js';
 
 const STEP = 1 / 60;
 
@@ -267,4 +267,33 @@ describe('棋盘区抬起才提交（WXG-T-169 / ADR-0015 C-3(a)）', () => {
         expect(bandGap).toBeGreaterThan(0);
         expect(BOARD_TAP_MOVE_THRESHOLD).toBeLessThan(bandGap);
     });
+});
+
+// 回归（本轮）：同帧 down+up 的棋盘即时 tap 在 `pressBoard` 内当场提交，但 `readFrame` 对同帧
+// 抬起提前 return、不走抬起收尾 ⇒ `_tapActive` 悬挂。之后手指按在托盘上拖动，`boardHeld` 会把它
+// 当成棋盘拖动、平移相机。修复后：同帧即时 tap 结束即清手势态，托盘拖拽不得动相机。
+describe('同帧棋盘 tap 的手势收尾（回归）', () => {
+  it('同帧即时 tap 后 tapActive 复位，托盘上按住拖动不平移棋盘相机', () => {
+    const h = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.bit-leak' });
+    expect(h.game.phase).toBe('playing');
+    const cell = firstEmptyCell(h.game)!;
+    armTrayBead(h, cell.row, cell.col);
+    const p = cellDesign(h, cell.row, cell.col);
+    const s = screenOf(h, p.x, p.y);
+    frame(h, [
+      { id: 1, x: s.x, y: s.y, phase: 'down' },
+      { id: 1, x: s.x, y: s.y, phase: 'up' },
+    ]);
+    expect(h.game.debugGestureState()['tapActive']).toBe(false);
+
+    const cam = (h.game as unknown as { _board: { camera: object } })._board.camera;
+    const before = { ...cam };
+    const trayY = (TRAY_BAND.yMin + TRAY_BAND.yMax) / 2;
+    const t0 = screenOf(h, DESIGN_W / 2, trayY);
+    const t1 = screenOf(h, DESIGN_W / 2 - 120, trayY);
+    frame(h, [{ id: 2, x: t0.x, y: t0.y, phase: 'down' }]);
+    frame(h, [{ id: 2, x: t1.x, y: t1.y, phase: 'move' }]);
+    frame(h, [{ id: 2, x: t1.x, y: t1.y, phase: 'up' }]);
+    expect({ ...cam }).toEqual(before);
+  });
 });

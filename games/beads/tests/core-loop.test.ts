@@ -54,9 +54,9 @@ describe('S1 core-loop', () => {
       saveKey: 'wxgame.beads.test.s1taps',
     });
     const cell = firstEmptyCell(h.game)!;
-    // 设计数点必须用**游戏自己的相机**推格心（命中函数 = `hitGridCell(_layout, _camera.zoom, …)`）；
+    // 设计数点必须用**游戏自己的相机**推格心（命中函数 = `hitGridCell(_layout, _board.camera.zoom, …)`）；
     // 不拼相机则坐标落在格外 ⇒ tap 被静默忽略，测出来的是「没命中」而不是「没计数」。
-    const cam = (h.game as unknown as { _camera: { zoom: number; offsetX: number; offsetY: number } })._camera;
+    const cam = (h.game as unknown as { _board: { camera: { zoom: number; offsetX: number; offsetY: number } } })._board.camera;
     const layout = gridLayoutFor(h.game.grid.cols, h.game.grid.rows, cam);
     const p = { x: layout.colCenterX(cell.col), y: layout.rowCenterY(cell.row) };
     expect(h.game.debugHitCell(p.x, p.y), '探针坐标未命中目标格').toEqual({ row: cell.row, col: cell.col });

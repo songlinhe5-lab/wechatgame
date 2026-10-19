@@ -231,7 +231,7 @@ describe('G3 vfx_powerup_sweep · 命令层', () => {
    * 裁定「恒播满」（**WXG-T-128 待裁③ = 甲**，2026-09-19 用户拍板）：
    * 扫光臂起后**恒播满 `SWEEP_MS`**，**不因状态切换（含离 playing 进 level-clear）中断**。
    *
-   * 为什么必须钉住：`_stepSweepFx` 与 `_stepConfettiFx` 同属**表现层步进组**（`beads-game.ts`
+   * 为什么必须钉住：`FeedbackFx.stepPresentation` 与 `_stepConfettiFx` 同属**表现层步进组**（`beads-game.ts`
    * `_update` 末尾、不受 `playing` 门约束），而 G6 彩带正是「level-clear 臂起、播满 800ms」
    * 的判例；裁定 1「庆祝先行放完再落遮罩」亦同精神（面板延迟 `CLEAR_PANEL_DELAY_MS` 开
    * ⇒ 400ms 扫光必然在面板前播完、无遮挡）。**给扫光加 playing 门会与上述两条分叉**。
@@ -533,11 +533,11 @@ describe('单色齐备提示 · 某色全部归位（T-244 十六/十七/十八�
     expect(firstLit0, '该色格从未亮 ⇒ 亮度通道没接上').toBeGreaterThanOrEqual(0);
     expect(firstLit3, '光带没扫到后列 ⇒ 不是「从左到右」').toBeGreaterThan(firstLit0);
     // 二十批：通道比旧的 `COLOR_WAVE_MS` 长 ⇒ 墙钟上“最后一次亮”必须落在旧通道结束之后。
-    // 这一条同时盯 `BeadsGame._colorWaveTotalMs()` 与 view 侧乘数这对耦合（两者不一致 ⇒ 本断言必红）。
+    // 这一条同时盯 `FeedbackFx._colorWaveTotalMs()` 与 view 侧乘数这对耦合（两者不一致 ⇒ 本断言必红）。
     expect(
       lastLit * 20,
       `光带在 ${lastLit * 20}ms 就扫完了 ⇒ pulse 通道未走 ` +
-      `${COLOR_WAVE_SWEEP_MS}ms 长通道（与 BeadsGame._colorWaveTotalMs 不同值？）`,
+      `${COLOR_WAVE_SWEEP_MS}ms 长通道（与 FeedbackFx._colorWaveTotalMs 不同值？）`,
     ).toBeGreaterThan(COLOR_WAVE_MS);
     expect(sawWash, '整格罩层未画 ⇒ 只剩一条细环').toBe(true);
     expect(ringAlphaAt(end, 0, 3, LIT1), '扫完不清 ⇒ 变成了常驻态').toBe(0);

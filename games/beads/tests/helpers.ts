@@ -174,7 +174,7 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
  * ⚠ 生产初始视图（放大档）在 harness/真机验证，不在本夹具。
  */
 export function pinIdentityCamera(game: BeadsGame): void {
-  const cam = (game as unknown as { _camera: { zoom: number; offsetX: number; offsetY: number } })._camera;
+  const cam = (game as unknown as { _board: { camera: { zoom: number; offsetX: number; offsetY: number } } })._board.camera;
   cam.zoom = IDENTITY_CAMERA.zoom;
   cam.offsetX = IDENTITY_CAMERA.offsetX;
   cam.offsetY = IDENTITY_CAMERA.offsetY;

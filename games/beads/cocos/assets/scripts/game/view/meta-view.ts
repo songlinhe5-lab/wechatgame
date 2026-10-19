@@ -91,7 +91,7 @@ import { plateFade } from '../config/menu-carousel';
 import { skinLabel } from '../config/skins/registry';
 // `[WXG-T-280]` CTA 九宫格效果键的唯一构造入口（core 只定义键名，消费在两侧 adapter）。
 import { nineSliceFx, type RenderModelBuilder } from '../../framework/index';
-import { beadFadedInksFor, DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette';
+import { beadFadedInksFor, type BeadsPalette } from './palette';
 import type { SigninReward } from '../game/meta-state';
 import type { BeadSizeKind } from '../config/tuning';
 // EP12-S6 · T-2B：珠拼图元（招牌 `beadText` + 作品格缩略）的装配入口。本文件只**调用**，
@@ -99,7 +99,7 @@ import type { BeadSizeKind } from '../config/tuning';
 import { drawBeadText, drawLevelThumb, resetSignageWarnings } from './menu-signage';
 // 顶栏设置钮的齿轮图元 = 对局页 HUD 齿轮**同一程序化画法**（§5.1b 收口 ③：两处**入口语义**不合并，
 // 但画法不得各信一份 ⇒ 图元函数复用，零新美术）。
-import { drawGear } from './view-model';
+import { drawGear, drawSafeGuideLines } from './view-model';
 import type { BeadsLevelRaw } from '../config/levels-data';
 
 export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels';
@@ -191,6 +191,14 @@ export interface MetaViewData {
     readonly carouselPeerSign?: -1 | 1;
     /** 下标 = `ARC_OPEN_MAX` 的空橱窗。中间置灰花，木牌写「敬请期待」。 */
     readonly carouselComingSoon?: boolean;
+    /**
+     * `[BD-62]` 走马灯**边界可见性**：首张 = 无上一可翻，末张 = 无下一可翻。
+     * 用户 2026-10-19 定的设计预期：「末张卡应左边有按钮、右边按钮消失」（首张对称）。
+     * 旧行为 = 两端按钮**一直画**，点了被 `_nudge` clamp 掉 → 看着能点实际无反应。
+     * 只影响**绘制**；热区表按 anchors 缓存（不能按数据裁），且边界处本就零效果 ⇒ 不可见热区为无害空点。
+     */
+    readonly carouselFirst?: boolean;
+    readonly carouselLast?: boolean;
     readonly carouselPeerComingSoon?: boolean;
     /** 宿主配了 beads-studio 服务地址 ⇒ 设置页画「在线导入」钮（WXG-T-179；缺省不画）。 */
     readonly studioEnabled?: boolean;
@@ -878,6 +886,8 @@ function drawArrow(
     palette: BeadsPalette,
 ): void {
     const pressed = isPressed(data, dir === 'left' ? 'carousel-prev' : 'carousel-next');
+    // `[BD-62]` 边界隐藏：首张不画 ◀、末张不画 ▶（与 `_nudge` 的 clamp 语义一致）。
+    if (dir === 'left' ? data.carouselFirst : data.carouselLast) return;
     const dy = pressDy(data, pressed);
     const cx = b.x + b.w / 2;
     const cy = b.y + b.h / 2 + dy;
@@ -1391,21 +1401,6 @@ export function buildMetaView(
  * （`st` / 胶囊底 / `H − sb`），对着真机截图读。
  */
 function drawSafeGuides(builder: RenderModelBuilder, a: MenuAnchors): void {
-    const ink = DEBUG_OUTLINE_TILE_HEX;
-    const cap = Math.round(a.H - a.btTopY - 4);
-    const marks = [
-        { y: a.H - a.st, text: `safe ${a.st}`, x: 16 },
-        { y: a.H - cap, text: `cap ${cap}`, x: 280 },
-        { y: a.sb, text: `home ${a.sb}`, x: 16 },
-    ];
-    for (const m of marks) {
-        builder.line(0, m.y, DESIGN_W, m.y, ink, 3);
-        const below = m.y > a.H * 0.5;
-        builder.text(m.x, below ? m.y - 18 : m.y + 18, m.text, {
-            fill: ink,
-            font: '22px sans-serif',
-            align: 'left',
-            baseline: 'middle',
-        });
-    }
+    // 与对局页共用同一绘制（`view-model::drawSafeGuideLines`）⇒ 两屏划线口径不会漂。
+    drawSafeGuideLines(builder, a.H, a.st, Math.round(a.H - a.btTopY - 4), a.sb);
 }

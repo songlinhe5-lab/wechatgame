@@ -286,6 +286,39 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
     expect(restored.sprintTracker.windowRemaining).toBeCloseTo(before.window, 6);
   });
 
+  // D-03 普通关往返（CrashSnapshotIO.apply 普通关分支）：棋盘逐格、关卡索引、剩余时间须一致。
+  it('round-trips a normal-mode level: grid cells, levelIndex and remaining time', () => {
+    const inner = newStorage();
+    const harness = boot(inner, { levels: [simpleTestLevel()] });
+    const game = harness.game;
+    let placed = 0;
+    for (let i = 0; i < 4 && placed < 2; i++) {
+      const cell = firstEmptyCell(game)!;
+      if (placeColor(game, game.grid.requiredColor(cell.row, cell.col), cell.row, cell.col)) {
+        placed += 1;
+      }
+    }
+    expect(placed).toBeGreaterThanOrEqual(1);
+    harness.advance(1.5);
+    const cellStates = (g: typeof game): string[] => {
+      const out: string[] = [];
+      for (let r = 0; r < g.grid.rows; r++) {
+        for (let c = 0; c < g.grid.cols; c++) out.push(g.grid.cell(r, c)?.state ?? '-');
+      }
+      return out;
+    };
+    const before = { cells: cellStates(game), levelIndex: game.levelIndex, remaining: game.remaining };
+    game.onPause();
+
+    const relaunch = boot(inner, { levels: [simpleTestLevel()] });
+    const restored = relaunch.game;
+    expect(restored.phase).toBe('paused');
+    expect(restored.mode).toBe('normal');
+    expect(restored.levelIndex).toBe(before.levelIndex);
+    expect(cellStates(restored)).toEqual(before.cells);
+    expect(restored.remaining).toBeCloseTo(before.remaining, 6);
+  });
+
   // §8-16 道具次数：缺省字段不导致丢快照；越界按字段钳制而不丢整份。
   // WXG-T-060（S6 落码）起上限也可钳：`POWERUP_FREE_USES` 常量已可用 ⇒ 钳到 [0, 1]。
   it('§8-16 treats powerupUses as an optional, field-clamped document', () => {

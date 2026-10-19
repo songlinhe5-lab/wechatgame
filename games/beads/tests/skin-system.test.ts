@@ -356,7 +356,8 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
         const allow = new Set([
             'systems/pause-panel.ts', // 入口甲：行4 钮位
             'view/meta-view.ts', // 入口乙：菜单设置 overlay 同钮
-            'game/beads-game.ts', // 唯一受理点
+            'game/beads-game.ts', // 面板动作分发（转交 GameSettings）
+            'game/beads-game/game-settings.ts', // 唯一受理点（自 beads-game.ts 拆出）
             'view/view-model.ts', // 钮文案回显
             'config/skins/registry.ts', // 注释（计数真源登记；同 bead-styles/registry 判例）
         ]);

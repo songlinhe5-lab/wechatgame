@@ -19,6 +19,22 @@
  * (tray-spawner v2.0). The `Spawner` instance survives as a documented dead
  * path (snapshot fields / reset list / zero-cost revival); the main loop no
  * longer ticks it, so `tray:spawned` / `tray:full` are never emitted.
+ *
+ * ── 模块地图（拆分后的协作类，均在 `beads-game/` 下；BeadsGame 为编排者）──
+ *  - `bead-conservation.ts`     珠色守恒哨兵（只报告，不回滚）。
+ *  - `game-settings.ts`         设置值 / 音频通道 / 设置动作（持久化一次写入）。
+ *  - `board-camera-controller.ts` 棋盘相机、缩放、手势与棋盘 tap 的计量入口。
+ *  - `feedback-fx.ts`           反馈特效时钟（连击 / 脉冲 / 抬起 / 各反馈计时）。
+ *  - `crash-snapshot-io.ts`     D-03 崩溃快照的写入 / 清档 / 恢复与校验。
+ *  - `input-router.ts`          输入协议：每帧读输入、抬起提交门、计量。
+ *  - `hud-router.ts`            PLAYING 界面控件分派（缩放 / 齿轮 / 道具卡 / 展开）。
+ *  - `panel-router.ts`          面板相位分派（PAUSED / LEVEL_CLEAR / FINISH / GAME_OVER）。
+ *  - `board-tap-router.ts`      托盘 / 网格点击分派（选取 / 取回 / 归位 / 直填）。
+ *  - `control-map.ts`           控件映射（按下腿命中 / 按下态 / 面板选项，只读）。
+ *  - `hit-test.ts`              无状态命中几何（齿轮 / 道具卡 / 展开 / 托盘槽）。
+ *  留在本类：状态机（`_buildStateMachine`）、托盘锚归位裁决（`_placeSelected`）、
+ *  解环器表现（`_armSolverFx` / `_stepSolverFx`）、快照投影（`_syncSnapshot`）、
+ *  BOOT / 订阅 / 装配（`_boot` / `_subscribe` / `_setupLevel`）。
  */
 
 import {
@@ -32,7 +48,6 @@ import {
 } from '@wxgame/framework';
 
 import {
-  AUDIO_CLIP_BGM,
   AUDIO_CLIP_CLEAR,
   AUDIO_CLIP_COMBO_BREAK,
   AUDIO_CLIP_COMBO_T1,
@@ -52,15 +67,8 @@ import {
   AUDIO_CLIP_TRAY_FULL,
   AUDIO_CLIP_UI_TAP,
   AUDIO_CLIP_URGENT_BEAT,
-  AUDIO_REJECT_MIN_INTERVAL,
-  AUDIO_SFX_MIN_INTERVAL,
-  AUDIO_TRAYFULL_MIN_INTERVAL,
-  AUDIO_URGENT_MIN_INTERVAL,
   DEFAULT_TUNING,
-  GEAR_HIT_SIZE,
-  HUD_BAND,
   DESIGN_H,
-  zoomControlLayout,
   REVIVE_BONUS_SEC,
   REVIVE_MAX_PER_LEVEL,
   SELECT_LIFT_MS,
@@ -71,59 +79,24 @@ import {
   tierSecondsFor,
   normalSettleScore,
   TIMER_URGENT_T,
-  TAP_HINT_MS,
-  VIBRATE_DEFAULT,
-  TAP_HINT_NO_SELECTION_TEXT,
   AD_PLACEHOLDER_HINT_TEXT,
-  WRONG_FX_MS,
-  WRONG_FX_RESTART_GATE_MS,
-  FILL_POP_MS,
-  GROUP_LAND_MAX,
-  FILL_POP_RESTART_GATE_MS,
   SOLVER_HINT_MS,
   SOLVER_MAX_CELLS,
   SOLVER_STAGGER_MS,
-  GROUP_LAND_TOTAL_MS,
   solverSequenceMs,
-  SWEEP_MS,
-  CONFETTI_MS,
-  WAVE_MS,
-  COLOR_WAVE_MS,
-  COLOR_WAVE_SWEEP_MS,
-  CLEAR_PANEL_DELAY_MS,
-  DENIED_MAX_CELLS,
-  DENIED_PRESS_MS,
-  DENIED_PRESS_RESTART_GATE_MS,
-  TRAY_COLS,
-  expandButtonLayout,
-  trayLayout,
-  TRAY_HIT_SIZE,
-  POWERUP_TYPES,
-  powerupCardRects,
   gridLayoutFor,
   hitGridCell,
+  menuAnchors,
   nextBeadLod,
   ZOOM_LOD_LAYERS,
-  BEAD_COLOR_MAX,
-  BEAD_SIZE_DEFAULT,
-  BEAD_SIZE_ORDER,
   type BeadSizeKind,
-  IDENTITY_CAMERA,
-  BOARD_TAP_MOVE_THRESHOLD,
-  ZOOM_TAP_MIN,
-  PUZZLE_BAND,
   stageParamsFor,
   validatedSprintTime,
   type BeadsTuning,
-  type BoardCamera,
   type GridLayout,
   type PowerupType,
 } from '../config/tuning.js';
 import { BEADS_AUDIO_VOICES } from '../config/audio-voices.js';
-// **EP11-S5 / §12.9 步 5**：换肤两钮的循环真源 = style registry（注册序即循环序，S9 §8-14）。
-// 只取**只读函数与默认档 id**（零分配：`registeredStyles()` 返回冻结数组，不取会 `.map` 的
-// `registeredStyleIds()`）；渲染侧另走 `bead-render` 自己的 `styleById` 查表（本文件不持风格对象）。
-import { DEFAULT_BEAD_STYLE_ID, registeredStyles } from '../view/bead-styles/registry.js';
 import {
   LEVELS,
   buildStagePattern,
@@ -135,44 +108,22 @@ import {
 import { applyMisplacedToGrid } from './misplaced-assembler.js';
 import { collectMisplacedGroup } from '../entities/grid.js';
 import { BeadGrid } from '../entities/grid.js';
-import {
-  CrashSnapshotStore,
-  decodeFilledBits,
-  encodeFilledBits,
-  type CrashSnapshot,
-} from './crash-snapshot.js';
-import { Tray, type SlotState } from '../entities/tray.js';
+import { Tray } from '../entities/tray.js';
 import { PowerupSystem, type MisplacedBead } from '../systems/powerups.js';
-import { FinishPanel, hitFinishPanel, type FinishPanelAction } from '../systems/finish-panel.js';
-import { SprintSettlePanel, hitSprintSettle, type SprintSettleAction } from '../systems/sprint-settle.js';
-import { comboVfxProgress, comboVfxSpec, type ComboVfxKind, type ComboVfxSpec } from '../view/combo-vfx.js';
+import { FinishPanel, } from '../systems/finish-panel.js';
+import { SprintSettlePanel, } from '../systems/sprint-settle.js';
+import { comboVfxSpec, type ComboVfxKind } from '../view/combo-vfx.js';
 import {
   ClearPanel,
-  hitClearPanel,
-  type ClearPanelAction,
-  type ClearPanelOptions,
 } from '../systems/clear-panel.js';
 import { judgeRetrieve } from '../systems/retrieve.js';
 import { judgePlacement, planGroupFill } from '../systems/placement.js';
 import { planConsumeOrder } from '../systems/consume-order.js';
 import { Spawner } from '../systems/spawner.js';
-import {
-  applyPinch,
-  applyPan,
-  createGesture,
-  resetGesture,
-  fitCamera,
-  clampCamera,
-  resetCamera,
-  setCameraZoom,
-  sliderTFromZoom,
-  zoomAtPoint,
-  zoomFromSliderT,
-} from '../systems/board-camera.js';
+import { sliderTFromZoom } from '../systems/board-camera.js';
 import { GameTimer } from '../systems/timer.js';
 import { SprintTracker } from '../systems/sprint.js';
-import { PausePanel, pausePanelLayout, rectContains, type PausePanelAction } from '../systems/pause-panel.js';
-import { hitFailPanel } from '../systems/fail-panel.js';
+import { PausePanel, type PausePanelAction } from '../systems/pause-panel.js';
 import {
   PHASE_TRANSITIONS,
   bannerFor,
@@ -196,9 +147,20 @@ import {
 } from './save-schema.js';
 import { beadInksFor, type BeadsPalette } from '../view/palette.js';
 // **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
-import { DEFAULT_SKIN, DEFAULT_SKIN_ID, registeredSkins, skinById } from '../config/skins/registry.js';
+import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registry.js';
 import { buildBeadsView } from '../view/view-model.js';
 import type { BeadsEvents, BeadsGameOptions } from './beads-game-types.js';
+import { BeadConservation } from './beads-game/bead-conservation.js';
+import { GameSettings } from './beads-game/game-settings.js';
+import { BoardCameraController } from './beads-game/board-camera-controller.js';
+import { FeedbackFx } from './beads-game/feedback-fx.js';
+import { CrashSnapshotIO } from './beads-game/crash-snapshot-io.js';
+import { InputRouter } from './beads-game/input-router.js';
+import { PanelRouter } from './beads-game/panel-router.js';
+import { HudRouter } from './beads-game/hud-router.js';
+import { BoardTapRouter, type BoardAnchor } from './beads-game/board-tap-router.js';
+import { ControlMap } from './beads-game/control-map.js';
+import { hitTraySlot } from './beads-game/hit-test.js';
 
 /**
  * 公共契约类型（事件表 `BeadsEvents` + 构造选项 `BeadsGameOptions`）已抽至
@@ -220,24 +182,6 @@ function warnUnregisteredSkin(id: string): void {
 export function resetSkinImportWarnings(): void {
   warnedUnregisteredSkin = false;
 }
-
-/**
- * §3.2 限流分档（真源：`audio-events.md §3.2` ↔ `systems-index §3.12`）。
- *
- * **一刀切 0.05 是缺陷**（冲突登记 C-A05-4）：那会让 `sfx_reject` 跑到 20 次/秒，
- * 直接违反 §3.8「错误反馈 ≤2 次/秒」。未列出的 clip = 一次性事件音 ⇒ `0`
- * （不限流），因为状态机天然单次触发（过关 / 结算 / 面板 / 续时 / stage）。
- */
-const SFX_MIN_INTERVAL: Readonly<Record<string, number>> = {
-  [AUDIO_CLIP_REJECT]: AUDIO_REJECT_MIN_INTERVAL,
-  [AUDIO_CLIP_URGENT_BEAT]: AUDIO_URGENT_MIN_INTERVAL,
-  [AUDIO_CLIP_TRAY_FULL]: AUDIO_TRAYFULL_MIN_INTERVAL,
-  [AUDIO_CLIP_PLACE]: AUDIO_SFX_MIN_INTERVAL,
-  [AUDIO_CLIP_SELECT]: AUDIO_SFX_MIN_INTERVAL,
-  // G7 `sfx_denied`（裁定 3 ⑥ / Q-A05-5）：minInterval = 同格视觉门换算（/1000），
-  // **不新造数值**（`assets-spec §1.6.7` 音频行）。
-  [AUDIO_CLIP_DENIED]: DENIED_PRESS_RESTART_GATE_MS / 1000,
-};
 
 /** §1「面板入 / 出」的宿主相位：四个面板态均覆盖（A05-18）。 */
 const PANEL_PHASES: readonly BeadsPhase[] = ['paused', 'level-clear', 'game-over', 'finish'];
@@ -272,8 +216,6 @@ interface SolverFxQueue {
 }
 
 /** 结算面板选项两档常量（命中/按下态每帧查表 ⇒ ⛔ 不逐次造对象）。 */
-const CLEAR_OPTS_NORMAL: ClearPanelOptions = Object.freeze({ lastLevel: false });
-const CLEAR_OPTS_LAST: ClearPanelOptions = Object.freeze({ lastLevel: true });
 
 export class BeadsGame implements Game {
   readonly id = 'beads';
@@ -355,61 +297,8 @@ export class BeadsGame implements Game {
    * 续时主钮（§3.5 明文）。
    */
   private readonly _sprintSettle = new SprintSettlePanel();
-  /**
-   * S7 连击特效（`score-combo §2.5`）：当前正在播的那一档（**同时只存在一个** —— 多档重叠
-   * 时只播最高档，避免叠加成闪烁）。`row/col` 是 Lv1 粒子的锚点（落子格心）。
-   */
-  private _comboVfx: { spec: ComboVfxSpec; elapsedMs: number; row: number; col: number } | null = null;
-  /**
-   * GAP-04/03/10 反馈态（WXG-T-087）——均为**表现层**，与 `_comboVfx`/面板同判例。
-   * `_pulseClock` 单调推进（ms），驱动告急 α、hint 呼吸、满槽脉冲的循环相位。
-   */
-  private _pulseClock = 0;
-  /**
-   * §5 选中抬起斜坡计时（ms）。**表现层量，不改玩法**；每次“锚建立”归零
-   * （板锚 `selectBoardBead` 非幂等分支 / 托盘 `selectTraySlot` 选中建立）。
-   * 同一字段同时驱动板锚组与托盘珠 ⇒ 两者共用一个时钟，不会出现“板上的珠在动、
-   * 托盘的珠瞬跳”的错拍。进格由快照 `liftProgress` 上报，缓动曲线在 view 侧施。
-   */
-  private _liftElapsedMs = 0;
-  /** [T-244 九批] 托盘进珠动画改**多槽队列**：整组取回**逐颗**调 `retrieveBead`（1101 行），
-   *  八批的单槽字段被逐颗**覆盖** ⟹ 只剩最后几颗有动画（用户实测「只看到最后 3 个」）。
-   *  ⟹ 与盘面 groupLand 同构：slots/steps 严格配对 + 错峰按落珠序（复用甲案预算函数）。 */
-  private _trayLandFx: { slots: number[]; steps: number[]; elapsedMs: number; totalMs: number } | null = null;
-  /** `wrong` 态：被拒格心 + 播放进度（`WRONG_FX_MS` 后自动清）。 */
-  private _wrongFx: { row: number; col: number; elapsedMs: number } | null = null;
-  /**
-   * 上次起播 `wrong` fx 的时基（`_pulseClock` ms）。驱动**连续拒绝 500ms 重启门**
-   * （WXG-T-102/BD-29，`WRONG_FX_RESTART_GATE_MS`）；`-Infinity` ⇒ 首帧即允许起播。
-   */
-  private _wrongFxArmedAtMs = Number.NEGATIVE_INFINITY;
-  /**
-   * G1 `vfx_fill_pop` 落座回弹（WXG-T-128 / `assets-spec §1.6.1`）：与 `_wrongFx` **同判例**
-   * 的表现层计时槽（私有、不入玩法状态；`FILL_POP_MS` 后自清；起播受
-   * `FILL_POP_RESTART_GATE_MS` 重启门约束）。触发源 = `bead:placed` 事件（旧现状：
-   * 该事件 view 侧**零消费者** = G1 列为 P0 的根因）。
-   */
-  private _placeFx: { row: number; col: number; elapsedMs: number } | null = null;
-  /** 落座 fx 上次起播时刻（同 `_wrongFxArmedAtMs` 判例；`-Infinity` ⇒ 首帧即允许起播）。 */
-  private _placeFxArmedAtMs = Number.NEGATIVE_INFINITY;
-  /**
-   * G7 `vfx_denied_press` 不可填格轻压（WXG-T-152 / `assets-spec §1.6.7`）：与 `_placeFx`
-   * 同为**表现层**计时槽（不被 PAUSED 冻结、`_setupLevel` 不清），但门按「同格计」
-   * ⇒ **多格并存**，定长槽数组（`DENIED_MAX_CELLS` = 工程容量，构造期一次性分配，
-   * 逐帧只写值）。⚠️ 动画 120ms 播完后槽**不清 row/col** —— 同格门 250ms > 时长，
-   * 需要死窗记忆；零残留口径由 `_syncSnapshot` 的「在播才导出」保证。
-   */
-  private readonly _deniedFx: {
-    row: number;
-    col: number;
-    elapsedMs: number;
-    armedAtMs: number;
-  }[] = Array.from({ length: DENIED_MAX_CELLS }, () => ({
-    row: -1,
-    col: -1,
-    elapsedMs: 0,
-    armedAtMs: Number.NEGATIVE_INFINITY,
-  }));
+  /** 反馈特效时钟（协作类，见 beads-game/feedback-fx.ts）：连击 / 脉冲 / 抬起 / 各反馈计时全归其内。 */
+  private readonly _fx: FeedbackFx;
   /**
    * G2′ `vfx_solver_restore` 解环器归位队列（WXG-T-150 / `assets-spec §1.6.2a`）。
    *
@@ -422,93 +311,10 @@ export class BeadsGame implements Game {
    * 数组定长预分配（`SOLVER_MAX_CELLS` / ×2），逐帧只写值（热路径零分配）。
    */
   private _solverFx: SolverFxQueue | null = null;
-  /**
-   * **[T-244]** 组批量归位（T-186 直填）的**纯表现**落座队列：数据同帧写盘不变，
-   * 只驱动 view 侧「逐颗 BFS 错峰出现 + fill-pop 落座抖动」。定长 `SOLVER_MAX_CELLS`
-   * （组归位一次上限 = 组内错位珠数 ≤ 组大小 ≤ 盘格数，安全）。惰性建（首次登记帧分配，
-   * 非每帧路径）。
-   */
-  private _groupLandFx: {
-    rows: number[];
-    cols: number[];
-    steps: number[];
-    count: number;
-    elapsedMs: number;
-    totalMs: number;
-  } | null = null;
-  /**
-   * G3 `vfx_powerup_sweep` 道具生效扫光（WXG-T-146 / `assets-spec §1.6.3`）：斜带覆盖整个玩法区
-   * ⇒ 无空间坐标，一个计时标量即可（`-1` = 未播放）。触发源 = `powerup:used`。
-   */
-  private _sweepElapsedMs = -1;
-  /**
-   * G6 `vfx_confetti` 结算彩带（WXG-T-153 / `assets-spec §1.6.6`）：44 枚全由 idx 派生
-   * ⇒ 同 `_sweepElapsedMs` 同构，一个计时标量（`-1` = 未播放）。触发源 = 结算面板入场帧
-   * （裁定 1 延迟门到点开面板同帧臂；D1 直开路径不臂 = 整条关停）。
-   */
-  private _confettiElapsedMs = -1;
-  /**
-   * G4 `vfx_complete_wave` 过关庆祝波浪（WXG-T-146 / `assets-spec §1.6.4`）：全场逐列
-   * ⇒ 一个计时标量（`-1` = 未播放）。同时充当**结算面板的延迟门**（裁定 1）。
-   */
-  private _waveElapsedMs = -1;
   /** 庆祝放完后待开的结算面板（避免离场后残留门在别的相位把面板掀开）。 */
   private _clearPanelPending = false;
-  /**
-   * [T-244 十六批 · 用户令「某色全部对齐 ⇒ 该色珠子从左到右跳一次」] **单色对齐波浪**：
-   * G4 的同一条包络（`scene-vfx::waveEnvelope`），只把参与集
-   * 从「全场」换成「该色的珠」⇒ 逐列错峰天然就是「从左到右」。`-1` = 未播放。
-   * 时长/错峰/跳高 = `COLOR_WAVE_*`（十七批按用户反馈改紧，与 G4 分家）。
-   */
-  private _colorWaveElapsedMs = -1;
-  /** 本条波浪的主角色（`_colorWaveElapsedMs >= 0` 时有效，0 = 无）。 */
-  private _colorWaveIdx = 0;
-  /**
-   * [T-244 十八批] **让位门**（只管 `jump` 档）：某色刚齐但落位动画还在跑 ⇒ 本字段存待播的
-   * `colorIdx`（0 = 无），`_stepColorWaveFx` 等到 `_placeFx`/`_groupLandFx`/`_solverFx` **三通道全空**
-   * 那一帧才接管成 `_colorWaveElapsedMs = 0`。
-   *
-   * 病灶（用户报「与落位动画冲突」，非观感锅、是三条通道级事实）：旧版臂在「最后一颗落定那一帧」
-   * ⇒ ① `draft.lift` 先被波浪写、再被组落座同帧覆写 ⇒ 错配帧；② `popActive = isPop && !isWave`
-   * ⇒ 促成对齐那颗自己的回弹被吞；③ 同一批珠连演两遍运动语言。
-   * ⛔ 没用定长让位期（`GROUP_LAND_TOTAL_MS` = 200）：解环器相 B 的序列总长 =
-   *   `solverSequenceMs(3)` = 480ms ⇒ 定长会漏。等队列空比猜时长便宜且不可能错。
-   */
-  private _colorWavePendingIdx = 0;
-  /** [T-244 十八批] 已齐备色位图（bit = `colorIdx`）；`lock` 档的常驻环靠它，换关清零。 */
-  private _colorLockMask = 0;
-  /** [T-244 十八批] 当前表达档（默认 `pulse`；dev `?cue=` 可切）。 */
-  private _colorCue: ColorCueMode = 'pulse';
-  /**
-   * [T-244 二十二批 · 用户令「每次托盘入/出珠结束，珠子前后变化不匹配就要打错误日志」]
-   * **珠色守恒哨兵**的采样缓冲：`_invBefore` = 搬运命令入口的每色计数，`_invNow` = 收口重采，
-   * `_invBase` = 手动体检用的绝对基准（图案目标 + 夹具凭空量）。
-   * 口径：一次搬运命令里珠**只能移动**（盘→托 / 托→盘 / 盘→盘），任一侧凭空增减即写坏。
-   * 实例字段复用 ⇒ **命令边界零分配**（承热路径铁律；明细串只在失败分支拼）。
-   */
-  private readonly _invBefore = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
-  private readonly _invNow = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
-  private readonly _invBase = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
-  /** 图案每色目标计数（装配时重算），供 `checkBeadConservation` 做绝对体检。 */
-  private readonly _invTarget = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
-  /**
-   * `giveTrayBead` 凭空虚造的珠（测试 / harness 夹具专用，非玩法触发源）。
-   * 并入体检基准 ⇒ 夹具不误报；而玩法命令里凭空多出的那颗**仍会报**（它不走这里）。
-   */
-  private readonly _invExtra = new Array<number>(BEAD_COLOR_MAX + 1).fill(0);
-  /** 采样那一刻的棋盘对象身份：换关 / 冲刺换 stage 会重建 grid+tray ⇒ 前后不可比。 */
-  private _invGrid: BeadGrid | null = null;
-  /**
-   * 一次性轻提示（BD-16 无选中点格 / BD-15 扩展位占位共用通道，ux-spec §5 WXG-T-097）。
-   * 与 `_wrongFx` 同判例：表现层计时，`TAP_HINT_MS` 后自清，不占常驻分配。
-   */
-  private _tapHint: {
-    text: string;
-    row: number;
-    col: number;
-    anchor: 'cell' | 'expand';
-    elapsedMs: number;
-  } | null = null;
+  /** 珠色守恒哨兵（T-244 二十二批）：状态与比对全在协作类里，见 `./beads-game/bead-conservation.ts`。 */
+  private readonly _conservation: BeadConservation;
   /** 首屏引导已完成（老玩家 BOOT 即 true；首次玩家首次落子后置 true）。一置不再重现。 */
   /**
    * **[WXG-T-239 · 2026-10-04 用户裁「先把新手引导留档，实现上先屏蔽掉，后期统一调整」]**
@@ -556,14 +362,30 @@ export class BeadsGame implements Game {
   private _failHint = '';
 
   private _grid: BeadGrid = new BeadGrid(['..11..', '.1111.', '111111', '.1111.', '..11..']);
-  /** Board camera (WXG-T-169 / ADR-0015 丁-3). Identity until a pinch/drag mutates it; authoritative here, view+hit read only. */
-  private _camera: BoardCamera = { ...IDENTITY_CAMERA };
+  /** 棋盘相机 + 手势（协作类；ADR-0015 丁-3 相机真源在其内，本类只读 `camera`）。 */
+  private readonly _board: BoardCameraController;
+  /** 输入协议（按下/抬起提交门、计量、指针缓存）；控件映射与分派仍在本类，见 beads-game/input-router.ts。 */
+  private readonly _input: InputRouter;
+  /** 面板相位的点击路由（协作类，见 beads-game/panel-router.ts）。 */
+  private readonly _panelRouter: PanelRouter;
+  /** UI 控件映射（命中 / 按下态 / 面板选项；协作类，见 beads-game/control-map.ts）。 */
+  private readonly _controls: ControlMap;
+  /** PLAYING 托盘 / 网格点击的分派（协作类，见 beads-game/board-tap-router.ts）。 */
+  private readonly _boardTaps: BoardTapRouter;
+  /** PLAYING 相位界面控件（缩放 / 齿轮 / 道具卡 / 展开按钮）的路由（协作类，见 beads-game/hud-router.ts）。 */
+  private readonly _hud: HudRouter;
+  /** `[WXG-T-295 续]` 顶部安全区深度（设计 px，距屏顶）；仅小游戏宿主取值，其余 0。 */
+  private _safeTop = 0;
+  /** 胶囊底缘深度（设计 px，距屏顶）；HUD 带顶缘 = 设计高 − 本值。仅小游戏宿主取值。 */
+  private _capsuleBottom = 0;
+  /** 底部安全区深度（设计 px，距屏底）；仅小游戏宿主取值。 */
+  private _safeBottom = 0;
   private _layout: GridLayout = gridLayoutFor(6, 5);
 
   private _services: GameServices | null = null;
   private _save: SaveManager<BeadsSave> | null = null;
-  /** D-03 崩溃恢复档（另键 sidecar，WXG-T-059；与 S8 常规档物理隔离）。 */
-  private _crash: CrashSnapshotStore | null = null;
+  /** D-03 崩溃恢复档 IO（另键 sidecar，WXG-T-059；与 S8 常规档物理隔离）。协作类见 beads-game/crash-snapshot-io.ts。 */
+  private readonly _crashIO: CrashSnapshotIO;
 
   private _mode: GameMode = 'normal';
   private _levelIndex = 0;
@@ -573,35 +395,12 @@ export class BeadsGame implements Game {
   private _sprintBestScore = 0;
   private _sprintBestStage = 0;
   private _isNewBest = false;
-  /** S9 settings mirror (S8 is the authority; these are the in-memory copy). */
-  private _bgmMuted = false;
-  private _sfxMuted = false;
-  /** WXG-T-088 accessibility mirror: D1 减弱动效 / E2 大字号（走 snapshot 暴露给 view）。 */
-  private _reduceMotion = false;
-  private _largeText = false;
+  /** S9 设置值镜像 + 音频通道 + 换肤单点（协作类，见 beads-game/game-settings.ts）。 */
+  private readonly _settings: GameSettings;
   /** DEBUG 虚线轮廓开关（不持久化；仅 dev/harness 与 Console 临时开，走 snapshot 暴露给 view）。 */
   private _debugOutlines = false;
-  /** DEBUG 性能覆层开关（唯一**持久化**的 debug 项：走 `settings.debugInfo` 存档通道，pause-settings v1.6 §2.2）——真机 QA 无 console/query，需跨重启保留。 */
-  private _debugInfo = false;
-  private _debugGuides = false;
   /** DEBUG：帧耗时 EMA（ms，α=0.1）；覆层关闭不更新、恒 0，view 派生 fps。 */
   private _frameMs = 0;
-  /** §3.8 震动开关镜像（VIBRATE_DEFAULT = ON；init 时从存档装载）。 */
-  private _vibrate = VIBRATE_DEFAULT;
-  /**
-   * **换肤两档镜像**（EP11-S5 / S9 v1.7 §2.2 行4；S8 §8-11：存档为权威，本处是内存副本）。
-   * `null` 不属本空域——两字段都是**单值**，初值 = 默认档，`init()` 从存档覆盖；
-   * 写入只经 `_cycleBeadStyle` / `_cycleBeadSize` 两枚**循环 setter**（各写各字段恰 1 次，
-   * S9 §8-16）⇒ 不存在第二写入点，也不得把两字段合并成一个「设置对象」写（那会互相重置）。
-   */
-  private _beadStyle: string = DEFAULT_BEAD_STYLE_ID;
-  private _beadSize: BeadSizeKind = BEAD_SIZE_DEFAULT;
-  /**
-   * **整套皮肤 id 镜像**（EP12-S8；S8 §8-11 判例同上两字段：存档为权威，本处是内存副本）。
-   * 初值 = 默认肤，`init()` 从存档覆盖；写入只经 `_cycleSkin`（设置钮）与
-   * `importLevel`（studio 导出链，S9）两处，均走 `_applySkin` 单点换引用。
-   */
-  private _skinId: string = DEFAULT_SKIN_ID;
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
   private readonly _onMenuRequest?: () => void;
   /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
@@ -621,27 +420,8 @@ export class BeadsGame implements Game {
   /** BOOT validation errors — non-empty means the game refuses PLAYING. */
   private _bootErrors: string[] = [];
 
-  /** Scratch point for screen → design conversion (never retained). */
-  private readonly _pointer = { x: 0, y: 0 };
-  /** 按下态命中用的独立 scratch（⛔ 不复用 `_pointer`：后者承载棋盘手势起点语义）。 */
-  private readonly _pressPoint = { x: 0, y: 0 };
   /** 手指按住处的面板钮 id（无 ⇒ null）；每帧由 {@link _pressedButtonNow} 刷新。 */
   private _pressedButton: string | null = null;
-  // ── Board tap / drag / pinch state (WXG-T-169 / ADR-0015 C-3(a)) ──
-  // Reused objects + scalars; the input segment must stay allocation-free per frame.
-  private readonly _tapStart = { x: 0, y: 0 };
-  private _tapActive = false; // owner pressed inside the board region → tap deferred to lift
-  private _tapMoved = false; // single-finger drag past threshold → pan, suppress tap
-  private _pinched = false; // a second finger joined → pinch, suppress tap
-  /** 手指落在 slider 轨道上 → 拖拽映射 x→zoom（吞掉棋盘 tap/pan/pinch）。 */
-  private _zoomSliderDrag = false;
-  /**
-   * 调试专用逐帧累计（`debugGestureState` 读）：pan 分支跑了多少帧、pan 总位移、
-   * 进过 drag 态的帧数。预分配常量字段，热路径**零分配**，不影响行为。
-   */
-  private readonly _dbgPan = { frames: 0, dxSum: 0, movedFrames: 0 };
-  private readonly _gesture = createGesture();
-
   /**
    * 统一选择锚 · board 侧（input-control §2.1 v2.0，Epic T-133 E2）。`null` = 无
    * board 锚。与托盘的 `selected` 槽位态（S4）**三值互斥**：`selection ∈ {tray,
@@ -661,17 +441,7 @@ export class BeadsGame implements Game {
    * 不吃割点 ⇒ 同层押后引路珠），**直填与取回落槽共用同一份序**；推翻 v2.4（WXG-T-183）
    * 的「距选豆点切比雪夫」几何口径。
    */
-  private _boardSelected: {
-    row: number;
-    col: number;
-    /** 选豆点（拾取锚）：建立后恒定，消费序 BFS 的唯一根。 */
-    anchorRow: number;
-    anchorCol: number;
-    /** 组色 = 锚珠色（组内恒同色）。 */
-    color: number;
-    /** 消费序（拾取时一次算好，已消费的前缀随锚更新裁掉）；渲染层只当集合用。 */
-    order: readonly { row: number; col: number }[];
-  } | null = null;
+  private _boardSelected: BoardAnchor | null = null;
 
   constructor(options: BeadsGameOptions = {}) {
     this.tuning = options.tuning ?? DEFAULT_TUNING;
@@ -694,6 +464,121 @@ export class BeadsGame implements Game {
     this.tuning = { ...this.tuning, sprintTime: this._sprintCap };
 
     this._snapshot = createSnapshot(this.tuning);
+    // 协作类的只读宿主视图：getter 惰性读，换关重建 grid/tray 后仍取到最新引用。
+    const self = this;
+    this._settings = new GameSettings({
+      get save() { return self._save; },
+      get services() { return self._services; },
+      applyPalette(tokens) { self.palette = tokens; },
+      emitVibrate(on) { self._emit('settings:vibrate', { on }); },
+    });
+    this._fx = new FeedbackFx({
+      get playing() { return self._machine.current === 'playing'; },
+    });
+    this._board = new BoardCameraController({
+      get grid() { return self._grid; },
+      get playing() { return self._machine.current === 'playing'; },
+      handleTap(x, y) { self._input.handleTap(x, y); },
+      layoutChanged() { self._recomputeLayout(); },
+    });
+    this._hud = new HudRouter({
+      get board() { return self._board; },
+      get hudDy() { return self._hudDy(); },
+      get trayExpanded() { return self._tray.expanded; },
+      sfx(clipId: string) { self._sfx(clipId); },
+      pauseManual() { self._requestPause('manual'); },
+      usePowerup(type: PowerupType) { self.usePowerup(type); },
+      showExpandPlaceholder() { self._fx.showTapHint(AD_PLACEHOLDER_HINT_TEXT, -1, -1, 'expand'); },
+    });
+    this._boardTaps = new BoardTapRouter({
+      get grid() { return self._grid; },
+      get tray() { return self._tray; },
+      get boardSelected() { return self._boardSelected; },
+      set boardSelected(v: BoardAnchor | null) { self._boardSelected = v; },
+      get fx() { return self._fx; },
+      get mode() { return self._mode; },
+      emit(type, payload) { self._emit(type, payload); },
+      checkConservation(op: string) { self._conservation.check(op); },
+      completeStage() { self._completeStage(); },
+      requestLevelClear() { self._machine.transition('level-clear'); },
+      countAction(ok: boolean) { return self._countAction(ok); },
+      placeSelected(row: number, col: number) { return self._placeSelected(row, col); },
+      selectTraySlot(slot: number) { return self.selectTraySlot(slot); },
+      selectBoardBead(row: number, col: number) { return self.selectBoardBead(row, col); },
+      retrieveSelectedGroup() { return self.retrieveSelectedGroup(); },
+      markConsumed() { self._consumedTap = true; },
+      armDenied(row: number, col: number) { self._armDeniedFx(row, col); },
+    });
+    this._controls = new ControlMap({
+      get phase() { return self._machine.current; },
+      get mode() { return self._mode; },
+      get services() { return self._services; },
+      get board() { return self._board; },
+      get hudDy() { return self._hudDy(); },
+      get trayExpanded() { return self._tray.expanded; },
+      get reviveAvailable() { return self._reviveCount < REVIVE_MAX_PER_LEVEL; },
+      get levelCount() { return self._levels.length; },
+      get isLastLevel() { return self._levelIndex >= self._levels.length - 1; },
+      get panel() { return self._panel; },
+      get clearPanel() { return self._clearPanel; },
+      get finishPanel() { return self._finishPanel; },
+      get sprintSettle() { return self._sprintSettle; },
+    });
+    this._panelRouter = new PanelRouter({
+      get mode() { return self._mode; },
+      get reviveAvailable() { return self._reviveCount < REVIVE_MAX_PER_LEVEL; },
+      get levelCount() { return self._levels.length; },
+      get panel() { return self._panel; },
+      get clearPanel() { return self._clearPanel; },
+      get finishPanel() { return self._finishPanel; },
+      get sprintSettle() { return self._sprintSettle; },
+      clearPanelOptions() { return self._controls.clearPanelOptions(); },
+      sfx(clipId: string) { self._sfx(clipId); },
+      startNormal() { self.startNormal(); },
+      retryLevel() { self.retryLevel(); },
+      requestRevive() { self.requestRevive(); },
+      advanceAfterClear() { self._advanceAfterClear(); },
+      startSprintRun() { self._startSprintRun(); },
+      restartRun() { self.restartRun(); },
+      openMenu() { self._onMenuRequest?.(); }, // core-loop v2.3：go-menu 同通道（pause-settings §2.2 判例）
+      applyPanelAction(action: PausePanelAction) { self._applyPanelAction(action); },
+    });
+    this._input = new InputRouter({
+      get phase() { return self._machine.current; },
+      get services() { return self._services; },
+      get board() { return self._board; },
+      hitUiControl(x: number, y: number) { return self._controls.hitUi(x, y); },
+      dispatchTap(x: number, y: number) { self._routeTap(x, y); },
+    });
+    this._conservation = new BeadConservation({
+      get grid() { return self._grid; },
+      get tray() { return self._tray; },
+    });
+    this._crashIO = new CrashSnapshotIO({
+      get phase() { return self._machine.current; },
+      get levels() { return self._levels; },
+      get grid() { return self._grid; },
+      get tray() { return self._tray; },
+      get sprint() { return self._sprint; },
+      get timer() { return self._timer; },
+      get spawner() { return self._spawner; },
+      get powerups() { return self._powerups; },
+      get mode() { return self._mode; },
+      set mode(v: GameMode) { self._mode = v; },
+      get levelIndex() { return self._levelIndex; },
+      set levelIndex(v: number) { self._levelIndex = v; },
+      get pauseIntent() { return self._pauseIntent; },
+      set pauseIntent(v: 'manual' | 'system' | null) { self._pauseIntent = v; },
+      get reviveCount() { return self._reviveCount; },
+      set reviveCount(v: number) { self._reviveCount = v; },
+      get reviveBonusSec() { return self._reviveBonusSec; },
+      set reviveBonusSec(v: number) { self._reviveBonusSec = v; },
+      get isNewBest() { return self._isNewBest; },
+      set isNewBest(v: boolean) { self._isNewBest = v; },
+      loadStage(stageIndex: number) { self._loadStage(stageIndex); },
+      setupLevel(index: number) { self._setupLevel(index); },
+      resetToPaused() { self._machine.reset('paused'); },
+    });
     this._machine = this._buildStateMachine();
   }
 
@@ -816,36 +701,36 @@ export class BeadsGame implements Game {
   }
 
   get bgmMuted(): boolean {
-    return this._bgmMuted;
+    return this._settings.values.bgmMuted;
   }
 
   get sfxMuted(): boolean {
-    return this._sfxMuted;
+    return this._settings.values.sfxMuted;
   }
 
   /** D1 减弱动效开关（view 经 snapshot 消费，抑制非必要位移/脉冲）。 */
   get reduceMotion(): boolean {
-    return this._reduceMotion;
+    return this._settings.values.reduceMotion;
   }
 
   /** E2 大字号开关（view 经 snapshot 消费，正文类文本放大）。 */
   get largeText(): boolean {
-    return this._largeText;
+    return this._settings.values.largeText;
   }
 
   /** 震动开关（§3.8；shell/设置页与面板行回显共读）。 */
   get vibrateOn(): boolean {
-    return this._vibrate;
+    return this._settings.values.vibrate;
   }
 
   /** DEBUG 性能覆层开关（pause-settings v1.6；菜单设置 overlay 与暂停面板同串值共读）。 */
   get debugInfo(): boolean {
-    return this._debugInfo;
+    return this._settings.values.debugInfo;
   }
 
   /** 菜单安全区标定线（设置 Debug 开关；view 只读）。 */
   get debugGuides(): boolean {
-    return this._debugGuides;
+    return this._settings.values.debugGuides;
   }
 
   /**
@@ -853,17 +738,17 @@ export class BeadsGame implements Game {
    * 渲染层不持有游戏状态，只读本值），未经渲染侧兵，非法值已在 `normalizeSettings` 降级。
    */
   get beadStyle(): string {
-    return this._beadStyle;
+    return this._settings.values.beadStyle;
   }
 
   /** 当前豆径档（EP11-S5 / S9 §2.2 行4 右格；仅网格珠读，托盘珠恒满幅不读本值）。 */
   get beadSize(): BeadSizeKind {
-    return this._beadSize;
+    return this._settings.values.beadSize;
   }
 
   /** 当前整套皮肤 id（EP12-S8；shell 菜单回显与暂停面板共用同一 getter ⇒ 两入口恒一致）。 */
   get skinId(): string {
-    return this._skinId;
+    return this._settings.values.skinId;
   }
 
   /** BOOT validation failures ('' when the level data is clean). */
@@ -881,6 +766,22 @@ export class BeadsGame implements Game {
 
   init(services: GameServices): void {
     this._services = services;
+    // `[WXG-T-295 续]` 对局 HUD 顶部避让：与主菜单 `menuAnchors` 同一套接口值/换算，
+    // 只在小游戏宿主启用（harness / node 无刘海与胶囊 ⇒ 全部 0，旧版面逐字节不变）。
+    const plat = services.platform;
+    if (plat.isMiniGame) {
+      const vp = services.viewport;
+      const anchors = menuAnchors({
+        safeTopDp: plat.safeAreaTop,
+        capsuleBottomDp: plat.capsuleBottomDp,
+        safeBottomDp: plat.safeAreaBottom,
+        windowWidthDp: vp.fit.screenWidth,
+        designHeight: vp.designHeight,
+      });
+      this._safeTop = anchors.st;
+      this._capsuleBottom = anchors.H - anchors.btTopY;
+      this._safeBottom = anchors.sb;
+    }
     // ⛔ 供料死路径（WXG-T-136）：`_spawner.tick` 已摘除，游戏级 Rng 缓存随之移除；
     // S6 `random` 直接 attach 注入 Rng（铁律 L4；§8-4 有架构守卫）。供料复活时
     // 恢复 tick 调用即可（直接用 `services.rng`，无需重建字段）。
@@ -901,7 +802,7 @@ export class BeadsGame implements Game {
 
     // D-03：崩溃恢复档是**另键** sidecar（提案 §5 方案 A）——S8 的键 / version /
     // `normalizeBeadsSave` 零改动，`save-schema.ts` 一字未动。
-    this._crash = new CrashSnapshotStore(services.storage);
+    this._crashIO.attach(services.storage);
 
     // BOOT static validation of every level: broken data must fail at boot,
     // never mid-run (core-loop §2.1 — no entering PLAYING with bad data).
@@ -921,20 +822,9 @@ export class BeadsGame implements Game {
     this._sprintBestStage = normalized.save.sprintBestStage;
     // S8 §2.2 `stars`：装载为内存镜像（长度已由 `normalizeBeadsSave` 按关卡表补齐）。
     this._starsByLevel = [...normalized.save.starsByLevel];
-    this._bgmMuted = normalized.save.settings.bgmMuted;
-    this._sfxMuted = normalized.save.settings.sfxMuted;
-    this._reduceMotion = normalized.save.settings.reduceMotion;
-    this._largeText = normalized.save.settings.largeText;
-    this._vibrate = normalized.save.settings.vibrate;
-    this._debugInfo = normalized.save.settings.debugInfo;
-    this._debugGuides = normalized.save.settings.debugGuides;
-    // EP11-S5：换肤两档从存档装载（非法值已由 `normalizeSettings` 逐字段降级为默认档）。
-    this._beadStyle = normalized.save.settings.beadStyle;
-    this._beadSize = normalized.save.settings.beadSize;
-    // EP12-S8：皮肤 id 同批装载并换 tokens 引用（未注册 id 的读档层降级 + 渲染侧
-    // `?? DEFAULT_SKIN` 最后防线双保险，T-267 mvp A4）。
-    this._applySkin(normalized.save.settings.skinId);
-    this._applyAudioChannels();
+    // 十个设置值整对象装载（非法值已由 `normalizeSettings` 逐字段降级为默认）；
+    // 同批换皮肤 tokens 引用、按 bgm 静音态启停背景乐。
+    this._settings.load(normalized.save.settings);
 
     this._subscribe();
     this._boot();
@@ -944,47 +834,33 @@ export class BeadsGame implements Game {
     if (!this._services) return;
     // DEBUG 性能覆层（settings.debugInfo）：帧耗时 EMA（α=0.1 ≈ 十帧平滑）。只在
     // 覆层开着时走本分支，正常玩法零开销；关→开时从 0 重起步（首帧即实测值）。
-    if (this._debugInfo && dt > 0) {
+    if (this._settings.values.debugInfo && dt > 0) {
       const ms = dt * 1000;
       this._frameMs = this._frameMs === 0 ? ms : this._frameMs * 0.9 + ms * 0.1;
     }
     // ── 输入段（相位无关，WXG-T-100 / BD-34）────────────────────────────────
-    // `_handleTap` 的相位路由表已写全四相位（`input-control §2.3 状态门禁`：
+    // `InputRouter.handleTap` 的相位路由表已写全四相位（`input-control §2.3 状态门禁`：
     // PAUSED 仅暂停面板按钮；LEVEL_CLEAR / GAME_OVER / FINISH 仅各自面板按钮；
-    // BOOT 全部忽略），此前唯一缺口是 `_readInput()` 只被 `_stepPlaying()` 调用
+    // BOOT 全部忽略），此前唯一缺口是 `InputRouter.readFrame()` 只被 `_stepPlaying()` 调用
     // ⇒ 面板四相位收不到真链点击、面板按钮沦为空壳（真人永久卡死在暂停面板）。
     // 读输入必须**先于** `machine.update()`：帧内序为
     //   输入（段内序：状态指令 → 玩法事件）→ 连击窗 → 供料 → 计时
     // （`core-loop §2.2.2` / `pause-settings §6`）；放到 `machine.update()` 之后
-    // 会把输入挤到计时之后，破坏该序。热路径零分配：`_readInput` 只写复用指针。
-    this._readInput();
-    this._pressedButton = this._pressedButtonNow();
+    // 会把输入挤到计时之后，破坏该序。热路径零分配：`InputRouter.readFrame` 只写复用指针。
+    this._input.readFrame();
+    this._pressedButton = this._controls.pressedButton();
     this._machine.update(dt);
     // G2′ 相 B 到点动手：**先于**面板与表现层步进，因为本步会写棋盘并可能达成过关
     // （`cleared-priority`，core-loop §2.2.2 ⇒ 完成判定排在同一帧的事件之后）。
     this._stepSolverFx(dt);
-    this._stepGroupLandFx(dt);
-    this._stepTrayLandFx(dt); // [T-244 八批] 托盘进珠：表现层，不被 PAUSED 冻结（同判例） // [T-244] 组落座表现推进
+    this._fx.stepLandings(dt); // [T-244] 组落座 + 托盘进珠：表现层（非 PLAYING 作废）
     // Panel animation is presentation, not gameplay: it keeps running while the
     // world is frozen so the enter/exit ramp never stalls (ux-spec §5).
     this._panel.update(dt * 1000);
     this._clearPanel.update(dt * 1000); // 结算面板同理：退出淡出要在离开 LEVEL_CLEAR 后跑完
     this._finishPanel.update(dt * 1000); // 通关画面同理
     this._sprintSettle.update(dt * 1000); // 冲刺结算面板同理
-    this._stepComboVfx(dt); // §2.5 连击特效：表现层，不被 PAUSED 冻结
-    this._pulseClock += Math.max(0, dt) * 1000; // GAP-04/03/10 循环脉冲基准（同判例不冻结）
-    // §5 抬起斜坡：上限钳在 SELECT_LIFT_MS，不等“满了还累”造成无界计数。
-    this._liftElapsedMs = Math.min(
-      SELECT_LIFT_MS,
-      this._liftElapsedMs + Math.max(0, dt) * 1000,
-    );
-    this._stepWrongFx(dt);
-    this._stepPlaceFx(dt); // G1 落座回弹：同为表现层，不被 PAUSED 冻结
-    this._stepDeniedFx(dt); // G7 不可填格轻压：同为表现层（`assets-spec §1.6.7`）
-    this._stepSweepFx(dt); // G3 道具生效扫光：同上（§1.6.3）
-    this._stepConfettiFx(dt); // G6 结算彩带：同为表现层不冻结（§1.6.6）
-    this._stepColorWaveFx(dt); // [T-244 十六批] 单色对齐波浪：同为表现层单标量、到点自清
-    this._stepTapHint(dt); // BD-16/BD-15 一次性轻提示：同不冻结（表现层）
+    this._fx.stepPresentation(dt, this._solverFx !== null); // 连击 / 脉冲 / 抬起 / 反馈计时（表现层，不冻结）
   }
 
   buildRenderModel(builder: RenderModelBuilder): void {
@@ -1005,7 +881,7 @@ export class BeadsGame implements Game {
     // D-03（WXG-T-059）：写崩溃快照。**必须在 `_requestPause` 之后**——那时 phase 已是
     // PAUSED、倒计时已冻结；而「手动暂停后再 onHide」时 `_requestPause` 会早退，
     // 写盘仍必须执行（提案 §3：已 PAUSED 的 hide 也要覆盖写）。
-    this._writeCrashSnapshot();
+    this._crashIO.write();
   }
 
   /**
@@ -1045,7 +921,7 @@ export class BeadsGame implements Game {
     if (this._countAction(result === 'deselected')) return true; // 兜底：select 已不再产生该值
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
-    this._liftElapsedMs = 0; // §5：托盘选中同样走斜坡（与板锚共用一个时钟）
+    this._fx.resetLift(); // §5：托盘选中同样走斜坡（与板锚共用一个时钟）
     this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
     return this._countAction(true);
   }
@@ -1080,10 +956,10 @@ export class BeadsGame implements Game {
     // (2) 新锚**仍属当前已抬起的组**（`cells` 含旧锚）=> 只是换锚，视觉高度不变 => 不该重播。
     // ⛔ 越界不静默：新锚不在旧组内（换组）或组未抬完（时钟未到位）=> 仍旧复位（= 原行为）。
     const stillRaised =
-      this._liftElapsedMs >= SELECT_LIFT_MS
+      this._fx.liftElapsedMs >= SELECT_LIFT_MS
       && prev !== null
       && cells.some((c) => c.row === prev.row && c.col === prev.col);
-    if (!stillRaised) this._liftElapsedMs = 0; // §5：新锚建起 => 抬起斜坡重来（组内珠一同从底面抬起来）
+    if (!stillRaised) this._fx.resetLift(); // §5：新锚建起 => 抬起斜坡重来（组内珠一同从底面抬起来）
     this._clearTraySelection(); // 互斥换选：board 锚建立 => tray 锚清除
     const order = planConsumeOrder(this._grid, row, col, cells);
     this._boardSelected = {
@@ -1115,78 +991,6 @@ export class BeadsGame implements Game {
   // ────────────────────────────────────────────────── 珠色守恒哨兵（T-244 二十二批）
 
   /**
-   * 把「盘上 filled 珠色 + 托盘 holding 珠色」逐色累加进 `out`。
-   * O(rows·cols + capacity)，只在**玩家命令 / 道具逐颗**边界调，不进 `update`/`step`/`buildRenderModel`。
-   * index 0 照常计数：「色 0 的珠」本身就是异常，让它出现在明细里而不是被默默吃掉。
-   */
-  private _tallyBeadColors(out: number[]): void {
-    out.fill(0);
-    const grid = this._grid;
-    for (let r = 0; r < grid.rows; r++) {
-      for (let c = 0; c < grid.cols; c++) {
-        const cell = grid.cell(r, c);
-        if (cell && cell.state === 'filled') out[cell.beadColorIdx] += 1;
-      }
-    }
-    const tray = this._tray;
-    for (let s = 0; s < tray.capacity; s++) {
-      const slot = tray.slot(s);
-      if (slot && slot.state !== 'free') out[slot.colorIdx] += 1;
-    }
-  }
-
-  /**
-   * 哨兵①（命令**入口**）：采基准并记下棋盘身份。与 `_checkBeadConservation` 成对使用，
-   * ⛔ 只挂**叶级**搬运命令（`retrieveBead` / `_placeSelected` / `_tryDirectFillFromBoard` /
-   * `_solveMisplaced`）——复合命令（`retrieveSelectedGroup` 逐颗调 `retrieveBead`）套上会把基准
-   * 覆盖掉，造成假红。
-   */
-  private _markBeadConservation(): void {
-    this._tallyBeadColors(this._invBefore);
-    this._invGrid = this._grid;
-  }
-
-  /**
-   * 哨兵②（命令**收口**）：每色与入口基准不符 ⇒ `console.error` 打前后明细。
-   * ⛔ **只报不改**（不抛错 / 不回滚 / 不影响裁决）：这是探针；抛错会把一个数据 bug 升级成崩溃。
-   * 棋盘身份变了（过关换关 / 冲刺换 stage ⇒ 托盘已重建）不可比，静默跳过。
-   */
-  private _checkBeadConservation(op: string): void {
-    if (this._grid !== this._invGrid) return;
-    this._tallyBeadColors(this._invNow);
-    this._reportBeadDiff(op, this._invBefore);
-  }
-
-  /** 逐色比对 `_invNow` 与 `base`：相符返回 true；不符 `console.error` 明细后返回 false。 */
-  private _reportBeadDiff(op: string, base: readonly number[]): boolean {
-    let bad = false;
-    for (let i = 0; i < base.length; i++) {
-      if (this._invNow[i] !== base[i]) {
-        bad = true;
-        break;
-      }
-    }
-    if (!bad) return true;
-    const diff: string[] = [];
-    for (let i = 0; i < base.length; i++) {
-      if (this._invNow[i] === base[i]) continue;
-      diff.push(`色${i}:${base[i]}→${this._invNow[i]}`);
-    }
-    const slots: string[] = [];
-    for (let s = 0; s < this._tray.capacity; s++) {
-      const slot = this._tray.slot(s);
-      slots.push(slot && slot.state !== 'free' ? String(slot.colorIdx) : '_');
-    }
-    console.error(
-      `[beads] ⛔ 珠色守恒破坏 · ${op} ⇒ ${diff.join(' ')}` +
-      `｜盘 filled=${this._grid.filledCount}/${this._grid.fillableTotal}` +
-      ` 错位=${this._grid.misplacedCount}` +
-      `｜托 holding=${this._tray.holdingCount} 槽=[${slots.join('')}]`,
-    );
-    return false;
-  }
-
-  /**
    * **手动体检**（公开）：拿「盘 + 托」实际每色数与**图案每色目标**（另加夹具凭空量）比对。
    * 抓盘场景专用：抓到一张怪盘时在控制台敲
    * `__beads.game.checkBeadConservation()` ⇒ 红 = **数据面**被写坏（某色多/少），
@@ -1194,29 +998,7 @@ export class BeadsGame implements Game {
    * 命令级哨兵只管「一次搬运内不增不减」，本函数管「整张盘对不对得起图案」。
    */
   checkBeadConservation(op = '手动体检'): boolean {
-    const base = this._invBase;
-    for (let i = 0; i < base.length; i++) base[i] = this._invTarget[i] + this._invExtra[i];
-    this._tallyBeadColors(this._invNow);
-    return this._reportBeadDiff(op, base);
-  }
-
-  /**
-   * 重算体检基准（图案每色目标 + 凭空量归零）。
-   * @param check 是否顺带做一次体检——`false` = 盘此刻故意是空的（冲刺换 stage）
-   *   或夹具跳过了装配（`noAssemble`），此时「珠 = 0 / 图案 ≠ 0」属正常。
-   */
-  private _noteConservationBaseline(check: boolean): void {
-    const target = this._invTarget;
-    target.fill(0);
-    const grid = this._grid;
-    for (let r = 0; r < grid.rows; r++) {
-      for (let c = 0; c < grid.cols; c++) {
-        const cell = grid.cell(r, c);
-        if (cell && cell.colorIdx > 0) target[cell.colorIdx] += 1;
-      }
-    }
-    this._invExtra.fill(0);
-    if (check) this.checkBeadConservation('初盘装配');
+    return this._conservation.audit(op);
   }
 
   /**
@@ -1230,7 +1012,7 @@ export class BeadsGame implements Game {
     if (this._machine.current !== 'playing') return false;
     // 计量在 `_routeGridEmpty` 里做（真链 `_routeTap` 直调该函数、不经本入口），
     // 在此再计一次会双计。
-    return this._routeGridEmpty(row, col);
+    return this._boardTaps.routeGridEmpty(row, col);
   }
 
   /**
@@ -1248,20 +1030,18 @@ export class BeadsGame implements Game {
    */
   retrieveBead(row: number, col: number): boolean {
     if (this._machine.current !== 'playing') return false;
-    this._markBeadConservation(); // [T-244 二十二批] 哨兵入口（盘→托）
+    this._conservation.mark(); // [T-244 二十二批] 哨兵入口（盘→托）
     const verdict = judgeRetrieve(this._grid, this._tray, row, col);
     if (verdict.outcome === 'stored') {
       // [T-244 九批] 进珠动画登记（多槽队列：push 不覆盖；总窗恒 200ms 承甲案）
-      const tlf = (this._trayLandFx ??= { slots: [], steps: [], elapsedMs: 0, totalMs: GROUP_LAND_TOTAL_MS });
-      tlf.slots.push(verdict.slot);
-      tlf.steps.push(tlf.slots.length - 1);
+      this._fx.pushTrayLand(verdict.slot);
       this._emit('tray:stored', {
         slot: verdict.slot,
         colorIdx: verdict.colorIdx,
         fromRow: verdict.fromRow,
         fromCol: verdict.fromCol,
       });
-      this._checkBeadConservation('取回落槽 retrieve'); // 珠离格必入槽，一处漏写即报
+      this._conservation.check('取回落槽 retrieve'); // 珠离格必入槽，一处漏写即报
       return true;
     }
     // All refusals are silent by design; only impossible coordinates log.
@@ -1348,7 +1128,7 @@ export class BeadsGame implements Game {
     // 事件载荷 = 点名格（§1.6.2a「affectedCells = 预警高亮的格」）；音频派发（S6）零变化。
     const named = outcome.affectedCells;
     this._emit('powerup:used', { type: outcome.type, affectedCells: named });
-    this._armSweepFx(); // G3 扫光（表现层，不影响裁决）：与 §1.6.2a 解环器归位同帧启动
+    this._fx.startSweep(); // G3 扫光（表现层，不影响裁决）：与 §1.6.2a 解环器归位同帧启动
     this._armSolverFx(named);
     return true;
   }
@@ -1375,8 +1155,8 @@ export class BeadsGame implements Game {
    *  - 目标格被另一颗错位珠占据 ⇒ 两格 `setBead` 交换（就位珠 / locked 永不可触）。
    *
    * 落座动画的两条路（§1.6.1 vs §1.6.2a）：
-   *  - **手动 / 非 G2′ 调用**（`fx = null`）⇒ 走 `_armPlaceFx`，受 120ms 连点重启门约束；
-   *  - **解环器相 B**（传 `fx`）⇒ **不碰** `_armPlaceFx`，只往队列的 `land*` 槽里记录
+   *  - **手动 / 非 G2′ 调用**（`fx = null`）⇒ 走 `FeedbackFx.armPlace`，受 120ms 连点重启门约束；
+   *  - **解环器相 B**（传 `fx`）⇒ **不碰** `FeedbackFx.armPlace`，只往队列的 `land*` 槽里记录
    *    「哪一格在第 `step` 颗落座」⇒ 视图按逐颗 80ms 错开自行取包络（每颗一份完整
    *    120ms，不受手动连点门拑制）。交换场景两格**共享同一 `step`**（一步两格同时落）。
    *
@@ -1390,7 +1170,7 @@ export class BeadsGame implements Game {
     step = 0,
   ): boolean {
     if (!this._grid.isMisplaced(row, col)) return false;
-    this._markBeadConservation(); // [T-244 二十二批] 哨兵入口（盘→盘，相 B 逐颗驱动时同样过）
+    this._conservation.mark(); // [T-244 二十二批] 哨兵入口（盘→盘，相 B 逐颗驱动时同样过）
     const bead = this._grid.cell(row, col)!.beadColorIdx;
 
     // 1) 首选：珠色的 empty 目标格。2) 退而：被另一颗错位珠占据的同色目标格 ⇒ 交换。
@@ -1415,7 +1195,7 @@ export class BeadsGame implements Game {
       // 解环器路径**不带 slot**（§4 事件表：`bead:placed.slot` 改可选）。
       this._emit('bead:placed', { row: target.row, col: target.col, colorIdx: bead });
       this._noteSolverLand(fx, step, target.row, target.col);
-      this._checkBeadConservation('解环归位 solve');
+      this._conservation.check('解环归位 solve');
       return true;
     }
     if (swapWith) {
@@ -1428,7 +1208,7 @@ export class BeadsGame implements Game {
       // 方注已登记。相 B（有 `fx`）不走门，两格共享 `step` ⇒ 同时落座。
       this._noteSolverLand(fx, step, row, col);
       this._noteSolverLand(fx, step, swapWith.row, swapWith.col);
-      this._checkBeadConservation('解环交换 solve');
+      this._conservation.check('解环交换 solve');
       return true;
     }
     return false;
@@ -1445,7 +1225,7 @@ export class BeadsGame implements Game {
     col: number,
   ): void {
     if (!fx) {
-      this._armPlaceFx(row, col); // G1 落座回弹（表现层，不影响裁决）
+      this._fx.armPlace(row, col); // G1 落座回弹（表现层，不影响裁决）
       return;
     }
     const i = fx.landCount;
@@ -1454,62 +1234,6 @@ export class BeadsGame implements Game {
     fx.landCols[i] = col;
     fx.landSteps[i] = step;
     fx.landCount = i + 1;
-  }
-
-  /**
-   * **[T-244]** 组落座登记（纯表现）。惰性建队列；总时长 = `STAGGER × (count−1) + PER_BEAD`。
-   * ⛔ 与 `_solverFx` 分列：那条连**落子执行**都由队列驱动（解环器语义），组归位的落子是
-   * **同帧**写盘（T-186 裁定）⇒ 只借表现口径、不借执行语义。
-   */
-  private _noteGroupLand(row: number, col: number, step: number): void {
-    if (!this._groupLandFx) {
-      this._groupLandFx = {
-        // [T-244 五批] 容量用 `GROUP_LAND_MAX`（盘面格数上界）⛔ **不再用 `SOLVER_MAX_CELLS`**
-        // —— 那是解环器单次序列上限（=3），曾导致「一次落 17 颗只有前 3 颗有动画」。
-        rows: new Array<number>(GROUP_LAND_MAX).fill(-1),
-        cols: new Array<number>(GROUP_LAND_MAX).fill(-1),
-        steps: new Array<number>(GROUP_LAND_MAX).fill(-1),
-        count: 0,
-        elapsedMs: 0,
-        totalMs: 0,
-      };
-    }
-    const fx = this._groupLandFx!;
-    if (fx.count >= fx.rows.length) return; // 定长越界静默丢（同 _noteSolverLand 判例）
-    fx.rows[fx.count] = row;
-    fx.cols[fx.count] = col;
-    fx.steps[fx.count] = step;
-    fx.count++;
-    // [T-244 七批] 总时长**恒定** = 错峰预算 + 单珠落位窗 = 80 + 120 = 200ms（与颗数无关）。
-    // ⟹ 错峰偏移在 80ms 预算内按**落珠序号**等差分配（`scene-vfx::groupLandOffsetMs` 同式）。
-    fx.totalMs = GROUP_LAND_TOTAL_MS; // [T-244 甲案] 恒定总窗；单颗窗由 view 侧按颗数分
-  }
-
-  /** [T-244] 组落座推进。**表现层判例**（同 `_stepWrongFx` / `_stepPlaceFx`：不被
-   * PAUSED 冻结——动画不该因暂停丢尾）；非 playing 相位作废（同 `_stepSolverFx` 的
-   * 「过期坐标不动新棋盘」口径——虽然本队列只动表现，保守同判例）。
-   */
-  private _stepGroupLandFx(dt: number): void {
-    const fx = this._groupLandFx;
-    if (!fx) return;
-    if (this._machine.current !== 'playing') {
-      this._groupLandFx = null;
-      return;
-    }
-    fx.elapsedMs += Math.max(0, dt) * 1000;
-    if (fx.elapsedMs >= fx.totalMs) this._groupLandFx = null;
-  }
-
-  /** [T-244 八批] 托盘进珠动画推进（表现层判例：不被 PAUSED 冻结；非 playing 作废）。 */
-  private _stepTrayLandFx(dt: number): void {
-    const fx = this._trayLandFx;
-    if (!fx) return;
-    if (this._machine.current !== 'playing') {
-      this._trayLandFx = null;
-      return;
-    }
-    fx.elapsedMs += Math.max(0, dt) * 1000;
-    if (fx.elapsedMs >= fx.totalMs) this._trayLandFx = null;
   }
 
   /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
@@ -1527,11 +1251,11 @@ export class BeadsGame implements Game {
    */
   tapDesign(x: number, y: number): boolean {
     const before = this._machine.current;
-    this._handleTap(x, y);
+    this._input.handleTap(x, y);
     return this._machine.current !== before || this._consumedTap;
   }
 
-  /** True when the last `_handleTap` route consumed the tap without a phase change. */
+  /** True when the last `InputRouter.handleTap` route consumed the tap without a phase change. */
   private _consumedTap = false;
 
   /**
@@ -1540,20 +1264,9 @@ export class BeadsGame implements Game {
    */
   private _beadLod = false;
 
-  /**
-   * 本局「被消费的点击」计数（playtest 计量件）。只在 PLAYING 相位累加 ——
-   * 暂停/菜单/结算面板的点击不算玩法操作。
-   *
-   * **为何存在**：`beads-bot` 的 `taps` 已被实测推翻为「人类下界」口径（三关带用时
-   * 实测：人类 1.6–1.8 s/击、人类击数 ≈ 0.60–0.76 × bot taps）⇒ 校准 `SEC_PER_TAP`
-   * 需要真实的 (击, 秒) 对，而手记点击数不可靠（同一关两次报 30 / 44）。
-   * ⚠️ 纯统计：不进 `systems-index §3`、不参与任何裁决/星级/存档。
-   */
-  private _tapsPlaying = 0;
-
   /** 本局玩家点击数（含误点；harness/调试用，结算面板走快照字段 `clearTaps`）。 */
   get tapsThisLevel(): number {
-    return this._tapsPlaying;
+    return this._input.tapsPlaying;
   }
 
   /**
@@ -1592,7 +1305,7 @@ export class BeadsGame implements Game {
     if (slot < 0) return -1;
     // [T-244 二十二批] 本钩子按定义就是「凭空造珠」⇒ 计入体检基准（_invExtra），
     // 否则夹具与 harness 控制台注入会造成假红。玩法命令里的凭空珠仍会报（它不走这里）。
-    this._invExtra[colorIdx] += 1;
+    this._conservation.noteExtra(colorIdx);
     this._emit('tray:spawned', { slot, colorIdx });
     return slot;
   }
@@ -1605,7 +1318,7 @@ export class BeadsGame implements Game {
     this._watchingAd = false;
     this._failHint = '';
     this._sprintSettle.close(); // 冲刺结算淡出由 `update()` 跑完（与其余面板同判例）
-    this._crash?.clear(); // D-03（提案 §3）：重开本局 ⇒ 旧快照失效
+    this._crashIO.clear(); // D-03（提案 §3）：重开本局 ⇒ 旧快照失效
     if (this._mode === 'sprint') {
       this._setupSprintRun();
     } else {
@@ -1680,7 +1393,7 @@ export class BeadsGame implements Game {
     // §3.14：整轮重玩 = 新局开局，扣 1 心；0 心 → 看广告回满再重试。
     if (!this._gateRunStart(() => this.restartRun())) return false;
     this._mode = 'normal';
-    this._crash?.clear(); // D-03：整轮重玩 ⇒ 旧快照失效
+    this._crashIO.clear(); // D-03：整轮重玩 ⇒ 旧快照失效
     this._finishPanel.close(); // 淡出由 `update()` 跑完（与结算面板同判例）
     this._setupLevel(0);
     this._machine.transition('playing');
@@ -1692,7 +1405,7 @@ export class BeadsGame implements Game {
     this._mode = 'normal';
     const clamped = Math.max(0, Math.min(index, this._levels.length - 1));
     this._levelIndex = clamped;
-    this._crash?.clear(); // D-03：跳关 ⇒ 旧快照失效
+    this._crashIO.clear(); // D-03：跳关 ⇒ 旧快照失效
     this._setupLevel(clamped);
     this._machine.reset('playing');
   }
@@ -1713,12 +1426,12 @@ export class BeadsGame implements Game {
     // 缺 `skin` 字段的旧草案 ⇒ 零影响（settings.skinId 原样保留）。
     if (typeof raw.skin === 'string') {
       if (skinById(raw.skin) !== undefined) {
-        this._applySkin(raw.skin);
+        this._settings.applySkin(raw.skin);
       } else {
         warnUnregisteredSkin(raw.skin);
-        this._applySkin(DEFAULT_SKIN_ID);
+        this._settings.applySkin(DEFAULT_SKIN_ID);
       }
-      this._persistSettings();
+      this._settings.persist();
     }
     return [];
   }
@@ -1726,7 +1439,7 @@ export class BeadsGame implements Game {
   /** Enter a fresh sprint run (endless ladder). */
   startSprint(): void {
     this._mode = 'sprint';
-    this._crash?.clear(); // D-03：开新冲刺 run ⇒ 旧快照失效
+    this._crashIO.clear(); // D-03：开新冲刺 run ⇒ 旧快照失效
     this._setupSprintRun();
     this._machine.reset('playing');
   }
@@ -1738,40 +1451,14 @@ export class BeadsGame implements Game {
    */
   applySettingsAction(action: PausePanelAction): void {
     switch (action) {
-      case 'toggle-bgm':
-        this._setBgmMuted(!this._bgmMuted);
-        return;
-      case 'toggle-sfx':
-        this._setSfxMuted(!this._sfxMuted);
-        return;
-      case 'toggle-reduce-motion':
-        this._setReduceMotion(!this._reduceMotion);
-        return;
-      case 'toggle-large-text':
-        this._setLargeText(!this._largeText);
-        return;
-      case 'toggle-vibrate':
-        this._setVibrate(!this._vibrate);
-        return;
       case 'toggle-debug-info':
-        this.setDebugInfo(!this._debugInfo);
+        this.setDebugInfo(!this._settings.values.debugInfo);
         return;
       case 'toggle-debug-guides':
-        this.setDebugGuides(!this._debugGuides);
-        return;
-      case 'cycle-bead-style':
-        // EP11-S5 行4 左格（菜单设置 overlay 入口）：与暂停面板同一私有 setter ⇒ 两入口一致。
-        this._cycleBeadStyle();
-        return;
-      case 'cycle-bead-size':
-        // EP11-S5 行4 右格（同上）。
-        this._cycleBeadSize();
-        return;
-      case 'cycle-skin':
-        // EP12-S8 行4 第三格（菜单设置 overlay 入口）：与暂停面板同一私有 setter ⇒ 两入口一致。
-        this._cycleSkin();
+        this.setDebugGuides(!this._settings.values.debugGuides);
         return;
       default:
+        this._settings.apply(action);
         return;
     }
   }
@@ -1786,192 +1473,6 @@ export class BeadsGame implements Game {
   // ─────────────────────────────────────────────────────────────── internals
 
   private readonly _unsubs: (() => void)[] = [];
-
-  // ───────────────────────────────────────── D-03 崩溃快照（WXG-T-059）──────────
-
-  /** 该关可填格数（快照位图长度校验用）；索引非法 → 0。 */
-  private _crashFillableCountFor(index: number): number {
-    const level = this._levels[index];
-    if (!level) return 0;
-    return new BeadGrid(level.pattern).fillableTotal;
-  }
-
-  /**
-   * 快照位图应有长度：普通关按关卡表，**冲刺按舞台图案**
-   * （`buildStagePattern(stageIndex)`——与 `levelIndex` 无关；见 `CrashContext` 注释）。
-   */
-  private _fillableCountFor(mode: GameMode, levelIndex: number, stageIndex: number): number {
-    if (mode === 'sprint') {
-      return new BeadGrid(buildStagePattern(stageIndex).pattern).fillableTotal;
-    }
-    return this._crashFillableCountFor(levelIndex);
-  }
-
-  /**
-   * 只在 PLAYING / PAUSED 写快照；其余相位（BOOT / LEVEL_CLEAR / GAME_OVER / FINISH）
-   * **删除**既有快照（提案 §3 表）——否则过关前的残局会覆盖下次启动。
-   */
-  private _writeCrashSnapshot(): void {
-    const store = this._crash;
-    if (!store) return;
-    const phase = this._machine.current;
-    if (phase !== 'playing' && phase !== 'paused') {
-      store.clear();
-      return;
-    }
-    // 写失败静默（微信 storage 配额）：本局内存态继续，与 S8 §6 同口径。
-    store.write(this._captureCrashSnapshot());
-  }
-
-  /** 抓取局内可序列化子集（提案 §2 字段表 + 2 项增补，见 `crash-snapshot.ts` 文件头）。 */
-  private _captureCrashSnapshot(): CrashSnapshot {
-    // 只收**可填格**：`locked`（x）与 `.` void 由图案重建，禁止另存（防双真源）。
-    const filled: boolean[] = [];
-    for (let r = 0; r < this._grid.rows; r++) {
-      for (let c = 0; c < this._grid.cols; c++) {
-        const cell = this._grid.cell(r, c);
-        if (!cell || cell.void || cell.state === 'locked') continue;
-        filled.push(cell.state === 'filled');
-      }
-    }
-
-    // [T-244 · 2026-10-04 用户令「打印日志确认托盘落珠」时探针实测踩到] ⛔ **旧写法有坑**：
-    //   空槽也填 `colorIdx: 0` ⟹ 从快照**无法区分「空槽」与「色 0 的珠」**（本次托盘珠色恰为 0
-    //   ⟹ 探针据此误判「托盘全空」，实为字段不承载该信息）。⟹ 补 `state`（`SnapshotSlot` 本就
-    //   定义了该字段，只是从没被填）⟹ 任何基于快照的托盘断言自此可靠。
-    const traySlots: { state: SlotState; colorIdx: number }[] = [];
-    for (let i = 0; i < this._tray.capacity; i++) {
-      const slot = this._tray.slot(i);
-      traySlots.push(
-        slot ? { state: slot.state, colorIdx: slot.colorIdx } : { state: 'free' as SlotState, colorIdx: 0 },
-      );
-    }
-
-    const sprint = this._sprint;
-    return {
-      version: 1,
-      // 提案写 `platform.now()`；`GameServices` 未暴露时钟，且 TTL 未启用 ⇒ 用 Date.now()。
-      writtenAtMs: Date.now(),
-      mode: this._mode,
-      levelIndex: this._levelIndex,
-      pauseIntent: this._pauseIntent ?? 'system',
-      gridFilled: encodeFilledBits(filled),
-      traySlots,
-      trayExpanded: this._tray.expanded,
-      traySelected: this._tray.selectedSlot,
-      remaining: this._timer.remaining,
-      timeTotal: this._timer.total,
-      spawnAcc: this._spawner.acc,
-      spawnInterval: this._spawner.interval,
-      spawnFullReported: this._spawner.fullReported,
-      // S6 已入 `src`（WXG-T-060）⇒ 真值；字段语义 = **已用次数**（`0..POWERUP_FREE_USES`）。
-      powerupUses: this._powerups.used,
-      reviveCount: this._reviveCount,
-      reviveBonusSec: this._reviveBonusSec,
-      sprint:
-        this._mode === 'sprint'
-          ? {
-            streak: sprint.streak,
-            multiplier: sprint.multiplier,
-            tier: sprint.tier,
-            score: sprint.score,
-            stageIndex: sprint.stageIndex,
-            bestStage: sprint.bestStage,
-            bestStreak: sprint.bestStreak,
-            windowRemaining: sprint.windowRemaining,
-          }
-          : null,
-    };
-  }
-
-  /**
-   * BOOT 恢复（提案 §4）：校验通过则装配局内态并**停在 PAUSED**，返回 true；
-   * 否则返回 false，由 `_boot()` 走常规新局（坏档已被 `read()` 清掉）。
-   *
-   * `machine.reset('paused')` 会触发 `paused.onEnter`（开面板 + 发 `game:paused`）——
-   * 正是提案要的「与 D-04 回前台语义一致」，也避免 BOOT 当帧 dt 吃掉 remaining。
-   */
-  private _restoreCrashSnapshot(): boolean {
-    const store = this._crash;
-    if (!store) return false;
-    const snapshot = store.read({
-      levelCount: this._levels.length,
-      fillableCountFor: (spec) =>
-        this._fillableCountFor(spec.mode, spec.levelIndex, spec.stageIndex),
-    });
-    if (!snapshot) return false;
-
-    if (!this._applyCrashSnapshot(snapshot)) {
-      store.clear();
-      return false;
-    }
-    // 杀进程后一律按「系统打断」展示面板（提案 §2）。
-    this._pauseIntent = 'system';
-    this._machine.reset('paused');
-    return true;
-  }
-
-  /** 把校验过的快照盖回权威状态；返回 false = 与现行关卡表对不上（丢快照）。 */
-  private _applyCrashSnapshot(snapshot: CrashSnapshot): boolean {
-    const bits = decodeFilledBits(
-      snapshot.gridFilled,
-      this._fillableCountFor(snapshot.mode, snapshot.levelIndex, snapshot.sprint?.stageIndex ?? 0),
-    );
-    if (!bits) return false;
-
-    this._mode = snapshot.mode;
-    if (snapshot.mode === 'sprint') {
-      const sprint = snapshot.sprint;
-      if (!sprint) return false;
-      this._sprint.reset();
-      this._loadStage(sprint.stageIndex);
-      this._sprint.restore(sprint);
-      this._timer.reset(Math.max(snapshot.timeTotal, 0));
-    } else {
-      const level = this._levels[snapshot.levelIndex];
-      if (!level) return false;
-      // v2.0 供料关停（WXG-T-136）⇒ 旧「供料心跳比对」判据随死路径删除。
-      this._levelIndex = snapshot.levelIndex;
-      this._setupLevel(snapshot.levelIndex);
-      this._timer.reset(Math.max(snapshot.timeTotal, 0));
-    }
-
-    // 倒计时：`GameTimer` 没有 remaining setter ⇒ 用 `reset(total)` 再 `tick` 掉差值
-    // （差值 ≥ 0；tick 内部 clamp 到 0，其返回值此处无需消费）。
-    const delta = snapshot.timeTotal - snapshot.remaining;
-    if (delta > 0) this._timer.tick(delta);
-
-    // 位图按图案 zip 盖回（只盖可填格）。
-    let k = 0;
-    for (let r = 0; r < this._grid.rows; r++) {
-      for (let c = 0; c < this._grid.cols; c++) {
-        const cell = this._grid.cell(r, c);
-        if (!cell || cell.void || cell.state === 'locked') continue;
-        if (bits[k]) this._grid.fill(r, c);
-        k += 1;
-      }
-    }
-    if (k !== bits.length) return false;
-
-    // needed[] **重算**（提案 §2：绝不从快照恢复，防双真源）。
-    this._tray.initNeeded(this._grid.neededColorCounts());
-
-    // 托盘：先扩容，再逐槽还原（`colorIdx = 0` 即 free）。
-    if (snapshot.trayExpanded && !this._tray.expanded) this._tray.expand();
-    // v1.22（WXG-T-137）：S6 已无托盘镜像（道具目标 = 棋盘错位珠）⇒ 这里不再
-    // 逐槽喂镜像，只恢复三计数（`restoreUses`）。托盘槽由上面的逐槽还原独立恢复。
-    this._powerups.restoreUses(snapshot.powerupUses);
-
-    // 供料：**先 interval 再 acc**（`interval` setter 会把累加器清零）。
-    this._spawner.interval = snapshot.spawnInterval;
-    this._spawner.acc = snapshot.spawnAcc;
-    this._spawner.fullReported = snapshot.spawnFullReported;
-
-    this._reviveCount = snapshot.reviveCount;
-    this._reviveBonusSec = snapshot.reviveBonusSec;
-    this._isNewBest = false;
-    return true;
-  }
 
   private _buildStateMachine(): StateMachine<BeadsGame, BeadsPhase> {
     const machine = new StateMachine<BeadsGame, BeadsPhase>(this, 'boot', {
@@ -1995,7 +1496,7 @@ export class BeadsGame implements Game {
           if (from === 'level-clear') {
             game._clearPanel.close();
             // 离场即弃庆祝门与波浪（否则残留 pending 可能在别的相位掀开面板）。
-            game._waveElapsedMs = -1;
+            game._fx.cancelWave();
             game._clearPanelPending = false;
           }
         },
@@ -2035,18 +1536,18 @@ export class BeadsGame implements Game {
           );
           game._emit('level:cleared', { levelId, remaining, ratio, stars });
           game._persistProgress();
-          game._crash?.clear(); // D-03（提案 §3）：过关即删，避免残局覆盖下次启动
+          game._crashIO.clear(); // D-03（提案 §3）：过关即删，避免残局覆盖下次启动
           // 结算面板开：`ux-spec §4` 要求 LEVEL_CLEAR **等按钮**（下一关 / 去冲刺）。
           game._clearStarsAnnounced = 0;
           // 裁定 1（T-128）：面板**延迟 `CLEAR_PANEL_DELAY_MS` 开** —— 庆祝波浪先行放完再落遮罩。
           // 代码事实：`drawClearPanel` 首行即全屏遮罩 α0.5 且在 drawGrid 之后 ⇒ 同帧开 = 庆祝被遮死。
           // D1（reduceMotion）：波浪整条关停 ⇒ **不再空等 800ms**（庆祝是延迟的唯一理由，
           // 关掉庆祝还让手感多等 = 纯惩罚）。本派生口径已入台账 T-146 待确认。
-          if (game._reduceMotion) {
+          if (game._settings.values.reduceMotion) {
             game._clearPanel.open();
             game._sfx(AUDIO_CLIP_PANEL_IN);
           } else {
-            game._waveElapsedMs = 0;
+            game._fx.startWave();
             game._clearPanelPending = true;
           }
         },
@@ -2062,7 +1563,7 @@ export class BeadsGame implements Game {
             game._recordSprintEnd(); // 先结算（NEW BEST 与写盘），再开面板（§8-11 的显示依据）
             game._sprintSettle.open();
           }
-          game._crash?.clear(); // D-03（提案 §3）：失败即删
+          game._crashIO.clear(); // D-03（提案 §3）：失败即删
           game._sfx(AUDIO_CLIP_PANEL_IN);
         },
       })
@@ -2108,7 +1609,7 @@ export class BeadsGame implements Game {
 
     // D-03（提案 §4）：校验通过的崩溃档优先——装配局内态并**停在 PAUSED**。
     // 校验失败/缺失 → `read()` 已清掉坏档，走常规新局 PLAYING。
-    if (this._restoreCrashSnapshot()) return;
+    if (this._crashIO.restore()) return;
 
     this._machine.reset('playing');
   }
@@ -2209,7 +1710,7 @@ export class BeadsGame implements Game {
   private _setupLevel(index: number): void {
     const level = this._levels[index];
     if (!level) throw new Error(`Beads: no level at index ${index}`);
-    this._tapsPlaying = 0; // 换关/重试/新局共用复位点（同 F3 甲裁「装配即复位」）
+    this._input.resetTapCount(); // 换关/重试/新局共用复位点（同 F3 甲裁「装配即复位」）
     this._actionsPlaying = 0;
     this._grid = new BeadGrid(level.pattern);
     // v2.0 BOOT 装配（levels-spec v1.2 §2.1 / v1.3 §2.2，WXG-T-139 装配器）：
@@ -2223,21 +1724,14 @@ export class BeadsGame implements Game {
     // WXG-T-172 · F3 甲裁：本行 = 复位点①（换关 / 新局 / 重试 / 跳关共用）。复位档 =
     // fit 初始（[WXG-T-262] 小盘 fit > 1 = 整盘放大档，旧「与恒等逐位相同」口径已推翻）；
     // 回菜单 / 后台隐藏当帧不复位，由下次装配复位（ADR-0015 §3.4）。
-    fitCamera(this._camera, this._grid.cols, this._grid.rows);
-    resetGesture(this._gesture);
-    this._tapActive = false;
-    this._tapMoved = false;
-    this._pinched = false;
-    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
+    this._board.resetForAssembly();
+    this._input.cancelPress(); // 抬起提交门不得跨装配存活（在途按压到新盘上会指向不存在的控件）
+    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._board.camera);
     // ADR-0017 甲案：布局变（= 珠屏幕径变）即重算 LOD 档，带滞回（阈值附近不跳变闪烁）。
     this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
     this._boardSelected = null; // 换关 ⇒ 旧 board 锚指向的格已不存在
     this._solverFx = null; // 换关 / 重试 ⇒ 作废在途的 G2′ 队列
-    this._colorWaveElapsedMs = -1; // [T-244 十六批] 同判例：波浪最多 800ms，但跨关残留会让
-    this._colorWaveIdx = 0;         //   新盘的同号珠白跳一段（列号对新布局无意义）
-    this._colorWavePendingIdx = 0; // [T-244 十八批] 让位门也不能跨关存活（旧盘的待播色在新盘无意义）
-    this._colorLockMask = 0;       //   常驻锁定态同样逐盘重建（新布局同号≠同形）
-    this._groupLandFx = null; // [T-244] 同判例：旧格坐标不动新棋盘（相 B **会写盘**）
+    this._fx.resetForLevel();
     this._tray.reset();
     this._resetPowerups();
     this._tray.initNeeded(this._grid.neededColorCounts());
@@ -2254,7 +1748,7 @@ export class BeadsGame implements Game {
     this._clearReviveBookkeeping();
     // [T-244 二十二批] 装配即算守恒基准并体检一次（图案每色目标 vs 初盘每色实数）。
     // `noAssemble` 夹具盘故意不装配（全盘 empty）⇒ 只算基准不体检，避免假红。
-    this._noteConservationBaseline(!this._noBootAssembly);
+    this._conservation.resetBaseline(!this._noBootAssembly);
   }
 
   /** Fresh sprint run: stage 0 + full countdown. */
@@ -2270,18 +1764,15 @@ export class BeadsGame implements Game {
 
   /** Load sprint stage `n`: pool pattern + C6 params (streak untouched, C8). */
   private _loadStage(n: number): void {
-    this._tapsPlaying = 0; // 冲刺换 stage = 换关语义 ⇒ 计量同步归零
+    this._input.resetTapCount(); // 冲刺换 stage = 换关语义 ⇒ 计量同步归零
     this._actionsPlaying = 0;
     const { pattern } = buildStagePattern(n);
     this._grid = new BeadGrid(pattern);
     // WXG-T-172 · F3 甲裁：本行 = 复位点②（冲刺换 stage）。与 _setupLevel 那处合计 2 点，
     // 不变式 = 装配即复位；fit 按新棋盘尺寸重算（ADR-0015 §3.4）。
-    fitCamera(this._camera, this._grid.cols, this._grid.rows);
-    resetGesture(this._gesture);
-    this._tapActive = false;
-    this._tapMoved = false;
-    this._pinched = false;
-    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
+    this._board.resetForAssembly();
+    this._input.cancelPress(); // 抬起提交门不得跨装配存活（在途按压到新盘上会指向不存在的控件）
+    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._board.camera);
     // ADR-0017 甲案：布局变（= 珠屏幕径变）即重算 LOD 档，带滞回（阈值附近不跳变闪烁）。
     this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
     this._boardSelected = null; // 换 stage ⇒ 旧 board 锚指向的格已不存在
@@ -2293,7 +1784,7 @@ export class BeadsGame implements Game {
     this._spawner.setDecoys([]);
     this._stageIndex = n;
     // [T-244 二十二批] 换 stage ⇒ 棋盘已换且故意是空盘 ⇒ 只重算基准，不体检。
-    this._noteConservationBaseline(false);
+    this._conservation.resetBaseline(false);
   }
 
   /** One PLAYING frame: combo window → countdown (input is read in `update()`). The feed segment is dead (v2.0). */
@@ -2301,7 +1792,7 @@ export class BeadsGame implements Game {
     // 输入段已在 `update()` 头部落下（相位无关，WXG-T-100 / BD-34）。此守卫保留
     // 原语义——「读输入后若已离开 PLAYING（放置/阶段完成可在输入段内切相位：
     // cleared-priority / C8 stage-first）⇒ 本帧不再跑供料 / 连击窗 / 倒计时」。
-    // 上提后该语义由**调用点**结构性地保证：`_readInput()` 若切走相位，
+    // 上提后该语义由**调用点**结构性地保证：`InputRouter.readFrame()` 若切走相位，
     // `machine.update()` 会直接派发新相位的 `onUpdate` ⇒ 本函数根本不会被调用。
     // 保留显式守卫作为该语义的锚点，并防未来新增调用点（如直接从别处驱动）时静默破约。
     if (this._machine.current !== 'playing') return;
@@ -2329,446 +1820,51 @@ export class BeadsGame implements Game {
     }
   }
 
-  /** Read one frame of input and route it (input-control §2.1, short-circuit).
-   *  WXG-T-169 / ADR-0015 C-3(a): 棋盘区 tap 抬起才提交（区外按下即提交不变）；
-   *  双指 = 捏合缩放、单指位移 ≥ 阈值 = 平移，均只写相机、不产玩法指令。 */
-  private _readInput(): void {
-    const services = this._services;
-    if (!services) return;
-    const snap = services.input.snapshot;
-    const vp = services.viewport;
-    const playing = this._machine.current === 'playing';
-
-    if (snap.justDown) {
-      vp.screenToDesign(this._pointer, snap.x, snap.y);
-      // 缩放控件（盘面下方净空带）：按下即提交/进入拖拽态，吞掉事件不进棋盘手势。
-      if (playing && this._zoomControlDown(this._pointer.x, this._pointer.y, !!snap.justUp)) {
-        return;
-      }
-      // 棋盘区起手域 = PUZZLE_BAND 整块（不限「命中某格」）：真机拖拽可从盘面任意处起手。
-      const onBoard =
-        playing && this._pointer.y >= PUZZLE_BAND.yMin && this._pointer.y <= PUZZLE_BAND.yMax;
-      if (onBoard) {
-        // 棋盘区按下 → 登记，不提交；抬起为 tap，中途越阈值转拖拽、次指落下转捏合。
-        this._tapActive = true;
-        this._tapMoved = false;
-        this._pinched = false;
-        this._tapStart.x = this._pointer.x;
-        this._tapStart.y = this._pointer.y;
-        // WXG-T-170 / F1：同一固定步内 down+up 到达（snap.justDown && snap.justUp 同时为真、
-        // snap.isDown 已因 owner 抬起而 false）⇒ 位移恒 0 = 即时 tap。此处不 return，
-        // 下面 `_tapActive && isDown` 守卫自然跳过（isDown=false），到 `justUp` 分支当场提交并复位。
-        if (!snap.justUp) return;
-        this._commitBoardTap(this._pointer.x, this._pointer.y); // 即时 tap（同帧 down+up）：同走低倍缩放门
-        return;
-      } else {
-        this._handleTap(this._pointer.x, this._pointer.y); // 区外：按下即提交（语义不变）
-        return;
-      }
-    }
-
-    if (this._zoomSliderDrag && snap.isDown) {
-      vp.screenToDesign(this._pointer, snap.x, snap.y);
-      this._applyZoomSlider(this._pointer.x);
-      if (snap.justUp) this._zoomSliderDrag = false;
-      return;
-    }
-
-    if (this._tapActive && snap.isDown) {
-      if (snap.isDown2) {
-        this._pinched = true;
-        if (applyPinch(snap, this._camera, this._gesture)) this._recomputeLayout();
-        return;
-      }
-      vp.screenToDesign(this._pointer, snap.x, snap.y);
-      if (!this._tapMoved) {
-        // WXG-T-171 / F2：度量形态 = **切比雪夫 L∞ = max(|dx|,|dy|)**（GDD `input-control §2.1` v2.5 字面对齐）。
-        // 判定域 = 正方形（与盘面格子对齐，手指抖动「不越格」直觉）；旧实现为曼哈顿 L1=|dx|+|dy|，已废。
-        const moved = Math.max(
-          Math.abs(this._pointer.x - this._tapStart.x),
-          Math.abs(this._pointer.y - this._tapStart.y),
-        );
-        if (moved >= BOARD_TAP_MOVE_THRESHOLD) this._tapMoved = true;
-      }
-      if (this._tapMoved) {
-        // 单指拖拽 → 平移相机（screen dx/dy → design：/scale、y 翻向）。
-        const scale = vp.fit.scale || 1;
-        this._dbgPan.frames += 1;
-        this._dbgPan.dxSum += snap.dx / scale;
-        applyPan(snap.dx / scale, -snap.dy / scale, this._camera, this._grid.cols, this._grid.rows);
-        this._recomputeLayout();
-      } else {
-        this._dbgPan.movedFrames += 1;
-      }
-      return;
-    }
-
-    if (snap.justUp) {
-      if (this._tapActive && !this._tapMoved && !this._pinched) {
-        vp.screenToDesign(this._pointer, snap.x, snap.y);
-        this._commitBoardTap(this._pointer.x, this._pointer.y); // 棋盘区 tap：抬起提交（v2.11 低倍档先过缩放门）
-      }
-      this._tapActive = false;
-      this._tapMoved = false;
-      this._pinched = false;
-      this._zoomSliderDrag = false;
-      this._dbgPan.frames = 0;
-      this._dbgPan.dxSum = 0;
-      this._dbgPan.movedFrames = 0;
-      resetGesture(this._gesture);
-    }
-  }
-
-  /**
-   * 棋盘区 tap 提交口（抬起帧，两条路径共用：同帧 down+up / 常规 justUp）。
-   * §3.3 v1.59 `ZOOM_TAP_MIN`（`input-control §2.1`「tap·低倍档」v2.11）：低倍下不放珠，
-   * 改以点击处为焦点放大到 1.0（相机态、零玩法指令，计量口径同 drag/捏合，不占 `_tapsPlaying`）。
-   */
-  private _commitBoardTap(x: number, y: number): void {
-    if (this._machine.current === 'playing' && this._camera.zoom < ZOOM_TAP_MIN) {
-      zoomAtPoint(this._camera, x, y, 1, this._grid.cols, this._grid.rows);
-      this._recomputeLayout();
-      return;
-    }
-    this._handleTap(x, y);
-  }
-
-  /** Fold `_camera` into the grid layout (丁-3). Only called while a gesture is
+  /** Fold `_board.camera` into the grid layout (丁-3). Only called while a gesture is
    *  active — steady frames allocate nothing. ponytail: transient per-frame
    *  layout object during an active pinch/drag; pool-mutate it if profiling says so. */
   private _recomputeLayout(): void {
-    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._camera);
+    this._layout = gridLayoutFor(this._grid.cols, this._grid.rows, this._board.camera);
     // ADR-0017 甲案：布局变（= 珠屏幕径变）即重算 LOD 档，带滞回（阈值附近不跳变闪烁）。
     this._beadLod = nextBeadLod(this._layout.cell, this._beadLod);
   }
 
-  /**
-   * 唯一触摸收口：路由 + 计量。
-   *
-   * 口径 = **玩家在 PLAYING 里点了一下**（含误点与只触到轻提示的无效点）——
-   * 不拿 `_consumedTap` 当条件：那个标志只覆盖部分分支（托盘落子成功也不置它），
-   * 用它计数会漏掉最高频的动作；而人类的误点恰恰是 `beads-bot`「只计成功命令」
-   * 口径里没计入的那部分，不量它就对不上账。
-   */
-  private _handleTap(x: number, y: number): void {
-    if (this._machine.current === 'playing') this._tapsPlaying++;
-    this._routeTap(x, y);
-  }
-
   private _routeTap(x: number, y: number): void {
     this._consumedTap = false;
-    // S2 route 0 — 缩放控件（盘面下方净空带）：仅 PLAYING；吞掉不落盘、不进道具/托盘路由。
-    // 与 `_readInput` 的按下拦截共用 `_zoomControlDown`（真机走前者、`tapDesign` 调试走后者）。
-    if (this._machine.current === 'playing' && this._zoomControlDown(x, y, true)) {
-      this._consumedTap = true;
-      this._sfx(AUDIO_CLIP_UI_TAP);
-      return;
-    }
-    // S2 route 1 — the gear is evaluated **before** the phase router and it is
-    // only meaningful while PLAYING (pause-settings §2.1: 其余状态点齿轮 = 忽略).
-    // Crucially the tap is *swallowed* rather than falling through to the
-    // phase's generic behaviour, which is what §8-7 asserts (no retry-with-the-
-    // pause-button edge in GAME_OVER, no accidental restart in FINISH).
-    if (this._hitGear(x, y)) {
-      if (this._machine.current === 'playing') {
-        this._consumedTap = true;
-        this._requestPause('manual');
-      }
+    // S2 route 0–3（HUD 控件：缩放 / 齿轮 / 道具卡 / 展开按钮）—— 见 `HudRouter`。
+    // 三态：放行（pass）⇒ 继续相位分派；消费（consumed）⇒ 计入 `_consumedTap`；吞掉（swallowed）⇒ 不计消费、不进任何分支。
+    const hud = this._hud.route(this._machine.current, x, y);
+    if (hud !== 'pass') {
+      this._consumedTap = hud === 'consumed';
       return;
     }
     switch (this._machine.current) {
       case 'playing': {
-        // 2. 道具卡（input-control §2.1 优先级 2）。卡片自身即热区
-        //    （`POWERUP_CARD_H` ≥ TOUCH_MIN，§3.8）——超限 / 空作用也在本分支
-        //    内消化：零事件、不落到托盘与网格（§2.6 + 零噪声原则）。
-        const card = this._hitPowerupCard(x, y);
-        if (card) {
-          this._consumedTap = true;
-          this._sfx(AUDIO_CLIP_UI_TAP);
-          this.usePowerup(card);
-          return;
-        }
-        // 3. `btn_expand`（`input-control §2.1` 优先级 3）——**布局 A**（powerups §2.6）：
-        //    本轮无解锁路径 ⇒ 只给同道具超限的占位轻提示，**零事件、零槽变化、
-        //    零扣次、不调 wx 广告 API**（不 `expandTray()`、不发 `tray:expanded`）。
-        if (this._hitExpandButton(x, y)) {
-          this._consumedTap = true;
-          if (!this._tray.expanded) {
-            this._showTapHint(AD_PLACEHOLDER_HINT_TEXT, -1, -1, 'expand');
-          }
-          return;
-        }
         // 4. Tray band (`TRAY_HIT_SIZE`² hit area = 60²，§3.8 v1.57 公式化；旧字面 62) — v2.0 内部分支
         //    4a holding / 4b 空槽，见 `_routeTraySlot`（带级次序不变）。
-        const slot = this._hitTraySlot(x, y);
+        const slot = hitTraySlot(x, y, this._tray.capacity, this.tuning.width);
         if (slot >= 0) {
-          this._routeTraySlot(slot);
+          this._boardTaps.routeTraySlot(slot);
           return;
         }
         // 5. Grid cell (66² hit area, nearest cell centre wins) — v2.0 内部分支
         //    5a 错位珠 / 5b 空格 / 5c locked・就位，见 `_routeGridCell`。
         const cell = this._hitGridCell(x, y);
         if (cell) {
-          this._routeGridCell(cell.row, cell.col);
+          this._boardTaps.routeGridCell(cell.row, cell.col);
         }
         return;
       }
       case 'game-over':
-        if (this._mode === 'sprint') {
-          // `ux-spec §3.5` 左列冲刺结算：只认两个按钮（再来一局 / 返回关卡）——
-          // 面板外点击零响应。此前任意点击都直接重开本局 ✗（与 FINISH 的旧毛病同型）。
-          const settle: SprintSettleAction | null = this._sprintSettle.hitTest(x, y);
-          if (settle) {
-            this._consumedTap = true;
-            this._sfx(AUDIO_CLIP_UI_TAP);
-            if (settle === 'back') this.startNormal();
-            else this.retryLevel();
-          }
-          return;
-        }
-        {
-          const reviveAvailable = this._reviveCount < REVIVE_MAX_PER_LEVEL;
-          const action = hitFailPanel(x, y, reviveAvailable);
-          if (action === 'revive') {
-            this._consumedTap = true;
-            this._sfx(AUDIO_CLIP_UI_TAP);
-            this.requestRevive();
-          } else if (action === 'retry') {
-            this._consumedTap = true;
-            this._sfx(AUDIO_CLIP_UI_TAP);
-            this.retryLevel();
-          }
-        }
+      case 'level-clear':
+      case 'finish':
+      case 'paused':
+        // 面板相位（PAUSED / LEVEL_CLEAR / FINISH / GAME_OVER）：面板外点击零响应，见 `PanelRouter`。
+        this._consumedTap = this._panelRouter.route(this._machine.current, x, y);
         return;
-      case 'level-clear': {
-        // S7 结算面板：只认自己的两个按钮（面板外点击无命中 ⇒ 不推进）。
-        const action: ClearPanelAction | null = this._clearPanel.hitTest(x, y, this._clearPanelOptions());
-        if (action) {
-          this._consumedTap = true;
-          this._sfx(AUDIO_CLIP_UI_TAP);
-          if (action === 'next') this._advanceAfterClear();
-          else this._startSprintRun();
-        }
-        return;
-      }
-      case 'finish': {
-        // `ux-spec §4` 矩阵行 `FINISH | 去冲刺* / 重玩第 1 关`；`input-control §2.3`
-        // 「FINISH：**仅**面板按钮」⇒ 面板外点击零响应（不推进、不误触）。
-        const action: FinishPanelAction | null = this._finishPanel.hitTest(
-          x,
-          y,
-          this._levels.length,
-        );
-        if (action) {
-          this._consumedTap = true;
-          this._sfx(AUDIO_CLIP_UI_TAP);
-          if (action === 'replay') this.restartRun();
-          else if (action === 'menu')
-            this._onMenuRequest?.(); // core-loop v2.3：go-menu 同通道（pause-settings §2.2 判例）
-          else this._startSprintRun();
-        }
-        return;
-      }
-      case 'paused': {
-        // PAUSED answers to panel buttons **only** — the scrim eats everything
-        // else (board / tray / cards / gear, pause-settings §2.2 + §8-1).
-        const action = this._panel.hitTest(x, y, this._mode);
-        if (action) {
-          this._consumedTap = true;
-          this._applyPanelAction(action);
-        }
-        return;
-      }
       default:
-        return; // boot / level-clear: taps ignored (panel answers are PAUSED-only)
+        return; // boot: taps ignored (panel answers are PAUSED-only)
     }
-  }
-
-  /**
-   * 路由 4 · 托盘带内部分支（input-control §2.1 v2.0，Epic T-133 E2；带级次序不变）：
-   *  - **4a holding 槽** → 选中/换选（发 `tray:selected`，锚置 tray）。**满槽不例外**
-   *    （WXG-T-187：旧 §8-11「满槽吞任意槽」门已删——它把禁「取回」扩成禁「换选」，
-   *    而 board 锚无取消路径（`selectBoardBead` 幂等）⇒ 满槽 + 锚 = board 时托盘
-   *    永久点不动（用户 2026-09-22 真机死锁实报）。满槽禁「取回」由 4b「无空槽
-   *    可点」几何保证，input-control §2.4/§8-11 v2.9 同批收窄）。
-   *  - **4b 空槽 且 锚 = board** → 取回（`retrieveBead`，E1 API；成功即清 board
-   *    锚——珠已离格，锚不得指向空格）。
-   *  - **4b 空槽 且 锚 ∈ {tray, none}** → 零事件忽略。GDD 4b 对此写「无效落点
-   *    轻提示」，但轻提示通道 `_showTapHint` 只有 cell / expand 两种锚点几何，
-   *    托盘锚点属 E6 视觉面（本单禁改 view）⇒ 按任务口径先零事件忽略，已回传登记。
-   */
-  private _routeTraySlot(slot: number): void {
-    const traySlot = this._tray.slot(slot)!;
-    if (traySlot.state !== 'free') {
-      // 4a holding —— 换选即转移（§8-12），**满槽不例外**（WXG-T-187：旧 §8-11
-      // 「满槽 + 锚 = board 吞任意槽」门已删。它把禁「取回」扩成禁「换选」，而
-      // board 锚无取消路径（`selectBoardBead` 幂等）⇒ 托盘满 + 锚 = board 时
-      // 托盘永久点不动 = 玩法死锁（用户 2026-09-22 真机实报「托盘完全无法选
-      // 中」）。满槽禁「取回」由 4b「无空槽可点」几何保证，无需状态门。）
-      this.selectTraySlot(slot);
-      return;
-    }
-    const anchor = this._boardSelected;
-    if (!anchor) return; // 4b 无 board 锚：零事件忽略（见方法头注）
-    // v2.4（WXG-T-204）：点击的空槽 = 4b 取回触发（落位由 S4 自动归类，slot 不再下传）；
-    // 容量不足 ⇒ 按消费序前缀部分收纳（能收几颗收几颗）。
-    this.retrieveSelectedGroup();
-  }
-
-  /**
-   * 路由 5 · 网格带内部分支（input-control §2.1 v2.0；带级次序不变）：
-   *  - **5a `filled(错位)`** → `selectBoardBead`（锚置 board，发 `board:selected`）。
-   *    错位判定**只用 grid 派生谓词** `isMisplaced`，不在路由层复制逻辑。
-   *  - **5b `empty`** → 锚 = tray ⇒ `_placeSelected`（S3 裁决 placed/rejected）；
-   *    锚 ∈ {board, none} ⇒ 归位前置缺口轻提示（零事件，仅可落空格——§8-7），
-   *    分支体见 `_routeGridEmpty`（`_placeSelected` 的 slot<0 分支已迁来）。
-   *  - **5c locked / `filled(就位)`** → 极轻非惩罚反馈忽略（§2.4 裁定 4）。G7 极轻
-   *    反馈通道**已落码**（WXG-T-152 / `assets-spec §1.6.7`）⇒ 出口接 `_armDeniedFx`
-   *    （scale 1.00→0.96→1.00 + `sfx_denied`；**零事件零状态写**红线不变）。
-   */
-  private _routeGridCell(row: number, col: number): void {
-    if (this._grid.isMisplaced(row, col)) {
-      this.selectBoardBead(row, col); // 5a
-      return;
-    }
-    if (this._grid.isFillable(row, col)) {
-      this._routeGridEmpty(row, col); // 5b
-      return;
-    }
-    // 5c：locked / void / filled(就位) —— 零事件零状态写；G7 极轻反馈出口
-    //（void / 越界不触发的守卫集中在 `_armDeniedFx`，§1.6.7 非触发集）。
-    this._armDeniedFx(row, col);
-  }
-
-  /**
-   * 5b 空格分支体，真链（`_routeGridCell`）与旁路（`tapGridCell`）共用：
-   * 锚 = tray → 归位请求；否则归位前置缺口轻提示（BD-16，`TAP_HINT_NO_SELECTION_TEXT`，
-   * 仅 fillable 格给——锁定/就位格走 5c 的零事件口径，两判据交界 = §8-7；真链 5b
-   * 只在 empty 格到达本方法，fillable 复核是给旁路保住旧判据）。
-   * 自 `_placeSelected` 的 `slot<0` 分支**迁来**（v2.0：「无选中」语义由锚表达，
-   * S3 收到的归位请求必带 tray 锚；此处是迁移落点而非新增行为）。
-   * @returns true only when the placement was accepted.
-   */
-  private _routeGridEmpty(row: number, col: number): boolean {
-    // 有效动作计量放在汇合处：真链 `_routeTap` 直调本函数（不经 `tapGridCell`），
-    // 包在调用方会让**玩家落子不计**；包在本函数出口 ⇒ 真链与四个公开命令同口径。
-    if (this._tray.selectedSlot >= 0) return this._countAction(this._placeSelected(row, col));
-    // 【WXG-T-162 用户裁定 · 直填放开任意距离】board 锚：组非空 ⇒ 点「对应颜色的空格」
-    // （不限距）直接归位，组保持逐颗续填。未消费（null/false）⇒ 走既有轻提示。
-    const direct = this._tryDirectFillFromBoard(row, col);
-    if (direct !== null) return this._countAction(direct);
-    if (this._grid.isFillable(row, col)) {
-      // [WXG-T-241 · 2026-10-04 用户报「提示先选一颗，但盘面上已经有选中的珠子了」]
-      //
-      // 病灶：本分支的 `TAP_HINT_NO_SELECTION_TEXT`（先选一颗珠子）只在**真的没选中**时成立。
-      // 而 `_tryDirectFillFromBoard` 在「**board 锚存活** + 点的是**错色空格**」时**也返回
-      // `null`**（第 2342 行 `target.colorIdx !== anchor.color` ⇒ 不消费）⇒ 玩家**明明已选中**
-      // 却被告知「先选一颗」⇒ **提示与画面直接矛盾**。
-      //
-      // 修法：按「调用返回后 `_boardSelected` 是否**仍存活**」分流 ——
-      //  · 存活 ⇒ 玩家已选中，点的是**错色格** ⇒ 播**错珠动画**（GAP-04 `wrong` 态，与
-      //    `_placeSelected` 的 `mismatch` 分支**同一通道** `_armWrongFx`），⛔ 不给文案。
-      //  · 已清（组员全死 ⇒ `_tryDirectFillFromBoard` 内 2337-2340 自行清锚）或从无
-      //    ⇒ 「先选一颗珠子」成立，文案保留。
-      // ⚠ 判据用**调用后**的锚状态而非「进来前」：组员全死那条路径会清锚 ⇒ 必须落到文案侧，
-      //   否则会对一个已不存在的选中态播错珠动画。
-      if (this._boardSelected) this._armWrongFx(row, col);
-      else this._showTapHint(TAP_HINT_NO_SELECTION_TEXT, row, col);
-    }
-    return false;
-  }
-
-  /**
-   * 【WXG-T-162 用户裁定（2026-09-18）· 直填任意距离】board 锚直填：
-   * 点「对应颜色（= 组色）的空格」（**不限距**，覆盖 WXG-T-157 的 ≤2 门）⇒ 组内错位珠
-   * 直接归位（`retrieve` + `fill` 同帧两写，`_filledCount` 不变、misplaced −1、无中间态外泄）。
-   * - **【用户裁定 2026-09-20 · 选豆点固定 + 同序配对】**（修 WXG-T-180 整片填写的消费序）：
-   *   目标序 = 被点格 + BFS 连通同色空格（`planGroupFill` 由近及远）；组员消费序 =
-   *   拾取时一次算好（见下）。两者**同序配对**——消费序首颗填最近目标，视觉上
-   *   「从选豆点一片揭起、由近及远归位」（旧「逐目标就近取珠」作废）。
-   * - **【WXG-T-186 用户裁定】消费序口径改写**：旧的「距选豆点**切比雪夫**升序」是几何距，
-   *   与组定义（8 向连通块）不同度量 ⇒ 拐弯组会「跳缺口隔空取物」、同圈层行主序先吃最
-   *   左上珠。改用 `planConsumeOrder` 剥皮序（沿组连通的图上距离 ⇒ 不吃割点 ⇒ 同层
-   *   押后引路珠），与取回落槽共用同一份序。
-   * - **组保持**：被填珠移出 `order`；锚珠被填 ⇒ 仅**头珠**（`row/col`，展示坐标）转移到
-   *   剩余组首（不重发 `board:selected` —— 快照坐标下一帧跟随）；**选豆点不改**；组空 ⇒ 锚清除。
-   * - 归位可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2，同 `_placeSelected`）。
-   * - 底色不匹配 ⇒ 不消费（null），走既有「无对应路径」轻提示口径。
-   * @returns true = 已直填；false = 已消费但拒绝（取珠/落盘失败防御面）；null = 与 board 锚无关（调用方续走旧路径）。
-   */
-  private _tryDirectFillFromBoard(row: number, col: number): boolean | null {
-    const anchor = this._boardSelected;
-    if (!anchor) return null;
-    // 组员存活复核（solver / region / 其它消费可能中途清珠）：`filter` 保序 ⇒ 仍是消费序
-    const alive = anchor.order.filter((c) => {
-      const cell = this._grid.cell(c.row, c.col);
-      return !!cell && cell.state === 'filled' && cell.beadColorIdx === anchor.color && cell.beadColorIdx !== cell.colorIdx;
-    });
-    if (alive.length === 0) {
-      this._boardSelected = null;
-      return null;
-    }
-    const target = this._grid.cell(row, col);
-    if (!target || target.void || target.state !== 'empty' || target.colorIdx !== anchor.color) return null; // 非对应色空格 ⇒ 不消费
-    this._consumedTap = true; // 直填已消费本次点击
-
-    // 【#3 · WXG-T-180 用户裁定】一次点击 = **组批量归位**：填被点空格 + 其 8 向连通的
-    // 同色空格一片（上限 = 组内可用错位珠数），对齐托盘侧 `planGroupFill` 连续填充手感。
-    // 旧「逐颗续填（一点一格）」放宽为整片；retrieve+fill 同帧两写（消费序见下方同序配对）。
-    const targets: { row: number; col: number }[] = [{ row, col }];
-    const extra = planGroupFill(this._grid, row, col, anchor.color, alive.length - 1);
-    for (const e of extra) targets.push(e);
-
-    // 【WXG-T-186 用户裁定】消费序 = 拾取时一次算好的剥皮序（`anchor.order`，上面的存活
-    // 复核 `filter` 天然保序）——与取回落槽共用。目标序 = 被点格 + BFS 由近及远；
-    // 与消费序同序配对：consumption[i] 填 targets[i]。
-    const consumption = alive;
-    const ar = anchor.anchorRow;
-    const ac = anchor.anchorCol;
-    let placedAny = false;
-    let used = 0;
-    for (const t of targets) {
-      const cell = this._grid.cell(t.row, t.col);
-      if (!cell || cell.state !== 'empty' || cell.colorIdx !== anchor.color) continue; // 复核（被点格外均为 BFS 收集的同色空格）
-      const src = consumption[used]!;
-      const bead = this._grid.retrieve(src.row, src.col);
-      if (!bead || !this._grid.fill(t.row, t.col, bead)) {
-        if (bead) this._grid.fill(src.row, src.col, bead); // 防御回滚（理论不可达：目标已验 empty）
-        continue; // 该员不消费，余序不变
-      }
-      used++;
-      // [T-244] 表现层登记：step = BFS 序（targets[0] = 被点格 ⇒ 「从当前点击的槽开始扩展」）。
-      // [T-244] 表现层登记：step = 落珠序（targets[0] = 被点格 ⇒ 「从当前点击的槽开始」）。
-      // [T-244 修正四批] step = **落珠序号**（同托盘路径口径）
-      this._noteGroupLand(t.row, t.col, used - 1);
-      this._emit('bead:placed', { row: t.row, col: t.col, colorIdx: bead }); // 盘内移动不经托盘 ⇒ 无 slot
-      placedAny = true;
-      if (used >= consumption.length) break;
-    }
-    if (!placedAny) return false;
-    this._checkBeadConservation('盘内直填 directFill'); // 在过关/换 stage 转换**之前**核（转换会重建棋盘）
-
-    // 锚更新：组空 ⇒ 清；否则**头珠**（row/col，展示用）改指剩余组首（消费序），
-    // 选豆点 anchorRow/Col 恒不变（用户裁定 2026-09-20）。
-    if (used >= consumption.length) {
-      this._boardSelected = null;
-    } else {
-      const head = consumption[used]!;
-      this._boardSelected = {
-        row: head.row,
-        col: head.col,
-        anchorRow: ar,
-        anchorCol: ac,
-        color: anchor.color,
-        order: consumption.slice(used),
-      };
-    }
-    // 归位后可能达成零错位 ⇒ cleared-priority（core-loop §2.2.2）
-    if (this._grid.isComplete()) {
-      if (this._mode === 'sprint') this._completeStage();
-      else this._machine.transition('level-clear');
-    }
-    return true;
   }
 
   /**
@@ -2787,80 +1883,9 @@ export class BeadsGame implements Game {
    */
   private _hudDy(): number {
     const h = this._services?.viewport?.designHeight ?? DESIGN_H;
-    return h > DESIGN_H ? h - DESIGN_H : 0;
-  }
-
-  /** Gear hot zone: TOUCH_MIN square at the left edge of HUD_BAND（随 {@link _hudDy} 上移）. */
-  private _hitGear(x: number, y: number): boolean {
-    const dy = this._hudDy();
-    return x >= 0 && x <= GEAR_HIT_SIZE && y >= HUD_BAND.yMin + dy && y <= HUD_BAND.yMax + dy;
-  }
-
-  // ────────── 棋盘缩放控件（盘面下方净空带，几何与 view-model 同源 `zoomControlLayout`）
-
-  /** 命中缩放控件条（热区各 88×88）：`reset`「1:1」/ `fit` 适配 / `track` slider。 */
-  private _zoomControlHit(x: number, y: number): 'reset' | 'fit' | 'track' | null {
-    const zc = zoomControlLayout();
-    const inside = (r: { x: number; y: number; w: number; h: number }): boolean =>
-      x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
-    if (inside(zc.reset)) return 'reset';
-    if (inside(zc.fit)) return 'fit';
-    if (inside(zc.track)) return 'track';
-    return null;
-  }
-
-  /**
-   * 缩放控件按下处理；返回 true = 事件已消费（不进棋盘 tap/pan/pinch）。
-   * `justUp`（同帧 down+up，WXG-T-170 口径）时 track 只做一次性提交、不进拖拽态。
-   */
-  private _zoomControlDown(x: number, y: number, justUp: boolean): boolean {
-    const hit = this._zoomControlHit(x, y);
-    if (!hit) return false;
-    if (hit === 'reset') {
-      this._resetZoom();
-    } else if (hit === 'fit') {
-      fitCamera(this._camera, this._grid.cols, this._grid.rows);
-      this._recomputeLayout();
-    } else {
-      this._applyZoomSlider(x);
-      this._zoomSliderDrag = !justUp;
-    }
-    return true;
-  }
-
-  /** slider x（设计空间）→ zoom：轨道线性映射绝对档 `[CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]`（§3.3 v1.59），`setCameraZoom` 内夹取。 */
-  private _applyZoomSlider(x: number): void {
-    const track = zoomControlLayout().track;
-    setCameraZoom(
-      this._camera,
-      zoomFromSliderT((x - track.x) / track.w),
-      this._grid.cols,
-      this._grid.rows,
-    );
-    this._recomputeLayout();
-  }
-
-  /** 「1:1」：还原 1.0 倍缩放（复位到恒等相机：zoom=1、平移归零）。 */
-  private _resetZoom(): void {
-    resetCamera(this._camera);
-    clampCamera(this._camera, this._grid.cols, this._grid.rows);
-    this._recomputeLayout();
-  }
-
-  /**
-   * Powerup card hot zone — the *drawn* rect, from the shared
-   * `powerupCardRects()` (§3.8: card height ≥ TOUCH_MIN, so no extra expansion;
-   * a card tap is never ambiguous with the tray/grid bands).
-   */
-  private _hitPowerupCard(x: number, y: number): PowerupType | null {
-    const rects = powerupCardRects();
-    for (let i = 0; i < rects.length; i++) {
-      const r = rects[i]!;
-      if (x >= r.x && x <= r.x + r.w && y >= r.bottom && y <= r.bottom + r.h) {
-        return POWERUP_TYPES[i] ?? null;
-      }
-    }
-    return null;
+    const extra = h > DESIGN_H ? h - DESIGN_H : 0;
+    // 胶囊底缘是「吞点击」硬约束：HUD 带顶缘压到其下方（仅小游戏宿主；其余档 0 = 旧行为）。
+    return extra - this._capsuleBottom;
   }
 
   /**
@@ -2877,40 +1902,21 @@ export class BeadsGame implements Game {
       case 'restart':
         this._resetLevelForArtifact();
         return;
+      // 设置类动作：只写设置 + 经 snapshot 回显（不切相位、不推计时；toggle-vibrate 的真机
+      // vibrateShort 属平台适配层，批0 不接）。与主菜单设置 overlay 共用 `GameSettings.apply`。
       case 'toggle-bgm':
-        this._setBgmMuted(!this._bgmMuted);
-        return;
       case 'toggle-sfx':
-        this._setSfxMuted(!this._sfxMuted);
-        return;
       case 'toggle-reduce-motion':
-        // D1: write the setting only (leave PAUSED) — the view re-reads it off
-        // the snapshot, so the change is visible the moment we resume (WXG-T-088).
-        this._setReduceMotion(!this._reduceMotion);
-        return;
       case 'toggle-large-text':
-        this._setLargeText(!this._largeText);
-        return;
       case 'toggle-vibrate':
-        // §3.8：只写设置（留 PAUSED），真机 vibrateShort 调用属平台适配层（ponytail:
-        // 批0 不接真震动 API，待真机复验窗口接入 adapters）。
-        this._setVibrate(!this._vibrate);
+      case 'cycle-bead-style':
+      case 'cycle-bead-size':
+      case 'cycle-skin':
+        this._settings.apply(action);
         return;
       case 'toggle-debug-info':
         // pause-settings v1.6 §2.2：只写设置 + 经 snapshot 回显（不切相位），真机 QA 无 console 时的性能诊断入口。
-        this.setDebugInfo(!this._debugInfo);
-        return;
-      case 'cycle-bead-style':
-        // EP11-S5 行4 左格（S9 §2.2「选择器钮」）：只换档 + 写档，留 PAUSED、不推计时。
-        this._cycleBeadStyle();
-        return;
-      case 'cycle-bead-size':
-        // EP11-S5 行4 右格（同上）。
-        this._cycleBeadSize();
-        return;
-      case 'cycle-skin':
-        // EP12-S8 行4 第三格（S9 §2.2 选择器钮判例）：只换肤 + 写档，留 PAUSED、不推计时。
-        this._cycleSkin();
+        this.setDebugInfo(!this._settings.values.debugInfo);
         return;
       case 'go-menu':
         // 回主菜单（pause-settings v1.4 §8-11，WXG-T-165 真机反馈反转）：上报意图、
@@ -2928,37 +1934,6 @@ export class BeadsGame implements Game {
     }
   }
 
-  /** 面板几何/文案选项（末关把主钮文案切成「查看结果」）。 */
-  private _clearPanelOptions(): ClearPanelOptions {
-    return this._levelIndex >= this._levels.length - 1 ? CLEAR_OPTS_LAST : CLEAR_OPTS_NORMAL;
-  }
-
-  /**
-   * 按下态命中（EP12-S4 续办 · screens.md 控件矩阵「按下」列）：手指**按住**时落在哪块**可见**
-   * 面板的哪颗钮上（无 ⇒ `null`）。与各面板 `hitTest` **同一几何**，但按 `visible` 而非相位/
-   * `interactive` 判——面板钮按下即提交，同帧相位已切走，面板仍在 150ms 淡出，按下态须留到淡完。
-   * 只读、零分配。
-   */
-  private _pressedButtonNow(): string | null {
-    const services = this._services;
-    if (!services || !services.input.snapshot.isDown) return null;
-    const snap = services.input.snapshot;
-    services.viewport.screenToDesign(this._pressPoint, snap.x, snap.y);
-    const x = this._pressPoint.x;
-    const y = this._pressPoint.y;
-    if (this._finishPanel.visible) return hitFinishPanel(x, y, this._levels.length);
-    if (this._clearPanel.visible) return hitClearPanel(x, y, this._clearPanelOptions());
-    if (this._sprintSettle.visible) return hitSprintSettle(x, y);
-    if (this._panel.visible) {
-      for (const b of pausePanelLayout(this._mode).buttons) if (rectContains(b.rect, x, y)) return b.id;
-      return null;
-    }
-    if (this._machine.current === 'game-over' && this._mode !== 'sprint') {
-      return hitFailPanel(x, y, this._reviveCount < REVIVE_MAX_PER_LEVEL);
-    }
-    return null;
-  }
-
   /**
    * 结算面板每帧：只在**星级入场**时各触发一次音效（ux-spec §5「每星叮上行」）。
    * 面板自身的入/出动画在 `update()` 里跑（表示层不停表，与 S9 面板同判例）。
@@ -2966,18 +1941,15 @@ export class BeadsGame implements Game {
   private _stepLevelClear(dt: number): void {
     // G4 波浪推进 + 结算面板延迟门（裁定 1）。本相位内不存在 PAUSED，故照常推进；
     // `ClearPanel.update()` 在 `_shown = false` 时早退 ⇒ 星级计时不会在延迟期攒成一次爆发。
-    if (this._waveElapsedMs >= 0) {
-      this._waveElapsedMs += Math.max(0, dt) * 1000;
-      if (this._waveElapsedMs >= CLEAR_PANEL_DELAY_MS) this._waveElapsedMs = -1;
-    }
+    this._fx.stepWave(dt);
     if (
       this._clearPanelPending &&
-      this._waveElapsedMs < 0 &&
+      !this._fx.waveActive &&
       this._machine.current === 'level-clear'
     ) {
       this._clearPanelPending = false;
       this._clearPanel.open();
-      this._confettiElapsedMs = 0; // G6 彩带与面板入场同帧启动（非 D1 路径；D1 直开不臂 = 整条关停）
+      this._fx.startConfetti(); // G6 彩带与面板入场同帧启动（非 D1 路径；D1 直开不臂 = 整条关停）
       this._sfx(AUDIO_CLIP_PANEL_IN);
     }
     const shown = this._clearPanel.starsShown(this._lastStars);
@@ -3023,7 +1995,7 @@ export class BeadsGame implements Game {
     this._mode = 'sprint';
     this._clearPanel.close();
     this._finishPanel.close(); // 两个面板都可能发起冲刺（结算页 / 通关画面，U1 三处之其二）
-    this._crash?.clear();
+    this._crashIO.clear();
     this._setupSprintRun();
     this._machine.reset('playing');
   }
@@ -3034,7 +2006,7 @@ export class BeadsGame implements Game {
    * Sprint also drops the combo state (P1 frozen 2026-09-12).
    */
   private _resetLevelForArtifact(): void {
-    this._crash?.clear(); // D-03：重玩本关 / 重新冲刺 ⇒ 旧快照失效
+    this._crashIO.clear(); // D-03：重玩本关 / 重新冲刺 ⇒ 旧快照失效
     if (this._mode === 'sprint') {
       this._setupSprintRun();
     } else {
@@ -3107,7 +2079,7 @@ export class BeadsGame implements Game {
   private _placeSelected(row: number, col: number): boolean {
     const slotHead = this._tray.selectedSlot;
     if (slotHead < 0) return false; // 防御：无锚不该到达（路由层已拦截并提示）
-    this._markBeadConservation(); // [T-244 二十二批] 哨兵入口（托→盘）
+    this._conservation.mark(); // [T-244 二十二批] 哨兵入口（托→盘）
     const colorIdx = this._tray.selectedColor;
     const groupSize = this._tray.selectedCount;
     const verdict = judgePlacement(this._grid, row, col, colorIdx, slotHead);
@@ -3138,7 +2110,7 @@ export class BeadsGame implements Game {
           this._tray.takeBead(slot);
           this._emit('bead:placed', { row: c.row, col: c.col, colorIdx, slot });
           // [T-244 修正 · 2026-10-04 用户报「没有错峰落子/没有下压/顺序不由近及远」]
-          // 病灶：本循环每颗调 `_armPlaceFx`（**G1 单槽**）⟹ 逐颗互相覆盖，只有**最后一颗**
+          // 病灶：本循环每颗调 `FeedbackFx.armPlace`（**G1 单槽**）⟹ 逐颗互相覆盖，只有**最后一颗**
           // 有落座动画 ⟹ 组批量时：无错峰、无下压、顺序无从谈起（**首版挂错了路径**——
           // 只挂了 board 锚直填 `_tryDirectFillFromBoard`，而游戏主流程是本托盘锚路径）。
           // 修法：走 `_groupLandFx` 队列（step = 与**点击落珠位置**的距离）。
@@ -3153,7 +2125,7 @@ export class BeadsGame implements Game {
           // [T-244 修正四批 · 用户裁「乙」] step = **落珠序号**（`i` = 填充序）⟹ 每颗都错峰（蛇形）。
           // ⛔ 撤销修正二批的「环号 + 同环同时」：用户明确改口径为**按落珠顺序**逐颗延迟。
           // 「由近及远」仍成立 —— `planGroupFill` 的填充序本身 = 被点格 + BFS 由近及远。
-          this._noteGroupLand(c.row, c.col, i);
+          this._fx.pushGroupLand(c.row, c.col, i);
           // GAP-03：首次落子即清引导（事件驱动，无计时器，§6.1）。
           // BD-32：引导完成**显式落盘** —— patch 只置 dirty，杀进程场景 flush 前丢
           // 写 ⇒ 此处一次性低频 IO 直接 save()。幂等守卫：仅首次落子写一次（后续
@@ -3169,9 +2141,7 @@ export class BeadsGame implements Game {
             if (score.tierUp !== null) {
               // §2.5 特效三档随倍率档触发；派生项：重叠时只播**最高档**。
               const spec = comboVfxSpec(score.tierUp);
-              if (spec && (!this._comboVfx || spec.tier >= this._comboVfx.spec.tier)) {
-                this._comboVfx = { spec, elapsedMs: 0, row: c.row, col: c.col };
-              }
+              if (spec) this._fx.armCombo(spec, c.row, c.col);
               this._emit('combo:up', {
                 streak: score.streak,
                 multiplier: score.multiplier,
@@ -3191,7 +2161,7 @@ export class BeadsGame implements Game {
             break; // 过关已判 ⇒ 不再续填（同帧口径与单珠版一致）
           }
         }
-        this._checkBeadConservation('托盘落子 place'); // 每填一格必少一珠，混色重排写坏即报
+        this._conservation.check('托盘落子 place'); // 每填一格必少一珠，混色重排写坏即报
         return true;
       }
       case 'rejected': {
@@ -3208,7 +2178,7 @@ export class BeadsGame implements Game {
         // GAP-04 `wrong` 态：仅颜色不匹配（mismatch）触发拖动+danger 描边；
         // `invalid-color`（越界编程错）只 console.warn，不给玩家反馈。
         if (verdict.reason === 'mismatch') {
-          this._armWrongFx(verdict.row, verdict.col);
+          this._fx.armWrong(verdict.row, verdict.col);
         }
         if (this._mode === 'sprint') {
           const reason = this._sprint.onRejected();
@@ -3267,174 +2237,9 @@ export class BeadsGame implements Game {
 
   // ──────────────────────────────────────────────── S9 settings & audio channels
 
-  /**
-   * Persist a settings change immediately (save-progress §2.2: 开关切换即写).
-   * The whole `settings` object is patched in one write, so a same-frame pair
-   * of toggles never produces two documents (§6 idempotence).
-   */
-  private _persistSettings(): void {
-    const save = this._save;
-    if (!save) return;
-    save.patch({
-      settings: {
-        bgmMuted: this._bgmMuted,
-        sfxMuted: this._sfxMuted,
-        reduceMotion: this._reduceMotion,
-        largeText: this._largeText,
-        vibrate: this._vibrate,
-        debugInfo: this._debugInfo,
-        debugGuides: this._debugGuides,
-        // EP11-S5：两字段并入同一次 patch ⇒ 与开关共用「整对象一次写」口径（S8 §6 幂等）。
-        beadStyle: this._beadStyle,
-        beadSize: this._beadSize,
-        // EP12-S8：皮肤 id 并入同一次 patch（同口径；`_cycleSkin` 一次点按仍恰写档 1 次）。
-        skinId: this._skinId,
-      },
-    });
-    save.save();
-  }
-
-  /** Music channel toggle — see `_applyAudioChannels` for the two-channel note. */
-  private _setBgmMuted(muted: boolean): void {
-    this._bgmMuted = muted;
-    this._applyAudioChannels();
-    this._persistSettings();
-  }
-
-  /** Sfx channel toggle — fully independent of the music channel (§8-4). */
-  private _setSfxMuted(muted: boolean): void {
-    this._sfxMuted = muted;
-    this._persistSettings();
-  }
-
-  /** D1 减弱动效开关：写档 + 经 snapshot 回显给 view（不切相位）。 */
-  private _setReduceMotion(on: boolean): void {
-    this._reduceMotion = on;
-    this._persistSettings();
-  }
-
-  /** E2 大字号开关：写档 + 经 snapshot 回显给 view（不切相位）。 */
-  private _setLargeText(on: boolean): void {
-    this._largeText = on;
-    this._persistSettings();
-  }
-
-  /** §3.8 震动开关：写档 + 发 `settings:vibrate`（§4 meta 事件；不切相位）。 */
-  private _setVibrate(on: boolean): void {
-    this._vibrate = on;
-    this._persistSettings();
-    this._emit('settings:vibrate', { on });
-  }
-
-  /**
-   * **行4 左格「珠子风格」循环**（EP11-S5 / S9 v1.7 §2.2、§8-15/§8-16）。
-   *
-   * 循环序 = `registry` **注册序**（§8-15 真源；本函数不重排也不排序）；到达末档回绕到
-   * 首档。当前 id 不在注册表内（理论不可达：读档已在 `normalizeSettings` 降级）⇒ 落 index 0，
-   * ⛔ 不静默留档、也不新增事件名（S8 §8-12「不新造事件」）。
-   *
-   * 三条硬约束：① 每次调用 `_persistSettings()` **恰 1 次**（S9 §8-16「各写各字段恰 1 次」——
-   * 本函数只动 `beadStyle`，绝不顺手写 `beadSize`）；② 不切相位、不推计时、不动棋局（L5）；
-   * ③ 零分配热路径友好——面板点击非每帧，但仍走索引扫而不用 `find`/`map`（§2 纪律统一）。
-   */
-  private _cycleBeadStyle(): void {
-    const styles = registeredStyles();
-    let next = 0;
-    for (let i = 0; i < styles.length; i++) {
-      if (styles[i].id === this._beadStyle) {
-        next = (i + 1) % styles.length;
-        break;
-      }
-    }
-    this._beadStyle = styles[next].id;
-    this._persistSettings();
-  }
-
-  /**
-   * **行4 右格「豆子尺寸」循环**（EP11-S5 / S9 §2.2；档序 = `BEAD_SIZE_ORDER`，住 `tuning.ts`）。
-   * 与 `_cycleBeadStyle` 同门：一次调用只写 `beadSize` 一个字段、`_persistSettings()` 恰 1 次、
-   * 不切相位不推计时。生效面 = **仅网格珠珠体**（含已填态），托盘珠恒满幅不读本值（ux §3.3 ④）。
-   */
-  private _cycleBeadSize(): void {
-    let next = 0;
-    for (let i = 0; i < BEAD_SIZE_ORDER.length; i++) {
-      if (BEAD_SIZE_ORDER[i] === this._beadSize) {
-        next = (i + 1) % BEAD_SIZE_ORDER.length;
-        break;
-      }
-    }
-    this._beadSize = BEAD_SIZE_ORDER[next];
-    this._persistSettings();
-  }
-
-  /**
-   * **皮肤换引用单点**（EP12-S8）：写 `_skinId` 镜像 + 换 `palette` 实例引用。
-   * 未注册 id 的**渲染侧最后防线** = `skinById ?? DEFAULT_SKIN`（同 `styleById` 回落
-   * 判例；读档层 `normalizeSettings` 已先降级一层，本防线由测试钉住）。
-   * ⛔ 禁插值/过渡帧（styleId 先例：下一帧生效）；⛔ 不动珠色墨水（皮肤作用域 =
-   * UI 令牌族，arch.md D4 —— 本函数只换 `palette`，`inksCache` 与珠面零涉）。
-   */
-  private _applySkin(id: string): void {
-    this._skinId = id;
-    this.palette = (skinById(id) ?? DEFAULT_SKIN).tokens;
-  }
-
-  /**
-   * **行4「皮肤」循环**（EP12-S8 判例 = `_cycleBeadStyle` 同门）：
-   * 循环序 = `registeredSkins()` 注册序；到达末档回绕；当前 id 不在注册表内
-   * （理论不可达）⇒ 落 index 0。一次调用 `_persistSettings()` 恰 1 次、只写
-   * `skinId` 一个字段、不切相位不推计时不动棋局（L5）。
-   */
-  private _cycleSkin(): void {
-    const skins = registeredSkins();
-    let next = 0;
-    for (let i = 0; i < skins.length; i++) {
-      if (skins[i].id === this._skinId) {
-        next = (i + 1) % skins.length;
-        break;
-      }
-    }
-    this._applySkin(skins[next].id);
-    this._persistSettings();
-  }
-
-  /**
-   * Apply both channels to the audio layer.
-   *
-   * Deviation note (reported to the lead): architecture-beads §2 proposes two
-   * `AudioScheduler` instances sharing one `AudioBackend`, but a game only ever
-   * receives `GameServices.audio` — the `Platform` (which owns
-   * `createAudioBackend()`, `platform/platform.ts`) is created inside `App`
-   * (`compose/app.ts`) and is not reachable from `GameServices`
-   * (`core/game/game.ts`). ADR-0013 (WXG-T-096) widened that factory to
-   * `createAudioBackend({ voices })` — the recipe table now flows game → App →
-   * Platform — but it deliberately did **not** hand the backend itself to the
-   * game, so the two-scheduler shape still needs a further framework decision.
-   *
-   * Instead the two channels are realised over the single scheduler:
-   *   - **bgm** = one looping clip; muting stops it, un-muting re-requests it;
-   *   - **sfx** = a request gate; a muted sfx channel never queues anything.
-   * Both behaviours are observable independently, which is what §8-4 asserts.
-   */
-  private _applyAudioChannels(): void {
-    const services = this._services;
-    if (!services) return;
-    if (this._bgmMuted) {
-      services.audio.stop(AUDIO_CLIP_BGM);
-    } else {
-      services.audio.play(AUDIO_CLIP_BGM, { loop: true });
-    }
-  }
-
-  /**
-   * Sfx request gate (never touched by the music toggle, §8-4).
-   *
-   * `minInterval` 按 clip 分档（§3.2）——**不得**回到统一 0.05（那会把 reject 推成
-   * 20 次/秒，违反 §3.8 红线，判据 A05-05/06）。
-   */
+  /** 音频请求门（实现与限流分档见 `GameSettings.sfx`）。 */
   private _sfx(clipId: string): void {
-    if (this._sfxMuted) return;
-    this._services?.audio.play(clipId, { minInterval: SFX_MIN_INTERVAL[clipId] ?? 0 });
+    this._settings.sfx(clipId);
   }
 
   /** Normal-mode clear → unlock progression (write on key events only). */
@@ -3454,52 +2259,11 @@ export class BeadsGame implements Game {
 
   // ───────────────────────────────────────────────────────────── hit testing
 
-  /** Nearest tray slot within the `TRAY_HIT_SIZE`² (= 60²，§3.8 v1.57；旧字面 62²) hit area (ties → lower index). */
-  private _hitTraySlot(x: number, y: number): number {
-    const half = TRAY_HIT_SIZE / 2;
-    let best = -1;
-    let bestD2 = half * half;
-    const rows = Math.ceil(this._tray.capacity / TRAY_COLS);
-    // 与 `view-model.drawTray` 共用 `trayLayout()`（§3.4 单一真源，WXG-T-062 判例）。
-    const lay = trayLayout(rows, this.tuning.width);
-    for (let idx = 0; idx < this._tray.capacity; idx++) {
-      const row = Math.floor(idx / TRAY_COLS);
-      const col = idx % TRAY_COLS;
-      const dx = x - lay.slotCenterX(col);
-      const dy = y - lay.slotCenterY(row);
-      const d2 = dx * dx + dy * dy;
-      if (d2 < bestD2) {
-        bestD2 = d2;
-        best = idx;
-      }
-    }
-    return best;
-  }
-
-  /**
-   * `btn_expand` 命中框 = **132×88** 热区（§3.4 v1.20 ← `accessibility C1`：视觉
-   * 132×48，热区扩大）。几何与渲染同源 `expandButtonLayout()`；该热区与
-   * 托盘槽热区实测净空 11px ⇒ 不需要热区重叠仲裁（`input-control §8-2`）。
-   */
-  private _hitExpandButton(x: number, y: number): boolean {
-    // v1.25（WXG-T-143）：扩展态按钮隐藏 ⇒ 命中同时失效。其热区 [230,318] 此时
-    // 已被 4 行托盘面板覆盖（row2 槽心 y=306 / row3 y=252 落在区间内），若不短路
-    // 会把扩展态的托盘点选截胡在 route 3（渲染侧 drawExpandButton 同款守卫）。
-    if (this._tray.expanded) return false;
-    const btn = expandButtonLayout();
-    return (
-      x >= btn.hitX &&
-      x <= btn.hitX + btn.hitW &&
-      y >= btn.hitBottom &&
-      y <= btn.hitBottom + btn.hitH
-    );
-  }
-
   /** Nearest grid cell within the camera-scaled hit area (ties → smaller row).
    *  Delegates to `tuning::hitGridCell` so gameplay and the layout⇄hit regression
    *  test share one implementation (WXG-T-169 / ADR-0015). */
   private _hitGridCell(x: number, y: number): { row: number; col: number } | null {
-    return hitGridCell(this._layout, this._camera.zoom, x, y);
+    return hitGridCell(this._layout, this._board.camera.zoom, x, y);
   }
 
   /**
@@ -3516,8 +2280,7 @@ export class BeadsGame implements Game {
    * 用法：`__beads.game.setZoomForDebug(1.37)` 或 harness `?game=beads&zoom=1.37`。
    */
   setZoomForDebug(zoom: number): void {
-    setCameraZoom(this._camera, zoom, this._grid.cols, this._grid.rows);
-    this._recomputeLayout();
+    this._board.setZoom(zoom);
   }
 
   /**
@@ -3538,7 +2301,7 @@ export class BeadsGame implements Game {
    * 不持久化、不参与玩法。用法：harness `?game=beads&cue=pulse` 或 `__beads.game.setColorCueMode('lock')`。
    */
   setColorCueMode(mode: ColorCueMode): void {
-    this._colorCue = mode;
+    this._fx.setCue(mode);
   }
 
   /**
@@ -3549,17 +2312,15 @@ export class BeadsGame implements Game {
    * `__beads.game.setDebugInfo(true)` / harness `?dbg=info`。
    */
   setDebugInfo(on: boolean): void {
-    if (this._debugInfo === on) return;
-    this._debugInfo = on;
+    if (this._settings.values.debugInfo === on) return;
     this._frameMs = 0; // 重开时从首帧实测值重新起步，不读旧 EMA
-    this._persistSettings();
+    this._settings.setDebugInfo(on);
   }
 
   /** 菜单安全区标定线。与 `setDebugInfo` 一样即写档，缺字段旧档降级 false。 */
   setDebugGuides(on: boolean): void {
-    if (this._debugGuides === on) return;
-    this._debugGuides = on;
-    this._persistSettings();
+    if (this._settings.values.debugGuides === on) return;
+    this._settings.setDebugGuides(on);
   }
 
   /**
@@ -3586,25 +2347,25 @@ export class BeadsGame implements Game {
   debugGestureState(): Record<string, number | boolean> {
     const s = this._services ? this._services.input.snapshot : null;
     return {
-      tapActive: this._tapActive,
-      tapMoved: this._tapMoved,
-      pinched: this._pinched,
+      tapActive: this._board.tapActive,
+      tapMoved: this._board.tapMoved,
+      pinched: this._board.pinched,
       isDown: !!s && s.isDown,
       isDown2: !!s && s.isDown2,
       // 拖拽位移的直接源头：pan 用 snap.dx/scale。dx 恒 0 ⇒ 断在输入层；dx 非 0 而
-      // offsetX 仍 0 ⇒ 断在 `_readInput` 分支或 clamp（K-036：不拿猜测当定位）。
+      // offsetX 仍 0 ⇒ 断在 `InputRouter.readFrame` 分支或 clamp（K-036：不拿猜测当定位）。
       snapX: s ? s.x : 0,
       snapY: s ? s.y : 0,
       dx: s ? s.dx : 0,
       dy: s ? s.dy : 0,
       // 逐帧累计量：避开「在固定步之外读 snapshot」的时窗假象（dx 可能已归零）。
-      panFrames: this._dbgPan.frames,
-      panDxSum: this._dbgPan.dxSum,
-      panMovedFrames: this._dbgPan.movedFrames,
-      zoom: this._camera.zoom,
-      offsetX: this._camera.offsetX,
-      offsetY: this._camera.offsetY,
-      pinchDist0: this._gesture.pinchDist0,
+      panFrames: this._board.dbgPan.frames,
+      panDxSum: this._board.dbgPan.dxSum,
+      panMovedFrames: this._board.dbgPan.movedFrames,
+      zoom: this._board.camera.zoom,
+      offsetX: this._board.camera.offsetX,
+      offsetY: this._board.camera.offsetY,
+      pinchDist0: this._board.pinchDist0,
     };
   }
 
@@ -3639,139 +2400,16 @@ export class BeadsGame implements Game {
 
   /** S7 连击特效状态（暴露给测试；只读）。`null` = 当前无特效。 */
   get comboVfx(): { kind: ComboVfxKind; tier: number; elapsedMs: number } | null {
-    const vfx = this._comboVfx;
-    return vfx ? { kind: vfx.spec.kind, tier: vfx.spec.tier, elapsedMs: vfx.elapsedMs } : null;
+    return this._fx.comboVfx;
   }
 
   /**
-   * 连击特效推进：**表现层**，与面板动画同判例 —— PAUSED 冻结的是玩法（计时/供料/连击窗），
-   * 不是表现。播完即清；三档都是单次循环 ⇒ 本方法不自重复（`§3.8` 红线的来源不在这里）。
-   */
-  private _stepComboVfx(dt: number): void {
-    const vfx = this._comboVfx;
-    if (!vfx) return;
-    vfx.elapsedMs += Math.max(0, dt) * 1000;
-    if (vfx.elapsedMs >= vfx.spec.durationMs) this._comboVfx = null;
-  }
-
-  /**
-   * GAP-04 `wrong` 态起播（WXG-T-102 / BD-29）。连续拒绝受 **500ms 重启门**约束
-   * （`ux-spec §5:180`）：自上次起播（`_wrongFxArmedAtMs`）起算未满
-   * `WRONG_FX_RESTART_GATE_MS` 的新 mismatch **不重启**——
-   *   · 门内且当前 fx 仍在播 ⇒ 沿用其相位（不重置 elapsedMs）；
-   *   · 门内但 fx 已自然结束（>200ms）⇒ 本次**不给任何视觉反馈**。
-   * ⇒ 反馈有效频次 ≤2 次/秒，落 `systems-index §3.8`「错误反馈 抖动+描边闪 ≤2 次/秒」
-   * 冻结值（与音频侧 `AUDIO_REJECT_MIN_INTERVAL`=0.5s 同拍，双通道一致）。
-   *
-   * ⚠️ **门禁范围判断**（本单回传「500ms 门语义」）：§5:180 字面把门写成「**视觉脉冲**
-   * 重启门」，仅直接提描边；但 §3.8 冻结值是「**抖动+描边闪** ≤2 次/秒」——「错误反馈」
-   * 是**两通道一体的事件**。若只门禁描边、放抖动自由重启，则 100ms 连点可把抖动刷到
-   * 10 次/秒，按字面即违 §3.8。故本实现按 **§3.8 从严**：门禁**整个 wrong-fx 事件**
-   * （抖动与描边同进同退）。若裁定只门禁描边，去掉本方法的位移抑制即为一行放宽。
-   *
-   * 非每帧路径：仅在 mismatch 拒绝帧调用 ⇒ 无每帧分配顾虑（起播时才 new 一个 fx 对象，
-   * 与旧实现同）。
-   */
-  private _armWrongFx(row: number, col: number): void {
-    if (this._pulseClock - this._wrongFxArmedAtMs < WRONG_FX_RESTART_GATE_MS) return;
-    this._wrongFx = { row, col, elapsedMs: 0 };
-    this._wrongFxArmedAtMs = this._pulseClock;
-  }
-
-  /**
-   * GAP-04 `wrong` 态推进（WXG-T-087）：与 `_stepComboVfx` 同判例——表现层，不被
-   * PAUSED 冻结。单次播放 `WRONG_FX_MS`（200ms）；播完即清（重启门由 `_armWrongFx` 管）。
-   */
-  private _stepWrongFx(dt: number): void {
-    const fx = this._wrongFx;
-    if (!fx) return;
-    fx.elapsedMs += Math.max(0, dt) * 1000;
-    if (fx.elapsedMs >= WRONG_FX_MS) this._wrongFx = null;
-  }
-
-  /**
-   * G1 落座回弹起播（WXG-T-128 / `assets-spec §1.6.1`）。**120ms 重启门**（= 动画自身长，
-   * 同族判例 = `_armWrongFx` 的 500ms 门）：门内到达的新 `bead:placed` **不重启**，
-   * 防连点堆叠。
-   *
-   * ⚠️ **与 G2′ 的口径分工**（冲突已在 WXG-T-150 销账）：本门只管**手动连点**。
-   * 解环器逐颗 80ms（`SOLVER_STAGGER_MS` < 120）若挤过本槽，每隔一颗会被拑掉而无声
-   * ⇒ G2′ 走**独立队列**（`_solverFx` 的 `land*` 槽，每颗一份完整 120ms 包络），
-   * 相 B 路径上 `_solveMisplaced` **不再**调用本方法（见 `_noteSolverLand`）。
-   *
-   * 非每帧路径：仅在落入网格帧调用 ⇒ 无每帧分配顾虑。
-   */
-  private _armPlaceFx(row: number, col: number): void {
-    if (this._pulseClock - this._placeFxArmedAtMs < FILL_POP_RESTART_GATE_MS) return;
-    this._placeFx = { row, col, elapsedMs: 0 };
-    this._placeFxArmedAtMs = this._pulseClock;
-  }
-
-  /**
-   * G1 落座回弹推进（WXG-T-128）：与 `_stepWrongFx` / `_stepComboVfx` 同判例——表现层，
-   * 不被 PAUSED 冻结。单次播放 `FILL_POP_MS`（120ms）后**零残留**（槽置 null，
-   * 不等 `placeProgress` 达到 1 后还留着偏移量）。
-   */
-  private _stepPlaceFx(dt: number): void {
-    const fx = this._placeFx;
-    if (!fx) return;
-    fx.elapsedMs += Math.max(0, dt) * 1000;
-    if (fx.elapsedMs >= FILL_POP_MS) this._placeFx = null;
-  }
-
-  /**
-   * G7 轻压起播（WXG-T-152 / `assets-spec §1.6.7`）：**同格 250ms 重启门**
-   * （§1.6.7「同格计」⇒ 区别于 G1 的全局单槽门）：门内重复点同格不重启、不放音；
-   * 过门 ⇒ 该槽重启 + `_sfx(AUDIO_CLIP_DENIED)`。不同格的轻压可并存；槽满时逐出
-   * **最早起播**者（其动画早已播完，视觉无打断）。void（谜面外形格）/ 越界守卫
-   * 集中在此，一处覆盖真链 5c 与裁决旁两条路径。
-   * 非每帧路径：仅在点击被拒帧调用 ⇒ 无每帧分配。
+   * G7 轻压起播入口（`assets-spec §1.6.7`）：void（谜面外形格）/ 越界在此守卫；门内不放音。
    */
   private _armDeniedFx(row: number, col: number): void {
     const cell = this._grid.cell(row, col);
     if (!cell || cell.void) return; // §1.6.7 非触发集：越界 / `.` 外形格
-    const now = this._pulseClock;
-    const slots = this._deniedFx;
-    let reuse = -1; // 空槽，或已过动画窗（只剩门记忆）的槽
-    for (let i = 0; i < slots.length; i++) {
-      const s = slots[i]!;
-      if (s.row === row && s.col === col) {
-        if (now - s.armedAtMs < DENIED_PRESS_RESTART_GATE_MS) return; // 同格门内
-        s.elapsedMs = 0;
-        s.armedAtMs = now;
-        this._sfx(AUDIO_CLIP_DENIED);
-        return;
-      }
-      if (reuse < 0 && (s.row < 0 || s.elapsedMs >= DENIED_PRESS_MS)) reuse = i;
-    }
-    if (reuse < 0) {
-      // 全槽在播（相邻格快速连扫超容量）⇒ 逐出最早起播者
-      reuse = 0;
-      for (let i = 1; i < slots.length; i++) {
-        if (slots[i]!.armedAtMs < slots[reuse]!.armedAtMs) reuse = i;
-      }
-    }
-    const slot = slots[reuse]!;
-    slot.row = row;
-    slot.col = col;
-    slot.elapsedMs = 0;
-    slot.armedAtMs = now;
-    this._sfx(AUDIO_CLIP_DENIED);
-  }
-
-  /**
-   * G7 轻压推进：与 `_stepPlaceFx` 同判例——表现层，不被 PAUSED 冻结。只推进在播槽；
-   * 播完**不清 row/col**（同格门 250ms 需要死窗记忆），零残留由 `_syncSnapshot` 的
-   * 在播过滤保证。
-   */
-  private _stepDeniedFx(dt: number): void {
-    const step = Math.max(0, dt) * 1000;
-    if (step === 0) return;
-    const slots = this._deniedFx;
-    for (let i = 0; i < slots.length; i++) {
-      const s = slots[i]!;
-      if (s.row >= 0 && s.elapsedMs < DENIED_PRESS_MS) s.elapsedMs += step;
-    }
+    if (this._fx.armDenied(row, col)) this._sfx(AUDIO_CLIP_DENIED);
   }
 
   /**
@@ -3804,7 +2442,7 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * G2′ 推进（相 A → 相 B）。**不是表现层步进**（与 `_stepPlaceFx` / `_stepSweepFx` 的
+   * G2′ 推进（相 A → 相 B）。**不是表现层步进**（与 `FeedbackFx.stepPresentation` / `FeedbackFx.stepPresentation` 的
    * 「不被 PAUSED 冻结」判例相反）：
    *  - `paused` ⇒ **冻结不作废**（道具已扣次，不该因一次暂停丢掉归位）；
    *  - 其他非 `playing` 相位（过关 / 失败 / 面板）⇒ 作废队列，不再动棋盘；
@@ -3845,64 +2483,6 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * G3 起播（`assets-spec §1.6.3`）。**无重启门**（与 G1 不同：本卡只一个标量、无逐格错开，
-   * 400ms 内再触发 = 从头再扫一次；规格里也没给门值 ⇒ 不自行发明）。
-   * WXG-T-173 / U11 丁裁（2026-09-18）：扫光起点 = **按下帧**（全库唯一调用点 = `powerup:used` 同栈
-   * `:1022`，区外道具卡本就按下即提交），不随棋盘区 tap 按下→抬起后移；与 `core-loop v2.2 §8` 注② 一致。
-   */
-  private _armSweepFx(): void {
-    this._sweepElapsedMs = 0;
-  }
-
-  private _stepSweepFx(dt: number): void {
-    if (this._sweepElapsedMs < 0) return;
-    this._sweepElapsedMs += Math.max(0, dt) * 1000;
-    if (this._sweepElapsedMs >= SWEEP_MS) this._sweepElapsedMs = -1;
-  }
-
-  /** G6 推进（同 `_stepSweepFx` 判例：单标量、到点自清 ⇒ 零残留）。 */
-  private _stepConfettiFx(dt: number): void {
-    if (this._confettiElapsedMs < 0) return;
-    this._confettiElapsedMs += Math.max(0, dt) * 1000;
-    if (this._confettiElapsedMs >= CONFETTI_MS) this._confettiElapsedMs = -1;
-  }
-
-  /** [T-244 十六批] 单色提示推进（`_stepConfettiFx` 同判例；时长 = `COLOR_WAVE_MS`，十七批改紧）。 */
-  private _stepColorWaveFx(dt: number): void {
-    if (this._colorWaveElapsedMs < 0) {
-      // [T-244 十八批] **让位门**：`jump` 档必须等落位队列跑完才起跳（见 `_colorWavePendingIdx` 头注）。
-      // 只读三个已有通道的存亡 ⇒ 零新时长零新轮询（本函数本就逐帧在跑）。
-      const pending = this._colorWavePendingIdx;
-      if (
-        pending === 0 ||
-        this._placeFx !== null ||
-        this._groupLandFx !== null ||
-        this._solverFx !== null
-      ) {
-        return;
-      }
-      this._colorWavePendingIdx = 0;
-      this._colorWaveIdx = pending;
-      this._colorWaveElapsedMs = 0;
-      return;
-    }
-    this._colorWaveElapsedMs += Math.max(0, dt) * 1000;
-    if (this._colorWaveElapsedMs >= this._colorWaveTotalMs()) {
-      this._colorWaveElapsedMs = -1;
-      this._colorWaveIdx = 0;
-    }
-  }
-
-  /**
-   * [T-244 二十批] 单色提示通道全长按档分派：`pulse` 走光带横扫 ⇒ `COLOR_WAVE_SWEEP_MS`（800），
-   * `jump` 保持十七批的紧凑 400。⛔ **与 view 侧 `cwT = progress × 同一值` 是一对**（不一致 ⇒ 光带被加速或扫不完，
-   *   `scene-vfx.test.ts` 的「比旧的 400ms 慢」那条断言盯的就是这个耦合）。
-   */
-  private _colorWaveTotalMs(): number {
-    return this._colorCue === 'pulse' ? COLOR_WAVE_SWEEP_MS : COLOR_WAVE_MS;
-  }
-
-  /**
    * [T-244 十六批] 某色的**全部珠子各归其位** ⇒ 发一条单色齐备提示（十八批 = 三档表达同一个时机、
    * 同一参与集，只换渲染通道：`jump` 逐列跳 / `pulse` 亮一档 / `lock` 常驻环）。
    *
@@ -3932,38 +2512,7 @@ export class BeadsGame implements Game {
         if (cell.state !== 'filled' || cell.beadColorIdx !== colorIdx) return; // 本格还缺 ⇒ 未齐
       }
     }
-    this._colorLockMask |= 1 << colorIdx;
-    // ponytail: 单槽——400ms 内连齐两色则后一色接管（前一色的脉冲被截）；要并存再上定长槽数组。
-    if (this._colorCue === 'jump') {
-      this._colorWavePendingIdx = colorIdx; // 让位门 ⇒ 不在此处起播
-    } else if (this._colorCue === 'pulse') {
-      // 亮通道与落位的位移通道正交 ⇒ 不等队列，当场起播（「落定即亮」是本档的卖点）。
-      this._colorWavePendingIdx = 0;
-      this._colorWaveElapsedMs = 0;
-      this._colorWaveIdx = colorIdx;
-    }
-  }
-
-  /**
-   * 发一次性轻提示（ux-spec §5 WXG-T-097）。**不**发任何玩法事件，也不走
-   * `sfx_reject`——它是「前置缺口告知」而不是错误反馈（错误反馈频率上限属 §3.8，
-   * 本通道不得被算进去）；`audio-events §1` 无对应 clip ⇒ **静默**。
-   */
-  private _showTapHint(
-    text: string,
-    row: number,
-    col: number,
-    anchor: 'cell' | 'expand' = 'cell',
-  ): void {
-    this._tapHint = { text, row, col, anchor, elapsedMs: 0 };
-  }
-
-  /** 轻提示推进：与 `_stepWrongFx` 同判例（表现层，不被 PAUSED 冻结），窗口 `TAP_HINT_MS`。 */
-  private _stepTapHint(dt: number): void {
-    const hint = this._tapHint;
-    if (!hint) return;
-    hint.elapsedMs += Math.max(0, dt) * 1000;
-    if (hint.elapsedMs >= TAP_HINT_MS) this._tapHint = null;
+    this._fx.markColorAligned(colorIdx);
   }
 
   /** 每关历史最好星级（`0` = 未通关）—— 通关画面总览的数据源（测试读它）。 */
@@ -4025,8 +2574,8 @@ export class BeadsGame implements Game {
     s.gridCell = this._layout.cell;
     s.beadLodLayers = this._beadLod ? ZOOM_LOD_LAYERS : 0; // 0 = 满层；视图只读不判阈值（C7 拆名：zoom LOD 用 ZOOM_LOD_LAYERS，不再蹭波浪常量）
     // 缩放控件（盘面下方净空带）：slider 位置与倍率读数，视图只读（L5）。
-    s.zoomSliderT = sliderTFromZoom(this._camera.zoom);
-    s.camZoom = this._camera.zoom;
+    s.zoomSliderT = sliderTFromZoom(this._board.camera.zoom);
+    s.camZoom = this._board.camera.zoom;
 
     // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and
     // leans on the always-on ad_badge, §2.6) + the one-shot over-limit hint.
@@ -4048,7 +2597,7 @@ export class BeadsGame implements Game {
     // formatTime 的 floor 只是视图兜底，两层都补（T-118 前发现、本单补登）。
     s.clearRemaining = Math.max(0, Math.ceil(this._timer.remaining - 1e-9));
     s.clearPowerupsUsed = this._powerups.usedCount;
-    s.clearTaps = this._tapsPlaying; // playtest 计量（含误点的输入计数）
+    s.clearTaps = this._input.tapsPlaying; // playtest 计量（含误点的输入计数）
     s.clearActions = this._actionsPlaying; // 定星口径（与 `pricing.actions` 同口径）
     s.clearLastLevel = this._levelIndex >= this._levels.length - 1;
 
@@ -4075,13 +2624,7 @@ export class BeadsGame implements Game {
     s.sprintRunBestStage = this._sprint.bestStage;
     s.sprintRunBestStreak = this._sprint.bestStreak;
 
-    // S7 连击特效（§2.5）：形态 + 播放进度 + 锚点一起进快照，视图只读。
-    s.comboVfxKind = this._comboVfx ? this._comboVfx.spec.kind : '';
-    s.comboVfxProgress = this._comboVfx
-      ? comboVfxProgress(this._comboVfx.elapsedMs, this._comboVfx.spec.durationMs)
-      : 0;
-    s.comboVfxRow = this._comboVfx ? this._comboVfx.row : -1;
-    s.comboVfxCol = this._comboVfx ? this._comboVfx.col : -1;
+    this._fx.writeSnapshot(s); // 连击 / 反馈计时 / 单色提示 / 轻提示（协作类投影）
 
     // Tray slots (rebuild on capacity change, i.e. expansion).
     if (s.traySlots.length !== this._tray.capacity) {
@@ -4123,21 +2666,24 @@ export class BeadsGame implements Game {
     s.panelVisible = this._panel.visible;
     s.panelProgress = this._panel.progress;
     s.panelInteractive = this._panel.interactive;
-    s.bgmMuted = this._bgmMuted;
-    s.sfxMuted = this._sfxMuted;
-    s.reduceMotion = this._reduceMotion;
-    s.largeText = this._largeText;
+    s.bgmMuted = this._settings.values.bgmMuted;
+    s.sfxMuted = this._settings.values.sfxMuted;
+    s.reduceMotion = this._settings.values.reduceMotion;
+    s.largeText = this._settings.values.largeText;
     s.debugOutlines = this._debugOutlines;
-    s.debugInfo = this._debugInfo;
-    s.debugGuides = this._debugGuides;
+    s.debugInfo = this._settings.values.debugInfo;
+    s.debugGuides = this._settings.values.debugGuides;
     s.perfFrameMs = this._frameMs;
-    s.hudDy = this._hudDy(); // 动态高：HUD 带随屏顶上移（热区同源 `_hitGear`）
-    s.vibrate = this._vibrate;
+    s.hudDy = this._hudDy(); // 动态高 + 胶囊避让：HUD 带与齿轮热区同读（`hitGear`）
+    s.safeTop = this._safeTop;
+    s.capsuleBottom = this._capsuleBottom;
+    s.safeBottom = this._safeBottom;
+    s.vibrate = this._settings.values.vibrate;
     // EP11-S5 行4 两钮的档位回显 + view 换肤渲染的 styleId 入口（L5：view 只读、不判定）。
-    s.beadStyle = this._beadStyle;
-    s.beadSize = this._beadSize;
+    s.beadStyle = this._settings.values.beadStyle;
+    s.beadSize = this._settings.values.beadSize;
     // EP12-S8：皮肤 id 回显（钮文案单源 = `skin.label`；渲染走 palette 实例，不经本值查表）。
-    s.skinId = this._skinId;
+    s.skinId = this._settings.values.skinId;
 
     const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);
     s.banner = copy.banner;
@@ -4149,37 +2695,6 @@ export class BeadsGame implements Game {
     s.watchingAd = this._watchingAd;
     s.failHint = this._failHint;
 
-    // ── GAP-04/03/10 反馈态相位（WXG-T-087）：表现时钟 + wrong 进度 + 引导目标。
-    //    相位基准（脉冲周期）由视图从 `pulseClock` 推导；此处只给单调时钟与单次进度。
-    s.pulseClock = this._pulseClock;
-    const wfx = this._wrongFx;
-    s.wrongRow = wfx ? wfx.row : -1;
-    s.wrongCol = wfx ? wfx.col : -1;
-    s.wrongProgress = wfx ? Math.min(1, wfx.elapsedMs / WRONG_FX_MS) : 0;
-    // G1 落座回弹：与 wrong 同构，只给格心 + 单调进度（曲线在 view 侧纯函数推导，L5）。
-    const pfx = this._placeFx;
-    s.placeRow = pfx ? pfx.row : -1;
-    s.placeCol = pfx ? pfx.col : -1;
-    s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
-    // §5 抬起斜坡**进格量**（0→1，未缓动）；D1 与 ease 由 view 侧施（快照只报事实）。
-    s.liftProgress = Math.min(1, this._liftElapsedMs / SELECT_LIFT_MS);
-    // [T-244 九批] 托盘进珠动画快照（多槽队列）
-    s.trayLandSlots = this._trayLandFx ? this._trayLandFx.slots : [];
-    s.trayLandSteps = this._trayLandFx ? this._trayLandFx.steps : [];
-    s.trayLandCount = this._trayLandFx ? this._trayLandFx.slots.length : 0;
-    s.trayLandElapsedMs = this._trayLandFx ? this._trayLandFx.elapsedMs : 0;
-    // G7 轻压：多格并存 ⇒ 定长数组逐槽导出，**仅在播槽**可见（120ms 后零残留；
-    // 过窗槽只留同格门记忆，不占快照）。曲线在 view 侧纯函数推导（L5）。
-    let deniedActive = 0;
-    for (let i = 0; i < DENIED_MAX_CELLS; i++) {
-      const dfx = this._deniedFx[i]!;
-      const active = dfx.row >= 0 && dfx.elapsedMs < DENIED_PRESS_MS;
-      s.deniedRows[i] = active ? dfx.row : -1;
-      s.deniedCols[i] = active ? dfx.col : -1;
-      s.deniedProgress[i] = active ? Math.min(1, dfx.elapsedMs / DENIED_PRESS_MS) : 0;
-      if (active) deniedActive++;
-    }
-    s.deniedCount = deniedActive;
     // G2′ 解环器：一条单调进度 + 两组定长格坐标（相序曲线在 view 侧推导，L5）。
     // 不活跃 ⇒ count 归零且数组填 -1（零残留，同 G1 槽置 null 口径）。
     const sfx = this._solverFx;
@@ -4195,42 +2710,6 @@ export class BeadsGame implements Game {
       s.solverLandCols[i] = sfx && i < sfx.landCount ? sfx.landCols[i]! : -1;
       s.solverLandSteps[i] = sfx && i < sfx.landCount ? sfx.landSteps[i]! : -1;
     }
-    // [T-244] 组落座表现队列
-    const glfx = this._groupLandFx;
-    s.groupLandCount = glfx ? glfx.count : 0;
-    s.groupLandElapsedMs = glfx ? glfx.elapsedMs : 0;
-    for (let i = 0; i < s.groupLandRows.length; i++) {
-      s.groupLandRows[i] = glfx && i < glfx.count ? glfx.rows[i]! : -1;
-      s.groupLandCols[i] = glfx && i < glfx.count ? glfx.cols[i]! : -1;
-      s.groupLandSteps[i] = glfx && i < glfx.count ? glfx.steps[i]! : -1;
-    }
-    // G3 扫光：只一条单调进度（斜带几何与缓动在 view 侧推导，L5）。
-    s.sweepProgress =
-      this._sweepElapsedMs < 0 ? 0 : Math.min(1, this._sweepElapsedMs / SWEEP_MS);
-    // G6 彩带：同样只一条单调进度（44 枚分布与逐帧几何在 view 侧推导，L5）。
-    s.confettiProgress =
-      this._confettiElapsedMs < 0 ? 0 : Math.min(1, this._confettiElapsedMs / CONFETTI_MS);
-    // G4 波浪：全场逐列 ⇒ 一条单调进度（列错峰与曲线在 view 侧推导，L5）。
-    s.waveProgress =
-      this._waveElapsedMs < 0 ? 0 : Math.min(1, this._waveElapsedMs / WAVE_MS);
-    // [T-244 十六批] 单色对齐波浪：与 G4 同构（一条单调进度 + 主角色），列错峰在 view 侧推导（L5）。
-    // ⚠ 分母 = `_colorWaveTotalMs()`（不是 `WAVE_MS`，也不是死的 `COLOR_WAVE_MS`）：十七批把 `jump` 改紧，
-    //   二十批又给 `pulse` 开了长通道 ⇒ 进度归一必须跟通道同长。
-    s.colorWaveProgress =
-      this._colorWaveElapsedMs < 0
-        ? 0
-        : Math.min(1, this._colorWaveElapsedMs / this._colorWaveTotalMs());
-    s.colorWaveColorIdx = this._colorWaveIdx;
-    // [T-244 十八批] 表达档与常驻锁定态（view 只读；换档不影响判据，只换渲染通道）。
-    s.colorCueMode = this._colorCue;
-    s.colorLockedMask = this._colorLockMask;
-    // BD-16/BD-15 轻提示：只给文本与锚点格（无进度曲线——§5 未定淡入淡出，见该行的 `[待确认]`）。
-    const th = this._tapHint;
-    s.tapHintText = th ? th.text : '';
-    s.tapHintRow = th ? th.row : -1;
-    s.tapHintCol = th ? th.col : -1;
-    s.tapHintAnchor = th ? th.anchor : 'cell';
-
     // GAP-03 首屏引导：仅普通模式 PLAYING、首玩且本会话未落过子时激活（§6.3）。
     // [WXG-T-239] `ONBOARDING_ENABLED = false` ⇒ 引导**显示已屏蔽**（设计与规格全留档，恢复见该常量头注）。
     // ⛔ 短路顺序刻意「开关在前」：关闭时**完全不进**引导算法（`hintRow`/`hintCol`/`guideSlot` 保持 -1）

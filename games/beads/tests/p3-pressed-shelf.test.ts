@@ -91,12 +91,20 @@ describe('P3 · 面板按下态（snap.pressedButton）', () => {
     expect(h.game.snapshot.pressedButton).toBeNull();
   });
 
-  it('按下即提交的主钮：相位已切走、面板淡出期内按下态仍在', () => {
+  it('主钮抬起才提交：按住帧仍在 PAUSED（按下态已亮），抬起帧才切相位（WXG-T-295）', () => {
     const h = pausedHarness('wxgame.beads.test.p3-press-commit');
     const r = pausePanelLayout('normal').buttons.find((b) => b.id === 'resume')!.rect;
-    input(h, 'down', (r.xMin + r.xMax) / 2, (r.yMin + r.yMax) / 2);
-    expect(h.game.phase).toBe('playing');
+    const cx0 = (r.xMin + r.xMax) / 2;
+    const cy0 = (r.yMin + r.yMax) / 2;
+    input(h, 'down', cx0, cy0);
+    // 旧行为「按下即提交 ⇒ 本帧相位已切走」；v2.13 起提交后移到抬起帧，本帧只亮按下态。
+    expect(h.game.phase).toBe('paused');
     expect(h.game.snapshot.pressedButton).toBe('resume');
+    input(h, 'up', cx0, cy0);
+    expect(h.game.phase).toBe('playing');
+    // 抬起提交那帧手指已离开 ⇒ 按下态同帧灭（旧「面板淡出期内续亮到淡完」的承载理由随时基
+    // 消解：切相位与起淡出现发生在同一抬起帧，而该帧 `isDown` 已为 false）。
+    expect(h.game.snapshot.pressedButton).toBeNull();
   });
 
   it('视觉：纸钮换 cardPressed 并下沉 UI_PRESS_SINK；reduceMotion 只换面不位移', () => {
@@ -190,7 +198,7 @@ describe('P3 · S7 作品陈列条（EP12-S7）', () => {
 });
 
 describe('P3 · 主菜单按下态（MetaViewData.pressed）', () => {
-  it('shell：按住 ⇒ pressed = 命中钮引用（按派发后的 overlay 求）；抬起 ⇒ null', () => {
+  it('shell：按住 ⇒ pressed = 命中钮（不派发）；抬到同一钮才派发并清按下态（WXG-T-295）', () => {
     const h = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.p3-menu' });
     const shell = new BeadsShell({ clock: () => 0, metaKey: 'wxgame.beads.test.p3-menu-meta', initialScreen: 'menu', play: { levels: [simpleTestLevel()] } });
     shell.init(h.services);
@@ -205,13 +213,16 @@ describe('P3 · 主菜单按下态（MetaViewData.pressed）', () => {
     h.input.push({ id: 1, x: s.x, y: s.y, phase: 'down', time: 0 });
     shell.update(STEP);
     h.input.endFrame(STEP);
-    expect(shell.overlay).toBe('settings');
-    expect(data.pressed).toBe(hitTestMeta('settings', gx, gy, shell.menuAnchors));
+    // 旧行为本帧已按「按下即提交」切到 settings（pressed 按新 overlay 求）；v2.13 起抬起才提交
+    // ⇒ 本帧 overlay 未动，pressed 按**当前（未切）**overlay 的同一钮。
+    expect(shell.overlay).toBe('none');
+    expect(data.pressed).toBe(hitTestMeta('none', gx, gy, shell.menuAnchors));
 
     h.input.beginFrame();
     h.input.push({ id: 1, x: s.x, y: s.y, phase: 'up', time: 0 });
     shell.update(STEP);
     h.input.endFrame(STEP);
+    expect(shell.overlay).toBe('settings');
     expect(data.pressed).toBeNull();
   });
 

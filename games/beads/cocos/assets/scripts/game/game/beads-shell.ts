@@ -186,6 +186,9 @@ export class BeadsShell implements Game {
         carouselPeerSign: undefined as (-1 | 1) | undefined,
         carouselComingSoon: false,
         carouselPeerComingSoon: false,
+        // [BD-62] 边界可见性（每帧由 `_metaViewData` 覆盖）。
+        carouselFirst: false,
+        carouselLast: false,
         studioEnabled: false,
         /** 按下态：`hitTestMeta` 返回的缓存钮引用（每帧由 `_readMenuInput` 覆盖，零分配）。 */
         pressed: null as MetaButton | null,
@@ -199,6 +202,14 @@ export class BeadsShell implements Game {
     private _dragging = false;
     private _pressX = 0;
     private _pressY = 0;
+    /**
+     * **抬起提交门**（WXG-T-295 · `input-control §2.1` v2.13）：菜单 / overlay 上的按钮按下**只登记**
+     * 命中的缓存钮（`metaLayout` 产出的同一对象引用），抬起帧重测热区、**id + slot 同者**才派发
+     * ⇒ 拖出按钮 / 拖到别的钮上 / 从外面拖进来一律零响应。`null` = 无登记。
+     * 比较走 id + slot 而非引用全等 ⇒ 就算布局表在按住期间重建（关表变长）也不会把钮吞掉。
+     * 玻璃（走马灯卡）不登本门：它自己就是「按下→拖动→抬起」的手势体（`_glass`）。
+     */
+    private _menuPress: MetaButton | null = null;
     private _lastX = 0;
     private _lastT = 0;
     private _vx = 0;
@@ -300,6 +311,7 @@ export class BeadsShell implements Game {
 
     update(dt: number): void {
         if (this._screen === 'play') {
+            this._menuPress = null; // 进玩法后不得残留菜单按压（否则回菜单时会补发一次 phantom tap）
             this.play.update(dt);
             return;
         }
@@ -496,13 +508,7 @@ export class BeadsShell implements Game {
         const services = this._services;
         if (!services) return;
         const snap = services.input.snapshot;
-        if (!snap.isDown) {
-            if (this._glass) this._releaseGlass();
-            this._viewData.pressed = null;
-            return;
-        }
         services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
-        const now = this._clock();
         if (snap.justDown) {
             const btn = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
             if (btn?.id === 'open-levels' && this._overlay === 'none') {
@@ -513,17 +519,17 @@ export class BeadsShell implements Game {
                 this._pressX = this._pointer.x - this._carouselDx;
                 this._pressY = this._pointer.y;
                 this._lastX = this._pointer.x;
-                this._lastT = now;
+                this._lastT = this._clock();
                 this._vx = 0;
             } else {
-                if (btn) this._applyMetaAction(btn);
+                this._menuPress = btn; // 抬起提交门：按下不派发，只登记（未命中任何钮 = null）
             }
-        } else if (this._glass) {
+        } else if (this._glass && snap.isDown) {
             const raw = this._pointer.x - this._pressX;
-            const dt = now - this._lastT;
+            const dt = this._clock() - this._lastT;
             if (dt > 0) this._vx = (this._pointer.x - this._lastX) / dt;
             this._lastX = this._pointer.x;
-            this._lastT = now;
+            this._lastT = this._clock();
             if (!this._dragging) {
                 const adx = raw < 0 ? -raw : raw;
                 const ady = this._pointer.y - this._pressY;
@@ -535,10 +541,31 @@ export class BeadsShell implements Game {
                 this._setSlide(carouselDamp(raw, this._carouselOffset, this._shown));
             }
         }
+        if (!snap.isDown) {
+            // 抬起帧：先结玻璃手势，再结按钮提交门（旧写法在此提前 return ⇒ 一固定步内的
+            // down+up（WXG-T-170 真机亚帧快点击）被整段吞掉，本序顺带补上）。
+            if (this._glass) this._releaseGlass();
+            this._commitMenuPress();
+            this._viewData.pressed = null;
+            return;
+        }
         // 拖玻璃时不点亮滑过的别的钮。
         this._viewData.pressed = this._dragging
             ? null
             : hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+    }
+
+    /**
+     * 抬起提交门的抬起腿（WXG-T-295）：抬起点仍命中**同一颗钮**（id + slot）才按旧腿派发；
+     * 拖出热区 / 换钮 ⇒ 静默取消（零事件、零扣心、不发 `meta:overlay`）。无论提交或取消都清登记。
+     */
+    private _commitMenuPress(): void {
+        const press = this._menuPress;
+        this._menuPress = null;
+        if (!press) return;
+        const hit = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+        if (!hit || hit.id !== press.id || hit.slot !== press.slot) return;
+        this._applyMetaAction(hit);
     }
 
     /** 松手：位移没过点按线 ⇒ 进选关；否则按阈值 / 快甩决定翻页或回弹。 */
@@ -745,6 +772,10 @@ export class BeadsShell implements Game {
         const off = this._carouselOffset;
         const soon = off >= ARC_OPEN_MAX;
         v.carouselComingSoon = soon;
+        // `[BD-62]` 边界可见性：与 `_nudge` 的 clamp 同语义（首张无上一可翻、末张无下一可翻）。
+        // ⇒ 视图不再画越界那一侧的箭头（旧行为 = 两端一直画，点了无反应）。
+        v.carouselFirst = off <= 0;
+        v.carouselLast = this._shown <= 0 || off >= this._shown - 1;
         v.carouselLevel = soon ? undefined : this._arcBossLevel(off);
         v.carouselState = soon ? undefined : this._arcState(off);
         v.carouselTextureId = soon ? undefined : ARCS[off]?.textureId;

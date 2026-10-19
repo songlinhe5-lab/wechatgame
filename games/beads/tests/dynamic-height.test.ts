@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { RenderModelBuilder, Viewport } from '@wxgame/framework';
-import { DESIGN_W, GEAR_HIT_SIZE, HUD_BAND } from '../src/config/tuning.js';
+import { DESIGN_W, GEAR_HIT_SIZE, HUD_BAND, SAFE_EDGE_MARGIN } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
@@ -66,5 +66,38 @@ describe('对局页 · 动态设计高', () => {
         h.advance(1);
         const rects = frame(h).commands.filter((c) => c.kind === 'rect' && c.x === 0 && c.y === 0 && c.w === DESIGN_W);
         expect(rects.some((c) => c.kind === 'rect' && c.h === TALL_H)).toBe(true);
+    });
+
+    // `[WXG-T-295 续]` 胶囊避让：真机胶囊值不可在 node 平台复现 ⇒ 白盒钉公式与热区同源。
+    it('小游戏胶囊：hudDy 再减胶囊避让量，齿轮随 HUD 下移', () => {
+        const BT = 171;
+        const h = tallHarness('wxgame.beads.test.dh-cap');
+        (h.game as unknown as { _capsuleBottom: number })._capsuleBottom = BT;
+        h.game.buildRenderModel(new RenderModelBuilder(DESIGN_W, TALL_H));
+        expect(h.game.snapshot.hudDy).toBe(DY - BT);
+
+        h.advance(1 / 60);
+        const mid = (HUD_BAND.yMin + HUD_BAND.yMax) / 2;
+        h.game.tapDesign(GEAR_HIT_SIZE / 2, mid + DY); // 旧「贴屏顶」位置：已出热区
+        expect(h.game.phase).not.toBe('paused');
+        h.game.tapDesign(GEAR_HIT_SIZE / 2, mid + DY - BT); // 避让后位置：可点
+        expect(h.game.phase).toBe('paused');
+    });
+
+    it('debugGuides：对局页画三条标定线（与主菜单同口径）', () => {
+        const BT = 171;
+        const ST = 88;
+        const SB = 68;
+        const h = tallHarness('wxgame.beads.test.dh-guides');
+        const priv = h.game as unknown as { _capsuleBottom: number; _safeTop: number; _safeBottom: number };
+        priv._capsuleBottom = BT;
+        priv._safeTop = ST;
+        priv._safeBottom = SB;
+        h.game.setDebugGuides(true);
+        const lines = frame(h).commands.filter((c) => c.kind === 'line' && c.x1 === 0 && c.x2 === DESIGN_W);
+        const ys = lines.map((c) => (c as unknown as { y1: number }).y1);
+        expect(ys).toContain(TALL_H - ST);
+        expect(ys).toContain(TALL_H - (BT - SAFE_EDGE_MARGIN));
+        expect(ys).toContain(SB);
     });
 });

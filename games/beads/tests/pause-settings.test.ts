@@ -14,6 +14,7 @@ import {
   simpleTestLevel,
   placeColor,
   advancePastClearWave,
+  tapInFrame,
   type Harness,
 } from './helpers.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
@@ -80,23 +81,9 @@ function tapGear(game: BeadsGame): boolean {
   return tap(game, p.x, p.y);
 }
 
-/**
- * Deliver a pointer sample *inside* a frame — `beginFrame()` clears one-shot
- * flags, so pushing before `advance()` would lose the tap. This is how the
- * "same frame as expiry" criterion has to be built.
- */
-function tapInFrame(harness: Harness, x: number, y: number): void {
-  const screen = { x: 0, y: 0 };
-  harness.services.viewport.designToScreen(screen, x, y);
-  harness.input.beginFrame();
-  harness.input.push({ id: 1, x: screen.x, y: screen.y, phase: 'down', time: 0 });
-  harness.game.update(STEP);
-  harness.input.endFrame(STEP);
-  // Release immediately so no later frame sees a held pointer.
-  harness.input.beginFrame();
-  harness.input.push({ id: 1, x: screen.x, y: screen.y, phase: 'up', time: 0 });
-  harness.input.endFrame(STEP);
-}
+// 真同帧投递 = `tests/helpers.ts::tapInFrame`（单一真源，本文件旧副本已删）：
+// down 帧与 up 帧**各跑一次 `game.update()`**——WXG-T-295 后齿轮属「抬起才提交」，
+// 不在抬起帧调度 `update()` 的话该点击永不落地。
 
 /** A board cell centre (§3.3 derivation) — inside the scrim once paused. */
 function gridPoint(game: BeadsGame, row: number, col: number): { x: number; y: number } {
@@ -476,18 +463,21 @@ describe('S9 pause & settings', () => {
     expect(failed.count('game:paused')).toBe(0);
     expect(failed.emitted.length).toBe(before);
 
-    // Group ② — gear arrives in the same frame the countdown would hit zero:
+    // Group ② — gear arrives with the countdown about to hit zero:
     // the freeze wins, no failure is judged while PAUSED.
+    // **WXG-T-295 时基注**：齿轮现「抬起才提交」⇒ 一次点击占两帧（down 帧照旧 tick 一帧
+    // 计时、up 帧输入段先于计时段 ⇒ 本帧不扣时）。旧「只剩一帧余量」的烧法会被 down 帧
+    // 走完倒计时 ⇒ 到抬起帧已 GAME_OVER（属 §8-6「later arrival loses」一侧）。
     const same = createBeadsHarness({
       noAssemble: true, saveKey: 'wxgame.beads.test.s9c6b'
     });
-    // Stop with ≤1 frame of countdown left: this frame's tick *would* expire.
-    while (same.game.remaining > STEP && same.game.phase === 'playing') {
+    // Stop with ≤2 frames of countdown left: the down frame may burn one of them.
+    while (same.game.remaining > STEP * 2 && same.game.phase === 'playing') {
       same.advance(STEP);
     }
     expect(same.game.phase).toBe('playing');
     expect(same.game.remaining).toBeGreaterThan(0);
-    expect(same.game.remaining).toBeLessThanOrEqual(STEP + 1e-9);
+    expect(same.game.remaining).toBeLessThanOrEqual(STEP * 2 + 1e-9);
     const p = gearPoint();
     tapInFrame(same, p.x, p.y);
     expect(same.game.phase).toBe('paused');

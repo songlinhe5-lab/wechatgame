@@ -60,16 +60,19 @@ function cellPoint(harness: Harness, row: number, col: number): { x: number; y: 
 describe('帧内执行序（core-loop §2.2.2）', () => {
   // core-loop §6「暂停请求同帧」：输入段恒先于计时段 ⇒ 暂停生效、本帧 dt 不计入倒计时；
   // 供料段恒空（v2.0）⇒ 全程零 tray:spawned。
+  // **WXG-T-295 时基注**：齿轮现属「抬起才提交」⇒ 一次点击占两帧：down 帧未提交 ⇒ 计时正常走
+  // 一帧（故 `remaining = time - STEP`，旧断言 `= time` 是「按下即提交」的特征量）；up 帧输入段
+  // 仍先于计时段 ⇒ 提交帧不再扣时。「提交帧内输入先于计时」这层含义仍被本例钉住。
   it('processes a gear tap (input) before the clock in the same frame; the feed segment stays empty', () => {
     const h = mk('wxgame.beads.test.fo-1');
 
     const gear = gearPoint();
     tapInFrame(h, gear.x, gear.y);
 
-    expect(h.game.phase).toBe('paused'); // 输入段：暂停生效
+    expect(h.game.phase).toBe('paused'); // 输入段：暂停生效（抬起帧）
     expect(h.count('game:paused')).toBe(1);
     expect(h.count('tray:spawned')).toBe(0); // 供料段恒空（v2.0）
-    expect(h.game.remaining).toBe(simpleTestLevel().time); // 暂停帧 dt 未计入倒计时
+    expect(h.game.remaining).toBe(simpleTestLevel().time - STEP); // 只扣了 down 那一帧
   });
 
   // powerups §6「输入段恒先于计时段」：同帧点道具，结算先于计时；供料段恒空。
@@ -109,6 +112,10 @@ describe('帧内执行序（core-loop §2.2.2）', () => {
     expect(h.count('level:cleared') >= 0).toBe(true); // 交换归位后是否通关由 mode 决定（normal ⇒ cleared）
     // 供料段恒空：全程无产出（v2.0 供料关停）。
     expect(h.count('tray:spawned')).toBe(0);
+    // WXG-T-295 口径注：点击现跨两帧，且解环器走清盘波（G2′ 队列）⇒ 抬起帧仍留 PLAYING，
+    // 两帧各 tick 一帧（旧口径只付一帧）。本例的「输入段先于计时段」因此不再对道具卡成立，
+    // 段内序的正面对证归 fo-1（齿轮：提交帧不扣时）；此处只钉时基本身，防它默默再后移。
+    expect(h.game.remaining).toBeCloseTo(simpleTestLevel().time - STEP * 2, 10); // 两次连减 ⇒ 容浮点尾差
     // 事件序也是帧内序：输入段（powerup:used）先于计时段（timer:tick，若有）。
     const usedAt = h.emitted.findIndex((e) => e.type === 'powerup:used');
     const tickAt = h.emitted.findIndex((e) => e.type === 'timer:tick');

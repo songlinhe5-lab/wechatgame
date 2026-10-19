@@ -242,7 +242,7 @@ describe('beads view model (control-manifest §8)', () => {
   });
 
   // BD-43（WXG-T-127）/ T-062 判例回归：渲染矩形与命中矩形**同源**。两侧都必须走
-  // `powerupCardRects()`（drawPowerupBand 与 `_hitPowerupCard`）——若渲染侧再度
+  // `powerupCardRects()`（drawPowerupBand 与 `hitPowerupCard`）——若渲染侧再度
   // 私写一套坐标（T-124 改版曾疑是复发源），本断言当场红：每张命中卡的 (x, bottom,
   // w, h) 必须在渲染指令里有一条**逐值相等**的白卡矩形（投影矩形在 bottom−3，不会误配）。
   it('BD-43/T-062 回归：drawn card rect equals the hit rect value-for-value', () => {

@@ -316,7 +316,7 @@ describe('zoomAtPoint（低倍点击焦点放大）', () => {
 
 /** 相机权威存于玩法层私有字段（§3.3-1 / L5）；落点测试按现状读，不为此扩公开 API。 */
 function cameraOf(game: BeadsGame): BoardCamera {
-  return (game as unknown as { _camera: BoardCamera })._camera;
+  return (game as unknown as { _board: { camera: BoardCamera } })._board.camera;
 }
 
 /** 把相机弄脏：7.5 恒在合法档 [CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX] 之外 ⇒ 复位缺失必留痕，不靠巧合相等。 */

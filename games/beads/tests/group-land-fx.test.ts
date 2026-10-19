@@ -18,7 +18,7 @@
  *
  * **[T-244 修正]** 用户报「没有错峰落子/没有下压/顺序不由近及远」⟹ **首版挂错路径**：
  * 只挂了 board 锚直填（`_tryDirectFillFromBoard`），而游戏主流程是**托盘锚** `_placeSelected`
- * （其组批量循环每颗调 `_armPlaceFx` G1 单槽 ⟹ 逐颗互相覆盖 = 无错峰无下压）。
+ * （其组批量循环每颗调 `FeedbackFx.armPlace` G1 单槽 ⟹ 逐颗互相覆盖 = 无错峰无下压）。
  * 修正 = 组批量走 `_groupLandFx` 队列、单颗保 G1 ⟹ 腿 ③ 钉托盘路径。
  */
 

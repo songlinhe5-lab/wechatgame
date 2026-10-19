@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 144,
+  "nextId": 145,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger.md",
       "category": "流程台账",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "4793a78fa31796fc70d89ad7d7abb02c8fdcfea1830fa09c5d249b706f0a010e",
+      "contentHash": "be561e37a5e3141287444f179802b417544fba5164c790e8aca579f22730aa1b",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -2390,6 +2390,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-144",
+      "state": "active",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
+      "title": "同一个「零响应」结论由两条不同机制各自达成时，只写一例 ⇒ 变异只能拆掉一条，另一条恒绿",
+      "contentHash": "bfdffd39d6e52b81a6cce229340ddcbb122218ec6cc240ad8092f8edeb64ead6",
+      "sourceTask": "WXG-T-295",
+      "addedDate": "2026-10-19",
+      "lastAccess": "2026-10-19",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3553,6 +3570,24 @@
       "kind": "updated",
       "ids": [
         "K-142"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-19",
+      "taskId": "WXG-T-295",
+      "kind": "added",
+      "ids": [
+        "K-144"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-19",
+      "taskId": "WXG-T-295",
+      "kind": "updated",
+      "ids": [
+        "K-045"
       ],
       "note": null
     }

@@ -1831,7 +1831,7 @@ export const SOLVER_HINT_MS = 200;
 export const SOLVER_PER_BEAD_MS = FILL_POP_MS;
 /**
  * 逐颗错开量（ux-spec §5 冻结值 80）——**小于** G1 的 `FILL_POP_RESTART_GATE_MS` 120
- * ⇒ 单槽通道每隔一颗就会被门拑掉（`_armPlaceFx` 头注登记的冲突）。本单解法 =
+ * ⇒ 单槽通道每隔一颗就会被门拑掉（`FeedbackFx.armPlace` 头注登记的冲突）。本单解法 =
  * **逐颗队列**（每颗一份 120ms 包络、由 `SOLVER_STAGGER_MS` 错位起播），
  * **不动** G1 的手动连点重启门（那是防连点堆叠的，不是为道具设的）。
  */
@@ -2879,7 +2879,7 @@ export function hitGridCell(
 
 /**
  * 托盘面板 / 槽位派生几何（§3.4）。**单一真源**：渲染（`view-model.drawTray`）与
- * 命中（`beads-game._hitTraySlot`）必须共用本函数 —— 各写一份就会出现「画出来的槽」
+ * 命中（`beads-game/hit-test.hitTraySlot`）必须共用本函数 —— 各写一份就会出现「画出来的槽」
  * 与「点击落点」不一致的静默漂移（`powerupCardRects()` / `gridLayoutFor()` 判例，
  * WXG-T-062）。
  *
