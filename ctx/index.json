@@ -371,7 +371,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4272,
       "lines": 149,
-      "sha256": "a751ec40c772228898027af9b9e7112fe79aeff8728f0fd55e55b8838810e5c0",
+      "sha256": "4c17f8a83a0392e371d7c086b6fb23c30e2ccb5076da703ca16937ce80e10d62",
       "tier": "normal",
       "sections": [
         {
@@ -409,7 +409,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 125680 3445 normal",
+          "summary": "1 production/TASKS-DETAIL.md 125844 3446 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -425,7 +425,7 @@
           "startLine": 46,
           "endLine": 124,
           "tokens": 2758,
-          "summary": "production/TASKS-DETAIL.md 125680 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 125844 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -664,7 +664,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "160cfcd579e27265a0567561a7d5be1b07cc1cecbf4b74cd77e6531f7490da7a",
+      "sha256": "96412a2309d35601815e21d8076d618409388668f581526db79c7a4a207e66ed",
       "tier": "normal",
       "sections": [
         {
@@ -971,7 +971,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3445 行 / 125680 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3446 行 / 125844 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -79920,9 +79920,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 125680,
-      "lines": 3445,
-      "sha256": "8f048d2a749427659639eb699ebc9dfc9093710f617df65282af09fcefcb270b",
+      "tokens": 125844,
+      "lines": 3446,
+      "sha256": "ab2ec743adec6dbc1fec504eb39e79dfc11916fbfc6c1129bbc2cab159f6eda3",
       "tier": "normal",
       "sections": [
         {
@@ -82443,8 +82443,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3446,
-          "tokens": 23296,
+          "endLine": 3447,
+          "tokens": 23459,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82809,8 +82809,8 @@
           "anchor": "§WXG-T-294",
           "level": 2,
           "startLine": 3409,
-          "endLine": 3446,
-          "tokens": 2494,
+          "endLine": 3447,
+          "tokens": 2658,
           "summary": "工程·control-manifest §19 投放门禁扩三条 + beads 发布清单 v1.1 包体论证重算｜主理人",
           "keywords": [
             "§19",
@@ -82840,8 +82840,8 @@
           "anchor": "§续批三（2026-10-19，不另领号）：真机走查开工准备（用户选下一步选项 1）",
           "level": 3,
           "startLine": 3436,
-          "endLine": 3446,
-          "tokens": 684,
+          "endLine": 3447,
+          "tokens": 847,
           "summary": "本轮只做到「拿掉人工操作的全部障碍」，不产生任何真机读数。",
           "keywords": [
             "续批三",
@@ -86329,17 +86329,17 @@
     },
     {
       "path": "production/qa/beads/device/2026-10-19/README.md",
-      "tokens": 1535,
-      "lines": 49,
-      "sha256": "9b302acdeb086ab649fc335efdb427aea0f24d6f43842fed237ee885b10ddd45",
+      "tokens": 1963,
+      "lines": 58,
+      "sha256": "5fd9be78764e4d93ad5cac51d5e2ef0e76b8f5094a370538eb9a8eac0f415dc9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Session 1 真机取证执行卡（2026-10-19）",
           "level": 1,
           "startLine": 1,
-          "endLine": 50,
-          "tokens": 1520,
+          "endLine": 59,
+          "tokens": 1948,
           "summary": "本轮只做 Session 1 · 冒烟与首屏（含新增 D-77 位图腿屏幕层序）。任何一条 FAIL 即停后续场次（de",
           "keywords": [
             "Session",
@@ -86351,8 +86351,8 @@
           "anchor": "§0 仓库侧已备好（无需你操作）",
           "level": 2,
           "startLine": 6,
-          "endLine": 16,
-          "tokens": 240,
+          "endLine": 17,
+          "tokens": 355,
           "summary": "产物 games/beads/cocos/build/wechatgame —— 先 pnpm run framewor",
           "keywords": [
             "games",
@@ -86366,24 +86366,24 @@
         {
           "anchor": "§1 你要做的操作（约 20 分钟）",
           "level": 2,
-          "startLine": 17,
-          "endLine": 24,
-          "tokens": 285,
-          "summary": "1. 微信开发者工具「导入项目」→ 目录选 games/beads/cocos/build/wechatgame（⛔ 不",
+          "startLine": 18,
+          "endLine": 33,
+          "tokens": 598,
+          "summary": "0. 预览通道已帮你拉起：http://localhost:3847（微信小游戏预览器，由 weixin-minigam",
           "keywords": [
-            "games",
-            "beads",
-            "cocos",
-            "build",
-            "wechatgame",
-            "你要做的操作"
+            "http",
+            "localhost",
+            "weixin",
+            "minigam",
+            "你要做的操作",
+            "分钟"
           ]
         },
         {
           "anchor": "§2 逐条操作与预期（Session 1）",
           "level": 2,
-          "startLine": 25,
-          "endLine": 38,
+          "startLine": 34,
+          "endLine": 47,
           "tokens": 534,
           "summary": "D-39 开发者工具「预览 / 上传」 出包成功、无 AppID 或域名报错 工具截图",
           "keywords": [
@@ -86395,8 +86395,8 @@
         {
           "anchor": "§3 回传之后谁做什么",
           "level": 2,
-          "startLine": 39,
-          "endLine": 44,
+          "startLine": 48,
+          "endLine": 53,
           "tokens": 152,
           "summary": "我把读数与截图回填 [device-walkthrough.md](../../device-walkthrough.m",
           "keywords": [
@@ -86409,8 +86409,8 @@
         {
           "anchor": "§4 三条禁忌（防假绿）",
           "level": 2,
-          "startLine": 45,
-          "endLine": 50,
+          "startLine": 54,
+          "endLine": 59,
           "tokens": 136,
           "summary": "1. ⛔ 模拟器 / 开发者工具 / web-mobile 的读数当真机证据（它们只作方向参考，render-perf-",
           "keywords": [

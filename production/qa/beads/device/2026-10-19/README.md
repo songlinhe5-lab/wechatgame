@@ -13,12 +13,21 @@
 | 旧包歧义已消除 | `build/wechatgame-001` → `build/_archive-wechatgame-001-20260929`；Cocos profile `outputName` 已改指 `wechatgame`（本地设置，未入仓） |
 | AppID | 三处一致 `wx8cf9f756e5390749` |
 | 待你确认 | 开发者工具登录态（须有该 AppID 的开发权限）+ vConsole 开关 |
+| 预览通道 | ✅ 2026-10-19 09:3x 已由 MCP `run_game` 拉起 `http://localhost:3847`；**SIM 预读记录**：未登录态下点「编译」不注入代码（`PREVIEW_SIM_boot_1.png` / `_boot_2.png`：黑屏、iframe body 长 0、`cc` 未加载、Console 0 条）⇒ 定性为**未编译**而非产物黑屏；本记录只作通道诊断，**禁作真机判据**（K-044 §0-4） |
 
 ## 1. 你要做的操作（约 20 分钟）
 
-1. 微信开发者工具「导入项目」→ 目录选 **`games/beads/cocos/build/wechatgame`**（⛔ 不要选 `build/` 父目录，那里的 `project.config.json` 是误生成物、AppID 不同）。
+0. **预览通道已帮你拉起**：`http://localhost:3847`（微信小游戏预览器，由 `weixin-minigame-helper` MCP 以
+   `games/beads/cocos/build/wechatgame` 为工程启动）。若没在跑，重调一次 MCP 的 `run_game` 即可。
+   ⚠ **先点右上角「登录」用微信号扫码**——未登录时点「编译」不会注入代码（实测：模拟器黑屏、
+   iframe `body` 长度 0、`cc` 未加载、Console 0 条 ⇒ 那是**未编译**，不是产物黑屏，别误报缺陷）。
+   登录后的预期：工具栏变账号头像，点「编译」后屏幕出主菜单，Console 有 `Cocos Creator v3.8.8` 等日志。
+1. （若不用上面那个预览窗口）微信开发者工具「导入项目」→ 目录选 **`games/beads/cocos/build/wechatgame`**（⛔ 不要选 `build/` 父目录，那里的 `project.config.json` 是误生成物、AppID 不同）。
 2. 「详情 → 本地设置」勾上调试相关项以便真机出现 **vConsole** 按钮；日志拿不到就改用 `wx.showModal` 弹窗取证（不要因此跳过性能项）。
-3. 点「预览」生成二维码，用**两台**手机扫码：L-A = 华为畅享 90 Pro Max（ohos / dpr3）；iOS 侧（A11–A13 缺，HIGH 机可先跑功能与适配，**性能结论上限 `PASS*`**）。
+3. 点工具栏「**真机预览**」（= 编译 + 上传到微信平台生成扫码链接，属上传链路 ⇒ 需 AppID 与登录态；
+   若报缺上传密钥/需 IP 白名单，按提示在预览页 ⚙ 填或到公众平台开发设置里加本机 IP），用**两台**手机扫码：
+   L-A = 华为畅享 90 Pro Max（ohos / dpr3）；iOS 侧（A11–A13 缺，HIGH 机可先跑功能与适配，**性能结论上限 `PASS*`**）。
+   ⚠ 二维码弹出后**不要刷新页面、不要再点「编译」**（会失效）。
 4. 按 §2 表逐条操作并截图/录屏，文件放进本目录，命名 `<条目ID>_<机型档>_<序号>.png`（例：`D-77_LA_1.png`、`D-66_iOS_1.png`）。
 5. 顺带记录三件事（有则写，无则留空，不要编）：冷启动秒表 3 次读数、是否出现任何弹窗报错、画面异常的具体格位。
 

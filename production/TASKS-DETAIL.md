@@ -3442,4 +3442,5 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **走查单 v1.0→v1.1**：Session 0 八条前置逐条改成实测值（构建新鲜 / 单产物 / 包体与构建档 / **新增「包内资产与仓内等值」** / 日志通道 / 取证目录）+ **新增 D-77**把 `control-manifest §19` 前置 2（位图必须真上屏）列成可执行条目；本单不新造判据，线与来源全部指回受控文档；**所有判定列仍为 `—`**。
 - **执行卡**：`production/qa/beads/device/2026-10-19/README.md` —— 5 步人工操作 + 逐条“做什么/期望什么/留什么证据”表（D-39/75/69/**77**/74/59/60/61/66）+ 命名规范 + 三条防假绿禁忌（模拟器禁作判据 / 缺通道记 BLOCKED / 不用旧包取证）。发布清单 §1.3 同步新增「真机取证入口」行与「干净构建」实跑记录。
 - **你只需做的**：开发者工具导入 `games/beads/cocos/build/wechatgame` → 预览二维码 → 华为畅享 + 一台 iOS 逐条操作并把截图放进该目录。回传后我负回填与来源同步，阶段裁定归编排者。
+- **预览通道已代拉（同日 09:3x）**：走 `weixin-minigame-helper` MCP 的 `run_game`（workspacePath = 产物绝对路径）⇒ `http://localhost:3847` 已起。SIM 预读定性：未登录态下点「编译」**不注入代码**（两张 `PREVIEW_SIM_boot_*.png`：黑屏、iframe `body` 长 0、`cc` 未加载、Console 0 条）⇒ 属**未编译**而非产物黑屏，避免用户误报缺陷；该读数**禁作真机判据**（K-044 §0-4）。「真机预览 / 上传」属上传链路，未得用户确认不自动调。
 - **本轮验证**：`check:size` OK・`check:cocos-mask` OK・`framework:sync:check` 绿・`check:tasks` 55⇔55・`ctx:check` OK・`check:links` OK・`verify` **PASS 22 / FAIL 0**（零代码改动，产物与本地设置为不入库项）。
