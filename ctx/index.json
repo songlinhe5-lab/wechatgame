@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4272,
       "lines": 149,
-      "sha256": "de351bd344fb6da3980bd6db28276a7e4ce9bd5732dce420dce0c7f3bb9b5ba5",
+      "sha256": "fe86fd0955ebf90d119772f91da3f92f847ea85213977b138a2bacb924a5c4ed",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 130789 3495 normal",
+          "summary": "1 production/TASKS-DETAIL.md 131065 3496 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 124,
           "tokens": 2758,
-          "summary": "production/TASKS-DETAIL.md 130789 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 131065 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "3f7afee099fb7ed40caf4d5ebf3205993b59d059efd234a16d374ad05b675cf4",
+      "sha256": "e8f2b2bd09d73f3a279e73fe6e17af42b588e252b76283acac07e759e757a212",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 104 行 / 36977 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 105 行 / 37073 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+105 · §待排（backlog，无号，立项时领取…=78+28",
+          "summary": "§WXG 任务台账（SSOT）=1+106 · §待排（backlog，无号，立项时领取…=78+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 1149 行 / 93408 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 1160 行 / 93946 tok / 实测读 15 次",
           "level": 2,
           "startLine": 31,
           "endLine": 35,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3495 行 / 130789 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3496 行 / 131065 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -80001,9 +80001,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 130789,
-      "lines": 3495,
-      "sha256": "1fc9097eb6a8d9029b523273778c9770ccc7ce8781794cfbccc650b523413e73",
+      "tokens": 131065,
+      "lines": 3496,
+      "sha256": "13c0b0667bc6a9a79c06df3ba205ccbf67bdba3653e817f9b0eb0d47fcbebcd8",
       "tier": "normal",
       "sections": [
         {
@@ -82524,8 +82524,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3496,
-          "tokens": 28404,
+          "endLine": 3497,
+          "tokens": 28680,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82890,8 +82890,8 @@
           "anchor": "§WXG-T-294",
           "level": 2,
           "startLine": 3409,
-          "endLine": 3496,
-          "tokens": 7603,
+          "endLine": 3497,
+          "tokens": 7879,
           "summary": "工程·control-manifest §19 投放门禁扩三条 + beads 发布清单 v1.1 包体论证重算｜主理人",
           "keywords": [
             "§19",
@@ -82953,8 +82953,8 @@
           "anchor": "§续批五（2026-10-19，不另领号）：§8 分包/远程包选型拍板简报（用户选下一步选项 3）",
           "level": 3,
           "startLine": 3464,
-          "endLine": 3496,
-          "tokens": 4227,
+          "endLine": 3497,
+          "tokens": 4504,
           "summary": "新事实（本轮实测，不是推算）：把产物按「原始字节 vs gzip 传输量」分组量了一遍——cc.js 1356.9 → ",
           "keywords": [
             "§8",
@@ -82969,17 +82969,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 36977,
-      "lines": 104,
-      "sha256": "47e61c36fa5343c354dde0dd5559a31358eb5b3a1ce5cf4dbbdededd4823e2be",
+      "tokens": 37073,
+      "lines": 105,
+      "sha256": "a8bf66eaf2cf9139a0b64f6a792e5c046dc1f0aa4a56d0e88117b734107b484b",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 105,
-          "tokens": 36969,
+          "endLine": 106,
+          "tokens": 37064,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -82993,8 +82993,8 @@
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
           "startLine": 78,
-          "endLine": 105,
-          "tokens": 1294,
+          "endLine": 106,
+          "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
             "backlog",
@@ -86196,17 +86196,17 @@
     },
     {
       "path": "production/qa/beads/device-walkthrough.md",
-      "tokens": 7479,
-      "lines": 227,
-      "sha256": "42b147c67283ca953d2afd2c1a5e9375739314c6d2db633562e3ee1f7c2142f4",
+      "tokens": 7595,
+      "lines": 229,
+      "sha256": "08f0f5d8bb01f29c73a41ca87b1abe9818c6baef78b6d9f6dca6208d9132a6cc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads 真机走查单（P4 · K-044 解除条件逐项走查）",
           "level": 1,
           "startLine": 1,
-          "endLine": 228,
-          "tokens": 7458,
+          "endLine": 230,
+          "tokens": 7575,
           "summary": "版本：v1.2 · 2026-10-19（v1.1 = Session 0 前置实跑校正 + 新增 D-77；v1.2 ",
           "keywords": [
             "beads",
@@ -86265,8 +86265,8 @@
           "anchor": "§3 走查条目（按场次排，同场一次性走完）",
           "level": 2,
           "startLine": 49,
-          "endLine": 182,
-          "tokens": 4166,
+          "endLine": 184,
+          "tokens": 4282,
           "summary": "列说明：线 = 来源给的通过线（逐字，未定义 ⇒ 上限 PASS*）；另需 = AppID 之外的前提；判定 / 证据 ",
           "keywords": [
             "PASS",
@@ -86280,8 +86280,8 @@
           "anchor": "§Session 1 · 冒烟与首屏（先走，任何一条 FAIL 即停后续场次）",
           "level": 3,
           "startLine": 53,
-          "endLine": 90,
-          "tokens": 1592,
+          "endLine": 92,
+          "tokens": 1708,
           "summary": "D-39 qa/beads/test-cases.md DEV-02 build:cocos（wechatgame）出包",
           "keywords": [
             "Session",
@@ -86295,8 +86295,8 @@
         {
           "anchor": "§Session 2 · 适配（刘海 / 安全区 / 分辨率）",
           "level": 3,
-          "startLine": 91,
-          "endLine": 103,
+          "startLine": 93,
+          "endLine": 105,
           "tokens": 404,
           "summary": "D-38 test-cases.md DEV-01 wx 宿主坐标链（getLocation / push）；小游戏无 ",
           "keywords": [
@@ -86311,8 +86311,8 @@
         {
           "anchor": "§Session 3 · 输入",
           "level": 3,
-          "startLine": 104,
-          "endLine": 119,
+          "startLine": 106,
+          "endLine": 121,
           "tokens": 406,
           "summary": "D-46 test-cases.md TC-CAM-DEV-01（P0） zoom≠1（含大盘 fit）棋盘点哪落哪 点",
           "keywords": [
@@ -86327,8 +86327,8 @@
         {
           "anchor": "§Session 4 · 渲染观感（统一截图取证：每条同机同亮度，原图入库）",
           "level": 3,
-          "startLine": 120,
-          "endLine": 144,
+          "startLine": 122,
+          "endLine": 146,
           "tokens": 650,
           "summary": "D-12 ADR-0028；wxg-t-228-tint-criteria.md TC-TINT-20 / T2' wx",
           "keywords": [
@@ -86343,8 +86343,8 @@
         {
           "anchor": "§Session 5 · 性能（严格按 `render-perf-device-baseline.md §12` 执行序）",
           "level": 3,
-          "startLine": 145,
-          "endLine": 159,
+          "startLine": 147,
+          "endLine": 161,
           "tokens": 449,
           "summary": "D-03 baseline §7 · D7 WebGL/uniform/纹理能力矩阵（先做） 全机型 MAX_FRAGM",
           "keywords": [
@@ -86359,8 +86359,8 @@
         {
           "anchor": "§Session 6 · 音频 / 平台 API",
           "level": 3,
-          "startLine": 160,
-          "endLine": 169,
+          "startLine": 162,
+          "endLine": 171,
           "tokens": 214,
           "summary": "D-56 g4-regression-report.md A05-27 iOS 首手势出声；后台恢复；泄漏；首个 cli",
           "keywords": [
@@ -86375,8 +86375,8 @@
         {
           "anchor": "§Session 7 · 真人 Playtest（另排日程，需外部受试者）",
           "level": 3,
-          "startLine": 170,
-          "endLine": 182,
+          "startLine": 172,
+          "endLine": 184,
           "tokens": 264,
           "summary": "D-73 TC-PER-03；playtest-plan.md 第 1 轮 无文字 3s 看懂；首次落子 ≥80% 复述",
           "keywords": [
@@ -86391,8 +86391,8 @@
         {
           "anchor": "§4 真机解不了的阻塞（走查前须知，⛔ 不因真机在手而解除）",
           "level": 2,
-          "startLine": 183,
-          "endLine": 198,
+          "startLine": 185,
+          "endLine": 200,
           "tokens": 507,
           "summary": "X-01 音频出声（D-56/57/58） weapp.ts::createAudioBackend 只走 WebAud",
           "keywords": [
@@ -86407,8 +86407,8 @@
         {
           "anchor": "§5 走查后回填",
           "level": 2,
-          "startLine": 199,
-          "endLine": 205,
+          "startLine": 201,
+          "endLine": 207,
           "tokens": 148,
           "summary": "1. 每条判定回填到来源文档的状态列（本单只是索引）；PASS* 必写残留（缺哪一道）。",
           "keywords": [
@@ -86419,8 +86419,8 @@
         {
           "anchor": "§6 统计",
           "level": 2,
-          "startLine": 206,
-          "endLine": 220,
+          "startLine": 208,
+          "endLine": 222,
           "tokens": 152,
           "summary": "S1 冒烟 8 8",
           "keywords": [
@@ -86430,8 +86430,8 @@
         {
           "anchor": "§7 变更记录",
           "level": 2,
-          "startLine": 221,
-          "endLine": 228,
+          "startLine": 223,
+          "endLine": 230,
           "tokens": 567,
           "summary": "v1.0 2026-10-15 初稿：汇总全仓真机待验项 + K-044 判定上限 + 阻塞清单（P4）",
           "keywords": [
@@ -90950,9 +90950,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 93408,
-      "lines": 1149,
-      "sha256": "df4a89d03cb083951e5d484082bfd26d99c5a700ac73a7cf9322ddb9a3a014cf",
+      "tokens": 93946,
+      "lines": 1160,
+      "sha256": "04e2869cd1a5dafc5b1e5e188250120f61bbf7888e1c5332764f610712c364df",
       "tier": "hot",
       "sections": [
         {
@@ -91700,8 +91700,8 @@
           "anchor": "§M · 主菜单招牌 + 走马灯卡 + 选关页作品墙（EP12-S6 / WXG-T-269-S6）",
           "level": 1,
           "startLine": 964,
-          "endLine": 1150,
-          "tokens": 15450,
+          "endLine": 1161,
+          "tokens": 15988,
           "summary": "⚠ 走马灯改造（menu-architecture §1.3 第五轮）口径：主菜单主区由「木框橱窗作品墙」→单张走马灯小",
           "keywords": [
             "§1.3",
@@ -91858,8 +91858,8 @@
           "anchor": "§M.10 · WXG-T-269-S6 质量门结论（G1–G4）",
           "level": 2,
           "startLine": 1064,
-          "endLine": 1144,
-          "tokens": 4470,
+          "endLine": 1155,
+          "tokens": 5008,
           "summary": "判据正本 = 上文 §M（TC-MN-01..40）；冒烟半边 = smoke-tests.md v1.4（SC-MN-",
           "keywords": [
             "WXG",
@@ -91918,8 +91918,8 @@
           "anchor": "§M.11 追加缺陷（2026-10-18 · 交付格式收口批发现，非 S6 本单；正式号 **BD-61** = 全工作树现存最大 BD-60 +1，K-046/K-050）",
           "level": 3,
           "startLine": 1101,
-          "endLine": 1144,
-          "tokens": 2742,
+          "endLine": 1155,
+          "tokens": 3280,
           "summary": "BD-61 AR-01 P2（已确认：用户 2026-10-18 裁维持 P2，不上调） Cocos 投放件 textu",
           "keywords": [
             "Cocos",
@@ -91933,8 +91933,8 @@
         {
           "anchor": "§N. 第二跳收录面登记（2026-10-18 · WXG-T-293，quality-lead 裁定）",
           "level": 2,
-          "startLine": 1145,
-          "endLine": 1150,
+          "startLine": 1156,
+          "endLine": 1161,
           "tokens": 314,
           "summary": "本文件的判据锚点不按条数裁剪：裁条数会削掉 §A.0（UNTESTED/证据态唯一登记处）、§I.2（⛔ 未测道次护栏）",
           "keywords": [
