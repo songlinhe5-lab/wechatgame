@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "9d9fa181a58a8fb927e0ce4f5e2ca21c9440ffd258b06f5ff068f3a9e3ee7731",
+      "sha256": "68b67cc939d5ecdf5fd9eb2921fc8f4f0af8ca84cdc5fbd9f4ffcdd85a42d94f",
       "tier": "normal",
       "sections": [
         {
@@ -729,12 +729,12 @@
           ]
         },
         {
-          "anchor": "§`memory/MEMORY.md` — 66 行 / 3308 tok / 实测读 16 次",
+          "anchor": "§`memory/MEMORY.md` — 67 行 / 3454 tok / 实测读 16 次",
           "level": 2,
           "startLine": 23,
           "endLine": 26,
           "tokens": 64,
-          "summary": "§wechatgame 项目长期笔记=1+67 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=",
+          "summary": "§wechatgame 项目长期笔记=1+68 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=",
           "keywords": [
             "memory/MEMORY.md",
             "memory",
@@ -58090,17 +58090,17 @@
     },
     {
       "path": "memory/MEMORY.md",
-      "tokens": 3308,
-      "lines": 66,
-      "sha256": "be103048ebf566715cc2d26ca4f31c5921d9849c56099fd08b19f6cbda53f5d1",
+      "tokens": 3454,
+      "lines": 67,
+      "sha256": "be5598dba528b395a67c9ef16cec419165fe1aeaa3b8d846c6a7c612f1251c51",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§wechatgame 项目长期笔记",
           "level": 1,
           "startLine": 1,
-          "endLine": 67,
-          "tokens": 3299,
+          "endLine": 68,
+          "tokens": 3445,
           "summary": "正本路径：仓库根 memory/MEMORY.md。",
           "keywords": [
             "wechatgame",
@@ -58219,8 +58219,8 @@
           "anchor": "§已知限制",
           "level": 2,
           "startLine": 61,
-          "endLine": 67,
-          "tokens": 744,
+          "endLine": 68,
+          "tokens": 890,
           "summary": "需要安装 @resvg/resvg-js 到 WorkBuddy 托管 Node workspace：cd ~/.wor",
           "keywords": [
             "resvg",
@@ -86442,17 +86442,17 @@
     },
     {
       "path": "production/qa/beads/device/2026-10-19/README.md",
-      "tokens": 4529,
-      "lines": 162,
-      "sha256": "d007c3046b1179988c48a00498061b982077e0fa176b9a4278cfd4038507f08d",
+      "tokens": 4576,
+      "lines": 161,
+      "sha256": "7836dbb7453be15f92d2d74df2d0cdd972f32f52a02e9b0569f33ee151411ca4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Session 1 真机取证执行卡（2026-10-19）",
           "level": 1,
           "startLine": 1,
-          "endLine": 163,
-          "tokens": 4514,
+          "endLine": 162,
+          "tokens": 4561,
           "summary": "本轮只做 Session 1 · 冒烟与首屏（含新增 D-77 位图腿屏幕层序）。任何一条 FAIL 即停后续场次（de",
           "keywords": [
             "Session",
@@ -86512,8 +86512,8 @@
           "anchor": "§3 SIM 预读（开发者工具模拟器，2026-10-19 15:03 实拍屏）",
           "level": 2,
           "startLine": 62,
-          "endLine": 151,
-          "tokens": 2201,
+          "endLine": 150,
+          "tokens": 2248,
           "summary": "⛔ 本段不是真机判据（K-044 §0-4：模拟器读数禁作证据），只用于提前收窄真机诊断方向。",
           "keywords": [
             "§0",
@@ -86558,8 +86558,8 @@
           "anchor": "§3.3 选关墙实拍（15:27，模拟器）：D-77 多出一条硬前置——**不先解锁到第 9 关就判不了**",
           "level": 3,
           "startLine": 117,
-          "endLine": 138,
-          "tokens": 474,
+          "endLine": 137,
+          "tokens": 521,
           "summary": "点橱窗后进入「选关」面板（3×3），实测：",
           "keywords": [
             "选关墙实拍",
@@ -86572,8 +86572,8 @@
         {
           "anchor": "§3.4 怎么把存档推进到第 9 关（查代码后的三条路，含适用边界）",
           "level": 3,
-          "startLine": 139,
-          "endLine": 151,
+          "startLine": 138,
+          "endLine": 150,
           "tokens": 325,
           "summary": "解锁位字段 = maxUnlockedLevel，存在单局存档里：beads-game.ts:742-743 读 thi",
           "keywords": [
@@ -86588,8 +86588,8 @@
         {
           "anchor": "§5 回传之后谁做什么",
           "level": 2,
-          "startLine": 152,
-          "endLine": 157,
+          "startLine": 151,
+          "endLine": 156,
           "tokens": 152,
           "summary": "我把读数与截图回填 [device-walkthrough.md](../../device-walkthrough.m",
           "keywords": [
@@ -86602,8 +86602,8 @@
         {
           "anchor": "§6 三条禁忌（防假绿）",
           "level": 2,
-          "startLine": 158,
-          "endLine": 163,
+          "startLine": 157,
+          "endLine": 162,
           "tokens": 136,
           "summary": "1. ⛔ 模拟器 / 开发者工具 / web-mobile 的读数当真机证据（它们只作方向参考，render-perf-",
           "keywords": [

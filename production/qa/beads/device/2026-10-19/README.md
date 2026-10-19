@@ -132,8 +132,7 @@ logo「拼豆小铺」、左右 ◀▶ 翻页钮、`开始游戏`、版本号 `v
 ⇒ 模拟器可由 agent 驱动； 仍只算 SIM 预读，不得写进真机判定列。
 
 **adb 状态（用户已授权安装）**：`brew install --cask android-platform-tools` 已完成，
-`adb version` = 1.0.41 / 37.0.1，但 `adb devices` **列表为空**（`system_profiler SPUSBDataType` 也看不到任何手机）
-⇒ 还差物理一步：USB 线连 Mac + 手机开「开发者选项 → USB 调试」+ 弹窗点「允许调试」（华为/鸿蒙可能需选「传输文件」模式）。
+`adb version` = 1.0.41 / 37.0.1。**上一版此处结论有误，已自纠**：我曾写「`system_profiler SPUSBDataType` 也看不到任何手机 ⇒ 物理层未接」——该命令在本机输出 **0 行**（探针本身失效，⛔ 不能拿空输出断言设备不存在）。改用 `ioreg -p IOUSB` 复测：手机**其实已插着**，但枚举为 **`HDC Device`（vendor HUAWEI）** = 鸿蒙的 HDC 通道，不是 ADB 设备 ⇒ `adb devices` 必空。
 接上后即可 `adb exec-out screencap -p` 拿**设备原生截图**（比镜像窗口更硬）。
 
 ### 3.4 怎么把存档推进到第 9 关（查代码后的三条路，含适用边界）
