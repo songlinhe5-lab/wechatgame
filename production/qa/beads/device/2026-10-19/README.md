@@ -133,7 +133,13 @@ logo「拼豆小铺」、左右 ◀▶ 翻页钮、`开始游戏`、版本号 `v
 
 **adb 状态（用户已授权安装）**：`brew install --cask android-platform-tools` 已完成，
 `adb version` = 1.0.41 / 37.0.1。**上一版此处结论有误，已自纠**：我曾写「`system_profiler SPUSBDataType` 也看不到任何手机 ⇒ 物理层未接」——该命令在本机输出 **0 行**（探针本身失效，⛔ 不能拿空输出断言设备不存在）。改用 `ioreg -p IOUSB` 复测：手机**其实已插着**，但枚举为 **`HDC Device`（vendor HUAWEI）** = 鸿蒙的 HDC 通道，不是 ADB 设备 ⇒ `adb devices` 必空。
-接上后即可 `adb exec-out screencap -p` 拿**设备原生截图**（比镜像窗口更硬）。
+**再自纠一条（用户确认机型）**：这台 L-A 是**纯血鸿蒙（HarmonyOS NEXT）**，**根本没有 ADB 通道**，只有 HDC ⇒
+上面「接上即可 `adb exec-out screencap`」对本机**不成立**（实测：`adb connect 192.168.1.165:37941` 后 TCP 可达
+但设备一直 `offline`，`reconnect` 后消失；原因不是网络也不是密钥，而是协议不存在）。
+`hdc`（鸿蒙侧对应工具：`hdc list targets` / `hdc tconn <ip>:<port>` / `hdc shell snapshot_display` + `hdc file recv`）
+**本机未装**（全盘 + `mdfind` 均无；它随 DevEco Studio / Command Line Tools for HarmonyOS 分发，下载需华为开发者账号）。
+⇒ 真机取证改走**两条不依赖 adb/hdc 的路**：**① 开发者工具「真机调试」镜像**（IDE 自己连手机，agent 截 Mac 屏即得真机画面）；
+**② 手机系统截屏 → 隔空投送/微信传到 Mac → 丢进本目录**。若要全自动路线，需用户先装 DevEco Studio 或命令行工具。
 
 ### 3.4 怎么把存档推进到第 9 关（查代码后的三条路，含适用边界）
 
