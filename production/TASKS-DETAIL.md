@@ -3469,3 +3469,10 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - 交付 = 发布清单 v1.1 → **v1.2**：新增「两个口径」表、B′ 行、E 行、**§8.1 决策点表**（A / B′ / B / C 按「下载量 vs 要付的代价」排序）+ 主理人建议（**B′ 首发，B 作为菜单切图下批入库后的升级路径**）。⛔ 未代裁，等 USER 拍板；选 B′/B 的硬前置 = 先补真机走查项 **D-78（`wx.loadSubpackage` 成功/失败回退）** + AUD 真听一次「无 BGM 窗口」。
 - 一次自纠：写变更记录时把 v1.1 与 v1.2 挤成同一行（表格行合并）⇒ 用脚本按锚点拆回两行并核顺序，`ctx:check` / `check:links` 复验绿。
 - **验证**：`ctx:check` OK（A/B/C/D/D2/D3/E3）· `check:links` OK · `check:tasks` 55⇔55 · `pnpm run verify` **PASS 22 / FAIL 0**。
+
+#### 拍板结果（同日 USER 裁，续批五收口）
+
+- **路线 = B′（只把菜单 BGM 挑进分包）**：主包 3188.2 → **2719.0 KB**、首屏传输 1553.2 → **1090.6 KB（−30%）**；改动面 = `games/beads/src/config/audio-voices.ts::assetFile` 一处（`build-cocos.mjs` 保证装配目录 / `game.json` 的 `subpackages[]` / 运行时路径 / `check:size` 分包识别四处同步），零编辑器操作、不触 L1。
+- **节奏 = 先登记、暂不落码**：等 Session 1 真机走查（含 D-77 位图屏幕层序）跑完再动代码——一轮真机只引入一个变量，⛔ 不让分包改动污染本轮基线读数。
+- 已登记不假装完成的部分：走查单 §4 新增 **X-09**（D-78 分包预载 = `⛔ BLOCKED`，解除条件 = B′ 落码 + 重建产物 + `check:size` 分包两项绿），Session 表未加 D-78 空条目；发布清单 §8.1 加「✅ 拍板结果」段（含三条实施前硬前置：X-09 / AUD 真听无 BGM 窗口 / 重跑 `check:size`），§7 第④条从「§8 未拍板」改为「已拍板待实施」。
+- 本轮**零代码改动、未重建产物**（现包仍是单主包形态，与走查单 §1 的「包内资产与仓内等值」读数一致）。
