@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4342,
       "lines": 151,
-      "sha256": "69654c8c1895a54ebd6aee97c4d3135b2308822fbb97be1885cca621485bc7e8",
+      "sha256": "00a3b0f78948bf8b841e428a57b9c7aef8aca751d2a49d813e8e5148e5f7ce0e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 137199 3546 normal",
+          "summary": "1 production/TASKS-DETAIL.md 137246 3546 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 126,
           "tokens": 2828,
-          "summary": "production/TASKS-DETAIL.md 137199 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 137246 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "4ff95d3510b57749eaa6ed01167c4cff5c0fea6c58371b1424daaf10584693e4",
+      "sha256": "6ef8514273418a9e6713f21575d33f8cf06aba22ce8e72bcaad7738599dfc9af",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 106 行 / 39289 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 106 行 / 39315 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3546 行 / 137199 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3546 行 / 137246 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -80314,9 +80314,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 137199,
+      "tokens": 137246,
       "lines": 3546,
-      "sha256": "b9baaa93e557f6b2f7e43111acb2c726216eb1b5d7add492188bb2785ff7db88",
+      "sha256": "e8d78708315b214ae1cea9fe5909fd09181363e7f7bb2e69d8acfbe829991613",
       "tier": "normal",
       "sections": [
         {
@@ -82838,7 +82838,7 @@
           "level": 1,
           "startLine": 3026,
           "endLine": 3547,
-          "tokens": 34815,
+          "tokens": 34861,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -83283,7 +83283,7 @@
           "level": 2,
           "startLine": 3498,
           "endLine": 3547,
-          "tokens": 6131,
+          "tokens": 6178,
           "summary": "beads·区外按钮改「抬起才提交」（输入时基统一）｜主理人(Qoder)·用户直裁｜程基岩域 + 文策域｜2026-1",
           "keywords": [
             "WXG",
@@ -83328,7 +83328,7 @@
           "level": 3,
           "startLine": 3531,
           "endLine": 3547,
-          "tokens": 1913,
+          "tokens": 1935,
           "summary": "用户裁定：上一轮末尾三选项，用户选 C「暂停 D-79，先修 safe+胶囊」——D-79 真机回填暂缓，先把「齿轮压在",
           "keywords": [
             "safe",
@@ -83343,9 +83343,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 39289,
+      "tokens": 39315,
       "lines": 106,
-      "sha256": "da4144ae4127707a6c7eeda59ef3842e58ec3d95af4e08fe520629f8d6ce39ce",
+      "sha256": "11c996ac7e7dc5a9c418a5bd6f8ad67d744cae66dac2e9aaa41b16cd0c9af0a8",
       "tier": "hot",
       "sections": [
         {
@@ -83353,7 +83353,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 107,
-          "tokens": 39280,
+          "tokens": 39306,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
