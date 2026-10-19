@@ -132,9 +132,22 @@ logo「拼豆小铺」、左右 ◀▶ 翻页钮、`开始游戏`、版本号 `v
 ⇒ 模拟器可由 agent 驱动； 仍只算 SIM 预读，不得写进真机判定列。
 
 **adb 状态（用户已授权安装）**：`brew install --cask android-platform-tools` 已完成，
-`adb version` = 1.0.41 / 37.0.1，但 `adb devices` **列表为空** ⇒ 还差物理一步：USB 线连 Mac +
-手机开「开发者选项 → USB 调试」+ 弹窗点「允许调试」（华为/鸿蒙机型可能还需选「传输文件」模式）。
+`adb version` = 1.0.41 / 37.0.1，但 `adb devices` **列表为空**（`system_profiler SPUSBDataType` 也看不到任何手机）
+⇒ 还差物理一步：USB 线连 Mac + 手机开「开发者选项 → USB 调试」+ 弹窗点「允许调试」（华为/鸿蒙可能需选「传输文件」模式）。
 接上后即可 `adb exec-out screencap -p` 拿**设备原生截图**（比镜像窗口更硬）。
+
+### 3.4 怎么把存档推进到第 9 关（查代码后的三条路，含适用边界）
+
+解锁位字段 = `maxUnlockedLevel`，存在**单局存档**里：`beads-game.ts:742-743` 读 `this._save.data.maxUnlockedLevel`，
+键 = `wxgame.beads.save.v1`（`save-schema.ts:113`，另有 `.bak` 备份键）；选关墙按它零事件（`beads-shell.ts:431`）。
+
+| 路线 | 做法 | 适用 / 代价 |
+|---|---|---|
+| ① 自然推进 | 从第 1 关玩到第 9 关 | 最真；额外产出 D-59/D-61 的存档证据，但耗时 |
+| ② studio 导入 | `?studio=http://<局域网 IP>:8787` 让设置页出「导入」钮 | ⚠ **解不了锁**——`importLevel` 导入的是关卡载荷，不写 `maxUnlockedLevel` |
+| ③ 写存档注入 | 在「真机调试」的**远程控制台**里 `wx.setStorageSync('wxgame.beads.save.v1', {...data, maxUnlockedLevel: 9})` 后重进 | 最快；但证据必须标注「解锁态由调试注入产生」⇒ **只适用于 D-77（位图腿）**，⛔ 不得拿它去判 D-59/D-61（那两条的存档语义要求自然推进） |
+
+⇒ 建议：先走 ③ 拿 D-77 读数（便宜且不影响该判点有效性），D-59/D-61 仍按 ① 自然推进验。
 
 ## 5. 回传之后谁做什么
 
