@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4272,
       "lines": 149,
-      "sha256": "cc238442bc4f7117aaa89c43d929e14ef6381a66eeb5b59dfb00a2a66b4d77e9",
+      "sha256": "a4d6c07b5c12e87839ef6d699f0ba381d726c6f1d452a0a9ba1c5bfdbfc0f3b5",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 130073 3492 normal",
+          "summary": "1 production/TASKS-DETAIL.md 130305 3493 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 124,
           "tokens": 2758,
-          "summary": "production/TASKS-DETAIL.md 130073 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 130305 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "4a41c7ee7943597deb310c60a53f0b6073cdbf0f6519541e3cc317e8ff86a10e",
+      "sha256": "4648beb3e67ad230082dfb3047f2db00fc04abcee075cb1807b0bcf6962d9e31",
       "tier": "normal",
       "sections": [
         {
@@ -729,12 +729,12 @@
           ]
         },
         {
-          "anchor": "§`memory/MEMORY.md` — 69 行 / 3781 tok / 实测读 16 次",
+          "anchor": "§`memory/MEMORY.md` — 73 行 / 4001 tok / 实测读 16 次",
           "level": 2,
           "startLine": 23,
           "endLine": 26,
           "tokens": 64,
-          "summary": "§wechatgame 项目长期笔记=1+70 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=",
+          "summary": "§wechatgame 项目长期笔记=1+74 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=",
           "keywords": [
             "memory/MEMORY.md",
             "memory",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3492 行 / 130073 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3493 行 / 130305 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -58090,17 +58090,17 @@
     },
     {
       "path": "memory/MEMORY.md",
-      "tokens": 3781,
-      "lines": 69,
-      "sha256": "75921828be3b3f2835056d2b84a5268a8f8b072b7eb3d5274dd29ec0e525eb49",
+      "tokens": 4001,
+      "lines": 73,
+      "sha256": "ddabd32d7b59f6dbbf9ec962f7c0a01c3742a09dafefa30b4576813a98c9ce41",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§wechatgame 项目长期笔记",
           "level": 1,
           "startLine": 1,
-          "endLine": 70,
-          "tokens": 3771,
+          "endLine": 74,
+          "tokens": 3991,
           "summary": "正本路径：仓库根 memory/MEMORY.md。",
           "keywords": [
             "wechatgame",
@@ -58219,8 +58219,8 @@
           "anchor": "§已知限制",
           "level": 2,
           "startLine": 61,
-          "endLine": 70,
-          "tokens": 1216,
+          "endLine": 74,
+          "tokens": 1436,
           "summary": "需要安装 @resvg/resvg-js 到 WorkBuddy 托管 Node workspace：cd ~/.wor",
           "keywords": [
             "resvg",
@@ -80001,9 +80001,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 130073,
-      "lines": 3492,
-      "sha256": "b2b852a7f015c45d1aa8155997086691cd3c74580148f12df301bfbbdea9fc22",
+      "tokens": 130305,
+      "lines": 3493,
+      "sha256": "3b2e885b121678d17daac609817ad0a7687e97647fe376eb0e0d315805b55270",
       "tier": "normal",
       "sections": [
         {
@@ -82524,8 +82524,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3493,
-          "tokens": 27688,
+          "endLine": 3494,
+          "tokens": 27920,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -82890,8 +82890,8 @@
           "anchor": "§WXG-T-294",
           "level": 2,
           "startLine": 3409,
-          "endLine": 3493,
-          "tokens": 6887,
+          "endLine": 3494,
+          "tokens": 7119,
           "summary": "工程·control-manifest §19 投放门禁扩三条 + beads 发布清单 v1.1 包体论证重算｜主理人",
           "keywords": [
             "§19",
@@ -82953,8 +82953,8 @@
           "anchor": "§续批五（2026-10-19，不另领号）：§8 分包/远程包选型拍板简报（用户选下一步选项 3）",
           "level": 3,
           "startLine": 3464,
-          "endLine": 3493,
-          "tokens": 3511,
+          "endLine": 3494,
+          "tokens": 3743,
           "summary": "新事实（本轮实测，不是推算）：把产物按「原始字节 vs gzip 传输量」分组量了一遍——cc.js 1356.9 → ",
           "keywords": [
             "§8",
@@ -86196,9 +86196,9 @@
     },
     {
       "path": "production/qa/beads/device-walkthrough.md",
-      "tokens": 6625,
+      "tokens": 6694,
       "lines": 210,
-      "sha256": "2c1133b438bdcd04b6c71a563ea379c25c90fcdc547182ebddefc68772bc6545",
+      "sha256": "203d1833b9f3ad2a3d72c62130732b292aed0b27141bc3782da25f3e96f84afe",
       "tier": "normal",
       "sections": [
         {
@@ -86206,7 +86206,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 211,
-          "tokens": 6605,
+          "tokens": 6674,
           "summary": "版本：v1.2 · 2026-10-19（v1.1 = Session 0 前置实跑校正 + 新增 D-77；v1.2 ",
           "keywords": [
             "beads",
@@ -86250,8 +86250,8 @@
           "level": 2,
           "startLine": 37,
           "endLine": 48,
-          "tokens": 189,
-          "summary": "L-A 低端主判 ✅ 华为畅享 90 Pro Max（ohos，Mali-G610，dpr3；鸿蒙资格三关已过） —",
+          "tokens": 259,
+          "summary": "L-A 低端主判 ✅ 华为畅享 90 Pro Max（ohos，Mali-G610，dpr3；鸿蒙资格三关已过）。202",
           "keywords": [
             "§2",
             "§2.1",
