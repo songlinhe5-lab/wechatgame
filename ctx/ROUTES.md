@@ -167,6 +167,7 @@
 | 提交前自查表 | docs/architecture/control-manifest.md#§12 提交前自查表 | 159 | |
 | 反模式速查 | docs/architecture/control-manifest.md#§13 反模式速查（见到就打回） | 273 | |
 | Cocos MCP 接入（ADR-0009） | docs/architecture/control-manifest.md#§14 Cocos MCP 编辑器接入（ADR-0009） | 448 | |
+| **UI 架构五条守则** | docs/architecture/control-manifest.md#§20 UI 架构守则（ADR-0032 §8；WXG-T-318 落表） | 400 | 弹窗 / 遮罩 / View / 布局 / 路由 |
 
 ### 1.5 QA 判据（hot · production/qa/beads/test-cases.md）
 

@@ -3495,6 +3495,17 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-318
+
+**beads·P5·UI-51 文档回写：目录 / 路由表 / §20 守则 / ROUTES** · 负责：主理人(Qoder)·设计策略 + 工程负责人 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：UI 架构迁移 P5 第二格（用户选下一步「1」）。验收口径 = 任务表原文「`check:links`、`ctx:check` 绿」；本批**纯文档、零代码**。
+- **`architecture-beads §3` 目录**：按现树重写 —— 新增 `ui/`（`ui-root` / `ui-host` / `phase-route-binder` / `main-menu-presenter`）、`game/beads-game/` 子模块与 `view/bead-styles/`；删除早已不存在的 `view/symbols.ts` 等陈旧条目。
+- **界面→路由表**：`ux-spec §2` 新增六行表（`menu` / `play` / `levels` 三条 page，`settings` / `signin` 两条 modal，对局相位面板标「后续单」），并写明 page 不透明 / modal 透明、View 不得用 `screen ===` / `overlay ===`；`arc-level-select-spec §2` 在栈深度红线内补路由身份（`levels` / `page`、`openLevels(arc)`、`back` = `close()`）。
+- **`control-manifest §20`**：落 ADR-0032 §8 五条守则（弹窗必经 `ModalFrame` / 遮罩只在 `UiTheme` / View 禁导航判断与游戏对象 / 绘制与命中同布局 / 路由只经 `Navigator`），并**如实登记两处已知偏离**（菜单侧 settings·signin chrome 仍直绘；`buildMetaView` 的 `data.overlay` 分支为唯一存量），避免守则先于事实。
+- **`ctx/ROUTES`**：§1.4 增「UI 架构五条守则」锚点（估 300 tok）；`check:links` / `ctx:check` 双绿。
+- **诚实限制**：机械守卫（`check:arch` 规则与负样本）归 UI-52；界面单元拆分（弹窗各画各的）仍待 UX 裁定。
+
 ## WXG-T-317
 
 **beads·P5·UI-50 UiRoot 唯一绘制入口：并行开关退役** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）

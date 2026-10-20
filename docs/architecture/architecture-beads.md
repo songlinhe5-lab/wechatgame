@@ -49,27 +49,32 @@
 ```
 games/beads/src/
 ├── index.ts                 # 公开导出（Game 实现 + 类型）
-├── config/
-│   ├── tuning.ts            # 引用 systems-index §3 常量（只引常量名，不复制数值）
-│   ├── levels.ts            # BEAD_CHARS / LEGEND / 关卡元数据接口
-│   └── levels-data.ts       # 8 关行字符串数据（ADR-0004）
-├── entities/
-│   ├── grid.ts              # S3 运行时矩阵：格子三态 empty|filled|locked + colorIdx
-│   └── tray.ts              # S4 槽位数组：free|holding|selected + 仍需颜色集合投影
-├── systems/
-│   ├── placement.ts         # S3 落子裁决（匹配/拒绝/忽略/完成判定）
-│   ├── spawner.ts           # S4 供料节律 + 3:1 加权抽色 + 随机空闲槽
-│   ├── timer.ts             # S5 dt 累计 + 告急 + 归零（ADR-0007：游戏侧持有）
-│   └── powerups.ts          # S6 三道具（P1，已落码 WXG-T-060）
+├── config/                  # tuning · levels · levels-data · arcs · copy-tokens · palettes-data · menu-carousel · 音频表
+├── entities/                # grid（格子三态）· tray（槽位）
+├── systems/                 # placement · spawner · timer · powerups · sprint · consume-order · retrieve ·
+│                            # 面板布局（pause / clear / fail / finish / sprint-settle）· result-panel
 ├── game/
 │   ├── beads-game.ts        # Game 实现：S1 编排 + 事件订阅装配
+│   ├── beads-game/          # 对局子模块：输入链（input / hit-test / board-tap / panel / hud router）、
+│   │                        # 相机、设置、存档 IO、反馈特效、结算保护
+│   ├── beads-shell.ts       # 壳：屏幕相位 / 菜单输入 / 页转场 / 调试层投影
 │   ├── state.ts             # 六状态转移表 + Snapshot + 同帧裁决（cleared 优先）
-│   └── save-schema.ts       # S8 存档结构（键名归代码）
+│   └── *-schema.ts          # 存档（save / meta-save）· crash-snapshot · level-import · difficulty
+├── ui/                      # UI 组合根（ADR-0032；UI-25/42/50）
+│   ├── ui-root.ts           # 可见路由自下而上绘制 + 调试层（唯一绘制入口）
+│   ├── ui-host.ts           # 宿主调试投影接口
+│   ├── phase-route-binder.ts# 屏幕相位 / 覆盖层 ↔ Navigator 栈（唯一导航写入口）
+│   └── main-menu-presenter.ts # 主菜单走马灯展示状态（Presenter）
 └── view/
-    ├── palette.ts           # 10 色 HEX + mix()（art-bible §3.2 唯一颜色出处）
-    ├── symbols.ts           # 10 符号矢量 path（assets-spec §1.1，polygon 指令）
-    ├── bead-render.ts       # 六层参数卡 → DrawCommand 序列（纯函数、可快照测试）
-    └── view-model.ts        # buildBeadsView()：网格/托盘/HUD/面板 → RenderModel
+    ├── palette.ts           # 调色板唯一颜色出处
+    ├── bead-render.ts       # 珠子绘制（配方见 bead-styles/ 风格包）
+    ├── bead-tint-mask.ts · scene-vfx.ts · combo-vfx.ts
+    ├── meta-view.ts         # 菜单 / 选关页 / 设置 / 签到（按 overlay 分支）
+    ├── play-page.ts         # 对局页基础场景（HUD / 棋盘 / 托盘 / 道具带）
+    ├── view-model.ts        # buildBeadsView()：对局页 + 结算 / 横幅门面
+    ├── ui-theme.ts · ui-widgets.ts · modal-frame.ts · ui-frame.ts · shape-utils.ts · debug-layer.ts
+    ├── settings-content.ts · signin-content.ts · menu-signage.ts
+    └── bead-styles/         # 风格包（contract + registry + 各风格）
 ```
 
 **分层纪律**（沿用矩阵 control-manifest，不重复展开）：`src/**` 禁 `cc`/`wx`/DOM/`Math.random`；事件只通知不传状态；`buildRenderModel()` 只读；确定性 RNG 由 `services.rng` 注入（供料随机槽、加权抽色全部走它，测试可复现）。
@@ -85,7 +90,7 @@ games/beads/src/
 | L0 投影 / L1 主体 | `rect { radius, alpha }` | RenderModel 的 rect **已支持圆角与透明度**，roundRect 无需新指令 |
 | L2/L3 暗亮倒角 | `line` ×4（内缩描边） | 沿边内缘直线段 |
 | L4 高光条 | `rect { radius, alpha }` | — |
-| L5 符号（○★●■♥◐▽▲◆✚） | `circle` + `polygon` | `symbols.ts` 逐符号给出顶点表；线宽 ≥2px 约束在指令生成时断言 |
+| L5 符号（○★●■♥◐▽▲◆✚） | **已退役** | 旧 `symbols.ts` 已删：风格池（`view/bead-styles/`）落地后珠面改由配方驱动；旧的十层照旧封在 `legacy-ten.ts` |
 | `locked` 斜纹 | `line` 45° ×N（间距 10） | — |
 | 扩展槽虚线（dash 6/4） | **短线段合成** | RenderModel 无 dash 描边——view 层按 6/4 周期切成 line 序列，纯游戏侧实现 |
 | `hint` 呼吸 / `wrong` 抖动 | 每帧重算 α / 位移 | 表现层态不改逻辑态（S3 §2.2），参数由 Game 的表现状态表驱动 |
@@ -177,7 +182,7 @@ compose/createApp(platform)                    # compose/app.ts（矩阵级，�
 > **截至 2026-09-14 的与实现出入（WXG-T-052 对账，逐条已修正或登记）**
 >
 > 1. **§3 目录结构的落地差异**：规划中的 `view/symbols.ts` 与 `view/bead-render.ts` **曾长期缺失**
->    （本页 §4 的「渲染层方案」因此只落地了一半 —— 珠子只有色块，无 L5 符号），现已补齐；
+>    （本页 §4 的「渲染层方案」因此只落地了一半 —— 珠子只有色块，无 L5 符号）， 现已补齐（后续风格池落地时 L5 符号层退役，`symbols.ts` 已删，见 §4 表内注）；
 >    规划中的 `systems/powerups.ts`（S6）**已于 WXG-T-060 落码**（`powerups.md §8` 十条判据全部有测试）；
 >    实际另交付了规划外的 `systems/sprint.ts`
 >    与 `systems/pause-panel.ts`（冲刺模式与 S9 面板）。
