@@ -364,4 +364,23 @@ describe('[WXG-T-314] 选关页转场（入 200 / 出 150）', () => {
         expect(r.shell.overlay).toBe('none');
         expect(r.overlayEvents.at(-1)).toEqual({ open: false, name: 'none' });
     });
+
+    it('[WXG-T-321] D1（reduceMotion）：进页 / 回菜单零转场，同帧即静息', () => {
+        const r = rig({ maxUnlocked: 9 });
+        r.shell.play.applySettingsAction('toggle-reduce-motion');
+        const menu = frameOf(r.shell);
+        const c = centerOf(cardBox(r.shell).box);
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        expect(r.shell.overlay).toBe('levels');
+        const rest = frameOf(r.shell);
+        expect(rest, '整页已到').not.toEqual(menu);
+        for (let i = 0; i < 30; i += 1) r.shell.update(1 / 60);
+        expect(frameOf(r.shell), '无在途淡入：帧逐字不变').toEqual(rest);
+        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
+        const bc = centerOf(back.box);
+        expect(r.shell.tapMeta(bc.x, bc.y)).toBe(true);
+        expect(r.shell.overlay, '同帧离页').toBe('none');
+        expect(r.overlayEvents.at(-1)).toEqual({ open: false, name: 'none' });
+        expect(frameOf(r.shell)).toEqual(menu);
+    });
 });

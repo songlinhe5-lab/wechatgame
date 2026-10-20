@@ -1,10 +1,10 @@
 {
-  "_readme": "WXG-T-298 / UI-02 金样本（十界面单元 × 关键状态整帧 RenderModel 指令流）。\n锁的是什么：每态 `sha256(命令流 join(\"\\n\"))` + `total` + 逐 kind 计数 + 宿主消费的 background/transform + 场景自证（screen/overlay/phase）。\npolygon 命令的 vertices 已在序列化时按 polygonVertices() 内联为 points ⇒ 顶点漂移同样进 sha。\n⛔ 本件只能由 tests/ui-golden-capture.ts 在可复现锚（commit）重抓；⛔ 不得手改 sha/total/kinds。\n⛔ 视觉漂移必须先有 UX 裁定并在 docs/architecture/ui-architecture-beads.md §12 登记，再重抓（K-051 / K-053 / ADR-0032 DEC-6）。\nUI-02 口径 =「现行 RenderModel 指令序列」；codeBaseline 记 §11 架构基线 bd964a0（其代码态与本件 capturedFrom 的首提交一致，之上仅文档提交）。\n⚠ signin 当前无菜单入口（Q5① 退役），该态经测试后门置 _overlay，为迁移基线保留。",
+  "_readme": "WXG-T-298 / UI-02 金样本（十界面单元 × 关键状态整帧 RenderModel 指令流；另含选关页转场中点一帧）。\n锁的是什么：每态 `sha256(命令流 join(\"\\n\"))` + `total` + 逐 kind 计数 + 宿主消费的 background/transform + 场景自证（screen/overlay/phase）。\npolygon 命令的 vertices 已在序列化时按 polygonVertices() 内联为 points ⇒ 顶点漂移同样进 sha。\n⛔ 本件只能由 tests/ui-golden-capture.ts 在可复现锚（commit）重抓；⛔ 不得手改 sha/total/kinds。\n⛔ 视觉漂移必须先有 UX 裁定并在 docs/architecture/ui-architecture-beads.md §12 登记，再重抓（K-051 / K-053 / ADR-0032 DEC-6）。\nUI-02 口径 =「现行 RenderModel 指令序列」；codeBaseline 记 §11 架构基线 bd964a0（其代码态与本件 capturedFrom 的首提交一致，之上仅文档提交）。\n⚠ signin 当前无菜单入口（Q5① 退役），该态经测试后门压 `signin` 路由，为迁移基线保留。",
   "task": "WXG-T-298",
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "8e0d133 · 累积落码（WXG-T-311）",
+  "capturedFrom": "4b8d1ec · 含选关页转场中点帧（WXG-T-321）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -66,6 +66,29 @@
       "transform": null
     },
     {
+      "id": "level-select-mid",
+      "unit": "LevelSelectPage",
+      "note": "选关页转场中点：进页 6 帧 = 100ms / 200ms ⇒ pageFade = 0.75（ease-out）",
+      "proof": {
+        "screen": "menu",
+        "overlay": "levels",
+        "phase": "playing"
+      },
+      "total": 5083,
+      "kinds": {
+        "circle": 1365,
+        "line": 295,
+        "rect": 692,
+        "text": 17,
+        "clip": 1,
+        "polygon": 2712,
+        "unclip": 1
+      },
+      "sha": "22d0adc76ee10422527583eb9c429a2cc8918a7383a790d7edddeffc60bfa0c6",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
       "id": "settings",
       "unit": "SettingsModal",
       "note": "设置弹窗：从菜单点齿轮 `open-settings` 进入",
@@ -86,7 +109,7 @@
     {
       "id": "signin",
       "unit": "SigninModal",
-      "note": "签到弹窗：⚠ 入口已退役（Q5①），经测试后门置 `_overlay`，为迁移基线保留",
+      "note": "签到弹窗：⚠ 入口已退役（Q5①），经测试后门压 `signin` 路由，为迁移基线保留",
       "proof": {
         "screen": "menu",
         "overlay": "signin",

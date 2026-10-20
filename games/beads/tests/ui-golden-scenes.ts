@@ -167,7 +167,8 @@ interface GoldenStateDef {
 }
 
 /**
- * 十态 = §5 的十个界面单元各取一个关键状态。顺序即夹具顺序（测试逐条对拍）。
+ * 十态 = §5 的十个界面单元各取一个关键状态；另加 `level-select-mid`（转场中点，同属
+ * `LevelSelectPage`，不新增单元）。顺序即夹具顺序（测试逐条对拍）。
  * 加/删/改任何一态都会改变覆盖集 ⇒ 对拍测试的覆盖腿当场红。
  */
 const STATES: readonly GoldenStateDef[] = [
@@ -191,6 +192,18 @@ const STATES: readonly GoldenStateDef[] = [
             requireScreen(shell, 'menu', 'levels');
             // `[WXG-T-314]` 进页淡入 200ms（ux §5）：推到静息再取帧（终点 = 无转场帧，sha 零漂移）。
             advance(shell, PANEL_IN_MS / 1000 + UI_GOLDEN_STEP);
+            return shell;
+        },
+    },
+    {
+        id: 'level-select-mid',
+        unit: 'LevelSelectPage',
+        note: '选关页转场中点：进页 6 帧 = 100ms / 200ms ⇒ pageFade = 0.75（ease-out）',
+        build: () => {
+            const shell = rig({ unlocked: 9 });
+            tapMeta(shell, 'open-levels');
+            requireScreen(shell, 'menu', 'levels');
+            advance(shell, 0.1); // 6 × 1/60 = 100ms，恰为 `PANEL_IN_MS` 之半
             return shell;
         },
     },

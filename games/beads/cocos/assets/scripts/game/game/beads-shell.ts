@@ -494,6 +494,16 @@ export class BeadsShell implements Game {
      * 已在转场中：淡出不自套（重按 back 零副作用）；淡入重入则从 0 重来（菜单重开）。
      */
     private _beginPageFx(dir: 1 | -1): void {
+        // D1（reduceMotion）：页面转场整段关停 —— 淡入直接静息；淡出同帧离页（WXG-T-321 裁定，
+        // 仅页面转场；弹窗 `面板入 / 出` 200/150 不变）。
+        if (this.play.reduceMotion) {
+            this._cancelPageFx();
+            if (dir === -1) {
+                this._phase.close();
+                this._emitOverlay(false);
+            }
+            return;
+        }
         if (dir === -1 && this._pageFxDir === -1) return;
         this._pageFxDir = dir;
         this._pageFxT = 0;

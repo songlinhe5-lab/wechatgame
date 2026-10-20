@@ -1,7 +1,7 @@
 /**
  * **WXG-T-298 / UI-02 金样本复取器**（非测试文件 —— 文件名不带 `.test.ts` ⇒ 不进 vitest 采集）
  * ─────────────────────────────────────────────────────────────────────────────
- * 唯一职责：跑 `ui-golden-scenes.ts` 的十态，产出 checked-in 夹具
+ * 唯一职责：跑 `ui-golden-scenes.ts` 的十一帧（十单元 + 转场中点），产出 checked-in 夹具
  * `tests/__fixtures__/wxg-t-298-ui-golden.json`。只读对拍在 `ui-golden.test.ts`。
  *
  * 跑法（仓根；`--experimental-transform-types` 与 `bead-style-framediff.ts` 同）：
@@ -9,7 +9,7 @@
  *   node --experimental-transform-types \
  *        --import=./tools/scripts/lib/ts-js-resolve.mjs \
  *        games/beads/tests/ui-golden-capture.ts [--dump]
- * `--dump` 另把十态全量命令流写到 `temp/ui-golden/<id>.jsonl`（temp/ 属 gitignore）。
+ * `--dump` 另把十一帧全量命令流写到 `temp/ui-golden/<id>.jsonl`（temp/ 属 gitignore）。
  *
  * 纪律：
  *  - 脚本连跑两遍自证确定性，逐态 sha 不一致即拒写（「对拍工具可重复运行」的机械证据）；
@@ -33,7 +33,7 @@ const DUMP_DIR = new URL('../../../temp/ui-golden/', import.meta.url);
 const shouldDump = process.argv.includes('--dump');
 
 const runs = [runAllUiGoldenStates(), runAllUiGoldenStates()];
-assert.equal(runs[0]!.length, 10, `状态数 ${runs[0]!.length} ≠ 10（§5 十界面）`);
+assert.equal(runs[0]!.length, 11, `状态数 ${runs[0]!.length} ≠ 11（十单元 + 转场中点）`);
 assert.deepEqual(
     runs[0]!.map((r) => r.record.sha),
     runs[1]!.map((r) => r.record.sha),
@@ -54,7 +54,7 @@ if (shouldDump) {
 
 const fixture = {
     _readme: [
-        'WXG-T-298 / UI-02 金样本（十界面单元 × 关键状态整帧 RenderModel 指令流）。',
+        'WXG-T-298 / UI-02 金样本（十界面单元 × 关键状态整帧 RenderModel 指令流；另含选关页转场中点一帧）。',
         '锁的是什么：每态 `sha256(命令流 join("\\n"))` + `total` + 逐 kind 计数 + 宿主消费的 background/transform + 场景自证（screen/overlay/phase）。',
         'polygon 命令的 vertices 已在序列化时按 polygonVertices() 内联为 points ⇒ 顶点漂移同样进 sha。',
         '⛔ 本件只能由 tests/ui-golden-capture.ts 在可复现锚（commit）重抓；⛔ 不得手改 sha/total/kinds。',
@@ -84,7 +84,7 @@ writeFileSync(OUT, `${JSON.stringify(fixture, null, 2)}\n`);
 for (const r of records) {
     console.log(
         `[298][golden] ${r.id.padEnd(14)} ${r.unit.padEnd(18)} total=${String(r.total).padStart(5)} ` +
-            `bg=${r.background ?? '-'} ${JSON.stringify(r.kinds)}`,
+        `bg=${r.background ?? '-'} ${JSON.stringify(r.kinds)}`,
     );
 }
-console.log(`[298][golden] 十态确定性自证 = PASS（两遍逐态记录全等）→ ${OUT.pathname}${shouldDump ? '（含 --dump）' : ''}`);
+console.log(`[298][golden] 十一帧确定性自证 = PASS（两遍逐态记录全等）→ ${OUT.pathname}${shouldDump ? '（含 --dump）' : ''}`);

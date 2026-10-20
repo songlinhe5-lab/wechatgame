@@ -3,6 +3,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * 正本 = `docs/architecture/ui-architecture-beads.md` §5 / §9.4 / §12 UI-02：
  * 「每界面 × 关键状态抓取现行 RenderModel 指令序列」；验收 = 覆盖十个单元 + 对拍工具可重复运行。
+ * 覆盖集 = 十单元各一帧 + `level-select-mid`（选关页转场中点，不新增单元）。
  * 迁移纪律（ADR-0032 DEC-6）= 逐条对拍，**不得有无登记的差异**。
  *
  * 数据源 = `__fixtures__/wxg-t-298-ui-golden.json`（checked-in）。复取只能走
@@ -97,8 +98,8 @@ describe('WXG-T-298 UI-02 金样本（十界面 × 关键状态整帧对拍）',
         expect(GOLDEN.unit).toBe('UI-02');
         expect(GOLDEN._readme).toContain('ui-golden-capture.ts');
         expect(GOLDEN.states.map((s) => s.id)).toEqual(uiGoldenStateIds());
-        expect(GOLDEN.states).toHaveLength(10);
-        expect(GOLDEN.states.map((s) => s.unit).sort()).toEqual(TEN_UNITS);
+        expect(GOLDEN.states).toHaveLength(11);
+        expect([...new Set(GOLDEN.states.map((s) => s.unit))].sort()).toEqual(TEN_UNITS);
         // 复现参数必须与驱动常量同源（改夹具参数而不改驱动 = 不可复现的基准）。
         expect(GOLDEN.fixture.viewport).toEqual({ width: DESIGN_W, height: DESIGN_H, pixelRatio: UI_GOLDEN_PIXEL_RATIO });
         expect(GOLDEN.fixture.seed).toBe(UI_GOLDEN_SEED);
