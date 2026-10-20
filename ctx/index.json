@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4342,
       "lines": 151,
-      "sha256": "2e88b034540061f5c409d4ec906d00785599f0399be431dfac945706ffed32bf",
+      "sha256": "51ac7e29bee1f84bcbac4417be98df4ff673b4cda075a9cfa4753a365ef16bcb",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 163078 3940 normal",
+          "summary": "1 production/TASKS-DETAIL.md 164028 3952 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 126,
           "tokens": 2829,
-          "summary": "production/TASKS-DETAIL.md 163078 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 164028 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5512,
       "lines": 146,
-      "sha256": "287124d96eac18375db0924cb07c633c672da661251ff508134f308b54f09825",
+      "sha256": "ec27c4669ffa3404113b1dca732670d57a56b35950287ff447488064106e86f0",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 139 行 / 51749 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 140 行 / 52485 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+140 · §待排（backlog，无号，立项时领取…=112+29",
+          "summary": "§WXG 任务台账（SSOT）=1+141 · §待排（backlog，无号，立项时领取…=113+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3940 行 / 163078 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3952 行 / 164028 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -11312,17 +11312,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0033-ui-container-layer-ordering.md",
-      "tokens": 4346,
-      "lines": 87,
-      "sha256": "65eafc23080a19abe84edb9be01b991f3b1be4b1faed8e93771ddad4d0c671d3",
+      "tokens": 4840,
+      "lines": 95,
+      "sha256": "cfe7879db4fcef41e8aeb1887a1f17d6ad069c35996d128fcb601c7d87b4d8a1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0033 · UI 容器层：每页面 / 每弹窗一个渲染容器，容器内层有序、事件按层逆序透传",
           "level": 1,
           "startLine": 1,
-          "endLine": 88,
-          "tokens": 4309,
+          "endLine": 96,
+          "tokens": 4803,
           "summary": "状态：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘",
           "keywords": [
             "ADR",
@@ -11395,8 +11395,8 @@
           "anchor": "§5 用户裁定（2026-10-20，原话存档）",
           "level": 2,
           "startLine": 58,
-          "endLine": 88,
-          "tokens": 1417,
+          "endLine": 96,
+          "tokens": 1860,
           "summary": "Q1 分期 = 确认。四批不变：P0 框架容器语法 + 两端层树映射 → P1 弹窗内容搬进容器（解开 dialog-c",
           "keywords": [
             "dialog",
@@ -11433,10 +11433,26 @@
           ]
         },
         {
-          "anchor": "§尚待后续定的小项（不阻塞 P0）",
+          "anchor": "§DEC-8① Node 侧层序守门轨（WXG-T-329 · 战线一接线前铺好）",
           "level": 3,
           "startLine": 84,
-          "endLine": 88,
+          "endLine": 91,
+          "tokens": 419,
+          "summary": "新增 core/render/ui-container-order.ts（无 cc ⇒ Node 可测，进 barrel",
+          "keywords": [
+            "DEC",
+            "Node",
+            "WXG",
+            "core",
+            "render",
+            "container"
+          ]
+        },
+        {
+          "anchor": "§尚待后续定的小项（不阻塞 P0）",
+          "level": 3,
+          "startLine": 92,
+          "endLine": 96,
           "tokens": 137,
           "summary": "S1 段枚举是否需再加 debug：安全区标定线与性能覆层现走 DebugLayer，它必须永远在最顶。推荐复用 toa",
           "keywords": [
@@ -58284,17 +58300,17 @@
     },
     {
       "path": "memory/2026-10-20.md",
-      "tokens": 421,
-      "lines": 7,
-      "sha256": "09afa9427797af3b1b12773f32b5923a5bdfb746666f236e6abcd8840273b87a",
+      "tokens": 810,
+      "lines": 14,
+      "sha256": "016c91881334ffbe93541ff19159edb90ab7aa47111bb803c2525b1d84d447ff",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§2026-10-20",
           "level": 1,
           "startLine": 1,
-          "endLine": 8,
-          "tokens": 418,
+          "endLine": 15,
+          "tokens": 806,
           "summary": "",
           "keywords": []
         },
@@ -58313,22 +58329,38 @@
             "提交推送",
             "取证"
           ]
+        },
+        {
+          "anchor": "§WXG-T-329 开工：UI-60 DEC-8① Node 侧层序守门轨（Qoder）",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 15,
+          "tokens": 368,
+          "summary": "开局清理：工作树 3 件未提交（ui-scope-tree.ts + 两份测）经 git diff -w 验为纯格式化噪",
+          "keywords": [
+            "WXG",
+            "DEC",
+            "Node",
+            "Qoder",
+            "scope",
+            "tree"
+          ]
         }
       ]
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 14068,
-      "lines": 335,
-      "sha256": "d0262c2c9656d4a423a96fed80c3040d59830eae22d8f9358eb40ff5aa076903",
+      "tokens": 14128,
+      "lines": 336,
+      "sha256": "bc90d13d8988320a78f49e521d092e3ae185f2fa2dbf1363dbecd0f8e82549c5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 336,
-          "tokens": 14046,
+          "endLine": 337,
+          "tokens": 14106,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -58398,8 +58430,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 336,
-          "tokens": 12406,
+          "endLine": 337,
+          "tokens": 12467,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -58411,11 +58443,11 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-20.md` — 421 tok｜1 节｜**蒸馏到期 2026-11-19**（剩 30 天）",
+          "anchor": "§`memory/2026-10-20.md` — 810 tok｜2 节｜**蒸馏到期 2026-11-19**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 78,
-          "tokens": 114,
+          "endLine": 79,
+          "tokens": 175,
           "summary": "§WXG-T-328 收尾批：verify + 提交推送 + CI 取证（Qoder） 3–8 397 — 承他会话（同",
           "keywords": [
             "memory/2026-10-20.md",
@@ -58429,8 +58461,8 @@
         {
           "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 24 天）",
           "level": 3,
-          "startLine": 79,
-          "endLine": 85,
+          "startLine": 80,
+          "endLine": 86,
           "tokens": 217,
           "summary": "§续：定稿底图换代（第十二批 · 走③把橱窗画矮 47 px） 3–5 42 → memory/details/2026",
           "keywords": [
@@ -58445,8 +58477,8 @@
         {
           "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 23 天）",
           "level": 3,
-          "startLine": 86,
-          "endLine": 98,
+          "startLine": 87,
+          "endLine": 99,
           "tokens": 665,
           "summary": "§续：顶栏圆钮撞胶囊 → 用户裁定解（§5.1b） 25–31 365 — 11. 裁定：「设置按钮放左上角，右上角只放",
           "keywords": [
@@ -58461,8 +58493,8 @@
         {
           "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 22 天）",
           "level": 3,
-          "startLine": 99,
-          "endLine": 110,
+          "startLine": 100,
+          "endLine": 111,
           "tokens": 502,
           "summary": "§目录别名正名 + 编码器 A/B 收尾（同日第 3 批，含两处自纠） 31–38 512 — 用户问「DiT 放 di",
           "keywords": [
@@ -58476,8 +58508,8 @@
         {
           "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 20 天）",
           "level": 3,
-          "startLine": 111,
-          "endLine": 117,
+          "startLine": 112,
+          "endLine": 118,
           "tokens": 190,
           "summary": "§关卡生成期难度门禁⑦（工作量闸）落地 24–32 475 — 触发：用户「关卡生成时算难度需门禁——普通关落区间、bo",
           "keywords": [
@@ -58490,8 +58522,8 @@
         {
           "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 19 天）",
           "level": 3,
-          "startLine": 118,
-          "endLine": 122,
+          "startLine": 119,
+          "endLine": 123,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -58504,8 +58536,8 @@
         {
           "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 17 天）",
           "level": 3,
-          "startLine": 123,
-          "endLine": 131,
+          "startLine": 124,
+          "endLine": 132,
           "tokens": 290,
           "summary": "§WXG-T-268 批 3 · EP12-S2/S3 落码 + P-3=24 裁定 + 第十八次复评（暖纸换肤续） 8",
           "keywords": [
@@ -58520,8 +58552,8 @@
         {
           "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 16 天）",
           "level": 3,
-          "startLine": 132,
-          "endLine": 138,
+          "startLine": 133,
+          "endLine": 139,
           "tokens": 149,
           "summary": "§合成式三端统一 + 旧 effect 死件清（WXG-T-259 · 第廿刀） 3–26 878 — 用户裁定（原话）",
           "keywords": [
@@ -58536,8 +58568,8 @@
         {
           "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 15 天）",
           "level": 3,
-          "startLine": 139,
-          "endLine": 143,
+          "startLine": 140,
+          "endLine": 144,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -58550,8 +58582,8 @@
         {
           "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏到期 2026-11-03**（剩 14 天）",
           "level": 3,
-          "startLine": 144,
-          "endLine": 162,
+          "startLine": 145,
+          "endLine": 163,
           "tokens": 1454,
           "summary": "§【WXG-T-244 二十三批 · 收口】裁 [GLD+…] 日志 + 修盘内直填回滚 + 开单 WXG-T-246 ",
           "keywords": [
@@ -58566,8 +58598,8 @@
         {
           "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏到期 2026-11-02**（剩 13 天）",
           "level": 3,
-          "startLine": 163,
-          "endLine": 168,
+          "startLine": 164,
+          "endLine": 169,
           "tokens": 92,
           "summary": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板",
           "keywords": [
@@ -58582,8 +58614,8 @@
         {
           "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 9 天）",
           "level": 3,
-          "startLine": 169,
-          "endLine": 173,
+          "startLine": 170,
+          "endLine": 174,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -58596,8 +58628,8 @@
         {
           "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏到期 2026-10-28**（剩 8 天）",
           "level": 3,
-          "startLine": 174,
-          "endLine": 188,
+          "startLine": 175,
+          "endLine": 189,
           "tokens": 1047,
           "summary": "§WXG-T-221：beads-studio 当前关纹理预烘导出（S3-lite）（Qoder 主理人会话 · 用户三",
           "keywords": [
@@ -58612,8 +58644,8 @@
         {
           "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 7 天）",
           "level": 3,
-          "startLine": 189,
-          "endLine": 196,
+          "startLine": 190,
+          "endLine": 197,
           "tokens": 333,
           "summary": "§WXG-T-217：beads 缩放上下限绝对倍率化 + 低倍点击档（Qoder 主理人会话 · 用户逐项拍板） 3–",
           "keywords": [
@@ -58628,8 +58660,8 @@
         {
           "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 2 天）",
           "level": 3,
-          "startLine": 197,
-          "endLine": 202,
+          "startLine": 198,
+          "endLine": 203,
           "tokens": 118,
           "summary": "§WXG-T-186：beads 组珠消费序改「沿组连通的剥皮序」（Qoder 主理人会话 · 用户四项裁定） 3–15",
           "keywords": [
@@ -58644,8 +58676,8 @@
         {
           "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 3 天）**",
           "level": 3,
-          "startLine": 203,
-          "endLine": 219,
+          "startLine": 204,
+          "endLine": 220,
           "tokens": 814,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
@@ -58660,8 +58692,8 @@
         {
           "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 4 天）**",
           "level": 3,
-          "startLine": 220,
-          "endLine": 231,
+          "startLine": 221,
+          "endLine": 232,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -58676,8 +58708,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 5 天）**",
           "level": 3,
-          "startLine": 232,
-          "endLine": 248,
+          "startLine": 233,
+          "endLine": 249,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -58692,8 +58724,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 6 天）**",
           "level": 3,
-          "startLine": 249,
-          "endLine": 276,
+          "startLine": 250,
+          "endLine": 277,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -58708,8 +58740,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 7 天）**",
           "level": 3,
-          "startLine": 277,
-          "endLine": 297,
+          "startLine": 278,
+          "endLine": 298,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -58724,8 +58756,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 8 天）**",
           "level": 3,
-          "startLine": 298,
-          "endLine": 315,
+          "startLine": 299,
+          "endLine": 316,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -58740,8 +58772,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 9 天）**",
           "level": 3,
-          "startLine": 316,
-          "endLine": 336,
+          "startLine": 317,
+          "endLine": 337,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
@@ -80668,9 +80700,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 163078,
-      "lines": 3940,
-      "sha256": "5a74a88456e3f84021fafe5209dd5b3254cdffe74c39e31f5a6f27c65da214a0",
+      "tokens": 164028,
+      "lines": 3952,
+      "sha256": "2a4c27346196625b1a768c5e19fd78adda532667d3bf9947eecafab1b3ea3ab8",
       "tier": "normal",
       "sections": [
         {
@@ -83191,8 +83223,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3941,
-          "tokens": 60693,
+          "endLine": 3953,
+          "tokens": 61644,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -83633,10 +83665,25 @@
           ]
         },
         {
-          "anchor": "§WXG-T-328",
+          "anchor": "§WXG-T-329",
           "level": 2,
           "startLine": 3498,
           "endLine": 3509,
+          "tokens": 947,
+          "summary": "beads·UI-60 DEC-8①：Node 侧层序守门轨（引擎无关） · 负责：主理人(Qoder)·程基岩域 · ",
+          "keywords": [
+            "WXG",
+            "beads",
+            "DEC",
+            "Node",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-328",
+          "level": 2,
+          "startLine": 3510,
+          "endLine": 3521,
           "tokens": 878,
           "summary": "beads·UI-60 P1（可证部分）：容器×段层树内核 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 内核",
           "keywords": [
@@ -83648,8 +83695,8 @@
         {
           "anchor": "§WXG-T-327",
           "level": 2,
-          "startLine": 3510,
-          "endLine": 3523,
+          "startLine": 3522,
+          "endLine": 3535,
           "tokens": 1088,
           "summary": "beads·UI-60 P0：容器 / 段语法 + Cocos 作用域映射 · 负责：主理人(Qoder)·程基岩域 ·",
           "keywords": [
@@ -83662,8 +83709,8 @@
         {
           "anchor": "§WXG-T-326",
           "level": 2,
-          "startLine": 3524,
-          "endLine": 3535,
+          "startLine": 3536,
+          "endLine": 3547,
           "tokens": 727,
           "summary": "beads·真机 P3 续：ADR-0033 三裁回写（含段粒度） · 负责：主理人(Qoder)·程基岩域 · 状态：",
           "keywords": [
@@ -83676,8 +83723,8 @@
         {
           "anchor": "§WXG-T-325",
           "level": 2,
-          "startLine": 3536,
-          "endLine": 3548,
+          "startLine": 3548,
+          "endLine": 3560,
           "tokens": 1057,
           "summary": "beads·真机 P3：弹窗层级错乱回退 + 容器层立项 · 负责：主理人(Qoder)·程基岩域 · 状态：回退 + ",
           "keywords": [
@@ -83689,8 +83736,8 @@
         {
           "anchor": "§WXG-T-324",
           "level": 2,
-          "startLine": 3549,
-          "endLine": 3559,
+          "startLine": 3561,
+          "endLine": 3571,
           "tokens": 944,
           "summary": "beads·真机 P2：菜单弹窗无半透（遮罩下未画底页） · 负责：主理人(Qoder)·程基岩域 · 状态：⚠ 曾完成",
           "keywords": [
@@ -83702,8 +83749,8 @@
         {
           "anchor": "§WXG-T-323",
           "level": 2,
-          "startLine": 3560,
-          "endLine": 3570,
+          "startLine": 3572,
+          "endLine": 3582,
           "tokens": 1006,
           "summary": "beads·真机 P2：六处对话框中心不对手机中心（逐机居中收口一处） · 负责：主理人(Qoder)·程基岩域 · 状",
           "keywords": [
@@ -83715,8 +83762,8 @@
         {
           "anchor": "§WXG-T-322",
           "level": 2,
-          "startLine": 3571,
-          "endLine": 3580,
+          "startLine": 3583,
+          "endLine": 3592,
           "tokens": 451,
           "summary": "beads·真机 P1：暂停遮罩高屏未铺满（动态设计高未同步 builder） · 负责：主理人(Qoder)·程基岩域",
           "keywords": [
@@ -83729,8 +83776,8 @@
         {
           "anchor": "§WXG-T-321",
           "level": 2,
-          "startLine": 3581,
-          "endLine": 3591,
+          "startLine": 3593,
+          "endLine": 3603,
           "tokens": 514,
           "summary": "beads·转场收尾：金样本补转场中点帧 + reduceMotion 页面转场专项裁定 · 负责：主理人(Qoder)",
           "keywords": [
@@ -83743,8 +83790,8 @@
         {
           "anchor": "§WXG-T-320",
           "level": 2,
-          "startLine": 3592,
-          "endLine": 3601,
+          "startLine": 3604,
+          "endLine": 3613,
           "tokens": 555,
           "summary": "beads·P5·UI-53 全量验收：verify 22 项 + harness 双游 + 真机 [R] 登记 · 负",
           "keywords": [
@@ -83757,8 +83804,8 @@
         {
           "anchor": "§WXG-T-319",
           "level": 2,
-          "startLine": 3602,
-          "endLine": 3617,
+          "startLine": 3614,
+          "endLine": 3629,
           "tokens": 613,
           "summary": "beads·P5·UI-52 机械守：check:arch §20 五条 + 负样本自测 · 负责：主理人(Qoder)",
           "keywords": [
@@ -83773,8 +83820,8 @@
         {
           "anchor": "§WXG-T-318",
           "level": 2,
-          "startLine": 3618,
-          "endLine": 3628,
+          "startLine": 3630,
+          "endLine": 3640,
           "tokens": 497,
           "summary": "beads·P5·UI-51 文档回写：目录 / 路由表 / §20 守则 / ROUTES · 负责：主理人(Qode",
           "keywords": [
@@ -83788,8 +83835,8 @@
         {
           "anchor": "§WXG-T-317",
           "level": 2,
-          "startLine": 3629,
-          "endLine": 3641,
+          "startLine": 3641,
+          "endLine": 3653,
           "tokens": 721,
           "summary": "beads·P5·UI-50 UiRoot 唯一绘制入口：并行开关退役 · 负责：主理人(Qoder)·程基岩域 · 状",
           "keywords": [
@@ -83802,8 +83849,8 @@
         {
           "anchor": "§WXG-T-316",
           "level": 2,
-          "startLine": 3642,
-          "endLine": 3653,
+          "startLine": 3654,
+          "endLine": 3665,
           "tokens": 666,
           "summary": "beads·UI-42 PhaseRouteBinder：壳导航标志位退役 · 负责：主理人(Qoder)·程基岩域 ·",
           "keywords": [
@@ -83816,8 +83863,8 @@
         {
           "anchor": "§WXG-T-315",
           "level": 2,
-          "startLine": 3654,
-          "endLine": 3665,
+          "startLine": 3666,
+          "endLine": 3677,
           "tokens": 610,
           "summary": "beads·UI-40 MainMenuPage：走马灯状态从 shell 迁入 Presenter · 负责：主理人(",
           "keywords": [
@@ -83831,8 +83878,8 @@
         {
           "anchor": "§WXG-T-314",
           "level": 2,
-          "startLine": 3666,
-          "endLine": 3677,
+          "startLine": 3678,
+          "endLine": 3689,
           "tokens": 683,
           "summary": "beads·UI-42 前置：菜单 ↔ 选关页 200 / 150 页面转场 · 负责：主理人(Qoder)·程基岩域 ",
           "keywords": [
@@ -83844,8 +83891,8 @@
         {
           "anchor": "§WXG-T-313",
           "level": 2,
-          "startLine": 3678,
-          "endLine": 3688,
+          "startLine": 3690,
+          "endLine": 3700,
           "tokens": 561,
           "summary": "CI 运行面对齐 Node 24（原生 TS type-stripping） · 负责：主理人(Qoder)·工程域 ·",
           "keywords": [
@@ -83859,8 +83906,8 @@
         {
           "anchor": "§WXG-T-312",
           "level": 2,
-          "startLine": 3689,
-          "endLine": 3698,
+          "startLine": 3701,
+          "endLine": 3710,
           "tokens": 459,
           "summary": "协作纪律·完成即提交推送与提交总结 · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）",
           "keywords": [
@@ -83871,8 +83918,8 @@
         {
           "anchor": "§WXG-T-311",
           "level": 2,
-          "startLine": 3699,
-          "endLine": 3712,
+          "startLine": 3711,
+          "endLine": 3724,
           "tokens": 1219,
           "summary": "beads·UI 架构迁移 P4·UI-34 选关整页落码 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成",
           "keywords": [
@@ -83884,8 +83931,8 @@
         {
           "anchor": "§WXG-T-310",
           "level": 2,
-          "startLine": 3713,
-          "endLine": 3723,
+          "startLine": 3725,
+          "endLine": 3735,
           "tokens": 1084,
           "summary": "beads·UI 架构迁移 P4·UI-34a 选关整页前置文档回写 · 负责：主理人(Qoder)·林绘澄／文策渊域 ",
           "keywords": [
@@ -83897,8 +83944,8 @@
         {
           "anchor": "§WXG-T-309",
           "level": 2,
-          "startLine": 3724,
-          "endLine": 3735,
+          "startLine": 3736,
+          "endLine": 3747,
           "tokens": 1154,
           "summary": "beads·UI 架构迁移 P4·UI-41 PlayPage 对局页基础场景 · 负责：主理人(Qoder)·程基岩域",
           "keywords": [
@@ -83911,8 +83958,8 @@
         {
           "anchor": "§WXG-T-308",
           "level": 2,
-          "startLine": 3736,
-          "endLine": 3746,
+          "startLine": 3748,
+          "endLine": 3758,
           "tokens": 695,
           "summary": "beads·UI 架构迁移 P3·UI-32 SigninModal 签到内容块 · 负责：主理人(Qoder)·程基岩",
           "keywords": [
@@ -83925,8 +83972,8 @@
         {
           "anchor": "§WXG-T-307",
           "level": 2,
-          "startLine": 3747,
-          "endLine": 3758,
+          "startLine": 3759,
+          "endLine": 3770,
           "tokens": 1010,
           "summary": "beads·UI 架构迁移 P3·UI-33 四个结算弹窗共享结果骨架 · 负责：主理人(Qoder)·程基岩域 · 状",
           "keywords": [
@@ -83938,8 +83985,8 @@
         {
           "anchor": "§WXG-T-306",
           "level": 2,
-          "startLine": 3759,
-          "endLine": 3769,
+          "startLine": 3771,
+          "endLine": 3781,
           "tokens": 850,
           "summary": "beads·UI 架构迁移 P3·UI-31 PauseModal（动画改 ModalLifecycle + 设置钮绘制",
           "keywords": [
@@ -83952,8 +83999,8 @@
         {
           "anchor": "§WXG-T-305",
           "level": 2,
-          "startLine": 3770,
-          "endLine": 3780,
+          "startLine": 3782,
+          "endLine": 3792,
           "tokens": 747,
           "summary": "beads·UI 架构迁移 P3·UI-30 SettingsModal + 共享 SettingsContent · ",
           "keywords": [
@@ -83966,8 +84013,8 @@
         {
           "anchor": "§WXG-T-304",
           "level": 2,
-          "startLine": 3781,
-          "endLine": 3790,
+          "startLine": 3793,
+          "endLine": 3802,
           "tokens": 728,
           "summary": "beads·UI 架构迁移 P2·UI-25 UiRoot 组合根与 UiHost 接口（与旧链并行挂接） · 负责：主",
           "keywords": [
@@ -83980,8 +84027,8 @@
         {
           "anchor": "§WXG-T-303",
           "level": 2,
-          "startLine": 3791,
-          "endLine": 3803,
+          "startLine": 3803,
+          "endLine": 3815,
           "tokens": 818,
           "summary": "beads·UI 架构迁移 P2·UI-24 DebugLayer（性能覆层上移、标定线单源、菜单可看） · 负责：主理",
           "keywords": [
@@ -83993,8 +84040,8 @@
         {
           "anchor": "§WXG-T-302",
           "level": 2,
-          "startLine": 3804,
-          "endLine": 3816,
+          "startLine": 3816,
+          "endLine": 3828,
           "tokens": 632,
           "summary": "beads·UI 架构迁移 P2·UI-23 ScreenFrame + NavBar（安全区分区、胶囊避让） · 负责",
           "keywords": [
@@ -84007,8 +84054,8 @@
         {
           "anchor": "§WXG-T-301",
           "level": 2,
-          "startLine": 3817,
-          "endLine": 3830,
+          "startLine": 3829,
+          "endLine": 3842,
           "tokens": 703,
           "summary": "beads·UI 架构迁移 P2·UI-21 通用按钮控件（四族并入单入口） · 负责：主理人(Qoder)·程基岩域 ",
           "keywords": [
@@ -84020,8 +84067,8 @@
         {
           "anchor": "§WXG-T-300",
           "level": 2,
-          "startLine": 3831,
-          "endLine": 3845,
+          "startLine": 3843,
+          "endLine": 3857,
           "tokens": 883,
           "summary": "beads·UI 架构迁移 P2·UI-22 ModalFrame（遮罩 / 纸面板 / 进出场 / 点击屏障） · 负",
           "keywords": [
@@ -84033,8 +84080,8 @@
         {
           "anchor": "§WXG-T-299",
           "level": 2,
-          "startLine": 3846,
-          "endLine": 3859,
+          "startLine": 3858,
+          "endLine": 3871,
           "tokens": 730,
           "summary": "beads·UI 架构迁移 P2·UI-20 UiTheme 风格层（遮罩 / 纸面板 / 字体 / 按下位移收拢） ·",
           "keywords": [
@@ -84046,8 +84093,8 @@
         {
           "anchor": "§WXG-T-298",
           "level": 2,
-          "startLine": 3860,
-          "endLine": 3873,
+          "startLine": 3872,
+          "endLine": 3885,
           "tokens": 989,
           "summary": "beads·UI-02 金样本（十界面整帧指令流封箱 + 只读对拍） · 负责：主理人(Qoder)·严守真域 · 状态",
           "keywords": [
@@ -84059,8 +84106,8 @@
         {
           "anchor": "§WXG-T-297",
           "level": 2,
-          "startLine": 3874,
-          "endLine": 3881,
+          "startLine": 3886,
+          "endLine": 3893,
           "tokens": 566,
           "summary": "任务：beads UI 架构迁移 P1 收口——“UI-13 SafeInsets + UI-14 完整闭环”（用户 2",
           "keywords": [
@@ -84072,8 +84119,8 @@
         {
           "anchor": "§WXG-T-296",
           "level": 2,
-          "startLine": 3882,
-          "endLine": 3891,
+          "startLine": 3894,
+          "endLine": 3903,
           "tokens": 892,
           "summary": "任务：beads UI 架构迁移 P1 机制层（ADR-0032 已 Accepted；按 [ui-architectu",
           "keywords": [
@@ -84087,8 +84134,8 @@
         {
           "anchor": "§WXG-T-295",
           "level": 2,
-          "startLine": 3892,
-          "endLine": 3941,
+          "startLine": 3904,
+          "endLine": 3953,
           "tokens": 6178,
           "summary": "beads·区外按钮改「抬起才提交」（输入时基统一）｜主理人(Qoder)·用户直裁｜程基岩域 + 文策域｜2026-1",
           "keywords": [
@@ -84100,8 +84147,8 @@
         {
           "anchor": "§续批（2026-10-19 22:3x–22:5x，不另领号）：选项 A = 复跑 verify + 真机手感走查开工准备",
           "level": 3,
-          "startLine": 3908,
-          "endLine": 3917,
+          "startLine": 3920,
+          "endLine": 3929,
           "tokens": 844,
           "summary": "上一轮登记的三项 FAIL 已消失，且不是我修的：并发会话自行收口了 BD-62 那两字段（_viewData 已声明 ",
           "keywords": [
@@ -84116,8 +84163,8 @@
         {
           "anchor": "§续批二（2026-10-19 23:0x，不另领号）：包体数字对齐 + D-79 等待 + 提交分拆结论",
           "level": 3,
-          "startLine": 3918,
-          "endLine": 3924,
+          "startLine": 3930,
+          "endLine": 3936,
           "tokens": 617,
           "summary": "包体数字一次对齐（纯文书，零代码）：以 22:47 现包实测（find -type f -exec stat -f%z ",
           "keywords": [
@@ -84132,8 +84179,8 @@
         {
           "anchor": "§续批三（2026-10-19 23:1x–23:29，不另领号）：选项 C = 对局 safe area + 胶囊避让",
           "level": 3,
-          "startLine": 3925,
-          "endLine": 3941,
+          "startLine": 3937,
+          "endLine": 3953,
           "tokens": 1935,
           "summary": "用户裁定：上一轮末尾三选项，用户选 C「暂停 D-79，先修 safe+胶囊」——D-79 真机回填暂缓，先把「齿轮压在",
           "keywords": [
@@ -84149,17 +84196,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 51749,
-      "lines": 139,
-      "sha256": "3329ace513b2870b1ecf99e04e7b7bcf6404669f69b945f54e5f23be76bd1fed",
+      "tokens": 52485,
+      "lines": 140,
+      "sha256": "57d487b3a6c54833f61c1e8376ba257c3bd542f778f58f8cfadf82ddcc4d4612",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 140,
-          "tokens": 51740,
+          "endLine": 141,
+          "tokens": 52476,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -84172,8 +84219,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 112,
-          "endLine": 140,
+          "startLine": 113,
+          "endLine": 141,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
