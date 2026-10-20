@@ -6,6 +6,12 @@
 > 数据源 = `knowledge/ledger.json` 的 `events`（**append-only** 追加日志）+ 条目台账（标题取自台账）；
 > 日期倒序，同一日期内按 Task ID 分组。
 
+## 2026-10-21
+
+### WXG-T-331
+
+- **新增**（added）：K-145「验源时 `curl raw.githubusercontent.com` 失败 ≠ 仓库/上游文件不存在：同一主机名下 endpoint 要分层探」、K-146「沉淀 skill 快照必登记 provenance；取「本机已装副本」者刷新要「先 diff 不自动盖」，且 `_repos/` 内嵌克隆一律不入库」
+
 ## 2026-10-19
 
 ### WXG-T-294

@@ -3495,6 +3495,22 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-331
+
+**工程·外部技能/工具沉淀为可刷新知识库 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 入库（2026-10-20）；跨项目 arsenal 仓仅登记为候选**
+
+- **来源**：用户问「headroom 库和 ponytail 库能否作为个人知识库沉淀下来，之后的项目直接用？哪种方式方便查询和接入？如果 github 库可以实现那就最好」。给四选（A 都进本仓 my-skills / B 另起跨项目 arsenal 仓 / C 只进 Qoder 记忆 / D 先核上游）⇒ 用户拍 **A**。
+- **关键区分（决定归档形态，两者不能同一处理）**：ponytail = **纯文本方法论 skill**（六个 `SKILL.md`）⇒ 适合 vendoring 进仓、随仓库走；headroom = **需本机装二进制的上游包**⇒ ⛔ 不存代码，只存「接入配方型 SKILL.md」，用到时一行装。
+- **ponytail 六件入库**：从**本机已装副本** `~/.qoder/skills/ponytail{,-audit,-debt,-gain,-help,-review}` 逐字 `cp -R` 进 `my-skills/`（六目录各仅一份 SKILL.md，frontmatter `name` = 目录名，共 ≈28 KB）。选它不选上游直取的原因 = 本会话亲测在用、内容真实；且 `raw.githubusercontent.com` 在本网域不通（`curl` 全部 FAIL，连接被重）。
+- **headroom 薄技能**：新建 `my-skills/headroom/SKILL.md` = 何时用 / 装法 / 四种接入（library · proxy · wrap · MCP）/ 输出削减 (`HEADROOM_OUTPUT_SHAPER=1` 只在 proxy 侧) / 与本仓 `ctx/` 读侧预算互补 / 未装时预期失败。与 `my-mcp/README.md §8`（WXG-T-330）不重复：前者是**可触发技能**、后者是**接线记录**。
+- **上游坐实**：`DietrichGebert/ponytail`（MIT），来源二重 = `ponytail-help/SKILL.md:71` 自带 `Full docs + examples: github.com/DietrichGebert/ponytail` + `api.github.com/.../git/trees/HEAD?recursive=1` 列出 `skills/ponytail*/SKILL.md` 与根 `LICENSE`。⇒ 教训：**curl raw 不通不等于仓库不存在**，探结构走 API trees。
+- **四 IDE 链接**：7 件 × 4 目录 `ln -sfn ../../my-skills/<name> .<ide>/skills/<name>`（`.cursor` `.codebuddy` `.workbuddy` `.qoder`）⇒ `check:links` OK，技能 40→47。
+- **编目（可查询性的落点）**：`my-skills/INDEX.md` 新增 **§1b.2** 逐件表格 + 四注（来料与许可 / provenance与刷新方式 / 安全审计结论 / 优先级不变）；§1b 标题计数 21→28。
+- **刷新腿**：新脚本 `my-skills/_repos/update-ponytail-2026-10.sh`（入库）—— `git pull` 克隆 → 逐件 **diff 不自动盖** → 人工确认后 `cp -R` → 跑 `check:links`；`.gitignore` 新增 `my-skills/_repos/ponytail/`（同 mattpocock-skills / superpowers / Claude-Code-Game-Studios 惯例：内嵌 git 克隆只记空 gitlink ⇒ 必不入库）。脚本里写明「先 diff」的理由 = 快照取自已装副本而非上游，直接盖会改掉实际在用的纪律文本。
+- **记忆兜底（两条，跨项目自动想起）**：`tool_experience`「Headroom 本机上下文压缩层：安装与四种接入」；`skill_experience`「把外部 GitHub 技能/工具沉淀为可刷新的个人知识库：两种形态分开存」。既有 `learned_skill_experience`（ponytail 触发时机）与 `development_practice_specification`（必触发规则与档位口径）不重复，本批未动。
+- **沉淀（kb:sync 已入账）**：**K-145**（`raw.githubusercontent.com` curl 全失败而 `api.github.com` trees 一次成功 ⇒ endpoint 要分层探，别拿单一通道的失败当事实）；**K-146**（快照取本机已装副本⇒刷新语义不同，必须「先 diff 不自动盖」+ 比内容前核非空 + `_repos/` 内嵌克隆必不入库）。沉淀统计：新增 2 / 修改 0 / 激活 0 / 归档 0，`kb:audit` 无相似命中。
+- **诚实边界 / 未做**：① 本批**未落上游 `LICENSE` 文件**（域不通）⇒ 许可依 frontmatter `license: MIT` 自证，首跑刷新脚本时顺带 `cp ponytail/LICENSE` 补齐；② 链接为**项目级**，仅在工程内生效 ⇒ 真要「新项目直接用」需另起 arsenal 仓或装到全局技能目录（候选，待用户点头）；③ 纯 skills/docs + 1 脚本 + 1 行 .gitignore、零 TS ⇒ 不进包、不碰游戏运行时。
+
 ## WXG-T-330
 
 **工程·MCP 接入 headroom（本地上下文压缩 server） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 接线入库（2026-10-20）；本机二进未装（选项三才装）**

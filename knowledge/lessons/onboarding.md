@@ -25,3 +25,15 @@
   做法：接外部决策模型前四条件逐条核，缺一不接：**①语义题**（规则写不出）**②非预测题**（不拿静态量猜行为，数值可算进 tuning、行为可测交 bot）**③高频或即时**（多题并行一次前向才划算）**④低代价可兑底**（置信门+回退路径）。本仓过筛后的候选仅两个（用户裁定选留档、未立项）：**B. 玩家反馈/工单路由**（推荐首选：上线后有量、人工处置记录即标注真值、分错仅排队靠后）；**A. UGC 审核补充层**（昵称/自定义关名在 msgSecCheck 之外判乱码/引流，随 UGC 功能落地，与 B 共用接入形状）。反例登记：编排质量门 G1–G4 永不用概率判据（硬常量裁决）。
   接入事实备忘（复活 B/A 时免重查）：OpenRouter 通路免 waitlist，模型名 `typesafe/jev-1.13`（`jev-latest` 别名不存在，实测 400）；key 格式 `sk-or-v1-…`，格式不对会被拒成误导性的 "Missing Authentication header"；响应 `{answers:{q:{choice|noul|score, confidence}}, usage}` 与 TypeSafe 直连同构；国内出口实测延迟 ~1.4s（高于官方 70–500ms 口径）。
   判例引用：K-074（接前先验源——本条同族：接前先验「这题该不该模型答」）。
+
+- **[接入][K-145] 验源时 `curl raw.githubusercontent.com` 失败 ≠ 仓库/上游文件不存在：同一主机名下 endpoint 要分层探**（来源 WXG-T-331，2026-10-20）
+  现象：要坐实外部 skill 上游的文件布局，对 `raw.githubusercontent.com/<o>/<r>/main/skills/.../SKILL.md` 连发 7 个 `curl -sfL` 全部失败（补一次 `curl -v` 才看到真错 = `(35) Recv failure: Connection reset by peer`），差点误判为「上游无此结构」；同一时刻 `api.github.com/repos/<o>/<r>/git/trees/HEAD?recursive=1` 一次成功，完整列出 `skills/ponytail*/SKILL.md` 与根 `LICENSE`。
+  根因：同一主机名下不同 endpoint 走不同 CDN/出口，可达性彼此独立（api 可读不代表 raw 可拉）；而 `curl -sf` 把 TLS 重置、代理拦截、404 一律压成「无输出 + 非零退出」，据此下的是**网络读数**而非事实读数。
+  做法：① 探「仓库/文件是否存在」优先 `api.github.com/.../git/trees/<sha>?recursive=1`（带 `size`，一次看全仓布局）；② 取内容再依次试 `raw.` → `git clone --depth 1`，任一通道成功即可，别拿单一通道的失败下结论；③ 排障时补一次 `curl -v` 拿真错误码，把「域不通」与「路径不存在」分开登记；④ 若只需证明上游身份，先查**资产自带的自报文本**（本例 `ponytail-help/SKILL.md` 正文写着 `Full docs + examples: github.com/DietrichGebert/ponytail`）——零网络的二重证据。
+  判例引用：K-074（同族：接前机械验源；本条治的是「把某条通道的失败当成事实」）。
+
+- **[接入][K-146] 沉淀 skill 快照必登记 provenance；取「本机已装副本」者刷新要「先 diff 不自动盖」，且 `_repos/` 内嵌克隆一律不入库**（来源 WXG-T-331，2026-10-20）
+  现象：把 ponytail 六件 vendoring 进 `my-skills/` 时，因 raw 域不通改从 `~/.qoder/skills/ponytail*`（本机实际在用的那份）逐字 `cp -R`。仓内正本与上游之间就此隔了一层宿主适配：将来照惯例 `git pull` 后 `cp -R` 覆盖，会静默改掉**当前会话正据其执行的纪律文本**；而且「与上游一致」的读数本身不可信——那是两次 curl 失败留下的**空文件 vs 空文件**比出的全等。
+  根因：① 快照来源决定刷新语义：上游直取可无脑覆盖，本机已装副本只能当「疑似一致」处理，沿用同一句「重 cp 即可」的惯例就是坑；② `diff -q A B` 只在两个操作数都是有效内容时有意义，抓取失败落下的空文件会让「一致」判据反向失真。
+  做法：① 编目批次注里**明写 provenance**（取自上游 / 取自本机已装副本）与许可来源，别只写来源仓库名；② 刷新脚本按来源分档——副本快照一律「逐件 diff → 只报差异 → 人工确认再 `cp -R`」，并把这条理由写进脚本注释，防后人图省事改成自动盖；③ 比内容前先核文件非空（`wc -c` 或上游 trees 的 `size`），空文件不参与「一致」判定；④ 内嵌 git 克隆**必须加 `.gitignore`**（同 `_repos/mattpocock-skills`、`superpowers`、`Claude-Code-Game-Studios`）——git 对嵌套仓库只记一个空 gitlink，内容**静默丢失**，看着像提交了其实没有；⑤ 需装二进制的上游工具 ⛔ 不存代码，改存「接入配方型 SKILL.md」（装法 / 接入形态 / 未装时的预期失败），与纯文本方法论 skill 分两种归档形态。
+  判例引用：K-073（上游正文零改写——本条补：快照若非取自上游，「零改写」的前提就不成立）、K-058（排除面看生成器枚举不看 `.gitignore`；此处方向相反：新增排除面必须同步 `.gitignore`）。

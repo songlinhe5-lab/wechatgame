@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 145,
+  "nextId": 147,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2407,6 +2407,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-145",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "验源时 `curl raw.githubusercontent.com` 失败 ≠ 仓库/上游文件不存在：同一主机名下 endpoint 要分层探",
+      "contentHash": "eb7d24a2b21d85c7b5ba5b29a0223062d84189e1b4192aa3f369f4d52474a699",
+      "sourceTask": "WXG-T-331",
+      "addedDate": "2026-10-20",
+      "lastAccess": "2026-10-20",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-146",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "沉淀 skill 快照必登记 provenance；取「本机已装副本」者刷新要「先 diff 不自动盖」，且 `_repos/` 内嵌克隆一律不入库",
+      "contentHash": "4dcc047c8b6fd608c0745b16349dce0aceb26915eb3677dc6419486261cfd0d7",
+      "sourceTask": "WXG-T-331",
+      "addedDate": "2026-10-20",
+      "lastAccess": "2026-10-20",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3588,6 +3622,16 @@
       "kind": "updated",
       "ids": [
         "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-331",
+      "kind": "added",
+      "ids": [
+        "K-145",
+        "K-146"
       ],
       "note": null
     }

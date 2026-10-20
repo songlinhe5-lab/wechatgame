@@ -252,4 +252,6 @@
 | K-142 | 跨IDE | cross-ide | 「不擅自 push」的纪律会被 IDE 自动同步静默绕过；推送状态只能靠 ls-remote / reflog 取证，`git status` 永远看不出来 | WXG-T-292 | 2026-10-18 | 0 | active |
 | K-143 | 测试守卫 | testing-guard | 同一个「引用集」被生成器与门禁各写一份解析正则 ⇒ 一侧的「无条件保留」例外永不触发，规则形同虚设 | WXG-T-293 | 2026-10-18 | 0 | active |
 | K-144 | 测试守卫 | testing-guard | 同一个「零响应」结论由两条不同机制各自达成时，只写一例 ⇒ 变异只能拆掉一条，另一条恒绿 | WXG-T-295 | 2026-10-19 | 0 | active |
+| K-145 | 接入 | onboarding | 验源时 `curl raw.githubusercontent.com` 失败 ≠ 仓库/上游文件不存在：同一主机名下 endpoint 要分层探 | WXG-T-331 | 2026-10-20 | 0 | active |
+| K-146 | 接入 | onboarding | 沉淀 skill 快照必登记 provenance；取「本机已装副本」者刷新要「先 diff 不自动盖」，且 `_repos/` 内嵌克隆一律不入库 | WXG-T-331 | 2026-10-20 | 0 | active |
 <!-- kb:active:end -->

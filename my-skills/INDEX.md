@@ -33,7 +33,7 @@
 > 文件为相对符号链接，`scripts/` 因含各包安装常量而各自独立。运行纪律见两包 SKILL.md
 > 开头（默认 `--auto off`、不路由第三方包）。
 
-## 1b. 外来通用·AI 编程工作流（21 个挂四 IDE 链接）
+## 1b. 外来通用·AI 编程工作流（28 个挂四 IDE 链接；含 1b.1 五件 + 1b.2 七件）
 
 来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 `_repos/mattpocock-skills/`、`_repos/superpowers/`（更新方式：`cd _repos/<repo> && git pull` 后重新 `cp -R` 对应技能目录覆盖）。
 
@@ -81,6 +81,23 @@
 >   `receiving-code-review` 与 CodeReview 子代理；`open-code-review*` 只在用户**点名 ocr** 时用。
 >   安全审计走 `security-audit`（与 Qoder 自带的 `security-scan` 插件同域不同物，后者为宿主内置）。
 > - 触发词冲突时优先级不变：`wxgame-*` > 本批外来件（见 §3）。
+
+### 1b.2 2026-10-20 批（7 件：ponytail 家族 6 + headroom）
+
+| 来源 | skill | 职责与前置 |
+|---|---|---|
+| DietrichGebert/ponytail | `ponytail` | 强制最简可用解（七级阶梯 / YAGNI，lite·full·ultra）；**编码类任务开工前必触发**，非编码不用。正本已在 `~/.qoder/skills` 本机安装，本批 vendoring 进 my-skills 做版本化 + 随仓库走 |
+| DietrichGebert/ponytail | `ponytail-review` | 只审 diff 的过度工程，交「删除清单」 |
+| DietrichGebert/ponytail | `ponytail-audit` | 全仓库过度工程审计（一次性报告，不改） |
+| DietrichGebert/ponytail | `ponytail-debt` | 收集 `ponytail:` 注释成技术债台账 |
+| DietrichGebert/ponytail | `ponytail-gain` | 基准收益记分板（一次性展示） |
+| DietrichGebert/ponytail | `ponytail-help` | ponytail 家族命令速查 |
+| **本仓自撰**（headroomlabs-ai/headroom） | `headroom` | **接入配方型 skill**（非方法论）：本机上下文压缩层用法——何时用/装/4 种接入/输出削减/与 ctx 读侧预算互补。**前置需本机装 `headroom`**（见正文），未装时 MCP server 连接失败属预期。MCP 接线正本在 `my-mcp/servers.json`，边界见 `my-mcp/README.md §8` |
+
+> **来源与许可**：ponytail 家族 = MIT（frontmatter 自证），headroom = Apache-2.0（上游；本仓只存配方、不存其代码）。
+> **provenance / 更新方式**：ponytail 六件从**本机已装副本** `~/.qoder/skills/ponytail*` 逐字 `cp -R`（本会话亲测在用、内容真实），**非上游直取**；上游 `DietrichGebert/ponytail` 的 `skills/ponytail*/SKILL.md`。刷新脚本已入库 —— `my-skills/_repos/update-ponytail-2026-10.sh`（`git pull` 克隆 → 逐件 **diff** 再覆盖，不自动盖；克隆目录 `my-skills/_repos/ponytail/` 按既有惯例进 `.gitignore` 不入库）。⚠ 本批未落上游 `LICENSE` 文件（网络域不通），许可依 frontmatter `license: MIT` 自证；首次跑刷新脚本时顺带 `cp ponytail/LICENSE → my-skills/ponytail/LICENSE` 补齐。
+> **安全审计结论**（沿用惯例）：ponytail 六件 + headroom 配方均为纯 Markdown 指令，无危险命令 / 无外传 / 无 `child_process`、无网络；headroom 正文的 `uv tool install` / `headroom proxy` 是**用户本机一次性命令**（写仓外家目录），skill 本身不自动执行。
+> **优先级**：`wxgame-*` > 外来通用层不变（§3）；ponytail 与项目 always-on 规则「编码类必触发 ponytail」一致，不冲突。
 
 > 归类：优先级链中的「外来通用」层。与 `wxgame-*` 冲突时以后者为准；
 > 链接为项目级 `.<ide>/skills/<name> → ../../my-skills/<name>`，仅在**本工程**生效。
