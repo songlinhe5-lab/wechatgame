@@ -108,7 +108,8 @@ jobs:
           node-version: "24"
 
       - name: levels:check
-        run: node tools/scripts/sync-levels-data.mjs --check
+        # 必须带 ts-js-resolve 钩子：difficulty.ts 内部以 `.js` 引用 `.ts`（同 package.json）
+        run: node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/sync-levels-data.mjs --check
 
   # ③ 类型 + 单测：framework / game / tools 变更时运行
   unit:
