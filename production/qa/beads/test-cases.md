@@ -1163,3 +1163,28 @@ E1–E6 落码后：**G4 玩法判据面已整体换代**（本节 J 系列）�
 - 本文件的判据锚点**不按条数裁剪**：裁条数会削掉 §A.0（UNTESTED/证据态唯一登记处）、§I.2（⛔ 未测道次护栏）、§K（29485 tok 判据族）、§M.10（在办单 G1–G4 结论）这类**判据态 / 结论态 / 护栏**节 ⇒ 等于给假绿开门（K-044/K-036 族）。
 - 控量改走 `ctx/hot-files.md` 的**锚点标题截断**（`hotAnchorLabelMaxChars = 20`，`=offset+limit` 原样保留）⇒ 条数与覆盖不变，实测该文件在第二跳的成本 1559 → 783 tok。台账型条数上限（`hotFileAnchorMax = 12`）只作用于 ROUTES 已声明「先用 `ctx/index.json`」的文件（现网 = `production/TASKS-DETAIL.md`）。
 - 新硬门 **D3** 机械守可寻性：U1 ROUTES 引用的本文件 7 条锚点必须在第二跳命中（行号不符即 `exit 1`）、U2 未列节须被已列区间覆盖或声明退路、U3 巨族不得只留孤锚；反例用例 = `pnpm run ctx:hotfiles:selftest`。**判据正文零改动**，本批不新增豁免、不调大上限。
+
+## O. UI 架构迁移验收（ADR-0032 · UI-50…53 · WXG-T-320）
+
+> 判据来源：`docs/architecture/ui-architecture-beads.md` §10（验证口径）与 §12 UI-53 原文「全量 `verify` 与 harness 验收；真机安全区项登记为 `[R]` 阻塞」。本节只记**机械面**读数；真机面维持 `[R] ⛔`，⛔ 不以 Node 布局断言或 harness 画面替代（K-044）。
+
+| 用例 | 道次 | 判据 | 本轮实测（2026-10-20） | 结论 |
+|---|---|---|---|---|
+| TC-UI53-01 | `[CI]` | 全量 `pnpm run verify` 22 项逐项执行、不短路 | **PASS 22 / WARN 0 / SKIP 0 / FAIL 0** | ✅ PASS |
+| TC-UI53-02 | `[Node]` | 单测全绿 | framework **483**、breakout **239**、beads **1132 passed / 2 skipped（1134，97 文件）**；0 fail | ✅ PASS |
+| TC-UI53-03 | `[Node]` | 金样本十态对拍零差异、夹具不重抓 | `ui-golden` 全绿；十态 sha 自 UI-50 起未变 | ✅ PASS |
+| TC-UI53-04 | `[Harness]` | `harness:build` + `harness:smoke` 双游启帧 | beads：13×12 盘 / 156 格 / 24 托盘槽 / 5 帧（rect 102、arc 2816、fill 1277、fillText 13）/ 4926 条绘制指令；breakout 同绿 | ✅ PASS |
+| TC-UI53-05 | `[CI]` | §20 五条守则机械守 | `check:arch` OK（仅存量 L1 WARN）；`--selftest` **11/11** 负样本全咬 | ✅ PASS |
+| TC-UI53-06 | `[CI]` | 包体不越红线（§11 包体行） | beads 主包 **3201.0 KB / 108 文件**，距 4096 KB 红线余 **895.0 KB** | ✅ PASS |
+| TC-UI53-07 | `[R]` | 刘海 / 灵动岛 / 安卓三键：安全区三区矩形、胶囊避让、弹窗与顶栏不重叠 | ⛔ **未执行** | ⛔ BLOCKED |
+
+**TC-UI53-07 阻塞登记（复用 `device-walkthrough.md §3 Session 2` 既有条目，不另造 ID）**：
+
+| 走查项 | 覆盖 | 阻塞原因 | 解除条件 |
+|---|---|---|---|
+| D-40 | 灵动岛顶栏压木框观感 | iPhone 14 Pro+ 无在手设备 | 借机或用户现场看屏，按 D-40 线判（线未定义 ⇒ 上限 `PASS*`） |
+| D-41 / D-42 | Android `safeArea.bottom` 脏值 / letterbox `offsetY` | 无 Android targetSdk 35/36 与高屏机 | 走查机到位后逐机型回填 |
+| D-43 / D-44 | ohos 安全区 / 热区 ≥88 与胶囊避让 | L-A 畅享在手，但需用户扫码装包 + 人工看屏；本会话无设备操作权 | 用户扫码 `cli preview` 或装现包，按 Session 2 取证入库 |
+| P1（2026-10-15 行） | 高屏机 `hudDy` 上移、齿轮可点、全屏遮罩铺满 | 同上（高屏 ×1 + 1334 档 ×1） | 同 D-43；裁定线未定义 ⇒ 上限 `PASS*` |
+
+> 结论口径：UI 迁移链**机械面闭合**；真机面 `[R]` 未签收 ⇒ 整链不得记「全部 PASS」。`harness:smoke` 是 Node 内加载产物字节 + canvas 桩，**不构成像素级或真机证据**。
