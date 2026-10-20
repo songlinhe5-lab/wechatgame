@@ -24,6 +24,7 @@ import {
   CONFETTI_COUNT,
   CONFETTI_NOFLY_YMIN,
   CONFETTI_NOFLY_YMAX,
+  dialogShiftY,
 } from '../config/tuning';
 import type { BeadsSnapshot } from '../game/state';
 import {
@@ -471,6 +472,7 @@ const CONFETTI_POINTS = new Float32Array(CONFETTI_COUNT * 8);
  * G6 `vfx_confetti`：结算面板入场期 44 枚程序化彩带（零 RNG，idx 派生）。
  * 两层 sandwich（层序死规格）：MAIN 在 `drawClearPanel` 前（scrim 压住），FG 在后；
  * FG 枚当 y ∈ [447,787]（按钮行/缎带，`clearPanelLayout` 派生）**跳过绘制** ⇒ 保按钮可辨识；
+ * `[WXG-T-323]` 结算面板逐机上移后，带缘跟面板同源位移（基准档位移 0 ⇒ 逐字不变）。
  * MAIN 不受限。D1（`reduceMotion`）= **整条关停**（纯装饰、零信息量，§1.6.6）。
  * 点列 = 预分配 `CONFETTI_POINTS` 的固定段（裁定 B，见上）；只在 800ms 窗口内分派。
  */
@@ -481,11 +483,13 @@ function drawConfetti(
 ): void {
   const p = snap.confettiProgress;
   if (p <= 0 || snap.reduceMotion) return;
+  // 禁飞带与面板同源：循环外算一次（⛔ 逐枚取）。
+  const shift = dialogShiftY();
   for (let idx = 0; idx < CONFETTI_COUNT; idx++) {
     if (confettiIsForeground(idx) !== foreground) continue;
     const f = confettiFrame(idx, p, CONFETTI_SCRATCH, builder.height);
     // 禁飞带：不是淡出，是不画（可读性硬约束，accessibility C1）。
-    if (foreground && f.y >= CONFETTI_NOFLY_YMIN && f.y <= CONFETTI_NOFLY_YMAX) continue;
+    if (foreground && f.y >= CONFETTI_NOFLY_YMIN + shift && f.y <= CONFETTI_NOFLY_YMAX + shift) continue;
     if (f.alpha <= 0) continue;
     confettiQuad(f.x, f.y, f.theta, CONFETTI_POINTS, idx * 8);
     builder.polygon(CONFETTI_POINTS.subarray(idx * 8, idx * 8 + 8), {

@@ -38,6 +38,7 @@ import {
   PANEL_SIZE,
   PANEL_TITLE_BAND_H,
   PAUSE_PANEL_H,
+  dialogShiftY,
 } from '../config/tuning';
 import type { GameMode } from '../game/state';
 
@@ -106,7 +107,8 @@ function panelPlate(): PanelRect {
   const left = (DESIGN_W - PANEL_SIZE.w) / 2;
   // 高度用暂停面板专有的 PAUSE_PANEL_H（EP11-S5 五行 = 718），宽度沿用共享 PANEL_SIZE.w（560）。
   // ⚠️ ⛔ 不得回写成 `PANEL_SIZE.h`：那是结算/失败面板共用的 480（任务单「不污染共用 PANEL_SIZE」）。
-  const bottom = (DESIGN_H - PAUSE_PANEL_H) / 2;
+  // `[WXG-T-323]` 底缘 = 基准居中 + 逐机位移 ⇒ 面板中心对齐**手机中心**（1334 档位移 0 ⇒ 逐字不变）。
+  const bottom = (DESIGN_H - PAUSE_PANEL_H) / 2 + dialogShiftY();
   return rect(left, bottom, PANEL_SIZE.w, PAUSE_PANEL_H);
 }
 

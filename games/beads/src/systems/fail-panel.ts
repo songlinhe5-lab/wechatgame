@@ -12,6 +12,7 @@ import {
   FAIL_BUTTON_H,
   FAIL_PRIMARY_W,
   REVIVE_BONUS_SEC,
+  dialogShiftY,
 } from '../config/tuning.js';
 import { rectContains, type PanelRect } from './pause-panel.js';
 
@@ -56,7 +57,8 @@ function buildLayout(withRevive: boolean): FailPanelLayout {
   const plateW = 560;
   const plateH = withRevive ? 360 : 280;
   const plateX = (DESIGN_W - plateW) / 2;
-  const plateY = (DESIGN_H - plateH) / 2;
+  // `[WXG-T-323]` 中心对齐手机中心（基准档 487/527 逐字不变）。
+  const plateY = (DESIGN_H - plateH) / 2 + dialogShiftY();
   const plate = rect(plateX, plateY, plateW, plateH);
   const btnX = (DESIGN_W - FAIL_PRIMARY_W) / 2;
   const innerPad = 40;

@@ -33,6 +33,7 @@ import {
   PANEL_PADDING,
   PANEL_ROW_GAP,
   PANEL_SIZE,
+  dialogShiftY,
 } from '../config/tuning';
 import { rectContains, type PanelRect } from './pause-panel';
 import { ResultPanelClock } from './result-panel';
@@ -91,7 +92,8 @@ export function clearPanelLayout(opts: ClearPanelOptions): ClearPanelLayout {
 function build(lastLevel: boolean): ClearPanelLayout {
   const panel = rect(
     (DESIGN_W - PANEL_SIZE.w) / 2,
-    (DESIGN_H - PANEL_SIZE.h) / 2,
+    // `[WXG-T-323]` 与暂停面板同源位移 ⇒ 中心对齐手机中心（基准档 427 逐字不变）。
+    (DESIGN_H - PANEL_SIZE.h) / 2 + dialogShiftY(),
     PANEL_SIZE.w,
     PANEL_SIZE.h,
   );

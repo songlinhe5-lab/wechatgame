@@ -82,6 +82,7 @@ import {
     WALL_ROWS,
     WALL_SLOT_DASH,
     WALL_SLOT_DASH_GAP,
+    dialogShiftY,
     menuAnchors,
 } from '../config/tuning';
 // EP12-S6 · P-7：屏内文案一律读表（`tokens.md §7` / `menu-architecture §6`），⛔ 不散落字面。
@@ -327,15 +328,24 @@ const OVERLAY_W = 600;
 const OVERLAY_H = 720;
 
 /**
- * 弹窗面板底板（`signin` / `settings` 同一块）。**模块级一次算定**：`buildMetaView` 每帧调用 ⇒
- * 旧 `overlayPlate()` 每帧新建一个 Box 对象，属 `control-manifest §2` 热路径分配，就此收敛。
+ * 弹窗纸面板底板（`signin` / `settings` 同一块）。**首次算定后缓用**：`buildMetaView` 每帧调用
+ * ⇒ 每帧新建 Box 属 `control-manifest §2` 热路径分配，就此收敛。
+ *
+ * `[WXG-T-323]` 中心对齐**手机中心** ⇒ 底缘 = 基准居中 + 逐机位移。位移由 `BeadsShell.init`
+ * 在任何面板几何首次构造前写入 ⇒ 缓存首次即拿真值（H 运行期不变，见 `dialogShiftY` 注）。
  */
-const OVERLAY_PLATE: Box = box(
-    (DESIGN_W - OVERLAY_W) / 2,
-    (DESIGN_H - OVERLAY_H) / 2,
-    OVERLAY_W,
-    OVERLAY_H,
-);
+let _overlayPlate: Box | null = null;
+function overlayPlate(): Box {
+    if (_overlayPlate === null) {
+        _overlayPlate = box(
+            (DESIGN_W - OVERLAY_W) / 2,
+            (DESIGN_H - OVERLAY_H) / 2 + dialogShiftY(),
+            OVERLAY_W,
+            OVERLAY_H,
+        );
+    }
+    return _overlayPlate;
+}
 // ── 走马灯小卡（menu-architecture §1.3 第五轮终裁：主菜单主区 = 单卡进度展示，卡 = 唯一选关入口）。
 //    几何由 {@link anchoredGeo} 逐机算定（`bossBox` 图位 ⇒ `[WXG-T-281]` 旧白卡退场）⇒ 静态档 `CAROUSEL_BOX` 已随锚定档退场。
 /** 星级_label 查表（取代旧每帧 `'★'.repeat(n)+'☆'.repeat(3-n)` ⇒ 逐字同串、每帧零字符串分配）。 */
@@ -392,7 +402,7 @@ function levelsLayout(rows: number): MetaLayout {
 }
 
 function signinLayout(): MetaLayout {
-    const plate = OVERLAY_PLATE;
+    const plate = overlayPlate();
     const buttons: MetaButton[] = [];
     // 7 格版式单源（UI-32）：4 + 3 居中，几何见 `view/signin-content.ts`。
     const cells = signinCellLayout(plate);
@@ -408,7 +418,7 @@ function signinLayout(): MetaLayout {
 }
 
 function settingsLayout(): MetaLayout {
-    const plate = OVERLAY_PLATE;
+    const plate = overlayPlate();
     // UI-30：内容块单源（`view/settings-content.ts`）= 10 钮 = 5 行 × 2 列（末行 = 皮肤 + Debug）。
     // plate 高 **720 不改**，避让实算：`OVERLAY_H` 720 ⇒ plate y∈[307,1027]；
     //   topY = 307+720−150 = 877，行底依次 877 / 773 / 669 / 565 / 461（行高 88）；
@@ -1331,7 +1341,7 @@ export function buildMetaView(
                 data.overlay === 'settings' ? UI_SCRIM.settingsAlpha : UI_SCRIM.alpha,
             ),
         });
-        const plate = OVERLAY_PLATE;
+        const plate = overlayPlate();
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
         // overlay 标题：`settings` 读文案表；`signin` 的「七日签到」在 `tokens.md §7` **无对应键**
         // ⇒ 维持既有字面，UI-32 起由 `signin-content.ts` 单源给出（⛔ 不为此新造令牌）。

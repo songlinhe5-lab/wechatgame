@@ -32,6 +32,7 @@ import {
   DESIGN_W,
   PANEL_BUTTON_H,
   PANEL_PADDING,
+  dialogShiftY,
 } from '../config/tuning';
 import { rectContains, type PanelRect } from './pause-panel';
 import { ResultPanelClock } from './result-panel';
@@ -115,7 +116,8 @@ export function sprintSettleLayout(): SprintSettleLayout {
   if (_cache) return _cache;
   const plateW = 560;
   const plateH = 420;
-  const panel = rect((DESIGN_W - plateW) / 2, (DESIGN_H - plateH) / 2, plateW, plateH);
+  // `[WXG-T-323]` 中心对齐手机中心（基准档 457 逐字不变）。
+  const panel = rect((DESIGN_W - plateW) / 2, (DESIGN_H - plateH) / 2 + dialogShiftY(), plateW, plateH);
   const titleY = panel.yMax - 56;
   const scoreY = titleY - 64;
   const labelX = panel.xMin + PANEL_PADDING + 60;

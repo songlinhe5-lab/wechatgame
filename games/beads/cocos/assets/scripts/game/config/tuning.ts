@@ -20,6 +20,37 @@ export const DESIGN_W = 750;
 /** Design resolution height (px), portrait. */
 export const DESIGN_H = 1334;
 /**
+ * 逐机**实际设计高**（WXG-T-323 用户裁定：对话框中心 = 手机中心）。
+ *
+ * `dynamicHeight` 档下 viewport 按屏幅把设计高算到 1334~1630，而各对话框历史上按静态
+ * `DESIGN_H` 居中 ⇒ 高屏机整块**偏下** `(H−1334)/2`（畅享 1625 档实测 145.5 设计 px ≈ 屏高 9%）。
+ * 本值由 `BeadsShell.init` 与菜单链锚**同点一次写入**（`services.viewport.designHeight`），此后
+ * 全程不变 ⇒ 居中只需一个加数，各对话框共用 {@link dialogShiftY}（⛔ 不得回写成各处自算）。
+ *
+ * ⛔ 热路径不得逐帧改值。真机侧 `App.resize()` 不触发（`_fitToGameCanvas` 无 `document` ⇒ 空转），
+ *   故不设运行期失效；若将来 H 可变，随 `menuAnchors` 一起重算并补各面板缓存失效。
+ */
+let liveDesignH = DESIGN_H;
+
+/** 写入逐机实际设计高（≤0 忽略 ⇒ 维持基准档，位移恒 0）。 */
+export function setLiveDesignHeight(designHeight: number): void {
+  if (designHeight > 0) liveDesignH = Math.round(designHeight);
+}
+
+/** 当前逐机实际设计高（基准档 = `DESIGN_H`）。 */
+export function liveDesignHeight(): number {
+  return liveDesignH;
+}
+
+/**
+ * 居中对话框的**底缘位移**（设计 px）= 顶部多出量之半。基准档与更矮档恒 **0** ⇒ 1334 夹具逐字
+ * 不变（金样本十态零漂移）；1625 档 = 146。底缘加它 ⇔ 面板中心从 667 移到实际屏中心。
+ */
+export function dialogShiftY(): number {
+  const extra = liveDesignH - DESIGN_H;
+  return extra > 0 ? Math.round(extra / 2) : 0;
+}
+/**
  * Top safe-area fallback (design px). **⚠ 角色 = fallback，不是下限（v1.75）**：真机顶栏位置由
  * `getWindowInfo()` / `getMenuButtonBoundingClientRect()` 的**接口值**决定，本值只在**接口给不出有效值**时
  * 顶上（无 wx 的 harness / node，以及官方明令「部分机型不返回 safeArea 字段」的兼容路径）。

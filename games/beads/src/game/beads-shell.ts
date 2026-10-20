@@ -44,6 +44,7 @@ import {
     PANEL_IN_MS,
     PANEL_OUT_MS,
     menuAnchors,
+    setLiveDesignHeight,
     type MenuAnchors,
 } from '../config/tuning.js';
 import { ARC_OPEN_MAX, ARCS } from '../config/arcs.js';
@@ -277,6 +278,9 @@ export class BeadsShell implements Game {
         // 非小游戏宿主（浏览器 harness / node）无硬件刘海/Home 条 ⇒ **真值 0**（[WXG-T-281] 排障：旧档传 null
         // 走 120/68 悲观兜底，1334 屏即落退化态 ⇒ 橱窗压 CTA / slogan 骑资源条）。null 兜底档仅留「未知宿主」直调。
         const plat = services.platform;
+        // `[WXG-T-323]` 对话框居中基准与菜单链锚同源一次算定（裁定 = 面板中心对齐手机中心）；
+        // 必须早于 `play.init` ⇒ 任何面板几何首次构造前就位。
+        setLiveDesignHeight(services.viewport.designHeight);
         this._viewData.anchors = menuAnchors({
             safeTopDp: plat.isMiniGame ? plat.safeAreaTop : 0,
             capsuleBottomDp: plat.capsuleBottomDp,
