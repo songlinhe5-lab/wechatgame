@@ -196,6 +196,10 @@ export class App {
   private _init(): void {
     const screen = this.platform.getScreenSize();
     this.viewport.resize(screen.width, screen.height);
+    // `[WXG-T-322]` 动态高档：首帧的 builder 设计高必须与 viewport 同源。
+    // 只 resize viewport 时 builder 仍停在构造基准 1334 ⇒ 读 `builder.height` 的
+    // 全屏图元（暂停 / 结算遮罩）在高屏机顶部漏出未遮盖的一条。
+    this._builder.resize(this.viewport.designWidth, this.viewport.designHeight);
 
     this.game.init(this.services);
 

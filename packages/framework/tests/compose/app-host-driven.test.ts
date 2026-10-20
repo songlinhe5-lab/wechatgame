@@ -77,6 +77,31 @@ describe('App host-driven mode (WXG-T-122 / BD-40)', () => {
     expect(game.updates).toBe(0);
   });
 
+  it('[WXG-T-322] 动态高 + startHostDriven：首帧 builder.height = 真机设计高（暂停遮罩铺满）', () => {
+    // 畅享 90 Pro Max：1128×2444 dp ⇒ 750×2444/1128 = 1625 设计 px。
+    const platform = new NodePlatform({ width: 1128, height: 2444, pixelRatio: 3 });
+    const game = new CounterGame();
+    let frameHeight = -1;
+    game.buildRenderModel = (b) => {
+      frameHeight = b.height;
+    };
+    const app = new App({
+      game,
+      platform,
+      designWidth: 750,
+      designHeight: 1334,
+      dynamicHeight: true,
+      fixedDt: 1 / 64,
+      seed: 'dynamic-height',
+    });
+    app.startHostDriven();
+    app.tick(1 / 64);
+    expect(app.viewport.designHeight).toBe(1625);
+    // 根因守卫：_init() 只 resize 了 viewport，builder 仍停在基准 1334
+    // ⇒ 读 builder.height 的全屏图元（暂停 / 结算遮罩）顶部漏 291px。
+    expect(frameHeight).toBe(1625);
+  });
+
   it('② external host ticking once per wall-clock frame yields ~1× sim speed', () => {
     const { app, game } = makeApp();
     app.startHostDriven();
