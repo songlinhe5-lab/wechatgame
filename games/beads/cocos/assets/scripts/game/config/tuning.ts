@@ -52,6 +52,15 @@ export const SAFE_BOTTOM_H = 68;
 export const SAFE_EDGE_MARGIN = 4;
 
 /**
+ * 导航栏（UI-23）机制默认值：图标键边长 / 控件间距（设计 px）。
+ *
+ * ⚠ 迁移期无消费面（UI-25 总装才接线），暂不入 `systems-index §3`；
+ *   接线时按 tokens 定稿校准，届时补冻结登记。
+ */
+export const NAV_BAR_ICON = 56;
+export const NAV_BAR_GAP = 8;
+
+/**
  * 单边安全偏移（**设计 px**，自屏幕边缘向内）= **接口值优先**；接口给不出有效值才用 fallback。
  *
  * **纯函数**：只接三个数，不 import `cc` / `wx` / DOM（L2/L3 ⇒ 可在 Node 单测直接跑）。
@@ -1596,6 +1605,32 @@ export const THUMB_AREA = WALL_CELL - THUMB_TOP_INSET - THUMB_STAR_BAND;
  */
 export const THUMB_BEADS_MAX = THUMB_MATRIX_N * THUMB_MATRIX_N;
 
+// ─────────── 选关**整页**版面档（版式 P；正本 = `design/ux/level-select-page-layout.md` v0.2 §2，
+//   ADR-0032 D5：选关从 600×720 弹窗改整页；美术侧同值 = `menu-wall-signage-spec §3.9`）
+//   ⚠ **页专用**：⛔ 不改 `WALL_CELL`（120，`THUMB_AREA` 由它派生）与 `WALL_CAPACITY`（9）；
+//   缩略走 `drawLevelThumb` 既有 `area` 入参 ⇒ 零新增绘制分支。
+/** 页格边长（170 ≈ 原 120 × 1.4；热区 ≥ `TOUCH_MIN` 88 ✔）。 */
+export const LEVELS_CELL = 170;
+/** 页格间距（30）。 */
+export const LEVELS_GAP = 30;
+/** 网格左缘（x∈[90,660] ⇒ 三列列左缘 90 / 290 / 490）。 */
+export const LEVELS_GRID_LEFT = 90;
+/** 网格**上沿** y（第 1 行格上边；行区间 [652,822] / [452,622] / [252,422]）。 */
+export const LEVELS_GRID_TOP = 822;
+/** 缩略区边长 = `LEVELS_CELL − THUMB_TOP_INSET − THUMB_STAR_BAND`（= **134**：格径增量 +50 全给缩略）。 */
+export const LEVELS_THUMB_AREA = LEVELS_CELL - THUMB_TOP_INSET - THUMB_STAR_BAND;
+/** 返回钮宽（240×88 @ x∈[255,495]；高度 = `TOUCH_MIN`）。 */
+export const LEVELS_BACK_W = 240;
+/** 返回钮**下缘** y = 安全底边兜底 68 + 48（确认单 §2 原值；真机安全区下移留待后续批）。 */
+export const LEVELS_BACK_BOTTOM = SAFE_BOTTOM_H + 48;
+/** 导航栏标题带高（仅标题，⛔ 无返回键；返回走底部 `back`）。 */
+export const LEVELS_NAV_H = 88;
+/**
+ * 标题带**顶缘**兜底 y（= `DESIGN_H − (SAFE_TOP_H + SAFE_EDGE_MARGIN)` = **1210**）。
+ * 真机消费侧优先读 `MenuAnchors.btTopY`（胶囊底缘派生）⇒ 本值只兜底无接口宿主。
+ */
+export const LEVELS_NAV_TOP = DESIGN_H - (SAFE_TOP_H + SAFE_EDGE_MARGIN);
+
 /**
  * `[WXG-T-271 / ADR-0031 DEC=C′]` boss 关缩略**静态位图**映射（`level.id` → `textureId`）。
  *
@@ -2454,8 +2489,8 @@ export const UI_CONTAINER = Object.freeze({
   strokeSheen: 1,
   /** 木钮底缘暗线（tokens.md §3 `stroke_wood_base`）。 */
   strokeWoodEdge: 2,
-  /** 按下态整体下移（tokens.md §4 `press_dy`；S4 消费）。 */
-  pressDy: 2,
+  /** 按下态整体下移（tokens.md §4 `press_dy`；运行时唯一真源 = {@link UI_PRESS_SINK}）。 */
+  pressDy: UI_PRESS_SINK,
   /** LV 纸 chip 几何（screens.md S1「LV 纸 chip 96×48」；墨 = panel/panelBorder）。
    *  x = DESIGN_W − 22 − w（右缘对齐既有 22 留白）；仅普通模式呈现（sprint 自有 HUD 块）。 */
   lvChipW: 96,

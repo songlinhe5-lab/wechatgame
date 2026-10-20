@@ -2,6 +2,10 @@
  * PausePanel — the S9 pause panel's *logic*: visibility, enter/exit animation
  * progress, and button geometry/hit-testing.
  *
+ * UI-31（WXG-T-306）：开合动画时钟退役，改由框架 `ModalLifecycle` 驱动
+ * （时长仍由本模块按 `PANEL_IN_MS` / `PANEL_OUT_MS` 传入）；布局与命中纯函数
+ * **就地保留**（`ui-architecture-beads §8`：避免一次性搬迁）。
+ *
  * Pure mechanics in the same sense as the other systems: this module
  * **never touches gameplay state** (no grid/tray/timer writes). BeadsGame owns
  * the authoritative phase and settings and applies the action this module
@@ -21,6 +25,7 @@
  * hot zones can never drift apart.
  */
 
+import { ModalLifecycle } from '@wxgame/framework';
 import {
   DESIGN_H,
   DESIGN_W,
@@ -208,57 +213,49 @@ export function rectsOverlap(a: PanelRect, b: PanelRect): boolean {
   return a.xMin < b.xMax && b.xMin < a.xMax && a.yMin < b.yMax && b.yMin < a.yMax;
 }
 
-type PanelState = 'hidden' | 'open' | 'closing';
-
 /**
- * Panel lifecycle + taps. Owns nothing but its own animation clock.
+ * Panel lifecycle + taps. Animation clock is the framework `ModalLifecycle`
+ * (UI-31); this class only supplies the frozen durations and keeps the
+ * historical getter surface (`visible` / `interactive` / `durationMs` / `progress`).
  */
 export class PausePanel {
-  private _state: PanelState = 'hidden';
-  private _elapsedMs = 0;
+  private readonly _modal = new ModalLifecycle();
 
   /** Show the dialog (entering). Called when the machine enters PAUSED. */
   open(): void {
-    this._state = 'open';
-    this._elapsedMs = 0;
+    this._modal.open(PANEL_IN_MS);
   }
 
   /** Begin the exit animation. Taps stop resolving immediately. */
   close(): void {
-    if (this._state === 'open') {
-      this._state = 'closing';
-      this._elapsedMs = 0;
-    }
+    this._modal.close(PANEL_OUT_MS);
   }
 
   /** Force-hide (e.g. dispose). */
   reset(): void {
-    this._state = 'hidden';
-    this._elapsedMs = 0;
+    this._modal.reset();
   }
 
   update(dtMs: number): void {
-    if (this._state === 'hidden') return;
-    this._elapsedMs += Math.max(0, dtMs);
-    if (this._state === 'closing' && this._elapsedMs >= PANEL_OUT_MS) {
-      this._state = 'hidden';
-      this._elapsedMs = 0;
-    }
+    this._modal.update(dtMs);
   }
 
   /** True while anything is drawn (including the exit fade). */
   get visible(): boolean {
-    return this._state !== 'hidden';
+    return this._modal.phase !== 'closed';
   }
 
-  /** True only while the panel accepts taps. */
+  /**
+   * True while the panel accepts taps — **including the entrance ramp**
+   * (旧实现 open() 即进入可点态；关合期仍零响应，§8-1)。
+   */
   get interactive(): boolean {
-    return this._state === 'open';
+    return this._modal.phase === 'open' || this._modal.phase === 'opening';
   }
 
   /** Animation length budget actually used (ms) — asserted by §8-10. */
   get durationMs(): number {
-    return this._state === 'closing' ? PANEL_OUT_MS : PANEL_IN_MS;
+    return this._modal.phase === 'closing' ? PANEL_OUT_MS : PANEL_IN_MS;
   }
 
   /**
@@ -266,9 +263,7 @@ export class PausePanel {
    * (no flicker: a single ramp, never an oscillation — ux-spec §5 red line).
    */
   get progress(): number {
-    if (this._state === 'open') return Math.min(1, this._elapsedMs / PANEL_IN_MS);
-    if (this._state === 'closing') return Math.max(0, 1 - this._elapsedMs / PANEL_OUT_MS);
-    return 0;
+    return this._modal.progress;
   }
 
   /**

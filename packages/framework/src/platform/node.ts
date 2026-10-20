@@ -23,6 +23,7 @@ export class NodePlatform extends BasePlatform {
     safeAreaTop: 0,
     safeAreaBottom: 0,
     capsuleBottomDp: null,
+    capsuleRectDp: null,
   };
 
   private _pending: ((dtMs: number) => void) | null = null;

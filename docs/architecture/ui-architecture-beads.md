@@ -1,6 +1,6 @@
 # beads UI 架构（View / ViewModel / Presenter + 公共基础）
 
-> 状态：**Proposed**（2026-10-19，待裁定 [ADR-0032](adr/ADR-0032-beads-ui-architecture.md) §5 的五个决策点）。
+> 状态：**Accepted**（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-architecture.md) §5 的 D1–D5 已裁定）。
 > **本文零代码、零常量改动**；现状证据与取舍见 ADR-0032，本文给落地设计、迁移顺序和 TODO。行号均为 2026-10-19 快照。
 > 本文用到的「界面单元」= 一个页面或一个弹窗。
 
@@ -43,7 +43,7 @@
 |---|---|---|
 | **UiTheme** | 风格令牌唯一出处：遮罩（色、α，保留「菜单档 / 对局档」两个**档名**，D3）、纸面板（圆角、投影、描边）、字体、按下位移 | 两处遮罩字面量；两个 `pressDy` |
 | **ScreenFrame** | 页面基础：背景、按安全区切分的三个区（顶栏 / 内容 / 底部）、调试层挂点 | 菜单锚定几何与对局常量两套来源 |
-| **NavBar** | 导航栏组件：返回键、标题、右侧槽；**自动避让胶囊**，不允许控件落进胶囊矩形 | 各处手算 `CAPSULE_AVOID` |
+| **NavBar** | 导航栏组件：标题、右侧槽，**返回键可选**（选关页只用标题，返回由底部 `back` 提供）；**自动避让胶囊**，不允许控件落进胶囊矩形 | 各处手算 `CAPSULE_AVOID` |
 | **ModalFrame** | 弹窗基础：遮罩 + 纸面板 + 标题带 + 进出场（缩放与透明度随 `ModalLifecycle` 进度）+ **点击屏障**（遮罩及面板外全部吞掉，策略 `dismissOnScrim` 默认关，保持暂停面板「其余零响应」口径）+ 内容区插槽 | 四个结算 / 暂停面板各自的遮罩、面板、动画、屏障 |
 | **通用控件** | `WoodButton`（合并 `drawWoodButton` 与 `drawButton`）、`PaperPanel`、`Chip`、`StarRow`、`ToggleRow`、`SelectorRow`、`ResourceBar` | 控件重复实现 |
 | **DebugLayer** | 挂在**所有路由之上**：性能覆层（帧率 / 帧耗时，半透明窄面板，禁用全屏 α——保持「面板开合不丢帧样本」的测量口径）、安全区标定线；读取统一的调试开关状态。性能采样上移到 UI 根，菜单与弹窗里同样可看 | 性能覆层仅对局有；两份标定线 |
@@ -53,7 +53,7 @@
 
 三件契约：
 
-- **ViewModel**：只含展示所需字段；由 Presenter 或宿主**每帧写入同一个预分配对象**，View 侧类型为只读；**不得**含可被 View 回写的权威状态。
+- **ViewModel**：只含展示所需字段；View 侧类型为只读；**不得**含可被 View 回写的权威状态。按变化频率分两级（D2）：**持续型**（对局页、主界面、选关页、设置、暂停：数据每帧都可能变）由 Presenter 或宿主**每帧写入同一个预分配对象**，复用逻辑由公共基础提供；**快照型**（过关、失败、冲刺结算、全通关：打开时数据即定）**打开时新建一次、之后只读**，每帧不分配，也不套复用机制。
 - **View**：`(builder, viewModel, theme, insets, 进度)` → 画。纯函数，无副作用，无状态，**不得读取游戏对象**，**不得出现 `overlay ===` / `phase ===` 这类导航判断**。
 - **Presenter**：① 布局（纯函数，按安全区缓存，**绘制与命中共用同一份**——现有 `pausePanelLayout` 的原则，升为强制）；② 命中（经 `PressTracker`）；③ 产出 `UiIntent` 交给宿主。允许持有的**界面本地状态**仅限：按下目标、弹窗进度、走马灯偏移与翻页动画这类纯展示状态（现在放在 shell：`_carouselOffset` 等）；⛔ 不得持有任何玩法数据。
 
@@ -61,9 +61,9 @@
 
 | 单元 | 类型 | 现落点 | 主要意图 |
 |---|---|---|---|
-| MainMenuPage 主界面 | 页 | `meta-view.ts` 菜单绘制 + shell 菜单输入 | 开始、开选关 / 设置 / 签到、翻页 |
+| MainMenuPage 主界面 | 页 | `meta-view.ts` 菜单绘制 + shell 菜单输入 | 开始、开选关页 / 设置 / 签到、翻页 |
 | PlayPage 对局页 | 页 | `buildBeadsView` 的 HUD、托盘、道具带、缩放控件 | 齿轮、道具卡、托盘槽、展开钮（棋盘手势不在内） |
-| LevelSelectModal 选关 | 弹窗 | `meta-view` 的 `levels` overlay | 选关、返回 |
+| LevelSelectPage 选关（D5：整页，版式见 [确认单](../../games/beads/design/ux/level-select-page-layout.md)） | 页 | `meta-view` 的 `levels` overlay | 选关、返回（底部 `back`） |
 | SettingsModal 设置 | 弹窗 | `meta-view` 的 `settings` overlay | 各开关、选择器、在线导入、返回 |
 | SigninModal 签到 | 弹窗 | `meta-view` 的 `signin` overlay | 领取、返回 |
 | PauseModal 暂停 | 弹窗 | `drawPausePanel` + [`pause-panel.ts`](../../games/beads/src/systems/pause-panel.ts) | 继续、重玩、回主菜单，内嵌 `SettingsContent` |
@@ -87,7 +87,7 @@
 packages/framework/src/core/ui/        navigator · modal-lifecycle · press-tracker · safe-insets
 games/beads/src/ui/
   kit/        theme · screen-frame · nav-bar · modal-frame · widgets/ · debug-layer · settings-content
-  screens/    main-menu/ · play/ · level-select/ · settings/ · signin/ · pause/ · result-clear/ ·
+  screens/    main-menu/ · play/ · level-select/（页） · settings/ · signin/ · pause/ · result-clear/ ·
               result-fail/ · sprint-settle/ · finish/        （每个含 view · view-model · presenter）
   ui-root · ui-host · phase-route-binder
 ```
@@ -109,7 +109,7 @@ games/beads/src/ui/
 
 1. 先建**金样本**：对每个界面在关键状态下抓取现行 RenderModel 指令序列，作为回归门。
 2. 先建框架机制层与风格层，`UiRoot` 与旧链**并行挂接**（开关，默认走旧路径），可随时回退。
-3. **先弹窗后页面、先易后难**：设置 → 暂停 → 签到 → 四个结算 → 选关 → 主界面 → 对局页。
+3. **先弹窗后页面、先易后难**：设置 → 暂停 → 签到 → 四个结算 → 选关页 → 主界面 → 对局页。
 4. 每迁一个：金样本逐条对拍，**不得有无登记的差异**；旧入口 `buildBeadsView` / `buildMetaView` 保留为门面，直到最后一批才拆。
 5. 有意的视觉统一（如两种遮罩合一）**不夹带**，另开 UX 裁定。
 
@@ -123,7 +123,7 @@ games/beads/src/ui/
 
 | 风险 / 前置 | 应对 |
 |---|---|
-| **他会话在途改动**：`meta-view.ts`、`view-model.ts`、`beads-shell.ts`、`ux-spec.md` 现为未提交状态（含走马灯边界与抬起提交批） | **开工前先让这些改动落地**（UI-00）；否则迁移与它们冲突 |
+| ~~他会话在途改动~~（`meta-view.ts`、`view-model.ts`、`beads-shell.ts`、`ux-spec.md`）| **已解除（UI-00，2026-10-20）**：随提交 `bd964a0` 入库，四文件工作区干净；HEAD 实测 `tsc` 退出 0、测试 1046 通过、Cocos 镜像一致。注意该提交是混合提交（见 UI-00 备注），金样本（UI-02）以它为基线 |
 | 现有测试直接依赖 `buildBeadsView` / `buildMetaView` / shell 内部访问器 | 门面保留到最后一批；测试随单元迁移逐步改指新入口 |
 | 对局侧仍读冻结常量，菜单读平台实测 | 第一阶段并存（D4）；并入走 `§3` 变更单并登记漂移 |
 | Cocos 镜像新增约 30 个文件，需编辑器生成 `.meta` | 集中在 UI-14 / UI-50 两个批次，提示用户开编辑器刷新 |
@@ -135,30 +135,31 @@ games/beads/src/ui/
 
 | 阶段 | 编号 | 任务 | 规模 | 依赖 | 验收 | 角色 |
 |---|---|---|---|---|---|---|
-| P0 准备 | UI-00 | 让他会话在途改动落地（用户提交或明确搁置） | S | — | 相关文件工作区干净 | 用户 |
-| | UI-01 | 评审并裁定 ADR-0032 §5 的 D1–D5，ADR 状态改 Accepted | S | — | ADR 头部状态更新 | 工程负责人 |
-| | UI-02 | 建金样本：每界面 × 关键状态抓取现行 RenderModel 指令序列 | M | UI-00 | 覆盖十个单元；对拍工具可重复运行 | 质量负责人 |
-| P1 机制层 | UI-10 | Navigator（基于 SceneStack，页 / 弹窗类型、输入屏障、可见集） | M | UI-01 | 单测覆盖 push / pop / replace / reset 与屏障 | 工程负责人 |
-| | UI-11 | ModalLifecycle（四态 + 进度，`dt` 驱动） | S | UI-01 | 单测覆盖开合与中途反转 | 工程负责人 |
-| | UI-12 | PressTracker，对照 `input-control` v2.13 判据 | S | UI-01 | 单测覆盖移出取消、同帧即时点击 | 工程负责人 |
-| | UI-13 | SafeInsets 类型与求值函数；`PlatformInfo` 补胶囊完整矩形（weapp / web / node） | M | UI-01 | 三适配器单测；无胶囊时为空而非 0 | 工程负责人 |
-| | UI-14 | `core/ui` 导出、L2 守卫、Cocos 镜像同步 | S | UI-10…13 | `check:arch`、`framework:sync:check` 绿 | 工程负责人 |
-| P2 风格层 | UI-20 | UiTheme：收拢遮罩（保留双档名）、纸面板、字体、按下位移 | M | UI-14 | 金样本中两种遮罩逐字一致 | 工程负责人 |
-| | UI-21 | 通用控件（WoodButton 等），合并两套按钮绘制 | M | UI-20 | 按钮金样本对拍一致 | 工程负责人 |
-| | UI-22 | ModalFrame（遮罩、面板、标题带、进出场、屏障、内容插槽） | M | UI-11, UI-20 | 屏障单测；进出场与现行逐帧一致 | 工程负责人 |
-| | UI-23 | ScreenFrame + NavBar（安全区分区、胶囊避让） | M | UI-13, UI-20 | 注入胶囊矩形时控件不入矩形 | 工程负责人 |
-| | UI-24 | DebugLayer（性能覆层、标定线、调试开关状态）与 SettingsContent 的调试分区；性能采样上移 | M | UI-20 | 菜单与弹窗内可见性能信息；对局金样本不变 | 工程负责人 |
-| | UI-25 | UiRoot 组合根与 UiHost 接口，与旧链并行挂接（开关） | L | UI-10, UI-22…24 | 开关关闭时全仓测试与改动前一致 | 工程负责人 |
-| P3 弹窗 | UI-30 | SettingsModal + 共享 SettingsContent | M | UI-25 | 金样本对拍；全部动作可达 | 工程负责人 |
-| | UI-31 | PauseModal（复用 SettingsContent，动画改 ModalLifecycle） | M | UI-30 | 暂停相关现有测试全绿 | 工程负责人 |
-| | UI-32 | SigninModal | S | UI-25 | 金样本对拍 | 工程负责人 |
-| | UI-33 | 过关 / 失败 / 冲刺结算 / 全通关四个弹窗（共享结果骨架） | L | UI-25 | 四界面金样本对拍；意图一一对应 | 工程负责人 |
-| | UI-34 | LevelSelectModal（墙格、缩略、星级） | M | UI-25 | 金样本对拍；选关意图正确 | 工程负责人 |
+| P0 准备 | UI-00 ✅ | 让他会话在途改动落地。**已完成（2026-10-20 核实）**：四文件已随 `bd964a0` 入库、工作区干净 | S | — | 相关文件工作区干净 ✔ | 用户 |
+| | UI-01 ✅ | 评审并裁定 ADR-0032 §5 的 D1–D5，ADR 状态改 Accepted（2026-10-20 已 Accepted） | S | — | ADR 头部状态更新 | 工程负责人 |
+| | UI-02 ✅ | 建金样本：每界面 × 关键状态抓取现行 RenderModel 指令序列（2026-10-20 随 WXG-T-298 落：`tests/ui-golden-{scenes,capture,test}.ts` + 十态封箱夹具；复取可重复、只读对拍进全量） | M | UI-00 | 覆盖十个单元；对拍工具可重复运行 | 质量负责人 |
+| P1 机制层 | UI-10 ✅ | Navigator（基于 SceneStack，页 / 弹窗类型、输入屏障、可见集） | M | UI-01 | 单测覆盖 push / pop / replace / reset 与屏障 | 工程负责人 |
+| | UI-11 ✅ | ModalLifecycle（四态 + 进度，`dt` 驱动） | S | UI-01 | 单测覆盖开合与中途反转 | 工程负责人 |
+| | UI-12 ✅ | PressTracker，对照 `input-control` v2.13 判据 | S | UI-01 | 单测覆盖移出取消、同帧即时点击 | 工程负责人 |
+| | UI-13 ✅ | SafeInsets 类型与求值函数；`PlatformInfo` 补胶囊完整矩形（weapp / web / node） | M | UI-01 | 三适配器单测；无胶囊时为空而非 0 | 工程负责人 |
+| | UI-14 ✅ | `core/ui` 导出、L2 守卫、Cocos 镜像同步（UI-10…13 已随 WXG-T-296 / 297 全量闭环） | S | UI-10…13 | `check:arch`、`framework:sync:check` 绿 | 工程负责人 |
+| P2 风格层 | UI-20 ✅ | UiTheme：收拢遮罩（保留双档名）、纸面板、字体、按下位移（`src/view/ui-theme.ts`；WXG-T-299，十态 sha 零差异） | M | UI-14 | 金样本中两种遮罩逐字一致 | 工程负责人 |
+| | UI-21 ✅ | 通用控件（WoodButton 等），合并两套按钮绘制（2026-10-20 随 WXG-T-301 落：`view/ui-widgets.ts` 单入口四族 wood / accent / ghost / paper；金样本十态零差异 + 6 例分支单测） | M | UI-20 | 按钮金样本对拍一致 | 工程负责人 |
+| | UI-22 ✅ | ModalFrame（遮罩、面板、标题带、进出场、屏障、内容插槽） | M | UI-11, UI-20 | 屏障单测；进出场与现行逐帧一致（2026-10-20 随 WXG-T-300 落：`view/modal-frame.ts` + 7 例；旧算式逐帧位级 oracle + 金样本十态零差异） | 工程负责人 |
+| | UI-23 ✅ | ScreenFrame + NavBar（安全区分区、胶囊避让）（2026-10-20 随 WXG-T-302 落：`view/ui-frame.ts` 纯布局；胶囊左/右/横跨三态避让 + 8 例注入胶囊矩形单测；迁移期不接线、画面零改） | M | UI-13, UI-20 | 注入胶囊矩形时控件不入矩形 | 工程负责人 |
+| | UI-24 ✅ | DebugLayer（性能覆层、标定线、调试开关状态）与 SettingsContent 的调试分区；性能采样上移（2026-10-20 随 WXG-T-303 落：`view/debug-layer.ts`；覆层挂 shell 两腿末尾、标定线搬入同源、菜单腿补采样；菜单帧开 debug 即出现 fps、金样本十态零差异。⚠ 「SettingsContent 调试分区」留 UI-30） | M | UI-20 | 菜单与弹窗内可见性能信息；对局金样本不变 | 工程负责人 |
+| | UI-25 ✅ | UiRoot 组合根与 UiHost 接口，与旧链并行挂接（开关）（2026-10-20 随 WXG-T-304 落：`src/ui/ui-root.ts` + `ui-host.ts`；Navigator 可见集自下而上 + DebugLayer 最后；`debugState` 文案单源；开关默认关 ⇒ 旧链逐字不变、金样本 11 例零差异、beads 1091 绿） | L | UI-10, UI-22…24 | 开关关闭时全仓测试与改动前一致 | 工程负责人 |
+| P3 弹窗 / 选关页 | UI-30 ✅ | SettingsModal + 共享 SettingsContent（2026-10-20 随 WXG-T-305 落：`view/settings-content.ts` —— 10 钮 5×2 布局 / 档位文案 / 按钮绘制三件单源，暂停面板 `panelLabel` 共用同一文案函数；金样本 11 例零差异 + 逐钮中心命中 5 例。⚠ 弹窗 chrome（遮罩 / 纸面板 / 标题 / 返回 / 在线导入）仍住 `meta-view`，调试分区未加视觉分隔 —— 均待 UI-31 / 视觉裁定） | M | UI-25 | 金样本对拍；全部动作可达 | 工程负责人 |
+| | UI-31 ✅ | PauseModal（复用 SettingsContent，动画改 ModalLifecycle）（2026-10-20 随 WXG-T-306 落：`systems/pause-panel.ts` 自持动画时钟退役、改由框架 `ModalLifecycle` 驱动（入场合可点 / 关合零响应 / `reset()` 硬收，时长仍由本模块传入）；设置钮绘制收口 `view/settings-content.ts::drawPauseSettingButton`（chip / 纸钮 / 小字档 / 文案单源），非设置钮就地保留；布局与命中纯函数按 §8 就地未动。✅ 暂停 14 例 + 金样本 11 例零差异 + 新增 4 例 | M | UI-30 | 暂停相关现有测试全绿 | 工程负责人 |
+| | UI-32 ✅ | SigninModal（2026-10-20 随 WXG-T-308 落：新建 `view/signin-content.ts` —— 标题「七日签到」/ 7 格 4+3 版式 / 已领·今日·未领三态绘制三件单源；`meta-view` 的 signin 分支改派发，领取/返回与弹窗 chrome 就地未动。⚠ 底板未并入 `ModalFrame`（素面 rect 与纸面板不同形，§9-5 不夹带）、无开合时钟（入口退役 Q5①）⇒ 均待视觉裁定 / 入口恢复；✅ 金样本 signin 态零差异 + 新增 5 例 | S | UI-25 | 金样本对拍 | 工程负责人 |
+| | UI-33 ✅ | 过关 / 失败 / 冲刺结算 / 全通关四个弹窗（共享结果骨架）（2026-10-20 随 WXG-T-307 落：新建 `systems/result-panel.ts::ResultPanelClock` —— 开合改框架 `ModalLifecycle`，`popsShown` / `popScale` 把「星级逐颗」与「通关逐关」同一公式收为一份（步长由调用方传）；`ClearPanel` / `SprintSettlePanel` / `FinishPanel` 自持时钟与重复公式退役、改为委托，布局 / 命中 / 文案按 §8 就地未动；失败面板由相位直接驱动、本无开合时钟。✅ 四界面金样本 11 例零差异 + 三套面板测试全绿 + 新增 5 例 | L | UI-25 | 四界面金样本对拍；意图一一对应 | 工程负责人 |
+| | UI-34a ✅ | 选关整页前置：美术规格回写（版式 P 的格 / 间距 / 网格范围，正本 `menu-wall-signage-spec`）；核对格轮廓对比度、缩略图放大后清晰度；主规格回写（含「注 B」订正）（2026-10-20 随 WXG-T-310 落：美术规格新增 **§3.9**（版面表 + 三项结论）+ §7.3 两条真机项；主规格升 **v1.6**（§3 旧 600×720 线框 → 版式 P 表 / §2 栈深度整页化 / §4 注 B 订正为抬起提交 / §5 页面淡入淡出 / §7 触控 170）；确认单升 **v0.2**（§4.1 六条清零）；分片 §11 追加 v1.6 叙事。三项核对：对比度 slot/bg **1.131**、slotBorder/bg **1.185**（纸面板在时 1.050/1.406）⇒ **接受不改描边**，回退杠杆 `palette.locked` 1.651；缩略 84→134 对 256² 源为下采样（仅 >1433 物理宽上采样 ⇒ `[待真机]`）；星带 28 / 顶内缩 8 **不放大**、增量全给缩略。⚠ 本批零代码（落码 = WXG-T-311）） | M | UI-01 | ✅ 确认单 §4 第 1–6 条清零 | 美术指导 + 设计策略 |
+| | UI-34 ✅ | LevelSelectPage 整页（ScreenFrame + 仅标题 NavBar，从主界面 push 页面路由，无遮罩；**页专用常量，不改 `WALL_CELL`**）。⚠ 版式由弹窗板改整页，**不是零漂移**，验收版式 = [确认单](../../games/beads/design/ux/level-select-page-layout.md) §2（版式 P）（2026-10-20 随 WXG-T-311 落：`tuning.ts` 新增 `LEVELS_*` 九项（格 170 / 距 30 / 缩略 134 / back 240×88@116 / 导航带 1210），`WALL_CELL`/`WALL_CAPACITY`/`THUMB_AREA` 零改动；`levelsLayout` 按版式 P 重算、`buildMetaView` 增整页分支（无遮罩 / 无 600×720 纸面板，仅导航带标题，标题顶缘随 `anchors.btTopY`）；金样本仅 `level-select` 重抓（1423→1421），其余九态逐字不变；新增 6 例。⚠ `meta:overlay` 事件与 `back` 语义未动；UiRoot 页路由与 200/150 转场未接线 ⇒ 归 UI-40/UI-42） | M | UI-23, UI-25, UI-34a | 版式与确认单一致；选关意图正确；底部 `back` 回主界面；抬起才提交且同钮 | 工程负责人 |
 | P4 页面 | UI-40 | MainMenuPage；走马灯状态从 shell 迁入 Presenter | L | UI-30, UI-32, UI-34 | 金样本对拍；走马灯边界行为不变 | 工程负责人 |
-| | UI-41 | PlayPage（HUD、托盘、道具带、缩放控件；棋盘手势不动） | L | UI-31, UI-33 | 对局金样本对拍；棋盘输入测试全绿 | 工程负责人 |
+| | UI-41 ✅ | PlayPage（HUD、托盘、道具带、缩放控件；棋盘手势不动）（2026-10-20 随 WXG-T-309 落：新建 `view/play-page.ts::drawPlayPage` —— 伪震屏/底色/HUD/棋盘绘制/缩放/托盘/展开钮/道具带/扫光/连击整段逐字搬入，`drawGear` 随迁并导出；`starPoints`/`arcPoints` 独立成 `view/shape-utils.ts`；`bodyFont`/`formatTime` 上移 `ui-theme.ts`、`drawDashedRect` 上移 `ui-widgets.ts`；`buildBeadsView` 保留为唯一门面（`drawPlayPage` + 彩带 MAIN → 五面板 → 彩带 FG → 横幅），2156 → 656 行。⚠ 单文件 1467 行是「先搬后拆」中间态、Presenter/UiRoot 路由未接线（`UI_ROOT_ENABLED` 默认关）；棋盘手势与命中未动。✅ 对局金样本 11 例零差异 + 新增 3 例（前缀等价 / 绘制命中同源 / 静态门） | L | UI-31, UI-33 | 对局金样本对拍；棋盘输入测试全绿 | 工程负责人 |
 | | UI-42 | PhaseRouteBinder：相位 → 路由，取代 shell 标志位与 PanelRouter / HudRouter 的弹窗分支 | M | UI-40, UI-41 | `_screen` / `_overlay` 删除后全仓测试绿 | 工程负责人 |
 | P5 收口 | UI-50 | 拆旧入口（门面、重复遮罩 / 按钮 / 标定线实现），Cocos 镜像同步并提示生成 `.meta` | M | UI-42 | 无重复实现残留；`framework:sync:check` 绿 | 工程负责人 |
-| | UI-51 | 文档回写：`architecture-beads` §3 目录、`ux-spec` 界面到路由表、`control-manifest` 新节、`ctx/ROUTES` | S | UI-50 | `check:links`、`ctx:check` 绿 | 设计策略 + 工程负责人 |
+| | UI-51 | 文档回写：`architecture-beads` §3 目录、`ux-spec` 与 `arc-level-select-spec` 的界面到路由表、`control-manifest` 新节、`ctx/ROUTES` | S | UI-50 | `check:links`、`ctx:check` 绿 | 设计策略 + 工程负责人 |
 | | UI-52 | `check:arch` 新增 §8 五条守则的机械检查 | M | UI-50 | 故意违规用例能被拦下 | 工程负责人 |
 | | UI-53 | 全量 `verify` 与 harness 验收；真机安全区项登记为 `[R]` 阻塞 | M | UI-50…52 | `verify` 全绿；真机项有明确阻塞说明 | 质量负责人 |
 
@@ -166,4 +167,4 @@ games/beads/src/ui/
 
 ## 13. 待你拍板
 
-见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architecture.md)：D2（ViewModel 复用对象）、D3（遮罩保留双档名）、D4（常量并入时机）、D5（选关弹窗 / 整页）；D1 已选两层。最先要定的是 **UI-00**：他会话在途改动由谁、何时落地。
+D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architecture.md)）：两层 / 分级复用 / 遮罩保留双档名 / 常量第一阶段并存 / 选关整页；选关整页版式已裁为**版式 P**（[确认单](../../games/beads/design/ux/level-select-page-layout.md)）。UI-00 已完成。**UI-34a 六项待核已于 2026-10-20（WXG-T-310）清零**（确认单 v0.2 §4.1）；**UI-34 落码已于 2026-10-20（WXG-T-311）完成**；剩余待定：UI-40 MainMenuPage（并一并接线 UiRoot 页面路由与 200/150 转场）。

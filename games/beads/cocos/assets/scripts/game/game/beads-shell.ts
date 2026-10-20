@@ -67,6 +67,8 @@ import { DEFAULT_SKIN_ID } from '../config/skins/registry';
 import type { BeadsPalette } from '../view/palette';
 import type { PausePanelAction } from '../systems/pause-panel';
 import { importLatest, type HttpGet } from './level-import';
+import { UI_ROOT_ENABLED, UiRoot } from '../ui/ui-root';
+import type { UiDebugState } from '../ui/ui-host';
 
 export type ShellScreen = 'play' | 'menu';
 
@@ -222,6 +224,10 @@ export class BeadsShell implements Game {
     private _refillPending = false;
     /** 广告订阅退订器（`init` 登记、`dispose` 释放）。 */
     private readonly _adOffs: Array<() => void> = [];
+    /** UI-25：UiRoot 的调试投影复用对象（与 `BeadsGame.debugState` 同口径）。 */
+    private readonly _uiDebug: UiDebugState = { enabled: false, frameMs: 0, phase: '', level: '', detail: '' };
+    /** UI-25：组合根（开关关闭时不参与绘制/推进）。 */
+    private readonly _uiRoot: UiRoot;
 
     constructor(options: BeadsShellOptions) {
         this._clock = options.clock;
@@ -240,6 +246,13 @@ export class BeadsShell implements Game {
             canStartRun: () => (this.meta ? this.meta.spendStamina(STAMINA_START_COST) : true),
             // 体力回满激励位发奖（§3.11 第二 live 位）：回满至 STAMINA_MAX，随后 play 重放 run-start。
             onStaminaRefill: () => this.meta?.refillStamina(),
+        });
+        // UI-25：宿主只提供调试投影（L5）；意图面随 P3 Presenter 落地。
+        this._uiRoot = new UiRoot({
+            debugState: () => {
+                this.play.debugState(this._uiDebug, this._screen !== 'play');
+                return this._uiDebug;
+            },
         });
     }
 
@@ -310,11 +323,15 @@ export class BeadsShell implements Game {
     }
 
     update(dt: number): void {
+        // UI-25：开关打开才推进路由栈（关闭 = 旧链，零额外工作）。
+        if (UI_ROOT_ENABLED) this._uiRoot.update(dt);
         if (this._screen === 'play') {
             this._menuPress = null; // 进玩法后不得残留菜单按压（否则回菜单时会补发一次 phantom tap）
-            this.play.update(dt);
+            this.play.update(dt); // 对局腿的采样在 `sampleFrame` 内（game.update 开头）
             return;
         }
+        // UI-24：菜单腿不跑 play.update ⇒ 采样单独喂（debugInfo 关时内部零开销）。
+        this.play.sampleFrame(dt);
         // 菜单：推进体力恢复（离线 f(Δt)）+ 读点击。play 冻结（不 update ⇒ 倒计时不走）。
         this.meta?.refresh();
         this._readMenuInput();
@@ -324,11 +341,25 @@ export class BeadsShell implements Game {
     buildRenderModel(builder: RenderModelBuilder): void {
         if (this._screen === 'play') {
             this.play.buildRenderModel(builder);
+            this._drawDebugLayer(builder, false);
             return;
         }
         // EP12-S8：菜单侧消费 `play.palette`（换肤后菜单下一帧同步生效）⇒ 换肤「双面」
         // 的游戏内侧在两屏一致；`this.palette`（构造期选项）保留为兼容字段不再消费。
         buildMetaView(builder, this._metaViewData(), this.play.palette);
+        this._drawDebugLayer(builder, true);
+    }
+
+    /**
+     * UI-25：调试层出口。关闭（默认）= UI-24 旧链直调，逐字不变；
+     * 打开 = `UiRoot` 接管（可见路由自下而上 + 调试层），内容仍由旧链画。
+     */
+    private _drawDebugLayer(builder: RenderModelBuilder, onMenu: boolean): void {
+        if (!UI_ROOT_ENABLED) {
+            this.play.drawDebugLayer(builder, onMenu);
+            return;
+        }
+        this._uiRoot.draw(builder, this.play.palette);
     }
 
     onPause(): void {

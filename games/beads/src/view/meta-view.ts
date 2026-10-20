@@ -19,7 +19,7 @@
  * `buildRenderModel()` 的盘面/托盘命令流（S0 硬约束⑤ / L5），口径见 `menu-signage.ts` 文件头。
  *
  * Geometry is 派生 (batch-0 functional layout + menu-architecture 线框实测回填; 参考图精修
- * 归后续批次), mirrored constants live in `tuning.ts`（`MENU_*` / `WALL_*` / `SIGN_*` / `THUMB_*` 四组）。
+ * 归后续批次), mirrored constants live in `tuning.ts`（`MENU_*` / `WALL_*` / `LEVELS_*` / `SIGN_*` / `THUMB_*` 五组）。
  */
 
 import {
@@ -49,7 +49,6 @@ import {
     MENU_CTA_PRESSED_D,
     MENU_CTA_SLICE,
     MENU_CTA_SRC_H,
-    UI_PRESS_SINK,
     MENU_BOSS_ART_D,
     MENU_DONE_ICON,
     MENU_LOCK_D,
@@ -64,43 +63,57 @@ import {
     MENU_TOPBAR_RESERVED_ALPHA,
     MENU_TOPBAR_VISUAL_D,
     MENU_TOPBAR_X,
-    SETTINGS_SCRIM_ALPHA,
-    SIGNIN_REWARDS,
     SIGN_BEAD_PITCH,
     SIGN_MATRIX_N,
-    BEAD_SIZE_LABELS,
-    THUMB_AREA,
+    LEVELS_BACK_BOTTOM,
+    LEVELS_BACK_W,
+    LEVELS_CELL,
+    LEVELS_GAP,
+    LEVELS_GRID_LEFT,
+    LEVELS_GRID_TOP,
+    LEVELS_NAV_H,
+    LEVELS_NAV_TOP,
+    LEVELS_THUMB_AREA,
     THUMB_MATRIX_N,
     THUMB_STAR_BAND,
     TOUCH_MIN,
     UI_CONTAINER,
-    WALL_CELL,
     WALL_COLS,
-    WALL_GAP,
     WALL_ROWS,
     WALL_SLOT_DASH,
     WALL_SLOT_DASH_GAP,
-    beadStyleLabel,
     menuAnchors,
 } from '../config/tuning.js';
 // EP12-S6 · P-7：屏内文案一律读表（`tokens.md §7` / `menu-architecture §6`），⛔ 不散落字面。
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
-// EP12-S8：皮肤钮文案单源（`skinLabel` 未注册时回 id 本身，同 `beadStyleLabel` 判例）。
-import { skinLabel } from '../config/skins/registry.js';
 // `[WXG-T-280]` CTA 九宫格效果键的唯一构造入口（core 只定义键名，消费在两侧 adapter）。
 import { nineSliceFx, type RenderModelBuilder } from '@wxgame/framework';
 import { beadFadedInksFor, type BeadsPalette } from './palette.js';
-import type { SigninReward } from '../game/meta-state.js';
 import type { BeadSizeKind } from '../config/tuning.js';
 // EP12-S6 · T-2B：珠拼图元（招牌 `beadText` + 作品格缩略）的装配入口。本文件只**调用**，
 // ⛔ 不在此处复算位表/聚合口径（真源各住 `config/sign-glyphs.ts` 与 `view/menu-signage.ts`）。
 import { drawBeadText, drawLevelThumb, resetSignageWarnings } from './menu-signage.js';
 // 顶栏设置钮的齿轮图元 = 对局页 HUD 齿轮**同一程序化画法**（§5.1b 收口 ③：两处**入口语义**不合并，
 // 但画法不得各信一份 ⇒ 图元函数复用，零新美术）。
-import { drawGear, drawSafeGuideLines } from './view-model.js';
+import { drawGear } from './play-page.js';
+import { drawSafeGuideLines } from './debug-layer.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
+import {
+    UI_FONT,
+    UI_SCRIM,
+    pressOffset,
+    scrimFill,
+} from './ui-theme.js';
+import { drawButton } from './ui-widgets.js';
+import {
+    drawSettingsContent,
+    isSettingsAction,
+    settingsContentButtons,
+    settingsContentLabel,
+} from './settings-content.js';
+import { SIGNIN_TITLE, drawSigninContent, signinCellLayout } from './signin-content.js';
 
 export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels';
 
@@ -304,20 +317,12 @@ const _layouts = new Map<MetaOverlay, MetaLayout>();
  */
 const _layoutsByRows = new Map<MetaOverlay, Map<number, MetaLayout>>();
 
-const FONT_TITLE = '64px sans-serif';
-const FONT_BUTTON = '30px sans-serif';
-// ⚠ 旧 `FONT_SMALL`（24px）已于第十一批随 L4 门楣牌改写退场：该档**低于 accessibility E1 地板 28**
-//   ⇒ 零消费者后直接删（`noUnusedLocals` 在册）；要更小字号请先解 E1 约束。
-const FONT_CELL = '22px sans-serif';
-/** `tokens.md §5` `font_label` = 28（slogan / 版本号；字族归 T-2B 美术，本批系统字体占位）。 */
-const FONT_LABEL = '28px sans-serif';
-
-/** Panel plate shared by all overlays (centred, below the capsule-avoid band). */
+/** 弹窗纸面板宽高（`signin` / `settings` 共用；`levels` 自 ADR-0032 D5 起是**整页**，不走纸面板）。 */
 const OVERLAY_W = 600;
 const OVERLAY_H = 720;
 
 /**
- * overlay 面板底板（各 overlay 同一块）。**模块级一次算定**：`buildMetaView` 每帧调用 ⇒
+ * 弹窗面板底板（`signin` / `settings` 同一块）。**模块级一次算定**：`buildMetaView` 每帧调用 ⇒
  * 旧 `overlayPlate()` 每帧新建一个 Box 对象，属 `control-manifest §2` 热路径分配，就此收敛。
  */
 const OVERLAY_PLATE: Box = box(
@@ -326,11 +331,6 @@ const OVERLAY_PLATE: Box = box(
     OVERLAY_W,
     OVERLAY_H,
 );
-
-// ── 作品墙网格几何（`levels` overlay 仍用；主菜单已改为走马灯小卡 ⇒ 框带常量退场）。
-//    全部由 `WALL_*` 常量派生，模块级一次算定 ⇒ 每帧只读引用，零分配。数值真源见 `tuning.ts` 本组注释。
-/** 网格总宽 = `4×120 + 3×22` = 546（= 旧 `levelsLayout()` 内同值算式）。 */
-const WALL_GRID_W = WALL_COLS * WALL_CELL + (WALL_COLS - 1) * WALL_GAP;
 // ── 走马灯小卡（menu-architecture §1.3 第五轮终裁：主菜单主区 = 单卡进度展示，卡 = 唯一选关入口）。
 //    几何由 {@link anchoredGeo} 逐机算定（`bossBox` 图位 ⇒ `[WXG-T-281]` 旧白卡退场）⇒ 静态档 `CAROUSEL_BOX` 已随锚定档退场。
 /** 星级_label 查表（取代旧每帧 `'★'.repeat(n)+'☆'.repeat(3-n)` ⇒ 逐字同串、每帧零字符串分配）。 */
@@ -341,15 +341,15 @@ const TOPBAR_RESERVED_X: readonly number[] = [MENU_TOPBAR_X.notice, MENU_TOPBAR_
 const TOPBAR_RESERVED_ICON: readonly string[] = [MENU_TEXTURES.iconSound, MENU_TEXTURES.iconMail];
 
 /**
- * 生成 `WALL_CAPACITY`（3×3 = 9）个作品格热区。只带**槽位**——关索引由 shell 的
- * `wallSlots` 映射解析 ⇒ 视图侧无从「按槽当关」。
+ * 生成 `WALL_COLS × rows` 个作品格热区（选关**整页**，版式 P：格 `LEVELS_CELL` / 间距 `LEVELS_GAP`）。
+ * 只带**槽位**——关索引由 shell 的 `wallSlots` 映射解析 ⇒ 视图侧无从「按槽当关」。
  *
  * 坐标口径（本设计空间 **y 向上**、`box.y` = 下缘）：`topY` = 网格**上沿**（第 1 行格的上边），
- * 第 r 行格下缘 = `topY − WALL_CELL − r×(WALL_CELL+WALL_GAP)` ⇒ 整墙占
- * `[topY − WALL_GRID_H, topY]`（404 高），与 `tuning::WALL_GRID_TOP` 注的框带派生算式一致。
+ * 第 r 行格下缘 = `topY − LEVELS_CELL − r×(LEVELS_CELL+LEVELS_GAP)` ⇒ 整墙占
+ * `[topY − 570, topY]`（3 行 ⇒ 570 高，= 确认单 §2 的 y∈[252,822]）。
  *
  * `rows`（缺省 `WALL_ROWS`）= K-6 差分腿的陈列行数（回退序 1「格 3→2 行」）⇒ 槽数 `WALL_COLS × rows`，
- * 列几何与行序**逐字不变**（只是少画一行）；默认档 = `WALL_CAPACITY`（3×3 = 9，EP13-FU-1 由 4 列收到 3 列），与本参引入前一致。
+ * 列几何与行序**逐字不变**（只是少画一行）；默认档 = `WALL_CAPACITY`（3×3 = 9）。
  */
 function pushWallCells(buttons: MetaButton[], startX: number, topY: number, rows: number): void {
     const capacity = WALL_COLS * rows;
@@ -360,46 +360,37 @@ function pushWallCells(buttons: MetaButton[], startX: number, topY: number, rows
             id: 'pick-level',
             slot,
             box: box(
-                startX + col * (WALL_CELL + WALL_GAP),
-                topY - WALL_CELL - row * (WALL_CELL + WALL_GAP),
-                WALL_CELL,
-                WALL_CELL,
+                startX + col * (LEVELS_CELL + LEVELS_GAP),
+                topY - LEVELS_CELL - row * (LEVELS_CELL + LEVELS_GAP),
+                LEVELS_CELL,
+                LEVELS_CELL,
             ),
         });
     }
 }
 
 /**
- * 选关 overlay：与主菜单作品墙**同一组几何、同一 `slot` 口径**（陈列序单源 ⇒ 两屏永不各排一份）。
- * Q5① 后**无菜单入口**，代码与 overlay 保留不删（`levels` 态仍可由宿主/测试驱动）。
+ * 选关**整页**（ADR-0032 D5 / 版式 P）：格墙直接落不透明页底 ⇒ ⛔ 无遮罩、无纸面板。
+ * 版面数值唯一真源 = `design/ux/level-select-page-layout.md` v0.3 §2；页专用常量 = `tuning::LEVELS_*`
+ * （⛔ 不改共享 `WALL_CELL` / `WALL_CAPACITY`；缩略 134 走 `drawLevelThumb` 既有 `area` 入参）。
+ * 入口仍由 shell 的 `levels` 态驱动（UiRoot 页面路由接线归 UI-40 / UI-42，本批不改路由语义）。
  */
 function levelsLayout(rows: number): MetaLayout {
-    const plate = OVERLAY_PLATE;
     const buttons: MetaButton[] = [];
-    pushWallCells(buttons, plate.x + (plate.w - WALL_GRID_W) / 2, plate.y + plate.h - 170, rows);
-    // 返回
-    const backW = 240;
-    buttons.push({ id: 'back', box: box(plate.x + (plate.w - backW) / 2, plate.y + 50, backW, TOUCH_MIN) });
+    pushWallCells(buttons, LEVELS_GRID_LEFT, LEVELS_GRID_TOP, rows);
+    // 返回（导航栏只放标题 ⇒ 返回仍走底部 `back`，240×88）
+    buttons.push({
+        id: 'back',
+        box: box((DESIGN_W - LEVELS_BACK_W) / 2, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, TOUCH_MIN),
+    });
     return { buttons, signinCells: [] };
 }
 
 function signinLayout(): MetaLayout {
     const plate = OVERLAY_PLATE;
     const buttons: MetaButton[] = [];
-    const cells: Box[] = [];
-    // 7 格：4 + 3 居中排布。
-    const cellSize = 110;
-    const cellGap = 18;
-    const rowTopY = plate.y + plate.h - 150;
-    for (let i = 0; i < SIGNIN_REWARDS.length; i++) {
-        const row = i < 4 ? 0 : 1;
-        const col = row === 0 ? i : i - 4;
-        const perRow = row === 0 ? 4 : 3;
-        const rowW = perRow * cellSize + (perRow - 1) * cellGap;
-        const x = plate.x + (plate.w - rowW) / 2 + col * (cellSize + cellGap);
-        const y = rowTopY - row * (cellSize + cellGap);
-        cells.push(box(x, y, cellSize, cellSize));
-    }
+    // 7 格版式单源（UI-32）：4 + 3 居中，几何见 `view/signin-content.ts`。
+    const cells = signinCellLayout(plate);
     // 领取 + 返回
     const btnW = 240;
     const btnY = plate.y + 60;
@@ -413,43 +404,13 @@ function signinLayout(): MetaLayout {
 
 function settingsLayout(): MetaLayout {
     const plate = OVERLAY_PLATE;
-    const buttons: MetaButton[] = [];
-    const ids: MetaAction[] = [
-        'toggle-bgm',
-        'toggle-sfx',
-        'toggle-reduce-motion',
-        'toggle-large-text',
-        'toggle-vibrate',
-        'toggle-debug-info',
-        // EP11-S5 / S9 v1.7 §2.2 行4：**内容单源**——选择器钮族与暂停面板同一批
-        // game setter（`applySettingsAction` 共用分支），两入口档位永不漂移。
-        // EP12-S8 追加第三枚「皮肤」（cycle-skin）。末行空格放 Debug（安全区标定线），
-        // 仍是 5 行 × 2 列，plate 高 720 不改。
-        'cycle-bead-style',
-        'cycle-bead-size',
-        'cycle-skin',
-        'toggle-debug-guides',
-    ];
-    // 左右两列（用户 2026-09-25 直派，ux-spec v1.19）：**10 钮 = 5 行 × 2 列**（末行 = 皮肤 + Debug），
-    // 总宽/列间 gap 24/行距 `TOUCH_MIN + 16` 均沿用旧口径（任务单：行距沿用、plate 高可复算）。
+    // UI-30：内容块单源（`view/settings-content.ts`）= 10 钮 = 5 行 × 2 列（末行 = 皮肤 + Debug）。
     // plate 高 **720 不改**，避让实算：`OVERLAY_H` 720 ⇒ plate y∈[307,1027]；
     //   topY = 307+720−150 = 877，行底依次 877 / 773 / 669 / 565 / 461（行高 88）；
     //   ① 顶行上缘 877+88 = 965 < 1027（标题基线 1027−70 = 957，与钮顶 965 的重叠属既有排版，
     //      新增行在**下方**生长 ⇒ 不新增冲突）；② 新底行下缘 461 > 返回钮上缘 307+50+88 = 445
     //      ⇒ 间隙 16 ≥ 0，**不与「返回」/「在线导入」同行族重叠**（EP12-S8 前为 120，仍为正）。
-    const rowW = plate.w - 80;
-    const rowX = plate.x + 40;
-    const colGap = 24;
-    const colW = (rowW - colGap) / 2;
-    const topY = plate.y + plate.h - 150;
-    for (let i = 0; i < ids.length; i++) {
-        const col = i % 2;
-        const row = (i / 2) | 0;
-        buttons.push({
-            id: ids[i]!,
-            box: box(rowX + col * (colW + colGap), topY - row * (TOUCH_MIN + 16), colW, TOUCH_MIN),
-        });
-    }
+    const buttons: MetaButton[] = settingsContentButtons(plate);
     // 返回
     const backW = 240;
     buttons.push({
@@ -652,72 +613,32 @@ function label(id: MetaAction, data: MetaViewData): string {
             return data.canClaim ? '领取' : '已领取';
         case 'back':
             return '返回';
+        // UI-30：设置内容块（文案 / 绘制）由 `view/settings-content.ts` 单源；
+        // 暂停面板 `view-model::panelLabel` 读同一函数 ⇒ 两入口档位名永不漂移。
         case 'toggle-bgm':
-            return `音乐  ${data.bgmMuted ? '关' : '开'}`;
         case 'toggle-sfx':
-            return `音效  ${data.sfxMuted ? '关' : '开'}`;
         case 'toggle-reduce-motion':
-            return `减弱动效  ${data.reduceMotion ? '开' : '关'}`;
         case 'toggle-large-text':
-            return `大字号  ${data.largeText ? '开' : '关'}`;
         case 'toggle-vibrate':
-            return `震动  ${data.vibrate ? '开' : '关'}`;
         case 'toggle-debug-info':
-            return `性能信息  ${data.debugInfo ? '开' : '关'}`;
         case 'toggle-debug-guides':
-            return `Debug  ${data.debugGuides ? '开' : '关'}`;
-        // EP11-S5 行4 两枚选择器钮：文案与暂停面板（`view-model::panelLabel`）**同字串**（S9 内容单源）；
-        // ⛔ 禁写死款数（U16=甲），风格名走 `BEAD_STYLE_LABELS` 单源、未注册时回 id 本身。
         case 'cycle-bead-style':
-            return `珠子风格  ${beadStyleLabel(data.beadStyle)}`;
         case 'cycle-bead-size':
-            return `豆子尺寸  ${BEAD_SIZE_LABELS[data.beadSize] ?? data.beadSize}`;
-        // EP12-S8 行4 第三枚选择器钮：文案与暂停面板（`view-model::panelLabel`）**同字串**（内容单源）；
-        // ⛔ 禁写死款数（U16=甲），皮肤名走 `skin.label` 单源、未注册时回 id 本身。
         case 'cycle-skin':
-            return `皮肤  ${skinLabel(data.skinId)}`;
+            return settingsContentLabel(id, data);
         default:
             return '';
     }
 }
 
-/** 按下态绘制 y 偏移（y-up ⇒ 下沉为负；`reduceMotion` ⇒ 0，只换面）。 */
+/** 按下态绘制 y 偏移（算法在 `ui-theme::pressOffset`，本包装只取视图数据字段）。 */
 function pressDy(data: MetaViewData, pressed: boolean): number {
-    return pressed && !data.reduceMotion ? -UI_PRESS_SINK : 0;
+    return pressOffset(pressed, data.reduceMotion);
 }
 
 /** 当前按住的是否为该动作（主菜单锚定档每动作唯一一枚钮 ⇒ 按 id 比对即可）。 */
 function isPressed(data: MetaViewData, id: MetaAction): boolean {
     return data.pressed?.id === id;
-}
-
-function drawButton(
-    builder: RenderModelBuilder,
-    b: Box,
-    text: string,
-    palette: BeadsPalette,
-    primary: boolean,
-    disabled = false,
-    font = FONT_BUTTON,
-    pressed = false,
-    dy = 0,
-): void {
-    const y = b.y + dy;
-    builder.rect(b.x, y, b.w, b.h, {
-        fill: primary
-            ? (pressed ? palette.woodFacePressed : palette.accentPrimary)
-            : pressed ? palette.cardPressed : palette.slot,
-        stroke: primary ? palette.accentPrimary : palette.slotBorder,
-        lineWidth: 2,
-        radius: 14,
-        ...(disabled ? { alpha: 0.5 } : {}),
-    });
-    builder.text(b.x + b.w / 2, y + b.h / 2, text, {
-        fill: primary ? palette.panel : palette.text,
-        font,
-        align: 'center',
-        baseline: 'middle',
-    });
 }
 
 /**
@@ -726,7 +647,7 @@ function drawButton(
  *
  * - **图标腿**（落地单 §3 B5/B6）：`iconStamina` / `iconCoin` 位图就绪 ⇒
  *   两端各 blit 一枚 `MENU_BAR_ICON_D`，数值文本**去 emoji**；未就绪 ⇒ 旧 `❤`/`🪙` 文本腿；
- * - **数值字号** = `FONT_LABEL` 28 = accessibility **E1 地板**。⚠ 第九批登记的「26 px」低于
+ * - **数值字号** = `UI_FONT.label` 28 = accessibility **E1 地板**。⚠ 第九批登记的「26 px」低于
  *   地板 ⇒ 作废（同批注）；图标与数值合为一条 text ⇒ 每端 1 命令（共 2 条，非 4 条）；
  * - **墨色全读 palette**：牌面 `plaque_face` / 描边 `plaque_edge` / 亮线与铆钉 `plaque_bevel` /
  *   字 `wood_text`（对牌面 5.3:1 ✓）⇒ 视图内零 hex 字面（control-manifest §3）。
@@ -765,26 +686,26 @@ function drawResourceBar(
         builder.blit(coinIcon, x + g.w - iconX - d, cy - d / 2, d, d);
         builder.text(x + iconX + d + 8, cy, `${data.stamina}/${data.staminaMax}`, {
             fill: palette.woodText,
-            font: FONT_LABEL,
+            font: UI_FONT.label,
             align: 'left',
             baseline: 'middle',
         });
         builder.text(x + g.w - iconX - d - 8, cy, `${data.coins}`, {
             fill: palette.woodText,
-            font: FONT_LABEL,
+            font: UI_FONT.label,
             align: 'right',
             baseline: 'middle',
         });
     } else {
         builder.text(x + MENU_PLAQUE_ICON_INSET, cy, `❤ ${data.stamina}/${data.staminaMax}`, {
             fill: palette.woodText,
-            font: FONT_LABEL,
+            font: UI_FONT.label,
             align: 'left',
             baseline: 'middle',
         });
         builder.text(x + g.w - MENU_PLAQUE_ICON_INSET, cy, `${data.coins} 🪙`, {
             fill: palette.woodText,
-            font: FONT_LABEL,
+            font: UI_FONT.label,
             align: 'right',
             baseline: 'middle',
         });
@@ -910,7 +831,7 @@ function drawArrow(
     }
     builder.text(cx, cy, dir === 'left' ? '◀' : '▶', {
         fill: palette.text,
-        font: FONT_BUTTON,
+        font: UI_FONT.button,
         align: 'center',
         baseline: 'middle',
     });
@@ -973,7 +894,7 @@ function drawShowcaseItem(
         } else {
             builder.circle(x + MENU_SEAL.w / 2, y + MENU_SEAL.h / 2, 28, { fill: palette.panel, stroke: palette.success, lineWidth: 2 });
             builder.text(x + MENU_SEAL.w / 2, y + MENU_SEAL.h / 2, '通', {
-                fill: palette.success, font: FONT_BUTTON, align: 'center', baseline: 'middle',
+                fill: palette.success, font: UI_FONT.button, align: 'center', baseline: 'middle',
                 ...(ink === undefined ? {} : { alpha: ink }),
             });
         }
@@ -1000,7 +921,7 @@ function drawShowcaseItem(
     });
     builder.text(cx, cy, locked ? '锁' : '推', {
         fill: locked ? palette.textDim : palette.panel,
-        font: FONT_BUTTON, align: 'center', baseline: 'middle',
+        font: UI_FONT.button, align: 'center', baseline: 'middle',
     });
 }
 
@@ -1042,7 +963,7 @@ function drawComingSoonPlate(
     const a = alpha < 1 ? alpha : undefined;
     builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.singleOff, ARC_COMING_SOON, {
         fill: palette.woodEdge,
-        font: FONT_BUTTON,
+        font: UI_FONT.button,
         align: 'center',
         baseline: 'middle',
         ...(a === undefined ? {} : { alpha: a }),
@@ -1063,16 +984,16 @@ function drawPlateTitle(
     const a = alpha < 1 ? alpha : undefined;
     if (lv.title) {
         builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line1Off, seq, {
-            fill: palette.woodFace, font: FONT_LABEL, align: 'center', baseline: 'middle',
+            fill: palette.woodFace, font: UI_FONT.label, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
         builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line2Off, lv.title, {
-            fill: palette.woodEdge, font: FONT_BUTTON, align: 'center', baseline: 'middle',
+            fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
     } else {
         builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.singleOff, seq, {
-            fill: palette.woodEdge, font: FONT_BUTTON, align: 'center', baseline: 'middle',
+            fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
     }
@@ -1141,7 +1062,7 @@ function drawMenuAnchored(
         if (beads === 0) {
             builder.text(DESIGN_W / 2, signCy, COPY_TOKENS.app_name, {
                 fill: palette.text,
-                font: FONT_TITLE,
+                font: UI_FONT.title,
                 align: 'center',
                 baseline: 'middle',
             });
@@ -1168,17 +1089,17 @@ function drawMenuAnchored(
         } else {
             builder.text(g.ctaBox.x + g.ctaBox.w / 2, g.ctaBox.y + g.ctaBox.h / 2 + textDy, label('start', data), {
                 fill: palette.panel,
-                font: FONT_BUTTON,
+                font: UI_FONT.button,
                 align: 'center',
                 baseline: 'middle',
             });
         }
     } else {
-        drawButton(builder, g.ctaBox, label('start', data), palette, true, false, FONT_BUTTON, ctaPressed, pressDy(data, ctaPressed));
+        drawButton(builder, palette, g.ctaBox.x, g.ctaBox.y + pressDy(data, ctaPressed), g.ctaBox.w, g.ctaBox.h, 'accent', 14, label('start', data), UI_FONT.button, ctaPressed);
     }
     builder.text(DESIGN_W / 2, g.versionY, COPY_TOKENS.version_label, {
         fill: palette.textDim,
-        font: FONT_LABEL,
+        font: UI_FONT.label,
         align: 'center',
         baseline: 'middle',
     });
@@ -1194,9 +1115,9 @@ export function resetMetaViewWarnings(): void {
 }
 
 /**
- * 作品格（主菜单橱窗与 `levels` overlay **共用同一 renderer** ⇒ 两屏零口径漂）。
+ * 作品格（选关**整页**唯一消费；主菜单已改走马灯小卡 ⇒ 不再共享本 renderer）。
  * - **已解锁** = 纸格容器 + **珠拼缩略**（T-1 §3.1 聚合，`view/menu-signage.ts::drawLevelThumb`）+ 星；
- * - **未解锁 / 越界槽** = 虚线空槽（`wall_empty_slot` 无文字⛔ 不加「未解锁」字样、不画🔒）。
+ * - **未解锁 / 越界槽** = 锁格合形（灰阵 + 小锁 + 无星；⛔ 不画虚线）。
  *
  * ⚠ **T-2B 换了格内内容：编号文本退场**（`menu-wall-signage-spec §3.4` 案乙：格几何与热区零变动，
  * 只换内容物）。编号是 T-2A 的**占位**（当时无珠可画）；珠拼缩略就位后它与图竞争同一 84×84 区、
@@ -1226,7 +1147,7 @@ function drawLockedWallCell(
         radius: UI_CONTAINER.radiusChip,
     });
     if (level !== undefined) {
-        drawLevelThumb(builder, level, cell.x, cell.y, cell.w, cell.h, thumbN, THUMB_AREA, beadFadedInksFor(level));
+        drawLevelThumb(builder, level, cell.x, cell.y, cell.w, cell.h, thumbN, LEVELS_THUMB_AREA, beadFadedInksFor(level));
     }
     const d = MENU_BADGE.d;
     const inset = MENU_SEAL.inset;
@@ -1237,7 +1158,7 @@ function drawLockedWallCell(
         return;
     }
     builder.circle(cx, cy, d / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });
-    builder.text(cx, cy, '锁', { fill: palette.textDim, font: FONT_CELL, align: 'center', baseline: 'middle' });
+    builder.text(cx, cy, '锁', { fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle' });
 }
 
 function drawWallCell(
@@ -1270,7 +1191,7 @@ function drawWallCell(
     const level = slot === undefined ? undefined : data.wallLevels[slot];
     builder.text(cx, y + THUMB_STAR_BAND / 2, STAR_LABELS[stars] ?? STAR_LABELS[0]!, {
         fill: stars > 0 ? palette.text : palette.textDim,
-        font: FONT_CELL,
+        font: UI_FONT.cell,
         align: 'center',
         baseline: 'middle',
     });
@@ -1286,13 +1207,13 @@ function drawWallCell(
         }
         builder.text(cx, y + b.box.h / 2 - 8, `${levelIdx + 1}`, {
             fill: palette.text,
-            font: FONT_BUTTON,
+            font: UI_FONT.button,
             align: 'center',
             baseline: 'middle',
         });
         return;
     }
-    drawLevelThumb(builder, level, b.box.x, y, b.box.w, b.box.h, thumbN);
+    drawLevelThumb(builder, level, b.box.x, y, b.box.w, b.box.h, thumbN, LEVELS_THUMB_AREA);
 }
 
 /**
@@ -1317,72 +1238,59 @@ export function buildMetaView(
         return;
     }
 
-    // Overlay：先压暗底层菜单，再画面板。⚠ 遮罩盖**整屏** ⇒ 高读锚定档系高 H（兜底档 = DESIGN_H）。
-    // EP11-S5 / ux §3.3 ⑤（U14=丙，Q3=甲）：**设置态遮罩 α 分列**——仅 `settings` overlay
-    // 读 `SETTINGS_SCRIM_ALPHA`（初值 0.3 [暂定·待 PT-SKIN-01 真机校准]）；
-    // ⚠️ RGB 与其余 overlay **零改动**（菜单侧遮罩历史上就是 `0,0,0`，与 `PANEL_SCRIM_RGB`
-    //   不同源，本批不越界统一）， signin/levels 仍读旧 0.5 字面量。
-    builder.rect(0, 0, DESIGN_W, A.H, {
-        fill:
-            data.overlay === 'settings'
-                ? `rgba(0,0,0,${SETTINGS_SCRIM_ALPHA})`
-                : 'rgba(0,0,0,0.5)',
-    });
-    const plate = OVERLAY_PLATE;
-    builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: 24 });
-    // overlay 标题：`levels`/`settings` 读文案表；`signin` 的「七日签到」在 `tokens.md §7` **无对应键**
-    // ⇒ 维持既有字面（⛔ 不为此新造令牌，已登记于 T-2A 回传未尽项）。
-    const overlayTitle =
-        data.overlay === 'signin'
-            ? '七日签到'
-            : data.overlay === 'levels'
-                ? COPY_TOKENS.btn_levels_label
-                : COPY_TOKENS.btn_settings_label;
-    builder.text(plate.x + plate.w / 2, plate.y + plate.h - 70, overlayTitle, {
-        fill: palette.text,
-        font: '40px sans-serif',
-        align: 'center',
-        baseline: 'middle',
-    });
-
-    const layout = metaLayout(data.overlay, rows);
-    if (data.overlay === 'signin') {
-        for (let i = 0; i < layout.signinCells.length; i++) {
-            const cell = layout.signinCells[i]!;
-            const reward: SigninReward = SIGNIN_REWARDS[i]!;
-            const claimed = i < data.signinDay || (i === data.signinDay && !data.canClaim);
-            const today = i === data.signinDay;
-            builder.rect(cell.x, cell.y, cell.w, cell.h, {
-                fill: claimed ? palette.slot : palette.panel,
-                stroke: today ? palette.accentPrimary : palette.slotBorder,
-                lineWidth: today ? 4 : 2,
-                radius: 12,
-                ...(claimed ? { alpha: 0.6 } : {}),
-            });
-            const rewardText = reward.hearts > 0 ? `❤${reward.hearts}` : `🪙${reward.coins}`;
-            builder.text(cell.x + cell.w / 2, cell.y + cell.h / 2 + 12, `第${i + 1}天`, {
-                fill: palette.textDim,
-                font: FONT_CELL,
-                align: 'center',
-                baseline: 'middle',
-            });
-            builder.text(cell.x + cell.w / 2, cell.y + cell.h / 2 - 16, claimed ? '✓' : rewardText, {
-                fill: claimed ? palette.success : palette.text,
-                font: FONT_CELL,
-                align: 'center',
-                baseline: 'middle',
-            });
-        }
+    // `levels` = **整页**（ADR-0032 D5 / 版式 P）：页底 = `palette.background`（不透明）⇒
+    // ⛔ 不画遮罩、不画纸面板；标题住导航栏带（仅标题，返回走底部 `back`）。
+    // 标题带顶缘优先读逐机锚（`btTopY` = 胶囊底缘派生），无接口宿主落 `LEVELS_NAV_TOP` 兜底。
+    if (data.overlay === 'levels') {
+        builder.text(DESIGN_W / 2, (data.anchors?.btTopY ?? LEVELS_NAV_TOP) - LEVELS_NAV_H / 2, COPY_TOKENS.btn_levels_label, {
+            fill: palette.text,
+            font: UI_FONT.overlayTitle,
+            align: 'center',
+            baseline: 'middle',
+        });
+    } else {
+        // 弹窗（signin / settings）：先压暗底层菜单，再画面板。⚠ 遮罩盖**整屏** ⇒ 高读锚定档系高 H（兜底档 = DESIGN_H）。
+        // EP11-S5 / ux §3.3 ⑤（U14=丙，Q3=甲）：**设置态遮罩 α 分列**——仅 `settings` overlay
+        // 读 `SETTINGS_SCRIM_ALPHA`（初值 0.3 [暂定·待 PT-SKIN-01 真机校准]）；
+        // ⚠️ RGB 与其余 overlay **零改动**（菜单侧遮罩历史上就是 `0,0,0`，与 `PANEL_SCRIM_RGB`
+        //   不同源，本批不越界统一），signin 仍读旧 0.5 字面量。
+        builder.rect(0, 0, DESIGN_W, A.H, {
+            fill: scrimFill(
+                UI_SCRIM.overlay,
+                data.overlay === 'settings' ? UI_SCRIM.settingsAlpha : UI_SCRIM.alpha,
+            ),
+        });
+        const plate = OVERLAY_PLATE;
+        builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
+        // overlay 标题：`settings` 读文案表；`signin` 的「七日签到」在 `tokens.md §7` **无对应键**
+        // ⇒ 维持既有字面，UI-32 起由 `signin-content.ts` 单源给出（⛔ 不为此新造令牌）。
+        const overlayTitle =
+            data.overlay === 'signin' ? SIGNIN_TITLE : COPY_TOKENS.btn_settings_label;
+        builder.text(plate.x + plate.w / 2, plate.y + plate.h - 70, overlayTitle, {
+            fill: palette.text,
+            font: UI_FONT.overlayTitle,
+            align: 'center',
+            baseline: 'middle',
+        });
     }
 
-    // 选关 overlay：作品格与主菜单橱窗**同一 renderer**（珠拼缩略 + 星级 + 当前高亮 / 未解锁虚线空槽）；back 走下方通用钮。
+    const layout = metaLayout(data.overlay, rows);
+    // UI-32：签到内容块单源（标题 / 7 格版式 / 格绘制）；chrome 仍走弹窗通用腿。
+    if (data.overlay === 'signin') {
+        drawSigninContent(builder, layout.signinCells, data.signinDay, data.canClaim, palette);
+    }
+
+    // 选关整页：作品格与旧橱窗**同一 renderer**（珠拼缩略 + 星级 + 当前高亮 / 未解锁锁格）；back 走下方通用钮。
     if (data.overlay === 'levels') {
         for (const b of layout.buttons) {
             if (b.id === 'pick-level') drawWallCell(builder, b, data, palette, thumbN);
         }
     }
 
+    // UI-30：设置内容块单一实现（10 钮）；返回 / 在线导入仍按弹窗 chrome 单独画。
+    if (data.overlay === 'settings') drawSettingsContent(builder, data, palette, layout.buttons);
     for (const b of layout.buttons) {
+        if (data.overlay === 'settings' && isSettingsAction(b.id)) continue;
         if (b.id === 'pick-level') continue; // 选关格已在上方绘制
         if (b.id === 'studio-import' && !data.studioEnabled) continue; // 未配服务 ⇒ 不绘制（也不该被点）
         const primary = b.id === 'claim';
@@ -1391,7 +1299,7 @@ export function buildMetaView(
         // 沿用暂停面板同族做法：小字档（不动已冻结的 plate 几何）。
         const wide = b.id === 'cycle-bead-style' || b.id === 'cycle-bead-size';
         const pressed = data.pressed === b && !disabled;
-        drawButton(builder, b.box, label(b.id, data), palette, primary, disabled, wide ? FONT_CELL : FONT_BUTTON, pressed, pressDy(data, pressed));
+        drawButton(builder, palette, b.box.x, b.box.y + pressDy(data, pressed), b.box.w, b.box.h, primary ? 'accent' : 'ghost', 14, label(b.id, data), wide ? UI_FONT.cell : UI_FONT.button, pressed, disabled);
     }
     if (data.debugGuides) drawSafeGuides(builder, A);
 }
@@ -1401,6 +1309,6 @@ export function buildMetaView(
  * （`st` / 胶囊底 / `H − sb`），对着真机截图读。
  */
 function drawSafeGuides(builder: RenderModelBuilder, a: MenuAnchors): void {
-    // 与对局页共用同一绘制（`view-model::drawSafeGuideLines`）⇒ 两屏划线口径不会漂。
+    // 与对局页共用同一绘制（`debug-layer::drawSafeGuideLines`）⇒ 两屏划线口径不会漂。
     drawSafeGuideLines(builder, a.H, a.st, Math.round(a.H - a.btTopY - 4), a.sb);
 }

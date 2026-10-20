@@ -20,7 +20,7 @@ import {
   type AudioBackendOptions,
   type AudioVoices,
 } from '../core/audio/audio.js';
-import type { PlatformInfo } from '../core/game/game.js';
+import type { CapsuleRect, PlatformInfo } from '../core/game/game.js';
 import { BasePlatform, type FrameHandle, type ScreenSize } from './platform.js';
 import { NoopRewardedAdProvider } from './rewarded-ad.js';
 import { SynthAudioBackend, type SynthContext, type SynthInnerAudio } from './audio-synth.js';
@@ -47,7 +47,7 @@ interface WxApi {
   getWindowInfo?(): WxWindowInfo;
   /**
    * 微信右上胶囊（「··· / ◎」）矩形，单位 = 逻辑 px（dp）、原点 = 屏左上。
-   * 基础库 2.1.0+；本仓只消费 `bottom`（顶栏避让的唯一硬约束——它会吞点击）。
+   * 基础库 2.1.0+；本仓消费完整矩形（顶栏要整块排除，底缘仍是硬约束）。
    */
   getMenuButtonBoundingClientRect?(): { top?: number; bottom?: number; left?: number; right?: number };
   onHide?(cb: () => void): void;
@@ -152,22 +152,30 @@ export class WeappPlatform extends BasePlatform {
     super();
     this._wx = wx;
     const safe = this._readSafeArea();
+    const capsule = this._readCapsuleRect();
     this.info = {
       name: 'weapp',
       isMiniGame: true,
       safeAreaTop: safe.top,
       safeAreaBottom: safe.bottom,
-      capsuleBottomDp: this._readCapsuleBottom(),
+      capsuleBottomDp: capsule?.bottom ?? null,
+      capsuleRectDp: capsule,
     };
   }
 
   /**
-   * 胶囊底缘（dp，自屏顶）。无 wx / 基库缺该 API / 返回值不合法 ⇒ **`null`**（不是 0），
-   * 由调用方走各自的兜底带（判例 K-124：静态带只当 fallback，不参与取大）。
+   * 胶囊完整矩形（dp，自屏左上）。无 wx / 基库缺该 API / 任一值不合法 ⇒ **`null`**
+   *（不是零矩形），由调用方走各自的兜底带（判例 K-124：静态带只当 fallback，不参与取大）。
    */
-  private _readCapsuleBottom(): number | null {
-    const bottom = this._wx?.getMenuButtonBoundingClientRect?.()?.bottom;
-    return typeof bottom === 'number' && Number.isFinite(bottom) && bottom > 0 ? bottom : null;
+  private _readCapsuleRect(): CapsuleRect | null {
+    const rect = this._wx?.getMenuButtonBoundingClientRect?.();
+    if (!rect) return null;
+    const { left, top, right, bottom } = rect;
+    const finite = (v: number | undefined): v is number =>
+      typeof v === 'number' && Number.isFinite(v);
+    if (!finite(left) || !finite(top) || !finite(right) || !finite(bottom)) return null;
+    if (left < 0 || top < 0 || right <= left || bottom <= top) return null;
+    return { left, top, right, bottom };
   }
 
   private _readSafeArea(): { top: number; bottom: number } {

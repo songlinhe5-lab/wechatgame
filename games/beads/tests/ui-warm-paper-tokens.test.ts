@@ -156,7 +156,7 @@ describe('[EP12-S2] 控件语言 token 批：逐值对齐 tokens.md §1「新」
         const woodFace = cmds.find(
             (c) => c.kind === 'rect' && c.w === EXPAND_BTN_W && c.h === EXPAND_BTN_H && c.fill === DEFAULT_PALETTE.woodFace,
         );
-        expect(woodFace, 'btn_expand 面走 drawWoodButton（woodFace，非旧 EXPAND_BTN_INK 直填）').toBeDefined();
+        expect(woodFace, 'btn_expand 面走 drawButton(\'wood\')（woodFace，非旧 EXPAND_BTN_INK 直填）').toBeDefined();
 
         const card = powerupCardRects()[0]!;
         const face = cmds.find(

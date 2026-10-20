@@ -1,6 +1,6 @@
 /**
- * FinishPanel — 通关画面（S7 / `FINISH`）的**逻辑**：可见性、入 / 出动画进度、逐关星级
- * 入场进度、星级总览布局与按钮几何 / 命中。
+ * FinishPanel — 通关画面（S7 / `FINISH`）的**逻辑**：逐关入场节奏、星级总览布局与按钮
+ * 几何 / 命中。开合时钟走四个结算弹窗共享的骨架（UI-33 ⇒ `result-panel.ts`）。
  *
  * 与其他系统同纪律：本模块**绝不触碰玩法状态**（不写网格 / 托盘 / 倒计时 / 存档）。星级
  * 数据由 `BeadsGame` 持有（`_starsByLevel` = 每关历史最好），本模块只做几何与呈现时序。
@@ -43,11 +43,10 @@ import {
   FINISH_STAR_GAP,
   FINISH_STAR_SIZE,
   PANEL_BUTTON_H,
-  PANEL_IN_MS,
-  PANEL_OUT_MS,
   STAR_MAX,
 } from '../config/tuning';
 import { rectContains, type PanelRect } from './pause-panel';
+import { ResultPanelClock } from './result-panel';
 
 /** 通关画面能请求的三件事（动作由 `BeadsGame` 执行）。 */
 export type FinishPanelAction = 'replay' | 'sprint' | 'menu';
@@ -184,80 +183,44 @@ export function hitFinishPanel(x: number, y: number, levelCount: number): Finish
 }
 
 /**
- * 面板状态机：入 200ms / 出 150ms（与 S9、S7 结算面板同口径），另持**逐关入场**计时。
- *
- * `progress` 契约与 `PausePanel` / `ClearPanel` 一致：进入 0→1，退出 1→0，未显示 = 0；
- * `interactive` 只在「已显示且未在退出」时为真（退出淡出期不接受点击）。
+ * 面板生命周期走共享骨架（UI-33）：入 200ms / 出 150ms、入场即可点、退场零响应；
+ * 逐关入场（`FINISH_LEVEL_STEP_MS`，派生口径见模块头注）由同一公式排出。
  */
 export class FinishPanel {
-  private _elapsed = 0;
-  private _shown = false;
-  private _closing = false;
+  private readonly _clock = new ResultPanelClock();
 
   open(): void {
-    this._shown = true;
-    this._closing = false;
-    this._elapsed = 0;
+    this._clock.open();
   }
 
   close(): void {
-    if (!this._shown) return;
-    this._closing = true;
-    this._elapsed = 0;
+    this._clock.close();
   }
 
   update(dtMs: number): void {
-    if (!this._shown) return;
-    this._elapsed += Math.max(0, dtMs);
-    if (this._closing && this._elapsed >= PANEL_OUT_MS) {
-      this._shown = false;
-      this._closing = false;
-      this._elapsed = 0;
-    }
+    this._clock.update(dtMs);
   }
 
   get visible(): boolean {
-    return this._shown;
+    return this._clock.visible;
   }
 
   get interactive(): boolean {
-    return this._shown && !this._closing;
+    return this._clock.interactive;
   }
 
   get progress(): number {
-    if (!this._shown) return 0;
-    if (this._closing) return Math.max(0, 1 - this._elapsed / PANEL_OUT_MS);
-    return Math.min(1, this._elapsed / PANEL_IN_MS);
+    return this._clock.progress;
   }
 
-  /** 面板自打开起的毫秒数（逐关入场计时用）。 */
-  get elapsedMs(): number {
-    return this._elapsed;
-  }
-
-  /**
-   * 已入场的**关数**（`0..count`）：第 `i` 关在 `i × FINISH_LEVEL_STEP_MS` 时入场。
-   * 关闭中返回 0（与 `ClearPanel.starsShown` 同口径）。
-   */
+  /** 已入场的**关数**（`0..count`）：第 `i` 关在 `i × FINISH_LEVEL_STEP_MS` 时入场；退场中恒 0。 */
   rowsShown(count: number): number {
-    if (!this._shown || this._closing) return 0;
-    let shown = 0;
-    for (let i = 0; i < count; i++) {
-      if (this._elapsed >= i * FINISH_LEVEL_STEP_MS) shown = i + 1;
-    }
-    return shown;
+    return this._clock.popsShown(count, FINISH_LEVEL_STEP_MS);
   }
 
-  /**
-   * 第 `index` 行入场的缩放（150ms 内 0 → 1.2 → 1 弹跳；之后恒 1）。
-   * 纯呈现量，不含任何玩法语义。
-   */
+  /** 第 `index` 行的入场缩放（0 → 1.2 → 1 弹跳；之后恒 1）。纯呈现量。 */
   rowPopScale(index: number): number {
-    if (!this._shown) return 0;
-    const local = (this._elapsed - index * FINISH_LEVEL_STEP_MS) / FINISH_LEVEL_STEP_MS;
-    if (local <= 0) return 0;
-    if (local >= 1) return 1;
-    return local < 0.5 ? (local / 0.5) * 1.2 : 1.2 - 0.2 * ((local - 0.5) / 0.5);
+    return this._clock.popScale(index, FINISH_LEVEL_STEP_MS);
   }
 
   hitTest(x: number, y: number, levelCount: number): FinishPanelAction | null {

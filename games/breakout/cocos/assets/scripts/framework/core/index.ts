@@ -12,6 +12,7 @@ export * from './events/event-bus';
 export * from './fsm/state-machine';
 export * from './scene/scene-stack';
 export * from './input/input-manager';
+export * from './ui/index';
 export * from './pool/object-pool';
 export * from './save/storage';
 export * from './save/save-manager';

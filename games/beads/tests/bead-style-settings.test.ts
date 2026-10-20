@@ -1128,22 +1128,67 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(SETTINGS_SCRIM_ALPHA).toBeLessThan(PANEL_SCRIM_ALPHA);
     });
 
-    it('静态门：`view-model` 的 scrim 消费点穷尽 = 4 处非设置态面板（读 PANEL_SCRIM_ALPHA）+ 1 处设置态 + 1 处 DEBUG 覆层（非面板遮罩，硬 0.7 未触碰）', () => {
+    it('静态门：`ui-theme` + `modal-frame` 收拢后 scrim 消费点穷尽 = 3 处纸面板框 + 2 处纯遮罩 + 1 处 DEBUG 覆层', () => {
         const vm = SRC('view/view-model.ts');
-        const all = vm.match(/rgba\(\$\{PANEL_SCRIM_RGB\.r/g) ?? [];
-        const panelSites = vm.match(/\$\{PANEL_SCRIM_ALPHA\}\)/g) ?? [];
-        const settingsSites = vm.match(/\$\{SETTINGS_SCRIM_ALPHA \* t\}/g) ?? [];
-        const debugOverlay = vm.match(/\$\{PANEL_SCRIM_RGB\.b\},0\.7\)/g) ?? [];
+        const frameSites = vm.match(/drawModalFrame\(builder, \{/g) ?? [];
+        const scrimSites = vm.match(/drawModalScrim\(builder, UI_SCRIM\.canvas, UI_SCRIM\.alpha\)/g) ?? [];
+        const settingsSites = vm.match(/scrimAlpha: UI_SCRIM\.settingsAlpha \* t/g) ?? [];
+        const panelAlphaSites = vm.match(/scrimAlpha: UI_SCRIM\.alpha/g) ?? [];
+        const debugOverlay = SRC('view/debug-layer.ts').match(/scrimFill\(UI_SCRIM\.canvas, 0\.7\)/g) ?? [];
+        // 收拢后对局面板侧⛔ 不得再出现硬拼 rgba（RGB 单源 = ui-theme::UI_SCRIM.canvas）。
+        expect(vm).not.toMatch(/rgba\(\$\{PANEL_SCRIM_RGB/);
 
-        expect(panelSites.length).toBe(4); // 结算 / 失败 / 通关 / 冲刺结算四类面板（ux ⑥「不得读出全局遮罩变浅」）
+        expect(frameSites.length).toBe(3); // 暂停（动画）/ 过关 / 失败 = 纸面板三件
+        expect(scrimSites.length).toBe(2); // 冲刺结算 / 全通关 = 纯遮罩（底板构成不同，不并入纸面板）
         expect(settingsSites.length).toBe(1); // 唯一设置态消费点 = drawPausePanel
-        expect(debugOverlay.length).toBe(1);
-        expect(all.length).toBe(panelSites.length + settingsSites.length + debugOverlay.length); // 穷尽，无第六处
+        expect(panelAlphaSites.length).toBe(2); // 过关 / 失败静止态
+        expect(debugOverlay.length).toBe(1); // DEBUG 覆层已搬入 debug-layer（UI-24）
+        // 穷尽：view-model 内不得再有裸 `scrimFill`（全部走 ModalFrame；覆层已上楼）。
+        const allScrimFill = vm.match(/scrimFill\(UI_SCRIM\.canvas/g) ?? [];
+        expect(allScrimFill.length).toBe(0);
 
-        // 菜单侧：只换 α、⛔ 不洗 RGB（历史上菜单 scrim 就是 `0,0,0`，与 PANEL_SCRIM_RGB 不同源）。
+        // modal-frame 自身也不得硬拼 rgba：遮罩字符串格式唯一真源 = ui-theme::scrimFill。
+        const mf = SRC('view/modal-frame.ts');
+        expect(mf).toContain('scrimFill(rgb, alpha)');
+        expect(mf).not.toMatch(/rgba\(/);
+
+        // 菜单侧：只换 α、⛔ 不洗 RGB（历史 `0,0,0`，与画布侧 `PANEL_SCRIM_RGB` 不同源）。
         const mv = SRC('view/meta-view.ts');
-        expect(mv).toContain('rgba(0,0,0,${SETTINGS_SCRIM_ALPHA})');
-        expect(mv).toContain("'rgba(0,0,0,0.5)'");
+        expect(mv).toContain('scrimFill(');
+        expect(mv).toContain('UI_SCRIM.overlay');
+        expect(mv).toContain("data.overlay === 'settings' ? UI_SCRIM.settingsAlpha : UI_SCRIM.alpha");
+        const theme = SRC('view/ui-theme.ts');
+        expect(theme).toContain('canvas: PANEL_SCRIM_RGB');
+        expect(theme).toContain('overlay: { r: 0, g: 0, b: 0 }');
+
+        // UI-24/25：调试层两腿都接，排在对应路由绘制之后（弹窗/面板均被盖住）；
+        // 开关关闭（默认）= 旧链逐字不变，打开 = UiRoot 接管。
+        const shell = SRC('game/beads-shell.ts');
+        expect(shell.match(/this\._drawDebugLayer\(builder, /g) ?? []).toHaveLength(2);
+        expect(shell).toContain('if (!UI_ROOT_ENABLED) {');
+        expect(shell.match(/this\.play\.drawDebugLayer\(builder, onMenu\)/g) ?? []).toHaveLength(1);
+        expect(shell).toContain('this._uiRoot.draw(builder, this.play.palette);');
+        expect(shell.indexOf('this._drawDebugLayer(builder, false)')).toBeGreaterThan(
+            shell.indexOf('this.play.buildRenderModel(builder);'),
+        );
+        expect(shell.indexOf('this._drawDebugLayer(builder, true)')).toBeGreaterThan(
+            shell.indexOf('buildMetaView(builder'),
+        );
+    });
+
+    // UI-24 验收：菜单腿也能看到性能信息（旧版覆层只在对局 view-model 里）；关时零指令。
+    it('调试层：菜单帧开出 fps 覆层，关回去恢复零指令', () => {
+        const shell = shellRig(newStorage());
+        expect(metaFrame(shell).join('\n')).not.toContain('fps ');
+
+        shell.play.setDebugInfo(true);
+        shell.update(1 / 60);
+        const on = metaFrame(shell).join('\n');
+        expect(on).toContain('fps ');
+        expect(on).toContain('menu');
+
+        shell.play.setDebugInfo(false);
+        expect(metaFrame(shell).join('\n')).not.toContain('fps ');
     });
 
     // 菜单 overlay 判定面 = overlay 打开期间：仅 settings 读下调 α，signin 仍 0.5（真 shell 渲染链）。

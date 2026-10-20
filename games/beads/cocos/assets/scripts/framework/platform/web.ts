@@ -47,8 +47,9 @@ export class WebPlatform extends BasePlatform {
       isMiniGame: false,
       safeAreaTop: 0,
       safeAreaBottom: 0,
-      // 浏览器宿主无微信胶囊 ⇒ `null`（「无接口值」），不是 0。
+      // 浏览器宿主无微信胶囊 ⇒ `null`（「无接口值」），不是 0 / 零矩形。
       capsuleBottomDp: null,
+      capsuleRectDp: null,
     };
     this._storage = options.storage ?? g.localStorage ?? new MemoryStorage();
   }

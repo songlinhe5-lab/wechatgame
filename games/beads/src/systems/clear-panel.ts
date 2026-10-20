@@ -1,9 +1,11 @@
 /**
- * ClearPanel — 结算·过关面板（S7）的**逻辑**：可见性、入/出动画进度、星级入场进度与
- * 按钮几何 / 命中。
+ * ClearPanel — 结算·过关面板（S7）的**逻辑**：布局与命中、星级入场节奏。
  *
  * 与其他系统同纪律：本模块**绝不触碰玩法状态**（不写网格 / 托盘 / 倒计时）。`BeadsGame`
  * 持有权威相位与结算数据，并执行本模块从点击里解析出的动作。
+ *
+ * 开合时钟与入场公式由四个结算弹窗共享（UI-33 ⇒ `result-panel.ts`）；布局与命中纯函数
+ * 按 `ui-architecture-beads §8` 就地保留。
  *
  * 冻结来源
  *  - 布局：`ux/ux-spec.md` §3.4（`panel_dialog` 560×480；主钮「下一关」+ 副钮「▶去冲刺」
@@ -28,13 +30,12 @@ import {
   DESIGN_H,
   DESIGN_W,
   PANEL_BUTTON_H,
-  PANEL_IN_MS,
-  PANEL_OUT_MS,
   PANEL_PADDING,
   PANEL_ROW_GAP,
   PANEL_SIZE,
 } from '../config/tuning.js';
 import { rectContains, type PanelRect } from './pause-panel.js';
+import { ResultPanelClock } from './result-panel.js';
 
 /** 面板按钮能请求的两件事（动作由 `BeadsGame` 执行）。 */
 export type ClearPanelAction = 'next' | 'sprint';
@@ -127,80 +128,44 @@ export function hitClearPanel(x: number, y: number, opts: ClearPanelOptions): Cl
 }
 
 /**
- * 面板状态机：入 200ms / 出 150ms（与 S9 面板同口径），另持**星级入场**计时。
- *
- * `progress` 契约与 `PausePanel` 一致：进入 0→1，退出 1→0，未显示 = 0；
- * `interactive` 只在「已显示且未在退出」时为真（退出淡出期不接受点击）。
+ * 面板生命周期走共享骨架（UI-33）：入 200ms / 出 150ms、入场即可点、退场零响应。
+ * 星级入场按 `ux-spec §5`「逐颗 150ms」由骨架的同一公式排出。
  */
 export class ClearPanel {
-  private _elapsed = 0;
-  private _shown = false;
-  private _closing = false;
+  private readonly _clock = new ResultPanelClock();
 
   open(): void {
-    this._shown = true;
-    this._closing = false;
-    this._elapsed = 0;
+    this._clock.open();
   }
 
   close(): void {
-    if (!this._shown) return;
-    this._closing = true;
-    this._elapsed = 0;
+    this._clock.close();
   }
 
   update(dtMs: number): void {
-    if (!this._shown) return;
-    this._elapsed += Math.max(0, dtMs);
-    if (this._closing && this._elapsed >= PANEL_OUT_MS) {
-      this._shown = false;
-      this._closing = false;
-      this._elapsed = 0;
-    }
+    this._clock.update(dtMs);
   }
 
   get visible(): boolean {
-    return this._shown;
+    return this._clock.visible;
   }
 
   get interactive(): boolean {
-    return this._shown && !this._closing;
+    return this._clock.interactive;
   }
 
   get progress(): number {
-    if (!this._shown) return 0;
-    if (this._closing) return Math.max(0, 1 - this._elapsed / PANEL_OUT_MS);
-    return Math.min(1, this._elapsed / PANEL_IN_MS);
+    return this._clock.progress;
   }
 
-  /** 面板自打开起的毫秒数（星级入场计时用）。 */
-  get elapsedMs(): number {
-    return this._elapsed;
-  }
-
-  /**
-   * 已入场的星数（`0..count`）：第 `i` 颗在 `i × CLEAR_STAR_STEP_MS` 时入场
-   * （ux-spec §5「逐颗 150ms」）。关闭中返回 0。
-   */
+  /** 已入场的星数（`0..count`）：第 `i` 颗在 `i × CLEAR_STAR_STEP_MS` 时入场；退场中恒 0。 */
   starsShown(count: number): number {
-    if (!this._shown || this._closing) return 0;
-    let shown = 0;
-    for (let i = 0; i < count; i++) {
-      if (this._elapsed >= i * CLEAR_STAR_STEP_MS) shown = i + 1;
-    }
-    return shown;
+    return this._clock.popsShown(count, CLEAR_STAR_STEP_MS);
   }
 
-  /**
-   * 第 `index` 颗星的缩放（入场 150ms 内 0 → 1.2 → 1 弹跳；之后恒 1）。
-   * 纯呈现量，不含任何玩法语义。
-   */
+  /** 第 `index` 颗星的入场缩放（0 → 1.2 → 1 弹跳；之后恒 1）。纯呈现量。 */
   starScale(index: number): number {
-    if (!this._shown) return 0;
-    const local = (this._elapsed - index * CLEAR_STAR_STEP_MS) / CLEAR_STAR_STEP_MS;
-    if (local <= 0) return 0;
-    if (local >= 1) return 1;
-    return local < 0.5 ? (local / 0.5) * 1.2 : 1.2 - 0.2 * ((local - 0.5) / 0.5);
+    return this._clock.popScale(index, CLEAR_STAR_STEP_MS);
   }
 
   hitTest(x: number, y: number, opts: ClearPanelOptions): ClearPanelAction | null {

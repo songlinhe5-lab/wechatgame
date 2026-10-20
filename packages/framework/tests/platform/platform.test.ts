@@ -18,6 +18,7 @@ describe('Platform detection', () => {
 describe('NodePlatform', () => {
   it('provides memory storage and a null audio backend', () => {
     const platform = new NodePlatform();
+    expect(platform.info.capsuleRectDp).toBeNull();
     const storage = platform.createStorage();
     storage.set('k', 'v');
     expect(storage.get('k')).toBe('v');
@@ -67,6 +68,7 @@ describe('WebPlatform (headless)', () => {
     const size = platform.getScreenSize();
     expect(size.width).toBeGreaterThan(0);
     expect(size.height).toBeGreaterThan(0);
+    expect(platform.info.capsuleRectDp).toBeNull();
   });
 
   it('schedules frames through a timer fallback', async () => {
@@ -177,21 +179,28 @@ describe('WeappPlatform', () => {
     expect(platform.info.safeAreaTop).toBe(47);
     expect(platform.info.safeAreaBottom).toBe(844 - 810);
     expect(platform.info.capsuleBottomDp).toBe(83);
+    expect(platform.info.capsuleRectDp).toEqual({ left: 278, top: 51, right: 365, bottom: 83 });
     expect(platform.getScreenSize()).toEqual({ width: 390, height: 844, pixelRatio: 3 });
   });
 
-  it('胶囊底缘：无该 API / 非法值一律给 null（⛔ 不得当 0 传下去，判例 K-124）', () => {
+  it('胶囊底缘 / 完整矩形：无该 API / 非法值一律给 null（⛔ 不得当 0 传下去，判例 K-124）', () => {
     expect(new WeappPlatform(fakeWx(0)).info.capsuleBottomDp).toBeNull();
+    expect(new WeappPlatform(fakeWx(0)).info.capsuleRectDp).toBeNull();
     expect(new WeappPlatform(fakeWx(null)).info.capsuleBottomDp).toBeNull();
+    expect(new WeappPlatform(fakeWx(null)).info.capsuleRectDp).toBeNull();
     const noCapsule = fakeWx() as Partial<FakeWx>;
     delete noCapsule.getMenuButtonBoundingClientRect;
-    expect(new WeappPlatform(noCapsule as FakeWx).info.capsuleBottomDp).toBeNull();
+    expect(new WeappPlatform(noCapsule as FakeWx).info.capsuleRectDp).toBeNull();
+    const inverted = fakeWx();
+    inverted.getMenuButtonBoundingClientRect = () => ({ top: 51, bottom: 83, left: 365, right: 278 });
+    expect(new WeappPlatform(inverted).info.capsuleRectDp).toBeNull();
   });
 
   it('degrades gracefully without a wx global', () => {
     const platform = new WeappPlatform(undefined);
     expect(platform.info.safeAreaTop).toBe(0);
     expect(platform.info.capsuleBottomDp).toBeNull();
+    expect(platform.info.capsuleRectDp).toBeNull();
     expect(platform.getScreenSize().width).toBeGreaterThan(0);
     expect(platform.createStorage()).toBeInstanceOf(MemoryStorage);
   });

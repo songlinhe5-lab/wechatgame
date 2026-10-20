@@ -37,10 +37,21 @@ export interface AssetProvider {
   getRaw(id: string): unknown;
 }
 
+/**
+ * Screen-space rectangle in logical px (dp), origin = top-left, y down —
+ * the same orientation the WeChat API returns.
+ */
+export interface CapsuleRect {
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+}
+
 export interface PlatformInfo {
   readonly name: 'web' | 'weapp' | 'node' | 'unknown';
   readonly isMiniGame: boolean;
-  /** Safe-area insets in screen pixels (notches); 0 when unknown. */
+  /** Safe-area insets in logical px (dp, notches); 0 when unknown. */
   readonly safeAreaTop: number;
   readonly safeAreaBottom: number;
   /**
@@ -54,6 +65,14 @@ export interface PlatformInfo {
    * Provenance: `wx.getMenuButtonBoundingClientRect()`（基础库 2.1.0+，返回逻辑 px）.
    */
   readonly capsuleBottomDp: number | null;
+  /**
+   * WeChat menu-button (胶囊) **full rect in logical px (dp)**, origin top-left,
+   * y down (the API's own orientation; `capsuleBottomDp === capsuleRectDp.bottom`).
+   *
+   * `null` = 「这个宿主没有接口值」（web / node 无胶囊；小游戏基库缺该 API 或
+   * 返回值不合法）。⛔ 不得用零矩形代替「未知」——与 {@link capsuleBottomDp} 同一口径。
+   */
+  readonly capsuleRectDp: CapsuleRect | null;
 }
 
 /** Everything a game may depend on. Constructed by the App, injected once. */

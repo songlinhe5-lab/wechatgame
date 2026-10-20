@@ -271,15 +271,22 @@ describe('EP13-S2 · 本页边界（R8–R11）', () => {
         const r = rig({ maxUnlocked: 9 });
         openLevels(r.shell);
         const before = { stamina: r.shell.meta!.stamina, idx: r.shell.play.levelIndex };
-        const poke = (phase: 'down' | 'move' | 'up', x: number, y: number, t: number) => {
+        // 真机输入 = 屏幕坐标（左上原点）；热区 = 设计坐标（左下原点）⇒ 按 `Viewport.screenToDesign`
+        // 的 y 翻转口径换算（本 rig 视口 1:1）。
+        const poke = (phase: 'down' | 'move' | 'up', dx: number, dy: number, t: number) => {
             r.now.t = t;
-            r.input.push({ id: 1, phase, x, y, time: t });
+            r.input.push({ id: 1, phase, x: dx, y: DESIGN_H - dy, time: t });
             r.shell.update(0.016);
             r.input.endFrame(0.016);
         };
-        poke('down', 375, 600, 1_100);
-        poke('move', 320, 640, 1_150);
-        poke('up', 320, 640, 1_200);
+        // UI-34 版式 P：墙已占满中部，旧「空白带」坐标（设计 y≈694–734）现落格内且同格 ⇒
+        // 那是一次**正当点击**（不再是零副作用手势）。手势判据改钉**跨格拖拽**：
+        // 按下 A 格、抬起 B 格 ⇒ 抬起提交门（id + slot 同钮）必须静默取消。
+        const a = centerOf(wallCells()[0]!.box);
+        const b = centerOf(wallCells()[2]!.box);
+        poke('down', a.x, a.y, 1_100);
+        poke('move', b.x, b.y, 1_150);
+        poke('up', b.x, b.y, 1_200);
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.overlay).toBe('levels');
         expect(r.shell.meta!.stamina).toBe(before.stamina);

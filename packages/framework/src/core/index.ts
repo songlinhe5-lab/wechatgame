@@ -12,6 +12,7 @@ export * from './events/event-bus.js';
 export * from './fsm/state-machine.js';
 export * from './scene/scene-stack.js';
 export * from './input/input-manager.js';
+export * from './ui/index.js';
 export * from './pool/object-pool.js';
 export * from './save/storage.js';
 export * from './save/save-manager.js';

@@ -1,6 +1,6 @@
 /**
- * SprintSettlePanel — 冲刺结算面板（`GAME_OVER` · 冲刺态）的**逻辑**：可见性、入 / 出动画
- * 进度、内容行几何与按钮布局 / 命中。
+ * SprintSettlePanel — 冲刺结算面板（`GAME_OVER` · 冲刺态）的**逻辑**：内容行几何与按钮
+ * 布局 / 命中。开合时钟走四个结算弹窗共享的骨架（UI-33 ⇒ `result-panel.ts`）。
  *
  * 与其他系统同纪律：本模块**绝不触碰玩法状态**（不写分数 / 连击 / 存档）。结算数据由
  * `BeadsGame` 持有（`SprintTracker` + `_isNewBest`），本模块只做几何与文案。
@@ -31,11 +31,10 @@ import {
   DESIGN_H,
   DESIGN_W,
   PANEL_BUTTON_H,
-  PANEL_IN_MS,
-  PANEL_OUT_MS,
   PANEL_PADDING,
 } from '../config/tuning';
 import { rectContains, type PanelRect } from './pause-panel';
+import { ResultPanelClock } from './result-panel';
 import { multiplierForStreak } from './sprint';
 
 /** 面板能请求的两件事（动作由 `BeadsGame` 执行）。 */
@@ -167,48 +166,33 @@ export function hitSprintSettle(x: number, y: number): SprintSettleAction | null
 }
 
 /**
- * 面板状态机：入 200ms / 出 150ms（与暂停 / 结算 / 通关面板同口径）。
- * `progress` 契约一致：进入 0→1，退出 1→0，未显示 = 0；退出淡出期不接受点击。
+ * 面板生命周期走共享骨架（UI-33）：入 200ms / 出 150ms、入场即可点、退场零响应。
  */
 export class SprintSettlePanel {
-  private _elapsed = 0;
-  private _shown = false;
-  private _closing = false;
+  private readonly _clock = new ResultPanelClock();
 
   open(): void {
-    this._shown = true;
-    this._closing = false;
-    this._elapsed = 0;
+    this._clock.open();
   }
 
   close(): void {
-    if (!this._shown) return;
-    this._closing = true;
-    this._elapsed = 0;
+    this._clock.close();
   }
 
   update(dtMs: number): void {
-    if (!this._shown) return;
-    this._elapsed += Math.max(0, dtMs);
-    if (this._closing && this._elapsed >= PANEL_OUT_MS) {
-      this._shown = false;
-      this._closing = false;
-      this._elapsed = 0;
-    }
+    this._clock.update(dtMs);
   }
 
   get visible(): boolean {
-    return this._shown;
+    return this._clock.visible;
   }
 
   get interactive(): boolean {
-    return this._shown && !this._closing;
+    return this._clock.interactive;
   }
 
   get progress(): number {
-    if (!this._shown) return 0;
-    if (this._closing) return Math.max(0, 1 - this._elapsed / PANEL_OUT_MS);
-    return Math.min(1, this._elapsed / PANEL_IN_MS);
+    return this._clock.progress;
   }
 
   hitTest(x: number, y: number): SprintSettleAction | null {

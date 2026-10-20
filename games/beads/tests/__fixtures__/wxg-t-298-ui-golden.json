@@ -1,0 +1,231 @@
+{
+  "_readme": "WXG-T-298 / UI-02 金样本（十界面单元 × 关键状态整帧 RenderModel 指令流）。\n锁的是什么：每态 `sha256(命令流 join(\"\\n\"))` + `total` + 逐 kind 计数 + 宿主消费的 background/transform + 场景自证（screen/overlay/phase）。\npolygon 命令的 vertices 已在序列化时按 polygonVertices() 内联为 points ⇒ 顶点漂移同样进 sha。\n⛔ 本件只能由 tests/ui-golden-capture.ts 在可复现锚（commit）重抓；⛔ 不得手改 sha/total/kinds。\n⛔ 视觉漂移必须先有 UX 裁定并在 docs/architecture/ui-architecture-beads.md §12 登记，再重抓（K-051 / K-053 / ADR-0032 DEC-6）。\nUI-02 口径 =「现行 RenderModel 指令序列」；codeBaseline 记 §11 架构基线 bd964a0（其代码态与本件 capturedFrom 的首提交一致，之上仅文档提交）。\n⚠ signin 当前无菜单入口（Q5① 退役），该态经测试后门置 _overlay，为迁移基线保留。",
+  "task": "WXG-T-298",
+  "unit": "UI-02",
+  "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
+  "codeBaseline": "bd964a0",
+  "capturedFrom": "35e6514 · 工作树（WXG-T-311，未提交）",
+  "fixture": {
+    "viewport": {
+      "width": 750,
+      "height": 1334,
+      "pixelRatio": 2
+    },
+    "seed": "beads-ui-golden",
+    "clock": 1700000000000,
+    "step": 0.016666666666666666,
+    "level": "simpleTestLevel() 6×5（fail 场景 time=30，冲刺场景 sprintTime=90）",
+    "menuSeed": {
+      "staminaCur": 99,
+      "maxUnlockedLevel": 9
+    },
+    "stepPolicy": "shell.update(1/60) 固定步长；菜单态不推进对局"
+  },
+  "states": [
+    {
+      "id": "main-menu",
+      "unit": "MainMenuPage",
+      "note": "菜单首页：体力 99 + 解锁到第 9 关（卡片/轮播满档）",
+      "proof": {
+        "screen": "menu",
+        "overlay": "none",
+        "phase": "playing"
+      },
+      "total": 3661,
+      "kinds": {
+        "circle": 965,
+        "line": 295,
+        "rect": 481,
+        "text": 6,
+        "clip": 1,
+        "polygon": 1912,
+        "unclip": 1
+      },
+      "sha": "229646ec1d3e5673248350894f15aa6fcabe4620b254a61edb54ba7339d94013",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "level-select",
+      "unit": "LevelSelectPage",
+      "note": "选关页：从菜单点 Boss 图位 `open-levels` 进入",
+      "proof": {
+        "screen": "menu",
+        "overlay": "levels",
+        "phase": "playing"
+      },
+      "total": 1421,
+      "kinds": {
+        "text": 11,
+        "rect": 210,
+        "polygon": 800,
+        "circle": 400
+      },
+      "sha": "d4aee179c817ee9674cfa965dd27a7107c47ab5f30324ee544d7bc613c9bdb29",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "settings",
+      "unit": "SettingsModal",
+      "note": "设置弹窗：从菜单点齿轮 `open-settings` 进入",
+      "proof": {
+        "screen": "menu",
+        "overlay": "settings",
+        "phase": "playing"
+      },
+      "total": 25,
+      "kinds": {
+        "rect": 13,
+        "text": 12
+      },
+      "sha": "24b06b96f56a537a74c5a3432c3178531b9cbc8f10276456b1da79a571b1043a",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "signin",
+      "unit": "SigninModal",
+      "note": "签到弹窗：⚠ 入口已退役（Q5①），经测试后门置 `_overlay`，为迁移基线保留",
+      "proof": {
+        "screen": "menu",
+        "overlay": "signin",
+        "phase": "playing"
+      },
+      "total": 28,
+      "kinds": {
+        "rect": 11,
+        "text": 17
+      },
+      "sha": "a84f5b4c73bf55de9c1f849a2a78bc712ca16b7580358992e69ffa51d586a62e",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "play",
+      "unit": "PlayPage",
+      "note": "对局中：6×5 测试关，开局 0.2s（HUD/盘面/托盘静置态）",
+      "proof": {
+        "screen": "play",
+        "overlay": "none",
+        "phase": "playing"
+      },
+      "total": 654,
+      "kinds": {
+        "rect": 322,
+        "circle": 64,
+        "line": 125,
+        "text": 13,
+        "polygon": 130
+      },
+      "sha": "3a2b122702e53a567c7b507500d49767b5042a015f8627e976b699e84ac71091",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "pause",
+      "unit": "PauseModal",
+      "note": "暂停弹窗：对局中点 HUD 齿轮后推进 1s",
+      "proof": {
+        "screen": "play",
+        "overlay": "none",
+        "phase": "paused"
+      },
+      "total": 676,
+      "kinds": {
+        "rect": 333,
+        "circle": 63,
+        "line": 127,
+        "text": 23,
+        "polygon": 130
+      },
+      "sha": "8aa2b027016d8a500236a545e45ba323136a4c343fc5657fa762e358352371a7",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "clear",
+      "unit": "ClearResultModal",
+      "note": "过关结算：空盘填满 30 格 → 过波浪延迟后面板全开（3★）",
+      "proof": {
+        "screen": "play",
+        "overlay": "none",
+        "phase": "level-clear"
+      },
+      "total": 702,
+      "kinds": {
+        "rect": 323,
+        "circle": 63,
+        "line": 127,
+        "text": 13,
+        "polygon": 176
+      },
+      "sha": "cdf6efc0fe8ada1cd73502da846eb4743b5d3045ef52c39b9153d6eef3acb255",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "fail",
+      "unit": "FailResultModal",
+      "note": "失败结算：30s 关卡倒计时归零后推进 1s",
+      "proof": {
+        "screen": "play",
+        "overlay": "none",
+        "phase": "game-over"
+      },
+      "total": 656,
+      "kinds": {
+        "rect": 323,
+        "circle": 63,
+        "line": 127,
+        "text": 13,
+        "polygon": 130
+      },
+      "sha": "0f190a2730822f1d3c7c247187b59522ac9cf1a6d50a83d5cbd2aeb6e8ea6603",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "sprint-settle",
+      "unit": "SprintSettleModal",
+      "note": "冲刺结算：90s 冲刺跑到时间耗尽（结算面板为最后一关口径）",
+      "proof": {
+        "screen": "play",
+        "overlay": "none",
+        "phase": "game-over"
+      },
+      "total": 952,
+      "kinds": {
+        "rect": 651,
+        "circle": 3,
+        "line": 269,
+        "text": 19,
+        "polygon": 10
+      },
+      "sha": "30252d5a4016bebd6dfa302e0490ddb4e5a586eb94f8b46f7db280cec9483e2a",
+      "background": "#F1E8D8",
+      "transform": null
+    },
+    {
+      "id": "finish",
+      "unit": "FinishModal",
+      "note": "通关结算：最后一关过关后点主钮 `next` → finish 面板",
+      "proof": {
+        "screen": "play",
+        "overlay": "none",
+        "phase": "finish"
+      },
+      "total": 838,
+      "kinds": {
+        "rect": 352,
+        "circle": 113,
+        "line": 125,
+        "text": 15,
+        "polygon": 233
+      },
+      "sha": "422cd4d16edaba80e8e4fc7572c99f1ed9c5faa760513b03fcd6f4ca0bfc0bce",
+      "background": "#F1E8D8",
+      "transform": null
+    }
+  ]
+}

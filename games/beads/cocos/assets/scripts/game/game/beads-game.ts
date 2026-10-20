@@ -149,6 +149,8 @@ import { beadInksFor, type BeadsPalette } from '../view/palette';
 // **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
 import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registry';
 import { buildBeadsView } from '../view/view-model';
+import { drawPerfOverlay } from '../view/debug-layer';
+import type { UiDebugState } from '../ui/ui-host';
 import type { BeadsEvents, BeadsGameOptions } from './beads-game-types';
 import { BeadConservation } from './beads-game/bead-conservation';
 import { GameSettings } from './beads-game/game-settings';
@@ -401,6 +403,8 @@ export class BeadsGame implements Game {
   private _debugOutlines = false;
   /** DEBUG：帧耗时 EMA（ms，α=0.1）；覆层关闭不更新、恒 0，view 派生 fps。 */
   private _frameMs = 0;
+  /** UI-25：调试层宿主投影的复用对象（`debugState` 原地写，零分配）。 */
+  private readonly _debugState: UiDebugState = { enabled: false, frameMs: 0, phase: '', level: '', detail: '' };
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
   private readonly _onMenuRequest?: () => void;
   /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
@@ -832,12 +836,7 @@ export class BeadsGame implements Game {
 
   update(dt: number): void {
     if (!this._services) return;
-    // DEBUG 性能覆层（settings.debugInfo）：帧耗时 EMA（α=0.1 ≈ 十帧平滑）。只在
-    // 覆层开着时走本分支，正常玩法零开销；关→开时从 0 重起步（首帧即实测值）。
-    if (this._settings.values.debugInfo && dt > 0) {
-      const ms = dt * 1000;
-      this._frameMs = this._frameMs === 0 ? ms : this._frameMs * 0.9 + ms * 0.1;
-    }
+    this.sampleFrame(dt);
     // ── 输入段（相位无关，WXG-T-100 / BD-34）────────────────────────────────
     // `InputRouter.handleTap` 的相位路由表已写全四相位（`input-control §2.3 状态门禁`：
     // PAUSED 仅暂停面板按钮；LEVEL_CLEAR / GAME_OVER / FINISH 仅各自面板按钮；
@@ -868,6 +867,39 @@ export class BeadsGame implements Game {
     // v1.40：珠色墨水组按当前关卡解析（品牌 slug+codes → 注册表查 hex；WeakMap 缓存 ⇒
     // 三处 `_levelIndex` 赋值点零改动，热路径零分配）。
     buildBeadsView(builder, this._snapshot, this.palette, beadInksFor(this._levels[this._levelIndex]!));
+  }
+
+  /**
+   * 性能采样（UI-24）：帧耗时 EMA（α=0.1 ≈ 十帧平滑）。由 `BeadsShell.update` 每帧统一喂
+   * ⇒ 菜单腿也在测（旧版只在玩法 update 里算，菜单 fps 会冻结）。关→开从 0 重起步。
+   */
+  sampleFrame(dt: number): void {
+    if (!this._settings.values.debugInfo || dt <= 0) return;
+    const ms = dt * 1000;
+    this._frameMs = this._frameMs === 0 ? ms : this._frameMs * 0.9 + ms * 0.1;
+  }
+
+  /**
+   * 调试层（UI-24）：由 shell 在**所有路由之后**调用（菜单 / 对局 / 弹窗之上）。
+   * `onMenu = true` 只出 fps 行（菜单无盘面 / 相位数据）；开关关闭零指令。
+   */
+  drawDebugLayer(builder: RenderModelBuilder, onMenu = false): void {
+    const d = this.debugState(this._debugState, onMenu);
+    drawPerfOverlay(builder, this.palette, d.enabled, d.frameMs, d.phase, d.level, d.detail);
+  }
+
+  /**
+   * 调试层数据投影（UI-25）：文案与开关的**唯一出处**，旧链（`drawDebugLayer`）
+   * 与 `UiRoot` 的宿主实现共用。写入调用方对象并返回，热路径零分配。
+   */
+  debugState(out: UiDebugState, onMenu = false): UiDebugState {
+    const s = this._snapshot;
+    out.enabled = this._settings.values.debugInfo;
+    out.frameMs = this._frameMs;
+    out.phase = onMenu ? 'menu' : s.phase;
+    out.level = onMenu ? '' : s.mode === 'sprint' ? '冲刺' : `L${s.levelIndex + 1}`;
+    out.detail = onMenu ? '' : `pitch ${s.gridPitch.toFixed(1)} · LOD ${s.beadLodLayers}`;
+    return out;
   }
 
   /**

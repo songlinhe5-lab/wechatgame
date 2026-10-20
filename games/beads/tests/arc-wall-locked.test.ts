@@ -19,7 +19,7 @@ import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaButton, type
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import {
-    DESIGN_H, DESIGN_W, MENU_TEXTURES, WALL_CELL, WALL_COLS, WALL_GAP, WALL_CAPACITY, WALL_ROWS,
+    DESIGN_H, DESIGN_W, LEVELS_CELL, LEVELS_GAP, MENU_TEXTURES, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
 } from '../src/config/tuning.js';
 
 /** 单点图元是否落在该格框内（框含 1px 容差，锁章与珠阵均按格心布点）。 */
@@ -77,17 +77,17 @@ const isGrayHex = (fill: unknown): boolean => {
 
 afterEach(() => setMenuBitmapResolver());
 
-describe('EP13-FU-1 墙几何 3×3（A1）', () => {
-    it('列数收到 3 ⇒ 容量 9、热区 9 格、网格宽 404', () => {
+describe('EP13-FU-1 墙几何 3×3（A1；UI-34 起 = 整页版式 P）', () => {
+    it('列数 3 ⇒ 容量 9、热区 9 格、网格 570×570（格 170 / 间距 30）', () => {
         expect(WALL_COLS).toBe(3);
         expect(WALL_CAPACITY).toBe(9);
         const cs = cells();
         expect(cs).toHaveLength(WALL_COLS * WALL_ROWS);
         const left = cs[0]!.box.x;
-        const right = cs[cs.length - 1]!.box.x + WALL_CELL;
-        expect(right - left).toBe(WALL_COLS * WALL_CELL + (WALL_COLS - 1) * WALL_GAP);
+        const right = cs[cs.length - 1]!.box.x + LEVELS_CELL;
+        expect(right - left).toBe(WALL_COLS * LEVELS_CELL + (WALL_COLS - 1) * LEVELS_GAP);
         // 行序与竖向几何不变（逐行下推一格 + 一缝）。
-        expect(cs[3]!.box.y).toBe(cs[0]!.box.y - (WALL_CELL + WALL_GAP));
+        expect(cs[3]!.box.y).toBe(cs[0]!.box.y - (LEVELS_CELL + LEVELS_GAP));
     });
 });
 
