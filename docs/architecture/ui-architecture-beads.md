@@ -78,7 +78,7 @@
 
 1. **渲染**：UI 根取 Navigator 的可见路由集，自下而上逐个 `View.draw`；最后画 `DebugLayer`。遮罩由 `ModalFrame` 在对应弹窗内部画，不再各面板各画。
 2. **输入**：宿主指针协议（`InputRouter`）把非棋盘区的按下 / 抬起交给 UI 根 → 栈顶 Presenter 经 `PressTracker` 命中 → 产出 `UiIntent` → 宿主 `UiHost` 接口执行（如 `applyPanelAction`、`usePowerup`）。栈顶是弹窗时，**其面板外一切点击被屏障吞掉**。
-3. **相位到路由**：新增一个 `PhaseRouteBinder`，唯一负责把对局相位（`paused / level-clear / game-over / finish`）映射为 Navigator 的 push / pop，取代 shell 的 `_screen` / `_overlay` 标志位，以及 `PanelRouter` / `HudRouter` 里按相位分支的弹窗路由。
+3. **相位到路由**：新增一个 `PhaseRouteBinder`，唯一负责把对局相位（`paused / level-clear / game-over / finish`）映射为 Navigator 的 push / pop，取代 shell 的 `_screen` / `_overlay` 标志位，以及 `PanelRouter` / `HudRouter` 里按相位分支的弹窗路由。（[WXG-T-316 / UI-42] 壳标志位已退役；对局相位弹窗仍是 `PanelRouter` 的**点击分派**（不持导航状态），搬上路由要先让面板 View 注册 = UI-50）
 4. **边界**：对局相位状态机、结算数据、棋盘手势仍归 `BeadsGame`；UI 只通过只读投影读、通过意图写。
 
 ## 7. 目标目录
@@ -157,7 +157,7 @@ games/beads/src/ui/
 | | UI-34 ✅ | LevelSelectPage 整页（ScreenFrame + 仅标题 NavBar，从主界面 push 页面路由，无遮罩；**页专用常量，不改 `WALL_CELL`**）。⚠ 版式由弹窗板改整页，**不是零漂移**，验收版式 = [确认单](../../games/beads/design/ux/level-select-page-layout.md) §2（版式 P）（2026-10-20 随 WXG-T-311 落：`tuning.ts` 新增 `LEVELS_*` 九项（格 170 / 距 30 / 缩略 134 / back 240×88@116 / 导航带 1210），`WALL_CELL`/`WALL_CAPACITY`/`THUMB_AREA` 零改动；`levelsLayout` 按版式 P 重算、`buildMetaView` 增整页分支（无遮罩 / 无 600×720 纸面板，仅导航带标题，标题顶缘随 `anchors.btTopY`）；金样本仅 `level-select` 重抓（1423→1421），其余九态逐字不变；新增 6 例。⚠ `meta:overlay` 事件与 `back` 语义未动；UiRoot 页路由未接线 ⇒ 归 UI-40/UI-42（2026-10-20 随 WXG-T-314 已补 **200/150 页面转场**：框架组透明度 `setAlpha` + `pageFade` 叠主菜单底页 + shell dt 累积；淡出期间 overlay 仍归页） | M | UI-23, UI-25, UI-34a | 版式与确认单一致；选关意图正确；底部 `back` 回主界面；抬起才提交且同钮 | 工程负责人 |
 | P4 页面 | UI-40 ✅ | MainMenuPage；走马灯状态从 shell 迁入 Presenter（2026-10-20 随 WXG-T-315 落：新建 `src/ui/main-menu-presenter.ts::MainMenuPresenter` —— 页位 / 拖动位移 / 透明度进度 / 页数 + 玻璃手势 + 吸附动画全部收口；壳删 10 字段 7 方法，松手结果 `open`/`page`/`none` 由 Presenter 判定，`overlay` / `meta:overlay` / 200ms 转场副作用仍归壳；绘制路径逐字未改 ⇒ 金样本十态 sha 零漂移、夹具未重抓；新增 6 例边界单测；beads 96 文件 1129。⚠ UiRoot 路由注册与开关翻转移交 UI-42） | L | UI-30, UI-32, UI-34 | ✅ 金样本对拍零漂移；走马灯边界行为 6 例全绿 | 工程负责人 |
 | | UI-41 ✅ | PlayPage（HUD、托盘、道具带、缩放控件；棋盘手势不动）（2026-10-20 随 WXG-T-309 落：新建 `view/play-page.ts::drawPlayPage` —— 伪震屏/底色/HUD/棋盘绘制/缩放/托盘/展开钮/道具带/扫光/连击整段逐字搬入，`drawGear` 随迁并导出；`starPoints`/`arcPoints` 独立成 `view/shape-utils.ts`；`bodyFont`/`formatTime` 上移 `ui-theme.ts`、`drawDashedRect` 上移 `ui-widgets.ts`；`buildBeadsView` 保留为唯一门面（`drawPlayPage` + 彩带 MAIN → 五面板 → 彩带 FG → 横幅），2156 → 656 行。⚠ 单文件 1467 行是「先搬后拆」中间态、Presenter/UiRoot 路由未接线（`UI_ROOT_ENABLED` 默认关）；棋盘手势与命中未动。✅ 对局金样本 11 例零差异 + 新增 3 例（前缀等价 / 绘制命中同源 / 静态门） | L | UI-31, UI-33 | 对局金样本对拍；棋盘输入测试全绿 | 工程负责人 |
-| | UI-42 | PhaseRouteBinder：相位 → 路由，取代 shell 标志位与 PanelRouter / HudRouter 的弹窗分支 | M | UI-40, UI-41 | `_screen` / `_overlay` 删除后全仓测试绿 | 工程负责人 |
+| | UI-42 ✅ | PhaseRouteBinder：相位 → 路由，取代 shell 标志位与 PanelRouter / HudRouter 的弹窗分支（2026-10-20 随 WXG-T-316 落：新建 `src/ui/phase-route-binder.ts` —— 栈底恒一个基础页（`menu` / `play`），`levels` 为页路由、`signin` / `settings` 为弹窗路由，`screen` / `overlay` 全由栈投影；壳删 `_screen` / `_overlay` / `_overlayArc` 三字段与全部赋值，与 `UiRoot` 共用同一 `Navigator`；`levelsArc` 收口大关上下文；空 `draw` 路由保持「开关打开只叠调试层」旧行为；金样本十态 sha 零漂移、夹具未重抓；+6 例；beads 97 文件 1135。⚠ `UI_ROOT_ENABLED` 仍默认关、对局相位弹窗仍归 `PanelRouter`（点击分派，非导航状态）⇒ 拆旧链归 UI-50） | M | UI-40, UI-41 | ✅ `_screen` / `_overlay` 已删除，全仓测试绿 | 工程负责人 |
 | P5 收口 | UI-50 | 拆旧入口（门面、重复遮罩 / 按钮 / 标定线实现），Cocos 镜像同步并提示生成 `.meta` | M | UI-42 | 无重复实现残留；`framework:sync:check` 绿 | 工程负责人 |
 | | UI-51 | 文档回写：`architecture-beads` §3 目录、`ux-spec` 与 `arc-level-select-spec` 的界面到路由表、`control-manifest` 新节、`ctx/ROUTES` | S | UI-50 | `check:links`、`ctx:check` 绿 | 设计策略 + 工程负责人 |
 | | UI-52 | `check:arch` 新增 §8 五条守则的机械检查 | M | UI-50 | 故意违规用例能被拦下 | 工程负责人 |
@@ -167,4 +167,4 @@ games/beads/src/ui/
 
 ## 13. 待你拍板
 
-D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architecture.md)）：两层 / 分级复用 / 遮罩保留双档名 / 常量第一阶段并存 / 选关整页；选关整页版式已裁为**版式 P**（[确认单](../../games/beads/design/ux/level-select-page-layout.md)）。UI-00 已完成。**UI-34a 六项待核已于 2026-10-20（WXG-T-310）清零**（确认单 v0.2 §4.1）；**UI-34 落码已于 2026-10-20（WXG-T-311）完成**；**UI-40 已于 2026-10-20（WXG-T-315）完成 Presenter 迁移**（UiRoot 路由注册与开关翻转归 UI-42；200/150 转场已随 WXG-T-314 落地）；剩余待定：UI-42 PhaseRouteBinder。
+D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architecture.md)）：两层 / 分级复用 / 遮罩保留双档名 / 常量第一阶段并存 / 选关整页；选关整页版式已裁为**版式 P**（[确认单](../../games/beads/design/ux/level-select-page-layout.md)）。UI-00 已完成。**UI-34a 六项待核已于 2026-10-20（WXG-T-310）清零**（确认单 v0.2 §4.1）；**UI-34 落码已于 2026-10-20（WXG-T-311）完成**；**UI-42 已于 2026-10-20（WXG-T-316）完成壳标志位退役**（屏幕 / 覆盖层改由 `PhaseRouteBinder` 的 Navigator 栈投影，与 `UiRoot` 共用同一栈；`UI_ROOT_ENABLED` 仍默认关）；剩余待定：UI-50 拆旧入口 → UI-51 文档回写 → UI-52 守卫 → UI-53 全量验收。

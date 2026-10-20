@@ -60,7 +60,7 @@ const fixture = {
         '⛔ 本件只能由 tests/ui-golden-capture.ts 在可复现锚（commit）重抓；⛔ 不得手改 sha/total/kinds。',
         '⛔ 视觉漂移必须先有 UX 裁定并在 docs/architecture/ui-architecture-beads.md §12 登记，再重抓（K-051 / K-053 / ADR-0032 DEC-6）。',
         'UI-02 口径 =「现行 RenderModel 指令序列」；codeBaseline 记 §11 架构基线 bd964a0（其代码态与本件 capturedFrom 的首提交一致，之上仅文档提交）。',
-        '⚠ signin 当前无菜单入口（Q5① 退役），该态经测试后门置 _overlay，为迁移基线保留。',
+        '⚠ signin 当前无菜单入口（Q5① 退役），该态经测试后门压 `signin` 路由，为迁移基线保留。',
     ].join('\n'),
     task: 'WXG-T-298',
     unit: 'UI-02',

@@ -69,8 +69,10 @@ import type { PausePanelAction } from '../systems/pause-panel.js';
 import { importLatest, type HttpGet } from './level-import.js';
 import { UI_ROOT_ENABLED, UiRoot } from '../ui/ui-root.js';
 import type { UiDebugState } from '../ui/ui-host.js';
+import { PhaseRouteBinder, type ShellScreen } from '../ui/phase-route-binder.js';
 
-export type ShellScreen = 'play' | 'menu';
+/** UI-42：屏幕相位 / 覆盖层改由 {@link PhaseRouteBinder} 的 Navigator 栈投影（本文件不持标志位）。 */
+export type { ShellScreen };
 
 /** beads-studio 在线导入配置（WXG-T-179 调试用；不传 ⇒ 菜单不画入口）。 */
 export interface StudioImportOptions {
@@ -111,8 +113,6 @@ export class BeadsShell implements Game {
     private _services?: GameServices;
     private readonly _clock: () => number;
     private readonly _metaKey?: string;
-    private _screen: ShellScreen;
-    private _overlay: MetaOverlay = 'none';
     /**
      * `[WXG-T-314]` 选关页转场（ADR-0032 D5 / arc-level-select-spec §5 的 200 / 150）：
      * `_pageFxDir`：1 = 淡入（菜单→页，页已可交互）、-1 = 淡出（页→菜单，路径仍归页）、0 = 静息；
@@ -120,12 +120,6 @@ export class BeadsShell implements Game {
      */
     private _pageFxDir: -1 | 0 | 1 = 0;
     private _pageFxT = 0;
-    /**
-     * `levels` overlay 的**大关页上下文**（EP13-S2）：两处入口（卡点按 / 玻璃松手）打开时
-     * 记下当前走马灯页号 ⇒ 墙集合 = 该大关 `levelRefs` 展开（⛔ 不再全量墙）。
-     * 页面切换只经 `back` 回菜单后重进，故本值在 overlay 生命期内稳定。
-     */
-    private _overlayArc = 0;
     private readonly _studio?: StudioImportOptions;
     /** 拉取在途门标（防连点重复导入）。 */
     private _studioBusy = false;
@@ -222,12 +216,13 @@ export class BeadsShell implements Game {
     private readonly _uiDebug: UiDebugState = { enabled: false, frameMs: 0, phase: '', level: '', detail: '' };
     /** UI-25：组合根（开关关闭时不参与绘制/推进）。 */
     private readonly _uiRoot: UiRoot;
+    /** UI-42：导航唯一真源 —— 屏幕 / 覆盖层 / 选关页大关上下文都由这个栈投影。 */
+    private readonly _phase: PhaseRouteBinder;
 
     constructor(options: BeadsShellOptions) {
         this._clock = options.clock;
         this._metaKey = options.metaKey;
         this._studio = options.studio;
-        this._screen = options.initialScreen ?? 'menu';
         this._wallBaseLevels = options.play?.levels ?? LEVELS;
         this.play = new BeadsGame({
             // EP12-S8：shell 级 palette 选项真正下传 play（此前只作用于菜单侧的独立副本，
@@ -244,10 +239,12 @@ export class BeadsShell implements Game {
         // UI-25：宿主只提供调试投影（L5）；意图面随 P3 Presenter 落地。
         this._uiRoot = new UiRoot({
             debugState: () => {
-                this.play.debugState(this._uiDebug, this._screen !== 'play');
+                this.play.debugState(this._uiDebug, this._phase.screen !== 'play');
                 return this._uiDebug;
             },
         });
+        // UI-42：路由栈与 UiRoot 共用同一 Navigator（UI-50 拆旧链时本栈即绘制源）。
+        this._phase = new PhaseRouteBinder(this._uiRoot.nav, options.initialScreen ?? 'menu');
     }
 
     /** Clip → 合成配方，转交给宿主（沿 play 的音色库，ADR-0013）。 */
@@ -256,11 +253,11 @@ export class BeadsShell implements Game {
     }
 
     get screen(): ShellScreen {
-        return this._screen;
+        return this._phase.screen;
     }
 
     get overlay(): MetaOverlay {
-        return this._overlay;
+        return this._phase.overlay;
     }
 
     /** `[WXG-T-281]` init 算定的实锚（与 `tapMeta` 热区同源）⇒ 测试/覆盖层读同一几何，⛔ 另算默认档。 */
@@ -307,9 +304,9 @@ export class BeadsShell implements Game {
             metaKey: this._metaKey,
         });
         // 启动路由（ux-spec v1.7 §6.3：直进玩法；0 心老玩家落菜单——体力系统生效，非违约）。
-        if (this._screen === 'play') {
+        if (this._phase.screen === 'play') {
             if (this.meta.stamina < STAMINA_START_COST) {
-                this._screen = 'menu';
+                this._phase.resetTo('menu');
             } else {
                 this.meta.spendStamina(STAMINA_START_COST); // 首局开局扣心（§3.14）
             }
@@ -319,7 +316,7 @@ export class BeadsShell implements Game {
     update(dt: number): void {
         // UI-25：开关打开才推进路由栈（关闭 = 旧链，零额外工作）。
         if (UI_ROOT_ENABLED) this._uiRoot.update(dt);
-        if (this._screen === 'play') {
+        if (this._phase.screen === 'play') {
             this._menuPress = null; // 进玩法后不得残留菜单按压（否则回菜单时会补发一次 phantom tap）
             this.play.update(dt); // 对局腿的采样在 `sampleFrame` 内（game.update 开头）
             return;
@@ -334,7 +331,7 @@ export class BeadsShell implements Game {
     }
 
     buildRenderModel(builder: RenderModelBuilder): void {
-        if (this._screen === 'play') {
+        if (this._phase.screen === 'play') {
             this.play.buildRenderModel(builder);
             this._drawDebugLayer(builder, false);
             return;
@@ -358,11 +355,11 @@ export class BeadsShell implements Game {
     }
 
     onPause(): void {
-        if (this._screen === 'play') this.play.onPause();
+        if (this._phase.screen === 'play') this.play.onPause();
     }
 
     onResume(): void {
-        if (this._screen === 'play') this.play.onResume();
+        if (this._phase.screen === 'play') this.play.onResume();
     }
 
     dispose(): void {
@@ -376,8 +373,7 @@ export class BeadsShell implements Game {
     /** 暂停次钮「回主菜单」：切菜单、清 overlay（本局弃置——`play.abandonRun()`) 。 */
     showMenu(): void {
         this.play.abandonRun();
-        this._screen = 'menu';
-        this._overlay = 'none';
+        this._phase.resetTo('menu');
         this._cancelPageFx();
         this._emitOverlay(true);
     }
@@ -401,8 +397,7 @@ export class BeadsShell implements Game {
             this._requestStaminaRefill();
             return false;
         }
-        this._screen = 'play';
-        this._overlay = 'none';
+        this._phase.resetTo('play');
         this._cancelPageFx();
         this._emitOverlay(false);
         this.play.goToLevel(index); // 棋盘复位到该关初始（关卡指针/解锁进度不变）
@@ -433,7 +428,7 @@ export class BeadsShell implements Game {
 
     /** 命中 + 派发的唯一腿（菜单 / overlay 共用）；返回是否被控件消费。 */
     private _dispatchMetaTap(x: number, y: number): boolean {
-        const btn = hitTestMeta(this._overlay, x, y, this._viewData.anchors);
+        const btn = hitTestMeta(this._phase.overlay, x, y, this._viewData.anchors);
         if (!btn) return false;
         return this._applyMetaAction(btn);
     }
@@ -451,8 +446,7 @@ export class BeadsShell implements Game {
                 // EP13-S4 · R13：末页空橱窗无大关实体 ⇒ 零事件（不切 overlay、不发事件）。
                 if (this._menu.offset >= ARC_OPEN_MAX) return false;
                 // EP13-S2：记下当前大关页 ⇒ 选关页只列本大关清单（tls §4 注 A：闸门本身不动）。
-                this._overlayArc = this._menu.offset;
-                this._overlay = 'levels';
+                this._phase.openLevels(this._menu.offset);
                 this._emitOverlay(true);
                 this._beginPageFx(1);
                 return true;
@@ -477,21 +471,21 @@ export class BeadsShell implements Game {
                 return true;
             case 'open-signin':
                 this._cancelPageFx();
-                this._overlay = 'signin';
+                this._phase.openModal('signin');
                 this._emitOverlay(true);
                 return true;
             case 'open-settings':
                 this._cancelPageFx();
-                this._overlay = 'settings';
+                this._phase.openModal('settings');
                 this._emitOverlay(true);
                 return true;
             case 'back':
                 // UI-42 前置（WXG-T-314）：**仅选关页**走淡出 150ms（弹窗仍即时关，口径不变）。
                 // 淡出期间 overlay 仍归页（命中路径不变）⇒ 终点才置 `none` 并发关闭事件。
-                if (this._overlay === 'levels') {
+                if (this._phase.overlay === 'levels') {
                     this._beginPageFx(-1);
                 } else {
-                    this._overlay = 'none';
+                    this._phase.close();
                     this._emitOverlay(false);
                 }
                 return true;
@@ -537,7 +531,7 @@ export class BeadsShell implements Game {
         this._pageFxT = 0;
         this._pageFxDir = 0;
         if (dir === -1) {
-            this._overlay = 'none';
+            this._phase.close(); // 淡出终点才离页（期间命中仍归页，WXG-T-314）
             this._emitOverlay(false);
         }
     }
@@ -566,8 +560,7 @@ export class BeadsShell implements Game {
                 if (!outcome.ok || !outcome.level) return done(false, outcome.errors[0] ?? '导入失败');
                 const errs = this.play.importLevel(outcome.level);
                 if (errs.length) return done(false, errs[0] ?? '校验失败');
-                this._screen = 'play';
-                this._overlay = 'none';
+                this._phase.resetTo('play');
                 this._cancelPageFx();
                 this._emitOverlay(false);
                 done(true, outcome.level.name);
@@ -582,8 +575,8 @@ export class BeadsShell implements Game {
         const snap = services.input.snapshot;
         services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
         if (snap.justDown) {
-            const btn = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
-            if (btn?.id === 'open-levels' && this._overlay === 'none') {
+            const btn = hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+            if (btn?.id === 'open-levels' && this._phase.overlay === 'none') {
                 // 点在玻璃上先记下来，松手再决定是点按还是翻页。
                 this._menu.press(this._pointer.x, this._pointer.y, this._clock());
             } else {
@@ -603,7 +596,7 @@ export class BeadsShell implements Game {
         // 拖玻璃时不点亮滑过的别的钮。
         this._viewData.pressed = this._menu.dragging
             ? null
-            : hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+            : hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
     }
 
     /**
@@ -614,7 +607,7 @@ export class BeadsShell implements Game {
         const press = this._menuPress;
         this._menuPress = null;
         if (!press) return;
-        const hit = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+        const hit = hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
         if (!hit || hit.id !== press.id || hit.slot !== press.slot) return;
         this._applyMetaAction(hit);
     }
@@ -622,8 +615,7 @@ export class BeadsShell implements Game {
     /** 松手：点按 ⇒ 进选关；拖动 ⇒ 翻页 / 回弹已在 Presenter 内启动。 */
     private _releaseGlass(): void {
         if (this._menu.release(this._clock()) !== 'open') return;
-        this._overlayArc = this._menu.offset; // EP13-S2：同 `open-levels`（两入口同上下文）
-        this._overlay = 'levels';
+        this._phase.openLevels(this._menu.offset); // EP13-S2：同 `open-levels`（两入口同上下文）
         this._emitOverlay(true);
         this._beginPageFx(1);
     }
@@ -635,7 +627,7 @@ export class BeadsShell implements Game {
      */
     private _wallSlotsFor(): readonly number[] {
         const n = this.play.levelCount;
-        const arc = this._overlayArc;
+        const arc = this._phase.levelsArc;
         if (n !== this._wallSlotsForCount || arc !== this._wallSlotsForArc) {
             this._wallSlots = this._rebuildWallSlots(arc, n);
             this._wallLevels = this._rebuildWallLevels(this._wallSlots);
@@ -722,7 +714,7 @@ export class BeadsShell implements Game {
         v.stamina = m ? m.stamina : 0;
         v.staminaMax = m ? m.staminaMax : 0;
         v.coins = m ? m.coins : 0;
-        v.overlay = this._overlay;
+        v.overlay = this._phase.overlay;
         // UI-42 前置（WXG-T-314）：选关页不透明度（淡入 ease-out、淡出 ease-in；静息 = undefined）。
         v.pageFade = this._pageFxDir === 0
             ? undefined
@@ -790,7 +782,7 @@ export class BeadsShell implements Game {
         const services = this._services;
         if (!services) return;
         const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
-        bus.emit('meta:overlay', { open, name: open ? this._overlay : 'none' });
+        bus.emit('meta:overlay', { open, name: open ? this._phase.overlay : 'none' });
     }
 }
 

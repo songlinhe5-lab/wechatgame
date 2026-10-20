@@ -10,7 +10,8 @@
  * 写夹具 = `ui-golden-capture.ts`；只读对拍 = `ui-golden.test.ts`（⛔ 测试不得自更新基准）。
  *
  * ⚠ 签到（`signin`）当前**无菜单入口**（Q5① 退役，`beads-shell.test.ts` 明确「菜单不得有签到热区」），
- *   只能经测试后门置 `_overlay = 'signin'`。该态为迁移基线保留，恢复入口后本场景才回到真实路径。
+ *   只能经测试后门把 `signin` 弹窗路由压栈（`PhaseRouteBinder.openModal`）。该态为迁移基线保留，
+ *   恢复入口后本场景才回到真实路径。
  */
 import { createHash } from 'node:crypto';
 import {
@@ -29,6 +30,7 @@ import {
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
+import type { PhaseRouteBinder } from '../src/ui/phase-route-binder.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { metaLayout } from '../src/view/meta-view.js';
@@ -206,10 +208,10 @@ const STATES: readonly GoldenStateDef[] = [
     {
         id: 'signin',
         unit: 'SigninModal',
-        note: '签到弹窗：⚠ 入口已退役（Q5①），经测试后门置 `_overlay`，为迁移基线保留',
+        note: '签到弹窗：⚠ 入口已退役（Q5①），经测试后门压 `signin` 路由，为迁移基线保留',
         build: () => {
             const shell = rig({ unlocked: 9 });
-            (shell as unknown as { _overlay: string })._overlay = 'signin';
+            (shell as unknown as { _phase: PhaseRouteBinder })._phase.openModal('signin');
             requireScreen(shell, 'menu', 'signin');
             return shell;
         },

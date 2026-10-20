@@ -3495,6 +3495,18 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-316
+
+**beads·UI-42 PhaseRouteBinder：壳导航标志位退役** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：UI 架构迁移 P4 下一格（用户选下一步「1」）。验收口径 = 任务表原文「`_screen` / `_overlay` 删除后全仓测试绿」；DEC-3「栈即导航状态」。
+- **落点**：新建 `src/ui/phase-route-binder.ts::PhaseRouteBinder` —— 栈底恒有且只有一个基础页（`menu` / `play`）；`levels` 为**页**路由（不透明）、`signin` / `settings` 为**弹窗**路由（透明）；`screen` / `overlay` 全部由 Navigator 栈**投影**（壳不再有标志位）；`levelsArc` 收口选关页大关上下文。四个转场入口 = `resetTo(screen)` / `openLevels(arc)` / `openModal(name)` / `close()`；基础页永不被弹掉。
+- **零漂移**：绘制路径与 `hitTestMeta` 判据逐字未改，只换数据源；`meta:overlay` 事件时序不变（`back` 淡出期间 overlay 仍归页、150ms 终点才 `close()` + 发事件）；金样本十态 sha 全等、夹具未重抓。路由 `draw` 为空实现 ⇒ `UI_ROOT_ENABLED` 打开时画面仍是「旧链内容 + 调试层」。
+- **与 UiRoot 共用同一栈**：`PhaseRouteBinder(this._uiRoot.nav)`，不做第二份真源；UI-50 拆旧链时本栈即绘制源。
+- **测试**：新增 `tests/phase-route-binder.test.ts` 6 例 —— 初始基础页；`levels` 页路由 + 大关上下文 + 关栈顶；`signin` / `settings` 弹窗不换屏；基础页 `close()` 不弹空栈；`resetTo` 清覆盖层；与 `UiRoot` 共用栈时空 `draw` 零指令。
+- **验证读数**：beads 97 文件 **1135**（1133 passed + 2 skipped）；`npx tsc` 0 错；`pnpm run verify` PASS 22；Cocos 镜像 2 件随源更新（`beads-shell.ts` + 新 `phase-route-binder.ts`）。
+- **诚实限制**：`UI_ROOT_ENABLED` 仍默认关（拆旧链、开关退役 = UI-50）；对局腿相位弹窗（`paused` / `level-clear` / `game-over` / `finish`）仍由 `BeadsGame.phase` + `PanelRouter` 直接分派 —— 它们是**点击路由**、不持导航状态，搬上路由须先让面板 View 注册（UI-50）；金样本夹具 `_readme` 保留捕获当时的 `_overlay` 措辞（不手改夹具）。
+
 ## WXG-T-315
 
 **beads·UI-40 MainMenuPage：走马灯状态从 shell 迁入 Presenter** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
