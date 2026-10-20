@@ -1,19 +1,39 @@
 {
   "version": 1,
   "targets": [
-    { "path": ".mcp.json", "dialect": "explicit" },
-    { "path": ".cursor/mcp.json", "dialect": "cursor" },
-    { "path": ".codebuddy/mcp.json", "dialect": "explicit" }
+    {
+      "path": ".mcp.json",
+      "dialect": "explicit"
+    },
+    {
+      "path": ".cursor/mcp.json",
+      "dialect": "cursor"
+    },
+    {
+      "path": ".codebuddy/mcp.json",
+      "dialect": "explicit"
+    }
   ],
   "servers": {
     "weixin-minigame-helper": {
       "transport": "stdio",
       "command": "npx",
-      "args": ["-y", "@weadmin/weixin-minigame-helper-mcp@0.1.13"]
+      "args": [
+        "-y",
+        "@weadmin/weixin-minigame-helper-mcp@0.1.13"
+      ]
     },
     "cocos-creator": {
       "transport": "http",
       "url": "http://127.0.0.1:3000/mcp"
+    },
+    "headroom": {
+      "transport": "stdio",
+      "command": "headroom",
+      "args": [
+        "mcp",
+        "serve"
+      ]
     }
   }
 }

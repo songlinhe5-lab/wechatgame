@@ -10,6 +10,14 @@
     },
     "cocos-creator": {
       "url": "http://127.0.0.1:3000/mcp"
+    },
+    "headroom": {
+      "type": "stdio",
+      "command": "headroom",
+      "args": [
+        "mcp",
+        "serve"
+      ]
     }
   }
 }

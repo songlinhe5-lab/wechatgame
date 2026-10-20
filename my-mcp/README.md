@@ -68,3 +68,13 @@ Qoder 官方文档（docs.qoder.com/cli/mcp-reference）明确项目级支持读
 2. **Qoder 已收口**（WXG-T-046，见 §5）：项目级复用根 `.mcp.json`，**未新增 targets**。**WorkBuddy 位置仍未核实**——但本仓 WorkBuddy 定位为纯文档/设计，**判定为不追求 MCP 接入**（Not Planned），若将来改变分工须回填本节。核实新位置时**必须先登记 `targets` 再 `mcp:build`**（C5 会要求）。
 3. 安装与验证顺序见 `docs/agent/cocos-setup.md`；决策依据见 `docs/architecture/adr/ADR-0009`。
 4. **`cocos-creator`（HTTP）服务的可用性依赖编辑器进程 + 面板打开**（2026-09-14 实测）：MCP 服务随扩展 `unload()` 停止，编辑器没开或面板被关时该 server 连接失败——IDE 侧显示"连接失败"属**预期**，不是配置错。探活用 `GET http://127.0.0.1:3000/health`（**不要用 `/mcp`**，GET 恒 404 会误判）。
+
+## 8. `headroom` server —— 本地上下文压缩（WXG-T-330）
+
+[Headroom](https://github.com/headroomlabs-ai/headroom) 是跑在本机的**上下文压缩层**：把喂给模型的巨型工具输出（JSON / 日志 / git diff / RAG）压小再进 LLM，原文本地留档可逆（CCR）。注册为 MCP server 后，Agent 显式调 `headroom_compress` 压大块、`headroom_retrieve` 取原文、`headroom_stats` 看省幅。
+
+- **它压的是「工具 stdout 回灌」，不是本仓 `ctx/` 读侧预算体系**：两者互补——`ctx/ROUTES.md` + `hot-files.md` + `check:context-budget` 管「别整读大文件」，headroom 管「回灌给模型的大输出」。⛔ 别指望它替掉 ctx 门。
+- **前置（本机一次性，仓库外）**：`uv tool install --python 3.13 "headroom-ai[mcp,code]"`，装完 `headroom --version` 的读数写进此处/台账做**确定版本锚**（禁裸 `latest`，同 §15 精神）。
+- **PATH 说明**：`command: "headroom"` 与 `npx` 同走 PATH。GUI 启动的 IDE 若不继承 shell PATH、spawn 报「找不到 headroom」，把正本此处 `command` 改为绝对路径（`uv tool` 默认落 `~/.local/bin/headroom`）再 `pnpm run mcp:build`。
+- **缺件即连接失败属预期**（同 §7-4 的 cocos）：未装 headroom 前该 server 启动失败不影响其余两个，装上即恢复。
+- **字面「减少输出」在 proxy 侧、非本 server**：`HEADROOM_OUTPUT_SHAPER=1` 的 verbosity/effort 削减要把 Agent 出网指向 `headroom proxy` 才生效（Harness 级），MCP 模式只做「显式压缩大块输入」。默认遥测可用 `HEADROOM_BEACON=off` 关。

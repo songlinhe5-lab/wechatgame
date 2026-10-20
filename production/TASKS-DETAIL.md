@@ -3495,6 +3495,18 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-330
+
+**工程·MCP 接入 headroom（本地上下文压缩 server） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 接线入库（2026-10-20）；本机二进未装（选项三才装）**
+
+- **来源**：用户给 https://github.com/headroomlabs-ai/headroom 要「调研 + 如何用到本工程减少 token 输出」。调研后给三选（接 MCP / 出 proxy 落地清单 / 先可行性探针），用户选「接 MCP」。
+- **Headroom 定位（一句话）**：跑在本机的上下文压缩层，把喂给模型的巨型工具输出（JSON/日志/git diff/RAG）压小再进 LLM，原文本地留档可逆（CCR）。**它压「工具 stdout 回灌」，与本仓 `ctx/` 读侧预算体系（别整读大文件）互补不替代**。
+- **接线（只改正本）**：`my-mcp/servers.json` 加 `headroom`（`transport:"stdio", command:"headroom", args:["mcp","serve"]`）→ `pnpm run mcp:build` 重生 `.mcp.json`（explicit）/`.cursor/mcp.json`（cursor）/`.codebuddy/mcp.json`（explicit）三产物（机器生成物不手改）。`command` 走 PATH（与 `npx` 同款），未硬编绝对路。
+- **门禁**：`check:mcp` OK（三产物与正本一致；headroom stdio 有 command+args ⇒ C3 绿）；`check:plugins` OK（它只按 vendor 包名匹配带 `@scope/name@semver` 的条目 ⇒ 无版本 spec 的 headroom 被忽略，不影响 weixin 锚校验）。Qoder 读项目根 `.mcp.json`（README §5），首次使用需 IDE 内批准。
+- **为何选 stdio MCP 而非 proxy**：proxy（`headroom proxy` + `HEADROOM_OUTPUT_SHAPER=1`）是真正「减少输出 token」的形态（verbosity/effort 削减），但属 Harness/IDE 出网级、本轮不可入仓（也无法在沙箱替 Qoder 改道）；MCP server 可入仓、提供显式 `headroom_compress`/`headroom_retrieve`/`headroom_stats`。两者不互斥。
+- **诚实边界**：① 本轮**不装 headroom**（`uv tool install` 写仓外家目录、且属选项三的「可行性探针」职责）⇒ 未装前 Qoder spawn 该 server 失败，同 cocos 未开编辑器时的预期连接失败（README §7-4），装上即恢复；② 游戏运行时不调 LLM ⇒ headroom 不进包、不影响包体红线；③ 版本钉按仓风不硬编 `latest`（README §8 要求装完把 `headroom --version` 读数回写台账做确定锚）。
+- **未做 / 下一步**：① 本机装 headroom + `headroom doctor`/`headroom savings` 量真实省幅（选项三）；② 若 Qoder 不继承 PATH，把正本 `command` 改为绝对路径后 `mcp:build`；③ 若要字面「减输出」，走 proxy 形态（需用户 IDE 配出网）。
+
 ## WXG-T-329
 
 **beads·UI-60 DEC-8①：Node 侧层序守门轨（引擎无关） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 守门轨完成（2026-10-20），战线一（视图接线 + cc 层树 + 真机读数）排期中）**
