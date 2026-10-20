@@ -67,7 +67,7 @@ import { MainMenuPresenter } from '../ui/main-menu-presenter.js';
 import type { BeadsPalette } from '../view/palette.js';
 import type { PausePanelAction } from '../systems/pause-panel.js';
 import { importLatest, type HttpGet } from './level-import.js';
-import { UI_ROOT_ENABLED, UiRoot } from '../ui/ui-root.js';
+import { UiRoot } from '../ui/ui-root.js';
 import type { UiDebugState } from '../ui/ui-host.js';
 import { PhaseRouteBinder, type ShellScreen } from '../ui/phase-route-binder.js';
 
@@ -243,8 +243,12 @@ export class BeadsShell implements Game {
                 return this._uiDebug;
             },
         });
-        // UI-42：路由栈与 UiRoot 共用同一 Navigator（UI-50 拆旧链时本栈即绘制源）。
-        this._phase = new PhaseRouteBinder(this._uiRoot.nav, options.initialScreen ?? 'menu');
+        // UI-50：路由栈与 UiRoot 共用同一 Navigator，栈即绘制源 —— 基础页路由的 `draw`
+        // 闭包绑到本壳的两个视图入口（菜单腿消费 `play.palette`，换肤后两屏同帧一致）。
+        this._phase = new PhaseRouteBinder(this._uiRoot.nav, {
+            menu: (b) => buildMetaView(b, this._metaViewData(), this.play.palette),
+            play: (b) => this.play.buildRenderModel(b),
+        }, options.initialScreen ?? 'menu');
     }
 
     /** Clip → 合成配方，转交给宿主（沿 play 的音色库，ADR-0013）。 */
@@ -314,8 +318,8 @@ export class BeadsShell implements Game {
     }
 
     update(dt: number): void {
-        // UI-25：开关打开才推进路由栈（关闭 = 旧链，零额外工作）。
-        if (UI_ROOT_ENABLED) this._uiRoot.update(dt);
+        // UI-50：路由栈是唯一导航真源，每帧推进栈顶。
+        this._uiRoot.update(dt);
         if (this._phase.screen === 'play') {
             this._menuPress = null; // 进玩法后不得残留菜单按压（否则回菜单时会补发一次 phantom tap）
             this.play.update(dt); // 对局腿的采样在 `sampleFrame` 内（game.update 开头）
@@ -331,26 +335,9 @@ export class BeadsShell implements Game {
     }
 
     buildRenderModel(builder: RenderModelBuilder): void {
-        if (this._phase.screen === 'play') {
-            this.play.buildRenderModel(builder);
-            this._drawDebugLayer(builder, false);
-            return;
-        }
-        // EP12-S8：菜单侧消费 `play.palette`（换肤后菜单下一帧同步生效）⇒ 换肤「双面」
-        // 的游戏内侧在两屏一致；`this.palette`（构造期选项）保留为兼容字段不再消费。
-        buildMetaView(builder, this._metaViewData(), this.play.palette);
-        this._drawDebugLayer(builder, true);
-    }
-
-    /**
-     * UI-25：调试层出口。关闭（默认）= UI-24 旧链直调，逐字不变；
-     * 打开 = `UiRoot` 接管（可见路由自下而上 + 调试层），内容仍由旧链画。
-     */
-    private _drawDebugLayer(builder: RenderModelBuilder, onMenu: boolean): void {
-        if (!UI_ROOT_ENABLED) {
-            this.play.drawDebugLayer(builder, onMenu);
-            return;
-        }
+        // UI-50：唯一绘制入口 —— 可见路由自下而上画内容，最后叠调试层。
+        // 基础页路由的 `draw` 闭包绑到既有视图（菜单腿 `buildMetaView` / 对局腿
+        // `play.buildRenderModel`）⇒ 层序与拆分前逐字一致。
         this._uiRoot.draw(builder, this.play.palette);
     }
 

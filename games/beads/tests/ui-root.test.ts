@@ -1,15 +1,14 @@
 /**
- * UI-25 · UiRoot 组合根（ADR-0032 §6）。
+ * UI-25 · UiRoot 组合根（ADR-0032 §6；UI-50 起为唯一绘制入口）。
  *
- * 验收口径：开关关闭时全仓测试与改动前一致 —— 本文件的「开关默认值」+ 金样本
- * 十一例 + 全量 `verify` 共同构成证据。这里钉住三件行为：
+ * 钉住三件行为：
  *  ① 空栈时与旧链 `drawPerfOverlay` 指令逐字相同（接管调试层零漂移）；
  *  ② 可见路由自下而上，调试层最后；
  *  ③ 调试关时路由照画、零覆层指令。
  */
 import { describe, it, expect } from 'vitest';
 import type { RenderModelBuilder } from '@wxgame/framework';
-import { UI_ROOT_ENABLED, UiRoot, type UiRoute } from '../src/ui/ui-root.js';
+import { UiRoot, type UiRoute } from '../src/ui/ui-root.js';
 import { drawPerfOverlay } from '../src/view/debug-layer.js';
 import type { BeadsPalette } from '../src/view/palette.js';
 import type { UiDebugState } from '../src/ui/ui-host.js';
@@ -47,10 +46,6 @@ function route(name: string, kind: 'page' | 'modal'): UiRoute {
 }
 
 describe('UI-25 · UiRoot', () => {
-  it('开关默认关闭（迁移期走旧链）', () => {
-    expect(UI_ROOT_ENABLED).toBe(false);
-  });
-
   it('空栈时与旧链 drawPerfOverlay 指令逐字相同', () => {
     const d: UiDebugState = {
       enabled: true,

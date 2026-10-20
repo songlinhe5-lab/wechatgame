@@ -1161,19 +1161,15 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(theme).toContain('canvas: PANEL_SCRIM_RGB');
         expect(theme).toContain('overlay: { r: 0, g: 0, b: 0 }');
 
-        // UI-24/25：调试层两腿都接，排在对应路由绘制之后（弹窗/面板均被盖住）；
-        // 开关关闭（默认）= 旧链逐字不变，打开 = UiRoot 接管。
+        // UI-24/25/50：调试层只剩**一个**出口（UiRoot：可见路由自下而上 → 覆层最后）；
+        // 两条腿的视图入口都作为基础页路由的 `draw` 注入 ⇒ 壳内不再有开关或第二份绘制分支。
         const shell = SRC('game/beads-shell.ts');
-        expect(shell.match(/this\._drawDebugLayer\(builder, /g) ?? []).toHaveLength(2);
-        expect(shell).toContain('if (!UI_ROOT_ENABLED) {');
-        expect(shell.match(/this\.play\.drawDebugLayer\(builder, onMenu\)/g) ?? []).toHaveLength(1);
+        expect(shell).not.toContain('UI_ROOT_ENABLED');
+        expect(shell).not.toContain('_drawDebugLayer');
         expect(shell).toContain('this._uiRoot.draw(builder, this.play.palette);');
-        expect(shell.indexOf('this._drawDebugLayer(builder, false)')).toBeGreaterThan(
-            shell.indexOf('this.play.buildRenderModel(builder);'),
-        );
-        expect(shell.indexOf('this._drawDebugLayer(builder, true)')).toBeGreaterThan(
-            shell.indexOf('buildMetaView(builder'),
-        );
+        expect(shell.match(/buildMetaView\(/g) ?? []).toHaveLength(1);
+        expect(shell.match(/this\.play\.buildRenderModel\(b\)/g) ?? []).toHaveLength(1);
+        expect(shell.indexOf('new PhaseRouteBinder')).toBeLessThan(shell.indexOf('buildMetaView('));
     });
 
     // UI-24 验收：菜单腿也能看到性能信息（旧版覆层只在对局 view-model 里）；关时零指令。

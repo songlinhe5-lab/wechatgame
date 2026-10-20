@@ -5,7 +5,8 @@
  * 本文件钉住三件事——
  *  ① 投影正确：`screen` = 栈底基础页，`overlay` = 栈顶覆盖层（基础页在顶 ⇒ `none`）；
  *  ② 转场只经 Navigator：进页 / 开弹窗 / 关栈顶 / 整栈重置，基础页永不被弹掉；
- *  ③ 与 `UiRoot` 共用同一 Navigator：空 `draw` 路由不改变「只叠调试层」的旧行为。
+ *  ③ 与 `UiRoot` 共用同一 Navigator：基础页路由的 `draw` 就是壳注入的视图入口（UI-50），
+ *     覆盖层路由不重复画（内容由基础页的 View 分支画）。
  */
 import { describe, it, expect } from 'vitest';
 import { Navigator, type RenderModelBuilder } from '@wxgame/framework';
@@ -13,9 +14,14 @@ import { PhaseRouteBinder } from '../src/ui/phase-route-binder.js';
 import { UiRoot } from '../src/ui/ui-root.js';
 import type { BeadsPalette } from '../src/view/palette.js';
 
-function binder(screen: 'play' | 'menu' = 'menu'): { nav: Navigator; b: PhaseRouteBinder } {
+function binder(screen: 'play' | 'menu' = 'menu'): { nav: Navigator; b: PhaseRouteBinder; calls: string[] } {
     const nav = new Navigator();
-    return { nav, b: new PhaseRouteBinder(nav, screen) };
+    const calls: string[] = [];
+    const b = new PhaseRouteBinder(nav, {
+        menu: () => calls.push('menu'),
+        play: () => calls.push('play'),
+    }, screen);
+    return { nav, b, calls };
 }
 
 describe('UI-42 · PhaseRouteBinder', () => {
@@ -80,19 +86,26 @@ describe('UI-42 · PhaseRouteBinder', () => {
         expect(b.overlay).toBe('none');
     });
 
-    it('与 UiRoot 共用同一 Navigator：路由 draw 为空 ⇒ 开关打开时仍只叠调试层', () => {
+    it('与 UiRoot 共用同一 Navigator：基础页路由即绘制入口（UI-50）', () => {
         const root = new UiRoot({
             debugState: () => ({ enabled: false, frameMs: 0, phase: 'menu', level: '', detail: '' }),
         });
-        const b = new PhaseRouteBinder(root.nav);
-        b.openModal('settings');
         const calls: string[] = [];
+        const b = new PhaseRouteBinder(root.nav, {
+            menu: () => calls.push('menu'),
+            play: () => calls.push('play'),
+        });
         const builder = {
             height: 1334,
             rect: () => calls.push('rect'),
             text: () => calls.push('text'),
         } as unknown as RenderModelBuilder;
+        b.openModal('settings');
         root.draw(builder, {} as BeadsPalette);
-        expect(calls).toEqual([]);
+        expect(calls, '覆盖层不重复画').toEqual(['menu']);
+
+        b.resetTo('play');
+        root.draw(builder, {} as BeadsPalette);
+        expect(calls).toEqual(['menu', 'play']);
     });
 });

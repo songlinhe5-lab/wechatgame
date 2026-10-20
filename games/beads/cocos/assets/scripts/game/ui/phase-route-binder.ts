@@ -7,14 +7,18 @@
  * 壳不再持 `_screen` / `_overlay` 标志位：`screen` / `overlay` 都从栈上**投影**出来
  * （DEC-3：栈即导航状态）。
  *
- * 热路径零分配：路由是五个模块级单例，转场只推 / 弹引用；投影只读栈顶。
+ * 热路径零分配：转场只推 / 弹引用；投影只读栈顶。三条内容路由（menu / play / levels）
+ * 由构造期闭包给出 `draw`（UI-50：`UiRoot` 是唯一绘制入口），两条弹窗路由是模块级单例。
  *
- * ⚠ 边界：对局腿的相位弹窗（`paused` / `level-clear` / `game-over` / `finish`）仍由
+ * ⚠ 边界 ①：`levels` 是**页**（盖住菜单）⇒ 它的 `draw` 复用菜单腿入口（视图按 overlay 走页分支）；
+ * `signin` / `settings` 是**透明弹窗**，底下 menu 路由仍可见并画出弹窗本帧（菜单遮罩态不画
+ * 底页，属既有视觉；逐层拆分要先过 UX 裁定），故两条弹窗路由 `draw` 为空。
+ * ⚠ 边界 ②：对局腿的相位弹窗（`paused` / `level-clear` / `game-over` / `finish`）仍由
  * `BeadsGame.phase` + `PanelRouter` 直接分派 —— 它们是**点击路由**（命中哪颗面板钮），
- * 不是导航标志位；搬上本栈要先让面板 View 注册成路由（UI-50 拆旧入口）。本批不动，
- * 免得同一状态两处真源。
+ * 不是导航标志位；搬上本栈要先让面板 View 注册成路由。本批不动，免得同一状态两处真源。
  */
 import { Navigator } from '../../framework/index';
+import type { RenderModelBuilder } from '../../framework/index';
 import type { MetaOverlay } from '../view/meta-view';
 import type { UiRoute } from './ui-root';
 
@@ -24,14 +28,17 @@ export type ShellScreen = 'play' | 'menu';
 export type MenuOverlay = 'signin' | 'settings';
 
 /**
- * 内容仍由旧链（`buildMetaView` / `buildBeadsView`）画 ⇒ 路由的 `draw` 是空实现。
- * 这样 `UI_ROOT_ENABLED` 打开时本栈照旧只叠调试层，与空栈时期的画面一致（UI-50 接线）。
+ * 基础页的绘制入口（壳注入：菜单腿一次 `buildMetaView`、对局腿一次
+ * `play.buildRenderModel` —— 本批只把**入口**收到路由上，不拆视图内部）。
  */
+export interface PhasePageDrawers {
+    menu(builder: RenderModelBuilder): void;
+    play(builder: RenderModelBuilder): void;
+}
+
+/** 弹窗内容由底下的 menu 路由画出（见头注边界 ①）⇒ 空 `draw`。 */
 const noop = (): void => {};
 
-const PAGE_MENU: UiRoute = { name: 'menu', kind: 'page', draw: noop };
-const PAGE_PLAY: UiRoute = { name: 'play', kind: 'page', draw: noop };
-const PAGE_LEVELS: UiRoute = { name: 'levels', kind: 'page', draw: noop };
 const MODAL_SIGNIN: UiRoute = { name: 'signin', kind: 'modal', draw: noop };
 const MODAL_SETTINGS: UiRoute = { name: 'settings', kind: 'modal', draw: noop };
 
@@ -42,12 +49,21 @@ export class PhaseRouteBinder {
      * 只在页生命期内被读，重进时覆写）。
      */
     private _levelsArc = 0;
+    /** 基础页路由（每个壳一份：`draw` 闭包绑到该壳的视图入口）。 */
+    private readonly _menuRoute: UiRoute;
+    private readonly _playRoute: UiRoute;
+    private readonly _levelsRoute: UiRoute;
 
     constructor(
         /** 与 {@link UiRoot} 共用的路由栈（同一个 Navigator，不做第二份真源）。 */
         private readonly _nav: Navigator,
+        drawers: PhasePageDrawers,
         screen: ShellScreen = 'menu',
     ) {
+        this._menuRoute = { name: 'menu', kind: 'page', draw: (b) => drawers.menu(b) };
+        this._playRoute = { name: 'play', kind: 'page', draw: (b) => drawers.play(b) };
+        // 页路由挡住菜单 ⇒ 必须自己画；复用菜单腿入口（`data.overlay === 'levels'` 选页分支）。
+        this._levelsRoute = { name: 'levels', kind: 'page', draw: (b) => drawers.menu(b) };
         this.resetTo(screen);
     }
 
@@ -71,13 +87,13 @@ export class PhaseRouteBinder {
 
     /** 整栈换成单个基础页（回主菜单 / 进玩法 / 启动兜底都用它）。 */
     resetTo(screen: ShellScreen): void {
-        this._nav.reset([screen === 'play' ? PAGE_PLAY : PAGE_MENU]);
+        this._nav.reset([screen === 'play' ? this._playRoute : this._menuRoute]);
     }
 
     /** 主菜单 → 选关页（页路由），同时记下大关上下文。 */
     openLevels(arc: number): void {
         this._levelsArc = arc;
-        this._nav.push(PAGE_LEVELS);
+        this._nav.push(this._levelsRoute);
     }
 
     /** 菜单 → 弹窗（透明，底下仍画主菜单）。 */

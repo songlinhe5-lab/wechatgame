@@ -149,7 +149,6 @@ import { beadInksFor, type BeadsPalette } from '../view/palette.js';
 // **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
 import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registry.js';
 import { buildBeadsView } from '../view/view-model.js';
-import { drawPerfOverlay } from '../view/debug-layer.js';
 import type { UiDebugState } from '../ui/ui-host.js';
 import type { BeadsEvents, BeadsGameOptions } from './beads-game-types.js';
 import { BeadConservation } from './beads-game/bead-conservation.js';
@@ -403,8 +402,6 @@ export class BeadsGame implements Game {
   private _debugOutlines = false;
   /** DEBUG：帧耗时 EMA（ms，α=0.1）；覆层关闭不更新、恒 0，view 派生 fps。 */
   private _frameMs = 0;
-  /** UI-25：调试层宿主投影的复用对象（`debugState` 原地写，零分配）。 */
-  private readonly _debugState: UiDebugState = { enabled: false, frameMs: 0, phase: '', level: '', detail: '' };
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
   private readonly _onMenuRequest?: () => void;
   /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
@@ -880,17 +877,9 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * 调试层（UI-24）：由 shell 在**所有路由之后**调用（菜单 / 对局 / 弹窗之上）。
-   * `onMenu = true` 只出 fps 行（菜单无盘面 / 相位数据）；开关关闭零指令。
-   */
-  drawDebugLayer(builder: RenderModelBuilder, onMenu = false): void {
-    const d = this.debugState(this._debugState, onMenu);
-    drawPerfOverlay(builder, this.palette, d.enabled, d.frameMs, d.phase, d.level, d.detail);
-  }
-
-  /**
-   * 调试层数据投影（UI-25）：文案与开关的**唯一出处**，旧链（`drawDebugLayer`）
-   * 与 `UiRoot` 的宿主实现共用。写入调用方对象并返回，热路径零分配。
+   * 调试层数据投影（UI-25 / UI-50）：文案与开关的**唯一出处**，由 `UiRoot` 的宿主
+   * 实现逐帧调用（旧的 `drawDebugLayer` 直调已在 UI-50 退役）。写入调用方对象并返回，
+   * 热路径零分配。
    */
   debugState(out: UiDebugState, onMenu = false): UiDebugState {
     const s = this._snapshot;

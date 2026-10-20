@@ -1,12 +1,10 @@
 /**
- * UiRoot — UI 组合根（ADR-0032 §6，UI-25）。
+ * UiRoot — UI 组合根（ADR-0032 §6，UI-25 / UI-50）。
  *
  * 职责只有三件：持有 {@link Navigator}、自下而上画可见路由、最后画调试层。
- * 内容仍由旧链（`buildBeadsView` / `buildMetaView`）画 —— 本批是**并行挂接**：
- *
- *   - `UI_ROOT_ENABLED = false`（默认）⇒ shell 走原路径，逐字不变；
- *   - `true` ⇒ 调试层改由本根接管（可见路由 + DebugLayer），旧链继续画内容，
- *     供 P3 起逐界面把 View 注册成路由。
+ * UI-50 起本根是**唯一绘制入口**（壳的 `buildRenderModel` 只调这里）：基础页路由的
+ * `draw` 绑到既有视图函数（`buildMetaView` / `play.buildRenderModel`），覆盖层内容
+ * 仍由基础页的 View 分支画（见 `phase-route-binder.ts` 头注边界 ①）。
  *
  * 热路径零分配：可见集写进调用方持有数组；调试数据由宿主复用同一对象。
  */
@@ -15,12 +13,6 @@ import type { RenderModelBuilder } from '@wxgame/framework';
 import { drawPerfOverlay } from '../view/debug-layer.js';
 import type { BeadsPalette } from '../view/palette.js';
 import type { UiHost } from './ui-host.js';
-
-/**
- * 并行挂接开关。关闭 = 旧链（默认）；打开 = 调试层经本根。
- * P3 起每迁一个界面把它注册成路由，P5 拆旧链后本开关随之退役。
- */
-export const UI_ROOT_ENABLED: boolean = false;
 
 /** 可绘制路由：`draw` 只读 ViewModel，与 `Scene` 生命周期正交。 */
 export interface UiRoute extends Route {

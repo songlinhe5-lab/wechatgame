@@ -3495,6 +3495,19 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-317
+
+**beads·P5·UI-50 UiRoot 唯一绘制入口：并行开关退役** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：UI 架构迁移 P5 首格（用户选下一步「1」）。验收口径 = 任务表原文「无重复实现残留；`framework:sync:check` 绿」。
+- **入口收口**：壳 `buildRenderModel` 只剩 `this._uiRoot.draw(builder, this.play.palette)`；删 `UI_ROOT_ENABLED` 开关与 `_drawDebugLayer` 双分支，`update` 每帧推进路由栈。`UiRoot` 仍是「可见路由自下而上 → 调试层最后」。
+- **视图绑路由**：`PhaseRouteBinder` 构造期注入 `PhasePageDrawers`（`menu` / `play` 两个闭包）——`menu` / `play` 路由的 `draw` 直接绑到 `buildMetaView` / `play.buildRenderModel`；`levels` 是页路由（挡菜单）⇒ 复用菜单腿入口（`data.overlay === 'levels'` 选整页分支）；`signin` / `settings` 透明弹窗 ⇒ 底下 menu 路由仍可见并画出弹窗，故两条弹窗路由 `draw` 为空。
+- **调试层归一**：`BeadsGame.drawDebugLayer` 与其 `_debugState` 暂存对象退役；调试数据只剩 `debugState()` 一个出口（`UiRoot` 宿主逐帧调用），文案与开关仍单源。
+- **零漂移**：菜单腿 / 对局腿的绘制调用与层序逐字未改（只是调用点从壳移到路由 `draw`）；`levels` 页路由与旧路径同源 ⇒ 金样本十态 sha 全等、夹具未重抓；调试层仍在内容之后。
+- **测试**：`ui-root.test.ts` 删「开关默认关闭」1 例（开关已不存在）；`phase-route-binder.test.ts` 第 6 例改为「基础页路由即绘制入口、弹窗不重复画」；`bead-style-settings.test.ts` 静态门改为「壳无开关 / 无 `_drawDebugLayer`、`buildMetaView` 与 `play.buildRenderModel` 各恰一处、注入先于绘制」。
+- **验证读数**：beads 97 文件 **1134**（1132 passed + 2 skipped）；`npx tsc`（beads + harness）双 0；`pnpm run verify` **PASS 22**；`framework:sync` 写 4 件（`beads-shell.ts` / `beads-game.ts` / `ui-root.ts` / `phase-route-binder.ts`），`.meta` 待编辑器生成。
+- **诚实限制**：逐单元路由绘制未拆 —— 弹窗 / 页各画各的会变成「弹窗下画菜单」（现有视觉是整屏重画、不画底页），属视觉变更，需 UX 裁定后另开单；对局相位弹窗仍归 `PanelRouter` 的点击分派（同上批）。
+
 ## WXG-T-316
 
 **beads·UI-42 PhaseRouteBinder：壳导航标志位退役** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
