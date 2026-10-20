@@ -1,5 +1,5 @@
 /**
- * 主菜单走马灯的纯计算（落地单 §8）。壳持有状态，视图只读偏移。
+ * 主菜单走马灯的纯计算（落地单 §8）。状态由 `MainMenuPresenter` 持有，视图只读偏移。
  */
 import { MENU_CAROUSEL, MENU_CLIP } from './tuning.js';
 

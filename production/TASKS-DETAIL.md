@@ -3495,6 +3495,18 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-315
+
+**beads·UI-40 MainMenuPage：走马灯状态从 shell 迁入 Presenter** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：UI 架构迁移 P4 下一格（用户选下一步「1」）。验收口径 = 任务表原文「金样本对拍；走马灯边界行为不变」。
+- **迁出内容**：新建 `src/ui/main-menu-presenter.ts::MainMenuPresenter` —— 页位 `offset` / 拖动位移 `dx` / 透明度进度 `t` / 页数 `pages`、玻璃手势（按下 / 拖动 / 松手）、吸附动画（`nudge` / `step` / `peerSign`）全部收口；`beads-shell.ts` 删除 10 个走马灯字段与 7 个私有方法，只保留 `_menu` 一处引用与 `_clock()` 喂时。
+- **职责边界**：松手结果 `open` / `page` / `none` 由 Presenter 判定（10px 点按线、30% 阈值、快甩、末页空橱窗都留在同一处）；**副作用仍归壳** —— `overlay` / `overlayArc` / `meta:overlay` / 200ms 页转场只在 `open` 时触发；按钮抬起提交门 `_menuPress` 不动。
+- **零漂移**：绘制路径（`buildMetaView`）逐字未改，只把数据源从壳字段换成 Presenter 同名读数；金样本十态 sha 全等、夹具未重抓；`menu-carousel.ts` 仍是纯函数单源，仅改一行注释。
+- **测试**：新增 `tests/main-menu-presenter.test.ts` 6 例 —— 点按进选关 / 末页空橱窗零事件、10px 点按线、不足 30% 回弹、过 30% 吸附翻页（中点仍在途、终点页位 +1 且位移归零）、吸附在途按下即停、首末页快甩与 ◀▶ 不越界。既有 `menu-carousel.test.ts`（8）与 `arc-carousel.test.ts`（6）全绿。
+- **验证读数**：beads 96 文件 **1129**（1127 passed + 2 skipped）；`npx tsc` 0 错；`pnpm run verify` **PASS 22**；Cocos 镜像 4 件随源更新（`framework:sync:check` 绿）。
+- **诚实限制**：UiRoot **路由注册与开关翻转**仍未接线（`UI_ROOT_ENABLED` 默认关；归 UI-42 PhaseRouteBinder），本批只交 Presenter 本体；`_overlay` 仍由壳持有。
+
 ## WXG-T-314
 
 **beads·UI-42 前置：菜单 ↔ 选关页 200 / 150 页面转场** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）

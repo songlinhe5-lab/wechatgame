@@ -41,14 +41,11 @@ import {
     STAMINA_START_COST,
     STAMINA_REFILL_PLACEMENT,
     WALL_CAPACITY,
-    MENU_CAROUSEL,
-    MENU_CLIP,
     PANEL_IN_MS,
     PANEL_OUT_MS,
     menuAnchors,
     type MenuAnchors,
 } from '../config/tuning';
-import { carouselDamp, carouselPage } from '../config/menu-carousel';
 import { ARC_OPEN_MAX, ARCS } from '../config/arcs';
 import { BeadsGame, type BeadsGameOptions } from './beads-game';
 import { LEVELS } from '../config/levels';
@@ -66,6 +63,7 @@ import {
     type MetaViewData,
 } from '../view/meta-view';
 import { DEFAULT_SKIN_ID } from '../config/skins/registry';
+import { MainMenuPresenter } from '../ui/main-menu-presenter';
 import type { BeadsPalette } from '../view/palette';
 import type { PausePanelAction } from '../systems/pause-panel';
 import { importLatest, type HttpGet } from './level-import';
@@ -206,31 +204,16 @@ export class BeadsShell implements Game {
         /** 按下态：`hitTestMeta` 返回的缓存钮引用（每帧由 `_readMenuInput` 覆盖，零分配）。 */
         pressed: null as MetaButton | null,
     };
-    /** ◀▶ 翻页位（`[WXG-T-280]` 落地单 §3；进界由 `_fillCarousel` 钳在陈列序内）。 */
-    private _carouselOffset = 0;
-    private _carouselDx = 0;
-    private _carouselT = 0;
-    private _shown = 0;
-    private _glass = false;
-    private _dragging = false;
-    private _pressX = 0;
-    private _pressY = 0;
+    /** UI-40：走马灯页位 / 位移 / 吸附 / 玻璃手势全在 Presenter（本壳零走马灯字段）。 */
+    private readonly _menu = new MainMenuPresenter();
     /**
      * **抬起提交门**（WXG-T-295 · `input-control §2.1` v2.13）：菜单 / overlay 上的按钮按下**只登记**
      * 命中的缓存钮（`metaLayout` 产出的同一对象引用），抬起帧重测热区、**id + slot 同者**才派发
      * ⇒ 拖出按钮 / 拖到别的钮上 / 从外面拖进来一律零响应。`null` = 无登记。
      * 比较走 id + slot 而非引用全等 ⇒ 就算布局表在按住期间重建（关表变长）也不会把钮吞掉。
-     * 玻璃（走马灯卡）不登本门：它自己就是「按下→拖动→抬起」的手势体（`_glass`）。
+     * 玻璃（走马灯卡）不登本门：它自己就是「按下→拖动→抬起」的手势体（`MainMenuPresenter`）。
      */
     private _menuPress: MetaButton | null = null;
-    private _lastX = 0;
-    private _lastT = 0;
-    private _vx = 0;
-    private _animOn = false;
-    private _animFrom = 0;
-    private _animTo = 0;
-    private _animStart = 0;
-    private _animDir: -1 | 0 | 1 = 0;
     /** 菜单侧体力回满广告在途标（EP13-S3）：防连点重复 show；`onClose`/`onError` 清。 */
     private _refillPending = false;
     /** 广告订阅退订器（`init` 登记、`dispose` 释放）。 */
@@ -347,7 +330,7 @@ export class BeadsShell implements Game {
         this.meta?.refresh();
         this._stepPageFx(dt);
         this._readMenuInput();
-        this._stepCarousel();
+        this._menu.step(this._clock());
     }
 
     buildRenderModel(builder: RenderModelBuilder): void {
@@ -466,20 +449,19 @@ export class BeadsShell implements Game {
                 // menu-architecture §1.3 第五轮：主菜单走马灯卡 = 菜单唯一选关入口（点卡 → 开 `levels` overlay）。
                 // ⇒ 本分支从「代码保留腿」（Q5①）转正为**实际入口**；墙下移到该 overlay（选关能力不丢）。
                 // EP13-S4 · R13：末页空橱窗无大关实体 ⇒ 零事件（不切 overlay、不发事件）。
-                this._fillCarousel();
-                if (this._carouselOffset >= ARC_OPEN_MAX) return false;
+                if (this._menu.offset >= ARC_OPEN_MAX) return false;
                 // EP13-S2：记下当前大关页 ⇒ 选关页只列本大关清单（tls §4 注 A：闸门本身不动）。
-                this._overlayArc = this._carouselOffset;
+                this._overlayArc = this._menu.offset;
                 this._overlay = 'levels';
                 this._emitOverlay(true);
                 this._beginPageFx(1);
                 return true;
             // `[WXG-T-280]` 橱窗 ◀▶：只在锚定档热区表里存在 ⇒ 静态档零影响；语义 = 已通序翻页（集合归本 shell）。
             case 'carousel-prev':
-                this._nudge(-1);
+                this._menu.nudge(-1, this._clock());
                 return true;
             case 'carousel-next':
-                this._nudge(1);
+                this._menu.nudge(1, this._clock());
                 return true;
             case 'pick-level': {
                 const slot = btn.slot;
@@ -603,44 +585,23 @@ export class BeadsShell implements Game {
             const btn = hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
             if (btn?.id === 'open-levels' && this._overlay === 'none') {
                 // 点在玻璃上先记下来，松手再决定是点按还是翻页。
-                this._animOn = false;
-                this._glass = true;
-                this._dragging = false;
-                this._pressX = this._pointer.x - this._carouselDx;
-                this._pressY = this._pointer.y;
-                this._lastX = this._pointer.x;
-                this._lastT = this._clock();
-                this._vx = 0;
+                this._menu.press(this._pointer.x, this._pointer.y, this._clock());
             } else {
                 this._menuPress = btn; // 抬起提交门：按下不派发，只登记（未命中任何钮 = null）
             }
-        } else if (this._glass && snap.isDown) {
-            const raw = this._pointer.x - this._pressX;
-            const dt = this._clock() - this._lastT;
-            if (dt > 0) this._vx = (this._pointer.x - this._lastX) / dt;
-            this._lastX = this._pointer.x;
-            this._lastT = this._clock();
-            if (!this._dragging) {
-                const adx = raw < 0 ? -raw : raw;
-                const ady = this._pointer.y - this._pressY;
-                const ay = ady < 0 ? -ady : ady;
-                if (adx > MENU_CAROUSEL.tapPx || ay > MENU_CAROUSEL.tapPx) this._dragging = true;
-            }
-            if (this._dragging) {
-                this._fillCarousel();
-                this._setSlide(carouselDamp(raw, this._carouselOffset, this._shown));
-            }
+        } else if (this._menu.glass && snap.isDown) {
+            this._menu.move(this._pointer.x, this._pointer.y, this._clock());
         }
         if (!snap.isDown) {
             // 抬起帧：先结玻璃手势，再结按钮提交门（旧写法在此提前 return ⇒ 一固定步内的
             // down+up（WXG-T-170 真机亚帧快点击）被整段吞掉，本序顺带补上）。
-            if (this._glass) this._releaseGlass();
+            if (this._menu.glass) this._releaseGlass();
             this._commitMenuPress();
             this._viewData.pressed = null;
             return;
         }
         // 拖玻璃时不点亮滑过的别的钮。
-        this._viewData.pressed = this._dragging
+        this._viewData.pressed = this._menu.dragging
             ? null
             : hitTestMeta(this._overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
     }
@@ -658,84 +619,13 @@ export class BeadsShell implements Game {
         this._applyMetaAction(hit);
     }
 
-    /** 松手：位移没过点按线 ⇒ 进选关；否则按阈值 / 快甩决定翻页或回弹。 */
+    /** 松手：点按 ⇒ 进选关；拖动 ⇒ 翻页 / 回弹已在 Presenter 内启动。 */
     private _releaseGlass(): void {
-        this._fillCarousel();
-        const page = this._dragging ? carouselPage(this._carouselDx, this._vx, this._carouselOffset, this._shown) : 0;
-        this._glass = false;
-        if (!this._dragging) {
-            this._dragging = false;
-            // EP13-S4 · R13：空橱窗页松手 ⇒ 零事件（同 `open-levels` 守卫）。
-            if (this._carouselOffset >= ARC_OPEN_MAX) return;
-            this._overlayArc = this._carouselOffset; // EP13-S2：同 `open-levels`（两入口同上下文）
-            this._overlay = 'levels';
-            this._emitOverlay(true);
-            this._beginPageFx(1);
-            return;
-        }
-        this._dragging = false;
-        this._startAnim(page);
-    }
-
-    /** ◀▶ 与滑动松手共用。`page` 0 = 回到当前项。 */
-    private _nudge(page: -1 | 1): void {
-        if (this._animOn || this._dragging) return;
-        this._fillCarousel();
-        if (this._carouselOffset + page < 0 || this._carouselOffset + page >= this._shown) return;
-        this._carouselDx = 0;
-        this._startAnim(page);
-    }
-
-    private _startAnim(page: -1 | 0 | 1): void {
-        this._animFrom = this._carouselDx;
-        this._animTo = page === 0 ? 0 : page === 1 ? -MENU_CLIP.w : MENU_CLIP.w;
-        this._animDir = page;
-        this._animStart = this._clock();
-        this._animOn = this._animFrom !== this._animTo;
-        if (!this._animOn) this._setSlide(0);
-    }
-
-    private _setSlide(dx: number): void {
-        this._carouselDx = dx;
-        const w = MENU_CLIP.w;
-        this._carouselT = w > 0 ? Math.min(1, Math.abs(dx) / w) : 0;
-    }
-
-    private _stepCarousel(): void {
-        if (this._dragging) return;
-        if (!this._animOn) {
-            if (this._carouselDx !== 0 || this._carouselT !== 0) this._setSlide(0);
-            return;
-        }
-        const u = (this._clock() - this._animStart) / MENU_CAROUSEL.snapMs;
-        if (!(u < 1)) {
-            this._carouselOffset += this._animDir;
-            this._animOn = false;
-            this._animDir = 0;
-            this._setSlide(0);
-            return;
-        }
-        const inv = 1 - u;
-        const e = 1 - inv * inv * inv;
-        this._setSlide(this._animFrom + (this._animTo - this._animFrom) * e);
-    }
-
-    /**
-     * 页序按**大关**（EP13-S4，C-2 ③）：前 `ARC_OPEN_MAX` 页 = 已开放大关，末页 = 空橱窗。
-     * 旧码按「关」建陈列序、页数却按大关 = 语义混装 ⇒ 已删（三态归约见 {@link _arcState}）。
-     */
-    private _fillCarousel(): void {
-        this._shown = ARC_OPEN_MAX + 1;
-        if (this._carouselOffset >= this._shown) this._carouselOffset = Math.max(0, this._shown - 1);
-        if (this._carouselOffset < 0) this._carouselOffset = 0;
-    }
-
-    /** 相邻项在左（-1，内容右移）还是在右（+1）。没有则 0。 */
-    private _peerSign(): -1 | 0 | 1 {
-        if (this._animOn && this._animDir !== 0) return this._animDir;
-        if (this._carouselDx > 0) return -1;
-        if (this._carouselDx < 0) return 1;
-        return 0;
+        if (this._menu.release(this._clock()) !== 'open') return;
+        this._overlayArc = this._menu.offset; // EP13-S2：同 `open-levels`（两入口同上下文）
+        this._overlay = 'levels';
+        this._emitOverlay(true);
+        this._beginPageFx(1);
     }
 
     /**
@@ -865,20 +755,19 @@ export class BeadsShell implements Game {
         // 走马灯 = **大关页**（EP13-S4，C-2 ③⑤；Q16 = 甲）：代表图 = 该大关收尾关（boss）的橱窗图
         // （`ARCS[页].textureId`），三态 = `ARCS[页].levelRefs` 归约（判据见 {@link _arcState}）。
         // 末页 `ARC_OPEN_MAX` = 空橱窗（无大关实体 ⇒ 点图零事件，R13）。
-        this._fillCarousel();
-        const off = this._carouselOffset;
+        const off = this._menu.offset;
         const soon = off >= ARC_OPEN_MAX;
         v.carouselComingSoon = soon;
-        // `[BD-62]` 边界可见性：与 `_nudge` 的 clamp 同语义（首张无上一可翻、末张无下一可翻）。
+        // `[BD-62]` 边界可见性：与 `nudge` 的 clamp 同语义（首张无上一可翻、末张无下一可翻）。
         // ⇒ 视图不再画越界那一侧的箭头（旧行为 = 两端一直画，点了无反应）。
         v.carouselFirst = off <= 0;
-        v.carouselLast = this._shown <= 0 || off >= this._shown - 1;
+        v.carouselLast = off >= this._menu.pages - 1;
         v.carouselLevel = soon ? undefined : this._arcBossLevel(off);
         v.carouselState = soon ? undefined : this._arcState(off);
         v.carouselTextureId = soon ? undefined : ARCS[off]?.textureId;
-        v.carouselDx = this._carouselDx;
-        v.carouselT = this._carouselT;
-        const sign = this._peerSign();
+        v.carouselDx = this._menu.dx;
+        v.carouselT = this._menu.t;
+        const sign = this._menu.peerSign();
         const pi = off + sign;
         const peerSoon = sign !== 0 && pi === ARC_OPEN_MAX;
         const peerPage = sign !== 0 && pi >= 0 && pi < ARC_OPEN_MAX ? pi : -1;
