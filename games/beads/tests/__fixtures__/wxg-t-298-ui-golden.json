@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "35e6514 · 工作树（WXG-T-311，未提交）",
+  "capturedFrom": "8e0d133 · 累积落码（WXG-T-311）",
   "fixture": {
     "viewport": {
       "width": 750,

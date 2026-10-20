@@ -3495,6 +3495,16 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-312
+
+**协作纪律·完成即提交推送与提交总结** · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 原话）**：「增加规则，每次完成修改，提交commit并push，同时给出修改提交总结。」该指令覆盖 2026-10-19「会话不得自行 push」的旧裁。
+- **落点（5 份规则/记忆件 + 台账）**：① `my-rules/agents-md.md`（四 IDE 常驻摘要）改为「每完成一次修改即 commit + push 并回传提交总结」；② `AGENTS.md §7` 两条合并改写：完成即提交 + 推送取证（以 `git ls-remote` / `git reflog` 为准）；③ `docs/ci/commit-and-review-rules.md` 新增 §2.6「完成即提交推送」四步流程（验证 → 提交 → 推送 → 总结）与例外；④ `docs/agent/output-style.md` 新增「每次提交的提交总结」五项口径；⑤ `memory/MEMORY.md §Hooks` 订正旧约束，IDE 自动推送降为叠加兜底；⑥ 本台账自登。
+- **例外未变**：发布、删除高影响产物、改动他人未提交的工作树内容，仍须先取得用户明确同意；⛔ 强推、⛔ `--no-verify`。
+- **同批收口**：T-311 的「未提交 / 金样本 `capturedFrom` 记工作树」限制已闭合 —— 累积落码入库 `8e0d133`，金样本改用 `WXG298_SOURCE_REV=8e0d133` 复取（仅 `capturedFrom` 一行变化，十态 sha 不变，两遍确定性自证 PASS）。
+- **验证读数**：`pnpm run verify` PASS 22；金样本 11 例全绿。
+
 ## WXG-T-311
 
 **beads·UI 架构迁移 P4·UI-34 选关整页落码** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
@@ -3504,9 +3514,9 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **标题随安全区**：标题中心 y = `(anchors?.btTopY ?? LEVELS_NAV_TOP) − LEVELS_NAV_H/2`。真机有 `MenuAnchors` 时随胶囊底缘下移；无锚宿主（直调/单测）落 1210 兜底 ⇒ 无第二套几何。网格仍**底部锚定静态**（版式 P 的选型理由：多出的高度给顶部空带）。
 - **为何整页仍由 shell `_overlay` 驱动**：UiRoot 页面路由接线归 UI-40（MainMenuPage）/ UI-42（PhaseRouteBinder）。本批只改「画成什么样」，不改「谁来推栈」；`meta:overlay` 事件、`back` 语义与抬起提交门逐字未动（R8/R10/R11 回归已证）。
 - **不夹带**：spec v1.6 §5 的 **200/150 淡入淡出未实现** —— 现 meta overlay 无转场机制、`meta:overlay` 无监听者，且 UI-34 验收未列 ⇒ 登记为 UI-42 遗留，⛔ 不伪造时钟。
-- **零漂移边界**：金样本**仅 `level-select` 态变化**（total 1423→1421 = 遮罩 + 纸面板两条 rect 退场；缩略 84→134 与 back 位移全进 sha），其余**九态逐字不变**（前后夹具 `JSON.stringify` 逐态全等已核）。重抓严格走 `tests/ui-golden-capture.ts`（两遍确定性自证 PASS），`capturedFrom = 35e6514 · 工作树（WXG-T-311，未提交）`。
+- **零漂移边界**：金样本**仅 `level-select` 态变化**（total 1423→1421 = 遮罩 + 纸面板两条 rect 退场；缩略 84→134 与 back 位移全进 sha），其余**九态逐字不变**（前后夹具 `JSON.stringify` 逐态全等已核）。重抓严格走 `tests/ui-golden-capture.ts`（两遍确定性自证 PASS），`capturedFrom = 8e0d133 · 累积落码（WXG-T-311）`。
 - **新增 / 改测**：新建 [`arc-level-select-page.test.ts`](../games/beads/tests/arc-level-select-page.test.ts) **6 例** —— 版式 P 九格左缘（90/290/490）与行底（652/452/252）、`LEVELS_THUMB_AREA` 派生式、back 盒与热区（375,160 命中 / 10,10 空白零响应）、整页性质（`background` = `palette.background` / 无遮罩 / 无 600×720 纸面板）、标题居中 1166、格内图元不越格。改测：`meta-menu-wall` 的缩略 oracle **同参补 `LEVELS_THUMB_AREA`**（旧缺省 84 与生产签名恒失配 = 假红）；`arc-level-select` **R10** 手势改**跨格拖拽**（旧坐标经 `screenToDesign` y 翻转后落进同一格，版式 P 下那是一次正当点击）；`arc-wall-locked` 几何断言改页常量。
-- **诚实限制**：① **未提交**；金样本 `capturedFrom` 记工作树而非 commit（K-051/K-053 的可复现锚要求待提交后重抓一次才完全闭合）；② 200/150 转场与 UiRoot 页路由未接线（见上）；③ 缩略 134 对 256² 源清晰度仍 `[待真机]`（UI-34a 已登记）；④ `.meta` / Cocos 镜像未触碰，`framework:sync` 留待合并批统一跑。
+- **诚实限制**：① 已闭合 —— 累积落码入库 `8e0d133`，金样本按该 commit 复取（见 WXG-T-312）；② 200/150 转场与 UiRoot 页路由未接线（见上）；③ 缩略 134 对 256² 源清晰度仍 `[待真机]`（UI-34a 已登记）；④ 已闭合 —— `framework:sync` 已在提交前跑过，`framework:sync:check` 绿。
 - **验证读数（2026-10-20）**：beads **95 文件 / 1119 passed + 2 skipped**（较上批 +1 文件 +6 例）；`tsc --noEmit` OK；金样本 11 例全绿；`pnpm run verify` PASS 22。
 
 ## WXG-T-310

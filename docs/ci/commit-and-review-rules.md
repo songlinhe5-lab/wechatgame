@@ -106,6 +106,17 @@ docs(memory): Qoder L5 PASS——L0-L5 双平台全绿（WXG-T-012）
 | `feat(beads): 道具系统落地` | 缺 task-id（`WXG-T-` 或 `#`） |
 | `feature(beads): 道具系统（WXG-T-014）` | type 不在 type-enum |
 
+### 2.6 完成即提交推送（WXG-T-312）
+
+每次修改完成（代码 / 文档 / 台账均适用）按固定顺序收口，不再等用户单独下令：
+
+1. **验证**：跑 `pnpm run verify`；编码类改动另跑定向测试，读数写进提交总结。
+2. **提交**：`git add` 本次改动面 → `git commit`。必须过 `pre-commit` / `commit-msg`，⛔ `--no-verify`；提交信息带任务号。
+3. **推送**：`git push origin develop`，⛔ 强推。直推后 CI（`gate` / `lint`）在远端跑，红了就地修。
+4. **总结**：向用户回传「哈希 + 标题 + 改动文件面 + 验证读数 + 遗留」，口径见 [`docs/agent/output-style.md`](../agent/output-style.md)。
+
+**例外**：发布、删除高影响产物、改动他人未提交的工作树内容，仍须先取得用户明确同意。
+
 ---
 
 ## 3. PR 规则

@@ -83,8 +83,8 @@
 ## 7. 协作纪律
 
 - **先问再写**：创建/大改文件前先确认路径与范围。
-- **不擅自** `git commit` / `push` / 发布 / 删除高影响产物，除非用户明确要求。
-- **推送口径**：`develop` 由 IDE 自动同步到远端（用户 2026-10-19 裁保留）⇒ 「会话没跑 push」≠「未入远端」；会话仍不得自行 push / 强推。取证只认 `git ls-remote` + `git reflog show origin/<branch>`（正本见 `memory/MEMORY.md` §Hooks，判例 K-142）。
+- **完成即提交**：每次修改完成即 `commit` + `push` 并回传提交总结（用户 2026-10-20 令）；发布 / 删除高影响产物仍须用户明确要求；禁强推 / `--no-verify`。
+- **推送取证**：以 `git ls-remote` + `git reflog show origin/<branch>` 为准，⛔ 靠 `git status` 推定（正本 `memory/MEMORY.md` §Hooks，判例 K-142）。
 - **环境做不到的事**写明阻塞与解除条件。
 - 重大决策给 **2–4 个选项**让用户拍板。
 - QA 文档走 `wxgame-qa-gates`（G1–G4）；阶段裁决属编排者（见 §2）。

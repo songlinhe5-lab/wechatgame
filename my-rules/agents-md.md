@@ -19,9 +19,9 @@ trigger: always_on
 - 读文件协议 → **第一跳** `ctx/ROUTES.md` 锚点，**第二跳** `ctx/hot-files.md` 取 offset/limit；**禁止**大文件整读
 - 数值真源 → `games/<game>/design/gdd/systems-index.md` §3
 - 全量验证 → `pnpm run verify`；提交前链接门 → `pnpm run check:links`
-- 先问再写；不伪造编辑器产物；不擅自 commit/push
+- 先问再写；不伪造编辑器产物；每改完即 commit + push + 提交总结
 - **输出纪律**：书面中文，代号回查，附出处，收尾三任务 → docs/agent/output-style.md
-- **ponytail 必触发（编码类）**：写/改/重构/修复代码开工前调用，按规模定档——小改 `lite`、常规 `full`（默认）、选型/重构 `full`＋最简对比；非编码不用
-- **本轮触发分析**：每轮回复末尾一行列**本轮**触发的 skill（名称 + 次数 + 方式：自动/手动）；无则写「无」；不累计全会话
+- **ponytail 必触发（编码类）**：开工前调用，按规模定档——小改 `lite`、常规 `full`（默认）、选型/重构 `full`＋最简对比；非编码不用
+- **本轮触发分析**：每轮末尾一行列本轮触发的 skill（名称 + 次数 + 方式）；无则写「无」
 
 不要把 `game-studio` / `game-dev-tool-free` 当默认入口。
