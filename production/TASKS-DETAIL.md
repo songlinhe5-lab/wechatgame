@@ -3495,6 +3495,16 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-313
+
+**CI 运行面对齐 Node 24（原生 TS type-stripping）** · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：T-312 推送后 develop CI 红（run 39363506681）：`Levels check` 报 `ERR_UNKNOWN_FILE_EXTENSION ".ts"`（`difficulty.ts`），`Unit` 报 `bead-style-pool.test.ts` 13 例红（同样错在子进程直接执行 `.ts`）。查历史：develop 自 2026-10-19 起多笔 push 的 CI 均红，属存量漂移，非本批引入。
+- **根因**：workflow 五个 job 固定 `node-version: "20"`；而 `tools/scripts/sync-levels-data.mjs` 门禁⑥与 `bead-style-pool` 子进程依赖 Node ≥22.18 的原生 type-stripping（脚本头注已写明）。本地 Node v24.4.1 跑 `pnpm run verify` 全绿，故为运行面口径不一致。
+- **落点**：`.github/workflows/ci.yml` 五处 `node-version` `20`→`24`，首处加注释说明版本下限理由；`package.json` `engines.node` `>=20`→`>=22.18`（与脚本真实要求对齐）。`commit-lint.yml` 未动（只跑 commitlint，Node 20 可胜任且一直绿）。
+- **不夹带**：未改任何测试、未放宽任何判据、未跳过任何检查；Node 24 与本地验证环境一致。
+- **验证读数**：本地 `pnpm run verify` PASS 22（Node v24.4.1）；CI 结果以推送后 run 为准。
+
 ## WXG-T-312
 
 **协作纪律·完成即提交推送与提交总结** · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）

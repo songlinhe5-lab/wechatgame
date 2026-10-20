@@ -69,7 +69,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # Node ≥22.18：levels:check / bead-style-pool 依赖原生 TS type-stripping（WXG-T-313）
+          node-version: "24"
 
       - name: check:arch
         run: node tools/scripts/check-architecture.mjs
@@ -104,7 +105,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: levels:check
         run: node tools/scripts/sync-levels-data.mjs --check
@@ -131,7 +132,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: pnpm
 
       - name: Install
@@ -176,7 +177,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: pnpm
 
       - name: Install
@@ -208,7 +209,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       # 直接 node 执行，勿走 `pnpm run`：该脚本零依赖，而 pnpm 在 node_modules 缺失时
       # 会以「did you mean to install?」拒绝执行并 exit 1（本次 gate 变红即此原因）

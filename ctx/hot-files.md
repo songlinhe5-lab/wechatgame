@@ -24,9 +24,9 @@
 
 §wechatgame 项目长期笔记=1+74 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+15 · §常用脚本=28+11 · §SubAgent=39+4 · §Rules=43+3 · §Hooks=46+7 · §Headless / CI=53+8 · §已知限制=61+14
 
-## `production/TASKS.md` — 123 行 / 45367 tok / 实测读 4 次
+## `production/TASKS.md` — 124 行 / 45612 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+124 · §待排（backlog，无号，立项时领取…=96+29
+§WXG 任务台账（SSOT）=1+125 · §待排（backlog，无号，立项时领取…=97+29
 
 ## `production/qa/beads/test-cases.md` — 1165 行 / 94897 tok / 实测读 15 次
 
@@ -89,10 +89,10 @@
 §knowledge/ — 工作室知识库…=1+256 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+13 · §5 生命周期（访问记账 → 归档 → …=68+41 · §6 活跃条目（自动生成）=109+148
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 3749 行 / 151433 tok
+## `production/TASKS-DETAIL.md` — 3759 行 / 151821 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+2674 · §beads·托盘放大批（槽底深色墨档 …=2675+351 · §beads·fit 档放开「只缩不放大…=3026+725 · §WXG-T-312=3498+10 · §WXG-T-311=3508+14 · §WXG-T-310=3522+11 · §WXG-T-309=3533+12 · §WXG-T-308=3545+11 · §WXG-T-307=3556+12 · §WXG-T-306=3568+11 · §WXG-T-305=3579+11 · §WXG-T-304=3590+10 · §WXG-T-303=3600+13 · §WXG-T-302=3613+13 · §WXG-T-301=3626+14
-> 本表只列 15 / 225 节：其余 210 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+2674 · §beads·托盘放大批（槽底深色墨档 …=2675+351 · §beads·fit 档放开「只缩不放大…=3026+735 · §WXG-T-313=3498+10 · §WXG-T-312=3508+10 · §WXG-T-311=3518+14 · §WXG-T-310=3532+11 · §WXG-T-309=3543+12 · §WXG-T-308=3555+11 · §WXG-T-307=3566+12 · §WXG-T-306=3578+11 · §WXG-T-305=3589+11 · §WXG-T-304=3600+10 · §WXG-T-303=3610+13 · §WXG-T-302=3623+13
+> 本表只列 15 / 226 节：其余 211 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 
