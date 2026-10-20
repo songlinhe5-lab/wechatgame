@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "9f267b6 · 含菜单弹窗透出底页重抓 settings/signin（WXG-T-324）",
+  "capturedFrom": "6231e92 · 回退弹窗底页补画（容器层待 ADR-0033／WXG-T-325）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -97,17 +97,12 @@
         "overlay": "settings",
         "phase": "playing"
       },
-      "total": 3686,
+      "total": 25,
       "kinds": {
-        "circle": 965,
-        "line": 295,
-        "rect": 494,
-        "text": 18,
-        "clip": 1,
-        "polygon": 1912,
-        "unclip": 1
+        "rect": 13,
+        "text": 12
       },
-      "sha": "da43705829e95ea061aa2508f23410878e51b3e71dbed8fed994eee25adcb1f1",
+      "sha": "24b06b96f56a537a74c5a3432c3178531b9cbc8f10276456b1da79a571b1043a",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -120,17 +115,12 @@
         "overlay": "signin",
         "phase": "playing"
       },
-      "total": 3689,
+      "total": 28,
       "kinds": {
-        "circle": 965,
-        "line": 295,
-        "rect": 492,
-        "text": 23,
-        "clip": 1,
-        "polygon": 1912,
-        "unclip": 1
+        "rect": 11,
+        "text": 17
       },
-      "sha": "3911b867da0a5242a845323356e8230fab26ff9c84a18aa668e01ac34dde8490",
+      "sha": "a84f5b4c73bf55de9c1f849a2a78bc712ca16b7580358992e69ffa51d586a62e",
       "background": "#F1E8D8",
       "transform": null
     },

@@ -1330,12 +1330,16 @@ export function buildMetaView(
         if (data.debugGuides) drawSafeGuides(builder, A);
         return;
     } else {
-        // 弹窗（signin / settings）：**先画底层菜单，再压半透遮罩** ⇒ 遮罩真的能透（用户 2026-10-20 真机裁定
-        // 「主界面设置页面，没有半透」，解除 WXG-T-317 ⚠「逐单元路由绘制（弹窗下画菜单）待 UX 裁定」）。
-        // 修正前本分支只画 `setBackground` 的实色纸底 + 遮罩 + 面板（`settings` 整帧仅 25 条指令，而主菜单
-        // 3661 条），与本注释原有意图（“先压暗底层菜单”）相悖；局内弹窗一直画底页（pause 676 ≈ play 654 + 面板 22）
-        // ⇒ 菜单侧同口径补齐。遮罩只变透明层、⛔ 不改 RGB 与 α 档（settings 0.3 / 其余 0.5）。
-        drawMenuAnchored(builder, data, palette, anchoredGeo(A), withSignage);
+        // 弹窗（signin / settings）：⚠ **不得在遮罩前直接补画底页**（判例 WXG-T-324 → 回退 WXG-T-325）。
+        // 尝试过：先 `drawMenuAnchored` 再压遮罩 ⇒ Node / canvas2d 端正确（immediate mode 按指令序），
+        // 但 Cocos 端通道是**写死五段**（`Background` → `BlitLayer` → `Graphics` → `BlitLayerUI` → `Labels`，
+        // 见 `adapters/cocos/bindings.ts` 层序三叠注）：指令流里的相对序被压成「通道序」⇒
+        // 菜单的位图腿（`BlitLayerUI`）与文字（`Labels`）永远浮在遮罩（`Graphics`）之上
+        // ⇒ 用户真机报「设置页不在最上面、与主界面层级错乱」。局内暂停一直正常，因为棋盘走
+        // `BlitLayer`（本就在遮罩下）。
+        // 正解 = 容器层（每页面/弹窗一个渲染容器，容器内按层有序、事件按层逆序透传）
+        // ⇒ **ADR-0033 / UI-60**；在那之前本分支维持旧观感（实色底 + 遮罩 + 面板，“没半透但不错乱”）。
+        // 遮罩只压半透、⛔ 不改 RGB 与 α 档（settings 0.3 / 其余 0.5）。
         // ⚠️ 遮罩盖**整屏** ⇒ 高读锚定档系高 H（兜底档 = DESIGN_H）。
         // EP11-S5 / ux §3.3 ⑤（U14=丙，Q3=甲）：**设置态遮罩 α 分列**——仅 `settings` overlay
         // 读 `SETTINGS_SCRIM_ALPHA`（初值 0.3 [暂定·待 PT-SKIN-01 真机校准]）；
