@@ -50,7 +50,9 @@ describe('UI-41 · PlayPage', () => {
     it('门面等价：buildBeadsView 的前缀 ≡ drawPlayPage（结算层只在其后追加）', () => {
         const h = harness();
         const full = modelOf((b) => buildBeadsView(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS));
-        const play = modelOf((b) => drawPlayPage(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS));
+        const play = modelOf((b) =>
+            drawPlayPage(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS, h.game.snapshot.phase === 'playing'),
+        );
         expect(play.commands.length).toBeGreaterThan(0);
         expect(full.commands.slice(0, play.commands.length)).toEqual(play.commands);
     });
@@ -83,7 +85,7 @@ describe('UI-41 · PlayPage', () => {
         const order = [
             'drawHud(builder, snap, palette);',
             'drawGrid(builder, snap, palette, inks);',
-            'drawZoomControls(builder, snap, palette);',
+            'drawZoomControls(builder, snap, palette, zoomControlsVisible);',
             'drawTray(builder, snap, palette, inks);',
             'drawExpandButton(builder, snap, palette);',
             'drawPowerupBand(builder, snap, palette);',
@@ -96,7 +98,7 @@ describe('UI-41 · PlayPage', () => {
         }
         expect(play).toContain('export function drawPlayPage(');
         expect(play).toContain('export function drawGear(');
-        expect(vm).toContain('drawPlayPage(builder, snap, palette, inks);');
+        expect(vm).toContain('drawPlayPage(builder, snap, palette, inks, snap.phase === \'playing\');');
         for (const gone of ['function drawHud(', 'function drawGrid(', 'function drawTray(', 'function drawPowerupBand(', 'function drawZoomControls(', 'export function drawGear(']) {
             expect(vm).not.toContain(gone);
         }

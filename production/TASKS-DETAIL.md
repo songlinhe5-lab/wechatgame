@@ -3495,6 +3495,22 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-319
+
+**beads·P5·UI-52 机械守：`check:arch` §20 五条 + 负样本自测** · 负责：主理人(Qoder)·工程负责人域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：用户选下一步 1（UI-52）。验收原文 = 「故意违规用例能被拦下」（`ui-architecture-beads §12`）。
+- **五条规则**（`tools/scripts/check-architecture.mjs`，只扫 `games/beads/src`）：
+  - §20-1 同文件出现 `scrimFill(` + `drawPaperPanel(` 而无 `drawModalFrame(` ⇒ 拦（自造弹窗）；
+  - §20-2 `view/` 与 `ui/` 下 rgba()/hsl() 字面量 ⇒ 拦（kit 三件 `ui-theme` / `palette` / `modal-frame` 豁免）；
+  - §20-3 `view/` 下 `screen|overlay|phase` 的 `===` / `!==` 判断 ⇒ 拦（登记偏离 `meta-view.ts` / `view-model.ts`）；
+  - §20-4 `systems/*.ts` 里 `hit*()` 存在却未调本文件 `*Layout()` ⇒ 拦；
+  - §20-5 `this._screen|_overlay` 或 `_screen|_overlay =` 标志位 ⇒ 拦。
+- **负样本自测**：`--selftest` 11 例（五条各「被拦 + 放行」，§20-3 加 `!==` 变体）；`check:arch:selftest` 入 `selftests.mjs` fast 档 ⇒ `verify` 覆盖（装置完整性守卫要求新 `*:selftest` 必须入档）。
+- **顺带真实违规**：规则扩到 `!==` 后咬出 `play-page.ts:180` `snap.phase !== 'playing'`（缩放条自抑制）⇒ 按守则把相位判断上移到门面：`drawPlayPage` 增第五参 `zoomControlsVisible`，`view-model` 传 `snap.phase === 'playing'`（已是登记偏离）；`tests/play-page.test.ts` 同步（门面等价 / 静态门两条）。
+- **验证**：`check:arch` OK（仅存量 L1 场景 WARN）、`check:arch:selftest` 11/11、`selftest:fast` 10 件 PASS、`typecheck` 0、beads 1134 例绿、`verify` PASS 22；金样本十态零漂移（签名变更不改绘制路径）。
+- **诚实限制**：① 规则是文本级 grep，只认调用名，判不了「同一个布局函数」的语义等价；② `UI_ARCH_EXCEPTIONS` 是文件级豁免（`meta-view` 整体放行 §20-3），随界面单元拆出逐条收；③ §20-1 只认 scrim+paper 同文件，跨文件自造弹窗仍可漏。
+
 ## WXG-T-318
 
 **beads·P5·UI-51 文档回写：目录 / 路由表 / §20 守则 / ROUTES** · 负责：主理人(Qoder)·设计策略 + 工程负责人 · 状态：✅ 完成（2026-10-20）

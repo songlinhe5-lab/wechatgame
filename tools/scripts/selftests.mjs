@@ -53,6 +53,8 @@ export const TIERS = {
         { script: 'verify:selftest', argv: ['bash', `${S}/verify-all-selftest.sh`] },
         // WXG-T-160：原在 AWAITING（理由「被测脚本未入库」）已随 WXG-T-110 失效 ⇒ 并入 fast 档。
         { script: 'check:host-tests:selftest', argv: ['node', `${S}/check-host-behavior-tests.mjs`, '--selftest'] },
+        // WXG-T-319：§20 UI 架构五条守则的负样本自测（每条规则必须咬得住）。
+        { script: 'check:arch:selftest', argv: ['node', `${S}/check-architecture.mjs`, '--selftest'] },
     ],
     heavy: [
         { script: 'ci:review:selftest', argv: ['bash', `${S}/ci-pr-review-selftest.sh`] },

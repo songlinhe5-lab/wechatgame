@@ -365,7 +365,7 @@ agent（Godot/Unity/Unreal，本仓引擎唯一 = Cocos Creator + 微信小游�
 
 ## 20. UI 架构守则（ADR-0032 §8；WXG-T-318 落表）
 
-> 适用面：`games/beads/src/ui/**`、`games/beads/src/view/**`。设计全文见 [`ui-architecture-beads.md`](ui-architecture-beads.md) §8；机械守（`check:arch` 规则）见 UI-52。
+> 适用面：`games/beads/src/ui/**`、`games/beads/src/view/**`。设计全文见 [`ui-architecture-beads.md`](ui-architecture-beads.md) §8；机械守 = `check:arch` 的 §20 规则（WXG-T-319 落码，负样本 `--selftest` 已入 `selftest:fast`）。
 
 1. **弹窗必经 `ModalFrame`**：遮罩、纸面板、标题带、进出场、点击屏障五件不在面板文件里另写。
    现状：对局侧五个面板已走（`view-model` → `drawModalFrame`）；菜单侧 `settings` / `signin` 的 chrome 仍是 `meta-view` 直绘 = **已知偏离**，随界面单元拆出收敛。

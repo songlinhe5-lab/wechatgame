@@ -143,6 +143,8 @@ export function drawPlayPage(
   snap: BeadsSnapshot,
   palette: BeadsPalette,
   inks: BeadInks,
+  /** 缩放控件是否可见（仅 PLAYING）——相位判断收在门面，本文件不比较 phase（守则 §20-3）。 */
+  zoomControlsVisible: boolean,
 ): void {
   // G5 连击 Lv2 伪震屏（`art-bible §7.3.5` 案 B · WXG-T-132）：整屏 scale 走框架
   // 全局变换通道，锚点 = 设计中心（=屏幕中心，letterbox/居中换算下恒重合）。
@@ -157,7 +159,7 @@ export function drawPlayPage(
   builder.setBackground(palette.background);
   drawHud(builder, snap, palette);
   drawGrid(builder, snap, palette, inks);
-  drawZoomControls(builder, snap, palette); // 缩放控件条（盘面下方净空带，不遮珠）
+  drawZoomControls(builder, snap, palette, zoomControlsVisible); // 缩放控件条（盘面下方净空带，不遮珠）
   drawTray(builder, snap, palette, inks);
   drawExpandButton(builder, snap, palette);
   drawPowerupBand(builder, snap, palette);
@@ -176,8 +178,9 @@ function drawZoomControls(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
   palette: BeadsPalette,
+  visible: boolean,
 ): void {
-  if (snap.phase !== 'playing') return;
+  if (!visible) return;
   const zc = zoomControlLayout();
   const midY = zc.track.y + zc.track.h / 2;
   const drawBtn = (r: { x: number; y: number; w: number; h: number }, label: string): void => {

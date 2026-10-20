@@ -104,7 +104,8 @@ export function buildBeadsView(
 ): void {
   // UI-41：对局页基础场景（伪震屏 / 底色 / HUD / 棋盘 / 缩放 / 托盘 / 展开 / 道具带 / 扫光 / 连击）
   // 收口在 `view/play-page.ts::drawPlayPage`，层序与拆分前逐字一致。
-  drawPlayPage(builder, snap, palette, inks);
+  // 缩放条仅 PLAYING 画：相位判断留本门面（已登记偏离），子 View 不比较 phase（守则 §20-3）。
+  drawPlayPage(builder, snap, palette, inks, snap.phase === 'playing');
   // G6 结算彩带 MAIN/FG 夹住结算面板（§1.6.6 sandwich）：属结算层，仍由本门面画。
   drawConfetti(builder, snap, false); // G6 MAIN 36 枚：被 scrim α0.5 压住 = 「远处彩带」（§1.6.6 sandwich）
   drawClearPanel(builder, snap, palette);

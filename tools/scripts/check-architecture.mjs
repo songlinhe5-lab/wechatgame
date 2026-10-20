@@ -10,9 +10,18 @@
  *   §3  no #rrggbb colour literals outside a view/palette.ts file.
  *   §5  no bare localStorage / wx.setStorageSync outside the platform layer.
  *   L1  reports any .scene / .prefab present (editor-generated only).
+ *   §20 UI architecture (ADR-0032 §8 / control-manifest §20; beads only):
+ *       -1 dialogs with scrim + paper must go through drawModalFrame
+ *       -2 no rgba()/rgb() literals outside ui-theme / palette
+ *       -3 no screen/overlay/phase comparisons in view/** (registered exceptions aside)
+ *       -4 a panel's hit*() must reuse that panel's *Layout()
+ *       -5 no _screen / _overlay flags — navigation only through Navigator
  *
  * Usage:
- *   node tools/scripts/check-architecture.mjs [--json] [--strict-scenes]
+ *   node tools/scripts/check-architecture.mjs [--json] [--strict-scenes] [--selftest]
+ *
+ * `--selftest` runs the §20 negative samples (each rule must fire) and exits;
+ * it is wired into `selftest:fast`, so `pnpm run verify` covers the guard.
  *
  * Exit code 0 = clean, 1 = violations found.
  */
@@ -27,6 +36,7 @@ const SKIP_DIRS = new Set(['node_modules', '.git', 'coverage', 'dist', 'build', 
 const args = process.argv.slice(2);
 const AS_JSON = args.includes('--json');
 const STRICT_SCENES = args.includes('--strict-scenes');
+const AS_SELFTEST = args.includes('--selftest');
 
 /** Strip line and block comments so documentation examples never trip a rule. */
 function stripComments(source) {
@@ -129,6 +139,155 @@ const RAW_STORAGE = {
 };
 const GAME_IMPORT_CC = CC_IMPORT;
 
+// ── §20 UI architecture rules (ADR-0032 §8 / control-manifest §20)
+// Only beads is scanned: it is the game that owns the ui/ layer.
+
+/** Registered legacy deviations — see control-manifest §20 "现状" notes (UI-51). */
+const UI_ARCH_EXCEPTIONS = new Map([
+  ['view/meta-view.ts', '菜单侧 settings/signin chrome 仍直绘、overlay 分支为存量'],
+  ['view/view-model.ts', '旧门面 buildBeadsView 按 phase 选结算层'],
+]);
+
+/** Files allowed to hold the raw colour / chrome primitives by definition. */
+const UI_KIT_FILES = new Set(['view/ui-theme.ts', 'view/palette.ts', 'view/modal-frame.ts']);
+
+const RGB_LITERAL = {
+  id: '§20-2',
+  message: "遮罩色就地写 rgba()/rgb() —— 只经 UiTheme",
+  pattern: /['"](?:rgba?|hsla?)\(/,
+};
+const NAV_COMPARE = {
+  id: '§20-3',
+  message: 'View 里出现 screen / overlay / phase 判断 —— 改吃只读 ViewModel',
+  pattern: /\b(screen|overlay|phase)\s*[!=]==/,
+};
+const LEGACY_NAV_FIELD = {
+  id: '§20-5',
+  message: '壳持导航标志位 —— 屏幕 / 覆盖层只能由 Navigator 栈投影',
+  pattern: /\bthis\._(screen|overlay)\b|\b_(screen|overlay)\s*[:=]/,
+};
+
+/** Scan comment-stripped text line by line against `rules`. */
+function scanSource(source, rules) {
+  const lines = stripComments(source).split('\n');
+  const hits = [];
+  for (let i = 0; i < lines.length; i++) {
+    for (const rule of rules) {
+      if (rule.pattern.test(lines[i])) hits.push({ rule: rule.id, line: i + 1, message: rule.message });
+      rule.pattern.lastIndex = 0;
+    }
+  }
+  return hits;
+}
+
+/** 1-based line of the first match, falling back to 1. */
+function lineOf(text, pattern) {
+  const m = pattern.exec(text);
+  return m && m.index !== undefined ? text.slice(0, m.index).split('\n').length : 1;
+}
+
+/** §20 violations for one `games/beads/src` file; pure so the selftest shares it. */
+function beadsUiViolations(rel, source) {
+  const out = [];
+  const body = stripComments(source);
+
+  // §20-1: scrim + paper drawn in the same file ⇒ must be ModalFrame.
+  if (
+    !UI_KIT_FILES.has(rel) &&
+    /scrimFill\s*\(/.test(body) &&
+    /drawPaperPanel\s*\(/.test(body) &&
+    !/drawModalFrame\s*\(/.test(body)
+  ) {
+    out.push({
+      rule: '§20-1',
+      line: lineOf(body, /scrimFill\s*\(/),
+      message: '自造弹窗（遮罩 + 纸面板）—— 弹窗 chrome 必须走 drawModalFrame',
+    });
+  }
+
+  // §20-2: colour primitives live in ui-theme / palette only.
+  if ((rel.startsWith('view/') || rel.startsWith('ui/')) && !UI_KIT_FILES.has(rel)) {
+    out.push(...scanSource(body, [RGB_LITERAL]));
+  }
+
+  // §20-3: views must not branch on navigation (registered deviations aside).
+  if (rel.startsWith('view/') && !UI_ARCH_EXCEPTIONS.has(rel)) {
+    out.push(...scanSource(body, [NAV_COMPARE]));
+  }
+
+  // §20-4: a panel's hit*() must reuse that panel's *Layout().
+  if (/^systems\/[^/]+\.ts$/.test(rel)) {
+    const layout = body.match(/export function (\w*[Ll]ayout)\s*\(/);
+    const hit = body.match(/export function (hit\w+)\s*\(/);
+    if (layout && hit && hit.index !== undefined) {
+      const hitBody = body.slice(hit.index);
+      if (!hitBody.includes(`${layout[1]}(`)) {
+        out.push({
+          rule: '§20-4',
+          line: lineOf(body, new RegExp(`export function ${hit[1]}`)),
+          message: `命中函数 ${hit[1]} 未复用 ${layout[1]}() —— 绘制与命中必须同布局`,
+        });
+      }
+    }
+  }
+
+  // §20-5: no navigation flags anywhere in the game; the stack is the state.
+  out.push(...scanSource(body, [LEGACY_NAV_FIELD]));
+
+  return out;
+}
+
+/** §20 negative samples: every rule must fire, every registered exception must pass. */
+function runSelftest() {
+  const cases = [
+    {
+      name: '§20-1 手搓弹窗被拦',
+      file: 'view/hand-rolled.ts',
+      src: 'const f = scrimFill(rgb, 0.5);\ndrawPaperPanel(b, 0, 0, 10, 10, p);',
+      want: '§20-1',
+    },
+    {
+      name: '§20-1 ModalFrame 放行',
+      file: 'view/good.ts',
+      src: 'scrimFill(rgb, 0.5); drawPaperPanel(b, 0, 0, 1, 1, p); drawModalFrame(b, spec);',
+      want: null,
+    },
+    { name: '§20-2 就地 rgba 被拦', file: 'view/x.ts', src: "const s = 'rgba(0,0,0,0.5)';", want: '§20-2' },
+    { name: '§20-2 UiTheme 放行', file: 'view/ui-theme.ts', src: "const s = 'rgba(0,0,0,0.5)';", want: null },
+    { name: '§20-3 overlay 判断被拦', file: 'view/y.ts', src: "if (overlay === 'levels') {}", want: '§20-3' },
+    { name: '§20-3 !== 判断被拦', file: 'view/y.ts', src: "if (phase !== 'play') {}", want: '§20-3' },
+    { name: '§20-3 登记偏离放行', file: 'view/meta-view.ts', src: "if (overlay === 'levels') {}", want: null },
+    {
+      name: '§20-4 命中另算被拦',
+      file: 'systems/x-panel.ts',
+      src: 'export function xLayout() { return {}; }\nexport function hitX() { return null; }',
+      want: '§20-4',
+    },
+    {
+      name: '§20-4 命中复用布局放行',
+      file: 'systems/x-panel.ts',
+      src: 'export function xLayout() { return {}; }\nexport function hitX() { const l = xLayout(); return null; }',
+      want: null,
+    },
+    { name: '§20-5 标志位被拦', file: 'game/beads-shell.ts', src: "this._overlay = 'levels';", want: '§20-5' },
+    { name: '§20-5 Navigator 放行', file: 'ui/phase-route-binder.ts', src: 'this._nav.push(route);', want: null },
+  ];
+
+  let pass = 0;
+  let fail = 0;
+  for (const c of cases) {
+    const got = beadsUiViolations(c.file, c.src).map((v) => v.rule);
+    const ok = c.want === null ? got.length === 0 : got.includes(c.want);
+    if (ok) pass += 1;
+    else fail += 1;
+    console.log(`  ${ok ? '✅' : '❌'} ${c.name}${ok ? '' : ` —— got [${got.join(', ')}]`}`);
+  }
+  console.log(`\ncheck-architecture --selftest: PASS=${pass} FAIL=${fail}`);
+  process.exit(fail === 0 ? 0 : 1);
+}
+
+if (AS_SELFTEST) runSelftest();
+
 // ─────────────────────────────────────────────────────────── run the checks
 
 const frameworkSrc = join(ROOT, 'packages/framework/src');
@@ -170,6 +329,17 @@ for (const gameName of safeReaddir(gamesDir)) {
     const isColourHome = basename(file) === 'palette.ts' || isUnderConfig(file);
     if (!isColourHome) rules.push(HEX_COLOR);
     scanTs(file, rules);
+  }
+}
+
+// beads UI: §20 五条守则（ADR-0032 §8 / control-manifest §20）
+const beadsSrc = join(gamesDir, 'beads', 'src');
+if (existsDir(beadsSrc)) {
+  for (const file of walk(beadsSrc, isTs)) {
+    const rel = relative(beadsSrc, file).split('\\').join('/');
+    const raw = read(file);
+    if (raw === null) continue;
+    for (const v of beadsUiViolations(rel, raw)) report(v.rule, file, v.line, v.message);
   }
 }
 

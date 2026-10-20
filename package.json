@@ -79,7 +79,8 @@
     "check:tasks": "node tools/scripts/check-tasks.mjs",
     "skills:audit": "node tools/scripts/skill-audit.mjs",
     "check:host-tests": "node tools/scripts/check-host-behavior-tests.mjs",
-    "check:host-tests:selftest": "node tools/scripts/check-host-behavior-tests.mjs --selftest"
+    "check:host-tests:selftest": "node tools/scripts/check-host-behavior-tests.mjs --selftest",
+    "check:arch:selftest": "node tools/scripts/check-architecture.mjs --selftest"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
