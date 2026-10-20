@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4342,
       "lines": 151,
-      "sha256": "4949f92a72f817027fedfb3733da807b6a00fbb5f7f1c183f07892cd5347ca08",
+      "sha256": "df0dfaf081e9ec43fafedf7e8a44941465e0d9fa37663890dbd6e973ff6c1fbe",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 151908 3760 normal",
+          "summary": "1 production/TASKS-DETAIL.md 151997 3760 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 126,
           "tokens": 2828,
-          "summary": "production/TASKS-DETAIL.md 151908 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 151997 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5485,
       "lines": 146,
-      "sha256": "c74da398f3992bffbb9be78808395f283de886955a5eee695919c94276b817e6",
+      "sha256": "15afb43a37e4f714126d00e66125c71704a2f70edc70634dc46e04706767b152",
       "tier": "normal",
       "sections": [
         {
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3760 行 / 151908 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3760 行 / 151997 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -80463,9 +80463,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 151908,
+      "tokens": 151997,
       "lines": 3760,
-      "sha256": "c2a7a185ed6453a82170b780776544c14f3d52f0e7e68f2aa6def597d0f095df",
+      "sha256": "d332ae14d6e082273af3f2d89c86d8d75a54c9d2d49ea95e9b39ca2e45cbc5ce",
       "tier": "normal",
       "sections": [
         {
@@ -82987,7 +82987,7 @@
           "level": 1,
           "startLine": 3026,
           "endLine": 3761,
-          "tokens": 49524,
+          "tokens": 49613,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -83432,7 +83432,7 @@
           "level": 2,
           "startLine": 3498,
           "endLine": 3508,
-          "tokens": 472,
+          "tokens": 561,
           "summary": "CI 运行面对齐 Node 24（原生 TS type-stripping） · 负责：主理人(Qoder)·工程域 ·",
           "keywords": [
             "WXG",

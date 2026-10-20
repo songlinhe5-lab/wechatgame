@@ -3502,9 +3502,9 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **触发**：T-312 推送后 develop CI 红（run 39363506681）：`Levels check` 报 `ERR_UNKNOWN_FILE_EXTENSION ".ts"`（`difficulty.ts`），`Unit` 报 `bead-style-pool.test.ts` 13 例红（同样错在子进程直接执行 `.ts`）。查历史：develop 自 2026-10-19 起多笔 push 的 CI 均红，属存量漂移，非本批引入。
 - **根因**：workflow 五个 job 固定 `node-version: "20"`；而 `tools/scripts/sync-levels-data.mjs` 门禁⑥与 `bead-style-pool` 子进程依赖 Node ≥22.18 的原生 type-stripping（脚本头注已写明）。本地 Node v24.4.1 跑 `pnpm run verify` 全绿，故为运行面口径不一致。
 - **落点**：`.github/workflows/ci.yml` 五处 `node-version` `20`→`24`，首处加注释说明版本下限理由；CI 的 `levels:check` 步骤补 `--import=./tools/scripts/lib/ts-js-resolve.mjs`（此前绕过了 package.json 脚本，`difficulty.ts` 内部的 `.js` 引用无钩子解析）；`package.json` `engines.node` `>=20`→`>=22.18`。`commit-lint.yml` 未动（只跑 commitlint，Node 20 可胜任且一直绿）。
-- **两轮验证**：第一轮只升 Node 后 Unit 转绿、Levels 仍红（`Cannot find module tuning.js`）；补钩子后以第二轮 CI 读数为准。
-- **不夹带**：未改任何测试、未放宽任何判据、未跳过任何检查；Node 24 与本地验证环境一致。
-- **验证读数**：本地 `pnpm run verify` PASS 22（Node v24.4.1）；CI 结果以推送后 run 为准。
+- **三轮验证**：① 只升 Node（`52a7b7a`）→ Unit 转绿、Levels 仍红（`Cannot find module tuning.js`）；② 补钩子（`28b279c`）→ CI run 39366031955 **七个 job 全绿**（Detect changes / Arch guard / Context budget / Unit / Harness / Levels check / gate），Commit Lint run 39366031793 亦绿；③ 本地用与 CI 同一条命令复跑 `levels:check OK —— 2 款游戏全部一致（beads、breakout）`。
+- **不夹带**：未改任何测试、未放宽任何判据、未跳过任何检查；Node 24 与本地 验证环境一致。
+- **验证读数**：本地 `pnpm run verify` PASS 22（Node v24.4.1）；远端 CI 39366031955 / 39366031793 双绿（develop 自 2026-10-19 起首次全绿）。
 
 ## WXG-T-312
 
