@@ -17,62 +17,62 @@ import { ModalLifecycle } from '../../framework/index';
 import { PANEL_IN_MS, PANEL_OUT_MS } from '../config/tuning';
 
 export class ResultPanelClock {
-  private readonly _modal = new ModalLifecycle();
-  /** 自打开起的毫秒数（逐项入场计时用；退场中按旧口径从 0 重计）。 */
-  private _elapsedMs = 0;
+    private readonly _modal = new ModalLifecycle();
+    /** 自打开起的毫秒数（逐项入场计时用；退场中按旧口径从 0 重计）。 */
+    private _elapsedMs = 0;
 
-  open(): void {
-    this._elapsedMs = 0;
-    this._modal.open(PANEL_IN_MS);
-  }
-
-  close(): void {
-    if (this._modal.phase === 'closed') return;
-    this._elapsedMs = 0;
-    this._modal.close(PANEL_OUT_MS);
-  }
-
-  update(dtMs: number): void {
-    if (!this.visible) return;
-    const step = Math.max(0, dtMs);
-    this._elapsedMs += step;
-    this._modal.update(step);
-    if (!this.visible) this._elapsedMs = 0;
-  }
-
-  /** True while anything is drawn (including the exit fade). */
-  get visible(): boolean {
-    return this._modal.phase !== 'closed';
-  }
-
-  /** True while the panel accepts taps — **including the entrance ramp**. */
-  get interactive(): boolean {
-    return this._modal.phase === 'open' || this._modal.phase === 'opening';
-  }
-
-  /** 0 → 1 on the way in, 1 → 0 on the way out;未显示 = 0。 */
-  get progress(): number {
-    return this._modal.progress;
-  }
-
-  /**
-   * 已入场项数（`0..count`）：第 `i` 项在 `i × stepMs` 时入场；退场中恒 0。
-   */
-  popsShown(count: number, stepMs: number): number {
-    if (this._modal.phase === 'closed' || this._modal.phase === 'closing') return 0;
-    let shown = 0;
-    for (let i = 0; i < count; i++) {
-      if (this._elapsedMs >= i * stepMs) shown = i + 1;
+    open(): void {
+        this._elapsedMs = 0;
+        this._modal.open(PANEL_IN_MS);
     }
-    return shown;
-  }
 
-  /** 第 `index` 项的入场缩放（`stepMs` 内 0 → 1.2 → 1；之后恒 1）。 */
-  popScale(index: number, stepMs: number): number {
-    if (this._modal.phase === 'closed') return 0;
-    const local = (this._elapsedMs - index * stepMs) / stepMs;
-    if (local <= 0) return 0;
-    if (local >= 1) return 1;
-    return local < 0.5 ? (local / 0.5) * 1.2 : 1.2 - 0.2 * ((local - 0.5) / 0.5);
-  }
+    close(): void {
+        if (this._modal.phase === 'closed') return;
+        this._elapsedMs = 0;
+        this._modal.close(PANEL_OUT_MS);
+    }
+
+    update(dtMs: number): void {
+        if (!this.visible) return;
+        const step = Math.max(0, dtMs);
+        this._elapsedMs += step;
+        this._modal.update(step);
+        if (!this.visible) this._elapsedMs = 0;
+    }
+
+    /** True while anything is drawn (including the exit fade). */
+    get visible(): boolean {
+        return this._modal.phase !== 'closed';
+    }
+
+    /** True while the panel accepts taps — **including the entrance ramp**. */
+    get interactive(): boolean {
+        return this._modal.phase === 'open' || this._modal.phase === 'opening';
+    }
+
+    /** 0 → 1 on the way in, 1 → 0 on the way out;未显示 = 0。 */
+    get progress(): number {
+        return this._modal.progress;
+    }
+
+    /**
+     * 已入场项数（`0..count`）：第 `i` 项在 `i × stepMs` 时入场；退场中恒 0。
+     */
+    popsShown(count: number, stepMs: number): number {
+        if (this._modal.phase === 'closed' || this._modal.phase === 'closing') return 0;
+        let shown = 0;
+        for (let i = 0; i < count; i++) {
+            if (this._elapsedMs >= i * stepMs) shown = i + 1;
+        }
+        return shown;
+    }
+
+    /** 第 `index` 项的入场缩放（`stepMs` 内 0 → 1.2 → 1；之后恒 1）。 */
+    popScale(index: number, stepMs: number): number {
+        if (this._modal.phase === 'closed') return 0;
+        const local = (this._elapsedMs - index * stepMs) / stepMs;
+        if (local <= 0) return 0;
+        if (local >= 1) return 1;
+        return local < 0.5 ? (local / 0.5) * 1.2 : 1.2 - 0.2 * ((local - 0.5) / 0.5);
+    }
 }

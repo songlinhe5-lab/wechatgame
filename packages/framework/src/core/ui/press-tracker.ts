@@ -11,25 +11,25 @@
  * `cancel()` handles interrupts (phase change, re-assembly).
  */
 export class PressTracker<T> {
-  private _target: T | null = null;
+    private _target: T | null = null;
 
-  /** Currently pressed target, for pressed-state visuals. */
-  get pressed(): T | null {
-    return this._target;
-  }
+    /** Currently pressed target, for pressed-state visuals. */
+    get pressed(): T | null {
+        return this._target;
+    }
 
-  begin(target: T): void {
-    this._target = target;
-  }
+    begin(target: T): void {
+        this._target = target;
+    }
 
-  /** Release. Returns the committed target, or `null` when nothing commits. */
-  end(hit: T | null): T | null {
-    const target = this._target;
-    this._target = null;
-    return target !== null && hit !== null && hit === target ? target : null;
-  }
+    /** Release. Returns the committed target, or `null` when nothing commits. */
+    end(hit: T | null): T | null {
+        const target = this._target;
+        this._target = null;
+        return target !== null && hit !== null && hit === target ? target : null;
+    }
 
-  cancel(): void {
-    this._target = null;
-  }
+    cancel(): void {
+        this._target = null;
+    }
 }

@@ -24,32 +24,32 @@ const PERF_PANEL = { x: 12, dy: -148, w: 316, h: 136, radius: 12 } as const;
  * `level` / `detail` 可为空串：菜单腿只有 `phase = 'menu'`，不画空行。
  */
 export function drawPerfOverlay(
-  builder: RenderModelBuilder,
-  palette: BeadsPalette,
-  enabled: boolean,
-  frameMs: number,
-  phase: string,
-  level: string,
-  detail: string,
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    enabled: boolean,
+    frameMs: number,
+    phase: string,
+    level: string,
+    detail: string,
 ): void {
-  if (!enabled) return;
-  const fps = frameMs > 0 ? Math.round(1000 / frameMs) : 0;
-  const top = builder.height;
-  builder.rect(PERF_PANEL.x, top + PERF_PANEL.dy, PERF_PANEL.w, PERF_PANEL.h, {
-    fill: scrimFill(UI_SCRIM.canvas, 0.7),
-    radius: PERF_PANEL.radius,
-  });
-  const line = (y: number, text: string): void => {
-    builder.text(PERF_PANEL.x + 16, y, text, {
-      fill: palette.text,
-      font: UI_FONT.panelToggle,
-      align: 'left',
-      baseline: 'middle',
+    if (!enabled) return;
+    const fps = frameMs > 0 ? Math.round(1000 / frameMs) : 0;
+    const top = builder.height;
+    builder.rect(PERF_PANEL.x, top + PERF_PANEL.dy, PERF_PANEL.w, PERF_PANEL.h, {
+        fill: scrimFill(UI_SCRIM.canvas, 0.7),
+        radius: PERF_PANEL.radius,
     });
-  };
-  line(top - 38, `fps ${fps} · ${frameMs.toFixed(1)} ms`);
-  line(top - 76, level ? `${phase} · ${level}` : phase);
-  if (detail) line(top - 114, detail);
+    const line = (y: number, text: string): void => {
+        builder.text(PERF_PANEL.x + 16, y, text, {
+            fill: palette.text,
+            font: UI_FONT.panelToggle,
+            align: 'left',
+            baseline: 'middle',
+        });
+    };
+    line(top - 38, `fps ${fps} · ${frameMs.toFixed(1)} ms`);
+    line(top - 76, level ? `${phase} · ${level}` : phase);
+    if (detail) line(top - 114, detail);
 }
 
 /**
@@ -57,26 +57,26 @@ export function drawPerfOverlay(
  * （原 `view-model::drawSafeGuideLines` 原样搬入，两屏共用同一份。）
  */
 export function drawSafeGuideLines(
-  builder: RenderModelBuilder,
-  H: number,
-  st: number,
-  cap: number,
-  sb: number,
+    builder: RenderModelBuilder,
+    H: number,
+    st: number,
+    cap: number,
+    sb: number,
 ): void {
-  const ink = DEBUG_OUTLINE_TILE_HEX;
-  const marks = [
-    { y: H - st, text: `safe ${st}`, x: 16 },
-    { y: H - cap, text: `cap ${cap}`, x: 280 },
-    { y: sb, text: `home ${sb}`, x: 16 },
-  ];
-  for (const m of marks) {
-    builder.line(0, m.y, DESIGN_W, m.y, ink, 3);
-    const below = m.y > H * 0.5;
-    builder.text(m.x, below ? m.y - 18 : m.y + 18, m.text, {
-      fill: ink,
-      font: UI_FONT.cell,
-      align: 'left',
-      baseline: 'middle',
-    });
-  }
+    const ink = DEBUG_OUTLINE_TILE_HEX;
+    const marks = [
+        { y: H - st, text: `safe ${st}`, x: 16 },
+        { y: H - cap, text: `cap ${cap}`, x: 280 },
+        { y: sb, text: `home ${sb}`, x: 16 },
+    ];
+    for (const m of marks) {
+        builder.line(0, m.y, DESIGN_W, m.y, ink, 3);
+        const below = m.y > H * 0.5;
+        builder.text(m.x, below ? m.y - 18 : m.y + 18, m.text, {
+            fill: ink,
+            font: UI_FONT.cell,
+            align: 'left',
+            baseline: 'middle',
+        });
+    }
 }

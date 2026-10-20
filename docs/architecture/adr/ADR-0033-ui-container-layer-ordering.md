@@ -74,6 +74,13 @@
 
 **测数**：framework 45 文件 **491 passed**（新增 6 例）；反证 = 把作用域解析置空 ⇒ 路由 / DEC-5 / scope 计数 3 例全红（按 sha 逐字节还原）；beads 1137 + 3 skip（金样本十态零漂移）、breakout 239、三包 typecheck 0。
 
+### P1 可证部分交付记录（WXG-T-328）
+
+- 新增 `adapters/cocos/ui-scope-tree.ts`（**无 `cc` ⇒ Node 可测**，进 barrel）：`UiScopeTree implements CocosUiScopeHostLike`，宿主只注入 `UiScopeTreeHooks`（`root` / `defaultScope` / `defaultBlitParent` / `create(key, parent, siblingIndex)`），`siblingIndex` 由内核算定 ⇒ ⛔ 宿主不得自行决定序（否则两处真源）。
+- 内核把本 ADR 的四条排序规则变成可执行（各带单测，共 9 例）：**懒建**（`enter` 不落笔不建层，与 `lastScopeCount` 同口径；唯一例外 = 建段须先有父容器层）、**容器序 = 出现序**（首次出现定兄弟位、跨帧复用不重排）、**段序 = `UI_SEGMENT_ORDER` 枚举序而非绘制先后**（DEC-3 的核心，也是 Cocos 把指令序压成通道序那类缺陷的反面）、**段挂在容器之下**（用父子序代替 zIndex，DEC-4）；越界与不配对不抛、不误建层。
+- **接口修订**：`CocosUiScopeHostLike.exitScope()` 拆为 `exitContainer()` / `exitSegment()`——单一出栈分不开「出段→回本容器默认段」与「出容器」，P0 合一写法会把退出语义埋错；彼时宿主接口尚无生产消费者 ⇒ 零外溢。
+- ⛔ 仍未接（P1 剩余半段）：`bindings.ts` 的 cc 工厂薄壳 + 视图发层级命令 + 真机层序读数。故本行不代表缺陷已修。
+
 ### 尚待后续定的小项（不阻塞 P0）
 
 - **S1 段枚举是否需再加 `debug`**：安全区标定线与性能覆层现走 `DebugLayer`，它必须永远在最顶。推荐复用 `toast` 之上的隐式末位，P0 定稿。

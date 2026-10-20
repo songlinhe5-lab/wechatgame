@@ -18,21 +18,21 @@ import type { UiScrimRgb } from './ui-theme.js';
 
 /** 静止态面板边界（与 `systems/*-panel` 的 `PanelRect` 同形，零转换消费）。 */
 export interface ModalPanelBounds {
-  readonly xMin: number;
-  readonly yMin: number;
-  readonly xMax: number;
-  readonly yMax: number;
+    readonly xMin: number;
+    readonly yMin: number;
+    readonly xMax: number;
+    readonly yMax: number;
 }
 
 /** 缩放后面板几何（设计坐标 y-up）；内容区按 `scale` 与 `cx/cy` 同比换算。 */
 export interface ModalFrameGeometry {
-  readonly cx: number;
-  readonly cy: number;
-  readonly x: number;
-  readonly y: number;
-  readonly w: number;
-  readonly h: number;
-  readonly scale: number;
+    readonly cx: number;
+    readonly cy: number;
+    readonly x: number;
+    readonly y: number;
+    readonly w: number;
+    readonly h: number;
+    readonly scale: number;
 }
 
 /**
@@ -40,53 +40,53 @@ export interface ModalFrameGeometry {
  * `progress` 先 clamp 到 0..1（与旧实现同一上限/下限）。
  */
 export function modalFrameLayout(
-  panel: ModalPanelBounds,
-  progress: number,
-  scaleFrom = PANEL_SCALE_FROM,
+    panel: ModalPanelBounds,
+    progress: number,
+    scaleFrom = PANEL_SCALE_FROM,
 ): ModalFrameGeometry {
-  const t = Math.max(0, Math.min(1, progress));
-  const cx = (panel.xMin + panel.xMax) / 2;
-  const cy = (panel.yMin + panel.yMax) / 2;
-  const scale = scaleFrom + (1 - scaleFrom) * t;
-  const w = (panel.xMax - panel.xMin) * scale;
-  const h = (panel.yMax - panel.yMin) * scale;
-  return { cx, cy, x: cx - w / 2, y: cy - h / 2, w, h, scale };
+    const t = Math.max(0, Math.min(1, progress));
+    const cx = (panel.xMin + panel.xMax) / 2;
+    const cy = (panel.yMin + panel.yMax) / 2;
+    const scale = scaleFrom + (1 - scaleFrom) * t;
+    const w = (panel.xMax - panel.xMin) * scale;
+    const h = (panel.yMax - panel.yMin) * scale;
+    return { cx, cy, x: cx - w / 2, y: cy - h / 2, w, h, scale };
 }
 
 /** 全屏遮罩；`alpha` 由调用方按档位与进度算好（设置档 = `settingsAlpha * t`）。 */
 export function drawModalScrim(
-  builder: RenderModelBuilder,
-  rgb: UiScrimRgb,
-  alpha: number,
+    builder: RenderModelBuilder,
+    rgb: UiScrimRgb,
+    alpha: number,
 ): void {
-  builder.rect(0, 0, DESIGN_W, builder.height, {
-    fill: scrimFill(rgb, alpha),
-  });
+    builder.rect(0, 0, DESIGN_W, builder.height, {
+        fill: scrimFill(rgb, alpha),
+    });
 }
 
 export interface ModalFrameSpec {
-  /** 静止态边界（命中与布局共用；动画期不另算）。 */
-  readonly panel: ModalPanelBounds;
-  /** 0..1 开合进度（`ModalLifecycle` 输出；`t=1` = 静止态）。 */
-  readonly progress: number;
-  readonly scrimRgb: UiScrimRgb;
-  /** 已含进度的遮罩 α。 */
-  readonly scrimAlpha: number;
-  readonly palette: BeadsPalette;
-  readonly radius: number;
-  readonly shadowAlpha: number;
-  readonly scaleFrom?: number;
+    /** 静止态边界（命中与布局共用；动画期不另算）。 */
+    readonly panel: ModalPanelBounds;
+    /** 0..1 开合进度（`ModalLifecycle` 输出；`t=1` = 静止态）。 */
+    readonly progress: number;
+    readonly scrimRgb: UiScrimRgb;
+    /** 已含进度的遮罩 α。 */
+    readonly scrimAlpha: number;
+    readonly palette: BeadsPalette;
+    readonly radius: number;
+    readonly shadowAlpha: number;
+    readonly scaleFrom?: number;
 }
 
 /** 遮罩 + 纸面板，返回内容区几何。 */
 export function drawModalFrame(
-  builder: RenderModelBuilder,
-  spec: ModalFrameSpec,
+    builder: RenderModelBuilder,
+    spec: ModalFrameSpec,
 ): ModalFrameGeometry {
-  const geo = modalFrameLayout(spec.panel, spec.progress, spec.scaleFrom);
-  drawModalScrim(builder, spec.scrimRgb, spec.scrimAlpha);
-  drawPaperPanel(builder, geo.x, geo.y, geo.w, geo.h, spec.palette, spec.radius, spec.shadowAlpha);
-  return geo;
+    const geo = modalFrameLayout(spec.panel, spec.progress, spec.scaleFrom);
+    drawModalScrim(builder, spec.scrimRgb, spec.scrimAlpha);
+    drawPaperPanel(builder, geo.x, geo.y, geo.w, geo.h, spec.palette, spec.radius, spec.shadowAlpha);
+    return geo;
 }
 
 export type ModalHit = 'content' | 'block' | 'dismiss';
@@ -97,11 +97,11 @@ export type ModalHit = 'content' | 'block' | 'dismiss';
  * 「其余零响应」口径）。命中用**静止态**边界，与 `systems/*-panel` 的命中面同源。
  */
 export function modalHitTest(
-  panel: ModalPanelBounds,
-  x: number,
-  y: number,
-  dismissOnScrim = false,
+    panel: ModalPanelBounds,
+    x: number,
+    y: number,
+    dismissOnScrim = false,
 ): ModalHit {
-  if (x >= panel.xMin && x <= panel.xMax && y >= panel.yMin && y <= panel.yMax) return 'content';
-  return dismissOnScrim ? 'dismiss' : 'block';
+    if (x >= panel.xMin && x <= panel.xMax && y >= panel.yMin && y <= panel.yMax) return 'content';
+    return dismissOnScrim ? 'dismiss' : 'block';
 }

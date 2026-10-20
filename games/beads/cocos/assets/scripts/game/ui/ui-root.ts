@@ -16,34 +16,34 @@ import type { UiHost } from './ui-host';
 
 /** 可绘制路由：`draw` 只读 ViewModel，与 `Scene` 生命周期正交。 */
 export interface UiRoute extends Route {
-  draw(builder: RenderModelBuilder): void;
+    draw(builder: RenderModelBuilder): void;
 }
 
 export class UiRoot {
-  readonly nav = new Navigator();
-  /** 可见集复用数组（`visibleRoutes` 写入，不新建）。 */
-  private readonly _visible: UiRoute[] = [];
+    readonly nav = new Navigator();
+    /** 可见集复用数组（`visibleRoutes` 写入，不新建）。 */
+    private readonly _visible: UiRoute[] = [];
 
-  constructor(private readonly _host: UiHost) {}
+    constructor(private readonly _host: UiHost) { }
 
-  push(route: UiRoute): void {
-    this.nav.push(route);
-  }
+    push(route: UiRoute): void {
+        this.nav.push(route);
+    }
 
-  pop(): UiRoute | undefined {
-    return this.nav.pop() as UiRoute | undefined;
-  }
+    pop(): UiRoute | undefined {
+        return this.nav.pop() as UiRoute | undefined;
+    }
 
-  /** 推进路由生命周期（`SceneStack.update` 只跑栈顶）。 */
-  update(dt: number): void {
-    this.nav.update(dt);
-  }
+    /** 推进路由生命周期（`SceneStack.update` 只跑栈顶）。 */
+    update(dt: number): void {
+        this.nav.update(dt);
+    }
 
-  /** 自下而上画可见路由，最后画调试层（盖住所有路由）。 */
-  draw(builder: RenderModelBuilder, palette: BeadsPalette): void {
-    const routes = this.nav.visibleRoutes(this._visible) as UiRoute[];
-    for (let i = 0; i < routes.length; i++) routes[i].draw(builder);
-    const d = this._host.debugState();
-    drawPerfOverlay(builder, palette, d.enabled, d.frameMs, d.phase, d.level, d.detail);
-  }
+    /** 自下而上画可见路由，最后画调试层（盖住所有路由）。 */
+    draw(builder: RenderModelBuilder, palette: BeadsPalette): void {
+        const routes = this.nav.visibleRoutes(this._visible) as UiRoute[];
+        for (let i = 0; i < routes.length; i++) routes[i].draw(builder);
+        const d = this._host.debugState();
+        drawPerfOverlay(builder, palette, d.enabled, d.frameMs, d.phase, d.level, d.detail);
+    }
 }

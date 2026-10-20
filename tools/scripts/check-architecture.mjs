@@ -357,9 +357,9 @@ if (sceneFiles.length > 0) {
     join(gamesDir, '<game>', 'cocos'),
     0,
     `found ${sceneFiles.length} editor-generated file(s) (.scene/.prefab/.meta). ` +
-      'They must only be produced by Cocos Creator — never hand-edited: ' +
-      sceneFiles.slice(0, 8).join(', ') +
-      (sceneFiles.length > 8 ? ` … (+${sceneFiles.length - 8})` : ''),
+    'They must only be produced by Cocos Creator — never hand-edited: ' +
+    sceneFiles.slice(0, 8).join(', ') +
+    (sceneFiles.length > 8 ? ` … (+${sceneFiles.length - 8})` : ''),
   );
 }
 
@@ -406,7 +406,7 @@ if (AS_JSON) {
   if (violations.length === 0) {
     console.log(
       `check-architecture: OK — no violations` +
-        (warnings.length ? ` (${warnings.length} warning${warnings.length === 1 ? '' : 's'})` : ''),
+      (warnings.length ? ` (${warnings.length} warning${warnings.length === 1 ? '' : 's'})` : ''),
     );
   } else {
     console.log(`\ncheck-architecture: ${violations.length} violation(s) found.`);

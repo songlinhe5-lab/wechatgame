@@ -37,7 +37,7 @@ export interface PhasePageDrawers {
 }
 
 /** 弹窗内容由底下的 menu 路由画出（见头注边界 ①）⇒ 空 `draw`。 */
-const noop = (): void => {};
+const noop = (): void => { };
 
 const MODAL_SIGNIN: UiRoute = { name: 'signin', kind: 'modal', draw: noop };
 const MODAL_SETTINGS: UiRoute = { name: 'settings', kind: 'modal', draw: noop };

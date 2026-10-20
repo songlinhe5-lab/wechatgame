@@ -27,85 +27,85 @@ export type ButtonTone = 'wood' | 'accent' | 'ghost' | 'paper';
  * @param sheen  仅 `wood`：顶缘受光线，默认开；T4 木钮传 `false`。
  */
 export function drawButton(
-  builder: RenderModelBuilder,
-  palette: BeadsPalette,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  tone: ButtonTone,
-  radius: number,
-  label?: string,
-  font?: string,
-  pressed = false,
-  disabled = false,
-  sheen = true,
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    tone: ButtonTone,
+    radius: number,
+    label?: string,
+    font?: string,
+    pressed = false,
+    disabled = false,
+    sheen = true,
 ): void {
-  if (tone === 'wood') {
-    // 按下态：面换 `woodFacePressed`、受光线隐去；下沉位移由调用方给 y。
-    builder.rect(x, y, w, h, { fill: pressed ? palette.woodFacePressed : palette.woodFace, radius });
-    if (sheen && !pressed) {
-      // 顶缘受光线：y-up ⇒ 顶 = y+h。
-      builder.line(
-        x + 3, y + h - UI_CONTAINER.strokeSheen / 2,
-        x + w - 3, y + h - UI_CONTAINER.strokeSheen / 2,
-        palette.woodSheen, UI_CONTAINER.strokeSheen,
-      );
+    if (tone === 'wood') {
+        // 按下态：面换 `woodFacePressed`、受光线隐去；下沉位移由调用方给 y。
+        builder.rect(x, y, w, h, { fill: pressed ? palette.woodFacePressed : palette.woodFace, radius });
+        if (sheen && !pressed) {
+            // 顶缘受光线：y-up ⇒ 顶 = y+h。
+            builder.line(
+                x + 3, y + h - UI_CONTAINER.strokeSheen / 2,
+                x + w - 3, y + h - UI_CONTAINER.strokeSheen / 2,
+                palette.woodSheen, UI_CONTAINER.strokeSheen,
+            );
+        }
+        // 底缘承重线：y-up ⇒ 底 = y。
+        builder.line(
+            x + 3, y + UI_CONTAINER.strokeWoodEdge / 2,
+            x + w - 3, y + UI_CONTAINER.strokeWoodEdge / 2,
+            palette.woodEdge, UI_CONTAINER.strokeWoodEdge,
+        );
+        if (label) {
+            builder.text(x + w / 2, y + h / 2, label, {
+                fill: palette.woodText,
+                font: font ?? UI_FONT.panelButton,
+                align: 'center',
+                baseline: 'middle',
+            });
+        }
+        return;
     }
-    // 底缘承重线：y-up ⇒ 底 = y。
-    builder.line(
-      x + 3, y + UI_CONTAINER.strokeWoodEdge / 2,
-      x + w - 3, y + UI_CONTAINER.strokeWoodEdge / 2,
-      palette.woodEdge, UI_CONTAINER.strokeWoodEdge,
-    );
-    if (label) {
-      builder.text(x + w / 2, y + h / 2, label, {
-        fill: palette.woodText,
-        font: font ?? UI_FONT.panelButton,
-        align: 'center',
-        baseline: 'middle',
-      });
-    }
-    return;
-  }
 
-  if (tone === 'paper') {
+    if (tone === 'paper') {
+        builder.rect(x, y, w, h, {
+            fill: pressed ? palette.cardPressed : palette.panel,
+            stroke: palette.panelBorder,
+            lineWidth: UI_CONTAINER.strokePanel,
+            radius,
+        });
+        if (label) {
+            builder.text(x + w / 2, y + h / 2, label, {
+                fill: palette.text,
+                font: font ?? UI_FONT.panelButton,
+                align: 'center',
+                baseline: 'middle',
+            });
+        }
+        return;
+    }
+
+    // 菜单主钮 / 次钮：同构（2px 描边 + 实心字），只差面、描边与字色。
+    const accent = tone === 'accent';
     builder.rect(x, y, w, h, {
-      fill: pressed ? palette.cardPressed : palette.panel,
-      stroke: palette.panelBorder,
-      lineWidth: UI_CONTAINER.strokePanel,
-      radius,
+        fill: accent
+            ? (pressed ? palette.woodFacePressed : palette.accentPrimary)
+            : pressed ? palette.cardPressed : palette.slot,
+        stroke: accent ? palette.accentPrimary : palette.slotBorder,
+        lineWidth: 2,
+        radius,
+        ...(disabled ? { alpha: 0.5 } : {}),
     });
     if (label) {
-      builder.text(x + w / 2, y + h / 2, label, {
-        fill: palette.text,
-        font: font ?? UI_FONT.panelButton,
-        align: 'center',
-        baseline: 'middle',
-      });
+        builder.text(x + w / 2, y + h / 2, label, {
+            fill: accent ? palette.panel : palette.text,
+            font: font ?? UI_FONT.button,
+            align: 'center',
+            baseline: 'middle',
+        });
     }
-    return;
-  }
-
-  // 菜单主钮 / 次钮：同构（2px 描边 + 实心字），只差面、描边与字色。
-  const accent = tone === 'accent';
-  builder.rect(x, y, w, h, {
-    fill: accent
-      ? (pressed ? palette.woodFacePressed : palette.accentPrimary)
-      : pressed ? palette.cardPressed : palette.slot,
-    stroke: accent ? palette.accentPrimary : palette.slotBorder,
-    lineWidth: 2,
-    radius,
-    ...(disabled ? { alpha: 0.5 } : {}),
-  });
-  if (label) {
-    builder.text(x + w / 2, y + h / 2, label, {
-      fill: accent ? palette.panel : palette.text,
-      font: font ?? UI_FONT.button,
-      align: 'center',
-      baseline: 'middle',
-    });
-  }
 }
 
 /**
@@ -113,26 +113,26 @@ export function drawButton(
  * 托盘未解锁行与全通关面板的未过关格共用（UI-41 起从 `view-model` 抽出）。
  */
 export function drawDashedRect(
-  builder: RenderModelBuilder,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  color: string,
+    builder: RenderModelBuilder,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    color: string,
 ): void {
-  const dash = 6;
-  const gap = 4;
-  const period = dash + gap;
-  // Top & bottom edges.
-  for (let px = 0; px < w; px += period) {
-    const len = Math.min(dash, w - px);
-    builder.line(x + px, y, x + px + len, y, color, 1);
-    builder.line(x + px, y + h, x + px + len, y + h, color, 1);
-  }
-  // Left & right edges.
-  for (let py = 0; py < h; py += period) {
-    const len = Math.min(dash, h - py);
-    builder.line(x, y + py, x, y + py + len, color, 1);
-    builder.line(x + w, y + py, x + w, y + py + len, color, 1);
-  }
+    const dash = 6;
+    const gap = 4;
+    const period = dash + gap;
+    // Top & bottom edges.
+    for (let px = 0; px < w; px += period) {
+        const len = Math.min(dash, w - px);
+        builder.line(x + px, y, x + px + len, y, color, 1);
+        builder.line(x + px, y + h, x + px + len, y + h, color, 1);
+    }
+    // Left & right edges.
+    for (let py = 0; py < h; py += period) {
+        const len = Math.min(dash, h - py);
+        builder.line(x, y + py, x, y + py + len, color, 1);
+        builder.line(x + w, y + py, x + w, y + py + len, color, 1);
+    }
 }

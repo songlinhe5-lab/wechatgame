@@ -3495,6 +3495,18 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-328
+
+**beads·UI-60 P1（可证部分）：容器×段层树内核 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 内核完成（2026-10-20），cc 薄壳与视图接线仍待 P1 后半）**
+
+- **来源**：用户选「推 P1 的可证部分」——把层树逻辑写成引擎无关类，让「层怎么排 / 何时建 / 越界怎么办」能在 Node 里逐条证，`bindings.ts` 只留 cc 工厂薄壳（那条腿只能由设备证）。
+- **新增 `packages/framework/src/adapters/cocos/ui-scope-tree.ts`**（⛔ 不 import `cc`，进 `adapters/cocos/index.ts` barrel）：`UiScopeTree implements CocosUiScopeHostLike`；宿主注入 `UiScopeTreeHooks = { root, defaultScope, defaultBlitParent, create(key, parent, siblingIndex) }`。`siblingIndex` 由**内核**算定 ⇒ 宿主只照数排兄弟，⛔ 不得自行决定序（否则序有两处真源）。
+- **内核兑现的四条规则**（各带单测，共 9 例）：① **懒建**——`enter*` 不建层，只有真落笔（读 `current`）才建，与 `lastScopeCount` 同口径，唯一例外是建段须先有父容器层；② **容器序 = 出现序**，首次出现定兄弟位、跨帧复用不重排；③ **段序 = `UI_SEGMENT_ORDER` 枚举序而非绘制先后**（DEC-3 核心，也正是「Cocos 把指令序压成通道序」那类缺陷的反面）；④ **段挂在容器之下**（用父子序代替 zIndex，DEC-4）；另加防御：未进容器就开段 ⇒ warn-once 忽略、空栈退出不抛。
+- **接口修订（如实登记）**：`CocosUiScopeHostLike.exitScope()` 拆为 `exitContainer()` / `exitSegment()`。原因：单一出栈分不开「出段 → 回本容器默认段」与「出容器」，P0 的合一写法会把退出语义埋错；P0 宿主接口尚无生产消费者（只有测试假件）⇒ 零外溢。`CocosUiScopeLike` / 默认层语义未动。
+- **兼容面**：视图仍未发任何层级命令、`bindings.ts` 未注入宿主 ⇒ **真机零行为变化**；金样本十一态应零漂移。
+- **验收**：framework **46 文件 500 passed**（+9 例）；**三处定向变异全咬红**（段序改插入序 ⇒ 2 例红；取消懒建 ⇒ 1 例红；帧首不清默认层 ⇒ 1 例红），随后按内容比对逐字节还原（sha `dcca8f5ef733`）；beads 98 文件 **1137 passed + 3 skipped**（金样本十一态 sha 零漂移）、breakout 239、三包 typecheck 0 错；`framework:sync` 新增 1 件镜像（framework 59→60）且 `framework:sync:check` 一致；`check:arch` OK（唯一 WARN 是既有的编辑器生成件计数，与本批无关）。
+- **⛔ 未完成项（别把本单当修好）**：`bindings.ts` 的 cc 工厂薄壳、视图发 `beginContainer/beginSegment`、真机层序读数（ADR-0033 DEC-8）——这三件才是「设置弹窗层级错乱」的关闭条件；其中视图接线受 §4 前置约束（他会话 UI 迁移 WIP 入库）。
+
 ## WXG-T-327
 
 **beads·UI-60 P0：容器 / 段语法 + Cocos 作用域映射 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）**

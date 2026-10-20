@@ -123,7 +123,10 @@ class FakeScopeHost implements CocosUiScopeHostLike {
     this._enter(`${this._stack[this._stack.length - 1] ?? 'default'}·${segment}`);
   }
 
-  exitScope(): void { this._stack.pop(); }
+  /** 本假宿主把段当作嵌套层（与 `UiScopeTree` 的「段挂在容器下」同序），两种退出都是出栈。 */
+  exitSegment(): void { this._stack.pop(); }
+
+  exitContainer(): void { this._stack.pop(); }
 
   get current(): CocosUiScopeLike {
     const key = this._stack[this._stack.length - 1];

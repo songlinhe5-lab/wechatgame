@@ -8,6 +8,7 @@
  */
 
 export * from './cocos-renderer';
+export * from './ui-scope-tree'; // [UI-60 P1] 容器×段层树内核（无 `cc`，Node 可测）
 export * from './input-bridge';
 export * from './loop-bridge';
 export * from './label-pool';

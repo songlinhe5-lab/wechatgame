@@ -13,14 +13,14 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RenderModelBuilder, type RenderModel } from '@wxgame/framework';
 import {
-  DESIGN_H,
-  DESIGN_W,
-  HUD_BAND,
-  POWERUP_TYPES,
-  TRAY_BASE_SLOTS,
-  expandButtonLayout,
-  powerupCardRects,
-  trayLayout,
+    DESIGN_H,
+    DESIGN_W,
+    HUD_BAND,
+    POWERUP_TYPES,
+    TRAY_BASE_SLOTS,
+    expandButtonLayout,
+    powerupCardRects,
+    trayLayout,
 } from '../src/config/tuning.js';
 import { hitExpandButton, hitGear, hitPowerupCard, hitTraySlot } from '../src/game/beads-game/hit-test.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';

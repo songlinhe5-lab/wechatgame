@@ -504,7 +504,7 @@ describe('EP12-S9 ⑤ levelDraft.skin：透传 · 结构校验 · 导入复验�
 
     it('K-064 反例腿：谎报未注册 skin ⇒ 导入成功但回落默认肤 + 一次性告警', () => {
         resetSkinImportWarnings();
-        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => { });
         const harness = boot(newStorage());
         const game = harness.game;
         const r = draftToLevel(draftOf({ skin: 'porcelain-white' }), 9006, 's9-f');

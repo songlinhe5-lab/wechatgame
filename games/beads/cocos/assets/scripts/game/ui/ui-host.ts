@@ -8,22 +8,22 @@
 
 /** 调试层三行数据的宿主投影；字段与 `drawPerfOverlay` 入参一一对应。 */
 export interface UiDebugState {
-  /** 统一调试开关（`settings.debugInfo`）。 */
-  enabled: boolean;
-  /** 帧耗时 EMA（ms）。 */
-  frameMs: number;
-  /** 相位，菜单腿为 `'menu'`。 */
-  phase: string;
-  /** 关卡标签，菜单腿为空。 */
-  level: string;
-  /** 附加行（pitch / LOD），菜单腿为空。 */
-  detail: string;
+    /** 统一调试开关（`settings.debugInfo`）。 */
+    enabled: boolean;
+    /** 帧耗时 EMA（ms）。 */
+    frameMs: number;
+    /** 相位，菜单腿为 `'menu'`。 */
+    phase: string;
+    /** 关卡标签，菜单腿为空。 */
+    level: string;
+    /** 附加行（pitch / LOD），菜单腿为空。 */
+    detail: string;
 }
 
 export interface UiHost {
-  /**
-   * 每帧调用一次。实现方返回**同一个**预分配对象（热路径零分配），
-   * UI 根只读不回写。
-   */
-  debugState(): UiDebugState;
+    /**
+     * 每帧调用一次。实现方返回**同一个**预分配对象（热路径零分配），
+     * UI 根只读不回写。
+     */
+    debugState(): UiDebugState;
 }

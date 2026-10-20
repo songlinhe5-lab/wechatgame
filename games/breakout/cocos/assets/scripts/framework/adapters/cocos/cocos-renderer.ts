@@ -107,8 +107,10 @@ export interface CocosUiScopeHostLike {
   enterContainer(id: string): void;
   /** 在当前容器内进入一个段（层间序 = `UI_SEGMENT_ORDER`，由宿主排兄弟节点）。 */
   enterSegment(segment: UiSegment): void;
-  /** 离开当前作用域（容器与段命令共用一个出栈，语义相同）。 */
-  exitScope(): void;
+  /** 离开当前段（回到本容器的默认段）；与 `segmentEnd` 一一对应。 */
+  exitSegment(): void;
+  /** 离开当前容器（栈空时回默认层）；与 `containerEnd` 一一对应。 */
+  exitContainer(): void;
   /** 当前作用域；栈空时返默认作用域。 */
   readonly current: CocosUiScopeLike;
 }
@@ -347,8 +349,12 @@ export class CocosRenderModelRenderer {
         if (scopeHost) { scopeHost.enterSegment(cmd.segment); this._labelSeq = 0; }
         continue;
       }
-      if (cmd.kind === 'containerEnd' || cmd.kind === 'segmentEnd') {
-        if (scopeHost) { scopeHost.exitScope(); this._labelSeq = 0; }
+      if (cmd.kind === 'containerEnd') {
+        if (scopeHost) { scopeHost.exitContainer(); this._labelSeq = 0; }
+        continue;
+      }
+      if (cmd.kind === 'segmentEnd') {
+        if (scopeHost) { scopeHost.exitSegment(); this._labelSeq = 0; }
         continue;
       }
       if (cmd.kind === 'clip') {
