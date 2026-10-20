@@ -3495,6 +3495,20 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-327
+
+**beads·UI-60 P0：容器 / 段语法 + Cocos 作用域映射 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）**
+
+- **来源**：承 [`ADR-0033`](../docs/architecture/adr/ADR-0033-ui-container-layer-ordering.md) §5 Q1 分期的第一批（用户「Q1 分期确认」）。
+- **开工前核前置（并按实测改窄 §4）**：本轮 `git status` = 47 个未提交件在场，脏件集中在 `framework/src/core/ui`（4）与 `games/beads/src/{ui,view}`（+镜像），而 **`core/render/**` 与 `adapters/**` 一个未被触碰** ⇒ P0 框架腿不撞车可先行；P1（弹窗内容入容器）/ P2（输入逆序）仍须等他会话 WIP 入库。ADR §4 原那句「必须等 WIP 全部入库」过硬，已改为按腿分别登记。
+- **语法（`core/render/render-model.ts`）**：`UiSegment`（`page|hud|modal|toast`）+ `UI_SEGMENT_ORDER` 唯一序表（⛔ adapter / 视图不得再抄一份）+ 四个 kind（`container` / `containerEnd` / `segment` / `segmentEnd`）+ 四条 builder 方法。新 kind 由 `signature()` 的逐字段遍历自动纳入 ⇒ 「脏帧门控看不见层级变化」这类坑预先堵死；层级命令不带几何 ⇒ 不进顶点 arena。
+- **两端映射（`adapters/cocos/cocos-renderer.ts`）**：新增 `CocosUiScopeLike`（一对全通道提交体）+ `CocosUiScopeHostLike`（帧首清层 / 进出容器 / 进段 / 出栈 / 当前层）与 `options.scopeHost`。**未注入宿主 ⇒ 四 kind 静默忽略、旧单层路径逐字不变**（breakout 与一切未接线宿主零漂移；canvas2d 侧的 no-op 由单测锁死，不靠口头声明）。为什么作用域必须自带矢量笔而不只换标签层：同容器内「先画 HUD（矢量 + 文字）再压遮罩」要求后面的 `Graphics` 能盖住前面的 `Labels`——正是 ADR-0030 为 `model.background` 踩过的同一个坑。
+- **DEC-5（同层文字叠序）**：`CocosLabelLike.setSiblingIndex?` 可选方法 + 帧内计数，**换作用域重新归零**；不提供该方法的宿主行为同旧。旧行为的问题如实记在注释里：只 `acquire()`+`setPosition()` ⇒ 叠序取决于池节点创建史，跨帧可变。
+- **预算实测出口**：`lastScopeCount` = 本帧**真正落过笔**的作用域数（只 `enter` 而未画图元的不计 ⇒ 不虚报），无宿主恒 1。这是用户 Q2 那句「必须实测」的第一个可运行口径；真机 DG 读数仍要等 P1 接线后才能取。
+- **⚠ 交付面收窄（如实登记，不算已完成）**：`bindings.ts` 的 cc 节点树（容器 × 段 × 通道子树 + 位图腿归属）**不在本批**——那条腿的真伪只能由设备证（画布叠序 / 节点序 / draw call 实数），无编辑器时写它 = 交不行也证不行的代码。故 P0 对真机**零行为变化**（连宿主都未注入），层级缺陷本身仍未消；解 skip 的层序例归 P1。
+- **验收**：framework 45 文件 **491 passed**（新增 6 例）；**反证** = 把作用域解析置空 ⇒ 路由 / DEC-5 / scope 计数 **3 例全红**，随后按 sha256 逐字节还原；beads 98 文件 **1137 passed + 3 skipped**（金样本十一态零漂移，因视图未发新命令）、breakout 239、三包 typecheck 0；`framework:sync` 写 4 件镜像、`framework:sync:check` 一致；`check:arch` / `check:tasks` / `check:links` / ctx A–E 全绿；`verify` PASS 22 / FAIL 0。
+- **下一步**：P1 = `bindings.ts` cc 层树 + 弹窗内容搬进容器（解开 `dialog-center.test.ts` 的 skip 层序例 + 真机层序读数）；前置 = 他会话 UI 迁移 WIP 入库。
+
 ## WXG-T-326
 
 **beads·真机 P3 续：ADR-0033 三裁回写（含段粒度） · 负责：主理人(Qoder)·程基岩域 · 状态：文档回写（2026-10-20，零代码）**

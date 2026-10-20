@@ -64,6 +64,27 @@ describe('Canvas2DRenderer', () => {
     expect(calls).toContain('fillRect(0,0,100,100)');
   });
 
+  it('[UI-60 P0] 容器 / 段命令在 canvas2d 端是 no-op（immediate mode 指令序即层序）', () => {
+    const scoped = new RenderModelBuilder(100, 100);
+    scoped.begin();
+    scoped.beginContainer('menu');
+    scoped.beginSegment('modal');
+    scoped.rect(0, 0, 10, 10, { fill: '#ffffff' });
+    scoped.endSegment();
+    scoped.endContainer();
+
+    const plain = new RenderModelBuilder(100, 100);
+    plain.begin();
+    plain.rect(0, 0, 10, 10, { fill: '#ffffff' });
+
+    const a = makeRenderer();
+    a.renderer.draw(scoped.end());
+    const b = makeRenderer();
+    b.renderer.draw(plain.end());
+    // 分层命令不产像素也不改变旧层行为 ⇒ 两端兼容路径可证（不靠口头声明）
+    expect(a.calls).toEqual(b.calls);
+  });
+
   it('draws a filled + stroked rect', () => {
     const { renderer, calls, ctx } = makeRenderer();
     const b = new RenderModelBuilder(100, 100);

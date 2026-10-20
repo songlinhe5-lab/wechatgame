@@ -24,7 +24,7 @@
  * (breakout, every unwired scene) are byte-identical to before.
  */
 
-import type { BlitCommand, DrawCommand, RenderModel } from '../../core/render/render-model.js';
+import type { BlitCommand, DrawCommand, RenderModel, UiSegment } from '../../core/render/render-model.js';
 import type { Viewport } from '../../core/render/viewport.js';
 
 /** Structural colour (Cocos `Color` uses 0–255 channels). */
@@ -61,6 +61,14 @@ export interface CocosLabelLike {
   setAlign(align: 'left' | 'center' | 'right'): void;
   setVisible(visible: boolean): void;
   /**
+   * `[UI-60 P0 / ADR-0033 DEC-5]` 按帧内计数定 sibling 序。
+   *
+   * 旧行为：只 `acquire()` + `setPosition()`，同一标签层内的叠序 = 池节点创建史
+   * ⇒ 跨帧可变（“层级是顺序关系”的第二处违反）。宿主实现体走
+   * `label.node.setSiblingIndex(i)`；不提供 ⇒ 行为与旧一致（仅缺这条确定序）。
+   */
+  setSiblingIndex?(index: number): void;
+  /**
    * 可选的文本测量出口。正道是由宿主（`bindings.ts` 用真实 `cc.Label` /
    * `UITransform`）实现，返回文本在当前字号下的**真实像素宽**（G3·待编辑器半）。
    * 未提供时 `_anchorForText` 退化为按字符数估算（见 `FALLBACK_CHAR_WIDTH_RATIO`）。
@@ -73,6 +81,36 @@ export interface CocosLabelSource {
   acquire(): CocosLabelLike;
   /** Return labels not used this frame. */
   releaseAll(): void;
+}
+
+/**
+ * `[UI-60 P0 / ADR-0033 DEC-1…3]` **一个作用域 = 一对全通道提交体**（矢量层 + 标签层）。
+ *
+ * 为何不只拆 Labels：同容器内「先画 HUD（矢量 + 文字）再压一道遮罩」要求后面的
+ * `Graphics` 能盖住前面的 `Labels` ⇒ 只拆一层不够，作用域必须自带自己的矢量笔与
+ * 标签池（位图腿的归属由宿主在 `accept` 时自查当前作用域，本接口不多插一腿）。
+ */
+export interface CocosUiScopeLike {
+  readonly graphics: CocosGraphicsLike;
+  readonly labels: CocosLabelSource;
+}
+
+/**
+ * 作用域宿主（由 `bindings.ts` 实现并注入）。契约就三件事：帧首清层、进出作用域、
+ * 给出当前层。**默认作用域必须就是今天那两个提交体**（主 `Graphics` + 主标签池），
+ * 这样视图未发任何容器/段命令时逐字等价于现状（= P0 的真机零漂移保证）。
+ */
+export interface CocosUiScopeHostLike {
+  /** 帧首：清空各层图形并归还标签（未被本帧使用的作用域不得留下帧像素）。 */
+  beginFrame(): void;
+  /** 进入容器：未随后开段时，本容器的命令归默认段（页面 = page，弹窗 = modal）。 */
+  enterContainer(id: string): void;
+  /** 在当前容器内进入一个段（层间序 = `UI_SEGMENT_ORDER`，由宿主排兄弟节点）。 */
+  enterSegment(segment: UiSegment): void;
+  /** 离开当前作用域（容器与段命令共用一个出栈，语义相同）。 */
+  exitScope(): void;
+  /** 当前作用域；栈空时返默认作用域。 */
+  readonly current: CocosUiScopeLike;
 }
 
 export interface CocosColorFactory {
@@ -129,6 +167,14 @@ export interface CocosRendererOptions {
    * （breakout 与未接线宿主零漂移）。`graphics` 与主 `Graphics` 同一坐标系。
    */
   readonly clipHost?: CocosClipHostLike;
+  /**
+   * `[UI-60 P0 / ADR-0033 DEC-3]` **作用域宿主**（由 `bindings.ts` 注入）。
+   *
+   * - 无宿主 ⇒ `container` / `containerEnd` / `segment` / `segmentEnd` 四 kind **静默忽略**，
+   *   其余命令逐字节走旧单层路径（P0 因此对真机零漂移）。
+   * - 有宿主 ⇒ 矢量与文字按 `host.current` 落笔；默认作用域 = 旧那两个提交体。
+   */
+  readonly scopeHost?: CocosUiScopeHostLike;
 }
 
 /**
@@ -197,6 +243,11 @@ export class CocosRenderModelRenderer {
   private readonly _clipHost: CocosClipHostLike | undefined;
   private _labelsUsed = 0;
   private _clipped = false;
+  // `[UI-60 P0]` 作用域计数与 DEC-5 标签计数（均为复用数组/标量，⛔ 逐帧新建）。
+  private readonly _scopeHost: CocosUiScopeHostLike | undefined;
+  private readonly _seenScopes: CocosUiScopeLike[] = [];
+  private _lastPaintedScope: CocosUiScopeLike | null = null;
+  private _labelSeq = 0;
 
   constructor(
     private readonly _graphics: CocosGraphicsLike,
@@ -210,6 +261,7 @@ export class CocosRenderModelRenderer {
     this._blitCarrier = options.blitCarrier;
     this._back = options.backGraphics;
     this._clipHost = options.clipHost;
+    this._scopeHost = options.scopeHost;
   }
 
   /** Labels borrowed during the last frame (telemetry / budget checks). */
@@ -217,11 +269,38 @@ export class CocosRenderModelRenderer {
     return this._labelsUsed;
   }
 
+  /**
+   * `[UI-60 P0 / ADR-0033 DEC-3]` 本帧**真正落过笔**的作用域数 = Cocos `Graphics`
+   * draw call 的实测口径（只被 `enter` 而未画东西的作域不计 ⇒ 不虚报预算）。
+   * 未注入宿主恒为 1（旧单层路径）。
+   */
+  get lastScopeCount(): number {
+    return this._scopeHost ? this._seenScopes.length : 1;
+  }
+
+  /** 记一笔当前作用域（与上一笔同层 ⇒ 一次引用比较即返，热路径常数开销）。 */
+  private _notePaint(scope: CocosUiScopeLike | null): void {
+    if (!scope || scope === this._lastPaintedScope) return;
+    this._lastPaintedScope = scope;
+    const seen = this._seenScopes;
+    for (let i = 0; i < seen.length; i += 1) if (seen[i] === scope) return;
+    seen.push(scope);
+  }
+
   draw(model: RenderModel): void {
     const g = this._graphics;
-    g.clear();
-    this._labels.releaseAll();
+    const scopeHost = this._scopeHost;
+    // `[UI-60 P0 / ADR-0033 DEC-3]` 有宿主 ⇒ 帧首清层与归还标签交给宿主（它同时清默认作用域
+    // = 旧那两个提交体）；无宿主 ⇒ 旧路径逐字不变。
+    if (scopeHost) scopeHost.beginFrame();
+    else {
+      g.clear();
+      this._labels.releaseAll();
+    }
     this._labelsUsed = 0;
+    this._labelSeq = 0;
+    this._seenScopes.length = 0;
+    this._lastPaintedScope = null;
     // [WXG-T-253 / ADR-0030 S5′-1] 帧边界告知：载体在本帧第一条命令交出前收上一帧的剩节点。
     // 没实现 `beginFrame` 的载体 ⇒ 这里零调用，行为与 T-252 落地时相同。
     const carrier = this._blitCarrier;
@@ -258,6 +337,20 @@ export class CocosRenderModelRenderer {
     const verts = model.vertices;
 
     for (const cmd of model.commands) {
+      // `[UI-60 P0]` 容器 / 段命令：只切换作用域，⛔ 不产像素。未注入宿主 ⇒ 静默忽略，
+      // 其余命令的绘制序列与旧行为逐字一致（P0 真机零漂移的根据）。
+      if (cmd.kind === 'container') {
+        if (scopeHost) { scopeHost.enterContainer(cmd.id); this._labelSeq = 0; }
+        continue;
+      }
+      if (cmd.kind === 'segment') {
+        if (scopeHost) { scopeHost.enterSegment(cmd.segment); this._labelSeq = 0; }
+        continue;
+      }
+      if (cmd.kind === 'containerEnd' || cmd.kind === 'segmentEnd') {
+        if (scopeHost) { scopeHost.exitScope(); this._labelSeq = 0; }
+        continue;
+      }
       if (cmd.kind === 'clip') {
         const host = this._clipHost;
         if (host) {
@@ -273,13 +366,17 @@ export class CocosRenderModelRenderer {
         this._clipped = false;
         continue;
       }
+      // 本条命令落到哪个作用域（无宿主 = null ⇒ 走旧单层）。裁切 / 层级命令已在上面
+      // continue 掉，此处只会是真正产像素的命令。
+      const scope = scopeHost ? scopeHost.current : null;
+      this._notePaint(scope);
       if (cmd.kind === 'text') {
-        this._drawText(cmd, ox, oy);
+        this._drawText(cmd, ox, oy, scope ? scope.labels : this._labels);
         continue;
       }
 
       // 裁切期间矢量改画到蒙版下的 Graphics（同一坐标系）；没宿主就仍画主层。
-      const pen = this._clipped && this._clipHost ? this._clipHost.graphics : g;
+      const pen = this._clipped && this._clipHost ? this._clipHost.graphics : (scope ? scope.graphics : g);
 
       switch (cmd.kind) {
         case 'rect': {
@@ -342,9 +439,18 @@ export class CocosRenderModelRenderer {
   }
   private _blitWarned = false;
 
-  private _drawText(cmd: Extract<DrawCommand, { kind: 'text' }>, ox: number, oy: number): void {
-    const label = this._labels.acquire();
+  private _drawText(
+    cmd: Extract<DrawCommand, { kind: 'text' }>,
+    ox: number,
+    oy: number,
+    labels: CocosLabelSource,
+  ): void {
+    const label = labels.acquire();
     this._labelsUsed++;
+    // `[UI-60 P0 / ADR-0033 DEC-5]` 同作用域内的 sibling 序由帧内计数定，⛔ 不得依赖
+    // 池节点创建史（旧行为下同层文字叠序随上帧借用多少 Label 而变）。
+    if (label.setSiblingIndex) label.setSiblingIndex(this._labelSeq);
+    this._labelSeq += 1;
     const fontSize = parseFontSize(cmd.font);
     label.setFontSize(fontSize);
     label.setText(cmd.text);

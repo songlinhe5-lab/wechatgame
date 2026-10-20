@@ -202,6 +202,55 @@ export interface UnclipCommand {
   readonly kind: 'unclip';
 }
 
+/**
+ * `[UI-60 P0 / ADR-0033 DEC-2]` **段**：容器内的 z 序分组。
+ *
+ * 为什么需要它（而不是只到容器）：同一容器内也有「先画 HUD（矢量 + 文字）、再压一道
+ * 遮罩」的诉求，而 Cocos 端通道是写死的（文字/位图永远在矢量层之上）⇒ 需要一个
+ * **能拆全通道的分组单位**。段的序由 {@link UI_SEGMENT_ORDER} 固定，⛔ 不是坐标、
+ * ⛔ 不是 zIndex、⛔ 不表达任意层级。
+ */
+export type UiSegment = 'page' | 'hud' | 'modal' | 'toast';
+
+/**
+ * 段的绘制序（自下而上），adapter 排兄弟节点的唯一依据（正本 = ADR-0033 DEC-3）。
+ * ⛔ 不得在 adapter / 视图里另份一份序表。
+ */
+export const UI_SEGMENT_ORDER: readonly UiSegment[] = ['page', 'hud', 'modal', 'toast'];
+
+/**
+ * 进入一个渲染容器（一个页面 / 一个弹窗 = 一个容器，ADR-0033 DEC-1）。与
+ * {@link ContainerEndCommand} 成对。容器之间按指令流出现序 = 栈自下而上序。
+ *
+ * 兼容语义（硬要求）：**不认得本 kind 的渲染器必须静默忽略**，其余命令绘制结果
+ * 逐字不变 ⇒ breakout / 未接线宿主零漂移（canvas2d 为 immediate mode，本来就不需要它）。
+ */
+export interface ContainerCommand {
+  readonly kind: 'container';
+  /** 容器身份（= 路由 id，如 `menu` / `play` / `settings`）；仅用于分层与取证。 */
+  readonly id: string;
+}
+
+/** 离开当前容器（与 {@link ContainerCommand} 成对）。 */
+export interface ContainerEndCommand {
+  readonly kind: 'containerEnd';
+}
+
+/**
+ * 在当前容器内进入一个段（与 {@link SegmentEndCommand} 成对）。
+ * **未标段的命令归容器默认段**：适配器把「容器但未开段」当作 `page`（弹窗容器为 `modal`）
+ * ⇒ 视图层只需在真需跨通道叠序处开一段，⛔ 不是逐命令打标。
+ */
+export interface SegmentCommand {
+  readonly kind: 'segment';
+  readonly segment: UiSegment;
+}
+
+/** 离开当前段（与 {@link SegmentCommand} 成对）。 */
+export interface SegmentEndCommand {
+  readonly kind: 'segmentEnd';
+}
+
 export type DrawCommand =
   | RectCommand
   | CircleCommand
@@ -210,7 +259,11 @@ export type DrawCommand =
   | PolygonCommand
   | BlitCommand
   | ClipCommand
-  | UnclipCommand;
+  | UnclipCommand
+  | ContainerCommand
+  | ContainerEndCommand
+  | SegmentCommand
+  | SegmentEndCommand;
 
 /** A full frame description, in design-space units. */
 export interface RenderModel {
@@ -475,6 +528,29 @@ export class RenderModelBuilder {
   /** 弹出最近一次 {@link clip}。 */
   unclip(): void {
     this._commands.push({ kind: 'unclip' });
+  }
+
+  /**
+   * 进入一个渲染容器（`[UI-60 P0 / ADR-0033 DEC-1]`）：一个页面 / 一个弹窗 = 一个容器，
+   * 容器内命令完整保序，容器之间按出现序自下而上叠放。必须与 {@link endContainer} 成对。
+   */
+  beginContainer(id: string): void {
+    this._commands.push({ kind: 'container', id });
+  }
+
+  /** 离开当前容器（与 {@link beginContainer} 成对）。 */
+  endContainer(): void {
+    this._commands.push({ kind: 'containerEnd' });
+  }
+
+  /** 在当前容器内进入一个段（与 {@link endSegment} 成对，段序见 {@link UI_SEGMENT_ORDER}）。 */
+  beginSegment(segment: UiSegment): void {
+    this._commands.push({ kind: 'segment', segment });
+  }
+
+  /** 离开当前段（与 {@link beginSegment} 成对）。 */
+  endSegment(): void {
+    this._commands.push({ kind: 'segmentEnd' });
   }
 
   blit(textureId: string, x: number, y: number, w: number, h: number, opts?: BlitOptions): void {
