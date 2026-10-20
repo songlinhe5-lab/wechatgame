@@ -1330,7 +1330,13 @@ export function buildMetaView(
         if (data.debugGuides) drawSafeGuides(builder, A);
         return;
     } else {
-        // 弹窗（signin / settings）：先压暗底层菜单，再画面板。⚠ 遮罩盖**整屏** ⇒ 高读锚定档系高 H（兜底档 = DESIGN_H）。
+        // 弹窗（signin / settings）：**先画底层菜单，再压半透遮罩** ⇒ 遮罩真的能透（用户 2026-10-20 真机裁定
+        // 「主界面设置页面，没有半透」，解除 WXG-T-317 ⚠「逐单元路由绘制（弹窗下画菜单）待 UX 裁定」）。
+        // 修正前本分支只画 `setBackground` 的实色纸底 + 遮罩 + 面板（`settings` 整帧仅 25 条指令，而主菜单
+        // 3661 条），与本注释原有意图（“先压暗底层菜单”）相悖；局内弹窗一直画底页（pause 676 ≈ play 654 + 面板 22）
+        // ⇒ 菜单侧同口径补齐。遮罩只变透明层、⛔ 不改 RGB 与 α 档（settings 0.3 / 其余 0.5）。
+        drawMenuAnchored(builder, data, palette, anchoredGeo(A), withSignage);
+        // ⚠️ 遮罩盖**整屏** ⇒ 高读锚定档系高 H（兜底档 = DESIGN_H）。
         // EP11-S5 / ux §3.3 ⑤（U14=丙，Q3=甲）：**设置态遮罩 α 分列**——仅 `settings` overlay
         // 读 `SETTINGS_SCRIM_ALPHA`（初值 0.3 [暂定·待 PT-SKIN-01 真机校准]）；
         // ⚠️ RGB 与其余 overlay **零改动**（菜单侧遮罩历史上就是 `0,0,0`，与 `PANEL_SCRIM_RGB`

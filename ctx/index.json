@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4342,
       "lines": 151,
-      "sha256": "c92d7479a767be0f07e6dc08a143f52bb54505229a549a2273c9c36555c9c7e3",
+      "sha256": "d6ed9056d577bfa5c32b37596dc5304e1288f31c59906519f22cc03e75ee42f7",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 158368 3878 normal",
+          "summary": "1 production/TASKS-DETAIL.md 159290 3889 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 126,
           "tokens": 2829,
-          "summary": "production/TASKS-DETAIL.md 158368 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 159290 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5512,
       "lines": 146,
-      "sha256": "6fa8689deba6a273c4e4698acac160379e395c915a565b2dd3cb641a021cbc29",
+      "sha256": "89d3829c8a0d60812da6e5c22329828cd5f3a74c32d78d2309af18aaec3e0309",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 134 行 / 49149 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 135 行 / 49640 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+135 · §待排（backlog，无号，立项时领取…=107+29",
+          "summary": "§WXG 任务台账（SSOT）=1+136 · §待排（backlog，无号，立项时领取…=108+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3878 行 / 158368 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3889 行 / 159290 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -12676,9 +12676,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 7980,
+      "tokens": 7994,
       "lines": 170,
-      "sha256": "4bf8006b2bcded784e1d08404e32800c0569f020e6cb9b7c3d239a20c1395c95",
+      "sha256": "f10299651d39c016cd44124ef0d080bf94bb0db2e9cd97c07e03bfbf77649d5f",
       "tier": "normal",
       "sections": [
         {
@@ -12686,7 +12686,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 171,
-          "tokens": 7961,
+          "tokens": 7976,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -12857,7 +12857,7 @@
           "level": 2,
           "startLine": 132,
           "endLine": 167,
-          "tokens": 3715,
+          "tokens": 3730,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -80478,9 +80478,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 158368,
-      "lines": 3878,
-      "sha256": "57adace717fb1a9a35e89dab8d7f2ece08c7e02ebb5c94ec7a18bb255e5d2a0c",
+      "tokens": 159290,
+      "lines": 3889,
+      "sha256": "8027d6e2bf4e43e67bbf812df359e6617866734fd7b6cca15778a773796bee92",
       "tier": "normal",
       "sections": [
         {
@@ -83001,8 +83001,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 3879,
-          "tokens": 55984,
+          "endLine": 3890,
+          "tokens": 56905,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -83443,10 +83443,23 @@
           ]
         },
         {
-          "anchor": "§WXG-T-323",
+          "anchor": "§WXG-T-324",
           "level": 2,
           "startLine": 3498,
           "endLine": 3508,
+          "tokens": 919,
+          "summary": "beads·真机 P2：菜单弹窗无半透（遮罩下未画底页） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（",
+          "keywords": [
+            "WXG",
+            "beads",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-323",
+          "level": 2,
+          "startLine": 3509,
+          "endLine": 3519,
           "tokens": 1006,
           "summary": "beads·真机 P2：六处对话框中心不对手机中心（逐机居中收口一处） · 负责：主理人(Qoder)·程基岩域 · 状",
           "keywords": [
@@ -83458,8 +83471,8 @@
         {
           "anchor": "§WXG-T-322",
           "level": 2,
-          "startLine": 3509,
-          "endLine": 3518,
+          "startLine": 3520,
+          "endLine": 3529,
           "tokens": 451,
           "summary": "beads·真机 P1：暂停遮罩高屏未铺满（动态设计高未同步 builder） · 负责：主理人(Qoder)·程基岩域",
           "keywords": [
@@ -83472,8 +83485,8 @@
         {
           "anchor": "§WXG-T-321",
           "level": 2,
-          "startLine": 3519,
-          "endLine": 3529,
+          "startLine": 3530,
+          "endLine": 3540,
           "tokens": 514,
           "summary": "beads·转场收尾：金样本补转场中点帧 + reduceMotion 页面转场专项裁定 · 负责：主理人(Qoder)",
           "keywords": [
@@ -83486,8 +83499,8 @@
         {
           "anchor": "§WXG-T-320",
           "level": 2,
-          "startLine": 3530,
-          "endLine": 3539,
+          "startLine": 3541,
+          "endLine": 3550,
           "tokens": 555,
           "summary": "beads·P5·UI-53 全量验收：verify 22 项 + harness 双游 + 真机 [R] 登记 · 负",
           "keywords": [
@@ -83500,8 +83513,8 @@
         {
           "anchor": "§WXG-T-319",
           "level": 2,
-          "startLine": 3540,
-          "endLine": 3555,
+          "startLine": 3551,
+          "endLine": 3566,
           "tokens": 613,
           "summary": "beads·P5·UI-52 机械守：check:arch §20 五条 + 负样本自测 · 负责：主理人(Qoder)",
           "keywords": [
@@ -83516,8 +83529,8 @@
         {
           "anchor": "§WXG-T-318",
           "level": 2,
-          "startLine": 3556,
-          "endLine": 3566,
+          "startLine": 3567,
+          "endLine": 3577,
           "tokens": 497,
           "summary": "beads·P5·UI-51 文档回写：目录 / 路由表 / §20 守则 / ROUTES · 负责：主理人(Qode",
           "keywords": [
@@ -83531,8 +83544,8 @@
         {
           "anchor": "§WXG-T-317",
           "level": 2,
-          "startLine": 3567,
-          "endLine": 3579,
+          "startLine": 3578,
+          "endLine": 3590,
           "tokens": 721,
           "summary": "beads·P5·UI-50 UiRoot 唯一绘制入口：并行开关退役 · 负责：主理人(Qoder)·程基岩域 · 状",
           "keywords": [
@@ -83545,8 +83558,8 @@
         {
           "anchor": "§WXG-T-316",
           "level": 2,
-          "startLine": 3580,
-          "endLine": 3591,
+          "startLine": 3591,
+          "endLine": 3602,
           "tokens": 666,
           "summary": "beads·UI-42 PhaseRouteBinder：壳导航标志位退役 · 负责：主理人(Qoder)·程基岩域 ·",
           "keywords": [
@@ -83559,8 +83572,8 @@
         {
           "anchor": "§WXG-T-315",
           "level": 2,
-          "startLine": 3592,
-          "endLine": 3603,
+          "startLine": 3603,
+          "endLine": 3614,
           "tokens": 610,
           "summary": "beads·UI-40 MainMenuPage：走马灯状态从 shell 迁入 Presenter · 负责：主理人(",
           "keywords": [
@@ -83574,8 +83587,8 @@
         {
           "anchor": "§WXG-T-314",
           "level": 2,
-          "startLine": 3604,
-          "endLine": 3615,
+          "startLine": 3615,
+          "endLine": 3626,
           "tokens": 683,
           "summary": "beads·UI-42 前置：菜单 ↔ 选关页 200 / 150 页面转场 · 负责：主理人(Qoder)·程基岩域 ",
           "keywords": [
@@ -83587,8 +83600,8 @@
         {
           "anchor": "§WXG-T-313",
           "level": 2,
-          "startLine": 3616,
-          "endLine": 3626,
+          "startLine": 3627,
+          "endLine": 3637,
           "tokens": 561,
           "summary": "CI 运行面对齐 Node 24（原生 TS type-stripping） · 负责：主理人(Qoder)·工程域 ·",
           "keywords": [
@@ -83602,8 +83615,8 @@
         {
           "anchor": "§WXG-T-312",
           "level": 2,
-          "startLine": 3627,
-          "endLine": 3636,
+          "startLine": 3638,
+          "endLine": 3647,
           "tokens": 459,
           "summary": "协作纪律·完成即提交推送与提交总结 · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）",
           "keywords": [
@@ -83614,8 +83627,8 @@
         {
           "anchor": "§WXG-T-311",
           "level": 2,
-          "startLine": 3637,
-          "endLine": 3650,
+          "startLine": 3648,
+          "endLine": 3661,
           "tokens": 1219,
           "summary": "beads·UI 架构迁移 P4·UI-34 选关整页落码 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成",
           "keywords": [
@@ -83627,8 +83640,8 @@
         {
           "anchor": "§WXG-T-310",
           "level": 2,
-          "startLine": 3651,
-          "endLine": 3661,
+          "startLine": 3662,
+          "endLine": 3672,
           "tokens": 1084,
           "summary": "beads·UI 架构迁移 P4·UI-34a 选关整页前置文档回写 · 负责：主理人(Qoder)·林绘澄／文策渊域 ",
           "keywords": [
@@ -83640,8 +83653,8 @@
         {
           "anchor": "§WXG-T-309",
           "level": 2,
-          "startLine": 3662,
-          "endLine": 3673,
+          "startLine": 3673,
+          "endLine": 3684,
           "tokens": 1154,
           "summary": "beads·UI 架构迁移 P4·UI-41 PlayPage 对局页基础场景 · 负责：主理人(Qoder)·程基岩域",
           "keywords": [
@@ -83654,8 +83667,8 @@
         {
           "anchor": "§WXG-T-308",
           "level": 2,
-          "startLine": 3674,
-          "endLine": 3684,
+          "startLine": 3685,
+          "endLine": 3695,
           "tokens": 695,
           "summary": "beads·UI 架构迁移 P3·UI-32 SigninModal 签到内容块 · 负责：主理人(Qoder)·程基岩",
           "keywords": [
@@ -83668,8 +83681,8 @@
         {
           "anchor": "§WXG-T-307",
           "level": 2,
-          "startLine": 3685,
-          "endLine": 3696,
+          "startLine": 3696,
+          "endLine": 3707,
           "tokens": 1010,
           "summary": "beads·UI 架构迁移 P3·UI-33 四个结算弹窗共享结果骨架 · 负责：主理人(Qoder)·程基岩域 · 状",
           "keywords": [
@@ -83681,8 +83694,8 @@
         {
           "anchor": "§WXG-T-306",
           "level": 2,
-          "startLine": 3697,
-          "endLine": 3707,
+          "startLine": 3708,
+          "endLine": 3718,
           "tokens": 850,
           "summary": "beads·UI 架构迁移 P3·UI-31 PauseModal（动画改 ModalLifecycle + 设置钮绘制",
           "keywords": [
@@ -83695,8 +83708,8 @@
         {
           "anchor": "§WXG-T-305",
           "level": 2,
-          "startLine": 3708,
-          "endLine": 3718,
+          "startLine": 3719,
+          "endLine": 3729,
           "tokens": 747,
           "summary": "beads·UI 架构迁移 P3·UI-30 SettingsModal + 共享 SettingsContent · ",
           "keywords": [
@@ -83709,8 +83722,8 @@
         {
           "anchor": "§WXG-T-304",
           "level": 2,
-          "startLine": 3719,
-          "endLine": 3728,
+          "startLine": 3730,
+          "endLine": 3739,
           "tokens": 728,
           "summary": "beads·UI 架构迁移 P2·UI-25 UiRoot 组合根与 UiHost 接口（与旧链并行挂接） · 负责：主",
           "keywords": [
@@ -83723,8 +83736,8 @@
         {
           "anchor": "§WXG-T-303",
           "level": 2,
-          "startLine": 3729,
-          "endLine": 3741,
+          "startLine": 3740,
+          "endLine": 3752,
           "tokens": 818,
           "summary": "beads·UI 架构迁移 P2·UI-24 DebugLayer（性能覆层上移、标定线单源、菜单可看） · 负责：主理",
           "keywords": [
@@ -83736,8 +83749,8 @@
         {
           "anchor": "§WXG-T-302",
           "level": 2,
-          "startLine": 3742,
-          "endLine": 3754,
+          "startLine": 3753,
+          "endLine": 3765,
           "tokens": 632,
           "summary": "beads·UI 架构迁移 P2·UI-23 ScreenFrame + NavBar（安全区分区、胶囊避让） · 负责",
           "keywords": [
@@ -83750,8 +83763,8 @@
         {
           "anchor": "§WXG-T-301",
           "level": 2,
-          "startLine": 3755,
-          "endLine": 3768,
+          "startLine": 3766,
+          "endLine": 3779,
           "tokens": 703,
           "summary": "beads·UI 架构迁移 P2·UI-21 通用按钮控件（四族并入单入口） · 负责：主理人(Qoder)·程基岩域 ",
           "keywords": [
@@ -83763,8 +83776,8 @@
         {
           "anchor": "§WXG-T-300",
           "level": 2,
-          "startLine": 3769,
-          "endLine": 3783,
+          "startLine": 3780,
+          "endLine": 3794,
           "tokens": 883,
           "summary": "beads·UI 架构迁移 P2·UI-22 ModalFrame（遮罩 / 纸面板 / 进出场 / 点击屏障） · 负",
           "keywords": [
@@ -83776,8 +83789,8 @@
         {
           "anchor": "§WXG-T-299",
           "level": 2,
-          "startLine": 3784,
-          "endLine": 3797,
+          "startLine": 3795,
+          "endLine": 3808,
           "tokens": 730,
           "summary": "beads·UI 架构迁移 P2·UI-20 UiTheme 风格层（遮罩 / 纸面板 / 字体 / 按下位移收拢） ·",
           "keywords": [
@@ -83789,8 +83802,8 @@
         {
           "anchor": "§WXG-T-298",
           "level": 2,
-          "startLine": 3798,
-          "endLine": 3811,
+          "startLine": 3809,
+          "endLine": 3822,
           "tokens": 989,
           "summary": "beads·UI-02 金样本（十界面整帧指令流封箱 + 只读对拍） · 负责：主理人(Qoder)·严守真域 · 状态",
           "keywords": [
@@ -83802,8 +83815,8 @@
         {
           "anchor": "§WXG-T-297",
           "level": 2,
-          "startLine": 3812,
-          "endLine": 3819,
+          "startLine": 3823,
+          "endLine": 3830,
           "tokens": 566,
           "summary": "任务：beads UI 架构迁移 P1 收口——“UI-13 SafeInsets + UI-14 完整闭环”（用户 2",
           "keywords": [
@@ -83815,8 +83828,8 @@
         {
           "anchor": "§WXG-T-296",
           "level": 2,
-          "startLine": 3820,
-          "endLine": 3829,
+          "startLine": 3831,
+          "endLine": 3840,
           "tokens": 892,
           "summary": "任务：beads UI 架构迁移 P1 机制层（ADR-0032 已 Accepted；按 [ui-architectu",
           "keywords": [
@@ -83830,8 +83843,8 @@
         {
           "anchor": "§WXG-T-295",
           "level": 2,
-          "startLine": 3830,
-          "endLine": 3879,
+          "startLine": 3841,
+          "endLine": 3890,
           "tokens": 6178,
           "summary": "beads·区外按钮改「抬起才提交」（输入时基统一）｜主理人(Qoder)·用户直裁｜程基岩域 + 文策域｜2026-1",
           "keywords": [
@@ -83843,8 +83856,8 @@
         {
           "anchor": "§续批（2026-10-19 22:3x–22:5x，不另领号）：选项 A = 复跑 verify + 真机手感走查开工准备",
           "level": 3,
-          "startLine": 3846,
-          "endLine": 3855,
+          "startLine": 3857,
+          "endLine": 3866,
           "tokens": 844,
           "summary": "上一轮登记的三项 FAIL 已消失，且不是我修的：并发会话自行收口了 BD-62 那两字段（_viewData 已声明 ",
           "keywords": [
@@ -83859,8 +83872,8 @@
         {
           "anchor": "§续批二（2026-10-19 23:0x，不另领号）：包体数字对齐 + D-79 等待 + 提交分拆结论",
           "level": 3,
-          "startLine": 3856,
-          "endLine": 3862,
+          "startLine": 3867,
+          "endLine": 3873,
           "tokens": 617,
           "summary": "包体数字一次对齐（纯文书，零代码）：以 22:47 现包实测（find -type f -exec stat -f%z ",
           "keywords": [
@@ -83875,8 +83888,8 @@
         {
           "anchor": "§续批三（2026-10-19 23:1x–23:29，不另领号）：选项 C = 对局 safe area + 胶囊避让",
           "level": 3,
-          "startLine": 3863,
-          "endLine": 3879,
+          "startLine": 3874,
+          "endLine": 3890,
           "tokens": 1935,
           "summary": "用户裁定：上一轮末尾三选项，用户选 C「暂停 D-79，先修 safe+胶囊」——D-79 真机回填暂缓，先把「齿轮压在",
           "keywords": [
@@ -83892,17 +83905,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 49149,
-      "lines": 134,
-      "sha256": "d126294f6ae3f5ea4d5077376ed4b5132dcefb309ce902b3cc9b24a9fb976a06",
+      "tokens": 49640,
+      "lines": 135,
+      "sha256": "8c81c0904547c8a0d5c23ac80300c5548c0495958cab64d1a519d36272b9dce4",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 135,
-          "tokens": 49140,
+          "endLine": 136,
+          "tokens": 49631,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -83915,8 +83928,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 107,
-          "endLine": 135,
+          "startLine": 108,
+          "endLine": 136,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -87119,17 +87132,17 @@
     },
     {
       "path": "production/qa/beads/device-walkthrough.md",
-      "tokens": 10072,
-      "lines": 235,
-      "sha256": "21ceaedc6a6c6573e874a06a827fe48c64d2cb03d2fcff33dd46af032dfc8658",
+      "tokens": 10336,
+      "lines": 236,
+      "sha256": "caeddb1fceba7cf07dfd02aa1a1682f91e9e77b17bcb793a96149eaf31070e9a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads 真机走查单（P4 · K-044 解除条件逐项走查）",
           "level": 1,
           "startLine": 1,
-          "endLine": 236,
-          "tokens": 10051,
+          "endLine": 237,
+          "tokens": 10316,
           "summary": "版本：v1.6 · 2026-10-19（v1.6 = D-79 的 6a 齿轮腿真机甲/乙双过（用户 2026-10-",
           "keywords": [
             "beads",
@@ -87187,8 +87200,8 @@
           "anchor": "§3 走查条目（按场次排，同场一次性走完）",
           "level": 2,
           "startLine": 49,
-          "endLine": 186,
-          "tokens": 5119,
+          "endLine": 187,
+          "tokens": 5383,
           "summary": "列说明：线 = 来源给的通过线（逐字，未定义 ⇒ 上限 PASS*）；另需 = AppID 之外的前提；判定 / 证据 ",
           "keywords": [
             "PASS",
@@ -87218,8 +87231,8 @@
           "anchor": "§Session 2 · 适配（刘海 / 安全区 / 分辨率）",
           "level": 3,
           "startLine": 93,
-          "endLine": 106,
-          "tokens": 747,
+          "endLine": 107,
+          "tokens": 1011,
           "summary": "D-38 test-cases.md DEV-01 wx 宿主坐标链（getLocation / push）；小游戏无 ",
           "keywords": [
             "Session",
@@ -87233,8 +87246,8 @@
         {
           "anchor": "§Session 3 · 输入",
           "level": 3,
-          "startLine": 107,
-          "endLine": 123,
+          "startLine": 108,
+          "endLine": 124,
           "tokens": 901,
           "summary": "D-46 test-cases.md TC-CAM-DEV-01（P0） zoom≠1（含大盘 fit）棋盘点哪落哪 点",
           "keywords": [
@@ -87249,8 +87262,8 @@
         {
           "anchor": "§Session 4 · 渲染观感（统一截图取证：每条同机同亮度，原图入库）",
           "level": 3,
-          "startLine": 124,
-          "endLine": 148,
+          "startLine": 125,
+          "endLine": 149,
           "tokens": 650,
           "summary": "D-12 ADR-0028；wxg-t-228-tint-criteria.md TC-TINT-20 / T2' wx",
           "keywords": [
@@ -87265,8 +87278,8 @@
         {
           "anchor": "§Session 5 · 性能（严格按 `render-perf-device-baseline.md §12` 执行序）",
           "level": 3,
-          "startLine": 149,
-          "endLine": 163,
+          "startLine": 150,
+          "endLine": 164,
           "tokens": 449,
           "summary": "D-03 baseline §7 · D7 WebGL/uniform/纹理能力矩阵（先做） 全机型 MAX_FRAGM",
           "keywords": [
@@ -87281,8 +87294,8 @@
         {
           "anchor": "§Session 6 · 音频 / 平台 API",
           "level": 3,
-          "startLine": 164,
-          "endLine": 173,
+          "startLine": 165,
+          "endLine": 174,
           "tokens": 214,
           "summary": "D-56 g4-regression-report.md A05-27 iOS 首手势出声；后台恢复；泄漏；首个 cli",
           "keywords": [
@@ -87297,8 +87310,8 @@
         {
           "anchor": "§Session 7 · 真人 Playtest（另排日程，需外部受试者）",
           "level": 3,
-          "startLine": 174,
-          "endLine": 186,
+          "startLine": 175,
+          "endLine": 187,
           "tokens": 264,
           "summary": "D-73 TC-PER-03；playtest-plan.md 第 1 轮 无文字 3s 看懂；首次落子 ≥80% 复述",
           "keywords": [
@@ -87313,8 +87326,8 @@
         {
           "anchor": "§4 真机解不了的阻塞（走查前须知，⛔ 不因真机在手而解除）",
           "level": 2,
-          "startLine": 187,
-          "endLine": 202,
+          "startLine": 188,
+          "endLine": 203,
           "tokens": 507,
           "summary": "X-01 音频出声（D-56/57/58） weapp.ts::createAudioBackend 只走 WebAud",
           "keywords": [
@@ -87329,8 +87342,8 @@
         {
           "anchor": "§5 走查后回填",
           "level": 2,
-          "startLine": 203,
-          "endLine": 209,
+          "startLine": 204,
+          "endLine": 210,
           "tokens": 148,
           "summary": "1. 每条判定回填到来源文档的状态列（本单只是索引）；PASS* 必写残留（缺哪一道）。",
           "keywords": [
@@ -87341,8 +87354,8 @@
         {
           "anchor": "§6 统计",
           "level": 2,
-          "startLine": 210,
-          "endLine": 224,
+          "startLine": 211,
+          "endLine": 225,
           "tokens": 196,
           "summary": "S1 冒烟 8 8",
           "keywords": [
@@ -87352,8 +87365,8 @@
         {
           "anchor": "§7 变更记录",
           "level": 2,
-          "startLine": 225,
-          "endLine": 236,
+          "startLine": 226,
+          "endLine": 237,
           "tokens": 1614,
           "summary": "v1.0 2026-10-15 初稿：汇总全仓真机待验项 + K-044 判定上限 + 阻塞清单（P4）",
           "keywords": [

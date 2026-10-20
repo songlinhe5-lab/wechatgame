@@ -7,6 +7,9 @@
  *
  * 本文件只钉**高屏档**（畅享 90 Pro Max 1128×2444 ⇒ 设计高 1625）；基准档 1334 位移恒 0，
  * 零漂移由金样本十态夹具 + 既有套件守 ⇒ ⛔ 不在本文件重复断言 1334 数值。
+ *
+ * 末尾另挂一节【WXG-T-324】菜单弹窗透出底页的帧构成腿（用户同机报「主界面设置页面，没有
+ * 半透」）—— 与居中同属“弹窗呈现面”，共用同一高屏档 rig，不另开一份机器。
  */
 
 import { describe, it, expect } from 'vitest';
@@ -41,6 +44,7 @@ import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import { failPanelLayout } from '../src/systems/fail-panel.js';
 import { sprintSettleLayout } from '../src/systems/sprint-settle.js';
 import { metaLayout } from '../src/view/meta-view.js';
+import { UI_SCRIM, scrimFill } from '../src/view/ui-theme.js';
 import type { PanelRect } from '../src/systems/pause-panel.js';
 
 const PLAY_KEY = 'test.dialog-center.play';
@@ -58,6 +62,23 @@ function center(plate: PanelRect): number {
 /** 居中判据：面板中心与实际屏中心（H/2）相距 ≤ 0.5 设计 px（奇数多出量的整数化余量）。 */
 function expectScreenCenter(label: string, got: number): void {
     expect(Math.abs(got - TALL_H / 2), label).toBeLessThanOrEqual(0.5);
+}
+
+/** 取一帧全量指令流（高屏档 builder 与 viewport 同源 = 实际设计高）。 */
+function frameOf(shell: BeadsShell): readonly DrawCommand[] {
+    const builder = new RenderModelBuilder(DESIGN_W, liveDesignHeight());
+    builder.begin();
+    shell.buildRenderModel(builder);
+    return builder.end().commands;
+}
+
+function openSettings(shell: BeadsShell): void {
+    const entry = metaLayout('none', WALL_ROWS, shell.menuAnchors).buttons.find(
+        (b) => b.id === 'open-settings',
+    )!;
+    const c = entry.box;
+    expect(shell.tapMeta(c.x + c.w / 2, c.y + c.h / 2)).toBe(true);
+    expect(shell.overlay).toBe('settings');
 }
 
 function rig(): BeadsShell {
@@ -112,24 +133,30 @@ describe('WXG-T-323 — 对话框中心对齐手机中心（逐机实际设计�
 
     it('菜单设置弹窗底板（绘制面）中心 = 手机中心', () => {
         const shell = rig();
-        const entry = metaLayout('none', WALL_ROWS, shell.menuAnchors).buttons.find(
-            (b) => b.id === 'open-settings',
-        )!;
-        const c = entry.box;
-        expect(shell.tapMeta(c.x + c.w / 2, c.y + c.h / 2)).toBe(true);
-        expect(shell.overlay).toBe('settings');
-
-        const builder = new RenderModelBuilder(DESIGN_W, liveDesignHeight());
-        builder.begin();
-        shell.buildRenderModel(builder);
+        openSettings(shell);
         // 弹层里唯一 `radiusPanel` 的 rect = 纸面板底板（按钮走 radiusWood / radiusBtnSmall）。
-        const plate = builder
-            .end()
-            .commands.find(
-                (cmd: DrawCommand): cmd is RectCommand =>
-                    cmd.kind === 'rect' && cmd.radius === UI_CONTAINER.radiusPanel,
-            );
+        const plate = frameOf(shell).find(
+            (cmd: DrawCommand): cmd is RectCommand =>
+                cmd.kind === 'rect' && cmd.radius === UI_CONTAINER.radiusPanel,
+        );
         expect(plate, '未找到设置弹窗底板 rect').toBeDefined();
         expectScreenCenter('设置弹窗（绘制面）', plate!.y + plate!.h / 2);
+    });
+});
+
+describe('WXG-T-324 — 菜单弹窗透出底页（半透压暗真的能看到菜单）', () => {
+    it('设置弹窗：遮罩之前必须已画出主菜单图元', () => {
+        const shell = rig();
+        openSettings(shell);
+        const cmds = frameOf(shell);
+        const scrim = scrimFill(UI_SCRIM.overlay, UI_SCRIM.settingsAlpha);
+        const at = cmds.findIndex((cmd) => cmd.kind === 'rect' && cmd.fill === scrim);
+        expect(at, '半透遮罩 rect 在册').toBeGreaterThan(-1);
+        // 主菜单独有图元（棋盘预览 / 橱窗多边形）必须在遮罩**之前**：弹窗自身不画任何 polygon/circle
+        //（修正前 `settings` 整帧 = { rect:13, text:12 }，遮罩下无可透之物 ⇒ 用户报「没有半透」）。
+        const underlay = cmds
+            .slice(0, at)
+            .filter((cmd) => cmd.kind === 'polygon' || cmd.kind === 'circle').length;
+        expect(underlay, '遮罩下必须已画出底层主菜单').toBeGreaterThan(100);
     });
 });
