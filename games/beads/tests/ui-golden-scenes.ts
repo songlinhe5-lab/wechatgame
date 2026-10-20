@@ -32,7 +32,7 @@ import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { metaLayout } from '../src/view/meta-view.js';
-import { CLEAR_PANEL_DELAY_MS, DESIGN_H, DESIGN_W, GEAR_HIT_SIZE, HUD_BAND, WALL_ROWS } from '../src/config/tuning.js';
+import { CLEAR_PANEL_DELAY_MS, DESIGN_H, DESIGN_W, GEAR_HIT_SIZE, HUD_BAND, PANEL_IN_MS, WALL_ROWS } from '../src/config/tuning.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import { simpleTestLevel } from './helpers.js';
 
@@ -187,6 +187,8 @@ const STATES: readonly GoldenStateDef[] = [
             const shell = rig({ unlocked: 9 });
             tapMeta(shell, 'open-levels');
             requireScreen(shell, 'menu', 'levels');
+            // `[WXG-T-314]` 进页淡入 200ms（ux §5）：推到静息再取帧（终点 = 无转场帧，sha 零漂移）。
+            advance(shell, PANEL_IN_MS / 1000 + UI_GOLDEN_STEP);
             return shell;
         },
     },

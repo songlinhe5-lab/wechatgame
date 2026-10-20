@@ -3495,6 +3495,18 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-314
+
+**beads·UI-42 前置：菜单 ↔ 选关页 200 / 150 页面转场** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：T-311 登记的两条遗留之一（「200/150 转场未接线」）。真源 = `arc-level-select-spec §5`（入 200 / 出 150，ease-out / ease-in）→ `ux-spec §5` 面板入 / 出行 ⇒ 直接复用 `PANEL_IN_MS` / `PANEL_OUT_MS`，**零新毫秒值**。
+- **机制（三件）**：① 框架 `RenderModelBuilder` 增**非嵌套组透明度**（`setAlpha` / `resetAlpha`；`rect/circle/line/text/polygon/blit` 合流，`alpha === 1` 时原样返回 ⇒ 静息帧零新字段）；② `MetaViewData.pageFade` + `buildMetaView`：底页恒为主菜单，选关页（含自身不透明页底）整组 α ⇒ 淡入淡出同一套绘制代码；③ `BeadsShell` 用 **dt 累积**推进（`_pageFxDir` / `_pageFxT`，⛔ 不用墙钟 ⇒ 固定步进可测）。
+- **语义取舍**：进入即 `overlay = 'levels'`（页立即可交互）；`back` 淡出期间 **overlay 仍归页**（命中路径不变，⛔ 不把点击送给菜单 CTA），150ms 终点才置 `none` 并补发 `meta:overlay`；`showMenu` / 进玩法 / 开弹窗均 `_cancelPageFx()`。
+- **零漂移**：`pageFade === undefined`（缺省）时原路径逐字不变；金样本 `level-select` 场景改为**推完转场再取帧**（`advance(PANEL_IN_MS / 1000 + 1 帧)`）⇒ 十态 sha **全不变、夹具未重抓**（K-051 无需新锚）。
+- **测试**：framework `render-model.test.ts` +1（默认零字段 / 乘算 / `resetAlpha` 与 `begin` 复位）；`arc-level-select.test.ts` +2（中点帧 ≠ 静息帧且 200ms 终点逐字等于静息帧；`back` 150ms 内 overlay 仍归页、零关闭事件，到点才落 `none`）；页内既有断言按真实入口先 settle（`openLevels` / `levelsFrame`），未放宽任何判据。
+- **验证读数**：beads 95 文件 **1121**（1119 passed + 2 skipped）；framework `render-model` 26 例；`framework:sync` 后镜像 4 件更新（beads 3 / breakout 1）且 `framework:sync:check` 绿；`pnpm run verify` **PASS 22**。
+- **诚实限制**：UiRoot **页路由**（`_overlay` 退役）仍归 UI-40 / UI-42，本批只补「转场 + 透明度通道」；转场无音效（抽屉音需音频变更单，⛔ 不夹带）。
+
 ## WXG-T-313
 
 **CI 运行面对齐 Node 24（原生 TS type-stripping）** · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）
@@ -3524,7 +3536,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **落点（1 常量组 + 2 处视图 + 4 处测试）**：① [`tuning.ts`](../games/beads/src/config/tuning.ts) 新增页专用 `LEVELS_CELL`(170) / `LEVELS_GAP`(30) / `LEVELS_GRID_LEFT`(90) / `LEVELS_GRID_TOP`(822) / `LEVELS_THUMB_AREA`(134 = 170−8−28 派生式) / `LEVELS_BACK_W`(240) / `LEVELS_BACK_BOTTOM`(116 = `SAFE_BOTTOM_H`+48) / `LEVELS_NAV_H`(88) / `LEVELS_NAV_TOP`(1210 = `DESIGN_H`−124)；`WALL_CELL`(120) / `WALL_CAPACITY`(9) / `THUMB_AREA`(84) **零改动**。② [`meta-view.ts`](../games/beads/src/view/meta-view.ts)：`levelsLayout()` 按版式 P 重算（网格 x∈[90,660]、行底 652/452/252，back 240×88 @ (255,116)）；`buildMetaView` 增 `levels` **整页分支** —— 只画导航带标题，⛔ 不画遮罩、⛔ 不画 `OVERLAY_PLATE`；`drawWallCell` / `drawLockedWallCell` 的缩略改传 `LEVELS_THUMB_AREA`（走 `drawLevelThumb` 既有 `area` 入参，零新绘制分支）。
 - **标题随安全区**：标题中心 y = `(anchors?.btTopY ?? LEVELS_NAV_TOP) − LEVELS_NAV_H/2`。真机有 `MenuAnchors` 时随胶囊底缘下移；无锚宿主（直调/单测）落 1210 兜底 ⇒ 无第二套几何。网格仍**底部锚定静态**（版式 P 的选型理由：多出的高度给顶部空带）。
 - **为何整页仍由 shell `_overlay` 驱动**：UiRoot 页面路由接线归 UI-40（MainMenuPage）/ UI-42（PhaseRouteBinder）。本批只改「画成什么样」，不改「谁来推栈」；`meta:overlay` 事件、`back` 语义与抬起提交门逐字未动（R8/R10/R11 回归已证）。
-- **不夹带**：spec v1.6 §5 的 **200/150 淡入淡出未实现** —— 现 meta overlay 无转场机制、`meta:overlay` 无监听者，且 UI-34 验收未列 ⇒ 登记为 UI-42 遗留，⛔ 不伪造时钟。
+- **不夹带**：spec v1.6 §5 的 **200/150 淡入淡出未实现** —— 现 meta overlay 无转场机制、`meta:overlay` 无监听者，且 UI-34 验收未列 ⇒ 登记为 UI-42 遗留，⛔ 不伪造时钟。（**已由 WXG-T-314 闭合**：组透明度 + dt 累积转场，见该节）
 - **零漂移边界**：金样本**仅 `level-select` 态变化**（total 1423→1421 = 遮罩 + 纸面板两条 rect 退场；缩略 84→134 与 back 位移全进 sha），其余**九态逐字不变**（前后夹具 `JSON.stringify` 逐态全等已核）。重抓严格走 `tests/ui-golden-capture.ts`（两遍确定性自证 PASS），`capturedFrom = 8e0d133 · 累积落码（WXG-T-311）`。
 - **新增 / 改测**：新建 [`arc-level-select-page.test.ts`](../games/beads/tests/arc-level-select-page.test.ts) **6 例** —— 版式 P 九格左缘（90/290/490）与行底（652/452/252）、`LEVELS_THUMB_AREA` 派生式、back 盒与热区（375,160 命中 / 10,10 空白零响应）、整页性质（`background` = `palette.background` / 无遮罩 / 无 600×720 纸面板）、标题居中 1166、格内图元不越格。改测：`meta-menu-wall` 的缩略 oracle **同参补 `LEVELS_THUMB_AREA`**（旧缺省 84 与生产签名恒失配 = 假红）；`arc-level-select` **R10** 手势改**跨格拖拽**（旧坐标经 `screenToDesign` y 翻转后落进同一格，版式 P 下那是一次正当点击）；`arc-wall-locked` 几何断言改页常量。
 - **诚实限制**：① 已闭合 —— 累积落码入库 `8e0d133`，金样本按该 commit 复取（见 WXG-T-312）；② 200/150 转场与 UiRoot 页路由未接线（见上）；③ 缩略 134 对 256² 源清晰度仍 `[待真机]`（UI-34a 已登记）；④ 已闭合 —— `framework:sync` 已在提交前跑过，`framework:sync:check` 绿。

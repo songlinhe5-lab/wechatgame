@@ -123,6 +123,11 @@ export interface MetaViewData {
     readonly staminaMax: number;
     readonly coins: number;
     readonly overlay: MetaOverlay;
+    /**
+     * `[WXG-T-314]` 选关页转场不透明度（0..1，缺省 = 无转场）。底页恒为主菜单：
+     * 0 = 只见菜单、1 = 只见整页（且等于无转场帧）⇒ 金样本 / 封箱基线零漂移。
+     */
+    readonly pageFade?: number;
     /** 当日签到格（`claims % 7`）。 */
     readonly signinDay: number;
     readonly canClaim: boolean;
@@ -1217,6 +1222,59 @@ function drawWallCell(
 }
 
 /**
+ * 通用钮绘制（`signin` / `settings` 弹窗与选关页共用）：主/次档、禁用、按下位移、宽字档。
+ * 抽出自 `buildMetaView` 旧循环体（WXG-T-314）；表达式逐字搬运 ⇒ 静息帧零漂移。
+ */
+function drawMetaButton(builder: RenderModelBuilder, palette: BeadsPalette, data: MetaViewData, b: MetaButton): void {
+    const primary = b.id === 'claim';
+    const disabled = b.id === 'claim' && !data.canClaim;
+    // EP11-S5 行4：选择器钮带现档名（如「珠子风格  经典四棱」）⇒ 30px 字模宽于 colW 248，
+    // 沿用暂停面板同族做法：小字档（不动已冻结的 plate 几何）。
+    const wide = b.id === 'cycle-bead-style' || b.id === 'cycle-bead-size';
+    const pressed = data.pressed === b && !disabled;
+    drawButton(
+        builder,
+        palette,
+        b.box.x,
+        b.box.y + pressDy(data, pressed),
+        b.box.w,
+        b.box.h,
+        primary ? 'accent' : 'ghost',
+        14,
+        label(b.id, data),
+        wide ? UI_FONT.cell : UI_FONT.button,
+        pressed,
+        disabled,
+    );
+}
+
+/**
+ * 选关**整页**内容（版式 P）：导航带标题 + 3×3 格墙 + 底部 `back`。
+ * 淡入 / 淡出（WXG-T-314）与静息帧**同一函数** ⇒ 转场终点与无转场帧逐字一致。
+ */
+function drawLevelsPage(
+    builder: RenderModelBuilder,
+    data: MetaViewData,
+    palette: BeadsPalette,
+    buttons: readonly MetaButton[],
+    thumbN: number,
+): void {
+    // 标题带顶缘优先读逐机锚（`btTopY` = 胶囊底缘派生），无接口宿主落 `LEVELS_NAV_TOP` 兜底。
+    builder.text(DESIGN_W / 2, (data.anchors?.btTopY ?? LEVELS_NAV_TOP) - LEVELS_NAV_H / 2, COPY_TOKENS.btn_levels_label, {
+        fill: palette.text,
+        font: UI_FONT.overlayTitle,
+        align: 'center',
+        baseline: 'middle',
+    });
+    // 作品格与旧橱窗**同一 renderer**（珠拼缩略 + 星级 + 当前高亮 / 未解锁锁格）；back 走通用钮。
+    // ⚠ 钮取自调用方的 `metaLayout` 缓存（⛔ 不在此重建 `levelsLayout`）⇒ `pressed` 对象身份比对仍成立。
+    for (const b of buttons) {
+        if (b.id === 'pick-level') drawWallCell(builder, b, data, palette, thumbN);
+        else drawMetaButton(builder, palette, data, b);
+    }
+}
+
+/**
  * Render one frame of the shell's meta screens. Read-only over `data`.
  * `variant`（缺省 `undefined`）= 同帧差分入参，**生产不传** ⇒ 三档均取 `tuning.ts` 在册默认值。
  */
@@ -1232,6 +1290,22 @@ export function buildMetaView(
     // `[WXG-T-280]` 菜单 = 锚定档唯一（shell init 逐机算定下传；直调缺省 ⇒ 模块级兜底档）。
     const A = data.anchors ?? DEFAULT_MENU_ANCHORS;
     builder.setBackground(palette.background);
+    // 钮表只在 `metaLayout` 缓存里取（`pressed` 对象身份比对依赖同一引用）。
+    const layout = metaLayout(data.overlay, rows);
+    // UI-42 前置（WXG-T-314）：菜单 ↔ 选关页转场。`pageFade` = 选关页不透明度，底页恒为主菜单；
+    // 淡入 / 淡出都只变选关页（含自身不透明页底）的组透明度，⛔ 不新增动画时钟。
+    // `undefined`（缺省）⇒ 原路径逐字不变（金样本 / 封箱基线零漂移）。
+    const pageFade = data.pageFade;
+    if (pageFade !== undefined && pageFade < 1) {
+        drawMenuAnchored(builder, data, palette, anchoredGeo(A), withSignage);
+        builder.setAlpha(pageFade);
+        // 整页不透明：不加这层，淡入时菜单会从格缝里透出来（页底 = 背景色，与静息帧同色）。
+        builder.rect(0, 0, DESIGN_W, A.H, { fill: palette.background });
+        drawLevelsPage(builder, data, palette, layout.buttons, thumbN);
+        builder.resetAlpha();
+        if (data.debugGuides) drawSafeGuides(builder, A);
+        return;
+    }
     if (data.overlay === 'none') {
         drawMenuAnchored(builder, data, palette, anchoredGeo(A), withSignage);
         if (data.debugGuides) drawSafeGuides(builder, A);
@@ -1242,12 +1316,9 @@ export function buildMetaView(
     // ⛔ 不画遮罩、不画纸面板；标题住导航栏带（仅标题，返回走底部 `back`）。
     // 标题带顶缘优先读逐机锚（`btTopY` = 胶囊底缘派生），无接口宿主落 `LEVELS_NAV_TOP` 兜底。
     if (data.overlay === 'levels') {
-        builder.text(DESIGN_W / 2, (data.anchors?.btTopY ?? LEVELS_NAV_TOP) - LEVELS_NAV_H / 2, COPY_TOKENS.btn_levels_label, {
-            fill: palette.text,
-            font: UI_FONT.overlayTitle,
-            align: 'center',
-            baseline: 'middle',
-        });
+        drawLevelsPage(builder, data, palette, layout.buttons, thumbN);
+        if (data.debugGuides) drawSafeGuides(builder, A);
+        return;
     } else {
         // 弹窗（signin / settings）：先压暗底层菜单，再画面板。⚠ 遮罩盖**整屏** ⇒ 高读锚定档系高 H（兜底档 = DESIGN_H）。
         // EP11-S5 / ux §3.3 ⑤（U14=丙，Q3=甲）：**设置态遮罩 α 分列**——仅 `settings` overlay
@@ -1274,17 +1345,9 @@ export function buildMetaView(
         });
     }
 
-    const layout = metaLayout(data.overlay, rows);
     // UI-32：签到内容块单源（标题 / 7 格版式 / 格绘制）；chrome 仍走弹窗通用腿。
     if (data.overlay === 'signin') {
         drawSigninContent(builder, layout.signinCells, data.signinDay, data.canClaim, palette);
-    }
-
-    // 选关整页：作品格与旧橱窗**同一 renderer**（珠拼缩略 + 星级 + 当前高亮 / 未解锁锁格）；back 走下方通用钮。
-    if (data.overlay === 'levels') {
-        for (const b of layout.buttons) {
-            if (b.id === 'pick-level') drawWallCell(builder, b, data, palette, thumbN);
-        }
     }
 
     // UI-30：设置内容块单一实现（10 钮）；返回 / 在线导入仍按弹窗 chrome 单独画。
@@ -1293,13 +1356,7 @@ export function buildMetaView(
         if (data.overlay === 'settings' && isSettingsAction(b.id)) continue;
         if (b.id === 'pick-level') continue; // 选关格已在上方绘制
         if (b.id === 'studio-import' && !data.studioEnabled) continue; // 未配服务 ⇒ 不绘制（也不该被点）
-        const primary = b.id === 'claim';
-        const disabled = b.id === 'claim' && !data.canClaim;
-        // EP11-S5 行4：选择器钮带现档名（如「珠子风格  经典四棱」）⇒ 30px 字模宽于 colW 248，
-        // 沿用暂停面板同族做法：小字档（不动已冻结的 plate 几何）。
-        const wide = b.id === 'cycle-bead-style' || b.id === 'cycle-bead-size';
-        const pressed = data.pressed === b && !disabled;
-        drawButton(builder, palette, b.box.x, b.box.y + pressDy(data, pressed), b.box.w, b.box.h, primary ? 'accent' : 'ghost', 14, label(b.id, data), wide ? UI_FONT.cell : UI_FONT.button, pressed, disabled);
+        drawMetaButton(builder, palette, data, b);
     }
     if (data.debugGuides) drawSafeGuides(builder, A);
 }

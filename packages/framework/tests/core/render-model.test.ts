@@ -50,6 +50,36 @@ describe('RenderModelBuilder', () => {
     expect(b.end().commands).toEqual([]);
   });
 
+  it('applies group alpha only while set (WXG-T-314)', () => {
+    const b = new RenderModelBuilder(10, 10);
+    b.begin();
+    b.rect(0, 0, 1, 1, { fill: '#fff' });
+    // 静息（默认 alpha = 1）：零新字段 ⇒ 封箱基线零漂移。
+    expect(b.end().commands[0]).toEqual({ kind: 'rect', x: 0, y: 0, w: 1, h: 1, fill: '#fff' });
+
+    b.begin();
+    b.setAlpha(0.5);
+    b.rect(0, 0, 1, 1, { fill: '#fff' });
+    b.circle(1, 1, 1, { fill: '#000', alpha: 0.4 });
+    b.line(0, 0, 1, 1, '#0f0');
+    b.text(0, 0, 't');
+    b.blit('tex', 0, 0, 1, 1, { alpha: 0.2 });
+    b.resetAlpha();
+    b.rect(0, 0, 2, 2, { fill: '#eee' });
+    const cmds = b.end().commands;
+    expect(cmds[0]).toMatchObject({ alpha: 0.5 });
+    expect(cmds[1]).toMatchObject({ alpha: 0.2 }); // 命令自带 alpha 与之相乘
+    expect(cmds[2]).toMatchObject({ alpha: 0.5 }); // line 无 alpha ⇒ 补组值
+    expect(cmds[3]).toMatchObject({ alpha: 0.5 });
+    expect(cmds[4]).toMatchObject({ alpha: 0.1 }); // 0.2 × 0.5
+    expect('alpha' in cmds[5]!).toBe(false); // resetAlpha ⇒ 回归零字段
+
+    // begin() 也复位：上一帧遗留的组透明度不得跨帧。
+    b.begin();
+    b.rect(0, 0, 1, 1, { fill: '#fff' });
+    expect('alpha' in b.end().commands[0]!).toBe(false);
+  });
+
   it('supports setBackground and resize', () => {
     const b = new RenderModelBuilder(10, 10);
     b.begin();

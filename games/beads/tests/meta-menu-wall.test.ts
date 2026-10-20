@@ -63,6 +63,7 @@ import {
     LEVELS_GAP,
     LEVELS_THUMB_AREA,
     MENU_BOSS_SLOT,
+    PANEL_IN_MS,
     THUMB_MATRIX_N,
     WALL_CAPACITY,
     WALL_CELL,
@@ -186,6 +187,9 @@ function openLevels(shell: BeadsShell): void {
     const c = centerOf(cardBox(shell).box);
     expect(shell.tapMeta(c.x, c.y), '卡 = 可点入口').toBe(true);
     expect(shell.overlay).toBe('levels');
+    // `[WXG-T-314]` 进页淡入 200ms（ux §5）⇒ 墙格帧断言前先推进到静息（多给一帧防浮点差）。
+    const steps = Math.ceil(PANEL_IN_MS / 1000 / (1 / 60)) + 1;
+    for (let i = 0; i < steps; i += 1) shell.update(1 / 60);
 }
 /** **选关页帧**（先点卡开 overlay ⇒ 墙格内容在此可观测）。 */
 function levelsFrame(shell: BeadsShell): readonly DrawCommand[] {

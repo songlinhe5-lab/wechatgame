@@ -29,7 +29,7 @@ import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { LEVELS } from '../src/config/levels.js';
 import { ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, WALL_CAPACITY, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, PANEL_IN_MS, WALL_CAPACITY, WALL_ROWS } from '../src/config/tuning.js';
 import { metaLayout } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 
@@ -101,6 +101,16 @@ function openLevels(shell: BeadsShell): void {
     const c = centerOf(cardBox(shell).box);
     expect(shell.tapMeta(c.x, c.y), '卡 = 可点入口').toBe(true);
     expect(shell.overlay).toBe('levels');
+    settleFx(shell);
+}
+
+/**
+ * `[WXG-T-314]` 进 / 出页转场（ux §5：入 200 / 出 150）⇒ 帧与终态断言 前先推进到静息。
+ * ⚠ 多给一帧：`dt * 1000 / PANEL_IN_MS` 浮点累加可能落在 0.999…。
+ */
+function settleFx(shell: BeadsShell): void {
+    const steps = Math.ceil(PANEL_IN_MS / 1000 / (1 / 60)) + 1;
+    for (let i = 0; i < steps; i += 1) shell.update(1 / 60);
 }
 
 /** 墙格热区（几何面：恒为 `WALL_CAPACITY` 槽；内容是本大关清单）。 */
@@ -242,6 +252,7 @@ describe('EP13-S2 · 本页边界（R8–R11）', () => {
         const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
         const c = centerOf(back.box);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        settleFx(r.shell);
         expect(r.shell.overlay).toBe('none');
         expect(r.shell.screen).toBe('menu');
         expect(r.overlayEvents.at(-1)).toEqual({ open: false, name: 'none' });
@@ -309,5 +320,48 @@ describe('EP13-S2 · 本页边界（R8–R11）', () => {
         expect(r.shell.tapMeta(c.x, c.y)).toBe(false);
         expect(r.shell.overlay).toBe('none');
         expect(r.overlayEvents.length).toBe(0);
+    });
+});
+
+/**
+ * `[WXG-T-314]` 页面转场（ux §5：入 200 / 出 150，ease-out / ease-in）。
+ * 只销三件事：时间窗口真在动、终点 = 无转场静息帧、淡出期间 overlay 仍归页（点击不误送菜单）。
+ */
+describe('[WXG-T-314] 选关页转场（入 200 / 出 150）', () => {
+    it('进页：中点帧 ≠ 静息帧；200ms 终点 = 静息帧且后续帧逐字稳定', () => {
+        const r = rig({ maxUnlocked: 9 });
+        const menu = frameOf(r.shell);
+        openLevels(r.shell);
+        const rest = frameOf(r.shell);
+        expect(rest, '整页已到').not.toEqual(menu);
+        // 重新进页（不 settle）：中点仍在转场（既非纯菜单、亦非静息整页）。
+        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
+        const bc = centerOf(back.box);
+        expect(r.shell.tapMeta(bc.x, bc.y)).toBe(true);
+        settleFx(r.shell);
+        expect(frameOf(r.shell)).toEqual(menu);
+        const c = centerOf(cardBox(r.shell).box);
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        for (let i = 0; i < 6; i += 1) r.shell.update(1 / 60); // ≈100ms < 200ms
+        const mid = frameOf(r.shell);
+        expect(mid).not.toEqual(menu);
+        expect(mid).not.toEqual(rest);
+        for (let i = 0; i < 20; i += 1) r.shell.update(1 / 60); // 越 200ms
+        expect(frameOf(r.shell)).toEqual(rest);
+    });
+
+    it('back：150ms 内 overlay 仍归页（零关闭事件）；到点才落 `none` + 发关闭事件', () => {
+        const r = rig({ maxUnlocked: 9 });
+        openLevels(r.shell);
+        const before = r.overlayEvents.length;
+        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
+        const bc = centerOf(back.box);
+        expect(r.shell.tapMeta(bc.x, bc.y)).toBe(true);
+        for (let i = 0; i < 6; i += 1) r.shell.update(1 / 60); // ≈100ms < 150ms
+        expect(r.shell.overlay, '淡出中：命中仍归页').toBe('levels');
+        expect(r.overlayEvents.length).toBe(before);
+        for (let i = 0; i < 4; i += 1) r.shell.update(1 / 60); // 越 150ms
+        expect(r.shell.overlay).toBe('none');
+        expect(r.overlayEvents.at(-1)).toEqual({ open: false, name: 'none' });
     });
 });

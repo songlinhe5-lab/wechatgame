@@ -295,6 +295,8 @@ export class RenderModelBuilder {
   private _vertexWrites = 0;
   private _arenaReallocs = 0;
   private _background: string | undefined;
+  // 组透明度（WXG-T-314）：非嵌套，`setAlpha` 置值、`resetAlpha`/`begin` 复位 1。
+  private _alpha = 1;
   // Transform slots stay as scalars (hot-path zero-allocation, ADR-0014):
   // `setTransform` is called every active frame; identity frames must not
   // allocate anything and emit no `transform` field at all.
@@ -327,6 +329,7 @@ export class RenderModelBuilder {
     this._tScale = 1;
     this._tAx = 0;
     this._tAy = 0;
+    this._alpha = 1;
   }
 
   /** Set/replace the frame background fill. */
@@ -347,18 +350,42 @@ export class RenderModelBuilder {
     this._tAy = anchorY;
   }
 
+  /**
+   * `[WXG-T-314]` 组透明度（非嵌套）：置 `a` 后本组命令的 `alpha` 与之相乘
+   * （命令原本无 `alpha` 则补 `alpha = a`），{@link resetAlpha} 或 {@link begin} 复位。
+   * 静息帧（`a === 1`）不改写任何命令 ⇒ 封箱基线 / 金样本零漂移；
+   * 仅用于转场窗口（≤ 200ms），不是稳态热路径。
+   */
+  setAlpha(a: number): void {
+    this._alpha = a;
+  }
+
+  resetAlpha(): void {
+    this._alpha = 1;
+  }
+
+  /** 组透明度合流：`a === 1` 时原样返回（零分配、零字段），否则复制并乘算。 */
+  private _paint<T extends { alpha?: number }>(cmd: T): T {
+    const a = this._alpha;
+    if (a === 1) return cmd;
+    const base = cmd.alpha === undefined ? 1 : cmd.alpha;
+    return { ...cmd, alpha: base * a };
+  }
+
   rect(x: number, y: number, w: number, h: number, cmd: Omit<RectCommand, 'kind' | 'x' | 'y' | 'w' | 'h'> = {}): void {
-    this._commands.push({ kind: 'rect', x, y, w, h, ...cmd });
+    this._commands.push({ kind: 'rect', x, y, w, h, ...this._paint(cmd) });
   }
 
   circle(x: number, y: number, r: number, cmd: Omit<CircleCommand, 'kind' | 'x' | 'y' | 'r'> = {}): void {
-    this._commands.push({ kind: 'circle', x, y, r, ...cmd });
+    this._commands.push({ kind: 'circle', x, y, r, ...this._paint(cmd) });
   }
 
   line(x1: number, y1: number, x2: number, y2: number, stroke: string, lineWidth = 1, alpha?: number, back?: boolean): void {
+    const a = this._alpha;
+    const out = a === 1 ? alpha : (alpha === undefined ? a : alpha * a);
     this._commands.push({
       kind: 'line', x1, y1, x2, y2, stroke, lineWidth,
-      ...(alpha !== undefined ? { alpha } : {}),
+      ...(out !== undefined ? { alpha: out } : {}),
       ...(back !== undefined ? { back } : {}),
     });
   }
@@ -369,7 +396,7 @@ export class RenderModelBuilder {
     text: string,
     cmd: Omit<TextCommand, 'kind' | 'x' | 'y' | 'text'> = {},
   ): void {
-    this._commands.push({ kind: 'text', x, y, text, ...cmd });
+    this._commands.push({ kind: 'text', x, y, text, ...this._paint(cmd) });
   }
 
   /**
@@ -401,7 +428,7 @@ export class RenderModelBuilder {
     const verts = this._verts;
     for (let k = 0; k < floats; k += 1) verts[offset + k] = points[k]!;
     this._vertexWrites += floats;
-    this._commands.push({ kind: 'polygon', offset, count, ...cmd });
+    this._commands.push({ kind: 'polygon', offset, count, ...this._paint(cmd) });
   }
 
   /**
@@ -427,7 +454,7 @@ export class RenderModelBuilder {
     v[offset + 4] = x2;
     v[offset + 5] = y2;
     this._vertexWrites += 6;
-    this._commands.push({ kind: 'polygon', offset, count: 3, ...cmd });
+    this._commands.push({ kind: 'polygon', offset, count: 3, ...this._paint(cmd) });
   }
 
   /**
@@ -451,9 +478,11 @@ export class RenderModelBuilder {
   }
 
   blit(textureId: string, x: number, y: number, w: number, h: number, opts?: BlitOptions): void {
+    const a = this._alpha;
+    const out = a === 1 ? opts?.alpha : (opts?.alpha === undefined ? a : opts.alpha * a);
     this._commands.push({
       kind: 'blit', textureId, x, y, w, h,
-      ...(opts?.alpha !== undefined ? { alpha: opts.alpha } : {}),
+      ...(out !== undefined ? { alpha: out } : {}),
       ...(opts?.fx !== undefined ? { fx: opts.fx } : {}),
     });
   }

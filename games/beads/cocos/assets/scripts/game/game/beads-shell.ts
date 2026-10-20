@@ -43,6 +43,8 @@ import {
     WALL_CAPACITY,
     MENU_CAROUSEL,
     MENU_CLIP,
+    PANEL_IN_MS,
+    PANEL_OUT_MS,
     menuAnchors,
     type MenuAnchors,
 } from '../config/tuning';
@@ -114,6 +116,13 @@ export class BeadsShell implements Game {
     private _screen: ShellScreen;
     private _overlay: MetaOverlay = 'none';
     /**
+     * `[WXG-T-314]` 选关页转场（ADR-0032 D5 / arc-level-select-spec §5 的 200 / 150）：
+     * `_pageFxDir`：1 = 淡入（菜单→页，页已可交互）、-1 = 淡出（页→菜单，路径仍归页）、0 = 静息；
+     * `_pageFxT` = 0..1 的 dt 累积进度（⛔ 不用墙钟 ⇒ 固定步进可测、金样本恒等）。
+     */
+    private _pageFxDir: -1 | 0 | 1 = 0;
+    private _pageFxT = 0;
+    /**
      * `levels` overlay 的**大关页上下文**（EP13-S2）：两处入口（卡点按 / 玻璃松手）打开时
      * 记下当前走马灯页号 ⇒ 墙集合 = 该大关 `levelRefs` 展开（⛔ 不再全量墙）。
      * 页面切换只经 `back` 回菜单后重进，故本值在 overlay 生命期内稳定。
@@ -168,6 +177,8 @@ export class BeadsShell implements Game {
         beadSize: BEAD_SIZE_DEFAULT,
         // EP12-S8 行4 第三钮（初值 = 默认肤，真实值每帧从 play getter 覆盖）。
         skinId: DEFAULT_SKIN_ID,
+        /** `[WXG-T-314]` 选关页转场不透明度（缺省 = 无转场；每帧由 `_metaViewData` 覆写）。 */
+        pageFade: undefined as number | undefined,
         levelCount: 0,
         currentLevelIndex: 0,
         maxUnlockedLevel: 1,
@@ -334,6 +345,7 @@ export class BeadsShell implements Game {
         this.play.sampleFrame(dt);
         // 菜单：推进体力恢复（离线 f(Δt)）+ 读点击。play 冻结（不 update ⇒ 倒计时不走）。
         this.meta?.refresh();
+        this._stepPageFx(dt);
         this._readMenuInput();
         this._stepCarousel();
     }
@@ -383,6 +395,7 @@ export class BeadsShell implements Game {
         this.play.abandonRun();
         this._screen = 'menu';
         this._overlay = 'none';
+        this._cancelPageFx();
         this._emitOverlay(true);
     }
 
@@ -407,6 +420,7 @@ export class BeadsShell implements Game {
         }
         this._screen = 'play';
         this._overlay = 'none';
+        this._cancelPageFx();
         this._emitOverlay(false);
         this.play.goToLevel(index); // 棋盘复位到该关初始（关卡指针/解锁进度不变）
         return true;
@@ -458,6 +472,7 @@ export class BeadsShell implements Game {
                 this._overlayArc = this._carouselOffset;
                 this._overlay = 'levels';
                 this._emitOverlay(true);
+                this._beginPageFx(1);
                 return true;
             // `[WXG-T-280]` 橱窗 ◀▶：只在锚定档热区表里存在 ⇒ 静态档零影响；语义 = 已通序翻页（集合归本 shell）。
             case 'carousel-prev':
@@ -479,16 +494,24 @@ export class BeadsShell implements Game {
                 this._importFromStudio();
                 return true;
             case 'open-signin':
+                this._cancelPageFx();
                 this._overlay = 'signin';
                 this._emitOverlay(true);
                 return true;
             case 'open-settings':
+                this._cancelPageFx();
                 this._overlay = 'settings';
                 this._emitOverlay(true);
                 return true;
             case 'back':
-                this._overlay = 'none';
-                this._emitOverlay(false);
+                // UI-42 前置（WXG-T-314）：**仅选关页**走淡出 150ms（弹窗仍即时关，口径不变）。
+                // 淡出期间 overlay 仍归页（命中路径不变）⇒ 终点才置 `none` 并发关闭事件。
+                if (this._overlay === 'levels') {
+                    this._beginPageFx(-1);
+                } else {
+                    this._overlay = 'none';
+                    this._emitOverlay(false);
+                }
                 return true;
             case 'claim':
                 this.meta?.claimSignin();
@@ -499,6 +522,41 @@ export class BeadsShell implements Game {
                 // （⛔ 不新造动作名、不在 shell 里重定向）。
                 this.play.applySettingsAction(action as PausePanelAction);
                 return true;
+        }
+    }
+
+    /**
+     * `[WXG-T-314]` 开一段选关页转场：`dir` 1 = 淡入（200ms）、-1 = 淡出（150ms）。
+     * 时长直接引用 `ux-spec §5` 的既有常量（`PANEL_IN_MS` / `PANEL_OUT_MS`）⇒ 零新毫秒值。
+     * 已在转场中：淡出不自套（重按 back 零副作用）；淡入重入则从 0 重来（菜单重开）。
+     */
+    private _beginPageFx(dir: 1 | -1): void {
+        if (dir === -1 && this._pageFxDir === -1) return;
+        this._pageFxDir = dir;
+        this._pageFxT = 0;
+    }
+
+    /** 取消在途转场（进玩法 / 开弹窗 / 回菜单等改道）⇒ 下一帧走静息路径。 */
+    private _cancelPageFx(): void {
+        this._pageFxDir = 0;
+        this._pageFxT = 0;
+    }
+
+    /**
+     * 推进转场（`dt` 固定步进，⛔ 不用墙钟）：淡出终点才置 `overlay = none` 并发关闭事件。
+     * 淡入终点不改任何状态（页在入口处就已可交互）。
+     */
+    private _stepPageFx(dt: number): void {
+        const dir = this._pageFxDir;
+        if (dir === 0) return;
+        const durMs = dir === 1 ? PANEL_IN_MS : PANEL_OUT_MS;
+        this._pageFxT += dt * (1000 / durMs);
+        if (this._pageFxT < 1) return;
+        this._pageFxT = 0;
+        this._pageFxDir = 0;
+        if (dir === -1) {
+            this._overlay = 'none';
+            this._emitOverlay(false);
         }
     }
 
@@ -528,6 +586,7 @@ export class BeadsShell implements Game {
                 if (errs.length) return done(false, errs[0] ?? '校验失败');
                 this._screen = 'play';
                 this._overlay = 'none';
+                this._cancelPageFx();
                 this._emitOverlay(false);
                 done(true, outcome.level.name);
             },
@@ -611,6 +670,7 @@ export class BeadsShell implements Game {
             this._overlayArc = this._carouselOffset; // EP13-S2：同 `open-levels`（两入口同上下文）
             this._overlay = 'levels';
             this._emitOverlay(true);
+            this._beginPageFx(1);
             return;
         }
         this._dragging = false;
@@ -773,6 +833,12 @@ export class BeadsShell implements Game {
         v.staminaMax = m ? m.staminaMax : 0;
         v.coins = m ? m.coins : 0;
         v.overlay = this._overlay;
+        // UI-42 前置（WXG-T-314）：选关页不透明度（淡入 ease-out、淡出 ease-in；静息 = undefined）。
+        v.pageFade = this._pageFxDir === 0
+            ? undefined
+            : this._pageFxDir === 1
+                ? 1 - (1 - this._pageFxT) * (1 - this._pageFxT)
+                : 1 - this._pageFxT * this._pageFxT;
         v.signinDay = m ? m.signinDay : 0;
         v.canClaim = m ? m.canClaim : false;
         v.bgmMuted = this.play.bgmMuted;
