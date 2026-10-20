@@ -254,4 +254,5 @@
 | K-144 | 测试守卫 | testing-guard | 同一个「零响应」结论由两条不同机制各自达成时，只写一例 ⇒ 变异只能拆掉一条，另一条恒绿 | WXG-T-295 | 2026-10-19 | 0 | active |
 | K-145 | 接入 | onboarding | 验源时 `curl raw.githubusercontent.com` 失败 ≠ 仓库/上游文件不存在：同一主机名下 endpoint 要分层探 | WXG-T-331 | 2026-10-20 | 0 | active |
 | K-146 | 接入 | onboarding | 沉淀 skill 快照必登记 provenance；取「本机已装副本」者刷新要「先 diff 不自动盖」，且 `_repos/` 内嵌克隆一律不入库 | WXG-T-331 | 2026-10-20 | 0 | active |
+| K-147 | 接入 | onboarding | 接本地代理/改道类工具前先查「宿主能否自定义模型端点」；闭源 GUI IDE 上这类能力直接不可用，只能退到显式调用档 | WXG-T-330 | 2026-10-21 | 0 | active |
 <!-- kb:active:end -->

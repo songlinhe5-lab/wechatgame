@@ -34,7 +34,8 @@ uv tool install --python 3.13 "headroom-ai[mcp,code]"   # 装完 headroom --vers
 
 1. **Library**：`from headroom import compress`（Python）/ `import { compress } from 'headroom-ai'`（TS，SDK-only 无 CLI）。适合自研脚本/服务。
 2. **Proxy（零改码，唯一能做「削减输出」）**：`headroom proxy --port 8787`，把 Agent 出网指过去。**属 Harness/IDE 级**，不改本仓代码；第三方 provider 必须 `--openai-api-url <你的兼容端点>`，否则 key 被发去 OpenAI 报 401。
-3. **Agent wrap**：`headroom wrap claude|codex|copilot|cursor|...`（起 proxy + 配好 Agent 走它）。
+   ⚠ **宿主必须允许自定义模型 base URL 才能用**。CLI 宿主（Claude Code / Codex / Copilot CLI，含 `headroom wrap <agent>`）可以；**闭源 GUI IDE（本仓实际用的 Qoder 等）不行**——模型端点不对用户开放，流量改不了道 ⇒ **该形态在本仓日常环境直接不可用**（用户 2026-10-21 指出；本仓未实测，因端点不可改而无从测）。
+3. **Agent wrap**：`headroom wrap claude|codex|copilot|cursor|...`（起 proxy + 配好 Agent 走它）。同 2 的前提：只覆盖允许改端点的宿主。
 4. **MCP server（本仓已接，见下）**：`headroom mcp serve`，Agent 显式 `headroom_compress` / `headroom_retrieve` / `headroom_stats`。
 
 ## 本仓接入现状
@@ -44,6 +45,10 @@ uv tool install --python 3.13 "headroom-ai[mcp,code]"   # 装完 headroom --vers
   [`my-mcp/README.md` §8](../../my-mcp/README.md)。未装二进制前该 server 连接失败属**预期**（同 cocos-creator 编辑器没开），装上即恢复。
 
 ## 削减「模型输出」（字面「减少输出 token」）
+
+⛔ **本节在 Qoder 一类的 GUI IDE 里用不上**：下面两个开关只在 proxy / wrap 宿主生效，
+而这类宿主需要能改模型 base URL（见上「四种接入」的第 2 条）。本仓日常环境的真实省幅
+靠 `ctx/` 读侧预算体系与命令产出控制（少 `tail`、别整读大文件），**不靠 headroom**。
 
 ```bash
 export HEADROOM_OUTPUT_SHAPER=1   # 默认关；仅 proxy 模式生效

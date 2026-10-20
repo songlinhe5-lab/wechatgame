@@ -77,4 +77,4 @@ Qoder 官方文档（docs.qoder.com/cli/mcp-reference）明确项目级支持读
 - **前置（本机一次性，仓库外）**：`uv tool install --python 3.13 "headroom-ai[mcp,code]"`，装完 `headroom --version` 的读数写进此处/台账做**确定版本锚**（禁裸 `latest`，同 §15 精神）。
 - **PATH 说明**：`command: "headroom"` 与 `npx` 同走 PATH。GUI 启动的 IDE 若不继承 shell PATH、spawn 报「找不到 headroom」，把正本此处 `command` 改为绝对路径（`uv tool` 默认落 `~/.local/bin/headroom`）再 `pnpm run mcp:build`。
 - **缺件即连接失败属预期**（同 §7-4 的 cocos）：未装 headroom 前该 server 启动失败不影响其余两个，装上即恢复。
-- **字面「减少输出」在 proxy 侧、非本 server**：`HEADROOM_OUTPUT_SHAPER=1` 的 verbosity/effort 削减要把 Agent 出网指向 `headroom proxy` 才生效（Harness 级），MCP 模式只做「显式压缩大块输入」。默认遥测可用 `HEADROOM_BEACON=off` 关。
+- **字面「减少输出」在本仓不可用（proxy / wrap 两条都要改宿主模型 base URL）**：`HEADROOM_OUTPUT_SHAPER=1` 的 verbosity/effort 削减要把 Agent 出网指向 `headroom proxy` 才生效（Harness 级），而 **Qoder 一类闭源 GUI IDE 不开放模型端点 ⇒ 改不了道**（用户 2026-10-21 指出；CLI 宿主如 Claude Code / Codex 才能走 proxy）。MCP 模式只做「显式压缩大块输入」——**Agent 主动调才压，默认行为不变、不自动拦 stdout**。默认遥测可用 `HEADROOM_BEACON=off` 关。

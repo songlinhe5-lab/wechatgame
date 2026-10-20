@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 147,
+  "nextId": 148,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2441,6 +2441,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-147",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "接本地代理/改道类工具前先查「宿主能否自定义模型端点」；闭源 GUI IDE 上这类能力直接不可用，只能退到显式调用档",
+      "contentHash": "e91c685cec81caac57bff2338520be35c29f58fe7561e65f7cc7884533064667",
+      "sourceTask": "WXG-T-330",
+      "addedDate": "2026-10-21",
+      "lastAccess": "2026-10-21",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3632,6 +3649,15 @@
       "ids": [
         "K-145",
         "K-146"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-332",
+      "kind": "added",
+      "ids": [
+        "K-147"
       ],
       "note": null
     }
