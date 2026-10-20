@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4342,
       "lines": 151,
-      "sha256": "ac432bafe92f89c88768ea34da304794389d5af77894dffcbe5ff0fa8fd31099",
+      "sha256": "2e88b034540061f5c409d4ec906d00785599f0399be431dfac945706ffed32bf",
       "tier": "normal",
       "sections": [
         {
@@ -58283,18 +58283,52 @@
       ]
     },
     {
+      "path": "memory/2026-10-20.md",
+      "tokens": 421,
+      "lines": 7,
+      "sha256": "09afa9427797af3b1b12773f32b5923a5bdfb746666f236e6abcd8840273b87a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§2026-10-20",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 8,
+          "tokens": 418,
+          "summary": "",
+          "keywords": []
+        },
+        {
+          "anchor": "§WXG-T-328 收尾批：verify + 提交推送 + CI 取证（Qoder）",
+          "level": 2,
+          "startLine": 3,
+          "endLine": 8,
+          "tokens": 397,
+          "summary": "承他会话（同主理人线）已写完的 P1 层树内核批（工树 62 件未提交、台账自登「内核完成」），本会话执行计划末步 v1",
+          "keywords": [
+            "WXG",
+            "verify",
+            "Qoder",
+            "收尾批",
+            "提交推送",
+            "取证"
+          ]
+        }
+      ]
+    },
+    {
       "path": "memory/INDEX.md",
-      "tokens": 13928,
-      "lines": 329,
-      "sha256": "860877ed70595acf2ac357764a5ff562ffd0605cb13a1ad0ade6fd9b8cd45f57",
+      "tokens": 14068,
+      "lines": 335,
+      "sha256": "d0262c2c9656d4a423a96fed80c3040d59830eae22d8f9358eb40ff5aa076903",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 330,
-          "tokens": 13906,
+          "endLine": 336,
+          "tokens": 14046,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -58364,8 +58398,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 330,
-          "tokens": 12266,
+          "endLine": 336,
+          "tokens": 12406,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -58377,10 +58411,26 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 24 天）",
+          "anchor": "§`memory/2026-10-20.md` — 421 tok｜1 节｜**蒸馏到期 2026-11-19**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 79,
+          "endLine": 78,
+          "tokens": 114,
+          "summary": "§WXG-T-328 收尾批：verify + 提交推送 + CI 取证（Qoder） 3–8 397 — 承他会话（同",
+          "keywords": [
+            "memory/2026-10-20.md",
+            "memory",
+            "tok",
+            "WXG",
+            "verify",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 24 天）",
+          "level": 3,
+          "startLine": 79,
+          "endLine": 85,
           "tokens": 217,
           "summary": "§续：定稿底图换代（第十二批 · 走③把橱窗画矮 47 px） 3–5 42 → memory/details/2026",
           "keywords": [
@@ -58395,8 +58445,8 @@
         {
           "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 23 天）",
           "level": 3,
-          "startLine": 80,
-          "endLine": 92,
+          "startLine": 86,
+          "endLine": 98,
           "tokens": 665,
           "summary": "§续：顶栏圆钮撞胶囊 → 用户裁定解（§5.1b） 25–31 365 — 11. 裁定：「设置按钮放左上角，右上角只放",
           "keywords": [
@@ -58411,8 +58461,8 @@
         {
           "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 22 天）",
           "level": 3,
-          "startLine": 93,
-          "endLine": 104,
+          "startLine": 99,
+          "endLine": 110,
           "tokens": 502,
           "summary": "§目录别名正名 + 编码器 A/B 收尾（同日第 3 批，含两处自纠） 31–38 512 — 用户问「DiT 放 di",
           "keywords": [
@@ -58426,8 +58476,8 @@
         {
           "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 20 天）",
           "level": 3,
-          "startLine": 105,
-          "endLine": 111,
+          "startLine": 111,
+          "endLine": 117,
           "tokens": 190,
           "summary": "§关卡生成期难度门禁⑦（工作量闸）落地 24–32 475 — 触发：用户「关卡生成时算难度需门禁——普通关落区间、bo",
           "keywords": [
@@ -58440,8 +58490,8 @@
         {
           "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 19 天）",
           "level": 3,
-          "startLine": 112,
-          "endLine": 116,
+          "startLine": 118,
+          "endLine": 122,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -58454,8 +58504,8 @@
         {
           "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 17 天）",
           "level": 3,
-          "startLine": 117,
-          "endLine": 125,
+          "startLine": 123,
+          "endLine": 131,
           "tokens": 290,
           "summary": "§WXG-T-268 批 3 · EP12-S2/S3 落码 + P-3=24 裁定 + 第十八次复评（暖纸换肤续） 8",
           "keywords": [
@@ -58470,8 +58520,8 @@
         {
           "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 16 天）",
           "level": 3,
-          "startLine": 126,
-          "endLine": 132,
+          "startLine": 132,
+          "endLine": 138,
           "tokens": 149,
           "summary": "§合成式三端统一 + 旧 effect 死件清（WXG-T-259 · 第廿刀） 3–26 878 — 用户裁定（原话）",
           "keywords": [
@@ -58486,8 +58536,8 @@
         {
           "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 15 天）",
           "level": 3,
-          "startLine": 133,
-          "endLine": 137,
+          "startLine": 139,
+          "endLine": 143,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -58500,8 +58550,8 @@
         {
           "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏到期 2026-11-03**（剩 14 天）",
           "level": 3,
-          "startLine": 138,
-          "endLine": 156,
+          "startLine": 144,
+          "endLine": 162,
           "tokens": 1454,
           "summary": "§【WXG-T-244 二十三批 · 收口】裁 [GLD+…] 日志 + 修盘内直填回滚 + 开单 WXG-T-246 ",
           "keywords": [
@@ -58516,8 +58566,8 @@
         {
           "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏到期 2026-11-02**（剩 13 天）",
           "level": 3,
-          "startLine": 157,
-          "endLine": 162,
+          "startLine": 163,
+          "endLine": 168,
           "tokens": 92,
           "summary": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板",
           "keywords": [
@@ -58532,8 +58582,8 @@
         {
           "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 9 天）",
           "level": 3,
-          "startLine": 163,
-          "endLine": 167,
+          "startLine": 169,
+          "endLine": 173,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -58546,8 +58596,8 @@
         {
           "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏到期 2026-10-28**（剩 8 天）",
           "level": 3,
-          "startLine": 168,
-          "endLine": 182,
+          "startLine": 174,
+          "endLine": 188,
           "tokens": 1047,
           "summary": "§WXG-T-221：beads-studio 当前关纹理预烘导出（S3-lite）（Qoder 主理人会话 · 用户三",
           "keywords": [
@@ -58562,8 +58612,8 @@
         {
           "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 7 天）",
           "level": 3,
-          "startLine": 183,
-          "endLine": 190,
+          "startLine": 189,
+          "endLine": 196,
           "tokens": 333,
           "summary": "§WXG-T-217：beads 缩放上下限绝对倍率化 + 低倍点击档（Qoder 主理人会话 · 用户逐项拍板） 3–",
           "keywords": [
@@ -58578,8 +58628,8 @@
         {
           "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏到期 2026-10-22**（剩 2 天）",
           "level": 3,
-          "startLine": 191,
-          "endLine": 196,
+          "startLine": 197,
+          "endLine": 202,
           "tokens": 118,
           "summary": "§WXG-T-186：beads 组珠消费序改「沿组连通的剥皮序」（Qoder 主理人会话 · 用户四项裁定） 3–15",
           "keywords": [
@@ -58594,8 +58644,8 @@
         {
           "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 3 天）**",
           "level": 3,
-          "startLine": 197,
-          "endLine": 213,
+          "startLine": 203,
+          "endLine": 219,
           "tokens": 814,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
@@ -58610,8 +58660,8 @@
         {
           "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 4 天）**",
           "level": 3,
-          "startLine": 214,
-          "endLine": 225,
+          "startLine": 220,
+          "endLine": 231,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -58626,8 +58676,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 5 天）**",
           "level": 3,
-          "startLine": 226,
-          "endLine": 242,
+          "startLine": 232,
+          "endLine": 248,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -58642,8 +58692,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 6 天）**",
           "level": 3,
-          "startLine": 243,
-          "endLine": 270,
+          "startLine": 249,
+          "endLine": 276,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -58658,8 +58708,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 7 天）**",
           "level": 3,
-          "startLine": 271,
-          "endLine": 291,
+          "startLine": 277,
+          "endLine": 297,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -58674,8 +58724,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 8 天）**",
           "level": 3,
-          "startLine": 292,
-          "endLine": 309,
+          "startLine": 298,
+          "endLine": 315,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -58690,8 +58740,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 9 天）**",
           "level": 3,
-          "startLine": 310,
-          "endLine": 330,
+          "startLine": 316,
+          "endLine": 336,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
