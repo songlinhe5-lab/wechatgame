@@ -41,6 +41,8 @@
  *   games/<game>/src/config/arcs.ts                    ← 产物（生成；导出手写时代同名）
  *   manifest.chapters[{id,file,order,open}]            ← 章序 / 开放索引
  * 生成契约同 levels-data：header + "\n" + 数据体；数据体 = ARCS + ARC_OPEN_MAX + OPEN_ARCS。
+ * title 上移（WXG-T-337 CH-S3）：章 `title` 生成期注入到**章收尾关记录**（追加在对象末尾）；
+ * 源关卡 JSON ⛔ 手写 title（断言 8 拒收——展示名唯一真源 = 所属章）。
  * ⇒ 6 个运行时消费点零改动；改大关 = 改 chapters/*.json + manifest 一行，⛔ 不改产物。
  *
  * ⇒ **新增游戏零改本脚本**：放好 JSON 与 header 模板即被自动纳入门禁。
@@ -318,6 +320,29 @@ function stripDevFields(lv) {
   return out;
 }
 
+/** 断言 8（CH-S3）：有大关层的游戏，源关卡记录 ⛔ 手写 `title`（展示名唯一真源 = 所属章）。 */
+export function assertNoSourceTitle(gameName, file, obj) {
+  if ('title' in obj)
+    throw new Error(
+      `${gameName}: 源关卡 ${file} 手写了 title=${JSON.stringify(obj.title)} —— ` +
+      '展示名唯一真源 = 所属章 title（chapters/<id>.json），由生成期注入到章收尾关；' +
+      '请从源关卡 JSON 删除该字段（§11.7 / CH-S3）',
+    );
+}
+
+/**
+ * CH-S3：章 `title` 注入到该章**收尾关记录**（`levels[]` 末项 uid 的最后一个展开槽 = plate 末 cell；
+ * 追加在对象末尾 ⇒ 产物 diff 仅该记录一行）。纯函数（无 IO）⇒ 可 `node --test` 直测。
+ * 末项 uid 不在装配表（拼错 / retired）或 title 非法时跳过 —— 该情形由 `assembleArcs` 断言报红，此处不重复报错。
+ */
+export function injectChapterTitles(levels, chapter, uidSpans) {
+  const lastUid = chapter.levels?.[chapter.levels.length - 1];
+  const span = lastUid != null ? uidSpans.get(lastUid) : undefined;
+  if (!span) return;
+  if (typeof chapter.title !== 'string' || chapter.title.length === 0) return;
+  levels[span.end - 1].title = chapter.title;
+}
+
 /**
  * 目录模式装配内核（关卡内容管线 P1 + 大关层共用）：读 manifest + palette.json + singles/plates，
  * 按 entry.order 展开成与旧单文件**同形同序**的 levels 数组。
@@ -329,6 +354,7 @@ function stripDevFields(lv) {
 function expandEntries(game) {
   const man = JSON.parse(readFileSync(game.manifestPath, 'utf8'));
   const paletteDoc = JSON.parse(readFileSync(join(game.levelsDir, man.paletteFile), 'utf8'));
+  const hasChapters = Array.isArray(man.chapters);
   const entries = [...man.entries].sort((a, b) => a.order - b.order);
   const uids = new Set();
   const referenced = new Set();
@@ -352,6 +378,11 @@ function expandEntries(game) {
     if (e.retired) return; // 退役：保留 order 占位，不校验文件也不进产物
     if (!isFile(fp)) throw new Error(`${game.name}: manifest 引用文件缺失 ${e.file}`);
     const obj = JSON.parse(readFileSync(fp, 'utf8'));
+    // 断言 8（CH-S3）：有大关层时源关卡 ⛔ 手写 title（展示名唯一真源 = 章，见 injectChapterTitles）
+    if (hasChapters) {
+      if (e.kind === 'plate') for (const c of obj.cells) assertNoSourceTitle(game.name, e.file, c);
+      else assertNoSourceTitle(game.name, e.file, obj);
+    }
     const start = levels.length + 1;
     if (e.kind === 'plate') for (const c of obj.cells) levels.push(stripDevFields(c)); // P2 填；P1 无 plate
     else levels.push(stripDevFields(obj));
@@ -363,6 +394,18 @@ function expandEntries(game) {
     for (const f of readdirSync(d).filter((x) => x.endsWith('.json'))) {
       const relFile = `${sub}/${f}`;
       if (!referenced.has(relFile)) throw new Error(`${game.name}: 孤儿关卡文件 ${relFile} 未被 manifest 引用`);
+    }
+  }
+  // CH-S3：章 title 生成期注入章收尾关记录（`levels-data.ts` 的木牌关名由此派生）
+  if (hasChapters) {
+    for (const c of man.chapters) {
+      let ch = null;
+      try {
+        ch = JSON.parse(readFileSync(join(game.levelsDir, c.file), 'utf8'));
+      } catch {
+        continue; // 章文件缺失/非法由 assembleArcs 断言报红（此处不重复报错）
+      }
+      injectChapterTitles(levels, ch, uidSpans);
     }
   }
   return { man, paletteDoc, entries, levels, uidSpans };
@@ -437,7 +480,7 @@ export function checkChapterCapacity(gameName, rows, wallCapacity) {
 }
 
 /**
- * 大关配置装配 + 生成期断言集 1–7（§11.5；断言 8「源关卡 JSON 不手写 title」归 CH-S3 同批启用）。
+ * 大关配置装配 + 生成期断言集 1–7（§11.5；断言 8「源关卡 ⛔ 手写 title」已随 CH-S3 落在装配内核 expandEntries）。
  * 导出供测试复用（**不写盘**）。
  */
 export function assembleArcs(game) {
@@ -808,8 +851,8 @@ function printHelp() {
   ⑤ 声明了 DEMO_LEVEL_COUNT 的游戏 ⇒ 该值 == manifest 当前关数（防入关批漏同步常量）
   ⑥ 目录模式且该游戏有 difficulty.ts ⇒ 同类内 DI 无退化（可排严格序，⛔无数值阈值；WXG-T-266 门禁⑥/G6）
   ⑦ 目录模式且该游戏声明 NORMAL_STEPS_MIN ⇒ 普通关 steps 落区间、boss steps≥BOSS_STEPS_MIN、首关教学豁免（门禁⑦）
-  ⑧ 目录模式且有 chapters/ ⇒ 章断言集（§11.5；WXG-T-336 CH-S2）：order/open 前缀｜uid 恰一归属｜
-     boss=末项｜同章同 pack｜槽位 ≤ WALL_CAPACITY｜showcase 齐备且资产存在
+  ⑧ 目录模式且有 chapters/ ⇒ 章断言集（§11.5；WXG-T-336/337）：order/open 前缀｜uid 恰一归属｜
+     boss=末项｜同章同 pack｜槽位 ≤ WALL_CAPACITY｜showcase 齐备且资产存在｜源关卡 ⛔ 手写 title（断言 8）
 
 真源：各游戏 design/gdd/systems-index.md §3（冻结常量）。`);
 }

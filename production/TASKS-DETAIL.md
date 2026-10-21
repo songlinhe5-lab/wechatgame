@@ -3495,6 +3495,19 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-337
+
+**工程·beads 大关 CH-S3「title 上移」落码批（用户对 336 回传后续选项选 A） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）；CH-S4/S5 未开**
+
+- **背景**：承 `level-content-pipeline.md` §11.7 CH-S3 五步迁移（title 上移到 chapter 级）：`BeadsLevelRaw.title` 降级为**生成期派生字段**（唯一真源 = 所属章 `chapters/<id>.json` 的 `title`；仅章收尾关（boss）携带）；运行时 `drawPlateTitle` **零改动**（视图读 `carouselLevel.title`，与今日同路径）。
+- **源改动**：`singles/L00009.json` 删手写 `"title": "曼陀罗",` 一行；`manifest.json` `contentVersion` 31→32。
+- **生成器**（`sync-levels-data.mjs` 7 处替换、+46/-3）：新增 `assertNoSourceTitle`（**断言 8**：有大关层的游戏，源关卡手写 `title` 即抛）+ `injectChapterTitles`（章 `levels[]` **末项 uid** 的**最后一个展开槽**写 `title`、**追加在对象末尾** ⇒ 产物 diff 仅该记录一行；末项 uid 不在装配表（拼错/retired）或 title 非法 ⇒ **跳过**，交 `assembleArcs` 报红不重复抛）；`expandEntries` 内启用断言 8（plate 查每个 cell / single 查 obj）+ 孤儿检查后注入循环 ⇒ 装配两入口全覆盖。
+- **口径订正随批**：`levels-data.header.txt` 的 title 注释「木牌第二行（≤6 字）」→ 属章派生名新语义（4 行）⇒ `levels-spec §11` 登记关闭「双真源窗口」。
+- **产物**：`levels:sync` 重生 `levels-data.ts`（L00009 记录 `title` 移至对象末尾、header 注释更新）；`arcs.ts`「已一致，跳过」零变化；`framework:sync` 镜像 1 件。
+- **单测与自证**：`sync-levels-data.test.mjs` +3（注入断言含键序末位 / 异常跳过 / 断言 8 抛）⇒ 共 23 过；**变异自证 2 例**：① `chapters/mandala.json` title 曼陀罗→曼陀罗X ⇒ `levels:check` 红报 2 处产物漂移（levels-data.ts + arcs.ts 同咬）⇒ 章名确实流入两产物；② `singles/L00005.json` 插 `"title": "测试",` ⇒ 断言 8 精确咬红（`beads: 源关卡 singles/L00005.json 手写了 title="测试" —— 展示名唯一真源 = 所属章 title…`）；均**逐字节还原**后 check 复绿。
+- **验证**：`levels:check` 幂等 OK；beads vitest 98 文件 1137 过（`arcs.test.ts` 4 例 / `menu-plate-title.test.ts` 3 例全绿、ui-golden 零漂移）；`verify` PASS 22；§11.7 验收四条达成（L00009 仍带 title / 两测试全绿 / `DEMO_LEVEL_COUNT` 仍 9 / 木牌渲染路径不变）。
+- **未做**：CH-S4（夹具扩面）/ CH-S5（分包放开，卡 `build:wx`）；settings 重叠 / 半透（UI-60）/ BD-62 / 橱窗灯光 / ④ 暗线 未混做。
+
 ## WXG-T-336
 
 **工程·beads 大关（chapter）配置层落码批 CH-S1/S2（7 项未决全采纳） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）；CH-S3/S4/S5 未开**

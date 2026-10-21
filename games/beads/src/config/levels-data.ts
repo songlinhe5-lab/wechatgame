@@ -16,7 +16,10 @@ export interface BeadsLevelRaw {
   /** 内部名（studio 生成串，⛔ 不上屏）。 */
   readonly name: string;
   /**
-   * 展示名（可选；主菜单橱窗木牌第二行，建议 ≤ 6 字）。缺省 ⇒ 木牌只显关序「第 N 关」。
+   * 本关所属**大关名**（可选）：仅该章收尾关（boss）携带，由 `sync-levels-data.mjs` 生成期
+   * 自章 `chapters/<id>.json` 的 `title` 注入（追加在对象末尾）。⛔ 源关卡 JSON 不得手写
+   * （生成期断言拒收——展示名唯一真源 = 所属章，§11.7）。运行时 = 主菜单橱窗木牌关名
+   * （`drawPlateTitle`）；缺省 ⇒ 木牌只显关序「第 N 关」。
    */
   readonly title?: string;
   readonly cols: number;
@@ -468,7 +471,6 @@ export const LEVELS_DATA: LevelsData = {
     {
       id: 9,
       name: "studio-3-163c",
-      title: "曼陀罗",
       cols: 22,
       rows: 21,
       time: 477,
@@ -530,6 +532,7 @@ export const LEVELS_DATA: LevelsData = {
         "SE1",
         "SE16",
       ],
+      title: "曼陀罗",
     },
   ],
 };

@@ -2,7 +2,7 @@
 // 跑法：node --test tools/scripts/sync-levels-data.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assertPricing, checkDifficultyDegeneracy, checkStepsGate, uidSlotsToLevelRefs, openPrefixLength, checkChapterCapacity } from './sync-levels-data.mjs';
+import { assertPricing, checkDifficultyDegeneracy, checkStepsGate, uidSlotsToLevelRefs, openPrefixLength, checkChapterCapacity, assertNoSourceTitle, injectChapterTitles } from './sync-levels-data.mjs';
 
 // 锚 = L5 `studio-5-21cd` 真值：BAC 199 步 × 1.69s = 336s。
 const bot = (o = {}) => ({
@@ -126,4 +126,29 @@ test('ARC_OPEN_MAX：open 前缀长度（乱序输入按 order 排序后数前�
 test('章容量：槽位 ≤ 墙容量放行，超一槽即抛（不静默截断）', () => {
     checkChapterCapacity('beads', [{ id: 'mandala', slots: 9 }], 9);
     assert.throws(() => checkChapterCapacity('beads', [{ id: 'mandala', slots: 10 }], 9), /展开 10 槽 > 墙容量/);
+});
+
+// ── CH-S3 title 上移（WXG-T-337）：章 title 生成期注入收尾关 + 断言 8「源关卡 ⛔ 手写 title」──
+test('CH-S3：章 title 注入到章收尾关记录，追加在对象末尾，其余关不带', () => {
+    const levels = [{ id: 1, name: 'a' }, { id: 2, name: 'b' }, { id: 3, name: 'c' }];
+    const spans = new Map([['L00001', { start: 1, end: 1 }], ['L00002', { start: 2, end: 3 }]]);
+    injectChapterTitles(levels, { title: '曼陀罗', levels: ['L00001', 'L00002'] }, spans);
+    assert.equal(levels[2].title, '曼陀罗'); // 末项 uid 的最后一个展开槽（plate 收尾 = 末 cell）
+    assert.equal(levels[0].title, undefined);
+    assert.equal(Object.keys(levels[2]).at(-1), 'title'); // 末尾追加（产物 diff 仅该记录一行）
+});
+
+test('CH-S3：末项 uid 不在装配表 / title 非法 ⇒ 跳过（错误由 assembleArcs 报红，不重复抛）', () => {
+    const levels = [{ id: 1 }];
+    injectChapterTitles(levels, { title: 'X', levels: ['L00999'] }, new Map());
+    injectChapterTitles(levels, { title: '', levels: ['L00001'] }, new Map([['L00001', { start: 1, end: 1 }]]));
+    assert.equal(levels[0].title, undefined);
+});
+
+test('CH-S3 断言 8：源关卡记录手写 title ⇒ 抛（展示名唯一真源 = 章）', () => {
+    assertNoSourceTitle('beads', 'singles/L00005.json', { id: 5, name: 'studio-5-21cd' });
+    assert.throws(
+        () => assertNoSourceTitle('beads', 'singles/L00005.json', { id: 5, title: '曼陀罗' }),
+        /手写了 title/,
+    );
 });
