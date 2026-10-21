@@ -23,8 +23,9 @@
             color: var(--tx);
         }
 
+        /* 左右 padding 跟随 main 的 1100px 居中列，宽屏下标题不再悬在内容列外。 */
         header {
-            padding: 12px 20px;
+            padding: 12px max(20px, calc((100% - 1100px) / 2 + 20px));
             border-bottom: 1px solid var(--bd);
             display: flex;
             gap: 12px;
@@ -47,7 +48,7 @@
 
         .chhead { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
         .chhead code { background: #f3efe6; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
-        .chhead small { color: #888; }
+        .chhead small { color: #6b6b6b; }
 
         label { display: block; margin: 8px 0 2px; font-size: 12px; color: #666; }
 
@@ -90,10 +91,10 @@
         }
 
         .lv:last-child { border-bottom: 0; }
-        .lv.boss { background: #fdf6e8; margin: 0 -6px; padding: 5px 6px; border-radius: 6px; }
+        .lv.boss { background: #fdf6e8; border-radius: 6px; }
         .lv .uid { font-family: ui-monospace, monospace; font-size: 12px; color: #666; }
         .lv .id { font-weight: 600; min-width: 34px; }
-        .lv small { color: #888; }
+        .lv small { color: #6b6b6b; }
         .lv .ops { margin-left: auto; display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
         .lv .ops select { font-size: 12px; padding: 3px 6px; }
 
@@ -111,9 +112,16 @@
             font-size: 12px;
         }
 
-        #log { color: #1e7d3c; font-size: 13px; min-height: 20px; margin-bottom: 8px; }
+        /* 成功日志吸顶：底部表单/最后一行操作后也能看到反馈；空则完全不占位。 */
+        #log {
+            color: #1e7d3c; font-size: 13px; margin-bottom: 8px;
+            position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 4px 0;
+        }
+        #log:empty { display: none; }
 
-        .row3 { display: grid; grid-template-columns: 160px 1fr 1fr; gap: 10px; }
+        .row3 { display: grid; grid-template-columns: minmax(180px, .9fr) minmax(180px, .9fr) minmax(240px, 1.2fr); gap: 10px; }
+        .row3 input, .row3 select { width: 100%; min-width: 0; }
+        #new-prev { margin-top: 6px; font-size: 12px; color: #6b6b6b; min-height: 16px; }
         @media (max-width: 760px) { .row3 { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -121,12 +129,16 @@
 <body>
     <header>
         <h1>大关 / 小关管理</h1>
-        <a href="/">← 返回生成页</a>
-        <span id="meta" style="color:#888;font-size:12px"></span>
+        <a href="/" style="text-decoration:none">← 返回生成页</a>
+        <span id="meta" style="color:#6b6b6b;font-size:12px"></span>
         <span style="margin-left:auto"></span>
-        <button class="ghost" id="verify" title="跑 levels:sync + framework:sync（幂等）">校验 / 导入大关</button>
+        <button class="ghost" id="verify" title="跑 levels:sync + framework:sync（幂等，只校验不改内容）">校验并同步</button>
     </header>
     <main>
+        <div style="font-size:12px;color:#6b6b6b;margin-bottom:10px">
+            关号 #N = 全局装配顺序（增删后自动连续重排）· 槽 = 该关在展示墙占的格数 ·
+            开放 = 自第 1 章起连续解锁 · boss 恒为章末且不可直接删除 · plate = 多格组合图（整章导入产物）
+        </div>
         <div id="err"></div>
         <div id="log"></div>
         <div id="chapters"></div>
@@ -140,6 +152,7 @@
             </div>
             <label>展示图（浏览器内自动缩到 256×256 PNG）</label>
             <input type="file" id="new-img" accept="image/png,image/jpeg">
+            <div id="new-prev"></div>
             <button class="big" id="new-go">新建大关</button>
         </div>
     </main>
@@ -169,6 +182,13 @@
             if (cls) b.className = cls;
             b.disabled = !!disabled;
             b.onclick = onClick;
+            return b;
+        }
+
+        /** 透明占位：boss 行少「设 boss / 删除」两格，占住宽度才能与普通行逐列对齐。 */
+        function spacer(label) {
+            const b = btn(label, true, () => {}, 'ghost');
+            b.style.visibility = 'hidden';
             return b;
         }
 
@@ -319,6 +339,8 @@
                             if (!confirm(`把 ${lv.uid} 设为本章 boss？（需换到末位，原 boss 降为普通关）`)) return;
                             op(`/api/manage/level/${lv.uid}/boss`);
                         }, 'ghost'));
+                    } else {
+                        ops.appendChild(spacer('设 boss'));
                     }
                     if (lv.kind !== 'plate') {
                         // 替换图案：换 levelDraft 不动 uid/关号/章位/关名；plate 是多文件产物，须删后重导。
@@ -345,6 +367,8 @@
                             if (!confirm(`删除小关 ${lv.uid}（${lv.file}）？其后关号自动前移，不可撤销。`)) return;
                             op(`/api/manage/level/${lv.uid}/remove`);
                         }, 'danger'));
+                    } else {
+                        ops.appendChild(spacer('删除'));
                     }
                     row.appendChild(ops);
                     lvBox.appendChild(row);
@@ -363,7 +387,7 @@
                 );
                 rsel.className = 'grow';
                 imp.appendChild(rsel);
-                imp.appendChild(btn('导入该大关', false, () => {
+                imp.appendChild(btn('导入到本章', false, () => {
                     if (!rsel.value) return showErr('先在左侧选一条结果');
                     op(`/api/results/${rsel.value}/ingest`, { chapter: ch.id });
                 }));
@@ -386,6 +410,21 @@
             }
         };
 
+        // 展示图预览：选文件时算一次缩到 256²，提交直接复用（省一次解码）。
+        let coverDataUrl = '';
+        $('new-img').onchange = async () => {
+            coverDataUrl = '';
+            $('new-prev').textContent = '';
+            const file = $('new-img').files[0];
+            if (!file) return;
+            try {
+                coverDataUrl = await shrinkTo256(file);
+                $('new-prev').innerHTML = `<img src="${coverDataUrl}" alt="展示图预览" style="width:72px;height:72px;border-radius:6px;vertical-align:middle;border:1px solid var(--bd)"> 已缩到 256×256`;
+            } catch (e) {
+                $('new-prev').textContent = '图片解码失败：' + e.message;
+            }
+        };
+
         $('new-go').onclick = async () => {
             const id = $('new-id').value.trim();
             const title = $('new-title').value.trim();
@@ -394,10 +433,12 @@
             if (!id || !title || !resultId) return showErr('章 id / 标题 / 首关 boss 结果 三项必填');
             if (!file) return showErr('请选择展示图（PNG/JPEG，浏览器内缩到 256²）');
             try {
-                const imageDataUrl = await shrinkTo256(file);
+                const imageDataUrl = coverDataUrl || await shrinkTo256(file);
                 await op('/api/manage/chapter', { id, title, resultId, imageDataUrl });
                 $('new-id').value = $('new-title').value = '';
                 $('new-img').value = '';
+                coverDataUrl = '';
+                $('new-prev').textContent = '';
             } catch (e) {
                 showErr(e.message);
             }
