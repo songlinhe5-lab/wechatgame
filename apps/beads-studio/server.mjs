@@ -552,11 +552,10 @@ function chapterForInsert(store, levelsDir, manifest, chapterId, addSlots) {
 }
 
 /**
- * 入关预检 + 实测（事务外，不动真源）：返回一条落盘计划；不可入关 ⇒ ManageError（4xx 回显原文）。
- * 单条 ingest 与批量 import 共用。plate 仍走切片 + 逐格实测（P2b）；`progress` 用于逐格回显。
+ * 轻规划（事务外、不跑 bot）：存在性 / 入关判据 / 切片 tier 全在此拦下，同时算出占槽数。
+ * 批量导入靠它先做容量预检——满章时不必白跑几十秒 bot 才报「容量不足」。
  */
-async function planIngest(id, progress) {
-    const levelsDir = LEVELS_DIR;
+async function planShape(id) {
     const found = findResultFile(id);
     if (!found) throw new ManageError(`结果 ${id} 不存在`, 404);
     const { r, file: resultFile } = found;
@@ -591,9 +590,6 @@ async function planIngest(id, progress) {
             }
             cellEntries.push({ cell, init, name: `${nameBase}-r${cell.row}c${cell.col}` });
         }
-
-        // 3. 逐格实测（beads-bot；id 仅临时文件占位，真 id 由入库后 renumber 统一分配）
-        //    逐格单跑而非一次性批量：每格前能回显进度（`cell` 事件）与响应取消（大图动辙几十秒）
         const payloads = cellEntries.map(({ cell, init, name }, i) => ({
             id: 9001 + i, name, cols: cell.cols, rows: cell.rows,
             pattern: cell.pattern,
@@ -602,21 +598,38 @@ async function planIngest(id, progress) {
             decoys: d.decoys ?? [],
             ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
         }));
-        const measured = { ok: true, results: [] };
-        for (const [k, payload] of payloads.entries()) {
-            await progress?.({ phase: 'cell', k: k + 1, m: payloads.length });
-            const one = measureCells([payload]);
-            if (!one.ok) throw new ManageError(`逐格实测失败（第 ${k + 1}/${payloads.length} 格）：${one.error}`);
-            measured.results.push(one.results[0]);
-        }
-        return { kind: 'plate', nameBase, sliced, cellEntries, measured, tierCounts, brandSlug, d, thumb: r.thumb ?? null };
+        return { kind: 'plate', slots: cellEntries.length, nameBase, sliced, cellEntries, payloads, tierCounts, brandSlug, d, thumb: r.thumb ?? null };
     }
 
+    return { kind: 'single', slots: 1, nameBase, brandSlug, d, resultFile };
+}
+
+/** 实测（事务外）：plate 逐格单跑（每格前回显 `cell`），single 整板一次。返回带 measured 的落盘计划。 */
+async function measureShape(shape, progress) {
+    if (shape.kind === 'plate') {
+        // 逐格单跑而非一次性批量：每格前能回显进度（`cell` 事件）与响应取消（大图动辙几十秒）
+        const measured = { ok: true, results: [] };
+        for (const [k, payload] of shape.payloads.entries()) {
+            await progress?.({ phase: 'cell', k: k + 1, m: shape.payloads.length });
+            const one = measureCells([payload]);
+            if (!one.ok) throw new ManageError(`逐格实测失败（第 ${k + 1}/${shape.payloads.length} 格）：${one.error}`);
+            measured.results.push(one.results[0]);
+        }
+        return { ...shape, measured };
+    }
     // —— 单图关卡（≤32）：整板实测（time 只取真引擎值，§3.5 v1.41；测量在事务外）——
-    const measured = measureWithBot(resultFile);
-    if (!measured) throw new ManageError(`${id} beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底`, 500);
-    if (measured.blockers.length) throw new ManageError(`${id} 不可入关：${measured.blockers.join('；')}`);
-    return { kind: 'single', nameBase, measured, brandSlug, d };
+    const measured = measureWithBot(shape.resultFile);
+    if (!measured) throw new ManageError(`${shape.nameBase} beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底`, 500);
+    if (measured.blockers.length) throw new ManageError(`${shape.nameBase} 不可入关：${measured.blockers.join('；')}`);
+    return { ...shape, measured };
+}
+
+/**
+ * 入关预检 + 实测（事务外，不动真源）：返回一条落盘计划；不可入关 ⇒ ManageError（4xx 回显原文）。
+ * 单条 ingest 与批量 import 共用；`progress` 用于 plate 逐格回显。
+ */
+async function planIngest(id, progress) {
+    return measureShape(await planShape(id), progress);
 }
 
 /** 入关 entry 的落位：插 boss 的 order 之前（章内关号与 id 同序）；无 boss 时追加。 */
@@ -703,11 +716,20 @@ async function importResults(res, chapterId, ids, progress, reply) {
         return reply ? reply(501, err) : sendJson(res, 501, err);
     }
     const ls = await import('../../tools/scripts/level-store.mjs');
+    // 0) 轻规划：不可入关/不存在/切片 tier 在跑 bot 前拦下，同时算出总槽数
+    const shapes = [];
+    for (const id of ids) shapes.push(await planShape(id));
+    // 1) 容量预检前置：满章/超容不必白跑 bot（commit 内仍逐条复检，防同批累积偏差）
+    const store = await import('../../tools/scripts/chapter-store.mjs');
+    chapterForInsert(store, LEVELS_DIR, ls.readManifest(LEVELS_DIR), chapterId,
+        shapes.reduce((n, s) => n + s.slots, 0));
+    // 2) 逐条实测
     const plans = [];
-    for (const [i, id] of ids.entries()) {
+    for (const [i, shape] of shapes.entries()) {
+        const id = ids[i];
         await progress?.({ phase: 'measure', i: i + 1, n: ids.length, id });
         // plate 的逐格事件补上整批坐标（i/n/id），前端统一按「第 i/n 条 · 第 k/m 格」展示
-        plans.push(await planIngest(id, (o) => progress?.({ i: i + 1, n: ids.length, id, ...o })));
+        plans.push(await measureShape(shape, (o) => progress?.({ i: i + 1, n: ids.length, id, ...o })));
         await progress?.({ phase: 'measured', i: i + 1, n: ids.length, id });
     }
     // 写盘前最后一个断点：此前的取消不碰真源，之后的取消让事务跑完（中途停会留半截）
