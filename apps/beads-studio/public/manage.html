@@ -282,8 +282,8 @@
                         const e = JSON.parse(line);
                         if (e.done) { final = e; continue; }
                         if (e.phase === 'measure') showLog([`批量导入 ${e.i}/${e.n}：正在实测 ${e.id} …`]);
-                        else if (e.phase === 'measured')
-                            showLog([`批量导入 ${e.i}/${e.n}：${e.id} 实测完成 ✅${e.i < e.n ? '，继续下一条…' : '，开始写盘并同步…'}`]);
+                        else if (e.phase === 'measured') showLog([`批量导入 ${e.i}/${e.n}：${e.id} 实测完成 ✅`]);
+                        else if (e.phase === 'commit') showLog([`批量导入：${e.n}/${e.n} 条实测完成，开始写盘并同步…`]);
                         // 每条让出主线程：同一 chunk 里的多条进度才不会被浏览器合成一帧（人眼看不到中间态）
                         await new Promise((r) => setTimeout(r, 0));
                     }

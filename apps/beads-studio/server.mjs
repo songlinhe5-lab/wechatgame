@@ -693,6 +693,8 @@ async function importResults(res, chapterId, ids, progress, reply) {
         plans.push(await planIngest(id));
         await progress?.({ phase: 'measured', i: i + 1, n: ids.length, id });
     }
+    // 写盘前最后一个断点：此前的取消不碰真源，之后的取消让事务跑完（中途停会留半截）
+    await progress?.({ phase: 'commit', i: ids.length, n: ids.length });
     return applyManage(res, (ctx) => {
         let manifest = ctx.manifest;
         const log = [];
@@ -706,7 +708,8 @@ async function importResults(res, chapterId, ids, progress, reply) {
 }
 
 /** POST /api/manage/chapter/:id/import { resultIds: [...], stream?: true } —— 批量入关（≤10 条）。
- *  stream=true 时回 NDJSON：逐条 `{phase:'measure'|'measured',i,n,id}`，收尾 `{done:true,code,...}`。 */
+ *  stream=true 时回 NDJSON：逐条 `{phase:'measure'|'measured',i,n,id}` → `{phase:'commit'}`，
+ *  收尾 `{done:true,code,...}`。页面关闭/刷新（连接断开）⇒ 下一条开始前停，不进写盘事务、真源不动。 */
 async function handleChapterImport(req, res, chapterId) {
     const body = await readJsonBody(req);
     const ids = Array.isArray(body.resultIds) ? [...new Set(body.resultIds.map(String))] : [];
@@ -718,14 +721,32 @@ async function handleChapterImport(req, res, chapterId) {
 
     res.writeHead(200, { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store' });
     res.socket?.setNoDelay(true);
-    // 必须等 write 回调：planIngest 里的 spawnSync 会阻塞事件循环，不等回调则多条进度会滞在缓冲里合并成一坨
+    // 断线感知：close 时 writableEnded 仍 false ⇒ 客户端主动取消（正常 end 后 close 不算）
+    let aborted = false;
+    const markAborted = () => { if (!res.writableEnded) aborted = true; };
+    res.on('close', markAborted);
+    req.socket?.on('close', markAborted);
+    const gone = () => aborted || res.destroyed || !!res.socket?.destroyed;
+    // 必须等 write 回调：planIngest 里的 spawnSync 会阻塞事件循环，不等回调则多条进度会滞在缓冲里合并成一坨。
+    // 断线时回调可能永不到达 ⇒ 300ms 兑底 + 直接标记取消（只拖取消路径，不影响正常流）。
     const w = (o) => new Promise((r) => {
-        try { res.write(JSON.stringify(o) + '\n', r); } catch { r(); } // 客户端断开：继续跑完事务
+        const t = setTimeout(() => { markAborted(); r(); }, 300);
+        const done = () => { clearTimeout(t); r(); };
+        try { res.write(JSON.stringify(o) + '\n', done); } catch { done(); }
     });
+    const progress = (o) => {
+        if (gone()) throw new ManageError('已取消：页面已断开，后续条目不再测量（真源未改动）', 499);
+        return w(o);
+    };
     const finish = (code, o) => { w({ done: true, code, ...o }).then(() => res.end()); };
     try {
-        return await importResults(null, chapterId, ids, w, finish);
+        return await importResults(null, chapterId, ids, progress, finish);
     } catch (e) {
+        // close 事件可能晚于 destroyed 翻真（TCP RST 传播），两者的取消路径都按 e.code===499 识别
+        if (aborted || e.code === 499) {
+            console.log('[import] 客户端断开，批量导入已取消（真源未改动）');
+            return; // 客户端已走，无需也无法回写
+        }
         return finish(e.code || 500, { error: String(e.message || e) });
     }
 }
