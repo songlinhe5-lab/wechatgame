@@ -31,11 +31,11 @@ afterEach(() => setMenuBitmapResolver());
 describe('木牌标题', () => {
     const lv = LEVELS[0]!;
 
-    it('无展示名 ⇒ 只画关序「第 N 关」；有展示名 ⇒ 关序 + 关名两行', () => {
+    it('无展示名 ⇒ 只画关序「第 N 关」；有展示名 ⇒ 只画关名（隐关序，(b) 口径）', () => {
         setMenuBitmapResolver(() => true);
         expect(texts(dataFor(lv, 'pushing'))).toContain(`第 ${lv.id} 关`);
         const named = texts(dataFor({ ...lv, title: '曼陀罗' }, 'pushing'));
-        expect(named).toContain(`第 ${lv.id} 关`);
+        expect(named).not.toContain(`第 ${lv.id} 关`);
         expect(named).toContain('曼陀罗');
     });
 

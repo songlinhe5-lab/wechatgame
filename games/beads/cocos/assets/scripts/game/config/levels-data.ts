@@ -468,6 +468,7 @@ export const LEVELS_DATA: LevelsData = {
     {
       id: 9,
       name: "studio-3-163c",
+      title: "曼陀罗",
       cols: 22,
       rows: 21,
       time: 477,

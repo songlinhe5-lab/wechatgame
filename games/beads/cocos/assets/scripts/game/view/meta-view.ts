@@ -998,11 +998,8 @@ function drawPlateTitle(
     const seq = `第 ${lv.id} 关`;
     const a = alpha < 1 ? alpha : undefined;
     if (lv.title) {
-        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line1Off, seq, {
-            fill: palette.woodFace, font: UI_FONT.label, align: 'center', baseline: 'middle',
-            ...(a === undefined ? {} : { alpha: a }),
-        });
-        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line2Off, lv.title, {
+        // (b) 有展示名 ⇒ 只画名字、隐关序（用户 2026-10-21 裁；偏离 v3.7「关序+关名两行」原型）。
+        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.singleOff, lv.title, {
             fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
