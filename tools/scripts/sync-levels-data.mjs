@@ -34,6 +34,15 @@
  * 生成规则（逐字节固定）：
  *   产物 = header 模板 + "\n" + "export const LEVELS_DATA: LevelsData = " + render(json) + ";\n"
  *
+ * ── 大关（chapter）配置层（WXG-T-335 §11 / WXG-T-336 CH-S2）─────────────────
+ * 目录模式下可选开启（manifest.chapters[] 与 chapters/ 目录**双向绑定**）：
+ *   games/<game>/design/levels/chapters/<id>.json      ← 章语义真源（一物一文件）
+ *   games/<game>/design/levels/arcs-data.header.txt    ← arcs.ts 的接口模板（手工）
+ *   games/<game>/src/config/arcs.ts                    ← 产物（生成；导出手写时代同名）
+ *   manifest.chapters[{id,file,order,open}]            ← 章序 / 开放索引
+ * 生成契约同 levels-data：header + "\n" + 数据体；数据体 = ARCS + ARC_OPEN_MAX + OPEN_ARCS。
+ * ⇒ 6 个运行时消费点零改动；改大关 = 改 chapters/*.json + manifest 一行，⛔ 不改产物。
+ *
  * ⇒ **新增游戏零改本脚本**：放好 JSON 与 header 模板即被自动纳入门禁。
  * ⇒ **漏项会报红**（见下「覆盖面断言」），不再静默失效。
  *
@@ -80,6 +89,11 @@ const TARGET_REL = 'src/config/levels-data.ts';
 const CONST_NAME = 'LEVELS_DATA';
 const MANIFEST_FILE = 'manifest.json'; // 目录模式入口（关卡内容管线 P1）
 const PALETTE_FILE = 'palette.json';   // 目录模式共享色板
+// 大关（chapter）配置层（WXG-T-335 设计 §11 / WXG-T-336 CH-S2 落码）：
+const CHAPTERS_DIR = 'chapters';              // 章配置目录（一物一文件；无则整层不生效）
+const ARCS_HEADER_FILE = 'arcs-data.header.txt';
+const ARCS_TARGET_REL = 'src/config/arcs.ts';
+const ARCS_CONST_NAME = 'ARCS';
 
 const argv = process.argv.slice(2);
 if (argv.includes('-h') || argv.includes('--help')) {
@@ -144,7 +158,41 @@ function discover() {
         problems.push(`${name}：目录模式缺 ${TARGET_REL} —— 跑一次不带 --check 的本脚本`);
         continue;
       }
-      games.push({ name, mode: 'dir', manifestPath, levelsDir, headerPath, targetPath, jsonName: MANIFEST_FILE });
+      // ── 大关（chapter）配置层：manifest.chapters[] 与 chapters/ 目录**双向绑定** ──
+      // 单向漏配（只有目录或只有索引）都会静默改变「表里有哪些大关」⇒ 必须成对（§11.3）。
+      let man = null;
+      try {
+        man = JSON.parse(readFileSync(manifestPath, 'utf8'));
+      } catch (e) {
+        problems.push(`${name}：${MANIFEST_FILE} 不是合法 JSON（${e instanceof Error ? e.message : e}）`);
+        continue;
+      }
+      const hasChapters = Array.isArray(man.chapters);
+      const chaptersDir = join(levelsDir, CHAPTERS_DIR);
+      const hasChaptersDir = isDir(chaptersDir);
+      if (hasChapters !== hasChaptersDir) {
+        problems.push(
+          `${name}：manifest.chapters[] 与 ${CHAPTERS_DIR}/ 目录必须成对（现：chapters=${hasChapters ? '有' : '无'} / 目录=${hasChaptersDir ? '有' : '无'}）—— ` +
+          '双向绑定防「空索引」或「孤儿目录」静默改表',
+        );
+        continue;
+      }
+      const arcsHeaderPath = join(levelsDir, ARCS_HEADER_FILE);
+      const arcsTargetPath = join(GAMES_DIR, name, ARCS_TARGET_REL);
+      if (hasChapters) {
+        if (!isFile(arcsHeaderPath)) {
+          problems.push(`${name}：有 ${CHAPTERS_DIR}/ 但缺 ${ARCS_HEADER_FILE} —— 产物无接口模板`);
+          continue;
+        }
+        if (!isFile(arcsTargetPath)) {
+          problems.push(`${name}：有 ${CHAPTERS_DIR}/ 但缺 ${ARCS_TARGET_REL} —— 跑一次不带 --check 的本脚本`);
+          continue;
+        }
+      }
+      games.push({
+        name, mode: 'dir', manifestPath, levelsDir, headerPath, targetPath, jsonName: MANIFEST_FILE,
+        hasChapters, chaptersDir, arcsHeaderPath, arcsTargetPath,
+      });
       continue;
     }
 
@@ -271,20 +319,21 @@ function stripDevFields(lv) {
 }
 
 /**
- * 目录模式装配（关卡内容管线 P1）：读 manifest + palette.json + singles/plates，
- * 按 entry.order 展开成与旧单文件**同形同序**的 LevelsData 对象。
+ * 目录模式装配内核（关卡内容管线 P1 + 大关层共用）：读 manifest + palette.json + singles/plates，
+ * 按 entry.order 展开成与旧单文件**同形同序**的 levels 数组。
  * 装配即断言（任一不成立 throw ⇒ --check/main 硬红，不静默报绿，K-031）：
  *   order 连续 1..N｜uid 唯一｜引用文件存在｜singles/+plates/ 无孤儿文件｜定价溯源与 time 一致。
- * 导出供单测复用（**不写盘**）。
+ * 附带 `uidSpans`：uid → 装配后 1-based 闭区间 [start,end]（plate 占多槽）——大关 levelRefs 的
+ * **唯一**换算来源，⛔ 不得另行重数 uid（第二索引 = 第二真源）。
  */
-
-export function assembleFromManifest(game) {
+function expandEntries(game) {
   const man = JSON.parse(readFileSync(game.manifestPath, 'utf8'));
   const paletteDoc = JSON.parse(readFileSync(join(game.levelsDir, man.paletteFile), 'utf8'));
   const entries = [...man.entries].sort((a, b) => a.order - b.order);
   const uids = new Set();
   const referenced = new Set();
   const levels = [];
+  const uidSpans = new Map();
   entries.forEach((e, i) => {
     // order：唯一且严格递增（允许退役留空洞，spec §1.2 retired 占位）
     if (i > 0 && e.order <= entries[i - 1].order)
@@ -303,8 +352,10 @@ export function assembleFromManifest(game) {
     if (e.retired) return; // 退役：保留 order 占位，不校验文件也不进产物
     if (!isFile(fp)) throw new Error(`${game.name}: manifest 引用文件缺失 ${e.file}`);
     const obj = JSON.parse(readFileSync(fp, 'utf8'));
+    const start = levels.length + 1;
     if (e.kind === 'plate') for (const c of obj.cells) levels.push(stripDevFields(c)); // P2 填；P1 无 plate
     else levels.push(stripDevFields(obj));
+    uidSpans.set(e.uid, { start, end: levels.length, kind: e.kind, pack: e.pack });
   });
   for (const sub of ['singles', 'plates']) {
     const d = join(game.levelsDir, sub);
@@ -314,6 +365,15 @@ export function assembleFromManifest(game) {
       if (!referenced.has(relFile)) throw new Error(`${game.name}: 孤儿关卡文件 ${relFile} 未被 manifest 引用`);
     }
   }
+  return { man, paletteDoc, entries, levels, uidSpans };
+}
+
+/**
+ * 目录模式装配（关卡内容管线 P1）：expandEntries 的 LevelsData 薄壳 + 门禁⑤。
+ * 导出供单测复用（**不写盘**）。
+ */
+export function assembleFromManifest(game) {
+  const { man, paletteDoc, levels } = expandEntries(game);
   // P1 单份装配语义（分片延 P3）：schemaVersion→产物 LEVELS_DATA.version（非 manifest 自身格式版本，
   // 改 manifest 格式勿 bump 它）；pack 全 main 不参与分片；contentVersion 不进产物（住真源层，为 P2/远程热更预留）。
   const out = { version: man.schemaVersion, gameId: man.gameId, palette: paletteDoc.palette };
@@ -335,6 +395,147 @@ export function assembleFromManifest(game) {
     }
   }
   return out;
+}
+
+// ─────────────────────────────────────── 大关（chapter）配置层 ────────
+
+/**
+ * 章内 uid 序列 → 1-based 连续区间（章内相邻且装配下标连续的段合并为 [from,to]）。
+ * 纯函数（无 IO，L4 确定性）⇒ 可 `node --test` 直测。
+ */
+export function uidSlotsToLevelRefs(uids, uidSpans) {
+  const refs = [];
+  for (const uid of uids) {
+    const span = uidSpans.get(uid);
+    if (!span) throw new Error(`uid ${uid} 无装配区间（调用方应先断言归属）`);
+    const last = refs[refs.length - 1];
+    if (last && span.start === last[1] + 1) last[1] = span.end;
+    else refs.push([span.start, span.end]);
+  }
+  return refs;
+}
+
+/** `open:true` 前缀长度（= 本版投放的大关数，产物 `ARC_OPEN_MAX`）。纯函数。 */
+export function openPrefixLength(chapters) {
+  const sorted = [...chapters].sort((a, b) => a.order - b.order);
+  let n = 0;
+  for (const c of sorted) {
+    if (!c.open) break;
+    n += 1;
+  }
+  return n;
+}
+
+/** 章容量断言（纯函数，可 `node --test`）：展开槽位（plate 按 cell 数）超墙容量 = 内容静默不可见。 */
+export function checkChapterCapacity(gameName, rows, wallCapacity) {
+  for (const r of rows) {
+    if (r.slots > wallCapacity)
+      throw new Error(
+        `${gameName}: 章 ${r.id} 展开 ${r.slots} 槽 > 墙容量 WALL_CAPACITY=${wallCapacity} ⇒ 超出关卡静默不可见（拆章或扩墙）`,
+      );
+  }
+}
+
+/**
+ * 大关配置装配 + 生成期断言集 1–7（§11.5；断言 8「源关卡 JSON 不手写 title」归 CH-S3 同批启用）。
+ * 导出供测试复用（**不写盘**）。
+ */
+export function assembleArcs(game) {
+  const { man, entries, levels, uidSpans } = expandEntries(game);
+  const chapters = [...(man.chapters ?? [])].sort((a, b) => a.order - b.order);
+  if (chapters.length === 0)
+    throw new Error(`${game.name}: manifest.chapters[] 为空 —— 声明了大关层就必须至少 1 章（空表会静默清空橱窗）`);
+  // 轴对齐（不变量）：产物 levelRefs 的 1-based 轴 = levels 数组下标 + 1（uid 换算安全的前提）
+  levels.forEach((lv, i) => {
+    if (lv.id !== i + 1)
+      throw new Error(`${game.name}: 轴对齐失败 —— levels[${i}].id=${lv.id} ≠ ${i + 1}（关号轴与装配序不一致）`);
+  });
+  const arcs = [];
+  const capacity = [];
+  const seenUid = new Set();
+  const seenIds = new Set();
+  const seenTex = new Set();
+  chapters.forEach((c, i) => {
+    if (i > 0 && c.order <= chapters[i - 1].order)
+      throw new Error(`${game.name}: chapters[].order 非严格递增（${chapters[i - 1].order} → ${c.order}）`);
+    if (seenIds.has(c.id)) throw new Error(`${game.name}: 章 id 重复 ${c.id}`);
+    seenIds.add(c.id);
+    if (c.file !== `${CHAPTERS_DIR}/${c.id}.json`)
+      throw new Error(`${game.name}: 章 file=${JSON.stringify(c.file)} 与 id=${c.id} 不成对（约定 ${CHAPTERS_DIR}/<id>.json）`);
+    const fp = join(game.levelsDir, c.file);
+    if (!isFile(fp)) throw new Error(`${game.name}: 章文件缺失 ${c.file}`);
+    const ch = JSON.parse(readFileSync(fp, 'utf8'));
+    if (ch.id !== c.id) throw new Error(`${game.name}: ${c.file} 的 id=${JSON.stringify(ch.id)} ≠ manifest ${c.id}`);
+    if (typeof ch.title !== 'string' || ch.title.length === 0)
+      throw new Error(`${game.name}: 章 ${c.id} title 为空（橱窗/木牌要显示它）`);
+    if (!Array.isArray(ch.levels) || ch.levels.length === 0)
+      throw new Error(`${game.name}: 章 ${c.id} levels[] 为空（空章 = 静默空橱窗，禁止）`);
+    const kinds = [];
+    let pack = null;
+    let slots = 0;
+    for (const uid of ch.levels) {
+      if (seenUid.has(uid)) throw new Error(`${game.name}: uid ${uid} 被多章引用（关只归一个章）`);
+      seenUid.add(uid);
+      const span = uidSpans.get(uid);
+      if (!span) throw new Error(`${game.name}: 章 ${c.id} 引用 uid ${uid} 不在 manifest 或已 retired`);
+      if (pack === null) pack = span.pack;
+      else if (span.pack !== pack)
+        throw new Error(`${game.name}: 章 ${c.id} 混包（${pack} + ${span.pack}）—— 同章同 pack，禁跨包（§11.4-3）`);
+      kinds.push(span.kind);
+      slots += span.end - span.start + 1;
+    }
+    const bossAt = kinds.flatMap((k, j) => (k === 'boss' ? [j] : []));
+    if (bossAt.length !== 1)
+      throw new Error(`${game.name}: 章 ${c.id} boss 恰 1 条（现 ${bossAt.length} 条）`);
+    if (bossAt[0] !== ch.levels.length - 1)
+      throw new Error(`${game.name}: 章 ${c.id} boss 必须是 levels[] 末项（现第 ${bossAt[0] + 1}/${ch.levels.length} 项）`);
+    const sc = ch.showcase ?? {};
+    for (const k of ['bundle', 'art', 'textureId'])
+      if (typeof sc[k] !== 'string' || sc[k].length === 0)
+        throw new Error(`${game.name}: 章 ${c.id} showcase.${k} 为空`);
+    if (seenTex.has(sc.textureId)) throw new Error(`${game.name}: textureId ${sc.textureId} 全表重复`);
+    seenTex.add(sc.textureId);
+    if (!isFile(join(game.levelsDir, 'assets', `${sc.art}.png`)))
+      throw new Error(`${game.name}: 章 ${c.id} showcase.art=${sc.art} 资产不存在（design/levels/assets/${sc.art}.png）`);
+    arcs.push({ id: c.id, title: ch.title, bundle: sc.bundle, art: sc.art, textureId: sc.textureId, levelRefs: uidSlotsToLevelRefs(ch.levels, uidSpans) });
+    capacity.push({ id: c.id, slots });
+  });
+  // 未退役 entry 必须被某章覆盖（否则该关在橱窗墙上不可达）；孤儿章文件反向查
+  for (const e of entries) {
+    if (!e.retired && !seenUid.has(e.uid))
+      throw new Error(`${game.name}: ${e.uid} 未被任何章覆盖 ⇒ 橱窗墙上不可达（登记进某章 levels[]）`);
+  }
+  if (isDir(game.chaptersDir)) {
+    for (const f of readdirSync(game.chaptersDir).filter((x) => x.endsWith('.json'))) {
+      const id = f.slice(0, -'.json'.length);
+      if (!seenIds.has(id))
+        throw new Error(`${game.name}: 孤儿章文件 ${CHAPTERS_DIR}/${f} 未被 manifest.chapters 引用`);
+    }
+  }
+  // open 前缀（ARC_OPEN_MAX）：必须自 order 最小起连续为 true，洞即红
+  //（否则「第 2 章开放、第 1 章锁着」类乱序投放会静默发生）
+  const openMax = openPrefixLength(chapters);
+  if (chapters.slice(openMax).some((c) => c.open))
+    throw new Error(`${game.name}: chapters[].open 必须自 order=1 起连续成前缀（openMax=${openMax} 之后仍有 open:true）`);
+  return { arcs, openMax, capacity };
+}
+
+/**
+ * 大关产物源码：`arcs-data.header.txt`（手写：类型与 ARC_COMING_SOON）+ 生成数据体。
+ * 导出名与手写时代逐一同名（ARCS / ARC_OPEN_MAX / OPEN_ARCS / ArcEntry / ARC_COMING_SOON）
+ * ⇒ 6 个运行时消费点 + cocos 镜像零改动（§11.5）。数据体风格 = 全游戏统一 render()，⛔ 不得手搓。
+ */
+export function buildArcsModuleSource(game) {
+  // trimEnd：header 尾空白（编辑器差异）不得影响产物字节 ⇒ 模板首尾空白无意义
+  const header = readFileSync(game.arcsHeaderPath, 'utf8').trimEnd();
+  const { arcs, openMax } = assembleArcs(game);
+  const body =
+    `export const ${ARCS_CONST_NAME}: readonly ArcEntry[] = ${render(arcs, 0)};\n\n` +
+    '/** 本版开放的大关数 = `open:true` 前缀长度（生成派生；真源 = manifest.chapters[].open）。 */\n' +
+    `export const ARC_OPEN_MAX = ${openMax};\n\n` +
+    '/** 本版实际投放的大关。长度 = {@link ARC_OPEN_MAX}。 */\n' +
+    `export const OPEN_ARCS: readonly ArcEntry[] = ${ARCS_CONST_NAME}.slice(0, ARC_OPEN_MAX);\n`;
+  return `${header}\n\n${body}`;
 }
 
 /** 便于测试：按游戏名取描述对象（返回 null 表示该游戏不参与生成）。 */
@@ -450,6 +651,22 @@ async function assertStepsGate(games) {
   }
 }
 
+/**
+ * 断言集 6 驱动：章展开槽位数 ≤ 游戏侧 `WALL_CAPACITY`（超容 = 内容静默不可见，§11.5-6）。
+ * 仅目录模式 + 声明了 chapters 层 + tuning 导出 WALL_CAPACITY 才生效（breakout 零牵连）。
+ */
+async function assertChapterCapacity(games) {
+  for (const game of games) {
+    if (game.mode !== 'dir' || !game.hasChapters) continue;
+    const tunePath = join(GAMES_DIR, game.name, 'src', 'config', 'tuning.ts');
+    if (!isFile(tunePath)) continue;
+    const t = await import(pathToFileURL(tunePath).href);
+    if (!Number.isFinite(t.WALL_CAPACITY)) continue;
+    const { capacity } = assembleArcs(game);
+    checkChapterCapacity(game.name, capacity, t.WALL_CAPACITY);
+  }
+}
+
 async function main() {
   const { games, problems } = discover();
 
@@ -471,33 +688,43 @@ async function main() {
   await assertDifficultyChain(games);
   // 门禁⑦（工作量闸）：普通关 steps 落区间 / boss steps 高于阈值 / 教学首关全豁免（2026-10-10）。
   await assertStepsGate(games);
+  // 大关断言集 6：章展开槽位 ≤ WALL_CAPACITY（§11.5；章断言 1–5/7 在 assembleArcs 内）。
+  await assertChapterCapacity(games);
 
   const drifted = [];
   const inSync = [];
+  /** 每游戏的全部目标产物：levels-data.ts +（有章层时）arcs.ts。 */
+  const targetsOf = (game) => {
+    const targets = [{ path: game.targetPath, expected: buildModuleSource(game), label: game.jsonName }];
+    if (game.mode === 'dir' && game.hasChapters)
+      targets.push({ path: game.arcsTargetPath, expected: buildArcsModuleSource(game), label: `${CHAPTERS_DIR}/` });
+    return targets;
+  };
 
   for (const game of games) {
-    const expected = buildModuleSource(game);
-    let actual = null;
-    try {
-      actual = readFileSync(game.targetPath, 'utf8');
-    } catch {
-      actual = null;
+    for (const t of targetsOf(game)) {
+      let actual = null;
+      try {
+        actual = readFileSync(t.path, 'utf8');
+      } catch {
+        actual = null;
+      }
+      if (actual === t.expected) inSync.push({ game, t });
+      else drifted.push({ game, t });
     }
-    if (actual === expected) inSync.push(game);
-    else drifted.push({ game, expected });
   }
 
   const rel = (p) => p.replace(`${root}/`, '');
 
   if (CHECK_ONLY) {
-    for (const g of inSync) console.log(`✅ ${g.name}: ${rel(g.targetPath)} 与 ${g.jsonName} 一致`);
-    for (const { game } of drifted) {
-      console.error(`❌ ${game.name}: ${rel(game.targetPath)} 与 ${game.jsonName} 不一致`);
+    for (const { game, t } of inSync) console.log(`✅ ${game.name}: ${rel(t.path)} 与 ${t.label} 一致`);
+    for (const { game, t } of drifted) {
+      console.error(`❌ ${game.name}: ${rel(t.path)} 与 ${t.label} 不一致`);
       console.error(`   修：node tools/scripts/sync-levels-data.mjs --game=${game.name}`);
     }
     if (drifted.length) {
       console.error('');
-      console.error(`❌ levels:check FAILED —— ${drifted.length}/${games.length} 款游戏漂移`);
+      console.error(`❌ levels:check FAILED —— ${drifted.length} 处产物漂移（${games.length} 款游戏）`);
       process.exit(1);
     }
     console.log('');
@@ -505,15 +732,15 @@ async function main() {
     process.exit(0);
   }
 
-  for (const g of inSync) console.log(`✅ ${g.name}: 已一致，跳过`);
-  for (const { game, expected } of drifted) {
-    writeFileSync(game.targetPath, expected, 'utf8');
-    console.log(`✍️  ${game.name}: 写出 ${rel(game.targetPath)}`);
+  for (const { game, t } of inSync) console.log(`✅ ${game.name}: ${rel(t.path)} 已一致，跳过`);
+  for (const { game, t } of drifted) {
+    writeFileSync(t.path, t.expected, 'utf8');
+    console.log(`✍️  ${game.name}: 写出 ${rel(t.path)}`);
   }
   console.log('');
   console.log(
     drifted.length
-      ? `✅ 已同步 ${drifted.length} 款游戏（${drifted.map((d) => d.game.name).join('、')}）`
+      ? `✅ 已同步 ${drifted.length} 处产物（${[...new Set(drifted.map((d) => d.game.name))].join('、')}）`
       : `✅ 全部一致，无需改动（${games.length} 款游戏）`,
   );
 }
@@ -566,6 +793,8 @@ function printHelp() {
 每游戏的文件约定（新增游戏**不需要改本脚本**）——**两种真源模式**：
   【目录模式】design/levels/manifest.json + palette.json + singles/ + plates/  ← beads（P1 起）
      manifest.entries[{uid,kind,file,pack,order}] 为关卡唯一顺序真源；Plate 展开为 N 个 cell
+  【大关层·可选】design/levels/chapters/<id>.json + arcs-data.header.txt      ← 仅 manifest.chapters[]
+     与 chapters/ 同时存在时生效（双向绑定）；产物 src/config/arcs.ts 导出手写时代同名
   【单 JSON 模式】games/<game>/design/levels/<任意名>.json（恰 1 个）      ← breakout 等 legacy
   两模式共用：design/levels/levels-data.header.txt（TS 接口模板）+ src/config/levels-data.ts（产物）
 
@@ -579,6 +808,8 @@ function printHelp() {
   ⑤ 声明了 DEMO_LEVEL_COUNT 的游戏 ⇒ 该值 == manifest 当前关数（防入关批漏同步常量）
   ⑥ 目录模式且该游戏有 difficulty.ts ⇒ 同类内 DI 无退化（可排严格序，⛔无数值阈值；WXG-T-266 门禁⑥/G6）
   ⑦ 目录模式且该游戏声明 NORMAL_STEPS_MIN ⇒ 普通关 steps 落区间、boss steps≥BOSS_STEPS_MIN、首关教学豁免（门禁⑦）
+  ⑧ 目录模式且有 chapters/ ⇒ 章断言集（§11.5；WXG-T-336 CH-S2）：order/open 前缀｜uid 恰一归属｜
+     boss=末项｜同章同 pack｜槽位 ≤ WALL_CAPACITY｜showcase 齐备且资产存在
 
 真源：各游戏 design/gdd/systems-index.md §3（冻结常量）。`);
 }

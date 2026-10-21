@@ -68,5 +68,13 @@
       "pack": "main",
       "order": 9
     }
+  ],
+  "chapters": [
+    {
+      "id": "mandala",
+      "file": "chapters/mandala.json",
+      "order": 1,
+      "open": true
+    }
   ]
 }

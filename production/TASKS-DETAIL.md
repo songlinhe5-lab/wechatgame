@@ -3495,6 +3495,18 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-336
+
+**工程·beads 大关（chapter）配置层落码批 CH-S1/S2（7 项未决全采纳） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）；CH-S3/S4/S5 未开**
+
+- **背景**：用户令「全采纳开 CH-S1/S2」= 335 设计批 7 项未决按子单推荐全采：Q-A 产物保留 `levelRefs` 区间 / Q-B 章超 9 槽生成期硬拦 / Q-C `ARC_COMING_SOON` 本批不迁（留手写 header） / Q-D `open` 字段本批上；设计 ① 页头章名落空带 [822,1122] / ② 章名不设长度硬门 / ③ 玩法 HUD 分母延后（登记 `[TODO]`）。
+- **CH-S1 真源落盘**：新建 `games/beads/design/levels/chapters/mandala.json`（首章一物一文件：`{id:"mandala", title:"曼陀罗", levels:[L00001…L00009 共 9 个 uid], showcase:{bundle:"themes", art:"l9-boss-mandala-256", textureId:"bitmap__boss_l9"}}`）；`manifest.json` 末尾加 `chapters:[{id,file,order:1,open:true}]`；`contentVersion` 不 bump（按 §11.7 步骤 4，CH-S3 才 31→32）。
+- **CH-S2 生成器垂直切片**：`sync-levels-data.mjs` 抽 `expandEntries`（装配内核 + `uidSpans` 唯一换算来源）；新增 `assembleArcs`（断言 1–7：章 order 严格递增 / `open` 前缀无洞 / id=文件名 / title 非空 / levels 非空 / uid 全局恰一归属且非 retired / boss 恰 1 条且=末项 / 同章同 pack / 未退役 entry 必须被覆盖 / 孤儿章文件反向查 / showcase 三字段齐备 + textureId 全表唯一 + `assets/<art>.png` 存在 / 轴对齐 `levels[i].id===i+1`）、`uidSlotsToLevelRefs`（相邻连续合并）、`openPrefixLength`、`checkChapterCapacity`（槽位 ≤ 读 tuning 的 `WALL_CAPACITY`，async 驱动同门禁⑥⑦）、`buildArcsModuleSource`（`arcs-data.header.txt` + 生成数据体 = `ARCS`/`ARC_OPEN_MAX`/`OPEN_ARCS`；header `trimEnd` 归一化）；发现阶段加 `chapters/` 与 `manifest.chapters[]` **双向绑定**（成对缺席/成对存在 + 缺 header/产物报红）；`levels:check`/`levels:sync` 自然并入（同脚本）。
+- **产物**：`games/beads/src/config/arcs.ts` 重生成为生成物（头部 ⚠️ GENERATED + 真源指路 `chapters/*.json`；`ArcEntry` 接口独立声明替代 `typeof ARCS[number]`；6 个消费点零改动 = beads-shell / tuning / main-menu-presenter / meta-view / arc-carousel 测试 / 宿主 beads-blit-carrier）；`framework:sync` 镜像 1 件；新 `arcs-data.header.txt`（手写模板 = `ArcEntry` 接口 + `ARC_COMING_SOON` + 说明）。
+- **单测与自证**：`sync-levels-data.test.mjs` +5（区间合并含 plate 多槽边界 / 断点分段 / 无区间抛 / open 前缀含乱序与空 / 容量超一槽抛）；**变异自证 2 例**（boss 挪首位 ⇒ 咬「boss 必须是 levels[] 末项（现第 1/9 项）」；删 L00005 ⇒ 咬「L00005 未被任何章覆盖」；均逐字节还原后 check 复绿）。
+- **验证**：`levels:sync`/`levels:check` 幂等 OK；beads vitest 98 文件 1137 过（`arcs.test.ts` 4 条钉住旧值 ⇒ 产物语义等价手写版）；`node --test` sync 单测 20 过；`verify` PASS 22（含 typecheck / framework:sync:check / levels:check）。
+- **未做**：CH-S3（title 上移：删 `L00009.json.title` + 生成期注入 + `contentVersion++`）/ CH-S4（夹具扩面）/ CH-S5（分包放开，卡 `build:wx`）；settings 重叠 / 半透（UI-60）/ BD-62 / 橱窗灯光 / ④ 暗线 未混做。
+
 ## WXG-T-335
 
 **工程·beads 大关（chapter）配置层设计批（Q1=b 正交 / Q2 暂不做 zip / title 上移 chapter） · 负责：主理人(Qoder)·程基岩域+文策渊域（spawn 双成员并行） · 状态：📝 设计完成（2026-10-21）；落码（CH-S1/S2）待开单**

@@ -546,6 +546,8 @@ sprint 梯级图案从本文件 8 关图案池**循环取用**（`gdd/score-comb
 
 ## 11. 大关（chapter）配置口径（**v1.15 新增** · 任务号 **WXG-T-335-D**）
 
+> **裁定记录（2026-10-21，WXG-T-336 落码批）**：本节未决 ①②③ 按子单推荐**全采纳**——① 页头章名落顶部空带 [822,1122]（按数值正本）；② 章名不设长度硬门；③ 玩法 HUD `LV n/N` 分母多章前再定（登记 `[TODO]`）。工程侧 CH-S1/S2 已落码，本节口径不变。
+
 > **本节射程**：只写**玩家可见口径**与**策划字段边界**（显示矩阵 / 该进不该进 / 空橱窗语义 / TODO-1 / 向后兼容 / 验收）。**⛔ 不写**数据结构 schema、生成器、同步链、Story 拆分——那些已由工程侧定稿于 [`proposals/level-content-pipeline.md`](../proposals/level-content-pipeline.md) **§11**（八条结论 / schema / 断言 1–8 / CH-S1…CH-S5）。冲突裁决：**数据形态**以该节为准、**玩家可见**以 UX 正本（[`ux/arc-level-select-spec.md`](../ux/arc-level-select-spec.md)）为准，本文逐处标注。
 >
 > **术语（不重开）**：大关 = **一组题材关卡 + boss 关收尾**（`arc-level-select-spec.md` 文首「术语正本」= Q14；[`gdd/meta-ui.md`](../gdd/meta-ui.md) **§2.7** 术语行同文）。**大关 ≠ 珠材质皮肤主题**——后者住 `systems-index §3.7`「主题解锁语义」行，不同源、不同解锁链。

@@ -244,6 +244,8 @@ games/beads/design/levels/
 
 ## 11. 大关（chapter）配置层 · 内容语义与 pack 正交（WXG-T-335-E，用户 2026-10-21 拍板 B）
 
+> **实施记录（2026-10-21，WXG-T-336）**：CH-S1（`chapters/mandala.json` + manifest.chapters[]）+ CH-S2（`arcs-data.header.txt` + `sync-levels-data.mjs` 生成 `arcs.ts` + 断言 1–7 + `levels:check` 并入）**已落码**；7 项未决按子单推荐全采纳（Q-A 产物保留区间 / Q-B 超容硬拦 / Q-C `ARC_COMING_SOON` 留 header 本批不迁 / Q-D `open` 本批上）。CH-S3/S4/S5 未开。
+
 > **上位裁定（2026-10-21，不重开）**：Q1 = **b**（chapter 与 pack **正交**——chapter 是内容语义层，pack 是投放/分包批次层，两者不互推）；Q2 = **本批不做 zip**（投放仍走微信分包 `wx.loadSubpackage`，与 §0 已锁 A 方案一致）；`title` **上移到 chapter 级**。
 > **本节性质**：设计条文 + 迁移计划，**零落码**。落地粒度见 §11.8；其中 CH-S5 阻塞于 `build:wx`。
 > **现状基线（2026-10-21 核查）**：大关只活在手写 `games/beads/src/config/arcs.ts`（45 行：`ARCS[]` 一行 + `ARC_OPEN_MAX=1` + `OPEN_ARCS` + `ARC_COMING_SOON`）；内容仓 `design/levels/` 无 `chapters/`；`levels-data.ts` 与 `levels:check` 完全不认识大关。消费点 6 处（其中 `view/meta-view.ts` 只消费 `ARC_COMING_SOON` 文案）：`game/beads-shell.ts`（墙集合 666–675 / boss 关 677–683 / 三态归约 690–710 / 走马灯 748–777）、`config/tuning.ts`（`BOSS_THUMB_TEXTURES` 1675–1682）、`ui/main-menu-presenter.ts`（页数 = `ARC_OPEN_MAX + 1`）、`ui/phase-route-binder.ts`（`_levelsArc` / `levelsArc` / `openLevels`，46–51 · 83–97）、`view/meta-view.ts`（`ARC_COMING_SOON`）、宿主 `cocos/assets/scripts/host/beads-blit-carrier.ts`（`OPEN_ARCS` → bitmap 表）。

@@ -1,0 +1,20 @@
+{
+  "id": "mandala",
+  "title": "曼陀罗",
+  "levels": [
+    "L00001",
+    "L00002",
+    "L00003",
+    "L00004",
+    "L00005",
+    "L00006",
+    "L00007",
+    "L00008",
+    "L00009"
+  ],
+  "showcase": {
+    "bundle": "themes",
+    "art": "l9-boss-mandala-256",
+    "textureId": "bitmap__boss_l9"
+  }
+}
