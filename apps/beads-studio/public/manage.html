@@ -309,13 +309,16 @@
         }
 
         // ── 选图器：缩略图网格（img 走 loading="lazy"，只有可视区才拉 /api/results/:id/thumb）──
-        let pkResolve = null, pkFilter = () => true, pkValue = '';
+        //    默认单选（替换图案/选 boss）；opts.multiple 时多选，确认返回**勾选顺序**的 id 数组。
+        let pkResolve = null, pkFilter = () => true, pkValue = '', pkMulti = false, pkPicked = [];
 
-        function pickResult(title, filter) {
+        function pickResult(title, filter, opts = {}) {
             return new Promise((resolve) => {
                 pkResolve = resolve;
                 pkFilter = filter || (() => true);
                 pkValue = '';
+                pkMulti = !!opts.multiple;
+                pkPicked = [];
                 $('pk-title').textContent = title;
                 $('pk-q').value = '';
                 $('pk-small').checked = false;
@@ -349,6 +352,7 @@
                 const b = document.createElement('button');
                 b.className = 'pk-item';
                 b.dataset.id = r.id;
+                if (pkPicked.includes(r.id)) b.classList.add('on'); // 多选：搜索/筛选重绘后保留已勾选态
                 if (r.hasThumb) {
                     b.innerHTML = `<img loading="lazy" src="/api/results/${encodeURIComponent(r.id)}/thumb" alt="">`;
                 } else {
@@ -363,19 +367,32 @@
                 info.innerHTML = `<div class="id">${esc(r.id)}</div><div class="meta">${r.cols}×${r.rows} · ${r.colors} 色</div>`;
                 b.appendChild(info);
                 b.onclick = () => {
+                    if (pkMulti) {
+                        const i = pkPicked.indexOf(r.id);
+                        if (i >= 0) pkPicked.splice(i, 1); else pkPicked.push(r.id);
+                        b.classList.toggle('on', i < 0);
+                        $('pk-ok').disabled = pkPicked.length === 0;
+                        $('pk-pick').textContent = pkPicked.length
+                            ? `已选 ${pkPicked.length} 张（按勾选顺序插 boss 前）：${pkPicked.join('、')}`
+                            : '未选择';
+                        return;
+                    }
                     pkValue = r.id;
                     for (const el of grid.children) el.classList.toggle('on', el.dataset.id === r.id);
                     $('pk-ok').disabled = false;
                     $('pk-pick').textContent = `已选 ${r.id}（${r.cols}×${r.rows} · ${r.colors} 色）`;
                 };
-                b.ondblclick = () => { pkValue = r.id; closePicker(r.id); }; // 双击直达
+                b.ondblclick = () => { if (!pkMulti) { pkValue = r.id; closePicker(r.id); } }; // 双击直达（仅单选）
                 grid.appendChild(b);
             }
         }
 
         $('pk-q').oninput = renderPicker;
         $('pk-small').onchange = renderPicker;
-        $('pk-ok').onclick = () => pkValue && closePicker(pkValue);
+        $('pk-ok').onclick = () => {
+            if (pkMulti) { if (pkPicked.length) closePicker([...pkPicked]); }
+            else if (pkValue) closePicker(pkValue);
+        };
         $('pk-close').onclick = () => closePicker(null);
         $('picker').onclick = (e) => { if (e.target === $('picker')) closePicker(null); };
         addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('picker').hidden) closePicker(null); });
@@ -494,17 +511,17 @@
                 });
                 card.appendChild(lvBox);
 
-                // ── 分大关导入：选一条结果（弹缩略图选择器）→ 插本关 boss 前 ──
+                // ── 分大关导入：选一条或多条结果（弹缩略图选择器）→ 按勾选顺序插本关 boss 前 ──
                 const imp = document.createElement('div');
                 imp.className = 'bar';
                 const tip = document.createElement('span');
                 tip.style.cssText = 'font-size:12px;color:#6b6b6b';
                 tip.textContent = '分大关导入：';
                 imp.appendChild(tip);
-                imp.appendChild(btn('导入小关…', false, async () => {
-                    const v = await pickResult(`导入到「${ch.title}」（boss 前）`);
-                    if (!v) return;
-                    op(`/api/results/${v}/ingest`, { chapter: ch.id });
+                imp.appendChild(btn('批量导入…', false, async () => {
+                    const ids = await pickResult(`导入到「${ch.title}」（boss 前，可多选）`, null, { multiple: true });
+                    if (!ids || !ids.length) return;
+                    op(`/api/manage/chapter/${ch.id}/import`, { resultIds: ids });
                 }));
                 card.appendChild(imp);
 

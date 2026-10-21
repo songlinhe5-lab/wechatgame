@@ -17,6 +17,7 @@
  *   GET  /api/results/:id/level → 直接回 levelDraft（小游戏字段最少化；不可入关 ⇒ 422 + 原因）
  *   DELETE /api/results/:id     → 删除该条结果（整目录；id 走 [a-z0-9-] 白名单，不可逆）
  *   POST /api/results/:id/ingest → 一键入关（WXG-T-341：body `{chapter}` 指定目标大关，插 boss 前）
+ *   POST /api/manage/chapter/:id/import → 批量入关（body `{resultIds:[...]}`≤10 条，同一事务，失败整批回滚）
  *
  * —— 大关管理（WXG-T-341，全部仅本地仓、容器 501；每次写后自动 levels:sync + `DEMO_LEVEL_COUNT`
  *    联动，生成期断言失败 ⇒ 快照回滚并转达红字原文；真源正本 = design/proposals/level-content-pipeline §11）——
@@ -540,36 +541,26 @@ function chapterForInsert(store, levelsDir, manifest, chapterId, addSlots) {
 }
 
 /**
- * 一键入关（WXG-T-179；WXG-T-341 改造）：levelDraft → 写入 design/levels 真源 + **插到目标大关
- * boss 前** + `DEMO_LEVEL_COUNT` 自动联动 + levels:sync/framework:sync。失败 ⇒ 快照回滚（不留半截）。
- * 仅本地仓。测量（beads-bot）在事务外先跑（不动真源）；plate 仍走切片 + 逐格实测（P2b）。
+ * 入关预检 + 实测（事务外，不动真源）：返回一条落盘计划；不可入关 ⇒ ManageError（4xx 回显原文）。
+ * 单条 ingest 与批量 import 共用。plate 仍走切片 + 逐格实测（P2b）。
  */
-async function ingestLevel(res, id, chapterId) {
+async function planIngest(id) {
     const levelsDir = LEVELS_DIR;
-    if (!existsSync(levelsDir)) return sendJson(res, 501, { error: '未找到 games/beads/design/levels：一键入关仅在本地仓运行 beads-studio 时可用' });
-    if (!chapterId || !CHAPTER_ID_RE.test(String(chapterId)))
-        return sendJson(res, 422, { error: '须指定目标大关：body JSON {chapter:"<章 id>"}（生成页「导入大关」已改走管理页 /manage.html）' });
     const found = findResultFile(id);
-    if (!found) return sendJson(res, 404, { error: 'not found' });
+    if (!found) throw new ManageError(`结果 ${id} 不存在`, 404);
     const { r, file: resultFile } = found;
     // 判据实时重算（盘上 blockers/importable 是存盘时快照，判据演进后会失效）
     const blockers = importBlockers(r, { allowOversize: true });
-    if (blockers.length) return sendJson(res, 422, { error: '该结果不可入关：' + blockers.join('；') });
+    if (blockers.length) throw new ManageError(`${id} 不可入关：${blockers.join('；')}`);
     const d = r.levelDraft;
-    if (!d || !Array.isArray(d.pattern)) return sendJson(res, 422, { error: '结果无 levelDraft（交换错位 k 需 ≥ 1）' });
+    if (!d || !Array.isArray(d.pattern)) throw new ManageError(`${id} 无 levelDraft（交换错位 k 需 ≥ 1）`);
     // v1.40 品牌引用制前置校验：slug + 紧凑序色号成对（旧记录缺色号 → 拒收）。
     const brandSlug = r.palette && r.palette !== '10' ? r.palette : null;
     if (brandSlug && (!Array.isArray(d.paletteCodes) || d.paletteCodes.length !== r.colors))
-        return sendJson(res, 422, { error: '草案缺 paletteCodes（旧记录请重新生成；v1.40 关卡存品牌色号而非 hex）' });
-
-    // 目录模式真源（P2）：动态 import 避免容器（无 games//tools 时）整服务加载即崩。
-    // 写盘/重编号/回滚全走 applyManage 快照事务（WXG-T-341）；本函数只备「测量 + 新关卡对象」。
-    const ls = await import('../../tools/scripts/level-store.mjs');
-
-    const isPlate = d.cols > 32 || d.rows > 32;
+        throw new ManageError(`${id} 草案缺 paletteCodes（旧记录请重新生成；v1.40 关卡存品牌色号而非 hex）`);
     const nameBase = `studio-${String(r.id).slice(-6)}`;
 
-    if (isPlate) {
+    if (d.cols > 32 || d.rows > 32) {
         // P2b：切块后逐格重排错豆（spec §0.2）。不传 misplaced。
         const { sliceBoard } = await import('../../tools/scripts/level-slice.mjs');
         const { buildCellInitial } = await import('../../tools/scripts/level-derange.mjs');
@@ -585,9 +576,7 @@ async function ingestLevel(res, id, chapterId) {
             const init = buildCellInitial(cell.pattern);
             tierCounts[init.tier]++;
             if (init.tier === '\u4e19') {
-                return sendJson(res, 422, {
-                    error: `\u8be5\u56fe\u4e0d\u9002\u5408\u62fc\u8c46\u7ec4\u56fe\uff1a\u683c(${cell.row},${cell.col}) \u65e0\u6cd5\u4ea7\u751f\u4efb\u4f55\u975e\u6052\u7b49\u4f4d\u79fb\uff08${init.reason}\uff09\uff0c\u7981\u6b62\u5bfc\u5165`,
-                });
+                throw new ManageError(`该图不适合拼豆组图：格(${cell.row},${cell.col}) 无法产生任何非恒等位移（${init.reason}），禁止导入`);
             }
             cellEntries.push({ cell, init, name: `${nameBase}-r${cell.row}c${cell.col}` });
         }
@@ -601,60 +590,120 @@ async function ingestLevel(res, id, chapterId) {
             decoys: d.decoys ?? [],
             ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
         })));
-        if (!measured.ok) return sendJson(res, 422, { error: `\u9010\u683c\u5b9e\u6d4b\u5931\u8d25\uff1a${measured.error}` });
-
-        // 4. 组装 cell 对象 + 写盘（applyManage 快照事务；id 填 0 占位 ⇒ 收尾 renumber 统一分配）
-        return applyManage(res, (ctx) => {
-            const { store, levelsDir } = ctx;
-            const { ch, doc } = chapterForInsert(store, levelsDir, ctx.manifest, chapterId, cellEntries.length);
-            const plateUid = ls.assignUid('plate', ls.existingUids(ctx.manifest));
-            const finalCells = cellEntries.map(({ cell, init, name }, i) =>
-                ls.buildCellLevel({
-                    cell, plateUid, id: 0, name,
-                    time: measured.results[i].time,
-                    pricing: measured.results[i].pricing,
-                    decoys: d.decoys ?? [],
-                    swaps: init.swaps ?? [],
-                    ...(init.misplaced ? { misplaced: init.misplaced } : {}),
-                    ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
-                })
-            );
-            const plateFile = `plates/${plateUid}.json`;
-            mkdirSync(join(levelsDir, 'plates'), { recursive: true }); // M3：建目录防 rmSync 后无目录
-            ls.writeLevelFile(levelsDir, plateFile, ls.buildPlateFile({
-                plateUid, name: nameBase,
-                gridCols: sliced.gridCols, gridRows: sliced.gridRows,
-                sourcePreview: r.thumb ?? null,
-                cells: finalCells,
-            }));
-            store.writeChapter(levelsDir, ch.file, { ...doc, levels: store.insertBeforeBoss(doc.levels, plateUid) });
-            const manifest = ls.appendEntry(ctx.manifest, { uid: plateUid, kind: 'plate', file: plateFile, pack: 'main' });
-            return { manifest, log: [`已入关 ${plateUid}（plate ${finalCells.length} 格 → 大关 ${chapterId} boss 前；tier ${JSON.stringify(tierCounts)}）`] };
-        });
+        if (!measured.ok) throw new ManageError(`逐格实测失败：${measured.error}`);
+        return { kind: 'plate', nameBase, sliced, cellEntries, measured, tierCounts, brandSlug, d, thumb: r.thumb ?? null };
     }
 
     // —— 单图关卡（≤32）：整板实测（time 只取真引擎值，§3.5 v1.41；测量在事务外）——
     const measured = measureWithBot(resultFile);
-    if (!measured) return sendJson(res, 500, { error: 'beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底' });
-    if (measured.blockers.length) return sendJson(res, 422, { error: '该结果不可入关：' + measured.blockers.join('；') });
-    return applyManage(res, (ctx) => {
-        const { store, levelsDir } = ctx;
-        const { ch, doc } = chapterForInsert(store, levelsDir, ctx.manifest, chapterId, 1);
-        const uid = ls.assignUid('single', ls.existingUids(ctx.manifest));
-        const file = `singles/${uid}.json`;
-        ls.writeLevelFile(levelsDir, file, {
-            id: 0, name: nameBase, cols: d.cols, rows: d.rows, // id 填 0 占位 ⇒ 收尾 renumber 必修正
-            time: measured.time, cycleProfile: 'short',
-            // dev-only 定价溯源（动作数/下界/当时单价）；sync 装配时剔除，不进包体。
-            pricing: measured.pricing,
-            decoys: d.decoys || [], pattern: d.pattern, swaps: d.swaps || [],
-            ...(d.misplaced ? { misplaced: d.misplaced } : {}),
-            ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
-        });
-        store.writeChapter(levelsDir, ch.file, { ...doc, levels: store.insertBeforeBoss(doc.levels, uid) });
-        const manifest = ls.appendEntry(ctx.manifest, { uid, kind: 'single', file, pack: 'main' });
-        return { manifest, log: [`已入关 ${uid}（single ${d.cols}×${d.rows}，实测 ${measured.time}s → 大关 ${chapterId} boss 前）`] };
+    if (!measured) throw new ManageError(`${id} beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底`, 500);
+    if (measured.blockers.length) throw new ManageError(`${id} 不可入关：${measured.blockers.join('；')}`);
+    return { kind: 'single', nameBase, measured, brandSlug, d };
+}
+
+/** 入关 entry 的落位：插 boss 的 order 之前（章内关号与 id 同序）；无 boss 时追加。 */
+function entryBeforeBoss(ls, manifest, doc, entry) {
+    const bossUid = doc.levels?.[doc.levels.length - 1];
+    return bossUid
+        ? ls.insertEntryBefore(manifest, entry, bossUid)
+        : ls.appendEntry(manifest, entry);
+}
+
+/** 事务内落盘一条计划（同步）：写关卡文件 + 章 doc（boss 前）+ manifest entry。返回 {manifest, log}。
+ *  容量逐条复检（同批多条靠累积 cur 拦住，超容 ⇒ 整批回滚）。 */
+function commitIngest(ctx, ls, plan, chapterId) {
+    const { store, levelsDir } = ctx;
+    if (plan.kind === 'plate') {
+        const { ch, doc } = chapterForInsert(store, levelsDir, ctx.manifest, chapterId, plan.cellEntries.length);
+        const plateUid = ls.assignUid('plate', ls.existingUids(ctx.manifest));
+        // id 填 0 占位 ⇒ 收尾 renumber 统一分配
+        const finalCells = plan.cellEntries.map(({ cell, init, name }, i) =>
+            ls.buildCellLevel({
+                cell, plateUid, id: 0, name,
+                time: plan.measured.results[i].time,
+                pricing: plan.measured.results[i].pricing,
+                decoys: plan.d.decoys ?? [],
+                swaps: init.swaps ?? [],
+                ...(init.misplaced ? { misplaced: init.misplaced } : {}),
+                ...(plan.brandSlug ? { palette: plan.brandSlug, paletteCodes: plan.d.paletteCodes } : {}),
+            })
+        );
+        const plateFile = `plates/${plateUid}.json`;
+        mkdirSync(join(levelsDir, 'plates'), { recursive: true }); // M3：建目录防 rmSync 后无目录
+        ls.writeLevelFile(levelsDir, plateFile, ls.buildPlateFile({
+            plateUid, name: plan.nameBase,
+            gridCols: plan.sliced.gridCols, gridRows: plan.sliced.gridRows,
+            sourcePreview: plan.thumb,
+            cells: finalCells,
+        }));
+        store.writeChapter(levelsDir, ch.file, { ...doc, levels: store.insertBeforeBoss(doc.levels, plateUid) });
+        const manifest = entryBeforeBoss(ls, ctx.manifest, doc, { uid: plateUid, kind: 'plate', file: plateFile, pack: 'main' });
+        return { manifest, log: `已入关 ${plateUid}（plate ${finalCells.length} 格 → 大关 ${chapterId} boss 前；tier ${JSON.stringify(plan.tierCounts)}）` };
+    }
+    const { ch, doc } = chapterForInsert(store, levelsDir, ctx.manifest, chapterId, 1);
+    const uid = ls.assignUid('single', ls.existingUids(ctx.manifest));
+    const file = `singles/${uid}.json`;
+    const { d, brandSlug, measured } = plan;
+    ls.writeLevelFile(levelsDir, file, {
+        id: 0, name: plan.nameBase, cols: d.cols, rows: d.rows, // id 填 0 占位 ⇒ 收尾 renumber 必修正
+        time: measured.time, cycleProfile: 'short',
+        // dev-only 定价溯源（动作数/下界/当时单价）；sync 装配时剔除，不进包体。
+        pricing: measured.pricing,
+        decoys: d.decoys || [], pattern: d.pattern, swaps: d.swaps || [],
+        ...(d.misplaced ? { misplaced: d.misplaced } : {}),
+        ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
     });
+    store.writeChapter(levelsDir, ch.file, { ...doc, levels: store.insertBeforeBoss(doc.levels, uid) });
+    const manifest = entryBeforeBoss(ls, ctx.manifest, doc, { uid, kind: 'single', file, pack: 'main' });
+    return { manifest, log: `已入关 ${uid}（single ${d.cols}×${d.rows}，实测 ${measured.time}s → 大关 ${chapterId} boss 前）` };
+}
+
+/**
+ * 一键入关（WXG-T-179；WXG-T-341 改造）：levelDraft → 写入 design/levels 真源 + **插到目标大关
+ * boss 前** + `DEMO_LEVEL_COUNT` 自动联动 + levels:sync/framework:sync。失败 ⇒ 快照回滚（不留半截）。
+ * 仅本地仓。测量（beads-bot）在事务外先跑（不动真源）；plate 仍走切片 + 逐格实测（P2b）。
+ */
+async function ingestLevel(res, id, chapterId) {
+    const levelsDir = LEVELS_DIR;
+    if (!existsSync(levelsDir)) return sendJson(res, 501, { error: '未找到 games/beads/design/levels：一键入关仅在本地仓运行 beads-studio 时可用' });
+    if (!chapterId || !CHAPTER_ID_RE.test(String(chapterId)))
+        return sendJson(res, 422, { error: '须指定目标大关：body JSON {chapter:"<章 id>"}（生成页「导入大关」已改走管理页 /manage.html）' });
+    const ls = await import('../../tools/scripts/level-store.mjs');
+    const plan = await planIngest(id);
+    return applyManage(res, (ctx) => {
+        const out = commitIngest(ctx, ls, plan, chapterId);
+        return { manifest: out.manifest, log: [out.log] };
+    });
+}
+
+/** 批量入关（WXG-T-341）：全部预检/实测在事务外，随后同一事务按勾选顺序插 boss 前；
+ *  任一条不可入关或容量不足 ⇒ 整批回滚（真源不留半截）。 */
+async function importResults(res, chapterId, ids) {
+    if (!existsSync(LEVELS_DIR)) return sendJson(res, 501, { error: '大关管理仅在本地仓运行 beads-studio 时可用' });
+    const ls = await import('../../tools/scripts/level-store.mjs');
+    const plans = [];
+    for (const id of ids) plans.push(await planIngest(id));
+    return applyManage(res, (ctx) => {
+        let manifest = ctx.manifest;
+        const log = [];
+        for (const plan of plans) {
+            const out = commitIngest({ ...ctx, manifest }, ls, plan, chapterId);
+            manifest = out.manifest;
+            log.push(out.log);
+        }
+        return { manifest, log };
+    });
+}
+
+/** POST /api/manage/chapter/:id/import { resultIds: [...] } —— 批量入关（≤10 条）。 */
+async function handleChapterImport(req, res, chapterId) {
+    const body = await readJsonBody(req);
+    const ids = Array.isArray(body.resultIds) ? [...new Set(body.resultIds.map(String))] : [];
+    if (!ids.length) return sendJson(res, 422, { error: '须提供 resultIds（至少 1 条）' });
+    if (ids.length > 10) return sendJson(res, 422, { error: `一次最多 10 条（本次 ${ids.length} 条）` });
+    const bad = ids.find((id) => !ID_RE.test(id));
+    if (bad) return sendJson(res, 422, { error: `非法结果 id：${bad}` });
+    return importResults(res, chapterId, ids);
 }
 
 // ── [WXG-T-341] 大关管理：章节 / 成员操作端点（全部走 applyManage 快照事务）─────
@@ -1218,6 +1267,8 @@ async function handle(req, res) {
         if (req.method === 'GET' && path === '/api/manage/state') return handleManageState(res);
         if (req.method === 'POST' && path === '/api/manage/verify') return handleManageVerify(res);
         if (req.method === 'POST' && path === '/api/manage/chapter') return await handleChapterCreate(req, res);
+        const mimp = path.match(/^\/api\/manage\/chapter\/([a-z0-9][a-z0-9-]{0,31})\/import$/);
+        if (req.method === 'POST' && mimp) return await handleChapterImport(req, res, mimp[1]);
         const mch = path.match(/^\/api\/manage\/chapter\/([a-z0-9][a-z0-9-]{0,31})\/(rename|open|move|delete)$/);
         if (req.method === 'POST' && mch) return await handleChapterOp(req, res, mch[1], mch[2]);
         const mlv = path.match(/^\/api\/manage\/level\/([LP]\d{1,9})\/(remove|move|rename|boss|replace)$/);
@@ -1266,6 +1317,8 @@ async function handle(req, res) {
         const rel = path === '/' ? 'index.html' : path.slice(1);
         const file = join(PUBLIC, rel);
         if (!file.startsWith(PUBLIC) || !existsSync(file)) return sendJson(res, 404, { error: 'not found' });
+        // 本地工具页每次协商：否则浏览器启发式缓存会让改动不生效（改动后没看到新按钮）
+        res.setHeader('Cache-Control', 'no-cache');
         return send(res, 200, readFileSync(file), MIME[file.slice(file.lastIndexOf('.'))] || 'application/octet-stream');
     } catch (e) {
         return sendJson(res, e.code || 500, { error: String(e.message || e) }); // ManageError.code 透传 4xx（body 坏 = 400 等）

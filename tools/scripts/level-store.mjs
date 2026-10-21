@@ -86,6 +86,23 @@ export function appendEntry(manifest, entry) {
   };
 }
 
+/**
+ * 插到 `beforeUid` 的 order **之前**（其后全局 order 顺延 1）：
+ * 入关插 boss 前时用——否则新 entry 的 order 比 boss 大，章内关号倒挂（boss #6 在后面，新关 #7/#8 在它前面）。
+ */
+export function insertEntryBefore(manifest, entry, beforeUid) {
+  const target = manifest.entries.find((e) => e.uid === beforeUid);
+  if (!target) throw new Error(`insertEntryBefore: ${beforeUid} 不在 manifest`);
+  return {
+    ...manifest,
+    contentVersion: manifest.contentVersion + 1,
+    entries: [
+      ...manifest.entries.map((e) => (e.order >= target.order ? { ...e, order: e.order + 1 } : e)),
+      { ...entry, order: target.order },
+    ],
+  };
+}
+
 export function writeLevelFile(levelsDir, relFile, obj) {
   writeFileSync(join(levelsDir, relFile), JSON.stringify(obj, null, 2) + '\n');
 }
