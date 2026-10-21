@@ -2481,8 +2481,8 @@
       "state": "active",
       "file": "knowledge/lessons/criteria-measure.md",
       "category": "判据实测",
-      "title": "组合图（plate）进不了关，卡在两件早已定案的事上——规格要求每宫「错位密度 ≤60% 且整区域就位」，而工具只会造「全错位」和「≤8 对互换」两档；别先怪步数闸",
-      "contentHash": "a7262ef00f5ea0e269939cef31f3d9bf6d9d0d19acfb61335a24133f6483884c",
+      "title": "组合图（plate）满密度宫进不了关：规格要的「≤60% 整区域就位」档工具没实现（已补），补完实测又拓出第二件事——规格那句「reg60 = 90–96 taps 达标」是旧尺读数，现尺同一构造 229–257 steps 仍越门禁⑦",
+      "contentHash": "d751a287088813705eaa1c8d74168cf42eb8b20b57f92821f52f93d2a4e380d2",
       "sourceTask": "WXG-T-341",
       "addedDate": "2026-10-21",
       "lastAccess": "2026-10-21",
@@ -3739,6 +3739,15 @@
         "K-149"
       ],
       "note": "K-149 根因订正：非判据堵死，系工具缺规格要求的 ≤60% 整区域就位档"
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-341",
+      "kind": "updated",
+      "ids": [
+        "K-149"
+      ],
+      "note": "K-149 二次订正：≤60% 档已落地 buildRegionDerange，现尺复测 reg60=229-257 steps 仍越门禁⑦（taps=2×steps）"
     }
   ]
 }

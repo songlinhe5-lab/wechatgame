@@ -617,13 +617,14 @@ async function planShape(id) {
         // 1. 切块：只裁 pattern，不传 misplaced
         const sliced = sliceBoard({ pattern: d.pattern, cols: d.cols, rows: d.rows, gridMax: 32 });
 
-        // 2. 逐阶构造初盘（甲 / 甲max / 乙 / 丙）
-        // ⚠️ tier 枚举新增必须同步补键：`tierCounts[init.tier]++` 遇未知键会静默算成 NaN。
-        const tierCounts = { '\u7532': 0, '\u7532max': 0, '\u4e59': 0, '\u4e19': 0 };
+        // 2. 逐阶构造初盘（reg ≤60% 优先 → 甲 / 甲max / 乙 / 丙）
+        // 组合图每宫按 `levels-spec §3.1①` 的「整区域就位 ≤60%」构造（E1 实测：全错位宫 176–178
+        // taps 结构性不可入关）；不成则落回甲链。tierCounts 动态计数（旧写死四键，新 tier 会被算成 NaN）。
+        const tierCounts = {};
         const cellEntries = [];
         for (const cell of sliced.cells) {
-            const init = buildCellInitial(cell.pattern);
-            tierCounts[init.tier]++;
+            const init = buildCellInitial(cell.pattern, { region: true });
+            tierCounts[init.tier] = (tierCounts[init.tier] ?? 0) + 1;
             if (init.tier === '\u4e19') {
                 throw new ManageError(`该图不适合拼豆组图：格(${cell.row},${cell.col}) 无法产生任何非恒等位移（${init.reason}），禁止导入`);
             }

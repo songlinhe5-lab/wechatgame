@@ -144,6 +144,46 @@ test('buildCellInitial 含 x 锁珠格时甲正常，x 位保留', () => {
   assert.equal(r.misplaced[0][1], 'x');
 });
 
+// ── reg（整区域就位，组合图宫口径 levels-spec §3.1①）───────────────────
+
+/** 8×8 两色逐行交替盘（任一整块内两色各半 ⇒ 块内 m=N/2，可整体错位）。 */
+const altBoard = (n = 8) => Array.from({ length: n }, (_, r) => (r % 2 ? '2' : '1').repeat(n));
+
+test('buildCellInitial region：整块搬移不散点、密度不越预算、守恒', () => {
+  const pattern = altBoard();
+  const r = buildCellInitial(pattern, { region: true, block: 4, density: 0.5 });
+  assert.equal(r.tier, 'reg50');
+  assert.equal(r.N, 64);
+  assert.equal(r.M, 32); // budget = 64×0.5；每块 16 格 ⇒ 恰取 2 块，第三块会越线⇒整块不搬
+
+  const flat = rowstringsToSolved(pattern).flat;
+  const got = rowstringsToSolved(r.misplaced).flat;
+  assert.deepEqual([...got].sort((a, b) => a - b), [...flat].sort((a, b) => a - b), '守恒破：颜色多重集变了');
+
+  // 本轮要防的正是 E1 第一轮的病理：逐格随机散点把大组打碎。
+  // 可证伪断言 = 每个 block×block 区域内要么 0 颗错位、要么整块错位。
+  const per = new Map();
+  for (let i = 0; i < 64; i++) {
+    const key = `${Math.floor(i / 8 / 4)}-${Math.floor((i % 8) / 4)}`;
+    const p = per.get(key) ?? [0, 0];
+    p[1]++;
+    if (got[i] !== flat[i]) p[0]++;
+    per.set(key, p);
+  }
+  let movedBlocks = 0;
+  for (const [mis, tot] of per.values()) {
+    assert.ok(mis === 0 || mis === tot, `块内散点：${mis}/${tot} 颗错位`);
+    if (mis) movedBlocks++;
+  }
+  assert.equal(movedBlocks, 2, '错位块数应恰为预算内整块数');
+});
+
+test('buildCellInitial 不开 region 时行为不变（旧甲档 100% 错位）', () => {
+  const r = buildCellInitial(altBoard());
+  assert.equal(r.tier, '甲');
+  assert.equal(r.M, 64); // 无块子集、全盘循环移位
+});
+
 // ── §3.2 批2：`max`（最大化错位）的极值公式与守恒 —— 穷举实测（X2 / X3）─────────────
 // 背景：levels-spec §2.3-2 的 `M_max = min(N, 2(N−m))`、`F = max(0, 2m−N)` 与 §3.3 三例
 // 均为文策渊**手算**（原文标 `[待 X2 实测]`）。下面两件把「待实测」换成真断言：

@@ -9,6 +9,7 @@
  *       不是退让；正本 levels-spec §2.3）⇒ 不再先退成 swaps。
  *   乙（swaps 退化）= ≤8 对异色可填格两两互换（k 尽量大）；
  *   丙（不可错位）= 无任何非恒等位移（tier='丙'，调用方整板 422 拒收）。
+ * reg（整区域就位 ≤60%）= 仅供组合图宫显式开启（`opts.region`），口径见 `buildRegionDerange` 注。
  *
  * ⚠️ 域 = **本宫**：`N`/`m` 一律是该宫的数（sliceBoard 纯几何裁剪、不接 misplaced，
  *   每宫各自守恒、各自取极值）；**不得跨宫搬珠**（§2.3-4）。
@@ -171,13 +172,76 @@ export function buildSwaps(flat, cols, _rows) {
 }
 
 /**
+ * reg（整区域就位部分错位）：按 block×block **块粒度**选错位子集，选中块内整体循环移位。
+ * 正本口径 = `proposals/tray-capacity-large-board-playability.md` §6.2（E1 第二轮）：32×32 宫
+ * reg60 + tray24 = 90 taps 达标；而第一轮已证「逐格随机散点部分错位」是反模式（把大组打碎成
+ * 孤岛 ⇒ taps 反而高于全错位）。密度上限 `density` = `levels-spec §3.1①` 的 ≤60% 硬口径。
+ * 块内跑 `derangeCell(mode='full')`：失败（该块主导色 > 块内 N/2，即整块同色）就**整块保持就位**，
+ * 不硬凑、不逐格散点。
+ * @param {number[]} flat 色号数组（0=不可填）
+ * @param {{block?:number,density?:number}} [opts]
+ * @returns {{ ok: boolean; misplaced?: number[]; M: number; N: number; blocks?: number; reason?: string }}
+ */
+export function buildRegionDerange(flat, cols, rows, { block = 8, density = 0.6 } = {}) {
+  const N = flat.reduce((n, v) => (v > 0 ? n + 1 : n), 0);
+  const budget = Math.round(N * density);
+  if (N < 2 || budget < 2) return { ok: false, M: 0, N, reason: `可填格 ${N}（预算 ${budget}）不足以按块错位` };
+
+  // 每块的可填格（块内行优先）——颜色序列 + 对应的全局格索引
+  const blocks = [];
+  for (let br = 0; br < rows; br += block) {
+    for (let bc = 0; bc < cols; bc += block) {
+      const bh = Math.min(block, rows - br), bw = Math.min(block, cols - bc);
+      const colors = [], glob = [];
+      for (let r = 0; r < bh; r++)
+        for (let c = 0; c < bw; c++) {
+          const g = (br + r) * cols + (bc + c);
+          if (flat[g] > 0) { colors.push(flat[g]); glob.push(g); }
+        }
+      if (colors.length >= 2) blocks.push({ colors, glob });
+    }
+  }
+  // 大色块优先（同数按位置序 ⇒ 确定性，不用随机）
+  blocks.sort((a, b) => b.colors.length - a.colors.length || a.glob[0] - b.glob[0]);
+
+  // 未选中的块 = 整块就位（逐格保持原色）。⛔ 填 0：0 会被 solvedToRowstrings 编成 `.`，
+  //   等于把整块珠子从盘上抹掉（首轮实测即此 pathology，由守恒断言拓出）。
+  const misplaced = flat.slice();
+  let M = 0, moved = 0;
+  for (const { colors, glob } of blocks) {
+    // full 模式固定点 F=0 ⇒ 该块被搬格数恰为 colors.length；超预算就整块不搬（≤density 不得越线）
+    if (M + colors.length > budget) continue;
+    const dr = derangeCell(colors);
+    if (!dr.ok) continue;
+    for (let j = 0; j < glob.length; j++) misplaced[glob[j]] = dr.misplaced[j];
+    M += dr.M;
+    moved++;
+  }
+  if (M < 1) return { ok: false, M, N, reason: `无一整块可整体错位（每块主导色 > 块内 N/2）` };
+  return { ok: true, misplaced, M, N, blocks: moved };
+}
+
+/**
  * 四阶 wrapper（甲 → 甲′ → 乙 → 丙）：给一格 pattern rowstring[]，返回 tier + 初盘字段。
+ * `opts.region`（仅组合图宫应用）：先试「整区域就位 ≤density」，不成再落原有四阶链（既有行为不变）。
  * @param {string[]} pattern Cell-Level 的 pattern rowstrings
- * @returns {{ tier: '甲'|'甲max'|'乙'|'丙'; misplaced?: string[];
+ * @param {{region?:boolean, block?:number, density?:number}} [opts]
+ * @returns {{ tier: string; misplaced?: string[];
  *             swaps?: [number,number,number,number][]; M?: number; N?: number; F?: number; reason?: string }}
  */
-export function buildCellInitial(pattern) {
+export function buildCellInitial(pattern, { region = false, block = 8, density = 0.6 } = {}) {
   const { flat, cols, rows } = rowstringsToSolved(pattern);
+
+  // reg（整区域就位）：组合图每宫的规格口径（`levels-spec §3.1①`），显式开启时优先。
+  if (region) {
+    const rg = buildRegionDerange(flat, cols, rows, { block, density });
+    if (rg.ok)
+      return {
+        tier: `reg${Math.round(density * 100)}`,
+        misplaced: solvedToRowstrings(rg.misplaced, pattern, cols, rows),
+        M: rg.M, N: rg.N, F: rg.N - rg.M,
+      };
+  }
 
   // 甲：全错位（m ≤ ⌊N/2⌋ 时 F=0、M=N，与 甲′ 等价 ⇒ 优先取它，档位名不变）
   const dr = derangeCell(flat);
