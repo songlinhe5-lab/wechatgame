@@ -157,7 +157,9 @@ function listResults() {
                 out.push({
                     id: r.id, board: r.board, cols: r.cols, rows: r.rows, shape: r.shape,
                     palette: r.palette, colors: r.colors, swaps: r.swaps, misMode: r.misMode || 'swaps', createdAt: r.createdAt,
-                    // 旧条目（本次字段上线前存盘）没有 importable ⇒ 回落实算，与 /level 端点同口径
+                    // 占槽：与 level-slice 同口径（每方向 ceil(n/32) 段），≤32 为 1
+                    slots: Math.max(1, Math.ceil(r.cols / 32)) * Math.max(1, Math.ceil(r.rows / 32)),
+                    // 旧条目（本次字段上线前存盘）没有 importable ⇒ 回落实 算，与 /level 端点同口径
                     hasThumb: !!r.thumb, importable: r.importable ?? (importBlockers(r).length === 0),
                 });
             } catch {

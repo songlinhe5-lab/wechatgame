@@ -367,7 +367,8 @@
 
         // ── 选图器：缩略图网格（img 走 loading="lazy"，只有可视区才拉 /api/results/:id/thumb）──
         //    默认单选（替换图案/选 boss）；opts.multiple 时多选，确认返回**勾选顺序**的 id 数组。
-        let pkResolve = null, pkFilter = () => true, pkValue = '', pkMulti = false, pkPicked = [];
+        //    opts.slotsLeft（仅多选）：目标章剩余槽数，卡片标占槽数、已选合计超限时禁确认。
+        let pkResolve = null, pkFilter = () => true, pkValue = '', pkMulti = false, pkPicked = [], pkSlotsLeft = Infinity;
 
         function pickResult(title, filter, opts = {}) {
             return new Promise((resolve) => {
@@ -376,6 +377,7 @@
                 pkValue = '';
                 pkMulti = !!opts.multiple;
                 pkPicked = [];
+                pkSlotsLeft = opts.slotsLeft ?? Infinity;
                 $('pk-title').textContent = title;
                 $('pk-q').value = '';
                 $('pk-small').checked = false;
@@ -421,16 +423,20 @@
                         .then((p) => { if (p && art.isConnected) art.appendChild(paintThumb(p)); }).catch(() => {});
                 }
                 const info = document.createElement('div');
-                info.innerHTML = `<div class="id">${esc(r.id)}</div><div class="meta">${r.cols}×${r.rows} · ${r.colors} 色</div>`;
+                info.innerHTML = `<div class="id">${esc(r.id)}</div><div class="meta">${r.cols}×${r.rows} · ${r.colors} 色` +
+                    `${r.slots > 1 ? ` · 占 ${r.slots} 槽` : ''}</div>`;
                 b.appendChild(info);
                 b.onclick = () => {
                     if (pkMulti) {
                         const i = pkPicked.indexOf(r.id);
                         if (i >= 0) pkPicked.splice(i, 1); else pkPicked.push(r.id);
                         b.classList.toggle('on', i < 0);
-                        $('pk-ok').disabled = pkPicked.length === 0;
+                        // 合计占槽：选之前就知道放不放得下（超出时锁确认，取消勾选即恢复）
+                        const total = pkPicked.reduce((n, id) => n + (results.find((x) => x.id === id)?.slots ?? 1), 0);
+                        const over = total > pkSlotsLeft;
+                        $('pk-ok').disabled = pkPicked.length === 0 || over;
                         $('pk-pick').textContent = pkPicked.length
-                            ? `已选 ${pkPicked.length} 张（按勾选顺序插 boss 前）：${pkPicked.join('、')}`
+                            ? `已选 ${pkPicked.length} 张 · 合计 ${total} 槽${pkSlotsLeft !== Infinity ? ` / 剩 ${pkSlotsLeft} 槽${over ? '（超出，请减选）' : ''}` : ''}：${pkPicked.join('、')}`
                             : '未选择';
                         return;
                     }
@@ -576,7 +582,9 @@
                 tip.textContent = '分大关导入：';
                 imp.appendChild(tip);
                 imp.appendChild(btn('批量导入…', false, async () => {
-                    const ids = await pickResult(`导入到「${ch.title}」（boss 前，可多选）`, null, { multiple: true });
+                    const ids = await pickResult(`导入到「${ch.title}」（boss 前，可多选）`, null, {
+                        multiple: true, slotsLeft: Math.max(0, S.wallCapacity - ch.slots),
+                    });
                     if (!ids || !ids.length) return;
                     importBatch(ch.id, ids);
                 }));
