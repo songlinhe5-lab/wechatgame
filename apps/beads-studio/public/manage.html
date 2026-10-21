@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>beads-studio · 大关/小关管理</title>
+    <style>
+        :root {
+            --bd: #d8d2c4;
+            --bg: #faf7f0;
+            --ac: #3d7bf5;
+            --tx: #33333d;
+            --danger: #c0392b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font: 14px/1.5 system-ui, -apple-system, "PingFang SC", sans-serif;
+            background: var(--bg);
+            color: var(--tx);
+        }
+
+        header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--bd);
+            display: flex;
+            gap: 12px;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+
+        h1 { font-size: 16px; margin: 0; }
+        a { color: var(--ac); }
+
+        main { padding: 16px 20px; max-width: 1100px; margin: 0 auto; }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+
+        .chhead { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+        .chhead code { background: #f3efe6; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+        .chhead small { color: #888; }
+
+        label { display: block; margin: 8px 0 2px; font-size: 12px; color: #666; }
+
+        input, select {
+            padding: 6px 8px;
+            border: 1px solid var(--bd);
+            border-radius: 6px;
+            font: inherit;
+            background: #fff;
+        }
+
+        input[type="checkbox"] { width: auto; }
+
+        button {
+            padding: 5px 10px;
+            border: 0;
+            border-radius: 6px;
+            background: var(--ac);
+            color: #fff;
+            font: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        button:disabled { opacity: .45; cursor: default; }
+        button.ghost { background: #eee; color: var(--tx); }
+        button.danger { background: var(--danger); }
+        button.big { padding: 9px 14px; font-size: 14px; width: 100%; margin-top: 10px; }
+
+        .bar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+        .bar .grow { flex: 1; min-width: 160px; }
+        .bar .grow select, .bar .grow input { width: 100%; }
+
+        .levels { margin-top: 10px; border-top: 1px dashed var(--bd); padding-top: 4px; }
+
+        .lv {
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+            padding: 5px 0; border-bottom: 1px solid #f1ede4;
+        }
+
+        .lv:last-child { border-bottom: 0; }
+        .lv.boss { background: #fdf6e8; margin: 0 -6px; padding: 5px 6px; border-radius: 6px; }
+        .lv .uid { font-family: ui-monospace, monospace; font-size: 12px; color: #666; }
+        .lv .id { font-weight: 600; min-width: 34px; }
+        .lv small { color: #888; }
+        .lv .ops { margin-left: auto; display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+        .lv .ops select { font-size: 12px; padding: 3px 6px; }
+
+        #err {
+            white-space: pre-wrap;
+            word-break: break-all;
+            background: #fdecea;
+            border: 1px solid #f5c6c0;
+            color: var(--danger);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            display: none;
+            font-family: ui-monospace, monospace;
+            font-size: 12px;
+        }
+
+        #log { color: #1e7d3c; font-size: 13px; min-height: 20px; margin-bottom: 8px; }
+
+        .row3 { display: grid; grid-template-columns: 160px 1fr 1fr; gap: 10px; }
+        @media (max-width: 760px) { .row3 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>大关 / 小关管理</h1>
+        <a href="/">← 返回生成页</a>
+        <span id="meta" style="color:#888;font-size:12px"></span>
+        <span style="margin-left:auto"></span>
+        <button class="ghost" id="verify" title="跑 levels:sync + framework:sync（幂等）">校验 / 导入大关</button>
+    </header>
+    <main>
+        <div id="err"></div>
+        <div id="log"></div>
+        <div id="chapters"></div>
+
+        <div class="card">
+            <b>新建大关（含首关 boss，从结果导入）</b>
+            <div class="row3">
+                <div><label>章 id（小写字母/数字/连字符）</label><input id="new-id" placeholder="neon"></div>
+                <div><label>标题（橱窗/木牌展示名）</label><input id="new-title" placeholder="霓虹"></div>
+                <div><label>首关 boss（≤32 的可入关结果）</label><select id="new-result"></select></div>
+            </div>
+            <label>展示图（浏览器内自动缩到 256×256 PNG）</label>
+            <input type="file" id="new-img" accept="image/png,image/jpeg">
+            <button class="big" id="new-go">新建大关</button>
+        </div>
+    </main>
+    <script>
+        const $ = (id) => document.getElementById(id);
+        const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        let S = null;
+        let results = [];
+        const preselect = new URLSearchParams(location.search).get('result') || '';
+
+        function showErr(msg) {
+            $('err').textContent = msg;
+            $('err').style.display = 'block';
+            $('log').textContent = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showLog(lines) {
+            $('err').style.display = 'none';
+            $('log').textContent = Array.isArray(lines) ? lines.join('；') : String(lines || 'ok');
+        }
+
+        function btn(label, disabled, onClick, cls) {
+            const b = document.createElement('button');
+            b.textContent = label;
+            if (cls) b.className = cls;
+            b.disabled = !!disabled;
+            b.onclick = onClick;
+            return b;
+        }
+
+        function select(options, value, onChange) {
+            const s = document.createElement('select');
+            s.innerHTML = options.map((o) => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('');
+            if (value !== undefined) s.value = value;
+            if (onChange) s.onchange = () => onChange(s.value);
+            return s;
+        }
+
+        /** 统一写操作：POST → 成功刷新（服务端 log 常含断言/变更摘要），失败整段红字转达。 */
+        async function op(path, body) {
+            try {
+                const res = await fetch(path, {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(body ?? {}),
+                });
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(j.error || ('HTTP ' + res.status));
+                showLog([...(j.log || []), `关数 ${j.count}（DEMO_LEVEL_COUNT 已联动）`]);
+                await reload();
+            } catch (e) {
+                showErr(e.message);
+            }
+        }
+
+        async function reload() {
+            try {
+                const [stRes, rsRes] = await Promise.all([fetch('/api/manage/state'), fetch('/api/results')]);
+                const st = await stRes.json();
+                if (!stRes.ok) throw new Error(st.error || ('HTTP ' + stRes.status));
+                S = st;
+                const rs = await rsRes.json().catch(() => ({ results: [] }));
+                results = (rs.results || []).filter((r) => r.importable !== false);
+                render();
+            } catch (e) {
+                showErr('加载失败：' + e.message);
+            }
+        }
+
+        /** 展示图：等比 cover 裁切到 256²（不依赖任何库）。 */
+        function shrinkTo256(file) {
+            return new Promise((resolve, reject) => {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const cv = document.createElement('canvas');
+                        cv.width = cv.height = 256;
+                        const ctx = cv.getContext('2d');
+                        const s = Math.max(256 / img.width, 256 / img.height);
+                        const w = img.width * s, h = img.height * s;
+                        ctx.drawImage(img, (256 - w) / 2, (256 - h) / 2, w, h);
+                        resolve(cv.toDataURL('image/png'));
+                    } catch (e) { reject(e); } finally { URL.revokeObjectURL(url); }
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('图片解码失败')); };
+                img.src = url;
+            });
+        }
+
+        function render() {
+            if (!S) return;
+            $('meta').textContent = `contentVersion ${S.contentVersion} · 关数 ${S.count} / DEMO_LEVEL_COUNT ${S.demoLevelCount} · 章容量 ${S.wallCapacity} 槽`;
+
+            // ── 新建大关的结果下拉（首关 boss 须单图 ≤32）──
+            const bossable = results.filter((r) => r.cols <= 32 && r.rows <= 32);
+            $('new-result').innerHTML = '<option value="">— 选结果 —</option>' + bossable.map((r) =>
+                `<option value="${esc(r.id)}">${esc(r.id)}（${r.cols}×${r.rows} · ${r.colors} 色）</option>`).join('');
+
+            // ── 大关列表 ──
+            const root = $('chapters');
+            root.innerHTML = '';
+            S.chapters.forEach((ch, ci) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const head = document.createElement('div');
+                head.className = 'chhead';
+                head.innerHTML = `<b>#${ch.order} ${esc(ch.title)}</b><code>${esc(ch.id)}</code>` +
+                    `<small>${ch.levels.length} 关 · ${ch.slots}/${S.wallCapacity} 槽 · 展示图 ${esc(ch.showcase?.art || '—')}</small>`;
+                card.appendChild(head);
+
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.appendChild(btn('↑', ci === 0, () => op(`/api/manage/chapter/${ch.id}/move`, { dir: 'up' }), 'ghost'));
+                bar.appendChild(btn('↓', ci === S.chapters.length - 1, () => op(`/api/manage/chapter/${ch.id}/move`, { dir: 'down' }), 'ghost'));
+                bar.appendChild(btn('改名', false, () => {
+                    const t = prompt('大关标题（1–40 字）', ch.title);
+                    if (t !== null) op(`/api/manage/chapter/${ch.id}/rename`, { title: t });
+                }, 'ghost'));
+
+                const openWrap = document.createElement('label');
+                openWrap.style.cssText = 'margin:0;display:flex;gap:5px;align-items:center;font-size:12px;color:#666';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.checked = !!ch.open;
+                cb.onchange = () => op(`/api/manage/chapter/${ch.id}/open`, { open: cb.checked });
+                openWrap.append(cb, document.createTextNode('开放（须自第 1 章起连续）'));
+                bar.appendChild(openWrap);
+
+                // 删章：并入所选章 / 级联删除整章
+                const others = S.chapters.filter((c) => c.id !== ch.id);
+                if (others.length) {
+                    const sel = select(others.map((c) => ({ value: c.id, label: `并入 ${c.title}（${c.id}）` })));
+                    bar.appendChild(sel);
+                    bar.appendChild(btn('并入', false, () => {
+                        if (!confirm(`把「${ch.title}」全部 ${ch.levels.length} 关并入 ${sel.value}（boss 前，原 boss 降级）？`)) return;
+                        op(`/api/manage/chapter/${ch.id}/delete`, { action: 'move', moveTo: sel.value });
+                    }, 'ghost'));
+                }
+                bar.appendChild(btn('删整章', false, () => {
+                    if (!confirm(`删除大关「${ch.title}」及其全部 ${ch.levels.length} 关文件？\n关号会自动重编号；展示图保留为 archive。不可撤销。`)) return;
+                    op(`/api/manage/chapter/${ch.id}/delete`, { action: 'delete' });
+                }, 'danger'));
+                card.appendChild(bar);
+
+                // ── 小关列表（展示轴 = 本章 levels[] 顺序）──
+                const lvBox = document.createElement('div');
+                lvBox.className = 'levels';
+                const last = ch.levels.length - 1;
+                ch.levels.forEach((lv, li) => {
+                    const row = document.createElement('div');
+                    row.className = 'lv' + (lv.kind === 'boss' ? ' boss' : '');
+                    if (lv.missing) {
+                        row.innerHTML = `<span class="uid">${esc(lv.uid)}</span><small style="color:var(--danger)">⚠ manifest 引用缺失（先跑校验）</small>`;
+                        lvBox.appendChild(row);
+                        return;
+                    }
+                    row.innerHTML = `<span class="uid">${esc(lv.uid)}</span>` +
+                        `<span class="id">#${lv.id}${lv.idEnd !== undefined && lv.idEnd !== lv.id ? '–' + lv.idEnd : ''}</span>` +
+                        `<span>${esc(lv.name || '(未命名)')}</span>` +
+                        `<small>${esc(lv.kind)} · ${lv.cols}×${lv.rows}${lv.time !== undefined ? ' · ' + lv.time + 's' : ''} · ${lv.slots} 槽</small>`;
+
+                    const ops = document.createElement('div');
+                    ops.className = 'ops';
+                    const isBoss = lv.kind === 'boss';
+                    ops.appendChild(btn('↑', isBoss || li === 0, () => op(`/api/manage/level/${lv.uid}/move`, { dir: 'up' }), 'ghost'));
+                    ops.appendChild(btn('↓', isBoss || li >= last - 1, () => op(`/api/manage/level/${lv.uid}/move`, { dir: 'down' }), 'ghost'));
+                    ops.appendChild(btn('改名', false, () => {
+                        const n = prompt('小关名（1–60 字）', lv.name || '');
+                        if (n !== null) op(`/api/manage/level/${lv.uid}/rename`, { name: n });
+                    }, 'ghost'));
+                    if (!isBoss && lv.kind !== 'plate') {
+                        ops.appendChild(btn('设 boss', false, () => {
+                            if (!confirm(`把 ${lv.uid} 设为本章 boss？（需换到末位，原 boss 降为普通关）`)) return;
+                            op(`/api/manage/level/${lv.uid}/boss`);
+                        }, 'ghost'));
+                    }
+                    if (others.length && !isBoss) {
+                        const mv = select([{ value: '', label: '移章…' }, ...others.map((c) => ({ value: c.id, label: `→ ${c.title}` }))], '', (v) => {
+                            if (v) op(`/api/manage/level/${lv.uid}/move`, { chapter: v });
+                        });
+                        ops.appendChild(mv);
+                    }
+                    if (!isBoss) {
+                        ops.appendChild(btn('删除', false, () => {
+                            if (!confirm(`删除小关 ${lv.uid}（${lv.file}）？其后关号自动前移，不可撤销。`)) return;
+                            op(`/api/manage/level/${lv.uid}/remove`);
+                        }, 'danger'));
+                    }
+                    row.appendChild(ops);
+                    lvBox.appendChild(row);
+                });
+                card.appendChild(lvBox);
+
+                // ── 分大关导入：选一条结果 → 插本关 boss 前 ──
+                const imp = document.createElement('div');
+                imp.className = 'bar';
+                const rsel = select(
+                    [{ value: '', label: '导入小关：选结果…' }, ...results.map((r) => ({
+                        value: r.id,
+                        label: `${r.id}（${r.cols}×${r.rows} · ${r.colors} 色${r.cols > 32 || r.rows > 32 ? ' · plate' : ''}）`,
+                    }))],
+                    preselect && results.some((r) => r.id === preselect) ? preselect : '',
+                );
+                rsel.className = 'grow';
+                imp.appendChild(rsel);
+                imp.appendChild(btn('导入该大关', false, () => {
+                    if (!rsel.value) return showErr('先在左侧选一条结果');
+                    op(`/api/results/${rsel.value}/ingest`, { chapter: ch.id });
+                }));
+                card.appendChild(imp);
+
+                root.appendChild(card);
+            });
+            if (!S.chapters.length) root.innerHTML = '<div class="card">暂无大关（先新建）</div>';
+        }
+
+        $('verify').onclick = async () => {
+            try {
+                const res = await fetch('/api/manage/verify', { method: 'POST' });
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(j.error || ('HTTP ' + res.status));
+                showLog(j.note || 'ok');
+                await reload();
+            } catch (e) {
+                showErr(e.message);
+            }
+        };
+
+        $('new-go').onclick = async () => {
+            const id = $('new-id').value.trim();
+            const title = $('new-title').value.trim();
+            const resultId = $('new-result').value;
+            const file = $('new-img').files[0];
+            if (!id || !title || !resultId) return showErr('章 id / 标题 / 首关 boss 结果 三项必填');
+            if (!file) return showErr('请选择展示图（PNG/JPEG，浏览器内缩到 256²）');
+            try {
+                const imageDataUrl = await shrinkTo256(file);
+                await op('/api/manage/chapter', { id, title, resultId, imageDataUrl });
+                $('new-id').value = $('new-title').value = '';
+                $('new-img').value = '';
+            } catch (e) {
+                showErr(e.message);
+            }
+        };
+
+        reload();
+    </script>
+</body>
+
+</html>
