@@ -119,6 +119,30 @@
         }
         #log:empty { display: none; }
 
+        /* 行内图案缩略图：canvas 像素尺寸 = 格数，CSS 限幅保持比例（不拉伸）。 */
+        .lv canvas { max-width: 36px; max-height: 36px; flex: none; border-radius: 4px; background: #faf7f0; image-rendering: pixelated; }
+
+        /* 选图器：缩略图网格 + 搜索/筛选；img 走 loading="lazy"，只有可视区才拉图。 */
+        #picker { position: fixed; inset: 0; z-index: 30; padding: 20px; background: rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; }
+        #picker[hidden] { display: none; }
+        .pk-box { background: #fff; border-radius: 12px; width: min(960px, 100%); max-height: 88vh; display: flex; flex-direction: column; overflow: hidden; }
+        .pk-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--bd); }
+        .pk-head .grow { flex: 1; }
+        .pk-tools { display: flex; gap: 10px; align-items: center; padding: 8px 14px; border-bottom: 1px solid #f1ede4; flex-wrap: wrap; }
+        .pk-tools input[type="search"] { flex: 1; min-width: 160px; }
+        .pk-tools label { margin: 0; font-size: 12px; color: #444; white-space: nowrap; }
+        .pk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; padding: 12px 14px; overflow: auto; flex: 1; }
+        .pk-item { margin: 0; padding: 6px; text-align: left; background: #fff; border: 2px solid transparent; border-radius: 8px; color: var(--tx); }
+        .pk-item:hover { border-color: #b9cdf8; }
+        .pk-item.on { border-color: var(--ac); background: #f3f7ff; }
+        .pk-item img { width: 100%; height: 88px; object-fit: cover; border-radius: 5px; background: #f3efe6; display: block; }
+        .pk-art { height: 88px; display: flex; align-items: center; justify-content: center; border-radius: 5px; background: #f3efe6; overflow: hidden; }
+        .pk-art canvas { max-width: 100%; max-height: 88px; image-rendering: pixelated; }
+        .pk-item .id { font-family: ui-monospace, monospace; font-size: 10.5px; line-height: 1.3; word-break: break-all; margin-top: 4px; }
+        .pk-item .meta { font-size: 11px; color: #6b6b6b; }
+        .pk-foot { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--bd); }
+        .pk-foot .grow { flex: 1; font-size: 12px; color: #6b6b6b; }
+
         .row3 { display: grid; grid-template-columns: minmax(180px, .9fr) minmax(180px, .9fr) minmax(240px, 1.2fr); gap: 10px; }
         .row3 input, .row3 select { width: 100%; min-width: 0; }
         #new-prev { margin-top: 6px; font-size: 12px; color: #6b6b6b; min-height: 16px; }
@@ -148,7 +172,8 @@
             <div class="row3">
                 <div><label>章 id（小写字母/数字/连字符）</label><input id="new-id" placeholder="neon"></div>
                 <div><label>标题（橱窗/木牌展示名）</label><input id="new-title" placeholder="霓虹"></div>
-                <div><label>首关 boss（≤32 的可入关结果）</label><select id="new-result"></select></div>
+                <div><label>首关 boss（≤32 的可入关结果）</label>
+                    <button class="ghost" id="new-pick" style="width:100%">选首关 boss…</button></div>
             </div>
             <label>展示图（浏览器内自动缩到 256×256 PNG）</label>
             <input type="file" id="new-img" accept="image/png,image/jpeg">
@@ -156,6 +181,18 @@
             <button class="big" id="new-go">新建大关</button>
         </div>
     </main>
+    <div id="picker" hidden>
+        <div class="pk-box">
+            <div class="pk-head"><b id="pk-title">选择结果</b><span class="grow"></span><button class="ghost" id="pk-close">关闭</button></div>
+            <div class="pk-tools">
+                <input type="search" id="pk-q" placeholder="搜索 id / 盘面档位…">
+                <label><input type="checkbox" id="pk-small"> 只看单盘 ≤32（可入关）</label>
+                <span id="pk-count" style="font-size:12px;color:#6b6b6b"></span>
+            </div>
+            <div class="pk-grid" id="pk-grid"></div>
+            <div class="pk-foot"><span class="grow" id="pk-pick">未选择</span><button id="pk-ok" disabled>确认</button></div>
+        </div>
+    </div>
     <script>
         const $ = (id) => document.getElementById(id);
         const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -252,14 +289,100 @@
             });
         }
 
+        /** 把关卡 pattern 画成缩略图：1 格 = 1px，CSS 限幅放大后保持像素风。 */
+        function paintThumb(paint) {
+            const cv = document.createElement('canvas');
+            cv.width = Math.max(...paint.pattern.map((l) => l.length));
+            cv.height = paint.pattern.length;
+            const ctx = cv.getContext('2d');
+            paint.pattern.forEach((row, y) => {
+                for (let x = 0; x < row.length; x++) {
+                    const ch = row[x];
+                    if (ch === '.' || ch === 'x') continue;
+                    const hex = paint.colors[Number(ch) - 1];
+                    if (!hex) continue;
+                    ctx.fillStyle = hex;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            });
+            return cv;
+        }
+
+        // ── 选图器：缩略图网格（img 走 loading="lazy"，只有可视区才拉 /api/results/:id/thumb）──
+        let pkResolve = null, pkFilter = () => true, pkValue = '';
+
+        function pickResult(title, filter) {
+            return new Promise((resolve) => {
+                pkResolve = resolve;
+                pkFilter = filter || (() => true);
+                pkValue = '';
+                $('pk-title').textContent = title;
+                $('pk-q').value = '';
+                $('pk-small').checked = false;
+                $('pk-ok').disabled = true;
+                $('pk-pick').textContent = '未选择';
+                renderPicker();
+                $('picker').hidden = false;
+                $('pk-q').focus();
+                // 从生成页带来的 ?result= 自动预选（仅当它仍在当前候选里）
+                const hit = preselect && [...$('pk-grid').children].find((c) => c.dataset.id === preselect);
+                if (hit) hit.click();
+            });
+        }
+
+        function closePicker(value) {
+            $('picker').hidden = true;
+            const r = pkResolve;
+            pkResolve = null;
+            if (r) r(value || null);
+        }
+
+        function renderPicker() {
+            const q = $('pk-q').value.trim().toLowerCase();
+            const onlySmall = $('pk-small').checked;
+            const list = results.filter((r) => pkFilter(r) && (!onlySmall || (r.cols <= 32 && r.rows <= 32)) &&
+                (!q || r.id.toLowerCase().includes(q) || String(r.board || '').toLowerCase().includes(q)));
+            $('pk-count').textContent = `${list.length} 条`;
+            const grid = $('pk-grid');
+            grid.innerHTML = '';
+            for (const r of list) {
+                const b = document.createElement('button');
+                b.className = 'pk-item';
+                b.dataset.id = r.id;
+                if (r.hasThumb) {
+                    b.innerHTML = `<img loading="lazy" src="/api/results/${encodeURIComponent(r.id)}/thumb" alt="">`;
+                } else {
+                    // 旧条目没存原图缩略图：拉拼豆图案自己画（只拉缺图的那 88 条）
+                    const art = document.createElement('div');
+                    art.className = 'pk-art';
+                    b.appendChild(art);
+                    fetch(`/api/results/${encodeURIComponent(r.id)}/paint`).then((x) => (x.ok ? x.json() : null))
+                        .then((p) => { if (p && art.isConnected) art.appendChild(paintThumb(p)); }).catch(() => {});
+                }
+                const info = document.createElement('div');
+                info.innerHTML = `<div class="id">${esc(r.id)}</div><div class="meta">${r.cols}×${r.rows} · ${r.colors} 色</div>`;
+                b.appendChild(info);
+                b.onclick = () => {
+                    pkValue = r.id;
+                    for (const el of grid.children) el.classList.toggle('on', el.dataset.id === r.id);
+                    $('pk-ok').disabled = false;
+                    $('pk-pick').textContent = `已选 ${r.id}（${r.cols}×${r.rows} · ${r.colors} 色）`;
+                };
+                b.ondblclick = () => { pkValue = r.id; closePicker(r.id); }; // 双击直达
+                grid.appendChild(b);
+            }
+        }
+
+        $('pk-q').oninput = renderPicker;
+        $('pk-small').onchange = renderPicker;
+        $('pk-ok').onclick = () => pkValue && closePicker(pkValue);
+        $('pk-close').onclick = () => closePicker(null);
+        $('picker').onclick = (e) => { if (e.target === $('picker')) closePicker(null); };
+        addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('picker').hidden) closePicker(null); });
+
         function render() {
             if (!S) return;
             $('meta').textContent = `contentVersion ${S.contentVersion} · 关数 ${S.count} / DEMO_LEVEL_COUNT ${S.demoLevelCount} · 章容量 ${S.wallCapacity} 槽`;
-
-            // ── 新建大关的结果下拉（首关 boss 须单图 ≤32）──
-            const bossable = results.filter((r) => r.cols <= 32 && r.rows <= 32);
-            $('new-result').innerHTML = '<option value="">— 选结果 —</option>' + bossable.map((r) =>
-                `<option value="${esc(r.id)}">${esc(r.id)}（${r.cols}×${r.rows} · ${r.colors} 色）</option>`).join('');
 
             // ── 大关列表 ──
             const root = $('chapters');
@@ -324,6 +447,7 @@
                         `<span class="id">#${lv.id}${lv.idEnd !== undefined && lv.idEnd !== lv.id ? '–' + lv.idEnd : ''}</span>` +
                         `<span>${esc(lv.name || '(未命名)')}</span>` +
                         `<small>${esc(lv.kind)} · ${lv.cols}×${lv.rows}${lv.time !== undefined ? ' · ' + lv.time + 's' : ''} · ${lv.slots} 槽</small>`;
+                    if (lv.paint) row.prepend(paintThumb(lv.paint)); // 当前图案缩略图（plate 无 pattern ⇒ 不画）
 
                     const ops = document.createElement('div');
                     ops.className = 'ops';
@@ -344,17 +468,12 @@
                     }
                     if (lv.kind !== 'plate') {
                         // 替换图案：换 levelDraft 不动 uid/关号/章位/关名；plate 是多文件产物，须删后重导。
-                        const repl = select([{ value: '', label: '替换图案…' }, ...results.filter((r) => r.cols <= 32 && r.rows <= 32).map((r) => ({
-                            value: r.id, label: `${r.id}（${r.cols}×${r.rows} · ${r.colors} 色）`,
-                        }))], '', (v) => {
+                        ops.appendChild(btn('替换图案…', false, async () => {
+                            const v = await pickResult(`替换 ${lv.uid} 的图案`);
                             if (!v) return;
-                            if (!confirm(`用「${v}」替换 ${lv.uid} 的图案？关名/关号/章位不变，时长按实测重算。`)) {
-                                repl.value = '';
-                                return;
-                            }
+                            if (!confirm(`用「${v}」替换 ${lv.uid} 的图案？关名/关号/章位不变，时长按实测重算。`)) return;
                             op(`/api/manage/level/${lv.uid}/replace`, { resultId: v });
-                        });
-                        ops.appendChild(repl);
+                        }, 'ghost'));
                     }
                     if (others.length && !isBoss) {
                         const mv = select([{ value: '', label: '移章…' }, ...others.map((c) => ({ value: c.id, label: `→ ${c.title}` }))], '', (v) => {
@@ -375,21 +494,17 @@
                 });
                 card.appendChild(lvBox);
 
-                // ── 分大关导入：选一条结果 → 插本关 boss 前 ──
+                // ── 分大关导入：选一条结果（弹缩略图选择器）→ 插本关 boss 前 ──
                 const imp = document.createElement('div');
                 imp.className = 'bar';
-                const rsel = select(
-                    [{ value: '', label: '导入小关：选结果…' }, ...results.map((r) => ({
-                        value: r.id,
-                        label: `${r.id}（${r.cols}×${r.rows} · ${r.colors} 色${r.cols > 32 || r.rows > 32 ? ' · plate' : ''}）`,
-                    }))],
-                    preselect && results.some((r) => r.id === preselect) ? preselect : '',
-                );
-                rsel.className = 'grow';
-                imp.appendChild(rsel);
-                imp.appendChild(btn('导入到本章', false, () => {
-                    if (!rsel.value) return showErr('先在左侧选一条结果');
-                    op(`/api/results/${rsel.value}/ingest`, { chapter: ch.id });
+                const tip = document.createElement('span');
+                tip.style.cssText = 'font-size:12px;color:#6b6b6b';
+                tip.textContent = '分大关导入：';
+                imp.appendChild(tip);
+                imp.appendChild(btn('导入小关…', false, async () => {
+                    const v = await pickResult(`导入到「${ch.title}」（boss 前）`);
+                    if (!v) return;
+                    op(`/api/results/${v}/ingest`, { chapter: ch.id });
                 }));
                 card.appendChild(imp);
 
@@ -410,6 +525,16 @@
             }
         };
 
+        // 新建大关的首关 boss：走同一个缩略图选择器（只列单盘 ≤32）
+        let newBossResult = '';
+        $('new-pick').onclick = async () => {
+            const v = await pickResult('选首关 boss（单盘 ≤32）', (r) => r.cols <= 32 && r.rows <= 32);
+            if (!v) return;
+            newBossResult = v;
+            const r = results.find((x) => x.id === v) || {};
+            $('new-pick').textContent = `已选 ${v}（${r.cols}×${r.rows}）`;
+        };
+
         // 展示图预览：选文件时算一次缩到 256²，提交直接复用（省一次解码）。
         let coverDataUrl = '';
         $('new-img').onchange = async () => {
@@ -428,7 +553,7 @@
         $('new-go').onclick = async () => {
             const id = $('new-id').value.trim();
             const title = $('new-title').value.trim();
-            const resultId = $('new-result').value;
+            const resultId = newBossResult;
             const file = $('new-img').files[0];
             if (!id || !title || !resultId) return showErr('章 id / 标题 / 首关 boss 结果 三项必填');
             if (!file) return showErr('请选择展示图（PNG/JPEG，浏览器内缩到 256²）');
@@ -438,6 +563,8 @@
                 $('new-id').value = $('new-title').value = '';
                 $('new-img').value = '';
                 coverDataUrl = '';
+                newBossResult = '';
+                $('new-pick').textContent = '选首关 boss…';
                 $('new-prev').textContent = '';
             } catch (e) {
                 showErr(e.message);

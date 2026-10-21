@@ -12,6 +12,8 @@
  *        **随结果存盘** ⇒ 历史条目也能回看原图（只存在前端内存里刷新/切条目就丢）。
  *   GET  /api/results         → 结果列表（按盘面分组、时间倒序）
  *   GET  /api/results/:id     → 单个 result.json（小游戏在线导入用）
+ *   GET  /api/results/:id/thumb → 原图缩略图二进制（管理页选图器用；无 thumb ⇒ 404）
+ *   GET  /api/results/:id/paint → 拼豆图案（pattern + paletteHex，旧条目无原图缩略图时选图器自己画）
  *   GET  /api/results/:id/level → 直接回 levelDraft（小游戏字段最少化；不可入关 ⇒ 422 + 原因）
  *   DELETE /api/results/:id     → 删除该条结果（整目录；id 走 [a-z0-9-] 白名单，不可逆）
  *   POST /api/results/:id/ingest → 一键入关（WXG-T-341：body `{chapter}` 指定目标大关，插 boss 前）
@@ -175,14 +177,35 @@ const ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
  * ⚠️ 不能改 import `tuning.ts`：本服务跑在纯 Node、不编译 TS；VPS 容器模式（无 `games/`）
  * 也不能假设文件存在 ⇒ 读不到时回退 10（= 当前 demo 色板实长，不致误拦）。
  */
-const DEMO_PALETTE_LEN = (() => {
+const DEMO_PALETTE = (() => {
     try {
         const p = JSON.parse(readFileSync(join(REPO, 'games/beads/design/levels/palette.json'), 'utf8'));
-        return Array.isArray(p.palette) && p.palette.length > 0 ? p.palette.length : 10;
+        return Array.isArray(p.palette) ? p.palette : [];
     } catch {
-        return 10;
+        return [];
     }
 })();
+const DEMO_PALETTE_LEN = DEMO_PALETTE.length || 10;
+
+/** 品牌色号 → hex（当前仅 artkal-s；容器无 games/ ⇒ 空表，管理页本身也 501）。 */
+const BRAND_HEX = (() => {
+    try {
+        const p = JSON.parse(readFileSync(join(REPO, 'games/beads/design/art/specs/artkal-palette.json'), 'utf8'));
+        return Object.fromEntries(p.codes.map((c, i) => [c, p.palette[i]]));
+    } catch {
+        return {};
+    }
+})();
+
+/** 关卡图案 → 管理页画图数据：pattern 行 + 索引 1 起对应的 hex。
+ *  口径同游戏端 BOOT：有品牌引用走 `paletteCodes` 查 hex，否则回落 demo 十色。 */
+function paintOf(obj) {
+    if (!Array.isArray(obj.pattern)) return null;
+    const colors = obj.palette && obj.palette !== '10' && Array.isArray(obj.paletteCodes)
+        ? obj.paletteCodes.map((c) => BRAND_HEX[c] || '#999999')
+        : DEMO_PALETTE;
+    return { pattern: obj.pattern, colors };
+}
 
 /**
  * 逐格数错位颗数（`report.mis` 缺失时的兜底）：两盘同序映射 ⇒ 直接比字符即可，
@@ -447,7 +470,7 @@ function describeChapters(levelsDir, store, ls) {
             const base = { uid, kind: e.kind, file: e.file, slots: ex?.slots ?? 1, name: obj.name ?? '' };
             if (e.kind === 'plate')
                 return { ...base, id: ex?.ids?.[0], idEnd: ex?.ids?.[(ex?.ids?.length ?? 1) - 1], cols: obj.gridCols, rows: obj.gridRows };
-            return { ...base, id: obj.id, cols: obj.cols, rows: obj.rows, time: obj.time };
+            return { ...base, id: obj.id, cols: obj.cols, rows: obj.rows, time: obj.time, paint: paintOf(obj) };
         });
         return {
             id: c.id, order: c.order, open: !!c.open, file: c.file,
@@ -1163,6 +1186,34 @@ async function handle(req, res) {
             return sendJson(res, 404, { error: 'not found' });
         }
         if (req.method === 'GET' && path === '/api/results') return sendJson(res, 200, { results: listResults() });
+        // 原图缩略图二进制（管理页选图器逐个懒加载；dataURL 解码后直接回图片，省前端一次 base64 转换）
+        const mt = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})\/thumb$/);
+        if (req.method === 'GET' && mt) {
+            for (const board of existsSync(DATA) ? readdirSync(DATA) : []) {
+                const f = join(DATA, board, mt[1], 'result.json');
+                if (!existsSync(f)) continue;
+                const r = JSON.parse(readFileSync(f, 'utf8'));
+                const dm = typeof r.thumb === 'string' && r.thumb.match(/^data:(image\/[a-z0-9.+-]+);base64,([\s\S]+)$/i);
+                if (!dm) return sendJson(res, 404, { error: '该结果无缩略图' });
+                res.setHeader('Cache-Control', 'public, max-age=86400'); // 结果存盘后不再变，选图器反复开关不重拉
+                return send(res, 200, Buffer.from(dm[2], 'base64'), dm[1]);
+            }
+            return sendJson(res, 404, { error: 'not found' });
+        }
+        // 拼豆图案投影（旧条目没有原图 thumb，选图器用 pattern+paletteHex 自己画缩略图）
+        const mp = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})\/paint$/);
+        if (req.method === 'GET' && mp) {
+            for (const board of existsSync(DATA) ? readdirSync(DATA) : []) {
+                const f = join(DATA, board, mp[1], 'result.json');
+                if (!existsSync(f)) continue;
+                const r = JSON.parse(readFileSync(f, 'utf8'));
+                if (!Array.isArray(r.pattern) || !Array.isArray(r.paletteHex))
+                    return sendJson(res, 404, { error: '该结果无图案数据' });
+                res.setHeader('Cache-Control', 'public, max-age=86400');
+                return sendJson(res, 200, { pattern: r.pattern, colors: r.paletteHex });
+            }
+            return sendJson(res, 404, { error: 'not found' });
+        }
         // [WXG-T-341] 大关管理（全部仅本地仓；handler 内守 501）：状态/校验/建章/章操作/关操作。
         if (req.method === 'GET' && path === '/api/manage/state') return handleManageState(res);
         if (req.method === 'POST' && path === '/api/manage/verify') return handleManageVerify(res);
