@@ -1,6 +1,21 @@
 {
   "exempt": [
     {
+      "path": "docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md",
+      "reason": "ADR 正本（决策 + 实测取证 + 施工清单 + 变异自证须同页互查）；与 ADR-0011/0015/0020/0022/0023/0024/0030 同族已走豁免，读取走 ctx 章节锚点局部读（§1 上下文 / §3 DEC / §6 施工清单 / §7 提问单），从不整读；拆分会切断 DEC↔取证行号的互证链",
+      "taskId": "WXG-T-343"
+    },
+    {
+      "path": "games/beads/design/gdd/save-progress.md",
+      "reason": "S8 存档系统 GDD 正本（§2 字段语义 / §2.4 降级矩阵 / §2.6 存档换制 / §8 判据族须同页互查，QA 按 §8 逐条造用例）；与 systems-index / core-loop / input-control / pause-settings / bead-grid 同族，按章节锚点局部读、从不整读（本件自 WXG-T-343 起 v1.3 扩容越 B 门）",
+      "taskId": "WXG-T-343"
+    },
+    {
+      "path": "games/beads/design/gdd/meta-ui.md",
+      "reason": "元游戏界面 GDD 正本（§2.7 两层口径需与 §3 版式与 §8 判据同页互查）；同族 GDD/UX 件已走豁免，本件由 WXG-T-343 新增 §2.7 后越 B 门，按章节锚点局部读、从不整读",
+      "taskId": "WXG-T-343"
+    },
+    {
       "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.de.md",
       "reason": "第三方 vendor 插件（cocos-mcp-server v1.5.4）自带的官方多语言 README，非本仓创作文档；不得改写拆分（破坏与上游一致性），已被 ctx 索引按章节锚点覆盖",
       "taskId": "WXG-T-042"

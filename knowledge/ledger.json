@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 153,
+  "nextId": 155,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2543,6 +2543,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-153",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "双轨并行 spawn 会在同一工作树上制造「预设冲突」——汇编时必须逐条追问「这条结论在谁的形态选择下才成立」",
+      "contentHash": "6995a82ec14a3bfb2d18be69d0035d057a85a40f7c9eb02ce3eb401e62668e28",
+      "sourceTask": "WXG-T-343",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-154",
+      "state": "active",
+      "file": "knowledge/lessons/doc-reference.md",
+      "category": "文档引用",
+      "title": "文档内部编号裸用会构成跨角色上下文断链；转述层必须先给人话结论，编号只作括号附注 + 出处链接",
+      "contentHash": "0497c61a1d163178df7bdc15d578a586c7545a84e39133991c918249e14be7a7",
+      "sourceTask": "WXG-T-343",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3836,6 +3870,25 @@
       "kind": "updated",
       "ids": [
         "K-151"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-343",
+      "kind": "added",
+      "ids": [
+        "K-153",
+        "K-154"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-343",
+      "kind": "updated",
+      "ids": [
+        "K-154"
       ],
       "note": null
     }
