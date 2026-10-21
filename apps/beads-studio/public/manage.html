@@ -131,6 +131,7 @@
         .pk-tools { display: flex; gap: 10px; align-items: center; padding: 8px 14px; border-bottom: 1px solid #f1ede4; flex-wrap: wrap; }
         .pk-tools input[type="search"] { flex: 1; min-width: 160px; }
         .pk-tools label { margin: 0; font-size: 12px; color: #444; white-space: nowrap; }
+        .pk-tools label[hidden] { display: none; } /* label 的 display:block 会盖掉 UA 的 [hidden] */
         .pk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; padding: 12px 14px; overflow: auto; flex: 1; }
         .pk-item { margin: 0; padding: 6px; text-align: left; background: #fff; border: 2px solid transparent; border-radius: 8px; color: var(--tx); }
         .pk-item:hover { border-color: #b9cdf8; }
@@ -190,7 +191,8 @@
             <div class="pk-head"><b id="pk-title">选择结果</b><span class="grow"></span><button class="ghost" id="pk-close">关闭</button></div>
             <div class="pk-tools">
                 <input type="search" id="pk-q" placeholder="搜索 id / 盘面档位…">
-                <label><input type="checkbox" id="pk-small"> 只看单盘 ≤32（可入关）</label>
+                <label><input type="checkbox" id="pk-small"> 只看单盘 ≤32</label>
+                <label id="pk-okonly-wrap" hidden><input type="checkbox" id="pk-okonly" checked> 只看可入关</label>
                 <span id="pk-count" style="font-size:12px;color:#6b6b6b"></span>
             </div>
             <div class="pk-grid" id="pk-grid"></div>
@@ -385,6 +387,9 @@
                 $('pk-title').textContent = title;
                 $('pk-q').value = '';
                 $('pk-small').checked = false;
+                // 「只看可入关」仅多选（批量导入）有意义：其它入口已在 filter 里排除不可入关条目
+                $('pk-okonly-wrap').hidden = !pkMulti;
+                $('pk-okonly').checked = true;
                 $('pk-ok').disabled = true;
                 $('pk-pick').textContent = '未选择';
                 renderPicker();
@@ -406,9 +411,13 @@
         function renderPicker() {
             const q = $('pk-q').value.trim().toLowerCase();
             const onlySmall = $('pk-small').checked;
-            const list = results.filter((r) => pkFilter(r) && (!onlySmall || (r.cols <= 32 && r.rows <= 32)) &&
-                (!q || r.id.toLowerCase().includes(q) || String(r.board || '').toLowerCase().includes(q)));
-            $('pk-count').textContent = `${list.length} 条`;
+            const onlyOk = $('pk-okonly-wrap').hidden ? false : $('pk-okonly').checked;
+            const match = (r) => pkFilter(r) && (!onlySmall || (r.cols <= 32 && r.rows <= 32)) &&
+                (!q || r.id.toLowerCase().includes(q) || String(r.board || '').toLowerCase().includes(q));
+            const list = results.filter((r) => match(r) && (!onlyOk || r.importable !== false));
+            // 默认只看可入关：计数里告知隐藏了多少条，需要时取消勾选即可查看原因
+            const hidden = onlyOk ? results.filter((r) => match(r) && r.importable === false).length : 0;
+            $('pk-count').textContent = `${list.length} 条` + (hidden ? `（已隐藏 ${hidden} 条不可入关）` : '');
             const grid = $('pk-grid');
             grid.innerHTML = '';
             for (const r of list) {
@@ -459,6 +468,7 @@
 
         $('pk-q').oninput = renderPicker;
         $('pk-small').onchange = renderPicker;
+        $('pk-okonly').onchange = renderPicker;
         $('pk-ok').onclick = () => {
             if (pkMulti) { if (pkPicked.length) closePicker([...pkPicked]); }
             else if (pkValue) closePicker(pkValue);
