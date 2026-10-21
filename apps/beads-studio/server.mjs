@@ -154,13 +154,16 @@ function listResults() {
         for (const id of readdirSync(dir)) {
             try {
                 const r = JSON.parse(readFileSync(join(dir, id, 'result.json'), 'utf8'));
+                const blockers = importBlockers(r, { allowOversize: true }); // 与导入口径一致（大图可切块）
                 out.push({
                     id: r.id, board: r.board, cols: r.cols, rows: r.rows, shape: r.shape,
                     palette: r.palette, colors: r.colors, swaps: r.swaps, misMode: r.misMode || 'swaps', createdAt: r.createdAt,
                     // 占槽：与 level-slice 同口径（每方向 ceil(n/32) 段），≤32 为 1
                     slots: Math.max(1, Math.ceil(r.cols / 32)) * Math.max(1, Math.ceil(r.rows / 32)),
-                    // 旧条目（本次字段上线前存盘）没有 importable ⇒ 回落实 算，与 /level 端点同口径
-                    hasThumb: !!r.thumb, importable: r.importable ?? (importBlockers(r).length === 0),
+                    // 判据实时重算（快照会因判据演进失效）；原因只带前 2 条，防列表膨胀
+                    importable: blockers.length === 0,
+                    blockers: blockers.slice(0, 2), blockerCount: blockers.length,
+                    hasThumb: !!r.thumb,
                 });
             } catch {
                 /* 跳过损坏条目 */

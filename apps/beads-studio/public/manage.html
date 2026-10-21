@@ -135,6 +135,9 @@
         .pk-item { margin: 0; padding: 6px; text-align: left; background: #fff; border: 2px solid transparent; border-radius: 8px; color: var(--tx); }
         .pk-item:hover { border-color: #b9cdf8; }
         .pk-item.on { border-color: var(--ac); background: #f3f7ff; }
+        .pk-item.off { opacity: .45; cursor: not-allowed; }
+        .pk-item.off:hover { border-color: transparent; }
+        .pk-item .why { font-size: 10.5px; color: var(--danger); line-height: 1.35; margin-top: 2px; }
         .pk-item img { width: 100%; height: 88px; object-fit: cover; border-radius: 5px; background: #f3efe6; display: block; }
         .pk-art { height: 88px; display: flex; align-items: center; justify-content: center; border-radius: 5px; background: #f3efe6; overflow: hidden; }
         .pk-art canvas { max-width: 100%; max-height: 88px; image-rendering: pixelated; }
@@ -318,7 +321,8 @@
                 if (!stRes.ok) throw new Error(st.error || ('HTTP ' + stRes.status));
                 S = st;
                 const rs = await rsRes.json().catch(() => ({ results: [] }));
-                results = (rs.results || []).filter((r) => r.importable !== false);
+                // 全量保留（含不可入关的）：由各入口 filter 决定可见性——批量导入故意展示灰卡+原因（告知为什么不行）
+                results = rs.results || [];
                 render();
             } catch (e) {
                 showErr('加载失败：' + e.message);
@@ -408,9 +412,11 @@
             const grid = $('pk-grid');
             grid.innerHTML = '';
             for (const r of list) {
+                const bad = r.importable === false; // 不可入关：灰显 + 禁点 + 原因（避免勾到最后被预检拒）
                 const b = document.createElement('button');
-                b.className = 'pk-item';
+                b.className = 'pk-item' + (bad ? ' off' : '');
                 b.dataset.id = r.id;
+                b.disabled = bad;
                 if (pkPicked.includes(r.id)) b.classList.add('on'); // 多选：搜索/筛选重绘后保留已勾选态
                 if (r.hasThumb) {
                     b.innerHTML = `<img loading="lazy" src="/api/results/${encodeURIComponent(r.id)}/thumb" alt="">`;
@@ -424,7 +430,8 @@
                 }
                 const info = document.createElement('div');
                 info.innerHTML = `<div class="id">${esc(r.id)}</div><div class="meta">${r.cols}×${r.rows} · ${r.colors} 色` +
-                    `${r.slots > 1 ? ` · 占 ${r.slots} 槽` : ''}</div>`;
+                    `${r.slots > 1 ? ` · 占 ${r.slots} 槽` : ''}</div>` +
+                    (bad ? `<div class="why">不可入关：${esc(r.blockers?.[0] || '判据未通过')}${r.blockerCount > 1 ? `（共 ${r.blockerCount} 条）` : ''}</div>` : '');
                 b.appendChild(info);
                 b.onclick = () => {
                     if (pkMulti) {
@@ -549,7 +556,7 @@
                     if (lv.kind !== 'plate') {
                         // 替换图案：换 levelDraft 不动 uid/关号/章位/关名；plate 是多文件产物，须删后重导。
                         ops.appendChild(btn('替换图案…', false, async () => {
-                            const v = await pickResult(`替换 ${lv.uid} 的图案`);
+                            const v = await pickResult(`替换 ${lv.uid} 的图案`, (r) => r.importable !== false);
                             if (!v) return;
                             if (!confirm(`用「${v}」替换 ${lv.uid} 的图案？关名/关号/章位不变，时长按实测重算。`)) return;
                             op(`/api/manage/level/${lv.uid}/replace`, { resultId: v });
@@ -617,7 +624,7 @@
         // 新建大关的首关 boss：走同一个缩略图选择器（只列单盘 ≤32）
         let newBossResult = '';
         $('new-pick').onclick = async () => {
-            const v = await pickResult('选首关 boss（单盘 ≤32）', (r) => r.cols <= 32 && r.rows <= 32);
+            const v = await pickResult('选首关 boss（单盘 ≤32）', (r) => r.importable !== false && r.cols <= 32 && r.rows <= 32);
             if (!v) return;
             newBossResult = v;
             const r = results.find((x) => x.id === v) || {};
