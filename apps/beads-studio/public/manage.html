@@ -165,6 +165,7 @@
         </div>
         <div id="err"></div>
         <div id="log"></div>
+        <button id="cancel" hidden style="position:fixed;right:24px;bottom:24px;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,.18)">取消导入</button>
         <div id="chapters"></div>
 
         <div class="card">
@@ -199,6 +200,7 @@
 
         let S = null;
         let results = [];
+        let importCtl = null; // 批量导入进行中的 AbortController（「取消导入」用）
         const preselect = new URLSearchParams(location.search).get('result') || '';
 
         function showErr(msg) {
@@ -255,14 +257,20 @@
         }
 
         /** 批量导入（流式回显）：服务端按 NDJSON 逐条报告测量进度，避免大图连测时页面像卡死。
-         *  落盘仍是服务端同一事务；失败时红字转达（真源已回滚）。 */
+         *  落盘仍是服务端同一事务；失败时红字转达（真源已回滚）。
+         *  右下角「取消导入」= AbortController 断开：服务端在条目间停（服务端侧已在测的那条会跑完）。 */
         async function importBatch(chapterId, ids) {
+            if (importCtl) return; // 同时只跑一个批量导入
+            const ac = new AbortController();
+            importCtl = ac;
+            $('cancel').hidden = false;
             showLog([`批量导入：共 ${ids.length} 条，开始预检…`]);
             try {
                 const res = await fetch(`/api/manage/chapter/${chapterId}/import`, {
                     method: 'POST',
                     headers: { 'content-type': 'application/json' },
                     body: JSON.stringify({ resultIds: ids, stream: true }),
+                    signal: ac.signal,
                 });
                 if (!(res.headers.get('content-type') || '').includes('application/x-ndjson')) {
                     const j = await res.json().catch(() => ({}));
@@ -293,7 +301,12 @@
                 showLog([...(final.log || []), `关数 ${final.count}（DEMO_LEVEL_COUNT 已联动）`]);
                 await reload();
             } catch (e) {
-                showErr(e.message);
+                if (e.name === 'AbortError')
+                    showErr('已取消导入：后续条目不再测量；若已进入写盘阶段，服务端会跑完本次事务（刷新页面核对）');
+                else showErr(e.message);
+            } finally {
+                importCtl = null;
+                $('cancel').hidden = true;
             }
         }
 
@@ -583,6 +596,13 @@
             } catch (e) {
                 showErr(e.message);
             }
+        };
+
+        // 取消导入：断开连接即可，服务端在下一个条目开始前停（正在测的那条会跑完）
+        $('cancel').onclick = () => {
+            if (!importCtl) return;
+            importCtl.abort();
+            showLog(['正在取消…（当前这条测完就停，不写盘）']);
         };
 
         // 新建大关的首关 boss：走同一个缩略图选择器（只列单盘 ≤32）
