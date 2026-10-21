@@ -3495,6 +3495,19 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-340
+
+**工程·beads 选关页空带大关名（`levels-spec §11.4` TODO-1 接线）落码批（用户对 339 回传后续选项选 B） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）**
+
+- **背景**：WXG-T-334 时代真机报 4 项缺陷之④的收尾半——选关页大关标题应显示章名（用户原话「第9关希望显示大关的名字，比如教学」）。CH-S3（title 上移）已闭、`levels-spec §11.4` 已裁「显示、进顶部空带 [822,1122]」，本批 = 该裁定的接线落码 + 金样本重抓。
+- **确诊**：选关页空带 [822,1122] 从无绘制（`drawLevelsPage` 只画标题带「选关」；「第9关」= 木牌 `drawPlateTitle` 旧观感残留，选关页本身从未画过它）；取数唯一正确来源 = `PhaseRouteBinder.levelsArc`（binder 注释原文：「`levels` 页的大关上下文（`_wallSlotsFor` 的唯一来源）」）。
+- **修法（三件，正本 §11.4 钉死零分叉）**：① `MetaViewData` 加 `chapterTitle?: string`（注释声明：视图不查表、⛔ 不借 boss 关派生 `title` 作第二通道）；② shell `_metaViewData` 塞 `ARCS[this._phase.levelsArc]?.title`（与选关墙同源）；③ `drawLevelsPage` 空带 [LEVELS_GRID_TOP, navTop - LEVELS_NAV_H] 有值才建节点、居中带心、字号取 `UI_FONT.overlayTitle`。**R1** = 有 title 原样渲染（不拼前缀 / 不加序号）；**R2** = 无值不建文本节点（兜底零猜测）。带内 y / 字号正本明标 `[TODO]` 归 art 批 ⇒ 本批取占位（带中心 + 页头同档字）。
+- **文件面**：`src/view/meta-view.ts`（字段 + 空带绘制 + `navTop` 提取共用）+ `src/game/beads-shell.ts`（`_viewData` 初始化 + 塞值）；cocos 镜像 2 件（`framework:sync`）；测试 1 件：`arc-level-select-page.test.ts` 新 describe 2 例（R1 落位断言 / R2 空带零文本节点反证）。
+- **金样本**（先登记 ⇒ 重抓；K-051 / K-053 / ADR-0032 DEC-6）：先跑对拍 = 恰 `level-select` / `level-select-mid` 两态红（其余九态绿）；capture 两遍确定性重抓（`WXG298_SOURCE_REV=3609dcb`）⇒ 夹具 diff 恰 7 行：`capturedFrom` = `3609dcb · 选关页空带大关名（WXG-T-340）` + 两态 sha/total/kinds.text（level-select `d4aee179…`→`e193506e…`、total 1421→1422、text 11→12；level-select-mid `22d0adc7…`→`5c668385…`、total 5083→5084、text 17→18），其余九态 sha 逐字未变。`--dump` 机械证据：帧内 `{"kind":"text","x":375,"y":972,"text":"曼陀罗","fill":"#2A2E43","font":"40px sans-serif"}`（x=DESIGN_W/2、y=空带中心 972）且全帧集仅两态含「曼陀罗」。
+- **登记**：`ui-architecture-beads §12` UI-34 行视觉变更登记（K-051 / K-053 / ADR-0032 DEC-6：先裁定再重抓）。
+- **验证**：beads 全量 98 文件 **1140 过 + 3 skip**（较 339 批 1138 +2 = 本批新例）；`framework:sync:check` 绿；`verify` PASS 22。
+- **未做**：①半透（UI-60 容器层，ADR-0033）/ ②BD-62（末张卡左右可见性方向反）/ ③橱窗灯光（美术资产）/ ④暗线；空带带内 y / 字号微调（art 批 `[TODO]`）。
+
 ## WXG-T-339
 
 **工程·beads 真机缺陷①「设置弹窗标题压首行」修复批（用户对 338 回传后续选项选 B） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）**

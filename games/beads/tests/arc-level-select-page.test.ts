@@ -124,3 +124,32 @@ describe('UI-34 整页 —— 无遮罩、无纸面板、标题住导航栏带',
         }
     });
 });
+
+describe('UI-34 空带大关名（[WXG-T-340] · levels-spec §11.4）', () => {
+    const textsOf = (extra: Partial<MetaViewData>) => {
+        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        builder.begin();
+        buildMetaView(builder, dataFor(extra), DEFAULT_PALETTE);
+        return builder.end().commands.filter((c) => c.kind === 'text') as unknown as
+            { text: string; x: number; y: number }[];
+    };
+    // 空带 [822,1122] = [LEVELS_GRID_TOP, navTop−NAV_H] 内的文本节点计数。
+    const inBand = (c: { y: number }) => c.y >= LEVELS_GRID_TOP && c.y <= LEVELS_NAV_TOP - LEVELS_NAV_H;
+
+    it('R1 有 title：原样落带中心；标题带仍是「选关」（两处不得同文互换，A3）', () => {
+        const named = textsOf({ chapterTitle: '曼陀罗' });
+        const title = named.find((c) => c.text === '曼陀罗');
+        expect(title).toBeDefined();
+        expect(title!.x).toBe(DESIGN_W / 2);
+        expect(title!.y).toBe((LEVELS_GRID_TOP + LEVELS_NAV_TOP - LEVELS_NAV_H) / 2);
+        expect(named.some(
+            (c) => c.text === COPY_TOKENS.btn_levels_label && c.y === LEVELS_NAV_TOP - LEVELS_NAV_H / 2,
+        )).toBe(true);
+    });
+
+    it('R2 无 title：空带内零文本节点（兜底不猜测；⛔ 不回落关序/slug）', () => {
+        const bare = textsOf({});
+        expect(bare.filter(inBand), '无 chapterTitle ⇒ 不创建空带节点').toHaveLength(0);
+        expect(textsOf({ chapterTitle: '曼陀罗' }).filter(inBand), '对照：有值恰一枚').toHaveLength(1);
+    });
+});

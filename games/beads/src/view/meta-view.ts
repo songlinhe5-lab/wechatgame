@@ -129,6 +129,12 @@ export interface MetaViewData {
      * 0 = 只见菜单、1 = 只见整页（且等于无转场帧）⇒ 金样本 / 封箱基线零漂移。
      */
     readonly pageFade?: number;
+    /**
+     * `[WXG-T-340]` 选关页空带大关名（`levels-spec §11.4` R1：shell 按 `ARCS[页].title` 塞入，
+     * ⛔ 视图不查表、⛔ 不借 boss 关派生 `title` 作第二通道）。缺省 / 空串 ⇒ 空带留白，
+     * **不创建文本节点**（R2，兜底不猜测）。
+     */
+    readonly chapterTitle?: string;
     /** 当日签到格（`claims % 7`）。 */
     readonly signinDay: number;
     readonly canClaim: boolean;
@@ -1269,12 +1275,23 @@ function drawLevelsPage(
     thumbN: number,
 ): void {
     // 标题带顶缘优先读逐机锚（`btTopY` = 胶囊底缘派生），无接口宿主落 `LEVELS_NAV_TOP` 兜底。
-    builder.text(DESIGN_W / 2, (data.anchors?.btTopY ?? LEVELS_NAV_TOP) - LEVELS_NAV_H / 2, COPY_TOKENS.btn_levels_label, {
+    const navTop = data.anchors?.btTopY ?? LEVELS_NAV_TOP;
+    builder.text(DESIGN_W / 2, navTop - LEVELS_NAV_H / 2, COPY_TOKENS.btn_levels_label, {
         fill: palette.text,
         font: UI_FONT.overlayTitle,
         align: 'center',
         baseline: 'middle',
     });
+    // `[WXG-T-340]` 空带 [LEVELS_GRID_TOP, navTop−NAV_H] 大关名（§11.4：R1 原样；R2 无值不建节点）。
+    // 带内 y / 字号属 art 批 `[TODO]` ⇒ 本批取带中心 + 页头同档字（接线批，视觉微调另批）。
+    if (data.chapterTitle) {
+        builder.text(DESIGN_W / 2, (LEVELS_GRID_TOP + navTop - LEVELS_NAV_H) / 2, data.chapterTitle, {
+            fill: palette.text,
+            font: UI_FONT.overlayTitle,
+            align: 'center',
+            baseline: 'middle',
+        });
+    }
     // 作品格与旧橱窗**同一 renderer**（珠拼缩略 + 星级 + 当前高亮 / 未解锁锁格）；back 走通用钮。
     // ⚠ 钮取自调用方的 `metaLayout` 缓存（⛔ 不在此重建 `levelsLayout`）⇒ `pressed` 对象身份比对仍成立。
     for (const b of buttons) {

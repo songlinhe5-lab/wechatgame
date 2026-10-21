@@ -172,6 +172,8 @@ export class BeadsShell implements Game {
         skinId: DEFAULT_SKIN_ID,
         /** `[WXG-T-314]` 选关页转场不透明度（缺省 = 无转场；每帧由 `_metaViewData` 覆写）。 */
         pageFade: undefined as number | undefined,
+        /** `[WXG-T-340]` 选关页空带大关名（每帧由 `_metaViewData` 按 `ARCS[页].title` 覆写）。 */
+        chapterTitle: undefined as string | undefined,
         levelCount: 0,
         currentLevelIndex: 0,
         maxUnlockedLevel: 1,
@@ -722,6 +724,8 @@ export class BeadsShell implements Game {
             : this._pageFxDir === 1
                 ? 1 - (1 - this._pageFxT) * (1 - this._pageFxT)
                 : 1 - this._pageFxT * this._pageFxT;
+        // `[WXG-T-340]` 选关页空带大关名（§11.4：与墙同源 = `levelsArc` 的大关 title；⛔ 不借 boss 关派生 title）。
+        v.chapterTitle = ARCS[this._phase.levelsArc]?.title;
         v.signinDay = m ? m.signinDay : 0;
         v.canClaim = m ? m.canClaim : false;
         v.bgmMuted = this.play.bgmMuted;

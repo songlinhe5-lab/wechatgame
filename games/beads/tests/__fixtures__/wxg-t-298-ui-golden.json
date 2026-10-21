@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "90e0e11 · 设置弹窗标题压首行修复（WXG-T-339）",
+  "capturedFrom": "3609dcb · 选关页空带大关名（WXG-T-340）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -54,14 +54,14 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 1421,
+      "total": 1422,
       "kinds": {
-        "text": 11,
+        "text": 12,
         "rect": 210,
         "polygon": 800,
         "circle": 400
       },
-      "sha": "d4aee179c817ee9674cfa965dd27a7107c47ab5f30324ee544d7bc613c9bdb29",
+      "sha": "e193506ec3aaeb840aa8d63bc3426b1f16d50f76ffc5e22c61ea2c87199260cf",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -74,17 +74,17 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 5083,
+      "total": 5084,
       "kinds": {
         "circle": 1365,
         "line": 295,
         "rect": 692,
-        "text": 17,
+        "text": 18,
         "clip": 1,
         "polygon": 2712,
         "unclip": 1
       },
-      "sha": "22d0adc76ee10422527583eb9c429a2cc8918a7383a790d7edddeffc60bfa0c6",
+      "sha": "5c668385db7928043a2eda5edac94b985f05d95a29d371403db89df6565affa1",
       "background": "#F1E8D8",
       "transform": null
     },
