@@ -2481,8 +2481,8 @@
       "state": "active",
       "file": "knowledge/lessons/criteria-measure.md",
       "category": "判据实测",
-      "title": "组合图（plate）满密度宫进不了「普通关」：规格要的「≤60% 整区域就位」档工具没实现（已补），补完实测又拓出两件事——规格那句「reg60 = 90–96 taps 达标」是旧尺读数（现尺同一构造 229–257 steps），而门禁⑦ 对 boss 只设下限 ⇒ 出口在 boss 档不在普通关档",
-      "contentHash": "5428f6d1e63af1c6bec68d80a064b644c1b779d79fa1171d6341653dccbc06bb",
+      "title": "组合图（plate）满密度宫进不了「普通关」：规格要的「≤60% 整区域就位」档工具没实现（已补），补完实测又拓出两件事——规格那句「reg60 = 90–96 taps 达标」绑的是旧尺＋合成大色块盘（真实照片同构造现尺要 229–257 步），而门禁⑦ 对 boss 只设下限 ⇒ 出口在 boss 档不在普通关档",
+      "contentHash": "c1e438eac60a12f410db637234e60721d6ae51ddf68609495917c078d9d4c543",
       "sourceTask": "WXG-T-341",
       "addedDate": "2026-10-21",
       "lastAccess": "2026-10-21",
@@ -3757,6 +3757,15 @@
         "K-149"
       ],
       "note": "K-149 三次订正：门禁⑦ 对 boss 只设下限（真闸函数探测），满盘照片出口在 boss 档而非普通关档"
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-341",
+      "kind": "updated",
+      "ids": [
+        "K-149"
+      ],
+      "note": "K-149 第四版：同尺 A/B 拆开变量，5 倍差归因从尺子改为素材连通度；压块有天花板（4×4 起 no-move 死锁）"
     }
   ]
 }
