@@ -781,8 +781,9 @@ async function handleChapterOp(req, res, id, op) {
     });
 }
 
-/** POST /api/manage/level/:uid/(remove|move|rename|boss)。 */
+/** POST /api/manage/level/:uid/(remove|move|rename|boss|replace)。 */
 async function handleLevelOp(req, res, uid, op) {
+    if (op === 'replace') return handleLevelReplace(req, res, uid);
     const body = await readJsonBody(req);
     return applyManage(res, (ctx) => {
         const { store, levelsDir, ls } = ctx;
@@ -838,6 +839,56 @@ async function handleLevelOp(req, res, uid, op) {
             return { manifest: next, log: [`${uid} 设为 boss（原 boss ${oldBoss} 降为普通关）`] };
         }
         throw new ManageError(`未知操作 ${op}`);
+    });
+}
+
+/**
+ * POST /api/manage/level/:uid/replace {resultId} —— 用另一份生成结果替换该关图案。
+ * uid / 关号 / 章位 / 关名全不变，只有图案与实测时长（pricing 溯源）换新。
+ * 只支持单文件关（single / boss）：plate 是多文件逐格产物，删后按「分大关导入」重建。
+ * 测量在事务外；写盘由 applyManage 快照兜底。字段**显式重建**（不 spread 旧对象）——
+ * 旧的 misplaced / paletteCodes 对新图案是脏数据。
+ */
+async function handleLevelReplace(req, res, uid) {
+    const body = await readJsonBody(req);
+    if (!existsSync(LEVELS_DIR))
+        return sendJson(res, 501, { error: '大关管理仅在本地仓运行 beads-studio 时可用（容器/VPS 无 games/ 真源）' });
+    const ls = await import('../../tools/scripts/level-store.mjs');
+    const entry0 = ls.readManifest(LEVELS_DIR).entries.find((x) => x.uid === uid);
+    if (!entry0) return sendJson(res, 404, { error: `关卡 ${uid} 不在 manifest` });
+    if (entry0.kind === 'plate')
+        return sendJson(res, 422, { error: '组合图（plate）暂不支持单关替换图案：请删该关后按大关导入重建（多格逐格实测）' });
+    const found = findResultFile(String(body.resultId ?? ''));
+    if (!found) return sendJson(res, 404, { error: '替换用结果 id 不存在' });
+    const { r, file: resultFile } = found;
+    if (r.cols > 32 || r.rows > 32)
+        return sendJson(res, 422, { error: `结果盘 ${r.cols}×${r.rows} 超单图上限 32：超 32 请走大关导入（plate 切片）` });
+    const blockers = importBlockers(r);
+    if (blockers.length) return sendJson(res, 422, { error: '该结果不可替换：' + blockers.join('；') });
+    const d = r.levelDraft;
+    if (!d || !Array.isArray(d.pattern)) return sendJson(res, 422, { error: '结果无 levelDraft（交换错位 k 需 ≥ 1）' });
+    const brandSlug = r.palette && r.palette !== '10' ? r.palette : null;
+    if (brandSlug && (!Array.isArray(d.paletteCodes) || d.paletteCodes.length !== r.colors))
+        return sendJson(res, 422, { error: '草案缺 paletteCodes（旧记录请重新生成；v1.40 关卡存品牌色号而非 hex）' });
+    const measured = measureWithBot(resultFile);
+    if (!measured) return sendJson(res, 500, { error: 'beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底' });
+    if (measured.blockers.length) return sendJson(res, 422, { error: '该结果不可替换：' + measured.blockers.join('；') });
+
+    return applyManage(res, (ctx) => {
+        const { levelsDir } = ctx;
+        const entry = ctx.manifest.entries.find((x) => x.uid === uid);
+        if (!entry) throw new ManageError(`关卡 ${uid} 不在 manifest`, 404);
+        if (entry.kind === 'plate') throw new ManageError('组合图（plate）暂不支持单关替换图案');
+        const old = JSON.parse(readFileSync(join(levelsDir, entry.file), 'utf8'));
+        ctx.ls.writeLevelFile(levelsDir, entry.file, {
+            id: old.id, name: old.name, cols: d.cols, rows: d.rows,
+            time: measured.time, cycleProfile: 'short',
+            pricing: measured.pricing,
+            decoys: d.decoys || [], pattern: d.pattern, swaps: d.swaps || [],
+            ...(d.misplaced ? { misplaced: d.misplaced } : {}),
+            ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
+        });
+        return { manifest: ctx.manifest, log: [`替换 ${uid} 图案：${old.cols}×${old.rows} → ${d.cols}×${d.rows}，实测 ${measured.time}s（关名「${old.name}」、关号与章位不变）`] };
     });
 }
 
@@ -1118,7 +1169,7 @@ async function handle(req, res) {
         if (req.method === 'POST' && path === '/api/manage/chapter') return await handleChapterCreate(req, res);
         const mch = path.match(/^\/api\/manage\/chapter\/([a-z0-9][a-z0-9-]{0,31})\/(rename|open|move|delete)$/);
         if (req.method === 'POST' && mch) return await handleChapterOp(req, res, mch[1], mch[2]);
-        const mlv = path.match(/^\/api\/manage\/level\/([LP]\d{1,9})\/(remove|move|rename|boss)$/);
+        const mlv = path.match(/^\/api\/manage\/level\/([LP]\d{1,9})\/(remove|move|rename|boss|replace)$/);
         if (req.method === 'POST' && mlv) return await handleLevelOp(req, res, mlv[1], mlv[2]);
         const mi = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})\/ingest$/);
         if (req.method === 'POST' && mi) {

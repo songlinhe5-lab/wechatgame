@@ -320,6 +320,20 @@
                             op(`/api/manage/level/${lv.uid}/boss`);
                         }, 'ghost'));
                     }
+                    if (lv.kind !== 'plate') {
+                        // 替换图案：换 levelDraft 不动 uid/关号/章位/关名；plate 是多文件产物，须删后重导。
+                        const repl = select([{ value: '', label: '替换图案…' }, ...results.filter((r) => r.cols <= 32 && r.rows <= 32).map((r) => ({
+                            value: r.id, label: `${r.id}（${r.cols}×${r.rows} · ${r.colors} 色）`,
+                        }))], '', (v) => {
+                            if (!v) return;
+                            if (!confirm(`用「${v}」替换 ${lv.uid} 的图案？关名/关号/章位不变，时长按实测重算。`)) {
+                                repl.value = '';
+                                return;
+                            }
+                            op(`/api/manage/level/${lv.uid}/replace`, { resultId: v });
+                        });
+                        ops.appendChild(repl);
+                    }
                     if (others.length && !isBoss) {
                         const mv = select([{ value: '', label: '移章…' }, ...others.map((c) => ({ value: c.id, label: `→ ${c.title}` }))], '', (v) => {
                             if (v) op(`/api/manage/level/${lv.uid}/move`, { chapter: v });
