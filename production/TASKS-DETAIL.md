@@ -3495,6 +3495,17 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-338
+
+**工程·beads 大关 CH-S4「断言扩面」落码批（用户对 337 回传后续选项选 B） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）；CH-S5 未开**
+
+- **背景**：承 `level-content-pipeline.md` §11.8 CH-S4（纯 Node）：给 `sync-levels-data.test.mjs` 补七类装配边界夹具（uid→区间合并边界 / 空章 / 跨包 / open 洞 / boss 非末 / 孤儿关 / 超 `WALL_CAPACITY`）。
+- **等价重构**（`sync-levels-data.mjs` +28/−9，行为不变）：`assertOpenPrefix`（断言 1′）与 `assertChapterPackUniform`（断言 5）自 `assembleArcs` 内抽出为纯函数——上游 `pack!=='main'` 门与调用前置使二者在真数据流不可达（§11.4 先绿后守）⇒ 抽出后夹具可直测；`assembleArcs` 导出（注释明示**不写盘**）供夹具驱动。
+- **夹具**（`sync-levels-data.test.mjs` +8 例 ⇒ 共 31 过）：temp 目录「single + plate(2 槽) + boss」迷你内容仓 `mkArcFixture`（`os.tmpdir`）驱动 `assembleArcs`——绿路径（`levelRefs [[1,4]]` / openMax 1 / 容量 4）/ 空章 / boss 非末 / 孤儿关 / 孤儿章；断言 1′/5 直测（open 洞 / 跨包）；`uidSlotsToLevelRefs` 空列表 ⇒ §11.8 七类全覆盖（超 `WALL_CAPACITY` 由 336 批「章容量」例守）。
+- **变异自证 2 例**：① 跨包断言 `p !== packs[0]` → `false` ⇒ 只红「跨包」1 例（30/1）；② `assembleArcs` boss 非末断言咬断 ⇒ 只红「boss 非末」1 例（30/1）；均 `cmp` **逐字节还原**后复绿 31/31。
+- **验证**：`node --test` 31 过（23 旧 + 8 新）；`levels:check` 零漂移（beads/breakout 全一致）；`verify` PASS 22。
+- **未做**：CH-S5（分包放开，卡 `build:wx`）；五项不混做（①设置弹窗重叠 / ①半透 UI-60 / ②BD-62 / ③橱窗灯光 / ④暗线）。
+
 ## WXG-T-337
 
 **工程·beads 大关 CH-S3「title 上移」落码批（用户对 336 回传后续选项选 A） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）；CH-S4/S5 未开**

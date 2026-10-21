@@ -469,6 +469,18 @@ export function openPrefixLength(chapters) {
   return n;
 }
 
+/**
+ * 断言 1′（CH-S4 抽出为纯函数）：`open:true` 必须自 order 最小起连续成前缀，洞即红
+ * （否则「第 2 章开放、第 1 章锁着」类乱序投放会静默发生）。返回 `ARC_OPEN_MAX`。
+ */
+export function assertOpenPrefix(gameName, chapters) {
+  const sorted = [...chapters].sort((a, b) => a.order - b.order);
+  const openMax = openPrefixLength(sorted);
+  if (sorted.slice(openMax).some((c) => c.open))
+    throw new Error(`${gameName}: chapters[].open 必须自 order=1 起连续成前缀（openMax=${openMax} 之后仍有 open:true）`);
+  return openMax;
+}
+
 /** 章容量断言（纯函数，可 `node --test`）：展开槽位（plate 按 cell 数）超墙容量 = 内容静默不可见。 */
 export function checkChapterCapacity(gameName, rows, wallCapacity) {
   for (const r of rows) {
@@ -476,6 +488,17 @@ export function checkChapterCapacity(gameName, rows, wallCapacity) {
       throw new Error(
         `${gameName}: 章 ${r.id} 展开 ${r.slots} 槽 > 墙容量 WALL_CAPACITY=${wallCapacity} ⇒ 超出关卡静默不可见（拆章或扩墙）`,
       );
+  }
+}
+
+/**
+ * 断言 5（CH-S4 抽出为纯函数）：章内 pack 必须一致（同章同 pack，禁跨包 §11.4-3）。
+ * 注：P1 期上游 `pack!=='main'` 门前置拦截 ⇒ 本断言先绿后守；CH-S5 开包后用夹具「测试内桩」直测。
+ */
+export function assertChapterPackUniform(gameName, chapterId, packs) {
+  for (const p of packs) {
+    if (p !== packs[0])
+      throw new Error(`${gameName}: 章 ${chapterId} 混包（${packs[0]} + ${p}）—— 同章同 pack，禁跨包（§11.4-3）`);
   }
 }
 
@@ -514,19 +537,18 @@ export function assembleArcs(game) {
     if (!Array.isArray(ch.levels) || ch.levels.length === 0)
       throw new Error(`${game.name}: 章 ${c.id} levels[] 为空（空章 = 静默空橱窗，禁止）`);
     const kinds = [];
-    let pack = null;
+    const packs = [];
     let slots = 0;
     for (const uid of ch.levels) {
       if (seenUid.has(uid)) throw new Error(`${game.name}: uid ${uid} 被多章引用（关只归一个章）`);
       seenUid.add(uid);
       const span = uidSpans.get(uid);
       if (!span) throw new Error(`${game.name}: 章 ${c.id} 引用 uid ${uid} 不在 manifest 或已 retired`);
-      if (pack === null) pack = span.pack;
-      else if (span.pack !== pack)
-        throw new Error(`${game.name}: 章 ${c.id} 混包（${pack} + ${span.pack}）—— 同章同 pack，禁跨包（§11.4-3）`);
+      packs.push(span.pack);
       kinds.push(span.kind);
       slots += span.end - span.start + 1;
     }
+    assertChapterPackUniform(game.name, c.id, packs);
     const bossAt = kinds.flatMap((k, j) => (k === 'boss' ? [j] : []));
     if (bossAt.length !== 1)
       throw new Error(`${game.name}: 章 ${c.id} boss 恰 1 条（现 ${bossAt.length} 条）`);
@@ -555,11 +577,8 @@ export function assembleArcs(game) {
         throw new Error(`${game.name}: 孤儿章文件 ${CHAPTERS_DIR}/${f} 未被 manifest.chapters 引用`);
     }
   }
-  // open 前缀（ARC_OPEN_MAX）：必须自 order 最小起连续为 true，洞即红
-  //（否则「第 2 章开放、第 1 章锁着」类乱序投放会静默发生）
-  const openMax = openPrefixLength(chapters);
-  if (chapters.slice(openMax).some((c) => c.open))
-    throw new Error(`${game.name}: chapters[].open 必须自 order=1 起连续成前缀（openMax=${openMax} 之后仍有 open:true）`);
+  // open 前缀（ARC_OPEN_MAX）：必须自 order 最小起连续为 true，洞即红（断言 = assertOpenPrefix，CH-S4 抽出）
+  const openMax = assertOpenPrefix(game.name, chapters);
   return { arcs, openMax, capacity };
 }
 
