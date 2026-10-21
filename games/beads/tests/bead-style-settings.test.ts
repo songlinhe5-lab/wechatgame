@@ -1273,7 +1273,7 @@ describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容�
             expect(b.box.h).toBeGreaterThanOrEqual(88); // 行高地板 TOUCH_MIN（沿用，⛔ 不为塞行而降）
         }
         // plate 避让仍成立：新底行下缘（box.y）> 返回钮上缘（357+88 = 445）；
-        // EP12-S8 前为 565>445（间隙 120），现 461>445（间隙 16，同为正）。
+        // EP12-S8 前为 565>445（间隙 120），现 457>445（间隙 12，同为正；WXG-T-339 由 16 收紧换标题净空）。
         expect(bottomRowY).toBeGreaterThan(445);
     });
 

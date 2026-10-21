@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "6231e92 · 回退弹窗底页补画（容器层待 ADR-0033／WXG-T-325）",
+  "capturedFrom": "90e0e11 · 设置弹窗标题压首行修复（WXG-T-339）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -102,7 +102,7 @@
         "rect": 13,
         "text": 12
       },
-      "sha": "24b06b96f56a537a74c5a3432c3178531b9cbc8f10276456b1da79a571b1043a",
+      "sha": "d8b5c527deb4170a7e397b7fda86b83eda94ce922ce6f8eaad4acfae29601b4b",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -120,7 +120,7 @@
         "rect": 11,
         "text": 17
       },
-      "sha": "a84f5b4c73bf55de9c1f849a2a78bc712ca16b7580358992e69ffa51d586a62e",
+      "sha": "2a46500d92185e2c639aa433fec400bcb15098fbfc1d25cfe94a67f8339866a2",
       "background": "#F1E8D8",
       "transform": null
     },

@@ -67,11 +67,11 @@ describe('UI-30 · SettingsContent', () => {
             'cycle-skin',
             'toggle-debug-guides',
         ]);
-        // 首钮：x = 240+40、topY = 307+720−150；第二钮右移 colW(248)+gap(24)。
-        expect(buttons[0]!.box).toEqual({ x: 280, y: 877, w: 248, h: 88 });
+        // 首钮：x = 240+40、topY = 307+720−170（WXG-T-339）；第二钮右移 colW(248)+gap(24)。
+        expect(buttons[0]!.box).toEqual({ x: 280, y: 857, w: 248, h: 88 });
         expect(buttons[1]!.box.x).toBe(552);
-        // 末钮：row 4 ⇒ y = 877 − 4×(88+16) = 461。
-        expect(buttons[9]!.box).toEqual({ x: 552, y: 461, w: 248, h: 88 });
+        // 末钮：row 4 ⇒ y = 857 − 4×(88+12) = 457。
+        expect(buttons[9]!.box).toEqual({ x: 552, y: 457, w: 248, h: 88 });
     });
 
     it('全部动作可达：每个按钮中心命中自己', () => {

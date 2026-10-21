@@ -86,13 +86,16 @@ export function isSettingsAction(id: string): id is SettingsAction {
     return ACTION_SET.has(id);
 }
 
-/** 菜单版式：几何与 UI-30 前逐字一致（plate 内 80 边距、列间 24、行距 `TOUCH_MIN + 16`）。 */
+/**
+ * 菜单版式：plate 内 80 边距、列间 24、行距 12（[WXG-T-339] 由 −150 / +16 收紧，修「标题压首行」；
+ * 避让实算与三处净空 12 见 `meta-view::settingsLayout` 注）。
+ */
 export function settingsContentButtons(plate: SettingsBox): SettingsButton[] {
     const rowW = plate.w - 80;
     const rowX = plate.x + 40;
     const colGap = 24;
     const colW = (rowW - colGap) / 2;
-    const topY = plate.y + plate.h - 150;
+    const topY = plate.y + plate.h - 170;
     const out: SettingsButton[] = [];
     for (let i = 0; i < MENU_ORDER.length; i++) {
         const col = i % 2;
@@ -101,7 +104,7 @@ export function settingsContentButtons(plate: SettingsBox): SettingsButton[] {
             id: MENU_ORDER[i]!,
             box: {
                 x: rowX + col * (colW + colGap),
-                y: topY - row * (TOUCH_MIN + 16),
+                y: topY - row * (TOUCH_MIN + 12),
                 w: colW,
                 h: TOUCH_MIN,
             },

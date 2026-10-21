@@ -420,11 +420,13 @@ function signinLayout(): MetaLayout {
 function settingsLayout(): MetaLayout {
     const plate = overlayPlate();
     // UI-30：内容块单源（`view/settings-content.ts`）= 10 钮 = 5 行 × 2 列（末行 = 皮肤 + Debug）。
-    // plate 高 **720 不改**，避让实算：`OVERLAY_H` 720 ⇒ plate y∈[307,1027]；
-    //   topY = 307+720−150 = 877，行底依次 877 / 773 / 669 / 565 / 461（行高 88）；
-    //   ① 顶行上缘 877+88 = 965 < 1027（标题基线 1027−70 = 957，与钮顶 965 的重叠属既有排版，
-    //      新增行在**下方**生长 ⇒ 不新增冲突）；② 新底行下缘 461 > 返回钮上缘 307+50+88 = 445
-    //      ⇒ 间隙 16 ≥ 0，**不与「返回」/「在线导入」同行族重叠**（EP12-S8 前为 120，仍为正）。
+    // plate 高 **720 不改**，避让实算（[WXG-T-339] 清零「标题压首行」——修前标题中心 1027−70 = 957
+    //   落进首行钮带 [877,965]，叠 28；用户真机报「设置标题与第一行按钮重叠」）：`OVERLAY_H` 720
+    //   ⇒ plate y∈[307,1027]；标题基线 1027−50 = 977（字面 40 ⇒ 下缘 957）；topY = 307+720−170 =
+    //   857，行底依次 857 / 757 / 657 / 557 / 457（行距 12）；
+    //   ① 顶行上缘 857+88 = 945 < 957 ⇒ **净空 12**（新增行仍在**下方**生长 ⇒ 不新增冲突）；
+    //   ② 底行下缘 457 > 返回钮上缘 307+50+88 = 445 ⇒ **净空 12 ≥ 0**，不与「返回」/「在线导入」
+    //      同行族重叠（EP12-S8 前为 120，仍为正）。
     const buttons: MetaButton[] = settingsContentButtons(plate);
     // 返回
     const backW = 240;
@@ -1352,9 +1354,11 @@ export function buildMetaView(
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
         // overlay 标题：`settings` 读文案表；`signin` 的「七日签到」在 `tokens.md §7` **无对应键**
         // ⇒ 维持既有字面，UI-32 起由 `signin-content.ts` 单源给出（⛔ 不为此新造令牌）。
+        // [WXG-T-339] 基线 −50（修前 −70：中心落进设置首行钮带 ⇒ 真机报「标题压按钮」）；
+        // 本行两弹窗共用 ⇒ signin 标题同步位移（其格布局未动，入口已退役不扩面）。
         const overlayTitle =
             data.overlay === 'signin' ? SIGNIN_TITLE : COPY_TOKENS.btn_settings_label;
-        builder.text(plate.x + plate.w / 2, plate.y + plate.h - 70, overlayTitle, {
+        builder.text(plate.x + plate.w / 2, plate.y + plate.h - 50, overlayTitle, {
             fill: palette.text,
             font: UI_FONT.overlayTitle,
             align: 'center',

@@ -26,6 +26,7 @@ import {
     type EventMap,
     type GameServices,
     type RectCommand,
+    type TextCommand,
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
@@ -162,5 +163,30 @@ describe('WXG-T-324/325 — 菜单弹窗透出底页（待 ADR-0033 容器层）
             .slice(0, at)
             .filter((cmd) => cmd.kind === 'polygon' || cmd.kind === 'circle').length;
         expect(underlay, '遮罩下必须已画出底层主菜单').toBeGreaterThan(100);
+    });
+});
+
+/**
+ * [WXG-T-339] 设置弹窗「标题压首行」回归守——修前标题中心 957 落进首行钮带 [877,965]（叠 28，
+ * 用户真机报「设置标题与第一行按钮重叠」）。本腿读**真实整帧命令流**：标题字面下缘（40px 字 ⇒
+ * 中心 −20）对首行（全场最高一排 `h = TOUCH_MIN = 88` 的钮）顶缘，净空 < 10 即红（修前 = −8，现 = 12）。
+ */
+describe('WXG-T-339 — 设置弹窗标题与首行净空', () => {
+    it('标题下缘与首行钮顶净空 ≥ 10', () => {
+        const shell = rig();
+        openSettings(shell);
+        const cmds = frameOf(shell);
+        // 弹层里唯一「设置」字面 = overlay 标题（按钮标签均带前缀文案，无同名）。
+        const title = cmds.find(
+            (cmd: DrawCommand): cmd is TextCommand => cmd.kind === 'text' && cmd.text === '设置',
+        );
+        expect(title, '未找到「设置」标题 text 命令').toBeDefined();
+        // 全部 h=88 的 rect = 设置 10 钮 + 返回（底板 720 / 遮罩 1625 不在列）；最高一排 = 首行。
+        const bars = cmds.filter(
+            (cmd: DrawCommand): cmd is RectCommand => cmd.kind === 'rect' && cmd.h === 88,
+        );
+        expect(bars.length, '88 高按钮 rect 在册').toBeGreaterThan(0);
+        const firstRowTop = Math.max(...bars.map((cmd) => cmd.y + cmd.h));
+        expect(title!.y - 20 - firstRowTop).toBeGreaterThanOrEqual(10);
     });
 });
