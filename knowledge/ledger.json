@@ -2516,7 +2516,7 @@
       "file": "knowledge/lessons/testing-guard.md",
       "category": "测试守卫",
       "title": "关卡「扩池」是破坏性存档变更：关表长度即 `DEMO_LEVEL_COUNT`，降级矩阵按「长度不符 → 重置全 0」静默清历史星",
-      "contentHash": "cb79d243d1ad74c2b0e4e5de210ce4238f326f88035ee4c4ac2c1db5c6644cf7",
+      "contentHash": "6f5d97d5e845de9de9b49419fb29e2637434ffe85ace343ec8cb4156aa9c88e2",
       "sourceTask": "WXG-T-341",
       "addedDate": "2026-10-21",
       "lastAccess": "2026-10-21",
@@ -3827,6 +3827,15 @@
       "ids": [
         "K-108",
         "K-149"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-342",
+      "kind": "updated",
+      "ids": [
+        "K-151"
       ],
       "note": null
     }

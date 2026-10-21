@@ -85,12 +85,17 @@ describe('beads save schema', () => {
   });
 
   // §2.2 `stars`（= 代码侧 `starsByLevel`）：每关历史最高星，长度 = 关卡数。
-  it('normalizes the stars table per §2.4/§6: length mismatch → all zero, else clamp per value', () => {
-    // §2.4：长度不符 → **重置全 0**（不是钳到某个长度）。
-    for (const bad of [undefined, null, 3, 'stars', [], [3, 2, 1], new Array(LEVEL_COUNT + 1).fill(3)]) {
+  it('normalizes the stars table per §2.4/§6: non-array → all zero, length mismatch → prefix carry', () => {
+    // §2.4 v1.2：**非数组**（缺失 / 类型错）才重置全 0；空数组 = 长度为 0 ⇒ 搬运 0 位，结果同为全 0。
+    for (const bad of [undefined, null, 3, 'stars', []]) {
       const result = normalizeBeadsSave({ ...validSave(), starsByLevel: bad }, LEVEL_COUNT);
       expect(result.save.starsByLevel).toEqual(new Array(LEVEL_COUNT).fill(0));
     }
+    // §2.4 v1.2：**数组但长度不符 → 前缀搬运**（v1.1 及以前是重置全 0，WXG-T-342 改判）。
+    expect(normalizeBeadsSave({ ...validSave(), starsByLevel: [3, 2, 1] }, LEVEL_COUNT).save.starsByLevel)
+      .toEqual([3, 2, 1, 0, 0, 0, 0, 0]);
+    expect(normalizeBeadsSave({ ...validSave(), starsByLevel: new Array(LEVEL_COUNT + 1).fill(3) }, LEVEL_COUNT).save.starsByLevel)
+      .toEqual(new Array(LEVEL_COUNT).fill(3));
     // §6：小数**向下取整**；越界 / 非有限数钳 0；上界 = STAR_MAX(3)。
     const messy = [5, -1, 2.7, Number.NaN, 'x', null, Number.POSITIVE_INFINITY, 3];
     expect(normalizeBeadsSave({ ...validSave(), starsByLevel: messy }, LEVEL_COUNT).save.starsByLevel)
@@ -100,6 +105,21 @@ describe('beads save schema', () => {
     expect(repaired.save.runs).toBe(3);
     expect(repaired.save.maxUnlockedLevel).toBe(4);
     expect(repaired.changed).toBe(true);
+  });
+
+  // §8-14 扩池迁移腿（v1.2 / WXG-T-342）：9 位旧档 → 10 关池 ⇒ 前 9 位无损、第 10 位补 0、只写回一次。
+  it('carries a 9-entry stars table into a 10-level pool without losing history (§8-14)', () => {
+    const OLD = [3, 2, 3, 1, 0, 2, 3, 1, 3];
+    const first = normalizeBeadsSave(
+      { ...validSave(), maxUnlockedLevel: 9, currentLevel: 9, starsByLevel: OLD },
+      10,
+    );
+    expect(first.save.starsByLevel, '前 9 位逐位无损，末位补 0').toEqual([...OLD, 0]);
+    expect(first.changed, '首次搬运要报 changed ⇒ 写回一次').toBe(true);
+    // 写回后再读同一档（长度已对齐）⇒ 幂等，不每次启动写盘。
+    const second = normalizeBeadsSave(first.save, 10);
+    expect(second.save.starsByLevel).toEqual([...OLD, 0]);
+    expect(second.changed, '迁移只写一次').toBe(false);
   });
 
   // §8-2：历史最高星不被低星覆盖 —— 钳制只做上下界，不做「取大」（取大在游戏侧过关时做）。

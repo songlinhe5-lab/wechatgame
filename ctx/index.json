@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4414,
       "lines": 153,
-      "sha256": "52b18c5cd6beca89de5a8b83a70380a05cff907ccff955abbac35d0b9c78f537",
+      "sha256": "c20db5157d3e87e6947cc3d82c9d09dd93f6d218e72cabdec4695d61cb3f702d",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 175706 4110 normal",
+          "summary": "1 production/TASKS-DETAIL.md 176794 4123 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 128,
           "tokens": 2900,
-          "summary": "production/TASKS-DETAIL.md 175706 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 176794 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "0e95ec6458c4a71f69217e543fdadf7ac28d94424e9db6339f8ca01917362089",
+      "sha256": "8d813e64c8495c5de85f9b7a9e20f0ba1c91dfeced2603e829cc19ddbc0d6163",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 152 行 / 60512 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 153 行 / 61187 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+153 · §待排（backlog，无号，立项时领取…=125+29",
+          "summary": "§WXG 任务台账（SSOT）=1+154 · §待排（backlog，无号，立项时领取…=126+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4110 行 / 175706 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4123 行 / 176794 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -31765,18 +31765,18 @@
     },
     {
       "path": "games/beads/design/gdd/save-progress.md",
-      "tokens": 4721,
-      "lines": 130,
-      "sha256": "e0a1452ca00d4fd0f87004ede67ce5dffa253015b77c7a741b6728ec467a3612",
+      "tokens": 5369,
+      "lines": 135,
+      "sha256": "c117a6f47bc91cce2066d482b98076a0f4e3c4851567064531a786364c0b536f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S8 存档与进度（Save & Progress）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 131,
-          "tokens": 4705,
-          "summary": "项目：games/beads · 版本 v1.1 · 任务号 WXG-T-211-D（原 v1.0 = WXG-T-01",
+          "endLine": 136,
+          "tokens": 5353,
+          "summary": "项目：games/beads · 版本 v1.2 · 任务号 WXG-T-342（原 v1.0 = WXG-T-015；",
           "keywords": [
             "GDD",
             "Save",
@@ -31801,8 +31801,8 @@
           "anchor": "§2 机制",
           "level": 2,
           "startLine": 14,
-          "endLine": 65,
-          "tokens": 1379,
+          "endLine": 69,
+          "tokens": 1640,
           "summary": "",
           "keywords": [
             "机制"
@@ -31829,7 +31829,7 @@
           "level": 3,
           "startLine": 21,
           "endLine": 30,
-          "tokens": 198,
+          "tokens": 216,
           "summary": "version number 存档版本，恒 1 每次写档 —",
           "keywords": [
             "WXG",
@@ -31860,8 +31860,8 @@
           "anchor": "§2.4 降级矩阵（沿用 S1 §8-10 判据，逐条落字段）",
           "level": 3,
           "startLine": 46,
-          "endLine": 58,
-          "tokens": 453,
+          "endLine": 62,
+          "tokens": 696,
           "summary": "解析失败 / 非对象 / version 缺失 全档弃用 → 出厂默认（runs=0 → 进 L1）",
           "keywords": [
             "§8",
@@ -31875,8 +31875,8 @@
         {
           "anchor": "§2.5 写入时机与频控",
           "level": 3,
-          "startLine": 59,
-          "endLine": 65,
+          "startLine": 63,
+          "endLine": 69,
           "tokens": 103,
           "summary": "即写：设置开关（低频，玩家可感知预期）。",
           "keywords": [
@@ -31886,8 +31886,8 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 66,
-          "endLine": 74,
+          "startLine": 70,
+          "endLine": 78,
           "tokens": 107,
           "summary": "S1 level:cleared / level:failed（星级、解锁推进、连胜清零）；BOOT 请求读档 + 分流",
           "keywords": [
@@ -31901,8 +31901,8 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 75,
-          "endLine": 83,
+          "startLine": 79,
+          "endLine": 87,
           "tokens": 152,
           "summary": "读档快照（version 化） S1（BOOT 分流）、S9（设置初值）、S7（NEW BEST 判定） 只读快照，写回",
           "keywords": [
@@ -31916,8 +31916,8 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 84,
-          "endLine": 90,
+          "startLine": 88,
+          "endLine": 94,
           "tokens": 157,
           "summary": "引用 §3.7：DEMO_LEVEL_COUNT（stars 数组长度、unlockedLevel 上界）、星级 1–3",
           "keywords": [
@@ -31931,8 +31931,8 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 91,
-          "endLine": 107,
+          "startLine": 95,
+          "endLine": 111,
           "tokens": 336,
           "summary": "极端值",
           "keywords": [
@@ -31942,8 +31942,8 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 108,
-          "endLine": 113,
+          "startLine": 112,
+          "endLine": 117,
           "tokens": 160,
           "summary": "上游：S1（读写时机与分流）、S7（sprint 成绩与星级终值）、S9（设置）、meta 提案层（冻结后接入）。",
           "keywords": [
@@ -31955,9 +31955,9 @@
         {
           "anchor": "§8 验收标准（可测试硬判据，QA 直接造用例）",
           "level": 2,
-          "startLine": 114,
-          "endLine": 131,
-          "tokens": 1626,
+          "startLine": 118,
+          "endLine": 136,
+          "tokens": 1933,
           "summary": "1. 首启（无存档）→ runs=1、unlockedLevel=1、进 L1；二次启动 runs=2、续进 unloc",
           "keywords": [
             "runs",
@@ -32992,17 +32992,17 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 35599,
-      "lines": 796,
-      "sha256": "1249f98de1627f21770c83b7d03a5432b200fe61d00ca5d07607e23f5f97ccb0",
+      "tokens": 36339,
+      "lines": 799,
+      "sha256": "3b6d9f9aeffdc478c68e43e436743a9602a10b30f3bb4462275c6a83a7ff1870",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡数据规范（Levels Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 797,
-          "tokens": 35585,
+          "endLine": 800,
+          "tokens": 36325,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.16 · 任务号 WXG-T-130（换盘收尾 v1.14 ",
           "keywords": [
             "Levels",
@@ -33092,7 +33092,7 @@
           "level": 2,
           "startLine": 86,
           "endLine": 272,
-          "tokens": 6345,
+          "tokens": 6373,
           "summary": "⚠ 当前现池 = teaching-set 9 关（2026-10-10 换盘，pre-release 一次性重置）：现",
           "keywords": [
             "teaching",
@@ -33108,7 +33108,7 @@
           "level": 3,
           "startLine": 125,
           "endLine": 272,
-          "tokens": 4887,
+          "tokens": 4914,
           "summary": "四步流程，逐关可复现：",
           "keywords": [
             "素材制作规范",
@@ -33379,8 +33379,8 @@
           "anchor": "§10 变更记录",
           "level": 2,
           "startLine": 597,
-          "endLine": 622,
-          "tokens": 8247,
+          "endLine": 623,
+          "tokens": 8633,
           "summary": "导航注：v1.15 新增的 §11「大关（chapter）配置口径」位于本变更表之后（节号顺接、既有节号不重排）。",
           "keywords": [
             "§11",
@@ -33391,9 +33391,9 @@
         {
           "anchor": "§11 大关（chapter）配置口径（**v1.15 新增** · 任务号 **WXG-T-335-D**）",
           "level": 2,
-          "startLine": 623,
-          "endLine": 797,
-          "tokens": 6708,
+          "startLine": 624,
+          "endLine": 800,
+          "tokens": 7034,
           "summary": "裁定记录（2026-10-21，WXG-T-336 落码批）：本节未决 ①②③ 按子单推荐全采纳——① 页头章名落顶部空",
           "keywords": [
             "chapter",
@@ -33407,8 +33407,8 @@
         {
           "anchor": "§11.1 玩家可见名的显示矩阵",
           "level": 3,
-          "startLine": 633,
-          "endLine": 652,
+          "startLine": 634,
+          "endLine": 653,
           "tokens": 1055,
           "summary": "名实核对（K-046）：全仓「木牌」只有一处 = 主菜单走马灯橱窗内的名称牌（ui_showcase_plate，绘制 ",
           "keywords": [
@@ -33420,8 +33420,8 @@
         {
           "anchor": "§11.2 chapter 文件里「该进 / 不该进」的策划字段",
           "level": 3,
-          "startLine": 653,
-          "endLine": 695,
+          "startLine": 654,
+          "endLine": 696,
           "tokens": 1741,
           "summary": "唯一判据：一个字段该进 chapter，当且仅当它描述「这组关作为一个内容单位」的语义，且换投放批次 / 换 pack ",
           "keywords": [
@@ -33436,8 +33436,8 @@
         {
           "anchor": "§11.3 空大关「敬请期待」页的语义边界",
           "level": 3,
-          "startLine": 696,
-          "endLine": 720,
+          "startLine": 697,
+          "endLine": 721,
           "tokens": 653,
           "summary": "它是什么：走马灯最后一页，表达「还有大关没投放」。页数恒 = ARC_OPEN_MAX + 1（ui/main-menu",
           "keywords": [
@@ -33452,8 +33452,8 @@
         {
           "anchor": "§11.4 TODO-1 解口径（选关页页头大关名）",
           "level": 3,
-          "startLine": 721,
-          "endLine": 743,
+          "startLine": 722,
+          "endLine": 744,
           "tokens": 941,
           "summary": "结论：显示。数据源 = 当前页大关的 chapter.title（与橱窗木牌同一份内容），由 shell 塞进 View",
           "keywords": [
@@ -33468,8 +33468,8 @@
         {
           "anchor": "§11.5 向后兼容：单关还允许自带展示名吗？",
           "level": 3,
-          "startLine": 744,
-          "endLine": 767,
+          "startLine": 745,
+          "endLine": 768,
           "tokens": 699,
           "summary": "结论：不允许。 玩家可见名的唯一来源 = 所属 chapter 的 title；单关 JSON ⛔ 再写 title（生",
           "keywords": [
@@ -33484,8 +33484,8 @@
         {
           "anchor": "§11.6 验收口径（QA 用 · 6 条，每条可直转用例）",
           "level": 3,
-          "startLine": 768,
-          "endLine": 780,
+          "startLine": 769,
+          "endLine": 781,
           "tokens": 470,
           "summary": "A1 全量扫关卡真源 design/levels/singles/ 与 plates/ 的 \"title\" 0 命中（章",
           "keywords": [
@@ -33498,11 +33498,11 @@
           ]
         },
         {
-          "anchor": "§11.7 扩池的存档代价：关表变长 = 老档星级全清（v1.21 实测，非推论）",
+          "anchor": "§11.7 扩池的存档代价：关表变长 = 老档星级全清（v1.21 实测，非推论；**v1.22 起改为前缀搬运，见本节末**）",
           "level": 3,
-          "startLine": 781,
-          "endLine": 797,
-          "tokens": 451,
+          "startLine": 782,
+          "endLine": 800,
+          "tokens": 761,
           "summary": "事实链（本批由单测 R4/R5 意外抓出，非设计意图）：manifest.entries 9 → 10 ⇒ DEMO_L",
           "keywords": [
             "manifest",
@@ -52488,17 +52488,17 @@
     },
     {
       "path": "knowledge/CHANGELOG.md",
-      "tokens": 12227,
-      "lines": 379,
-      "sha256": "978e4d027e4091bfa06714be9f8d9d873ff29100fd927bbd171ce285c01edb48",
+      "tokens": 12290,
+      "lines": 383,
+      "sha256": "27baf09969035f8a94546a0b6a3b3d371fdefb0135876ba128b8ca28ba2689a8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§knowledge/CHANGELOG.md — 知识库变更日志",
           "level": 1,
           "startLine": 1,
-          "endLine": 380,
-          "tokens": 12213,
+          "endLine": 384,
+          "tokens": 12276,
           "summary": "本文件由 pnpm run kb:sync 生成，请勿手改（手改会被下次 sync 覆盖）。",
           "keywords": [
             "knowledge",
@@ -52513,8 +52513,8 @@
           "anchor": "§2026-10-21",
           "level": 2,
           "startLine": 9,
-          "endLine": 30,
-          "tokens": 1495,
+          "endLine": 34,
+          "tokens": 1558,
           "summary": "",
           "keywords": []
         },
@@ -52564,10 +52564,23 @@
           ]
         },
         {
+          "anchor": "§WXG-T-342",
+          "level": 3,
+          "startLine": 31,
+          "endLine": 34,
+          "tokens": 60,
+          "summary": "修改（updated）：K-151「关卡「扩池」是破坏性存档变更：关表长度即 DEMO_LEVEL_COUNT，降级矩阵",
+          "keywords": [
+            "WXG",
+            "updated",
+            "DEMO_LEVEL_COUNT"
+          ]
+        },
+        {
           "anchor": "§2026-10-19",
           "level": 2,
-          "startLine": 31,
-          "endLine": 41,
+          "startLine": 35,
+          "endLine": 45,
           "tokens": 165,
           "summary": "",
           "keywords": []
@@ -52575,8 +52588,8 @@
         {
           "anchor": "§WXG-T-294",
           "level": 3,
-          "startLine": 33,
-          "endLine": 36,
+          "startLine": 37,
+          "endLine": 40,
           "tokens": 58,
           "summary": "修改（updated）：K-142「「不擅自 push」的纪律会被 IDE 自动同步静默绕过；推送状态只能靠 ls-re",
           "keywords": [
@@ -52589,8 +52602,8 @@
         {
           "anchor": "§WXG-T-295",
           "level": 3,
-          "startLine": 37,
-          "endLine": 41,
+          "startLine": 41,
+          "endLine": 45,
           "tokens": 100,
           "summary": "新增（added）：K-144「同一个「零响应」结论由两条不同机制各自达成时，只写一例 ⇒ 变异只能拆掉一条，另一条恒绿",
           "keywords": [
@@ -52601,8 +52614,8 @@
         {
           "anchor": "§2026-10-18",
           "level": 2,
-          "startLine": 42,
-          "endLine": 59,
+          "startLine": 46,
+          "endLine": 63,
           "tokens": 541,
           "summary": "",
           "keywords": []
@@ -52610,8 +52623,8 @@
         {
           "anchor": "§（无任务号）",
           "level": 3,
-          "startLine": 44,
-          "endLine": 48,
+          "startLine": 48,
+          "endLine": 52,
           "tokens": 158,
           "summary": "新增（added）：K-138「i2i 的 denoise 是「风格 ↔ 结构」单调权衡，且不承载离散状态语义 ⇒ 状态",
           "keywords": [
@@ -52624,8 +52637,8 @@
         {
           "anchor": "§WXG-T-292",
           "level": 3,
-          "startLine": 49,
-          "endLine": 55,
+          "startLine": 53,
+          "endLine": 59,
           "tokens": 309,
           "summary": "修改（updated）：K-089「守卫脚本硬编码的目标值与冻结真源脱钩 ⇒ 断言永不触发（假绿守卫）；投放重物前要先实",
           "keywords": [
@@ -52636,8 +52649,8 @@
         {
           "anchor": "§WXG-T-293",
           "level": 3,
-          "startLine": 56,
-          "endLine": 59,
+          "startLine": 60,
+          "endLine": 63,
           "tokens": 59,
           "summary": "新增（added）：K-143「同一个「引用集」被生成器与门禁各写一份解析正则 ⇒ 一侧的「无条件保留」例外永不触发，规",
           "keywords": [
@@ -52648,8 +52661,8 @@
         {
           "anchor": "§2026-10-17",
           "level": 2,
-          "startLine": 60,
-          "endLine": 66,
+          "startLine": 64,
+          "endLine": 70,
           "tokens": 161,
           "summary": "",
           "keywords": []
@@ -52657,8 +52670,8 @@
         {
           "anchor": "§WXG-T-289",
           "level": 3,
-          "startLine": 62,
-          "endLine": 66,
+          "startLine": 66,
+          "endLine": 70,
           "tokens": 157,
           "summary": "新增（added）：K-136「文档批「本地门全绿」可以是假绿：ctx:check 默认校验 HEAD，暂存态超限只有 ",
           "keywords": [
@@ -52672,8 +52685,8 @@
         {
           "anchor": "§2026-10-15",
           "level": 2,
-          "startLine": 67,
-          "endLine": 72,
+          "startLine": 71,
+          "endLine": 76,
           "tokens": 234,
           "summary": "",
           "keywords": []
@@ -52681,8 +52694,8 @@
         {
           "anchor": "§（无任务号） (2)",
           "level": 3,
-          "startLine": 69,
-          "endLine": 72,
+          "startLine": 73,
+          "endLine": 76,
           "tokens": 226,
           "summary": "修改（updated）：K-126「同一张美术在不同像素网格下量出的「设计 px」并不相同 ⇒ 跨批复用实测值前先对齐网",
           "keywords": [
@@ -52693,8 +52706,8 @@
         {
           "anchor": "§2026-10-14",
           "level": 2,
-          "startLine": 73,
-          "endLine": 81,
+          "startLine": 77,
+          "endLine": 85,
           "tokens": 481,
           "summary": "",
           "keywords": []
@@ -52702,8 +52715,8 @@
         {
           "anchor": "§WXG-T-269",
           "level": 3,
-          "startLine": 75,
-          "endLine": 81,
+          "startLine": 79,
+          "endLine": 85,
           "tokens": 478,
           "summary": "新增（added）：K-129「往皮肤调色板加一枚字段在本仓是「三处联动」的改动，逐道修会逐道漏；台账那一道的修法只有一",
           "keywords": [
@@ -52714,8 +52727,8 @@
         {
           "anchor": "§2026-10-13",
           "level": 2,
-          "startLine": 82,
-          "endLine": 91,
+          "startLine": 86,
+          "endLine": 95,
           "tokens": 253,
           "summary": "",
           "keywords": []
@@ -52723,8 +52736,8 @@
         {
           "anchor": "§（无任务号） (3)",
           "level": 3,
-          "startLine": 84,
-          "endLine": 87,
+          "startLine": 88,
+          "endLine": 91,
           "tokens": 118,
           "summary": "新增（added）：K-126「同一张美术在不同像素网格下量出的「设计 px」并不相同 ⇒ 跨批复用实测值前先对齐网格」",
           "keywords": [
@@ -52735,8 +52748,8 @@
         {
           "anchor": "§WXG-T-265",
           "level": 3,
-          "startLine": 88,
-          "endLine": 91,
+          "startLine": 92,
+          "endLine": 95,
           "tokens": 124,
           "summary": "新增（added）：K-123「登记「违例」前先确认判据对象在现役代码里存在——提案图上的标定 ≠ 入库实现」、K-12",
           "keywords": [
@@ -52747,8 +52760,8 @@
         {
           "anchor": "§2026-10-12",
           "level": 2,
-          "startLine": 92,
-          "endLine": 97,
+          "startLine": 96,
+          "endLine": 101,
           "tokens": 86,
           "summary": "",
           "keywords": []
@@ -52756,8 +52769,8 @@
         {
           "anchor": "§WXG-T-268",
           "level": 3,
-          "startLine": 94,
-          "endLine": 97,
+          "startLine": 98,
+          "endLine": 101,
           "tokens": 82,
           "summary": "新增（added）：K-121「迭代缩边前必须先做逐列亮度剖面诊断，搞清用户所见「宽带」的真实像素构成」、K-122「全",
           "keywords": [
@@ -52768,8 +52781,8 @@
         {
           "anchor": "§2026-10-06",
           "level": 2,
-          "startLine": 98,
-          "endLine": 112,
+          "startLine": 102,
+          "endLine": 116,
           "tokens": 800,
           "summary": "",
           "keywords": []
@@ -52777,8 +52790,8 @@
         {
           "anchor": "§WXG-T-258",
           "level": 3,
-          "startLine": 100,
-          "endLine": 103,
+          "startLine": 104,
+          "endLine": 107,
           "tokens": 108,
           "summary": "新增（added）：K-117「tint mask 的透明度不在 A 通道：像素审计必须逐通道，「哪张是权威资产」用重跑",
           "keywords": [
@@ -52791,8 +52804,8 @@
         {
           "anchor": "§WXG-T-259",
           "level": 3,
-          "startLine": 104,
-          "endLine": 107,
+          "startLine": 108,
+          "endLine": 111,
           "tokens": 54,
           "summary": "修改（updated）：K-117「tint mask 的透明度不在 A 通道：像素审计必须逐通道，「哪张是权威资产」用",
           "keywords": [
@@ -52805,8 +52818,8 @@
         {
           "anchor": "§WXG-T-260",
           "level": 3,
-          "startLine": 108,
-          "endLine": 112,
+          "startLine": 112,
+          "endLine": 116,
           "tokens": 627,
           "summary": "修改（updated）：K-038「自动化统一走「便捷旁路 API」，真输入链可以整段断链而全绿」、K-042「几何单一",
           "keywords": [
@@ -52818,8 +52831,8 @@
         {
           "anchor": "§2026-10-05",
           "level": 2,
-          "startLine": 113,
-          "endLine": 165,
+          "startLine": 117,
+          "endLine": 169,
           "tokens": 2049,
           "summary": "",
           "keywords": []
@@ -52827,8 +52840,8 @@
         {
           "anchor": "§（无任务号） (4)",
           "level": 3,
-          "startLine": 115,
-          "endLine": 119,
+          "startLine": 119,
+          "endLine": 123,
           "tokens": 124,
           "summary": "新增（added）：K-096「环境事实表记的是「快照日」不是「现状」，下游当永久事实引用会造出根本不存在的结构性阻塞」",
           "keywords": [
@@ -52839,8 +52852,8 @@
         {
           "anchor": "§WXG-T-247",
           "level": 3,
-          "startLine": 120,
-          "endLine": 123,
+          "startLine": 124,
+          "endLine": 127,
           "tokens": 171,
           "summary": "新增（added）：K-098「headless Chromium 取「真 GPU」计时读数的三个坑：默认是软件光栅、扩",
           "keywords": [
@@ -52854,8 +52867,8 @@
         {
           "anchor": "§WXG-T-248",
           "level": 3,
-          "startLine": 124,
-          "endLine": 128,
+          "startLine": 128,
+          "endLine": 132,
           "tokens": 377,
           "summary": "新增（added）：K-101「节流/跳帧类优化会让「被优化量」的样本数骤降 ⇒ 该指标当场失去判别力；A/B 开工前先",
           "keywords": [
@@ -52866,8 +52879,8 @@
         {
           "anchor": "§WXG-T-249",
           "level": 3,
-          "startLine": 129,
-          "endLine": 133,
+          "startLine": 133,
+          "endLine": 137,
           "tokens": 165,
           "summary": "新增（added）：K-104「测「去掉某层能省多少」的上界档：必须停用组件本身，不能只是不喂命令——clear() 在",
           "keywords": [
@@ -52879,8 +52892,8 @@
         {
           "anchor": "§WXG-T-250",
           "level": 3,
-          "startLine": 134,
-          "endLine": 137,
+          "startLine": 138,
+          "endLine": 141,
           "tokens": 75,
           "summary": "修改（updated）：K-102「给渲染链加「跳帧」类优化时，落点选在回调时机而不是返回值形状；形状一变就击穿整帧封箱",
           "keywords": [
@@ -52891,8 +52904,8 @@
         {
           "anchor": "§WXG-T-251",
           "level": 3,
-          "startLine": 138,
-          "endLine": 142,
+          "startLine": 142,
+          "endLine": 146,
           "tokens": 100,
           "summary": "新增（added）：K-105「「改裁」不是把 DEC 正文那一行换个结论：同批必扫四节，并把旧推荐原样留作改道证据」",
           "keywords": [
@@ -52904,8 +52917,8 @@
         {
           "anchor": "§WXG-T-253",
           "level": 3,
-          "startLine": 143,
-          "endLine": 147,
+          "startLine": 147,
+          "endLine": 151,
           "tokens": 94,
           "summary": "新增（added）：K-106「「门禁跑过」≠「新文件被门禁看到」：守卫输出计数而非清单，覆盖要自证」",
           "keywords": [
@@ -52916,8 +52929,8 @@
         {
           "anchor": "§WXG-T-254",
           "level": 3,
-          "startLine": 148,
-          "endLine": 151,
+          "startLine": 152,
+          "endLine": 155,
           "tokens": 53,
           "summary": "新增（added）：K-107「像素 A/B 的「基线臂」必须逐层对齐现役绘制序，否则工具少画的一层会被读成候选方案的代",
           "keywords": [
@@ -52928,8 +52941,8 @@
         {
           "anchor": "§WXG-T-255",
           "level": 3,
-          "startLine": 152,
-          "endLine": 157,
+          "startLine": 156,
+          "endLine": 161,
           "tokens": 211,
           "summary": "新增（added）：K-108「运行时按 uuid 字符串加载的资产不会进 Cocos 构建产物 ⇒ 「静默降级」必须配",
           "keywords": [
@@ -52942,8 +52955,8 @@
         {
           "anchor": "§WXG-T-256",
           "level": 3,
-          "startLine": 158,
-          "endLine": 165,
+          "startLine": 162,
+          "endLine": 169,
           "tokens": 640,
           "summary": "新增（added）：K-109「层序死结优先「删掉引起冲突的对象」，而不是给数据模型加「层归属标记」——同一绘制体里两成",
           "keywords": [
@@ -52954,8 +52967,8 @@
         {
           "anchor": "§2026-10-04",
           "level": 2,
-          "startLine": 166,
-          "endLine": 175,
+          "startLine": 170,
+          "endLine": 179,
           "tokens": 140,
           "summary": "",
           "keywords": []
@@ -52963,8 +52976,8 @@
         {
           "anchor": "§（无任务号） (5)",
           "level": 3,
-          "startLine": 168,
-          "endLine": 171,
+          "startLine": 172,
+          "endLine": 175,
           "tokens": 45,
           "summary": "修改（updated）：K-094「dev 调试注入不得绕过玩法命令层直写权威状态（守恒类玩法会被造成死盘）」",
           "keywords": [
@@ -52976,8 +52989,8 @@
         {
           "anchor": "§WXG-T-244",
           "level": 3,
-          "startLine": 172,
-          "endLine": 175,
+          "startLine": 176,
+          "endLine": 179,
           "tokens": 84,
           "summary": "新增（added）：K-094「dev 调试注入不得绕过玩法命令层直写权威状态（守恒类玩法会被造成死盘）」、K-095「",
           "keywords": [
@@ -52989,8 +53002,8 @@
         {
           "anchor": "§2026-10-03",
           "level": 2,
-          "startLine": 176,
-          "endLine": 189,
+          "startLine": 180,
+          "endLine": 193,
           "tokens": 572,
           "summary": "",
           "keywords": []
@@ -52998,8 +53011,8 @@
         {
           "anchor": "§（无任务号） (6)",
           "level": 3,
-          "startLine": 178,
-          "endLine": 185,
+          "startLine": 182,
+          "endLine": 189,
           "tokens": 409,
           "summary": "修改（updated）：K-001「commitlint 自定义规则必须经 plugins 数组注册」、K-031「多产",
           "keywords": [
@@ -53012,8 +53025,8 @@
         {
           "anchor": "§WXG-T-235",
           "level": 3,
-          "startLine": 186,
-          "endLine": 189,
+          "startLine": 190,
+          "endLine": 193,
           "tokens": 152,
           "summary": "新增（added）：K-091「满铺底图的相邻 rect 会因 AA 边缘覆盖不足而漏出底层：外扩同色可根治，度量必须用",
           "keywords": [
@@ -53025,8 +53038,8 @@
         {
           "anchor": "§2026-09-28",
           "level": 2,
-          "startLine": 190,
-          "endLine": 195,
+          "startLine": 194,
+          "endLine": 199,
           "tokens": 244,
           "summary": "",
           "keywords": []
@@ -53034,8 +53047,8 @@
         {
           "anchor": "§（无任务号） (7)",
           "level": 3,
-          "startLine": 192,
-          "endLine": 195,
+          "startLine": 196,
+          "endLine": 199,
           "tokens": 237,
           "summary": "修改（updated）：K-052「动效时长常量一旦决定「事件发生在哪一帧」，它就是玩法时序而非表现层参数，判据与守卫都",
           "keywords": [
@@ -53046,8 +53059,8 @@
         {
           "anchor": "§2026-09-27",
           "level": 2,
-          "startLine": 196,
-          "endLine": 211,
+          "startLine": 200,
+          "endLine": 215,
           "tokens": 556,
           "summary": "",
           "keywords": []
@@ -53055,8 +53068,8 @@
         {
           "anchor": "§WXG-T-217",
           "level": 3,
-          "startLine": 198,
-          "endLine": 202,
+          "startLine": 202,
+          "endLine": 206,
           "tokens": 197,
           "summary": "新增（added）：K-084「冻结标量的语义换源会翻转「由该标量派生的显示态分支」，整帧基线随之失效——换源批必须同批",
           "keywords": [
@@ -53067,8 +53080,8 @@
         {
           "anchor": "§WXG-T-218",
           "level": 3,
-          "startLine": 203,
-          "endLine": 207,
+          "startLine": 207,
+          "endLine": 211,
           "tokens": 185,
           "summary": "新增（added）：K-086「α 有两个合法计数式（显式 alpha ∨ rgba 色串），不注明就得到同一盘面两套数",
           "keywords": [
@@ -53081,8 +53094,8 @@
         {
           "anchor": "§WXG-T-219",
           "level": 3,
-          "startLine": 208,
-          "endLine": 211,
+          "startLine": 212,
+          "endLine": 215,
           "tokens": 164,
           "summary": "新增（added）：K-088「渲染形态换轨（图元 → 位图）会让「以图元为统计域」的机检判据当场不可执行 ⇒ 换轨批必",
           "keywords": [
@@ -53093,8 +53106,8 @@
         {
           "anchor": "§2026-09-26",
           "level": 2,
-          "startLine": 212,
-          "endLine": 230,
+          "startLine": 216,
+          "endLine": 234,
           "tokens": 943,
           "summary": "",
           "keywords": []
@@ -53102,8 +53115,8 @@
         {
           "anchor": "§（无任务号） (8)",
           "level": 3,
-          "startLine": 214,
-          "endLine": 219,
+          "startLine": 218,
+          "endLine": 223,
           "tokens": 351,
           "summary": "新增（added）：K-078「跨域共用批次号（v1.5-rN 族）取号必须全仓扫占用，「本文件已见最大号」推不出空号」",
           "keywords": [
@@ -53114,8 +53127,8 @@
         {
           "anchor": "§WXG-T-169",
           "level": 3,
-          "startLine": 220,
-          "endLine": 225,
+          "startLine": 224,
+          "endLine": 229,
           "tokens": 293,
           "summary": "新增（added）：K-076「脏工作树里「这条测试红是不是我引入的」必须用 stash 隔离实测判定，不得凭直觉归因」",
           "keywords": [
@@ -53127,8 +53140,8 @@
         {
           "anchor": "§WXG-T-214",
           "level": 3,
-          "startLine": 226,
-          "endLine": 230,
+          "startLine": 230,
+          "endLine": 234,
           "tokens": 284,
           "summary": "新增（added）：K-081「台账详情节的节标题只认「整行形状」：## WXG-T-0NN 后带文字 = 节静默丢失」",
           "keywords": [
@@ -53139,8 +53152,8 @@
         {
           "anchor": "§2026-09-24",
           "level": 2,
-          "startLine": 231,
-          "endLine": 241,
+          "startLine": 235,
+          "endLine": 245,
           "tokens": 212,
           "summary": "",
           "keywords": []
@@ -53148,8 +53161,8 @@
         {
           "anchor": "§WXG-T-208",
           "level": 3,
-          "startLine": 233,
-          "endLine": 237,
+          "startLine": 237,
+          "endLine": 241,
           "tokens": 148,
           "summary": "新增（added）：K-073「外部 skill 批次接入：上游正文零改写 + 本地差异集中登记到 INDEX 批次节」",
           "keywords": [
@@ -53162,8 +53175,8 @@
         {
           "anchor": "§WXG-T-209",
           "level": 3,
-          "startLine": 238,
-          "endLine": 241,
+          "startLine": 242,
+          "endLine": 245,
           "tokens": 57,
           "summary": "新增（added）：K-075「外部决策模型（Jev/System One 类）接入前先过四条件滤网；beads-stu",
           "keywords": [
@@ -53178,8 +53191,8 @@
         {
           "anchor": "§2026-09-22",
           "level": 2,
-          "startLine": 242,
-          "endLine": 253,
+          "startLine": 246,
+          "endLine": 257,
           "tokens": 190,
           "summary": "",
           "keywords": []
@@ -53187,8 +53200,8 @@
         {
           "anchor": "§WXG-T-186",
           "level": 3,
-          "startLine": 244,
-          "endLine": 248,
+          "startLine": 248,
+          "endLine": 252,
           "tokens": 90,
           "summary": "新增（added）：K-067「「就近」排序的度量必须与集合的连通定义同度量，且多消费口共用一份序」",
           "keywords": [
@@ -53199,8 +53212,8 @@
         {
           "anchor": "§WXG-T-203",
           "level": 3,
-          "startLine": 249,
-          "endLine": 253,
+          "startLine": 253,
+          "endLine": 257,
           "tokens": 94,
           "summary": "新增（added）：K-068「关卡生成链四段连锁模式」、K-069「部分错位「整区域就位 + 子集置换」构造模式」",
           "keywords": [
@@ -53211,8 +53224,8 @@
         {
           "anchor": "§2026-09-20",
           "level": 2,
-          "startLine": 254,
-          "endLine": 270,
+          "startLine": 258,
+          "endLine": 274,
           "tokens": 550,
           "summary": "",
           "keywords": []
@@ -53220,8 +53233,8 @@
         {
           "anchor": "§WXG-T-179",
           "level": 3,
-          "startLine": 256,
-          "endLine": 266,
+          "startLine": 260,
+          "endLine": 270,
           "tokens": 498,
           "summary": "修改（updated）：K-045「同一台账文件被并发会话同时写时，git add <整文件> 会把别人的 WIP 捎进",
           "keywords": [
@@ -53235,8 +53248,8 @@
         {
           "anchor": "§WXG-T-183",
           "level": 3,
-          "startLine": 267,
-          "endLine": 270,
+          "startLine": 271,
+          "endLine": 274,
           "tokens": 45,
           "summary": "新增（added）：K-063「会「静默转移」的锚不能当距离排序基准：消费序基准与展示坐标必须分离」",
           "keywords": [
@@ -53247,8 +53260,8 @@
         {
           "anchor": "§2026-09-19",
           "level": 2,
-          "startLine": 271,
-          "endLine": 302,
+          "startLine": 275,
+          "endLine": 306,
           "tokens": 526,
           "summary": "",
           "keywords": []
@@ -53256,8 +53269,8 @@
         {
           "anchor": "§WXG-T-128",
           "level": 3,
-          "startLine": 273,
-          "endLine": 278,
+          "startLine": 277,
+          "endLine": 282,
           "tokens": 220,
           "summary": "新增（added）：K-060「变异自检里断言「方向」选错会留下伪绿：被测标量在变异下「冻结在旧非零值」而非归零时，存在",
           "keywords": [
@@ -53268,8 +53281,8 @@
         {
           "anchor": "§WXG-T-164",
           "level": 3,
-          "startLine": 279,
-          "endLine": 282,
+          "startLine": 283,
+          "endLine": 286,
           "tokens": 50,
           "summary": "修改（updated）：K-053「冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定」",
           "keywords": [
@@ -53280,8 +53293,8 @@
         {
           "anchor": "§WXG-T-166",
           "level": 3,
-          "startLine": 283,
-          "endLine": 286,
+          "startLine": 287,
+          "endLine": 290,
           "tokens": 49,
           "summary": "新增（added）：K-057「「立项单」与「ADR 状态行」都不会被实施它们的另一张单自动收口，核销时要成对扫」",
           "keywords": [
@@ -53293,8 +53306,8 @@
         {
           "anchor": "§WXG-T-167",
           "level": 3,
-          "startLine": 287,
-          "endLine": 290,
+          "startLine": 291,
+          "endLine": 294,
           "tokens": 39,
           "summary": "新增（added）：K-059「用「甲/乙/丙」转述既有候选清单时必须带正文锚——字母会换义」",
           "keywords": [
@@ -53305,8 +53318,8 @@
         {
           "anchor": "§WXG-T-169 (2)",
           "level": 3,
-          "startLine": 291,
-          "endLine": 294,
+          "startLine": 295,
+          "endLine": 298,
           "tokens": 44,
           "summary": "修改（updated）：K-042「几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫」",
           "keywords": [
@@ -53317,8 +53330,8 @@
         {
           "anchor": "§WXG-T-176",
           "level": 3,
-          "startLine": 295,
-          "endLine": 298,
+          "startLine": 299,
+          "endLine": 302,
           "tokens": 53,
           "summary": "新增（added）：K-058「「已写进 .gitignore」不等于「已排除出索引产物」——枚举型走盘生成器只认自己的",
           "keywords": [
@@ -53330,8 +53343,8 @@
         {
           "anchor": "§WXG-T-178",
           "level": 3,
-          "startLine": 299,
-          "endLine": 302,
+          "startLine": 303,
+          "endLine": 306,
           "tokens": 47,
           "summary": "新增（added）：K-062「事件驱动宿主的输入位移必须进单测：prev 在帧首结算会把帧间到达的位移吞成 0」",
           "keywords": [
@@ -53343,8 +53356,8 @@
         {
           "anchor": "§2026-09-18",
           "level": 2,
-          "startLine": 303,
-          "endLine": 313,
+          "startLine": 307,
+          "endLine": 317,
           "tokens": 254,
           "summary": "",
           "keywords": []
@@ -53352,8 +53365,8 @@
         {
           "anchor": "§WXG-T-165",
           "level": 3,
-          "startLine": 305,
-          "endLine": 308,
+          "startLine": 309,
+          "endLine": 312,
           "tokens": 92,
           "summary": "新增（added）：K-053「冻结「语义/行为」反转（数值不变）走「反转批」固定顺序，防漏回写散落的旧裁定」、K-05",
           "keywords": [
@@ -53364,8 +53377,8 @@
         {
           "anchor": "§WXG-T-168",
           "level": 3,
-          "startLine": 309,
-          "endLine": 313,
+          "startLine": 313,
+          "endLine": 317,
           "tokens": 154,
           "summary": "新增（added）：K-055「「连通块」API 的返回序是行主序、不是距锚序：「就近/最近」语义取前 N 前必须显式重",
           "keywords": [
@@ -53377,8 +53390,8 @@
         {
           "anchor": "§2026-09-17",
           "level": 2,
-          "startLine": 314,
-          "endLine": 320,
+          "startLine": 318,
+          "endLine": 324,
           "tokens": 155,
           "summary": "",
           "keywords": []
@@ -53386,8 +53399,8 @@
         {
           "anchor": "§（无任务号） (9)",
           "level": 3,
-          "startLine": 316,
-          "endLine": 320,
+          "startLine": 320,
+          "endLine": 324,
           "tokens": 147,
           "summary": "新增（added）：K-051「规格里的「图元/包体增量」数值是立项时点的推论，落码后必须差分复算、不得沿用」、K-05",
           "keywords": [
@@ -53398,8 +53411,8 @@
         {
           "anchor": "§2026-09-16",
           "level": 2,
-          "startLine": 321,
-          "endLine": 332,
+          "startLine": 325,
+          "endLine": 336,
           "tokens": 231,
           "summary": "",
           "keywords": []
@@ -53407,8 +53420,8 @@
         {
           "anchor": "§WXG-T-119",
           "level": 3,
-          "startLine": 323,
-          "endLine": 328,
+          "startLine": 327,
+          "endLine": 332,
           "tokens": 177,
           "summary": "新增（added）：K-050「缺陷号（BD-NN）与任务号同规：领号须读工作树全文，且「已登记 BD-xx」的声明必须",
           "keywords": [
@@ -53419,8 +53432,8 @@
         {
           "anchor": "§WXG-T-121",
           "level": 3,
-          "startLine": 329,
-          "endLine": 332,
+          "startLine": 333,
+          "endLine": 336,
           "tokens": 47,
           "summary": "新增（added）：K-049「自测夹具必须由被测生成器播种、依赖按整目录拷贝，否则门禁一扩就整片假红」",
           "keywords": [
@@ -53431,8 +53444,8 @@
         {
           "anchor": "§2026-09-15",
           "level": 2,
-          "startLine": 333,
-          "endLine": 361,
+          "startLine": 337,
+          "endLine": 365,
           "tokens": 894,
           "summary": "",
           "keywords": []
@@ -53440,8 +53453,8 @@
         {
           "anchor": "§（无任务号） (10)",
           "level": 3,
-          "startLine": 335,
-          "endLine": 345,
+          "startLine": 339,
+          "endLine": 349,
           "tokens": 426,
           "summary": "新增（added）：K-035「文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床」",
           "keywords": [
@@ -53452,8 +53465,8 @@
         {
           "anchor": "§WXG-T-097",
           "level": 3,
-          "startLine": 346,
-          "endLine": 352,
+          "startLine": 350,
+          "endLine": 356,
           "tokens": 280,
           "summary": "新增（added）：K-043「取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FA",
           "keywords": [
@@ -53465,8 +53478,8 @@
         {
           "anchor": "§WXG-T-111",
           "level": 3,
-          "startLine": 353,
-          "endLine": 357,
+          "startLine": 357,
+          "endLine": 361,
           "tokens": 130,
           "summary": "新增（added）：K-046「领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号」、K-047「幂等判据必锁",
           "keywords": [
@@ -53477,8 +53490,8 @@
         {
           "anchor": "§WXG-T-112",
           "level": 3,
-          "startLine": 358,
-          "endLine": 361,
+          "startLine": 362,
+          "endLine": 365,
           "tokens": 41,
           "summary": "新增（added）：K-048「装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛」",
           "keywords": [
@@ -53490,8 +53503,8 @@
         {
           "anchor": "§2026-09-13",
           "level": 2,
-          "startLine": 362,
-          "endLine": 374,
+          "startLine": 366,
+          "endLine": 378,
           "tokens": 192,
           "summary": "",
           "keywords": []
@@ -53499,8 +53512,8 @@
         {
           "anchor": "§（无任务号） (11)",
           "level": 3,
-          "startLine": 364,
-          "endLine": 370,
+          "startLine": 368,
+          "endLine": 374,
           "tokens": 132,
           "summary": "新增（added）：K-031「多产物生成器新增产物时，必须同任务登记 pre-commit 的 git add 清单」",
           "keywords": [
@@ -53515,8 +53528,8 @@
         {
           "anchor": "§WXG-T-044",
           "level": 3,
-          "startLine": 371,
-          "endLine": 374,
+          "startLine": 375,
+          "endLine": 378,
           "tokens": 49,
           "summary": "新增（added）：K-034「协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2）」",
           "keywords": [
@@ -53527,8 +53540,8 @@
         {
           "anchor": "§2026-09-12",
           "level": 2,
-          "startLine": 375,
-          "endLine": 380,
+          "startLine": 379,
+          "endLine": 384,
           "tokens": 66,
           "summary": "",
           "keywords": []
@@ -53536,8 +53549,8 @@
         {
           "anchor": "§WXG-T-029",
           "level": 3,
-          "startLine": 377,
-          "endLine": 380,
+          "startLine": 381,
+          "endLine": 384,
           "tokens": 62,
           "summary": "新增（added）：K-029「自增 ID 的下界必须取自既有数据，不能只看计数器」、K-030「产物进索引前先确认「新",
           "keywords": [
@@ -54151,9 +54164,9 @@
     },
     {
       "path": "knowledge/lessons/testing-guard.md",
-      "tokens": 6635,
+      "tokens": 6866,
       "lines": 82,
-      "sha256": "210609f278cc8d0a25cb54316320b5cc48be2e02be4049e8935d2531a4d149b3",
+      "sha256": "64649b2095b90ab44e1143cb514346497b9d6aa7996f87107101f53de2a8b93f",
       "tier": "normal",
       "sections": [
         {
@@ -54161,7 +54174,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 6617,
+          "tokens": 6848,
           "summary": "测试 片越 ctx B 门（8000 tok，WXG-T-260 沉淀批 8722）⇒ 按 knowledge/INDE",
           "keywords": [
             "testing-guard",
@@ -54177,7 +54190,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 83,
-          "tokens": 6460,
+          "tokens": 6691,
           "summary": "[测试守卫][K-038] 自动化统一走「便捷旁路 API」，真输入链可以整段断链而全绿（来源 WXG-T-096 附带",
           "keywords": [
             "API",
@@ -81943,9 +81956,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 175706,
-      "lines": 4110,
-      "sha256": "5e3a5006400331456e4d8c5fa80484ad7438840736ab417cfec9136fe8f5cd40",
+      "tokens": 176794,
+      "lines": 4123,
+      "sha256": "a7eb221ddfe8120825862f646814d539e4e6e5238c69aaaaf26fc8b5443af4e9",
       "tier": "normal",
       "sections": [
         {
@@ -84466,8 +84479,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 4111,
-          "tokens": 73322,
+          "endLine": 4124,
+          "tokens": 74410,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -85590,7 +85603,7 @@
           "anchor": "§WXG-T-341",
           "level": 2,
           "startLine": 4096,
-          "endLine": 4111,
+          "endLine": 4110,
           "tokens": 1170,
           "summary": "工程·beads-studio 大关/小关管理 + 分大关导入 + 替换图案 · 负责：主理人(Qoder) · 状态：",
           "keywords": [
@@ -85599,22 +85612,36 @@
             "studio",
             "Qoder"
           ]
+        },
+        {
+          "anchor": "§WXG-T-342",
+          "level": 2,
+          "startLine": 4111,
+          "endLine": 4124,
+          "tokens": 1085,
+          "summary": "工程·beads 扩池存档迁移腿（前缀搬运）+ S8 §2.4 改判 · 负责：主理人(Qoder) · 状态：✅ 完成",
+          "keywords": [
+            "§2.4",
+            "WXG",
+            "beads",
+            "Qoder"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 60512,
-      "lines": 152,
-      "sha256": "49400b321f631226897a638eda1fcacdad58069cab6fa8483d7ec8dd2f3a71b2",
+      "tokens": 61187,
+      "lines": 153,
+      "sha256": "1181b00a4c1a0d1ad7b55d019e9445f0bd5700edc4d26b846f56690b8ca8767f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 153,
-          "tokens": 60503,
+          "endLine": 154,
+          "tokens": 61178,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -85627,8 +85654,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 125,
-          "endLine": 153,
+          "startLine": 126,
+          "endLine": 154,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

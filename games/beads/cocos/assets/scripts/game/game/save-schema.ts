@@ -243,15 +243,20 @@ export interface NormalizeResult {
 }
 
 /**
- * 每关星级数组（S8 GDD §2.2 `stars` / §2.4 降级矩阵 / §6 边界）：
- *   · **长度不符 → 重置全 0**（§2.4 明文，不是「钳到某个长度」）；
+ * 每关星级数组（S8 GDD §2.2 `stars` / §2.4 降级矩阵 / §6 边界 / §8-14 迁移腿）：
+ *   · **非数组**（缺失 / 类型错）→ 重置全 0；
+ *   · **长度不符 → 前缀搬运**（v1.2 / WXG-T-342）：第 i 位恒代表第 i+1 关，短于关卡数则缺位补 0、
+ *     长于关卡数则截断（§8-14 要求「前 N 位逐位无损 + 写回恰一次」）；
+ *     ⚠ 仅当关表**末尾追加**时成立——中间插入 / 删除 / 重排会让星错位且不报错，
+ *     那类变更须另开迁移单按稳定 uid 对位（`levels-spec §11.7` 能力边界）；
  *   · 单值非有限数 → 0；小数**向下取整**（§6）；再钳 `[0, STAR_MAX]`。
  * 逐项钳正、**绝不弃整档**（与 `settings` 同判例）。
  */
 function normalizeStars(raw: unknown, levelCount: number): number[] {
   const out = new Array<number>(levelCount).fill(0);
-  if (!Array.isArray(raw) || raw.length !== levelCount) return out;
-  for (let i = 0; i < levelCount; i += 1) {
+  if (!Array.isArray(raw)) return out;
+  const carry = Math.min(raw.length, levelCount);
+  for (let i = 0; i < carry; i += 1) {
     const value = raw[i];
     if (typeof value !== 'number' || !Number.isFinite(value)) continue;
     out[i] = Math.max(0, Math.min(STAR_MAX, Math.floor(value)));

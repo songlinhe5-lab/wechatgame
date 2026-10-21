@@ -4108,3 +4108,16 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **提交**：批次① `ae4af5c`（5 files +1280/−116）、批次② `cb6c14d`（2 files +67/−2）；推送 `git ls-remote` = `cb6c14d…`、`git reflog show origin/develop` = `update by push`（K-142 双证）。
 - **未做**：① plate 单关替换（删后重导）；② 章展示图创建后不可换（只新建时上传）；③ 容器/VPS 501（无 `games/` 真源，属预期）；④ ①半透(UI-60) / ②BD-62 / ③橱窗灯光 / ④暗线 未混做。
 
+## WXG-T-342
+
+**工程·beads 扩池存档迁移腿（前缀搬运）+ S8 §2.4 改判 · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）**
+
+- **诉求（用户选择）**：对 WXG-T-341 回传的三个后续选项选 **1** = 「补存档迁移腿并开单」——把 341 登记的发布红线（扩池即清档）真正接线，而不是只留一句警告。
+- **判据变更授权**：该项本质是 S8 存档降级矩阵的裁定变更（「长度不符 → 重置全 0」→ 「前缀搬运」），按纪律需开单 + 用户授权；本单即该授权落点（用户选 1 = 批准改判）。
+- **文档先行（3 处）**：① `gdd/save-progress.md` 升 **v1.2**：§2.2 `stars` 降级默认列由「全 0」改「前缀搬运、缺位补 0（非数组仍全 0）」；§2.4 矩阵行改写 + 新增 v1.2 说明块（含旧口径留档与**能力边界**）；§8-3 旧口径就地标注 + **新增 §8-14 迁移腿判据**（四臂：前 N 位无损 / 末位补 0 / 首次 `changed` / 二次幂等）；顺手登记 §8-3「钳 8」与 §2.4 行及代码不一致（既存漂移，本批只登不改）。② `levels/levels-spec.md` §11.7 补「✅ v1.22 已落地」+ ⚠ 能力边界（只对末尾追加成立）；§10 新增 v1.22 行；§3.1① v1.21 块那句「老档历史星清零」加「已于 v1.22 改为前缀搬运，此句为 v1.21 留档」注。③ `ux/arc-level-select-spec.md` 无需改（与存档语义无关）。
+- **代码（1 处，root cause）**：`src/game/save-schema.ts::normalizeStars`——原写法 `if (!Array.isArray(raw) || raw.length !== levelCount) return out;`（全或无）→ 现 `if (!Array.isArray(raw)) return out; const carry = Math.min(raw.length, levelCount);`（前缀搬运）。无新函数、无新字段、无 `SAVE_VERSION` bump（§8-14 与 S8 §8-12 一致：patch 型全量写档）。framework 镜像由同步腿自动跟随。
+- **测试**：`tests/save-schema.test.ts` —— 原「长度不符 → 全 0」单臂拆为**三臂**（短⇒前缀搬运 / 长⇒截断 / 非数组⇒全 0）+ 新增 §8-14 专测（9 位旧档喂 10 关池：前 9 位无损、末位 0、首次 `changed=true`、二次 `changed=false`）⇒ 17→18 例；`tests/arc-level-select.test.ts` R4/R5 的注释同步改口径（旧句说「写错会静默清星」，现为「会被静默搬运成末位 0 ⇒ 不报错但对不了位」，夹具仍按池长派生）。
+- **变异自证**：把 `carry` 临时改回「长度相等才全搬、否则 0」⇒ **恰好 2 例红**（三臂那条 + §8-14 专测），其余 16 绿；`cp` 逐字节还原后复绿。
+- **验证**：beads `npx vitest run` = **1141 passed + 3 skipped（98 文件）**；`pnpm run verify` = **PASS 22 ｜ FAIL 0**（其中 `framework:sync:check` 首轮曾瞬时红：校验早于镜像写入，单跑 `pnpm run framework:sync:check` 与重跑 verify 均绿）。
+- **能力边界（新增红线，已写入两处正本）**：前缀映射只在**末尾追加**关卡时成立；中间插入 / 删除 / 重排会让星静默错位且不报错 ⇒ 那类变更须另开迁移单，按稳定 uid（`orders` / `uids`）而非下标对位。生成期门禁目前**不**强制「只许末尾追加」，该约束靠发布流程守。
+- **未做**：① 未做「中间插关」的 uid 对位迁移；② 未在真机验旧档升级（无 AppID）；③ 未清理 `save-progress §2.2` 既存的「`version` 恒 1」陈旧描述（属另一族漂移，本批只触星表相关行）；④ ①半透(UI-60) / ②BD-62 / ③橱窗灯光 / ④暗线 未混做。

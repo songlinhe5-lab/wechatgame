@@ -208,9 +208,9 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
     });
 
     it('R4/R5 已通关格 = 直接开新局（同一入口同扣心、零二次确认；历史星不被低星清）', () => {
-        // ⚠ 夹具长度必 == `LEVELS.length`：S8 §2.4「`stars` 长度不符 → 重置全 0」（`save-schema.ts::normalizeStars`）
-        // 会**静默**清掉历史星而非报错。WXG-T-341 v1.21 入第二大关 `L00010` 后关池 9 → 10，
-        // 旧写死的 9 位夹具当场踩中该臂（⇒ 本行改成按池长派生，⛔ 不写 magic 9）。
+        // ⚠ 夹具长度仍应 == `LEVELS.length`：虽然 v1.2（WXG-T-342）起 `save-schema.ts::normalizeStars`
+        // 已改「长度不符 → 前缀搬运」不再清档，但短夹具会被静默搬成「前 N 位保留 + 末位 0」——
+        // 测试仍是绿的，却不再暴露夹具写错（判例 K-152）。⇒ 本行按池长派生，⛔ 不写 magic 数字。
         const r = rig({ maxUnlocked: 9, stars: LEVELS.map((_, i) => (i === 0 ? 3 : 0)) });
         openLevels(r.shell);
         const before = r.shell.meta!.stamina;
