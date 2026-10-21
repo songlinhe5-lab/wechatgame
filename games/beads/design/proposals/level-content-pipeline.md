@@ -225,6 +225,7 @@ games/beads/design/levels/
 | v0.6 | 2026-09-22 | **新增 §0.3 标准源图档位**（用户 2026-09-22 拍板）：2048@32px/颗 = 64×64 母版 → Plate 2×2×32×32 组合图 4 关；1024@32px = 32×32 最大单图档；**GRID_MAX=50 不改**（50=单图/Plate 分界线，>50 自动切块，提高上限反而致 64×64 单盘不可玩）。登记阻塞：32×32 宫甲档全错位 taps 超预算 ⇒ 整板 422，与 WXG-T-203 E1 第二轮合流。**零代码改动。** | WXG-T-185 |
 | v0.7 | 2026-09-22 | **§1.2 uid 序号位宽 4→5 + pre-release 全量重置（用户拍板「L0001-L0010 全部去掉，序号要 5 位数」）**：`singles/` 重建为 `L00001..L00008.json`（**内容由原 1–8 关逐字节保留**，playtest 校准资产不重做），`order` 1–8、`contentVersion` 2→3；**删除两张 studio 试验关 L0009（`studio-5-8b07`，29×29 触顶盘）/ L0010（`studio-9-19d5`，10×10）**（已在 HEAD `2ff47de`，可回滚）。落码：`level-store.mjs::assignUid` `padStart(4→5)`（正则 `\d+` 宽容不变 ⇒ 历史窄号仍可解析）、`level-store.test.mjs` 断言转 5 位并改测 >99999 不回绕边界。连带：**`DEMO_LEVEL_COUNT` 10→8**（§3.7 变更 v1.44，推翻今日刚登记的 v1.43）。**不变式冲突显式登记**：本次同时推翻「uid 永不复用」与「order 不物理重排 / 删除标 retired」三条，已作为 pre-release 一次性例外写入 §1.2，**不得用作上架后的重排先例**。四段生成链已重跑（sync-levels-data → cocos 镜像 → 快照 → verify）。 | WXG-T-203 |
 | v0.8 | 2026-09-22 | **切块阈值 `GRID_MAX` 50→32（§3.3 v1.45；推翻本文 v0.6/v0.7 的「GRID_MAX 不改」裁定）**。用户拍板：「单图上限 32 个珠子宽度，另外如果超过 32 珠子宽高，studio 需要拆成组合图」。落码：`level-slice.mjs` 默认 `gridMax: 32`（旧 50 阀单测保留，证明算法与阈值解耦）、新增 32 阀用例（64→[32,32] 零残余 / 33→[16,17] / 默认参数即 32）共 8/8 绿；`server.mjs` `isPlate >32`、`sliceBoard({gridMax:32})`、`importBlockers` >32 文案与「>32 不是 blocker」防误杀注记；前端 `SINGLE_MAX=32` 提为常量（提示语「超单图上限 32 ⇒ 自动拆组合图」）。§0.3 档位表同步（k=ceil(64/32)=2）。**零新常量、零包体增量**；BOOT（`levels.ts`）纯引 `GRID_MAX_*` 自动跟随，但**手工写的 >32 关卡 JSON 现被 BOOT 拒收**（已入 v1.45 负面后果）。 | WXG-T-203，用户 2026-09-22 拍板 |
+| v0.9 | 2026-10-21 | **新增 §11 大关（chapter）配置层**（用户 2026-10-21 三裁：Q1=b 大关与 pack 正交 / Q2 本批不做 zip / title 上移）。真源 = `design/levels/chapters/<id>.json`（一物一文件）+ manifest `chapters[]`（`order`/`open`）；关卡清单真源用 **uid 列表**、产物仍出 1-based 区间（`arcs.ts` 改生成物、导出名不变）；boss 归属沿用 manifest `kind:"boss"`；章内 `pack` 必须一致（禁跨包，判据见 §11.4）；`title` 降级为生成期派生字段（仅章收尾关注入），`drawPlateTitle` 零改动；`ARC_COMING_SOON` 留手写 header；`schemaVersion` 不升（仍 2）。**零 §3 变更、零新常量、零落码**（Story CH-S1…S5 待开，S5 阻塞 `build:wx`）。 | WXG-T-335-E |
 
 ---
 
@@ -238,3 +239,197 @@ games/beads/design/levels/
 - [x] **[M3 已修复]** `writeLevelFile(plates/..)` 前置 `mkdirSync(join(levelsDir, 'plates'), {recursive:true})`，不再依赖 plates/README.md 侥幸存活。
 - **[M2 遗留（低优先）**：`nextNumericId` 不跳 retired（retired entry 的 file 仍被扫描，取最大 id +1）；若未来 retired 格数多致 id 空洞膨胀再处理。
 - **[M1 遗留（低优先）**：bot 失败时 stderr 未透传到 HTTP 响应；`measureCells` 已报 stdout 解析失败原因；stderr 仅写日志。
+
+---
+
+## 11. 大关（chapter）配置层 · 内容语义与 pack 正交（WXG-T-335-E，用户 2026-10-21 拍板 B）
+
+> **上位裁定（2026-10-21，不重开）**：Q1 = **b**（chapter 与 pack **正交**——chapter 是内容语义层，pack 是投放/分包批次层，两者不互推）；Q2 = **本批不做 zip**（投放仍走微信分包 `wx.loadSubpackage`，与 §0 已锁 A 方案一致）；`title` **上移到 chapter 级**。
+> **本节性质**：设计条文 + 迁移计划，**零落码**。落地粒度见 §11.8；其中 CH-S5 阻塞于 `build:wx`。
+> **现状基线（2026-10-21 核查）**：大关只活在手写 `games/beads/src/config/arcs.ts`（45 行：`ARCS[]` 一行 + `ARC_OPEN_MAX=1` + `OPEN_ARCS` + `ARC_COMING_SOON`）；内容仓 `design/levels/` 无 `chapters/`；`levels-data.ts` 与 `levels:check` 完全不认识大关。消费点 6 处（其中 `view/meta-view.ts` 只消费 `ARC_COMING_SOON` 文案）：`game/beads-shell.ts`（墙集合 666–675 / boss 关 677–683 / 三态归约 690–710 / 走马灯 748–777）、`config/tuning.ts`（`BOSS_THUMB_TEXTURES` 1675–1682）、`ui/main-menu-presenter.ts`（页数 = `ARC_OPEN_MAX + 1`）、`ui/phase-route-binder.ts`（`_levelsArc` / `levelsArc` / `openLevels`，46–51 · 83–97）、`view/meta-view.ts`（`ARC_COMING_SOON`）、宿主 `cocos/assets/scripts/host/beads-blit-carrier.ts`（`OPEN_ARCS` → bitmap 表）。
+> **数值纪律**：**零新冻结常量**。本文只引用既有 `WALL_CAPACITY`（9，`tuning.ts` 派生）与 `DEMO_LEVEL_COUNT`（9）。实现阶段若确需新常量，一律 `[TODO]` 并走 `systems-index §3` 变更单，⛔ 本文不代冻。
+
+### 11.1 八条结论（便于直接转述）
+
+| # | 结论 |
+|---|---|
+| 1 | chapter 真源 = `design/levels/chapters/<id>.json`，**一物一文件**；顺序 / 开放 / pack 归 `manifest.json`（新 `chapters[]`）。字段 = `id` / `title` / `levels[]`（**uid 列表**）/ `showcase{bundle,art,textureId}`；**boss 不设字段**（沿用 manifest `kind:"boss"`）；**禁空章**。 |
+| 2 | manifest 新增 `chapters: [{id,file,order,open}]`；**`schemaVersion` 不升（仍 2）**——它是产物 `LEVELS_DATA.version`，不是 manifest 格式版本。 |
+| 3 | chapter 与 pack **正交**：chapter 不参与分包判定、pack 不参与语义；唯一横切不变式 = **章内 pack 必须一致（禁跨包）**。 |
+| 4 | **不新增 `chapters-data.ts`**；`arcs.ts` **改为生成物**（同路径同导出名）；`ARC_OPEN_MAX` / `OPEN_ARCS` 生成派生，`ARC_COMING_SOON` 留手写 header。 |
+| 5 | 走马灯页序 = `ARCS` 序（= `chapters[].order`）；墙 = `levelRefs`；boss 图 = `textureId`；归约 = `levelRefs` + 存档；**视图仍不查表**。 |
+| 6 | `BeadsLevelRaw.title` **降级为生成期派生字段**（仅章收尾关注入）；`drawPlateTitle` **零改动**，⛔ 不运行时查表。 |
+| 7 | 拓扑序 5 条 Story：CH-S1 真源 → **CH-S2 生成器（第一冲刺垂直切片）** → CH-S3 title 上移 → CH-S4 断言扩面 → CH-S5 分包（阻塞 `build:wx`）。 |
+| 8 | zip **本批不做**，仅作将来作者侧分发候选；不设计格式、不落码、不加字段。 |
+
+### 11.2 chapter 数据模型
+
+#### 11.2.1 形态：一物一文件 + 索引登记
+
+```
+games/beads/design/levels/
+├── manifest.json          ← 新增 chapters[]（顺序 / 开放 / pack 归此处）
+├── chapters/
+│   ├── mandala.json       ← 一大关一文件，文件名 = id
+│   └── …
+├── singles/  plates/  palette.json  assets/
+```
+
+- **理由**：① 与 `singles/` / `plates/` 同法（一物一文件）⇒ 追加一章只改「1 个新文件 + manifest 一行」，git diff 干净、无跨章冲突；② 单文件 `chapters.json` 把所有章绑在同一文件的格式/引号上，冲突面更大且无法按章 review；③ 顺序真源统一留 manifest（levels 的 `order` / `pack` 同层先例），章文件**不写 order** ⇒ 不存在双真源。
+- **代价**：读章多一跳 IO（仅生成期，非热路径）；多一条孤儿文件断言（同 `singles/plates` 已有断言）。
+
+#### 11.2.2 单份 chapter 文件 schema
+
+```json
+{
+  "id": "mandala",
+  "title": "曼陀罗",
+  "levels": ["L00001","L00002","L00003","L00004","L00005","L00006","L00007","L00008","L00009"],
+  "showcase": { "bundle": "themes", "art": "l9-boss-mandala-256", "textureId": "bitmap__boss_l9" }
+}
+```
+
+| 字段 | 必填 | 语义与约束 | 取舍 |
+|---|---|---|---|
+| `id` | 是 | 稳定 slug `^[a-z][a-z0-9-]*$`；**= 文件名**；一经发布不改不删、不复用 | 与今日 `ARCS[].id` 逐字同源（`tests/arcs.test.ts` 已钉首章 `mandala`） |
+| `title` | 是 | 玩家可见大关名（橱窗木牌）；建议 ≤6 字（沿用现注） | 与 `ARCS[].title` 同源；**title 的唯一真源自此上移到这里** |
+| `levels[]` | 是 | 本章 manifest **entry uid** 的有序清单（single/boss = 关 uid；plate = **plate uid 整块**列入，运行期展开 N 槽）；非空 | 见 11.2.3 |
+| `showcase.bundle` | 是 | Cocos Bundle 名（现 `themes`，ADR-0031 落点） | 与 `ARCS[].bundle` 同源 |
+| `showcase.art` | 是 | bundle 内路径（无扩展名）；生成期断言 `design/levels/assets/<art>.png` 存在 | 防「配置指了没画的图」；资产正本仍在 `design/levels/assets/` |
+| `showcase.textureId` | 是 | blit 纹理 id；**全表唯一** | 与 `ARCS[].textureId` 同源 |
+
+**三处「不落字段」的归属**（避免第二真源）：
+
+- **开放顺序 / 是否开放** → manifest `chapters[].order`（顺序，只追加）与 `chapters[].open`（本版是否投放）。理由：这是**投放层**，与 levels 的 `pack` 同层；章文件只放语义。
+- **boss 归属** → **不新增 `bossUid`**，唯一真源 = manifest `entries[].kind:"boss"`。理由：boss 已是单关属性且门禁⑦ 已消费它；再加章侧字段 = 第二真源（与 `tests/arcs.test.ts`「归属只有一处真源」同型纪律）。生成期断言「每章 `kind:"boss"` 恰 1 条且 == `levels[]` 末项」，把「boss 收尾」从注释变成断言。
+- **pack** → 不落章（正交，见 §11.4）。
+
+**空章：禁止**（`levels.length ≥ 1`，生成期 throw）。判据：空章在玩家侧只能得到空墙（R12 空态），而「敬请期待」已有专门的空橱窗页（`ARC_COMING_SOON` + `ARC_OPEN_MAX` 之后那页）⇒ 两套空态并列只会让作者与玩家都分不清。
+
+#### 11.2.3 关卡清单：真源用 uid 列表，产物用 1-based 区间
+
+| 表达 | 优点 | 缺点 | 用途 |
+|---|---|---|---|
+| 1-based 区间（今日 `levelRefs`） | 紧凑；与运行期关号轴同形 | 绑**装配下标**：`order` 已允许空洞（v0.2 ③ retired 占位）、plate 展开数会变 ⇒ 区间会静默错指；作者必须先知道运行期序 | **仅产物** |
+| **uid 列表** | 稳定（uid 永不复用）；与 manifest 同 uid 空间；作者可逐条核对 | 冗长；需生成期换算 | **真源** |
+
+**结论：真源 = uid 列表**。`sync` 把每个 uid 映射到装配后 `LEVELS_DATA.levels` 的 **1-based 下标**，章内相邻且连续的条目**合并成区间**，写出 `levelRefs`（结构不变，仍是 `[from,to][]`）⇒ 运行时消费点零改动，而「区间漂移」这类错误从源头消失。
+
+- **轴对齐断言**：`level.id === 装配下标 + 1`（今日 9/9 成立）。把 `arcs.ts` 注里的「与 `levels-data.ts` 的 `id` 同轴」从注释变成生成期断言，二者一旦分离即红。
+- **代价**：真源与产物不同形，多一块换算代码（区间合并边界必须单测，见 CH-S4）。
+
+### 11.3 manifest 如何登记 chapter
+
+```json
+"chapters": [
+  { "id": "mandala", "file": "chapters/mandala.json", "order": 1, "open": true }
+]
+```
+
+- `order`：唯一、严格递增、**只追加**；章序 = 走马灯页序（现 `ARCS` 数组序不变）。
+- `open`：缺省 `false`；断言「`open:true` 必须自 `order=1` 起连续成前缀（不允许洞）」⇒ `ARC_OPEN_MAX` = 前缀长度，`OPEN_ARCS` 仍是 `ARCS.slice(0, ARC_OPEN_MAX)`。
+- `retired`：**本批不实现**（不写码、不加字段）。上架前删章走 §1.2 的 pre-release 重置例外；上架后要删章，须先补 `retired` 占位语义（复评触发见 §11.9）。
+- **`schemaVersion` 不升，保持 2**。依据两条现成事实（非本文发明）：`sync-levels-data.mjs` 第 317 行注「`schemaVersion`→产物 `LEVELS_DATA.version`（**非 manifest 自身格式版本**，改 manifest 格式勿 bump 它）」；`tests/levels-dir-pipeline.test.ts:68` 已冻结 `=== 2`。`chapters` 是新增顶层字段，`levels-data.ts` 数据体不因本层变化（唯一例外是 §11.7 的 title 派生）。
+- **目录 ↔ 索引双向断言**：有 `chapters/` ⇒ 必须有 `chapters[]`；每个 `file` 存在；每个章 `.json` 被引用（无孤儿）；**无 `chapters/` ⇒ 不产 `arcs.ts`**（breakout 等单 JSON 游戏零牵连）。
+- `contentVersion`：新增 / 修改章时 `++`（与入关同法）；`levels:sync` → `levels:check` → 干净树才 `framework:sync`。
+
+### 11.4 与 pack 正交（Q1=b 落地条文）
+
+**写死三条**：
+
+1. **chapter 不参与分包判定**：分片只按 `entries[].pack` + §3.9 包体预算，⛔ 不看 `chapters`。加一章 / 改名不改任何包的边界。
+2. **pack 不参与语义**：改某关 `pack` ⛔ 不得改变任何章的 `title` / `order` / `levels` / `levelRefs` / `showcase`，也不得改走马灯页序、墙集合、boss 图、解锁归约。判据 = 夹具臂：把某 entry 的 `pack` 改成非 main 值（P3 放开前用测试内桩）⇒ 章产物逐字节不变。
+3. **唯一横切不变式：同一章的关卡必须同一个 pack** ⇒ 结论 **禁止跨包**。判据两条：
+   - ① 选关页墙 = **整章** `levelRefs` 展开（`_rebuildWallSlots`）⇒ 章在选关页是一屏原子呈现；跨包时未载包的一半没有数据（`LEVELS_DATA` 只含已装配包）⇒ 玩家看到「章内缺关」，且当前无能表达该态的 UI。
+   - ② 章是**投放单位**（一次上新一章）；跨包会把「一章上线」拆成两次加载事件，无对应态。
+   - **解除条件**：P3 分包落地 **且** 选关页具备「未载包章节懒加载 + 明确态」后复评，届时改判为「允许，sync 按章切包」。
+
+> ⚠ 本批所有 entry 均 `pack:"main"` ⇒ 第 3 条断言**恒真**（先绿后守）；它真正生效在 `pack !== 'main'` 抛错放开之后（CH-S5）。「禁止跨包」不是「章绑定 pack」——chapter 仍不指定 pack，只要求章内一致。
+
+### 11.5 生成链与产物归宿
+
+- **不新增 `chapters-data.ts`**。仍产出 `games/beads/src/config/arcs.ts`（**同一路径、同一导出名**）。理由：消费点 6 文件 + cocos 镜像 + 3 个测试文件（`arcs` / `main-menu-presenter` / `arc-level-select`）均按此路径与导出名断言；改名只付换形成本（K-053），不增能力。
+- **手写模板**：新增 `design/levels/arcs-data.header.txt`（沿用 `levels-data.header.txt` 机制）。模板里保留 `ArcEntry` 类型（readonly 字段）、文档注释与 **`ARC_COMING_SOON`**。
+- **数据体**：`sync` 用现有 `render()` 逐字节确定性写出 `ARCS`（`readonly ArcEntry[]`）、`ARC_OPEN_MAX`（open 前缀长度）、`OPEN_ARCS`。
+- **门禁**：并入现有 `levels:sync` / `levels:check`（同 exit 1），⛔ 不新开 pnpm script —— 少一条命令 = 少一处漏跑（K-031 精神）。
+- **镜像**：`framework:sync` 按 `games/*/src/**` 整体镜像 ⇒ 新产物自动进 `cocos/assets/scripts/game/config/`；⛔ 手改镜像（pre-commit 已硬门）。
+- **生成期断言集**（任一不成立即 throw / exit 1）：
+  1. `id` 唯一、`order` 严格递增、`open` 为前缀；
+  2. `levels[]` 非空；uid 全局**恰好归属一章**（等价今日 `tests/arcs.test.ts` 的「一个小关最多归一个大关」，前移到生成期）；
+  3. 每个 uid ∈ manifest 且非 `retired`；**未退役 entry 必须被某章覆盖**（否则该关在墙上不可达）；
+  4. 章内 `kind:"boss"` 恰 1 条且 == `levels[]` 末项；
+  5. 章内 `pack` 一致（§11.4-3）；
+  6. 展开槽位数（plate 按 cell 数）≤ `WALL_CAPACITY`（现 9）——超了 = 内容静默不可见；
+  7. `title` 非空；`showcase` 三字段非空、`textureId` 全表唯一、`design/levels/assets/<art>.png` 存在；
+  8. 源关卡 JSON **不得**手写 `title`（§11.7）。
+- **三个常量的归宿**：`ARC_OPEN_MAX` 生成派生（导出名不变）；`OPEN_ARCS` 生成派生（导出名不变）；`ARC_COMING_SOON` **留在手写 header 模板**（非数据体），产物照旧导出 ⇒ `meta-view.ts` 零改动。⚠ 它是 UI 文案，住 `arcs` 属**既有偏差**（「屏内文案一律读表」应住 `copy-tokens`）；本批不迁，登记为遗留，随 tokens 批收口。
+
+### 11.6 索引读法不变式
+
+| 读什么 | 真源（内容仓） | 产物 / 消费 |
+|---|---|---|
+| 走马灯页序 | `chapters[].order` | `ARCS` 数组序；实体页 = `ARC_OPEN_MAX`；其后 1 页空橱窗（不变） |
+| 墙集合 | 章 `levels[]`（uid） | 产物 `levelRefs`（1-based 区间）→ `_rebuildWallSlots` 展开 → 截 `WALL_CAPACITY` |
+| boss 图 | 章 `showcase.textureId` | shell 取 `ARCS[页].textureId` → `carouselTextureId`（**视图不查表**） |
+| 解锁归约 | 章 `levelRefs` + 存档 `stars/maxUnlocked` | `_arcState` 三态，语义不变 |
+| boss 缩略位图映射 | `ARCS[].levelRefs` 末区间 `to` | `BOSS_THUMB_TEXTURES`（现状派生保留）；宿主 `beads-blit-carrier` 用 `OPEN_ARCS` 建 bitmap 表（`bundle/art` 的唯一消费方） |
+| 页头大关名（UX TODO-1） | 章 `title` | **本批不做**；将来由 shell 塞 ViewModel，⛔ 视图查表 |
+
+**边界三条**：
+
+1. 「视图不查表」的机械口径 = `games/beads/src/view/**` ⛔ `import` `config/arcs`；弧数据一律经 shell → ViewModel 字段（现 `carouselTextureId` / `carouselLevel` / `carouselComingSoon` / `carouselPeer*`）。
+2. 生成物只被 `config/**` 与 `game/**` 读；宿主只读 `textureId` / `bundle` / `art` 建表。
+3. 产物的 `levelRefs` 是**唯一**运行期关号轴；任何新消费点 ⛔ 自己数 uid 或自建第二套索引。
+
+### 11.7 title 上移
+
+**结论 1：`BeadsLevelRaw.title` 降级为生成期派生字段**（保留字段名与 `?: string`）。
+
+- 新语义：「本关所属大关名，**仅该章收尾关（boss）**携带」。
+- 源关卡 JSON ⛔ 手写（生成期断言拒收）⇒ 「两处真源」被挡在生成期，而不是靠人记。
+- 为什么不是「删除」：`drawPlateTitle` 只读 `lv.title`（`meta-view.ts:1000`）；删除字段必须改视图 + 换 `menu-plate-title.test.ts`（K-053 换形代价），而当前**没有第二个消费面**。
+- 为什么不是「保留手写」：与「title 上移到 chapter 级」的裁定直接冲突（两处真源）。
+- **代价（诚实记）**：关卡记录里出现一个**章作用域**的字符串。若将来第二个消费面（选关页页头 TODO-1）要大关名，⛔ 不得复用 `lv.title`，必须走 shell → ViewModel。
+
+**结论 2：`drawPlateTitle` 读取路径 = 生成期注入**（不运行时查表）。视图读 `carouselLevel.title`，与今日逐字节同路径 ⇒ 视图、`MetaViewData`、测试全零改动。
+
+**迁移步骤**（= CH-S3）：
+
+1. `chapters/mandala.json` 写 `title:"曼陀罗"`（`levels` 覆盖 L00001–L00009）；
+2. `singles/L00009.json` 删 `"title"` 一行；
+3. `sync` 增派生：把章 `title` 注入到章收尾关记录（追加在对象末尾 ⇒ 产物 diff 仅该行）；
+4. `contentVersion` 31→32 → `levels:sync` → `levels:check` → `framework:sync`（干净树）；
+5. 验收：`levels-data.ts` 的 L00009 仍带 `title:"曼陀罗"`；`arcs.test.ts` / `menu-plate-title.test.ts` 全绿；`DEMO_LEVEL_COUNT` 仍 9；木牌渲染不变（harness 目视为 ADVISORY）。
+
+### 11.8 迁移与 Story 拆分（拓扑序）
+
+| Story | 内容 | 依赖 | 可做性 |
+|---|---|---|---|
+| **CH-S1** 真源落盘 | `chapters/mandala.json` + manifest `chapters[]`；schema 断言（纯函数单测） | — | **纯 Node** |
+| **CH-S2** 生成器接线 ← **第一冲刺垂直切片** | `arcs-data.header.txt` + sync 产 `arcs.ts`（数据体等价手写版，导出名不变）+ 断言 1–7 + `--check` 并入 `levels:check` | S1 | **纯 Node** |
+| **CH-S3** title 上移 | 删源 `title` → 生成期注入 + header 注释 + `contentVersion++` | S2 | **纯 Node** |
+| **CH-S4** 断言扩面 | `sync-levels-data.test.mjs` 夹具：uid→区间合并边界 / 空章 / 跨包 / open 洞 / boss 非末 / 孤儿关 / 超 `WALL_CAPACITY` | S2 | **纯 Node** |
+| **CH-S5** 分包放开 | `pack !== 'main'` 抛错 → 按包分片产物；章内同包断言真正生效；`LevelSourceProvider` 接线 | S2、S4 + **构建链** | **阻塞**：`build:wx` 未接入、Cocos 微信产物结构未实测、无真机 ⇒ 端到端不可验（ADR-0031 §4.2(4) 同口径） |
+
+- **第一冲刺 = CH-S1 + CH-S2**，切片判据落在 **CH-S2**：走通「chapter 配置 → sync 产物 → 运行时消费点（页序 / 墙 / boss 图 / boss 缩略 / 归约）」全链路，**零运行时改动**，全部纯 Node 可验，不依赖 `build:wx`。S1 是 S2 的数据夹具，同日批次交付。
+- **`pack !== 'main'` 抛错何时放开**：只在 **CH-S5**。放开内容 = 把 `sync-levels-data.mjs`（现行约 298 行）的 throw 换成「按 `entries[].pack` 分片产物 + `levels-manifest.ts`」；在此之前 `pack` 恒 `main`（§11.3 / §11.4 断言先绿后守）。
+- **环境铁律**：⛔ 伪造 `game.json` 分包结构 / `.scene` / `.prefab` / `.meta`（L1）；CH-S5 的验收不得以「日志无报错」代替真机取证。
+
+### 11.9 不做项 / 复评触发
+
+- **zip 打包：本批不做**。仅作**将来「作者侧内容分发」候选**留档；**不设计格式、不落码、不加字段**（不在 manifest / chapter schema 预留任何 zip 相关键）。若将来复评，须另立提案，⛔ 不得把本节 schema 当作对它已承诺。
+- 远程热更（B 方案）：仍不做（§0 已锁）；`contentVersion` 继续留口。
+- studio「新建大关」UI：本批只支持人手写 chapter JSON；`ingestLevel` 不产章。
+- 选关页页头大关名（UX `arc-level-select-spec` TODO-1）：归 tokens / art 批。
+- 大关推进门票（EP-14 S4/S5，`star-collect-rule §6-T1`）：仍 `[Blocked: 待规格]`，本批不碰解锁数值与门槛。
+- 章内多 plate 的归组视觉：`plates/` 现空；本批只规定「plate 整块列入章」，视觉归组不在本批。
+- `retired` 章语义：上架前删章走 §1.2 pre-release 例外；上架后须先补占位语义（**复评触发**：首次出现「上架后要下线一个章」）。
+
+### 11.10 已知代价（不是风险，是本方案要付的账）
+
+1. 「加大关」从「表尾追加一行 TS」变成「加一个文件 + 一行 manifest 索引」——作者步数 +1，换来的是**不碰代码**。
+2. 真源 uid 列表 vs 产物区间的换算是一块**新增可错点**（区间合并边界、plate 展开），必须有单测（CH-S4）。
+3. `arcs.ts` 由手写变生成 ⇒ 直接改它会被 `levels:check` 打红（与 `levels-data.ts` 同纪律），短期有肌肉记忆冲突。
+4. 章容量 ≤ `WALL_CAPACITY`(9) 是**内容约束**：将来一章 >9 槽，必须先扩墙容量或分页，否则只能在生成期拒收（不静默截断）。
+5. `open:false` 章的关卡仍随主包装配（本版无分包）⇒ 预置内容占包体；切包归 CH-S5。
+6. title 派生让关卡记录携带章作用域字符串（见 §11.7 代价与禁令）。

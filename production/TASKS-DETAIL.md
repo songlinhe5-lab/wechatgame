@@ -3495,6 +3495,20 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
+## WXG-T-335
+
+**工程·beads 大关（chapter）配置层设计批（Q1=b 正交 / Q2 暂不做 zip / title 上移 chapter） · 负责：主理人(Qoder)·程基岩域+文策渊域（spawn 双成员并行） · 状态：📝 设计完成（2026-10-21）；落码（CH-S1/S2）待开单**
+
+- **背景**：用户「singles 我看现在还是只有单关的概念，没有大关的概念，需要组织一个二级的配置结构，让大关独立成目录和包，最好能打包成 zip 包，在资源里增加配置大关文件，按照这个文件来索引橱窗内容。」四项拍板：**Q1=b（大关与 pack 正交）/ Q2 暂不做 zip、投放仍走微信分包 / title 上移 chapter 级 / 走 B（spawn 专家）**。
+- **现状核实（关键纠偏）**：大关**已有代码实体** `games/beads/src/config/arcs.ts`（`ARCS` 每行 id/title/bundle/art/textureId/levelRefs + `ARC_OPEN_MAX`），走马灯/墙集合/boss 图/解锁归约/缩略图映射/bitmap 表 共 6 处消费 —— 缺的不是「大关概念」而是「大关进内容仓」（**硬编码 TS → 数据驱动**）。任务单里我写的两处假设也经子代理实测纠偏：manifest `kind` 已是 single/plate/boss 三值（L00009 已是 boss）；`phase-route-binder` 在 `src/ui/` 非 `src/config/`。
+- **工程子单（程基岩 → `games/beads/design/proposals/level-content-pipeline.md` §11，+195 行）**：chapter 真源 = `design/levels/chapters/<id>.json` **一物一文件** `{id,title,levels[uid],showcase{bundle,art,textureId}}`（boss 不设字段 = manifest kind 唯一真源；空章禁止）；manifest 增 `chapters[{id,file,order,open}]`（`schemaVersion` 不升，仍 2，依 317 行注 + 测试冻结）；**与 pack 正交三条**：① 分片不看 chapters ② 改 pack 不改章语义（夹具臂判据）③ 唯一横切 = **同章同 pack（禁跨包）**，解除条件 = 分包落地 + 懒加载复评（本批恒真「先绿后守」）；`arcs.ts` 改**生成物**（同路径同导出名；`ARC_OPEN_MAX`/`OPEN_ARCS` 生成派生、`ARC_COMING_SOON` 留手写 header）；产物用 1-based 区间合并且**真源用 uid 列表**（区间漂移从源头消失）；**title 上移方案**：`BeadsLevelRaw.title` **降级为生成期派生字段**（仅章收尾关注入，`drawPlateTitle` 零改动、⛔ 视图不查表）；**Story 拓扑 CH-S1（真源）→ CH-S2 生成器 = 第一垂直切片（纯 Node 可验、6 消费点零运行时改动）→ CH-S3（title 上移，L00009 字段序会变 ⇒ 必重跑 sync）→ CH-S4（断言夹具：区间合并边界/空章/跨包/open 洞/boss 非末/孤儿关/超容量）→ CH-S5（分包，⛔ 阻塞 build:wx）**；zip 写死「本批不做、仅作将来作者侧分发候选」；不加新 ADR（0 条，数据层扩展 + 生成物有 ADR-0004 先例；下个空号 = ADR-0034）。
+- **设计子单（文策渊 → `games/beads/design/levels/levels-spec.md` §11，+163 行，头版本 v1.14→v1.15）**：**三处显示矩阵**（木牌 = chapter title；选关页页头 TODO-1 同源；**玩法屏零章名、零关名**——0 文字教学豁免只到页族，⛔ 不塞 HUD/toast/字幕）；字段「该进」四项（id/title/levels/showcase）与「不该进」五项（表 B 第二真源防线：order·open 归 manifest、解锁归规则、boss 归 kind、pack 归正交、空章禁）；空橱窗页 = 恒末页、「敬请期待」、点图零事件、**空章 ≠ 空橱窗**（5 条真章判据）；**TODO-1 解口径** = 读 chapter title、无 title **不建文本节点**（⛔ 不回落 slug/关序/硬编）；**单关不再自带展示名**（唯一来源 = 所属 chapter；仅 boss 关可携派生 title，四判据）；验收 A1–A6（各带前置状态，避免早期误判红）。
+- **两处事实订正（登记不回改他文）**：① `meta-ui §2.7` 写 `WALL_CAPACITY` (12)、实测 3×3 = **9**（tuning/选关规格/版式单三处均 9）⇒ 子单按实测引用；② `levels-data.header.txt` 与 `levels-data.ts:19` 注释仍写「木牌第二行」，与现码单行口径漂移 ⇒ 随 CH-S3 同批订正。
+- **一处口径矛盾（需用户确认）**：`arc-level-select-spec §8.2` TODO-1 括注「位置 = 标题带」 vs `level-select-page-layout.md §2/§3`（空带留给 TODO-1、标题带仅「选关」）⇒ 子单按**数值正本**（空带 [822,1122]）解，并写明「若反向改判须用户确认并重开版式数值」。
+- **未决（7 项，子代理均荐甲/丙）**：工程 Q-A 产物区间 vs 直出下标（荐甲保留 `levelRefs`）/ Q-B 章超 9 槽（荐甲生成期硬拦 throw）/ Q-C `ARC_COMING_SOON` 迁移（荐甲不迁、登记遗留）/ Q-D `open` 字段（荐甲本批就上、否则 `ARC_OPEN_MAX` 仍手写=第二真源）；设计 ① 页头落点（荐甲空带）/ ② 章名长度硬门（荐甲不设门）/ ③ 玩法 HUD `LV n/N` 分母（荐丙多章前再定，登记 `[TODO]`）。
+- **验证**：纯文档批、零代码、零产物、零 §3 变更；`verify` 22 绿；两份正本互引一致（chapter schema / boss 归属 / 空章 / 禁跨包四口径逐条对齐）。
+- **未做**：①设置重叠、①返回钮、①半透（UI-60）、②BD-62、③橱窗灯光、④暗线 未混做；23 个编辑器生成 `.meta` 仍未入库（独立决定）。
+
 ## WXG-T-334
 
 **工程·beads 走马灯木牌大关名「曼陀罗」+ (b) 只显名字（4 项真机缺陷先修 ④） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-21）**
