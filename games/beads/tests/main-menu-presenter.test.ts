@@ -26,8 +26,11 @@ describe('MainMenuPresenter（UI-40 走马灯状态机）', () => {
         expect(p.release(16)).toBe('open');
         expect(p.offset).toBe(0);
 
-        p.nudge(1, 1000);
-        p.step(1000 + SNAP);
+        // 末页（空橱窗）= 下标 `ARC_OPEN_MAX` ⇒ 翻 `ARC_OPEN_MAX` 次到顶（旧单大关版只需一次）。
+        for (let i = 1; i <= ARC_OPEN_MAX; i += 1) {
+            p.nudge(1, 1000);
+            p.step(1000 + SNAP);
+        }
         expect(p.offset).toBe(ARC_OPEN_MAX);
         p.press(100, 500, 2000);
         expect(p.release(2016)).toBe('none');

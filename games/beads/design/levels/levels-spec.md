@@ -205,6 +205,37 @@ blockers=[]**，`round(1001 × 1.69) = 1692` 与入库 `time` 相符；`levels:c
 余量 871 KB，本次 +87 KB 算术上安全但未重建验证）。冒烟后已 `git checkout -- games/beads` 并删掉
 3 个新落盘文件，真源还原、`levels:check` 复绿。
 
+**⚠ v1.20 上条两点未验已同日补做，并拓出第三件事（照片封面本来进不了包）**：
+① **真入表不还原**：章 `photo32-smoke`「照片冒烟 32」已开放（`ARC_OPEN_MAX 1 → 2`），
+boss `L00010` 常驻关表；人工/真机通关仍未做（该关 bot 要 28 分钟，不现实），
+可解性证据 = `cleared=true`。
+② **包体真读数**（`build:cocos` = release 基线档）：入关未上图 = **3227.5 KB / 108 件**
+（仅 +2.6 KB，关卡数据内联进 `levels-data.ts`）；上图后 = **3312.7 KB / 111 件**，
+距 4096 KB 红线余量 783.3 KB ✅。
+③ ⚠ **浏览器 harness 会掩盖「封面图没进包」**：harness 把 `/level-assets/*` 直连
+`design/levels/assets/`（`tools/scripts/serve-harness.mjs:76` + `dev/harness/main.ts:149`），
+所以浏览器里照片封面 **200 可见**；而真机装载腿走 `loadAny({bundle:'themes', path:<art>})`
+（`beads-blit-carrier.ts:110`），bundle 根 = `cocos/assets/themes/` ⇒ studio 只把 256² 图写进
+`design/levels/assets/`，**没有任何腿把它搬进 bundle** ⇒ 新章封面在真机上一律走程序化回退
+（旧章 mandala 有图 = 历史上人工把 PNG 放进了 `cocos/assets/themes/`）。
+④ **本批已按 mandala 先例补腿**：`cp` 进 `cocos/assets/themes/` → `build:cocos` **由编辑器
+自动生成 `.png.meta`**（⛔ 不手写，L1）→ 产物内出现 `themes/native/f3/f3a8bd73….png` ⇒ 素材
+入包闭环。⛔ 未验真机渲染（无 AppID），本批只证到「包内有该 uuid + path 匹配」这一层。
+⑤ **真浏览器装载读数**：`window.__beads.game.goToLevel(9)` ⇒ `32×32 / 1024 格全部 filled /
+phase playing / timeTotal 1692`，控制台 0 error / 0 warning；5 帧 **47338 draw calls
+（≈ 9.5k/帧，为首关 13×12 的 9.6 倍，而格数只 6.6 倍）** ⇒ 大盘 draw call 呈**超线性**增长，
+低端机 fill-rate 风险需单独测（本批只记数、不判档）。脚本 `temp/wxg-t-341-boss-harness.mjs`。
+
+**⚠ v1.21 上条的「不还原」已推进为正式投放（用户 2026-10-21 令「验证 boss 关进第二章、第一章不动」）**：
+章 `photo32-smoke` = **第二大关**（`manifest.chapters[1]`、`open:true`），其**唯一关** = `L00010`（32×32 boss）；
+**第一章（曼陀罗）逐字不动** —— `L00001…L00009` 的 uid / order / `levelRefs [1,9]` / §5.1–§5.2 九关池均零变更。
+⚠ 两条连带代价（均已登记，本批不改判据）：① 关池 9 → 10 触发 S8 存档降级矩阵「`stars` 长度不符 → 全 0」
+⇒ **老档历史星清零**（发布红线见 §11.7）；② 走马灯页数 2 → 3（末页仍为空橱窗）且第二章清单 1 关 ⇒ 其选关墙
+**8 槽 = 锁格**（旧文「越界槽本版不可达」只对单大关版成立）。正本口径 = `ux/arc-level-select-spec.md` v1.9。
+⚠ **投放位置事实**（本批零改解锁规则）：第二章格 0 = 全局 `L00010` ⇒ 进关闸门按 `maxUnlockedLevel ≥ 10`（第一章 9 关全通）
+再叠加 `systems-index §3.7`「大关推进门票 = 本大关全小关 3★」⇒ 这张 28 分钟的照片 boss 实际落在**全通之后**；
+若要让新玩家尽早看到照片关，需另开投放单（改门禁解锁或给第二章补小关，两者都动判据）。
+
 **② 生图**：以原图为底 AI 生图时保持构图与主体轮廓不变，**压平渐变、扩纯色块、减并相近色**
 （目标色数见 §3 表色数列），背景干净；生图输出尺寸不低于原图（避免二次插值损失）。
 
@@ -586,6 +617,8 @@ sprint 梯级图案从本文件 8 关图案池**循环取用**（`gdd/score-comb
 | v1.17 | 2026-10-21 | **§3.1① 复测登记（尺子漂移，⛔ 不改裁定）**：那句「32×32 reg60 + tray24 = 90–96 taps ≤ 116」是 2026-09-22 旧尺读数（`SEC_PER_TAP 3.6` × 420s；§3.5 v1.50 已改名重锚 `SEC_PER_STEP 1.69` + 上限 2500s）。现尺 bot 对三张真实照片满盘宫复测：reg60 = 457–513 taps / **229–257 steps**、甲档 = 743–1001 steps，**均越门禁⑦**（普通关 steps ∈ [18,90]）；同时实测确认 `taps = 2 × steps`。⇒ **≤60% 是构造上限、不是达标充分条件**（满盘宫只有 ≈一个 8×8 整块 = 6% 密度 = 56–57 步进闸）；**60% 档在门禁⑦下取何值待裁定**。⚠ 同时订正：越的是**普通关档**——门禁⑦ 对 boss 只设下限 120（无上限），且 743–1001 steps = 1256–1692s 仍在规模闸 2500s 内 ⇒ 满盘照片现存出口 = 单图当大关首关 boss（`/api/manage/chapter`，零代码改动，未端到端冒烟）。工具侧已落 `level-derange.mjs::buildRegionDerange`（plate 每宫默认走，不成落回甲链）。零 §3 冻结值、零关卡 JSON；脚本 `temp/wxg-t-341-reg60-measure.mjs`。登记人 = 主理人(Qoder) | WXG-T-341 |
 | v1.18 | 2026-10-21 | **§3.1① 复测归因订正（同尺 A/B，⛔ 不改裁定）**：v1.17 把「E1 90–96 taps」与现测 457–513 taps 的 5 倍差归给尺子，**归错了**。尺子口径只解释 2 倍（`taps = 2 × steps`）；拿 E1 同口径的 **bs8 合成大色块盘**在现尺重跑 = **99 steps / 197 taps**（量级与 E1 吻合），而真实照片同尺寸同构造 = **1001 steps / 2002 taps** ⇒ 差额全在**素材色块连通度**。变量拆解：真实照片按众数压块 原样 229 步 → 2×2 **143 步** → **4×4/8×8 起 bot `no-move` 死锁**（`cleared=false`）⇒ 压块有天花板且过火直接不可玩。结论改写：**真实满盘照片做不了普通关（最低也要 143 步 > 90），出口在 boss 档（无上限）**；§3.1② 的「压平渐变、扩纯色块、减并相近色」从美术偏好升级为**入关可行性前置条件**（现库 32×32 记录 = k-means 直出散点盘，未过压平）。零 §3 冻结值、零关卡 JSON、零代码改动；脚本 `temp/wxg-t-341-bs8-vs-photo.mjs` / `temp/wxg-t-341-flatten.mjs`。登记人 = 主理人(Qoder) | WXG-T-341 |
 | v1.19 | 2026-10-21 | **§3.1① boss 出口路线端到端冒烟（⛔ 不改裁定、不改判据数值）**：用户选「照片归 boss 档」后真跑 `POST /api/manage/chapter`（本地 8787）——满格 32×32 真实照片入成新章首关 boss，http 200 / 1.27s；bot **`cleared=true` / 1001 步 / 2002 taps / 1692s**，`levels:check` 全闸绿，游端 `validateBeadsLevel` 0 错，盘面恰在 `GRID_MAX` 32 上限；反向对照同盘走 `single`/`plate` ⇒ 门禁⑦ REJECT。两个坑记下来：结果自带 thumb 是 JPEG 而接口只收 PNG（须转码）；新建章 `open:false` ⇒ 不开放就无法被玩家看到。未验：真机/浏览器通关、包体重建复测（余量 871KB ≫ 本次 +87KB）。现场已全量还原。零 §3 冻结值、零关卡 JSON 残留、零代码改动；产物 `temp/wxg-t-341-smoke-*`。登记人 = 主理人(Qoder) | WXG-T-341 |
+| v1.20 | 2026-10-21 | **照片 boss 真入表 + 补齐封面素材腿（⛔ 不改裁定、不改判据数值）**：① 章 `photo32-smoke` 已开放（`ARC_OPEN_MAX 1 → 2`）、boss `L00010`（32×32 / 1692s）常驻关表（本次不还原）；② `build:cocos` 真读数：入关未上图 3227.5 KB/108 件 → 上图后 **3312.7 KB/111 件**（余量 783.3 KB ✅）；③ ⚠ **新发现管线缺口**：studio 只把 256² 封面写进 `design/levels/assets/`，而真机装载腿按 `loadAny({bundle:'themes', path:<art>})` 取（bundle 根 = `cocos/assets/themes/`）⇒ **无腿自动搬图**，新章封面本会一律走程序化回退；而 harness 的 `/level-assets/` dev 路由直读 design 目录 ⇒ **浏览器里 200 可见、掩盖了真机缺图**（验证假阳性）。本批按 mandala 先例 `cp` 进 bundle 目录，`build:cocos` **由编辑器自动生成 `.png.meta`**（⛔ 不手写）⇒ uuid 已出现在 `themes/native/f3/`，入包闭环。真浏览器读数：`goToLevel(9)` ⇒ 32×32/1024 格/playing/0 error；5 帧 47338 draw calls（≈9.5k/帧，格数 6.6× 而 draw 9.6× ⇒ 超线性，低端机待测）。未验：真机渲染（无 AppID）、人工/真机通关。新沉淀已**并进 K-108 ⑥**（同族合并不新编条），脚本 `temp/wxg-t-341-boss-harness.mjs`。登记人 = 主理人(Qoder) | WXG-T-341 |
+| v1.21 | 2026-10-21 | **照片验证 boss 正式投放为第二大关（第一章不动）**：用户令「生成验证的 boss 关，增加到第二章里面」⇒ 章 `photo32-smoke` 定为 `chapters[1]`（`open:true`、1 关 = `L00010` boss），第一章 `L00001…L00009` 零变更。⚠ 投放暴露 9 项单测红，**定性拆开**：8 项 = 测试把「本版快照」（单大关 / 全池 = 第一章）当不变式硬写 ⇒ 改数据驱动为「按大关取数」；**1 项 = 真副作用**（R4/R5）——关池 9 → 10 使 `DEMO_LEVEL_COUNT` 变长 ⇒ S8 §2.4「`stars` 长度不符 → 重置全 0」把旧档历史星静默清零（不报错）。⇒ 新增 **§11.7** 发布红线（上架后扩池须先有迁移腿）+ `save-progress §2.4` 加注；`ux/arc-level-select-spec.md` 升 **v1.9**（单大关版 → 两大关版，§3/§6/§8 D5 改裁）。新沉淀 **K-151**（扩池 = 破坏性存档变更）/ **K-152**（本版快照硬写 ⇒ 批量假红）。⛔ 零 §3 冻结值（`WALL_CAPACITY` 仍 9、页数公式仍 `ARC_OPEN_MAX + 1`、步数/规模闸未动）、零关卡 JSON 改动。登记人 = 主理人(Qoder) | WXG-T-341 |
 
 ## 11. 大关（chapter）配置口径（**v1.15 新增** · 任务号 **WXG-T-335-D**）
 
@@ -744,6 +777,19 @@ sprint 梯级图案从本文件 8 关图案池**循环取用**（`gdd/score-comb
 | **A6** | 章容量夹具：某章 `levels` 放 10 个 uid（或 plate 展开 10 槽）跑 `levels:sync` | **exit 1**（超 `WALL_CAPACITY` 拒绝，⛔ 不静默截断到 9） | CH-S4 夹具；本批只登记判据 |
 
 > A2/A3 的「逐字相等」= 与 `chapters/<id>.json` 的 `title` **逐字节**比对（不 trim、不做全半角归一）；A4 的判据 = 玩法屏文字集合中**不含**该串。
+
+### 11.7 扩池的存档代价：关表变长 = 老档星级全清（v1.21 实测，非推论）
+
+**事实链**（本批由单测 R4/R5 意外抓出，非设计意图）：`manifest.entries` 9 → 10 ⇒ `DEMO_LEVEL_COUNT`（`tuning.ts:884`，随表生成）9 → 10
+⇒ 装载时 `normalizeStars(raw, levelCount)`（`src/game/save-schema.ts:251-253`）发现旧档 `starsByLevel` 长度 9 ≠ 10
+⇒ **按 S8 §2.4 明文重置全 0**（该条是「重置」而不是「钳到某个长度」）。连带回落：总星数（`systems-index §3.7` 主题解锁货币
+= Σ 各关历史最高）、主菜单橱窗三态（cleared → pushing/locked）、`nextTierFor` 档位（历史最高 +1 ⇒ 掉回 1★ 档）。
+
+**本版为何可接受**：本作未上架（无 AppID / 无上传）⇒ 代价只落在内部测试档与真机扫码档，可重建。
+
+**⛔ 上架后的发布红线（登记为待判据，本批不开工）**：`DEMO_LEVEL_COUNT` 一变就**必须**同时提供存档迁移腿
+（旧数组按前缀搬运 + 新位补 0），否则对玩家等价于清档。镜像用例形状：喂一个 9 位旧档入 10 关池
+⇒ 期望**前 9 位无损**（而现在期望是全 0，即 §8-3 的现有口径）⇒ 该改动属 S8 裁定变更，需开单拍板。沉淀 = **K-151**（本条事实链）/ **K-152**（同批 8 例假红的定性）。
 
 ---
 

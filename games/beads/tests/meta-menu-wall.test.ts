@@ -50,6 +50,7 @@ import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { LEVELS } from '../src/config/levels.js';
+import { ARCS } from '../src/config/arcs.js';
 import { difficultyOf } from '../src/game/difficulty.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
@@ -449,15 +450,17 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         expect(texts.some((t) => t.includes('未解锁') || t.includes('🔒')), texts.join('|')).toBe(false);
     });
 
-    // EP13-FU-1 换形（旧口径 = 「越界槽 = 虚线空槽」）：3×3 = 9 槽与现池 9 关**恰满** ⇒ 生产路径不再有越界槽。
-    // 空循环会假绿 ⇒ 本臂改钉「不可达」这一事实；越界呈现由 `arc-wall-locked.test.ts` 用人为短清单覆盖。
-    it('越界槽在本版不可达（容量 9 = 关池 9）；溢出不得误接关（S6 Out 不变）', () => {
+    // EP13-FU-1 换形（旧口径 = 「越界槽 = 虚线空槽」）：3×3 = 9 槽与**第一章清单**恰满 ⇒ 第一章无越界槽。
+    // 空循环会假绿 ⇒ 本臂改钉「本章不可达」这一事实。⚠ WXG-T-341 v1.21：第二大关清单只 1 关 ⇒ 其 8 余槽 = 锁格，
+    // 短清单呈现由 `arc-wall-locked.test.ts`（人为短清单）+ `arc-level-select.test.ts` R1/R2（同闸门臂）覆盖。
+    it('越界槽在第一章不可达（容量 9 = 第一章清单 9）；溢出不得误接关（S6 Out 不变）', () => {
+        const arc1 = ARCS[0].levelRefs.reduce((s, [from, to]) => s + (to - from + 1), 0);
         const r = rig({ maxUnlocked: LEVELS.length });
         const before = r.staminaOf();
         levelsFrame(r.shell);
         expect(wallCells(), '墙 = 容量格数').toHaveLength(WALL_CAPACITY);
-        expect(WALL_CAPACITY, '3×3 改版后容量与关池齐满').toBe(LEVELS.length);
-        expect(wallCells().slice(LEVELS.length), '容量 = 关数 ⇒ 无越界槽').toHaveLength(0);
+        expect(WALL_CAPACITY, '3×3 容量与第一章清单齐满').toBe(arc1);
+        expect(wallCells().slice(arc1), '容量 = 第一章关数 ⇒ 本章无越界槽').toHaveLength(0);
         expect(r.shell.screen).toBe('menu');
         expect(r.staminaOf(), '不可达路径零扣心').toBe(before);
     });

@@ -22,6 +22,19 @@
   「合并进主包」与「微信分包」不是一回事 —— 压缩类型默认「合并依赖」时 bundle 仍是**主包内的本地目录**（`assets/<bundle>/`），
   ⛔ 只有选「小游戏分包」才会挪进 `subpackages/`（那时才撞上微信分包规则）。Bundle 化有连带：资产离开 `main` ⇒ 全局 `loadAny({uuid})` 不再命中
   ⇒ 加载面需改 `loadBundle(name).load(path)`，⛔ 门禁也得逐 bundle 扫（只扫 `main/` 会把「已落地」误报成「没进包」）。
+  ⑥ **同族新变体（2026-10-21 WXG-T-341 复现，但成因不是引用分析）**：按 **path** 取的大关封面也会“静默降级”——
+  beads-studio 建章只把 256² 展示图写进 `games/beads/design/levels/assets/`（数据真源），
+  而 bundle 根 = `games/beads/cocos/assets/themes/`，**中间没有任何腿负责搬图** ⇒ 真机上新章封面永远走
+  程序化回退（旧章 mandala 有图 = 历史上人工拷进去的）。⚠ 最阴的一面：**浏览器 harness 把
+  `/level-assets/*` 直连 design 目录**（`tools/scripts/serve-harness.mjs:76` 路由表 + `dev/harness/main.ts:149` 纹理注册表），
+  所以图在浏览器里 **200 可见**、完全看不出真机缺图 ⇒ **dev 自建资源路由是一台假阳性机器**：
+  凡是「dev 走自建路由、真机走 bundle」的资产，验存在与否必须验**产物目录**，⛔ 拿 harness 的 200 当进包证据。
+  补腿法（不需开编辑器）：把 PNG `cp` 进 bundle 目录 → `pnpm run build:cocos` **无头构建会让资源库
+  自动生成 `.png.meta`**（⛔ 不手写 `.meta`，L1）→ uuid 随即出现在 `assets/themes/native/<前 2 位>/<uuid>.png`。
+  取证面接本条 ②，但要防一个手误：`grep -rl <uuid>` 查的是**文件内容**、而 uuid 在**文件名**上 ⇒
+  会拿到 0 命中并误定论「未进包」（本批就差一点踩）；用 `find … -name "<uuid>*"` 或直接列 `native/` 目对照。
+  代码锚：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts:110`（`BITMAP_ASSETS` 由 `OPEN_ARCS` 派生）、
+  `games/beads/design/levels/levels-spec §3.1① v1.20`；同族 K-036（跑过 ≠ 检了）。
   判例引用：`tools/scripts/check-cocos-mask.mjs`、`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts`（`MASK_ASSETS` 头注与两腿装载）、`ADR-0030 §5.5`；同族 K-036/K-037（跑过 ≠ 检了）、K-106（门禁跑过 ≠ 新文件被看到）。
 
 - **[引擎Cocos构建][K-111] 「顺手重建产物」前先确认构建档：脚本默认档（debug）≠ 门禁基线档（release）⇒ 一次重建就能原地覆盖在册产物并把包体门禁打红**（来源 WXG-T-256 / ADR-0030 §5.6，2026-10-05）

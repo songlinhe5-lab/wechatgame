@@ -1,7 +1,7 @@
 /**
  * WXG-T-266 EP12-S5 · 难度分 `DI` 单一真源 + 守卫（正本 = level-difficulty.md §3/§5/§7）。
  *
- * 覆盖：验收① §5 现池 9 关逐值复现 + Spearman 0.833；验收② §7 守卫 G1–G10（纯 Node）。
+ * 覆盖：验收① §5 **第一章** 9 关逐值复现 + Spearman 0.833；验收② §7 守卫 G1–G10（纯 Node）。
  * G6 的「可排严格序 + 并列红」判据本体在 `tools/scripts/sync-levels-data.test.mjs`（node --test，
  * 与门禁同侧）；本文件从游戏侧钉住公式真源与其余守卫。
  */
@@ -11,6 +11,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DIFFICULTY } from '../src/config/tuning.js';
+import { ARCS } from '../src/config/arcs.js';
 import { difficultyOf } from '../src/game/difficulty.js';
 import { measuredLevelTime } from '../src/game/level-import.js';
 
@@ -27,16 +28,26 @@ interface PoolLevel {
     steps: number;
     res: ReturnType<typeof difficultyOf>;
 }
+/**
+ * §5.1/§5.2 两张表的射程 = **第一章（曼陀罗）关卡清单**，不是目录全量。
+ * WXG-T-341 v1.21 起真源目录多了第二大关（照片验证 boss `L00010`，DI 796.3）⇒ 旧「扫 singles/」写法
+ * 会把表外关拉进池 ⇒ 三条断言（逐值 / 九关墙序 / Spearman）同时假红。改由 `ARCS[0].levelRefs` 取数。
+ */
+const ARC1_IDS = new Set<number>();
+for (const [from, to] of ARCS[0].levelRefs) {
+    for (let i = from; i <= to; i += 1) ARC1_IDS.add(i);
+}
 const pool: PoolLevel[] = readdirSync(SINGLES)
     .filter((f) => f.endsWith('.json'))
     .map((f) => JSON.parse(readFileSync(join(SINGLES, f), 'utf8')))
+    .filter((lv) => ARC1_IDS.has(lv.id))
     .map((lv) => ({ id: lv.id, di: difficultyOf(lv).di, steps: lv.pricing.steps as number, res: difficultyOf(lv) }))
     .sort((a, b) => a.id - b.id);
 
 const is3 = (x: number) => x === Math.round(x * 1000) / 1000;
 const is1 = (x: number) => x === Math.round(x * 10) / 10;
 
-describe('EP12-S5 · 验收① §5 现池 9 关逐值复现', () => {
+describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
     it('9 关 DI 与 §5.1 表逐值相等（含中间量 A/K/fC/fK）', () => {
         for (const p of pool) {
             expect(p.di).toBe(EXPECT_DI[p.id]);

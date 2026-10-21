@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 151,
+  "nextId": 153,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1781,7 +1781,7 @@
       "file": "knowledge/lessons/engine-cocos-build.md",
       "category": "引擎Cocos构建",
       "title": "运行时按 uuid 字符串加载的资产不会进 Cocos 构建产物 ⇒ 「静默降级」必须配一条产物级门禁，源码引用 grep 与 config.json 明文 grep 都不算取证",
-      "contentHash": "d8f41dee8b000ee538dfa1810934f27ffb5fb72cb4e81c91878a5b003d117cea",
+      "contentHash": "96e03ce00c03218740065dd4eb39bd277a2a200f086f66a2cc3e9249cd95dc6e",
       "sourceTask": "WXG-T-255",
       "addedDate": "2026-10-05",
       "lastAccess": "2026-10-05",
@@ -2482,7 +2482,7 @@
       "file": "knowledge/lessons/criteria-measure.md",
       "category": "判据实测",
       "title": "组合图（plate）满密度宫进不了「普通关」：规格要的「≤60% 整区域就位」档工具没实现（已补），补完实测又拓出两件事——规格那句「reg60 = 90–96 taps 达标」绑的是旧尺＋合成大色块盘（真实照片同构造现尺要 229–257 步），而门禁⑦ 对 boss 只设下限 ⇒ 出口在 boss 档不在普通关档",
-      "contentHash": "536b1e9371ed0a5a3e38ad814fb71d9c4a381faf791154c153bc05154400daa7",
+      "contentHash": "b22a57cf2caa2144b30409eace7d1d1d392b33c1ce5e0f2373d6ea544f776d7a",
       "sourceTask": "WXG-T-341",
       "addedDate": "2026-10-21",
       "lastAccess": "2026-10-21",
@@ -2500,6 +2500,40 @@
       "category": "判据实测",
       "title": "带快照回滚的写事务，「本次改动叫什么名字」这类诊断信息必须赶在回滚之前采集——回滚一跑，落盘痕迹就不存在了",
       "contentHash": "107bd5f604343ebaaed790655625fbad1f4f717da84d8db988ccbfad4085b388",
+      "sourceTask": "WXG-T-341",
+      "addedDate": "2026-10-21",
+      "lastAccess": "2026-10-21",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-151",
+      "state": "active",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
+      "title": "关卡「扩池」是破坏性存档变更：关表长度即 `DEMO_LEVEL_COUNT`，降级矩阵按「长度不符 → 重置全 0」静默清历史星",
+      "contentHash": "cb79d243d1ad74c2b0e4e5de210ce4238f326f88035ee4c4ac2c1db5c6644cf7",
+      "sourceTask": "WXG-T-341",
+      "addedDate": "2026-10-21",
+      "lastAccess": "2026-10-21",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-152",
+      "state": "active",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
+      "title": "把「本版快照」当不变式硬写的测试，会在内容投放变更时批量假红并淹没真信号",
+      "contentHash": "b66c04a6efb1f8ccf21c24b74c654b92d2f0bcc92e98f23ea5958c8dd3d9c1c7",
       "sourceTask": "WXG-T-341",
       "addedDate": "2026-10-21",
       "lastAccess": "2026-10-21",
@@ -3772,6 +3806,26 @@
       "taskId": "WXG-T-341",
       "kind": "updated",
       "ids": [
+        "K-149"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-341",
+      "kind": "added",
+      "ids": [
+        "K-151",
+        "K-152"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-341",
+      "kind": "updated",
+      "ids": [
+        "K-108",
         "K-149"
       ],
       "note": null

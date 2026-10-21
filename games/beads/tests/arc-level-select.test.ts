@@ -28,7 +28,7 @@ import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { LEVELS } from '../src/config/levels.js';
-import { ARCS } from '../src/config/arcs.js';
+import { ARCS, ARC_OPEN_MAX } from '../src/config/arcs.js';
 import { DESIGN_H, DESIGN_W, PANEL_IN_MS, WALL_CAPACITY, WALL_ROWS } from '../src/config/tuning.js';
 import { metaLayout } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
@@ -208,7 +208,10 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
     });
 
     it('R4/R5 已通关格 = 直接开新局（同一入口同扣心、零二次确认；历史星不被低星清）', () => {
-        const r = rig({ maxUnlocked: 9, stars: [3, 0, 0, 0, 0, 0, 0, 0, 0] });
+        // ⚠ 夹具长度必 == `LEVELS.length`：S8 §2.4「`stars` 长度不符 → 重置全 0」（`save-schema.ts::normalizeStars`）
+        // 会**静默**清掉历史星而非报错。WXG-T-341 v1.21 入第二大关 `L00010` 后关池 9 → 10，
+        // 旧写死的 9 位夹具当场踩中该臂（⇒ 本行改成按池长派生，⛔ 不写 magic 9）。
+        const r = rig({ maxUnlocked: 9, stars: LEVELS.map((_, i) => (i === 0 ? 3 : 0)) });
         openLevels(r.shell);
         const before = r.shell.meta!.stamina;
         const eventsBefore = r.overlayEvents.length;
@@ -309,11 +312,14 @@ describe('EP13-S2 · 本页边界（R8–R11）', () => {
         // 翻到空橱窗页（◀▶ 一颗 ⇒ 动画由 update 推完）。
         const next = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'carousel-next')!;
         const n = centerOf(next.box);
-        expect(r.shell.tapMeta(n.x, n.y)).toBe(true);
-        r.now.t += 500;
-        r.shell.update(0.016);
-        r.now.t += 500;
-        r.shell.update(0.016);
+        // 末页 = `ARC_OPEN_MAX` 之后那一页 ⇒ 逐次点 next 并推完动画（单大关版旧文只需一轮）。
+        for (let i = 0; i < ARC_OPEN_MAX; i += 1) {
+            expect(r.shell.tapMeta(n.x, n.y)).toBe(true);
+            r.now.t += 500;
+            r.shell.update(0.016);
+            r.now.t += 500;
+            r.shell.update(0.016);
+        }
         // 该页无 `levelRefs` ⇒ 图位零事件（R13：不切 `levels`、不发 `meta:overlay`）。
         const card = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'open-levels')!;
         const c = centerOf(card.box);

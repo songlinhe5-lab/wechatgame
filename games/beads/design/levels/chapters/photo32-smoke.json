@@ -1,0 +1,12 @@
+{
+  "id": "photo32-smoke",
+  "title": "照片冒烟 32",
+  "levels": [
+    "L00010"
+  ],
+  "showcase": {
+    "bundle": "themes",
+    "art": "photo32-smoke-boss-256",
+    "textureId": "bitmap__photo32-smoke_boss"
+  }
+}

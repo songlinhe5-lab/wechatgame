@@ -58,10 +58,23 @@ export const ARCS: readonly ArcEntry[] = [
       ],
     ],
   },
+  {
+    id: "photo32-smoke",
+    title: "照片冒烟 32",
+    bundle: "themes",
+    art: "photo32-smoke-boss-256",
+    textureId: "bitmap__photo32-smoke_boss",
+    levelRefs: [
+      [
+        10,
+        10,
+      ],
+    ],
+  },
 ];
 
 /** 本版开放的大关数 = `open:true` 前缀长度（生成派生；真源 = manifest.chapters[].open）。 */
-export const ARC_OPEN_MAX = 1;
+export const ARC_OPEN_MAX = 2;
 
 /** 本版实际投放的大关。长度 = {@link ARC_OPEN_MAX}。 */
 export const OPEN_ARCS: readonly ArcEntry[] = ARCS.slice(0, ARC_OPEN_MAX);
