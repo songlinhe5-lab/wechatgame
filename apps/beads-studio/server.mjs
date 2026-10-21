@@ -325,8 +325,17 @@ function measureCells(cells) {
             'tools/scripts/beads-bot.ts', tmpFile,
         ], { cwd: REPO, encoding: 'utf8' });
         const last = (r.stdout || '').trim().split('\n').pop();
-        if (!last || !last.startsWith('['))
+        if (!last || !last.startsWith('[')) {
+            // 单格时 bot 回单对象（非数组）；兼容两者
+            try {
+                const one = JSON.parse(last);
+                if (one && typeof one === 'object' && !Array.isArray(one))
+                    return one.cleared && !one.blockers?.length
+                        ? { ok: true, results: [one] }
+                        : { ok: false, error: `格 ${one.name} bot 未通关（${one.blockers?.join('；') || 'cleared=false'}）` };
+            } catch { /* 落到统一报错 */ }
             return { ok: false, error: `beads-bot 多关输出解析失败: ${String(last || '').slice(0, 80)}` };
+        }
         const results = JSON.parse(last);
         for (const res of results) {
             if (!res.cleared)
@@ -544,9 +553,9 @@ function chapterForInsert(store, levelsDir, manifest, chapterId, addSlots) {
 
 /**
  * 入关预检 + 实测（事务外，不动真源）：返回一条落盘计划；不可入关 ⇒ ManageError（4xx 回显原文）。
- * 单条 ingest 与批量 import 共用。plate 仍走切片 + 逐格实测（P2b）。
+ * 单条 ingest 与批量 import 共用。plate 仍走切片 + 逐格实测（P2b）；`progress` 用于逐格回显。
  */
-async function planIngest(id) {
+async function planIngest(id, progress) {
     const levelsDir = LEVELS_DIR;
     const found = findResultFile(id);
     if (!found) throw new ManageError(`结果 ${id} 不存在`, 404);
@@ -584,15 +593,22 @@ async function planIngest(id) {
         }
 
         // 3. 逐格实测（beads-bot；id 仅临时文件占位，真 id 由入库后 renumber 统一分配）
-        const measured = measureCells(cellEntries.map(({ cell, init, name }, i) => ({
+        //    逐格单跑而非一次性批量：每格前能回显进度（`cell` 事件）与响应取消（大图动辙几十秒）
+        const payloads = cellEntries.map(({ cell, init, name }, i) => ({
             id: 9001 + i, name, cols: cell.cols, rows: cell.rows,
             pattern: cell.pattern,
             ...(init.misplaced ? { misplaced: init.misplaced } : {}),
             swaps: init.swaps ?? [],
             decoys: d.decoys ?? [],
             ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
-        })));
-        if (!measured.ok) throw new ManageError(`逐格实测失败：${measured.error}`);
+        }));
+        const measured = { ok: true, results: [] };
+        for (const [k, payload] of payloads.entries()) {
+            await progress?.({ phase: 'cell', k: k + 1, m: payloads.length });
+            const one = measureCells([payload]);
+            if (!one.ok) throw new ManageError(`逐格实测失败（第 ${k + 1}/${payloads.length} 格）：${one.error}`);
+            measured.results.push(one.results[0]);
+        }
         return { kind: 'plate', nameBase, sliced, cellEntries, measured, tierCounts, brandSlug, d, thumb: r.thumb ?? null };
     }
 
@@ -690,7 +706,8 @@ async function importResults(res, chapterId, ids, progress, reply) {
     const plans = [];
     for (const [i, id] of ids.entries()) {
         await progress?.({ phase: 'measure', i: i + 1, n: ids.length, id });
-        plans.push(await planIngest(id));
+        // plate 的逐格事件补上整批坐标（i/n/id），前端统一按「第 i/n 条 · 第 k/m 格」展示
+        plans.push(await planIngest(id, (o) => progress?.({ i: i + 1, n: ids.length, id, ...o })));
         await progress?.({ phase: 'measured', i: i + 1, n: ids.length, id });
     }
     // 写盘前最后一个断点：此前的取消不碰真源，之后的取消让事务跑完（中途停会留半截）
